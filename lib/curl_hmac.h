@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HMAC_H
-#define HEADER_CURL_HMAC_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_HMAC_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_HMAC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,49 +24,49 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#ਜੇ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   !defined(CURL_DISABLE_HTTPSIG) ||                                   \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#define HMAC_MD5_LENGTH 16
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HMAC_MD5_ਲੰਮਾਈ 16
 
-typedef CURLcode (*HMAC_hinit)(void *context);
-typedef void (*HMAC_hupdate)(void *context,
-                             const unsigned char *data,
-                             unsigned int len);
-typedef void (*HMAC_hfinal)(unsigned char *result, void *context);
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ CURLcode (*HMAC_hinit)(ਖਾਲੀ *context);
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਖਾਲੀ (*HMAC_hupdate)(ਖਾਲੀ *context,
+                             ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਅੰਕੜੇ,
+                             ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ len);
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਖਾਲੀ (*HMAC_hfinal)(ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਨਤੀਜਾ, ਖਾਲੀ *context);
 
 /* Per-hash function HMAC parameters. */
-struct HMAC_params {
+ਬਣਤਰ HMAC_params {
   HMAC_hinit  hinit;       /* Initialize context procedure. */
   HMAC_hupdate hupdate;    /* Update context with data. */
   HMAC_hfinal hfinal;      /* Get final result procedure. */
-  unsigned int ctxtsize;   /* Context structure size. */
-  unsigned int maxkeylen;  /* Maximum key length (bytes). */
-  unsigned int resultlen;  /* Result length (bytes). */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ctxtsize;   /* Context structure size. */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ maxkeylen;  /* Maximum key length (bytes). */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ resultlen;  /* Result length (bytes). */
 };
 
 /* HMAC computation context. */
-struct HMAC_context {
-  const struct HMAC_params *hash; /* Hash function definition. */
-  void *hashctxt1;         /* Hash function context 1. */
-  void *hashctxt2;         /* Hash function context 2. */
+ਬਣਤਰ HMAC_context {
+  ਅਚਲ ਬਣਤਰ HMAC_params *hash; /* Hash function definition. */
+  ਖਾਲੀ *hashctxt1;         /* Hash function context 1. */
+  ਖਾਲੀ *hashctxt2;         /* Hash function context 2. */
 };
 
 /* Prototypes. */
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
-                                    unsigned int keylen);
-void Curl_HMAC_update(struct HMAC_context *ctxt,
-                      const unsigned char *data,
-                      unsigned int len);
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output);
+ਬਣਤਰ HMAC_context *Curl_HMAC_init(ਅਚਲ ਬਣਤਰ HMAC_params *hashparams,
+                                    ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਕੁੰਜੀ,
+                                    ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ keylen);
+ਖਾਲੀ Curl_HMAC_update(ਬਣਤਰ HMAC_context *ctxt,
+                      ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਅੰਕੜੇ,
+                      ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ len);
+ਪੂਰਨ Curl_HMAC_final(ਬਣਤਰ HMAC_context *ctxt, ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *output);
 
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, size_t datalen,
-                     unsigned char *output);
-#endif
+CURLcode Curl_hmacit(ਅਚਲ ਬਣਤਰ HMAC_params *hashparams,
+                     ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਕੁੰਜੀ, ਅਚਲ size_t keylen,
+                     ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਅੰਕੜੇ, size_t datalen,
+                     ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *output);
+#ਜੇ_ਅੰਤ
 
-#endif /* HEADER_CURL_HMAC_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_HMAC_H */

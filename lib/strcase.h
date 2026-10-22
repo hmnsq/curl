@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRCASE_H
-#define HEADER_CURL_STRCASE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_STRCASE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_STRCASE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,35 +23,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
 /* Mapping tables for plain ASCII case conversion, defined in strcase.c.
    Declared here so the conversions below inline at every call site without
    relying on LTO or a unity build: casecompare() invokes one of them twice
    per byte compared, where the call costs more than the lookup itself. */
-extern const unsigned char Curl_touppermap[256];
-extern const unsigned char Curl_tolowermap[256];
+ਬਾਹਰੀ ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_touppermap[256];
+ਬਾਹਰੀ ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_tolowermap[256];
 
 /* Portable, consistent toupper/tolower. Do not use toupper()/tolower() from
    <ctype.h>, whose behavior is altered by the current locale. */
-static CURL_INLINE char Curl_raw_toupper(char in)
+ਸਥਿਰ CURL_INLINE ਅੱਖਰ Curl_raw_toupper(ਅੱਖਰ ਵਿੱਚ)
 {
-  return (char)Curl_touppermap[(unsigned char)in];
+  ਵਾਪਸ (ਅੱਖਰ)Curl_touppermap[(ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)ਵਿੱਚ];
 }
 
-static CURL_INLINE char Curl_raw_tolower(char in)
+ਸਥਿਰ CURL_INLINE ਅੱਖਰ Curl_raw_tolower(ਅੱਖਰ ਵਿੱਚ)
 {
-  return (char)Curl_tolowermap[(unsigned char)in];
+  ਵਾਪਸ (ਅੱਖਰ)Curl_tolowermap[(ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)ਵਿੱਚ];
 }
 
 /* checkprefix() is a shorter version of the above, used when the first
    argument is the string literal */
-#define checkprefix(a, b) curl_strnequal(b, STRCONST(a))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ checkprefix(a, b) curl_strnequal(b, STRCONST(a))
 
-void Curl_strntoupper(char *dest, const char *src, size_t n);
-void Curl_strntolower(char *dest, const char *src, size_t n);
+ਖਾਲੀ Curl_strntoupper(ਅੱਖਰ *dest, ਅਚਲ ਅੱਖਰ *src, size_t n);
+ਖਾਲੀ Curl_strntolower(ਅੱਖਰ *dest, ਅਚਲ ਅੱਖਰ *src, size_t n);
 
-bool Curl_safecmp(const char *a, const char *b);
-int Curl_timestrcmp(const char *a, const char *b);
+bool Curl_safecmp(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b);
+ਪੂਰਨ Curl_timestrcmp(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b);
 
-#endif /* HEADER_CURL_STRCASE_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_STRCASE_H */

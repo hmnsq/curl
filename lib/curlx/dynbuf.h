@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_DYNBUF_H
-#define HEADER_CURL_DYNBUF_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_DYNBUF_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_DYNBUF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,60 +24,60 @@
  *
  ***************************************************************************/
 
-struct dynbuf {
-  char *bufr;    /* point to a null-terminated allocated buffer */
+ਬਣਤਰ dynbuf {
+  ਅੱਖਰ *bufr;    /* point to a null-terminated allocated buffer */
   size_t leng;   /* number of bytes *EXCLUDING* the null-terminator */
   size_t allc;   /* size of the current allocation */
   size_t toobig; /* size limit for the buffer */
-#ifdef DEBUGBUILD
-  int init;      /* detect API usage mistakes */
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+  ਪੂਰਨ init;      /* detect API usage mistakes */
+#ਜੇ_ਅੰਤ
 };
 
-void curlx_dyn_init(struct dynbuf *s, size_t toobig);
-void curlx_dyn_free(struct dynbuf *s);
-CURLcode curlx_dyn_addn(struct dynbuf *s, const void *mem, size_t len)
-  WARN_UNUSED_RESULT;
-CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
-  WARN_UNUSED_RESULT;
-CURLcode curlx_dyn_addf(struct dynbuf *s, const char *fmt, ...)
-  WARN_UNUSED_RESULT CURL_PRINTF(2, 3);
-CURLcode curlx_dyn_vaddf(struct dynbuf *s, const char *fmt, va_list ap)
-  WARN_UNUSED_RESULT CURL_PRINTF(2, 0);
-void curlx_dyn_reset(struct dynbuf *s);
-CURLcode curlx_dyn_tail(struct dynbuf *s, size_t trail);
-CURLcode curlx_dyn_setlen(struct dynbuf *s, size_t set);
-char *curlx_dyn_ptr(const struct dynbuf *s);
-unsigned char *curlx_dyn_uptr(const struct dynbuf *s);
-size_t curlx_dyn_len(const struct dynbuf *s);
+ਖਾਲੀ curlx_dyn_init(ਬਣਤਰ dynbuf *s, size_t toobig);
+ਖਾਲੀ curlx_dyn_free(ਬਣਤਰ dynbuf *s);
+CURLcode curlx_dyn_addn(ਬਣਤਰ dynbuf *s, ਅਚਲ ਖਾਲੀ *mem, size_t len)
+  WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ;
+CURLcode curlx_dyn_ਜੋੜੋ(ਬਣਤਰ dynbuf *s, ਅਚਲ ਅੱਖਰ *str)
+  WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ;
+CURLcode curlx_dyn_addf(ਬਣਤਰ dynbuf *s, ਅਚਲ ਅੱਖਰ *fmt, ...)
+  WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ CURL_PRINTF(2, 3);
+CURLcode curlx_dyn_vaddf(ਬਣਤਰ dynbuf *s, ਅਚਲ ਅੱਖਰ *fmt, va_list ap)
+  WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ CURL_PRINTF(2, 0);
+ਖਾਲੀ curlx_dyn_reset(ਬਣਤਰ dynbuf *s);
+CURLcode curlx_dyn_ਪੂਛ(ਬਣਤਰ dynbuf *s, size_t trail);
+CURLcode curlx_dyn_setlen(ਬਣਤਰ dynbuf *s, size_t ਸੈੱਟ);
+ਅੱਖਰ *curlx_dyn_ptr(ਅਚਲ ਬਣਤਰ dynbuf *s);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *curlx_dyn_uptr(ਅਚਲ ਬਣਤਰ dynbuf *s);
+size_t curlx_dyn_len(ਅਚਲ ਬਣਤਰ dynbuf *s);
 
 /* returns 0 on success, -1 on error */
 /* The implementation of this function exists in mprintf.c */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args);
+ਪੂਰਨ curlx_dyn_vprintf(ਬਣਤਰ dynbuf *dyn, ਅਚਲ ਅੱਖਰ *format, va_list ਦਲੀਲਾਂ);
 
 /* Take the buffer out of the dynbuf. Caller has ownership and
  * dynbuf resets to initial state. */
-char *curlx_dyn_take(struct dynbuf *s, size_t *plen);
+ਅੱਖਰ *curlx_dyn_take(ਬਣਤਰ dynbuf *s, size_t *plen);
 
 /* Dynamic buffer max sizes */
-#define MAX_DYNBUF_SIZE (SIZE_MAX / 2)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_DYNBUF_ਮਾਪ (SIZE_MAX / 2)
 
-#define DYN_DOH_RESPONSE    3000
-#define DYN_DOH_CNAME       256
-#define DYN_PAUSE_BUFFER    (64 * 1024 * 1024)
-#define DYN_HAXPROXY        2048
-#define DYN_HTTP_REQUEST    (1024 * 1024)
-#define DYN_APRINTF         8000000
-#define DYN_RTSP_REQ_HEADER (64 * 1024)
-#define DYN_TRAILERS        (64 * 1024)
-#define DYN_PROXY_CONNECT_HEADERS 16384
-#define DYN_QLOG_NAME       1024
-#define DYN_H1_TRAILER      4096
-#define DYN_PINGPPONG_CMD   (64 * 1024)
-#define DYN_IMAP_CMD        (64 * 1024)
-#define DYN_MQTT_RECV       (64 * 1024)
-#define DYN_MQTT_SEND       0xFFFFFFF
-#define DYN_CRLFILE_SIZE    (400 * 1024 * 1024) /* 400MiB */
-#define DYN_CERTFILE_SIZE   (100 * 1024) /* 100KiB */
-#define DYN_KEYFILE_SIZE    (100 * 1024) /* 100KiB */
-#endif
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_DOH_RESPONSE    3000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_DOH_CNAME       256
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_PAUSE_ਬਫਰ    (64 * 1024 * 1024)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_HAXPROXY        2048
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_HTTP_REQUEST    (1024 * 1024)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_APRINTF         8000000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_RTSP_REQ_ਸਿਰਲੇਖ (64 * 1024)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_TRAILERS        (64 * 1024)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_PROXY_CONNECT_ਸਿਰਲੇਖਾਂ 16384
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_QLOG_NAME       1024
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_H1_TRAILER      4096
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_PINGPPONG_CMD   (64 * 1024)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_IMAP_CMD        (64 * 1024)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_MQTT_RECV       (64 * 1024)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_MQTT_SEND       0xFFFFFFF
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_CRLFILE_ਮਾਪ    (400 * 1024 * 1024) /* 400MiB */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_CERTFILE_ਮਾਪ   (100 * 1024) /* 100KiB */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DYN_KEYFILE_ਮਾਪ    (100 * 1024) /* 100KiB */
+#ਜੇ_ਅੰਤ

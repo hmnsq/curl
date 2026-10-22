@@ -22,9 +22,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP)
+#ਜੇ !defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP)
 
 /*
  * Notice that USE_OPENLDAP is only a source code selection switch. When
@@ -37,21 +37,21 @@
  * OpenLDAP library versions, USE_OPENLDAP shall not be defined.
  */
 
-#include <ldap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <ldap.h>
 
-#include "urldata.h"
-#include "url.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "vtls/vtls.h"
-#include "transfer.h"
-#include "curl_ldap.h"
-#include "curlx/base64.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curl_sasl.h"
-#include "strcase.h"
-#include "bufref.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sendf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "transfer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_ldap.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/base64.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_sasl.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "bufref.h"
 
 /*
  * Uncommenting this will enable the built-in debug logging of the openldap
@@ -73,7 +73,7 @@
 /* #define CURL_OPENLDAP_DEBUG */
 
 /* Machine states. */
-typedef enum {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
   OLDAP_STOP,           /* Do nothing state, stops the state machine */
   OLDAP_SSL,            /* Performing SSL handshake. */
   OLDAP_STARTTLS,       /* STARTTLS request sent. */
@@ -82,50 +82,50 @@ typedef enum {
   OLDAP_SASL,           /* SASL binding reply. */
   OLDAP_BIND,           /* Simple bind reply. */
   OLDAP_BINDV2,         /* Simple bind reply in protocol version 2. */
-  OLDAP_LAST            /* Never used */
+  OLDAP_ਆਖਰੀ            /* Never used */
 } ldapstate;
 
-#ifndef _LDAP_PVT_H
-extern int ldap_pvt_url_scheme2proto(const char *);
-extern int ldap_init_fd(ber_socket_t fd, int proto, const char *url,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ _LDAP_PVT_H
+ਬਾਹਰੀ ਪੂਰਨ ldap_pvt_url_scheme2proto(ਅਚਲ ਅੱਖਰ *);
+ਬਾਹਰੀ ਪੂਰਨ ldap_init_fd(ber_socket_t fd, ਪੂਰਨ proto, ਅਚਲ ਅੱਖਰ *url,
                         LDAP **ld);
-#endif
+#ਜੇ_ਅੰਤ
 
-static Curl_recv oldap_recv;
+ਸਥਿਰ Curl_recv oldap_recv;
 
-struct ldapconninfo {
-  struct SASL sasl;          /* SASL-related parameters */
+ਬਣਤਰ ldapconninfo {
+  ਬਣਤਰ SASL sasl;          /* SASL-related parameters */
   LDAP *ld;                  /* Openldap connection handle. */
   Curl_recv *recv;           /* For stacking SSL handler */
   Curl_send *send;
-  struct berval *servercred; /* SASL data from server. */
+  ਬਣਤਰ berval *servercred; /* SASL data from server. */
   ldapstate state;           /* Current machine state. */
   curl_socket_t dupfd;       /* duplicated socket */
-  int proto;                 /* LDAP_PROTO_TCP/LDAP_PROTO_UDP/LDAP_PROTO_IPC */
-  int msgid;                 /* Current message id. */
+  ਪੂਰਨ proto;                 /* LDAP_PROTO_TCP/LDAP_PROTO_UDP/LDAP_PROTO_IPC */
+  ਪੂਰਨ msgid;                 /* Current message id. */
 };
 
-struct ldapreqinfo {
-  int msgid;
-  int nument;
+ਬਣਤਰ ldapreqinfo {
+  ਪੂਰਨ msgid;
+  ਪੂਰਨ nument;
 };
 
 /* meta key for storing ldapconninfo at easy handle */
-#define CURL_META_LDAP_EASY   "meta:proto:ldap:easy"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_META_LDAP_EASY   "meta:proto:ldap:easy"
 /* meta key for storing ldapconninfo at connection */
-#define CURL_META_LDAP_CONN   "meta:proto:ldap:conn"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_META_LDAP_CONN   "meta:proto:ldap:conn"
 
 /*
  * oldap_state()
  *
  * This is the ONLY way to change LDAP state!
  */
-static void oldap_state(struct Curl_easy *data, struct ldapconninfo *li,
+ਸਥਿਰ ਖਾਲੀ oldap_state(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ ldapconninfo *li,
                         ldapstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#ਜੇ defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
-  static const char * const names[] = {
+  ਸਥਿਰ ਅਚਲ ਅੱਖਰ * ਅਚਲ ਨਾਂ[] = {
     "STOP",
     "SSL",
     "STARTTLS",
@@ -134,39 +134,39 @@ static void oldap_state(struct Curl_easy *data, struct ldapconninfo *li,
     "SASL",
     "BIND",
     "BINDV2",
-    /* LAST */
+    /*ਆਖਰੀ*/
   };
 
-  if(li->state != newstate)
-    infof(data, "LDAP %p state change from %s to %s",
-          (void *)li, names[li->state], names[newstate]);
-#else
-  (void)data;
-#endif
+  ਜੇ(li->state != newstate)
+    infof(ਅੰਕੜੇ, "LDAP %p state change from %s to %s",
+          (ਖਾਲੀ *)li, ਨਾਂ[li->state], ਨਾਂ[newstate]);
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+#ਜੇ_ਅੰਤ
   li->state = newstate;
 }
 
 /* Map some particular LDAP error codes to CURLcode values. */
-static CURLcode oldap_map_error(int rc, CURLcode result)
+ਸਥਿਰ CURLcode oldap_map_error(ਪੂਰਨ rc, CURLcode ਨਤੀਜਾ)
 {
-  switch(rc) {
-  case LDAP_NO_MEMORY:
-    return CURLE_OUT_OF_MEMORY;
-  case LDAP_INVALID_CREDENTIALS:
-    return CURLE_LOGIN_DENIED;
-  case LDAP_PROTOCOL_ERROR:
-    return CURLE_UNSUPPORTED_PROTOCOL;
-  case LDAP_INSUFFICIENT_ACCESS:
-    return CURLE_REMOTE_ACCESS_DENIED;
+  ਚੋਣ(rc) {
+  ਹਾਲਤ LDAP_NO_ਸਮ੍ਰਿਤੀ:
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਹਾਲਤ LDAP_INVALID_CREDENTIALS:
+    ਵਾਪਸ CURLE_LOGIN_DENIED;
+  ਹਾਲਤ LDAP_PROTOCOL_ERROR:
+    ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
+  ਹਾਲਤ LDAP_INSUFFICIENT_ACCESS:
+    ਵਾਪਸ CURLE_REMOTE_ACCESS_DENIED;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode oldap_url_parse(struct Curl_easy *data, LDAPURLDesc **ludp)
+ਸਥਿਰ CURLcode oldap_url_parse(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, LDAPURLDesc **ludp)
 {
-  CURLcode result = CURLE_OK;
-  int rc;
-  static const char * const url_errs[] = {
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਪੂਰਨ rc;
+  ਸਥਿਰ ਅਚਲ ਅੱਖਰ * ਅਚਲ url_errs[] = {
     "success",
     "out of memory",
     "bad parameter",
@@ -180,334 +180,334 @@ static CURLcode oldap_url_parse(struct Curl_easy *data, LDAPURLDesc **ludp)
     "bad or missing extensions"
   };
 
-  *ludp = NULL;
+  *ludp = ਨਿਰਾ;
   /* `ldap_url_parse() seems to be terrible with urls
    * that have user/pass/options in it. So when we have options or
    * creds from the url, fail without calling the function.
    * Yes, this is super-weird code and I do not like it. */
-  if((data->state.creds && (data->state.creds->source == CREDS_URL)) ||
-     data->state.up.options)
+  ਜੇ((ਅੰਕੜੇ->state.creds && (ਅੰਕੜੇ->state.creds->ਸਰੋਤ == CREDS_URL)) ||
+     ਅੰਕੜੇ->state.ਉੱਪਰ.options)
     rc = LDAP_URL_ERR_BADURL;
-  else
-    rc = ldap_url_parse(Curl_bufref_ptr(&data->state.url), ludp);
+  ਨਹੀਂਤਾਂ
+    rc = ldap_url_parse(Curl_bufref_ptr(&ਅੰਕੜੇ->state.url), ludp);
 
-  if(rc != LDAP_URL_SUCCESS) {
-    const char *msg = "url parsing problem";
+  ਜੇ(rc != LDAP_URL_SUCCESS) {
+    ਅਚਲ ਅੱਖਰ *ਸੁਨੇਹਾ = "url parsing problem";
 
-    result = rc == LDAP_URL_ERR_MEM ? CURLE_OUT_OF_MEMORY :
+    ਨਤੀਜਾ = rc == LDAP_URL_ERR_MEM ? CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ :
       CURLE_URL_MALFORMAT;
     rc -= LDAP_URL_SUCCESS;
-    if((size_t)rc < CURL_ARRAYSIZE(url_errs))
-      msg = url_errs[rc];
-    failf(data, "LDAP local: %s", msg);
+    ਜੇ((size_t)rc < CURL_ARRAYSIZE(url_errs))
+      ਸੁਨੇਹਾ = url_errs[rc];
+    failf(ਅੰਕੜੇ, "LDAP local: %s", ਸੁਨੇਹਾ);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Parse the login options. */
-static CURLcode oldap_parse_login_options(struct connectdata *conn)
+ਸਥਿਰ CURLcode oldap_parse_login_options(ਬਣਤਰ connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  const char *ptr = conn->options;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ਅਚਲ ਅੱਖਰ *ptr = conn->options;
 
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  ਜਦੋਂ(!ਨਤੀਜਾ && ptr && *ptr) {
+    ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ = ptr;
+    ਅਚਲ ਅੱਖਰ *ਮੁੱਲ;
 
-    while(*ptr && *ptr != '=')
+    ਜਦੋਂ(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    ਮੁੱਲ = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    ਜਦੋਂ(*ptr && *ptr != ';')
       ptr++;
 
-    if(checkprefix("AUTH=", key))
-      result = Curl_sasl_parse_url_auth_option(&li->sasl, value, ptr - value);
-    else
-      result = CURLE_SETOPT_OPTION_SYNTAX;
+    ਜੇ(checkprefix("AUTH=", ਕੁੰਜੀ))
+      ਨਤੀਜਾ = Curl_sasl_parse_url_auth_option(&li->sasl, ਮੁੱਲ, ptr - ਮੁੱਲ);
+    ਨਹੀਂਤਾਂ
+      ਨਤੀਜਾ = CURLE_SETOPT_OPTION_SYNTAX;
 
-    if(*ptr == ';')
+    ਜੇ(*ptr == ';')
       ptr++;
   }
 
-  return result == CURLE_URL_MALFORMAT ? CURLE_SETOPT_OPTION_SYNTAX : result;
+  ਵਾਪਸ ਨਤੀਜਾ == CURLE_URL_MALFORMAT ? CURLE_SETOPT_OPTION_SYNTAX : ਨਤੀਜਾ;
 }
 
-static CURLcode oldap_setup_connection(struct Curl_easy *data,
-                                       struct connectdata *conn)
+ਸਥਿਰ CURLcode oldap_ਤਿਆਰੀ_connection(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       ਬਣਤਰ connectdata *conn)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
   LDAPURLDesc *lud;
-  (void)conn;
+  (ਖਾਲੀ)conn;
 
   /* Early URL syntax check. */
-  result = oldap_url_parse(data, &lud);
+  ਨਤੀਜਾ = oldap_url_parse(ਅੰਕੜੇ, &lud);
   ldap_free_urldesc(lud);
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * Get the SASL authentication challenge from the server credential buffer.
  */
-static CURLcode oldap_get_message(struct Curl_easy *data, struct bufref *out)
+ਸਥਿਰ CURLcode oldap_get_ਸੁਨੇਹਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ bufref *ਬਾਹਰਲਾ)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  struct berval *servercred = li ? li->servercred : NULL;
+  ਬਣਤਰ ldapconninfo *li =
+    Curl_conn_meta_get(ਅੰਕੜੇ->conn, CURL_META_LDAP_CONN);
+  ਬਣਤਰ berval *servercred = li ? li->servercred : ਨਿਰਾ;
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  if(!servercred || !servercred->bv_val)
-    return CURLE_WEIRD_SERVER_REPLY;
-  Curl_bufref_set(out, servercred->bv_val, servercred->bv_len, NULL);
-  return CURLE_OK;
+  ਜੇ(!servercred || !servercred->bv_val)
+    ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
+  Curl_bufref_ਸੈੱਟ(ਬਾਹਰਲਾ, servercred->bv_val, servercred->bv_len, ਨਿਰਾ);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Sends an initial SASL bind request to the server.
  */
-static CURLcode oldap_perform_auth(struct Curl_easy *data, const char *mech,
-                                   const struct bufref *initresp)
+ਸਥਿਰ CURLcode oldap_perform_auth(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *mech,
+                                   ਅਚਲ ਬਣਤਰ bufref *initresp)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct berval cred;
-  struct berval *pcred = &cred;
-  int rc;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ਬਣਤਰ berval cred;
+  ਬਣਤਰ berval *pcred = &cred;
+  ਪੂਰਨ rc;
 
   DEBUGASSERT(li);
-  if(!li)
-    return CURLE_FAILED_INIT;
-  cred.bv_val = (char *)CURL_UNCONST(Curl_bufref_ptr(initresp));
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  cred.bv_val = (ਅੱਖਰ *)CURL_UNCONST(Curl_bufref_ptr(initresp));
   cred.bv_len = Curl_bufref_len(initresp);
-  if(!cred.bv_val)
-    pcred = NULL;
-  rc = ldap_sasl_bind(li->ld, NULL, mech, pcred, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  ਜੇ(!cred.bv_val)
+    pcred = ਨਿਰਾ;
+  rc = ldap_sasl_bind(li->ld, ਨਿਰਾ, mech, pcred, ਨਿਰਾ, ਨਿਰਾ, &li->msgid);
+  ਜੇ(rc != LDAP_SUCCESS)
+    ਵਾਪਸ oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Sends SASL continuation.
  */
-static CURLcode oldap_continue_auth(struct Curl_easy *data, const char *mech,
-                                    const struct bufref *resp)
+ਸਥਿਰ CURLcode oldap_continue_auth(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *mech,
+                                    ਅਚਲ ਬਣਤਰ bufref *resp)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct berval cred;
-  struct berval *pcred = &cred;
-  int rc;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ਬਣਤਰ berval cred;
+  ਬਣਤਰ berval *pcred = &cred;
+  ਪੂਰਨ rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  cred.bv_val = (char *)CURL_UNCONST(Curl_bufref_ptr(resp));
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  cred.bv_val = (ਅੱਖਰ *)CURL_UNCONST(Curl_bufref_ptr(resp));
   cred.bv_len = Curl_bufref_len(resp);
-  if(!cred.bv_val)
-    pcred = NULL;
-  rc = ldap_sasl_bind(li->ld, NULL, mech, pcred, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  ਜੇ(!cred.bv_val)
+    pcred = ਨਿਰਾ;
+  rc = ldap_sasl_bind(li->ld, ਨਿਰਾ, mech, pcred, ਨਿਰਾ, ਨਿਰਾ, &li->msgid);
+  ਜੇ(rc != LDAP_SUCCESS)
+    ਵਾਪਸ oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Sends SASL bind cancellation.
  */
-static CURLcode oldap_cancel_auth(struct Curl_easy *data, const char *mech)
+ਸਥਿਰ CURLcode oldap_cancel_auth(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *mech)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
+  ਬਣਤਰ ldapconninfo *li =
+    Curl_conn_meta_get(ਅੰਕੜੇ->conn, CURL_META_LDAP_CONN);
+  ਪੂਰਨ rc;
 
-  (void)mech;
-  if(!li)
-    return CURLE_FAILED_INIT;
-  rc = ldap_sasl_bind(li->ld, NULL, LDAP_SASL_NULL, NULL, NULL, NULL,
+  (ਖਾਲੀ)mech;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  rc = ldap_sasl_bind(li->ld, ਨਿਰਾ, LDAP_SASL_NULL, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ,
                       &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
-  return CURLE_OK;
+  ਜੇ(rc != LDAP_SUCCESS)
+    ਵਾਪਸ oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Starts LDAP simple bind. */
-static CURLcode oldap_perform_bind(struct Curl_easy *data, ldapstate newstate)
+ਸਥਿਰ CURLcode oldap_perform_bind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ldapstate newstate)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  const char *binddn = NULL;
-  struct berval passwd;
-  int rc;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ਅਚਲ ਅੱਖਰ *binddn = ਨਿਰਾ;
+  ਬਣਤਰ berval passwd;
+  ਪੂਰਨ rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  passwd.bv_val = NULL;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  passwd.bv_val = ਨਿਰਾ;
   passwd.bv_len = 0;
 
-  if(conn->creds) {
+  ਜੇ(conn->creds) {
     binddn = Curl_creds_user(conn->creds);
     passwd.bv_val = CURL_UNCONST(Curl_creds_passwd(conn->creds));
-    passwd.bv_len = strlen(passwd.bv_val);
+    passwd.bv_len = ਲੜੀ_ਲੰਬਾਈ(passwd.bv_val);
   }
 
   rc = ldap_sasl_bind(li->ld, binddn, LDAP_SASL_SIMPLE, &passwd,
-                      NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc,
-                           data->state.creds ?
+                      ਨਿਰਾ, ਨਿਰਾ, &li->msgid);
+  ਜੇ(rc != LDAP_SUCCESS)
+    ਵਾਪਸ oldap_map_error(rc,
+                           ਅੰਕੜੇ->state.creds ?
                            CURLE_LOGIN_DENIED : CURLE_LDAP_CANNOT_BIND);
-  oldap_state(data, li, newstate);
-  return CURLE_OK;
+  oldap_state(ਅੰਕੜੇ, li, newstate);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Query the supported SASL authentication mechanisms. */
-static CURLcode oldap_perform_mechs(struct Curl_easy *data)
+ਸਥਿਰ CURLcode oldap_perform_mechs(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
-  static const char * const supportedSASLMechanisms[] = {
+  ਬਣਤਰ ldapconninfo *li =
+    Curl_conn_meta_get(ਅੰਕੜੇ->conn, CURL_META_LDAP_CONN);
+  ਪੂਰਨ rc;
+  ਸਥਿਰ ਅਚਲ ਅੱਖਰ * ਅਚਲ supportedSASLMechanisms[] = {
     "supportedSASLMechanisms",
-    NULL
+    ਨਿਰਾ
   };
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
   /* Casting away the const for the 3rd parameter that the LDAP API expects as
      a non-const char ** is potentially unsafe but we believe the lack of
      const in the API was an oversight and that no LDAP implementation
      actually modifies the input. */
-  rc = ldap_search_ext(li->ld, "", LDAP_SCOPE_BASE, "(objectclass=*)",
-                       (char **)CURL_UNCONST(supportedSASLMechanisms), 0,
-                       NULL, NULL, NULL, 0, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_LOGIN_DENIED);
-  oldap_state(data, li, OLDAP_MECHS);
-  return CURLE_OK;
+  rc = ldap_ਖੋਜ_ext(li->ld, "", LDAP_SCOPE_ਅਧਾਰ, "(objectclass=*)",
+                       (ਅੱਖਰ **)CURL_UNCONST(supportedSASLMechanisms), 0,
+                       ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ, 0, &li->msgid);
+  ਜੇ(rc != LDAP_SUCCESS)
+    ਵਾਪਸ oldap_map_error(rc, CURLE_LOGIN_DENIED);
+  oldap_state(ਅੰਕੜੇ, li, OLDAP_MECHS);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Starts SASL bind. */
-static CURLcode oldap_perform_sasl(struct Curl_easy *data)
+ਸਥਿਰ CURLcode oldap_perform_sasl(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  saslprogress progress = SASL_IDLE;
-  CURLcode result;
+  ਬਣਤਰ ldapconninfo *li =
+    Curl_conn_meta_get(ਅੰਕੜੇ->conn, CURL_META_LDAP_CONN);
+  saslprogress ਤਰੱਕੀ = SASL_IDLE;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  result = Curl_sasl_start(&li->sasl, data, TRUE, &progress);
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  ਨਤੀਜਾ = Curl_sasl_ਸ਼ੁਰੂ(&li->sasl, ਅੰਕੜੇ, TRUE, &ਤਰੱਕੀ);
 
-  oldap_state(data, li, OLDAP_SASL);
-  if(!result && progress != SASL_INPROGRESS)
-    result = Curl_sasl_is_blocked(&li->sasl, data);
-  return result;
+  oldap_state(ਅੰਕੜੇ, li, OLDAP_SASL);
+  ਜੇ(!ਨਤੀਜਾ && ਤਰੱਕੀ != SASL_INPROGRESS)
+    ਨਤੀਜਾ = Curl_sasl_is_blocked(&li->sasl, ਅੰਕੜੇ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifdef USE_SSL
-static int ldapsb_tls_setup(Sockbuf_IO_Desc *sbiod, void *arg)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+ਸਥਿਰ ਪੂਰਨ ldapsb_tls_ਤਿਆਰੀ(Sockbuf_IO_Desc *sbiod, ਖਾਲੀ *arg)
 {
   sbiod->sbiod_pvt = arg;
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int ldapsb_tls_remove(Sockbuf_IO_Desc *sbiod)
+ਸਥਿਰ ਪੂਰਨ ldapsb_tls_remove(Sockbuf_IO_Desc *sbiod)
 {
-  sbiod->sbiod_pvt = NULL;
-  return 0;
+  sbiod->sbiod_pvt = ਨਿਰਾ;
+  ਵਾਪਸ 0;
 }
 
 /* if there is a duplicated socket to close, close it */
-static int ldapsb_tls_close(Sockbuf_IO_Desc *sbiod)
+ਸਥਿਰ ਪੂਰਨ ldapsb_tls_close(Sockbuf_IO_Desc *sbiod)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      if(li && (li->dupfd != CURL_SOCKET_BAD)) {
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ = sbiod->sbiod_pvt;
+  ਜੇ(ਅੰਕੜੇ) {
+    ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+    ਜੇ(conn) {
+      ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      ਜੇ(li && (li->dupfd != CURL_SOCKET_BAD)) {
         sclose(li->dupfd);
         li->dupfd = CURL_SOCKET_BAD;
       }
     }
   }
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int ldapsb_tls_ctrl(Sockbuf_IO_Desc *sbiod, int opt, void *arg)
+ਸਥਿਰ ਪੂਰਨ ldapsb_tls_ctrl(Sockbuf_IO_Desc *sbiod, ਪੂਰਨ opt, ਖਾਲੀ *arg)
 {
-  (void)arg;
-  if(opt == LBER_SB_OPT_DATA_READY) {
-    struct Curl_easy *data = sbiod->sbiod_pvt;
-    return Curl_conn_data_pending(data, FIRSTSOCKET);
+  (ਖਾਲੀ)arg;
+  ਜੇ(opt == LBER_SB_OPT_ਅੰਕੜੇ_READY) {
+    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ = sbiod->sbiod_pvt;
+    ਵਾਪਸ Curl_conn_ਅੰਕੜੇ_pending(ਅੰਕੜੇ, FIRSTSOCKET);
   }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static ber_slen_t ldapsb_tls_read(Sockbuf_IO_Desc *sbiod, void *buf,
+ਸਥਿਰ ber_slen_t ldapsb_tls_read(Sockbuf_IO_Desc *sbiod, ਖਾਲੀ *buf,
                                   ber_len_t len)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ = sbiod->sbiod_pvt;
   ber_slen_t ret = 0;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      CURLcode result = CURLE_RECV_ERROR;
+  ਜੇ(ਅੰਕੜੇ) {
+    ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+    ਜੇ(conn) {
+      ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      CURLcode ਨਤੀਜਾ = CURLE_RECV_ERROR;
       size_t nread;
 
-      if(!li) {
-        SET_SOCKERRNO(SOCKEINVAL);
-        return -1;
+      ਜੇ(!li) {
+        ਸੈੱਟ_SOCKERRNO(SOCKEINVAL);
+        ਵਾਪਸ -1;
       }
-      result = (li->recv)(data, FIRSTSOCKET, buf, len, &nread);
-      if(result == CURLE_AGAIN) {
-        SET_SOCKERRNO(SOCKEWOULDBLOCK);
+      ਨਤੀਜਾ = (li->recv)(ਅੰਕੜੇ, FIRSTSOCKET, buf, len, &nread);
+      ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN) {
+        ਸੈੱਟ_SOCKERRNO(SOCKEWOULDBLOCK);
       }
-      ret = result ? -1 : (ber_slen_t)nread;
+      ret = ਨਤੀਜਾ ? -1 : (ber_slen_t)nread;
     }
   }
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-static ber_slen_t ldapsb_tls_write(Sockbuf_IO_Desc *sbiod, void *buf,
+ਸਥਿਰ ber_slen_t ldapsb_tls_write(Sockbuf_IO_Desc *sbiod, ਖਾਲੀ *buf,
                                    ber_len_t len)
 {
-  struct Curl_easy *data = sbiod->sbiod_pvt;
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ = sbiod->sbiod_pvt;
   ber_slen_t ret = 0;
-  if(data) {
-    struct connectdata *conn = data->conn;
-    if(conn) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      CURLcode result = CURLE_SEND_ERROR;
+  ਜੇ(ਅੰਕੜੇ) {
+    ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+    ਜੇ(conn) {
+      ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      CURLcode ਨਤੀਜਾ = CURLE_SEND_ERROR;
       size_t nwritten;
 
-      if(!li) {
-        SET_SOCKERRNO(SOCKEINVAL);
-        return -1;
+      ਜੇ(!li) {
+        ਸੈੱਟ_SOCKERRNO(SOCKEINVAL);
+        ਵਾਪਸ -1;
       }
-      result = (li->send)(data, FIRSTSOCKET, buf, len, FALSE, &nwritten);
-      if(result == CURLE_AGAIN) {
-        SET_SOCKERRNO(SOCKEWOULDBLOCK);
+      ਨਤੀਜਾ = (li->send)(ਅੰਕੜੇ, FIRSTSOCKET, buf, len, FALSE, &nwritten);
+      ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN) {
+        ਸੈੱਟ_SOCKERRNO(SOCKEWOULDBLOCK);
       }
-      ret = result ? -1 : (ber_slen_t)nwritten;
+      ret = ਨਤੀਜਾ ? -1 : (ber_slen_t)nwritten;
     }
   }
-  return ret;
+  ਵਾਪਸ ret;
 }
 
-static Sockbuf_IO ldapsb_tls = {
-  ldapsb_tls_setup,
+ਸਥਿਰ Sockbuf_IO ldapsb_tls = {
+  ldapsb_tls_ਤਿਆਰੀ,
   ldapsb_tls_remove,
   ldapsb_tls_ctrl,
   ldapsb_tls_read,
@@ -515,857 +515,857 @@ static Sockbuf_IO ldapsb_tls = {
   ldapsb_tls_close
 };
 
-static bool ssl_installed(struct connectdata *conn)
+ਸਥਿਰ bool ssl_installed(ਬਣਤਰ connectdata *conn)
 {
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  return li && li->recv;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ਵਾਪਸ li && li->recv;
 }
 
-static CURLcode oldap_ssl_connect(struct Curl_easy *data, ldapstate newstate)
+ਸਥਿਰ CURLcode oldap_ssl_connect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ldapstate newstate)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
   bool ssldone = FALSE;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
-  if(result)
-    return result;
-  oldap_state(data, li, newstate);
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  ਨਤੀਜਾ = Curl_conn_connect(ਅੰਕੜੇ, FIRSTSOCKET, FALSE, &ssldone);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
+  oldap_state(ਅੰਕੜੇ, li, newstate);
 
-  if(ssldone) {
+  ਜੇ(ssldone) {
     Sockbuf *sb;
 
     /* Install the libcurl SSL handlers into the sockbuf. */
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
-       ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data))
-      return CURLE_FAILED_INIT;
+    ਜੇ((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+       ber_sockbuf_ਜੋੜੋ_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, ਅੰਕੜੇ))
+      ਵਾਪਸ CURLE_FAILED_INIT;
     li->recv = conn->recv[FIRSTSOCKET];
     li->send = conn->send[FIRSTSOCKET];
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Send the STARTTLS request */
-static CURLcode oldap_perform_starttls(struct Curl_easy *data)
+ਸਥਿਰ CURLcode oldap_perform_starttls(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ldapconninfo *li =
-    Curl_conn_meta_get(data->conn, CURL_META_LDAP_CONN);
-  int rc;
+  ਬਣਤਰ ldapconninfo *li =
+    Curl_conn_meta_get(ਅੰਕੜੇ->conn, CURL_META_LDAP_CONN);
+  ਪੂਰਨ rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  rc = ldap_start_tls(li->ld, NULL, NULL, &li->msgid);
-  if(rc != LDAP_SUCCESS)
-    return oldap_map_error(rc, CURLE_USE_SSL_FAILED);
-  oldap_state(data, li, OLDAP_STARTTLS);
-  return CURLE_OK;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  rc = ldap_ਸ਼ੁਰੂ_tls(li->ld, ਨਿਰਾ, ਨਿਰਾ, &li->msgid);
+  ਜੇ(rc != LDAP_SUCCESS)
+    ਵਾਪਸ oldap_map_error(rc, CURLE_USE_SSL_FAILED);
+  oldap_state(ਅੰਕੜੇ, li, OLDAP_STARTTLS);
+  ਵਾਪਸ CURLE_OK;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static void oldap_easy_dtor(const void *key, size_t klen, void *entry)
+ਸਥਿਰ ਖਾਲੀ oldap_easy_dtor(ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ, size_t klen, ਖਾਲੀ *ਇੰਦਰਾਜ)
 {
-  struct ldapreqinfo *lr = entry;
-  (void)key;
-  (void)klen;
+  ਬਣਤਰ ldapreqinfo *lr = ਇੰਦਰਾਜ;
+  (ਖਾਲੀ)ਕੁੰਜੀ;
+  (ਖਾਲੀ)klen;
   curlx_free(lr);
 }
 
-static void oldap_conn_dtor(const void *key, size_t klen, void *entry)
+ਸਥਿਰ ਖਾਲੀ oldap_conn_dtor(ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ, size_t klen, ਖਾਲੀ *ਇੰਦਰਾਜ)
 {
-  struct ldapconninfo *li = entry;
-  (void)key;
-  (void)klen;
-  if(li->ld) {
-    ldap_unbind_ext(li->ld, NULL, NULL);
-    li->ld = NULL;
+  ਬਣਤਰ ldapconninfo *li = ਇੰਦਰਾਜ;
+  (ਖਾਲੀ)ਕੁੰਜੀ;
+  (ਖਾਲੀ)klen;
+  ਜੇ(li->ld) {
+    ldap_unbind_ext(li->ld, ਨਿਰਾ, ਨਿਰਾ);
+    li->ld = ਨਿਰਾ;
   }
   curlx_free(li);
 }
 
 /* SASL parameters for the ldap protocol */
-static const struct SASLproto saslldap = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ SASLproto saslldap = {
   "ldap",                     /* The service name */
   oldap_perform_auth,         /* Send authentication command */
   oldap_continue_auth,        /* Send authentication continuation */
   oldap_cancel_auth,          /* Send authentication cancellation */
-  oldap_get_message,          /* Get SASL response message */
+  oldap_get_ਸੁਨੇਹਾ,          /* Get SASL response message */
   0,                          /* Maximum initial response length (no max) */
-  LDAP_SASL_BIND_IN_PROGRESS, /* Code received when continuation is expected */
+  LDAP_SASL_BIND_ਵਿੱਚ_ਤਰੱਕੀ, /* Code received when continuation is expected */
   LDAP_SUCCESS,               /* Code to receive upon authentication success */
   SASL_AUTH_NONE,             /* Default mechanisms */
   0                           /* Configuration flags */
 };
 
-static CURLcode oldap_connect(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode oldap_connect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li;
-  static const int version = LDAP_VERSION3;
-  char *hosturl = NULL;
-  CURLcode result;
-  int rc;
-#ifdef CURL_OPENLDAP_DEBUG
-  static int do_trace = -1;
-#endif
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li;
+  ਸਥਿਰ ਅਚਲ ਪੂਰਨ ਸੰਸਕਰਣ_2 = LDAP_VERSION3;
+  ਅੱਖਰ *hosturl = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
+  ਪੂਰਨ rc;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_OPENLDAP_DEBUG
+  ਸਥਿਰ ਪੂਰਨ do_trace = -1;
+#ਜੇ_ਅੰਤ
 
-  (void)done;
+  (ਖਾਲੀ)ਪੂਰਾ;
 
-  li = curlx_calloc(1, sizeof(struct ldapconninfo));
-  if(!li) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  li = curlx_calloc(1, ਆਕਾਰ(ਬਣਤਰ ldapconninfo));
+  ਜੇ(!li) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
   li->dupfd = CURL_SOCKET_BAD;
 
-  result = Curl_conn_meta_set(conn, CURL_META_LDAP_CONN, li, oldap_conn_dtor);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_conn_meta_ਸੈੱਟ(conn, CURL_META_LDAP_CONN, li, oldap_conn_dtor);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  li->proto = ldap_pvt_url_scheme2proto(data->state.origin->scheme->name);
+  li->proto = ldap_pvt_url_scheme2proto(ਅੰਕੜੇ->state.origin->scheme->name);
 
   /* Initialize the SASL storage */
-  Curl_sasl_init(&li->sasl, data, &saslldap);
+  Curl_sasl_init(&li->sasl, ਅੰਕੜੇ, &saslldap);
 
-  result = oldap_parse_login_options(conn);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = oldap_parse_login_options(conn);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   hosturl = curl_maprintf("%s://%s:%u",
                           conn->scheme->name,
                           conn->origin->ipv6 ?
                           conn->origin->user_hostname :
                           conn->origin->hostname,
-                          conn->origin->port);
-  if(!hosturl) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+                          conn->origin->ਪੋਰਟ);
+  ਜੇ(!hosturl) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   {
-#ifdef _WIN32
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
     SOCKET dupfd = INVALID_SOCKET;
     WSAPROTOCOL_INFO pi;
-    if(WSADuplicateSocket(conn->sock[FIRSTSOCKET], GetCurrentProcessId(),
+    ਜੇ(WSADuplicateSocket(conn->sock[FIRSTSOCKET], GetCurrentProcessId(),
                           &pi))
       ; /* error */
-    else
-      dupfd = CURL_SOCKET(pi.iAddressFamily, pi.iSocketType, pi.iProtocol);
-#else
-#ifdef F_DUPFD_CLOEXEC
-    int dupfd = fcntl(conn->sock[FIRSTSOCKET], F_DUPFD_CLOEXEC, 0);
-#else
-    int dupfd = dup(conn->sock[FIRSTSOCKET]);
-#ifdef HAVE_FCNTL
-    if((dupfd != CURL_SOCKET_BAD) &&
+    ਨਹੀਂਤਾਂ
+      dupfd = CURL_SOCKET(pi.i_ਪਤਾ_Family, pi.iSocketType, pi.iProtocol);
+#ਨਹੀਂਤਾਂ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ F_DUPFD_CLOEXEC
+    ਪੂਰਨ dupfd = fcntl(conn->sock[FIRSTSOCKET], F_DUPFD_CLOEXEC, 0);
+#ਨਹੀਂਤਾਂ
+    ਪੂਰਨ dupfd = dup(conn->sock[FIRSTSOCKET]);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_FCNTL
+    ਜੇ((dupfd != CURL_SOCKET_BAD) &&
        (fcntl(dupfd, F_SETFD, FD_CLOEXEC) < 0)) {
       sclose(dupfd);
       dupfd = CURL_SOCKET_BAD;
     }
-#endif /* HAVE_FCNTL */
-#endif /* F_DUPFD_CLOEXEC */
-#endif /* _WIN32 */
+#ਜੇ_ਅੰਤ /* HAVE_FCNTL */
+#ਜੇ_ਅੰਤ /* F_DUPFD_CLOEXEC */
+#ਜੇ_ਅੰਤ /* _WIN32 */
 
-    if(dupfd == CURL_SOCKET_BAD) {
-      result = CURLE_COULDNT_CONNECT;
-      goto out;
+    ਜੇ(dupfd == CURL_SOCKET_BAD) {
+      ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
     rc = ldap_init_fd((ber_socket_t)dupfd, li->proto, hosturl, &li->ld);
-    if(rc)
+    ਜੇ(rc)
       sclose(dupfd);
-    else
+    ਨਹੀਂਤਾਂ
       /* store the socket, as when this is used by TLS we close this ourselves
          and at this point the code does not yet know if this will use TLS or
          not */
       li->dupfd = dupfd;
   }
-  if(rc) {
-    failf(data, "LDAP local: Cannot connect to %s, %s",
+  ਜੇ(rc) {
+    failf(ਅੰਕੜੇ, "LDAP local: Cannot connect to %s, %s",
           hosturl, ldap_err2string(rc));
-    result = CURLE_COULDNT_CONNECT;
-    goto out;
+    ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-#ifdef CURL_OPENLDAP_DEBUG
-  if(do_trace < 0) {
-    const char *env = getenv("CURL_OPENLDAP_TRACE");
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_OPENLDAP_DEBUG
+  ਜੇ(do_trace < 0) {
+    ਅਚਲ ਅੱਖਰ *env = getenv("CURL_OPENLDAP_TRACE");
     curl_off_t e = 0;
-    if(!curlx_str_number(&env, &e, INT_MAX))
+    ਜੇ(!curlx_str_ਸੰਖਿਆ(&env, &e, ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ))
       do_trace = e > 0;
   }
-  if(do_trace)
-    ldap_set_option(li->ld, LDAP_OPT_DEBUG_LEVEL, &do_trace);
-#endif
+  ਜੇ(do_trace)
+    ldap_ਸੈੱਟ_option(li->ld, LDAP_OPT_DEBUG_LEVEL, &do_trace);
+#ਜੇ_ਅੰਤ
 
   /* Try version 3 first. */
-  ldap_set_option(li->ld, LDAP_OPT_PROTOCOL_VERSION, &version);
+  ldap_ਸੈੱਟ_option(li->ld, LDAP_OPT_PROTOCOL_ਸੰਸਕਰਣ, &ਸੰਸਕਰਣ_2);
 
   /* Do not chase referrals. */
-  ldap_set_option(li->ld, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
+  ldap_ਸੈੱਟ_option(li->ld, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
 
   {
     ber_len_t max = 256 * 1024;
     Sockbuf *sb;
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+    ਜੇ((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
        /* Set the maximum allowed size of an incoming message, which to
           OpenLDAP means that it will malloc() memory up to this size. If not
           set, there is no limit and we instead risk a malloc() failure. */
-       !ber_sockbuf_ctrl(sb, LBER_SB_OPT_SET_MAX_INCOMING, &max)) {
-      result = CURLE_FAILED_INIT;
-      goto out;
+       !ber_sockbuf_ctrl(sb, LBER_SB_OPT_ਸੈੱਟ_MAX_INCOMING, &max)) {
+      ਨਤੀਜਾ = CURLE_FAILED_INIT;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-#ifdef USE_SSL
-  if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = oldap_ssl_connect(data, OLDAP_SSL);
-    goto out;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+  ਜੇ(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    ਨਤੀਜਾ = oldap_ssl_connect(ਅੰਕੜੇ, OLDAP_SSL);
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  if(data->set.use_ssl) {
-    result = oldap_perform_starttls(data);
-    if(!result || data->set.use_ssl != CURLUSESSL_TRY)
-      goto out;
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.use_ssl) {
+    ਨਤੀਜਾ = oldap_perform_starttls(ਅੰਕੜੇ);
+    ਜੇ(!ਨਤੀਜਾ || ਅੰਕੜੇ->ਸੈੱਟ.use_ssl != CURLUSESSL_TRY)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  if(li->sasl.prefmech != SASL_AUTH_NONE) {
-    result = oldap_perform_mechs(data);
-    goto out;
+  ਜੇ(li->sasl.prefmech != SASL_AUTH_NONE) {
+    ਨਤੀਜਾ = oldap_perform_mechs(ਅੰਕੜੇ);
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* Force bind even if anonymous bind is not needed in protocol version 3
      to detect missing version 3 support. */
-  result = oldap_perform_bind(data, OLDAP_BIND);
+  ਨਤੀਜਾ = oldap_perform_bind(ਅੰਕੜੇ, OLDAP_BIND);
 
-out:
+ਬਾਹਰਲਾ:
   curlx_free(hosturl);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Handle the supported SASL mechanisms query response */
-static CURLcode oldap_state_mechs_resp(struct Curl_easy *data,
-                                       LDAPMessage *msg, int code)
+ਸਥਿਰ CURLcode oldap_state_mechs_resp(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       LDAPMessage *ਸੁਨੇਹਾ, ਪੂਰਨ ਕੋਡ)
 {
-  struct connectdata *conn;
-  struct ldapconninfo *li;
-  int rc;
-  BerElement *ber = NULL;
-  CURLcode result = CURLE_OK;
-  struct berval bv, *bvals;
+  ਬਣਤਰ connectdata *conn;
+  ਬਣਤਰ ldapconninfo *li;
+  ਪੂਰਨ rc;
+  BerElement *ber = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ berval bv, *bvals;
 
-  if(!data)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!ਅੰਕੜੇ)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  conn = data->conn;
+  conn = ਅੰਕੜੇ->conn;
   li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  switch(ldap_msgtype(msg)) {
-  case LDAP_RES_SEARCH_ENTRY:
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  ਚੋਣ(ldap_msgtype(ਸੁਨੇਹਾ)) {
+  ਹਾਲਤ LDAP_RES_ਖੋਜ_ਇੰਦਰਾਜ:
     /* Got a list of supported SASL mechanisms. */
-    if(code != LDAP_SUCCESS && code != LDAP_NO_RESULTS_RETURNED)
-      return CURLE_LOGIN_DENIED;
+    ਜੇ(ਕੋਡ != LDAP_SUCCESS && ਕੋਡ != LDAP_NO_RESULTS_RETURNED)
+      ਵਾਪਸ CURLE_LOGIN_DENIED;
 
-    rc = ldap_get_dn_ber(li->ld, msg, &ber, &bv);
-    if(rc < 0)
-      return oldap_map_error(rc, CURLE_BAD_CONTENT_ENCODING);
-    for(rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals);
+    rc = ldap_get_dn_ber(li->ld, ਸੁਨੇਹਾ, &ber, &bv);
+    ਜੇ(rc < 0)
+      ਵਾਪਸ oldap_map_error(rc, CURLE_BAD_CONTENT_ENCODING);
+    ਲਈ(rc = ldap_get_attribute_ber(li->ld, ਸੁਨੇਹਾ, ber, &bv, &bvals);
         rc == LDAP_SUCCESS;
-        rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals)) {
-      int i;
+        rc = ldap_get_attribute_ber(li->ld, ਸੁਨੇਹਾ, ber, &bv, &bvals)) {
+      ਪੂਰਨ i;
 
-      if(!bv.bv_val)
-        break;
+      ਜੇ(!bv.bv_val)
+        ਰੋਕੋ;
 
-      if(bvals) {
-        for(i = 0; bvals[i].bv_val; i++) {
+      ਜੇ(bvals) {
+        ਲਈ(i = 0; bvals[i].bv_val; i++) {
           size_t llen;
-          unsigned short mech =
-            Curl_sasl_decode_mech((const char *)bvals[i].bv_val,
+          ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ mech =
+            Curl_sasl_decode_mech((ਅਚਲ ਅੱਖਰ *)bvals[i].bv_val,
                                   bvals[i].bv_len, &llen);
-          if(bvals[i].bv_len == llen)
+          ਜੇ(bvals[i].bv_len == llen)
             li->sasl.authmechs |= mech;
         }
         ber_memfree(bvals);
       }
     }
     ber_free(ber, 0);
-    break;
+    ਰੋਕੋ;
 
-  case LDAP_RES_SEARCH_RESULT:
-    switch(code) {
-    case LDAP_SIZELIMIT_EXCEEDED:
-      infof(data, "Too many authentication mechanisms");
+  ਹਾਲਤ LDAP_RES_ਖੋਜ_ਨਤੀਜਾ:
+    ਚੋਣ(ਕੋਡ) {
+    ਹਾਲਤ LDAP_SIZELIMIT_EXCEEDED:
+      infof(ਅੰਕੜੇ, "Too many authentication mechanisms");
       FALLTHROUGH();
-    case LDAP_SUCCESS:
-    case LDAP_NO_RESULTS_RETURNED:
-      if(Curl_sasl_can_authenticate(&li->sasl, data))
-        result = oldap_perform_sasl(data);
-      else
-        result = CURLE_LOGIN_DENIED;
-      break;
-    default:
-      result = oldap_map_error(code, CURLE_LOGIN_DENIED);
-      break;
+    ਹਾਲਤ LDAP_SUCCESS:
+    ਹਾਲਤ LDAP_NO_RESULTS_RETURNED:
+      ਜੇ(Curl_sasl_can_authenticate(&li->sasl, ਅੰਕੜੇ))
+        ਨਤੀਜਾ = oldap_perform_sasl(ਅੰਕੜੇ);
+      ਨਹੀਂਤਾਂ
+        ਨਤੀਜਾ = CURLE_LOGIN_DENIED;
+      ਰੋਕੋ;
+    ਮੂਲ:
+      ਨਤੀਜਾ = oldap_map_error(ਕੋਡ, CURLE_LOGIN_DENIED);
+      ਰੋਕੋ;
     }
-    break;
-  default:
-    break;
+    ਰੋਕੋ;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Handle a SASL bind response. */
-static CURLcode oldap_state_sasl_resp(struct Curl_easy *data,
-                                      LDAPMessage *msg, int code)
+ਸਥਿਰ CURLcode oldap_state_sasl_resp(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      LDAPMessage *ਸੁਨੇਹਾ, ਪੂਰਨ ਕੋਡ)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  CURLcode result = CURLE_OK;
-  saslprogress progress;
-  int rc;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  saslprogress ਤਰੱਕੀ;
+  ਪੂਰਨ rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
-  li->servercred = NULL;
-  rc = ldap_parse_sasl_bind_result(li->ld, msg, &li->servercred, 0);
-  if(rc != LDAP_SUCCESS) {
-    failf(data, "LDAP local: sasl ldap_parse_result %s", ldap_err2string(rc));
-    result = oldap_map_error(rc, CURLE_LOGIN_DENIED);
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  li->servercred = ਨਿਰਾ;
+  rc = ldap_parse_sasl_bind_ਨਤੀਜਾ(li->ld, ਸੁਨੇਹਾ, &li->servercred, 0);
+  ਜੇ(rc != LDAP_SUCCESS) {
+    failf(ਅੰਕੜੇ, "LDAP local: sasl ldap_parse_result %s", ldap_err2string(rc));
+    ਨਤੀਜਾ = oldap_map_error(rc, CURLE_LOGIN_DENIED);
   }
-  else {
-    result = Curl_sasl_continue(&li->sasl, data, code, &progress);
-    if(!result) {
-      switch(progress) {
-      case SASL_DONE:
-        oldap_state(data, li, OLDAP_STOP);   /* Authenticated */
-        break;
-      case SASL_IDLE:            /* No mechanism left after cancellation */
-        failf(data, "Authentication cancelled");
-        result = CURLE_LOGIN_DENIED;
-        break;
-      default:
-        break;
+  ਨਹੀਂਤਾਂ {
+    ਨਤੀਜਾ = Curl_sasl_continue(&li->sasl, ਅੰਕੜੇ, ਕੋਡ, &ਤਰੱਕੀ);
+    ਜੇ(!ਨਤੀਜਾ) {
+      ਚੋਣ(ਤਰੱਕੀ) {
+      ਹਾਲਤ SASL_ਪੂਰਾ:
+        oldap_state(ਅੰਕੜੇ, li, OLDAP_STOP);   /* Authenticated */
+        ਰੋਕੋ;
+      ਹਾਲਤ SASL_IDLE:            /* No mechanism left after cancellation */
+        failf(ਅੰਕੜੇ, "Authentication cancelled");
+        ਨਤੀਜਾ = CURLE_LOGIN_DENIED;
+        ਰੋਕੋ;
+      ਮੂਲ:
+        ਰੋਕੋ;
       }
     }
   }
 
-  if(li->servercred)
+  ਜੇ(li->servercred)
     ber_bvfree(li->servercred);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Handle a simple bind response. */
-static CURLcode oldap_state_bind_resp(struct Curl_easy *data, LDAPMessage *msg,
-                                      int code)
+ਸਥਿਰ CURLcode oldap_state_bind_resp(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, LDAPMessage *ਸੁਨੇਹਾ,
+                                      ਪੂਰਨ ਕੋਡ)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  CURLcode result = CURLE_OK;
-  struct berval *bv = NULL;
-  int rc;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ berval *bv = ਨਿਰਾ;
+  ਪੂਰਨ rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  if(code != LDAP_SUCCESS)
-    return oldap_map_error(code, CURLE_LDAP_CANNOT_BIND);
+  ਜੇ(ਕੋਡ != LDAP_SUCCESS)
+    ਵਾਪਸ oldap_map_error(ਕੋਡ, CURLE_LDAP_CANNOT_BIND);
 
-  rc = ldap_parse_sasl_bind_result(li->ld, msg, &bv, 0);
-  if(rc != LDAP_SUCCESS) {
-    failf(data, "LDAP local: bind ldap_parse_sasl_bind_result %s",
+  rc = ldap_parse_sasl_bind_ਨਤੀਜਾ(li->ld, ਸੁਨੇਹਾ, &bv, 0);
+  ਜੇ(rc != LDAP_SUCCESS) {
+    failf(ਅੰਕੜੇ, "LDAP local: bind ldap_parse_sasl_bind_result %s",
           ldap_err2string(rc));
-    result = oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
+    ਨਤੀਜਾ = oldap_map_error(rc, CURLE_LDAP_CANNOT_BIND);
   }
-  else
-    oldap_state(data, li, OLDAP_STOP);
+  ਨਹੀਂਤਾਂ
+    oldap_state(ਅੰਕੜੇ, li, OLDAP_STOP);
 
-  if(bv)
+  ਜੇ(bv)
     ber_bvfree(bv);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode oldap_connecting(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode oldap_connecting(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  LDAPMessage *msg = NULL;
-  struct timeval tv = { 0, 0 };
-  int code = LDAP_SUCCESS;
-  int rc;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  LDAPMessage *ਸੁਨੇਹਾ = ਨਿਰਾ;
+  ਬਣਤਰ timeval tv = { 0, 0 };
+  ਪੂਰਨ ਕੋਡ = LDAP_SUCCESS;
+  ਪੂਰਨ rc;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  if(li->state != OLDAP_SSL && li->state != OLDAP_TLS) {
+  ਜੇ(li->state != OLDAP_SSL && li->state != OLDAP_TLS) {
     /* Get response to last command. */
-    rc = ldap_result(li->ld, li->msgid, LDAP_MSG_ONE, &tv, &msg);
-    switch(rc) {
-    case 0:                               /* Timed out. */
-      return CURLE_OK;
-    case LDAP_RES_SEARCH_ENTRY:
-    case LDAP_RES_SEARCH_REFERENCE:
-      break;
-    default:
+    rc = ldap_ਨਤੀਜਾ(li->ld, li->msgid, LDAP_ਸੁਨੇਹਾ_ONE, &tv, &ਸੁਨੇਹਾ);
+    ਚੋਣ(rc) {
+    ਹਾਲਤ 0:                               /* Timed out. */
+      ਵਾਪਸ CURLE_OK;
+    ਹਾਲਤ LDAP_RES_ਖੋਜ_ਇੰਦਰਾਜ:
+    ਹਾਲਤ LDAP_RES_ਖੋਜ_REFERENCE:
+      ਰੋਕੋ;
+    ਮੂਲ:
       li->msgid = 0;                      /* Nothing to abandon upon error. */
-      if(rc < 0) {
-        failf(data, "LDAP local: connecting ldap_result %s",
+      ਜੇ(rc < 0) {
+        failf(ਅੰਕੜੇ, "LDAP local: connecting ldap_result %s",
               ldap_err2string(rc));
-        return oldap_map_error(rc, CURLE_COULDNT_CONNECT);
+        ਵਾਪਸ oldap_map_error(rc, CURLE_COULDNT_CONNECT);
       }
-      break;
+      ਰੋਕੋ;
     }
 
     /* Get error code from message. */
-    rc = ldap_parse_result(li->ld, msg, &code, NULL, NULL, NULL, NULL, 0);
-    if(rc)
-      code = rc;
-    else {
+    rc = ldap_parse_ਨਤੀਜਾ(li->ld, ਸੁਨੇਹਾ, &ਕੋਡ, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ, 0);
+    ਜੇ(rc)
+      ਕੋਡ = rc;
+    ਨਹੀਂਤਾਂ {
       /* store the latest code for later retrieval */
-      data->info.httpcode = code;
+      ਅੰਕੜੇ->info.httpcode = ਕੋਡ;
     }
 
     /* If protocol version 3 is not supported, fallback to version 2. */
-    if(code == LDAP_PROTOCOL_ERROR && li->state != OLDAP_BINDV2 &&
-#ifdef USE_SSL
-       (ssl_installed(conn) || data->set.use_ssl <= CURLUSESSL_TRY) &&
-#endif
+    ਜੇ(ਕੋਡ == LDAP_PROTOCOL_ERROR && li->state != OLDAP_BINDV2 &&
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+       (ssl_installed(conn) || ਅੰਕੜੇ->ਸੈੱਟ.use_ssl <= CURLUSESSL_TRY) &&
+#ਜੇ_ਅੰਤ
        li->sasl.prefmech == SASL_AUTH_NONE) {
-      static const int version = LDAP_VERSION2;
+      ਸਥਿਰ ਅਚਲ ਪੂਰਨ ਸੰਸਕਰਣ_2 = LDAP_VERSION2;
 
-      ldap_set_option(li->ld, LDAP_OPT_PROTOCOL_VERSION, &version);
-      ldap_msgfree(msg);
-      return oldap_perform_bind(data, OLDAP_BINDV2);
+      ldap_ਸੈੱਟ_option(li->ld, LDAP_OPT_PROTOCOL_ਸੰਸਕਰਣ, &ਸੰਸਕਰਣ_2);
+      ldap_msgfree(ਸੁਨੇਹਾ);
+      ਵਾਪਸ oldap_perform_bind(ਅੰਕੜੇ, OLDAP_BINDV2);
     }
   }
 
   /* Handle response message according to current state. */
-  switch(li->state) {
+  ਚੋਣ(li->state) {
 
-#ifdef USE_SSL
-  case OLDAP_SSL:
-    result = oldap_ssl_connect(data, OLDAP_SSL);
-    if(!result && ssl_installed(conn)) {
-      if(li->sasl.prefmech != SASL_AUTH_NONE)
-        result = oldap_perform_mechs(data);
-      else
-        result = oldap_perform_bind(data, OLDAP_BIND);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+  ਹਾਲਤ OLDAP_SSL:
+    ਨਤੀਜਾ = oldap_ssl_connect(ਅੰਕੜੇ, OLDAP_SSL);
+    ਜੇ(!ਨਤੀਜਾ && ssl_installed(conn)) {
+      ਜੇ(li->sasl.prefmech != SASL_AUTH_NONE)
+        ਨਤੀਜਾ = oldap_perform_mechs(ਅੰਕੜੇ);
+      ਨਹੀਂਤਾਂ
+        ਨਤੀਜਾ = oldap_perform_bind(ਅੰਕੜੇ, OLDAP_BIND);
     }
-    break;
-  case OLDAP_STARTTLS:
-    if(code != LDAP_SUCCESS) {
-      if(data->set.use_ssl != CURLUSESSL_TRY)
-        result = oldap_map_error(code, CURLE_USE_SSL_FAILED);
-      else if(li->sasl.prefmech != SASL_AUTH_NONE)
-        result = oldap_perform_mechs(data);
-      else
-        result = oldap_perform_bind(data, OLDAP_BIND);
-      break;
+    ਰੋਕੋ;
+  ਹਾਲਤ OLDAP_STARTTLS:
+    ਜੇ(ਕੋਡ != LDAP_SUCCESS) {
+      ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.use_ssl != CURLUSESSL_TRY)
+        ਨਤੀਜਾ = oldap_map_error(ਕੋਡ, CURLE_USE_SSL_FAILED);
+      ਨਹੀਂਤਾਂ ਜੇ(li->sasl.prefmech != SASL_AUTH_NONE)
+        ਨਤੀਜਾ = oldap_perform_mechs(ਅੰਕੜੇ);
+      ਨਹੀਂਤਾਂ
+        ਨਤੀਜਾ = oldap_perform_bind(ਅੰਕੜੇ, OLDAP_BIND);
+      ਰੋਕੋ;
     }
-    result = Curl_ssl_cfilter_add(
-      data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      break;
+    ਨਤੀਜਾ = Curl_ssl_cfilter_ਜੋੜੋ(
+      ਅੰਕੜੇ, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
     FALLTHROUGH();
-  case OLDAP_TLS:
-    result = oldap_ssl_connect(data, OLDAP_TLS);
-    if(result)
-      result = oldap_map_error(code, CURLE_USE_SSL_FAILED);
-    else if(ssl_installed(conn)) {
-      if(li->sasl.prefmech != SASL_AUTH_NONE)
-        result = oldap_perform_mechs(data);
-      else if(data->state.creds)
-        result = oldap_perform_bind(data, OLDAP_BIND);
-      else {
+  ਹਾਲਤ OLDAP_TLS:
+    ਨਤੀਜਾ = oldap_ssl_connect(ਅੰਕੜੇ, OLDAP_TLS);
+    ਜੇ(ਨਤੀਜਾ)
+      ਨਤੀਜਾ = oldap_map_error(ਕੋਡ, CURLE_USE_SSL_FAILED);
+    ਨਹੀਂਤਾਂ ਜੇ(ssl_installed(conn)) {
+      ਜੇ(li->sasl.prefmech != SASL_AUTH_NONE)
+        ਨਤੀਜਾ = oldap_perform_mechs(ਅੰਕੜੇ);
+      ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->state.creds)
+        ਨਤੀਜਾ = oldap_perform_bind(ਅੰਕੜੇ, OLDAP_BIND);
+      ਨਹੀਂਤਾਂ {
         /* Version 3 supported: no bind required */
-        oldap_state(data, li, OLDAP_STOP);
-        result = CURLE_OK;
+        oldap_state(ਅੰਕੜੇ, li, OLDAP_STOP);
+        ਨਤੀਜਾ = CURLE_OK;
       }
     }
-    break;
-#endif
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
 
-  case OLDAP_MECHS:
-    result = oldap_state_mechs_resp(data, msg, code);
-    break;
-  case OLDAP_SASL:
-    result = oldap_state_sasl_resp(data, msg, code);
-    break;
-  case OLDAP_BIND:
-  case OLDAP_BINDV2:
-    result = oldap_state_bind_resp(data, msg, code);
-    break;
-  default:
+  ਹਾਲਤ OLDAP_MECHS:
+    ਨਤੀਜਾ = oldap_state_mechs_resp(ਅੰਕੜੇ, ਸੁਨੇਹਾ, ਕੋਡ);
+    ਰੋਕੋ;
+  ਹਾਲਤ OLDAP_SASL:
+    ਨਤੀਜਾ = oldap_state_sasl_resp(ਅੰਕੜੇ, ਸੁਨੇਹਾ, ਕੋਡ);
+    ਰੋਕੋ;
+  ਹਾਲਤ OLDAP_BIND:
+  ਹਾਲਤ OLDAP_BINDV2:
+    ਨਤੀਜਾ = oldap_state_bind_resp(ਅੰਕੜੇ, ਸੁਨੇਹਾ, ਕੋਡ);
+    ਰੋਕੋ;
+  ਮੂਲ:
     /* internal error */
-    result = CURLE_COULDNT_CONNECT;
-    break;
+    ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
+    ਰੋਕੋ;
   }
 
-  ldap_msgfree(msg);
+  ldap_msgfree(ਸੁਨੇਹਾ);
 
-  *done = li->state == OLDAP_STOP;
-  if(*done)
+  *ਪੂਰਾ = li->state == OLDAP_STOP;
+  ਜੇ(*ਪੂਰਾ)
     conn->recv[FIRSTSOCKET] = oldap_recv;
 
-  if(result && li->msgid) {
-    ldap_abandon_ext(li->ld, li->msgid, NULL, NULL);
+  ਜੇ(ਨਤੀਜਾ && li->msgid) {
+    ldap_abandon_ext(li->ld, li->msgid, ਨਿਰਾ, ਨਿਰਾ);
     li->msgid = 0;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode oldap_disconnect(struct Curl_easy *data,
-                                 struct connectdata *conn,
+ਸਥਿਰ CURLcode oldap_disconnect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਬਣਤਰ connectdata *conn,
                                  bool dead_connection)
 {
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  (void)dead_connection;
-#ifndef USE_SSL
-  (void)data;
-#endif
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  (ਖਾਲੀ)dead_connection;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ USE_SSL
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+#ਜੇ_ਅੰਤ
 
-  if(li && li->ld) {
-#ifdef USE_SSL
-    if(ssl_installed(conn)) {
+  ਜੇ(li && li->ld) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+    ਜੇ(ssl_installed(conn)) {
       Sockbuf *sb;
-      if(ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS ||
-         ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data))
-        return CURLE_FAILED_INIT;
+      ਜੇ(ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS ||
+         ber_sockbuf_ਜੋੜੋ_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, ਅੰਕੜੇ))
+        ਵਾਪਸ CURLE_FAILED_INIT;
     }
-#endif
-    ldap_unbind_ext(li->ld, NULL, NULL);
-    li->ld = NULL;
+#ਜੇ_ਅੰਤ
+    ldap_unbind_ext(li->ld, ਨਿਰਾ, ਨਿਰਾ);
+    li->ld = ਨਿਰਾ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode oldap_do(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode oldap_do(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct ldapreqinfo *lr;
-  CURLcode result;
-  int rc;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ਬਣਤਰ ldapreqinfo *lr;
+  CURLcode ਨਤੀਜਾ;
+  ਪੂਰਨ rc;
   LDAPURLDesc *lud;
-  int msgid;
+  ਪੂਰਨ msgid;
 
-  if(!li)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!li)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  infof(data, "LDAP local: %s", Curl_bufref_ptr(&data->state.url));
+  infof(ਅੰਕੜੇ, "LDAP local: %s", Curl_bufref_ptr(&ਅੰਕੜੇ->state.url));
 
-  result = oldap_url_parse(data, &lud);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = oldap_url_parse(ਅੰਕੜੇ, &lud);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-#ifdef USE_SSL
-  if(ssl_installed(conn)) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+  ਜੇ(ssl_installed(conn)) {
     Sockbuf *sb;
     /* re-install the libcurl SSL handlers into the sockbuf. */
-    if((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
-       ber_sockbuf_add_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, data)) {
+    ਜੇ((ldap_get_option(li->ld, LDAP_OPT_SOCKBUF, &sb) != LDAP_OPT_SUCCESS) ||
+       ber_sockbuf_ਜੋੜੋ_io(sb, &ldapsb_tls, LBER_SBIOD_LEVEL_TRANSPORT, ਅੰਕੜੇ)) {
       ldap_free_urldesc(lud);
-      return CURLE_FAILED_INIT;
+      ਵਾਪਸ CURLE_FAILED_INIT;
     }
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  rc = ldap_search_ext(li->ld, lud->lud_dn, lud->lud_scope,
+  rc = ldap_ਖੋਜ_ext(li->ld, lud->lud_dn, lud->lud_scope,
                        lud->lud_filter, lud->lud_attrs, 0,
-                       NULL, NULL, NULL, 0, &msgid);
+                       ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ, 0, &msgid);
   ldap_free_urldesc(lud);
-  if(rc != LDAP_SUCCESS) {
-    failf(data, "LDAP local: ldap_search_ext %s", ldap_err2string(rc));
-    result = CURLE_LDAP_SEARCH_FAILED;
-    goto out;
+  ਜੇ(rc != LDAP_SUCCESS) {
+    failf(ਅੰਕੜੇ, "LDAP local: ldap_search_ext %s", ldap_err2string(rc));
+    ਨਤੀਜਾ = CURLE_LDAP_ਖੋਜ_FAILED;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  lr = curlx_calloc(1, sizeof(struct ldapreqinfo));
-  if(!lr ||
-     Curl_meta_set(data, CURL_META_LDAP_EASY, lr, oldap_easy_dtor)) {
-    ldap_abandon_ext(li->ld, msgid, NULL, NULL);
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  lr = curlx_calloc(1, ਆਕਾਰ(ਬਣਤਰ ldapreqinfo));
+  ਜੇ(!lr ||
+     Curl_meta_ਸੈੱਟ(ਅੰਕੜੇ, CURL_META_LDAP_EASY, lr, oldap_easy_dtor)) {
+    ldap_abandon_ext(li->ld, msgid, ਨਿਰਾ, ਨਿਰਾ);
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   lr->msgid = msgid;
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
-  *done = TRUE;
+  Curl_xfer_ਤਿਆਰੀ_recv(ਅੰਕੜੇ, FIRSTSOCKET, -1);
+  *ਪੂਰਾ = TRUE;
 
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode oldap_done(struct Curl_easy *data, CURLcode res,
+ਸਥਿਰ CURLcode oldap_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, CURLcode res,
                            bool premature)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapreqinfo *lr = Curl_meta_get(ਅੰਕੜੇ, CURL_META_LDAP_EASY);
 
-  (void)res;
-  (void)premature;
+  (ਖਾਲੀ)res;
+  (ਖਾਲੀ)premature;
 
-  if(lr) {
+  ਜੇ(lr) {
     /* if there was a search in progress, abandon it */
-    if(lr->msgid) {
-      struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-      if(li && li->ld) {
-        ldap_abandon_ext(li->ld, lr->msgid, NULL, NULL);
+    ਜੇ(lr->msgid) {
+      ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+      ਜੇ(li && li->ld) {
+        ldap_abandon_ext(li->ld, lr->msgid, ਨਿਰਾ, ਨਿਰਾ);
       }
       lr->msgid = 0;
     }
-    Curl_meta_remove(data, CURL_META_LDAP_EASY);
+    Curl_meta_remove(ਅੰਕੜੇ, CURL_META_LDAP_EASY);
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode client_write(struct Curl_easy *data,
-                             const char *prefix, size_t plen,
-                             const char *value, size_t len,
-                             const char *suffix, size_t slen)
+ਸਥਿਰ CURLcode client_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ, size_t plen,
+                             ਅਚਲ ਅੱਖਰ *ਮੁੱਲ, size_t len,
+                             ਅਚਲ ਅੱਖਰ *suffix, size_t slen)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(prefix) {
+  ਜੇ(ਅਗੇਤਰ) {
     /* If we have a zero-length value and the prefix ends with a space
        separator, drop the latter. */
-    if(!len && plen && prefix[plen - 1] == ' ')
+    ਜੇ(!len && plen && ਅਗੇਤਰ[plen - 1] == ' ')
       plen--;
-    result = Curl_client_write(data, CLIENTWRITE_BODY, prefix, plen);
+    ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY, ਅਗੇਤਰ, plen);
   }
-  if(!result && value) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, value, len);
+  ਜੇ(!ਨਤੀਜਾ && ਮੁੱਲ) {
+    ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY, ਮੁੱਲ, len);
   }
-  if(!result && suffix) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, suffix, slen);
+  ਜੇ(!ਨਤੀਜਾ && suffix) {
+    ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY, suffix, slen);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* RFC 2849: a string that is not a SAFE-STRING (leading ':' or '<', leading or
    trailing space, or any non-printable byte such as CR/LF) cannot go into LDIF
    as-is. DNs and values get base64-encoded instead; an attribute type has no
    base64 form in LDIF and is rejected by the caller. */
-static bool oldap_str_needs_base64(const char *s, size_t len)
+ਸਥਿਰ bool oldap_str_needs_base64(ਅਚਲ ਅੱਖਰ *s, size_t len)
 {
   size_t i;
-  if(!len)
-    return FALSE;
-  if((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
-    return TRUE;
-  for(i = 0; i < len; i++)
-    if(!ISPRINT(s[i]))
-      return TRUE;
-  return FALSE;
+  ਜੇ(!len)
+    ਵਾਪਸ FALSE;
+  ਜੇ((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
+    ਵਾਪਸ TRUE;
+  ਲਈ(i = 0; i < len; i++)
+    ਜੇ(!ISPRINT(s[i]))
+      ਵਾਪਸ TRUE;
+  ਵਾਪਸ FALSE;
 }
 
-static CURLcode oldap_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
+ਸਥਿਰ CURLcode oldap_recv(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex, ਅੱਖਰ *buf,
                            size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
-  struct ldapreqinfo *lr = Curl_meta_get(data, CURL_META_LDAP_EASY);
-  int rc;
-  LDAPMessage *msg = NULL;
-  BerElement *ber = NULL;
-  struct timeval tv = { 0, 0 };
-  struct berval bv, *bvals;
-  CURLcode result = CURLE_AGAIN;
-  int code;
-  char *info = NULL;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ldapconninfo *li = Curl_conn_meta_get(conn, CURL_META_LDAP_CONN);
+  ਬਣਤਰ ldapreqinfo *lr = Curl_meta_get(ਅੰਕੜੇ, CURL_META_LDAP_EASY);
+  ਪੂਰਨ rc;
+  LDAPMessage *ਸੁਨੇਹਾ = ਨਿਰਾ;
+  BerElement *ber = ਨਿਰਾ;
+  ਬਣਤਰ timeval tv = { 0, 0 };
+  ਬਣਤਰ berval bv, *bvals;
+  CURLcode ਨਤੀਜਾ = CURLE_AGAIN;
+  ਪੂਰਨ ਕੋਡ;
+  ਅੱਖਰ *info = ਨਿਰਾ;
 
-  (void)len;
-  (void)buf;
-  (void)sockindex;
+  (ਖਾਲੀ)len;
+  (ਖਾਲੀ)buf;
+  (ਖਾਲੀ)sockindex;
   *pnread = 0;
-  if(!li || !lr)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!li || !lr)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  rc = ldap_result(li->ld, lr->msgid, LDAP_MSG_ONE, &tv, &msg);
-  if(rc < 0) {
-    failf(data, "LDAP local: search ldap_result %s", ldap_err2string(rc));
-    result = CURLE_RECV_ERROR;
+  rc = ldap_ਨਤੀਜਾ(li->ld, lr->msgid, LDAP_ਸੁਨੇਹਾ_ONE, &tv, &ਸੁਨੇਹਾ);
+  ਜੇ(rc < 0) {
+    failf(ਅੰਕੜੇ, "LDAP local: search ldap_result %s", ldap_err2string(rc));
+    ਨਤੀਜਾ = CURLE_RECV_ERROR;
   }
 
   /* error or timed out */
-  if(!msg)
-    return result;
+  ਜੇ(!ਸੁਨੇਹਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 
-  switch(ldap_msgtype(msg)) {
-  case LDAP_RES_SEARCH_RESULT:
+  ਚੋਣ(ldap_msgtype(ਸੁਨੇਹਾ)) {
+  ਹਾਲਤ LDAP_RES_ਖੋਜ_ਨਤੀਜਾ:
     lr->msgid = 0;
-    rc = ldap_parse_result(li->ld, msg, &code, NULL, &info, NULL, NULL, 0);
-    if(rc) {
-      failf(data, "LDAP local: search ldap_parse_result %s",
+    rc = ldap_parse_ਨਤੀਜਾ(li->ld, ਸੁਨੇਹਾ, &ਕੋਡ, ਨਿਰਾ, &info, ਨਿਰਾ, ਨਿਰਾ, 0);
+    ਜੇ(rc) {
+      failf(ਅੰਕੜੇ, "LDAP local: search ldap_parse_result %s",
             ldap_err2string(rc));
-      result = CURLE_LDAP_SEARCH_FAILED;
-      break;
+      ਨਤੀਜਾ = CURLE_LDAP_ਖੋਜ_FAILED;
+      ਰੋਕੋ;
     }
 
     /* store the latest code for later retrieval */
-    data->info.httpcode = code;
+    ਅੰਕੜੇ->info.httpcode = ਕੋਡ;
 
-    switch(code) {
-    case LDAP_SIZELIMIT_EXCEEDED:
-      infof(data, "There are more than %d entries", lr->nument);
+    ਚੋਣ(ਕੋਡ) {
+    ਹਾਲਤ LDAP_SIZELIMIT_EXCEEDED:
+      infof(ਅੰਕੜੇ, "There are more than %d entries", lr->nument);
       FALLTHROUGH();
-    case LDAP_SUCCESS:
-      data->req.size = data->req.bytecount;
-      break;
-    default:
-      failf(data, "LDAP remote: search failed %s %s", ldap_err2string(code),
+    ਹਾਲਤ LDAP_SUCCESS:
+      ਅੰਕੜੇ->req.ਮਾਪ = ਅੰਕੜੇ->req.bytecount;
+      ਰੋਕੋ;
+    ਮੂਲ:
+      failf(ਅੰਕੜੇ, "LDAP remote: search failed %s %s", ldap_err2string(ਕੋਡ),
             info ? info : "");
-      result = CURLE_LDAP_SEARCH_FAILED;
-      break;
+      ਨਤੀਜਾ = CURLE_LDAP_ਖੋਜ_FAILED;
+      ਰੋਕੋ;
     }
-    if(info)
+    ਜੇ(info)
       ldap_memfree(info);
-    break;
-  case LDAP_RES_SEARCH_ENTRY:
+    ਰੋਕੋ;
+  ਹਾਲਤ LDAP_RES_ਖੋਜ_ਇੰਦਰਾਜ:
     lr->nument++;
-    rc = ldap_get_dn_ber(li->ld, msg, &ber, &bv);
-    if(rc < 0) {
-      result = CURLE_RECV_ERROR;
-      break;
+    rc = ldap_get_dn_ber(li->ld, ਸੁਨੇਹਾ, &ber, &bv);
+    ਜੇ(rc < 0) {
+      ਨਤੀਜਾ = CURLE_RECV_ERROR;
+      ਰੋਕੋ;
     }
 
-    if(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
-      char *dn_b64 = NULL;
+    ਜੇ(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
+      ਅੱਖਰ *dn_b64 = ਨਿਰਾ;
       size_t dn_b64_sz = 0;
 
       /* A DN with e.g. CR/LF would inject LDIF lines, so base64-encode it. */
-      result = curlx_base64_encode((uint8_t *)bv.bv_val, bv.bv_len,
+      ਨਤੀਜਾ = curlx_base64_encode((uint8_t *)bv.bv_val, bv.bv_len,
                                    &dn_b64, &dn_b64_sz);
-      if(!result)
-        result = client_write(data, STRCONST("DN:: "), dn_b64, dn_b64_sz,
+      ਜੇ(!ਨਤੀਜਾ)
+        ਨਤੀਜਾ = client_write(ਅੰਕੜੇ, STRCONST("DN:: "), dn_b64, dn_b64_sz,
                               STRCONST("\n"));
       curlx_free(dn_b64);
     }
-    else
-      result = client_write(data, STRCONST("DN: "), bv.bv_val, bv.bv_len,
+    ਨਹੀਂਤਾਂ
+      ਨਤੀਜਾ = client_write(ਅੰਕੜੇ, STRCONST("DN: "), bv.bv_val, bv.bv_len,
                             STRCONST("\n"));
-    if(result)
-      break;
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
 
-    for(rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals);
+    ਲਈ(rc = ldap_get_attribute_ber(li->ld, ਸੁਨੇਹਾ, ber, &bv, &bvals);
         rc == LDAP_SUCCESS;
-        rc = ldap_get_attribute_ber(li->ld, msg, ber, &bv, &bvals)) {
-      int i;
-      bool binary;
+        rc = ldap_get_attribute_ber(li->ld, ਸੁਨੇਹਾ, ber, &bv, &bvals)) {
+      ਪੂਰਨ i;
+      bool ਦੁਆਧਾਰੀ;
 
-      if(!bv.bv_val)
-        break;
+      ਜੇ(!bv.bv_val)
+        ਰੋਕੋ;
 
       /* An attribute type has no base64 form in LDIF, so a type carrying
          control bytes (CR/LF etc.) would let a hostile server inject lines.
          A conformant type name never contains them, so reject it. */
-      if(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
-        failf(data, "LDAP local: attribute type contains illegal bytes");
-        if(bvals)
+      ਜੇ(oldap_str_needs_base64(bv.bv_val, bv.bv_len)) {
+        failf(ਅੰਕੜੇ, "LDAP local: attribute type contains illegal bytes");
+        ਜੇ(bvals)
           ber_memfree(bvals);
-        result = CURLE_WEIRD_SERVER_REPLY;
-        break;
+        ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+        ਰੋਕੋ;
       }
 
-      if(!bvals) {
-        result = client_write(data, STRCONST("\t"), bv.bv_val, bv.bv_len,
+      ਜੇ(!bvals) {
+        ਨਤੀਜਾ = client_write(ਅੰਕੜੇ, STRCONST("\t"), bv.bv_val, bv.bv_len,
                               STRCONST(":\n"));
-        if(result)
-          break;
-        continue;
+        ਜੇ(ਨਤੀਜਾ)
+          ਰੋਕੋ;
+        ਜਾਰੀ;
       }
 
-      binary = bv.bv_len > 7 &&
+      ਦੁਆਧਾਰੀ = bv.bv_len > 7 &&
         curl_strnequal(bv.bv_val + bv.bv_len - 7, ";binary", 7);
 
-      for(i = 0; bvals[i].bv_val; i++) {
+      ਲਈ(i = 0; bvals[i].bv_val; i++) {
         bool binval = FALSE;
 
-        result = client_write(data, STRCONST("\t"), bv.bv_val, bv.bv_len,
+        ਨਤੀਜਾ = client_write(ਅੰਕੜੇ, STRCONST("\t"), bv.bv_val, bv.bv_len,
                               STRCONST(":"));
-        if(result)
-          break;
+        ਜੇ(ਨਤੀਜਾ)
+          ਰੋਕੋ;
 
-        if(!binary)
+        ਜੇ(!ਦੁਆਧਾਰੀ)
           binval = oldap_str_needs_base64(bvals[i].bv_val, bvals[i].bv_len);
-        if(binary || binval) {
-          char *val_b64 = NULL;
+        ਜੇ(ਦੁਆਧਾਰੀ || binval) {
+          ਅੱਖਰ *val_b64 = ਨਿਰਾ;
           size_t val_b64_sz = 0;
 
           /* Binary value, encode to base64. */
-          if(bvals[i].bv_len)
-            result = curlx_base64_encode((uint8_t *)bvals[i].bv_val,
+          ਜੇ(bvals[i].bv_len)
+            ਨਤੀਜਾ = curlx_base64_encode((uint8_t *)bvals[i].bv_val,
                                          bvals[i].bv_len,
                                          &val_b64, &val_b64_sz);
-          if(!result)
-            result = client_write(data, STRCONST(": "), val_b64, val_b64_sz,
+          ਜੇ(!ਨਤੀਜਾ)
+            ਨਤੀਜਾ = client_write(ਅੰਕੜੇ, STRCONST(": "), val_b64, val_b64_sz,
                                   STRCONST("\n"));
           curlx_free(val_b64);
         }
-        else
-          result = client_write(data, STRCONST(" "),
+        ਨਹੀਂਤਾਂ
+          ਨਤੀਜਾ = client_write(ਅੰਕੜੇ, STRCONST(" "),
                                 bvals[i].bv_val, bvals[i].bv_len,
                                 STRCONST("\n"));
-        if(result)
-          break;
+        ਜੇ(ਨਤੀਜਾ)
+          ਰੋਕੋ;
       }
 
       ber_memfree(bvals);
-      bvals = NULL;
-      if(!result)
-        result = client_write(data, STRCONST("\n"), NULL, 0, NULL, 0);
-      if(result)
-        break;
+      bvals = ਨਿਰਾ;
+      ਜੇ(!ਨਤੀਜਾ)
+        ਨਤੀਜਾ = client_write(ਅੰਕੜੇ, STRCONST("\n"), ਨਿਰਾ, 0, ਨਿਰਾ, 0);
+      ਜੇ(ਨਤੀਜਾ)
+        ਰੋਕੋ;
     }
 
-    if(!result)
-      result = client_write(data, STRCONST("\n"), NULL, 0, NULL, 0);
-    if(!result)
-      result = CURLE_AGAIN;
-    break;
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = client_write(ਅੰਕੜੇ, STRCONST("\n"), ਨਿਰਾ, 0, ਨਿਰਾ, 0);
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = CURLE_AGAIN;
+    ਰੋਕੋ;
   }
 
   ber_free(ber, 0);
-  ldap_msgfree(msg);
-  return result;
+  ldap_msgfree(ਸੁਨੇਹਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_ldap_version(char *buf, size_t bufsz)
+ਖਾਲੀ Curl_ldap_ਸੰਸਕਰਣ(ਅੱਖਰ *buf, size_t bufsz)
 {
   LDAPAPIInfo api;
-  api.ldapai_info_version = LDAP_API_INFO_VERSION;
+  api.ldapai_info_ਸੰਸਕਰਣ = LDAP_API_INFO_ਸੰਸਕਰਣ;
 
-  if(ldap_get_option(NULL, LDAP_OPT_API_INFO, &api) == LDAP_OPT_SUCCESS) {
-    unsigned int patch = (unsigned int)(api.ldapai_vendor_version % 100);
-    unsigned int major = (unsigned int)(api.ldapai_vendor_version / 10000);
-    unsigned int minor =
-      (((unsigned int)api.ldapai_vendor_version - (major * 10000))
+  ਜੇ(ldap_get_option(ਨਿਰਾ, LDAP_OPT_API_INFO, &api) == LDAP_OPT_SUCCESS) {
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ patch = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)(api.ldapai_vendor_ਸੰਸਕਰਣ % 100);
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ major = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)(api.ldapai_vendor_ਸੰਸਕਰਣ / 10000);
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ minor =
+      (((ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)api.ldapai_vendor_ਸੰਸਕਰਣ - (major * 10000))
        - patch) / 100;
     curl_msnprintf(buf, bufsz, "%s/%u.%u.%u",
                    api.ldapai_vendor_name, major, minor, patch);
     ldap_memfree(api.ldapai_vendor_name);
-    ber_memvfree((void **)api.ldapai_extensions);
+    ber_memvfree((ਖਾਲੀ **)api.ldapai_extensions);
   }
-  else
+  ਨਹੀਂਤਾਂ
     curl_msnprintf(buf, bufsz, "OpenLDAP");
 }
 
 /*
  * LDAP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_ldap = {
-  oldap_setup_connection,               /* setup_connection */
+ਅਚਲ ਬਣਤਰ Curl_protocol Curl_protocol_ldap = {
+  oldap_ਤਿਆਰੀ_connection,               /* setup_connection */
   oldap_do,                             /* do_it */
-  oldap_done,                           /* done */
+  oldap_ਪੂਰਾ,                           /* done */
   ZERO_NULL,                            /* do_more */
   oldap_connect,                        /* connect_it */
   oldap_connecting,                     /* connecting */
@@ -1382,6 +1382,6 @@ const struct Curl_protocol Curl_protocol_ldap = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif /* !CURL_DISABLE_LDAP && USE_OPENLDAP */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_LDAP && USE_OPENLDAP */
 
 /* The LDAP scheme structs are in ldap.c */

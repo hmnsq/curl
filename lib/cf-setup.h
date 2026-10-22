@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_SETUP_H
-#define HEADER_CURL_CF_SETUP_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_CF_ਤਿਆਰੀ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_CF_ਤਿਆਰੀ_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,24 +23,24 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-struct Curl_dns_entry;
-struct ip_quadruple;
-struct Curl_peer;
-struct Curl_str;
+ਬਣਤਰ Curl_dns_ਇੰਦਰਾਜ;
+ਬਣਤਰ ip_quadruple;
+ਬਣਤਰ Curl_peer;
+ਬਣਤਰ Curl_str;
 
-CURLcode Curl_cf_setup_add(struct Curl_easy *data,
-                           struct connectdata *conn,
+CURLcode Curl_cf_ਤਿਆਰੀ_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ connectdata *conn,
                            int8_t sockindex,
                            uint8_t transport,
-                           int ssl_mode);
+                           ਪੂਰਨ ssl_ਬਹੁਲਕ);
 
-CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter *cf_at,
-                                    struct Curl_easy *data,
+CURLcode Curl_cf_ਤਿਆਰੀ_ਪਾਓ_after(ਬਣਤਰ Curl_cfilter *cf_at,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                     uint8_t transport,
-                                    int ssl_mode);
+                                    ਪੂਰਨ ssl_ਬਹੁਲਕ);
 
-extern struct Curl_cftype Curl_cft_setup;
+ਬਾਹਰੀ ਬਣਤਰ Curl_cftype Curl_cft_ਤਿਆਰੀ;
 
-#endif /* HEADER_CURL_CF_SETUP_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_CF_SETUP_H */

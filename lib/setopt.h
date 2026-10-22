@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETOPT_H
-#define HEADER_CURL_SETOPT_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_SETOPT_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_SETOPT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,18 +24,18 @@
  *
  ***************************************************************************/
 
-#ifdef USE_SSL
-CURLcode Curl_setopt_SSLVERSION(struct Curl_easy *data, CURLoption option,
-                                long arg);
-#else
-#define Curl_setopt_SSLVERSION(a, b, c) CURLE_NOT_BUILT_IN
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+CURLcode Curl_setopt_SSLVERSION(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, CURLoption option,
+                                ਲੰਮਾ arg);
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_setopt_SSLVERSION(a, b, c) CURLE_NOT_BUILT_ਵਿੱਚ
+#ਜੇ_ਅੰਤ
 
-CURLcode Curl_setstropt(struct Curl_easy *data,
-                        enum dupstring id, const char *s) WARN_UNUSED_RESULT;
-CURLcode Curl_setblobopt(struct curl_blob **blobp,
-                         const struct curl_blob *blob) WARN_UNUSED_RESULT;
-CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
-  WARN_UNUSED_RESULT;
+CURLcode Curl_setstropt(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                        ਗਿਣਤੀ dupstring id, ਅਚਲ ਅੱਖਰ *s) WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ;
+CURLcode Curl_setblobopt(ਬਣਤਰ curl_blob **blobp,
+                         ਅਚਲ ਬਣਤਰ curl_blob *blob) WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ;
+CURLcode Curl_vsetopt(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, CURLoption option, va_list param)
+  WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ;
 
-#endif /* HEADER_CURL_SETOPT_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_SETOPT_H */

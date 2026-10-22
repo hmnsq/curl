@@ -21,54 +21,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "urldata.h"
-#include "curlx/dynbuf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/dynbuf.h"
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_LIBZ
+#ਅਨ੍ਤਰ੍ਭਾਵ <zlib.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_BROTLI
-#ifdef CURL_HAVE_DIAG
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_BROTLI
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_HAVE_DIAG
 /* Ignore -Wvla warnings in brotli headers */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-#endif
-#include <brotli/decode.h>
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
-#endif
+#ਹਦਾਇਤ GCC diagnostic ਧੱਕੋ
+#ਹਦਾਇਤ GCC diagnostic ignored "-Wvla"
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ <brotli/decode.h>
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_HAVE_DIAG
+#ਹਦਾਇਤ GCC diagnostic ਕੱਢੋ
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_ZSTD
-#include <zstd.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ZSTD
+#ਅਨ੍ਤਰ੍ਭਾਵ <zstd.h>
+#ਜੇ_ਅੰਤ
 
-#include "connect.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "content_encoding.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sendf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "content_encoding.h"
 
-#define CONTENT_ENCODING_DEFAULT  "identity"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CONTENT_ENCODING_DEFAULT  "identity"
 
-#ifndef CURL_DISABLE_HTTP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
 
 /* allow no more than 5 "chained" compression steps */
-#define MAX_ENCODE_STACK 5
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_ENCODE_ਢੇਰ 5
 
-#if defined(HAVE_LIBZ) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
-#define DECOMPRESS_BUFFER_SIZE 16384 /* buffer size for decompressed data */
-#endif
+#ਜੇ defined(HAVE_LIBZ) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DECOMPRESS_ਬਫਰ_ਮਾਪ 16384 /* buffer size for decompressed data */
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_LIBZ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_LIBZ
 
-#if !defined(ZLIB_VERNUM) || (ZLIB_VERNUM < 0x1252)
-#error "zlib 1.2.5.2 or greater required"
-#endif
+#ਜੇ !defined(ZLIB_VERNUM) || (ZLIB_VERNUM < 0x1252)
+#ਗਲਤੀ "zlib 1.2.5.2 or greater required"
+#ਜੇ_ਅੰਤ
 
-typedef enum {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
   ZLIB_UNINIT,               /* uninitialized */
   ZLIB_INIT,                 /* initialized */
   ZLIB_INFLATING,            /* inflating started. */
@@ -77,287 +77,287 @@ typedef enum {
 } zlibInitState;
 
 /* Deflate and gzip writer. */
-struct zlib_writer {
-  struct Curl_cwriter super;
+ਬਣਤਰ zlib_writer {
+  ਬਣਤਰ Curl_cwriter super;
   zlibInitState zlib_init;   /* zlib init state */
-  char buffer[DECOMPRESS_BUFFER_SIZE]; /* Put the decompressed data here. */
+  ਅੱਖਰ ਬਫਰ[DECOMPRESS_ਬਫਰ_ਮਾਪ]; /* Put the decompressed data here. */
   uInt trailerlen;           /* Remaining trailer byte count. */
-  z_stream z;                /* State structure for zlib. */
+  z_ਧਾਰਾ z;                /* State structure for zlib. */
 };
 
-static voidpf zalloc_cb(voidpf opaque, unsigned int items, unsigned int size)
+ਸਥਿਰ voidpf zalloc_cb(voidpf opaque, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਚੀਜ਼ਾਂ, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਮਾਪ)
 {
-  (void)opaque;
+  (ਖਾਲੀ)opaque;
   /* not a typo, keep it curlx_calloc() */
-  return curlx_calloc(items, size);
+  ਵਾਪਸ curlx_calloc(ਚੀਜ਼ਾਂ, ਮਾਪ);
 }
 
-static void zfree_cb(voidpf opaque, voidpf ptr)
+ਸਥਿਰ ਖਾਲੀ zfree_cb(voidpf opaque, voidpf ptr)
 {
-  (void)opaque;
+  (ਖਾਲੀ)opaque;
   curlx_free(ptr);
 }
 
-static CURLcode process_zlib_error(struct Curl_easy *data, z_stream *z)
+ਸਥਿਰ CURLcode process_zlib_error(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, z_ਧਾਰਾ *z)
 {
-  if(z->msg)
-    failf(data, "Error while processing content unencoding: %s", z->msg);
-  else
-    failf(data, "Error while processing content unencoding: "
+  ਜੇ(z->ਸੁਨੇਹਾ)
+    failf(ਅੰਕੜੇ, "Error while processing content unencoding: %s", z->ਸੁਨੇਹਾ);
+  ਨਹੀਂਤਾਂ
+    failf(ਅੰਕੜੇ, "Error while processing content unencoding: "
           "Unknown failure within decompression software.");
 
-  return CURLE_BAD_CONTENT_ENCODING;
+  ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
 }
 
-static CURLcode exit_zlib(struct Curl_easy *data, z_stream *z,
-                          zlibInitState *zlib_init, CURLcode result)
+ਸਥਿਰ CURLcode exit_zlib(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, z_ਧਾਰਾ *z,
+                          zlibInitState *zlib_init, CURLcode ਨਤੀਜਾ)
 {
-  if(*zlib_init != ZLIB_UNINIT) {
-    if(inflateEnd(z) != Z_OK && result == CURLE_OK)
-      result = process_zlib_error(data, z);
+  ਜੇ(*zlib_init != ZLIB_UNINIT) {
+    ਜੇ(inflate_ਸਿਰਾ(z) != Z_OK && ਨਤੀਜਾ == CURLE_OK)
+      ਨਤੀਜਾ = process_zlib_error(ਅੰਕੜੇ, z);
     *zlib_init = ZLIB_UNINIT;
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode process_trailer(struct Curl_easy *data, struct zlib_writer *zp)
+ਸਥਿਰ CURLcode process_trailer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ zlib_writer *zp)
 {
-  z_stream *z = &zp->z;
-  CURLcode result = CURLE_OK;
-  uInt len = z->avail_in < zp->trailerlen ? z->avail_in : zp->trailerlen;
+  z_ਧਾਰਾ *z = &zp->z;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  uInt len = z->avail_ਵਿੱਚ < zp->trailerlen ? z->avail_ਵਿੱਚ : zp->trailerlen;
 
   /* Consume expected trailer bytes. Terminate stream if exhausted.
      Issue an error if unexpected bytes follow. */
 
   zp->trailerlen -= len;
-  z->avail_in -= len;
-  z->next_in += len;
-  if(z->avail_in)
-    result = CURLE_WRITE_ERROR;
-  if(result || !zp->trailerlen)
-    result = exit_zlib(data, z, &zp->zlib_init, result);
-  else {
+  z->avail_ਵਿੱਚ -= len;
+  z->ਅਗਲਾ_ਵਿੱਚ += len;
+  ਜੇ(z->avail_ਵਿੱਚ)
+    ਨਤੀਜਾ = CURLE_WRITE_ERROR;
+  ਜੇ(ਨਤੀਜਾ || !zp->trailerlen)
+    ਨਤੀਜਾ = exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, ਨਤੀਜਾ);
+  ਨਹੀਂਤਾਂ {
     /* Only occurs for gzip with zlib < 1.2.0.4 or raw deflate. */
     zp->zlib_init = ZLIB_EXTERNAL_TRAILER;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode inflate_stream(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
+ਸਥਿਰ CURLcode inflate_ਧਾਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
                                zlibInitState started)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z;         /* zlib state structure */
-  uInt nread = z->avail_in;
-  z_const Bytef *orig_in = z->next_in;
-  bool done = FALSE;
-  CURLcode result = CURLE_OK;   /* Curl_client_write status */
-  int i = 0;
+  ਬਣਤਰ zlib_writer *zp = (ਬਣਤਰ zlib_writer *)writer;
+  z_ਧਾਰਾ *z = &zp->z;         /* zlib state structure */
+  uInt nread = z->avail_ਵਿੱਚ;
+  z_const Bytef *orig_ਵਿੱਚ = z->ਅਗਲਾ_ਵਿੱਚ;
+  bool ਪੂਰਾ = FALSE;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;   /* Curl_client_write status */
+  ਪੂਰਨ i = 0;
 
   /* Check state. */
-  if(zp->zlib_init != ZLIB_INIT &&
+  ਜੇ(zp->zlib_init != ZLIB_INIT &&
      zp->zlib_init != ZLIB_INFLATING &&
      zp->zlib_init != ZLIB_INIT_GZIP)
-    return exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
+    ਵਾਪਸ exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, CURLE_WRITE_ERROR);
 
   /* because the buffer size is fixed, iteratively decompress and transfer to
      the client via next_write function. */
-  while(!done) {
-    int status; /* zlib status */
-    done = TRUE;
+  ਜਦੋਂ(!ਪੂਰਾ) {
+    ਪੂਰਨ ਸਥਿਤੀ; /* zlib status */
+    ਪੂਰਾ = TRUE;
 
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+    ਜੇ(++i > (1024 * 1024 / DECOMPRESS_ਬਫਰ_ਮਾਪ)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
-        failf(data, "Operation timed out while decoding payload");
-        return exit_zlib(data, z, &zp->zlib_init, CURLE_OPERATION_TIMEDOUT);
+      ਜੇ(Curl_timeleft_ms(ਅੰਕੜੇ) < 0) {
+        failf(ਅੰਕੜੇ, "Operation timed out while decoding payload");
+        ਵਾਪਸ exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, CURLE_OPERATION_TIMEDOUT);
       }
     }
 
     /* (re)set buffer for decompressed output for every iteration */
-    z->next_out = (Bytef *)zp->buffer;
-    z->avail_out = DECOMPRESS_BUFFER_SIZE;
+    z->ਅਗਲਾ_ਬਾਹਰਲਾ = (Bytef *)zp->ਬਫਰ;
+    z->avail_ਬਾਹਰਲਾ = DECOMPRESS_ਬਫਰ_ਮਾਪ;
 
-    status = inflate(z, Z_BLOCK);
+    ਸਥਿਤੀ = inflate(z, Z_ਖੰਡ);
 
     /* Flush output data if some. */
-    if(z->avail_out != DECOMPRESS_BUFFER_SIZE) {
-      if(status == Z_OK || status == Z_STREAM_END) {
+    ਜੇ(z->avail_ਬਾਹਰਲਾ != DECOMPRESS_ਬਫਰ_ਮਾਪ) {
+      ਜੇ(ਸਥਿਤੀ == Z_OK || ਸਥਿਤੀ == Z_ਧਾਰਾ_ਸਿਰਾ) {
         zp->zlib_init = started; /* Data started. */
-        result = Curl_cwriter_write(data, writer->next, type, zp->buffer,
-                                    DECOMPRESS_BUFFER_SIZE - z->avail_out);
-        if(result) {
-          exit_zlib(data, z, &zp->zlib_init, result);
-          break;
+        ਨਤੀਜਾ = Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, zp->ਬਫਰ,
+                                    DECOMPRESS_ਬਫਰ_ਮਾਪ - z->avail_ਬਾਹਰਲਾ);
+        ਜੇ(ਨਤੀਜਾ) {
+          exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, ਨਤੀਜਾ);
+          ਰੋਕੋ;
         }
       }
     }
 
     /* Dispatch by inflate() status. */
-    switch(status) {
-    case Z_OK:
+    ਚੋਣ(ਸਥਿਤੀ) {
+    ਹਾਲਤ Z_OK:
       /* Always loop: there may be unflushed latched data in zlib state. */
-      done = FALSE;
-      break;
-    case Z_BUF_ERROR:
+      ਪੂਰਾ = FALSE;
+      ਰੋਕੋ;
+    ਹਾਲਤ Z_BUF_ERROR:
       /* No more data to flush: exit loop. */
-      break;
-    case Z_STREAM_END:
-      if((started == ZLIB_INIT_GZIP) && (z->avail_in >= 2) &&
-         (z->next_in[0] == 0x1f) && (z->next_in[1] == 0x8b)) {
+      ਰੋਕੋ;
+    ਹਾਲਤ Z_ਧਾਰਾ_ਸਿਰਾ:
+      ਜੇ((started == ZLIB_INIT_GZIP) && (z->avail_ਵਿੱਚ >= 2) &&
+         (z->ਅਗਲਾ_ਵਿੱਚ[0] == 0x1f) && (z->ਅਗਲਾ_ਵਿੱਚ[1] == 0x8b)) {
         /* a second gzip member follows; curl does not support
            multi-member gzip responses */
-        failf(data, "Multi-member gzip response not supported");
-        result = exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
-        break;
+        failf(ਅੰਕੜੇ, "Multi-member gzip response not supported");
+        ਨਤੀਜਾ = exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, CURLE_WRITE_ERROR);
+        ਰੋਕੋ;
       }
-      result = process_trailer(data, zp);
-      break;
-    case Z_DATA_ERROR:
+      ਨਤੀਜਾ = process_trailer(ਅੰਕੜੇ, zp);
+      ਰੋਕੋ;
+    ਹਾਲਤ Z_ਅੰਕੜੇ_ERROR:
       /* some servers seem to not generate zlib headers, so this is an attempt
          to fix and continue anyway */
-      if(zp->zlib_init == ZLIB_INIT) {
-        if(inflateReset2(z, -MAX_WBITS) == Z_OK) {
-          z->next_in = orig_in;
-          z->avail_in = nread;
+      ਜੇ(zp->zlib_init == ZLIB_INIT) {
+        ਜੇ(inflateReset2(z, -MAX_WBITS) == Z_OK) {
+          z->ਅਗਲਾ_ਵਿੱਚ = orig_ਵਿੱਚ;
+          z->avail_ਵਿੱਚ = nread;
           zp->zlib_init = ZLIB_INFLATING;
           zp->trailerlen = 4; /* Tolerate up to 4 unknown trailer bytes. */
-          done = FALSE;
-          break;
+          ਪੂਰਾ = FALSE;
+          ਰੋਕੋ;
         }
         zp->zlib_init = ZLIB_UNINIT; /* inflateEnd() already called. */
       }
-      result = exit_zlib(data, z, &zp->zlib_init, process_zlib_error(data, z));
-      break;
-    default:
-      result = exit_zlib(data, z, &zp->zlib_init, process_zlib_error(data, z));
-      break;
+      ਨਤੀਜਾ = exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, process_zlib_error(ਅੰਕੜੇ, z));
+      ਰੋਕੋ;
+    ਮੂਲ:
+      ਨਤੀਜਾ = exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, process_zlib_error(ਅੰਕੜੇ, z));
+      ਰੋਕੋ;
     }
   }
 
   /* We are about to leave this call so the `nread' data bytes will not be seen
      again. If we are in a state that would wrongly allow restart in raw mode
      at the next call, assume output has already started. */
-  if(nread && zp->zlib_init == ZLIB_INIT)
+  ਜੇ(nread && zp->zlib_init == ZLIB_INIT)
     zp->zlib_init = started; /* Cannot restart anymore. */
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Deflate handler. */
-static CURLcode deflate_do_init(struct Curl_easy *data,
-                                struct Curl_cwriter *writer)
+ਸਥਿਰ CURLcode deflate_do_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  ਬਣਤਰ zlib_writer *zp = (ਬਣਤਰ zlib_writer *)writer;
+  z_ਧਾਰਾ *z = &zp->z; /* zlib state structure */
 
   /* Initialize zlib */
   z->zalloc = (alloc_func)zalloc_cb;
   z->zfree = (free_func)zfree_cb;
 
-  if(inflateInit(z) != Z_OK)
-    return process_zlib_error(data, z);
+  ਜੇ(inflateInit(z) != Z_OK)
+    ਵਾਪਸ process_zlib_error(ਅੰਕੜੇ, z);
   zp->zlib_init = ZLIB_INIT;
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode deflate_do_write(struct Curl_easy *data,
-                                 struct Curl_cwriter *writer, int type,
-                                 const char *buf, size_t nbytes)
+ਸਥਿਰ CURLcode deflate_do_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
+                                 ਅਚਲ ਅੱਖਰ *buf, size_t nbytes)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  ਬਣਤਰ zlib_writer *zp = (ਬਣਤਰ zlib_writer *)writer;
+  z_ਧਾਰਾ *z = &zp->z; /* zlib state structure */
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ਜੇ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ਵਾਪਸ Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nbytes);
 
   /* Set the compressed input when this function is called */
-  z->next_in = (z_const Bytef *)buf;
-  z->avail_in = (uInt)nbytes;
+  z->ਅਗਲਾ_ਵਿੱਚ = (z_const Bytef *)buf;
+  z->avail_ਵਿੱਚ = (uInt)nbytes;
 
-  if(zp->zlib_init == ZLIB_EXTERNAL_TRAILER)
-    return process_trailer(data, zp);
+  ਜੇ(zp->zlib_init == ZLIB_EXTERNAL_TRAILER)
+    ਵਾਪਸ process_trailer(ਅੰਕੜੇ, zp);
 
   /* Now uncompress the data */
-  return inflate_stream(data, writer, type, ZLIB_INFLATING);
+  ਵਾਪਸ inflate_ਧਾਰਾ(ਅੰਕੜੇ, writer, type, ZLIB_INFLATING);
 }
 
-static void deflate_do_close(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+ਸਥਿਰ ਖਾਲੀ deflate_do_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  ਬਣਤਰ zlib_writer *zp = (ਬਣਤਰ zlib_writer *)writer;
+  z_ਧਾਰਾ *z = &zp->z; /* zlib state structure */
 
-  exit_zlib(data, z, &zp->zlib_init, CURLE_OK);
+  exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, CURLE_OK);
 }
 
-static const struct Curl_cwtype deflate_encoding = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype deflate_encoding = {
   "deflate",
-  NULL,
+  ਨਿਰਾ,
   CURL_CW_FLAG_BLOWUP,
   deflate_do_init,
   deflate_do_write,
   Curl_cwriter_def_flush,
   deflate_do_close,
-  sizeof(struct zlib_writer)
+  ਆਕਾਰ(ਬਣਤਰ zlib_writer)
 };
 
 /*
  * Gzip handler.
  */
 
-static CURLcode gzip_do_init(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+ਸਥਿਰ CURLcode gzip_do_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  ਬਣਤਰ zlib_writer *zp = (ਬਣਤਰ zlib_writer *)writer;
+  z_ਧਾਰਾ *z = &zp->z; /* zlib state structure */
 
   /* Initialize zlib */
   z->zalloc = (alloc_func)zalloc_cb;
   z->zfree = (free_func)zfree_cb;
 
-  if(inflateInit2(z, MAX_WBITS + 32) != Z_OK)
-    return process_zlib_error(data, z);
+  ਜੇ(inflateInit2(z, MAX_WBITS + 32) != Z_OK)
+    ਵਾਪਸ process_zlib_error(ਅੰਕੜੇ, z);
 
   zp->zlib_init = ZLIB_INIT_GZIP; /* Transparent gzip decompress state */
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode gzip_do_write(struct Curl_easy *data,
-                              struct Curl_cwriter *writer, int type,
-                              const char *buf, size_t nbytes)
+ਸਥਿਰ CURLcode gzip_do_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
+                              ਅਚਲ ਅੱਖਰ *buf, size_t nbytes)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  ਬਣਤਰ zlib_writer *zp = (ਬਣਤਰ zlib_writer *)writer;
+  z_ਧਾਰਾ *z = &zp->z; /* zlib state structure */
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ਜੇ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ਵਾਪਸ Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nbytes);
 
-  if(zp->zlib_init == ZLIB_INIT_GZIP) {
+  ਜੇ(zp->zlib_init == ZLIB_INIT_GZIP) {
     /* Let zlib handle the gzip decompression entirely */
-    z->next_in = (z_const Bytef *)buf;
-    z->avail_in = (uInt)nbytes;
+    z->ਅਗਲਾ_ਵਿੱਚ = (z_const Bytef *)buf;
+    z->avail_ਵਿੱਚ = (uInt)nbytes;
     /* Now uncompress the data */
-    return inflate_stream(data, writer, type, ZLIB_INIT_GZIP);
+    ਵਾਪਸ inflate_ਧਾਰਾ(ਅੰਕੜੇ, writer, type, ZLIB_INIT_GZIP);
   }
 
   /* We are running with an old version: return error. */
-  return exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
+  ਵਾਪਸ exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, CURLE_WRITE_ERROR);
 }
 
-static void gzip_do_close(struct Curl_easy *data,
-                          struct Curl_cwriter *writer)
+ਸਥਿਰ ਖਾਲੀ gzip_do_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
-  z_stream *z = &zp->z; /* zlib state structure */
+  ਬਣਤਰ zlib_writer *zp = (ਬਣਤਰ zlib_writer *)writer;
+  z_ਧਾਰਾ *z = &zp->z; /* zlib state structure */
 
-  exit_zlib(data, z, &zp->zlib_init, CURLE_OK);
+  exit_zlib(ਅੰਕੜੇ, z, &zp->zlib_init, CURLE_OK);
 }
 
-static const struct Curl_cwtype gzip_encoding = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype gzip_encoding = {
   "gzip",
   "x-gzip",
   CURL_CW_FLAG_BLOWUP,
@@ -365,262 +365,262 @@ static const struct Curl_cwtype gzip_encoding = {
   gzip_do_write,
   Curl_cwriter_def_flush,
   gzip_do_close,
-  sizeof(struct zlib_writer)
+  ਆਕਾਰ(ਬਣਤਰ zlib_writer)
 };
 
-#endif /* HAVE_LIBZ */
+#ਜੇ_ਅੰਤ /* HAVE_LIBZ */
 
-#ifdef HAVE_BROTLI
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_BROTLI
 /* Brotli writer. */
-struct brotli_writer {
-  struct Curl_cwriter super;
-  char buffer[DECOMPRESS_BUFFER_SIZE];
+ਬਣਤਰ brotli_writer {
+  ਬਣਤਰ Curl_cwriter super;
+  ਅੱਖਰ ਬਫਰ[DECOMPRESS_ਬਫਰ_ਮਾਪ];
   BrotliDecoderState *br; /* State structure for brotli. */
 };
 
-static CURLcode brotli_map_error(BrotliDecoderErrorCode be)
+ਸਥਿਰ CURLcode brotli_map_error(Brotli_Decoder_Error_ਕੋਡ be)
 {
-  switch(be) {
-  case BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE:
-  case BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE:
-  case BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET:
-  case BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME:
-  case BROTLI_DECODER_ERROR_FORMAT_CL_SPACE:
-  case BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE:
-  case BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT:
-  case BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1:
-  case BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2:
-  case BROTLI_DECODER_ERROR_FORMAT_TRANSFORM:
-  case BROTLI_DECODER_ERROR_FORMAT_DICTIONARY:
-  case BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS:
-  case BROTLI_DECODER_ERROR_FORMAT_PADDING_1:
-  case BROTLI_DECODER_ERROR_FORMAT_PADDING_2:
-#ifdef BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY  /* brotli v1.1.0+ */
-  case BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY:
-#endif
-  case BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET:
-  case BROTLI_DECODER_ERROR_INVALID_ARGUMENTS:
-    return CURLE_BAD_CONTENT_ENCODING;
-  case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES:
-  case BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS:
-  case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP:
-  case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1:
-  case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2:
-  case BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES:
-    return CURLE_OUT_OF_MEMORY;
-  default:
-    break;
+  ਚੋਣ(be) {
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_CL_SPACE:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_ਖੰਡ_ਲੰਮਾਈ_1:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_ਖੰਡ_ਲੰਮਾਈ_2:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_TRANSFORM:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_DICTIONARY:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_ਖਿੜਕੀ_ਬਿੱਟ:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_PADDING_1:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_FORMAT_PADDING_2:
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY  /* brotli v1.1.0+ */
+  ਹਾਲਤ BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY:
+#ਜੇ_ਅੰਤ
+  ਹਾਲਤ BROTLI_DECODER_ERROR_DICTIONARY_NOT_ਸੈੱਟ:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_INVALID_ARGUMENTS:
+    ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
+  ਹਾਲਤ BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_ALLOC_ਰੁੱਖ_GROUPS:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_ALLOC_RING_ਬਫਰ_1:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_ALLOC_RING_ਬਫਰ_2:
+  ਹਾਲਤ BROTLI_DECODER_ERROR_ALLOC_ਖੰਡ_TYPE_TREES:
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
-  return CURLE_WRITE_ERROR;
+  ਵਾਪਸ CURLE_WRITE_ERROR;
 }
 
-static CURLcode brotli_do_init(struct Curl_easy *data,
-                               struct Curl_cwriter *writer)
+ਸਥਿਰ CURLcode brotli_do_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
-  (void)data;
+  ਬਣਤਰ brotli_writer *bp = (ਬਣਤਰ brotli_writer *)writer;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
 
-  bp->br = BrotliDecoderCreateInstance(NULL, NULL, NULL);
-  return bp->br ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  bp->br = BrotliDecoderCreateInstance(ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ);
+  ਵਾਪਸ bp->br ? CURLE_OK : CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 }
 
-static CURLcode brotli_do_write(struct Curl_easy *data,
-                                struct Curl_cwriter *writer, int type,
-                                const char *buf, size_t nbytes)
+ਸਥਿਰ CURLcode brotli_do_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
+                                ਅਚਲ ਅੱਖਰ *buf, size_t nbytes)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
-  const uint8_t *src = (const uint8_t *)buf;
+  ਬਣਤਰ brotli_writer *bp = (ਬਣਤਰ brotli_writer *)writer;
+  ਅਚਲ uint8_t *src = (ਅਚਲ uint8_t *)buf;
   uint8_t *dst;
   size_t dstleft;
-  CURLcode result = CURLE_OK;
-  BrotliDecoderResult r = BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT;
-  int i = 0;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  Brotli_Decoder_ਨਤੀਜਾ r = BROTLI_DECODER_ਨਤੀਜਾ_NEEDS_ਹੋਰ_OUTPUT;
+  ਪੂਰਨ i = 0;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ਜੇ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ਵਾਪਸ Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nbytes);
 
-  if(!bp->br)
-    return CURLE_WRITE_ERROR; /* Stream already ended. */
+  ਜੇ(!bp->br)
+    ਵਾਪਸ CURLE_WRITE_ERROR; /* Stream already ended. */
 
-  while((nbytes || r == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) &&
-        result == CURLE_OK) {
+  ਜਦੋਂ((nbytes || r == BROTLI_DECODER_ਨਤੀਜਾ_NEEDS_ਹੋਰ_OUTPUT) &&
+        ਨਤੀਜਾ == CURLE_OK) {
 
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+    ਜੇ(++i > (1024 * 1024 / DECOMPRESS_ਬਫਰ_ਮਾਪ)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
-        failf(data, "Operation timed out while decoding payload");
-        return CURLE_OPERATION_TIMEDOUT;
+      ਜੇ(Curl_timeleft_ms(ਅੰਕੜੇ) < 0) {
+        failf(ਅੰਕੜੇ, "Operation timed out while decoding payload");
+        ਵਾਪਸ CURLE_OPERATION_TIMEDOUT;
       }
     }
 
-    dst = (uint8_t *)bp->buffer;
-    dstleft = DECOMPRESS_BUFFER_SIZE;
-    r = BrotliDecoderDecompressStream(bp->br,
-                                      &nbytes, &src, &dstleft, &dst, NULL);
-    result = Curl_cwriter_write(data, writer->next, type,
-                                bp->buffer, DECOMPRESS_BUFFER_SIZE - dstleft);
-    if(result)
-      break;
-    switch(r) {
-    case BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT:
-    case BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT:
-      break;
-    case BROTLI_DECODER_RESULT_SUCCESS:
+    dst = (uint8_t *)bp->ਬਫਰ;
+    dstleft = DECOMPRESS_ਬਫਰ_ਮਾਪ;
+    r = Brotli_Decoder_Decompress_ਧਾਰਾ(bp->br,
+                                      &nbytes, &src, &dstleft, &dst, ਨਿਰਾ);
+    ਨਤੀਜਾ = Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type,
+                                bp->ਬਫਰ, DECOMPRESS_ਬਫਰ_ਮਾਪ - dstleft);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
+    ਚੋਣ(r) {
+    ਹਾਲਤ BROTLI_DECODER_ਨਤੀਜਾ_NEEDS_ਹੋਰ_OUTPUT:
+    ਹਾਲਤ BROTLI_DECODER_ਨਤੀਜਾ_NEEDS_ਹੋਰ_ਨਿਵੇਸ਼:
+      ਰੋਕੋ;
+    ਹਾਲਤ BROTLI_DECODER_ਨਤੀਜਾ_SUCCESS:
       BrotliDecoderDestroyInstance(bp->br);
-      bp->br = NULL;
-      if(nbytes)
-        result = CURLE_WRITE_ERROR;
-      break;
-    default:
-      result = brotli_map_error(BrotliDecoderGetErrorCode(bp->br));
-      break;
+      bp->br = ਨਿਰਾ;
+      ਜੇ(nbytes)
+        ਨਤੀਜਾ = CURLE_WRITE_ERROR;
+      ਰੋਕੋ;
+    ਮੂਲ:
+      ਨਤੀਜਾ = brotli_map_error(Brotli_Decoder_Get_Error_ਕੋਡ(bp->br));
+      ਰੋਕੋ;
     }
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void brotli_do_close(struct Curl_easy *data,
-                            struct Curl_cwriter *writer)
+ਸਥਿਰ ਖਾਲੀ brotli_do_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
-  (void)data;
+  ਬਣਤਰ brotli_writer *bp = (ਬਣਤਰ brotli_writer *)writer;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
 
-  if(bp->br) {
+  ਜੇ(bp->br) {
     BrotliDecoderDestroyInstance(bp->br);
-    bp->br = NULL;
+    bp->br = ਨਿਰਾ;
   }
 }
 
-static const struct Curl_cwtype brotli_encoding = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype brotli_encoding = {
   "br",
-  NULL,
+  ਨਿਰਾ,
   CURL_CW_FLAG_BLOWUP,
   brotli_do_init,
   brotli_do_write,
   Curl_cwriter_def_flush,
   brotli_do_close,
-  sizeof(struct brotli_writer)
+  ਆਕਾਰ(ਬਣਤਰ brotli_writer)
 };
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_ZSTD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ZSTD
 /* Zstd writer. */
-struct zstd_writer {
-  struct Curl_cwriter super;
+ਬਣਤਰ zstd_writer {
+  ਬਣਤਰ Curl_cwriter super;
   ZSTD_DStream *zds; /* State structure for zstd. */
-  char buffer[DECOMPRESS_BUFFER_SIZE];
+  ਅੱਖਰ ਬਫਰ[DECOMPRESS_ਬਫਰ_ਮਾਪ];
 };
 
-#ifdef ZSTD_STATIC_LINKING_ONLY
-static void *Curl_zstd_alloc(void *opaque, size_t size)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ ZSTD_STATIC_LINKING_ONLY
+ਸਥਿਰ ਖਾਲੀ *Curl_zstd_alloc(ਖਾਲੀ *opaque, size_t ਮਾਪ)
 {
-  (void)opaque;
-  return Curl_cmalloc(size);
+  (ਖਾਲੀ)opaque;
+  ਵਾਪਸ Curl_cmalloc(ਮਾਪ);
 }
 
-static void Curl_zstd_free(void *opaque, void *address)
+ਸਥਿਰ ਖਾਲੀ Curl_zstd_free(ਖਾਲੀ *opaque, ਖਾਲੀ *ਪਤਾ)
 {
-  (void)opaque;
-  Curl_cfree(address);
+  (ਖਾਲੀ)opaque;
+  Curl_cfree(ਪਤਾ);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static CURLcode zstd_do_init(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+ਸਥਿਰ CURLcode zstd_do_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
+  ਬਣਤਰ zstd_writer *zp = (ਬਣਤਰ zstd_writer *)writer;
 
-  (void)data;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
 
-#ifdef ZSTD_STATIC_LINKING_ONLY
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ ZSTD_STATIC_LINKING_ONLY
   zp->zds = ZSTD_createDStream_advanced((ZSTD_customMem) {
     .customAlloc = Curl_zstd_alloc,
     .customFree  = Curl_zstd_free,
-    .opaque      = NULL
+    .opaque      = ਨਿਰਾ
   });
-#else
+#ਨਹੀਂਤਾਂ
   zp->zds = ZSTD_createDStream();
-#endif
+#ਜੇ_ਅੰਤ
 
-  return zp->zds ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  ਵਾਪਸ zp->zds ? CURLE_OK : CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 }
 
-static CURLcode zstd_do_write(struct Curl_easy *data,
-                              struct Curl_cwriter *writer, int type,
-                              const char *buf, size_t nbytes)
+ਸਥਿਰ CURLcode zstd_do_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
+                              ਅਚਲ ਅੱਖਰ *buf, size_t nbytes)
 {
-  CURLcode result = CURLE_OK;
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
-  ZSTD_inBuffer in;
-  ZSTD_outBuffer out;
-  size_t errorCode;
-  int i = 0;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ zstd_writer *zp = (ਬਣਤਰ zstd_writer *)writer;
+  ZSTD_ਵਿੱਚ_ਬਫਰ ਵਿੱਚ;
+  ZSTD_ਬਾਹਰਲਾ_ਬਫਰ ਬਾਹਰਲਾ;
+  size_t error_ਕੋਡ_2;
+  ਪੂਰਨ i = 0;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ਜੇ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ਵਾਪਸ Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nbytes);
 
-  in.pos = 0;
-  in.src = buf;
-  in.size = nbytes;
+  ਵਿੱਚ.pos = 0;
+  ਵਿੱਚ.src = buf;
+  ਵਿੱਚ.ਮਾਪ = nbytes;
 
-  for(;;) {
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+  ਲਈ(;;) {
+    ਜੇ(++i > (1024 * 1024 / DECOMPRESS_ਬਫਰ_ਮਾਪ)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
-        failf(data, "Operation timed out while decoding payload");
-        return CURLE_OPERATION_TIMEDOUT;
+      ਜੇ(Curl_timeleft_ms(ਅੰਕੜੇ) < 0) {
+        failf(ਅੰਕੜੇ, "Operation timed out while decoding payload");
+        ਵਾਪਸ CURLE_OPERATION_TIMEDOUT;
       }
     }
 
-    out.pos = 0;
-    out.dst = zp->buffer;
-    out.size = DECOMPRESS_BUFFER_SIZE;
+    ਬਾਹਰਲਾ.pos = 0;
+    ਬਾਹਰਲਾ.dst = zp->ਬਫਰ;
+    ਬਾਹਰਲਾ.ਮਾਪ = DECOMPRESS_ਬਫਰ_ਮਾਪ;
 
-    errorCode = ZSTD_decompressStream(zp->zds, &out, &in);
-    if(ZSTD_isError(errorCode)) {
-      return CURLE_BAD_CONTENT_ENCODING;
+    error_ਕੋਡ_2 = ZSTD_decompress_ਧਾਰਾ(zp->zds, &ਬਾਹਰਲਾ, &ਵਿੱਚ);
+    ਜੇ(ZSTD_isError(error_ਕੋਡ_2)) {
+      ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
     }
-    if(out.pos > 0) {
-      result = Curl_cwriter_write(data, writer->next, type,
-                                  zp->buffer, out.pos);
-      if(result)
-        break;
+    ਜੇ(ਬਾਹਰਲਾ.pos > 0) {
+      ਨਤੀਜਾ = Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type,
+                                  zp->ਬਫਰ, ਬਾਹਰਲਾ.pos);
+      ਜੇ(ਨਤੀਜਾ)
+        ਰੋਕੋ;
     }
-    if((in.pos == nbytes) && (out.pos < out.size))
-      break;
+    ਜੇ((ਵਿੱਚ.pos == nbytes) && (ਬਾਹਰਲਾ.pos < ਬਾਹਰਲਾ.ਮਾਪ))
+      ਰੋਕੋ;
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void zstd_do_close(struct Curl_easy *data,
-                          struct Curl_cwriter *writer)
+ਸਥਿਰ ਖਾਲੀ zstd_do_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
-  (void)data;
+  ਬਣਤਰ zstd_writer *zp = (ਬਣਤਰ zstd_writer *)writer;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
 
-  if(zp->zds) {
+  ਜੇ(zp->zds) {
     ZSTD_freeDStream(zp->zds);
-    zp->zds = NULL;
+    zp->zds = ਨਿਰਾ;
   }
 }
 
-static const struct Curl_cwtype zstd_encoding = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype zstd_encoding = {
   "zstd",
-  NULL,
+  ਨਿਰਾ,
   CURL_CW_FLAG_BLOWUP,
   zstd_do_init,
   zstd_do_write,
   Curl_cwriter_def_flush,
   zstd_do_close,
-  sizeof(struct zstd_writer)
+  ਆਕਾਰ(ਬਣਤਰ zstd_writer)
 };
-#endif
+#ਜੇ_ਅੰਤ
 
 /* Identity handler. */
-static const struct Curl_cwtype identity_encoding = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype ਪਛਾਣ_ਤੱਤ_encoding = {
   "identity",
   "none",
   0,
@@ -628,190 +628,190 @@ static const struct Curl_cwtype identity_encoding = {
   Curl_cwriter_def_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct Curl_cwriter)
+  ਆਕਾਰ(ਬਣਤਰ Curl_cwriter)
 };
 
 /* supported general content decoders. */
-static const struct Curl_cwtype * const general_unencoders[] = {
-  &identity_encoding,
-#ifdef HAVE_LIBZ
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype * ਅਚਲ general_unencoders[] = {
+  &ਪਛਾਣ_ਤੱਤ_encoding,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_LIBZ
   &deflate_encoding,
   &gzip_encoding,
-#endif
-#ifdef HAVE_BROTLI
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_BROTLI
   &brotli_encoding,
-#endif
-#ifdef HAVE_ZSTD
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ZSTD
   &zstd_encoding,
-#endif
-  NULL
+#ਜੇ_ਅੰਤ
+  ਨਿਰਾ
 };
 
 /* supported content decoders only for transfer encodings */
-static const struct Curl_cwtype * const transfer_unencoders[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype * ਅਚਲ transfer_unencoders[] = {
   &Curl_httpchunk_unencoder,
-  NULL
+  ਨਿਰਾ
 };
 
 /* Return the list of comma-separated names of supported encodings.
  */
-char *Curl_get_content_encodings(void)
+ਅੱਖਰ *Curl_get_content_encodings(ਖਾਲੀ)
 {
-  struct dynbuf enc;
-  const struct Curl_cwtype * const *cep;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ dynbuf enc;
+  ਅਚਲ ਬਣਤਰ Curl_cwtype * ਅਚਲ *cep;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   curlx_dyn_init(&enc, 255);
 
-  for(cep = general_unencoders; *cep && !result; cep++) {
-    const struct Curl_cwtype *ce = *cep;
-    if(!curl_strequal(ce->name, CONTENT_ENCODING_DEFAULT)) {
-      if(curlx_dyn_len(&enc))
-        result = curlx_dyn_addn(&enc, ", ", 2);
-      if(!result)
-        result = curlx_dyn_add(&enc, ce->name);
+  ਲਈ(cep = general_unencoders; *cep && !ਨਤੀਜਾ; cep++) {
+    ਅਚਲ ਬਣਤਰ Curl_cwtype *ce = *cep;
+    ਜੇ(!curl_strequal(ce->name, CONTENT_ENCODING_DEFAULT)) {
+      ਜੇ(curlx_dyn_len(&enc))
+        ਨਤੀਜਾ = curlx_dyn_addn(&enc, ", ", 2);
+      ਜੇ(!ਨਤੀਜਾ)
+        ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&enc, ce->name);
     }
   }
-  if(!result && !curlx_dyn_len(&enc))
-    result = curlx_dyn_add(&enc, CONTENT_ENCODING_DEFAULT);
+  ਜੇ(!ਨਤੀਜਾ && !curlx_dyn_len(&enc))
+    ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&enc, CONTENT_ENCODING_DEFAULT);
 
-  if(!result)
-    return curlx_dyn_ptr(&enc);
-  return NULL;
+  ਜੇ(!ਨਤੀਜਾ)
+    ਵਾਪਸ curlx_dyn_ptr(&enc);
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
 /* Deferred error dummy writer. */
-static CURLcode error_do_init(struct Curl_easy *data,
-                              struct Curl_cwriter *writer)
+ਸਥਿਰ CURLcode error_do_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਬਣਤਰ Curl_cwriter *writer)
 {
-  (void)data;
-  (void)writer;
-  return CURLE_OK;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)writer;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode error_do_write(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
-                               const char *buf, size_t nbytes)
+ਸਥਿਰ CURLcode error_do_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
+                               ਅਚਲ ਅੱਖਰ *buf, size_t nbytes)
 {
-  (void)writer;
-  (void)buf;
-  (void)nbytes;
+  (ਖਾਲੀ)writer;
+  (ਖਾਲੀ)buf;
+  (ਖਾਲੀ)nbytes;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
-  failf(data, "Unrecognized content encoding type");
-  return CURLE_BAD_CONTENT_ENCODING;
+  ਜੇ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ਵਾਪਸ Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nbytes);
+  failf(ਅੰਕੜੇ, "Unrecognized content encoding type");
+  ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
 }
 
-static void error_do_close(struct Curl_easy *data,
-                           struct Curl_cwriter *writer)
+ਸਥਿਰ ਖਾਲੀ error_do_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ Curl_cwriter *writer)
 {
-  (void)data;
-  (void)writer;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)writer;
 }
 
-static const struct Curl_cwtype error_writer = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype error_writer = {
   "ce-error",
-  NULL,
+  ਨਿਰਾ,
   0,
   error_do_init,
   error_do_write,
   Curl_cwriter_def_flush,
   error_do_close,
-  sizeof(struct Curl_cwriter)
+  ਆਕਾਰ(ਬਣਤਰ Curl_cwriter)
 };
 
 /* Find the content encoding by name. */
-static const struct Curl_cwtype *find_unencode_writer(const char *name,
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype *ਲੱਭੋ_unencode_writer(ਅਚਲ ਅੱਖਰ *name,
                                                       size_t len,
                                                       Curl_cwriter_phase phase)
 {
-  const struct Curl_cwtype * const *cep;
+  ਅਚਲ ਬਣਤਰ Curl_cwtype * ਅਚਲ *cep;
 
-  if(phase == CURL_CW_TRANSFER_DECODE) {
-    for(cep = transfer_unencoders; *cep; cep++) {
-      const struct Curl_cwtype *ce = *cep;
-      if((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
+  ਜੇ(phase == CURL_CW_TRANSFER_DECODE) {
+    ਲਈ(cep = transfer_unencoders; *cep; cep++) {
+      ਅਚਲ ਬਣਤਰ Curl_cwtype *ce = *cep;
+      ਜੇ((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
          (ce->alias && curl_strnequal(name, ce->alias, len) &&
           !ce->alias[len]))
-        return ce;
+        ਵਾਪਸ ce;
     }
   }
   /* look among the general decoders */
-  for(cep = general_unencoders; *cep; cep++) {
-    const struct Curl_cwtype *ce = *cep;
-    if((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
+  ਲਈ(cep = general_unencoders; *cep; cep++) {
+    ਅਚਲ ਬਣਤਰ Curl_cwtype *ce = *cep;
+    ਜੇ((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
        (ce->alias && curl_strnequal(name, ce->alias, len) && !ce->alias[len]))
-      return ce;
+      ਵਾਪਸ ce;
   }
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
 /* Setup the unencoding stack from the Content-Encoding header value.
  * See RFC 7231 section 3.1.2.2. */
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer)
+CURLcode Curl_build_unencoding_ਢੇਰ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਅਚਲ ਅੱਖਰ *enclist, ਪੂਰਨ is_transfer)
 {
   Curl_cwriter_phase phase = is_transfer ?
     CURL_CW_TRANSFER_DECODE : CURL_CW_CONTENT_DECODE;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
   bool has_chunked = FALSE;
 
-  do {
-    const char *name;
+  ਕਰੋ {
+    ਅਚਲ ਅੱਖਰ *name;
     size_t namelen;
     bool is_chunked = FALSE;
 
     /* Parse a single encoding name. */
-    while(ISBLANK(*enclist) || *enclist == ',')
+    ਜਦੋਂ(ISBLANK(*enclist) || *enclist == ',')
       enclist++;
 
     name = enclist;
 
-    for(namelen = 0; *enclist && *enclist != ','; enclist++)
-      if(*enclist > ' ')
+    ਲਈ(namelen = 0; *enclist && *enclist != ','; enclist++)
+      ਜੇ(*enclist > ' ')
         namelen = enclist - name + 1;
 
-    if(namelen) {
-      const struct Curl_cwtype *cwt;
-      struct Curl_cwriter *writer;
+    ਜੇ(namelen) {
+      ਅਚਲ ਬਣਤਰ Curl_cwtype *cwt;
+      ਬਣਤਰ Curl_cwriter *writer;
 
-      CURL_TRC_WRITE(data, "looking for %s decoder: %.*s",
-                     is_transfer ? "transfer" : "content", (int)namelen, name);
+      CURL_TRC_WRITE(ਅੰਕੜੇ, "looking for %s decoder: %.*s",
+                     is_transfer ? "transfer" : "content", (ਪੂਰਨ)namelen, name);
       is_chunked = (is_transfer && (namelen == 7) &&
                     curl_strnequal(name, "chunked", 7));
       /* if we skip the decoding in this phase, do not look further.
        * Exception is "chunked" transfer-encoding which always must happen */
-      if((is_transfer && !data->set.http_transfer_encoding && !is_chunked) ||
-         (!is_transfer && data->set.http_ce_skip)) {
-        bool is_identity = (namelen == 8) &&
+      ਜੇ((is_transfer && !ਅੰਕੜੇ->ਸੈੱਟ.http_transfer_encoding && !is_chunked) ||
+         (!is_transfer && ਅੰਕੜੇ->ਸੈੱਟ.http_ce_skip)) {
+        bool is_ਪਛਾਣ_ਤੱਤ = (namelen == 8) &&
                            curl_strnequal(name, "identity", 8);
         /* not requested, ignore */
-        CURL_TRC_WRITE(data, "decoder not requested, ignored: %.*s",
-                       (int)namelen, name);
-        if(is_transfer && !data->set.http_te_skip) {
-          if(has_chunked)
-            failf(data, "A Transfer-Encoding (%.*s) was listed after chunked",
-                  (int)namelen, name);
-          else if(is_identity)
-            continue;
-          else
-            failf(data, "Unsolicited Transfer-Encoding (%.*s) found",
-                  (int)namelen, name);
-          return CURLE_BAD_CONTENT_ENCODING;
+        CURL_TRC_WRITE(ਅੰਕੜੇ, "decoder not requested, ignored: %.*s",
+                       (ਪੂਰਨ)namelen, name);
+        ਜੇ(is_transfer && !ਅੰਕੜੇ->ਸੈੱਟ.http_te_skip) {
+          ਜੇ(has_chunked)
+            failf(ਅੰਕੜੇ, "A Transfer-Encoding (%.*s) was listed after chunked",
+                  (ਪੂਰਨ)namelen, name);
+          ਨਹੀਂਤਾਂ ਜੇ(is_ਪਛਾਣ_ਤੱਤ)
+            ਜਾਰੀ;
+          ਨਹੀਂਤਾਂ
+            failf(ਅੰਕੜੇ, "Unsolicited Transfer-Encoding (%.*s) found",
+                  (ਪੂਰਨ)namelen, name);
+          ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
         }
-        return CURLE_OK;
+        ਵਾਪਸ CURLE_OK;
       }
 
-      if(Curl_cwriter_count(data, phase) >= MAX_ENCODE_STACK) {
-        failf(data, "Reject response exceeding limit of %d %s encodings",
-              MAX_ENCODE_STACK,
+      ਜੇ(Curl_cwriter_ਗਿਣਤੀ(ਅੰਕੜੇ, phase) >= MAX_ENCODE_ਢੇਰ) {
+        failf(ਅੰਕੜੇ, "Reject response exceeding limit of %d %s encodings",
+              MAX_ENCODE_ਢੇਰ,
               is_transfer ? "transfer" : "content");
-        return CURLE_BAD_CONTENT_ENCODING;
+        ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
       }
 
-      cwt = find_unencode_writer(name, namelen, phase);
-      if(is_transfer && !is_chunked &&
-         Curl_cwriter_get_by_name(data, "chunked")) {
+      cwt = ਲੱਭੋ_unencode_writer(name, namelen, phase);
+      ਜੇ(is_transfer && !is_chunked &&
+         Curl_cwriter_get_by_name(ਅੰਕੜੇ, "chunked")) {
         /* RFC 9112, ch. 6.1:
          * "If any transfer coding other than chunked is applied to a
          *  response's content, the sender MUST either apply chunked as the
@@ -820,58 +820,58 @@ CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
          * "chunked" must be the last added to be the first in its phase,
          *  reject this.
          */
-        failf(data, "Reject response due to 'chunked' not being the last "
+        failf(ਅੰਕੜੇ, "Reject response due to 'chunked' not being the last "
               "Transfer-Encoding");
-        return CURLE_BAD_CONTENT_ENCODING;
+        ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
       }
-      if(cwt && is_chunked && Curl_cwriter_get_by_type(data, cwt)) {
+      ਜੇ(cwt && is_chunked && Curl_cwriter_get_by_type(ਅੰਕੜੇ, cwt)) {
         /* A 'chunked' transfer encoding has already been added.
          * Ignore duplicates. See #13451.
          * Also RFC 9112, ch. 6.1:
          * "A sender MUST NOT apply the chunked transfer coding more than
          *  once to a message body."
          */
-        CURL_TRC_WRITE(data, "ignoring duplicate 'chunked' decoder");
+        CURL_TRC_WRITE(ਅੰਕੜੇ, "ignoring duplicate 'chunked' decoder");
       }
-      else {
-        if(!cwt)
+      ਨਹੀਂਤਾਂ {
+        ਜੇ(!cwt)
           cwt = &error_writer; /* Defer error at use. */
 
-        result = Curl_cwriter_create(&writer, data, cwt, phase);
-        CURL_TRC_WRITE(data, "added %s decoder %s -> %d",
+        ਨਤੀਜਾ = Curl_cwriter_create(&writer, ਅੰਕੜੇ, cwt, phase);
+        CURL_TRC_WRITE(ਅੰਕੜੇ, "added %s decoder %s -> %d",
                        is_transfer ? "transfer" : "content", cwt->name,
-                       (int)result);
-        if(result)
-          return result;
+                       (ਪੂਰਨ)ਨਤੀਜਾ);
+        ਜੇ(ਨਤੀਜਾ)
+          ਵਾਪਸ ਨਤੀਜਾ;
 
-        result = Curl_cwriter_add(data, writer);
-        if(result) {
-          Curl_cwriter_free(data, writer);
-          return result;
+        ਨਤੀਜਾ = Curl_cwriter_ਜੋੜੋ(ਅੰਕੜੇ, writer);
+        ਜੇ(ਨਤੀਜਾ) {
+          Curl_cwriter_free(ਅੰਕੜੇ, writer);
+          ਵਾਪਸ ਨਤੀਜਾ;
         }
       }
-      if(is_chunked)
+      ਜੇ(is_chunked)
         has_chunked = TRUE;
     }
-  } while(*enclist);
+  } ਜਦੋਂ(*enclist);
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-#else
+#ਨਹੀਂਤਾਂ
 /* Stubs for builds without HTTP. */
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer)
+CURLcode Curl_build_unencoding_ਢੇਰ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਅਚਲ ਅੱਖਰ *enclist, ਪੂਰਨ is_transfer)
 {
-  (void)data;
-  (void)enclist;
-  (void)is_transfer;
-  return CURLE_NOT_BUILT_IN;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)enclist;
+  (ਖਾਲੀ)is_transfer;
+  ਵਾਪਸ CURLE_NOT_BUILT_ਵਿੱਚ;
 }
 
-char *Curl_get_content_encodings(void)
+ਅੱਖਰ *Curl_get_content_encodings(ਖਾਲੀ)
 {
-  return curlx_strdup(CONTENT_ENCODING_DEFAULT);
+  ਵਾਪਸ curlx_strdup(CONTENT_ENCODING_DEFAULT);
 }
 
-#endif /* CURL_DISABLE_HTTP */
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_HTTP */

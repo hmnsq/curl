@@ -21,689 +21,689 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "urldata.h"
-#include "strerror.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "url.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "select.h"
-#include "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strerror.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "select.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
 
-CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done)
+CURLcode Curl_cf_def_connect(ਬਣਤਰ Curl_cfilter *cf,
+                              ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ਜੇ(cf->connected) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  if(cf->next) {
-    result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  ਜੇ(cf->ਅਗਲਾ) {
+    ਨਤੀਜਾ = cf->ਅਗਲਾ->cft->do_connect(cf->ਅਗਲਾ, ਅੰਕੜੇ, ਪੂਰਾ);
+    ਜੇ(ਨਤੀਜਾ || !*ਪੂਰਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
   cf->connected = TRUE;
-  *done = TRUE;
-  return CURLE_OK;
+  *ਪੂਰਾ = TRUE;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_cf_def_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done)
+CURLcode Curl_cf_def_shutdown(ਬਣਤਰ Curl_cfilter *cf,
+                              ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  (void)cf;
-  (void)data;
-  *done = TRUE;
-  return CURLE_OK;
+  (ਖਾਲੀ)cf;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  *ਪੂਰਾ = TRUE;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_cf_def_adjust_pollset(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct easy_pollset *ps)
+CURLcode Curl_cf_def_adjust_pollset(ਬਣਤਰ Curl_cfilter *cf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ easy_pollset *ps)
 {
   /* NOP */
-  (void)cf;
-  (void)data;
-  (void)ps;
-  return CURLE_OK;
+  (ਖਾਲੀ)cf;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)ps;
+  ਵਾਪਸ CURLE_OK;
 }
 
-bool Curl_cf_def_data_pending(struct Curl_cfilter *cf,
-                              const struct Curl_easy *data)
+bool Curl_cf_def_ਅੰਕੜੇ_pending(ਬਣਤਰ Curl_cfilter *cf,
+                              ਅਚਲ ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  return cf->next ?
-    cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  ਵਾਪਸ cf->ਅਗਲਾ ?
+    cf->ਅਗਲਾ->cft->has_ਅੰਕੜੇ_pending(cf->ਅਗਲਾ, ਅੰਕੜੇ) : FALSE;
 }
 
-CURLcode Curl_cf_def_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_cf_def_send(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਅਚਲ uint8_t *buf, size_t len, bool eos,
                           size_t *pnwritten)
 {
-  if(cf->next)
-    return cf->next->cft->do_send(cf->next, data, buf, len, eos, pnwritten);
+  ਜੇ(cf->ਅਗਲਾ)
+    ਵਾਪਸ cf->ਅਗਲਾ->cft->do_send(cf->ਅਗਲਾ, ਅੰਕੜੇ, buf, len, eos, pnwritten);
   *pnwritten = 0;
-  return CURLE_RECV_ERROR;
+  ਵਾਪਸ CURLE_RECV_ERROR;
 }
 
-CURLcode Curl_cf_def_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          char *buf, size_t len, size_t *pnread)
+CURLcode Curl_cf_def_recv(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਅੱਖਰ *buf, size_t len, size_t *pnread)
 {
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  ਜੇ(cf->ਅਗਲਾ)
+    ਵਾਪਸ cf->ਅਗਲਾ->cft->do_recv(cf->ਅਗਲਾ, ਅੰਕੜੇ, buf, len, pnread);
   *pnread = 0;
-  return CURLE_SEND_ERROR;
+  ਵਾਪਸ CURLE_SEND_ERROR;
 }
 
-bool Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               bool *input_pending)
+bool Curl_cf_def_conn_is_alive(ਬਣਤਰ Curl_cfilter *cf,
+                               ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               bool *ਨਿਵੇਸ਼_pending)
 {
-  return cf->next ?
-    cf->next->cft->is_alive(cf->next, data, input_pending) :
+  ਵਾਪਸ cf->ਅਗਲਾ ?
+    cf->ਅਗਲਾ->cft->is_alive(cf->ਅਗਲਾ, ਅੰਕੜੇ, ਨਿਵੇਸ਼_pending) :
     FALSE; /* pessimistic in absence of data */
 }
 
-CURLcode Curl_cf_def_conn_keep_alive(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data)
+CURLcode Curl_cf_def_conn_keep_alive(ਬਣਤਰ Curl_cfilter *cf,
+                                     ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  return cf->next ?
-    cf->next->cft->keep_alive(cf->next, data) :
+  ਵਾਪਸ cf->ਅਗਲਾ ?
+    cf->ਅਗਲਾ->cft->keep_alive(cf->ਅਗਲਾ, ਅੰਕੜੇ) :
     CURLE_OK;
 }
 
-CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int query, int *pres1, void *pres2)
+CURLcode Curl_cf_def_query(ਬਣਤਰ Curl_cfilter *cf,
+                           ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਪੂਰਨ query, ਪੂਰਨ *pres1, ਖਾਲੀ *pres2)
 {
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  ਵਾਪਸ cf->ਅਗਲਾ ?
+    cf->ਅਗਲਾ->cft->query(cf->ਅਗਲਾ, ਅੰਕੜੇ, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-#ifdef CURLVERBOSE
-void Curl_conn_trc_filters(struct Curl_easy *data,
-                           int8_t sockindex, const char *info)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+ਖਾਲੀ Curl_conn_trc_filters(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           int8_t sockindex, ਅਚਲ ਅੱਖਰ *info)
 {
-  if(CURL_TRC_M_is_verbose(data) && data->conn) {
-    struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  ਜੇ(CURL_TRC_M_is_verbose(ਅੰਕੜੇ) && ਅੰਕੜੇ->conn) {
+    ਬਣਤਰ Curl_cfilter *cf = ਅੰਕੜੇ->conn->cfilter[sockindex];
 
-    if(cf) {
-      char msg[256], *buf;
-      int blen, n;
+    ਜੇ(cf) {
+      ਅੱਖਰ ਸੁਨੇਹਾ[256], *buf;
+      ਪੂਰਨ blen, n;
 
-      buf = msg;
-      blen = sizeof(msg) - 1;
+      buf = ਸੁਨੇਹਾ;
+      blen = ਆਕਾਰ(ਸੁਨੇਹਾ) - 1;
       n = curl_msnprintf(buf, blen, "%s [%d]", info, sockindex);
       buf += n;
       blen -= n;
-      for(; cf && blen; cf = cf->next) {
+      ਲਈ(; cf && blen; cf = cf->ਅਗਲਾ) {
         n = curl_msnprintf(buf, blen, "[%s%s]",
                            cf->connected ? "" : "!", cf->cft->name);
         buf += n;
         blen -= n;
       }
-      CURL_TRC_M(data, "%s%s", msg, blen ? "" : "...");
+      CURL_TRC_M(ਅੰਕੜੇ, "%s%s", ਸੁਨੇਹਾ, blen ? "" : "...");
     }
-    else
-      CURL_TRC_M(data, "%s [%d][-]", info, sockindex);
+    ਨਹੀਂਤਾਂ
+      CURL_TRC_M(ਅੰਕੜੇ, "%s [%d][-]", info, sockindex);
   }
 }
-#endif /* CURLVERBOSE */
+#ਜੇ_ਅੰਤ /* CURLVERBOSE */
 
-void Curl_conn_cf_discard_chain(struct Curl_cfilter **pcf,
-                                struct Curl_easy *data)
+ਖਾਲੀ Curl_conn_cf_discard_chain(ਬਣਤਰ Curl_cfilter **pcf,
+                                ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_cfilter *cfn, *cf = *pcf;
+  ਬਣਤਰ Curl_cfilter *cfn, *cf = *pcf;
 
-  if(cf) {
-    *pcf = NULL;
-    while(cf) {
-      cfn = cf->next;
+  ਜੇ(cf) {
+    *pcf = ਨਿਰਾ;
+    ਜਦੋਂ(cf) {
+      cfn = cf->ਅਗਲਾ;
       /* prevent destroying filter to mess with its sub-chain, since
        * we have the reference now and will call destroy on it.
        */
-      cf->next = NULL;
-      cf->cft->destroy(cf, data);
+      cf->ਅਗਲਾ = ਨਿਰਾ;
+      cf->cft->destroy(cf, ਅੰਕੜੇ);
       curlx_free(cf);
       cf = cfn;
     }
   }
 }
 
-void Curl_conn_cf_discard_all(struct Curl_easy *data,
-                              struct connectdata *conn, int8_t sockindex)
+ਖਾਲੀ Curl_conn_cf_discard_all(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਬਣਤਰ connectdata *conn, int8_t sockindex)
 {
-  conn->shutdown.start_ms[sockindex] = -1;
-  conn->connect_started.set[sockindex] = FALSE;
-  Curl_conn_cf_discard_chain(&conn->cfilter[sockindex], data);
+  conn->shutdown.ਸ਼ੁਰੂ_ms[sockindex] = -1;
+  conn->connect_started.ਸੈੱਟ[sockindex] = FALSE;
+  Curl_conn_cf_discard_chain(&conn->cfilter[sockindex], ਅੰਕੜੇ);
 }
 
-CURLcode Curl_cf_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
+CURLcode Curl_cf_recv(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex, ਅੱਖਰ *buf,
                       size_t len, size_t *pnread)
 {
-  struct Curl_cfilter *cf;
+  ਬਣਤਰ Curl_cfilter *cf;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected)
-    cf = cf->next;
-  if(cf)
-    return cf->cft->do_recv(cf, data, buf, len, pnread);
-  failf(data, "recv: no filter connected");
+  DEBUGASSERT(ਅੰਕੜੇ);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
+  cf = ਅੰਕੜੇ->conn->cfilter[sockindex];
+  ਜਦੋਂ(cf && !cf->connected)
+    cf = cf->ਅਗਲਾ;
+  ਜੇ(cf)
+    ਵਾਪਸ cf->cft->do_recv(cf, ਅੰਕੜੇ, buf, len, pnread);
+  failf(ਅੰਕੜੇ, "recv: no filter connected");
   DEBUGASSERT(0);
   *pnread = 0;
-  return CURLE_FAILED_INIT;
+  ਵਾਪਸ CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_cf_send(struct Curl_easy *data, int8_t sockindex,
-                      const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_cf_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex,
+                      ਅਚਲ uint8_t *buf, size_t len, bool eos,
                       size_t *pnwritten)
 {
-  struct Curl_cfilter *cf;
+  ਬਣਤਰ Curl_cfilter *cf;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected)
-    cf = cf->next;
-  if(cf) {
-    return cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
+  DEBUGASSERT(ਅੰਕੜੇ);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
+  cf = ਅੰਕੜੇ->conn->cfilter[sockindex];
+  ਜਦੋਂ(cf && !cf->connected)
+    cf = cf->ਅਗਲਾ;
+  ਜੇ(cf) {
+    ਵਾਪਸ cf->cft->do_send(cf, ਅੰਕੜੇ, buf, len, eos, pnwritten);
   }
-  failf(data, "send: no filter connected");
+  failf(ਅੰਕੜੇ, "send: no filter connected");
   DEBUGASSERT(0);
   *pnwritten = 0;
-  return CURLE_FAILED_INIT;
+  ਵਾਪਸ CURLE_FAILED_INIT;
 }
 
-struct cf_io_ctx {
-  struct Curl_easy *data;
-  struct Curl_cfilter *cf;
+ਬਣਤਰ cf_io_ctx {
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ;
+  ਬਣਤਰ Curl_cfilter *cf;
 };
 
-static CURLcode cf_bufq_reader(void *writer_ctx,
-                               unsigned char *buf, size_t blen,
+ਸਥਿਰ CURLcode cf_bufq_reader(ਖਾਲੀ *writer_ctx,
+                               ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf, size_t blen,
                                size_t *pnread)
 {
-  struct cf_io_ctx *io = writer_ctx;
-  return Curl_conn_cf_recv(io->cf, io->data, (char *)buf, blen, pnread);
+  ਬਣਤਰ cf_io_ctx *io = writer_ctx;
+  ਵਾਪਸ Curl_conn_cf_recv(io->cf, io->ਅੰਕੜੇ, (ਅੱਖਰ *)buf, blen, pnread);
 }
 
-CURLcode Curl_cf_recv_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
+CURLcode Curl_cf_recv_bufq(ਬਣਤਰ Curl_cfilter *cf,
+                           ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ bufq *bufq,
                            size_t maxlen,
                            size_t *pnread)
 {
-  struct cf_io_ctx io;
+  ਬਣਤਰ cf_io_ctx io;
 
-  if(!cf || !data) {
+  ਜੇ(!cf || !ਅੰਕੜੇ) {
     *pnread = 0;
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
   }
-  io.data = data;
+  io.ਅੰਕੜੇ = ਅੰਕੜੇ;
   io.cf = cf;
-  return Curl_bufq_sipn(bufq, maxlen, cf_bufq_reader, &io, pnread);
+  ਵਾਪਸ Curl_bufq_sipn(bufq, maxlen, cf_bufq_reader, &io, pnread);
 }
 
-static CURLcode cf_bufq_writer(void *writer_ctx,
-                               const uint8_t *buf, size_t buflen,
+ਸਥਿਰ CURLcode cf_bufq_writer(ਖਾਲੀ *writer_ctx,
+                               ਅਚਲ uint8_t *buf, size_t buflen,
                                size_t *pnwritten)
 {
-  struct cf_io_ctx *io = writer_ctx;
-  return Curl_conn_cf_send(io->cf, io->data, buf, buflen, FALSE, pnwritten);
+  ਬਣਤਰ cf_io_ctx *io = writer_ctx;
+  ਵਾਪਸ Curl_conn_cf_send(io->cf, io->ਅੰਕੜੇ, buf, buflen, FALSE, pnwritten);
 }
 
-CURLcode Curl_cf_send_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
-                           const unsigned char *buf, size_t blen,
+CURLcode Curl_cf_send_bufq(ਬਣਤਰ Curl_cfilter *cf,
+                           ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ bufq *bufq,
+                           ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf, size_t blen,
                            size_t *pnwritten)
 {
-  struct cf_io_ctx io;
+  ਬਣਤਰ cf_io_ctx io;
 
-  if(!cf || !data) {
+  ਜੇ(!cf || !ਅੰਕੜੇ) {
     *pnwritten = 0;
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
   }
-  io.data = data;
+  io.ਅੰਕੜੇ = ਅੰਕੜੇ;
   io.cf = cf;
-  if(buf && blen)
-    return Curl_bufq_write_pass(bufq, buf, blen, cf_bufq_writer, &io,
+  ਜੇ(buf && blen)
+    ਵਾਪਸ Curl_bufq_write_pass(bufq, buf, blen, cf_bufq_writer, &io,
                                 pnwritten);
-  else
-    return Curl_bufq_pass(bufq, cf_bufq_writer, &io, pnwritten);
+  ਨਹੀਂਤਾਂ
+    ਵਾਪਸ Curl_bufq_pass(bufq, cf_bufq_writer, &io, pnwritten);
 }
 
-CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
-                        const struct Curl_cftype *cft,
-                        void *ctx)
+CURLcode Curl_cf_create(ਬਣਤਰ Curl_cfilter **pcf,
+                        ਅਚਲ ਬਣਤਰ Curl_cftype *cft,
+                        ਖਾਲੀ *ctx)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  ਬਣਤਰ Curl_cfilter *cf;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   DEBUGASSERT(cft);
-  cf = curlx_calloc(1, sizeof(*cf));
-  if(!cf)
-    goto out;
+  cf = curlx_calloc(1, ਆਕਾਰ(*cf));
+  ਜੇ(!cf)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   cf->cft = cft;
   cf->ctx = ctx;
-  result = CURLE_OK;
-out:
+  ਨਤੀਜਾ = CURLE_OK;
+ਬਾਹਰਲਾ:
   *pcf = cf;
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_conn_cf_add(struct Curl_easy *data,
-                      struct connectdata *conn,
+ਖਾਲੀ Curl_conn_cf_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                      ਬਣਤਰ connectdata *conn,
                       int8_t sockindex,
-                      struct Curl_cfilter *cf)
+                      ਬਣਤਰ Curl_cfilter *cf)
 {
   DEBUGASSERT(conn);
   DEBUGASSERT(!cf->conn);
-  DEBUGASSERT(!cf->next);
+  DEBUGASSERT(!cf->ਅਗਲਾ);
 
-  cf->next = conn->cfilter[sockindex];
+  cf->ਅਗਲਾ = conn->cfilter[sockindex];
   cf->conn = conn;
   cf->sockindex = sockindex;
   conn->cfilter[sockindex] = cf;
-  CURL_TRC_CF(data, cf, "added");
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "added");
 }
 
-void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
-                               struct Curl_cfilter *cf_new)
+ਖਾਲੀ Curl_conn_cf_ਪਾਓ_after(ਬਣਤਰ Curl_cfilter *cf_at,
+                               ਬਣਤਰ Curl_cfilter *cf_new)
 {
-  struct Curl_cfilter *tail, **pnext;
+  ਬਣਤਰ Curl_cfilter *ਪੂਛ, **pnext;
 
   DEBUGASSERT(cf_at);
   DEBUGASSERT(cf_new);
   DEBUGASSERT(!cf_new->conn);
 
-  tail = cf_at->next;
-  cf_at->next = cf_new;
-  do {
+  ਪੂਛ = cf_at->ਅਗਲਾ;
+  cf_at->ਅਗਲਾ = cf_new;
+  ਕਰੋ {
     cf_new->conn = cf_at->conn;
     cf_new->sockindex = cf_at->sockindex;
-    pnext = &cf_new->next;
-    cf_new = cf_new->next;
-  } while(cf_new);
-  *pnext = tail;
+    pnext = &cf_new->ਅਗਲਾ;
+    cf_new = cf_new->ਅਗਲਾ;
+  } ਜਦੋਂ(cf_new);
+  *pnext = ਪੂਛ;
 }
 
-bool Curl_conn_cf_discard(struct Curl_cfilter **pcf,
-                          struct Curl_easy *data)
+bool Curl_conn_cf_discard(ਬਣਤਰ Curl_cfilter **pcf,
+                          ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_cfilter *cf = pcf ? *pcf : NULL;
-  bool found = FALSE;
-  if(cf) {
-    if(cf->conn) {
+  ਬਣਤਰ Curl_cfilter *cf = pcf ? *pcf : ਨਿਰਾ;
+  bool ਮਿਲਿਆ = FALSE;
+  ਜੇ(cf) {
+    ਜੇ(cf->conn) {
       /* unlink if present in connection filter chain */
-      struct Curl_cfilter **pprev = &cf->conn->cfilter[cf->sockindex];
-      while(*pprev) {
-        if(*pprev == *pcf) {
-          *pprev = (*pcf)->next;
-          cf->next = NULL;
-          found = TRUE;
-          break;
+      ਬਣਤਰ Curl_cfilter **pprev = &cf->conn->cfilter[cf->sockindex];
+      ਜਦੋਂ(*pprev) {
+        ਜੇ(*pprev == *pcf) {
+          *pprev = (*pcf)->ਅਗਲਾ;
+          cf->ਅਗਲਾ = ਨਿਰਾ;
+          ਮਿਲਿਆ = TRUE;
+          ਰੋਕੋ;
         }
-        pprev = &(*pprev)->next;
+        pprev = &(*pprev)->ਅਗਲਾ;
       }
     }
-    Curl_conn_cf_discard_chain(pcf, data);
+    Curl_conn_cf_discard_chain(pcf, ਅੰਕੜੇ);
   }
-  return found;
+  ਵਾਪਸ ਮਿਲਿਆ;
 }
 
-CURLcode Curl_conn_cf_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              bool *done)
+CURLcode Curl_conn_cf_connect(ਬਣਤਰ Curl_cfilter *cf,
+                              ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              bool *ਪੂਰਾ)
 {
-  if(cf)
-    return cf->cft->do_connect(cf, data, done);
-  return CURLE_FAILED_INIT;
+  ਜੇ(cf)
+    ਵਾਪਸ cf->cft->do_connect(cf, ਅੰਕੜੇ, ਪੂਰਾ);
+  ਵਾਪਸ CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_conn_cf_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           const uint8_t *buf, size_t len, bool eos,
+CURLcode Curl_conn_cf_send(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਅਚਲ uint8_t *buf, size_t len, bool eos,
                            size_t *pnwritten)
 {
-  if(cf)
-    return cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
+  ਜੇ(cf)
+    ਵਾਪਸ cf->cft->do_send(cf, ਅੰਕੜੇ, buf, len, eos, pnwritten);
   *pnwritten = 0;
-  return CURLE_SEND_ERROR;
+  ਵਾਪਸ CURLE_SEND_ERROR;
 }
 
-CURLcode Curl_conn_cf_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           char *buf, size_t len, size_t *pnread)
+CURLcode Curl_conn_cf_recv(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਅੱਖਰ *buf, size_t len, size_t *pnread)
 {
-  if(cf)
-    return cf->cft->do_recv(cf, data, buf, len, pnread);
+  ਜੇ(cf)
+    ਵਾਪਸ cf->cft->do_recv(cf, ਅੰਕੜੇ, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  ਵਾਪਸ CURLE_RECV_ERROR;
 }
 
-static CURLcode cf_cntrl_all(struct connectdata *conn,
-                             struct Curl_easy *data,
-                             bool ignore_result,
-                             int event, int arg1, void *arg2)
+ਸਥਿਰ CURLcode cf_cntrl_all(ਬਣਤਰ connectdata *conn,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             bool ignore_ਨਤੀਜਾ,
+                             ਪੂਰਨ event, ਪੂਰਨ arg1, ਖਾਲੀ *arg2)
 {
-  CURLcode result = CURLE_OK;
-  int i;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਪੂਰਨ i;
 
-  for(i = 0; i < (int)CURL_ARRAYSIZE(conn->cfilter); ++i) {
-    result = Curl_conn_cf_cntrl(conn->cfilter[i], data, ignore_result,
+  ਲਈ(i = 0; i < (ਪੂਰਨ)CURL_ARRAYSIZE(conn->cfilter); ++i) {
+    ਨਤੀਜਾ = Curl_conn_cf_cntrl(conn->cfilter[i], ਅੰਕੜੇ, ignore_ਨਤੀਜਾ,
                                 event, arg1, arg2);
-    if(!ignore_result && result)
-      break;
+    ਜੇ(!ignore_ਨਤੀਜਾ && ਨਤੀਜਾ)
+      ਰੋਕੋ;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-bool Curl_conn_cf_is_ip_connected(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+bool Curl_conn_cf_is_ip_connected(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  if(cf) {
-    int value = 0;
-    if(!cf->cft->query(cf, data, CF_QUERY_REALLY_CONNECTED, &value, NULL))
-      return !!value;
+  ਜੇ(cf) {
+    ਪੂਰਨ ਮੁੱਲ = 0;
+    ਜੇ(!cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_REALLY_CONNECTED, &ਮੁੱਲ, ਨਿਰਾ))
+      ਵਾਪਸ !!ਮੁੱਲ;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-void Curl_conn_cntrl_update_info(struct Curl_easy *data,
-                                struct connectdata *conn)
+ਖਾਲੀ Curl_conn_cntrl_update_info(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ connectdata *conn)
 {
-  cf_cntrl_all(conn, data, TRUE, CF_CTRL_CONN_INFO_UPDATE, 0, NULL);
+  cf_cntrl_all(conn, ਅੰਕੜੇ, TRUE, CF_CTRL_CONN_INFO_UPDATE, 0, ਨਿਰਾ);
 }
 
-void Curl_conn_cntrl_report_stats(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  int sockindex)
+ਖਾਲੀ Curl_conn_cntrl_report_stats(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ connectdata *conn,
+                                  ਪੂਰਨ sockindex)
 {
-  if((unsigned)sockindex < CURL_ARRAYSIZE(conn->cfilter))
-    (void)Curl_conn_cf_cntrl(conn->cfilter[sockindex], data, TRUE,
-                             CF_CTRL_REPORT_STATS, 0, NULL);
+  ਜੇ((ਬਿਨਾਨਿਸ਼ਾਨੀ)sockindex < CURL_ARRAYSIZE(conn->cfilter))
+    (ਖਾਲੀ)Curl_conn_cf_cntrl(conn->cfilter[sockindex], ਅੰਕੜੇ, TRUE,
+                             CF_CTRL_REPORT_STATS, 0, ਨਿਰਾ);
 }
 
-void Curl_conn_remove_setup_filters(struct Curl_easy *data,
+ਖਾਲੀ Curl_conn_remove_ਤਿਆਰੀ_filters(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                     int8_t sockindex)
 {
-  struct Curl_cfilter **anchor = &data->conn->cfilter[sockindex];
-  while(*anchor) {
-    struct Curl_cfilter *cf = *anchor;
-    if(cf->connected && (cf->cft->flags & CF_TYPE_SETUP)) {
-      *anchor = cf->next;
-      cf->next = NULL;
-      CURL_TRC_CF(data, cf, "removing connected setup filter");
-      cf->cft->destroy(cf, data);
+  ਬਣਤਰ Curl_cfilter **anchor = &ਅੰਕੜੇ->conn->cfilter[sockindex];
+  ਜਦੋਂ(*anchor) {
+    ਬਣਤਰ Curl_cfilter *cf = *anchor;
+    ਜੇ(cf->connected && (cf->cft->flags & CF_TYPE_ਤਿਆਰੀ)) {
+      *anchor = cf->ਅਗਲਾ;
+      cf->ਅਗਲਾ = ਨਿਰਾ;
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "removing connected setup filter");
+      cf->cft->destroy(cf, ਅੰਕੜੇ);
       curlx_free(cf);
     }
-    else
-      anchor = &cf->next;
+    ਨਹੀਂਤਾਂ
+      anchor = &cf->ਅਗਲਾ;
   }
 }
 
-bool Curl_conn_is_setup(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_ਤਿਆਰੀ(ਬਣਤਰ connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return !!conn->cfilter[sockindex];
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
+  ਵਾਪਸ !!conn->cfilter[sockindex];
 }
 
-bool Curl_conn_is_connected(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_connected(ਬਣਤਰ connectdata *conn, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  ਬਣਤਰ Curl_cfilter *cf;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
   cf = conn->cfilter[sockindex];
-  if(cf)
-    return (bool)cf->connected;
-  else if(conn->scheme->flags & PROTOPT_NONETWORK)
-    return TRUE;
-  return FALSE;
+  ਜੇ(cf)
+    ਵਾਪਸ (bool)cf->connected;
+  ਨਹੀਂਤਾਂ ਜੇ(conn->scheme->flags & PROTOPT_NONETWORK)
+    ਵਾਪਸ TRUE;
+  ਵਾਪਸ FALSE;
 }
 
-bool Curl_conn_is_ip_connected(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_is_ip_connected(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  ਬਣਤਰ Curl_cfilter *cf;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  cf = data->conn->cfilter[sockindex];
-  while(cf) {
-    if(cf->connected)
-      return TRUE;
-    if(cf->cft->flags & CF_TYPE_IP_CONNECT)
-      return FALSE;
-    cf = cf->next;
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
+  cf = ਅੰਕੜੇ->conn->cfilter[sockindex];
+  ਜਦੋਂ(cf) {
+    ਜੇ(cf->connected)
+      ਵਾਪਸ TRUE;
+    ਜੇ(cf->cft->flags & CF_TYPE_IP_CONNECT)
+      ਵਾਪਸ FALSE;
+    cf = cf->ਅਗਲਾ;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-#ifndef CURL_DISABLE_PROXY
-static bool cf_is_tunneling(struct Curl_cfilter *cf)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+ਸਥਿਰ bool cf_is_tunneling(ਬਣਤਰ Curl_cfilter *cf)
 {
-  for(; cf; cf = cf->next) {
-    if((cf->cft->flags & CF_TYPE_PROXY))
-      return TRUE;
+  ਲਈ(; cf; cf = cf->ਅਗਲਾ) {
+    ਜੇ((cf->cft->flags & CF_TYPE_PROXY))
+      ਵਾਪਸ TRUE;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_tunneling(ਬਣਤਰ connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return conn ? cf_is_tunneling(conn->cfilter[sockindex]) : FALSE;
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
+  ਵਾਪਸ conn ? cf_is_tunneling(conn->cfilter[sockindex]) : FALSE;
 }
-#else
-bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex)
+#ਨਹੀਂਤਾਂ
+bool Curl_conn_is_tunneling(ਬਣਤਰ connectdata *conn, int8_t sockindex)
 {
-  (void)conn;
-  (void)sockindex;
-  return FALSE;
+  (ਖਾਲੀ)conn;
+  (ਖਾਲੀ)sockindex;
+  ਵਾਪਸ FALSE;
 }
-#endif /* CURL_DISABLE_PROXY */
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_PROXY */
 
-static bool cf_is_ssl(struct Curl_cfilter *cf)
+ਸਥਿਰ bool cf_is_ssl(ਬਣਤਰ Curl_cfilter *cf)
 {
-  for(; cf; cf = cf->next) {
+  ਲਈ(; cf; cf = cf->ਅਗਲਾ) {
     /* A tunneling proxy does not offer end2end encryption, even if
      * it does SSL itself (e.g. QUIC H3 proxy) */
-    if((cf->cft->flags & CF_TYPE_SSL) && !(cf->cft->flags & CF_TYPE_PROXY))
-      return TRUE;
-    if(cf->cft->flags & CF_TYPE_IP_CONNECT)
-      return FALSE;
+    ਜੇ((cf->cft->flags & CF_TYPE_SSL) && !(cf->cft->flags & CF_TYPE_PROXY))
+      ਵਾਪਸ TRUE;
+    ਜੇ(cf->cft->flags & CF_TYPE_IP_CONNECT)
+      ਵਾਪਸ FALSE;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-bool Curl_conn_is_ssl(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_ssl(ਬਣਤਰ connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return conn ? cf_is_ssl(conn->cfilter[sockindex]) : FALSE;
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
+  ਵਾਪਸ conn ? cf_is_ssl(conn->cfilter[sockindex]) : FALSE;
 }
 
-bool Curl_conn_get_ssl_info(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            int query,
-                            struct curl_tlssessioninfo *info)
+bool Curl_conn_get_ssl_info(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ connectdata *conn, int8_t sockindex,
+                            ਪੂਰਨ query,
+                            ਬਣਤਰ curl_tlssessioninfo *info)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  if(Curl_conn_is_ssl(conn, sockindex)) {
-    struct Curl_cfilter *cf = conn->cfilter[sockindex];
-    CURLcode result = cf ?
-      cf->cft->query(cf, data, query, NULL, (void *)info) :
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
+  ਜੇ(Curl_conn_is_ssl(conn, sockindex)) {
+    ਬਣਤਰ Curl_cfilter *cf = conn->cfilter[sockindex];
+    CURLcode ਨਤੀਜਾ = cf ?
+      cf->cft->query(cf, ਅੰਕੜੇ, query, ਨਿਰਾ, (ਖਾਲੀ *)info) :
       CURLE_UNKNOWN_OPTION;
-    return !result;
+    ਵਾਪਸ !ਨਤੀਜਾ;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-CURLcode Curl_conn_get_ip_info(struct Curl_easy *data,
-                               struct connectdata *conn, int8_t sockindex,
-                               bool *is_ipv6, struct ip_quadruple *ipquad)
+CURLcode Curl_conn_get_ip_info(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ connectdata *conn, int8_t sockindex,
+                               bool *is_ipv6, ਬਣਤਰ ip_quadruple *ipquad)
 {
-  struct Curl_cfilter *cf;
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  cf = conn ? conn->cfilter[sockindex] : NULL;
-  return Curl_conn_cf_get_ip_info(cf, data, is_ipv6, ipquad);
+  ਬਣਤਰ Curl_cfilter *cf;
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+  cf = conn ? conn->cfilter[sockindex] : ਨਿਰਾ;
+  ਵਾਪਸ Curl_conn_cf_get_ip_info(cf, ਅੰਕੜੇ, is_ipv6, ipquad);
 }
 
-bool Curl_conn_is_multiplex(struct connectdata *conn, int8_t sockindex)
+bool Curl_conn_is_multiplex(ਬਣਤਰ connectdata *conn, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  ਬਣਤਰ Curl_cfilter *cf;
 
-  if(!conn || !CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  for(cf = conn->cfilter[sockindex]; cf; cf = cf->next) {
-    if(cf->cft->flags & CF_TYPE_MULTIPLEX)
-      return TRUE;
-    if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
-      return FALSE;
+  ਜੇ(!conn || !CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
+  ਲਈ(cf = conn->cfilter[sockindex]; cf; cf = cf->ਅਗਲਾ) {
+    ਜੇ(cf->cft->flags & CF_TYPE_MULTIPLEX)
+      ਵਾਪਸ TRUE;
+    ਜੇ(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
+      ਵਾਪਸ FALSE;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-unsigned char Curl_conn_get_transport(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_conn_get_transport(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਬਣਤਰ connectdata *conn)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return Curl_conn_cf_get_transport(cf, data);
+  ਬਣਤਰ Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  ਵਾਪਸ Curl_conn_cf_get_transport(cf, ਅੰਕੜੇ);
 }
 
-int Curl_socktype_for_transport(uint8_t transport)
+ਪੂਰਨ Curl_socktype_for_transport(uint8_t transport)
 {
-  switch(transport) {
-  case TRNSPRT_TCP:
-    return SOCK_STREAM;
-  case TRNSPRT_UNIX:
-    return SOCK_STREAM;
-  default: /* UDP and QUIC */
-    return SOCK_DGRAM;
-  }
-}
-
-int Curl_protocol_for_transport(uint8_t transport)
-{
-  switch(transport) {
-  case TRNSPRT_TCP:
-    return IPPROTO_TCP;
-  case TRNSPRT_UNIX:
-    return IPPROTO_IP;
-  default: /* UDP and QUIC */
-    return IPPROTO_UDP;
+  ਚੋਣ(transport) {
+  ਹਾਲਤ TRNSPRT_TCP:
+    ਵਾਪਸ SOCK_STREAM;
+  ਹਾਲਤ TRNSPRT_UNIX:
+    ਵਾਪਸ SOCK_STREAM;
+  ਮੂਲ: /* UDP and QUIC */
+    ਵਾਪਸ SOCK_DGRAM;
   }
 }
 
-const char *Curl_conn_get_alpn_negotiated(struct Curl_easy *data,
-                                          struct connectdata *conn)
+ਪੂਰਨ Curl_protocol_for_transport(uint8_t transport)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return Curl_conn_cf_get_alpn_negotiated(cf, data);
+  ਚੋਣ(transport) {
+  ਹਾਲਤ TRNSPRT_TCP:
+    ਵਾਪਸ IPPROTO_TCP;
+  ਹਾਲਤ TRNSPRT_UNIX:
+    ਵਾਪਸ IPPROTO_IP;
+  ਮੂਲ: /* UDP and QUIC */
+    ਵਾਪਸ IPPROTO_UDP;
+  }
 }
 
-unsigned char Curl_conn_http_version(struct Curl_easy *data,
-                                     struct connectdata *conn)
+ਅਚਲ ਅੱਖਰ *Curl_conn_get_alpn_negotiated(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                          ਬਣਤਰ connectdata *conn)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_UNKNOWN_OPTION;
-  unsigned char v = 0;
+  ਬਣਤਰ Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  ਵਾਪਸ Curl_conn_cf_get_alpn_negotiated(cf, ਅੰਕੜੇ);
+}
+
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_conn_http_ਸੰਸਕਰਣ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਬਣਤਰ connectdata *conn)
+{
+  ਬਣਤਰ Curl_cfilter *cf;
+  CURLcode ਨਤੀਜਾ = CURLE_UNKNOWN_OPTION;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ v = 0;
 
   cf = conn->cfilter[FIRSTSOCKET];
-  for(; cf; cf = cf->next) {
-    if(cf->cft->flags & CF_TYPE_HTTP) {
-      int value = 0;
-      result = cf->cft->query(cf, data, CF_QUERY_HTTP_VERSION, &value, NULL);
-      if(!result && ((value < 0) || (value > 255)))
-        result = CURLE_FAILED_INIT;
-      else
-        v = (unsigned char)value;
-      break;
+  ਲਈ(; cf; cf = cf->ਅਗਲਾ) {
+    ਜੇ(cf->cft->flags & CF_TYPE_HTTP) {
+      ਪੂਰਨ ਮੁੱਲ = 0;
+      ਨਤੀਜਾ = cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_HTTP_ਸੰਸਕਰਣ, &ਮੁੱਲ, ਨਿਰਾ);
+      ਜੇ(!ਨਤੀਜਾ && ((ਮੁੱਲ < 0) || (ਮੁੱਲ > 255)))
+        ਨਤੀਜਾ = CURLE_FAILED_INIT;
+      ਨਹੀਂਤਾਂ
+        v = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)ਮੁੱਲ;
+      ਰੋਕੋ;
     }
-    if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
-      break;
+    ਜੇ(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
+      ਰੋਕੋ;
   }
-  return (unsigned char)(result ? 0 : v);
+  ਵਾਪਸ (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)(ਨਤੀਜਾ ? 0 : v);
 }
 
-bool Curl_conn_data_pending(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_ਅੰਕੜੇ_pending(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
+  ਬਣਤਰ Curl_cfilter *cf;
 
-  (void)data;
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  DEBUGASSERT(ਅੰਕੜੇ);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
 
-  cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected) {
-    cf = cf->next;
+  cf = ਅੰਕੜੇ->conn->cfilter[sockindex];
+  ਜਦੋਂ(cf && !cf->connected) {
+    cf = cf->ਅਗਲਾ;
   }
-  if(cf) {
-    return cf->cft->has_data_pending(cf, data);
+  ਜੇ(cf) {
+    ਵਾਪਸ cf->cft->has_ਅੰਕੜੇ_pending(cf, ਅੰਕੜੇ);
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-bool Curl_conn_cf_needs_flush(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+bool Curl_conn_cf_needs_flush(ਬਣਤਰ Curl_cfilter *cf,
+                              ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result;
-  int pending = 0;
-  result = cf ? cf->cft->query(cf, data, CF_QUERY_NEED_FLUSH,
-                               &pending, NULL) : CURLE_UNKNOWN_OPTION;
-  return (result || !pending) ? FALSE : TRUE;
+  CURLcode ਨਤੀਜਾ;
+  ਪੂਰਨ pending = 0;
+  ਨਤੀਜਾ = cf ? cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_NEED_FLUSH,
+                               &pending, ਨਿਰਾ) : CURLE_UNKNOWN_OPTION;
+  ਵਾਪਸ (ਨਤੀਜਾ || !pending) ? FALSE : TRUE;
 }
 
-bool Curl_conn_needs_flush(struct Curl_easy *data, int8_t sockindex)
+bool Curl_conn_needs_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return Curl_conn_cf_needs_flush(data->conn->cfilter[sockindex], data);
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ FALSE;
+  ਵਾਪਸ Curl_conn_cf_needs_flush(ਅੰਕੜੇ->conn->cfilter[sockindex], ਅੰਕੜੇ);
 }
 
-CURLcode Curl_conn_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+CURLcode Curl_conn_cf_adjust_pollset(ਬਣਤਰ Curl_cfilter *cf,
+                                     ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਬਣਤਰ easy_pollset *ps)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   /* Go through all filters, top to bottom, and let them manage the pollset
    * - connected filters can do so
    * - CF_TYPE_DNS filters can
    * - unconnected filters without next or connect next can
    */
-  for(; cf && !result; cf = cf->next) {
-    if(cf->shutdown)
-      continue;
-    if(cf->connected || (cf->cft->flags & CF_TYPE_DNS) ||
-       !cf->next || cf->next->connected)
-      result = cf->cft->adjust_pollset(cf, data, ps);
+  ਲਈ(; cf && !ਨਤੀਜਾ; cf = cf->ਅਗਲਾ) {
+    ਜੇ(cf->shutdown)
+      ਜਾਰੀ;
+    ਜੇ(cf->connected || (cf->cft->flags & CF_TYPE_DNS) ||
+       !cf->ਅਗਲਾ || cf->ਅਗਲਾ->connected)
+      ਨਤੀਜਾ = cf->cft->adjust_pollset(cf, ਅੰਕੜੇ, ps);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct easy_pollset *ps)
+CURLcode Curl_conn_adjust_pollset(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ connectdata *conn,
+                                  ਬਣਤਰ easy_pollset *ps)
 {
-  CURLcode result = CURLE_OK;
-  const bool want_io = !!ps->n;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅਚਲ bool want_io = !!ps->n;
   int8_t i;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(ਅੰਕੜੇ);
   DEBUGASSERT(conn);
   /* During connect time, connection filters may add sockets to the pollset
    * even when the transfer neither wants to send nor receive. And those
@@ -718,13 +718,13 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
    * connect or shutdown does not add poll events for the other. Check
    * against the transfer's own interest, before any chain added sockets
    * of its own. */
-  for(i = 0; (i < (int)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
-    if(conn->cfilter[i] &&
+  ਲਈ(i = 0; (i < (ਪੂਰਨ)CURL_ARRAYSIZE(conn->cfilter)) && !ਨਤੀਜਾ; ++i) {
+    ਜੇ(conn->cfilter[i] &&
        (want_io || !conn->cfilter[i]->connected ||
-        CURL_CONN_IN_SHUTDOWN(conn, i)))
-      result = Curl_conn_cf_adjust_pollset(conn->cfilter[i], data, ps);
+        CURL_CONN_ਵਿੱਚ_SHUTDOWN(conn, i)))
+      ਨਤੀਜਾ = Curl_conn_cf_adjust_pollset(conn->cfilter[i], ਅੰਕੜੇ, ps);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
@@ -733,322 +733,322 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_conn_cf_poll(struct Curl_cfilter *cf,
-                      struct Curl_easy *data,
+ਪੂਰਨ Curl_conn_cf_poll(ਬਣਤਰ Curl_cfilter *cf,
+                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                       timediff_t timeout_ms)
 {
-  struct easy_pollset ps;
-  int rc;
-  CURLcode result;
+  ਬਣਤਰ easy_pollset ps;
+  ਪੂਰਨ rc;
+  CURLcode ਨਤੀਜਾ;
 
   DEBUGASSERT(cf);
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ਅੰਕੜੇ);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
   Curl_pollset_init(&ps);
 
-  result = Curl_conn_cf_adjust_pollset(cf, data, &ps);
-  if(!result)
-    rc = Curl_pollset_poll(data, &ps, timeout_ms);
-  else
+  ਨਤੀਜਾ = Curl_conn_cf_adjust_pollset(cf, ਅੰਕੜੇ, &ps);
+  ਜੇ(!ਨਤੀਜਾ)
+    rc = Curl_pollset_poll(ਅੰਕੜੇ, &ps, timeout_ms);
+  ਨਹੀਂਤਾਂ
     rc = -1;
   Curl_pollset_cleanup(&ps);
-  return rc;
+  ਵਾਪਸ rc;
 }
 
-void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
-                                const char **phost, int *pport)
+ਖਾਲੀ Curl_conn_get_current_host(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex,
+                                ਅਚਲ ਅੱਖਰ **phost, ਪੂਰਨ *pport)
 {
-  struct Curl_cfilter *cf, *cf_proxy = NULL;
-  int portarg = -1;
+  ਬਣਤਰ Curl_cfilter *cf, *cf_proxy = ਨਿਰਾ;
+  ਪੂਰਨ portarg = -1;
 
-  if(!data->conn) {
+  ਜੇ(!ਅੰਕੜੇ->conn) {
     DEBUGASSERT(0);
     *phost = "";
-    if(pport)
+    ਜੇ(pport)
       *pport = -1;
-    return;
+    ਵਾਪਸ;
   }
 
-  cf = CONN_SOCK_IDX_VALID(sockindex) ? data->conn->cfilter[sockindex] : NULL;
+  cf = CONN_SOCK_IDX_VALID(sockindex) ? ਅੰਕੜੇ->conn->cfilter[sockindex] : ਨਿਰਾ;
   /* Find the "lowest" tunneling proxy filter that has not connected yet. */
-  while(cf && !cf->connected) {
-    if((cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY)) ==
+  ਜਦੋਂ(cf && !cf->connected) {
+    ਜੇ((cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY)) ==
        (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY))
       cf_proxy = cf;
-    cf = cf->next;
+    cf = cf->ਅਗਲਾ;
   }
   /* cf_proxy (!= NULL) is not connected yet. It is talking
    * to an interim host and any authentication or other things apply
    * to this interim host and port. */
-  if(!cf_proxy || cf_proxy->cft->query(cf_proxy, data, CF_QUERY_HOST_PORT,
+  ਜੇ(!cf_proxy || cf_proxy->cft->query(cf_proxy, ਅੰਕੜੇ, CF_QUERY_HOST_ਪੋਰਟ,
                                        &portarg, CURL_UNCONST(phost))) {
     /* Everything connected or query unsuccessful, the overall
      * connection's destination is the answer */
-    *phost = data->conn->origin->hostname;
-    portarg = data->conn->origin->port;
+    *phost = ਅੰਕੜੇ->conn->origin->hostname;
+    portarg = ਅੰਕੜੇ->conn->origin->ਪੋਰਟ;
   }
-  if(pport)
+  ਜੇ(pport)
     *pport = portarg;
 }
 
-CURLcode Curl_cf_def_cntrl(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int event, int arg1, void *arg2)
+CURLcode Curl_cf_def_cntrl(ਬਣਤਰ Curl_cfilter *cf,
+                           ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਪੂਰਨ event, ਪੂਰਨ arg1, ਖਾਲੀ *arg2)
 {
-  (void)cf;
-  (void)data;
-  (void)event;
-  (void)arg1;
-  (void)arg2;
-  return CURLE_OK;
+  (ਖਾਲੀ)cf;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)event;
+  (ਖਾਲੀ)arg1;
+  (ਖਾਲੀ)arg2;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_conn_cf_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            bool ignore_result,
-                            int event, int arg1, void *arg2)
+CURLcode Curl_conn_cf_cntrl(ਬਣਤਰ Curl_cfilter *cf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            bool ignore_ਨਤੀਜਾ,
+                            ਪੂਰਨ event, ਪੂਰਨ arg1, ਖਾਲੀ *arg2)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  for(; cf; cf = cf->next) {
-    if(cf->cft->cntrl == Curl_cf_def_cntrl)
-      continue;
-    result = cf->cft->cntrl(cf, data, event, arg1, arg2);
-    if(!ignore_result && result)
-      break;
+  ਲਈ(; cf; cf = cf->ਅਗਲਾ) {
+    ਜੇ(cf->cft->cntrl == Curl_cf_def_cntrl)
+      ਜਾਰੀ;
+    ਨਤੀਜਾ = cf->cft->cntrl(cf, ਅੰਕੜੇ, event, arg1, arg2);
+    ਜੇ(!ignore_ਨਤੀਜਾ && ਨਤੀਜਾ)
+      ਰੋਕੋ;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-curl_socket_t Curl_conn_cf_get_socket(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+curl_socket_t Curl_conn_cf_get_socket(ਬਣਤਰ Curl_cfilter *cf,
+                                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   curl_socket_t sock;
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_SOCKET, NULL, &sock))
-    return sock;
-  return CURL_SOCKET_BAD;
+  ਜੇ(cf && !cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_SOCKET, ਨਿਰਾ, &sock))
+    ਵਾਪਸ sock;
+  ਵਾਪਸ CURL_SOCKET_BAD;
 }
 
-unsigned char Curl_conn_cf_get_transport(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_conn_cf_get_transport(ਬਣਤਰ Curl_cfilter *cf,
+                                         ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  int transport = 0;
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_TRANSPORT, &transport, NULL))
-    return (unsigned char)transport;
-  return (unsigned char)(data->conn ? data->conn->transport_wanted : 0);
+  ਪੂਰਨ transport = 0;
+  ਜੇ(cf && !cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_TRANSPORT, &transport, ਨਿਰਾ))
+    ਵਾਪਸ (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)transport;
+  ਵਾਪਸ (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)(ਅੰਕੜੇ->conn ? ਅੰਕੜੇ->conn->transport_wanted : 0);
 }
 
-const char *Curl_conn_cf_get_alpn_negotiated(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data)
+ਅਚਲ ਅੱਖਰ *Curl_conn_cf_get_alpn_negotiated(ਬਣਤਰ Curl_cfilter *cf,
+                                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  const char *alpn = NULL;
-  CURL_TRC_CF(data, cf, "query ALPN");
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_ALPN_NEGOTIATED, NULL,
+  ਅਚਲ ਅੱਖਰ *alpn = ਨਿਰਾ;
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "query ALPN");
+  ਜੇ(cf && !cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_ALPN_NEGOTIATED, ਨਿਰਾ,
                            CURL_UNCONST(&alpn)))
-    return alpn;
-  return NULL;
+    ਵਾਪਸ alpn;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-static const struct Curl_sockaddr_ex *cf_get_remote_addr(
-  struct Curl_cfilter *cf, struct Curl_easy *data)
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_sockaddr_ex *cf_get_remote_addr(
+  ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  const struct Curl_sockaddr_ex *remote_addr = NULL;
-  if(cf &&
-     !cf->cft->query(cf, data, CF_QUERY_REMOTE_ADDR, NULL,
+  ਅਚਲ ਬਣਤਰ Curl_sockaddr_ex *remote_addr = ਨਿਰਾ;
+  ਜੇ(cf &&
+     !cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_REMOTE_ADDR, ਨਿਰਾ,
                      CURL_UNCONST(&remote_addr)))
-    return remote_addr;
-  return NULL;
+    ਵਾਪਸ remote_addr;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-CURLcode Curl_conn_cf_get_ip_info(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *is_ipv6, struct ip_quadruple *ipquad)
+CURLcode Curl_conn_cf_get_ip_info(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  bool *is_ipv6, ਬਣਤਰ ip_quadruple *ipquad)
 {
-  CURLcode result = CURLE_UNKNOWN_OPTION;
-  if(cf) {
-    int ipv6 = 0;
-    result = cf->cft->query(cf, data, CF_QUERY_IP_INFO, &ipv6, ipquad);
+  CURLcode ਨਤੀਜਾ = CURLE_UNKNOWN_OPTION;
+  ਜੇ(cf) {
+    ਪੂਰਨ ipv6 = 0;
+    ਨਤੀਜਾ = cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_IP_INFO, &ipv6, ipquad);
     *is_ipv6 = !!ipv6;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-curl_socket_t Curl_conn_get_first_socket(struct Curl_easy *data)
+curl_socket_t Curl_conn_get_ਪਹਿਲਾ_socket(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_cfilter *cf;
+  ਬਣਤਰ Curl_cfilter *cf;
 
-  if(!data->conn)
-    return CURL_SOCKET_BAD;
+  ਜੇ(!ਅੰਕੜੇ->conn)
+    ਵਾਪਸ CURL_SOCKET_BAD;
 
-  cf = data->conn->cfilter[FIRSTSOCKET];
+  cf = ਅੰਕੜੇ->conn->cfilter[FIRSTSOCKET];
   /* if the top filter has not connected, ask it (and its sub-filters)
    * for the socket. Otherwise conn->sock[sockindex] should have it. */
-  if(cf && !cf->connected)
-    return Curl_conn_cf_get_socket(cf, data);
-  return data->conn->sock[FIRSTSOCKET];
+  ਜੇ(cf && !cf->connected)
+    ਵਾਪਸ Curl_conn_cf_get_socket(cf, ਅੰਕੜੇ);
+  ਵਾਪਸ ਅੰਕੜੇ->conn->sock[FIRSTSOCKET];
 }
 
-const struct Curl_sockaddr_ex *Curl_conn_get_remote_addr(
-  struct Curl_easy *data, int8_t sockindex)
+ਅਚਲ ਬਣਤਰ Curl_sockaddr_ex *Curl_conn_get_remote_addr(
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex)
 {
-  struct Curl_cfilter *cf =
-    (data->conn && CONN_SOCK_IDX_VALID(sockindex)) ?
-    data->conn->cfilter[sockindex] : NULL;
-  return cf ? cf_get_remote_addr(cf, data) : NULL;
+  ਬਣਤਰ Curl_cfilter *cf =
+    (ਅੰਕੜੇ->conn && CONN_SOCK_IDX_VALID(sockindex)) ?
+    ਅੰਕੜੇ->conn->cfilter[sockindex] : ਨਿਰਾ;
+  ਵਾਪਸ cf ? cf_get_remote_addr(cf, ਅੰਕੜੇ) : ਨਿਰਾ;
 }
 
-CURLcode Curl_conn_ev_data_setup(struct Curl_easy *data)
+CURLcode Curl_conn_ev_ਅੰਕੜੇ_ਤਿਆਰੀ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  return cf_cntrl_all(data->conn, data, FALSE, CF_CTRL_DATA_SETUP, 0, NULL);
+  ਵਾਪਸ cf_cntrl_all(ਅੰਕੜੇ->conn, ਅੰਕੜੇ, FALSE, CF_CTRL_ਅੰਕੜੇ_ਤਿਆਰੀ, 0, ਨਿਰਾ);
 }
 
-CURLcode Curl_conn_flush(struct Curl_easy *data, int8_t sockindex)
+CURLcode Curl_conn_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, FALSE,
-                            CF_CTRL_FLUSH, 0, NULL);
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+  ਵਾਪਸ Curl_conn_cf_cntrl(ਅੰਕੜੇ->conn->cfilter[sockindex], ਅੰਕੜੇ, FALSE,
+                            CF_CTRL_FLUSH, 0, ਨਿਰਾ);
 }
 
 /**
  * Notify connection filters that the transfer represented by `data`
  * is done with sending data (e.g. has uploaded everything).
  */
-void Curl_conn_ev_data_done_send(struct Curl_easy *data)
+ਖਾਲੀ Curl_conn_ev_ਅੰਕੜੇ_ਪੂਰਾ_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  cf_cntrl_all(data->conn, data, TRUE, CF_CTRL_DATA_DONE_SEND, 0, NULL);
+  cf_cntrl_all(ਅੰਕੜੇ->conn, ਅੰਕੜੇ, TRUE, CF_CTRL_ਅੰਕੜੇ_ਪੂਰਾ_SEND, 0, ਨਿਰਾ);
 }
 
 /**
  * Notify connection filters that the transfer represented by `data`
  * is finished - eventually premature, e.g. before being complete.
  */
-void Curl_conn_ev_data_done(struct Curl_easy *data, bool premature)
+ਖਾਲੀ Curl_conn_ev_ਅੰਕੜੇ_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool premature)
 {
-  cf_cntrl_all(data->conn, data, TRUE, CF_CTRL_DATA_DONE, premature, NULL);
+  cf_cntrl_all(ਅੰਕੜੇ->conn, ਅੰਕੜੇ, TRUE, CF_CTRL_ਅੰਕੜੇ_ਪੂਰਾ, premature, ਨਿਰਾ);
 }
 
-CURLcode Curl_conn_ev_data_pause(struct Curl_easy *data, bool do_pause)
+CURLcode Curl_conn_ev_ਅੰਕੜੇ_pause(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool do_pause)
 {
-  return cf_cntrl_all(data->conn, data, FALSE,
-                      CF_CTRL_DATA_PAUSE, do_pause, NULL);
+  ਵਾਪਸ cf_cntrl_all(ਅੰਕੜੇ->conn, ਅੰਕੜੇ, FALSE,
+                      CF_CTRL_ਅੰਕੜੇ_PAUSE, do_pause, ਨਿਰਾ);
 }
 
-bool Curl_conn_is_alive(struct Curl_easy *data, struct connectdata *conn,
-                        bool *input_pending)
+bool Curl_conn_is_alive(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ connectdata *conn,
+                        bool *ਨਿਵੇਸ਼_pending)
 {
-  struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return cf && !cf->conn->bits.close &&
-         cf->cft->is_alive(cf, data, input_pending);
+  ਬਣਤਰ Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
+  ਵਾਪਸ cf && !cf->conn->ਬਿੱਟ.close &&
+         cf->cft->is_alive(cf, ਅੰਕੜੇ, ਨਿਵੇਸ਼_pending);
 }
 
-CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
-                              struct connectdata *conn)
+CURLcode Curl_conn_keep_alive(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਬਣਤਰ connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  int i;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਪੂਰਨ i;
 
-  for(i = 0; (i < (int)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
-    struct Curl_cfilter *cf = conn->cfilter[i];
-    if(cf)
-      result = cf->cft->keep_alive(cf, data);
+  ਲਈ(i = 0; (i < (ਪੂਰਨ)CURL_ARRAYSIZE(conn->cfilter)) && !ਨਤੀਜਾ; ++i) {
+    ਬਣਤਰ Curl_cfilter *cf = conn->cfilter[i];
+    ਜੇ(cf)
+      ਨਤੀਜਾ = cf->cft->keep_alive(cf, ਅੰਕੜੇ);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
-                                    struct connectdata *conn,
+size_t Curl_conn_get_max_concurrent(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ connectdata *conn,
                                     int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
-  int n = -1;
+  ਬਣਤਰ Curl_cfilter *cf;
+  CURLcode ਨਤੀਜਾ;
+  ਪੂਰਨ n = -1;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return 0;
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ 0;
 
   cf = conn->cfilter[sockindex];
-  result = cf ? cf->cft->query(cf, data, CF_QUERY_MAX_CONCURRENT,
-                               &n, NULL) : CURLE_UNKNOWN_OPTION;
+  ਨਤੀਜਾ = cf ? cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_MAX_CONCURRENT,
+                               &n, ਨਿਰਾ) : CURLE_UNKNOWN_OPTION;
   /* If no filter answered the query, the default is a non-multiplexed
    * connection with limit 1. Otherwise, the query may return 0
    * for connections that are in shutdown, e.g. server HTTP/2 GOAWAY. */
-  return (result || n < 0) ? 1 : (size_t)n;
+  ਵਾਪਸ (ਨਤੀਜਾ || n < 0) ? 1 : (size_t)n;
 }
 
-int Curl_conn_get_stream_error(struct Curl_easy *data,
-                               struct connectdata *conn,
+ਪੂਰਨ Curl_conn_get_ਧਾਰਾ_error(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ connectdata *conn,
                                int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
-  int n = 0;
+  ਬਣਤਰ Curl_cfilter *cf;
+  CURLcode ਨਤੀਜਾ;
+  ਪੂਰਨ n = 0;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return 0;
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ 0;
 
   cf = conn->cfilter[sockindex];
-  result = cf ? cf->cft->query(cf, data, CF_QUERY_STREAM_ERROR,
-                               &n, NULL) : CURLE_UNKNOWN_OPTION;
-  return (result || n < 0) ? 0 : n;
+  ਨਤੀਜਾ = cf ? cf->cft->query(cf, ਅੰਕੜੇ, CF_QUERY_ਧਾਰਾ_ERROR,
+                               &n, ਨਿਰਾ) : CURLE_UNKNOWN_OPTION;
+  ਵਾਪਸ (ਨਤੀਜਾ || n < 0) ? 0 : n;
 }
 
-int8_t Curl_conn_sockindex(struct Curl_easy *data, curl_socket_t sockfd)
+int8_t Curl_conn_sockindex(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, curl_socket_t sockfd)
 {
-  if(data && data->conn &&
-     sockfd != CURL_SOCKET_BAD && sockfd == data->conn->sock[SECONDARYSOCKET])
-    return SECONDARYSOCKET;
-  return FIRSTSOCKET;
+  ਜੇ(ਅੰਕੜੇ && ਅੰਕੜੇ->conn &&
+     sockfd != CURL_SOCKET_BAD && sockfd == ਅੰਕੜੇ->conn->sock[SECONDARYSOCKET])
+    ਵਾਪਸ SECONDARYSOCKET;
+  ਵਾਪਸ FIRSTSOCKET;
 }
 
-CURLcode Curl_conn_recv(struct Curl_easy *data, int8_t sockindex,
-                        char *buf, size_t len, size_t *pnread)
+CURLcode Curl_conn_recv(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex,
+                        ਅੱਖਰ *buf, size_t len, size_t *pnread)
 {
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(data && data->conn && data->conn->recv[sockindex])
-    return data->conn->recv[sockindex](data, sockindex, buf, len, pnread);
+  DEBUGASSERT(ਅੰਕੜੇ);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+  ਜੇ(ਅੰਕੜੇ && ਅੰਕੜੇ->conn && ਅੰਕੜੇ->conn->recv[sockindex])
+    ਵਾਪਸ ਅੰਕੜੇ->conn->recv[sockindex](ਅੰਕੜੇ, sockindex, buf, len, pnread);
   *pnread = 0;
-  return CURLE_FAILED_INIT;
+  ਵਾਪਸ CURLE_FAILED_INIT;
 }
 
-CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
-                        const void *buf, size_t len, bool eos,
+CURLcode Curl_conn_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex,
+                        ਅਚਲ ਖਾਲੀ *buf, size_t len, bool eos,
                         size_t *pnwritten)
 {
   size_t write_len = len;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ਅੰਕੜੇ);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
   DEBUGASSERT(CONN_SOCK_IDX_VALID(sockindex));
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#ifdef DEBUGBUILD
-  if(write_len) {
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+  ਜੇ(write_len) {
     /* Allow debug builds to override this logic to force short sends */
-    const char *p = getenv("CURL_SMALLSENDS");
-    if(p) {
+    ਅਚਲ ਅੱਖਰ *p = getenv("CURL_SMALLSENDS");
+    ਜੇ(p) {
       curl_off_t altsize;
-      if(!curlx_str_number(&p, &altsize, write_len)) {
+      ਜੇ(!curlx_str_ਸੰਖਿਆ(&p, &altsize, write_len)) {
         write_len = (size_t)altsize;
-        if(write_len != len)
+        ਜੇ(write_len != len)
           eos = FALSE;
       }
     }
   }
-#endif
-  if(data && data->conn && data->conn->send[sockindex]) {
-    CURLcode result = data->conn->send[sockindex](data, sockindex, buf,
+#ਜੇ_ਅੰਤ
+  ਜੇ(ਅੰਕੜੇ && ਅੰਕੜੇ->conn && ਅੰਕੜੇ->conn->send[sockindex]) {
+    CURLcode ਨਤੀਜਾ = ਅੰਕੜੇ->conn->send[sockindex](ਅੰਕੜੇ, sockindex, buf,
                                                   write_len, eos, pnwritten);
-    if(!result && (*pnwritten > write_len)) {
+    ਜੇ(!ਨਤੀਜਾ && (*pnwritten > write_len)) {
       DEBUGASSERT(0);
       *pnwritten = 0;
-      return CURLE_SEND_ERROR;
+      ਵਾਪਸ CURLE_SEND_ERROR;
     }
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
   *pnwritten = 0;
-  return CURLE_FAILED_INIT;
+  ਵਾਪਸ CURLE_FAILED_INIT;
 }

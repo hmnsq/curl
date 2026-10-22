@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ARPA_TELNET_H
-#define HEADER_CURL_ARPA_TELNET_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_ARPA_TELNET_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_ARPA_TELNET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,27 +23,27 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_TELNET
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_TELNET
 /*
  * Telnet option defines. Add more here if in need.
  */
-#define CURL_TELOPT_BINARY      0   /* binary 8-bit data */
-#define CURL_TELOPT_ECHO        1   /* echo */
-#define CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
-#define CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
-#define CURL_TELOPT_TTYPE       24  /* Terminal TYPE */
-#define CURL_TELOPT_NAWS        31  /* Negotiate About Window Size */
-#define CURL_TELOPT_XDISPLOC    35  /* X DISPlay LOCation */
-#define CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_ਦੁਆਧਾਰੀ      0   /* binary 8-bit data */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_ECHO        1   /* echo */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_TTYPE       24  /* Terminal TYPE */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_NAWS        31  /* Negotiate About Window Size */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_XDISPLOC    35  /* X DISPlay LOCation */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
 
-#define CURL_NEW_ENV_VAR   0
-#define CURL_NEW_ENV_VALUE 1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_NEW_ENV_VAR   0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_NEW_ENV_ਮੁੱਲ 1
 
-#ifdef CURLVERBOSE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
 /*
  * The telnet options represented as strings
  */
-static const char * const telnetoptions[] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ * ਅਚਲ telnetoptions[] = {
   "BINARY",      "ECHO",           "RCP",           "SUPPRESS GO AHEAD",
   "NAME",        "STATUS",         "TIMING MARK",   "RCTE",
   "NAOL",        "NAOP",           "NAOCRD",        "NAOHTS",
@@ -55,62 +55,62 @@ static const char * const telnetoptions[] = {
   "TERM SPEED",  "LFLOW",          "LINEMODE",      "XDISPLOC",
   "OLD-ENVIRON", "AUTHENTICATION", "ENCRYPT",       "NEW-ENVIRON"
 };
-#define CURL_TELOPT(x) telnetoptions[x]
-#else
-#define CURL_TELOPT(x) ""
-#endif
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT(x) telnetoptions[x]
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT(x) ""
+#ਜੇ_ਅੰਤ
 
-#define CURL_TELOPT_MAXIMUM CURL_TELOPT_NEW_ENVIRON
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_ਵੱਧ_ਤੋਂ_ਵੱਧ CURL_TELOPT_NEW_ENVIRON
 
-#define CURL_TELOPT_OK(x) ((x) <= CURL_TELOPT_MAXIMUM)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELOPT_OK(x) ((x) <= CURL_TELOPT_ਵੱਧ_ਤੋਂ_ਵੱਧ)
 
-#define CURL_NTELOPTS 40
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_NTELOPTS 40
 
 /*
  * First some defines
  */
-#define CURL_xEOF 236 /* End Of File */
-#define CURL_SE   240 /* Sub negotiation End */
-#define CURL_NOP  241 /* No OPeration */
-#define CURL_DM   242 /* Data Mark */
-#define CURL_GA   249 /* Go Ahead, reverse the line */
-#define CURL_SB   250 /* SuBnegotiation */
-#define CURL_WILL 251 /* Our side WILL use this option */
-#define CURL_WONT 252 /* Our side will not use this option */
-#define CURL_DO   253 /* DO use this option! */
-#define CURL_DONT 254 /* DO NOT use this option! */
-#define CURL_IAC  255 /* Interpret As Command */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_xEOF 236 /* End Of File */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_SE   240 /* Sub negotiation End */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_NOP  241 /* No OPeration */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_DM   242 /* Data Mark */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_GA   249 /* Go Ahead, reverse the line */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_SB   250 /* SuBnegotiation */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_WILL 251 /* Our side WILL use this option */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_WONT 252 /* Our side will not use this option */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_DO   253 /* DO use this option! */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_DONT 254 /* DO NOT use this option! */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_IAC  255 /* Interpret As Command */
 
-#ifdef CURLVERBOSE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
 /*
  * Then those numbers represented as strings:
  */
-static const char * const telnetcmds[] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ * ਅਚਲ telnetcmds[] = {
   "EOF",  "SUSP",  "ABORT", "EOR",  "SE",
   "NOP",  "DMARK", "BRK",   "IP",   "AO",
   "AYT",  "EC",    "EL",    "GA",   "SB",
   "WILL", "WONT",  "DO",    "DONT", "IAC"
 };
-#endif
+#ਜੇ_ਅੰਤ
 
-#define CURL_TELCMD_MINIMUM CURL_xEOF /* the first one */
-#define CURL_TELCMD_MAXIMUM CURL_IAC  /* surprise, 255 is the last one! ;-) */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELCMD_MINIMUM CURL_xEOF /* the first one */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELCMD_ਵੱਧ_ਤੋਂ_ਵੱਧ CURL_IAC  /* surprise, 255 is the last one! ;-) */
 
-#define CURL_TELQUAL_IS   0
-#define CURL_TELQUAL_SEND 1
-#define CURL_TELQUAL_INFO 2
-#define CURL_TELQUAL_NAME 3
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELQUAL_IS   0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELQUAL_SEND 1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELQUAL_INFO 2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELQUAL_NAME 3
 
-#define CURL_TELCMD_OK(x)                        \
-  (((unsigned int)(x) >= CURL_TELCMD_MINIMUM) && \
-   ((unsigned int)(x) <= CURL_TELCMD_MAXIMUM))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELCMD_OK(x)                        \
+  (((ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)(x) >= CURL_TELCMD_MINIMUM) && \
+   ((ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)(x) <= CURL_TELCMD_ਵੱਧ_ਤੋਂ_ਵੱਧ))
 
-#ifdef CURLVERBOSE
-#define CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
-#else
-#define CURL_TELCMD(x) ""
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_TELCMD(x) ""
+#ਜੇ_ਅੰਤ
 
-#endif /* CURL_DISABLE_TELNET */
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_TELNET */
 
-#endif /* HEADER_CURL_ARPA_TELNET_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_ARPA_TELNET_H */

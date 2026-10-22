@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_HTTP_H
-#define HEADER_CURL_CF_HTTP_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_CF_HTTP_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_CF_HTTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_cftype;
-struct Curl_peer;
+ਬਣਤਰ Curl_cfilter;
+ਬਣਤਰ Curl_easy;
+ਬਣਤਰ connectdata;
+ਬਣਤਰ Curl_cftype;
+ਬਣਤਰ Curl_peer;
 
-extern struct Curl_cftype Curl_cft_http_connect;
+ਬਾਹਰੀ ਬਣਤਰ Curl_cftype Curl_cft_http_connect;
 
-CURLcode Curl_cf_https_setup(struct Curl_easy *data,
-                             struct Curl_peer *destination,
-                             struct connectdata *conn,
+CURLcode Curl_cf_https_ਤਿਆਰੀ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ Curl_peer *destination,
+                             ਬਣਤਰ connectdata *conn,
                              int8_t sockindex);
 
-#endif /* !CURL_DISABLE_HTTP */
-#endif /* HEADER_CURL_CF_HTTP_H */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_HTTP */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_CF_HTTP_H */

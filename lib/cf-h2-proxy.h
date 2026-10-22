@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_H2_PROXY_H
-#define HEADER_CURL_H2_PROXY_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_H2_PROXY_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_H2_PROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if defined(USE_NGHTTP2) && !defined(CURL_DISABLE_PROXY)
+#ਜੇ defined(USE_NGHTTP2) && !defined(CURL_DISABLE_PROXY)
 
-CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
+CURLcode Curl_cf_h2_proxy_ਪਾਓ_after(ਬਣਤਰ Curl_cfilter *cf,
+                                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       ਬਣਤਰ Curl_peer *peer,
+                                       ਬਣਤਰ Curl_peer *dest,
                                        bool udp_tunnel);
 
-extern struct Curl_cftype Curl_cft_h2_proxy;
+ਬਾਹਰੀ ਬਣਤਰ Curl_cftype Curl_cft_h2_proxy;
 
-#endif /* USE_NGHTTP2 && !CURL_DISABLE_PROXY */
+#ਜੇ_ਅੰਤ /* USE_NGHTTP2 && !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_H2_PROXY_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_H2_PROXY_H */

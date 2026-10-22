@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SCHANNEL_H
-#define HEADER_CURL_SCHANNEL_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_SCHANNEL_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_SCHANNEL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,22 +24,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SCHANNEL
 
-#include <schannel.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <schannel.h>
 
-#include "curl_sspi.h"
-#include "cfilters.h"
-#include "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_sspi.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
 
-extern const struct Curl_ssl Curl_ssl_schannel;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ Curl_ssl Curl_ssl_schannel;
 
-CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_verify_host(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data);
+CURLcode Curl_verify_certificate(ਬਣਤਰ Curl_cfilter *cf,
+                                 ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-#endif /* USE_SCHANNEL */
-#endif /* HEADER_CURL_SCHANNEL_H */
+#ਜੇ_ਅੰਤ /* USE_SCHANNEL */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_SCHANNEL_H */

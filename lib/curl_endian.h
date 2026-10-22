@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ENDIAN_H
-#define HEADER_CURL_ENDIAN_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_ENDIAN_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_ENDIAN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -25,12 +25,12 @@
  ***************************************************************************/
 
 /* Converts a 16-bit integer from little endian */
-unsigned short Curl_read16_le(const unsigned char *buf);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ Curl_read16_le(ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf);
 
 /* Converts a 32-bit integer from little endian */
-unsigned int Curl_read32_le(const unsigned char *buf);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ Curl_read32_le(ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf);
 
 /* Converts a 16-bit integer from big endian */
-unsigned short Curl_read16_be(const unsigned char *buf);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ Curl_read16_be(ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf);
 
-#endif /* HEADER_CURL_ENDIAN_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_ENDIAN_H */

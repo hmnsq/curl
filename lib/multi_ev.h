@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTI_EV_H
-#define HEADER_CURL_MULTI_EV_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_MULTI_EV_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_MULTI_EV_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,58 +23,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "hash.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "hash.h"
 
-struct Curl_easy;
-struct Curl_multi;
-struct easy_pollset;
-struct uint32_bset;
+ਬਣਤਰ Curl_easy;
+ਬਣਤਰ Curl_multi;
+ਬਣਤਰ easy_pollset;
+ਬਣਤਰ uint32_bset;
 
 /* meta key for event pollset at easy handle or connection */
-#define CURL_META_MEV_POLLSET   "meta:mev:ps"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_META_MEV_POLLSET   "meta:mev:ps"
 
-struct curl_multi_ev {
-  struct Curl_hash sh_entries;
+ਬਣਤਰ curl_multi_ev {
+  ਬਣਤਰ Curl_hash sh_entries;
 };
 
 /* Setup/teardown of multi event book-keeping. */
-void Curl_multi_ev_init(struct Curl_multi *multi, size_t hashsize);
-void Curl_multi_ev_cleanup(struct Curl_multi *multi);
+ਖਾਲੀ Curl_multi_ev_init(ਬਣਤਰ Curl_multi *multi, size_t hashsize);
+ਖਾਲੀ Curl_multi_ev_cleanup(ਬਣਤਰ Curl_multi *multi);
 
 /* Assign a 'user_data' to be passed to the socket callback when
  * invoked with the given socket. This will fail if this socket
  * is not active, e.g. the application has not been told to monitor it. */
-CURLMcode Curl_multi_ev_assign(struct Curl_multi *multi, curl_socket_t s,
-                               void *user_data);
+CURLMcode Curl_multi_ev_ਸੌਂਪੋ(ਬਣਤਰ Curl_multi *multi, curl_socket_t s,
+                               ਖਾਲੀ *user_ਅੰਕੜੇ);
 
 /* Assess the transfer by getting its current pollset, compute
  * any changes to the last one and inform the application's socket
  * callback if things have changed. */
-CURLMcode Curl_multi_ev_assess_xfer(struct Curl_multi *multi,
-                                    struct Curl_easy *data);
+CURLMcode Curl_multi_ev_assess_xfer(ਬਣਤਰ Curl_multi *multi,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 /* Assess all easy handles on the list */
-CURLMcode Curl_multi_ev_assess_xfer_bset(struct Curl_multi *multi,
-                                         struct uint32_bset *set);
+CURLMcode Curl_multi_ev_assess_xfer_bset(ਬਣਤਰ Curl_multi *multi,
+                                         ਬਣਤਰ uint32_bset *ਸੈੱਟ);
 /* Assess the connection by getting its current pollset */
-CURLMcode Curl_multi_ev_assess_conn(struct Curl_multi *multi,
-                                    struct Curl_easy *data,
-                                    struct connectdata *conn);
+CURLMcode Curl_multi_ev_assess_conn(ਬਣਤਰ Curl_multi *multi,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ connectdata *conn);
 
 /* Mark all transfers tied to the given socket as dirty */
-void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
+ਖਾਲੀ Curl_multi_ev_dirty_xfers(ਬਣਤਰ Curl_multi *multi,
                                curl_socket_t s);
 
 /* Socket will be closed, forget anything we know about it. */
-void Curl_multi_ev_socket_done(struct Curl_multi *multi,
-                               struct Curl_easy *data, curl_socket_t s);
+ਖਾਲੀ Curl_multi_ev_socket_ਪੂਰਾ(ਬਣਤਰ Curl_multi *multi,
+                               ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, curl_socket_t s);
 
 /* Transfer is removed from the multi */
-void Curl_multi_ev_xfer_done(struct Curl_multi *multi,
-                             struct Curl_easy *data);
+ਖਾਲੀ Curl_multi_ev_xfer_ਪੂਰਾ(ਬਣਤਰ Curl_multi *multi,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /* Connection is being destroyed */
-void Curl_multi_ev_conn_done(struct Curl_multi *multi,
-                             struct Curl_easy *data,
-                             struct connectdata *conn);
+ਖਾਲੀ Curl_multi_ev_conn_ਪੂਰਾ(ਬਣਤਰ Curl_multi *multi,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ connectdata *conn);
 
-#endif /* HEADER_CURL_MULTI_EV_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_MULTI_EV_H */

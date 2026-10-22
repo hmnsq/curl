@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SPLAY_H
-#define HEADER_CURL_SPLAY_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_SPLAY_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_SPLAY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "curlx/timeval.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/timeval.h"
 
-struct Curl_easy;
+ਬਣਤਰ Curl_easy;
 
 /* only use function calls to access this struct */
-struct Curl_tree {
-  struct Curl_tree *smaller; /* smaller node */
-  struct Curl_tree *larger;  /* larger node */
-  struct Curl_tree *same;    /* points to the next node with identical key */
-  timediff_t key;            /* this node's "sort" key */
+ਬਣਤਰ Curl_ਰੁੱਖ {
+  ਬਣਤਰ Curl_ਰੁੱਖ *smaller; /* smaller node */
+  ਬਣਤਰ Curl_ਰੁੱਖ *larger;  /* larger node */
+  ਬਣਤਰ Curl_ਰੁੱਖ *same;    /* points to the next node with identical key */
+  timediff_t ਕੁੰਜੀ;            /* this node's "sort" key */
   uint32_t id;               /* provided id for this node */
-  BIT(registered);           /* node is registered in splay tree */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(registered);           /* node is registered in splay tree */
 };
 
-struct Curl_timeouts {
-  struct Curl_tree *tree;
-  time_t time_base_sec;
+ਬਣਤਰ Curl_timeouts {
+  ਬਣਤਰ Curl_ਰੁੱਖ *ਰੁੱਖ;
+  time_t ਸਮਾਂ_ਅਧਾਰ_sec;
 };
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base);
+ਖਾਲੀ Curl_timeouts_init(ਬਣਤਰ Curl_timeouts *timeouts,
+                        ਅਚਲ ਬਣਤਰ curltime *ptime_ਅਧਾਰ);
 
-bool Curl_timeouts_has(struct Curl_easy *data);
+bool Curl_timeouts_has(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts);
+timediff_t Curl_timeouts_ਵਿੱਥ_us(ਬਣਤਰ Curl_timeouts *timeouts,
+                                   ਅਚਲ ਬਣਤਰ curltime *pts);
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
-                          timediff_t *pexpire_offset_us,
+ਪੂਰਨ Curl_timeouts_ਅਗਲਾ_ms(ਬਣਤਰ Curl_timeouts *timeouts,
+                          ਅਚਲ ਬਣਤਰ curltime *pnow,
+                          timediff_t *pexpire_ਵਿੱਥ_us,
                           uint32_t *pmid);
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(ਬਣਤਰ Curl_timeouts *timeouts,
+                                  ਅਚਲ ਬਣਤਰ curltime *ts,
                                   uint32_t *pmid);
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
-                       timediff_t offset_us);
+ਖਾਲੀ Curl_timeouts_ਜੋੜੋ(ਬਣਤਰ Curl_timeouts *timeouts,
+                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                       timediff_t ਵਿੱਥ_us);
 
 /* Returns TRUE if data was registered in timeouts before */
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data);
+bool Curl_timeouts_remove(ਬਣਤਰ Curl_timeouts *timeouts,
+                          ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-#ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node);
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ UNITTESTS
+uint32_t Curl_splayget(ਬਣਤਰ Curl_ਰੁੱਖ *ਗੰਢ);
+#ਜੇ_ਅੰਤ
 
-#endif /* HEADER_CURL_SPLAY_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_SPLAY_H */

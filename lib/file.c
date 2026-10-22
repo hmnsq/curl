@@ -21,143 +21,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "file.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "file.h"
 
-#ifndef CURL_DISABLE_FILE
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FILE
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_ਵਿੱਚ_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETDB_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netdb.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ARPA_INET_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <arpa/inet.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NET_IF_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <net/if.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_IOCTL_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/ioctl.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_PARAM_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/param.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_DIRENT_H
-#include <dirent.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_DIRENT_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <dirent.h>
+#ਜੇ_ਅੰਤ
 
-#include "progress.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "multiif.h"
-#include "transfer.h"
-#include "url.h"
-#include "parsedate.h" /* for the week day and month names */
-#include "curlx/win32-fopen.h"
-#include "curl_range.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sendf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "escape.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multiif.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "transfer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parsedate.h" /* for the week day and month names */
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/win32-fopen.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_range.h"
 
-#if defined(_WIN32) || defined(MSDOS)
-#define DOS_FILESYSTEM 1
-#elif defined(__amigaos4__)
-#define AMIGA_FILESYSTEM 1
-#endif
+#ਜੇ defined(_WIN32) || defined(MSDOS)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DOS_FILESYSTEM 1
+#ਜਾਂਜੇ defined(__amigaos4__)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ AMIGA_FILESYSTEM 1
+#ਜੇ_ਅੰਤ
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_FILE_EASY   "meta:proto:file:easy"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_META_FILE_EASY   "meta:proto:file:easy"
 
-struct FILEPROTO {
-  char *path; /* the path we operate on */
-  char *freepath; /* pointer to the allocated block we must free, this might
+ਬਣਤਰ FILEPROTO {
+  ਅੱਖਰ *ਰਸਤਾ; /* the path we operate on */
+  ਅੱਖਰ *freepath; /* pointer to the allocated block we must free, this might
                      differ from the 'path' pointer */
-  int fd;     /* open file descriptor to read from! */
+  ਪੂਰਨ fd;     /* open file descriptor to read from! */
   bool is_dir;
 };
 
-static void file_cleanup(struct FILEPROTO *file)
+ਸਥਿਰ ਖਾਲੀ file_cleanup(ਬਣਤਰ FILEPROTO *file)
 {
   curlx_safefree(file->freepath);
-  file->path = NULL;
+  file->ਰਸਤਾ = ਨਿਰਾ;
   file->is_dir = FALSE;
-  if(file->fd != -1) {
+  ਜੇ(file->fd != -1) {
     curlx_close(file->fd);
     file->fd = -1;
   }
 }
 
-static void file_easy_dtor(const void *key, size_t klen, void *entry)
+ਸਥਿਰ ਖਾਲੀ file_easy_dtor(ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ, size_t klen, ਖਾਲੀ *ਇੰਦਰਾਜ)
 {
-  struct FILEPROTO *file = entry;
-  (void)key;
-  (void)klen;
+  ਬਣਤਰ FILEPROTO *file = ਇੰਦਰਾਜ;
+  (ਖਾਲੀ)ਕੁੰਜੀ;
+  (ਖਾਲੀ)klen;
   file_cleanup(file);
   curlx_free(file);
 }
 
-static CURLcode file_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ਸਥਿਰ CURLcode file_ਤਿਆਰੀ_connection(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਬਣਤਰ connectdata *conn)
 {
-  struct FILEPROTO *filep;
-  (void)conn;
+  ਬਣਤਰ FILEPROTO *filep;
+  (ਖਾਲੀ)conn;
   /* allocate the FILE specific struct */
-  filep = curlx_calloc(1, sizeof(*filep));
-  if(filep)
+  filep = curlx_calloc(1, ਆਕਾਰ(*filep));
+  ਜੇ(filep)
     filep->fd = -1;
-  if(!filep ||
-     Curl_meta_set(data, CURL_META_FILE_EASY, filep, file_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!filep ||
+     Curl_meta_ਸੈੱਟ(ਅੰਕੜੇ, CURL_META_FILE_EASY, filep, file_easy_dtor))
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode file_done(struct Curl_easy *data,
-                          CURLcode status, bool premature)
+ਸਥਿਰ CURLcode file_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          CURLcode ਸਥਿਤੀ, bool premature)
 {
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-  (void)status;
-  (void)premature;
+  ਬਣਤਰ FILEPROTO *file = Curl_meta_get(ਅੰਕੜੇ, CURL_META_FILE_EASY);
+  (ਖਾਲੀ)ਸਥਿਤੀ;
+  (ਖਾਲੀ)premature;
 
-  if(file)
+  ਜੇ(file)
     file_cleanup(file);
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static int file_stat(const char *path, curlx_struct_stat *statbuf)
+ਸਥਿਰ ਪੂਰਨ file_stat(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, curlx_struct_stat *statbuf)
 {
-#ifdef _WIN32
-  int result = curlx_stat(path, statbuf);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
+  ਪੂਰਨ ਨਤੀਜਾ = curlx_stat(ਰਸਤਾ, statbuf);
 
-  if(result) {
-    size_t pathlen = strlen(path);
+  ਜੇ(ਨਤੀਜਾ) {
+    size_t pathlen = ਲੜੀ_ਲੰਬਾਈ(ਰਸਤਾ);
 
     /* MSVCRT's narrow stat() rejects trailing directory separators. */
-    if((pathlen > 3) &&
-       ((path[pathlen - 1] == '\\') || (path[pathlen - 1] == '/'))) {
-      char *trimmed = curlx_strdup(path);
+    ਜੇ((pathlen > 3) &&
+       ((ਰਸਤਾ[pathlen - 1] == '\\') || (ਰਸਤਾ[pathlen - 1] == '/'))) {
+      ਅੱਖਰ *trimmed = curlx_strdup(ਰਸਤਾ);
 
-      if(trimmed) {
-        do {
+      ਜੇ(trimmed) {
+        ਕਰੋ {
           trimmed[--pathlen] = '\0';
-        } while((pathlen > 3) &&
+        } ਜਦੋਂ((pathlen > 3) &&
                 ((trimmed[pathlen - 1] == '\\') ||
                  (trimmed[pathlen - 1] == '/')));
 
-        result = curlx_stat(trimmed, statbuf);
+        ਨਤੀਜਾ = curlx_stat(trimmed, statbuf);
         curlx_free(trimmed);
       }
     }
   }
 
-  return result;
-#else
-  return curlx_stat(path, statbuf);
-#endif
+  ਵਾਪਸ ਨਤੀਜਾ;
+#ਨਹੀਂਤਾਂ
+  ਵਾਪਸ curlx_stat(ਰਸਤਾ, statbuf);
+#ਜੇ_ਅੰਤ
 }
 
 /*
@@ -165,39 +165,39 @@ static int file_stat(const char *path, curlx_struct_stat *statbuf)
  * do protocol-specific actions at connect-time. We emulate a
  * connect-then-transfer protocol and "connect" to the file here
  */
-static CURLcode file_connect(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode file_connect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  char *real_path;
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-#ifdef _WIN32
+  ਅੱਖਰ *real_ਰਸਤਾ;
+  ਬਣਤਰ FILEPROTO *file = Curl_meta_get(ਅੰਕੜੇ, CURL_META_FILE_EASY);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
   curlx_struct_stat statbuf;
-#endif
-  int fd;
-#ifdef DOS_FILESYSTEM
+#ਜੇ_ਅੰਤ
+  ਪੂਰਨ fd;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DOS_FILESYSTEM
   size_t i;
-  char *actual_path;
-#endif
-  size_t real_path_len;
-  CURLcode result;
+  ਅੱਖਰ *actual_ਰਸਤਾ;
+#ਜੇ_ਅੰਤ
+  size_t real_ਰਸਤਾ_len;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!file)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!file)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  if(file->path) {
+  ਜੇ(file->ਰਸਤਾ) {
     /* already connected.
      * the handler->connect_it() is normally only called once, but
      * FILE does a special check on setting up the connection which
      * calls this explicitly. */
-    *done = TRUE;
-    return CURLE_OK;
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  result = Curl_urldecode(data->state.up.path, 0, &real_path,
-                          &real_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_urldecode(ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ, 0, &real_ਰਸਤਾ,
+                          &real_ਰਸਤਾ_len, REJECT_ZERO);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-#ifdef DOS_FILESYSTEM
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DOS_FILESYSTEM
   /* If the first character is a slash, and there is
      something that looks like a drive at the beginning of
      the path, skip the slash. If we remove the initial
@@ -211,34 +211,34 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
      On other platforms, we need the slash to indicate an
      absolute pathname. On Windows, absolute paths start
      with a drive letter. */
-  actual_path = real_path;
-  if((actual_path[0] == '/') &&
-      actual_path[1] &&
-     (actual_path[2] == ':' || actual_path[2] == '|')) {
-    actual_path[2] = ':';
-    actual_path++;
-    real_path_len--;
+  actual_ਰਸਤਾ = real_ਰਸਤਾ;
+  ਜੇ((actual_ਰਸਤਾ[0] == '/') &&
+      actual_ਰਸਤਾ[1] &&
+     (actual_ਰਸਤਾ[2] == ':' || actual_ਰਸਤਾ[2] == '|')) {
+    actual_ਰਸਤਾ[2] = ':';
+    actual_ਰਸਤਾ++;
+    real_ਰਸਤਾ_len--;
   }
 
   /* change path separators from '/' to '\\' for DOS, Windows and OS/2 */
-  for(i = 0; i < real_path_len; ++i)
-    if(actual_path[i] == '/')
-      actual_path[i] = '\\';
-    else if(!actual_path[i]) { /* binary zero */
-      curlx_safefree(real_path);
-      return CURLE_URL_MALFORMAT;
+  ਲਈ(i = 0; i < real_ਰਸਤਾ_len; ++i)
+    ਜੇ(actual_ਰਸਤਾ[i] == '/')
+      actual_ਰਸਤਾ[i] = '\\';
+    ਨਹੀਂਤਾਂ ਜੇ(!actual_ਰਸਤਾ[i]) { /* binary zero */
+      curlx_safefree(real_ਰਸਤਾ);
+      ਵਾਪਸ CURLE_URL_MALFORMAT;
     }
 
-  fd = curlx_open(actual_path, O_RDONLY | CURL_O_BINARY);
-  file->path = actual_path;
-#else
-  if(memchr(real_path, 0, real_path_len)) {
+  fd = curlx_open(actual_ਰਸਤਾ, O_RDONLY | CURL_O_ਦੁਆਧਾਰੀ);
+  file->ਰਸਤਾ = actual_ਰਸਤਾ;
+#ਨਹੀਂਤਾਂ
+  ਜੇ(memchr(real_ਰਸਤਾ, 0, real_ਰਸਤਾ_len)) {
     /* binary zeroes indicate foul play */
-    curlx_safefree(real_path);
-    return CURLE_URL_MALFORMAT;
+    curlx_safefree(real_ਰਸਤਾ);
+    ਵਾਪਸ CURLE_URL_MALFORMAT;
   }
 
-#ifdef AMIGA_FILESYSTEM
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ AMIGA_FILESYSTEM
   /*
    * A leading slash in an AmigaDOS path denotes the parent
    * directory, and hence we block this as it is relative.
@@ -247,71 +247,71 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
    * path, but only if the application was compiled with -lunix.
    */
   fd = -1;
-  file->path = real_path;
+  file->ਰਸਤਾ = real_ਰਸਤਾ;
 
-  if(real_path[0] == '/') {
-    extern int __unix_path_semantics;
-    if(strchr(real_path + 1, ':')) {
+  ਜੇ(real_ਰਸਤਾ[0] == '/') {
+    ਬਾਹਰੀ ਪੂਰਨ __unix_path_semantics;
+    ਜੇ(strchr(real_ਰਸਤਾ + 1, ':')) {
       /* Amiga absolute path */
-      fd = curlx_open(real_path + 1, O_RDONLY);
-      file->path++;
+      fd = curlx_open(real_ਰਸਤਾ + 1, O_RDONLY);
+      file->ਰਸਤਾ++;
     }
-    else if(__unix_path_semantics) {
+    ਨਹੀਂਤਾਂ ਜੇ(__unix_path_semantics) {
       /* -lunix fallback */
-      fd = curlx_open(real_path, O_RDONLY);
+      fd = curlx_open(real_ਰਸਤਾ, O_RDONLY);
     }
   }
-#else
-  fd = curlx_open(real_path, O_RDONLY);
-  file->path = real_path;
-#endif
-#endif
+#ਨਹੀਂਤਾਂ
+  fd = curlx_open(real_ਰਸਤਾ, O_RDONLY);
+  file->ਰਸਤਾ = real_ਰਸਤਾ;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ
   curlx_free(file->freepath);
-  file->freepath = real_path; /* free this when done */
+  file->freepath = real_ਰਸਤਾ; /* free this when done */
 
   file->fd = fd;
-#ifdef _WIN32
-  if(!data->state.upload && (fd == -1) &&
-     !file_stat(file->path, &statbuf) && S_ISDIR(statbuf.st_mode))
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
+  ਜੇ(!ਅੰਕੜੇ->state.upload && (fd == -1) &&
+     !file_stat(file->ਰਸਤਾ, &statbuf) && S_ISDIR(statbuf.st_ਬਹੁਲਕ))
     file->is_dir = TRUE;
-#endif
+#ਜੇ_ਅੰਤ
 
-  if(!data->state.upload && (fd == -1) && !file->is_dir) {
-    failf(data, "Could not open file %s", data->state.up.path);
-    file_done(data, CURLE_FILE_COULDNT_READ_FILE, FALSE);
-    return CURLE_FILE_COULDNT_READ_FILE;
+  ਜੇ(!ਅੰਕੜੇ->state.upload && (fd == -1) && !file->is_dir) {
+    failf(ਅੰਕੜੇ, "Could not open file %s", ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ);
+    file_ਪੂਰਾ(ਅੰਕੜੇ, CURLE_FILE_COULDNT_READ_FILE, FALSE);
+    ਵਾਪਸ CURLE_FILE_COULDNT_READ_FILE;
   }
-  *done = TRUE;
+  *ਪੂਰਾ = TRUE;
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode file_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn,
+ਸਥਿਰ CURLcode file_disconnect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ connectdata *conn,
                                 bool dead_connection)
 {
-  (void)dead_connection;
-  (void)conn;
-  return file_done(data, CURLE_OK, FALSE);
+  (ਖਾਲੀ)dead_connection;
+  (ਖਾਲੀ)conn;
+  ਵਾਪਸ file_ਪੂਰਾ(ਅੰਕੜੇ, CURLE_OK, FALSE);
 }
 
-#ifdef DOS_FILESYSTEM
-#define DIRSEP '\\'
-#else
-#define DIRSEP '/'
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DOS_FILESYSTEM
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DIRSEP '\\'
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DIRSEP '/'
+#ਜੇ_ਅੰਤ
 
-static CURLcode file_upload(struct Curl_easy *data,
-                            struct FILEPROTO *file)
+ਸਥਿਰ CURLcode file_upload(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ FILEPROTO *file)
 {
-  const char *dir = strchr(file->path, DIRSEP);
-  int fd;
-  int mode;
-  CURLcode result = CURLE_OK;
-  char *xfer_ulbuf;
+  ਅਚਲ ਅੱਖਰ *dir = strchr(file->ਰਸਤਾ, DIRSEP);
+  ਪੂਰਨ fd;
+  ਪੂਰਨ ਬਹੁਲਕ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅੱਖਰ *xfer_ulbuf;
   size_t xfer_ulblen;
   curlx_struct_stat file_stat;
-  const char *sendbuf;
+  ਅਚਲ ਅੱਖਰ *sendbuf;
   bool eos = FALSE;
 
   /*
@@ -319,149 +319,149 @@ static CURLcode file_upload(struct Curl_easy *data,
    * assignments here.
    */
 
-  if(!dir)
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  ਜੇ(!dir)
+    ਵਾਪਸ CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  if(!dir[1])
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  ਜੇ(!dir[1])
+    ਵਾਪਸ CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  mode = O_WRONLY | O_CREAT | CURL_O_BINARY;
-  if(data->state.resume_from)
-    mode |= O_APPEND;
-  else
-    mode |= O_TRUNC;
+  ਬਹੁਲਕ = O_WRONLY | O_CREAT | CURL_O_ਦੁਆਧਾਰੀ;
+  ਜੇ(ਅੰਕੜੇ->state.resume_from)
+    ਬਹੁਲਕ |= O_APPEND;
+  ਨਹੀਂਤਾਂ
+    ਬਹੁਲਕ |= O_TRUNC;
 
-  fd = curlx_open(file->path, mode,
-#ifdef _WIN32
-                  data->set.new_file_perms & (_S_IREAD | _S_IWRITE)
-#else
-                  (mode_t)data->set.new_file_perms
-#endif
+  fd = curlx_open(file->ਰਸਤਾ, ਬਹੁਲਕ,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
+                  ਅੰਕੜੇ->ਸੈੱਟ.new_file_perms & (_S_IREAD | _S_IWRITE)
+#ਨਹੀਂਤਾਂ
+                  (mode_t)ਅੰਕੜੇ->ਸੈੱਟ.new_file_perms
+#ਜੇ_ਅੰਤ
                   );
-  if(fd < 0) {
-    failf(data, "cannot open %s for writing", file->path);
-    return CURLE_WRITE_ERROR;
+  ਜੇ(fd < 0) {
+    failf(ਅੰਕੜੇ, "cannot open %s for writing", file->ਰਸਤਾ);
+    ਵਾਪਸ CURLE_WRITE_ERROR;
   }
 
-  if(data->state.infilesize != -1)
+  ਜੇ(ਅੰਕੜੇ->state.infilesize != -1)
     /* known size of data to "upload" */
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+    Curl_pgrs_ਸੈੱਟ_Upload_ਮਾਪ(ਅੰਕੜੇ, ਅੰਕੜੇ->state.infilesize);
 
   /* treat the negative resume offset value as the case of "-" */
-  if(data->state.resume_from < 0) {
-    if(curlx_fstat(fd, &file_stat)) {
+  ਜੇ(ਅੰਕੜੇ->state.resume_from < 0) {
+    ਜੇ(curlx_fstat(fd, &file_stat)) {
       curlx_close(fd);
-      failf(data, "cannot get the size of %s", file->path);
-      return CURLE_WRITE_ERROR;
+      failf(ਅੰਕੜੇ, "cannot get the size of %s", file->ਰਸਤਾ);
+      ਵਾਪਸ CURLE_WRITE_ERROR;
     }
-    data->state.resume_from = (curl_off_t)file_stat.st_size;
+    ਅੰਕੜੇ->state.resume_from = (curl_off_t)file_stat.st_ਮਾਪ;
   }
 
-  result = Curl_multi_xfer_ulbuf_borrow(data, &xfer_ulbuf, &xfer_ulblen);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_multi_xfer_ulbuf_borrow(ਅੰਕੜੇ, &xfer_ulbuf, &xfer_ulblen);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  while(!result && !eos) {
+  ਜਦੋਂ(!ਨਤੀਜਾ && !eos) {
     size_t nread, nwritten;
     ssize_t rv;
     size_t readcount;
 
-    result = Curl_client_read(data, xfer_ulbuf, xfer_ulblen, &readcount, &eos);
-    if(result)
-      break;
+    ਨਤੀਜਾ = Curl_client_read(ਅੰਕੜੇ, xfer_ulbuf, xfer_ulblen, &readcount, &eos);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
 
-    if(!readcount)
-      break;
+    ਜੇ(!readcount)
+      ਰੋਕੋ;
 
     nread = readcount;
 
     /* skip bytes before resume point */
-    if(data->state.resume_from) {
-      if((curl_off_t)nread <= data->state.resume_from) {
-        data->state.resume_from -= nread;
+    ਜੇ(ਅੰਕੜੇ->state.resume_from) {
+      ਜੇ((curl_off_t)nread <= ਅੰਕੜੇ->state.resume_from) {
+        ਅੰਕੜੇ->state.resume_from -= nread;
         nread = 0;
         sendbuf = xfer_ulbuf;
       }
-      else {
-        sendbuf = xfer_ulbuf + data->state.resume_from;
-        nread -= (size_t)data->state.resume_from;
-        data->state.resume_from = 0;
+      ਨਹੀਂਤਾਂ {
+        sendbuf = xfer_ulbuf + ਅੰਕੜੇ->state.resume_from;
+        nread -= (size_t)ਅੰਕੜੇ->state.resume_from;
+        ਅੰਕੜੇ->state.resume_from = 0;
       }
     }
-    else
+    ਨਹੀਂਤਾਂ
       sendbuf = xfer_ulbuf;
 
     /* write the data to the target */
-    rv = write(fd, sendbuf, nread);
-    if(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
-      result = CURLE_SEND_ERROR;
-      break;
+    rv = ਲਿਖ(fd, sendbuf, nread);
+    ਜੇ(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
+      ਨਤੀਜਾ = CURLE_SEND_ERROR;
+      ਰੋਕੋ;
     }
-    Curl_pgrs_upload_inc(data, nwritten);
+    Curl_pgrs_upload_inc(ਅੰਕੜੇ, nwritten);
 
-    result = Curl_pgrsCheck(data);
+    ਨਤੀਜਾ = Curl_pgrsCheck(ਅੰਕੜੇ);
   }
-  if(!result)
-    result = Curl_pgrsUpdate(data);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = Curl_pgrsUpdate(ਅੰਕੜੇ);
 
-out:
+ਬਾਹਰਲਾ:
   curlx_close(fd);
-  Curl_multi_xfer_ulbuf_release(data, xfer_ulbuf);
+  Curl_multi_xfer_ulbuf_release(ਅੰਕੜੇ, xfer_ulbuf);
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
-static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
+#ਜੇ defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+ਸਥਿਰ CURLcode win32_file_list(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ)
 {
-  WIN32_FIND_DATA entry;
+  WIN32_ਲੱਭੋ_ਅੰਕੜੇ ਇੰਦਰਾਜ;
   HANDLE handle;
-  char *pattern;
-  size_t pathlen = strlen(path);
-  CURLcode result = CURLE_OK;
+  ਅੱਖਰ *ਨਮੂਨਾ;
+  size_t pathlen = ਲੜੀ_ਲੰਬਾਈ(ਰਸਤਾ);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   DWORD error;
 
-  pattern = curl_maprintf("%s%s*", path,
+  ਨਮੂਨਾ = curl_maprintf("%s%s*", ਰਸਤਾ,
                           pathlen &&
-                          (path[pathlen - 1] == '\\' ||
-                           path[pathlen - 1] == '/') ? "" : "\\");
-  if(!pattern)
-    return CURLE_OUT_OF_MEMORY;
+                          (ਰਸਤਾ[pathlen - 1] == '\\' ||
+                           ਰਸਤਾ[pathlen - 1] == '/') ? "" : "\\");
+  ਜੇ(!ਨਮੂਨਾ)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  handle = curlx_FindFirstFile(pattern, &entry);
-  curlx_free(pattern);
-  if(handle == INVALID_HANDLE_VALUE)
-    return CURLE_READ_ERROR;
+  handle = curlx_ਲੱਭੋ_ਪਹਿਲਾ_File(ਨਮੂਨਾ, &ਇੰਦਰਾਜ);
+  curlx_free(ਨਮੂਨਾ);
+  ਜੇ(handle == INVALID_HANDLE_ਮੁੱਲ)
+    ਵਾਪਸ CURLE_READ_ERROR;
 
-  do {
-    if(entry.cFileName[0] != TEXT('.')) {
-      char *name = curlx_convert_tchar_to_UTF8(entry.cFileName);
+  ਕਰੋ {
+    ਜੇ(ਇੰਦਰਾਜ.cFileName[0] != ਪਾਠ_2('.')) {
+      ਅੱਖਰ *name = curlx_convert_tchar_ਮੰਜ਼ਿਲ_UTF8(ਇੰਦਰਾਜ.cFileName);
 
-      if(!name) {
-        result = CURLE_OUT_OF_MEMORY;
-        break;
+      ਜੇ(!name) {
+        ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+        ਰੋਕੋ;
       }
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                 name, strlen(name));
+      ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY,
+                                 name, ਲੜੀ_ਲੰਬਾਈ(name));
       curlx_free(name);
-      if(result)
-        break;
+      ਜੇ(ਨਤੀਜਾ)
+        ਰੋਕੋ;
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
-        break;
+      ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY, "\n", 1);
+      ਜੇ(ਨਤੀਜਾ)
+        ਰੋਕੋ;
     }
-  } while(FindNextFile(handle, &entry));
+  } ਜਦੋਂ(ਲੱਭੋ_ਅਗਲਾ_File(handle, &ਇੰਦਰਾਜ));
 
-  error = GetLastError();
-  if(!result && error != ERROR_NO_MORE_FILES)
-    result = CURLE_READ_ERROR;
+  error = Get_ਆਖਰੀ_Error();
+  ਜੇ(!ਨਤੀਜਾ && error != ERROR_NO_ਹੋਰ_FILES)
+    ਨਤੀਜਾ = CURLE_READ_ERROR;
 
-  FindClose(handle);
-  return result;
+  ਲੱਭੋ_Close(handle);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 /*
  * file_do() is the protocol-specific function for the do-phase, separated
@@ -471,76 +471,76 @@ static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
  * opposed to sockets) we instead perform the whole do-operation in this
  * function.
  */
-static CURLcode file_do(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode file_do(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
   /* This implementation ignores the hostname in conformance with
      RFC 1738. Only local files (reachable via the standard file system)
      are supported. This means that files on remotely mounted directories
      (via NFS, Samba, NT sharing) can be accessed through a file:// URL */
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ FILEPROTO *file = Curl_meta_get(ਅੰਕੜੇ, CURL_META_FILE_EASY);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   curlx_struct_stat statbuf;
-  curl_off_t expected_size = -1;
-  bool size_known;
+  curl_off_t expected_ਮਾਪ = -1;
+  bool ਮਾਪ_ਗਿਆਤ;
   bool fstated = FALSE;
-  int fd;
-  char *xfer_buf;
+  ਪੂਰਨ fd;
+  ਅੱਖਰ *xfer_buf;
   size_t xfer_blen;
 
-  *done = TRUE; /* unconditionally */
-  if(!file)
-    return CURLE_FAILED_INIT;
+  *ਪੂਰਾ = TRUE; /* unconditionally */
+  ਜੇ(!file)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  if(data->state.upload)
-    return file_upload(data, file);
+  ਜੇ(ਅੰਕੜੇ->state.upload)
+    ਵਾਪਸ file_upload(ਅੰਕੜੇ, file);
 
   /* get the fd from the connection phase */
   fd = file->fd;
 
   /* VMS: This only works reliable for STREAMLF files */
-  if((file->is_dir ? file_stat(file->path, &statbuf) :
+  ਜੇ((file->is_dir ? file_stat(file->ਰਸਤਾ, &statbuf) :
                      curlx_fstat(fd, &statbuf)) != -1) {
-    file->is_dir = (fd == -1) || S_ISDIR(statbuf.st_mode);
-    if(!file->is_dir)
-      expected_size = statbuf.st_size;
+    file->is_dir = (fd == -1) || S_ISDIR(statbuf.st_ਬਹੁਲਕ);
+    ਜੇ(!file->is_dir)
+      expected_ਮਾਪ = statbuf.st_ਮਾਪ;
     /* and store the modification time */
-    data->info.filetime = statbuf.st_mtime;
+    ਅੰਕੜੇ->info.filetime = statbuf.st_mtime;
     fstated = TRUE;
   }
 
-  if(fstated && !data->state.range && data->set.timecondition &&
-     !Curl_meets_timecondition(data, data->info.filetime))
-    return CURLE_OK;
+  ਜੇ(fstated && !ਅੰਕੜੇ->state.range && ਅੰਕੜੇ->ਸੈੱਟ.timecondition &&
+     !Curl_meets_timecondition(ਅੰਕੜੇ, ਅੰਕੜੇ->info.filetime))
+    ਵਾਪਸ CURLE_OK;
 
-  if(fstated) {
+  ਜੇ(fstated) {
     time_t filetime;
-    struct tm buffer;
-    const struct tm *tm = &buffer;
-    char header[80];
-    int headerlen;
-    static const char accept_ranges[] = { "Accept-ranges: bytes\r\n" };
-    if(expected_size >= 0) {
+    ਬਣਤਰ tm ਬਫਰ;
+    ਅਚਲ ਬਣਤਰ tm *tm = &ਬਫਰ;
+    ਅੱਖਰ ਸਿਰਲੇਖ[80];
+    ਪੂਰਨ headerlen;
+    ਸਥਿਰ ਅਚਲ ਅੱਖਰ accept_ranges[] = { "Accept-ranges: bytes\r\n" };
+    ਜੇ(expected_ਮਾਪ >= 0) {
       headerlen =
-        curl_msnprintf(header, sizeof(header),
-                       "Content-Length: %" FMT_OFF_T "\r\n", expected_size);
-      result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-      if(result)
-        return result;
+        curl_msnprintf(ਸਿਰਲੇਖ, ਆਕਾਰ(ਸਿਰਲੇਖ),
+                       "Content-Length: %" FMT_OFF_T "\r\n", expected_ਮਾਪ);
+      ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_ਸਿਰਲੇਖ, ਸਿਰਲੇਖ, headerlen);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
 
-      result = Curl_client_write(data, CLIENTWRITE_HEADER,
+      ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_ਸਿਰਲੇਖ,
                                  accept_ranges, CURL_CSTRLEN(accept_ranges));
-      if(result != CURLE_OK)
-        return result;
+      ਜੇ(ਨਤੀਜਾ != CURLE_OK)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
 
     filetime = (time_t)statbuf.st_mtime;
-    result = curlx_gmtime(filetime, &buffer);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = curlx_gmtime(filetime, &ਬਫਰ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
 
     /* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
     headerlen =
-      curl_msnprintf(header, sizeof(header),
+      curl_msnprintf(ਸਿਰਲੇਖ, ਆਕਾਰ(ਸਿਰਲੇਖ),
                      "Last-Modified: %s, %02d %s %4d %02d:%02d:%02d GMT\r\n",
                      Curl_wkday[tm->tm_wday ? tm->tm_wday - 1 : 6],
                      tm->tm_mday,
@@ -549,154 +549,154 @@ static CURLcode file_do(struct Curl_easy *data, bool *done)
                      tm->tm_hour,
                      tm->tm_min,
                      tm->tm_sec);
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-    if(!result)
+    ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_ਸਿਰਲੇਖ, ਸਿਰਲੇਖ, headerlen);
+    ਜੇ(!ਨਤੀਜਾ)
       /* end of headers */
-      result = Curl_client_write(data, CLIENTWRITE_HEADER, "\r\n", 2);
-    if(result)
-      return result;
+      ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_ਸਿਰਲੇਖ, "\r\n", 2);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
     /* set the file size to make it available post transfer */
-    Curl_pgrsSetDownloadSize(data, expected_size);
-    if(data->req.no_body)
-      return CURLE_OK;
+    Curl_pgrs_ਸੈੱਟ_Download_ਮਾਪ(ਅੰਕੜੇ, expected_ਮਾਪ);
+    ਜੇ(ਅੰਕੜੇ->req.no_body)
+      ਵਾਪਸ CURLE_OK;
   }
 
   /* Check whether file range has been specified */
-  result = Curl_range(data);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_range(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   /* Adjust the start offset in case we want to get the N last bytes
    * of the stream if the filesize could be determined */
-  if(data->state.resume_from < 0) {
-    if(!fstated) {
-      failf(data, "cannot get the size of file.");
-      return CURLE_READ_ERROR;
+  ਜੇ(ਅੰਕੜੇ->state.resume_from < 0) {
+    ਜੇ(!fstated) {
+      failf(ਅੰਕੜੇ, "cannot get the size of file.");
+      ਵਾਪਸ CURLE_READ_ERROR;
     }
-    data->state.resume_from += (curl_off_t)statbuf.st_size;
+    ਅੰਕੜੇ->state.resume_from += (curl_off_t)statbuf.st_ਮਾਪ;
   }
 
-  if(data->state.resume_from > 0) {
+  ਜੇ(ਅੰਕੜੇ->state.resume_from > 0) {
     /* We check explicitly if we have a start offset, because
      * expected_size may be -1 if we do not know how large the file is,
      * in which case we should not adjust it. */
-    if(data->state.resume_from <= expected_size)
-      expected_size -= data->state.resume_from;
-    else {
-      failf(data, "failed to resume file:// transfer");
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    ਜੇ(ਅੰਕੜੇ->state.resume_from <= expected_ਮਾਪ)
+      expected_ਮਾਪ -= ਅੰਕੜੇ->state.resume_from;
+    ਨਹੀਂਤਾਂ {
+      failf(ਅੰਕੜੇ, "failed to resume file:// transfer");
+      ਵਾਪਸ CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
   /* A high water mark has been specified so we obey... */
-  if(data->req.maxdownload > 0)
-    expected_size = data->req.maxdownload;
+  ਜੇ(ਅੰਕੜੇ->req.maxdownload > 0)
+    expected_ਮਾਪ = ਅੰਕੜੇ->req.maxdownload;
 
-  if(!fstated || (expected_size <= 0))
-    size_known = FALSE;
-  else
-    size_known = TRUE;
+  ਜੇ(!fstated || (expected_ਮਾਪ <= 0))
+    ਮਾਪ_ਗਿਆਤ = FALSE;
+  ਨਹੀਂਤਾਂ
+    ਮਾਪ_ਗਿਆਤ = TRUE;
 
   /* The following is a shortcut implementation of file reading
      this is both more efficient than the former call to download() and
      it avoids problems with select() and recv() on file descriptors
      in Winsock */
-  if(size_known)
-    Curl_pgrsSetDownloadSize(data, expected_size);
+  ਜੇ(ਮਾਪ_ਗਿਆਤ)
+    Curl_pgrs_ਸੈੱਟ_Download_ਮਾਪ(ਅੰਕੜੇ, expected_ਮਾਪ);
 
-  if(data->state.resume_from) {
-    if(!file->is_dir) {
-      if(data->state.resume_from !=
-         curl_lseek(fd, data->state.resume_from, SEEK_SET))
-        return CURLE_BAD_DOWNLOAD_RESUME;
+  ਜੇ(ਅੰਕੜੇ->state.resume_from) {
+    ਜੇ(!file->is_dir) {
+      ਜੇ(ਅੰਕੜੇ->state.resume_from !=
+         curl_lseek(fd, ਅੰਕੜੇ->state.resume_from, SEEK_SET))
+        ਵਾਪਸ CURLE_BAD_DOWNLOAD_RESUME;
     }
-    else {
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    ਨਹੀਂਤਾਂ {
+      ਵਾਪਸ CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
-  result = Curl_multi_xfer_buf_borrow(data, &xfer_buf, &xfer_blen);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_multi_xfer_buf_borrow(ਅੰਕੜੇ, &xfer_buf, &xfer_blen);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if(!file->is_dir) {
-    while(!result) {
+  ਜੇ(!file->is_dir) {
+    ਜਦੋਂ(!ਨਤੀਜਾ) {
       ssize_t nread;
       /* Do not fill a whole buffer if we want less than all data */
       size_t bytestoread;
 
-      if(size_known) {
-        bytestoread = (expected_size < (curl_off_t)(xfer_blen - 1)) ?
-          curlx_sotouz(expected_size) : (xfer_blen - 1);
+      ਜੇ(ਮਾਪ_ਗਿਆਤ) {
+        bytestoread = (expected_ਮਾਪ < (curl_off_t)(xfer_blen - 1)) ?
+          curlx_sotouz(expected_ਮਾਪ) : (xfer_blen - 1);
       }
-      else
+      ਨਹੀਂਤਾਂ
         bytestoread = xfer_blen - 1;
 
-      nread = read(fd, xfer_buf, bytestoread);
+      nread = ਪਠ(fd, xfer_buf, bytestoread);
 
-      if(nread > 0)
+      ਜੇ(nread > 0)
         xfer_buf[nread] = 0;
 
-      if(nread <= 0 || (size_known && (expected_size == 0)))
-        break;
+      ਜੇ(nread <= 0 || (ਮਾਪ_ਗਿਆਤ && (expected_ਮਾਪ == 0)))
+        ਰੋਕੋ;
 
-      if(size_known)
-        expected_size -= nread;
+      ਜੇ(ਮਾਪ_ਗਿਆਤ)
+        expected_ਮਾਪ -= nread;
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY, xfer_buf, nread);
-      if(result)
-        goto out;
+      ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY, xfer_buf, nread);
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
 
-      result = Curl_pgrsCheck(data);
-      if(result)
-        goto out;
+      ਨਤੀਜਾ = Curl_pgrsCheck(ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
-  else {
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
-    result = win32_file_list(data, file->path);
-    if(result)
-      goto out;
-#elif defined(HAVE_OPENDIR)
-    DIR *dir = opendir(file->path);
-    struct dirent *entry;
+  ਨਹੀਂਤਾਂ {
+#ਜੇ defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+    ਨਤੀਜਾ = win32_file_list(ਅੰਕੜੇ, file->ਰਸਤਾ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
+#ਜਾਂਜੇ defined(HAVE_OPENDIR)
+    DIR *dir = opendir(file->ਰਸਤਾ);
+    ਬਣਤਰ dirent *ਇੰਦਰਾਜ;
 
-    if(!dir) {
-      result = CURLE_READ_ERROR;
-      goto out;
+    ਜੇ(!dir) {
+      ਨਤੀਜਾ = CURLE_READ_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else {
-      while((entry = readdir(dir))) {
-        if(entry->d_name[0] != '.') {
-          result = Curl_client_write(data, CLIENTWRITE_BODY,
-                   entry->d_name, strlen(entry->d_name));
-          if(result)
-            break;
-          result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-          if(result)
-            break;
+    ਨਹੀਂਤਾਂ {
+      ਜਦੋਂ((ਇੰਦਰਾਜ = readdir(dir))) {
+        ਜੇ(ਇੰਦਰਾਜ->d_name[0] != '.') {
+          ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY,
+                   ਇੰਦਰਾਜ->d_name, ਲੜੀ_ਲੰਬਾਈ(ਇੰਦਰਾਜ->d_name));
+          ਜੇ(ਨਤੀਜਾ)
+            ਰੋਕੋ;
+          ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY, "\n", 1);
+          ਜੇ(ਨਤੀਜਾ)
+            ਰੋਕੋ;
         }
       }
       closedir(dir);
     }
-#else
-    failf(data, "Directory listing not yet implemented on this platform.");
-    result = CURLE_READ_ERROR;
-#endif
+#ਨਹੀਂਤਾਂ
+    failf(ਅੰਕੜੇ, "Directory listing not yet implemented on this platform.");
+    ਨਤੀਜਾ = CURLE_READ_ERROR;
+#ਜੇ_ਅੰਤ
   }
 
-  if(!result)
-    result = Curl_pgrsUpdate(data);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = Curl_pgrsUpdate(ਅੰਕੜੇ);
 
-out:
-  Curl_multi_xfer_buf_release(data, xfer_buf);
-  return result;
+ਬਾਹਰਲਾ:
+  Curl_multi_xfer_buf_release(ਅੰਕੜੇ, xfer_buf);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-const struct Curl_protocol Curl_protocol_file = {
-  file_setup_connection,                /* setup_connection */
+ਅਚਲ ਬਣਤਰ Curl_protocol Curl_protocol_file = {
+  file_ਤਿਆਰੀ_connection,                /* setup_connection */
   file_do,                              /* do_it */
-  file_done,                            /* done */
+  file_ਪੂਰਾ,                            /* done */
   ZERO_NULL,                            /* do_more */
   file_connect,                         /* connect_it */
   ZERO_NULL,                            /* connecting */
@@ -713,4 +713,4 @@ const struct Curl_protocol Curl_protocol_file = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif
+#ਜੇ_ਅੰਤ

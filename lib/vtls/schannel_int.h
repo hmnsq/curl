@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SCHANNEL_INT_H
-#define HEADER_CURL_SCHANNEL_INT_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_SCHANNEL_INT_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_SCHANNEL_INT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,30 +24,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SCHANNEL
 
-#include "vtls/vtls.h"
-#include "curl_sha256.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_sha256.h"
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1700)
+#ਜੇ defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'LPCSTR' of greater size */
-#undef CERT_STORE_PROV_MEMORY
-#undef CERT_STORE_PROV_SYSTEM_A
-#undef CERT_STORE_PROV_SYSTEM_W
-#define CERT_STORE_PROV_MEMORY    ((LPCSTR)(size_t)2)
-#define CERT_STORE_PROV_SYSTEM_A  ((LPCSTR)(size_t)9)
-#define CERT_STORE_PROV_SYSTEM_W  ((LPCSTR)(size_t)10)
-#endif
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ CERT_STORE_PROV_ਸਮ੍ਰਿਤੀ
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ CERT_STORE_PROV_SYSTEM_A
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ CERT_STORE_PROV_SYSTEM_W
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CERT_STORE_PROV_ਸਮ੍ਰਿਤੀ    ((LPCSTR)(size_t)2)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CERT_STORE_PROV_SYSTEM_A  ((LPCSTR)(size_t)9)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CERT_STORE_PROV_SYSTEM_W  ((LPCSTR)(size_t)10)
+#ਜੇ_ਅੰਤ
 
 /* Offered by mingw-w64 v8+, MS SDK 10.0.17763.0/VS2017 15.8+ */
-#ifndef SCH_CREDENTIALS_VERSION
-#define SCH_CREDENTIALS_VERSION  0x00000005
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SCH_CREDENTIALS_ਸੰਸਕਰਣ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SCH_CREDENTIALS_ਸੰਸਕਰਣ  0x00000005
 
-typedef enum _eTlsAlgorithmUsage {
-  TlsParametersCngAlgUsageKeyExchange,
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ _eTlsAlgorithmUsage {
+  Tls_Parameters_Cng_Alg_Usage_ਕੁੰਜੀ_Exchange,
   TlsParametersCngAlgUsageSignature,
   TlsParametersCngAlgUsageCipher,
   TlsParametersCngAlgUsageDigest,
@@ -55,17 +55,17 @@ typedef enum _eTlsAlgorithmUsage {
 } eTlsAlgorithmUsage;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _CRYPTO_SETTINGS {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ _CRYPTO_SETTINGS {
   eTlsAlgorithmUsage eAlgorithmUsage;
   UNICODE_STRING strCngAlgId;
   DWORD cChainingModes;
   PUNICODE_STRING rgstrChainingModes; /* spellchecker:disable-line */
-  DWORD dwMinBitLength;
-  DWORD dwMaxBitLength;
+  DWORD dw_Min_ਦੋਆਧਾਰੀ_ਅੰਕ_ਲੰਮਾਈ;
+  DWORD dw_Max_ਦੋਆਧਾਰੀ_ਅੰਕ_ਲੰਮਾਈ;
 } CRYPTO_SETTINGS, *PCRYPTO_SETTINGS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _TLS_PARAMETERS {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ _TLS_PARAMETERS {
   DWORD cAlpnIds;
   PUNICODE_STRING rgstrAlpnIds; /* spellchecker:disable-line */
   DWORD grbitDisabledProtocols;
@@ -75,15 +75,15 @@ typedef struct _TLS_PARAMETERS {
 } TLS_PARAMETERS, *PTLS_PARAMETERS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _SCH_CREDENTIALS {
-  DWORD dwVersion;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ _SCH_CREDENTIALS {
+  DWORD dw_ਸੰਸਕਰਣ;
   DWORD dwCredFormat;
   DWORD cCreds;
   PCCERT_CONTEXT *paCred;
-  HCERTSTORE hRootStore;
+  HCERTSTORE h_ਜੜ੍ਹ_Store;
 
   DWORD cMappers;
-  struct _HMAPPER **aphMappers;
+  ਬਣਤਰ _HMAPPER **aphMappers;
 
   DWORD dwSessionLifespan;
   DWORD dwFlags;
@@ -91,82 +91,82 @@ typedef struct _SCH_CREDENTIALS {
   PTLS_PARAMETERS pTlsParameters;
 } SCH_CREDENTIALS, *PSCH_CREDENTIALS;
 
-#endif /* !SCH_CREDENTIALS_VERSION */
+#ਜੇ_ਅੰਤ /* !SCH_CREDENTIALS_VERSION */
 
-struct Curl_schannel_cred {
+ਬਣਤਰ Curl_schannel_cred {
   CredHandle cred_handle;
   TCHAR *sni_hostname;
   HCERTSTORE client_cert_store;
-  int refcount;
+  ਪੂਰਨ refcount;
 };
 
-struct Curl_schannel_ctxt {
+ਬਣਤਰ Curl_schannel_ctxt {
   CtxtHandle ctxt_handle;
 };
 
 /* handle encoding/decoding buffers */
-struct sbuffer {
-  size_t length;
-  size_t offset;
-  unsigned char *buffer;
+ਬਣਤਰ sbuffer {
+  size_t ਲੰਮਾਈ;
+  size_t ਵਿੱਥ;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਬਫਰ;
 };
 
-struct schannel_ssl_backend_data {
-  unsigned char *send_buffer;
-  size_t send_buffer_len;
-  struct sbuffer encdata;
-  struct sbuffer decdata;
-  struct Curl_schannel_cred *cred;
-  struct Curl_schannel_ctxt *ctxt;
-  SecBuffer shutdown_token;
-  size_t shutdown_offset;
-  SecPkgContext_StreamSizes stream_sizes;
-  unsigned long req_flags, ret_flags;
+ਬਣਤਰ schannel_ssl_backend_ਅੰਕੜੇ {
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *send_ਬਫਰ;
+  size_t send_ਬਫਰ_len;
+  ਬਣਤਰ sbuffer encdata;
+  ਬਣਤਰ sbuffer decdata;
+  ਬਣਤਰ Curl_schannel_cred *cred;
+  ਬਣਤਰ Curl_schannel_ctxt *ctxt;
+  Sec_ਬਫਰ shutdown_token;
+  size_t shutdown_ਵਿੱਥ;
+  Sec_Pkg_Context_ਧਾਰਾ_Sizes ਧਾਰਾ_sizes;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ req_flags, ret_flags;
   CURLcode recv_unrecoverable_err; /* schannel_recv had an unrecoverable err */
-  struct schannel_renegotiate_state {
+  ਬਣਤਰ schannel_renegotiate_state {
     bool started;
-    struct curltime start_time;
-    int io_need;
+    ਬਣਤਰ curltime ਸ਼ੁਰੂ_ਸਮਾਂ;
+    ਪੂਰਨ io_need;
   } renegotiate_state;
-  BIT(recv_sspi_close_notify); /* true if connection closed by close_notify */
-  BIT(recv_connection_closed); /* true if connection closed, regardless how */
-  BIT(recv_renegotiating);     /* true if recv is doing renegotiation */
-  BIT(use_alpn); /* true if ALPN is used for this connection */
-  BIT(use_manual_cred_validation); /* true if manual cred validation is used */
-  BIT(sent_shutdown);
-  BIT(shutdown_generated);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(recv_sspi_close_notify); /* true if connection closed by close_notify */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(recv_connection_closed); /* true if connection closed, regardless how */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(recv_renegotiating);     /* true if recv is doing renegotiation */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(use_alpn); /* true if ALPN is used for this connection */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(use_manual_cred_validation); /* true if manual cred validation is used */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਭੇਜਿਆ_shutdown);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(shutdown_generated);
   /* encdata_is_incomplete: if encdata contains only a partial record that
      cannot be decrypted without another recv() (that is, status is
      SEC_E_INCOMPLETE_MESSAGE) then set this true. after recv() adds more
      bytes into encdata then set this back to false. */
-  BIT(encdata_is_incomplete);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(encdata_is_incomplete);
 };
 
-struct schannel_cert_share {
-  unsigned char CAinfo_blob_digest[CURL_SHA256_DIGEST_LENGTH];
-  size_t CAinfo_blob_size;           /* CA info blob size */
-  char *CAfile;                      /* CAfile path used to generate
+ਬਣਤਰ schannel_cert_share {
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ CAinfo_blob_digest[CURL_SHA256_DIGEST_ਲੰਮਾਈ];
+  size_t CAinfo_blob_ਮਾਪ;           /* CA info blob size */
+  ਅੱਖਰ *CAfile;                      /* CAfile path used to generate
                                         certificate store */
   HCERTSTORE cert_store;             /* cached certificate store or
                                         NULL if none */
-  struct curltime time;              /* when the cached store was created */
+  ਬਣਤਰ curltime ਸਮਾਂ;              /* when the cached store was created */
 };
 
 /* size of the structure: 20 bytes */
-struct num_ip_data {
-  DWORD size; /* 04 bytes */
-  union {
-    struct in_addr  ia;  /* 04 bytes */
-    struct in6_addr ia6; /* 16 bytes */
-  } bData;
+ਬਣਤਰ ਅੰਕ_ip_ਅੰਕੜੇ {
+  DWORD ਮਾਪ; /* 04 bytes */
+  ਸੰਘ {
+    ਬਣਤਰ in_addr  ia;  /* 04 bytes */
+    ਬਣਤਰ in6_addr ia6; /* 16 bytes */
+  } b_ਅੰਕੜੇ;
 };
 
-HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data);
+HCERTSTORE Curl_schannel_get_cached_cert_store(ਬਣਤਰ Curl_cfilter *cf,
+                                               ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+bool Curl_schannel_ਸੈੱਟ_cached_cert_store(ਬਣਤਰ Curl_cfilter *cf,
+                                         ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                          HCERTSTORE cert_store);
 
-#endif /* USE_SCHANNEL */
-#endif /* HEADER_CURL_SCHANNEL_INT_H */
+#ਜੇ_ਅੰਤ /* USE_SCHANNEL */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_SCHANNEL_INT_H */

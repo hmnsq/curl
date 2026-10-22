@@ -21,123 +21,123 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
 
-#ifndef CURL_DISABLE_HTTP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_ਵਿੱਚ_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETDB_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netdb.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ARPA_INET_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <arpa/inet.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NET_IF_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <net/if.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_IOCTL_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/ioctl.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_PARAM_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/param.h>
+#ਜੇ_ਅੰਤ
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "formdata.h"
-#include "mime.h"
-#include "progress.h"
-#include "curlx/base64.h"
-#include "cookie.h"
-#include "vauth/vauth.h"
-#include "vquic/vquic.h"
-#include "http_digest.h"
-#include "http_ntlm.h"
-#include "http_negotiate.h"
-#include "http_aws_sigv4.h"
-#include "http_httpsig.h"
-#include "url.h"
-#include "urlapi-int.h"
-#include "curl_share.h"
-#include "dynhds.h"
-#include "http.h"
-#include "headers.h"
-#include "select.h"
-#include "parsedate.h" /* for the week day and month names */
-#include "multiif.h"
-#include "strcase.h"
-#include "content_encoding.h"
-#include "http_proxy.h"
-#include "http2.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curlx/strdup.h"
-#include "altsvc.h"
-#include "hsts.h"
-#include "rtsp.h"
-#include "ws.h"
-#include "bufref.h"
-#include "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "transfer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sendf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "formdata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mime.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/base64.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cookie.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vauth/vauth.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vquic/vquic.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_digest.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_ntlm.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_negotiate.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_aws_sigv4.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_httpsig.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urlapi-int.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_share.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "dynhds.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "headers.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "select.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parsedate.h" /* for the week day and month names */
+#ਅਨ੍ਤਰ੍ਭਾਵ "multiif.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "content_encoding.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_proxy.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http2.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strdup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "altsvc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "hsts.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "rtsp.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ws.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "bufref.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
 
-void Curl_http_neg_init(struct Curl_easy *data, struct http_negotiation *neg)
+ਖਾਲੀ Curl_http_neg_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ http_negotiation *neg)
 {
-  memset(neg, 0, sizeof(*neg));
-  neg->accept_09 = data->set.http09_allowed;
-  switch(data->set.httpwant) {
-  case CURL_HTTP_VERSION_1_0:
+  memset(neg, 0, ਆਕਾਰ(*neg));
+  neg->accept_09 = ਅੰਕੜੇ->ਸੈੱਟ.http09_allowed;
+  ਚੋਣ(ਅੰਕੜੇ->ਸੈੱਟ.httpwant) {
+  ਹਾਲਤ CURL_HTTP_ਸੰਸਕਰਣ_1_0:
     neg->wanted = neg->allowed = (CURL_HTTP_V1x);
     neg->only_10 = TRUE;
-    break;
-  case CURL_HTTP_VERSION_1_1:
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_HTTP_ਸੰਸਕਰਣ_1_1:
     neg->wanted = neg->allowed = (CURL_HTTP_V1x);
-    break;
-  case CURL_HTTP_VERSION_2_0:
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_HTTP_ਸੰਸਕਰਣ_2_0:
     neg->wanted = neg->allowed = (CURL_HTTP_V1x | CURL_HTTP_V2x);
     neg->h2_upgrade = TRUE;
-    break;
-  case CURL_HTTP_VERSION_2TLS:
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_HTTP_ਸੰਸਕਰਣ_2_TLS:
     neg->wanted = neg->allowed = (CURL_HTTP_V1x | CURL_HTTP_V2x);
-    break;
-  case CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE:
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_HTTP_ਸੰਸਕਰਣ_2_ਪੂਰਵ_KNOWLEDGE:
     neg->wanted = neg->allowed = (CURL_HTTP_V2x);
-    data->state.http_neg.h2_prior_knowledge = TRUE;
-    break;
-  case CURL_HTTP_VERSION_3:
+    ਅੰਕੜੇ->state.http_neg.h2_ਪੂਰਵ_knowledge = TRUE;
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_HTTP_ਸੰਸਕਰਣ_3:
     neg->wanted = (CURL_HTTP_V1x | CURL_HTTP_V2x | CURL_HTTP_V3x);
     neg->allowed = neg->wanted;
-    break;
-  case CURL_HTTP_VERSION_3ONLY:
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_HTTP_ਸੰਸਕਰਣ_3_ONLY:
     neg->wanted = neg->allowed = (CURL_HTTP_V3x);
-    break;
-  case CURL_HTTP_VERSION_NONE:
-  default:
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_HTTP_ਸੰਸਕਰਣ_NONE:
+  ਮੂਲ:
     neg->wanted = (CURL_HTTP_V1x | CURL_HTTP_V2x);
     neg->allowed = (CURL_HTTP_V1x | CURL_HTTP_V2x | CURL_HTTP_V3x);
-    break;
+    ਰੋਕੋ;
   }
 }
 
-CURLcode Curl_http_setup_conn(struct Curl_easy *data,
-                              struct connectdata *conn)
+CURLcode Curl_http_ਤਿਆਰੀ_conn(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਬਣਤਰ connectdata *conn)
 {
   /* allocate the HTTP-specific struct for the Curl_easy, only to survive
      during this request */
-  if(data->state.http_neg.wanted == CURL_HTTP_V3x) {
+  ਜੇ(ਅੰਕੜੇ->state.http_neg.wanted == CURL_HTTP_V3x) {
     /* only HTTP/3, needs to work */
-    CURLcode result = Curl_conn_may_http3(data, conn);
-    if(result)
-      return result;
+    CURLcode ਨਤੀਜਾ = Curl_conn_may_http3(ਅੰਕੜੇ, conn);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
 /*
  * checkProxyHeaders() checks the linked list of custom proxy headers
  * if proxy headers are not available, then it will lookup into http header
@@ -147,47 +147,47 @@ CURLcode Curl_http_setup_conn(struct Curl_easy *data,
  * not, as it then might check a different header list. Provide the header
  * prefix without colon!
  */
-char *Curl_checkProxyheaders(struct Curl_easy *data,
-                             const struct connectdata *conn,
-                             const char *thisheader,
-                             const size_t thislen)
+ਅੱਖਰ *Curl_checkProxyheaders(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਅਚਲ ਬਣਤਰ connectdata *conn,
+                             ਅਚਲ ਅੱਖਰ *thisheader,
+                             ਅਚਲ size_t thislen)
 {
-  struct curl_slist *head;
+  ਬਣਤਰ curl_slist *ਸਿਰ;
 
-  for(head = (conn->http_proxy.peer && data->set.sep_headers) ?
-        data->set.proxyheaders : data->set.headers;
-      head; head = head->next) {
-    if(curl_strnequal(head->data, thisheader, thislen) &&
-       Curl_headersep(head->data[thislen]))
-      return head->data;
+  ਲਈ(ਸਿਰ = (conn->http_proxy.peer && ਅੰਕੜੇ->ਸੈੱਟ.sep_ਸਿਰਲੇਖਾਂ) ?
+        ਅੰਕੜੇ->ਸੈੱਟ.proxyheaders : ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ;
+      ਸਿਰ; ਸਿਰ = ਸਿਰ->ਅਗਲਾ) {
+    ਜੇ(curl_strnequal(ਸਿਰ->ਅੰਕੜੇ, thisheader, thislen) &&
+       Curl_headersep(ਸਿਰ->ਅੰਕੜੇ[thislen]))
+      ਵਾਪਸ ਸਿਰ->ਅੰਕੜੇ;
   }
 
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 /* If the header has a value, this function returns TRUE and the value is in
    'outp' with blanks trimmed off. */
-static bool header_has_value(const char **headerp, struct Curl_str *outp)
+ਸਥਿਰ bool ਸਿਰਲੇਖ_has_ਮੁੱਲ(ਅਚਲ ਅੱਖਰ **headerp, ਬਣਤਰ Curl_str *outp)
 {
-  bool value = !curlx_str_cspn(headerp, outp, ";:") &&
+  bool ਮੁੱਲ = !curlx_str_cspn(headerp, outp, ";:") &&
     (!curlx_str_single(headerp, ':') || !curlx_str_single(headerp, ';'));
 
-  if(value) {
+  ਜੇ(ਮੁੱਲ) {
     curlx_str_cspn(headerp, outp, "\r\n");
     curlx_str_trimblanks(outp);
   }
-  return value;
+  ਵਾਪਸ ਮੁੱਲ;
 }
 
-static bool http_header_is_empty(const char *header)
+ਸਥਿਰ bool http_ਸਿਰਲੇਖ_is_ਖਾਲੀ_ਥਾਵਾਂ(ਅਚਲ ਅੱਖਰ *ਸਿਰਲੇਖ)
 {
-  struct Curl_str out;
+  ਬਣਤਰ Curl_str ਬਾਹਰਲਾ;
 
-  if(header_has_value(&header, &out)) {
-    return curlx_strlen(&out) == 0;
+  ਜੇ(ਸਿਰਲੇਖ_has_ਮੁੱਲ(&ਸਿਰਲੇਖ, &ਬਾਹਰਲਾ)) {
+    ਵਾਪਸ curlx_strlen(&ਬਾਹਰਲਾ) == 0;
   }
-  return TRUE; /* invalid header format, treat as empty */
+  ਵਾਪਸ TRUE; /* invalid header format, treat as empty */
 }
 
 /*
@@ -198,20 +198,20 @@ static bool http_header_is_empty(const char *header)
  * If the header is provided as "name;", ending with a semicolon, it returns a
  * blank string.
  */
-static CURLcode copy_custom_value(const char *header, char **valp)
+ਸਥਿਰ CURLcode copy_custom_ਮੁੱਲ(ਅਚਲ ਅੱਖਰ *ਸਿਰਲੇਖ, ਅੱਖਰ **valp)
 {
-  struct Curl_str out = { 0 };
+  ਬਣਤਰ Curl_str ਬਾਹਰਲਾ = { 0 };
 
   /* find the end of the header name */
-  if(header_has_value(&header, &out)) {
-    *valp = curlx_memdup0(curlx_str(&out), curlx_strlen(&out));
-    if(*valp)
-      return CURLE_OK;
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(ਸਿਰਲੇਖ_has_ਮੁੱਲ(&ਸਿਰਲੇਖ, &ਬਾਹਰਲਾ)) {
+    *valp = curlx_memdup0(curlx_str(&ਬਾਹਰਲਾ), curlx_strlen(&ਬਾਹਰਲਾ));
+    ਜੇ(*valp)
+      ਵਾਪਸ CURLE_OK;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
   /* bad input */
-  *valp = NULL;
-  return CURLE_BAD_FUNCTION_ARGUMENT;
+  *valp = ਨਿਰਾ;
+  ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
 }
 
 /*
@@ -224,74 +224,74 @@ static CURLcode copy_custom_value(const char *header, char **valp)
  *
  * @unittest: 1626
  */
-char *Curl_copy_header_value(const char *header)
+ਅੱਖਰ *Curl_copy_ਸਿਰਲੇਖ_ਮੁੱਲ(ਅਚਲ ਅੱਖਰ *ਸਿਰਲੇਖ)
 {
-  struct Curl_str out;
+  ਬਣਤਰ Curl_str ਬਾਹਰਲਾ;
 
   /* find the end of the header name */
-  if(!curlx_str_until(&header, &out, MAX_HTTP_RESP_HEADER_SIZE, ':') &&
-     !curlx_str_single(&header, ':')) {
-    curlx_str_untilnl(&header, &out, MAX_HTTP_RESP_HEADER_SIZE);
-    curlx_str_trimblanks(&out);
-    return curlx_memdup0(curlx_str(&out), curlx_strlen(&out));
+  ਜੇ(!curlx_str_until(&ਸਿਰਲੇਖ, &ਬਾਹਰਲਾ, MAX_HTTP_RESP_ਸਿਰਲੇਖ_ਮਾਪ, ':') &&
+     !curlx_str_single(&ਸਿਰਲੇਖ, ':')) {
+    curlx_str_untilnl(&ਸਿਰਲੇਖ, &ਬਾਹਰਲਾ, MAX_HTTP_RESP_ਸਿਰਲੇਖ_ਮਾਪ);
+    curlx_str_trimblanks(&ਬਾਹਰਲਾ);
+    ਵਾਪਸ curlx_memdup0(curlx_str(&ਬਾਹਰਲਾ), curlx_strlen(&ਬਾਹਰਲਾ));
   }
   /* bad input, should never happen */
   DEBUGASSERT(0);
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-#ifndef CURL_DISABLE_HTTP_AUTH
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP_AUTH
 
-#ifndef CURL_DISABLE_BASIC_AUTH
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BASIC_AUTH
 /*
  * http_output_basic() sets up an Authorization: header (or the proxy version)
  * for HTTP Basic authentication.
  *
  * Returns CURLcode.
  */
-static CURLcode http_output_basic(struct Curl_easy *data,
-                                  struct connectdata *conn, bool proxy)
+ਸਥਿਰ CURLcode http_output_basic(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ connectdata *conn, bool proxy)
 {
-  size_t size = 0;
-  char *authorization = NULL;
-  char **p_hd;
-  CURLcode result;
-  struct Curl_creds *creds = NULL;
-  char *out;
+  size_t ਮਾਪ = 0;
+  ਅੱਖਰ *authorization = ਨਿਰਾ;
+  ਅੱਖਰ **p_hd;
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ Curl_creds *creds = ਨਿਰਾ;
+  ਅੱਖਰ *ਬਾਹਰਲਾ;
 
   /* credentials are unique per transfer for HTTP, do not use the ones for the
      connection */
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-    p_hd = &data->req.hd_proxy_auth;
+  ਜੇ(proxy) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+    p_hd = &ਅੰਕੜੇ->req.hd_proxy_auth;
     creds = conn->http_proxy.creds;
-#else
-    (void)conn;
-    return CURLE_NOT_BUILT_IN;
-#endif
+#ਨਹੀਂਤਾਂ
+    (ਖਾਲੀ)conn;
+    ਵਾਪਸ CURLE_NOT_BUILT_ਵਿੱਚ;
+#ਜੇ_ਅੰਤ
   }
-  else {
-    p_hd = &data->req.hd_auth;
-    creds = data->state.creds;
+  ਨਹੀਂਤਾਂ {
+    p_hd = &ਅੰਕੜੇ->req.hd_auth;
+    creds = ਅੰਕੜੇ->state.creds;
   }
 
-  if(!creds) {
+  ਜੇ(!creds) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    ਵਾਪਸ CURLE_FAILED_INIT;
   }
 
-  out = curl_maprintf("%s:%s", creds->user, creds->passwd);
-  if(!out)
-    return CURLE_OUT_OF_MEMORY;
+  ਬਾਹਰਲਾ = curl_maprintf("%s:%s", creds->user, creds->passwd);
+  ਜੇ(!ਬਾਹਰਲਾ)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  result = curlx_base64_encode((uint8_t *)out, strlen(out),
-                               &authorization, &size);
-  if(result)
-    goto fail;
+  ਨਤੀਜਾ = curlx_base64_encode((uint8_t *)ਬਾਹਰਲਾ, ਲੜੀ_ਲੰਬਾਈ(ਬਾਹਰਲਾ),
+                               &authorization, &ਮਾਪ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ fail;
 
-  if(!authorization) {
-    result = CURLE_REMOTE_ACCESS_DENIED;
-    goto fail;
+  ਜੇ(!authorization) {
+    ਨਤੀਜਾ = CURLE_REMOTE_ACCESS_DENIED;
+    ਜਾਓ fail;
   }
 
   curlx_free(*p_hd);
@@ -299,95 +299,95 @@ static CURLcode http_output_basic(struct Curl_easy *data,
                         proxy ? "Proxy-" : "",
                         authorization);
   curlx_free(authorization);
-  if(!*p_hd) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  ਜੇ(!*p_hd) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ fail;
   }
 
 fail:
-  curlx_free(out);
-  return result;
+  curlx_free(ਬਾਹਰਲਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_DISABLE_BEARER_AUTH
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BEARER_AUTH
 /*
  * http_output_bearer() sets up an Authorization: header
  * for HTTP Bearer authentication.
  *
  * Returns CURLcode.
  */
-static CURLcode http_output_bearer(struct Curl_easy *data)
+ਸਥਿਰ CURLcode http_output_bearer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  char **userp;
-  CURLcode result = CURLE_OK;
+  ਅੱਖਰ **userp;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  DEBUGASSERT(Curl_creds_has_oauth_bearer(data->state.creds));
-  userp = &data->req.hd_auth;
+  DEBUGASSERT(Curl_creds_has_oauth_bearer(ਅੰਕੜੇ->state.creds));
+  userp = &ਅੰਕੜੇ->req.hd_auth;
   curlx_free(*userp);
   *userp = curl_maprintf("Authorization: Bearer %s\r\n",
-                         Curl_creds_oauth_bearer(data->state.creds));
+                         Curl_creds_oauth_bearer(ਅੰਕੜੇ->state.creds));
 
-  if(!*userp) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  ਜੇ(!*userp) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ fail;
   }
 
 fail:
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#endif
+#ਜੇ_ਅੰਤ
 
 /* pickoneauth() selects the most favorable authentication method from the
  * ones available and the ones we want.
  *
  * return TRUE if one was picked
  */
-static bool pickoneauth(struct auth *pick, unsigned long mask,
-                        struct Curl_creds *creds)
+ਸਥਿਰ bool pickoneauth(ਬਣਤਰ auth *pick, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਨਕਾਬ,
+                        ਬਣਤਰ Curl_creds *creds)
 {
   bool have_user_pass = Curl_creds_has_user_or_pass(creds);
   bool picked;
   /* only deal with authentication we want */
-  unsigned long avail = pick->avail & pick->want & mask;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ avail = pick->avail & pick->want & ਨਕਾਬ;
   picked = TRUE;
 
   /* The order of these checks is highly relevant, as this will be the order
      of preference in case of the existence of multiple accepted types. */
-  if(avail & CURLAUTH_NEGOTIATE)  /* available on empty creds */
+  ਜੇ(avail & CURLAUTH_NEGOTIATE)  /* available on empty creds */
     pick->picked = CURLAUTH_NEGOTIATE;
-#ifndef CURL_DISABLE_BEARER_AUTH
-  else if((avail & CURLAUTH_BEARER) && Curl_creds_has_oauth_bearer(creds))
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BEARER_AUTH
+  ਨਹੀਂਤਾਂ ਜੇ((avail & CURLAUTH_BEARER) && Curl_creds_has_oauth_bearer(creds))
     pick->picked = CURLAUTH_BEARER;
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  else if((avail & CURLAUTH_DIGEST) && have_user_pass)
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_DIGEST_AUTH
+  ਨਹੀਂਤਾਂ ਜੇ((avail & CURLAUTH_DIGEST) && have_user_pass)
     pick->picked = CURLAUTH_DIGEST;
-#endif
-  else if(avail & CURLAUTH_NTLM)
+#ਜੇ_ਅੰਤ
+  ਨਹੀਂਤਾਂ ਜੇ(avail & CURLAUTH_NTLM)
     pick->picked = CURLAUTH_NTLM;
-#ifndef CURL_DISABLE_BASIC_AUTH
-  else if((avail & CURLAUTH_BASIC) && have_user_pass)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BASIC_AUTH
+  ਨਹੀਂਤਾਂ ਜੇ((avail & CURLAUTH_BASIC) && have_user_pass)
     pick->picked = CURLAUTH_BASIC;
-#endif
-#ifndef CURL_DISABLE_AWS
-  else if(avail & CURLAUTH_AWS_SIGV4)
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_AWS
+  ਨਹੀਂਤਾਂ ਜੇ(avail & CURLAUTH_AWS_SIGV4)
     pick->picked = CURLAUTH_AWS_SIGV4;
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
-  else if(avail & CURLAUTH_HTTPSIG)
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTPSIG
+  ਨਹੀਂਤਾਂ ਜੇ(avail & CURLAUTH_HTTPSIG)
     pick->picked = CURLAUTH_HTTPSIG;
-#endif
-  else {
+#ਜੇ_ਅੰਤ
+  ਨਹੀਂਤਾਂ {
     pick->picked = CURLAUTH_PICKNONE; /* we select to use nothing */
     picked = FALSE;
   }
   pick->avail = CURLAUTH_NONE; /* clear it here */
 
-  return picked;
+  ਵਾਪਸ picked;
 }
 
 /*
@@ -398,19 +398,19 @@ static bool pickoneauth(struct auth *pick, unsigned long mask,
  * 1) a rewind of the data sent to the server is necessary
  * 2) the current transfer should continue or be stopped early
  */
-static CURLcode http_perhapsrewind(struct Curl_easy *data,
-                                   struct connectdata *conn)
+ਸਥਿਰ CURLcode http_perhapsrewind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਬਣਤਰ connectdata *conn)
 {
-  curl_off_t bytessent = data->req.writebytecount;
-  curl_off_t expectsend = Curl_creader_total_length(data);
+  curl_off_t bytessent = ਅੰਕੜੇ->req.writebytecount;
+  curl_off_t expectsend = Curl_creader_ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ);
   curl_off_t upload_remain = (expectsend >= 0) ? (expectsend - bytessent) : -1;
   bool little_upload_remains = (upload_remain >= 0 && upload_remain < 2000);
-  bool needs_rewind = Curl_creader_needs_rewind(data);
+  bool needs_rewind = Curl_creader_needs_rewind(ਅੰਕੜੇ);
   /* By default, we would like to abort the transfer when little or unknown
    * amount remains. This may be overridden by authentications further
    * below! */
-  bool abort_upload = (!data->req.upload_done && !little_upload_remains);
-  VERBOSE(const char *ongoing_auth = NULL);
+  bool abort_upload = (!ਅੰਕੜੇ->req.upload_ਪੂਰਾ && !little_upload_remains);
+  VERBOSE(ਅਚਲ ਅੱਖਰ *ongoing_auth = ਨਿਰਾ);
 
   /* We need a rewind before uploading client read data again. The
    * checks below influence of the upload is to be continued
@@ -418,61 +418,61 @@ static CURLcode http_perhapsrewind(struct Curl_easy *data,
    * This depends on how much remains to be sent and in what state
    * the authentication is. Some auth schemes such as NTLM do not work
    * for a new connection. */
-  if(needs_rewind) {
-    infof(data, "Need to rewind upload for next request");
-    Curl_creader_set_rewind(data, TRUE);
+  ਜੇ(needs_rewind) {
+    infof(ਅੰਕੜੇ, "Need to rewind upload for next request");
+    Curl_creader_ਸੈੱਟ_rewind(ਅੰਕੜੇ, TRUE);
   }
 
-  if(conn->bits.close)
+  ਜੇ(conn->ਬਿੱਟ.close)
     /* If we already decided to close this connection, we cannot veto. */
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
 
-  if(abort_upload) {
+  ਜੇ(abort_upload) {
     /* We would like to abort the upload - but should we? */
-#ifdef USE_NTLM
-    if((data->state.authproxy.picked == CURLAUTH_NTLM) ||
-       (data->state.authhost.picked == CURLAUTH_NTLM)) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NTLM
+    ਜੇ((ਅੰਕੜੇ->state.authproxy.picked == CURLAUTH_NTLM) ||
+       (ਅੰਕੜੇ->state.authhost.picked == CURLAUTH_NTLM)) {
       VERBOSE(ongoing_auth = "NTLM");
-      if((conn->http_ntlm_state != NTLMSTATE_NONE) ||
+      ਜੇ((conn->http_ntlm_state != NTLMSTATE_NONE) ||
          (conn->proxy_ntlm_state != NTLMSTATE_NONE)) {
         /* The NTLM-negotiation has started, keep on sending.
          * Need to do further work on same connection */
         abort_upload = FALSE;
       }
     }
-#endif
-#ifdef USE_SPNEGO
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SPNEGO
     /* There is still data left to send */
-    if((data->state.authproxy.picked == CURLAUTH_NEGOTIATE) ||
-       (data->state.authhost.picked == CURLAUTH_NEGOTIATE)) {
+    ਜੇ((ਅੰਕੜੇ->state.authproxy.picked == CURLAUTH_NEGOTIATE) ||
+       (ਅੰਕੜੇ->state.authhost.picked == CURLAUTH_NEGOTIATE)) {
       VERBOSE(ongoing_auth = "NEGOTIATE");
-      if((conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) ||
+      ਜੇ((conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) ||
          (conn->proxy_negotiate_state != CURL_NEGO_AUTH_NONE)) {
         /* The NEGOTIATE-negotiation has started, keep on sending.
          * Need to do further work on same connection */
         abort_upload = FALSE;
       }
     }
-#endif
+#ਜੇ_ਅੰਤ
   }
 
-  if(abort_upload) {
-    if(upload_remain >= 0)
-      infof(data, "%s%sclose instead of sending %" FMT_OFF_T " more bytes",
+  ਜੇ(abort_upload) {
+    ਜੇ(upload_remain >= 0)
+      infof(ਅੰਕੜੇ, "%s%sclose instead of sending %" FMT_OFF_T " more bytes",
             ongoing_auth ? ongoing_auth : "",
             ongoing_auth ? " send, " : "",
             upload_remain);
-    else
-      infof(data, "%s%sclose instead of sending unknown amount "
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "%s%sclose instead of sending unknown amount "
             "of more bytes",
             ongoing_auth ? ongoing_auth : "",
             ongoing_auth ? " send, " : "");
     /* We decided to abort the ongoing transfer */
     streamclose(conn);
-    data->req.size = 0; /* do not download any more than 0 bytes */
-    data->req.http_bodyless = TRUE;
+    ਅੰਕੜੇ->req.ਮਾਪ = 0; /* do not download any more than 0 bytes */
+    ਅੰਕੜੇ->req.http_bodyless = TRUE;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /**
@@ -483,38 +483,38 @@ static CURLcode http_perhapsrewind(struct Curl_easy *data,
  *
  * @retval TRUE communications should not continue
  */
-static bool http_should_fail(struct Curl_easy *data, int httpcode)
+ਸਥਿਰ bool http_should_fail(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਪੂਰਨ httpcode)
 {
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ਅੰਕੜੇ);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
 
   /*
    * If we have not been asked to fail on error,
    * do not fail.
    */
-  if(!data->set.http_fail_on_error)
-    return FALSE;
+  ਜੇ(!ਅੰਕੜੇ->ਸੈੱਟ.http_fail_on_error)
+    ਵਾਪਸ FALSE;
 
   /*
    * Any code < 400 is never terminal.
    */
-  if(httpcode < 400)
-    return FALSE;
+  ਜੇ(httpcode < 400)
+    ਵਾਪਸ FALSE;
 
   /*
    * A 416 response to a resume request is presumably because the file is
    * already completely downloaded and thus not actually a fail.
    */
-  if(data->state.resume_from && data->state.httpreq == HTTPREQ_GET &&
+  ਜੇ(ਅੰਕੜੇ->state.resume_from && ਅੰਕੜੇ->state.httpreq == HTTPREQ_GET &&
      httpcode == 416)
-    return FALSE;
+    ਵਾਪਸ FALSE;
 
   /*
    * Any code >= 400 that is not 401 or 407 is always
    * a terminal error
    */
-  if((httpcode != 401) && (httpcode != 407))
-    return TRUE;
+  ਜੇ((httpcode != 401) && (httpcode != 407))
+    ਵਾਪਸ TRUE;
 
   /*
    * All we have left to deal with is 401 and 407
@@ -536,14 +536,14 @@ static bool http_should_fail(struct Curl_easy *data, int httpcode)
    * Either we are not authenticating, or we are supposed to be authenticating
    * something else. This is an error.
    */
-  if((httpcode == 401) && !data->state.creds)
-    return TRUE;
-#ifndef CURL_DISABLE_PROXY
-  if((httpcode == 407) && !data->conn->http_proxy.creds)
-    return TRUE;
-#endif
+  ਜੇ((httpcode == 401) && !ਅੰਕੜੇ->state.creds)
+    ਵਾਪਸ TRUE;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਜੇ((httpcode == 407) && !ਅੰਕੜੇ->conn->http_proxy.creds)
+    ਵਾਪਸ TRUE;
+#ਜੇ_ਅੰਤ
 
-  return (bool)data->state.authproblem;
+  ਵਾਪਸ (bool)ਅੰਕੜੇ->state.authproblem;
 }
 
 /*
@@ -552,460 +552,460 @@ static bool http_should_fail(struct Curl_easy *data, int httpcode)
  * which one (if any) to use. It will set 'newurl' if an auth method was
  * picked.
  */
-CURLcode Curl_http_auth_act(struct Curl_easy *data)
+CURLcode Curl_http_auth_act(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct connectdata *conn = data->conn;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
   bool pickhost = FALSE;
   bool pickproxy = FALSE;
-  CURLcode result = CURLE_OK;
-  unsigned long authmask = ~0UL;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ authmask = ~0UL;
 
-  if(!Curl_creds_has_oauth_bearer(data->state.creds))
-    authmask &= (unsigned long)~CURLAUTH_BEARER;
+  ਜੇ(!Curl_creds_has_oauth_bearer(ਅੰਕੜੇ->state.creds))
+    authmask &= (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)~CURLAUTH_BEARER;
 
-  if(100 <= data->req.httpcode && data->req.httpcode <= 199)
+  ਜੇ(100 <= ਅੰਕੜੇ->req.httpcode && ਅੰਕੜੇ->req.httpcode <= 199)
     /* this is a transient response code, ignore */
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
 
-  if(data->state.authproblem)
-    return data->set.http_fail_on_error ? CURLE_HTTP_RETURNED_ERROR : CURLE_OK;
+  ਜੇ(ਅੰਕੜੇ->state.authproblem)
+    ਵਾਪਸ ਅੰਕੜੇ->ਸੈੱਟ.http_fail_on_error ? CURLE_HTTP_RETURNED_ERROR : CURLE_OK;
 
-  if(data->state.creds &&
-     ((data->req.httpcode == 401) ||
-      (data->req.authneg && data->req.httpcode < 300))) {
-    pickhost = pickoneauth(&data->state.authhost, authmask, data->state.creds);
-    if(!pickhost)
-      data->state.authproblem = TRUE;
-    else
-      data->info.httpauthpicked = data->state.authhost.picked;
-    if(data->state.authhost.picked == CURLAUTH_NTLM &&
-       (data->req.httpversion_sent > 11)) {
-      infof(data, "Forcing HTTP/1.1 for NTLM");
+  ਜੇ(ਅੰਕੜੇ->state.creds &&
+     ((ਅੰਕੜੇ->req.httpcode == 401) ||
+      (ਅੰਕੜੇ->req.authneg && ਅੰਕੜੇ->req.httpcode < 300))) {
+    pickhost = pickoneauth(&ਅੰਕੜੇ->state.authhost, authmask, ਅੰਕੜੇ->state.creds);
+    ਜੇ(!pickhost)
+      ਅੰਕੜੇ->state.authproblem = TRUE;
+    ਨਹੀਂਤਾਂ
+      ਅੰਕੜੇ->info.httpauthpicked = ਅੰਕੜੇ->state.authhost.picked;
+    ਜੇ(ਅੰਕੜੇ->state.authhost.picked == CURLAUTH_NTLM &&
+       (ਅੰਕੜੇ->req.httpversion_ਭੇਜਿਆ > 11)) {
+      infof(ਅੰਕੜੇ, "Forcing HTTP/1.1 for NTLM");
       connclose(conn);
-      data->state.http_neg.wanted = CURL_HTTP_V1x;
-      data->state.http_neg.allowed = CURL_HTTP_V1x;
+      ਅੰਕੜੇ->state.http_neg.wanted = CURL_HTTP_V1x;
+      ਅੰਕੜੇ->state.http_neg.allowed = CURL_HTTP_V1x;
     }
   }
-#ifndef CURL_DISABLE_PROXY
-  if(conn->http_proxy.creds &&
-     ((data->req.httpcode == 407) ||
-      (data->req.authneg && data->req.httpcode < 300))) {
-    pickproxy = pickoneauth(&data->state.authproxy,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਜੇ(conn->http_proxy.creds &&
+     ((ਅੰਕੜੇ->req.httpcode == 407) ||
+      (ਅੰਕੜੇ->req.authneg && ਅੰਕੜੇ->req.httpcode < 300))) {
+    pickproxy = pickoneauth(&ਅੰਕੜੇ->state.authproxy,
                             authmask & ~CURLAUTH_BEARER,
                             conn->http_proxy.creds);
-    if(!pickproxy)
-      data->state.authproblem = TRUE;
-    else
-      data->info.proxyauthpicked = data->state.authproxy.picked;
+    ਜੇ(!pickproxy)
+      ਅੰਕੜੇ->state.authproblem = TRUE;
+    ਨਹੀਂਤਾਂ
+      ਅੰਕੜੇ->info.proxyauthpicked = ਅੰਕੜੇ->state.authproxy.picked;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  if(pickhost || pickproxy) {
-    result = http_perhapsrewind(data, conn);
-    if(result)
-      return result;
+  ਜੇ(pickhost || pickproxy) {
+    ਨਤੀਜਾ = http_perhapsrewind(ਅੰਕੜੇ, conn);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
 
     /* In case this is GSS auth, the newurl field is already allocated so
        we must make sure to free it before allocating a new one. As figured
        out in bug #2284386 */
-    curlx_free(data->req.newurl);
+    curlx_free(ਅੰਕੜੇ->req.newurl);
     /* clone URL */
-    data->req.newurl = Curl_bufref_dup(&data->state.url);
-    if(!data->req.newurl)
-      return CURLE_OUT_OF_MEMORY;
+    ਅੰਕੜੇ->req.newurl = Curl_bufref_dup(&ਅੰਕੜੇ->state.url);
+    ਜੇ(!ਅੰਕੜੇ->req.newurl)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-  else if((data->req.httpcode < 300) &&
-          !data->state.authhost.done &&
-          data->req.authneg &&
+  ਨਹੀਂਤਾਂ ਜੇ((ਅੰਕੜੇ->req.httpcode < 300) &&
+          !ਅੰਕੜੇ->state.authhost.ਪੂਰਾ &&
+          ਅੰਕੜੇ->req.authneg &&
           /* no (known) authentication available,
              authentication is not "done" yet and
              no authentication seems to be required and
              we did not try HEAD or GET */
-          (data->state.httpreq != HTTPREQ_GET) &&
-          (data->state.httpreq != HTTPREQ_HEAD)) {
+          (ਅੰਕੜੇ->state.httpreq != HTTPREQ_GET) &&
+          (ਅੰਕੜੇ->state.httpreq != HTTPREQ_ਸਿਰ)) {
     /* clone URL */
-    data->req.newurl = Curl_bufref_dup(&data->state.url);
-    if(!data->req.newurl)
-      return CURLE_OUT_OF_MEMORY;
-    data->state.authhost.done = TRUE;
+    ਅੰਕੜੇ->req.newurl = Curl_bufref_dup(&ਅੰਕੜੇ->state.url);
+    ਜੇ(!ਅੰਕੜੇ->req.newurl)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਅੰਕੜੇ->state.authhost.ਪੂਰਾ = TRUE;
   }
-  if(http_should_fail(data, data->req.httpcode)) {
-    failf(data, "The requested URL returned error: %d",
-          data->req.httpcode);
-    result = CURLE_HTTP_RETURNED_ERROR;
+  ਜੇ(http_should_fail(ਅੰਕੜੇ, ਅੰਕੜੇ->req.httpcode)) {
+    failf(ਅੰਕੜੇ, "The requested URL returned error: %d",
+          ਅੰਕੜੇ->req.httpcode);
+    ਨਤੀਜਾ = CURLE_HTTP_RETURNED_ERROR;
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifndef CURL_DISABLE_HTTP_AUTH
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP_AUTH
 /*
  * Output the correct authentication header depending on the auth type
  * and whether or not it is to a proxy.
  */
-static CURLcode output_auth_headers(struct Curl_easy *data,
-                                    struct connectdata *conn,
-                                    struct auth *authstatus,
-                                    const char *request,
-                                    const char *path,
+ਸਥਿਰ CURLcode output_auth_ਸਿਰਲੇਖਾਂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ connectdata *conn,
+                                    ਬਣਤਰ auth *authstatus,
+                                    ਅਚਲ ਅੱਖਰ *request,
+                                    ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
                                     bool proxy)
 {
-  const char *auth = NULL;
-  CURLcode result = CURLE_OK;
-  (void)conn;
+  ਅਚਲ ਅੱਖਰ *auth = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  (ਖਾਲੀ)conn;
 
-#ifdef CURL_DISABLE_DIGEST_AUTH
-  (void)request;
-  (void)path;
-#endif
-#ifndef CURL_DISABLE_AWS
-  if((authstatus->picked == CURLAUTH_AWS_SIGV4) && !proxy) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_DIGEST_AUTH
+  (ਖਾਲੀ)request;
+  (ਖਾਲੀ)ਰਸਤਾ;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_AWS
+  ਜੇ((authstatus->picked == CURLAUTH_AWS_SIGV4) && !proxy) {
     /* this method is never for proxy */
     auth = "AWS_SIGV4";
-    result = Curl_output_aws_sigv4(data);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = Curl_output_aws_sigv4(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
-  else
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
-  if((authstatus->picked == CURLAUTH_HTTPSIG) && !proxy) {
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTPSIG
+  ਜੇ((authstatus->picked == CURLAUTH_HTTPSIG) && !proxy) {
     /* HTTPSIG uses its own configured key material rather than
        data->state.creds. Do not let unrelated credentials from a
        redirected URL bypass the cross-host auth boundary. */
-    if(Curl_auth_allowed_to_host(data)) {
+    ਜੇ(Curl_auth_allowed_ਮੰਜ਼ਿਲ_host(ਅੰਕੜੇ)) {
       auth = "HTTPSIG";
-      result = Curl_output_httpsig(data);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = Curl_output_httpsig(ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    else
-      authstatus->done = TRUE;
+    ਨਹੀਂਤਾਂ
+      authstatus->ਪੂਰਾ = TRUE;
   }
-  else
-#endif
-#ifdef USE_SPNEGO
-  if(authstatus->picked == CURLAUTH_NEGOTIATE) {
-    if(
-#ifndef CURL_DISABLE_PROXY
-      (proxy && !Curl_checkProxyheaders(data, conn,
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SPNEGO
+  ਜੇ(authstatus->picked == CURLAUTH_NEGOTIATE) {
+    ਜੇ(
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+      (proxy && !Curl_checkProxyheaders(ਅੰਕੜੇ, conn,
                                         STRCONST("Proxy-authorization"))) ||
-#endif
-      (!proxy && !Curl_checkheaders(data, STRCONST("Authorization")) &&
-       Curl_auth_allowed_to_host(data))) {
+#ਜੇ_ਅੰਤ
+      (!proxy && !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Authorization")) &&
+       Curl_auth_allowed_ਮੰਜ਼ਿਲ_host(ਅੰਕੜੇ))) {
       auth = "Negotiate";
-      result = Curl_output_negotiate(data, conn, proxy);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = Curl_output_negotiate(ਅੰਕੜੇ, conn, proxy);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    else
-      authstatus->done = TRUE;
+    ਨਹੀਂਤਾਂ
+      authstatus->ਪੂਰਾ = TRUE;
   }
-  else
-#endif
-#ifdef USE_NTLM
-  if(authstatus->picked == CURLAUTH_NTLM) {
-    if(proxy || Curl_auth_allowed_to_host(data)) {
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NTLM
+  ਜੇ(authstatus->picked == CURLAUTH_NTLM) {
+    ਜੇ(proxy || Curl_auth_allowed_ਮੰਜ਼ਿਲ_host(ਅੰਕੜੇ)) {
       auth = "NTLM";
-      result = Curl_output_ntlm(data, proxy);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = Curl_output_ntlm(ਅੰਕੜੇ, proxy);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    else
-      authstatus->done = TRUE;
+    ਨਹੀਂਤਾਂ
+      authstatus->ਪੂਰਾ = TRUE;
   }
-  else
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  if(authstatus->picked == CURLAUTH_DIGEST) {
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_DIGEST_AUTH
+  ਜੇ(authstatus->picked == CURLAUTH_DIGEST) {
     auth = "Digest";
-    result = Curl_output_digest(data,
+    ਨਤੀਜਾ = Curl_output_digest(ਅੰਕੜੇ,
                                 proxy,
-                                (const unsigned char *)request,
-                                (const unsigned char *)path);
-    if(result)
-      return result;
+                                (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)request,
+                                (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)ਰਸਤਾ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
-  else
-#endif
-#ifndef CURL_DISABLE_BASIC_AUTH
-  if(authstatus->picked == CURLAUTH_BASIC) {
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BASIC_AUTH
+  ਜੇ(authstatus->picked == CURLAUTH_BASIC) {
     /* Basic */
-    if(
-#ifndef CURL_DISABLE_PROXY
+    ਜੇ(
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
        (proxy && conn->http_proxy.creds &&
         Curl_creds_has_user_or_pass(conn->http_proxy.creds) &&
-        !Curl_checkProxyheaders(data, conn,
+        !Curl_checkProxyheaders(ਅੰਕੜੇ, conn,
                                 STRCONST("Proxy-authorization"))) ||
-#endif
-       (!proxy && data->state.creds &&
-        Curl_creds_has_user_or_pass(data->state.creds) &&
-        !Curl_checkheaders(data, STRCONST("Authorization")))) {
+#ਜੇ_ਅੰਤ
+       (!proxy && ਅੰਕੜੇ->state.creds &&
+        Curl_creds_has_user_or_pass(ਅੰਕੜੇ->state.creds) &&
+        !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Authorization")))) {
       auth = "Basic";
-      result = http_output_basic(data, conn, proxy);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = http_output_basic(ਅੰਕੜੇ, conn, proxy);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
 
     /* NOTE: this function should set 'done' TRUE, as the other auth
        functions work that way */
-    authstatus->done = TRUE;
+    authstatus->ਪੂਰਾ = TRUE;
   }
-#endif
-#ifndef CURL_DISABLE_BEARER_AUTH
-  if(authstatus->picked == CURLAUTH_BEARER) {
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BEARER_AUTH
+  ਜੇ(authstatus->picked == CURLAUTH_BEARER) {
     /* Bearer */
-    if(!proxy && Curl_creds_has_oauth_bearer(data->state.creds) &&
-       !Curl_checkheaders(data, STRCONST("Authorization"))) {
+    ਜੇ(!proxy && Curl_creds_has_oauth_bearer(ਅੰਕੜੇ->state.creds) &&
+       !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Authorization"))) {
       auth = "Bearer";
-      result = http_output_bearer(data);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = http_output_bearer(ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
 
     /* NOTE: this function should set 'done' TRUE, as the other auth
        functions work that way */
-    authstatus->done = TRUE;
+    authstatus->ਪੂਰਾ = TRUE;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  if(auth) {
-#ifndef CURL_DISABLE_PROXY
-    if(proxy)
-      data->info.proxyauthpicked = authstatus->picked;
-    else
-      data->info.httpauthpicked = authstatus->picked;
-    infof(data, "%s auth using %s with user '%s'",
+  ਜੇ(auth) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+    ਜੇ(proxy)
+      ਅੰਕੜੇ->info.proxyauthpicked = authstatus->picked;
+    ਨਹੀਂਤਾਂ
+      ਅੰਕੜੇ->info.httpauthpicked = authstatus->picked;
+    infof(ਅੰਕੜੇ, "%s auth using %s with user '%s'",
           proxy ? "Proxy" : "Server", auth,
           proxy ? (conn->http_proxy.creds ?
                    conn->http_proxy.creds->user : "") :
-          (data->state.creds ?
-           data->state.creds->user : ""));
-#else
-    (void)proxy;
-    infof(data, "Server auth using %s with user '%s'",
-          auth, data->state.creds ?
-          data->state.creds->user : "");
-#endif
-    authstatus->multipass = !authstatus->done;
+          (ਅੰਕੜੇ->state.creds ?
+           ਅੰਕੜੇ->state.creds->user : ""));
+#ਨਹੀਂਤਾਂ
+    (ਖਾਲੀ)proxy;
+    infof(ਅੰਕੜੇ, "Server auth using %s with user '%s'",
+          auth, ਅੰਕੜੇ->state.creds ?
+          ਅੰਕੜੇ->state.creds->user : "");
+#ਜੇ_ਅੰਤ
+    authstatus->multipass = !authstatus->ਪੂਰਾ;
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     authstatus->multipass = FALSE;
-    if(proxy)
-      data->info.proxyauthpicked = 0;
-    else
-      data->info.httpauthpicked = 0;
+    ਜੇ(proxy)
+      ਅੰਕੜੇ->info.proxyauthpicked = 0;
+    ਨਹੀਂਤਾਂ
+      ਅੰਕੜੇ->info.httpauthpicked = 0;
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_http_output_auth(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const char *request,
+CURLcode Curl_http_output_auth(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ connectdata *conn,
+                               ਅਚਲ ਅੱਖਰ *request,
                                Curl_HttpReq httpreq,
-                               const char *path,
-                               const char *query,
+                               ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
+                               ਅਚਲ ਅੱਖਰ *query,
                                bool is_connect)
 {
-  CURLcode result = CURLE_OK;
-  struct auth *authhost;
-  struct auth *authproxy;
-  const char *path_and_query = path;
-  char *tmp_str = NULL;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ auth *authhost;
+  ਬਣਤਰ auth *authproxy;
+  ਅਚਲ ਅੱਖਰ *ਰਸਤਾ_and_query = ਰਸਤਾ;
+  ਅੱਖਰ *tmp_str = ਨਿਰਾ;
 
-  DEBUGASSERT(data);
-  authhost = &data->state.authhost;
-  authproxy = &data->state.authproxy;
+  DEBUGASSERT(ਅੰਕੜੇ);
+  authhost = &ਅੰਕੜੇ->state.authhost;
+  authproxy = &ਅੰਕੜੇ->state.authproxy;
 
-  if(
-#ifndef CURL_DISABLE_PROXY
+  ਜੇ(
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
     (!conn->http_proxy.peer || !conn->http_proxy.creds) &&
-#endif
-#ifdef USE_SPNEGO
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SPNEGO
     !(authhost->want & CURLAUTH_NEGOTIATE) &&
     !(authproxy->want & CURLAUTH_NEGOTIATE) &&
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTPSIG
     !(authhost->want & CURLAUTH_HTTPSIG) &&
-#endif
-    !data->state.creds) {
+#ਜੇ_ਅੰਤ
+    !ਅੰਕੜੇ->state.creds) {
     /* no authentication with no user or password */
-    authhost->done = TRUE;
-    authproxy->done = TRUE;
-    result = CURLE_OK;
-    goto out;
+    authhost->ਪੂਰਾ = TRUE;
+    authproxy->ਪੂਰਾ = TRUE;
+    ਨਤੀਜਾ = CURLE_OK;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  if(query) {
-    tmp_str = curl_maprintf("%s?%s", path, query);
-    if(!tmp_str) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  ਜੇ(query) {
+    tmp_str = curl_maprintf("%s?%s", ਰਸਤਾ, query);
+    ਜੇ(!tmp_str) {
+      ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    path_and_query = tmp_str;
+    ਰਸਤਾ_and_query = tmp_str;
   }
 
-  if(authhost->want && !authhost->picked)
+  ਜੇ(authhost->want && !authhost->picked)
     /* The app has selected one or more methods, but none has been picked
        so far by a server round-trip. Then we set the picked one to the
        want one, and if this is one single bit it will be used instantly. */
     authhost->picked = authhost->want;
 
-  if(authproxy->want && !authproxy->picked)
+  ਜੇ(authproxy->want && !authproxy->picked)
     /* The app has selected one or more methods, but none has been picked so
        far by a proxy round-trip. Then we set the picked one to the want one,
        and if this is one single bit it will be used instantly. */
     authproxy->picked = authproxy->want;
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   /* Send proxy authentication header if needed */
-  if(conn->bits.origin_is_proxy || is_connect) {
-    result = output_auth_headers(data, conn, authproxy, request,
-                                 path_and_query, TRUE);
-    if(result)
-      goto out;
+  ਜੇ(conn->ਬਿੱਟ.origin_is_proxy || is_connect) {
+    ਨਤੀਜਾ = output_auth_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ, conn, authproxy, request,
+                                 ਰਸਤਾ_and_query, TRUE);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-  else
-#else
-  (void)is_connect;
-#endif /* CURL_DISABLE_PROXY */
+  ਨਹੀਂਤਾਂ
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)is_connect;
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_PROXY */
     /* we have no proxy so let's pretend we are done authenticating
        with it */
-    authproxy->done = TRUE;
+    authproxy->ਪੂਰਾ = TRUE;
 
   /* Either we have credentials for the origin we talk to or
      performing authentication is allowed here */
-  if(data->state.creds || Curl_auth_allowed_to_host(data))
-    result = output_auth_headers(data, conn, authhost, request,
-                                 path_and_query, FALSE);
-  else
-    authhost->done = TRUE;
+  ਜੇ(ਅੰਕੜੇ->state.creds || Curl_auth_allowed_ਮੰਜ਼ਿਲ_host(ਅੰਕੜੇ))
+    ਨਤੀਜਾ = output_auth_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ, conn, authhost, request,
+                                 ਰਸਤਾ_and_query, FALSE);
+  ਨਹੀਂਤਾਂ
+    authhost->ਪੂਰਾ = TRUE;
 
-  if(((authhost->multipass && !authhost->done) ||
-      (authproxy->multipass && !authproxy->done)) &&
+  ਜੇ(((authhost->multipass && !authhost->ਪੂਰਾ) ||
+      (authproxy->multipass && !authproxy->ਪੂਰਾ)) &&
      (httpreq != HTTPREQ_GET) &&
-     (httpreq != HTTPREQ_HEAD)) {
+     (httpreq != HTTPREQ_ਸਿਰ)) {
     /* Auth is required and we are not authenticated yet. Make a PUT or POST
        with content-length zero as a "probe". */
-    data->req.authneg = TRUE;
+    ਅੰਕੜੇ->req.authneg = TRUE;
   }
-  else
-    data->req.authneg = FALSE;
+  ਨਹੀਂਤਾਂ
+    ਅੰਕੜੇ->req.authneg = FALSE;
 
-out:
+ਬਾਹਰਲਾ:
   curlx_free(tmp_str);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#else /* !CURL_DISABLE_HTTP_AUTH */
+#ਨਹੀਂਤਾਂ /* !CURL_DISABLE_HTTP_AUTH */
 /* when disabled */
-CURLcode Curl_http_output_auth(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const char *request,
+CURLcode Curl_http_output_auth(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ connectdata *conn,
+                               ਅਚਲ ਅੱਖਰ *request,
                                Curl_HttpReq httpreq,
-                               const char *path,
-                               const char *query,
+                               ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
+                               ਅਚਲ ਅੱਖਰ *query,
                                bool is_connect)
 {
-  (void)data;
-  (void)conn;
-  (void)request;
-  (void)httpreq;
-  (void)path;
-  (void)query;
-  (void)is_connect;
-  return CURLE_OK;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)conn;
+  (ਖਾਲੀ)request;
+  (ਖਾਲੀ)httpreq;
+  (ਖਾਲੀ)ਰਸਤਾ;
+  (ਖਾਲੀ)query;
+  (ਖਾਲੀ)is_connect;
+  ਵਾਪਸ CURLE_OK;
 }
-#endif /* !CURL_DISABLE_HTTP_AUTH, else */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_HTTP_AUTH, else */
 
-#if defined(USE_SPNEGO) || defined(USE_NTLM) || \
+#ਜੇ defined(USE_SPNEGO) || defined(USE_NTLM) || \
   !defined(CURL_DISABLE_DIGEST_AUTH) || \
   !defined(CURL_DISABLE_BASIC_AUTH) || \
   !defined(CURL_DISABLE_BEARER_AUTH)
-static bool authcmp(const char *auth, const char *line)
+ਸਥਿਰ bool authcmp(ਅਚਲ ਅੱਖਰ *auth, ਅਚਲ ਅੱਖਰ *ਸਤਰ)
 {
   /* the auth string must not have an alnum following */
-  size_t n = strlen(auth);
-  return curl_strnequal(auth, line, n) && !ISALNUM(line[n]);
+  size_t n = ਲੜੀ_ਲੰਬਾਈ(auth);
+  ਵਾਪਸ curl_strnequal(auth, ਸਤਰ, n) && !ISALNUM(ਸਤਰ[n]);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef USE_SPNEGO
-static CURLcode auth_spnego(struct Curl_easy *data,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SPNEGO
+ਸਥਿਰ CURLcode auth_spnego(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                             bool proxy,
-                            const char *auth,
-                            struct auth *authp,
+                            ਅਚਲ ਅੱਖਰ *auth,
+                            ਬਣਤਰ auth *authp,
                             uint32_t *availp)
 {
-  if((authp->avail & CURLAUTH_NEGOTIATE) || Curl_auth_is_spnego_supported()) {
+  ਜੇ((authp->avail & CURLAUTH_NEGOTIATE) || Curl_auth_is_spnego_supported()) {
     *availp |= CURLAUTH_NEGOTIATE;
     authp->avail |= CURLAUTH_NEGOTIATE;
 
-    if(authp->picked == CURLAUTH_NEGOTIATE) {
-      struct connectdata *conn = data->conn;
-      CURLcode result = Curl_input_negotiate(data, conn, proxy, auth);
+    ਜੇ(authp->picked == CURLAUTH_NEGOTIATE) {
+      ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+      CURLcode ਨਤੀਜਾ = Curl_ਨਿਵੇਸ਼_negotiate(ਅੰਕੜੇ, conn, proxy, auth);
       uint8_t *negstate = proxy ? &conn->proxy_negotiate_state :
         &conn->http_negotiate_state;
-      if(!result) {
-        curlx_free(data->req.newurl);
-        data->req.newurl = Curl_bufref_dup(&data->state.url);
-        if(!data->req.newurl)
-          return CURLE_OUT_OF_MEMORY;
-        data->state.authproblem = FALSE;
+      ਜੇ(!ਨਤੀਜਾ) {
+        curlx_free(ਅੰਕੜੇ->req.newurl);
+        ਅੰਕੜੇ->req.newurl = Curl_bufref_dup(&ਅੰਕੜੇ->state.url);
+        ਜੇ(!ਅੰਕੜੇ->req.newurl)
+          ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+        ਅੰਕੜੇ->state.authproblem = FALSE;
         /* we received a GSS auth token and we dealt with it fine */
         *negstate = CURL_NEGO_AUTH_RECV;
       }
-      else
-        data->state.authproblem = TRUE;
+      ਨਹੀਂਤਾਂ
+        ਅੰਕੜੇ->state.authproblem = TRUE;
     }
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef USE_NTLM
-static CURLcode auth_ntlm(struct Curl_easy *data,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NTLM
+ਸਥਿਰ CURLcode auth_ntlm(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                           bool proxy,
-                          const char *auth,
-                          struct auth *authp,
+                          ਅਚਲ ਅੱਖਰ *auth,
+                          ਬਣਤਰ auth *authp,
                           uint32_t *availp)
 {
   /* NTLM support requires the SSL crypto libs */
-  if((authp->avail & CURLAUTH_NTLM) || Curl_auth_is_ntlm_supported()) {
+  ਜੇ((authp->avail & CURLAUTH_NTLM) || Curl_auth_is_ntlm_supported()) {
     *availp |= CURLAUTH_NTLM;
     authp->avail |= CURLAUTH_NTLM;
 
-    if(authp->picked == CURLAUTH_NTLM) {
+    ਜੇ(authp->picked == CURLAUTH_NTLM) {
       /* NTLM authentication is picked and activated */
-      CURLcode result = Curl_input_ntlm(data, proxy, auth);
-      if(!result)
-        data->state.authproblem = FALSE;
-      else {
-        if(result == CURLE_OUT_OF_MEMORY)
-          return result;
-        infof(data, "NTLM authentication problem, ignoring.");
-        data->state.authproblem = TRUE;
+      CURLcode ਨਤੀਜਾ = Curl_ਨਿਵੇਸ਼_ntlm(ਅੰਕੜੇ, proxy, auth);
+      ਜੇ(!ਨਤੀਜਾ)
+        ਅੰਕੜੇ->state.authproblem = FALSE;
+      ਨਹੀਂਤਾਂ {
+        ਜੇ(ਨਤੀਜਾ == CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ)
+          ਵਾਪਸ ਨਤੀਜਾ;
+        infof(ਅੰਕੜੇ, "NTLM authentication problem, ignoring.");
+        ਅੰਕੜੇ->state.authproblem = TRUE;
       }
     }
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
-static CURLcode auth_digest(struct Curl_easy *data,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_DIGEST_AUTH
+ਸਥਿਰ CURLcode auth_digest(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                             bool proxy,
-                            const char *auth,
-                            struct auth *authp,
+                            ਅਚਲ ਅੱਖਰ *auth,
+                            ਬਣਤਰ auth *authp,
                             uint32_t *availp)
 {
-  if(authp->avail & CURLAUTH_DIGEST) {
+  ਜੇ(authp->avail & CURLAUTH_DIGEST) {
     *availp |= CURLAUTH_DIGEST;
-    infof(data, "Ignoring duplicate digest auth header.");
+    infof(ਅੰਕੜੇ, "Ignoring duplicate digest auth header.");
   }
-  else if(Curl_auth_is_digest_supported()) {
-    CURLcode result;
+  ਨਹੀਂਤਾਂ ਜੇ(Curl_auth_is_digest_supported()) {
+    CURLcode ਨਤੀਜਾ;
 
     *availp |= CURLAUTH_DIGEST;
     authp->avail |= CURLAUTH_DIGEST;
@@ -1014,53 +1014,53 @@ static CURLcode auth_digest(struct Curl_easy *data,
      * authentication is not activated yet, as we need to store the
      * incoming data from this header in case we are going to use
      * Digest */
-    result = Curl_input_digest(data, proxy, auth);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        return result;
-      infof(data, "Digest authentication problem, ignoring.");
-      data->state.authproblem = TRUE;
+    ਨਤੀਜਾ = Curl_ਨਿਵੇਸ਼_digest(ਅੰਕੜੇ, proxy, auth);
+    ਜੇ(ਨਤੀਜਾ) {
+      ਜੇ(ਨਤੀਜਾ == CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      infof(ਅੰਕੜੇ, "Digest authentication problem, ignoring.");
+      ਅੰਕੜੇ->state.authproblem = TRUE;
     }
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_DISABLE_BASIC_AUTH
-static CURLcode auth_basic(struct Curl_easy *data,
-                           struct auth *authp,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BASIC_AUTH
+ਸਥਿਰ CURLcode auth_basic(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ auth *authp,
                            uint32_t *availp)
 {
   *availp |= CURLAUTH_BASIC;
   authp->avail |= CURLAUTH_BASIC;
-  if(authp->picked == CURLAUTH_BASIC) {
+  ਜੇ(authp->picked == CURLAUTH_BASIC) {
     /* We asked for Basic authentication but got a 40X back anyway, which
        means our name+password is not valid. */
     authp->avail = CURLAUTH_NONE;
-    infof(data, "Basic authentication problem, ignoring.");
-    data->state.authproblem = TRUE;
+    infof(ਅੰਕੜੇ, "Basic authentication problem, ignoring.");
+    ਅੰਕੜੇ->state.authproblem = TRUE;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_DISABLE_BEARER_AUTH
-static CURLcode auth_bearer(struct Curl_easy *data,
-                            struct auth *authp,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BEARER_AUTH
+ਸਥਿਰ CURLcode auth_bearer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ auth *authp,
                             uint32_t *availp)
 {
   *availp |= CURLAUTH_BEARER;
   authp->avail |= CURLAUTH_BEARER;
-  if(authp->picked == CURLAUTH_BEARER) {
+  ਜੇ(authp->picked == CURLAUTH_BEARER) {
     /* We asked for Bearer authentication but got a 40X back anyway, which
        means our token is not valid. */
     authp->avail = CURLAUTH_NONE;
-    infof(data, "Bearer authentication problem, ignoring.");
-    data->state.authproblem = TRUE;
+    infof(ਅੰਕੜੇ, "Bearer authentication problem, ignoring.");
+    ਅੰਕੜੇ->state.authproblem = TRUE;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 /*
  * Curl_http_input_auth() deals with Proxy-Authenticate: and WWW-Authenticate:
@@ -1069,31 +1069,31 @@ static CURLcode auth_bearer(struct Curl_easy *data,
  *
  * The 'auth' line ends with a NUL byte without CR or LF present.
  */
-CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
-                              const char *auth) /* the first non-space */
+CURLcode Curl_http_ਨਿਵੇਸ਼_auth(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool proxy,
+                              ਅਚਲ ਅੱਖਰ *auth) /* the first non-space */
 {
   /*
    * This resource requires authentication
    */
-#if defined(USE_SPNEGO) ||                      \
+#ਜੇ defined(USE_SPNEGO) ||                      \
   defined(USE_NTLM) ||                          \
   !defined(CURL_DISABLE_DIGEST_AUTH) ||         \
   !defined(CURL_DISABLE_BASIC_AUTH) ||          \
   !defined(CURL_DISABLE_BEARER_AUTH)
 
   uint32_t *availp;
-  struct auth *authp;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ auth *authp;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   DEBUGASSERT(auth);
-  DEBUGASSERT(data);
+  DEBUGASSERT(ਅੰਕੜੇ);
 
-  if(proxy) {
-    availp = &data->info.proxyauthavail;
-    authp = &data->state.authproxy;
+  ਜੇ(proxy) {
+    availp = &ਅੰਕੜੇ->info.proxyauthavail;
+    authp = &ਅੰਕੜੇ->state.authproxy;
   }
-  else {
-    availp = &data->info.httpauthavail;
-    authp = &data->state.authhost;
+  ਨਹੀਂਤਾਂ {
+    availp = &ਅੰਕੜੇ->info.httpauthavail;
+    authp = &ਅੰਕੜੇ->state.authhost;
   }
 
   /*
@@ -1112,203 +1112,203 @@ CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
    * (bit).
    */
 
-  while(*auth) {
-#ifdef USE_SPNEGO
-    if(authcmp("Negotiate", auth))
-      result = auth_spnego(data, proxy, auth, authp, availp);
-#endif
-#ifdef USE_NTLM
-    if(!result && authcmp("NTLM", auth))
-      result = auth_ntlm(data, proxy, auth, authp, availp);
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-    if(!result && authcmp("Digest", auth))
-      result = auth_digest(data, proxy, auth, authp, availp);
-#endif
-#ifndef CURL_DISABLE_BASIC_AUTH
-    if(!result && authcmp("Basic", auth))
-      result = auth_basic(data, authp, availp);
-#endif
-#ifndef CURL_DISABLE_BEARER_AUTH
-    if(authcmp("Bearer", auth))
-      result = auth_bearer(data, authp, availp);
-#endif
+  ਜਦੋਂ(*auth) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SPNEGO
+    ਜੇ(authcmp("Negotiate", auth))
+      ਨਤੀਜਾ = auth_spnego(ਅੰਕੜੇ, proxy, auth, authp, availp);
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NTLM
+    ਜੇ(!ਨਤੀਜਾ && authcmp("NTLM", auth))
+      ਨਤੀਜਾ = auth_ntlm(ਅੰਕੜੇ, proxy, auth, authp, availp);
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_DIGEST_AUTH
+    ਜੇ(!ਨਤੀਜਾ && authcmp("Digest", auth))
+      ਨਤੀਜਾ = auth_digest(ਅੰਕੜੇ, proxy, auth, authp, availp);
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BASIC_AUTH
+    ਜੇ(!ਨਤੀਜਾ && authcmp("Basic", auth))
+      ਨਤੀਜਾ = auth_basic(ਅੰਕੜੇ, authp, availp);
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BEARER_AUTH
+    ਜੇ(authcmp("Bearer", auth))
+      ਨਤੀਜਾ = auth_bearer(ਅੰਕੜੇ, authp, availp);
+#ਜੇ_ਅੰਤ
 
-    if(result)
-      break;
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
 
     /* there may be multiple methods on one line, so keep reading */
     auth = strchr(auth, ',');
-    if(auth) /* if we are on a comma, skip it */
+    ਜੇ(auth) /* if we are on a comma, skip it */
       auth++;
-    else
-      break;
+    ਨਹੀਂਤਾਂ
+      ਰੋਕੋ;
     curlx_str_passblanks(&auth);
   }
-  return result;
-#else
-  (void)data;
-  (void)proxy;
-  (void)auth;
+  ਵਾਪਸ ਨਤੀਜਾ;
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)proxy;
+  (ਖਾਲੀ)auth;
   /* nothing to do when disabled */
-  return CURLE_OK;
-#endif
+  ਵਾਪਸ CURLE_OK;
+#ਜੇ_ਅੰਤ
 }
 
-static void http_switch_to_get(struct Curl_easy *data, int code)
+ਸਥਿਰ ਖਾਲੀ http_switch_ਮੰਜ਼ਿਲ_get(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਪੂਰਨ ਕੋਡ)
 {
-  const char *req = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  ਅਚਲ ਅੱਖਰ *req = CURL_EASY_STR(ਅੰਕੜੇ, STRING_CUSTOMREQUEST);
 
-  if((req || data->state.httpreq != HTTPREQ_GET) &&
-     (data->set.http_follow_mode == CURLFOLLOW_OBEYCODE)) {
-    NOVERBOSE((void)code);
-    infof(data, "Switch to GET because of %d response", code);
-    data->state.http_ignorecustom = TRUE;
+  ਜੇ((req || ਅੰਕੜੇ->state.httpreq != HTTPREQ_GET) &&
+     (ਅੰਕੜੇ->ਸੈੱਟ.http_follow_ਬਹੁਲਕ == CURLFOLLOW_OBEYCODE)) {
+    NOVERBOSE((ਖਾਲੀ)ਕੋਡ);
+    infof(ਅੰਕੜੇ, "Switch to GET because of %d response", ਕੋਡ);
+    ਅੰਕੜੇ->state.http_ignorecustom = TRUE;
   }
-  else if(req && (data->set.http_follow_mode != CURLFOLLOW_FIRSTONLY))
-    infof(data, "Stick to %s instead of GET", req);
+  ਨਹੀਂਤਾਂ ਜੇ(req && (ਅੰਕੜੇ->ਸੈੱਟ.http_follow_ਬਹੁਲਕ != CURLFOLLOW_FIRSTONLY))
+    infof(ਅੰਕੜੇ, "Stick to %s instead of GET", req);
 
-  data->state.httpreq = HTTPREQ_GET;
-  Curl_creader_set_rewind(data, FALSE);
+  ਅੰਕੜੇ->state.httpreq = HTTPREQ_GET;
+  Curl_creader_ਸੈੱਟ_rewind(ਅੰਕੜੇ, FALSE);
 }
 
-#define HTTPREQ_IS_POST(data)                    \
-  ((data)->state.httpreq == HTTPREQ_POST ||      \
-   (data)->state.httpreq == HTTPREQ_POST_FORM || \
-   (data)->state.httpreq == HTTPREQ_POST_MIME)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTTPREQ_IS_POST(ਅੰਕੜੇ)                    \
+  ((ਅੰਕੜੇ)->state.httpreq == HTTPREQ_POST ||      \
+   (ਅੰਕੜੇ)->state.httpreq == HTTPREQ_POST_FORM || \
+   (ਅੰਕੜੇ)->state.httpreq == HTTPREQ_POST_MIME)
 
-static CURLcode set_auto_referer(struct Curl_easy *data)
+ਸਥਿਰ CURLcode ਸੈੱਟ_auto_referer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   CURLU *u;
-  char *referer = NULL;
+  ਅੱਖਰ *referer = ਨਿਰਾ;
   CURLUcode uc;
 
   /* We are asked to automatically set the previous URL as the referer
      when we get the next URL. We pick the ->url field, which may or may
      not be 100% correct */
-  Curl_bufref_free(&data->state.referer);
+  Curl_bufref_free(&ਅੰਕੜੇ->state.referer);
 
   /* Make a copy of the URL without credentials and fragment */
   u = curl_url();
-  if(!u)
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!u)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  uc = curl_url_set(u, CURLUPART_URL,
-                    Curl_bufref_ptr(&data->state.url), 0);
-  if(!uc)
-    uc = curl_url_set(u, CURLUPART_FRAGMENT, NULL, 0);
-  if(!uc)
-    uc = curl_url_set(u, CURLUPART_USER, NULL, 0);
-  if(!uc)
-    uc = curl_url_set(u, CURLUPART_PASSWORD, NULL, 0);
-  if(!uc)
+  uc = curl_url_ਸੈੱਟ(u, CURLUPART_URL,
+                    Curl_bufref_ptr(&ਅੰਕੜੇ->state.url), 0);
+  ਜੇ(!uc)
+    uc = curl_url_ਸੈੱਟ(u, CURLUPART_FRAGMENT, ਨਿਰਾ, 0);
+  ਜੇ(!uc)
+    uc = curl_url_ਸੈੱਟ(u, CURLUPART_USER, ਨਿਰਾ, 0);
+  ਜੇ(!uc)
+    uc = curl_url_ਸੈੱਟ(u, CURLUPART_PASSWORD, ਨਿਰਾ, 0);
+  ਜੇ(!uc)
     uc = curl_url_get(u, CURLUPART_URL, &referer, 0);
 
   curl_url_cleanup(u);
 
-  if(uc || !referer)
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(uc || !referer)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  Curl_bufref_set(&data->state.referer, referer, 0, curl_free);
-  return CURLE_OK;
+  Curl_bufref_ਸੈੱਟ(&ਅੰਕੜੇ->state.referer, referer, 0, curl_free);
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode follow_parse_url(struct Curl_easy *data, const char *newurl,
-                                 followtype type, char **follow_urlp,
+ਸਥਿਰ CURLcode follow_parse_url(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *newurl,
+                                 followtype type, ਅੱਖਰ **follow_urlp,
                                  CURLUcode *ucp)
 {
   CURLUcode uc;
 
-  DEBUGASSERT(data->state.uh);
-  uc = curl_url_set(data->state.uh, CURLUPART_URL, newurl, (unsigned int)
+  DEBUGASSERT(ਅੰਕੜੇ->state.uh);
+  uc = curl_url_ਸੈੱਟ(ਅੰਕੜੇ->state.uh, CURLUPART_URL, newurl, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)
                     ((type == FOLLOW_FAKE) ? CURLU_NON_SUPPORT_SCHEME :
                      ((type == FOLLOW_REDIR) ? CURLU_URLENCODE : 0) |
                      CURLU_ALLOW_SPACE |
-                     (data->set.path_as_is ? CURLU_PATH_AS_IS : 0)));
+                     (ਅੰਕੜੇ->ਸੈੱਟ.ਰਸਤਾ_as_is ? CURLU_ਰਸਤਾ_AS_IS : 0)));
   *ucp = uc;
-  if(uc) {
-    if((uc == CURLUE_OUT_OF_MEMORY) || (type != FOLLOW_FAKE)) {
-      failf(data, "The redirect target URL could not be parsed: %s",
+  ਜੇ(uc) {
+    ਜੇ((uc == CURLUE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ) || (type != FOLLOW_FAKE)) {
+      failf(ਅੰਕੜੇ, "The redirect target URL could not be parsed: %s",
             curl_url_strerror(uc));
-      return Curl_uc_to_curlcode(uc);
+      ਵਾਪਸ Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
     }
 
     /* the URL could not be parsed for some reason, but since this is FAKE
        mode, duplicate the field as-is */
     *follow_urlp = curlx_strdup(newurl);
-    if(!*follow_urlp)
-      return CURLE_OUT_OF_MEMORY;
+    ਜੇ(!*follow_urlp)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     CURLU *u = curl_url();
-    if(!u)
-      return CURLE_OUT_OF_MEMORY;
-    uc = curl_url_set(u, CURLUPART_URL,
-                      Curl_bufref_ptr(&data->state.url),
+    ਜੇ(!u)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    uc = curl_url_ਸੈੱਟ(u, CURLUPART_URL,
+                      Curl_bufref_ptr(&ਅੰਕੜੇ->state.url),
                       CURLU_URLENCODE | CURLU_ALLOW_SPACE);
-    if(!uc)
-      uc = curl_url_get(data->state.uh, CURLUPART_URL, follow_urlp, 0);
-    if(uc) {
+    ਜੇ(!uc)
+      uc = curl_url_get(ਅੰਕੜੇ->state.uh, CURLUPART_URL, follow_urlp, 0);
+    ਜੇ(uc) {
       curl_url_cleanup(u);
-      return Curl_uc_to_curlcode(uc);
+      ਵਾਪਸ Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
     }
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_DIGEST_AUTH
     {
-      bool same_origin = Curl_url_same_origin(u, data->state.uh);
+      bool same_origin = Curl_url_same_origin(u, ਅੰਕੜੇ->state.uh);
       curl_url_cleanup(u);
-      if(!same_origin)
-        Curl_auth_digest_cleanup(&data->state.digest);
+      ਜੇ(!same_origin)
+        Curl_auth_digest_cleanup(&ਅੰਕੜੇ->state.digest);
     }
-#else
+#ਨਹੀਂਤਾਂ
     curl_url_cleanup(u);
-#endif
+#ਜੇ_ਅੰਤ
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode follow_fake(struct Curl_easy *data, char *follow_url,
+ਸਥਿਰ CURLcode follow_fake(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅੱਖਰ *follow_url,
                             CURLUcode uc, bool reachedmax)
 {
   /* we are only figuring out the new URL if we would have followed locations
      but now we are done so we can get out! */
-  if(!uc) {
+  ਜੇ(!uc) {
     CURLU *u = curl_url();
-    char *nocred = NULL;
+    ਅੱਖਰ *nocred = ਨਿਰਾ;
 
-    if(!u) {
+    ਜੇ(!u) {
       curlx_free(follow_url);
-      return CURLE_OUT_OF_MEMORY;
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
-    if(!curl_url_set(u, CURLUPART_URL, follow_url,
+    ਜੇ(!curl_url_ਸੈੱਟ(u, CURLUPART_URL, follow_url,
                      CURLU_NON_SUPPORT_SCHEME |
-                     (data->set.path_as_is ? CURLU_PATH_AS_IS : 0)) &&
-       !curl_url_set(u, CURLUPART_USER, NULL, 0) &&
-       !curl_url_set(u, CURLUPART_PASSWORD, NULL, 0))
-      (void)curl_url_get(u, CURLUPART_URL, &nocred, CURLU_GET_EMPTY);
+                     (ਅੰਕੜੇ->ਸੈੱਟ.ਰਸਤਾ_as_is ? CURLU_ਰਸਤਾ_AS_IS : 0)) &&
+       !curl_url_ਸੈੱਟ(u, CURLUPART_USER, ਨਿਰਾ, 0) &&
+       !curl_url_ਸੈੱਟ(u, CURLUPART_PASSWORD, ਨਿਰਾ, 0))
+      (ਖਾਲੀ)curl_url_get(u, CURLUPART_URL, &nocred, CURLU_GET_ਖਾਲੀ_ਥਾਵਾਂ);
     curl_url_cleanup(u);
-    if(nocred) {
+    ਜੇ(nocred) {
       curlx_free(follow_url);
       follow_url = nocred;
     }
   }
-  data->info.wouldredirect = follow_url;
+  ਅੰਕੜੇ->info.wouldredirect = follow_url;
 
-  if(reachedmax) {
-    failf(data, "Maximum (%d) redirects followed", data->set.maxredirs);
-    return CURLE_TOO_MANY_REDIRECTS;
+  ਜੇ(reachedmax) {
+    failf(ਅੰਕੜੇ, "Maximum (%d) redirects followed", ਅੰਕੜੇ->ਸੈੱਟ.maxredirs);
+    ਵਾਪਸ CURLE_TOO_MANY_REDIRECTS;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static bool follow_switch_get(struct Curl_easy *data)
+ਸਥਿਰ bool follow_switch_get(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   /*
    * We get here when the HTTP code is 300-399 and 401 or 407. We need to
    * perform differently based on exactly what return code there was.
    */
-  switch(data->info.httpcode) {
-  case 301: /* Moved Permanently */
+  ਚੋਣ(ਅੰਕੜੇ->info.httpcode) {
+  ਹਾਲਤ 301: /* Moved Permanently */
     /* (quote from RFC7231, section 6.4.2)
      *
      * Note: For historical reasons, a user agent MAY change the request
@@ -1325,12 +1325,12 @@ static bool follow_switch_get(struct Curl_easy *data)
      * This behavior is forbidden by RFC1945 and the obsolete RFC2616, and
      * can be overridden with CURLOPT_POSTREDIR.
      */
-    if(HTTPREQ_IS_POST(data) && !data->set.post301) {
-      http_switch_to_get(data, 301);
-      return TRUE;
+    ਜੇ(HTTPREQ_IS_POST(ਅੰਕੜੇ) && !ਅੰਕੜੇ->ਸੈੱਟ.post301) {
+      http_switch_ਮੰਜ਼ਿਲ_get(ਅੰਕੜੇ, 301);
+      ਵਾਪਸ TRUE;
     }
-    break;
-  case 302: /* Found */
+    ਰੋਕੋ;
+  ਹਾਲਤ 302: /*ਮਿਲਿਆ*/
     /* (quote from RFC7231, section 6.4.3)
      *
      * Note: For historical reasons, a user agent MAY change the request
@@ -1347,21 +1347,21 @@ static bool follow_switch_get(struct Curl_easy *data)
      * This behavior is forbidden by RFC1945 and the obsolete RFC2616, and
      * can be overridden with CURLOPT_POSTREDIR.
      */
-    if(HTTPREQ_IS_POST(data) && !data->set.post302) {
-      http_switch_to_get(data, 302);
-      return TRUE;
+    ਜੇ(HTTPREQ_IS_POST(ਅੰਕੜੇ) && !ਅੰਕੜੇ->ਸੈੱਟ.post302) {
+      http_switch_ਮੰਜ਼ਿਲ_get(ਅੰਕੜੇ, 302);
+      ਵਾਪਸ TRUE;
     }
-    break;
-  case 303: /* See Other */
+    ਰੋਕੋ;
+  ਹਾਲਤ 303: /* See Other */
     /* 'See Other' location is not the resource but a substitute for the
      * resource. In this case we switch the method to GET/HEAD, unless the
      * method is POST and the user specified to keep it as POST.
      */
-    if(!HTTPREQ_IS_POST(data) || !data->set.post303) {
-      http_switch_to_get(data, 303);
-      return TRUE;
+    ਜੇ(!HTTPREQ_IS_POST(ਅੰਕੜੇ) || !ਅੰਕੜੇ->ਸੈੱਟ.post303) {
+      http_switch_ਮੰਜ਼ਿਲ_get(ਅੰਕੜੇ, 303);
+      ਵਾਪਸ TRUE;
     }
-    break;
+    ਰੋਕੋ;
 
     /* 304 means we did a conditional request and it was "Not modified".
      * We should not get any Location: header in this response!
@@ -1374,87 +1374,87 @@ static bool follow_switch_get(struct Curl_easy *data)
      * via the proxy. 305 responses MUST only be generated by origin
      * servers."
      */
-  default:
-    break;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
+CURLcode Curl_http_follow(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *newurl,
                           followtype type)
 {
   bool disallowport = FALSE;
   bool reachedmax = FALSE;
-  char *follow_url = NULL;
+  ਅੱਖਰ *follow_url = ਨਿਰਾ;
   CURLUcode uc;
-  CURLcode result;
-  CURLcode rewind_result;
-  bool switch_to_get;
+  CURLcode ਨਤੀਜਾ;
+  CURLcode rewind_ਨਤੀਜਾ;
+  bool switch_ਮੰਜ਼ਿਲ_get;
 
   DEBUGASSERT(type != FOLLOW_NONE);
 
-  if(type != FOLLOW_FAKE)
-    data->state.requests++; /* count all real follows */
-  if(type == FOLLOW_REDIR) {
-    if((data->set.maxredirs != -1) &&
-       (data->state.followlocation >= data->set.maxredirs)) {
+  ਜੇ(type != FOLLOW_FAKE)
+    ਅੰਕੜੇ->state.ਬੇਨਤੀਆਂ++; /* count all real follows */
+  ਜੇ(type == FOLLOW_REDIR) {
+    ਜੇ((ਅੰਕੜੇ->ਸੈੱਟ.maxredirs != -1) &&
+       (ਅੰਕੜੇ->state.followlocation >= ਅੰਕੜੇ->ਸੈੱਟ.maxredirs)) {
       reachedmax = TRUE;
       type = FOLLOW_FAKE; /* switch to fake to store the would-be-redirected
                              to URL */
     }
-    else {
-      data->state.followlocation++; /* count redirect-followings, including
+    ਨਹੀਂਤਾਂ {
+      ਅੰਕੜੇ->state.followlocation++; /* count redirect-followings, including
                                        auth reloads */
 
-      if(data->set.http_auto_referer) {
-        result = set_auto_referer(data);
-        if(result)
-          return result;
+      ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.http_auto_referer) {
+        ਨਤੀਜਾ = ਸੈੱਟ_auto_referer(ਅੰਕੜੇ);
+        ਜੇ(ਨਤੀਜਾ)
+          ਵਾਪਸ ਨਤੀਜਾ;
       }
     }
   }
 
-  if((type != FOLLOW_RETRY) &&
-     (data->req.httpcode != 401) && (data->req.httpcode != 407) &&
-     Curl_is_absolute_url(newurl, NULL, 0, FALSE)) {
+  ਜੇ((type != FOLLOW_RETRY) &&
+     (ਅੰਕੜੇ->req.httpcode != 401) && (ਅੰਕੜੇ->req.httpcode != 407) &&
+     Curl_is_absolute_url(newurl, ਨਿਰਾ, 0, FALSE)) {
     /* If this is not redirect due to a 401 or 407 response and an absolute
        URL: do not allow a custom port number */
     disallowport = TRUE;
   }
 
-  result = follow_parse_url(data, newurl, type, &follow_url, &uc);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = follow_parse_url(ਅੰਕੜੇ, newurl, type, &follow_url, &uc);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   DEBUGASSERT(follow_url);
 
-  if(type == FOLLOW_FAKE)
-    return follow_fake(data, follow_url, uc, reachedmax);
+  ਜੇ(type == FOLLOW_FAKE)
+    ਵਾਪਸ follow_fake(ਅੰਕੜੇ, follow_url, uc, reachedmax);
 
-  if(disallowport)
-    data->state.allow_port = FALSE;
+  ਜੇ(disallowport)
+    ਅੰਕੜੇ->state.allow_ਪੋਰਟ = FALSE;
 
-  Curl_bufref_set(&data->state.url, follow_url, 0, curl_free);
-  rewind_result = Curl_req_soft_reset(&data->req, data);
-  infof(data, "Issue another request to this URL: '%s'", follow_url);
-  if((data->set.http_follow_mode == CURLFOLLOW_FIRSTONLY) &&
-     !data->state.http_ignorecustom &&
-     CURL_EASY_STR(data, STRING_CUSTOMREQUEST)) {
-    data->state.http_ignorecustom = TRUE;
-    infof(data, "Drop custom request method for next request");
+  Curl_bufref_ਸੈੱਟ(&ਅੰਕੜੇ->state.url, follow_url, 0, curl_free);
+  rewind_ਨਤੀਜਾ = Curl_req_soft_reset(&ਅੰਕੜੇ->req, ਅੰਕੜੇ);
+  infof(ਅੰਕੜੇ, "Issue another request to this URL: '%s'", follow_url);
+  ਜੇ((ਅੰਕੜੇ->ਸੈੱਟ.http_follow_ਬਹੁਲਕ == CURLFOLLOW_FIRSTONLY) &&
+     !ਅੰਕੜੇ->state.http_ignorecustom &&
+     CURL_EASY_STR(ਅੰਕੜੇ, STRING_CUSTOMREQUEST)) {
+    ਅੰਕੜੇ->state.http_ignorecustom = TRUE;
+    infof(ਅੰਕੜੇ, "Drop custom request method for next request");
   }
 
-  switch_to_get = follow_switch_get(data);
+  switch_ਮੰਜ਼ਿਲ_get = follow_switch_get(ਅੰਕੜੇ);
 
   /* When rewind of upload data failed and we are not switching to GET,
    * we need to fail the follow, as we cannot send the data again. */
-  if(rewind_result && !switch_to_get)
-    return rewind_result;
+  ਜੇ(rewind_ਨਤੀਜਾ && !switch_ਮੰਜ਼ਿਲ_get)
+    ਵਾਪਸ rewind_ਨਤੀਜਾ;
 
-  Curl_pgrsTime(data, TIMER_REDIRECT);
-  Curl_pgrsResetTransferSizes(data);
+  Curl_pgrs_ਸਮਾਂ(ਅੰਕੜੇ, TIMER_REDIRECT);
+  Curl_pgrsResetTransferSizes(ਅੰਕੜੇ);
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
@@ -1465,257 +1465,257 @@ CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
  *
  * @unittest: 1625
  */
-bool Curl_compareheader(const char *headerline, /* line to check */
-                        const char *header, /* header keyword _with_ colon */
-                        const size_t hlen, /* len of the keyword in bytes */
-                        const char *content, /* content string to find */
-                        const size_t clen) /* len of the content in bytes */
+bool Curl_compareheader(ਅਚਲ ਅੱਖਰ *headerline, /* line to check */
+                        ਅਚਲ ਅੱਖਰ *ਸਿਰਲੇਖ, /* header keyword _with_ colon */
+                        ਅਚਲ size_t hlen, /* len of the keyword in bytes */
+                        ਅਚਲ ਅੱਖਰ *content, /* content string to find */
+                        ਅਚਲ size_t clen) /* len of the content in bytes */
 {
   /* RFC2616, section 4.2 says: "Each header field consists of a name followed
    * by a colon (":") and the field value. Field names are case-insensitive.
    * The field value MAY be preceded by any amount of LWS, though a single SP
    * is preferred." */
 
-  const char *p;
-  struct Curl_str val;
+  ਅਚਲ ਅੱਖਰ *p;
+  ਬਣਤਰ Curl_str val;
   DEBUGASSERT(hlen);
   DEBUGASSERT(clen);
-  DEBUGASSERT(header);
+  DEBUGASSERT(ਸਿਰਲੇਖ);
   DEBUGASSERT(content);
 
-  if(!curl_strnequal(headerline, header, hlen))
-    return FALSE; /* does not start with header */
+  ਜੇ(!curl_strnequal(headerline, ਸਿਰਲੇਖ, hlen))
+    ਵਾਪਸ FALSE; /* does not start with header */
 
   /* pass the header */
   p = &headerline[hlen];
 
-  if(curlx_str_cspn(&p, &val, "\r\n"))
-    return FALSE;
+  ਜੇ(curlx_str_cspn(&p, &val, "\r\n"))
+    ਵਾਪਸ FALSE;
   curlx_str_trimblanks(&val);
 
   /* find the content string in the rest of the line */
-  if(curlx_strlen(&val) >= clen) {
+  ਜੇ(curlx_strlen(&val) >= clen) {
     size_t len;
     p = curlx_str(&val);
-    for(len = curlx_strlen(&val); len >= clen;) {
-      struct Curl_str next;
-      const char *o = p;
+    ਲਈ(len = curlx_strlen(&val); len >= clen;) {
+      ਬਣਤਰ Curl_str ਅਗਲਾ;
+      ਅਚਲ ਅੱਖਰ *o = p;
       /* after a match there must be a comma, space, newline or NUL byte */
-      if(curl_strnequal(p, content, clen) &&
+      ਜੇ(curl_strnequal(p, content, clen) &&
          ((p[clen] == ',') || ISBLANK(p[clen]) || ISNEWLINE(p[clen]) ||
           !p[clen]))
-        return TRUE; /* match! */
+        ਵਾਪਸ TRUE; /* match! */
       /* advance to the next comma */
-      if(curlx_str_until(&p, &next, len, ',') ||
+      ਜੇ(curlx_str_until(&p, &ਅਗਲਾ, len, ',') ||
          curlx_str_single(&p, ','))
-        break; /* no comma, get out */
+        ਰੋਕੋ; /* no comma, get out */
 
       /* if there are more dummy commas, move over them as well */
-      do
+      ਕਰੋ
         curlx_str_passblanks(&p);
-      while(!curlx_str_single(&p, ','));
+      ਜਦੋਂ(!curlx_str_single(&p, ','));
       /* trailing blanks may move the parsing point past the value end,
          then there is nothing left to match */
-      if((size_t)(p - o) > len)
-        break;
+      ਜੇ((size_t)(p - o) > len)
+        ਰੋਕੋ;
       len -= (p - o);
     }
   }
-  return FALSE; /* no match */
+  ਵਾਪਸ FALSE; /* no match */
 }
 
-struct cr_exp100_ctx {
-  struct Curl_creader super;
-  struct curltime start; /* time started waiting */
-  enum expect100 state;
+ਬਣਤਰ cr_exp100_ctx {
+  ਬਣਤਰ Curl_creader super;
+  ਬਣਤਰ curltime ਸ਼ੁਰੂ; /* time started waiting */
+  ਗਿਣਤੀ expect100 state;
 };
 
 /* Expect: 100-continue client reader, blocking uploads */
 
-static void http_exp100_continue(struct Curl_easy *data,
-                                 struct Curl_creader *reader)
+ਸਥਿਰ ਖਾਲੀ http_exp100_continue(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_exp100_ctx *ctx = reader->ctx;
-  if(ctx->state > EXP100_SEND_DATA) {
-    ctx->state = EXP100_SEND_DATA;
-    Curl_expire_clear(data, EXPIRE_100_TIMEOUT);
+  ਬਣਤਰ cr_exp100_ctx *ctx = reader->ctx;
+  ਜੇ(ctx->state > EXP100_SEND_ਅੰਕੜੇ) {
+    ctx->state = EXP100_SEND_ਅੰਕੜੇ;
+    Curl_expire_clear(ਅੰਕੜੇ, EXPIRE_100_TIMEOUT);
   }
 }
 
-static CURLcode cr_exp100_read(struct Curl_easy *data,
-                               struct Curl_creader *reader,
-                               char *buf, size_t blen,
+ਸਥਿਰ CURLcode cr_exp100_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_creader *reader,
+                               ਅੱਖਰ *buf, size_t blen,
                                size_t *nread, bool *eos)
 {
-  struct cr_exp100_ctx *ctx = reader->ctx;
+  ਬਣਤਰ cr_exp100_ctx *ctx = reader->ctx;
   timediff_t ms;
 
-  switch(ctx->state) {
-  case EXP100_SENDING_REQUEST:
-    if(!Curl_req_sendbuf_empty(data)) {
+  ਚੋਣ(ctx->state) {
+  ਹਾਲਤ EXP100_SENDING_REQUEST:
+    ਜੇ(!Curl_req_sendbuf_ਖਾਲੀ_ਥਾਵਾਂ(ਅੰਕੜੇ)) {
       /* The initial request data has not been fully sent yet. Do
        * not start the timer yet. */
-      DEBUGF(infof(data, "cr_exp100_read, request not full sent yet"));
+      DEBUGF(infof(ਅੰਕੜੇ, "cr_exp100_read, request not full sent yet"));
       *nread = 0;
       *eos = FALSE;
-      return CURLE_OK;
+      ਵਾਪਸ CURLE_OK;
     }
     /* We are now waiting for a reply from the server or
      * a timeout on our side IFF the request has been fully sent. */
-    DEBUGF(infof(data, "cr_exp100_read, start AWAITING_CONTINUE, "
-                 "timeout %dms", data->set.expect_100_timeout));
+    DEBUGF(infof(ਅੰਕੜੇ, "cr_exp100_read, start AWAITING_CONTINUE, "
+                 "timeout %dms", ਅੰਕੜੇ->ਸੈੱਟ.expect_100_timeout));
     ctx->state = EXP100_AWAITING_CONTINUE;
-    ctx->start = *Curl_pgrs_now(data);
-    Curl_expire_set(data, EXPIRE_100_TIMEOUT,
-                    data->set.expect_100_timeout, &ctx->start);
+    ctx->ਸ਼ੁਰੂ = *Curl_pgrs_now(ਅੰਕੜੇ);
+    Curl_expire_ਸੈੱਟ(ਅੰਕੜੇ, EXPIRE_100_TIMEOUT,
+                    ਅੰਕੜੇ->ਸੈੱਟ.expect_100_timeout, &ctx->ਸ਼ੁਰੂ);
     *nread = 0;
     *eos = FALSE;
-    return CURLE_OK;
-  case EXP100_FAILED:
-    DEBUGF(infof(data, "cr_exp100_read, expectation failed, error"));
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ EXP100_FAILED:
+    DEBUGF(infof(ਅੰਕੜੇ, "cr_exp100_read, expectation failed, error"));
     *nread = 0;
     *eos = FALSE;
-    return CURLE_READ_ERROR;
-  case EXP100_AWAITING_CONTINUE:
-    ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &ctx->start);
-    if(ms < data->set.expect_100_timeout) {
-      DEBUGF(infof(data, "cr_exp100_read, AWAITING_CONTINUE, not expired"));
+    ਵਾਪਸ CURLE_READ_ERROR;
+  ਹਾਲਤ EXP100_AWAITING_CONTINUE:
+    ms = curlx_ptimediff_ms(Curl_pgrs_now(ਅੰਕੜੇ), &ctx->ਸ਼ੁਰੂ);
+    ਜੇ(ms < ਅੰਕੜੇ->ਸੈੱਟ.expect_100_timeout) {
+      DEBUGF(infof(ਅੰਕੜੇ, "cr_exp100_read, AWAITING_CONTINUE, not expired"));
       *nread = 0;
       *eos = FALSE;
-      return CURLE_OK;
+      ਵਾਪਸ CURLE_OK;
     }
     /* we have waited long enough, continue anyway */
-    http_exp100_continue(data, reader);
-    infof(data, "Done waiting for 100-continue");
+    http_exp100_continue(ਅੰਕੜੇ, reader);
+    infof(ਅੰਕੜੇ, "Done waiting for 100-continue");
     FALLTHROUGH();
-  default:
-    DEBUGF(infof(data, "cr_exp100_read, pass through"));
-    return Curl_creader_read(data, reader->next, buf, blen, nread, eos);
+  ਮੂਲ:
+    DEBUGF(infof(ਅੰਕੜੇ, "cr_exp100_read, pass through"));
+    ਵਾਪਸ Curl_creader_read(ਅੰਕੜੇ, reader->ਅਗਲਾ, buf, blen, nread, eos);
   }
 }
 
-static void cr_exp100_done(struct Curl_easy *data,
-                           struct Curl_creader *reader, int premature)
+ਸਥਿਰ ਖਾਲੀ cr_exp100_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ Curl_creader *reader, ਪੂਰਨ premature)
 {
-  struct cr_exp100_ctx *ctx = reader->ctx;
-  ctx->state = premature ? EXP100_FAILED : EXP100_SEND_DATA;
-  Curl_expire_clear(data, EXPIRE_100_TIMEOUT);
+  ਬਣਤਰ cr_exp100_ctx *ctx = reader->ctx;
+  ctx->state = premature ? EXP100_FAILED : EXP100_SEND_ਅੰਕੜੇ;
+  Curl_expire_clear(ਅੰਕੜੇ, EXPIRE_100_TIMEOUT);
 }
 
-static const struct Curl_crtype cr_exp100 = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_crtype cr_exp100 = {
   "cr-exp100",
   Curl_creader_def_init,
   cr_exp100_read,
   Curl_creader_def_close,
   Curl_creader_def_needs_rewind,
-  Curl_creader_def_total_length,
+  Curl_creader_def_ਕੁੱਲ_ਲੰਮਾਈ,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
-  cr_exp100_done,
-  sizeof(struct cr_exp100_ctx)
+  cr_exp100_ਪੂਰਾ,
+  ਆਕਾਰ(ਬਣਤਰ cr_exp100_ctx)
 };
 
-static CURLcode http_exp100_add_reader(struct Curl_easy *data)
+ਸਥਿਰ CURLcode http_exp100_ਜੋੜੋ_reader(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *reader = NULL;
-  CURLcode result;
+  ਬਣਤਰ Curl_creader *reader = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  result = Curl_creader_create(&reader, data, &cr_exp100, CURL_CR_PROTOCOL);
-  if(!result)
-    result = Curl_creader_add(data, reader);
-  if(!result) {
-    struct cr_exp100_ctx *ctx = reader->ctx;
+  ਨਤੀਜਾ = Curl_creader_create(&reader, ਅੰਕੜੇ, &cr_exp100, CURL_CR_PROTOCOL);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = Curl_creader_ਜੋੜੋ(ਅੰਕੜੇ, reader);
+  ਜੇ(!ਨਤੀਜਾ) {
+    ਬਣਤਰ cr_exp100_ctx *ctx = reader->ctx;
     ctx->state = EXP100_SENDING_REQUEST;
   }
 
-  if(result && reader)
-    Curl_creader_free(data, reader);
-  return result;
+  ਜੇ(ਨਤੀਜਾ && reader)
+    Curl_creader_free(ਅੰਕੜੇ, reader);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void http_exp100_got100(struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ http_exp100_got100(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *r = Curl_creader_get_by_type(data, &cr_exp100);
-  if(r)
-    http_exp100_continue(data, r);
+  ਬਣਤਰ Curl_creader *r = Curl_creader_get_by_type(ਅੰਕੜੇ, &cr_exp100);
+  ਜੇ(r)
+    http_exp100_continue(ਅੰਕੜੇ, r);
 }
 
-static bool http_exp100_is_waiting(struct Curl_easy *data)
+ਸਥਿਰ bool http_exp100_is_ਉਡੀਕ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *r = Curl_creader_get_by_type(data, &cr_exp100);
-  if(r) {
-    struct cr_exp100_ctx *ctx = r->ctx;
-    return ctx->state == EXP100_AWAITING_CONTINUE;
+  ਬਣਤਰ Curl_creader *r = Curl_creader_get_by_type(ਅੰਕੜੇ, &cr_exp100);
+  ਜੇ(r) {
+    ਬਣਤਰ cr_exp100_ctx *ctx = r->ctx;
+    ਵਾਪਸ ctx->state == EXP100_AWAITING_CONTINUE;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-static void http_exp100_send_anyway(struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ http_exp100_send_anyway(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *r = Curl_creader_get_by_type(data, &cr_exp100);
-  if(r)
-    http_exp100_continue(data, r);
+  ਬਣਤਰ Curl_creader *r = Curl_creader_get_by_type(ਅੰਕੜੇ, &cr_exp100);
+  ਜੇ(r)
+    http_exp100_continue(ਅੰਕੜੇ, r);
 }
 
-static bool http_exp100_is_selected(struct Curl_easy *data)
+ਸਥਿਰ bool http_exp100_is_selected(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *r = Curl_creader_get_by_type(data, &cr_exp100);
-  return !!r;
+  ਬਣਤਰ Curl_creader *r = Curl_creader_get_by_type(ਅੰਕੜੇ, &cr_exp100);
+  ਵਾਪਸ !!r;
 }
 
 /* this returns the socket to wait for in the DO and DOING state for the multi
    interface and then we are always _sending_ a request and thus we wait for
    the single socket to become writable only */
-CURLcode Curl_http_doing_pollset(struct Curl_easy *data,
-                                 struct easy_pollset *ps)
+CURLcode Curl_http_doing_pollset(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਬਣਤਰ easy_pollset *ps)
 {
   /* write mode */
-  return Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
+  ਵਾਪਸ Curl_pollset_ਜੋੜੋ_ਬਾਹਰਲਾ(ਅੰਕੜੇ, ps, ਅੰਕੜੇ->conn->sock[FIRSTSOCKET]);
 }
 
-CURLcode Curl_http_perform_pollset(struct Curl_easy *data,
-                                   struct easy_pollset *ps)
+CURLcode Curl_http_perform_pollset(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਬਣਤਰ easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(CURL_REQ_WANT_RECV(data)) {
-    result = Curl_pollset_add_in(data, ps, conn->sock[FIRSTSOCKET]);
+  ਜੇ(CURL_REQ_WANT_RECV(ਅੰਕੜੇ)) {
+    ਨਤੀਜਾ = Curl_pollset_ਜੋੜੋ_ਵਿੱਚ(ਅੰਕੜੇ, ps, conn->sock[FIRSTSOCKET]);
   }
 
   /* on a "Expect: 100-continue" timed wait, do not poll for outgoing */
-  if(!result && Curl_req_want_send(data) && !http_exp100_is_waiting(data)) {
-    result = Curl_pollset_add_out(data, ps, conn->sock[FIRSTSOCKET]);
+  ਜੇ(!ਨਤੀਜਾ && Curl_req_want_send(ਅੰਕੜੇ) && !http_exp100_is_ਉਡੀਕ(ਅੰਕੜੇ)) {
+    ਨਤੀਜਾ = Curl_pollset_ਜੋੜੋ_ਬਾਹਰਲਾ(ਅੰਕੜੇ, ps, conn->sock[FIRSTSOCKET]);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode http_write_header(struct Curl_easy *data,
-                                  const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_write_ਸਿਰਲੇਖ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  CURLcode result;
-  int writetype;
+  CURLcode ਨਤੀਜਾ;
+  ਪੂਰਨ writetype;
 
   /* now, only output this if the header AND body are requested:
    */
-  Curl_debug(data, CURLINFO_HEADER_IN, hd, hdlen);
+  Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਵਿੱਚ, hd, hdlen);
 
-  writetype = CLIENTWRITE_HEADER |
-    ((data->req.httpcode / 100 == 1) ? CLIENTWRITE_1XX : 0);
+  writetype = CLIENTWRITE_ਸਿਰਲੇਖ |
+    ((ਅੰਕੜੇ->req.httpcode / 100 == 1) ? CLIENTWRITE_1XX : 0);
 
-  result = Curl_client_write(data, writetype, hd, hdlen);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, writetype, hd, hdlen);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  result = Curl_bump_headersize(data, hdlen, FALSE);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_bump_headersize(ਅੰਕੜੇ, hdlen, FALSE);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  data->req.deductheadercount = (100 <= data->req.httpcode &&
-                                 199 >= data->req.httpcode) ?
-    data->req.headerbytecount : 0;
-  return result;
+  ਅੰਕੜੇ->req.deductheadercount = (100 <= ਅੰਕੜੇ->req.httpcode &&
+                                 199 >= ਅੰਕੜੇ->req.httpcode) ?
+    ਅੰਕੜੇ->req.headerbytecount : 0;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
@@ -1723,166 +1723,166 @@ static CURLcode http_write_header(struct Curl_easy *data,
  * performed.
  */
 
-CURLcode Curl_http_done(struct Curl_easy *data,
-                        CURLcode status, bool premature)
+CURLcode Curl_http_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                        CURLcode ਸਥਿਤੀ, bool premature)
 {
-  struct connectdata *conn = data->conn;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
 
   /* Clear multipass flag. If authentication is not done yet, then it will get
    * a chance to be set back to true when we output the next auth header */
-  data->state.authhost.multipass = FALSE;
-  data->state.authproxy.multipass = FALSE;
+  ਅੰਕੜੇ->state.authhost.multipass = FALSE;
+  ਅੰਕੜੇ->state.authproxy.multipass = FALSE;
 
-  if(curlx_dyn_len(&data->state.headerb)) {
-    (void)http_write_header(data, curlx_dyn_ptr(&data->state.headerb),
-                            curlx_dyn_len(&data->state.headerb));
+  ਜੇ(curlx_dyn_len(&ਅੰਕੜੇ->state.headerb)) {
+    (ਖਾਲੀ)http_write_ਸਿਰਲੇਖ(ਅੰਕੜੇ, curlx_dyn_ptr(&ਅੰਕੜੇ->state.headerb),
+                            curlx_dyn_len(&ਅੰਕੜੇ->state.headerb));
   }
-  curlx_dyn_reset(&data->state.headerb);
+  curlx_dyn_reset(&ਅੰਕੜੇ->state.headerb);
 
-  if(status)
-    return status;
+  ਜੇ(ਸਥਿਤੀ)
+    ਵਾਪਸ ਸਥਿਤੀ;
 
-  if(!premature && /* this check is pointless when DONE is called before the
+  ਜੇ(!premature && /* this check is pointless when DONE is called before the
                       entire operation is complete */
-     !conn->bits.retry &&
-     !data->set.connect_only &&
-     (data->req.bytecount +
-      data->req.headerbytecount -
-      data->req.deductheadercount) <= 0) {
+     !conn->ਬਿੱਟ.retry &&
+     !ਅੰਕੜੇ->ਸੈੱਟ.connect_only &&
+     (ਅੰਕੜੇ->req.bytecount +
+      ਅੰਕੜੇ->req.headerbytecount -
+      ਅੰਕੜੇ->req.deductheadercount) <= 0) {
     /* If this connection is not closed to be retried, AND nothing was
        read from the HTTP server (that counts), this cannot be right so we
        return an error here */
-    failf(data, "Empty reply from server");
+    failf(ਅੰਕੜੇ, "Empty reply from server");
     /* Mark it as closed to avoid the "left intact" message */
     streamclose(conn);
-    return CURLE_GOT_NOTHING;
+    ਵਾਪਸ CURLE_GOT_NOTHING;
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Determine if we may use HTTP 1.1 for this request. */
-static bool http_may_use_1_1(const struct Curl_easy *data)
+ਸਥਿਰ bool http_may_use_1_1(ਅਚਲ ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  const struct connectdata *conn = data->conn;
+  ਅਚਲ ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
   /* We have seen a previous response for *this* transfer with 1.0,
    * on another connection or the same one. */
-  if(data->state.http_neg.rcvd_min == 10)
-    return FALSE;
+  ਜੇ(ਅੰਕੜੇ->state.http_neg.rcvd_min == 10)
+    ਵਾਪਸ FALSE;
   /* We have seen a previous response on *this* connection with 1.0. */
-  if(conn && conn->httpversion_seen == 10)
-    return FALSE;
+  ਜੇ(conn && conn->httpversion_ਵੇਖਿਆ == 10)
+    ਵਾਪਸ FALSE;
   /* We want 1.0 and have seen no previous response on *this* connection
      with a higher version (maybe no response at all yet). */
-  if(data->state.http_neg.only_10 &&
-     (!conn || conn->httpversion_seen <= 10))
-    return FALSE;
+  ਜੇ(ਅੰਕੜੇ->state.http_neg.only_10 &&
+     (!conn || conn->httpversion_ਵੇਖਿਆ <= 10))
+    ਵਾਪਸ FALSE;
   /* We are not restricted to use 1.0 only. */
-  return !data->state.http_neg.only_10;
+  ਵਾਪਸ !ਅੰਕੜੇ->state.http_neg.only_10;
 }
 
-static unsigned char http_request_version(struct Curl_easy *data)
+ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ http_request_ਸੰਸਕਰਣ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  unsigned char v = Curl_conn_http_version(data, data->conn);
-  if(!v) {
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ v = Curl_conn_http_ਸੰਸਕਰਣ(ਅੰਕੜੇ, ਅੰਕੜੇ->conn);
+  ਜੇ(!v) {
     /* No specific HTTP connection filter installed. */
-    v = http_may_use_1_1(data) ? 11 : 10;
+    v = http_may_use_1_1(ਅੰਕੜੇ) ? 11 : 10;
   }
-  return v;
+  ਵਾਪਸ v;
 }
 
-static const char *get_http_string(int httpversion)
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *get_http_string(ਪੂਰਨ httpversion)
 {
-  switch(httpversion) {
-  case 30:
-    return "3";
-  case 20:
-    return "2";
-  case 11:
-    return "1.1";
-  default:
-    return "1.0";
+  ਚੋਣ(httpversion) {
+  ਹਾਲਤ 30:
+    ਵਾਪਸ "3";
+  ਹਾਲਤ 20:
+    ਵਾਪਸ "2";
+  ਹਾਲਤ 11:
+    ਵਾਪਸ "1.1";
+  ਮੂਲ:
+    ਵਾਪਸ "1.0";
   }
 }
 
-CURLcode Curl_add_custom_headers(struct Curl_easy *data,
-                                 bool is_connect, int httpversion,
-                                 struct dynbuf *req)
+CURLcode Curl_ਜੋੜੋ_custom_ਸਿਰਲੇਖਾਂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 bool is_connect, ਪੂਰਨ httpversion,
+                                 ਬਣਤਰ dynbuf *req)
 {
-  struct curl_slist *h[2];
-  struct curl_slist *headers;
-  int numlists = 1; /* by default */
-  int i;
+  ਬਣਤਰ curl_slist *h[2];
+  ਬਣਤਰ curl_slist *ਸਿਰਲੇਖਾਂ;
+  ਪੂਰਨ numlists = 1; /* by default */
+  ਪੂਰਨ i;
 
-#ifndef CURL_DISABLE_PROXY
-  enum Curl_proxy_use proxy;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਗਿਣਤੀ Curl_proxy_use proxy;
 
-  if(is_connect)
-    proxy = HEADER_CONNECT;
-  else
-    proxy = data->conn->bits.origin_is_proxy ? HEADER_PROXY : HEADER_SERVER;
+  ਜੇ(is_connect)
+    proxy = ਸਿਰਲੇਖ_CONNECT;
+  ਨਹੀਂਤਾਂ
+    proxy = ਅੰਕੜੇ->conn->ਬਿੱਟ.origin_is_proxy ? ਸਿਰਲੇਖ_PROXY : ਸਿਰਲੇਖ_SERVER;
 
-  switch(proxy) {
-  case HEADER_SERVER:
-    h[0] = data->set.headers;
-    break;
-  case HEADER_PROXY:
-    h[0] = data->set.headers;
-    if(data->set.sep_headers) {
-      h[1] = data->set.proxyheaders;
+  ਚੋਣ(proxy) {
+  ਹਾਲਤ ਸਿਰਲੇਖ_SERVER:
+    h[0] = ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ;
+    ਰੋਕੋ;
+  ਹਾਲਤ ਸਿਰਲੇਖ_PROXY:
+    h[0] = ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ;
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.sep_ਸਿਰਲੇਖਾਂ) {
+      h[1] = ਅੰਕੜੇ->ਸੈੱਟ.proxyheaders;
       numlists++;
     }
-    break;
-  case HEADER_CONNECT:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
-  case HEADER_CONNECT_UDP:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
+    ਰੋਕੋ;
+  ਹਾਲਤ ਸਿਰਲੇਖ_CONNECT:
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.sep_ਸਿਰਲੇਖਾਂ)
+      h[0] = ਅੰਕੜੇ->ਸੈੱਟ.proxyheaders;
+    ਨਹੀਂਤਾਂ
+      h[0] = ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ;
+    ਰੋਕੋ;
+  ਹਾਲਤ ਸਿਰਲੇਖ_CONNECT_UDP:
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.sep_ਸਿਰਲੇਖਾਂ)
+      h[0] = ਅੰਕੜੇ->ਸੈੱਟ.proxyheaders;
+    ਨਹੀਂਤਾਂ
+      h[0] = ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ;
+    ਰੋਕੋ;
   }
-#else
-  (void)is_connect;
-  h[0] = data->set.headers;
-#endif
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)is_connect;
+  h[0] = ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ;
+#ਜੇ_ਅੰਤ
 
   /* loop through one or two lists */
-  for(i = 0; i < numlists; i++) {
-    for(headers = h[i]; headers; headers = headers->next) {
-      CURLcode result = CURLE_OK;
+  ਲਈ(i = 0; i < numlists; i++) {
+    ਲਈ(ਸਿਰਲੇਖਾਂ = h[i]; ਸਿਰਲੇਖਾਂ; ਸਿਰਲੇਖਾਂ = ਸਿਰਲੇਖਾਂ->ਅਗਲਾ) {
+      CURLcode ਨਤੀਜਾ = CURLE_OK;
       bool blankheader = FALSE;
-      struct Curl_str name;
-      const char *p = headers->data;
-      const char *origp = p;
-      size_t hlen = strlen(origp);
+      ਬਣਤਰ Curl_str name;
+      ਅਚਲ ਅੱਖਰ *p = ਸਿਰਲੇਖਾਂ->ਅੰਕੜੇ;
+      ਅਚਲ ਅੱਖਰ *origp = p;
+      size_t hlen = ਲੜੀ_ਲੰਬਾਈ(origp);
 
       /* explicitly asked to send header without content is done by a header
          that ends with a semicolon, but there must be no colon present in the
          name */
-      if(!curlx_str_until(&p, &name, hlen, ';') &&
+      ਜੇ(!curlx_str_until(&p, &name, hlen, ';') &&
          !curlx_str_single(&p, ';') &&
          !curlx_str_single(&p, '\0') &&
          !memchr(curlx_str(&name), ':', curlx_strlen(&name)))
         blankheader = TRUE;
-      else {
+      ਨਹੀਂਤਾਂ {
         p = origp;
-        if(!curlx_str_until(&p, &name, hlen, ':') &&
+        ਜੇ(!curlx_str_until(&p, &name, hlen, ':') &&
            !curlx_str_single(&p, ':')) {
-          struct Curl_str val;
+          ਬਣਤਰ Curl_str val;
           curlx_str_untilnl(&p, &val, hlen);
           curlx_str_trimblanks(&val);
-          if(!curlx_strlen(&val))
+          ਜੇ(!curlx_strlen(&val))
             /* no content, do not send this */
-            continue;
+            ਜਾਰੀ;
         }
-        else
+        ਨਹੀਂਤਾਂ
           /* no colon */
-          continue;
+          ਜਾਰੀ;
       }
 
       /* a field name is a token and carries no surrounding whitespace, so
@@ -1893,98 +1893,98 @@ CURLcode Curl_add_custom_headers(struct Curl_easy *data,
 
       /* only send this if the contents was non-blank or done special */
 
-      if(data->state.http_host &&
+      ਜੇ(ਅੰਕੜੇ->state.http_host &&
          /* a Host: header was sent already, do not pass on any custom
             Host: header as that will produce *two* in the same
             request! */
          curlx_str_casecompare(&name, "Host"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_FORM &&
+      ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->state.httpreq == HTTPREQ_POST_FORM &&
               /* this header (extended by formdata.c) is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_MIME &&
+      ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->state.httpreq == HTTPREQ_POST_MIME &&
               /* this header is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->req.authneg &&
+      ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->req.authneg &&
               /* while doing auth neg, do not allow the custom length since
                  we will force length zero then */
               curlx_str_casecompare(&name, "Content-Length"))
         ;
-      else if(curlx_str_casecompare(&name, "Connection"))
+      ਨਹੀਂਤਾਂ ਜੇ(curlx_str_casecompare(&name, "Connection"))
         /* Connection headers are handled specially */
         ;
-      else if((httpversion >= 20) &&
+      ਨਹੀਂਤਾਂ ਜੇ((httpversion >= 20) &&
               curlx_str_casecompare(&name, "Transfer-Encoding"))
         /* HTTP/2 does not support chunked requests */
         ;
-      else if((curlx_str_casecompare(&name, "Authorization") ||
+      ਨਹੀਂਤਾਂ ਜੇ((curlx_str_casecompare(&name, "Authorization") ||
                curlx_str_casecompare(&name, "Cookie")) &&
               /* be careful of sending this potentially sensitive header to
                  other hosts */
-              !Curl_auth_allowed_to_host(data))
+              !Curl_auth_allowed_ਮੰਜ਼ਿਲ_host(ਅੰਕੜੇ))
         ;
-      else if(blankheader) {
-        result = curlx_dyn_addn(req, curlx_str(&name), curlx_strlen(&name));
-        if(!result)
-          result = curlx_dyn_addn(req, STRCONST(":\r\n"));
+      ਨਹੀਂਤਾਂ ਜੇ(blankheader) {
+        ਨਤੀਜਾ = curlx_dyn_addn(req, curlx_str(&name), curlx_strlen(&name));
+        ਜੇ(!ਨਤੀਜਾ)
+          ਨਤੀਜਾ = curlx_dyn_addn(req, STRCONST(":\r\n"));
       }
-      else
-        result = curlx_dyn_addf(req, "%s\r\n", origp);
+      ਨਹੀਂਤਾਂ
+        ਨਤੀਜਾ = curlx_dyn_addf(req, "%s\r\n", origp);
 
-      if(result)
-        return result;
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-#ifndef CURL_DISABLE_PARSEDATE
-CURLcode Curl_add_timecondition(struct Curl_easy *data,
-                                struct dynbuf *req)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PARSEDATE
+CURLcode Curl_ਜੋੜੋ_timecondition(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ dynbuf *req)
 {
-  const struct tm *tm;
-  struct tm keeptime;
-  CURLcode result;
-  char datestr[80];
-  const char *condp;
+  ਅਚਲ ਬਣਤਰ tm *tm;
+  ਬਣਤਰ tm keeptime;
+  CURLcode ਨਤੀਜਾ;
+  ਅੱਖਰ datestr[80];
+  ਅਚਲ ਅੱਖਰ *condp;
   size_t len;
 
-  if(data->set.timecondition == CURL_TIMECOND_NONE)
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.timecondition == CURL_TIMECOND_NONE)
     /* no condition was asked for */
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
 
-  result = curlx_gmtime(data->set.timevalue, &keeptime);
-  if(result) {
-    failf(data, "Invalid TIMEVALUE");
-    return result;
+  ਨਤੀਜਾ = curlx_gmtime(ਅੰਕੜੇ->ਸੈੱਟ.timevalue, &keeptime);
+  ਜੇ(ਨਤੀਜਾ) {
+    failf(ਅੰਕੜੇ, "Invalid TIMEVALUE");
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
   tm = &keeptime;
 
-  switch(data->set.timecondition) {
-  default:
-    DEBUGF(infof(data, "invalid time condition"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ਚੋਣ(ਅੰਕੜੇ->ਸੈੱਟ.timecondition) {
+  ਮੂਲ:
+    DEBUGF(infof(ਅੰਕੜੇ, "invalid time condition"));
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
 
-  case CURL_TIMECOND_IFMODSINCE:
+  ਹਾਲਤ CURL_TIMECOND_IFMODSINCE:
     condp = "If-Modified-Since";
     len = 17;
-    break;
-  case CURL_TIMECOND_IFUNMODSINCE:
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_TIMECOND_IFUNMODSINCE:
     condp = "If-Unmodified-Since";
     len = 19;
-    break;
-  case CURL_TIMECOND_LASTMOD:
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_TIMECOND_LASTMOD:
     condp = "Last-Modified";
     len = 13;
-    break;
+    ਰੋਕੋ;
   }
 
-  if(Curl_checkheaders(data, condp, len)) {
+  ਜੇ(Curl_checkheaders(ਅੰਕੜੇ, condp, len)) {
     /* A custom header was specified; it will be sent instead. */
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
 
   /* The If-Modified-Since header family should have their times set in
@@ -1995,7 +1995,7 @@ CURLcode Curl_add_timecondition(struct Curl_easy *data,
    */
 
   /* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
-  curl_msnprintf(datestr, sizeof(datestr),
+  curl_msnprintf(datestr, ਆਕਾਰ(datestr),
                  "%s: %s, %02d %s %4d %02d:%02d:%02d GMT\r\n",
                  condp,
                  Curl_wkday[tm->tm_wday ? tm->tm_wday - 1 : 6],
@@ -2006,175 +2006,175 @@ CURLcode Curl_add_timecondition(struct Curl_easy *data,
                  tm->tm_min,
                  tm->tm_sec);
 
-  result = curlx_dyn_add(req, datestr);
-  return result;
+  ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, datestr);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
-#else
+#ਨਹੀਂਤਾਂ
 /* disabled */
-CURLcode Curl_add_timecondition(struct Curl_easy *data,
-                                struct dynbuf *req)
+CURLcode Curl_ਜੋੜੋ_timecondition(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ dynbuf *req)
 {
-  (void)data;
-  (void)req;
-  return CURLE_OK;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)req;
+  ਵਾਪਸ CURLE_OK;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-void Curl_http_method(struct Curl_easy *data,
-                      const char **method, Curl_HttpReq *reqp)
+ਖਾਲੀ Curl_http_ਵਿਧੀ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                      ਅਚਲ ਅੱਖਰ **ਵਿਧੀ, Curl_HttpReq *reqp)
 {
-  Curl_HttpReq httpreq = (Curl_HttpReq)data->state.httpreq;
-  const char *request;
-#ifndef CURL_DISABLE_WEBSOCKETS
-  if(data->conn->scheme->protocol & (CURLPROTO_WS | CURLPROTO_WSS))
+  Curl_HttpReq httpreq = (Curl_HttpReq)ਅੰਕੜੇ->state.httpreq;
+  ਅਚਲ ਅੱਖਰ *request;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_WEBSOCKETS
+  ਜੇ(ਅੰਕੜੇ->conn->scheme->protocol & (CURLPROTO_WS | CURLPROTO_WSS))
     httpreq = HTTPREQ_GET;
-  else
-#endif
-  if((data->conn->scheme->protocol & (PROTO_FAMILY_HTTP | CURLPROTO_FTP)) &&
-     data->state.upload)
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+  ਜੇ((ਅੰਕੜੇ->conn->scheme->protocol & (PROTO_FAMILY_HTTP | CURLPROTO_FTP)) &&
+     ਅੰਕੜੇ->state.upload)
     httpreq = HTTPREQ_PUT;
 
   /* Now set the 'request' pointer to the proper request string */
-  if(!data->state.http_ignorecustom &&
-     CURL_EASY_STR(data, STRING_CUSTOMREQUEST)) {
-    request = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  ਜੇ(!ਅੰਕੜੇ->state.http_ignorecustom &&
+     CURL_EASY_STR(ਅੰਕੜੇ, STRING_CUSTOMREQUEST)) {
+    request = CURL_EASY_STR(ਅੰਕੜੇ, STRING_CUSTOMREQUEST);
   }
-  else {
-    if(data->req.no_body)
+  ਨਹੀਂਤਾਂ {
+    ਜੇ(ਅੰਕੜੇ->req.no_body)
       request = "HEAD";
-    else {
-      DEBUGASSERT((httpreq >= HTTPREQ_GET) && (httpreq <= HTTPREQ_HEAD));
-      switch(httpreq) {
-      case HTTPREQ_POST:
-      case HTTPREQ_POST_FORM:
-      case HTTPREQ_POST_MIME:
+    ਨਹੀਂਤਾਂ {
+      DEBUGASSERT((httpreq >= HTTPREQ_GET) && (httpreq <= HTTPREQ_ਸਿਰ));
+      ਚੋਣ(httpreq) {
+      ਹਾਲਤ HTTPREQ_POST:
+      ਹਾਲਤ HTTPREQ_POST_FORM:
+      ਹਾਲਤ HTTPREQ_POST_MIME:
         request = "POST";
-        break;
-      case HTTPREQ_PUT:
+        ਰੋਕੋ;
+      ਹਾਲਤ HTTPREQ_PUT:
         request = "PUT";
-        break;
-      default: /* this should never happen */
-      case HTTPREQ_GET:
+        ਰੋਕੋ;
+      ਮੂਲ: /* this should never happen */
+      ਹਾਲਤ HTTPREQ_GET:
         request = "GET";
-        break;
-      case HTTPREQ_HEAD:
+        ਰੋਕੋ;
+      ਹਾਲਤ HTTPREQ_ਸਿਰ:
         request = "HEAD";
-        break;
+        ਰੋਕੋ;
       }
     }
   }
-  *method = request;
+  *ਵਿਧੀ = request;
   *reqp = httpreq;
 }
 
-static CURLcode http_set_aptr_host(struct Curl_easy *data)
+ਸਥਿਰ CURLcode http_ਸੈੱਟ_aptr_host(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct connectdata *conn = data->conn;
-  const char *ptr = NULL;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਅਚਲ ਅੱਖਰ *ptr = ਨਿਰਾ;
 
-  curlx_safefree(data->state.http_host);
-#ifndef CURL_DISABLE_COOKIES
-  curlx_safefree(data->req.cookiehost);
-#endif
+  curlx_safefree(ਅੰਕੜੇ->state.http_host);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
+  curlx_safefree(ਅੰਕੜੇ->req.cookiehost);
+#ਜੇ_ਅੰਤ
 
-  if(Curl_peer_equal(data->state.initial_origin, data->state.origin))
-    ptr = Curl_checkheaders(data, STRCONST("Host"));
+  ਜੇ(Curl_peer_equal(ਅੰਕੜੇ->state.initial_origin, ਅੰਕੜੇ->state.origin))
+    ptr = Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Host"));
 
-  if(ptr) {
-#ifndef CURL_DISABLE_COOKIES
+  ਜੇ(ptr) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
     /* If we have a given custom Host: header, we extract the hostname in
        order to possibly use it for cookie reasons later on. We only allow the
        custom Host: header if this is NOT a redirect, as setting Host: in the
        redirected request is being out on thin ice. Except if the hostname
        is the same as the first one! */
-    char *cookiehost;
-    CURLcode result = copy_custom_value(ptr, &cookiehost);
-    if(result)
-      return result;
-    if(!*cookiehost)
+    ਅੱਖਰ *cookiehost;
+    CURLcode ਨਤੀਜਾ = copy_custom_ਮੁੱਲ(ptr, &cookiehost);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    ਜੇ(!*cookiehost)
       /* ignore empty data */
       curlx_free(cookiehost);
-    else {
+    ਨਹੀਂਤਾਂ {
       /* If the host begins with '[', we start searching for the port after
          the bracket has been closed */
-      if(*cookiehost == '[') {
-        char *closingbracket;
+      ਜੇ(*cookiehost == '[') {
+        ਅੱਖਰ *closingbracket;
         /* since the 'cookiehost' is an allocated memory area that will be
            freed later we cannot increment the pointer */
-        memmove(cookiehost, cookiehost + 1, strlen(cookiehost) - 1);
+        memmove(cookiehost, cookiehost + 1, ਲੜੀ_ਲੰਬਾਈ(cookiehost) - 1);
         closingbracket = strchr(cookiehost, ']');
-        if(closingbracket)
+        ਜੇ(closingbracket)
           *closingbracket = 0;
       }
-      else {
-        int startsearch = 0;
-        char *colon = strchr(cookiehost + startsearch, ':');
-        if(colon)
+      ਨਹੀਂਤਾਂ {
+        ਪੂਰਨ startsearch = 0;
+        ਅੱਖਰ *colon = strchr(cookiehost + startsearch, ':');
+        ਜੇ(colon)
           *colon = 0; /* The host must not include an embedded port number */
       }
-      data->req.cookiehost = cookiehost;
+      ਅੰਕੜੇ->req.cookiehost = cookiehost;
     }
-#endif
+#ਜੇ_ਅੰਤ
 
-    if(!curl_strequal("Host:", ptr)) {
-      data->state.http_host = curl_maprintf("Host:%s", &ptr[5]);
-      if(!data->state.http_host)
-        return CURLE_OUT_OF_MEMORY;
+    ਜੇ(!curl_strequal("Host:", ptr)) {
+      ਅੰਕੜੇ->state.http_host = curl_maprintf("Host:%s", &ptr[5]);
+      ਜੇ(!ਅੰਕੜੇ->state.http_host)
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* This is the  HTTP Host: header, so we want
      * - for IPv6 origins: "[ipv6-address]" where the IPv6 address is
      *  found in origin->hostname, stripped of zoneid/scopeid.
      * - the (IDN converted) origin->hostname (DNS name or IPv4) otherwise.
      * Note: zoneid/scopeid  only applies to local routing and has no
      * meaning on the remote HTTP server (eg. would confuse it). */
-    bool ipv6 = (bool)data->state.origin->ipv6;
-    struct dynbuf tmp;
+    bool ipv6 = (bool)ਅੰਕੜੇ->state.origin->ipv6;
+    ਬਣਤਰ dynbuf tmp;
     size_t hlen;
-    CURLcode result;
+    CURLcode ਨਤੀਜਾ;
 
     curlx_dyn_init(&tmp, DYN_HTTP_REQUEST);
-    result = curlx_dyn_addn(&tmp, STRCONST("Host: "));
-    if(!result && ipv6)
-      result = curlx_dyn_addn(&tmp, STRCONST("["));
-    if(!result)
-      result = curlx_dyn_add(&tmp, data->state.origin->hostname);
-    if(!result && ipv6)
-      result = curlx_dyn_addn(&tmp, STRCONST("]"));
-    if(!result &&
-       ((data->state.origin->port != data->state.origin->scheme->defport) ||
-       (data->state.origin->scheme->family != conn->scheme->family))) {
-      result = curlx_dyn_addf(&tmp, ":%u", data->state.origin->port);
+    ਨਤੀਜਾ = curlx_dyn_addn(&tmp, STRCONST("Host: "));
+    ਜੇ(!ਨਤੀਜਾ && ipv6)
+      ਨਤੀਜਾ = curlx_dyn_addn(&tmp, STRCONST("["));
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&tmp, ਅੰਕੜੇ->state.origin->hostname);
+    ਜੇ(!ਨਤੀਜਾ && ipv6)
+      ਨਤੀਜਾ = curlx_dyn_addn(&tmp, STRCONST("]"));
+    ਜੇ(!ਨਤੀਜਾ &&
+       ((ਅੰਕੜੇ->state.origin->ਪੋਰਟ != ਅੰਕੜੇ->state.origin->scheme->defport) ||
+       (ਅੰਕੜੇ->state.origin->scheme->family != conn->scheme->family))) {
+      ਨਤੀਜਾ = curlx_dyn_addf(&tmp, ":%u", ਅੰਕੜੇ->state.origin->ਪੋਰਟ);
     }
 
-    data->state.http_host = result ? NULL : curlx_dyn_take(&tmp, &hlen);
+    ਅੰਕੜੇ->state.http_host = ਨਤੀਜਾ ? ਨਿਰਾ : curlx_dyn_take(&tmp, &hlen);
     curlx_dyn_free(&tmp);
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Append the request-target to the HTTP request
  */
-static CURLcode http_target(struct Curl_easy *data,
-                            struct dynbuf *r)
+ਸਥਿਰ CURLcode http_ਨਿਸ਼ਾਨਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ dynbuf *r)
 {
-  CURLcode result = CURLE_OK;
-  const char *path = data->state.up.path;
-  const char *query = data->state.up.query;
-#ifndef CURL_DISABLE_PROXY
-  struct connectdata *conn = data->conn;
-#endif
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅਚਲ ਅੱਖਰ *ਰਸਤਾ = ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ;
+  ਅਚਲ ਅੱਖਰ *query = ਅੰਕੜੇ->state.ਉੱਪਰ.query;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+#ਜੇ_ਅੰਤ
 
-  if(CURL_EASY_STR(data, STRING_TARGET)) {
-    path = CURL_EASY_STR(data, STRING_TARGET);
-    query = NULL;
+  ਜੇ(CURL_EASY_STR(ਅੰਕੜੇ, STRING_ਨਿਸ਼ਾਨਾ)) {
+    ਰਸਤਾ = CURL_EASY_STR(ਅੰਕੜੇ, STRING_ਨਿਸ਼ਾਨਾ);
+    query = ਨਿਰਾ;
   }
 
-#ifndef CURL_DISABLE_PROXY
-  if(conn->bits.origin_is_proxy) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਜੇ(conn->ਬਿੱਟ.origin_is_proxy) {
     /* Using a proxy but does not tunnel through it */
 
     /* The path sent to the proxy is in fact the entire URL, but if the remote
@@ -2183,724 +2183,724 @@ static CURLcode http_target(struct Curl_easy *data,
 
     /* and no fragment part */
     CURLUcode uc;
-    char *url;
-    CURLU *h = curl_url_dup(data->state.uh);
-    if(!h)
-      return CURLE_OUT_OF_MEMORY;
+    ਅੱਖਰ *url;
+    CURLU *h = curl_url_dup(ਅੰਕੜੇ->state.uh);
+    ਜੇ(!h)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-    if(!data->state.origin->ipv6 &&
-       (data->state.origin->user_hostname != data->state.origin->hostname)) {
-      uc = curl_url_set(h, CURLUPART_HOST, data->state.origin->hostname, 0);
-      if(uc) {
+    ਜੇ(!ਅੰਕੜੇ->state.origin->ipv6 &&
+       (ਅੰਕੜੇ->state.origin->user_hostname != ਅੰਕੜੇ->state.origin->hostname)) {
+      uc = curl_url_ਸੈੱਟ(h, CURLUPART_HOST, ਅੰਕੜੇ->state.origin->hostname, 0);
+      ਜੇ(uc) {
         curl_url_cleanup(h);
-        return CURLE_OUT_OF_MEMORY;
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
       }
     }
-    uc = curl_url_set(h, CURLUPART_FRAGMENT, NULL, 0);
-    if(uc) {
+    uc = curl_url_ਸੈੱਟ(h, CURLUPART_FRAGMENT, ਨਿਰਾ, 0);
+    ਜੇ(uc) {
       curl_url_cleanup(h);
-      return CURLE_OUT_OF_MEMORY;
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
 
-    if(data->state.origin->scheme == &Curl_scheme_http) {
+    ਜੇ(ਅੰਕੜੇ->state.origin->scheme == &Curl_scheme_http) {
       /* when getting HTTP, we do not want the userinfo the URL */
-      uc = curl_url_set(h, CURLUPART_USER, NULL, 0);
-      if(uc) {
+      uc = curl_url_ਸੈੱਟ(h, CURLUPART_USER, ਨਿਰਾ, 0);
+      ਜੇ(uc) {
         curl_url_cleanup(h);
-        return CURLE_OUT_OF_MEMORY;
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
       }
-      uc = curl_url_set(h, CURLUPART_PASSWORD, NULL, 0);
-      if(uc) {
+      uc = curl_url_ਸੈੱਟ(h, CURLUPART_PASSWORD, ਨਿਰਾ, 0);
+      ਜੇ(uc) {
         curl_url_cleanup(h);
-        return CURLE_OUT_OF_MEMORY;
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
       }
     }
-    else if(data->state.creds && (data->state.creds->source != CREDS_URL)) {
+    ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->state.creds && (ਅੰਕੜੇ->state.creds->ਸਰੋਤ != CREDS_URL)) {
         /* credentials not from the URL need to be set */
-      uc = curl_url_set(h, CURLUPART_USER,
-                        data->state.creds->user, CURLU_URLENCODE);
-      if(!uc)
-        uc = curl_url_set(h, CURLUPART_PASSWORD,
-                          data->state.creds->passwd, CURLU_URLENCODE);
-      if(uc) {
+      uc = curl_url_ਸੈੱਟ(h, CURLUPART_USER,
+                        ਅੰਕੜੇ->state.creds->user, CURLU_URLENCODE);
+      ਜੇ(!uc)
+        uc = curl_url_ਸੈੱਟ(h, CURLUPART_PASSWORD,
+                          ਅੰਕੜੇ->state.creds->passwd, CURLU_URLENCODE);
+      ਜੇ(uc) {
         curl_url_cleanup(h);
-        return Curl_uc_to_curlcode(uc);
+        ਵਾਪਸ Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
       }
     }
 
     /* Extract the URL to use in the request. */
-    uc = curl_url_get(h, CURLUPART_URL, &url, CURLU_NO_DEFAULT_PORT);
-    if(uc) {
+    uc = curl_url_get(h, CURLUPART_URL, &url, CURLU_NO_DEFAULT_ਪੋਰਟ);
+    ਜੇ(uc) {
       curl_url_cleanup(h);
-      return CURLE_OUT_OF_MEMORY;
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
 
     curl_url_cleanup(h);
 
     /* target or URL */
-    result = curlx_dyn_add(r, CURL_EASY_STR(data, STRING_TARGET) ?
-      CURL_EASY_STR(data, STRING_TARGET) : url);
+    ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(r, CURL_EASY_STR(ਅੰਕੜੇ, STRING_ਨਿਸ਼ਾਨਾ) ?
+      CURL_EASY_STR(ਅੰਕੜੇ, STRING_ਨਿਸ਼ਾਨਾ) : url);
     curlx_free(url);
-    if(result)
-      return result;
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
 
-    if((data->state.origin->scheme == &Curl_scheme_ftp) &&
-       data->set.proxy_transfer_mode) {
+    ਜੇ((ਅੰਕੜੇ->state.origin->scheme == &Curl_scheme_ftp) &&
+       ਅੰਕੜੇ->ਸੈੱਟ.proxy_transfer_ਬਹੁਲਕ) {
       /* when doing ftp, append ;type=<a|i> if not present */
-      size_t len = strlen(path);
+      size_t len = ਲੜੀ_ਲੰਬਾਈ(ਰਸਤਾ);
       bool type_present = FALSE;
-      if((len >= 7) && !memcmp(&path[len - 7], ";type=", 6)) {
-        switch(Curl_raw_toupper(path[len - 1])) {
-        case 'A':
-        case 'D':
-        case 'I':
+      ਜੇ((len >= 7) && !memcmp(&ਰਸਤਾ[len - 7], ";type=", 6)) {
+        ਚੋਣ(Curl_raw_toupper(ਰਸਤਾ[len - 1])) {
+        ਹਾਲਤ 'A':
+        ਹਾਲਤ 'D':
+        ਹਾਲਤ 'I':
           type_present = TRUE;
-          break;
+          ਰੋਕੋ;
         }
       }
-      if(!type_present) {
-        result = curlx_dyn_addf(r, ";type=%c",
-                                data->state.prefer_ascii ? 'a' : 'i');
-        if(result)
-          return result;
+      ਜੇ(!type_present) {
+        ਨਤੀਜਾ = curlx_dyn_addf(r, ";type=%c",
+                                ਅੰਕੜੇ->state.prefer_ascii ? 'a' : 'i');
+        ਜੇ(ਨਤੀਜਾ)
+          ਵਾਪਸ ਨਤੀਜਾ;
       }
     }
   }
 
-  else
-#endif
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
   {
-    result = curlx_dyn_add(r, path);
-    if(result)
-      return result;
-    if(query)
-      result = curlx_dyn_addf(r, "?%s", query);
+    ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(r, ਰਸਤਾ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    ਜੇ(query)
+      ਨਤੀਜਾ = curlx_dyn_addf(r, "?%s", query);
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-static CURLcode set_post_reader(struct Curl_easy *data, Curl_HttpReq httpreq)
+#ਜੇ !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+ਸਥਿਰ CURLcode ਸੈੱਟ_post_reader(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, Curl_HttpReq httpreq)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  switch(httpreq) {
-#ifndef CURL_DISABLE_MIME
-  case HTTPREQ_POST_MIME:
-    data->state.mimepost = data->set.mimepostp;
-    break;
-#endif
-#ifndef CURL_DISABLE_FORM_API
-  case HTTPREQ_POST_FORM:
+  ਚੋਣ(httpreq) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_MIME
+  ਹਾਲਤ HTTPREQ_POST_MIME:
+    ਅੰਕੜੇ->state.mimepost = ਅੰਕੜੇ->ਸੈੱਟ.mimepostp;
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FORM_API
+  ਹਾਲਤ HTTPREQ_POST_FORM:
     /* Convert the form structure into a mime structure, then keep
        the conversion */
-    if(!data->state.formp) {
-      data->state.formp = curlx_calloc(1, sizeof(curl_mimepart));
-      if(!data->state.formp)
-        return CURLE_OUT_OF_MEMORY;
-      Curl_mime_cleanpart(data->state.formp);
-      result = Curl_getformdata(data, data->state.formp, data->set.httppost,
-                                data->state.fread_func);
-      if(result) {
-        curlx_safefree(data->state.formp);
-        return result;
+    ਜੇ(!ਅੰਕੜੇ->state.formp) {
+      ਅੰਕੜੇ->state.formp = curlx_calloc(1, ਆਕਾਰ(curl_mimepart));
+      ਜੇ(!ਅੰਕੜੇ->state.formp)
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      Curl_mime_cleanpart(ਅੰਕੜੇ->state.formp);
+      ਨਤੀਜਾ = Curl_getformdata(ਅੰਕੜੇ, ਅੰਕੜੇ->state.formp, ਅੰਕੜੇ->ਸੈੱਟ.httppost,
+                                ਅੰਕੜੇ->state.fread_func);
+      ਜੇ(ਨਤੀਜਾ) {
+        curlx_safefree(ਅੰਕੜੇ->state.formp);
+        ਵਾਪਸ ਨਤੀਜਾ;
       }
-      data->state.mimepost = data->state.formp;
+      ਅੰਕੜੇ->state.mimepost = ਅੰਕੜੇ->state.formp;
     }
-    break;
-#endif
-  default:
-    data->state.mimepost = NULL;
-    break;
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
+  ਮੂਲ:
+    ਅੰਕੜੇ->state.mimepost = ਨਿਰਾ;
+    ਰੋਕੋ;
   }
 
-  switch(httpreq) {
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
+  ਚੋਣ(httpreq) {
+  ਹਾਲਤ HTTPREQ_POST_FORM:
+  ਹਾਲਤ HTTPREQ_POST_MIME:
     /* This is form posting using mime data. */
-#ifndef CURL_DISABLE_MIME
-    if(data->state.mimepost) {
-      const char *cthdr = Curl_checkheaders(data, STRCONST("Content-Type"));
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_MIME
+    ਜੇ(ਅੰਕੜੇ->state.mimepost) {
+      ਅਚਲ ਅੱਖਰ *cthdr = Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Content-Type"));
 
       /* Read and seek body only. */
-      data->state.mimepost->flags |= MIME_BODY_ONLY;
+      ਅੰਕੜੇ->state.mimepost->flags |= MIME_BODY_ONLY;
 
       /* Prepare the mime structure headers & set content type. */
 
-      if(cthdr)
-        for(cthdr += 13; *cthdr == ' '; cthdr++)
+      ਜੇ(cthdr)
+        ਲਈ(cthdr += 13; *cthdr == ' '; cthdr++)
           ;
-      else if(data->state.mimepost->kind == MIMEKIND_MULTIPART)
+      ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->state.mimepost->ਕਿਸਮ == MIMEKIND_MULTIPART)
         cthdr = "multipart/form-data";
 
-      curl_mime_headers(data->state.mimepost, data->set.headers, 0);
-      result = Curl_mime_prepare_headers(data, data->state.mimepost, cthdr,
-                                         NULL, MIMESTRATEGY_FORM);
-      if(result)
-        return result;
-      curl_mime_headers(data->state.mimepost, NULL, 0);
-      result = Curl_creader_set_mime(data, data->state.mimepost);
-      if(result)
-        return result;
+      curl_mime_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ->state.mimepost, ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ, 0);
+      ਨਤੀਜਾ = Curl_mime_prepare_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ, ਅੰਕੜੇ->state.mimepost, cthdr,
+                                         ਨਿਰਾ, MIMESTRATEGY_FORM);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      curl_mime_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ->state.mimepost, ਨਿਰਾ, 0);
+      ਨਤੀਜਾ = Curl_creader_ਸੈੱਟ_mime(ਅੰਕੜੇ, ਅੰਕੜੇ->state.mimepost);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    else
-#endif
+    ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
     {
-      result = Curl_creader_set_null(data);
+      ਨਤੀਜਾ = Curl_creader_ਸੈੱਟ_null(ਅੰਕੜੇ);
     }
-    data->state.infilesize = Curl_creader_total_length(data);
-    return result;
+    ਅੰਕੜੇ->state.infilesize = Curl_creader_ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ);
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  default:
-    return Curl_creader_set_null(data);
+  ਮੂਲ:
+    ਵਾਪਸ Curl_creader_ਸੈੱਟ_null(ਅੰਕੜੇ);
   }
   /* never reached */
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static CURLcode set_reader(struct Curl_easy *data, Curl_HttpReq httpreq)
+ਸਥਿਰ CURLcode ਸੈੱਟ_reader(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, Curl_HttpReq httpreq)
 {
-  CURLcode result = CURLE_OK;
-  curl_off_t postsize = data->state.infilesize;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  curl_off_t postsize = ਅੰਕੜੇ->state.infilesize;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
 
-  if(data->req.authneg) {
-    return Curl_creader_set_null(data);
+  ਜੇ(ਅੰਕੜੇ->req.authneg) {
+    ਵਾਪਸ Curl_creader_ਸੈੱਟ_null(ਅੰਕੜੇ);
   }
 
-  switch(httpreq) {
-  case HTTPREQ_PUT: /* Let's PUT the data to the server! */
-    return postsize ? Curl_creader_set_fread(data, postsize) :
-      Curl_creader_set_null(data);
+  ਚੋਣ(httpreq) {
+  ਹਾਲਤ HTTPREQ_PUT: /* Let's PUT the data to the server! */
+    ਵਾਪਸ postsize ? Curl_creader_ਸੈੱਟ_fread(ਅੰਕੜੇ, postsize) :
+      Curl_creader_ਸੈੱਟ_null(ਅੰਕੜੇ);
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-    return set_post_reader(data, httpreq);
-#endif
+#ਜੇ !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  ਹਾਲਤ HTTPREQ_POST_FORM:
+  ਹਾਲਤ HTTPREQ_POST_MIME:
+    ਵਾਪਸ ਸੈੱਟ_post_reader(ਅੰਕੜੇ, httpreq);
+#ਜੇ_ਅੰਤ
 
-  case HTTPREQ_POST:
+  ਹਾਲਤ HTTPREQ_POST:
     /* this is the simple POST, using x-www-form-urlencoded style */
     /* the size of the post body */
-    if(!postsize) {
-      result = Curl_creader_set_null(data);
+    ਜੇ(!postsize) {
+      ਨਤੀਜਾ = Curl_creader_ਸੈੱਟ_null(ਅੰਕੜੇ);
     }
-    else if(data->set.postfields) {
+    ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.postfields) {
       size_t plen = curlx_sotouz_range(postsize, 0, SIZE_MAX);
-      if(plen == SIZE_MAX)
-        return CURLE_OUT_OF_MEMORY;
-      else if(plen)
-        result = Curl_creader_set_buf(data, data->set.postfields, plen);
-      else
-        result = Curl_creader_set_null(data);
+      ਜੇ(plen == SIZE_MAX)
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      ਨਹੀਂਤਾਂ ਜੇ(plen)
+        ਨਤੀਜਾ = Curl_creader_ਸੈੱਟ_buf(ਅੰਕੜੇ, ਅੰਕੜੇ->ਸੈੱਟ.postfields, plen);
+      ਨਹੀਂਤਾਂ
+        ਨਤੀਜਾ = Curl_creader_ਸੈੱਟ_null(ਅੰਕੜੇ);
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* we read the bytes from the callback. In case "chunked" encoding
        * is forced by the application, we disregard `postsize`. This is
        * a backward compatibility decision to earlier versions where
        * chunking disregarded this. See issue #13229. */
       bool chunked = FALSE;
-      char *ptr = Curl_checkheaders(data, STRCONST("Transfer-Encoding"));
-      if(ptr) {
+      ਅੱਖਰ *ptr = Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Transfer-Encoding"));
+      ਜੇ(ptr) {
         /* Some kind of TE is requested, check if 'chunked' is chosen */
         chunked = Curl_compareheader(ptr, STRCONST("Transfer-Encoding:"),
                                      STRCONST("chunked"));
       }
-      result = Curl_creader_set_fread(data, chunked ? -1 : postsize);
+      ਨਤੀਜਾ = Curl_creader_ਸੈੱਟ_fread(ਅੰਕੜੇ, chunked ? -1 : postsize);
     }
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  default:
+  ਮੂਲ:
     /* HTTP GET/HEAD download, has no body, needs no Content-Length */
-    data->state.infilesize = 0;
-    return Curl_creader_set_null(data);
+    ਅੰਕੜੇ->state.infilesize = 0;
+    ਵਾਪਸ Curl_creader_ਸੈੱਟ_null(ਅੰਕੜੇ);
   }
   /* not reached */
 }
 
-static CURLcode http_resume(struct Curl_easy *data, Curl_HttpReq httpreq)
+ਸਥਿਰ CURLcode http_resume(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, Curl_HttpReq httpreq)
 {
-  if((HTTPREQ_POST == httpreq || HTTPREQ_POST_FORM == httpreq ||
+  ਜੇ((HTTPREQ_POST == httpreq || HTTPREQ_POST_FORM == httpreq ||
       HTTPREQ_POST_MIME == httpreq || HTTPREQ_PUT == httpreq) &&
-     data->state.resume_from) {
-    failf(data, "HTTP upload cannot be resumed");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+     ਅੰਕੜੇ->state.resume_from) {
+    failf(ਅੰਕੜੇ, "HTTP upload cannot be resumed");
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode http_req_set_TE(struct Curl_easy *data,
-                                struct dynbuf *req,
-                                int httpversion)
+ਸਥਿਰ CURLcode http_req_ਸੈੱਟ_TE(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ dynbuf *req,
+                                ਪੂਰਨ httpversion)
 {
-  CURLcode result = CURLE_OK;
-  const char *ptr;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅਚਲ ਅੱਖਰ *ptr;
 
-  ptr = Curl_checkheaders(data, STRCONST("Transfer-Encoding"));
-  if(ptr) {
+  ptr = Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Transfer-Encoding"));
+  ਜੇ(ptr) {
     /* Some kind of TE is requested, check if 'chunked' is chosen */
-    data->req.upload_chunky =
+    ਅੰਕੜੇ->req.upload_chunky =
       Curl_compareheader(ptr,
                          STRCONST("Transfer-Encoding:"), STRCONST("chunked"));
-    if(data->req.upload_chunky && (httpversion >= 20)) {
-      infof(data, "suppressing chunked transfer encoding on connection "
+    ਜੇ(ਅੰਕੜੇ->req.upload_chunky && (httpversion >= 20)) {
+      infof(ਅੰਕੜੇ, "suppressing chunked transfer encoding on connection "
             "using HTTP version 2 or higher");
-      data->req.upload_chunky = FALSE;
+      ਅੰਕੜੇ->req.upload_chunky = FALSE;
     }
   }
-  else {
-    curl_off_t req_clen = Curl_creader_total_length(data);
+  ਨਹੀਂਤਾਂ {
+    curl_off_t req_clen = Curl_creader_ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ);
 
-    if(req_clen < 0) {
+    ਜੇ(req_clen < 0) {
       /* indeterminate request content length */
-      if(httpversion > 10) {
+      ਜੇ(httpversion > 10) {
         /* On HTTP/1.1, enable chunked, on HTTP/2 and later we do not
          * need it */
-        data->req.upload_chunky = (httpversion < 20);
+        ਅੰਕੜੇ->req.upload_chunky = (httpversion < 20);
       }
-      else {
-        failf(data, "Chunky upload is not supported by HTTP 1.0");
-        return CURLE_UPLOAD_FAILED;
+      ਨਹੀਂਤਾਂ {
+        failf(ਅੰਕੜੇ, "Chunky upload is not supported by HTTP 1.0");
+        ਵਾਪਸ CURLE_UPLOAD_FAILED;
       }
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* else, no chunky upload */
-      data->req.upload_chunky = FALSE;
+      ਅੰਕੜੇ->req.upload_chunky = FALSE;
     }
 
-    if(data->req.upload_chunky)
-      result = curlx_dyn_add(req, "Transfer-Encoding: chunked\r\n");
+    ਜੇ(ਅੰਕੜੇ->req.upload_chunky)
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, "Transfer-Encoding: chunked\r\n");
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode addexpect(struct Curl_easy *data, struct dynbuf *r,
-                          int httpversion, bool *announced_exp100)
+ਸਥਿਰ CURLcode addexpect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ dynbuf *r,
+                          ਪੂਰਨ httpversion, bool *announced_exp100)
 {
-  CURLcode result;
-  char *ptr;
+  CURLcode ਨਤੀਜਾ;
+  ਅੱਖਰ *ptr;
 
   *announced_exp100 = FALSE;
   /* Avoid Expect: 100-continue if Upgrade: is used */
-  if(data->req.upgr101 != UPGR101_NONE)
-    return CURLE_OK;
+  ਜੇ(ਅੰਕੜੇ->req.upgr101 != UPGR101_NONE)
+    ਵਾਪਸ CURLE_OK;
 
   /* For really small puts we do not use Expect: headers at all, and for
      the somewhat bigger ones we allow the app to disable it. Make
      sure that the expect100header is always set to the preferred value
      here. */
-  ptr = Curl_checkheaders(data, STRCONST("Expect"));
-  if(ptr) {
+  ptr = Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Expect"));
+  ਜੇ(ptr) {
     *announced_exp100 =
       Curl_compareheader(ptr, STRCONST("Expect:"), STRCONST("100-continue"));
   }
-  else if(!data->state.disableexpect && (httpversion == 11)) {
+  ਨਹੀਂਤਾਂ ਜੇ(!ਅੰਕੜੇ->state.disableexpect && (httpversion == 11)) {
     /* if not doing HTTP 1.0 or version 2, or disabled explicitly, we add an
        Expect: 100-continue to the headers which actually speeds up post
        operations (as there is one packet coming back from the web server) */
-    curl_off_t client_len = Curl_creader_client_length(data);
-    if(client_len > EXPECT_100_THRESHOLD || client_len < 0) {
-      result = curlx_dyn_addn(r, STRCONST("Expect: 100-continue\r\n"));
-      if(result)
-        return result;
+    curl_off_t client_len = Curl_creader_client_ਲੰਮਾਈ(ਅੰਕੜੇ);
+    ਜੇ(client_len > EXPECT_100_ਹੱਦ || client_len < 0) {
+      ਨਤੀਜਾ = curlx_dyn_addn(r, STRCONST("Expect: 100-continue\r\n"));
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
       *announced_exp100 = TRUE;
     }
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode http_add_content_hds(struct Curl_easy *data,
-                                     struct dynbuf *r,
-                                     int httpversion,
+ਸਥਿਰ CURLcode http_ਜੋੜੋ_content_hds(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਬਣਤਰ dynbuf *r,
+                                     ਪੂਰਨ httpversion,
                                      Curl_HttpReq httpreq)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   curl_off_t req_clen;
   bool announced_exp100 = FALSE;
 
-  DEBUGASSERT(data->conn);
-  if(data->req.upload_chunky) {
-    result = Curl_httpchunk_add_reader(data);
-    if(result)
-      return result;
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
+  ਜੇ(ਅੰਕੜੇ->req.upload_chunky) {
+    ਨਤੀਜਾ = Curl_httpchunk_ਜੋੜੋ_reader(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
   /* Get the request body length that has been set up */
-  req_clen = Curl_creader_total_length(data);
-  switch(httpreq) {
-  case HTTPREQ_PUT:
-  case HTTPREQ_POST:
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-#endif
+  req_clen = Curl_creader_ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ);
+  ਚੋਣ(httpreq) {
+  ਹਾਲਤ HTTPREQ_PUT:
+  ਹਾਲਤ HTTPREQ_POST:
+#ਜੇ !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  ਹਾਲਤ HTTPREQ_POST_FORM:
+  ਹਾਲਤ HTTPREQ_POST_MIME:
+#ਜੇ_ਅੰਤ
     /* We only set Content-Length and allow a custom Content-Length if
        we do not upload data chunked, as RFC2616 forbids us to set both
        kinds of headers (Transfer-Encoding: chunked and Content-Length).
        We do not override a custom "Content-Length" header, but during
        authentication negotiation that header is suppressed.
      */
-    if(req_clen >= 0 && !data->req.upload_chunky &&
-       (data->req.authneg ||
-        !Curl_checkheaders(data, STRCONST("Content-Length")))) {
+    ਜੇ(req_clen >= 0 && !ਅੰਕੜੇ->req.upload_chunky &&
+       (ਅੰਕੜੇ->req.authneg ||
+        !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Content-Length")))) {
       /* we allow replacing this header if not during auth negotiation,
          although it is not wise to actually set your own */
-      result = curlx_dyn_addf(r, "Content-Length: %" FMT_OFF_T "\r\n",
+      ਨਤੀਜਾ = curlx_dyn_addf(r, "Content-Length: %" FMT_OFF_T "\r\n",
                               req_clen);
     }
-    if(result)
-      goto out;
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
-#ifndef CURL_DISABLE_MIME
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_MIME
     /* Output mime-generated headers. */
-    if(data->state.mimepost &&
+    ਜੇ(ਅੰਕੜੇ->state.mimepost &&
        ((httpreq == HTTPREQ_POST_FORM) || (httpreq == HTTPREQ_POST_MIME))) {
-      struct curl_slist *hdr;
+      ਬਣਤਰ curl_slist *hdr;
 
-      for(hdr = data->state.mimepost->curlheaders; hdr; hdr = hdr->next) {
-        result = curlx_dyn_addf(r, "%s\r\n", hdr->data);
-        if(result)
-          goto out;
+      ਲਈ(hdr = ਅੰਕੜੇ->state.mimepost->curlheaders; hdr; hdr = hdr->ਅਗਲਾ) {
+        ਨਤੀਜਾ = curlx_dyn_addf(r, "%s\r\n", hdr->ਅੰਕੜੇ);
+        ਜੇ(ਨਤੀਜਾ)
+          ਜਾਓ ਬਾਹਰਲਾ;
       }
     }
-#endif
-    if(httpreq == HTTPREQ_POST &&
-       !Curl_checkheaders(data, STRCONST("Content-Type"))) {
-      result = curlx_dyn_addn(r, STRCONST("Content-Type: application/"
+#ਜੇ_ਅੰਤ
+    ਜੇ(httpreq == HTTPREQ_POST &&
+       !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Content-Type"))) {
+      ਨਤੀਜਾ = curlx_dyn_addn(r, STRCONST("Content-Type: application/"
                                           "x-www-form-urlencoded\r\n"));
-      if(result)
-        goto out;
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
     }
-    result = addexpect(data, r, httpversion, &announced_exp100);
-    if(result)
-      goto out;
-    break;
-  default:
-    break;
+    ਨਤੀਜਾ = addexpect(ਅੰਕੜੇ, r, httpversion, &announced_exp100);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
+    ਰੋਕੋ;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
 
-  Curl_pgrsSetUploadSize(data, req_clen);
-  if(announced_exp100)
-    result = http_exp100_add_reader(data);
+  Curl_pgrs_ਸੈੱਟ_Upload_ਮਾਪ(ਅੰਕੜੇ, req_clen);
+  ਜੇ(announced_exp100)
+    ਨਤੀਜਾ = http_exp100_ਜੋੜੋ_reader(ਅੰਕੜੇ);
 
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifndef CURL_DISABLE_COOKIES
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
 
-static CURLcode http_cookies(struct Curl_easy *data,
-                             struct dynbuf *r)
+ਸਥਿਰ CURLcode http_cookies(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ dynbuf *r)
 {
-  CURLcode result = CURLE_OK;
-  const char *addcookies = NULL;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅਚਲ ਅੱਖਰ *addcookies = ਨਿਰਾ;
   bool linecap = FALSE;
-  if(CURL_EASY_STR(data, STRING_COOKIE) &&
-     !Curl_checkheaders(data, STRCONST("Cookie")) &&
-     Curl_auth_allowed_to_host(data))
-    addcookies = CURL_EASY_STR(data, STRING_COOKIE);
+  ਜੇ(CURL_EASY_STR(ਅੰਕੜੇ, STRING_COOKIE) &&
+     !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Cookie")) &&
+     Curl_auth_allowed_ਮੰਜ਼ਿਲ_host(ਅੰਕੜੇ))
+    addcookies = CURL_EASY_STR(ਅੰਕੜੇ, STRING_COOKIE);
 
-  if(data->cookies || addcookies) {
-    struct Curl_llist list;
-    int count = 0;
+  ਜੇ(ਅੰਕੜੇ->cookies || addcookies) {
+    ਬਣਤਰ Curl_llist list;
+    ਪੂਰਨ ਗਿਣਤੀ_2 = 0;
 
-    if(data->cookies && data->state.cookie_engine) {
+    ਜੇ(ਅੰਕੜੇ->cookies && ਅੰਕੜੇ->state.cookie_engine) {
       bool okay;
-      const char *host = data->req.cookiehost ?
-        data->req.cookiehost : data->state.origin->hostname;
-      Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-      result = Curl_cookie_getlist(data, &okay, host, &list);
-      if(!result && okay) {
-        struct Curl_llist_node *n;
+      ਅਚਲ ਅੱਖਰ *host = ਅੰਕੜੇ->req.cookiehost ?
+        ਅੰਕੜੇ->req.cookiehost : ਅੰਕੜੇ->state.origin->hostname;
+      Curl_share_ਤਾਲਾ(ਅੰਕੜੇ, CURL_ਤਾਲਾ_ਅੰਕੜੇ_COOKIE, CURL_ਤਾਲਾ_ACCESS_SINGLE);
+      ਨਤੀਜਾ = Curl_cookie_getlist(ਅੰਕੜੇ, &okay, host, &list);
+      ਜੇ(!ਨਤੀਜਾ && okay) {
+        ਬਣਤਰ Curl_llist_ਗੰਢ *n;
         size_t clen = 8; /* hold the size of the generated Cookie: header */
 
         /* loop through all cookies that matched */
-        for(n = Curl_llist_head(&list); n; n = Curl_node_next(n)) {
-          struct Cookie *co = Curl_node_elem(n);
-          if(co->value) {
-            size_t add;
-            if(!count) {
-              result = curlx_dyn_addn(r, STRCONST("Cookie: "));
-              if(result)
-                break;
+        ਲਈ(n = Curl_llist_ਸਿਰ(&list); n; n = Curl_ਗੰਢ_ਅਗਲਾ(n)) {
+          ਬਣਤਰ Cookie *co = Curl_ਗੰਢ_elem(n);
+          ਜੇ(co->ਮੁੱਲ) {
+            size_t ਜੋੜੋ;
+            ਜੇ(!ਗਿਣਤੀ_2) {
+              ਨਤੀਜਾ = curlx_dyn_addn(r, STRCONST("Cookie: "));
+              ਜੇ(ਨਤੀਜਾ)
+                ਰੋਕੋ;
             }
-            add = strlen(co->name) + strlen(co->value) + 1;
-            if(clen + add >= MAX_COOKIE_HEADER_LEN) {
-              infof(data, "Restricted outgoing cookies due to header size, "
+            ਜੋੜੋ = ਲੜੀ_ਲੰਬਾਈ(co->name) + ਲੜੀ_ਲੰਬਾਈ(co->ਮੁੱਲ) + 1;
+            ਜੇ(clen + ਜੋੜੋ >= MAX_COOKIE_ਸਿਰਲੇਖ_LEN) {
+              infof(ਅੰਕੜੇ, "Restricted outgoing cookies due to header size, "
                     "'%s' not sent", co->name);
               linecap = TRUE;
-              break;
+              ਰੋਕੋ;
             }
-            result = curlx_dyn_addf(r, "%s%s=%s", count ? "; " : "",
-                                    co->name, co->value);
-            if(result)
-              break;
-            clen += add + (count ? 2 : 0);
-            count++;
+            ਨਤੀਜਾ = curlx_dyn_addf(r, "%s%s=%s", ਗਿਣਤੀ_2 ? "; " : "",
+                                    co->name, co->ਮੁੱਲ);
+            ਜੇ(ਨਤੀਜਾ)
+              ਰੋਕੋ;
+            clen += ਜੋੜੋ + (ਗਿਣਤੀ_2 ? 2 : 0);
+            ਗਿਣਤੀ_2++;
           }
         }
-        Curl_llist_destroy(&list, NULL);
+        Curl_llist_destroy(&list, ਨਿਰਾ);
       }
-      Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
+      Curl_share_unlock(ਅੰਕੜੇ, CURL_ਤਾਲਾ_ਅੰਕੜੇ_COOKIE);
     }
-    if(addcookies && !result && !linecap) {
-      if(!count)
-        result = curlx_dyn_addn(r, STRCONST("Cookie: "));
-      if(!result) {
-        result = curlx_dyn_addf(r, "%s%s", count ? "; " : "", addcookies);
-        count++;
+    ਜੇ(addcookies && !ਨਤੀਜਾ && !linecap) {
+      ਜੇ(!ਗਿਣਤੀ_2)
+        ਨਤੀਜਾ = curlx_dyn_addn(r, STRCONST("Cookie: "));
+      ਜੇ(!ਨਤੀਜਾ) {
+        ਨਤੀਜਾ = curlx_dyn_addf(r, "%s%s", ਗਿਣਤੀ_2 ? "; " : "", addcookies);
+        ਗਿਣਤੀ_2++;
       }
     }
-    if(count && !result)
-      result = curlx_dyn_addn(r, STRCONST("\r\n"));
+    ਜੇ(ਗਿਣਤੀ_2 && !ਨਤੀਜਾ)
+      ਨਤੀਜਾ = curlx_dyn_addn(r, STRCONST("\r\n"));
 
-    if(result)
-      return result;
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
-#else
-#define http_cookies(a, b) CURLE_OK
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ http_cookies(a, b) CURLE_OK
+#ਜੇ_ਅੰਤ
 
-static CURLcode http_range(struct Curl_easy *data,
+ਸਥਿਰ CURLcode http_range(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                            Curl_HttpReq httpreq)
 {
-  if(data->state.use_range) {
+  ਜੇ(ਅੰਕੜੇ->state.use_range) {
     /*
      * A range is selected. We use different headers whether we are downloading
      * or uploading and we always let customized headers override our internal
      * ones if any such are specified.
      */
-    if(((httpreq == HTTPREQ_GET) || (httpreq == HTTPREQ_HEAD)) &&
-       !Curl_checkheaders(data, STRCONST("Range"))) {
+    ਜੇ(((httpreq == HTTPREQ_GET) || (httpreq == HTTPREQ_ਸਿਰ)) &&
+       !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Range"))) {
       /* if a line like this was already allocated, free the previous one */
-      curlx_free(data->state.rangeline);
-      data->state.rangeline = curl_maprintf("Range: bytes=%s\r\n",
-                                                 data->state.range);
-      if(!data->state.rangeline)
-        return CURLE_OUT_OF_MEMORY;
+      curlx_free(ਅੰਕੜੇ->state.rangeline);
+      ਅੰਕੜੇ->state.rangeline = curl_maprintf("Range: bytes=%s\r\n",
+                                                 ਅੰਕੜੇ->state.range);
+      ਜੇ(!ਅੰਕੜੇ->state.rangeline)
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
-    else if((httpreq == HTTPREQ_POST || httpreq == HTTPREQ_PUT) &&
-            !Curl_checkheaders(data, STRCONST("Content-Range"))) {
-      curl_off_t req_clen = Curl_creader_total_length(data);
+    ਨਹੀਂਤਾਂ ਜੇ((httpreq == HTTPREQ_POST || httpreq == HTTPREQ_PUT) &&
+            !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Content-Range"))) {
+      curl_off_t req_clen = Curl_creader_ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ);
       /* if a line like this was already allocated, free the previous one */
-      curlx_free(data->state.rangeline);
+      curlx_free(ਅੰਕੜੇ->state.rangeline);
 
-      if(data->set.set_resume_from < 0) {
+      ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.ਸੈੱਟ_resume_from < 0) {
         /* Upload resume was asked for, but we do not know the size of the
            remote part so we tell the server (and act accordingly) that we
            upload the whole file (again) */
-        data->state.rangeline =
+        ਅੰਕੜੇ->state.rangeline =
           curl_maprintf("Content-Range: bytes 0-%" FMT_OFF_T "/"
                         "%" FMT_OFF_T "\r\n", req_clen - 1, req_clen);
       }
-      else if(data->state.resume_from) {
+      ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->state.resume_from) {
         /* This is because "resume" was selected */
         /* Not sure if we want to send this header during authentication
          * negotiation, but test1084 checks for it. In which case we have a
          * "null" client reader installed that gives an unexpected length. */
-        curl_off_t total_len = data->req.authneg ?
-                               data->state.infilesize :
-                               (data->state.resume_from + req_clen);
-        data->state.rangeline =
+        curl_off_t ਕੁੱਲ_len = ਅੰਕੜੇ->req.authneg ?
+                               ਅੰਕੜੇ->state.infilesize :
+                               (ਅੰਕੜੇ->state.resume_from + req_clen);
+        ਅੰਕੜੇ->state.rangeline =
           curl_maprintf("Content-Range: bytes %s%" FMT_OFF_T "/"
                         "%" FMT_OFF_T "\r\n",
-                        data->state.range, total_len - 1, total_len);
+                        ਅੰਕੜੇ->state.range, ਕੁੱਲ_len - 1, ਕੁੱਲ_len);
       }
-      else {
+      ਨਹੀਂਤਾਂ {
         /* Range was selected and then we pass the incoming range and append
            total size */
-        data->state.rangeline =
+        ਅੰਕੜੇ->state.rangeline =
           curl_maprintf("Content-Range: bytes %s/%" FMT_OFF_T "\r\n",
-                        data->state.range, req_clen);
+                        ਅੰਕੜੇ->state.range, req_clen);
       }
-      if(!data->state.rangeline)
-        return CURLE_OUT_OF_MEMORY;
+      ਜੇ(!ਅੰਕੜੇ->state.rangeline)
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode http_firstwrite(struct Curl_easy *data)
+ਸਥਿਰ CURLcode http_firstwrite(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
 
-  if(data->req.newurl) {
-    if(conn->bits.close) {
+  ਜੇ(ਅੰਕੜੇ->req.newurl) {
+    ਜੇ(conn->ਬਿੱਟ.close) {
       /* Abort after the headers if "follow Location" is set
          and we are set to close anyway. */
-      CURL_REQ_CLEAR_RECV(data);
-      k->done = TRUE;
-      return CURLE_OK;
+      CURL_REQ_CLEAR_RECV(ਅੰਕੜੇ);
+      k->ਪੂਰਾ = TRUE;
+      ਵਾਪਸ CURLE_OK;
     }
     /* We have a new URL to load, but since we want to be able to reuse this
        connection properly, we read the full response in "ignore more" */
     k->ignorebody = TRUE;
-    infof(data, "Ignoring the response-body");
+    infof(ਅੰਕੜੇ, "Ignoring the response-body");
   }
-  if(data->state.resume_from && !k->content_range &&
-     (data->state.httpreq == HTTPREQ_GET) &&
+  ਜੇ(ਅੰਕੜੇ->state.resume_from && !k->content_range &&
+     (ਅੰਕੜੇ->state.httpreq == HTTPREQ_GET) &&
      !k->ignorebody) {
 
-    if(k->size == data->state.resume_from) {
+    ਜੇ(k->ਮਾਪ == ਅੰਕੜੇ->state.resume_from) {
       /* The resume point is at the end of file, consider this fine even if it
          does not allow resume from here. */
-      infof(data, "The entire document is already downloaded");
+      infof(ਅੰਕੜੇ, "The entire document is already downloaded");
       streamclose(conn);
       /* Abort download */
-      CURL_REQ_CLEAR_RECV(data);
-      k->done = TRUE;
-      return CURLE_OK;
+      CURL_REQ_CLEAR_RECV(ਅੰਕੜੇ);
+      k->ਪੂਰਾ = TRUE;
+      ਵਾਪਸ CURLE_OK;
     }
 
     /* we wanted to resume a download, although the server does not seem to
      * support this and we did this with a GET (if it was not a GET we did a
      * POST or PUT resume) */
-    failf(data, "HTTP server does not seem to support "
+    failf(ਅੰਕੜੇ, "HTTP server does not seem to support "
           "byte ranges. Cannot resume.");
-    return CURLE_RANGE_ERROR;
+    ਵਾਪਸ CURLE_RANGE_ERROR;
   }
 
-  if(data->set.timecondition && !data->state.range &&
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.timecondition && !ਅੰਕੜੇ->state.range &&
      /* A time condition has been set AND no ranges have been requested. This
         seems to be what chapter 13.3.4 of RFC 2616 defines to be the correct
         action for an HTTP/1.1 client */
-     !Curl_meets_timecondition(data, k->timeofdoc)) {
-    k->done = TRUE;
+     !Curl_meets_timecondition(ਅੰਕੜੇ, k->timeofdoc)) {
+    k->ਪੂਰਾ = TRUE;
     /* We are simulating an HTTP 304 from server so we return
        what should have been returned from the server */
-    data->info.httpcode = 304;
-    infof(data, "Simulate an HTTP 304 response");
+    ਅੰਕੜੇ->info.httpcode = 304;
+    infof(ਅੰਕੜੇ, "Simulate an HTTP 304 response");
     /* we abort the transfer before it is completed == we ruin the
        reuse ability. Close the connection */
     streamclose(conn);
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   } /* we have a time condition */
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode http_check_new_conn(struct Curl_easy *data)
+ਸਥਿਰ CURLcode http_check_new_conn(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct connectdata *conn = data->conn;
-  const char *info_version = NULL;
-  const char *alpn;
-  CURLcode result;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਅਚਲ ਅੱਖਰ *info_ਸੰਸਕਰਣ = ਨਿਰਾ;
+  ਅਚਲ ਅੱਖਰ *alpn;
+  CURLcode ਨਤੀਜਾ;
 
-  alpn = Curl_conn_get_alpn_negotiated(data, conn);
-  if(alpn && !strcmp("h3", alpn)) {
-#ifndef CURL_DISABLE_PROXY
-    if(!conn->bits.origin_is_proxy)
-#endif
-      DEBUGASSERT(Curl_conn_http_version(data, conn) == 30);
-    info_version = "HTTP/3";
+  alpn = Curl_conn_get_alpn_negotiated(ਅੰਕੜੇ, conn);
+  ਜੇ(alpn && !strcmp("h3", alpn)) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+    ਜੇ(!conn->ਬਿੱਟ.origin_is_proxy)
+#ਜੇ_ਅੰਤ
+      DEBUGASSERT(Curl_conn_http_ਸੰਸਕਰਣ(ਅੰਕੜੇ, conn) == 30);
+    info_ਸੰਸਕਰਣ = "HTTP/3";
   }
-  else if(alpn && !strcmp("h2", alpn)) {
-#ifndef CURL_DISABLE_PROXY
-    if((Curl_conn_http_version(data, conn) != 20) &&
-       conn->bits.origin_is_proxy) {
-      result = Curl_http2_switch(data);
-      if(result)
-        return result;
+  ਨਹੀਂਤਾਂ ਜੇ(alpn && !strcmp("h2", alpn)) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+    ਜੇ((Curl_conn_http_ਸੰਸਕਰਣ(ਅੰਕੜੇ, conn) != 20) &&
+       conn->ਬਿੱਟ.origin_is_proxy) {
+      ਨਤੀਜਾ = Curl_http2_switch(ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    else
-#endif
-    DEBUGASSERT(Curl_conn_http_version(data, conn) == 20);
-    info_version = "HTTP/2";
+    ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+    DEBUGASSERT(Curl_conn_http_ਸੰਸਕਰਣ(ਅੰਕੜੇ, conn) == 20);
+    info_ਸੰਸਕਰਣ = "HTTP/2";
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* Check if user wants to use HTTP/2 with clear TCP */
-    if(Curl_http2_may_switch(data)) {
-      DEBUGF(infof(data, "HTTP/2 over clean TCP"));
-      result = Curl_http2_switch(data);
-      if(result)
-        return result;
-      info_version = "HTTP/2";
+    ਜੇ(Curl_http2_may_switch(ਅੰਕੜੇ)) {
+      DEBUGF(infof(ਅੰਕੜੇ, "HTTP/2 over clean TCP"));
+      ਨਤੀਜਾ = Curl_http2_switch(ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      info_ਸੰਸਕਰਣ = "HTTP/2";
       /* There is no ALPN here, but the connection is now definitely h2 */
-      conn->httpversion_seen = 20;
-      Curl_conn_set_multiplex(conn);
+      conn->httpversion_ਵੇਖਿਆ = 20;
+      Curl_conn_ਸੈੱਟ_multiplex(conn);
     }
-    else
-      info_version = "HTTP/1.x";
+    ਨਹੀਂਤਾਂ
+      info_ਸੰਸਕਰਣ = "HTTP/1.x";
   }
 
-  if(info_version)
-    infof(data, "using %s", info_version);
-  return CURLE_OK;
+  ਜੇ(info_ਸੰਸਕਰਣ)
+    infof(ਅੰਕੜੇ, "using %s", info_ਸੰਸਕਰਣ);
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode http_add_connection_hd(struct Curl_easy *data,
-                                       struct dynbuf *req)
+ਸਥਿਰ CURLcode http_ਜੋੜੋ_connection_hd(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       ਬਣਤਰ dynbuf *req)
 {
-  struct curl_slist *head;
-  const char *sep = "Connection: ";
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ curl_slist *ਸਿਰ;
+  ਅਚਲ ਅੱਖਰ *sep = "Connection: ";
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   size_t rlen = curlx_dyn_len(req);
   bool skip;
 
   /* Add the 1st custom "Connection: " header, if there is one */
-  for(head = data->set.headers; head; head = head->next) {
-    if(curl_strnequal(head->data, "Connection", 10) &&
-       Curl_headersep(head->data[10]) &&
-       !http_header_is_empty(head->data)) {
-      char *value;
-      result = copy_custom_value(head->data, &value);
-      if(result)
-        return result;
-      result = curlx_dyn_addf(req, "%s%s", sep, value);
+  ਲਈ(ਸਿਰ = ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ; ਸਿਰ; ਸਿਰ = ਸਿਰ->ਅਗਲਾ) {
+    ਜੇ(curl_strnequal(ਸਿਰ->ਅੰਕੜੇ, "Connection", 10) &&
+       Curl_headersep(ਸਿਰ->ਅੰਕੜੇ[10]) &&
+       !http_ਸਿਰਲੇਖ_is_ਖਾਲੀ_ਥਾਵਾਂ(ਸਿਰ->ਅੰਕੜੇ)) {
+      ਅੱਖਰ *ਮੁੱਲ;
+      ਨਤੀਜਾ = copy_custom_ਮੁੱਲ(ਸਿਰ->ਅੰਕੜੇ, &ਮੁੱਲ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      ਨਤੀਜਾ = curlx_dyn_addf(req, "%s%s", sep, ਮੁੱਲ);
       sep = ", ";
-      curlx_free(value);
-      break; /* leave, having added 1st one */
+      curlx_free(ਮੁੱਲ);
+      ਰੋਕੋ; /* leave, having added 1st one */
     }
   }
 
   /* add our internal Connection: header values, if we have any */
-  if(!result && data->state.http_hd_te) {
-    result = curlx_dyn_addf(req, "%s%s", sep, "TE");
+  ਜੇ(!ਨਤੀਜਾ && ਅੰਕੜੇ->state.http_hd_te) {
+    ਨਤੀਜਾ = curlx_dyn_addf(req, "%s%s", sep, "TE");
     sep = ", ";
   }
-  if(!result && data->state.http_hd_upgrade) {
-    result = curlx_dyn_addf(req, "%s%s", sep, "Upgrade");
+  ਜੇ(!ਨਤੀਜਾ && ਅੰਕੜੇ->state.http_hd_upgrade) {
+    ਨਤੀਜਾ = curlx_dyn_addf(req, "%s%s", sep, "Upgrade");
     sep = ", ";
   }
-  if(!result && data->state.http_hd_h2_settings) {
-    result = curlx_dyn_addf(req, "%s%s", sep, "HTTP2-Settings");
+  ਜੇ(!ਨਤੀਜਾ && ਅੰਕੜੇ->state.http_hd_h2_settings) {
+    ਨਤੀਜਾ = curlx_dyn_addf(req, "%s%s", sep, "HTTP2-Settings");
   }
-  if(!result && (rlen < curlx_dyn_len(req)))
-    result = curlx_dyn_addn(req, STRCONST("\r\n"));
-  if(result)
-    return result;
+  ਜੇ(!ਨਤੀਜਾ && (rlen < curlx_dyn_len(req)))
+    ਨਤੀਜਾ = curlx_dyn_addn(req, STRCONST("\r\n"));
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   /* Add all user-defined Connection: headers after the first */
   skip = TRUE;
-  for(head = data->set.headers; head; head = head->next) {
-    if(curl_strnequal(head->data, "Connection", 10) &&
-       Curl_headersep(head->data[10]) &&
-       !http_header_is_empty(head->data)) {
-      if(skip) {
+  ਲਈ(ਸਿਰ = ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ; ਸਿਰ; ਸਿਰ = ਸਿਰ->ਅਗਲਾ) {
+    ਜੇ(curl_strnequal(ਸਿਰ->ਅੰਕੜੇ, "Connection", 10) &&
+       Curl_headersep(ਸਿਰ->ਅੰਕੜੇ[10]) &&
+       !http_ਸਿਰਲੇਖ_is_ਖਾਲੀ_ਥਾਵਾਂ(ਸਿਰ->ਅੰਕੜੇ)) {
+      ਜੇ(skip) {
         skip = FALSE;
-        continue;
+        ਜਾਰੀ;
       }
-      result = curlx_dyn_addf(req, "%s\r\n", head->data);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = curlx_dyn_addf(req, "%s\r\n", ਸਿਰ->ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Header identifier in order we send them by default */
-typedef enum {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
   H1_HD_REQUEST,
   H1_HD_HOST,
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   H1_HD_PROXY_AUTH,
-#endif
+#ਜੇ_ਅੰਤ
   H1_HD_AUTH,
   H1_HD_RANGE,
   H1_HD_USER_AGENT,
@@ -2908,170 +2908,170 @@ typedef enum {
   H1_HD_TE,
   H1_HD_ACCEPT_ENCODING,
   H1_HD_REFERER,
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   H1_HD_PROXY_CONNECTION,
-#endif
+#ਜੇ_ਅੰਤ
   H1_HD_TRANSFER_ENCODING,
-#ifndef CURL_DISABLE_ALTSVC
-  H1_HD_ALT_USED,
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_ALTSVC
+  H1_HD_ALT_ਵਰਤਿਆ,
+#ਜੇ_ਅੰਤ
   H1_HD_UPGRADE,
   H1_HD_COOKIES,
   H1_HD_CONDITIONALS,
   H1_HD_CUSTOM,
   H1_HD_CONTENT,
   H1_HD_CONNECTION,
-  H1_HD_LAST  /* the last, empty header line */
+  H1_HD_ਆਖਰੀ  /* the last, empty header line */
 } http_hd_t;
 
-static CURLcode http_add_hd(struct Curl_easy *data,
-                            struct dynbuf *req,
+ਸਥਿਰ CURLcode http_ਜੋੜੋ_hd(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ dynbuf *req,
                             http_hd_t id,
-                            unsigned char httpversion,
-                            const char *method,
+                            ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ httpversion,
+                            ਅਚਲ ਅੱਖਰ *ਵਿਧੀ,
                             Curl_HttpReq httpreq)
 {
-  CURLcode result = CURLE_OK;
-#if !defined(CURL_DISABLE_ALTSVC) || \
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+#ਜੇ !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_PROXY) || \
   !defined(CURL_DISABLE_WEBSOCKETS)
-  struct connectdata *conn = data->conn;
-#endif
-  switch(id) {
-  case H1_HD_REQUEST:
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+#ਜੇ_ਅੰਤ
+  ਚੋਣ(id) {
+  ਹਾਲਤ H1_HD_REQUEST:
     /* add the main request stuff */
     /* GET/HEAD/POST/PUT */
-    result = curlx_dyn_addf(req, "%s ", method);
-    if(!result)
-      result = http_target(data, req);
-    if(!result)
-      result = curlx_dyn_addf(req, " HTTP/%s\r\n",
+    ਨਤੀਜਾ = curlx_dyn_addf(req, "%s ", ਵਿਧੀ);
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = http_ਨਿਸ਼ਾਨਾ(ਅੰਕੜੇ, req);
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = curlx_dyn_addf(req, " HTTP/%s\r\n",
                               get_http_string(httpversion));
-    break;
+    ਰੋਕੋ;
 
-  case H1_HD_HOST:
-    if(data->state.http_host) {
-      result = curlx_dyn_add(req, data->state.http_host);
-      if(!result)
-        result = curlx_dyn_addn(req, STRCONST("\r\n"));
+  ਹਾਲਤ H1_HD_HOST:
+    ਜੇ(ਅੰਕੜੇ->state.http_host) {
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, ਅੰਕੜੇ->state.http_host);
+      ਜੇ(!ਨਤੀਜਾ)
+        ਨਤੀਜਾ = curlx_dyn_addn(req, STRCONST("\r\n"));
     }
-    break;
+    ਰੋਕੋ;
 
-#ifndef CURL_DISABLE_PROXY
-  case H1_HD_PROXY_AUTH:
-    if(data->req.hd_proxy_auth)
-      result = curlx_dyn_add(req, data->req.hd_proxy_auth);
-    break;
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਹਾਲਤ H1_HD_PROXY_AUTH:
+    ਜੇ(ਅੰਕੜੇ->req.hd_proxy_auth)
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, ਅੰਕੜੇ->req.hd_proxy_auth);
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
 
-  case H1_HD_AUTH:
-    if(data->req.hd_auth)
-      result = curlx_dyn_add(req, data->req.hd_auth);
-    break;
+  ਹਾਲਤ H1_HD_AUTH:
+    ਜੇ(ਅੰਕੜੇ->req.hd_auth)
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, ਅੰਕੜੇ->req.hd_auth);
+    ਰੋਕੋ;
 
-  case H1_HD_RANGE:
-    if(data->state.use_range && data->state.rangeline)
-      result = curlx_dyn_add(req, data->state.rangeline);
-    break;
+  ਹਾਲਤ H1_HD_RANGE:
+    ਜੇ(ਅੰਕੜੇ->state.use_range && ਅੰਕੜੇ->state.rangeline)
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, ਅੰਕੜੇ->state.rangeline);
+    ਰੋਕੋ;
 
-  case H1_HD_USER_AGENT: {
-    const char *ua = CURL_EASY_STR(data, STRING_USERAGENT);
-    if(ua && *ua && !Curl_checkheaders(data, STRCONST("User-Agent")))
-      result = curlx_dyn_addf(req, "User-Agent: %s\r\n", ua);
-    break;
+  ਹਾਲਤ H1_HD_USER_AGENT: {
+    ਅਚਲ ਅੱਖਰ *ua = CURL_EASY_STR(ਅੰਕੜੇ, STRING_USERAGENT);
+    ਜੇ(ua && *ua && !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("User-Agent")))
+      ਨਤੀਜਾ = curlx_dyn_addf(req, "User-Agent: %s\r\n", ua);
+    ਰੋਕੋ;
   }
 
-  case H1_HD_ACCEPT:
-    if(!Curl_checkheaders(data, STRCONST("Accept")))
-      result = curlx_dyn_add(req, "Accept: */*\r\n");
-    break;
+  ਹਾਲਤ H1_HD_ACCEPT:
+    ਜੇ(!Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Accept")))
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, "Accept: */*\r\n");
+    ਰੋਕੋ;
 
-  case H1_HD_TE:
-#ifdef HAVE_LIBZ
-    if(!Curl_checkheaders(data, STRCONST("TE")) &&
-       data->set.http_transfer_encoding) {
-      data->state.http_hd_te = TRUE;
-      result = curlx_dyn_add(req, "TE: gzip\r\n");
+  ਹਾਲਤ H1_HD_TE:
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_LIBZ
+    ਜੇ(!Curl_checkheaders(ਅੰਕੜੇ, STRCONST("TE")) &&
+       ਅੰਕੜੇ->ਸੈੱਟ.http_transfer_encoding) {
+      ਅੰਕੜੇ->state.http_hd_te = TRUE;
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, "TE: gzip\r\n");
     }
-#endif
-    break;
+#ਜੇ_ਅੰਤ
+    ਰੋਕੋ;
 
-  case H1_HD_ACCEPT_ENCODING: {
-    const char *enc = CURL_EASY_STR(data, STRING_ENCODING);
-    if(enc && !Curl_checkheaders(data, STRCONST("Accept-Encoding")))
-      result = curlx_dyn_addf(req, "Accept-Encoding: %s\r\n", enc);
-    break;
+  ਹਾਲਤ H1_HD_ACCEPT_ENCODING: {
+    ਅਚਲ ਅੱਖਰ *enc = CURL_EASY_STR(ਅੰਕੜੇ, STRING_ENCODING);
+    ਜੇ(enc && !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Accept-Encoding")))
+      ਨਤੀਜਾ = curlx_dyn_addf(req, "Accept-Encoding: %s\r\n", enc);
+    ਰੋਕੋ;
   }
 
-  case H1_HD_REFERER:
-    if(Curl_bufref_ptr(&data->state.referer) &&
-       !Curl_checkheaders(data, STRCONST("Referer")))
-      result = curlx_dyn_addf(req, "Referer: %s\r\n",
-                              Curl_bufref_ptr(&data->state.referer));
-    break;
+  ਹਾਲਤ H1_HD_REFERER:
+    ਜੇ(Curl_bufref_ptr(&ਅੰਕੜੇ->state.referer) &&
+       !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Referer")))
+      ਨਤੀਜਾ = curlx_dyn_addf(req, "Referer: %s\r\n",
+                              Curl_bufref_ptr(&ਅੰਕੜੇ->state.referer));
+    ਰੋਕੋ;
 
-#ifndef CURL_DISABLE_PROXY
-  case H1_HD_PROXY_CONNECTION:
-    if(conn->bits.origin_is_proxy &&
-       !Curl_checkheaders(data, STRCONST("Proxy-Connection")) &&
-       !Curl_checkProxyheaders(data, data->conn, STRCONST("Proxy-Connection")))
-      result = curlx_dyn_add(req, "Proxy-Connection: Keep-Alive\r\n");
-    break;
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਹਾਲਤ H1_HD_PROXY_CONNECTION:
+    ਜੇ(conn->ਬਿੱਟ.origin_is_proxy &&
+       !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Proxy-Connection")) &&
+       !Curl_checkProxyheaders(ਅੰਕੜੇ, ਅੰਕੜੇ->conn, STRCONST("Proxy-Connection")))
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(req, "Proxy-Connection: Keep-Alive\r\n");
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
 
-  case H1_HD_TRANSFER_ENCODING:
-    result = http_req_set_TE(data, req, httpversion);
-    break;
+  ਹਾਲਤ H1_HD_TRANSFER_ENCODING:
+    ਨਤੀਜਾ = http_req_ਸੈੱਟ_TE(ਅੰਕੜੇ, req, httpversion);
+    ਰੋਕੋ;
 
-#ifndef CURL_DISABLE_ALTSVC
-  case H1_HD_ALT_USED:
-    if(conn->bits.altused && conn->via_peer &&
-       !Curl_checkheaders(data, STRCONST("Alt-Used")))
-      result = curlx_dyn_addf(req, "Alt-Used: %s:%u\r\n",
-                              conn->via_peer->hostname, conn->via_peer->port);
-    break;
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_ALTSVC
+  ਹਾਲਤ H1_HD_ALT_ਵਰਤਿਆ:
+    ਜੇ(conn->ਬਿੱਟ.altused && conn->ਰਾਹੀਂ_peer &&
+       !Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Alt-Used")))
+      ਨਤੀਜਾ = curlx_dyn_addf(req, "Alt-Used: %s:%u\r\n",
+                              conn->ਰਾਹੀਂ_peer->hostname, conn->ਰਾਹੀਂ_peer->ਪੋਰਟ);
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
 
-  case H1_HD_UPGRADE:
-    if(!Curl_conn_is_ssl(data->conn, FIRSTSOCKET) && (httpversion < 20) &&
-       (data->state.http_neg.wanted & CURL_HTTP_V2x) &&
-       data->state.http_neg.h2_upgrade) {
+  ਹਾਲਤ H1_HD_UPGRADE:
+    ਜੇ(!Curl_conn_is_ssl(ਅੰਕੜੇ->conn, FIRSTSOCKET) && (httpversion < 20) &&
+       (ਅੰਕੜੇ->state.http_neg.wanted & CURL_HTTP_V2x) &&
+       ਅੰਕੜੇ->state.http_neg.h2_upgrade) {
       /* append HTTP2 upgrade magic stuff to the HTTP request if it is not done
          over SSL */
-      result = Curl_http2_request_upgrade(req, data);
+      ਨਤੀਜਾ = Curl_http2_request_upgrade(req, ਅੰਕੜੇ);
     }
-#ifndef CURL_DISABLE_WEBSOCKETS
-    if(!result && conn->scheme->protocol & (CURLPROTO_WS | CURLPROTO_WSS))
-      result = Curl_ws_request(data, req);
-#endif
-    break;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_WEBSOCKETS
+    ਜੇ(!ਨਤੀਜਾ && conn->scheme->protocol & (CURLPROTO_WS | CURLPROTO_WSS))
+      ਨਤੀਜਾ = Curl_ws_request(ਅੰਕੜੇ, req);
+#ਜੇ_ਅੰਤ
+    ਰੋਕੋ;
 
-  case H1_HD_COOKIES:
-    result = http_cookies(data, req);
-    break;
+  ਹਾਲਤ H1_HD_COOKIES:
+    ਨਤੀਜਾ = http_cookies(ਅੰਕੜੇ, req);
+    ਰੋਕੋ;
 
-  case H1_HD_CONDITIONALS:
-    result = Curl_add_timecondition(data, req);
-    break;
+  ਹਾਲਤ H1_HD_CONDITIONALS:
+    ਨਤੀਜਾ = Curl_ਜੋੜੋ_timecondition(ਅੰਕੜੇ, req);
+    ਰੋਕੋ;
 
-  case H1_HD_CUSTOM:
-    result = Curl_add_custom_headers(data, FALSE, httpversion, req);
-    break;
+  ਹਾਲਤ H1_HD_CUSTOM:
+    ਨਤੀਜਾ = Curl_ਜੋੜੋ_custom_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ, FALSE, httpversion, req);
+    ਰੋਕੋ;
 
-  case H1_HD_CONTENT:
-    result = http_add_content_hds(data, req, httpversion, httpreq);
-    break;
+  ਹਾਲਤ H1_HD_CONTENT:
+    ਨਤੀਜਾ = http_ਜੋੜੋ_content_hds(ਅੰਕੜੇ, req, httpversion, httpreq);
+    ਰੋਕੋ;
 
-  case H1_HD_CONNECTION: {
-    result = http_add_connection_hd(data, req);
-    break;
+  ਹਾਲਤ H1_HD_CONNECTION: {
+    ਨਤੀਜਾ = http_ਜੋੜੋ_connection_hd(ਅੰਕੜੇ, req);
+    ਰੋਕੋ;
   }
 
-  case H1_HD_LAST:
-    result = curlx_dyn_addn(req, STRCONST("\r\n"));
-    break;
+  ਹਾਲਤ H1_HD_ਆਖਰੀ:
+    ਨਤੀਜਾ = curlx_dyn_addn(req, STRCONST("\r\n"));
+    ਰੋਕੋ;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
@@ -3079,101 +3079,101 @@ static CURLcode http_add_hd(struct Curl_easy *data,
  * request is to be performed. This creates and sends a properly constructed
  * HTTP request.
  */
-CURLcode Curl_http(struct Curl_easy *data, bool *done)
+CURLcode Curl_http(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   Curl_HttpReq httpreq;
-  const char *method;
-  struct dynbuf req;
-  unsigned char httpversion;
+  ਅਚਲ ਅੱਖਰ *ਵਿਧੀ;
+  ਬਣਤਰ dynbuf req;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ httpversion;
   size_t hd_id;
 
   /* Always consider the DO phase done after this function call, even if there
      may be parts of the request that are not yet sent, since we can deal with
      the rest of the request in the PERFORM phase. */
-  *done = TRUE;
+  *ਪੂਰਾ = TRUE;
   /* initialize a dynamic send-buffer */
   curlx_dyn_init(&req, DYN_HTTP_REQUEST);
   /* make sure the header buffer is reset - if there are leftovers from a
      previous transfer */
-  curlx_dyn_reset(&data->state.headerb);
-  data->state.maybe_folded = FALSE;
+  curlx_dyn_reset(&ਅੰਕੜੇ->state.headerb);
+  ਅੰਕੜੇ->state.maybe_folded = FALSE;
 
-  if(!data->conn->bits.reuse) {
-    result = http_check_new_conn(data);
-    if(result)
-      goto out;
+  ਜੇ(!ਅੰਕੜੇ->conn->ਬਿੱਟ.reuse) {
+    ਨਤੀਜਾ = http_check_new_conn(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* Add collecting of headers written to client. For a new connection,
    * we might have done that already, but reuse
    * or multiplex needs it here as well. */
-  result = Curl_headers_init(data);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_ਸਿਰਲੇਖਾਂ_init(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  data->state.http_hd_te = FALSE;
-  data->state.http_hd_upgrade = FALSE;
-  data->state.http_hd_h2_settings = FALSE;
+  ਅੰਕੜੇ->state.http_hd_te = FALSE;
+  ਅੰਕੜੇ->state.http_hd_upgrade = FALSE;
+  ਅੰਕੜੇ->state.http_hd_h2_settings = FALSE;
 
   /* what kind of request do we need to send? */
-  Curl_http_method(data, &method, &httpreq);
+  Curl_http_ਵਿਧੀ(ਅੰਕੜੇ, &ਵਿਧੀ, &httpreq);
 
   /* select host to send */
-  result = http_set_aptr_host(data);
+  ਨਤੀਜਾ = http_ਸੈੱਟ_aptr_host(ਅੰਕੜੇ);
   /* setup the authentication headers, how that method and host are known */
-  if(!result)
-    result = Curl_http_output_auth(data, data->conn, method, httpreq,
-                                   data->state.up.path,
-                                   data->state.up.query, FALSE);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = Curl_http_output_auth(ਅੰਕੜੇ, ਅੰਕੜੇ->conn, ਵਿਧੀ, httpreq,
+                                   ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ,
+                                   ਅੰਕੜੇ->state.ਉੱਪਰ.query, FALSE);
   /* Setup input reader, resume information and ranges */
-  if(!result)
-    result = set_reader(data, httpreq);
-  if(!result)
-    result = http_resume(data, httpreq);
-  if(!result)
-    result = http_range(data, httpreq);
-  if(result)
-    goto out;
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = ਸੈੱਟ_reader(ਅੰਕੜੇ, httpreq);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = http_resume(ਅੰਕੜੇ, httpreq);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = http_range(ਅੰਕੜੇ, httpreq);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  httpversion = http_request_version(data);
+  httpversion = http_request_ਸੰਸਕਰਣ(ਅੰਕੜੇ);
   /* Add request line and all headers to `req` */
-  for(hd_id = 0; hd_id <= H1_HD_LAST; ++hd_id) {
-    result = http_add_hd(data, &req, (http_hd_t)hd_id,
-                         httpversion, method, httpreq);
-    if(result)
-      goto out;
+  ਲਈ(hd_id = 0; hd_id <= H1_HD_ਆਖਰੀ; ++hd_id) {
+    ਨਤੀਜਾ = http_ਜੋੜੋ_hd(ਅੰਕੜੇ, &req, (http_hd_t)hd_id,
+                         httpversion, ਵਿਧੀ, httpreq);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* setup variables for the upcoming transfer and send */
-  Curl_xfer_setup_sendrecv(data, FIRSTSOCKET, -1);
-  result = Curl_req_send(data, &req, httpversion);
+  Curl_xfer_ਤਿਆਰੀ_sendrecv(ਅੰਕੜੇ, FIRSTSOCKET, -1);
+  ਨਤੀਜਾ = Curl_req_send(ਅੰਕੜੇ, &req, httpversion);
 
-  if((httpversion >= 20) && data->req.upload_chunky)
+  ਜੇ((httpversion >= 20) && ਅੰਕੜੇ->req.upload_chunky)
     /* upload_chunky was set above to set up the request in a chunky fashion,
        but is disabled here again to avoid that the chunked encoded version is
        actually used when sending the request body over h2 */
-    data->req.upload_chunky = FALSE;
+    ਅੰਕੜੇ->req.upload_chunky = FALSE;
 
-out:
-  if(result == CURLE_TOO_LARGE)
-    failf(data, "HTTP request too large");
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ == CURLE_TOO_LARGE)
+    failf(ਅੰਕੜੇ, "HTTP request too large");
 
   curlx_dyn_free(&req);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-typedef enum {
-  STATUS_UNKNOWN, /* not enough data to tell yet */
-  STATUS_DONE, /* a status line was read */
-  STATUS_BAD /* not a status line */
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
+  ਸਥਿਤੀ_UNKNOWN, /* not enough data to tell yet */
+  ਸਥਿਤੀ_ਪੂਰਾ, /* a status line was read */
+  ਸਥਿਤੀ_BAD /* not a status line */
 } statusline;
 
 /* Check a string for a prefix. Check no more than 'len' bytes */
-static bool checkprefixmax(const char *prefix, const char *buffer, size_t len)
+ਸਥਿਰ bool checkprefixmax(ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ, ਅਚਲ ਅੱਖਰ *ਬਫਰ, size_t len)
 {
-  size_t ch = CURLMIN(strlen(prefix), len);
-  return curl_strnequal(prefix, buffer, ch);
+  size_t ch = CURLMIN(ਲੜੀ_ਲੰਬਾਈ(ਅਗੇਤਰ), len);
+  ਵਾਪਸ curl_strnequal(ਅਗੇਤਰ, ਬਫਰ, ch);
 }
 
 /*
@@ -3181,184 +3181,184 @@ static bool checkprefixmax(const char *prefix, const char *buffer, size_t len)
  *
  * Returns TRUE if member of the list matches prefix of string
  */
-static statusline checkhttpprefix(struct Curl_easy *data,
-                                  const char *s, size_t len)
+ਸਥਿਰ statusline checkhttpprefix(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਅਚਲ ਅੱਖਰ *s, size_t len)
 {
-  struct curl_slist *head = data->set.http200aliases;
-  statusline rc = STATUS_BAD;
-  statusline onmatch = len >= 5 ? STATUS_DONE : STATUS_UNKNOWN;
+  ਬਣਤਰ curl_slist *ਸਿਰ = ਅੰਕੜੇ->ਸੈੱਟ.http200aliases;
+  statusline rc = ਸਥਿਤੀ_BAD;
+  statusline onmatch = len >= 5 ? ਸਥਿਤੀ_ਪੂਰਾ : ਸਥਿਤੀ_UNKNOWN;
 
-  while(head) {
-    if(checkprefixmax(head->data, s, len)) {
+  ਜਦੋਂ(ਸਿਰ) {
+    ਜੇ(checkprefixmax(ਸਿਰ->ਅੰਕੜੇ, s, len)) {
       rc = onmatch;
-      break;
+      ਰੋਕੋ;
     }
-    head = head->next;
+    ਸਿਰ = ਸਿਰ->ਅਗਲਾ;
   }
 
-  if((rc != STATUS_DONE) && checkprefixmax("HTTP/", s, len))
+  ਜੇ((rc != ਸਥਿਤੀ_ਪੂਰਾ) && checkprefixmax("HTTP/", s, len))
     rc = onmatch;
 
-  return rc;
+  ਵਾਪਸ rc;
 }
 
-#ifndef CURL_DISABLE_RTSP
-static statusline checkrtspprefix(struct Curl_easy *data,
-                                  const char *s, size_t len)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_RTSP
+ਸਥਿਰ statusline checkrtspprefix(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਅਚਲ ਅੱਖਰ *s, size_t len)
 {
-  statusline status = STATUS_BAD;
-  statusline onmatch = len >= 5 ? STATUS_DONE : STATUS_UNKNOWN;
-  (void)data;
-  if(checkprefixmax("RTSP/", s, len))
-    status = onmatch;
+  statusline ਸਥਿਤੀ = ਸਥਿਤੀ_BAD;
+  statusline onmatch = len >= 5 ? ਸਥਿਤੀ_ਪੂਰਾ : ਸਥਿਤੀ_UNKNOWN;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਜੇ(checkprefixmax("RTSP/", s, len))
+    ਸਥਿਤੀ = onmatch;
 
-  return status;
+  ਵਾਪਸ ਸਥਿਤੀ;
 }
-#endif /* CURL_DISABLE_RTSP */
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_RTSP */
 
-static statusline checkprotoprefix(struct Curl_easy *data,
-                                   struct connectdata *conn,
-                                   const char *s, size_t len)
+ਸਥਿਰ statusline checkprotoprefix(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਬਣਤਰ connectdata *conn,
+                                   ਅਚਲ ਅੱਖਰ *s, size_t len)
 {
-#ifndef CURL_DISABLE_RTSP
-  if(conn->scheme->protocol & CURLPROTO_RTSP)
-    return checkrtspprefix(data, s, len);
-#else
-  (void)conn;
-#endif /* CURL_DISABLE_RTSP */
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_RTSP
+  ਜੇ(conn->scheme->protocol & CURLPROTO_RTSP)
+    ਵਾਪਸ checkrtspprefix(ਅੰਕੜੇ, s, len);
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)conn;
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_RTSP */
 
-  return checkhttpprefix(data, s, len);
+  ਵਾਪਸ checkhttpprefix(ਅੰਕੜੇ, s, len);
 }
 
 /* HTTP header has field name `n` (a string constant) */
-#define HD_IS(hd, hdlen, n) \
-  (((hdlen) >= (sizeof(n) - 1)) && curl_strnequal(n, hd, sizeof(n) - 1))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HD_IS(hd, hdlen, n) \
+  (((hdlen) >= (ਆਕਾਰ(n) - 1)) && curl_strnequal(n, hd, ਆਕਾਰ(n) - 1))
 
-#define HD_VAL(hd, hdlen, n) \
-  ((((hdlen) >= (sizeof(n) - 1)) && (hd) && \
-    curl_strnequal(n, hd, sizeof(n) - 1)) ? ((hd) + (sizeof(n) - 1)) : NULL)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HD_VAL(hd, hdlen, n) \
+  ((((hdlen) >= (ਆਕਾਰ(n) - 1)) && (hd) && \
+    curl_strnequal(n, hd, ਆਕਾਰ(n) - 1)) ? ((hd) + (ਆਕਾਰ(n) - 1)) : ਨਿਰਾ)
 
 /* HTTP header has field name `n` (a string constant) and contains `v`
  * (a string constant) in its value(s) */
-#define HD_IS_AND_SAYS(hd, hdlen, n, v) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HD_IS_AND_SAYS(hd, hdlen, n, v) \
   (HD_IS(hd, hdlen, n) && \
-   ((hdlen) > ((sizeof(n) - 1) + (sizeof(v) - 1))) && \
+   ((hdlen) > ((ਆਕਾਰ(n) - 1) + (ਆਕਾਰ(v) - 1))) && \
    Curl_compareheader(hd, STRCONST(n), STRCONST(v)))
 
 /*
  * http_header_a() parses a single response header starting with A.
  */
-static CURLcode http_header_a(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ_a(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-#ifndef CURL_DISABLE_ALTSVC
-  const char *v;
-  v = (data->asi &&
-       (Curl_xfer_is_secure(data) ||
-#ifdef DEBUGBUILD
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_ALTSVC
+  ਅਚਲ ਅੱਖਰ *v;
+  v = (ਅੰਕੜੇ->asi &&
+       (Curl_xfer_is_secure(ਅੰਕੜੇ) ||
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
         /* allow debug builds to circumvent the HTTPS restriction */
         getenv("CURL_ALTSVC_HTTP")
-#else
+#ਨਹੀਂਤਾਂ
         0
-#endif
-         )) ? HD_VAL(hd, hdlen, "Alt-Svc:") : NULL;
-  if(v) {
+#ਜੇ_ਅੰਤ
+         )) ? HD_VAL(hd, hdlen, "Alt-Svc:") : ਨਿਰਾ;
+  ਜੇ(v) {
     /* the ALPN of the current request */
-    struct SingleRequest *k = &data->req;
-    enum alpnid id = (k->httpversion == 30) ? ALPN_h3 :
+    ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+    ਗਿਣਤੀ alpnid id = (k->httpversion == 30) ? ALPN_h3 :
       (k->httpversion == 20) ? ALPN_h2 : ALPN_h1;
-    return Curl_altsvc_parse(data, data->asi, v, data->state.origin, id);
+    ਵਾਪਸ Curl_altsvc_parse(ਅੰਕੜੇ, ਅੰਕੜੇ->asi, v, ਅੰਕੜੇ->state.origin, id);
   }
-#else
-  (void)data;
-  (void)hd;
-  (void)hdlen;
-#endif
-  return CURLE_OK;
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)hd;
+  (ਖਾਲੀ)hdlen;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * http_header_c() parses a single response header starting with C.
  */
-static CURLcode http_header_c(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ_c(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
-  const char *v;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+  ਅਚਲ ਅੱਖਰ *v;
 
   /* Check for Content-Length: header lines to get size. Browsers insist we
      should accept multiple Content-Length headers and that a comma separated
      list also is fine and then we should accept them all as long as they are
      the same value. Different values trigger error.
    */
-  v = (!k->http_bodyless && !data->set.ignorecl && !k->ignore_cl) ?
-    HD_VAL(hd, hdlen, "Content-Length:") : NULL;
-  if(v) {
-    do {
+  v = (!k->http_bodyless && !ਅੰਕੜੇ->ਸੈੱਟ.ignorecl && !k->ignore_cl) ?
+    HD_VAL(hd, hdlen, "Content-Length:") : ਨਿਰਾ;
+  ਜੇ(v) {
+    ਕਰੋ {
       curl_off_t contentlength;
-      int offt = curlx_str_numblanks(&v, &contentlength);
+      ਪੂਰਨ offt = curlx_str_numblanks(&v, &contentlength);
 
-      if(offt == STRE_OVERFLOW) {
+      ਜੇ(offt == STRE_ਉਛਾਲ) {
         /* out of range */
-        if(data->set.max_filesize) {
-          failf(data, "Maximum file size exceeded");
-          return CURLE_FILESIZE_EXCEEDED;
+        ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.max_filesize) {
+          failf(ਅੰਕੜੇ, "Maximum file size exceeded");
+          ਵਾਪਸ CURLE_FILESIZE_EXCEEDED;
         }
         streamclose(conn);
-        infof(data, "Overflow Content-Length: value");
-        return CURLE_OK;
+        infof(ਅੰਕੜੇ, "Overflow Content-Length: value");
+        ਵਾਪਸ CURLE_OK;
       }
-      else {
-        if((offt == STRE_OK) &&
-           ((k->size == -1) || /* not set to something before */
-            (k->size == contentlength))) { /* or the same value */
+      ਨਹੀਂਤਾਂ {
+        ਜੇ((offt == STRE_OK) &&
+           ((k->ਮਾਪ == -1) || /* not set to something before */
+            (k->ਮਾਪ == contentlength))) { /* or the same value */
 
-          k->size = contentlength;
+          k->ਮਾਪ = contentlength;
           curlx_str_passblanks(&v);
 
           /* on a comma, loop and get the next instead */
-          if(!curlx_str_single(&v, ','))
-            continue;
+          ਜੇ(!curlx_str_single(&v, ','))
+            ਜਾਰੀ;
 
-          if(!curlx_str_newline(&v)) {
-            k->maxdownload = k->size;
-            return CURLE_OK;
+          ਜੇ(!curlx_str_newline(&v)) {
+            k->maxdownload = k->ਮਾਪ;
+            ਵਾਪਸ CURLE_OK;
           }
         }
         /* negative, different value or rubbish - bad HTTP */
-        failf(data, "Invalid Content-Length: value");
-        return CURLE_WEIRD_SERVER_REPLY;
+        failf(ਅੰਕੜੇ, "Invalid Content-Length: value");
+        ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
       }
-    } while(1);
+    } ਜਦੋਂ(1);
   }
-  v = (!k->http_bodyless && CURL_EASY_STR(data, STRING_ENCODING)) ?
-    HD_VAL(hd, hdlen, "Content-Encoding:") : NULL;
-  if(v) {
+  v = (!k->http_bodyless && CURL_EASY_STR(ਅੰਕੜੇ, STRING_ENCODING)) ?
+    HD_VAL(hd, hdlen, "Content-Encoding:") : ਨਿਰਾ;
+  ਜੇ(v) {
     /*
      * Process Content-Encoding. Look for the values: identity, gzip, deflate,
      * compress, x-gzip and x-compress. x-gzip and x-compress are the same as
      * gzip and compress. (Sec 3.5 RFC 2616). zlib cannot handle compress.
      * Errors are handled further down when the response body is processed
      */
-    return Curl_build_unencoding_stack(data, v, FALSE);
+    ਵਾਪਸ Curl_build_unencoding_ਢੇਰ(ਅੰਕੜੇ, v, FALSE);
   }
   /* check for Content-Type: header lines to get the MIME-type */
   v = HD_VAL(hd, hdlen, "Content-Type:");
-  if(v) {
-    char *contenttype = Curl_copy_header_value(hd);
-    if(!contenttype)
-      return CURLE_OUT_OF_MEMORY;
-    if(!*contenttype)
+  ਜੇ(v) {
+    ਅੱਖਰ *contenttype = Curl_copy_ਸਿਰਲੇਖ_ਮੁੱਲ(hd);
+    ਜੇ(!contenttype)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜੇ(!*contenttype)
       /* ignore empty data */
       curlx_free(contenttype);
-    else {
-      curlx_free(data->info.contenttype);
-      data->info.contenttype = contenttype;
+    ਨਹੀਂਤਾਂ {
+      curlx_free(ਅੰਕੜੇ->info.contenttype);
+      ਅੰਕੜੇ->info.contenttype = contenttype;
     }
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-  if((k->httpversion < 20) &&
+  ਜੇ((k->httpversion < 20) &&
      HD_IS_AND_SAYS(hd, hdlen, "Connection:", "close")) {
     /*
      * [RFC 2616, section 8.1.2.1]
@@ -3367,9 +3367,9 @@ static CURLcode http_header_c(struct Curl_easy *data,
      * served.
      */
     connclose(conn);
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-  if((k->httpversion == 10) &&
+  ਜੇ((k->httpversion == 10) &&
      HD_IS_AND_SAYS(hd, hdlen, "Connection:", "keep-alive")) {
     /*
      * An HTTP/1.0 reply with the 'Connection: keep-alive' line
@@ -3378,11 +3378,11 @@ static CURLcode http_header_c(struct Curl_easy *data,
      *
      * [RFC2068, section 19.7.1] */
     connkeep(conn);
-    infof(data, "HTTP/1.0 connection set to keep alive");
-    return CURLE_OK;
+    infof(ਅੰਕੜੇ, "HTTP/1.0 connection set to keep alive");
+    ਵਾਪਸ CURLE_OK;
   }
-  v = !k->http_bodyless ? HD_VAL(hd, hdlen, "Content-Range:") : NULL;
-  if(v) {
+  v = !k->http_bodyless ? HD_VAL(hd, hdlen, "Content-Range:") : ਨਿਰਾ;
+  ਜੇ(v) {
     /* Content-Range: bytes [num]-
        Content-Range: bytes: [num]-
        Content-Range: [num]-
@@ -3394,98 +3394,98 @@ static CURLcode http_header_c(struct Curl_easy *data,
        The fourth means the requested range was unsatisfied.
      */
 
-    const char *ptr = v;
+    ਅਚਲ ਅੱਖਰ *ptr = v;
 
     /* Move forward until first digit or asterisk */
-    while(*ptr && !ISDIGIT(*ptr) && *ptr != '*')
+    ਜਦੋਂ(*ptr && !ISDIGIT(*ptr) && *ptr != '*')
       ptr++;
 
     /* if it truly stopped on a digit */
-    if(ISDIGIT(*ptr)) {
-      if(!curlx_str_number(&ptr, &k->offset, CURL_OFF_T_MAX) &&
-         (data->state.resume_from == k->offset))
+    ਜੇ(ISDIGIT(*ptr)) {
+      ਜੇ(!curlx_str_ਸੰਖਿਆ(&ptr, &k->ਵਿੱਥ, CURL_OFF_T_MAX) &&
+         (ਅੰਕੜੇ->state.resume_from == k->ਵਿੱਥ))
         /* we asked for a resume and we got it */
         k->content_range = TRUE;
     }
-    else if(k->httpcode < 300)
-      data->state.resume_from = 0; /* get everything */
+    ਨਹੀਂਤਾਂ ਜੇ(k->httpcode < 300)
+      ਅੰਕੜੇ->state.resume_from = 0; /* get everything */
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * http_header_l() parses a single response header starting with L.
  */
-static CURLcode http_header_l(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ_l(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
-  const char *v = (!k->http_bodyless &&
-                   (data->set.timecondition || data->set.get_filetime)) ?
-    HD_VAL(hd, hdlen, "Last-Modified:") : NULL;
-  if(v) {
-    if(Curl_getdate_capped(v, &k->timeofdoc))
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+  ਅਚਲ ਅੱਖਰ *v = (!k->http_bodyless &&
+                   (ਅੰਕੜੇ->ਸੈੱਟ.timecondition || ਅੰਕੜੇ->ਸੈੱਟ.get_filetime)) ?
+    HD_VAL(hd, hdlen, "Last-Modified:") : ਨਿਰਾ;
+  ਜੇ(v) {
+    ਜੇ(Curl_getdate_capped(v, &k->timeofdoc))
       k->timeofdoc = 0;
-    if(data->set.get_filetime)
-      data->info.filetime = k->timeofdoc;
-    return CURLE_OK;
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.get_filetime)
+      ਅੰਕੜੇ->info.filetime = k->timeofdoc;
+    ਵਾਪਸ CURLE_OK;
   }
-  if(HD_IS(hd, hdlen, "Location:")) {
+  ਜੇ(HD_IS(hd, hdlen, "Location:")) {
     /* this is the URL that the server advises us to use instead */
-    char *location = Curl_copy_header_value(hd);
-    if(!location)
-      return CURLE_OUT_OF_MEMORY;
-    if(!*location ||
-       (data->req.location && !strcmp(data->req.location, location))) {
+    ਅੱਖਰ *location = Curl_copy_ਸਿਰਲੇਖ_ਮੁੱਲ(hd);
+    ਜੇ(!location)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜੇ(!*location ||
+       (ਅੰਕੜੇ->req.location && !strcmp(ਅੰਕੜੇ->req.location, location))) {
       /* ignore empty header, or exact repeat of a previous one */
       curlx_free(location);
-      return CURLE_OK;
+      ਵਾਪਸ CURLE_OK;
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* has value and is not an exact repeat */
-      if(data->req.location) {
-        failf(data, "Multiple Location headers");
+      ਜੇ(ਅੰਕੜੇ->req.location) {
+        failf(ਅੰਕੜੇ, "Multiple Location headers");
         curlx_free(location);
-        return CURLE_WEIRD_SERVER_REPLY;
+        ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
       }
-      data->req.location = location;
+      ਅੰਕੜੇ->req.location = location;
 
-      if((k->httpcode >= 300 && k->httpcode < 400) &&
-         data->set.http_follow_mode) {
-        CURLcode result;
-        DEBUGASSERT(!data->req.newurl);
-        data->req.newurl = curlx_strdup(data->req.location); /* clone */
-        if(!data->req.newurl)
-          return CURLE_OUT_OF_MEMORY;
+      ਜੇ((k->httpcode >= 300 && k->httpcode < 400) &&
+         ਅੰਕੜੇ->ਸੈੱਟ.http_follow_ਬਹੁਲਕ) {
+        CURLcode ਨਤੀਜਾ;
+        DEBUGASSERT(!ਅੰਕੜੇ->req.newurl);
+        ਅੰਕੜੇ->req.newurl = curlx_strdup(ਅੰਕੜੇ->req.location); /* clone */
+        ਜੇ(!ਅੰਕੜੇ->req.newurl)
+          ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
         /* some cases of POST and PUT etc needs to rewind the data
            stream at this point */
-        result = http_perhapsrewind(data, conn);
-        if(result)
-          return result;
+        ਨਤੀਜਾ = http_perhapsrewind(ਅੰਕੜੇ, conn);
+        ਜੇ(ਨਤੀਜਾ)
+          ਵਾਪਸ ਨਤੀਜਾ;
 
         /* mark the next request as a followed location: */
-        data->state.this_is_a_follow = TRUE;
+        ਅੰਕੜੇ->state.this_is_a_follow = TRUE;
       }
     }
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * http_header_p() parses a single response header starting with P.
  */
-static CURLcode http_header_p(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ_p(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  struct SingleRequest *k = &data->req;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
 
-#ifndef CURL_DISABLE_PROXY
-  const char *v = HD_VAL(hd, hdlen, "Proxy-Connection:");
-  if(v) {
-    struct connectdata *conn = data->conn;
-    if((k->httpversion == 10) && conn->http_proxy.peer &&
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਅਚਲ ਅੱਖਰ *v = HD_VAL(hd, hdlen, "Proxy-Connection:");
+  ਜੇ(v) {
+    ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+    ਜੇ((k->httpversion == 10) && conn->http_proxy.peer &&
        HD_IS_AND_SAYS(hd, hdlen, "Proxy-Connection:", "keep-alive")) {
       /*
        * When an HTTP/1.0 reply comes when using a proxy, the
@@ -3494,66 +3494,66 @@ static CURLcode http_header_p(struct Curl_easy *data,
        * Default action for 1.0 is to close.
        */
       connkeep(conn); /* do not close */
-      infof(data, "HTTP/1.0 proxy connection set to keep alive");
+      infof(ਅੰਕੜੇ, "HTTP/1.0 proxy connection set to keep alive");
     }
-    else if((k->httpversion == 11) && conn->http_proxy.peer &&
+    ਨਹੀਂਤਾਂ ਜੇ((k->httpversion == 11) && conn->http_proxy.peer &&
             HD_IS_AND_SAYS(hd, hdlen, "Proxy-Connection:", "close")) {
       /*
        * We get an HTTP/1.1 response from a proxy and it says it will
        * close down after this transfer.
        */
       connclose(conn);
-      infof(data, "HTTP/1.1 proxy connection set close");
+      infof(ਅੰਕੜੇ, "HTTP/1.1 proxy connection set close");
     }
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-#endif
-  if((407 == k->httpcode) && HD_IS(hd, hdlen, "Proxy-authenticate:")) {
-    char *auth;
-    CURLcode result;
-#ifndef CURL_DISABLE_PROXY
-    if(!data->conn->bits.origin_is_proxy)
+#ਜੇ_ਅੰਤ
+  ਜੇ((407 == k->httpcode) && HD_IS(hd, hdlen, "Proxy-authenticate:")) {
+    ਅੱਖਰ *auth;
+    CURLcode ਨਤੀਜਾ;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+    ਜੇ(!ਅੰਕੜੇ->conn->ਬਿੱਟ.origin_is_proxy)
       /* this response is not from a forward proxy, not for us */
-      return CURLE_OK;
-#endif
-    auth = Curl_copy_header_value(hd);
-    result = auth ? CURLE_OK : CURLE_OUT_OF_MEMORY;
-    if(!result) {
-      result = Curl_http_input_auth(data, TRUE, auth);
+      ਵਾਪਸ CURLE_OK;
+#ਜੇ_ਅੰਤ
+    auth = Curl_copy_ਸਿਰਲੇਖ_ਮੁੱਲ(hd);
+    ਨਤੀਜਾ = auth ? CURLE_OK : CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜੇ(!ਨਤੀਜਾ) {
+      ਨਤੀਜਾ = Curl_http_ਨਿਵੇਸ਼_auth(ਅੰਕੜੇ, TRUE, auth);
       curlx_free(auth);
     }
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
-#ifdef USE_SPNEGO
-  if(HD_IS(hd, hdlen, "Persistent-Auth:")) {
-    struct connectdata *conn = data->conn;
-    struct negotiatedata *negdata = Curl_auth_nego_get(conn, FALSE);
-    struct auth *authp = &data->state.authhost;
-    if(!negdata)
-      return CURLE_OUT_OF_MEMORY;
-    if(authp->picked == CURLAUTH_NEGOTIATE) {
-      char *persistentauth = Curl_copy_header_value(hd);
-      if(!persistentauth)
-        return CURLE_OUT_OF_MEMORY;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SPNEGO
+  ਜੇ(HD_IS(hd, hdlen, "Persistent-Auth:")) {
+    ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+    ਬਣਤਰ negotiatedata *negdata = Curl_auth_nego_get(conn, FALSE);
+    ਬਣਤਰ auth *authp = &ਅੰਕੜੇ->state.authhost;
+    ਜੇ(!negdata)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜੇ(authp->picked == CURLAUTH_NEGOTIATE) {
+      ਅੱਖਰ *persistentauth = Curl_copy_ਸਿਰਲੇਖ_ਮੁੱਲ(hd);
+      ਜੇ(!persistentauth)
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
       negdata->noauthpersist = !!checkprefix("false", persistentauth);
       negdata->havenoauthpersist = TRUE;
-      infof(data, "Negotiate: noauthpersist -> %d, header part: %s",
+      infof(ਅੰਕੜੇ, "Negotiate: noauthpersist -> %d, header part: %s",
             negdata->noauthpersist, persistentauth);
       curlx_free(persistentauth);
     }
   }
-#endif
-  return CURLE_OK;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * http_header_r() parses a single response header starting with R.
  */
-static CURLcode http_header_r(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ_r(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  const char *v = HD_VAL(hd, hdlen, "Retry-After:");
-  if(v) {
+  ਅਚਲ ਅੱਖਰ *v = HD_VAL(hd, hdlen, "Retry-After:");
+  ਜੇ(v) {
     /* Retry-After = HTTP-date / delay-seconds */
     curl_off_t retry_after = 0; /* zero for unknown or "now" */
     time_t date = 0;
@@ -3561,96 +3561,96 @@ static CURLcode http_header_r(struct Curl_easy *data,
 
     /* try it as a date first, because a date can otherwise start with and
        get treated as a number */
-    if(!Curl_getdate_capped(v, &date)) {
-      time_t current = time(NULL);
-      if(date >= current)
+    ਜੇ(!Curl_getdate_capped(v, &date)) {
+      time_t current = ਸਮਾਂ(ਨਿਰਾ);
+      ਜੇ(date >= current)
         /* convert date to number of seconds into the future */
         retry_after = date - current;
     }
-    else
+    ਨਹੀਂਤਾਂ
       /* Try it as a decimal number, ignore errors */
-      (void)curlx_str_number(&v, &retry_after, CURL_OFF_T_MAX);
+      (ਖਾਲੀ)curlx_str_ਸੰਖਿਆ(&v, &retry_after, CURL_OFF_T_MAX);
     /* limit to 6 hours max. this is not documented so that it can be changed
        in the future if necessary. */
-    if(retry_after > 21600)
+    ਜੇ(retry_after > 21600)
       retry_after = 21600;
-    data->info.retry_after = retry_after;
+    ਅੰਕੜੇ->info.retry_after = retry_after;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * http_header_s() parses a single response header starting with S.
  */
-static CURLcode http_header_s(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ_s(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_HSTS)
-  const char *v;
-#else
-  (void)data;
-  (void)hd;
-  (void)hdlen;
-#endif
+#ਜੇ !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_HSTS)
+  ਅਚਲ ਅੱਖਰ *v;
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)hd;
+  (ਖਾਲੀ)hdlen;
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_DISABLE_COOKIES
-  v = (data->cookies && data->state.cookie_engine) ?
-    HD_VAL(hd, hdlen, "Set-Cookie:") : NULL;
-  if(v) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
+  v = (ਅੰਕੜੇ->cookies && ਅੰਕੜੇ->state.cookie_engine) ?
+    HD_VAL(hd, hdlen, "Set-Cookie:") : ਨਿਰਾ;
+  ਜੇ(v) {
     /* If there is a custom-set Host: name, use it here, or else use
      * real peer hostname. */
-    const char *host = data->req.cookiehost ?
-      data->req.cookiehost : data->state.origin->hostname;
-    const unsigned char secure_context = Curl_secure_context(data, host) ?
+    ਅਚਲ ਅੱਖਰ *host = ਅੰਕੜੇ->req.cookiehost ?
+      ਅੰਕੜੇ->req.cookiehost : ਅੰਕੜੇ->state.origin->hostname;
+    ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ secure_context = Curl_secure_context(ਅੰਕੜੇ, host) ?
       COOKIE_SECURE : 0;
-    CURLcode result;
-    Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-    result = Curl_cookie_add(data, data->cookies, v, host,
-                             data->state.up.path,
+    CURLcode ਨਤੀਜਾ;
+    Curl_share_ਤਾਲਾ(ਅੰਕੜੇ, CURL_ਤਾਲਾ_ਅੰਕੜੇ_COOKIE, CURL_ਤਾਲਾ_ACCESS_SINGLE);
+    ਨਤੀਜਾ = Curl_cookie_ਜੋੜੋ(ਅੰਕੜੇ, ਅੰਕੜੇ->cookies, v, host,
+                             ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ,
                              COOKIE_HTTPHEADER | secure_context);
-    Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
-    return result;
+    Curl_share_unlock(ਅੰਕੜੇ, CURL_ਤਾਲਾ_ਅੰਕੜੇ_COOKIE);
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
-#endif
-#ifndef CURL_DISABLE_HSTS
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HSTS
   /* If enabled, the header is incoming and this is over HTTPS */
-  v = (data->hsts &&
-       (Curl_xfer_is_secure(data) ||
-#ifdef DEBUGBUILD
+  v = (ਅੰਕੜੇ->hsts &&
+       (Curl_xfer_is_secure(ਅੰਕੜੇ) ||
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
         /* allow debug builds to circumvent the HTTPS restriction */
         getenv("CURL_HSTS_HTTP")
-#else
+#ਨਹੀਂਤਾਂ
         0
-#endif
+#ਜੇ_ਅੰਤ
          )
-    ) ? HD_VAL(hd, hdlen, "Strict-Transport-Security:") : NULL;
-  if(v) {
-    CURLcode result = Curl_hsts_parse(
-      data->hsts, data->state.origin->hostname, v);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        return result;
-      infof(data, "Illegal STS header skipped");
+    ) ? HD_VAL(hd, hdlen, "Strict-Transport-Security:") : ਨਿਰਾ;
+  ਜੇ(v) {
+    CURLcode ਨਤੀਜਾ = Curl_hsts_parse(
+      ਅੰਕੜੇ->hsts, ਅੰਕੜੇ->state.origin->hostname, v);
+    ਜੇ(ਨਤੀਜਾ) {
+      ਜੇ(ਨਤੀਜਾ == CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      infof(ਅੰਕੜੇ, "Illegal STS header skipped");
     }
-#ifdef DEBUGBUILD
-    else
-      infof(data, "Parsed STS header fine (%zu entries)",
-            Curl_llist_count(&data->hsts->list));
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "Parsed STS header fine (%zu entries)",
+            Curl_llist_ਗਿਣਤੀ(&ਅੰਕੜੇ->hsts->list));
+#ਜੇ_ਅੰਤ
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * http_header_t() parses a single response header starting with T.
  */
-static CURLcode http_header_t(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ_t(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
 
   /* RFC 9112, ch. 6.1
    * "Transfer-Encoding MAY be sent in a response to a HEAD request or
@@ -3662,146 +3662,146 @@ static CURLcode http_header_t(struct Curl_easy *data,
    * Read: in these cases the 'Transfer-Encoding' does not apply
    * to any data following the response headers. Do not add any decoders.
    */
-  const char *v = (!k->http_bodyless &&
-                   (data->state.httpreq != HTTPREQ_HEAD) &&
+  ਅਚਲ ਅੱਖਰ *v = (!k->http_bodyless &&
+                   (ਅੰਕੜੇ->state.httpreq != HTTPREQ_ਸਿਰ) &&
                    (k->httpcode != 304)) ?
-    HD_VAL(hd, hdlen, "Transfer-Encoding:") : NULL;
-  if(v) {
+    HD_VAL(hd, hdlen, "Transfer-Encoding:") : ਨਿਰਾ;
+  ਜੇ(v) {
     /* One or more encodings. We check for chunked and/or a compression
        algorithm. */
-    CURLcode result = Curl_build_unencoding_stack(data, v, TRUE);
-    if(result)
-      return result;
-    if(!k->chunk) {
+    CURLcode ਨਤੀਜਾ = Curl_build_unencoding_ਢੇਰ(ਅੰਕੜੇ, v, TRUE);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    ਜੇ(!k->chunk) {
       /* if this is not chunked, only close can signal the end of this
        * transfer as Content-Length is said not to be trusted for
        * transfer-encoding! */
-      CURL_TRC_M(data, "HTTP/1.1 transfer-encoding without chunks");
+      CURL_TRC_M(ਅੰਕੜੇ, "HTTP/1.1 transfer-encoding without chunks");
       connclose(conn);
       k->ignore_cl = TRUE;
     }
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
   v = HD_VAL(hd, hdlen, "Trailer:");
-  if(v) {
-    data->req.resp_trailer = TRUE;
-    return CURLE_OK;
+  ਜੇ(v) {
+    ਅੰਕੜੇ->req.resp_trailer = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * http_header_w() parses a single response header starting with W.
  */
-static CURLcode http_header_w(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ_w(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  struct SingleRequest *k = &data->req;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if((401 == k->httpcode) && HD_IS(hd, hdlen, "WWW-Authenticate:")) {
-    char *auth = Curl_copy_header_value(hd);
-    if(!auth)
-      result = CURLE_OUT_OF_MEMORY;
-    else {
-      result = Curl_http_input_auth(data, FALSE, auth);
+  ਜੇ((401 == k->httpcode) && HD_IS(hd, hdlen, "WWW-Authenticate:")) {
+    ਅੱਖਰ *auth = Curl_copy_ਸਿਰਲੇਖ_ਮੁੱਲ(hd);
+    ਜੇ(!auth)
+      ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਨਹੀਂਤਾਂ {
+      ਨਤੀਜਾ = Curl_http_ਨਿਵੇਸ਼_auth(ਅੰਕੜੇ, FALSE, auth);
       curlx_free(auth);
     }
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * http_header() parses a single response header.
  */
-static CURLcode http_header(struct Curl_easy *data,
-                            const char *hd, size_t hdlen)
+ਸਥਿਰ CURLcode http_ਸਿਰਲੇਖ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  switch(hd[0]) {
-  case 'a':
-  case 'A':
-    result = http_header_a(data, hd, hdlen);
-    break;
-  case 'c':
-  case 'C':
-    result = http_header_c(data, hd, hdlen);
-    break;
-  case 'l':
-  case 'L':
-    result = http_header_l(data, hd, hdlen);
-    break;
-  case 'p':
-  case 'P':
-    result = http_header_p(data, hd, hdlen);
-    break;
-  case 'r':
-  case 'R':
-    result = http_header_r(data, hd, hdlen);
-    break;
-  case 's':
-  case 'S':
-    result = http_header_s(data, hd, hdlen);
-    break;
-  case 't':
-  case 'T':
-    result = http_header_t(data, hd, hdlen);
-    break;
-  case 'w':
-  case 'W':
-    result = http_header_w(data, hd, hdlen);
-    break;
+  ਚੋਣ(hd[0]) {
+  ਹਾਲਤ 'a':
+  ਹਾਲਤ 'A':
+    ਨਤੀਜਾ = http_ਸਿਰਲੇਖ_a(ਅੰਕੜੇ, hd, hdlen);
+    ਰੋਕੋ;
+  ਹਾਲਤ 'c':
+  ਹਾਲਤ 'C':
+    ਨਤੀਜਾ = http_ਸਿਰਲੇਖ_c(ਅੰਕੜੇ, hd, hdlen);
+    ਰੋਕੋ;
+  ਹਾਲਤ 'l':
+  ਹਾਲਤ 'L':
+    ਨਤੀਜਾ = http_ਸਿਰਲੇਖ_l(ਅੰਕੜੇ, hd, hdlen);
+    ਰੋਕੋ;
+  ਹਾਲਤ 'p':
+  ਹਾਲਤ 'P':
+    ਨਤੀਜਾ = http_ਸਿਰਲੇਖ_p(ਅੰਕੜੇ, hd, hdlen);
+    ਰੋਕੋ;
+  ਹਾਲਤ 'r':
+  ਹਾਲਤ 'R':
+    ਨਤੀਜਾ = http_ਸਿਰਲੇਖ_r(ਅੰਕੜੇ, hd, hdlen);
+    ਰੋਕੋ;
+  ਹਾਲਤ 's':
+  ਹਾਲਤ 'S':
+    ਨਤੀਜਾ = http_ਸਿਰਲੇਖ_s(ਅੰਕੜੇ, hd, hdlen);
+    ਰੋਕੋ;
+  ਹਾਲਤ 't':
+  ਹਾਲਤ 'T':
+    ਨਤੀਜਾ = http_ਸਿਰਲੇਖ_t(ਅੰਕੜੇ, hd, hdlen);
+    ਰੋਕੋ;
+  ਹਾਲਤ 'w':
+  ਹਾਲਤ 'W':
+    ਨਤੀਜਾ = http_ਸਿਰਲੇਖ_w(ਅੰਕੜੇ, hd, hdlen);
+    ਰੋਕੋ;
   }
 
-  if(!result) {
-    struct connectdata *conn = data->conn;
-    if(conn->scheme->protocol & CURLPROTO_RTSP)
-      result = Curl_rtsp_parseheader(data, hd);
+  ਜੇ(!ਨਤੀਜਾ) {
+    ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+    ਜੇ(conn->scheme->protocol & CURLPROTO_RTSP)
+      ਨਤੀਜਾ = Curl_rtsp_parseheader(ਅੰਕੜੇ, hd);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * Called after the first HTTP response line (the status line) has been
  * received and parsed.
  */
-static CURLcode http_statusline(struct Curl_easy *data,
-                                struct connectdata *conn)
+ਸਥਿਰ CURLcode http_statusline(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ connectdata *conn)
 {
-  struct SingleRequest *k = &data->req;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
 
-  switch(k->httpversion) {
-  case 10:
-  case 11:
-#ifdef USE_HTTP2
-  case 20:
-#endif
-#ifdef USE_HTTP3
-  case 30:
-#endif
+  ਚੋਣ(k->httpversion) {
+  ਹਾਲਤ 10:
+  ਹਾਲਤ 11:
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP2
+  ਹਾਲਤ 20:
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP3
+  ਹਾਲਤ 30:
+#ਜੇ_ਅੰਤ
     /* no major version switch mid-connection */
-    if(k->httpversion_sent &&
-       (k->httpversion / 10 != k->httpversion_sent / 10)) {
-      failf(data, "Version mismatch (from HTTP/%d to HTTP/%d)",
-            k->httpversion_sent / 10, k->httpversion / 10);
-      return CURLE_WEIRD_SERVER_REPLY;
+    ਜੇ(k->httpversion_ਭੇਜਿਆ &&
+       (k->httpversion / 10 != k->httpversion_ਭੇਜਿਆ / 10)) {
+      failf(ਅੰਕੜੇ, "Version mismatch (from HTTP/%d to HTTP/%d)",
+            k->httpversion_ਭੇਜਿਆ / 10, k->httpversion / 10);
+      ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
     }
-    break;
-  default:
-    failf(data, "Unsupported HTTP version (%d.%d) in response",
+    ਰੋਕੋ;
+  ਮੂਲ:
+    failf(ਅੰਕੜੇ, "Unsupported HTTP version (%d.%d) in response",
           k->httpversion / 10, k->httpversion % 10);
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
   }
 
-  data->info.httpcode = k->httpcode;
-  data->info.httpversion = k->httpversion;
-  conn->httpversion_seen = k->httpversion;
+  ਅੰਕੜੇ->info.httpcode = k->httpcode;
+  ਅੰਕੜੇ->info.httpversion = k->httpversion;
+  conn->httpversion_ਵੇਖਿਆ = k->httpversion;
 
-  if(!data->state.http_neg.rcvd_min ||
-     data->state.http_neg.rcvd_min > k->httpversion)
+  ਜੇ(!ਅੰਕੜੇ->state.http_neg.rcvd_min ||
+     ਅੰਕੜੇ->state.http_neg.rcvd_min > k->httpversion)
     /* store the lowest server version we encounter */
-    data->state.http_neg.rcvd_min = k->httpversion;
+    ਅੰਕੜੇ->state.http_neg.rcvd_min = k->httpversion;
 
   /*
    * This code executes as part of processing the header. As a
@@ -3811,45 +3811,45 @@ static CURLcode http_statusline(struct Curl_easy *data,
    * depending on how authentication is working. Other codes
    * are definitely errors, so give up here.
    */
-  if(data->state.resume_from && data->state.httpreq == HTTPREQ_GET &&
+  ਜੇ(ਅੰਕੜੇ->state.resume_from && ਅੰਕੜੇ->state.httpreq == HTTPREQ_GET &&
      k->httpcode == 416) {
     /* "Requested Range Not Satisfiable", proceed and pretend this is no
        error */
     k->ignorebody = TRUE; /* Avoid appending error msg to good data. */
   }
 
-  if(k->httpversion == 10) {
+  ਜੇ(k->httpversion == 10) {
     /* Default action for HTTP/1.0 must be to close, unless
        we get one of those fancy headers that tell us the
        server keeps it open for us! */
-    infof(data, "HTTP 1.0, assume close after body");
+    infof(ਅੰਕੜੇ, "HTTP 1.0, assume close after body");
     connclose(conn);
   }
 
   k->http_bodyless = k->httpcode >= 100 && k->httpcode < 200;
-  switch(k->httpcode) {
-  case 304:
+  ਚੋਣ(k->httpcode) {
+  ਹਾਲਤ 304:
     /* (quote from RFC2616, section 10.3.5): The 304 response
      * MUST NOT contain a message-body, and thus is always
      * terminated by the first empty line after the header
      * fields. */
-    if(data->set.timecondition)
-      data->info.timecond = TRUE;
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.timecondition)
+      ਅੰਕੜੇ->info.timecond = TRUE;
     FALLTHROUGH();
-  case 204:
+  ਹਾਲਤ 204:
     /* (quote from RFC2616, section 10.2.5): The server has
      * fulfilled the request but does not need to return an
      * entity-body ... The 204 response MUST NOT include a
      * message-body, and thus is always terminated by the first
      * empty line after the header fields. */
-    k->size = 0;
+    k->ਮਾਪ = 0;
     k->maxdownload = 0;
     k->http_bodyless = TRUE;
-    break;
-  default:
-    break;
+    ਰੋਕੋ;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Content-Length must be ignored if any Transfer-Encoding is present in the
@@ -3857,244 +3857,244 @@ static CURLcode http_statusline(struct Curl_easy *data,
    figured out here after all headers have been received but before the final
    call to the user's header callback, so that a valid content length can be
    retrieved by the user in the final call. */
-static CURLcode http_size(struct Curl_easy *data)
+ਸਥਿਰ CURLcode http_ਮਾਪ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct SingleRequest *k = &data->req;
-  if(data->req.ignore_cl || k->chunk) {
-    k->size = k->maxdownload = -1;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+  ਜੇ(ਅੰਕੜੇ->req.ignore_cl || k->chunk) {
+    k->ਮਾਪ = k->maxdownload = -1;
   }
-  else if(k->size != -1) {
-    if(data->set.max_filesize &&
+  ਨਹੀਂਤਾਂ ਜੇ(k->ਮਾਪ != -1) {
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.max_filesize &&
        !k->ignorebody &&
-       (k->size > data->set.max_filesize)) {
-      failf(data, "Maximum file size exceeded");
-      return CURLE_FILESIZE_EXCEEDED;
+       (k->ਮਾਪ > ਅੰਕੜੇ->ਸੈੱਟ.max_filesize)) {
+      failf(ਅੰਕੜੇ, "Maximum file size exceeded");
+      ਵਾਪਸ CURLE_FILESIZE_EXCEEDED;
     }
-    if(k->ignorebody)
-      infof(data, "setting size while ignoring");
-    Curl_pgrsSetDownloadSize(data, k->size);
-    k->maxdownload = k->size;
+    ਜੇ(k->ignorebody)
+      infof(ਅੰਕੜੇ, "setting size while ignoring");
+    Curl_pgrs_ਸੈੱਟ_Download_ਮਾਪ(ਅੰਕੜੇ, k->ਮਾਪ);
+    k->maxdownload = k->ਮਾਪ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_verify_header(struct Curl_easy *data,
-                            const char *hd, size_t hdlen)
+CURLcode Curl_verify_ਸਿਰਲੇਖ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਅਚਲ ਅੱਖਰ *hd, size_t hdlen)
 {
-  struct SingleRequest *k = &data->req;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
   size_t i;
   bool has_colon = FALSE;
-  for(i = 0; i < hdlen; i++) {
-    switch(hd[i]) {
-    case '\0':
+  ਲਈ(i = 0; i < hdlen; i++) {
+    ਚੋਣ(hd[i]) {
+    ਹਾਲਤ '\0':
       /* this is bad, bail out */
-      failf(data, "NUL byte in header");
-      return CURLE_WEIRD_SERVER_REPLY;
-    case '\r':
-      if(i < hdlen - 2) {
+      failf(ਅੰਕੜੇ, "NUL byte in header");
+      ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
+    ਹਾਲਤ '\r':
+      ਜੇ(i < hdlen - 2) {
         /* CR may only precede the LF, nothing else */
-        failf(data, "Carriage return found in header");
-        return CURLE_WEIRD_SERVER_REPLY;
+        failf(ਅੰਕੜੇ, "Carriage return found in header");
+        ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
       }
-      break;
-    case ':':
+      ਰੋਕੋ;
+    ਹਾਲਤ ':':
       has_colon = TRUE;
-      break;
+      ਰੋਕੋ;
     }
   }
-  if(k->headerline < 2)
+  ਜੇ(k->headerline < 2)
     /* the first "header" is the status-line and it has no colon */
-    return CURLE_OK;
-  if(((hd[0] == ' ') || (hd[0] == '\t')) && k->headerline > 2)
+    ਵਾਪਸ CURLE_OK;
+  ਜੇ(((hd[0] == ' ') || (hd[0] == '\t')) && k->headerline > 2)
     /* line folding, cannot happen on line 2 */
     ;
-  else if(!has_colon) {
+  ਨਹੀਂਤਾਂ ਜੇ(!has_colon) {
     /* this is bad, bail out */
-    failf(data, "Header without colon");
-    return CURLE_WEIRD_SERVER_REPLY;
+    failf(ਅੰਕੜੇ, "Header without colon");
+    ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_bump_headersize(struct Curl_easy *data,
+CURLcode Curl_bump_headersize(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                               size_t delta,
                               bool connect_only)
 {
   size_t bad = 0;
-  unsigned int max = MAX_HTTP_RESP_HEADER_SIZE;
-  if(delta < MAX_HTTP_RESP_HEADER_SIZE) {
-    data->info.header_size += (unsigned int)delta;
-    data->req.allheadercount += (unsigned int)delta;
-    if(!connect_only)
-      data->req.headerbytecount += (unsigned int)delta;
-    if(data->req.allheadercount > max)
-      bad = data->req.allheadercount;
-    else if(data->info.header_size > (max * 20)) {
-      bad = data->info.header_size;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ max = MAX_HTTP_RESP_ਸਿਰਲੇਖ_ਮਾਪ;
+  ਜੇ(delta < MAX_HTTP_RESP_ਸਿਰਲੇਖ_ਮਾਪ) {
+    ਅੰਕੜੇ->info.ਸਿਰਲੇਖ_ਮਾਪ += (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)delta;
+    ਅੰਕੜੇ->req.allheadercount += (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)delta;
+    ਜੇ(!connect_only)
+      ਅੰਕੜੇ->req.headerbytecount += (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)delta;
+    ਜੇ(ਅੰਕੜੇ->req.allheadercount > max)
+      bad = ਅੰਕੜੇ->req.allheadercount;
+    ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->info.ਸਿਰਲੇਖ_ਮਾਪ > (max * 20)) {
+      bad = ਅੰਕੜੇ->info.ਸਿਰਲੇਖ_ਮਾਪ;
       max *= 20;
     }
   }
-  else
-    bad = data->req.allheadercount + delta;
-  if(bad) {
-    failf(data, "Too large response headers: %zu > %u", bad, max);
-    return CURLE_RECV_ERROR;
+  ਨਹੀਂਤਾਂ
+    bad = ਅੰਕੜੇ->req.allheadercount + delta;
+  ਜੇ(bad) {
+    failf(ਅੰਕੜੇ, "Too large response headers: %zu > %u", bad, max);
+    ਵਾਪਸ CURLE_RECV_ERROR;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Handle a 101 Switching Protocols response. Performs the actual protocol
  * upgrade to HTTP/2 or WebSocket based on what was requested.
  */
-static CURLcode http_on_101_upgrade(struct Curl_easy *data,
-                                    const char *buf, size_t blen,
+ਸਥਿਰ CURLcode http_on_101_upgrade(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਅਚਲ ਅੱਖਰ *buf, size_t blen,
                                     size_t *pconsumed,
-                                    bool *conn_changed)
+                                    bool *conn_ਬਦਲਿਆ)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
 
-#if !defined(USE_NGHTTP2) && defined(CURL_DISABLE_WEBSOCKETS)
-  (void)buf;
-  (void)blen;
-  (void)pconsumed;
-#else
-  CURLcode result;
-  int upgr101_requested = k->upgr101;
-#endif
+#ਜੇ !defined(USE_NGHTTP2) && defined(CURL_DISABLE_WEBSOCKETS)
+  (ਖਾਲੀ)buf;
+  (ਖਾਲੀ)blen;
+  (ਖਾਲੀ)pconsumed;
+#ਨਹੀਂਤਾਂ
+  CURLcode ਨਤੀਜਾ;
+  ਪੂਰਨ upgr101_requested = k->upgr101;
+#ਜੇ_ਅੰਤ
 
-  if(k->httpversion_sent != 11) {
+  ਜੇ(k->httpversion_ਭੇਜਿਆ != 11) {
     /* invalid for other HTTP versions */
-    failf(data, "server sent 101 response while not talking HTTP/1.1");
-    return CURLE_WEIRD_SERVER_REPLY;
+    failf(ਅੰਕੜੇ, "server sent 101 response while not talking HTTP/1.1");
+    ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
   }
 
   /* Whatever the success, upgrade was selected. */
   k->upgr101 = UPGR101_RECEIVED;
-  conn->bits.upgrade_in_progress = FALSE;
-  *conn_changed = TRUE;
+  conn->ਬਿੱਟ.upgrade_ਵਿੱਚ_ਤਰੱਕੀ = FALSE;
+  *conn_ਬਦਲਿਆ = TRUE;
 
   /* To be fully compliant, we would check the "Upgrade:" response header to
    * mention the protocol we requested. */
-#ifdef USE_NGHTTP2
-  if(upgr101_requested == UPGR101_H2) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NGHTTP2
+  ਜੇ(upgr101_requested == UPGR101_H2) {
     /* Switch to HTTP/2, where we will get more responses. blen bytes in buf
      * are already h2 protocol bytes */
-    infof(data, "Received 101, Switching to HTTP/2");
-    result = Curl_http2_upgrade(data, conn, FIRSTSOCKET, buf, blen);
-    if(!result)
+    infof(ਅੰਕੜੇ, "Received 101, Switching to HTTP/2");
+    ਨਤੀਜਾ = Curl_http2_upgrade(ਅੰਕੜੇ, conn, FIRSTSOCKET, buf, blen);
+    ਜੇ(!ਨਤੀਜਾ)
       *pconsumed += blen;
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
-#endif
-#ifndef CURL_DISABLE_WEBSOCKETS
-  if(upgr101_requested == UPGR101_WS) {
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_WEBSOCKETS
+  ਜੇ(upgr101_requested == UPGR101_WS) {
     /* Switch to WebSocket, where we now stream ws frames. blen bytes in buf
      * are already ws protocol bytes */
-    infof(data, "Received 101, Switching to WebSocket");
-    result = Curl_ws_accept(data, buf, blen);
-    if(!result)
+    infof(ਅੰਕੜੇ, "Received 101, Switching to WebSocket");
+    ਨਤੀਜਾ = Curl_ws_accept(ਅੰਕੜੇ, buf, blen);
+    ਜੇ(!ਨਤੀਜਾ)
       *pconsumed += blen; /* ws accept handled the data */
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
-#endif
+#ਜੇ_ਅੰਤ
   /* We silently accept this as the final response. What are we switching to
    * if we did not ask for an Upgrade? Maybe the application provided an
    * `Upgrade: xxx` header? */
-  k->header = FALSE;
-  return CURLE_OK;
+  k->ਸਿਰਲੇਖ = FALSE;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Handle 1xx intermediate HTTP responses. Sets up state for more
  * headers and processes 100-continue and 101 upgrade responses.
  */
-static CURLcode http_on_1xx_response(struct Curl_easy *data,
-                                     const char *buf, size_t blen,
+ਸਥਿਰ CURLcode http_on_1xx_response(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਅਚਲ ਅੱਖਰ *buf, size_t blen,
                                      size_t *pconsumed,
-                                     bool *conn_changed)
+                                     bool *conn_ਬਦਲਿਆ)
 {
-  struct SingleRequest *k = &data->req;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
 
   /* "A user agent MAY ignore unexpected 1xx status responses."
    * By default, we expect to get more responses after this one. */
-  k->header = TRUE;
+  k->ਸਿਰਲੇਖ = TRUE;
   k->headerline = 0; /* restart the header line counter */
 
-  switch(k->httpcode) {
-  case 100:
+  ਚੋਣ(k->httpcode) {
+  ਹਾਲਤ 100:
     /* We have made an HTTP PUT or POST and this is 1.1-lingo that tells us
      * that the server is OK with this and ready to receive the data. */
-    http_exp100_got100(data);
-    break;
-  case 101:
-    return http_on_101_upgrade(data, buf, blen, pconsumed, conn_changed);
-  default:
+    http_exp100_got100(ਅੰਕੜੇ);
+    ਰੋਕੋ;
+  ਹਾਲਤ 101:
+    ਵਾਪਸ http_on_101_upgrade(ਅੰਕੜੇ, buf, blen, pconsumed, conn_ਬਦਲਿਆ);
+  ਮੂਲ:
     /* The server may send us other 1xx responses, like informative 103. This
      * has no influence on request processing and we expect to receive a
      * final response eventually. */
-    break;
+    ਰੋਕੋ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-#if defined(USE_NTLM) || defined(USE_SPNEGO)
+#ਜੇ defined(USE_NTLM) || defined(USE_SPNEGO)
 /*
  * Check if NTLM or SPNEGO authentication negotiation failed due to
  * connection closure (typically on HTTP/1.0 servers).
  */
-static void http_check_auth_closure(struct Curl_easy *data,
-                                    struct connectdata *conn)
+ਸਥਿਰ ਖਾਲੀ http_check_auth_ਘੇਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ connectdata *conn)
 {
   /* At this point we have some idea about the fate of the connection. If we
      are closing the connection it may result auth failure. */
-#ifdef USE_NTLM
-  if(conn->bits.close &&
-     (((data->req.httpcode == 401) &&
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NTLM
+  ਜੇ(conn->ਬਿੱਟ.close &&
+     (((ਅੰਕੜੇ->req.httpcode == 401) &&
        (conn->http_ntlm_state == NTLMSTATE_TYPE2)) ||
-      ((data->req.httpcode == 407) &&
+      ((ਅੰਕੜੇ->req.httpcode == 407) &&
        (conn->proxy_ntlm_state == NTLMSTATE_TYPE2)))) {
-    infof(data, "Connection closure while negotiating auth (HTTP 1.0?)");
-    data->state.authproblem = TRUE;
+    infof(ਅੰਕੜੇ, "Connection closure while negotiating auth (HTTP 1.0?)");
+    ਅੰਕੜੇ->state.authproblem = TRUE;
   }
-#endif
-#ifdef USE_SPNEGO
-  if(conn->bits.close &&
-    (((data->req.httpcode == 401) &&
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SPNEGO
+  ਜੇ(conn->ਬਿੱਟ.close &&
+    (((ਅੰਕੜੇ->req.httpcode == 401) &&
       (conn->http_negotiate_state == CURL_NEGO_AUTH_RECV)) ||
-     ((data->req.httpcode == 407) &&
+     ((ਅੰਕੜੇ->req.httpcode == 407) &&
       (conn->proxy_negotiate_state == CURL_NEGO_AUTH_RECV)))) {
-    infof(data, "Connection closure while negotiating auth (HTTP 1.0?)");
-    data->state.authproblem = TRUE;
+    infof(ਅੰਕੜੇ, "Connection closure while negotiating auth (HTTP 1.0?)");
+    ਅੰਕੜੇ->state.authproblem = TRUE;
   }
-  if((conn->http_negotiate_state == CURL_NEGO_AUTH_DONE) &&
-     (data->req.httpcode != 401)) {
+  ਜੇ((conn->http_negotiate_state == CURL_NEGO_AUTH_ਪੂਰਾ) &&
+     (ਅੰਕੜੇ->req.httpcode != 401)) {
     conn->http_negotiate_state = CURL_NEGO_AUTH_SUCC;
   }
-  if((conn->proxy_negotiate_state == CURL_NEGO_AUTH_DONE) &&
-     (data->req.httpcode != 407)) {
+  ਜੇ((conn->proxy_negotiate_state == CURL_NEGO_AUTH_ਪੂਰਾ) &&
+     (ਅੰਕੜੇ->req.httpcode != 407)) {
     conn->proxy_negotiate_state = CURL_NEGO_AUTH_SUCC;
   }
-#endif
+#ਜੇ_ਅੰਤ
 }
-#else
-#define http_check_auth_closure(x, y) /* empty */
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ http_check_auth_ਘੇਰਾ(x, y) /*ਖਾਲੀ_ਥਾਵਾਂ*/
+#ਜੇ_ਅੰਤ
 
 /*
  * Handle an error response (>= 300) received while still sending the
  * request body. Deals with 417 Expectation Failed retries, keep-sending
  * on error, and aborting the send.
  */
-static CURLcode http_handle_send_error(struct Curl_easy *data)
+ਸਥਿਰ CURLcode http_handle_send_error(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(!data->req.authneg && !conn->bits.close &&
-     !Curl_creader_will_rewind(data)) {
+  ਜੇ(!ਅੰਕੜੇ->req.authneg && !conn->ਬਿੱਟ.close &&
+     !Curl_creader_will_rewind(ਅੰਕੜੇ)) {
     /*
      * General treatment of errors when about to send data.
      * Including: "417 Expectation Failed", while waiting for
@@ -4106,244 +4106,244 @@ static CURLcode http_handle_send_error(struct Curl_easy *data)
      * we avoid this check.
      */
 
-    switch(data->state.httpreq) {
-    case HTTPREQ_PUT:
-    case HTTPREQ_POST:
-    case HTTPREQ_POST_FORM:
-    case HTTPREQ_POST_MIME:
+    ਚੋਣ(ਅੰਕੜੇ->state.httpreq) {
+    ਹਾਲਤ HTTPREQ_PUT:
+    ਹਾਲਤ HTTPREQ_POST:
+    ਹਾਲਤ HTTPREQ_POST_FORM:
+    ਹਾਲਤ HTTPREQ_POST_MIME:
       /* We got an error response. If this happened before the
        * whole request body has been sent we stop sending and
        * mark the connection for closure after we have read the
        * entire response. */
-      if(!Curl_req_done_sending(data)) {
-        if((k->httpcode == 417) && http_exp100_is_selected(data)) {
+      ਜੇ(!Curl_req_ਪੂਰਾ_sending(ਅੰਕੜੇ)) {
+        ਜੇ((k->httpcode == 417) && http_exp100_is_selected(ਅੰਕੜੇ)) {
           /* 417 Expectation Failed - try again without the
              Expect header */
-          if(!k->writebytecount && http_exp100_is_waiting(data)) {
-            infof(data, "Got HTTP failure 417 while waiting for a 100");
+          ਜੇ(!k->writebytecount && http_exp100_is_ਉਡੀਕ(ਅੰਕੜੇ)) {
+            infof(ਅੰਕੜੇ, "Got HTTP failure 417 while waiting for a 100");
           }
-          else {
-            infof(data, "Got HTTP failure 417 while sending data");
+          ਨਹੀਂਤਾਂ {
+            infof(ਅੰਕੜੇ, "Got HTTP failure 417 while sending data");
             streamclose(conn);
-            result = http_perhapsrewind(data, conn);
-            if(result)
-              return result;
+            ਨਤੀਜਾ = http_perhapsrewind(ਅੰਕੜੇ, conn);
+            ਜੇ(ਨਤੀਜਾ)
+              ਵਾਪਸ ਨਤੀਜਾ;
           }
-          data->state.disableexpect = TRUE;
-          Curl_req_abort_sending(data);
-          DEBUGASSERT(!data->req.newurl);
-          data->req.newurl = Curl_bufref_dup(&data->state.url);
-          if(!data->req.newurl)
-            return CURLE_OUT_OF_MEMORY;
+          ਅੰਕੜੇ->state.disableexpect = TRUE;
+          Curl_req_abort_sending(ਅੰਕੜੇ);
+          DEBUGASSERT(!ਅੰਕੜੇ->req.newurl);
+          ਅੰਕੜੇ->req.newurl = Curl_bufref_dup(&ਅੰਕੜੇ->state.url);
+          ਜੇ(!ਅੰਕੜੇ->req.newurl)
+            ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
         }
-        else if(data->set.http_keep_sending_on_error) {
-          infof(data, "HTTP error before end of send, keep sending");
-          http_exp100_send_anyway(data);
+        ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.http_keep_sending_on_error) {
+          infof(ਅੰਕੜੇ, "HTTP error before end of send, keep sending");
+          http_exp100_send_anyway(ਅੰਕੜੇ);
         }
-        else {
-          infof(data, "HTTP error before end of send, stop sending");
+        ਨਹੀਂਤਾਂ {
+          infof(ਅੰਕੜੇ, "HTTP error before end of send, stop sending");
           streamclose(conn);
-          result = Curl_req_abort_sending(data);
-          if(result)
-            return result;
+          ਨਤੀਜਾ = Curl_req_abort_sending(ਅੰਕੜੇ);
+          ਜੇ(ਨਤੀਜਾ)
+            ਵਾਪਸ ਨਤੀਜਾ;
         }
       }
-      break;
+      ਰੋਕੋ;
 
-    default: /* default label present to avoid compiler warnings */
-      break;
+    ਮੂਲ: /* default label present to avoid compiler warnings */
+      ਰੋਕੋ;
     }
   }
 
-  if(Curl_creader_will_rewind(data) && !Curl_req_done_sending(data)) {
+  ਜੇ(Curl_creader_will_rewind(ਅੰਕੜੇ) && !Curl_req_ਪੂਰਾ_sending(ਅੰਕੜੇ)) {
     /* We rewind before next send, continue sending now */
-    infof(data, "Keep sending data to get tossed away");
-    CURL_REQ_SET_SEND(data);
+    infof(ਅੰਕੜੇ, "Keep sending data to get tossed away");
+    CURL_REQ_ਸੈੱਟ_SEND(ਅੰਕੜੇ);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode http_on_response(struct Curl_easy *data,
-                                 const char *last_hd, size_t last_hd_len,
-                                 const char *buf, size_t blen,
+ਸਥਿਰ CURLcode http_on_response(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਅਚਲ ਅੱਖਰ *ਆਖਰੀ_hd, size_t ਆਖਰੀ_hd_len,
+                                 ਅਚਲ ਅੱਖਰ *buf, size_t blen,
                                  size_t *pconsumed)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
-  struct SingleRequest *k = &data->req;
-  bool conn_changed = FALSE;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+  bool conn_ਬਦਲਿਆ = FALSE;
 
-  (void)buf; /* not used without HTTP2 enabled */
+  (ਖਾਲੀ)buf; /* not used without HTTP2 enabled */
   *pconsumed = 0;
 
-  if(k->upgr101 == UPGR101_RECEIVED) {
+  ਜੇ(k->upgr101 == UPGR101_RECEIVED) {
     /* supposedly upgraded to http2 now */
-    if(data->req.httpversion != 20)
-      infof(data, "Lying server, not serving HTTP/2");
+    ਜੇ(ਅੰਕੜੇ->req.httpversion != 20)
+      infof(ਅੰਕੜੇ, "Lying server, not serving HTTP/2");
   }
 
-  if(k->httpcode < 200 && last_hd) {
+  ਜੇ(k->httpcode < 200 && ਆਖਰੀ_hd) {
     /* Intermediate responses might trigger processing of more responses,
      * write the last header to the client before proceeding. */
-    result = http_write_header(data, last_hd, last_hd_len);
-    last_hd = NULL; /* handled it */
-    if(result)
-      goto out;
+    ਨਤੀਜਾ = http_write_ਸਿਰਲੇਖ(ਅੰਕੜੇ, ਆਖਰੀ_hd, ਆਖਰੀ_hd_len);
+    ਆਖਰੀ_hd = ਨਿਰਾ; /* handled it */
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  if(k->httpcode < 100) {
-    failf(data, "Unsupported response code in HTTP response");
-    result = CURLE_UNSUPPORTED_PROTOCOL;
-    goto out;
+  ਜੇ(k->httpcode < 100) {
+    failf(ਅੰਕੜੇ, "Unsupported response code in HTTP response");
+    ਨਤੀਜਾ = CURLE_UNSUPPORTED_PROTOCOL;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  else if(k->httpcode < 200) {
-    result = http_on_1xx_response(data, buf, blen, pconsumed, &conn_changed);
-    goto out;
+  ਨਹੀਂਤਾਂ ਜੇ(k->httpcode < 200) {
+    ਨਤੀਜਾ = http_on_1xx_response(ਅੰਕੜੇ, buf, blen, pconsumed, &conn_ਬਦਲਿਆ);
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* k->httpcode >= 200, final response */
-  k->header = FALSE;
-  if(conn->bits.upgrade_in_progress) {
+  k->ਸਿਰਲੇਖ = FALSE;
+  ਜੇ(conn->ਬਿੱਟ.upgrade_ਵਿੱਚ_ਤਰੱਕੀ) {
     /* Asked for protocol upgrade, but it was not selected */
-    conn->bits.upgrade_in_progress = FALSE;
-    conn_changed = TRUE;
+    conn->ਬਿੱਟ.upgrade_ਵਿੱਚ_ਤਰੱਕੀ = FALSE;
+    conn_ਬਦਲਿਆ = TRUE;
   }
 
-  if((k->size == -1) && !k->chunk && !conn->bits.close &&
+  ਜੇ((k->ਮਾਪ == -1) && !k->chunk && !conn->ਬਿੱਟ.close &&
      (k->httpversion == 11) &&
      !(conn->scheme->protocol & CURLPROTO_RTSP) &&
-     data->state.httpreq != HTTPREQ_HEAD) {
+     ਅੰਕੜੇ->state.httpreq != HTTPREQ_ਸਿਰ) {
     /* On HTTP 1.1, when connection is not to get closed, but no
        Content-Length nor Transfer-Encoding chunked have been received,
        according to RFC2616 section 4.4 point 5, we assume that the server
        will close the connection to signal the end of the document. */
-    infof(data, "no chunk, no close, no size. Assume close to signal end");
+    infof(ਅੰਕੜੇ, "no chunk, no close, no size. Assume close to signal end");
     streamclose(conn);
   }
 
-  http_check_auth_closure(data, conn);
+  http_check_auth_ਘੇਰਾ(ਅੰਕੜੇ, conn);
 
-#ifndef CURL_DISABLE_WEBSOCKETS
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_WEBSOCKETS
   /* All >=200 HTTP status codes are errors when wanting ws */
-  if(data->req.upgr101 == UPGR101_WS) {
-    failf(data, "Refused WebSocket upgrade: %d", k->httpcode);
-    result = CURLE_HTTP_RETURNED_ERROR;
-    goto out;
+  ਜੇ(ਅੰਕੜੇ->req.upgr101 == UPGR101_WS) {
+    failf(ਅੰਕੜੇ, "Refused WebSocket upgrade: %d", k->httpcode);
+    ਨਤੀਜਾ = CURLE_HTTP_RETURNED_ERROR;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
   /* Check if this response means the transfer errored. */
-  if(http_should_fail(data, data->req.httpcode)) {
-    failf(data, "The requested URL returned error: %d",
+  ਜੇ(http_should_fail(ਅੰਕੜੇ, ਅੰਕੜੇ->req.httpcode)) {
+    failf(ਅੰਕੜੇ, "The requested URL returned error: %d",
           k->httpcode);
-    result = CURLE_HTTP_RETURNED_ERROR;
-    goto out;
+    ਨਤੀਜਾ = CURLE_HTTP_RETURNED_ERROR;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* Curl_http_auth_act() checks what authentication methods that are
    * available and decides which one (if any) to use. It will set 'newurl' if
    * an auth method was picked. */
-  result = Curl_http_auth_act(data);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_http_auth_act(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if(k->httpcode >= 300) {
-    result = http_handle_send_error(data);
-    if(result)
-      goto out;
+  ਜੇ(k->httpcode >= 300) {
+    ਨਤੀਜਾ = http_handle_send_error(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* final response without error, prepare to receive the body */
-  result = http_firstwrite(data);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = http_firstwrite(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   /* This is the last response that we get for the current request. Check on
    * the body size and determine if the response is complete. */
-  result = http_size(data);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = http_ਮਾਪ(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-#ifndef CURL_DISABLE_RTSP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_RTSP
   /* An RTSP response to any method may carry a body, which is announced
      with Content-Length (RFC 2326 section 12.14). Read it instead of
      treating it as excess data, unless the application asked for no body
      with CURLOPT_NOBODY. */
-  if((conn->scheme->protocol & CURLPROTO_RTSP) && data->req.no_body &&
-     !data->set.opt_no_body && (k->size > 0))
-    data->req.no_body = FALSE;
-#endif
+  ਜੇ((conn->scheme->protocol & CURLPROTO_RTSP) && ਅੰਕੜੇ->req.no_body &&
+     !ਅੰਕੜੇ->ਸੈੱਟ.opt_no_body && (k->ਮਾਪ > 0))
+    ਅੰਕੜੇ->req.no_body = FALSE;
+#ਜੇ_ਅੰਤ
 
   /* If we requested a "no body", this is a good time to get
    * out and return home.
    */
-  if(data->req.no_body)
-    k->download_done = TRUE;
+  ਜੇ(ਅੰਕੜੇ->req.no_body)
+    k->download_ਪੂਰਾ = TRUE;
 
   /* If max download size is *zero* (nothing) we already have nothing and can
      safely return ok now! For HTTP/2, we would like to call
      http2_handle_stream_close to properly close a stream. In order to do
      this, we keep reading until we close the stream. */
-  if((k->maxdownload == 0) && (k->httpversion_sent < 20))
-    k->download_done = TRUE;
+  ਜੇ((k->maxdownload == 0) && (k->httpversion_ਭੇਜਿਆ < 20))
+    k->download_ਪੂਰਾ = TRUE;
 
-out:
-  if(last_hd)
+ਬਾਹਰਲਾ:
+  ਜੇ(ਆਖਰੀ_hd)
     /* if not written yet, write it now */
-    result = Curl_1st_fatal(result,
-                            http_write_header(data, last_hd, last_hd_len));
-  if(conn_changed)
+    ਨਤੀਜਾ = Curl_1st_fatal(ਨਤੀਜਾ,
+                            http_write_ਸਿਰਲੇਖ(ਅੰਕੜੇ, ਆਖਰੀ_hd, ਆਖਰੀ_hd_len));
+  ਜੇ(conn_ਬਦਲਿਆ)
     /* poke the multi handle to allow pending pipewait to retry */
-    Curl_multi_connchanged(data->multi);
-  return result;
+    Curl_multi_connchanged(ਅੰਕੜੇ->multi);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode http_rw_hd(struct Curl_easy *data,
-                           const char *hd, size_t hdlen,
-                           const char *buf_remain, size_t blen,
+ਸਥਿਰ CURLcode http_rw_hd(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਅਚਲ ਅੱਖਰ *hd, size_t hdlen,
+                           ਅਚਲ ਅੱਖਰ *buf_remain, size_t blen,
                            size_t *pconsumed)
 {
-  CURLcode result = CURLE_OK;
-  struct SingleRequest *k = &data->req;
-  int writetype;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+  ਪੂਰਨ writetype;
   DEBUGASSERT(!hd[hdlen]); /* null-terminated */
 
   *pconsumed = 0;
-  if((0x0a == *hd) || (0x0d == *hd)) {
+  ਜੇ((0x0a == *hd) || (0x0d == *hd)) {
     /* Empty header line means end of headers! */
-    struct dynbuf last_header;
+    ਬਣਤਰ dynbuf ਆਖਰੀ_ਸਿਰਲੇਖ;
     size_t consumed;
 
-    curlx_dyn_init(&last_header, hdlen + 1);
-    result = curlx_dyn_addn(&last_header, hd, hdlen);
-    if(result)
-      return result;
+    curlx_dyn_init(&ਆਖਰੀ_ਸਿਰਲੇਖ, hdlen + 1);
+    ਨਤੀਜਾ = curlx_dyn_addn(&ਆਖਰੀ_ਸਿਰਲੇਖ, hd, hdlen);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
 
     /* analyze the response to find out what to do. */
     /* Caveat: we clear anything in the header brigade, because a
      * response might switch HTTP version which may call use recursively.
      * Not nice, but that is currently the way of things. */
-    curlx_dyn_reset(&data->state.headerb);
-    result = http_on_response(data, curlx_dyn_ptr(&last_header),
-                              curlx_dyn_len(&last_header),
+    curlx_dyn_reset(&ਅੰਕੜੇ->state.headerb);
+    ਨਤੀਜਾ = http_on_response(ਅੰਕੜੇ, curlx_dyn_ptr(&ਆਖਰੀ_ਸਿਰਲੇਖ),
+                              curlx_dyn_len(&ਆਖਰੀ_ਸਿਰਲੇਖ),
                               buf_remain, blen, &consumed);
     *pconsumed += consumed;
-    curlx_dyn_free(&last_header);
-    return result;
+    curlx_dyn_free(&ਆਖਰੀ_ਸਿਰਲੇਖ);
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
 
   /*
    * Checks for special headers coming up.
    */
 
-  writetype = CLIENTWRITE_HEADER;
-  if(!k->headerline++) {
+  writetype = CLIENTWRITE_ਸਿਰਲੇਖ;
+  ਜੇ(!k->headerline++) {
     /* This is the first header, it MUST be the error code line
        or else we consider this to be the body right away! */
     bool fine_statusline = FALSE;
 
     k->httpversion = 0; /* Do not know yet */
-    if(data->conn->scheme->protocol & PROTO_FAMILY_HTTP) {
+    ਜੇ(ਅੰਕੜੇ->conn->scheme->protocol & PROTO_FAMILY_HTTP) {
       /*
        * https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.2
        *
@@ -4351,19 +4351,19 @@ static CURLcode http_rw_hd(struct Curl_easy *data,
        * says. We allow any three-digit number here, but we cannot make
        * guarantees on future behaviors since it is not within the protocol.
        */
-      const char *p = hd;
+      ਅਚਲ ਅੱਖਰ *p = hd;
 
       curlx_str_passblanks(&p);
-      if(!strncmp(p, "HTTP/", 5)) {
+      ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(p, "HTTP/", 5)) {
         p += 5;
-        switch(*p) {
-        case '1':
+        ਚੋਣ(*p) {
+        ਹਾਲਤ '1':
           p++;
-          if((p[0] == '.') && (p[1] == '0' || p[1] == '1')) {
-            if(ISBLANK(p[2])) {
-              k->httpversion = (unsigned char)(10 + (p[1] - '0'));
+          ਜੇ((p[0] == '.') && (p[1] == '0' || p[1] == '1')) {
+            ਜੇ(ISBLANK(p[2])) {
+              k->httpversion = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)(10 + (p[1] - '0'));
               p += 3;
-              if(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
+              ਜੇ(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
                 k->httpcode = ((p[0] - '0') * 100) + ((p[1] - '0') * 10) +
                   (p[2] - '0');
                 /* RFC 9112 requires a single space following the status code,
@@ -4372,220 +4372,220 @@ static CURLcode http_rw_hd(struct Curl_easy *data,
               }
             }
           }
-          if(!fine_statusline) {
-            failf(data, "Unsupported HTTP/1 subversion in response");
-            return CURLE_UNSUPPORTED_PROTOCOL;
+          ਜੇ(!fine_statusline) {
+            failf(ਅੰਕੜੇ, "Unsupported HTTP/1 subversion in response");
+            ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
           }
-          break;
-        case '2':
-        case '3':
-          if(!ISBLANK(p[1]))
-            break;
-          k->httpversion = (unsigned char)((*p - '0') * 10);
+          ਰੋਕੋ;
+        ਹਾਲਤ '2':
+        ਹਾਲਤ '3':
+          ਜੇ(!ISBLANK(p[1]))
+            ਰੋਕੋ;
+          k->httpversion = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)((*p - '0') * 10);
           p += 2;
-          if(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
+          ਜੇ(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
             k->httpcode = ((p[0] - '0') * 100) + ((p[1] - '0') * 10) +
               (p[2] - '0');
             p += 3;
-            if(!ISBLANK(*p))
-              break;
+            ਜੇ(!ISBLANK(*p))
+              ਰੋਕੋ;
             fine_statusline = TRUE;
           }
-          break;
-        default: /* unsupported */
-          failf(data, "Unsupported HTTP version in response");
-          return CURLE_UNSUPPORTED_PROTOCOL;
+          ਰੋਕੋ;
+        ਮੂਲ: /* unsupported */
+          failf(ਅੰਕੜੇ, "Unsupported HTTP version in response");
+          ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
         }
       }
 
-      if(!fine_statusline) {
+      ਜੇ(!fine_statusline) {
         /* If user has set option HTTP200ALIASES,
            compare header line against list of aliases */
-        statusline check = checkhttpprefix(data, hd, hdlen);
-        if(check == STATUS_DONE) {
+        statusline check = checkhttpprefix(ਅੰਕੜੇ, hd, hdlen);
+        ਜੇ(check == ਸਥਿਤੀ_ਪੂਰਾ) {
           fine_statusline = TRUE;
           k->httpcode = 200;
           k->httpversion = 10;
         }
       }
     }
-    else if(data->conn->scheme->protocol & CURLPROTO_RTSP) {
-      const char *p = hd;
-      struct Curl_str ver;
-      curl_off_t status;
+    ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->conn->scheme->protocol & CURLPROTO_RTSP) {
+      ਅਚਲ ਅੱਖਰ *p = hd;
+      ਬਣਤਰ Curl_str ver;
+      curl_off_t ਸਥਿਤੀ;
       /* we set the max string a little excessive to forgive some leading
          spaces */
-      if(!curlx_str_until(&p, &ver, 32, ' ') &&
+      ਜੇ(!curlx_str_until(&p, &ver, 32, ' ') &&
          !curlx_str_single(&p, ' ') &&
-         !curlx_str_number(&p, &status, 999)) {
+         !curlx_str_ਸੰਖਿਆ(&p, &ਸਥਿਤੀ, 999)) {
         curlx_str_trimblanks(&ver);
-        if(curlx_str_cmp(&ver, "RTSP/1.0")) {
-          k->httpcode = (int)status;
+        ਜੇ(curlx_str_cmp(&ver, "RTSP/1.0")) {
+          k->httpcode = (ਪੂਰਨ)ਸਥਿਤੀ;
           fine_statusline = TRUE;
           k->httpversion = 11; /* RTSP acts like HTTP 1.1 */
         }
       }
-      if(!fine_statusline)
-        return CURLE_WEIRD_SERVER_REPLY;
+      ਜੇ(!fine_statusline)
+        ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
     }
 
-    if(fine_statusline) {
-      result = http_statusline(data, data->conn);
-      if(result)
-        return result;
-      writetype |= CLIENTWRITE_STATUS;
+    ਜੇ(fine_statusline) {
+      ਨਤੀਜਾ = http_statusline(ਅੰਕੜੇ, ਅੰਕੜੇ->conn);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      writetype |= CLIENTWRITE_ਸਥਿਤੀ;
     }
-    else {
-      k->header = FALSE;   /* this is not a header line */
-      return CURLE_WEIRD_SERVER_REPLY;
+    ਨਹੀਂਤਾਂ {
+      k->ਸਿਰਲੇਖ = FALSE;   /* this is not a header line */
+      ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
     }
   }
 
-  result = Curl_verify_header(data, hd, hdlen);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_verify_ਸਿਰਲੇਖ(ਅੰਕੜੇ, hd, hdlen);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  result = http_header(data, hd, hdlen);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = http_ਸਿਰਲੇਖ(ਅੰਕੜੇ, hd, hdlen);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   /*
    * Taken in one (more) header. Write it to the client.
    */
-  Curl_debug(data, CURLINFO_HEADER_IN, hd, hdlen);
+  Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਵਿੱਚ, hd, hdlen);
 
-  if(k->httpcode / 100 == 1)
+  ਜੇ(k->httpcode / 100 == 1)
     writetype |= CLIENTWRITE_1XX;
-  result = Curl_client_write(data, writetype, hd, hdlen);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, writetype, hd, hdlen);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  result = Curl_bump_headersize(data, hdlen, FALSE);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_bump_headersize(ਅੰਕੜੇ, hdlen, FALSE);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* remove trailing CRLF then all trailing whitespace */
-void Curl_http_to_fold(struct dynbuf *bf)
+ਖਾਲੀ Curl_http_ਮੰਜ਼ਿਲ_fold(ਬਣਤਰ dynbuf *bf)
 {
   size_t len = curlx_dyn_len(bf);
-  const char *hd = curlx_dyn_ptr(bf);
-  if(len && (hd[len - 1] == '\n'))
+  ਅਚਲ ਅੱਖਰ *hd = curlx_dyn_ptr(bf);
+  ਜੇ(len && (hd[len - 1] == '\n'))
     len--;
-  if(len && (hd[len - 1] == '\r'))
+  ਜੇ(len && (hd[len - 1] == '\r'))
     len--;
-  while(len && ISBLANK(hd[len - 1])) /* strip off trailing whitespace */
+  ਜਦੋਂ(len && ISBLANK(hd[len - 1])) /* strip off trailing whitespace */
     len--;
   curlx_dyn_setlen(bf, len);
 }
 
-static void unfold_header(struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ unfold_ਸਿਰਲੇਖ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  Curl_http_to_fold(&data->state.headerb);
-  data->state.leading_unfold = TRUE;
+  Curl_http_ਮੰਜ਼ਿਲ_fold(&ਅੰਕੜੇ->state.headerb);
+  ਅੰਕੜੇ->state.leading_unfold = TRUE;
 }
 
 /*
  * Read any HTTP header lines from the server and pass them to the client app.
  */
-static CURLcode http_parse_headers(struct Curl_easy *data,
-                                   const char *buf, size_t blen,
+ਸਥਿਰ CURLcode http_parse_ਸਿਰਲੇਖਾਂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਅਚਲ ਅੱਖਰ *buf, size_t blen,
                                    size_t *pconsumed)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
-  struct SingleRequest *k = &data->req;
-  const char *end_ptr;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ SingleRequest *k = &ਅੰਕੜੇ->req;
+  ਅਚਲ ਅੱਖਰ *ਸਿਰਾ_ptr;
   bool leftover_body = FALSE;
 
   /* we have bytes for the next header, make sure it is not a folded header
      before passing it on */
-  if(data->state.maybe_folded && blen) {
-    if(ISBLANK(buf[0])) {
+  ਜੇ(ਅੰਕੜੇ->state.maybe_folded && blen) {
+    ਜੇ(ISBLANK(buf[0])) {
       /* folded, remove the trailing newlines and append the next header */
-      unfold_header(data);
+      unfold_ਸਿਰਲੇਖ(ਅੰਕੜੇ);
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* the header data we hold is a complete header, pass it on */
       size_t ignore_this;
-      result = http_rw_hd(data, curlx_dyn_ptr(&data->state.headerb),
-                          curlx_dyn_len(&data->state.headerb),
-                          NULL, 0, &ignore_this);
-      curlx_dyn_reset(&data->state.headerb);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = http_rw_hd(ਅੰਕੜੇ, curlx_dyn_ptr(&ਅੰਕੜੇ->state.headerb),
+                          curlx_dyn_len(&ਅੰਕੜੇ->state.headerb),
+                          ਨਿਰਾ, 0, &ignore_this);
+      curlx_dyn_reset(&ਅੰਕੜੇ->state.headerb);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    data->state.maybe_folded = FALSE;
+    ਅੰਕੜੇ->state.maybe_folded = FALSE;
   }
 
   /* header line within buffer loop */
   *pconsumed = 0;
-  while(blen && k->header) {
+  ਜਦੋਂ(blen && k->ਸਿਰਲੇਖ) {
     size_t consumed;
     size_t hlen;
-    const char *hd;
+    ਅਚਲ ਅੱਖਰ *hd;
     size_t unfold_len = 0;
 
-    if(data->state.leading_unfold) {
+    ਜੇ(ਅੰਕੜੇ->state.leading_unfold) {
       /* immediately after an unfold, keep only a single whitespace */
-      while(blen && ISBLANK(buf[0])) {
+      ਜਦੋਂ(blen && ISBLANK(buf[0])) {
         buf++;
         blen--;
         unfold_len++;
       }
-      if(blen) {
+      ਜੇ(blen) {
         /* insert a single space */
-        result = curlx_dyn_addn(&data->state.headerb, " ", 1);
-        if(result)
-          return result;
-        data->state.leading_unfold = FALSE; /* done now */
+        ਨਤੀਜਾ = curlx_dyn_addn(&ਅੰਕੜੇ->state.headerb, " ", 1);
+        ਜੇ(ਨਤੀਜਾ)
+          ਵਾਪਸ ਨਤੀਜਾ;
+        ਅੰਕੜੇ->state.leading_unfold = FALSE; /* done now */
       }
     }
 
-    end_ptr = memchr(buf, '\n', blen);
-    if(!end_ptr) {
+    ਸਿਰਾ_ptr = memchr(buf, '\n', blen);
+    ਜੇ(!ਸਿਰਾ_ptr) {
       /* Not a complete header line within buffer, append the data to
          the end of the headerbuff. */
-      result = curlx_dyn_addn(&data->state.headerb, buf, blen);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = curlx_dyn_addn(&ਅੰਕੜੇ->state.headerb, buf, blen);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
       *pconsumed += blen + unfold_len;
 
-      if(!k->headerline) {
+      ਜੇ(!k->headerline) {
         /* check if this looks like a protocol header */
         statusline st =
-          checkprotoprefix(data, conn,
-                           curlx_dyn_ptr(&data->state.headerb),
-                           curlx_dyn_len(&data->state.headerb));
+          checkprotoprefix(ਅੰਕੜੇ, conn,
+                           curlx_dyn_ptr(&ਅੰਕੜੇ->state.headerb),
+                           curlx_dyn_len(&ਅੰਕੜੇ->state.headerb));
 
-        if(st == STATUS_BAD) {
+        ਜੇ(st == ਸਥਿਤੀ_BAD) {
           /* this is not the beginning of a protocol first header line.
            * Cannot be 0.9 if version was detected or connection was reused. */
-          k->header = FALSE;
+          k->ਸਿਰਲੇਖ = FALSE;
           streamclose(conn);
-          if((k->httpversion >= 10) || conn->bits.reuse) {
-            failf(data, "Invalid status line");
-            return CURLE_WEIRD_SERVER_REPLY;
+          ਜੇ((k->httpversion >= 10) || conn->ਬਿੱਟ.reuse) {
+            failf(ਅੰਕੜੇ, "Invalid status line");
+            ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
           }
-          if(!data->state.http_neg.accept_09) {
-            failf(data, "Received HTTP/0.9 when not allowed");
-            return CURLE_UNSUPPORTED_PROTOCOL;
+          ਜੇ(!ਅੰਕੜੇ->state.http_neg.accept_09) {
+            failf(ਅੰਕੜੇ, "Received HTTP/0.9 when not allowed");
+            ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
           }
           leftover_body = TRUE;
-          goto out;
+          ਜਾਓ ਬਾਹਰਲਾ;
         }
       }
-      goto out; /* read more and try again */
+      ਜਾਓ ਬਾਹਰਲਾ; /* read more and try again */
     }
 
     /* the size of the remaining header line */
-    consumed = (end_ptr - buf) + 1;
+    consumed = (ਸਿਰਾ_ptr - buf) + 1;
 
-    result = curlx_dyn_addn(&data->state.headerb, buf, consumed);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = curlx_dyn_addn(&ਅੰਕੜੇ->state.headerb, buf, consumed);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
     blen -= consumed;
     buf += consumed;
     *pconsumed += consumed + unfold_len;
@@ -4594,363 +4594,363 @@ static CURLcode http_parse_headers(struct Curl_easy *data,
      * We now have a FULL header line in 'headerb'.
      *****/
 
-    hlen = curlx_dyn_len(&data->state.headerb);
-    hd = curlx_dyn_ptr(&data->state.headerb);
+    hlen = curlx_dyn_len(&ਅੰਕੜੇ->state.headerb);
+    hd = curlx_dyn_ptr(&ਅੰਕੜੇ->state.headerb);
 
-    if(!k->headerline) {
+    ਜੇ(!k->headerline) {
       /* the first read "header", the status line */
-      statusline st = checkprotoprefix(data, conn, hd, hlen);
-      if(st == STATUS_BAD) {
+      statusline st = checkprotoprefix(ਅੰਕੜੇ, conn, hd, hlen);
+      ਜੇ(st == ਸਥਿਤੀ_BAD) {
         streamclose(conn);
         /* this is not the beginning of a protocol first header line.
          * Cannot be 0.9 if version was detected or connection was reused. */
-        if((k->httpversion >= 10) || conn->bits.reuse) {
-          failf(data, "Invalid status line");
-          return CURLE_WEIRD_SERVER_REPLY;
+        ਜੇ((k->httpversion >= 10) || conn->ਬਿੱਟ.reuse) {
+          failf(ਅੰਕੜੇ, "Invalid status line");
+          ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
         }
-        if(!data->state.http_neg.accept_09) {
-          failf(data, "Received HTTP/0.9 when not allowed");
-          return CURLE_UNSUPPORTED_PROTOCOL;
+        ਜੇ(!ਅੰਕੜੇ->state.http_neg.accept_09) {
+          failf(ਅੰਕੜੇ, "Received HTTP/0.9 when not allowed");
+          ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
         }
-        k->header = FALSE;
+        k->ਸਿਰਲੇਖ = FALSE;
         leftover_body = TRUE;
-        goto out;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
     }
-    else {
-      if(hlen && !ISNEWLINE(hd[0])) {
+    ਨਹੀਂਤਾਂ {
+      ਜੇ(hlen && !ISNEWLINE(hd[0])) {
         /* this is NOT the header separator */
 
         /* if we have bytes for the next header, check for folding */
-        if(blen && ISBLANK(buf[0])) {
+        ਜੇ(blen && ISBLANK(buf[0])) {
           /* remove the trailing CRLF and append the next header */
-          unfold_header(data);
-          continue;
+          unfold_ਸਿਰਲੇਖ(ਅੰਕੜੇ);
+          ਜਾਰੀ;
         }
-        else if(!blen) {
+        ਨਹੀਂਤਾਂ ਜੇ(!blen) {
           /* this might be a folded header so deal with it in next invoke */
-          data->state.maybe_folded = TRUE;
-          break;
+          ਅੰਕੜੇ->state.maybe_folded = TRUE;
+          ਰੋਕੋ;
         }
       }
     }
 
-    result = http_rw_hd(data, hd, hlen, buf, blen, &consumed);
+    ਨਤੀਜਾ = http_rw_hd(ਅੰਕੜੇ, hd, hlen, buf, blen, &consumed);
     /* We are done with this line. We reset because response
      * processing might switch to HTTP/2 and that might call us
      * directly again. */
-    curlx_dyn_reset(&data->state.headerb);
-    if(consumed) {
+    curlx_dyn_reset(&ਅੰਕੜੇ->state.headerb);
+    ਜੇ(consumed) {
       blen -= consumed;
       buf += consumed;
       *pconsumed += consumed;
     }
-    if(result)
-      return result;
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
   /* We might have reached the end of the header part here, but
      there might be a non-header part left in the end of the read
      buffer. */
-out:
-  if(!k->header && !leftover_body) {
-    curlx_dyn_free(&data->state.headerb);
+ਬਾਹਰਲਾ:
+  ਜੇ(!k->ਸਿਰਲੇਖ && !leftover_body) {
+    curlx_dyn_free(&ਅੰਕੜੇ->state.headerb);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_http_write_resp_hd(struct Curl_easy *data,
-                                 const char *hd, size_t hdlen,
+CURLcode Curl_http_write_resp_hd(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਅਚਲ ਅੱਖਰ *hd, size_t hdlen,
                                  bool is_eos)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
   size_t consumed;
-  char tmp = 0;
+  ਅੱਖਰ tmp = 0;
   DEBUGASSERT(!hd[hdlen]); /* null-terminated */
 
-  result = http_rw_hd(data, hd, hdlen, &tmp, 0, &consumed);
-  if(!result && is_eos) {
-    result = Curl_client_write(data, (CLIENTWRITE_BODY | CLIENTWRITE_EOS),
+  ਨਤੀਜਾ = http_rw_hd(ਅੰਕੜੇ, hd, hdlen, &tmp, 0, &consumed);
+  ਜੇ(!ਨਤੀਜਾ && is_eos) {
+    ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, (CLIENTWRITE_BODY | CLIENTWRITE_EOS),
                                &tmp, 0);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * HTTP protocol `write_resp` implementation. Parse headers
  * when not done yet and otherwise return without consuming data.
  */
-CURLcode Curl_http_write_resp_hds(struct Curl_easy *data,
-                                  const char *buf, size_t blen,
+CURLcode Curl_http_write_resp_hds(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਅਚਲ ਅੱਖਰ *buf, size_t blen,
                                   size_t *pconsumed)
 {
-  if(!data->req.header) {
+  ਜੇ(!ਅੰਕੜੇ->req.ਸਿਰਲੇਖ) {
     *pconsumed = 0;
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-  else {
-    CURLcode result;
+  ਨਹੀਂਤਾਂ {
+    CURLcode ਨਤੀਜਾ;
 
-    result = http_parse_headers(data, buf, blen, pconsumed);
-    if(!result && !data->req.header) {
-      if(!data->req.no_body && curlx_dyn_len(&data->state.headerb)) {
+    ਨਤੀਜਾ = http_parse_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ, buf, blen, pconsumed);
+    ਜੇ(!ਨਤੀਜਾ && !ਅੰਕੜੇ->req.ਸਿਰਲੇਖ) {
+      ਜੇ(!ਅੰਕੜੇ->req.no_body && curlx_dyn_len(&ਅੰਕੜੇ->state.headerb)) {
         /* leftover from parsing something that turned out not
          * to be a header, only happens if we allow for
          * HTTP/0.9 like responses */
-        result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                   curlx_dyn_ptr(&data->state.headerb),
-                                   curlx_dyn_len(&data->state.headerb));
+        ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY,
+                                   curlx_dyn_ptr(&ਅੰਕੜੇ->state.headerb),
+                                   curlx_dyn_len(&ਅੰਕੜੇ->state.headerb));
       }
-      curlx_dyn_free(&data->state.headerb);
+      curlx_dyn_free(&ਅੰਕੜੇ->state.headerb);
     }
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
 }
 
-CURLcode Curl_http_write_resp(struct Curl_easy *data,
-                              const char *buf, size_t blen,
+CURLcode Curl_http_write_resp(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *buf, size_t blen,
                               bool is_eos)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
   size_t consumed;
-  int flags;
+  ਪੂਰਨ flags;
 
-  result = Curl_http_write_resp_hds(data, buf, blen, &consumed);
-  if(result || data->req.done)
-    goto out;
+  ਨਤੀਜਾ = Curl_http_write_resp_hds(ਅੰਕੜੇ, buf, blen, &consumed);
+  ਜੇ(ਨਤੀਜਾ || ਅੰਕੜੇ->req.ਪੂਰਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   DEBUGASSERT(consumed <= blen);
   blen -= consumed;
   buf += consumed;
   /* either all was consumed in header parsing, or we have data left
    * and are done with headers, e.g. it is BODY data */
-  DEBUGASSERT(!blen || !data->req.header);
-  if(!data->req.header && (blen || is_eos)) {
+  DEBUGASSERT(!blen || !ਅੰਕੜੇ->req.ਸਿਰਲੇਖ);
+  ਜੇ(!ਅੰਕੜੇ->req.ਸਿਰਲੇਖ && (blen || is_eos)) {
     /* BODY data after header been parsed, write and consume */
     flags = CLIENTWRITE_BODY;
-    if(is_eos)
+    ਜੇ(is_eos)
       flags |= CLIENTWRITE_EOS;
-    result = Curl_client_write(data, flags, buf, blen);
+    ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, flags, buf, blen);
   }
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Decode HTTP status code string. */
-CURLcode Curl_http_decode_status(int32_t *pstatus, const char *s, size_t len)
+CURLcode Curl_http_decode_ਸਥਿਤੀ(int32_t *pstatus, ਅਚਲ ਅੱਖਰ *s, size_t len)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  int32_t status = 0;
-  int i;
+  CURLcode ਨਤੀਜਾ = CURLE_BAD_FUNCTION_ਦਲੀਲ;
+  int32_t ਸਥਿਤੀ = 0;
+  ਪੂਰਨ i;
 
-  if(len != 3)
-    goto out;
+  ਜੇ(len != 3)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  for(i = 0; i < 3; ++i) {
-    char c = s[i];
+  ਲਈ(i = 0; i < 3; ++i) {
+    ਅੱਖਰ c = s[i];
 
-    if(c < '0' || c > '9')
-      goto out;
+    ਜੇ(c < '0' || c > '9')
+      ਜਾਓ ਬਾਹਰਲਾ;
 
-    status *= 10;
-    status += c - '0';
+    ਸਥਿਤੀ *= 10;
+    ਸਥਿਤੀ += c - '0';
   }
-  result = CURLE_OK;
-out:
-  *pstatus = result ? -1 : status;
-  return result;
+  ਨਤੀਜਾ = CURLE_OK;
+ਬਾਹਰਲਾ:
+  *pstatus = ਨਤੀਜਾ ? -1 : ਸਥਿਤੀ;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_http_req_make(struct httpreq **preq,
-                            const char *method, size_t m_len,
-                            const char *scheme, size_t s_len,
-                            const char *authority, size_t a_len,
-                            const char *path, size_t p_len)
+CURLcode Curl_http_req_make(ਬਣਤਰ httpreq **preq,
+                            ਅਚਲ ਅੱਖਰ *ਵਿਧੀ, size_t m_len,
+                            ਅਚਲ ਅੱਖਰ *scheme, size_t s_len,
+                            ਅਚਲ ਅੱਖਰ *authority, size_t a_len,
+                            ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, size_t p_len)
 {
-  struct httpreq *req;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  ਬਣਤਰ httpreq *req;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  DEBUGASSERT(method && m_len);
+  DEBUGASSERT(ਵਿਧੀ && m_len);
 
-  req = curlx_calloc(1, sizeof(*req) + m_len);
-  if(!req)
-    goto out;
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
+  req = curlx_calloc(1, ਆਕਾਰ(*req) + m_len);
+  ਜੇ(!req)
+    ਜਾਓ ਬਾਹਰਲਾ;
+#ਜੇ defined(__GNUC__) && __GNUC__ >= 13
+#ਹਦਾਇਤ GCC diagnostic ਧੱਕੋ
 /* error: 'memcpy' offset [137, 142] from the object at 'req' is out of
    the bounds of referenced subobject 'method' with type 'char[1]' at
    offset 136 */
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-  memcpy(req->method, method, m_len);
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
-#endif
-  if(scheme) {
+#ਹਦਾਇਤ GCC diagnostic ignored "-Warray-bounds"
+#ਜੇ_ਅੰਤ
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(req->ਵਿਧੀ, ਵਿਧੀ, m_len);
+#ਜੇ defined(__GNUC__) && __GNUC__ >= 13
+#ਹਦਾਇਤ GCC diagnostic ਕੱਢੋ
+#ਜੇ_ਅੰਤ
+  ਜੇ(scheme) {
     req->scheme = curlx_memdup0(scheme, s_len);
-    if(!req->scheme)
-      goto out;
+    ਜੇ(!req->scheme)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-  if(authority) {
+  ਜੇ(authority) {
     req->authority = curlx_memdup0(authority, a_len);
-    if(!req->authority)
-      goto out;
+    ਜੇ(!req->authority)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-  if(path) {
-    req->path = curlx_memdup0(path, p_len);
-    if(!req->path)
-      goto out;
+  ਜੇ(ਰਸਤਾ) {
+    req->ਰਸਤਾ = curlx_memdup0(ਰਸਤਾ, p_len);
+    ਜੇ(!req->ਰਸਤਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-  Curl_dynhds_init(&req->headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&req->ਸਿਰਲੇਖਾਂ, 0, DYN_HTTP_REQUEST);
   Curl_dynhds_init(&req->trailers, 0, DYN_HTTP_REQUEST);
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 
-out:
-  if(result && req)
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ && req)
     Curl_http_req_free(req);
-  *preq = result ? NULL : req;
-  return result;
+  *preq = ਨਤੀਜਾ ? ਨਿਰਾ : req;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode req_assign_url_authority(struct httpreq *req, CURLU *url)
+ਸਥਿਰ CURLcode req_ਸੌਂਪੋ_url_authority(ਬਣਤਰ httpreq *req, CURLU *url)
 {
-  char *host, *port;
-  struct dynbuf buf;
+  ਅੱਖਰ *host, *ਪੋਰਟ;
+  ਬਣਤਰ dynbuf buf;
   CURLUcode uc;
-  CURLcode result = CURLE_URL_MALFORMAT;
+  CURLcode ਨਤੀਜਾ = CURLE_URL_MALFORMAT;
 
-  host = port = NULL;
+  host = ਪੋਰਟ = ਨਿਰਾ;
   curlx_dyn_init(&buf, DYN_HTTP_REQUEST);
 
   uc = curl_url_get(url, CURLUPART_HOST, &host, 0);
-  if(uc && uc != CURLUE_NO_HOST)
-    goto out;
-  if(!host) {
-    req->authority = NULL;
-    result = CURLE_OK;
-    goto out;
+  ਜੇ(uc && uc != CURLUE_NO_HOST)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਜੇ(!host) {
+    req->authority = ਨਿਰਾ;
+    ਨਤੀਜਾ = CURLE_OK;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  uc = curl_url_get(url, CURLUPART_PORT, &port, CURLU_NO_DEFAULT_PORT);
-  if(uc && uc != CURLUE_NO_PORT)
-    goto out;
+  uc = curl_url_get(url, CURLUPART_ਪੋਰਟ, &ਪੋਰਟ, CURLU_NO_DEFAULT_ਪੋਰਟ);
+  ਜੇ(uc && uc != CURLUE_NO_ਪੋਰਟ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  result = curlx_dyn_add(&buf, host);
-  if(result)
-    goto out;
-  if(port) {
-    result = curlx_dyn_addf(&buf, ":%s", port);
-    if(result)
-      goto out;
+  ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&buf, host);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਜੇ(ਪੋਰਟ) {
+    ਨਤੀਜਾ = curlx_dyn_addf(&buf, ":%s", ਪੋਰਟ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
   req->authority = curlx_dyn_ptr(&buf);
-out:
+ਬਾਹਰਲਾ:
   curlx_free(host);
-  curlx_free(port);
-  if(result)
+  curlx_free(ਪੋਰਟ);
+  ਜੇ(ਨਤੀਜਾ)
     curlx_dyn_free(&buf);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode req_assign_url_path(struct httpreq *req, CURLU *url)
+ਸਥਿਰ CURLcode req_ਸੌਂਪੋ_url_ਰਸਤਾ(ਬਣਤਰ httpreq *req, CURLU *url)
 {
-  char *path, *query;
-  struct dynbuf buf;
+  ਅੱਖਰ *ਰਸਤਾ, *query;
+  ਬਣਤਰ dynbuf buf;
   CURLUcode uc;
-  CURLcode result = CURLE_URL_MALFORMAT;
+  CURLcode ਨਤੀਜਾ = CURLE_URL_MALFORMAT;
 
-  path = query = NULL;
+  ਰਸਤਾ = query = ਨਿਰਾ;
   curlx_dyn_init(&buf, DYN_HTTP_REQUEST);
 
-  uc = curl_url_get(url, CURLUPART_PATH, &path, 0);
-  if(uc)
-    goto out;
+  uc = curl_url_get(url, CURLUPART_ਰਸਤਾ, &ਰਸਤਾ, 0);
+  ਜੇ(uc)
+    ਜਾਓ ਬਾਹਰਲਾ;
   uc = curl_url_get(url, CURLUPART_QUERY, &query, 0);
-  if(uc && uc != CURLUE_NO_QUERY)
-    goto out;
+  ਜੇ(uc && uc != CURLUE_NO_QUERY)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if(!query) {
-    req->path = path;
-    path = NULL;
+  ਜੇ(!query) {
+    req->ਰਸਤਾ = ਰਸਤਾ;
+    ਰਸਤਾ = ਨਿਰਾ;
   }
-  else {
-    result = curlx_dyn_add(&buf, path);
-    if(!result)
-      result = curlx_dyn_addf(&buf, "?%s", query);
-    if(result)
-      goto out;
-    req->path = curlx_dyn_ptr(&buf);
+  ਨਹੀਂਤਾਂ {
+    ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&buf, ਰਸਤਾ);
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = curlx_dyn_addf(&buf, "?%s", query);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
+    req->ਰਸਤਾ = curlx_dyn_ptr(&buf);
   }
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 
-out:
-  curlx_free(path);
+ਬਾਹਰਲਾ:
+  curlx_free(ਰਸਤਾ);
   curlx_free(query);
-  if(result)
+  ਜੇ(ਨਤੀਜਾ)
     curlx_dyn_free(&buf);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_http_req_make2(struct httpreq **preq,
-                             const char *method, size_t m_len,
-                             CURLU *url, const char *scheme_default)
+CURLcode Curl_http_req_make2(ਬਣਤਰ httpreq **preq,
+                             ਅਚਲ ਅੱਖਰ *ਵਿਧੀ, size_t m_len,
+                             CURLU *url, ਅਚਲ ਅੱਖਰ *scheme_default)
 {
-  struct httpreq *req;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  ਬਣਤਰ httpreq *req;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   CURLUcode uc;
 
-  DEBUGASSERT(method && m_len);
+  DEBUGASSERT(ਵਿਧੀ && m_len);
 
-  req = curlx_calloc(1, sizeof(*req) + m_len);
-  if(!req)
-    goto out;
-  memcpy(req->method, method, m_len);
+  req = curlx_calloc(1, ਆਕਾਰ(*req) + m_len);
+  ਜੇ(!req)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(req->ਵਿਧੀ, ਵਿਧੀ, m_len);
 
   uc = curl_url_get(url, CURLUPART_SCHEME, &req->scheme, 0);
-  if(uc && uc != CURLUE_NO_SCHEME)
-    goto out;
-  if(!req->scheme && scheme_default) {
+  ਜੇ(uc && uc != CURLUE_NO_SCHEME)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਜੇ(!req->scheme && scheme_default) {
     req->scheme = curlx_strdup(scheme_default);
-    if(!req->scheme)
-      goto out;
+    ਜੇ(!req->scheme)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  result = req_assign_url_authority(req, url);
-  if(result)
-    goto out;
-  result = req_assign_url_path(req, url);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = req_ਸੌਂਪੋ_url_authority(req, url);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਨਤੀਜਾ = req_ਸੌਂਪੋ_url_ਰਸਤਾ(req, url);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  Curl_dynhds_init(&req->headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&req->ਸਿਰਲੇਖਾਂ, 0, DYN_HTTP_REQUEST);
   Curl_dynhds_init(&req->trailers, 0, DYN_HTTP_REQUEST);
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 
-out:
-  if(result && req)
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ && req)
     Curl_http_req_free(req);
-  *preq = result ? NULL : req;
-  return result;
+  *preq = ਨਤੀਜਾ ? ਨਿਰਾ : req;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_http_req_free(struct httpreq *req)
+ਖਾਲੀ Curl_http_req_free(ਬਣਤਰ httpreq *req)
 {
-  if(req) {
+  ਜੇ(req) {
     curlx_free(req->scheme);
     curlx_free(req->authority);
-    curlx_free(req->path);
-    Curl_dynhds_free(&req->headers);
+    curlx_free(req->ਰਸਤਾ);
+    Curl_dynhds_free(&req->ਸਿਰਲੇਖਾਂ);
     Curl_dynhds_free(&req->trailers);
     curlx_free(req);
   }
 }
 
-struct name_const {
-  const char *name;
+ਬਣਤਰ name_const {
+  ਅਚਲ ਅੱਖਰ *name;
   size_t namelen;
 };
 
-static const struct name_const H2_NON_FIELD[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ name_const H2_NON_ਖੇਤਰ[] = {
   { STRCONST("Host") },
   { STRCONST("Upgrade") },
   { STRCONST("Connection") },
@@ -4959,150 +4959,150 @@ static const struct name_const H2_NON_FIELD[] = {
   { STRCONST("Transfer-Encoding") },
 };
 
-static bool h2_permissible_field(struct dynhds_entry *e)
+ਸਥਿਰ bool h2_permissible_ਖੇਤਰ(ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *e)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(H2_NON_FIELD); ++i) {
-    if(e->namelen == H2_NON_FIELD[i].namelen &&
-       curl_strnequal(H2_NON_FIELD[i].name, e->name, e->namelen))
-      return FALSE;
+  ਲਈ(i = 0; i < CURL_ARRAYSIZE(H2_NON_ਖੇਤਰ); ++i) {
+    ਜੇ(e->namelen == H2_NON_ਖੇਤਰ[i].namelen &&
+       curl_strnequal(H2_NON_ਖੇਤਰ[i].name, e->name, e->namelen))
+      ਵਾਪਸ FALSE;
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static bool http_TE_has_token(const char *fvalue, const char *token)
+ਸਥਿਰ bool http_TE_has_token(ਅਚਲ ਅੱਖਰ *fvalue, ਅਚਲ ਅੱਖਰ *token)
 {
-  while(*fvalue) {
-    struct Curl_str name;
+  ਜਦੋਂ(*fvalue) {
+    ਬਣਤਰ Curl_str name;
 
     /* skip to first token */
-    while(ISBLANK(*fvalue) || *fvalue == ',')
+    ਜਦੋਂ(ISBLANK(*fvalue) || *fvalue == ',')
       fvalue++;
-    if(curlx_str_cspn(&fvalue, &name, " \t\r;,"))
-      return FALSE;
-    if(curlx_str_casecompare(&name, token))
-      return TRUE;
+    ਜੇ(curlx_str_cspn(&fvalue, &name, " \t\r;,"))
+      ਵਾਪਸ FALSE;
+    ਜੇ(curlx_str_casecompare(&name, token))
+      ਵਾਪਸ TRUE;
 
     /* skip any remainder after token, e.g. parameters with quoted strings */
-    while(*fvalue && *fvalue != ',') {
-      if(*fvalue == '"') {
-        struct Curl_str qw;
+    ਜਦੋਂ(*fvalue && *fvalue != ',') {
+      ਜੇ(*fvalue == '"') {
+        ਬਣਤਰ Curl_str qw;
         /* if we do not cleanly find a quoted word here, the header value
          * does not follow HTTP syntax and we reject */
-        if(curlx_str_quotedword(&fvalue, &qw, CURL_MAX_HTTP_HEADER))
-          return FALSE;
+        ਜੇ(curlx_str_quotedword(&fvalue, &qw, CURL_MAX_HTTP_ਸਿਰਲੇਖ))
+          ਵਾਪਸ FALSE;
       }
-      else
+      ਨਹੀਂਤਾਂ
         fvalue++;
     }
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-CURLcode Curl_http_req_to_h2(struct dynhds *h2_headers,
-                             struct httpreq *req, struct Curl_easy *data)
+CURLcode Curl_http_req_ਮੰਜ਼ਿਲ_h2(ਬਣਤਰ dynhds *h2_ਸਿਰਲੇਖਾਂ,
+                             ਬਣਤਰ httpreq *req, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  const char *scheme = NULL, *authority = NULL;
-  struct dynhds_entry *e;
+  ਅਚਲ ਅੱਖਰ *scheme = ਨਿਰਾ, *authority = ਨਿਰਾ;
+  ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *e;
   size_t i;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
   DEBUGASSERT(req);
-  DEBUGASSERT(h2_headers);
+  DEBUGASSERT(h2_ਸਿਰਲੇਖਾਂ);
 
-  if(req->scheme) {
+  ਜੇ(req->scheme) {
     scheme = req->scheme;
   }
-  else if(strcmp("CONNECT", req->method)) {
-    scheme = Curl_checkheaders(data, STRCONST(HTTP_PSEUDO_SCHEME));
-    if(scheme) {
-      scheme += sizeof(HTTP_PSEUDO_SCHEME);
+  ਨਹੀਂਤਾਂ ਜੇ(strcmp("CONNECT", req->ਵਿਧੀ)) {
+    scheme = Curl_checkheaders(ਅੰਕੜੇ, STRCONST(HTTP_PSEUDO_SCHEME));
+    ਜੇ(scheme) {
+      scheme += ਆਕਾਰ(HTTP_PSEUDO_SCHEME);
       curlx_str_passblanks(&scheme);
-      infof(data, "set pseudo header %s to %s", HTTP_PSEUDO_SCHEME, scheme);
+      infof(ਅੰਕੜੇ, "set pseudo header %s to %s", HTTP_PSEUDO_SCHEME, scheme);
     }
-    else {
-      scheme = data->state.origin->scheme->name;
+    ਨਹੀਂਤਾਂ {
+      scheme = ਅੰਕੜੇ->state.origin->scheme->name;
     }
   }
 
-  if(req->authority) {
+  ਜੇ(req->authority) {
     authority = req->authority;
   }
-  else {
-    e = Curl_dynhds_get(&req->headers, STRCONST("Host"));
-    if(e)
-      authority = e->value;
+  ਨਹੀਂਤਾਂ {
+    e = Curl_dynhds_get(&req->ਸਿਰਲੇਖਾਂ, STRCONST("Host"));
+    ਜੇ(e)
+      authority = e->ਮੁੱਲ;
   }
 
-  Curl_dynhds_reset(h2_headers);
-  Curl_dynhds_set_opts(h2_headers, DYNHDS_OPT_LOWERCASE);
-  result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_METHOD),
-                           req->method, strlen(req->method));
-  if(!result && scheme) {
-    result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_SCHEME),
-                             scheme, strlen(scheme));
+  Curl_dynhds_reset(h2_ਸਿਰਲੇਖਾਂ);
+  Curl_dynhds_ਸੈੱਟ_opts(h2_ਸਿਰਲੇਖਾਂ, DYNHDS_OPT_LOWERCASE);
+  ਨਤੀਜਾ = Curl_dynhds_ਜੋੜੋ(h2_ਸਿਰਲੇਖਾਂ, STRCONST(HTTP_PSEUDO_ਵਿਧੀ),
+                           req->ਵਿਧੀ, ਲੜੀ_ਲੰਬਾਈ(req->ਵਿਧੀ));
+  ਜੇ(!ਨਤੀਜਾ && scheme) {
+    ਨਤੀਜਾ = Curl_dynhds_ਜੋੜੋ(h2_ਸਿਰਲੇਖਾਂ, STRCONST(HTTP_PSEUDO_SCHEME),
+                             scheme, ਲੜੀ_ਲੰਬਾਈ(scheme));
   }
-  if(!result && authority) {
-    result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_AUTHORITY),
-                             authority, strlen(authority));
+  ਜੇ(!ਨਤੀਜਾ && authority) {
+    ਨਤੀਜਾ = Curl_dynhds_ਜੋੜੋ(h2_ਸਿਰਲੇਖਾਂ, STRCONST(HTTP_PSEUDO_AUTHORITY),
+                             authority, ਲੜੀ_ਲੰਬਾਈ(authority));
   }
-  if(!result && req->path) {
-    result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_PATH),
-                             req->path, strlen(req->path));
+  ਜੇ(!ਨਤੀਜਾ && req->ਰਸਤਾ) {
+    ਨਤੀਜਾ = Curl_dynhds_ਜੋੜੋ(h2_ਸਿਰਲੇਖਾਂ, STRCONST(HTTP_PSEUDO_ਰਸਤਾ),
+                             req->ਰਸਤਾ, ਲੜੀ_ਲੰਬਾਈ(req->ਰਸਤਾ));
   }
-  for(i = 0; !result && i < Curl_dynhds_count(&req->headers); ++i) {
-    e = Curl_dynhds_getn(&req->headers, i);
+  ਲਈ(i = 0; !ਨਤੀਜਾ && i < Curl_dynhds_ਗਿਣਤੀ(&req->ਸਿਰਲੇਖਾਂ); ++i) {
+    e = Curl_dynhds_getn(&req->ਸਿਰਲੇਖਾਂ, i);
     /* "TE" is special in that it is only permissible when it
      * has only value "trailers". RFC 9113 ch. 8.2.2 */
-    if(e->namelen == 2 && curl_strequal("TE", e->name)) {
-      if(http_TE_has_token(e->value, "trailers"))
-        result = Curl_dynhds_add(h2_headers, e->name, e->namelen,
+    ਜੇ(e->namelen == 2 && curl_strequal("TE", e->name)) {
+      ਜੇ(http_TE_has_token(e->ਮੁੱਲ, "trailers"))
+        ਨਤੀਜਾ = Curl_dynhds_ਜੋੜੋ(h2_ਸਿਰਲੇਖਾਂ, e->name, e->namelen,
                                  "trailers", CURL_CSTRLEN("trailers"));
     }
-    else if(h2_permissible_field(e)) {
-      result = Curl_dynhds_add(h2_headers, e->name, e->namelen,
-                               e->value, e->valuelen);
+    ਨਹੀਂਤਾਂ ਜੇ(h2_permissible_ਖੇਤਰ(e)) {
+      ਨਤੀਜਾ = Curl_dynhds_ਜੋੜੋ(h2_ਸਿਰਲੇਖਾਂ, e->name, e->namelen,
+                               e->ਮੁੱਲ, e->valuelen);
     }
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_http_resp_make(struct http_resp **presp,
-                             int status,
-                             const char *description)
+CURLcode Curl_http_resp_make(ਬਣਤਰ http_resp **presp,
+                             ਪੂਰਨ ਸਥਿਤੀ,
+                             ਅਚਲ ਅੱਖਰ *description)
 {
-  struct http_resp *resp;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  ਬਣਤਰ http_resp *resp;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  resp = curlx_calloc(1, sizeof(*resp));
-  if(!resp)
-    goto out;
+  resp = curlx_calloc(1, ਆਕਾਰ(*resp));
+  ਜੇ(!resp)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  resp->status = status;
-  if(description) {
+  resp->ਸਥਿਤੀ = ਸਥਿਤੀ;
+  ਜੇ(description) {
     resp->description = curlx_strdup(description);
-    if(!resp->description)
-      goto out;
+    ਜੇ(!resp->description)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-  Curl_dynhds_init(&resp->headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&resp->ਸਿਰਲੇਖਾਂ, 0, DYN_HTTP_REQUEST);
   Curl_dynhds_init(&resp->trailers, 0, DYN_HTTP_REQUEST);
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 
-out:
-  if(result && resp)
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ && resp)
     Curl_http_resp_free(resp);
-  *presp = result ? NULL : resp;
-  return result;
+  *presp = ਨਤੀਜਾ ? ਨਿਰਾ : resp;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_http_resp_free(struct http_resp *resp)
+ਖਾਲੀ Curl_http_resp_free(ਬਣਤਰ http_resp *resp)
 {
-  if(resp) {
+  ਜੇ(resp) {
     curlx_free(resp->description);
-    Curl_dynhds_free(&resp->headers);
+    Curl_dynhds_free(&resp->ਸਿਰਲੇਖਾਂ);
     Curl_dynhds_free(&resp->trailers);
-    if(resp->prev)
+    ਜੇ(resp->prev)
       Curl_http_resp_free(resp->prev);
     curlx_free(resp);
   }
@@ -5111,10 +5111,10 @@ void Curl_http_resp_free(struct http_resp *resp)
 /*
  * HTTP handler interface.
  */
-const struct Curl_protocol Curl_protocol_http = {
-  Curl_http_setup_conn,                 /* setup_connection */
+ਅਚਲ ਬਣਤਰ Curl_protocol Curl_protocol_http = {
+  Curl_http_ਤਿਆਰੀ_conn,                 /* setup_connection */
   Curl_http,                            /* do_it */
-  Curl_http_done,                       /* done */
+  Curl_http_ਪੂਰਾ,                       /* done */
   ZERO_NULL,                            /* do_more */
   ZERO_NULL,                            /* connect_it */
   ZERO_NULL,                            /* connecting */
@@ -5131,4 +5131,4 @@ const struct Curl_protocol Curl_protocol_http = {
   Curl_http_follow,                     /* follow */
 };
 
-#endif /* CURL_DISABLE_HTTP */
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_HTTP */

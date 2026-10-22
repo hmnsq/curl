@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BUFREF_H
-#define HEADER_CURL_BUFREF_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_BUFREF_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_BUFREF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -27,25 +27,25 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+ਬਣਤਰ bufref {
+  ਖਾਲੀ (*dtor)(ਖਾਲੀ *);         /* Associated destructor. */
+  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
-#ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+  ਪੂਰਨ signature;                /* Detect API use mistakes. */
+#ਜੇ_ਅੰਤ
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+ਖਾਲੀ Curl_bufref_init(ਬਣਤਰ bufref *br);
+ਖਾਲੀ Curl_bufref_ਸੈੱਟ(ਬਣਤਰ bufref *br, ਅਚਲ ਖਾਲੀ *ptr, size_t len,
+                     ਖਾਲੀ (*dtor)(ਖਾਲੀ *));
+ਅਚਲ ਅੱਖਰ *Curl_bufref_ptr(ਅਚਲ ਬਣਤਰ bufref *br);
+ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *Curl_bufref_uptr(ਅਚਲ ਬਣਤਰ bufref *br);
+size_t Curl_bufref_len(ਅਚਲ ਬਣਤਰ bufref *br);
+CURLcode Curl_bufref_memdup0(ਬਣਤਰ bufref *br, ਅਚਲ ਖਾਲੀ *ptr, size_t len);
+ਖਾਲੀ Curl_bufref_free(ਬਣਤਰ bufref *br);
 
 /* return a strdup() version of the buffer */
-#define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
 
-#endif
+#ਜੇ_ਅੰਤ

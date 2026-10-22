@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PRINTF_H
-#define HEADER_CURL_PRINTF_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_PRINTF_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_PRINTF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,14 +24,14 @@
  *
  ***************************************************************************/
 
-#define MERR_OK        0
-#define MERR_MEM       1
-#define MERR_TOO_LARGE 2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MERR_OK        0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MERR_MEM       1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MERR_TOO_LARGE 2
 
 /* Lower-case digits. */
-extern const unsigned char Curl_ldigits[];
+ਬਾਹਰੀ ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_ldigits[];
 
 /* Upper-case digits. */
-extern const unsigned char Curl_udigits[];
+ਬਾਹਰੀ ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_udigits[];
 
-#endif /* HEADER_CURL_PRINTF_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_PRINTF_H */

@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
 
 /* Mapping table to go from lowercase to uppercase for plain ASCII.*/
-const unsigned char Curl_touppermap[256] = {
+ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_touppermap[256] = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -48,7 +48,7 @@ const unsigned char Curl_touppermap[256] = {
 };
 
 /* Mapping table to go from uppercase to lowercase for plain ASCII.*/
-const unsigned char Curl_tolowermap[256] = {
+ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ Curl_tolowermap[256] = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -74,14 +74,14 @@ const unsigned char Curl_tolowermap[256] = {
  * (including any NUL) and the destination string will NOT be
  * null-terminated if that limit is reached.
  */
-void Curl_strntoupper(char *dest, const char *src, size_t n)
+ਖਾਲੀ Curl_strntoupper(ਅੱਖਰ *dest, ਅਚਲ ਅੱਖਰ *src, size_t n)
 {
-  if(n < 1)
-    return;
+  ਜੇ(n < 1)
+    ਵਾਪਸ;
 
-  do {
+  ਕਰੋ {
     *dest++ = Curl_raw_toupper(*src);
-  } while(*src++ && --n);
+  } ਜਦੋਂ(*src++ && --n);
 }
 
 /* Copy a lower case version of the string from src to dest. The
@@ -89,44 +89,44 @@ void Curl_strntoupper(char *dest, const char *src, size_t n)
  * (including any NUL) and the destination string will NOT be
  * null-terminated if that limit is reached.
  */
-void Curl_strntolower(char *dest, const char *src, size_t n)
+ਖਾਲੀ Curl_strntolower(ਅੱਖਰ *dest, ਅਚਲ ਅੱਖਰ *src, size_t n)
 {
-  if(n < 1)
-    return;
+  ਜੇ(n < 1)
+    ਵਾਪਸ;
 
-  do {
+  ਕਰੋ {
     *dest++ = Curl_raw_tolower(*src);
-  } while(*src++ && --n);
+  } ਜਦੋਂ(*src++ && --n);
 }
 
 /* Compare case-sensitive null-terminated strings, taking care of possible
  * null pointers. Return true if arguments match.
  */
-bool Curl_safecmp(const char *a, const char *b)
+bool Curl_safecmp(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b)
 {
-  if(a && b)
-    return !strcmp(a, b);
-  return !a && !b;
+  ਜੇ(a && b)
+    ਵਾਪਸ !strcmp(a, b);
+  ਵਾਪਸ !a && !b;
 }
 
 /*
  * Curl_timestrcmp() returns 0 if the two strings are identical. The time this
  * function spends is a function of the shortest string, not of the contents.
  */
-int Curl_timestrcmp(const char *a, const char *b)
+ਪੂਰਨ Curl_timestrcmp(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b)
 {
-  int match = 0;
-  int i = 0;
+  ਪੂਰਨ ਮੇਲ = 0;
+  ਪੂਰਨ i = 0;
 
-  if(a && b) {
-    while(1) {
-      match |= a[i] ^ b[i];
-      if(!a[i] || !b[i])
-        break;
+  ਜੇ(a && b) {
+    ਜਦੋਂ(1) {
+      ਮੇਲ |= a[i] ^ b[i];
+      ਜੇ(!a[i] || !b[i])
+        ਰੋਕੋ;
       i++;
     }
   }
-  else
-    return a || b;
-  return match;
+  ਨਹੀਂਤਾਂ
+    ਵਾਪਸ a || b;
+  ਵਾਪਸ ਮੇਲ;
 }

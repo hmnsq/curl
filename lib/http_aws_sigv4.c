@@ -21,95 +21,95 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
+#ਜੇ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
 
-#include "urldata.h"
-#include "strcase.h"
-#include "curlx/strdup.h"
-#include "http_aws_sigv4.h"
-#include "curl_sha256.h"
-#include "transfer.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "curlx/strparse.h"
-#include "slist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strdup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_aws_sigv4.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_sha256.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "transfer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "escape.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "slist.h"
 
-#include <time.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <time.h>
 
-#define HMAC_SHA256(k, kl, d, dl, o)                 \
-  do {                                               \
-    result = Curl_hmacit(&Curl_HMAC_SHA256,          \
-                         (const unsigned char *)(k), \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HMAC_SHA256(k, kl, d, dl, o)                 \
+  ਕਰੋ {                                               \
+    ਨਤੀਜਾ = Curl_hmacit(&Curl_HMAC_SHA256,          \
+                         (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)(k), \
                          kl,                         \
-                         (const unsigned char *)(d), \
+                         (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)(d), \
                          dl, o);                     \
-    if(result) {                                     \
-      goto fail;                                     \
+    ਜੇ(ਨਤੀਜਾ) {                                     \
+      ਜਾਓ fail;                                     \
     }                                                \
-  } while(0)
+  } ਜਦੋਂ(0)
 
-#define TIMESTAMP_SIZE 17
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TIMESTAMP_ਮਾਪ 17
 
 /* hex-encoded with null-terminator */
-#define SHA256_HEX_LENGTH ((2 * CURL_SHA256_DIGEST_LENGTH) + 1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SHA256_HEX_ਲੰਮਾਈ ((2 * CURL_SHA256_DIGEST_ਲੰਮਾਈ) + 1)
 
-#define MAX_QUERY_COMPONENTS 128
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_QUERY_COMPONENTS 128
 
-struct pair {
-  struct dynbuf key;
-  struct dynbuf value;
+ਬਣਤਰ pair {
+  ਬਣਤਰ dynbuf ਕੁੰਜੀ;
+  ਬਣਤਰ dynbuf ਮੁੱਲ;
 };
 
-static void sha256_to_hex(char *dst, unsigned char *sha)
+ਸਥਿਰ ਖਾਲੀ sha256_ਮੰਜ਼ਿਲ_hex(ਅੱਖਰ *dst, ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *sha)
 {
-  Curl_hexencode(sha, CURL_SHA256_DIGEST_LENGTH,
-                 (unsigned char *)dst, SHA256_HEX_LENGTH);
+  Curl_hexencode(sha, CURL_SHA256_DIGEST_ਲੰਮਾਈ,
+                 (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)dst, SHA256_HEX_ਲੰਮਾਈ);
 }
 
-static char *find_date_hdr(struct Curl_easy *data, const char *sig_hdr)
+ਸਥਿਰ ਅੱਖਰ *ਲੱਭੋ_date_hdr(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *sig_hdr)
 {
-  char *tmp = Curl_checkheaders(data, sig_hdr, strlen(sig_hdr));
+  ਅੱਖਰ *tmp = Curl_checkheaders(ਅੰਕੜੇ, sig_hdr, ਲੜੀ_ਲੰਬਾਈ(sig_hdr));
 
-  if(tmp)
-    return tmp;
-  return Curl_checkheaders(data, STRCONST("Date"));
+  ਜੇ(tmp)
+    ਵਾਪਸ tmp;
+  ਵਾਪਸ Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Date"));
 }
 
 /* remove whitespace, and lowercase all headers */
-static void trim_headers(struct curl_slist *head)
+ਸਥਿਰ ਖਾਲੀ trim_ਸਿਰਲੇਖਾਂ(ਬਣਤਰ curl_slist *ਸਿਰ)
 {
-  struct curl_slist *l;
-  for(l = head; l; l = l->next) {
-    const char *value; /* to read from */
-    char *store;
-    size_t colon = strcspn(l->data, ":");
-    Curl_strntolower(l->data, l->data, colon);
+  ਬਣਤਰ curl_slist *l;
+  ਲਈ(l = ਸਿਰ; l; l = l->ਅਗਲਾ) {
+    ਅਚਲ ਅੱਖਰ *ਮੁੱਲ; /* to read from */
+    ਅੱਖਰ *store;
+    size_t colon = strcspn(l->ਅੰਕੜੇ, ":");
+    Curl_strntolower(l->ਅੰਕੜੇ, l->ਅੰਕੜੇ, colon);
 
-    value = &l->data[colon];
-    if(!*value)
-      continue;
-    ++value;
-    store = (char *)CURL_UNCONST(value);
+    ਮੁੱਲ = &l->ਅੰਕੜੇ[colon];
+    ਜੇ(!*ਮੁੱਲ)
+      ਜਾਰੀ;
+    ++ਮੁੱਲ;
+    store = (ਅੱਖਰ *)CURL_UNCONST(ਮੁੱਲ);
 
     /* skip leading whitespace */
-    curlx_str_passblanks(&value);
+    curlx_str_passblanks(&ਮੁੱਲ);
 
-    while(*value) {
-      int space = 0;
-      while(ISBLANK(*value)) {
-        value++;
+    ਜਦੋਂ(*ਮੁੱਲ) {
+      ਪੂਰਨ space = 0;
+      ਜਦੋਂ(ISBLANK(*ਮੁੱਲ)) {
+        ਮੁੱਲ++;
         space++;
       }
-      if(space) {
+      ਜੇ(space) {
         /* replace any number of consecutive whitespace with a single space,
            unless at the end of the string, then nothing */
-        if(*value)
+        ਜੇ(*ਮੁੱਲ)
           *store++ = ' ';
       }
-      else
-        *store++ = *value++;
+      ਨਹੀਂਤਾਂ
+        *store++ = *ਮੁੱਲ++;
     }
     *store = 0; /* null-terminate */
   }
@@ -118,25 +118,25 @@ static void trim_headers(struct curl_slist *head)
 /*
  * Frees all allocated strings in a dynbuf pair array, and the dynbuf itself
  */
-static void pair_array_free(struct pair *pair_array, size_t num_elements)
+ਸਥਿਰ ਖਾਲੀ pair_array_free(ਬਣਤਰ pair *pair_array, size_t ਅੰਕ_elements)
 {
-  size_t index;
+  size_t ਸੂਚਕਾਂਕ;
 
-  for(index = 0; index != num_elements; index++) {
-    curlx_dyn_free(&pair_array[index].key);
-    curlx_dyn_free(&pair_array[index].value);
+  ਲਈ(ਸੂਚਕਾਂਕ = 0; ਸੂਚਕਾਂਕ != ਅੰਕ_elements; ਸੂਚਕਾਂਕ++) {
+    curlx_dyn_free(&pair_array[ਸੂਚਕਾਂਕ].ਕੁੰਜੀ);
+    curlx_dyn_free(&pair_array[ਸੂਚਕਾਂਕ].ਮੁੱਲ);
   }
 }
 
 /*
  * Frees all allocated strings in a split dynbuf, and the dynbuf itself
  */
-static void dyn_array_free(struct dynbuf *db, size_t num_elements)
+ਸਥਿਰ ਖਾਲੀ dyn_array_free(ਬਣਤਰ dynbuf *db, size_t ਅੰਕ_elements)
 {
-  size_t index;
+  size_t ਸੂਚਕਾਂਕ;
 
-  for(index = 0; index < num_elements; index++)
-    curlx_dyn_free((&db[index]));
+  ਲਈ(ਸੂਚਕਾਂਕ = 0; ਸੂਚਕਾਂਕ < ਅੰਕ_elements; ਸੂਚਕਾਂਕ++)
+    curlx_dyn_free((&db[ਸੂਚਕਾਂਕ]));
 }
 
 /*
@@ -145,122 +145,122 @@ static void dyn_array_free(struct dynbuf *db, size_t num_elements)
  * Caller is responsible for freeing the array elements with dyn_array_free
  */
 
-#define SPLIT_BY '&'
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਵੰਡੋ_BY '&'
 
-static CURLcode split_to_dyn_array(const char *source,
-                                   struct dynbuf db[MAX_QUERY_COMPONENTS],
-                                   size_t *num_splits_out)
+ਸਥਿਰ CURLcode ਵੰਡੋ_ਮੰਜ਼ਿਲ_dyn_array(ਅਚਲ ਅੱਖਰ *ਸਰੋਤ,
+                                   ਬਣਤਰ dynbuf db[MAX_QUERY_COMPONENTS],
+                                   size_t *ਅੰਕ_splits_ਬਾਹਰਲਾ)
 {
-  CURLcode result = CURLE_OK;
-  size_t len = strlen(source);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  size_t len = ਲੜੀ_ਲੰਬਾਈ(ਸਰੋਤ);
   size_t pos;         /* Position in result buffer */
-  size_t start = 0;   /* Start of current segment */
-  size_t segment_length = 0;
-  size_t index = 0;
-  size_t num_splits = 0;
+  size_t ਸ਼ੁਰੂ = 0;   /* Start of current segment */
+  size_t segment_ਲੰਮਾਈ = 0;
+  size_t ਸੂਚਕਾਂਕ = 0;
+  size_t ਅੰਕ_splits = 0;
 
   /* Split source_ptr on SPLIT_BY and store the segment offsets and length in
    * array */
-  for(pos = 0; pos < len; pos++) {
-    if(source[pos] == SPLIT_BY) {
-      if(segment_length) {
-        curlx_dyn_init(&db[index], segment_length + 1);
-        result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-        if(result)
-          goto fail;
+  ਲਈ(pos = 0; pos < len; pos++) {
+    ਜੇ(ਸਰੋਤ[pos] == ਵੰਡੋ_BY) {
+      ਜੇ(segment_ਲੰਮਾਈ) {
+        curlx_dyn_init(&db[ਸੂਚਕਾਂਕ], segment_ਲੰਮਾਈ + 1);
+        ਨਤੀਜਾ = curlx_dyn_addn(&db[ਸੂਚਕਾਂਕ], &ਸਰੋਤ[ਸ਼ੁਰੂ], segment_ਲੰਮਾਈ);
+        ਜੇ(ਨਤੀਜਾ)
+          ਜਾਓ fail;
 
-        segment_length = 0;
-        index++;
-        if(++num_splits == MAX_QUERY_COMPONENTS) {
-          result = CURLE_TOO_LARGE;
-          goto fail;
+        segment_ਲੰਮਾਈ = 0;
+        ਸੂਚਕਾਂਕ++;
+        ਜੇ(++ਅੰਕ_splits == MAX_QUERY_COMPONENTS) {
+          ਨਤੀਜਾ = CURLE_TOO_LARGE;
+          ਜਾਓ fail;
         }
       }
-      start = pos + 1;
+      ਸ਼ੁਰੂ = pos + 1;
     }
-    else {
-      segment_length++;
+    ਨਹੀਂਤਾਂ {
+      segment_ਲੰਮਾਈ++;
     }
   }
 
-  if(segment_length) {
-    curlx_dyn_init(&db[index], segment_length + 1);
-    result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-    if(!result && ++num_splits == MAX_QUERY_COMPONENTS)
-      result = CURLE_TOO_LARGE;
+  ਜੇ(segment_ਲੰਮਾਈ) {
+    curlx_dyn_init(&db[ਸੂਚਕਾਂਕ], segment_ਲੰਮਾਈ + 1);
+    ਨਤੀਜਾ = curlx_dyn_addn(&db[ਸੂਚਕਾਂਕ], &ਸਰੋਤ[ਸ਼ੁਰੂ], segment_ਲੰਮਾਈ);
+    ਜੇ(!ਨਤੀਜਾ && ++ਅੰਕ_splits == MAX_QUERY_COMPONENTS)
+      ਨਤੀਜਾ = CURLE_TOO_LARGE;
   }
 fail:
-  *num_splits_out = num_splits;
-  return result;
+  *ਅੰਕ_splits_ਬਾਹਰਲਾ = ਅੰਕ_splits;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static bool is_reserved_char(const char c)
+ਸਥਿਰ bool is_reserved_char(ਅਚਲ ਅੱਖਰ c)
 {
-  return (ISALNUM(c) || ISURLPUNTCS(c));
+  ਵਾਪਸ (ISALNUM(c) || ISURLPUNTCS(c));
 }
 
-static CURLcode uri_encode_path(struct Curl_str *original_path,
-                                struct dynbuf *new_path)
+ਸਥਿਰ CURLcode uri_encode_ਰਸਤਾ(ਬਣਤਰ Curl_str *original_ਰਸਤਾ,
+                                ਬਣਤਰ dynbuf *new_ਰਸਤਾ)
 {
-  const char *p = curlx_str(original_path);
+  ਅਚਲ ਅੱਖਰ *p = curlx_str(original_ਰਸਤਾ);
   size_t i;
 
-  for(i = 0; i < curlx_strlen(original_path); i++) {
+  ਲਈ(i = 0; i < curlx_strlen(original_ਰਸਤਾ); i++) {
     /* Do not encode slashes or unreserved chars from RFC 3986 */
-    CURLcode result = CURLE_OK;
-    unsigned char c = p[i];
-    if(is_reserved_char(c) || c == '/')
-      result = curlx_dyn_addn(new_path, &c, 1);
-    else
-      result = curlx_dyn_addf(new_path, "%%%02X", c);
-    if(result)
-      return result;
+    CURLcode ਨਤੀਜਾ = CURLE_OK;
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ c = p[i];
+    ਜੇ(is_reserved_char(c) || c == '/')
+      ਨਤੀਜਾ = curlx_dyn_addn(new_ਰਸਤਾ, &c, 1);
+    ਨਹੀਂਤਾਂ
+      ਨਤੀਜਾ = curlx_dyn_addf(new_ਰਸਤਾ, "%%%02X", c);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Normalize the query part. Make sure %2B is left percent encoded, and not
    decoded to plus, then encoded to space. */
-static CURLcode normalize_query(const char *string, size_t len,
-                                struct dynbuf *db)
+ਸਥਿਰ CURLcode normalize_query(ਅਚਲ ਅੱਖਰ *string, size_t len,
+                                ਬਣਤਰ dynbuf *db)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  while(len && !result) {
-    unsigned char in = (unsigned char)*string;
-    if(('%' == in) && (len > 2) &&
+  ਜਦੋਂ(len && !ਨਤੀਜਾ) {
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ ਵਿੱਚ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)*string;
+    ਜੇ(('%' == ਵਿੱਚ) && (len > 2) &&
        ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
       /* this is two hexadecimal digits following a '%' */
-      in = (unsigned char)((curlx_hexval(string[1]) << 4) |
+      ਵਿੱਚ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)((curlx_hexval(string[1]) << 4) |
                            curlx_hexval(string[2]));
       string += 3;
       len -= 3;
-      if(in == '+') {
+      ਜੇ(ਵਿੱਚ == '+') {
         /* decodes to plus, so leave this encoded */
-        result = curlx_dyn_addn(db, "%2B", 3);
-        continue;
+        ਨਤੀਜਾ = curlx_dyn_addn(db, "%2B", 3);
+        ਜਾਰੀ;
       }
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       string++;
       len--;
     }
 
-    if(is_reserved_char(in))
+    ਜੇ(is_reserved_char(ਵਿੱਚ))
       /* Escape unreserved chars from RFC 3986 */
-      result = curlx_dyn_addn(db, &in, 1);
-    else if(in == '+')
+      ਨਤੀਜਾ = curlx_dyn_addn(db, &ਵਿੱਚ, 1);
+    ਨਹੀਂਤਾਂ ਜੇ(ਵਿੱਚ == '+')
       /* Encode '+' as space */
-      result = curlx_dyn_add(db, "%20");
-    else
-      result = curlx_dyn_addf(db, "%%%02X", in);
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(db, "%20");
+    ਨਹੀਂਤਾਂ
+      ਨਤੀਜਾ = curlx_dyn_addf(db, "%%%02X", ਵਿੱਚ);
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static bool should_urlencode(struct Curl_str *service_name)
+ਸਥਿਰ bool should_urlencode(ਬਣਤਰ Curl_str *service_name)
 {
   /*
    * These services require unmodified (not additionally URL-encoded) URL
@@ -268,32 +268,32 @@ static bool should_urlencode(struct Curl_str *service_name)
    * set in the AWS S3 endpoint rules. Urls are already normalized by the curl
    * URL parser
    */
-  if(curlx_str_cmp(service_name, "s3") ||
+  ਜੇ(curlx_str_cmp(service_name, "s3") ||
      curlx_str_cmp(service_name, "s3express") ||
      curlx_str_cmp(service_name, "s3-outposts") ||
      curlx_str_cmp(service_name, "s3-object-lambda")) {
-    return FALSE;
+    ਵਾਪਸ FALSE;
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
 /* maximum length for the aws sivg4 parts */
-#define MAX_SIGV4_LEN    64
-#define DATE_HDR_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Date"))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_SIGV4_LEN    64
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DATE_HDR_ਕੁੰਜੀ_LEN (MAX_SIGV4_LEN + ਆਕਾਰ("X--Date"))
 
 /* string been x-PROVIDER-date:TIMESTAMP, I need +1 for ':' */
-#define DATE_FULL_HDR_LEN (DATE_HDR_KEY_LEN + TIMESTAMP_SIZE + 1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DATE_ਭਰਿਆ_HDR_LEN (DATE_HDR_ਕੁੰਜੀ_LEN + TIMESTAMP_ਮਾਪ + 1)
 
 /* alphabetically compare two headers by their name, expecting
    headers to use ':' at this point */
-static int compare_header_names(const char *a, const char *b)
+ਸਥਿਰ ਪੂਰਨ compare_ਸਿਰਲੇਖ_ਨਾਂ(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b)
 {
-  const char *colon_a;
-  const char *colon_b;
+  ਅਚਲ ਅੱਖਰ *colon_a;
+  ਅਚਲ ਅੱਖਰ *colon_b;
   size_t len_a;
   size_t len_b;
   size_t min_len;
-  int cmp;
+  ਪੂਰਨ cmp;
 
   colon_a = strchr(a, ':');
   colon_b = strchr(b, ':');
@@ -301,118 +301,118 @@ static int compare_header_names(const char *a, const char *b)
   DEBUGASSERT(colon_a);
   DEBUGASSERT(colon_b);
 
-  len_a = colon_a ? (size_t)(colon_a - a) : strlen(a);
-  len_b = colon_b ? (size_t)(colon_b - b) : strlen(b);
+  len_a = colon_a ? (size_t)(colon_a - a) : ਲੜੀ_ਲੰਬਾਈ(a);
+  len_b = colon_b ? (size_t)(colon_b - b) : ਲੜੀ_ਲੰਬਾਈ(b);
 
   min_len = (len_a < len_b) ? len_a : len_b;
 
-  cmp = strncmp(a, b, min_len);
+  cmp = ਲੜੀ_ਤੁਲਨਾ(a, b, min_len);
 
   /* return the shorter of the two if one is shorter */
-  if(!cmp)
-    return (int)(len_a - len_b);
+  ਜੇ(!cmp)
+    ਵਾਪਸ (ਪੂਰਨ)(len_a - len_b);
 
-  return cmp;
+  ਵਾਪਸ cmp;
 }
 
 /* Merge duplicate header definitions by comma delimiting their values
    in the order defined the headers are defined, expecting headers to
    be alpha-sorted and use ':' at this point */
-static CURLcode merge_duplicate_headers(struct curl_slist *head)
+ਸਥਿਰ CURLcode ਮਿਲਾਓ_duplicate_ਸਿਰਲੇਖਾਂ(ਬਣਤਰ curl_slist *ਸਿਰ)
 {
-  struct curl_slist *curr = head;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ curl_slist *curr = ਸਿਰ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  while(curr) {
-    struct curl_slist *next = curr->next;
-    if(!next)
-      break;
+  ਜਦੋਂ(curr) {
+    ਬਣਤਰ curl_slist *ਅਗਲਾ = curr->ਅਗਲਾ;
+    ਜੇ(!ਅਗਲਾ)
+      ਰੋਕੋ;
 
-    if(compare_header_names(curr->data, next->data) == 0) {
-      struct dynbuf buf;
-      const char *colon_next;
-      const char *val_next;
+    ਜੇ(compare_ਸਿਰਲੇਖ_ਨਾਂ(curr->ਅੰਕੜੇ, ਅਗਲਾ->ਅੰਕੜੇ) == 0) {
+      ਬਣਤਰ dynbuf buf;
+      ਅਚਲ ਅੱਖਰ *colon_ਅਗਲਾ;
+      ਅਚਲ ਅੱਖਰ *val_ਅਗਲਾ;
 
-      curlx_dyn_init(&buf, CURL_MAX_HTTP_HEADER);
+      curlx_dyn_init(&buf, CURL_MAX_HTTP_ਸਿਰਲੇਖ);
 
-      result = curlx_dyn_add(&buf, curr->data);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&buf, curr->ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
 
-      colon_next = strchr(next->data, ':');
-      DEBUGASSERT(colon_next);
-      val_next = colon_next + 1;
+      colon_ਅਗਲਾ = strchr(ਅਗਲਾ->ਅੰਕੜੇ, ':');
+      DEBUGASSERT(colon_ਅਗਲਾ);
+      val_ਅਗਲਾ = colon_ਅਗਲਾ + 1;
 
-      result = curlx_dyn_addn(&buf, ",", 1);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = curlx_dyn_addn(&buf, ",", 1);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
 
-      result = curlx_dyn_add(&buf, val_next);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&buf, val_ਅਗਲਾ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
 
-      curlx_free(curr->data);
-      curr->data = curlx_dyn_ptr(&buf);
+      curlx_free(curr->ਅੰਕੜੇ);
+      curr->ਅੰਕੜੇ = curlx_dyn_ptr(&buf);
 
-      curr->next = next->next;
-      curlx_free(next->data);
-      curlx_free(next);
+      curr->ਅਗਲਾ = ਅਗਲਾ->ਅਗਲਾ;
+      curlx_free(ਅਗਲਾ->ਅੰਕੜੇ);
+      curlx_free(ਅਗਲਾ);
     }
-    else {
-      curr = curr->next;
+    ਨਹੀਂਤਾਂ {
+      curr = curr->ਅਗਲਾ;
     }
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* timestamp should point to a buffer of at last TIMESTAMP_SIZE bytes */
-static CURLcode make_headers(struct Curl_easy *data,
-                             char *timestamp,
-                             const char *provider1,
+ਸਥਿਰ CURLcode make_ਸਿਰਲੇਖਾਂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਅੱਖਰ *timestamp,
+                             ਅਚਲ ਅੱਖਰ *provider1,
                              size_t plen, /* length of provider1 */
-                             char **date_header,
-                             char *content_sha256_header,
-                             struct dynbuf *canonical_headers,
-                             struct dynbuf *signed_headers)
+                             ਅੱਖਰ **date_ਸਿਰਲੇਖ,
+                             ਅੱਖਰ *content_sha256_ਸਿਰਲੇਖ,
+                             ਬਣਤਰ dynbuf *canonical_ਸਿਰਲੇਖਾਂ,
+                             ਬਣਤਰ dynbuf *signed_ਸਿਰਲੇਖਾਂ)
 {
-  char date_hdr_key[DATE_HDR_KEY_LEN];
-  char date_full_hdr[DATE_FULL_HDR_LEN];
-  struct curl_slist *head = NULL;
-  struct curl_slist *tmp_head = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct curl_slist *l;
+  ਅੱਖਰ date_hdr_ਕੁੰਜੀ[DATE_HDR_ਕੁੰਜੀ_LEN];
+  ਅੱਖਰ date_ਭਰਿਆ_hdr[DATE_ਭਰਿਆ_HDR_LEN];
+  ਬਣਤਰ curl_slist *ਸਿਰ = ਨਿਰਾ;
+  ਬਣਤਰ curl_slist *tmp_ਸਿਰ = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਬਣਤਰ curl_slist *l;
   bool again = TRUE;
 
-  curl_msnprintf(date_hdr_key, DATE_HDR_KEY_LEN, "X-%.*s-Date",
-                 (int)plen, provider1);
+  curl_msnprintf(date_hdr_ਕੁੰਜੀ, DATE_HDR_ਕੁੰਜੀ_LEN, "X-%.*s-Date",
+                 (ਪੂਰਨ)plen, provider1);
   /* provider1 ucfirst */
-  Curl_strntolower(&date_hdr_key[2], provider1, plen);
-  date_hdr_key[2] = Curl_raw_toupper(provider1[0]);
+  Curl_strntolower(&date_hdr_ਕੁੰਜੀ[2], provider1, plen);
+  date_hdr_ਕੁੰਜੀ[2] = Curl_raw_toupper(provider1[0]);
 
-  curl_msnprintf(date_full_hdr, DATE_FULL_HDR_LEN,
-                 "x-%.*s-date:%s", (int)plen, provider1, timestamp);
+  curl_msnprintf(date_ਭਰਿਆ_hdr, DATE_ਭਰਿਆ_HDR_LEN,
+                 "x-%.*s-date:%s", (ਪੂਰਨ)plen, provider1, timestamp);
   /* provider1 lowercase */
-  Curl_strntolower(&date_full_hdr[2], provider1, plen);
+  Curl_strntolower(&date_ਭਰਿਆ_hdr[2], provider1, plen);
 
-  if(!Curl_checkheaders(data, STRCONST("Host")) &&
-     data->state.http_host) {
+  ਜੇ(!Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Host")) &&
+     ਅੰਕੜੇ->state.http_host) {
     /* Host: [host]:[port] */
-    char *fullhost = curlx_strdup(data->state.http_host);
+    ਅੱਖਰ *fullhost = curlx_strdup(ਅੰਕੜੇ->state.http_host);
 
-    if(fullhost)
-      head = Curl_slist_append_nodup(NULL, fullhost);
-    if(!head) {
+    ਜੇ(fullhost)
+      ਸਿਰ = Curl_slist_append_nodup(ਨਿਰਾ, fullhost);
+    ਜੇ(!ਸਿਰ) {
       curlx_free(fullhost);
-      goto fail;
+      ਜਾਓ fail;
     }
   }
 
-  if(*content_sha256_header) {
-    tmp_head = curl_slist_append(head, content_sha256_header);
-    if(!tmp_head)
-      goto fail;
-    head = tmp_head;
+  ਜੇ(*content_sha256_ਸਿਰਲੇਖ) {
+    tmp_ਸਿਰ = curl_slist_append(ਸਿਰ, content_sha256_ਸਿਰਲੇਖ);
+    ਜੇ(!tmp_ਸਿਰ)
+      ਜਾਓ fail;
+    ਸਿਰ = tmp_ਸਿਰ;
   }
 
   /* copy user headers to our header list. the logic is based on how http.c
@@ -430,804 +430,804 @@ static CURLcode make_headers(struct Curl_easy *data,
      user headers with a value of whitespace only, or without a colon or
      semi-colon, are not added to this list.
      */
-  for(l = data->set.headers; l; l = l->next) {
-    char *dupdata;
-    const char *ptr;
-    const char *sep = strchr(l->data, ':');
-    if(!sep)
-      sep = strchr(l->data, ';');
-    if(!sep || (*sep == ':' && !*(sep + 1)))
-      continue;
-    for(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
+  ਲਈ(l = ਅੰਕੜੇ->ਸੈੱਟ.ਸਿਰਲੇਖਾਂ; l; l = l->ਅਗਲਾ) {
+    ਅੱਖਰ *dupdata;
+    ਅਚਲ ਅੱਖਰ *ptr;
+    ਅਚਲ ਅੱਖਰ *sep = strchr(l->ਅੰਕੜੇ, ':');
+    ਜੇ(!sep)
+      sep = strchr(l->ਅੰਕੜੇ, ';');
+    ਜੇ(!sep || (*sep == ':' && !*(sep + 1)))
+      ਜਾਰੀ;
+    ਲਈ(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
       ;
-    if(!*ptr && ptr != sep + 1) /* a value of whitespace only */
-      continue;
-    dupdata = curlx_strdup(l->data);
-    if(!dupdata)
-      goto fail;
-    dupdata[sep - l->data] = ':';
-    tmp_head = Curl_slist_append_nodup(head, dupdata);
-    if(!tmp_head) {
+    ਜੇ(!*ptr && ptr != sep + 1) /* a value of whitespace only */
+      ਜਾਰੀ;
+    dupdata = curlx_strdup(l->ਅੰਕੜੇ);
+    ਜੇ(!dupdata)
+      ਜਾਓ fail;
+    dupdata[sep - l->ਅੰਕੜੇ] = ':';
+    tmp_ਸਿਰ = Curl_slist_append_nodup(ਸਿਰ, dupdata);
+    ਜੇ(!tmp_ਸਿਰ) {
       curlx_free(dupdata);
-      goto fail;
+      ਜਾਓ fail;
     }
-    head = tmp_head;
+    ਸਿਰ = tmp_ਸਿਰ;
   }
 
-  trim_headers(head);
+  trim_ਸਿਰਲੇਖਾਂ(ਸਿਰ);
 
-  *date_header = find_date_hdr(data, date_hdr_key);
-  if(!*date_header) {
-    tmp_head = curl_slist_append(head, date_full_hdr);
-    if(!tmp_head)
-      goto fail;
-    head = tmp_head;
-    *date_header = curl_maprintf("%s: %s\r\n", date_hdr_key, timestamp);
-    if(!*date_header)
-      goto fail;
+  *date_ਸਿਰਲੇਖ = ਲੱਭੋ_date_hdr(ਅੰਕੜੇ, date_hdr_ਕੁੰਜੀ);
+  ਜੇ(!*date_ਸਿਰਲੇਖ) {
+    tmp_ਸਿਰ = curl_slist_append(ਸਿਰ, date_ਭਰਿਆ_hdr);
+    ਜੇ(!tmp_ਸਿਰ)
+      ਜਾਓ fail;
+    ਸਿਰ = tmp_ਸਿਰ;
+    *date_ਸਿਰਲੇਖ = curl_maprintf("%s: %s\r\n", date_hdr_ਕੁੰਜੀ, timestamp);
+    ਜੇ(!*date_ਸਿਰਲੇਖ)
+      ਜਾਓ fail;
   }
-  else {
-    const char *value;
-    const char *endp;
-    value = strchr(*date_header, ':');
-    if(!value) {
-      *date_header = NULL;
-      goto fail;
+  ਨਹੀਂਤਾਂ {
+    ਅਚਲ ਅੱਖਰ *ਮੁੱਲ;
+    ਅਚਲ ਅੱਖਰ *endp;
+    ਮੁੱਲ = strchr(*date_ਸਿਰਲੇਖ, ':');
+    ਜੇ(!ਮੁੱਲ) {
+      *date_ਸਿਰਲੇਖ = ਨਿਰਾ;
+      ਜਾਓ fail;
     }
-    ++value;
-    curlx_str_passblanks(&value);
-    endp = value;
-    while(*endp && ISALNUM(*endp))
+    ++ਮੁੱਲ;
+    curlx_str_passblanks(&ਮੁੱਲ);
+    endp = ਮੁੱਲ;
+    ਜਦੋਂ(*endp && ISALNUM(*endp))
       ++endp;
     /* 16 bytes => "19700101T000000Z" */
-    if((endp - value) == TIMESTAMP_SIZE - 1) {
-      memcpy(timestamp, value, TIMESTAMP_SIZE - 1);
-      timestamp[TIMESTAMP_SIZE - 1] = 0;
+    ਜੇ((endp - ਮੁੱਲ) == TIMESTAMP_ਮਾਪ - 1) {
+      ਸਮ੍ਰਿਤੀ_ਨਕਲ(timestamp, ਮੁੱਲ, TIMESTAMP_ਮਾਪ - 1);
+      timestamp[TIMESTAMP_ਮਾਪ - 1] = 0;
     }
-    else
+    ਨਹੀਂਤਾਂ
       /* bad timestamp length */
       timestamp[0] = 0;
-    *date_header = NULL;
+    *date_ਸਿਰਲੇਖ = ਨਿਰਾ;
   }
 
   /* alpha-sort by header name in a case sensitive manner */
-  do {
+  ਕਰੋ {
     again = FALSE;
-    for(l = head; l; l = l->next) {
-      struct curl_slist *next = l->next;
+    ਲਈ(l = ਸਿਰ; l; l = l->ਅਗਲਾ) {
+      ਬਣਤਰ curl_slist *ਅਗਲਾ = l->ਅਗਲਾ;
 
-      if(next && compare_header_names(l->data, next->data) > 0) {
-        char *tmp = l->data;
+      ਜੇ(ਅਗਲਾ && compare_ਸਿਰਲੇਖ_ਨਾਂ(l->ਅੰਕੜੇ, ਅਗਲਾ->ਅੰਕੜੇ) > 0) {
+        ਅੱਖਰ *tmp = l->ਅੰਕੜੇ;
 
-        l->data = next->data;
-        next->data = tmp;
+        l->ਅੰਕੜੇ = ਅਗਲਾ->ਅੰਕੜੇ;
+        ਅਗਲਾ->ਅੰਕੜੇ = tmp;
         again = TRUE;
       }
     }
-  } while(again);
+  } ਜਦੋਂ(again);
 
-  result = merge_duplicate_headers(head);
-  if(result)
-    goto fail;
+  ਨਤੀਜਾ = ਮਿਲਾਓ_duplicate_ਸਿਰਲੇਖਾਂ(ਸਿਰ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ fail;
 
-  for(l = head; l; l = l->next) {
-    char *tmp;
+  ਲਈ(l = ਸਿਰ; l; l = l->ਅਗਲਾ) {
+    ਅੱਖਰ *tmp;
 
-    if(curlx_dyn_add(canonical_headers, l->data))
-      goto fail;
-    if(curlx_dyn_add(canonical_headers, "\n"))
-      goto fail;
+    ਜੇ(curlx_dyn_ਜੋੜੋ(canonical_ਸਿਰਲੇਖਾਂ, l->ਅੰਕੜੇ))
+      ਜਾਓ fail;
+    ਜੇ(curlx_dyn_ਜੋੜੋ(canonical_ਸਿਰਲੇਖਾਂ, "\n"))
+      ਜਾਓ fail;
 
-    tmp = strchr(l->data, ':');
-    if(tmp)
+    tmp = strchr(l->ਅੰਕੜੇ, ':');
+    ਜੇ(tmp)
       *tmp = 0;
 
-    if(l != head && curlx_dyn_add(signed_headers, ";"))
-      goto fail;
-    if(curlx_dyn_add(signed_headers, l->data))
-      goto fail;
+    ਜੇ(l != ਸਿਰ && curlx_dyn_ਜੋੜੋ(signed_ਸਿਰਲੇਖਾਂ, ";"))
+      ਜਾਓ fail;
+    ਜੇ(curlx_dyn_ਜੋੜੋ(signed_ਸਿਰਲੇਖਾਂ, l->ਅੰਕੜੇ))
+      ਜਾਓ fail;
   }
 
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 fail:
-  curl_slist_free_all(head);
+  curl_slist_free_all(ਸਿਰ);
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#define CONTENT_SHA256_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Content-Sha256"))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CONTENT_SHA256_ਕੁੰਜੀ_LEN (MAX_SIGV4_LEN + ਆਕਾਰ("X--Content-Sha256"))
 /* add 2 for ": " between header name and value */
-#define CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_KEY_LEN + 2 + SHA256_HEX_LENGTH)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_ਕੁੰਜੀ_LEN + 2 + SHA256_HEX_ਲੰਮਾਈ)
 
 /* try to parse a payload hash from the content-sha256 header */
-static const char *parse_content_sha_hdr(struct Curl_easy *data,
-                                         const char *provider1,
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ *parse_content_sha_hdr(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                         ਅਚਲ ਅੱਖਰ *provider1,
                                          size_t plen,
-                                         size_t *value_len)
+                                         size_t *ਮੁੱਲ_len)
 {
-  char key[CONTENT_SHA256_KEY_LEN];
-  size_t key_len;
-  const char *value;
+  ਅੱਖਰ ਕੁੰਜੀ[CONTENT_SHA256_ਕੁੰਜੀ_LEN];
+  size_t ਕੁੰਜੀ_len;
+  ਅਚਲ ਅੱਖਰ *ਮੁੱਲ;
   size_t len;
 
-  key_len = curl_msnprintf(key, sizeof(key), "x-%.*s-content-sha256",
-                           (int)plen, provider1);
+  ਕੁੰਜੀ_len = curl_msnprintf(ਕੁੰਜੀ, ਆਕਾਰ(ਕੁੰਜੀ), "x-%.*s-content-sha256",
+                           (ਪੂਰਨ)plen, provider1);
 
-  value = Curl_checkheaders(data, key, key_len);
-  if(!value)
-    return NULL;
+  ਮੁੱਲ = Curl_checkheaders(ਅੰਕੜੇ, ਕੁੰਜੀ, ਕੁੰਜੀ_len);
+  ਜੇ(!ਮੁੱਲ)
+    ਵਾਪਸ ਨਿਰਾ;
 
-  value = strchr(value, ':');
-  if(!value)
-    return NULL;
-  ++value;
+  ਮੁੱਲ = strchr(ਮੁੱਲ, ':');
+  ਜੇ(!ਮੁੱਲ)
+    ਵਾਪਸ ਨਿਰਾ;
+  ++ਮੁੱਲ;
 
-  curlx_str_passblanks(&value);
+  curlx_str_passblanks(&ਮੁੱਲ);
 
-  len = strlen(value);
-  while(len > 0 && ISBLANK(value[len - 1]))
+  len = ਲੜੀ_ਲੰਬਾਈ(ਮੁੱਲ);
+  ਜਦੋਂ(len > 0 && ISBLANK(ਮੁੱਲ[len - 1]))
     --len;
 
-  *value_len = len;
-  return value;
+  *ਮੁੱਲ_len = len;
+  ਵਾਪਸ ਮੁੱਲ;
 }
 
-static CURLcode calc_payload_hash(struct Curl_easy *data,
-                                  unsigned char *sha_hash, char *sha_hex)
+ਸਥਿਰ CURLcode calc_payload_hash(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *sha_hash, ਅੱਖਰ *sha_hex)
 {
-  const char *post_data = data->set.postfields;
-  size_t post_data_len = 0;
-  CURLcode result;
+  ਅਚਲ ਅੱਖਰ *post_ਅੰਕੜੇ = ਅੰਕੜੇ->ਸੈੱਟ.postfields;
+  size_t post_ਅੰਕੜੇ_len = 0;
+  CURLcode ਨਤੀਜਾ;
 
-  if(post_data) {
-    if(data->set.postfieldsize < 0)
-      post_data_len = strlen(post_data);
-    else
-      post_data_len = (size_t)data->set.postfieldsize;
+  ਜੇ(post_ਅੰਕੜੇ) {
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.postfieldsize < 0)
+      post_ਅੰਕੜੇ_len = ਲੜੀ_ਲੰਬਾਈ(post_ਅੰਕੜੇ);
+    ਨਹੀਂਤਾਂ
+      post_ਅੰਕੜੇ_len = (size_t)ਅੰਕੜੇ->ਸੈੱਟ.postfieldsize;
   }
-  result = Curl_sha256it(sha_hash, (const unsigned char *)post_data,
-                         post_data_len);
-  if(!result)
-    sha256_to_hex(sha_hex, sha_hash);
-  return result;
+  ਨਤੀਜਾ = Curl_sha256it(sha_hash, (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)post_ਅੰਕੜੇ,
+                         post_ਅੰਕੜੇ_len);
+  ਜੇ(!ਨਤੀਜਾ)
+    sha256_ਮੰਜ਼ਿਲ_hex(sha_hex, sha_hash);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#define S3_UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ S3_UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
 
-static CURLcode calc_s3_payload_hash(struct Curl_easy *data,
+ਸਥਿਰ CURLcode calc_s3_payload_hash(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                      Curl_HttpReq httpreq,
-                                     const char *provider1,
+                                     ਅਚਲ ਅੱਖਰ *provider1,
                                      size_t plen,
-                                     unsigned char *sha_hash,
-                                     char *sha_hex, char *header)
+                                     ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *sha_hash,
+                                     ਅੱਖਰ *sha_hex, ਅੱਖਰ *ਸਿਰਲੇਖ)
 {
-  bool empty_method = (httpreq == HTTPREQ_GET || httpreq == HTTPREQ_HEAD);
+  bool ਖਾਲੀ_ਥਾਵਾਂ_ਵਿਧੀ = (httpreq == HTTPREQ_GET || httpreq == HTTPREQ_ਸਿਰ);
   /* The request method or filesize indicate no request payload */
-  bool empty_payload = (empty_method || data->set.filesize == 0);
+  bool ਖਾਲੀ_ਥਾਵਾਂ_payload = (ਖਾਲੀ_ਥਾਵਾਂ_ਵਿਧੀ || ਅੰਕੜੇ->ਸੈੱਟ.filesize == 0);
   /* The POST payload is in memory */
-  bool post_payload = (httpreq == HTTPREQ_POST && data->set.postfields);
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  bool post_payload = (httpreq == HTTPREQ_POST && ਅੰਕੜੇ->ਸੈੱਟ.postfields);
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  if(empty_payload || post_payload) {
+  ਜੇ(ਖਾਲੀ_ਥਾਵਾਂ_payload || post_payload) {
     /* Calculate a real hash when we know the request payload */
-    result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      goto fail;
+    ਨਤੀਜਾ = calc_payload_hash(ਅੰਕੜੇ, sha_hash, sha_hex);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ fail;
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* Fall back to s3's UNSIGNED-PAYLOAD */
     size_t len = CURL_CSTRLEN(S3_UNSIGNED_PAYLOAD);
-    DEBUGASSERT(len < SHA256_HEX_LENGTH); /* 16 < 65 */
-    memcpy(sha_hex, S3_UNSIGNED_PAYLOAD, len);
+    DEBUGASSERT(len < SHA256_HEX_ਲੰਮਾਈ); /* 16 < 65 */
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(sha_hex, S3_UNSIGNED_PAYLOAD, len);
     sha_hex[len] = 0;
   }
 
   /* format the required content-sha256 header */
-  curl_msnprintf(header, CONTENT_SHA256_HDR_LEN,
-                 "x-%.*s-content-sha256: %s", (int)plen, provider1, sha_hex);
+  curl_msnprintf(ਸਿਰਲੇਖ, CONTENT_SHA256_HDR_LEN,
+                 "x-%.*s-content-sha256: %s", (ਪੂਰਨ)plen, provider1, sha_hex);
 
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 fail:
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static int compare_func(const void *a, const void *b)
+ਸਥਿਰ ਪੂਰਨ compare_func(ਅਚਲ ਖਾਲੀ *a, ਅਚਲ ਖਾਲੀ *b)
 {
-  const struct pair *aa = a;
-  const struct pair *bb = b;
-  const size_t aa_key_len = curlx_dyn_len(&aa->key);
-  const size_t bb_key_len = curlx_dyn_len(&bb->key);
-  const size_t aa_value_len = curlx_dyn_len(&aa->value);
-  const size_t bb_value_len = curlx_dyn_len(&bb->value);
-  int compare;
+  ਅਚਲ ਬਣਤਰ pair *aa = a;
+  ਅਚਲ ਬਣਤਰ pair *bb = b;
+  ਅਚਲ size_t aa_ਕੁੰਜੀ_len = curlx_dyn_len(&aa->ਕੁੰਜੀ);
+  ਅਚਲ size_t bb_ਕੁੰਜੀ_len = curlx_dyn_len(&bb->ਕੁੰਜੀ);
+  ਅਚਲ size_t aa_ਮੁੱਲ_len = curlx_dyn_len(&aa->ਮੁੱਲ);
+  ਅਚਲ size_t bb_ਮੁੱਲ_len = curlx_dyn_len(&bb->ਮੁੱਲ);
+  ਪੂਰਨ compare;
 
   /* If one element is empty, the other is always sorted higher */
 
   /* Compare keys */
-  if((aa_key_len == 0) && (bb_key_len == 0))
-    return 0;
-  if(aa_key_len == 0)
-    return -1;
-  if(bb_key_len == 0)
-    return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->key), curlx_dyn_ptr(&bb->key));
-  if(compare) {
-    return compare;
+  ਜੇ((aa_ਕੁੰਜੀ_len == 0) && (bb_ਕੁੰਜੀ_len == 0))
+    ਵਾਪਸ 0;
+  ਜੇ(aa_ਕੁੰਜੀ_len == 0)
+    ਵਾਪਸ -1;
+  ਜੇ(bb_ਕੁੰਜੀ_len == 0)
+    ਵਾਪਸ 1;
+  compare = strcmp(curlx_dyn_ptr(&aa->ਕੁੰਜੀ), curlx_dyn_ptr(&bb->ਕੁੰਜੀ));
+  ਜੇ(compare) {
+    ਵਾਪਸ compare;
   }
 
   /* Compare values */
-  if((aa_value_len == 0) && (bb_value_len == 0))
-    return 0;
-  if(aa_value_len == 0)
-    return -1;
-  if(bb_value_len == 0)
-    return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->value), curlx_dyn_ptr(&bb->value));
+  ਜੇ((aa_ਮੁੱਲ_len == 0) && (bb_ਮੁੱਲ_len == 0))
+    ਵਾਪਸ 0;
+  ਜੇ(aa_ਮੁੱਲ_len == 0)
+    ਵਾਪਸ -1;
+  ਜੇ(bb_ਮੁੱਲ_len == 0)
+    ਵਾਪਸ 1;
+  compare = strcmp(curlx_dyn_ptr(&aa->ਮੁੱਲ), curlx_dyn_ptr(&bb->ਮੁੱਲ));
 
-  return compare;
+  ਵਾਪਸ compare;
 }
 
 /* @unittest 1979 */
-UNITTEST CURLcode canon_path(const char *q, size_t len,
-                             struct dynbuf *new_path,
+UNITTEST CURLcode canon_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *q, size_t len,
+                             ਬਣਤਰ dynbuf *new_ਰਸਤਾ,
                              bool do_uri_encode);
-UNITTEST CURLcode canon_path(const char *q, size_t len,
-                             struct dynbuf *new_path,
+UNITTEST CURLcode canon_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *q, size_t len,
+                             ਬਣਤਰ dynbuf *new_ਰਸਤਾ,
                              bool do_uri_encode)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  struct Curl_str original_path;
+  ਬਣਤਰ Curl_str original_ਰਸਤਾ;
 
-  curlx_str_assign(&original_path, q, len);
+  curlx_str_ਸੌਂਪੋ(&original_ਰਸਤਾ, q, len);
 
   /* Normalized path will be either the same or shorter than the original
    * path, plus trailing slash */
 
-  if(do_uri_encode)
-    result = uri_encode_path(&original_path, new_path);
-  else
-    result = curlx_dyn_addn(new_path, q, len);
+  ਜੇ(do_uri_encode)
+    ਨਤੀਜਾ = uri_encode_ਰਸਤਾ(&original_ਰਸਤਾ, new_ਰਸਤਾ);
+  ਨਹੀਂਤਾਂ
+    ਨਤੀਜਾ = curlx_dyn_addn(new_ਰਸਤਾ, q, len);
 
-  if(!result && curlx_dyn_len(new_path) == 0)
-    result = curlx_dyn_add(new_path, "/");
+  ਜੇ(!ਨਤੀਜਾ && curlx_dyn_len(new_ਰਸਤਾ) == 0)
+    ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(new_ਰਸਤਾ, "/");
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* @unittest 1980 */
-UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq);
-UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
+UNITTEST CURLcode canon_query(ਅਚਲ ਅੱਖਰ *query, ਬਣਤਰ dynbuf *dq);
+UNITTEST CURLcode canon_query(ਅਚਲ ਅੱਖਰ *query, ਬਣਤਰ dynbuf *dq)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  struct dynbuf query_array[MAX_QUERY_COMPONENTS];
-  struct pair encoded_query_array[MAX_QUERY_COMPONENTS];
-  size_t num_query_components;
+  ਬਣਤਰ dynbuf query_array[MAX_QUERY_COMPONENTS];
+  ਬਣਤਰ pair encoded_query_array[MAX_QUERY_COMPONENTS];
+  size_t ਅੰਕ_query_components;
   size_t counted_query_components = 0;
-  size_t index;
+  size_t ਸੂਚਕਾਂਕ;
 
-  if(!query)
-    return result;
+  ਜੇ(!query)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  result = split_to_dyn_array(query, &query_array[0], &num_query_components);
-  if(result) {
-    goto fail;
+  ਨਤੀਜਾ = ਵੰਡੋ_ਮੰਜ਼ਿਲ_dyn_array(query, &query_array[0], &ਅੰਕ_query_components);
+  ਜੇ(ਨਤੀਜਾ) {
+    ਜਾਓ fail;
   }
 
   /* Create list of pairs, each pair containing an encoded query
    * component */
 
-  for(index = 0; index < num_query_components; index++) {
-    const char *in_key;
-    size_t in_key_len;
-    const char *offset;
-    size_t query_part_len = curlx_dyn_len(&query_array[index]);
-    const char *query_part = curlx_dyn_ptr(&query_array[index]);
+  ਲਈ(ਸੂਚਕਾਂਕ = 0; ਸੂਚਕਾਂਕ < ਅੰਕ_query_components; ਸੂਚਕਾਂਕ++) {
+    ਅਚਲ ਅੱਖਰ *ਵਿੱਚ_ਕੁੰਜੀ;
+    size_t ਵਿੱਚ_ਕੁੰਜੀ_len;
+    ਅਚਲ ਅੱਖਰ *ਵਿੱਥ;
+    size_t query_part_len = curlx_dyn_len(&query_array[ਸੂਚਕਾਂਕ]);
+    ਅਚਲ ਅੱਖਰ *query_part = curlx_dyn_ptr(&query_array[ਸੂਚਕਾਂਕ]);
 
-    in_key = query_part;
+    ਵਿੱਚ_ਕੁੰਜੀ = query_part;
 
-    offset = strchr(query_part, '=');
+    ਵਿੱਥ = strchr(query_part, '=');
     /* If there is no equals, this key has no value */
-    if(!offset) {
-      in_key_len = strlen(in_key);
+    ਜੇ(!ਵਿੱਥ) {
+      ਵਿੱਚ_ਕੁੰਜੀ_len = ਲੜੀ_ਲੰਬਾਈ(ਵਿੱਚ_ਕੁੰਜੀ);
     }
-    else {
-      in_key_len = offset - in_key;
+    ਨਹੀਂਤਾਂ {
+      ਵਿੱਚ_ਕੁੰਜੀ_len = ਵਿੱਥ - ਵਿੱਚ_ਕੁੰਜੀ;
     }
 
-    curlx_dyn_init(&encoded_query_array[index].key,
+    curlx_dyn_init(&encoded_query_array[ਸੂਚਕਾਂਕ].ਕੁੰਜੀ,
       (query_part_len * 3) + 1);
-    curlx_dyn_init(&encoded_query_array[index].value,
+    curlx_dyn_init(&encoded_query_array[ਸੂਚਕਾਂਕ].ਮੁੱਲ,
       (query_part_len * 3) + 1);
     counted_query_components++;
 
     /* Decode/encode the key */
-    result = normalize_query(in_key, in_key_len,
-                             &encoded_query_array[index].key);
-    if(result) {
-      goto fail;
+    ਨਤੀਜਾ = normalize_query(ਵਿੱਚ_ਕੁੰਜੀ, ਵਿੱਚ_ਕੁੰਜੀ_len,
+                             &encoded_query_array[ਸੂਚਕਾਂਕ].ਕੁੰਜੀ);
+    ਜੇ(ਨਤੀਜਾ) {
+      ਜਾਓ fail;
     }
 
     /* Decode/encode the value if it exists */
-    if(offset && offset != (query_part + query_part_len - 1)) {
-      size_t in_value_len;
-      const char *in_value = offset + 1;
-      in_value_len = query_part + query_part_len - (offset + 1);
-      result = normalize_query(in_value, in_value_len,
-                               &encoded_query_array[index].value);
-      if(result) {
-        goto fail;
+    ਜੇ(ਵਿੱਥ && ਵਿੱਥ != (query_part + query_part_len - 1)) {
+      size_t ਵਿੱਚ_ਮੁੱਲ_len;
+      ਅਚਲ ਅੱਖਰ *ਵਿੱਚ_ਮੁੱਲ = ਵਿੱਥ + 1;
+      ਵਿੱਚ_ਮੁੱਲ_len = query_part + query_part_len - (ਵਿੱਥ + 1);
+      ਨਤੀਜਾ = normalize_query(ਵਿੱਚ_ਮੁੱਲ, ਵਿੱਚ_ਮੁੱਲ_len,
+                               &encoded_query_array[ਸੂਚਕਾਂਕ].ਮੁੱਲ);
+      ਜੇ(ਨਤੀਜਾ) {
+        ਜਾਓ fail;
       }
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* If there is no value, the value is an empty string */
-      curlx_dyn_init(&encoded_query_array[index].value, 2);
-      result = curlx_dyn_addn(&encoded_query_array[index].value, "", 1);
+      curlx_dyn_init(&encoded_query_array[ਸੂਚਕਾਂਕ].ਮੁੱਲ, 2);
+      ਨਤੀਜਾ = curlx_dyn_addn(&encoded_query_array[ਸੂਚਕਾਂਕ].ਮੁੱਲ, "", 1);
     }
 
-    if(result) {
-      goto fail;
+    ਜੇ(ਨਤੀਜਾ) {
+      ਜਾਓ fail;
     }
   }
 
   /* Sort the encoded query components by key and value */
-  qsort(&encoded_query_array, num_query_components,
-        sizeof(struct pair), compare_func);
+  qsort(&encoded_query_array, ਅੰਕ_query_components,
+        ਆਕਾਰ(ਬਣਤਰ pair), compare_func);
 
   /* Append the query components together to make a full query string */
-  for(index = 0; index < num_query_components; index++) {
+  ਲਈ(ਸੂਚਕਾਂਕ = 0; ਸੂਚਕਾਂਕ < ਅੰਕ_query_components; ਸੂਚਕਾਂਕ++) {
 
-    if(index)
-      result = curlx_dyn_addn(dq, "&", 1);
-    if(!result) {
-      const char *key_ptr = curlx_dyn_ptr(&encoded_query_array[index].key);
-      const char *value_ptr = curlx_dyn_ptr(&encoded_query_array[index].value);
-      size_t vlen = curlx_dyn_len(&encoded_query_array[index].value);
-      if(value_ptr && vlen) {
-        result = curlx_dyn_addf(dq, "%s=%s", key_ptr, value_ptr);
+    ਜੇ(ਸੂਚਕਾਂਕ)
+      ਨਤੀਜਾ = curlx_dyn_addn(dq, "&", 1);
+    ਜੇ(!ਨਤੀਜਾ) {
+      ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ_ptr = curlx_dyn_ptr(&encoded_query_array[ਸੂਚਕਾਂਕ].ਕੁੰਜੀ);
+      ਅਚਲ ਅੱਖਰ *ਮੁੱਲ_ptr = curlx_dyn_ptr(&encoded_query_array[ਸੂਚਕਾਂਕ].ਮੁੱਲ);
+      size_t vlen = curlx_dyn_len(&encoded_query_array[ਸੂਚਕਾਂਕ].ਮੁੱਲ);
+      ਜੇ(ਮੁੱਲ_ptr && vlen) {
+        ਨਤੀਜਾ = curlx_dyn_addf(dq, "%s=%s", ਕੁੰਜੀ_ptr, ਮੁੱਲ_ptr);
       }
-      else {
+      ਨਹੀਂਤਾਂ {
         /* Empty value is always encoded to key= */
-        result = curlx_dyn_addf(dq, "%s=", key_ptr);
+        ਨਤੀਜਾ = curlx_dyn_addf(dq, "%s=", ਕੁੰਜੀ_ptr);
       }
     }
-    if(result)
-      break;
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
   }
 
 fail:
-  if(counted_query_components)
+  ਜੇ(counted_query_components)
     /* the encoded_query_array might not be initialized yet */
     pair_array_free(&encoded_query_array[0], counted_query_components);
-  dyn_array_free(&query_array[0], num_query_components);
-  return result;
+  dyn_array_free(&query_array[0], ਅੰਕ_query_components);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode parse_sigv4_params(struct Curl_easy *data,
-                                   const char *hostname,
-                                   struct Curl_str *provider0,
-                                   struct Curl_str *provider1,
-                                   struct Curl_str *region,
-                                   struct Curl_str *service)
+ਸਥਿਰ CURLcode parse_sigv4_params(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਅਚਲ ਅੱਖਰ *hostname,
+                                   ਬਣਤਰ Curl_str *provider0,
+                                   ਬਣਤਰ Curl_str *provider1,
+                                   ਬਣਤਰ Curl_str *region,
+                                   ਬਣਤਰ Curl_str *service)
 {
-  const char *line = CURL_EASY_STR(data, STRING_AWS_SIGV4);
-  if(!line || !*line)
-    line = "aws:amz";
+  ਅਚਲ ਅੱਖਰ *ਸਤਰ = CURL_EASY_STR(ਅੰਕੜੇ, STRING_AWS_SIGV4);
+  ਜੇ(!ਸਤਰ || !*ਸਤਰ)
+    ਸਤਰ = "aws:amz";
 
   /* provider0[:provider1[:region[:service]]]
 
      No string can be longer than N bytes of non-whitespace */
-  if(curlx_str_until(&line, provider0, MAX_SIGV4_LEN, ':')) {
-    failf(data, "first aws-sigv4 provider cannot be empty");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ਜੇ(curlx_str_until(&ਸਤਰ, provider0, MAX_SIGV4_LEN, ':')) {
+    failf(ਅੰਕੜੇ, "first aws-sigv4 provider cannot be empty");
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
   }
-  if(curlx_str_single(&line, ':') ||
-     curlx_str_until(&line, provider1, MAX_SIGV4_LEN, ':')) {
+  ਜੇ(curlx_str_single(&ਸਤਰ, ':') ||
+     curlx_str_until(&ਸਤਰ, provider1, MAX_SIGV4_LEN, ':')) {
     *provider1 = *provider0;
   }
-  else if(curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, region, MAX_SIGV4_LEN, ':') ||
-          curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, service, MAX_SIGV4_LEN, ':')) {
+  ਨਹੀਂਤਾਂ ਜੇ(curlx_str_single(&ਸਤਰ, ':') ||
+          curlx_str_until(&ਸਤਰ, region, MAX_SIGV4_LEN, ':') ||
+          curlx_str_single(&ਸਤਰ, ':') ||
+          curlx_str_until(&ਸਤਰ, service, MAX_SIGV4_LEN, ':')) {
     /* nothing to do */
   }
 
-  if(!curlx_strlen(service)) {
-    const char *p = hostname;
-    if(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
+  ਜੇ(!curlx_strlen(service)) {
+    ਅਚਲ ਅੱਖਰ *p = hostname;
+    ਜੇ(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
        curlx_str_single(&p, '.')) {
-      failf(data, "aws-sigv4: service missing in parameters and hostname");
-      return CURLE_URL_MALFORMAT;
+      failf(ਅੰਕੜੇ, "aws-sigv4: service missing in parameters and hostname");
+      ਵਾਪਸ CURLE_URL_MALFORMAT;
     }
 
-    infof(data, "aws_sigv4: picked service %.*s from host",
-          (int)curlx_strlen(service), curlx_str(service));
+    infof(ਅੰਕੜੇ, "aws_sigv4: picked service %.*s from host",
+          (ਪੂਰਨ)curlx_strlen(service), curlx_str(service));
 
-    if(!curlx_strlen(region)) {
-      if(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
+    ਜੇ(!curlx_strlen(region)) {
+      ਜੇ(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
          curlx_str_single(&p, '.')) {
-        failf(data, "aws-sigv4: region missing in parameters and hostname");
-        return CURLE_URL_MALFORMAT;
+        failf(ਅੰਕੜੇ, "aws-sigv4: region missing in parameters and hostname");
+        ਵਾਪਸ CURLE_URL_MALFORMAT;
       }
-      infof(data, "aws_sigv4: picked region %.*s from host",
-            (int)curlx_strlen(region), curlx_str(region));
+      infof(ਅੰਕੜੇ, "aws_sigv4: picked region %.*s from host",
+            (ਪੂਰਨ)curlx_strlen(region), curlx_str(region));
     }
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode get_payload_hash(struct Curl_easy *data,
+ਸਥਿਰ CURLcode get_payload_hash(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                  Curl_HttpReq httpreq,
-                                 struct Curl_str *provider0,
-                                 struct Curl_str *provider1,
-                                 struct Curl_str *service,
-                                 unsigned char *sha_hash,
-                                 char *sha_hex,
-                                 char *content_sha256_hdr,
-                                 const char **payload_hash_out,
-                                 size_t *payload_hash_len_out)
+                                 ਬਣਤਰ Curl_str *provider0,
+                                 ਬਣਤਰ Curl_str *provider1,
+                                 ਬਣਤਰ Curl_str *service,
+                                 ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *sha_hash,
+                                 ਅੱਖਰ *sha_hex,
+                                 ਅੱਖਰ *content_sha256_hdr,
+                                 ਅਚਲ ਅੱਖਰ **payload_hash_ਬਾਹਰਲਾ,
+                                 size_t *payload_hash_len_ਬਾਹਰਲਾ)
 {
-  *payload_hash_out =
-    parse_content_sha_hdr(data, curlx_str(provider1),
-                          curlx_strlen(provider1), payload_hash_len_out);
+  *payload_hash_ਬਾਹਰਲਾ =
+    parse_content_sha_hdr(ਅੰਕੜੇ, curlx_str(provider1),
+                          curlx_strlen(provider1), payload_hash_len_ਬਾਹਰਲਾ);
 
-  if(!*payload_hash_out) {
-    CURLcode result;
+  ਜੇ(!*payload_hash_ਬਾਹਰਲਾ) {
+    CURLcode ਨਤੀਜਾ;
     /* AWS S3 requires a x-amz-content-sha256 header, and supports special
      * values like UNSIGNED-PAYLOAD */
     bool sign_as_s3 = curlx_str_casecompare(provider0, "aws") &&
                       curlx_str_casecompare(service, "s3");
 
-    if(sign_as_s3)
-      result = calc_s3_payload_hash(data, httpreq, curlx_str(provider1),
+    ਜੇ(sign_as_s3)
+      ਨਤੀਜਾ = calc_s3_payload_hash(ਅੰਕੜੇ, httpreq, curlx_str(provider1),
                                     curlx_strlen(provider1), sha_hash,
                                     sha_hex, content_sha256_hdr);
-    else
-      result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      return result;
+    ਨਹੀਂਤਾਂ
+      ਨਤੀਜਾ = calc_payload_hash(ਅੰਕੜੇ, sha_hash, sha_hex);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
 
-    *payload_hash_out = sha_hex;
+    *payload_hash_ਬਾਹਰਲਾ = sha_hex;
     /* may be shorter than SHA256_HEX_LENGTH, like S3_UNSIGNED_PAYLOAD */
-    *payload_hash_len_out = strlen(sha_hex);
+    *payload_hash_len_ਬਾਹਰਲਾ = ਲੜੀ_ਲੰਬਾਈ(sha_hex);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode get_timestamp(char *timestamp, size_t stampsize)
+ਸਥਿਰ CURLcode get_timestamp(ਅੱਖਰ *timestamp, size_t stampsize)
 {
   time_t clock;
-  struct tm tm;
-  CURLcode result;
+  ਬਣਤਰ tm tm;
+  CURLcode ਨਤੀਜਾ;
 
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
   {
-    char *force_timestamp = getenv("CURL_FORCETIME");
-    if(force_timestamp)
+    ਅੱਖਰ *force_timestamp = getenv("CURL_FORCETIME");
+    ਜੇ(force_timestamp)
       clock = 0;
-    else
-      clock = time(NULL);
+    ਨਹੀਂਤਾਂ
+      clock = ਸਮਾਂ(ਨਿਰਾ);
   }
-#else
-  clock = time(NULL);
-#endif
-  result = curlx_gmtime(clock, &tm);
-  if(result)
-    return result;
+#ਨਹੀਂਤਾਂ
+  clock = ਸਮਾਂ(ਨਿਰਾ);
+#ਜੇ_ਅੰਤ
+  ਨਤੀਜਾ = curlx_gmtime(clock, &tm);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  if(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode make_canonical_request(struct Curl_easy *data,
-                                       char *timestamp,
-                                       struct Curl_str *provider1,
-                                       struct Curl_str *service,
-                                       const char *method,
-                                       const char *payload_hash,
+ਸਥਿਰ CURLcode make_canonical_request(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       ਅੱਖਰ *timestamp,
+                                       ਬਣਤਰ Curl_str *provider1,
+                                       ਬਣਤਰ Curl_str *service,
+                                       ਅਚਲ ਅੱਖਰ *ਵਿਧੀ,
+                                       ਅਚਲ ਅੱਖਰ *payload_hash,
                                        size_t payload_hash_len,
-                                       char **date_header_out,
-                                       char *content_sha256_hdr,
-                                       struct dynbuf *canonical_headers,
-                                       struct dynbuf *signed_headers,
-                                       char **canonical_request_out)
+                                       ਅੱਖਰ **date_ਸਿਰਲੇਖ_ਬਾਹਰਲਾ,
+                                       ਅੱਖਰ *content_sha256_hdr,
+                                       ਬਣਤਰ dynbuf *canonical_ਸਿਰਲੇਖਾਂ,
+                                       ਬਣਤਰ dynbuf *signed_ਸਿਰਲੇਖਾਂ,
+                                       ਅੱਖਰ **canonical_request_ਬਾਹਰਲਾ)
 {
-  struct dynbuf canonical_query;
-  struct dynbuf canonical_path;
-  CURLcode result;
+  ਬਣਤਰ dynbuf canonical_query;
+  ਬਣਤਰ dynbuf canonical_ਰਸਤਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  curlx_dyn_init(&canonical_query, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&canonical_path, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&canonical_query, CURL_MAX_HTTP_ਸਿਰਲੇਖ);
+  curlx_dyn_init(&canonical_ਰਸਤਾ, CURL_MAX_HTTP_ਸਿਰਲੇਖ);
 
-  result = make_headers(data, timestamp,
+  ਨਤੀਜਾ = make_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ, timestamp,
                         curlx_str(provider1), curlx_strlen(provider1),
-                        date_header_out, content_sha256_hdr,
-                        canonical_headers, signed_headers);
-  if(result)
-    goto fail;
+                        date_ਸਿਰਲੇਖ_ਬਾਹਰਲਾ, content_sha256_hdr,
+                        canonical_ਸਿਰਲੇਖਾਂ, signed_ਸਿਰਲੇਖਾਂ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ fail;
 
-  result = canon_query(data->state.up.query, &canonical_query);
-  if(result)
-    goto fail;
+  ਨਤੀਜਾ = canon_query(ਅੰਕੜੇ->state.ਉੱਪਰ.query, &canonical_query);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ fail;
 
-  result = canon_path(data->state.up.path, strlen(data->state.up.path),
-                      &canonical_path,
+  ਨਤੀਜਾ = canon_ਰਸਤਾ(ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ, ਲੜੀ_ਲੰਬਾਈ(ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ),
+                      &canonical_ਰਸਤਾ,
                       should_urlencode(service));
-  if(result)
-    goto fail;
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ fail;
 
-  *canonical_request_out =
+  *canonical_request_ਬਾਹਰਲਾ =
     curl_maprintf("%s\n" /* HTTPRequestMethod */
                   "%s\n" /* CanonicalURI */
                   "%s\n" /* CanonicalQueryString */
                   "%s\n" /* CanonicalHeaders */
                   "%s\n" /* SignedHeaders */
                   "%.*s",  /* HashedRequestPayload in hex */
-                  method,
-                  curlx_dyn_ptr(&canonical_path),
+                  ਵਿਧੀ,
+                  curlx_dyn_ptr(&canonical_ਰਸਤਾ),
                   curlx_dyn_ptr(&canonical_query) ?
                   curlx_dyn_ptr(&canonical_query) : "",
-                  curlx_dyn_ptr(canonical_headers),
-                  curlx_dyn_ptr(signed_headers),
-                  (int)payload_hash_len, payload_hash);
-  if(!*canonical_request_out) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+                  curlx_dyn_ptr(canonical_ਸਿਰਲੇਖਾਂ),
+                  curlx_dyn_ptr(signed_ਸਿਰਲੇਖਾਂ),
+                  (ਪੂਰਨ)payload_hash_len, payload_hash);
+  ਜੇ(!*canonical_request_ਬਾਹਰਲਾ) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ fail;
   }
 
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 fail:
   curlx_dyn_free(&canonical_query);
-  curlx_dyn_free(&canonical_path);
-  return result;
+  curlx_dyn_free(&canonical_ਰਸਤਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode make_string_to_sign(struct Curl_easy *data,
-                                    struct Curl_str *provider0,
-                                    struct Curl_str *region,
-                                    struct Curl_str *service,
-                                    const char *date,
-                                    const char *timestamp,
-                                    const char *canonical_request,
-                                    char **request_type_out,
-                                    char **credential_scope_out,
-                                    char **str_to_sign_out)
+ਸਥਿਰ CURLcode make_string_ਮੰਜ਼ਿਲ_sign(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ Curl_str *provider0,
+                                    ਬਣਤਰ Curl_str *region,
+                                    ਬਣਤਰ Curl_str *service,
+                                    ਅਚਲ ਅੱਖਰ *date,
+                                    ਅਚਲ ਅੱਖਰ *timestamp,
+                                    ਅਚਲ ਅੱਖਰ *canonical_request,
+                                    ਅੱਖਰ **request_type_ਬਾਹਰਲਾ,
+                                    ਅੱਖਰ **credential_scope_ਬਾਹਰਲਾ,
+                                    ਅੱਖਰ **str_ਮੰਜ਼ਿਲ_sign_ਬਾਹਰਲਾ)
 {
-  char *request_type;
-  char *credential_scope;
-  char *str_to_sign;
-  unsigned char sha_hash[CURL_SHA256_DIGEST_LENGTH];
-  char sha_hex[SHA256_HEX_LENGTH];
+  ਅੱਖਰ *request_type;
+  ਅੱਖਰ *credential_scope;
+  ਅੱਖਰ *str_ਮੰਜ਼ਿਲ_sign;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ sha_hash[CURL_SHA256_DIGEST_ਲੰਮਾਈ];
+  ਅੱਖਰ sha_hex[SHA256_HEX_ਲੰਮਾਈ];
 
   request_type = curl_maprintf("%.*s4_request",
-                               (int)curlx_strlen(provider0),
+                               (ਪੂਰਨ)curlx_strlen(provider0),
                                curlx_str(provider0));
-  if(!request_type)
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!request_type)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   /* provider0 is lowercased *after* curl_maprintf() so that the buffer
      can be written to */
   Curl_strntolower(request_type, request_type, curlx_strlen(provider0));
 
   credential_scope = curl_maprintf("%s/%.*s/%.*s/%s", date,
-                                   (int)curlx_strlen(region),
+                                   (ਪੂਰਨ)curlx_strlen(region),
                                    curlx_str(region),
-                                   (int)curlx_strlen(service),
+                                   (ਪੂਰਨ)curlx_strlen(service),
                                    curlx_str(service),
                                    request_type);
-  if(!credential_scope) {
+  ਜੇ(!credential_scope) {
     curlx_free(request_type);
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
-  if(Curl_sha256it(sha_hash, (const unsigned char *)canonical_request,
-                   strlen(canonical_request))) {
+  ਜੇ(Curl_sha256it(sha_hash, (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)canonical_request,
+                   ਲੜੀ_ਲੰਬਾਈ(canonical_request))) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
-  sha256_to_hex(sha_hex, sha_hash);
+  sha256_ਮੰਜ਼ਿਲ_hex(sha_hex, sha_hash);
 
   /*
    * Google allows using RSA key instead of HMAC, so this code might change
    * in the future. For now we only support HMAC.
    */
-  str_to_sign = curl_maprintf("%.*s4-HMAC-SHA256\n" /* Algorithm */
+  str_ਮੰਜ਼ਿਲ_sign = curl_maprintf("%.*s4-HMAC-SHA256\n" /* Algorithm */
                               "%s\n" /* RequestDateTime */
                               "%s\n" /* CredentialScope */
                               "%s",  /* HashedCanonicalRequest in hex */
-                              (int)curlx_strlen(provider0),
+                              (ਪੂਰਨ)curlx_strlen(provider0),
                               curlx_str(provider0),
                               timestamp,
                               credential_scope,
                               sha_hex);
-  if(!str_to_sign) {
+  ਜੇ(!str_ਮੰਜ਼ਿਲ_sign) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
   /* make provider0 part done uppercase */
-  Curl_strntoupper(str_to_sign, curlx_str(provider0),
+  Curl_strntoupper(str_ਮੰਜ਼ਿਲ_sign, curlx_str(provider0),
                    curlx_strlen(provider0));
 
-  infof(data, "aws_sigv4: String to sign (enclosed in []) - [%s]",
-        str_to_sign);
+  infof(ਅੰਕੜੇ, "aws_sigv4: String to sign (enclosed in []) - [%s]",
+        str_ਮੰਜ਼ਿਲ_sign);
 
-  *request_type_out = request_type;
-  *credential_scope_out = credential_scope;
-  *str_to_sign_out = str_to_sign;
-  return CURLE_OK;
+  *request_type_ਬਾਹਰਲਾ = request_type;
+  *credential_scope_ਬਾਹਰਲਾ = credential_scope;
+  *str_ਮੰਜ਼ਿਲ_sign_ਬਾਹਰਲਾ = str_ਮੰਜ਼ਿਲ_sign;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
-                                          struct Curl_str *provider0,
-                                          struct Curl_str *region,
-                                          struct Curl_str *service,
-                                          const char *request_type,
-                                          const char *credential_scope,
-                                          const char *date,
-                                          const char *str_to_sign,
-                                          const char *date_header,
-                                          const char *content_sha256_hdr,
-                                          struct dynbuf *signed_headers)
+ਸਥਿਰ CURLcode sign_and_ਸੈੱਟ_auth_ਸਿਰਲੇਖਾਂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                          ਬਣਤਰ Curl_str *provider0,
+                                          ਬਣਤਰ Curl_str *region,
+                                          ਬਣਤਰ Curl_str *service,
+                                          ਅਚਲ ਅੱਖਰ *request_type,
+                                          ਅਚਲ ਅੱਖਰ *credential_scope,
+                                          ਅਚਲ ਅੱਖਰ *date,
+                                          ਅਚਲ ਅੱਖਰ *str_ਮੰਜ਼ਿਲ_sign,
+                                          ਅਚਲ ਅੱਖਰ *date_ਸਿਰਲੇਖ,
+                                          ਅਚਲ ਅੱਖਰ *content_sha256_hdr,
+                                          ਬਣਤਰ dynbuf *signed_ਸਿਰਲੇਖਾਂ)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  const char *passwd = Curl_creds_passwd(data->state.creds);
-  char *secret = NULL;
-  unsigned char sign0[CURL_SHA256_DIGEST_LENGTH] = { 0 };
-  unsigned char sign1[CURL_SHA256_DIGEST_LENGTH] = { 0 };
-  char sha_hex[SHA256_HEX_LENGTH];
-  char *auth_headers = NULL;
-  char *user = curl_escape(Curl_creds_user(data->state.creds), 0);
-  if(!user)
-    return CURLE_OUT_OF_MEMORY;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਅਚਲ ਅੱਖਰ *passwd = Curl_creds_passwd(ਅੰਕੜੇ->state.creds);
+  ਅੱਖਰ *secret = ਨਿਰਾ;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ sign0[CURL_SHA256_DIGEST_ਲੰਮਾਈ] = { 0 };
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ sign1[CURL_SHA256_DIGEST_ਲੰਮਾਈ] = { 0 };
+  ਅੱਖਰ sha_hex[SHA256_HEX_ਲੰਮਾਈ];
+  ਅੱਖਰ *auth_ਸਿਰਲੇਖਾਂ = ਨਿਰਾ;
+  ਅੱਖਰ *user = curl_escape(Curl_creds_user(ਅੰਕੜੇ->state.creds), 0);
+  ਜੇ(!user)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  secret = curl_maprintf("%.*s4%s", (int)curlx_strlen(provider0),
+  secret = curl_maprintf("%.*s4%s", (ਪੂਰਨ)curlx_strlen(provider0),
                          curlx_str(provider0), passwd);
-  if(!secret)
-    goto fail;
+  ਜੇ(!secret)
+    ਜਾਓ fail;
   /* make provider0 part done uppercase */
   Curl_strntoupper(secret, curlx_str(provider0), curlx_strlen(provider0));
 
-  HMAC_SHA256(secret, strlen(secret), date, strlen(date), sign0);
-  HMAC_SHA256(sign0, sizeof(sign0),
+  HMAC_SHA256(secret, ਲੜੀ_ਲੰਬਾਈ(secret), date, ਲੜੀ_ਲੰਬਾਈ(date), sign0);
+  HMAC_SHA256(sign0, ਆਕਾਰ(sign0),
               curlx_str(region), curlx_strlen(region), sign1);
-  HMAC_SHA256(sign1, sizeof(sign1),
+  HMAC_SHA256(sign1, ਆਕਾਰ(sign1),
               curlx_str(service), curlx_strlen(service), sign0);
-  HMAC_SHA256(sign0, sizeof(sign0),
-              request_type, strlen(request_type), sign1);
-  HMAC_SHA256(sign1, sizeof(sign1),
-              str_to_sign, strlen(str_to_sign), sign0);
+  HMAC_SHA256(sign0, ਆਕਾਰ(sign0),
+              request_type, ਲੜੀ_ਲੰਬਾਈ(request_type), sign1);
+  HMAC_SHA256(sign1, ਆਕਾਰ(sign1),
+              str_ਮੰਜ਼ਿਲ_sign, ਲੜੀ_ਲੰਬਾਈ(str_ਮੰਜ਼ਿਲ_sign), sign0);
 
-  sha256_to_hex(sha_hex, sign0);
+  sha256_ਮੰਜ਼ਿਲ_hex(sha_hex, sign0);
 
-  infof(data, "aws_sigv4: Signature - %s", sha_hex);
+  infof(ਅੰਕੜੇ, "aws_sigv4: Signature - %s", sha_hex);
 
-  auth_headers = curl_maprintf("Authorization: %.*s4-HMAC-SHA256 "
+  auth_ਸਿਰਲੇਖਾਂ = curl_maprintf("Authorization: %.*s4-HMAC-SHA256 "
                                "Credential=%s/%s, "
                                "SignedHeaders=%s, "
                                "Signature=%s\r\n"
                                "%s"
                                "%s%s",
-                               (int)curlx_strlen(provider0),
+                               (ਪੂਰਨ)curlx_strlen(provider0),
                                curlx_str(provider0),
                                user,
                                credential_scope,
-                               curlx_dyn_ptr(signed_headers),
+                               curlx_dyn_ptr(signed_ਸਿਰਲੇਖਾਂ),
                                sha_hex,
                                /*
                                 * date_header is added here, only if it was not
                                 * user-specified (using CURLOPT_HTTPHEADER).
                                 * date_header includes \r\n
                                 */
-                               date_header ? date_header : "",
+                               date_ਸਿਰਲੇਖ ? date_ਸਿਰਲੇਖ : "",
                                content_sha256_hdr,
                                content_sha256_hdr[0] ? "\r\n": "");
-  if(!auth_headers)
-    goto fail;
+  ਜੇ(!auth_ਸਿਰਲੇਖਾਂ)
+    ਜਾਓ fail;
 
   /* provider 0 uppercase */
-  Curl_strntoupper(&auth_headers[CURL_CSTRLEN("Authorization: ")],
+  Curl_strntoupper(&auth_ਸਿਰਲੇਖਾਂ[CURL_CSTRLEN("Authorization: ")],
                    curlx_str(provider0), curlx_strlen(provider0));
 
-  curlx_free(data->req.hd_auth);
-  data->req.hd_auth = auth_headers;
-  data->state.authhost.done = TRUE;
-  result = CURLE_OK;
+  curlx_free(ਅੰਕੜੇ->req.hd_auth);
+  ਅੰਕੜੇ->req.hd_auth = auth_ਸਿਰਲੇਖਾਂ;
+  ਅੰਕੜੇ->state.authhost.ਪੂਰਾ = TRUE;
+  ਨਤੀਜਾ = CURLE_OK;
 
 fail:
   curlx_free(user);
   curlx_free(secret);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
+CURLcode Curl_output_aws_sigv4(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct Curl_str provider0 = { NULL, 0 };
-  struct Curl_str provider1 = { NULL, 0 };
-  struct Curl_str region = { NULL, 0 };
-  struct Curl_str service = { NULL, 0 };
-  const char *hostname = data->state.origin->hostname;
-  char timestamp[TIMESTAMP_SIZE];
-  char date[9];
-  struct dynbuf canonical_headers;
-  struct dynbuf signed_headers;
-  char *date_header = NULL;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਬਣਤਰ Curl_str provider0 = { ਨਿਰਾ, 0 };
+  ਬਣਤਰ Curl_str provider1 = { ਨਿਰਾ, 0 };
+  ਬਣਤਰ Curl_str region = { ਨਿਰਾ, 0 };
+  ਬਣਤਰ Curl_str service = { ਨਿਰਾ, 0 };
+  ਅਚਲ ਅੱਖਰ *hostname = ਅੰਕੜੇ->state.origin->hostname;
+  ਅੱਖਰ timestamp[TIMESTAMP_ਮਾਪ];
+  ਅੱਖਰ date[9];
+  ਬਣਤਰ dynbuf canonical_ਸਿਰਲੇਖਾਂ;
+  ਬਣਤਰ dynbuf signed_ਸਿਰਲੇਖਾਂ;
+  ਅੱਖਰ *date_ਸਿਰਲੇਖ = ਨਿਰਾ;
   Curl_HttpReq httpreq;
-  const char *method = NULL;
-  const char *payload_hash = NULL;
+  ਅਚਲ ਅੱਖਰ *ਵਿਧੀ = ਨਿਰਾ;
+  ਅਚਲ ਅੱਖਰ *payload_hash = ਨਿਰਾ;
   size_t payload_hash_len = 0;
-  unsigned char sha_hash[CURL_SHA256_DIGEST_LENGTH];
-  char sha_hex[SHA256_HEX_LENGTH];
-  char content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
-  char *canonical_request = NULL;
-  char *request_type = NULL;
-  char *credential_scope = NULL;
-  char *str_to_sign = NULL;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ sha_hash[CURL_SHA256_DIGEST_ਲੰਮਾਈ];
+  ਅੱਖਰ sha_hex[SHA256_HEX_ਲੰਮਾਈ];
+  ਅੱਖਰ content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
+  ਅੱਖਰ *canonical_request = ਨਿਰਾ;
+  ਅੱਖਰ *request_type = ਨਿਰਾ;
+  ਅੱਖਰ *credential_scope = ਨਿਰਾ;
+  ਅੱਖਰ *str_ਮੰਜ਼ਿਲ_sign = ਨਿਰਾ;
 
-  if(data->set.path_as_is) {
-    failf(data, "Cannot use sigv4 authentication with path-as-is flag");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.ਰਸਤਾ_as_is) {
+    failf(ਅੰਕੜੇ, "Cannot use sigv4 authentication with path-as-is flag");
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
   }
 
-  if(Curl_checkheaders(data, STRCONST("Authorization")))
+  ਜੇ(Curl_checkheaders(ਅੰਕੜੇ, STRCONST("Authorization")))
     /* Authorization already present, Bailing out */
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
 
   /* we init those buffers here, so goto fail will free initialized dynbuf */
-  curlx_dyn_init(&canonical_headers, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&signed_headers, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&canonical_ਸਿਰਲੇਖਾਂ, CURL_MAX_HTTP_ਸਿਰਲੇਖ);
+  curlx_dyn_init(&signed_ਸਿਰਲੇਖਾਂ, CURL_MAX_HTTP_ਸਿਰਲੇਖ);
 
-  result = parse_sigv4_params(data, hostname, &provider0, &provider1,
+  ਨਤੀਜਾ = parse_sigv4_params(ਅੰਕੜੇ, hostname, &provider0, &provider1,
                               &region, &service);
-  if(!result) {
-    Curl_http_method(data, &method, &httpreq);
-    result = get_payload_hash(data, httpreq, &provider0, &provider1, &service,
+  ਜੇ(!ਨਤੀਜਾ) {
+    Curl_http_ਵਿਧੀ(ਅੰਕੜੇ, &ਵਿਧੀ, &httpreq);
+    ਨਤੀਜਾ = get_payload_hash(ਅੰਕੜੇ, httpreq, &provider0, &provider1, &service,
                               sha_hash, sha_hex, content_sha256_hdr,
                               &payload_hash, &payload_hash_len);
   }
 
-  if(!result)
-    result = get_timestamp(timestamp, sizeof(timestamp));
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = get_timestamp(timestamp, ਆਕਾਰ(timestamp));
 
-  if(!result)
-    result = make_canonical_request(data, timestamp,
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = make_canonical_request(ਅੰਕੜੇ, timestamp,
                                     &provider1, &service,
-                                    method, payload_hash, payload_hash_len,
-                                    &date_header, content_sha256_hdr,
-                                    &canonical_headers, &signed_headers,
+                                    ਵਿਧੀ, payload_hash, payload_hash_len,
+                                    &date_ਸਿਰਲੇਖ, content_sha256_hdr,
+                                    &canonical_ਸਿਰਲੇਖਾਂ, &signed_ਸਿਰਲੇਖਾਂ,
                                     &canonical_request);
-  if(!result) {
+  ਜੇ(!ਨਤੀਜਾ) {
     /* the timestamp might have been updated in make_canonical_request */
-    memcpy(date, timestamp, sizeof(date) - 1);
-    date[sizeof(date) - 1] = 0;
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(date, timestamp, ਆਕਾਰ(date) - 1);
+    date[ਆਕਾਰ(date) - 1] = 0;
 
-    result = make_string_to_sign(data, &provider0, &region, &service,
+    ਨਤੀਜਾ = make_string_ਮੰਜ਼ਿਲ_sign(ਅੰਕੜੇ, &provider0, &region, &service,
                                  date, timestamp, canonical_request,
                                  &request_type, &credential_scope,
-                                 &str_to_sign);
+                                 &str_ਮੰਜ਼ਿਲ_sign);
   }
-  if(!result)
-    result = sign_and_set_auth_headers(data, &provider0, &region, &service,
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = sign_and_ਸੈੱਟ_auth_ਸਿਰਲੇਖਾਂ(ਅੰਕੜੇ, &provider0, &region, &service,
                                        request_type, credential_scope,
-                                       date, str_to_sign, date_header,
-                                       content_sha256_hdr, &signed_headers);
+                                       date, str_ਮੰਜ਼ਿਲ_sign, date_ਸਿਰਲੇਖ,
+                                       content_sha256_hdr, &signed_ਸਿਰਲੇਖਾਂ);
 
-  curlx_dyn_free(&canonical_headers);
-  curlx_dyn_free(&signed_headers);
+  curlx_dyn_free(&canonical_ਸਿਰਲੇਖਾਂ);
+  curlx_dyn_free(&signed_ਸਿਰਲੇਖਾਂ);
   curlx_free(canonical_request);
   curlx_free(request_type);
   curlx_free(credential_scope);
-  curlx_free(str_to_sign);
-  curlx_free(date_header);
-  return result;
+  curlx_free(str_ਮੰਜ਼ਿਲ_sign);
+  curlx_free(date_ਸਿਰਲੇਖ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_AWS */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_HTTP && !CURL_DISABLE_AWS */

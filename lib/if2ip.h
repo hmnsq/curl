@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_IF2IP_H
-#define HEADER_CURL_IF2IP_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_IF2_IP_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_IF2_IP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,69 +23,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
 /* IPv6 address scopes. */
-#define IPV6_SCOPE_GLOBAL       0       /* Global scope. */
-#define IPV6_SCOPE_LINKLOCAL    1       /* Link-local scope. */
-#define IPV6_SCOPE_SITELOCAL    2       /* Site-local scope (deprecated). */
-#define IPV6_SCOPE_UNIQUELOCAL  3       /* Unique local */
-#define IPV6_SCOPE_NODELOCAL    4       /* Loopback. */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IPV6_SCOPE_GLOBAL       0       /* Global scope. */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IPV6_SCOPE_LINKLOCAL    1       /* Link-local scope. */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IPV6_SCOPE_SITELOCAL    2       /* Site-local scope (deprecated). */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IPV6_SCOPE_UNIQUELOCAL  3       /* Unique local */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IPV6_SCOPE_NODELOCAL    4       /* Loopback. */
 
-#ifdef USE_IPV6
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa);
-#else
-#define Curl_ipv6_scope(x) 0
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ Curl_ipv6_scope(ਅਚਲ ਬਣਤਰ sockaddr *sa);
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_ipv6_scope(x) 0
+#ਜੇ_ਅੰਤ
 
-typedef enum {
-  IF2IP_NOT_FOUND = 0, /* Interface not found */
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
+  IF2_IP_NOT_ਮਿਲਿਆ = 0, /* Interface not found */
   IF2IP_AF_NOT_SUPPORTED = 1, /* Int. exists but has no address for this af */
-  IF2IP_FOUND = 2 /* The address has been stored in "buf" */
-} if2ip_result_t;
+  IF2_IP_ਮਿਲਿਆ = 2 /* The address has been stored in "buf" */
+} if2ip_ਨਤੀਜਾ_t;
 
-if2ip_result_t Curl_if2ip(int af,
-#ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
-#endif
-                          const char *interf,
-                          char *buf, size_t buf_size);
+if2ip_ਨਤੀਜਾ_t Curl_if2ip(ਪੂਰਨ af,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+                          ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ remote_scope,
+                          ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ local_scope_id,
+#ਜੇ_ਅੰਤ
+                          ਅਚਲ ਅੱਖਰ *interf,
+                          ਅੱਖਰ *buf, size_t buf_ਮਾਪ);
 
-#ifdef __INTERIX
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __INTERIX
 
 /* Nedelcho Stanev's workaround for SFU 3.0 */
-struct ifreq {
-#define IFNAMSIZ    16
-#define IFHWADDRLEN 6
-  union {
-    char ifrn_name[IFNAMSIZ]; /* if name, e.g. "en0" */
+ਬਣਤਰ ifreq {
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IFNAMSIZ    16
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IFHWADDRLEN 6
+  ਸੰਘ {
+    ਅੱਖਰ ifrn_name[IFNAMSIZ]; /* if name, e.g. "en0" */
   } ifr_ifrn;
 
-  union {
-    struct sockaddr ifru_addr;
-    struct sockaddr ifru_broadaddr;
-    struct sockaddr ifru_netmask;
-    struct sockaddr ifru_hwaddr;
-    short ifru_flags;
-    int ifru_metric;
-    int ifru_mtu;
+  ਸੰਘ {
+    ਬਣਤਰ sockaddr ifru_addr;
+    ਬਣਤਰ sockaddr ifru_broadaddr;
+    ਬਣਤਰ sockaddr ifru_netmask;
+    ਬਣਤਰ sockaddr ifru_hwaddr;
+    ਛੋਟਾ ifru_flags;
+    ਪੂਰਨ ifru_metric;
+    ਪੂਰਨ ifru_mtu;
   } ifr_ifru;
 };
 
 /* This define exists to avoid an extra #ifdef INTERIX in the C code. */
 
-#define ifr_name      ifr_ifrn.ifrn_name /* interface name */
-#define ifr_addr      ifr_ifru.ifru_addr /* address */
-#define ifr_broadaddr ifr_ifru.ifru_broadaddr /* broadcast address */
-#define ifr_netmask   ifr_ifru.ifru_netmask /* interface net mask */
-#define ifr_flags     ifr_ifru.ifru_flags /* flags */
-#define ifr_hwaddr    ifr_ifru.ifru_hwaddr /* MAC address */
-#define ifr_metric    ifr_ifru.ifru_metric /* metric */
-#define ifr_mtu       ifr_ifru.ifru_mtu /* mtu */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ifr_name      ifr_ifrn.ifrn_name /* interface name */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ifr_addr      ifr_ifru.ifru_addr /*ਪਤਾ*/
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ifr_broadaddr ifr_ifru.ifru_broadaddr /* broadcast address */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ifr_netmask   ifr_ifru.ifru_netmask /* interface net mask */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ifr_flags     ifr_ifru.ifru_flags /* flags */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ifr_hwaddr    ifr_ifru.ifru_hwaddr /* MAC address */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ifr_metric    ifr_ifru.ifru_metric /* metric */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ifr_mtu       ifr_ifru.ifru_mtu /* mtu */
 
-#define SIOCGIFADDR _IOW('s', 102, struct ifreq) /* Get if addr */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIOCGIFADDR _IOW('s', 102, ਬਣਤਰ ifreq) /* Get if addr */
 
-#endif /* __INTERIX */
+#ਜੇ_ਅੰਤ /* __INTERIX */
 
-#endif /* HEADER_CURL_IF2IP_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_IF2IP_H */

@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "curlx/strcopy.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strcopy.h"
 
 /*
  * curlx_strcopy() is a replacement for strcpy.
@@ -35,16 +35,16 @@
  * If the target buffer is too small, the copy is not performed but if the
  * target buffer has a non-zero size it gets a null-terminator stored.
  */
-void curlx_strcopy(char *dest,      /* destination buffer */
+ਖਾਲੀ curlx_strcopy(ਅੱਖਰ *dest,      /* destination buffer */
                    size_t dsize,    /* size of target buffer */
-                   const char *src, /* source string */
+                   ਅਚਲ ਅੱਖਰ *src, /* source string */
                    size_t slen)     /* length of source string to copy */
 {
   DEBUGASSERT(slen < dsize);
-  if(slen < dsize) {
-    memcpy(dest, src, slen);
+  ਜੇ(slen < dsize) {
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(dest, src, slen);
     dest[slen] = 0;
   }
-  else if(dsize)
+  ਨਹੀਂਤਾਂ ਜੇ(dsize)
     dest[0] = 0;
 }

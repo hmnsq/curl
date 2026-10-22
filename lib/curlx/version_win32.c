@@ -21,46 +21,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef _WIN32
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
 
-#include "curlx/version_win32.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/version_win32.h"
 
-#ifndef CURL_WINDOWS_UWP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_WINDOWS_UWP
 /* This Unicode version struct works for VerifyVersionInfoW (OSVERSIONINFOEXW)
    and RtlVerifyVersionInfo (RTLOSVERSIONINFOEXW) */
-struct OUR_OSVERSIONINFOEXW {
-  ULONG  dwOSVersionInfoSize;
-  ULONG  dwMajorVersion;
-  ULONG  dwMinorVersion;
-  ULONG  dwBuildNumber;
+ਬਣਤਰ OUR_OSVERSIONINFOEXW {
+  ULONG  dw_OSVersion_Info_ਮਾਪ;
+  ULONG  dw_Major_ਸੰਸਕਰਣ;
+  ULONG  dw_Minor_ਸੰਸਕਰਣ;
+  ULONG  dw_Build_ਸੰਖਿਆ;
   ULONG  dwPlatformId;
   WCHAR  szCSDVersion[128];
   USHORT wServicePackMajor;
   USHORT wServicePackMinor;
-  USHORT wSuiteMask;
-  UCHAR  wProductType;
+  USHORT w_Suite_ਨਕਾਬ;
+  UCHAR  w_ਗੁਣਨਫਲ_Type;
   UCHAR  wReserved;
 };
 
-typedef LONG (APIENTRY *RTLVERIFYVERSIONINFO_FN)
-  (struct OUR_OSVERSIONINFOEXW *, ULONG, ULONGLONG);
-static RTLVERIFYVERSIONINFO_FN s_pRtlVerifyVersionInfo;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ LONG (APIENTRY *RTLVERIFYVERSIONINFO_FN)
+  (ਬਣਤਰ OUR_OSVERSIONINFOEXW *, ULONG, ULONGLONG);
+ਸਥਿਰ RTLVERIFYVERSIONINFO_FN s_p_Rtl_Verify_ਸੰਸਕਰਣ_Info;
 
-void curlx_verify_windows_init(void)
+ਖਾਲੀ curlx_verify_windows_init(ਖਾਲੀ)
 {
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
-  s_pRtlVerifyVersionInfo = CURLX_FUNCTION_CAST(RTLVERIFYVERSIONINFO_FN,
-    GetProcAddress(GetModuleHandle(TEXT("ntdll")), "RtlVerifyVersionInfo"));
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
+#ਜੇ defined(__clang__) && __clang_major__ >= 16
+#ਹਦਾਇਤ clang diagnostic ਧੱਕੋ
+#ਹਦਾਇਤ clang diagnostic ignored "-Wcast-function-type-strict"
+#ਜੇ_ਅੰਤ
+  s_p_Rtl_Verify_ਸੰਸਕਰਣ_Info = CURLX_FUNCTION_CAST(RTLVERIFYVERSIONINFO_FN,
+    Get_Proc_ਪਤਾ(GetModuleHandle(ਪਾਠ_2("ntdll")), "RtlVerifyVersionInfo"));
+#ਜੇ defined(__clang__) && __clang_major__ >= 16
+#ਹਦਾਇਤ clang diagnostic ਕੱਢੋ
+#ਜੇ_ਅੰਤ
 }
-#endif /* !CURL_WINDOWS_UWP */
+#ਜੇ_ਅੰਤ /* !CURL_WINDOWS_UWP */
 
 /*
  * curlx_verify_windows_version()
@@ -81,122 +81,122 @@ void curlx_verify_windows_init(void)
  *
  * Returns TRUE if matched; otherwise FALSE.
  */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
-                                  const PlatformIdentifier platform,
-                                  const VersionCondition condition)
+bool curlx_verify_windows_ਸੰਸਕਰਣ(ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ major_ਸੰਸਕਰਣ,
+                                  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ minor_ਸੰਸਕਰਣ,
+                                  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ build_ਸੰਸਕਰਣ,
+                                  ਅਚਲ PlatformIdentifier platform,
+                                  ਅਚਲ ਸੰਸਕਰਣ_Condition condition)
 {
   bool matched = FALSE;
 
-#ifdef CURL_WINDOWS_UWP
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_WINDOWS_UWP
   /* We have no way to determine the Windows version from Windows apps,
      so let's assume we are running on the target Windows version. */
-  const WORD fullVersion = MAKEWORD(minorVersion, majorVersion);
-  const WORD targetVersion = (WORD)_WIN32_WINNT;
+  ਅਚਲ ਸ਼ਬਦ_3 ਭਰਿਆ_ਸੰਸਕਰਣ = MAKEWORD(minor_ਸੰਸਕਰਣ, major_ਸੰਸਕਰਣ);
+  ਅਚਲ ਸ਼ਬਦ_3 ਨਿਸ਼ਾਨਾ_ਸੰਸਕਰਣ = (ਸ਼ਬਦ_3)_WIN32_WINNT;
 
-  (void)buildVersion;
+  (ਖਾਲੀ)build_ਸੰਸਕਰਣ;
 
-  switch(condition) {
-  case VERSION_LESS_THAN:
-    matched = targetVersion < fullVersion;
-    break;
+  ਚੋਣ(condition) {
+  ਹਾਲਤ ਸੰਸਕਰਣ_LESS_THAN:
+    matched = ਨਿਸ਼ਾਨਾ_ਸੰਸਕਰਣ < ਭਰਿਆ_ਸੰਸਕਰਣ;
+    ਰੋਕੋ;
 
-  case VERSION_LESS_THAN_EQUAL:
-    matched = targetVersion <= fullVersion;
-    break;
+  ਹਾਲਤ ਸੰਸਕਰਣ_LESS_THAN_EQUAL:
+    matched = ਨਿਸ਼ਾਨਾ_ਸੰਸਕਰਣ <= ਭਰਿਆ_ਸੰਸਕਰਣ;
+    ਰੋਕੋ;
 
-  case VERSION_EQUAL:
-    matched = targetVersion == fullVersion;
-    break;
+  ਹਾਲਤ ਸੰਸਕਰਣ_EQUAL:
+    matched = ਨਿਸ਼ਾਨਾ_ਸੰਸਕਰਣ == ਭਰਿਆ_ਸੰਸਕਰਣ;
+    ਰੋਕੋ;
 
-  case VERSION_GREATER_THAN_EQUAL:
-    matched = targetVersion >= fullVersion;
-    break;
+  ਹਾਲਤ ਸੰਸਕਰਣ_GREATER_THAN_EQUAL:
+    matched = ਨਿਸ਼ਾਨਾ_ਸੰਸਕਰਣ >= ਭਰਿਆ_ਸੰਸਕਰਣ;
+    ਰੋਕੋ;
 
-  case VERSION_GREATER_THAN:
-    matched = targetVersion > fullVersion;
-    break;
+  ਹਾਲਤ ਸੰਸਕਰਣ_GREATER_THAN:
+    matched = ਨਿਸ਼ਾਨਾ_ਸੰਸਕਰਣ > ਭਰਿਆ_ਸੰਸਕਰਣ;
+    ਰੋਕੋ;
   }
 
-  if(matched && (platform == PLATFORM_WINDOWS)) {
+  ਜੇ(matched && (platform == PLATFORM_WINDOWS)) {
     /* we are always running on PLATFORM_WINNT */
     matched = FALSE;
   }
-#else
+#ਨਹੀਂਤਾਂ
   ULONGLONG cm = 0;
-  struct OUR_OSVERSIONINFOEXW osver;
+  ਬਣਤਰ OUR_OSVERSIONINFOEXW osver;
   BYTE majorCondition;
   BYTE minorCondition;
   BYTE buildCondition;
   BYTE spMajorCondition;
   BYTE spMinorCondition;
-  DWORD dwTypeMask = VER_MAJORVERSION | VER_MINORVERSION |
+  DWORD dw_Type_ਨਕਾਬ = VER_MAJORVERSION | VER_MINORVERSION |
                      VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR;
 
-  switch(condition) {
-  case VERSION_LESS_THAN:
+  ਚੋਣ(condition) {
+  ਹਾਲਤ ਸੰਸਕਰਣ_LESS_THAN:
     majorCondition = VER_LESS;
     minorCondition = VER_LESS;
     buildCondition = VER_LESS;
     spMajorCondition = VER_LESS_EQUAL;
     spMinorCondition = VER_LESS_EQUAL;
-    break;
+    ਰੋਕੋ;
 
-  case VERSION_LESS_THAN_EQUAL:
+  ਹਾਲਤ ਸੰਸਕਰਣ_LESS_THAN_EQUAL:
     majorCondition = VER_LESS_EQUAL;
     minorCondition = VER_LESS_EQUAL;
     buildCondition = VER_LESS_EQUAL;
     spMajorCondition = VER_LESS_EQUAL;
     spMinorCondition = VER_LESS_EQUAL;
-    break;
+    ਰੋਕੋ;
 
-  case VERSION_EQUAL:
+  ਹਾਲਤ ਸੰਸਕਰਣ_EQUAL:
     majorCondition = VER_EQUAL;
     minorCondition = VER_EQUAL;
     buildCondition = VER_EQUAL;
     spMajorCondition = VER_GREATER_EQUAL;
     spMinorCondition = VER_GREATER_EQUAL;
-    break;
+    ਰੋਕੋ;
 
-  case VERSION_GREATER_THAN_EQUAL:
+  ਹਾਲਤ ਸੰਸਕਰਣ_GREATER_THAN_EQUAL:
     majorCondition = VER_GREATER_EQUAL;
     minorCondition = VER_GREATER_EQUAL;
     buildCondition = VER_GREATER_EQUAL;
     spMajorCondition = VER_GREATER_EQUAL;
     spMinorCondition = VER_GREATER_EQUAL;
-    break;
+    ਰੋਕੋ;
 
-  case VERSION_GREATER_THAN:
+  ਹਾਲਤ ਸੰਸਕਰਣ_GREATER_THAN:
     majorCondition = VER_GREATER;
     minorCondition = VER_GREATER;
     buildCondition = VER_GREATER;
     spMajorCondition = VER_GREATER_EQUAL;
     spMinorCondition = VER_GREATER_EQUAL;
-    break;
+    ਰੋਕੋ;
 
-  default:
-    return FALSE;
+  ਮੂਲ:
+    ਵਾਪਸ FALSE;
   }
 
-  memset(&osver, 0, sizeof(osver));
-  osver.dwOSVersionInfoSize = sizeof(osver);
-  osver.dwMajorVersion = majorVersion;
-  osver.dwMinorVersion = minorVersion;
-  osver.dwBuildNumber = buildVersion;
-  if(platform == PLATFORM_WINDOWS)
+  memset(&osver, 0, ਆਕਾਰ(osver));
+  osver.dw_OSVersion_Info_ਮਾਪ = ਆਕਾਰ(osver);
+  osver.dw_Major_ਸੰਸਕਰਣ = major_ਸੰਸਕਰਣ;
+  osver.dw_Minor_ਸੰਸਕਰਣ = minor_ਸੰਸਕਰਣ;
+  osver.dw_Build_ਸੰਖਿਆ = build_ਸੰਸਕਰਣ;
+  ਜੇ(platform == PLATFORM_WINDOWS)
     osver.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS;
-  else if(platform == PLATFORM_WINNT)
+  ਨਹੀਂਤਾਂ ਜੇ(platform == PLATFORM_WINNT)
     osver.dwPlatformId = VER_PLATFORM_WIN32_NT;
 
-  cm = VerSetConditionMask(cm, VER_MAJORVERSION, majorCondition);
-  cm = VerSetConditionMask(cm, VER_MINORVERSION, minorCondition);
-  cm = VerSetConditionMask(cm, VER_SERVICEPACKMAJOR, spMajorCondition);
-  cm = VerSetConditionMask(cm, VER_SERVICEPACKMINOR, spMinorCondition);
+  cm = Ver_ਸੈੱਟ_Condition_ਨਕਾਬ(cm, VER_MAJORVERSION, majorCondition);
+  cm = Ver_ਸੈੱਟ_Condition_ਨਕਾਬ(cm, VER_MINORVERSION, minorCondition);
+  cm = Ver_ਸੈੱਟ_Condition_ਨਕਾਬ(cm, VER_SERVICEPACKMAJOR, spMajorCondition);
+  cm = Ver_ਸੈੱਟ_Condition_ਨਕਾਬ(cm, VER_SERVICEPACKMINOR, spMinorCondition);
 
-  if(platform != PLATFORM_DONT_CARE) {
-    cm = VerSetConditionMask(cm, VER_PLATFORMID, VER_EQUAL);
-    dwTypeMask |= VER_PLATFORMID;
+  ਜੇ(platform != PLATFORM_DONT_CARE) {
+    cm = Ver_ਸੈੱਟ_Condition_ਨਕਾਬ(cm, VER_PLATFORMID, VER_EQUAL);
+    dw_Type_ਨਕਾਬ |= VER_PLATFORMID;
   }
 
   /* Later versions of Windows have version functions that may not return the
@@ -204,35 +204,35 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
      the real version always, so we use the Rtl variant of the function when
      possible. Note though the function signatures have underlying fundamental
      types that are the same, the return values are different. */
-  if(s_pRtlVerifyVersionInfo)
-    matched = !s_pRtlVerifyVersionInfo(&osver, dwTypeMask, cm);
-  else
-    matched = !!VerifyVersionInfoW((OSVERSIONINFOEXW *)&osver, dwTypeMask, cm);
+  ਜੇ(s_p_Rtl_Verify_ਸੰਸਕਰਣ_Info)
+    matched = !s_p_Rtl_Verify_ਸੰਸਕਰਣ_Info(&osver, dw_Type_ਨਕਾਬ, cm);
+  ਨਹੀਂਤਾਂ
+    matched = !!Verify_ਸੰਸਕਰਣ_Info_W((OSVERSIONINFOEXW *)&osver, dw_Type_ਨਕਾਬ, cm);
 
   /* Compare the build number separately. VerifyVersionInfo normally compares
      major.minor in hierarchical order (eg 1.9 is less than 2.0) but does not
      do the same for build (eg 1.9 build 222 is not less than 2.0 build 111).
      Build comparison is only needed when build numbers are equal (eg 1.9 is
      always less than 2.0 so build comparison is not needed). */
-  if(matched && buildVersion &&
-     (condition == VERSION_EQUAL ||
-      ((condition == VERSION_GREATER_THAN_EQUAL ||
-        condition == VERSION_LESS_THAN_EQUAL) &&
-        curlx_verify_windows_version(majorVersion, minorVersion, 0,
-                                     platform, VERSION_EQUAL)))) {
+  ਜੇ(matched && build_ਸੰਸਕਰਣ &&
+     (condition == ਸੰਸਕਰਣ_EQUAL ||
+      ((condition == ਸੰਸਕਰਣ_GREATER_THAN_EQUAL ||
+        condition == ਸੰਸਕਰਣ_LESS_THAN_EQUAL) &&
+        curlx_verify_windows_ਸੰਸਕਰਣ(major_ਸੰਸਕਰਣ, minor_ਸੰਸਕਰਣ, 0,
+                                     platform, ਸੰਸਕਰਣ_EQUAL)))) {
 
-    cm = VerSetConditionMask(0, VER_BUILDNUMBER, buildCondition);
-    dwTypeMask = VER_BUILDNUMBER;
-    if(s_pRtlVerifyVersionInfo)
-      matched = !s_pRtlVerifyVersionInfo(&osver, dwTypeMask, cm);
-    else
-      matched = !!VerifyVersionInfoW((OSVERSIONINFOEXW *)&osver,
-                                     dwTypeMask, cm);
+    cm = Ver_ਸੈੱਟ_Condition_ਨਕਾਬ(0, VER_BUILDNUMBER, buildCondition);
+    dw_Type_ਨਕਾਬ = VER_BUILDNUMBER;
+    ਜੇ(s_p_Rtl_Verify_ਸੰਸਕਰਣ_Info)
+      matched = !s_p_Rtl_Verify_ਸੰਸਕਰਣ_Info(&osver, dw_Type_ਨਕਾਬ, cm);
+    ਨਹੀਂਤਾਂ
+      matched = !!Verify_ਸੰਸਕਰਣ_Info_W((OSVERSIONINFOEXW *)&osver,
+                                     dw_Type_ਨਕਾਬ, cm);
   }
 
-#endif
+#ਜੇ_ਅੰਤ
 
-  return matched;
+  ਵਾਪਸ matched;
 }
 
-#endif /* _WIN32 */
+#ਜੇ_ਅੰਤ /* _WIN32 */

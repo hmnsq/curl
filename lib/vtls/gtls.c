@@ -28,118 +28,118 @@
  * Note: do not use the GnuTLS' *_t variable type names in this source code,
  * since they were not present in 1.0.x.
  */
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_GNUTLS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_GNUTLS
 
-#include <gnutls/abstract.h>
-#include <gnutls/gnutls.h>
-#include <gnutls/x509.h>
-#include <gnutls/crypto.h>
-#include <nettle/sha2.h>
-#include <nettle/version.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <gnutls/abstract.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <gnutls/gnutls.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <gnutls/x509.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <gnutls/crypto.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <nettle/sha2.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <nettle/version.h>
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vtls/keylog.h"
-#include "vtls/gtls.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/apple.h"
-#include "vauth/vauth.h"
-#include "parsedate.h"
-#include "connect.h" /* for the connect timeout */
-#include "progress.h"
-#include "curlx/strdup.h"
-#include "curlx/win32-fopen.h"
-#include "vtls/x509asn1.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/keylog.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/gtls.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls_int.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls_scache.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/apple.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vauth/vauth.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parsedate.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h" /* for the connect timeout */
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strdup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/win32-fopen.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/x509asn1.h"
 
 /* Enable GnuTLS debugging by defining GTLSDEBUG */
-#if 0
-#define GTLSDEBUG
-#endif
+#ਜੇ 0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GTLSDEBUG
+#ਜੇ_ਅੰਤ
 
-#ifdef GTLSDEBUG
-static void tls_log_func(int level, const char *str)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ GTLSDEBUG
+ਸਥਿਰ ਖਾਲੀ tls_log_func(ਪੂਰਨ level, ਅਚਲ ਅੱਖਰ *str)
 {
   curl_mfprintf(stderr, "|<%d>| %s", level, str);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#if !defined(GNUTLS_VERSION_NUMBER) || (GNUTLS_VERSION_NUMBER < 0x030605)
-#error "too old GnuTLS version"
-#endif
+#ਜੇ !defined(GNUTLS_ਸੰਸਕਰਣ_ਸੰਖਿਆ) || (GNUTLS_ਸੰਸਕਰਣ_ਸੰਖਿਆ < 0x030605)
+#ਗਲਤੀ "too old GnuTLS version"
+#ਜੇ_ਅੰਤ
 
-#undef CURL_GNUTLS_EARLY_DATA
-#if GNUTLS_VERSION_NUMBER >= 0x030702
-#define CURL_GNUTLS_EARLY_DATA
-#endif
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+#ਜੇ GNUTLS_ਸੰਸਕਰਣ_ਸੰਖਿਆ >= 0x030702
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+#ਜੇ_ਅੰਤ
 
-#include <gnutls/ocsp.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <gnutls/ocsp.h>
 
-struct gtls_ssl_backend_data {
-  struct gtls_ctx gtls;
+ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ {
+  ਬਣਤਰ gtls_ctx gtls;
 };
 
-static ssize_t gtls_push(void *s, const void *buf, size_t blen)
+ਸਥਿਰ ssize_t gtls_ਧੱਕੋ(ਖਾਲੀ *s, ਅਚਲ ਖਾਲੀ *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = s;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ਬਣਤਰ Curl_cfilter *cf = s;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ = CF_ਅੰਕੜੇ_CURRENT(cf);
   size_t nwritten;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  DEBUGASSERT(data);
-  result = Curl_conn_cf_send(cf->next, data, buf, blen, FALSE, &nwritten);
-  CURL_TRC_CF(data, cf, "gtls_push(len=%zu) -> %d, %zu",
-              blen, (int)result, nwritten);
-  backend->gtls.io_result = result;
-  if(result) {
+  DEBUGASSERT(ਅੰਕੜੇ);
+  ਨਤੀਜਾ = Curl_conn_cf_send(cf->ਅਗਲਾ, ਅੰਕੜੇ, buf, blen, FALSE, &nwritten);
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "gtls_push(len=%zu) -> %d, %zu",
+              blen, (ਪੂਰਨ)ਨਤੀਜਾ, nwritten);
+  backend->gtls.io_ਨਤੀਜਾ = ਨਤੀਜਾ;
+  ਜੇ(ਨਤੀਜਾ) {
     /* !checksrc! disable ERRNOVAR 1 */
-    gnutls_transport_set_errno(backend->gtls.session,
-                               (result == CURLE_AGAIN) ? EAGAIN : EINVAL);
-    return -1;
+    gnutls_transport_ਸੈੱਟ_errno(backend->gtls.session,
+                               (ਨਤੀਜਾ == CURLE_AGAIN) ? EAGAIN : EINVAL);
+    ਵਾਪਸ -1;
   }
-  return (ssize_t)nwritten;
+  ਵਾਪਸ (ssize_t)nwritten;
 }
 
-static ssize_t gtls_pull(void *s, void *buf, size_t blen)
+ਸਥਿਰ ssize_t gtls_pull(ਖਾਲੀ *s, ਖਾਲੀ *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = s;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ਬਣਤਰ Curl_cfilter *cf = s;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ = CF_ਅੰਕੜੇ_CURRENT(cf);
   size_t nread;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  DEBUGASSERT(data);
-  if(!backend->gtls.shared_creds->trust_setup) {
-    result = Curl_gtls_client_trust_setup(cf, data, &backend->gtls);
-    if(result) {
+  DEBUGASSERT(ਅੰਕੜੇ);
+  ਜੇ(!backend->gtls.shared_creds->trust_ਤਿਆਰੀ) {
+    ਨਤੀਜਾ = Curl_gtls_client_trust_ਤਿਆਰੀ(cf, ਅੰਕੜੇ, &backend->gtls);
+    ਜੇ(ਨਤੀਜਾ) {
       /* !checksrc! disable ERRNOVAR 1 */
-      gnutls_transport_set_errno(backend->gtls.session, EINVAL);
-      backend->gtls.io_result = result;
-      return -1;
+      gnutls_transport_ਸੈੱਟ_errno(backend->gtls.session, EINVAL);
+      backend->gtls.io_ਨਤੀਜਾ = ਨਤੀਜਾ;
+      ਵਾਪਸ -1;
     }
   }
 
-  result = Curl_conn_cf_recv(cf->next, data, buf, blen, &nread);
-  CURL_TRC_CF(data, cf, "gtls_pull(len=%zu) -> %d, %zu", blen, (int)result,
+  ਨਤੀਜਾ = Curl_conn_cf_recv(cf->ਅਗਲਾ, ਅੰਕੜੇ, buf, blen, &nread);
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "gtls_pull(len=%zu) -> %d, %zu", blen, (ਪੂਰਨ)ਨਤੀਜਾ,
               nread);
-  backend->gtls.io_result = result;
-  if(result) {
+  backend->gtls.io_ਨਤੀਜਾ = ਨਤੀਜਾ;
+  ਜੇ(ਨਤੀਜਾ) {
     /* !checksrc! disable ERRNOVAR 1 */
-    gnutls_transport_set_errno(backend->gtls.session,
-                               (result == CURLE_AGAIN) ? EAGAIN : EINVAL);
-    return -1;
+    gnutls_transport_ਸੈੱਟ_errno(backend->gtls.session,
+                               (ਨਤੀਜਾ == CURLE_AGAIN) ? EAGAIN : EINVAL);
+    ਵਾਪਸ -1;
   }
-  else if(nread == 0)
+  ਨਹੀਂਤਾਂ ਜੇ(nread == 0)
     connssl->peer_closed = TRUE;
-  return (ssize_t)nread;
+  ਵਾਪਸ (ssize_t)nread;
 }
 
 /**
@@ -153,37 +153,37 @@ static ssize_t gtls_pull(void *s, void *buf, size_t blen)
  * @retval 0 error initializing SSL
  * @retval 1 SSL initialized successfully
  */
-static int gtls_init(void)
+ਸਥਿਰ ਪੂਰਨ gtls_init(ਖਾਲੀ)
 {
-  int ret = 1;
+  ਪੂਰਨ ret = 1;
   ret = gnutls_global_init() ? 0 : 1;
-#ifdef GTLSDEBUG
-  gnutls_global_set_log_function(tls_log_func);
-  gnutls_global_set_log_level(2);
-#endif
-  return ret;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ GTLSDEBUG
+  gnutls_global_ਸੈੱਟ_log_function(tls_log_func);
+  gnutls_global_ਸੈੱਟ_log_level(2);
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ ret;
 }
 
-static void gtls_cleanup(void)
+ਸਥਿਰ ਖਾਲੀ gtls_cleanup(ਖਾਲੀ)
 {
   gnutls_global_deinit();
   Curl_tls_keylog_close();
 }
 
-#ifdef CURLVERBOSE
-static void showtime(struct Curl_easy *data, const char *text, time_t stamp)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+ਸਥਿਰ ਖਾਲੀ showtime(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *ਪਾਠ_3, time_t stamp)
 {
-  struct tm buffer;
-  const struct tm *tm = &buffer;
-  char str[96];
-  CURLcode result = curlx_gmtime(stamp, &buffer);
-  if(result)
-    return;
+  ਬਣਤਰ tm ਬਫਰ;
+  ਅਚਲ ਬਣਤਰ tm *tm = &ਬਫਰ;
+  ਅੱਖਰ str[96];
+  CURLcode ਨਤੀਜਾ = curlx_gmtime(stamp, &ਬਫਰ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ;
 
   curl_msnprintf(str,
-                 sizeof(str),
+                 ਆਕਾਰ(str),
                  "  %s: %s, %02d %s %4d %02d:%02d:%02d GMT",
-                 text,
+                 ਪਾਠ_3,
                  Curl_wkday[tm->tm_wday ? tm->tm_wday-1 : 6],
                  tm->tm_mday,
                  Curl_month[tm->tm_mon],
@@ -191,250 +191,250 @@ static void showtime(struct Curl_easy *data, const char *text, time_t stamp)
                  tm->tm_hour,
                  tm->tm_min,
                  tm->tm_sec);
-  infof(data, "%s", str);
+  infof(ਅੰਕੜੇ, "%s", str);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static gnutls_datum_t load_file(const char *file)
+ਸਥਿਰ gnutls_datum_t ਲੱਦੋ_file(ਅਚਲ ਅੱਖਰ *file)
 {
   FILE *f;
-  gnutls_datum_t loaded_file = { NULL, 0 };
-  long filelen;
-  void *ptr;
+  gnutls_datum_t loaded_file = { ਨਿਰਾ, 0 };
+  ਲੰਮਾ filelen;
+  ਖਾਲੀ *ptr;
 
   f = curlx_fopen(file, "rb");
-  if(!f)
-    return loaded_file;
-  if(fseek(f, 0, SEEK_END))
-    goto out;
+  ਜੇ(!f)
+    ਵਾਪਸ loaded_file;
+  ਜੇ(fseek(f, 0, SEEK_END))
+    ਜਾਓ ਬਾਹਰਲਾ;
   filelen = ftell(f);
-  if(filelen < 0 || filelen > CURL_MAX_INPUT_LENGTH)
-    goto out;
-  if(fseek(f, 0, SEEK_SET))
-    goto out;
+  ਜੇ(filelen < 0 || filelen > CURL_MAX_ਨਿਵੇਸ਼_ਲੰਮਾਈ)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਜੇ(fseek(f, 0, SEEK_SET))
+    ਜਾਓ ਬਾਹਰਲਾ;
   ptr = curlx_malloc((size_t)filelen);
-  if(!ptr)
-    goto out;
-  if(fread(ptr, 1, (size_t)filelen, f) < (size_t)filelen) {
+  ਜੇ(!ptr)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਜੇ(fread(ptr, 1, (size_t)filelen, f) < (size_t)filelen) {
     curlx_free(ptr);
-    goto out;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  loaded_file.data = ptr;
-  loaded_file.size = (unsigned int)filelen;
-out:
+  loaded_file.ਅੰਕੜੇ = ptr;
+  loaded_file.ਮਾਪ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)filelen;
+ਬਾਹਰਲਾ:
   curlx_fclose(f);
-  return loaded_file;
+  ਵਾਪਸ loaded_file;
 }
 
-static void unload_file(gnutls_datum_t data)
+ਸਥਿਰ ਖਾਲੀ unload_file(gnutls_datum_t ਅੰਕੜੇ)
 {
-  curlx_free(data.data);
+  curlx_free(ਅੰਕੜੇ.ਅੰਕੜੇ);
 }
 
 /* this function does an SSL/TLS (re-)handshake */
-static CURLcode cf_gtls_handshake(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ਸਥਿਰ CURLcode cf_gtls_handshake(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
   gnutls_session_t session;
-  int rc;
+  ਪੂਰਨ rc;
 
   DEBUGASSERT(backend);
   session = backend->gtls.session;
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  backend->gtls.io_result = CURLE_OK;
+  backend->gtls.io_ਨਤੀਜਾ = CURLE_OK;
   rc = gnutls_handshake(session);
 
-  if(!backend->gtls.shared_creds->trust_setup) {
+  ਜੇ(!backend->gtls.shared_creds->trust_ਤਿਆਰੀ) {
     /* After having send off the ClientHello, we prepare the trust
      * store to verify the coming certificate from the server */
-    CURLcode result = Curl_gtls_client_trust_setup(cf, data, &backend->gtls);
-    if(result)
-      return result;
+    CURLcode ਨਤੀਜਾ = Curl_gtls_client_trust_ਤਿਆਰੀ(cf, ਅੰਕੜੇ, &backend->gtls);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  if((rc == GNUTLS_E_AGAIN) || (rc == GNUTLS_E_INTERRUPTED)) {
+  ਜੇ((rc == GNUTLS_E_AGAIN) || (rc == GNUTLS_E_INTERRUPTED)) {
     connssl->io_need =
-      gnutls_record_get_direction(session) ?
+      gnutls_ਰਿਕਾਰਡ_get_direction(session) ?
       CURL_SSL_IO_NEED_SEND : CURL_SSL_IO_NEED_RECV;
-    return CURLE_AGAIN;
+    ਵਾਪਸ CURLE_AGAIN;
   }
-  else if((rc < 0) && !gnutls_error_is_fatal(rc)) {
-#ifdef CURLVERBOSE
-    const char *strerr = NULL;
+  ਨਹੀਂਤਾਂ ਜੇ((rc < 0) && !gnutls_error_is_fatal(rc)) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+    ਅਚਲ ਅੱਖਰ *strerr = ਨਿਰਾ;
 
-    if(rc == GNUTLS_E_WARNING_ALERT_RECEIVED) {
+    ਜੇ(rc == GNUTLS_E_WARNING_ALERT_RECEIVED) {
       gnutls_alert_description_t alert = gnutls_alert_get(session);
       strerr = gnutls_alert_get_name(alert);
     }
 
-    if(!strerr)
+    ਜੇ(!strerr)
       strerr = gnutls_strerror(rc);
 
-    infof(data, "gnutls_handshake() warning: %s", strerr);
-#endif
-    return CURLE_AGAIN;
+    infof(ਅੰਕੜੇ, "gnutls_handshake() warning: %s", strerr);
+#ਜੇ_ਅੰਤ
+    ਵਾਪਸ CURLE_AGAIN;
   }
-  else if((rc < 0) && backend->gtls.io_result) {
-    return backend->gtls.io_result;
+  ਨਹੀਂਤਾਂ ਜੇ((rc < 0) && backend->gtls.io_ਨਤੀਜਾ) {
+    ਵਾਪਸ backend->gtls.io_ਨਤੀਜਾ;
   }
-  else if(rc < 0) {
-    const char *strerr = NULL;
+  ਨਹੀਂਤਾਂ ਜੇ(rc < 0) {
+    ਅਚਲ ਅੱਖਰ *strerr = ਨਿਰਾ;
 
-    if(rc == GNUTLS_E_FATAL_ALERT_RECEIVED) {
+    ਜੇ(rc == GNUTLS_E_FATAL_ALERT_RECEIVED) {
       gnutls_alert_description_t alert = gnutls_alert_get(session);
       strerr = gnutls_alert_get_name(alert);
     }
 
-    if(!strerr)
+    ਜੇ(!strerr)
       strerr = gnutls_strerror(rc);
 
-    failf(data, "GnuTLS, handshake failed: %s", strerr);
-    return CURLE_SSL_CONNECT_ERROR;
+    failf(ਅੰਕੜੇ, "GnuTLS, handshake failed: %s", strerr);
+    ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static gnutls_x509_crt_fmt_t gnutls_do_file_type(const char *type)
+ਸਥਿਰ gnutls_x509_crt_fmt_t gnutls_do_file_type(ਅਚਲ ਅੱਖਰ *type)
 {
-  if(!type || !type[0])
-    return GNUTLS_X509_FMT_PEM;
-  if(curl_strequal(type, "PEM"))
-    return GNUTLS_X509_FMT_PEM;
-  if(curl_strequal(type, "DER"))
-    return GNUTLS_X509_FMT_DER;
-  return GNUTLS_X509_FMT_PEM; /* default to PEM */
+  ਜੇ(!type || !type[0])
+    ਵਾਪਸ GNUTLS_X509_FMT_PEM;
+  ਜੇ(curl_strequal(type, "PEM"))
+    ਵਾਪਸ GNUTLS_X509_FMT_PEM;
+  ਜੇ(curl_strequal(type, "DER"))
+    ਵਾਪਸ GNUTLS_X509_FMT_DER;
+  ਵਾਪਸ GNUTLS_X509_FMT_PEM; /* default to PEM */
 }
 
-#define GNUTLS_CIPHERS "NORMAL:%PROFILE_MEDIUM:-ARCFOUR-128:" \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GNUTLS_CIPHERS "NORMAL:%PROFILE_MEDIUM:-ARCFOUR-128:" \
   "-CTYPE-ALL:+CTYPE-X509"
 
-#define QUIC_PRIORITY \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ QUIC_ਤਰਜੀਹ \
   "NORMAL:%PROFILE_MEDIUM:-VERS-ALL:+VERS-TLS1.3:-CIPHER-ALL:+AES-128-GCM:" \
   "+AES-256-GCM:+CHACHA20-POLY1305:+AES-128-CCM:-GROUP-ALL:" \
   "+GROUP-SECP256R1:+GROUP-X25519:+GROUP-SECP384R1:+GROUP-SECP521R1:" \
   "%DISABLE_TLS13_COMPAT_MODE"
 
-static CURLcode gnutls_set_ssl_version_min_max(
-  struct Curl_easy *data,
-  struct ssl_peer *peer,
-  struct ssl_filter_config *conn_config,
-  const char **prioritylist,
+ਸਥਿਰ CURLcode gnutls_ਸੈੱਟ_ssl_ਸੰਸਕਰਣ_min_max(
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+  ਬਣਤਰ ssl_peer *peer,
+  ਬਣਤਰ ssl_filter_config *conn_config,
+  ਅਚਲ ਅੱਖਰ **prioritylist,
   bool tls13support)
 {
-  long ssl_version = conn_config->version;
-  long ssl_version_max = conn_config->version_max;
+  ਲੰਮਾ ssl_ਸੰਸਕਰਣ = conn_config->ਸੰਸਕਰਣ_2;
+  ਲੰਮਾ ssl_ਸੰਸਕਰਣ_max = conn_config->ਸੰਸਕਰਣ_max;
 
-  DEBUGASSERT(ssl_version != CURL_SSLVERSION_DEFAULT);
-  if(ssl_version <= CURL_SSLVERSION_TLSv1)
-    ssl_version = CURL_SSLVERSION_TLSv1_0;
-  if((ssl_version_max == CURL_SSLVERSION_MAX_NONE) ||
-     (ssl_version_max == CURL_SSLVERSION_MAX_DEFAULT))
-    ssl_version_max = tls13support ?
+  DEBUGASSERT(ssl_ਸੰਸਕਰਣ != CURL_SSLVERSION_DEFAULT);
+  ਜੇ(ssl_ਸੰਸਕਰਣ <= CURL_SSLVERSION_TLSv1)
+    ssl_ਸੰਸਕਰਣ = CURL_SSLVERSION_TLSv1_0;
+  ਜੇ((ssl_ਸੰਸਕਰਣ_max == CURL_SSLVERSION_MAX_NONE) ||
+     (ssl_ਸੰਸਕਰਣ_max == CURL_SSLVERSION_MAX_DEFAULT))
+    ssl_ਸੰਸਕਰਣ_max = tls13support ?
       CURL_SSLVERSION_MAX_TLSv1_3 : CURL_SSLVERSION_MAX_TLSv1_2;
 
-  if(peer->transport == TRNSPRT_QUIC) {
-    if(ssl_version_max < CURL_SSLVERSION_MAX_TLSv1_3) {
-      failf(data, "QUIC needs at least TLS version 1.3");
-      return CURLE_SSL_CONNECT_ERROR;
+  ਜੇ(peer->transport == TRNSPRT_QUIC) {
+    ਜੇ(ssl_ਸੰਸਕਰਣ_max < CURL_SSLVERSION_MAX_TLSv1_3) {
+      failf(ਅੰਕੜੇ, "QUIC needs at least TLS version 1.3");
+      ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
     }
-    *prioritylist = QUIC_PRIORITY;
-    return CURLE_OK;
+    *prioritylist = QUIC_ਤਰਜੀਹ;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  switch(ssl_version | ssl_version_max) {
-  case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_0:
+  ਚੋਣ(ssl_ਸੰਸਕਰਣ | ssl_ਸੰਸਕਰਣ_max) {
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_0:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.0";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_1:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_1:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.1:+VERS-TLS1.0";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_2:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_2:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.2:+VERS-TLS1.1:+VERS-TLS1.0";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_1:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_1:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.1";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_2:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_2:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.2:+VERS-TLS1.1";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_2:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_2:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.2";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_3 | CURL_SSLVERSION_MAX_TLSv1_3:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_3 | CURL_SSLVERSION_MAX_TLSv1_3:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.3";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_3:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_3:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_3:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_3:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.3:+VERS-TLS1.2:+VERS-TLS1.1";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_3:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_3:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.3:+VERS-TLS1.2";
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  failf(data, "GnuTLS: cannot set TLS protocol");
-  return CURLE_SSL_CONNECT_ERROR;
+  failf(ਅੰਕੜੇ, "GnuTLS: cannot set TLS protocol");
+  ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
 }
 
-CURLcode Curl_gtls_shared_creds_create(struct Curl_easy *data,
-                                       struct gtls_shared_creds **pcreds)
+CURLcode Curl_gtls_shared_creds_create(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       ਬਣਤਰ gtls_shared_creds **pcreds)
 {
-  struct gtls_shared_creds *shared;
-  int rc;
+  ਬਣਤਰ gtls_shared_creds *shared;
+  ਪੂਰਨ rc;
 
-  *pcreds = NULL;
-  shared = curlx_calloc(1, sizeof(*shared));
-  if(!shared)
-    return CURLE_OUT_OF_MEMORY;
+  *pcreds = ਨਿਰਾ;
+  shared = curlx_calloc(1, ਆਕਾਰ(*shared));
+  ਜੇ(!shared)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   rc = gnutls_certificate_allocate_credentials(&shared->creds);
-  if(rc != GNUTLS_E_SUCCESS) {
-    failf(data, "gnutls_certificate_allocate_credentials() failed: %s",
+  ਜੇ(rc != GNUTLS_E_SUCCESS) {
+    failf(ਅੰਕੜੇ, "gnutls_certificate_allocate_credentials() failed: %s",
           gnutls_strerror(rc));
     curlx_free(shared);
-    return CURLE_SSL_CONNECT_ERROR;
+    ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
   }
 
   shared->refcount = 1;
-  shared->time = *Curl_pgrs_now(data);
+  shared->ਸਮਾਂ = *Curl_pgrs_now(ਅੰਕੜੇ);
   *pcreds = shared;
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_gtls_shared_creds_up_ref(struct gtls_shared_creds *creds)
+CURLcode Curl_gtls_shared_creds_ਉੱਪਰ_ref(ਬਣਤਰ gtls_shared_creds *creds)
 {
   DEBUGASSERT(creds);
-  if(creds->refcount < SIZE_MAX) {
+  ਜੇ(creds->refcount < SIZE_MAX) {
     ++creds->refcount;
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-  return CURLE_BAD_FUNCTION_ARGUMENT;
+  ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
 }
 
-void Curl_gtls_shared_creds_free(struct gtls_shared_creds **pcreds)
+ਖਾਲੀ Curl_gtls_shared_creds_free(ਬਣਤਰ gtls_shared_creds **pcreds)
 {
-  struct gtls_shared_creds *shared = *pcreds;
-  *pcreds = NULL;
-  if(shared) {
+  ਬਣਤਰ gtls_shared_creds *shared = *pcreds;
+  *pcreds = ਨਿਰਾ;
+  ਜੇ(shared) {
     --shared->refcount;
-    if(!shared->refcount) {
+    ਜੇ(!shared->refcount) {
       gnutls_certificate_free_credentials(shared->creds);
       curlx_free(shared->CAfile);
       curlx_free(shared);
@@ -442,227 +442,227 @@ void Curl_gtls_shared_creds_free(struct gtls_shared_creds **pcreds)
   }
 }
 
-static CURLcode gtls_populate_creds(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+ਸਥਿਰ CURLcode gtls_populate_creds(ਬਣਤਰ Curl_cfilter *cf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                     gnutls_certificate_credentials_t creds)
 {
-  struct ssl_filter_config *config = Curl_ssl_cf_get_filter_config(cf);
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  bool creds_are_empty = TRUE;
-  int rc;
+  ਬਣਤਰ ssl_filter_config *config = Curl_ssl_cf_get_filter_config(cf);
+  ਬਣਤਰ ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, ਅੰਕੜੇ);
+  bool creds_are_ਖਾਲੀ_ਥਾਵਾਂ = TRUE;
+  ਪੂਰਨ rc;
 
-  if(!config->verifypeer) {
-    infof(data, "SSL Trust: peer verification disabled");
-    return CURLE_OK;
+  ਜੇ(!config->verifypeer) {
+    infof(ਅੰਕੜੇ, "SSL Trust: peer verification disabled");
+    ਵਾਪਸ CURLE_OK;
   }
 
-  infof(data, "SSL Trust Anchors:");
-  if(config->native_ca_store) {
-#ifdef USE_APPLE_SECTRUST
-    infof(data, "  Native: Apple SecTrust");
-    creds_are_empty = FALSE;
-#else
-    rc = gnutls_certificate_set_x509_system_trust(creds);
-    if(rc < 0)
-      infof(data, "error reading native CA store (%s), continuing anyway",
+  infof(ਅੰਕੜੇ, "SSL Trust Anchors:");
+  ਜੇ(config->native_ca_store) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_APPLE_SECTRUST
+    infof(ਅੰਕੜੇ, "  Native: Apple SecTrust");
+    creds_are_ਖਾਲੀ_ਥਾਵਾਂ = FALSE;
+#ਨਹੀਂਤਾਂ
+    rc = gnutls_certificate_ਸੈੱਟ_x509_system_trust(creds);
+    ਜੇ(rc < 0)
+      infof(ਅੰਕੜੇ, "error reading native CA store (%s), continuing anyway",
             gnutls_strerror(rc));
-    else {
-      infof(data, "  Native: %d certificates from system trust", rc);
-      if(rc > 0)
-        creds_are_empty = FALSE;
+    ਨਹੀਂਤਾਂ {
+      infof(ਅੰਕੜੇ, "  Native: %d certificates from system trust", rc);
+      ਜੇ(rc > 0)
+        creds_are_ਖਾਲੀ_ਥਾਵਾਂ = FALSE;
     }
-#endif
+#ਜੇ_ਅੰਤ
   }
 
-  if(config->ca_info_blob) {
+  ਜੇ(config->ca_info_blob) {
     gnutls_datum_t ca_info_datum;
-    if(config->ca_info_blob->len > (size_t)UINT_MAX) {
-      failf(data, "certificate blob too long: %zu bytes",
+    ਜੇ(config->ca_info_blob->len > (size_t)UINT_MAX) {
+      failf(ਅੰਕੜੇ, "certificate blob too long: %zu bytes",
             config->ca_info_blob->len);
-      return CURLE_SSL_CACERT_BADFILE;
+      ਵਾਪਸ CURLE_SSL_CACERT_BADFILE;
     }
-    ca_info_datum.data = config->ca_info_blob->data;
-    ca_info_datum.size = (unsigned int)config->ca_info_blob->len;
-    rc = gnutls_certificate_set_x509_trust_mem(creds, &ca_info_datum,
+    ca_info_datum.ਅੰਕੜੇ = config->ca_info_blob->ਅੰਕੜੇ;
+    ca_info_datum.ਮਾਪ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)config->ca_info_blob->len;
+    rc = gnutls_certificate_ਸੈੱਟ_x509_trust_mem(creds, &ca_info_datum,
                                                GNUTLS_X509_FMT_PEM);
-    creds_are_empty = creds_are_empty && (rc <= 0);
-    if(rc < 0) {
-      infof(data, "error reading CA cert blob (%s)%s", gnutls_strerror(rc),
-            (creds_are_empty ? "" : ", continuing anyway"));
-      if(creds_are_empty) {
+    creds_are_ਖਾਲੀ_ਥਾਵਾਂ = creds_are_ਖਾਲੀ_ਥਾਵਾਂ && (rc <= 0);
+    ਜੇ(rc < 0) {
+      infof(ਅੰਕੜੇ, "error reading CA cert blob (%s)%s", gnutls_strerror(rc),
+            (creds_are_ਖਾਲੀ_ਥਾਵਾਂ ? "" : ", continuing anyway"));
+      ਜੇ(creds_are_ਖਾਲੀ_ਥਾਵਾਂ) {
         ssl_config->certverifyresult = rc;
-        return CURLE_SSL_CACERT_BADFILE;
+        ਵਾਪਸ CURLE_SSL_CACERT_BADFILE;
       }
     }
-    else
-      infof(data, "  CA Blob: %d certificates", rc);
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  CA Blob: %d certificates", rc);
   }
   /* CURLOPT_CAINFO_BLOB overrides CURLOPT_CAINFO */
-  else if(config->CAfile) {
+  ਨਹੀਂਤਾਂ ਜੇ(config->CAfile) {
     /* set the trusted CA cert bundle file */
-    gnutls_certificate_set_verify_flags(creds,
+    gnutls_certificate_ਸੈੱਟ_verify_flags(creds,
                                         GNUTLS_VERIFY_ALLOW_X509_V1_CA_CRT);
 
-    rc = gnutls_certificate_set_x509_trust_file(creds,
+    rc = gnutls_certificate_ਸੈੱਟ_x509_trust_file(creds,
                                                 config->CAfile,
                                                 GNUTLS_X509_FMT_PEM);
-    creds_are_empty = creds_are_empty && (rc <= 0);
-    if(rc < 0) {
-      infof(data, "error reading CA cert file %s (%s)%s",
+    creds_are_ਖਾਲੀ_ਥਾਵਾਂ = creds_are_ਖਾਲੀ_ਥਾਵਾਂ && (rc <= 0);
+    ਜੇ(rc < 0) {
+      infof(ਅੰਕੜੇ, "error reading CA cert file %s (%s)%s",
             config->CAfile, gnutls_strerror(rc),
-            (creds_are_empty ? "" : ", continuing anyway"));
-      if(creds_are_empty) {
+            (creds_are_ਖਾਲੀ_ਥਾਵਾਂ ? "" : ", continuing anyway"));
+      ਜੇ(creds_are_ਖਾਲੀ_ਥਾਵਾਂ) {
         ssl_config->certverifyresult = rc;
-        return CURLE_SSL_CACERT_BADFILE;
+        ਵਾਪਸ CURLE_SSL_CACERT_BADFILE;
       }
     }
-    else
-      infof(data, "  CAfile: %d certificates in %s", rc, config->CAfile);
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  CAfile: %d certificates in %s", rc, config->CAfile);
   }
 
-  if(config->CApath) {
+  ਜੇ(config->CApath) {
     /* set the trusted CA cert directory */
-    rc = gnutls_certificate_set_x509_trust_dir(creds, config->CApath,
+    rc = gnutls_certificate_ਸੈੱਟ_x509_trust_dir(creds, config->CApath,
                                                GNUTLS_X509_FMT_PEM);
-    creds_are_empty = creds_are_empty && (rc <= 0);
-    if(rc < 0) {
-      infof(data, "error reading CA cert file %s (%s)%s",
+    creds_are_ਖਾਲੀ_ਥਾਵਾਂ = creds_are_ਖਾਲੀ_ਥਾਵਾਂ && (rc <= 0);
+    ਜੇ(rc < 0) {
+      infof(ਅੰਕੜੇ, "error reading CA cert file %s (%s)%s",
             config->CApath, gnutls_strerror(rc),
-            (creds_are_empty ? "" : ", continuing anyway"));
-      if(creds_are_empty) {
+            (creds_are_ਖਾਲੀ_ਥਾਵਾਂ ? "" : ", continuing anyway"));
+      ਜੇ(creds_are_ਖਾਲੀ_ਥਾਵਾਂ) {
         ssl_config->certverifyresult = rc;
-        return CURLE_SSL_CACERT_BADFILE;
+        ਵਾਪਸ CURLE_SSL_CACERT_BADFILE;
       }
     }
-    else
-      infof(data, "  CApath: %d certificates in %s", rc, config->CApath);
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  CApath: %d certificates in %s", rc, config->CApath);
   }
 
-  if(creds_are_empty)
-    infof(data, "  no trust anchors configured");
+  ਜੇ(creds_are_ਖਾਲੀ_ਥਾਵਾਂ)
+    infof(ਅੰਕੜੇ, "  no trust anchors configured");
 
-#ifdef USE_APPLE_SECTRUST
-  if(config->CRLfile && config->native_ca_store) {
-    failf(data, "gnutls: CRL file not supported with native CA store; "
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_APPLE_SECTRUST
+  ਜੇ(config->CRLfile && config->native_ca_store) {
+    failf(ਅੰਕੜੇ, "gnutls: CRL file not supported with native CA store; "
           "the platform verifier has no CRL attachment API");
-    return CURLE_NOT_BUILT_IN;
+    ਵਾਪਸ CURLE_NOT_BUILT_ਵਿੱਚ;
   }
-#endif
-  if(config->CRLfile) {
+#ਜੇ_ਅੰਤ
+  ਜੇ(config->CRLfile) {
     /* set the CRL list file */
-    rc = gnutls_certificate_set_x509_crl_file(creds, config->CRLfile,
+    rc = gnutls_certificate_ਸੈੱਟ_x509_crl_file(creds, config->CRLfile,
                                               GNUTLS_X509_FMT_PEM);
-    if(rc < 0) {
-      failf(data, "error reading CRL file %s (%s)",
+    ਜੇ(rc < 0) {
+      failf(ਅੰਕੜੇ, "error reading CRL file %s (%s)",
             config->CRLfile, gnutls_strerror(rc));
-      return CURLE_SSL_CRL_BADFILE;
+      ਵਾਪਸ CURLE_SSL_CRL_BADFILE;
     }
-    else
-      infof(data, "  CRLfile: %d CRL in %s", rc, config->CRLfile);
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  CRLfile: %d CRL in %s", rc, config->CRLfile);
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_GTLS_X509_KEY   "tls:gtls:x509:share"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MPROTO_GTLS_X509_ਕੁੰਜੀ   "tls:gtls:x509:share"
 
-static bool gtls_shared_creds_expired(struct Curl_easy *data,
-                                      const struct gtls_shared_creds *sc)
+ਸਥਿਰ bool gtls_shared_creds_expired(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਅਚਲ ਬਣਤਰ gtls_shared_creds *sc)
 {
-  timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &sc->time);
-  timediff_t timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
+  timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(ਅੰਕੜੇ), &sc->ਸਮਾਂ);
+  timediff_t timeout_ms = ਅੰਕੜੇ->ਸੈੱਟ.ssl_ca_cache_timeout * (timediff_t)1000;
 
-  if(timeout_ms < 0)
-    return FALSE;
+  ਜੇ(timeout_ms < 0)
+    ਵਾਪਸ FALSE;
 
-  return elapsed_ms >= timeout_ms;
+  ਵਾਪਸ elapsed_ms >= timeout_ms;
 }
 
-static bool gtls_shared_creds_different(struct Curl_cfilter *cf,
-                                        const struct gtls_shared_creds *sc)
+ਸਥਿਰ bool gtls_shared_creds_different(ਬਣਤਰ Curl_cfilter *cf,
+                                        ਅਚਲ ਬਣਤਰ gtls_shared_creds *sc)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!sc->CAfile || !conn_config->CAfile)
-    return sc->CAfile != conn_config->CAfile;
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ਜੇ(!sc->CAfile || !conn_config->CAfile)
+    ਵਾਪਸ sc->CAfile != conn_config->CAfile;
 
-  return strcmp(sc->CAfile, conn_config->CAfile);
+  ਵਾਪਸ strcmp(sc->CAfile, conn_config->CAfile);
 }
 
-static struct gtls_shared_creds *gtls_get_cached_creds(struct Curl_cfilter *cf,
-                                                       struct Curl_easy *data)
+ਸਥਿਰ ਬਣਤਰ gtls_shared_creds *gtls_get_cached_creds(ਬਣਤਰ Curl_cfilter *cf,
+                                                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct gtls_shared_creds *shared_creds;
+  ਬਣਤਰ gtls_shared_creds *shared_creds;
 
-  if(data->multi) {
-    shared_creds = Curl_hash_pick(&data->multi->proto_hash,
-                                  MPROTO_GTLS_X509_KEY,
-                                  CURL_CSTRLEN(MPROTO_GTLS_X509_KEY));
-    if(shared_creds && shared_creds->creds &&
-       !gtls_shared_creds_expired(data, shared_creds) &&
+  ਜੇ(ਅੰਕੜੇ->multi) {
+    shared_creds = Curl_hash_pick(&ਅੰਕੜੇ->multi->proto_hash,
+                                  MPROTO_GTLS_X509_ਕੁੰਜੀ,
+                                  CURL_CSTRLEN(MPROTO_GTLS_X509_ਕੁੰਜੀ));
+    ਜੇ(shared_creds && shared_creds->creds &&
+       !gtls_shared_creds_expired(ਅੰਕੜੇ, shared_creds) &&
        !gtls_shared_creds_different(cf, shared_creds)) {
-      return shared_creds;
+      ਵਾਪਸ shared_creds;
     }
   }
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-static void gtls_shared_creds_hash_free(const void *key,
-                                        size_t key_len, void *p)
+ਸਥਿਰ ਖਾਲੀ gtls_shared_creds_hash_free(ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ,
+                                        size_t ਕੁੰਜੀ_len, ਖਾਲੀ *p)
 {
-  struct gtls_shared_creds *sc = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_GTLS_X509_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_GTLS_X509_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
+  ਬਣਤਰ gtls_shared_creds *sc = p;
+  DEBUGASSERT(ਕੁੰਜੀ_len == CURL_CSTRLEN(MPROTO_GTLS_X509_ਕੁੰਜੀ));
+  DEBUGASSERT(!memcmp(MPROTO_GTLS_X509_ਕੁੰਜੀ, ਕੁੰਜੀ, ਕੁੰਜੀ_len));
+  (ਖਾਲੀ)ਕੁੰਜੀ;
+  (ਖਾਲੀ)ਕੁੰਜੀ_len;
   Curl_gtls_shared_creds_free(&sc); /* down reference */
 }
 
-static void gtls_set_cached_creds(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct gtls_shared_creds *sc)
+ਸਥਿਰ ਖਾਲੀ gtls_ਸੈੱਟ_cached_creds(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ gtls_shared_creds *sc)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
 
   DEBUGASSERT(sc);
   DEBUGASSERT(sc->creds);
   DEBUGASSERT(!sc->CAfile);
   DEBUGASSERT(sc->refcount == 1);
-  if(!data->multi)
-    return;
+  ਜੇ(!ਅੰਕੜੇ->multi)
+    ਵਾਪਸ;
 
-  if(conn_config->CAfile) {
+  ਜੇ(conn_config->CAfile) {
     sc->CAfile = curlx_strdup(conn_config->CAfile);
-    if(!sc->CAfile)
-      return;
+    ਜੇ(!sc->CAfile)
+      ਵਾਪਸ;
   }
 
-  if(Curl_gtls_shared_creds_up_ref(sc))
-    return;
+  ਜੇ(Curl_gtls_shared_creds_ਉੱਪਰ_ref(sc))
+    ਵਾਪਸ;
 
-  if(!Curl_hash_add2(&data->multi->proto_hash,
-                     MPROTO_GTLS_X509_KEY,
-                     CURL_CSTRLEN(MPROTO_GTLS_X509_KEY),
+  ਜੇ(!Curl_hash_add2(&ਅੰਕੜੇ->multi->proto_hash,
+                     MPROTO_GTLS_X509_ਕੁੰਜੀ,
+                     CURL_CSTRLEN(MPROTO_GTLS_X509_ਕੁੰਜੀ),
                      sc, gtls_shared_creds_hash_free)) {
     Curl_gtls_shared_creds_free(&sc); /* down reference again */
-    return;
+    ਵਾਪਸ;
   }
 }
 
-CURLcode Curl_gtls_client_trust_setup(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct gtls_ctx *gtls)
+CURLcode Curl_gtls_client_trust_ਤਿਆਰੀ(ਬਣਤਰ Curl_cfilter *cf,
+                                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਬਣਤਰ gtls_ctx *gtls)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct gtls_shared_creds *cached_creds = NULL;
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ਬਣਤਰ gtls_shared_creds *cached_creds = ਨਿਰਾ;
   bool cache_criteria_met;
-  CURLcode result;
-  int rc;
+  CURLcode ਨਤੀਜਾ;
+  ਪੂਰਨ rc;
 
   /* Consider the X509 store cacheable if it comes exclusively from a CAfile,
      or no source is provided and we are falling back to OpenSSL's built-in
      default. */
-  cache_criteria_met = (data->set.ssl_ca_cache_timeout != 0) &&
+  cache_criteria_met = (ਅੰਕੜੇ->ਸੈੱਟ.ssl_ca_cache_timeout != 0) &&
     conn_config->verifypeer &&
     !conn_config->CApath &&
     !conn_config->ca_info_blob &&
@@ -670,71 +670,71 @@ CURLcode Curl_gtls_client_trust_setup(struct Curl_cfilter *cf,
     !conn_config->native_ca_store &&
     !conn_config->clientcert; /* GnuTLS adds client cert to its credentials! */
 
-  if(cache_criteria_met)
-    cached_creds = gtls_get_cached_creds(cf, data);
+  ਜੇ(cache_criteria_met)
+    cached_creds = gtls_get_cached_creds(cf, ਅੰਕੜੇ);
 
-  if(cached_creds && !Curl_gtls_shared_creds_up_ref(cached_creds)) {
-    CURL_TRC_CF(data, cf, "using shared trust anchors and CRLs");
+  ਜੇ(cached_creds && !Curl_gtls_shared_creds_ਉੱਪਰ_ref(cached_creds)) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "using shared trust anchors and CRLs");
     Curl_gtls_shared_creds_free(&gtls->shared_creds);
     gtls->shared_creds = cached_creds;
-    rc = gnutls_credentials_set(gtls->session, GNUTLS_CRD_CERTIFICATE,
+    rc = gnutls_credentials_ਸੈੱਟ(gtls->session, GNUTLS_CRD_CERTIFICATE,
                                 gtls->shared_creds->creds);
-    if(rc != GNUTLS_E_SUCCESS) {
-      failf(data, "gnutls_credentials_set() failed: %s", gnutls_strerror(rc));
-      return CURLE_SSL_CONNECT_ERROR;
+    ਜੇ(rc != GNUTLS_E_SUCCESS) {
+      failf(ਅੰਕੜੇ, "gnutls_credentials_set() failed: %s", gnutls_strerror(rc));
+      ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
     }
   }
-  else {
-    CURL_TRC_CF(data, cf, "loading trust anchors and CRLs");
-    result = gtls_populate_creds(cf, data, gtls->shared_creds->creds);
-    if(result)
-      return result;
-    gtls->shared_creds->trust_setup = TRUE;
-    if(cache_criteria_met)
-      gtls_set_cached_creds(cf, data, gtls->shared_creds);
+  ਨਹੀਂਤਾਂ {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "loading trust anchors and CRLs");
+    ਨਤੀਜਾ = gtls_populate_creds(cf, ਅੰਕੜੇ, gtls->shared_creds->creds);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    gtls->shared_creds->trust_ਤਿਆਰੀ = TRUE;
+    ਜੇ(cache_criteria_met)
+      gtls_ਸੈੱਟ_cached_creds(cf, ਅੰਕੜੇ, gtls->shared_creds);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-static int gtls_get_ietf_proto(gnutls_session_t session)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+ਸਥਿਰ ਪੂਰਨ gtls_get_ietf_proto(gnutls_session_t session)
 {
-  switch(gnutls_protocol_get_version(session)) {
-  case GNUTLS_SSL3:
-    return CURL_IETF_PROTO_SSL3;
-  case GNUTLS_TLS1_0:
-    return CURL_IETF_PROTO_TLS1;
-  case GNUTLS_TLS1_1:
-    return CURL_IETF_PROTO_TLS1_1;
-  case GNUTLS_TLS1_2:
-    return CURL_IETF_PROTO_TLS1_2;
-  case GNUTLS_TLS1_3:
-    return CURL_IETF_PROTO_TLS1_3;
-  default:
-    return CURL_IETF_PROTO_UNKNOWN;
+  ਚੋਣ(gnutls_protocol_get_ਸੰਸਕਰਣ(session)) {
+  ਹਾਲਤ GNUTLS_SSL3:
+    ਵਾਪਸ CURL_IETF_PROTO_SSL3;
+  ਹਾਲਤ GNUTLS_TLS1_0:
+    ਵਾਪਸ CURL_IETF_PROTO_TLS1;
+  ਹਾਲਤ GNUTLS_TLS1_1:
+    ਵਾਪਸ CURL_IETF_PROTO_TLS1_1;
+  ਹਾਲਤ GNUTLS_TLS1_2:
+    ਵਾਪਸ CURL_IETF_PROTO_TLS1_2;
+  ਹਾਲਤ GNUTLS_TLS1_3:
+    ਵਾਪਸ CURL_IETF_PROTO_TLS1_3;
+  ਮੂਲ:
+    ਵਾਪਸ CURL_IETF_PROTO_UNKNOWN;
   }
 }
 
-CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+CURLcode Curl_gtls_cache_session(ਬਣਤਰ Curl_cfilter *cf,
+                                 ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਅਚਲ ਅੱਖਰ *ssl_peer_ਕੁੰਜੀ,
                                  gnutls_session_t session,
                                  curl_off_t valid_until,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
+                                 ਅਚਲ ਅੱਖਰ *alpn,
+                                 ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *quic_tp,
                                  size_t quic_tp_len,
-                                 struct Curl_ssl_session **psession)
+                                 ਬਣਤਰ Curl_ssl_session **psession)
 {
-  struct Curl_ssl_session *sc_session = NULL, *sc_dup = NULL;
-  unsigned char *sdata, *qtp_clone = NULL;
+  ਬਣਤਰ Curl_ssl_session *sc_session = ਨਿਰਾ, *sc_dup = ਨਿਰਾ;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *sdata, *qtp_clone = ਨਿਰਾ;
   size_t sdata_len = 0;
   size_t earlydata_max = 0;
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(psession)
-    *psession = NULL;
-  if(!Curl_ssl_scache_use(cf, data))
-    return CURLE_OK;
+  ਜੇ(psession)
+    *psession = ਨਿਰਾ;
+  ਜੇ(!Curl_ssl_scache_use(cf, ਅੰਕੜੇ))
+    ਵਾਪਸ CURLE_OK;
 
   /* we always unconditionally get the session id here, as even if we
      already got it from the cache and asked to use it in the connection, it
@@ -742,1063 +742,1063 @@ CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
      detect that. */
 
   /* get the session ID data size */
-  gnutls_session_get_data(session, NULL, &sdata_len);
-  if(!sdata_len) /* GnuTLS does this for some version combinations */
-    return CURLE_OK;
+  gnutls_session_get_ਅੰਕੜੇ(session, ਨਿਰਾ, &sdata_len);
+  ਜੇ(!sdata_len) /* GnuTLS does this for some version combinations */
+    ਵਾਪਸ CURLE_OK;
 
   sdata = curlx_malloc(sdata_len); /* get a buffer for it */
-  if(!sdata)
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!sdata)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   /* extract session ID to the allocated buffer */
-  gnutls_session_get_data(session, sdata, &sdata_len);
-  earlydata_max = gnutls_record_get_max_early_data_size(session);
+  gnutls_session_get_ਅੰਕੜੇ(session, sdata, &sdata_len);
+  earlydata_max = gnutls_ਰਿਕਾਰਡ_get_max_early_ਅੰਕੜੇ_ਮਾਪ(session);
 
-  CURL_TRC_CF(data, cf, "get session id (len=%zu, alpn=%s, earlymax=%zu) "
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "get session id (len=%zu, alpn=%s, earlymax=%zu) "
               "and store in cache", sdata_len, alpn ? alpn : "-",
               earlydata_max);
-  if(quic_tp && quic_tp_len) {
-    qtp_clone = curlx_memdup0((const char *)quic_tp, quic_tp_len);
-    if(!qtp_clone) {
+  ਜੇ(quic_tp && quic_tp_len) {
+    qtp_clone = curlx_memdup0((ਅਚਲ ਅੱਖਰ *)quic_tp, quic_tp_len);
+    ਜੇ(!qtp_clone) {
       curlx_free(sdata);
-      return CURLE_OUT_OF_MEMORY;
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
   }
 
-  result = Curl_ssl_session_create2(sdata, sdata_len,
+  ਨਤੀਜਾ = Curl_ssl_session_create2(sdata, sdata_len,
                                     gtls_get_ietf_proto(session),
                                     alpn, valid_until, earlydata_max,
                                     qtp_clone, quic_tp_len,
                                     &sc_session);
   /* call took ownership of `sdata` and `qtp_clone` */
-  if(!result && psession &&  /* return a duplicate if asked for and FTP */
+  ਜੇ(!ਨਤੀਜਾ && psession &&  /* return a duplicate if asked for and FTP */
      (cf->conn->scheme->family == CURLPROTO_FTP))
-    result = Curl_ssl_session_dup(sc_session, &sc_dup);
-  if(!result) {
-    result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
+    ਨਤੀਜਾ = Curl_ssl_session_dup(sc_session, &sc_dup);
+  ਜੇ(!ਨਤੀਜਾ) {
+    ਨਤੀਜਾ = Curl_ssl_scache_put(cf, ਅੰਕੜੇ, ssl_peer_ਕੁੰਜੀ, sc_session);
     /* took ownership of `sc_session` */
-    sc_session = NULL;
+    sc_session = ਨਿਰਾ;
   }
-  if(!result && psession) {
+  ਜੇ(!ਨਤੀਜਾ && psession) {
     *psession = sc_dup;
-    sc_dup = NULL;
+    sc_dup = ਨਿਰਾ;
   }
   Curl_ssl_session_destroy(sc_session);
   Curl_ssl_session_destroy(sc_dup);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-static CURLcode cf_gtls_update_session_id(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+ਸਥਿਰ CURLcode cf_gtls_update_session_id(ਬਣਤਰ Curl_cfilter *cf,
+                                          ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                           gnutls_session_t session)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct Curl_ssl_session *scs = NULL;
-  CURLcode result;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ Curl_ssl_session *scs = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  result = Curl_gtls_cache_session(cf, data, connssl->peer.scache_key,
+  ਨਤੀਜਾ = Curl_gtls_cache_session(cf, ਅੰਕੜੇ, connssl->peer.scache_ਕੁੰਜੀ,
                                    session, 0, connssl->negotiated.alpn,
-                                   NULL, 0, &scs);
-  if(!result) {
+                                   ਨਿਰਾ, 0, &scs);
+  ਜੇ(!ਨਤੀਜਾ) {
     Curl_ssl_session_destroy(connssl->session);
     connssl->session = scs;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static int gtls_handshake_cb(gnutls_session_t session, unsigned int htype,
-                             unsigned when, unsigned int incoming,
-                             const gnutls_datum_t *msg)
+ਸਥਿਰ ਪੂਰਨ gtls_handshake_cb(gnutls_session_t session, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ htype,
+                             ਬਿਨਾਨਿਸ਼ਾਨੀ when, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ incoming,
+                             ਅਚਲ gnutls_datum_t *ਸੁਨੇਹਾ)
 {
-  struct Curl_cfilter *cf = gnutls_session_get_ptr(session);
+  ਬਣਤਰ Curl_cfilter *cf = gnutls_session_get_ptr(session);
 
-  (void)msg;
-  (void)incoming;
-  if(when) { /* after message has been processed */
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
-    if(data) {
-      CURL_TRC_CF(data, cf, "handshake: %s message type %u",
+  (ਖਾਲੀ)ਸੁਨੇਹਾ;
+  (ਖਾਲੀ)incoming;
+  ਜੇ(when) { /* after message has been processed */
+    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ = CF_ਅੰਕੜੇ_CURRENT(cf);
+    ਜੇ(ਅੰਕੜੇ) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "handshake: %s message type %u",
                   incoming ? "incoming" : "outgoing", htype);
-      switch(htype) {
-      case GNUTLS_HANDSHAKE_NEW_SESSION_TICKET: {
-        cf_gtls_update_session_id(cf, data, session);
-        break;
+      ਚੋਣ(htype) {
+      ਹਾਲਤ GNUTLS_HANDSHAKE_NEW_SESSION_TICKET: {
+        cf_gtls_update_session_id(cf, ਅੰਕੜੇ, session);
+        ਰੋਕੋ;
       }
-      default:
-        break;
+      ਮੂਲ:
+        ਰੋਕੋ;
       }
     }
   }
-  return 0;
+  ਵਾਪਸ 0;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static CURLcode gtls_set_priority(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct gtls_ctx *gtls,
-                                  const char *priority)
+ਸਥਿਰ CURLcode gtls_ਸੈੱਟ_ਤਰਜੀਹ(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ gtls_ctx *gtls,
+                                  ਅਚਲ ਅੱਖਰ *ਤਰਜੀਹ)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct dynbuf buf;
-  const char *err = NULL;
-  CURLcode result = CURLE_OK;
-  int rc;
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ਬਣਤਰ dynbuf buf;
+  ਅਚਲ ਅੱਖਰ *err = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਪੂਰਨ rc;
 
   curlx_dyn_init(&buf, 4096);
 
-  if(conn_config->cipher_list) {
-    if((conn_config->cipher_list[0] == '+') ||
+  ਜੇ(conn_config->cipher_list) {
+    ਜੇ((conn_config->cipher_list[0] == '+') ||
        (conn_config->cipher_list[0] == '-') ||
        (conn_config->cipher_list[0] == '!')) {
       /* add it to our own */
-      if(!curlx_dyn_len(&buf)) {  /* not added yet */
-        result = curlx_dyn_add(&buf, priority);
-        if(result)
-          goto out;
+      ਜੇ(!curlx_dyn_len(&buf)) {  /* not added yet */
+        ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&buf, ਤਰਜੀਹ);
+        ਜੇ(ਨਤੀਜਾ)
+          ਜਾਓ ਬਾਹਰਲਾ;
       }
-      result = curlx_dyn_addf(&buf, ":%s", conn_config->cipher_list);
-      if(result)
-        goto out;
-      priority = curlx_dyn_ptr(&buf);
+      ਨਤੀਜਾ = curlx_dyn_addf(&buf, ":%s", conn_config->cipher_list);
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
+      ਤਰਜੀਹ = curlx_dyn_ptr(&buf);
     }
-    else /* replace our own completely */
-      priority = conn_config->cipher_list;
+    ਨਹੀਂਤਾਂ /* replace our own completely */
+      ਤਰਜੀਹ = conn_config->cipher_list;
   }
 
-  infof(data, "GnuTLS priority: %s", priority);
-  rc = gnutls_priority_set_direct(gtls->session, priority, &err);
-  if(rc != GNUTLS_E_SUCCESS) {
-    failf(data, "Error %d setting GnuTLS priority: %s", rc, err);
-    result = CURLE_SSL_CONNECT_ERROR;
+  infof(ਅੰਕੜੇ, "GnuTLS priority: %s", ਤਰਜੀਹ);
+  rc = gnutls_ਤਰਜੀਹ_ਸੈੱਟ_ਸਿੱਧਾ(gtls->session, ਤਰਜੀਹ, &err);
+  ਜੇ(rc != GNUTLS_E_SUCCESS) {
+    failf(ਅੰਕੜੇ, "Error %d setting GnuTLS priority: %s", rc, err);
+    ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
   }
 
-out:
+ਬਾਹਰਲਾ:
   curlx_dyn_free(&buf);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode gtls_client_init(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct ssl_peer *peer,
+ਸਥਿਰ CURLcode gtls_client_init(ਬਣਤਰ Curl_cfilter *cf,
+                                 ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਬਣਤਰ ssl_peer *peer,
                                  size_t earlydata_max,
-                                 struct gtls_ctx *gtls)
+                                 ਬਣਤਰ gtls_ctx *gtls)
 {
-  struct ssl_filter_config *config = Curl_ssl_cf_get_filter_config(cf);
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  unsigned int init_flags;
-  int rc;
-  const char *prioritylist;
+  ਬਣਤਰ ssl_filter_config *config = Curl_ssl_cf_get_filter_config(cf);
+  ਬਣਤਰ ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, ਅੰਕੜੇ);
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ init_flags;
+  ਪੂਰਨ rc;
+  ਅਚਲ ਅੱਖਰ *prioritylist;
   bool tls13support;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(config->version == CURL_SSLVERSION_SSLv2 ||
-     config->version == CURL_SSLVERSION_SSLv3) {
-    failf(data, "GnuTLS does not support SSLv2 or SSLv3");
-    return CURLE_SSL_CONNECT_ERROR;
+  ਜੇ(config->ਸੰਸਕਰਣ_2 == CURL_SSLVERSION_SSLv2 ||
+     config->ਸੰਸਕਰਣ_2 == CURL_SSLVERSION_SSLv3) {
+    failf(ਅੰਕੜੇ, "GnuTLS does not support SSLv2 or SSLv3");
+    ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
   }
 
   /* allocate a shared creds struct */
-  result = Curl_gtls_shared_creds_create(data, &gtls->shared_creds);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_gtls_shared_creds_create(ਅੰਕੜੇ, &gtls->shared_creds);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   ssl_config->certverifyresult = 0;
 
   /* Initialize TLS session as a client */
   init_flags = GNUTLS_CLIENT;
-#ifdef CURL_GNUTLS_EARLY_DATA
-  if(peer->transport == TRNSPRT_QUIC && earlydata_max > 0)
-    init_flags |= GNUTLS_ENABLE_EARLY_DATA | GNUTLS_NO_END_OF_EARLY_DATA;
-  else if(earlydata_max > 0 && earlydata_max != 0xFFFFFFFFUL)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+  ਜੇ(peer->transport == TRNSPRT_QUIC && earlydata_max > 0)
+    init_flags |= GNUTLS_ENABLE_EARLY_ਅੰਕੜੇ | GNUTLS_NO_ਸਿਰਾ_ਦਾ_EARLY_ਅੰਕੜੇ;
+  ਨਹੀਂਤਾਂ ਜੇ(earlydata_max > 0 && earlydata_max != 0xFFFFFFFFUL)
     /* See https://gitlab.com/gnutls/gnutls/-/issues/1619
      * We cannot differentiate between a session announcing no earldata
      * and one announcing 0xFFFFFFFFUL. On TCP+TLS, this is unlikely, but
      * on QUIC this is common. */
-    init_flags |= GNUTLS_ENABLE_EARLY_DATA;
-#endif
+    init_flags |= GNUTLS_ENABLE_EARLY_ਅੰਕੜੇ;
+#ਜੇ_ਅੰਤ
 
-#ifdef GNUTLS_FORCE_CLIENT_CERT
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ GNUTLS_FORCE_CLIENT_CERT
   init_flags |= GNUTLS_FORCE_CLIENT_CERT;
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef GNUTLS_NO_TICKETS_TLS12
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ GNUTLS_NO_TICKETS_TLS12
   init_flags |= GNUTLS_NO_TICKETS_TLS12;
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef GNUTLS_NO_STATUS_REQUEST
-  if(!config->verifystatus)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ GNUTLS_NO_ਸਥਿਤੀ_REQUEST
+  ਜੇ(!config->verifystatus)
     /* Disable the "status_request" TLS extension, enabled by default since
        GnuTLS 3.8.0. */
-    init_flags |= GNUTLS_NO_STATUS_REQUEST;
-#endif
+    init_flags |= GNUTLS_NO_ਸਥਿਤੀ_REQUEST;
+#ਜੇ_ਅੰਤ
 
-  CURL_TRC_CF(data, cf, "gnutls_init(flags=%x), earlydata=%zu",
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "gnutls_init(flags=%x), earlydata=%zu",
               init_flags, earlydata_max);
   rc = gnutls_init(&gtls->session, init_flags);
-  if(rc != GNUTLS_E_SUCCESS) {
-    failf(data, "gnutls_init() failed: %d", rc);
-    return CURLE_SSL_CONNECT_ERROR;
+  ਜੇ(rc != GNUTLS_E_SUCCESS) {
+    failf(ਅੰਕੜੇ, "gnutls_init() failed: %d", rc);
+    ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(peer->sni) {
-    if(gnutls_server_name_set(gtls->session, GNUTLS_NAME_DNS,
-                              peer->sni, strlen(peer->sni)) < 0) {
-      failf(data, "Failed to set SNI");
-      return CURLE_SSL_CONNECT_ERROR;
+  ਜੇ(peer->sni) {
+    ਜੇ(gnutls_server_name_ਸੈੱਟ(gtls->session, GNUTLS_NAME_DNS,
+                              peer->sni, ਲੜੀ_ਲੰਬਾਈ(peer->sni)) < 0) {
+      failf(ਅੰਕੜੇ, "Failed to set SNI");
+      ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
     }
   }
 
   /* Use default priorities */
-  rc = gnutls_set_default_priority(gtls->session);
-  if(rc != GNUTLS_E_SUCCESS)
-    return CURLE_SSL_CONNECT_ERROR;
+  rc = gnutls_ਸੈੱਟ_default_ਤਰਜੀਹ(gtls->session);
+  ਜੇ(rc != GNUTLS_E_SUCCESS)
+    ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
 
   /* "In GnuTLS 3.6.5, TLS 1.3 is enabled by default" */
-  tls13support = !!gnutls_check_version("3.6.5");
+  tls13support = !!gnutls_check_ਸੰਸਕਰਣ("3.6.5");
 
-  if(config->version == CURL_SSLVERSION_TLSv1_3) {
-    if(!tls13support) {
-      failf(data, "This GnuTLS installation does not support TLS 1.3");
-      return CURLE_SSL_CONNECT_ERROR;
+  ਜੇ(config->ਸੰਸਕਰਣ_2 == CURL_SSLVERSION_TLSv1_3) {
+    ਜੇ(!tls13support) {
+      failf(ਅੰਕੜੇ, "This GnuTLS installation does not support TLS 1.3");
+      ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
     }
   }
 
   /* At this point we know we have a supported TLS version, so set it */
-  result = gnutls_set_ssl_version_min_max(data, peer,
+  ਨਤੀਜਾ = gnutls_ਸੈੱਟ_ssl_ਸੰਸਕਰਣ_min_max(ਅੰਕੜੇ, peer,
                                           config, &prioritylist, tls13support);
-  if(result)
-    return result;
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  result = gtls_set_priority(cf, data, gtls, prioritylist);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = gtls_ਸੈੱਟ_ਤਰਜੀਹ(cf, ਅੰਕੜੇ, gtls, prioritylist);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  if(config->clientcert) {
-    if(!gtls->shared_creds->trust_setup) {
-      result = Curl_gtls_client_trust_setup(cf, data, gtls);
-      if(result)
-        return result;
+  ਜੇ(config->clientcert) {
+    ਜੇ(!gtls->shared_creds->trust_ਤਿਆਰੀ) {
+      ਨਤੀਜਾ = Curl_gtls_client_trust_ਤਿਆਰੀ(cf, ਅੰਕੜੇ, gtls);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    if(config->cert_type &&
+    ਜੇ(config->cert_type &&
        curl_strequal(config->cert_type, "P12")) {
-      rc = gnutls_certificate_set_x509_simple_pkcs12_file(
+      rc = gnutls_certificate_ਸੈੱਟ_x509_simple_pkcs12_file(
         gtls->shared_creds->creds, config->clientcert, GNUTLS_X509_FMT_DER,
-        config->key_passwd ? config->key_passwd : "");
-      if(rc != GNUTLS_E_SUCCESS) {
-        failf(data,
+        config->ਕੁੰਜੀ_passwd ? config->ਕੁੰਜੀ_passwd : "");
+      ਜੇ(rc != GNUTLS_E_SUCCESS) {
+        failf(ਅੰਕੜੇ,
               "error reading X.509 potentially-encrypted key or certificate "
               "file: %s",
               gnutls_strerror(rc));
-        return CURLE_SSL_CONNECT_ERROR;
+        ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
       }
     }
-    else {
-      const unsigned int supported_key_encryption_algorithms =
+    ਨਹੀਂਤਾਂ {
+      ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ supported_ਕੁੰਜੀ_encryption_algorithms =
         GNUTLS_PKCS_USE_PKCS12_3DES | GNUTLS_PKCS_USE_PKCS12_ARCFOUR |
         GNUTLS_PKCS_USE_PKCS12_RC2_40 | GNUTLS_PKCS_USE_PBES2_3DES |
         GNUTLS_PKCS_USE_PBES2_AES_128 | GNUTLS_PKCS_USE_PBES2_AES_192 |
         GNUTLS_PKCS_USE_PBES2_AES_256;
-      rc = gnutls_certificate_set_x509_key_file2(
+      rc = gnutls_certificate_ਸੈੱਟ_x509_ਕੁੰਜੀ_file2(
            gtls->shared_creds->creds,
            config->clientcert,
-           config->key ? config->key : config->clientcert,
+           config->ਕੁੰਜੀ ? config->ਕੁੰਜੀ : config->clientcert,
            gnutls_do_file_type(config->cert_type),
-           config->key_passwd,
-           supported_key_encryption_algorithms);
-      if(rc != GNUTLS_E_SUCCESS) {
-        failf(data,
+           config->ਕੁੰਜੀ_passwd,
+           supported_ਕੁੰਜੀ_encryption_algorithms);
+      ਜੇ(rc != GNUTLS_E_SUCCESS) {
+        failf(ਅੰਕੜੇ,
               "error reading X.509 %skey file: %s",
-              config->key_passwd ? "potentially-encrypted " : "",
+              config->ਕੁੰਜੀ_passwd ? "potentially-encrypted " : "",
               gnutls_strerror(rc));
-        return CURLE_SSL_CONNECT_ERROR;
+        ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
       }
     }
   }
 
-  rc = gnutls_credentials_set(gtls->session, GNUTLS_CRD_CERTIFICATE,
+  rc = gnutls_credentials_ਸੈੱਟ(gtls->session, GNUTLS_CRD_CERTIFICATE,
                               gtls->shared_creds->creds);
-  if(rc != GNUTLS_E_SUCCESS) {
-    failf(data, "gnutls_credentials_set() failed: %s", gnutls_strerror(rc));
-    return CURLE_SSL_CONNECT_ERROR;
+  ਜੇ(rc != GNUTLS_E_SUCCESS) {
+    failf(ਅੰਕੜੇ, "gnutls_credentials_set() failed: %s", gnutls_strerror(rc));
+    ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(config->verifystatus) {
-    rc = gnutls_ocsp_status_request_enable_client(gtls->session,
-                                                  NULL, 0, NULL);
-    if(rc != GNUTLS_E_SUCCESS) {
-      failf(data, "gnutls_ocsp_status_request_enable_client() failed: %d", rc);
-      return CURLE_SSL_CONNECT_ERROR;
+  ਜੇ(config->verifystatus) {
+    rc = gnutls_ocsp_ਸਥਿਤੀ_request_enable_client(gtls->session,
+                                                  ਨਿਰਾ, 0, ਨਿਰਾ);
+    ਜੇ(rc != GNUTLS_E_SUCCESS) {
+      failf(ਅੰਕੜੇ, "gnutls_ocsp_status_request_enable_client() failed: %d", rc);
+      ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-static int keylog_callback(gnutls_session_t session, const char *label,
-                           const gnutls_datum_t *secret)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+ਸਥਿਰ ਪੂਰਨ keylog_callback(gnutls_session_t session, ਅਚਲ ਅੱਖਰ *label,
+                           ਅਚਲ gnutls_datum_t *secret)
 {
   gnutls_datum_t crandom;
   gnutls_datum_t srandom;
 
   gnutls_session_get_random(session, &crandom, &srandom);
-  if(crandom.size != 32) {
-    return -1;
+  ਜੇ(crandom.ਮਾਪ != 32) {
+    ਵਾਪਸ -1;
   }
 
-  Curl_tls_keylog_write(label, crandom.data, crandom.size,
-                        secret->data, secret->size);
-  return 0;
+  Curl_tls_keylog_write(label, crandom.ਅੰਕੜੇ, crandom.ਮਾਪ,
+                        secret->ਅੰਕੜੇ, secret->ਮਾਪ);
+  ਵਾਪਸ 0;
 }
 
-static CURLcode gtls_on_session_reuse(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct alpn_spec *alpns,
-                                      struct Curl_ssl_session *scs,
-                                      bool *do_early_data)
+ਸਥਿਰ CURLcode gtls_on_session_reuse(ਬਣਤਰ Curl_cfilter *cf,
+                                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਬਣਤਰ alpn_spec *alpns,
+                                      ਬਣਤਰ Curl_ssl_session *scs,
+                                      bool *do_early_ਅੰਕੜੇ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
 
   connssl->earlydata_max =
-    gnutls_record_get_max_early_data_size(backend->gtls.session);
+    gnutls_ਰਿਕਾਰਡ_get_max_early_ਅੰਕੜੇ_ਮਾਪ(backend->gtls.session);
 
   /* Seems to be no GnuTLS way to signal no EarlyData in session */
-  return Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
+  ਵਾਪਸ Curl_on_session_reuse(cf, ਅੰਕੜੇ, alpns, scs, do_early_ਅੰਕੜੇ,
                                connssl->earlydata_max &&
                                connssl->earlydata_max != 0xFFFFFFFFUL);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static CURLcode gtls_apply_session(
-  struct gtls_ctx *gctx,
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct ssl_peer *peer,
-  struct alpn_spec *alpns,
+ਸਥਿਰ CURLcode gtls_apply_session(
+  ਬਣਤਰ gtls_ctx *gctx,
+  ਬਣਤਰ Curl_cfilter *cf,
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+  ਬਣਤਰ ssl_peer *peer,
+  ਬਣਤਰ alpn_spec *alpns,
   Curl_gtls_init_session_reuse_cb *sess_reuse_cb,
-  struct Curl_ssl_session *scs,
-  bool *pwas_setup)
+  ਬਣਤਰ Curl_ssl_session *scs,
+  bool *pwas_ਤਿਆਰੀ)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  CURLcode result = CURLE_OK;
-  int rc;
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਪੂਰਨ rc;
 
-  if(scs && scs->sdata && scs->sdata_len &&
-     (!scs->alpn || Curl_alpn_contains_proto(alpns, scs->alpn))) {
+  ਜੇ(scs && scs->sdata && scs->sdata_len &&
+     (!scs->alpn || Curl_alpn_ਸ਼ਾਮਲ_ਹੈ_proto(alpns, scs->alpn))) {
     /* we got a cached session, use it! */
 
-    result = gtls_client_init(cf, data, peer, scs->earlydata_max, gctx);
-    if(result)
-      goto out;
-    *pwas_setup = TRUE;
+    ਨਤੀਜਾ = gtls_client_init(cf, ਅੰਕੜੇ, peer, scs->earlydata_max, gctx);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
+    *pwas_ਤਿਆਰੀ = TRUE;
 
-    rc = gnutls_session_set_data(gctx->session, scs->sdata, scs->sdata_len);
-    if(rc < 0)
-      infof(data, "SSL session not accepted by GnuTLS, continuing without");
-    else {
-      infof(data, "SSL reusing session with ALPN '%s'",
+    rc = gnutls_session_ਸੈੱਟ_ਅੰਕੜੇ(gctx->session, scs->sdata, scs->sdata_len);
+    ਜੇ(rc < 0)
+      infof(ਅੰਕੜੇ, "SSL session not accepted by GnuTLS, continuing without");
+    ਨਹੀਂਤਾਂ {
+      infof(ਅੰਕੜੇ, "SSL reusing session with ALPN '%s'",
             scs->alpn ? scs->alpn : "-");
-      if(conn_config->earlydata && scs->alpn &&
-         !cf->conn->bits.connect_only) {
-        bool do_early_data = FALSE;
-        if(sess_reuse_cb) {
-          result = sess_reuse_cb(cf, data, alpns, scs, &do_early_data);
-          if(result)
-            goto out;
+      ਜੇ(conn_config->earlydata && scs->alpn &&
+         !cf->conn->ਬਿੱਟ.connect_only) {
+        bool do_early_ਅੰਕੜੇ = FALSE;
+        ਜੇ(sess_reuse_cb) {
+          ਨਤੀਜਾ = sess_reuse_cb(cf, ਅੰਕੜੇ, alpns, scs, &do_early_ਅੰਕੜੇ);
+          ਜੇ(ਨਤੀਜਾ)
+            ਜਾਓ ਬਾਹਰਲਾ;
         }
-        if(do_early_data) {
+        ਜੇ(do_early_ਅੰਕੜੇ) {
           /* We only try the ALPN protocol the session used before,
            * otherwise we might send early data for the wrong protocol */
-          Curl_alpn_restrict_to(alpns, scs->alpn);
+          Curl_alpn_restrict_ਮੰਜ਼ਿਲ(alpns, scs->alpn);
         }
       }
     }
   }
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
-                            Curl_gtls_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+CURLcode Curl_gtls_ctx_init(ਬਣਤਰ gtls_ctx *gctx,
+                            ਬਣਤਰ Curl_cfilter *cf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ ssl_peer *peer,
+                            ਅਚਲ ਬਣਤਰ alpn_spec *alpns_requested,
+                            Curl_gtls_ctx_ਤਿਆਰੀ_cb *cb_ਤਿਆਰੀ,
+                            ਖਾਲੀ *cb_user_ਅੰਕੜੇ,
+                            ਖਾਲੀ *ssl_user_ਅੰਕੜੇ,
                             Curl_gtls_init_session_reuse_cb *sess_reuse_cb)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_session *scs = NULL;
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ਬਣਤਰ Curl_ssl_session *scs = ਨਿਰਾ;
   gnutls_datum_t gtls_alpns[ALPN_ENTRIES_MAX];
-  size_t gtls_alpns_count = 0;
-  bool gtls_session_setup = FALSE;
-  struct alpn_spec alpns;
-  CURLcode result = CURLE_OK;
+  size_t gtls_alpns_ਗਿਣਤੀ = 0;
+  bool gtls_session_ਤਿਆਰੀ = FALSE;
+  ਬਣਤਰ alpn_spec alpns;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
   DEBUGASSERT(gctx);
   Curl_alpn_copy(&alpns, alpns_requested);
 
-  if((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
+  ਜੇ((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
     /* FTP is a bitch. On TLS secured transfers, it is a common server
      * option to require the client to use the SAME TLS session as on
      * the control connection or it fails the request. See #22225. */
-    scs = Curl_ssl_get_cf_session(data, cf->cft, FIRSTSOCKET);
-    if(scs) {
-      result = gtls_apply_session(gctx, cf, data, peer, &alpns,
-                                  sess_reuse_cb, scs, &gtls_session_setup);
-      scs = NULL;
-      if(!result && gtls_session_setup) {
-        CURL_TRC_CF(data, cf, "applied SSL session from control connection");
+    scs = Curl_ssl_get_cf_session(ਅੰਕੜੇ, cf->cft, FIRSTSOCKET);
+    ਜੇ(scs) {
+      ਨਤੀਜਾ = gtls_apply_session(gctx, cf, ਅੰਕੜੇ, peer, &alpns,
+                                  sess_reuse_cb, scs, &gtls_session_ਤਿਆਰੀ);
+      scs = ਨਿਰਾ;
+      ਜੇ(!ਨਤੀਜਾ && gtls_session_ਤਿਆਰੀ) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "applied SSL session from control connection");
       }
     }
   }
   /* This might be a reconnect, so we check for a session ID in the cache
      to speed up things. We need to do this before constructing the GnuTLS
      session since we need to set flags depending on the kind of reuse. */
-  if(!gtls_session_setup && conn_config->cache_session &&
+  ਜੇ(!gtls_session_ਤਿਆਰੀ && conn_config->cache_session &&
      !conn_config->verifystatus) {
-    result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
-    if(result)
-      goto out;
-    result = gtls_apply_session(gctx, cf, data, peer, &alpns,
-                                sess_reuse_cb, scs, &gtls_session_setup);
+    ਨਤੀਜਾ = Curl_ssl_scache_take(cf, ਅੰਕੜੇ, peer->scache_ਕੁੰਜੀ, &scs);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
+    ਨਤੀਜਾ = gtls_apply_session(gctx, cf, ਅੰਕੜੇ, peer, &alpns,
+                                sess_reuse_cb, scs, &gtls_session_ਤਿਆਰੀ);
   }
 
-  if(!gtls_session_setup) {
-    result = gtls_client_init(cf, data, peer, 0, gctx);
-    if(result)
-      goto out;
+  ਜੇ(!gtls_session_ਤਿਆਰੀ) {
+    ਨਤੀਜਾ = gtls_client_init(cf, ਅੰਕੜੇ, peer, 0, gctx);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  gnutls_session_set_ptr(gctx->session, ssl_user_data);
+  gnutls_session_ਸੈੱਟ_ptr(gctx->session, ssl_user_ਅੰਕੜੇ);
 
-  if(cb_setup) {
-    result = cb_setup(cf, data, cb_user_data);
-    if(result)
-      goto out;
+  ਜੇ(cb_ਤਿਆਰੀ) {
+    ਨਤੀਜਾ = cb_ਤਿਆਰੀ(cf, ਅੰਕੜੇ, cb_user_ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
   /* Open the file if a TLS or QUIC backend has not done this before. */
   Curl_tls_keylog_open();
-  if(Curl_tls_keylog_enabled()) {
-    gnutls_session_set_keylog_function(gctx->session, keylog_callback);
+  ਜੇ(Curl_tls_keylog_enabled()) {
+    gnutls_session_ਸੈੱਟ_keylog_function(gctx->session, keylog_callback);
   }
-#endif
+#ਜੇ_ਅੰਤ
 
   /* convert the ALPN string from our arguments to a list of strings that
    * GnuTLS wants and does convert internally back to this string for sending
    * to the server. nice. */
-  if(!gtls_alpns_count && alpns.count) {
+  ਜੇ(!gtls_alpns_ਗਿਣਤੀ && alpns.ਗਿਣਤੀ_2) {
     size_t i;
-    DEBUGASSERT(CURL_ARRAYSIZE(gtls_alpns) >= alpns.count);
-    for(i = 0; i < alpns.count; ++i) {
-      gtls_alpns[i].data = (unsigned char *)alpns.entries[i];
-      gtls_alpns[i].size = (unsigned int)strlen(alpns.entries[i]);
+    DEBUGASSERT(CURL_ARRAYSIZE(gtls_alpns) >= alpns.ਗਿਣਤੀ_2);
+    ਲਈ(i = 0; i < alpns.ਗਿਣਤੀ_2; ++i) {
+      gtls_alpns[i].ਅੰਕੜੇ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)alpns.entries[i];
+      gtls_alpns[i].ਮਾਪ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)ਲੜੀ_ਲੰਬਾਈ(alpns.entries[i]);
     }
-    gtls_alpns_count = alpns.count;
+    gtls_alpns_ਗਿਣਤੀ = alpns.ਗਿਣਤੀ_2;
   }
 
-  if(gtls_alpns_count &&
-     gnutls_alpn_set_protocols(gctx->session,
-                               gtls_alpns, (unsigned int)gtls_alpns_count,
+  ਜੇ(gtls_alpns_ਗਿਣਤੀ &&
+     gnutls_alpn_ਸੈੱਟ_protocols(gctx->session,
+                               gtls_alpns, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)gtls_alpns_ਗਿਣਤੀ,
                                GNUTLS_ALPN_MANDATORY)) {
-    failf(data, "failed setting ALPN");
-    result = CURLE_SSL_CONNECT_ERROR;
+    failf(ਅੰਕੜੇ, "failed setting ALPN");
+    ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
   }
 
-out:
-  Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
-  return result;
+ਬਾਹਰਲਾ:
+  Curl_ssl_scache_return(cf, ਅੰਕੜੇ, peer->scache_ਕੁੰਜੀ, scs);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode gtls_connect_step1(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+ਸਥਿਰ CURLcode gtls_connect_step1(ਬਣਤਰ Curl_cfilter *cf,
+                                   ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  CURLcode ਨਤੀਜਾ;
 
   DEBUGASSERT(backend);
 
-  if(connssl->state == ssl_connection_complete)
+  ਜੇ(connssl->state == ssl_connection_complete)
     /* to make us tolerant against being called more than once for the
        same connection */
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
 
-  result = Curl_gtls_ctx_init(&backend->gtls, cf, data, &connssl->peer,
-                              connssl->alpn, NULL, NULL, cf,
-#ifdef CURL_GNUTLS_EARLY_DATA
+  ਨਤੀਜਾ = Curl_gtls_ctx_init(&backend->gtls, cf, ਅੰਕੜੇ, &connssl->peer,
+                              connssl->alpn, ਨਿਰਾ, ਨਿਰਾ, cf,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
                               gtls_on_session_reuse
-#else
-                              NULL
-#endif
+#ਨਹੀਂਤਾਂ
+                              ਨਿਰਾ
+#ਜੇ_ਅੰਤ
                               );
 
-  if(result)
-    return result;
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  if(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
-    struct alpn_proto_buf proto;
-    memset(&proto, 0, sizeof(proto));
-    Curl_alpn_to_proto_str(&proto, connssl->alpn);
-    infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
+  ਜੇ(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
+    ਬਣਤਰ alpn_proto_buf proto;
+    memset(&proto, 0, ਆਕਾਰ(proto));
+    Curl_alpn_ਮੰਜ਼ਿਲ_proto_str(&proto, connssl->alpn);
+    infof(ਅੰਕੜੇ, VTLS_INFOF_ALPN_OFFER_1STR, proto.ਅੰਕੜੇ);
   }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-  gnutls_handshake_set_hook_function(backend->gtls.session,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+  gnutls_handshake_ਸੈੱਟ_hook_function(backend->gtls.session,
                                      GNUTLS_HANDSHAKE_ANY, GNUTLS_HOOK_POST,
                                      gtls_handshake_cb);
-#endif
+#ਜੇ_ਅੰਤ
 
   /* register callback functions and handle to send and receive data. */
-  gnutls_transport_set_ptr(backend->gtls.session, cf);
-  gnutls_transport_set_push_function(backend->gtls.session, gtls_push);
-  gnutls_transport_set_pull_function(backend->gtls.session, gtls_pull);
+  gnutls_transport_ਸੈੱਟ_ptr(backend->gtls.session, cf);
+  gnutls_transport_ਸੈੱਟ_ਧੱਕੋ_function(backend->gtls.session, gtls_ਧੱਕੋ);
+  gnutls_transport_ਸੈੱਟ_pull_function(backend->gtls.session, gtls_pull);
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode pkp_pin_peer_pubkey(struct Curl_easy *data,
+ਸਥਿਰ CURLcode pkp_pin_peer_pubkey(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                     gnutls_x509_crt_t cert,
-                                    const char *pinnedpubkey)
+                                    ਅਚਲ ਅੱਖਰ *pinnedpubkey)
 {
   /* Scratch */
   size_t len1 = 0, len2 = 0;
-  unsigned char *buff1 = NULL;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buff1 = ਨਿਰਾ;
 
-  gnutls_pubkey_t key = NULL;
+  gnutls_pubkey_t ਕੁੰਜੀ = ਨਿਰਾ;
 
   /* Result is returned to caller */
-  CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+  CURLcode ਨਤੀਜਾ = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
+  ਜੇ(!pinnedpubkey)
+    ਵਾਪਸ CURLE_OK;
 
-  if(!cert)
-    return result;
+  ਜੇ(!cert)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  do {
-    int ret;
+  ਕਰੋ {
+    ਪੂਰਨ ret;
 
     /* Begin Gyrations to get the public key */
-    ret = gnutls_pubkey_init(&key);
-    if(ret < 0)
-      break; /* failed */
+    ret = gnutls_pubkey_init(&ਕੁੰਜੀ);
+    ਜੇ(ret < 0)
+      ਰੋਕੋ; /* failed */
 
-    ret = gnutls_pubkey_import_x509(key, cert, 0);
-    if(ret < 0)
-      break; /* failed */
+    ret = gnutls_pubkey_import_x509(ਕੁੰਜੀ, cert, 0);
+    ਜੇ(ret < 0)
+      ਰੋਕੋ; /* failed */
 
-    ret = gnutls_pubkey_export(key, GNUTLS_X509_FMT_DER, NULL, &len1);
-    if(ret != GNUTLS_E_SHORT_MEMORY_BUFFER || len1 == 0)
-      break; /* failed */
+    ret = gnutls_pubkey_export(ਕੁੰਜੀ, GNUTLS_X509_FMT_DER, ਨਿਰਾ, &len1);
+    ਜੇ(ret != GNUTLS_E_SHORT_ਸਮ੍ਰਿਤੀ_ਬਫਰ || len1 == 0)
+      ਰੋਕੋ; /* failed */
 
     buff1 = curlx_malloc(len1);
-    if(!buff1)
-      break; /* failed */
+    ਜੇ(!buff1)
+      ਰੋਕੋ; /* failed */
 
     len2 = len1;
 
-    ret = gnutls_pubkey_export(key, GNUTLS_X509_FMT_DER, buff1, &len2);
-    if(ret < 0 || len1 != len2)
-      break; /* failed */
+    ret = gnutls_pubkey_export(ਕੁੰਜੀ, GNUTLS_X509_FMT_DER, buff1, &len2);
+    ਜੇ(ret < 0 || len1 != len2)
+      ਰੋਕੋ; /* failed */
 
     /* End Gyrations */
 
     /* The one good exit point */
-    result = Curl_pin_peer_pubkey(data, pinnedpubkey, buff1, len1);
-  } while(0);
+    ਨਤੀਜਾ = Curl_pin_peer_pubkey(ਅੰਕੜੇ, pinnedpubkey, buff1, len1);
+  } ਜਦੋਂ(0);
 
-  if(key)
-    gnutls_pubkey_deinit(key);
+  ਜੇ(ਕੁੰਜੀ)
+    gnutls_pubkey_deinit(ਕੁੰਜੀ);
 
   curlx_safefree(buff1);
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_gtls_report_handshake(struct Curl_easy *data, struct gtls_ctx *gctx)
+ਖਾਲੀ Curl_gtls_report_handshake(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ gtls_ctx *gctx)
 {
-#ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
-    const char *ptr;
-    gnutls_protocol_t version = gnutls_protocol_get_version(gctx->session);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+  ਜੇ(Curl_trc_is_verbose(ਅੰਕੜੇ)) {
+    ਅਚਲ ਅੱਖਰ *ptr;
+    gnutls_protocol_t ਸੰਸਕਰਣ_2 = gnutls_protocol_get_ਸੰਸਕਰਣ(gctx->session);
 
     /* the name of the cipher suite used, e.g. ECDHE_RSA_AES_256_GCM_SHA384. */
     ptr = gnutls_cipher_suite_get_name(gnutls_kx_get(gctx->session),
                                        gnutls_cipher_get(gctx->session),
                                        gnutls_mac_get(gctx->session));
 
-    infof(data, "SSL connection using %s / %s",
-          gnutls_protocol_get_name(version), ptr);
+    infof(ਅੰਕੜੇ, "SSL connection using %s / %s",
+          gnutls_protocol_get_name(ਸੰਸਕਰਣ_2), ptr);
   }
-#else
-  (void)data;
-  (void)gctx;
-#endif
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)gctx;
+#ਜੇ_ਅੰਤ
 }
 
-static void gtls_msg_verify_result(struct Curl_easy *data,
-                                   struct ssl_peer *peer,
+ਸਥਿਰ ਖਾਲੀ gtls_ਸੁਨੇਹਾ_verify_ਨਤੀਜਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਬਣਤਰ ssl_peer *peer,
                                    gnutls_x509_crt_t x509_cert,
                                    bool was_verified,
                                    bool needs_verified)
 {
-  char certname[65] = ""; /* limited to 64 chars by ASN.1 */
-  size_t size = sizeof(certname);
-  int rc;
+  ਅੱਖਰ certname[65] = ""; /* limited to 64 chars by ASN.1 */
+  size_t ਮਾਪ = ਆਕਾਰ(certname);
+  ਪੂਰਨ rc;
 
   rc = gnutls_x509_crt_get_dn_by_oid(x509_cert, GNUTLS_OID_X520_COMMON_NAME,
                                      0, /* the first and only one */
-                                     FALSE, certname, &size);
-  if(rc) {
-    infof(data, "error fetching CN from cert:%s", gnutls_strerror(rc));
+                                     FALSE, certname, &ਮਾਪ);
+  ਜੇ(rc) {
+    infof(ਅੰਕੜੇ, "error fetching CN from cert:%s", gnutls_strerror(rc));
     certname[0] = 0;
   }
 
-  if(!was_verified) {
-    if(needs_verified) {
-      failf(data, "SSL: certificate subject name (%s) does not match "
+  ਜੇ(!was_verified) {
+    ਜੇ(needs_verified) {
+      failf(ਅੰਕੜੇ, "SSL: certificate subject name (%s) does not match "
             "target hostname '%s'", certname,
             peer->origin->user_hostname);
     }
-    else
-      infof(data, "  common name: %s (does not match '%s')",
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  common name: %s (does not match '%s')",
             certname, peer->origin->user_hostname);
   }
-  else
-    infof(data, "  common name: %s (matched)", certname);
+  ਨਹੀਂਤਾਂ
+    infof(ਅੰਕੜੇ, "  common name: %s (matched)", certname);
 }
 
-static void gtls_infof_cert(struct Curl_easy *data,
+ਸਥਿਰ ਖਾਲੀ gtls_infof_cert(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                             gnutls_x509_crt_t x509_cert)
 {
-#ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+  ਜੇ(Curl_trc_is_verbose(ਅੰਕੜੇ)) {
     gnutls_datum_t certfields;
-    int rc, algo;
+    ਪੂਰਨ rc, algo;
     time_t tstamp;
-    unsigned int bits;
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਬਿੱਟ;
 
     /* public key algorithm's parameters */
-    algo = gnutls_x509_crt_get_pk_algorithm(x509_cert, &bits);
-    infof(data, "  certificate public key: %s",
+    algo = gnutls_x509_crt_get_pk_algorithm(x509_cert, &ਬਿੱਟ);
+    infof(ਅੰਕੜੇ, "  certificate public key: %s",
           gnutls_pk_algorithm_get_name((gnutls_pk_algorithm_t)algo));
 
     /* version of the X.509 certificate. */
-    infof(data, "  certificate version: #%d",
-          gnutls_x509_crt_get_version(x509_cert));
+    infof(ਅੰਕੜੇ, "  certificate version: #%d",
+          gnutls_x509_crt_get_ਸੰਸਕਰਣ(x509_cert));
 
     rc = gnutls_x509_crt_get_dn2(x509_cert, &certfields);
-    if(rc)
-      infof(data, "Failed to get certificate name");
-    else {
-      infof(data, "  subject: %s", certfields.data);
+    ਜੇ(rc)
+      infof(ਅੰਕੜੇ, "Failed to get certificate name");
+    ਨਹੀਂਤਾਂ {
+      infof(ਅੰਕੜੇ, "  subject: %s", certfields.ਅੰਕੜੇ);
 
-      tstamp = gnutls_x509_crt_get_activation_time(x509_cert);
-      showtime(data, "start date", tstamp);
+      tstamp = gnutls_x509_crt_get_activation_ਸਮਾਂ(x509_cert);
+      showtime(ਅੰਕੜੇ, "start date", tstamp);
 
-      tstamp = gnutls_x509_crt_get_expiration_time(x509_cert);
-      showtime(data, "expire date", tstamp);
+      tstamp = gnutls_x509_crt_get_expiration_ਸਮਾਂ(x509_cert);
+      showtime(ਅੰਕੜੇ, "expire date", tstamp);
 
-      gnutls_free(certfields.data);
+      gnutls_free(certfields.ਅੰਕੜੇ);
     }
 
     rc = gnutls_x509_crt_get_issuer_dn2(x509_cert, &certfields);
-    if(rc)
-      infof(data, "Failed to get certificate issuer");
-    else {
-      infof(data, "  issuer: %s", certfields.data);
+    ਜੇ(rc)
+      infof(ਅੰਕੜੇ, "Failed to get certificate issuer");
+    ਨਹੀਂਤਾਂ {
+      infof(ਅੰਕੜੇ, "  issuer: %s", certfields.ਅੰਕੜੇ);
 
-      gnutls_free(certfields.data);
+      gnutls_free(certfields.ਅੰਕੜੇ);
     }
   }
-#else
-  (void)data;
-  (void)x509_cert;
-#endif
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)x509_cert;
+#ਜੇ_ਅੰਤ
 }
 
-static CURLcode gtls_verify_ocsp_status(struct Curl_easy *data,
+ਸਥਿਰ CURLcode gtls_verify_ocsp_ਸਥਿਤੀ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                         gnutls_session_t session,
                                         gnutls_x509_crt_t cert)
 {
   gnutls_datum_t ocsp_raw;
-  gnutls_ocsp_resp_t ocsp_resp = NULL;
-  CURLcode result = CURLE_SSL_INVALIDCERTSTATUS;
-  int rc, idx;
+  gnutls_ocsp_resp_t ocsp_resp = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_SSL_INVALIDCERTSTATUS;
+  ਪੂਰਨ rc, idx;
   bool ocsp_init = FALSE;
-  gnutls_ocsp_cert_status_t status = GNUTLS_OCSP_CERT_UNKNOWN;
+  gnutls_ocsp_cert_ਸਥਿਤੀ_t ਸਥਿਤੀ = GNUTLS_OCSP_CERT_UNKNOWN;
 
   /* Get the OCSP stapled response. We require it to be there. */
-  rc = gnutls_ocsp_status_request_get(session, &ocsp_raw);
-  if(rc == GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE) {
-    failf(data, "No OCSP response received");
-    goto out;
+  rc = gnutls_ocsp_ਸਥਿਤੀ_request_get(session, &ocsp_raw);
+  ਜੇ(rc == GNUTLS_E_REQUESTED_ਅੰਕੜੇ_NOT_ਉਪਲਬਧ) {
+    failf(ਅੰਕੜੇ, "No OCSP response received");
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  else if(rc < 0) {
-    failf(data, "Invalid OCSP response received");
-    goto out;
+  ਨਹੀਂਤਾਂ ਜੇ(rc < 0) {
+    failf(ਅੰਕੜੇ, "Invalid OCSP response received");
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
   /* Parse the OCSP response, which needs to succeed. */
   rc = gnutls_ocsp_resp_init(&ocsp_resp);
-  if(rc < 0) {
-    failf(data, "failed to init OCSP response parsing");
-    goto out;
+  ਜੇ(rc < 0) {
+    failf(ਅੰਕੜੇ, "failed to init OCSP response parsing");
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
   ocsp_init = TRUE;
   rc = gnutls_ocsp_resp_import(ocsp_resp, &ocsp_raw);
-  if(rc < 0) {
-    failf(data, "failed to parse OCSP response");
-    goto out;
+  ਜੇ(rc < 0) {
+    failf(ਅੰਕੜੇ, "failed to parse OCSP response");
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
   /* OCSP responses carry a basic, overall status and then individual
    * parts for different certificates. The overall status must be good. */
-  if(gnutls_ocsp_resp_get_status(ocsp_resp) != GNUTLS_OCSP_RESP_SUCCESSFUL) {
-    failf(data, "OCSP response basic part is not successful");
-    goto out;
+  ਜੇ(gnutls_ocsp_resp_get_ਸਥਿਤੀ(ocsp_resp) != GNUTLS_OCSP_RESP_SUCCESSFUL) {
+    failf(ਅੰਕੜੇ, "OCSP response basic part is not successful");
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
   /* Find the OCSP sub-response for the peer certificate. */
-  for(idx = 0;; idx++) {
+  ਲਈ(idx = 0;; idx++) {
     rc = gnutls_ocsp_resp_check_crt(ocsp_resp, idx, cert);
-    if(!rc || (rc == GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE))
-      break;
+    ਜੇ(!rc || (rc == GNUTLS_E_REQUESTED_ਅੰਕੜੇ_NOT_ਉਪਲਬਧ))
+      ਰੋਕੋ;
   }
-  if(rc < 0) {
-    failf(data, "OCSP does not carry status for peer cert");
-    goto out;
+  ਜੇ(rc < 0) {
+    failf(ਅੰਕੜੇ, "OCSP does not carry status for peer cert");
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
   /* The peer certificate OCSP status is at index `idx`.
    * Coming here means that GnuTLS has already checked that
    * - the signature of this OCSP status has been verified
    * - the timestamp of this OCSP status has been tested
    * We therefore need only to inspect that actual status code. */
-  rc = gnutls_ocsp_resp_get_single(ocsp_resp, idx, NULL, NULL, NULL, NULL,
-                                   &status, NULL, NULL, NULL, NULL);
-  if(rc < 0) {
-    failf(data, "failed to parse OCSP response for peer cert");
-    goto out;
+  rc = gnutls_ocsp_resp_get_single(ocsp_resp, idx, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ,
+                                   &ਸਥਿਤੀ, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ);
+  ਜੇ(rc < 0) {
+    failf(ਅੰਕੜੇ, "failed to parse OCSP response for peer cert");
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  switch(status) {
-  case GNUTLS_OCSP_CERT_GOOD:
+  ਚੋਣ(ਸਥਿਤੀ) {
+  ਹਾਲਤ GNUTLS_OCSP_CERT_GOOD:
     /* We only regard this as OK and fail all other status codes. */
-    result = CURLE_OK;
-    break;
-  case GNUTLS_OCSP_CERT_REVOKED:
-    failf(data, "peer certificate is revoked");
-    break;
-  default:
-    failf(data, "peer certificate OCSP status is not good: %d", (int)status);
-    break;
+    ਨਤੀਜਾ = CURLE_OK;
+    ਰੋਕੋ;
+  ਹਾਲਤ GNUTLS_OCSP_CERT_REVOKED:
+    failf(ਅੰਕੜੇ, "peer certificate is revoked");
+    ਰੋਕੋ;
+  ਮੂਲ:
+    failf(ਅੰਕੜੇ, "peer certificate OCSP status is not good: %d", (ਪੂਰਨ)ਸਥਿਤੀ);
+    ਰੋਕੋ;
   }
 
-out:
-  if(ocsp_init)
+ਬਾਹਰਲਾ:
+  ਜੇ(ocsp_init)
     gnutls_ocsp_resp_deinit(ocsp_resp);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-struct gtls_cert_chain {
-  const gnutls_datum_t *certs;
-  unsigned int num_certs;
+ਬਣਤਰ gtls_cert_chain {
+  ਅਚਲ gnutls_datum_t *certs;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਅੰਕ_certs;
 };
 
-#ifdef USE_APPLE_SECTRUST
-static CURLcode gtls_chain_get_der(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   void *user_data,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_APPLE_SECTRUST
+ਸਥਿਰ CURLcode gtls_chain_get_der(ਬਣਤਰ Curl_cfilter *cf,
+                                   ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਖਾਲੀ *user_ਅੰਕੜੇ,
                                    size_t i,
-                                   unsigned char **pder,
+                                   ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ **pder,
                                    size_t *pder_len)
 {
-  struct gtls_cert_chain *chain = user_data;
+  ਬਣਤਰ gtls_cert_chain *chain = user_ਅੰਕੜੇ;
 
-  (void)cf;
-  (void)data;
+  (ਖਾਲੀ)cf;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
   *pder_len = 0;
-  *pder = NULL;
+  *pder = ਨਿਰਾ;
 
-  if(i >= chain->num_certs)
-    return CURLE_TOO_LARGE;
-  *pder = chain->certs[i].data;
-  *pder_len = (size_t)chain->certs[i].size;
-  return CURLE_OK;
+  ਜੇ(i >= chain->ਅੰਕ_certs)
+    ਵਾਪਸ CURLE_TOO_LARGE;
+  *pder = chain->certs[i].ਅੰਕੜੇ;
+  *pder_len = (size_t)chain->certs[i].ਮਾਪ;
+  ਵਾਪਸ CURLE_OK;
 }
-#endif /* USE_APPLE_SECTRUST */
+#ਜੇ_ਅੰਤ /* USE_APPLE_SECTRUST */
 
 /* This function verifies the peer's certificate and returns CURLE_OK on
    success or an appropriate CURLcode on error. The certificate verification
    status bitmask (trusted, invalid etc.) is stored in
    ssl_config->certverifyresult as one or more gnutls_certificate_status_t
    enumerated elements bitwise or'd. */
-static CURLcode gtls_verify_cert(struct Curl_easy *data,
-                                 struct ssl_filter_config *config,
-                                 struct ssl_easy_config *ssl_config,
+ਸਥਿਰ CURLcode gtls_verify_cert(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਬਣਤਰ ssl_filter_config *config,
+                                 ਬਣਤਰ ssl_easy_config *ssl_config,
                                  gnutls_session_t session,
-                                 struct Curl_cfilter *cf,
-                                 struct ssl_peer *peer,
-                                 struct gtls_cert_chain *chain,
+                                 ਬਣਤਰ Curl_cfilter *cf,
+                                 ਬਣਤਰ ssl_peer *peer,
+                                 ਬਣਤਰ gtls_cert_chain *chain,
                                  bool *pocsp_checked)
 {
   bool verified = FALSE;
-  unsigned int verify_status = 0;
-  long * const certverifyresult = &ssl_config->certverifyresult;
-  int rc;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ verify_ਸਥਿਤੀ = 0;
+  ਲੰਮਾ * ਅਚਲ certverifyresult = &ssl_config->certverifyresult;
+  ਪੂਰਨ rc;
 
   *pocsp_checked = FALSE;
-  rc = gnutls_certificate_verify_peers2(session, &verify_status);
-  if(rc < 0) {
-    failf(data, "server cert verify failed: %d", rc);
+  rc = gnutls_certificate_verify_peers2(session, &verify_ਸਥਿਤੀ);
+  ਜੇ(rc < 0) {
+    failf(ਅੰਕੜੇ, "server cert verify failed: %d", rc);
     *certverifyresult = rc;
-    return CURLE_SSL_CONNECT_ERROR;
+    ਵਾਪਸ CURLE_SSL_CONNECT_ERROR;
   }
-  *certverifyresult = verify_status;
-  verified = !(verify_status & GNUTLS_CERT_INVALID);
-  if(verified)
-    infof(data, "  SSL certificate verified by GnuTLS");
+  *certverifyresult = verify_ਸਥਿਤੀ;
+  verified = !(verify_ਸਥਿਤੀ & GNUTLS_CERT_INVALID);
+  ਜੇ(verified)
+    infof(ਅੰਕੜੇ, "  SSL certificate verified by GnuTLS");
 
-#ifdef USE_APPLE_SECTRUST
-  if(!verified && config->native_ca_store) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_APPLE_SECTRUST
+  ਜੇ(!verified && config->native_ca_store) {
     gnutls_datum_t ocsp_raw;
-    CURLcode result;
+    CURLcode ਨਤੀਜਾ;
 
-    if(gnutls_ocsp_status_request_get(session, &ocsp_raw)) {
-      ocsp_raw.data = NULL;
-      ocsp_raw.size = 0;
+    ਜੇ(gnutls_ocsp_ਸਥਿਤੀ_request_get(session, &ocsp_raw)) {
+      ocsp_raw.ਅੰਕੜੇ = ਨਿਰਾ;
+      ocsp_raw.ਮਾਪ = 0;
     }
-    if(config->verifystatus && !ocsp_raw.size) {
-      failf(data, "No OCSP response received");
-      return CURLE_SSL_INVALIDCERTSTATUS;
+    ਜੇ(config->verifystatus && !ocsp_raw.ਮਾਪ) {
+      failf(ਅੰਕੜੇ, "No OCSP response received");
+      ਵਾਪਸ CURLE_SSL_INVALIDCERTSTATUS;
     }
-    result = Curl_vtls_apple_verify(cf, data, peer, chain->num_certs,
+    ਨਤੀਜਾ = Curl_vtls_apple_verify(cf, ਅੰਕੜੇ, peer, chain->ਅੰਕ_certs,
                                     gtls_chain_get_der, chain,
-                                    ocsp_raw.data, ocsp_raw.size,
+                                    ocsp_raw.ਅੰਕੜੇ, ocsp_raw.ਮਾਪ,
                                     config->verifystatus);
-    if(result && (result != CURLE_PEER_FAILED_VERIFICATION))
-      return result; /* no further failure analysis needed */
-    verified = !result;
-    if(verified) {
-      infof(data, "SSL certificate verified via Apple SecTrust.");
+    ਜੇ(ਨਤੀਜਾ && (ਨਤੀਜਾ != CURLE_PEER_FAILED_VERIFICATION))
+      ਵਾਪਸ ਨਤੀਜਾ; /* no further failure analysis needed */
+    verified = !ਨਤੀਜਾ;
+    ਜੇ(verified) {
+      infof(ਅੰਕੜੇ, "SSL certificate verified via Apple SecTrust.");
       *certverifyresult = 0;
       *pocsp_checked = TRUE;
     }
   }
-#else
-  (void)cf;
-  (void)peer;
-  (void)chain;
-#endif
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)cf;
+  (ਖਾਲੀ)peer;
+  (ਖਾਲੀ)chain;
+#ਜੇ_ਅੰਤ
 
-  if(!verified) {
-    CURLcode result = CURLE_PEER_FAILED_VERIFICATION;
+  ਜੇ(!verified) {
+    CURLcode ਨਤੀਜਾ = CURLE_PEER_FAILED_VERIFICATION;
     /* verify_status is a bitmask of gnutls_certificate_status bits */
-    const char *cause = "certificate error, no details available";
-    if(verify_status & GNUTLS_CERT_EXPIRED)
+    ਅਚਲ ਅੱਖਰ *cause = "certificate error, no details available";
+    ਜੇ(verify_ਸਥਿਤੀ & GNUTLS_CERT_EXPIRED)
       cause = "certificate has expired";
-    else if(verify_status & GNUTLS_CERT_SIGNER_NOT_FOUND)
+    ਨਹੀਂਤਾਂ ਜੇ(verify_ਸਥਿਤੀ & GNUTLS_CERT_SIGNER_NOT_ਮਿਲਿਆ)
       cause = "certificate signer not trusted";
-    else if(verify_status & GNUTLS_CERT_INSECURE_ALGORITHM)
+    ਨਹੀਂਤਾਂ ਜੇ(verify_ਸਥਿਤੀ & GNUTLS_CERT_INSECURE_ALGORITHM)
       cause = "certificate uses insecure algorithm";
-    else if(verify_status & GNUTLS_CERT_INVALID_OCSP_STATUS) {
+    ਨਹੀਂਤਾਂ ਜੇ(verify_ਸਥਿਤੀ & GNUTLS_CERT_INVALID_OCSP_ਸਥਿਤੀ) {
       cause = "OCSP status response is invalid";
-      result = CURLE_SSL_INVALIDCERTSTATUS;
+      ਨਤੀਜਾ = CURLE_SSL_INVALIDCERTSTATUS;
     }
-    failf(data, "SSL certificate verification failed: %s. (CAfile: %s "
+    failf(ਅੰਕੜੇ, "SSL certificate verification failed: %s. (CAfile: %s "
           "CRLfile: %s)", cause,
           config->CAfile ? config->CAfile : "none",
           config->CRLfile ?
           config->CRLfile : "none");
 
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+CURLcode Curl_gtls_verifyserver(ਬਣਤਰ Curl_cfilter *cf,
+                                ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                 gnutls_session_t session,
-                                struct ssl_filter_config *config,
-                                struct ssl_easy_config *ssl_config,
-                                struct ssl_peer *peer,
-                                const char *pinned_key)
+                                ਬਣਤਰ ssl_filter_config *config,
+                                ਬਣਤਰ ssl_easy_config *ssl_config,
+                                ਬਣਤਰ ssl_peer *peer,
+                                ਅਚਲ ਅੱਖਰ *pinned_ਕੁੰਜੀ)
 {
-  struct gtls_cert_chain chain;
-  gnutls_x509_crt_t x509_cert = NULL, x509_issuer = NULL;
+  ਬਣਤਰ gtls_cert_chain chain;
+  gnutls_x509_crt_t x509_cert = ਨਿਰਾ, x509_issuer = ਨਿਰਾ;
   time_t certclock;
   bool ocsp_checked = FALSE;
-  int rc;
-  CURLcode result = CURLE_OK;
-  long * const certverifyresult = &ssl_config->certverifyresult;
+  ਪੂਰਨ rc;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਲੰਮਾ * ਅਚਲ certverifyresult = &ssl_config->certverifyresult;
 
-  (void)cf;
+  (ਖਾਲੀ)cf;
   /* This function returns the peer's raw certificate (chain) as sent by
      the peer. These certificates are in raw format (DER encoded for
      X.509). In case of a X.509 then a certificate list may be present. The
      first certificate in the list is the peer's certificate, following the
      issuer's certificate, then the issuer's issuer etc. */
 
-  chain.certs = gnutls_certificate_get_peers(session, &chain.num_certs);
-  if(!chain.certs) {
-    if(config->verifypeer ||
+  chain.certs = gnutls_certificate_get_peers(session, &chain.ਅੰਕ_certs);
+  ਜੇ(!chain.certs) {
+    ਜੇ(config->verifypeer ||
        config->verifyhost ||
        config->issuercert) {
-      failf(data, "failed to get server cert");
-      *certverifyresult = GNUTLS_E_NO_CERTIFICATE_FOUND;
-      result = CURLE_PEER_FAILED_VERIFICATION;
-      goto out;
+      failf(ਅੰਕੜੇ, "failed to get server cert");
+      *certverifyresult = GNUTLS_E_NO_CERTIFICATE_ਮਿਲਿਆ;
+      ਨਤੀਜਾ = CURLE_PEER_FAILED_VERIFICATION;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    infof(data, " common name: WARNING could not obtain");
+    infof(ਅੰਕੜੇ, " common name: WARNING could not obtain");
   }
 
-  if(data->set.ssl.certinfo && chain.certs) {
-    if(chain.num_certs > MAX_ALLOWED_CERT_AMOUNT) {
-      failf(data, "%u certificates is more than allowed (%d)",
-            chain.num_certs, MAX_ALLOWED_CERT_AMOUNT);
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.ssl.certinfo && chain.certs) {
+    ਜੇ(chain.ਅੰਕ_certs > MAX_ALLOWED_CERT_AMOUNT) {
+      failf(ਅੰਕੜੇ, "%u certificates is more than allowed (%d)",
+            chain.ਅੰਕ_certs, MAX_ALLOWED_CERT_AMOUNT);
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else {
-      unsigned int i;
+    ਨਹੀਂਤਾਂ {
+      ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ i;
 
-      result = Curl_ssl_init_certinfo(data, (int)chain.num_certs);
-      if(result)
-        goto out;
+      ਨਤੀਜਾ = Curl_ssl_init_certinfo(ਅੰਕੜੇ, (ਪੂਰਨ)chain.ਅੰਕ_certs);
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
 
-      for(i = 0; i < chain.num_certs; i++) {
-        const uint8_t *beg = chain.certs[i].data;
-        const uint8_t *end = beg + chain.certs[i].size;
+      ਲਈ(i = 0; i < chain.ਅੰਕ_certs; i++) {
+        ਅਚਲ uint8_t *beg = chain.certs[i].ਅੰਕੜੇ;
+        ਅਚਲ uint8_t *ਸਿਰਾ = beg + chain.certs[i].ਮਾਪ;
 
-        result = Curl_extract_certinfo(data, (int)i, beg, end);
-        if(result)
-          goto out;
+        ਨਤੀਜਾ = Curl_ਕੱਢੋ_certinfo(ਅੰਕੜੇ, (ਪੂਰਨ)i, beg, ਸਿਰਾ);
+        ਜੇ(ਨਤੀਜਾ)
+          ਜਾਓ ਬਾਹਰਲਾ;
       }
     }
   }
 
-  if(config->verifypeer) {
-    result = gtls_verify_cert(data, config, ssl_config, session,
+  ਜੇ(config->verifypeer) {
+    ਨਤੀਜਾ = gtls_verify_cert(ਅੰਕੜੇ, config, ssl_config, session,
                               cf, peer, &chain, &ocsp_checked);
-    if(result)
-      goto out;
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-  else
-    infof(data, "  SSL certificate verification SKIPPED");
+  ਨਹੀਂਤਾਂ
+    infof(ਅੰਕੜੇ, "  SSL certificate verification SKIPPED");
 
   /* initialize an X.509 certificate structure. */
-  if(gnutls_x509_crt_init(&x509_cert)) {
-    failf(data, "failed to init GnuTLS x509_crt");
-    *certverifyresult = GNUTLS_E_NO_CERTIFICATE_FOUND;
-    result = CURLE_SSL_CONNECT_ERROR;
-    goto out;
+  ਜੇ(gnutls_x509_crt_init(&x509_cert)) {
+    failf(ਅੰਕੜੇ, "failed to init GnuTLS x509_crt");
+    *certverifyresult = GNUTLS_E_NO_CERTIFICATE_ਮਿਲਿਆ;
+    ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  if(chain.certs) {
+  ਜੇ(chain.certs) {
     /* convert the given DER or PEM encoded Certificate to the native
        gnutls_x509_crt_t format */
     rc = gnutls_x509_crt_import(x509_cert, chain.certs, GNUTLS_X509_FMT_DER);
-    if(rc) {
-      failf(data, "error parsing server's certificate chain");
-      *certverifyresult = GNUTLS_E_NO_CERTIFICATE_FOUND;
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+    ਜੇ(rc) {
+      failf(ਅੰਕੜੇ, "error parsing server's certificate chain");
+      *certverifyresult = GNUTLS_E_NO_CERTIFICATE_ਮਿਲਿਆ;
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
   /* Check for time-based validity */
-  certclock = gnutls_x509_crt_get_expiration_time(x509_cert);
+  certclock = gnutls_x509_crt_get_expiration_ਸਮਾਂ(x509_cert);
 
-  if(certclock == (time_t)-1) {
-    if(config->verifypeer) {
-      failf(data, "server cert expiration date verify failed");
+  ਜੇ(certclock == (time_t)-1) {
+    ਜੇ(config->verifypeer) {
+      failf(ਅੰਕੜੇ, "server cert expiration date verify failed");
       *certverifyresult = GNUTLS_CERT_EXPIRED;
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else
-      infof(data, "  SSL certificate expiration date verify FAILED");
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  SSL certificate expiration date verify FAILED");
   }
-  else {
-    if(certclock < time(NULL)) {
-      if(config->verifypeer) {
-        failf(data, "server certificate expiration date has passed.");
+  ਨਹੀਂਤਾਂ {
+    ਜੇ(certclock < ਸਮਾਂ(ਨਿਰਾ)) {
+      ਜੇ(config->verifypeer) {
+        failf(ਅੰਕੜੇ, "server certificate expiration date has passed.");
         *certverifyresult = GNUTLS_CERT_EXPIRED;
-        result = CURLE_PEER_FAILED_VERIFICATION;
-        goto out;
+        ਨਤੀਜਾ = CURLE_PEER_FAILED_VERIFICATION;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      else
-        infof(data, "  SSL certificate expiration date FAILED");
+      ਨਹੀਂਤਾਂ
+        infof(ਅੰਕੜੇ, "  SSL certificate expiration date FAILED");
     }
-    else
-      infof(data, "  SSL certificate expiration date OK");
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  SSL certificate expiration date OK");
   }
 
-  certclock = gnutls_x509_crt_get_activation_time(x509_cert);
+  certclock = gnutls_x509_crt_get_activation_ਸਮਾਂ(x509_cert);
 
-  if(certclock == (time_t)-1) {
-    if(config->verifypeer) {
-      failf(data, "server cert activation date verify failed");
+  ਜੇ(certclock == (time_t)-1) {
+    ਜੇ(config->verifypeer) {
+      failf(ਅੰਕੜੇ, "server cert activation date verify failed");
       *certverifyresult = GNUTLS_CERT_NOT_ACTIVATED;
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else
-      infof(data, "  SSL certificate activation date verify FAILED");
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  SSL certificate activation date verify FAILED");
   }
-  else {
-    if(certclock > time(NULL)) {
-      if(config->verifypeer) {
-        failf(data, "server certificate not activated yet.");
+  ਨਹੀਂਤਾਂ {
+    ਜੇ(certclock > ਸਮਾਂ(ਨਿਰਾ)) {
+      ਜੇ(config->verifypeer) {
+        failf(ਅੰਕੜੇ, "server certificate not activated yet.");
         *certverifyresult = GNUTLS_CERT_NOT_ACTIVATED;
-        result = CURLE_PEER_FAILED_VERIFICATION;
-        goto out;
+        ਨਤੀਜਾ = CURLE_PEER_FAILED_VERIFICATION;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      else
-        infof(data, "  SSL certificate activation date FAILED");
+      ਨਹੀਂਤਾਂ
+        infof(ਅੰਕੜੇ, "  SSL certificate activation date FAILED");
     }
-    else
-      infof(data, "  SSL certificate activation date OK");
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "  SSL certificate activation date OK");
   }
 
-  if(config->verifystatus && !ocsp_checked) {
-    result = gtls_verify_ocsp_status(data, session, x509_cert);
-    if(result)
-      goto out;
+  ਜੇ(config->verifystatus && !ocsp_checked) {
+    ਨਤੀਜਾ = gtls_verify_ocsp_ਸਥਿਤੀ(ਅੰਕੜੇ, session, x509_cert);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-  else
-    infof(data, "  SSL certificate status verification SKIPPED");
+  ਨਹੀਂਤਾਂ
+    infof(ਅੰਕੜੇ, "  SSL certificate status verification SKIPPED");
 
-  if(config->issuercert) {
+  ਜੇ(config->issuercert) {
     gnutls_datum_t issuerp;
-    if(gnutls_x509_crt_init(&x509_issuer)) {
-      failf(data, "failed to init GnuTLS x509_crt for issuer");
-      result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+    ਜੇ(gnutls_x509_crt_init(&x509_issuer)) {
+      failf(ਅੰਕੜੇ, "failed to init GnuTLS x509_crt for issuer");
+      ਨਤੀਜਾ = CURLE_SSL_ISSUER_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    issuerp = load_file(config->issuercert);
+    issuerp = ਲੱਦੋ_file(config->issuercert);
     rc = gnutls_x509_crt_import(x509_issuer, &issuerp, GNUTLS_X509_FMT_PEM);
     unload_file(issuerp);
-    if(rc) {
-      failf(data, "failed to import issuer certificate (%s) (Issuer Cert: %s)",
+    ਜੇ(rc) {
+      failf(ਅੰਕੜੇ, "failed to import issuer certificate (%s) (Issuer Cert: %s)",
             gnutls_strerror(rc), config->issuercert);
-      result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+      ਨਤੀਜਾ = CURLE_SSL_ISSUER_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    rc = (int)gnutls_x509_crt_check_issuer(x509_cert, x509_issuer);
-    if(rc <= 0) {
-      failf(data, "server certificate issuer check failed (Issuer Cert: %s)",
+    rc = (ਪੂਰਨ)gnutls_x509_crt_check_issuer(x509_cert, x509_issuer);
+    ਜੇ(rc <= 0) {
+      failf(ਅੰਕੜੇ, "server certificate issuer check failed (Issuer Cert: %s)",
             config->issuercert);
-      result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+      ਨਤੀਜਾ = CURLE_SSL_ISSUER_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    infof(data, "  SSL certificate issuer check OK (Issuer Cert: %s)",
+    infof(ਅੰਕੜੇ, "  SSL certificate issuer check OK (Issuer Cert: %s)",
           config->issuercert);
   }
 
@@ -1811,91 +1811,91 @@ CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
   /* This function does not handle trailing dots, so if we have an SNI name
      use that and fallback to the hostname only if there is no SNI (like for
      IP addresses) */
-  rc = (int)gnutls_x509_crt_check_hostname(x509_cert,
+  rc = (ਪੂਰਨ)gnutls_x509_crt_check_hostname(x509_cert,
                                            peer->sni ? peer->sni :
                                            peer->origin->hostname);
-  result = (!rc && config->verifyhost) ?
+  ਨਤੀਜਾ = (!rc && config->verifyhost) ?
     CURLE_PEER_FAILED_VERIFICATION : CURLE_OK;
-  gtls_msg_verify_result(data, peer, x509_cert, rc, config->verifyhost);
-  if(result)
-    goto out;
+  gtls_ਸੁਨੇਹਾ_verify_ਨਤੀਜਾ(ਅੰਕੜੇ, peer, x509_cert, rc, config->verifyhost);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if(pinned_key) {
-    result = pkp_pin_peer_pubkey(data, x509_cert, pinned_key);
-    if(result != CURLE_OK) {
-      failf(data, "SSL: public key does not match pinned public key");
-      goto out;
+  ਜੇ(pinned_ਕੁੰਜੀ) {
+    ਨਤੀਜਾ = pkp_pin_peer_pubkey(ਅੰਕੜੇ, x509_cert, pinned_ਕੁੰਜੀ);
+    ਜੇ(ਨਤੀਜਾ != CURLE_OK) {
+      failf(ਅੰਕੜੇ, "SSL: public key does not match pinned public key");
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-  gtls_infof_cert(data, x509_cert);
+  gtls_infof_cert(ਅੰਕੜੇ, x509_cert);
 
-out:
-  if(x509_issuer)
+ਬਾਹਰਲਾ:
+  ਜੇ(x509_issuer)
     gnutls_x509_crt_deinit(x509_issuer);
-  if(x509_cert)
+  ਜੇ(x509_cert)
     gnutls_x509_crt_deinit(x509_cert);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode gtls_verifyserver(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+ਸਥਿਰ CURLcode gtls_verifyserver(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                   gnutls_session_t session)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-#ifndef CURL_DISABLE_PROXY
-  const char *pinned_key = Curl_ssl_cf_is_proxy(cf) ?
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#else
-  const char *pinned_key = CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#endif
-  CURLcode result;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ਬਣਤਰ ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, ਅੰਕੜੇ);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਅਚਲ ਅੱਖਰ *pinned_ਕੁੰਜੀ = Curl_ssl_cf_is_proxy(cf) ?
+    CURL_EASY_STR(ਅੰਕੜੇ, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
+    CURL_EASY_STR(ਅੰਕੜੇ, STRING_SSL_PINNEDPUBLICKEY);
+#ਨਹੀਂਤਾਂ
+  ਅਚਲ ਅੱਖਰ *pinned_ਕੁੰਜੀ = CURL_EASY_STR(ਅੰਕੜੇ, STRING_SSL_PINNEDPUBLICKEY);
+#ਜੇ_ਅੰਤ
+  CURLcode ਨਤੀਜਾ;
 
-  result = Curl_gtls_verifyserver(cf, data, session, conn_config, ssl_config,
-                                  &connssl->peer, pinned_key);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_gtls_verifyserver(cf, ਅੰਕੜੇ, session, conn_config, ssl_config,
+                                  &connssl->peer, pinned_ਕੁੰਜੀ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-#ifdef CURL_GNUTLS_EARLY_DATA
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
   /* Only on TLSv1.2 or lower do we have the session id now. For
    * TLSv1.3 we get it via a SESSION_TICKET message that arrives later. */
-  if(gnutls_protocol_get_version(session) < GNUTLS_TLS1_3)
-    result = cf_gtls_update_session_id(cf, data, session);
-#endif
+  ਜੇ(gnutls_protocol_get_ਸੰਸਕਰਣ(session) < GNUTLS_TLS1_3)
+    ਨਤੀਜਾ = cf_gtls_update_session_id(cf, ਅੰਕੜੇ, session);
+#ਜੇ_ਅੰਤ
 
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-static CURLcode gtls_send_earlydata(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+ਸਥਿਰ CURLcode gtls_send_earlydata(ਬਣਤਰ Curl_cfilter *cf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
-  const unsigned char *buf;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf;
   size_t blen;
   ssize_t n;
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sending);
-  backend->gtls.io_result = CURLE_OK;
-  while(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
-    n = gnutls_record_send_early_data(backend->gtls.session, buf, blen);
-    CURL_TRC_CF(data, cf, "gtls_send_earlydata(len=%zu) -> %zd", blen, n);
-    if(n < 0) {
-      if(n == GNUTLS_E_AGAIN)
-        result = CURLE_AGAIN;
-      else
-        result = backend->gtls.io_result ?
-                 backend->gtls.io_result : CURLE_SEND_ERROR;
-      goto out;
+  backend->gtls.io_ਨਤੀਜਾ = CURLE_OK;
+  ਜਦੋਂ(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
+    n = gnutls_ਰਿਕਾਰਡ_send_early_ਅੰਕੜੇ(backend->gtls.session, buf, blen);
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "gtls_send_earlydata(len=%zu) -> %zd", blen, n);
+    ਜੇ(n < 0) {
+      ਜੇ(n == GNUTLS_E_AGAIN)
+        ਨਤੀਜਾ = CURLE_AGAIN;
+      ਨਹੀਂਤਾਂ
+        ਨਤੀਜਾ = backend->gtls.io_ਨਤੀਜਾ ?
+                 backend->gtls.io_ਨਤੀਜਾ : CURLE_SEND_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if(!n) {
+    ਨਹੀਂਤਾਂ ਜੇ(!n) {
       /* GnuTLS is buggy, it *SHOULD* return the amount of bytes it took in.
        * Instead it returns 0 if everything was written. */
       n = (ssize_t)blen;
@@ -1904,11 +1904,11 @@ static CURLcode gtls_send_earlydata(struct Curl_cfilter *cf,
     Curl_bufq_skip(&connssl->earlydata, (size_t)n);
   }
   /* sent everything there was */
-  infof(data, "SSL sending %zu bytes of early data", connssl->earlydata_skip);
-out:
-  return result;
+  infof(ਅੰਕੜੇ, "SSL sending %zu bytes of early data", connssl->earlydata_skip);
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 /*
  * This function is called after the TCP connect has completed. Setup the TLS
@@ -1919,380 +1919,380 @@ out:
    'ssl_connect_2' (doing handshake with the server), and
    'ssl_connect_3' (verifying and getting stats).
  */
-static CURLcode gtls_connect_common(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *done)
+ਸਥਿਰ CURLcode gtls_connect_common(ਬਣਤਰ Curl_cfilter *cf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    bool *ਪੂਰਾ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
   DEBUGASSERT(backend);
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
-    *done = TRUE;
-    return CURLE_OK;
+  ਜੇ(ssl_connection_complete == connssl->state) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  *done = FALSE;
+  *ਪੂਰਾ = FALSE;
 
   /* Initiate the connection, if not already done */
-  if(connssl->connecting_state == ssl_connect_1) {
-    result = gtls_connect_step1(cf, data);
-    if(result)
-      goto out;
+  ਜੇ(connssl->connecting_state == ssl_connect_1) {
+    ਨਤੀਜਾ = gtls_connect_step1(cf, ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
     connssl->connecting_state = ssl_connect_2;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
-#ifdef CURL_GNUTLS_EARLY_DATA
-    if(connssl->earlydata_state == ssl_earlydata_await) {
-      goto out;
+  ਜੇ(connssl->connecting_state == ssl_connect_2) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+    ਜੇ(connssl->earlydata_state == ssl_earlydata_await) {
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if(connssl->earlydata_state == ssl_earlydata_sending) {
-      result = gtls_send_earlydata(cf, data);
-      if(result)
-        goto out;
-      connssl->earlydata_state = ssl_earlydata_sent;
+    ਨਹੀਂਤਾਂ ਜੇ(connssl->earlydata_state == ssl_earlydata_sending) {
+      ਨਤੀਜਾ = gtls_send_earlydata(cf, ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
+      connssl->earlydata_state = ssl_earlydata_ਭੇਜਿਆ;
     }
     DEBUGASSERT((connssl->earlydata_state == ssl_earlydata_none) ||
-                (connssl->earlydata_state == ssl_earlydata_sent));
-#endif
-    result = cf_gtls_handshake(cf, data);
-    if(result)
-      goto out;
+                (connssl->earlydata_state == ssl_earlydata_ਭੇਜਿਆ));
+#ਜੇ_ਅੰਤ
+    ਨਤੀਜਾ = cf_gtls_handshake(cf, ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
     connssl->connecting_state = ssl_connect_3;
   }
 
   /* Finish connecting once the handshake is done */
-  if(connssl->connecting_state == ssl_connect_3) {
+  ਜੇ(connssl->connecting_state == ssl_connect_3) {
     gnutls_datum_t proto;
-    int rc;
+    ਪੂਰਨ rc;
 
-    Curl_gtls_report_handshake(data, &backend->gtls);
+    Curl_gtls_report_handshake(ਅੰਕੜੇ, &backend->gtls);
 
-    result = gtls_verifyserver(cf, data, backend->gtls.session);
-    if(result)
-      goto out;
+    ਨਤੀਜਾ = gtls_verifyserver(cf, ਅੰਕੜੇ, backend->gtls.session);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
     connssl->state = ssl_connection_complete;
 
     rc = gnutls_alpn_get_selected_protocol(backend->gtls.session, &proto);
-    if(rc) {  /* No ALPN from server */
-      proto.data = NULL;
-      proto.size = 0;
+    ਜੇ(rc) {  /* No ALPN from server */
+      proto.ਅੰਕੜੇ = ਨਿਰਾ;
+      proto.ਮਾਪ = 0;
     }
 
-    result = Curl_alpn_set_negotiated(cf, data, connssl,
-                                      proto.data, proto.size);
-    if(result)
-      goto out;
+    ਨਤੀਜਾ = Curl_alpn_ਸੈੱਟ_negotiated(cf, ਅੰਕੜੇ, connssl,
+                                      proto.ਅੰਕੜੇ, proto.ਮਾਪ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-    if(connssl->earlydata_state > ssl_earlydata_none) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+    ਜੇ(connssl->earlydata_state > ssl_earlydata_none) {
       /* We should be in this state by now */
-      DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sent);
+      DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_ਭੇਜਿਆ);
       connssl->earlydata_state =
         (gnutls_session_get_flags(backend->gtls.session) &
-         GNUTLS_SFLAGS_EARLY_DATA) ?
+         GNUTLS_SFLAGS_EARLY_ਅੰਕੜੇ) ?
         ssl_earlydata_accepted : ssl_earlydata_rejected;
     }
-#endif
-    connssl->connecting_state = ssl_connect_done;
+#ਜੇ_ਅੰਤ
+    connssl->connecting_state = ssl_connect_ਪੂਰਾ;
   }
 
-  if(connssl->connecting_state == ssl_connect_done)
+  ਜੇ(connssl->connecting_state == ssl_connect_ਪੂਰਾ)
     DEBUGASSERT(connssl->state == ssl_connection_complete);
 
-out:
-  if(result == CURLE_AGAIN) {
-    *done = FALSE;
-    return CURLE_OK;
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN) {
+    *ਪੂਰਾ = FALSE;
+    ਵਾਪਸ CURLE_OK;
   }
-  *done = ((connssl->state == ssl_connection_complete) ||
+  *ਪੂਰਾ = ((connssl->state == ssl_connection_complete) ||
            (connssl->state == ssl_connection_deferred));
-  CURL_TRC_CF(data, cf, "gtls_connect_common() -> %d, done=%d", (int)result,
-              *done);
-  return result;
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "gtls_connect_common() -> %d, done=%d", (ਪੂਰਨ)ਨਤੀਜਾ,
+              *ਪੂਰਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode gtls_connect(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             bool *done)
+ਸਥਿਰ CURLcode gtls_connect(ਬਣਤਰ Curl_cfilter *cf,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             bool *ਪੂਰਾ)
 {
-#ifdef CURL_GNUTLS_EARLY_DATA
-  struct ssl_connect_data *connssl = cf->ctx;
-  if((connssl->state == ssl_connection_deferred) &&
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_GNUTLS_EARLY_ਅੰਕੜੇ
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਜੇ((connssl->state == ssl_connection_deferred) &&
      (connssl->earlydata_state == ssl_earlydata_await)) {
     /* We refuse to be pushed, we are waiting for someone to send/recv. */
-    *done = TRUE;
-    return CURLE_OK;
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
-#endif
-  return gtls_connect_common(cf, data, done);
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ gtls_connect_common(cf, ਅੰਕੜੇ, ਪੂਰਾ);
 }
 
-static bool gtls_data_pending(struct Curl_cfilter *cf,
-                              const struct Curl_easy *data)
+ਸਥਿਰ bool gtls_ਅੰਕੜੇ_pending(ਬਣਤਰ Curl_cfilter *cf,
+                              ਅਚਲ ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ssl_connect_data *ctx = cf->ctx;
-  struct gtls_ssl_backend_data *backend;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *ctx = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend;
 
-  (void)data;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
   DEBUGASSERT(ctx && ctx->backend);
-  backend = (struct gtls_ssl_backend_data *)ctx->backend;
-  if(backend->gtls.session &&
-     gnutls_record_check_pending(backend->gtls.session) != 0)
-    return TRUE;
-  return FALSE;
+  backend = (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)ctx->backend;
+  ਜੇ(backend->gtls.session &&
+     gnutls_ਰਿਕਾਰਡ_check_pending(backend->gtls.session) != 0)
+    ਵਾਪਸ TRUE;
+  ਵਾਪਸ FALSE;
 }
 
-static CURLcode gtls_send(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          const void *buf,
+ਸਥਿਰ CURLcode gtls_send(ਬਣਤਰ Curl_cfilter *cf,
+                          ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਅਚਲ ਖਾਲੀ *buf,
                           size_t blen,
                           size_t *pnwritten)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   ssize_t nwritten;
   size_t remain = blen;
 
   DEBUGASSERT(backend);
   *pnwritten = 0;
 
-  while(remain) {
-    backend->gtls.io_result = CURLE_OK;
-    nwritten = gnutls_record_send(backend->gtls.session, buf, remain);
+  ਜਦੋਂ(remain) {
+    backend->gtls.io_ਨਤੀਜਾ = CURLE_OK;
+    nwritten = gnutls_ਰਿਕਾਰਡ_send(backend->gtls.session, buf, remain);
 
-    if(nwritten >= 0) {
-      if((size_t)nwritten > remain) {
+    ਜੇ(nwritten >= 0) {
+      ਜੇ((size_t)nwritten > remain) {
         DEBUGASSERT(0);
-        failf(data, "gnutls_record_send(len=%zu) returned %zd",
+        failf(ਅੰਕੜੇ, "gnutls_record_send(len=%zu) returned %zd",
               remain, nwritten);
-        return CURLE_SEND_ERROR;
+        ਵਾਪਸ CURLE_SEND_ERROR;
       }
       *pnwritten += (size_t)nwritten;
-      buf = (char *)CURL_UNCONST(buf) + (size_t)nwritten;
+      buf = (ਅੱਖਰ *)CURL_UNCONST(buf) + (size_t)nwritten;
       remain -= (size_t)nwritten;
     }
-    else {
-      if(*pnwritten && (nwritten == GNUTLS_E_AGAIN)) {
-        result = CURLE_OK;
-        goto out;
+    ਨਹੀਂਤਾਂ {
+      ਜੇ(*pnwritten && (nwritten == GNUTLS_E_AGAIN)) {
+        ਨਤੀਜਾ = CURLE_OK;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      result = (nwritten == GNUTLS_E_AGAIN) ?
+      ਨਤੀਜਾ = (nwritten == GNUTLS_E_AGAIN) ?
         CURLE_AGAIN :
-        (backend->gtls.io_result ? backend->gtls.io_result : CURLE_SEND_ERROR);
-      goto out;
+        (backend->gtls.io_ਨਤੀਜਾ ? backend->gtls.io_ਨਤੀਜਾ : CURLE_SEND_ERROR);
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-out:
-  CURL_TRC_CF(data, cf, "gtls_send(len=%zu) -> %d, %zu",
-              blen, (int)result, *pnwritten);
-  return result;
+ਬਾਹਰਲਾ:
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "gtls_send(len=%zu) -> %d, %zu",
+              blen, (ਪੂਰਨ)ਨਤੀਜਾ, *pnwritten);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * This function is called to shut down the SSL layer but keep the
  * socket open (CCC - Clear Command Channel)
  */
-static CURLcode gtls_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              bool send_shutdown, bool *done)
+ਸਥਿਰ CURLcode gtls_shutdown(ਬਣਤਰ Curl_cfilter *cf,
+                              ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              bool send_shutdown, bool *ਪੂਰਾ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  char buf[1024];
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  ਅੱਖਰ buf[1024];
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   ssize_t nread = 0;
   size_t i;
 
   DEBUGASSERT(backend);
   /* If we have no handshaked connection or already shut down */
-  if(!backend->gtls.session || cf->shutdown ||
+  ਜੇ(!backend->gtls.session || cf->shutdown ||
      connssl->state != ssl_connection_complete) {
-    *done = TRUE;
-    goto out;
+    *ਪੂਰਾ = TRUE;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  *done = FALSE;
+  *ਪੂਰਾ = FALSE;
 
-  if(!backend->gtls.sent_shutdown) {
+  ਜੇ(!backend->gtls.ਭੇਜਿਆ_shutdown) {
     /* do this only once */
-    backend->gtls.sent_shutdown = TRUE;
-    if(send_shutdown) {
-      int ret = gnutls_bye(backend->gtls.session, GNUTLS_SHUT_RDWR);
-      if((ret == GNUTLS_E_AGAIN) || (ret == GNUTLS_E_INTERRUPTED)) {
-        CURL_TRC_CF(data, cf, "SSL shutdown, gnutls_bye EAGAIN");
-        connssl->io_need = gnutls_record_get_direction(backend->gtls.session) ?
+    backend->gtls.ਭੇਜਿਆ_shutdown = TRUE;
+    ਜੇ(send_shutdown) {
+      ਪੂਰਨ ret = gnutls_bye(backend->gtls.session, GNUTLS_SHUT_RDWR);
+      ਜੇ((ret == GNUTLS_E_AGAIN) || (ret == GNUTLS_E_INTERRUPTED)) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "SSL shutdown, gnutls_bye EAGAIN");
+        connssl->io_need = gnutls_ਰਿਕਾਰਡ_get_direction(backend->gtls.session) ?
           CURL_SSL_IO_NEED_SEND : CURL_SSL_IO_NEED_RECV;
-        backend->gtls.sent_shutdown = FALSE;
-        result = CURLE_OK;
-        goto out;
+        backend->gtls.ਭੇਜਿਆ_shutdown = FALSE;
+        ਨਤੀਜਾ = CURLE_OK;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      if(ret != GNUTLS_E_SUCCESS) {
-        CURL_TRC_CF(data, cf, "SSL shutdown, gnutls_bye error: '%s'(%d)",
-                    gnutls_strerror((int)ret), (int)ret);
-        result = CURLE_RECV_ERROR;
-        goto out;
+      ਜੇ(ret != GNUTLS_E_SUCCESS) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "SSL shutdown, gnutls_bye error: '%s'(%d)",
+                    gnutls_strerror((ਪੂਰਨ)ret), (ਪੂਰਨ)ret);
+        ਨਤੀਜਾ = CURLE_RECV_ERROR;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
     }
   }
 
   /* SSL should now have started the shutdown from our side. Since it
    * was not complete, we are lacking the close notify from the server. */
-  for(i = 0; i < 10; ++i) {
-    nread = gnutls_record_recv(backend->gtls.session, buf, sizeof(buf));
-    if(nread <= 0)
-      break;
+  ਲਈ(i = 0; i < 10; ++i) {
+    nread = gnutls_ਰਿਕਾਰਡ_recv(backend->gtls.session, buf, ਆਕਾਰ(buf));
+    ਜੇ(nread <= 0)
+      ਰੋਕੋ;
   }
-  if(nread > 0) {
+  ਜੇ(nread > 0) {
     /* still data coming in? */
   }
-  else if(nread == 0) {
+  ਨਹੀਂਤਾਂ ਜੇ(nread == 0) {
     /* We got the close notify alert and are done. */
-    *done = TRUE;
+    *ਪੂਰਾ = TRUE;
   }
-  else if((nread == GNUTLS_E_AGAIN) || (nread == GNUTLS_E_INTERRUPTED)) {
-    connssl->io_need = gnutls_record_get_direction(backend->gtls.session) ?
+  ਨਹੀਂਤਾਂ ਜੇ((nread == GNUTLS_E_AGAIN) || (nread == GNUTLS_E_INTERRUPTED)) {
+    connssl->io_need = gnutls_ਰਿਕਾਰਡ_get_direction(backend->gtls.session) ?
       CURL_SSL_IO_NEED_SEND : CURL_SSL_IO_NEED_RECV;
   }
-  else {
-    CURL_TRC_CF(data, cf, "SSL shutdown, error: '%s'(%d)",
-                gnutls_strerror((int)nread), (int)nread);
-    result = CURLE_RECV_ERROR;
+  ਨਹੀਂਤਾਂ {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "SSL shutdown, error: '%s'(%d)",
+                gnutls_strerror((ਪੂਰਨ)nread), (ਪੂਰਨ)nread);
+    ਨਤੀਜਾ = CURLE_RECV_ERROR;
   }
 
-out:
-  cf->shutdown = (result || *done);
-  return result;
+ਬਾਹਰਲਾ:
+  cf->shutdown = (ਨਤੀਜਾ || *ਪੂਰਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void gtls_close(struct Curl_cfilter *cf,
-                       struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ gtls_close(ਬਣਤਰ Curl_cfilter *cf,
+                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
 
   DEBUGASSERT(backend);
-  CURL_TRC_CF(data, cf, "close");
-  if(backend->gtls.session) {
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "close");
+  ਜੇ(backend->gtls.session) {
     gnutls_deinit(backend->gtls.session);
-    backend->gtls.session = NULL;
+    backend->gtls.session = ਨਿਰਾ;
   }
-  if(backend->gtls.shared_creds) {
+  ਜੇ(backend->gtls.shared_creds) {
     Curl_gtls_shared_creds_free(&backend->gtls.shared_creds);
   }
 }
 
-static CURLcode gtls_recv(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          char *buf, size_t blen,
+ਸਥਿਰ CURLcode gtls_recv(ਬਣਤਰ Curl_cfilter *cf,
+                          ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਅੱਖਰ *buf, size_t blen,
                           size_t *pnread)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   ssize_t nread;
 
   DEBUGASSERT(backend);
 
-  nread = gnutls_record_recv(backend->gtls.session, buf, blen);
+  nread = gnutls_ਰਿਕਾਰਡ_recv(backend->gtls.session, buf, blen);
 
-  if(nread >= 0)
+  ਜੇ(nread >= 0)
     *pnread = (size_t)nread;
-  else {
-    if((nread == GNUTLS_E_AGAIN) || (nread == GNUTLS_E_INTERRUPTED)) {
-      result = CURLE_AGAIN;
-      goto out;
+  ਨਹੀਂਤਾਂ {
+    ਜੇ((nread == GNUTLS_E_AGAIN) || (nread == GNUTLS_E_INTERRUPTED)) {
+      ਨਤੀਜਾ = CURLE_AGAIN;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if(nread == GNUTLS_E_REHANDSHAKE) {
+    ਨਹੀਂਤਾਂ ਜੇ(nread == GNUTLS_E_REHANDSHAKE) {
       /* Either TLSv1.2 renegotiate or a TLSv1.3 session key update. */
-      result = cf_gtls_handshake(cf, data);
-      if(!result)
-        result = CURLE_AGAIN; /* make us get called again. */
-      goto out;
+      ਨਤੀਜਾ = cf_gtls_handshake(cf, ਅੰਕੜੇ);
+      ਜੇ(!ਨਤੀਜਾ)
+        ਨਤੀਜਾ = CURLE_AGAIN; /* make us get called again. */
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else {
-      failf(data, "GnuTLS recv error (%d): %s",
-            (int)nread, gnutls_strerror((int)nread));
-      result = backend->gtls.io_result ?
-        backend->gtls.io_result : CURLE_RECV_ERROR;
-      goto out;
+    ਨਹੀਂਤਾਂ {
+      failf(ਅੰਕੜੇ, "GnuTLS recv error (%d): %s",
+            (ਪੂਰਨ)nread, gnutls_strerror((ਪੂਰਨ)nread));
+      ਨਤੀਜਾ = backend->gtls.io_ਨਤੀਜਾ ?
+        backend->gtls.io_ਨਤੀਜਾ : CURLE_RECV_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-out:
-  CURL_TRC_CF(data, cf, "gtls_recv(len=%zu) -> %d, %zd", blen,
-              (int)result, nread);
-  return result;
+ਬਾਹਰਲਾ:
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "gtls_recv(len=%zu) -> %d, %zd", blen,
+              (ਪੂਰਨ)ਨਤੀਜਾ, nread);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-size_t Curl_gtls_version(char *buffer, size_t size)
+size_t Curl_gtls_ਸੰਸਕਰਣ(ਅੱਖਰ *ਬਫਰ, size_t ਮਾਪ)
 {
-  return curl_msnprintf(buffer, size, "GnuTLS/%s", gnutls_check_version(NULL));
+  ਵਾਪਸ curl_msnprintf(ਬਫਰ, ਮਾਪ, "GnuTLS/%s", gnutls_check_ਸੰਸਕਰਣ(ਨਿਰਾ));
 }
 
 /* data might be NULL! */
-static CURLcode gtls_random(struct Curl_easy *data,
-                            unsigned char *entropy, size_t length)
+ਸਥਿਰ CURLcode gtls_random(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *entropy, size_t ਲੰਮਾਈ)
 {
-  int rc;
-  (void)data;
-  rc = gnutls_rnd(GNUTLS_RND_RANDOM, entropy, length);
-  return rc ? CURLE_FAILED_INIT : CURLE_OK;
+  ਪੂਰਨ rc;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  rc = gnutls_rnd(GNUTLS_RND_RANDOM, entropy, ਲੰਮਾਈ);
+  ਵਾਪਸ rc ? CURLE_FAILED_INIT : CURLE_OK;
 }
 
-static CURLcode gtls_sha256sum(const unsigned char *input,
+ਸਥਿਰ CURLcode gtls_sha256sum(ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਨਿਵੇਸ਼,
                                size_t len,
-                               unsigned char *sha256sum, /* output */
+                               ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *sha256sum, /* output */
                                size_t sha256len)
 {
-  struct sha256_ctx SHA256pw;
+  ਬਣਤਰ sha256_ctx SHA256pw;
   sha256_init(&SHA256pw);
-  do {
-    unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-    sha256_update(&SHA256pw, ilen, input);
+  ਕਰੋ {
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ilen = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)CURLMIN(len, UINT_MAX);
+    sha256_update(&SHA256pw, ilen, ਨਿਵੇਸ਼);
     len -= ilen;
-    input += ilen;
-  } while(len);
-#if NETTLE_VERSION_MAJOR >= 4
-  (void)sha256len;
+    ਨਿਵੇਸ਼ += ilen;
+  } ਜਦੋਂ(len);
+#ਜੇ NETTLE_ਸੰਸਕਰਣ_MAJOR >= 4
+  (ਖਾਲੀ)sha256len;
   sha256_digest(&SHA256pw, sha256sum);
-#else
-  sha256_digest(&SHA256pw, (unsigned int)sha256len, sha256sum);
-#endif
-  return CURLE_OK;
+#ਨਹੀਂਤਾਂ
+  sha256_digest(&SHA256pw, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)sha256len, sha256sum);
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ CURLE_OK;
 }
 
-static bool gtls_cert_status_request(void)
+ਸਥਿਰ bool gtls_cert_ਸਥਿਤੀ_request(ਖਾਲੀ)
 {
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static void *gtls_get_internals(struct ssl_connect_data *connssl,
+ਸਥਿਰ ਖਾਲੀ *gtls_get_internals(ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl,
                                 CURLINFO info)
 {
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  (void)info;
+  ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *backend =
+    (ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ *)connssl->backend;
+  (ਖਾਲੀ)info;
   DEBUGASSERT(backend);
-  return backend->gtls.session;
+  ਵਾਪਸ backend->gtls.session;
 }
 
-const struct Curl_ssl Curl_ssl_gnutls = {
+ਅਚਲ ਬਣਤਰ Curl_ssl Curl_ssl_gnutls = {
   { CURLSSLBACKEND_GNUTLS, "gnutls" }, /* info */
 
-  SSLSUPP_CA_PATH  |
+  SSLSUPP_CA_ਰਸਤਾ  |
   SSLSUPP_CERTINFO |
   SSLSUPP_PINNEDPUBKEY |
   SSLSUPP_HTTPS_PROXY |
@@ -2302,25 +2302,25 @@ const struct Curl_ssl Curl_ssl_gnutls = {
   SSLSUPP_ISSUERCERT |
   SSLSUPP_CRLFILE,
 
-  sizeof(struct gtls_ssl_backend_data),
+  ਆਕਾਰ(ਬਣਤਰ gtls_ssl_backend_ਅੰਕੜੇ),
 
   gtls_init,                     /* init */
   gtls_cleanup,                  /* cleanup */
-  Curl_gtls_version,             /* version */
+  Curl_gtls_ਸੰਸਕਰਣ,             /*ਸੰਸਕਰਣ*/
   gtls_shutdown,                 /* shutdown */
-  gtls_data_pending,             /* data_pending */
+  gtls_ਅੰਕੜੇ_pending,             /* data_pending */
   gtls_random,                   /* random */
-  gtls_cert_status_request,      /* cert_status_request */
+  gtls_cert_ਸਥਿਤੀ_request,      /* cert_status_request */
   gtls_connect,                  /* connect */
   Curl_ssl_adjust_pollset,       /* adjust_pollset */
   gtls_get_internals,            /* get_internals */
   gtls_close,                    /* close_one */
-  NULL,                          /* close_all */
-  NULL,                          /* engines_list */
+  ਨਿਰਾ,                          /* close_all */
+  ਨਿਰਾ,                          /* engines_list */
   gtls_sha256sum,                /* sha256sum */
   gtls_recv,                     /* recv decrypted data */
   gtls_send,                     /* send data to encrypt */
-  NULL,                          /* get_channel_binding */
+  ਨਿਰਾ,                          /* get_channel_binding */
 };
 
-#endif /* USE_GNUTLS */
+#ਜੇ_ਅੰਤ /* USE_GNUTLS */

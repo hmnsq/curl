@@ -21,188 +21,188 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_ਵਿੱਚ_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
-#elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_LINUX_TCP_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/tcp.h>
+#ਜਾਂਜੇ defined(HAVE_NETINET_TCP_H)
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/tcp.h>
+#ਜੇ_ਅੰਤ
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "cw-out.h"
-#include "cw-pause.h"
-#include "multiif.h"
-#include "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sendf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "transfer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cw-out.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cw-pause.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multiif.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
 
-static void cl_reset_writer(struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ cl_reset_writer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_cwriter *writer = data->req.writer.stack;
-  while(writer) {
-    data->req.writer.stack = writer->next;
-    writer->cwt->do_close(data, writer);
+  ਬਣਤਰ Curl_cwriter *writer = ਅੰਕੜੇ->req.writer.ਢੇਰ;
+  ਜਦੋਂ(writer) {
+    ਅੰਕੜੇ->req.writer.ਢੇਰ = writer->ਅਗਲਾ;
+    writer->cwt->do_close(ਅੰਕੜੇ, writer);
     curlx_free(writer);
-    writer = data->req.writer.stack;
+    writer = ਅੰਕੜੇ->req.writer.ਢੇਰ;
   }
-  data->req.writer.paused = FALSE;
+  ਅੰਕੜੇ->req.writer.paused = FALSE;
 }
 
-static void cl_reset_reader(struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ cl_reset_reader(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
-  data->req.reader_started = FALSE;
-  while(reader) {
-    data->req.reader.stack = reader->next;
-    reader->crt->do_close(data, reader);
+  ਬਣਤਰ Curl_creader *reader = ਅੰਕੜੇ->req.reader.ਢੇਰ;
+  ਅੰਕੜੇ->req.reader_started = FALSE;
+  ਜਦੋਂ(reader) {
+    ਅੰਕੜੇ->req.reader.ਢੇਰ = reader->ਅਗਲਾ;
+    reader->crt->do_close(ਅੰਕੜੇ, reader);
     curlx_free(reader);
-    reader = data->req.reader.stack;
+    reader = ਅੰਕੜੇ->req.reader.ਢੇਰ;
   }
 }
 
-void Curl_client_cleanup(struct Curl_easy *data)
+ਖਾਲੀ Curl_client_cleanup(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  cl_reset_reader(data);
-  cl_reset_writer(data);
+  cl_reset_reader(ਅੰਕੜੇ);
+  cl_reset_writer(ਅੰਕੜੇ);
 
-  data->req.bytecount = 0;
-  data->req.headerline = 0;
+  ਅੰਕੜੇ->req.bytecount = 0;
+  ਅੰਕੜੇ->req.headerline = 0;
 }
 
-void Curl_client_reset(struct Curl_easy *data)
+ਖਾਲੀ Curl_client_reset(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  if(data->req.rewind_read) {
+  ਜੇ(ਅੰਕੜੇ->req.rewind_read) {
     /* already requested */
-    CURL_TRC_READ(data, "client_reset, will rewind reader");
+    CURL_TRC_READ(ਅੰਕੜੇ, "client_reset, will rewind reader");
   }
-  else {
-    CURL_TRC_READ(data, "client_reset, clear readers");
-    cl_reset_reader(data);
+  ਨਹੀਂਤਾਂ {
+    CURL_TRC_READ(ਅੰਕੜੇ, "client_reset, clear readers");
+    cl_reset_reader(ਅੰਕੜੇ);
   }
-  cl_reset_writer(data);
+  cl_reset_writer(ਅੰਕੜੇ);
 
-  data->req.bytecount = 0;
-  data->req.headerline = 0;
+  ਅੰਕੜੇ->req.bytecount = 0;
+  ਅੰਕੜੇ->req.headerline = 0;
 }
 
-CURLcode Curl_client_start(struct Curl_easy *data)
+CURLcode Curl_client_ਸ਼ੁਰੂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  if(data->req.rewind_read) {
-    struct Curl_creader *r = data->req.reader.stack;
-    CURLcode result = CURLE_OK;
+  ਜੇ(ਅੰਕੜੇ->req.rewind_read) {
+    ਬਣਤਰ Curl_creader *r = ਅੰਕੜੇ->req.reader.ਢੇਰ;
+    CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-    CURL_TRC_READ(data, "client start, rewind readers");
-    while(r) {
-      result = r->crt->cntrl(data, r, CURL_CRCNTRL_REWIND);
-      if(result) {
-        failf(data, "rewind of client reader '%s' failed: %d",
-              r->crt->name, (int)result);
-        return result;
+    CURL_TRC_READ(ਅੰਕੜੇ, "client start, rewind readers");
+    ਜਦੋਂ(r) {
+      ਨਤੀਜਾ = r->crt->cntrl(ਅੰਕੜੇ, r, CURL_CRCNTRL_REWIND);
+      ਜੇ(ਨਤੀਜਾ) {
+        failf(ਅੰਕੜੇ, "rewind of client reader '%s' failed: %d",
+              r->crt->name, (ਪੂਰਨ)ਨਤੀਜਾ);
+        ਵਾਪਸ ਨਤੀਜਾ;
       }
-      r = r->next;
+      r = r->ਅਗਲਾ;
     }
-    data->req.rewind_read = FALSE;
-    cl_reset_reader(data);
+    ਅੰਕੜੇ->req.rewind_read = FALSE;
+    cl_reset_reader(ਅੰਕੜੇ);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-bool Curl_creader_will_rewind(struct Curl_easy *data)
+bool Curl_creader_will_rewind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  return (bool)data->req.rewind_read;
+  ਵਾਪਸ (bool)ਅੰਕੜੇ->req.rewind_read;
 }
 
-void Curl_creader_set_rewind(struct Curl_easy *data, bool enable)
+ਖਾਲੀ Curl_creader_ਸੈੱਟ_rewind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool enable)
 {
-  data->req.rewind_read = !!enable;
+  ਅੰਕੜੇ->req.rewind_read = !!enable;
 }
 
-CURLcode Curl_cwriter_def_init(struct Curl_easy *data,
-                               struct Curl_cwriter *writer)
+CURLcode Curl_cwriter_def_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_cwriter *writer)
 {
-  (void)data;
-  (void)writer;
-  return CURLE_OK;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)writer;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_cwriter_def_write(struct Curl_easy *data,
-                                struct Curl_cwriter *writer, int type,
-                                const char *buf, size_t nbytes)
+CURLcode Curl_cwriter_def_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
+                                ਅਚਲ ਅੱਖਰ *buf, size_t nbytes)
 {
-  return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ਵਾਪਸ Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nbytes);
 }
 
-CURLcode Curl_cwriter_def_flush(struct Curl_easy *data,
-                                struct Curl_cwriter *writer)
+CURLcode Curl_cwriter_def_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ Curl_cwriter *writer)
 {
-  return Curl_cwriter_flush(data, writer->next);
+  ਵਾਪਸ Curl_cwriter_flush(ਅੰਕੜੇ, writer->ਅਗਲਾ);
 }
 
-void Curl_cwriter_def_close(struct Curl_easy *data,
-                            struct Curl_cwriter *writer)
+ਖਾਲੀ Curl_cwriter_def_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_cwriter *writer)
 {
-  (void)data;
-  (void)writer;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)writer;
 }
 
-static size_t get_max_body_write_len(struct Curl_easy *data, curl_off_t limit)
+ਸਥਿਰ size_t get_max_body_write_len(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, curl_off_t ਹੱਦਬੰਦੀ)
 {
-  if(limit != -1) {
+  ਜੇ(ਹੱਦਬੰਦੀ != -1) {
     /* How much more are we allowed to write? */
-    return curlx_sotouz_range(limit - data->req.bytecount, 0, SIZE_MAX);
+    ਵਾਪਸ curlx_sotouz_range(ਹੱਦਬੰਦੀ - ਅੰਕੜੇ->req.bytecount, 0, SIZE_MAX);
   }
-  return SIZE_MAX;
+  ਵਾਪਸ SIZE_MAX;
 }
 
-struct cw_download_ctx {
-  struct Curl_cwriter super;
-  BIT(started_response);
-  BIT(started_body);
+ਬਣਤਰ cw_download_ctx {
+  ਬਣਤਰ Curl_cwriter super;
+  ਦੋਆਧਾਰੀ_ਅੰਕ(started_response);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(started_body);
 };
 
 /* Download client writer in phase CURL_CW_PROTOCOL that
  * sees the "real" download body data. */
-static CURLcode cw_download_write(struct Curl_easy *data,
-                                  struct Curl_cwriter *writer, int type,
-                                  const char *buf, size_t nbytes)
+ਸਥਿਰ CURLcode cw_download_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
+                                  ਅਚਲ ਅੱਖਰ *buf, size_t nbytes)
 {
-  struct cw_download_ctx *ctx = writer->ctx;
-  CURLcode result;
+  ਬਣਤਰ cw_download_ctx *ctx = writer->ctx;
+  CURLcode ਨਤੀਜਾ;
   size_t nwrite, excess_len = 0;
   bool is_connect = !!(type & CLIENTWRITE_CONNECT);
 
-  if(!ctx->started_response &&
+  ਜੇ(!ctx->started_response &&
      !(type & CLIENTWRITE_CONNECT) &&
-     (!(type & CLIENTWRITE_INFO) || data->req.upload_done)) {
-    Curl_pgrsTime(data, TIMER_STARTTRANSFER);
+     (!(type & CLIENTWRITE_INFO) || ਅੰਕੜੇ->req.upload_ਪੂਰਾ)) {
+    Curl_pgrs_ਸਮਾਂ(ਅੰਕੜੇ, TIMER_STARTTRANSFER);
     ctx->started_response = TRUE;
   }
 
-  if(!(type & CLIENTWRITE_BODY)) {
-    if(is_connect && data->set.suppress_connect_headers)
-      return CURLE_OK;
-#ifdef DEBUGBUILD
-    if(is_connect && getenv("CURL_DBG_SUPPRESS_CONNECT_HDS"))
-      return CURLE_OK;
-#endif
-    result = Curl_cwriter_write(data, writer->next, type, buf, nbytes);
-    CURL_TRC_WRITE(data, "download_write header(type=%x, blen=%zu) -> %d",
-                   (unsigned int)type, nbytes, (int)result);
-    return result;
+  ਜੇ(!(type & CLIENTWRITE_BODY)) {
+    ਜੇ(is_connect && ਅੰਕੜੇ->ਸੈੱਟ.suppress_connect_ਸਿਰਲੇਖਾਂ)
+      ਵਾਪਸ CURLE_OK;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+    ਜੇ(is_connect && getenv("CURL_DBG_SUPPRESS_CONNECT_HDS"))
+      ਵਾਪਸ CURLE_OK;
+#ਜੇ_ਅੰਤ
+    ਨਤੀਜਾ = Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nbytes);
+    CURL_TRC_WRITE(ਅੰਕੜੇ, "download_write header(type=%x, blen=%zu) -> %d",
+                   (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)type, nbytes, (ਪੂਰਨ)ਨਤੀਜਾ);
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  if(!ctx->started_body &&
+  ਜੇ(!ctx->started_body &&
      !(type & (CLIENTWRITE_INFO | CLIENTWRITE_CONNECT))) {
-    Curl_rlimit_start(&data->progress.dl.rlimit, Curl_pgrs_now(data),
-                      data->req.size);
+    Curl_rlimit_ਸ਼ੁਰੂ(&ਅੰਕੜੇ->ਤਰੱਕੀ.dl.rlimit, Curl_pgrs_now(ਅੰਕੜੇ),
+                      ਅੰਕੜੇ->req.ਮਾਪ);
     ctx->started_body = TRUE;
   }
 
@@ -212,16 +212,16 @@ static CURLcode cw_download_write(struct Curl_easy *data,
    * This allows us to check sizes, update stats, etc. independent
    * from the protocol in play. */
 
-  if(data->req.no_body && nbytes > 0) {
+  ਜੇ(ਅੰਕੜੇ->req.no_body && nbytes > 0) {
     /* BODY arrives although we want none, bail out */
-    streamclose(data->conn);
-    CURL_TRC_WRITE(data, "download_write body(type=%x, blen=%zu), "
-                   "did not want a BODY", (unsigned int)type, nbytes);
-    data->req.download_done = TRUE;
-    if(data->info.header_size)
+    streamclose(ਅੰਕੜੇ->conn);
+    CURL_TRC_WRITE(ਅੰਕੜੇ, "download_write body(type=%x, blen=%zu), "
+                   "did not want a BODY", (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)type, nbytes);
+    ਅੰਕੜੇ->req.download_ਪੂਰਾ = TRUE;
+    ਜੇ(ਅੰਕੜੇ->info.ਸਿਰਲੇਖ_ਮਾਪ)
       /* if headers have been received, this is fine */
-      return CURLE_OK;
-    return CURLE_WEIRD_SERVER_REPLY;
+      ਵਾਪਸ CURLE_OK;
+    ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
   }
 
   /* Determine if we see any bytes in excess to what is allowed.
@@ -229,140 +229,140 @@ static CURLcode cw_download_write(struct Curl_easy *data,
    * This gives deterministic BODY writes on varying buffer receive
    * lengths. */
   nwrite = nbytes;
-  if(data->req.maxdownload != -1) {
-    size_t wmax = get_max_body_write_len(data, data->req.maxdownload);
-    if(nwrite > wmax) {
+  ਜੇ(ਅੰਕੜੇ->req.maxdownload != -1) {
+    size_t wmax = get_max_body_write_len(ਅੰਕੜੇ, ਅੰਕੜੇ->req.maxdownload);
+    ਜੇ(nwrite > wmax) {
       excess_len = nbytes - wmax;
       nwrite = wmax;
     }
 
-    if(nwrite == wmax) {
-      data->req.download_done = TRUE;
+    ਜੇ(nwrite == wmax) {
+      ਅੰਕੜੇ->req.download_ਪੂਰਾ = TRUE;
     }
 
-    if((type & CLIENTWRITE_EOS) && !data->req.no_body &&
-       (data->req.size > data->req.bytecount)) {
-      failf(data, "end of response with %" FMT_OFF_T " bytes missing",
-            data->req.size - data->req.bytecount);
-      return CURLE_PARTIAL_FILE;
+    ਜੇ((type & CLIENTWRITE_EOS) && !ਅੰਕੜੇ->req.no_body &&
+       (ਅੰਕੜੇ->req.ਮਾਪ > ਅੰਕੜੇ->req.bytecount)) {
+      failf(ਅੰਕੜੇ, "end of response with %" FMT_OFF_T " bytes missing",
+            ਅੰਕੜੇ->req.ਮਾਪ - ਅੰਕੜੇ->req.bytecount);
+      ਵਾਪਸ CURLE_PARTIAL_FILE;
     }
   }
 
   /* Error on too large filesize is handled below, after writing
    * the permitted bytes */
-  if(data->set.max_filesize && !data->req.ignorebody) {
-    size_t wmax = get_max_body_write_len(data, data->set.max_filesize);
-    if(nwrite > wmax) {
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.max_filesize && !ਅੰਕੜੇ->req.ignorebody) {
+    size_t wmax = get_max_body_write_len(ਅੰਕੜੇ, ਅੰਕੜੇ->ਸੈੱਟ.max_filesize);
+    ਜੇ(nwrite > wmax) {
       nwrite = wmax;
     }
   }
 
-  if(!data->req.ignorebody && (nwrite || (type & CLIENTWRITE_EOS))) {
-    result = Curl_cwriter_write(data, writer->next, type, buf, nwrite);
-    CURL_TRC_WRITE(data, "download_write body(type=%x, blen=%zu) -> %d",
-                   (unsigned int)type, nbytes, (int)result);
-    if(result)
-      return result;
+  ਜੇ(!ਅੰਕੜੇ->req.ignorebody && (nwrite || (type & CLIENTWRITE_EOS))) {
+    ਨਤੀਜਾ = Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nwrite);
+    CURL_TRC_WRITE(ਅੰਕੜੇ, "download_write body(type=%x, blen=%zu) -> %d",
+                   (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)type, nbytes, (ਪੂਰਨ)ਨਤੀਜਾ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
   /* Update stats, write and report progress */
-  if(nwrite) {
-    data->req.bytecount += nwrite;
-    Curl_pgrs_download_inc(data, nwrite);
+  ਜੇ(nwrite) {
+    ਅੰਕੜੇ->req.bytecount += nwrite;
+    Curl_pgrs_download_inc(ਅੰਕੜੇ, nwrite);
   }
 
-  if(excess_len) {
-    if(!data->req.ignorebody) {
-      infof(data,
+  ਜੇ(excess_len) {
+    ਜੇ(!ਅੰਕੜੇ->req.ignorebody) {
+      infof(ਅੰਕੜੇ,
             "Excess found writing body:"
             " excess = %zu"
             ", size = %" FMT_OFF_T
             ", maxdownload = %" FMT_OFF_T
             ", bytecount = %" FMT_OFF_T,
-            excess_len, data->req.size, data->req.maxdownload,
-            data->req.bytecount);
-      connclose(data->conn);
+            excess_len, ਅੰਕੜੇ->req.ਮਾਪ, ਅੰਕੜੇ->req.maxdownload,
+            ਅੰਕੜੇ->req.bytecount);
+      connclose(ਅੰਕੜੇ->conn);
     }
   }
-  else if((nwrite < nbytes) && !data->req.ignorebody) {
-    failf(data, "Exceeded the maximum allowed file size "
+  ਨਹੀਂਤਾਂ ਜੇ((nwrite < nbytes) && !ਅੰਕੜੇ->req.ignorebody) {
+    failf(ਅੰਕੜੇ, "Exceeded the maximum allowed file size "
           "(%" FMT_OFF_T ") with %" FMT_OFF_T " bytes",
-          data->set.max_filesize, data->req.bytecount);
-    return CURLE_FILESIZE_EXCEEDED;
+          ਅੰਕੜੇ->ਸੈੱਟ.max_filesize, ਅੰਕੜੇ->req.bytecount);
+    ਵਾਪਸ CURLE_FILESIZE_EXCEEDED;
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static const struct Curl_cwtype cw_download = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype cw_download = {
   "protocol",
-  NULL,
+  ਨਿਰਾ,
   0,
   Curl_cwriter_def_init,
   cw_download_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct cw_download_ctx)
+  ਆਕਾਰ(ਬਣਤਰ cw_download_ctx)
 };
 
 /* RAW client writer in phase CURL_CW_RAW that
  * enabled tracing of raw data. */
-static CURLcode cw_raw_write(struct Curl_easy *data,
-                             struct Curl_cwriter *writer, int type,
-                             const char *buf, size_t nbytes)
+ਸਥਿਰ CURLcode cw_raw_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ Curl_cwriter *writer, ਪੂਰਨ type,
+                             ਅਚਲ ਅੱਖਰ *buf, size_t nbytes)
 {
-  if(type & CLIENTWRITE_BODY && data->set.verbose && !data->req.ignorebody) {
-    Curl_debug(data, CURLINFO_DATA_IN, buf, nbytes);
+  ਜੇ(type & CLIENTWRITE_BODY && ਅੰਕੜੇ->ਸੈੱਟ.verbose && !ਅੰਕੜੇ->req.ignorebody) {
+    Curl_debug(ਅੰਕੜੇ, CURLINFO_ਅੰਕੜੇ_ਵਿੱਚ, buf, nbytes);
   }
-  return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ਵਾਪਸ Curl_cwriter_write(ਅੰਕੜੇ, writer->ਅਗਲਾ, type, buf, nbytes);
 }
 
-static const struct Curl_cwtype cw_raw = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_cwtype cw_raw = {
   "raw",
-  NULL,
+  ਨਿਰਾ,
   0,
   Curl_cwriter_def_init,
   cw_raw_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct Curl_cwriter)
+  ਆਕਾਰ(ਬਣਤਰ Curl_cwriter)
 };
 
-static void cwriter_add(struct Curl_easy *data,
-                        struct Curl_cwriter *writer)
+ਸਥਿਰ ਖਾਲੀ cwriter_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                        ਬਣਤਰ Curl_cwriter *writer)
 {
-  struct Curl_cwriter **anchor = &data->req.writer.stack;
+  ਬਣਤਰ Curl_cwriter **anchor = &ਅੰਕੜੇ->req.writer.ਢੇਰ;
 
   /* Insert the writer as first in its phase.
    * Skip existing writers of lower phases. */
-  while(*anchor && (*anchor)->phase < writer->phase)
-    anchor = &(*anchor)->next;
-  writer->next = *anchor;
+  ਜਦੋਂ(*anchor && (*anchor)->phase < writer->phase)
+    anchor = &(*anchor)->ਅਗਲਾ;
+  writer->ਅਗਲਾ = *anchor;
   *anchor = writer;
 }
 
-static CURLcode do_init_writer_stack(struct Curl_easy *data)
+ਸਥਿਰ CURLcode do_init_writer_ਢੇਰ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_cwriter *writer;
-  CURLcode result;
+  ਬਣਤਰ Curl_cwriter *writer;
+  CURLcode ਨਤੀਜਾ;
 
-  DEBUGASSERT(!data->req.writer.stack);
-  result = Curl_cwriter_create(&data->req.writer.stack,
-                               data, &Curl_cwt_out, CURL_CW_CLIENT);
-  if(result)
-    return result;
+  DEBUGASSERT(!ਅੰਕੜੇ->req.writer.ਢੇਰ);
+  ਨਤੀਜਾ = Curl_cwriter_create(&ਅੰਕੜੇ->req.writer.ਢੇਰ,
+                               ਅੰਕੜੇ, &Curl_cwt_ਬਾਹਰਲਾ, CURL_CW_CLIENT);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  result = Curl_cwriter_create(&writer, data, &cw_download, CURL_CW_PROTOCOL);
-  if(result)
-    return result;
-  cwriter_add(data, writer);
+  ਨਤੀਜਾ = Curl_cwriter_create(&writer, ਅੰਕੜੇ, &cw_download, CURL_CW_PROTOCOL);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
+  cwriter_ਜੋੜੋ(ਅੰਕੜੇ, writer);
 
-  result = Curl_cwriter_create(&writer, data, &cw_raw, CURL_CW_RAW);
-  if(result)
-    return result;
-  cwriter_add(data, writer);
+  ਨਤੀਜਾ = Curl_cwriter_create(&writer, ਅੰਕੜੇ, &cw_raw, CURL_CW_RAW);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
+  cwriter_ਜੋੜੋ(ਅੰਕੜੇ, writer);
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Curl_client_write() sends data to the write callback(s)
@@ -370,14 +370,14 @@ static CURLcode do_init_writer_stack(struct Curl_easy *data)
    The bit pattern defines to what "streams" to write to. Body and/or header.
    The defines are in sendf.h of course.
  */
-CURLcode Curl_client_write(struct Curl_easy *data, int type, const char *buf,
+CURLcode Curl_client_write(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਪੂਰਨ type, ਅਚਲ ਅੱਖਰ *buf,
                            size_t len)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
   /* it is one of those, at least */
   DEBUGASSERT(type &
-              (CLIENTWRITE_BODY | CLIENTWRITE_HEADER | CLIENTWRITE_INFO));
+              (CLIENTWRITE_BODY | CLIENTWRITE_ਸਿਰਲੇਖ | CLIENTWRITE_INFO));
   /* BODY is only BODY (with optional EOS) */
   DEBUGASSERT(!(type & CLIENTWRITE_BODY) ||
               ((type & ~(CLIENTWRITE_BODY | CLIENTWRITE_EOS)) == 0));
@@ -385,830 +385,830 @@ CURLcode Curl_client_write(struct Curl_easy *data, int type, const char *buf,
   DEBUGASSERT(!(type & CLIENTWRITE_INFO) ||
               ((type & ~(CLIENTWRITE_INFO | CLIENTWRITE_EOS)) == 0));
 
-  if(!data->req.writer.stack) {
-    result = do_init_writer_stack(data);
-    if(result)
-      return result;
-    DEBUGASSERT(data->req.writer.stack);
+  ਜੇ(!ਅੰਕੜੇ->req.writer.ਢੇਰ) {
+    ਨਤੀਜਾ = do_init_writer_ਢੇਰ(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    DEBUGASSERT(ਅੰਕੜੇ->req.writer.ਢੇਰ);
   }
 
-  result = Curl_cwriter_write(data, data->req.writer.stack, type, buf, len);
-  CURL_TRC_WRITE(data, "client_write(type=%x, len=%zu) -> %d",
-                 (unsigned int)type, len, (int)result);
-  return result;
+  ਨਤੀਜਾ = Curl_cwriter_write(ਅੰਕੜੇ, ਅੰਕੜੇ->req.writer.ਢੇਰ, type, buf, len);
+  CURL_TRC_WRITE(ਅੰਕੜੇ, "client_write(type=%x, len=%zu) -> %d",
+                 (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)type, len, (ਪੂਰਨ)ਨਤੀਜਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_client_flush(struct Curl_easy *data)
+CURLcode Curl_client_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!data->req.writer.stack) {
-    result = do_init_writer_stack(data);
-    if(result)
-      return result;
-    DEBUGASSERT(data->req.writer.stack);
+  ਜੇ(!ਅੰਕੜੇ->req.writer.ਢੇਰ) {
+    ਨਤੀਜਾ = do_init_writer_ਢੇਰ(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    DEBUGASSERT(ਅੰਕੜੇ->req.writer.ਢੇਰ);
   }
 
-  result = Curl_cwriter_flush(data, data->req.writer.stack);
-  CURL_TRC_WRITE(data, "client_flush() -> %d", (int)result);
-  return result;
+  ਨਤੀਜਾ = Curl_cwriter_flush(ਅੰਕੜੇ, ਅੰਕੜੇ->req.writer.ਢੇਰ);
+  CURL_TRC_WRITE(ਅੰਕੜੇ, "client_flush() -> %d", (ਪੂਰਨ)ਨਤੀਜਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Create an unencoding writer stage using the given handler. */
-CURLcode Curl_cwriter_create(struct Curl_cwriter **pwriter,
-                             struct Curl_easy *data,
-                             const struct Curl_cwtype *cwt,
+CURLcode Curl_cwriter_create(ਬਣਤਰ Curl_cwriter **pwriter,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਅਚਲ ਬਣਤਰ Curl_cwtype *cwt,
                              Curl_cwriter_phase phase)
 {
-  struct Curl_cwriter *writer = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  void *p;
+  ਬਣਤਰ Curl_cwriter *writer = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਖਾਲੀ *p;
 
-  DEBUGASSERT(cwt->cwriter_size >= sizeof(struct Curl_cwriter));
-  p = curlx_calloc(1, cwt->cwriter_size);
-  if(!p)
-    goto out;
+  DEBUGASSERT(cwt->cwriter_ਮਾਪ >= ਆਕਾਰ(ਬਣਤਰ Curl_cwriter));
+  p = curlx_calloc(1, cwt->cwriter_ਮਾਪ);
+  ਜੇ(!p)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  writer = (struct Curl_cwriter *)p;
+  writer = (ਬਣਤਰ Curl_cwriter *)p;
   writer->cwt = cwt;
   writer->ctx = p;
   writer->phase = phase;
-  result = cwt->do_init(data, writer);
+  ਨਤੀਜਾ = cwt->do_init(ਅੰਕੜੇ, writer);
 
-out:
-  *pwriter = result ? NULL : writer;
-  if(result)
+ਬਾਹਰਲਾ:
+  *pwriter = ਨਤੀਜਾ ? ਨਿਰਾ : writer;
+  ਜੇ(ਨਤੀਜਾ)
     curlx_free(writer);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_cwriter_free(struct Curl_easy *data,
-                       struct Curl_cwriter *writer)
+ਖਾਲੀ Curl_cwriter_free(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                       ਬਣਤਰ Curl_cwriter *writer)
 {
-  if(writer) {
-    writer->cwt->do_close(data, writer);
+  ਜੇ(writer) {
+    writer->cwt->do_close(ਅੰਕੜੇ, writer);
     curlx_free(writer);
   }
 }
 
-size_t Curl_cwriter_count(struct Curl_easy *data, Curl_cwriter_phase phase)
+size_t Curl_cwriter_ਗਿਣਤੀ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, Curl_cwriter_phase phase)
 {
-  struct Curl_cwriter *w;
+  ਬਣਤਰ Curl_cwriter *w;
   size_t n = 0;
 
-  for(w = data->req.writer.stack; w; w = w->next) {
-    if(w->phase == phase)
+  ਲਈ(w = ਅੰਕੜੇ->req.writer.ਢੇਰ; w; w = w->ਅਗਲਾ) {
+    ਜੇ(w->phase == phase)
       ++n;
   }
-  return n;
+  ਵਾਪਸ n;
 }
 
-static CURLcode cwriter_ensure_pause_writer(struct Curl_easy *data)
+ਸਥਿਰ CURLcode cwriter_ensure_pause_writer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_cwriter *writer =
-    Curl_cwriter_get_by_type(data, &Curl_cwt_pause);
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ Curl_cwriter *writer =
+    Curl_cwriter_get_by_type(ਅੰਕੜੇ, &Curl_cwt_pause);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(!writer) {
-    result = Curl_cwriter_create(&writer, data, &Curl_cwt_pause,
+  ਜੇ(!writer) {
+    ਨਤੀਜਾ = Curl_cwriter_create(&writer, ਅੰਕੜੇ, &Curl_cwt_pause,
                                  CURL_CW_BEFORE_DECODE);
-    if(!result)
-      cwriter_add(data, writer);
+    ਜੇ(!ਨਤੀਜਾ)
+      cwriter_ਜੋੜੋ(ਅੰਕੜੇ, writer);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_cwriter_add(struct Curl_easy *data,
-                          struct Curl_cwriter *writer)
+CURLcode Curl_cwriter_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਬਣਤਰ Curl_cwriter *writer)
 {
-  CURLcode result;
-  struct Curl_cwriter **anchor = &data->req.writer.stack;
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ Curl_cwriter **anchor = &ਅੰਕੜੇ->req.writer.ਢੇਰ;
 
-  if(!*anchor) {
-    result = do_init_writer_stack(data);
-    if(result)
-      return result;
+  ਜੇ(!*anchor) {
+    ਨਤੀਜਾ = do_init_writer_ਢੇਰ(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  if(writer->cwt->flags & CURL_CW_FLAG_BLOWUP) {
+  ਜੇ(writer->cwt->flags & CURL_CW_FLAG_BLOWUP) {
     /* On adding a writer that may blow up write sizes, e.g. zip bombs,
      * add the pause writer. Do this first as any failure will make the
      * caller destroy the writer again. */
-    result = cwriter_ensure_pause_writer(data);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = cwriter_ensure_pause_writer(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  cwriter_add(data, writer);
-  return CURLE_OK;
+  cwriter_ਜੋੜੋ(ਅੰਕੜੇ, writer);
+  ਵਾਪਸ CURLE_OK;
 }
 
-struct Curl_cwriter *Curl_cwriter_get_by_name(struct Curl_easy *data,
-                                              const char *name)
+ਬਣਤਰ Curl_cwriter *Curl_cwriter_get_by_name(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                              ਅਚਲ ਅੱਖਰ *name)
 {
-  struct Curl_cwriter *writer;
-  for(writer = data->req.writer.stack; writer; writer = writer->next) {
-    if(!strcmp(name, writer->cwt->name))
-      return writer;
+  ਬਣਤਰ Curl_cwriter *writer;
+  ਲਈ(writer = ਅੰਕੜੇ->req.writer.ਢੇਰ; writer; writer = writer->ਅਗਲਾ) {
+    ਜੇ(!strcmp(name, writer->cwt->name))
+      ਵਾਪਸ writer;
   }
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-struct Curl_cwriter *Curl_cwriter_get_by_type(struct Curl_easy *data,
-                                              const struct Curl_cwtype *cwt)
+ਬਣਤਰ Curl_cwriter *Curl_cwriter_get_by_type(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                              ਅਚਲ ਬਣਤਰ Curl_cwtype *cwt)
 {
-  struct Curl_cwriter *writer;
-  for(writer = data->req.writer.stack; writer; writer = writer->next) {
-    if(writer->cwt == cwt)
-      return writer;
+  ਬਣਤਰ Curl_cwriter *writer;
+  ਲਈ(writer = ਅੰਕੜੇ->req.writer.ਢੇਰ; writer; writer = writer->ਅਗਲਾ) {
+    ਜੇ(writer->cwt == cwt)
+      ਵਾਪਸ writer;
   }
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-CURLcode Curl_cwriter_unpause(struct Curl_easy *data)
+CURLcode Curl_cwriter_unpause(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  data->req.writer.paused = FALSE;
-  return Curl_cwriter_flush(data, data->req.writer.stack);
+  ਅੰਕੜੇ->req.writer.paused = FALSE;
+  ਵਾਪਸ Curl_cwriter_flush(ਅੰਕੜੇ, ਅੰਕੜੇ->req.writer.ਢੇਰ);
 }
 
-CURLcode Curl_creader_read(struct Curl_easy *data,
-                           struct Curl_creader *reader,
-                           char *buf, size_t blen, size_t *nread, bool *eos)
+CURLcode Curl_creader_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ Curl_creader *reader,
+                           ਅੱਖਰ *buf, size_t blen, size_t *nread, bool *eos)
 {
   *nread = 0;
   *eos = FALSE;
-  if(!reader)
-    return CURLE_READ_ERROR;
-  return reader->crt->do_read(data, reader, buf, blen, nread, eos);
+  ਜੇ(!reader)
+    ਵਾਪਸ CURLE_READ_ERROR;
+  ਵਾਪਸ reader->crt->do_read(ਅੰਕੜੇ, reader, buf, blen, nread, eos);
 }
 
-void Curl_creader_clear_eos(struct Curl_easy *data,
-                            struct Curl_creader *reader)
+ਖਾਲੀ Curl_creader_clear_eos(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_creader *reader)
 {
-  while(reader) {
-    (void)reader->crt->cntrl(data, reader, CURL_CRCNTRL_CLEAR_EOS);
-    reader = reader->next;
+  ਜਦੋਂ(reader) {
+    (ਖਾਲੀ)reader->crt->cntrl(ਅੰਕੜੇ, reader, CURL_CRCNTRL_CLEAR_EOS);
+    reader = reader->ਅਗਲਾ;
   }
 }
 
-CURLcode Curl_creader_def_init(struct Curl_easy *data,
-                               struct Curl_creader *reader)
+CURLcode Curl_creader_def_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
-  return CURLE_OK;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  ਵਾਪਸ CURLE_OK;
 }
 
-void Curl_creader_def_close(struct Curl_easy *data,
-                            struct Curl_creader *reader)
+ਖਾਲੀ Curl_creader_def_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
 }
 
-CURLcode Curl_creader_def_read(struct Curl_easy *data,
-                               struct Curl_creader *reader,
-                               char *buf, size_t blen,
+CURLcode Curl_creader_def_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_creader *reader,
+                               ਅੱਖਰ *buf, size_t blen,
                                size_t *nread, bool *eos)
 {
-  if(reader->next)
-    return reader->next->crt->do_read(data, reader->next, buf, blen,
+  ਜੇ(reader->ਅਗਲਾ)
+    ਵਾਪਸ reader->ਅਗਲਾ->crt->do_read(ਅੰਕੜੇ, reader->ਅਗਲਾ, buf, blen,
                                       nread, eos);
-  else {
+  ਨਹੀਂਤਾਂ {
     *nread = 0;
     *eos = FALSE;
-    return CURLE_READ_ERROR;
+    ਵਾਪਸ CURLE_READ_ERROR;
   }
 }
 
-bool Curl_creader_def_needs_rewind(struct Curl_easy *data,
-                                   struct Curl_creader *reader)
+bool Curl_creader_def_needs_rewind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਬਣਤਰ Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
-  return FALSE;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  ਵਾਪਸ FALSE;
 }
 
-curl_off_t Curl_creader_def_total_length(struct Curl_easy *data,
-                                         struct Curl_creader *reader)
+curl_off_t Curl_creader_def_ਕੁੱਲ_ਲੰਮਾਈ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                         ਬਣਤਰ Curl_creader *reader)
 {
-  return reader->next ?
-         reader->next->crt->total_length(data, reader->next) : -1;
+  ਵਾਪਸ reader->ਅਗਲਾ ?
+         reader->ਅਗਲਾ->crt->ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ, reader->ਅਗਲਾ) : -1;
 }
 
-CURLcode Curl_creader_def_resume_from(struct Curl_easy *data,
-                                      struct Curl_creader *reader,
-                                      curl_off_t offset)
+CURLcode Curl_creader_def_resume_from(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਬਣਤਰ Curl_creader *reader,
+                                      curl_off_t ਵਿੱਥ)
 {
-  (void)data;
-  (void)reader;
-  (void)offset;
-  return CURLE_READ_ERROR;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  (ਖਾਲੀ)ਵਿੱਥ;
+  ਵਾਪਸ CURLE_READ_ERROR;
 }
 
-CURLcode Curl_creader_def_cntrl(struct Curl_easy *data,
-                                struct Curl_creader *reader,
+CURLcode Curl_creader_def_cntrl(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ Curl_creader *reader,
                                 Curl_creader_cntrl opcode)
 {
-  (void)data;
-  (void)reader;
-  (void)opcode;
-  return CURLE_OK;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  (ਖਾਲੀ)opcode;
+  ਵਾਪਸ CURLE_OK;
 }
 
-bool Curl_creader_def_is_paused(struct Curl_easy *data,
-                                struct Curl_creader *reader)
+bool Curl_creader_def_is_paused(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
-  return FALSE;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  ਵਾਪਸ FALSE;
 }
 
-void Curl_creader_def_done(struct Curl_easy *data,
-                           struct Curl_creader *reader, int premature)
+ਖਾਲੀ Curl_creader_def_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ Curl_creader *reader, ਪੂਰਨ premature)
 {
-  (void)data;
-  (void)reader;
-  (void)premature;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  (ਖਾਲੀ)premature;
 }
 
-struct cr_in_ctx {
-  struct Curl_creader super;
+ਬਣਤਰ cr_ਵਿੱਚ_ctx {
+  ਬਣਤਰ Curl_creader super;
   curl_read_callback read_cb;
-  void *cb_user_data;
-  curl_off_t total_len;
+  ਖਾਲੀ *cb_user_ਅੰਕੜੇ;
+  curl_off_t ਕੁੱਲ_len;
   curl_off_t read_len;
-  CURLcode error_result;
-  BIT(seen_eos);
-  BIT(errored);
-  BIT(has_used_cb);
-  BIT(is_paused);
+  CURLcode error_ਨਤੀਜਾ;
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਵੇਖਿਆ_eos);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(errored);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(has_ਵਰਤਿਆ_cb);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(is_paused);
 };
 
-static CURLcode cr_in_init(struct Curl_easy *data, struct Curl_creader *reader)
+ਸਥਿਰ CURLcode cr_ਵਿੱਚ_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  ctx->read_cb = data->state.fread_func;
-  ctx->cb_user_data = data->state.in;
-  ctx->total_len = -1;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx = reader->ctx;
+  ctx->read_cb = ਅੰਕੜੇ->state.fread_func;
+  ctx->cb_user_ਅੰਕੜੇ = ਅੰਕੜੇ->state.ਵਿੱਚ;
+  ctx->ਕੁੱਲ_len = -1;
   ctx->read_len = 0;
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Real client reader to installed client callbacks. */
-static CURLcode cr_in_read(struct Curl_easy *data,
-                           struct Curl_creader *reader,
-                           char *buf, size_t blen,
+ਸਥਿਰ CURLcode cr_ਵਿੱਚ_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ Curl_creader *reader,
+                           ਅੱਖਰ *buf, size_t blen,
                            size_t *pnread, bool *peos)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx = reader->ctx;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   size_t nread;
 
   ctx->is_paused = FALSE;
 
   /* Once we have errored, we will return the same error forever */
-  if(ctx->errored) {
+  ਜੇ(ctx->errored) {
     *pnread = 0;
     *peos = FALSE;
-    return ctx->error_result;
+    ਵਾਪਸ ctx->error_ਨਤੀਜਾ;
   }
-  if(ctx->seen_eos) {
+  ਜੇ(ctx->ਵੇਖਿਆ_eos) {
     *pnread = 0;
     *peos = TRUE;
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
   /* respect length limitations */
-  if(ctx->total_len >= 0) {
-    blen = curlx_sotouz_range(ctx->total_len - ctx->read_len, 0, blen);
+  ਜੇ(ctx->ਕੁੱਲ_len >= 0) {
+    blen = curlx_sotouz_range(ctx->ਕੁੱਲ_len - ctx->read_len, 0, blen);
   }
   nread = 0;
-  if(ctx->read_cb && blen) {
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_cr_in_read);
-    nread = ctx->read_cb(buf, 1, blen, ctx->cb_user_data);
-    CURL_CBAPI_END(&guard);
-    ctx->has_used_cb = TRUE;
+  ਜੇ(ctx->read_cb && blen) {
+    ਬਣਤਰ Curl_mapi_guard guard;
+    CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_cr_ਵਿੱਚ_read);
+    nread = ctx->read_cb(buf, 1, blen, ctx->cb_user_ਅੰਕੜੇ);
+    CURL_CBAPI_ਸਿਰਾ(&guard);
+    ctx->has_ਵਰਤਿਆ_cb = TRUE;
   }
 
-  switch(nread) {
-  case 0:
-    if((ctx->total_len >= 0) && (ctx->read_len < ctx->total_len)) {
-      failf(data, "client read function EOF fail, "
+  ਚੋਣ(nread) {
+  ਹਾਲਤ 0:
+    ਜੇ((ctx->ਕੁੱਲ_len >= 0) && (ctx->read_len < ctx->ਕੁੱਲ_len)) {
+      failf(ਅੰਕੜੇ, "client read function EOF fail, "
             "only %" FMT_OFF_T "/%" FMT_OFF_T " of needed bytes read",
-            ctx->read_len, ctx->total_len);
-      result = CURLE_READ_ERROR;
-      break;
+            ctx->read_len, ctx->ਕੁੱਲ_len);
+      ਨਤੀਜਾ = CURLE_READ_ERROR;
+      ਰੋਕੋ;
     }
     *pnread = 0;
     *peos = TRUE;
-    ctx->seen_eos = TRUE;
-    break;
+    ctx->ਵੇਖਿਆ_eos = TRUE;
+    ਰੋਕੋ;
 
-  case CURL_READFUNC_ABORT:
-    failf(data, "operation aborted by callback");
+  ਹਾਲਤ CURL_READFUNC_ABORT:
+    failf(ਅੰਕੜੇ, "operation aborted by callback");
     *pnread = 0;
     *peos = FALSE;
     ctx->errored = TRUE;
-    ctx->error_result = CURLE_ABORTED_BY_CALLBACK;
-    result = CURLE_ABORTED_BY_CALLBACK;
-    break;
+    ctx->error_ਨਤੀਜਾ = CURLE_ABORTED_BY_CALLBACK;
+    ਨਤੀਜਾ = CURLE_ABORTED_BY_CALLBACK;
+    ਰੋਕੋ;
 
-  case CURL_READFUNC_PAUSE:
-    if(data->conn->scheme->flags & PROTOPT_NONETWORK) {
+  ਹਾਲਤ CURL_READFUNC_PAUSE:
+    ਜੇ(ਅੰਕੜੇ->conn->scheme->flags & PROTOPT_NONETWORK) {
       /* protocols that work without network cannot be paused. This is
          actually only file:// now, and it cannot pause since the transfer
          is not done using the "normal" procedure. */
-      failf(data, "Read callback asked for PAUSE when not supported");
-      result = CURLE_READ_ERROR;
-      break;
+      failf(ਅੰਕੜੇ, "Read callback asked for PAUSE when not supported");
+      ਨਤੀਜਾ = CURLE_READ_ERROR;
+      ਰੋਕੋ;
     }
     /* CURL_READFUNC_PAUSE pauses read callbacks that feed socket writes */
-    CURL_TRC_READ(data, "cr_in_read, callback returned CURL_READFUNC_PAUSE");
+    CURL_TRC_READ(ਅੰਕੜੇ, "cr_in_read, callback returned CURL_READFUNC_PAUSE");
     ctx->is_paused = TRUE;
     *pnread = 0;
     *peos = FALSE;
-    result = Curl_xfer_pause_send(data, TRUE);
-    break; /* nothing was read */
+    ਨਤੀਜਾ = Curl_xfer_pause_send(ਅੰਕੜੇ, TRUE);
+    ਰੋਕੋ; /* nothing was read */
 
-  default:
-    if(nread > blen) {
+  ਮੂਲ:
+    ਜੇ(nread > blen) {
       /* the read function returned a too large value */
-      failf(data, "read function returned funny value");
+      failf(ਅੰਕੜੇ, "read function returned funny value");
       *pnread = 0;
       *peos = FALSE;
       ctx->errored = TRUE;
-      ctx->error_result = CURLE_READ_ERROR;
-      result = CURLE_READ_ERROR;
-      break;
+      ctx->error_ਨਤੀਜਾ = CURLE_READ_ERROR;
+      ਨਤੀਜਾ = CURLE_READ_ERROR;
+      ਰੋਕੋ;
     }
     ctx->read_len += nread;
-    if(ctx->total_len >= 0)
-      ctx->seen_eos = (ctx->read_len >= ctx->total_len);
+    ਜੇ(ctx->ਕੁੱਲ_len >= 0)
+      ctx->ਵੇਖਿਆ_eos = (ctx->read_len >= ctx->ਕੁੱਲ_len);
     *pnread = nread;
-    *peos = (bool)ctx->seen_eos;
-    break;
+    *peos = (bool)ctx->ਵੇਖਿਆ_eos;
+    ਰੋਕੋ;
   }
-  CURL_TRC_READ(data, "cr_in_read(len=%zu, total=%" FMT_OFF_T
+  CURL_TRC_READ(ਅੰਕੜੇ, "cr_in_read(len=%zu, total=%" FMT_OFF_T
                 ", read=%" FMT_OFF_T ") -> %d, nread=%zu, eos=%d",
-                blen, ctx->total_len, ctx->read_len, (int)result,
+                blen, ctx->ਕੁੱਲ_len, ctx->read_len, (ਪੂਰਨ)ਨਤੀਜਾ,
                 *pnread, *peos);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static bool cr_in_needs_rewind(struct Curl_easy *data,
-                               struct Curl_creader *reader)
+ਸਥਿਰ bool cr_ਵਿੱਚ_needs_rewind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  (void)data;
-  return (bool)ctx->has_used_cb;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx = reader->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਵਾਪਸ (bool)ctx->has_ਵਰਤਿਆ_cb;
 }
 
-static curl_off_t cr_in_total_length(struct Curl_easy *data,
-                                     struct Curl_creader *reader)
+ਸਥਿਰ curl_off_t cr_ਵਿੱਚ_ਕੁੱਲ_ਲੰਮਾਈ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->total_len;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx = reader->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਵਾਪਸ ctx->ਕੁੱਲ_len;
 }
 
-static CURLcode cr_in_resume_from(struct Curl_easy *data,
-                                  struct Curl_creader *reader,
-                                  curl_off_t offset)
+ਸਥਿਰ CURLcode cr_ਵਿੱਚ_resume_from(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ Curl_creader *reader,
+                                  curl_off_t ਵਿੱਥ)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  int seekerr = CURL_SEEKFUNC_CANTSEEK;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx = reader->ctx;
+  ਪੂਰਨ seekerr = CURL_SEEKFUNC_CANTSEEK;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
   /* already started reading? */
-  if(ctx->read_len)
-    return CURLE_READ_ERROR;
+  ਜੇ(ctx->read_len)
+    ਵਾਪਸ CURLE_READ_ERROR;
 
-  if(data->set.seek_func) {
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_seek_func);
-    seekerr = data->set.seek_func(data->set.seek_client, offset, SEEK_SET);
-    CURL_CBAPI_END(&guard);
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.seek_func) {
+    ਬਣਤਰ Curl_mapi_guard guard;
+    CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_seek_func);
+    seekerr = ਅੰਕੜੇ->ਸੈੱਟ.seek_func(ਅੰਕੜੇ->ਸੈੱਟ.seek_client, ਵਿੱਥ, SEEK_SET);
+    CURL_CBAPI_ਸਿਰਾ(&guard);
   }
 
-  if(seekerr != CURL_SEEKFUNC_OK) {
+  ਜੇ(seekerr != CURL_SEEKFUNC_OK) {
     curl_off_t passed = 0;
 
-    if(seekerr != CURL_SEEKFUNC_CANTSEEK) {
-      failf(data, "Could not seek stream");
-      return CURLE_READ_ERROR;
+    ਜੇ(seekerr != CURL_SEEKFUNC_CANTSEEK) {
+      failf(ਅੰਕੜੇ, "Could not seek stream");
+      ਵਾਪਸ CURLE_READ_ERROR;
     }
     /* when seekerr == CURL_SEEKFUNC_CANTSEEK (cannot seek to offset) */
-    do {
-      struct Curl_mapi_guard guard;
-      char scratch[4 * 1024];
+    ਕਰੋ {
+      ਬਣਤਰ Curl_mapi_guard guard;
+      ਅੱਖਰ scratch[4 * 1024];
       size_t readthisamountnow =
-        (offset - passed > (curl_off_t)sizeof(scratch)) ?
-        sizeof(scratch) :
-        curlx_sotouz(offset - passed);
+        (ਵਿੱਥ - passed > (curl_off_t)ਆਕਾਰ(scratch)) ?
+        ਆਕਾਰ(scratch) :
+        curlx_sotouz(ਵਿੱਥ - passed);
       size_t actuallyread;
 
-      CURL_CBAPI_START(&guard, data, easy_cr_in_resume_from);
+      CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_cr_ਵਿੱਚ_resume_from);
       actuallyread = ctx->read_cb(scratch, 1, readthisamountnow,
-                                  ctx->cb_user_data);
-      CURL_CBAPI_END(&guard);
+                                  ctx->cb_user_ਅੰਕੜੇ);
+      CURL_CBAPI_ਸਿਰਾ(&guard);
 
       passed += actuallyread;
-      if((actuallyread == 0) || (actuallyread > readthisamountnow)) {
+      ਜੇ((actuallyread == 0) || (actuallyread > readthisamountnow)) {
         /* this checks for greater-than only to make sure that the
            CURL_READFUNC_ABORT return code still aborts */
-        failf(data, "Could only read %" FMT_OFF_T " bytes from the input",
+        failf(ਅੰਕੜੇ, "Could only read %" FMT_OFF_T " bytes from the input",
               passed);
-        return CURLE_READ_ERROR;
+        ਵਾਪਸ CURLE_READ_ERROR;
       }
-    } while(passed < offset);
+    } ਜਦੋਂ(passed < ਵਿੱਥ);
   }
 
   /* now, decrease the size of the read */
-  if(ctx->total_len > 0) {
-    ctx->total_len -= offset;
+  ਜੇ(ctx->ਕੁੱਲ_len > 0) {
+    ctx->ਕੁੱਲ_len -= ਵਿੱਥ;
 
-    if(ctx->total_len <= 0) {
-      failf(data, "File already completely uploaded");
-      return CURLE_PARTIAL_FILE;
+    ਜੇ(ctx->ਕੁੱਲ_len <= 0) {
+      failf(ਅੰਕੜੇ, "File already completely uploaded");
+      ਵਾਪਸ CURLE_PARTIAL_FILE;
     }
   }
   /* we have passed, proceed as normal */
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode cr_in_rewind(struct Curl_easy *data,
-                             struct Curl_creader *reader)
+ਸਥਿਰ CURLcode cr_ਵਿੱਚ_rewind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx = reader->ctx;
 
   /* If we never invoked the callback, there is noting to rewind */
-  if(!ctx->has_used_cb)
-    return CURLE_OK;
+  ਜੇ(!ctx->has_ਵਰਤਿਆ_cb)
+    ਵਾਪਸ CURLE_OK;
 
-  if(data->set.seek_func) {
-    struct Curl_mapi_guard guard;
-    int err;
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.seek_func) {
+    ਬਣਤਰ Curl_mapi_guard guard;
+    ਪੂਰਨ err;
 
-    CURL_CBAPI_START(&guard, data, easy_seek_func);
-    err = data->set.seek_func(data->set.seek_client, 0, SEEK_SET);
-    CURL_CBAPI_END(&guard);
-    CURL_TRC_READ(data, "cr_in, rewind via set.seek_func -> %d", err);
-    if(err) {
-      failf(data, "seek callback returned error %d", err);
-      return CURLE_SEND_FAIL_REWIND;
+    CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_seek_func);
+    err = ਅੰਕੜੇ->ਸੈੱਟ.seek_func(ਅੰਕੜੇ->ਸੈੱਟ.seek_client, 0, SEEK_SET);
+    CURL_CBAPI_ਸਿਰਾ(&guard);
+    CURL_TRC_READ(ਅੰਕੜੇ, "cr_in, rewind via set.seek_func -> %d", err);
+    ਜੇ(err) {
+      failf(ਅੰਕੜੇ, "seek callback returned error %d", err);
+      ਵਾਪਸ CURLE_SEND_FAIL_REWIND;
     }
   }
-  else if(data->set.ioctl_func) {
-    struct Curl_mapi_guard guard;
+  ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.ioctl_func) {
+    ਬਣਤਰ Curl_mapi_guard guard;
     curlioerr err;
 
-    CURL_CBAPI_START(&guard, data, easy_ioctl_func);
-    err = data->set.ioctl_func(data, CURLIOCMD_RESTARTREAD,
-                               data->set.ioctl_client);
-    CURL_CBAPI_END(&guard);
-    CURL_TRC_READ(data, "cr_in, rewind via set.ioctl_func -> %d", (int)err);
-    if(err) {
-      failf(data, "ioctl callback returned error %d", (int)err);
-      return CURLE_SEND_FAIL_REWIND;
+    CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_ioctl_func);
+    err = ਅੰਕੜੇ->ਸੈੱਟ.ioctl_func(ਅੰਕੜੇ, CURLIOCMD_RESTARTREAD,
+                               ਅੰਕੜੇ->ਸੈੱਟ.ioctl_client);
+    CURL_CBAPI_ਸਿਰਾ(&guard);
+    CURL_TRC_READ(ਅੰਕੜੇ, "cr_in, rewind via set.ioctl_func -> %d", (ਪੂਰਨ)err);
+    ਜੇ(err) {
+      failf(ਅੰਕੜੇ, "ioctl callback returned error %d", (ਪੂਰਨ)err);
+      ਵਾਪਸ CURLE_SEND_FAIL_REWIND;
     }
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* If no CURLOPT_READFUNCTION is used, we know that we operate on a
        given FILE * stream and we can actually attempt to rewind that
        ourselves with fseek() */
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
-    if(data->state.fread_func == (curl_read_callback)fread) {
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
-      int err = fseek(data->state.in, 0, SEEK_SET);
-      CURL_TRC_READ(data, "cr_in, rewind via fseek -> %d(%d)",
-                    (int)err, (int)errno);
-      if(err != -1)
+#ਜੇ defined(__clang__) && __clang_major__ >= 16
+#ਹਦਾਇਤ clang diagnostic ਧੱਕੋ
+#ਹਦਾਇਤ clang diagnostic ignored "-Wcast-function-type-strict"
+#ਜੇ_ਅੰਤ
+    ਜੇ(ਅੰਕੜੇ->state.fread_func == (curl_read_callback)fread) {
+#ਜੇ defined(__clang__) && __clang_major__ >= 16
+#ਹਦਾਇਤ clang diagnostic ਕੱਢੋ
+#ਜੇ_ਅੰਤ
+      ਪੂਰਨ err = fseek(ਅੰਕੜੇ->state.ਵਿੱਚ, 0, SEEK_SET);
+      CURL_TRC_READ(ਅੰਕੜੇ, "cr_in, rewind via fseek -> %d(%d)",
+                    (ਪੂਰਨ)err, (ਪੂਰਨ)errno);
+      ਜੇ(err != -1)
         /* successful rewind */
-        return CURLE_OK;
+        ਵਾਪਸ CURLE_OK;
     }
 
     /* no callback set or failure above, makes us fail at once */
-    failf(data, "necessary data rewind was not possible");
-    return CURLE_SEND_FAIL_REWIND;
+    failf(ਅੰਕੜੇ, "necessary data rewind was not possible");
+    ਵਾਪਸ CURLE_SEND_FAIL_REWIND;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode cr_in_cntrl(struct Curl_easy *data,
-                            struct Curl_creader *reader,
+ਸਥਿਰ CURLcode cr_ਵਿੱਚ_cntrl(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_creader *reader,
                             Curl_creader_cntrl opcode)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx = reader->ctx;
 
-  switch(opcode) {
-  case CURL_CRCNTRL_REWIND:
-    return cr_in_rewind(data, reader);
-  case CURL_CRCNTRL_UNPAUSE:
+  ਚੋਣ(opcode) {
+  ਹਾਲਤ CURL_CRCNTRL_REWIND:
+    ਵਾਪਸ cr_ਵਿੱਚ_rewind(ਅੰਕੜੇ, reader);
+  ਹਾਲਤ CURL_CRCNTRL_UNPAUSE:
     ctx->is_paused = FALSE;
-    break;
-  case CURL_CRCNTRL_CLEAR_EOS:
-    ctx->seen_eos = FALSE;
-    break;
-  default:
-    break;
+    ਰੋਕੋ;
+  ਹਾਲਤ CURL_CRCNTRL_CLEAR_EOS:
+    ctx->ਵੇਖਿਆ_eos = FALSE;
+    ਰੋਕੋ;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static bool cr_in_is_paused(struct Curl_easy *data,
-                            struct Curl_creader *reader)
+ਸਥਿਰ bool cr_ਵਿੱਚ_is_paused(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_in_ctx *ctx = reader->ctx;
-  (void)data;
-  return (bool)ctx->is_paused;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx = reader->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਵਾਪਸ (bool)ctx->is_paused;
 }
 
-static const struct Curl_crtype cr_in = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_crtype cr_ਵਿੱਚ = {
   "cr-in",
-  cr_in_init,
-  cr_in_read,
+  cr_ਵਿੱਚ_init,
+  cr_ਵਿੱਚ_read,
   Curl_creader_def_close,
-  cr_in_needs_rewind,
-  cr_in_total_length,
-  cr_in_resume_from,
-  cr_in_cntrl,
-  cr_in_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_in_ctx)
+  cr_ਵਿੱਚ_needs_rewind,
+  cr_ਵਿੱਚ_ਕੁੱਲ_ਲੰਮਾਈ,
+  cr_ਵਿੱਚ_resume_from,
+  cr_ਵਿੱਚ_cntrl,
+  cr_ਵਿੱਚ_is_paused,
+  Curl_creader_def_ਪੂਰਾ,
+  ਆਕਾਰ(ਬਣਤਰ cr_ਵਿੱਚ_ctx)
 };
 
-CURLcode Curl_creader_create(struct Curl_creader **preader,
-                             struct Curl_easy *data,
-                             const struct Curl_crtype *crt,
+CURLcode Curl_creader_create(ਬਣਤਰ Curl_creader **preader,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਅਚਲ ਬਣਤਰ Curl_crtype *crt,
                              Curl_creader_phase phase)
 {
-  struct Curl_creader *reader = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  void *p;
+  ਬਣਤਰ Curl_creader *reader = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਖਾਲੀ *p;
 
-  DEBUGASSERT(crt->creader_size >= sizeof(struct Curl_creader));
-  p = curlx_calloc(1, crt->creader_size);
-  if(!p)
-    goto out;
+  DEBUGASSERT(crt->creader_ਮਾਪ >= ਆਕਾਰ(ਬਣਤਰ Curl_creader));
+  p = curlx_calloc(1, crt->creader_ਮਾਪ);
+  ਜੇ(!p)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  reader = (struct Curl_creader *)p;
+  reader = (ਬਣਤਰ Curl_creader *)p;
   reader->crt = crt;
   reader->ctx = p;
   reader->phase = phase;
-  result = crt->do_init(data, reader);
+  ਨਤੀਜਾ = crt->do_init(ਅੰਕੜੇ, reader);
 
-out:
-  *preader = result ? NULL : reader;
-  if(result)
+ਬਾਹਰਲਾ:
+  *preader = ਨਤੀਜਾ ? ਨਿਰਾ : reader;
+  ਜੇ(ਨਤੀਜਾ)
     curlx_free(reader);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_creader_free(struct Curl_easy *data, struct Curl_creader *reader)
+ਖਾਲੀ Curl_creader_free(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ Curl_creader *reader)
 {
-  if(reader) {
-    reader->crt->do_close(data, reader);
+  ਜੇ(reader) {
+    reader->crt->do_close(ਅੰਕੜੇ, reader);
     curlx_free(reader);
   }
 }
 
-struct cr_lc_ctx {
-  struct Curl_creader super;
-  struct bufq buf;
-  BIT(read_eos);  /* we read an EOS from the next reader */
-  BIT(eos);       /* we have returned an EOS */
-  BIT(prev_cr);   /* the last byte was a CR */
+ਬਣਤਰ cr_lc_ctx {
+  ਬਣਤਰ Curl_creader super;
+  ਬਣਤਰ bufq buf;
+  ਦੋਆਧਾਰੀ_ਅੰਕ(read_eos);  /* we read an EOS from the next reader */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(eos);       /* we have returned an EOS */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(prev_cr);   /* the last byte was a CR */
 };
 
-static CURLcode cr_lc_init(struct Curl_easy *data, struct Curl_creader *reader)
+ਸਥਿਰ CURLcode cr_lc_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_lc_ctx *ctx = reader->ctx;
-  (void)data;
-  Curl_bufq_init2(&ctx->buf, (16 * 1024), 1, BUFQ_OPT_SOFT_LIMIT);
-  return CURLE_OK;
+  ਬਣਤਰ cr_lc_ctx *ctx = reader->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  Curl_bufq_init2(&ctx->buf, (16 * 1024), 1, BUFQ_OPT_SOFT_ਹੱਦਬੰਦੀ);
+  ਵਾਪਸ CURLE_OK;
 }
 
-static void cr_lc_close(struct Curl_easy *data, struct Curl_creader *reader)
+ਸਥਿਰ ਖਾਲੀ cr_lc_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_lc_ctx *ctx = reader->ctx;
-  (void)data;
+  ਬਣਤਰ cr_lc_ctx *ctx = reader->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
   Curl_bufq_free(&ctx->buf);
 }
 
 /* client reader doing line end conversions. */
-static CURLcode cr_lc_read(struct Curl_easy *data,
-                           struct Curl_creader *reader,
-                           char *buf, size_t blen,
+ਸਥਿਰ CURLcode cr_lc_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ Curl_creader *reader,
+                           ਅੱਖਰ *buf, size_t blen,
                            size_t *pnread, bool *peos)
 {
-  struct cr_lc_ctx *ctx = reader->ctx;
-  CURLcode result;
-  size_t nread, i, start, n;
+  ਬਣਤਰ cr_lc_ctx *ctx = reader->ctx;
+  CURLcode ਨਤੀਜਾ;
+  size_t nread, i, ਸ਼ੁਰੂ, n;
   bool eos;
 
-  if(ctx->eos) {
+  ਜੇ(ctx->eos) {
     *pnread = 0;
     *peos = TRUE;
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  if(Curl_bufq_is_empty(&ctx->buf)) {
-    if(ctx->read_eos) {
+  ਜੇ(Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ctx->buf)) {
+    ਜੇ(ctx->read_eos) {
       ctx->eos = TRUE;
       *pnread = 0;
       *peos = TRUE;
-      return CURLE_OK;
+      ਵਾਪਸ CURLE_OK;
     }
     /* Still getting data form the next reader, ctx->buf is empty */
-    result = Curl_creader_read(data, reader->next, buf, blen, &nread, &eos);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = Curl_creader_read(ਅੰਕੜੇ, reader->ਅਗਲਾ, buf, blen, &nread, &eos);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
     ctx->read_eos = eos;
 
-    if(!nread || !memchr(buf, '\n', nread)) {
+    ਜੇ(!nread || !memchr(buf, '\n', nread)) {
       /* nothing to convert, return this right away */
-      if(nread)
+      ਜੇ(nread)
         ctx->prev_cr = (buf[nread - 1] == '\r');
-      if(ctx->read_eos)
+      ਜੇ(ctx->read_eos)
         ctx->eos = TRUE;
       *pnread = nread;
       *peos = (bool)ctx->eos;
-      goto out;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
     /* at least one \n might need conversion to '\r\n', place into ctx->buf */
-    for(i = start = 0; i < nread; ++i) {
+    ਲਈ(i = ਸ਼ੁਰੂ = 0; i < nread; ++i) {
       /* if this byte is not an LF character, or if the preceding character is
          a CR (meaning this already is a CRLF pair), go to next */
-      if((buf[i] != '\n') || ctx->prev_cr) {
+      ਜੇ((buf[i] != '\n') || ctx->prev_cr) {
         ctx->prev_cr = (buf[i] == '\r');
-        continue;
+        ਜਾਰੀ;
       }
       ctx->prev_cr = FALSE;
       /* on a soft limit bufq, we do not need to check length */
-      result = Curl_bufq_cwrite(&ctx->buf, buf + start, i - start, &n);
-      if(!result)
-        result = Curl_bufq_cwrite(&ctx->buf, STRCONST("\r\n"), &n);
-      if(result)
-        return result;
-      start = i + 1;
+      ਨਤੀਜਾ = Curl_bufq_cwrite(&ctx->buf, buf + ਸ਼ੁਰੂ, i - ਸ਼ੁਰੂ, &n);
+      ਜੇ(!ਨਤੀਜਾ)
+        ਨਤੀਜਾ = Curl_bufq_cwrite(&ctx->buf, STRCONST("\r\n"), &n);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      ਸ਼ੁਰੂ = i + 1;
     }
 
-    if(start < i) { /* leftover */
-      result = Curl_bufq_cwrite(&ctx->buf, buf + start, i - start, &n);
-      if(result)
-        return result;
+    ਜੇ(ਸ਼ੁਰੂ < i) { /* leftover */
+      ਨਤੀਜਾ = Curl_bufq_cwrite(&ctx->buf, buf + ਸ਼ੁਰੂ, i - ਸ਼ੁਰੂ, &n);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
   }
 
-  DEBUGASSERT(!Curl_bufq_is_empty(&ctx->buf));
+  DEBUGASSERT(!Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ctx->buf));
   *peos = FALSE;
-  result = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
-  if(!result && ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
+  ਨਤੀਜਾ = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
+  ਜੇ(!ਨਤੀਜਾ && ctx->read_eos && Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ctx->buf)) {
     /* no more data, read all, done. */
     ctx->eos = TRUE;
     *peos = TRUE;
   }
 
-out:
-  CURL_TRC_READ(data, "cr_lc_read(len=%zu) -> %d, nread=%zu, eos=%d",
-                blen, (int)result, *pnread, *peos);
-  return result;
+ਬਾਹਰਲਾ:
+  CURL_TRC_READ(ਅੰਕੜੇ, "cr_lc_read(len=%zu) -> %d, nread=%zu, eos=%d",
+                blen, (ਪੂਰਨ)ਨਤੀਜਾ, *pnread, *peos);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static curl_off_t cr_lc_total_length(struct Curl_easy *data,
-                                     struct Curl_creader *reader)
+ਸਥਿਰ curl_off_t cr_lc_ਕੁੱਲ_ਲੰਮਾਈ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਬਣਤਰ Curl_creader *reader)
 {
   /* this reader changes length depending on input */
-  (void)data;
-  (void)reader;
-  return -1;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  ਵਾਪਸ -1;
 }
 
-static const struct Curl_crtype cr_lc = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_crtype cr_lc = {
   "cr-lineconv",
   cr_lc_init,
   cr_lc_read,
   cr_lc_close,
   Curl_creader_def_needs_rewind,
-  cr_lc_total_length,
+  cr_lc_ਕੁੱਲ_ਲੰਮਾਈ,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_lc_ctx)
+  Curl_creader_def_ਪੂਰਾ,
+  ਆਕਾਰ(ਬਣਤਰ cr_lc_ctx)
 };
 
-static CURLcode cr_lc_add(struct Curl_easy *data)
+ਸਥਿਰ CURLcode cr_lc_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *reader = NULL;
-  CURLcode result;
+  ਬਣਤਰ Curl_creader *reader = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  result = Curl_creader_create(&reader, data, &cr_lc, CURL_CR_CONTENT_ENCODE);
-  if(!result)
-    result = Curl_creader_add(data, reader);
+  ਨਤੀਜਾ = Curl_creader_create(&reader, ਅੰਕੜੇ, &cr_lc, CURL_CR_CONTENT_ENCODE);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = Curl_creader_ਜੋੜੋ(ਅੰਕੜੇ, reader);
 
-  if(result && reader)
-    Curl_creader_free(data, reader);
-  return result;
+  ਜੇ(ਨਤੀਜਾ && reader)
+    Curl_creader_free(ਅੰਕੜੇ, reader);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode do_init_reader_stack(struct Curl_easy *data,
-                                     struct Curl_creader *r)
+ਸਥਿਰ CURLcode do_init_reader_ਢੇਰ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਬਣਤਰ Curl_creader *r)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   curl_off_t clen;
 
   DEBUGASSERT(r);
   DEBUGASSERT(r->crt);
   DEBUGASSERT(r->phase == CURL_CR_CLIENT);
-  DEBUGASSERT(!data->req.reader.stack);
+  DEBUGASSERT(!ਅੰਕੜੇ->req.reader.ਢੇਰ);
 
-  data->req.reader.stack = r;
-  clen = r->crt->total_length(data, r);
+  ਅੰਕੜੇ->req.reader.ਢੇਰ = r;
+  clen = r->crt->ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ, r);
   /* if we do not have 0 length init, and CRLF conversion is wanted,
    * add the reader for it */
-  if(clen &&
-#ifdef CURL_PREFER_LF_LINEENDS
-    (data->set.crlf || data->state.prefer_ascii)
-#else
-    data->set.crlf
-#endif
+  ਜੇ(clen &&
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_PREFER_LF_LINEENDS
+    (ਅੰਕੜੇ->ਸੈੱਟ.crlf || ਅੰਕੜੇ->state.prefer_ascii)
+#ਨਹੀਂਤਾਂ
+    ਅੰਕੜੇ->ਸੈੱਟ.crlf
+#ਜੇ_ਅੰਤ
     ) {
-    result = cr_lc_add(data);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = cr_lc_ਜੋੜੋ(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_creader_set_fread(struct Curl_easy *data, curl_off_t len)
+CURLcode Curl_creader_ਸੈੱਟ_fread(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, curl_off_t len)
 {
-  CURLcode result;
-  struct Curl_creader *r;
-  struct cr_in_ctx *ctx;
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ Curl_creader *r;
+  ਬਣਤਰ cr_ਵਿੱਚ_ctx *ctx;
 
-  result = Curl_creader_create(&r, data, &cr_in, CURL_CR_CLIENT);
-  if(result || !r)
-    goto out;
+  ਨਤੀਜਾ = Curl_creader_create(&r, ਅੰਕੜੇ, &cr_ਵਿੱਚ, CURL_CR_CLIENT);
+  ਜੇ(ਨਤੀਜਾ || !r)
+    ਜਾਓ ਬਾਹਰਲਾ;
   ctx = r->ctx;
-  ctx->total_len = len;
+  ctx->ਕੁੱਲ_len = len;
 
-  cl_reset_reader(data);
-  result = do_init_reader_stack(data, r);
-out:
-  CURL_TRC_READ(data, "add fread reader, len=%" FMT_OFF_T " -> %d",
-                len, (int)result);
-  return result;
+  cl_reset_reader(ਅੰਕੜੇ);
+  ਨਤੀਜਾ = do_init_reader_ਢੇਰ(ਅੰਕੜੇ, r);
+ਬਾਹਰਲਾ:
+  CURL_TRC_READ(ਅੰਕੜੇ, "add fread reader, len=%" FMT_OFF_T " -> %d",
+                len, (ਪੂਰਨ)ਨਤੀਜਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_creader_add(struct Curl_easy *data,
-                          struct Curl_creader *reader)
+CURLcode Curl_creader_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਬਣਤਰ Curl_creader *reader)
 {
-  CURLcode result;
-  struct Curl_creader **anchor = &data->req.reader.stack;
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ Curl_creader **anchor = &ਅੰਕੜੇ->req.reader.ਢੇਰ;
 
-  if(!*anchor) {
-    result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      return result;
+  ਜੇ(!*anchor) {
+    ਨਤੀਜਾ = Curl_creader_ਸੈੱਟ_fread(ਅੰਕੜੇ, ਅੰਕੜੇ->state.infilesize);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
   /* Insert the writer as first in its phase.
    * Skip existing readers of lower phases. */
-  while(*anchor && (*anchor)->phase < reader->phase)
-    anchor = &(*anchor)->next;
-  reader->next = *anchor;
+  ਜਦੋਂ(*anchor && (*anchor)->phase < reader->phase)
+    anchor = &(*anchor)->ਅਗਲਾ;
+  reader->ਅਗਲਾ = *anchor;
   *anchor = reader;
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_creader_set(struct Curl_easy *data, struct Curl_creader *r)
+CURLcode Curl_creader_ਸੈੱਟ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ Curl_creader *r)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
   DEBUGASSERT(r);
   DEBUGASSERT(r->crt);
   DEBUGASSERT(r->phase == CURL_CR_CLIENT);
 
-  cl_reset_reader(data);
-  result = do_init_reader_stack(data, r);
-  if(result)
-    Curl_creader_free(data, r);
-  return result;
+  cl_reset_reader(ਅੰਕੜੇ);
+  ਨਤੀਜਾ = do_init_reader_ਢੇਰ(ਅੰਕੜੇ, r);
+  ਜੇ(ਨਤੀਜਾ)
+    Curl_creader_free(ਅੰਕੜੇ, r);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_client_read(struct Curl_easy *data, char *buf, size_t blen,
+CURLcode Curl_client_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅੱਖਰ *buf, size_t blen,
                           size_t *nread, bool *eos)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
   DEBUGASSERT(buf);
   DEBUGASSERT(blen);
@@ -1216,279 +1216,279 @@ CURLcode Curl_client_read(struct Curl_easy *data, char *buf, size_t blen,
   DEBUGASSERT(eos);
   *nread = 0;
 
-  if(!data->req.reader.stack) {
-    result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      return result;
-    DEBUGASSERT(data->req.reader.stack);
+  ਜੇ(!ਅੰਕੜੇ->req.reader.ਢੇਰ) {
+    ਨਤੀਜਾ = Curl_creader_ਸੈੱਟ_fread(ਅੰਕੜੇ, ਅੰਕੜੇ->state.infilesize);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    DEBUGASSERT(ਅੰਕੜੇ->req.reader.ਢੇਰ);
   }
-  if(!data->req.reader_started) {
-    Curl_rlimit_start(&data->progress.ul.rlimit, Curl_pgrs_now(data), -1);
-    data->req.reader_started = TRUE;
+  ਜੇ(!ਅੰਕੜੇ->req.reader_started) {
+    Curl_rlimit_ਸ਼ੁਰੂ(&ਅੰਕੜੇ->ਤਰੱਕੀ.ul.rlimit, Curl_pgrs_now(ਅੰਕੜੇ), -1);
+    ਅੰਕੜੇ->req.reader_started = TRUE;
   }
 
-  if(Curl_rlimit_active(&data->progress.ul.rlimit)) {
-    curl_off_t ul_avail = Curl_rlimit_avail(&data->progress.ul.rlimit, NULL);
-    if(ul_avail <= 0) {
-      result = CURLE_OK;
+  ਜੇ(Curl_rlimit_ਸਰਗਰਮ(&ਅੰਕੜੇ->ਤਰੱਕੀ.ul.rlimit)) {
+    curl_off_t ul_avail = Curl_rlimit_avail(&ਅੰਕੜੇ->ਤਰੱਕੀ.ul.rlimit, ਨਿਰਾ);
+    ਜੇ(ul_avail <= 0) {
+      ਨਤੀਜਾ = CURLE_OK;
       *eos = FALSE;
-      goto out;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    if(ul_avail < (curl_off_t)blen)
+    ਜੇ(ul_avail < (curl_off_t)blen)
       blen = (size_t)ul_avail;
   }
-  result = Curl_creader_read(data, data->req.reader.stack, buf, blen,
+  ਨਤੀਜਾ = Curl_creader_read(ਅੰਕੜੇ, ਅੰਕੜੇ->req.reader.ਢੇਰ, buf, blen,
                              nread, eos);
 
-out:
-  CURL_TRC_READ(data, "client_read(len=%zu) -> %d, nread=%zu, eos=%d",
-                blen, (int)result, *nread, *eos);
-  return result;
+ਬਾਹਰਲਾ:
+  CURL_TRC_READ(ਅੰਕੜੇ, "client_read(len=%zu) -> %d, nread=%zu, eos=%d",
+                blen, (ਪੂਰਨ)ਨਤੀਜਾ, *nread, *eos);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-bool Curl_creader_needs_rewind(struct Curl_easy *data)
+bool Curl_creader_needs_rewind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
-  while(reader) {
-    if(reader->crt->needs_rewind(data, reader)) {
-      CURL_TRC_READ(data, "client reader needs rewind before next request");
-      return TRUE;
+  ਬਣਤਰ Curl_creader *reader = ਅੰਕੜੇ->req.reader.ਢੇਰ;
+  ਜਦੋਂ(reader) {
+    ਜੇ(reader->crt->needs_rewind(ਅੰਕੜੇ, reader)) {
+      CURL_TRC_READ(ਅੰਕੜੇ, "client reader needs rewind before next request");
+      ਵਾਪਸ TRUE;
     }
-    reader = reader->next;
+    reader = reader->ਅਗਲਾ;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-static CURLcode cr_null_read(struct Curl_easy *data,
-                             struct Curl_creader *reader,
-                             char *buf, size_t blen,
+ਸਥਿਰ CURLcode cr_null_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ Curl_creader *reader,
+                             ਅੱਖਰ *buf, size_t blen,
                              size_t *pnread, bool *peos)
 {
-  (void)data;
-  (void)reader;
-  (void)buf;
-  (void)blen;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  (ਖਾਲੀ)buf;
+  (ਖਾਲੀ)blen;
   *pnread = 0;
   *peos = TRUE;
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static curl_off_t cr_null_total_length(struct Curl_easy *data,
-                                       struct Curl_creader *reader)
+ਸਥਿਰ curl_off_t cr_null_ਕੁੱਲ_ਲੰਮਾਈ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       ਬਣਤਰ Curl_creader *reader)
 {
   /* this reader changes length depending on input */
-  (void)data;
-  (void)reader;
-  return 0;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)reader;
+  ਵਾਪਸ 0;
 }
 
-static const struct Curl_crtype cr_null = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_crtype cr_null = {
   "cr-null",
   Curl_creader_def_init,
   cr_null_read,
   Curl_creader_def_close,
   Curl_creader_def_needs_rewind,
-  cr_null_total_length,
+  cr_null_ਕੁੱਲ_ਲੰਮਾਈ,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct Curl_creader)
+  Curl_creader_def_ਪੂਰਾ,
+  ਆਕਾਰ(ਬਣਤਰ Curl_creader)
 };
 
-CURLcode Curl_creader_set_null(struct Curl_easy *data)
+CURLcode Curl_creader_ਸੈੱਟ_null(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *r;
-  CURLcode result;
+  ਬਣਤਰ Curl_creader *r;
+  CURLcode ਨਤੀਜਾ;
 
-  result = Curl_creader_create(&r, data, &cr_null, CURL_CR_CLIENT);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_creader_create(&r, ਅੰਕੜੇ, &cr_null, CURL_CR_CLIENT);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  cl_reset_reader(data);
-  return do_init_reader_stack(data, r);
+  cl_reset_reader(ਅੰਕੜੇ);
+  ਵਾਪਸ do_init_reader_ਢੇਰ(ਅੰਕੜੇ, r);
 }
 
-struct cr_buf_ctx {
-  struct Curl_creader super;
-  const char *buf;
+ਬਣਤਰ cr_buf_ctx {
+  ਬਣਤਰ Curl_creader super;
+  ਅਚਲ ਅੱਖਰ *buf;
   size_t blen;
-  size_t index;
+  size_t ਸੂਚਕਾਂਕ;
 };
 
-static CURLcode cr_buf_read(struct Curl_easy *data,
-                            struct Curl_creader *reader,
-                            char *buf, size_t blen,
+ਸਥਿਰ CURLcode cr_buf_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_creader *reader,
+                            ਅੱਖਰ *buf, size_t blen,
                             size_t *pnread, bool *peos)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
-  size_t nread = ctx->blen - ctx->index;
+  ਬਣਤਰ cr_buf_ctx *ctx = reader->ctx;
+  size_t nread = ctx->blen - ctx->ਸੂਚਕਾਂਕ;
 
-  if(!nread || !ctx->buf) {
+  ਜੇ(!nread || !ctx->buf) {
     *pnread = 0;
     *peos = TRUE;
   }
-  else {
-    if(nread > blen)
+  ਨਹੀਂਤਾਂ {
+    ਜੇ(nread > blen)
       nread = blen;
-    memcpy(buf, ctx->buf + ctx->index, nread);
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(buf, ctx->buf + ctx->ਸੂਚਕਾਂਕ, nread);
     *pnread = nread;
-    ctx->index += nread;
-    *peos = (ctx->index == ctx->blen);
+    ctx->ਸੂਚਕਾਂਕ += nread;
+    *peos = (ctx->ਸੂਚਕਾਂਕ == ctx->blen);
   }
-  CURL_TRC_READ(data, "cr_buf_read(len=%zu) -> 0, nread=%zu, eos=%d",
+  CURL_TRC_READ(ਅੰਕੜੇ, "cr_buf_read(len=%zu) -> 0, nread=%zu, eos=%d",
                 blen, *pnread, *peos);
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static bool cr_buf_needs_rewind(struct Curl_easy *data,
-                                struct Curl_creader *reader)
+ਸਥਿਰ bool cr_buf_needs_rewind(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->index > 0;
+  ਬਣਤਰ cr_buf_ctx *ctx = reader->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਵਾਪਸ ctx->ਸੂਚਕਾਂਕ > 0;
 }
 
-static CURLcode cr_buf_cntrl(struct Curl_easy *data,
-                             struct Curl_creader *reader,
+ਸਥਿਰ CURLcode cr_buf_cntrl(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ Curl_creader *reader,
                              Curl_creader_cntrl opcode)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
-  (void)data;
-  switch(opcode) {
-  case CURL_CRCNTRL_REWIND:
-    ctx->index = 0;
-    break;
-  default:
-    break;
+  ਬਣਤਰ cr_buf_ctx *ctx = reader->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਚੋਣ(opcode) {
+  ਹਾਲਤ CURL_CRCNTRL_REWIND:
+    ctx->ਸੂਚਕਾਂਕ = 0;
+    ਰੋਕੋ;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static curl_off_t cr_buf_total_length(struct Curl_easy *data,
-                                      struct Curl_creader *reader)
+ਸਥਿਰ curl_off_t cr_buf_ਕੁੱਲ_ਲੰਮਾਈ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਬਣਤਰ Curl_creader *reader)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
-  (void)data;
-  return (curl_off_t)ctx->blen;
+  ਬਣਤਰ cr_buf_ctx *ctx = reader->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਵਾਪਸ (curl_off_t)ctx->blen;
 }
 
-static CURLcode cr_buf_resume_from(struct Curl_easy *data,
-                                   struct Curl_creader *reader,
-                                   curl_off_t offset)
+ਸਥਿਰ CURLcode cr_buf_resume_from(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਬਣਤਰ Curl_creader *reader,
+                                   curl_off_t ਵਿੱਥ)
 {
-  struct cr_buf_ctx *ctx = reader->ctx;
+  ਬਣਤਰ cr_buf_ctx *ctx = reader->ctx;
   size_t boffset;
 
-  (void)data;
-  DEBUGASSERT(data->conn);
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
   /* already started reading? */
-  if(ctx->index)
-    return CURLE_READ_ERROR;
-  boffset = curlx_sotouz_range(offset, 0, SIZE_MAX);
-  if(!boffset)
-    return CURLE_OK;
-  if(boffset > ctx->blen)
-    return CURLE_READ_ERROR;
+  ਜੇ(ctx->ਸੂਚਕਾਂਕ)
+    ਵਾਪਸ CURLE_READ_ERROR;
+  boffset = curlx_sotouz_range(ਵਿੱਥ, 0, SIZE_MAX);
+  ਜੇ(!boffset)
+    ਵਾਪਸ CURLE_OK;
+  ਜੇ(boffset > ctx->blen)
+    ਵਾਪਸ CURLE_READ_ERROR;
 
   ctx->buf += boffset;
   ctx->blen -= boffset;
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static const struct Curl_crtype cr_buf = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_crtype cr_buf = {
   "cr-buf",
   Curl_creader_def_init,
   cr_buf_read,
   Curl_creader_def_close,
   cr_buf_needs_rewind,
-  cr_buf_total_length,
+  cr_buf_ਕੁੱਲ_ਲੰਮਾਈ,
   cr_buf_resume_from,
   cr_buf_cntrl,
   Curl_creader_def_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_buf_ctx)
+  Curl_creader_def_ਪੂਰਾ,
+  ਆਕਾਰ(ਬਣਤਰ cr_buf_ctx)
 };
 
-CURLcode Curl_creader_set_buf(struct Curl_easy *data,
-                              const char *buf, size_t blen)
+CURLcode Curl_creader_ਸੈੱਟ_buf(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *buf, size_t blen)
 {
-  CURLcode result;
-  struct Curl_creader *r;
-  struct cr_buf_ctx *ctx;
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ Curl_creader *r;
+  ਬਣਤਰ cr_buf_ctx *ctx;
 
-  result = Curl_creader_create(&r, data, &cr_buf, CURL_CR_CLIENT);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_creader_create(&r, ਅੰਕੜੇ, &cr_buf, CURL_CR_CLIENT);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
   ctx = r->ctx;
   ctx->buf = buf;
   ctx->blen = blen;
-  ctx->index = 0;
+  ctx->ਸੂਚਕਾਂਕ = 0;
 
-  cl_reset_reader(data);
-  result = do_init_reader_stack(data, r);
-out:
-  CURL_TRC_READ(data, "add buf reader, len=%zu -> %d", blen, (int)result);
-  return result;
+  cl_reset_reader(ਅੰਕੜੇ);
+  ਨਤੀਜਾ = do_init_reader_ਢੇਰ(ਅੰਕੜੇ, r);
+ਬਾਹਰਲਾ:
+  CURL_TRC_READ(ਅੰਕੜੇ, "add buf reader, len=%zu -> %d", blen, (ਪੂਰਨ)ਨਤੀਜਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-curl_off_t Curl_creader_total_length(struct Curl_easy *data)
+curl_off_t Curl_creader_ਕੁੱਲ_ਲੰਮਾਈ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *r = data->req.reader.stack;
-  return r ? r->crt->total_length(data, r) : -1;
+  ਬਣਤਰ Curl_creader *r = ਅੰਕੜੇ->req.reader.ਢੇਰ;
+  ਵਾਪਸ r ? r->crt->ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ, r) : -1;
 }
 
-curl_off_t Curl_creader_client_length(struct Curl_easy *data)
+curl_off_t Curl_creader_client_ਲੰਮਾਈ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *r = data->req.reader.stack;
-  while(r && r->phase != CURL_CR_CLIENT)
-    r = r->next;
-  return r ? r->crt->total_length(data, r) : -1;
+  ਬਣਤਰ Curl_creader *r = ਅੰਕੜੇ->req.reader.ਢੇਰ;
+  ਜਦੋਂ(r && r->phase != CURL_CR_CLIENT)
+    r = r->ਅਗਲਾ;
+  ਵਾਪਸ r ? r->crt->ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ, r) : -1;
 }
 
-CURLcode Curl_creader_unpause(struct Curl_easy *data)
+CURLcode Curl_creader_unpause(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ Curl_creader *reader = ਅੰਕੜੇ->req.reader.ਢੇਰ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  while(reader) {
-    result = reader->crt->cntrl(data, reader, CURL_CRCNTRL_UNPAUSE);
-    CURL_TRC_READ(data, "unpausing %s -> %d", reader->crt->name, (int)result);
-    if(result)
-      break;
-    reader = reader->next;
+  ਜਦੋਂ(reader) {
+    ਨਤੀਜਾ = reader->crt->cntrl(ਅੰਕੜੇ, reader, CURL_CRCNTRL_UNPAUSE);
+    CURL_TRC_READ(ਅੰਕੜੇ, "unpausing %s -> %d", reader->crt->name, (ਪੂਰਨ)ਨਤੀਜਾ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
+    reader = reader->ਅਗਲਾ;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-bool Curl_creader_is_paused(struct Curl_easy *data)
+bool Curl_creader_is_paused(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
+  ਬਣਤਰ Curl_creader *reader = ਅੰਕੜੇ->req.reader.ਢੇਰ;
 
-  while(reader) {
-    if(reader->crt->is_paused(data, reader))
-      return TRUE;
-    reader = reader->next;
+  ਜਦੋਂ(reader) {
+    ਜੇ(reader->crt->is_paused(ਅੰਕੜੇ, reader))
+      ਵਾਪਸ TRUE;
+    reader = reader->ਅਗਲਾ;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-void Curl_creader_done(struct Curl_easy *data, int premature)
+ਖਾਲੀ Curl_creader_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਪੂਰਨ premature)
 {
-  struct Curl_creader *reader = data->req.reader.stack;
-  while(reader) {
-    reader->crt->done(data, reader, premature);
-    reader = reader->next;
+  ਬਣਤਰ Curl_creader *reader = ਅੰਕੜੇ->req.reader.ਢੇਰ;
+  ਜਦੋਂ(reader) {
+    reader->crt->ਪੂਰਾ(ਅੰਕੜੇ, reader, premature);
+    reader = reader->ਅਗਲਾ;
   }
 }
 
-struct Curl_creader *Curl_creader_get_by_type(struct Curl_easy *data,
-                                              const struct Curl_crtype *crt)
+ਬਣਤਰ Curl_creader *Curl_creader_get_by_type(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                              ਅਚਲ ਬਣਤਰ Curl_crtype *crt)
 {
-  struct Curl_creader *r;
-  for(r = data->req.reader.stack; r; r = r->next) {
-    if(r->crt == crt)
-      return r;
+  ਬਣਤਰ Curl_creader *r;
+  ਲਈ(r = ਅੰਕੜੇ->req.reader.ਢੇਰ; r; r = r->ਅਗਲਾ) {
+    ਜੇ(r->crt == crt)
+      ਵਾਪਸ r;
   }
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }

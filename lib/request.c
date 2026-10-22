@@ -21,141 +21,141 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curlx/dynbuf.h"
-#include "progress.h"
-#include "request.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "url.h"
-#include "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/dynbuf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "request.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sendf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "transfer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
 
-void Curl_req_init(struct SingleRequest *req)
+ਖਾਲੀ Curl_req_init(ਬਣਤਰ SingleRequest *req)
 {
-  memset(req, 0, sizeof(*req));
+  memset(req, 0, ਆਕਾਰ(*req));
 }
 
-CURLcode Curl_req_soft_reset(struct SingleRequest *req,
-                             struct Curl_easy *data)
+CURLcode Curl_req_soft_reset(ਬਣਤਰ SingleRequest *req,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  req->done = FALSE;
-  req->upload_done = FALSE;
+  req->ਪੂਰਾ = FALSE;
+  req->upload_ਪੂਰਾ = FALSE;
   req->upload_aborted = FALSE;
-  req->download_done = FALSE;
+  req->download_ਪੂਰਾ = FALSE;
   req->eos_written = FALSE;
   req->eos_read = FALSE;
-  req->eos_sent = FALSE;
+  req->eos_ਭੇਜਿਆ = FALSE;
   req->ignorebody = FALSE;
   req->shutdown = FALSE;
   req->bytecount = 0;
   req->writebytecount = 0;
-  req->header = FALSE;
+  req->ਸਿਰਲੇਖ = FALSE;
   req->headerline = 0;
   req->headerbytecount = 0;
   req->allheadercount = 0;
   req->deductheadercount = 0;
-  req->httpversion_sent = 0;
+  req->httpversion_ਭੇਜਿਆ = 0;
   req->httpversion = 0;
   req->sendbuf_hds_len = 0;
 
   curlx_safefree(req->hd_auth);
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   curlx_safefree(req->hd_proxy_auth);
-#endif
+#ਜੇ_ਅੰਤ
 
-  result = Curl_client_start(data);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_client_ਸ਼ੁਰੂ(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  if(!req->sendbuf_init) {
-    Curl_bufq_init2(&req->sendbuf, data->set.upload_buffer_size, 1,
-                    BUFQ_OPT_SOFT_LIMIT);
+  ਜੇ(!req->sendbuf_init) {
+    Curl_bufq_init2(&req->sendbuf, ਅੰਕੜੇ->ਸੈੱਟ.upload_ਬਫਰ_ਮਾਪ, 1,
+                    BUFQ_OPT_SOFT_ਹੱਦਬੰਦੀ);
     req->sendbuf_init = TRUE;
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     Curl_bufq_reset(&req->sendbuf);
-    if(data->set.upload_buffer_size != req->sendbuf.chunk_size) {
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.upload_ਬਫਰ_ਮਾਪ != req->sendbuf.chunk_ਮਾਪ) {
       Curl_bufq_free(&req->sendbuf);
-      Curl_bufq_init2(&req->sendbuf, data->set.upload_buffer_size, 1,
-                      BUFQ_OPT_SOFT_LIMIT);
+      Curl_bufq_init2(&req->sendbuf, ਅੰਕੜੇ->ਸੈੱਟ.upload_ਬਫਰ_ਮਾਪ, 1,
+                      BUFQ_OPT_SOFT_ਹੱਦਬੰਦੀ);
     }
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_req_start(struct SingleRequest *req,
-                        struct Curl_easy *data)
+CURLcode Curl_req_ਸ਼ੁਰੂ(ਬਣਤਰ SingleRequest *req,
+                        ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  req->start = *Curl_pgrs_now(data);
-  return Curl_req_soft_reset(req, data);
+  req->ਸ਼ੁਰੂ = *Curl_pgrs_now(ਅੰਕੜੇ);
+  ਵਾਪਸ Curl_req_soft_reset(req, ਅੰਕੜੇ);
 }
 
-static CURLcode req_flush(struct Curl_easy *data);
+ਸਥਿਰ CURLcode req_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-CURLcode Curl_req_done(struct SingleRequest *req,
-                       struct Curl_easy *data, bool aborted)
+CURLcode Curl_req_ਪੂਰਾ(ਬਣਤਰ SingleRequest *req,
+                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool aborted)
 {
-  (void)req;
-  if(!aborted)
-    (void)req_flush(data);
-  Curl_client_reset(data);
-  return CURLE_OK;
+  (ਖਾਲੀ)req;
+  ਜੇ(!aborted)
+    (ਖਾਲੀ)req_flush(ਅੰਕੜੇ);
+  Curl_client_reset(ਅੰਕੜੇ);
+  ਵਾਪਸ CURLE_OK;
 }
 
-void Curl_req_hard_reset(struct SingleRequest *req, struct Curl_easy *data)
+ਖਾਲੀ Curl_req_hard_reset(ਬਣਤਰ SingleRequest *req, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct curltime t0 = { 0, 0 };
+  ਬਣਤਰ curltime t0 = { 0, 0 };
 
   curlx_safefree(req->newurl);
   curlx_safefree(req->hd_auth);
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   curlx_safefree(req->hd_proxy_auth);
-#endif
-#ifndef CURL_DISABLE_COOKIES
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
   curlx_safefree(req->cookiehost);
-#endif
-  Curl_client_reset(data);
-  if(req->sendbuf_init)
+#ਜੇ_ਅੰਤ
+  Curl_client_reset(ਅੰਕੜੇ);
+  ਜੇ(req->sendbuf_init)
     Curl_bufq_reset(&req->sendbuf);
 
   /* clear any resolve data */
-  Curl_resolv_destroy_all(data);
+  Curl_resolv_destroy_all(ਅੰਕੜੇ);
   /* Can no longer memset() this struct as we need to keep some state */
-  req->size = -1;
+  req->ਮਾਪ = -1;
   req->maxdownload = -1;
   req->bytecount = 0;
   req->writebytecount = 0;
-  req->start = t0;
+  req->ਸ਼ੁਰੂ = t0;
   req->headerbytecount = 0;
   req->allheadercount = 0;
   req->deductheadercount = 0;
   req->headerline = 0;
-  req->offset = 0;
+  req->ਵਿੱਥ = 0;
   req->httpcode = 0;
   req->io_flags = 0;
   req->upgr101 = UPGR101_NONE;
   req->sendbuf_hds_len = 0;
   req->timeofdoc = 0;
-  req->location = NULL;
-  req->newurl = NULL;
-#ifndef CURL_DISABLE_COOKIES
+  req->location = ਨਿਰਾ;
+  req->newurl = ਨਿਰਾ;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
   req->setcookies = 0;
-#endif
-  req->header = FALSE;
+#ਜੇ_ਅੰਤ
+  req->ਸਿਰਲੇਖ = FALSE;
   req->content_range = FALSE;
-  req->download_done = FALSE;
+  req->download_ਪੂਰਾ = FALSE;
   req->eos_written = FALSE;
   req->eos_read = FALSE;
-  req->eos_sent = FALSE;
+  req->eos_ਭੇਜਿਆ = FALSE;
   req->rewind_read = FALSE;
-  req->upload_done = FALSE;
+  req->upload_ਪੂਰਾ = FALSE;
   req->upload_aborted = FALSE;
   req->ignorebody = FALSE;
   req->http_bodyless = FALSE;
@@ -163,231 +163,231 @@ void Curl_req_hard_reset(struct SingleRequest *req, struct Curl_easy *data)
   req->resp_trailer = FALSE;
   req->ignore_cl = FALSE;
   req->upload_chunky = FALSE;
-  req->no_body = data->set.opt_no_body;
+  req->no_body = ਅੰਕੜੇ->ਸੈੱਟ.opt_no_body;
   req->authneg = FALSE;
   req->shutdown = FALSE;
   /* Unpause all directions */
-  Curl_rlimit_block(&data->progress.dl.rlimit, FALSE, &t0);
-  Curl_rlimit_block(&data->progress.ul.rlimit, FALSE, &t0);
+  Curl_rlimit_ਖੰਡ(&ਅੰਕੜੇ->ਤਰੱਕੀ.dl.rlimit, FALSE, &t0);
+  Curl_rlimit_ਖੰਡ(&ਅੰਕੜੇ->ਤਰੱਕੀ.ul.rlimit, FALSE, &t0);
 }
 
-void Curl_req_free(struct SingleRequest *req, struct Curl_easy *data)
+ਖਾਲੀ Curl_req_free(ਬਣਤਰ SingleRequest *req, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   curlx_safefree(req->newurl);
   curlx_safefree(req->hd_auth);
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   curlx_safefree(req->hd_proxy_auth);
-#endif
-  if(req->sendbuf_init)
+#ਜੇ_ਅੰਤ
+  ਜੇ(req->sendbuf_init)
     Curl_bufq_free(&req->sendbuf);
-  Curl_client_cleanup(data);
+  Curl_client_cleanup(ਅੰਕੜੇ);
 }
 
-static CURLcode xfer_send(struct Curl_easy *data,
-                          const char *buf, size_t blen,
+ਸਥਿਰ CURLcode xfer_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਅਚਲ ਅੱਖਰ *buf, size_t blen,
                           size_t hds_len, size_t *pnwritten)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   bool eos = FALSE;
 
   *pnwritten = 0;
   DEBUGASSERT(hds_len <= blen);
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
   {
     /* Allow debug builds to override this logic to force short initial
        sends */
     size_t body_len = blen - hds_len;
-    if(body_len) {
-      const char *p = getenv("CURL_SMALLREQSEND");
-      if(p) {
+    ਜੇ(body_len) {
+      ਅਚਲ ਅੱਖਰ *p = getenv("CURL_SMALLREQSEND");
+      ਜੇ(p) {
         curl_off_t body_small;
-        if(!curlx_str_number(&p, &body_small, body_len))
+        ਜੇ(!curlx_str_ਸੰਖਿਆ(&p, &body_small, body_len))
           blen = hds_len + (size_t)body_small;
       }
     }
   }
-#endif
+#ਜੇ_ਅੰਤ
   /* Make sure this does not send more body bytes than what the max send
      speed says. The headers do not count to the max speed. */
-  if(data->set.max_send_speed) {
-    size_t body_bytes = blen - hds_len;
-    if((curl_off_t)body_bytes > data->set.max_send_speed)
-      blen = hds_len + (size_t)data->set.max_send_speed;
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.max_send_ਰਫਤਾਰ) {
+    size_t body_ਬਾਈਟਾਂ = blen - hds_len;
+    ਜੇ((curl_off_t)body_ਬਾਈਟਾਂ > ਅੰਕੜੇ->ਸੈੱਟ.max_send_ਰਫਤਾਰ)
+      blen = hds_len + (size_t)ਅੰਕੜੇ->ਸੈੱਟ.max_send_ਰਫਤਾਰ;
   }
 
-  if(data->req.eos_read &&
-    (Curl_bufq_is_empty(&data->req.sendbuf) ||
-     Curl_bufq_len(&data->req.sendbuf) == blen)) {
-    DEBUGF(infof(data, "sending last upload chunk of %zu bytes", blen));
+  ਜੇ(ਅੰਕੜੇ->req.eos_read &&
+    (Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ਅੰਕੜੇ->req.sendbuf) ||
+     Curl_bufq_len(&ਅੰਕੜੇ->req.sendbuf) == blen)) {
+    DEBUGF(infof(ਅੰਕੜੇ, "sending last upload chunk of %zu bytes", blen));
     eos = TRUE;
   }
-  result = Curl_xfer_send(data, buf, blen, eos, pnwritten);
-  if(!result) {
-    if(eos && (blen == *pnwritten))
-      data->req.eos_sent = TRUE;
-    if(*pnwritten) {
-      if(hds_len)
-        Curl_debug(data, CURLINFO_HEADER_OUT, buf,
+  ਨਤੀਜਾ = Curl_xfer_send(ਅੰਕੜੇ, buf, blen, eos, pnwritten);
+  ਜੇ(!ਨਤੀਜਾ) {
+    ਜੇ(eos && (blen == *pnwritten))
+      ਅੰਕੜੇ->req.eos_ਭੇਜਿਆ = TRUE;
+    ਜੇ(*pnwritten) {
+      ਜੇ(hds_len)
+        Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਬਾਹਰਲਾ, buf,
                    CURLMIN(hds_len, *pnwritten));
-      if(*pnwritten > hds_len) {
+      ਜੇ(*pnwritten > hds_len) {
         size_t body_len = *pnwritten - hds_len;
-        Curl_debug(data, CURLINFO_DATA_OUT, buf + hds_len, body_len);
-        data->req.writebytecount += body_len;
-        Curl_pgrs_upload_inc(data, body_len);
+        Curl_debug(ਅੰਕੜੇ, CURLINFO_ਅੰਕੜੇ_ਬਾਹਰਲਾ, buf + hds_len, body_len);
+        ਅੰਕੜੇ->req.writebytecount += body_len;
+        Curl_pgrs_upload_inc(ਅੰਕੜੇ, body_len);
       }
     }
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode req_send_buffer_flush(struct Curl_easy *data)
+ਸਥਿਰ CURLcode req_send_ਬਫਰ_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result = CURLE_OK;
-  const unsigned char *buf;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf;
   size_t blen;
 
-  while(Curl_bufq_peek(&data->req.sendbuf, &buf, &blen)) {
-    size_t nwritten, hds_len = CURLMIN(data->req.sendbuf_hds_len, blen);
-    result = xfer_send(data, (const char *)buf, blen, hds_len, &nwritten);
-    if(result)
-      break;
+  ਜਦੋਂ(Curl_bufq_peek(&ਅੰਕੜੇ->req.sendbuf, &buf, &blen)) {
+    size_t nwritten, hds_len = CURLMIN(ਅੰਕੜੇ->req.sendbuf_hds_len, blen);
+    ਨਤੀਜਾ = xfer_send(ਅੰਕੜੇ, (ਅਚਲ ਅੱਖਰ *)buf, blen, hds_len, &nwritten);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
 
-    Curl_bufq_skip(&data->req.sendbuf, nwritten);
-    if(hds_len) {
-      data->req.sendbuf_hds_len -= CURLMIN(hds_len, nwritten);
+    Curl_bufq_skip(&ਅੰਕੜੇ->req.sendbuf, nwritten);
+    ਜੇ(hds_len) {
+      ਅੰਕੜੇ->req.sendbuf_hds_len -= CURLMIN(hds_len, nwritten);
     }
     /* leave if we could not send all. Maybe network blocking or
      * speed limits on transfer */
-    if(nwritten < blen)
-      break;
+    ਜੇ(nwritten < blen)
+      ਰੋਕੋ;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode req_set_upload_done(struct Curl_easy *data)
+ਸਥਿਰ CURLcode req_ਸੈੱਟ_upload_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  DEBUGASSERT(!data->req.upload_done);
-  data->req.upload_done = TRUE;
-  CURL_REQ_CLEAR_SEND(data);
+  DEBUGASSERT(!ਅੰਕੜੇ->req.upload_ਪੂਰਾ);
+  ਅੰਕੜੇ->req.upload_ਪੂਰਾ = TRUE;
+  CURL_REQ_CLEAR_SEND(ਅੰਕੜੇ);
 
-  if(data->mstate >= MSTATE_DID)
-    Curl_pgrsTime(data, TIMER_POSTRANSFER);
-  Curl_creader_done(data, data->req.upload_aborted);
+  ਜੇ(ਅੰਕੜੇ->mstate >= MSTATE_DID)
+    Curl_pgrs_ਸਮਾਂ(ਅੰਕੜੇ, TIMER_POSTRANSFER);
+  Curl_creader_ਪੂਰਾ(ਅੰਕੜੇ, ਅੰਕੜੇ->req.upload_aborted);
 
-  if(data->req.upload_aborted) {
-    Curl_bufq_reset(&data->req.sendbuf);
-    if(data->req.writebytecount)
-      infof(data, "abort upload after having sent %" FMT_OFF_T " bytes",
-            data->req.writebytecount);
-    else
-      infof(data, "abort upload");
+  ਜੇ(ਅੰਕੜੇ->req.upload_aborted) {
+    Curl_bufq_reset(&ਅੰਕੜੇ->req.sendbuf);
+    ਜੇ(ਅੰਕੜੇ->req.writebytecount)
+      infof(ਅੰਕੜੇ, "abort upload after having sent %" FMT_OFF_T " bytes",
+            ਅੰਕੜੇ->req.writebytecount);
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "abort upload");
   }
-  else if(data->req.writebytecount)
-    infof(data, "upload completely sent off: %" FMT_OFF_T " bytes",
-          data->req.writebytecount);
-  else if(!data->req.download_done) {
-    DEBUGASSERT(Curl_bufq_is_empty(&data->req.sendbuf));
-    infof(data, Curl_creader_total_length(data) ?
+  ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->req.writebytecount)
+    infof(ਅੰਕੜੇ, "upload completely sent off: %" FMT_OFF_T " bytes",
+          ਅੰਕੜੇ->req.writebytecount);
+  ਨਹੀਂਤਾਂ ਜੇ(!ਅੰਕੜੇ->req.download_ਪੂਰਾ) {
+    DEBUGASSERT(Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ਅੰਕੜੇ->req.sendbuf));
+    infof(ਅੰਕੜੇ, Curl_creader_ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ) ?
           "We are completely uploaded and fine" :
           "Request completely sent off");
   }
 
-  return Curl_xfer_send_close(data);
+  ਵਾਪਸ Curl_xfer_send_close(ਅੰਕੜੇ);
 }
 
-static CURLcode req_flush(struct Curl_easy *data)
+ਸਥਿਰ CURLcode req_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!data || !data->conn)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!ਅੰਕੜੇ || !ਅੰਕੜੇ->conn)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  if(!Curl_bufq_is_empty(&data->req.sendbuf)) {
-    result = req_send_buffer_flush(data);
-    if(result)
-      return result;
-    if(!Curl_bufq_is_empty(&data->req.sendbuf)) {
-      DEBUGF(infof(data, "Curl_req_flush(len=%zu) -> EAGAIN",
-                   Curl_bufq_len(&data->req.sendbuf)));
-      return CURLE_AGAIN;
+  ਜੇ(!Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ਅੰਕੜੇ->req.sendbuf)) {
+    ਨਤੀਜਾ = req_send_ਬਫਰ_flush(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    ਜੇ(!Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ਅੰਕੜੇ->req.sendbuf)) {
+      DEBUGF(infof(ਅੰਕੜੇ, "Curl_req_flush(len=%zu) -> EAGAIN",
+                   Curl_bufq_len(&ਅੰਕੜੇ->req.sendbuf)));
+      ਵਾਪਸ CURLE_AGAIN;
     }
   }
-  else if(Curl_xfer_needs_flush(data)) {
-    DEBUGF(infof(data, "Curl_req_flush(), xfer send_pending"));
-    return Curl_xfer_flush(data);
+  ਨਹੀਂਤਾਂ ਜੇ(Curl_xfer_needs_flush(ਅੰਕੜੇ)) {
+    DEBUGF(infof(ਅੰਕੜੇ, "Curl_req_flush(), xfer send_pending"));
+    ਵਾਪਸ Curl_xfer_flush(ਅੰਕੜੇ);
   }
 
-  if(data->req.eos_read && !data->req.eos_sent) {
-    char tmp = 0;
+  ਜੇ(ਅੰਕੜੇ->req.eos_read && !ਅੰਕੜੇ->req.eos_ਭੇਜਿਆ) {
+    ਅੱਖਰ tmp = 0;
     size_t nwritten;
-    result = xfer_send(data, &tmp, 0, 0, &nwritten);
-    if(result)
-      return result;
-    DEBUGASSERT(data->req.eos_sent);
+    ਨਤੀਜਾ = xfer_send(ਅੰਕੜੇ, &tmp, 0, 0, &nwritten);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    DEBUGASSERT(ਅੰਕੜੇ->req.eos_ਭੇਜਿਆ);
   }
 
-  if(!data->req.upload_done && data->req.eos_read && data->req.eos_sent) {
-    DEBUGASSERT(Curl_bufq_is_empty(&data->req.sendbuf));
-    if(data->req.shutdown) {
-      bool done;
-      result = Curl_xfer_send_shutdown(data, &done);
-      if(result && data->req.shutdown_err_ignore) {
-        infof(data, "Shutdown send direction error: %d. Broken server? "
-              "Proceeding as if everything is ok.", (int)result);
-        result = CURLE_OK;
-        done = TRUE;
+  ਜੇ(!ਅੰਕੜੇ->req.upload_ਪੂਰਾ && ਅੰਕੜੇ->req.eos_read && ਅੰਕੜੇ->req.eos_ਭੇਜਿਆ) {
+    DEBUGASSERT(Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ਅੰਕੜੇ->req.sendbuf));
+    ਜੇ(ਅੰਕੜੇ->req.shutdown) {
+      bool ਪੂਰਾ;
+      ਨਤੀਜਾ = Curl_xfer_send_shutdown(ਅੰਕੜੇ, &ਪੂਰਾ);
+      ਜੇ(ਨਤੀਜਾ && ਅੰਕੜੇ->req.shutdown_err_ignore) {
+        infof(ਅੰਕੜੇ, "Shutdown send direction error: %d. Broken server? "
+              "Proceeding as if everything is ok.", (ਪੂਰਨ)ਨਤੀਜਾ);
+        ਨਤੀਜਾ = CURLE_OK;
+        ਪੂਰਾ = TRUE;
       }
 
-      if(result)
-        return result;
-      if(!done)
-        return CURLE_AGAIN;
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      ਜੇ(!ਪੂਰਾ)
+        ਵਾਪਸ CURLE_AGAIN;
     }
-    return req_set_upload_done(data);
+    ਵਾਪਸ req_ਸੈੱਟ_upload_ਪੂਰਾ(ਅੰਕੜੇ);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode add_from_client(void *reader_ctx,
-                                unsigned char *buf, size_t buflen,
+ਸਥਿਰ CURLcode ਜੋੜੋ_from_client(ਖਾਲੀ *reader_ctx,
+                                ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf, size_t buflen,
                                 size_t *pnread)
 {
-  struct Curl_easy *data = reader_ctx;
-  CURLcode result;
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ = reader_ctx;
+  CURLcode ਨਤੀਜਾ;
   bool eos;
 
-  result = Curl_client_read(data, (char *)buf, buflen, pnread, &eos);
-  if(!result && eos)
-    data->req.eos_read = TRUE;
-  return result;
+  ਨਤੀਜਾ = Curl_client_read(ਅੰਕੜੇ, (ਅੱਖਰ *)buf, buflen, pnread, &eos);
+  ਜੇ(!ਨਤੀਜਾ && eos)
+    ਅੰਕੜੇ->req.eos_read = TRUE;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode req_send_buffer_add(struct Curl_easy *data,
-                                    const char *buf, size_t blen,
+ਸਥਿਰ CURLcode req_send_ਬਫਰ_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਅਚਲ ਅੱਖਰ *buf, size_t blen,
                                     size_t hds_len)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   size_t n;
-  result = Curl_bufq_cwrite(&data->req.sendbuf, buf, blen, &n);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_bufq_cwrite(&ਅੰਕੜੇ->req.sendbuf, buf, blen, &n);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
   /* We rely on a SOFTLIMIT on sendbuf, so it can take all data in */
   DEBUGASSERT(n == blen);
-  data->req.sendbuf_hds_len += hds_len;
-  return CURLE_OK;
+  ਅੰਕੜੇ->req.sendbuf_hds_len += hds_len;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_req_send(struct Curl_easy *data, struct dynbuf *req,
-                       unsigned char httpversion)
+CURLcode Curl_req_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ dynbuf *req,
+                       ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ httpversion)
 {
-  CURLcode result;
-  const char *buf;
+  CURLcode ਨਤੀਜਾ;
+  ਅਚਲ ਅੱਖਰ *buf;
   size_t blen, nwritten;
 
-  if(!data || !data->conn)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!ਅੰਕੜੇ || !ਅੰਕੜੇ->conn)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  data->req.httpversion_sent = httpversion;
+  ਅੰਕੜੇ->req.httpversion_ਭੇਜਿਆ = httpversion;
   buf = curlx_dyn_ptr(req);
   blen = curlx_dyn_len(req);
   /* if the sendbuf is empty and the request without body and
@@ -395,108 +395,108 @@ CURLcode Curl_req_send(struct Curl_easy *data, struct dynbuf *req,
    * If `blen` is larger than `chunk_size`, we can not. Because we
    * might have to retry a blocked send later from sendbuf and that
    * would result in retry sends with a shrunken length. That is trouble. */
-  if(Curl_bufq_is_empty(&data->req.sendbuf) &&
-     !Curl_creader_total_length(data) &&
-     (blen <= data->req.sendbuf.chunk_size)) {
-    data->req.eos_read = TRUE;
-    result = xfer_send(data, buf, blen, blen, &nwritten);
-    if(result)
-      return result;
+  ਜੇ(Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ਅੰਕੜੇ->req.sendbuf) &&
+     !Curl_creader_ਕੁੱਲ_ਲੰਮਾਈ(ਅੰਕੜੇ) &&
+     (blen <= ਅੰਕੜੇ->req.sendbuf.chunk_ਮਾਪ)) {
+    ਅੰਕੜੇ->req.eos_read = TRUE;
+    ਨਤੀਜਾ = xfer_send(ਅੰਕੜੇ, buf, blen, blen, &nwritten);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
     buf += nwritten;
     blen -= nwritten;
-    if(!blen) {
-      result = req_set_upload_done(data);
-      if(result)
-        return result;
+    ਜੇ(!blen) {
+      ਨਤੀਜਾ = req_ਸੈੱਟ_upload_ਪੂਰਾ(ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
   }
 
-  if(blen) {
+  ਜੇ(blen) {
     /* Either we have a request body, or we could not send the complete
      * request in one go. Buffer the remainder and try to add as much
      * body bytes as room is left in the buffer. Then flush. */
-    result = req_send_buffer_add(data, buf, blen, blen);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = req_send_ਬਫਰ_ਜੋੜੋ(ਅੰਕੜੇ, buf, blen, blen);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
 
-    return Curl_req_send_more(data);
+    ਵਾਪਸ Curl_req_send_ਹੋਰ(ਅੰਕੜੇ);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-bool Curl_req_sendbuf_empty(struct Curl_easy *data)
+bool Curl_req_sendbuf_ਖਾਲੀ_ਥਾਵਾਂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  return !data->req.sendbuf_init || Curl_bufq_is_empty(&data->req.sendbuf);
+  ਵਾਪਸ !ਅੰਕੜੇ->req.sendbuf_init || Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&ਅੰਕੜੇ->req.sendbuf);
 }
 
-bool Curl_req_want_send(struct Curl_easy *data)
+bool Curl_req_want_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   /* Not done and upload not blocked and either one of
    * - REQ_IO_SEND
    * - request has buffered data to send
    * - connection has pending data to send */
-  return !data->req.done &&
-         !Curl_rlimit_is_blocked(&data->progress.ul.rlimit) &&
-         (CURL_REQ_WANT_SEND(data) ||
-          !Curl_req_sendbuf_empty(data) ||
-          Curl_xfer_needs_flush(data));
+  ਵਾਪਸ !ਅੰਕੜੇ->req.ਪੂਰਾ &&
+         !Curl_rlimit_is_blocked(&ਅੰਕੜੇ->ਤਰੱਕੀ.ul.rlimit) &&
+         (CURL_REQ_WANT_SEND(ਅੰਕੜੇ) ||
+          !Curl_req_sendbuf_ਖਾਲੀ_ਥਾਵਾਂ(ਅੰਕੜੇ) ||
+          Curl_xfer_needs_flush(ਅੰਕੜੇ));
 }
 
-bool Curl_req_want_recv(struct Curl_easy *data)
+bool Curl_req_want_recv(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   /* Not done and download not blocked and want RECV */
-  return !data->req.done &&
-         !Curl_rlimit_is_blocked(&data->progress.dl.rlimit) &&
-         CURL_REQ_WANT_RECV(data);
+  ਵਾਪਸ !ਅੰਕੜੇ->req.ਪੂਰਾ &&
+         !Curl_rlimit_is_blocked(&ਅੰਕੜੇ->ਤਰੱਕੀ.dl.rlimit) &&
+         CURL_REQ_WANT_RECV(ਅੰਕੜੇ);
 }
 
-bool Curl_req_done_sending(struct Curl_easy *data)
+bool Curl_req_ਪੂਰਾ_sending(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  return data->req.upload_done && !Curl_req_want_send(data);
+  ਵਾਪਸ ਅੰਕੜੇ->req.upload_ਪੂਰਾ && !Curl_req_want_send(ਅੰਕੜੇ);
 }
 
-CURLcode Curl_req_send_more(struct Curl_easy *data)
+CURLcode Curl_req_send_ਹੋਰ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
   /* Fill our send buffer if more from client can be read. */
-  if(!data->req.upload_aborted &&
-     !data->req.eos_read &&
-     !Curl_xfer_send_is_paused(data) &&
-     !Curl_bufq_is_full(&data->req.sendbuf)) {
+  ਜੇ(!ਅੰਕੜੇ->req.upload_aborted &&
+     !ਅੰਕੜੇ->req.eos_read &&
+     !Curl_xfer_send_is_paused(ਅੰਕੜੇ) &&
+     !Curl_bufq_is_ਭਰਿਆ(&ਅੰਕੜੇ->req.sendbuf)) {
     size_t nread;
-    result = Curl_bufq_sipn(&data->req.sendbuf, 0,
-                            add_from_client, data, &nread);
-    if(result && result != CURLE_AGAIN)
-      return result;
+    ਨਤੀਜਾ = Curl_bufq_sipn(&ਅੰਕੜੇ->req.sendbuf, 0,
+                            ਜੋੜੋ_from_client, ਅੰਕੜੇ, &nread);
+    ਜੇ(ਨਤੀਜਾ && ਨਤੀਜਾ != CURLE_AGAIN)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  result = req_flush(data);
-  if(result == CURLE_AGAIN)
-    result = CURLE_OK;
+  ਨਤੀਜਾ = req_flush(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN)
+    ਨਤੀਜਾ = CURLE_OK;
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_req_abort_sending(struct Curl_easy *data)
+CURLcode Curl_req_abort_sending(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  if(!data->req.upload_done) {
-    Curl_bufq_reset(&data->req.sendbuf);
-    data->req.upload_aborted = TRUE;
-    CURL_REQ_CLEAR_SEND(data);
-    return req_set_upload_done(data);
+  ਜੇ(!ਅੰਕੜੇ->req.upload_ਪੂਰਾ) {
+    Curl_bufq_reset(&ਅੰਕੜੇ->req.sendbuf);
+    ਅੰਕੜੇ->req.upload_aborted = TRUE;
+    CURL_REQ_CLEAR_SEND(ਅੰਕੜੇ);
+    ਵਾਪਸ req_ਸੈੱਟ_upload_ਪੂਰਾ(ਅੰਕੜੇ);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_req_stop_send_recv(struct Curl_easy *data)
+CURLcode Curl_req_stop_send_recv(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   /* stop receiving and ALL sending as well, including PAUSE and HOLD.
    * We might still be paused on receive client writes though, so
    * keep those bits around. */
-  CURLcode result = CURLE_OK;
-  if(CURL_REQ_WANT_SEND(data))
-    result = Curl_req_abort_sending(data);
-  CURL_REQ_CLEAR_IO(data);
-  return result;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਜੇ(CURL_REQ_WANT_SEND(ਅੰਕੜੇ))
+    ਨਤੀਜਾ = Curl_req_abort_sending(ਅੰਕੜੇ);
+  CURL_REQ_CLEAR_IO(ਅੰਕੜੇ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_U8_STRSET_H
-#define HEADER_CURL_U8_STRSET_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_U8_STRSET_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_U8_STRSET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
 /* How large should the initial set be?
  * Measuring our test suite with set growth force fail, gives
@@ -36,49 +36,49 @@
  * meaning 91% of our tests to not set more than 4 strings and
  * 99% do not set more than 8.
  */
-#define CURL_U8_STRSET_START_BITS   3
-#define CURL_U8_STRSET_START_DIM    (1U << CURL_U8_STRSET_START_BITS)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_U8_STRSET_ਸ਼ੁਰੂ_ਬਿੱਟ   3
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_U8_STRSET_ਸ਼ੁਰੂ_DIM    (1U << CURL_U8_STRSET_ਸ਼ੁਰੂ_ਬਿੱਟ)
 
 /* A set that can hold up to 256 strings identified by an `id'.
  * Setting a string for an existing id replaces the previous one.
  * Getting the string for an id not in the set returns NULL.
  * Setting an id to NULL unsets the id.
  */
-struct u8_strset {
-  char **data; /* #slots array of null-terminated strings */
+ਬਣਤਰ u8_strset {
+  ਅੱਖਰ **ਅੰਕੜੇ; /* #slots array of null-terminated strings */
   uint8_t *ids; /* #slots array of `id` values */
   uint8_t *psl; /* #slots array of "probe sequence length" values */
-  char *sdata[CURL_U8_STRSET_START_DIM];
-  uint8_t sids[CURL_U8_STRSET_START_DIM];
-  uint8_t spsl[CURL_U8_STRSET_START_DIM];
-  uint16_t count;
+  ਅੱਖਰ *sdata[CURL_U8_STRSET_ਸ਼ੁਰੂ_DIM];
+  uint8_t sids[CURL_U8_STRSET_ਸ਼ੁਰੂ_DIM];
+  uint8_t spsl[CURL_U8_STRSET_ਸ਼ੁਰੂ_DIM];
+  uint16_t ਗਿਣਤੀ_2;
   uint8_t slotbits;
   uint8_t slotmask;
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
   int32_t init;
-#endif
+#ਜੇ_ਅੰਤ
 };
 
-void Curl_u8_strset_init(struct u8_strset *set);
-void Curl_u8_strset_clear(struct u8_strset *set);
+ਖਾਲੀ Curl_u8_strset_init(ਬਣਤਰ u8_strset *ਸੈੱਟ);
+ਖਾਲੀ Curl_u8_strset_clear(ਬਣਤਰ u8_strset *ਸੈੱਟ);
 
-#ifdef UNITTESTS
-uint16_t Curl_u8_strset_count(struct u8_strset *set);
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ UNITTESTS
+uint16_t Curl_u8_strset_ਗਿਣਤੀ(ਬਣਤਰ u8_strset *ਸੈੱਟ);
+#ਜੇ_ਅੰਤ
 
-const char *Curl_u8_strset_get(struct u8_strset *set, uint8_t id);
+ਅਚਲ ਅੱਖਰ *Curl_u8_strset_get(ਬਣਤਰ u8_strset *ਸੈੱਟ, uint8_t id);
 
 /* Set string for id, makes a copy. */
-CURLcode Curl_u8_strset_setx(struct u8_strset *set,
-                             uint8_t id, const char *str, size_t slen);
+CURLcode Curl_u8_strset_setx(ਬਣਤਰ u8_strset *ਸੈੱਟ,
+                             uint8_t id, ਅਚਲ ਅੱਖਰ *str, size_t slen);
 /* Set string for id, takes ownership of `str` even on failure. */
-CURLcode Curl_u8_strset_setn(struct u8_strset *set,
-                             uint8_t id, char *str);
-void Curl_u8_strset_unset(struct u8_strset *set, uint8_t id);
+CURLcode Curl_u8_strset_setn(ਬਣਤਰ u8_strset *ਸੈੱਟ,
+                             uint8_t id, ਅੱਖਰ *str);
+ਖਾਲੀ Curl_u8_strset_unset(ਬਣਤਰ u8_strset *ਸੈੱਟ, uint8_t id);
 
 /* Remove the string if in the set and zero its memory */
-void Curl_u8_strset_unset0(struct u8_strset *set, uint8_t id);
+ਖਾਲੀ Curl_u8_strset_unset0(ਬਣਤਰ u8_strset *ਸੈੱਟ, uint8_t id);
 
-CURLcode Curl_u8_strset_copy(struct u8_strset *dest, struct u8_strset *src);
+CURLcode Curl_u8_strset_copy(ਬਣਤਰ u8_strset *dest, ਬਣਤਰ u8_strset *src);
 
-#endif /* HEADER_CURL_U8_STRSET_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_U8_STRSET_H */

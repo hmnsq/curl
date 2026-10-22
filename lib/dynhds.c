@@ -21,234 +21,234 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "dynhds.h"
-#include "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "dynhds.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
 
-static struct dynhds_entry *entry_new(const char *name, size_t namelen,
-                                      const char *value, size_t valuelen,
-                                      int opts)
+ਸਥਿਰ ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *ਇੰਦਰਾਜ_new(ਅਚਲ ਅੱਖਰ *name, size_t namelen,
+                                      ਅਚਲ ਅੱਖਰ *ਮੁੱਲ, size_t valuelen,
+                                      ਪੂਰਨ opts)
 {
-  struct dynhds_entry *e;
-  char *p;
+  ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *e;
+  ਅੱਖਰ *p;
 
   /* namelen + valuelen <= SIZE_MAX has already been checked by caller */
-  if((SIZE_MAX - namelen - valuelen) < (sizeof(*e) + 2))
-    return NULL;
-  e = curlx_calloc(1, sizeof(*e) + namelen + valuelen + 2);
-  if(!e)
-    return NULL;
-  e->name = p = (char *)e + sizeof(*e);
-  memcpy(p, name, namelen);
+  ਜੇ((SIZE_MAX - namelen - valuelen) < (ਆਕਾਰ(*e) + 2))
+    ਵਾਪਸ ਨਿਰਾ;
+  e = curlx_calloc(1, ਆਕਾਰ(*e) + namelen + valuelen + 2);
+  ਜੇ(!e)
+    ਵਾਪਸ ਨਿਰਾ;
+  e->name = p = (ਅੱਖਰ *)e + ਆਕਾਰ(*e);
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(p, name, namelen);
   e->namelen = namelen;
-  e->value = p += namelen + 1; /* leave a \0 at the end of name */
-  if(valuelen) {
-    memcpy(p, value, valuelen);
+  e->ਮੁੱਲ = p += namelen + 1; /* leave a \0 at the end of name */
+  ਜੇ(valuelen) {
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(p, ਮੁੱਲ, valuelen);
     e->valuelen = valuelen;
   }
-  if(opts & DYNHDS_OPT_LOWERCASE)
+  ਜੇ(opts & DYNHDS_OPT_LOWERCASE)
     Curl_strntolower(e->name, e->name, e->namelen);
-  return e;
+  ਵਾਪਸ e;
 }
 
-static void entry_free(struct dynhds_entry *e)
+ਸਥਿਰ ਖਾਲੀ ਇੰਦਰਾਜ_free(ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *e)
 {
   curlx_free(e);
 }
 
-void Curl_dynhds_init(struct dynhds *dynhds, size_t max_entries,
-                      size_t max_strs_size)
+ਖਾਲੀ Curl_dynhds_init(ਬਣਤਰ dynhds *dynhds, size_t max_entries,
+                      size_t max_strs_ਮਾਪ)
 {
   DEBUGASSERT(dynhds);
-  DEBUGASSERT(max_strs_size);
-  dynhds->hds = NULL;
+  DEBUGASSERT(max_strs_ਮਾਪ);
+  dynhds->hds = ਨਿਰਾ;
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
   dynhds->max_entries = max_entries;
-  dynhds->max_strs_size = max_strs_size;
+  dynhds->max_strs_ਮਾਪ = max_strs_ਮਾਪ;
   dynhds->opts = 0;
 }
 
-void Curl_dynhds_free(struct dynhds *dynhds)
+ਖਾਲੀ Curl_dynhds_free(ਬਣਤਰ dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds && dynhds->hds_len) {
+  ਜੇ(dynhds->hds && dynhds->hds_len) {
     size_t i;
     DEBUGASSERT(dynhds->hds);
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      entry_free(dynhds->hds[i]);
+    ਲਈ(i = 0; i < dynhds->hds_len; ++i) {
+      ਇੰਦਰਾਜ_free(dynhds->hds[i]);
     }
   }
   curlx_safefree(dynhds->hds);
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
 }
 
-void Curl_dynhds_reset(struct dynhds *dynhds)
+ਖਾਲੀ Curl_dynhds_reset(ਬਣਤਰ dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds_len) {
+  ਜੇ(dynhds->hds_len) {
     size_t i;
     DEBUGASSERT(dynhds->hds);
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      entry_free(dynhds->hds[i]);
-      dynhds->hds[i] = NULL;
+    ਲਈ(i = 0; i < dynhds->hds_len; ++i) {
+      ਇੰਦਰਾਜ_free(dynhds->hds[i]);
+      dynhds->hds[i] = ਨਿਰਾ;
     }
   }
   dynhds->hds_len = dynhds->strs_len = 0;
 }
 
-size_t Curl_dynhds_count(struct dynhds *dynhds)
+size_t Curl_dynhds_ਗਿਣਤੀ(ਬਣਤਰ dynhds *dynhds)
 {
-  return dynhds->hds_len;
+  ਵਾਪਸ dynhds->hds_len;
 }
 
-void Curl_dynhds_set_opts(struct dynhds *dynhds, int opts)
+ਖਾਲੀ Curl_dynhds_ਸੈੱਟ_opts(ਬਣਤਰ dynhds *dynhds, ਪੂਰਨ opts)
 {
   dynhds->opts = opts;
 }
 
-struct dynhds_entry *Curl_dynhds_getn(struct dynhds *dynhds, size_t n)
+ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *Curl_dynhds_getn(ਬਣਤਰ dynhds *dynhds, size_t n)
 {
   DEBUGASSERT(dynhds);
-  return (n < dynhds->hds_len) ? dynhds->hds[n] : NULL;
+  ਵਾਪਸ (n < dynhds->hds_len) ? dynhds->hds[n] : ਨਿਰਾ;
 }
 
-struct dynhds_entry *Curl_dynhds_get(struct dynhds *dynhds, const char *name,
+ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *Curl_dynhds_get(ਬਣਤਰ dynhds *dynhds, ਅਚਲ ਅੱਖਰ *name,
                                      size_t namelen)
 {
   size_t i;
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    if(dynhds->hds[i]->namelen == namelen &&
+  ਲਈ(i = 0; i < dynhds->hds_len; ++i) {
+    ਜੇ(dynhds->hds[i]->namelen == namelen &&
        curl_strnequal(dynhds->hds[i]->name, name, namelen)) {
-      return dynhds->hds[i];
+      ਵਾਪਸ dynhds->hds[i];
     }
   }
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name)
+ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *Curl_dynhds_cget(ਬਣਤਰ dynhds *dynhds, ਅਚਲ ਅੱਖਰ *name)
 {
-  return Curl_dynhds_get(dynhds, name, strlen(name));
+  ਵਾਪਸ Curl_dynhds_get(dynhds, name, ਲੜੀ_ਲੰਬਾਈ(name));
 }
 
-CURLcode Curl_dynhds_add(struct dynhds *dynhds,
-                         const char *name, size_t namelen,
-                         const char *value, size_t valuelen)
+CURLcode Curl_dynhds_ਜੋੜੋ(ਬਣਤਰ dynhds *dynhds,
+                         ਅਚਲ ਅੱਖਰ *name, size_t namelen,
+                         ਅਚਲ ਅੱਖਰ *ਮੁੱਲ, size_t valuelen)
 {
-  struct dynhds_entry *entry = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *ਇੰਦਰਾਜ = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   /* Accept NULL value with length 0, name must have length */
-  if(!dynhds || !name || !namelen || (!value && valuelen)) {
+  ਜੇ(!dynhds || !name || !namelen || (!ਮੁੱਲ && valuelen)) {
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
   }
   /* Does the new header fit into the limits? */
-  if((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
-     (dynhds->max_strs_size - dynhds->strs_len < namelen) ||
-     (dynhds->max_strs_size - dynhds->strs_len - namelen < valuelen))
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
+     (dynhds->max_strs_ਮਾਪ - dynhds->strs_len < namelen) ||
+     (dynhds->max_strs_ਮਾਪ - dynhds->strs_len - namelen < valuelen))
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  entry = entry_new(name, namelen, value, valuelen, dynhds->opts);
-  if(!entry)
-    goto out;
+  ਇੰਦਰਾਜ = ਇੰਦਰਾਜ_new(name, namelen, ਮੁੱਲ, valuelen, dynhds->opts);
+  ਜੇ(!ਇੰਦਰਾਜ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if(dynhds->hds_len + 1 >= dynhds->hds_allc) {
+  ਜੇ(dynhds->hds_len + 1 >= dynhds->hds_allc) {
     size_t nallc = dynhds->hds_allc ? dynhds->hds_allc * 2 : 16;
-    struct dynhds_entry **nhds;
+    ਬਣਤਰ dynhds_ਇੰਦਰਾਜ **nhds;
 
-    if(dynhds->max_entries && nallc > dynhds->max_entries)
+    ਜੇ(dynhds->max_entries && nallc > dynhds->max_entries)
       nallc = dynhds->max_entries;
 
-    nhds = curlx_calloc(nallc, sizeof(struct dynhds_entry *));
-    if(!nhds)
-      goto out;
-    if(dynhds->hds) {
-      memcpy(nhds, dynhds->hds,
-             dynhds->hds_len * sizeof(struct dynhds_entry *));
+    nhds = curlx_calloc(nallc, ਆਕਾਰ(ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *));
+    ਜੇ(!nhds)
+      ਜਾਓ ਬਾਹਰਲਾ;
+    ਜੇ(dynhds->hds) {
+      ਸਮ੍ਰਿਤੀ_ਨਕਲ(nhds, dynhds->hds,
+             dynhds->hds_len * ਆਕਾਰ(ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *));
       curlx_safefree(dynhds->hds);
     }
     dynhds->hds = nhds;
     dynhds->hds_allc = nallc;
   }
-  dynhds->hds[dynhds->hds_len++] = entry;
-  entry = NULL;
+  dynhds->hds[dynhds->hds_len++] = ਇੰਦਰਾਜ;
+  ਇੰਦਰਾਜ = ਨਿਰਾ;
   dynhds->strs_len += namelen + valuelen;
-  result = CURLE_OK;
+  ਨਤੀਜਾ = CURLE_OK;
 
-out:
-  if(entry)
-    entry_free(entry);
-  return result;
+ਬਾਹਰਲਾ:
+  ਜੇ(ਇੰਦਰਾਜ)
+    ਇੰਦਰਾਜ_free(ਇੰਦਰਾਜ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value)
+CURLcode Curl_dynhds_cadd(ਬਣਤਰ dynhds *dynhds,
+                          ਅਚਲ ਅੱਖਰ *name, ਅਚਲ ਅੱਖਰ *ਮੁੱਲ)
 {
-  if(!name)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_dynhds_add(dynhds, name, strlen(name),
-                         value, value ? strlen(value) : 0);
+  ਜੇ(!name)
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+  ਵਾਪਸ Curl_dynhds_ਜੋੜੋ(dynhds, name, ਲੜੀ_ਲੰਬਾਈ(name),
+                         ਮੁੱਲ, ਮੁੱਲ ? ਲੜੀ_ਲੰਬਾਈ(ਮੁੱਲ) : 0);
 }
 
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len)
+CURLcode Curl_dynhds_h1_ਜੋੜੋ_ਸਤਰ(ਬਣਤਰ dynhds *dynhds,
+                                 ਅਚਲ ਅੱਖਰ *ਸਤਰ, size_t ਸਤਰ_len)
 {
-  const char *p;
-  const char *name;
+  ਅਚਲ ਅੱਖਰ *p;
+  ਅਚਲ ਅੱਖਰ *name;
   size_t namelen;
-  const char *value;
+  ਅਚਲ ਅੱਖਰ *ਮੁੱਲ;
   size_t valuelen, i;
 
-  if(!line || !line_len)
-    return CURLE_OK;
+  ਜੇ(!ਸਤਰ || !ਸਤਰ_len)
+    ਵਾਪਸ CURLE_OK;
 
-  p = memchr(line, ':', line_len);
-  if(!p || p == line)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  name = line;
-  namelen = p - line;
+  p = memchr(ਸਤਰ, ':', ਸਤਰ_len);
+  ਜੇ(!p || p == ਸਤਰ)
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+  name = ਸਤਰ;
+  namelen = p - ਸਤਰ;
   p++; /* move past the colon */
-  for(i = namelen + 1; i < line_len; ++i, ++p) {
-    if(!ISBLANK(*p))
-      break;
+  ਲਈ(i = namelen + 1; i < ਸਤਰ_len; ++i, ++p) {
+    ਜੇ(!ISBLANK(*p))
+      ਰੋਕੋ;
   }
-  value = p;
-  valuelen = line_len - i;
+  ਮੁੱਲ = p;
+  valuelen = ਸਤਰ_len - i;
 
-  p = memchr(value, '\r', valuelen);
-  if(!p)
-    p = memchr(value, '\n', valuelen);
-  if(p)
-    valuelen = (size_t)(p - value);
+  p = memchr(ਮੁੱਲ, '\r', valuelen);
+  ਜੇ(!p)
+    p = memchr(ਮੁੱਲ, '\n', valuelen);
+  ਜੇ(p)
+    valuelen = (size_t)(p - ਮੁੱਲ);
 
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  ਵਾਪਸ Curl_dynhds_ਜੋੜੋ(dynhds, name, namelen, ਮੁੱਲ, valuelen);
 }
 
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line)
+CURLcode Curl_dynhds_h1_cadd_ਸਤਰ(ਬਣਤਰ dynhds *dynhds, ਅਚਲ ਅੱਖਰ *ਸਤਰ)
 {
-  return Curl_dynhds_h1_add_line(dynhds, line, line ? strlen(line) : 0);
+  ਵਾਪਸ Curl_dynhds_h1_ਜੋੜੋ_ਸਤਰ(dynhds, ਸਤਰ, ਸਤਰ ? ਲੜੀ_ਲੰਬਾਈ(ਸਤਰ) : 0);
 }
 
-#ifdef UNITTESTS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ UNITTESTS
 /* @unittest 2602 */
 
 /**
  * Return TRUE iff one or more headers with the given name exist.
  */
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST bool dynhds_ਸ਼ਾਮਲ_ਹੈ(ਬਣਤਰ dynhds *dynhds,
+                              ਅਚਲ ਅੱਖਰ *name, size_t namelen);
+UNITTEST bool dynhds_ਸ਼ਾਮਲ_ਹੈ(ਬਣਤਰ dynhds *dynhds,
+                              ਅਚਲ ਅੱਖਰ *name, size_t namelen)
 {
-  return !!Curl_dynhds_get(dynhds, name, namelen);
+  ਵਾਪਸ !!Curl_dynhds_get(dynhds, name, namelen);
 }
 
 /* @unittest 2602 */
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name);
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
+UNITTEST bool dynhds_ccontains(ਬਣਤਰ dynhds *dynhds, ਅਚਲ ਅੱਖਰ *name);
+UNITTEST bool dynhds_ccontains(ਬਣਤਰ dynhds *dynhds, ਅਚਲ ਅੱਖਰ *name)
 {
-  return dynhds_contains(dynhds, name, strlen(name));
+  ਵਾਪਸ dynhds_ਸ਼ਾਮਲ_ਹੈ(dynhds, name, ਲੜੀ_ਲੰਬਾਈ(name));
 }
 
 /**
@@ -257,21 +257,21 @@ UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen);
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen)
+UNITTEST size_t dynhds_ਗਿਣਤੀ_name(ਬਣਤਰ dynhds *dynhds,
+                                  ਅਚਲ ਅੱਖਰ *name, size_t namelen);
+UNITTEST size_t dynhds_ਗਿਣਤੀ_name(ਬਣਤਰ dynhds *dynhds,
+                                  ਅਚਲ ਅੱਖਰ *name, size_t namelen)
 {
   size_t n = 0;
-  if(dynhds->hds_len) {
+  ਜੇ(dynhds->hds_len) {
     size_t i;
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+    ਲਈ(i = 0; i < dynhds->hds_len; ++i) {
+      ਜੇ((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen))
         ++n;
     }
   }
-  return n;
+  ਵਾਪਸ n;
 }
 
 /**
@@ -280,12 +280,12 @@ UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name);
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name)
+UNITTEST size_t dynhds_ccount_name(ਬਣਤਰ dynhds *dynhds,
+                                        ਅਚਲ ਅੱਖਰ *name);
+UNITTEST size_t dynhds_ccount_name(ਬਣਤਰ dynhds *dynhds,
+                                        ਅਚਲ ਅੱਖਰ *name)
 {
-  return dynhds_count_name(dynhds, name, strlen(name));
+  ਵਾਪਸ dynhds_ਗਿਣਤੀ_name(dynhds, name, ਲੜੀ_ਲੰਬਾਈ(name));
 }
 
 /**
@@ -294,32 +294,32 @@ UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST size_t dynhds_remove(ਬਣਤਰ dynhds *dynhds,
+                              ਅਚਲ ਅੱਖਰ *name, size_t namelen);
+UNITTEST size_t dynhds_remove(ਬਣਤਰ dynhds *dynhds,
+                              ਅਚਲ ਅੱਖਰ *name, size_t namelen)
 {
   size_t n = 0;
-  if(dynhds->hds_len) {
+  ਜੇ(dynhds->hds_len) {
     size_t i, len;
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+    ਲਈ(i = 0; i < dynhds->hds_len; ++i) {
+      ਜੇ((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen)) {
         ++n;
         --dynhds->hds_len;
         dynhds->strs_len -= (dynhds->hds[i]->namelen +
                              dynhds->hds[i]->valuelen);
-        entry_free(dynhds->hds[i]);
+        ਇੰਦਰਾਜ_free(dynhds->hds[i]);
         len = dynhds->hds_len - i; /* remaining entries */
-        if(len) {
+        ਜੇ(len) {
           memmove(&dynhds->hds[i], &dynhds->hds[i + 1],
-                  len * sizeof(dynhds->hds[i]));
+                  len * ਆਕਾਰ(dynhds->hds[i]));
         }
         --i; /* do this index again */
       }
     }
   }
-  return n;
+  ਵਾਪਸ n;
 }
 
 /**
@@ -329,73 +329,73 @@ UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen);
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen)
+UNITTEST CURLcode dynhds_ਸੈੱਟ(ਬਣਤਰ dynhds *dynhds,
+                             ਅਚਲ ਅੱਖਰ *name, size_t namelen,
+                             ਅਚਲ ਅੱਖਰ *ਮੁੱਲ, size_t valuelen);
+UNITTEST CURLcode dynhds_ਸੈੱਟ(ਬਣਤਰ dynhds *dynhds,
+                             ਅਚਲ ਅੱਖਰ *name, size_t namelen,
+                             ਅਚਲ ਅੱਖਰ *ਮੁੱਲ, size_t valuelen)
 {
   dynhds_remove(dynhds, name, namelen);
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  ਵਾਪਸ Curl_dynhds_ਜੋੜੋ(dynhds, name, namelen, ਮੁੱਲ, valuelen);
 }
 
 /* @unittest 2602 */
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name);
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name)
+UNITTEST size_t dynhds_cremove(ਬਣਤਰ dynhds *dynhds, ਅਚਲ ਅੱਖਰ *name);
+UNITTEST size_t dynhds_cremove(ਬਣਤਰ dynhds *dynhds, ਅਚਲ ਅੱਖਰ *name)
 {
-  return dynhds_remove(dynhds, name, strlen(name));
+  ਵਾਪਸ dynhds_remove(dynhds, name, ਲੜੀ_ਲੰਬਾਈ(name));
 }
 
-#endif /* UNITTESTS */
+#ਜੇ_ਅੰਤ /* UNITTESTS */
 
-CURLcode Curl_dynhds_h1_dprint(struct dynhds *dynhds, struct dynbuf *dbuf)
+CURLcode Curl_dynhds_h1_dprint(ਬਣਤਰ dynhds *dynhds, ਬਣਤਰ dynbuf *dbuf)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   size_t i;
 
-  if(!dynhds->hds_len)
-    return result;
+  ਜੇ(!dynhds->hds_len)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    result = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
+  ਲਈ(i = 0; i < dynhds->hds_len; ++i) {
+    ਨਤੀਜਾ = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
                             dynhds->hds[i]->namelen);
-    if(!result)
-      result = curlx_dyn_addn(dbuf, STRCONST(": "));
-    if(!result)
-      result = curlx_dyn_addn(dbuf, dynhds->hds[i]->value,
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = curlx_dyn_addn(dbuf, STRCONST(": "));
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = curlx_dyn_addn(dbuf, dynhds->hds[i]->ਮੁੱਲ,
                               dynhds->hds[i]->valuelen);
-    if(!result)
-      result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
-    if(result)
-      break;
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifdef USE_NGHTTP2
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NGHTTP2
 
-nghttp2_nv *Curl_dynhds_to_nva(struct dynhds *dynhds, size_t *pcount)
+nghttp2_nv *Curl_dynhds_ਮੰਜ਼ਿਲ_nva(ਬਣਤਰ dynhds *dynhds, size_t *pcount)
 {
-  nghttp2_nv *nva = curlx_calloc(1, sizeof(nghttp2_nv) * dynhds->hds_len);
+  nghttp2_nv *nva = curlx_calloc(1, ਆਕਾਰ(nghttp2_nv) * dynhds->hds_len);
   size_t i;
 
   *pcount = 0;
-  if(!nva)
-    return NULL;
+  ਜੇ(!nva)
+    ਵਾਪਸ ਨਿਰਾ;
 
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    struct dynhds_entry *e = dynhds->hds[i];
+  ਲਈ(i = 0; i < dynhds->hds_len; ++i) {
+    ਬਣਤਰ dynhds_ਇੰਦਰਾਜ *e = dynhds->hds[i];
     DEBUGASSERT(e);
-    nva[i].name = (unsigned char *)e->name;
+    nva[i].name = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].ਮੁੱਲ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)e->ਮੁੱਲ;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP2_NV_FLAG_NONE;
   }
   *pcount = dynhds->hds_len;
-  return nva;
+  ਵਾਪਸ nva;
 }
 
-#endif /* USE_NGHTTP2 */
+#ਜੇ_ਅੰਤ /* USE_NGHTTP2 */

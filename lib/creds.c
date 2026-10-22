@@ -21,143 +21,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include <stddef.h>  /* for offsetof() */
+#ਅਨ੍ਤਰ੍ਭਾਵ <stddef.h>  /* for offsetof() */
 
-#include "creds.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "creds.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
 
 
-CURLcode Curl_creds_create(const char *user,
-                           const char *passwd,
-                           const char *oauth_bearer,
-                           const char *sasl_authzid,
-                           const char *sasl_service,
-                           uint8_t source,
-                           struct Curl_creds **pcreds)
+CURLcode Curl_creds_create(ਅਚਲ ਅੱਖਰ *user,
+                           ਅਚਲ ਅੱਖਰ *passwd,
+                           ਅਚਲ ਅੱਖਰ *oauth_bearer,
+                           ਅਚਲ ਅੱਖਰ *sasl_authzid,
+                           ਅਚਲ ਅੱਖਰ *sasl_service,
+                           uint8_t ਸਰੋਤ,
+                           ਬਣਤਰ Curl_creds **pcreds)
 {
-  struct Curl_creds *creds = NULL;
-  size_t ulen = user ? strlen(user) : 0;
-  size_t plen = passwd ? strlen(passwd) : 0;
-  size_t olen = oauth_bearer ? strlen(oauth_bearer) : 0;
-  size_t salen = sasl_authzid ? strlen(sasl_authzid) : 0;
-  size_t sslen = sasl_service ? strlen(sasl_service) : 0;
-  char *s, *buf;
+  ਬਣਤਰ Curl_creds *creds = ਨਿਰਾ;
+  size_t ulen = user ? ਲੜੀ_ਲੰਬਾਈ(user) : 0;
+  size_t plen = passwd ? ਲੜੀ_ਲੰਬਾਈ(passwd) : 0;
+  size_t olen = oauth_bearer ? ਲੜੀ_ਲੰਬਾਈ(oauth_bearer) : 0;
+  size_t salen = sasl_authzid ? ਲੜੀ_ਲੰਬਾਈ(sasl_authzid) : 0;
+  size_t sslen = sasl_service ? ਲੜੀ_ਲੰਬਾਈ(sasl_service) : 0;
+  ਅੱਖਰ *s, *buf;
   size_t bufsize;
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
   Curl_creds_unlink(pcreds);
 
   /* Everything empty/NULL, this is the NULL credential */
-  if(!user && !passwd && !olen && !salen && !sslen)
-    goto out;
+  ਜੇ(!user && !passwd && !olen && !salen && !sslen)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if((ulen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH) ||
-     (olen > CURL_MAX_INPUT_LENGTH) ||
-     (salen > CURL_MAX_INPUT_LENGTH) ||
-     (sslen > CURL_MAX_INPUT_LENGTH)) {
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  ਜੇ((ulen > CURL_MAX_ਨਿਵੇਸ਼_ਲੰਮਾਈ) ||
+     (plen > CURL_MAX_ਨਿਵੇਸ਼_ਲੰਮਾਈ) ||
+     (olen > CURL_MAX_ਨਿਵੇਸ਼_ਲੰਮਾਈ) ||
+     (salen > CURL_MAX_ਨਿਵੇਸ਼_ਲੰਮਾਈ) ||
+     (sslen > CURL_MAX_ਨਿਵੇਸ਼_ਲੰਮਾਈ)) {
+    ਨਤੀਜਾ = CURLE_BAD_FUNCTION_ਦਲੀਲ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* null-terminator for user already part of struct */
   bufsize = ulen + plen + 1 + olen + 1 + salen + 1 + sslen + 1;
-  creds = curlx_calloc(1, sizeof(*creds) + bufsize);
-  if(!creds) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  creds = curlx_calloc(1, ਆਕਾਰ(*creds) + bufsize);
+  ਜੇ(!creds) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   creds->bufsize = bufsize;
   creds->refcount = 1;
-  creds->source = source;
+  creds->ਸਰੋਤ = ਸਰੋਤ;
   /* Some compilers try to be too smart about our dynamic struct size */
-  buf = ((char *)creds) + offsetof(struct Curl_creds, buf);
+  buf = ((ਅੱਖਰ *)creds) + offsetof(ਬਣਤਰ Curl_creds, buf);
   creds->user = s = buf;
-  if(ulen)
-    memcpy(s, user, ulen + 1);
+  ਜੇ(ulen)
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(s, user, ulen + 1);
   creds->passwd = s = buf + ulen + 1;
-  if(plen)
-    memcpy(s, passwd, plen + 1);
+  ਜੇ(plen)
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(s, passwd, plen + 1);
   creds->oauth_bearer = s = buf + ulen + 1 + plen + 1;
-  if(olen)
-    memcpy(s, oauth_bearer, olen + 1);
+  ਜੇ(olen)
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(s, oauth_bearer, olen + 1);
   creds->sasl_authzid = s = buf + ulen + 1 + plen + 1 + olen + 1;
-  if(salen)
-    memcpy(s, sasl_authzid, salen + 1);
+  ਜੇ(salen)
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(s, sasl_authzid, salen + 1);
   creds->sasl_service = s = buf + ulen + 1 + plen + 1 + olen + 1 + salen + 1;
-  if(sslen)
-    memcpy(s, sasl_service, sslen + 1);
+  ਜੇ(sslen)
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(s, sasl_service, sslen + 1);
 
-out:
-  if(!result)
+ਬਾਹਰਲਾ:
+  ਜੇ(!ਨਤੀਜਾ)
     *pcreds = creds;
-  else
+  ਨਹੀਂਤਾਂ
     Curl_creds_unlink(&creds);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_creds_merge(const char *user,
-                          const char *passwd,
-                          struct Curl_creds *creds_in,
-                          uint8_t source,
-                          struct Curl_creds **pcreds_out)
+CURLcode Curl_creds_ਮਿਲਾਓ(ਅਚਲ ਅੱਖਰ *user,
+                          ਅਚਲ ਅੱਖਰ *passwd,
+                          ਬਣਤਰ Curl_creds *creds_ਵਿੱਚ,
+                          uint8_t ਸਰੋਤ,
+                          ਬਣਤਰ Curl_creds **pcreds_ਬਾਹਰਲਾ)
 {
-  struct Curl_creds *creds_out = NULL;
-  CURLcode result;
+  ਬਣਤਰ Curl_creds *creds_ਬਾਹਰਲਾ = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!creds_in) {
-    result = Curl_creds_create(user, passwd, NULL, NULL, NULL,
-                               source, &creds_out);
+  ਜੇ(!creds_ਵਿੱਚ) {
+    ਨਤੀਜਾ = Curl_creds_create(user, passwd, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ,
+                               ਸਰੋਤ, &creds_ਬਾਹਰਲਾ);
   }
-  else {
-    result = Curl_creds_create(user ? user : Curl_creds_user(creds_in),
-                               passwd ? passwd : Curl_creds_passwd(creds_in),
-                               Curl_creds_oauth_bearer(creds_in),
-                               Curl_creds_sasl_authzid(creds_in),
-                               Curl_creds_sasl_service(creds_in),
-                               source, &creds_out);
+  ਨਹੀਂਤਾਂ {
+    ਨਤੀਜਾ = Curl_creds_create(user ? user : Curl_creds_user(creds_ਵਿੱਚ),
+                               passwd ? passwd : Curl_creds_passwd(creds_ਵਿੱਚ),
+                               Curl_creds_oauth_bearer(creds_ਵਿੱਚ),
+                               Curl_creds_sasl_authzid(creds_ਵਿੱਚ),
+                               Curl_creds_sasl_service(creds_ਵਿੱਚ),
+                               ਸਰੋਤ, &creds_ਬਾਹਰਲਾ);
   }
-  Curl_creds_link(pcreds_out, creds_out);
-  Curl_creds_unlink(&creds_out);
-  return result;
+  Curl_creds_link(pcreds_ਬਾਹਰਲਾ, creds_ਬਾਹਰਲਾ);
+  Curl_creds_unlink(&creds_ਬਾਹਰਲਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_creds_link(struct Curl_creds **pdest, struct Curl_creds *src)
+ਖਾਲੀ Curl_creds_link(ਬਣਤਰ Curl_creds **pdest, ਬਣਤਰ Curl_creds *src)
 {
-  if(*pdest != src) {
+  ਜੇ(*pdest != src) {
     Curl_creds_unlink(pdest);
     *pdest = src;
-    if(src) {
+    ਜੇ(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-void Curl_creds_unlink(struct Curl_creds **pcreds)
+ਖਾਲੀ Curl_creds_unlink(ਬਣਤਰ Curl_creds **pcreds)
 {
-  if(*pcreds) {
-    struct Curl_creds *creds = *pcreds;
+  ਜੇ(*pcreds) {
+    ਬਣਤਰ Curl_creds *creds = *pcreds;
 
     DEBUGASSERT(creds->refcount);
-    *pcreds = NULL;
-    if(creds->refcount)
+    *pcreds = ਨਿਰਾ;
+    ਜੇ(creds->refcount)
       creds->refcount--;
-    if(!creds->refcount) {
-      curlx_memzero(creds, sizeof(*creds) + creds->bufsize);
+    ਜੇ(!creds->refcount) {
+      curlx_memzero(creds, ਆਕਾਰ(*creds) + creds->bufsize);
       curlx_free(creds);
     }
   }
 }
 
-bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2)
+bool Curl_creds_same(ਬਣਤਰ Curl_creds *c1, ਬਣਤਰ Curl_creds *c2)
 {
-  return (c1 == c2) ||
+  ਵਾਪਸ (c1 == c2) ||
          (c1 && c2 &&
           !Curl_timestrcmp(c1->user, c2->user) &&
           !Curl_timestrcmp(c1->passwd, c2->passwd) &&
@@ -166,27 +166,27 @@ bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2)
           !Curl_timestrcmp(c1->sasl_service, c2->sasl_service));
 }
 
-bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2)
+bool Curl_creds_equal(ਬਣਤਰ Curl_creds *c1, ਬਣਤਰ Curl_creds *c2)
 {
-  return Curl_creds_same(c1, c2) &&
-         ((c1 == c2) || (c1 && c2 && (c1->source == c2->source)));
+  ਵਾਪਸ Curl_creds_same(c1, c2) &&
+         ((c1 == c2) || (c1 && c2 && (c1->ਸਰੋਤ == c2->ਸਰੋਤ)));
 }
 
-#ifdef CURLVERBOSE
-void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
-                      const char *msg)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+ਖਾਲੀ Curl_creds_trace(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ Curl_creds *creds,
+                      ਅਚਲ ਅੱਖਰ *ਸੁਨੇਹਾ)
 {
-  if(creds) {
-    CURL_TRC_M(data, "%s: user=%s, passwd=%s, "
+  ਜੇ(creds) {
+    CURL_TRC_M(ਅੰਕੜੇ, "%s: user=%s, passwd=%s, "
                "sasl_authzid=%s, oauth_bearer=%s, source=%d",
-               msg,
+               ਸੁਨੇਹਾ,
                Curl_creds_user(creds),
                Curl_creds_has_passwd(creds) ? "***" : "",
                Curl_creds_sasl_authzid(creds),
                Curl_creds_has_oauth_bearer(creds) ? "***" : "",
-               creds->source);
+               creds->ਸਰੋਤ);
   }
-  else
-    CURL_TRC_M(data, "%s: -", msg);
+  ਨਹੀਂਤਾਂ
+    CURL_TRC_M(ਅੰਕੜੇ, "%s: -", ਸੁਨੇਹਾ);
 }
-#endif
+#ਜੇ_ਅੰਤ

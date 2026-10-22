@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_THREADS_H
-#define HEADER_CURL_THREADS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_ਧਾਗੇ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_ਧਾਗੇ_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,10 +23,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_MUTEX
-#ifdef _WIN32
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_MUTEX
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
 #  define CURL_THREAD_RETURN_T   DWORD
 #  define CURL_STDCALL           WINAPI
 #  define curl_mutex_t           CRITICAL_SECTION
@@ -39,45 +39,45 @@
 #  define Curl_mutex_destroy(m)  DeleteCriticalSection(m)
 #  define curl_cond_t            CONDITION_VARIABLE
 #  define Curl_cond_init(c)      InitializeConditionVariable(c)
-#  define Curl_cond_destroy(c)   (void)(c)
-#elif defined(HAVE_THREADS_POSIX)
-#  define CURL_THREAD_RETURN_T   unsigned int
+#  define Curl_cond_destroy(c)   (ਖਾਲੀ)(c)
+#ਜਾਂਜੇ defined(HAVE_ਧਾਗੇ_POSIX)
+#  define CURL_THREAD_RETURN_T   ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ
 #  define CURL_STDCALL
 #  define curl_mutex_t           pthread_mutex_t
 #  define curl_thread_t          pthread_t *
 #  define curl_thread_id_t       pthread_t
 #  define curl_thread_t_null     (pthread_t *)0
-#  define Curl_mutex_init(m)     pthread_mutex_init(m, NULL)
-#  define Curl_mutex_acquire(m)  pthread_mutex_lock(m)
+#  define Curl_mutex_init(m)     pthread_mutex_init(m, ਨਿਰਾ)
+#  define Curl_mutex_acquire(m)  pthread_mutex_ਤਾਲਾ(m)
 #  define Curl_mutex_release(m)  pthread_mutex_unlock(m)
 #  define Curl_mutex_destroy(m)  pthread_mutex_destroy(m)
 #  define curl_cond_t            pthread_cond_t
-#  define Curl_cond_init(c)      pthread_cond_init(c, NULL)
+#  define Curl_cond_init(c)      pthread_cond_init(c, ਨਿਰਾ)
 #  define Curl_cond_destroy(c)   pthread_cond_destroy(c)
-#else
-#error neither HAVE_THREADS_POSIX nor _WIN32 defined
-#endif
+#ਨਹੀਂਤਾਂ
+#ਗਲਤੀ neither HAVE_ਧਾਗੇ_POSIX nor _WIN32 defined
+#ਜੇ_ਅੰਤ
 
-void Curl_cond_signal(curl_cond_t *c);
-void Curl_cond_wait(curl_cond_t *c, curl_mutex_t *m);
+ਖਾਲੀ Curl_cond_signal(curl_cond_t *c);
+ਖਾਲੀ Curl_cond_wait(curl_cond_t *c, curl_mutex_t *m);
 /* Returns CURLE_OPERATION_TIMEDOUT on timeout */
 CURLcode Curl_cond_timedwait(curl_cond_t *c, curl_mutex_t *m,
                              uint32_t timeout_ms);
 
-curl_thread_id_t Curl_thread_get_current_id(void);
+curl_thread_id_t Curl_thread_get_current_id(ਖਾਲੀ);
 bool Curl_thread_is_current(curl_thread_id_t tid);
 
-#endif /* USE_MUTEX */
+#ਜੇ_ਅੰਤ /* USE_MUTEX */
 
-#ifdef USE_THREADS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_ਧਾਗੇ
 
 curl_thread_t Curl_thread_create(
-  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(void *), void *arg);
+  CURL_THREAD_RETURN_T(CURL_STDCALL *func)(ਖਾਲੀ *), ਖਾਲੀ *arg);
 
-void Curl_thread_destroy(curl_thread_t *hnd);
+ਖਾਲੀ Curl_thread_destroy(curl_thread_t *hnd);
 
-int Curl_thread_join(curl_thread_t *hnd);
+ਪੂਰਨ Curl_thread_join(curl_thread_t *hnd);
 
-#endif /* USE_THREADS */
+#ਜੇ_ਅੰਤ /* USE_THREADS */
 
-#endif /* HEADER_CURL_THREADS_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_THREADS_H */

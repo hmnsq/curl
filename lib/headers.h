@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HEADER_H
-#define HEADER_CURL_HEADER_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_ਸਿਰਲੇਖ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_ਸਿਰਲੇਖ_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,43 +23,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#ਜੇ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ਸਿਰਲੇਖਾਂ_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+ਬਣਤਰ Curl_ਸਿਰਲੇਖ_store {
+  ਬਣਤਰ Curl_llist_ਗੰਢ ਗੰਢ;
+  ਅੱਖਰ *name; /* points into 'buffer' */
+  ਅੱਖਰ *ਮੁੱਲ; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
-  size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  size_t nh_ਸੂਚਕਾਂਕ; /* cached index for curl_easy_nextheader() */
+  ਪੂਰਨ request; /* 0 is the first request, then 1.. 2.. */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ type; /* CURLH_* defines */
+  ਅੱਖਰ ਬਫਰ[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_ਸਿਰਲੇਖਾਂ_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_ਸਿਰਲੇਖਾਂ_ਧੱਕੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *ਸਿਰਲੇਖ,
+                           size_t hlen, ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_ਸਿਰਲੇਖਾਂ_cleanup(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-#else
-#define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
-#define Curl_headers_cleanup(x)       Curl_nop_stmt
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_ਸਿਰਲੇਖਾਂ_init(x)          CURLE_OK
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_ਸਿਰਲੇਖਾਂ_ਧੱਕੋ(x, y, z, a) \
+  ((ਖਾਲੀ)(x), (ਖਾਲੀ)(y), (ਖਾਲੀ)(z), (ਖਾਲੀ)(a), CURLE_OK)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_ਸਿਰਲੇਖਾਂ_cleanup(x)       Curl_nop_stmt
+#ਜੇ_ਅੰਤ
 
-#endif /* HEADER_CURL_HEADER_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_HEADER_H */

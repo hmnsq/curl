@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_API_H
-#define HEADER_CURL_API_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_API_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_API_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,41 +23,41 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#define CURLEASY_MAGIC_NUMBER 0xc0dedbadU
-#ifdef DEBUGBUILD
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURLEASY_MAGIC_ਸੰਖਿਆ 0xc0dedbadU
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
 /* On a debug build, we want to fail hard on easy handles that
  * are not NULL, but no longer have the MAGIC touch. This gives
  * us early warning on things only discovered by valgrind otherwise. */
-#define GOOD_EASY_HANDLE(x) \
-  (((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER)) ? TRUE : \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GOOD_EASY_HANDLE(x) \
+  (((x) && ((x)->magic == CURLEASY_MAGIC_ਸੰਖਿਆ)) ? TRUE : \
    (DEBUGASSERT(!(x)), FALSE))
-#else
-#define GOOD_EASY_HANDLE(x) \
-  ((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER))
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GOOD_EASY_HANDLE(x) \
+  ((x) && ((x)->magic == CURLEASY_MAGIC_ਸੰਖਿਆ))
+#ਜੇ_ਅੰਤ
 
-#define CURLMULTI_MAGIC_NUMBER 0x000bab1e
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURLMULTI_MAGIC_ਸੰਖਿਆ 0x000bab1e
 
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
 /* On a debug build, we want to fail hard on multi handles that
  * are not NULL, but no longer have the MAGIC touch. This gives
  * us early warning on things only discovered by valgrind otherwise. */
-#define GOOD_MULTI_HANDLE(x)                         \
-  (((x) && (x)->magic == CURLMULTI_MAGIC_NUMBER) ? TRUE : \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GOOD_MULTI_HANDLE(x)                         \
+  (((x) && (x)->magic == CURLMULTI_MAGIC_ਸੰਖਿਆ) ? TRUE : \
   (DEBUGASSERT(!(x)), FALSE))
-#else
-#define GOOD_MULTI_HANDLE(x) \
-  ((x) && (x)->magic == CURLMULTI_MAGIC_NUMBER)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GOOD_MULTI_HANDLE(x) \
+  ((x) && (x)->magic == CURLMULTI_MAGIC_ਸੰਖਿਆ)
+#ਜੇ_ਅੰਤ
 
 /* the API functions called on a CURL* */
-typedef enum {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
   CURL_EAPI_FN_easy_cleanup,
   CURL_EAPI_FN_easy_duphandle,
   CURL_EAPI_FN_easy_getinfo,
-  CURL_EAPI_FN_easy_header,
+  CURL_EAPI_FN_easy_ਸਿਰਲੇਖ,
   CURL_EAPI_FN_easy_nextheader,
   CURL_EAPI_FN_easy_pause,
   CURL_EAPI_FN_easy_perform_ev,
@@ -71,14 +71,14 @@ typedef enum {
   CURL_EAPI_FN_easy_upkeep,
   CURL_EAPI_FN_ws_recv,
   CURL_EAPI_FN_ws_send,
-  CURL_EAPI_FN_ws_start_frame,
-  CURL_EAPI_FN_LAST
+  CURL_EAPI_FN_ws_ਸ਼ੁਰੂ_ਚੌਖਟਾ,
+  CURL_EAPI_FN_ਆਖਰੀ
 } Curl_eapi_fn;
 
 /* the API functions called on a CURLM* */
-typedef enum {
-  CURL_MAPI_FN_multi_add_handle,
-  CURL_MAPI_FN_multi_assign,
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
+  CURL_MAPI_FN_multi_ਜੋੜੋ_handle,
+  CURL_MAPI_FN_multi_ਸੌਂਪੋ,
   CURL_MAPI_FN_multi_cleanup,
   CURL_MAPI_FN_multi_fdset,
   CURL_MAPI_FN_multi_get_handles,
@@ -96,21 +96,21 @@ typedef enum {
   CURL_MAPI_FN_multi_timeout,
   CURL_MAPI_FN_multi_wait,
   CURL_MAPI_FN_multi_waitfds,
-  CURL_MAPI_FN_LAST
+  CURL_MAPI_FN_ਆਖਰੀ
 } Curl_mapi_fn;
 
-#define CURL_CBAPI_FN_START        128
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_CBAPI_FN_ਸ਼ੁਰੂ        128
 
 /* the callback functions */
-typedef enum {
-  CURL_CBAPI_FN_easy_chunk_bgn = CURL_CBAPI_FN_START,
-  CURL_CBAPI_FN_easy_chunk_end,
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
+  CURL_CBAPI_FN_easy_chunk_bgn = CURL_CBAPI_FN_ਸ਼ੁਰੂ,
+  CURL_CBAPI_FN_easy_chunk_ਸਿਰਾ,
   CURL_CBAPI_FN_easy_closesocket,
-  CURL_CBAPI_FN_easy_cr_in_read,
-  CURL_CBAPI_FN_easy_cr_in_resume_from,
-  CURL_CBAPI_FN_easy_cw_out_cb,
+  CURL_CBAPI_FN_easy_cr_ਵਿੱਚ_read,
+  CURL_CBAPI_FN_easy_cr_ਵਿੱਚ_resume_from,
+  CURL_CBAPI_FN_easy_cw_ਬਾਹਰਲਾ_cb,
   CURL_CBAPI_FN_easy_fdebug,
-  CURL_CBAPI_FN_easy_fnmatch_data,
+  CURL_CBAPI_FN_easy_fnmatch_ਅੰਕੜੇ,
   CURL_CBAPI_FN_easy_fopensocket,
   CURL_CBAPI_FN_easy_fprereq,
   CURL_CBAPI_FN_easy_fprogress,
@@ -120,93 +120,93 @@ typedef enum {
   CURL_CBAPI_FN_easy_fwrite_rtp,
   CURL_CBAPI_FN_easy_fxferinfo,
   CURL_CBAPI_FN_easy_ioctl_func,
-  CURL_CBAPI_FN_easy_resolver_start,
+  CURL_CBAPI_FN_easy_resolver_ਸ਼ੁਰੂ,
   CURL_CBAPI_FN_easy_seek_func,
   CURL_CBAPI_FN_easy_ssh_hostkeyfunc,
   CURL_CBAPI_FN_easy_ssh_keyfunc,
   CURL_CBAPI_FN_easy_trailer_callback,
 
   CURL_CBAPI_FN_multi_ntfy_cb,
-  CURL_CBAPI_FN_multi_push_cb,
+  CURL_CBAPI_FN_multi_ਧੱਕੋ_cb,
   CURL_CBAPI_FN_multi_socket_cb,
   CURL_CBAPI_FN_multi_timer_cb,
 
-  CURL_CBAPI_FN_LAST
+  CURL_CBAPI_FN_ਆਖਰੀ
 } Curl_cbapi_fn;
 
 /* EAPI */
 
-#define CURL_EAPI_MAX_RECURSION       7
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_EAPI_MAX_RECURSION       7
 
-struct Curl_eapi_stack {
-  uint16_t count;
+ਬਣਤਰ Curl_eapi_ਢੇਰ {
+  uint16_t ਗਿਣਤੀ_2;
   uint16_t calls[CURL_EAPI_MAX_RECURSION];
 };
 
-struct Curl_eapi_guard {
-  struct Curl_easy *data;  /* != NULL if handle stays */
-  uint16_t depth;  /* > 0 if this guard was entered */
+ਬਣਤਰ Curl_eapi_guard {
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ;  /* != NULL if handle stays */
+  uint16_t ਡੂੰਘਾਈ;  /* > 0 if this guard was entered */
 };
 
-bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
+bool Curl_eapi_enter(ਬਣਤਰ Curl_eapi_guard *guard,
                      CURL *curl,
                      Curl_eapi_fn fn,
                      CURLcode *presult);
-void Curl_eapi_leave(struct Curl_eapi_guard *guard);
+ਖਾਲੀ Curl_eapi_leave(ਬਣਤਰ Curl_eapi_guard *guard);
 
 /* Convert an EAPI failure to a header API result */
-CURLHcode Curl_eapi_hcode(CURLcode result);
+CURLHcode Curl_eapi_hcode(CURLcode ਨਤੀਜਾ);
 
 /* Curl_eapi_enter() checks for curl being NULL, but windows compiler
  * analyzers do not realize this. *sigh* */
-#define CURL_EAPI_ENTER(g, curl, fn, r) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_EAPI_ENTER(g, curl, fn, r) \
   Curl_eapi_enter((g), (curl), CURL_EAPI_FN_##fn, (r)) && (curl)
-#define CURL_EAPI_LEAVE(g) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_EAPI_LEAVE(g) \
   Curl_eapi_leave(g)
 
 /* MAPI */
 
-#define CURL_MAPI_MAX_RECURSION       15
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_MAPI_MAX_RECURSION       15
 
-struct Curl_mapi_stack {
-  uint8_t count;
+ਬਣਤਰ Curl_mapi_ਢੇਰ {
+  uint8_t ਗਿਣਤੀ_2;
   uint8_t calls[CURL_MAPI_MAX_RECURSION];
 };
 
-struct Curl_mapi_guard {
-  struct Curl_multi *multi;  /* != NULL if handle stays */
-  uint8_t depth;  /* > 0 if this guard was entered */
+ਬਣਤਰ Curl_mapi_guard {
+  ਬਣਤਰ Curl_multi *multi;  /* != NULL if handle stays */
+  uint8_t ਡੂੰਘਾਈ;  /* > 0 if this guard was entered */
 };
 
-bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
+bool Curl_mapi_enter(ਬਣਤਰ Curl_mapi_guard *guard,
                      CURLM *m,
                      Curl_mapi_fn fn,
                      CURLMcode *pmresult);
-void Curl_mapi_leave(struct Curl_mapi_guard *guard);
+ਖਾਲੀ Curl_mapi_leave(ਬਣਤਰ Curl_mapi_guard *guard);
 
 /* Curl_mapi_enter() checks for m being NULL, but windows compiler
  * analyzers do not realize this. *sigh* */
-#define CURL_MAPI_ENTER(g, m, fn, r) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_MAPI_ENTER(g, m, fn, r) \
   Curl_mapi_enter((g), (m), CURL_MAPI_FN_##fn, (r)) && (m)
-#define CURL_MAPI_LEAVE(g) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_MAPI_LEAVE(g) \
   Curl_mapi_leave(g)
 
-void Curl_cbapi_enter(struct Curl_mapi_guard *guard,
-                      struct Curl_easy *data,
-                      struct Curl_multi *multi,
+ਖਾਲੀ Curl_cbapi_enter(ਬਣਤਰ Curl_mapi_guard *guard,
+                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                      ਬਣਤਰ Curl_multi *multi,
                       Curl_cbapi_fn fn);
-void Curl_cbapi_leave(struct Curl_mapi_guard *guard);
+ਖਾਲੀ Curl_cbapi_leave(ਬਣਤਰ Curl_mapi_guard *guard);
 
-#define CURL_CBAPI_START(g, d, fn) \
-  Curl_cbapi_enter((g), (d), NULL, CURL_CBAPI_FN_##fn)
-#define CURL_CBAPI_MULTI_START(g, m, fn) \
-  Curl_cbapi_enter((g), NULL, (m), CURL_CBAPI_FN_##fn)
-#define CURL_CBAPI_END(g) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_CBAPI_ਸ਼ੁਰੂ(g, d, fn) \
+  Curl_cbapi_enter((g), (d), ਨਿਰਾ, CURL_CBAPI_FN_##fn)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_CBAPI_MULTI_ਸ਼ੁਰੂ(g, m, fn) \
+  Curl_cbapi_enter((g), ਨਿਰਾ, (m), CURL_CBAPI_FN_##fn)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_CBAPI_ਸਿਰਾ(g) \
   Curl_cbapi_leave(g)
-#define CURL_CBAPI_MULTI_END(g) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_CBAPI_MULTI_ਸਿਰਾ(g) \
   Curl_cbapi_leave(g)
 
-bool Curl_api_is_in_callback(struct Curl_easy *data);
-bool Curl_api_multi_is_in_callback(struct Curl_multi *multi);
+bool Curl_api_is_ਵਿੱਚ_callback(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
+bool Curl_api_multi_is_ਵਿੱਚ_callback(ਬਣਤਰ Curl_multi *multi);
 
-#endif /* HEADER_CURL_API_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_API_H */

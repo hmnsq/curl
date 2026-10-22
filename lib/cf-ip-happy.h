@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_IP_HAPPY_H
-#define HEADER_CURL_IP_HAPPY_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_IP_HAPPY_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_IP_HAPPY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-struct connectdata;
-struct Curl_addrinfo;
-struct Curl_cfilter;
-struct Curl_easy;
-struct Curl_peer;
-struct Curl_sockaddr_ex;
+ਬਣਤਰ connectdata;
+ਬਣਤਰ Curl_addrinfo;
+ਬਣਤਰ Curl_cfilter;
+ਬਣਤਰ Curl_easy;
+ਬਣਤਰ Curl_peer;
+ਬਣਤਰ Curl_sockaddr_ex;
 
 /**
  * Create a cfilter to connect to `origin` via an optional `peer`
@@ -44,14 +44,14 @@ struct Curl_sockaddr_ex;
  * The filter is used in "happy eyeball" scenarios. Once connected,
  * it MAY be installed in the connection filter chain to serve transfers.
  */
-typedef CURLcode cf_ip_connect_create(struct Curl_cfilter **pcf,
-                                      struct Curl_easy *data,
-                                      struct Curl_peer *origin,
-                                      struct Curl_peer *peer,
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ CURLcode cf_ip_connect_create(ਬਣਤਰ Curl_cfilter **pcf,
+                                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਬਣਤਰ Curl_peer *origin,
+                                      ਬਣਤਰ Curl_peer *peer,
                                       uint8_t transport_peer,
-                                      struct connectdata *conn,
-                                      struct Curl_sockaddr_ex *addr,
-                                      struct Curl_peer *tunnel_peer,
+                                      ਬਣਤਰ connectdata *conn,
+                                      ਬਣਤਰ Curl_sockaddr_ex *addr,
+                                      ਬਣਤਰ Curl_peer *tunnel_peer,
                                       uint8_t tunnel_transport);
 
 /**
@@ -60,14 +60,14 @@ typedef CURLcode cf_ip_connect_create(struct Curl_cfilter **pcf,
  * With a `tunnel_peer` present, the filter will be used to proxy tunnel
  * to it and the tunnel will use `tunnel_transport`.
  */
-CURLcode Curl_cf_ip_happy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
+CURLcode Curl_cf_ip_happy_ਪਾਓ_after(ਬਣਤਰ Curl_cfilter *cf_at,
+                                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       ਬਣਤਰ Curl_peer *origin,
+                                       ਬਣਤਰ Curl_peer *peer,
                                        uint8_t transport_peer,
-                                       struct Curl_peer *tunnel_peer,
+                                       ਬਣਤਰ Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_ip_happy;
+ਬਾਹਰੀ ਬਣਤਰ Curl_cftype Curl_cft_ip_happy;
 
-#endif /* HEADER_CURL_IP_HAPPY_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_IP_HAPPY_H */

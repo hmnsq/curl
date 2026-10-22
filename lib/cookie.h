@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_COOKIE_H
-#define HEADER_CURL_COOKIE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_COOKIE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_COOKIE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,44 +23,44 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "llist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "llist.h"
 
-struct Cookie {
-  struct Curl_llist_node node;    /* for the main cookie list */
-  struct Curl_llist_node getnode; /* for getlist */
-  char *name;                     /* <this> = value */
-  char *value;                    /* name = <this> */
-  char *path;                     /* canonical path */
-  char *domain;                   /* domain = <this> */
+ਬਣਤਰ Cookie {
+  ਬਣਤਰ Curl_llist_ਗੰਢ ਗੰਢ;    /* for the main cookie list */
+  ਬਣਤਰ Curl_llist_ਗੰਢ getnode; /* for getlist */
+  ਅੱਖਰ *name;                     /* <this> = value */
+  ਅੱਖਰ *ਮੁੱਲ;                    /* name = <this> */
+  ਅੱਖਰ *ਰਸਤਾ;                     /* canonical path */
+  ਅੱਖਰ *domain;                   /* domain = <this> */
   curl_off_t expires;             /* expires = <this> */
-  unsigned int creationtime;      /* time when the cookie was written */
-  BIT(tailmatch);                 /* tail-match the domain name */
-  BIT(secure);                    /* the 'secure' keyword was used */
-  BIT(livecookie);                /* updated from server, not a stored file */
-  BIT(httponly);                  /* the httponly directive is present */
-  BIT(prefix_secure);             /* secure prefix is set */
-  BIT(prefix_host);               /* host prefix is set */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ creationtime;      /* time when the cookie was written */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(tailmatch);                 /* tail-match the domain name */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(secure);                    /* the 'secure' keyword was used */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(livecookie);                /* updated from server, not a stored file */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(httponly);                  /* the httponly directive is present */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਅਗੇਤਰ_secure);             /* secure prefix is set */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਅਗੇਤਰ_host);               /* host prefix is set */
 };
 
 /*
  * Available cookie prefixes, as defined in
  * draft-ietf-httpbis-rfc6265bis-02
  */
-#define COOKIE_PREFIX__SECURE (1 << 0)
-#define COOKIE_PREFIX__HOST   (1 << 1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COOKIE_ਅਗੇਤਰ_SECURE (1 << 0)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COOKIE_ਅਗੇਤਰ_HOST   (1 << 1)
 
-#define COOKIE_HASH_SIZE 63
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COOKIE_HASH_ਮਾਪ 63
 
-struct CookieInfo {
+ਬਣਤਰ CookieInfo {
   /* linked lists of cookies we know of */
-  struct Curl_llist cookielist[COOKIE_HASH_SIZE];
-  curl_off_t next_expiration; /* the next time at which expiration happens */
-  unsigned int numcookies;    /* number of cookies in the "jar" */
-  unsigned int lastct;        /* last creation-time used in the jar */
-  BIT(running);               /* state info, for cookie adding information */
-  BIT(newsession); /* new session, discard session cookies on load */
+  ਬਣਤਰ Curl_llist cookielist[COOKIE_HASH_ਮਾਪ];
+  curl_off_t ਅਗਲਾ_expiration; /* the next time at which expiration happens */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ numcookies;    /* number of cookies in the "jar" */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ lastct;        /* last creation-time used in the jar */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(running);               /* state info, for cookie adding information */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(newsession); /* new session, discard session cookies on load */
 };
 
 /* The maximum sizes we accept for cookies. RFC 6265 section 6.1 says
@@ -78,72 +78,72 @@ struct CookieInfo {
 
 /* The longest we allow a line to be when reading a cookie from an HTTP header
    or from a cookie jar */
-#define MAX_COOKIE_LINE 5000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_COOKIE_ਸਤਰ 5000
 
 /* Maximum length of an incoming cookie name or content we deal with. Longer
    cookies are ignored. */
-#define MAX_NAME 4096
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_NAME 4096
 
 /* Maximum number of Set-Cookie: lines accepted in a single response. If more
    such header lines are received, they are ignored. This value must be less
    than 256 since an unsigned char is used to count. */
-#define MAX_SET_COOKIE_AMOUNT 50
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_ਸੈੱਟ_COOKIE_AMOUNT 50
 
 /** Limits for OUTGOING cookies **/
 
 /* Maximum size for an outgoing cookie line libcurl will use in an http
    request. This is the default maximum length used in some versions of Apache
    httpd. */
-#define MAX_COOKIE_HEADER_LEN 8190
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_COOKIE_ਸਿਰਲੇਖ_LEN 8190
 
 /* Maximum number of cookies libcurl will send in a single request, even if
    there might be more cookies that match. One reason to cap the number is to
    keep the maximum HTTP request within the maximum allowed size. */
-#define MAX_COOKIE_SEND_AMOUNT 150
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_COOKIE_SEND_AMOUNT 150
 
-struct Curl_easy;
-struct connectdata;
+ਬਣਤਰ Curl_easy;
+ਬਣਤਰ connectdata;
 
-bool Curl_secure_context(struct Curl_easy *data, const char *host);
+bool Curl_secure_context(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ *host);
 
 /*
  * Add a cookie to the internal list of cookies. The domain and path arguments
  * are only used if the COOKIE_HTTPHEADER bit is set in the flags.
  */
 
-#define COOKIE_HTTPHEADER (1<<0) /* if HTTP header-style line */
-#define COOKIE_NOEXPIRE   (1<<1) /* skip remove_expired() */
-#define COOKIE_SECURE     (1<<2) /* connection is over secure origin */
-#define COOKIE_NOPSL      (1<<3) /* skip PSL check */
-#define COOKIE_NOSESSION  (1<<6) /* drop session cookies */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COOKIE_HTTPHEADER (1<<0) /* if HTTP header-style line */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COOKIE_NOEXPIRE   (1<<1) /* skip remove_expired() */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COOKIE_SECURE     (1<<2) /* connection is over secure origin */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COOKIE_NOPSL      (1<<3) /* skip PSL check */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ COOKIE_NOSESSION  (1<<6) /* drop session cookies */
 
-CURLcode Curl_cookie_add(struct Curl_easy *data,
-                         struct CookieInfo *ci,
-                         const char *lineptr,
-                         const char *domain,
-                         const char *path,
-                         const int flags) WARN_UNUSED_RESULT;
-CURLcode Curl_cookie_getlist(struct Curl_easy *data,
-                             bool *okay, const char *host,
-                             struct Curl_llist *list) WARN_UNUSED_RESULT;
-void Curl_cookie_clearall(struct CookieInfo *ci);
-void Curl_cookie_clearsess(struct CookieInfo *ci);
+CURLcode Curl_cookie_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                         ਬਣਤਰ CookieInfo *ci,
+                         ਅਚਲ ਅੱਖਰ *lineptr,
+                         ਅਚਲ ਅੱਖਰ *domain,
+                         ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
+                         ਅਚਲ ਪੂਰਨ flags) WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ;
+CURLcode Curl_cookie_getlist(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             bool *okay, ਅਚਲ ਅੱਖਰ *host,
+                             ਬਣਤਰ Curl_llist *list) WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ;
+ਖਾਲੀ Curl_cookie_clearall(ਬਣਤਰ CookieInfo *ci);
+ਖਾਲੀ Curl_cookie_clearsess(ਬਣਤਰ CookieInfo *ci);
 
-#if defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
-#define Curl_cookie_list(x)      NULL
-#define Curl_cookie_loadfiles(x, y) CURLE_OK
-#define Curl_cookie_init()       NULL
-#define Curl_cookie_run(x)       Curl_nop_stmt
-#define Curl_cookie_cleanup(x)   Curl_nop_stmt
-#define Curl_flush_cookies(x, y) Curl_nop_stmt
-#else
-void Curl_flush_cookies(struct Curl_easy *data, bool cleanup);
-void Curl_cookie_cleanup(struct CookieInfo *ci);
-struct CookieInfo *Curl_cookie_init(void);
-struct curl_slist *Curl_cookie_list(struct Curl_easy *data);
-CURLcode Curl_cookie_loadfiles(struct Curl_easy *data,
-                               int flags) WARN_UNUSED_RESULT;
-void Curl_cookie_run(struct Curl_easy *data);
-#endif
+#ਜੇ defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_cookie_list(x)      ਨਿਰਾ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_cookie_loadfiles(x, y) CURLE_OK
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_cookie_init()       ਨਿਰਾ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_cookie_ਲੜੀਵਾਰ(x)       Curl_nop_stmt
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_cookie_cleanup(x)   Curl_nop_stmt
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_flush_cookies(x, y) Curl_nop_stmt
+#ਨਹੀਂਤਾਂ
+ਖਾਲੀ Curl_flush_cookies(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool cleanup);
+ਖਾਲੀ Curl_cookie_cleanup(ਬਣਤਰ CookieInfo *ci);
+ਬਣਤਰ CookieInfo *Curl_cookie_init(ਖਾਲੀ);
+ਬਣਤਰ curl_slist *Curl_cookie_list(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
+CURLcode Curl_cookie_loadfiles(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਪੂਰਨ flags) WARN_ਅਣਵਰਤਿਆ_ਨਤੀਜਾ;
+ਖਾਲੀ Curl_cookie_ਲੜੀਵਾਰ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
+#ਜੇ_ਅੰਤ
 
-#endif /* HEADER_CURL_COOKIE_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_COOKIE_H */

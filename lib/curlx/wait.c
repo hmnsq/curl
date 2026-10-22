@@ -21,20 +21,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_SELECT_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/select.h>
+#ਜਾਂਜੇ defined(HAVE_UNISTD_H)
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef MSDOS
-#include <dos.h>  /* delay() */
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ MSDOS
+#ਅਨ੍ਤਰ੍ਭਾਵ <dos.h>  /* delay() */
+#ਜੇ_ਅੰਤ
 
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/timediff.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/wait.h"
 
 /*
  * Internal function used for waiting a specific amount of ms in
@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+ਪੂਰਨ curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  ਪੂਰਨ r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
-    SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+  ਜੇ(!timeout_ms)
+    ਵਾਪਸ 0;
+  ਜੇ(timeout_ms < 0) {
+    ਸੈੱਟ_SOCKERRNO(SOCKEINVAL);
+    ਵਾਪਸ -1;
   }
-#ifdef MSDOS
-  delay((unsigned int)timeout_ms);
-#elif defined(_WIN32)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ MSDOS
+  delay((ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)timeout_ms);
+#ਜਾਂਜੇ defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
+#ਜੇ TIMEDIFF_T_MAX >= ULONG_MAX
+  ਜੇ(timeout_ms >= ULONG_MAX)
     timeout_ms = ULONG_MAX - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
-#endif
+#ਜੇ_ਅੰਤ
   Sleep((DWORD)timeout_ms);
-#else
+#ਨਹੀਂਤਾਂ
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
-    r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
+    ਬਣਤਰ timeval pending_tv;
+    r = select(0, ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ, curlx_mstotv(&pending_tv, timeout_ms));
   }
-#endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+#ਜੇ_ਅੰਤ /* _WIN32 */
+  ਜੇ(r) {
+    ਜੇ((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    ਨਹੀਂਤਾਂ
       r = -1;
   }
-  return r;
+  ਵਾਪਸ r;
 }

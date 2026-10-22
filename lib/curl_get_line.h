@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GET_LINE_H
-#define HEADER_CURL_GET_LINE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_GET_ਸਤਰ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_GET_ਸਤਰ_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/dynbuf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/dynbuf.h"
 
 /* Curl_get_line() returns complete lines that end with a newline. */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof);
+CURLcode Curl_get_ਸਤਰ(ਬਣਤਰ dynbuf *buf, FILE *ਨਿਵੇਸ਼, bool *eof);
 
-#endif /* HEADER_CURL_GET_LINE_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_GET_LINE_H */

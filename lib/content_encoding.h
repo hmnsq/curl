@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONTENT_ENCODING_H
-#define HEADER_CURL_CONTENT_ENCODING_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_CONTENT_ENCODING_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_CONTENT_ENCODING_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-struct Curl_cwriter;
+ਬਣਤਰ Curl_cwriter;
 
 /* returns an allocated string or NULL */
-char *Curl_get_content_encodings(void);
+ਅੱਖਰ *Curl_get_content_encodings(ਖਾਲੀ);
 
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer);
-#endif /* HEADER_CURL_CONTENT_ENCODING_H */
+CURLcode Curl_build_unencoding_ਢੇਰ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਅਚਲ ਅੱਖਰ *enclist, ਪੂਰਨ is_transfer);
+#ਜੇ_ਅੰਤ /* HEADER_CURL_CONTENT_ENCODING_H */

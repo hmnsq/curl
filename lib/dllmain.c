@@ -21,44 +21,44 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_OPENSSL
-#include <openssl/crypto.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_OPENSSL
+#ਅਨ੍ਤਰ੍ਭਾਵ <openssl/crypto.h>
+#ਜੇ_ਅੰਤ
 
 /* DllMain() must only be defined for Windows DLL builds. */
-#if defined(_WIN32) && !defined(CURL_STATICLIB)
+#ਜੇ defined(_WIN32) && !defined(CURL_STATICLIB)
 
-#if defined(USE_OPENSSL) && \
+#ਜੇ defined(USE_OPENSSL) && \
   !defined(OPENSSL_IS_AWSLC) && !defined(OPENSSL_IS_BORINGSSL) && \
-  !defined(LIBRESSL_VERSION_NUMBER)
-#define PREVENT_OPENSSL_MEMLEAK  /* non-fork OpenSSL */
-#endif
+  !defined(LIBRESSL_ਸੰਸਕਰਣ_ਸੰਖਿਆ)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PREVENT_OPENSSL_MEMLEAK  /* non-fork OpenSSL */
+#ਜੇ_ਅੰਤ
 
-#ifdef PREVENT_OPENSSL_MEMLEAK
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ PREVENT_OPENSSL_MEMLEAK
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved);
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-  (void)hinstDLL;
-  (void)lpvReserved;
+  (ਖਾਲੀ)hinstDLL;
+  (ਖਾਲੀ)lpvReserved;
 
-  switch(fdwReason) {
-  case DLL_PROCESS_ATTACH:
-    break;
-  case DLL_PROCESS_DETACH:
-    break;
-  case DLL_THREAD_ATTACH:
-    break;
-  case DLL_THREAD_DETACH:
+  ਚੋਣ(fdwReason) {
+  ਹਾਲਤ DLL_PROCESS_ATTACH:
+    ਰੋਕੋ;
+  ਹਾਲਤ DLL_PROCESS_DETACH:
+    ਰੋਕੋ;
+  ਹਾਲਤ DLL_THREAD_ATTACH:
+    ਰੋਕੋ;
+  ਹਾਲਤ DLL_THREAD_DETACH:
     /* Call OPENSSL_thread_stop to prevent a memory leak in case OpenSSL is
        linked statically.
        https://github.com/curl/curl/issues/12327#issuecomment-1826405944 */
     OPENSSL_thread_stop();
-    break;
+    ਰੋਕੋ;
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
-#endif /* PREVENT_OPENSSL_MEMLEAK */
+#ਜੇ_ਅੰਤ /* PREVENT_OPENSSL_MEMLEAK */
 
-#endif /* _WIN32 && !CURL_STATICLIB */
+#ਜੇ_ਅੰਤ /* _WIN32 && !CURL_STATICLIB */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HSTS_H
-#define HEADER_CURL_HSTS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_HSTS_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_HSTS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-struct hsts;
+ਬਣਤਰ hsts;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-#include "llist.h"
+#ਜੇ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#ਅਨ੍ਤਰ੍ਭਾਵ "llist.h"
 
-struct Curl_peer;
+ਬਣਤਰ Curl_peer;
 
-#define MAX_HSTS_ENTRIES 10000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_HSTS_ENTRIES 10000
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
-extern time_t deltatime;
-#endif
+#ਜੇ defined(DEBUGBUILD) || defined(UNITTESTS)
+ਬਾਹਰੀ time_t deltatime;
+#ਜੇ_ਅੰਤ
 
-struct stsentry {
-  struct Curl_llist_node node;
+ਬਣਤਰ stsentry {
+  ਬਣਤਰ Curl_llist_ਗੰਢ ਗੰਢ;
   curl_off_t expires; /* the timestamp of this entry's expiry */
-  BIT(includeSubDomains);
-  char host[1];
+  ਦੋਆਧਾਰੀ_ਅੰਕ(includeSubDomains);
+  ਅੱਖਰ host[1];
 };
 
 /* The HSTS cache. Needs to be able to tailmatch hostnames. */
-struct hsts {
-  struct Curl_llist list;
-  char *filename;
-  unsigned int flags;
+ਬਣਤਰ hsts {
+  ਬਣਤਰ Curl_llist list;
+  ਅੱਖਰ *filename;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ flags;
 };
 
-struct hsts *Curl_hsts_init(void);
-void Curl_hsts_cleanup(struct hsts **hp);
-CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src);
-CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
-                         const char *header);
-CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
-                        const char *file);
-CURLcode Curl_hsts_loadfile(struct Curl_easy *data,
-                            struct hsts *h, const char *file);
-CURLcode Curl_hsts_loadcb(struct Curl_easy *data,
-                          struct hsts *h);
-CURLcode Curl_hsts_loadfiles(struct Curl_easy *data);
+ਬਣਤਰ hsts *Curl_hsts_init(ਖਾਲੀ);
+ਖਾਲੀ Curl_hsts_cleanup(ਬਣਤਰ hsts **hp);
+CURLcode Curl_hsts_copy(ਬਣਤਰ hsts *dst, ਬਣਤਰ hsts *src);
+CURLcode Curl_hsts_parse(ਬਣਤਰ hsts *h, ਅਚਲ ਅੱਖਰ *hostname,
+                         ਅਚਲ ਅੱਖਰ *ਸਿਰਲੇਖ);
+CURLcode Curl_hsts_save(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ hsts *h,
+                        ਅਚਲ ਅੱਖਰ *file);
+CURLcode Curl_hsts_loadfile(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ hsts *h, ਅਚਲ ਅੱਖਰ *file);
+CURLcode Curl_hsts_loadcb(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਬਣਤਰ hsts *h);
+CURLcode Curl_hsts_loadfiles(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest);
+bool Curl_hsts_applies(ਬਣਤਰ hsts *h, ਅਚਲ ਬਣਤਰ Curl_peer *dest);
 
-#else
-#define Curl_hsts_cleanup(x)
-#define Curl_hsts_loadcb(x, y) CURLE_OK
-#define Curl_hsts_save(x, y, z)
-#define Curl_hsts_loadfiles(x) CURLE_OK
-#endif /* CURL_DISABLE_HTTP || CURL_DISABLE_HSTS */
-#endif /* HEADER_CURL_HSTS_H */
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_hsts_cleanup(x)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_hsts_loadcb(x, y) CURLE_OK
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_hsts_save(x, y, z)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_hsts_loadfiles(x) CURLE_OK
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_HTTP || CURL_DISABLE_HSTS */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_HSTS_H */

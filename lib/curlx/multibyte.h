@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIBYTE_H
-#define HEADER_CURL_MULTIBYTE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_MULTIBYTE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_MULTIBYTE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef _WIN32
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
 
 /*
  * Macros curlx_convert_UTF8_to_tchar(), curlx_convert_tchar_to_UTF8()
@@ -39,35 +39,35 @@
  * significance of the conversion functions is primarily for Unicode builds.
  */
 
-#ifdef UNICODE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ UNICODE
 
 /* MultiByte conversions using Windows kernel32 library. */
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8);
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w);
+wchar_t *curlx_convert_UTF8_ਮੰਜ਼ਿਲ_wchar(ਅਚਲ ਅੱਖਰ *str_utf8);
+ਅੱਖਰ *curlx_convert_wchar_ਮੰਜ਼ਿਲ_UTF8(ਅਚਲ wchar_t *str_w);
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_convert_UTF8_to_wchar(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_convert_wchar_to_UTF8(ptr)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ curlx_convert_UTF8_ਮੰਜ਼ਿਲ_tchar(ptr) curlx_convert_UTF8_ਮੰਜ਼ਿਲ_wchar(ptr)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ curlx_convert_tchar_ਮੰਜ਼ਿਲ_UTF8(ptr) curlx_convert_wchar_ਮੰਜ਼ਿਲ_UTF8(ptr)
 
-typedef union {
-  unsigned short       *tchar_ptr;
-  const unsigned short *const_tchar_ptr;
-  unsigned short       *tbyte_ptr;
-  const unsigned short *const_tbyte_ptr;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਸੰਘ {
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ       *tchar_ptr;
+  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ *const_tchar_ptr;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ       *tbyte_ptr;
+  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ *const_tbyte_ptr;
 } xcharp_u;
 
-#else /* !UNICODE */
+#ਨਹੀਂਤਾਂ /* !UNICODE */
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_strdup(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_strdup(ptr)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ curlx_convert_UTF8_ਮੰਜ਼ਿਲ_tchar(ptr) curlx_strdup(ptr)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ curlx_convert_tchar_ਮੰਜ਼ਿਲ_UTF8(ptr) curlx_strdup(ptr)
 
-typedef union {
-  char                *tchar_ptr;
-  const char          *const_tchar_ptr;
-  unsigned char       *tbyte_ptr;
-  const unsigned char *const_tbyte_ptr;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਸੰਘ {
+  ਅੱਖਰ                *tchar_ptr;
+  ਅਚਲ ਅੱਖਰ          *const_tchar_ptr;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ       *tbyte_ptr;
+  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *const_tbyte_ptr;
 } xcharp_u;
 
-#endif /* UNICODE */
-#endif /* _WIN32 */
+#ਜੇ_ਅੰਤ /* UNICODE */
+#ਜੇ_ਅੰਤ /* _WIN32 */
 
-#endif /* HEADER_CURL_MULTIBYTE_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_MULTIBYTE_H */

@@ -21,58 +21,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if defined(_WIN32) && defined(UNICODE)
+#ਜੇ defined(_WIN32) && defined(UNICODE)
 
-#include "curlx/multibyte.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/multibyte.h"
 
 /*
  * MultiByte conversions using Windows kernel32 library.
  */
 
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
+wchar_t *curlx_convert_UTF8_ਮੰਜ਼ਿਲ_wchar(ਅਚਲ ਅੱਖਰ *str_utf8)
 {
-  wchar_t *str_w = NULL;
+  wchar_t *str_w = ਨਿਰਾ;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                        str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = curlx_malloc(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  ਜੇ(str_utf8) {
+    ਪੂਰਨ str_w_len = Multi_Byte_ਮੰਜ਼ਿਲ_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, ਨਿਰਾ, 0);
+    ਜੇ(str_w_len > 0) {
+      str_w = curlx_malloc(str_w_len * ਆਕਾਰ(wchar_t));
+      ਜੇ(str_w) {
+        ਜੇ(Multi_Byte_ਮੰਜ਼ਿਲ_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           curlx_free(str_w);
-          return NULL;
+          ਵਾਪਸ ਨਿਰਾ;
         }
       }
     }
   }
 
-  return str_w;
+  ਵਾਪਸ str_w;
 }
 
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
+ਅੱਖਰ *curlx_convert_wchar_ਮੰਜ਼ਿਲ_UTF8(ਅਚਲ wchar_t *str_w)
 {
-  char *str_utf8 = NULL;
+  ਅੱਖਰ *str_utf8 = ਨਿਰਾ;
 
-  if(str_w) {
-    int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
-                                    NULL, 0, NULL, NULL);
-    if(bytes > 0) {
-      str_utf8 = curlx_malloc(bytes);
-      if(str_utf8) {
-        if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
-                               NULL, NULL) == 0) {
+  ਜੇ(str_w) {
+    ਪੂਰਨ ਬਾਈਟਾਂ = Wide_Char_ਮੰਜ਼ਿਲ_Multi_Byte(CP_UTF8, 0, str_w, -1,
+                                    ਨਿਰਾ, 0, ਨਿਰਾ, ਨਿਰਾ);
+    ਜੇ(ਬਾਈਟਾਂ > 0) {
+      str_utf8 = curlx_malloc(ਬਾਈਟਾਂ);
+      ਜੇ(str_utf8) {
+        ਜੇ(Wide_Char_ਮੰਜ਼ਿਲ_Multi_Byte(CP_UTF8, 0, str_w, -1, str_utf8, ਬਾਈਟਾਂ,
+                               ਨਿਰਾ, ਨਿਰਾ) == 0) {
           curlx_free(str_utf8);
-          return NULL;
+          ਵਾਪਸ ਨਿਰਾ;
         }
       }
     }
   }
 
-  return str_utf8;
+  ਵਾਪਸ str_utf8;
 }
 
-#endif /* _WIN32 && UNICODE */
+#ਜੇ_ਅੰਤ /* _WIN32 && UNICODE */

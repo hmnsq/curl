@@ -23,13 +23,13 @@
  * RFC6749 OAuth 2.0 Authorization Framework
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#ਜੇ !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-#include "vauth/vauth.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vauth/vauth.h"
 
 /*
  * Curl_auth_create_oauth_bearer_message()
@@ -47,27 +47,27 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
-                                               const char *host,
-                                               const long port,
-                                               struct bufref *out)
+CURLcode Curl_auth_create_oauth_bearer_ਸੁਨੇਹਾ(ਬਣਤਰ Curl_creds *creds,
+                                               ਅਚਲ ਅੱਖਰ *host,
+                                               ਅਚਲ ਲੰਮਾ ਪੋਰਟ,
+                                               ਬਣਤਰ bufref *ਬਾਹਰਲਾ)
 {
-  char *oauth;
+  ਅੱਖਰ *oauth;
 
   /* Generate the message */
-  if(port == 0 || port == 80)
+  ਜੇ(ਪੋਰਟ == 0 || ਪੋਰਟ == 80)
     oauth = curl_maprintf("n,a=%s,\1host=%s\1auth=Bearer %s\1\1",
                           Curl_creds_user(creds), host,
                           Curl_creds_oauth_bearer(creds));
-  else
+  ਨਹੀਂਤਾਂ
     oauth = curl_maprintf("n,a=%s,\1host=%s\1port=%ld\1auth=Bearer %s\1\1",
-                          Curl_creds_user(creds), host, port,
+                          Curl_creds_user(creds), host, ਪੋਰਟ,
                           Curl_creds_oauth_bearer(creds));
-  if(!oauth)
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!oauth)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  Curl_bufref_set(out, oauth, strlen(oauth), curl_free);
-  return CURLE_OK;
+  Curl_bufref_ਸੈੱਟ(ਬਾਹਰਲਾ, oauth, ਲੜੀ_ਲੰਬਾਈ(oauth), curl_free);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
@@ -84,17 +84,17 @@ CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_xoauth_bearer_message(struct Curl_creds *creds,
-                                                struct bufref *out)
+CURLcode Curl_auth_create_xoauth_bearer_ਸੁਨੇਹਾ(ਬਣਤਰ Curl_creds *creds,
+                                                ਬਣਤਰ bufref *ਬਾਹਰਲਾ)
 {
   /* Generate the message */
-  char *xoauth = curl_maprintf("user=%s\1auth=Bearer %s\1\1",
+  ਅੱਖਰ *xoauth = curl_maprintf("user=%s\1auth=Bearer %s\1\1",
                                Curl_creds_user(creds),
                                Curl_creds_oauth_bearer(creds));
-  if(!xoauth)
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!xoauth)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  Curl_bufref_set(out, xoauth, strlen(xoauth), curl_free);
-  return CURLE_OK;
+  Curl_bufref_ਸੈੱਟ(ਬਾਹਰਲਾ, xoauth, ਲੜੀ_ਲੰਬਾਈ(xoauth), curl_free);
+  ਵਾਪਸ CURLE_OK;
 }
-#endif /* disabled, no users */
+#ਜੇ_ਅੰਤ /* disabled, no users */

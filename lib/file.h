@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FILE_H
-#define HEADER_CURL_FILE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_FILE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_FILE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_FILE
-extern const struct Curl_protocol Curl_protocol_file;
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FILE
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ Curl_protocol Curl_protocol_file;
+#ਜੇ_ਅੰਤ
 
-#endif /* HEADER_CURL_FILE_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_FILE_H */

@@ -22,222 +22,222 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "progress.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "curl_trc.h"
-#include "cshutdn.h"
-#include "sigpipe.h"
-#include "connect.h"
-#include "select.h"
-#include "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multiif.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multi_ev.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cshutdn.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sigpipe.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "select.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
 
 
-#define DEFAULT_SHUTDOWN_TIMEOUT_MS   (2 * 1000)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DEFAULT_SHUTDOWN_TIMEOUT_MS   (2 * 1000)
 
-void Curl_cshutdn_start_timer(struct Curl_easy *data, int8_t sockindex,
-                              int timeout_ms)
+ਖਾਲੀ Curl_cshutdn_ਸ਼ੁਰੂ_timer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex,
+                              ਪੂਰਨ timeout_ms)
 {
-  struct connectdata *conn = data->conn;
-  const struct curltime *pnow = Curl_pgrs_now(data);
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਅਚਲ ਬਣਤਰ curltime *pnow = Curl_pgrs_now(ਅੰਕੜੇ);
 
   DEBUGASSERT(conn);
-  conn->shutdown.start_ms[sockindex] =
+  conn->shutdown.ਸ਼ੁਰੂ_ms[sockindex] =
     curlx_ptimediff_ms(pnow, &conn->created);
   conn->shutdown.timeout_ms = (timeout_ms > 0) ?
     (timediff_t)timeout_ms :
-    ((data->set.shutdowntimeout > 0) ?
-     data->set.shutdowntimeout : DEFAULT_SHUTDOWN_TIMEOUT_MS);
+    ((ਅੰਕੜੇ->ਸੈੱਟ.shutdowntimeout > 0) ?
+     ਅੰਕੜੇ->ਸੈੱਟ.shutdowntimeout : DEFAULT_SHUTDOWN_TIMEOUT_MS);
   /* Set a timer, unless we operate on the admin handle */
-  if(data->mid)
-    Curl_expire_set(data, EXPIRE_SHUTDOWN, conn->shutdown.timeout_ms, pnow);
-  CURL_TRC_M(data, "shutdown start on%s connection",
+  ਜੇ(ਅੰਕੜੇ->mid)
+    Curl_expire_ਸੈੱਟ(ਅੰਕੜੇ, EXPIRE_SHUTDOWN, conn->shutdown.timeout_ms, pnow);
+  CURL_TRC_M(ਅੰਕੜੇ, "shutdown start on%s connection",
              sockindex ? " secondary" : "");
 }
 
-timediff_t Curl_cshutdn_timeleft_ms(struct Curl_easy *data,
-                                    struct connectdata *conn,
+timediff_t Curl_cshutdn_timeleft_ms(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ connectdata *conn,
                                     int8_t sockindex)
 {
-  timediff_t left_ms;
+  timediff_t ਖੱਬਾ_ms;
 
-  if(conn->shutdown.start_ms[sockindex] < 0)
-    return 0; /* not started or no limits */
+  ਜੇ(conn->shutdown.ਸ਼ੁਰੂ_ms[sockindex] < 0)
+    ਵਾਪਸ 0; /* not started or no limits */
 
-  left_ms = conn->shutdown.timeout_ms -
-            (curlx_ptimediff_ms(Curl_pgrs_now(data), &conn->created) -
-             conn->shutdown.start_ms[sockindex]);
-  return left_ms ? left_ms : -1;
+  ਖੱਬਾ_ms = conn->shutdown.timeout_ms -
+            (curlx_ptimediff_ms(Curl_pgrs_now(ਅੰਕੜੇ), &conn->created) -
+             conn->shutdown.ਸ਼ੁਰੂ_ms[sockindex]);
+  ਵਾਪਸ ਖੱਬਾ_ms ? ਖੱਬਾ_ms : -1;
 }
 
-static timediff_t cshutdn_conn_timeleft(struct Curl_easy *data,
-                                        struct connectdata *conn)
+ਸਥਿਰ timediff_t cshutdn_conn_timeleft(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                        ਬਣਤਰ connectdata *conn)
 {
-  timediff_t left_ms = 0, ms;
+  timediff_t ਖੱਬਾ_ms = 0, ms;
   int8_t i;
 
-  for(i = 0; conn->shutdown.timeout_ms && (i < 2); ++i) {
-    if(conn->shutdown.start_ms[i] < 0)
-      continue;
-    ms = Curl_cshutdn_timeleft_ms(data, conn, i);
-    if(ms && (!left_ms || ms < left_ms))
-      left_ms = ms;
+  ਲਈ(i = 0; conn->shutdown.timeout_ms && (i < 2); ++i) {
+    ਜੇ(conn->shutdown.ਸ਼ੁਰੂ_ms[i] < 0)
+      ਜਾਰੀ;
+    ms = Curl_cshutdn_timeleft_ms(ਅੰਕੜੇ, conn, i);
+    ਜੇ(ms && (!ਖੱਬਾ_ms || ms < ਖੱਬਾ_ms))
+      ਖੱਬਾ_ms = ms;
   }
-  return left_ms;
+  ਵਾਪਸ ਖੱਬਾ_ms;
 }
 
-void Curl_cshutdn_clear_timer(struct Curl_easy *data, int8_t sockindex)
+ਖਾਲੀ Curl_cshutdn_clear_timer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex)
 {
-  data->conn->shutdown.start_ms[sockindex] = -1;
+  ਅੰਕੜੇ->conn->shutdown.ਸ਼ੁਰੂ_ms[sockindex] = -1;
 }
 
-static void cshutdn_run_conn_handler(struct Curl_easy *data,
-                                     struct connectdata *conn)
+ਸਥਿਰ ਖਾਲੀ cshutdn_ਲੜੀਵਾਰ_conn_handler(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਬਣਤਰ connectdata *conn)
 {
-  if(!conn->bits.shutdown_handler) {
+  ਜੇ(!conn->ਬਿੱਟ.shutdown_handler) {
 
-    if(conn->scheme && conn->scheme->run->disconnect) {
+    ਜੇ(conn->scheme && conn->scheme->ਲੜੀਵਾਰ->disconnect) {
       /* Some disconnect handlers do a blocking wait on server responses.
        * FTP/IMAP/SMTP and SFTP are among them. When using the internal
        * handle, set an overall short timeout so we do not hang for the
        * default 120 seconds. */
-      if(data->state.internal) {
-        data->set.timeout = DEFAULT_SHUTDOWN_TIMEOUT_MS;
-        Curl_pgrsTime(data, TIMER_STARTOP);
+      ਜੇ(ਅੰਕੜੇ->state.ਅੰਦਰੂਨੀ) {
+        ਅੰਕੜੇ->ਸੈੱਟ.timeout = DEFAULT_SHUTDOWN_TIMEOUT_MS;
+        Curl_pgrs_ਸਮਾਂ(ਅੰਕੜੇ, TIMER_STARTOP);
       }
 
       /* This is set if protocol-specific cleanups should be made */
-      DEBUGF(infof(data, "connection #%" FMT_OFF_T
+      DEBUGF(infof(ਅੰਕੜੇ, "connection #%" FMT_OFF_T
                    ", shutdown protocol handler (aborted=%d)",
-                   conn->connection_id, conn->bits.aborted));
+                   conn->connection_id, conn->ਬਿੱਟ.aborted));
       /* There are protocol handlers that block on retrieving
        * server responses here (FTP). Set a short timeout. */
-      conn->scheme->run->disconnect(data, conn, (bool)conn->bits.aborted);
+      conn->scheme->ਲੜੀਵਾਰ->disconnect(ਅੰਕੜੇ, conn, (bool)conn->ਬਿੱਟ.aborted);
     }
 
-    conn->bits.shutdown_handler = TRUE;
+    conn->ਬਿੱਟ.shutdown_handler = TRUE;
   }
 }
 
-CURLcode Curl_cshutdn_try_once_idx(struct Curl_easy *data,
-                                   int8_t sockindex, bool *done)
+CURLcode Curl_cshutdn_try_once_idx(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   int8_t sockindex, bool *ਪੂਰਾ)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ Curl_cfilter *cf;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   timediff_t timeout_ms;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ਜੇ(!CONN_SOCK_IDX_VALID(sockindex))
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
 
   /* Get the first connected filter that is not shut down already. */
-  cf = data->conn->cfilter[sockindex];
-  while(cf && (!cf->connected || cf->shutdown))
-    cf = cf->next;
+  cf = ਅੰਕੜੇ->conn->cfilter[sockindex];
+  ਜਦੋਂ(cf && (!cf->connected || cf->shutdown))
+    cf = cf->ਅਗਲਾ;
 
-  if(!cf) {
-    *done = TRUE;
-    return CURLE_OK;
+  ਜੇ(!cf) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  *done = FALSE;
-  if(!CURL_CONN_IN_SHUTDOWN(data->conn, sockindex)) {
-    Curl_cshutdn_start_timer(data, sockindex, 0);
+  *ਪੂਰਾ = FALSE;
+  ਜੇ(!CURL_CONN_ਵਿੱਚ_SHUTDOWN(ਅੰਕੜੇ->conn, sockindex)) {
+    Curl_cshutdn_ਸ਼ੁਰੂ_timer(ਅੰਕੜੇ, sockindex, 0);
   }
-  else {
-    timeout_ms = Curl_cshutdn_timeleft_ms(data, data->conn, sockindex);
-    if(timeout_ms < 0) {
+  ਨਹੀਂਤਾਂ {
+    timeout_ms = Curl_cshutdn_timeleft_ms(ਅੰਕੜੇ, ਅੰਕੜੇ->conn, sockindex);
+    ਜੇ(timeout_ms < 0) {
       /* info message, since this might be regarded as acceptable */
-      infof(data, "shutdown timeout");
-      return CURLE_OPERATION_TIMEDOUT;
+      infof(ਅੰਕੜੇ, "shutdown timeout");
+      ਵਾਪਸ CURLE_OPERATION_TIMEDOUT;
     }
   }
 
-  while(cf) {
-    if(!cf->shutdown) {
+  ਜਦੋਂ(cf) {
+    ਜੇ(!cf->shutdown) {
       bool cfdone = FALSE;
-      result = cf->cft->do_shutdown(cf, data, &cfdone);
-      if(result) {
-        CURL_TRC_CF(data, cf, "shut down failed with %d", (int)result);
-        return result;
+      ਨਤੀਜਾ = cf->cft->do_shutdown(cf, ਅੰਕੜੇ, &cfdone);
+      ਜੇ(ਨਤੀਜਾ) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "shut down failed with %d", (ਪੂਰਨ)ਨਤੀਜਾ);
+        ਵਾਪਸ ਨਤੀਜਾ;
       }
-      else if(!cfdone) {
-        CURL_TRC_CF(data, cf, "shut down not done yet");
-        return CURLE_OK;
+      ਨਹੀਂਤਾਂ ਜੇ(!cfdone) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "shut down not done yet");
+        ਵਾਪਸ CURLE_OK;
       }
-      CURL_TRC_CF(data, cf, "shut down successfully");
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "shut down successfully");
       cf->shutdown = TRUE;
     }
-    cf = cf->next;
+    cf = cf->ਅਗਲਾ;
   }
-  *done = (!result);
-  return result;
+  *ਪੂਰਾ = (!ਨਤੀਜਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void cshutdn_run_once(struct Curl_easy *data,
-                             struct connectdata *conn,
-                             bool *done)
+ਸਥਿਰ ਖਾਲੀ cshutdn_ਲੜੀਵਾਰ_once(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ connectdata *conn,
+                             bool *ਪੂਰਾ)
 {
   CURLcode r1, r2;
   bool done1, done2;
 
   /* We expect to be attached when called */
-  DEBUGASSERT(data->conn == conn);
+  DEBUGASSERT(ਅੰਕੜੇ->conn == conn);
 
-  if(!CURL_CONN_IN_SHUTDOWN(conn, FIRSTSOCKET)) {
-    Curl_cshutdn_start_timer(data, FIRSTSOCKET, 0);
+  ਜੇ(!CURL_CONN_ਵਿੱਚ_SHUTDOWN(conn, FIRSTSOCKET)) {
+    Curl_cshutdn_ਸ਼ੁਰੂ_timer(ਅੰਕੜੇ, FIRSTSOCKET, 0);
   }
 
-  cshutdn_run_conn_handler(data, conn);
+  cshutdn_ਲੜੀਵਾਰ_conn_handler(ਅੰਕੜੇ, conn);
 
-  if(conn->bits.shutdown_filters) {
-    *done = TRUE;
-    return;
+  ਜੇ(conn->ਬਿੱਟ.shutdown_filters) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ;
   }
 
-  if(!conn->bits.connect_only && Curl_conn_is_connected(conn, FIRSTSOCKET))
-    r1 = Curl_cshutdn_try_once_idx(data, FIRSTSOCKET, &done1);
-  else {
+  ਜੇ(!conn->ਬਿੱਟ.connect_only && Curl_conn_is_connected(conn, FIRSTSOCKET))
+    r1 = Curl_cshutdn_try_once_idx(ਅੰਕੜੇ, FIRSTSOCKET, &done1);
+  ਨਹੀਂਤਾਂ {
     r1 = CURLE_OK;
     done1 = TRUE;
   }
 
-  if(!conn->bits.connect_only && Curl_conn_is_connected(conn, SECONDARYSOCKET))
-    r2 = Curl_cshutdn_try_once_idx(data, SECONDARYSOCKET, &done2);
-  else {
+  ਜੇ(!conn->ਬਿੱਟ.connect_only && Curl_conn_is_connected(conn, SECONDARYSOCKET))
+    r2 = Curl_cshutdn_try_once_idx(ਅੰਕੜੇ, SECONDARYSOCKET, &done2);
+  ਨਹੀਂਤਾਂ {
     r2 = CURLE_OK;
     done2 = TRUE;
   }
 
   /* we are done when any failed or both report success */
-  *done = (r1 || r2 || (done1 && done2));
-  if(*done)
-    conn->bits.shutdown_filters = TRUE;
+  *ਪੂਰਾ = (r1 || r2 || (done1 && done2));
+  ਜੇ(*ਪੂਰਾ)
+    conn->ਬਿੱਟ.shutdown_filters = TRUE;
 }
 
-void Curl_cshutdn_try_once(struct Curl_easy *admin,
-                           struct connectdata *conn,
-                           bool *done)
+ਖਾਲੀ Curl_cshutdn_try_once(ਬਣਤਰ Curl_easy *admin,
+                           ਬਣਤਰ connectdata *conn,
+                           bool *ਪੂਰਾ)
 {
   DEBUGASSERT(!admin->conn);
   DEBUGASSERT(!admin->mid);
   Curl_attach_connection(admin, conn, FALSE);
-  cshutdn_run_once(admin, conn, done);
-  CURL_TRC_M(admin, "[SHUTDOWN] shutdown, done=%d", *done);
+  cshutdn_ਲੜੀਵਾਰ_once(admin, conn, ਪੂਰਾ);
+  CURL_TRC_M(admin, "[SHUTDOWN] shutdown, done=%d", *ਪੂਰਾ);
   Curl_detach_connection(admin);
 }
 
-void Curl_cshutdn_terminate(struct Curl_easy *admin,
-                            struct connectdata *conn,
+ਖਾਲੀ Curl_cshutdn_terminate(ਬਣਤਰ Curl_easy *admin,
+                            ਬਣਤਰ connectdata *conn,
                             bool do_shutdown)
 {
-  bool done;
+  bool ਪੂਰਾ;
 
   /* there must be a connection to close */
   DEBUGASSERT(conn);
@@ -249,308 +249,308 @@ void Curl_cshutdn_terminate(struct Curl_easy *admin,
 
   Curl_attach_connection(admin, conn, FALSE);
 
-  cshutdn_run_conn_handler(admin, conn);
-  if(do_shutdown) {
+  cshutdn_ਲੜੀਵਾਰ_conn_handler(admin, conn);
+  ਜੇ(do_shutdown) {
     /* Make a last attempt to shutdown handlers and filters, if
      * not done so already. */
-    cshutdn_run_once(admin, conn, &done);
+    cshutdn_ਲੜੀਵਾਰ_once(admin, conn, &ਪੂਰਾ);
   }
   CURL_TRC_M(admin, "[SHUTDOWN] %sclosing connection #%" FMT_OFF_T,
-             conn->bits.shutdown_filters ? "" : "force ",
+             conn->ਬਿੱਟ.shutdown_filters ? "" : "force ",
              conn->connection_id);
   Curl_conn_cf_discard_all(admin, conn, SECONDARYSOCKET);
   Curl_conn_cf_discard_all(admin, conn, FIRSTSOCKET);
   Curl_detach_connection(admin);
 
-  if(admin->multi)
-    Curl_multi_ev_conn_done(admin->multi, admin, conn);
+  ਜੇ(admin->multi)
+    Curl_multi_ev_conn_ਪੂਰਾ(admin->multi, admin, conn);
   Curl_conn_free(admin, conn);
 
-  if(admin->multi) {
+  ਜੇ(admin->multi) {
     CURL_TRC_M(admin, "[SHUTDOWN] trigger multi connchanged");
     Curl_multi_connchanged(admin->multi);
   }
 }
 
-static size_t cshutdn_destroy_oldest(struct cshutdn *cshutdn,
-                                     struct Curl_easy *admin,
-                                     const char *destination,
-                                     size_t count)
+ਸਥਿਰ size_t cshutdn_destroy_oldest(ਬਣਤਰ cshutdn *cshutdn,
+                                     ਬਣਤਰ Curl_easy *admin,
+                                     ਅਚਲ ਅੱਖਰ *destination,
+                                     size_t ਗਿਣਤੀ_2)
 {
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  ਬਣਤਰ Curl_sigpipe_ctx sigpipe_ctx;
   size_t removed = 0;
   uint32_t i = 0;
 
   sigpipe_init(&sigpipe_ctx);
-  while((removed < count) && (i < CURL_PTRARRAY_COUNT(&cshutdn->conns))) {
-    struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-    if(!destination || !strcmp(destination, conn->destination)) {
+  ਜਦੋਂ((removed < ਗਿਣਤੀ_2) && (i < CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns))) {
+    ਬਣਤਰ connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+    ਜੇ(!destination || !strcmp(destination, conn->destination)) {
       Curl_ptrarray_remove(&cshutdn->conns, i);
       sigpipe_apply(admin, &sigpipe_ctx);
       Curl_cshutdn_terminate(admin, conn, FALSE);
       ++removed;
     }
-    else
+    ਨਹੀਂਤਾਂ
       ++i;
   }
   sigpipe_restore(&sigpipe_ctx);
-  return removed;
+  ਵਾਪਸ removed;
 }
 
-size_t Curl_cshutdn_close_oldest(struct cshutdn *cshutdn,
-                               struct Curl_easy *admin,
-                               const char *destination,
-                               size_t count)
+size_t Curl_cshutdn_close_oldest(ਬਣਤਰ cshutdn *cshutdn,
+                               ਬਣਤਰ Curl_easy *admin,
+                               ਅਚਲ ਅੱਖਰ *destination,
+                               size_t ਗਿਣਤੀ_2)
 {
-  if(cshutdn) {
-    return cshutdn_destroy_oldest(cshutdn, admin, destination, count);
+  ਜੇ(cshutdn) {
+    ਵਾਪਸ cshutdn_destroy_oldest(cshutdn, admin, destination, ਗਿਣਤੀ_2);
   }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-#define NUM_POLLS_ON_STACK 10
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਅੰਕ_POLLS_ON_ਢੇਰ 10
 
-static CURLcode cshutdn_wait(struct cshutdn *cshutdn,
-                             struct Curl_easy *admin,
-                             int timeout_ms)
+ਸਥਿਰ CURLcode cshutdn_wait(ਬਣਤਰ cshutdn *cshutdn,
+                             ਬਣਤਰ Curl_easy *admin,
+                             ਪੂਰਨ timeout_ms)
 {
-  struct pollfd a_few_on_stack[NUM_POLLS_ON_STACK];
-  struct curl_pollfds cpfds;
-  CURLcode result;
+  ਬਣਤਰ pollfd a_few_on_ਢੇਰ[ਅੰਕ_POLLS_ON_ਢੇਰ];
+  ਬਣਤਰ curl_pollfds cpfds;
+  CURLcode ਨਤੀਜਾ;
 
-  Curl_pollfds_init(&cpfds, a_few_on_stack, NUM_POLLS_ON_STACK);
+  Curl_pollfds_init(&cpfds, a_few_on_ਢੇਰ, ਅੰਕ_POLLS_ON_ਢੇਰ);
 
-  result = Curl_cshutdn_add_pollfds(cshutdn, admin, &cpfds);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_cshutdn_ਜੋੜੋ_pollfds(cshutdn, admin, &cpfds);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   Curl_poll(cpfds.pfds, cpfds.n, CURLMIN(timeout_ms, 1000));
 
-out:
+ਬਾਹਰਲਾ:
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void cshutdn_perform(struct cshutdn *cshutdn,
-                            struct Curl_easy *admin,
-                            struct Curl_sigpipe_ctx *sigpipe_ctx)
+ਸਥਿਰ ਖਾਲੀ cshutdn_perform(ਬਣਤਰ cshutdn *cshutdn,
+                            ਬਣਤਰ Curl_easy *admin,
+                            ਬਣਤਰ Curl_sigpipe_ctx *sigpipe_ctx)
 {
-  struct connectdata *conn;
-  timediff_t next_expire_ms = 0, ms;
+  ਬਣਤਰ connectdata *conn;
+  timediff_t ਅਗਲਾ_expire_ms = 0, ms;
   uint32_t i = 0;
-  bool done;
+  bool ਪੂਰਾ;
 
-  if(!CURL_PTRARRAY_COUNT(&cshutdn->conns))
-    return;
+  ਜੇ(!CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns))
+    ਵਾਪਸ;
 
   CURL_TRC_M(admin, "[SHUTDOWN] perform on %u connections",
-             CURL_PTRARRAY_COUNT(&cshutdn->conns));
+             CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns));
   sigpipe_apply(admin, sigpipe_ctx);
-  while(i < CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  ਜਦੋਂ(i < CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
     conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-    Curl_cshutdn_try_once(admin, conn, &done);
-    if(done) {
+    Curl_cshutdn_try_once(admin, conn, &ਪੂਰਾ);
+    ਜੇ(ਪੂਰਾ) {
       Curl_ptrarray_remove(&cshutdn->conns, i);
       Curl_cshutdn_terminate(admin, conn, FALSE);
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       ++i;
       /* idata has one timer list, but maybe more than one connection.
        * Set EXPIRE_SHUTDOWN to the smallest time left for all. */
       ms = cshutdn_conn_timeleft(admin, conn);
-      if(ms && (!next_expire_ms || (ms < next_expire_ms)))
-        next_expire_ms = ms;
+      ਜੇ(ms && (!ਅਗਲਾ_expire_ms || (ms < ਅਗਲਾ_expire_ms)))
+        ਅਗਲਾ_expire_ms = ms;
     }
   }
 
-  if(next_expire_ms)
-    Curl_expire(admin, next_expire_ms, EXPIRE_SHUTDOWN);
+  ਜੇ(ਅਗਲਾ_expire_ms)
+    Curl_expire(admin, ਅਗਲਾ_expire_ms, EXPIRE_SHUTDOWN);
 }
 
-static void cshutdn_terminate_all(struct cshutdn *cshutdn,
-                                  struct Curl_easy *admin,
-                                  int timeout_ms)
+ਸਥਿਰ ਖਾਲੀ cshutdn_terminate_all(ਬਣਤਰ cshutdn *cshutdn,
+                                  ਬਣਤਰ Curl_easy *admin,
+                                  ਪੂਰਨ timeout_ms)
 {
-  struct curltime started = *Curl_pgrs_now(admin);
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  ਬਣਤਰ curltime started = *Curl_pgrs_now(admin);
+  ਬਣਤਰ Curl_sigpipe_ctx sigpipe_ctx;
 
   CURL_TRC_M(admin, "[SHUTDOWN] shutdown all");
   sigpipe_init(&sigpipe_ctx);
 
-  while(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  ਜਦੋਂ(CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
     timediff_t spent_ms;
-    int remain_ms;
+    ਪੂਰਨ remain_ms;
 
     cshutdn_perform(cshutdn, admin, &sigpipe_ctx);
 
-    if(!CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+    ਜੇ(!CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished cleanly");
-      break;
+      ਰੋਕੋ;
     }
 
     /* wait for activity, timeout or "nothing" */
     spent_ms = curlx_ptimediff_ms(Curl_pgrs_now(admin), &started);
-    if(spent_ms >= (timediff_t)timeout_ms) {
+    ਜੇ(spent_ms >= (timediff_t)timeout_ms) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished, %s",
                  (timeout_ms > 0) ? "timeout" : "best effort done");
-      break;
+      ਰੋਕੋ;
     }
 
-    remain_ms = timeout_ms - (int)spent_ms;
-    if(cshutdn_wait(cshutdn, admin, remain_ms)) {
+    remain_ms = timeout_ms - (ਪੂਰਨ)spent_ms;
+    ਜੇ(cshutdn_wait(cshutdn, admin, remain_ms)) {
       CURL_TRC_M(admin, "[SHUTDOWN] shutdown finished, aborted");
-      break;
+      ਰੋਕੋ;
     }
   }
 
   /* Terminate any remaining. */
-  while(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct connectdata *conn = Curl_ptrarray_remove(&cshutdn->conns, 0);
+  ਜਦੋਂ(CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
+    ਬਣਤਰ connectdata *conn = Curl_ptrarray_remove(&cshutdn->conns, 0);
     Curl_cshutdn_terminate(admin, conn, FALSE);
   }
-  DEBUGASSERT(!CURL_PTRARRAY_COUNT(&cshutdn->conns));
+  DEBUGASSERT(!CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns));
 
   sigpipe_restore(&sigpipe_ctx);
 }
 
-void Curl_cshutdn_init(struct cshutdn *cshutdn)
+ਖਾਲੀ Curl_cshutdn_init(ਬਣਤਰ cshutdn *cshutdn)
 {
   Curl_ptrarray_init(&cshutdn->conns);
 }
 
-void Curl_cshutdn_destroy(struct cshutdn *cshutdn,
-                          struct Curl_easy *admin)
+ਖਾਲੀ Curl_cshutdn_destroy(ਬਣਤਰ cshutdn *cshutdn,
+                          ਬਣਤਰ Curl_easy *admin)
 {
-  if(admin) {
-    int timeout_ms = 0;
+  ਜੇ(admin) {
+    ਪੂਰਨ timeout_ms = 0;
     /* for testing, run graceful shutdown */
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
     {
-      const char *p = getenv("CURL_GRACEFUL_SHUTDOWN");
-      if(p) {
+      ਅਚਲ ਅੱਖਰ *p = getenv("CURL_GRACEFUL_SHUTDOWN");
+      ਜੇ(p) {
         curl_off_t l;
-        if(!curlx_str_number(&p, &l, INT_MAX))
-          timeout_ms = (int)l;
+        ਜੇ(!curlx_str_ਸੰਖਿਆ(&p, &l, ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ))
+          timeout_ms = (ਪੂਰਨ)l;
       }
     }
-#endif
-    if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+#ਜੇ_ਅੰਤ
+    ਜੇ(CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
       CURL_TRC_M(admin, "[SHUTDOWN] destroy, %u connections, timeout=%dms",
-                 CURL_PTRARRAY_COUNT(&cshutdn->conns), timeout_ms);
+                 CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns), timeout_ms);
       cshutdn_terminate_all(cshutdn, admin, timeout_ms);
     }
   }
 }
 
-size_t Curl_cshutdn_count(struct cshutdn *cshutdn)
+size_t Curl_cshutdn_ਗਿਣਤੀ(ਬਣਤਰ cshutdn *cshutdn)
 {
-  if(cshutdn) {
-    return CURL_PTRARRAY_COUNT(&cshutdn->conns);
+  ਜੇ(cshutdn) {
+    ਵਾਪਸ CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns);
   }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-size_t Curl_cshutdn_dest_count(struct cshutdn *cshutdn,
-                               const char *destination)
+size_t Curl_cshutdn_dest_ਗਿਣਤੀ(ਬਣਤਰ cshutdn *cshutdn,
+                               ਅਚਲ ਅੱਖਰ *destination)
 {
-  if(cshutdn) {
+  ਜੇ(cshutdn) {
     size_t n = 0;
     uint32_t i = 0;
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
-      struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-      if(!strcmp(destination, conn->destination))
+    ਲਈ(i = 0; i < CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns); ++i) {
+      ਬਣਤਰ connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+      ਜੇ(!strcmp(destination, conn->destination))
         ++n;
     }
-    return n;
+    ਵਾਪਸ n;
   }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static CURLMcode cshutdn_update_ev(struct Curl_multi *multi,
-                                   struct connectdata *conn)
+ਸਥਿਰ CURLMcode cshutdn_update_ev(ਬਣਤਰ Curl_multi *multi,
+                                   ਬਣਤਰ connectdata *conn)
 {
   CURLMcode mresult;
   Curl_attach_connection(multi->admin, conn, FALSE);
   mresult = Curl_multi_ev_assess_conn(multi, multi->admin, conn);
   Curl_detach_connection(multi->admin);
-  return mresult;
+  ਵਾਪਸ mresult;
 }
 
-void Curl_cshutdn_add(struct cshutdn *cshutdn,
-                      struct Curl_multi *multi,
-                      struct connectdata *conn,
+ਖਾਲੀ Curl_cshutdn_ਜੋੜੋ(ਬਣਤਰ cshutdn *cshutdn,
+                      ਬਣਤਰ Curl_multi *multi,
+                      ਬਣਤਰ connectdata *conn,
                       size_t max_shutdowns)
 {
-  struct Curl_easy *admin = multi->admin;
+  ਬਣਤਰ Curl_easy *admin = multi->admin;
 
   /* Add the connection to our shutdown list for non-blocking shutdown
    * during multi processing. */
-  if(max_shutdowns <= CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
+  ਜੇ(max_shutdowns <= CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
     CURL_TRC_M(admin, "[SHUTDOWN] discarding oldest shutdown connection "
                "due to shutdown limit of %zu", max_shutdowns);
-    cshutdn_destroy_oldest(cshutdn, admin, NULL, 1);
+    cshutdn_destroy_oldest(cshutdn, admin, ਨਿਰਾ, 1);
   }
 
-  if(multi->socket_cb && cshutdn_update_ev(multi, conn)) {
+  ਜੇ(multi->socket_cb && cshutdn_update_ev(multi, conn)) {
     CURL_TRC_M(admin, "[SHUTDOWN] update events failed, discarding #%"
                FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, FALSE);
-    return;
+    ਵਾਪਸ;
   }
 
-  if(Curl_ptrarray_add(&cshutdn->conns, conn)) {
+  ਜੇ(Curl_ptrarray_ਜੋੜੋ(&cshutdn->conns, conn)) {
     CURL_TRC_M(admin, "[SHUTDOWN] adding failed, discarding #%"
                FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, FALSE);
-    return;
+    ਵਾਪਸ;
   }
   CURL_TRC_M(admin, "[SHUTDOWN] added #%" FMT_OFF_T
              " to shutdowns, now %u conns in shutdown",
-             conn->connection_id, CURL_PTRARRAY_COUNT(&cshutdn->conns));
+             conn->connection_id, CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns));
 }
 
-void Curl_cshutdn_perform(struct cshutdn *cshutdn,
-                          struct Curl_easy *admin,
-                          struct Curl_sigpipe_ctx *sigpipe_ctx)
+ਖਾਲੀ Curl_cshutdn_perform(ਬਣਤਰ cshutdn *cshutdn,
+                          ਬਣਤਰ Curl_easy *admin,
+                          ਬਣਤਰ Curl_sigpipe_ctx *sigpipe_ctx)
 {
   cshutdn_perform(cshutdn, admin, sigpipe_ctx);
 }
 
 /* return fd_set info about the shutdown connections */
-void Curl_cshutdn_setfds(struct cshutdn *cshutdn,
-                         struct Curl_easy *admin,
-                         fd_set *read_fd_set, fd_set *write_fd_set,
-                         int *maxfd)
+ਖਾਲੀ Curl_cshutdn_setfds(ਬਣਤਰ cshutdn *cshutdn,
+                         ਬਣਤਰ Curl_easy *admin,
+                         fd_set *read_fd_ਸੈੱਟ, fd_set *write_fd_ਸੈੱਟ,
+                         ਪੂਰਨ *maxfd)
 {
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
+  ਜੇ(CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
+    ਬਣਤਰ easy_pollset ps;
     uint32_t i;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
-      unsigned int j;
-      struct connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
-      CURLcode result;
+    ਲਈ(i = 0; i < CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns); ++i) {
+      ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ j;
+      ਬਣਤਰ connectdata *conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
+      CURLcode ਨਤੀਜਾ;
 
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      ਨਤੀਜਾ = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(result)
-        continue;
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਰੀ;
 
-      for(j = 0; j < ps.n; j++) {
+      ਲਈ(j = 0; j < ps.n; j++) {
         curl_socket_t sock = ps.sockets[j];
-        if(!FDSET_SOCK(sock))
-          continue;
-        if(ps.actions[j] & CURL_POLL_IN)
-          FD_SET(sock, read_fd_set);
-        if(ps.actions[j] & CURL_POLL_OUT)
-          FD_SET(sock, write_fd_set);
-        if((ps.actions[j] & (CURL_POLL_OUT | CURL_POLL_IN)) &&
-           ((int)sock > *maxfd))
-          *maxfd = (int)sock;
+        ਜੇ(!FDSET_SOCK(sock))
+          ਜਾਰੀ;
+        ਜੇ(ps.actions[j] & CURL_POLL_ਵਿੱਚ)
+          FD_SET(sock, read_fd_ਸੈੱਟ);
+        ਜੇ(ps.actions[j] & CURL_POLL_ਬਾਹਰਲਾ)
+          FD_SET(sock, write_fd_ਸੈੱਟ);
+        ਜੇ((ps.actions[j] & (CURL_POLL_ਬਾਹਰਲਾ | CURL_POLL_ਵਿੱਚ)) &&
+           ((ਪੂਰਨ)sock > *maxfd))
+          *maxfd = (ਪੂਰਨ)sock;
       }
     }
     Curl_pollset_cleanup(&ps);
@@ -558,63 +558,63 @@ void Curl_cshutdn_setfds(struct cshutdn *cshutdn,
 }
 
 /* return information about the shutdown connections */
-unsigned int Curl_cshutdn_add_waitfds(struct cshutdn *cshutdn,
-                                      struct Curl_easy *admin,
-                                      struct Curl_waitfds *cwfds)
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ Curl_cshutdn_ਜੋੜੋ_waitfds(ਬਣਤਰ cshutdn *cshutdn,
+                                      ਬਣਤਰ Curl_easy *admin,
+                                      ਬਣਤਰ Curl_waitfds *cwfds)
 {
-  unsigned int need = 0;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ need = 0;
 
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
-    struct connectdata *conn;
+  ਜੇ(CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
+    ਬਣਤਰ easy_pollset ps;
+    ਬਣਤਰ connectdata *conn;
     uint32_t i;
-    CURLcode result;
+    CURLcode ਨਤੀਜਾ;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
+    ਲਈ(i = 0; i < CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns); ++i) {
       conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      ਨਤੀਜਾ = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(!result)
-        need += Curl_waitfds_add_ps(cwfds, &ps);
+      ਜੇ(!ਨਤੀਜਾ)
+        need += Curl_waitfds_ਜੋੜੋ_ps(cwfds, &ps);
     }
     Curl_pollset_cleanup(&ps);
   }
-  return need;
+  ਵਾਪਸ need;
 }
 
-CURLcode Curl_cshutdn_add_pollfds(struct cshutdn *cshutdn,
-                                  struct Curl_easy *admin,
-                                  struct curl_pollfds *cpfds)
+CURLcode Curl_cshutdn_ਜੋੜੋ_pollfds(ਬਣਤਰ cshutdn *cshutdn,
+                                  ਬਣਤਰ Curl_easy *admin,
+                                  ਬਣਤਰ curl_pollfds *cpfds)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(CURL_PTRARRAY_COUNT(&cshutdn->conns)) {
-    struct easy_pollset ps;
-    struct connectdata *conn;
+  ਜੇ(CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns)) {
+    ਬਣਤਰ easy_pollset ps;
+    ਬਣਤਰ connectdata *conn;
     uint32_t i;
 
     Curl_pollset_init(&ps);
-    for(i = 0; i < CURL_PTRARRAY_COUNT(&cshutdn->conns); ++i) {
+    ਲਈ(i = 0; i < CURL_PTRARRAY_ਗਿਣਤੀ(&cshutdn->conns); ++i) {
       conn = CURL_PTRARRAY_GET(&cshutdn->conns, i);
       Curl_pollset_reset(&ps);
       Curl_attach_connection(admin, conn, FALSE);
-      result = Curl_conn_adjust_pollset(admin, conn, &ps);
+      ਨਤੀਜਾ = Curl_conn_adjust_pollset(admin, conn, &ps);
       Curl_detach_connection(admin);
 
-      if(!result)
-        result = Curl_pollfds_add_ps(cpfds, &ps);
-      if(result) {
+      ਜੇ(!ਨਤੀਜਾ)
+        ਨਤੀਜਾ = Curl_pollfds_ਜੋੜੋ_ps(cpfds, &ps);
+      ਜੇ(ਨਤੀਜਾ) {
         Curl_pollset_cleanup(&ps);
         Curl_pollfds_cleanup(cpfds);
-        goto out;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
     }
     Curl_pollset_cleanup(&ps);
   }
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }

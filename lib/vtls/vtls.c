@@ -38,109 +38,109 @@
    https://httpd.apache.org/docs/2.0/ssl/ssl_intro.html
  */
 
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "urldata.h"
-#include "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
 
-#include "vtls/vtls.h" /* generic SSL protos etc */
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/keylog.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls.h" /* generic SSL protos etc */
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls_int.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls_scache.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/keylog.h"
 
-#include "vtls/openssl.h"        /* OpenSSL versions */
-#include "vtls/gtls.h"           /* GnuTLS versions */
-#include "vtls/wolfssl.h"        /* wolfSSL versions */
-#include "vtls/schannel.h"       /* Schannel SSPI version */
-#include "vtls/mbedtls.h"        /* mbedTLS versions */
-#include "vtls/rustls.h"         /* Rustls versions */
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/openssl.h"        /* OpenSSL versions */
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/gtls.h"           /* GnuTLS versions */
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/wolfssl.h"        /* wolfSSL versions */
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/schannel.h"       /* Schannel SSPI version */
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/mbedtls.h"        /* mbedTLS versions */
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/rustls.h"         /* Rustls versions */
 
-#include "slist.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "url.h"
-#include "progress.h"
-#include "curlx/win32-fopen.h"
-#include "curl_sha256.h"
-#include "curlx/base64.h"
-#include "curlx/inet_pton.h"
-#include "connect.h"
-#include "select.h"
-#include "setopt.h"
-#include "vdns/cf-dns.h"
-#include "curlx/strdup.h"
-#include "curlx/strcopy.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "slist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/win32-fopen.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_sha256.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/base64.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/inet_pton.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "select.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "setopt.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vdns/cf-dns.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strdup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strcopy.h"
 
-#ifdef USE_APPLE_SECTRUST
-#include <Security/Security.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_APPLE_SECTRUST
+#ਅਨ੍ਤਰ੍ਭਾਵ <Security/Security.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef USE_SSL
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
-static const struct alpn_spec ALPN_SPEC_H11 = {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+#ਜੇ !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ alpn_spec ALPN_SPEC_H11 = {
   { ALPN_HTTP_1_1 }, 1
 };
-static const struct alpn_spec ALPN_SPEC_H10_H11 = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ alpn_spec ALPN_SPEC_H10_H11 = {
   { ALPN_HTTP_1_0, ALPN_HTTP_1_1 }, 2
 };
-#ifdef USE_HTTP2
-static const struct alpn_spec ALPN_SPEC_H2 = {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP2
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ alpn_spec ALPN_SPEC_H2 = {
   { ALPN_H2 }, 1
 };
-static const struct alpn_spec ALPN_SPEC_H2_H11 = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ alpn_spec ALPN_SPEC_H2_H11 = {
   { ALPN_H2, ALPN_HTTP_1_1 }, 2
 };
-static const struct alpn_spec ALPN_SPEC_H11_H2 = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ alpn_spec ALPN_SPEC_H11_H2 = {
   { ALPN_HTTP_1_1, ALPN_H2 }, 2
 };
-#endif /* USE_HTTP2 */
+#ਜੇ_ਅੰਤ /* USE_HTTP2 */
 
-static const struct alpn_spec *alpn_get_spec(http_majors wanted,
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ alpn_spec *alpn_get_spec(http_majors wanted,
                                              http_majors preferred,
                                              bool only_http_10,
                                              bool use_alpn)
 {
-  if(!use_alpn)
-    return NULL;
+  ਜੇ(!use_alpn)
+    ਵਾਪਸ ਨਿਰਾ;
   /* If HTTP/1.0 is the wanted protocol then use ALPN http/1.0 and http/1.1.
      This is for compatibility reasons since some HTTP/1.0 servers with old
      ALPN implementations understand ALPN http/1.1 but not http/1.0. */
-  if(only_http_10 && (wanted & CURL_HTTP_V1x))
-    return &ALPN_SPEC_H10_H11;
-#ifdef USE_HTTP2
-  if(wanted & CURL_HTTP_V2x) {
-    if(wanted & CURL_HTTP_V1x)
-      return (preferred == CURL_HTTP_V1x) ?
+  ਜੇ(only_http_10 && (wanted & CURL_HTTP_V1x))
+    ਵਾਪਸ &ALPN_SPEC_H10_H11;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP2
+  ਜੇ(wanted & CURL_HTTP_V2x) {
+    ਜੇ(wanted & CURL_HTTP_V1x)
+      ਵਾਪਸ (preferred == CURL_HTTP_V1x) ?
         &ALPN_SPEC_H11_H2 : &ALPN_SPEC_H2_H11;
-    return &ALPN_SPEC_H2;
+    ਵਾਪਸ &ALPN_SPEC_H2;
   }
-#else
-  (void)wanted;
-  (void)preferred;
-#endif
-  return &ALPN_SPEC_H11;
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)wanted;
+  (ਖਾਲੀ)preferred;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ &ALPN_SPEC_H11;
 }
-#endif /* !CURL_DISABLE_HTTP || !CURL_DISABLE_PROXY */
-#endif /* USE_SSL */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_HTTP || !CURL_DISABLE_PROXY */
+#ਜੇ_ਅੰਤ /* USE_SSL */
 
-#ifdef USE_SSL
-static int multissl_setup(const struct Curl_ssl *backend);
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+ਸਥਿਰ ਪੂਰਨ multissl_ਤਿਆਰੀ(ਅਚਲ ਬਣਤਰ Curl_ssl *backend);
+#ਜੇ_ਅੰਤ
 
-curl_sslbackend Curl_ssl_backend(void)
+curl_sslbackend Curl_ssl_backend(ਖਾਲੀ)
 {
-#ifdef USE_SSL
-  multissl_setup(NULL);
-  return Curl_ssl->info.id;
-#else
-  return CURLSSLBACKEND_NONE;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+  multissl_ਤਿਆਰੀ(ਨਿਰਾ);
+  ਵਾਪਸ Curl_ssl->info.id;
+#ਨਹੀਂਤਾਂ
+  ਵਾਪਸ CURLSSLBACKEND_NONE;
+#ਜੇ_ਅੰਤ
 }
 
-#ifdef USE_SSL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
 
 /* "global" init done? */
-static bool init_ssl = FALSE;
+ਸਥਿਰ bool init_ssl = FALSE;
 
 /**
  * Global SSL init
@@ -148,67 +148,67 @@ static bool init_ssl = FALSE;
  * @retval 0 error initializing SSL
  * @retval 1 SSL initialized successfully
  */
-int Curl_ssl_init(void)
+ਪੂਰਨ Curl_ssl_init(ਖਾਲੀ)
 {
   /* make sure this is only done once */
-  if(init_ssl)
-    return 1;
+  ਜੇ(init_ssl)
+    ਵਾਪਸ 1;
   init_ssl = TRUE; /* never again */
 
-  if(Curl_ssl->init)
-    return Curl_ssl->init();
-  return 1;
+  ਜੇ(Curl_ssl->init)
+    ਵਾਪਸ Curl_ssl->init();
+  ਵਾਪਸ 1;
 }
 
-static bool ssl_prefs_check(struct Curl_cfilter *cf,
-                            struct Curl_easy *data)
+ਸਥਿਰ bool ssl_prefs_check(ਬਣਤਰ Curl_cfilter *cf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   /* check for CURLOPT_SSLVERSION invalid parameter value */
-  if(conn_config->version >= CURL_SSLVERSION_LAST) {
-    failf(data, "Unrecognized parameter value passed via CURLOPT_SSLVERSION");
-    return FALSE;
+  ਜੇ(conn_config->ਸੰਸਕਰਣ_2 >= CURL_SSLVERSION_ਆਖਰੀ) {
+    failf(ਅੰਕੜੇ, "Unrecognized parameter value passed via CURLOPT_SSLVERSION");
+    ਵਾਪਸ FALSE;
   }
 
-  switch(conn_config->version_max) {
-  case CURL_SSLVERSION_MAX_NONE:
-  case CURL_SSLVERSION_MAX_DEFAULT:
-    break;
+  ਚੋਣ(conn_config->ਸੰਸਕਰਣ_max) {
+  ਹਾਲਤ CURL_SSLVERSION_MAX_NONE:
+  ਹਾਲਤ CURL_SSLVERSION_MAX_DEFAULT:
+    ਰੋਕੋ;
 
-  default:
-    if((conn_config->version_max >> 16) < conn_config->version) {
-      failf(data, "CURL_SSLVERSION_MAX incompatible with CURL_SSLVERSION");
-      return FALSE;
+  ਮੂਲ:
+    ਜੇ((conn_config->ਸੰਸਕਰਣ_max >> 16) < conn_config->ਸੰਸਕਰਣ_2) {
+      failf(ਅੰਕੜੇ, "CURL_SSLVERSION_MAX incompatible with CURL_SSLVERSION");
+      ਵਾਪਸ FALSE;
     }
   }
 
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static struct ssl_connect_data *cf_ctx_new(struct Curl_easy *data,
-                                           const struct alpn_spec *alpn)
+ਸਥਿਰ ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *cf_ctx_new(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                           ਅਚਲ ਬਣਤਰ alpn_spec *alpn)
 {
-  struct ssl_connect_data *ctx;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *ctx;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    return NULL;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ctx = curlx_calloc(1, ਆਕਾਰ(*ctx));
+  ਜੇ(!ctx)
+    ਵਾਪਸ ਨਿਰਾ;
 
   ctx->ssl_impl = Curl_ssl;
   ctx->alpn = alpn;
   Curl_bufq_init2(&ctx->earlydata, CURL_SSL_EARLY_MAX, 1, BUFQ_OPT_NO_SPARES);
-  ctx->backend = curlx_calloc(1, ctx->ssl_impl->sizeof_ssl_backend_data);
-  if(!ctx->backend) {
+  ctx->backend = curlx_calloc(1, ctx->ssl_impl->sizeof_ssl_backend_ਅੰਕੜੇ);
+  ਜੇ(!ctx->backend) {
     curlx_free(ctx);
-    return NULL;
+    ਵਾਪਸ ਨਿਰਾ;
   }
-  return ctx;
+  ਵਾਪਸ ctx;
 }
 
-static void cf_ctx_free(struct ssl_connect_data *ctx)
+ਸਥਿਰ ਖਾਲੀ cf_ctx_free(ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *ctx)
 {
-  if(ctx) {
+  ਜੇ(ctx) {
     curlx_safefree(ctx->negotiated.alpn);
     Curl_bufq_free(&ctx->earlydata);
     curlx_free(ctx->backend);
@@ -216,533 +216,533 @@ static void cf_ctx_free(struct ssl_connect_data *ctx)
   }
 }
 
-CURLcode Curl_ssl_get_channel_binding(struct Curl_easy *data, int8_t sockindex,
-                                      struct dynbuf *binding)
+CURLcode Curl_ssl_get_channel_binding(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, int8_t sockindex,
+                                      ਬਣਤਰ dynbuf *binding)
 {
-  if(Curl_ssl->get_channel_binding)
-    return Curl_ssl->get_channel_binding(data, sockindex, binding);
-  return CURLE_OK;
+  ਜੇ(Curl_ssl->get_channel_binding)
+    ਵਾਪਸ Curl_ssl->get_channel_binding(ਅੰਕੜੇ, sockindex, binding);
+  ਵਾਪਸ CURLE_OK;
 }
 
-void Curl_ssl_close_all(struct Curl_easy *data)
+ਖਾਲੀ Curl_ssl_close_all(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  if(Curl_ssl->close_all)
-    Curl_ssl->close_all(data);
+  ਜੇ(Curl_ssl->close_all)
+    Curl_ssl->close_all(ਅੰਕੜੇ);
 }
 
-CURLcode Curl_ssl_adjust_pollset(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct easy_pollset *ps)
+CURLcode Curl_ssl_adjust_pollset(ਬਣਤਰ Curl_cfilter *cf,
+                                 ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                 ਬਣਤਰ easy_pollset *ps)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
 
-  if(connssl->io_need) {
-    curl_socket_t sock = Curl_conn_cf_get_socket(cf->next, data);
-    CURLcode result = CURLE_OK;
-    if(sock != CURL_SOCKET_BAD) {
-      if(connssl->io_need & CURL_SSL_IO_NEED_SEND) {
-        result = Curl_pollset_set_out_only(data, ps, sock);
-        CURL_TRC_CF(data, cf, "adjust_pollset, POLLOUT fd=%" FMT_SOCKET_T,
+  ਜੇ(connssl->io_need) {
+    curl_socket_t sock = Curl_conn_cf_get_socket(cf->ਅਗਲਾ, ਅੰਕੜੇ);
+    CURLcode ਨਤੀਜਾ = CURLE_OK;
+    ਜੇ(sock != CURL_SOCKET_BAD) {
+      ਜੇ(connssl->io_need & CURL_SSL_IO_NEED_SEND) {
+        ਨਤੀਜਾ = Curl_pollset_ਸੈੱਟ_ਬਾਹਰਲਾ_only(ਅੰਕੜੇ, ps, sock);
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "adjust_pollset, POLLOUT fd=%" FMT_SOCKET_T,
                     sock);
       }
-      else {
-        result = Curl_pollset_set_in_only(data, ps, sock);
-        CURL_TRC_CF(data, cf, "adjust_pollset, POLLIN fd=%" FMT_SOCKET_T,
+      ਨਹੀਂਤਾਂ {
+        ਨਤੀਜਾ = Curl_pollset_ਸੈੱਟ_ਵਿੱਚ_only(ਅੰਕੜੇ, ps, sock);
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "adjust_pollset, POLLIN fd=%" FMT_SOCKET_T,
                     sock);
       }
     }
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* Return list of OpenSSL crypto engine names. */
-struct curl_slist *Curl_ssl_engines_list(struct Curl_easy *data)
+ਬਣਤਰ curl_slist *Curl_ssl_engines_list(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  if(Curl_ssl->engines_list)
-    return Curl_ssl->engines_list(data);
-  return NULL;
+  ਜੇ(Curl_ssl->engines_list)
+    ਵਾਪਸ Curl_ssl->engines_list(ਅੰਕੜੇ);
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-static size_t multissl_version(char *buffer, size_t size);
+ਸਥਿਰ size_t multissl_ਸੰਸਕਰਣ(ਅੱਖਰ *ਬਫਰ, size_t ਮਾਪ);
 
-void Curl_ssl_version(char *buffer, size_t size)
+ਖਾਲੀ Curl_ssl_ਸੰਸਕਰਣ(ਅੱਖਰ *ਬਫਰ, size_t ਮਾਪ)
 {
-#ifdef CURL_WITH_MULTI_SSL
-  (void)multissl_version(buffer, size);
-#else
-  (void)Curl_ssl->version(buffer, size);
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_WITH_MULTI_SSL
+  (ਖਾਲੀ)multissl_ਸੰਸਕਰਣ(ਬਫਰ, ਮਾਪ);
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)Curl_ssl->ਸੰਸਕਰਣ_2(ਬਫਰ, ਮਾਪ);
+#ਜੇ_ਅੰਤ
 }
 
-void Curl_ssl_free_certinfo(struct Curl_easy *data)
+ਖਾਲੀ Curl_ssl_free_certinfo(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct curl_certinfo *ci = &data->info.certs;
+  ਬਣਤਰ curl_certinfo *ci = &ਅੰਕੜੇ->info.certs;
 
-  if(ci->num_of_certs) {
+  ਜੇ(ci->ਅੰਕ_ਦਾ_certs) {
     /* free all individual lists used */
-    int i;
-    for(i = 0; i < ci->num_of_certs; i++) {
+    ਪੂਰਨ i;
+    ਲਈ(i = 0; i < ci->ਅੰਕ_ਦਾ_certs; i++) {
       curl_slist_free_all(ci->certinfo[i]);
-      ci->certinfo[i] = NULL;
+      ci->certinfo[i] = ਨਿਰਾ;
     }
 
     curlx_safefree(ci->certinfo); /* free the actual array too */
-    ci->num_of_certs = 0;
+    ci->ਅੰਕ_ਦਾ_certs = 0;
   }
 }
 
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num)
+CURLcode Curl_ssl_init_certinfo(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਪੂਰਨ ਅੰਕ)
 {
-  struct curl_certinfo *ci = &data->info.certs;
-  struct curl_slist **table;
+  ਬਣਤਰ curl_certinfo *ci = &ਅੰਕੜੇ->info.certs;
+  ਬਣਤਰ curl_slist **ਸਾਰਣੀ;
 
   /* Free any previous certificate information structures */
-  Curl_ssl_free_certinfo(data);
+  Curl_ssl_free_certinfo(ਅੰਕੜੇ);
 
   /* Allocate the required certificate information structures */
-  table = curlx_calloc((size_t)num, sizeof(struct curl_slist *));
-  if(!table)
-    return CURLE_OUT_OF_MEMORY;
+  ਸਾਰਣੀ = curlx_calloc((size_t)ਅੰਕ, ਆਕਾਰ(ਬਣਤਰ curl_slist *));
+  ਜੇ(!ਸਾਰਣੀ)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  ci->num_of_certs = num;
-  ci->certinfo = table;
+  ci->ਅੰਕ_ਦਾ_certs = ਅੰਕ;
+  ci->certinfo = ਸਾਰਣੀ;
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * 'value' is NOT a null-terminated string
  */
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data,
-                                    int certnum,
-                                    const char *label,
-                                    const char *value,
+CURLcode Curl_ssl_ਧੱਕੋ_certinfo_len(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਪੂਰਨ certnum,
+                                    ਅਚਲ ਅੱਖਰ *label,
+                                    ਅਚਲ ਅੱਖਰ *ਮੁੱਲ,
                                     size_t valuelen)
 {
-  struct curl_certinfo *ci = &data->info.certs;
-  struct curl_slist *nl;
-  CURLcode result = CURLE_OK;
-  struct dynbuf build;
+  ਬਣਤਰ curl_certinfo *ci = &ਅੰਕੜੇ->info.certs;
+  ਬਣਤਰ curl_slist *nl;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ dynbuf build;
 
-  DEBUGASSERT(certnum < ci->num_of_certs);
+  DEBUGASSERT(certnum < ci->ਅੰਕ_ਦਾ_certs);
 
   curlx_dyn_init(&build, CURL_X509_STR_MAX);
 
-  if(curlx_dyn_add(&build, label) ||
+  ਜੇ(curlx_dyn_ਜੋੜੋ(&build, label) ||
      curlx_dyn_addn(&build, ":", 1) ||
-     curlx_dyn_addn(&build, value, valuelen))
-    return CURLE_OUT_OF_MEMORY;
+     curlx_dyn_addn(&build, ਮੁੱਲ, valuelen))
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   nl = Curl_slist_append_nodup(ci->certinfo[certnum], curlx_dyn_ptr(&build));
-  if(!nl) {
+  ਜੇ(!nl) {
     curlx_dyn_free(&build);
     curl_slist_free_all(ci->certinfo[certnum]);
-    result = CURLE_OUT_OF_MEMORY;
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
   ci->certinfo[certnum] = nl;
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* get length bytes of randomness */
-CURLcode Curl_ssl_random(struct Curl_easy *data,
-                         unsigned char *buffer, size_t length)
+CURLcode Curl_ssl_random(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                         ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ਬਫਰ, size_t ਲੰਮਾਈ)
 {
-  DEBUGASSERT(length == sizeof(int));
-  if(Curl_ssl->random)
-    return Curl_ssl->random(data, buffer, length);
-  else
-    return CURLE_NOT_BUILT_IN;
+  DEBUGASSERT(ਲੰਮਾਈ == ਆਕਾਰ(ਪੂਰਨ));
+  ਜੇ(Curl_ssl->random)
+    ਵਾਪਸ Curl_ssl->random(ਅੰਕੜੇ, ਬਫਰ, ਲੰਮਾਈ);
+  ਨਹੀਂਤਾਂ
+    ਵਾਪਸ CURLE_NOT_BUILT_ਵਿੱਚ;
 }
 
 /*
  * Public key pem to der conversion
  */
 
-static CURLcode pubkey_pem_to_der(const char *pem,
-                                  unsigned char **der, size_t *der_len)
+ਸਥਿਰ CURLcode pubkey_pem_ਮੰਜ਼ਿਲ_der(ਅਚਲ ਅੱਖਰ *pem,
+                                  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ **der, size_t *der_len)
 {
-  const char *begin_pos, *end_pos;
-  size_t pem_count, pem_len;
-  CURLcode result;
-  struct dynbuf pbuf;
+  ਅਚਲ ਅੱਖਰ *begin_pos, *ਸਿਰਾ_pos;
+  size_t pem_ਗਿਣਤੀ, pem_len;
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ dynbuf pbuf;
 
   /* if no pem, exit. */
-  if(!pem)
-    return CURLE_BAD_CONTENT_ENCODING;
+  ਜੇ(!pem)
+    ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
 
-  curlx_dyn_init(&pbuf, MAX_PINNED_PUBKEY_SIZE);
+  curlx_dyn_init(&pbuf, MAX_PINNED_PUBKEY_ਮਾਪ);
 
-  begin_pos = strstr(pem, "-----BEGIN PUBLIC KEY-----");
-  if(!begin_pos)
-    return CURLE_BAD_CONTENT_ENCODING;
+  begin_pos = ਲੜੀ_ਖੋਜ(pem, "-----BEGIN PUBLIC KEY-----");
+  ਜੇ(!begin_pos)
+    ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
 
-  pem_count = begin_pos - pem;
+  pem_ਗਿਣਤੀ = begin_pos - pem;
   /* Invalid if not at beginning AND not directly following \n */
-  if(pem_count && '\n' != pem[pem_count - 1])
-    return CURLE_BAD_CONTENT_ENCODING;
+  ਜੇ(pem_ਗਿਣਤੀ && '\n' != pem[pem_ਗਿਣਤੀ - 1])
+    ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
 
   /* 26 is length of "-----BEGIN PUBLIC KEY-----" */
-  pem_count += 26;
+  pem_ਗਿਣਤੀ += 26;
 
   /* Invalid if not directly following \n */
-  end_pos = strstr(pem + pem_count, "\n-----END PUBLIC KEY-----");
-  if(!end_pos)
-    return CURLE_BAD_CONTENT_ENCODING;
+  ਸਿਰਾ_pos = ਲੜੀ_ਖੋਜ(pem + pem_ਗਿਣਤੀ, "\n-----END PUBLIC KEY-----");
+  ਜੇ(!ਸਿਰਾ_pos)
+    ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
 
-  pem_len = end_pos - pem;
+  pem_len = ਸਿਰਾ_pos - pem;
 
   /*
    * Here we loop through the pem array one character at a time between the
    * correct indices, and place each character that is not '\n' or '\r'
    * into the stripped_pem array, which should represent the raw base64 string
    */
-  while(pem_count < pem_len) {
-    if('\n' != pem[pem_count] && '\r' != pem[pem_count]) {
-      result = curlx_dyn_addn(&pbuf, &pem[pem_count], 1);
-      if(result)
-        return result;
+  ਜਦੋਂ(pem_ਗਿਣਤੀ < pem_len) {
+    ਜੇ('\n' != pem[pem_ਗਿਣਤੀ] && '\r' != pem[pem_ਗਿਣਤੀ]) {
+      ਨਤੀਜਾ = curlx_dyn_addn(&pbuf, &pem[pem_ਗਿਣਤੀ], 1);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    ++pem_count;
+    ++pem_ਗਿਣਤੀ;
   }
 
-  if(curlx_dyn_len(&pbuf)) {
-    result = curlx_base64_decode(curlx_dyn_ptr(&pbuf), der, der_len);
+  ਜੇ(curlx_dyn_len(&pbuf)) {
+    ਨਤੀਜਾ = curlx_base64_decode(curlx_dyn_ptr(&pbuf), der, der_len);
     curlx_dyn_free(&pbuf);
   }
-  else
-    result = CURLE_BAD_CONTENT_ENCODING;
+  ਨਹੀਂਤਾਂ
+    ਨਤੀਜਾ = CURLE_BAD_CONTENT_ENCODING;
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * Generic pinned public key check.
  */
 
-CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
-                              const char *pinnedpubkey,
-                              const unsigned char *pubkey, size_t pubkeylen)
+CURLcode Curl_pin_peer_pubkey(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਅਚਲ ਅੱਖਰ *pinnedpubkey,
+                              ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *pubkey, size_t pubkeylen)
 {
-  CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+  CURLcode ਨਤੀਜਾ = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
-  if(!pubkey || !pubkeylen)
-    return result;
+  ਜੇ(!pinnedpubkey)
+    ਵਾਪਸ CURLE_OK;
+  ਜੇ(!pubkey || !pubkeylen)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   /* only do this if pinnedpubkey starts with "sha256//", length 8 */
-  if(!strncmp(pinnedpubkey, "sha256//", 8)) {
+  ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(pinnedpubkey, "sha256//", 8)) {
     CURLcode encode;
-    char *cert_hash = NULL;
-    const char *pinned_hash, *end_pos;
+    ਅੱਖਰ *cert_hash = ਨਿਰਾ;
+    ਅਚਲ ਅੱਖਰ *pinned_hash, *ਸਿਰਾ_pos;
     size_t cert_hash_len = 0, pinned_hash_len;
-    unsigned char *sha256sumdigest;
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *sha256sumdigest;
 
-    if(!Curl_ssl->sha256sum) {
+    ਜੇ(!Curl_ssl->sha256sum) {
       /* without sha256 support, this cannot match */
-      return result;
+      ਵਾਪਸ ਨਤੀਜਾ;
     }
 
     /* compute sha256sum of public key */
-    sha256sumdigest = curlx_malloc(CURL_SHA256_DIGEST_LENGTH);
-    if(!sha256sumdigest)
-      return CURLE_OUT_OF_MEMORY;
+    sha256sumdigest = curlx_malloc(CURL_SHA256_DIGEST_ਲੰਮਾਈ);
+    ਜੇ(!sha256sumdigest)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     encode = Curl_ssl->sha256sum(pubkey, pubkeylen,
-                                 sha256sumdigest, CURL_SHA256_DIGEST_LENGTH);
+                                 sha256sumdigest, CURL_SHA256_DIGEST_ਲੰਮਾਈ);
 
-    if(!encode)
+    ਜੇ(!encode)
       encode = curlx_base64_encode(sha256sumdigest,
-                                   CURL_SHA256_DIGEST_LENGTH,
+                                   CURL_SHA256_DIGEST_ਲੰਮਾਈ,
                                    &cert_hash, &cert_hash_len);
     curlx_safefree(sha256sumdigest);
 
-    if(encode)
-      return encode;
+    ਜੇ(encode)
+      ਵਾਪਸ encode;
 
-    infof(data, " public key hash: sha256//%s", cert_hash);
+    infof(ਅੰਕੜੇ, " public key hash: sha256//%s", cert_hash);
 
     pinned_hash = pinnedpubkey;
-    while(pinned_hash &&
-          !strncmp(pinned_hash, "sha256//", CURL_CSTRLEN("sha256//"))) {
+    ਜਦੋਂ(pinned_hash &&
+          !ਲੜੀ_ਤੁਲਨਾ(pinned_hash, "sha256//", CURL_CSTRLEN("sha256//"))) {
       pinned_hash = pinned_hash + CURL_CSTRLEN("sha256//");
-      end_pos = strchr(pinned_hash, ';');
-      pinned_hash_len = end_pos ?
-                        (size_t)(end_pos - pinned_hash) : strlen(pinned_hash);
+      ਸਿਰਾ_pos = strchr(pinned_hash, ';');
+      pinned_hash_len = ਸਿਰਾ_pos ?
+                        (size_t)(ਸਿਰਾ_pos - pinned_hash) : ਲੜੀ_ਲੰਬਾਈ(pinned_hash);
 
       /* compare base64 sha256 digests */
-      if(cert_hash_len == pinned_hash_len &&
+      ਜੇ(cert_hash_len == pinned_hash_len &&
          !memcmp(cert_hash, pinned_hash, cert_hash_len)) {
-        DEBUGF(infof(data, "public key hash matches pinned value"));
-        result = CURLE_OK;
-        break;
+        DEBUGF(infof(ਅੰਕੜੇ, "public key hash matches pinned value"));
+        ਨਤੀਜਾ = CURLE_OK;
+        ਰੋਕੋ;
       }
 
-      DEBUGF(infof(data, "public key hash does not match 'sha256//%.*s'",
-                   (int)pinned_hash_len, pinned_hash));
+      DEBUGF(infof(ਅੰਕੜੇ, "public key hash does not match 'sha256//%.*s'",
+                   (ਪੂਰਨ)pinned_hash_len, pinned_hash));
       /* next one or we are at the end */
-      pinned_hash = end_pos ? (end_pos + 1) : NULL;
+      pinned_hash = ਸਿਰਾ_pos ? (ਸਿਰਾ_pos + 1) : ਨਿਰਾ;
     }
     curlx_safefree(cert_hash);
   }
-  else {
-    long filesize;
-    size_t size, pem_len;
+  ਨਹੀਂਤਾਂ {
+    ਲੰਮਾ filesize;
+    size_t ਮਾਪ, pem_len;
     CURLcode pem_read;
-    struct dynbuf buf;
-    unsigned char *pem_ptr = NULL;
-    size_t left;
+    ਬਣਤਰ dynbuf buf;
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *pem_ptr = ਨਿਰਾ;
+    size_t ਖੱਬਾ;
     FILE *fp = curlx_fopen(pinnedpubkey, "rb");
-    if(!fp)
-      return result;
+    ਜੇ(!fp)
+      ਵਾਪਸ ਨਤੀਜਾ;
 
-    curlx_dyn_init(&buf, MAX_PINNED_PUBKEY_SIZE);
+    curlx_dyn_init(&buf, MAX_PINNED_PUBKEY_ਮਾਪ);
 
     /* Determine the file's size */
-    if(fseek(fp, 0, SEEK_END))
-      goto end;
+    ਜੇ(fseek(fp, 0, SEEK_END))
+      ਜਾਓ ਸਿਰਾ;
     filesize = ftell(fp);
-    if(fseek(fp, 0, SEEK_SET))
-      goto end;
-    if(filesize < 0 || filesize > MAX_PINNED_PUBKEY_SIZE)
-      goto end;
+    ਜੇ(fseek(fp, 0, SEEK_SET))
+      ਜਾਓ ਸਿਰਾ;
+    ਜੇ(filesize < 0 || filesize > MAX_PINNED_PUBKEY_ਮਾਪ)
+      ਜਾਓ ਸਿਰਾ;
 
     /*
      * if the size of our certificate is bigger than the file
      * size then it cannot match
      */
-    size = curlx_sotouz((curl_off_t)filesize);
-    if(pubkeylen > size)
-      goto end;
+    ਮਾਪ = curlx_sotouz((curl_off_t)filesize);
+    ਜੇ(pubkeylen > ਮਾਪ)
+      ਜਾਓ ਸਿਰਾ;
 
     /*
      * Read the file into the dynbuf
      */
-    left = size;
-    do {
-      char buffer[1024];
-      size_t want = left > sizeof(buffer) ? sizeof(buffer) : left;
-      if(fread(buffer, 1, want, fp) != want)
-        goto end;
-      if(curlx_dyn_addn(&buf, buffer, want))
-        goto end;
-      left -= want;
-    } while(left);
+    ਖੱਬਾ = ਮਾਪ;
+    ਕਰੋ {
+      ਅੱਖਰ ਬਫਰ[1024];
+      size_t want = ਖੱਬਾ > ਆਕਾਰ(ਬਫਰ) ? ਆਕਾਰ(ਬਫਰ) : ਖੱਬਾ;
+      ਜੇ(fread(ਬਫਰ, 1, want, fp) != want)
+        ਜਾਓ ਸਿਰਾ;
+      ਜੇ(curlx_dyn_addn(&buf, ਬਫਰ, want))
+        ਜਾਓ ਸਿਰਾ;
+      ਖੱਬਾ -= want;
+    } ਜਦੋਂ(ਖੱਬਾ);
 
     /* If the sizes are the same, it cannot be base64 encoded, must be der */
-    if(pubkeylen == size) {
-      if(!memcmp(pubkey, curlx_dyn_ptr(&buf), pubkeylen))
-        result = CURLE_OK;
-      goto end;
+    ਜੇ(pubkeylen == ਮਾਪ) {
+      ਜੇ(!memcmp(pubkey, curlx_dyn_ptr(&buf), pubkeylen))
+        ਨਤੀਜਾ = CURLE_OK;
+      ਜਾਓ ਸਿਰਾ;
     }
 
     /*
      * Otherwise we assume it is PEM and try to decode it after placing
      * null-terminator
      */
-    pem_read = pubkey_pem_to_der(curlx_dyn_ptr(&buf), &pem_ptr, &pem_len);
+    pem_read = pubkey_pem_ਮੰਜ਼ਿਲ_der(curlx_dyn_ptr(&buf), &pem_ptr, &pem_len);
     /* if it was not read successfully, exit */
-    if(pem_read)
-      goto end;
+    ਜੇ(pem_read)
+      ਜਾਓ ਸਿਰਾ;
 
     /*
      * if the size of our certificate does not match the size of
      * the decoded file, they cannot be the same, otherwise compare
      */
-    if(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
-      result = CURLE_OK;
-end:
+    ਜੇ(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
+      ਨਤੀਜਾ = CURLE_OK;
+ਸਿਰਾ:
     curlx_dyn_free(&buf);
     curlx_safefree(pem_ptr);
     curlx_fclose(fp);
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * Check whether the SSL backend supports the status_request extension.
  */
-bool Curl_ssl_cert_status_request(void)
+bool Curl_ssl_cert_ਸਥਿਤੀ_request(ਖਾਲੀ)
 {
-  if(Curl_ssl->cert_status_request)
-    return Curl_ssl->cert_status_request();
-  return FALSE;
+  ਜੇ(Curl_ssl->cert_ਸਥਿਤੀ_request)
+    ਵਾਪਸ Curl_ssl->cert_ਸਥਿਤੀ_request();
+  ਵਾਪਸ FALSE;
 }
 
-static int multissl_init(void)
+ਸਥਿਰ ਪੂਰਨ multissl_init(ਖਾਲੀ)
 {
-  if(multissl_setup(NULL))
-    return 1;
-  if(Curl_ssl->init)
-    return Curl_ssl->init();
-  return 1;
+  ਜੇ(multissl_ਤਿਆਰੀ(ਨਿਰਾ))
+    ਵਾਪਸ 1;
+  ਜੇ(Curl_ssl->init)
+    ਵਾਪਸ Curl_ssl->init();
+  ਵਾਪਸ 1;
 }
 
-static CURLcode multissl_random(struct Curl_easy *data,
-                                unsigned char *entropy, size_t length)
+ਸਥਿਰ CURLcode multissl_random(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *entropy, size_t ਲੰਮਾਈ)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->random(data, entropy, length);
+  ਜੇ(multissl_ਤਿਆਰੀ(ਨਿਰਾ))
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  ਵਾਪਸ Curl_ssl->random(ਅੰਕੜੇ, entropy, ਲੰਮਾਈ);
 }
 
-static CURLcode multissl_connect(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode multissl_connect(ਬਣਤਰ Curl_cfilter *cf,
+                                 ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->do_connect(cf, data, done);
+  ਜੇ(multissl_ਤਿਆਰੀ(ਨਿਰਾ))
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  ਵਾਪਸ Curl_ssl->do_connect(cf, ਅੰਕੜੇ, ਪੂਰਾ);
 }
 
-static CURLcode multissl_adjust_pollset(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct easy_pollset *ps)
+ਸਥਿਰ CURLcode multissl_adjust_pollset(ਬਣਤਰ Curl_cfilter *cf,
+                                        ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                        ਬਣਤਰ easy_pollset *ps)
 {
-  if(multissl_setup(NULL))
-    return CURLE_OK;
-  return Curl_ssl->adjust_pollset(cf, data, ps);
+  ਜੇ(multissl_ਤਿਆਰੀ(ਨਿਰਾ))
+    ਵਾਪਸ CURLE_OK;
+  ਵਾਪਸ Curl_ssl->adjust_pollset(cf, ਅੰਕੜੇ, ps);
 }
 
-static void *multissl_get_internals(struct ssl_connect_data *connssl,
+ਸਥਿਰ ਖਾਲੀ *multissl_get_internals(ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl,
                                     CURLINFO info)
 {
-  if(multissl_setup(NULL))
-    return NULL;
-  return Curl_ssl->get_internals(connssl, info);
+  ਜੇ(multissl_ਤਿਆਰੀ(ਨਿਰਾ))
+    ਵਾਪਸ ਨਿਰਾ;
+  ਵਾਪਸ Curl_ssl->get_internals(connssl, info);
 }
 
-static void multissl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ multissl_close(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  if(multissl_setup(NULL))
-    return;
-  Curl_ssl->close(cf, data);
+  ਜੇ(multissl_ਤਿਆਰੀ(ਨਿਰਾ))
+    ਵਾਪਸ;
+  Curl_ssl->close(cf, ਅੰਕੜੇ);
 }
 
-static CURLcode multissl_recv_plain(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    char *buf, size_t len, size_t *pnread)
+ਸਥਿਰ CURLcode multissl_recv_plain(ਬਣਤਰ Curl_cfilter *cf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਅੱਖਰ *buf, size_t len, size_t *pnread)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->recv_plain(cf, data, buf, len, pnread);
+  ਜੇ(multissl_ਤਿਆਰੀ(ਨਿਰਾ))
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  ਵਾਪਸ Curl_ssl->recv_plain(cf, ਅੰਕੜੇ, buf, len, pnread);
 }
 
-static CURLcode multissl_send_plain(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    const void *mem, size_t len,
+ਸਥਿਰ CURLcode multissl_send_plain(ਬਣਤਰ Curl_cfilter *cf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਅਚਲ ਖਾਲੀ *mem, size_t len,
                                     size_t *pnwritten)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->send_plain(cf, data, mem, len, pnwritten);
+  ਜੇ(multissl_ਤਿਆਰੀ(ਨਿਰਾ))
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  ਵਾਪਸ Curl_ssl->send_plain(cf, ਅੰਕੜੇ, mem, len, pnwritten);
 }
 
-static const struct Curl_ssl Curl_ssl_multi = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_ssl Curl_ssl_multi = {
   { CURLSSLBACKEND_NONE, "multi" },  /* info */
   0, /* supports nothing */
   (size_t)-1, /* something insanely large to be on the safe side */
 
   multissl_init,                     /* init */
-  NULL,                              /* cleanup */
-  multissl_version,                  /* version */
-  NULL,                              /* shutdown */
-  NULL,                              /* data_pending */
+  ਨਿਰਾ,                              /* cleanup */
+  multissl_ਸੰਸਕਰਣ,                  /*ਸੰਸਕਰਣ*/
+  ਨਿਰਾ,                              /* shutdown */
+  ਨਿਰਾ,                              /* data_pending */
   multissl_random,                   /* random */
-  NULL,                              /* cert_status_request */
+  ਨਿਰਾ,                              /* cert_status_request */
   multissl_connect,                  /* connect */
   multissl_adjust_pollset,           /* adjust_pollset */
   multissl_get_internals,            /* get_internals */
   multissl_close,                    /* close_one */
-  NULL,                              /* close_all */
-  NULL,                              /* engines_list */
-  NULL,                              /* sha256sum */
+  ਨਿਰਾ,                              /* close_all */
+  ਨਿਰਾ,                              /* engines_list */
+  ਨਿਰਾ,                              /* sha256sum */
   multissl_recv_plain,               /* recv decrypted data */
   multissl_send_plain,               /* send data to encrypt */
-  NULL,                              /* get_channel_binding */
+  ਨਿਰਾ,                              /* get_channel_binding */
 };
 
-const struct Curl_ssl *Curl_ssl =
-#ifdef CURL_WITH_MULTI_SSL
+ਅਚਲ ਬਣਤਰ Curl_ssl *Curl_ssl =
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_WITH_MULTI_SSL
   &Curl_ssl_multi;
-#elif defined(USE_WOLFSSL)
+#ਜਾਂਜੇ defined(USE_WOLFSSL)
   &Curl_ssl_wolfssl;
-#elif defined(USE_GNUTLS)
+#ਜਾਂਜੇ defined(USE_GNUTLS)
   &Curl_ssl_gnutls;
-#elif defined(USE_MBEDTLS)
+#ਜਾਂਜੇ defined(USE_MBEDTLS)
   &Curl_ssl_mbedtls;
-#elif defined(USE_RUSTLS)
+#ਜਾਂਜੇ defined(USE_RUSTLS)
   &Curl_ssl_rustls;
-#elif defined(USE_OPENSSL)
+#ਜਾਂਜੇ defined(USE_OPENSSL)
   &Curl_ssl_openssl;
-#elif defined(USE_SCHANNEL)
+#ਜਾਂਜੇ defined(USE_SCHANNEL)
   &Curl_ssl_schannel;
-#else
-#error "Missing struct Curl_ssl for selected SSL backend"
-#endif
+#ਨਹੀਂਤਾਂ
+#ਗਲਤੀ "Missing struct Curl_ssl for selected SSL backend"
+#ਜੇ_ਅੰਤ
 
-static const struct Curl_ssl *available_backends[] = {
-#ifdef USE_WOLFSSL
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_ssl *ਉਪਲਬਧ_backends[] = {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_WOLFSSL
   &Curl_ssl_wolfssl,
-#endif
-#ifdef USE_GNUTLS
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_GNUTLS
   &Curl_ssl_gnutls,
-#endif
-#ifdef USE_MBEDTLS
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_MBEDTLS
   &Curl_ssl_mbedtls,
-#endif
-#ifdef USE_OPENSSL
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_OPENSSL
   &Curl_ssl_openssl,
-#endif
-#ifdef USE_SCHANNEL
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SCHANNEL
   &Curl_ssl_schannel,
-#endif
-#ifdef USE_RUSTLS
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_RUSTLS
   &Curl_ssl_rustls,
-#endif
-  NULL
+#ਜੇ_ਅੰਤ
+  ਨਿਰਾ
 };
 
 /* Global cleanup */
-void Curl_ssl_cleanup(void)
+ਖਾਲੀ Curl_ssl_cleanup(ਖਾਲੀ)
 {
-  if(init_ssl) {
+  ਜੇ(init_ssl) {
     /* only cleanup if we did a previous init */
-    if(Curl_ssl->cleanup)
+    ਜੇ(Curl_ssl->cleanup)
       Curl_ssl->cleanup();
-#ifdef CURL_WITH_MULTI_SSL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_WITH_MULTI_SSL
     Curl_ssl = &Curl_ssl_multi;
-#endif
+#ਜੇ_ਅੰਤ
     init_ssl = FALSE;
   }
 }
 
-static size_t multissl_version(char *buffer, size_t size)
+ਸਥਿਰ size_t multissl_ਸੰਸਕਰਣ(ਅੱਖਰ *ਬਫਰ, size_t ਮਾਪ)
 {
-  static const struct Curl_ssl *selected;
-  static char backends[200];
-  static size_t backends_len;
-  const struct Curl_ssl *current;
+  ਸਥਿਰ ਅਚਲ ਬਣਤਰ Curl_ssl *selected;
+  ਸਥਿਰ ਅੱਖਰ backends[200];
+  ਸਥਿਰ size_t backends_len;
+  ਅਚਲ ਬਣਤਰ Curl_ssl *current;
 
-  current = Curl_ssl == &Curl_ssl_multi ? available_backends[0] : Curl_ssl;
+  current = Curl_ssl == &Curl_ssl_multi ? ਉਪਲਬਧ_backends[0] : Curl_ssl;
 
-  if(current != selected) {
-    char *p = backends;
-    const char *end = backends + sizeof(backends);
-    int i;
+  ਜੇ(current != selected) {
+    ਅੱਖਰ *p = backends;
+    ਅਚਲ ਅੱਖਰ *ਸਿਰਾ = backends + ਆਕਾਰ(backends);
+    ਪੂਰਨ i;
 
     selected = current;
 
     backends[0] = '\0';
 
-    for(i = 0; available_backends[i]; ++i) {
-      char vb[200];
-      bool paren = (selected != available_backends[i]);
+    ਲਈ(i = 0; ਉਪਲਬਧ_backends[i]; ++i) {
+      ਅੱਖਰ vb[200];
+      bool paren = (selected != ਉਪਲਬਧ_backends[i]);
 
-      if(available_backends[i]->version(vb, sizeof(vb))) {
-        p += curl_msnprintf(p, end - p, "%s%s%s%s", (p != backends ? " " : ""),
+      ਜੇ(ਉਪਲਬਧ_backends[i]->ਸੰਸਕਰਣ_2(vb, ਆਕਾਰ(vb))) {
+        p += curl_msnprintf(p, ਸਿਰਾ - p, "%s%s%s%s", (p != backends ? " " : ""),
                             (paren ? "(" : ""), vb, (paren ? ")" : ""));
       }
     }
@@ -750,143 +750,143 @@ static size_t multissl_version(char *buffer, size_t size)
     backends_len = p - backends;
   }
 
-  if(size) {
-    curlx_strcopy(buffer, size, backends, backends_len);
+  ਜੇ(ਮਾਪ) {
+    curlx_strcopy(ਬਫਰ, ਮਾਪ, backends, backends_len);
   }
-  return 0;
+  ਵਾਪਸ 0;
 }
 
-static int multissl_setup(const struct Curl_ssl *backend)
+ਸਥਿਰ ਪੂਰਨ multissl_ਤਿਆਰੀ(ਅਚਲ ਬਣਤਰ Curl_ssl *backend)
 {
-  int i;
-  char *env;
+  ਪੂਰਨ i;
+  ਅੱਖਰ *env;
 
-  if(Curl_ssl != &Curl_ssl_multi)
-    return 1;
+  ਜੇ(Curl_ssl != &Curl_ssl_multi)
+    ਵਾਪਸ 1;
 
-  if(backend) {
+  ਜੇ(backend) {
     Curl_ssl = backend;
-    return 0;
+    ਵਾਪਸ 0;
   }
 
-  if(!available_backends[0])
-    return 1;
+  ਜੇ(!ਉਪਲਬਧ_backends[0])
+    ਵਾਪਸ 1;
 
   env = curl_getenv("CURL_SSL_BACKEND");
-  if(env) {
-    for(i = 0; available_backends[i]; i++) {
-      if(curl_strequal(env, available_backends[i]->info.name)) {
-        Curl_ssl = available_backends[i];
+  ਜੇ(env) {
+    ਲਈ(i = 0; ਉਪਲਬਧ_backends[i]; i++) {
+      ਜੇ(curl_strequal(env, ਉਪਲਬਧ_backends[i]->info.name)) {
+        Curl_ssl = ਉਪਲਬਧ_backends[i];
         curlx_free(env);
-        return 0;
+        ਵਾਪਸ 0;
       }
     }
   }
 
-#ifdef CURL_DEFAULT_SSL_BACKEND
-  for(i = 0; available_backends[i]; i++) {
-    if(curl_strequal(CURL_DEFAULT_SSL_BACKEND,
-                     available_backends[i]->info.name)) {
-      Curl_ssl = available_backends[i];
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_DEFAULT_SSL_BACKEND
+  ਲਈ(i = 0; ਉਪਲਬਧ_backends[i]; i++) {
+    ਜੇ(curl_strequal(CURL_DEFAULT_SSL_BACKEND,
+                     ਉਪਲਬਧ_backends[i]->info.name)) {
+      Curl_ssl = ਉਪਲਬਧ_backends[i];
       curlx_free(env);
-      return 0;
+      ਵਾਪਸ 0;
     }
   }
-#endif
+#ਜੇ_ਅੰਤ
 
   /* Fall back to first available backend */
-  Curl_ssl = available_backends[0];
+  Curl_ssl = ਉਪਲਬਧ_backends[0];
   curlx_free(env);
-  return 0;
+  ਵਾਪਸ 0;
 }
 
 /* This function is used to select the SSL backend to use. It is called by
    curl_global_sslset (easy.c) which uses the global init lock. */
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
-                                   const curl_ssl_backend ***avail)
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, ਅਚਲ ਅੱਖਰ *name,
+                                   ਅਚਲ curl_ssl_backend ***avail)
 {
-  int i;
+  ਪੂਰਨ i;
 
-  if(avail)
-    *avail = (const curl_ssl_backend **)&available_backends;
+  ਜੇ(avail)
+    *avail = (ਅਚਲ curl_ssl_backend **)&ਉਪਲਬਧ_backends;
 
-  if(Curl_ssl != &Curl_ssl_multi)
-    return id == Curl_ssl->info.id ||
+  ਜੇ(Curl_ssl != &Curl_ssl_multi)
+    ਵਾਪਸ id == Curl_ssl->info.id ||
            (name && curl_strequal(name, Curl_ssl->info.name)) ?
            CURLSSLSET_OK :
-#ifdef CURL_WITH_MULTI_SSL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_WITH_MULTI_SSL
            CURLSSLSET_TOO_LATE;
-#else
+#ਨਹੀਂਤਾਂ
            CURLSSLSET_UNKNOWN_BACKEND;
-#endif
+#ਜੇ_ਅੰਤ
 
-  for(i = 0; available_backends[i]; i++) {
-    if(available_backends[i]->info.id == id ||
-       (name && curl_strequal(available_backends[i]->info.name, name))) {
-      multissl_setup(available_backends[i]);
-      return CURLSSLSET_OK;
+  ਲਈ(i = 0; ਉਪਲਬਧ_backends[i]; i++) {
+    ਜੇ(ਉਪਲਬਧ_backends[i]->info.id == id ||
+       (name && curl_strequal(ਉਪਲਬਧ_backends[i]->info.name, name))) {
+      multissl_ਤਿਆਰੀ(ਉਪਲਬਧ_backends[i]);
+      ਵਾਪਸ CURLSSLSET_OK;
     }
   }
 
-  return CURLSSLSET_UNKNOWN_BACKEND;
+  ਵਾਪਸ CURLSSLSET_UNKNOWN_BACKEND;
 }
 
-#else /* USE_SSL */
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
-                                   const curl_ssl_backend ***avail)
+#ਨਹੀਂਤਾਂ /* USE_SSL */
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, ਅਚਲ ਅੱਖਰ *name,
+                                   ਅਚਲ curl_ssl_backend ***avail)
 {
-  (void)id;
-  (void)name;
-  (void)avail;
-  return CURLSSLSET_NO_BACKENDS;
+  (ਖਾਲੀ)id;
+  (ਖਾਲੀ)name;
+  (ਖਾਲੀ)avail;
+  ਵਾਪਸ CURLSSLSET_NO_BACKENDS;
 }
 
-#endif /* !USE_SSL */
+#ਜੇ_ਅੰਤ /* !USE_SSL */
 
-#ifdef USE_SSL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
 
-void Curl_ssl_peer_cleanup(struct ssl_peer *peer)
+ਖਾਲੀ Curl_ssl_peer_cleanup(ਬਣਤਰ ssl_peer *peer)
 {
   Curl_peer_unlink(&peer->origin);
   Curl_peer_unlink(&peer->peer);
   curlx_safefree(peer->sni);
-  curlx_safefree(peer->scache_key);
+  curlx_safefree(peer->scache_ਕੁੰਜੀ);
   peer->transport = TRNSPRT_NONE;
   peer->type = CURL_SSL_PEER_DNS;
 }
 
-static ssl_peer_type get_peer_type(const char *hostname)
+ਸਥਿਰ ssl_peer_type get_peer_type(ਅਚਲ ਅੱਖਰ *hostname)
 {
-  if(hostname && hostname[0]) {
-#ifdef USE_IPV6
-    struct in6_addr addr;
-#else
-    struct in_addr addr;
-#endif
-    if(curlx_inet_pton(AF_INET, hostname, &addr))
-      return CURL_SSL_PEER_IPV4;
-#ifdef USE_IPV6
-    else if(curlx_inet_pton(AF_INET6, hostname, &addr)) {
-      return CURL_SSL_PEER_IPV6;
+  ਜੇ(hostname && hostname[0]) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+    ਬਣਤਰ in6_addr addr;
+#ਨਹੀਂਤਾਂ
+    ਬਣਤਰ in_addr addr;
+#ਜੇ_ਅੰਤ
+    ਜੇ(curlx_inet_pton(AF_INET, hostname, &addr))
+      ਵਾਪਸ CURL_SSL_PEER_IPV4;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+    ਨਹੀਂਤਾਂ ਜੇ(curlx_inet_pton(AF_INET6, hostname, &addr)) {
+      ਵਾਪਸ CURL_SSL_PEER_IPV6;
     }
-#endif
+#ਜੇ_ਅੰਤ
   }
-  return CURL_SSL_PEER_DNS;
+  ਵਾਪਸ CURL_SSL_PEER_DNS;
 }
 
-CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
-                            struct ssl_filter_config *sslc,
-                            const char *tls_id,
+CURLcode Curl_ssl_peer_init(ਬਣਤਰ ssl_peer *ssl_peer,
+                            ਬਣਤਰ Curl_peer *origin,
+                            ਬਣਤਰ Curl_peer *peer,
+                            ਬਣਤਰ ssl_filter_config *sslc,
+                            ਅਚਲ ਅੱਖਰ *tls_id,
                             uint8_t transport)
 {
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   /* We expect a clean struct, e.g. called only ONCE */
-  if(!ssl_peer || !origin) {
+  ਜੇ(!ssl_peer || !origin) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    ਵਾਪਸ CURLE_FAILED_INIT;
   }
   DEBUGASSERT(!ssl_peer->origin);
   DEBUGASSERT(!ssl_peer->peer);
@@ -896,97 +896,97 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
   Curl_peer_link(&ssl_peer->origin, origin);
   Curl_peer_link(&ssl_peer->peer, peer);
   ssl_peer->type = get_peer_type(origin->hostname);
-  if(ssl_peer->type == CURL_SSL_PEER_DNS) {
+  ਜੇ(ssl_peer->type == CURL_SSL_PEER_DNS) {
     /* not an IP address, normalize according to RCC 6066 ch. 3,
      * max len of SNI is 2^16-1, no trailing dot */
-    size_t len = strlen(origin->hostname);
-    if(len && (origin->hostname[len - 1] == '.'))
+    size_t len = ਲੜੀ_ਲੰਬਾਈ(origin->hostname);
+    ਜੇ(len && (origin->hostname[len - 1] == '.'))
       len--;
-    if(len < USHRT_MAX) {
+    ਜੇ(len < USHRT_MAX) {
       ssl_peer->sni = curlx_calloc(1, len + 1);
-      if(!ssl_peer->sni)
-        goto out;
+      ਜੇ(!ssl_peer->sni)
+        ਜਾਓ ਬਾਹਰਲਾ;
       Curl_strntolower(ssl_peer->sni, origin->hostname, len);
       ssl_peer->sni[len] = 0;
     }
   }
 
-  result = Curl_ssl_peer_key_make(ssl_peer, sslc, tls_id,
-                                  &ssl_peer->scache_key);
+  ਨਤੀਜਾ = Curl_ssl_peer_ਕੁੰਜੀ_make(ssl_peer, sslc, tls_id,
+                                  &ssl_peer->scache_ਕੁੰਜੀ);
 
-out:
-  if(result)
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ)
     Curl_ssl_peer_cleanup(ssl_peer);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void ssl_cf_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ ssl_cf_destroy(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  if(connssl) {
-    connssl->ssl_impl->close(cf, data);
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਜੇ(connssl) {
+    connssl->ssl_impl->close(cf, ਅੰਕੜੇ);
     connssl->state = ssl_connection_none;
     connssl->connecting_state = ssl_connect_1;
     connssl->prefs_checked = FALSE;
     Curl_ssl_peer_cleanup(&connssl->peer);
     Curl_ssl_session_destroy(connssl->session);
     cf_ctx_free(connssl);
-    cf->ctx = NULL;
+    cf->ctx = ਨਿਰਾ;
   }
   cf->connected = FALSE;
 }
 
-static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               bool *done)
+ਸਥਿਰ CURLcode ssl_cf_connect(ਬਣਤਰ Curl_cfilter *cf,
+                               ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               bool *ਪੂਰਾ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ cf_call_ਅੰਕੜੇ save;
+  CURLcode ਨਤੀਜਾ;
 
-  if(cf->connected && (connssl->state != ssl_connection_deferred)) {
-    *done = TRUE;
-    return CURLE_OK;
+  ਜੇ(cf->connected && (connssl->state != ssl_connection_deferred)) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  if(!cf->next || !connssl->peer.origin) {
-    *done = FALSE;
-    return CURLE_FAILED_INIT;
+  ਜੇ(!cf->ਅਗਲਾ || !connssl->peer.origin) {
+    *ਪੂਰਾ = FALSE;
+    ਵਾਪਸ CURLE_FAILED_INIT;
   }
 
-  if(!cf->next->connected) {
-    result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  ਜੇ(!cf->ਅਗਲਾ->connected) {
+    ਨਤੀਜਾ = cf->ਅਗਲਾ->cft->do_connect(cf->ਅਗਲਾ, ਅੰਕੜੇ, ਪੂਰਾ);
+    ਜੇ(ਨਤੀਜਾ || !*ਪੂਰਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  CF_DATA_SAVE(save, cf, data);
-  CURL_TRC_CF(data, cf, "cf_connect()");
+  CF_ਅੰਕੜੇ_SAVE(save, cf, ਅੰਕੜੇ);
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "cf_connect()");
   DEBUGASSERT(connssl);
 
-  *done = FALSE;
+  *ਪੂਰਾ = FALSE;
 
-  if(!connssl->prefs_checked) {
-    if(!ssl_prefs_check(cf, data)) {
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+  ਜੇ(!connssl->prefs_checked) {
+    ਜੇ(!ssl_prefs_check(cf, ਅੰਕੜੇ)) {
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
     connssl->prefs_checked = TRUE;
   }
 
-  result = connssl->ssl_impl->do_connect(cf, data, done);
+  ਨਤੀਜਾ = connssl->ssl_impl->do_connect(cf, ਅੰਕੜੇ, ਪੂਰਾ);
 
-  if(!result && *done) {
+  ਜੇ(!ਨਤੀਜਾ && *ਪੂਰਾ) {
     cf->connected = TRUE;
-    if(connssl->state == ssl_connection_complete) {
-      connssl->handshake_done = *Curl_pgrs_now(data);
+    ਜੇ(connssl->state == ssl_connection_complete) {
+      connssl->handshake_ਪੂਰਾ = *Curl_pgrs_now(ਅੰਕੜੇ);
     }
-    if(Curl_tls_keylog_enabled()) {
-      infof(data, "SSLKEYLOGFILE set, all TLS secrets are logged to '%s'",
+    ਜੇ(Curl_tls_keylog_enabled()) {
+      infof(ਅੰਕੜੇ, "SSLKEYLOGFILE set, all TLS secrets are logged to '%s'",
             Curl_tls_keylog_file_name());
-#ifdef LIBRESSL_VERSION_NUMBER
-      infof(data, "Note LibreSSL only supports SSLKEYLOGFILE for TLS <= 1.2");
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ LIBRESSL_ਸੰਸਕਰਣ_ਸੰਖਿਆ
+      infof(ਅੰਕੜੇ, "Note LibreSSL only supports SSLKEYLOGFILE for TLS <= 1.2");
+#ਜੇ_ਅੰਤ
     }
     /* Connection can be deferred when sending early data */
     DEBUGASSERT(connssl->state == ssl_connection_complete ||
@@ -994,136 +994,136 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
     DEBUGASSERT(connssl->state != ssl_connection_deferred ||
                 connssl->earlydata_state > ssl_earlydata_none);
   }
-out:
-  CURL_TRC_CF(data, cf, "cf_connect() -> %d, done=%d", (int)result, *done);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+ਬਾਹਰਲਾ:
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "cf_connect() -> %d, done=%d", (ਪੂਰਨ)ਨਤੀਜਾ, *ਪੂਰਾ);
+  CF_ਅੰਕੜੇ_RESTORE(cf, save);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode ssl_cf_set_earlydata(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     const void *buf, size_t blen)
+ਸਥਿਰ CURLcode ssl_cf_ਸੈੱਟ_earlydata(ਬਣਤਰ Curl_cfilter *cf,
+                                     ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਅਚਲ ਖਾਲੀ *buf, size_t blen)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
   size_t nwritten = 0;
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_await);
-  DEBUGASSERT(Curl_bufq_is_empty(&connssl->earlydata));
-  if(blen) {
-    if(blen > connssl->earlydata_max)
+  DEBUGASSERT(Curl_bufq_is_ਖਾਲੀ_ਥਾਵਾਂ(&connssl->earlydata));
+  ਜੇ(blen) {
+    ਜੇ(blen > connssl->earlydata_max)
       blen = connssl->earlydata_max;
-    result = Curl_bufq_write(&connssl->earlydata, buf, blen, &nwritten);
-    CURL_TRC_CF(data, cf, "ssl_cf_set_earlydata(len=%zu) -> %zu",
+    ਨਤੀਜਾ = Curl_bufq_write(&connssl->earlydata, buf, blen, &nwritten);
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "ssl_cf_set_earlydata(len=%zu) -> %zu",
                 blen, nwritten);
-    if(result)
-      return result;
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        const void *buf, size_t blen,
-                                        bool *done)
+ਸਥਿਰ CURLcode ssl_cf_connect_deferred(ਬਣਤਰ Curl_cfilter *cf,
+                                        ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                        ਅਚਲ ਖਾਲੀ *buf, size_t blen,
+                                        bool *ਪੂਰਾ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
   DEBUGASSERT(connssl->state == ssl_connection_deferred);
-  *done = FALSE;
-  if(connssl->earlydata_state == ssl_earlydata_await) {
-    result = ssl_cf_set_earlydata(cf, data, buf, blen);
-    if(result)
-      return result;
+  *ਪੂਰਾ = FALSE;
+  ਜੇ(connssl->earlydata_state == ssl_earlydata_await) {
+    ਨਤੀਜਾ = ssl_cf_ਸੈੱਟ_earlydata(cf, ਅੰਕੜੇ, buf, blen);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
     /* we buffered any early data we would like to send. Actually
      * do the connect now which sends it and performs the handshake. */
     connssl->earlydata_state = ssl_earlydata_sending;
     connssl->earlydata_skip = Curl_bufq_len(&connssl->earlydata);
   }
 
-  result = ssl_cf_connect(cf, data, done);
+  ਨਤੀਜਾ = ssl_cf_connect(cf, ਅੰਕੜੇ, ਪੂਰਾ);
 
-  if(!result && *done) {
-    if(!connssl->stats_reported && (cf->cft == &Curl_cft_ssl)) {
-      Curl_pgrsTimeWas(data, TIMER_APPCONNECT, connssl->handshake_done);
+  ਜੇ(!ਨਤੀਜਾ && *ਪੂਰਾ) {
+    ਜੇ(!connssl->stats_reported && (cf->cft == &Curl_cft_ssl)) {
+      Curl_pgrs_ਸਮਾਂ_Was(ਅੰਕੜੇ, TIMER_APPCONNECT, connssl->handshake_ਪੂਰਾ);
       connssl->stats_reported = TRUE;
     }
-    switch(connssl->earlydata_state) {
-    case ssl_earlydata_none:
-      break;
-    case ssl_earlydata_accepted:
-      if(!Curl_ssl_cf_is_proxy(cf))
-        Curl_pgrsEarlyData(data, (curl_off_t)connssl->earlydata_skip);
-      infof(data, "Server accepted %zu bytes of TLS early data.",
+    ਚੋਣ(connssl->earlydata_state) {
+    ਹਾਲਤ ssl_earlydata_none:
+      ਰੋਕੋ;
+    ਹਾਲਤ ssl_earlydata_accepted:
+      ਜੇ(!Curl_ssl_cf_is_proxy(cf))
+        Curl_pgrs_Early_ਅੰਕੜੇ(ਅੰਕੜੇ, (curl_off_t)connssl->earlydata_skip);
+      infof(ਅੰਕੜੇ, "Server accepted %zu bytes of TLS early data.",
             connssl->earlydata_skip);
-      break;
-    case ssl_earlydata_rejected:
-      if(!Curl_ssl_cf_is_proxy(cf))
-        Curl_pgrsEarlyData(data, -(curl_off_t)connssl->earlydata_skip);
-      infof(data, "Server rejected TLS early data.");
+      ਰੋਕੋ;
+    ਹਾਲਤ ssl_earlydata_rejected:
+      ਜੇ(!Curl_ssl_cf_is_proxy(cf))
+        Curl_pgrs_Early_ਅੰਕੜੇ(ਅੰਕੜੇ, -(curl_off_t)connssl->earlydata_skip);
+      infof(ਅੰਕੜੇ, "Server rejected TLS early data.");
       connssl->earlydata_skip = 0;
-      break;
-    default:
+      ਰੋਕੋ;
+    ਮੂਲ:
       /* This should not happen. Either we do not use early data or we
        * should know if it was accepted or not. */
-      DEBUGASSERT(NULL);
-      break;
+      DEBUGASSERT(ਨਿਰਾ);
+      ਰੋਕੋ;
     }
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static bool ssl_cf_data_pending(struct Curl_cfilter *cf,
-                                const struct Curl_easy *data)
+ਸਥਿਰ bool ssl_cf_ਅੰਕੜੇ_pending(ਬਣਤਰ Curl_cfilter *cf,
+                                ਅਚਲ ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ cf_call_ਅੰਕੜੇ save;
   bool pending;
 
-  CF_DATA_SAVE(save, cf, data);
-  if(connssl->ssl_impl->data_pending &&
-     connssl->ssl_impl->data_pending(cf, data))
+  CF_ਅੰਕੜੇ_SAVE(save, cf, ਅੰਕੜੇ);
+  ਜੇ(connssl->ssl_impl->ਅੰਕੜੇ_pending &&
+     connssl->ssl_impl->ਅੰਕੜੇ_pending(cf, ਅੰਕੜੇ))
     pending = TRUE;
-  else
-    pending = cf->next->cft->has_data_pending(cf->next, data);
-  CF_DATA_RESTORE(cf, save);
-  return pending;
+  ਨਹੀਂਤਾਂ
+    pending = cf->ਅਗਲਾ->cft->has_ਅੰਕੜੇ_pending(cf->ਅਗਲਾ, ਅੰਕੜੇ);
+  CF_ਅੰਕੜੇ_RESTORE(cf, save);
+  ਵਾਪਸ pending;
 }
 
-static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            const uint8_t *buf, size_t blen,
+ਸਥਿਰ CURLcode ssl_cf_send(ਬਣਤਰ Curl_cfilter *cf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਅਚਲ uint8_t *buf, size_t blen,
                             bool eos, size_t *pnwritten)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ cf_call_ਅੰਕੜੇ save;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  (void)eos;
+  (ਖਾਲੀ)eos;
   *pnwritten = 0;
-  CF_DATA_SAVE(save, cf, data);
+  CF_ਅੰਕੜੇ_SAVE(save, cf, ਅੰਕੜੇ);
 
-  if(connssl->state == ssl_connection_deferred) {
-    bool done = FALSE;
-    result = ssl_cf_connect_deferred(cf, data, buf, blen, &done);
-    if(result)
-      goto out;
-    else if(!done) {
-      result = CURLE_AGAIN;
-      goto out;
+  ਜੇ(connssl->state == ssl_connection_deferred) {
+    bool ਪੂਰਾ = FALSE;
+    ਨਤੀਜਾ = ssl_cf_connect_deferred(cf, ਅੰਕੜੇ, buf, blen, &ਪੂਰਾ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
+    ਨਹੀਂਤਾਂ ਜੇ(!ਪੂਰਾ) {
+      ਨਤੀਜਾ = CURLE_AGAIN;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
     DEBUGASSERT(connssl->state == ssl_connection_complete);
   }
 
-  if(connssl->earlydata_skip) {
-    if(connssl->earlydata_skip >= blen) {
+  ਜੇ(connssl->earlydata_skip) {
+    ਜੇ(connssl->earlydata_skip >= blen) {
       connssl->earlydata_skip -= blen;
-      result = CURLE_OK;
+      ਨਤੀਜਾ = CURLE_OK;
       *pnwritten = blen;
-      goto out;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       *pnwritten = connssl->earlydata_skip;
       buf = buf + connssl->earlydata_skip;
       blen -= connssl->earlydata_skip;
@@ -1132,163 +1132,163 @@ static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
   }
 
   /* OpenSSL and maybe other TLS libs do not like 0-length writes. Skip. */
-  if(blen > 0) {
+  ਜੇ(blen > 0) {
     size_t nwritten;
-    result = connssl->ssl_impl->send_plain(cf, data, buf, blen, &nwritten);
-    if(!result)
+    ਨਤੀਜਾ = connssl->ssl_impl->send_plain(cf, ਅੰਕੜੇ, buf, blen, &nwritten);
+    ਜੇ(!ਨਤੀਜਾ)
       *pnwritten += nwritten;
   }
 
-out:
-  CF_DATA_RESTORE(cf, save);
-  return result;
+ਬਾਹਰਲਾ:
+  CF_ਅੰਕੜੇ_RESTORE(cf, save);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode ssl_cf_recv(struct Curl_cfilter *cf,
-                            struct Curl_easy *data, char *buf, size_t len,
+ਸਥਿਰ CURLcode ssl_cf_recv(ਬਣਤਰ Curl_cfilter *cf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਅੱਖਰ *buf, size_t len,
                             size_t *pnread)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ cf_call_ਅੰਕੜੇ save;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_ਅੰਕੜੇ_SAVE(save, cf, ਅੰਕੜੇ);
   *pnread = 0;
-  if(connssl->state == ssl_connection_deferred) {
-    bool done = FALSE;
-    result = ssl_cf_connect_deferred(cf, data, NULL, 0, &done);
-    if(result)
-      goto out;
-    else if(!done) {
-      result = CURLE_AGAIN;
-      goto out;
+  ਜੇ(connssl->state == ssl_connection_deferred) {
+    bool ਪੂਰਾ = FALSE;
+    ਨਤੀਜਾ = ssl_cf_connect_deferred(cf, ਅੰਕੜੇ, ਨਿਰਾ, 0, &ਪੂਰਾ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
+    ਨਹੀਂਤਾਂ ਜੇ(!ਪੂਰਾ) {
+      ਨਤੀਜਾ = CURLE_AGAIN;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
     DEBUGASSERT(connssl->state == ssl_connection_complete);
   }
 
-  result = connssl->ssl_impl->recv_plain(cf, data, buf, len, pnread);
+  ਨਤੀਜਾ = connssl->ssl_impl->recv_plain(cf, ਅੰਕੜੇ, buf, len, pnread);
 
-out:
-  CF_DATA_RESTORE(cf, save);
-  return result;
+ਬਾਹਰਲਾ:
+  CF_ਅੰਕੜੇ_RESTORE(cf, save);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode ssl_cf_shutdown(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                bool *done)
+ਸਥਿਰ CURLcode ssl_cf_shutdown(ਬਣਤਰ Curl_cfilter *cf,
+                                ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                bool *ਪੂਰਾ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  *done = TRUE;
+  *ਪੂਰਾ = TRUE;
   /* If we have done the SSL handshake, shut down the connection cleanly */
-  if(cf->connected && (connssl->state == ssl_connection_complete) &&
-     !cf->shutdown && Curl_ssl->shut_down) {
-    struct cf_call_data save;
+  ਜੇ(cf->connected && (connssl->state == ssl_connection_complete) &&
+     !cf->shutdown && Curl_ssl->shut_ਥੱਲੇ) {
+    ਬਣਤਰ cf_call_ਅੰਕੜੇ save;
 
-    CF_DATA_SAVE(save, cf, data);
-    result = connssl->ssl_impl->shut_down(cf, data, TRUE, done);
-    CURL_TRC_CF(data, cf, "cf_shutdown -> %d, done=%d", (int)result, *done);
-    CF_DATA_RESTORE(cf, save);
-    cf->shutdown = (result || *done);
+    CF_ਅੰਕੜੇ_SAVE(save, cf, ਅੰਕੜੇ);
+    ਨਤੀਜਾ = connssl->ssl_impl->shut_ਥੱਲੇ(cf, ਅੰਕੜੇ, TRUE, ਪੂਰਾ);
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "cf_shutdown -> %d, done=%d", (ਪੂਰਨ)ਨਤੀਜਾ, *ਪੂਰਾ);
+    CF_ਅੰਕੜੇ_RESTORE(cf, save);
+    cf->shutdown = (ਨਤੀਜਾ || *ਪੂਰਾ);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode ssl_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+ਸਥਿਰ CURLcode ssl_cf_adjust_pollset(ਬਣਤਰ Curl_cfilter *cf,
+                                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਬਣਤਰ easy_pollset *ps)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ cf_call_ਅੰਕੜੇ save;
+  CURLcode ਨਤੀਜਾ;
 
-  CF_DATA_SAVE(save, cf, data);
-  result = connssl->ssl_impl->adjust_pollset(cf, data, ps);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_ਅੰਕੜੇ_SAVE(save, cf, ਅੰਕੜੇ);
+  ਨਤੀਜਾ = connssl->ssl_impl->adjust_pollset(cf, ਅੰਕੜੇ, ps);
+  CF_ਅੰਕੜੇ_RESTORE(cf, save);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode ssl_cf_query(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             int query, int *pres1, void *pres2)
+ਸਥਿਰ CURLcode ssl_cf_query(ਬਣਤਰ Curl_cfilter *cf,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਪੂਰਨ query, ਪੂਰਨ *pres1, ਖਾਲੀ *pres2)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_SSL_INFO:
-  case CF_QUERY_SSL_CTX_INFO:
-    if(!Curl_ssl_cf_is_proxy(cf)) {
-      struct curl_tlssessioninfo *info = pres2;
-      struct cf_call_data save;
-      CF_DATA_SAVE(save, cf, data);
+  ਚੋਣ(query) {
+  ਹਾਲਤ CF_QUERY_SSL_INFO:
+  ਹਾਲਤ CF_QUERY_SSL_CTX_INFO:
+    ਜੇ(!Curl_ssl_cf_is_proxy(cf)) {
+      ਬਣਤਰ curl_tlssessioninfo *info = pres2;
+      ਬਣਤਰ cf_call_ਅੰਕੜੇ save;
+      CF_ਅੰਕੜੇ_SAVE(save, cf, ਅੰਕੜੇ);
       info->backend = Curl_ssl_backend();
       info->internals = connssl->ssl_impl->get_internals(
         cf->ctx, (query == CF_QUERY_SSL_INFO) ?
         CURLINFO_TLS_SSL_PTR : CURLINFO_TLS_SESSION);
-      CF_DATA_RESTORE(cf, save);
-      return CURLE_OK;
+      CF_ਅੰਕੜੇ_RESTORE(cf, save);
+      ਵਾਪਸ CURLE_OK;
     }
-    break;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+    ਰੋਕੋ;
+  ਹਾਲਤ CF_QUERY_ALPN_NEGOTIATED: {
+    ਅਚਲ ਅੱਖਰ **palpn = pres2;
     DEBUGASSERT(palpn);
     *palpn = connssl->negotiated.alpn;
-    CURL_TRC_CF(data, cf, "query ALPN: returning '%s'", *palpn);
-    return CURLE_OK;
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "query ALPN: returning '%s'", *palpn);
+    ਵਾਪਸ CURLE_OK;
   }
-  default:
-    break;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  ਵਾਪਸ cf->ਅਗਲਾ ?
+    cf->ਅਗਲਾ->cft->query(cf->ਅਗਲਾ, ਅੰਕੜੇ, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode ssl_cf_cntrl(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             int event, int arg1, void *arg2)
+ਸਥਿਰ CURLcode ssl_cf_cntrl(ਬਣਤਰ Curl_cfilter *cf,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਪੂਰਨ event, ਪੂਰਨ arg1, ਖਾਲੀ *arg2)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
 
-  (void)arg1;
-  (void)arg2;
-  (void)data;
-  switch(event) {
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(connssl->negotiated.alpn && !cf->sockindex) {
-      if(!strcmp("http/1.1", connssl->negotiated.alpn))
-        cf->conn->httpversion_seen = 11;
-      else if(!strcmp("h2", connssl->negotiated.alpn))
-        cf->conn->httpversion_seen = 20;
-      else if(!strcmp("h3", connssl->negotiated.alpn))
-        cf->conn->httpversion_seen = 30;
+  (ਖਾਲੀ)arg1;
+  (ਖਾਲੀ)arg2;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਚੋਣ(event) {
+  ਹਾਲਤ CF_CTRL_CONN_INFO_UPDATE:
+    ਜੇ(connssl->negotiated.alpn && !cf->sockindex) {
+      ਜੇ(!strcmp("http/1.1", connssl->negotiated.alpn))
+        cf->conn->httpversion_ਵੇਖਿਆ = 11;
+      ਨਹੀਂਤਾਂ ਜੇ(!strcmp("h2", connssl->negotiated.alpn))
+        cf->conn->httpversion_ਵੇਖਿਆ = 20;
+      ਨਹੀਂਤਾਂ ਜੇ(!strcmp("h3", connssl->negotiated.alpn))
+        cf->conn->httpversion_ਵੇਖਿਆ = 30;
     }
-    break;
-  case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !connssl->stats_reported &&
+    ਰੋਕੋ;
+  ਹਾਲਤ CF_CTRL_REPORT_STATS:
+    ਜੇ(cf->connected && !connssl->stats_reported &&
        (cf->cft == &Curl_cft_ssl) &&
-       (connssl->handshake_done.tv_sec || connssl->handshake_done.tv_usec)) {
-      Curl_pgrsTimeWas(data, TIMER_APPCONNECT, connssl->handshake_done);
+       (connssl->handshake_ਪੂਰਾ.tv_sec || connssl->handshake_ਪੂਰਾ.tv_usec)) {
+      Curl_pgrs_ਸਮਾਂ_Was(ਅੰਕੜੇ, TIMER_APPCONNECT, connssl->handshake_ਪੂਰਾ);
       connssl->stats_reported = TRUE;
     }
-    break;
+    ਰੋਕੋ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static bool cf_ssl_is_alive(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            bool *input_pending)
+ਸਥਿਰ bool cf_ssl_is_alive(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            bool *ਨਿਵੇਸ਼_pending)
 {
   /*
    * This function tries to determine connection status.
    */
-  return cf->next ?
-    cf->next->cft->is_alive(cf->next, data, input_pending) :
+  ਵਾਪਸ cf->ਅਗਲਾ ?
+    cf->ਅਗਲਾ->cft->is_alive(cf->ਅਗਲਾ, ਅੰਕੜੇ, ਨਿਵੇਸ਼_pending) :
     FALSE; /* pessimistic in absence of data */
 }
 
-struct Curl_cftype Curl_cft_ssl = {
+ਬਣਤਰ Curl_cftype Curl_cft_ssl = {
   "SSL",
   CF_TYPE_SSL,
   CURL_LOG_LVL_NONE,
@@ -1296,7 +1296,7 @@ struct Curl_cftype Curl_cft_ssl = {
   ssl_cf_connect,
   ssl_cf_shutdown,
   ssl_cf_adjust_pollset,
-  ssl_cf_data_pending,
+  ssl_cf_ਅੰਕੜੇ_pending,
   ssl_cf_send,
   ssl_cf_recv,
   ssl_cf_cntrl,
@@ -1305,9 +1305,9 @@ struct Curl_cftype Curl_cft_ssl = {
   ssl_cf_query,
 };
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
 
-struct Curl_cftype Curl_cft_ssl_proxy = {
+ਬਣਤਰ Curl_cftype Curl_cft_ssl_proxy = {
   "SSL-PROXY",
   CF_TYPE_SSL | CF_TYPE_PROXY,
   CURL_LOG_LVL_NONE,
@@ -1315,7 +1315,7 @@ struct Curl_cftype Curl_cft_ssl_proxy = {
   ssl_cf_connect,
   ssl_cf_shutdown,
   ssl_cf_adjust_pollset,
-  ssl_cf_data_pending,
+  ssl_cf_ਅੰਕੜੇ_pending,
   ssl_cf_send,
   ssl_cf_recv,
   Curl_cf_def_cntrl,
@@ -1324,491 +1324,491 @@ struct Curl_cftype Curl_cft_ssl_proxy = {
   ssl_cf_query,
 };
 
-#endif /* !CURL_DISABLE_PROXY */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_PROXY */
 
-static CURLcode cf_ssl_create(struct Curl_cfilter **pcf,
-                              struct Curl_easy *data,
-                              struct connectdata *conn)
+ਸਥਿਰ CURLcode cf_ssl_create(ਬਣਤਰ Curl_cfilter **pcf,
+                              ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਬਣਤਰ connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct ssl_connect_data *ctx;
-  CURLcode result;
+  ਬਣਤਰ Curl_cfilter *cf = ਨਿਰਾ;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *ctx;
+  CURLcode ਨਤੀਜਾ;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
 
-#ifdef CURL_DISABLE_HTTP
-  (void)conn;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
+  (ਖਾਲੀ)conn;
   /* We only support ALPN for HTTP so far. */
-  DEBUGASSERT(!conn->bits.tls_enable_alpn);
-  ctx = cf_ctx_new(data, NULL);
-#else
-  ctx = cf_ctx_new(data, alpn_get_spec(data->state.http_neg.wanted,
-                                       data->state.http_neg.preferred,
-                                       (bool)data->state.http_neg.only_10,
-                                       (bool)conn->bits.tls_enable_alpn));
-#endif
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  DEBUGASSERT(!conn->ਬਿੱਟ.tls_enable_alpn);
+  ctx = cf_ctx_new(ਅੰਕੜੇ, ਨਿਰਾ);
+#ਨਹੀਂਤਾਂ
+  ctx = cf_ctx_new(ਅੰਕੜੇ, alpn_get_spec(ਅੰਕੜੇ->state.http_neg.wanted,
+                                       ਅੰਕੜੇ->state.http_neg.preferred,
+                                       (bool)ਅੰਕੜੇ->state.http_neg.only_10,
+                                       (bool)conn->ਬਿੱਟ.tls_enable_alpn));
+#ਜੇ_ਅੰਤ
+  ਜੇ(!ctx) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  result = Curl_cf_create(&cf, &Curl_cft_ssl, ctx);
+  ਨਤੀਜਾ = Curl_cf_create(&cf, &Curl_cft_ssl, ctx);
 
-out:
-  if(result)
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ)
     cf_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = ਨਤੀਜਾ ? ਨਿਰਾ : cf;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode cf_ssl_peer_init(struct Curl_cfilter *cf,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
-                                 struct ssl_filter_config *sslc)
+ਸਥਿਰ CURLcode cf_ssl_peer_init(ਬਣਤਰ Curl_cfilter *cf,
+                                 ਬਣਤਰ Curl_peer *origin,
+                                 ਬਣਤਰ Curl_peer *peer,
+                                 ਬਣਤਰ ssl_filter_config *sslc)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  char tls_id[80];
-  connssl->ssl_impl->version(tls_id, sizeof(tls_id) - 1);
-  return Curl_ssl_peer_init(&connssl->peer, origin, peer, sslc,
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਅੱਖਰ tls_id[80];
+  connssl->ssl_impl->ਸੰਸਕਰਣ_2(tls_id, ਆਕਾਰ(tls_id) - 1);
+  ਵਾਪਸ Curl_ssl_peer_init(&connssl->peer, origin, peer, sslc,
                             tls_id, TRNSPRT_TCP);
 }
 
-CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
-                              struct Curl_peer *origin,
-                              struct connectdata *conn,
+CURLcode Curl_ssl_cfilter_ਜੋੜੋ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                              ਬਣਤਰ Curl_peer *origin,
+                              ਬਣਤਰ connectdata *conn,
                               int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
-  struct Curl_peer *peer = (sockindex == SECONDARYSOCKET) ?
-    conn->via_peer2 : conn->via_peer;
-  CURLcode result;
+  ਬਣਤਰ Curl_cfilter *cf;
+  ਬਣਤਰ Curl_peer *peer = (sockindex == SECONDARYSOCKET) ?
+    conn->ਰਾਹੀਂ_peer2 : conn->ਰਾਹੀਂ_peer;
+  CURLcode ਨਤੀਜਾ;
 
-  result = cf_ssl_create(&cf, data, conn);
-  if(!result)
-    result = cf_ssl_peer_init(cf, origin, peer, &conn->ssl_config);
-  if(!result)
-    Curl_conn_cf_add(data, conn, sockindex, cf);
-  else if(cf)
-    Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  ਨਤੀਜਾ = cf_ssl_create(&cf, ਅੰਕੜੇ, conn);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = cf_ssl_peer_init(cf, origin, peer, &conn->ssl_config);
+  ਜੇ(!ਨਤੀਜਾ)
+    Curl_conn_cf_ਜੋੜੋ(ਅੰਕੜੇ, conn, sockindex, cf);
+  ਨਹੀਂਤਾਂ ਜੇ(cf)
+    Curl_conn_cf_discard_chain(&cf, ਅੰਕੜੇ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
-                                  struct Curl_easy *data,
-                                  struct Curl_peer *origin,
-                                  struct Curl_peer *peer)
+CURLcode Curl_cf_ssl_ਪਾਓ_after(ਬਣਤਰ Curl_cfilter *cf_at,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ Curl_peer *origin,
+                                  ਬਣਤਰ Curl_peer *peer)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  ਬਣਤਰ Curl_cfilter *cf;
+  CURLcode ਨਤੀਜਾ;
 
-  result = cf_ssl_create(&cf, data, cf_at->conn);
-  if(!result)
-    result = cf_ssl_peer_init(cf, origin, peer, &cf_at->conn->ssl_config);
-  if(!result) {
-    Curl_conn_cf_insert_after(cf_at, cf);
-#if defined(USE_HTTPSRR) && defined(USE_ECH)
+  ਨਤੀਜਾ = cf_ssl_create(&cf, ਅੰਕੜੇ, cf_at->conn);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = cf_ssl_peer_init(cf, origin, peer, &cf_at->conn->ssl_config);
+  ਜੇ(!ਨਤੀਜਾ) {
+    Curl_conn_cf_ਪਾਓ_after(cf_at, cf);
+#ਜੇ defined(USE_HTTPSRR) && defined(USE_ECH)
     /* When using ECH, kick off the HTTPS-RR resolve */
-    if((origin->scheme->family == CURLPROTO_HTTP) &&
+    ਜੇ((origin->scheme->family == CURLPROTO_HTTP) &&
        Curl_ssl_need_httpsrr(cf)) {
-      result = Curl_conn_dns_add_https_resolve(data, cf->conn, cf->sockindex,
+      ਨਤੀਜਾ = Curl_conn_dns_ਜੋੜੋ_https_resolve(ਅੰਕੜੇ, cf->conn, cf->sockindex,
                                                origin);
     }
-#endif /* USE_HTTPSRR && USE_ECH */
+#ਜੇ_ਅੰਤ /* USE_HTTPSRR && USE_ECH */
   }
-  else if(cf)
-    Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  ਨਹੀਂਤਾਂ ਜੇ(cf)
+    Curl_conn_cf_discard_chain(&cf, ਅੰਕੜੇ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
 
-static CURLcode cf_ssl_proxy_create(struct Curl_cfilter **pcf,
-                                    struct Curl_easy *data,
-                                    struct connectdata *conn)
+ਸਥਿਰ CURLcode cf_ssl_proxy_create(ਬਣਤਰ Curl_cfilter **pcf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct ssl_connect_data *ctx;
-  CURLcode result;
+  ਬਣਤਰ Curl_cfilter *cf = ਨਿਰਾ;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *ctx;
+  CURLcode ਨਤੀਜਾ;
   /* ALPN is default, but if user explicitly disables it, obey */
-  bool use_alpn = (bool)data->set.ssl_enable_alpn;
+  bool use_alpn = (bool)ਅੰਕੜੇ->ਸੈੱਟ.ssl_enable_alpn;
   http_majors wanted = CURL_HTTP_V1x;
 
-  (void)conn;
-#ifdef USE_HTTP2
-  if(conn->http_proxy.proxytype == CURLPROXY_HTTPS2) {
+  (ਖਾਲੀ)conn;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP2
+  ਜੇ(conn->http_proxy.proxytype == CURLPROXY_HTTPS2) {
     use_alpn = TRUE;
     wanted = (CURL_HTTP_V1x | CURL_HTTP_V2x);
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  ctx = cf_ctx_new(data, alpn_get_spec(wanted, 0, FALSE, use_alpn));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = cf_ctx_new(ਅੰਕੜੇ, alpn_get_spec(wanted, 0, FALSE, use_alpn));
+  ਜੇ(!ctx) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  result = Curl_cf_create(&cf, &Curl_cft_ssl_proxy, ctx);
+  ਨਤੀਜਾ = Curl_cf_create(&cf, &Curl_cft_ssl_proxy, ctx);
 
-out:
-  if(result)
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ)
     cf_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = ਨਤੀਜਾ ? ਨਿਰਾ : cf;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                        struct Curl_easy *data,
-                                        struct Curl_peer *peer)
+CURLcode Curl_cf_ssl_proxy_ਪਾਓ_after(ਬਣਤਰ Curl_cfilter *cf_at,
+                                        ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                        ਬਣਤਰ Curl_peer *peer)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  ਬਣਤਰ Curl_cfilter *cf;
+  CURLcode ਨਤੀਜਾ;
 
-  result = cf_ssl_proxy_create(&cf, data, cf_at->conn);
-  if(!result)
-    result = cf_ssl_peer_init(cf, peer, NULL, &cf_at->conn->proxy_ssl_config);
-  if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
-  else if(cf)
-    Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  ਨਤੀਜਾ = cf_ssl_proxy_create(&cf, ਅੰਕੜੇ, cf_at->conn);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = cf_ssl_peer_init(cf, peer, ਨਿਰਾ, &cf_at->conn->proxy_ssl_config);
+  ਜੇ(!ਨਤੀਜਾ)
+    Curl_conn_cf_ਪਾਓ_after(cf_at, cf);
+  ਨਹੀਂਤਾਂ ਜੇ(cf)
+    Curl_conn_cf_discard_chain(&cf, ਅੰਕੜੇ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#endif /* !CURL_DISABLE_PROXY */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_PROXY */
 
-bool Curl_ssl_supports(struct Curl_easy *data, unsigned int ssl_option)
+bool Curl_ssl_supports(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ssl_option)
 {
-  (void)data;
-  return (Curl_ssl->supports & ssl_option);
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਵਾਪਸ (Curl_ssl->supports & ssl_option);
 }
 
-#ifdef USE_ECH
-bool Curl_ssl_ech_enabled(struct Curl_cfilter *cf)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_ECH
+bool Curl_ssl_ech_enabled(ਬਣਤਰ Curl_cfilter *cf)
 {
-  if(Curl_ssl->supports & SSLSUPP_ECH) {
-    struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-    return !!conn_config->ech;
+  ਜੇ(Curl_ssl->supports & SSLSUPP_ECH) {
+    ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+    ਵਾਪਸ !!conn_config->ech;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf)
+bool Curl_ssl_need_httpsrr(ਬਣਤਰ Curl_cfilter *cf)
 {
-  if(Curl_ssl->supports & SSLSUPP_ECH) {
-    struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-    if(!conn_config->ech)
-      return FALSE;
-    if((conn_config->ech == CURLECH_GREASE) || conn_config->ech_config)
-      return FALSE;
-    return TRUE;
+  ਜੇ(Curl_ssl->supports & SSLSUPP_ECH) {
+    ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+    ਜੇ(!conn_config->ech)
+      ਵਾਪਸ FALSE;
+    ਜੇ((conn_config->ech == CURLECH_GREASE) || conn_config->ech_config)
+      ਵਾਪਸ FALSE;
+    ਵਾਪਸ TRUE;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static CURLcode vtls_shutdown_blocking(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       bool send_shutdown, bool *done)
+ਸਥਿਰ CURLcode vtls_shutdown_blocking(ਬਣਤਰ Curl_cfilter *cf,
+                                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       bool send_shutdown, bool *ਪੂਰਾ)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  ਬਣਤਰ cf_call_ਅੰਕੜੇ save;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   timediff_t timeout_ms;
-  int what, loop = 10;
+  ਪੂਰਨ what, loop = 10;
 
-  if(cf->shutdown) {
-    *done = TRUE;
-    return CURLE_OK;
+  ਜੇ(cf->shutdown) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
-  CF_DATA_SAVE(save, cf, data);
+  CF_ਅੰਕੜੇ_SAVE(save, cf, ਅੰਕੜੇ);
 
-  *done = FALSE;
-  while(!result && !*done && loop--) {
-    timeout_ms = Curl_cshutdn_timeleft_ms(data, cf->conn, cf->sockindex);
+  *ਪੂਰਾ = FALSE;
+  ਜਦੋਂ(!ਨਤੀਜਾ && !*ਪੂਰਾ && loop--) {
+    timeout_ms = Curl_cshutdn_timeleft_ms(ਅੰਕੜੇ, cf->conn, cf->sockindex);
 
-    if(timeout_ms < 0) {
+    ਜੇ(timeout_ms < 0) {
       /* no need to continue if time is already up */
-      failf(data, "SSL shutdown timeout");
-      result = CURLE_OPERATION_TIMEDOUT;
-      goto out;
+      failf(ਅੰਕੜੇ, "SSL shutdown timeout");
+      ਨਤੀਜਾ = CURLE_OPERATION_TIMEDOUT;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
-    result = connssl->ssl_impl->shut_down(cf, data, send_shutdown, done);
-    if(result || *done)
-      goto out;
+    ਨਤੀਜਾ = connssl->ssl_impl->shut_ਥੱਲੇ(cf, ਅੰਕੜੇ, send_shutdown, ਪੂਰਾ);
+    ਜੇ(ਨਤੀਜਾ || *ਪੂਰਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
-    if(connssl->io_need) {
-      what = Curl_conn_cf_poll(cf, data, timeout_ms);
-      if(what < 0) {
+    ਜੇ(connssl->io_need) {
+      what = Curl_conn_cf_poll(cf, ਅੰਕੜੇ, timeout_ms);
+      ਜੇ(what < 0) {
         /* fatal error */
-        failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);
-        result = CURLE_RECV_ERROR;
-        goto out;
+        failf(ਅੰਕੜੇ, "select/poll on SSL socket, errno: %d", SOCKERRNO);
+        ਨਤੀਜਾ = CURLE_RECV_ERROR;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      else if(what == 0) {
+      ਨਹੀਂਤਾਂ ਜੇ(what == 0) {
         /* timeout */
-        failf(data, "SSL shutdown timeout");
-        result = CURLE_OPERATION_TIMEDOUT;
-        goto out;
+        failf(ਅੰਕੜੇ, "SSL shutdown timeout");
+        ਨਤੀਜਾ = CURLE_OPERATION_TIMEDOUT;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
       /* socket is readable or writable */
     }
   }
-out:
-  CF_DATA_RESTORE(cf, save);
-  cf->shutdown = (result || *done);
-  return result;
+ਬਾਹਰਲਾ:
+  CF_ਅੰਕੜੇ_RESTORE(cf, save);
+  cf->shutdown = (ਨਤੀਜਾ || *ਪੂਰਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
+CURLcode Curl_ssl_cfilter_remove(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                                  int8_t sockindex, bool send_shutdown)
 {
-  struct Curl_cfilter *cf, *head;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ Curl_cfilter *cf, *ਸਿਰ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  head = data->conn ? data->conn->cfilter[sockindex] : NULL;
-  for(cf = head; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_ssl) {
-      bool done;
-      CURL_TRC_CF(data, cf, "shutdown and remove SSL, start");
-      Curl_cshutdn_start_timer(data, sockindex, 0);
-      result = vtls_shutdown_blocking(cf, data, send_shutdown, &done);
-      Curl_cshutdn_clear_timer(data, sockindex);
-      if(!result && !done) /* blocking failed? */
-        result = CURLE_SSL_SHUTDOWN_FAILED;
-      Curl_conn_cf_discard(&cf, data);
-      CURL_TRC_CF(data, cf, "shutdown and remove SSL, done -> %d",
-                  (int)result);
-      break;
+  ਸਿਰ = ਅੰਕੜੇ->conn ? ਅੰਕੜੇ->conn->cfilter[sockindex] : ਨਿਰਾ;
+  ਲਈ(cf = ਸਿਰ; cf; cf = cf->ਅਗਲਾ) {
+    ਜੇ(cf->cft == &Curl_cft_ssl) {
+      bool ਪੂਰਾ;
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "shutdown and remove SSL, start");
+      Curl_cshutdn_ਸ਼ੁਰੂ_timer(ਅੰਕੜੇ, sockindex, 0);
+      ਨਤੀਜਾ = vtls_shutdown_blocking(cf, ਅੰਕੜੇ, send_shutdown, &ਪੂਰਾ);
+      Curl_cshutdn_clear_timer(ਅੰਕੜੇ, sockindex);
+      ਜੇ(!ਨਤੀਜਾ && !ਪੂਰਾ) /* blocking failed? */
+        ਨਤੀਜਾ = CURLE_SSL_SHUTDOWN_FAILED;
+      Curl_conn_cf_discard(&cf, ਅੰਕੜੇ);
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "shutdown and remove SSL, done -> %d",
+                  (ਪੂਰਨ)ਨਤੀਜਾ);
+      ਰੋਕੋ;
     }
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-bool Curl_ssl_cf_is_proxy(struct Curl_cfilter *cf)
+bool Curl_ssl_cf_is_proxy(ਬਣਤਰ Curl_cfilter *cf)
 {
-  return (cf->cft->flags & CF_TYPE_SSL) && (cf->cft->flags & CF_TYPE_PROXY);
+  ਵਾਪਸ (cf->cft->flags & CF_TYPE_SSL) && (cf->cft->flags & CF_TYPE_PROXY);
 }
 
-struct ssl_easy_config *
-Curl_ssl_cf_get_easy_config(struct Curl_cfilter *cf,
-                            struct Curl_easy *data)
+ਬਣਤਰ ssl_easy_config *
+Curl_ssl_cf_get_easy_config(ਬਣਤਰ Curl_cfilter *cf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-#ifdef CURL_DISABLE_PROXY
-  (void)cf;
-  return &data->set.ssl;
-#else
-  return Curl_ssl_cf_is_proxy(cf) ? &data->set.proxy_ssl : &data->set.ssl;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  (ਖਾਲੀ)cf;
+  ਵਾਪਸ &ਅੰਕੜੇ->ਸੈੱਟ.ssl;
+#ਨਹੀਂਤਾਂ
+  ਵਾਪਸ Curl_ssl_cf_is_proxy(cf) ? &ਅੰਕੜੇ->ਸੈੱਟ.proxy_ssl : &ਅੰਕੜੇ->ਸੈੱਟ.ssl;
+#ਜੇ_ਅੰਤ
 }
 
-struct ssl_filter_config *
-Curl_ssl_cf_get_filter_config(struct Curl_cfilter *cf)
+ਬਣਤਰ ssl_filter_config *
+Curl_ssl_cf_get_filter_config(ਬਣਤਰ Curl_cfilter *cf)
 {
-#ifdef CURL_DISABLE_PROXY
-  return &cf->conn->ssl_config;
-#else
-  return Curl_ssl_cf_is_proxy(cf) ?
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਵਾਪਸ &cf->conn->ssl_config;
+#ਨਹੀਂਤਾਂ
+  ਵਾਪਸ Curl_ssl_cf_is_proxy(cf) ?
     &cf->conn->proxy_ssl_config : &cf->conn->ssl_config;
-#endif
+#ਜੇ_ਅੰਤ
 }
 
-CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec)
+CURLcode Curl_alpn_ਮੰਜ਼ਿਲ_proto_buf(ਬਣਤਰ alpn_proto_buf *buf,
+                                ਅਚਲ ਬਣਤਰ alpn_spec *spec)
 {
   size_t i, len;
-  int off = 0;
-  unsigned char blen;
+  ਪੂਰਨ off = 0;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ blen;
 
-  memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
-    len = strlen(spec->entries[i]);
-    if(len >= ALPN_NAME_MAX)
-      return CURLE_FAILED_INIT;
-    blen = (unsigned char)len;
-    if(off + blen + 1 >= (int)sizeof(buf->data))
-      return CURLE_FAILED_INIT;
-    buf->data[off++] = blen;
-    memcpy(buf->data + off, spec->entries[i], blen);
+  memset(buf, 0, ਆਕਾਰ(*buf));
+  ਲਈ(i = 0; spec && i < spec->ਗਿਣਤੀ_2; ++i) {
+    len = ਲੜੀ_ਲੰਬਾਈ(spec->entries[i]);
+    ਜੇ(len >= ALPN_NAME_MAX)
+      ਵਾਪਸ CURLE_FAILED_INIT;
+    blen = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)len;
+    ਜੇ(off + blen + 1 >= (ਪੂਰਨ)ਆਕਾਰ(buf->ਅੰਕੜੇ))
+      ਵਾਪਸ CURLE_FAILED_INIT;
+    buf->ਅੰਕੜੇ[off++] = blen;
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(buf->ਅੰਕੜੇ + off, spec->entries[i], blen);
     off += blen;
   }
   buf->len = off;
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec)
+CURLcode Curl_alpn_ਮੰਜ਼ਿਲ_proto_str(ਬਣਤਰ alpn_proto_buf *buf,
+                                ਅਚਲ ਬਣਤਰ alpn_spec *spec)
 {
   size_t i, len;
   size_t off = 0;
 
-  memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
-    len = strlen(spec->entries[i]);
-    if(len >= ALPN_NAME_MAX)
-      return CURLE_FAILED_INIT;
-    if(off + len + 2 >= sizeof(buf->data))
-      return CURLE_FAILED_INIT;
-    if(off)
-      buf->data[off++] = ',';
-    memcpy(buf->data + off, spec->entries[i], len);
+  memset(buf, 0, ਆਕਾਰ(*buf));
+  ਲਈ(i = 0; spec && i < spec->ਗਿਣਤੀ_2; ++i) {
+    len = ਲੜੀ_ਲੰਬਾਈ(spec->entries[i]);
+    ਜੇ(len >= ALPN_NAME_MAX)
+      ਵਾਪਸ CURLE_FAILED_INIT;
+    ਜੇ(off + len + 2 >= ਆਕਾਰ(buf->ਅੰਕੜੇ))
+      ਵਾਪਸ CURLE_FAILED_INIT;
+    ਜੇ(off)
+      buf->ਅੰਕੜੇ[off++] = ',';
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(buf->ਅੰਕੜੇ + off, spec->entries[i], len);
     off += len;
   }
-  buf->data[off] = '\0';
-  buf->len = (int)off;
-  return CURLE_OK;
+  buf->ਅੰਕੜੇ[off] = '\0';
+  buf->len = (ਪੂਰਨ)off;
+  ਵਾਪਸ CURLE_OK;
 }
 
-bool Curl_alpn_contains_proto(const struct alpn_spec *spec,
-                              const char *proto)
+bool Curl_alpn_ਸ਼ਾਮਲ_ਹੈ_proto(ਅਚਲ ਬਣਤਰ alpn_spec *spec,
+                              ਅਚਲ ਅੱਖਰ *proto)
 {
-  size_t i, plen = proto ? strlen(proto) : 0;
-  for(i = 0; spec && plen && i < spec->count; ++i) {
-    size_t slen = strlen(spec->entries[i]);
-    if((slen == plen) && !memcmp(proto, spec->entries[i], plen))
-      return TRUE;
+  size_t i, plen = proto ? ਲੜੀ_ਲੰਬਾਈ(proto) : 0;
+  ਲਈ(i = 0; spec && plen && i < spec->ਗਿਣਤੀ_2; ++i) {
+    size_t slen = ਲੜੀ_ਲੰਬਾਈ(spec->entries[i]);
+    ਜੇ((slen == plen) && !memcmp(proto, spec->entries[i], plen))
+      ਵਾਪਸ TRUE;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto)
+ਖਾਲੀ Curl_alpn_restrict_ਮੰਜ਼ਿਲ(ਬਣਤਰ alpn_spec *spec, ਅਚਲ ਅੱਖਰ *proto)
 {
-  size_t plen = strlen(proto);
-  DEBUGASSERT(plen < sizeof(spec->entries[0]));
-  if(plen < sizeof(spec->entries[0])) {
-    memcpy(spec->entries[0], proto, plen + 1);
-    spec->count = 1;
+  size_t plen = ਲੜੀ_ਲੰਬਾਈ(proto);
+  DEBUGASSERT(plen < ਆਕਾਰ(spec->entries[0]));
+  ਜੇ(plen < ਆਕਾਰ(spec->entries[0])) {
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(spec->entries[0], proto, plen + 1);
+    spec->ਗਿਣਤੀ_2 = 1;
   }
 }
 
-void Curl_alpn_copy(struct alpn_spec *dest, const struct alpn_spec *src)
+ਖਾਲੀ Curl_alpn_copy(ਬਣਤਰ alpn_spec *dest, ਅਚਲ ਬਣਤਰ alpn_spec *src)
 {
-  if(src)
-    memcpy(dest, src, sizeof(*dest));
-  else
-    memset(dest, 0, sizeof(*dest));
+  ਜੇ(src)
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(dest, src, ਆਕਾਰ(*dest));
+  ਨਹੀਂਤਾਂ
+    memset(dest, 0, ਆਕਾਰ(*dest));
 }
 
-CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct ssl_connect_data *connssl,
-                                  const unsigned char *proto,
+CURLcode Curl_alpn_ਸੈੱਟ_negotiated(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl,
+                                  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *proto,
                                   size_t proto_len)
 {
-  CURLcode result = CURLE_OK;
-  (void)cf;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  (ਖਾਲੀ)cf;
 
-  if(connssl->negotiated.alpn) {
+  ਜੇ(connssl->negotiated.alpn) {
     /* When we ask for a specific ALPN protocol, we need the confirmation
      * of it by the server, as we have installed protocol handler and
      * connection filter chain for exactly this protocol. */
-    if(!proto_len) {
-      failf(data, "ALPN: asked for '%s' from previous session, "
+    ਜੇ(!proto_len) {
+      failf(ਅੰਕੜੇ, "ALPN: asked for '%s' from previous session, "
             "but server did not confirm it. Refusing to continue.",
             connssl->negotiated.alpn);
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if(!proto) {
+    ਨਹੀਂਤਾਂ ਜੇ(!proto) {
       DEBUGASSERT(0); /* with length, we need a pointer */
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if((strlen(connssl->negotiated.alpn) != proto_len) ||
+    ਨਹੀਂਤਾਂ ਜੇ((ਲੜੀ_ਲੰਬਾਈ(connssl->negotiated.alpn) != proto_len) ||
             memcmp(connssl->negotiated.alpn, proto, proto_len)) {
-      failf(data, "ALPN: asked for '%s' from previous session, but server "
+      failf(ਅੰਕੜੇ, "ALPN: asked for '%s' from previous session, but server "
             "selected '%.*s'. Refusing to continue.",
-            connssl->negotiated.alpn, (int)proto_len, proto);
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+            connssl->negotiated.alpn, (ਪੂਰਨ)proto_len, proto);
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
     /* ALPN is exactly what we asked for, done. */
-    infof(data, "ALPN: server confirmed to use '%s'",
+    infof(ਅੰਕੜੇ, "ALPN: server confirmed to use '%s'",
           connssl->negotiated.alpn);
-    goto out;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  if(proto && proto_len) {
-    if(memchr(proto, '\0', proto_len)) {
-      failf(data, "ALPN: server selected protocol contains NUL. "
+  ਜੇ(proto && proto_len) {
+    ਜੇ(memchr(proto, '\0', proto_len)) {
+      failf(ਅੰਕੜੇ, "ALPN: server selected protocol contains NUL. "
                   "Refusing to continue.");
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      ਨਤੀਜਾ = CURLE_SSL_CONNECT_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    connssl->negotiated.alpn = curlx_memdup0((const char *)proto, proto_len);
-    if(!connssl->negotiated.alpn)
-      return CURLE_OUT_OF_MEMORY;
+    connssl->negotiated.alpn = curlx_memdup0((ਅਚਲ ਅੱਖਰ *)proto, proto_len);
+    ਜੇ(!connssl->negotiated.alpn)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
-  if(proto && proto_len) {
-    if(connssl->state == ssl_connection_deferred)
-      infof(data, VTLS_INFOF_ALPN_DEFERRED, (int)proto_len, proto);
-    else
-      infof(data, VTLS_INFOF_ALPN_ACCEPTED, (int)proto_len, proto);
+  ਜੇ(proto && proto_len) {
+    ਜੇ(connssl->state == ssl_connection_deferred)
+      infof(ਅੰਕੜੇ, VTLS_INFOF_ALPN_DEFERRED, (ਪੂਰਨ)proto_len, proto);
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, VTLS_INFOF_ALPN_ACCEPTED, (ਪੂਰਨ)proto_len, proto);
   }
-  else {
-    if(connssl->state == ssl_connection_deferred)
-      infof(data, VTLS_INFOF_NO_ALPN_DEFERRED);
-    else
-      infof(data, VTLS_INFOF_NO_ALPN);
+  ਨਹੀਂਤਾਂ {
+    ਜੇ(connssl->state == ssl_connection_deferred)
+      infof(ਅੰਕੜੇ, VTLS_INFOF_NO_ALPN_DEFERRED);
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, VTLS_INFOF_NO_ALPN);
   }
 
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct alpn_spec *alpns,
-                               struct Curl_ssl_session *scs,
-                               bool *do_early_data, bool early_data_allowed)
+CURLcode Curl_on_session_reuse(ਬਣਤਰ Curl_cfilter *cf,
+                               ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ alpn_spec *alpns,
+                               ਬਣਤਰ Curl_ssl_session *scs,
+                               bool *do_early_ਅੰਕੜੇ, bool early_ਅੰਕੜੇ_allowed)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf->ctx;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  *do_early_data = FALSE;
+  *do_early_ਅੰਕੜੇ = FALSE;
 
-  if(!early_data_allowed) {
-    CURL_TRC_CF(data, cf, "SSL session does not allow earlydata");
+  ਜੇ(!early_ਅੰਕੜੇ_allowed) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "SSL session does not allow earlydata");
   }
-  else if(!Curl_alpn_contains_proto(alpns, scs->alpn)) {
-    CURL_TRC_CF(data, cf, "SSL session has different ALPN, no early data");
+  ਨਹੀਂਤਾਂ ਜੇ(!Curl_alpn_ਸ਼ਾਮਲ_ਹੈ_proto(alpns, scs->alpn)) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "SSL session has different ALPN, no early data");
   }
-  else {
-    infof(data, "SSL session allows %zu bytes of early data, "
+  ਨਹੀਂਤਾਂ {
+    infof(ਅੰਕੜੇ, "SSL session allows %zu bytes of early data, "
           "reusing ALPN '%s'", connssl->earlydata_max, scs->alpn);
     connssl->earlydata_state = ssl_earlydata_await;
     connssl->state = ssl_connection_deferred;
-    result = Curl_alpn_set_negotiated(cf, data, connssl,
-                                      (const unsigned char *)scs->alpn,
-                                      scs->alpn ? strlen(scs->alpn) : 0);
-    *do_early_data = !result;
+    ਨਤੀਜਾ = Curl_alpn_ਸੈੱਟ_negotiated(cf, ਅੰਕੜੇ, connssl,
+                                      (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)scs->alpn,
+                                      scs->alpn ? ਲੜੀ_ਲੰਬਾਈ(scs->alpn) : 0);
+    *do_early_ਅੰਕੜੇ = !ਨਤੀਜਾ;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
-                                                 const struct Curl_cftype *cft,
+ਬਣਤਰ Curl_ssl_session *Curl_ssl_get_cf_session(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                                 ਅਚਲ ਬਣਤਰ Curl_cftype *cft,
                                                  int8_t sockindex)
 {
-  if(data->conn &&
-#ifndef CURL_DISABLE_PROXY
+  ਜੇ(ਅੰਕੜੇ->conn &&
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
      ((cft == &Curl_cft_ssl) || (cft == &Curl_cft_ssl_proxy))) {
-#else
+#ਨਹੀਂਤਾਂ
      (cft == &Curl_cft_ssl)) {
-#endif
-    struct Curl_cfilter *cf1 = data->conn->cfilter[sockindex];
-    for(; cf1; cf1 = cf1->next) {
+#ਜੇ_ਅੰਤ
+    ਬਣਤਰ Curl_cfilter *cf1 = ਅੰਕੜੇ->conn->cfilter[sockindex];
+    ਲਈ(; cf1; cf1 = cf1->ਅਗਲਾ) {
       /* A tunneling proxy does not offer end2end encryption, even if
        * it does SSL itself (e.g. QUIC H3 proxy) */
-      if(cf1->cft == cft)
-        break;
+      ਜੇ(cf1->cft == cft)
+        ਰੋਕੋ;
     }
-    if(cf1) {
-      struct ssl_connect_data *connssl = cf1->ctx;
-      if(connssl)
-        return connssl->session;
+    ਜੇ(cf1) {
+      ਬਣਤਰ ssl_connect_ਅੰਕੜੇ *connssl = cf1->ctx;
+      ਜੇ(connssl)
+        ਵਾਪਸ connssl->session;
     }
   }
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-#endif /* USE_SSL */
+#ਜੇ_ਅੰਤ /* USE_SSL */

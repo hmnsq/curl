@@ -21,25 +21,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "slist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "slist.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist *list)
+ਸਥਿਰ ਬਣਤਰ curl_slist *slist_get_ਆਖਰੀ(ਬਣਤਰ curl_slist *list)
 {
-  struct curl_slist *item;
+  ਬਣਤਰ curl_slist *ਵਸਤੂ;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  ਜੇ(!list)
+    ਵਾਪਸ ਨਿਰਾ;
 
   /* loop through to find the last item */
-  item = list;
-  while(item->next) {
-    item = item->next;
+  ਵਸਤੂ = list;
+  ਜਦੋਂ(ਵਸਤੂ->ਅਗਲਾ) {
+    ਵਸਤੂ = ਵਸਤੂ->ਅਗਲਾ;
   }
-  return item;
+  ਵਾਪਸ ਵਸਤੂ;
 }
 
 /*
@@ -51,28 +51,28 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
  * If an error occurs, NULL is returned and the string argument is NOT
  * released.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data)
+ਬਣਤਰ curl_slist *Curl_slist_append_nodup(ਬਣਤਰ curl_slist *list,
+                                           ਅਚਲ ਅੱਖਰ *ਅੰਕੜੇ)
 {
-  struct curl_slist *last;
-  struct curl_slist *new_item;
+  ਬਣਤਰ curl_slist *ਆਖਰੀ;
+  ਬਣਤਰ curl_slist *new_ਵਸਤੂ;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(ਅੰਕੜੇ);
 
-  new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  new_ਵਸਤੂ = curlx_malloc(ਆਕਾਰ(ਬਣਤਰ curl_slist));
+  ਜੇ(!new_ਵਸਤੂ)
+    ਵਾਪਸ ਨਿਰਾ;
 
-  new_item->next = NULL;
-  new_item->data = CURL_UNCONST(data);
+  new_ਵਸਤੂ->ਅਗਲਾ = ਨਿਰਾ;
+  new_ਵਸਤੂ->ਅੰਕੜੇ = CURL_UNCONST(ਅੰਕੜੇ);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  ਜੇ(!list)
+    ਵਾਪਸ new_ਵਸਤੂ;
 
-  last = slist_get_last(list);
-  last->next = new_item;
-  return list;
+  ਆਖਰੀ = slist_get_ਆਖਰੀ(list);
+  ਆਖਰੀ->ਅਗਲਾ = new_ਵਸਤੂ;
+  ਵਾਪਸ list;
 }
 
 /*
@@ -82,18 +82,18 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
  * bothersome, then create a separate _init function and call it
  * appropriately from within the program.
  */
-struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
+ਬਣਤਰ curl_slist *curl_slist_append(ਬਣਤਰ curl_slist *list, ਅਚਲ ਅੱਖਰ *ਅੰਕੜੇ)
 {
-  char *dupdata = curlx_strdup(data);
+  ਅੱਖਰ *dupdata = curlx_strdup(ਅੰਕੜੇ);
 
-  if(!dupdata)
-    return NULL;
+  ਜੇ(!dupdata)
+    ਵਾਪਸ ਨਿਰਾ;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  ਜੇ(!list)
     curlx_free(dupdata);
 
-  return list;
+  ਵਾਪਸ list;
 }
 
 /*
@@ -101,40 +101,40 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
+ਬਣਤਰ curl_slist *Curl_slist_duplicate(ਬਣਤਰ curl_slist *inlist)
 {
-  struct curl_slist *outlist = NULL;
-  struct curl_slist **tail = &outlist;
+  ਬਣਤਰ curl_slist *outlist = ਨਿਰਾ;
+  ਬਣਤਰ curl_slist **ਪੂਛ = &outlist;
 
-  while(inlist) {
-    struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
+  ਜਦੋਂ(inlist) {
+    ਬਣਤਰ curl_slist *tmp = curl_slist_append(ਨਿਰਾ, inlist->ਅੰਕੜੇ);
 
-    if(!tmp) {
+    ਜੇ(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      ਵਾਪਸ ਨਿਰਾ;
     }
 
-    *tail = tmp;
-    tail = &tmp->next;
-    inlist = inlist->next;
+    *ਪੂਛ = tmp;
+    ਪੂਛ = &tmp->ਅਗਲਾ;
+    inlist = inlist->ਅਗਲਾ;
   }
-  return outlist;
+  ਵਾਪਸ outlist;
 }
 
 /* be nice and clean up resources */
-void curl_slist_free_all(struct curl_slist *list)
+ਖਾਲੀ curl_slist_free_all(ਬਣਤਰ curl_slist *list)
 {
-  struct curl_slist *next;
-  struct curl_slist *item;
+  ਬਣਤਰ curl_slist *ਅਗਲਾ;
+  ਬਣਤਰ curl_slist *ਵਸਤੂ;
 
-  if(!list)
-    return;
+  ਜੇ(!list)
+    ਵਾਪਸ;
 
-  item = list;
-  do {
-    next = item->next;
-    curlx_safefree(item->data);
-    curlx_free(item);
-    item = next;
-  } while(next);
+  ਵਸਤੂ = list;
+  ਕਰੋ {
+    ਅਗਲਾ = ਵਸਤੂ->ਅਗਲਾ;
+    curlx_safefree(ਵਸਤੂ->ਅੰਕੜੇ);
+    curlx_free(ਵਸਤੂ);
+    ਵਸਤੂ = ਅਗਲਾ;
+  } ਜਦੋਂ(ਅਗਲਾ);
 }

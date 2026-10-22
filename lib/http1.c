@@ -21,156 +21,156 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
 
-#include "urldata.h"
-#include "http.h"
-#include "http1.h"
-#include "urlapi-int.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http1.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urlapi-int.h"
 
 
-#define H1_MAX_URL_LEN (8 * 1024)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ H1_MAX_URL_LEN (8 * 1024)
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len)
+ਖਾਲੀ Curl_h1_req_parse_init(ਬਣਤਰ h1_req_parser *parser, size_t max_ਸਤਰ_len)
 {
-  memset(parser, 0, sizeof(*parser));
-  parser->max_line_len = max_line_len;
-  curlx_dyn_init(&parser->scratch, max_line_len);
+  memset(parser, 0, ਆਕਾਰ(*parser));
+  parser->max_ਸਤਰ_len = max_ਸਤਰ_len;
+  curlx_dyn_init(&parser->scratch, max_ਸਤਰ_len);
 }
 
-void Curl_h1_req_parse_free(struct h1_req_parser *parser)
+ਖਾਲੀ Curl_h1_req_parse_free(ਬਣਤਰ h1_req_parser *parser)
 {
-  if(parser) {
+  ਜੇ(parser) {
     Curl_http_req_free(parser->req);
     curlx_dyn_free(&parser->scratch);
-    parser->req = NULL;
-    parser->done = FALSE;
+    parser->req = ਨਿਰਾ;
+    parser->ਪੂਰਾ = FALSE;
   }
 }
 
-static CURLcode trim_line(struct h1_req_parser *parser, int options)
+ਸਥਿਰ CURLcode trim_ਸਤਰ(ਬਣਤਰ h1_req_parser *parser, ਪੂਰਨ options)
 {
-  DEBUGASSERT(parser->line);
-  if(parser->line_len) {
-    if(parser->line[parser->line_len - 1] == '\n')
-      --parser->line_len;
-    if(parser->line_len) {
-      if(parser->line[parser->line_len - 1] == '\r')
-        --parser->line_len;
-      else if(options & H1_PARSE_OPT_STRICT)
-        return CURLE_URL_MALFORMAT;
+  DEBUGASSERT(parser->ਸਤਰ);
+  ਜੇ(parser->ਸਤਰ_len) {
+    ਜੇ(parser->ਸਤਰ[parser->ਸਤਰ_len - 1] == '\n')
+      --parser->ਸਤਰ_len;
+    ਜੇ(parser->ਸਤਰ_len) {
+      ਜੇ(parser->ਸਤਰ[parser->ਸਤਰ_len - 1] == '\r')
+        --parser->ਸਤਰ_len;
+      ਨਹੀਂਤਾਂ ਜੇ(options & H1_PARSE_OPT_STRICT)
+        ਵਾਪਸ CURLE_URL_MALFORMAT;
     }
-    else if(options & H1_PARSE_OPT_STRICT)
-      return CURLE_URL_MALFORMAT;
+    ਨਹੀਂਤਾਂ ਜੇ(options & H1_PARSE_OPT_STRICT)
+      ਵਾਪਸ CURLE_URL_MALFORMAT;
   }
-  else if(options & H1_PARSE_OPT_STRICT)
-    return CURLE_URL_MALFORMAT;
+  ਨਹੀਂਤਾਂ ਜੇ(options & H1_PARSE_OPT_STRICT)
+    ਵਾਪਸ CURLE_URL_MALFORMAT;
 
-  if(parser->line_len > parser->max_line_len) {
-    return CURLE_URL_MALFORMAT;
+  ਜੇ(parser->ਸਤਰ_len > parser->max_ਸਤਰ_len) {
+    ਵਾਪਸ CURLE_URL_MALFORMAT;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode detect_line(struct h1_req_parser *parser,
-                            const uint8_t *buf, const size_t buflen,
+ਸਥਿਰ CURLcode detect_ਸਤਰ(ਬਣਤਰ h1_req_parser *parser,
+                            ਅਚਲ uint8_t *buf, ਅਚਲ size_t buflen,
                             size_t *pnread)
 {
-  const char *line_end;
+  ਅਚਲ ਅੱਖਰ *ਸਤਰ_ਸਿਰਾ;
 
-  DEBUGASSERT(!parser->line);
+  DEBUGASSERT(!parser->ਸਤਰ);
   *pnread = 0;
-  line_end = memchr(buf, '\n', buflen);
-  if(!line_end)
-    return CURLE_AGAIN;
-  parser->line = (const char *)buf;
-  parser->line_len = line_end - parser->line + 1;
-  *pnread = parser->line_len;
-  return CURLE_OK;
+  ਸਤਰ_ਸਿਰਾ = memchr(buf, '\n', buflen);
+  ਜੇ(!ਸਤਰ_ਸਿਰਾ)
+    ਵਾਪਸ CURLE_AGAIN;
+  parser->ਸਤਰ = (ਅਚਲ ਅੱਖਰ *)buf;
+  parser->ਸਤਰ_len = ਸਤਰ_ਸਿਰਾ - parser->ਸਤਰ + 1;
+  *pnread = parser->ਸਤਰ_len;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode next_line(struct h1_req_parser *parser,
-                          const uint8_t *buf, const size_t buflen, int options,
+ਸਥਿਰ CURLcode ਅਗਲਾ_ਸਤਰ(ਬਣਤਰ h1_req_parser *parser,
+                          ਅਚਲ uint8_t *buf, ਅਚਲ size_t buflen, ਪੂਰਨ options,
                           size_t *pnread)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
   *pnread = 0;
-  if(parser->line) {
-    parser->line = NULL;
-    parser->line_len = 0;
+  ਜੇ(parser->ਸਤਰ) {
+    parser->ਸਤਰ = ਨਿਰਾ;
+    parser->ਸਤਰ_len = 0;
     curlx_dyn_reset(&parser->scratch);
   }
 
-  result = detect_line(parser, buf, buflen, pnread);
-  if(!result) {
-    if(curlx_dyn_len(&parser->scratch)) {
+  ਨਤੀਜਾ = detect_ਸਤਰ(parser, buf, buflen, pnread);
+  ਜੇ(!ਨਤੀਜਾ) {
+    ਜੇ(curlx_dyn_len(&parser->scratch)) {
       /* append detected line to scratch to have the complete line */
-      result = curlx_dyn_addn(&parser->scratch, parser->line,
-                              parser->line_len);
-      if(result)
-        return result;
-      parser->line = curlx_dyn_ptr(&parser->scratch);
-      parser->line_len = curlx_dyn_len(&parser->scratch);
+      ਨਤੀਜਾ = curlx_dyn_addn(&parser->scratch, parser->ਸਤਰ,
+                              parser->ਸਤਰ_len);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      parser->ਸਤਰ = curlx_dyn_ptr(&parser->scratch);
+      parser->ਸਤਰ_len = curlx_dyn_len(&parser->scratch);
     }
-    result = trim_line(parser, options);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = trim_ਸਤਰ(parser, options);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
-  else if(result == CURLE_AGAIN) {
+  ਨਹੀਂਤਾਂ ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN) {
     /* no line end in `buf`, add it to our scratch */
-    result = curlx_dyn_addn(&parser->scratch, (const unsigned char *)buf,
+    ਨਤੀਜਾ = curlx_dyn_addn(&parser->scratch, (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)buf,
                             buflen);
     *pnread = buflen;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode start_req(struct h1_req_parser *parser,
-                          const char *scheme_default,
-                          const char *custom_method,
-                          int options)
+ਸਥਿਰ CURLcode ਸ਼ੁਰੂ_req(ਬਣਤਰ h1_req_parser *parser,
+                          ਅਚਲ ਅੱਖਰ *scheme_default,
+                          ਅਚਲ ਅੱਖਰ *custom_ਵਿਧੀ,
+                          ਪੂਰਨ options)
 {
-  const char *p, *m, *target, *hv, *scheme, *authority, *path;
-  size_t m_len, target_len, hv_len, scheme_len, authority_len, path_len;
+  ਅਚਲ ਅੱਖਰ *p, *m, *ਨਿਸ਼ਾਨਾ, *hv, *scheme, *authority, *ਰਸਤਾ;
+  size_t m_len, ਨਿਸ਼ਾਨਾ_len, hv_len, scheme_len, authority_len, ਰਸਤਾ_len;
   size_t i;
-  CURLU *url = NULL;
-  CURLcode result = CURLE_URL_MALFORMAT; /* Use this as default fail */
+  CURLU *url = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_URL_MALFORMAT; /* Use this as default fail */
 
   DEBUGASSERT(!parser->req);
   /* line must match: "METHOD TARGET HTTP_VERSION" */
-  if(custom_method && custom_method[0] &&
-     !strncmp(custom_method, parser->line, strlen(custom_method))) {
-    p = parser->line + strlen(custom_method);
+  ਜੇ(custom_ਵਿਧੀ && custom_ਵਿਧੀ[0] &&
+     !ਲੜੀ_ਤੁਲਨਾ(custom_ਵਿਧੀ, parser->ਸਤਰ, ਲੜੀ_ਲੰਬਾਈ(custom_ਵਿਧੀ))) {
+    p = parser->ਸਤਰ + ਲੜੀ_ਲੰਬਾਈ(custom_ਵਿਧੀ);
   }
-  else {
-    p = memchr(parser->line, ' ', parser->line_len);
-    if(!p || p == parser->line)
-      goto out;
+  ਨਹੀਂਤਾਂ {
+    p = memchr(parser->ਸਤਰ, ' ', parser->ਸਤਰ_len);
+    ਜੇ(!p || p == parser->ਸਤਰ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  m = parser->line;
-  m_len = p - parser->line;
-  target = p + 1;
-  target_len = hv_len = 0;
-  hv = NULL;
+  m = parser->ਸਤਰ;
+  m_len = p - parser->ਸਤਰ;
+  ਨਿਸ਼ਾਨਾ = p + 1;
+  ਨਿਸ਼ਾਨਾ_len = hv_len = 0;
+  hv = ਨਿਰਾ;
 
   /* URL may contain spaces so scan backwards */
-  for(i = parser->line_len; i > m_len; --i) {
-    if(parser->line[i] == ' ') {
-      hv = &parser->line[i + 1];
-      hv_len = parser->line_len - i;
-      target_len = (hv - target) - 1;
-      break;
+  ਲਈ(i = parser->ਸਤਰ_len; i > m_len; --i) {
+    ਜੇ(parser->ਸਤਰ[i] == ' ') {
+      hv = &parser->ਸਤਰ[i + 1];
+      hv_len = parser->ਸਤਰ_len - i;
+      ਨਿਸ਼ਾਨਾ_len = (hv - ਨਿਸ਼ਾਨਾ) - 1;
+      ਰੋਕੋ;
     }
   }
   /* no SPACE found or empty TARGET or empty HTTP_VERSION */
-  if(!target_len || !hv_len)
-    goto out;
+  ਜੇ(!ਨਿਸ਼ਾਨਾ_len || !hv_len)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  (void)hv;
+  (ਖਾਲੀ)hv;
 
   /* The TARGET can be (rfc 9112, ch. 3.2):
    * origin-form:     path + optional query
@@ -184,102 +184,102 @@ static CURLcode start_req(struct h1_req_parser *parser,
    * authority-form         --        TARGET      --
    * asterisk-form          --        --          TARGET
    */
-  scheme = authority = path = NULL;
-  scheme_len = authority_len = path_len = 0;
+  scheme = authority = ਰਸਤਾ = ਨਿਰਾ;
+  scheme_len = authority_len = ਰਸਤਾ_len = 0;
 
-  if(target_len == 1 && target[0] == '*') {
+  ਜੇ(ਨਿਸ਼ਾਨਾ_len == 1 && ਨਿਸ਼ਾਨਾ[0] == '*') {
     /* asterisk-form */
-    path = target;
-    path_len = target_len;
+    ਰਸਤਾ = ਨਿਸ਼ਾਨਾ;
+    ਰਸਤਾ_len = ਨਿਸ਼ਾਨਾ_len;
   }
-  else if(!strncmp("CONNECT", m, m_len)) {
+  ਨਹੀਂਤਾਂ ਜੇ(!ਲੜੀ_ਤੁਲਨਾ("CONNECT", m, m_len)) {
     /* authority-form */
-    authority = target;
-    authority_len = target_len;
+    authority = ਨਿਸ਼ਾਨਾ;
+    authority_len = ਨਿਸ਼ਾਨਾ_len;
   }
-  else if(target[0] == '/') {
+  ਨਹੀਂਤਾਂ ਜੇ(ਨਿਸ਼ਾਨਾ[0] == '/') {
     /* origin-form */
-    path = target;
-    path_len = target_len;
+    ਰਸਤਾ = ਨਿਸ਼ਾਨਾ;
+    ਰਸਤਾ_len = ਨਿਸ਼ਾਨਾ_len;
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* origin-form OR absolute-form */
     CURLUcode uc;
-    char tmp[H1_MAX_URL_LEN];
+    ਅੱਖਰ tmp[H1_MAX_URL_LEN];
 
     /* default, unless we see an absolute URL */
-    path = target;
-    path_len = target_len;
+    ਰਸਤਾ = ਨਿਸ਼ਾਨਾ;
+    ਰਸਤਾ_len = ਨਿਸ਼ਾਨਾ_len;
 
     /* URL parser wants null-termination */
-    if(target_len >= sizeof(tmp))
-      goto out;
-    memcpy(tmp, target, target_len);
-    tmp[target_len] = '\0';
+    ਜੇ(ਨਿਸ਼ਾਨਾ_len >= ਆਕਾਰ(tmp))
+      ਜਾਓ ਬਾਹਰਲਾ;
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(tmp, ਨਿਸ਼ਾਨਾ, ਨਿਸ਼ਾਨਾ_len);
+    tmp[ਨਿਸ਼ਾਨਾ_len] = '\0';
     /* See if treating TARGET as an absolute URL makes sense */
-    if(Curl_is_absolute_url(tmp, NULL, 0, FALSE)) {
-      unsigned int url_options;
+    ਜੇ(Curl_is_absolute_url(tmp, ਨਿਰਾ, 0, FALSE)) {
+      ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ url_options;
 
       url = curl_url();
-      if(!url) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      ਜੇ(!url) {
+        ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
       url_options = (CURLU_NON_SUPPORT_SCHEME |
-                     CURLU_PATH_AS_IS |
-                     CURLU_NO_DEFAULT_PORT);
-      if(!(options & H1_PARSE_OPT_STRICT))
+                     CURLU_ਰਸਤਾ_AS_IS |
+                     CURLU_NO_DEFAULT_ਪੋਰਟ);
+      ਜੇ(!(options & H1_PARSE_OPT_STRICT))
         url_options |= CURLU_ALLOW_SPACE;
-      uc = curl_url_set(url, CURLUPART_URL, tmp, url_options);
-      if(uc) {
-        goto out;
+      uc = curl_url_ਸੈੱਟ(url, CURLUPART_URL, tmp, url_options);
+      ਜੇ(uc) {
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
     }
 
-    if(!url && (options & H1_PARSE_OPT_STRICT)) {
+    ਜੇ(!url && (options & H1_PARSE_OPT_STRICT)) {
       /* we should have an absolute URL or have seen `/` earlier */
-      goto out;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-  if(url) {
-    result = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
+  ਜੇ(url) {
+    ਨਤੀਜਾ = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
   }
-  else {
-    if(!scheme && scheme_default) {
+  ਨਹੀਂਤਾਂ {
+    ਜੇ(!scheme && scheme_default) {
       scheme = scheme_default;
-      scheme_len = strlen(scheme_default);
+      scheme_len = ਲੜੀ_ਲੰਬਾਈ(scheme_default);
     }
-    result = Curl_http_req_make(&parser->req, m, m_len, scheme, scheme_len,
-                                authority, authority_len, path, path_len);
+    ਨਤੀਜਾ = Curl_http_req_make(&parser->req, m, m_len, scheme, scheme_len,
+                                authority, authority_len, ਰਸਤਾ, ਰਸਤਾ_len);
   }
 
-out:
+ਬਾਹਰਲਾ:
   curl_url_cleanup(url);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread)
+CURLcode Curl_h1_req_parse_read(ਬਣਤਰ h1_req_parser *parser,
+                                ਅਚਲ uint8_t *buf, size_t buflen,
+                                ਅਚਲ ਅੱਖਰ *scheme_default,
+                                ਅਚਲ ਅੱਖਰ *custom_ਵਿਧੀ,
+                                ਪੂਰਨ options, size_t *pnread)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   size_t nread;
 
   *pnread = 0;
 
   DEBUGASSERT(buf);
-  if(!buf)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ਜੇ(!buf)
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
 
-  while(!parser->done) {
-    result = next_line(parser, buf, buflen, options, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN)
-        result = CURLE_OK;
-      goto out;
+  ਜਦੋਂ(!parser->ਪੂਰਾ) {
+    ਨਤੀਜਾ = ਅਗਲਾ_ਸਤਰ(parser, buf, buflen, options, &nread);
+    ਜੇ(ਨਤੀਜਾ) {
+      ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN)
+        ਨਤੀਜਾ = CURLE_OK;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
     /* Consume this line */
@@ -287,61 +287,61 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
     buf += nread;
     buflen -= nread;
 
-    if(!parser->line) {
+    ਜੇ(!parser->ਸਤਰ) {
       /* consumed bytes, but line not complete */
-      if(!buflen)
-        goto out;
+      ਜੇ(!buflen)
+        ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if(!parser->req) {
-      result = start_req(parser, scheme_default, custom_method, options);
-      if(result)
-        goto out;
+    ਨਹੀਂਤਾਂ ਜੇ(!parser->req) {
+      ਨਤੀਜਾ = ਸ਼ੁਰੂ_req(parser, scheme_default, custom_ਵਿਧੀ, options);
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if(parser->line_len == 0) {
+    ਨਹੀਂਤਾਂ ਜੇ(parser->ਸਤਰ_len == 0) {
       /* last, empty line, we are finished */
-      if(!parser->req) {
-        result = CURLE_URL_MALFORMAT;
-        goto out;
+      ਜੇ(!parser->req) {
+        ਨਤੀਜਾ = CURLE_URL_MALFORMAT;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      parser->done = TRUE;
+      parser->ਪੂਰਾ = TRUE;
       curlx_dyn_reset(&parser->scratch);
       /* last chance adjustments */
     }
-    else {
-      result = Curl_dynhds_h1_add_line(&parser->req->headers,
-                                       parser->line, parser->line_len);
-      if(result)
-        goto out;
+    ਨਹੀਂਤਾਂ {
+      ਨਤੀਜਾ = Curl_dynhds_h1_ਜੋੜੋ_ਸਤਰ(&parser->req->ਸਿਰਲੇਖਾਂ,
+                                       parser->ਸਤਰ, parser->ਸਤਰ_len);
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf)
+CURLcode Curl_h1_req_write_ਸਿਰ(ਬਣਤਰ httpreq *req, ਪੂਰਨ http_minor,
+                                ਬਣਤਰ dynbuf *dbuf)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  result = curlx_dyn_addf(dbuf, "%s %s%s%s%s HTTP/1.%d\r\n",
-                          req->method,
+  ਨਤੀਜਾ = curlx_dyn_addf(dbuf, "%s %s%s%s%s HTTP/1.%d\r\n",
+                          req->ਵਿਧੀ,
                           req->scheme ? req->scheme : "",
                           req->scheme ? "://" : "",
                           req->authority ? req->authority : "",
-                          req->path ? req->path : "",
+                          req->ਰਸਤਾ ? req->ਰਸਤਾ : "",
                           http_minor);
-  if(result)
-    goto out;
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  result = Curl_dynhds_h1_dprint(&req->headers, dbuf);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_dynhds_h1_dprint(&req->ਸਿਰਲੇਖਾਂ, dbuf);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
+  ਨਤੀਜਾ = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
 
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#endif /* !CURL_DISABLE_HTTP */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_HTTP */

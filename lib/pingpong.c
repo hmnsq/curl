@@ -24,104 +24,104 @@
  *   IMAP, POP3, SMTP and whatever more that likes them.
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "urldata.h"
-#include "pingpong.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "pingpong.h"
 
-#ifdef USE_PINGPONG
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_PINGPONG
 
-#include "cfilters.h"
-#include "connect.h"
-#include "multiif.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "select.h"
-#include "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multiif.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sendf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "select.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
 
-timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
-                                     struct pingpong *pp)
+timediff_t Curl_pp_state_timeleft_ms(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                     ਬਣਤਰ pingpong *pp)
 {
   timediff_t xfer_remain_ms;
-  timediff_t remain_ms = data->set.server_response_timeout ?
-    data->set.server_response_timeout : PINGPONG_TIMEOUT_MS;
+  timediff_t remain_ms = ਅੰਕੜੇ->ਸੈੱਟ.server_response_timeout ?
+    ਅੰਕੜੇ->ਸੈੱਟ.server_response_timeout : PINGPONG_TIMEOUT_MS;
 
   /* If the overall transfer has less time remaining than pingpong
    * has otherwise for the state, return that. */
-  remain_ms -= curlx_ptimediff_ms(Curl_pgrs_now(data), &pp->response);
+  remain_ms -= curlx_ptimediff_ms(Curl_pgrs_now(ਅੰਕੜੇ), &pp->response);
   /* transfer remaining time is 0, when it has no timeout. */
-  xfer_remain_ms = Curl_timeleft_ms(data);
-  if(xfer_remain_ms)
-    return CURLMIN(remain_ms, xfer_remain_ms);
-  return remain_ms;
+  xfer_remain_ms = Curl_timeleft_ms(ਅੰਕੜੇ);
+  ਜੇ(xfer_remain_ms)
+    ਵਾਪਸ CURLMIN(remain_ms, xfer_remain_ms);
+  ਵਾਪਸ remain_ms;
 }
 
 /*
  * Curl_pp_statemach()
  */
-CURLcode Curl_pp_statemach(struct Curl_easy *data,
-                           struct pingpong *pp, bool block,
+CURLcode Curl_pp_statemach(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ pingpong *pp, bool ਖੰਡ,
                            bool disconnecting)
 {
-  struct connectdata *conn = data->conn;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int rc;
+  ਪੂਰਨ rc;
   timediff_t interval_ms;
-  timediff_t timeout_ms = Curl_pp_state_timeleft_ms(data, pp);
-  CURLcode result = CURLE_OK;
+  timediff_t timeout_ms = Curl_pp_state_timeleft_ms(ਅੰਕੜੇ, pp);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(timeout_ms <= 0) {
-    failf(data, "server response timeout");
-    return CURLE_OPERATION_TIMEDOUT; /* already too little time */
+  ਜੇ(timeout_ms <= 0) {
+    failf(ਅੰਕੜੇ, "server response timeout");
+    ਵਾਪਸ CURLE_OPERATION_TIMEDOUT; /* already too little time */
   }
 
-  if(block) {
+  ਜੇ(ਖੰਡ) {
     interval_ms = 1000;  /* use 1 second timeout intervals */
-    if(timeout_ms < interval_ms)
+    ਜੇ(timeout_ms < interval_ms)
       interval_ms = timeout_ms;
   }
-  else {
-    interval_ms = 0; /* immediate */
+  ਨਹੀਂਤਾਂ {
+    interval_ms = 0; /*ਤੁਰੰਤ*/
     /* Wake the multi socket API even when the server sends no response. */
-    Curl_expire(data, timeout_ms, EXPIRE_SERVER_RESPONSE);
+    Curl_expire(ਅੰਕੜੇ, timeout_ms, EXPIRE_SERVER_RESPONSE);
   }
 
-  if(Curl_conn_data_pending(data, FIRSTSOCKET))
+  ਜੇ(Curl_conn_ਅੰਕੜੇ_pending(ਅੰਕੜੇ, FIRSTSOCKET))
     rc = 1;
-  else if(pp->overflow)
+  ਨਹੀਂਤਾਂ ਜੇ(pp->ਉਛਾਲ)
     /* We are receiving and there is data in the cache so read it */
     rc = 1;
-  else if(!pp->sendleft && Curl_conn_data_pending(data, FIRSTSOCKET))
+  ਨਹੀਂਤਾਂ ਜੇ(!pp->sendleft && Curl_conn_ਅੰਕੜੇ_pending(ਅੰਕੜੇ, FIRSTSOCKET))
     /* We are receiving and there is data ready in the SSL library */
     rc = 1;
-  else {
+  ਨਹੀਂਤਾਂ {
     rc = Curl_socket_check(pp->sendleft ? CURL_SOCKET_BAD : sock, /* reading */
                            CURL_SOCKET_BAD,
                            pp->sendleft ? sock : CURL_SOCKET_BAD, /* writing */
                            interval_ms);
   }
 
-  if(block) {
+  ਜੇ(ਖੰਡ) {
     /* if we did not wait, we do not have to spend time on this now */
-    result = Curl_pgrsCheck(data);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = Curl_pgrsCheck(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  if(rc == -1) {
-    failf(data, "select/poll error");
-    result = CURLE_OUT_OF_MEMORY;
+  ਜੇ(rc == -1) {
+    failf(ਅੰਕੜੇ, "select/poll error");
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-  else if(rc)
-    result = pp->statemachine(data, data->conn);
-  else if(disconnecting)
-    return CURLE_OPERATION_TIMEDOUT;
+  ਨਹੀਂਤਾਂ ਜੇ(rc)
+    ਨਤੀਜਾ = pp->statemachine(ਅੰਕੜੇ, ਅੰਕੜੇ->conn);
+  ਨਹੀਂਤਾਂ ਜੇ(disconnecting)
+    ਵਾਪਸ CURLE_OPERATION_TIMEDOUT;
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* initialize stuff to prepare for reading a fresh new response */
-void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow)
+ਖਾਲੀ Curl_pp_init(ਬਣਤਰ pingpong *pp, ਅਚਲ ਬਣਤਰ curltime *pnow)
 {
   DEBUGASSERT(!pp->initialized);
   pp->nread_resp = 0;
@@ -132,92 +132,92 @@ void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow)
   pp->initialized = TRUE;
 }
 
-CURLcode Curl_pp_vsendf(struct Curl_easy *data,
-                        struct pingpong *pp,
-                        const char *prefix,
-                        const char *fmt,
-                        va_list args)
+CURLcode Curl_pp_vsendf(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                        ਬਣਤਰ pingpong *pp,
+                        ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ,
+                        ਅਚਲ ਅੱਖਰ *fmt,
+                        va_list ਦਲੀਲਾਂ)
 {
-  size_t bytes_written = 0;
+  size_t ਬਾਈਟਾਂ_written = 0;
   size_t write_len;
-  char *s;
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  ਅੱਖਰ *s;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
 
   DEBUGASSERT(pp->sendleft == 0);
   DEBUGASSERT(pp->sendsize == 0);
   DEBUGASSERT(!pp->sendthis);
 
-  if(!conn)
+  ਜੇ(!conn)
     /* cannot send without a connection! */
-    return CURLE_SEND_ERROR;
+    ਵਾਪਸ CURLE_SEND_ERROR;
 
   curlx_dyn_reset(&pp->sendbuf);
-  if(prefix) {
-    result = curlx_dyn_add(&pp->sendbuf, prefix);
-    if(!result)
-      result = curlx_dyn_addn(&pp->sendbuf, " ", 1);
+  ਜੇ(ਅਗੇਤਰ) {
+    ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&pp->sendbuf, ਅਗੇਤਰ);
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = curlx_dyn_addn(&pp->sendbuf, " ", 1);
   }
-  if(!result)
-    result = curlx_dyn_vaddf(&pp->sendbuf, fmt, args);
-  if(result)
-    return result;
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = curlx_dyn_vaddf(&pp->sendbuf, fmt, ਦਲੀਲਾਂ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   /* append CRLF */
-  result = curlx_dyn_addn(&pp->sendbuf, "\r\n", 2);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = curlx_dyn_addn(&pp->sendbuf, "\r\n", 2);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   pp->pending_resp = TRUE;
   write_len = curlx_dyn_len(&pp->sendbuf);
   s = curlx_dyn_ptr(&pp->sendbuf);
 
-  result = Curl_conn_send(data, FIRSTSOCKET, s, write_len, FALSE,
-                          &bytes_written);
-  if(result == CURLE_AGAIN) {
-    bytes_written = 0;
+  ਨਤੀਜਾ = Curl_conn_send(ਅੰਕੜੇ, FIRSTSOCKET, s, write_len, FALSE,
+                          &ਬਾਈਟਾਂ_written);
+  ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN) {
+    ਬਾਈਟਾਂ_written = 0;
   }
-  else if(result)
-    return result;
+  ਨਹੀਂਤਾਂ ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  Curl_debug(data, CURLINFO_HEADER_OUT, s, bytes_written);
+  Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਬਾਹਰਲਾ, s, ਬਾਈਟਾਂ_written);
 
-  if(bytes_written < write_len) {
+  ਜੇ(ਬਾਈਟਾਂ_written < write_len) {
     /* the whole chunk was not sent, keep it around and adjust sizes */
     pp->sendthis = s;
     pp->sendsize = write_len;
-    pp->sendleft = write_len - bytes_written;
+    pp->sendleft = write_len - ਬਾਈਟਾਂ_written;
   }
-  else {
-    pp->sendthis = NULL;
+  ਨਹੀਂਤਾਂ {
+    pp->sendthis = ਨਿਰਾ;
     pp->sendleft = pp->sendsize = 0;
-    pp->response = *Curl_pgrs_now(data);
+    pp->response = *Curl_pgrs_now(ਅੰਕੜੇ);
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_pp_sendf(struct Curl_easy *data, struct pingpong *pp,
-                       const char *fmt, ...)
+CURLcode Curl_pp_sendf(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ pingpong *pp,
+                       ਅਚਲ ਅੱਖਰ *fmt, ...)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
   va_list ap;
   va_start(ap, fmt);
 
-  result = Curl_pp_vsendf(data, pp, NULL, fmt, ap);
+  ਨਤੀਜਾ = Curl_pp_vsendf(ਅੰਕੜੇ, pp, ਨਿਰਾ, fmt, ap);
 
   va_end(ap);
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode pingpong_read(struct Curl_easy *data,
+ਸਥਿਰ CURLcode pingpong_read(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                               int8_t sockindex,
-                              char *buffer,
+                              ਅੱਖਰ *ਬਫਰ,
                               size_t buflen,
                               size_t *nread)
 {
-  return Curl_conn_recv(data, sockindex, buffer, buflen, nread);
+  ਵਾਪਸ Curl_conn_recv(ਅੰਕੜੇ, sockindex, ਬਫਰ, buflen, nread);
 }
 
 /*
@@ -225,182 +225,182 @@ static CURLcode pingpong_read(struct Curl_easy *data,
  *
  * Reads a piece of a server response.
  */
-CURLcode Curl_pp_readresp(struct Curl_easy *data,
+CURLcode Curl_pp_readresp(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                           int8_t sockindex,
-                          struct pingpong *pp,
-                          int *code, /* return the server code if done */
-                          size_t *size) /* size of the response */
+                          ਬਣਤਰ pingpong *pp,
+                          ਪੂਰਨ *ਕੋਡ, /* return the server code if done */
+                          size_t *ਮਾਪ) /* size of the response */
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   size_t gotbytes;
-  char buffer[900];
-  int maxloops = 10;
+  ਅੱਖਰ ਬਫਰ[900];
+  ਪੂਰਨ maxloops = 10;
 
-  *code = 0; /* 0 for errors or not done */
-  *size = 0;
+  *ਕੋਡ = 0; /* 0 for errors or not done */
+  *ਮਾਪ = 0;
 
-  do {
+  ਕਰੋ {
     gotbytes = 0;
-    if(pp->nfinal) {
+    ਜੇ(pp->nfinal) {
       /* a previous call left this many bytes in the beginning of the buffer as
          that was the final line; now ditch that */
-      size_t full = curlx_dyn_len(&pp->recvbuf);
+      size_t ਭਰਿਆ = curlx_dyn_len(&pp->recvbuf);
 
       /* trim off the "final" leading part */
-      curlx_dyn_tail(&pp->recvbuf, full - pp->nfinal);
+      curlx_dyn_ਪੂਛ(&pp->recvbuf, ਭਰਿਆ - pp->nfinal);
 
       pp->nfinal = 0; /* now gone */
     }
-    if(!pp->overflow) {
-      if(!maxloops--) /* don't get stuck */
-        return CURLE_OK;
+    ਜੇ(!pp->ਉਛਾਲ) {
+      ਜੇ(!maxloops--) /* don't get stuck */
+        ਵਾਪਸ CURLE_OK;
 
-      result = pingpong_read(data, sockindex, buffer, sizeof(buffer),
+      ਨਤੀਜਾ = pingpong_read(ਅੰਕੜੇ, sockindex, ਬਫਰ, ਆਕਾਰ(ਬਫਰ),
                              &gotbytes);
-      if(result == CURLE_AGAIN)
-        return CURLE_OK;
+      ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN)
+        ਵਾਪਸ CURLE_OK;
 
-      if(result)
-        return result;
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
 
-      if(!gotbytes) {
-        failf(data, "response reading failed (errno: %d)", SOCKERRNO);
-        return CURLE_RECV_ERROR;
+      ਜੇ(!gotbytes) {
+        failf(ਅੰਕੜੇ, "response reading failed (errno: %d)", SOCKERRNO);
+        ਵਾਪਸ CURLE_RECV_ERROR;
       }
 
-      result = curlx_dyn_addn(&pp->recvbuf, buffer, gotbytes);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = curlx_dyn_addn(&pp->recvbuf, ਬਫਰ, gotbytes);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
 
-      data->req.headerbytecount += (unsigned int)gotbytes;
+      ਅੰਕੜੇ->req.headerbytecount += (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)gotbytes;
 
       pp->nread_resp += gotbytes;
     }
 
-    do {
-      const char *line = curlx_dyn_ptr(&pp->recvbuf);
-      const char *nl = memchr(line, '\n', curlx_dyn_len(&pp->recvbuf));
-      if(nl) {
+    ਕਰੋ {
+      ਅਚਲ ਅੱਖਰ *ਸਤਰ = curlx_dyn_ptr(&pp->recvbuf);
+      ਅਚਲ ਅੱਖਰ *nl = memchr(ਸਤਰ, '\n', curlx_dyn_len(&pp->recvbuf));
+      ਜੇ(nl) {
         /* a newline is CRLF in pp-talk, so the CR is ignored as
            the line is not really terminated until the LF comes */
-        size_t length = nl - line + 1;
+        size_t ਲੰਮਾਈ = nl - ਸਤਰ + 1;
 
-        if(memchr(line, 0, length)) {
+        ਜੇ(memchr(ਸਤਰ, 0, ਲੰਮਾਈ)) {
           /* The response line is passed on as a "header" below, so reject an
              embedded NUL byte the same way verify_header() does for HTTP. */
-          failf(data, "NUL byte in server response line");
-          return CURLE_WEIRD_SERVER_REPLY;
+          failf(ਅੰਕੜੇ, "NUL byte in server response line");
+          ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
         }
 
         /* output debug output if that is requested */
-        Curl_debug(data, CURLINFO_HEADER_IN, line, length);
+        Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਵਿੱਚ, ਸਤਰ, ਲੰਮਾਈ);
 
         /*
          * Pass all response-lines to the callback function registered for
          * "headers". The response lines can be seen as a kind of headers.
          */
-        result = Curl_client_write(data, CLIENTWRITE_INFO, line, length);
-        if(result)
-          return result;
+        ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_INFO, ਸਤਰ, ਲੰਮਾਈ);
+        ਜੇ(ਨਤੀਜਾ)
+          ਵਾਪਸ ਨਤੀਜਾ;
 
-        if(pp->endofresp(data, conn, line, length, code)) {
+        ਜੇ(pp->endofresp(ਅੰਕੜੇ, conn, ਸਤਰ, ਲੰਮਾਈ, ਕੋਡ)) {
           /* When at "end of response", keep the endofresp line first in the
              buffer since it will be accessed outside (by pingpong
              parsers). Store the overflow counter to inform about additional
              data in this buffer after the endofresp line. */
-          pp->nfinal = length;
-          if(curlx_dyn_len(&pp->recvbuf) > length)
-            pp->overflow = curlx_dyn_len(&pp->recvbuf) - length;
-          else
-            pp->overflow = 0;
-          *size = pp->nread_resp; /* size of the response */
+          pp->nfinal = ਲੰਮਾਈ;
+          ਜੇ(curlx_dyn_len(&pp->recvbuf) > ਲੰਮਾਈ)
+            pp->ਉਛਾਲ = curlx_dyn_len(&pp->recvbuf) - ਲੰਮਾਈ;
+          ਨਹੀਂਤਾਂ
+            pp->ਉਛਾਲ = 0;
+          *ਮਾਪ = pp->nread_resp; /* size of the response */
           pp->nread_resp = 0; /* restart */
           gotbytes = 0; /* force break out of outer loop */
-          break;
+          ਰੋਕੋ;
         }
-        if(curlx_dyn_len(&pp->recvbuf) > length)
+        ਜੇ(curlx_dyn_len(&pp->recvbuf) > ਲੰਮਾਈ)
           /* keep the remaining piece */
-          curlx_dyn_tail((&pp->recvbuf), curlx_dyn_len(&pp->recvbuf) - length);
-        else
+          curlx_dyn_ਪੂਛ((&pp->recvbuf), curlx_dyn_len(&pp->recvbuf) - ਲੰਮਾਈ);
+        ਨਹੀਂਤਾਂ
           curlx_dyn_reset(&pp->recvbuf);
       }
-      else {
+      ਨਹੀਂਤਾਂ {
         /* without a newline, there is no overflow */
-        pp->overflow = 0;
-        break;
+        pp->ਉਛਾਲ = 0;
+        ਰੋਕੋ;
       }
 
-    } while(1); /* while there is buffer left to scan */
+    } ਜਦੋਂ(1); /* while there is buffer left to scan */
 
-  } while(gotbytes == sizeof(buffer));
+  } ਜਦੋਂ(gotbytes == ਆਕਾਰ(ਬਫਰ));
 
   pp->pending_resp = FALSE;
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_pp_pollset(struct Curl_easy *data,
-                         struct pingpong *pp,
-                         struct easy_pollset *ps)
+CURLcode Curl_pp_pollset(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                         ਬਣਤਰ pingpong *pp,
+                         ਬਣਤਰ easy_pollset *ps)
 {
-  int flags = pp->sendleft ? CURL_POLL_OUT : CURL_POLL_IN;
-  return Curl_pollset_change(data, ps, data->conn->sock[FIRSTSOCKET],
+  ਪੂਰਨ flags = pp->sendleft ? CURL_POLL_ਬਾਹਰਲਾ : CURL_POLL_ਵਿੱਚ;
+  ਵਾਪਸ Curl_pollset_change(ਅੰਕੜੇ, ps, ਅੰਕੜੇ->conn->sock[FIRSTSOCKET],
                              flags, 0);
 }
 
-bool Curl_pp_needs_flush(struct Curl_easy *data,
-                         struct pingpong *pp)
+bool Curl_pp_needs_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                         ਬਣਤਰ pingpong *pp)
 {
-  (void)data;
-  return pp->sendleft > 0;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਵਾਪਸ pp->sendleft > 0;
 }
 
-CURLcode Curl_pp_flushsend(struct Curl_easy *data,
-                           struct pingpong *pp)
+CURLcode Curl_pp_flushsend(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                           ਬਣਤਰ pingpong *pp)
 {
   /* we have a piece of a command still left to send */
   size_t written;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!Curl_pp_needs_flush(data, pp))
-    return CURLE_OK;
+  ਜੇ(!Curl_pp_needs_flush(ਅੰਕੜੇ, pp))
+    ਵਾਪਸ CURLE_OK;
 
-  result = Curl_conn_send(data, FIRSTSOCKET,
+  ਨਤੀਜਾ = Curl_conn_send(ਅੰਕੜੇ, FIRSTSOCKET,
                           pp->sendthis + pp->sendsize - pp->sendleft,
                           pp->sendleft, FALSE, &written);
-  if(result == CURLE_AGAIN) {
-    result = CURLE_OK;
+  ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN) {
+    ਨਤੀਜਾ = CURLE_OK;
     written = 0;
   }
-  if(result)
-    return result;
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  if(written < pp->sendleft) {
+  ਜੇ(written < pp->sendleft) {
     /* only a fraction was sent */
     pp->sendleft -= written;
   }
-  else {
-    pp->sendthis = NULL;
+  ਨਹੀਂਤਾਂ {
+    pp->sendthis = ਨਿਰਾ;
     pp->sendleft = pp->sendsize = 0;
-    pp->response = *Curl_pgrs_now(data);
+    pp->response = *Curl_pgrs_now(ਅੰਕੜੇ);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_pp_disconnect(struct pingpong *pp)
+CURLcode Curl_pp_disconnect(ਬਣਤਰ pingpong *pp)
 {
-  if(pp->initialized) {
+  ਜੇ(pp->initialized) {
     curlx_dyn_free(&pp->sendbuf);
     curlx_dyn_free(&pp->recvbuf);
-    memset(pp, 0, sizeof(*pp));
+    memset(pp, 0, ਆਕਾਰ(*pp));
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-bool Curl_pp_moredata(struct pingpong *pp)
+bool Curl_pp_moredata(ਬਣਤਰ pingpong *pp)
 {
-  return !pp->sendleft && curlx_dyn_len(&pp->recvbuf) > pp->nfinal;
+  ਵਾਪਸ !pp->sendleft && curlx_dyn_len(&pp->recvbuf) > pp->nfinal;
 }
 
-#endif
+#ਜੇ_ਅੰਤ

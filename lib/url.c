@@ -21,110 +21,110 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_IPHLPAPI_H
-#include <Iphlpapi.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_ਵਿੱਚ_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETDB_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netdb.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ARPA_INET_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <arpa/inet.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NET_IF_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <net/if.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_IPHLPAPI_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <Iphlpapi.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_IOCTL_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/ioctl.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_PARAM_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/param.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __VMS
+#ਅਨ੍ਤਰ੍ਭਾਵ <in.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <inet.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_UN_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/un.h>
+#ਜੇ_ਅੰਤ
 
-#ifndef HAVE_SOCKET
-#error "We cannot compile without socket() support"
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ HAVE_SOCKET
+#ਗਲਤੀ "We cannot compile without socket() support"
+#ਜੇ_ਅੰਤ
 
-#if defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
-#include <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
-#endif
-#include <iphlpapi.h>
-#endif
+#ਜੇ defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
+#ਜੇ defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
+#ਅਨ੍ਤਰ੍ਭਾਵ <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ <iphlpapi.h>
+#ਜੇ_ਅੰਤ
 
-#include "urldata.h"
-#include "mime.h"
-#include "bufref.h"
-#include "vtls/vtls.h"
-#include "vssh/vssh.h"
-#include "transfer.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "cookie.h"
-#include "strcase.h"
-#include "escape.h"
-#include "curl_share.h"
-#include "http_digest.h"
-#include "multiif.h"
-#include "getinfo.h"
-#include "pop3.h"
-#include "urlapi-int.h"
-#include "hsts.h"
-#include "proxy.h"
-#include "cfilters.h"
-#include "idn.h"
-#include "http_proxy.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "curlx/strdup.h"
-#include "setopt.h"
-#include "altsvc.h"
-#include "curlx/dynbuf.h"
-#include "headers.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
-#include "peer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mime.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "bufref.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vssh/vssh.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "transfer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_addrinfo.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cookie.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "escape.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_share.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_digest.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multiif.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "getinfo.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "pop3.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urlapi-int.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "hsts.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "proxy.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "idn.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_proxy.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "conncache.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multihandle.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strdup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "setopt.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "altsvc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/dynbuf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "headers.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strerr.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "peer.h"
 
 /* Now for the protocols */
-#include "ftp.h"
-#include "dict.h"
-#include "telnet.h"
-#include "tftp.h"
-#include "http.h"
-#include "vauth/vauth.h"
-#include "file.h"
-#include "curl_ldap.h"
-#include "vssh/ssh.h"
-#include "imap.h"
-#include "url.h"
-#include "connect.h"
-#include "gopher.h"
-#include "mqtt.h"
-#include "rtsp.h"
-#include "smtp.h"
-#include "ws.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ftp.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "dict.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "telnet.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "tftp.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vauth/vauth.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "file.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_ldap.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vssh/ssh.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "imap.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "gopher.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mqtt.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "rtsp.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "smtp.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ws.h"
 
 /* Some parts of the code (e.g. chunked encoding) assume this buffer has more
  * than a few bytes to play with. Do not let it become too small or bad things
  * will happen.
  */
-#if READBUFFER_SIZE < READBUFFER_MIN
-# error READBUFFER_SIZE is too small
-#endif
+#ਜੇ READBUFFER_ਮਾਪ < READBUFFER_MIN
+# error READBUFFER_ਮਾਪ is too small
+#ਜੇ_ਅੰਤ
 
 /*
  * get_protocol_family()
@@ -137,55 +137,55 @@
  *
  * Returns the family as a single bit protocol identifier.
  */
-static curl_prot_t get_protocol_family(const struct Curl_scheme *s)
+ਸਥਿਰ curl_prot_t get_protocol_family(ਅਚਲ ਬਣਤਰ Curl_scheme *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->family);
-  return s->family;
+  ਵਾਪਸ s->family;
 }
 
-void Curl_freeset(struct Curl_easy *data)
+ਖਾਲੀ Curl_freeset(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   /* Free all dynamic strings stored in the data->set substructure. */
-  enum dupblob j;
+  ਗਿਣਤੀ dupblob j;
 
-  CURL_EASY_STR_CLEAR0(data, STRING_PASSWORD);
-  CURL_EASY_STR_CLEAR0(data, STRING_KEY_PASSWD);
-  CURL_EASY_STR_CLEAR0(data, STRING_BEARER);
-#ifndef CURL_DISABLE_PROXY
-  CURL_EASY_STR_CLEAR0(data, STRING_PROXYPASSWORD);
-  CURL_EASY_STR_CLEAR0(data, STRING_KEY_PASSWD_PROXY);
-#endif
-  Curl_u8_strset_clear(&data->set.strings);
-  curlx_safefree(data->set.str_copypostfields);
+  CURL_EASY_STR_CLEAR0(ਅੰਕੜੇ, STRING_PASSWORD);
+  CURL_EASY_STR_CLEAR0(ਅੰਕੜੇ, STRING_ਕੁੰਜੀ_PASSWD);
+  CURL_EASY_STR_CLEAR0(ਅੰਕੜੇ, STRING_BEARER);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  CURL_EASY_STR_CLEAR0(ਅੰਕੜੇ, STRING_PROXYPASSWORD);
+  CURL_EASY_STR_CLEAR0(ਅੰਕੜੇ, STRING_ਕੁੰਜੀ_PASSWD_PROXY);
+#ਜੇ_ਅੰਤ
+  Curl_u8_strset_clear(&ਅੰਕੜੇ->ਸੈੱਟ.ਲੜੀਆਂ);
+  curlx_safefree(ਅੰਕੜੇ->ਸੈੱਟ.str_copypostfields);
 
-  for(j = (enum dupblob)0; j < BLOB_LAST; j++) {
-    curlx_safefree(data->set.blobs[j]);
+  ਲਈ(j = (ਗਿਣਤੀ dupblob)0; j < BLOB_ਆਖਰੀ; j++) {
+    curlx_safefree(ਅੰਕੜੇ->ਸੈੱਟ.blobs[j]);
   }
 
-  Curl_bufref_free(&data->state.referer);
-  Curl_bufref_free(&data->state.url);
+  Curl_bufref_free(&ਅੰਕੜੇ->state.referer);
+  Curl_bufref_free(&ਅੰਕੜੇ->state.url);
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  Curl_mime_cleanpart(data->set.mimepostp);
-  curlx_safefree(data->set.mimepostp);
-#endif
+#ਜੇ !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  Curl_mime_cleanpart(ਅੰਕੜੇ->ਸੈੱਟ.mimepostp);
+  curlx_safefree(ਅੰਕੜੇ->ਸੈੱਟ.mimepostp);
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_DISABLE_COOKIES
-  curl_slist_free_all(data->state.cookielist);
-  data->state.cookielist = NULL;
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
+  curl_slist_free_all(ਅੰਕੜੇ->state.cookielist);
+  ਅੰਕੜੇ->state.cookielist = ਨਿਰਾ;
+#ਜੇ_ਅੰਤ
 }
 
 /* free the URL pieces */
-static void up_free(struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ ਉੱਪਰ_free(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct urlpieces *up = &data->state.up;
-  curlx_safefree(up->options);
-  curlx_safefree(up->path);
-  curlx_safefree(up->query);
-  curl_url_cleanup(data->state.uh);
-  data->state.uh = NULL;
+  ਬਣਤਰ urlpieces *ਉੱਪਰ = &ਅੰਕੜੇ->state.ਉੱਪਰ;
+  curlx_safefree(ਉੱਪਰ->options);
+  curlx_safefree(ਉੱਪਰ->ਰਸਤਾ);
+  curlx_safefree(ਉੱਪਰ->query);
+  curl_url_cleanup(ਅੰਕੜੇ->state.uh);
+  ਅੰਕੜੇ->state.uh = ਨਿਰਾ;
 }
 
 /*
@@ -194,248 +194,248 @@ static void up_free(struct Curl_easy *data)
  *
  * We ignore SIGPIPE when this is called from curl_easy_cleanup.
  */
-CURLcode Curl_close(struct Curl_easy **datap)
+CURLcode Curl_close(ਬਣਤਰ Curl_easy **datap)
 {
-  struct Curl_easy *data;
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ;
 
-  if(!datap || !*datap)
-    return CURLE_OK;
+  ਜੇ(!datap || !*datap)
+    ਵਾਪਸ CURLE_OK;
 
-  data = *datap;
-  *datap = NULL;
+  ਅੰਕੜੇ = *datap;
+  *datap = ਨਿਰਾ;
 
-  if(!data->state.internal && data->multi) {
+  ਜੇ(!ਅੰਕੜੇ->state.ਅੰਦਰੂਨੀ && ਅੰਕੜੇ->multi) {
     /* This handle is still part of a multi handle, take care of this first
        and detach this handle from there.
        This detaches the connection. */
-    Curl_multi_remove_handle(data->multi, data);
+    Curl_multi_remove_handle(ਅੰਕੜੇ->multi, ਅੰਕੜੇ);
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* Detach connection if any is left. This should not be normal, but can be
        the case for example with CONNECT_ONLY + recv/send (test 556) */
-    Curl_detach_connection(data);
-    if(!data->state.internal && data->multi_easy) {
+    Curl_detach_connection(ਅੰਕੜੇ);
+    ਜੇ(!ਅੰਕੜੇ->state.ਅੰਦਰੂਨੀ && ਅੰਕੜੇ->multi_easy) {
       /* when curl_easy_perform() is used, it creates its own multi handle to
          use and this is the one */
-      curl_multi_cleanup(data->multi_easy);
-      data->multi_easy = NULL;
+      curl_multi_cleanup(ਅੰਕੜੇ->multi_easy);
+      ਅੰਕੜੇ->multi_easy = ਨਿਰਾ;
     }
   }
-  DEBUGASSERT(!data->conn || data->state.internal);
+  DEBUGASSERT(!ਅੰਕੜੇ->conn || ਅੰਕੜੇ->state.ਅੰਦਰੂਨੀ);
 
-  Curl_expire_clear_all(data); /* shut off any timers left */
+  Curl_expire_clear_all(ਅੰਕੜੇ); /* shut off any timers left */
 
-  if(data->state.rangestringalloc)
-    curlx_free(data->state.range);
+  ਜੇ(ਅੰਕੜੇ->state.rangestringalloc)
+    curlx_free(ਅੰਕੜੇ->state.range);
 
   /* release any resolve information this transfer kept */
-  Curl_resolv_destroy_all(data);
+  Curl_resolv_destroy_all(ਅੰਕੜੇ);
 
-  data->set.verbose = FALSE; /* no more calls to DEBUGFUNCTION */
-  data->magic = 0; /* force a clear AFTER the possibly enforced removal from
+  ਅੰਕੜੇ->ਸੈੱਟ.verbose = FALSE; /* no more calls to DEBUGFUNCTION */
+  ਅੰਕੜੇ->magic = 0; /* force a clear AFTER the possibly enforced removal from
                     * the multi handle and async dns shutdown. The multi
                     * handle might check the magic and so might any
                     * DEBUGFUNCTION invoked for tracing */
 
   /* freed here in case DONE was not called */
-  Curl_req_free(&data->req, data);
+  Curl_req_free(&ਅੰਕੜੇ->req, ਅੰਕੜੇ);
 
   /* Close down all open SSL info and sessions */
-  Curl_ssl_close_all(data);
-  Curl_peer_unlink(&data->state.origin);
-  Curl_peer_unlink(&data->state.initial_origin);
-#ifndef CURL_DISABLE_RTSP
-  Curl_peer_unlink(&data->state.rtsp_session_origin);
-#endif
-  Curl_ssl_free_certinfo(data);
+  Curl_ssl_close_all(ਅੰਕੜੇ);
+  Curl_peer_unlink(&ਅੰਕੜੇ->state.origin);
+  Curl_peer_unlink(&ਅੰਕੜੇ->state.initial_origin);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_RTSP
+  Curl_peer_unlink(&ਅੰਕੜੇ->state.rtsp_session_origin);
+#ਜੇ_ਅੰਤ
+  Curl_ssl_free_certinfo(ਅੰਕੜੇ);
 
-  Curl_bufref_free(&data->state.referer);
+  Curl_bufref_free(&ਅੰਕੜੇ->state.referer);
 
-  up_free(data);
-  curlx_dyn_free(&data->state.headerb);
-  Curl_flush_cookies(data, TRUE);
-#ifndef CURL_DISABLE_ALTSVC
-  Curl_altsvc_save(data, data->asi, CURL_EASY_STR(data, STRING_ALTSVC));
-  Curl_altsvc_cleanup(&data->asi);
-#endif
-#ifndef CURL_DISABLE_HSTS
-  Curl_hsts_save(data, data->hsts, CURL_EASY_STR(data, STRING_HSTS));
-  if(!data->share || !data->share->hsts)
-    Curl_hsts_cleanup(&data->hsts);
-  curl_slist_free_all(data->state.hstslist); /* clean up list */
-#endif
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
-  Curl_http_auth_cleanup_digest(data);
-#endif
-  curlx_safefree(data->state.most_recent_ftp_entrypath);
-  curlx_safefree(data->info.contenttype);
-  curlx_safefree(data->info.wouldredirect);
-  curlx_safefree(data->info.effective_url);
+  ਉੱਪਰ_free(ਅੰਕੜੇ);
+  curlx_dyn_free(&ਅੰਕੜੇ->state.headerb);
+  Curl_flush_cookies(ਅੰਕੜੇ, TRUE);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_ALTSVC
+  Curl_altsvc_save(ਅੰਕੜੇ, ਅੰਕੜੇ->asi, CURL_EASY_STR(ਅੰਕੜੇ, STRING_ALTSVC));
+  Curl_altsvc_cleanup(&ਅੰਕੜੇ->asi);
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HSTS
+  Curl_hsts_save(ਅੰਕੜੇ, ਅੰਕੜੇ->hsts, CURL_EASY_STR(ਅੰਕੜੇ, STRING_HSTS));
+  ਜੇ(!ਅੰਕੜੇ->share || !ਅੰਕੜੇ->share->hsts)
+    Curl_hsts_cleanup(&ਅੰਕੜੇ->hsts);
+  curl_slist_free_all(ਅੰਕੜੇ->state.hstslist); /* clean up list */
+#ਜੇ_ਅੰਤ
+#ਜੇ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+  Curl_http_auth_cleanup_digest(ਅੰਕੜੇ);
+#ਜੇ_ਅੰਤ
+  curlx_safefree(ਅੰਕੜੇ->state.most_recent_ftp_entrypath);
+  curlx_safefree(ਅੰਕੜੇ->info.contenttype);
+  curlx_safefree(ਅੰਕੜੇ->info.wouldredirect);
+  curlx_safefree(ਅੰਕੜੇ->info.effective_url);
 
   /* No longer a dirty share, if it exists */
-  if(Curl_share_easy_unlink(data))
+  ਜੇ(Curl_share_easy_unlink(ਅੰਕੜੇ))
     DEBUGASSERT(0);
 
-  Curl_hash_destroy(&data->meta_hash);
-  Curl_creds_unlink(&data->state.creds);
-#ifndef CURL_DISABLE_HTTP
-  curlx_safefree(data->state.rangeline);
-  curlx_safefree(data->state.http_host);
-#endif
-#ifndef CURL_DISABLE_COOKIES
-  curlx_safefree(data->req.cookiehost);
-#endif
+  Curl_hash_destroy(&ਅੰਕੜੇ->meta_hash);
+  Curl_creds_unlink(&ਅੰਕੜੇ->state.creds);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
+  curlx_safefree(ਅੰਕੜੇ->state.rangeline);
+  curlx_safefree(ਅੰਕੜੇ->state.http_host);
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
+  curlx_safefree(ਅੰਕੜੇ->req.cookiehost);
+#ਜੇ_ਅੰਤ
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
-  Curl_mime_cleanpart(data->state.formp);
-  curlx_safefree(data->state.formp);
-#endif
+#ਜੇ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
+  Curl_mime_cleanpart(ਅੰਕੜੇ->state.formp);
+  curlx_safefree(ਅੰਕੜੇ->state.formp);
+#ਜੇ_ਅੰਤ
 
   /* destruct wildcard structures if it is needed */
-  Curl_wildcard_dtor(&data->wildcard);
-  Curl_freeset(data);
-  Curl_headers_cleanup(data);
-  Curl_netrc_cleanup(&data->state.netrc);
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  curlx_free(data->state.envproxy);
-#endif
-  curlx_memzero(data, sizeof(*data));
-  curlx_free(data);
-  return CURLE_OK;
+  Curl_wildcard_dtor(&ਅੰਕੜੇ->wildcard);
+  Curl_freeset(ਅੰਕੜੇ);
+  Curl_ਸਿਰਲੇਖਾਂ_cleanup(ਅੰਕੜੇ);
+  Curl_netrc_cleanup(&ਅੰਕੜੇ->state.netrc);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_DIGEST_AUTH
+  curlx_free(ਅੰਕੜੇ->state.envproxy);
+#ਜੇ_ਅੰਤ
+  curlx_memzero(ਅੰਕੜੇ, ਆਕਾਰ(*ਅੰਕੜੇ));
+  curlx_free(ਅੰਕੜੇ);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Initialize the UserDefined fields within a Curl_easy.
  * This may be safely called on a new or existing Curl_easy.
  */
-void Curl_init_userdefined(struct Curl_easy *data)
+ਖਾਲੀ Curl_init_userdefined(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct UserDefined *set = &data->set;
+  ਬਣਤਰ UserDefined *ਸੈੱਟ = &ਅੰਕੜੇ->ਸੈੱਟ;
 
-  set->out = stdout;  /* default output to stdout */
-  set->in_set = stdin;  /* default input from stdin */
-  set->err = stderr;  /* default stderr to stderr */
+  ਸੈੱਟ->ਬਾਹਰਲਾ = stdout;  /* default output to stdout */
+  ਸੈੱਟ->ਵਿੱਚ_ਸੈੱਟ = stdin;  /* default input from stdin */
+  ਸੈੱਟ->err = stderr;  /* default stderr to stderr */
 
-  Curl_u8_strset_init(&data->set.strings);
+  Curl_u8_strset_init(&ਅੰਕੜੇ->ਸੈੱਟ.ਲੜੀਆਂ);
 
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
+#ਜੇ defined(__clang__) && __clang_major__ >= 16
+#ਹਦਾਇਤ clang diagnostic ਧੱਕੋ
+#ਹਦਾਇਤ clang diagnostic ignored "-Wcast-function-type-strict"
+#ਜੇ_ਅੰਤ
   /* use fwrite as default function to store output */
-  set->fwrite_func = (curl_write_callback)fwrite;
+  ਸੈੱਟ->fwrite_func = (curl_write_callback)fwrite;
 
   /* use fread as default function to read input */
-  set->fread_func_set = (curl_read_callback)fread;
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
-  set->is_fread_set = 0;
+  ਸੈੱਟ->fread_func_ਸੈੱਟ = (curl_read_callback)fread;
+#ਜੇ defined(__clang__) && __clang_major__ >= 16
+#ਹਦਾਇਤ clang diagnostic ਕੱਢੋ
+#ਜੇ_ਅੰਤ
+  ਸੈੱਟ->is_fread_ਸੈੱਟ = 0;
 
-  set->seek_client = ZERO_NULL;
+  ਸੈੱਟ->seek_client = ZERO_NULL;
 
-  set->filesize = -1;        /* we do not know the size */
-  set->postfieldsize = -1;   /* unknown size */
-  set->maxredirs = 30;       /* sensible default */
+  ਸੈੱਟ->filesize = -1;        /* we do not know the size */
+  ਸੈੱਟ->postfieldsize = -1;   /* unknown size */
+  ਸੈੱਟ->maxredirs = 30;       /* sensible default */
 
-  set->method = HTTPREQ_GET; /* Default HTTP request */
-#ifndef CURL_DISABLE_RTSP
-  set->rtspreq = RTSPREQ_OPTIONS; /* Default RTSP request */
-#endif
-#ifndef CURL_DISABLE_FTP
-  set->ftp_use_epsv = TRUE;   /* FTP defaults to EPSV operations */
-  set->ftp_use_eprt = TRUE;   /* FTP defaults to EPRT operations */
-  set->ftp_use_pret = FALSE;  /* mainly useful for drftpd servers */
-  set->ftp_filemethod = FTPFILE_MULTICWD;
-  set->ftp_skip_ip = TRUE;    /* skip PASV IP by default */
-#endif
-  set->dns_cache_timeout_ms = 60000; /* Timeout every 60 seconds by default */
+  ਸੈੱਟ->ਵਿਧੀ = HTTPREQ_GET; /* Default HTTP request */
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_RTSP
+  ਸੈੱਟ->rtspreq = RTSPREQ_OPTIONS; /* Default RTSP request */
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FTP
+  ਸੈੱਟ->ftp_use_epsv = TRUE;   /* FTP defaults to EPSV operations */
+  ਸੈੱਟ->ftp_use_eprt = TRUE;   /* FTP defaults to EPRT operations */
+  ਸੈੱਟ->ftp_use_pret = FALSE;  /* mainly useful for drftpd servers */
+  ਸੈੱਟ->ftp_filemethod = FTPFILE_MULTICWD;
+  ਸੈੱਟ->ftp_skip_ip = TRUE;    /* skip PASV IP by default */
+#ਜੇ_ਅੰਤ
+  ਸੈੱਟ->dns_cache_timeout_ms = 60000; /* Timeout every 60 seconds by default */
 
   /* Timeout every 24 hours by default */
-  set->ssl_ca_cache_timeout = 24 * 60 * 60;
+  ਸੈੱਟ->ssl_ca_cache_timeout = 24 * 60 * 60;
 
-  set->httpauth = CURLAUTH_BASIC;  /* defaults to basic */
+  ਸੈੱਟ->httpauth = CURLAUTH_BASIC;  /* defaults to basic */
 
-  Curl_ssl_config_init(&data->set.ssl);
-#ifndef CURL_DISABLE_PROXY
-  Curl_ssl_config_init(&data->set.proxy_ssl);
-  set->proxyport = 0;
-  set->proxytype = CURLPROXY_HTTP; /* defaults to HTTP proxy */
-  set->proxyauth = CURLAUTH_BASIC; /* defaults to basic */
+  Curl_ssl_config_init(&ਅੰਕੜੇ->ਸੈੱਟ.ssl);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  Curl_ssl_config_init(&ਅੰਕੜੇ->ਸੈੱਟ.proxy_ssl);
+  ਸੈੱਟ->proxyport = 0;
+  ਸੈੱਟ->proxytype = CURLPROXY_HTTP; /* defaults to HTTP proxy */
+  ਸੈੱਟ->proxyauth = CURLAUTH_BASIC; /* defaults to basic */
   /* SOCKS5 proxy auth defaults to username/password + GSS-API */
-  set->socks5auth = CURLAUTH_BASIC | CURLAUTH_GSSAPI;
-#endif
+  ਸੈੱਟ->socks5auth = CURLAUTH_BASIC | CURLAUTH_GSSAPI;
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_DISABLE_DOH
-  set->doh_verifyhost = TRUE;
-  set->doh_verifypeer = TRUE;
-#endif
-#ifdef USE_SSH
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_DOH
+  ਸੈੱਟ->doh_verifyhost = TRUE;
+  ਸੈੱਟ->doh_verifypeer = TRUE;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSH
   /* defaults to any auth type */
-  set->ssh_auth_types = CURLSSH_AUTH_DEFAULT;
-  set->new_directory_perms = 0755; /* Default permissions */
-#endif
+  ਸੈੱਟ->ssh_auth_types = CURLSSH_AUTH_DEFAULT;
+  ਸੈੱਟ->new_directory_perms = 0755; /* Default permissions */
+#ਜੇ_ਅੰਤ
 
-  set->new_file_perms = 0644;    /* Default permissions */
-  set->allowed_protocols = (curl_prot_t)CURLPROTO_64ALL;
-  set->redir_protocols = CURLPROTO_REDIR;
+  ਸੈੱਟ->new_file_perms = 0644;    /* Default permissions */
+  ਸੈੱਟ->allowed_protocols = (curl_prot_t)CURLPROTO_64ALL;
+  ਸੈੱਟ->redir_protocols = CURLPROTO_REDIR;
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#ਜੇ defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   /*
    * disallow unprotected protection negotiation NEC reference implementation
    * seem not to follow rfc1961 section 4.3/4.4
    */
-  set->socks5_gssapi_nec = FALSE;
-#endif
+  ਸੈੱਟ->socks5_gssapi_nec = FALSE;
+#ਜੇ_ਅੰਤ
 
   /* set default minimum TLS version */
-#ifdef USE_SSL
-  Curl_setopt_SSLVERSION(data, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
-#ifndef CURL_DISABLE_PROXY
-  Curl_setopt_SSLVERSION(data, CURLOPT_PROXY_SSLVERSION,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+  Curl_setopt_SSLVERSION(ਅੰਕੜੇ, CURLOPT_SSLVERSION, CURL_SSLVERSION_DEFAULT);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  Curl_setopt_SSLVERSION(ਅੰਕੜੇ, CURLOPT_PROXY_SSLVERSION,
                          CURL_SSLVERSION_DEFAULT);
-#endif
-#endif
-#ifndef CURL_DISABLE_FTP
-  set->wildcard_enabled = FALSE;
-  set->chunk_bgn = ZERO_NULL;
-  set->chunk_end = ZERO_NULL;
-  set->fnmatch = ZERO_NULL;
-#endif
-  set->tcp_keepalive = FALSE;
-  set->tcp_keepintvl = 60;
-  set->tcp_keepidle = 60;
-  set->tcp_keepcnt = 9;
-  set->tcp_fastopen = FALSE;
-  set->tcp_nodelay = TRUE;
-  set->ssl_enable_alpn = TRUE;
-  set->expect_100_timeout = 1000L; /* Wait for a second by default. */
-  set->sep_headers = TRUE; /* separated header lists by default */
-  set->buffer_size = READBUFFER_SIZE;
-  set->upload_buffer_size = UPLOADBUFFER_DEFAULT;
-  set->upload_flags = CURLULFLAG_SEEN;
-  set->happy_eyeballs_timeout = CURL_HET_DEFAULT;
-  set->upkeep_interval_ms = CURL_UPKEEP_INTERVAL_DEFAULT;
-  set->maxconnects = DEFAULT_CONNCACHE_SIZE; /* for easy handles */
-  set->conn_max_idle_ms = 118 * 1000;
-  set->conn_max_age_ms = 24 * 3600 * 1000;
-  set->http09_allowed = FALSE;
-  set->httpwant = CURL_HTTP_VERSION_NONE;
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
-  set->weight = 0;
-#endif
-  set->quick_exit = 0L;
-#ifndef CURL_DISABLE_WEBSOCKETS
-  set->ws_raw_mode = FALSE;
-  set->ws_no_auto_pong = FALSE;
-#endif
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FTP
+  ਸੈੱਟ->wildcard_enabled = FALSE;
+  ਸੈੱਟ->chunk_bgn = ZERO_NULL;
+  ਸੈੱਟ->chunk_ਸਿਰਾ = ZERO_NULL;
+  ਸੈੱਟ->fnmatch = ZERO_NULL;
+#ਜੇ_ਅੰਤ
+  ਸੈੱਟ->tcp_keepalive = FALSE;
+  ਸੈੱਟ->tcp_keepintvl = 60;
+  ਸੈੱਟ->tcp_keepidle = 60;
+  ਸੈੱਟ->tcp_keepcnt = 9;
+  ਸੈੱਟ->tcp_fastopen = FALSE;
+  ਸੈੱਟ->tcp_nodelay = TRUE;
+  ਸੈੱਟ->ssl_enable_alpn = TRUE;
+  ਸੈੱਟ->expect_100_timeout = 1000L; /* Wait for a second by default. */
+  ਸੈੱਟ->sep_ਸਿਰਲੇਖਾਂ = TRUE; /* separated header lists by default */
+  ਸੈੱਟ->ਬਫਰ_ਮਾਪ = READBUFFER_ਮਾਪ;
+  ਸੈੱਟ->upload_ਬਫਰ_ਮਾਪ = UPLOADBUFFER_DEFAULT;
+  ਸੈੱਟ->upload_flags = CURLULFLAG_ਵੇਖਿਆ;
+  ਸੈੱਟ->happy_eyeballs_timeout = CURL_HET_DEFAULT;
+  ਸੈੱਟ->upkeep_interval_ms = CURL_UPKEEP_INTERVAL_DEFAULT;
+  ਸੈੱਟ->maxconnects = DEFAULT_CONNCACHE_ਮਾਪ; /* for easy handles */
+  ਸੈੱਟ->conn_max_idle_ms = 118 * 1000;
+  ਸੈੱਟ->conn_max_age_ms = 24 * 3600 * 1000;
+  ਸੈੱਟ->http09_allowed = FALSE;
+  ਸੈੱਟ->httpwant = CURL_HTTP_ਸੰਸਕਰਣ_NONE;
+#ਜੇ defined(USE_HTTP2) || defined(USE_HTTP3)
+  ਸੈੱਟ->ਭਾਰ = 0;
+#ਜੇ_ਅੰਤ
+  ਸੈੱਟ->quick_exit = 0L;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_WEBSOCKETS
+  ਸੈੱਟ->ws_raw_ਬਹੁਲਕ = FALSE;
+  ਸੈੱਟ->ws_no_auto_pong = FALSE;
+#ਜੇ_ਅੰਤ
 }
 
 /* easy->meta_hash destructor. Should never be called as elements
  * MUST be added with their own destructor */
-static void easy_meta_freeentry(void *p)
+ਸਥਿਰ ਖਾਲੀ easy_meta_freeentry(ਖਾਲੀ *p)
 {
-  (void)p;
+  (ਖਾਲੀ)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
@@ -449,67 +449,67 @@ static void easy_meta_freeentry(void *p)
  * function.
  * @return CURLcode
  */
-CURLcode Curl_open(struct Curl_easy **curl)
+CURLcode Curl_open(ਬਣਤਰ Curl_easy **curl)
 {
-  struct Curl_easy *data;
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ;
 
   /* simple start-up: alloc the struct, init it with zeroes and return */
-  data = curlx_calloc(1, sizeof(struct Curl_easy));
-  if(!data) {
+  ਅੰਕੜੇ = curlx_calloc(1, ਆਕਾਰ(ਬਣਤਰ Curl_easy));
+  ਜੇ(!ਅੰਕੜੇ) {
     /* this is a serious error */
     DEBUGF(curl_mfprintf(stderr, "Error: calloc of Curl_easy failed\n"));
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
-  data->magic = CURLEASY_MAGIC_NUMBER;
+  ਅੰਕੜੇ->magic = CURLEASY_MAGIC_ਸੰਖਿਆ;
   /* most recent connection is not yet defined */
-  data->state.last_conn_id = -1;
-  data->state.last_cpid = UINT32_MAX;
+  ਅੰਕੜੇ->state.ਆਖਰੀ_conn_id = -1;
+  ਅੰਕੜੇ->state.ਆਖਰੀ_cpid = UINT32_MAX;
   /* and not assigned an id yet */
-  data->id = -1;
-  data->mid = UINT32_MAX;
-  data->master_mid = UINT32_MAX;
-  data->progress.hide = TRUE;
+  ਅੰਕੜੇ->id = -1;
+  ਅੰਕੜੇ->mid = UINT32_MAX;
+  ਅੰਕੜੇ->master_mid = UINT32_MAX;
+  ਅੰਕੜੇ->ਤਰੱਕੀ.hide = TRUE;
 
-  Curl_hash_init(&data->meta_hash, 23, CURL_HASH_TYPE_BYTES,
+  Curl_hash_init(&ਅੰਕੜੇ->meta_hash, 23, CURL_HASH_TYPE_ਬਾਈਟਾਂ,
                  easy_meta_freeentry);
-  DEBUGASSERT(STRING_LAST <= UINT8_MAX);
-  Curl_u8_strset_init(&data->set.strings);
-  curlx_dyn_init(&data->state.headerb, CURL_MAX_HTTP_HEADER);
-  Curl_bufref_init(&data->state.url);
-  Curl_bufref_init(&data->state.referer);
-  Curl_req_init(&data->req);
-  Curl_initinfo(data);
-#ifndef CURL_DISABLE_HTTP
-  Curl_llist_init(&data->state.httphdrs, NULL);
-#endif
-  Curl_netrc_init(&data->state.netrc);
-  Curl_init_userdefined(data);
+  DEBUGASSERT(STRING_ਆਖਰੀ <= UINT8_MAX);
+  Curl_u8_strset_init(&ਅੰਕੜੇ->ਸੈੱਟ.ਲੜੀਆਂ);
+  curlx_dyn_init(&ਅੰਕੜੇ->state.headerb, CURL_MAX_HTTP_ਸਿਰਲੇਖ);
+  Curl_bufref_init(&ਅੰਕੜੇ->state.url);
+  Curl_bufref_init(&ਅੰਕੜੇ->state.referer);
+  Curl_req_init(&ਅੰਕੜੇ->req);
+  Curl_initinfo(ਅੰਕੜੇ);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
+  Curl_llist_init(&ਅੰਕੜੇ->state.httphdrs, ਨਿਰਾ);
+#ਜੇ_ਅੰਤ
+  Curl_netrc_init(&ਅੰਕੜੇ->state.netrc);
+  Curl_init_userdefined(ਅੰਕੜੇ);
 
-  *curl = data;
-  return CURLE_OK;
+  *curl = ਅੰਕੜੇ;
+  ਵਾਪਸ CURLE_OK;
 }
 
-void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn)
+ਖਾਲੀ Curl_conn_free(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ connectdata *conn)
 {
   int8_t i;
 
   DEBUGASSERT(conn);
 
-  if(conn->scheme && conn->scheme->run->disconnect &&
-     !conn->bits.shutdown_handler)
-    conn->scheme->run->disconnect(data, conn, TRUE);
+  ਜੇ(conn->scheme && conn->scheme->ਲੜੀਵਾਰ->disconnect &&
+     !conn->ਬਿੱਟ.shutdown_handler)
+    conn->scheme->ਲੜੀਵਾਰ->disconnect(ਅੰਕੜੇ, conn, TRUE);
 
-  for(i = 0; i < (int8_t)CURL_ARRAYSIZE(conn->cfilter); ++i) {
-    Curl_conn_cf_discard_all(data, conn, i);
+  ਲਈ(i = 0; i < (int8_t)CURL_ARRAYSIZE(conn->cfilter); ++i) {
+    Curl_conn_cf_discard_all(ਅੰਕੜੇ, conn, i);
   }
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   Curl_peer_unlink(&conn->http_proxy.peer);
   Curl_peer_unlink(&conn->socks_proxy.peer);
   Curl_creds_unlink(&conn->http_proxy.creds);
   Curl_creds_unlink(&conn->socks_proxy.creds);
-#endif
+#ਜੇ_ਅੰਤ
   Curl_creds_unlink(&conn->creds);
   Curl_peer_unlink(&conn->creds_origin);
   curlx_safefree(conn->options);
@@ -519,9 +519,9 @@ void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn)
   curlx_safefree(conn->destination);
   Curl_hash_destroy(&conn->meta_hash);
   Curl_peer_unlink(&conn->origin);
-  Curl_peer_unlink(&conn->via_peer);
+  Curl_peer_unlink(&conn->ਰਾਹੀਂ_peer);
   Curl_peer_unlink(&conn->origin2);
-  Curl_peer_unlink(&conn->via_peer2);
+  Curl_peer_unlink(&conn->ਰਾਹੀਂ_peer2);
 
   curlx_free(conn); /* free all the connection oriented data */
 }
@@ -532,103 +532,103 @@ void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn)
  * Return a TRUE, iff the transfer can be done over an (appropriate)
  * multiplexed connection.
  */
-static bool xfer_may_multiplex(const struct Curl_easy *data,
-                               const struct connectdata *conn)
+ਸਥਿਰ bool xfer_may_multiplex(ਅਚਲ ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਅਚਲ ਬਣਤਰ connectdata *conn)
 {
-#ifndef CURL_DISABLE_HTTP
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
   /* If an HTTP protocol and multiplexing is enabled */
-  if((conn->scheme->protocol & PROTO_FAMILY_HTTP) &&
-     (!conn->bits.protoconnstart || !conn->bits.close)) {
+  ਜੇ((conn->scheme->protocol & PROTO_FAMILY_HTTP) &&
+     (!conn->ਬਿੱਟ.protoconnstart || !conn->ਬਿੱਟ.close)) {
 
-    if(Curl_multiplex_wanted(data->multi) &&
-       (data->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)))
+    ਜੇ(Curl_multiplex_wanted(ਅੰਕੜੇ->multi) &&
+       (ਅੰਕੜੇ->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)))
       /* allows HTTP/2 or newer */
-      return TRUE;
+      ਵਾਪਸ TRUE;
   }
-#else
-  (void)data;
-  (void)conn;
-#endif
-  return FALSE;
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)conn;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ FALSE;
 }
 
-#ifndef CURL_DISABLE_PROXY
-static bool proxy_info_matches(const struct proxy_info *data,
-                               const struct proxy_info *needle)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+ਸਥਿਰ bool proxy_info_matches(ਅਚਲ ਬਣਤਰ proxy_info *ਅੰਕੜੇ,
+                               ਅਚਲ ਬਣਤਰ proxy_info *needle)
 {
-  if((data->proxytype == needle->proxytype) &&
-     Curl_peer_same_destination(data->peer, needle->peer) &&
-     Curl_creds_same(data->creds, needle->creds)) {
-    return TRUE;
+  ਜੇ((ਅੰਕੜੇ->proxytype == needle->proxytype) &&
+     Curl_peer_same_destination(ਅੰਕੜੇ->peer, needle->peer) &&
+     Curl_creds_same(ਅੰਕੜੇ->creds, needle->creds)) {
+    ਵਾਪਸ TRUE;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef USE_SSH
-static bool ssh_config_matches(struct connectdata *one,
-                               struct connectdata *two)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSH
+ਸਥਿਰ bool ssh_config_matches(ਬਣਤਰ connectdata *one,
+                               ਬਣਤਰ connectdata *two)
 {
-  struct ssh_conn *sshc1, *sshc2;
+  ਬਣਤਰ ssh_conn *sshc1, *sshc2;
 
   sshc1 = Curl_conn_meta_get(one, CURL_META_SSH_CONN);
   sshc2 = Curl_conn_meta_get(two, CURL_META_SSH_CONN);
-  return sshc1 && sshc2 && Curl_safecmp(sshc1->priv_key, sshc2->priv_key) &&
-         Curl_safecmp(sshc1->pub_key, sshc2->pub_key);
+  ਵਾਪਸ sshc1 && sshc2 && Curl_safecmp(sshc1->priv_ਕੁੰਜੀ, sshc2->priv_ਕੁੰਜੀ) &&
+         Curl_safecmp(sshc1->pub_ਕੁੰਜੀ, sshc2->pub_ਕੁੰਜੀ);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-struct url_conn_match {
-  struct connectdata *found;
-  struct Curl_easy *data;
-  struct connectdata *needle;
-  struct curltime now;
-  struct ssl_filter_config ssl_config;
-#ifndef CURL_DISABLE_PROXY
-  struct ssl_filter_config proxy_ssl_config;
-#endif
-  BIT(may_multiplex);
-  BIT(want_ntlm_http);
-  BIT(want_proxy_ntlm_http);
-  BIT(want_nego_http);
-  BIT(want_proxy_nego_http);
-  BIT(may_tls); /* May upgrade clear-text connection to TLS, can only reuse
+ਬਣਤਰ url_conn_ਮੇਲ {
+  ਬਣਤਰ connectdata *ਮਿਲਿਆ;
+  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ;
+  ਬਣਤਰ connectdata *needle;
+  ਬਣਤਰ curltime now;
+  ਬਣਤਰ ssl_filter_config ssl_config;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਬਣਤਰ ssl_filter_config proxy_ssl_config;
+#ਜੇ_ਅੰਤ
+  ਦੋਆਧਾਰੀ_ਅੰਕ(may_multiplex);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(want_ntlm_http);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(want_proxy_ntlm_http);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(want_nego_http);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(want_proxy_nego_http);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(may_tls); /* May upgrade clear-text connection to TLS, can only reuse
                  * connections that have matching TLS configuration.
                  * Always TRUE if `req_tls` is TRUE. */
-  BIT(require_tls); /* Requires TLS use from a clear-text start, can only
+  ਦੋਆਧਾਰੀ_ਅੰਕ(require_tls); /* Requires TLS use from a clear-text start, can only
                  * reuse connections that have TLS. */
-  BIT(wait_pipe);
-  BIT(seen_pending_conn);
-  BIT(seen_single_use_conn);
-  BIT(seen_multiplex_conn);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(wait_pipe);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਵੇਖਿਆ_pending_conn);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਵੇਖਿਆ_single_use_conn);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਵੇਖਿਆ_multiplex_conn);
 };
 
-static bool url_match_connect_config(struct connectdata *conn,
-                                     struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_connect_config(ਬਣਤਰ connectdata *conn,
+                                     ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
   /* connect-only or to-be-closed connections will not be reused */
-  if(conn->bits.connect_only || conn->bits.close || conn->bits.no_reuse)
-    return FALSE;
+  ਜੇ(conn->ਬਿੱਟ.connect_only || conn->ਬਿੱਟ.close || conn->ਬਿੱਟ.no_reuse)
+    ਵਾਪਸ FALSE;
 
   /* ip_version must match */
-  if(m->data->set.ipver != CURL_IPRESOLVE_WHATEVER &&
-     m->data->set.ipver != conn->ip_version)
-    return FALSE;
+  ਜੇ(m->ਅੰਕੜੇ->ਸੈੱਟ.ipver != CURL_IPRESOLVE_WHATEVER &&
+     m->ਅੰਕੜੇ->ਸੈੱਟ.ipver != conn->ip_ਸੰਸਕਰਣ)
+    ਵਾਪਸ FALSE;
 
   /* When needle has specific local bind settings, those have to match.
    * If it does not, any other connection might do when it comes to ports. */
-  if(m->needle->localport &&
+  ਜੇ(m->needle->localport &&
      ((conn->localport != m->needle->localport) ||
       (conn->localportrange != m->needle->localportrange)))
-    return FALSE;
+    ਵਾਪਸ FALSE;
   /* For interface related bind options, we require a full match
    * as connection might go totally different ways (VPNs, for example). */
-  if((m->needle->interface_opts != conn->interface_opts) &&
+  ਜੇ((m->needle->interface_opts != conn->interface_opts) &&
      (!m->needle->interface_opts || !conn->interface_opts ||
       strcmp(conn->interface_opts, m->needle->interface_opts)))
-    return FALSE;
+    ਵਾਪਸ FALSE;
 
-  if((m->needle->interface_opts || m->needle->localport) &&
+  ਜੇ((m->needle->interface_opts || m->needle->localport) &&
     /* If we are bound to a specific local end (IP+port), we must not reuse a
        random other one, although if we did not ask for a particular one we
        can reuse one that was bound. */
@@ -637,469 +637,469 @@ static bool url_match_connect_config(struct connectdata *conn,
      (m->needle->interface_opts &&
       (!conn->interface_opts ||
        strcmp(conn->interface_opts, m->needle->interface_opts)))))
-    return FALSE;
+    ਵਾਪਸ FALSE;
 
-  if(!m->needle->via_peer != !conn->via_peer)
+  ਜੇ(!m->needle->ਰਾਹੀਂ_peer != !conn->ਰਾਹੀਂ_peer)
     /* do not mix connections that use the "connect to host" feature and
      * connections that do not use this feature */
-    return FALSE;
+    ਵਾਪਸ FALSE;
 
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static bool url_match_fully_connected(struct connectdata *conn,
-                                      struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_fully_connected(ਬਣਤਰ connectdata *conn,
+                                      ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(!Curl_conn_is_connected(conn, FIRSTSOCKET) ||
-     conn->bits.upgrade_in_progress) {
+  ਜੇ(!Curl_conn_is_connected(conn, FIRSTSOCKET) ||
+     conn->ਬਿੱਟ.upgrade_ਵਿੱਚ_ਤਰੱਕੀ) {
     /* Not yet connected, or a protocol upgrade is in progress. The later
      * happens for HTTP/2 Upgrade: requests that need a response. */
-    if(m->may_multiplex) {
-      m->seen_pending_conn = TRUE;
+    ਜੇ(m->may_multiplex) {
+      m->ਵੇਖਿਆ_pending_conn = TRUE;
       /* Do not pick a connection that has not connected yet */
-      infof(m->data, "Connection #%" FMT_OFF_T
+      infof(m->ਅੰਕੜੇ, "Connection #%" FMT_OFF_T
             " is not open enough, cannot reuse", conn->connection_id);
     }
     /* Do not pick a connection that has not connected yet */
-    return FALSE;
+    ਵਾਪਸ FALSE;
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static bool url_match_multi(struct connectdata *conn,
-                            struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_multi(ਬਣਤਰ connectdata *conn,
+                            ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(CONN_INUSE(conn)) {
+  ਜੇ(CONN_INUSE(conn)) {
     DEBUGASSERT(conn->attached_multi);
-    if(conn->attached_multi != m->data->multi)
-      return FALSE;
+    ਜੇ(conn->attached_multi != m->ਅੰਕੜੇ->multi)
+      ਵਾਪਸ FALSE;
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static bool url_match_multiplex_needs(struct connectdata *conn,
-                                      struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_multiplex_needs(ਬਣਤਰ connectdata *conn,
+                                      ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(CONN_INUSE(conn)) {
-    if(!conn->bits.multiplex) {
+  ਜੇ(CONN_INUSE(conn)) {
+    ਜੇ(!conn->ਬਿੱਟ.multiplex) {
       /* conn busy and conn cannot take more transfers */
-      m->seen_single_use_conn = TRUE;
-      return FALSE;
+      m->ਵੇਖਿਆ_single_use_conn = TRUE;
+      ਵਾਪਸ FALSE;
     }
-    m->seen_multiplex_conn = TRUE;
-    if(!m->may_multiplex || !url_match_multi(conn, m))
+    m->ਵੇਖਿਆ_multiplex_conn = TRUE;
+    ਜੇ(!m->may_multiplex || !url_ਮੇਲ_multi(conn, m))
       /* conn busy and transfer cannot be multiplexed */
-      return FALSE;
+      ਵਾਪਸ FALSE;
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static bool url_match_multiplex_limits(struct connectdata *conn,
-                                       struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_multiplex_limits(ਬਣਤਰ connectdata *conn,
+                                       ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(CONN_INUSE(conn) && m->may_multiplex) {
-    DEBUGASSERT(conn->bits.multiplex);
+  ਜੇ(CONN_INUSE(conn) && m->may_multiplex) {
+    DEBUGASSERT(conn->ਬਿੱਟ.multiplex);
     /* If multiplexed, make sure we do not go over concurrency limit */
-    if(conn->attached_xfers >=
-            Curl_multi_max_concurrent_streams(m->data->multi)) {
-      infof(m->data, "connection #%" FMT_OFF_T " reached "
+    ਜੇ(conn->attached_xfers >=
+            Curl_multi_max_concurrent_streams(m->ਅੰਕੜੇ->multi)) {
+      infof(m->ਅੰਕੜੇ, "connection #%" FMT_OFF_T " reached "
             "MAX_CONCURRENT_STREAMS(%u), skip",
             conn->connection_id, conn->attached_xfers);
-      return FALSE;
+      ਵਾਪਸ FALSE;
     }
-    if(conn->attached_xfers >=
-       Curl_conn_get_max_concurrent(m->data, conn, FIRSTSOCKET)) {
-      infof(m->data, "connection #%" FMT_OFF_T "reached "
+    ਜੇ(conn->attached_xfers >=
+       Curl_conn_get_max_concurrent(m->ਅੰਕੜੇ, conn, FIRSTSOCKET)) {
+      infof(m->ਅੰਕੜੇ, "connection #%" FMT_OFF_T "reached "
             "MAX_CONCURRENT_STREAMS(%u), skip",
             conn->connection_id, conn->attached_xfers);
-      return FALSE;
+      ਵਾਪਸ FALSE;
     }
     /* When not multiplexed, we have a match here! */
-    infof(m->data, "Multiplexed connection found");
+    infof(m->ਅੰਕੜੇ, "Multiplexed connection found");
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static bool url_match_ssl_use(struct connectdata *conn,
-                              struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_ssl_use(ਬਣਤਰ connectdata *conn,
+                              ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(m->needle->scheme->flags & PROTOPT_SSL) {
+  ਜੇ(m->needle->scheme->flags & PROTOPT_SSL) {
     /* We are looking for SSL, if `conn` does not do it, not a match. */
-    if(!Curl_conn_is_ssl(conn, FIRSTSOCKET))
-      return FALSE;
+    ਜੇ(!Curl_conn_is_ssl(conn, FIRSTSOCKET))
+      ਵਾਪਸ FALSE;
   }
-  else if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  ਨਹੀਂਤਾਂ ਜੇ(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     /* If the protocol does not allow reuse of SSL connections OR
        is of another protocol family, not a match. */
-    if(!(m->needle->scheme->flags & PROTOPT_SSL_REUSE) ||
+    ਜੇ(!(m->needle->scheme->flags & PROTOPT_SSL_REUSE) ||
        (get_protocol_family(conn->scheme) != m->needle->scheme->protocol))
-      return FALSE;
+      ਵਾਪਸ FALSE;
     /* We may reuse this as an auto-TLS upgrade, but only if the SSL
      * config parameters match. */
-    if(!Curl_ssl_conn_config_match(m->data, &m->ssl_config, conn, FALSE))
-      return FALSE;
+    ਜੇ(!Curl_ssl_conn_config_ਮੇਲ(m->ਅੰਕੜੇ, &m->ssl_config, conn, FALSE))
+      ਵਾਪਸ FALSE;
   }
-  else if(m->require_tls)
+  ਨਹੀਂਤਾਂ ਜੇ(m->require_tls)
     /* a clear-text STARTTLS protocol with required TLS */
-    return FALSE;
-  return TRUE;
+    ਵਾਪਸ FALSE;
+  ਵਾਪਸ TRUE;
 }
 
-#ifndef CURL_DISABLE_PROXY
-static bool url_match_proxy_use(struct connectdata *conn,
-                                struct url_conn_match *m)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+ਸਥਿਰ bool url_ਮੇਲ_proxy_use(ਬਣਤਰ connectdata *conn,
+                                ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(m->needle->bits.origin_is_proxy != conn->bits.origin_is_proxy)
-    return FALSE;
+  ਜੇ(m->needle->ਬਿੱਟ.origin_is_proxy != conn->ਬਿੱਟ.origin_is_proxy)
+    ਵਾਪਸ FALSE;
 
-  if(!proxy_info_matches(&m->needle->socks_proxy, &conn->socks_proxy))
-    return FALSE;
+  ਜੇ(!proxy_info_matches(&m->needle->socks_proxy, &conn->socks_proxy))
+    ਵਾਪਸ FALSE;
 
-  if(!proxy_info_matches(&m->needle->http_proxy, &conn->http_proxy))
-    return FALSE;
+  ਜੇ(!proxy_info_matches(&m->needle->http_proxy, &conn->http_proxy))
+    ਵਾਪਸ FALSE;
 
-  if(m->data->set.socks5_auth_only && !conn->bits.socks5_authenticated &&
+  ਜੇ(m->ਅੰਕੜੇ->ਸੈੱਟ.socks5_auth_only && !conn->ਬਿੱਟ.socks5_authenticated &&
      ((conn->socks_proxy.proxytype == CURLPROXY_SOCKS5) ||
       (conn->socks_proxy.proxytype == CURLPROXY_SOCKS5_HOSTNAME))) {
-    DEBUGF(infof(m->data,
+    DEBUGF(infof(m->ਅੰਕੜੇ,
                  "Connection #%" FMT_OFF_T
                  " was not SOCKS5 authenticated, cannot reuse",
                  conn->connection_id));
-    return FALSE;
+    ਵਾਪਸ FALSE;
   }
 
-  if(CURL_PROXY_IS_HTTPS(m->needle->http_proxy.proxytype)) {
+  ਜੇ(CURL_PROXY_IS_HTTPS(m->needle->http_proxy.proxytype)) {
     /* https proxies come in different types, http/1.1, h2, ... */
     /* match SSL config to proxy */
-    if(!Curl_ssl_conn_config_match(m->data, &m->proxy_ssl_config,
+    ਜੇ(!Curl_ssl_conn_config_ਮੇਲ(m->ਅੰਕੜੇ, &m->proxy_ssl_config,
                                    conn, TRUE)) {
-      DEBUGF(infof(m->data,
+      DEBUGF(infof(m->ਅੰਕੜੇ,
                    "Connection #%" FMT_OFF_T
                    " has different SSL proxy parameters, cannot reuse",
                    conn->connection_id));
-      return FALSE;
+      ਵਾਪਸ FALSE;
     }
     /* the SSL config to the server, which may apply here is checked
      * further below */
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
-#else
-#define url_match_proxy_use(c, m) ((void)(c), (void)(m), TRUE)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ url_ਮੇਲ_proxy_use(c, m) ((ਖਾਲੀ)(c), (ਖਾਲੀ)(m), TRUE)
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_DISABLE_HTTP
-static bool url_match_http_multiplex(struct connectdata *conn,
-                                     struct url_conn_match *m,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HTTP
+ਸਥਿਰ bool url_ਮੇਲ_http_multiplex(ਬਣਤਰ connectdata *conn,
+                                     ਬਣਤਰ url_conn_ਮੇਲ *m,
                                      bool *pwait_pipe)
 {
-  if(m->may_multiplex &&
-     (m->data->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)) &&
+  ਜੇ(m->may_multiplex &&
+     (m->ਅੰਕੜੇ->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)) &&
      (m->needle->scheme->protocol & CURLPROTO_HTTP) &&
-     !conn->httpversion_seen) {
-    if(m->data->set.pipewait) {
-      infof(m->data, "Server upgrade does not support multiplex yet, wait");
-      m->found = NULL;
+     !conn->httpversion_ਵੇਖਿਆ) {
+    ਜੇ(m->ਅੰਕੜੇ->ਸੈੱਟ.pipewait) {
+      infof(m->ਅੰਕੜੇ, "Server upgrade does not support multiplex yet, wait");
+      m->ਮਿਲਿਆ = ਨਿਰਾ;
       *pwait_pipe = TRUE;
-      return TRUE; /* stop searching, we want to wait */
+      ਵਾਪਸ TRUE; /* stop searching, we want to wait */
     }
-    infof(m->data, "Server upgrade cannot be used");
-    return FALSE;
+    infof(m->ਅੰਕੜੇ, "Server upgrade cannot be used");
+    ਵਾਪਸ FALSE;
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static bool url_match_http_version(struct connectdata *conn,
-                                   struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_http_ਸੰਸਕਰਣ(ਬਣਤਰ connectdata *conn,
+                                   ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
   /* If looking for HTTP and the HTTP versions allowed do not include
    * the HTTP version of conn, continue looking. */
-  if((m->needle->scheme->protocol & PROTO_FAMILY_HTTP)) {
-    switch(Curl_conn_http_version(m->data, conn)) {
-    case 30:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V3x)) {
-        DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
+  ਜੇ((m->needle->scheme->protocol & PROTO_FAMILY_HTTP)) {
+    ਚੋਣ(Curl_conn_http_ਸੰਸਕਰਣ(m->ਅੰਕੜੇ, conn)) {
+    ਹਾਲਤ 30:
+      ਜੇ(!(m->ਅੰਕੜੇ->state.http_neg.allowed & CURL_HTTP_V3x)) {
+        DEBUGF(infof(m->ਅੰਕੜੇ, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h3", conn->connection_id));
-        return FALSE;
+        ਵਾਪਸ FALSE;
       }
-      break;
-    case 20:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V2x)) {
-        DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
+      ਰੋਕੋ;
+    ਹਾਲਤ 20:
+      ਜੇ(!(m->ਅੰਕੜੇ->state.http_neg.allowed & CURL_HTTP_V2x)) {
+        DEBUGF(infof(m->ਅੰਕੜੇ, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h2", conn->connection_id));
-        return FALSE;
+        ਵਾਪਸ FALSE;
       }
-      break;
-    default:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V1x)) {
-        DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
+      ਰੋਕੋ;
+    ਮੂਲ:
+      ਜੇ(!(m->ਅੰਕੜੇ->state.http_neg.allowed & CURL_HTTP_V1x)) {
+        DEBUGF(infof(m->ਅੰਕੜੇ, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h1", conn->connection_id));
-        return FALSE;
+        ਵਾਪਸ FALSE;
       }
-      break;
+      ਰੋਕੋ;
     }
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
-#else
-#define url_match_http_multiplex(c, m, w) ((void)(c), (void)(m), TRUE)
-#define url_match_http_version(c, m)      ((void)(c), (void)(m), TRUE)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ url_ਮੇਲ_http_multiplex(c, m, w) ((ਖਾਲੀ)(c), (ਖਾਲੀ)(m), TRUE)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ url_ਮੇਲ_http_ਸੰਸਕਰਣ(c, m)      ((ਖਾਲੀ)(c), (ਖਾਲੀ)(m), TRUE)
+#ਜੇ_ਅੰਤ
 
-static bool url_match_proto_config(struct connectdata *conn,
-                                   struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_proto_config(ਬਣਤਰ connectdata *conn,
+                                   ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(!url_match_http_version(conn, m))
-    return FALSE;
+  ਜੇ(!url_ਮੇਲ_http_ਸੰਸਕਰਣ(conn, m))
+    ਵਾਪਸ FALSE;
 
-#ifdef USE_SSH
-  if(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_SSH) {
-    if(!ssh_config_matches(m->needle, conn))
-      return FALSE;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSH
+  ਜੇ(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_SSH) {
+    ਜੇ(!ssh_config_matches(m->needle, conn))
+      ਵਾਪਸ FALSE;
   }
-#endif
-#ifndef CURL_DISABLE_FTP
-  else if(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_FTP) {
-    if(!Curl_ftp_conns_match(m->needle, conn))
-      return FALSE;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FTP
+  ਨਹੀਂਤਾਂ ਜੇ(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_FTP) {
+    ਜੇ(!Curl_ftp_conns_ਮੇਲ(m->needle, conn))
+      ਵਾਪਸ FALSE;
   }
-#endif
-  return TRUE;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ TRUE;
 }
 
-static bool url_match_auth(struct connectdata *conn,
-                           struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_auth(ਬਣਤਰ connectdata *conn,
+                           ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(!Curl_creds_same(m->needle->creds, conn->creds)) {
-    if(m->needle->creds)
-      return FALSE;
-    if(!Curl_creds_same(m->data->state.creds, conn->creds))
-      return FALSE;
+  ਜੇ(!Curl_creds_same(m->needle->creds, conn->creds)) {
+    ਜੇ(m->needle->creds)
+      ਵਾਪਸ FALSE;
+    ਜੇ(!Curl_creds_same(m->ਅੰਕੜੇ->state.creds, conn->creds))
+      ਵਾਪਸ FALSE;
   }
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#ਜੇ defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   /* GSS delegation differences do not actually affect every connection and
      auth method, but this check takes precaution before efficiency */
-  if(m->needle->gssapi_delegation != conn->gssapi_delegation)
-    return FALSE;
-#endif
+  ਜੇ(m->needle->gssapi_delegation != conn->gssapi_delegation)
+    ਵਾਪਸ FALSE;
+#ਜੇ_ਅੰਤ
 
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static bool url_match_destination(struct connectdata *conn,
-                                  struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_destination(ਬਣਤਰ connectdata *conn,
+                                  ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
   /* Different connect-to peers never match */
-  if(!Curl_peer_same_destination(m->needle->via_peer, conn->via_peer))
-    return FALSE;
+  ਜੇ(!Curl_peer_same_destination(m->needle->ਰਾਹੀਂ_peer, conn->ਰਾਹੀਂ_peer))
+    ਵਾਪਸ FALSE;
 
-  if(m->needle->origin->scheme != conn->origin->scheme &&
+  ਜੇ(m->needle->origin->scheme != conn->origin->scheme &&
     /* `needle` and `conn` not having the same scheme.
      * This is allowed for the same family *if* conn is using TLS.
      * - IMAP+STARTTLS works for IMAPS.
      * - IMAPS works for IMAP. */
      get_protocol_family(conn->origin->scheme) !=
      m->needle->scheme->protocol)
-    return FALSE;
+    ਵਾਪਸ FALSE;
 
   /* Scheme mismatch is acceptable, compare hostname/port */
-  return Curl_peer_same_destination(m->needle->origin, conn->origin);
+  ਵਾਪਸ Curl_peer_same_destination(m->needle->origin, conn->origin);
 }
 
-static bool url_match_ssl_config(struct connectdata *conn,
-                                 struct url_conn_match *m)
+ਸਥਿਰ bool url_ਮੇਲ_ssl_config(ਬਣਤਰ connectdata *conn,
+                                 ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
   /* If talking/upgrading to TLS, conn needs to use the same SSL options. */
-  if(((m->needle->scheme->flags & PROTOPT_SSL) || m->may_tls) &&
-     !Curl_ssl_conn_config_match(m->data, &m->ssl_config, conn, FALSE)) {
-    DEBUGF(infof(m->data, "Connection #%" FMT_OFF_T
+  ਜੇ(((m->needle->scheme->flags & PROTOPT_SSL) || m->may_tls) &&
+     !Curl_ssl_conn_config_ਮੇਲ(m->ਅੰਕੜੇ, &m->ssl_config, conn, FALSE)) {
+    DEBUGF(infof(m->ਅੰਕੜੇ, "Connection #%" FMT_OFF_T
                  " has different SSL parameters, cannot reuse",
                  conn->connection_id));
-    return FALSE;
+    ਵਾਪਸ FALSE;
   }
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-#ifdef USE_NTLM
-static bool url_match_auth_ntlm(struct connectdata *conn,
-                                struct url_conn_match *m)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NTLM
+ਸਥਿਰ bool url_ਮੇਲ_auth_ntlm(ਬਣਤਰ connectdata *conn,
+                                ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(conn->http_ntlm_state != NTLMSTATE_NONE) {
+  ਜੇ(conn->http_ntlm_state != NTLMSTATE_NONE) {
     /* Connection is using NTLM. We cannot reuse if transfer
      * has different Auth input parameters. */
-    if(!m->want_ntlm_http ||
-       !Curl_creds_same(conn->creds, m->data->state.creds) ||
-       !Curl_peer_equal(conn->creds_origin, m->data->state.origin))
-      return FALSE;
+    ਜੇ(!m->want_ntlm_http ||
+       !Curl_creds_same(conn->creds, m->ਅੰਕੜੇ->state.creds) ||
+       !Curl_peer_equal(conn->creds_origin, m->ਅੰਕੜੇ->state.origin))
+      ਵਾਪਸ FALSE;
   }
-  else if(m->want_ntlm_http) {
+  ਨਹੀਂਤਾਂ ਜੇ(m->want_ntlm_http) {
     /* Transfer wants NTLM, connection is not using it.
      * Do not reuse when connection credentials state is bound to an origin
      * and it or creds differ. */
-    if(conn->creds_origin &&
-       (!Curl_creds_same(conn->creds, m->data->state.creds) ||
-        !Curl_peer_equal(conn->creds_origin, m->data->state.origin)))
-      return FALSE;
+    ਜੇ(conn->creds_origin &&
+       (!Curl_creds_same(conn->creds, m->ਅੰਕੜੇ->state.creds) ||
+        !Curl_peer_equal(conn->creds_origin, m->ਅੰਕੜੇ->state.origin)))
+      ਵਾਪਸ FALSE;
   }
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   /* Same for Proxy NTLM authentication */
-  if(conn->proxy_ntlm_state != NTLMSTATE_NONE) {
-    if(!m->want_proxy_ntlm_http ||
+  ਜੇ(conn->proxy_ntlm_state != NTLMSTATE_NONE) {
+    ਜੇ(!m->want_proxy_ntlm_http ||
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      ਵਾਪਸ FALSE;
   }
-  else if(m->want_proxy_ntlm_http) {
-    if(conn->http_proxy.creds &&
+  ਨਹੀਂਤਾਂ ਜੇ(m->want_proxy_ntlm_http) {
+    ਜੇ(conn->http_proxy.creds &&
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      ਵਾਪਸ FALSE;
   }
-#endif
-  return TRUE;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ TRUE;
 }
-#else
-#define url_match_auth_ntlm(c, m) ((void)(c), (void)(m), TRUE)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ url_ਮੇਲ_auth_ntlm(c, m) ((ਖਾਲੀ)(c), (ਖਾਲੀ)(m), TRUE)
+#ਜੇ_ਅੰਤ
 
-#ifdef USE_SPNEGO
-static bool url_match_auth_nego(struct connectdata *conn,
-                                struct url_conn_match *m)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SPNEGO
+ਸਥਿਰ bool url_ਮੇਲ_auth_nego(ਬਣਤਰ connectdata *conn,
+                                ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  if(conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) {
+  ਜੇ(conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) {
     /* Connection is using Negotiate. We cannot reuse if transfer
      * has different Auth input parameters. */
-    if(!m->want_nego_http ||
-       !Curl_creds_same(conn->creds, m->data->state.creds) ||
-       !Curl_peer_equal(conn->creds_origin, m->data->state.origin))
-      return FALSE;
+    ਜੇ(!m->want_nego_http ||
+       !Curl_creds_same(conn->creds, m->ਅੰਕੜੇ->state.creds) ||
+       !Curl_peer_equal(conn->creds_origin, m->ਅੰਕੜੇ->state.origin))
+      ਵਾਪਸ FALSE;
   }
-  else if(m->want_nego_http) {
+  ਨਹੀਂਤਾਂ ਜੇ(m->want_nego_http) {
     /* Transfer wants Negotiate, connection is not using it.
      * Do not reuse when connection credentials state is bound to an origin
      * and it or creds differ. */
-    if(conn->creds_origin &&
-       (!Curl_creds_same(conn->creds, m->data->state.creds) ||
-        !Curl_peer_equal(conn->creds_origin, m->data->state.origin)))
-      return FALSE;
+    ਜੇ(conn->creds_origin &&
+       (!Curl_creds_same(conn->creds, m->ਅੰਕੜੇ->state.creds) ||
+        !Curl_peer_equal(conn->creds_origin, m->ਅੰਕੜੇ->state.origin)))
+      ਵਾਪਸ FALSE;
   }
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   /* Same for Proxy Negotiate authentication */
-  if(conn->proxy_negotiate_state != CURL_NEGO_AUTH_NONE) {
-    if(!m->want_proxy_nego_http ||
+  ਜੇ(conn->proxy_negotiate_state != CURL_NEGO_AUTH_NONE) {
+    ਜੇ(!m->want_proxy_nego_http ||
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      ਵਾਪਸ FALSE;
   }
-  else if(m->want_proxy_nego_http) {
-    if(conn->http_proxy.creds &&
+  ਨਹੀਂਤਾਂ ਜੇ(m->want_proxy_nego_http) {
+    ਜੇ(conn->http_proxy.creds &&
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      ਵਾਪਸ FALSE;
   }
-#endif
-  return TRUE;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ TRUE;
 }
-#else
-#define url_match_auth_nego(c, m) ((void)(c), (void)(m), TRUE)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ url_ਮੇਲ_auth_nego(c, m) ((ਖਾਲੀ)(c), (ਖਾਲੀ)(m), TRUE)
+#ਜੇ_ਅੰਤ
 
-static cpool_match_result url_match_conn(struct connectdata *conn,
-                                         void *userdata)
+ਸਥਿਰ cpool_ਮੇਲ_ਨਤੀਜਾ url_ਮੇਲ_conn(ਬਣਤਰ connectdata *conn,
+                                         ਖਾਲੀ *userdata)
 {
-  struct url_conn_match *m = userdata;
+  ਬਣਤਰ url_conn_ਮੇਲ *m = userdata;
   bool wait_pipe = FALSE;
 
   /* general connect config setting match? */
-  if(!url_match_connect_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_connect_config(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
   /* match for destination and protocol? */
-  if(!url_match_destination(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_destination(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_fully_connected(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_fully_connected(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_multiplex_needs(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_multiplex_needs(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_ssl_use(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_ssl_use(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_proxy_use(conn, m))
-    return CPOOL_MATCH_CONT;
-  if(!url_match_ssl_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_proxy_use(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
+  ਜੇ(!url_ਮੇਲ_ssl_config(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_http_multiplex(conn, m, &wait_pipe))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_http_multiplex(conn, m, &wait_pipe))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_auth(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_auth(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_proto_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_proto_config(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_auth_ntlm(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_auth_ntlm(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_auth_nego(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_auth_nego(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
-  if(!url_match_multiplex_limits(conn, m))
-    return CPOOL_MATCH_CONT;
+  ਜੇ(!url_ਮੇਲ_multiplex_limits(conn, m))
+    ਵਾਪਸ CPOOL_ਮੇਲ_CONT;
 
   /* The connection matches all conditions, but do we want to use it? */
-  if(wait_pipe) {
+  ਜੇ(wait_pipe) {
     /* The connection fits, but it's multiplex state has not been determined
      * yet. Put the transfer into PENDING and wait for conn state change. */
-    DEBUGASSERT(!m->found);
+    DEBUGASSERT(!m->ਮਿਲਿਆ);
     m->wait_pipe = TRUE;
-    return CPOOL_MATCH_FOUND;
+    ਵਾਪਸ CPOOL_ਮੇਲ_ਮਿਲਿਆ;
   }
 
-  if(m->data->set.conn_max_age_ms > 0) {
-    timediff_t age_ms = Curl_cpool_conn_age_ms(m->data, conn, &m->now);
-    if(age_ms > m->data->set.conn_max_age_ms) {
+  ਜੇ(m->ਅੰਕੜੇ->ਸੈੱਟ.conn_max_age_ms > 0) {
+    timediff_t age_ms = Curl_cpool_conn_age_ms(m->ਅੰਕੜੇ, conn, &m->now);
+    ਜੇ(age_ms > m->ਅੰਕੜੇ->ਸੈੱਟ.conn_max_age_ms) {
       /* Transfer is looking for a younger connection. */
-      return CPOOL_MATCH_TOO_OLD;
+      ਵਾਪਸ CPOOL_ਮੇਲ_TOO_OLD;
     }
   }
 
   /* If we are going to pick an idle connection, do an extra
    * health check before we reuse it. */
-  if(!CONN_INUSE(conn) &&
-     !Curl_cpool_conn_seems_healthy(conn, m->data, &m->now)) {
-    infof(m->data, "Connection %" FMT_OFF_T " seems to be dead, terminating",
+  ਜੇ(!CONN_INUSE(conn) &&
+     !Curl_cpool_conn_seems_healthy(conn, m->ਅੰਕੜੇ, &m->now)) {
+    infof(m->ਅੰਕੜੇ, "Connection %" FMT_OFF_T " seems to be dead, terminating",
           conn->connection_id);
-    return CPOOL_MATCH_CLOSE;
+    ਵਾਪਸ CPOOL_ਮੇਲ_CLOSE;
   }
 
   /* conn matches our needs. */
-  m->found = conn;
-  return CPOOL_MATCH_FOUND;
+  m->ਮਿਲਿਆ = conn;
+  ਵਾਪਸ CPOOL_ਮੇਲ_ਮਿਲਿਆ;
 }
 
-static bool url_match_result(void *userdata)
+ਸਥਿਰ bool url_ਮੇਲ_ਨਤੀਜਾ(ਖਾਲੀ *userdata)
 {
-  struct url_conn_match *match = userdata;
-  if(match->found) {
+  ਬਣਤਰ url_conn_ਮੇਲ *ਮੇਲ = userdata;
+  ਜੇ(ਮੇਲ->ਮਿਲਿਆ) {
     /* Attach it now while still under lock, so the connection does
      * no longer appear idle and can be reaped. */
-    Curl_attach_connection(match->data, match->found, TRUE);
-    return TRUE;
+    Curl_attach_connection(ਮੇਲ->ਅੰਕੜੇ, ਮੇਲ->ਮਿਲਿਆ, TRUE);
+    ਵਾਪਸ TRUE;
   }
-  else if(match->seen_single_use_conn && !match->seen_multiplex_conn) {
+  ਨਹੀਂਤਾਂ ਜੇ(ਮੇਲ->ਵੇਖਿਆ_single_use_conn && !ਮੇਲ->ਵੇਖਿਆ_multiplex_conn) {
     /* We have seen a single-use, existing connection to the destination and
      * no multiplexed one. It seems safe to assume that the server does
      * not support multiplexing. */
-    match->wait_pipe = FALSE;
+    ਮੇਲ->wait_pipe = FALSE;
   }
-  else if(match->seen_pending_conn && match->data->set.pipewait) {
-    infof(match->data,
+  ਨਹੀਂਤਾਂ ਜੇ(ਮੇਲ->ਵੇਖਿਆ_pending_conn && ਮੇਲ->ਅੰਕੜੇ->ਸੈੱਟ.pipewait) {
+    infof(ਮੇਲ->ਅੰਕੜੇ,
           "Found pending candidate for reuse and CURLOPT_PIPEWAIT is set");
-    match->wait_pipe = TRUE;
+    ਮੇਲ->wait_pipe = TRUE;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
 /*
@@ -1111,25 +1111,25 @@ static bool url_match_result(void *userdata)
  * might be suitable one in the near future (common cause: multiplexing
  * capability has not been determined yet, e.g. ALPN handshake).
  */
-static bool url_attach_existing(struct Curl_easy *data,
-                                struct connectdata *needle,
-                                struct url_conn_match *m,
-                                const struct curltime *pnow)
+ਸਥਿਰ bool url_attach_existing(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ connectdata *needle,
+                                ਬਣਤਰ url_conn_ਮੇਲ *m,
+                                ਅਚਲ ਬਣਤਰ curltime *pnow)
 {
   /* Find a connection in the pool that matches what "data + needle"
    * requires. If a suitable candidate is found, it is attached to "data". */
-  return Curl_cpool_find(data, needle->destination, TRUE, pnow,
-                         url_match_conn, url_match_result, m);
+  ਵਾਪਸ Curl_cpool_ਲੱਭੋ(ਅੰਕੜੇ, needle->destination, TRUE, pnow,
+                         url_ਮੇਲ_conn, url_ਮੇਲ_ਨਤੀਜਾ, m);
 }
 
 /*
  * Allocate and initialize a new connectdata object.
  */
-static struct connectdata *allocate_conn(struct Curl_easy *data)
+ਸਥਿਰ ਬਣਤਰ connectdata *allocate_conn(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct connectdata *conn = curlx_calloc(1, sizeof(struct connectdata));
-  if(!conn)
-    return NULL;
+  ਬਣਤਰ connectdata *conn = curlx_calloc(1, ਆਕਾਰ(ਬਣਤਰ connectdata));
+  ਜੇ(!conn)
+    ਵਾਪਸ ਨਿਰਾ;
 
   /* and we setup a few fields in case we end up actually using this struct */
   conn->sock[FIRSTSOCKET] = CURL_SOCKET_BAD;     /* no file descriptor */
@@ -1139,385 +1139,385 @@ static struct connectdata *allocate_conn(struct Curl_easy *data)
   conn->connection_id = -1;    /* no ID */
   conn->cpid = UINT32_MAX;  /* not in connection pool yet */
   conn->attached_xfers = 0;
-  conn->shutdown.start_ms[FIRSTSOCKET] =
-    conn->shutdown.start_ms[SECONDARYSOCKET] = -1;
+  conn->shutdown.ਸ਼ੁਰੂ_ms[FIRSTSOCKET] =
+    conn->shutdown.ਸ਼ੁਰੂ_ms[SECONDARYSOCKET] = -1;
 
-#ifndef CURL_DISABLE_FTP
-  conn->bits.ftp_use_epsv = data->set.ftp_use_epsv;
-  conn->bits.ftp_use_eprt = data->set.ftp_use_eprt;
-#endif
-  conn->ip_version = data->set.ipver;
-  conn->bits.connect_only = (bool)data->set.connect_only;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FTP
+  conn->ਬਿੱਟ.ftp_use_epsv = ਅੰਕੜੇ->ਸੈੱਟ.ftp_use_epsv;
+  conn->ਬਿੱਟ.ftp_use_eprt = ਅੰਕੜੇ->ਸੈੱਟ.ftp_use_eprt;
+#ਜੇ_ਅੰਤ
+  conn->ip_ਸੰਸਕਰਣ = ਅੰਕੜੇ->ਸੈੱਟ.ipver;
+  conn->ਬਿੱਟ.connect_only = (bool)ਅੰਕੜੇ->ਸੈੱਟ.connect_only;
   conn->transport_wanted = TRNSPRT_TCP; /* most of them are TCP streams */
 
   /* Store the local bind parameters that will be used for this connection */
-  if(CURL_EASY_STR(data, STRING_INTERFACE_OPT)) {
+  ਜੇ(CURL_EASY_STR(ਅੰਕੜੇ, STRING_INTERFACE_OPT)) {
     conn->interface_opts =
-      curlx_strdup(CURL_EASY_STR(data, STRING_INTERFACE_OPT));
-    if(!conn->interface_opts)
-      goto error;
+      curlx_strdup(CURL_EASY_STR(ਅੰਕੜੇ, STRING_INTERFACE_OPT));
+    ਜੇ(!conn->interface_opts)
+      ਜਾਓ error;
   }
-#ifndef CURL_DISABLE_BINDLOCAL
-  conn->localportrange = data->set.localportrange;
-  conn->localport = data->set.localport;
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BINDLOCAL
+  conn->localportrange = ਅੰਕੜੇ->ਸੈੱਟ.localportrange;
+  conn->localport = ਅੰਕੜੇ->ਸੈੱਟ.localport;
+#ਜੇ_ਅੰਤ
 
   /* the close socket stuff needs to be copied to the connection struct as
      it may live on without (this specific) Curl_easy */
-  conn->fclosesocket = data->set.fclosesocket;
-  conn->closesocket_client = data->set.closesocket_client;
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  conn->gssapi_delegation = data->set.gssapi_delegation;
-#endif
-  return conn;
+  conn->fclosesocket = ਅੰਕੜੇ->ਸੈੱਟ.fclosesocket;
+  conn->closesocket_client = ਅੰਕੜੇ->ਸੈੱਟ.closesocket_client;
+#ਜੇ defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  conn->gssapi_delegation = ਅੰਕੜੇ->ਸੈੱਟ.gssapi_delegation;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ conn;
 error:
 
   curlx_free(conn->interface_opts);
   curlx_free(conn);
-  return NULL;
+  ਵਾਪਸ ਨਿਰਾ;
 }
 
-static CURLcode url_set_conn_scheme(struct Curl_easy *data,
-                                    struct connectdata *conn)
+ਸਥਿਰ CURLcode url_ਸੈੱਟ_conn_scheme(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ connectdata *conn)
 {
   /* URL scheme is usable for connection when it is
    * - allowed
    * - not from a redirect or an allowed redirect protocol */
-  const struct Curl_scheme *scheme = conn->origin->scheme;
-  if(scheme->run &&
-     (data->set.allowed_protocols & scheme->protocol) &&
-     (!data->state.this_is_a_follow ||
-       (data->set.redir_protocols & scheme->protocol))) {
+  ਅਚਲ ਬਣਤਰ Curl_scheme *scheme = conn->origin->scheme;
+  ਜੇ(scheme->ਲੜੀਵਾਰ &&
+     (ਅੰਕੜੇ->ਸੈੱਟ.allowed_protocols & scheme->protocol) &&
+     (!ਅੰਕੜੇ->state.this_is_a_follow ||
+       (ਅੰਕੜੇ->ਸੈੱਟ.redir_protocols & scheme->protocol))) {
     conn->scheme = scheme;
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-  if(scheme->flags & PROTOPT_NO_TRANSFER)
-    failf(data, "Protocol \"%s\" is not for transfers", scheme->name);
-  else
-    failf(data, "Protocol \"%s\" is disabled%s", scheme->name,
-          data->state.this_is_a_follow ? " (in redirect)" : "");
-  return CURLE_UNSUPPORTED_PROTOCOL;
+  ਜੇ(scheme->flags & PROTOPT_NO_TRANSFER)
+    failf(ਅੰਕੜੇ, "Protocol \"%s\" is not for transfers", scheme->name);
+  ਨਹੀਂਤਾਂ
+    failf(ਅੰਕੜੇ, "Protocol \"%s\" is disabled%s", scheme->name,
+          ਅੰਕੜੇ->state.this_is_a_follow ? " (in redirect)" : "");
+  ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
 }
 
-CURLcode Curl_uc_to_curlcode(CURLUcode uc)
+CURLcode Curl_uc_ਮੰਜ਼ਿਲ_curlcode(CURLUcode uc)
 {
-  switch(uc) {
-  default:
-    return CURLE_URL_MALFORMAT;
-  case CURLUE_UNSUPPORTED_SCHEME:
-    return CURLE_UNSUPPORTED_PROTOCOL;
-  case CURLUE_OUT_OF_MEMORY:
-    return CURLE_OUT_OF_MEMORY;
-  case CURLUE_USER_NOT_ALLOWED:
-    return CURLE_LOGIN_DENIED;
+  ਚੋਣ(uc) {
+  ਮੂਲ:
+    ਵਾਪਸ CURLE_URL_MALFORMAT;
+  ਹਾਲਤ CURLUE_UNSUPPORTED_SCHEME:
+    ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
+  ਹਾਲਤ CURLUE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ:
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਹਾਲਤ CURLUE_USER_NOT_ALLOWED:
+    ਵਾਪਸ CURLE_LOGIN_DENIED;
   }
 }
 
-#ifndef CURL_DISABLE_HSTS
-static CURLcode hsts_upgrade(struct Curl_easy *data,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_HSTS
+ਸਥਿਰ CURLcode hsts_upgrade(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                              CURLU *uh,
-                             uint16_t port_override,
+                             uint16_t ਪੋਰਟ_override,
                              uint32_t scope_id)
 {
   /* HSTS upgrade */
-  if(data->hsts && (data->state.origin->scheme == &Curl_scheme_http) &&
-     Curl_hsts_applies(data->hsts, data->state.origin)) {
-    char *url;
+  ਜੇ(ਅੰਕੜੇ->hsts && (ਅੰਕੜੇ->state.origin->scheme == &Curl_scheme_http) &&
+     Curl_hsts_applies(ਅੰਕੜੇ->hsts, ਅੰਕੜੇ->state.origin)) {
+    ਅੱਖਰ *url;
     CURLUcode uc;
-    CURLcode result;
+    CURLcode ਨਤੀਜਾ;
 
-    uc = curl_url_set(uh, CURLUPART_SCHEME, "https", 0);
-    if(uc)
-      return Curl_uc_to_curlcode(uc);
-    Curl_bufref_free(&data->state.url);
+    uc = curl_url_ਸੈੱਟ(uh, CURLUPART_SCHEME, "https", 0);
+    ਜੇ(uc)
+      ਵਾਪਸ Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+    Curl_bufref_free(&ਅੰਕੜੇ->state.url);
     /* after update, get the updated version */
     uc = curl_url_get(uh, CURLUPART_URL, &url, 0);
-    if(uc)
-      return Curl_uc_to_curlcode(uc);
-    Curl_bufref_set(&data->state.url, url, 0, curl_free);
+    ਜੇ(uc)
+      ਵਾਪਸ Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+    Curl_bufref_ਸੈੱਟ(&ਅੰਕੜੇ->state.url, url, 0, curl_free);
 
-    result = Curl_peer_from_url(uh, data, port_override, scope_id,
-                                &data->state.origin);
-    if(result)
-      return result;
-    infof(data, "Switched from HTTP to HTTPS due to HSTS => %s", url);
+    ਨਤੀਜਾ = Curl_peer_from_url(uh, ਅੰਕੜੇ, ਪੋਰਟ_override, scope_id,
+                                &ਅੰਕੜੇ->state.origin);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    infof(ਅੰਕੜੇ, "Switched from HTTP to HTTPS due to HSTS => %s", url);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
-#else
-#define hsts_upgrade(x, y, z, a) CURLE_OK
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ hsts_upgrade(x, y, z, a) CURLE_OK
+#ਜੇ_ਅੰਤ
 
-static bool str_has_ctrl(const char *input)
+ਸਥਿਰ bool str_has_ctrl(ਅਚਲ ਅੱਖਰ *ਨਿਵੇਸ਼)
 {
-  if(input) {
-    const unsigned char *str = (const unsigned char *)input;
-    while(*str) {
-      if(*str < 0x20)
-        return TRUE;
+  ਜੇ(ਨਿਵੇਸ਼) {
+    ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *str = (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)ਨਿਵੇਸ਼;
+    ਜਦੋਂ(*str) {
+      ਜੇ(*str < 0x20)
+        ਵਾਪਸ TRUE;
       str++;
     }
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-#ifndef CURL_DISABLE_NETRC
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_NETRC
 /*
  * Override the login details from the URL with that in the CURLOPT_USERPWD
  * option or a .netrc file, if applicable.
  */
-static CURLcode url_set_data_creds_netrc(struct Curl_easy *data,
-                                         struct Curl_creds **pcreds)
+ਸਥਿਰ CURLcode url_ਸੈੱਟ_ਅੰਕੜੇ_creds_netrc(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                         ਬਣਤਰ Curl_creds **pcreds)
 {
-  struct Curl_creds *ncreds_out = NULL;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ Curl_creds *ncreds_ਬਾਹਰਲਾ = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(data->set.use_netrc) { /* not CURL_NETRC_IGNORED */
-    struct Curl_creds *ncreds_in = NULL;
-    bool scan_netrc = TRUE;
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.use_netrc) { /* not CURL_NETRC_IGNORED */
+    ਬਣਤਰ Curl_creds *ncreds_ਵਿੱਚ = ਨਿਰਾ;
+    bool ਜਾਂਚ_netrc = TRUE;
     NETRCcode ret;
     CURLUcode uc;
 
-    if(*pcreds) {
-      switch((*pcreds)->source) {
-      case CREDS_OPTION:
+    ਜੇ(*pcreds) {
+      ਚੋਣ((*pcreds)->ਸਰੋਤ) {
+      ਹਾਲਤ CREDS_OPTION:
         /* we never override credentials set via CURLOPT_*, leave. */
-        scan_netrc = FALSE;
-        break;
-      case CREDS_URL: /* only apply when netrc is not required */
-        if(data->set.use_netrc == CURL_NETRC_REQUIRED) {
+        ਜਾਂਚ_netrc = FALSE;
+        ਰੋਕੋ;
+      ਹਾਲਤ CREDS_URL: /* only apply when netrc is not required */
+        ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.use_netrc == CURL_NETRC_REQUIRED) {
           /* We ignore password from URL */
-          ncreds_in = *pcreds;
+          ncreds_ਵਿੱਚ = *pcreds;
         }
-        else if(!Curl_creds_has_user(*pcreds) ||
+        ਨਹੀਂਤਾਂ ਜੇ(!Curl_creds_has_user(*pcreds) ||
                 !Curl_creds_has_passwd(*pcreds)) {
           /* We use netrc to complete what is missing */
-          ncreds_in = *pcreds;
+          ncreds_ਵਿੱਚ = *pcreds;
         }
-        else
-          scan_netrc = FALSE;
-        break;
-      default: /* ignore credentials from other sources */
-        break;
+        ਨਹੀਂਤਾਂ
+          ਜਾਂਚ_netrc = FALSE;
+        ਰੋਕੋ;
+      ਮੂਲ: /* ignore credentials from other sources */
+        ਰੋਕੋ;
       }
     }
 
-    if(!scan_netrc)
-      goto out;
+    ਜੇ(!ਜਾਂਚ_netrc)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
-    ret = Curl_netrc_scan(data, &data->state.netrc,
-                          data->state.origin->hostname,
-                          Curl_creds_user(ncreds_in),
-                          CURL_EASY_STR(data, STRING_NETRC_FILE),
-                          &ncreds_out);
-    DEBUGASSERT(!ret || !ncreds_out);
-    if(ret == NETRC_OUT_OF_MEMORY) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ret = Curl_netrc_ਜਾਂਚ(ਅੰਕੜੇ, &ਅੰਕੜੇ->state.netrc,
+                          ਅੰਕੜੇ->state.origin->hostname,
+                          Curl_creds_user(ncreds_ਵਿੱਚ),
+                          CURL_EASY_STR(ਅੰਕੜੇ, STRING_NETRC_FILE),
+                          &ncreds_ਬਾਹਰਲਾ);
+    DEBUGASSERT(!ret || !ncreds_ਬਾਹਰਲਾ);
+    ਜੇ(ret == NETRC_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ) {
+      ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if(ret && ((ret == NETRC_NO_MATCH) ||
-                    (data->set.use_netrc == CURL_NETRC_OPTIONAL))) {
-      infof(data, "Could not find host %s in the %s file; using defaults",
-            data->state.origin->hostname,
-            (CURL_EASY_STR(data, STRING_NETRC_FILE) ?
-             CURL_EASY_STR(data, STRING_NETRC_FILE) : ".netrc"));
+    ਨਹੀਂਤਾਂ ਜੇ(ret && ((ret == NETRC_NO_ਮੇਲ) ||
+                    (ਅੰਕੜੇ->ਸੈੱਟ.use_netrc == CURL_NETRC_OPTIONAL))) {
+      infof(ਅੰਕੜੇ, "Could not find host %s in the %s file; using defaults",
+            ਅੰਕੜੇ->state.origin->hostname,
+            (CURL_EASY_STR(ਅੰਕੜੇ, STRING_NETRC_FILE) ?
+             CURL_EASY_STR(ਅੰਕੜੇ, STRING_NETRC_FILE) : ".netrc"));
     }
-    else if(ret) {
-      const char *m = Curl_netrc_strerror(ret);
-      failf(data, ".netrc error: %s", m);
-      result = CURLE_READ_ERROR;
-      goto out;
+    ਨਹੀਂਤਾਂ ਜੇ(ret) {
+      ਅਚਲ ਅੱਖਰ *m = Curl_netrc_strerror(ret);
+      failf(ਅੰਕੜੇ, ".netrc error: %s", m);
+      ਨਤੀਜਾ = CURLE_READ_ERROR;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-    else if(ncreds_out) {
-      if(!(data->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
+    ਨਹੀਂਤਾਂ ਜੇ(ncreds_ਬਾਹਰਲਾ) {
+      ਜੇ(!(ਅੰਕੜੇ->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
          /* if the protocol cannot handle control codes in credentials, make
             sure there are none */
-         (str_has_ctrl(ncreds_out->user) ||
-          str_has_ctrl(ncreds_out->passwd))) {
-        failf(data, "control code detected in .netrc credentials");
-        result = CURLE_READ_ERROR;
-        goto out;
+         (str_has_ctrl(ncreds_ਬਾਹਰਲਾ->user) ||
+          str_has_ctrl(ncreds_ਬਾਹਰਲਾ->passwd))) {
+        failf(ਅੰਕੜੇ, "control code detected in .netrc credentials");
+        ਨਤੀਜਾ = CURLE_READ_ERROR;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      CURL_TRC_M(data, "netrc: using credentials for %s as %s",
-                 data->state.origin->hostname, ncreds_out->user);
-      result = Curl_creds_merge(ncreds_out->user, ncreds_out->passwd,
+      CURL_TRC_M(ਅੰਕੜੇ, "netrc: using credentials for %s as %s",
+                 ਅੰਕੜੇ->state.origin->hostname, ncreds_ਬਾਹਰਲਾ->user);
+      ਨਤੀਜਾ = Curl_creds_ਮਿਲਾਓ(ncreds_ਬਾਹਰਲਾ->user, ncreds_ਬਾਹਰਲਾ->passwd,
                                 *pcreds, CREDS_NETRC, pcreds);
-      if(result)
-        goto out;
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
       /* for updated strings, we update them in the URL */
-      uc = curl_url_set(data->state.uh, CURLUPART_USER,
+      uc = curl_url_ਸੈੱਟ(ਅੰਕੜੇ->state.uh, CURLUPART_USER,
                         Curl_creds_user(*pcreds), CURLU_URLENCODE);
-      if(!uc)
-        uc = curl_url_set(data->state.uh, CURLUPART_PASSWORD,
+      ਜੇ(!uc)
+        uc = curl_url_ਸੈੱਟ(ਅੰਕੜੇ->state.uh, CURLUPART_PASSWORD,
                           Curl_creds_passwd(*pcreds),
                           CURLU_URLENCODE);
-      if(uc)
-        result = Curl_uc_to_curlcode(uc);
+      ਜੇ(uc)
+        ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
     }
-    else
+    ਨਹੀਂਤਾਂ
       DEBUGASSERT(0);
   }
 
-#ifdef CURLVERBOSE
-  Curl_creds_trace(data, data->state.creds, "transfer credentials");
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+  Curl_creds_trace(ਅੰਕੜੇ, ਅੰਕੜੇ->state.creds, "transfer credentials");
+#ਜੇ_ਅੰਤ
 
-out:
-  Curl_creds_unlink(&ncreds_out);
-  return result;
+ਬਾਹਰਲਾ:
+  Curl_creds_unlink(&ncreds_ਬਾਹਰਲਾ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
-#endif /* CURL_DISABLE_NETRC */
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_NETRC */
 
-static CURLcode url_set_data_creds(struct Curl_easy *data, CURLU *uh)
+ਸਥਿਰ CURLcode url_ਸੈੱਟ_ਅੰਕੜੇ_creds(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, CURLU *uh)
 {
-  struct Curl_creds *newcreds = NULL;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ Curl_creds *newcreds = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if((CURL_EASY_STR(data, STRING_USERNAME) ||
-      CURL_EASY_STR(data, STRING_PASSWORD) ||
-      CURL_EASY_STR(data, STRING_BEARER) ||
-      CURL_EASY_STR(data, STRING_SASL_AUTHZID) ||
-      CURL_EASY_STR(data, STRING_SERVICE_NAME)) &&
-     Curl_auth_allowed_to_origin(data, data->state.origin)) {
-    result = Curl_creds_create(CURL_EASY_STR(data, STRING_USERNAME),
-                               CURL_EASY_STR(data, STRING_PASSWORD),
-                               CURL_EASY_STR(data, STRING_BEARER),
-                               CURL_EASY_STR(data, STRING_SASL_AUTHZID),
-                               CURL_EASY_STR(data, STRING_SERVICE_NAME),
+  ਜੇ((CURL_EASY_STR(ਅੰਕੜੇ, STRING_USERNAME) ||
+      CURL_EASY_STR(ਅੰਕੜੇ, STRING_PASSWORD) ||
+      CURL_EASY_STR(ਅੰਕੜੇ, STRING_BEARER) ||
+      CURL_EASY_STR(ਅੰਕੜੇ, STRING_SASL_AUTHZID) ||
+      CURL_EASY_STR(ਅੰਕੜੇ, STRING_SERVICE_NAME)) &&
+     Curl_auth_allowed_ਮੰਜ਼ਿਲ_origin(ਅੰਕੜੇ, ਅੰਕੜੇ->state.origin)) {
+    ਨਤੀਜਾ = Curl_creds_create(CURL_EASY_STR(ਅੰਕੜੇ, STRING_USERNAME),
+                               CURL_EASY_STR(ਅੰਕੜੇ, STRING_PASSWORD),
+                               CURL_EASY_STR(ਅੰਕੜੇ, STRING_BEARER),
+                               CURL_EASY_STR(ਅੰਕੜੇ, STRING_SASL_AUTHZID),
+                               CURL_EASY_STR(ਅੰਕੜੇ, STRING_SERVICE_NAME),
                                CREDS_OPTION, &newcreds);
-    if(result)
-      goto out;
-    if(newcreds &&
-       !(data->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
+    ਜੇ(newcreds &&
+       !(ਅੰਕੜੇ->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
        (str_has_ctrl(Curl_creds_user(newcreds)) ||
         str_has_ctrl(Curl_creds_passwd(newcreds)))) {
       /* if the protocol cannot handle control codes in credentials, make
          sure there are none */
-      failf(data, "control code detected in credentials");
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      failf(ਅੰਕੜੇ, "control code detected in credentials");
+      ਨਤੀਜਾ = CURLE_BAD_FUNCTION_ਦਲੀਲ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
   /* Extract credentials from the URL only if there are none OR
    * if no CURLOPT_USER was set. */
-  if(!newcreds || !Curl_creds_has_user(newcreds)) {
-    char *user = NULL;
-    char *passwd = NULL;
-    char *udecoded = NULL;
-    char *pdecoded = NULL;
+  ਜੇ(!newcreds || !Curl_creds_has_user(newcreds)) {
+    ਅੱਖਰ *user = ਨਿਰਾ;
+    ਅੱਖਰ *passwd = ਨਿਰਾ;
+    ਅੱਖਰ *udecoded = ਨਿਰਾ;
+    ਅੱਖਰ *pdecoded = ਨਿਰਾ;
     CURLUcode uc;
 
     uc = curl_url_get(uh, CURLUPART_USER, &user, 0);
-    if(uc && (uc != CURLUE_NO_USER))
-      result = Curl_uc_to_curlcode(uc);
-    if(!result) {
+    ਜੇ(uc && (uc != CURLUE_NO_USER))
+      ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+    ਜੇ(!ਨਤੀਜਾ) {
       uc = curl_url_get(uh, CURLUPART_PASSWORD, &passwd, 0);
-      if(uc && (uc != CURLUE_NO_PASSWORD))
-        result = Curl_uc_to_curlcode(uc);
+      ਜੇ(uc && (uc != CURLUE_NO_PASSWORD))
+        ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
     }
-    if(!result && user) {
-      result = Curl_urldecode(user, 0, &udecoded, NULL,
-                              (data->state.origin->scheme->flags &
+    ਜੇ(!ਨਤੀਜਾ && user) {
+      ਨਤੀਜਾ = Curl_urldecode(user, 0, &udecoded, ਨਿਰਾ,
+                              (ਅੰਕੜੇ->state.origin->scheme->flags &
                                PROTOPT_USERPWDCTRL) ?
                               REJECT_ZERO : REJECT_CTRL);
     }
-    if(!result && passwd) {
-      result = Curl_urldecode(passwd, 0, &pdecoded, NULL,
-                              (data->state.origin->scheme->flags &
+    ਜੇ(!ਨਤੀਜਾ && passwd) {
+      ਨਤੀਜਾ = Curl_urldecode(passwd, 0, &pdecoded, ਨਿਰਾ,
+                              (ਅੰਕੜੇ->state.origin->scheme->flags &
                                PROTOPT_USERPWDCTRL) ?
                               REJECT_ZERO : REJECT_CTRL);
     }
-    if(!result)
-      result = Curl_creds_merge(udecoded, pdecoded, newcreds,
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = Curl_creds_ਮਿਲਾਓ(udecoded, pdecoded, newcreds,
                                 CREDS_URL, &newcreds);
 
     curlx_free(udecoded);
     curlx_free(pdecoded);
     curlx_free(passwd);
     curlx_free(user);
-    if(result) {
-      failf(data, "error extracting credentials from URL");
-      goto out;
+    ਜੇ(ਨਤੀਜਾ) {
+      failf(ਅੰਕੜੇ, "error extracting credentials from URL");
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-#ifndef CURL_DISABLE_NETRC
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_NETRC
   /* Check for overridden login details and set them accordingly so that
      they are known when protocol->setup_connection is called! */
-  result = url_set_data_creds_netrc(data, &newcreds);
-#endif /* CURL_DISABLE_NETRC */
+  ਨਤੀਜਾ = url_ਸੈੱਟ_ਅੰਕੜੇ_creds_netrc(ਅੰਕੜੇ, &newcreds);
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_NETRC */
 
-out:
-  if(!result && !Curl_creds_equal(data->state.creds, newcreds)) {
+ਬਾਹਰਲਾ:
+  ਜੇ(!ਨਤੀਜਾ && !Curl_creds_equal(ਅੰਕੜੇ->state.creds, newcreds)) {
     /* Do we have more things to trigger on credentials change? */
-    Curl_creds_link(&data->state.creds, newcreds);
+    Curl_creds_link(&ਅੰਕੜੇ->state.creds, newcreds);
   }
   Curl_creds_unlink(&newcreds);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode url_set_conn_origin_etc(struct Curl_easy *data,
-                                        struct connectdata *conn)
+ਸਥਿਰ CURLcode url_ਸੈੱਟ_conn_origin_etc(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                        ਬਣਤਰ connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  Curl_peer_link(&conn->origin, data->state.origin);
+  Curl_peer_link(&conn->origin, ਅੰਕੜੇ->state.origin);
 
   /* set the connection scheme */
-  result = url_set_conn_scheme(data, conn);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = url_ਸੈੱਟ_conn_scheme(ਅੰਕੜੇ, conn);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   /* set the connection options */
-  if(CURL_EASY_STR(data, STRING_OPTIONS)) {
-    conn->options = curlx_strdup(CURL_EASY_STR(data, STRING_OPTIONS));
-    if(!conn->options) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  ਜੇ(CURL_EASY_STR(ਅੰਕੜੇ, STRING_OPTIONS)) {
+    conn->options = curlx_strdup(CURL_EASY_STR(ਅੰਕੜੇ, STRING_OPTIONS));
+    ਜੇ(!conn->options) {
+      ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
-  else if(data->state.up.options) {
-    conn->options = curlx_strdup(data->state.up.options);
-    if(!conn->options) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->state.ਉੱਪਰ.options) {
+    conn->options = curlx_strdup(ਅੰਕੜੇ->state.ਉੱਪਰ.options);
+    ਜੇ(!conn->options) {
+      ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * If we are doing a resumed transfer, we need to setup our stuff
  * properly.
  */
-static CURLcode setup_range(struct Curl_easy *data)
+ਸਥਿਰ CURLcode ਤਿਆਰੀ_range(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct UrlState *s = &data->state;
-  s->resume_from = data->set.set_resume_from;
-  if(s->resume_from || CURL_EASY_STR(data, STRING_SET_RANGE)) {
-    if(s->rangestringalloc)
+  ਬਣਤਰ UrlState *s = &ਅੰਕੜੇ->state;
+  s->resume_from = ਅੰਕੜੇ->ਸੈੱਟ.ਸੈੱਟ_resume_from;
+  ਜੇ(s->resume_from || CURL_EASY_STR(ਅੰਕੜੇ, STRING_ਸੈੱਟ_RANGE)) {
+    ਜੇ(s->rangestringalloc)
       curlx_free(s->range);
 
-    if(s->resume_from)
+    ਜੇ(s->resume_from)
       s->range = curl_maprintf("%" FMT_OFF_T "-", s->resume_from);
-    else
-      s->range = curlx_strdup(CURL_EASY_STR(data, STRING_SET_RANGE));
+    ਨਹੀਂਤਾਂ
+      s->range = curlx_strdup(CURL_EASY_STR(ਅੰਕੜੇ, STRING_ਸੈੱਟ_RANGE));
 
-    if(!s->range)
-      return CURLE_OUT_OF_MEMORY;
+    ਜੇ(!s->range)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
     s->rangestringalloc = TRUE;
 
     /* tell ourselves to fetch this range */
     s->use_range = TRUE;        /* enable range download */
   }
-  else
+  ਨਹੀਂਤਾਂ
     s->use_range = FALSE; /* disable range download */
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
@@ -1529,51 +1529,51 @@ static CURLcode setup_range(struct Curl_easy *data)
  *
  * This MUST get called after proxy magic has been figured out.
  */
-static CURLcode setup_connection_internals(struct Curl_easy *data,
-                                           struct connectdata *conn)
+ਸਥਿਰ CURLcode ਤਿਆਰੀ_connection_internals(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                           ਬਣਤਰ connectdata *conn)
 {
-  struct Curl_peer *peer = NULL;
+  ਬਣਤਰ Curl_peer *peer = ਨਿਰਾ;
 
-  if(conn->scheme->run->setup_connection) {
-    CURLcode result = conn->scheme->run->setup_connection(data, conn);
-    if(result)
-      return result;
+  ਜੇ(conn->scheme->ਲੜੀਵਾਰ->ਤਿਆਰੀ_connection) {
+    CURLcode ਨਤੀਜਾ = conn->scheme->ਲੜੀਵਾਰ->ਤਿਆਰੀ_connection(ਅੰਕੜੇ, conn);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
   /* Now create the destination name */
   peer = Curl_conn_get_destination(conn, FIRSTSOCKET);
-  if(!peer)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!peer)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
   /* IPv6 addresses with a scope_id (0 is default == global) have a
    * printable representation with a '%<scope_id>' suffix. */
-  if(peer->ipv6)
-    if(peer->scopeid)
+  ਜੇ(peer->ipv6)
+    ਜੇ(peer->scopeid)
       conn->destination = curl_maprintf("[%s%%%u]:%u",
-        peer->hostname, peer->scopeid, peer->port);
-    else
+        peer->hostname, peer->scopeid, peer->ਪੋਰਟ);
+    ਨਹੀਂਤਾਂ
       conn->destination = curl_maprintf("[%s]:%u",
-        peer->hostname, peer->port);
-  else
-    conn->destination = curl_maprintf("%s:%u", peer->hostname, peer->port);
-  if(!conn->destination)
-    return CURLE_OUT_OF_MEMORY;
+        peer->hostname, peer->ਪੋਰਟ);
+  ਨਹੀਂਤਾਂ
+    conn->destination = curl_maprintf("%s:%u", peer->hostname, peer->ਪੋਰਟ);
+  ਜੇ(!conn->destination)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   Curl_strntolower(conn->destination, conn->destination,
-                   strlen(conn->destination));
+                   ਲੜੀ_ਲੰਬਾਈ(conn->destination));
 
-#ifdef USE_IPV6
-  if(data->set.scope_id)
-    conn->scope_id = data->set.scope_id;
-  else {
-    peer = Curl_conn_get_first_peer(conn, FIRSTSOCKET);
-    if(!peer)
-      return CURLE_FAILED_INIT;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.scope_id)
+    conn->scope_id = ਅੰਕੜੇ->ਸੈੱਟ.scope_id;
+  ਨਹੀਂਤਾਂ {
+    peer = Curl_conn_get_ਪਹਿਲਾ_peer(conn, FIRSTSOCKET);
+    ਜੇ(!peer)
+      ਵਾਪਸ CURLE_FAILED_INIT;
     conn->scope_id = peer->scopeid;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
@@ -1606,14 +1606,14 @@ static CURLcode setup_connection_internals(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_parse_login_details(const char *login, const size_t len,
-                                  char **userp, char **passwdp,
-                                  char **optionsp)
+CURLcode Curl_parse_login_details(ਅਚਲ ਅੱਖਰ *login, ਅਚਲ size_t len,
+                                  ਅੱਖਰ **userp, ਅੱਖਰ **passwdp,
+                                  ਅੱਖਰ **optionsp)
 {
-  char *ubuf = NULL;
-  char *pbuf = NULL;
-  const char *psep = NULL;
-  const char *osep = NULL;
+  ਅੱਖਰ *ubuf = ਨਿਰਾ;
+  ਅੱਖਰ *pbuf = ਨਿਰਾ;
+  ਅਚਲ ਅੱਖਰ *psep = ਨਿਰਾ;
+  ਅਚਲ ਅੱਖਰ *osep = ਨਿਰਾ;
   size_t ulen;
   size_t plen;
   size_t olen;
@@ -1625,7 +1625,7 @@ CURLcode Curl_parse_login_details(const char *login, const size_t len,
   psep = memchr(login, ':', len);
 
   /* Attempt to find the options separator */
-  if(optionsp)
+  ਜੇ(optionsp)
     osep = memchr(login, ';', len);
 
   /* Calculate the portion lengths */
@@ -1641,284 +1641,284 @@ CURLcode Curl_parse_login_details(const char *login, const size_t len,
 
   /* Clone the user portion buffer, which can be zero length */
   ubuf = curlx_memdup0(login, ulen);
-  if(!ubuf)
-    goto error;
+  ਜੇ(!ubuf)
+    ਜਾਓ error;
 
   /* Clone the password portion buffer */
-  if(psep) {
+  ਜੇ(psep) {
     pbuf = curlx_memdup0(&psep[1], plen);
-    if(!pbuf)
-      goto error;
+    ਜੇ(!pbuf)
+      ਜਾਓ error;
   }
 
   /* Allocate the options portion buffer */
-  if(optionsp) {
-    char *obuf = NULL;
-    if(olen) {
+  ਜੇ(optionsp) {
+    ਅੱਖਰ *obuf = ਨਿਰਾ;
+    ਜੇ(olen) {
       obuf = curlx_memdup0(&osep[1], olen);
-      if(!obuf)
-        goto error;
+      ਜੇ(!obuf)
+        ਜਾਓ error;
     }
     *optionsp = obuf;
   }
   *userp = ubuf;
   *passwdp = pbuf;
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 error:
   curlx_free(ubuf);
   curlx_free(pbuf);
-  return CURLE_OUT_OF_MEMORY;
+  ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 }
 
 /*
  * Set the login details so they are available in the connection
  */
-static CURLcode url_set_conn_login(struct Curl_easy *data,
-                                   struct connectdata *conn)
+ਸਥਿਰ CURLcode url_ਸੈੱਟ_conn_login(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਬਣਤਰ connectdata *conn)
 {
   /* If our protocol needs a password and we have none, use the defaults */
-  if((conn->scheme->flags & PROTOPT_NEEDSPWD) && !conn->creds) {
-    Curl_peer_link(&conn->creds_origin, data->state.origin);
-    if(data->state.creds)
-      Curl_creds_link(&conn->creds, data->state.creds);
-    else
-      return Curl_creds_create(CURL_DEFAULT_USER, CURL_DEFAULT_PASSWORD,
-                               NULL, NULL, NULL, CREDS_NONE, &conn->creds);
+  ਜੇ((conn->scheme->flags & PROTOPT_NEEDSPWD) && !conn->creds) {
+    Curl_peer_link(&conn->creds_origin, ਅੰਕੜੇ->state.origin);
+    ਜੇ(ਅੰਕੜੇ->state.creds)
+      Curl_creds_link(&conn->creds, ਅੰਕੜੇ->state.creds);
+    ਨਹੀਂਤਾਂ
+      ਵਾਪਸ Curl_creds_create(CURL_DEFAULT_USER, CURL_DEFAULT_PASSWORD,
+                               ਨਿਰਾ, ਨਿਰਾ, ਨਿਰਾ, CREDS_NONE, &conn->creds);
   }
-  else if(!(conn->scheme->flags & PROTOPT_CREDSPERREQUEST)) {
+  ਨਹੀਂਤਾਂ ਜੇ(!(conn->scheme->flags & PROTOPT_CREDSPERREQUEST)) {
     /* for protocols that do not handle credentials per request,
      * the connection credentials are set by the initial transfer. */
-    Curl_peer_link(&conn->creds_origin, data->state.origin);
-    Curl_creds_link(&conn->creds, data->state.creds);
+    Curl_peer_link(&conn->creds_origin, ਅੰਕੜੇ->state.origin);
+    Curl_creds_link(&conn->creds, ਅੰਕੜੇ->state.creds);
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Parses one "connect to" string in the form:
  * "HOST:PORT:CONNECT-TO-HOST:CONNECT-TO-PORT".
  */
-static CURLcode parse_connect_to_string(struct Curl_easy *data,
-                                        const struct Curl_peer *dest,
-                                        const char *conn_to_line,
-                                        struct Curl_peer **pvia_dest)
+ਸਥਿਰ CURLcode parse_connect_ਮੰਜ਼ਿਲ_string(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                        ਅਚਲ ਬਣਤਰ Curl_peer *dest,
+                                        ਅਚਲ ਅੱਖਰ *conn_ਮੰਜ਼ਿਲ_ਸਤਰ,
+                                        ਬਣਤਰ Curl_peer **pvia_dest)
 {
-  CURLcode result = CURLE_OK;
-  const char *ptr = conn_to_line;
-  bool host_match = FALSE;
-  bool port_match = FALSE;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅਚਲ ਅੱਖਰ *ptr = conn_ਮੰਜ਼ਿਲ_ਸਤਰ;
+  bool host_ਮੇਲ = FALSE;
+  bool ਪੋਰਟ_ਮੇਲ = FALSE;
 
-  *pvia_dest = NULL;
+  *pvia_dest = ਨਿਰਾ;
 
-  if(*ptr == ':') {
+  ਜੇ(*ptr == ':') {
     /* an empty hostname always matches */
-    host_match = TRUE;
+    host_ਮੇਲ = TRUE;
     ptr++;
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* check whether the URL's hostname matches. Use the URL hostname
      * when it was an IPv6 address. Otherwise use the connection's hostname
      * that has IDN conversion. */
-    size_t hlen = strlen(dest->hostname);
-    host_match = curl_strnequal(ptr, dest->hostname, hlen);
-    if(!host_match && (dest->user_hostname != dest->hostname)) {
+    size_t hlen = ਲੜੀ_ਲੰਬਾਈ(dest->hostname);
+    host_ਮੇਲ = curl_strnequal(ptr, dest->hostname, hlen);
+    ਜੇ(!host_ਮੇਲ && (dest->user_hostname != dest->hostname)) {
       /* hostname was normalized, could be IPv6 or IDN */
-      hlen = strlen(dest->user_hostname);
-      host_match = curl_strnequal(ptr, dest->user_hostname, hlen);
+      hlen = ਲੜੀ_ਲੰਬਾਈ(dest->user_hostname);
+      host_ਮੇਲ = curl_strnequal(ptr, dest->user_hostname, hlen);
     }
-    host_match = host_match && ptr[hlen] == ':';
-    if(host_match)
+    host_ਮੇਲ = host_ਮੇਲ && ptr[hlen] == ':';
+    ਜੇ(host_ਮੇਲ)
       ptr += hlen + 1;
   }
 
-  if(host_match) {
-    if(*ptr == ':') {
+  ਜੇ(host_ਮੇਲ) {
+    ਜੇ(*ptr == ':') {
       /* an empty port always matches */
-      port_match = TRUE;
+      ਪੋਰਟ_ਮੇਲ = TRUE;
       ptr++;
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* check whether the URL's port matches */
-      const char *ptr_next = strchr(ptr, ':');
-      if(ptr_next) {
-        curl_off_t port_to_match;
-        if(!curlx_str_number(&ptr, &port_to_match, 0xffff) &&
-           ((uint16_t)port_to_match == dest->port)) {
-          port_match = TRUE;
+      ਅਚਲ ਅੱਖਰ *ptr_ਅਗਲਾ = strchr(ptr, ':');
+      ਜੇ(ptr_ਅਗਲਾ) {
+        curl_off_t ਪੋਰਟ_ਮੰਜ਼ਿਲ_ਮੇਲ;
+        ਜੇ(!curlx_str_ਸੰਖਿਆ(&ptr, &ਪੋਰਟ_ਮੰਜ਼ਿਲ_ਮੇਲ, 0xffff) &&
+           ((uint16_t)ਪੋਰਟ_ਮੰਜ਼ਿਲ_ਮੇਲ == dest->ਪੋਰਟ)) {
+          ਪੋਰਟ_ਮੇਲ = TRUE;
         }
-        ptr = ptr_next + 1;
+        ptr = ptr_ਅਗਲਾ + 1;
       }
     }
   }
 
-  if(host_match && port_match && ptr && *ptr)
-    result = Curl_peer_from_connect_to(data, dest, ptr, pvia_dest);
+  ਜੇ(host_ਮੇਲ && ਪੋਰਟ_ਮੇਲ && ptr && *ptr)
+    ਨਤੀਜਾ = Curl_peer_from_connect_ਮੰਜ਼ਿਲ(ਅੰਕੜੇ, dest, ptr, pvia_dest);
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* With `conn->origin` known, determine if we should talk to that
  * directly or via another peer. This is the result of inspecting
  * the "connect to" slist and "alt-svc" settings. */
-static CURLcode url_set_conn_peer(struct Curl_easy *data,
-                                  struct connectdata *conn)
+ਸਥਿਰ CURLcode url_ਸੈੱਟ_conn_peer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  struct Curl_peer *origin = conn->origin;
-  struct Curl_peer *via_peer = NULL;
-  struct curl_slist *conn_to_entry = data->set.connect_to;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ Curl_peer *origin = conn->origin;
+  ਬਣਤਰ Curl_peer *ਰਾਹੀਂ_peer = ਨਿਰਾ;
+  ਬਣਤਰ curl_slist *conn_ਮੰਜ਼ਿਲ_ਇੰਦਰਾਜ = ਅੰਕੜੇ->ਸੈੱਟ.connect_ਮੰਜ਼ਿਲ;
 
-  DEBUGASSERT(!conn->via_peer);
-  Curl_peer_unlink(&conn->via_peer);
+  DEBUGASSERT(!conn->ਰਾਹੀਂ_peer);
+  Curl_peer_unlink(&conn->ਰਾਹੀਂ_peer);
 
-  while(conn_to_entry && !via_peer) {
-    result = parse_connect_to_string(data, origin, conn_to_entry->data,
-                                     &via_peer);
-    if(result)
-      return result;
-    conn_to_entry = conn_to_entry->next;
+  ਜਦੋਂ(conn_ਮੰਜ਼ਿਲ_ਇੰਦਰਾਜ && !ਰਾਹੀਂ_peer) {
+    ਨਤੀਜਾ = parse_connect_ਮੰਜ਼ਿਲ_string(ਅੰਕੜੇ, origin, conn_ਮੰਜ਼ਿਲ_ਇੰਦਰਾਜ->ਅੰਕੜੇ,
+                                     &ਰਾਹੀਂ_peer);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    conn_ਮੰਜ਼ਿਲ_ਇੰਦਰਾਜ = conn_ਮੰਜ਼ਿਲ_ਇੰਦਰਾਜ->ਅਗਲਾ;
   }
 
-#ifndef CURL_DISABLE_ALTSVC
-  if(data->asi && !via_peer &&
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_ALTSVC
+  ਜੇ(ਅੰਕੜੇ->asi && !ਰਾਹੀਂ_peer &&
      ((conn->scheme->protocol == CURLPROTO_HTTPS) ||
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
       /* allow debug builds to circumvent the HTTPS restriction */
       getenv("CURL_ALTSVC_HTTP")
-#else
+#ਨਹੀਂਤਾਂ
       0
-#endif
+#ਜੇ_ਅੰਤ
        )) {
     /* no connect_to match, try alt-svc! */
-    enum alpnid srcalpnid = ALPN_none;
-    bool hit = FALSE;
-    struct altsvc *as = NULL;
-    int allowed_alpns = ALPN_none;
-    struct http_negotiation *neg = &data->state.http_neg;
+    ਗਿਣਤੀ alpnid srcalpnid = ALPN_none;
+    bool ਪ੍ਰਾਪਤੀ = FALSE;
+    ਬਣਤਰ altsvc *as = ਨਿਰਾ;
+    ਪੂਰਨ allowed_alpns = ALPN_none;
+    ਬਣਤਰ http_negotiation *neg = &ਅੰਕੜੇ->state.http_neg;
     bool same_dest = FALSE;
 
-    DEBUGF(infof(data, "Alt-svc check wanted=%x, allowed=%x",
+    DEBUGF(infof(ਅੰਕੜੇ, "Alt-svc check wanted=%x, allowed=%x",
                  neg->wanted, neg->allowed));
-#ifdef USE_HTTP3
-    if(neg->allowed & CURL_HTTP_V3x)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP3
+    ਜੇ(neg->allowed & CURL_HTTP_V3x)
       allowed_alpns |= ALPN_h3;
-#endif
-#ifdef USE_HTTP2
-    if(neg->allowed & CURL_HTTP_V2x)
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP2
+    ਜੇ(neg->allowed & CURL_HTTP_V2x)
       allowed_alpns |= ALPN_h2;
-#endif
-    if(neg->allowed & CURL_HTTP_V1x)
+#ਜੇ_ਅੰਤ
+    ਜੇ(neg->allowed & CURL_HTTP_V1x)
       allowed_alpns |= ALPN_h1;
-    allowed_alpns &= (int)data->asi->flags;
+    allowed_alpns &= (ਪੂਰਨ)ਅੰਕੜੇ->asi->flags;
 
-    DEBUGF(infof(data, "check Alt-Svc for host '%s'", origin->hostname));
-#ifdef USE_HTTP3
-    if(!hit && (neg->wanted & CURL_HTTP_V3x)) {
+    DEBUGF(infof(ਅੰਕੜੇ, "check Alt-Svc for host '%s'", origin->hostname));
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP3
+    ਜੇ(!ਪ੍ਰਾਪਤੀ && (neg->wanted & CURL_HTTP_V3x)) {
       srcalpnid = ALPN_h3;
-      hit = Curl_altsvc_lookup(data->asi,
+      ਪ੍ਰਾਪਤੀ = Curl_altsvc_lookup(ਅੰਕੜੇ->asi,
                                origin, ALPN_h3, /* from */
-                               &as /* to */,
+                               &as /*ਮੰਜ਼ਿਲ*/,
                                allowed_alpns, &same_dest);
     }
-#endif
-#ifdef USE_HTTP2
-    if(!hit && (neg->wanted & CURL_HTTP_V2x) &&
-       !neg->h2_prior_knowledge) {
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_HTTP2
+    ਜੇ(!ਪ੍ਰਾਪਤੀ && (neg->wanted & CURL_HTTP_V2x) &&
+       !neg->h2_ਪੂਰਵ_knowledge) {
       srcalpnid = ALPN_h2;
-      hit = Curl_altsvc_lookup(data->asi,
+      ਪ੍ਰਾਪਤੀ = Curl_altsvc_lookup(ਅੰਕੜੇ->asi,
                                origin, ALPN_h2, /* from */
-                               &as /* to */,
+                               &as /*ਮੰਜ਼ਿਲ*/,
                                allowed_alpns, &same_dest);
     }
-#endif
-    if(!hit && (neg->wanted & CURL_HTTP_V1x) &&
+#ਜੇ_ਅੰਤ
+    ਜੇ(!ਪ੍ਰਾਪਤੀ && (neg->wanted & CURL_HTTP_V1x) &&
        !neg->only_10) {
       srcalpnid = ALPN_h1;
-      hit = Curl_altsvc_lookup(data->asi,
+      ਪ੍ਰਾਪਤੀ = Curl_altsvc_lookup(ਅੰਕੜੇ->asi,
                                origin, ALPN_h1, /* from */
-                               &as /* to */,
+                               &as /*ਮੰਜ਼ਿਲ*/,
                                allowed_alpns, &same_dest);
     }
 
-    if(hit && same_dest) {
+    ਜੇ(ਪ੍ਰਾਪਤੀ && same_dest) {
       /* same destination, but more HTTPS version options */
-      switch(as->dst.alpnid) {
-      case ALPN_h1:
+      ਚੋਣ(as->dst.alpnid) {
+      ਹਾਲਤ ALPN_h1:
         neg->wanted |= CURL_HTTP_V1x;
         neg->preferred = CURL_HTTP_V1x;
-        break;
-      case ALPN_h2:
+        ਰੋਕੋ;
+      ਹਾਲਤ ALPN_h2:
         neg->wanted |= CURL_HTTP_V2x;
         neg->preferred = CURL_HTTP_V2x;
-        break;
-      case ALPN_h3:
+        ਰੋਕੋ;
+      ਹਾਲਤ ALPN_h3:
         neg->wanted |= CURL_HTTP_V3x;
         neg->preferred = CURL_HTTP_V3x;
-        break;
-      default: /* should not be possible */
-        break;
+        ਰੋਕੋ;
+      ਮੂਲ: /* should not be possible */
+        ਰੋਕੋ;
       }
     }
-    else if(hit) {
-      result = Curl_peer_create(data, conn->origin->scheme,
-                                as->dst.host, as->dst.port,
-                                &via_peer);
-      if(result)
-        return result;
-      infof(data, "Alt-svc connecting from [%s]%s:%u to [%s]%s:%u",
-            Curl_alpnid2str(srcalpnid), origin->hostname, origin->port,
+    ਨਹੀਂਤਾਂ ਜੇ(ਪ੍ਰਾਪਤੀ) {
+      ਨਤੀਜਾ = Curl_peer_create(ਅੰਕੜੇ, conn->origin->scheme,
+                                as->dst.host, as->dst.ਪੋਰਟ,
+                                &ਰਾਹੀਂ_peer);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      infof(ਅੰਕੜੇ, "Alt-svc connecting from [%s]%s:%u to [%s]%s:%u",
+            Curl_alpnid2str(srcalpnid), origin->hostname, origin->ਪੋਰਟ,
             Curl_alpnid2str(as->dst.alpnid),
-            via_peer->hostname, via_peer->port);
-      conn->bits.altused = TRUE;
-      if(srcalpnid != as->dst.alpnid) {
+            ਰਾਹੀਂ_peer->hostname, ਰਾਹੀਂ_peer->ਪੋਰਟ);
+      conn->ਬਿੱਟ.altused = TRUE;
+      ਜੇ(srcalpnid != as->dst.alpnid) {
         /* protocol version switch */
-        switch(as->dst.alpnid) {
-        case ALPN_h1:
+        ਚੋਣ(as->dst.alpnid) {
+        ਹਾਲਤ ALPN_h1:
           neg->wanted = neg->allowed = CURL_HTTP_V1x;
           neg->only_10 = FALSE;
-          break;
-        case ALPN_h2:
+          ਰੋਕੋ;
+        ਹਾਲਤ ALPN_h2:
           neg->wanted = neg->allowed = CURL_HTTP_V2x;
-          break;
-        case ALPN_h3:
+          ਰੋਕੋ;
+        ਹਾਲਤ ALPN_h3:
           conn->transport_wanted = TRNSPRT_QUIC;
           neg->wanted = neg->allowed = CURL_HTTP_V3x;
-          break;
-        default: /* should not be possible */
-          break;
+          ਰੋਕੋ;
+        ਮੂਲ: /* should not be possible */
+          ਰੋਕੋ;
         }
       }
     }
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  if(via_peer)
-    conn->via_peer = via_peer;
+  ਜੇ(ਰਾਹੀਂ_peer)
+    conn->ਰਾਹੀਂ_peer = ਰਾਹੀਂ_peer;
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * Adjust reused connection settings to the transfer/needle.
  */
-static void url_conn_reuse_adjust(struct Curl_easy *data,
-                                  struct connectdata *needle)
+ਸਥਿਰ ਖਾਲੀ url_conn_reuse_adjust(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ connectdata *needle)
 {
-  struct connectdata *conn = data->conn;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
 
   /* get the user+password information from the needle since it may
    * be new for this request even when we reuse conn */
-  if(needle->creds) {
+  ਜੇ(needle->creds) {
     /* use the new username and password though */
     Curl_creds_link(&conn->creds, needle->creds);
   }
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   /* use the new proxy username and proxy password though */
   Curl_creds_link(&conn->http_proxy.creds, needle->http_proxy.creds);
   Curl_creds_link(&conn->socks_proxy.creds, needle->socks_proxy.creds);
-#endif
+#ਜੇ_ਅੰਤ
 
   /* Finding a connection for reuse in the cpool matches, among other
    * things on the "remote-relevant" hostname. This is not necessarily
@@ -1932,72 +1932,72 @@ static void url_conn_reuse_adjust(struct Curl_easy *data,
    * switch conn to needle's host settings.
    */
   Curl_peer_link(&conn->origin, needle->origin);
-  Curl_peer_link(&conn->via_peer, needle->via_peer);
+  Curl_peer_link(&conn->ਰਾਹੀਂ_peer, needle->ਰਾਹੀਂ_peer);
   Curl_peer_link(&conn->origin2, needle->origin2);
-  Curl_peer_link(&conn->via_peer2, needle->via_peer2);
+  Curl_peer_link(&conn->ਰਾਹੀਂ_peer2, needle->ਰਾਹੀਂ_peer2);
 }
 
-static void conn_meta_freeentry(void *p)
+ਸਥਿਰ ਖਾਲੀ conn_meta_freeentry(ਖਾਲੀ *p)
 {
-  (void)p;
+  (ਖਾਲੀ)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
   DEBUGASSERT(!p);
 }
 
-static CURLcode url_create_needle(struct Curl_easy *data,
-                                  struct connectdata **pneedle)
+ਸਥਿਰ CURLcode url_create_needle(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ connectdata **pneedle)
 {
-  struct connectdata *needle = NULL;
-  CURLcode result = CURLE_OK;
-  bool network_scheme = TRUE; /* almost all are */
+  ਬਣਤਰ connectdata *needle = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  bool ਜਾਲ_scheme = TRUE; /* almost all are */
 
   /* Allocate a temporary connection data struct (needle) and fill in for
      comparison purposes. */
-  needle = allocate_conn(data);
-  if(!needle) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  needle = allocate_conn(ਅੰਕੜੇ);
+  ਜੇ(!needle) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* Do the unfailable inits first, before checks that may early return */
-  Curl_hash_init(&needle->meta_hash, 23, CURL_HASH_TYPE_BYTES,
+  Curl_hash_init(&needle->meta_hash, 23, CURL_HASH_TYPE_ਬਾਈਟਾਂ,
                  conn_meta_freeentry);
 
   /*************************************************************
    * Determine `conn->origin` and populate `data->state.up` and
    * other URL related properties.
    *************************************************************/
-  result = url_set_conn_origin_etc(data, needle);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = url_ਸੈੱਟ_conn_origin_etc(ਅੰਕੜੇ, needle);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   DEBUGASSERT(needle->origin);
-  network_scheme = !(needle->origin->scheme->flags & PROTOPT_NONETWORK);
+  ਜਾਲ_scheme = !(needle->origin->scheme->flags & PROTOPT_NONETWORK);
 
-#ifdef USE_UNIX_SOCKETS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_UNIX_SOCKETS
   /*************************************************************
    * Set UDS first. It overrides "via_peer" and proxy settings.
    *************************************************************/
-  if(network_scheme && CURL_EASY_STR(data, STRING_UNIX_SOCKET_PATH)) {
-    result = Curl_peer_uds_create(
-      needle->origin->scheme, CURL_EASY_STR(data, STRING_UNIX_SOCKET_PATH),
-      (bool)data->set.abstract_unix_socket, &needle->via_peer);
-    if(result)
-      goto out;
+  ਜੇ(ਜਾਲ_scheme && CURL_EASY_STR(ਅੰਕੜੇ, STRING_UNIX_SOCKET_ਰਸਤਾ)) {
+    ਨਤੀਜਾ = Curl_peer_uds_create(
+      needle->origin->scheme, CURL_EASY_STR(ਅੰਕੜੇ, STRING_UNIX_SOCKET_ਰਸਤਾ),
+      (bool)ਅੰਕੜੇ->ਸੈੱਟ.abstract_unix_socket, &needle->ਰਾਹੀਂ_peer);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-#endif /* USE_UNIX_SOCKETS */
+#ਜੇ_ਅੰਤ /* USE_UNIX_SOCKETS */
 
-  if(network_scheme && !needle->via_peer) {
+  ਜੇ(ਜਾਲ_scheme && !needle->ਰਾਹੀਂ_peer) {
     /*************************************************************
      * If the `via_peer` is not already set (via UDS above),
      * determine if we talk to `conn->origin` directly or use
      * `conn->via_peer` using "connect to" and "alt-svc" properties.
      *************************************************************/
-    result = url_set_conn_peer(data, needle);
-    if(result)
-      goto out;
+    ਨਤੀਜਾ = url_ਸੈੱਟ_conn_peer(ਅੰਕੜੇ, needle);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /*************************************************************
@@ -2005,269 +2005,269 @@ static CURLcode url_create_needle(struct Curl_easy *data,
    * Do this after the hostnames have been IDN-converted and
    * before initializing the proxy.
    *************************************************************/
-  if(Curl_peer_equal(needle->origin, needle->via_peer)) {
-    Curl_peer_unlink(&needle->via_peer);
+  ਜੇ(Curl_peer_equal(needle->origin, needle->ਰਾਹੀਂ_peer)) {
+    Curl_peer_unlink(&needle->ਰਾਹੀਂ_peer);
   }
 
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   /* Going via a unix socket ignores any proxy settings */
-  if(network_scheme &&
-     (!needle->via_peer || !needle->via_peer->unix_socket)) {
-    result = Curl_proxy_init_conn(data, needle);
-    if(result)
-      goto out;
+  ਜੇ(ਜਾਲ_scheme &&
+     (!needle->ਰਾਹੀਂ_peer || !needle->ਰਾਹੀਂ_peer->unix_socket)) {
+    ਨਤੀਜਾ = Curl_proxy_init_conn(ਅੰਕੜੇ, needle);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
   }
-#endif /* CURL_DISABLE_PROXY */
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_PROXY */
 
-  result = url_set_conn_login(data, needle); /* default credentials */
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = url_ਸੈੱਟ_conn_login(ਅੰਕੜੇ, needle); /* default credentials */
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   /*************************************************************
    * Setup internals depending on protocol. Needs to be done after
    * we figured out what/if proxy to use.
    *************************************************************/
-  result = setup_connection_internals(data, needle);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = ਤਿਆਰੀ_connection_internals(ਅੰਕੜੇ, needle);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if(needle->scheme->flags & PROTOPT_ALPN) {
+  ਜੇ(needle->scheme->flags & PROTOPT_ALPN) {
     /* The protocol wants it, so set the bits if enabled in the easy handle
        (default) */
-    if(data->set.ssl_enable_alpn)
-      needle->bits.tls_enable_alpn = TRUE;
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.ssl_enable_alpn)
+      needle->ਬਿੱਟ.tls_enable_alpn = TRUE;
   }
 
-  if(network_scheme) {
+  ਜੇ(ਜਾਲ_scheme) {
     /* Setup callbacks for network connections */
     needle->recv[FIRSTSOCKET] = Curl_cf_recv;
     needle->send[FIRSTSOCKET] = Curl_cf_send;
     needle->recv[SECONDARYSOCKET] = Curl_cf_recv;
     needle->send[SECONDARYSOCKET] = Curl_cf_send;
-    needle->bits.tcp_fastopen = data->set.tcp_fastopen;
-#ifdef USE_UNIX_SOCKETS
-    if(Curl_conn_get_first_peer(needle, FIRSTSOCKET)->unix_socket)
+    needle->ਬਿੱਟ.tcp_fastopen = ਅੰਕੜੇ->ਸੈੱਟ.tcp_fastopen;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_UNIX_SOCKETS
+    ਜੇ(Curl_conn_get_ਪਹਿਲਾ_peer(needle, FIRSTSOCKET)->unix_socket)
       needle->transport_wanted = TRNSPRT_UNIX;
-#endif
+#ਜੇ_ਅੰਤ
   }
 
-out:
-  if(!result) {
+ਬਾਹਰਲਾ:
+  ਜੇ(!ਨਤੀਜਾ) {
     DEBUGASSERT(needle);
     DEBUGASSERT(needle->origin);
     *pneedle = needle;
   }
-  else {
-    *pneedle = NULL;
-    if(needle)
-      Curl_conn_free(data, needle);
+  ਨਹੀਂਤਾਂ {
+    *pneedle = ਨਿਰਾ;
+    ਜੇ(needle)
+      Curl_conn_free(ਅੰਕੜੇ, needle);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode url_set_data_origin_and_creds(struct Curl_easy *data)
+ਸਥਿਰ CURLcode url_ਸੈੱਟ_ਅੰਕੜੇ_origin_and_creds(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   CURLU *uh;
   CURLUcode uc = CURLUE_OK;
-  bool use_set_uh = (data->set.uh && !data->state.this_is_a_follow);
-  uint16_t port_override = data->state.allow_port ? data->set.use_port : 0;
+  bool use_ਸੈੱਟ_uh = (ਅੰਕੜੇ->ਸੈੱਟ.uh && !ਅੰਕੜੇ->state.this_is_a_follow);
+  uint16_t ਪੋਰਟ_override = ਅੰਕੜੇ->state.allow_ਪੋਰਟ ? ਅੰਕੜੇ->ਸੈੱਟ.use_ਪੋਰਟ : 0;
   uint32_t scope_id = 0;
 
   /*************************************************************
    * Check input data
    *************************************************************/
-  if(!Curl_bufref_ptr(&data->state.url)) {
-    result = CURLE_URL_MALFORMAT;
-    goto out;
+  ਜੇ(!Curl_bufref_ptr(&ਅੰਕੜੇ->state.url)) {
+    ਨਤੀਜਾ = CURLE_URL_MALFORMAT;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  up_free(data); /* cleanup previous leftovers first */
+  ਉੱਪਰ_free(ਅੰਕੜੇ); /* cleanup previous leftovers first */
 
   /* parse the URL */
-  if(use_set_uh)
-    uh = data->state.uh = curl_url_dup(data->set.uh);
-  else
-    uh = data->state.uh = curl_url();
-  if(!uh) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ਜੇ(use_ਸੈੱਟ_uh)
+    uh = ਅੰਕੜੇ->state.uh = curl_url_dup(ਅੰਕੜੇ->ਸੈੱਟ.uh);
+  ਨਹੀਂਤਾਂ
+    uh = ਅੰਕੜੇ->state.uh = curl_url();
+  ਜੇ(!uh) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  if(!use_set_uh) {
+  ਜੇ(!use_ਸੈੱਟ_uh) {
     bool prepend_sheme = FALSE;
     /* special-case when 'file' is default as a normal path is not a valid URL
        without the 'file' scheme present */
-    if(curl_strequal("file", CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL)) &&
-       !Curl_is_absolute_url(Curl_bufref_ptr(&data->state.url), NULL, 0, TRUE))
+    ਜੇ(curl_strequal("file", CURL_EASY_STR(ਅੰਕੜੇ, STRING_DEFAULT_PROTOCOL)) &&
+       !Curl_is_absolute_url(Curl_bufref_ptr(&ਅੰਕੜੇ->state.url), ਨਿਰਾ, 0, TRUE))
       prepend_sheme = TRUE;
-    else {
-      uc = curl_url_set(uh, CURLUPART_URL, Curl_bufref_ptr(&data->state.url),
-                        (unsigned int)
+    ਨਹੀਂਤਾਂ {
+      uc = curl_url_ਸੈੱਟ(uh, CURLUPART_URL, Curl_bufref_ptr(&ਅੰਕੜੇ->state.url),
+                        (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)
                         CURLU_GUESS_SCHEME |
                         CURLU_NON_SUPPORT_SCHEME |
-                        (data->set.disallow_username_in_url ?
+                        (ਅੰਕੜੇ->ਸੈੱਟ.disallow_username_ਵਿੱਚ_url ?
                          CURLU_DISALLOW_USER : 0) |
-                        (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
-      if(uc) {
-        failf(data, "URL rejected: %s", curl_url_strerror(uc));
-        result = Curl_uc_to_curlcode(uc);
-        goto out;
+                        (ਅੰਕੜੇ->ਸੈੱਟ.ਰਸਤਾ_as_is ? CURLU_ਰਸਤਾ_AS_IS : 0));
+      ਜੇ(uc) {
+        failf(ਅੰਕੜੇ, "URL rejected: %s", curl_url_strerror(uc));
+        ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
 
-      if(CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL)) {
+      ਜੇ(CURL_EASY_STR(ਅੰਕੜੇ, STRING_DEFAULT_PROTOCOL)) {
         /* check if we there was a scheme provided */
-        char *scheme;
+        ਅੱਖਰ *scheme;
         uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme,
                           CURLU_NO_GUESS_SCHEME);
-        if(uc == CURLUE_NO_SCHEME)
+        ਜੇ(uc == CURLUE_NO_SCHEME)
           prepend_sheme = TRUE;
         curl_free(scheme);
-        if(uc && uc != CURLUE_NO_SCHEME) {
-          result = Curl_uc_to_curlcode(uc);
-          goto out;
+        ਜੇ(uc && uc != CURLUE_NO_SCHEME) {
+          ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+          ਜਾਓ ਬਾਹਰਲਾ;
         }
       }
     }
 
-    if(prepend_sheme) {
-      char *url = curl_maprintf("%s://%s",
-                                CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL),
-                                Curl_bufref_ptr(&data->state.url));
-      if(!url) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+    ਜੇ(prepend_sheme) {
+      ਅੱਖਰ *url = curl_maprintf("%s://%s",
+                                CURL_EASY_STR(ਅੰਕੜੇ, STRING_DEFAULT_PROTOCOL),
+                                Curl_bufref_ptr(&ਅੰਕੜੇ->state.url));
+      ਜੇ(!url) {
+        ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      uc = curl_url_set(uh, CURLUPART_URL, url,
-                        (unsigned int)
+      uc = curl_url_ਸੈੱਟ(uh, CURLUPART_URL, url,
+                        (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)
                         CURLU_GUESS_SCHEME |
                         CURLU_NON_SUPPORT_SCHEME |
-                        (data->set.disallow_username_in_url ?
+                        (ਅੰਕੜੇ->ਸੈੱਟ.disallow_username_ਵਿੱਚ_url ?
                          CURLU_DISALLOW_USER : 0) |
-                        (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
+                        (ਅੰਕੜੇ->ਸੈੱਟ.ਰਸਤਾ_as_is ? CURLU_ਰਸਤਾ_AS_IS : 0));
       curl_free(url);
-      if(uc) {
-        failf(data, "URL rejected: %s", curl_url_strerror(uc));
-        result = Curl_uc_to_curlcode(uc);
-        goto out;
+      ਜੇ(uc) {
+        failf(ਅੰਕੜੇ, "URL rejected: %s", curl_url_strerror(uc));
+        ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
     }
     {
-      char *newurl;
+      ਅੱਖਰ *newurl;
       /* after it was parsed, and possibly given a new scheme, get the
          normalized version */
-      uc = curl_url_get(uh, CURLUPART_URL, &newurl, CURLU_GET_EMPTY);
-      if(uc) {
-        result = Curl_uc_to_curlcode(uc);
-        goto out;
+      uc = curl_url_get(uh, CURLUPART_URL, &newurl, CURLU_GET_ਖਾਲੀ_ਥਾਵਾਂ);
+      ਜੇ(uc) {
+        ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      if(prepend_sheme)
-        infof(data, "Applied default protocol '%s'",
-              CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL));
-      Curl_bufref_set(&data->state.url, newurl, 0, curl_free);
+      ਜੇ(prepend_sheme)
+        infof(ਅੰਕੜੇ, "Applied default protocol '%s'",
+              CURL_EASY_STR(ਅੰਕੜੇ, STRING_DEFAULT_PROTOCOL));
+      Curl_bufref_ਸੈੱਟ(&ਅੰਕੜੇ->state.url, newurl, 0, curl_free);
     }
   }
 
-#ifdef USE_IPV6
-  scope_id = data->set.scope_id;
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  scope_id = ਅੰਕੜੇ->ਸੈੱਟ.scope_id;
+#ਜੇ_ਅੰਤ
 
   /* `uh` is now as the connection should use it, probably. */
-  result = Curl_peer_from_url(uh, data, port_override, scope_id,
-                              &data->state.origin);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_peer_from_url(uh, ਅੰਕੜੇ, ਪੋਰਟ_override, scope_id,
+                              &ਅੰਕੜੇ->state.origin);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
   /* The origin might get changed when HSTS applies */
-  result = hsts_upgrade(data, uh, port_override, scope_id);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = hsts_upgrade(ਅੰਕੜੇ, uh, ਪੋਰਟ_override, scope_id);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   /* When the transfers initial_origin is not set, this is the initial
    * request. Remember this starting point. */
-  if(!data->state.initial_origin)
-    Curl_peer_link(&data->state.initial_origin, data->state.origin);
+  ਜੇ(!ਅੰਕੜੇ->state.initial_origin)
+    Curl_peer_link(&ਅੰਕੜੇ->state.initial_origin, ਅੰਕੜੇ->state.origin);
 
-  uc = curl_url_get(uh, CURLUPART_PATH, &data->state.up.path, CURLU_URLENCODE);
-  if(uc) {
-    result = Curl_uc_to_curlcode(uc);
-    goto out;
+  uc = curl_url_get(uh, CURLUPART_ਰਸਤਾ, &ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ, CURLU_URLENCODE);
+  ਜੇ(uc) {
+    ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  uc = curl_url_get(uh, CURLUPART_QUERY, &data->state.up.query,
-                    CURLU_GET_EMPTY);
-  if(uc && (uc != CURLUE_NO_QUERY)) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  uc = curl_url_get(uh, CURLUPART_QUERY, &ਅੰਕੜੇ->state.ਉੱਪਰ.query,
+                    CURLU_GET_ਖਾਲੀ_ਥਾਵਾਂ);
+  ਜੇ(uc && (uc != CURLUE_NO_QUERY)) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  uc = curl_url_get(uh, CURLUPART_OPTIONS, &data->state.up.options,
+  uc = curl_url_get(uh, CURLUPART_OPTIONS, &ਅੰਕੜੇ->state.ਉੱਪਰ.options,
                     CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_OPTIONS)) {
-    result = Curl_uc_to_curlcode(uc);
-    goto out;
+  ਜੇ(uc && (uc != CURLUE_NO_OPTIONS)) {
+    ਨਤੀਜਾ = Curl_uc_ਮੰਜ਼ਿਲ_curlcode(uc);
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  result = url_set_data_creds(data, uh);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = url_ਸੈੱਟ_ਅੰਕੜੇ_creds(ਅੰਕੜੇ, uh);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode url_match_init(struct Curl_easy *data,
-                               struct connectdata *needle,
-                               struct url_conn_match *m)
+ਸਥਿਰ CURLcode url_ਮੇਲ_init(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ connectdata *needle,
+                               ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
-  memset(m, 0, sizeof(*m));
-  m->data = data;
+  memset(m, 0, ਆਕਾਰ(*m));
+  m->ਅੰਕੜੇ = ਅੰਕੜੇ;
   m->needle = needle;
-  m->now = *Curl_pgrs_now(data);
-  m->may_multiplex = xfer_may_multiplex(data, needle);
+  m->now = *Curl_pgrs_now(ਅੰਕੜੇ);
+  m->may_multiplex = xfer_may_multiplex(ਅੰਕੜੇ, needle);
 
-#ifdef USE_NTLM
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NTLM
   m->want_ntlm_http =
-    (data->state.authhost.want & CURLAUTH_NTLM) &&
+    (ਅੰਕੜੇ->state.authhost.want & CURLAUTH_NTLM) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
-    Curl_auth_allowed_to_host(data);
-#ifndef CURL_DISABLE_PROXY
+    Curl_auth_allowed_ਮੰਜ਼ਿਲ_host(ਅੰਕੜੇ);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   m->want_proxy_ntlm_http =
     needle->http_proxy.creds &&
-    (data->state.authproxy.want & CURLAUTH_NTLM) &&
+    (ਅੰਕੜੇ->state.authproxy.want & CURLAUTH_NTLM) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP);
-#endif
-#endif
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#ਜੇ !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
   m->want_nego_http =
-    (data->state.authhost.want & CURLAUTH_NEGOTIATE) &&
+    (ਅੰਕੜੇ->state.authhost.want & CURLAUTH_NEGOTIATE) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
-    Curl_auth_allowed_to_host(data);
-#ifndef CURL_DISABLE_PROXY
+    Curl_auth_allowed_ਮੰਜ਼ਿਲ_host(ਅੰਕੜੇ);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   m->want_proxy_nego_http =
     needle->http_proxy.creds &&
-    (data->state.authproxy.want & CURLAUTH_NEGOTIATE) &&
+    (ਅੰਕੜੇ->state.authproxy.want & CURLAUTH_NEGOTIATE) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP);
-#endif
-#endif
-  m->require_tls = data->set.use_ssl >= CURLUSESSL_CONTROL;
-  m->may_tls = data->set.use_ssl > CURLUSESSL_NONE;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ
+  m->require_tls = ਅੰਕੜੇ->ਸੈੱਟ.use_ssl >= CURLUSESSL_CONTROL;
+  m->may_tls = ਅੰਕੜੇ->ਸੈੱਟ.use_ssl > CURLUSESSL_NONE;
 
   /* Get a shallow setup of filter configs for connection cache matching */
-  return Curl_ssl_filter_config_tmp_init(data, needle->origin,
+  ਵਾਪਸ Curl_ssl_filter_config_tmp_init(ਅੰਕੜੇ, needle->origin,
                                          &m->ssl_config,
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
                                          &m->proxy_ssl_config);
-#else
-                                         NULL);
-#endif
+#ਨਹੀਂਤਾਂ
+                                         ਨਿਰਾ);
+#ਜੇ_ਅੰਤ
 }
 
-static void url_match_destroy(struct url_conn_match *m)
+ਸਥਿਰ ਖਾਲੀ url_ਮੇਲ_destroy(ਬਣਤਰ url_conn_ਮੇਲ *m)
 {
   Curl_ssl_config_cleanup(&m->ssl_config);
-#ifndef CURL_DISABLE_PROXY
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
   Curl_ssl_config_cleanup(&m->proxy_ssl_config);
-#endif
+#ਜੇ_ਅੰਤ
 }
 
 /**
@@ -2278,64 +2278,64 @@ static void url_match_destroy(struct url_conn_match *m)
  *   a suitable connection has not determined its multiplex capability.
  * - a fatal error
  */
-static CURLcode url_find_or_create_conn(struct Curl_easy *data,
-                                        const struct curltime *pnow)
+ਸਥਿਰ CURLcode url_ਲੱਭੋ_or_create_conn(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                        ਅਚਲ ਬਣਤਰ curltime *pnow)
 {
-  struct connectdata *needle = NULL;
-  struct url_conn_match match;
-  bool match_initialized = FALSE;
-  CURLcode result;
+  ਬਣਤਰ connectdata *needle = ਨਿਰਾ;
+  ਬਣਤਰ url_conn_ਮੇਲ ਮੇਲ;
+  bool ਮੇਲ_initialized = FALSE;
+  CURLcode ਨਤੀਜਾ;
 
   /* create the template connection for transfer data. Use this needle to
    * find an existing connection or, if none exists, convert needle
    * to a full connection and attach it to data. */
-  result = url_create_needle(data, &needle);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = url_create_needle(ਅੰਕੜੇ, &needle);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
   DEBUGASSERT(needle);
 
-  result = url_match_init(data, needle, &match);
-  if(result)
-    goto out;
-  match_initialized = TRUE;
+  ਨਤੀਜਾ = url_ਮੇਲ_init(ਅੰਕੜੇ, needle, &ਮੇਲ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਮੇਲ_initialized = TRUE;
 
   /***********************************************************************
    * file: is a special case in that it does not need a network connection
    ***********************************************************************/
-#ifndef CURL_DISABLE_FILE
-  if(needle->scheme->flags & PROTOPT_NONETWORK) {
-    bool done;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FILE
+  ਜੇ(needle->scheme->flags & PROTOPT_NONETWORK) {
+    bool ਪੂਰਾ;
     /* this is supposed to be the connect function so we better at least check
        that the file is present here! */
-    DEBUGASSERT(needle->scheme->run->connect_it);
-    data->info.conn_scheme = needle->scheme->name;
+    DEBUGASSERT(needle->scheme->ਲੜੀਵਾਰ->connect_it);
+    ਅੰਕੜੇ->info.conn_scheme = needle->scheme->name;
     /* conn_protocol can only provide "old" protocols */
-    data->info.conn_protocol = needle->scheme->protocol & CURLPROTO_MASK;
-    result = needle->scheme->run->connect_it(data, &done);
-    if(result)
-      goto out;
+    ਅੰਕੜੇ->info.conn_protocol = needle->scheme->protocol & CURLPROTO_ਨਕਾਬ;
+    ਨਤੀਜਾ = needle->scheme->ਲੜੀਵਾਰ->connect_it(ਅੰਕੜੇ, &ਪੂਰਾ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
     /* Setup a "faked" transfer that will do nothing */
-    result = Curl_cpool_add(data, needle, 0, 0, pnow);
-    Curl_attach_connection(data, needle, TRUE);
-    needle = NULL;
-    if(!result) {
+    ਨਤੀਜਾ = Curl_cpool_ਜੋੜੋ(ਅੰਕੜੇ, needle, 0, 0, pnow);
+    Curl_attach_connection(ਅੰਕੜੇ, needle, TRUE);
+    needle = ਨਿਰਾ;
+    ਜੇ(!ਨਤੀਜਾ) {
       /* Setup whatever necessary for a resumed transfer */
-      result = setup_range(data);
-      if(!result) {
-        Curl_xfer_setup_nop(data);
-        result = Curl_init_transfer(data, data->conn);
+      ਨਤੀਜਾ = ਤਿਆਰੀ_range(ਅੰਕੜੇ);
+      ਜੇ(!ਨਤੀਜਾ) {
+        Curl_xfer_ਤਿਆਰੀ_nop(ਅੰਕੜੇ);
+        ਨਤੀਜਾ = Curl_init_transfer(ਅੰਕੜੇ, ਅੰਕੜੇ->conn);
       }
     }
 
-    if(result) {
-      DEBUGASSERT(data->conn->scheme->run->done);
+    ਜੇ(ਨਤੀਜਾ) {
+      DEBUGASSERT(ਅੰਕੜੇ->conn->scheme->ਲੜੀਵਾਰ->ਪੂਰਾ);
       /* we ignore the return code for the protocol-specific DONE */
-      (void)data->conn->scheme->run->done(data, result, FALSE);
+      (ਖਾਲੀ)ਅੰਕੜੇ->conn->scheme->ਲੜੀਵਾਰ->ਪੂਰਾ(ਅੰਕੜੇ, ਨਤੀਜਾ, FALSE);
     }
-    goto out;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
   /*************************************************************
    * Reuse of existing connection is not allowed when
@@ -2343,23 +2343,23 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
    * - reuse_fresh is set and this is not a follow-up request
    *   (like with HTTP followlocation)
    *************************************************************/
-  if((!data->set.reuse_fresh || data->state.followlocation) &&
-     !data->set.connect_only) {
+  ਜੇ((!ਅੰਕੜੇ->ਸੈੱਟ.reuse_fresh || ਅੰਕੜੇ->state.followlocation) &&
+     !ਅੰਕੜੇ->ਸੈੱਟ.connect_only) {
     /* Ok, try to find and attach an existing one */
-    if(url_attach_existing(data, needle, &match, pnow)) {
+    ਜੇ(url_attach_existing(ਅੰਕੜੇ, needle, &ਮੇਲ, pnow)) {
       /* We attached an existing connection for this transfer. Copy
        * over transfer specific properties over from needle. */
-      struct connectdata *conn = data->conn;
+      ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
       VERBOSE(bool tls_upgraded =
         (!(needle->origin->scheme->flags & PROTOPT_SSL) &&
          Curl_conn_is_ssl(conn, FIRSTSOCKET)));
 
       DEBUGASSERT(conn);
-      conn->bits.reuse = TRUE;
-      url_conn_reuse_adjust(data, needle);
+      conn->ਬਿੱਟ.reuse = TRUE;
+      url_conn_reuse_adjust(ਅੰਕੜੇ, needle);
 
-#ifndef CURL_DISABLE_PROXY
-      infof(data, "Reusing existing %s: connection%s with %s %s",
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+      infof(ਅੰਕੜੇ, "Reusing existing %s: connection%s with %s %s",
             conn->origin->scheme->name,
             tls_upgraded ? " (upgraded to SSL)" : "",
             (conn->socks_proxy.peer || conn->http_proxy.peer) ?
@@ -2367,172 +2367,172 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
             conn->socks_proxy.peer ? conn->socks_proxy.peer->user_hostname :
             conn->http_proxy.peer ? conn->http_proxy.peer->user_hostname :
             conn->origin->hostname);
-#else
-      infof(data, "Reusing existing %s: connection%s with host %s",
+#ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "Reusing existing %s: connection%s with host %s",
             conn->origin->scheme->name,
             tls_upgraded ? " (upgraded to SSL)" : "",
             conn->origin->hostname);
-#endif
+#ਜੇ_ਅੰਤ
     }
   }
 
-  if(!data->conn) {
+  ਜੇ(!ਅੰਕੜੇ->conn) {
     /* We have not attached an existing connection. `needle` may become
      * the connection to use, if
      * - we are not waiting on an existing connection result
      * - the total/host limits on active connections allow it
      */
-    if(match.wait_pipe) {
+    ਜੇ(ਮੇਲ.wait_pipe) {
       /* There is a connection that *might* become usable for multiplexing
          "soon", and we wait for that */
-      infof(data, "Waiting on connection to negotiate possible multiplexing.");
-      result = CURLE_NO_CONNECTION_AVAILABLE;
-      goto out;
+      infof(ਅੰਕੜੇ, "Waiting on connection to negotiate possible multiplexing.");
+      ਨਤੀਜਾ = CURLE_NO_CONNECTION_ਉਪਲਬਧ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
     /* Add needle to conn pool, observing the limits.
      * Initializes connection_id.
      * May fail due to limits with CURLE_NO_CONNECTION_AVAILABLE. */
-    result = Curl_cpool_add(data, needle,
-                            data->multi->max_total_connections,
-                            data->multi->max_host_connections,
+    ਨਤੀਜਾ = Curl_cpool_ਜੋੜੋ(ਅੰਕੜੇ, needle,
+                            ਅੰਕੜੇ->multi->max_ਕੁੱਲ_connections,
+                            ਅੰਕੜੇ->multi->max_host_connections,
                             pnow);
-    if(result)
-      goto out;
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
     /* All fine, attach it and forget needle */
-    Curl_attach_connection(data, needle, TRUE);
-    needle = NULL;
+    Curl_attach_connection(ਅੰਕੜੇ, needle, TRUE);
+    needle = ਨਿਰਾ;
 
     /* Clone the SSL filter configs into the new connection. */
-    result = Curl_ssl_conn_config_clone(&match.ssl_config,
-#ifndef CURL_DISABLE_PROXY
-                                        &match.proxy_ssl_config,
-#else
-                                        NULL,
-#endif
-                                        data->conn);
-    if(result) {
-      DEBUGF(infof(data, "Error: clone connection SSL config"));
-      goto out;
+    ਨਤੀਜਾ = Curl_ssl_conn_config_clone(&ਮੇਲ.ssl_config,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+                                        &ਮੇਲ.proxy_ssl_config,
+#ਨਹੀਂਤਾਂ
+                                        ਨਿਰਾ,
+#ਜੇ_ਅੰਤ
+                                        ਅੰਕੜੇ->conn);
+    ਜੇ(ਨਤੀਜਾ) {
+      DEBUGF(infof(ਅੰਕੜੇ, "Error: clone connection SSL config"));
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
-#ifdef USE_NTLM
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_NTLM
     /* If NTLM is requested in a part of this connection, make sure we do not
        assume the state is fine as this is a fresh connection and NTLM is
        connection based. */
-    if((data->state.authhost.picked & CURLAUTH_NTLM) &&
-       data->state.authhost.done) {
-      infof(data, "NTLM picked AND auth done set, clear picked");
-      data->state.authhost.picked = CURLAUTH_NONE;
-      data->state.authhost.done = FALSE;
+    ਜੇ((ਅੰਕੜੇ->state.authhost.picked & CURLAUTH_NTLM) &&
+       ਅੰਕੜੇ->state.authhost.ਪੂਰਾ) {
+      infof(ਅੰਕੜੇ, "NTLM picked AND auth done set, clear picked");
+      ਅੰਕੜੇ->state.authhost.picked = CURLAUTH_NONE;
+      ਅੰਕੜੇ->state.authhost.ਪੂਰਾ = FALSE;
     }
 
-    if((data->state.authproxy.picked & CURLAUTH_NTLM) &&
-       data->state.authproxy.done) {
-      infof(data, "NTLM-proxy picked AND auth done set, clear picked");
-      data->state.authproxy.picked = CURLAUTH_NONE;
-      data->state.authproxy.done = FALSE;
+    ਜੇ((ਅੰਕੜੇ->state.authproxy.picked & CURLAUTH_NTLM) &&
+       ਅੰਕੜੇ->state.authproxy.ਪੂਰਾ) {
+      infof(ਅੰਕੜੇ, "NTLM-proxy picked AND auth done set, clear picked");
+      ਅੰਕੜੇ->state.authproxy.picked = CURLAUTH_NONE;
+      ਅੰਕੜੇ->state.authproxy.ਪੂਰਾ = FALSE;
     }
-#endif
+#ਜੇ_ਅੰਤ
   }
 
   /* COMMON setup code for reused and new connections from here on. */
 
   /* Setup and init stuff before DO starts, in preparing for the transfer. */
-  result = Curl_init_transfer(data, data->conn);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = Curl_init_transfer(ਅੰਕੜੇ, ਅੰਕੜੇ->conn);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   /* Setup whatever necessary for a resumed transfer */
-  result = setup_range(data);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = ਤਿਆਰੀ_range(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
   /* persist the scheme and handler the transfer is using */
-  data->info.conn_scheme = data->conn->scheme->name;
+  ਅੰਕੜੇ->info.conn_scheme = ਅੰਕੜੇ->conn->scheme->name;
   /* conn_protocol can only provide "old" protocols */
-  data->info.conn_protocol = data->conn->scheme->protocol & CURLPROTO_MASK;
-  data->info.used_proxy =
-#ifdef CURL_DISABLE_PROXY
+  ਅੰਕੜੇ->info.conn_protocol = ਅੰਕੜੇ->conn->scheme->protocol & CURLPROTO_ਨਕਾਬ;
+  ਅੰਕੜੇ->info.ਵਰਤਿਆ_proxy =
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
     0
-#else
-    (data->conn->socks_proxy.peer || data->conn->http_proxy.peer)
-#endif
+#ਨਹੀਂਤਾਂ
+    (ਅੰਕੜੇ->conn->socks_proxy.peer || ਅੰਕੜੇ->conn->http_proxy.peer)
+#ਜੇ_ਅੰਤ
     ;
 
   /* Lastly, inform connection filters that a new transfer is attached */
-  result = Curl_conn_ev_data_setup(data);
+  ਨਤੀਜਾ = Curl_conn_ev_ਅੰਕੜੇ_ਤਿਆਰੀ(ਅੰਕੜੇ);
 
-out:
-  if(match_initialized)
-    url_match_destroy(&match);
-  if(needle)
-    Curl_conn_free(data, needle);
-  DEBUGASSERT(result || data->conn);
-  return result;
+ਬਾਹਰਲਾ:
+  ਜੇ(ਮੇਲ_initialized)
+    url_ਮੇਲ_destroy(&ਮੇਲ);
+  ਜੇ(needle)
+    Curl_conn_free(ਅੰਕੜੇ, needle);
+  DEBUGASSERT(ਨਤੀਜਾ || ਅੰਕੜੇ->conn);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_connect(struct Curl_easy *data, bool *pconnected)
+CURLcode Curl_connect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *pconnected)
 {
-  CURLcode result;
-  struct connectdata *conn = NULL;
-  const struct curltime *pnow = NULL;
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ connectdata *conn = ਨਿਰਾ;
+  ਅਚਲ ਬਣਤਰ curltime *pnow = ਨਿਰਾ;
   *pconnected = FALSE;
 
   /* Set the request to virgin state based on transfer settings */
-  Curl_req_hard_reset(&data->req, data);
+  Curl_req_hard_reset(&ਅੰਕੜੇ->req, ਅੰਕੜੇ);
   /* Determine the origin of the transfer and what credentials to use */
-  result = url_set_data_origin_and_creds(data);
-  if(result)
-    goto out;
-  if(!data->state.origin) { /* just make really sure */
+  ਨਤੀਜਾ = url_ਸੈੱਟ_ਅੰਕੜੇ_origin_and_creds(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਜੇ(!ਅੰਕੜੇ->state.origin) { /* just make really sure */
     DEBUGASSERT(0);
-    result = CURLE_FAILED_INIT;
-    goto out;
+    ਨਤੀਜਾ = CURLE_FAILED_INIT;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   /* Get or create a connection for the transfer. */
-  pnow = Curl_pgrs_now(data);
-  Curl_pgrsTimeWas(data, TIMER_POSTQUEUE, *pnow);
-  result = url_find_or_create_conn(data, pnow);
-  conn = data->conn;
-  if(result)
-    goto out;
-  if(!data->conn) { /* just make really sure */
+  pnow = Curl_pgrs_now(ਅੰਕੜੇ);
+  Curl_pgrs_ਸਮਾਂ_Was(ਅੰਕੜੇ, TIMER_POSTQUEUE, *pnow);
+  ਨਤੀਜਾ = url_ਲੱਭੋ_or_create_conn(ਅੰਕੜੇ, pnow);
+  conn = ਅੰਕੜੇ->conn;
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  ਜੇ(!ਅੰਕੜੇ->conn) { /* just make really sure */
     DEBUGASSERT(0);
-    result = CURLE_FAILED_INIT;
-    goto out;
+    ਨਤੀਜਾ = CURLE_FAILED_INIT;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  if(conn->bits.reuse) {
-    if(conn->attached_xfers > 1)
+  ਜੇ(conn->ਬਿੱਟ.reuse) {
+    ਜੇ(conn->attached_xfers > 1)
       /* multiplexed */
       *pconnected = TRUE;
   }
-  else if(conn->scheme->flags & PROTOPT_NONETWORK) {
-    Curl_pgrsTime(data, TIMER_NAMELOOKUP);
+  ਨਹੀਂਤਾਂ ਜੇ(conn->scheme->flags & PROTOPT_NONETWORK) {
+    Curl_pgrs_ਸਮਾਂ(ਅੰਕੜੇ, TIMER_NAMELOOKUP);
     *pconnected = TRUE;
   }
-  else {
-    result = Curl_conn_setup(data, conn, FIRSTSOCKET, CURL_CF_SSL_DEFAULT);
-    if(!result)
-      result = Curl_headers_init(data);
-    CURL_TRC_M(data, "Curl_conn_setup() -> %d", (int)result);
+  ਨਹੀਂਤਾਂ {
+    ਨਤੀਜਾ = Curl_conn_ਤਿਆਰੀ(ਅੰਕੜੇ, conn, FIRSTSOCKET, CURL_CF_SSL_DEFAULT);
+    ਜੇ(!ਨਤੀਜਾ)
+      ਨਤੀਜਾ = Curl_ਸਿਰਲੇਖਾਂ_init(ਅੰਕੜੇ);
+    CURL_TRC_M(ਅੰਕੜੇ, "Curl_conn_setup() -> %d", (ਪੂਰਨ)ਨਤੀਜਾ);
   }
 
-out:
-  if(result == CURLE_NO_CONNECTION_AVAILABLE)
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ == CURLE_NO_CONNECTION_ਉਪਲਬਧ)
     DEBUGASSERT(!conn);
 
-  if(result && conn) {
+  ਜੇ(ਨਤੀਜਾ && conn) {
     /* We are not allowed to return failure with memory left allocated in the
        connectdata struct, free those here */
-    Curl_detach_connection(data);
-    Curl_conn_close(data, conn, TRUE);
+    Curl_detach_connection(ਅੰਕੜੇ);
+    Curl_conn_close(ਅੰਕੜੇ, conn, TRUE);
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
@@ -2544,93 +2544,93 @@ out:
  * Allow this function to get called with 'conn' set to NULL.
  */
 
-CURLcode Curl_init_transfer(struct Curl_easy *data, struct connectdata *conn)
+CURLcode Curl_init_transfer(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ connectdata *conn)
 {
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(conn) {
-    conn->bits.do_more = FALSE; /* by default there is no curl_do_more() to
+  ਜੇ(conn) {
+    conn->ਬਿੱਟ.do_ਹੋਰ = FALSE; /* by default there is no curl_do_more() to
                                    use */
     /* if the protocol used does not support wildcards, switch it off */
-    if(data->state.wildcardmatch &&
+    ਜੇ(ਅੰਕੜੇ->state.wildcardmatch &&
        !(conn->scheme->flags & PROTOPT_WILDCARD))
-      data->state.wildcardmatch = FALSE;
+      ਅੰਕੜੇ->state.wildcardmatch = FALSE;
   }
 
-  data->state.done = FALSE; /* *_done() is not called yet */
+  ਅੰਕੜੇ->state.ਪੂਰਾ = FALSE; /* *_done() is not called yet */
 
-  data->req.no_body = data->set.opt_no_body;
-  if(data->req.no_body)
+  ਅੰਕੜੇ->req.no_body = ਅੰਕੜੇ->ਸੈੱਟ.opt_no_body;
+  ਜੇ(ਅੰਕੜੇ->req.no_body)
     /* in HTTP lingo, no body means using the HEAD request... */
-    data->state.httpreq = HTTPREQ_HEAD;
+    ਅੰਕੜੇ->state.httpreq = HTTPREQ_ਸਿਰ;
 
-  result = Curl_req_start(&data->req, data);
-  if(!result) {
-    Curl_pgrsReset(data);
+  ਨਤੀਜਾ = Curl_req_ਸ਼ੁਰੂ(&ਅੰਕੜੇ->req, ਅੰਕੜੇ);
+  ਜੇ(!ਨਤੀਜਾ) {
+    Curl_pgrsReset(ਅੰਕੜੇ);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
+#ਜੇ defined(USE_HTTP2) || defined(USE_HTTP3)
 
-void Curl_data_priority_clear_state(struct Curl_easy *data)
+ਖਾਲੀ Curl_ਅੰਕੜੇ_ਤਰਜੀਹ_clear_state(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  data->state.weight = 0;
+  ਅੰਕੜੇ->state.ਭਾਰ = 0;
 }
 
-#endif /* USE_HTTP2 || USE_HTTP3 */
+#ਜੇ_ਅੰਤ /* USE_HTTP2 || USE_HTTP3 */
 
-CURLcode Curl_conn_meta_set(struct connectdata *conn, const char *key,
-                            void *meta_data, Curl_meta_dtor *meta_dtor)
+CURLcode Curl_conn_meta_ਸੈੱਟ(ਬਣਤਰ connectdata *conn, ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ,
+                            ਖਾਲੀ *meta_ਅੰਕੜੇ, Curl_meta_dtor *meta_dtor)
 {
-  if(!Curl_hash_add2(&conn->meta_hash, key, strlen(key) + 1,
-                     meta_data, meta_dtor)) {
-    meta_dtor(key, strlen(key) + 1, meta_data);
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!Curl_hash_add2(&conn->meta_hash, ਕੁੰਜੀ, ਲੜੀ_ਲੰਬਾਈ(ਕੁੰਜੀ) + 1,
+                     meta_ਅੰਕੜੇ, meta_dtor)) {
+    meta_dtor(ਕੁੰਜੀ, ਲੜੀ_ਲੰਬਾਈ(ਕੁੰਜੀ) + 1, meta_ਅੰਕੜੇ);
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-void Curl_conn_meta_remove(struct connectdata *conn, const char *key)
+ਖਾਲੀ Curl_conn_meta_remove(ਬਣਤਰ connectdata *conn, ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ)
 {
-  Curl_hash_delete(&conn->meta_hash, key, strlen(key) + 1);
+  Curl_hash_delete(&conn->meta_hash, ਕੁੰਜੀ, ਲੜੀ_ਲੰਬਾਈ(ਕੁੰਜੀ) + 1);
 }
 
-void *Curl_conn_meta_get(struct connectdata *conn, const char *key)
+ਖਾਲੀ *Curl_conn_meta_get(ਬਣਤਰ connectdata *conn, ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ)
 {
-  return Curl_hash_pick(&conn->meta_hash, key, strlen(key) + 1);
+  ਵਾਪਸ Curl_hash_pick(&conn->meta_hash, ਕੁੰਜੀ, ਲੜੀ_ਲੰਬਾਈ(ਕੁੰਜੀ) + 1);
 }
 
-struct Curl_easy *Curl_get_admin(struct Curl_easy *data)
+ਬਣਤਰ Curl_easy *Curl_get_admin(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct Curl_easy *admin;
+  ਬਣਤਰ Curl_easy *admin;
 
-  if(!data->mid) /* already an admin handle */
-    admin = data;
-  else if(data->multi)
-    admin = data->multi->admin;
-  else if(data->multi_easy)
-    admin = data->multi_easy->admin;
-  else {
+  ਜੇ(!ਅੰਕੜੇ->mid) /* already an admin handle */
+    admin = ਅੰਕੜੇ;
+  ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->multi)
+    admin = ਅੰਕੜੇ->multi->admin;
+  ਨਹੀਂਤਾਂ ਜੇ(ਅੰਕੜੇ->multi_easy)
+    admin = ਅੰਕੜੇ->multi_easy->admin;
+  ਨਹੀਂਤਾਂ {
     DEBUGASSERT(0); /* we do not want this. does it happen? */
-    admin = data;
+    admin = ਅੰਕੜੇ;
   }
-  if(admin != data) {
-    admin->set.conn_max_idle_ms = data->set.conn_max_idle_ms;
-    admin->set.conn_max_age_ms = data->set.conn_max_age_ms;
-    admin->set.upkeep_interval_ms = data->set.upkeep_interval_ms;
-    admin->set.timeout = data->set.timeout;
-    admin->set.server_response_timeout = data->set.server_response_timeout;
-    admin->set.no_signal = data->set.no_signal;
+  ਜੇ(admin != ਅੰਕੜੇ) {
+    admin->ਸੈੱਟ.conn_max_idle_ms = ਅੰਕੜੇ->ਸੈੱਟ.conn_max_idle_ms;
+    admin->ਸੈੱਟ.conn_max_age_ms = ਅੰਕੜੇ->ਸੈੱਟ.conn_max_age_ms;
+    admin->ਸੈੱਟ.upkeep_interval_ms = ਅੰਕੜੇ->ਸੈੱਟ.upkeep_interval_ms;
+    admin->ਸੈੱਟ.timeout = ਅੰਕੜੇ->ਸੈੱਟ.timeout;
+    admin->ਸੈੱਟ.server_response_timeout = ਅੰਕੜੇ->ਸੈੱਟ.server_response_timeout;
+    admin->ਸੈੱਟ.no_signal = ਅੰਕੜੇ->ਸੈੱਟ.no_signal;
   }
-  return admin;
+  ਵਾਪਸ admin;
 }
 
 CURLcode Curl_1st_fatal(CURLcode r1, CURLcode r2)
 {
-  if(r1 && (r1 != CURLE_AGAIN))
-    return r1;
-  if(r2 && (r2 != CURLE_AGAIN))
-    return r2;
-  return r1;
+  ਜੇ(r1 && (r1 != CURLE_AGAIN))
+    ਵਾਪਸ r1;
+  ਜੇ(r2 && (r2 != CURLE_AGAIN))
+    ਵਾਪਸ r2;
+  ਵਾਪਸ r1;
 }

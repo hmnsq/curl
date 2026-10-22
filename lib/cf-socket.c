@@ -21,292 +21,292 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> /* <netinet/tcp.h> may need it */
-#endif
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h> /* for sockaddr_un */
-#endif
-#ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
-#elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
-#endif
-#ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
-#endif
-#ifdef HAVE_NETINET_IP_H
-#include <netinet/ip.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_ਵਿੱਚ_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h> /* <netinet/tcp.h> may need it */
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_UN_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/un.h> /* for sockaddr_un */
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_LINUX_TCP_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/tcp.h>
+#ਜਾਂਜੇ defined(HAVE_NETINET_TCP_H)
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/tcp.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_UDP_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/udp.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_IP_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/ip.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_IOCTL_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/ioctl.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETDB_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netdb.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ARPA_INET_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <arpa/inet.h>
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_IFADDRS_H
-#include <ifaddrs.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_IFADDRS_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <ifaddrs.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NET_IF_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <net/if.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __VMS
+#ਅਨ੍ਤਰ੍ਭਾਵ <in.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <inet.h>
+#ਜੇ_ਅੰਤ
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "if2ip.h"
-#include "cfilters.h"
-#include "cf-socket.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "select.h"
-#include "multiif.h"
-#include "curlx/inet_ntop.h"
-#include "curlx/inet_pton.h"
-#include "progress.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "rand.h"
-#include "sockaddr.h"
-#include "curlx/strdup.h"
-#include "curlx/nonblock.h"
-#include "curlx/strcopy.h"
-#include "curlx/version_win32.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
-#include "curlx/wait.h"
-#ifdef _WIN32
-#include <mstcpip.h> /* for TCP_INITIAL_RTO_PARAMETERS */
-#endif
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "if2ip.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cf-socket.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_addrinfo.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "select.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multiif.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/inet_ntop.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/inet_pton.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "conncache.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "multihandle.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "rand.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sockaddr.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strdup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/nonblock.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strcopy.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/version_win32.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strerr.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/wait.h"
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
+#ਅਨ੍ਤਰ੍ਭਾਵ <mstcpip.h> /* for TCP_INITIAL_RTO_PARAMETERS */
+#ਜੇ_ਅੰਤ
 
 /* retrieves ip address and port from a sockaddr structure. note it calls
  * curlx_inet_ntop() and returns CURLcode.
  * @unittest 1607
  */
-UNITTEST CURLcode sockaddr2string(struct sockaddr *sa, curl_socklen_t salen,
-                                  char *addr, uint16_t *port);
-UNITTEST CURLcode sockaddr2string(struct sockaddr *sa, curl_socklen_t salen,
-                                  char *addr, uint16_t *port)
+UNITTEST CURLcode sockaddr2string(ਬਣਤਰ sockaddr *sa, curl_socklen_t salen,
+                                  ਅੱਖਰ *addr, uint16_t *ਪੋਰਟ);
+UNITTEST CURLcode sockaddr2string(ਬਣਤਰ sockaddr *sa, curl_socklen_t salen,
+                                  ਅੱਖਰ *addr, uint16_t *ਪੋਰਟ)
 {
-  CURLcode result;
-  struct sockaddr_in *si = NULL;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *si6 = NULL;
-#endif
-#ifdef USE_UNIX_SOCKETS
-  struct sockaddr_un *su = NULL;
-#else
-  (void)salen;
-#endif
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ sockaddr_in *si = ਨਿਰਾ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  ਬਣਤਰ sockaddr_in6 *si6 = ਨਿਰਾ;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_UNIX_SOCKETS
+  ਬਣਤਰ sockaddr_un *su = ਨਿਰਾ;
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)salen;
+#ਜੇ_ਅੰਤ
 
-  switch(sa->sa_family) {
-  case AF_INET:
-    si = (struct sockaddr_in *)(void *)sa;
-    result = curlx_inet_ntop(sa->sa_family, &si->sin_addr, addr,
+  ਚੋਣ(sa->sa_family) {
+  ਹਾਲਤ AF_INET:
+    si = (ਬਣਤਰ sockaddr_in *)(ਖਾਲੀ *)sa;
+    ਨਤੀਜਾ = curlx_inet_ntop(sa->sa_family, &si->sin_addr, addr,
                              MAX_IPADR_LEN);
-    if(!result) {
-      *port = ntohs(si->sin_port);
-      return result;
+    ਜੇ(!ਨਤੀਜਾ) {
+      *ਪੋਰਟ = ntohs(si->sin_port);
+      ਵਾਪਸ ਨਤੀਜਾ;
     }
-    break;
-#ifdef USE_IPV6
-  case AF_INET6:
-    si6 = (struct sockaddr_in6 *)(void *)sa;
-    result = curlx_inet_ntop(sa->sa_family, &si6->sin6_addr, addr,
+    ਰੋਕੋ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  ਹਾਲਤ AF_INET6:
+    si6 = (ਬਣਤਰ sockaddr_in6 *)(ਖਾਲੀ *)sa;
+    ਨਤੀਜਾ = curlx_inet_ntop(sa->sa_family, &si6->sin6_addr, addr,
                              MAX_IPADR_LEN);
-    if(!result) {
-      *port = ntohs(si6->sin6_port);
-      return result;
+    ਜੇ(!ਨਤੀਜਾ) {
+      *ਪੋਰਟ = ntohs(si6->sin6_port);
+      ਵਾਪਸ ਨਤੀਜਾ;
     }
-    break;
-#endif
-#ifdef USE_UNIX_SOCKETS
-  case AF_UNIX:
-    if(salen > (curl_socklen_t)sizeof(CURL_SA_FAMILY_T)) {
-      su = (struct sockaddr_un *)sa;
-      curl_msnprintf(addr, MAX_IPADR_LEN, "%s", su->sun_path);
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_UNIX_SOCKETS
+  ਹਾਲਤ AF_UNIX:
+    ਜੇ(salen > (curl_socklen_t)ਆਕਾਰ(CURL_SA_FAMILY_T)) {
+      su = (ਬਣਤਰ sockaddr_un *)sa;
+      curl_msnprintf(addr, MAX_IPADR_LEN, "%s", su->sun_ਰਸਤਾ);
     }
-    else
+    ਨਹੀਂਤਾਂ
       addr[0] = 0; /* socket with no name */
-    *port = 0;
-    return CURLE_OK;
-#endif
-  default:
-    result = CURLE_UNSUPPORTED_PROTOCOL;
-    break;
+    *ਪੋਰਟ = 0;
+    ਵਾਪਸ CURLE_OK;
+#ਜੇ_ਅੰਤ
+  ਮੂਲ:
+    ਨਤੀਜਾ = CURLE_UNSUPPORTED_PROTOCOL;
+    ਰੋਕੋ;
   }
 
   addr[0] = '\0';
-  *port = 0;
-  return result;
+  *ਪੋਰਟ = 0;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void tcpnodelay(struct Curl_cfilter *cf,
-                       struct Curl_easy *data,
+ਸਥਿਰ ਖਾਲੀ tcpnodelay(ਬਣਤਰ Curl_cfilter *cf,
+                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                        curl_socket_t sockfd)
 {
-#if defined(TCP_NODELAY) && defined(CURL_TCP_NODELAY_SUPPORTED)
+#ਜੇ defined(TCP_NODELAY) && defined(CURL_TCP_NODELAY_SUPPORTED)
   curl_socklen_t onoff = (curl_socklen_t)1;
-  int level = IPPROTO_TCP;
-  VERBOSE(char buffer[STRERROR_LEN]);
+  ਪੂਰਨ level = IPPROTO_TCP;
+  VERBOSE(ਅੱਖਰ ਬਫਰ[STRERROR_LEN]);
 
-  if(setsockopt(sockfd, level, TCP_NODELAY, (void *)&onoff, sizeof(onoff)) < 0)
-    CURL_TRC_CF(data, cf, "Could not set TCP_NODELAY: %s",
-                curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-#else
-  (void)cf;
-  (void)data;
-  (void)sockfd;
-#endif
+  ਜੇ(setsockopt(sockfd, level, TCP_NODELAY, (ਖਾਲੀ *)&onoff, ਆਕਾਰ(onoff)) < 0)
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "Could not set TCP_NODELAY: %s",
+                curlx_strerror(SOCKERRNO, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)cf;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)sockfd;
+#ਜੇ_ਅੰਤ
 }
 
-#if defined(USE_WINSOCK) || defined(TCP_KEEPIDLE) ||               \
-  defined(TCP_KEEPALIVE) || defined(TCP_KEEPALIVE_THRESHOLD) ||    \
-  defined(TCP_KEEPINTVL) || defined(TCP_KEEPALIVE_ABORT_THRESHOLD)
-#if defined(USE_WINSOCK) || \
+#ਜੇ defined(USE_WINSOCK) || defined(TCP_KEEPIDLE) ||               \
+  defined(TCP_KEEPALIVE) || defined(TCP_KEEPALIVE_ਹੱਦ) ||    \
+  defined(TCP_KEEPINTVL) || defined(TCP_KEEPALIVE_ABORT_ਹੱਦ)
+#ਜੇ defined(USE_WINSOCK) || \
   (defined(__sun) && !defined(TCP_KEEPIDLE)) || \
   (defined(__DragonFly__) && __DragonFly_version < 500702) || \
   (defined(_WIN32) && !defined(TCP_KEEPIDLE))
 /* Solaris < 11.4, DragonFlyBSD < 500702 and Windows < 10.0.16299
  * use millisecond units. */
-static void alive_unit(int *x)
+ਸਥਿਰ ਖਾਲੀ alive_unit(ਪੂਰਨ *x)
 {
   /* make sure this doesn't wrap */
-  if(*x < (INT_MAX / 1000))
+  ਜੇ(*x < (ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ / 1000))
     *x *= 1000;
-  else
+  ਨਹੀਂਤਾਂ
     /* this is still almost 25 days */
-    *x = INT_MAX;
+    *x = ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ;
 }
-#else
-#define alive_unit(x)
-#endif
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ alive_unit(x)
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ
 
-static void tcpkeepalive(struct Curl_cfilter *cf,
-                         struct Curl_easy *data,
+ਸਥਿਰ ਖਾਲੀ tcpkeepalive(ਬਣਤਰ Curl_cfilter *cf,
+                         ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                          curl_socket_t sockfd)
 {
-  int optval = data->set.tcp_keepalive ? 1 : 0;
+  ਪੂਰਨ optval = ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepalive ? 1 : 0;
 
   /* only set IDLE and INTVL if setting KEEPALIVE is successful */
-  if(setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE,
-                (void *)&optval, sizeof(optval)) < 0) {
-    CURL_TRC_CF(data, cf, "Failed to set SO_KEEPALIVE on fd "
+  ਜੇ(setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE,
+                (ਖਾਲੀ *)&optval, ਆਕਾਰ(optval)) < 0) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set SO_KEEPALIVE on fd "
                 "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
   }
-  else {
-#ifdef USE_WINSOCK
+  ਨਹੀਂਤਾਂ {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_WINSOCK
     /* Windows 10, version 1709 (10.0.16299) and later versions can use
        setsockopt() TCP_KEEP*. Older versions return with failure. */
-    if(curlx_verify_windows_version(10, 0, 16299, PLATFORM_WINNT,
-                                    VERSION_GREATER_THAN_EQUAL)) {
-      CURL_TRC_CF(data, cf, "Set TCP_KEEP* on fd=%" FMT_SOCKET_T, sockfd);
-      optval = curlx_sltosi(data->set.tcp_keepidle);
+    ਜੇ(curlx_verify_windows_ਸੰਸਕਰਣ(10, 0, 16299, PLATFORM_WINNT,
+                                    ਸੰਸਕਰਣ_GREATER_THAN_EQUAL)) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "Set TCP_KEEP* on fd=%" FMT_SOCKET_T, sockfd);
+      optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepidle);
 /* Offered by mingw-w64 v12+, MS SDK 6.0A/VS2008+ */
-#ifndef TCP_KEEPALIVE
-#define TCP_KEEPALIVE 3
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ TCP_KEEPALIVE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TCP_KEEPALIVE 3
+#ਜੇ_ਅੰਤ
 /* Offered by mingw-w64 v12+, MS SDK 10.0.15063.0/VS2017 15.1+ */
-#ifndef TCP_KEEPCNT
-#define TCP_KEEPCNT 16
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ TCP_KEEPCNT
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TCP_KEEPCNT 16
+#ਜੇ_ਅੰਤ
 /* Offered by mingw-w64 v12+, MS SDK 10.0.16299.0/VS2017 15.4+ */
-#ifndef TCP_KEEPIDLE
-#define TCP_KEEPIDLE TCP_KEEPALIVE
-#endif
-#ifndef TCP_KEEPINTVL
-#define TCP_KEEPINTVL 17
-#endif
-      if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
-                    (const char *)&optval, sizeof(optval)) < 0) {
-        CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPIDLE on fd "
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ TCP_KEEPIDLE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TCP_KEEPIDLE TCP_KEEPALIVE
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ TCP_KEEPINTVL
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TCP_KEEPINTVL 17
+#ਜੇ_ਅੰਤ
+      ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
+                    (ਅਚਲ ਅੱਖਰ *)&optval, ਆਕਾਰ(optval)) < 0) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPIDLE on fd "
                     "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
       }
-      optval = curlx_sltosi(data->set.tcp_keepintvl);
-      if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
-                    (const char *)&optval, sizeof(optval)) < 0) {
-        CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPINTVL on fd "
+      optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepintvl);
+      ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
+                    (ਅਚਲ ਅੱਖਰ *)&optval, ਆਕਾਰ(optval)) < 0) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPINTVL on fd "
                     "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
       }
-      optval = curlx_sltosi(data->set.tcp_keepcnt);
-      if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT,
-                    (const char *)&optval, sizeof(optval)) < 0) {
-        CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPCNT on fd "
+      optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepcnt);
+      ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT,
+                    (ਅਚਲ ਅੱਖਰ *)&optval, ਆਕਾਰ(optval)) < 0) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPCNT on fd "
                     "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
       }
     }
-    else {
+    ਨਹੀਂਤਾਂ {
 /* Offered by mingw-w64 and MS SDK. Latter only when targeting Win7+. */
-#ifndef SIO_KEEPALIVE_VALS
-#define SIO_KEEPALIVE_VALS  _WSAIOW(IOC_VENDOR, 4)
-      struct tcp_keepalive {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SIO_KEEPALIVE_VALS
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIO_KEEPALIVE_VALS  _WSAIOW(IOC_VENDOR, 4)
+      ਬਣਤਰ tcp_keepalive {
         u_long onoff;
         u_long keepalivetime;
         u_long keepaliveinterval;
       };
-#endif
-      struct tcp_keepalive vals;
+#ਜੇ_ਅੰਤ
+      ਬਣਤਰ tcp_keepalive vals;
       DWORD dummy;
       vals.onoff = 1;
-      optval = curlx_sltosi(data->set.tcp_keepidle);
+      optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepidle);
       alive_unit(&optval);
       vals.keepalivetime = (u_long)optval;
-      optval = curlx_sltosi(data->set.tcp_keepintvl);
+      optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepintvl);
       alive_unit(&optval);
       vals.keepaliveinterval = (u_long)optval;
-      if(WSAIoctl(sockfd, SIO_KEEPALIVE_VALS, (LPVOID)&vals, sizeof(vals),
-                  NULL, 0, &dummy, NULL, NULL) != 0) {
-        CURL_TRC_CF(data, cf, "Failed to set SIO_KEEPALIVE_VALS on fd "
+      ਜੇ(WSAIoctl(sockfd, SIO_KEEPALIVE_VALS, (LPVOID)&vals, ਆਕਾਰ(vals),
+                  ਨਿਰਾ, 0, &dummy, ਨਿਰਾ, ਨਿਰਾ) != 0) {
+        CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set SIO_KEEPALIVE_VALS on fd "
                     "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
       }
     }
-#else /* !USE_WINSOCK */
-#ifdef TCP_KEEPIDLE
-    optval = curlx_sltosi(data->set.tcp_keepidle);
+#ਨਹੀਂਤਾਂ /* !USE_WINSOCK */
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ TCP_KEEPIDLE
+    optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepidle);
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPIDLE on fd "
+    ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
+                  (ਖਾਲੀ *)&optval, ਆਕਾਰ(optval)) < 0) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPIDLE on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#elif defined(TCP_KEEPALIVE)
+#ਜਾਂਜੇ defined(TCP_KEEPALIVE)
     /* macOS style */
-    optval = curlx_sltosi(data->set.tcp_keepidle);
+    optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepidle);
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPALIVE on fd "
+    ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE,
+                  (ਖਾਲੀ *)&optval, ਆਕਾਰ(optval)) < 0) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPALIVE on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#elif defined(TCP_KEEPALIVE_THRESHOLD)
+#ਜਾਂਜੇ defined(TCP_KEEPALIVE_ਹੱਦ)
     /* Solaris <11.4 style */
-    optval = curlx_sltosi(data->set.tcp_keepidle);
+    optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepidle);
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE_THRESHOLD,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPALIVE_THRESHOLD on fd "
+    ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE_ਹੱਦ,
+                  (ਖਾਲੀ *)&optval, ਆਕਾਰ(optval)) < 0) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPALIVE_THRESHOLD on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#endif
-#ifdef TCP_KEEPINTVL
-    optval = curlx_sltosi(data->set.tcp_keepintvl);
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ TCP_KEEPINTVL
+    optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepintvl);
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPINTVL on fd "
+    ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
+                  (ਖਾਲੀ *)&optval, ਆਕਾਰ(optval)) < 0) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPINTVL on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#elif defined(TCP_KEEPALIVE_ABORT_THRESHOLD)
+#ਜਾਂਜੇ defined(TCP_KEEPALIVE_ABORT_ਹੱਦ)
     /* Solaris <11.4 style */
     /* TCP_KEEPALIVE_ABORT_THRESHOLD should equal to
      * TCP_KEEPCNT * TCP_KEEPINTVL on other platforms.
@@ -319,30 +319,30 @@ static void tcpkeepalive(struct Curl_cfilter *cf,
      * at equal intervals on Solaris, but will be sent
      * using the exponential backoff algorithm. */
     {
-      int keepcnt = curlx_sltosi(data->set.tcp_keepcnt);
-      int keepintvl = curlx_sltosi(data->set.tcp_keepintvl);
+      ਪੂਰਨ keepcnt = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepcnt);
+      ਪੂਰਨ keepintvl = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepintvl);
 
-      if(keepcnt > 0 && keepintvl > (INT_MAX / keepcnt))
-        optval = INT_MAX;
-      else
+      ਜੇ(keepcnt > 0 && keepintvl > (ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ / keepcnt))
+        optval = ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ;
+      ਨਹੀਂਤਾਂ
         optval = keepcnt * keepintvl;
     }
     alive_unit(&optval);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE_ABORT_THRESHOLD,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPALIVE_ABORT_THRESHOLD"
+    ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE_ABORT_ਹੱਦ,
+                  (ਖਾਲੀ *)&optval, ਆਕਾਰ(optval)) < 0) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPALIVE_ABORT_THRESHOLD"
                   " on fd %" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#endif
-#ifdef TCP_KEEPCNT
-    optval = curlx_sltosi(data->set.tcp_keepcnt);
-    if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT,
-                  (void *)&optval, sizeof(optval)) < 0) {
-      CURL_TRC_CF(data, cf, "Failed to set TCP_KEEPCNT on fd "
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ TCP_KEEPCNT
+    optval = curlx_sltosi(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepcnt);
+    ਜੇ(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPCNT,
+                  (ਖਾਲੀ *)&optval, ਆਕਾਰ(optval)) < 0) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to set TCP_KEEPCNT on fd "
                   "%" FMT_SOCKET_T ": errno %d", sockfd, SOCKERRNO);
     }
-#endif
-#endif /* USE_WINSOCK */
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅੰਤ /* USE_WINSOCK */
   }
 }
 
@@ -350,8 +350,8 @@ static void tcpkeepalive(struct Curl_cfilter *cf,
  * Assign the addrinfo `ai` to the Curl_sockaddr_ex `addr` with
  * transport determining socktype and protocol.
  */
-CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
-                                  const struct Curl_addrinfo *ai,
+CURLcode Curl_socket_addr_from_ai(ਬਣਤਰ Curl_sockaddr_ex *addr,
+                                  ਅਚਲ ਬਣਤਰ Curl_addrinfo *ai,
                                   uint8_t transport)
 {
   /*
@@ -364,35 +364,35 @@ CURLcode Curl_socket_addr_from_ai(struct Curl_sockaddr_ex *addr,
   addr->family = ai->ai_family;
   addr->socktype = Curl_socktype_for_transport(transport);
   addr->protocol = Curl_protocol_for_transport(transport);
-  addr->addrlen = (unsigned int)ai->ai_addrlen;
+  addr->addrlen = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)ai->ai_addrlen;
 
-  DEBUGASSERT(addr->addrlen <= sizeof(addr->curl_sa_addrbuf));
-  if(addr->addrlen > sizeof(addr->curl_sa_addrbuf))
-    return CURLE_TOO_LARGE;
+  DEBUGASSERT(addr->addrlen <= ਆਕਾਰ(addr->curl_sa_addrbuf));
+  ਜੇ(addr->addrlen > ਆਕਾਰ(addr->curl_sa_addrbuf))
+    ਵਾਪਸ CURLE_TOO_LARGE;
 
-  memcpy(&addr->curl_sa_addrbuf, ai->ai_addr, addr->addrlen);
-  return CURLE_OK;
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&addr->curl_sa_addrbuf, ai->ai_addr, addr->addrlen);
+  ਵਾਪਸ CURLE_OK;
 }
 
-#ifdef USE_SO_NOSIGPIPE
-int Curl_sock_nosigpipe(curl_socket_t sockfd)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SO_NOSIGPIPE
+ਪੂਰਨ Curl_sock_nosigpipe(curl_socket_t sockfd)
 {
-  int onoff = 1;
-  return setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE,
-                    (void *)&onoff, sizeof(onoff));
+  ਪੂਰਨ onoff = 1;
+  ਵਾਪਸ setsockopt(sockfd, SOL_SOCKET, SO_NOSIGPIPE,
+                    (ਖਾਲੀ *)&onoff, ਆਕਾਰ(onoff));
 }
-#endif /* USE_SO_NOSIGPIPE */
+#ਜੇ_ਅੰਤ /* USE_SO_NOSIGPIPE */
 
-#if defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
-static uint32_t get_scope_id(struct Curl_easy *data,
-                             struct sockaddr_in6 *sa6)
+#ਜੇ defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+ਸਥਿਰ uint32_t get_scope_id(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ sockaddr_in6 *sa6)
 {
   uint32_t scope_id = 0;
-  if(data->conn->scope_id)
-    return data->conn->scope_id;
+  ਜੇ(ਅੰਕੜੇ->conn->scope_id)
+    ਵਾਪਸ ਅੰਕੜੇ->conn->scope_id;
   /* NOLINTNEXTLINE(clang-analyzer-core.uninitialized.Assign) */
   scope_id = sa6->sin6_scope_id;
-  if(!scope_id && IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr)) {
+  ਜੇ(!scope_id && IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr)) {
     /* The resolver did not set scope_id for this link-local address.
      * Try to determine it from the system's network interfaces.
      * Without a scope_id, connect() to a link-local address fails
@@ -400,45 +400,45 @@ static uint32_t get_scope_id(struct Curl_easy *data,
      * NOTE: On multi-homed hosts with several interfaces having
      * link-local addresses, this picks the first one found, which
      * may not be the correct outgoing interface. */
-#if defined(HAVE_GETIFADDRS) && defined(HAVE_NET_IF_H)
-    struct ifaddrs *ifa, *ifa_list;
-    if(getifaddrs(&ifa_list) == 0) {
-      for(ifa = ifa_list; ifa; ifa = ifa->ifa_next) {
-        if(ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET6 &&
+#ਜੇ defined(HAVE_GETIFADDRS) && defined(HAVE_NET_IF_H)
+    ਬਣਤਰ ifaddrs *ifa, *ifa_list;
+    ਜੇ(getifaddrs(&ifa_list) == 0) {
+      ਲਈ(ifa = ifa_list; ifa; ifa = ifa->ifa_ਅਗਲਾ) {
+        ਜੇ(ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET6 &&
            (ifa->ifa_flags & IFF_UP) &&
            !(ifa->ifa_flags & IFF_LOOPBACK)) {
-          struct sockaddr_in6 *s6 = (void *)ifa->ifa_addr;
-          if(IN6_IS_ADDR_LINKLOCAL(&s6->sin6_addr) && s6->sin6_scope_id) {
+          ਬਣਤਰ sockaddr_in6 *s6 = (ਖਾਲੀ *)ifa->ifa_addr;
+          ਜੇ(IN6_IS_ADDR_LINKLOCAL(&s6->sin6_addr) && s6->sin6_scope_id) {
             scope_id = s6->sin6_scope_id;
-            infof(data,
+            infof(ਅੰਕੜੇ,
                   "determined scope_id=%lu for link-local address "
                   "from local interface",
-                  (unsigned long)scope_id);
-            break;
+                  (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)scope_id);
+            ਰੋਕੋ;
           }
         }
       }
       freeifaddrs(ifa_list);
     }
-#endif /* HAVE_GETIFADDRS && HAVE_NET_IF_H */
+#ਜੇ_ਅੰਤ /* HAVE_GETIFADDRS && HAVE_NET_IF_H */
   }
-  return scope_id;
+  ਵਾਪਸ scope_id;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static CURLcode socket_open(struct Curl_easy *data,
-                            struct Curl_sockaddr_ex *addr,
+ਸਥਿਰ CURLcode socket_open(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_sockaddr_ex *addr,
                             curl_socket_t *sockfd)
 {
-  char errbuf[STRERROR_LEN];
+  ਅੱਖਰ errbuf[STRERROR_LEN];
 
-#ifdef SOCK_CLOEXEC
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ SOCK_CLOEXEC
   addr->socktype |= SOCK_CLOEXEC;
-#endif
+#ਜੇ_ਅੰਤ
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  if(data->set.fopensocket) {
+  DEBUGASSERT(ਅੰਕੜੇ);
+  DEBUGASSERT(ਅੰਕੜੇ->conn);
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.fopensocket) {
     /*
      * If the opensocket callback is set, all the destination address
      * information is passed to the callback. Depending on this information the
@@ -448,60 +448,60 @@ static CURLcode socket_open(struct Curl_easy *data,
      * might have been changed and this 'new' address will actually be used
      * here to connect.
      */
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_fopensocket);
-    *sockfd = data->set.fopensocket(data->set.opensocket_client,
+    ਬਣਤਰ Curl_mapi_guard guard;
+    CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_fopensocket);
+    *sockfd = ਅੰਕੜੇ->ਸੈੱਟ.fopensocket(ਅੰਕੜੇ->ਸੈੱਟ.opensocket_client,
                                     CURLSOCKTYPE_IPCXN,
-                                    (struct curl_sockaddr *)addr);
-    CURL_CBAPI_END(&guard);
+                                    (ਬਣਤਰ curl_sockaddr *)addr);
+    CURL_CBAPI_ਸਿਰਾ(&guard);
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* opensocket callback not set, so create the socket now */
-#ifdef DEBUGBUILD
-    if((addr->family == AF_INET6) && getenv("CURL_DBG_SOCK_FAIL_IPV6")) {
-      failf(data, "CURL_DBG_SOCK_FAIL_IPV6: failed to open socket");
-      return CURLE_COULDNT_CONNECT;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+    ਜੇ((addr->family == AF_INET6) && getenv("CURL_DBG_SOCK_FAIL_IPV6")) {
+      failf(ਅੰਕੜੇ, "CURL_DBG_SOCK_FAIL_IPV6: failed to open socket");
+      ਵਾਪਸ CURLE_COULDNT_CONNECT;
     }
-#endif
+#ਜੇ_ਅੰਤ
     *sockfd = CURL_SOCKET(addr->family, addr->socktype, addr->protocol);
-    if((*sockfd == CURL_SOCKET_BAD) && (SOCKERRNO == SOCKENOMEM))
-      return CURLE_OUT_OF_MEMORY;
+    ਜੇ((*sockfd == CURL_SOCKET_BAD) && (SOCKERRNO == SOCKENOMEM))
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
-  if(*sockfd == CURL_SOCKET_BAD) {
+  ਜੇ(*sockfd == CURL_SOCKET_BAD) {
     /* no socket, no connection */
-    failf(data, "failed to open socket: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
-    return CURLE_COULDNT_CONNECT;
+    failf(ਅੰਕੜੇ, "failed to open socket: %s",
+          curlx_strerror(SOCKERRNO, errbuf, ਆਕਾਰ(errbuf)));
+    ਵਾਪਸ CURLE_COULDNT_CONNECT;
   }
 
-#ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(*sockfd) < 0) {
-    failf(data, "setsockopt enable SO_NOSIGPIPE: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SO_NOSIGPIPE
+  ਜੇ(Curl_sock_nosigpipe(*sockfd) < 0) {
+    failf(ਅੰਕੜੇ, "setsockopt enable SO_NOSIGPIPE: %s",
+          curlx_strerror(SOCKERRNO, errbuf, ਆਕਾਰ(errbuf)));
     sclose(*sockfd);
     *sockfd = CURL_SOCKET_BAD;
-    return CURLE_COULDNT_CONNECT;
+    ਵਾਪਸ CURLE_COULDNT_CONNECT;
   }
-#endif /* USE_SO_NOSIGPIPE */
+#ਜੇ_ਅੰਤ /* USE_SO_NOSIGPIPE */
 
-#if defined(HAVE_FCNTL) && !defined(SOCK_CLOEXEC)
-  if(fcntl(*sockfd, F_SETFD, FD_CLOEXEC) < 0) {
-    failf(data, "fcntl set CLOEXEC: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
+#ਜੇ defined(HAVE_FCNTL) && !defined(SOCK_CLOEXEC)
+  ਜੇ(fcntl(*sockfd, F_SETFD, FD_CLOEXEC) < 0) {
+    failf(ਅੰਕੜੇ, "fcntl set CLOEXEC: %s",
+          curlx_strerror(SOCKERRNO, errbuf, ਆਕਾਰ(errbuf)));
     sclose(*sockfd);
     *sockfd = CURL_SOCKET_BAD;
-    return CURLE_COULDNT_CONNECT;
+    ਵਾਪਸ CURLE_COULDNT_CONNECT;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-#if defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
-  if(addr->family == AF_INET6) {
-    struct sockaddr_in6 * const sa6 = (void *)&addr->curl_sa_addr;
-    sa6->sin6_scope_id = get_scope_id(data, sa6);
+#ਜੇ defined(USE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+  ਜੇ(addr->family == AF_INET6) {
+    ਬਣਤਰ sockaddr_in6 * ਅਚਲ sa6 = (ਖਾਲੀ *)&addr->curl_sa_addr;
+    sa6->sin6_scope_id = get_scope_id(ਅੰਕੜੇ, sa6);
   }
-#endif
-  return CURLE_OK;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
@@ -513,49 +513,49 @@ static CURLcode socket_open(struct Curl_easy *data,
  * If the open socket callback is set, used that!
  *
  */
-CURLcode Curl_socket_open(struct Curl_easy *data,
-                          const struct Curl_addrinfo *ai,
-                          struct Curl_sockaddr_ex *addr,
+CURLcode Curl_socket_open(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਅਚਲ ਬਣਤਰ Curl_addrinfo *ai,
+                          ਬਣਤਰ Curl_sockaddr_ex *addr,
                           uint8_t transport,
                           curl_socket_t *sockfd)
 {
-  struct Curl_sockaddr_ex dummy;
-  CURLcode result;
+  ਬਣਤਰ Curl_sockaddr_ex dummy;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!addr)
+  ਜੇ(!addr)
     /* if the caller does not want info back, use a local temp copy */
     addr = &dummy;
 
-  result = Curl_socket_addr_from_ai(addr, ai, transport);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_socket_addr_from_ai(addr, ai, transport);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  return socket_open(data, addr, sockfd);
+  ਵਾਪਸ socket_open(ਅੰਕੜੇ, addr, sockfd);
 }
 
-static int socket_close(struct Curl_easy *data, struct connectdata *conn,
-                        int use_callback, curl_socket_t sock)
+ਸਥਿਰ ਪੂਰਨ socket_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ connectdata *conn,
+                        ਪੂਰਨ use_callback, curl_socket_t sock)
 {
-  if(sock == CURL_SOCKET_BAD)
-    return 0;
+  ਜੇ(sock == CURL_SOCKET_BAD)
+    ਵਾਪਸ 0;
 
-  if(use_callback && conn && conn->fclosesocket) {
-    struct Curl_mapi_guard guard;
-    int rc;
-    Curl_multi_will_close(data, sock);
-    CURL_CBAPI_START(&guard, data, easy_closesocket);
+  ਜੇ(use_callback && conn && conn->fclosesocket) {
+    ਬਣਤਰ Curl_mapi_guard guard;
+    ਪੂਰਨ rc;
+    Curl_multi_will_close(ਅੰਕੜੇ, sock);
+    CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_closesocket);
     rc = conn->fclosesocket(conn->closesocket_client, sock);
-    CURL_CBAPI_END(&guard);
-    return rc;
+    CURL_CBAPI_ਸਿਰਾ(&guard);
+    ਵਾਪਸ rc;
   }
 
-  if(conn)
+  ਜੇ(conn)
     /* tell the multi-socket code about this */
-    Curl_multi_will_close(data, sock);
+    Curl_multi_will_close(ਅੰਕੜੇ, sock);
 
   sclose(sock);
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
 /*
@@ -563,10 +563,10 @@ static int socket_close(struct Curl_easy *data, struct connectdata *conn,
  *
  * 'conn' can be NULL, beware!
  */
-int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
+ਪੂਰਨ Curl_socket_close(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ connectdata *conn,
                       curl_socket_t sock)
 {
-  return socket_close(data, conn, FALSE, sock);
+  ਵਾਪਸ socket_close(ਅੰਕੜੇ, conn, FALSE, sock);
 }
 
 /*
@@ -596,134 +596,134 @@ int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_parse_interface(const char *input,
-                              char **dev, char **iface, char **host)
+CURLcode Curl_parse_interface(ਅਚਲ ਅੱਖਰ *ਨਿਵੇਸ਼,
+                              ਅੱਖਰ **dev, ਅੱਖਰ **iface, ਅੱਖਰ **host)
 {
-  static const char if_prefix[] = "if!";
-  static const char host_prefix[] = "host!";
-  static const char if_host_prefix[] = "ifhost!";
+  ਸਥਿਰ ਅਚਲ ਅੱਖਰ if_ਅਗੇਤਰ[] = "if!";
+  ਸਥਿਰ ਅਚਲ ਅੱਖਰ host_ਅਗੇਤਰ[] = "host!";
+  ਸਥਿਰ ਅਚਲ ਅੱਖਰ if_host_ਅਗੇਤਰ[] = "ifhost!";
   size_t len;
 
-  len = strlen(input);
-  if(len > 512)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  len = ਲੜੀ_ਲੰਬਾਈ(ਨਿਵੇਸ਼);
+  ਜੇ(len > 512)
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
 
-  if(dev)
-    *dev = NULL;
-  if(iface)
-    *iface = NULL;
-  if(host)
-    *host = NULL;
+  ਜੇ(dev)
+    *dev = ਨਿਰਾ;
+  ਜੇ(iface)
+    *iface = ਨਿਰਾ;
+  ਜੇ(host)
+    *host = ਨਿਰਾ;
 
-  if(!strncmp(if_prefix, input, strlen(if_prefix))) {
-    input += strlen(if_prefix);
-    if(!*input)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(iface) {
-      *iface = curlx_memdup0(input, len - strlen(if_prefix));
-      return *iface ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(if_ਅਗੇਤਰ, ਨਿਵੇਸ਼, ਲੜੀ_ਲੰਬਾਈ(if_ਅਗੇਤਰ))) {
+    ਨਿਵੇਸ਼ += ਲੜੀ_ਲੰਬਾਈ(if_ਅਗੇਤਰ);
+    ਜੇ(!*ਨਿਵੇਸ਼)
+      ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+    ਜੇ(iface) {
+      *iface = curlx_memdup0(ਨਿਵੇਸ਼, len - ਲੜੀ_ਲੰਬਾਈ(if_ਅਗੇਤਰ));
+      ਵਾਪਸ *iface ? CURLE_OK : CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-  else if(!strncmp(host_prefix, input, strlen(host_prefix))) {
-    input += strlen(host_prefix);
-    if(!*input)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(host) {
-      *host = curlx_memdup0(input, len - strlen(host_prefix));
-      return *host ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  ਨਹੀਂਤਾਂ ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(host_ਅਗੇਤਰ, ਨਿਵੇਸ਼, ਲੜੀ_ਲੰਬਾਈ(host_ਅਗੇਤਰ))) {
+    ਨਿਵੇਸ਼ += ਲੜੀ_ਲੰਬਾਈ(host_ਅਗੇਤਰ);
+    ਜੇ(!*ਨਿਵੇਸ਼)
+      ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+    ਜੇ(host) {
+      *host = curlx_memdup0(ਨਿਵੇਸ਼, len - ਲੜੀ_ਲੰਬਾਈ(host_ਅਗੇਤਰ));
+      ਵਾਪਸ *host ? CURLE_OK : CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-  else if(!strncmp(if_host_prefix, input, strlen(if_host_prefix))) {
-    const char *host_part;
-    input += strlen(if_host_prefix);
-    len -= strlen(if_host_prefix);
-    host_part = memchr(input, '!', len);
-    if(!host_part || !*(host_part + 1))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(iface) {
-      *iface = curlx_memdup0(input, host_part - input);
-      if(!*iface)
-        return CURLE_OUT_OF_MEMORY;
+  ਨਹੀਂਤਾਂ ਜੇ(!ਲੜੀ_ਤੁਲਨਾ(if_host_ਅਗੇਤਰ, ਨਿਵੇਸ਼, ਲੜੀ_ਲੰਬਾਈ(if_host_ਅਗੇਤਰ))) {
+    ਅਚਲ ਅੱਖਰ *host_part;
+    ਨਿਵੇਸ਼ += ਲੜੀ_ਲੰਬਾਈ(if_host_ਅਗੇਤਰ);
+    len -= ਲੜੀ_ਲੰਬਾਈ(if_host_ਅਗੇਤਰ);
+    host_part = memchr(ਨਿਵੇਸ਼, '!', len);
+    ਜੇ(!host_part || !*(host_part + 1))
+      ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+    ਜੇ(iface) {
+      *iface = curlx_memdup0(ਨਿਵੇਸ਼, host_part - ਨਿਵੇਸ਼);
+      ਜੇ(!*iface)
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
     ++host_part;
-    if(host) {
-      *host = curlx_memdup0(host_part, len - (host_part - input));
-      if(!*host) {
-        if(iface)
+    ਜੇ(host) {
+      *host = curlx_memdup0(host_part, len - (host_part - ਨਿਵੇਸ਼));
+      ਜੇ(!*host) {
+        ਜੇ(iface)
           curlx_safefree(*iface);
-        return CURLE_OUT_OF_MEMORY;
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
       }
     }
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  if(!*input)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(dev) {
-    *dev = curlx_memdup0(input, len);
-    return *dev ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  ਜੇ(!*ਨਿਵੇਸ਼)
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+  ਜੇ(dev) {
+    *dev = curlx_memdup0(ਨਿਵੇਸ਼, len);
+    ਵਾਪਸ *dev ? CURLE_OK : CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-#ifndef CURL_DISABLE_BINDLOCAL
-static CURLcode bindlocal(struct Curl_easy *data, struct connectdata *conn,
-                          curl_socket_t sockfd, int af, unsigned int scope,
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BINDLOCAL
+ਸਥਿਰ CURLcode bindlocal(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ connectdata *conn,
+                          curl_socket_t sockfd, ਪੂਰਨ af, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ scope,
                           uint8_t transport)
 {
-  struct Curl_sockaddr_storage sa;
-  struct sockaddr *sock = (struct sockaddr *)&sa;  /* bind to this address */
+  ਬਣਤਰ Curl_sockaddr_storage sa;
+  ਬਣਤਰ sockaddr *sock = (ਬਣਤਰ sockaddr *)&sa;  /* bind to this address */
   curl_socklen_t sizeof_sa = 0; /* size of the data sock points to */
-  struct sockaddr_in *si4 = (struct sockaddr_in *)&sa;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *si6 = (struct sockaddr_in6 *)&sa;
-#endif
-  struct Curl_dns_entry *h = NULL;
-  unsigned short port = data->set.localport; /* use this port number, 0 for
+  ਬਣਤਰ sockaddr_in *si4 = (ਬਣਤਰ sockaddr_in *)&sa;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  ਬਣਤਰ sockaddr_in6 *si6 = (ਬਣਤਰ sockaddr_in6 *)&sa;
+#ਜੇ_ਅੰਤ
+  ਬਣਤਰ Curl_dns_ਇੰਦਰਾਜ *h = ਨਿਰਾ;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ ਪੋਰਟ = ਅੰਕੜੇ->ਸੈੱਟ.localport; /* use this port number, 0 for
                                                 "random" */
   /* how many port numbers to try to bind to, increasing one at a time */
-  int portnum = data->set.localportrange;
-  char *dev_in = NULL, *iface_in = NULL, *host_in = NULL;
-  const char *iface = NULL, *host = NULL;
-  int sockerr;
-#ifdef IP_BIND_ADDRESS_NO_PORT
-  int on = 1;
-#endif
-  CURLcode result = CURLE_OK;
+  ਪੂਰਨ portnum = ਅੰਕੜੇ->ਸੈੱਟ.localportrange;
+  ਅੱਖਰ *dev_ਵਿੱਚ = ਨਿਰਾ, *iface_ਵਿੱਚ = ਨਿਰਾ, *host_ਵਿੱਚ = ਨਿਰਾ;
+  ਅਚਲ ਅੱਖਰ *iface = ਨਿਰਾ, *host = ਨਿਰਾ;
+  ਪੂਰਨ sockerr;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ IP_BIND_ADDRESS_NO_PORT
+  ਪੂਰਨ on = 1;
+#ਜੇ_ਅੰਤ
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-#ifndef USE_IPV6
-  (void)scope;
-#endif
-  if(conn->interface_opts) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  (ਖਾਲੀ)scope;
+#ਜੇ_ਅੰਤ
+  ਜੇ(conn->interface_opts) {
     /*************************************************************
      * Select device to bind socket to
      *************************************************************/
-    result = Curl_parse_interface(conn->interface_opts,
-                                  &dev_in, &iface_in, &host_in);
-    if(result)
-      goto out;
+    ਨਤੀਜਾ = Curl_parse_interface(conn->interface_opts,
+                                  &dev_ਵਿੱਚ, &iface_ਵਿੱਚ, &host_ਵਿੱਚ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
     /* This is how we use the values */
-    iface = iface_in ? iface_in : dev_in;
-    host = host_in ? host_in : dev_in;
+    iface = iface_ਵਿੱਚ ? iface_ਵਿੱਚ : dev_ਵਿੱਚ;
+    host = host_ਵਿੱਚ ? host_ਵਿੱਚ : dev_ਵਿੱਚ;
   }
 
-  if(!iface && !host && !port)
-    goto out;
+  ਜੇ(!iface && !host && !ਪੋਰਟ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  if(iface && (strlen(iface) >= 255)) {
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  ਜੇ(iface && (ਲੜੀ_ਲੰਬਾਈ(iface) >= 255)) {
+    ਨਤੀਜਾ = CURLE_BAD_FUNCTION_ਦਲੀਲ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  memset(&sa, 0, sizeof(struct Curl_sockaddr_storage));
+  memset(&sa, 0, ਆਕਾਰ(ਬਣਤਰ Curl_sockaddr_storage));
 
-  if(iface || host) {
-    char myhost[256] = "";
-    int done = 0; /* -1 for error, 1 for address found */
-    if2ip_result_t if2ip_result = IF2IP_NOT_FOUND;
+  ਜੇ(iface || host) {
+    ਅੱਖਰ myhost[256] = "";
+    ਪੂਰਨ ਪੂਰਾ = 0; /* -1 for error, 1 for address found */
+    if2ip_ਨਤੀਜਾ_t if2ip_ਨਤੀਜਾ = IF2_IP_NOT_ਮਿਲਿਆ;
 
-#ifdef SO_BINDTODEVICE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ SO_BINDTODEVICE
     /*
      * This binds the local socket to a particular interface. This will
      * force even requests to other local interfaces to go out the external
@@ -734,55 +734,55 @@ static CURLcode bindlocal(struct Curl_easy *data, struct connectdata *conn,
      * converted to an IP address and would fail Curl_if2ip. Try to
      * use it straight away.
      */
-    if(iface &&
+    ਜੇ(iface &&
        setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE,
-                  iface, (curl_socklen_t)strlen(iface) + 1) == 0 &&
+                  iface, (curl_socklen_t)ਲੜੀ_ਲੰਬਾਈ(iface) + 1) == 0 &&
        /* This is often "errno 1, error: Operation not permitted" if you are
         * not running as root or another suitable privileged user. If it
         * succeeds it means the parameter was a valid interface and not an IP
         * address. Return immediately.
         */
-       !host_in) {
-      infof(data, "socket successfully bound to interface '%s'", iface);
-      result = CURLE_OK;
-      goto out;
+       !host_ਵਿੱਚ) {
+      infof(ਅੰਕੜੇ, "socket successfully bound to interface '%s'", iface);
+      ਨਤੀਜਾ = CURLE_OK;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
-#endif
-    if(!host_in) {
+#ਜੇ_ਅੰਤ
+    ਜੇ(!host_ਵਿੱਚ) {
       /* Discover IP from input device, then bind to it */
-      if2ip_result = Curl_if2ip(af,
-#ifdef USE_IPV6
+      if2ip_ਨਤੀਜਾ = Curl_if2ip(af,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
                                 scope, conn->scope_id,
-#endif
-                                iface, myhost, sizeof(myhost));
+#ਜੇ_ਅੰਤ
+                                iface, myhost, ਆਕਾਰ(myhost));
     }
-    switch(if2ip_result) {
-    case IF2IP_NOT_FOUND:
-      if(iface_in && !host_in) {
+    ਚੋਣ(if2ip_ਨਤੀਜਾ) {
+    ਹਾਲਤ IF2_IP_NOT_ਮਿਲਿਆ:
+      ਜੇ(iface_ਵਿੱਚ && !host_ਵਿੱਚ) {
         /* Do not fall back to treating it as a hostname */
-        char buffer[STRERROR_LEN];
-        data->state.os_errno = sockerr = SOCKERRNO;
-        failf(data, "Could not bind to interface '%s' with errno %d: %s",
-              iface, sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
-        result = CURLE_INTERFACE_FAILED;
-        goto out;
+        ਅੱਖਰ ਬਫਰ[STRERROR_LEN];
+        ਅੰਕੜੇ->state.os_errno = sockerr = SOCKERRNO;
+        failf(ਅੰਕੜੇ, "Could not bind to interface '%s' with errno %d: %s",
+              iface, sockerr, curlx_strerror(sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
+        ਨਤੀਜਾ = CURLE_INTERFACE_FAILED;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      break;
-    case IF2IP_AF_NOT_SUPPORTED:
+      ਰੋਕੋ;
+    ਹਾਲਤ IF2IP_AF_NOT_SUPPORTED:
       /* Signal the caller to try another address family if available */
-      result = CURLE_UNSUPPORTED_PROTOCOL;
-      goto out;
-    case IF2IP_FOUND:
+      ਨਤੀਜਾ = CURLE_UNSUPPORTED_PROTOCOL;
+      ਜਾਓ ਬਾਹਰਲਾ;
+    ਹਾਲਤ IF2_IP_ਮਿਲਿਆ:
       /*
        * We now have the numerical IP address in the 'myhost' buffer
        */
       host = myhost;
-      infof(data, "Local Interface %s is ip %s using address family %d",
+      infof(ਅੰਕੜੇ, "Local Interface %s is ip %s using address family %d",
             iface, host, af);
-      done = 1;
-      break;
+      ਪੂਰਾ = 1;
+      ਰੋਕੋ;
     }
-    if(!iface_in || host_in) {
+    ਜੇ(!iface_ਵਿੱਚ || host_ਵਿੱਚ) {
       /*
        * This was not an interface, resolve the name as a hostname
        * or IP number
@@ -793,162 +793,162 @@ static CURLcode bindlocal(struct Curl_easy *data, struct connectdata *conn,
        */
       uint8_t dns_queries = (af == AF_INET) ?
                             CURL_DNSQ_A : (CURL_DNSQ_A | CURL_DNSQ_AAAA);
-#ifdef USE_IPV6
-      if(af == AF_INET6)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+      ਜੇ(af == AF_INET6)
         dns_queries = CURL_DNSQ_AAAA;
-#endif
+#ਜੇ_ਅੰਤ
 
-      (void)Curl_resolv_blocking(data, dns_queries, host, 80, transport, &h);
-      if(h) {
-        int h_af = h->addr->ai_family;
+      (ਖਾਲੀ)Curl_resolv_blocking(ਅੰਕੜੇ, dns_queries, host, 80, transport, &h);
+      ਜੇ(h) {
+        ਪੂਰਨ h_af = h->addr->ai_family;
         /* convert the resolved address, sizeof myhost >= INET_ADDRSTRLEN */
-        Curl_printable_address(h->addr, myhost, sizeof(myhost));
-        infof(data, "Name '%s' family %d resolved to '%s' family %d",
+        Curl_printable_ਪਤਾ(h->addr, myhost, ਆਕਾਰ(myhost));
+        infof(ਅੰਕੜੇ, "Name '%s' family %d resolved to '%s' family %d",
               host, af, myhost, h_af);
-        Curl_dns_entry_unlink(data, &h); /* this will NULL, potential free h */
-        if(af != h_af) {
+        Curl_dns_ਇੰਦਰਾਜ_unlink(ਅੰਕੜੇ, &h); /* this will NULL, potential free h */
+        ਜੇ(af != h_af) {
           /* bad IP version combo, signal the caller to try another address
              family if available */
-          result = CURLE_UNSUPPORTED_PROTOCOL;
-          goto out;
+          ਨਤੀਜਾ = CURLE_UNSUPPORTED_PROTOCOL;
+          ਜਾਓ ਬਾਹਰਲਾ;
         }
-        done = 1;
+        ਪੂਰਾ = 1;
       }
-      else {
+      ਨਹੀਂਤਾਂ {
         /*
          * provided dev was no interface (or interfaces are not supported
          * e.g. Solaris) no ip address and no domain we fail here
          */
-        done = -1;
+        ਪੂਰਾ = -1;
       }
     }
 
-    if(done > 0) {
-#ifdef USE_IPV6
+    ਜੇ(ਪੂਰਾ > 0) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
       /* IPv6 address */
-      if(af == AF_INET6) {
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-        char *scope_ptr = strchr(myhost, '%');
-        if(scope_ptr)
+      ਜੇ(af == AF_INET6) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+        ਅੱਖਰ *scope_ptr = strchr(myhost, '%');
+        ਜੇ(scope_ptr)
           *(scope_ptr++) = '\0';
-#endif
-        if(curlx_inet_pton(AF_INET6, myhost, &si6->sin6_addr) > 0) {
+#ਜੇ_ਅੰਤ
+        ਜੇ(curlx_inet_pton(AF_INET6, myhost, &si6->sin6_addr) > 0) {
           si6->sin6_family = AF_INET6;
-          si6->sin6_port = htons(port);
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-          if(scope_ptr) {
+          si6->sin6_port = htons(ਪੋਰਟ);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+          ਜੇ(scope_ptr) {
             /* The "myhost" string either comes from Curl_if2ip or from
                Curl_printable_address. The latter returns only numeric scope
                IDs and the former returns none at all. Making the scope ID,
                if present, known to be numeric */
             curl_off_t scope_id;
-            if(curlx_str_number((const char **)CURL_UNCONST(&scope_ptr),
+            ਜੇ(curlx_str_ਸੰਖਿਆ((ਅਚਲ ਅੱਖਰ **)CURL_UNCONST(&scope_ptr),
                                 &scope_id, UINT_MAX)) {
-              result = CURLE_UNSUPPORTED_PROTOCOL;
-              goto out;
+              ਨਤੀਜਾ = CURLE_UNSUPPORTED_PROTOCOL;
+              ਜਾਓ ਬਾਹਰਲਾ;
             }
-            si6->sin6_scope_id = (unsigned int)scope_id;
+            si6->sin6_scope_id = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)scope_id;
           }
-#endif
+#ਜੇ_ਅੰਤ
         }
-        sizeof_sa = sizeof(struct sockaddr_in6);
+        sizeof_sa = ਆਕਾਰ(ਬਣਤਰ sockaddr_in6);
       }
-      else
-#endif
+      ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
       /* IPv4 address */
-      if((af == AF_INET) &&
+      ਜੇ((af == AF_INET) &&
          (curlx_inet_pton(AF_INET, myhost, &si4->sin_addr) > 0)) {
         si4->sin_family = AF_INET;
-        si4->sin_port = htons(port);
-        sizeof_sa = sizeof(struct sockaddr_in);
+        si4->sin_port = htons(ਪੋਰਟ);
+        sizeof_sa = ਆਕਾਰ(ਬਣਤਰ sockaddr_in);
       }
     }
 
-    if(done < 1) {
+    ਜੇ(ਪੂਰਾ < 1) {
       /* errorbuf is set false so failf will overwrite any message already in
          the error buffer, so the user receives this error message instead of a
          generic resolve error. */
-      char buffer[STRERROR_LEN];
-      data->state.errorbuf = FALSE;
-      data->state.os_errno = sockerr = SOCKERRNO;
-      failf(data, "Could not bind to '%s' with errno %d: %s", host,
-            sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
-      result = CURLE_INTERFACE_FAILED;
-      goto out;
+      ਅੱਖਰ ਬਫਰ[STRERROR_LEN];
+      ਅੰਕੜੇ->state.errorbuf = FALSE;
+      ਅੰਕੜੇ->state.os_errno = sockerr = SOCKERRNO;
+      failf(ਅੰਕੜੇ, "Could not bind to '%s' with errno %d: %s", host,
+            sockerr, curlx_strerror(sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
+      ਨਤੀਜਾ = CURLE_INTERFACE_FAILED;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     /* no device was given, prepare sa to match af's needs */
-#ifdef USE_IPV6
-    if(af == AF_INET6) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+    ਜੇ(af == AF_INET6) {
       si6->sin6_family = AF_INET6;
-      si6->sin6_port = htons(port);
-      sizeof_sa = sizeof(struct sockaddr_in6);
+      si6->sin6_port = htons(ਪੋਰਟ);
+      sizeof_sa = ਆਕਾਰ(ਬਣਤਰ sockaddr_in6);
     }
-    else
-#endif
-    if(af == AF_INET) {
+    ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+    ਜੇ(af == AF_INET) {
       si4->sin_family = AF_INET;
-      si4->sin_port = htons(port);
-      sizeof_sa = sizeof(struct sockaddr_in);
+      si4->sin_port = htons(ਪੋਰਟ);
+      sizeof_sa = ਆਕਾਰ(ਬਣਤਰ sockaddr_in);
     }
   }
-#ifdef IP_BIND_ADDRESS_NO_PORT
-  (void)setsockopt(sockfd, SOL_IP, IP_BIND_ADDRESS_NO_PORT, &on, sizeof(on));
-#endif
-  for(;;) {
-    if(bind(sockfd, sock, sizeof_sa) >= 0) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ IP_BIND_ADDRESS_NO_PORT
+  (ਖਾਲੀ)setsockopt(sockfd, SOL_IP, IP_BIND_ADDRESS_NO_PORT, &on, ਆਕਾਰ(on));
+#ਜੇ_ਅੰਤ
+  ਲਈ(;;) {
+    ਜੇ(bind(sockfd, sock, sizeof_sa) >= 0) {
       /* we succeeded to bind */
-      infof(data, "Local port: %hu", port);
-      conn->bits.bound = TRUE;
-      result = CURLE_OK;
-      goto out;
+      infof(ਅੰਕੜੇ, "Local port: %hu", ਪੋਰਟ);
+      conn->ਬਿੱਟ.bound = TRUE;
+      ਨਤੀਜਾ = CURLE_OK;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
-    if(--portnum > 0) {
-      port++; /* try next port */
-      if(port == 0)
-        break;
-      infof(data, "Bind to local port %d failed, trying next", port - 1);
+    ਜੇ(--portnum > 0) {
+      ਪੋਰਟ++; /* try next port */
+      ਜੇ(ਪੋਰਟ == 0)
+        ਰੋਕੋ;
+      infof(ਅੰਕੜੇ, "Bind to local port %d failed, trying next", ਪੋਰਟ - 1);
       /* We reuse/clobber the port variable here below */
-      if(sock->sa_family == AF_INET)
-        si4->sin_port = htons(port);
-#ifdef USE_IPV6
-      else
-        si6->sin6_port = htons(port);
-#endif
+      ਜੇ(sock->sa_family == AF_INET)
+        si4->sin_port = htons(ਪੋਰਟ);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+      ਨਹੀਂਤਾਂ
+        si6->sin6_port = htons(ਪੋਰਟ);
+#ਜੇ_ਅੰਤ
     }
-    else
-      break;
+    ਨਹੀਂਤਾਂ
+      ਰੋਕੋ;
   }
   {
-    char buffer[STRERROR_LEN];
-    data->state.os_errno = sockerr = SOCKERRNO;
-    failf(data, "bind failed with errno %d: %s",
-          sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
+    ਅੱਖਰ ਬਫਰ[STRERROR_LEN];
+    ਅੰਕੜੇ->state.os_errno = sockerr = SOCKERRNO;
+    failf(ਅੰਕੜੇ, "bind failed with errno %d: %s",
+          sockerr, curlx_strerror(sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
   }
 
-  result = CURLE_INTERFACE_FAILED;
+  ਨਤੀਜਾ = CURLE_INTERFACE_FAILED;
 
-out:
-  curlx_free(dev_in);
-  curlx_free(iface_in);
-  curlx_free(host_in);
-  return result;
+ਬਾਹਰਲਾ:
+  curlx_free(dev_ਵਿੱਚ);
+  curlx_free(iface_ਵਿੱਚ);
+  curlx_free(host_ਵਿੱਚ);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 /*
  * verifyconnect() returns TRUE if the connect really has happened.
  */
-static bool verifyconnect(curl_socket_t sockfd, int *psockerr)
+ਸਥਿਰ bool verifyconnect(curl_socket_t sockfd, ਪੂਰਨ *psockerr)
 {
   bool rc = TRUE;
-#ifdef SO_ERROR
-  int sockerr = 0;
-  curl_socklen_t errSize = sizeof(sockerr);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ SO_ERROR
+  ਪੂਰਨ sockerr = 0;
+  curl_socklen_t err_ਮਾਪ = ਆਕਾਰ(sockerr);
 
-#ifdef _WIN32
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
   /*
    * In October 2003 we effectively nullified this function on Windows due to
    * problems with it using all CPU in multi-threaded cases.
@@ -965,264 +965,264 @@ static bool verifyconnect(curl_socket_t sockfd, int *psockerr)
    *    Someone got to verify this on Win-NT 4.0, 2000."
    */
   SleepEx(0, FALSE);
-#endif
+#ਜੇ_ਅੰਤ
 
-  if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (void *)&sockerr, &errSize))
+  ਜੇ(getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (ਖਾਲੀ *)&sockerr, &err_ਮਾਪ))
     sockerr = SOCKERRNO;
-#if defined(EBADIOCTL) && defined(__minix)
+#ਜੇ defined(EBADIOCTL) && defined(__minix)
   /* Minix 3.1.x does not support getsockopt on UDP sockets */
-  if(EBADIOCTL == sockerr) {
-    SET_SOCKERRNO(0);
+  ਜੇ(EBADIOCTL == sockerr) {
+    ਸੈੱਟ_SOCKERRNO(0);
     sockerr = 0;
   }
-#endif
-  if((sockerr == 0) || (SOCKEISCONN == sockerr))
+#ਜੇ_ਅੰਤ
+  ਜੇ((sockerr == 0) || (SOCKEISCONN == sockerr))
     /* we are connected, awesome! */
     rc = TRUE;
-  else
+  ਨਹੀਂਤਾਂ
     /* This was not a successful connect */
     rc = FALSE;
-  if(psockerr)
+  ਜੇ(psockerr)
     *psockerr = sockerr;
-#else
-  (void)sockfd;
-  if(psockerr)
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)sockfd;
+  ਜੇ(psockerr)
     *psockerr = SOCKERRNO;
-#endif
-  return rc;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ rc;
 }
 
 /**
  * Determine the curl code for a socket connect() == -1 with errno.
  */
-static CURLcode socket_connect_result(struct Curl_easy *data,
-                                      const char *ipaddress, int sockerr)
+ਸਥਿਰ CURLcode socket_connect_ਨਤੀਜਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      ਅਚਲ ਅੱਖਰ *ipaddress, ਪੂਰਨ sockerr)
 {
-  if(sockerr == SOCKEINPROGRESS || SOCK_EAGAIN(sockerr))
-    return CURLE_OK;
+  ਜੇ(sockerr == SOCKEINPROGRESS || SOCK_EAGAIN(sockerr))
+    ਵਾਪਸ CURLE_OK;
 
   /* unknown error, fallthrough and try another address! */
   {
-    VERBOSE(char buffer[STRERROR_LEN]);
-    infof(data, "Immediate connect fail for %s: %s", ipaddress,
-          curlx_strerror(sockerr, buffer, sizeof(buffer)));
-    NOVERBOSE((void)ipaddress);
+    VERBOSE(ਅੱਖਰ ਬਫਰ[STRERROR_LEN]);
+    infof(ਅੰਕੜੇ, "Immediate connect fail for %s: %s", ipaddress,
+          curlx_strerror(sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
+    NOVERBOSE((ਖਾਲੀ)ipaddress);
   }
-  data->state.os_errno = sockerr;
+  ਅੰਕੜੇ->state.os_errno = sockerr;
   /* connect failed */
-  return CURLE_COULDNT_CONNECT;
+  ਵਾਪਸ CURLE_COULDNT_CONNECT;
 }
 
-struct cf_socket_ctx {
-  struct Curl_peer *peer;
-  struct Curl_sockaddr_ex addr;      /* address to connect to */
+ਬਣਤਰ cf_socket_ctx {
+  ਬਣਤਰ Curl_peer *peer;
+  ਬਣਤਰ Curl_sockaddr_ex addr;      /* address to connect to */
   curl_socket_t sock;                /* current attempt socket */
-  struct ip_quadruple ip;            /* The IP quadruple 2x(addr+port) */
-  struct curltime started_at;        /* when socket was created */
-  struct curltime connected_at;      /* when socket connected/got first byte */
-  struct curltime first_byte_at;     /* when first byte was recvd */
-#ifdef USE_WINSOCK
-  struct curltime last_sndbuf_query_at;  /* when SO_SNDBUF last queried */
-  ULONG sndbuf_size;                     /* the last set SO_SNDBUF size */
-#endif
-  int sockerr;                       /* socket error of last failure or 0 */
-#ifdef DEBUGBUILD
-  int connect_wait_ms;               /* ms to wait after 1st connect() */
-  int wblock_percent;                /* percent of writes doing EAGAIN */
-  int wpartial_percent;              /* percent of bytes written in send */
-  int rblock_percent;                /* percent of reads doing EAGAIN */
+  ਬਣਤਰ ip_quadruple ip;            /* The IP quadruple 2x(addr+port) */
+  ਬਣਤਰ curltime started_at;        /* when socket was created */
+  ਬਣਤਰ curltime connected_at;      /* when socket connected/got first byte */
+  ਬਣਤਰ curltime ਪਹਿਲਾ_byte_at;     /* when first byte was recvd */
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_WINSOCK
+  ਬਣਤਰ curltime ਆਖਰੀ_sndbuf_query_at;  /* when SO_SNDBUF last queried */
+  ULONG sndbuf_ਮਾਪ;                     /* the last set SO_SNDBUF size */
+#ਜੇ_ਅੰਤ
+  ਪੂਰਨ sockerr;                       /* socket error of last failure or 0 */
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+  ਪੂਰਨ connect_wait_ms;               /* ms to wait after 1st connect() */
+  ਪੂਰਨ wblock_percent;                /* percent of writes doing EAGAIN */
+  ਪੂਰਨ wpartial_percent;              /* percent of bytes written in send */
+  ਪੂਰਨ rblock_percent;                /* percent of reads doing EAGAIN */
   size_t recv_max;                   /* max enforced read size */
-#endif
+#ਜੇ_ਅੰਤ
   uint8_t transport;
-  BIT(got_first_byte);               /* if first byte was received */
-  BIT(listening);                    /* socket is listening */
-  BIT(accepted);                     /* socket was accepted, not connected */
-  BIT(sock_connected);               /* socket is "connected", e.g. in UDP */
-  BIT(active);
-  BIT(stats_reported);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(got_ਪਹਿਲਾ_byte);               /* if first byte was received */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(listening);                    /* socket is listening */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(accepted);                     /* socket was accepted, not connected */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(sock_connected);               /* socket is "connected", e.g. in UDP */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਸਰਗਰਮ);
+  ਦੋਆਧਾਰੀ_ਅੰਕ(stats_reported);
 };
 
-static CURLcode cf_socket_ctx_init(struct cf_socket_ctx *ctx,
-                                   struct Curl_peer *peer,
-                                   struct Curl_sockaddr_ex *addr,
+ਸਥਿਰ CURLcode cf_socket_ctx_init(ਬਣਤਰ cf_socket_ctx *ctx,
+                                   ਬਣਤਰ Curl_peer *peer,
+                                   ਬਣਤਰ Curl_sockaddr_ex *addr,
                                    uint8_t transport)
 {
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, ਆਕਾਰ(*ctx));
   Curl_peer_link(&ctx->peer, peer);
   ctx->sock = CURL_SOCKET_BAD;
   ctx->transport = transport;
   ctx->addr = *addr;
 
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_SOCK_WBLOCK");
-    if(p) {
+    ਅਚਲ ਅੱਖਰ *p = getenv("CURL_DBG_SOCK_WBLOCK");
+    ਜੇ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
-        ctx->wblock_percent = (int)l;
+      ਜੇ(!curlx_str_ਸੰਖਿਆ(&p, &l, 100))
+        ctx->wblock_percent = (ਪੂਰਨ)l;
     }
     p = getenv("CURL_DBG_SOCK_WPARTIAL");
-    if(p) {
+    ਜੇ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
-        ctx->wpartial_percent = (int)l;
+      ਜੇ(!curlx_str_ਸੰਖਿਆ(&p, &l, 100))
+        ctx->wpartial_percent = (ਪੂਰਨ)l;
     }
     p = getenv("CURL_DBG_SOCK_RBLOCK");
-    if(p) {
+    ਜੇ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 100))
-        ctx->rblock_percent = (int)l;
+      ਜੇ(!curlx_str_ਸੰਖਿਆ(&p, &l, 100))
+        ctx->rblock_percent = (ਪੂਰਨ)l;
     }
     p = getenv("CURL_DBG_SOCK_RMAX");
-    if(p) {
+    ਜੇ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, CURL_OFF_T_MAX))
+      ਜੇ(!curlx_str_ਸੰਖਿਆ(&p, &l, CURL_OFF_T_MAX))
         ctx->recv_max = (size_t)l;
     }
     p = getenv("CURL_DBG_SOCK_CONNECT_WAIT_MS");
-    if(p) {
+    ਜੇ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, INT_MAX))
-        ctx->connect_wait_ms = (int)l;
+      ਜੇ(!curlx_str_ਸੰਖਿਆ(&p, &l, ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ))
+        ctx->connect_wait_ms = (ਪੂਰਨ)l;
     }
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static void cf_socket_ctx_free(struct cf_socket_ctx *ctx)
+ਸਥਿਰ ਖਾਲੀ cf_socket_ctx_free(ਬਣਤਰ cf_socket_ctx *ctx)
 {
-  if(ctx) {
+  ਜੇ(ctx) {
     Curl_peer_unlink(&ctx->peer);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_socket_shutdown(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *done)
+ਸਥਿਰ CURLcode cf_socket_shutdown(ਬਣਤਰ Curl_cfilter *cf,
+                                   ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   bool *ਪੂਰਾ)
 {
-  if(cf->connected) {
-    struct cf_socket_ctx *ctx = cf->ctx;
+  ਜੇ(cf->connected) {
+    ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
 
-    CURL_TRC_CF(data, cf, "cf_socket_shutdown, fd=%" FMT_SOCKET_T, ctx->sock);
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "cf_socket_shutdown, fd=%" FMT_SOCKET_T, ctx->sock);
     /* On TCP, and when the socket looks well and non-blocking mode
      * can be enabled, receive dangling bytes before close to avoid
      * entering RST states unnecessarily. */
-    if(ctx->sock != CURL_SOCKET_BAD &&
+    ਜੇ(ctx->sock != CURL_SOCKET_BAD &&
        ctx->transport == TRNSPRT_TCP &&
        (curlx_nonblock(ctx->sock, TRUE) >= 0)) {
-      unsigned char buf[1024];
-      (void)sread(ctx->sock, buf, sizeof(buf));
+      ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ buf[1024];
+      (ਖਾਲੀ)sread(ctx->sock, buf, ਆਕਾਰ(buf));
     }
   }
-  *done = TRUE;
-  return CURLE_OK;
+  *ਪੂਰਾ = TRUE;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static void cf_socket_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ cf_socket_destroy(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  if(ctx) {
-    if(ctx->sock != CURL_SOCKET_BAD) {
-      CURL_TRC_CF(data, cf, "cf_socket_close, fd=%" FMT_SOCKET_T, ctx->sock);
-      if(ctx->sock == cf->conn->sock[cf->sockindex])
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "destroy");
+  ਜੇ(ctx) {
+    ਜੇ(ctx->sock != CURL_SOCKET_BAD) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "cf_socket_close, fd=%" FMT_SOCKET_T, ctx->sock);
+      ਜੇ(ctx->sock == cf->conn->sock[cf->sockindex])
         cf->conn->sock[cf->sockindex] = CURL_SOCKET_BAD;
-      socket_close(data, cf->conn, !ctx->accepted, ctx->sock);
+      socket_close(ਅੰਕੜੇ, cf->conn, !ctx->accepted, ctx->sock);
     }
     cf_socket_ctx_free(ctx);
   }
 }
 
-static void set_local_ip(struct Curl_cfilter *cf,
-                         struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ ਸੈੱਟ_local_ip(ਬਣਤਰ Curl_cfilter *cf,
+                         ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
   ctx->ip.local_ip[0] = 0;
-  ctx->ip.local_port = 0;
+  ctx->ip.local_ਪੋਰਟ = 0;
 
-#ifdef HAVE_GETSOCKNAME
-  if((ctx->sock != CURL_SOCKET_BAD) &&
-     !(data->conn->scheme->protocol & CURLPROTO_TFTP)) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_GETSOCKNAME
+  ਜੇ((ctx->sock != CURL_SOCKET_BAD) &&
+     !(ਅੰਕੜੇ->conn->scheme->protocol & CURLPROTO_TFTP)) {
     /* TFTP does not connect, so it cannot get the IP like this */
-    struct Curl_sockaddr_storage ssloc;
-    curl_socklen_t slen = sizeof(struct Curl_sockaddr_storage);
+    ਬਣਤਰ Curl_sockaddr_storage ssloc;
+    curl_socklen_t slen = ਆਕਾਰ(ਬਣਤਰ Curl_sockaddr_storage);
 
-    memset(&ssloc, 0, sizeof(ssloc));
-    if(getsockname(ctx->sock, (struct sockaddr *)&ssloc, &slen)) {
-      VERBOSE(char buffer[STRERROR_LEN]);
-      VERBOSE(int sockerr = SOCKERRNO);
-      infof(data, "getsockname() failed with errno %d: %s",
-            sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
+    memset(&ssloc, 0, ਆਕਾਰ(ssloc));
+    ਜੇ(getsockname(ctx->sock, (ਬਣਤਰ sockaddr *)&ssloc, &slen)) {
+      VERBOSE(ਅੱਖਰ ਬਫਰ[STRERROR_LEN]);
+      VERBOSE(ਪੂਰਨ sockerr = SOCKERRNO);
+      infof(ਅੰਕੜੇ, "getsockname() failed with errno %d: %s",
+            sockerr, curlx_strerror(sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
     }
-    else {
-      CURLcode result = sockaddr2string((struct sockaddr *)&ssloc, slen,
-                                        ctx->ip.local_ip, &ctx->ip.local_port);
-      if(result)
-        infof(data, "ssloc inet_ntop() failed with %d", (int)result);
+    ਨਹੀਂਤਾਂ {
+      CURLcode ਨਤੀਜਾ = sockaddr2string((ਬਣਤਰ sockaddr *)&ssloc, slen,
+                                        ctx->ip.local_ip, &ctx->ip.local_ਪੋਰਟ);
+      ਜੇ(ਨਤੀਜਾ)
+        infof(ਅੰਕੜੇ, "ssloc inet_ntop() failed with %d", (ਪੂਰਨ)ਨਤੀਜਾ);
     }
   }
-#else
-  (void)data;
-#endif
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+#ਜੇ_ਅੰਤ
 }
 
-static CURLcode set_remote_ip(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+ਸਥਿਰ CURLcode ਸੈੱਟ_remote_ip(ਬਣਤਰ Curl_cfilter *cf,
+                              ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  CURLcode ਨਤੀਜਾ;
 
   /* store remote address and port used in this connection attempt */
   ctx->ip.transport = ctx->transport;
-  result = sockaddr2string(&ctx->addr.curl_sa_addr,
+  ਨਤੀਜਾ = sockaddr2string(&ctx->addr.curl_sa_addr,
                            (curl_socklen_t)ctx->addr.addrlen,
-                           ctx->ip.remote_ip, &ctx->ip.remote_port);
-  if(result) {
+                           ctx->ip.remote_ip, &ctx->ip.remote_ਪੋਰਟ);
+  ਜੇ(ਨਤੀਜਾ) {
     ctx->sockerr = SOCKEAFNOSUPPORT;
     /* malformed address or bug in inet_ntop, try next address */
-    failf(data, "curl_sa_addr inet_ntop() failed with %d", (int)result);
-    return CURLE_FAILED_INIT;
+    failf(ਅੰਕੜੇ, "curl_sa_addr inet_ntop() failed with %d", (ਪੂਰਨ)ਨਤੀਜਾ);
+    ਵਾਪਸ CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* to figure out the type of the socket safely, remove the possibly ORed
    bits before comparing */
-static int cf_socktype(int x)
+ਸਥਿਰ ਪੂਰਨ cf_socktype(ਪੂਰਨ x)
 {
-#ifdef SOCK_CLOEXEC
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ SOCK_CLOEXEC
   x &= ~SOCK_CLOEXEC;
-#endif
-#ifdef CURL_USE_SOCK_NONBLOCK
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_USE_SOCK_NONBLOCK
   x &= ~SOCK_NONBLOCK;
-#endif
-  return x;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ x;
 }
 
-#ifdef _WIN32
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
 /* Offered by mingw-w64 v10+, MS SDK 8.0/~VS2012+ */
-#ifndef SIO_TCP_INITIAL_RTO
-#define SIO_TCP_INITIAL_RTO _WSAIOW(IOC_VENDOR, 17)
-#define TCP_INITIAL_RTO_DEFAULT_RTT 0
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SIO_TCP_INITIAL_RTO
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIO_TCP_INITIAL_RTO _WSAIOW(IOC_VENDOR, 17)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TCP_INITIAL_RTO_DEFAULT_RTT 0
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _TCP_INITIAL_RTO_PARAMETERS {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ _TCP_INITIAL_RTO_PARAMETERS {
   USHORT Rtt;
   UCHAR MaxSynRetransmissions;
 } TCP_INITIAL_RTO_PARAMETERS;
-#endif /* SIO_TCP_INITIAL_RTO */
+#ਜੇ_ਅੰਤ /* SIO_TCP_INITIAL_RTO */
 
-#ifndef TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS
-#define TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS 0xFE /* -2 */
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS 0xFE /* -2 */
+#ਜੇ_ਅੰਤ
 
-static bool targets_localhost(struct cf_socket_ctx *ctx)
+ਸਥਿਰ bool targets_localhost(ਬਣਤਰ cf_socket_ctx *ctx)
 {
-  return (((ctx->addr.family == AF_INET) &&
+  ਵਾਪਸ (((ctx->addr.family == AF_INET) &&
            !strcmp(ctx->ip.remote_ip, "127.0.0.1")) ||
           ((ctx->addr.family == AF_INET6) &&
            !strcmp(ctx->ip.remote_ip, "::1")));
@@ -1230,64 +1230,64 @@ static bool targets_localhost(struct cf_socket_ctx *ctx)
 
 /* disable TCP SYN retransmissions for localhost connection on Windows to
    detect problems faster */
-static void tcplocalhost(struct Curl_cfilter *cf,
+ਸਥਿਰ ਖਾਲੀ tcplocalhost(ਬਣਤਰ Curl_cfilter *cf,
                          curl_socket_t sockfd)
 {
-  if(targets_localhost(cf->ctx)) {
+  ਜੇ(targets_localhost(cf->ctx)) {
     TCP_INITIAL_RTO_PARAMETERS rto;
-    DWORD bytes = 0;
-    memset(&rto, 0, sizeof(rto));
+    DWORD ਬਾਈਟਾਂ = 0;
+    memset(&rto, 0, ਆਕਾਰ(rto));
     rto.Rtt = TCP_INITIAL_RTO_DEFAULT_RTT;
     /* Windows 10, version 1709 (10.0.16299) and later versions can set max
        retransmissions to zero, earlier versions could only set 1 */
-    if(curlx_verify_windows_version(10, 0, 16299, PLATFORM_WINNT,
-                                    VERSION_GREATER_THAN_EQUAL))
+    ਜੇ(curlx_verify_windows_ਸੰਸਕਰਣ(10, 0, 16299, PLATFORM_WINNT,
+                                    ਸੰਸਕਰਣ_GREATER_THAN_EQUAL))
       rto.MaxSynRetransmissions = TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS;
-    else
+    ਨਹੀਂਤਾਂ
       rto.MaxSynRetransmissions = 1;
-    (void)WSAIoctl(sockfd, SIO_TCP_INITIAL_RTO, &rto, sizeof(rto),
-                   NULL, 0, &bytes, NULL, NULL);
+    (ਖਾਲੀ)WSAIoctl(sockfd, SIO_TCP_INITIAL_RTO, &rto, ਆਕਾਰ(rto),
+                   ਨਿਰਾ, 0, &ਬਾਈਟਾਂ, ਨਿਰਾ, ਨਿਰਾ);
   }
 }
-#else
-#define tcplocalhost(x, y)
-#endif /* _WIN32 */
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ tcplocalhost(x, y)
+#ਜੇ_ਅੰਤ /* _WIN32 */
 
-static CURLcode cf_socket_open(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+ਸਥਿਰ CURLcode cf_socket_open(ਬਣਤਰ Curl_cfilter *cf,
+                               ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  int error = 0;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  ਪੂਰਨ error = 0;
   bool isconnected = FALSE;
-  CURLcode result = CURLE_COULDNT_CONNECT;
+  CURLcode ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
   bool is_tcp;
 
   DEBUGASSERT(ctx->sock == CURL_SOCKET_BAD);
-  ctx->started_at = *Curl_pgrs_now(data);
-#ifdef CURL_USE_SOCK_NONBLOCK
+  ctx->started_at = *Curl_pgrs_now(ਅੰਕੜੇ);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_USE_SOCK_NONBLOCK
   /* Do not tuck SOCK_NONBLOCK into socktype when opensocket callback is set
    * because we would not know how socktype is about to be used in the
    * callback, SOCK_NONBLOCK might get factored out before calling socket().
    */
-  if(!data->set.fopensocket)
+  ਜੇ(!ਅੰਕੜੇ->ਸੈੱਟ.fopensocket)
     ctx->addr.socktype |= SOCK_NONBLOCK;
-#endif
-  result = socket_open(data, &ctx->addr, &ctx->sock);
-#ifdef CURL_USE_SOCK_NONBLOCK
+#ਜੇ_ਅੰਤ
+  ਨਤੀਜਾ = socket_open(ਅੰਕੜੇ, &ctx->addr, &ctx->sock);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_USE_SOCK_NONBLOCK
   /* Restore the socktype after the socket is created. */
-  if(!data->set.fopensocket)
+  ਜੇ(!ਅੰਕੜੇ->ਸੈੱਟ.fopensocket)
     ctx->addr.socktype &= ~SOCK_NONBLOCK;
-#endif
-  if(result)
-    goto out;
+#ਜੇ_ਅੰਤ
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  result = set_remote_ip(cf, data);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = ਸੈੱਟ_remote_ip(cf, ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-#ifdef USE_IPV6
-  if(ctx->addr.family == AF_INET6) {
-#ifdef USE_WINSOCK
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  ਜੇ(ctx->addr.family == AF_INET6) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_WINSOCK
     /* Turn on support for IPv4-mapped IPv6 addresses.
      * Linux kernel, NetBSD, FreeBSD, Darwin, lwIP: default is off;
      * Windows Vista and later: default is on;
@@ -1295,553 +1295,553 @@ static CURLcode cf_socket_open(struct Curl_cfilter *cf,
      * OpenBSD and earlier Windows: unsupported.
      * Linux: controlled by /proc/sys/net/ipv6/bindv6only.
      */
-    int on = 0;
-    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_V6ONLY,
-                     (void *)&on, sizeof(on));
-#endif
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+    ਪੂਰਨ on = 0;
+    (ਖਾਲੀ)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_V6ONLY,
+                     (ਖਾਲੀ *)&on, ਆਕਾਰ(on));
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
     {
-      struct sockaddr_in6 *sa6 = (void *)&ctx->addr.curl_sa_addr;
-      if(sa6->sin6_scope_id)
-        infof(data, "  Trying [%s]:%d scope_id=%lu...",
-              ctx->ip.remote_ip, ctx->ip.remote_port,
-              (unsigned long)sa6->sin6_scope_id);
-      else
-#endif
-        infof(data, "  Trying [%s]:%d...",
-              ctx->ip.remote_ip, ctx->ip.remote_port);
-#ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
+      ਬਣਤਰ sockaddr_in6 *sa6 = (ਖਾਲੀ *)&ctx->addr.curl_sa_addr;
+      ਜੇ(sa6->sin6_scope_id)
+        infof(ਅੰਕੜੇ, "  Trying [%s]:%d scope_id=%lu...",
+              ctx->ip.remote_ip, ctx->ip.remote_ਪੋਰਟ,
+              (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)sa6->sin6_scope_id);
+      ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+        infof(ਅੰਕੜੇ, "  Trying [%s]:%d...",
+              ctx->ip.remote_ip, ctx->ip.remote_ਪੋਰਟ);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
     }
-#endif
+#ਜੇ_ਅੰਤ
   }
-  else
-#endif
-    infof(data, "  Trying %s:%d...", ctx->ip.remote_ip, ctx->ip.remote_port);
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
+    infof(ਅੰਕੜੇ, "  Trying %s:%d...", ctx->ip.remote_ip, ctx->ip.remote_ਪੋਰਟ);
 
-#ifdef USE_IPV6
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
   is_tcp = (ctx->addr.family == AF_INET ||
             ctx->addr.family == AF_INET6) &&
     cf_socktype(ctx->addr.socktype) == SOCK_STREAM;
-#else
+#ਨਹੀਂਤਾਂ
   is_tcp = (ctx->addr.family == AF_INET) &&
     cf_socktype(ctx->addr.socktype) == SOCK_STREAM;
-#endif
-  if(is_tcp) {
-    if(data->set.tcp_nodelay)
-      tcpnodelay(cf, data, ctx->sock);
+#ਜੇ_ਅੰਤ
+  ਜੇ(is_tcp) {
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.tcp_nodelay)
+      tcpnodelay(cf, ਅੰਕੜੇ, ctx->sock);
 
-    if(data->set.tcp_keepalive)
-      tcpkeepalive(cf, data, ctx->sock);
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.tcp_keepalive)
+      tcpkeepalive(cf, ਅੰਕੜੇ, ctx->sock);
 
     tcplocalhost(cf, ctx->sock);
   }
 
-  if(data->set.fsockopt) {
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.fsockopt) {
     /* activate callback for setting socket options */
-    struct Curl_mapi_guard guard;
-    CURL_CBAPI_START(&guard, data, easy_fsockopt);
-    error = data->set.fsockopt(data->set.sockopt_client,
+    ਬਣਤਰ Curl_mapi_guard guard;
+    CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_fsockopt);
+    error = ਅੰਕੜੇ->ਸੈੱਟ.fsockopt(ਅੰਕੜੇ->ਸੈੱਟ.sockopt_client,
                                ctx->sock,
                                CURLSOCKTYPE_IPCXN);
-    CURL_CBAPI_END(&guard);
+    CURL_CBAPI_ਸਿਰਾ(&guard);
 
-    if(error == CURL_SOCKOPT_ALREADY_CONNECTED)
+    ਜੇ(error == CURL_SOCKOPT_ALREADY_CONNECTED)
       isconnected = TRUE;
-    else if(error) {
-      result = CURLE_ABORTED_BY_CALLBACK;
-      goto out;
+    ਨਹੀਂਤਾਂ ਜੇ(error) {
+      ਨਤੀਜਾ = CURLE_ABORTED_BY_CALLBACK;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-#ifndef CURL_DISABLE_BINDLOCAL
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_BINDLOCAL
   /* possibly bind the local end to an IP, interface or port */
-  if(ctx->addr.family == AF_INET
-#ifdef USE_IPV6
+  ਜੇ(ctx->addr.family == AF_INET
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
      || ctx->addr.family == AF_INET6
-#endif
+#ਜੇ_ਅੰਤ
     ) {
-    result = bindlocal(data, cf->conn, ctx->sock, ctx->addr.family,
+    ਨਤੀਜਾ = bindlocal(ਅੰਕੜੇ, cf->conn, ctx->sock, ctx->addr.family,
                        Curl_ipv6_scope(&ctx->addr.curl_sa_addr),
                        ctx->transport);
-    if(result) {
-      if(result == CURLE_UNSUPPORTED_PROTOCOL) {
+    ਜੇ(ਨਤੀਜਾ) {
+      ਜੇ(ਨਤੀਜਾ == CURLE_UNSUPPORTED_PROTOCOL) {
         /* The address family is not supported on this interface.
            We can continue trying addresses */
-        result = CURLE_COULDNT_CONNECT;
+        ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
       }
-      goto out;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifndef CURL_USE_SOCK_NONBLOCK
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_USE_SOCK_NONBLOCK
   /* Set socket non-blocking, must be a non-blocking socket for
    * a non-blocking connect. */
   error = curlx_nonblock(ctx->sock, TRUE);
-  if(error < 0) {
-    result = CURLE_UNSUPPORTED_PROTOCOL;
+  ਜੇ(error < 0) {
+    ਨਤੀਜਾ = CURLE_UNSUPPORTED_PROTOCOL;
     ctx->sockerr = SOCKERRNO;
-    goto out;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-#else
-  if(data->set.fopensocket) {
+#ਨਹੀਂਤਾਂ
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.fopensocket) {
     /* Set socket non-blocking, must be a non-blocking socket for
      * a non-blocking connect. */
     error = curlx_nonblock(ctx->sock, TRUE);
-    if(error < 0) {
-      result = CURLE_UNSUPPORTED_PROTOCOL;
+    ਜੇ(error < 0) {
+      ਨਤੀਜਾ = CURLE_UNSUPPORTED_PROTOCOL;
       ctx->sockerr = SOCKERRNO;
-      goto out;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
-#endif
+#ਜੇ_ਅੰਤ
   ctx->sock_connected = (cf_socktype(ctx->addr.socktype) != SOCK_DGRAM);
-out:
-  if(result) {
-    if(ctx->sock != CURL_SOCKET_BAD) {
-      socket_close(data, cf->conn, TRUE, ctx->sock);
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ) {
+    ਜੇ(ctx->sock != CURL_SOCKET_BAD) {
+      socket_close(ਅੰਕੜੇ, cf->conn, TRUE, ctx->sock);
       ctx->sock = CURL_SOCKET_BAD;
     }
   }
-  else if(isconnected) {
-    set_local_ip(cf, data);
-    ctx->connected_at = *Curl_pgrs_now(data);
+  ਨਹੀਂਤਾਂ ਜੇ(isconnected) {
+    ਸੈੱਟ_local_ip(cf, ਅੰਕੜੇ);
+    ctx->connected_at = *Curl_pgrs_now(ਅੰਕੜੇ);
     cf->connected = TRUE;
   }
-  CURL_TRC_CF(data, cf, "cf_socket_open() -> %d, fd=%" FMT_SOCKET_T,
-              (int)result, ctx->sock);
-  return result;
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "cf_socket_open() -> %d, fd=%" FMT_SOCKET_T,
+              (ਪੂਰਨ)ਨਤੀਜਾ, ctx->sock);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static int do_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
+ਸਥਿਰ ਪੂਰਨ do_connect(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                       bool is_tcp_fastopen)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-#ifdef TCP_FASTOPEN_CONNECT
-  int optval = 1;
-#endif
-  int rc = -1;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ TCP_FASTOPEN_CONNECT
+  ਪੂਰਨ optval = 1;
+#ਜੇ_ਅੰਤ
+  ਪੂਰਨ rc = -1;
 
-  (void)data;
-  if(is_tcp_fastopen) {
-#ifdef CONNECT_DATA_IDEMPOTENT /* Darwin */
-#  ifdef HAVE_BUILTIN_AVAILABLE
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਜੇ(is_tcp_fastopen) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CONNECT_ਅੰਕੜੇ_IDEMPOTENT /* Darwin */
+#  ifdef HAVE_BUILTIN_ਉਪਲਬਧ
     /* while connectx function is available since macOS 10.11 / iOS 9,
        it did not have the interface declared correctly until
        Xcode 9 / macOS SDK 10.13 */
-    if(__builtin_available(macOS 10.11, iOS 9, tvOS 9, watchOS 2, *)) {
+    ਜੇ(__builtin_available(macOS 10.11, iOS 9, tvOS 9, watchOS 2, *)) {
       sa_endpoints_t endpoints;
       endpoints.sae_srcif = 0;
-      endpoints.sae_srcaddr = NULL;
+      endpoints.sae_srcaddr = ਨਿਰਾ;
       endpoints.sae_srcaddrlen = 0;
       endpoints.sae_dstaddr = &ctx->addr.curl_sa_addr;
       endpoints.sae_dstaddrlen = ctx->addr.addrlen;
 
       rc = connectx(ctx->sock, &endpoints, SAE_ASSOCID_ANY,
-                    CONNECT_RESUME_ON_READ_WRITE | CONNECT_DATA_IDEMPOTENT,
-                    NULL, 0, NULL, NULL);
+                    CONNECT_RESUME_ON_READ_WRITE | CONNECT_ਅੰਕੜੇ_IDEMPOTENT,
+                    ਨਿਰਾ, 0, ਨਿਰਾ, ਨਿਰਾ);
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       rc = connect(ctx->sock, &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
     }
-#  else
+#  ਨਹੀਂਤਾਂ
     rc = connect(ctx->sock, &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
 #  endif /* HAVE_BUILTIN_AVAILABLE */
-#elif defined(TCP_FASTOPEN_CONNECT) /* Linux >= 4.11 */
-    if(setsockopt(ctx->sock, IPPROTO_TCP, TCP_FASTOPEN_CONNECT,
-                  (void *)&optval, sizeof(optval)) < 0)
-      CURL_TRC_CF(data, cf, "Failed to enable TCP Fast Open on fd %"
+#ਜਾਂਜੇ defined(TCP_FASTOPEN_CONNECT) /* Linux >= 4.11 */
+    ਜੇ(setsockopt(ctx->sock, IPPROTO_TCP, TCP_FASTOPEN_CONNECT,
+                  (ਖਾਲੀ *)&optval, ਆਕਾਰ(optval)) < 0)
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "Failed to enable TCP Fast Open on fd %"
                   FMT_SOCKET_T, ctx->sock);
 
     rc = connect(ctx->sock, &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
-#elif defined(MSG_FASTOPEN) /* old Linux */
-    if(Curl_conn_is_ssl(cf->conn, cf->sockindex))
+#ਜਾਂਜੇ defined(MSG_FASTOPEN) /* old Linux */
+    ਜੇ(Curl_conn_is_ssl(cf->conn, cf->sockindex))
       rc = connect(ctx->sock, &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
-    else
+    ਨਹੀਂਤਾਂ
       rc = 0; /* Do nothing */
-#endif
+#ਜੇ_ਅੰਤ
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     rc = connect(ctx->sock, &ctx->addr.curl_sa_addr,
                  (curl_socklen_t)ctx->addr.addrlen);
   }
-  return rc;
+  ਵਾਪਸ rc;
 }
 
-static CURLcode cf_tcp_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               bool *done)
+ਸਥਿਰ CURLcode cf_tcp_connect(ਬਣਤਰ Curl_cfilter *cf,
+                               ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               bool *ਪੂਰਾ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_COULDNT_CONNECT;
-  int rc = 0;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  CURLcode ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
+  ਪੂਰਨ rc = 0;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ਜੇ(cf->connected) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  *done = FALSE; /* a negative world view is best */
-  if(ctx->sock == CURL_SOCKET_BAD) {
-    int sockerr;
+  *ਪੂਰਾ = FALSE; /* a negative world view is best */
+  ਜੇ(ctx->sock == CURL_SOCKET_BAD) {
+    ਪੂਰਨ sockerr;
 
-    result = cf_socket_open(cf, data);
-    if(result)
-      goto out;
+    ਨਤੀਜਾ = cf_socket_open(cf, ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
-    if(cf->connected) {
-      *done = TRUE;
-      return CURLE_OK;
+    ਜੇ(cf->connected) {
+      *ਪੂਰਾ = TRUE;
+      ਵਾਪਸ CURLE_OK;
     }
 
     /* Connect TCP socket */
-    rc = do_connect(cf, data, (bool)cf->conn->bits.tcp_fastopen);
+    rc = do_connect(cf, ਅੰਕੜੇ, (bool)cf->conn->ਬਿੱਟ.tcp_fastopen);
     sockerr = SOCKERRNO;
-    set_local_ip(cf, data);
-    CURL_TRC_CF(data, cf, "local address %s port %d",
-                ctx->ip.local_ip, ctx->ip.local_port);
-#ifdef DEBUGBUILD
-    if(ctx->connect_wait_ms > 0) {
-      CURL_TRC_CF(data, cf, "debug connect wait %d ms", ctx->connect_wait_ms);
+    ਸੈੱਟ_local_ip(cf, ਅੰਕੜੇ);
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "local address %s port %d",
+                ctx->ip.local_ip, ctx->ip.local_ਪੋਰਟ);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+    ਜੇ(ctx->connect_wait_ms > 0) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "debug connect wait %d ms", ctx->connect_wait_ms);
       curlx_wait_ms(ctx->connect_wait_ms);
     }
-#endif
-    if(rc == -1) {
+#ਜੇ_ਅੰਤ
+    ਜੇ(rc == -1) {
       ctx->sockerr = sockerr;
-      result = socket_connect_result(data, ctx->ip.remote_ip, sockerr);
-      goto out;
+      ਨਤੀਜਾ = socket_connect_ਨਤੀਜਾ(ਅੰਕੜੇ, ctx->ip.remote_ip, sockerr);
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-#ifdef mpeix
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ mpeix
   /* Call this function once now, and ignore the results. We do this to
      "clear" the error state on the socket so that we can later read it
      reliably. This is reported necessary on the MPE/iX operating
      system. */
-  (void)verifyconnect(ctx->sock, NULL);
-#endif
+  (ਖਾਲੀ)verifyconnect(ctx->sock, ਨਿਰਾ);
+#ਜੇ_ਅੰਤ
   /* check socket for connect */
   rc = SOCKET_WRITABLE(ctx->sock, 0);
 
-  if(rc == 0) { /* no connection yet */
-    CURL_TRC_CF(data, cf, "not connected yet on fd=%" FMT_SOCKET_T, ctx->sock);
-    return CURLE_OK;
+  ਜੇ(rc == 0) { /* no connection yet */
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "not connected yet on fd=%" FMT_SOCKET_T, ctx->sock);
+    ਵਾਪਸ CURLE_OK;
   }
-  else if(rc == CURL_CSELECT_OUT ||
-#ifdef __APPLE__
+  ਨਹੀਂਤਾਂ ਜੇ(rc == CURL_CSELECT_ਬਾਹਰਲਾ ||
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __APPLE__
           /* macOS reports select errors when the peer already
            * sent us data and closed the connection normally. Do
            * not treat that as error. See #23482 and #23445 */
           (rc > 0 && (rc & CURL_CSELECT_ERR)) ||
-#endif
-          cf->conn->bits.tcp_fastopen) {
-    if(verifyconnect(ctx->sock, &ctx->sockerr)) {
+#ਜੇ_ਅੰਤ
+          cf->conn->ਬਿੱਟ.tcp_fastopen) {
+    ਜੇ(verifyconnect(ctx->sock, &ctx->sockerr)) {
       /* we are connected with TCP, awesome! */
-      ctx->connected_at = *Curl_pgrs_now(data);
-      set_local_ip(cf, data);
-      *done = TRUE;
+      ctx->connected_at = *Curl_pgrs_now(ਅੰਕੜੇ);
+      ਸੈੱਟ_local_ip(cf, ਅੰਕੜੇ);
+      *ਪੂਰਾ = TRUE;
       cf->connected = TRUE;
-      CURL_TRC_CF(data, cf, "connected on fd=%" FMT_SOCKET_T, ctx->sock);
-      return CURLE_OK;
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "connected on fd=%" FMT_SOCKET_T, ctx->sock);
+      ਵਾਪਸ CURLE_OK;
     }
-    result = CURLE_COULDNT_CONNECT;
+    ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
   }
-  else if(rc & CURL_CSELECT_ERR) {
-    CURL_TRC_CF(data, cf, "poll/select error on fd=%" FMT_SOCKET_T, ctx->sock);
-    (void)verifyconnect(ctx->sock, &ctx->sockerr);
-    result = CURLE_COULDNT_CONNECT;
+  ਨਹੀਂਤਾਂ ਜੇ(rc & CURL_CSELECT_ERR) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "poll/select error on fd=%" FMT_SOCKET_T, ctx->sock);
+    (ਖਾਲੀ)verifyconnect(ctx->sock, &ctx->sockerr);
+    ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
   }
 
-out:
-  if(result) {
-    VERBOSE(char buffer[STRERROR_LEN]);
-    set_local_ip(cf, data);
-    if(ctx->sockerr) {
-      data->state.os_errno = ctx->sockerr;
-      SET_SOCKERRNO(ctx->sockerr);
-      VERBOSE(curlx_strerror(ctx->sockerr, buffer, sizeof(buffer)));
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ) {
+    VERBOSE(ਅੱਖਰ ਬਫਰ[STRERROR_LEN]);
+    ਸੈੱਟ_local_ip(cf, ਅੰਕੜੇ);
+    ਜੇ(ctx->sockerr) {
+      ਅੰਕੜੇ->state.os_errno = ctx->sockerr;
+      ਸੈੱਟ_SOCKERRNO(ctx->sockerr);
+      VERBOSE(curlx_strerror(ctx->sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
     }
-    else {
-      VERBOSE(curlx_strcopy(buffer, sizeof(buffer), STRCONST("peer closed")));
+    ਨਹੀਂਤਾਂ {
+      VERBOSE(curlx_strcopy(ਬਫਰ, ਆਕਾਰ(ਬਫਰ), STRCONST("peer closed")));
     }
-    if(ctx->sock != CURL_SOCKET_BAD) {
-      socket_close(data, cf->conn, TRUE, ctx->sock);
+    ਜੇ(ctx->sock != CURL_SOCKET_BAD) {
+      socket_close(ਅੰਕੜੇ, cf->conn, TRUE, ctx->sock);
       ctx->sock = CURL_SOCKET_BAD;
     }
-    infof(data, "connect to %s port %u from %s port %d failed: %s",
-          ctx->ip.remote_ip, ctx->ip.remote_port,
-          ctx->ip.local_ip, ctx->ip.local_port,
-          curlx_strerror(ctx->sockerr, buffer, sizeof(buffer)));
-    *done = FALSE;
+    infof(ਅੰਕੜੇ, "connect to %s port %u from %s port %d failed: %s",
+          ctx->ip.remote_ip, ctx->ip.remote_ਪੋਰਟ,
+          ctx->ip.local_ip, ctx->ip.local_ਪੋਰਟ,
+          curlx_strerror(ctx->sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
+    *ਪੂਰਾ = FALSE;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode cf_socket_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps)
+ਸਥਿਰ CURLcode cf_socket_adjust_pollset(ਬਣਤਰ Curl_cfilter *cf,
+                                         ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                         ਬਣਤਰ easy_pollset *ps)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
 
-  if(ctx->sock != CURL_SOCKET_BAD) {
+  ਜੇ(ctx->sock != CURL_SOCKET_BAD) {
     /* A listening socket filter needs to be connected before the accept
      * for some weird FTP interaction. This should be rewritten, so that
      * FTP no longer does the socket checks and accept calls and delegates
      * all that to the filter. */
-    if(ctx->listening) {
-      result = Curl_pollset_set_in_only(data, ps, ctx->sock);
-      CURL_TRC_CF(data, cf, "adjust_pollset, listening, POLLIN fd=%"
+    ਜੇ(ctx->listening) {
+      ਨਤੀਜਾ = Curl_pollset_ਸੈੱਟ_ਵਿੱਚ_only(ਅੰਕੜੇ, ps, ctx->sock);
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "adjust_pollset, listening, POLLIN fd=%"
                   FMT_SOCKET_T, ctx->sock);
     }
-    else if(!cf->connected) {
-      result = Curl_pollset_set_out_only(data, ps, ctx->sock);
-      CURL_TRC_CF(data, cf, "adjust_pollset, !connected, POLLOUT fd=%"
+    ਨਹੀਂਤਾਂ ਜੇ(!cf->connected) {
+      ਨਤੀਜਾ = Curl_pollset_ਸੈੱਟ_ਬਾਹਰਲਾ_only(ਅੰਕੜੇ, ps, ctx->sock);
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "adjust_pollset, !connected, POLLOUT fd=%"
                   FMT_SOCKET_T, ctx->sock);
     }
-    else if(!ctx->active) {
-      result = Curl_pollset_add_in(data, ps, ctx->sock);
-      CURL_TRC_CF(data, cf, "adjust_pollset, !active, POLLIN fd=%"
+    ਨਹੀਂਤਾਂ ਜੇ(!ctx->ਸਰਗਰਮ) {
+      ਨਤੀਜਾ = Curl_pollset_ਜੋੜੋ_ਵਿੱਚ(ਅੰਕੜੇ, ps, ctx->sock);
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "adjust_pollset, !active, POLLIN fd=%"
                   FMT_SOCKET_T, ctx->sock);
     }
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifdef USE_WINSOCK
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_WINSOCK
 
 /* Offered by mingw-w64 v13+, MS SDK 7.0A/VS2010+ */
-#ifndef SIO_IDEAL_SEND_BACKLOG_QUERY
-#define SIO_IDEAL_SEND_BACKLOG_QUERY 0x4004747B
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ SIO_IDEAL_SEND_BACKLOG_QUERY
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIO_IDEAL_SEND_BACKLOG_QUERY 0x4004747B
+#ਜੇ_ਅੰਤ
 
-static void win_update_sndbuf_size(struct Curl_easy *data,
-                                   struct cf_socket_ctx *ctx)
+ਸਥਿਰ ਖਾਲੀ win_update_sndbuf_ਮਾਪ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                   ਬਣਤਰ cf_socket_ctx *ctx)
 {
   ULONG ideal;
   DWORD ideallen;
 
-  if(curlx_ptimediff_ms(Curl_pgrs_now(data),
-                        &ctx->last_sndbuf_query_at) > 1000) {
-    if(!WSAIoctl(ctx->sock, SIO_IDEAL_SEND_BACKLOG_QUERY, 0, 0,
-                 &ideal, sizeof(ideal), &ideallen, 0, 0) &&
-       ideal != ctx->sndbuf_size &&
+  ਜੇ(curlx_ptimediff_ms(Curl_pgrs_now(ਅੰਕੜੇ),
+                        &ctx->ਆਖਰੀ_sndbuf_query_at) > 1000) {
+    ਜੇ(!WSAIoctl(ctx->sock, SIO_IDEAL_SEND_BACKLOG_QUERY, 0, 0,
+                 &ideal, ਆਕਾਰ(ideal), &ideallen, 0, 0) &&
+       ideal != ctx->sndbuf_ਮਾਪ &&
        !setsockopt(ctx->sock, SOL_SOCKET, SO_SNDBUF,
-                   (const char *)&ideal, sizeof(ideal))) {
-      ctx->sndbuf_size = ideal;
+                   (ਅਚਲ ਅੱਖਰ *)&ideal, ਆਕਾਰ(ideal))) {
+      ctx->sndbuf_ਮਾਪ = ideal;
     }
-    ctx->last_sndbuf_query_at = *Curl_pgrs_now(data);
+    ctx->ਆਖਰੀ_sndbuf_query_at = *Curl_pgrs_now(ਅੰਕੜੇ);
   }
 }
 
-#endif /* USE_WINSOCK */
+#ਜੇ_ਅੰਤ /* USE_WINSOCK */
 
-static CURLcode cf_socket_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               const uint8_t *buf, size_t len, bool eos,
+ਸਥਿਰ CURLcode cf_socket_send(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਅਚਲ uint8_t *buf, size_t len, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
   curl_socket_t fdsave;
   ssize_t rv;
-  CURLcode result = CURLE_OK;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   VERBOSE(size_t orig_len = len);
 
-  (void)eos;
+  (ਖਾਲੀ)eos;
   *pnwritten = 0;
   fdsave = cf->conn->sock[cf->sockindex];
   cf->conn->sock[cf->sockindex] = ctx->sock;
 
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
   /* simulate network blocking/partial writes */
-  if(ctx->wblock_percent > 0) {
-    unsigned char c = 0;
-    Curl_rand_bytes(data, FALSE, &c, 1);
-    if(c >= ((100 - ctx->wblock_percent) * 256 / 100)) {
-      CURL_TRC_CF(data, cf, "send(len=%zu) SIMULATE EWOULDBLOCK", orig_len);
+  ਜੇ(ctx->wblock_percent > 0) {
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ c = 0;
+    Curl_rand_ਬਾਈਟਾਂ(ਅੰਕੜੇ, FALSE, &c, 1);
+    ਜੇ(c >= ((100 - ctx->wblock_percent) * 256 / 100)) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "send(len=%zu) SIMULATE EWOULDBLOCK", orig_len);
       cf->conn->sock[cf->sockindex] = fdsave;
-      return CURLE_AGAIN;
+      ਵਾਪਸ CURLE_AGAIN;
     }
   }
-  if(cf->cft != &Curl_cft_udp && ctx->wpartial_percent > 0 && len > 8) {
+  ਜੇ(cf->cft != &Curl_cft_udp && ctx->wpartial_percent > 0 && len > 8) {
     len = len * ctx->wpartial_percent / 100;
-    if(!len)
+    ਜੇ(!len)
       len = 1;
-    CURL_TRC_CF(data, cf, "send(len=%zu) SIMULATE partial write of %zu bytes",
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "send(len=%zu) SIMULATE partial write of %zu bytes",
                 orig_len, len);
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-#if defined(MSG_FASTOPEN) && !defined(TCP_FASTOPEN_CONNECT) /* Linux */
-  if(cf->conn->bits.tcp_fastopen) {
+#ਜੇ defined(MSG_FASTOPEN) && !defined(TCP_FASTOPEN_CONNECT) /* Linux */
+  ਜੇ(cf->conn->ਬਿੱਟ.tcp_fastopen) {
     rv = sendto(ctx->sock, buf, len, MSG_FASTOPEN,
                 &ctx->addr.curl_sa_addr, ctx->addr.addrlen);
-    cf->conn->bits.tcp_fastopen = FALSE;
+    cf->conn->ਬਿੱਟ.tcp_fastopen = FALSE;
   }
-  else
-#endif
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ
     rv = swrite(ctx->sock, buf, len);
 
-  if(!curlx_sztouz(rv, pnwritten)) {
-    int sockerr = SOCKERRNO;
-    if(SOCK_EAGAIN(sockerr)
-#ifndef USE_WINSOCK
+  ਜੇ(!curlx_sztouz(rv, pnwritten)) {
+    ਪੂਰਨ sockerr = SOCKERRNO;
+    ਜੇ(SOCK_EAGAIN(sockerr)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ USE_WINSOCK
        || (sockerr == SOCKEINTR) || (sockerr == SOCKEINPROGRESS)
-#endif
+#ਜੇ_ਅੰਤ
       ) {
-      result = CURLE_AGAIN;  /* EWOULDBLOCK */
+      ਨਤੀਜਾ = CURLE_AGAIN;  /* EWOULDBLOCK */
     }
-    else {
-      char buffer[STRERROR_LEN];
-      failf(data, "Send failure: %s",
-            curlx_strerror(sockerr, buffer, sizeof(buffer)));
-      data->state.os_errno = sockerr;
-      result = CURLE_SEND_ERROR;
+    ਨਹੀਂਤਾਂ {
+      ਅੱਖਰ ਬਫਰ[STRERROR_LEN];
+      failf(ਅੰਕੜੇ, "Send failure: %s",
+            curlx_strerror(sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
+      ਅੰਕੜੇ->state.os_errno = sockerr;
+      ਨਤੀਜਾ = CURLE_SEND_ERROR;
     }
   }
 
-#ifdef USE_WINSOCK
-  if(!result)
-    win_update_sndbuf_size(data, ctx);
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_WINSOCK
+  ਜੇ(!ਨਤੀਜਾ)
+    win_update_sndbuf_ਮਾਪ(ਅੰਕੜੇ, ctx);
+#ਜੇ_ਅੰਤ
 
-  CURL_TRC_CF(data, cf, "send(len=%zu) -> %d, %zu",
-              orig_len, (int)result, *pnwritten);
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "send(len=%zu) -> %d, %zu",
+              orig_len, (ਪੂਰਨ)ਨਤੀਜਾ, *pnwritten);
   cf->conn->sock[cf->sockindex] = fdsave;
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode cf_socket_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               char *buf, size_t len, size_t *pnread)
+ਸਥਿਰ CURLcode cf_socket_recv(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਅੱਖਰ *buf, size_t len, size_t *pnread)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   ssize_t rv;
 
   *pnread = 0;
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
   /* simulate network blocking/partial reads */
-  if(cf->cft != &Curl_cft_udp && ctx->rblock_percent > 0) {
-    unsigned char c = 0;
-    Curl_rand(data, &c, 1);
-    if(c >= ((100 - ctx->rblock_percent) * 256 / 100)) {
-      CURL_TRC_CF(data, cf, "recv(len=%zu) SIMULATE EWOULDBLOCK", len);
-      return CURLE_AGAIN;
+  ਜੇ(cf->cft != &Curl_cft_udp && ctx->rblock_percent > 0) {
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ c = 0;
+    Curl_rand(ਅੰਕੜੇ, &c, 1);
+    ਜੇ(c >= ((100 - ctx->rblock_percent) * 256 / 100)) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "recv(len=%zu) SIMULATE EWOULDBLOCK", len);
+      ਵਾਪਸ CURLE_AGAIN;
     }
   }
-  if(cf->cft != &Curl_cft_udp && ctx->recv_max && ctx->recv_max < len) {
-    CURL_TRC_CF(data, cf, "recv(len=%zu) SIMULATE max read of %zu bytes",
+  ਜੇ(cf->cft != &Curl_cft_udp && ctx->recv_max && ctx->recv_max < len) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "recv(len=%zu) SIMULATE max read of %zu bytes",
                 len, ctx->recv_max);
     len = ctx->recv_max;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
   rv = sread(ctx->sock, buf, len);
 
-  if(!curlx_sztouz(rv, pnread)) {
-    int sockerr = SOCKERRNO;
-    if(SOCK_EAGAIN(sockerr)
-#ifndef USE_WINSOCK
+  ਜੇ(!curlx_sztouz(rv, pnread)) {
+    ਪੂਰਨ sockerr = SOCKERRNO;
+    ਜੇ(SOCK_EAGAIN(sockerr)
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ USE_WINSOCK
        || (sockerr == SOCKEINTR)
-#endif
+#ਜੇ_ਅੰਤ
       ) {
-      result = CURLE_AGAIN;  /* EWOULDBLOCK */
+      ਨਤੀਜਾ = CURLE_AGAIN;  /* EWOULDBLOCK */
     }
-    else {
-      char buffer[STRERROR_LEN];
-      failf(data, "Recv failure: %s",
-            curlx_strerror(sockerr, buffer, sizeof(buffer)));
-      data->state.os_errno = sockerr;
-      result = CURLE_RECV_ERROR;
+    ਨਹੀਂਤਾਂ {
+      ਅੱਖਰ ਬਫਰ[STRERROR_LEN];
+      failf(ਅੰਕੜੇ, "Recv failure: %s",
+            curlx_strerror(sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
+      ਅੰਕੜੇ->state.os_errno = sockerr;
+      ਨਤੀਜਾ = CURLE_RECV_ERROR;
     }
   }
 
-  CURL_TRC_CF(data, cf, "recv(len=%zu) -> %d, %zu", len, (int)result, *pnread);
-  if(!result && !ctx->got_first_byte) {
-    ctx->first_byte_at = *Curl_pgrs_now(data);
-    ctx->got_first_byte = TRUE;
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "recv(len=%zu) -> %d, %zu", len, (ਪੂਰਨ)ਨਤੀਜਾ, *pnread);
+  ਜੇ(!ਨਤੀਜਾ && !ctx->got_ਪਹਿਲਾ_byte) {
+    ctx->ਪਹਿਲਾ_byte_at = *Curl_pgrs_now(ਅੰਕੜੇ);
+    ctx->got_ਪਹਿਲਾ_byte = TRUE;
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void cf_socket_update_data(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ cf_socket_update_ਅੰਕੜੇ(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
   /* Update the IP info held in the transfer, if we have that. */
-  if(cf->connected && (cf->sockindex == FIRSTSOCKET)) {
-    struct cf_socket_ctx *ctx = cf->ctx;
-    data->info.primary = ctx->ip;
+  ਜੇ(cf->connected && (cf->sockindex == FIRSTSOCKET)) {
+    ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+    ਅੰਕੜੇ->info.primary = ctx->ip;
   }
 }
 
-static void cf_socket_active(struct Curl_cfilter *cf, struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ cf_socket_ਸਰਗਰਮ(ਬਣਤਰ Curl_cfilter *cf, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
 
   /* use this socket from now on */
   cf->conn->sock[cf->sockindex] = ctx->sock;
-  set_local_ip(cf, data);
-#ifdef USE_IPV6
-  if(cf->sockindex == FIRSTSOCKET)
-    cf->conn->bits.ipv6 = (ctx->addr.family == AF_INET6);
-#endif
-  ctx->active = TRUE;
+  ਸੈੱਟ_local_ip(cf, ਅੰਕੜੇ);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  ਜੇ(cf->sockindex == FIRSTSOCKET)
+    cf->conn->ਬਿੱਟ.ipv6 = (ctx->addr.family == AF_INET6);
+#ਜੇ_ਅੰਤ
+  ctx->ਸਰਗਰਮ = TRUE;
 }
 
-static CURLcode cf_socket_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2)
+ਸਥਿਰ CURLcode cf_socket_cntrl(ਬਣਤਰ Curl_cfilter *cf,
+                                ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਪੂਰਨ event, ਪੂਰਨ arg1, ਖਾਲੀ *arg2)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_CONN_INFO_UPDATE:
-    cf_socket_active(cf, data);
-    cf_socket_update_data(cf, data);
-    break;
-  case CF_CTRL_DATA_SETUP:
-    cf_socket_update_data(cf, data);
-    break;
-  case CF_CTRL_FORGET_SOCKET:
+  (ਖਾਲੀ)arg1;
+  (ਖਾਲੀ)arg2;
+  ਚੋਣ(event) {
+  ਹਾਲਤ CF_CTRL_CONN_INFO_UPDATE:
+    cf_socket_ਸਰਗਰਮ(cf, ਅੰਕੜੇ);
+    cf_socket_update_ਅੰਕੜੇ(cf, ਅੰਕੜੇ);
+    ਰੋਕੋ;
+  ਹਾਲਤ CF_CTRL_ਅੰਕੜੇ_ਤਿਆਰੀ:
+    cf_socket_update_ਅੰਕੜੇ(cf, ਅੰਕੜੇ);
+    ਰੋਕੋ;
+  ਹਾਲਤ CF_CTRL_FORGET_SOCKET:
     ctx->sock = CURL_SOCKET_BAD;
-    break;
-  case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !ctx->stats_reported) {
-      struct curltime *ts = NULL;
-      switch(ctx->transport) {
-      case TRNSPRT_UDP:
-      case TRNSPRT_QUIC:
+    ਰੋਕੋ;
+  ਹਾਲਤ CF_CTRL_REPORT_STATS:
+    ਜੇ(cf->connected && !ctx->stats_reported) {
+      ਬਣਤਰ curltime *ts = ਨਿਰਾ;
+      ਚੋਣ(ctx->transport) {
+      ਹਾਲਤ TRNSPRT_UDP:
+      ਹਾਲਤ TRNSPRT_QUIC:
         /* Since UDP connected sockets work different from TCP, we use the
          * time of the first byte from the peer as the "connect" time. */
-        if(ctx->got_first_byte)
-          ts = &ctx->first_byte_at;
-        break;
-      default:
+        ਜੇ(ctx->got_ਪਹਿਲਾ_byte)
+          ts = &ctx->ਪਹਿਲਾ_byte_at;
+        ਰੋਕੋ;
+      ਮੂਲ:
         ts = &ctx->connected_at;
-        break;
+        ਰੋਕੋ;
       }
-      if(ts) {
-        Curl_pgrsTimeWas(data, TIMER_CONNECT, *ts);
+      ਜੇ(ts) {
+        Curl_pgrs_ਸਮਾਂ_Was(ਅੰਕੜੇ, TIMER_CONNECT, *ts);
         ctx->stats_reported = TRUE;
       }
     }
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static bool cf_socket_conn_is_alive(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *input_pending)
+ਸਥਿਰ bool cf_socket_conn_is_alive(ਬਣਤਰ Curl_cfilter *cf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    bool *ਨਿਵੇਸ਼_pending)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  struct pollfd pfd[1];
-  int r;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  ਬਣਤਰ pollfd pfd[1];
+  ਪੂਰਨ r;
 
-  *input_pending = FALSE;
+  *ਨਿਵੇਸ਼_pending = FALSE;
 
-  if(!ctx || ctx->sock == CURL_SOCKET_BAD)
-    return FALSE;
+  ਜੇ(!ctx || ctx->sock == CURL_SOCKET_BAD)
+    ਵਾਪਸ FALSE;
 
   /* Check with 0 timeout if there are any events pending on the socket */
   pfd[0].fd = ctx->sock;
@@ -1849,76 +1849,76 @@ static bool cf_socket_conn_is_alive(struct Curl_cfilter *cf,
   pfd[0].revents = 0;
 
   r = Curl_poll(pfd, 1, 0);
-  if(r < 0) {
-    CURL_TRC_CF(data, cf, "is_alive: poll error, assume dead");
-    return FALSE;
+  ਜੇ(r < 0) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "is_alive: poll error, assume dead");
+    ਵਾਪਸ FALSE;
   }
-  else if(r == 0) {
-    CURL_TRC_CF(data, cf, "is_alive: poll timeout, assume alive");
-    return TRUE;
+  ਨਹੀਂਤਾਂ ਜੇ(r == 0) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "is_alive: poll timeout, assume alive");
+    ਵਾਪਸ TRUE;
   }
-  else if(pfd[0].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL)) {
-    CURL_TRC_CF(data, cf, "is_alive: err/hup/etc events, assume dead");
-    return FALSE;
+  ਨਹੀਂਤਾਂ ਜੇ(pfd[0].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL)) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "is_alive: err/hup/etc events, assume dead");
+    ਵਾਪਸ FALSE;
   }
 
-  CURL_TRC_CF(data, cf, "is_alive: valid events, looks alive");
-  *input_pending = TRUE;
-  return TRUE;
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "is_alive: valid events, looks alive");
+  *ਨਿਵੇਸ਼_pending = TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-static CURLcode cf_socket_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2)
+ਸਥਿਰ CURLcode cf_socket_query(ਬਣਤਰ Curl_cfilter *cf,
+                                ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਪੂਰਨ query, ਪੂਰਨ *pres1, ਖਾਲੀ *pres2)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_SOCKET:
+  ਚੋਣ(query) {
+  ਹਾਲਤ CF_QUERY_SOCKET:
     DEBUGASSERT(pres2);
     *((curl_socket_t *)pres2) = ctx->sock;
-    return CURLE_OK;
-  case CF_QUERY_TRANSPORT:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CF_QUERY_TRANSPORT:
     DEBUGASSERT(pres1);
     *pres1 = ctx->transport;
-    return CURLE_OK;
-  case CF_QUERY_REMOTE_ADDR:
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CF_QUERY_REMOTE_ADDR:
     DEBUGASSERT(pres2);
-    *((const struct Curl_sockaddr_ex **)pres2) = cf->connected ?
-                                                 &ctx->addr : NULL;
-    return CURLE_OK;
-  case CF_QUERY_CONNECT_REPLY_MS:
-    if(ctx->got_first_byte) {
-      timediff_t ms = curlx_ptimediff_ms(&ctx->first_byte_at,
+    *((ਅਚਲ ਬਣਤਰ Curl_sockaddr_ex **)pres2) = cf->connected ?
+                                                 &ctx->addr : ਨਿਰਾ;
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CF_QUERY_CONNECT_ਜਵਾਬ_MS:
+    ਜੇ(ctx->got_ਪਹਿਲਾ_byte) {
+      timediff_t ms = curlx_ptimediff_ms(&ctx->ਪਹਿਲਾ_byte_at,
                                          &ctx->started_at);
-      *pres1 = (ms < INT_MAX) ? (int)ms : INT_MAX;
+      *pres1 = (ms < ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ) ? (ਪੂਰਨ)ms : ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ;
     }
-    else
+    ਨਹੀਂਤਾਂ
       *pres1 = -1;
-    return CURLE_OK;
-  case CF_QUERY_IP_INFO:
-#ifdef USE_IPV6
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CF_QUERY_IP_INFO:
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
     *pres1 = (ctx->addr.family == AF_INET6);
-#else
+#ਨਹੀਂਤਾਂ
     *pres1 = FALSE;
-#endif
-    *(struct ip_quadruple *)pres2 = ctx->ip;
-    return CURLE_OK;
-  case CF_QUERY_REALLY_CONNECTED:
-    if(cf->cft != &Curl_cft_udp)
+#ਜੇ_ਅੰਤ
+    *(ਬਣਤਰ ip_quadruple *)pres2 = ctx->ip;
+    ਵਾਪਸ CURLE_OK;
+  ਹਾਲਤ CF_QUERY_REALLY_CONNECTED:
+    ਜੇ(cf->cft != &Curl_cft_udp)
       *pres1 = cf->connected;
-    else
-      *pres1 = ctx->got_first_byte;
-    return CURLE_OK;
-  default:
-    break;
+    ਨਹੀਂਤਾਂ
+      *pres1 = ctx->got_ਪਹਿਲਾ_byte;
+    ਵਾਪਸ CURLE_OK;
+  ਮੂਲ:
+    ਰੋਕੋ;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  ਵਾਪਸ cf->ਅਗਲਾ ?
+    cf->ਅਗਲਾ->cft->query(cf->ਅਗਲਾ, ਅੰਕੜੇ, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-struct Curl_cftype Curl_cft_tcp = {
+ਬਣਤਰ Curl_cftype Curl_cft_tcp = {
   "TCP",
   CF_TYPE_IP_CONNECT,
   CURL_LOG_LVL_NONE,
@@ -1926,7 +1926,7 @@ struct Curl_cftype Curl_cft_tcp = {
   cf_tcp_connect,
   cf_socket_shutdown,
   cf_socket_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_ਅੰਕੜੇ_pending,
   cf_socket_send,
   cf_socket_recv,
   cf_socket_cntrl,
@@ -1935,137 +1935,137 @@ struct Curl_cftype Curl_cft_tcp = {
   cf_socket_query,
 };
 
-CURLcode Curl_cf_tcp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_tcp_create(ਬਣਤਰ Curl_cfilter **pcf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_peer *origin,
+                            ਬਣਤਰ Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            ਬਣਤਰ connectdata *conn,
+                            ਬਣਤਰ Curl_sockaddr_ex *addr,
+                            ਬਣਤਰ Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport)
 {
-  struct cf_socket_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  ਬਣਤਰ cf_socket_ctx *ctx = ਨਿਰਾ;
+  ਬਣਤਰ Curl_cfilter *cf = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  (void)data;
-  (void)origin;
-  (void)conn;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)origin;
+  (ਖਾਲੀ)conn;
+  (ਖਾਲੀ)tunnel_peer;
+  (ਖਾਲੀ)tunnel_transport;
   DEBUGASSERT(transport_peer == TRNSPRT_TCP);
-  if(!addr) {
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  ਜੇ(!addr) {
+    ਨਤੀਜਾ = CURLE_BAD_FUNCTION_ਦਲੀਲ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, ਆਕਾਰ(*ctx));
+  ਜੇ(!ctx) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  result = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  result = Curl_cf_create(&cf, &Curl_cft_tcp, ctx);
+  ਨਤੀਜਾ = Curl_cf_create(&cf, &Curl_cft_tcp, ctx);
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
+ਬਾਹਰਲਾ:
+  *pcf = (!ਨਤੀਜਾ) ? cf : ਨਿਰਾ;
+  ਜੇ(ਨਤੀਜਾ) {
     curlx_safefree(cf);
     cf_socket_ctx_free(ctx);
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifdef __linux__
-static void linux_quic_mtu(struct cf_socket_ctx *ctx)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __linux__
+ਸਥਿਰ ਖਾਲੀ linux_quic_mtu(ਬਣਤਰ cf_socket_ctx *ctx)
 {
-  int val;
-  switch(ctx->addr.family) {
-#ifdef IP_MTU_DISCOVER
-  case AF_INET:
+  ਪੂਰਨ val;
+  ਚੋਣ(ctx->addr.family) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ IP_MTU_DISCOVER
+  ਹਾਲਤ AF_INET:
     val = IP_PMTUDISC_DO;
-    (void)setsockopt(ctx->sock, IPPROTO_IP, IP_MTU_DISCOVER, &val,
-                     sizeof(val));
-    break;
-#endif
-#ifdef IPV6_MTU_DISCOVER
-  case AF_INET6:
+    (ਖਾਲੀ)setsockopt(ctx->sock, IPPROTO_IP, IP_MTU_DISCOVER, &val,
+                     ਆਕਾਰ(val));
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ IPV6_MTU_DISCOVER
+  ਹਾਲਤ AF_INET6:
     val = IPV6_PMTUDISC_DO;
-    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_MTU_DISCOVER, &val,
-                     sizeof(val));
-    break;
-#endif
+    (ਖਾਲੀ)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_MTU_DISCOVER, &val,
+                     ਆਕਾਰ(val));
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
   }
 }
-#else
-#define linux_quic_mtu(x)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ linux_quic_mtu(x)
+#ਜੇ_ਅੰਤ
 
-#if defined(UDP_GRO) &&                                                 \
+#ਜੇ defined(UDP_GRO) &&                                                 \
   (defined(HAVE_SENDMMSG) || defined(HAVE_SENDMSG)) &&                  \
   ((defined(USE_NGTCP2) && defined(USE_NGHTTP3)) || defined(USE_QUICHE))
-static void linux_quic_gro(struct cf_socket_ctx *ctx)
+ਸਥਿਰ ਖਾਲੀ linux_quic_gro(ਬਣਤਰ cf_socket_ctx *ctx)
 {
-  int one = 1;
-  (void)setsockopt(ctx->sock, IPPROTO_UDP, UDP_GRO, &one,
-                   (socklen_t)sizeof(one));
+  ਪੂਰਨ one = 1;
+  (ਖਾਲੀ)setsockopt(ctx->sock, IPPROTO_UDP, UDP_GRO, &one,
+                   (socklen_t)ਆਕਾਰ(one));
 }
-#else
-#define linux_quic_gro(x)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ linux_quic_gro(x)
+#ਜੇ_ਅੰਤ
 
-#if (defined(__linux__) || defined(__APPLE__)) && defined(IP_RECVTOS)
-static void linux_quic_ecn(struct cf_socket_ctx *ctx)
+#ਜੇ (defined(__linux__) || defined(__APPLE__)) && defined(IP_RECVTOS)
+ਸਥਿਰ ਖਾਲੀ linux_quic_ecn(ਬਣਤਰ cf_socket_ctx *ctx)
 {
-  unsigned int tos = 1;
-  switch(ctx->addr.family) {
-  case AF_INET:
-    (void)setsockopt(ctx->sock, IPPROTO_IP, IP_RECVTOS, &tos, sizeof(tos));
-    break;
-#ifdef IPV6_RECVTCLASS
-  case AF_INET6:
-    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_RECVTCLASS,
-                     &tos, sizeof(tos));
-    break;
-#endif
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ tos = 1;
+  ਚੋਣ(ctx->addr.family) {
+  ਹਾਲਤ AF_INET:
+    (ਖਾਲੀ)setsockopt(ctx->sock, IPPROTO_IP, IP_RECVTOS, &tos, ਆਕਾਰ(tos));
+    ਰੋਕੋ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ IPV6_RECVTCLASS
+  ਹਾਲਤ AF_INET6:
+    (ਖਾਲੀ)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_RECVTCLASS,
+                     &tos, ਆਕਾਰ(tos));
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
   }
 }
-#else
-#define linux_quic_ecn(x)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ linux_quic_ecn(x)
+#ਜੇ_ਅੰਤ
 
-#if (defined(__linux__) || defined(__APPLE__)) && defined(IP_DONTFRAG)
-static void linux_ip_dontfrag(struct cf_socket_ctx *ctx)
+#ਜੇ (defined(__linux__) || defined(__APPLE__)) && defined(IP_DONTFRAG)
+ਸਥਿਰ ਖਾਲੀ linux_ip_dontfrag(ਬਣਤਰ cf_socket_ctx *ctx)
 {
-  int val = 1;
+  ਪੂਰਨ val = 1;
 
-  switch(ctx->addr.family) {
-  case AF_INET:
-    (void)setsockopt(ctx->sock, IPPROTO_IP, IP_DONTFRAG, &val, sizeof(val));
-    break;
-#ifdef IPV6_DONTFRAG
-  case AF_INET6:
-    (void)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_DONTFRAG,
-                     &val, sizeof(val));
-    break;
-#endif
+  ਚੋਣ(ctx->addr.family) {
+  ਹਾਲਤ AF_INET:
+    (ਖਾਲੀ)setsockopt(ctx->sock, IPPROTO_IP, IP_DONTFRAG, &val, ਆਕਾਰ(val));
+    ਰੋਕੋ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ IPV6_DONTFRAG
+  ਹਾਲਤ AF_INET6:
+    (ਖਾਲੀ)setsockopt(ctx->sock, IPPROTO_IPV6, IPV6_DONTFRAG,
+                     &val, ਆਕਾਰ(val));
+    ਰੋਕੋ;
+#ਜੇ_ਅੰਤ
   }
 }
-#else
-#define linux_ip_dontfrag(x)
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ linux_ip_dontfrag(x)
+#ਜੇ_ਅੰਤ
 
-static CURLcode cf_udp_setup_quic(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ਸਥਿਰ CURLcode cf_udp_ਤਿਆਰੀ_quic(ਬਣਤਰ Curl_cfilter *cf,
+                                  ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  int rc;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  ਪੂਰਨ rc;
 
   /* QUIC needs a connected socket, nonblocking */
   DEBUGASSERT(ctx->sock != CURL_SOCKET_BAD);
@@ -2074,16 +2074,16 @@ static CURLcode cf_udp_setup_quic(struct Curl_cfilter *cf,
      NOLINTNEXTLINE(clang-analyzer-unix.StdCLibraryFunctions) */
   rc = connect(ctx->sock, &ctx->addr.curl_sa_addr,
                (curl_socklen_t)ctx->addr.addrlen);
-  if(rc == -1) {
-    return socket_connect_result(data, ctx->ip.remote_ip, SOCKERRNO);
+  ਜੇ(rc == -1) {
+    ਵਾਪਸ socket_connect_ਨਤੀਜਾ(ਅੰਕੜੇ, ctx->ip.remote_ip, SOCKERRNO);
   }
   ctx->sock_connected = TRUE;
-  set_local_ip(cf, data);
-  CURL_TRC_CF(data, cf, "%s socket %" FMT_SOCKET_T
+  ਸੈੱਟ_local_ip(cf, ਅੰਕੜੇ);
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "%s socket %" FMT_SOCKET_T
               " connected: [%s:%d] -> [%s:%d]",
               (ctx->transport == TRNSPRT_QUIC) ? "QUIC" : "UDP",
-              ctx->sock, ctx->ip.local_ip, ctx->ip.local_port,
-              ctx->ip.remote_ip, ctx->ip.remote_port);
+              ctx->sock, ctx->ip.local_ip, ctx->ip.local_ਪੋਰਟ,
+              ctx->ip.remote_ip, ctx->ip.remote_ਪੋਰਟ);
 
   /* Currently, cf->ctx->sock is always non-blocking because the only
    * caller to cf_udp_setup_quic() is cf_udp_connect() that passes the
@@ -2095,46 +2095,46 @@ static CURLcode cf_udp_setup_quic(struct Curl_cfilter *cf,
   linux_ip_dontfrag(ctx);
   linux_quic_gro(ctx);
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode cf_udp_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               bool *done)
+ਸਥਿਰ CURLcode cf_udp_connect(ਬਣਤਰ Curl_cfilter *cf,
+                               ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               bool *ਪੂਰਾ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_COULDNT_CONNECT;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  CURLcode ਨਤੀਜਾ = CURLE_COULDNT_CONNECT;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ਜੇ(cf->connected) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  *done = FALSE;
-  if(ctx->sock == CURL_SOCKET_BAD) {
-    result = cf_socket_open(cf, data);
-    if(result) {
-      CURL_TRC_CF(data, cf, "cf_udp_connect(), open failed -> %d",
-                  (int)result);
-      goto out;
+  *ਪੂਰਾ = FALSE;
+  ਜੇ(ctx->sock == CURL_SOCKET_BAD) {
+    ਨਤੀਜਾ = cf_socket_open(cf, ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ) {
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "cf_udp_connect(), open failed -> %d",
+                  (ਪੂਰਨ)ਨਤੀਜਾ);
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
-    if(ctx->transport == TRNSPRT_QUIC) {
-      result = cf_udp_setup_quic(cf, data);
-      if(result)
-        goto out;
-      CURL_TRC_CF(data, cf, "cf_udp_connect(), opened socket=%"
+    ਜੇ(ctx->transport == TRNSPRT_QUIC) {
+      ਨਤੀਜਾ = cf_udp_ਤਿਆਰੀ_quic(cf, ਅੰਕੜੇ);
+      ਜੇ(ਨਤੀਜਾ)
+        ਜਾਓ ਬਾਹਰਲਾ;
+      CURL_TRC_CF(ਅੰਕੜੇ, cf, "cf_udp_connect(), opened socket=%"
                   FMT_SOCKET_T " (%s:%d)",
-                  ctx->sock, ctx->ip.local_ip, ctx->ip.local_port);
+                  ctx->sock, ctx->ip.local_ip, ctx->ip.local_ਪੋਰਟ);
     }
-    *done = TRUE;
+    *ਪੂਰਾ = TRUE;
     cf->connected = TRUE;
   }
-out:
-  return result;
+ਬਾਹਰਲਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-struct Curl_cftype Curl_cft_udp = {
+ਬਣਤਰ Curl_cftype Curl_cft_udp = {
   "UDP",
   CF_TYPE_IP_CONNECT,
   CURL_LOG_LVL_NONE,
@@ -2142,7 +2142,7 @@ struct Curl_cftype Curl_cft_udp = {
   cf_udp_connect,
   cf_socket_shutdown,
   cf_socket_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_ਅੰਕੜੇ_pending,
   cf_socket_send,
   cf_socket_recv,
   cf_socket_cntrl,
@@ -2151,50 +2151,50 @@ struct Curl_cftype Curl_cft_udp = {
   cf_socket_query,
 };
 
-CURLcode Curl_cf_udp_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_udp_create(ਬਣਤਰ Curl_cfilter **pcf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_peer *origin,
+                            ਬਣਤਰ Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            ਬਣਤਰ connectdata *conn,
+                            ਬਣਤਰ Curl_sockaddr_ex *addr,
+                            ਬਣਤਰ Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport)
 {
-  struct cf_socket_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  ਬਣਤਰ cf_socket_ctx *ctx = ਨਿਰਾ;
+  ਬਣਤਰ Curl_cfilter *cf = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  (void)data;
-  (void)origin;
-  (void)conn;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)origin;
+  (ਖਾਲੀ)conn;
+  (ਖਾਲੀ)tunnel_peer;
+  (ਖਾਲੀ)tunnel_transport;
   DEBUGASSERT(transport_peer == TRNSPRT_UDP || transport_peer == TRNSPRT_QUIC);
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, ਆਕਾਰ(*ctx));
+  ਜੇ(!ctx) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  result = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  result = Curl_cf_create(&cf, &Curl_cft_udp, ctx);
+  ਨਤੀਜਾ = Curl_cf_create(&cf, &Curl_cft_udp, ctx);
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
+ਬਾਹਰਲਾ:
+  *pcf = (!ਨਤੀਜਾ) ? cf : ਨਿਰਾ;
+  ਜੇ(ਨਤੀਜਾ) {
     curlx_safefree(cf);
     cf_socket_ctx_free(ctx);
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* this is the TCP filter which can also handle this case */
-struct Curl_cftype Curl_cft_unix = {
+ਬਣਤਰ Curl_cftype Curl_cft_unix = {
   "UNIX",
   CF_TYPE_IP_CONNECT,
   CURL_LOG_LVL_NONE,
@@ -2202,7 +2202,7 @@ struct Curl_cftype Curl_cft_unix = {
   cf_tcp_connect,
   cf_socket_shutdown,
   cf_socket_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_ਅੰਕੜੇ_pending,
   cf_socket_send,
   cf_socket_recv,
   cf_socket_cntrl,
@@ -2211,228 +2211,228 @@ struct Curl_cftype Curl_cft_unix = {
   cf_socket_query,
 };
 
-CURLcode Curl_cf_unix_create(struct Curl_cfilter **pcf,
-                            struct Curl_easy *data,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
+CURLcode Curl_cf_unix_create(ਬਣਤਰ Curl_cfilter **pcf,
+                            ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਣਤਰ Curl_peer *origin,
+                            ਬਣਤਰ Curl_peer *peer,
                             uint8_t transport_peer,
-                            struct connectdata *conn,
-                            struct Curl_sockaddr_ex *addr,
-                            struct Curl_peer *tunnel_peer,
+                            ਬਣਤਰ connectdata *conn,
+                            ਬਣਤਰ Curl_sockaddr_ex *addr,
+                            ਬਣਤਰ Curl_peer *tunnel_peer,
                             uint8_t tunnel_transport)
 {
-  struct cf_socket_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  ਬਣਤਰ cf_socket_ctx *ctx = ਨਿਰਾ;
+  ਬਣਤਰ Curl_cfilter *cf = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  (void)data;
-  (void)origin;
-  (void)conn;
-  (void)tunnel_peer;
-  (void)tunnel_transport;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  (ਖਾਲੀ)origin;
+  (ਖਾਲੀ)conn;
+  (ਖਾਲੀ)tunnel_peer;
+  (ਖਾਲੀ)tunnel_transport;
   DEBUGASSERT(transport_peer == TRNSPRT_UNIX);
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, ਆਕਾਰ(*ctx));
+  ਜੇ(!ctx) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  result = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
-  if(result)
-    goto out;
+  ਨਤੀਜਾ = cf_socket_ctx_init(ctx, peer, addr, transport_peer);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  result = Curl_cf_create(&cf, &Curl_cft_unix, ctx);
+  ਨਤੀਜਾ = Curl_cf_create(&cf, &Curl_cft_unix, ctx);
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
+ਬਾਹਰਲਾ:
+  *pcf = (!ਨਤੀਜਾ) ? cf : ਨਿਰਾ;
+  ਜੇ(ਨਤੀਜਾ) {
     curlx_safefree(cf);
     cf_socket_ctx_free(ctx);
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static timediff_t cf_tcp_accept_timeleft(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+ਸਥਿਰ timediff_t cf_tcp_accept_timeleft(ਬਣਤਰ Curl_cfilter *cf,
+                                         ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
   timediff_t timeout_ms = DEFAULT_ACCEPT_TIMEOUT;
   timediff_t other_ms;
 
-#ifndef CURL_DISABLE_FTP
-  if(data->set.accepttimeout > 0)
-    timeout_ms = data->set.accepttimeout;
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_FTP
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.accepttimeout > 0)
+    timeout_ms = ਅੰਕੜੇ->ਸੈੱਟ.accepttimeout;
+#ਜੇ_ਅੰਤ
 
   /* check if the generic timeout possibly is set shorter */
-  other_ms = Curl_timeleft_ms(data);
-  if(other_ms && (other_ms < timeout_ms))
+  other_ms = Curl_timeleft_ms(ਅੰਕੜੇ);
+  ਜੇ(other_ms && (other_ms < timeout_ms))
     /* note that this also works fine for when other_ms happens to be negative
        due to it already having elapsed */
     timeout_ms = other_ms;
-  else {
+  ਨਹੀਂਤਾਂ {
     /* subtract elapsed time */
-    timeout_ms -= curlx_ptimediff_ms(Curl_pgrs_now(data), &ctx->started_at);
-    if(!timeout_ms)
+    timeout_ms -= curlx_ptimediff_ms(Curl_pgrs_now(ਅੰਕੜੇ), &ctx->started_at);
+    ਜੇ(!timeout_ms)
       /* avoid returning 0 as that means no timeout! */
       timeout_ms = -1;
   }
-  return timeout_ms;
+  ਵਾਪਸ timeout_ms;
 }
 
-static void cf_tcp_set_accepted_remote_ip(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data)
+ਸਥਿਰ ਖਾਲੀ cf_tcp_ਸੈੱਟ_accepted_remote_ip(ਬਣਤਰ Curl_cfilter *cf,
+                                          ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-#ifdef HAVE_GETPEERNAME
-  CURLcode result;
-  struct Curl_sockaddr_storage ssrem;
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_GETPEERNAME
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ Curl_sockaddr_storage ssrem;
   curl_socklen_t plen;
 
   ctx->ip.remote_ip[0] = 0;
-  ctx->ip.remote_port = 0;
-  plen = sizeof(ssrem);
+  ctx->ip.remote_ਪੋਰਟ = 0;
+  plen = ਆਕਾਰ(ssrem);
   memset(&ssrem, 0, plen);
-  if(getpeername(ctx->sock, (struct sockaddr *)&ssrem, &plen)) {
-    char buffer[STRERROR_LEN];
-    int sockerr = SOCKERRNO;
-    failf(data, "getpeername() failed with errno %d: %s",
-          sockerr, curlx_strerror(sockerr, buffer, sizeof(buffer)));
-    return;
+  ਜੇ(getpeername(ctx->sock, (ਬਣਤਰ sockaddr *)&ssrem, &plen)) {
+    ਅੱਖਰ ਬਫਰ[STRERROR_LEN];
+    ਪੂਰਨ sockerr = SOCKERRNO;
+    failf(ਅੰਕੜੇ, "getpeername() failed with errno %d: %s",
+          sockerr, curlx_strerror(sockerr, ਬਫਰ, ਆਕਾਰ(ਬਫਰ)));
+    ਵਾਪਸ;
   }
-  result = sockaddr2string((struct sockaddr *)&ssrem, plen,
-                            ctx->ip.remote_ip, &ctx->ip.remote_port);
-  if(result) {
-    failf(data, "ssrem inet_ntop() failed with %d", (int)result);
-    return;
+  ਨਤੀਜਾ = sockaddr2string((ਬਣਤਰ sockaddr *)&ssrem, plen,
+                            ctx->ip.remote_ip, &ctx->ip.remote_ਪੋਰਟ);
+  ਜੇ(ਨਤੀਜਾ) {
+    failf(ਅੰਕੜੇ, "ssrem inet_ntop() failed with %d", (ਪੂਰਨ)ਨਤੀਜਾ);
+    ਵਾਪਸ;
   }
-#else
+#ਨਹੀਂਤਾਂ
   ctx->ip.remote_ip[0] = 0;
-  ctx->ip.remote_port = 0;
-  (void)data;
-#endif
+  ctx->ip.remote_ਪੋਰਟ = 0;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+#ਜੇ_ਅੰਤ
 }
 
-static CURLcode cf_tcp_accept_connect(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *done)
+ਸਥਿਰ CURLcode cf_tcp_accept_connect(ਬਣਤਰ Curl_cfilter *cf,
+                                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                      bool *ਪੂਰਾ)
 {
-  struct cf_socket_ctx *ctx = cf->ctx;
-  char errbuf[STRERROR_LEN];
-#ifdef USE_IPV6
-  struct Curl_sockaddr_storage add;
-#else
-  struct sockaddr_in add;
-#endif
-  curl_socklen_t size = (curl_socklen_t)sizeof(add);
+  ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
+  ਅੱਖਰ errbuf[STRERROR_LEN];
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_IPV6
+  ਬਣਤਰ Curl_sockaddr_storage ਜੋੜੋ;
+#ਨਹੀਂਤਾਂ
+  ਬਣਤਰ sockaddr_in ਜੋੜੋ;
+#ਜੇ_ਅੰਤ
+  curl_socklen_t ਮਾਪ = (curl_socklen_t)ਆਕਾਰ(ਜੋੜੋ);
   curl_socket_t s_accepted = CURL_SOCKET_BAD;
   timediff_t timeout_ms;
-  int socketstate = 0;
+  ਪੂਰਨ socketstate = 0;
   bool incoming = FALSE;
 
   /* we start accepted, if we ever close, we cannot go on */
-  (void)data;
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਜੇ(cf->connected) {
+    *ਪੂਰਾ = TRUE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  *done = FALSE;
-  timeout_ms = cf_tcp_accept_timeleft(cf, data);
-  if(timeout_ms < 0) {
+  *ਪੂਰਾ = FALSE;
+  timeout_ms = cf_tcp_accept_timeleft(cf, ਅੰਕੜੇ);
+  ਜੇ(timeout_ms < 0) {
     /* if a timeout was already reached, bail out */
-    failf(data, "Accept timeout occurred while waiting server connect");
-    return CURLE_FTP_ACCEPT_TIMEOUT;
+    failf(ਅੰਕੜੇ, "Accept timeout occurred while waiting server connect");
+    ਵਾਪਸ CURLE_FTP_ACCEPT_TIMEOUT;
   }
 
-  CURL_TRC_CF(data, cf, "Checking for incoming on fd=%" FMT_SOCKET_T
-              " ip=%s:%d", ctx->sock, ctx->ip.local_ip, ctx->ip.local_port);
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "Checking for incoming on fd=%" FMT_SOCKET_T
+              " ip=%s:%d", ctx->sock, ctx->ip.local_ip, ctx->ip.local_ਪੋਰਟ);
   socketstate = SOCKET_READABLE(ctx->sock, 0);
-  CURL_TRC_CF(data, cf, "socket_check -> %x", (unsigned int)socketstate);
-  switch(socketstate) {
-  case -1: /* error */
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "socket_check -> %x", (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)socketstate);
+  ਚੋਣ(socketstate) {
+  ਹਾਲਤ -1: /* error */
     /* let's die here */
-    failf(data, "Error while waiting for server connect");
-    return CURLE_FTP_ACCEPT_FAILED;
-  default:
-    if(socketstate & CURL_CSELECT_IN) {
-      infof(data, "Ready to accept data connection from server");
+    failf(ਅੰਕੜੇ, "Error while waiting for server connect");
+    ਵਾਪਸ CURLE_FTP_ACCEPT_FAILED;
+  ਮੂਲ:
+    ਜੇ(socketstate & CURL_CSELECT_ਵਿੱਚ) {
+      infof(ਅੰਕੜੇ, "Ready to accept data connection from server");
       incoming = TRUE;
     }
-    break;
+    ਰੋਕੋ;
   }
 
-  if(!incoming) {
-    CURL_TRC_CF(data, cf, "nothing heard from the server yet");
-    return CURLE_OK;
+  ਜੇ(!incoming) {
+    CURL_TRC_CF(ਅੰਕੜੇ, cf, "nothing heard from the server yet");
+    ਵਾਪਸ CURLE_OK;
   }
 
-  size = sizeof(add);
-#ifdef HAVE_ACCEPT4
-  s_accepted = CURL_ACCEPT4(ctx->sock, (struct sockaddr *)&add, &size,
+  ਮਾਪ = ਆਕਾਰ(ਜੋੜੋ);
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ACCEPT4
+  s_accepted = CURL_ACCEPT4(ctx->sock, (ਬਣਤਰ sockaddr *)&ਜੋੜੋ, &ਮਾਪ,
                             SOCK_NONBLOCK | SOCK_CLOEXEC);
-#else
-  s_accepted = CURL_ACCEPT(ctx->sock, (struct sockaddr *)&add, &size);
-#endif
+#ਨਹੀਂਤਾਂ
+  s_accepted = CURL_ACCEPT(ctx->sock, (ਬਣਤਰ sockaddr *)&ਜੋੜੋ, &ਮਾਪ);
+#ਜੇ_ਅੰਤ
 
-  if(s_accepted == CURL_SOCKET_BAD) {
-    failf(data, "Error accept()ing server connect: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
-    return CURLE_FTP_ACCEPT_FAILED;
+  ਜੇ(s_accepted == CURL_SOCKET_BAD) {
+    failf(ਅੰਕੜੇ, "Error accept()ing server connect: %s",
+          curlx_strerror(SOCKERRNO, errbuf, ਆਕਾਰ(errbuf)));
+    ਵਾਪਸ CURLE_FTP_ACCEPT_FAILED;
   }
-#ifndef HAVE_ACCEPT4
-#ifdef HAVE_FCNTL
-  if(fcntl(s_accepted, F_SETFD, FD_CLOEXEC) < 0) {
-    failf(data, "fcntl set CLOEXEC: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
-    Curl_socket_close(data, cf->conn, s_accepted);
-    return CURLE_FTP_ACCEPT_FAILED;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ HAVE_ACCEPT4
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_FCNTL
+  ਜੇ(fcntl(s_accepted, F_SETFD, FD_CLOEXEC) < 0) {
+    failf(ਅੰਕੜੇ, "fcntl set CLOEXEC: %s",
+          curlx_strerror(SOCKERRNO, errbuf, ਆਕਾਰ(errbuf)));
+    Curl_socket_close(ਅੰਕੜੇ, cf->conn, s_accepted);
+    ਵਾਪਸ CURLE_FTP_ACCEPT_FAILED;
   }
-#endif /* HAVE_FCNTL */
-  if(curlx_nonblock(s_accepted, TRUE) < 0) {
-    failf(data, "set socket NONBLOCK: %s",
-          curlx_strerror(SOCKERRNO, errbuf, sizeof(errbuf)));
-    Curl_socket_close(data, cf->conn, s_accepted);
-    return CURLE_FTP_ACCEPT_FAILED;
+#ਜੇ_ਅੰਤ /* HAVE_FCNTL */
+  ਜੇ(curlx_nonblock(s_accepted, TRUE) < 0) {
+    failf(ਅੰਕੜੇ, "set socket NONBLOCK: %s",
+          curlx_strerror(SOCKERRNO, errbuf, ਆਕਾਰ(errbuf)));
+    Curl_socket_close(ਅੰਕੜੇ, cf->conn, s_accepted);
+    ਵਾਪਸ CURLE_FTP_ACCEPT_FAILED;
   }
-#endif /* !HAVE_ACCEPT4 */
-  infof(data, "Connection accepted from server");
+#ਜੇ_ਅੰਤ /* !HAVE_ACCEPT4 */
+  infof(ਅੰਕੜੇ, "Connection accepted from server");
 
   /* Replace any filter on SECONDARY with one listening on this socket */
   ctx->listening = FALSE;
   ctx->accepted = TRUE;
-  socket_close(data, cf->conn, TRUE, ctx->sock);
+  socket_close(ਅੰਕੜੇ, cf->conn, TRUE, ctx->sock);
   ctx->sock = s_accepted;
 
   cf->conn->sock[cf->sockindex] = ctx->sock;
-  cf_tcp_set_accepted_remote_ip(cf, data);
-  set_local_ip(cf, data);
-  ctx->active = TRUE;
-  ctx->connected_at = *Curl_pgrs_now(data);
+  cf_tcp_ਸੈੱਟ_accepted_remote_ip(cf, ਅੰਕੜੇ);
+  ਸੈੱਟ_local_ip(cf, ਅੰਕੜੇ);
+  ctx->ਸਰਗਰਮ = TRUE;
+  ctx->connected_at = *Curl_pgrs_now(ਅੰਕੜੇ);
   cf->connected = TRUE;
-  CURL_TRC_CF(data, cf, "accepted_set(sock=%" FMT_SOCKET_T
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "accepted_set(sock=%" FMT_SOCKET_T
               ", remote=%s port=%d)",
-              ctx->sock, ctx->ip.remote_ip, ctx->ip.remote_port);
+              ctx->sock, ctx->ip.remote_ip, ctx->ip.remote_ਪੋਰਟ);
 
-  if(data->set.fsockopt) {
-    struct Curl_mapi_guard guard;
-    int error = 0;
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.fsockopt) {
+    ਬਣਤਰ Curl_mapi_guard guard;
+    ਪੂਰਨ error = 0;
 
     /* activate callback for setting socket options */
-    CURL_CBAPI_START(&guard, data, easy_fsockopt);
-    error = data->set.fsockopt(data->set.sockopt_client,
+    CURL_CBAPI_ਸ਼ੁਰੂ(&guard, ਅੰਕੜੇ, easy_fsockopt);
+    error = ਅੰਕੜੇ->ਸੈੱਟ.fsockopt(ਅੰਕੜੇ->ਸੈੱਟ.sockopt_client,
                                ctx->sock, CURLSOCKTYPE_ACCEPT);
-    CURL_CBAPI_END(&guard);
+    CURL_CBAPI_ਸਿਰਾ(&guard);
 
-    if(error)
-      return CURLE_ABORTED_BY_CALLBACK;
+    ਜੇ(error)
+      ਵਾਪਸ CURLE_ABORTED_BY_CALLBACK;
   }
-  *done = TRUE;
-  return CURLE_OK;
+  *ਪੂਰਾ = TRUE;
+  ਵਾਪਸ CURLE_OK;
 }
 
-struct Curl_cftype Curl_cft_tcp_accept = {
+ਬਣਤਰ Curl_cftype Curl_cft_tcp_accept = {
   "TCP-ACCEPT",
   CF_TYPE_IP_CONNECT,
   CURL_LOG_LVL_NONE,
@@ -2440,7 +2440,7 @@ struct Curl_cftype Curl_cft_tcp_accept = {
   cf_tcp_accept_connect,
   cf_socket_shutdown,
   cf_socket_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_ਅੰਕੜੇ_pending,
   cf_socket_send,
   cf_socket_recv,
   cf_socket_cntrl,
@@ -2449,87 +2449,87 @@ struct Curl_cftype Curl_cft_tcp_accept = {
   cf_socket_query,
 };
 
-CURLcode Curl_conn_tcp_listen_set(struct Curl_easy *data,
-                                  struct connectdata *conn,
+CURLcode Curl_conn_tcp_listen_ਸੈੱਟ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਬਣਤਰ connectdata *conn,
                                   int8_t sockindex, curl_socket_t *s)
 {
-  CURLcode result;
-  struct Curl_cfilter *cf = NULL;
-  struct cf_socket_ctx *ctx = NULL;
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ Curl_cfilter *cf = ਨਿਰਾ;
+  ਬਣਤਰ cf_socket_ctx *ctx = ਨਿਰਾ;
 
   /* replace any existing */
-  Curl_conn_cf_discard_all(data, conn, sockindex);
+  Curl_conn_cf_discard_all(ਅੰਕੜੇ, conn, sockindex);
   DEBUGASSERT(conn->sock[sockindex] == CURL_SOCKET_BAD);
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, ਆਕਾਰ(*ctx));
+  ਜੇ(!ctx) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
   ctx->transport = TRNSPRT_TCP;
   ctx->sock = *s;
   ctx->listening = TRUE;
   ctx->accepted = FALSE;
-  result = Curl_cf_create(&cf, &Curl_cft_tcp_accept, ctx);
-  if(result)
-    goto out;
-  Curl_conn_cf_add(data, conn, sockindex, cf);
+  ਨਤੀਜਾ = Curl_cf_create(&cf, &Curl_cft_tcp_accept, ctx);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ ਬਾਹਰਲਾ;
+  Curl_conn_cf_ਜੋੜੋ(ਅੰਕੜੇ, conn, sockindex, cf);
 
-  ctx->started_at = *Curl_pgrs_now(data);
+  ctx->started_at = *Curl_pgrs_now(ਅੰਕੜੇ);
   conn->sock[sockindex] = ctx->sock;
-  set_local_ip(cf, data);
-  CURL_TRC_CF(data, cf, "set filter for listen socket fd=%" FMT_SOCKET_T
+  ਸੈੱਟ_local_ip(cf, ਅੰਕੜੇ);
+  CURL_TRC_CF(ਅੰਕੜੇ, cf, "set filter for listen socket fd=%" FMT_SOCKET_T
               " ip=%s:%d", ctx->sock,
-              ctx->ip.local_ip, ctx->ip.local_port);
+              ctx->ip.local_ip, ctx->ip.local_ਪੋਰਟ);
 
-out:
-  if(result) {
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ) {
     curlx_safefree(cf);
     curlx_safefree(ctx);
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-bool Curl_conn_is_tcp_listen(struct Curl_easy *data,
+bool Curl_conn_is_tcp_listen(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                              int8_t sockindex)
 {
-  struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  while(cf) {
-    if(cf->cft == &Curl_cft_tcp_accept)
-      return TRUE;
-    cf = cf->next;
+  ਬਣਤਰ Curl_cfilter *cf = ਅੰਕੜੇ->conn->cfilter[sockindex];
+  ਜਦੋਂ(cf) {
+    ਜੇ(cf->cft == &Curl_cft_tcp_accept)
+      ਵਾਪਸ TRUE;
+    cf = cf->ਅਗਲਾ;
   }
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
 /**
  * Return TRUE iff `cf` is a socket filter.
  */
-static bool cf_is_socket(struct Curl_cfilter *cf)
+ਸਥਿਰ bool cf_is_socket(ਬਣਤਰ Curl_cfilter *cf)
 {
-  return cf && (cf->cft == &Curl_cft_tcp ||
+  ਵਾਪਸ cf && (cf->cft == &Curl_cft_tcp ||
                 cf->cft == &Curl_cft_udp ||
                 cf->cft == &Curl_cft_unix ||
                 cf->cft == &Curl_cft_tcp_accept);
 }
 
-CURLcode Curl_cf_socket_peek(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+CURLcode Curl_cf_socket_peek(ਬਣਤਰ Curl_cfilter *cf,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                              curl_socket_t *psock,
-                             const struct Curl_sockaddr_ex **paddr,
-                             struct ip_quadruple *pip)
+                             ਅਚਲ ਬਣਤਰ Curl_sockaddr_ex **paddr,
+                             ਬਣਤਰ ip_quadruple *pip)
 {
-  (void)data;
-  if(cf_is_socket(cf) && cf->ctx) {
-    struct cf_socket_ctx *ctx = cf->ctx;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  ਜੇ(cf_is_socket(cf) && cf->ctx) {
+    ਬਣਤਰ cf_socket_ctx *ctx = cf->ctx;
 
-    if(psock)
+    ਜੇ(psock)
       *psock = ctx->sock;
-    if(paddr)
+    ਜੇ(paddr)
       *paddr = &ctx->addr;
-    if(pip)
+    ਜੇ(pip)
       *pip = ctx->ip;
-    return CURLE_OK;
+    ਵਾਪਸ CURLE_OK;
   }
-  return CURLE_FAILED_INIT;
+  ਵਾਪਸ CURLE_FAILED_INIT;
 }

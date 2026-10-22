@@ -21,39 +21,39 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#ਜੇ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "vauth/vauth.h"
-#include "http_digest.h"
-#include "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strcase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vauth/vauth.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "http_digest.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
 
 /* Flush the Digest state if it was created for a different origin or with
    different credentials than the ones now in use, then link the current
    ones. */
-static void digest_flush_stale(struct Curl_easy *data,
-                               struct digestdata *digest,
-                               struct Curl_peer *peer,
-                               struct Curl_creds *creds)
+ਸਥਿਰ ਖਾਲੀ digest_flush_stale(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ digestdata *digest,
+                               ਬਣਤਰ Curl_peer *peer,
+                               ਬਣਤਰ Curl_creds *creds)
 {
   bool flush = FALSE;
-  if(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
-    CURL_TRC_M(data, "http_digest, reset on peer change to %s:%u",
+  ਜੇ(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
+    CURL_TRC_M(ਅੰਕੜੇ, "http_digest, reset on peer change to %s:%u",
                peer ? peer->hostname : "-",
-               (unsigned int)(peer ? peer->port : 0));
+               (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)(peer ? peer->ਪੋਰਟ : 0));
     flush = TRUE;
   }
-  else if(digest->creds && !Curl_creds_same(creds, digest->creds)) {
-    CURL_TRC_M(data, "http_digest, reset on creds change to %s",
+  ਨਹੀਂਤਾਂ ਜੇ(digest->creds && !Curl_creds_same(creds, digest->creds)) {
+    CURL_TRC_M(ਅੰਕੜੇ, "http_digest, reset on creds change to %s",
                creds ? creds->user : "-");
     flush = TRUE;
   }
 
-  if(flush) {
+  ਜੇ(flush) {
     /* flush Digest state */
     Curl_auth_digest_cleanup(digest);
   }
@@ -67,123 +67,123 @@ static void digest_flush_stale(struct Curl_easy *data,
    WWW-Authenticate: Digest realm="testrealm", nonce="1053604598"
    Proxy-Authenticate: Digest realm="testrealm", nonce="1053604598"
  */
-CURLcode Curl_input_digest(struct Curl_easy *data,
+CURLcode Curl_ਨਿਵੇਸ਼_digest(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                            bool proxy,
-                           const char *header) /* rest of the *-authenticate:
-                                                  header */
+                           ਅਚਲ ਅੱਖਰ *ਸਿਰਲੇਖ) /* rest of the *-authenticate:
+ਸਿਰਲੇਖ*/
 {
   /* Point to the correct struct with this */
-  struct digestdata *digest;
-  struct Curl_peer *origin = NULL;
-  CURLcode result;
+  ਬਣਤਰ digestdata *digest;
+  ਬਣਤਰ Curl_peer *origin = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
 
-  if(proxy) {
-    digest = &data->state.proxydigest;
-#ifdef CURL_DISABLE_PROXY
+  ਜੇ(proxy) {
+    digest = &ਅੰਕੜੇ->state.proxydigest;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
     Curl_auth_digest_cleanup(digest);
-    return CURLE_OK;  /* just ignore such a header without proxy support */
-#else
-    origin = data->conn->http_proxy.peer;
-#endif
+    ਵਾਪਸ CURLE_OK;  /* just ignore such a header without proxy support */
+#ਨਹੀਂਤਾਂ
+    origin = ਅੰਕੜੇ->conn->http_proxy.peer;
+#ਜੇ_ਅੰਤ
   }
-  else {
-    digest = &data->state.digest;
-    origin = data->state.origin;
+  ਨਹੀਂਤਾਂ {
+    digest = &ਅੰਕੜੇ->state.digest;
+    origin = ਅੰਕੜੇ->state.origin;
   }
 
-  if(!checkprefix("Digest", header) || !ISBLANK(header[6])) {
+  ਜੇ(!checkprefix("Digest", ਸਿਰਲੇਖ) || !ISBLANK(ਸਿਰਲੇਖ[6])) {
     Curl_auth_digest_cleanup(digest);
-    return CURLE_AUTH_ERROR;
+    ਵਾਪਸ CURLE_AUTH_ERROR;
   }
 
-  header += CURL_CSTRLEN("Digest");
-  curlx_str_passblanks(&header);
+  ਸਿਰਲੇਖ += CURL_CSTRLEN("Digest");
+  curlx_str_passblanks(&ਸਿਰਲੇਖ);
 
   /* This resets the digest struct before decoding */
-  result = Curl_auth_decode_digest_http_message(header, digest);
+  ਨਤੀਜਾ = Curl_auth_decode_digest_http_ਸੁਨੇਹਾ(ਸਿਰਲੇਖ, digest);
   /* Remember only the peer, the data we take in has no relation to creds
    * at this time. We can use it even if creds change. */
   Curl_peer_link(&digest->origin, origin);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-CURLcode Curl_output_digest(struct Curl_easy *data,
+CURLcode Curl_output_digest(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath)
+                            ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *request,
+                            ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *uripath)
 {
-  struct Curl_peer *origin = NULL;
-  CURLcode result;
-  char *response;
+  ਬਣਤਰ Curl_peer *origin = ਨਿਰਾ;
+  CURLcode ਨਤੀਜਾ;
+  ਅੱਖਰ *response;
   size_t len;
   bool have_chlg;
 
   /* Point to the address of the pointer that holds the string to send to the
      server, which is for a plain host or for an HTTP proxy */
-  char **allocuserpwd;
+  ਅੱਖਰ **allocuserpwd;
 
   /* Point to the name and password for this */
-  struct Curl_creds *creds = NULL;
+  ਬਣਤਰ Curl_creds *creds = ਨਿਰਾ;
 
   /* Point to the correct struct with this */
-  struct digestdata *digest;
-  struct auth *authp;
+  ਬਣਤਰ digestdata *digest;
+  ਬਣਤਰ auth *authp;
 
-  if(proxy) {
-#ifdef CURL_DISABLE_PROXY
-    return CURLE_NOT_BUILT_IN;
-#else
-    digest = &data->state.proxydigest;
-    origin = data->conn->http_proxy.peer;
-    creds = data->conn->http_proxy.creds;
-    allocuserpwd = &data->req.hd_proxy_auth;
-    authp = &data->state.authproxy;
-#endif
+  ਜੇ(proxy) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+    ਵਾਪਸ CURLE_NOT_BUILT_ਵਿੱਚ;
+#ਨਹੀਂਤਾਂ
+    digest = &ਅੰਕੜੇ->state.proxydigest;
+    origin = ਅੰਕੜੇ->conn->http_proxy.peer;
+    creds = ਅੰਕੜੇ->conn->http_proxy.creds;
+    allocuserpwd = &ਅੰਕੜੇ->req.hd_proxy_auth;
+    authp = &ਅੰਕੜੇ->state.authproxy;
+#ਜੇ_ਅੰਤ
   }
-  else {
-    DEBUGASSERT(data->state.origin);
-    digest = &data->state.digest;
-    origin = data->state.origin;
-    creds = data->state.creds;
-    allocuserpwd = &data->req.hd_auth;
-    authp = &data->state.authhost;
+  ਨਹੀਂਤਾਂ {
+    DEBUGASSERT(ਅੰਕੜੇ->state.origin);
+    digest = &ਅੰਕੜੇ->state.digest;
+    origin = ਅੰਕੜੇ->state.origin;
+    creds = ਅੰਕੜੇ->state.creds;
+    allocuserpwd = &ਅੰਕੜੇ->req.hd_auth;
+    authp = &ਅੰਕੜੇ->state.authhost;
   }
 
-  digest_flush_stale(data, digest, origin, creds);
+  digest_flush_stale(ਅੰਕੜੇ, digest, origin, creds);
   curlx_safefree(*allocuserpwd);
 
-#ifdef USE_WINDOWS_SSPI
-  have_chlg = !!digest->input_token;
-#else
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_WINDOWS_SSPI
+  have_chlg = !!digest->ਨਿਵੇਸ਼_token;
+#ਨਹੀਂਤਾਂ
   have_chlg = !!digest->nonce;
-#endif
+#ਜੇ_ਅੰਤ
 
-  if(!have_chlg) {
-    authp->done = FALSE;
-    return CURLE_OK;
+  ਜੇ(!have_chlg) {
+    authp->ਪੂਰਾ = FALSE;
+    ਵਾਪਸ CURLE_OK;
   }
 
-  result = Curl_auth_create_digest_http_message(data, creds, request,
+  ਨਤੀਜਾ = Curl_auth_create_digest_http_ਸੁਨੇਹਾ(ਅੰਕੜੇ, creds, request,
                                                 uripath, digest,
                                                 &response, &len);
-  if(result)
-    return result;
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   *allocuserpwd = curl_maprintf("%sAuthorization: Digest %s\r\n",
                                 proxy ? "Proxy-" : "", response);
   curlx_free(response);
-  if(!*allocuserpwd)
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!*allocuserpwd)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  authp->done = TRUE;
+  authp->ਪੂਰਾ = TRUE;
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-void Curl_http_auth_cleanup_digest(struct Curl_easy *data)
+ਖਾਲੀ Curl_http_auth_cleanup_digest(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  Curl_auth_digest_cleanup(&data->state.digest);
-  Curl_auth_digest_cleanup(&data->state.proxydigest);
+  Curl_auth_digest_cleanup(&ਅੰਕੜੇ->state.digest);
+  Curl_auth_digest_cleanup(&ਅੰਕੜੇ->state.proxydigest);
 }
 
-#endif
+#ਜੇ_ਅੰਤ

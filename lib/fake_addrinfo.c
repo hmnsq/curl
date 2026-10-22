@@ -21,75 +21,75 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "fake_addrinfo.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fake_addrinfo.h"
 
-#ifdef USE_FAKE_GETADDRINFO
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_FAKE_GETADDRINFO
 
-#include <ares.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <ares.h>
 
-void r_freeaddrinfo(struct addrinfo *cahead)
+ਖਾਲੀ r_freeaddrinfo(ਬਣਤਰ addrinfo *cahead)
 {
-  struct addrinfo *canext;
-  struct addrinfo *ca;
+  ਬਣਤਰ addrinfo *canext;
+  ਬਣਤਰ addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
-    canext = ca->ai_next;
+  ਲਈ(ca = cahead; ca; ca = canext) {
+    canext = ca->ai_ਅਗਲਾ;
     curlx_free(ca);
   }
 }
 
-struct context {
-  struct ares_addrinfo *addr;
-  int status;
+ਬਣਤਰ context {
+  ਬਣਤਰ ares_addrinfo *addr;
+  ਪੂਰਨ ਸਥਿਤੀ;
 };
 
-static void async_addrinfo_cb(void *userp, int status, int timeouts,
-                              struct ares_addrinfo *addr)
+ਸਥਿਰ ਖਾਲੀ async_addrinfo_cb(ਖਾਲੀ *userp, ਪੂਰਨ ਸਥਿਤੀ, ਪੂਰਨ timeouts,
+                              ਬਣਤਰ ares_addrinfo *addr)
 {
-  struct context *ctx = (struct context *)userp;
-  (void)timeouts;
-  ctx->status = status;
-  if(ARES_SUCCESS == status) {
+  ਬਣਤਰ context *ctx = (ਬਣਤਰ context *)userp;
+  (ਖਾਲੀ)timeouts;
+  ctx->ਸਥਿਤੀ = ਸਥਿਤੀ;
+  ਜੇ(ARES_SUCCESS == ਸਥਿਤੀ) {
     ctx->addr = addr;
   }
 }
 
 /* convert the c-ares version into the "native" version */
-static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
+ਸਥਿਰ ਬਣਤਰ addrinfo *mk_getaddrinfo(ਅਚਲ ਬਣਤਰ ares_addrinfo *aihead)
 {
-  const struct ares_addrinfo_node *ai;
-  struct addrinfo *ca;
-  struct addrinfo *cafirst = NULL;
-  struct addrinfo *calast = NULL;
-  const char *name = aihead->name;
+  ਅਚਲ ਬਣਤਰ ares_addrinfo_ਗੰਢ *ai;
+  ਬਣਤਰ addrinfo *ca;
+  ਬਣਤਰ addrinfo *cafirst = ਨਿਰਾ;
+  ਬਣਤਰ addrinfo *calast = ਨਿਰਾ;
+  ਅਚਲ ਅੱਖਰ *name = aihead->name;
 
   /* traverse the addrinfo list */
-  for(ai = aihead->nodes; ai; ai = ai->ai_next) {
-    size_t ss_size;
-    size_t namelen = name ? strlen(name) + 1 : 0;
+  ਲਈ(ai = aihead->nodes; ai; ai = ai->ai_ਅਗਲਾ) {
+    size_t ss_ਮਾਪ;
+    size_t namelen = name ? ਲੜੀ_ਲੰਬਾਈ(name) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-    else
-      continue;
+    ਜੇ(ai->ai_family == AF_INET)
+      ss_ਮਾਪ = ਆਕਾਰ(ਬਣਤਰ sockaddr_in);
+    ਨਹੀਂਤਾਂ ਜੇ(ai->ai_family == AF_INET6)
+      ss_ਮਾਪ = ਆਕਾਰ(ਬਣਤਰ sockaddr_in6);
+    ਨਹੀਂਤਾਂ
+      ਜਾਰੀ;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
-      continue;
+    ਜੇ(!ai->ai_addr || !(ai->ai_addrlen > 0))
+      ਜਾਰੀ;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
-      continue;
+    ਜੇ((size_t)ai->ai_addrlen < ss_ਮਾਪ)
+      ਜਾਰੀ;
 
-    ca = curlx_malloc(sizeof(struct addrinfo) + ss_size + namelen);
-    if(!ca) {
+    ca = curlx_malloc(ਆਕਾਰ(ਬਣਤਰ addrinfo) + ss_ਮਾਪ + namelen);
+    ਜੇ(!ca) {
       r_freeaddrinfo(cafirst);
-      return NULL;
+      ਵਾਪਸ ਨਿਰਾ;
     }
 
     /* copy each structure member individually, member ordering,
@@ -99,104 +99,104 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     ca->ai_family    = ai->ai_family;
     ca->ai_socktype  = ai->ai_socktype;
     ca->ai_protocol  = ai->ai_protocol;
-    ca->ai_addrlen   = (curl_socklen_t)ss_size;
-    ca->ai_addr      = NULL;
-    ca->ai_canonname = NULL;
-    ca->ai_next      = NULL;
+    ca->ai_addrlen   = (curl_socklen_t)ss_ਮਾਪ;
+    ca->ai_addr      = ਨਿਰਾ;
+    ca->ai_canonname = ਨਿਰਾ;
+    ca->ai_ਅਗਲਾ      = ਨਿਰਾ;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct addrinfo));
-    memcpy(ca->ai_addr, ai->ai_addr, ss_size);
+    ca->ai_addr = (ਖਾਲੀ *)((ਅੱਖਰ *)ca + ਆਕਾਰ(ਬਣਤਰ addrinfo));
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(ca->ai_addr, ai->ai_addr, ss_ਮਾਪ);
 
-    if(namelen) {
-      ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
-      memcpy(ca->ai_canonname, name, namelen);
+    ਜੇ(namelen) {
+      ca->ai_canonname = (ਖਾਲੀ *)((ਅੱਖਰ *)ca->ai_addr + ss_ਮਾਪ);
+      ਸਮ੍ਰਿਤੀ_ਨਕਲ(ca->ai_canonname, name, namelen);
 
       /* the name is only pointed to by the first entry in the "real"
          addrinfo chain, so stop now */
-      name = NULL;
+      name = ਨਿਰਾ;
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    ਜੇ(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
-      calast->ai_next = ca;
+    ਜੇ(calast)
+      calast->ai_ਅਗਲਾ = ca;
     calast = ca;
   }
 
-  return cafirst;
+  ਵਾਪਸ cafirst;
 }
 
 /* RETURN VALUE
    getaddrinfo() returns 0 if it succeeds, or one of the following nonzero
    error codes:
    ... */
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res)
+ਪੂਰਨ r_getaddrinfo(ਅਚਲ ਅੱਖਰ *ਗੰਢ,
+                  ਅਚਲ ਅੱਖਰ *service,
+                  ਅਚਲ ਬਣਤਰ addrinfo *hints,
+                  ਬਣਤਰ addrinfo **res)
 {
-  int status;
-  struct context ctx;
-  struct ares_options options;
-  int optmask = 0;
-  struct ares_addrinfo_hints ahints;
+  ਪੂਰਨ ਸਥਿਤੀ;
+  ਬਣਤਰ context ctx;
+  ਬਣਤਰ ares_options options;
+  ਪੂਰਨ optmask = 0;
+  ਬਣਤਰ ares_addrinfo_hints ahints;
   ares_channel channel;
-  int rc = 0;
+  ਪੂਰਨ rc = 0;
 
-  memset(&options, 0, sizeof(options));
+  memset(&options, 0, ਆਕਾਰ(options));
   optmask      |= ARES_OPT_EVENT_THREAD;
   options.evsys = ARES_EVSYS_DEFAULT;
 
-  memset(&ahints, 0, sizeof(ahints));
-  memset(&ctx, 0, sizeof(ctx));
+  memset(&ahints, 0, ਆਕਾਰ(ahints));
+  memset(&ctx, 0, ਆਕਾਰ(ctx));
 
-  if(hints) {
+  ਜੇ(hints) {
     ahints.ai_flags = hints->ai_flags;
     ahints.ai_family = hints->ai_family;
     ahints.ai_socktype = hints->ai_socktype;
     ahints.ai_protocol = hints->ai_protocol;
   }
 
-  status = ares_init_options(&channel, &options, optmask);
-  if(status)
-    return EAI_MEMORY; /* major problem */
+  ਸਥਿਤੀ = ares_init_options(&channel, &options, optmask);
+  ਜੇ(ਸਥਿਤੀ)
+    ਵਾਪਸ EAI_MEMORY; /* major problem */
 
-  else {
-    const char *env = getenv("CURL_DNS_SERVER");
-    if(env) {
-      rc = ares_set_servers_ports_csv(channel, env);
-      if(rc) {
+  ਨਹੀਂਤਾਂ {
+    ਅਚਲ ਅੱਖਰ *env = getenv("CURL_DNS_SERVER");
+    ਜੇ(env) {
+      rc = ares_ਸੈੱਟ_servers_ports_csv(channel, env);
+      ਜੇ(rc) {
         curl_mfprintf(stderr, "ares_set_servers_ports_csv failed: %d", rc);
         /* Cleanup */
         ares_destroy(channel);
-        return EAI_MEMORY; /* we cannot run */
+        ਵਾਪਸ EAI_MEMORY; /* we cannot run */
       }
     }
   }
 
-  ares_getaddrinfo(channel, node, service, &ahints, async_addrinfo_cb, &ctx);
+  ares_getaddrinfo(channel, ਗੰਢ, service, &ahints, async_addrinfo_cb, &ctx);
 
   /* Wait until no more requests are left to be processed */
-  ares_queue_wait_empty(channel, -1);
+  ares_ਕਤਾਰ_wait_ਖਾਲੀ_ਥਾਵਾਂ(channel, -1);
 
-  if(ctx.addr) {
+  ਜੇ(ctx.addr) {
     /* convert the c-ares version */
     *res = mk_getaddrinfo(ctx.addr);
     /* free the old */
     ares_freeaddrinfo(ctx.addr);
   }
-  else if((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
+  ਨਹੀਂਤਾਂ ਜੇ((ctx.ਸਥਿਤੀ == ARES_ENOTFOUND) || (ctx.ਸਥਿਤੀ == ARES_ENODATA))
     rc = EAI_NONAME; /* no such name */
-  else
+  ਨਹੀਂਤਾਂ
     rc = EAI_AGAIN; /* failed without an authoritative answer */
 
   /* Cleanup */
   ares_destroy(channel);
 
-  return rc;
+  ਵਾਪਸ rc;
 }
 
-#endif /* USE_FAKE_GETADDRINFO */
+#ਜੇ_ਅੰਤ /* USE_FAKE_GETADDRINFO */

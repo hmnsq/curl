@@ -21,53 +21,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ARPA_INET_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <arpa/inet.h>
+#ਜੇ_ਅੰਤ
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "escape.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "rand.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "escape.h"
 
-#include "curlx/winapi.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/winapi.h"
 
-#ifndef USE_SSL
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ USE_SSL
 /* ---- possibly non-cryptographic version following ---- */
-static CURLcode weak_random(struct Curl_easy *data,
-                            unsigned char *entropy,
-                            size_t length) /* always 4, size of int */
+ਸਥਿਰ CURLcode weak_random(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                            ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *entropy,
+                            size_t ਲੰਮਾਈ) /* always 4, size of int */
 {
-  unsigned int r;
-  DEBUGASSERT(length == sizeof(int));
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ r;
+  DEBUGASSERT(ਲੰਮਾਈ == ਆਕਾਰ(ਪੂਰਨ));
 
   /* Trying cryptographically secure functions first */
-#ifdef _WIN32
-  (void)data;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
+  (ਖਾਲੀ)ਅੰਕੜੇ;
   {
-    CURLcode result = curlx_win32_random(entropy, length);
-    if(result != CURLE_NOT_BUILT_IN)
-      return result;
+    CURLcode ਨਤੀਜਾ = curlx_win32_random(entropy, ਲੰਮਾਈ);
+    ਜੇ(ਨਤੀਜਾ != CURLE_NOT_BUILT_ਵਿੱਚ)
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef HAVE_ARC4RANDOM
-  (void)data;
-  r = (unsigned int)arc4random();
-  memcpy(entropy, &r, length);
-#else
-  infof(data, "WARNING: using weak random seed");
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ARC4RANDOM
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+  r = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)arc4random();
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(entropy, &r, ਲੰਮਾਈ);
+#ਨਹੀਂਤਾਂ
+  infof(ਅੰਕੜੇ, "WARNING: using weak random seed");
   {
-    static unsigned int randseed;
-    static bool seeded = FALSE;
-    unsigned int rnd;
-    if(!seeded) {
-      struct curltime now;
+    ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ randseed;
+    ਸਥਿਰ bool seeded = FALSE;
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ rnd;
+    ਜੇ(!seeded) {
+      ਬਣਤਰ curltime now;
       curlx_pnow(&now);
-      randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+      randseed += (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)now.tv_usec + (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)now.tv_sec;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
@@ -77,48 +77,48 @@ static CURLcode weak_random(struct Curl_easy *data,
     /* Return an unsigned 32-bit pseudo-random number. */
     r = randseed = randseed * 1103515245 + 12345;
     rnd = (r << 16) | ((r >> 16) & 0xFFFF);
-    memcpy(entropy, &rnd, length);
+    ਸਮ੍ਰਿਤੀ_ਨਕਲ(entropy, &rnd, ਲੰਮਾਈ);
   }
-#endif
-  return CURLE_OK;
+#ਜੇ_ਅੰਤ
+  ਵਾਪਸ CURLE_OK;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
+ਸਥਿਰ CURLcode randit(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ *rnd,
                        bool env_override)
 {
-#ifdef DEBUGBUILD
-  if(env_override) {
-    char *force_entropy = getenv("CURL_ENTROPY");
-    if(force_entropy) {
-      static unsigned int randseed;
-      static bool seeded = FALSE;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+  ਜੇ(env_override) {
+    ਅੱਖਰ *force_entropy = getenv("CURL_ENTROPY");
+    ਜੇ(force_entropy) {
+      ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ randseed;
+      ਸਥਿਰ bool seeded = FALSE;
 
-      if(!seeded) {
-        unsigned int seed = 0;
-        size_t elen = strlen(force_entropy);
-        size_t clen = sizeof(seed);
+      ਜੇ(!seeded) {
+        ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਬੀਜ = 0;
+        size_t elen = ਲੜੀ_ਲੰਬਾਈ(force_entropy);
+        size_t clen = ਆਕਾਰ(ਬੀਜ);
         size_t min = elen < clen ? elen : clen;
-        memcpy((char *)&seed, force_entropy, min);
-        randseed = ntohl(seed);
+        ਸਮ੍ਰਿਤੀ_ਨਕਲ((ਅੱਖਰ *)&ਬੀਜ, force_entropy, min);
+        randseed = ntohl(ਬੀਜ);
         seeded = TRUE;
       }
-      else
+      ਨਹੀਂਤਾਂ
         randseed++;
       *rnd = randseed;
-      return CURLE_OK;
+      ਵਾਪਸ CURLE_OK;
     }
   }
-#else
-  (void)env_override;
-#endif
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)env_override;
+#ਜੇ_ਅੰਤ
 
   /* data may be NULL! */
-#ifdef USE_SSL
-  return Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#else
-  return weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
+  ਵਾਪਸ Curl_ssl_random(ਅੰਕੜੇ, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)rnd, ਆਕਾਰ(*rnd));
+#ਨਹੀਂਤਾਂ
+  ਵਾਪਸ weak_random(ਅੰਕੜੇ, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)rnd, ਆਕਾਰ(*rnd));
+#ਜੇ_ਅੰਤ
 }
 
 /*
@@ -136,36 +136,36 @@ static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
  *
  */
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
-#ifdef DEBUGBUILD
+CURLcode Curl_rand_ਬਾਈਟਾਂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
                          bool env_override,
-#endif
-                         unsigned char *rnd, size_t num)
+#ਜੇ_ਅੰਤ
+                         ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *rnd, size_t ਅੰਕ)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-#ifndef DEBUGBUILD
-  const bool env_override = FALSE;
-#endif
+  CURLcode ਨਤੀਜਾ = CURLE_BAD_FUNCTION_ਦਲੀਲ;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+  ਅਚਲ bool env_override = FALSE;
+#ਜੇ_ਅੰਤ
 
-  DEBUGASSERT(num);
+  DEBUGASSERT(ਅੰਕ);
 
-  while(num) {
-    unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+  ਜਦੋਂ(ਅੰਕ) {
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ r;
+    size_t ਖੱਬਾ = ਅੰਕ < ਆਕਾਰ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ) ? ਅੰਕ : ਆਕਾਰ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ);
 
-    result = randit(data, &r, env_override);
-    if(result)
-      return result;
+    ਨਤੀਜਾ = randit(ਅੰਕੜੇ, &r, env_override);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
 
-    while(left) {
-      *rnd++ = (unsigned char)(r & 0xFF);
+    ਜਦੋਂ(ਖੱਬਾ) {
+      *rnd++ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)(r & 0xFF);
       r >>= 8;
-      --num;
-      --left;
+      --ਅੰਕ;
+      --ਖੱਬਾ;
     }
   }
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
@@ -174,26 +174,26 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
+CURLcode Curl_rand_hex(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *rnd, size_t ਅੰਕ)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  unsigned char buffer[128];
-  DEBUGASSERT(num > 1);
+  CURLcode ਨਤੀਜਾ = CURLE_BAD_FUNCTION_ਦਲੀਲ;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ ਬਫਰ[128];
+  DEBUGASSERT(ਅੰਕ > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  ਜੇ((ਅੰਕ / 2 >= ਆਕਾਰ(ਬਫਰ)) || !(ਅੰਕ & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
-    DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    DEBUGF(infof(ਅੰਕੜੇ, "invalid buffer size with Curl_rand_hex"));
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
   }
 
-  num--; /* save one for null-termination */
+  ਅੰਕ--; /* save one for null-termination */
 
-  result = Curl_rand(data, buffer, num / 2);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = Curl_rand(ਅੰਕੜੇ, ਬਫਰ, ਅੰਕ / 2);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  Curl_hexencode(buffer, num / 2, rnd, num + 1);
-  return result;
+  Curl_hexencode(ਬਫਰ, ਅੰਕ / 2, rnd, ਅੰਕ + 1);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
@@ -201,30 +201,30 @@ CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
  * alphanumerical chars PLUS a null-terminator byte.
  */
 
-static const char alnum[] =
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ alnum[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num)
+CURLcode Curl_rand_alnum(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *rnd,
+                         size_t ਅੰਕ)
 {
-  CURLcode result = CURLE_OK;
-  const unsigned int alnumspace = CURL_CSTRLEN(alnum);
-  unsigned int r;
-  DEBUGASSERT(num > 1);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ alnumspace = CURL_CSTRLEN(alnum);
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ r;
+  DEBUGASSERT(ਅੰਕ > 1);
 
-  num--; /* save one for null-termination */
+  ਅੰਕ--; /* save one for null-termination */
 
-  while(num) {
-    do {
-      result = randit(data, &r, TRUE);
-      if(result)
-        return result;
-    } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
+  ਜਦੋਂ(ਅੰਕ) {
+    ਕਰੋ {
+      ਨਤੀਜਾ = randit(ਅੰਕੜੇ, &r, TRUE);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+    } ਜਦੋਂ(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
-    *rnd++ = (unsigned char)alnum[r % alnumspace];
-    num--;
+    *rnd++ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)alnum[r % alnumspace];
+    ਅੰਕ--;
   }
   *rnd = 0;
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }

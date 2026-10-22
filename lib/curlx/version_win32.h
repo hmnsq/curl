@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VERSION_WIN32_H
-#define HEADER_CURL_VERSION_WIN32_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_ਸੰਸਕਰਣ_WIN32_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_ਸੰਸਕਰਣ_WIN32_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,38 +23,38 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef _WIN32
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _WIN32
 
 /* Version condition */
-typedef enum {
-  VERSION_LESS_THAN,
-  VERSION_LESS_THAN_EQUAL,
-  VERSION_EQUAL,
-  VERSION_GREATER_THAN_EQUAL,
-  VERSION_GREATER_THAN
-} VersionCondition;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
+  ਸੰਸਕਰਣ_LESS_THAN,
+  ਸੰਸਕਰਣ_LESS_THAN_EQUAL,
+  ਸੰਸਕਰਣ_EQUAL,
+  ਸੰਸਕਰਣ_GREATER_THAN_EQUAL,
+  ਸੰਸਕਰਣ_GREATER_THAN
+} ਸੰਸਕਰਣ_Condition;
 
 /* Platform identifier */
-typedef enum {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
   PLATFORM_DONT_CARE,
   PLATFORM_WINDOWS,
   PLATFORM_WINNT
 } PlatformIdentifier;
 
-#ifdef CURL_WINDOWS_UWP
-#define curlx_verify_windows_init() Curl_nop_stmt
-#else
-void curlx_verify_windows_init(void);
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURL_WINDOWS_UWP
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ curlx_verify_windows_init() Curl_nop_stmt
+#ਨਹੀਂਤਾਂ
+ਖਾਲੀ curlx_verify_windows_init(ਖਾਲੀ);
+#ਜੇ_ਅੰਤ
 /* This is used to verify if we are running on a specific Windows version */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
-                                  const PlatformIdentifier platform,
-                                  const VersionCondition condition);
+bool curlx_verify_windows_ਸੰਸਕਰਣ(ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ major_ਸੰਸਕਰਣ,
+                                  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ minor_ਸੰਸਕਰਣ,
+                                  ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ build_ਸੰਸਕਰਣ,
+                                  ਅਚਲ PlatformIdentifier platform,
+                                  ਅਚਲ ਸੰਸਕਰਣ_Condition condition);
 
-#endif /* _WIN32 */
+#ਜੇ_ਅੰਤ /* _WIN32 */
 
-#endif /* HEADER_CURL_VERSION_WIN32_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_VERSION_WIN32_H */

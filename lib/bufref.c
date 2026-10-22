@@ -21,29 +21,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "urldata.h"
-#include "bufref.h"
-#include "curlx/strdup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "bufref.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strdup.h"
 
-#ifdef DEBUGBUILD
-#define SIGNATURE 0x5c48e9b2    /* Random pattern. */
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIGNATURE 0x5c48e9b2    /* Random pattern. */
+#ਜੇ_ਅੰਤ
 
 /*
  * Init a bufref struct.
  */
-void Curl_bufref_init(struct bufref *br)
+ਖਾਲੀ Curl_bufref_init(ਬਣਤਰ bufref *br)
 {
   DEBUGASSERT(br);
-  br->dtor = NULL;
-  br->ptr = NULL;
+  br->dtor = ਨਿਰਾ;
+  br->ptr = ਨਿਰਾ;
   br->len = 0;
 
-#ifdef DEBUGBUILD
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
   br->signature = SIGNATURE;
-#endif
+#ਜੇ_ਅੰਤ
 }
 
 /*
@@ -51,17 +51,17 @@ void Curl_bufref_init(struct bufref *br)
  * 'signature' field and thus this buffer reference can be reused.
  */
 
-void Curl_bufref_free(struct bufref *br)
+ਖਾਲੀ Curl_bufref_free(ਬਣਤਰ bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  if(br->ptr && br->dtor)
+  ਜੇ(br->ptr && br->dtor)
     br->dtor(CURL_UNCONST(br->ptr));
 
-  br->dtor = NULL;
-  br->ptr = NULL;
+  br->dtor = ਨਿਰਾ;
+  br->ptr = ਨਿਰਾ;
   br->len = 0;
 }
 
@@ -69,14 +69,14 @@ void Curl_bufref_free(struct bufref *br)
  * Set the buffer reference to new values. The previously referenced buffer
  * is released before assignment.
  */
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *))
+ਖਾਲੀ Curl_bufref_ਸੈੱਟ(ਬਣਤਰ bufref *br, ਅਚਲ ਖਾਲੀ *ptr, size_t len,
+                     ਖਾਲੀ (*dtor)(ਖਾਲੀ *))
 {
   DEBUGASSERT(ptr || !len);
-  DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
+  DEBUGASSERT(len <= CURL_MAX_ਨਿਵੇਸ਼_ਲੰਮਾਈ);
 
   Curl_bufref_free(br);
-  br->ptr = (const unsigned char *)ptr;
+  br->ptr = (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)ptr;
   br->len = len;
   br->dtor = dtor;
 }
@@ -84,55 +84,55 @@ void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
 /*
  * Get a pointer to the referenced buffer.
  */
-const unsigned char *Curl_bufref_uptr(const struct bufref *br)
+ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *Curl_bufref_uptr(ਅਚਲ ਬਣਤਰ bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return br->ptr;
+  ਵਾਪਸ br->ptr;
 }
 
 /*
  * Get a pointer to the referenced string.
  */
-const char *Curl_bufref_ptr(const struct bufref *br)
+ਅਚਲ ਅੱਖਰ *Curl_bufref_ptr(ਅਚਲ ਬਣਤਰ bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return (const char *)br->ptr;
+  ਵਾਪਸ (ਅਚਲ ਅੱਖਰ *)br->ptr;
 }
 
 /*
  * Get the length of the referenced buffer data.
  */
-size_t Curl_bufref_len(const struct bufref *br)
+size_t Curl_bufref_len(ਅਚਲ ਬਣਤਰ bufref *br)
 {
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return br->len;
+  ਵਾਪਸ br->len;
 }
 
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len)
+CURLcode Curl_bufref_memdup0(ਬਣਤਰ bufref *br, ਅਚਲ ਖਾਲੀ *ptr, size_t len)
 {
-  unsigned char *cpy = NULL;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *cpy = ਨਿਰਾ;
 
   DEBUGASSERT(br);
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
   DEBUGASSERT(ptr || !len);
-  DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
+  DEBUGASSERT(len <= CURL_MAX_ਨਿਵੇਸ਼_ਲੰਮਾਈ);
 
-  if(ptr) {
+  ਜੇ(ptr) {
     cpy = curlx_memdup0(ptr, len);
-    if(!cpy)
-      return CURLE_OUT_OF_MEMORY;
+    ਜੇ(!cpy)
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
-  Curl_bufref_set(br, cpy, len, curl_free);
-  return CURLE_OK;
+  Curl_bufref_ਸੈੱਟ(br, cpy, len, curl_free);
+  ਵਾਪਸ CURLE_OK;
 }

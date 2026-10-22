@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_INET_PTON_H
-#define HEADER_CURL_INET_PTON_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_INET_PTON_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_INET_PTON_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-int curlx_inet_pton(int af, const char *src, void *dst);
+ਪੂਰਨ curlx_inet_pton(ਪੂਰਨ af, ਅਚਲ ਅੱਖਰ *src, ਖਾਲੀ *dst);
 
-#endif /* HEADER_CURL_INET_PTON_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_INET_PTON_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RLIMIT_H
-#define HEADER_CURL_RLIMIT_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_RLIMIT_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_RLIMIT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timeval.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/timeval.h"
 
-struct Curl_easy;
+ਬਣਤਰ Curl_easy;
 
 /* This is a rate limiter that provides "tokens" to be consumed
  * per second. In the literature, this is referred to as a
@@ -54,22 +54,22 @@ struct Curl_easy;
  * tokens available, unless blocked.
  */
 
-struct Curl_rlimit {
-  int64_t rate_per_sec; /* rate tokens generated per second */
-  int64_t burst_per_sec; /* burst rate of tokens per second */
-  int64_t rate_per_step; /* rate tokens generated per step us */
-  int64_t burst_per_step; /* burst rate of tokens per step us */
-  timediff_t step_us;     /* microseconds between token increases */
-  int64_t tokens;         /* tokens available in the next second */
-  timediff_t spare_us;    /* microseconds unaffecting tokens */
-  struct curltime ts;     /* time of the last update */
-  BIT(blocked);           /* blocking sets available tokens to 0 */
+ਬਣਤਰ Curl_rlimit {
+  int64_t ਦਰ_ਪ੍ਰਤੀ_sec; /* rate tokens generated per second */
+  int64_t ਮਿਆਦ_ਪ੍ਰਤੀ_sec; /* burst rate of tokens per second */
+  int64_t ਦਰ_ਪ੍ਰਤੀ_ਕਦਮ; /* rate tokens generated per step us */
+  int64_t ਮਿਆਦ_ਪ੍ਰਤੀ_ਕਦਮ; /* burst rate of tokens per step us */
+  timediff_t ਕਦਮ_us;     /* microseconds between token increases */
+  int64_t ਟੋਕਨ;         /* tokens available in the next second */
+  timediff_t ਵਾਧੂ_us;    /* microseconds unaffecting tokens */
+  ਬਣਤਰ curltime ts;     /* time of the last update */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(blocked);           /* blocking sets available tokens to 0 */
 };
 
-void Curl_rlimit_init(struct Curl_rlimit *r,
-                      int64_t rate_per_sec,
-                      int64_t burst_per_sec,
-                      const struct curltime *pts);
+ਖਾਲੀ Curl_rlimit_init(ਬਣਤਰ Curl_rlimit *r,
+                      int64_t ਦਰ_ਪ੍ਰਤੀ_sec,
+                      int64_t ਮਿਆਦ_ਪ੍ਰਤੀ_sec,
+                      ਅਚਲ ਬਣਤਰ curltime *pts);
 
 /* Start ratelimiting with the given timestamp. Resets available tokens.
  * `total_tokens` is either -1 or the number of total tokens expected
@@ -77,40 +77,40 @@ void Curl_rlimit_init(struct Curl_rlimit *r,
 /* Change the rates of a limiter that may be in use. Keeps the blocked
  * state and the time already accounted for, caps the tokens at the new
  * rate. */
-void Curl_rlimit_change(struct Curl_rlimit *r,
-                        int64_t rate_per_sec,
-                        int64_t burst_per_sec);
+ਖਾਲੀ Curl_rlimit_change(ਬਣਤਰ Curl_rlimit *r,
+                        int64_t ਦਰ_ਪ੍ਰਤੀ_sec,
+                        int64_t ਮਿਆਦ_ਪ੍ਰਤੀ_sec);
 
-void Curl_rlimit_start(struct Curl_rlimit *r, const struct curltime *pts,
-                       int64_t total_tokens);
+ਖਾਲੀ Curl_rlimit_ਸ਼ੁਰੂ(ਬਣਤਰ Curl_rlimit *r, ਅਚਲ ਬਣਤਰ curltime *pts,
+                       int64_t ਕੁੱਲ_ਟੋਕਨ);
 
 /* How many milliseconds to wait until token are available again. */
-timediff_t Curl_rlimit_wait_ms(struct Curl_rlimit *r,
-                               const struct curltime *pts);
+timediff_t Curl_rlimit_wait_ms(ਬਣਤਰ Curl_rlimit *r,
+                               ਅਚਲ ਬਣਤਰ curltime *pts);
 
 /* When the rate limit will update its tokens again */
-timediff_t Curl_rlimit_next_step_ms(struct Curl_rlimit *r,
-                                    const struct curltime *pts);
+timediff_t Curl_rlimit_ਅਗਲਾ_ਕਦਮ_ms(ਬਣਤਰ Curl_rlimit *r,
+                                    ਅਚਲ ਬਣਤਰ curltime *pts);
 
 /* Return if rate limiting of tokens is active */
-bool Curl_rlimit_active(struct Curl_rlimit *r);
-bool Curl_rlimit_is_blocked(struct Curl_rlimit *r);
-int64_t Curl_rlimit_per_step(struct Curl_rlimit *r);
+bool Curl_rlimit_ਸਰਗਰਮ(ਬਣਤਰ Curl_rlimit *r);
+bool Curl_rlimit_is_blocked(ਬਣਤਰ Curl_rlimit *r);
+int64_t Curl_rlimit_ਪ੍ਰਤੀ_ਕਦਮ(ਬਣਤਰ Curl_rlimit *r);
 
 /* Return how many tokens are available to spend, may be negative.
  * Pass timestamp or NULL. */
-int64_t Curl_rlimit_avail(struct Curl_rlimit *r,
-                          const struct curltime *pts);
+int64_t Curl_rlimit_avail(ਬਣਤਰ Curl_rlimit *r,
+                          ਅਚਲ ਬਣਤਰ curltime *pts);
 
 /* Drain tokens from the ratelimit, give an estimate of how many tokens
  * remain to be drained in the future (-1 for unknown).
  * Pass timestamp or NULL. */
-void Curl_rlimit_drain(struct Curl_rlimit *r, size_t tokens,
-                       const struct curltime *pts);
+ਖਾਲੀ Curl_rlimit_drain(ਬਣਤਰ Curl_rlimit *r, size_t ਟੋਕਨ,
+                       ਅਚਲ ਬਣਤਰ curltime *pts);
 
 /* Block/unblock ratelimiting. A blocked ratelimit has 0 tokens available. */
-void Curl_rlimit_block(struct Curl_rlimit *r,
+ਖਾਲੀ Curl_rlimit_ਖੰਡ(ਬਣਤਰ Curl_rlimit *r,
                        bool activate,
-                       const struct curltime *pts);
+                       ਅਚਲ ਬਣਤਰ curltime *pts);
 
-#endif /* HEADER_CURL_RLIMIT_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_RLIMIT_H */

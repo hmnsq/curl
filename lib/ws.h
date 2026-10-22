@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WS_H
-#define HEADER_CURL_WS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_WS_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_WS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#ਜੇ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 
-extern const struct Curl_protocol Curl_protocol_ws;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ Curl_protocol Curl_protocol_ws;
 
 /* meta key for storing protocol meta at connection */
-#define CURL_META_PROTO_WS_CONN   "meta:proto:ws:conn"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_META_PROTO_WS_CONN   "meta:proto:ws:conn"
 
-CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req);
-CURLcode Curl_ws_accept(struct Curl_easy *data,
-                        const char *mem, size_t nread);
+CURLcode Curl_ws_request(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ dynbuf *req);
+CURLcode Curl_ws_accept(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                        ਅਚਲ ਅੱਖਰ *mem, size_t nread);
 
-#else
-#define Curl_ws_request(x, y) CURLE_OK
-#define Curl_ws_free(x)       Curl_nop_stmt
-#endif
+#ਨਹੀਂਤਾਂ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_ws_request(x, y) CURLE_OK
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_ws_free(x)       Curl_nop_stmt
+#ਜੇ_ਅੰਤ
 
-#endif /* HEADER_CURL_WS_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_WS_H */

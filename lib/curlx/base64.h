@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BASE64_H
-#define HEADER_CURL_BASE64_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_BASE64_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_BASE64_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,17 +24,17 @@
  *
  ***************************************************************************/
 
-CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen);
-CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen);
-CURLcode curlx_base64_decode(const char *src,
+CURLcode curlx_base64_encode(ਅਚਲ uint8_t *inputbuff, size_t insize,
+                             ਅੱਖਰ **outptr, size_t *outlen);
+CURLcode curlx_base64url_encode(ਅਚਲ uint8_t *inputbuff, size_t insize,
+                                ਅੱਖਰ **outptr, size_t *outlen);
+CURLcode curlx_base64_decode(ਅਚਲ ਅੱਖਰ *src,
                              uint8_t **outptr, size_t *outlen);
 
-extern const char curlx_base64encdec[];
+ਬਾਹਰੀ ਅਚਲ ਅੱਖਰ curlx_base64encdec[];
 
 /* maximum input length acceptable to base64 encode, here to catch and prevent
    mistakes */
-#define CURL_MAX_BASE64_INPUT 16000000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_MAX_BASE64_ਨਿਵੇਸ਼ 16000000
 
-#endif /* HEADER_CURL_BASE64_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_BASE64_H */

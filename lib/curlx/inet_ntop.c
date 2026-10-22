@@ -16,34 +16,34 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_PARAM_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/param.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_ਵਿੱਚ_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ARPA_INET_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <arpa/inet.h>
+#ਜੇ_ਅੰਤ
 
-#include "curlx/inet_ntop.h"
-#include "curlx/snprintf.h"
-#include "curlx/strcopy.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/inet_ntop.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/snprintf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strcopy.h"
 
-#define IN6ADDRSZ       16
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IN6ADDRSZ       16
 /* #define INADDRSZ         4 */
-#define INT16SZ          2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ INT16SZ          2
 
 /*
  * If USE_IPV6 is disabled, we still want to parse IPv6 addresses, so make
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
-#define AF_INET6 (AF_INET + 1)
-#endif
+#ਜੇ !defined(USE_IPV6) && !defined(AF_INET6)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ AF_INET6 (AF_INET + 1)
+#ਜੇ_ਅੰਤ
 
 /*
  * Format an IPv4 address, more or less like inet_ntop().
@@ -53,31 +53,31 @@
  *  - uses no static variables
  *  - takes an unsigned char* not an in_addr as input
  */
-static CURLcode inet_ntop4(const unsigned char *src, char *dst, size_t size)
+ਸਥਿਰ CURLcode inet_ntop4(ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *src, ਅੱਖਰ *dst, size_t ਮਾਪ)
 {
-  char tmp[sizeof("255.255.255.255")];
+  ਅੱਖਰ tmp[ਆਕਾਰ("255.255.255.255")];
   size_t len;
 
-  DEBUGASSERT(size >= 16);
+  DEBUGASSERT(ਮਾਪ >= 16);
 
   /* this snprintf() does not overflow the buffer. */
-  SNPRINTF(tmp, sizeof(tmp), "%d.%d.%d.%d",
-           ((int)((unsigned char)src[0])) & 0xff,
-           ((int)((unsigned char)src[1])) & 0xff,
-           ((int)((unsigned char)src[2])) & 0xff,
-           ((int)((unsigned char)src[3])) & 0xff);
+  SNPRINTF(tmp, ਆਕਾਰ(tmp), "%d.%d.%d.%d",
+           ((ਪੂਰਨ)((ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)src[0])) & 0xff,
+           ((ਪੂਰਨ)((ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)src[1])) & 0xff,
+           ((ਪੂਰਨ)((ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)src[2])) & 0xff,
+           ((ਪੂਰਨ)((ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)src[3])) & 0xff);
 
-  len = strlen(tmp);
-  if(len == 0 || len >= size)
-    return CURLE_TOO_LARGE;
-  curlx_strcopy(dst, size, tmp, len);
-  return CURLE_OK;
+  len = ਲੜੀ_ਲੰਬਾਈ(tmp);
+  ਜੇ(len == 0 || len >= ਮਾਪ)
+    ਵਾਪਸ CURLE_TOO_LARGE;
+  curlx_strcopy(dst, ਮਾਪ, tmp, len);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
  * Convert IPv6 binary address into presentation (printable) format.
  */
-static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
+ਸਥਿਰ CURLcode inet_ntop6(ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *src, ਅੱਖਰ *dst, size_t ਮਾਪ)
 {
   /*
    * Note that int32_t and int16_t need only be "at least" large enough
@@ -86,84 +86,84 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
    * Keep this in mind if you think this function should have been coded
    * to use pointer overlays. All the world's not a VAX.
    */
-  char tmp[sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
-  char *tp;
-  struct {
-    int base;
-    int len;
-  } best, cur;
-  unsigned int words[IN6ADDRSZ / INT16SZ];
-  int i;
+  ਅੱਖਰ tmp[ਆਕਾਰ("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
+  ਅੱਖਰ *tp;
+  ਬਣਤਰ {
+    ਪੂਰਨ ਅਧਾਰ;
+    ਪੂਰਨ len;
+  } ਉੱਤਮ, cur;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਸ਼ਬਦ_2[IN6ADDRSZ / INT16SZ];
+  ਪੂਰਨ i;
 
   /* Preprocess:
    *  Copy the input (bytewise) array into a wordwise array.
    *  Find the longest run of 0x00's in src[] for :: shorthanding.
    */
-  memset(words, '\0', sizeof(words));
-  for(i = 0; i < IN6ADDRSZ; i++)
-    words[i / 2] |= ((unsigned int)src[i] << ((1 - (i % 2)) << 3));
+  memset(ਸ਼ਬਦ_2, '\0', ਆਕਾਰ(ਸ਼ਬਦ_2));
+  ਲਈ(i = 0; i < IN6ADDRSZ; i++)
+    ਸ਼ਬਦ_2[i / 2] |= ((ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)src[i] << ((1 - (i % 2)) << 3));
 
-  best.base = -1;
-  cur.base = -1;
-  best.len = 0;
+  ਉੱਤਮ.ਅਧਾਰ = -1;
+  cur.ਅਧਾਰ = -1;
+  ਉੱਤਮ.len = 0;
   cur.len = 0;
 
-  for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
-    if(words[i] == 0) {
-      if(cur.base == -1) {
-        cur.base = i;
+  ਲਈ(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
+    ਜੇ(ਸ਼ਬਦ_2[i] == 0) {
+      ਜੇ(cur.ਅਧਾਰ == -1) {
+        cur.ਅਧਾਰ = i;
         cur.len = 1;
       }
-      else
+      ਨਹੀਂਤਾਂ
         cur.len++;
     }
-    else if(cur.base != -1) {
-      if(best.base == -1 || cur.len > best.len)
-        best = cur;
-      cur.base = -1;
+    ਨਹੀਂਤਾਂ ਜੇ(cur.ਅਧਾਰ != -1) {
+      ਜੇ(ਉੱਤਮ.ਅਧਾਰ == -1 || cur.len > ਉੱਤਮ.len)
+        ਉੱਤਮ = cur;
+      cur.ਅਧਾਰ = -1;
     }
   }
-  if((cur.base != -1) && (best.base == -1 || cur.len > best.len))
-    best = cur;
-  if(best.base != -1 && best.len < 2)
-    best.base = -1;
+  ਜੇ((cur.ਅਧਾਰ != -1) && (ਉੱਤਮ.ਅਧਾਰ == -1 || cur.len > ਉੱਤਮ.len))
+    ਉੱਤਮ = cur;
+  ਜੇ(ਉੱਤਮ.ਅਧਾਰ != -1 && ਉੱਤਮ.len < 2)
+    ਉੱਤਮ.ਅਧਾਰ = -1;
   /* Format the result. */
   tp = tmp;
-  for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
+  ਲਈ(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
     /* Are we inside the best run of 0x00's? */
-    if(best.base != -1 && i >= best.base && i < (best.base + best.len)) {
-      if(i == best.base)
+    ਜੇ(ਉੱਤਮ.ਅਧਾਰ != -1 && i >= ਉੱਤਮ.ਅਧਾਰ && i < (ਉੱਤਮ.ਅਧਾਰ + ਉੱਤਮ.len)) {
+      ਜੇ(i == ਉੱਤਮ.ਅਧਾਰ)
         *tp++ = ':';
-      continue;
+      ਜਾਰੀ;
     }
 
     /* Are we following an initial run of 0x00s or any real hex?
      */
-    if(i)
+    ਜੇ(i)
       *tp++ = ':';
 
     /* Is this address an encapsulated IPv4?
      */
-    if(i == 6 && best.base == 0 &&
-       (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
-      CURLcode result = inet_ntop4(src + 12, tp, sizeof(tmp) - (tp - tmp));
-      if(result)
-        return result;
-      tp += strlen(tp);
-      break;
+    ਜੇ(i == 6 && ਉੱਤਮ.ਅਧਾਰ == 0 &&
+       (ਉੱਤਮ.len == 6 || (ਉੱਤਮ.len == 5 && ਸ਼ਬਦ_2[5] == 0xffff))) {
+      CURLcode ਨਤੀਜਾ = inet_ntop4(src + 12, tp, ਆਕਾਰ(tmp) - (tp - tmp));
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
+      tp += ਲੜੀ_ਲੰਬਾਈ(tp);
+      ਰੋਕੋ;
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* Lower-case digits. Cannot use the set from mprintf.c since this
          needs to work as a curlx function */
-      static const unsigned char ldigits[] = "0123456789abcdef";
+      ਸਥਿਰ ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ ldigits[] = "0123456789abcdef";
 
-      unsigned int w = words[i];
+      ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ w = ਸ਼ਬਦ_2[i];
       /* output lowercase 16-bit hex number but ignore leading zeroes */
-      if(w & 0xf000)
+      ਜੇ(w & 0xf000)
         *tp++ = ldigits[(w & 0xf000) >> 12];
-      if(w & 0xff00)
+      ਜੇ(w & 0xff00)
         *tp++ = ldigits[(w & 0x0f00) >> 8];
-      if(w & 0xfff0)
+      ਜੇ(w & 0xfff0)
         *tp++ = ldigits[(w & 0x00f0) >> 4];
       *tp++ = ldigits[(w & 0x000f)];
     }
@@ -171,14 +171,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
 
   /* Was it a trailing run of 0x00's?
    */
-  if(best.base != -1 && (best.base + best.len) == (IN6ADDRSZ / INT16SZ))
+  ਜੇ(ਉੱਤਮ.ਅਧਾਰ != -1 && (ਉੱਤਮ.ਅਧਾਰ + ਉੱਤਮ.len) == (IN6ADDRSZ / INT16SZ))
     *tp++ = ':';
 
   /* Check for overflow, copy, and we are done. */
-  if((size_t)(tp - tmp) >= size)
-    return CURLE_TOO_LARGE;
-  curlx_strcopy(dst, size, tmp, tp - tmp);
-  return CURLE_OK;
+  ਜੇ((size_t)(tp - tmp) >= ਮਾਪ)
+    ਵਾਪਸ CURLE_TOO_LARGE;
+  curlx_strcopy(dst, ਮਾਪ, tmp, tp - tmp);
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
@@ -186,14 +186,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
  *
  * Copies result to 'buf' and returns CURLcode.
  */
-CURLcode curlx_inet_ntop(int af, const void *src, char *buf, size_t size)
+CURLcode curlx_inet_ntop(ਪੂਰਨ af, ਅਚਲ ਖਾਲੀ *src, ਅੱਖਰ *buf, size_t ਮਾਪ)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_ntop4((const unsigned char *)src, buf, size);
-  case AF_INET6:
-    return inet_ntop6((const unsigned char *)src, buf, size);
-  default:
-    return CURLE_UNSUPPORTED_PROTOCOL;
+  ਚੋਣ(af) {
+  ਹਾਲਤ AF_INET:
+    ਵਾਪਸ inet_ntop4((ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)src, buf, ਮਾਪ);
+  ਹਾਲਤ AF_INET6:
+    ਵਾਪਸ inet_ntop6((ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)src, buf, ਮਾਪ);
+  ਮੂਲ:
+    ਵਾਪਸ CURLE_UNSUPPORTED_PROTOCOL;
   }
 }

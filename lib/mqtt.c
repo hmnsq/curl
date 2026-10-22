@@ -22,46 +22,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
 
-#ifndef CURL_DISABLE_MQTT
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_MQTT
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "mqtt.h"
-#include "select.h"
-#include "url.h"
-#include "escape.h"
-#include "rand.h"
-#include "cfilters.h"
-#include "connect.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "transfer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sendf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "progress.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "mqtt.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "select.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "escape.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "rand.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "connect.h"
 
 /* first byte is command.
    second byte is for flags. */
-#define MQTT_MSG_CONNECT    0x10
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_ਸੁਨੇਹਾ_CONNECT    0x10
 /* #define MQTT_MSG_CONNACK    0x20 */
-#define MQTT_MSG_PUBLISH    0x30
-#define MQTT_MSG_SUBSCRIBE  0x82
-#define MQTT_MSG_SUBACK     0x90
-#define MQTT_MSG_DISCONNECT 0xe0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_ਸੁਨੇਹਾ_PUBLISH    0x30
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_ਸੁਨੇਹਾ_SUBSCRIBE  0x82
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_ਸੁਨੇਹਾ_SUBACK     0x90
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_ਸੁਨੇਹਾ_DISCONNECT 0xe0
 /* #define MQTT_MSG_PINGREQ    0xC0 */
-#define MQTT_MSG_PINGRESP   0xD0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_ਸੁਨੇਹਾ_PINGRESP   0xD0
 
-#define MQTT_CONNACK_LEN  2
-#define MQTT_SUBACK_LEN   3
-#define MQTT_CLIENTID_LEN 12 /* "curl0123abcd" */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_CONNACK_LEN  2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_SUBACK_LEN   3
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MQTT_CLIENTID_LEN 12 /* "curl0123abcd" */
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_MQTT_EASY   "meta:proto:mqtt:easy"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_META_MQTT_EASY   "meta:proto:mqtt:easy"
 /* meta key for storing protocol meta at connection */
-#define CURL_META_MQTT_CONN   "meta:proto:mqtt:conn"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_META_MQTT_CONN   "meta:proto:mqtt:conn"
 
-enum mqttstate {
-  MQTT_FIRST,             /* 0 */
-  MQTT_REMAINING_LENGTH,  /* 1 */
+ਗਿਣਤੀ mqttstate {
+  MQTT_ਪਹਿਲਾ,             /* 0 */
+  MQTT_ਬਚਿਆ_ਲੰਮਾਈ,  /* 1 */
   MQTT_CONNACK,           /* 2 */
   MQTT_SUBACK,            /* 3 */
   MQTT_SUBACK_COMING,     /* 4 - the SUBACK remainder */
@@ -73,193 +73,193 @@ enum mqttstate {
   MQTT_NOSTATE /* 9 - never used an actual state */
 };
 
-struct mqtt_conn {
-  enum mqttstate state;
-  enum mqttstate nextstate; /* switch to this after remaining length is
-                               done */
-  unsigned int packetid;
+ਬਣਤਰ mqtt_conn {
+  ਗਿਣਤੀ mqttstate state;
+  ਗਿਣਤੀ mqttstate nextstate; /* switch to this after remaining length is
+ਪੂਰਾ*/
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ packetid;
 };
 
 /* protocol-specific transfer-related data */
-struct MQTT {
-  struct dynbuf sendbuf;
+ਬਣਤਰ MQTT {
+  ਬਣਤਰ dynbuf sendbuf;
   /* when receiving */
-  struct dynbuf recvbuf;
+  ਬਣਤਰ dynbuf recvbuf;
   size_t npacket; /* byte counter */
-  size_t remaining_length;
-  unsigned char pkt_hd[4]; /* for decoding the arriving packet length */
-  struct curltime lastTime; /* last time we sent or received data */
-  unsigned char firstbyte;
-  BIT(pingsent); /* 1 while we wait for ping response */
+  size_t ਬਚਿਆ_ਲੰਮਾਈ;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ pkt_hd[4]; /* for decoding the arriving packet length */
+  ਬਣਤਰ curltime ਆਖਰੀ_ਸਮਾਂ; /* last time we sent or received data */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ firstbyte;
+  ਦੋਆਧਾਰੀ_ਅੰਕ(pingsent); /* 1 while we wait for ping response */
 };
 
-static void mqtt_easy_dtor(const void *key, size_t klen, void *entry)
+ਸਥਿਰ ਖਾਲੀ mqtt_easy_dtor(ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ, size_t klen, ਖਾਲੀ *ਇੰਦਰਾਜ)
 {
-  struct MQTT *mq = entry;
-  (void)key;
-  (void)klen;
+  ਬਣਤਰ MQTT *mq = ਇੰਦਰਾਜ;
+  (ਖਾਲੀ)ਕੁੰਜੀ;
+  (ਖਾਲੀ)klen;
   curlx_dyn_free(&mq->sendbuf);
   curlx_dyn_free(&mq->recvbuf);
   curlx_free(mq);
 }
 
-static void mqtt_conn_dtor(const void *key, size_t klen, void *entry)
+ਸਥਿਰ ਖਾਲੀ mqtt_conn_dtor(ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ, size_t klen, ਖਾਲੀ *ਇੰਦਰਾਜ)
 {
-  (void)key;
-  (void)klen;
-  curlx_free(entry);
+  (ਖਾਲੀ)ਕੁੰਜੀ;
+  (ਖਾਲੀ)klen;
+  curlx_free(ਇੰਦਰਾਜ);
 }
 
-static CURLcode mqtt_setup_conn(struct Curl_easy *data,
-                                struct connectdata *conn)
+ਸਥਿਰ CURLcode mqtt_ਤਿਆਰੀ_conn(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ connectdata *conn)
 {
   /* setup MQTT specific meta data at easy handle and connection */
-  struct mqtt_conn *mqtt;
-  struct MQTT *mq;
+  ਬਣਤਰ mqtt_conn *mqtt;
+  ਬਣਤਰ MQTT *mq;
 
-  mqtt = curlx_calloc(1, sizeof(*mqtt));
-  if(!mqtt ||
-     Curl_conn_meta_set(conn, CURL_META_MQTT_CONN, mqtt, mqtt_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  mqtt = curlx_calloc(1, ਆਕਾਰ(*mqtt));
+  ਜੇ(!mqtt ||
+     Curl_conn_meta_ਸੈੱਟ(conn, CURL_META_MQTT_CONN, mqtt, mqtt_conn_dtor))
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  mq = curlx_calloc(1, sizeof(struct MQTT));
-  if(!mq)
-    return CURLE_OUT_OF_MEMORY;
+  mq = curlx_calloc(1, ਆਕਾਰ(ਬਣਤਰ MQTT));
+  ਜੇ(!mq)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   curlx_dyn_init(&mq->recvbuf, DYN_MQTT_RECV);
   curlx_dyn_init(&mq->sendbuf, DYN_MQTT_SEND);
-  if(Curl_meta_set(data, CURL_META_MQTT_EASY, mq, mqtt_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ਜੇ(Curl_meta_ਸੈੱਟ(ਅੰਕੜੇ, CURL_META_MQTT_EASY, mq, mqtt_easy_dtor))
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode mqtt_send(struct Curl_easy *data,
-                          const char *buf, size_t len)
+ਸਥਿਰ CURLcode mqtt_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਅਚਲ ਅੱਖਰ *buf, size_t len)
 {
   size_t n;
-  CURLcode result;
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  CURLcode ਨਤੀਜਾ;
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
   /* A new packet must not replace a previously queued packet tail. */
   DEBUGASSERT(!curlx_dyn_len(&mq->sendbuf));
-  result = Curl_xfer_send(data, buf, len, FALSE, &n);
-  if(result)
-    return result;
-  mq->lastTime = *Curl_pgrs_now(data);
-  Curl_debug(data, CURLINFO_HEADER_OUT, buf, n);
-  if(len != n)
-    result = curlx_dyn_addn(&mq->sendbuf, &buf[n], len - n);
-  return result;
+  ਨਤੀਜਾ = Curl_xfer_send(ਅੰਕੜੇ, buf, len, FALSE, &n);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
+  mq->ਆਖਰੀ_ਸਮਾਂ = *Curl_pgrs_now(ਅੰਕੜੇ);
+  Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਬਾਹਰਲਾ, buf, n);
+  ਜੇ(len != n)
+    ਨਤੀਜਾ = curlx_dyn_addn(&mq->sendbuf, &buf[n], len - n);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* Send the queued tail, preserving any bytes that still cannot be sent. */
-static CURLcode mqtt_flush(struct Curl_easy *data)
+ਸਥਿਰ CURLcode mqtt_flush(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
   size_t len, n;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
   len = curlx_dyn_len(&mq->sendbuf);
-  if(!len)
-    return CURLE_OK;
+  ਜੇ(!len)
+    ਵਾਪਸ CURLE_OK;
 
-  result = Curl_xfer_send(data, curlx_dyn_ptr(&mq->sendbuf), len, FALSE, &n);
-  if(result)
-    return result;
-  mq->lastTime = *Curl_pgrs_now(data);
-  Curl_debug(data, CURLINFO_HEADER_OUT, curlx_dyn_ptr(&mq->sendbuf), n);
-  return curlx_dyn_tail(&mq->sendbuf, len - n);
+  ਨਤੀਜਾ = Curl_xfer_send(ਅੰਕੜੇ, curlx_dyn_ptr(&mq->sendbuf), len, FALSE, &n);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
+  mq->ਆਖਰੀ_ਸਮਾਂ = *Curl_pgrs_now(ਅੰਕੜੇ);
+  Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਬਾਹਰਲਾ, curlx_dyn_ptr(&mq->sendbuf), n);
+  ਵਾਪਸ curlx_dyn_ਪੂਛ(&mq->sendbuf, len - n);
 }
 
 /* Generic function called by the multi interface to figure out what socket(s)
    to wait for and for what actions during the DOING and PROTOCONNECT
-   states */
-static CURLcode mqtt_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+ਹਾਲਤਾਂ*/
+ਸਥਿਰ CURLcode mqtt_pollset(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਬਣਤਰ easy_pollset *ps)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  if(mq && curlx_dyn_len(&mq->sendbuf))
-    return Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
-  return Curl_pollset_add_in(data, ps, data->conn->sock[FIRSTSOCKET]);
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
+  ਜੇ(mq && curlx_dyn_len(&mq->sendbuf))
+    ਵਾਪਸ Curl_pollset_ਜੋੜੋ_ਬਾਹਰਲਾ(ਅੰਕੜੇ, ps, ਅੰਕੜੇ->conn->sock[FIRSTSOCKET]);
+  ਵਾਪਸ Curl_pollset_ਜੋੜੋ_ਵਿੱਚ(ਅੰਕੜੇ, ps, ਅੰਕੜੇ->conn->sock[FIRSTSOCKET]);
 }
 
-static int mqtt_encode_len(char *buf, size_t len)
+ਸਥਿਰ ਪੂਰਨ mqtt_encode_len(ਅੱਖਰ *buf, size_t len)
 {
-  int i;
+  ਪੂਰਨ i;
 
-  for(i = 0; (len > 0) && (i < 4); i++) {
-    unsigned char encoded;
+  ਲਈ(i = 0; (len > 0) && (i < 4); i++) {
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ encoded;
     encoded = len % 0x80;
     len /= 0x80;
-    if(len)
+    ਜੇ(len)
       encoded |= 0x80;
-    buf[i] = (char)encoded;
+    buf[i] = (ਅੱਖਰ)encoded;
   }
 
-  return i;
+  ਵਾਪਸ i;
 }
 
 /* add the passwd to the CONNECT packet */
-static int add_passwd(const char *passwd, const size_t plen,
-                      char *pkt, const size_t start, int remain_pos)
+ਸਥਿਰ ਪੂਰਨ ਜੋੜੋ_passwd(ਅਚਲ ਅੱਖਰ *passwd, ਅਚਲ size_t plen,
+                      ਅੱਖਰ *pkt, ਅਚਲ size_t ਸ਼ੁਰੂ, ਪੂਰਨ remain_pos)
 {
   /* magic number that need to be set properly */
-  const size_t conn_flags_pos = remain_pos + 8;
-  if(plen > 0xffff)
-    return 1;
+  ਅਚਲ size_t conn_flags_pos = remain_pos + 8;
+  ਜੇ(plen > 0xffff)
+    ਵਾਪਸ 1;
 
   /* set password flag */
   pkt[conn_flags_pos] |= 0x40;
 
   /* length of password provided */
-  pkt[start] = (char)((plen >> 8) & 0xFF);
-  pkt[start + 1] = (char)(plen & 0xFF);
-  memcpy(&pkt[start + 2], passwd, plen);
-  return 0;
+  pkt[ਸ਼ੁਰੂ] = (ਅੱਖਰ)((plen >> 8) & 0xFF);
+  pkt[ਸ਼ੁਰੂ + 1] = (ਅੱਖਰ)(plen & 0xFF);
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&pkt[ਸ਼ੁਰੂ + 2], passwd, plen);
+  ਵਾਪਸ 0;
 }
 
 /* add user to the CONNECT packet */
-static int add_user(const char *username, const size_t ulen,
-                    unsigned char *pkt, const size_t start, int remain_pos)
+ਸਥਿਰ ਪੂਰਨ ਜੋੜੋ_user(ਅਚਲ ਅੱਖਰ *username, ਅਚਲ size_t ulen,
+                    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *pkt, ਅਚਲ size_t ਸ਼ੁਰੂ, ਪੂਰਨ remain_pos)
 {
   /* magic number that need to be set properly */
-  const size_t conn_flags_pos = remain_pos + 8;
-  if(ulen > 0xffff)
-    return 1;
+  ਅਚਲ size_t conn_flags_pos = remain_pos + 8;
+  ਜੇ(ulen > 0xffff)
+    ਵਾਪਸ 1;
 
   /* set username flag */
   pkt[conn_flags_pos] |= 0x80;
   /* length of username provided */
-  pkt[start] = (unsigned char)((ulen >> 8) & 0xFF);
-  pkt[start + 1] = (unsigned char)(ulen & 0xFF);
-  memcpy(&pkt[start + 2], username, ulen);
-  return 0;
+  pkt[ਸ਼ੁਰੂ] = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)((ulen >> 8) & 0xFF);
+  pkt[ਸ਼ੁਰੂ + 1] = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)(ulen & 0xFF);
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&pkt[ਸ਼ੁਰੂ + 2], username, ulen);
+  ਵਾਪਸ 0;
 }
 
 /* add client ID to the CONNECT packet */
-static int add_client_id(const char *client_id, const size_t client_id_len,
-                         char *pkt, const size_t start)
+ਸਥਿਰ ਪੂਰਨ ਜੋੜੋ_client_id(ਅਚਲ ਅੱਖਰ *client_id, ਅਚਲ size_t client_id_len,
+                         ਅੱਖਰ *pkt, ਅਚਲ size_t ਸ਼ੁਰੂ)
 {
-  if(client_id_len != MQTT_CLIENTID_LEN)
-    return 1;
-  pkt[start] = 0x00;
-  pkt[start + 1] = MQTT_CLIENTID_LEN;
-  memcpy(&pkt[start + 2], client_id, MQTT_CLIENTID_LEN);
-  return 0;
+  ਜੇ(client_id_len != MQTT_CLIENTID_LEN)
+    ਵਾਪਸ 1;
+  pkt[ਸ਼ੁਰੂ] = 0x00;
+  pkt[ਸ਼ੁਰੂ + 1] = MQTT_CLIENTID_LEN;
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&pkt[ਸ਼ੁਰੂ + 2], client_id, MQTT_CLIENTID_LEN);
+  ਵਾਪਸ 0;
 }
 
 /* Set initial values of CONNECT packet */
-static int init_connpack(char *packet, char *remain, int remain_pos)
+ਸਥਿਰ ਪੂਰਨ init_connpack(ਅੱਖਰ *packet, ਅੱਖਰ *remain, ਪੂਰਨ remain_pos)
 {
   /* Fixed header starts */
   /* packet type */
-  packet[0] = MQTT_MSG_CONNECT;
+  packet[0] = MQTT_ਸੁਨੇਹਾ_CONNECT;
   /* remaining length field */
-  memcpy(&packet[1], remain, remain_pos);
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&packet[1], remain, remain_pos);
   /* Fixed header ends */
 
   /* Variable header starts */
@@ -279,29 +279,29 @@ static int init_connpack(char *packet, char *remain, int remain_pos)
   packet[remain_pos + 9] = 0x00;
   packet[remain_pos + 10] = 0x3c;
   /* end of variable header */
-  return remain_pos + 10;
+  ਵਾਪਸ remain_pos + 10;
 }
 
-static CURLcode mqtt_connect(struct Curl_easy *data)
+ਸਥਿਰ CURLcode mqtt_connect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result = CURLE_OK;
-  int pos = 0;
-  int rc = 0;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਪੂਰਨ pos = 0;
+  ਪੂਰਨ rc = 0;
   /* remain length */
-  int remain_pos = 0;
-  char remain[4] = { 0 };
+  ਪੂਰਨ remain_pos = 0;
+  ਅੱਖਰ remain[4] = { 0 };
   size_t packetlen = 0;
-  size_t start_user = 0;
-  size_t start_pwd = 0;
-  char client_id[MQTT_CLIENTID_LEN + 1] = "curl";
-  const size_t clen = CURL_CSTRLEN("curl");
-  char *packet = NULL;
+  size_t ਸ਼ੁਰੂ_user = 0;
+  size_t ਸ਼ੁਰੂ_pwd = 0;
+  ਅੱਖਰ client_id[MQTT_CLIENTID_LEN + 1] = "curl";
+  ਅਚਲ size_t clen = CURL_CSTRLEN("curl");
+  ਅੱਖਰ *packet = ਨਿਰਾ;
 
   /* extracting username from request */
-  struct Curl_creds *creds = data->state.creds;
-  const size_t ulen = creds ? strlen(creds->user) : 0;
-  const size_t plen = creds ? strlen(creds->passwd) : 0;
-  const size_t payloadlen = ulen + plen + MQTT_CLIENTID_LEN + 2 +
+  ਬਣਤਰ Curl_creds *creds = ਅੰਕੜੇ->state.creds;
+  ਅਚਲ size_t ulen = creds ? ਲੜੀ_ਲੰਬਾਈ(creds->user) : 0;
+  ਅਚਲ size_t plen = creds ? ਲੜੀ_ਲੰਬਾਈ(creds->passwd) : 0;
+  ਅਚਲ size_t payloadlen = ulen + plen + MQTT_CLIENTID_LEN + 2 +
   /* The plus 2s below are for the MSB and LSB describing the length of the
      string to be added on the payload. Refer to spec 1.5.2 and 1.5.4 */
     (ulen ? 2 : 0) +
@@ -314,348 +314,348 @@ static CURLcode mqtt_connect(struct Curl_easy *data)
   packetlen = payloadlen + 10 + remain_pos + 1;
 
   /* allocating packet */
-  if(packetlen > 0xFFFFFFF)
-    return CURLE_WEIRD_SERVER_REPLY;
+  ਜੇ(packetlen > 0xFFFFFFF)
+    ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
   packet = curlx_calloc(1, packetlen);
-  if(!packet)
-    return CURLE_OUT_OF_MEMORY;
+  ਜੇ(!packet)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
   /* set initial values for the CONNECT packet */
   pos = init_connpack(packet, remain, remain_pos);
 
-  result = Curl_rand_alnum(data, (unsigned char *)&client_id[clen],
+  ਨਤੀਜਾ = Curl_rand_alnum(ਅੰਕੜੇ, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)&client_id[clen],
                            MQTT_CLIENTID_LEN - clen + 1);
   /* add client id */
-  rc = add_client_id(client_id, strlen(client_id), packet, pos + 1);
-  if(rc) {
-    failf(data, "Client ID length mismatched: [%zu]", strlen(client_id));
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto end;
+  rc = ਜੋੜੋ_client_id(client_id, ਲੜੀ_ਲੰਬਾਈ(client_id), packet, pos + 1);
+  ਜੇ(rc) {
+    failf(ਅੰਕੜੇ, "Client ID length mismatched: [%zu]", ਲੜੀ_ਲੰਬਾਈ(client_id));
+    ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+    ਜਾਓ ਸਿਰਾ;
   }
-  infof(data, "Using client id '%s'", client_id);
+  infof(ਅੰਕੜੇ, "Using client id '%s'", client_id);
 
   /* position where the user payload starts */
-  start_user = pos + 3 + MQTT_CLIENTID_LEN;
+  ਸ਼ੁਰੂ_user = pos + 3 + MQTT_CLIENTID_LEN;
   /* position where the password payload starts */
-  start_pwd = start_user + ulen;
+  ਸ਼ੁਰੂ_pwd = ਸ਼ੁਰੂ_user + ulen;
   /* if username was provided, add it to the packet */
-  if(ulen) {
-    start_pwd += 2;
+  ਜੇ(ulen) {
+    ਸ਼ੁਰੂ_pwd += 2;
 
-    rc = add_user(creds->user, ulen,
-                  (unsigned char *)packet, start_user, remain_pos);
-    if(rc) {
-      failf(data, "Username too long: [%zu]", ulen);
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+    rc = ਜੋੜੋ_user(creds->user, ulen,
+                  (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)packet, ਸ਼ੁਰੂ_user, remain_pos);
+    ਜੇ(rc) {
+      failf(ਅੰਕੜੇ, "Username too long: [%zu]", ulen);
+      ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+      ਜਾਓ ਸਿਰਾ;
     }
   }
 
   /* if passwd was provided, add it to the packet */
-  if(plen) {
-    rc = add_passwd(creds->passwd, plen, packet, start_pwd, remain_pos);
-    if(rc) {
-      failf(data, "Password too long: [%zu]", plen);
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+  ਜੇ(plen) {
+    rc = ਜੋੜੋ_passwd(creds->passwd, plen, packet, ਸ਼ੁਰੂ_pwd, remain_pos);
+    ਜੇ(rc) {
+      failf(ਅੰਕੜੇ, "Password too long: [%zu]", plen);
+      ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+      ਜਾਓ ਸਿਰਾ;
     }
   }
 
-  if(!result)
-    result = mqtt_send(data, packet, packetlen);
+  ਜੇ(!ਨਤੀਜਾ)
+    ਨਤੀਜਾ = mqtt_send(ਅੰਕੜੇ, packet, packetlen);
 
-end:
-  if(packet) {
+ਸਿਰਾ:
+  ਜੇ(packet) {
     curlx_memzero(packet, packetlen);
     curlx_free(packet);
   }
-  Curl_creds_unlink(&data->state.creds);
-  return result;
+  Curl_creds_unlink(&ਅੰਕੜੇ->state.creds);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode mqtt_disconnect(struct Curl_easy *data)
+ਸਥਿਰ CURLcode mqtt_disconnect(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  return mqtt_send(data, "\xe0\x00", 2);
+  ਵਾਪਸ mqtt_send(ਅੰਕੜੇ, "\xe0\x00", 2);
 }
 
-static CURLcode mqtt_recv_atleast(struct Curl_easy *data, size_t nbytes)
+ਸਥਿਰ CURLcode mqtt_recv_atleast(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, size_t nbytes)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
   size_t rlen;
-  CURLcode result;
+  CURLcode ਨਤੀਜਾ;
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
   rlen = curlx_dyn_len(&mq->recvbuf);
 
-  if(rlen < nbytes) {
-    unsigned char readbuf[1024];
+  ਜੇ(rlen < nbytes) {
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ readbuf[1024];
     size_t nread;
 
-    DEBUGASSERT(nbytes - rlen < sizeof(readbuf));
-    result = Curl_xfer_recv(data, (char *)readbuf, nbytes - rlen, &nread);
-    if(result)
-      return result;
-    if(!nread) /* EOF */
-       return CURLE_RECV_ERROR;
-    if(curlx_dyn_addn(&mq->recvbuf, readbuf, nread))
-      return CURLE_OUT_OF_MEMORY;
+    DEBUGASSERT(nbytes - rlen < ਆਕਾਰ(readbuf));
+    ਨਤੀਜਾ = Curl_xfer_recv(ਅੰਕੜੇ, (ਅੱਖਰ *)readbuf, nbytes - rlen, &nread);
+    ਜੇ(ਨਤੀਜਾ)
+      ਵਾਪਸ ਨਤੀਜਾ;
+    ਜੇ(!nread) /* EOF */
+       ਵਾਪਸ CURLE_RECV_ERROR;
+    ਜੇ(curlx_dyn_addn(&mq->recvbuf, readbuf, nread))
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     rlen = curlx_dyn_len(&mq->recvbuf);
   }
-  return (rlen >= nbytes) ? CURLE_OK : CURLE_AGAIN;
+  ਵਾਪਸ (rlen >= nbytes) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static void mqtt_recv_consume(struct Curl_easy *data, size_t nbytes)
+ਸਥਿਰ ਖਾਲੀ mqtt_recv_consume(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, size_t nbytes)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
   DEBUGASSERT(mq);
-  if(mq) {
+  ਜੇ(mq) {
     size_t rlen = curlx_dyn_len(&mq->recvbuf);
-    if(rlen <= nbytes)
+    ਜੇ(rlen <= nbytes)
       curlx_dyn_reset(&mq->recvbuf);
-    else
-      curlx_dyn_tail(&mq->recvbuf, rlen - nbytes);
+    ਨਹੀਂਤਾਂ
+      curlx_dyn_ਪੂਛ(&mq->recvbuf, rlen - nbytes);
   }
 }
 
-static CURLcode mqtt_verify_connack(struct Curl_easy *data)
+ਸਥਿਰ CURLcode mqtt_verify_connack(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result;
-  const char *ptr;
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
+  CURLcode ਨਤੀਜਾ;
+  ਅਚਲ ਅੱਖਰ *ptr;
 
   DEBUGASSERT(mq);
-  if(!mq)
-    return CURLE_FAILED_INIT;
-  if(mq->remaining_length != 2) {
-    failf(data, "CONNACK expected Remaining Length 2, got %zu",
-          mq->remaining_length);
-    return CURLE_WEIRD_SERVER_REPLY;
+  ਜੇ(!mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  ਜੇ(mq->ਬਚਿਆ_ਲੰਮਾਈ != 2) {
+    failf(ਅੰਕੜੇ, "CONNACK expected Remaining Length 2, got %zu",
+          mq->ਬਚਿਆ_ਲੰਮਾਈ);
+    ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
   }
 
-  result = mqtt_recv_atleast(data, MQTT_CONNACK_LEN);
-  if(result)
-    return result;
+  ਨਤੀਜਾ = mqtt_recv_atleast(ਅੰਕੜੇ, MQTT_CONNACK_LEN);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   /* verify CONNACK */
   DEBUGASSERT(curlx_dyn_len(&mq->recvbuf) >= MQTT_CONNACK_LEN);
   ptr = curlx_dyn_ptr(&mq->recvbuf);
-  Curl_debug(data, CURLINFO_HEADER_IN, ptr, MQTT_CONNACK_LEN);
+  Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਵਿੱਚ, ptr, MQTT_CONNACK_LEN);
 
-  if(ptr[0] != 0x00 || ptr[1] != 0x00) {
-    failf(data, "Expected %02x%02x but got %02x%02x",
-          0x00U, 0x00U, (unsigned char)ptr[0], (unsigned char)ptr[1]);
+  ਜੇ(ptr[0] != 0x00 || ptr[1] != 0x00) {
+    failf(ਅੰਕੜੇ, "Expected %02x%02x but got %02x%02x",
+          0x00U, 0x00U, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)ptr[0], (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)ptr[1]);
     curlx_dyn_reset(&mq->recvbuf);
-    return CURLE_WEIRD_SERVER_REPLY;
+    ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
   }
-  mqtt_recv_consume(data, MQTT_CONNACK_LEN);
-  return CURLE_OK;
+  mqtt_recv_consume(ਅੰਕੜੇ, MQTT_CONNACK_LEN);
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode mqtt_get_topic(struct Curl_easy *data,
-                               char **topic, size_t *topiclen)
+ਸਥਿਰ CURLcode mqtt_get_topic(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਅੱਖਰ **topic, size_t *topiclen)
 {
-  const char *path = data->state.up.path;
-  CURLcode result = CURLE_URL_MALFORMAT;
-  if(strlen(path) > 1) {
-    result = Curl_urldecode(path + 1, 0, topic, topiclen, REJECT_CTRL);
-    if(!result && (*topiclen > 0xffff)) {
-      failf(data, "Too long MQTT topic");
-      result = CURLE_URL_MALFORMAT;
+  ਅਚਲ ਅੱਖਰ *ਰਸਤਾ = ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ;
+  CURLcode ਨਤੀਜਾ = CURLE_URL_MALFORMAT;
+  ਜੇ(ਲੜੀ_ਲੰਬਾਈ(ਰਸਤਾ) > 1) {
+    ਨਤੀਜਾ = Curl_urldecode(ਰਸਤਾ + 1, 0, topic, topiclen, REJECT_CTRL);
+    ਜੇ(!ਨਤੀਜਾ && (*topiclen > 0xffff)) {
+      failf(ਅੰਕੜੇ, "Too long MQTT topic");
+      ਨਤੀਜਾ = CURLE_URL_MALFORMAT;
     }
   }
-  else
-    failf(data, "No MQTT topic found. Forgot to URL encode it?");
+  ਨਹੀਂਤਾਂ
+    failf(ਅੰਕੜੇ, "No MQTT topic found. Forgot to URL encode it?");
 
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode mqtt_subscribe(struct Curl_easy *data)
+ਸਥਿਰ CURLcode mqtt_subscribe(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result = CURLE_OK;
-  char *topic = NULL;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਅੱਖਰ *topic = ਨਿਰਾ;
   size_t topiclen;
-  unsigned char *packet = NULL;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *packet = ਨਿਰਾ;
   size_t packetlen;
-  char encodedsize[4];
+  ਅੱਖਰ encodedsize[4];
   size_t n;
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!mqtt)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  result = mqtt_get_topic(data, &topic, &topiclen);
-  if(result)
-    goto fail;
+  ਨਤੀਜਾ = mqtt_get_topic(ਅੰਕੜੇ, &topic, &topiclen);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ fail;
 
   mqtt->packetid++;
 
   packetlen = topiclen + 5; /* packetid + topic (has a two byte length field)
                                + 2 bytes topic length + QoS byte */
-  n = mqtt_encode_len((char *)encodedsize, packetlen);
+  n = mqtt_encode_len((ਅੱਖਰ *)encodedsize, packetlen);
   packetlen += n + 1; /* add one for the control packet type byte */
 
   packet = curlx_malloc(packetlen);
-  if(!packet) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  ਜੇ(!packet) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ fail;
   }
 
-  packet[0] = MQTT_MSG_SUBSCRIBE;
-  memcpy(&packet[1], encodedsize, n);
+  packet[0] = MQTT_ਸੁਨੇਹਾ_SUBSCRIBE;
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&packet[1], encodedsize, n);
   packet[1 + n] = (mqtt->packetid >> 8) & 0xff;
   packet[2 + n] = mqtt->packetid & 0xff;
   packet[3 + n] = (topiclen >> 8) & 0xff;
   packet[4 + n] = topiclen & 0xff;
-  memcpy(&packet[5 + n], topic, topiclen);
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&packet[5 + n], topic, topiclen);
   packet[5 + n + topiclen] = 0; /* QoS zero */
 
-  result = mqtt_send(data, (const char *)packet, packetlen);
+  ਨਤੀਜਾ = mqtt_send(ਅੰਕੜੇ, (ਅਚਲ ਅੱਖਰ *)packet, packetlen);
 
 fail:
   curlx_free(topic);
   curlx_free(packet);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * Called when the first byte was already read.
  */
-static CURLcode mqtt_verify_suback(struct Curl_easy *data)
+ਸਥਿਰ CURLcode mqtt_verify_suback(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
-  CURLcode result;
-  const char *ptr;
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  CURLcode ਨਤੀਜਾ;
+  ਅਚਲ ਅੱਖਰ *ptr;
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!mqtt || !mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  if(mq->remaining_length != 3) {
-    failf(data, "SUBACK expected Remaining Length 3, got %zu",
-          mq->remaining_length);
-    return CURLE_WEIRD_SERVER_REPLY;
+  ਜੇ(mq->ਬਚਿਆ_ਲੰਮਾਈ != 3) {
+    failf(ਅੰਕੜੇ, "SUBACK expected Remaining Length 3, got %zu",
+          mq->ਬਚਿਆ_ਲੰਮਾਈ);
+    ਵਾਪਸ CURLE_WEIRD_SERVER_ਜਵਾਬ;
   }
 
-  result = mqtt_recv_atleast(data, MQTT_SUBACK_LEN);
-  if(result)
-    goto fail;
+  ਨਤੀਜਾ = mqtt_recv_atleast(ਅੰਕੜੇ, MQTT_SUBACK_LEN);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ fail;
 
   /* verify SUBACK */
   DEBUGASSERT(curlx_dyn_len(&mq->recvbuf) >= MQTT_SUBACK_LEN);
   ptr = curlx_dyn_ptr(&mq->recvbuf);
-  Curl_debug(data, CURLINFO_HEADER_IN, ptr, MQTT_SUBACK_LEN);
+  Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਵਿੱਚ, ptr, MQTT_SUBACK_LEN);
 
-  if(((unsigned char)ptr[0]) != ((mqtt->packetid >> 8) & 0xff) ||
-     ((unsigned char)ptr[1]) != (mqtt->packetid & 0xff) ||
+  ਜੇ(((ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)ptr[0]) != ((mqtt->packetid >> 8) & 0xff) ||
+     ((ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)ptr[1]) != (mqtt->packetid & 0xff) ||
      ptr[2] != 0x00) {
     curlx_dyn_reset(&mq->recvbuf);
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto fail;
+    ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+    ਜਾਓ fail;
   }
-  mqtt_recv_consume(data, MQTT_SUBACK_LEN);
+  mqtt_recv_consume(ਅੰਕੜੇ, MQTT_SUBACK_LEN);
 fail:
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#define MAX_MQTT_MESSAGE_SIZE 0xFFFFFFF
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_MQTT_ਸੁਨੇਹਾ_ਮਾਪ 0xFFFFFFF
 
-static CURLcode mqtt_publish(struct Curl_easy *data)
+ਸਥਿਰ CURLcode mqtt_publish(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  CURLcode result;
-  char *payload = data->set.postfields;
+  CURLcode ਨਤੀਜਾ;
+  ਅੱਖਰ *payload = ਅੰਕੜੇ->ਸੈੱਟ.postfields;
   size_t payloadlen;
-  char *topic = NULL;
+  ਅੱਖਰ *topic = ਨਿਰਾ;
   size_t topiclen;
-  unsigned char *pkt = NULL;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *pkt = ਨਿਰਾ;
   size_t i = 0;
   size_t remaininglength;
   size_t encodelen;
-  char encodedbytes[4];
-  curl_off_t postfieldsize = data->set.postfieldsize;
+  ਅੱਖਰ encodedbytes[4];
+  curl_off_t postfieldsize = ਅੰਕੜੇ->ਸੈੱਟ.postfieldsize;
 
-  if(!payload) {
-    DEBUGF(infof(data, "mqtt_publish without payload, return bad arg"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ਜੇ(!payload) {
+    DEBUGF(infof(ਅੰਕੜੇ, "mqtt_publish without payload, return bad arg"));
+    ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
   }
-  if(!curlx_sotouz_fits(postfieldsize, &payloadlen)) {
-    if(postfieldsize > 0) /* off_t does not fit into size_t */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    payloadlen = strlen(payload);
+  ਜੇ(!curlx_sotouz_ਸਮਾਉਂਦਾ(postfieldsize, &payloadlen)) {
+    ਜੇ(postfieldsize > 0) /* off_t does not fit into size_t */
+      ਵਾਪਸ CURLE_BAD_FUNCTION_ਦਲੀਲ;
+    payloadlen = ਲੜੀ_ਲੰਬਾਈ(payload);
   }
 
-  result = mqtt_get_topic(data, &topic, &topiclen);
-  if(result)
-    goto fail;
+  ਨਤੀਜਾ = mqtt_get_topic(ਅੰਕੜੇ, &topic, &topiclen);
+  ਜੇ(ਨਤੀਜਾ)
+    ਜਾਓ fail;
 
   /* silly check for silly analyzers. On 32-bit systems a payload length close
      to 4GB can wrap, but it is impossible to have such a large buffer in
      memory on those systems */
-  if((SIZE_MAX - topiclen - 2) < payloadlen) {
-    result = CURLE_TOO_LARGE;
-    goto fail;
+  ਜੇ((SIZE_MAX - topiclen - 2) < payloadlen) {
+    ਨਤੀਜਾ = CURLE_TOO_LARGE;
+    ਜਾਓ fail;
   }
 
   remaininglength = payloadlen + 2 + topiclen;
   encodelen = mqtt_encode_len(encodedbytes, remaininglength);
-  if(remaininglength > (MAX_MQTT_MESSAGE_SIZE - encodelen - 1)) {
-    result = CURLE_TOO_LARGE;
-    goto fail;
+  ਜੇ(remaininglength > (MAX_MQTT_ਸੁਨੇਹਾ_ਮਾਪ - encodelen - 1)) {
+    ਨਤੀਜਾ = CURLE_TOO_LARGE;
+    ਜਾਓ fail;
   }
 
   /* add the control byte and the encoded remaining length */
   pkt = curlx_malloc(remaininglength + 1 + encodelen);
-  if(!pkt) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  ਜੇ(!pkt) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ fail;
   }
 
   /* assemble packet */
-  pkt[i++] = MQTT_MSG_PUBLISH;
-  memcpy(&pkt[i], encodedbytes, encodelen);
+  pkt[i++] = MQTT_ਸੁਨੇਹਾ_PUBLISH;
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&pkt[i], encodedbytes, encodelen);
   i += encodelen;
   pkt[i++] = (topiclen >> 8) & 0xff;
   pkt[i++] = (topiclen & 0xff);
-  memcpy(&pkt[i], topic, topiclen);
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&pkt[i], topic, topiclen);
   i += topiclen;
-  memcpy(&pkt[i], payload, payloadlen);
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(&pkt[i], payload, payloadlen);
   i += payloadlen;
-  result = mqtt_send(data, (const char *)pkt, i);
+  ਨਤੀਜਾ = mqtt_send(ਅੰਕੜੇ, (ਅਚਲ ਅੱਖਰ *)pkt, i);
 
 fail:
   curlx_free(pkt);
   curlx_free(topic);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /* return FALSE on success, TRUE on error */
-static bool mqtt_decode_len(size_t *lenp, const unsigned char *buf,
+ਸਥਿਰ bool mqtt_decode_len(size_t *lenp, ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf,
                             size_t buflen)
 {
   size_t len = 0;
   size_t mult = 1;
   size_t i;
-  unsigned char encoded = 128;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ encoded = 128;
 
-  for(i = 0; (i < buflen) && (encoded & 128); i++) {
-    if(i == 4)
-      return TRUE; /* bad size */
+  ਲਈ(i = 0; (i < buflen) && (encoded & 128); i++) {
+    ਜੇ(i == 4)
+      ਵਾਪਸ TRUE; /* bad size */
     encoded = buf[i];
     len += (encoded & 127) * mult;
     mult *= 128;
   }
-  if(encoded & 128)
+  ਜੇ(encoded & 128)
     /* truncated size */
-    return TRUE;
+    ਵਾਪਸ TRUE;
 
   *lenp = len;
-  return FALSE;
+  ਵਾਪਸ FALSE;
 }
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-static const char * const statenames[] = {
+#ਜੇ defined(DEBUGBUILD) && defined(CURLVERBOSE)
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ * ਅਚਲ statenames[] = {
   "MQTT_FIRST",
   "MQTT_REMAINING_LENGTH",
   "MQTT_CONNACK",
@@ -668,260 +668,260 @@ static const char * const statenames[] = {
 
   "NOT A STATE"
 };
-#endif
+#ਜੇ_ਅੰਤ
 
 /* The only way to change state */
-static void mqstate(struct Curl_easy *data,
-                    enum mqttstate state,
-                    enum mqttstate nextstate) /* used if state == FIRST */
+ਸਥਿਰ ਖਾਲੀ mqstate(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                    ਗਿਣਤੀ mqttstate state,
+                    ਗਿਣਤੀ mqttstate nextstate) /* used if state == FIRST */
 {
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
   DEBUGASSERT(mqtt);
-  if(!mqtt)
-    return;
-#ifdef DEBUGBUILD
-  infof(data, "%s (from %s) (next is %s)",
+  ਜੇ(!mqtt)
+    ਵਾਪਸ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEBUGBUILD
+  infof(ਅੰਕੜੇ, "%s (from %s) (next is %s)",
         statenames[state],
         statenames[mqtt->state],
-        (state == MQTT_FIRST) ? statenames[nextstate] : "");
-#endif
+        (state == MQTT_ਪਹਿਲਾ) ? statenames[nextstate] : "");
+#ਜੇ_ਅੰਤ
   mqtt->state = state;
-  if(state == MQTT_FIRST)
+  ਜੇ(state == MQTT_ਪਹਿਲਾ)
     mqtt->nextstate = nextstate;
 }
 
-static CURLcode mqtt_read_publish(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode mqtt_read_publish(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
   size_t nread;
   size_t remlen;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  unsigned char packet;
+  ਬਣਤਰ mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ packet;
 
   DEBUGASSERT(mqtt);
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!mqtt || !mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  switch(mqtt->state) {
+  ਚੋਣ(mqtt->state) {
 MQTT_SUBACK_COMING:
-  case MQTT_SUBACK_COMING:
-    result = mqtt_verify_suback(data);
-    if(result)
-      break;
+  ਹਾਲਤ MQTT_SUBACK_COMING:
+    ਨਤੀਜਾ = mqtt_verify_suback(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
 
-    mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
-    break;
+    mqstate(ਅੰਕੜੇ, MQTT_ਪਹਿਲਾ, MQTT_PUBWAIT);
+    ਰੋਕੋ;
 
-  case MQTT_SUBACK:
-  case MQTT_PUBWAIT:
+  ਹਾਲਤ MQTT_SUBACK:
+  ਹਾਲਤ MQTT_PUBWAIT:
     /* we are expecting PUBLISH or SUBACK */
     packet = mq->firstbyte & 0xf0;
-    if(packet == MQTT_MSG_PUBLISH)
-      mqstate(data, MQTT_PUB_REMAIN, MQTT_NOSTATE);
-    else if(packet == MQTT_MSG_SUBACK) {
-      mqstate(data, MQTT_SUBACK_COMING, MQTT_NOSTATE);
-      goto MQTT_SUBACK_COMING;
+    ਜੇ(packet == MQTT_ਸੁਨੇਹਾ_PUBLISH)
+      mqstate(ਅੰਕੜੇ, MQTT_PUB_REMAIN, MQTT_NOSTATE);
+    ਨਹੀਂਤਾਂ ਜੇ(packet == MQTT_ਸੁਨੇਹਾ_SUBACK) {
+      mqstate(ਅੰਕੜੇ, MQTT_SUBACK_COMING, MQTT_NOSTATE);
+      ਜਾਓ MQTT_SUBACK_COMING;
     }
-    else if(packet == MQTT_MSG_DISCONNECT) {
-      infof(data, "Got DISCONNECT");
-      *done = TRUE;
-      goto end;
+    ਨਹੀਂਤਾਂ ਜੇ(packet == MQTT_ਸੁਨੇਹਾ_DISCONNECT) {
+      infof(ਅੰਕੜੇ, "Got DISCONNECT");
+      *ਪੂਰਾ = TRUE;
+      ਜਾਓ ਸਿਰਾ;
     }
-    else {
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+    ਨਹੀਂਤਾਂ {
+      ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+      ਜਾਓ ਸਿਰਾ;
     }
 
     /* -- switched state -- */
-    remlen = mq->remaining_length;
-    infof(data, "Remaining length: %zu bytes", remlen);
-    if(data->set.max_filesize &&
-       (curl_off_t)remlen > data->set.max_filesize) {
-      failf(data, "Maximum file size exceeded");
-      result = CURLE_FILESIZE_EXCEEDED;
-      goto end;
+    remlen = mq->ਬਚਿਆ_ਲੰਮਾਈ;
+    infof(ਅੰਕੜੇ, "Remaining length: %zu bytes", remlen);
+    ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.max_filesize &&
+       (curl_off_t)remlen > ਅੰਕੜੇ->ਸੈੱਟ.max_filesize) {
+      failf(ਅੰਕੜੇ, "Maximum file size exceeded");
+      ਨਤੀਜਾ = CURLE_FILESIZE_EXCEEDED;
+      ਜਾਓ ਸਿਰਾ;
     }
-    Curl_pgrsSetDownloadSize(data, remlen);
-    data->req.bytecount = 0;
-    data->req.size = remlen;
+    Curl_pgrs_ਸੈੱਟ_Download_ਮਾਪ(ਅੰਕੜੇ, remlen);
+    ਅੰਕੜੇ->req.bytecount = 0;
+    ਅੰਕੜੇ->req.ਮਾਪ = remlen;
     mq->npacket = remlen; /* get this many bytes */
     FALLTHROUGH();
-  case MQTT_PUB_REMAIN: {
+  ਹਾਲਤ MQTT_PUB_REMAIN: {
     /* read rest of packet, but no more. Cap to buffer size */
-    char buffer[4 * 1024];
+    ਅੱਖਰ ਬਫਰ[4 * 1024];
     size_t rest = mq->npacket;
-    if(rest > sizeof(buffer))
-      rest = sizeof(buffer);
-    result = Curl_xfer_recv(data, buffer, rest, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN) {
-        infof(data, "EEEE AAAAGAIN");
+    ਜੇ(rest > ਆਕਾਰ(ਬਫਰ))
+      rest = ਆਕਾਰ(ਬਫਰ);
+    ਨਤੀਜਾ = Curl_xfer_recv(ਅੰਕੜੇ, ਬਫਰ, rest, &nread);
+    ਜੇ(ਨਤੀਜਾ) {
+      ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN) {
+        infof(ਅੰਕੜੇ, "EEEE AAAAGAIN");
       }
-      goto end;
+      ਜਾਓ ਸਿਰਾ;
     }
-    if(!nread) {
-      infof(data, "server disconnected");
-      result = CURLE_PARTIAL_FILE;
-      goto end;
+    ਜੇ(!nread) {
+      infof(ਅੰਕੜੇ, "server disconnected");
+      ਨਤੀਜਾ = CURLE_PARTIAL_FILE;
+      ਜਾਓ ਸਿਰਾ;
     }
 
     /* we received something */
-    mq->lastTime = *Curl_pgrs_now(data);
+    mq->ਆਖਰੀ_ਸਮਾਂ = *Curl_pgrs_now(ਅੰਕੜੇ);
 
     /* if QoS is set, message contains packet id */
-    result = Curl_client_write(data, CLIENTWRITE_BODY, buffer, nread);
-    if(result)
-      goto end;
+    ਨਤੀਜਾ = Curl_client_write(ਅੰਕੜੇ, CLIENTWRITE_BODY, ਬਫਰ, nread);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਸਿਰਾ;
 
     mq->npacket -= nread;
-    if(!mq->npacket)
+    ਜੇ(!mq->npacket)
       /* no more PUBLISH payload, back to subscribe wait state */
-      mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
-    break;
+      mqstate(ਅੰਕੜੇ, MQTT_ਪਹਿਲਾ, MQTT_PUBWAIT);
+    ਰੋਕੋ;
   }
-  default:
-    DEBUGASSERT(NULL); /* illegal state */
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto end;
+  ਮੂਲ:
+    DEBUGASSERT(ਨਿਰਾ); /* illegal state */
+    ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+    ਜਾਓ ਸਿਰਾ;
   }
-end:
-  return result;
+ਸਿਰਾ:
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode mqtt_do(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode mqtt_do(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
-  *done = FALSE; /* unconditionally */
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  *ਪੂਰਾ = FALSE; /* unconditionally */
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
-  mq->lastTime = *Curl_pgrs_now(data);
+  ਜੇ(!mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
+  mq->ਆਖਰੀ_ਸਮਾਂ = *Curl_pgrs_now(ਅੰਕੜੇ);
   mq->pingsent = FALSE;
 
-  result = mqtt_connect(data);
-  if(result) {
-    failf(data, "Error %d sending MQTT CONNECT request", (int)result);
-    return result;
+  ਨਤੀਜਾ = mqtt_connect(ਅੰਕੜੇ);
+  ਜੇ(ਨਤੀਜਾ) {
+    failf(ਅੰਕੜੇ, "Error %d sending MQTT CONNECT request", (ਪੂਰਨ)ਨਤੀਜਾ);
+    ਵਾਪਸ ਨਤੀਜਾ;
   }
-  mqstate(data, MQTT_FIRST, MQTT_CONNACK);
-  return CURLE_OK;
+  mqstate(ਅੰਕੜੇ, MQTT_ਪਹਿਲਾ, MQTT_CONNACK);
+  ਵਾਪਸ CURLE_OK;
 }
 
-static CURLcode mqtt_done(struct Curl_easy *data,
-                          CURLcode status, bool premature)
+ਸਥਿਰ CURLcode mqtt_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          CURLcode ਸਥਿਤੀ, bool premature)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  (void)status;
-  (void)premature;
-  if(mq) {
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
+  (ਖਾਲੀ)ਸਥਿਤੀ;
+  (ਖਾਲੀ)premature;
+  ਜੇ(mq) {
     curlx_dyn_free(&mq->sendbuf);
     curlx_dyn_free(&mq->recvbuf);
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* we ping regularly to avoid being disconnected by the server */
-static CURLcode mqtt_ping(struct Curl_easy *data)
+ਸਥਿਰ CURLcode mqtt_ping(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!mqtt || !mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  if(mqtt->state == MQTT_FIRST &&
+  ਜੇ(mqtt->state == MQTT_ਪਹਿਲਾ &&
      !mq->pingsent &&
-     data->set.upkeep_interval_ms > 0) {
-    struct curltime t = *Curl_pgrs_now(data);
-    timediff_t diff = curlx_ptimediff_ms(&t, &mq->lastTime);
+     ਅੰਕੜੇ->ਸੈੱਟ.upkeep_interval_ms > 0) {
+    ਬਣਤਰ curltime t = *Curl_pgrs_now(ਅੰਕੜੇ);
+    timediff_t diff = curlx_ptimediff_ms(&t, &mq->ਆਖਰੀ_ਸਮਾਂ);
 
-    if(diff > data->set.upkeep_interval_ms) {
+    ਜੇ(diff > ਅੰਕੜੇ->ਸੈੱਟ.upkeep_interval_ms) {
       /* 0xC0 is PINGREQ, and 0x00 is remaining length */
-      unsigned char packet[2] = { 0xC0, 0x00 };
-      size_t packetlen = sizeof(packet);
+      ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ packet[2] = { 0xC0, 0x00 };
+      size_t packetlen = ਆਕਾਰ(packet);
 
-      result = mqtt_send(data, (char *)packet, packetlen);
-      if(!result) {
+      ਨਤੀਜਾ = mqtt_send(ਅੰਕੜੇ, (ਅੱਖਰ *)packet, packetlen);
+      ਜੇ(!ਨਤੀਜਾ) {
         mq->pingsent = TRUE;
       }
-      infof(data, "mqtt_ping: sent ping request.");
+      infof(ਅੰਕੜੇ, "mqtt_ping: sent ping request.");
     }
   }
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode mqtt_doing(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
+  ਬਣਤਰ MQTT *mq = Curl_meta_get(ਅੰਕੜੇ, CURL_META_MQTT_EASY);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
   size_t nread;
-  unsigned char recvbyte;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(data->conn, CURL_META_MQTT_CONN);
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ recvbyte;
+  ਬਣਤਰ mqtt_conn *mqtt = Curl_conn_meta_get(ਅੰਕੜੇ->conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  ਜੇ(!mqtt || !mq)
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  *done = FALSE;
+  *ਪੂਰਾ = FALSE;
 
-  if(curlx_dyn_len(&mq->sendbuf)) {
+  ਜੇ(curlx_dyn_len(&mq->sendbuf)) {
     /* send the remainder of an outgoing packet */
-    result = mqtt_flush(data);
+    ਨਤੀਜਾ = mqtt_flush(ਅੰਕੜੇ);
     /* CURLE_OK can still mean a short write. Wait for writable progress
        before sending another packet or processing a reply. */
-    if(result || curlx_dyn_len(&mq->sendbuf))
-      return result;
+    ਜੇ(ਨਤੀਜਾ || curlx_dyn_len(&mq->sendbuf))
+      ਵਾਪਸ ਨਤੀਜਾ;
   }
 
-  result = mqtt_ping(data);
+  ਨਤੀਜਾ = mqtt_ping(ਅੰਕੜੇ);
   /* Packet processing may send more output, so finish PINGREQ first. */
-  if(result || curlx_dyn_len(&mq->sendbuf))
-    return result;
+  ਜੇ(ਨਤੀਜਾ || curlx_dyn_len(&mq->sendbuf))
+    ਵਾਪਸ ਨਤੀਜਾ;
 
-  infof(data, "mqtt_doing: state [%d]", (int)mqtt->state);
-  switch(mqtt->state) {
-  case MQTT_FIRST:
+  infof(ਅੰਕੜੇ, "mqtt_doing: state [%d]", (ਪੂਰਨ)mqtt->state);
+  ਚੋਣ(mqtt->state) {
+  ਹਾਲਤ MQTT_ਪਹਿਲਾ:
     /* Read the initial byte only */
-    result = Curl_xfer_recv(data, (char *)&mq->firstbyte, 1, &nread);
-    if(result)
-      break;
-    else if(!nread) {
-      failf(data, "Connection disconnected");
-      *done = TRUE;
-      result = CURLE_RECV_ERROR;
-      break;
+    ਨਤੀਜਾ = Curl_xfer_recv(ਅੰਕੜੇ, (ਅੱਖਰ *)&mq->firstbyte, 1, &nread);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
+    ਨਹੀਂਤਾਂ ਜੇ(!nread) {
+      failf(ਅੰਕੜੇ, "Connection disconnected");
+      *ਪੂਰਾ = TRUE;
+      ਨਤੀਜਾ = CURLE_RECV_ERROR;
+      ਰੋਕੋ;
     }
-    Curl_debug(data, CURLINFO_HEADER_IN, (const char *)&mq->firstbyte, 1);
+    Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਵਿੱਚ, (ਅਚਲ ਅੱਖਰ *)&mq->firstbyte, 1);
 
     /* we received something */
-    mq->lastTime = *Curl_pgrs_now(data);
+    mq->ਆਖਰੀ_ਸਮਾਂ = *Curl_pgrs_now(ਅੰਕੜੇ);
 
     /* remember the first byte */
     mq->npacket = 0;
-    mqstate(data, MQTT_REMAINING_LENGTH, MQTT_NOSTATE);
+    mqstate(ਅੰਕੜੇ, MQTT_ਬਚਿਆ_ਲੰਮਾਈ, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_REMAINING_LENGTH:
-    do {
-      result = Curl_xfer_recv(data, (char *)&recvbyte, 1, &nread);
-      if(result || !nread)
-        break;
-      Curl_debug(data, CURLINFO_HEADER_IN, (const char *)&recvbyte, 1);
+  ਹਾਲਤ MQTT_ਬਚਿਆ_ਲੰਮਾਈ:
+    ਕਰੋ {
+      ਨਤੀਜਾ = Curl_xfer_recv(ਅੰਕੜੇ, (ਅੱਖਰ *)&recvbyte, 1, &nread);
+      ਜੇ(ਨਤੀਜਾ || !nread)
+        ਰੋਕੋ;
+      Curl_debug(ਅੰਕੜੇ, CURLINFO_ਸਿਰਲੇਖ_ਵਿੱਚ, (ਅਚਲ ਅੱਖਰ *)&recvbyte, 1);
       mq->pkt_hd[mq->npacket++] = recvbyte;
-    } while((recvbyte & 0x80) && (mq->npacket < 4));
-    if(!result && nread && (recvbyte & 0x80))
+    } ਜਦੋਂ((recvbyte & 0x80) && (mq->npacket < 4));
+    ਜੇ(!ਨਤੀਜਾ && nread && (recvbyte & 0x80))
       /* MQTT supports up to 127 * 128^0 + 127 * 128^1 + 127 * 128^2 +
          127 * 128^3 bytes. server tried to send more */
-      result = CURLE_WEIRD_SERVER_REPLY;
-    if(result)
-      break;
-    if(mqtt_decode_len(&mq->remaining_length, mq->pkt_hd, mq->npacket)) {
-      result = CURLE_WEIRD_SERVER_REPLY;
-      break;
+      ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
+    ਜੇ(mqtt_decode_len(&mq->ਬਚਿਆ_ਲੰਮਾਈ, mq->pkt_hd, mq->npacket)) {
+      ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+      ਰੋਕੋ;
     }
     mq->npacket = 0;
     /* PINGRESP and DISCONNECT must have remaining_length == 0 and
@@ -929,106 +929,106 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
      * sections 2.2.2, 3.13.1 and 3.14.1. Reject before state
      * dispatch to prevent nextstate confusion. */
     {
-      const unsigned char type = mq->firstbyte & 0xF0;
-      const unsigned char reserved = mq->firstbyte & 0x0F;
-      if((type == MQTT_MSG_DISCONNECT || type == MQTT_MSG_PINGRESP) &&
-         (mq->remaining_length || reserved)) {
-        failf(data,
+      ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ type = mq->firstbyte & 0xF0;
+      ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ reserved = mq->firstbyte & 0x0F;
+      ਜੇ((type == MQTT_ਸੁਨੇਹਾ_DISCONNECT || type == MQTT_ਸੁਨੇਹਾ_PINGRESP) &&
+         (mq->ਬਚਿਆ_ਲੰਮਾਈ || reserved)) {
+        failf(ਅੰਕੜੇ,
               "Broker sent malformed %s "
               "(remaining_length=%zu, header byte=0x%02x)",
-              type == MQTT_MSG_DISCONNECT ? "DISCONNECT" : "PINGRESP",
-              mq->remaining_length, mq->firstbyte);
-        result = CURLE_WEIRD_SERVER_REPLY;
-        break;
+              type == MQTT_ਸੁਨੇਹਾ_DISCONNECT ? "DISCONNECT" : "PINGRESP",
+              mq->ਬਚਿਆ_ਲੰਮਾਈ, mq->firstbyte);
+        ਨਤੀਜਾ = CURLE_WEIRD_SERVER_ਜਵਾਬ;
+        ਰੋਕੋ;
       }
     }
-    if(mq->remaining_length) {
-      mqstate(data, mqtt->nextstate, MQTT_NOSTATE);
-      break;
+    ਜੇ(mq->ਬਚਿਆ_ਲੰਮਾਈ) {
+      mqstate(ਅੰਕੜੇ, mqtt->nextstate, MQTT_NOSTATE);
+      ਰੋਕੋ;
     }
-    mqstate(data, MQTT_FIRST, MQTT_FIRST);
+    mqstate(ਅੰਕੜੇ, MQTT_ਪਹਿਲਾ, MQTT_ਪਹਿਲਾ);
 
-    if(mq->firstbyte == MQTT_MSG_DISCONNECT) {
-      infof(data, "Got DISCONNECT");
-      *done = TRUE;
+    ਜੇ(mq->firstbyte == MQTT_ਸੁਨੇਹਾ_DISCONNECT) {
+      infof(ਅੰਕੜੇ, "Got DISCONNECT");
+      *ਪੂਰਾ = TRUE;
     }
 
     /* ping response */
-    if(mq->firstbyte == MQTT_MSG_PINGRESP) {
-      infof(data, "Received ping response.");
+    ਜੇ(mq->firstbyte == MQTT_ਸੁਨੇਹਾ_PINGRESP) {
+      infof(ਅੰਕੜੇ, "Received ping response.");
       mq->pingsent = FALSE;
-      mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
+      mqstate(ਅੰਕੜੇ, MQTT_ਪਹਿਲਾ, MQTT_PUBWAIT);
     }
-    break;
-  case MQTT_CONNACK:
-    result = mqtt_verify_connack(data);
-    if(result)
-      break;
+    ਰੋਕੋ;
+  ਹਾਲਤ MQTT_CONNACK:
+    ਨਤੀਜਾ = mqtt_verify_connack(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
 
-    if(data->state.httpreq != HTTPREQ_POST) {
-      result = mqtt_subscribe(data);
-      if(!result)
-        mqstate(data, MQTT_FIRST, MQTT_SUBACK);
-      break;
+    ਜੇ(ਅੰਕੜੇ->state.httpreq != HTTPREQ_POST) {
+      ਨਤੀਜਾ = mqtt_subscribe(ਅੰਕੜੇ);
+      ਜੇ(!ਨਤੀਜਾ)
+        mqstate(ਅੰਕੜੇ, MQTT_ਪਹਿਲਾ, MQTT_SUBACK);
+      ਰੋਕੋ;
     }
 
-    result = mqtt_publish(data);
-    if(result)
-      break;
-    mqstate(data, MQTT_POST_DRAIN, MQTT_NOSTATE);
+    ਨਤੀਜਾ = mqtt_publish(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
+    mqstate(ਅੰਕੜੇ, MQTT_POST_DRAIN, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_POST_DRAIN:
+  ਹਾਲਤ MQTT_POST_DRAIN:
     /* PUBLISH must be complete before DISCONNECT can use the send buffer. */
-    if(curlx_dyn_len(&mq->sendbuf))
-      break;
-    result = mqtt_disconnect(data);
-    if(result)
-      break;
-    mqstate(data, MQTT_DISCONNECT_DRAIN, MQTT_NOSTATE);
+    ਜੇ(curlx_dyn_len(&mq->sendbuf))
+      ਰੋਕੋ;
+    ਨਤੀਜਾ = mqtt_disconnect(ਅੰਕੜੇ);
+    ਜੇ(ਨਤੀਜਾ)
+      ਰੋਕੋ;
+    mqstate(ਅੰਕੜੇ, MQTT_DISCONNECT_DRAIN, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_DISCONNECT_DRAIN:
+  ਹਾਲਤ MQTT_DISCONNECT_DRAIN:
     /* Completing now would discard any DISCONNECT bytes still queued. */
-    if(!curlx_dyn_len(&mq->sendbuf))
-      *done = TRUE;
-    break;
+    ਜੇ(!curlx_dyn_len(&mq->sendbuf))
+      *ਪੂਰਾ = TRUE;
+    ਰੋਕੋ;
 
-  case MQTT_SUBACK:
-  case MQTT_PUBWAIT:
-  case MQTT_PUB_REMAIN:
-    result = mqtt_read_publish(data, done);
-    break;
+  ਹਾਲਤ MQTT_SUBACK:
+  ਹਾਲਤ MQTT_PUBWAIT:
+  ਹਾਲਤ MQTT_PUB_REMAIN:
+    ਨਤੀਜਾ = mqtt_read_publish(ਅੰਕੜੇ, ਪੂਰਾ);
+    ਰੋਕੋ;
 
-  default:
-    failf(data, "State not handled yet");
-    *done = TRUE;
-    break;
+  ਮੂਲ:
+    failf(ਅੰਕੜੇ, "State not handled yet");
+    *ਪੂਰਾ = TRUE;
+    ਰੋਕੋ;
   }
 
-  if(result == CURLE_AGAIN)
-    result = CURLE_OK;
-  return result;
+  ਜੇ(ਨਤੀਜਾ == CURLE_AGAIN)
+    ਨਤੀਜਾ = CURLE_OK;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifdef USE_SSL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSL
 
-static CURLcode mqtts_connecting(struct Curl_easy *data, bool *done)
+ਸਥਿਰ CURLcode mqtts_connecting(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool *ਪੂਰਾ)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result;
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  CURLcode ਨਤੀਜਾ;
 
-  result = Curl_conn_connect(data, FIRSTSOCKET, TRUE, done);
-  if(result)
+  ਨਤੀਜਾ = Curl_conn_connect(ਅੰਕੜੇ, FIRSTSOCKET, TRUE, ਪੂਰਾ);
+  ਜੇ(ਨਤੀਜਾ)
     connclose(conn);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 /*
  * MQTTS protocol.
  */
-const struct Curl_protocol Curl_protocol_mqtts = {
-  mqtt_setup_conn,                    /* setup_connection */
+ਅਚਲ ਬਣਤਰ Curl_protocol Curl_protocol_mqtts = {
+  mqtt_ਤਿਆਰੀ_conn,                    /* setup_connection */
   mqtt_do,                            /* do_it */
-  mqtt_done,                          /* done */
+  mqtt_ਪੂਰਾ,                          /* done */
   ZERO_NULL,                          /* do_more */
   ZERO_NULL,                          /* connect_it */
   mqtts_connecting,                   /* connecting */
@@ -1045,15 +1045,15 @@ const struct Curl_protocol Curl_protocol_mqtts = {
   ZERO_NULL,                          /* follow */
 };
 
-#endif
+#ਜੇ_ਅੰਤ
 
 /*
  * MQTT protocol.
  */
-const struct Curl_protocol Curl_protocol_mqtt = {
-  mqtt_setup_conn,                    /* setup_connection */
+ਅਚਲ ਬਣਤਰ Curl_protocol Curl_protocol_mqtt = {
+  mqtt_ਤਿਆਰੀ_conn,                    /* setup_connection */
   mqtt_do,                            /* do_it */
-  mqtt_done,                          /* done */
+  mqtt_ਪੂਰਾ,                          /* done */
   ZERO_NULL,                          /* do_more */
   ZERO_NULL,                          /* connect_it */
   ZERO_NULL,                          /* connecting */
@@ -1070,4 +1070,4 @@ const struct Curl_protocol Curl_protocol_mqtt = {
   ZERO_NULL,                          /* follow */
 };
 
-#endif /* CURL_DISABLE_MQTT */
+#ਜੇ_ਅੰਤ /* CURL_DISABLE_MQTT */

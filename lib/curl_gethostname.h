@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GETHOSTNAME_H
-#define HEADER_CURL_GETHOSTNAME_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_GETHOSTNAME_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_GETHOSTNAME_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -25,9 +25,9 @@
  ***************************************************************************/
 
 /* Hostname buffer size */
-#define HOSTNAME_MAX 1024
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HOSTNAME_MAX 1024
 
 /* This returns the local machine's un-qualified hostname */
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen);
+ਪੂਰਨ Curl_gethostname(ਅੱਖਰ * ਅਚਲ name, GETHOSTNAME_TYPE_ARG2 namelen);
 
-#endif /* HEADER_CURL_GETHOSTNAME_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_GETHOSTNAME_H */

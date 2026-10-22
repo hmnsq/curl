@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NETRC_H
-#define HEADER_CURL_NETRC_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_NETRC_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_NETRC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,46 +23,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifndef CURL_DISABLE_NETRC
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_NETRC
 
-#include "curlx/dynbuf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/dynbuf.h"
 
-struct Curl_easy;
-struct Curl_creds;
+ਬਣਤਰ Curl_easy;
+ਬਣਤਰ Curl_creds;
 
-struct store_netrc {
-  struct dynbuf filebuf;
-  char *filename;
-  BIT(loaded);
+ਬਣਤਰ store_netrc {
+  ਬਣਤਰ dynbuf filebuf;
+  ਅੱਖਰ *filename;
+  ਦੋਆਧਾਰੀ_ਅੰਕ(loaded);
 };
 
-typedef enum {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ {
   NETRC_OK,
-  NETRC_NO_MATCH,      /* no matching entry in the file */
+  NETRC_NO_ਮੇਲ,      /* no matching entry in the file */
   NETRC_SYNTAX_ERROR,  /* in the netrc file */
   NETRC_FILE_MISSING,  /* the netrc file does not exist */
-  NETRC_OUT_OF_MEMORY, /* while parsing netrc */
-  NETRC_LAST /* never used */
+  NETRC_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ, /* while parsing netrc */
+  NETRC_ਆਖਰੀ /* never used */
 } NETRCcode;
 
-const char *Curl_netrc_strerror(NETRCcode ret);
-void Curl_netrc_init(struct store_netrc *store);
-void Curl_netrc_cleanup(struct store_netrc *store);
+ਅਚਲ ਅੱਖਰ *Curl_netrc_strerror(NETRCcode ret);
+ਖਾਲੀ Curl_netrc_init(ਬਣਤਰ store_netrc *store);
+ਖਾਲੀ Curl_netrc_cleanup(ਬਣਤਰ store_netrc *store);
 
 /* Scan a netrc file for credentials matching hostname
  * and optional user. */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds);
-#else
+NETRCcode Curl_netrc_ਜਾਂਚ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                          ਬਣਤਰ store_netrc *store,
+                          ਅਚਲ ਅੱਖਰ *hostname,
+                          ਅਚਲ ਅੱਖਰ *user,
+                          ਅਚਲ ਅੱਖਰ *netrcfile,
+                          ਬਣਤਰ Curl_creds **pcreds);
+#ਨਹੀਂਤਾਂ
 /* disabled */
-#define Curl_netrc_init(x)
-#define Curl_netrc_cleanup(x)
-#endif
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_netrc_init(x)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_netrc_cleanup(x)
+#ਜੇ_ਅੰਤ
 
-#endif /* HEADER_CURL_NETRC_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_NETRC_H */

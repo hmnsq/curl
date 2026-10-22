@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WARNLESS_H
-#define HEADER_CURL_WARNLESS_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_WARNLESS_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_WARNLESS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,34 +24,34 @@
  *
  ***************************************************************************/
 
-#define CURLX_FUNCTION_CAST(target_type, func) \
-  (target_type)(void (*)(void))(func)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURLX_FUNCTION_CAST(ਨਿਸ਼ਾਨਾ_type, func) \
+  (ਨਿਸ਼ਾਨਾ_type)(ਖਾਲੀ (*)(ਖਾਲੀ))(func)
 
-unsigned char curlx_ultouc(unsigned long ulnum);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ curlx_ultouc(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ulnum);
 
-int curlx_uztosi(size_t uznum);
+ਪੂਰਨ curlx_uztosi(size_t uznum);
 
-unsigned long curlx_uztoul(size_t uznum);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ curlx_uztoul(size_t uznum);
 
-unsigned int curlx_uztoui(size_t uznum);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ curlx_uztoui(size_t uznum);
 
-int curlx_sltosi(long slnum);
+ਪੂਰਨ curlx_sltosi(ਲੰਮਾ slnum);
 
-unsigned int curlx_sltoui(long slnum);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ curlx_sltoui(ਲੰਮਾ slnum);
 
-unsigned short curlx_sltous(long slnum);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ curlx_sltous(ਲੰਮਾ slnum);
 
 ssize_t curlx_uztosz(size_t uznum);
 
 size_t curlx_sotouz(curl_off_t sonum);
 
-int curlx_sztosi(ssize_t sznum);
+ਪੂਰਨ curlx_sztosi(ssize_t sznum);
 
-unsigned short curlx_uitous(unsigned int uinum);
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ curlx_uitous(ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ uinum);
 
-size_t curlx_sitouz(int sinum);
+size_t curlx_sitouz(ਪੂਰਨ sinum);
 
-size_t curlx_uitouz(unsigned int uinum);
+size_t curlx_uitouz(ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ uinum);
 
 /* Convert a curl_off_t to fit into size_t interval [uzmin, uzmax].
  * values outside this interval give the lower/upper bound. */
@@ -65,10 +65,10 @@ bool curlx_sztouz(ssize_t sznum, size_t *puznum);
 
 /* Convert a curl_off_t to size_t, return FALSE if negative or
  * too large and set 0 */
-bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum);
+bool curlx_sotouz_ਸਮਾਉਂਦਾ(curl_off_t sonum, size_t *puznum);
 
 /* Convert a long to size_t, return FALSE if negative or too large
  * and set 0 */
-bool curlx_sltouz(long slnum, size_t *puznum);
+bool curlx_sltouz(ਲੰਮਾ slnum, size_t *puznum);
 
-#endif /* HEADER_CURL_WARNLESS_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_WARNLESS_H */

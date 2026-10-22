@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_H1_PROXY_H
-#define HEADER_CURL_H1_PROXY_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_H1_PROXY_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_H1_PROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#ਜੇ !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-struct Curl_peer;
+ਬਣਤਰ Curl_peer;
 
-CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
-                                       int httpversion,
+CURLcode Curl_cf_h1_proxy_ਪਾਓ_after(ਬਣਤਰ Curl_cfilter *cf_at,
+                                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                       ਬਣਤਰ Curl_peer *peer,
+                                       ਬਣਤਰ Curl_peer *dest,
+                                       ਪੂਰਨ httpversion,
                                        bool udp_tunnel);
 
-extern struct Curl_cftype Curl_cft_h1_proxy;
+ਬਾਹਰੀ ਬਣਤਰ Curl_cftype Curl_cft_h1_proxy;
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_H1_PROXY_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_H1_PROXY_H */

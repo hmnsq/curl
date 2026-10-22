@@ -21,23 +21,23 @@
  * SPDX-License-Identifier: curl AND ISC
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "vssh/ssh.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vssh/ssh.h"
 
-#ifdef USE_SSH
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_SSH
 
-#include "vssh/vssh.h"
-#include "curlx/strparse.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "select.h"  /* for Curl_pollset_change() */
-#include "url.h"  /* for Curl_conn_meta_get() */
-#include "curlx/win32-fopen.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vssh/vssh.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "escape.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "select.h"  /* for Curl_pollset_change() */
+#ਅਨ੍ਤਰ੍ਭਾਵ "url.h"  /* for Curl_conn_meta_get() */
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/win32-fopen.h"
 
-#ifdef CURLVERBOSE
-const char *Curl_ssh_statename(sshstate state)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+ਅਚਲ ਅੱਖਰ *Curl_ssh_statename(sshstate state)
 {
-  static const char * const names[] = {
+  ਸਥਿਰ ਅਚਲ ਅੱਖਰ * ਅਚਲ ਨਾਂ[] = {
     "SSH_STOP",
     "SSH_INIT",
     "SSH_S_STARTUP",
@@ -100,177 +100,177 @@ const char *Curl_ssh_statename(sshstate state)
     "QUIT"
   };
   /* a precaution to make sure the lists are in sync */
-  DEBUGASSERT(CURL_ARRAYSIZE(names) == SSH_LAST);
-  return ((size_t)state < CURL_ARRAYSIZE(names)) ? names[state] : "";
+  DEBUGASSERT(CURL_ARRAYSIZE(ਨਾਂ) == SSH_ਆਖਰੀ);
+  ਵਾਪਸ ((size_t)state < CURL_ARRAYSIZE(ਨਾਂ)) ? ਨਾਂ[state] : "";
 }
-#endif /* CURLVERBOSE */
+#ਜੇ_ਅੰਤ /* CURLVERBOSE */
 
 /*
  * SSH State machine related code
  */
 /* This is the ONLY way to change SSH state! */
-void Curl_ssh_set_state(struct Curl_easy *data,
-                        struct ssh_conn *sshc,
+ਖਾਲੀ Curl_ssh_ਸੈੱਟ_state(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                        ਬਣਤਰ ssh_conn *sshc,
                         sshstate nowstate)
 {
-#ifdef CURLVERBOSE
-  if(sshc->state != nowstate) {
-    CURL_TRC_SSH(data, "[%s] -> [%s]",
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+  ਜੇ(sshc->state != nowstate) {
+    CURL_TRC_SSH(ਅੰਕੜੇ, "[%s] -> [%s]",
                  Curl_ssh_statename(sshc->state),
                  Curl_ssh_statename(nowstate));
   }
-#else
-  (void)data;
-#endif
+#ਨਹੀਂਤਾਂ
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+#ਜੇ_ਅੰਤ
   sshc->state = nowstate;
 }
 
-#define MAX_SSHPATH_LEN 100000 /* arbitrary */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_SSHPATH_LEN 100000 /* arbitrary */
 
 /* figure out the path to work with in this particular request */
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir, /* when SFTP is used */
-                             char **path) /* returns the  allocated
+CURLcode Curl_getworkingpath(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                             ਅਚਲ ਅੱਖਰ *homedir, /* when SFTP is used */
+                             ਅੱਖਰ **ਰਸਤਾ) /* returns the  allocated
                                              real path to work with */
 {
-  char *working_path;
-  size_t working_path_len;
-  struct dynbuf npath;
-  CURLcode result =
-    Curl_urldecode(data->state.up.path, 0, &working_path,
-                   &working_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  ਅੱਖਰ *working_ਰਸਤਾ;
+  size_t working_ਰਸਤਾ_len;
+  ਬਣਤਰ dynbuf npath;
+  CURLcode ਨਤੀਜਾ =
+    Curl_urldecode(ਅੰਕੜੇ->state.ਉੱਪਰ.ਰਸਤਾ, 0, &working_ਰਸਤਾ,
+                   &working_ਰਸਤਾ_len, REJECT_ZERO);
+  ਜੇ(ਨਤੀਜਾ)
+    ਵਾਪਸ ਨਤੀਜਾ;
 
   /* new path to switch to in case we need to */
   curlx_dyn_init(&npath, MAX_SSHPATH_LEN);
 
   /* Check for /~/, indicating relative to the user's home directory */
-  if((data->conn->scheme->protocol & CURLPROTO_SCP) &&
-     (working_path_len > 3) && (!memcmp(working_path, "/~/", 3))) {
+  ਜੇ((ਅੰਕੜੇ->conn->scheme->protocol & CURLPROTO_SCP) &&
+     (working_ਰਸਤਾ_len > 3) && (!memcmp(working_ਰਸਤਾ, "/~/", 3))) {
     /* It is referenced to the home directory, so strip the leading '/~/' */
-    if(curlx_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
-      curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+    ਜੇ(curlx_dyn_addn(&npath, &working_ਰਸਤਾ[3], working_ਰਸਤਾ_len - 3)) {
+      curlx_free(working_ਰਸਤਾ);
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
   }
-  else if((data->conn->scheme->protocol & CURLPROTO_SFTP) &&
-          (!strcmp("/~", working_path) ||
-           ((working_path_len > 2) && !memcmp(working_path, "/~/", 3)))) {
-    if(curlx_dyn_add(&npath, homedir)) {
-      curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+  ਨਹੀਂਤਾਂ ਜੇ((ਅੰਕੜੇ->conn->scheme->protocol & CURLPROTO_SFTP) &&
+          (!strcmp("/~", working_ਰਸਤਾ) ||
+           ((working_ਰਸਤਾ_len > 2) && !memcmp(working_ਰਸਤਾ, "/~/", 3)))) {
+    ਜੇ(curlx_dyn_ਜੋੜੋ(&npath, homedir)) {
+      curlx_free(working_ਰਸਤਾ);
+      ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
     }
-    if(working_path_len > 2) {
+    ਜੇ(working_ਰਸਤਾ_len > 2) {
       size_t len;
-      const char *p;
-      int copyfrom = 3;
+      ਅਚਲ ਅੱਖਰ *p;
+      ਪੂਰਨ copyfrom = 3;
       /* Copy a separating '/' if homedir does not end with one */
       len = curlx_dyn_len(&npath);
       p = curlx_dyn_ptr(&npath);
-      if(len && (p[len - 1] != '/'))
+      ਜੇ(len && (p[len - 1] != '/'))
         copyfrom = 2;
 
-      if(curlx_dyn_addn(&npath, &working_path[copyfrom],
-                        working_path_len - copyfrom)) {
-        curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+      ਜੇ(curlx_dyn_addn(&npath, &working_ਰਸਤਾ[copyfrom],
+                        working_ਰਸਤਾ_len - copyfrom)) {
+        curlx_free(working_ਰਸਤਾ);
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
       }
     }
-    else {
-      if(curlx_dyn_add(&npath, "/")) {
-        curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+    ਨਹੀਂਤਾਂ {
+      ਜੇ(curlx_dyn_ਜੋੜੋ(&npath, "/")) {
+        curlx_free(working_ਰਸਤਾ);
+        ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
       }
     }
   }
 
-  if(curlx_dyn_len(&npath)) {
-    curlx_free(working_path);
+  ਜੇ(curlx_dyn_len(&npath)) {
+    curlx_free(working_ਰਸਤਾ);
 
     /* store the pointer for the caller to receive */
-    *path = curlx_dyn_ptr(&npath);
+    *ਰਸਤਾ = curlx_dyn_ptr(&npath);
   }
-  else
-    *path = working_path;
-  DEBUGASSERT(*path && (*path)[0]);
+  ਨਹੀਂਤਾਂ
+    *ਰਸਤਾ = working_ਰਸਤਾ;
+  DEBUGASSERT(*ਰਸਤਾ && (*ਰਸਤਾ)[0]);
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-#define MAX_PATHLENGTH 65535 /* arbitrary long */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_PATHLENGTH 65535 /* arbitrary long */
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
+CURLcode Curl_get_pathname(ਅਚਲ ਅੱਖਰ **cpp, ਅੱਖਰ **ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *homedir)
 {
-  const char *cp = *cpp;
-  struct dynbuf out;
-  CURLcode result;
+  ਅਚਲ ਅੱਖਰ *cp = *cpp;
+  ਬਣਤਰ dynbuf ਬਾਹਰਲਾ;
+  CURLcode ਨਤੀਜਾ;
 
   DEBUGASSERT(homedir);
-  *path = NULL;
-  *cpp = NULL;
-  if(!*cp || !homedir)
-    return CURLE_QUOTE_ERROR;
+  *ਰਸਤਾ = ਨਿਰਾ;
+  *cpp = ਨਿਰਾ;
+  ਜੇ(!*cp || !homedir)
+    ਵਾਪਸ CURLE_QUOTE_ERROR;
 
-  curlx_dyn_init(&out, MAX_PATHLENGTH);
+  curlx_dyn_init(&ਬਾਹਰਲਾ, MAX_PATHLENGTH);
 
   /* Ignore leading whitespace */
   curlx_str_passblanks(&cp);
 
   /* Check for quoted filenames */
-  if(*cp == '\"' || *cp == '\'') {
-    char quot = *cp++;
+  ਜੇ(*cp == '\"' || *cp == '\'') {
+    ਅੱਖਰ quot = *cp++;
 
     /* Search for terminating quote, unescape some chars */
-    while(*cp != quot) {
-      if(!*cp) /* End of string */
-        goto fail;
+    ਜਦੋਂ(*cp != quot) {
+      ਜੇ(!*cp) /* End of string */
+        ਜਾਓ fail;
 
-      if(*cp == '\\') { /* Escaped characters */
+      ਜੇ(*cp == '\\') { /* Escaped characters */
         cp++;
-        if(*cp != '\'' && *cp != '\"' && *cp != '\\')
-          goto fail;
+        ਜੇ(*cp != '\'' && *cp != '\"' && *cp != '\\')
+          ਜਾਓ fail;
       }
-      result = curlx_dyn_addn(&out, cp, 1);
-      if(result)
-        return result;
+      ਨਤੀਜਾ = curlx_dyn_addn(&ਬਾਹਰਲਾ, cp, 1);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
       cp++;
     }
     cp++; /* pass the end quote */
 
-    if(!curlx_dyn_len(&out))
-      goto fail;
+    ਜੇ(!curlx_dyn_len(&ਬਾਹਰਲਾ))
+      ਜਾਓ fail;
   }
-  else {
-    struct Curl_str word;
+  ਨਹੀਂਤਾਂ {
+    ਬਣਤਰ Curl_str ਸ਼ਬਦ;
     bool content = FALSE;
-    int rc;
+    ਪੂਰਨ rc;
     /* Handling for relative path - prepend home directory */
-    if(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
-      result = curlx_dyn_add(&out, homedir);
-      if(!result)
-        result = curlx_dyn_addn(&out, "/", 1);
-      if(result)
-        return result;
+    ਜੇ(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
+      ਨਤੀਜਾ = curlx_dyn_ਜੋੜੋ(&ਬਾਹਰਲਾ, homedir);
+      ਜੇ(!ਨਤੀਜਾ)
+        ਨਤੀਜਾ = curlx_dyn_addn(&ਬਾਹਰਲਾ, "/", 1);
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
       cp += 3;
       content = TRUE;
     }
     /* Read to end of filename - either to whitespace or terminator */
-    rc = curlx_str_word(&cp, &word, MAX_PATHLENGTH);
-    if(rc) {
-      if(rc == STRE_BIG) {
-        curlx_dyn_free(&out);
-        return CURLE_TOO_LARGE;
+    rc = curlx_str_ਸ਼ਬਦ(&cp, &ਸ਼ਬਦ, MAX_PATHLENGTH);
+    ਜੇ(rc) {
+      ਜੇ(rc == STRE_BIG) {
+        curlx_dyn_free(&ਬਾਹਰਲਾ);
+        ਵਾਪਸ CURLE_TOO_LARGE;
       }
-      else if(!content)
+      ਨਹੀਂਤਾਂ ਜੇ(!content)
         /* no path, no word, this is incorrect */
-        goto fail;
+        ਜਾਓ fail;
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* append the word */
-      result = curlx_dyn_addn(&out, curlx_str(&word), curlx_strlen(&word));
-      if(result)
-        return result;
+      ਨਤੀਜਾ = curlx_dyn_addn(&ਬਾਹਰਲਾ, curlx_str(&ਸ਼ਬਦ), curlx_strlen(&ਸ਼ਬਦ));
+      ਜੇ(ਨਤੀਜਾ)
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
   }
   /* skip whitespace */
@@ -279,137 +279,137 @@ CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
   /* return pointer to second parameter if it exists */
   *cpp = cp;
 
-  *path = curlx_dyn_ptr(&out);
-  return CURLE_OK;
+  *ਰਸਤਾ = curlx_dyn_ptr(&ਬਾਹਰਲਾ);
+  ਵਾਪਸ CURLE_OK;
 
 fail:
-  curlx_dyn_free(&out);
-  return CURLE_QUOTE_ERROR;
+  curlx_dyn_free(&ਬਾਹਰਲਾ);
+  ਵਾਪਸ CURLE_QUOTE_ERROR;
 }
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                        ਅਚਲ ਅੱਖਰ *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep)
 {
-  curl_off_t from, to;
-  int to_t;
-  int from_t = curlx_str_number(&range, &from, CURL_OFF_T_MAX);
-  if(from_t == STRE_OVERFLOW)
-    return CURLE_RANGE_ERROR;
+  curl_off_t from, ਮੰਜ਼ਿਲ;
+  ਪੂਰਨ ਮੰਜ਼ਿਲ_t;
+  ਪੂਰਨ from_t = curlx_str_ਸੰਖਿਆ(&range, &from, CURL_OFF_T_MAX);
+  ਜੇ(from_t == STRE_ਉਛਾਲ)
+    ਵਾਪਸ CURLE_RANGE_ERROR;
   curlx_str_passblanks(&range);
-  (void)curlx_str_single(&range, '-');
+  (ਖਾਲੀ)curlx_str_single(&range, '-');
 
-  to_t = curlx_str_numblanks(&range, &to);
-  if((to_t == STRE_OVERFLOW) || (to_t && from_t) || *range)
-    return CURLE_RANGE_ERROR;
+  ਮੰਜ਼ਿਲ_t = curlx_str_numblanks(&range, &ਮੰਜ਼ਿਲ);
+  ਜੇ((ਮੰਜ਼ਿਲ_t == STRE_ਉਛਾਲ) || (ਮੰਜ਼ਿਲ_t && from_t) || *range)
+    ਵਾਪਸ CURLE_RANGE_ERROR;
 
-  if(from_t) {
+  ਜੇ(from_t) {
     /* no start point given, set from relative to end of file */
-    if(!to)
+    ਜੇ(!ਮੰਜ਼ਿਲ)
       /* "-0" is not a fine range */
-      return CURLE_RANGE_ERROR;
-    else if(to > filesize)
-      to = filesize;
-    from = filesize - to;
-    to = filesize - 1;
+      ਵਾਪਸ CURLE_RANGE_ERROR;
+    ਨਹੀਂਤਾਂ ਜੇ(ਮੰਜ਼ਿਲ > filesize)
+      ਮੰਜ਼ਿਲ = filesize;
+    from = filesize - ਮੰਜ਼ਿਲ;
+    ਮੰਜ਼ਿਲ = filesize - 1;
   }
-  else if(from > filesize) {
-    failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
+  ਨਹੀਂਤਾਂ ਜੇ(from > filesize) {
+    failf(ਅੰਕੜੇ, "Offset (%" FMT_OFF_T ") was beyond file size (%"
           FMT_OFF_T ")", from, filesize);
-    return CURLE_RANGE_ERROR;
+    ਵਾਪਸ CURLE_RANGE_ERROR;
   }
-  else if((to_t == STRE_NO_NUM) || (to >= filesize))
-    to = filesize - 1;
+  ਨਹੀਂਤਾਂ ਜੇ((ਮੰਜ਼ਿਲ_t == STRE_NO_ਅੰਕ) || (ਮੰਜ਼ਿਲ >= filesize))
+    ਮੰਜ਼ਿਲ = filesize - 1;
 
-  if(from > to) {
-    failf(data, "Bad range: start offset larger than end offset");
-    return CURLE_RANGE_ERROR;
+  ਜੇ(from > ਮੰਜ਼ਿਲ) {
+    failf(ਅੰਕੜੇ, "Bad range: start offset larger than end offset");
+    ਵਾਪਸ CURLE_RANGE_ERROR;
   }
-  if((to - from) == CURL_OFF_T_MAX)
-    return CURLE_RANGE_ERROR;
+  ਜੇ((ਮੰਜ਼ਿਲ - from) == CURL_OFF_T_MAX)
+    ਵਾਪਸ CURLE_RANGE_ERROR;
 
   *startp = from;
-  *sizep = to - from + 1;
-  return CURLE_OK;
+  *sizep = ਮੰਜ਼ਿਲ - from + 1;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /* called by the multi interface to figure out what socket(s) to wait for and
    for what actions in the DO_DONE, PERFORM and WAITPERFORM states */
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps)
+CURLcode Curl_ssh_pollset(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  ਬਣਤਰ connectdata *conn = ਅੰਕੜੇ->conn;
+  ਬਣਤਰ ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int waitfor;
+  ਪੂਰਨ waitfor;
 
-  if(!sshc || (sock == CURL_SOCKET_BAD))
-    return CURLE_FAILED_INIT;
+  ਜੇ(!sshc || (sock == CURL_SOCKET_BAD))
+    ਵਾਪਸ CURLE_FAILED_INIT;
 
-  waitfor = sshc->waitfor ? sshc->waitfor : data->req.io_flags;
-  if(waitfor) {
-    int flags = 0;
-    if(waitfor & REQ_IO_RECV)
-      flags |= CURL_POLL_IN;
-    if(waitfor & REQ_IO_SEND)
-      flags |= CURL_POLL_OUT;
+  waitfor = sshc->waitfor ? sshc->waitfor : ਅੰਕੜੇ->req.io_flags;
+  ਜੇ(waitfor) {
+    ਪੂਰਨ flags = 0;
+    ਜੇ(waitfor & REQ_IO_RECV)
+      flags |= CURL_POLL_ਵਿੱਚ;
+    ਜੇ(waitfor & REQ_IO_SEND)
+      flags |= CURL_POLL_ਬਾਹਰਲਾ;
     DEBUGASSERT(flags);
-    CURL_TRC_SSH(data, "pollset, flags=%x", (unsigned int)flags);
-    return Curl_pollset_change(data, ps, sock, flags, 0);
+    CURL_TRC_SSH(ਅੰਕੜੇ, "pollset, flags=%x", (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)flags);
+    ਵਾਪਸ Curl_pollset_change(ਅੰਕੜੇ, ps, sock, flags, 0);
   }
   /* While we still have a session, we listen incoming data. */
-  if(sshc->ssh_session)
-    return Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0);
-  return CURLE_OK;
+  ਜੇ(sshc->ssh_session)
+    ਵਾਪਸ Curl_pollset_change(ਅੰਕੜੇ, ps, sock, CURL_POLL_ਵਿੱਚ, 0);
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
+CURLcode Curl_ssh_ਤਿਆਰੀ_pkey(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ ssh_conn *sshc)
 {
-  char *home = NULL;
-  if(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
-    const char *str;
+  ਅੱਖਰ *home = ਨਿਰਾ;
+  ਜੇ(ਅੰਕੜੇ->ਸੈੱਟ.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
+    ਅਚਲ ਅੱਖਰ *str;
 
-    sshc->pub_key = sshc->priv_key = NULL;
+    sshc->pub_ਕੁੰਜੀ = sshc->priv_ਕੁੰਜੀ = ਨਿਰਾ;
 
-    if(CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY)) {
-      sshc->priv_key = curlx_strdup(
-        CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY));
-      if(!sshc->priv_key)
-        goto fail;
+    ਜੇ(CURL_EASY_STR(ਅੰਕੜੇ, STRING_SSH_ਨਿੱਜੀ_ਕੁੰਜੀ)) {
+      sshc->priv_ਕੁੰਜੀ = curlx_strdup(
+        CURL_EASY_STR(ਅੰਕੜੇ, STRING_SSH_ਨਿੱਜੀ_ਕੁੰਜੀ));
+      ਜੇ(!sshc->priv_ਕੁੰਜੀ)
+        ਜਾਓ fail;
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* To ponder about: should really the lib be messing about with the HOME
          environment variable etc? */
       curlx_struct_stat sbuf;
       home = curl_getenv("HOME");
 
       /* If no private key file is specified, try some common paths. */
-      if(home) {
+      ਜੇ(home) {
         /* Try ~/.ssh first. */
-        sshc->priv_key = curl_maprintf("%s/.ssh/id_rsa", home);
-        if(!sshc->priv_key)
-          goto fail;
-        else if(curlx_stat(sshc->priv_key, &sbuf)) {
-          curlx_free(sshc->priv_key);
-          sshc->priv_key = curl_maprintf("%s/.ssh/id_dsa", home);
-          if(!sshc->priv_key)
-            goto fail;
-          else if(curlx_stat(sshc->priv_key, &sbuf)) {
-            curlx_safefree(sshc->priv_key);
+        sshc->priv_ਕੁੰਜੀ = curl_maprintf("%s/.ssh/id_rsa", home);
+        ਜੇ(!sshc->priv_ਕੁੰਜੀ)
+          ਜਾਓ fail;
+        ਨਹੀਂਤਾਂ ਜੇ(curlx_stat(sshc->priv_ਕੁੰਜੀ, &sbuf)) {
+          curlx_free(sshc->priv_ਕੁੰਜੀ);
+          sshc->priv_ਕੁੰਜੀ = curl_maprintf("%s/.ssh/id_dsa", home);
+          ਜੇ(!sshc->priv_ਕੁੰਜੀ)
+            ਜਾਓ fail;
+          ਨਹੀਂਤਾਂ ਜੇ(curlx_stat(sshc->priv_ਕੁੰਜੀ, &sbuf)) {
+            curlx_safefree(sshc->priv_ਕੁੰਜੀ);
           }
         }
         curlx_safefree(home);
       }
-      if(!sshc->priv_key) {
+      ਜੇ(!sshc->priv_ਕੁੰਜੀ) {
         /* Nothing found; try the current dir. */
-        sshc->priv_key = curlx_strdup("id_rsa");
-        if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
-          curlx_free(sshc->priv_key);
-          sshc->priv_key = curlx_strdup("id_dsa");
-          if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
-            curlx_free(sshc->priv_key);
+        sshc->priv_ਕੁੰਜੀ = curlx_strdup("id_rsa");
+        ਜੇ(sshc->priv_ਕੁੰਜੀ && curlx_stat(sshc->priv_ਕੁੰਜੀ, &sbuf)) {
+          curlx_free(sshc->priv_ਕੁੰਜੀ);
+          sshc->priv_ਕੁੰਜੀ = curlx_strdup("id_dsa");
+          ਜੇ(sshc->priv_ਕੁੰਜੀ && curlx_stat(sshc->priv_ਕੁੰਜੀ, &sbuf)) {
+            curlx_free(sshc->priv_ਕੁੰਜੀ);
             /* Out of guesses. Set to the empty string to avoid
              * surprising info messages. */
-            sshc->priv_key = curlx_strdup("");
+            sshc->priv_ਕੁੰਜੀ = curlx_strdup("");
           }
         }
       }
@@ -420,36 +420,36 @@ CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
      * library extract the public key from the private key file. This is done
      * by passing sshc->pub_key = NULL.
      */
-    str = CURL_EASY_STR(data, STRING_SSH_PUBLIC_KEY);
-    if(str && *str) {  /* treat empty string the same way as NULL */
-      sshc->pub_key = curlx_strdup(str);
-      if(!sshc->pub_key)
-        goto fail;
+    str = CURL_EASY_STR(ਅੰਕੜੇ, STRING_SSH_ਜਨਤਕ_ਕੁੰਜੀ);
+    ਜੇ(str && *str) {  /* treat empty string the same way as NULL */
+      sshc->pub_ਕੁੰਜੀ = curlx_strdup(str);
+      ਜੇ(!sshc->pub_ਕੁੰਜੀ)
+        ਜਾਓ fail;
     }
 
     {
-      const char *keypasswd = CURL_EASY_STR(data, STRING_KEY_PASSWD);
-      if(keypasswd) {
+      ਅਚਲ ਅੱਖਰ *keypasswd = CURL_EASY_STR(ਅੰਕੜੇ, STRING_ਕੁੰਜੀ_PASSWD);
+      ਜੇ(keypasswd) {
         sshc->passphrase = curlx_strdup(keypasswd);
-        if(!sshc->passphrase)
-          goto fail;
+        ਜੇ(!sshc->passphrase)
+          ਜਾਓ fail;
       }
     }
 
-    if(sshc->pub_key)
-      infof(data, "SSH: public key file '%s'", sshc->pub_key);
-    if(sshc->priv_key)
-      infof(data, "SSH: private key file '%s'", sshc->priv_key);
-    else
-      infof(data, "SSH: public key auth without private key set!");
+    ਜੇ(sshc->pub_ਕੁੰਜੀ)
+      infof(ਅੰਕੜੇ, "SSH: public key file '%s'", sshc->pub_ਕੁੰਜੀ);
+    ਜੇ(sshc->priv_ਕੁੰਜੀ)
+      infof(ਅੰਕੜੇ, "SSH: private key file '%s'", sshc->priv_ਕੁੰਜੀ);
+    ਨਹੀਂਤਾਂ
+      infof(ਅੰਕੜੇ, "SSH: public key auth without private key set!");
   }
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 
 fail:
   curlx_safefree(home);
-  curlx_safefree(sshc->priv_key);
-  curlx_safefree(sshc->pub_key);
-  return CURLE_OUT_OF_MEMORY;
+  curlx_safefree(sshc->priv_ਕੁੰਜੀ);
+  curlx_safefree(sshc->pub_ਕੁੰਜੀ);
+  ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 }
 
-#endif /* USE_SSH */
+#ਜੇ_ਅੰਤ /* USE_SSH */

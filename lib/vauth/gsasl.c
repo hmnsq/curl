@@ -23,99 +23,99 @@
  * RFC5802 SCRAM-SHA-1 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_GSASL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_GSASL
 
-#include "vauth/vauth.h"
-#include "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vauth/vauth.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
 
-#include <gsasl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <gsasl.h>
 
-#if GSASL_VERSION_NUMBER < 0x010600
-#error "libgsasl 1.6.0 or greater required"
-#endif
+#ਜੇ GSASL_ਸੰਸਕਰਣ_ਸੰਖਿਆ < 0x010600
+#ਗਲਤੀ "libgsasl 1.6.0 or greater required"
+#ਜੇ_ਅੰਤ
 
-bool Curl_auth_gsasl_is_supported(struct Curl_easy *data,
-                                  const char *mech,
-                                  struct gsasldata *gsasl)
+bool Curl_auth_gsasl_is_supported(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                  ਅਚਲ ਅੱਖਰ *mech,
+                                  ਬਣਤਰ gsasldata *gsasl)
 {
-  int res;
+  ਪੂਰਨ res;
 
   res = gsasl_init(&gsasl->ctx);
-  if(res != GSASL_OK) {
-    failf(data, "gsasl init: %s", gsasl_strerror(res));
-    return FALSE;
+  ਜੇ(res != GSASL_OK) {
+    failf(ਅੰਕੜੇ, "gsasl init: %s", gsasl_strerror(res));
+    ਵਾਪਸ FALSE;
   }
 
-  res = gsasl_client_start(gsasl->ctx, mech, &gsasl->client);
-  if(res != GSASL_OK) {
-    gsasl_done(gsasl->ctx);
-    gsasl->ctx = NULL;
-    return FALSE;
+  res = gsasl_client_ਸ਼ੁਰੂ(gsasl->ctx, mech, &gsasl->client);
+  ਜੇ(res != GSASL_OK) {
+    gsasl_ਪੂਰਾ(gsasl->ctx);
+    gsasl->ctx = ਨਿਰਾ;
+    ਵਾਪਸ FALSE;
   }
 
-  return TRUE;
+  ਵਾਪਸ TRUE;
 }
 
-CURLcode Curl_auth_gsasl_start(struct Curl_easy *data,
-                               struct Curl_creds *creds,
-                               struct gsasldata *gsasl)
+CURLcode Curl_auth_gsasl_ਸ਼ੁਰੂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਬਣਤਰ Curl_creds *creds,
+                               ਬਣਤਰ gsasldata *gsasl)
 {
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  int res;
+#ਜੇ GSASL_ਸੰਸਕਰਣ_ਸੰਖਿਆ >= 0x010b00
+  ਪੂਰਨ res;
   res =
-#endif
-    gsasl_property_set(gsasl->client, GSASL_AUTHID, creds->user);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
-    failf(data, "setting AUTHID failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+#ਜੇ_ਅੰਤ
+    gsasl_property_ਸੈੱਟ(gsasl->client, GSASL_AUTHID, creds->user);
+#ਜੇ GSASL_ਸੰਸਕਰਣ_ਸੰਖਿਆ >= 0x010b00
+  ਜੇ(res != GSASL_OK) {
+    failf(ਅੰਕੜੇ, "setting AUTHID failed: %s", gsasl_strerror(res));
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#ਜੇ GSASL_ਸੰਸਕਰਣ_ਸੰਖਿਆ >= 0x010b00
   res =
-#endif
-    gsasl_property_set(gsasl->client, GSASL_PASSWORD, creds->passwd);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
-    failf(data, "setting PASSWORD failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+#ਜੇ_ਅੰਤ
+    gsasl_property_ਸੈੱਟ(gsasl->client, GSASL_PASSWORD, creds->passwd);
+#ਜੇ GSASL_ਸੰਸਕਰਣ_ਸੰਖਿਆ >= 0x010b00
+  ਜੇ(res != GSASL_OK) {
+    failf(ਅੰਕੜੇ, "setting PASSWORD failed: %s", gsasl_strerror(res));
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-#endif
+#ਜੇ_ਅੰਤ
 
-  (void)data;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
-CURLcode Curl_auth_gsasl_token(struct Curl_easy *data,
-                               const struct bufref *chlg,
-                               struct gsasldata *gsasl,
-                               struct bufref *out)
+CURLcode Curl_auth_gsasl_token(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                               ਅਚਲ ਬਣਤਰ bufref *chlg,
+                               ਬਣਤਰ gsasldata *gsasl,
+                               ਬਣਤਰ bufref *ਬਾਹਰਲਾ)
 {
-  int res;
-  char *response;
+  ਪੂਰਨ res;
+  ਅੱਖਰ *response;
   size_t outlen;
 
-  res = gsasl_step(gsasl->client, Curl_bufref_ptr(chlg), Curl_bufref_len(chlg),
+  res = gsasl_ਕਦਮ(gsasl->client, Curl_bufref_ptr(chlg), Curl_bufref_len(chlg),
                    &response, &outlen);
-  if(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
-    failf(data, "GSASL step: %s", gsasl_strerror(res));
-    return CURLE_BAD_CONTENT_ENCODING;
+  ਜੇ(res != GSASL_OK && res != GSASL_NEEDS_ਹੋਰ) {
+    failf(ਅੰਕੜੇ, "GSASL step: %s", gsasl_strerror(res));
+    ਵਾਪਸ CURLE_BAD_CONTENT_ENCODING;
   }
 
-  Curl_bufref_set(out, response, outlen, gsasl_free);
-  return CURLE_OK;
+  Curl_bufref_ਸੈੱਟ(ਬਾਹਰਲਾ, response, outlen, gsasl_free);
+  ਵਾਪਸ CURLE_OK;
 }
 
-void Curl_auth_gsasl_cleanup(struct gsasldata *gsasl)
+ਖਾਲੀ Curl_auth_gsasl_cleanup(ਬਣਤਰ gsasldata *gsasl)
 {
-  gsasl_finish(gsasl->client);
-  gsasl->client = NULL;
+  gsasl_ਅੰਤ(gsasl->client);
+  gsasl->client = ਨਿਰਾ;
 
-  gsasl_done(gsasl->ctx);
-  gsasl->ctx = NULL;
+  gsasl_ਪੂਰਾ(gsasl->ctx);
+  gsasl->ctx = ਨਿਰਾ;
 }
-#endif
+#ਜੇ_ਅੰਤ

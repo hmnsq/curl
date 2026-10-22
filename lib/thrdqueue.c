@@ -21,413 +21,413 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_THREADS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_ਧਾਗੇ
 
-#include "llist.h"
-#include "curl_threads.h"
-#include "thrdpool.h"
-#include "thrdqueue.h"
-#include "curlx/timeval.h"
-#ifdef CURLVERBOSE
-#include "curl_trc.h"
-#include "urldata.h"
-#endif
+#ਅਨ੍ਤਰ੍ਭਾਵ "llist.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_threads.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "thrdpool.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "thrdqueue.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/timeval.h"
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਜੇ_ਅੰਤ
 
 
-struct curl_thrdq {
-  const char *name;
-  curl_mutex_t lock;
+ਬਣਤਰ curl_thrdq {
+  ਅਚਲ ਅੱਖਰ *name;
+  curl_mutex_t ਤਾਲਾ;
   curl_cond_t await;
-  struct Curl_llist sendq;
-  struct Curl_llist recvq;
-  struct curl_thrdpool *tpool;
-  Curl_thrdq_item_free_cb *fn_free;
-  Curl_thrdq_item_process_cb *fn_process;
+  ਬਣਤਰ Curl_llist sendq;
+  ਬਣਤਰ Curl_llist recvq;
+  ਬਣਤਰ curl_thrdpool *tpool;
+  Curl_thrdq_ਵਸਤੂ_free_cb *fn_free;
+  Curl_thrdq_ਵਸਤੂ_process_cb *fn_process;
   Curl_thrdq_ev_cb *fn_event;
-  void *fn_user_data;
-  BIT(aborted);
+  ਖਾਲੀ *fn_user_ਅੰਕੜੇ;
+  ਦੋਆਧਾਰੀ_ਅੰਕ(aborted);
 };
 
-struct thrdq_item {
-  struct Curl_llist_node node;
-  Curl_thrdq_item_free_cb *fn_free;
-  Curl_thrdq_item_process_cb *fn_process;
-  void *item;
-  struct curltime start;
+ਬਣਤਰ thrdq_ਵਸਤੂ {
+  ਬਣਤਰ Curl_llist_ਗੰਢ ਗੰਢ;
+  Curl_thrdq_ਵਸਤੂ_free_cb *fn_free;
+  Curl_thrdq_ਵਸਤੂ_process_cb *fn_process;
+  ਖਾਲੀ *ਵਸਤੂ;
+  ਬਣਤਰ curltime ਸ਼ੁਰੂ;
   timediff_t timeout_ms;
-  const char *description;
+  ਅਚਲ ਅੱਖਰ *description;
 };
 
-static struct thrdq_item *thrdq_item_create(struct curl_thrdq *tqueue,
-                                            void *item,
-                                            const char *description,
+ਸਥਿਰ ਬਣਤਰ thrdq_ਵਸਤੂ *thrdq_ਵਸਤੂ_create(ਬਣਤਰ curl_thrdq *tqueue,
+                                            ਖਾਲੀ *ਵਸਤੂ,
+                                            ਅਚਲ ਅੱਖਰ *description,
                                             timediff_t timeout_ms)
 {
-  struct thrdq_item *qitem;
+  ਬਣਤਰ thrdq_ਵਸਤੂ *qitem;
 
-  qitem = curlx_calloc(1, sizeof(*qitem));
-  if(!qitem)
-    return NULL;
-  qitem->item = item;
+  qitem = curlx_calloc(1, ਆਕਾਰ(*qitem));
+  ਜੇ(!qitem)
+    ਵਾਪਸ ਨਿਰਾ;
+  qitem->ਵਸਤੂ = ਵਸਤੂ;
   qitem->description = description;
   qitem->fn_free = tqueue->fn_free;
   qitem->fn_process = tqueue->fn_process;
-  if(timeout_ms) {
-    qitem->start = curlx_now();
+  ਜੇ(timeout_ms) {
+    qitem->ਸ਼ੁਰੂ = curlx_now();
     qitem->timeout_ms = timeout_ms;
   }
-  return qitem;
+  ਵਾਪਸ qitem;
 }
 
-static void thrdq_item_destroy(struct thrdq_item *qitem)
+ਸਥਿਰ ਖਾਲੀ thrdq_ਵਸਤੂ_destroy(ਬਣਤਰ thrdq_ਵਸਤੂ *qitem)
 {
-  if(qitem->item)
-    qitem->fn_free(qitem->item);
+  ਜੇ(qitem->ਵਸਤੂ)
+    qitem->fn_free(qitem->ਵਸਤੂ);
   curlx_free(qitem);
 }
 
-static void thrdq_item_list_dtor(void *user_data, void *elem)
+ਸਥਿਰ ਖਾਲੀ thrdq_ਵਸਤੂ_list_dtor(ਖਾਲੀ *user_ਅੰਕੜੇ, ਖਾਲੀ *elem)
 {
-  (void)user_data;
-  thrdq_item_destroy(elem);
+  (ਖਾਲੀ)user_ਅੰਕੜੇ;
+  thrdq_ਵਸਤੂ_destroy(elem);
 }
 
-static void *thrdq_tpool_take(void *user_data, const char **pdescription,
+ਸਥਿਰ ਖਾਲੀ *thrdq_tpool_take(ਖਾਲੀ *user_ਅੰਕੜੇ, ਅਚਲ ਅੱਖਰ **pdescription,
                               timediff_t *ptimeout_ms)
 {
-  struct curl_thrdq *tqueue = user_data;
-  struct thrdq_item *qitem = NULL;
-  struct Curl_llist_node *e;
-  Curl_thrdq_ev_cb *fn_event = NULL;
-  void *fn_user_data = NULL;
+  ਬਣਤਰ curl_thrdq *tqueue = user_ਅੰਕੜੇ;
+  ਬਣਤਰ thrdq_ਵਸਤੂ *qitem = ਨਿਰਾ;
+  ਬਣਤਰ Curl_llist_ਗੰਢ *e;
+  Curl_thrdq_ev_cb *fn_event = ਨਿਰਾ;
+  ਖਾਲੀ *fn_user_ਅੰਕੜੇ = ਨਿਰਾ;
 
-  Curl_mutex_acquire(&tqueue->lock);
-  *pdescription = NULL;
+  Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
+  *pdescription = ਨਿਰਾ;
   *ptimeout_ms = 0;
-  if(!tqueue->aborted) {
-    e = Curl_llist_head(&tqueue->sendq);
-    if(e) {
-      struct curltime now = curlx_now();
+  ਜੇ(!tqueue->aborted) {
+    e = Curl_llist_ਸਿਰ(&tqueue->sendq);
+    ਜੇ(e) {
+      ਬਣਤਰ curltime now = curlx_now();
       timediff_t timeout_ms;
-      while(e) {
-        qitem = Curl_node_take_elem(e);
+      ਜਦੋਂ(e) {
+        qitem = Curl_ਗੰਢ_take_elem(e);
         timeout_ms = (!qitem->timeout_ms) ? 0 :
-          (qitem->timeout_ms - curlx_ptimediff_ms(&now, &qitem->start));
-        if(timeout_ms < 0) {
+          (qitem->timeout_ms - curlx_ptimediff_ms(&now, &qitem->ਸ਼ੁਰੂ));
+        ਜੇ(timeout_ms < 0) {
           /* timed out while queued, place on receive queue */
-          Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
+          Curl_llist_append(&tqueue->recvq, qitem, &qitem->ਗੰਢ);
           fn_event = tqueue->fn_event;
-          fn_user_data = tqueue->fn_user_data;
-          qitem = NULL;
-          e = Curl_llist_head(&tqueue->sendq);
-          continue;
+          fn_user_ਅੰਕੜੇ = tqueue->fn_user_ਅੰਕੜੇ;
+          qitem = ਨਿਰਾ;
+          e = Curl_llist_ਸਿਰ(&tqueue->sendq);
+          ਜਾਰੀ;
         }
-        else {
+        ਨਹੀਂਤਾਂ {
           *pdescription = qitem->description;
           *ptimeout_ms = timeout_ms;
-          break;
+          ਰੋਕੋ;
         }
       }
     }
   }
-  Curl_mutex_release(&tqueue->lock);
+  Curl_mutex_release(&tqueue->ਤਾਲਾ);
   /* avoiding deadlocks */
-  if(fn_event)
-    fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
-  return qitem;
+  ਜੇ(fn_event)
+    fn_event(tqueue, CURL_THRDQ_EV_ਵਸਤੂ_ਪੂਰਾ, fn_user_ਅੰਕੜੇ);
+  ਵਾਪਸ qitem;
 }
 
-static void thrdq_tpool_return(void *item, void *user_data)
+ਸਥਿਰ ਖਾਲੀ thrdq_tpool_return(ਖਾਲੀ *ਵਸਤੂ, ਖਾਲੀ *user_ਅੰਕੜੇ)
 {
-  struct curl_thrdq *tqueue = user_data;
-  struct thrdq_item *qitem = item;
-  Curl_thrdq_ev_cb *fn_event = NULL;
-  void *fn_user_data = NULL;
+  ਬਣਤਰ curl_thrdq *tqueue = user_ਅੰਕੜੇ;
+  ਬਣਤਰ thrdq_ਵਸਤੂ *qitem = ਵਸਤੂ;
+  Curl_thrdq_ev_cb *fn_event = ਨਿਰਾ;
+  ਖਾਲੀ *fn_user_ਅੰਕੜੇ = ਨਿਰਾ;
 
-  if(!tqueue) {
-    thrdq_item_destroy(item);
-    return;
+  ਜੇ(!tqueue) {
+    thrdq_ਵਸਤੂ_destroy(ਵਸਤੂ);
+    ਵਾਪਸ;
   }
 
-  Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
-    thrdq_item_destroy(qitem);
+  Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
+  ਜੇ(tqueue->aborted) {
+    thrdq_ਵਸਤੂ_destroy(qitem);
   }
-  else {
-    DEBUGASSERT(!Curl_node_llist(&qitem->node));
-    Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
+  ਨਹੀਂਤਾਂ {
+    DEBUGASSERT(!Curl_ਗੰਢ_llist(&qitem->ਗੰਢ));
+    Curl_llist_append(&tqueue->recvq, qitem, &qitem->ਗੰਢ);
     fn_event = tqueue->fn_event;
-    fn_user_data = tqueue->fn_user_data;
+    fn_user_ਅੰਕੜੇ = tqueue->fn_user_ਅੰਕੜੇ;
   }
-  Curl_mutex_release(&tqueue->lock);
+  Curl_mutex_release(&tqueue->ਤਾਲਾ);
   /* avoiding deadlocks */
-  if(fn_event)
-    fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
+  ਜੇ(fn_event)
+    fn_event(tqueue, CURL_THRDQ_EV_ਵਸਤੂ_ਪੂਰਾ, fn_user_ਅੰਕੜੇ);
 }
 
-static void thrdq_tpool_process(void *item)
+ਸਥਿਰ ਖਾਲੀ thrdq_tpool_process(ਖਾਲੀ *ਵਸਤੂ)
 {
-  struct thrdq_item *qitem = item;
-  qitem->fn_process(qitem->item);
+  ਬਣਤਰ thrdq_ਵਸਤੂ *qitem = ਵਸਤੂ;
+  qitem->fn_process(qitem->ਵਸਤੂ);
 }
 
-static void thrdq_unlink(struct curl_thrdq *tqueue, bool locked, bool join)
+ਸਥਿਰ ਖਾਲੀ thrdq_unlink(ਬਣਤਰ curl_thrdq *tqueue, bool locked, bool join)
 {
   DEBUGASSERT(tqueue->aborted);
-  if(tqueue->tpool) {
-    if(locked)
-      Curl_mutex_release(&tqueue->lock);
+  ਜੇ(tqueue->tpool) {
+    ਜੇ(locked)
+      Curl_mutex_release(&tqueue->ਤਾਲਾ);
     Curl_thrdpool_destroy(tqueue->tpool, join);
-    tqueue->tpool = NULL;
-    if(locked)
-      Curl_mutex_acquire(&tqueue->lock);
+    tqueue->tpool = ਨਿਰਾ;
+    ਜੇ(locked)
+      Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
   }
 
-  Curl_llist_destroy(&tqueue->sendq, NULL);
-  Curl_llist_destroy(&tqueue->recvq, NULL);
+  Curl_llist_destroy(&tqueue->sendq, ਨਿਰਾ);
+  Curl_llist_destroy(&tqueue->recvq, ਨਿਰਾ);
   Curl_cond_destroy(&tqueue->await);
-  if(locked)
-    Curl_mutex_release(&tqueue->lock);
-  Curl_mutex_destroy(&tqueue->lock);
+  ਜੇ(locked)
+    Curl_mutex_release(&tqueue->ਤਾਲਾ);
+  Curl_mutex_destroy(&tqueue->ਤਾਲਾ);
   curlx_free(tqueue);
 }
 
-CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
-                           const char *name,
-                           uint32_t min_threads,
-                           uint32_t max_threads,
-                           uint32_t idle_time_ms,
-                           Curl_thrdq_item_free_cb *fn_free,
-                           Curl_thrdq_item_process_cb *fn_process,
+CURLcode Curl_thrdq_create(ਬਣਤਰ curl_thrdq **ptqueue,
+                           ਅਚਲ ਅੱਖਰ *name,
+                           uint32_t min_ਧਾਗੇ,
+                           uint32_t max_ਧਾਗੇ,
+                           uint32_t idle_ਸਮਾਂ_ms,
+                           Curl_thrdq_ਵਸਤੂ_free_cb *fn_free,
+                           Curl_thrdq_ਵਸਤੂ_process_cb *fn_process,
                            Curl_thrdq_ev_cb *fn_event,
-                           void *user_data)
+                           ਖਾਲੀ *user_ਅੰਕੜੇ)
 {
-  struct curl_thrdq *tqueue;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  ਬਣਤਰ curl_thrdq *tqueue;
+  CURLcode ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   DEBUGASSERT(name);
 
-  tqueue = curlx_calloc(1, sizeof(*tqueue));
-  if(!tqueue)
-    goto out;
+  tqueue = curlx_calloc(1, ਆਕਾਰ(*tqueue));
+  ਜੇ(!tqueue)
+    ਜਾਓ ਬਾਹਰਲਾ;
 
-  Curl_mutex_init(&tqueue->lock);
+  Curl_mutex_init(&tqueue->ਤਾਲਾ);
   Curl_cond_init(&tqueue->await);
-  Curl_llist_init(&tqueue->sendq, thrdq_item_list_dtor);
-  Curl_llist_init(&tqueue->recvq, thrdq_item_list_dtor);
+  Curl_llist_init(&tqueue->sendq, thrdq_ਵਸਤੂ_list_dtor);
+  Curl_llist_init(&tqueue->recvq, thrdq_ਵਸਤੂ_list_dtor);
   tqueue->fn_free = fn_free;
   tqueue->fn_process = fn_process;
   tqueue->fn_event = fn_event;
-  tqueue->fn_user_data = user_data;
+  tqueue->fn_user_ਅੰਕੜੇ = user_ਅੰਕੜੇ;
 
   /* a const string that remains */
   tqueue->name = name;
 
-  result = Curl_thrdpool_create(&tqueue->tpool, name,
-                                min_threads, max_threads, idle_time_ms,
+  ਨਤੀਜਾ = Curl_thrdpool_create(&tqueue->tpool, name,
+                                min_ਧਾਗੇ, max_ਧਾਗੇ, idle_ਸਮਾਂ_ms,
                                 thrdq_tpool_take,
                                 thrdq_tpool_process,
                                 thrdq_tpool_return,
                                 tqueue);
 
-out:
-  if(result && tqueue) {
+ਬਾਹਰਲਾ:
+  ਜੇ(ਨਤੀਜਾ && tqueue) {
     tqueue->aborted = TRUE;
     thrdq_unlink(tqueue, FALSE, TRUE);
-    tqueue = NULL;
+    tqueue = ਨਿਰਾ;
   }
   *ptqueue = tqueue;
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
+ਖਾਲੀ Curl_thrdq_destroy(ਬਣਤਰ curl_thrdq *tqueue, bool join)
 {
-  Curl_mutex_acquire(&tqueue->lock);
+  Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
   DEBUGASSERT(!tqueue->aborted);
   tqueue->aborted = TRUE;
   thrdq_unlink(tqueue, TRUE, join);
 }
 
-static uint32_t thrdq_get_signals(struct curl_thrdq *tqueue)
+ਸਥਿਰ uint32_t thrdq_get_ਸੰਕੇਤ(ਬਣਤਰ curl_thrdq *tqueue)
 {
-  size_t qlen = Curl_llist_count(&tqueue->sendq);
-  return (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
+  size_t qlen = Curl_llist_ਗਿਣਤੀ(&tqueue->sendq);
+  ਵਾਪਸ (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
 }
 
-CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
-                         const char *description, timediff_t timeout_ms)
+CURLcode Curl_thrdq_send(ਬਣਤਰ curl_thrdq *tqueue, ਖਾਲੀ *ਵਸਤੂ,
+                         ਅਚਲ ਅੱਖਰ *description, timediff_t timeout_ms)
 {
-  struct thrdq_item *qitem;
-  CURLcode result = CURLE_OK;
-  uint32_t signals = 0;
+  ਬਣਤਰ thrdq_ਵਸਤੂ *qitem;
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  uint32_t ਸੰਕੇਤ_2 = 0;
 
-  Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
+  ਜੇ(tqueue->aborted) {
     DEBUGASSERT(0);
-    result = CURLE_SEND_ERROR;
-    goto out;
+    ਨਤੀਜਾ = CURLE_SEND_ERROR;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  if(timeout_ms < 0) {
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto out;
+  ਜੇ(timeout_ms < 0) {
+    ਨਤੀਜਾ = CURLE_OPERATION_TIMEDOUT;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  qitem = thrdq_item_create(tqueue, item, description, timeout_ms);
-  if(!qitem) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  qitem = thrdq_ਵਸਤੂ_create(tqueue, ਵਸਤੂ, description, timeout_ms);
+  ਜੇ(!qitem) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  Curl_llist_append(&tqueue->sendq, qitem, &qitem->node);
-  signals = thrdq_get_signals(tqueue);
+  Curl_llist_append(&tqueue->sendq, qitem, &qitem->ਗੰਢ);
+  ਸੰਕੇਤ_2 = thrdq_get_ਸੰਕੇਤ(tqueue);
 
-out:
-  Curl_mutex_release(&tqueue->lock);
+ਬਾਹਰਲਾ:
+  Curl_mutex_release(&tqueue->ਤਾਲਾ);
   /* Signal thread pool unlocked to avoid deadlocks. Since we added
    * item to the queue already, it might have been taken for processing
    * already. Any error in signalling the pool cannot be reported to
    * the caller since it needs to give up ownership of item. */
-  if(!result && signals)
-    (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  ਜੇ(!ਨਤੀਜਾ && ਸੰਕੇਤ_2)
+    (ਖਾਲੀ)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)ਸੰਕੇਤ_2);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-bool Curl_thrdq_check_started(struct curl_thrdq *tqueue)
+bool Curl_thrdq_check_started(ਬਣਤਰ curl_thrdq *tqueue)
 {
   size_t unprocessed;
 
-  Curl_mutex_acquire(&tqueue->lock);
-  unprocessed = tqueue->aborted ? 0 : Curl_llist_count(&tqueue->sendq);
-  Curl_mutex_release(&tqueue->lock);
-  return !unprocessed ||
+  Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
+  unprocessed = tqueue->aborted ? 0 : Curl_llist_ਗਿਣਤੀ(&tqueue->sendq);
+  Curl_mutex_release(&tqueue->ਤਾਲਾ);
+  ਵਾਪਸ !unprocessed ||
          !Curl_thrdpool_signal(tqueue->tpool, (uint32_t)unprocessed);
 }
 
-CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem)
+CURLcode Curl_thrdq_recv(ਬਣਤਰ curl_thrdq *tqueue, ਖਾਲੀ **pitem)
 {
-  CURLcode result = CURLE_AGAIN;
-  struct Curl_llist_node *e;
-  uint32_t signals = 0;
+  CURLcode ਨਤੀਜਾ = CURLE_AGAIN;
+  ਬਣਤਰ Curl_llist_ਗੰਢ *e;
+  uint32_t ਸੰਕੇਤ_2 = 0;
 
-  *pitem = NULL;
-  Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  *pitem = ਨਿਰਾ;
+  Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
+  ਜੇ(tqueue->aborted) {
     DEBUGASSERT(0);
-    result = CURLE_RECV_ERROR;
-    goto out;
+    ਨਤੀਜਾ = CURLE_RECV_ERROR;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  e = Curl_llist_head(&tqueue->recvq);
-  if(e) {
-    struct thrdq_item *qitem = Curl_node_take_elem(e);
-    *pitem = qitem->item;
-    qitem->item = NULL;
-    thrdq_item_destroy(qitem);
-    result = CURLE_OK;
+  e = Curl_llist_ਸਿਰ(&tqueue->recvq);
+  ਜੇ(e) {
+    ਬਣਤਰ thrdq_ਵਸਤੂ *qitem = Curl_ਗੰਢ_take_elem(e);
+    *pitem = qitem->ਵਸਤੂ;
+    qitem->ਵਸਤੂ = ਨਿਰਾ;
+    thrdq_ਵਸਤੂ_destroy(qitem);
+    ਨਤੀਜਾ = CURLE_OK;
   }
-  else
-    signals = thrdq_get_signals(tqueue);
+  ਨਹੀਂਤਾਂ
+    ਸੰਕੇਤ_2 = thrdq_get_ਸੰਕੇਤ(tqueue);
 
-out:
-  Curl_mutex_release(&tqueue->lock);
+ਬਾਹਰਲਾ:
+  Curl_mutex_release(&tqueue->ਤਾਲਾ);
   /* Signal thread pool unlocked to avoid deadlocks. If items await
    * processing while nothing was ready, make sure the pool has a
    * thread to work on them. An earlier thread start may have failed,
    * which `Curl_thrdq_send()` cannot report to its caller. Without
    * this, such items would sit unprocessed until the next send. */
-  if(signals)
-    (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  ਜੇ(ਸੰਕੇਤ_2)
+    (ਖਾਲੀ)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)ਸੰਕੇਤ_2);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-static void thrdq_llist_clean_matches(struct Curl_llist *llist,
-                                      Curl_thrdq_item_match_cb *fn_match,
-                                      void *match_data)
+ਸਥਿਰ ਖਾਲੀ thrdq_llist_clean_matches(ਬਣਤਰ Curl_llist *llist,
+                                      Curl_thrdq_ਵਸਤੂ_ਮੇਲ_cb *fn_ਮੇਲ,
+                                      ਖਾਲੀ *ਮੇਲ_ਅੰਕੜੇ)
 {
-  struct Curl_llist_node *e, *n;
-  struct thrdq_item *qitem;
+  ਬਣਤਰ Curl_llist_ਗੰਢ *e, *n;
+  ਬਣਤਰ thrdq_ਵਸਤੂ *qitem;
 
-  for(e = Curl_llist_head(llist); e; e = n) {
-    n = Curl_node_next(e);
-    qitem = Curl_node_elem(e);
-    if(fn_match(qitem->item, match_data))
-      Curl_node_remove(e);
+  ਲਈ(e = Curl_llist_ਸਿਰ(llist); e; e = n) {
+    n = Curl_ਗੰਢ_ਅਗਲਾ(e);
+    qitem = Curl_ਗੰਢ_elem(e);
+    ਜੇ(fn_ਮੇਲ(qitem->ਵਸਤੂ, ਮੇਲ_ਅੰਕੜੇ))
+      Curl_ਗੰਢ_remove(e);
   }
 }
 
-void Curl_thrdq_clear(struct curl_thrdq *tqueue,
-                      Curl_thrdq_item_match_cb *fn_match,
-                      void *match_data)
+ਖਾਲੀ Curl_thrdq_clear(ਬਣਤਰ curl_thrdq *tqueue,
+                      Curl_thrdq_ਵਸਤੂ_ਮੇਲ_cb *fn_ਮੇਲ,
+                      ਖਾਲੀ *ਮੇਲ_ਅੰਕੜੇ)
 {
-  Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
+  ਜੇ(tqueue->aborted) {
     DEBUGASSERT(0);
-    goto out;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
-  thrdq_llist_clean_matches(&tqueue->sendq, fn_match, match_data);
-  thrdq_llist_clean_matches(&tqueue->recvq, fn_match, match_data);
-out:
-  Curl_mutex_release(&tqueue->lock);
+  thrdq_llist_clean_matches(&tqueue->sendq, fn_ਮੇਲ, ਮੇਲ_ਅੰਕੜੇ);
+  thrdq_llist_clean_matches(&tqueue->recvq, fn_ਮੇਲ, ਮੇਲ_ਅੰਕੜੇ);
+ਬਾਹਰਲਾ:
+  Curl_mutex_release(&tqueue->ਤਾਲਾ);
 }
 
-#ifdef UNITTESTS
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ UNITTESTS
 /* @unittest 3301 */
-UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
+UNITTEST CURLcode thrdq_await_ਪੂਰਾ(ਬਣਤਰ curl_thrdq *tqueue,
                                    uint32_t timeout_ms);
-UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
+UNITTEST CURLcode thrdq_await_ਪੂਰਾ(ਬਣਤਰ curl_thrdq *tqueue,
                                    uint32_t timeout_ms)
 {
-  return Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
+  ਵਾਪਸ Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-CURLcode Curl_thrdq_set_props(struct curl_thrdq *tqueue,
-                              uint32_t min_threads,
-                              uint32_t max_threads,
-                              uint32_t idle_time_ms)
+CURLcode Curl_thrdq_ਸੈੱਟ_props(ਬਣਤਰ curl_thrdq *tqueue,
+                              uint32_t min_ਧਾਗੇ,
+                              uint32_t max_ਧਾਗੇ,
+                              uint32_t idle_ਸਮਾਂ_ms)
 {
-  CURLcode result;
-  uint32_t signals;
+  CURLcode ਨਤੀਜਾ;
+  uint32_t ਸੰਕੇਤ_2;
 
-  Curl_mutex_acquire(&tqueue->lock);
-  signals = thrdq_get_signals(tqueue);
-  Curl_mutex_release(&tqueue->lock);
+  Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
+  ਸੰਕੇਤ_2 = thrdq_get_ਸੰਕੇਤ(tqueue);
+  Curl_mutex_release(&tqueue->ਤਾਲਾ);
 
-  result = Curl_thrdpool_set_props(tqueue->tpool, min_threads,
-                                   max_threads, idle_time_ms);
-  if(!result && signals)
-    result = Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  ਨਤੀਜਾ = Curl_thrdpool_ਸੈੱਟ_props(tqueue->tpool, min_ਧਾਗੇ,
+                                   max_ਧਾਗੇ, idle_ਸਮਾਂ_ms);
+  ਜੇ(!ਨਤੀਜਾ && ਸੰਕੇਤ_2)
+    ਨਤੀਜਾ = Curl_thrdpool_signal(tqueue->tpool, (uint32_t)ਸੰਕੇਤ_2);
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-#ifdef CURLVERBOSE
-void Curl_thrdq_trace(struct curl_thrdq *tqueue,
-                      struct Curl_easy *data)
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ CURLVERBOSE
+ਖਾਲੀ Curl_thrdq_trace(ਬਣਤਰ curl_thrdq *tqueue,
+                      ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  struct curl_trc_feat *feat = &Curl_trc_feat_threads;
-  if(Curl_trc_ft_is_verbose(data, feat)) {
-    struct Curl_llist_node *e;
-    struct thrdq_item *qitem;
+  ਬਣਤਰ curl_trc_feat *feat = &Curl_trc_feat_ਧਾਗੇ;
+  ਜੇ(Curl_trc_ft_is_verbose(ਅੰਕੜੇ, feat)) {
+    ਬਣਤਰ Curl_llist_ਗੰਢ *e;
+    ਬਣਤਰ thrdq_ਵਸਤੂ *qitem;
 
-    Curl_thrdpool_trace(tqueue->tpool, data);
-    Curl_mutex_acquire(&tqueue->lock);
-    if(!Curl_llist_count(&tqueue->sendq) &&
-       !Curl_llist_count(&tqueue->recvq)) {
-      Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] empty", tqueue->name);
+    Curl_thrdpool_trace(tqueue->tpool, ਅੰਕੜੇ);
+    Curl_mutex_acquire(&tqueue->ਤਾਲਾ);
+    ਜੇ(!Curl_llist_ਗਿਣਤੀ(&tqueue->sendq) &&
+       !Curl_llist_ਗਿਣਤੀ(&tqueue->recvq)) {
+      Curl_trc_feat_infof(ਅੰਕੜੇ, feat, "[TQUEUE-%s] empty", tqueue->name);
     }
-    for(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_node_next(e)) {
-      qitem = Curl_node_elem(e);
-      Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] in: %s",
+    ਲਈ(e = Curl_llist_ਸਿਰ(&tqueue->sendq); e; e = Curl_ਗੰਢ_ਅਗਲਾ(e)) {
+      qitem = Curl_ਗੰਢ_elem(e);
+      Curl_trc_feat_infof(ਅੰਕੜੇ, feat, "[TQUEUE-%s] in: %s",
                           tqueue->name, qitem->description);
     }
-    for(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_node_next(e)) {
-      qitem = Curl_node_elem(e);
-      Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] out: %s",
+    ਲਈ(e = Curl_llist_ਸਿਰ(&tqueue->recvq); e; e = Curl_ਗੰਢ_ਅਗਲਾ(e)) {
+      qitem = Curl_ਗੰਢ_elem(e);
+      Curl_trc_feat_infof(ਅੰਕੜੇ, feat, "[TQUEUE-%s] out: %s",
                           tqueue->name, qitem->description);
     }
-    Curl_mutex_release(&tqueue->lock);
+    Curl_mutex_release(&tqueue->ਤਾਲਾ);
   }
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#endif /* USE_THREADS */
+#ਜੇ_ਅੰਤ /* USE_THREADS */

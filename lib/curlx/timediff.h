@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TIMEDIFF_H
-#define HEADER_CURL_TIMEDIFF_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_TIMEDIFF_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_TIMEDIFF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,15 +23,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
 /* Use a larger type even for 32-bit time_t systems so that we can keep
    microsecond accuracy in it */
-typedef curl_off_t timediff_t;
-#define FMT_TIMEDIFF_T FMT_OFF_T
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ curl_off_t timediff_t;
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FMT_TIMEDIFF_T FMT_OFF_T
 
-#define TIMEDIFF_T_MAX CURL_OFF_T_MAX
-#define TIMEDIFF_T_MIN CURL_OFF_T_MIN
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TIMEDIFF_T_MAX CURL_OFF_T_MAX
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TIMEDIFF_T_MIN CURL_OFF_T_MIN
 
 /*
  * Converts number of milliseconds into a timeval structure.
@@ -41,11 +41,11 @@ typedef curl_off_t timediff_t;
  *    tv with 0 in both fields IF ms == 0 (eg. 0ms timeout -> polling select)
  *    tv with converted fields IF ms > 0 (eg. >0ms timeout -> waiting select)
  */
-struct timeval *curlx_mstotv(struct timeval *tv, timediff_t ms);
+ਬਣਤਰ timeval *curlx_mstotv(ਬਣਤਰ timeval *tv, timediff_t ms);
 
 /*
  * Converts a timeval structure into number of milliseconds.
  */
-timediff_t curlx_tvtoms(struct timeval *tv);
+timediff_t curlx_tvtoms(ਬਣਤਰ timeval *tv);
 
-#endif /* HEADER_CURL_TIMEDIFF_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_TIMEDIFF_H */

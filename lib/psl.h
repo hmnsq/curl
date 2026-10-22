@@ -1,5 +1,5 @@
-#ifndef HEADER_PSL_H
-#define HEADER_PSL_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_PSL_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_PSL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifdef USE_LIBPSL
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_LIBPSL
 
-#include <libpsl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libpsl.h>
 
-struct Curl_easy;
+ਬਣਤਰ Curl_easy;
 
-#define PSL_TTL (72 * 3600)     /* PSL time to live before a refresh. */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PSL_TTL (72 * 3600)     /* PSL time to live before a refresh. */
 
-struct PslCache {
-  const psl_ctx_t *psl; /* The PSL. */
+ਬਣਤਰ PslCache {
+  ਅਚਲ psl_ctx_t *psl; /* The PSL. */
   time_t expires; /* Time this PSL life expires. */
-  BIT(dynamic); /* PSL should be released when no longer needed. */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(dynamic); /* PSL should be released when no longer needed. */
 };
 
-const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy);
-void Curl_psl_release(struct Curl_easy *easy);
-void Curl_psl_destroy(struct PslCache *pslcache);
+ਅਚਲ psl_ctx_t *Curl_psl_use(ਬਣਤਰ Curl_easy *easy);
+ਖਾਲੀ Curl_psl_release(ਬਣਤਰ Curl_easy *easy);
+ਖਾਲੀ Curl_psl_destroy(ਬਣਤਰ PslCache *pslcache);
 
-#else
+#ਨਹੀਂਤਾਂ
 
-#define Curl_psl_use(easy) NULL
-#define Curl_psl_release(easy)
-#define Curl_psl_destroy(pslcache)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_psl_use(easy) ਨਿਰਾ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_psl_release(easy)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ Curl_psl_destroy(pslcache)
 
-#endif /* USE_LIBPSL */
-#endif /* HEADER_PSL_H */
+#ਜੇ_ਅੰਤ /* USE_LIBPSL */
+#ਜੇ_ਅੰਤ /* HEADER_PSL_H */

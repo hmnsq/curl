@@ -17,33 +17,33 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_SYS_PARAM_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/param.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_NETINET_ਵਿੱਚ_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_ARPA_INET_H
+#ਅਨ੍ਤਰ੍ਭਾਵ <arpa/inet.h>
+#ਜੇ_ਅੰਤ
 
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/inet_pton.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strparse.h"
 
-#define IN6ADDRSZ       16
-#define INADDRSZ         4
-#define INT16SZ          2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IN6ADDRSZ       16
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ INADDRSZ         4
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ INT16SZ          2
 
 /*
  * If USE_IPV6 is disabled, we still want to parse IPv6 addresses, so make
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
-#define AF_INET6 (AF_INET + 1)
-#endif
+#ਜੇ !defined(USE_IPV6) && !defined(AF_INET6)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ AF_INET6 (AF_INET + 1)
+#ਜੇ_ਅੰਤ
 
 /*
  * WARNING: Do not even consider trying to compile this on a system where
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+ਸਥਿਰ ਪੂਰਨ inet_pton4(ਅਚਲ ਅੱਖਰ *src, ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *dst)
 {
-  int saw_digit, octets, ch;
-  unsigned char tmp[INADDRSZ], *tp;
+  ਪੂਰਨ saw_digit, octets, ch;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  ਜਦੋਂ((ch = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)*src++) != '\0') {
+    ਜੇ(ISDIGIT(ch)) {
+      ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
-      *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      ਜੇ(saw_digit && *tp == 0)
+        ਵਾਪਸ 0;
+      ਜੇ(val > 255)
+        ਵਾਪਸ 0;
+      *tp = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)val;
+      ਜੇ(!saw_digit) {
+        ਜੇ(++octets > 4)
+          ਵਾਪਸ 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    ਨਹੀਂਤਾਂ ਜੇ(ch == '.' && saw_digit) {
+      ਜੇ(octets == 4)
+        ਵਾਪਸ 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    ਨਹੀਂਤਾਂ
+      ਵਾਪਸ 0;
   }
-  if(octets < 4)
-    return 0;
-  memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  ਜੇ(octets < 4)
+    ਵਾਪਸ 0;
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(dst, tmp, INADDRSZ);
+  ਵਾਪਸ 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,82 +110,82 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+ਸਥਿਰ ਪੂਰਨ inet_pton6(ਅਚਲ ਅੱਖਰ *src, ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *dst)
 {
-  unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
-  int ch, saw_xdigit;
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ tmp[IN6ADDRSZ], *tp, *endp, *colonp;
+  ਅਚਲ ਅੱਖਰ *curtok;
+  ਪੂਰਨ ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
-  colonp = NULL;
+  colonp = ਨਿਰਾ;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  ਜੇ(*src == ':' && *++src != ':')
+    ਵਾਪਸ 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  ਜਦੋਂ((ch = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)*src++) != '\0') {
+    ਜੇ(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
-      continue;
+      ਜੇ(++saw_xdigit > 4)
+        ਵਾਪਸ 0;
+      ਜਾਰੀ;
     }
-    if(ch == ':') {
+    ਜੇ(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      ਜੇ(!saw_xdigit) {
+        ਜੇ(colonp)
+          ਵਾਪਸ 0;
         colonp = tp;
-        continue;
+        ਜਾਰੀ;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
-      *tp++ = (unsigned char)((val >> 8) & 0xff);
-      *tp++ = (unsigned char)(val & 0xff);
+      ਜੇ(!*src)
+        ਵਾਪਸ 0;
+      ਜੇ(tp + INT16SZ > endp)
+        ਵਾਪਸ 0;
+      *tp++ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)((val >> 8) & 0xff);
+      *tp++ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
-      continue;
+      ਜਾਰੀ;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    ਜੇ(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
-      break;    /* '\0' was seen by inet_pton4(). */
+      ਰੋਕੋ;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    ਵਾਪਸ 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
-    *tp++ = (unsigned char)((val >> 8) & 0xff);
-    *tp++ = (unsigned char)(val & 0xff);
+  ਜੇ(saw_xdigit) {
+    ਜੇ(tp + INT16SZ > endp)
+      ਵਾਪਸ 0;
+    *tp++ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)((val >> 8) & 0xff);
+    *tp++ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)(val & 0xff);
   }
-  if(colonp) {
+  ਜੇ(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
      */
-    const ssize_t n = tp - colonp;
+    ਅਚਲ ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    ਜੇ(tp == endp)
+      ਵਾਪਸ 0;
+    ਲਈ(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
-  memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  ਜੇ(tp != endp)
+    ਵਾਪਸ 0;
+  ਸਮ੍ਰਿਤੀ_ਨਕਲ(dst, tmp, IN6ADDRSZ);
+  ਵਾਪਸ 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+ਪੂਰਨ curlx_inet_pton(ਪੂਰਨ af, ਅਚਲ ਅੱਖਰ *src, ਖਾਲੀ *dst)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
-  case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
-  default:
-    return -1;
+  ਚੋਣ(af) {
+  ਹਾਲਤ AF_INET:
+    ਵਾਪਸ inet_pton4(src, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)dst);
+  ਹਾਲਤ AF_INET6:
+    ਵਾਪਸ inet_pton6(src, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *)dst);
+  ਮੂਲ:
+    ਵਾਪਸ -1;
   }
   /* NOTREACHED */
 }

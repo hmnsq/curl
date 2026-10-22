@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PARSEDATE_H
-#define HEADER_CURL_PARSEDATE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_PARSEDATE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_PARSEDATE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-extern const char * const Curl_wkday[7];
-extern const char * const Curl_month[12];
+ਬਾਹਰੀ ਅਚਲ ਅੱਖਰ * ਅਚਲ Curl_wkday[7];
+ਬਾਹਰੀ ਅਚਲ ਅੱਖਰ * ਅਚਲ Curl_month[12];
 
 /* Curl_getdate_capped() differs from curl_getdate() in that this returns
    TIME_T_MAX in case the parsed time value was too big, instead of an
    error. */
 
-int Curl_getdate_capped(const char *p, time_t *tp);
+ਪੂਰਨ Curl_getdate_capped(ਅਚਲ ਅੱਖਰ *p, time_t *tp);
 
-#endif /* HEADER_CURL_PARSEDATE_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_PARSEDATE_H */

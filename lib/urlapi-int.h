@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_URLAPI_INT_H
-#define HEADER_CURL_URLAPI_INT_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_URLAPI_INT_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_URLAPI_INT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,48 +23,48 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include <curl/urlapi.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ <curl/urlapi.h>
 
 /* Internal representation of CURLU. Point to URL-encoded strings. */
-struct Curl_URL {
-  char *scheme;
-  char *user;
-  char *password;
-  char *options; /* IMAP only? */
-  char *host;
-  char *zoneid; /* for numerical IPv6 addresses */
-  char *path;
-  char *query;
-  char *fragment;
+ਬਣਤਰ Curl_URL {
+  ਅੱਖਰ *scheme;
+  ਅੱਖਰ *user;
+  ਅੱਖਰ *password;
+  ਅੱਖਰ *options; /* IMAP only? */
+  ਅੱਖਰ *host;
+  ਅੱਖਰ *zoneid; /* for numerical IPv6 addresses */
+  ਅੱਖਰ *ਰਸਤਾ;
+  ਅੱਖਰ *query;
+  ਅੱਖਰ *fragment;
   uint16_t portnum; /* the numerical port if present */
-  BIT(port_present);    /* to support missing port */
-  BIT(query_present);    /* to support blank */
-  BIT(fragment_present); /* to support blank */
-  BIT(guessed_scheme);   /* when a URL without scheme is parsed */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਪੋਰਟ_present);    /* to support missing port */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(query_present);    /* to support blank */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(fragment_present); /* to support blank */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(guessed_scheme);   /* when a URL without scheme is parsed */
 };
 
-#define HOST_ERROR   (-1) /* out of memory */
-#define HOST_NAME    1
-#define HOST_IPV4    2
-#define HOST_IPV6    3
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HOST_ERROR   (-1) /* out of memory */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HOST_NAME    1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HOST_IPV4    2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HOST_IPV6    3
 
-#define QUERY_NO      2
-#define QUERY_NOT_YET 3 /* allow to change to query */
-#define QUERY_YES     4
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ QUERY_NO      2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ QUERY_NOT_YET 3 /* allow to change to query */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ QUERY_YES     4
 
-size_t Curl_is_absolute_url(const char *url, char *buf, size_t buflen,
+size_t Curl_is_absolute_url(ਅਚਲ ਅੱਖਰ *url, ਅੱਖਰ *buf, size_t buflen,
                             bool guess_scheme);
 
-CURLUcode Curl_url_set_authority(CURLU *u, const char *authority);
+CURLUcode Curl_url_ਸੈੱਟ_authority(CURLU *u, ਅਚਲ ਅੱਖਰ *authority);
 
-CURLUcode Curl_junkscan(const char *url, size_t *urllen, bool allowspace);
+CURLUcode Curl_junkscan(ਅਚਲ ਅੱਖਰ *url, size_t *urllen, bool allowspace);
 
-#define U_CURLU_URLDECODE  (unsigned int)CURLU_URLDECODE
-#define U_CURLU_PATH_AS_IS (unsigned int)CURLU_PATH_AS_IS
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ U_CURLU_URLDECODE  (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)CURLU_URLDECODE
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ U_CURLU_ਰਸਤਾ_AS_IS (ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ)CURLU_ਰਸਤਾ_AS_IS
 
-bool Curl_url_same_origin(CURLU *base, CURLU *href);
+bool Curl_url_same_origin(CURLU *ਅਧਾਰ, CURLU *href);
 
-CURLUcode Curl_url_get_port(CURLU *u, uint16_t *pport);
+CURLUcode Curl_url_get_ਪੋਰਟ(CURLU *u, uint16_t *pport);
 
-#endif /* HEADER_CURL_URLAPI_INT_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_URLAPI_INT_H */

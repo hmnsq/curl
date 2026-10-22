@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_WINDOWS_SSPI
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_WINDOWS_SSPI
 
-#include "curl_sspi.h"
-#include "curlx/strdup.h"
-#include "curlx/multibyte.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_sspi.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/strdup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/multibyte.h"
 
 /* Pointer to SSPI dispatch table */
-PSecurityFunctionTable Curl_pSecFn = NULL;
+PSecurity_Function_ਸਾਰਣੀ Curl_pSecFn = ਨਿਰਾ;
 
 /*
  * Curl_sspi_global_init()
@@ -49,17 +49,17 @@ PSecurityFunctionTable Curl_pSecFn = NULL;
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sspi_global_init(void)
+CURLcode Curl_sspi_global_init(ਖਾਲੀ)
 {
   /* If security interface is not yet initialized try to do this */
-  if(!Curl_pSecFn) {
+  ਜੇ(!Curl_pSecFn) {
     /* Get pointer to Security Service Provider Interface dispatch table */
     Curl_pSecFn = InitSecurityInterface();
-    if(!Curl_pSecFn)
-      return CURLE_FAILED_INIT;
+    ਜੇ(!Curl_pSecFn)
+      ਵਾਪਸ CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
@@ -71,10 +71,10 @@ CURLcode Curl_sspi_global_init(void)
  *
  * None.
  */
-void Curl_sspi_global_cleanup(void)
+ਖਾਲੀ Curl_sspi_global_cleanup(ਖਾਲੀ)
 {
-  if(Curl_pSecFn) {
-    Curl_pSecFn = NULL;
+  ਜੇ(Curl_pSecFn) {
+    Curl_pSecFn = ਨਿਰਾ;
   }
 }
 
@@ -92,8 +92,8 @@ void Curl_sspi_global_cleanup(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
-                                   SEC_WINNT_AUTH_IDENTITY_EX *identity)
+CURLcode Curl_create_sspi_ਪਛਾਣ_ਤੱਤ(ਅਚਲ ਅੱਖਰ *userp, ਅਚਲ ਅੱਖਰ *passwdp,
+                                   SEC_WINNT_AUTH_ਪਛਾਣ_ਤੱਤ_EX *ਪਛਾਣ_ਤੱਤ)
 {
   xcharp_u useranddomain;
   xcharp_u user, dup_user;
@@ -102,88 +102,88 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
   size_t domlen = 0;
   size_t pwlen;
 
-  domain.const_tchar_ptr = _TEXT("");
+  domain.const_tchar_ptr = ਪਾਠ("");
 
   /* Initialize the identity */
-  memset(identity, 0, sizeof(*identity));
-  identity->Version = SEC_WINNT_AUTH_IDENTITY_VERSION;
-  identity->Length = sizeof(*identity);
+  memset(ਪਛਾਣ_ਤੱਤ, 0, ਆਕਾਰ(*ਪਛਾਣ_ਤੱਤ));
+  ਪਛਾਣ_ਤੱਤ->ਸੰਸਕਰਣ = SEC_WINNT_AUTH_ਪਛਾਣ_ਤੱਤ_ਸੰਸਕਰਣ;
+  ਪਛਾਣ_ਤੱਤ->ਲੰਮਾਈ_2 = ਆਕਾਰ(*ਪਛਾਣ_ਤੱਤ);
 
-  useranddomain.tchar_ptr = curlx_convert_UTF8_to_tchar(userp);
-  if(!useranddomain.tchar_ptr)
-    return CURLE_OUT_OF_MEMORY;
+  useranddomain.tchar_ptr = curlx_convert_UTF8_ਮੰਜ਼ਿਲ_tchar(userp);
+  ਜੇ(!useranddomain.tchar_ptr)
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
 
-  user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, _TEXT('\\'));
-  if(!user.const_tchar_ptr)
-    user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, _TEXT('/'));
+  user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, ਪਾਠ('\\'));
+  ਜੇ(!user.const_tchar_ptr)
+    user.const_tchar_ptr = _tcschr(useranddomain.const_tchar_ptr, ਪਾਠ('/'));
 
-  if(user.tchar_ptr) {
+  ਜੇ(user.tchar_ptr) {
     domain.tchar_ptr = useranddomain.tchar_ptr;
     domlen = user.tchar_ptr - useranddomain.tchar_ptr;
     user.tchar_ptr++;
   }
-  else {
+  ਨਹੀਂਤਾਂ {
     user.tchar_ptr = useranddomain.tchar_ptr;
-    domain.const_tchar_ptr = _TEXT("");
+    domain.const_tchar_ptr = ਪਾਠ("");
     domlen = 0;
   }
 
   /* Setup the identity's user and length */
   dup_user.tchar_ptr = curlx_tcsdup(user.tchar_ptr);
-  if(!dup_user.tchar_ptr) {
+  ਜੇ(!dup_user.tchar_ptr) {
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
   /* Setup the identity's domain and length */
-  dup_domain.tchar_ptr = curlx_malloc(sizeof(TCHAR) * (domlen + 1));
-  if(!dup_domain.tchar_ptr) {
+  dup_domain.tchar_ptr = curlx_malloc(ਆਕਾਰ(TCHAR) * (domlen + 1));
+  ਜੇ(!dup_domain.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-  if(_tcsncpy_s(dup_domain.tchar_ptr, domlen + 1, domain.tchar_ptr, domlen)) {
+  ਜੇ(_tcsncpy_s(dup_domain.tchar_ptr, domlen + 1, domain.tchar_ptr, domlen)) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
     curlx_free(useranddomain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
 
   curlx_free(useranddomain.tchar_ptr);
 
   /* Setup the identity's password and length */
-  passwd.tchar_ptr = curlx_convert_UTF8_to_tchar(passwdp);
-  if(!passwd.tchar_ptr) {
+  passwd.tchar_ptr = curlx_convert_UTF8_ਮੰਜ਼ਿਲ_tchar(passwdp);
+  ਜੇ(!passwd.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
   pwlen = _tcslen(passwd.tchar_ptr);
   dup_passwd.tchar_ptr = curlx_tcsdup(passwd.tchar_ptr);
-  if(!dup_passwd.tchar_ptr) {
+  ਜੇ(!dup_passwd.tchar_ptr) {
     curlx_free(dup_user.tchar_ptr);
     curlx_free(dup_domain.tchar_ptr);
-    curlx_memzero(passwd.tchar_ptr, pwlen * sizeof(*passwd.tchar_ptr));
+    curlx_memzero(passwd.tchar_ptr, pwlen * ਆਕਾਰ(*passwd.tchar_ptr));
     curlx_free(passwd.tchar_ptr);
-    return CURLE_OUT_OF_MEMORY;
+    ਵਾਪਸ CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
   }
-  identity->Password = dup_passwd.tbyte_ptr;
-  identity->PasswordLength = curlx_uztoul(pwlen);
-  dup_passwd.tchar_ptr = NULL;
+  ਪਛਾਣ_ਤੱਤ->Password = dup_passwd.tbyte_ptr;
+  ਪਛਾਣ_ਤੱਤ->Password_ਲੰਮਾਈ = curlx_uztoul(pwlen);
+  dup_passwd.tchar_ptr = ਨਿਰਾ;
 
-  curlx_memzero(passwd.tchar_ptr, pwlen * sizeof(*passwd.tchar_ptr));
+  curlx_memzero(passwd.tchar_ptr, pwlen * ਆਕਾਰ(*passwd.tchar_ptr));
   curlx_free(passwd.tchar_ptr);
 
-  identity->User = dup_user.tbyte_ptr;
-  identity->UserLength = curlx_uztoul(_tcslen(dup_user.tchar_ptr));
-  dup_user.tchar_ptr = NULL;
-  identity->Domain = dup_domain.tbyte_ptr;
-  identity->DomainLength = curlx_uztoul(domlen);
-  dup_domain.tchar_ptr = NULL;
+  ਪਛਾਣ_ਤੱਤ->User = dup_user.tbyte_ptr;
+  ਪਛਾਣ_ਤੱਤ->User_ਲੰਮਾਈ = curlx_uztoul(_tcslen(dup_user.tchar_ptr));
+  dup_user.tchar_ptr = ਨਿਰਾ;
+  ਪਛਾਣ_ਤੱਤ->Domain = dup_domain.tbyte_ptr;
+  ਪਛਾਣ_ਤੱਤ->Domain_ਲੰਮਾਈ = curlx_uztoul(domlen);
+  dup_domain.tchar_ptr = ਨਿਰਾ;
 
-  identity->Flags = CURL_SEC_WINNT_AUTH_IDENTITY;
+  ਪਛਾਣ_ਤੱਤ->Flags = CURL_SEC_WINNT_AUTH_ਪਛਾਣ_ਤੱਤ;
 
-  return CURLE_OK;
+  ਵਾਪਸ CURLE_OK;
 }
 
 /*
@@ -195,15 +195,15 @@ CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
  *
  * identity [in/out] - The identity structure.
  */
-void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity)
+ਖਾਲੀ Curl_sspi_free_ਪਛਾਣ_ਤੱਤ(SEC_WINNT_AUTH_ਪਛਾਣ_ਤੱਤ_EX *ਪਛਾਣ_ਤੱਤ)
 {
-  if(identity) {
-    curlx_safefree(identity->User);
-    curlx_memzero(identity->Password,
-                  identity->PasswordLength * sizeof(*identity->Password));
-    curlx_safefree(identity->Password);
-    curlx_safefree(identity->Domain);
+  ਜੇ(ਪਛਾਣ_ਤੱਤ) {
+    curlx_safefree(ਪਛਾਣ_ਤੱਤ->User);
+    curlx_memzero(ਪਛਾਣ_ਤੱਤ->Password,
+                  ਪਛਾਣ_ਤੱਤ->Password_ਲੰਮਾਈ * ਆਕਾਰ(*ਪਛਾਣ_ਤੱਤ->Password));
+    curlx_safefree(ਪਛਾਣ_ਤੱਤ->Password);
+    curlx_safefree(ਪਛਾਣ_ਤੱਤ->Domain);
   }
 }
 
-#endif /* USE_WINDOWS_SSPI */
+#ਜੇ_ਅੰਤ /* USE_WINDOWS_SSPI */

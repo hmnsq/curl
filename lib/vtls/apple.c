@@ -38,19 +38,19 @@
    https://httpd.apache.org/docs/2.0/ssl/ssl_intro.html
  */
 
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#ifdef USE_APPLE_SECTRUST
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ USE_APPLE_SECTRUST
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "vtls/vtls.h"
-#include "vtls/apple.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "urldata.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "cfilters.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_trc.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/vtls.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "vtls/apple.h"
 
-#include <Security/Security.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <Security/Security.h>
 
-#if (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#ਜੇ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
              __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400) || \
     (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
              __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000) || \
@@ -60,10 +60,10 @@
              __WATCH_OS_VERSION_MAX_ALLOWED >= 50000) || \
     (defined(__VISION_OS_VERSION_MAX_ALLOWED) && \
              __VISION_OS_VERSION_MAX_ALLOWED >= 10000)
-#define SUPPORTS_SecTrustEvaluateWithError 1
-#endif
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SUPPORTS_SecTrustEvaluateWithError 1
+#ਜੇ_ਅੰਤ
 
-#if defined(SUPPORTS_SecTrustEvaluateWithError) && \
+#ਜੇ defined(SUPPORTS_SecTrustEvaluateWithError) && \
   ((defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
             __MAC_OS_X_VERSION_MIN_REQUIRED >= 101400) || \
    (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
@@ -74,16 +74,16 @@
             __WATCH_OS_VERSION_MIN_REQUIRED >= 50000) || \
    (defined(__VISION_OS_VERSION_MIN_REQUIRED) && \
             __VISION_OS_VERSION_MIN_REQUIRED >= 10000))
-#define REQUIRES_SecTrustEvaluateWithError 1
-#endif
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ REQUIRES_SecTrustEvaluateWithError 1
+#ਜੇ_ਅੰਤ
 
-#if defined(SUPPORTS_SecTrustEvaluateWithError) && \
-  !defined(HAVE_BUILTIN_AVAILABLE) &&              \
+#ਜੇ defined(SUPPORTS_SecTrustEvaluateWithError) && \
+  !defined(HAVE_BUILTIN_ਉਪਲਬਧ) &&              \
   !defined(REQUIRES_SecTrustEvaluateWithError)
-#undef SUPPORTS_SecTrustEvaluateWithError
-#endif
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ SUPPORTS_SecTrustEvaluateWithError
+#ਜੇ_ਅੰਤ
 
-#if (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#ਜੇ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
              __MAC_OS_X_VERSION_MAX_ALLOWED >= 100900) || \
     (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
              __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000) || \
@@ -93,236 +93,236 @@
              __WATCH_OS_VERSION_MAX_ALLOWED >= 20000) || \
     (defined(__VISION_OS_VERSION_MAX_ALLOWED) && \
              __VISION_OS_VERSION_MAX_ALLOWED >= 10000)
-#define SUPPORTS_SecOCSP 1
-#endif
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SUPPORTS_SecOCSP 1
+#ਜੇ_ਅੰਤ
 
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
-                                size_t num_certs,
+CURLcode Curl_vtls_apple_verify(ਬਣਤਰ Curl_cfilter *cf,
+                                ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                ਬਣਤਰ ssl_peer *peer,
+                                size_t ਅੰਕ_certs,
                                 Curl_vtls_get_cert_der *der_cb,
-                                void *cb_user_data,
-                                const unsigned char *ocsp_buf,
+                                ਖਾਲੀ *cb_user_ਅੰਕੜੇ,
+                                ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *ocsp_buf,
                                 size_t ocsp_len,
                                 bool require_ocsp)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  CURLcode result = CURLE_OK;
-  SecTrustRef trust = NULL;
-  SecPolicyRef policy = NULL;
-  CFMutableArrayRef policies = NULL;
-  CFMutableArrayRef cert_array = NULL;
-  CFStringRef host_str = NULL;
-  CFErrorRef error = NULL;
-  OSStatus status = noErr;
-  CFStringRef error_ref = NULL;
-  char *err_desc = NULL;
+  ਬਣਤਰ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  CURLcode ਨਤੀਜਾ = CURLE_OK;
+  SecTrustRef trust = ਨਿਰਾ;
+  SecPolicyRef policy = ਨਿਰਾ;
+  CFMutableArrayRef policies = ਨਿਰਾ;
+  CFMutableArrayRef cert_array = ਨਿਰਾ;
+  CFStringRef host_str = ਨਿਰਾ;
+  CFErrorRef error = ਨਿਰਾ;
+  OSStatus ਸਥਿਤੀ = noErr;
+  CFStringRef error_ref = ਨਿਰਾ;
+  ਅੱਖਰ *err_desc = ਨਿਰਾ;
   size_t i;
 
-  if(conn_config->verifyhost) {
-    host_str = CFStringCreateWithCString(NULL,
+  ਜੇ(conn_config->verifyhost) {
+    host_str = CFStringCreateWithCString(ਨਿਰਾ,
       peer->sni ? peer->sni : peer->origin->hostname, kCFStringEncodingUTF8);
-    if(!host_str) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ਜੇ(!host_str) {
+      ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-  policies = CFArrayCreateMutable(NULL, 2, &kCFTypeArrayCallBacks);
-  if(!policies) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  policies = CFArrayCreateMutable(ਨਿਰਾ, 2, &kCFTypeArrayCallBacks);
+  ਜੇ(!policies) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
   policy = SecPolicyCreateSSL(true, host_str);
-  if(!policy) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ਜੇ(!policy) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  CFArrayAppendValue(policies, policy);
+  CFArray_Append_ਮੁੱਲ(policies, policy);
   CFRelease(policy);
-  policy = NULL;
+  policy = ਨਿਰਾ;
 
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
+#ਜੇ defined(HAVE_BUILTIN_ਉਪਲਬਧ) && defined(SUPPORTS_SecOCSP)
   {
-    if(!conn_config->no_revoke) {
-      if(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
+    ਜੇ(!conn_config->no_revoke) {
+      ਜੇ(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
         /* Even without this set, validation seemingly-unavoidably fails
          * for certificates that trustd already knows to be revoked.
          * This policy further allows trustd to consult CRLs and OCSP data
          * to determine revocation status (which it may then cache). */
-        CFOptionFlags revocation_flags = kSecRevocationUseAnyAvailableMethod;
-        if(require_ocsp)
-          revocation_flags |= kSecRevocationRequirePositiveResponse;
+        CFOptionFlags revocation_flags = k_Sec_Revocation_Use_Any_ਉਪਲਬਧ_ਵਿਧੀ;
+        ਜੇ(require_ocsp)
+          revocation_flags |= k_Sec_Revocation_Require_ਸਕਾਰਾਤਮਕ_Response;
         policy = SecPolicyCreateRevocation(revocation_flags);
-        if(!policy) {
-          result = CURLE_OUT_OF_MEMORY;
-          goto out;
+        ਜੇ(!policy) {
+          ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+          ਜਾਓ ਬਾਹਰਲਾ;
         }
 
-        CFArrayAppendValue(policies, policy);
+        CFArray_Append_ਮੁੱਲ(policies, policy);
       }
     }
   }
-#else
+#ਨਹੀਂਤਾਂ
   /* OCSP check not available in this Apple OS version. */
-  if(require_ocsp) {
-    failf(data, "Apple SecTrust version does not support OCSP checks");
-    result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto out;
+  ਜੇ(require_ocsp) {
+    failf(ਅੰਕੜੇ, "Apple SecTrust version does not support OCSP checks");
+    ਨਤੀਜਾ = CURLE_SSL_INVALIDCERTSTATUS;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-#endif
+#ਜੇ_ਅੰਤ
 
-  cert_array = CFArrayCreateMutable(NULL, num_certs, &kCFTypeArrayCallBacks);
-  if(!cert_array) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  cert_array = CFArrayCreateMutable(ਨਿਰਾ, ਅੰਕ_certs, &kCFTypeArrayCallBacks);
+  ਜੇ(!cert_array) {
+    ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  for(i = 0; i < num_certs; i++) {
+  ਲਈ(i = 0; i < ਅੰਕ_certs; i++) {
     SecCertificateRef cert;
     CFDataRef certdata;
-    unsigned char *der;
+    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *der;
     size_t der_len;
 
-    result = der_cb(cf, data, cb_user_data, i, &der, &der_len);
-    if(result)
-      goto out;
+    ਨਤੀਜਾ = der_cb(cf, ਅੰਕੜੇ, cb_user_ਅੰਕੜੇ, i, &der, &der_len);
+    ਜੇ(ਨਤੀਜਾ)
+      ਜਾਓ ਬਾਹਰਲਾ;
 
-    certdata = CFDataCreate(NULL, der, (CFIndex)der_len);
-    if(!certdata) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    certdata = CFDataCreate(ਨਿਰਾ, der, (CFIndex)der_len);
+    ਜੇ(!certdata) {
+      ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
-    cert = SecCertificateCreateWithData(NULL, certdata);
+    cert = Sec_Certificate_Create_With_ਅੰਕੜੇ(ਨਿਰਾ, certdata);
     CFRelease(certdata);
-    if(!cert) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ਜੇ(!cert) {
+      ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
 
-    CFArrayAppendValue(cert_array, cert);
+    CFArray_Append_ਮੁੱਲ(cert_array, cert);
     CFRelease(cert);
   }
 
-  status = SecTrustCreateWithCertificates(cert_array, policies, &trust);
-  if(status != noErr || !trust) {
-    failf(data, "Apple SecTrust: failed to create validation trust");
-    result = CURLE_PEER_FAILED_VERIFICATION;
-    goto out;
+  ਸਥਿਤੀ = SecTrustCreateWithCertificates(cert_array, policies, &trust);
+  ਜੇ(ਸਥਿਤੀ != noErr || !trust) {
+    failf(ਅੰਕੜੇ, "Apple SecTrust: failed to create validation trust");
+    ਨਤੀਜਾ = CURLE_PEER_FAILED_VERIFICATION;
+    ਜਾਓ ਬਾਹਰਲਾ;
   }
 
-  if(ocsp_len > 0) {
+  ਜੇ(ocsp_len > 0) {
     bool checked = FALSE;
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
-    if(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
-      CFDataRef ocspdata = CFDataCreate(NULL, ocsp_buf, (CFIndex)ocsp_len);
-      if(!ocspdata) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+#ਜੇ defined(HAVE_BUILTIN_ਉਪਲਬਧ) && defined(SUPPORTS_SecOCSP)
+    ਜੇ(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
+      CFDataRef ocspdata = CFDataCreate(ਨਿਰਾ, ocsp_buf, (CFIndex)ocsp_len);
+      ਜੇ(!ocspdata) {
+        ਨਤੀਜਾ = CURLE_ਬਾਹਰਲਾ_ਦਾ_ਸਮ੍ਰਿਤੀ;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
-      status = SecTrustSetOCSPResponse(trust, ocspdata);
+      ਸਥਿਤੀ = Sec_Trust_ਸੈੱਟ_OCSPResponse(trust, ocspdata);
       CFRelease(ocspdata);
-      if(status != noErr) {
-        failf(data, "Apple SecTrust: failed to set OCSP response: %d",
-              (int)status);
-        result = CURLE_PEER_FAILED_VERIFICATION;
-        goto out;
+      ਜੇ(ਸਥਿਤੀ != noErr) {
+        failf(ਅੰਕੜੇ, "Apple SecTrust: failed to set OCSP response: %d",
+              (ਪੂਰਨ)ਸਥਿਤੀ);
+        ਨਤੀਜਾ = CURLE_PEER_FAILED_VERIFICATION;
+        ਜਾਓ ਬਾਹਰਲਾ;
       }
       checked = TRUE;
     }
-#endif
-    if(!checked) {
-      (void)ocsp_buf;
-      failf(data, "Apple SecTrust: OCSP verification not supported");
-      result = CURLE_NOT_BUILT_IN;
-      goto out;
+#ਜੇ_ਅੰਤ
+    ਜੇ(!checked) {
+      (ਖਾਲੀ)ocsp_buf;
+      failf(ਅੰਕੜੇ, "Apple SecTrust: OCSP verification not supported");
+      ਨਤੀਜਾ = CURLE_NOT_BUILT_ਵਿੱਚ;
+      ਜਾਓ ਬਾਹਰਲਾ;
     }
   }
 
-#ifdef SUPPORTS_SecTrustEvaluateWithError
-#ifdef HAVE_BUILTIN_AVAILABLE
-  if(__builtin_available(macOS 10.14, iOS 12, tvOS 12, watchOS 5, *)) {
-#else
-  if(1) {
-#endif
-    result = SecTrustEvaluateWithError(trust, &error) ?
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ SUPPORTS_SecTrustEvaluateWithError
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_BUILTIN_ਉਪਲਬਧ
+  ਜੇ(__builtin_available(macOS 10.14, iOS 12, tvOS 12, watchOS 5, *)) {
+#ਨਹੀਂਤਾਂ
+  ਜੇ(1) {
+#ਜੇ_ਅੰਤ
+    ਨਤੀਜਾ = SecTrustEvaluateWithError(trust, &error) ?
              CURLE_OK : CURLE_PEER_FAILED_VERIFICATION;
-    if(error) {
-      CFIndex code = CFErrorGetCode(error);
+    ਜੇ(error) {
+      CFIndex ਕੋਡ = CFError_Get_ਕੋਡ(error);
       error_ref = CFErrorCopyDescription(error);
 
-      if(error_ref) {
-        CFIndex size = CFStringGetMaximumSizeForEncoding(
-          CFStringGetLength(error_ref), kCFStringEncodingUTF8);
-        err_desc = curlx_malloc(size + 1);
-        if(err_desc) {
-          if(!CFStringGetCString(error_ref, err_desc, size,
+      ਜੇ(error_ref) {
+        CFIndex ਮਾਪ = CFString_Get_ਵੱਧ_ਤੋਂ_ਵੱਧ_ਮਾਪ_For_Encoding(
+          CFString_Get_ਲੰਮਾਈ(error_ref), kCFStringEncodingUTF8);
+        err_desc = curlx_malloc(ਮਾਪ + 1);
+        ਜੇ(err_desc) {
+          ਜੇ(!CFStringGetCString(error_ref, err_desc, ਮਾਪ,
                                  kCFStringEncodingUTF8))
             curlx_safefree(err_desc);
         }
       }
-      failf(data, "Apple SecTrust failure %ld%s%s", code,
+      failf(ਅੰਕੜੇ, "Apple SecTrust failure %ld%s%s", ਕੋਡ,
             err_desc ? ": " : "", err_desc ? err_desc : "");
-      if(code == errSecIncompleteCertRevocationCheck)
-        result = CURLE_SSL_INVALIDCERTSTATUS;
+      ਜੇ(ਕੋਡ == errSecIncompleteCertRevocationCheck)
+        ਨਤੀਜਾ = CURLE_SSL_INVALIDCERTSTATUS;
     }
   }
-  else
-#endif /* SUPPORTS_SecTrustEvaluateWithError */
+  ਨਹੀਂਤਾਂ
+#ਜੇ_ਅੰਤ /* SUPPORTS_SecTrustEvaluateWithError */
   {
-#ifndef REQUIRES_SecTrustEvaluateWithError
-    SecTrustResultType sec_result;
-    status = SecTrustEvaluate(trust, &sec_result);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ REQUIRES_SecTrustEvaluateWithError
+    Sec_Trust_ਨਤੀਜਾ_Type sec_ਨਤੀਜਾ;
+    ਸਥਿਤੀ = SecTrustEvaluate(trust, &sec_ਨਤੀਜਾ);
 
-    if(status != noErr) {
-      failf(data, "Apple SecTrust verification failed: error %d", (int)status);
-      result = CURLE_PEER_FAILED_VERIFICATION;
+    ਜੇ(ਸਥਿਤੀ != noErr) {
+      failf(ਅੰਕੜੇ, "Apple SecTrust verification failed: error %d", (ਪੂਰਨ)ਸਥਿਤੀ);
+      ਨਤੀਜਾ = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if((sec_result == kSecTrustResultUnspecified) ||
-            (sec_result == kSecTrustResultProceed)) {
+    ਨਹੀਂਤਾਂ ਜੇ((sec_ਨਤੀਜਾ == k_Sec_Trust_ਨਤੀਜਾ_Unspecified) ||
+            (sec_ਨਤੀਜਾ == k_Sec_Trust_ਨਤੀਜਾ_Proceed)) {
       /* "unspecified" means system-trusted with no explicit user setting */
-      result = CURLE_OK;
+      ਨਤੀਜਾ = CURLE_OK;
     }
-    else {
+    ਨਹੀਂਤਾਂ {
       /* Any other trust result is a verification failure in this context */
-      result = CURLE_PEER_FAILED_VERIFICATION;
+      ਨਤੀਜਾ = CURLE_PEER_FAILED_VERIFICATION;
     }
-#endif /* REQUIRES_SecTrustEvaluateWithError */
+#ਜੇ_ਅੰਤ /* REQUIRES_SecTrustEvaluateWithError */
   }
 
-out:
+ਬਾਹਰਲਾ:
   curlx_free(err_desc);
-  if(error_ref)
+  ਜੇ(error_ref)
     CFRelease(error_ref);
-  if(error)
+  ਜੇ(error)
     CFRelease(error);
-  if(host_str)
+  ਜੇ(host_str)
     CFRelease(host_str);
-  if(policies)
+  ਜੇ(policies)
     CFRelease(policies);
-  if(policy)
+  ਜੇ(policy)
     CFRelease(policy);
-  if(cert_array)
+  ਜੇ(cert_array)
     CFRelease(cert_array);
-  if(trust)
+  ਜੇ(trust)
     CFRelease(trust);
-  return result;
+  ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+bool Curl_vtls_apple_verifies_ocsp(ਬਣਤਰ Curl_cfilter *cf,
+                                   ਬਣਤਰ Curl_easy *ਅੰਕੜੇ)
 {
-  (void)cf;
-  (void)data;
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
-  return TRUE;
-#else
-  return FALSE;
-#endif
+  (ਖਾਲੀ)cf;
+  (ਖਾਲੀ)ਅੰਕੜੇ;
+#ਜੇ defined(HAVE_BUILTIN_ਉਪਲਬਧ) && defined(SUPPORTS_SecOCSP)
+  ਵਾਪਸ TRUE;
+#ਨਹੀਂਤਾਂ
+  ਵਾਪਸ FALSE;
+#ਜੇ_ਅੰਤ
 }
 
-#endif /* USE_APPLE_SECTRUST */
+#ਜੇ_ਅੰਤ /* USE_APPLE_SECTRUST */

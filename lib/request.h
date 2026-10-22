@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_REQUEST_H
-#define HEADER_CURL_REQUEST_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_REQUEST_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_REQUEST_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,41 +24,41 @@
  *
  ***************************************************************************/
 /* This file is for lib internal stuff */
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#include "bufq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "bufq.h"
 
 /* forward declarations */
-struct UserDefined;
+ਬਣਤਰ UserDefined;
 
 /* Bits on the io_flags member of SingleRequest */
-#define REQ_IO_RECV       (1 << 0) /* there is or may be data to read */
-#define REQ_IO_SEND       (1 << 1) /* there is or may be data to write */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ REQ_IO_RECV       (1 << 0) /* there is or may be data to read */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ REQ_IO_SEND       (1 << 1) /* there is or may be data to write */
 
 /* Low level request receive/send io_flags checks. */
-#define CURL_REQ_WANT_SEND(d)  ((d)->req.io_flags & REQ_IO_SEND)
-#define CURL_REQ_WANT_RECV(d)  ((d)->req.io_flags & REQ_IO_RECV)
-#define CURL_REQ_WANT_IO(d)    \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_REQ_WANT_SEND(d)  ((d)->req.io_flags & REQ_IO_SEND)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_REQ_WANT_RECV(d)  ((d)->req.io_flags & REQ_IO_RECV)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_REQ_WANT_IO(d)    \
   ((d)->req.io_flags & (REQ_IO_RECV | REQ_IO_SEND))
 /* Low level request receive/send io_flags manipulations. */
-#define CURL_REQ_SET_SEND(d)   ((d)->req.io_flags |= REQ_IO_SEND)
-#define CURL_REQ_SET_RECV(d)   ((d)->req.io_flags |= REQ_IO_RECV)
-#define CURL_REQ_CLEAR_SEND(d) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_REQ_ਸੈੱਟ_SEND(d)   ((d)->req.io_flags |= REQ_IO_SEND)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_REQ_ਸੈੱਟ_RECV(d)   ((d)->req.io_flags |= REQ_IO_RECV)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_REQ_CLEAR_SEND(d) \
   ((d)->req.io_flags &= (uint8_t)~REQ_IO_SEND)
-#define CURL_REQ_CLEAR_RECV(d) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_REQ_CLEAR_RECV(d) \
   ((d)->req.io_flags &= (uint8_t)~REQ_IO_RECV)
-#define CURL_REQ_CLEAR_IO(d)  \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CURL_REQ_CLEAR_IO(d)  \
   ((d)->req.io_flags &= (uint8_t)~(REQ_IO_RECV | REQ_IO_SEND))
 
-enum expect100 {
-  EXP100_SEND_DATA,           /* enough waiting, send the body now */
+ਗਿਣਤੀ expect100 {
+  EXP100_SEND_ਅੰਕੜੇ,           /* enough waiting, send the body now */
   EXP100_AWAITING_CONTINUE,   /* waiting for the 100 Continue header */
   EXP100_SENDING_REQUEST,     /* still sending the request but will wait for
                                  the 100 header once done with the request */
   EXP100_FAILED               /* used on 417 Expectation Failed */
 };
 
-enum upgrade101 {
+ਗਿਣਤੀ upgrade101 {
   UPGR101_NONE,               /* default state */
   UPGR101_WS,                 /* upgrade to WebSocket requested */
   UPGR101_H2,                 /* upgrade to HTTP/2 requested */
@@ -72,112 +72,112 @@ enum upgrade101 {
  * data here. This struct only keeps stuff that is interesting for *this*
  * request, as it will be cleared between multiple ones
  */
-struct SingleRequest {
-  curl_off_t size;        /* -1 if unknown at this point */
+ਬਣਤਰ SingleRequest {
+  curl_off_t ਮਾਪ;        /* -1 if unknown at this point */
   curl_off_t maxdownload; /* in bytes, the maximum amount of data to fetch,
                              -1 means unlimited */
   curl_off_t bytecount;         /* total number of bytes read */
   curl_off_t writebytecount;    /* number of bytes written */
-  curl_off_t offset;            /* possible resume offset read from the
+  curl_off_t ਵਿੱਥ;            /* possible resume offset read from the
                                    Content-Range: header */
 
-  struct curltime start;         /* transfer started at this time */
-  unsigned int headerbytecount;  /* received server headers (not CONNECT
+  ਬਣਤਰ curltime ਸ਼ੁਰੂ;         /* transfer started at this time */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ headerbytecount;  /* received server headers (not CONNECT
                                     headers) */
-  unsigned int allheadercount;   /* all received headers (server + CONNECT) */
-  unsigned int deductheadercount; /* this amount of bytes does not count when
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ allheadercount;   /* all received headers (server + CONNECT) */
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ deductheadercount; /* this amount of bytes does not count when
                                      we check if anything has been transferred
                                      at the end of a connection. We use this
                                      counter to make only a 100 reply (without
                                      a following second response code) result
                                      in a CURLE_GOT_NOTHING error code */
-  int headerline;               /* counts header lines to better track the
+  ਪੂਰਨ headerline;               /* counts header lines to better track the
                                    first one */
-  int httpcode;                 /* error code from the 'HTTP/1.? XXX' or
+  ਪੂਰਨ httpcode;                 /* error code from the 'HTTP/1.? XXX' or
                                    'RTSP/1.? XXX' line */
-  uint8_t httpversion_sent;     /* Version in request (09, 10, 11, etc.) */
+  uint8_t httpversion_ਭੇਜਿਆ;     /* Version in request (09, 10, 11, etc.) */
   uint8_t httpversion;          /* Version in response (09, 10, 11, etc.) */
   uint8_t upgr101;              /* 101 upgrade state */
   uint8_t io_flags;             /* REQ_IO_RECV | REQ_IO_SEND */
 
   /* Client Writer stack, handles transfer- and content-encodings, protocol
    * checks, pausing by client callbacks. */
-  struct {
-    struct Curl_cwriter *stack;
-    BIT(paused);
+  ਬਣਤਰ {
+    ਬਣਤਰ Curl_cwriter *ਢੇਰ;
+    ਦੋਆਧਾਰੀ_ਅੰਕ(paused);
   } writer;
   /* Client Reader stack, handles transfer- and content-encodings, protocol
    * checks, pausing by client callbacks. */
-  struct {
-    struct Curl_creader *stack;
+  ਬਣਤਰ {
+    ਬਣਤਰ Curl_creader *ਢੇਰ;
   } reader;
-  struct bufq sendbuf; /* data which needs to be send to the server */
+  ਬਣਤਰ bufq sendbuf; /* data which needs to be send to the server */
   size_t sendbuf_hds_len; /* amount of header bytes in sendbuf */
   time_t timeofdoc;
-  char *location;   /* This points to an allocated version of the Location:
+  ਅੱਖਰ *location;   /* This points to an allocated version of the Location:
                        header data */
-  char *newurl;     /* Set to the new URL to use when a redirect or a retry is
+  ਅੱਖਰ *newurl;     /* Set to the new URL to use when a redirect or a retry is
                        wanted */
 
-  char *hd_auth;      /* Authorization header, full HTTP/1.x line */
-#ifndef CURL_DISABLE_PROXY
-  char *hd_proxy_auth; /* Proxy-Authorization header, full HTTP/1.x line */
-#endif
-#ifndef CURL_DISABLE_COOKIES
-  char *cookiehost;
-#endif
-#ifndef CURL_DISABLE_COOKIES
-  unsigned char setcookies;
-#endif
-  BIT(header);        /* incoming data has HTTP header */
-  BIT(done);          /* request is done, e.g. no more send/recv should
+  ਅੱਖਰ *hd_auth;      /* Authorization header, full HTTP/1.x line */
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_PROXY
+  ਅੱਖਰ *hd_proxy_auth; /* Proxy-Authorization header, full HTTP/1.x line */
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
+  ਅੱਖਰ *cookiehost;
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ CURL_DISABLE_COOKIES
+  ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ setcookies;
+#ਜੇ_ਅੰਤ
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਸਿਰਲੇਖ);        /* incoming data has HTTP header */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ਪੂਰਾ);          /* request is done, e.g. no more send/recv should
                        * happen. This can be TRUE before `upload_done` or
                        * `download_done` is TRUE. */
-  BIT(content_range); /* set TRUE if Content-Range: was found */
-  BIT(download_done); /* set to TRUE when download is complete */
-  BIT(eos_written);   /* iff EOS has been written to client */
-  BIT(eos_read);      /* iff EOS has been read from the client */
-  BIT(eos_sent);      /* iff EOS has been sent to the server */
-  BIT(rewind_read);   /* iff reader needs rewind at next start */
-  BIT(upload_done);   /* set to TRUE when all request data has been sent */
-  BIT(upload_aborted); /* set to TRUE when upload was aborted. Also
+  ਦੋਆਧਾਰੀ_ਅੰਕ(content_range); /* set TRUE if Content-Range: was found */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(download_ਪੂਰਾ); /* set to TRUE when download is complete */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(eos_written);   /* iff EOS has been written to client */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(eos_read);      /* iff EOS has been read from the client */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(eos_ਭੇਜਿਆ);      /* iff EOS has been sent to the server */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(rewind_read);   /* iff reader needs rewind at next start */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(upload_ਪੂਰਾ);   /* set to TRUE when all request data has been sent */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(upload_aborted); /* set to TRUE when upload was aborted. Also
                         * shows `upload_done` as TRUE. */
-  BIT(ignorebody);    /* we read a response-body but we ignore it! */
-  BIT(http_bodyless); /* HTTP response status code is between 100 and 199,
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ignorebody);    /* we read a response-body but we ignore it! */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(http_bodyless); /* HTTP response status code is between 100 and 199,
                          204 or 304 */
-  BIT(chunk);         /* if set, this is a chunked transfer-encoding */
-  BIT(resp_trailer);  /* response carried 'Trailer:' header field */
-  BIT(ignore_cl);     /* ignore content-length */
-  BIT(upload_chunky); /* set TRUE if we are doing chunked transfer-encoding
+  ਦੋਆਧਾਰੀ_ਅੰਕ(chunk);         /* if set, this is a chunked transfer-encoding */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(resp_trailer);  /* response carried 'Trailer:' header field */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(ignore_cl);     /* ignore content-length */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(upload_chunky); /* set TRUE if we are doing chunked transfer-encoding
                          on upload */
-  BIT(no_body);      /* the response has no body */
-  BIT(authneg);      /* TRUE when the auth phase has started, which means
+  ਦੋਆਧਾਰੀ_ਅੰਕ(no_body);      /* the response has no body */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(authneg);      /* TRUE when the auth phase has started, which means
                         that we are creating a request with an auth header,
                         but it is not the final request in the auth
                         negotiation. */
-  BIT(sendbuf_init); /* sendbuf is initialized */
-  BIT(shutdown);     /* request end will shutdown connection */
-  BIT(shutdown_err_ignore); /* errors in shutdown will not fail request */
-  BIT(reader_started); /* client reads have started */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(sendbuf_init); /* sendbuf is initialized */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(shutdown);     /* request end will shutdown connection */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(shutdown_err_ignore); /* errors in shutdown will not fail request */
+  ਦੋਆਧਾਰੀ_ਅੰਕ(reader_started); /* client reads have started */
 };
 
 /**
  * Initialize the state of the request for first use.
  */
-void Curl_req_init(struct SingleRequest *req);
+ਖਾਲੀ Curl_req_init(ਬਣਤਰ SingleRequest *req);
 
 /**
  * The request is about to start. Record time and do a soft reset.
  */
-CURLcode Curl_req_start(struct SingleRequest *req,
-                        struct Curl_easy *data);
+CURLcode Curl_req_ਸ਼ੁਰੂ(ਬਣਤਰ SingleRequest *req,
+                        ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /**
  * The request may continue with a follow up. Reset
  * members, but keep start time for overall duration calc.
  */
-CURLcode Curl_req_soft_reset(struct SingleRequest *req,
-                             struct Curl_easy *data);
+CURLcode Curl_req_soft_reset(ਬਣਤਰ SingleRequest *req,
+                             ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /**
  * The request is done. If not aborted, make sure that buffers are
@@ -186,19 +186,19 @@ CURLcode Curl_req_soft_reset(struct SingleRequest *req,
  * @param data       the transfer
  * @param aborted    TRUE iff the request was aborted/errored
  */
-CURLcode Curl_req_done(struct SingleRequest *req,
-                       struct Curl_easy *data, bool aborted);
+CURLcode Curl_req_ਪੂਰਾ(ਬਣਤਰ SingleRequest *req,
+                       ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, bool aborted);
 
 /**
  * Free the state of the request, not usable afterwards.
  */
-void Curl_req_free(struct SingleRequest *req, struct Curl_easy *data);
+ਖਾਲੀ Curl_req_free(ਬਣਤਰ SingleRequest *req, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /**
  * Hard reset the state of the request to virgin state base on
  * transfer settings.
  */
-void Curl_req_hard_reset(struct SingleRequest *req, struct Curl_easy *data);
+ਖਾਲੀ Curl_req_hard_reset(ਬਣਤਰ SingleRequest *req, ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /**
  * Send request headers. If not all could be sent
@@ -209,48 +209,48 @@ void Curl_req_hard_reset(struct SingleRequest *req, struct Curl_easy *data);
  * @param httpversion version used in request (09, 10, 11, etc.)
  * @return CURLE_OK (on blocking with *pnwritten == 0) or error.
  */
-CURLcode Curl_req_send(struct Curl_easy *data, struct dynbuf *req,
-                       unsigned char httpversion);
+CURLcode Curl_req_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ, ਬਣਤਰ dynbuf *req,
+                       ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ httpversion);
 
 /**
  * TRUE iff the request has sent all request headers and data.
  */
-bool Curl_req_done_sending(struct Curl_easy *data);
+bool Curl_req_ਪੂਰਾ_sending(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /*
  * Read more from client and flush all buffered request bytes.
  * @return CURLE_OK on success or the error on the sending.
  *         Never returns CURLE_AGAIN.
  */
-CURLcode Curl_req_send_more(struct Curl_easy *data);
+CURLcode Curl_req_send_ਹੋਰ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /* TRUE if the request wants to send, e.g. is not done sending
  * and is not blocked. */
-bool Curl_req_want_send(struct Curl_easy *data);
+bool Curl_req_want_send(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /* TRUE if the request wants to receive and is not blocked. */
-bool Curl_req_want_recv(struct Curl_easy *data);
+bool Curl_req_want_recv(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /**
  * TRUE iff the request has no buffered bytes yet to send.
  */
-bool Curl_req_sendbuf_empty(struct Curl_easy *data);
+bool Curl_req_sendbuf_ਖਾਲੀ_ਥਾਵਾਂ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /**
  * Stop sending any more request data to the server.
  * Clear the send buffer and mark request sending as done.
  */
-CURLcode Curl_req_abort_sending(struct Curl_easy *data);
+CURLcode Curl_req_abort_sending(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /**
  * Stop sending and receiving any more request data.
  * Abort sending if not done.
  */
-CURLcode Curl_req_stop_send_recv(struct Curl_easy *data);
+CURLcode Curl_req_stop_send_recv(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
 /**
  * Invoked when all request data has been uploaded.
  */
-CURLcode Curl_req_set_upload_done(struct Curl_easy *data);
+CURLcode Curl_req_ਸੈੱਟ_upload_ਪੂਰਾ(ਬਣਤਰ Curl_easy *ਅੰਕੜੇ);
 
-#endif /* HEADER_CURL_REQUEST_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_REQUEST_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CAPSULE_H
-#define HEADER_CURL_CAPSULE_H
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ ਸਿਰਲੇਖ_CURL_CAPSULE_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸਿਰਲੇਖ_CURL_CAPSULE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,15 +24,15 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#ਜੇ !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "curlx/dynbuf.h"
-#include "bufq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "curlx/dynbuf.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "bufq.h"
 
 /* HTTP Capsule constants */
-#define HTTP_CAPSULE_HEADER_MAX_SIZE    10
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTTP_CAPSULE_ਸਿਰਲੇਖ_MAX_ਮਾਪ    10
 
 /* HTTP Capsule function prototypes */
 
@@ -43,11 +43,11 @@
  * @param blen  Payload buffer length
  * @return CURLE_OK on success, error code on failure
  */
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen);
+CURLcode Curl_capsule_encap_udp_datagram(ਬਣਤਰ bufq *q,
+                                         ਅਚਲ ਖਾਲੀ *buf, size_t blen);
 
-struct Curl_easy;
-struct Curl_cfilter;
+ਬਣਤਰ Curl_easy;
+ਬਣਤਰ Curl_cfilter;
 
 /**
  * Process one UDP capsule from buffer into raw datagram payload bytes.
@@ -59,12 +59,12 @@ struct Curl_cfilter;
  * @param err       Error code output
  * @return Number of payload bytes written. Check `err` for status.
  */
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(ਬਣਤਰ Curl_cfilter *cf,
+                                    ਬਣਤਰ Curl_easy *ਅੰਕੜੇ,
+                                    ਬਣਤਰ bufq *recvbufq,
+                                    ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ *buf, size_t len,
                                     CURLcode *err);
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#ਜੇ_ਅੰਤ /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_CAPSULE_H */
+#ਜੇ_ਅੰਤ /* HEADER_CURL_CAPSULE_H */
