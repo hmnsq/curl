@@ -17,20 +17,20 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#અન્તર્ભાવ <sys/param.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#અન્તર્ભાવ <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#અન્તર્ભાવ <arpa/inet.h>
 #endif
 
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#અન્તર્ભાવ "curlx/inet_pton.h"
+#અન્તર્ભાવ "curlx/strparse.h"
 
 #define IN6ADDRSZ       16
 #define INADDRSZ         4
@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#જો !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+સ્થિર પૂર્ણાંક inet_pton4(અચલ અક્ષર *src, unsigned અક્ષર *dst)
 {
-  int saw_digit, octets, ch;
-  unsigned char tmp[INADDRSZ], *tp;
+  પૂર્ણાંક saw_digit, octets, ch;
+  unsigned અક્ષર tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  જ્યારે((ch = (unsigned અક્ષર)*src++) != '\0') {
+    જો(ISDIGIT(ch)) {
+      unsigned પૂર્ણાંક val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
-      *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      જો(saw_digit && *tp == 0)
+        પાછા 0;
+      જો(val > 255)
+        પાછા 0;
+      *tp = (unsigned અક્ષર)val;
+      જો(!saw_digit) {
+        જો(++octets > 4)
+          પાછા 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    નહીંતર જો(ch == '.' && saw_digit) {
+      જો(octets == 4)
+        પાછા 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    નહીંતર
+      પાછા 0;
   }
-  if(octets < 4)
-    return 0;
+  જો(octets < 4)
+    પાછા 0;
   memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  પાછા 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,82 +110,82 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+સ્થિર પૂર્ણાંક inet_pton6(અચલ અક્ષર *src, unsigned અક્ષર *dst)
 {
-  unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
-  int ch, saw_xdigit;
+  unsigned અક્ષર tmp[IN6ADDRSZ], *tp, *endp, *colonp;
+  અચલ અક્ષર *curtok;
+  પૂર્ણાંક ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
-  colonp = NULL;
+  colonp = ખાલી;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  જો(*src == ':' && *++src != ':')
+    પાછા 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  જ્યારે((ch = (unsigned અક્ષર)*src++) != '\0') {
+    જો(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
-      continue;
+      જો(++saw_xdigit > 4)
+        પાછા 0;
+      ચાલુ;
     }
-    if(ch == ':') {
+    જો(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      જો(!saw_xdigit) {
+        જો(colonp)
+          પાછા 0;
         colonp = tp;
-        continue;
+        ચાલુ;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
-      *tp++ = (unsigned char)((val >> 8) & 0xff);
-      *tp++ = (unsigned char)(val & 0xff);
+      જો(!*src)
+        પાછા 0;
+      જો(tp + INT16SZ > endp)
+        પાછા 0;
+      *tp++ = (unsigned અક્ષર)((val >> 8) & 0xff);
+      *tp++ = (unsigned અક્ષર)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
-      continue;
+      ચાલુ;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    જો(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
-      break;    /* '\0' was seen by inet_pton4(). */
+      તોડો;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    પાછા 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
-    *tp++ = (unsigned char)((val >> 8) & 0xff);
-    *tp++ = (unsigned char)(val & 0xff);
+  જો(saw_xdigit) {
+    જો(tp + INT16SZ > endp)
+      પાછા 0;
+    *tp++ = (unsigned અક્ષર)((val >> 8) & 0xff);
+    *tp++ = (unsigned અક્ષર)(val & 0xff);
   }
-  if(colonp) {
+  જો(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
      */
-    const ssize_t n = tp - colonp;
+    અચલ ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    જો(tp == endp)
+      પાછા 0;
+    માટે(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
+  જો(tp != endp)
+    પાછા 0;
   memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  પાછા 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+પૂર્ણાંક curlx_inet_pton(પૂર્ણાંક af, અચલ અક્ષર *src, શૂન્ય *dst)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
-  case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
-  default:
-    return -1;
+  પસંદગી(af) {
+  સ્થિતિ AF_INET:
+    પાછા inet_pton4(src, (unsigned અક્ષર *)dst);
+  સ્થિતિ AF_INET6:
+    પાછા inet_pton6(src, (unsigned અક્ષર *)dst);
+  મૂળભૂત:
+    પાછા -1;
   }
   /* NOTREACHED */
 }

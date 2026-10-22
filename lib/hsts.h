@@ -23,51 +23,51 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-struct hsts;
+સંરચના hsts;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-#include "llist.h"
+#જો !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#અન્તર્ભાવ "llist.h"
 
-struct Curl_peer;
+સંરચના Curl_peer;
 
 #define MAX_HSTS_ENTRIES 10000
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
-extern time_t deltatime;
+#જો defined(DEBUGBUILD) || defined(UNITTESTS)
+બાહ્ય time_t deltatime;
 #endif
 
-struct stsentry {
-  struct Curl_llist_node node;
+સંરચના stsentry {
+  સંરચના Curl_llist_ગાંઠ ગાંઠ;
   curl_off_t expires; /* the timestamp of this entry's expiry */
   BIT(includeSubDomains);
-  char host[1];
+  અક્ષર host[1];
 };
 
 /* The HSTS cache. Needs to be able to tailmatch hostnames. */
-struct hsts {
-  struct Curl_llist list;
-  char *filename;
-  unsigned int flags;
+સંરચના hsts {
+  સંરચના Curl_llist list;
+  અક્ષર *filename;
+  unsigned પૂર્ણાંક flags;
 };
 
-struct hsts *Curl_hsts_init(void);
-void Curl_hsts_cleanup(struct hsts **hp);
-CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src);
-CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
-                         const char *header);
-CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
-                        const char *file);
-CURLcode Curl_hsts_loadfile(struct Curl_easy *data,
-                            struct hsts *h, const char *file);
-CURLcode Curl_hsts_loadcb(struct Curl_easy *data,
-                          struct hsts *h);
-CURLcode Curl_hsts_loadfiles(struct Curl_easy *data);
+સંરચના hsts *Curl_hsts_init(શૂન્ય);
+શૂન્ય Curl_hsts_cleanup(સંરચના hsts **hp);
+CURLcode Curl_hsts_copy(સંરચના hsts *dst, સંરચના hsts *src);
+CURLcode Curl_hsts_parse(સંરચના hsts *h, અચલ અક્ષર *hostname,
+                         અચલ અક્ષર *header);
+CURLcode Curl_hsts_save(સંરચના Curl_easy *data, સંરચના hsts *h,
+                        અચલ અક્ષર *file);
+CURLcode Curl_hsts_loadfile(સંરચના Curl_easy *data,
+                            સંરચના hsts *h, અચલ અક્ષર *file);
+CURLcode Curl_hsts_loadcb(સંરચના Curl_easy *data,
+                          સંરચના hsts *h);
+CURLcode Curl_hsts_loadfiles(સંરચના Curl_easy *data);
 
-bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest);
+bool Curl_hsts_applies(સંરચના hsts *h, અચલ સંરચના Curl_peer *dest);
 
-#else
+#નહીંતર
 #define Curl_hsts_cleanup(x)
 #define Curl_hsts_loadcb(x, y) CURLE_OK
 #define Curl_hsts_save(x, y, z)

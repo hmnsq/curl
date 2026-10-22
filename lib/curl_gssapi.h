@@ -23,24 +23,24 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#include "urldata.h"
+#અન્તર્ભાવ "urldata.h"
 
 #ifdef HAVE_GSSAPI
-extern gss_OID_desc Curl_spnego_mech_oid;
-extern gss_OID_desc Curl_krb5_mech_oid;
+બાહ્ય gss_OID_desc Curl_spnego_mech_oid;
+બાહ્ય gss_OID_desc Curl_krb5_mech_oid;
 
 /* Common method for using GSS-API */
-OM_uint32 Curl_gss_init_sec_context(struct Curl_easy *data,
+OM_uint32 Curl_gss_init_sec_context(સંરચના Curl_easy *data,
                                     OM_uint32 *minor_status,
                                     gss_ctx_id_t *context,
                                     gss_name_t target_name,
                                     gss_OID mech_type,
-                                    gss_channel_bindings_t input_chan_bindings,
-                                    gss_buffer_t input_token,
+                                    gss_channel_bindings_t આગત_chan_bindings,
+                                    gss_buffer_t આગત_token,
                                     gss_buffer_t output_token,
-                                    const bool mutual_auth,
+                                    અચલ bool mutual_auth,
                                     OM_uint32 *ret_flags,
                                     gss_cred_id_t cred_handle);
 
@@ -67,7 +67,7 @@ OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_status,
 #ifdef HAVE_GSS_SET_NEG_MECHS
 OM_uint32 Curl_gss_set_neg_mechs(OM_uint32 *minor_status,
                                  gss_cred_id_t cred_handle,
-                                 const gss_OID_set mech_set);
+                                 અચલ gss_OID_set mech_set);
 #endif
 
 OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_status,
@@ -75,16 +75,16 @@ OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_status,
 
 #ifdef CURLVERBOSE
 /* Helper to log a GSS-API error status */
-void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
+શૂન્ય Curl_gss_log_error(સંરચના Curl_easy *data, અચલ અક્ષર *prefix,
                         OM_uint32 major, OM_uint32 minor);
-#else
+#નહીંતર
 #define Curl_gss_log_error(data, prefix, major, minor) \
-  do {                                                 \
-    (void)(data);                                      \
-    (void)(prefix);                                    \
-    (void)(major);                                     \
-    (void)(minor);                                     \
-  } while(0)
+  કરો {                                                 \
+    (શૂન્ય)(data);                                      \
+    (શૂન્ય)(prefix);                                    \
+    (શૂન્ય)(major);                                     \
+    (શૂન્ય)(minor);                                     \
+  } જ્યારે(0)
 #endif
 
 /* Define our privacy and integrity protection values */

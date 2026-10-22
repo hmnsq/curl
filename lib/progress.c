@@ -21,57 +21,57 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "transfer.h"
-#include "curlx/strcopy.h"
+#અન્તર્ભાવ "urldata.h"
+#અન્તર્ભાવ "curl_trc.h"
+#અન્તર્ભાવ "multiif.h"
+#અન્તર્ભાવ "progress.h"
+#અન્તર્ભાવ "transfer.h"
+#અન્તર્ભાવ "curlx/strcopy.h"
 
 #ifndef CURL_DISABLE_PROGRESS_METER
 /* Provide a string that is 7 letters long (plus the zero byte).
 
    @unittest 1636 */
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds);
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
+UNITTEST શૂન્ય time2str(અક્ષર *r, size_t rsize, curl_off_t seconds);
+UNITTEST શૂન્ય time2str(અક્ષર *r, size_t rsize, curl_off_t seconds)
 {
   curl_off_t h;
-  if(seconds <= 0) {
+  જો(seconds <= 0) {
     curlx_strcopy(r, rsize, STRCONST("       "));
-    return;
+    પાછા;
   }
   h = seconds / 3600;
-  if(h <= 99) {
+  જો(h <= 99) {
     curl_off_t m = (seconds - (h * 3600)) / 60;
-    if(h <= 9) {
+    જો(h <= 9) {
       curl_off_t s = (seconds - (h * 3600)) - (m * 60);
-      if(h)
+      જો(h)
         curl_msnprintf(r, rsize, "%" FMT_OFF_T ":%02" FMT_OFF_T ":"
                        "%02" FMT_OFF_T, h, m, s);
-      else
+      નહીંતર
         curl_msnprintf(r, rsize, "  %02" FMT_OFF_T ":%02" FMT_OFF_T, m, s);
     }
-    else
+    નહીંતર
       curl_msnprintf(r, rsize, "%" FMT_OFF_T "h %02" FMT_OFF_T "m", h, m);
   }
-  else {
+  નહીંતર {
     curl_off_t d = seconds / 86400;
     h = (seconds - (d * 86400)) / 3600;
-    if(d <= 99)
+    જો(d <= 99)
       curl_msnprintf(r, rsize, "%2" FMT_OFF_T "d %02" FMT_OFF_T "h", d, h);
-    else if(d <= 999)
+    નહીંતર જો(d <= 999)
       curl_msnprintf(r, rsize, "%6" FMT_OFF_T "d", d);
-    else { /* more than 999 days */
+    નહીંતર { /* more than 999 days */
       curl_off_t m = d / 30;
-      if(m <= 999)
+      જો(m <= 999)
         curl_msnprintf(r, rsize, "%6" FMT_OFF_T "m", m);
-      else { /* more than 999 months */
+      નહીંતર { /* more than 999 months */
         curl_off_t y = d / 365;
-        if(y <= 99999)
+        જો(y <= 99999)
           curl_msnprintf(r, rsize, "%6" FMT_OFF_T "y", y);
-        else
+        નહીંતર
           curlx_strcopy(r, rsize, STRCONST(">99999y"));
       }
     }
@@ -83,80 +83,80 @@ UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
    Add suffix k, M, G when suitable...
 
    @unittest 1636 */
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen);
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen)
+UNITTEST અક્ષર *max6out(curl_off_t bytes, અક્ષર *max6, size_t mlen);
+UNITTEST અક્ષર *max6out(curl_off_t bytes, અક્ષર *max6, size_t mlen)
 {
   /* a signed 64-bit value is 8192 petabytes maximum, shown as
      8.0E (exabytes)*/
-  if(bytes < 100000)
+  જો(bytes < 100000)
     curl_msnprintf(max6, mlen, "%6" CURL_FORMAT_CURL_OFF_T, bytes);
-  else {
-    static const char unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
-    int k = 0;
+  નહીંતર {
+    સ્થિર અચલ અક્ષર unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
+    પૂર્ણાંક k = 0;
     curl_off_t nbytes;
     curl_off_t rest;
-    do {
+    કરો {
       nbytes = bytes / 1024;
-      if(nbytes < 1000)
-        break;
+      જો(nbytes < 1000)
+        તોડો;
       bytes = nbytes;
       k++;
       DEBUGASSERT(unit[k]);
-    } while(unit[k]);
+    } જ્યારે(unit[k]);
     rest = bytes % 1024;
-    if(nbytes <= 99)
+    જો(nbytes <= 99)
       /* xx.yyU */
       curl_msnprintf(max6, mlen, "%2" CURL_FORMAT_CURL_OFF_T
                      ".%02" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 100 / 1024, unit[k]);
-    else
+    નહીંતર
       /* xxx.yU */
       curl_msnprintf(max6, mlen, "%3" CURL_FORMAT_CURL_OFF_T
                      ".%" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 10 / 1024, unit[k]);
   }
-  return max6;
+  પાછા max6;
 }
 #endif
 
-static void pgrs_speedinit(struct Curl_easy *data)
+સ્થિર શૂન્ય pgrs_speedinit(સંરચના Curl_easy *data)
 {
-  memset(&data->state.keeps_speed, 0, sizeof(struct curltime));
+  memset(&data->state.keeps_speed, 0, કદ(સંરચના curltime));
 }
 
 /*
  * @unittest 1606
  */
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow);
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow)
+UNITTEST CURLcode pgrs_speedcheck(સંરચના Curl_easy *data,
+                                  અચલ સંરચના curltime *pnow);
+UNITTEST CURLcode pgrs_speedcheck(સંરચના Curl_easy *data,
+                                  અચલ સંરચના curltime *pnow)
 {
-  if(!data->set.low_speed_time || !data->set.low_speed_limit ||
+  જો(!data->set.નીચલું_speed_time || !data->set.નીચલું_speed_limit ||
      Curl_xfer_recv_is_paused(data) || Curl_xfer_send_is_paused(data))
     /* A paused transfer is not qualified for speed checks */
-    return CURLE_OK;
+    પાછા CURLE_OK;
 
-  if(data->progress.current_speed >= 0) {
-    if(data->progress.current_speed < data->set.low_speed_limit) {
-      if(!data->state.keeps_speed.tv_sec)
+  જો(data->progress.current_speed >= 0) {
+    જો(data->progress.current_speed < data->set.નીચલું_speed_limit) {
+      જો(!data->state.keeps_speed.tv_sec)
         /* under the limit at this moment */
         data->state.keeps_speed = *pnow;
-      else {
+      નહીંતર {
         /* how long has it been under the limit */
         timediff_t howlong =
           curlx_ptimediff_ms(pnow, &data->state.keeps_speed);
 
-        if(howlong >= data->set.low_speed_time * 1000) {
+        જો(howlong >= data->set.નીચલું_speed_time * 1000) {
           /* too long */
           failf(data, "Operation too slow. Less than %" FMT_OFF_T
                 " bytes/sec transferred the last %u seconds",
-                data->set.low_speed_limit, data->set.low_speed_time);
-          return CURLE_OPERATION_TIMEDOUT;
+                data->set.નીચલું_speed_limit, data->set.નીચલું_speed_time);
+          પાછા CURLE_OPERATION_TIMEDOUT;
         }
       }
     }
-    else
+    નહીંતર
       /* faster right now */
       data->state.keeps_speed.tv_sec = 0;
   }
@@ -165,13 +165,13 @@ UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
      connection's speed get checked again in a second */
   Curl_expire_set(data, EXPIRE_SPEEDCHECK, 1000, pnow);
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
+અચલ સંરચના curltime *Curl_pgrs_now(સંરચના Curl_easy *data)
 {
   curlx_pnow(&data->progress.now);
-  return &data->progress.now;
+  પાછા &data->progress.now;
 }
 
 /* New proposed interface, 9th of February 2000:
@@ -185,23 +185,23 @@ const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
    pgrsDone() - transfer complete
  */
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow)
+પૂર્ણાંક Curl_pgrsDone(સંરચના Curl_easy *data, અચલ સંરચના curltime *pnow)
 {
-  int rc;
+  પૂર્ણાંક rc;
   data->progress.delta.lastshow_us = -1;
   rc = Curl_pgrsUpdateX(data, pnow); /* the final (forced) update */
-  if(rc)
-    return rc;
+  જો(rc)
+    પાછા rc;
 
-  if(!data->progress.hide && !data->progress.callback)
+  જો(!data->progress.hide && !data->progress.callback)
     /* only output if we do not use a progress callback and we are not
      * hidden */
     curl_mfprintf(data->set.err, "\n");
 
-  return 0;
+  પાછા 0;
 }
 
-void Curl_pgrsReset(struct Curl_easy *data)
+શૂન્ય Curl_pgrsReset(સંરચના Curl_easy *data)
 {
   Curl_pgrsSetUploadCounter(data, 0);
   data->progress.dl.cur_size = 0;
@@ -213,30 +213,30 @@ void Curl_pgrsReset(struct Curl_easy *data)
 }
 
 /* reset the known transfer sizes */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data)
+શૂન્ય Curl_pgrsResetTransferSizes(સંરચના Curl_easy *data)
 {
   Curl_pgrsSetDownloadSize(data, -1);
   Curl_pgrsSetUploadSize(data, -1);
 }
 
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable)
+શૂન્ય Curl_pgrsRecvPause(સંરચના Curl_easy *data, bool enable)
 {
-  if(!enable) {
+  જો(!enable) {
     data->progress.speeder_c = 0; /* reset speed records */
     pgrs_speedinit(data); /* reset low speed measurements */
   }
 }
 
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable)
+શૂન્ય Curl_pgrsSendPause(સંરચના Curl_easy *data, bool enable)
 {
-  if(!enable) {
+  જો(!enable) {
     data->progress.speeder_c = 0; /* reset speed records */
     pgrs_speedinit(data); /* reset low speed measurements */
   }
 }
 
 #ifdef CURLVERBOSE
-static const char * const pgrs_timer_names[] = {
+સ્થિર અચલ અક્ષર * અચલ pgrs_timer_names[] = {
   "PGRS-NONE",
   "PGRS-STARTOP",
   "PGRS-STARTSINGLE",
@@ -250,92 +250,92 @@ static const char * const pgrs_timer_names[] = {
   "PGRS-REDIRECT",
 };
 
-static const char *pgrs_timer_name(timerid timer)
+સ્થિર અચલ અક્ષર *pgrs_timer_name(timerid timer)
 {
-  if((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_names))
-    return pgrs_timer_names[(size_t)timer];
-  return "?";
+  જો((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_names))
+    પાછા pgrs_timer_names[(size_t)timer];
+  પાછા "?";
 }
 #endif /* CURLVERBOSE */
 
 /*
  * Curl_pgrsTimeWas(). Store the timestamp time at the given label.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp)
+શૂન્ય Curl_pgrsTimeWas(સંરચના Curl_easy *data, timerid timer,
+                      સંરચના curltime timestamp)
 {
-  timediff_t *delta = NULL;
+  timediff_t *delta = ખાલી;
 
-  switch(timer) {
-  default:
-  case TIMER_NONE:
+  પસંદગી(timer) {
+  મૂળભૂત:
+  સ્થિતિ TIMER_NONE:
     /* mistake filter */
-    break;
-  case TIMER_STARTOP:
+    તોડો;
+  સ્થિતિ TIMER_STARTOP:
     /* This is set at the start of a transfer */
     data->progress.delta.startop_us =
       curlx_ptimediff_us(&timestamp, &data->progress.start);
     data->progress.delta.startqueue_us = data->progress.delta.startop_us;
-    break;
-  case TIMER_STARTSINGLE:
+    તોડો;
+  સ્થિતિ TIMER_STARTSINGLE:
     /* This is set at the start of each single transfer */
     data->progress.delta.startsingle_us =
       curlx_ptimediff_us(&timestamp, &data->progress.start);
     data->progress.startransfer_added = FALSE;
-    break;
-  case TIMER_POSTQUEUE:
+    તોડો;
+  સ્થિતિ TIMER_POSTQUEUE:
     /* Queue time is accumulative from all involved redirects */
     data->progress.total.queued_us +=
       curlx_ptimediff_us(&timestamp, &data->progress.start) -
       data->progress.delta.startqueue_us;
-    break;
-  case TIMER_NAMELOOKUP:
+    તોડો;
+  સ્થિતિ TIMER_NAMELOOKUP:
     delta = &data->progress.total.nslookup_us;
-    break;
-  case TIMER_CONNECT:
+    તોડો;
+  સ્થિતિ TIMER_CONNECT:
     delta = &data->progress.total.connect_us;
-    break;
-  case TIMER_APPCONNECT:
+    તોડો;
+  સ્થિતિ TIMER_APPCONNECT:
     delta = &data->progress.total.appconnect_us;
-    break;
-  case TIMER_PRETRANSFER:
+    તોડો;
+  સ્થિતિ TIMER_PRETRANSFER:
     delta = &data->progress.total.pretransfer_us;
-    break;
-  case TIMER_STARTTRANSFER:
+    તોડો;
+  સ્થિતિ TIMER_STARTTRANSFER:
     /* prevent updating t_starttransfer unless:
      *   1. this is the first time we are setting t_starttransfer
      *   2. a redirect has occurred since the last time t_starttransfer was set
      * This prevents repeated invocations of the function from incorrectly
      * changing the t_starttransfer time.
      */
-    if(data->progress.startransfer_added) {
+    જો(data->progress.startransfer_added) {
       CURL_TRC_M(data, "[%s] ignored", pgrs_timer_name(timer));
-      return;
+      પાછા;
     }
     data->progress.startransfer_added = TRUE;
     delta = &data->progress.total.starttransfer_us;
-    break;
-  case TIMER_POSTRANSFER:
+    તોડો;
+  સ્થિતિ TIMER_POSTRANSFER:
     delta = &data->progress.total.posttransfer_us;
-    break;
-  case TIMER_REDIRECT:
+    તોડો;
+  સ્થિતિ TIMER_REDIRECT:
     data->progress.delta.startredirect_us =
       curlx_ptimediff_us(&timestamp, &data->progress.start);
     /* transfer starts queueing again */
     data->progress.delta.startqueue_us =
       data->progress.delta.startredirect_us;
-    break;
+    તોડો;
   }
-  if(delta) {
+  જો(delta) {
     timediff_t us = curlx_ptimediff_us(&timestamp, &data->progress.start) -
                     data->progress.delta.startsingle_us;
-    if(us < 1)
+    જો(us < 1)
       us = 1; /* make sure at least one microsecond passed */
     *delta += us;
     CURL_TRC_M(data, "[%s] added %" FMT_TIMEDIFF_T "us",
                pgrs_timer_name(timer), us);
   }
-  else
+  નહીંતર
     CURL_TRC_M(data, "[%s] set", pgrs_timer_name(timer));
 }
 
@@ -345,21 +345,21 @@ void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
  *
  * @unittest: 1399
  */
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer)
+શૂન્ય Curl_pgrsTime(સંરચના Curl_easy *data, timerid timer)
 {
   Curl_pgrsTimeWas(data, timer, *Curl_pgrs_now(data));
 }
 
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow)
+શૂન્ય Curl_pgrsStart(સંરચના Curl_easy *data, અચલ સંરચના curltime *pnow)
 {
-  struct Progress *p = &data->progress;
+  સંરચના Progress *p = &data->progress;
 
-  if(!pnow)
+  જો(!pnow)
     pnow = Curl_pgrs_now(data);
   p->speeder_c = 0; /* reset the progress meter display */
   p->start = *pnow;
-  memset(&p->delta, 0, sizeof(p->delta));
-  memset(&p->total, 0, sizeof(p->total));
+  memset(&p->delta, 0, કદ(p->delta));
+  memset(&p->total, 0, કદ(p->total));
   p->startransfer_added = FALSE;
   p->dl.cur_size = 0;
   p->ul.cur_size = 0;
@@ -370,96 +370,96 @@ void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow)
 
 /* check that the 'delta' amount of bytes are okay to deliver to the
    application, or return error if not. */
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta)
+CURLcode Curl_pgrs_deliver_check(સંરચના Curl_easy *data, size_t delta)
 {
-  if(data->set.max_filesize &&
+  જો(data->set.max_filesize &&
      ((curl_off_t)delta > data->set.max_filesize - data->progress.deliver)) {
     failf(data, "Would have exceeded max file size");
-    return CURLE_FILESIZE_EXCEEDED;
+    પાછા CURLE_FILESIZE_EXCEEDED;
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
 /* this counts how much data is delivered to the application, which
    in compressed cases may differ from downloaded amount */
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta)
+શૂન્ય Curl_pgrs_deliver_inc(સંરચના Curl_easy *data, size_t delta)
 {
   data->progress.deliver += delta;
 }
 
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta)
+શૂન્ય Curl_pgrs_download_inc(સંરચના Curl_easy *data, size_t delta)
 {
-  if(delta) {
+  જો(delta) {
     data->progress.dl.cur_size += delta;
-    Curl_rlimit_drain(&data->progress.dl.rlimit, delta, NULL);
+    Curl_rlimit_drain(&data->progress.dl.rlimit, delta, ખાલી);
   }
 }
 
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta)
+શૂન્ય Curl_pgrs_upload_inc(સંરચના Curl_easy *data, size_t delta)
 {
-  if(delta) {
+  જો(delta) {
     data->progress.ul.cur_size += delta;
-    Curl_rlimit_drain(&data->progress.ul.rlimit, delta, NULL);
+    Curl_rlimit_drain(&data->progress.ul.rlimit, delta, ખાલી);
   }
 }
 
 /*
  * Set the number of uploaded bytes so far.
  */
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size)
+શૂન્ય Curl_pgrsSetUploadCounter(સંરચના Curl_easy *data, curl_off_t size)
 {
   data->progress.ul.cur_size = size;
 }
 
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size)
+શૂન્ય Curl_pgrsSetDownloadSize(સંરચના Curl_easy *data, curl_off_t size)
 {
-  if(size >= 0) {
+  જો(size >= 0) {
     data->progress.dl.total_size = size;
     data->progress.dl_size_known = TRUE;
   }
-  else {
+  નહીંતર {
     data->progress.dl.total_size = 0;
     data->progress.dl_size_known = FALSE;
   }
 }
 
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size)
+શૂન્ય Curl_pgrsSetUploadSize(સંરચના Curl_easy *data, curl_off_t size)
 {
-  if(size >= 0) {
+  જો(size >= 0) {
     data->progress.ul.total_size = size;
     data->progress.ul_size_known = TRUE;
   }
-  else {
+  નહીંતર {
     data->progress.ul.total_size = 0;
     data->progress.ul_size_known = FALSE;
   }
 }
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent)
+શૂન્ય Curl_pgrsEarlyData(સંરચના Curl_easy *data, curl_off_t sent)
 {
   data->progress.earlydata_sent = sent;
 }
 
 /* returns the average speed in bytes / second */
-static curl_off_t trspeed(curl_off_t size, /* number of bytes */
+સ્થિર curl_off_t trspeed(curl_off_t size, /* number of bytes */
                           curl_off_t us)   /* microseconds */
 {
-  if(us < 1)
-    return size * 1000000;
-  else if(size < CURL_OFF_T_MAX / 1000000)
-    return (size * 1000000) / us;
-  else if(us >= 1000000)
-    return size / (us / 1000000);
-  else
-    return CURL_OFF_T_MAX;
+  જો(us < 1)
+    પાછા size * 1000000;
+  નહીંતર જો(size < CURL_OFF_T_MAX / 1000000)
+    પાછા (size * 1000000) / us;
+  નહીંતર જો(us >= 1000000)
+    પાછા size / (us / 1000000);
+  નહીંતર
+    પાછા CURL_OFF_T_MAX;
 }
 
 /* returns TRUE if it is time to show the progress meter */
-static bool progress_calc(struct Curl_easy *data,
-                          const struct curltime *pnow)
+સ્થિર bool progress_calc(સંરચના Curl_easy *data,
+                          અચલ સંરચના curltime *pnow)
 {
-  struct Progress * const p = &data->progress;
-  int i_next, i_oldest, i_latest;
+  સંરચના Progress * અચલ p = &data->progress;
+  પૂર્ણાંક i_next, i_oldest, i_latest;
   timediff_t duration_us, elapsed_us;
   curl_off_t amount;
 
@@ -469,14 +469,14 @@ static bool progress_calc(struct Curl_easy *data,
   p->dl.speed = trspeed(p->dl.cur_size, p->total.spent_us);
   p->ul.speed = trspeed(p->ul.cur_size, p->total.spent_us);
 
-  if(!p->speeder_c) { /* no previous record exists */
+  જો(!p->speeder_c) { /* no previous record exists */
     p->speed_amount[0] = p->dl.cur_size + p->ul.cur_size;
     p->speed_time[0] = elapsed_us;
     p->speeder_c++;
     /* use the overall average at the start */
     p->current_speed = p->ul.speed + p->dl.speed;
     p->delta.lastshow_us = elapsed_us;
-    return TRUE;
+    પાછા TRUE;
   }
   /* We have at least one record now. Where to put the next and
    * where is the latest one? */
@@ -485,25 +485,25 @@ static bool progress_calc(struct Curl_easy *data,
 
   /* Make a new record only when some time has passed.
    * Too frequent calls otherwise ruin the history. */
-  if((elapsed_us - p->speed_time[i_latest]) >= (1000 * 1000)) {
+  જો((elapsed_us - p->speed_time[i_latest]) >= (1000 * 1000)) {
     p->speeder_c++;
     i_latest = i_next;
     p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
     p->speed_time[i_latest] = elapsed_us;
   }
-  else if(data->req.done) {
+  નહીંતર જો(data->req.done) {
     /* When a transfer is done, and we did not have a current speed
      * already, update the last record. Otherwise, stay at the speed
      * we have. The last chunk of data, when rate limiting, would increase
      * reported speed since it no longer measures a full second. */
-    if(!p->current_speed) {
+    જો(!p->current_speed) {
       p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
       p->speed_time[i_latest] = elapsed_us;
     }
   }
-  else {
+  નહીંતર {
     /* transfer ongoing, wait for more time to pass. */
-    return FALSE;
+    પાછા FALSE;
   }
 
   i_oldest = (p->speeder_c < CURL_SPEED_RECORDS) ? 0 :
@@ -513,71 +513,71 @@ static bool progress_calc(struct Curl_easy *data,
   amount = p->speed_amount[i_latest] - p->speed_amount[i_oldest];
   /* How long this took */
   duration_us = p->speed_time[i_latest] - p->speed_time[i_oldest];
-  if(duration_us <= 0)
+  જો(duration_us <= 0)
     duration_us = 1;
 
-  if(amount > (CURL_OFF_T_MAX / 1000000)) {
+  જો(amount > (CURL_OFF_T_MAX / 1000000)) {
     /* the 'amount' value is bigger than would fit in 64 bits if
        multiplied with 1000000, so we use the double math for this */
     p->current_speed =
-      (curl_off_t)(((double)amount * 1000000.0) / (double)duration_us);
+      (curl_off_t)(((દ્વિગુણ)amount * 1000000.0) / (દ્વિગુણ)duration_us);
   }
-  else {
+  નહીંતર {
     p->current_speed = amount * 1000000 / duration_us;
   }
 
-  if((p->delta.lastshow_us >= 0) && !data->req.done &&
+  જો((p->delta.lastshow_us >= 0) && !data->req.done &&
      ((elapsed_us - p->delta.lastshow_us) < (1000 * 1000)))
-    return FALSE;
+    પાછા FALSE;
   p->delta.lastshow_us = elapsed_us;
-  return TRUE;
+  પાછા TRUE;
 }
 
 #ifndef CURL_DISABLE_PROGRESS_METER
 
-struct pgrs_estimate {
+સંરચના pgrs_estimate {
   curl_off_t secs;
   curl_off_t percent;
 };
 
-static curl_off_t pgrs_est_percent(curl_off_t total, curl_off_t cur)
+સ્થિર curl_off_t pgrs_est_percent(curl_off_t total, curl_off_t cur)
 {
-  if(total > 10000)
-    return cur / (total / 100);
-  else if(total > 0)
-    return (cur * 100) / total;
-  return 0;
+  જો(total > 10000)
+    પાછા cur / (total / 100);
+  નહીંતર જો(total > 0)
+    પાછા (cur * 100) / total;
+  પાછા 0;
 }
 
-static void pgrs_estimates(struct pgrs_dir *d,
+સ્થિર શૂન્ય pgrs_estimates(સંરચના pgrs_dir *d,
                            bool total_known,
-                           struct pgrs_estimate *est)
+                           સંરચના pgrs_estimate *est)
 {
   est->secs = 0;
   est->percent = 0;
-  if(total_known && (d->speed > 0)) {
+  જો(total_known && (d->speed > 0)) {
     est->secs = d->total_size / d->speed;
     est->percent = pgrs_est_percent(d->total_size, d->cur_size);
   }
 }
 
-static void progress_meter(struct Curl_easy *data)
+સ્થિર શૂન્ય progress_meter(સંરચના Curl_easy *data)
 {
-  struct Progress *p = &data->progress;
-  char max6[6][7];
-  struct pgrs_estimate dl_estm;
-  struct pgrs_estimate ul_estm;
-  struct pgrs_estimate total_estm;
+  સંરચના Progress *p = &data->progress;
+  અક્ષર max6[6][7];
+  સંરચના pgrs_estimate dl_estm;
+  સંરચના pgrs_estimate ul_estm;
+  સંરચના pgrs_estimate total_estm;
   curl_off_t total_cur_size;
   curl_off_t total_expected_size;
   curl_off_t dl_size;
-  char time_left[8];
-  char time_total[8];
-  char time_spent[8];
+  અક્ષર time_ડાબું[8];
+  અક્ષર time_total[8];
+  અક્ષર time_spent[8];
   curl_off_t cur_secs = (curl_off_t)p->total.spent_us / 1000000;
 
-  if(!p->headers_out) {
-    if(data->state.resume_from) {
+  જો(!p->headers_out) {
+    જો(data->state.resume_from) {
       curl_mfprintf(data->set.err,
                     "** Resuming transfer from byte position %" FMT_OFF_T "\n",
                     data->state.resume_from);
@@ -597,10 +597,10 @@ static void progress_meter(struct Curl_easy *data)
   /* Since both happen at the same time, total expected duration is max. */
   total_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
   /* create the three time strings */
-  time2str(time_left, sizeof(time_left),
+  time2str(time_ડાબું, કદ(time_ડાબું),
            total_estm.secs > 0 ? (total_estm.secs - cur_secs) : 0);
-  time2str(time_total, sizeof(time_total), total_estm.secs);
-  time2str(time_spent, sizeof(time_spent), cur_secs);
+  time2str(time_total, કદ(time_total), total_estm.secs);
+  time2str(time_spent, કદ(time_spent), cur_secs);
 
   /* Get the total amount of data expected to get transferred */
   total_expected_size = p->ul_size_known ? p->ul.total_size : p->ul.cur_size;
@@ -608,9 +608,9 @@ static void progress_meter(struct Curl_easy *data)
   dl_size = p->dl_size_known ? p->dl.total_size : p->dl.cur_size;
 
   /* integer overflow check */
-  if((CURL_OFF_T_MAX - total_expected_size) < dl_size)
+  જો((CURL_OFF_T_MAX - total_expected_size) < dl_size)
     total_expected_size = CURL_OFF_T_MAX; /* capped */
-  else
+  નહીંતર
     total_expected_size += dl_size;
 
   /* We have transferred this much so far */
@@ -626,28 +626,28 @@ static void progress_meter(struct Curl_easy *data)
                 "%3" FMT_OFF_T " %s %s %s %s %s %s %s",
                 total_estm.percent, /* 3 letters */    /* total % */
                 max6out(total_expected_size, max6[2],
-                        sizeof(max6[2])),              /* total size */
+                        કદ(max6[2])),              /* total size */
                 dl_estm.percent, /* 3 letters */       /* rcvd % */
                 max6out(p->dl.cur_size, max6[0],
-                        sizeof(max6[0])),              /* rcvd size */
+                        કદ(max6[0])),              /* rcvd size */
                 ul_estm.percent, /* 3 letters */       /* xfer % */
                 max6out(p->ul.cur_size, max6[1],
-                        sizeof(max6[1])),              /* xfer size */
+                        કદ(max6[1])),              /* xfer size */
                 max6out(p->dl.speed, max6[3],
-                        sizeof(max6[3])),              /* avrg dl speed */
+                        કદ(max6[3])),              /* avrg dl speed */
                 max6out(p->ul.speed, max6[4],
-                        sizeof(max6[4])),              /* avrg ul speed */
+                        કદ(max6[4])),              /* avrg ul speed */
                 time_total,    /* 7 letters */         /* total time */
                 time_spent,    /* 7 letters */         /* time spent */
-                time_left,     /* 7 letters */         /* time left */
+                time_ડાબું,     /* 7 letters */         /* time left */
                 max6out(p->current_speed, max6[5],
-                        sizeof(max6[5]))               /* current speed */
+                        કદ(max6[5]))               /* current speed */
     );
 
   /* we flush the output stream to make it appear as soon as possible */
   fflush(data->set.err);
 }
-#else /* CURL_DISABLE_PROGRESS_METER */
+#નહીંતર /* CURL_DISABLE_PROGRESS_METER */
 #define progress_meter(x) Curl_nop_stmt
 #endif
 
@@ -655,13 +655,13 @@ static void progress_meter(struct Curl_easy *data)
  * Curl_pgrsUpdate() returns 0 for success or the value returned by the
  * progress callback!
  */
-static CURLcode pgrsupdate(struct Curl_easy *data, bool showprogress)
+સ્થિર CURLcode pgrsupdate(સંરચના Curl_easy *data, bool showprogress)
 {
-  if(!data->progress.hide) {
-    int rc;
-    if(data->set.fxferinfo) {
+  જો(!data->progress.hide) {
+    પૂર્ણાંક rc;
+    જો(data->set.fxferinfo) {
       /* There is a callback set, call that */
-      struct Curl_mapi_guard guard;
+      સંરચના Curl_mapi_guard guard;
       CURL_CBAPI_START(&guard, data, easy_fxferinfo);
       rc = data->set.fxferinfo(data->set.progress_client,
                                data->progress.dl.total_size,
@@ -669,103 +669,103 @@ static CURLcode pgrsupdate(struct Curl_easy *data, bool showprogress)
                                data->progress.ul.total_size,
                                data->progress.ul.cur_size);
       CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
+      જો(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        જો(rc) {
           failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+          પાછા CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        પાછા CURLE_OK;
       }
     }
-    else if(data->set.fprogress) {
+    નહીંતર જો(data->set.fprogress) {
       /* The older deprecated callback is set, call that */
-      struct Curl_mapi_guard guard;
+      સંરચના Curl_mapi_guard guard;
       CURL_CBAPI_START(&guard, data, easy_fprogress);
       rc = data->set.fprogress(data->set.progress_client,
-                               (double)data->progress.dl.total_size,
-                               (double)data->progress.dl.cur_size,
-                               (double)data->progress.ul.total_size,
-                               (double)data->progress.ul.cur_size);
+                               (દ્વિગુણ)data->progress.dl.total_size,
+                               (દ્વિગુણ)data->progress.dl.cur_size,
+                               (દ્વિગુણ)data->progress.ul.total_size,
+                               (દ્વિગુણ)data->progress.ul.cur_size);
       CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
+      જો(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        જો(rc) {
           failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+          પાછા CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        પાછા CURLE_OK;
       }
     }
 
-    if(showprogress)
+    જો(showprogress)
       progress_meter(data);
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode pgrs_update(struct Curl_easy *data,
-                            const struct curltime *pnow)
+સ્થિર CURLcode pgrs_update(સંરચના Curl_easy *data,
+                            અચલ સંરચના curltime *pnow)
 {
   bool showprogress = progress_calc(data, pnow);
-  return pgrsupdate(data, showprogress);
+  પાછા pgrsupdate(data, showprogress);
 }
 
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data)
+CURLcode Curl_pgrsUpdate(સંરચના Curl_easy *data)
 {
-  return pgrs_update(data, Curl_pgrs_now(data));
+  પાછા pgrs_update(data, Curl_pgrs_now(data));
 }
 
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data,
-                          const struct curltime *pnow)
+CURLcode Curl_pgrsUpdateX(સંરચના Curl_easy *data,
+                          અચલ સંરચના curltime *pnow)
 {
-  return pgrs_update(data, pnow);
+  પાછા pgrs_update(data, pnow);
 }
 
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data,
-                         const struct curltime *pnow)
+CURLcode Curl_pgrsCheckX(સંરચના Curl_easy *data,
+                         અચલ સંરચના curltime *pnow)
 {
   CURLcode result;
 
   result = pgrs_update(data, pnow);
-  if(!result && !data->req.done)
+  જો(!result && !data->req.done)
     result = pgrs_speedcheck(data, pnow);
-  return result;
+  પાછા result;
 }
 
-CURLcode Curl_pgrsCheck(struct Curl_easy *data)
+CURLcode Curl_pgrsCheck(સંરચના Curl_easy *data)
 {
-  return Curl_pgrsCheckX(data, Curl_pgrs_now(data));
+  પાછા Curl_pgrsCheckX(data, Curl_pgrs_now(data));
 }
 
 /*
  * Update all progress, do not do progress meter/callbacks.
  */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data)
+શૂન્ય Curl_pgrsUpdate_nometer(સંરચના Curl_easy *data)
 {
-  (void)progress_calc(data, Curl_pgrs_now(data));
+  (શૂન્ય)progress_calc(data, Curl_pgrs_now(data));
 }
 
-void Curl_pgrsCompleted(struct Curl_easy *data)
+શૂન્ય Curl_pgrsCompleted(સંરચના Curl_easy *data)
 {
-  struct Progress * const p = &data->progress;
+  સંરચના Progress * અચલ p = &data->progress;
   p->total.spent_us = curlx_ptimediff_us(Curl_pgrs_now(data), &p->start);
 }
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(સંરચના Curl_easy *data,
+                              અચલ સંરચના curltime *pnow,
                               timerid timer)
 {
-  if(!pnow)
+  જો(!pnow)
     pnow = Curl_pgrs_now(data);
-  switch(timer) {
-  case TIMER_STARTOP:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
+  પસંદગી(timer) {
+  સ્થિતિ TIMER_STARTOP:
+    પાછા (curlx_ptimediff_us(pnow, &data->progress.start) -
             data->progress.delta.startop_us) / 1000;
-  case TIMER_STARTSINGLE:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
+  સ્થિતિ TIMER_STARTSINGLE:
+    પાછા (curlx_ptimediff_us(pnow, &data->progress.start) -
             data->progress.delta.startsingle_us) / 1000;
-  default:
+  મૂળભૂત:
     DEBUGASSERT(0);
-    return 0;
+    પાછા 0;
   }
 }

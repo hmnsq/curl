@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
-#include "llist.h"
+#જો !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
+#અન્તર્ભાવ "llist.h"
 
-struct Curl_peer;
+સંરચના Curl_peer;
 
 /* the maximum number of alt-svc entries kept in a single cache */
 #define MAX_ALTSVC_ENTRIES 5000
 
-struct althost {
-  char *host;
+સંરચના althost {
+  અક્ષર *host;
   uint16_t port;
-  enum alpnid alpnid;
+  ગણના alpnid alpnid;
 };
 
-struct altsvc {
-  struct althost src;
-  struct althost dst;
+સંરચના altsvc {
+  સંરચના althost src;
+  સંરચના althost dst;
   time_t expires;
-  struct Curl_llist_node node;
+  સંરચના Curl_llist_ગાંઠ ગાંઠ;
   BIT(persist);
 };
 
-struct altsvcinfo {
-  char *filename;
-  struct Curl_llist list; /* list of entries */
+સંરચના altsvcinfo {
+  અક્ષર *filename;
+  સંરચના Curl_llist list; /* list of entries */
   long flags; /* the publicly set bitmask */
 };
 
-const char *Curl_alpnid2str(enum alpnid id);
-struct altsvcinfo *Curl_altsvc_init(void);
-CURLcode Curl_altsvc_load(struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_save(struct Curl_easy *data,
-                          struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_ctrl(struct Curl_easy *data, const long ctrl);
-void Curl_altsvc_cleanup(struct altsvcinfo **asi);
-CURLcode Curl_altsvc_parse(struct Curl_easy *data,
-                           struct altsvcinfo *asi, const char *value,
-                           struct Curl_peer *origin,
-                           enum alpnid origin_alpnid);
-bool Curl_altsvc_lookup(struct altsvcinfo *asi,
-                        struct Curl_peer *origin,
-                        enum alpnid origin_alpnid,
-                        struct altsvc **dstentry,
-                        const int versions, /* CURLALTSVC_H* bits */
+અચલ અક્ષર *Curl_alpnid2str(ગણના alpnid id);
+સંરચના altsvcinfo *Curl_altsvc_init(શૂન્ય);
+CURLcode Curl_altsvc_load(સંરચના altsvcinfo *asi, અચલ અક્ષર *file);
+CURLcode Curl_altsvc_save(સંરચના Curl_easy *data,
+                          સંરચના altsvcinfo *asi, અચલ અક્ષર *file);
+CURLcode Curl_altsvc_ctrl(સંરચના Curl_easy *data, અચલ long ctrl);
+શૂન્ય Curl_altsvc_cleanup(સંરચના altsvcinfo **asi);
+CURLcode Curl_altsvc_parse(સંરચના Curl_easy *data,
+                           સંરચના altsvcinfo *asi, અચલ અક્ષર *કિંમત,
+                           સંરચના Curl_peer *origin,
+                           ગણના alpnid origin_alpnid);
+bool Curl_altsvc_lookup(સંરચના altsvcinfo *asi,
+                        સંરચના Curl_peer *origin,
+                        ગણના alpnid origin_alpnid,
+                        સંરચના altsvc **dstentry,
+                        અચલ પૂર્ણાંક versions, /* CURLALTSVC_H* bits */
                         bool *psame_destination);
-#else
+#નહીંતર
 /* disabled */
 #define Curl_altsvc_save(a, b, c)
 #define Curl_altsvc_cleanup(x)

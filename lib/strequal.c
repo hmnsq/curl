@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#include "strcase.h"
+#અન્તર્ભાવ "strcase.h"
 
 /*
  * curl_strequal() is for doing "raw" case insensitive strings. This is meant
@@ -32,12 +32,12 @@
  * further explanations as to why this function is necessary.
  */
 
-static int casecompare(const char *first, const char *second)
+સ્થિર પૂર્ણાંક casecompare(અચલ અક્ષર *first, અચલ અક્ષર *second)
 {
-  while(*first) {
-    if(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
+  જ્યારે(*first) {
+    જો(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
       /* get out of the loop as soon as they do not match */
-      return 0;
+      પાછા 0;
     first++;
     second++;
   }
@@ -45,22 +45,22 @@ static int casecompare(const char *first, const char *second)
      We can test if the "current" character is non-zero for one and zero
      for the other. Note that the characters may not be exactly the same even
      if they match, we only want to compare zero-ness. */
-  return !*first == !*second;
+  પાછા !*first == !*second;
 }
 
-static int ncasecompare(const char *first, const char *second, size_t max)
+સ્થિર પૂર્ણાંક ncasecompare(અચલ અક્ષર *first, અચલ અક્ષર *second, size_t max)
 {
-  while(*first && max) {
-    if(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
-      return 0;
+  જ્યારે(*first && max) {
+    જો(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
+      પાછા 0;
     max--;
     first++;
     second++;
   }
-  if(max == 0)
-    return 1; /* they are equal this far */
+  જો(max == 0)
+    પાછા 1; /* they are equal this far */
 
-  return Curl_raw_toupper(*first) == Curl_raw_toupper(*second);
+  પાછા Curl_raw_toupper(*first) == Curl_raw_toupper(*second);
 }
 
 /*
@@ -73,23 +73,23 @@ static int ncasecompare(const char *first, const char *second, size_t max)
  */
 
 /* --- public function --- */
-int curl_strequal(const char *s1, const char *s2)
+પૂર્ણાંક curl_strequal(અચલ અક્ષર *s1, અચલ અક્ષર *s2)
 {
-  if(s1 && s2)
+  જો(s1 && s2)
     /* both pointers point to something then compare them */
-    return casecompare(s1, s2);
+    પાછા casecompare(s1, s2);
 
   /* if both pointers are NULL then treat them as equal */
-  return NULL == s1 && NULL == s2;
+  પાછા ખાલી == s1 && ખાલી == s2;
 }
 
 /* --- public function --- */
-int curl_strnequal(const char *s1, const char *s2, size_t n)
+પૂર્ણાંક curl_strnequal(અચલ અક્ષર *s1, અચલ અક્ષર *s2, size_t n)
 {
-  if(s1 && s2)
+  જો(s1 && s2)
     /* both pointers point to something then compare them */
-    return ncasecompare(s1, s2, n);
+    પાછા ncasecompare(s1, s2, n);
 
   /* if both pointers are NULL then treat them as equal if max is non-zero */
-  return NULL == s1 && NULL == s2 && n;
+  પાછા ખાલી == s1 && ખાલી == s2 && n;
 }

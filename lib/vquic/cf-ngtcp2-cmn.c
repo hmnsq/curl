@@ -21,109 +21,109 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#જો !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
-#include <ngtcp2/ngtcp2.h>
+#અન્તર્ભાવ <ngtcp2/ngtcp2.h>
 
 #ifdef USE_OPENSSL
-#include <openssl/err.h>
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
-#include <ngtcp2/ngtcp2_crypto_boringssl.h>
-#elif defined(OPENSSL_QUIC_API2)
-#include <ngtcp2/ngtcp2_crypto_ossl.h>
-#else
-#include <ngtcp2/ngtcp2_crypto_quictls.h>
+#અન્તર્ભાવ <openssl/err.h>
+#જો defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+#અન્તર્ભાવ <ngtcp2/ngtcp2_crypto_boringssl.h>
+#અથવાજો defined(OPENSSL_QUIC_API2)
+#અન્તર્ભાવ <ngtcp2/ngtcp2_crypto_ossl.h>
+#નહીંતર
+#અન્તર્ભાવ <ngtcp2/ngtcp2_crypto_quictls.h>
 #endif
-#include "vtls/openssl.h"
-#elif defined(USE_GNUTLS)
-#include <ngtcp2/ngtcp2_crypto_gnutls.h>
-#include "vtls/gtls.h"
-#elif defined(USE_WOLFSSL)
-#include <ngtcp2/ngtcp2_crypto_wolfssl.h>
-#include "vtls/wolfssl.h"
+#અન્તર્ભાવ "vtls/openssl.h"
+#અથવાજો defined(USE_GNUTLS)
+#અન્તર્ભાવ <ngtcp2/ngtcp2_crypto_gnutls.h>
+#અન્તર્ભાવ "vtls/gtls.h"
+#અથવાજો defined(USE_WOLFSSL)
+#અન્તર્ભાવ <ngtcp2/ngtcp2_crypto_wolfssl.h>
+#અન્તર્ભાવ "vtls/wolfssl.h"
 #endif
 
-#include <nghttp3/nghttp3.h>
+#અન્તર્ભાવ <nghttp3/nghttp3.h>
 
-#include "urldata.h"
-#include "url.h"
-#include "u32_ptrset.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "multiif.h"
-#include "cfilters.h"
-#include "cf-socket.h"
-#include "connect.h"
-#include "progress.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/dynbuf.h"
-#include "http1.h"
-#include "select.h"
-#include "sockaddr.h"
-#include "transfer.h"
-#include "bufref.h"
-#include "vdns/cf-dns.h"
-#include "vquic/vquic.h"
-#include "vquic/vquic_int.h"
-#include "vquic/vquic-tls.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "vquic/cf-ngtcp2-cmn.h"
+#અન્તર્ભાવ "urldata.h"
+#અન્તર્ભાવ "url.h"
+#અન્તર્ભાવ "u32_ptrset.h"
+#અન્તર્ભાવ "curl_trc.h"
+#અન્તર્ભાવ "rand.h"
+#અન્તર્ભાવ "multiif.h"
+#અન્તર્ભાવ "cfilters.h"
+#અન્તર્ભાવ "cf-socket.h"
+#અન્તર્ભાવ "connect.h"
+#અન્તર્ભાવ "progress.h"
+#અન્તર્ભાવ "curlx/win32-fopen.h"
+#અન્તર્ભાવ "curlx/dynbuf.h"
+#અન્તર્ભાવ "http1.h"
+#અન્તર્ભાવ "select.h"
+#અન્તર્ભાવ "sockaddr.h"
+#અન્તર્ભાવ "transfer.h"
+#અન્તર્ભાવ "bufref.h"
+#અન્તર્ભાવ "vdns/cf-dns.h"
+#અન્તર્ભાવ "vquic/vquic.h"
+#અન્તર્ભાવ "vquic/vquic_int.h"
+#અન્તર્ભાવ "vquic/vquic-tls.h"
+#અન્તર્ભાવ "vtls/vtls.h"
+#અન્તર્ભાવ "vtls/vtls_scache.h"
+#અન્તર્ભાવ "vquic/cf-ngtcp2-cmn.h"
 
 /*
  * Store ngtcp2 version info in this buffer.
  */
-void Curl_ngtcp2_ver(char *p, size_t len)
+શૂન્ય Curl_ngtcp2_ver(અક્ષર *p, size_t len)
 {
-  const ngtcp2_info *ng2 = ngtcp2_version(0);
-  const nghttp3_info *ht3 = nghttp3_version(0);
-  (void)curl_msnprintf(p, len, "ngtcp2/%s nghttp3/%s",
+  અચલ ngtcp2_info *ng2 = ngtcp2_version(0);
+  અચલ nghttp3_info *ht3 = nghttp3_version(0);
+  (શૂન્ય)curl_msnprintf(p, len, "ngtcp2/%s nghttp3/%s",
                        ng2->version_str, ht3->version_str);
 }
 
-void Curl_cf_ngtcp2_h3_stream_ctx_free(struct h3_stream_ctx *stream)
+શૂન્ય Curl_cf_ngtcp2_h3_stream_ctx_free(સંરચના h3_stream_ctx *stream)
 {
   Curl_bufq_free(&stream->sendbuf);
   Curl_h1_req_parse_free(&stream->h1);
   curlx_free(stream);
 }
 
-static void h3_stream_set_free(uint32_t id, void *stream)
+સ્થિર શૂન્ય h3_stream_set_free(uint32_t id, શૂન્ય *stream)
 {
-  (void)id;
+  (શૂન્ય)id;
   DEBUGASSERT(stream);
-  Curl_cf_ngtcp2_h3_stream_ctx_free((struct h3_stream_ctx *)stream);
+  Curl_cf_ngtcp2_h3_stream_ctx_free((સંરચના h3_stream_ctx *)stream);
 }
 
-static bool cf_ngtcp2_h3_err_is_fatal(int code)
+સ્થિર bool cf_ngtcp2_h3_err_is_fatal(પૂર્ણાંક code)
 {
-  return (NGHTTP3_ERR_FATAL >= code) ||
+  પાછા (NGHTTP3_ERR_FATAL >= code) ||
          (NGHTTP3_ERR_H3_CLOSED_CRITICAL_STREAM == code);
 }
 
-void Curl_cf_ngtcp2_h3_err_set(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, int code)
+શૂન્ય Curl_cf_ngtcp2_h3_err_set(સંરચના Curl_cfilter *cf,
+                               સંરચના Curl_easy *data, પૂર્ણાંક code)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  if(!ctx->last_error.error_code) {
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  જો(!ctx->last_error.error_code) {
     ngtcp2_ccerr_set_application_error(&ctx->last_error,
-      nghttp3_err_infer_quic_app_error_code(code), NULL, 0);
+      nghttp3_err_infer_quic_app_error_code(code), ખાલી, 0);
   }
-  if(cf_ngtcp2_h3_err_is_fatal(code))
+  જો(cf_ngtcp2_h3_err_is_fatal(code))
     Curl_cf_ngtcp2_cmn_conn_close(cf, data);
 }
 
-CURLcode Curl_cf_ngtcp2_ctx_init(struct cf_ngtcp2_ctx *ctx,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
-                                 struct ssl_filter_config *sslc,
+CURLcode Curl_cf_ngtcp2_ctx_init(સંરચના cf_ngtcp2_ctx *ctx,
+                                 સંરચના Curl_peer *origin,
+                                 સંરચના Curl_peer *peer,
+                                 સંરચના ssl_filter_config *sslc,
                                  cf_ngtcp2_init_h3_conn *init_h3_conn_cb)
 {
   DEBUGASSERT(!ctx->initialized);
   ctx->qlogfd = -1;
-  ctx->tunnel_inbuf = NULL;
+  ctx->tunnel_inbuf = ખાલી;
   ctx->tunnel_inbuf_len = 0;
   ctx->version = NGTCP2_PROTO_VER_MAX;
   Curl_bufcp_init(&ctx->stream_bufcp, H3_STREAM_CHUNK_SIZE,
@@ -132,13 +132,13 @@ CURLcode Curl_cf_ngtcp2_ctx_init(struct cf_ngtcp2_ctx *ctx,
   Curl_u32_ptrset_init(&ctx->streams, h3_stream_set_free);
   ctx->init_h3_conn_cb = init_h3_conn_cb;
   ctx->initialized = TRUE;
-  return Curl_vquic_tls_peer_init(origin, peer, sslc, &ctx->ssl_peer);
+  પાછા Curl_vquic_tls_peer_init(origin, peer, sslc, &ctx->ssl_peer);
 }
 
-void Curl_cf_ngtcp2_ctx_cleanup(struct cf_ngtcp2_ctx *ctx)
+શૂન્ય Curl_cf_ngtcp2_ctx_cleanup(સંરચના cf_ngtcp2_ctx *ctx)
 {
-  if(ctx && ctx->initialized) {
-    if(ctx->qlogfd != -1) {
+  જો(ctx && ctx->initialized) {
+    જો(ctx->qlogfd != -1) {
       curlx_close(ctx->qlogfd);
       ctx->qlogfd = -1;
     }
@@ -146,18 +146,18 @@ void Curl_cf_ngtcp2_ctx_cleanup(struct cf_ngtcp2_ctx *ctx)
      * might be registered there. */
     Curl_vquic_tls_cleanup(&ctx->tls);
     Curl_vquic_ctx_free(&ctx->q);
-    if(ctx->h3conn) {
+    જો(ctx->h3conn) {
       nghttp3_conn_del(ctx->h3conn);
-      ctx->h3conn = NULL;
+      ctx->h3conn = ખાલી;
     }
-    if(ctx->qconn) {
+    જો(ctx->qconn) {
       ngtcp2_conn_del(ctx->qconn);
-      ctx->qconn = NULL;
+      ctx->qconn = ખાલી;
     }
 #ifdef OPENSSL_QUIC_API2
-    if(ctx->ossl_ctx) {
+    જો(ctx->ossl_ctx) {
       ngtcp2_crypto_ossl_ctx_del(ctx->ossl_ctx);
-      ctx->ossl_ctx = NULL;
+      ctx->ossl_ctx = ખાલી;
     }
 #endif
     Curl_bufcp_free(&ctx->stream_bufcp);
@@ -169,40 +169,40 @@ void Curl_cf_ngtcp2_ctx_cleanup(struct cf_ngtcp2_ctx *ctx)
   }
 }
 
-struct Curl_easy *Curl_cf_ngtcp2_get_xfer(struct Curl_cfilter *cf,
-                                          void *stream_user_data,
-                                          struct h3_stream_ctx **pstream)
+સંરચના Curl_easy *Curl_cf_ngtcp2_get_xfer(સંરચના Curl_cfilter *cf,
+                                          શૂન્ય *stream_user_data,
+                                          સંરચના h3_stream_ctx **pstream)
 {
-  struct h3_stream_ctx *stream = stream_user_data;
+  સંરચના h3_stream_ctx *stream = stream_user_data;
 
-  if(pstream)
+  જો(pstream)
     *pstream = stream;
-  if(stream && (stream->mid != UINT32_MAX)) {
-    struct Curl_easy *data, *call_data = CF_DATA_CURRENT(cf);
-    if(!call_data || !call_data->multi) {
+  જો(stream && (stream->mid != UINT32_MAX)) {
+    સંરચના Curl_easy *data, *call_data = CF_DATA_CURRENT(cf);
+    જો(!call_data || !call_data->multi) {
       DEBUGASSERT(0);
-      return NULL;
+      પાછા ખાલી;
     }
     data = Curl_multi_get_easy(call_data->multi, stream->mid);
-    if(data && (data->id == stream->xfer_id))
-      return data;
+    જો(data && (data->id == stream->xfer_id))
+      પાછા data;
     DEBUGASSERT(0);
   }
-  return NULL;
+  પાછા ખાલી;
 }
 
-static ngtcp2_conn *get_conn(ngtcp2_crypto_conn_ref *conn_ref)
+સ્થિર ngtcp2_conn *get_conn(ngtcp2_crypto_conn_ref *conn_ref)
 {
-  struct Curl_cfilter *cf = conn_ref->user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  return ctx->qconn;
+  સંરચના Curl_cfilter *cf = conn_ref->user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  પાછા ctx->qconn;
 }
 
 #ifdef DEBUG_NGTCP2
-static void quic_printf(void *user_data, const char *fmt, ...)
+સ્થિર શૂન્ય quic_printf(શૂન્ય *user_data, અચલ અક્ષર *fmt, ...)
 {
   va_list ap;
-  (void)user_data;
+  (શૂન્ય)user_data;
   va_start(ap, fmt);
   curl_mvfprintf(stderr, fmt, ap);
   va_end(ap);
@@ -210,15 +210,15 @@ static void quic_printf(void *user_data, const char *fmt, ...)
 }
 #endif
 
-static void qlog_callback(void *user_data, uint32_t flags,
-                          const void *data, size_t datalen)
+સ્થિર શૂન્ય qlog_callback(શૂન્ય *user_data, uint32_t flags,
+                          અચલ શૂન્ય *data, size_t datalen)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  (void)flags;
-  if(ctx->qlogfd != -1) {
-    ssize_t rc = write(ctx->qlogfd, data, datalen);
-    if(rc == -1) {
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  (શૂન્ય)flags;
+  જો(ctx->qlogfd != -1) {
+    ssize_t rc = લિખ(ctx->qlogfd, data, datalen);
+    જો(rc == -1) {
       /* on write error, stop further write attempts */
       curlx_close(ctx->qlogfd);
       ctx->qlogfd = -1;
@@ -226,9 +226,9 @@ static void qlog_callback(void *user_data, uint32_t flags,
   }
 }
 
-static void quic_settings(struct cf_ngtcp2_ctx *ctx,
-                          struct Curl_easy *data,
-                          struct cf_ngtcp2_io_ctx *pktx)
+સ્થિર શૂન્ય quic_settings(સંરચના cf_ngtcp2_ctx *ctx,
+                          સંરચના Curl_easy *data,
+                          સંરચના cf_ngtcp2_io_ctx *pktx)
 {
   ngtcp2_settings *s = &ctx->settings;
   ngtcp2_transport_params *t = &ctx->transport_params;
@@ -237,8 +237,8 @@ static void quic_settings(struct cf_ngtcp2_ctx *ctx,
   ngtcp2_transport_params_default(t);
 #ifdef DEBUG_NGTCP2
   s->log_printf = quic_printf;
-#else
-  s->log_printf = NULL;
+#નહીંતર
+  s->log_printf = ખાલી;
 #endif
 
   s->initial_ts = pktx->ts;
@@ -259,28 +259,28 @@ static void quic_settings(struct cf_ngtcp2_ctx *ctx,
   t->initial_max_streams_bidi = QUIC_MAX_STREAMS;
   t->initial_max_streams_uni = QUIC_MAX_STREAMS;
   t->max_idle_timeout = 0; /* no idle timeout from our side */
-  if(ctx->qlogfd != -1) {
+  જો(ctx->qlogfd != -1) {
     s->qlog_write = qlog_callback;
   }
 }
 
-#if defined(_MSC_VER) && defined(_DLL)
-#pragma warning(push)
+#જો defined(_MSC_VER) && defined(_DLL)
+#pragma warning(ધકેલો)
 #pragma warning(disable:4232) /* MSVC extension, dllimport identity */
 #endif
 
-static int cb_ngtcp2_handshake_completed(ngtcp2_conn *tconn, void *user_data)
+સ્થિર પૂર્ણાંક cb_ngtcp2_handshake_completed(ngtcp2_conn *tconn, શૂન્ય *user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf ? cf->ctx : NULL;
-  struct Curl_easy *data;
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf ? cf->ctx : ખાલી;
+  સંરચના Curl_easy *data;
 
-  (void)tconn;
+  (શૂન્ય)tconn;
   DEBUGASSERT(ctx);
   data = CF_DATA_CURRENT(cf);
   DEBUGASSERT(data);
-  if(!ctx || !data)
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(!ctx || !data)
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
 
   ctx->handshake_at = *Curl_pgrs_now(data);
   ctx->tls_handshake_complete = TRUE;
@@ -288,12 +288,12 @@ static int cb_ngtcp2_handshake_completed(ngtcp2_conn *tconn, void *user_data)
 
   ctx->tls_vrfy_result = Curl_vquic_tls_verify_peer(&ctx->tls, cf,
                                                     data, &ctx->ssl_peer);
-  if(ctx->tls_vrfy_result)
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(ctx->tls_vrfy_result)
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
 
 #ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
-    const ngtcp2_transport_params *rp;
+  જો(Curl_trc_is_verbose(data)) {
+    અચલ ngtcp2_transport_params *rp;
     rp = ngtcp2_conn_get_remote_transport_params(ctx->qconn);
     CURL_TRC_CF(data, cf, "handshake complete after %" FMT_TIMEDIFF_T
                 "ms, remote transport[max_udp_payload=%" PRIu64
@@ -305,37 +305,37 @@ static int cb_ngtcp2_handshake_completed(ngtcp2_conn *tconn, void *user_data)
 
   /* In case of earlydata, where we simulate being connected, update
    * the handshake time when we really did connect */
-  if(ctx->use_earlydata && !ctx->stats_reported &&
+  જો(ctx->use_earlydata && !ctx->stats_reported &&
      !(cf->cft->flags & CF_TYPE_PROXY)) {
     Curl_pgrsTimeWas(data, TIMER_APPCONNECT, ctx->handshake_at);
     ctx->stats_reported = TRUE;
   }
-  if(ctx->use_earlydata) {
-#if defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA)
+  જો(ctx->use_earlydata) {
+#જો defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA)
     /* Check for bug that OpenSSL did not even send the early data. */
-    if(SSL_get_early_data_status(ctx->tls.ossl.ssl) == SSL_EARLY_DATA_NOT_SENT)
+    જો(SSL_get_early_data_status(ctx->tls.ossl.ssl) == SSL_EARLY_DATA_NOT_SENT)
       CURL_TRC_CF(data, cf, "OpenSSL did not send early data");
 #endif
 
-#if NGTCP2_VERSION_NUM >= 0x011700
+#જો NGTCP2_VERSION_અંક >= 0x011700
     ctx->earlydata_accepted =
       !ngtcp2_conn_get_tls_early_data_rejected2(ctx->qconn);
-#else /* older NGTCP2 */
+#નહીંતર /* older NGTCP2 */
     {
-#if defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA)
-      int ossl_early_status = SSL_get_early_data_status(ctx->tls.ossl.ssl);
-      if(ossl_early_status == SSL_EARLY_DATA_NOT_SENT)
+#જો defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA)
+      પૂર્ણાંક ossl_early_status = SSL_get_early_data_status(ctx->tls.ossl.ssl);
+      જો(ossl_early_status == SSL_EARLY_DATA_NOT_SENT)
         CURL_TRC_CF(data, cf, "OpenSSL did not send early data");
       ctx->earlydata_accepted = (ossl_early_status == SSL_EARLY_DATA_ACCEPTED);
-#elif defined(USE_GNUTLS)
-      int flags = gnutls_session_get_flags(ctx->tls.gtls.session);
+#અથવાજો defined(USE_GNUTLS)
+      પૂર્ણાંક flags = gnutls_session_get_flags(ctx->tls.gtls.session);
       ctx->earlydata_accepted = !!(flags & GNUTLS_SFLAGS_EARLY_DATA);
-#elif defined(USE_WOLFSSL)
+#અથવાજો defined(USE_WOLFSSL)
 #ifdef WOLFSSL_EARLY_DATA
       ctx->earlydata_accepted =
         (wolfSSL_get_early_data_status(ctx->tls.wssl.ssl) !=
          WOLFSSL_EARLY_DATA_REJECTED);
-#else
+#નહીંતર
       DEBUGASSERT(0); /* should not come here if ED is disabled. */
       ctx->earlydata_accepted = FALSE;
 #endif /* WOLFSSL_EARLY_DATA */
@@ -348,227 +348,227 @@ static int cb_ngtcp2_handshake_completed(ngtcp2_conn *tconn, void *user_data)
                               (curl_off_t)ctx->earlydata_skip :
                              -(curl_off_t)ctx->earlydata_skip);
   }
-  return 0;
+  પાછા 0;
 }
 
-static int cb_recv_stream_data(ngtcp2_conn *tconn, uint32_t flags,
+સ્થિર પૂર્ણાંક cb_recv_stream_data(ngtcp2_conn *tconn, uint32_t flags,
                                int64_t stream_id, uint64_t offset,
-                               const uint8_t *buf, size_t buflen,
-                               void *user_data, void *stream_user_data)
+                               અચલ uint8_t *buf, size_t buflen,
+                               શૂન્ય *user_data, શૂન્ય *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
   nghttp3_ssize rc;
   uint64_t nconsumed;
-  int fin = (flags & NGTCP2_STREAM_DATA_FLAG_FIN) ? 1 : 0;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
+  પૂર્ણાંક fin = (flags & NGTCP2_STREAM_DATA_FLAG_FIN) ? 1 : 0;
+  સંરચના h3_stream_ctx *stream;
+  સંરચના Curl_easy *data =
     Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
 
-  (void)offset;
+  (શૂન્ય)offset;
   rc = nghttp3_conn_read_stream(ctx->h3conn, stream_id, buf, buflen, fin);
-  if(rc < 0) {
-    if(data && stream) {
+  જો(rc < 0) {
+    જો(data && stream) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] error on known stream, "
                   "reset=%d, closed=%d",
                   stream_id, stream->reset, stream->closed);
     }
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   }
   nconsumed = (uint64_t)rc;
-  if(nconsumed) {
+  જો(nconsumed) {
     /* number of bytes inside buflen which consists of framing overhead
      * including QPACK HEADERS. In other words, it does not consume payload of
      * DATA frame. */
     ngtcp2_conn_extend_max_stream_offset(tconn, stream_id, nconsumed);
     ngtcp2_conn_extend_max_offset(tconn, nconsumed);
-    if(stream) {
+    જો(stream) {
       stream->rx_offset += nconsumed;
       stream->rx_offset_max += nconsumed;
     }
   }
-  return 0;
+  પાછા 0;
 }
 
-static int cb_acked_stream_data_offset(ngtcp2_conn *tconn, int64_t stream_id,
+સ્થિર પૂર્ણાંક cb_acked_stream_data_offset(ngtcp2_conn *tconn, int64_t stream_id,
                                        uint64_t offset, uint64_t datalen,
-                                       void *user_data, void *stream_user_data)
+                                       શૂન્ય *user_data, શૂન્ય *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  int rv;
-  (void)stream_id;
-  (void)tconn;
-  (void)offset;
-  (void)datalen;
-  (void)stream_user_data;
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  પૂર્ણાંક rv;
+  (શૂન્ય)stream_id;
+  (શૂન્ય)tconn;
+  (શૂન્ય)offset;
+  (શૂન્ય)datalen;
+  (શૂન્ય)stream_user_data;
 
   rv = nghttp3_conn_add_ack_offset(ctx->h3conn, stream_id, datalen);
-  if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  પાછા 0;
 }
 
-static int cb_stream_close(ngtcp2_conn *tconn, uint32_t flags,
+સ્થિર પૂર્ણાંક cb_stream_close(ngtcp2_conn *tconn, uint32_t flags,
                            int64_t stream_id, uint64_t app_error_code,
-                           void *user_data, void *stream_user_data)
+                           શૂન્ય *user_data, શૂન્ય *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, NULL);
-  int rv;
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, ખાલી);
+  પૂર્ણાંક rv;
 
-  (void)tconn;
+  (શૂન્ય)tconn;
   /* stream is closed... */
-  if(!data)
+  જો(!data)
     data = CF_DATA_CURRENT(cf);
-  if(!data)
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(!data)
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
 
-  if(!(flags & NGTCP2_STREAM_CLOSE_FLAG_APP_ERROR_CODE_SET)) {
+  જો(!(flags & NGTCP2_STREAM_CLOSE_FLAG_APP_ERROR_CODE_SET)) {
     app_error_code = NGHTTP3_H3_NO_ERROR;
   }
 
   rv = nghttp3_conn_close_stream(ctx->h3conn, stream_id, app_error_code);
   CURL_TRC_CF(data, cf, "[%" PRId64 "] quic close(app_error=%"
               PRIu64 ") -> %d", stream_id, app_error_code, rv);
-  if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
+  જો(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
     Curl_cf_ngtcp2_h3_err_set(cf, data, rv);
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  પાછા 0;
 }
 
 #ifdef NGTCP2_CALLBACKS_V5  /* ngtcp2 v1.25.0+ */
-static int cb_stream_close2(ngtcp2_conn *tconn, uint32_t flags,
+સ્થિર પૂર્ણાંક cb_stream_close2(ngtcp2_conn *tconn, uint32_t flags,
                            int64_t stream_id,
                            uint64_t rx_app_error_code,
                            uint64_t tx_app_error_code,
-                           void *user_data, void *stream_user_data)
+                           શૂન્ય *user_data, શૂન્ય *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, NULL);
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, ખાલી);
   uint64_t h3_app_error_code = NGHTTP3_H3_NO_ERROR;
-  int rv;
+  પૂર્ણાંક rv;
 
-  (void)tconn;
-  (void)tx_app_error_code;
+  (શૂન્ય)tconn;
+  (શૂન્ય)tx_app_error_code;
   /* stream is closed... */
-  if(!data)
+  જો(!data)
     data = CF_DATA_CURRENT(cf);
-  if(!data)
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(!data)
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
 
-  if(flags & NGTCP2_STREAM_CLOSE2_FLAG_RX_APP_ERROR_CODE_SET)
+  જો(flags & NGTCP2_STREAM_CLOSE2_FLAG_RX_APP_ERROR_CODE_SET)
     h3_app_error_code = rx_app_error_code;
 
   rv = nghttp3_conn_close_stream(ctx->h3conn, stream_id, h3_app_error_code);
   CURL_TRC_CF(data, cf, "[%" PRId64 "] quic close(app_error=%"
               PRIu64 ") -> %d", stream_id, h3_app_error_code, rv);
-  if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
+  જો(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
     Curl_cf_ngtcp2_h3_err_set(cf, data, rv);
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  પાછા 0;
 }
 #endif
 
-static int cb_stream_reset(ngtcp2_conn *tconn, int64_t stream_id,
+સ્થિર પૂર્ણાંક cb_stream_reset(ngtcp2_conn *tconn, int64_t stream_id,
                            uint64_t final_size, uint64_t app_error_code,
-                           void *user_data, void *stream_user_data)
+                           શૂન્ય *user_data, શૂન્ય *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, NULL);
-  int rv;
-  (void)tconn;
-  (void)final_size;
-  (void)app_error_code;
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, ખાલી);
+  પૂર્ણાંક rv;
+  (શૂન્ય)tconn;
+  (શૂન્ય)final_size;
+  (શૂન્ય)app_error_code;
 
   rv = nghttp3_conn_shutdown_stream_read(ctx->h3conn, stream_id);
-  if(data)
+  જો(data)
     CURL_TRC_CF(data, cf, "[%" PRId64 "] reset -> %d", stream_id, rv);
-  if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  પાછા 0;
 }
 
-static int cb_stream_stop_sending(ngtcp2_conn *tconn, int64_t stream_id,
-                                  uint64_t app_error_code, void *user_data,
-                                  void *stream_user_data)
+સ્થિર પૂર્ણાંક cb_stream_stop_sending(ngtcp2_conn *tconn, int64_t stream_id,
+                                  uint64_t app_error_code, શૂન્ય *user_data,
+                                  શૂન્ય *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  int rv;
-  (void)tconn;
-  (void)app_error_code;
-  (void)stream_user_data;
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  પૂર્ણાંક rv;
+  (શૂન્ય)tconn;
+  (શૂન્ય)app_error_code;
+  (શૂન્ય)stream_user_data;
 
   rv = nghttp3_conn_shutdown_stream_read(ctx->h3conn, stream_id);
-  if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  પાછા 0;
 }
 
-static int cb_extend_max_local_streams_bidi(ngtcp2_conn *tconn,
+સ્થિર પૂર્ણાંક cb_extend_max_local_streams_bidi(ngtcp2_conn *tconn,
                                             uint64_t max_streams,
-                                            void *user_data)
+                                            શૂન્ય *user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના Curl_easy *data = CF_DATA_CURRENT(cf);
 
-  (void)tconn;
+  (શૂન્ય)tconn;
   ctx->max_bidi_streams = max_streams;
-  if(data)
+  જો(data)
     CURL_TRC_CF(data, cf, "max bidi streams now %" PRIu64 ", used %" PRIu64,
                 ctx->max_bidi_streams, ctx->used_bidi_streams);
-  return 0;
+  પાછા 0;
 }
 
-static int cb_extend_max_stream_data(ngtcp2_conn *tconn, int64_t stream_id,
-                                     uint64_t max_data, void *user_data,
-                                     void *stream_user_data)
+સ્થિર પૂર્ણાંક cb_extend_max_stream_data(ngtcp2_conn *tconn, int64_t stream_id,
+                                     uint64_t max_data, શૂન્ય *user_data,
+                                     શૂન્ય *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના h3_stream_ctx *stream;
+  સંરચના Curl_easy *data =
     Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  int rv;
-  (void)tconn;
-  (void)max_data;
+  પૂર્ણાંક rv;
+  (શૂન્ય)tconn;
+  (શૂન્ય)max_data;
 
   rv = nghttp3_conn_unblock_stream(ctx->h3conn, stream_id);
-  if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   }
-  if(stream && stream->quic_flow_blocked) {
+  જો(stream && stream->quic_flow_blocked) {
     CURL_TRC_CF(data, cf, "[%" PRId64 "] unblock quic flow", stream_id);
     stream->quic_flow_blocked = FALSE;
-    if(data)
+    જો(data)
       Curl_multi_mark_dirty(data);
   }
-  return 0;
+  પાછા 0;
 }
 
-static void cb_rand(uint8_t *dest, size_t destlen,
-                    const ngtcp2_rand_ctx *rand_ctx)
+સ્થિર શૂન્ય cb_rand(uint8_t *dest, size_t destlen,
+                    અચલ ngtcp2_rand_ctx *rand_ctx)
 {
   CURLcode result;
-  (void)rand_ctx;
+  (શૂન્ય)rand_ctx;
 
-  result = Curl_rand(NULL, dest, destlen);
-  if(result) {
+  result = Curl_rand(ખાલી, dest, destlen);
+  જો(result) {
     /* cb_rand is only used for non-cryptographic context. If Curl_rand
        failed, fill 0 and call it *random*. */
     memset(dest, 0, destlen);
@@ -576,310 +576,310 @@ static void cb_rand(uint8_t *dest, size_t destlen,
 }
 
 /* for ngtcp2 <v1.22.0 */
-static int cb_get_new_connection_id(ngtcp2_conn *tconn, ngtcp2_cid *cid,
+સ્થિર પૂર્ણાંક cb_get_new_connection_id(ngtcp2_conn *tconn, ngtcp2_cid *cid,
                                     uint8_t *token, size_t cidlen,
-                                    void *user_data)
+                                    શૂન્ય *user_data)
 {
   CURLcode result;
-  (void)tconn;
-  (void)user_data;
+  (શૂન્ય)tconn;
+  (શૂન્ય)user_data;
 
-  result = Curl_rand(NULL, cid->data, cidlen);
-  if(result)
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  result = Curl_rand(ખાલી, cid->data, cidlen);
+  જો(result)
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   cid->datalen = cidlen;
 
-  result = Curl_rand(NULL, token, NGTCP2_STATELESS_RESET_TOKENLEN);
-  if(result)
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  result = Curl_rand(ખાલી, token, NGTCP2_STATELESS_RESET_TOKENLEN);
+  જો(result)
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
 
-  return 0;
+  પાછા 0;
 }
 
 #ifdef NGTCP2_CALLBACKS_V3  /* ngtcp2 v1.22.0+ */
-static int cb_get_new_connection_id2(
+સ્થિર પૂર્ણાંક cb_get_new_connection_id2(
   ngtcp2_conn *tconn, ngtcp2_cid *cid,
-  struct ngtcp2_stateless_reset_token *token, size_t cidlen, void *user_data)
+  સંરચના ngtcp2_stateless_reset_token *token, size_t cidlen, શૂન્ય *user_data)
 {
   CURLcode result;
-  (void)tconn;
-  (void)user_data;
+  (શૂન્ય)tconn;
+  (શૂન્ય)user_data;
 
-  result = Curl_rand(NULL, cid->data, cidlen);
-  if(result)
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  result = Curl_rand(ખાલી, cid->data, cidlen);
+  જો(result)
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   cid->datalen = cidlen;
 
-  result = Curl_rand(NULL, token->data, sizeof(token->data));
-  if(result)
-    return NGTCP2_ERR_CALLBACK_FAILURE;
+  result = Curl_rand(ખાલી, token->data, કદ(token->data));
+  જો(result)
+    પાછા NGTCP2_ERR_CALLBACK_FAILURE;
 
-  return 0;
+  પાછા 0;
 }
 #endif
 
-static int cb_recv_rx_key(ngtcp2_conn *tconn, ngtcp2_encryption_level level,
-                          void *user_data)
+સ્થિર પૂર્ણાંક cb_recv_rx_ચાવી(ngtcp2_conn *tconn, ngtcp2_encryption_level level,
+                          શૂન્ય *user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf ? cf->ctx : NULL;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  (void)tconn;
+  સંરચના Curl_cfilter *cf = user_data;
+  સંરચના cf_ngtcp2_ctx *ctx = cf ? cf->ctx : ખાલી;
+  સંરચના Curl_easy *data = CF_DATA_CURRENT(cf);
+  (શૂન્ય)tconn;
 
-  if(level != NGTCP2_ENCRYPTION_LEVEL_1RTT)
-    return 0;
+  જો(level != NGTCP2_ENCRYPTION_LEVEL_1RTT)
+    પાછા 0;
 
   DEBUGASSERT(ctx);
   DEBUGASSERT(data);
-  if(ctx && data && !ctx->h3conn && ctx->init_h3_conn_cb) {
-    if(ctx->init_h3_conn_cb(cf, data, ctx))
-      return NGTCP2_ERR_CALLBACK_FAILURE;
+  જો(ctx && data && !ctx->h3conn && ctx->init_h3_conn_cb) {
+    જો(ctx->init_h3_conn_cb(cf, data, ctx))
+      પાછા NGTCP2_ERR_CALLBACK_FAILURE;
   }
-  return 0;
+  પાછા 0;
 }
 
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic ધકેલો
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
-static ngtcp2_callbacks ng_callbacks = {
+સ્થિર ngtcp2_callbacks ng_callbacks = {
   ngtcp2_crypto_client_initial_cb,
-  NULL, /* recv_client_initial */
+  ખાલી, /* recv_client_initial */
   ngtcp2_crypto_recv_crypto_data_cb,
   cb_ngtcp2_handshake_completed,
-  NULL, /* recv_version_negotiation */
+  ખાલી, /* recv_version_negotiation */
   ngtcp2_crypto_encrypt_cb,
   ngtcp2_crypto_decrypt_cb,
   ngtcp2_crypto_hp_mask_cb,
   cb_recv_stream_data,
   cb_acked_stream_data_offset,
-  NULL, /* stream_open */
+  ખાલી, /* stream_open */
   cb_stream_close,
-  NULL, /* recv_stateless_reset */
+  ખાલી, /* recv_stateless_reset */
   ngtcp2_crypto_recv_retry_cb,
   cb_extend_max_local_streams_bidi,
-  NULL, /* extend_max_local_streams_uni */
+  ખાલી, /* extend_max_local_streams_uni */
   cb_rand,
   cb_get_new_connection_id, /* for ngtcp2 <v1.22.0 */
-  NULL, /* remove_connection_id */
-  ngtcp2_crypto_update_key_cb, /* update_key */
-  NULL, /* path_validation */
-  NULL, /* select_preferred_addr */
+  ખાલી, /* remove_connection_id */
+  ngtcp2_crypto_update_ચાવી_cb, /* update_key */
+  ખાલી, /* path_validation */
+  ખાલી, /* select_preferred_addr */
   cb_stream_reset,
-  NULL, /* extend_max_remote_streams_bidi */
-  NULL, /* extend_max_remote_streams_uni */
+  ખાલી, /* extend_max_remote_streams_bidi */
+  ખાલી, /* extend_max_remote_streams_uni */
   cb_extend_max_stream_data,
-  NULL, /* dcid_status */
-  NULL, /* handshake_confirmed */
-  NULL, /* recv_new_token */
+  ખાલી, /* dcid_status */
+  ખાલી, /* handshake_confirmed */
+  ખાલી, /* recv_new_token */
   ngtcp2_crypto_delete_crypto_aead_ctx_cb,
   ngtcp2_crypto_delete_crypto_cipher_ctx_cb,
-  NULL, /* recv_datagram */
-  NULL, /* ack_datagram */
-  NULL, /* lost_datagram */
+  ખાલી, /* recv_datagram */
+  ખાલી, /* ack_datagram */
+  ખાલી, /* lost_datagram */
   ngtcp2_crypto_get_path_challenge_data_cb,
   cb_stream_stop_sending,
-  NULL, /* version_negotiation */
-  cb_recv_rx_key,
-  NULL, /* recv_tx_key */
-  NULL, /* early_data_rejected */
+  ખાલી, /* version_negotiation */
+  cb_recv_rx_ચાવી,
+  ખાલી, /* recv_tx_key */
+  ખાલી, /* early_data_rejected */
 #ifdef NGTCP2_CALLBACKS_V2  /* ngtcp2 v1.14.0+ */
-  NULL, /* begin_path_validation */
+  ખાલી, /* begin_path_validation */
 #endif
 #ifdef NGTCP2_CALLBACKS_V3  /* ngtcp2 v1.22.0+ */
-  NULL, /* recv_stateless_reset2 */
+  ખાલી, /* recv_stateless_reset2 */
   cb_get_new_connection_id2, /* get_new_connection_id2 */
-  NULL, /* dcid_status2 */
+  ખાલી, /* dcid_status2 */
   ngtcp2_crypto_get_path_challenge_data2_cb, /* get_path_challenge_data2 */
 #endif
 #ifdef NGTCP2_CALLBACKS_V4  /* ngtcp2 v1.24.0+ */
-  NULL, /* recv_stop_sending */
+  ખાલી, /* recv_stop_sending */
 #endif
 #ifdef NGTCP2_CALLBACKS_V5  /* ngtcp2 v1.25.0+ */
   cb_stream_close2, /* is called instead of cb_stream_close when set */
 #endif
 };
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic કાઢો
 #endif
 
-#if defined(_MSC_VER) && defined(_DLL)
-#pragma warning(pop)
+#જો defined(_MSC_VER) && defined(_DLL)
+#pragma warning(કાઢો)
 #endif
 
 #ifdef USE_OPENSSL
 /* The "new session" callback must return zero if the session can be removed
  * or non-zero if the session has been put into the session cache.
  */
-static int quic_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
+સ્થિર પૂર્ણાંક quic_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
 {
-  struct Curl_cfilter *cf;
-  struct cf_ngtcp2_ctx *ctx;
-  struct Curl_easy *data;
+  સંરચના Curl_cfilter *cf;
+  સંરચના cf_ngtcp2_ctx *ctx;
+  સંરચના Curl_easy *data;
   ngtcp2_crypto_conn_ref *cref;
 
   cref = (ngtcp2_crypto_conn_ref *)SSL_get_app_data(ssl);
-  cf = cref ? cref->user_data : NULL;
-  ctx = cf ? cf->ctx : NULL;
-  data = cf ? CF_DATA_CURRENT(cf) : NULL;
-  if(cf && data && ctx) {
-    unsigned char *quic_tp = NULL;
+  cf = cref ? cref->user_data : ખાલી;
+  ctx = cf ? cf->ctx : ખાલી;
+  data = cf ? CF_DATA_CURRENT(cf) : ખાલી;
+  જો(cf && data && ctx) {
+    unsigned અક્ષર *quic_tp = ખાલી;
     size_t quic_tp_len = 0;
 #ifdef HAVE_OPENSSL_EARLYDATA
     ngtcp2_ssize tplen;
     uint8_t tpbuf[256];
 
     tplen = ngtcp2_conn_encode_0rtt_transport_params(ctx->qconn, tpbuf,
-                                                     sizeof(tpbuf));
-    if(tplen < 0)
+                                                     કદ(tpbuf));
+    જો(tplen < 0)
       CURL_TRC_CF(data, cf, "error encoding 0RTT transport data: %s",
-                  ngtcp2_strerror((int)tplen));
-    else {
-      quic_tp = (unsigned char *)tpbuf;
+                  ngtcp2_strerror((પૂર્ણાંક)tplen));
+    નહીંતર {
+      quic_tp = (unsigned અક્ષર *)tpbuf;
       quic_tp_len = (size_t)tplen;
     }
 #endif
-    Curl_ossl_add_session(cf, data, &ctx->tls.ossl, ctx->ssl_peer.scache_key,
-                          ssl_sessionid, "h3", quic_tp, quic_tp_len, NULL);
+    Curl_ossl_add_session(cf, data, &ctx->tls.ossl, ctx->ssl_peer.scache_ચાવી,
+                          ssl_sessionid, "h3", quic_tp, quic_tp_len, ખાલી);
   }
-  return 0;
+  પાછા 0;
 }
 #endif /* USE_OPENSSL */
 
 #ifdef USE_GNUTLS
 
 #ifdef CURLVERBOSE
-static const char *gtls_hs_msg_name(int mtype)
+સ્થિર અચલ અક્ષર *gtls_hs_સંદેશ_name(પૂર્ણાંક mtype)
 {
-  switch(mtype) {
-  case 1:
-    return "ClientHello";
-  case 2:
-    return "ServerHello";
-  case 4:
-    return "SessionTicket";
-  case 8:
-    return "EncryptedExtensions";
-  case 11:
-    return "Certificate";
-  case 13:
-    return "CertificateRequest";
-  case 15:
-    return "CertificateVerify";
-  case 20:
-    return "Finished";
-  case 24:
-    return "KeyUpdate";
-  case 254:
-    return "MessageHash";
+  પસંદગી(mtype) {
+  સ્થિતિ 1:
+    પાછા "ClientHello";
+  સ્થિતિ 2:
+    પાછા "ServerHello";
+  સ્થિતિ 4:
+    પાછા "SessionTicket";
+  સ્થિતિ 8:
+    પાછા "EncryptedExtensions";
+  સ્થિતિ 11:
+    પાછા "Certificate";
+  સ્થિતિ 13:
+    પાછા "CertificateRequest";
+  સ્થિતિ 15:
+    પાછા "CertificateVerify";
+  સ્થિતિ 20:
+    પાછા "Finished";
+  સ્થિતિ 24:
+    પાછા "KeyUpdate";
+  સ્થિતિ 254:
+    પાછા "MessageHash";
   }
-  return "Unknown";
+  પાછા "Unknown";
 }
 #endif
 
-static int quic_gtls_handshake_cb(gnutls_session_t session, unsigned int htype,
-                                  unsigned when, unsigned int incoming,
-                                  const gnutls_datum_t *msg)
+સ્થિર પૂર્ણાંક quic_gtls_handshake_cb(gnutls_session_t session, unsigned પૂર્ણાંક htype,
+                                  unsigned when, unsigned પૂર્ણાંક incoming,
+                                  અચલ gnutls_datum_t *સંદેશ)
 {
   ngtcp2_crypto_conn_ref *conn_ref = gnutls_session_get_ptr(session);
-  struct Curl_cfilter *cf = conn_ref ? conn_ref->user_data : NULL;
-  struct cf_ngtcp2_ctx *ctx = cf ? cf->ctx : NULL;
+  સંરચના Curl_cfilter *cf = conn_ref ? conn_ref->user_data : ખાલી;
+  સંરચના cf_ngtcp2_ctx *ctx = cf ? cf->ctx : ખાલી;
 
-  (void)msg;
-  (void)incoming;
-  if(when && cf && ctx) { /* after message has been processed */
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  (શૂન્ય)સંદેશ;
+  (શૂન્ય)incoming;
+  જો(when && cf && ctx) { /* after message has been processed */
+    સંરચના Curl_easy *data = CF_DATA_CURRENT(cf);
     DEBUGASSERT(data);
-    if(!data)
-      return 0;
+    જો(!data)
+      પાછા 0;
     CURL_TRC_CF(data, cf, "SSL message: %s %s [%u]",
-                incoming ? "<-" : "->", gtls_hs_msg_name(htype), htype);
-    switch(htype) {
-    case GNUTLS_HANDSHAKE_NEW_SESSION_TICKET: {
+                incoming ? "<-" : "->", gtls_hs_સંદેશ_name(htype), htype);
+    પસંદગી(htype) {
+    સ્થિતિ GNUTLS_HANDSHAKE_NEW_SESSION_TICKET: {
       ngtcp2_ssize tplen;
       uint8_t tpbuf[256];
-      unsigned char *quic_tp = NULL;
+      unsigned અક્ષર *quic_tp = ખાલી;
       size_t quic_tp_len = 0;
 
       tplen = ngtcp2_conn_encode_0rtt_transport_params(ctx->qconn, tpbuf,
-                                                       sizeof(tpbuf));
-      if(tplen < 0)
+                                                       કદ(tpbuf));
+      જો(tplen < 0)
         CURL_TRC_CF(data, cf, "error encoding 0RTT transport data: %s",
-                    ngtcp2_strerror((int)tplen));
-      else {
-        quic_tp = (unsigned char *)tpbuf;
+                    ngtcp2_strerror((પૂર્ણાંક)tplen));
+      નહીંતર {
+        quic_tp = (unsigned અક્ષર *)tpbuf;
         quic_tp_len = (size_t)tplen;
       }
-      (void)Curl_gtls_cache_session(cf, data, ctx->ssl_peer.scache_key,
+      (શૂન્ય)Curl_gtls_cache_session(cf, data, ctx->ssl_peer.scache_ચાવી,
                                     session, 0, "h3", quic_tp, quic_tp_len,
-                                    NULL);
-      break;
+                                    ખાલી);
+      તોડો;
     }
-    default:
-      break;
+    મૂળભૂત:
+      તોડો;
     }
   }
-  return 0;
+  પાછા 0;
 }
 #endif /* USE_GNUTLS */
 
 #ifdef USE_WOLFSSL
-static int wssl_quic_new_session_cb(WOLFSSL *ssl, WOLFSSL_SESSION *session)
+સ્થિર પૂર્ણાંક wssl_quic_new_session_cb(WOLFSSL *ssl, WOLFSSL_SESSION *session)
 {
   ngtcp2_crypto_conn_ref *conn_ref = wolfSSL_get_app_data(ssl);
-  struct Curl_cfilter *cf = conn_ref ? conn_ref->user_data : NULL;
+  સંરચના Curl_cfilter *cf = conn_ref ? conn_ref->user_data : ખાલી;
 
   DEBUGASSERT(cf);
-  if(cf && session) {
-    struct cf_ngtcp2_ctx *ctx = cf->ctx;
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  જો(cf && session) {
+    સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+    સંરચના Curl_easy *data = CF_DATA_CURRENT(cf);
     DEBUGASSERT(data);
-    if(data && ctx) {
+    જો(data && ctx) {
       ngtcp2_ssize tplen;
       uint8_t tpbuf[256];
-      unsigned char *quic_tp = NULL;
+      unsigned અક્ષર *quic_tp = ખાલી;
       size_t quic_tp_len = 0;
 
       tplen = ngtcp2_conn_encode_0rtt_transport_params(ctx->qconn, tpbuf,
-                                                       sizeof(tpbuf));
-      if(tplen < 0)
+                                                       કદ(tpbuf));
+      જો(tplen < 0)
         CURL_TRC_CF(data, cf, "error encoding 0RTT transport data: %s",
-                    ngtcp2_strerror((int)tplen));
-      else {
-        quic_tp = (unsigned char *)tpbuf;
+                    ngtcp2_strerror((પૂર્ણાંક)tplen));
+      નહીંતર {
+        quic_tp = (unsigned અક્ષર *)tpbuf;
         quic_tp_len = (size_t)tplen;
       }
-      (void)Curl_wssl_cache_session(cf, data, ctx->ssl_peer.scache_key,
+      (શૂન્ય)Curl_wssl_cache_session(cf, data, ctx->ssl_peer.scache_ચાવી,
                                     session, wolfSSL_version(ssl),
-                                    "h3", quic_tp, quic_tp_len, NULL);
+                                    "h3", quic_tp, quic_tp_len, ખાલી);
     }
   }
-  return 0;
+  પાછા 0;
 }
 #endif /* USE_WOLFSSL */
 
-static CURLcode cf_ngtcp2_tls_ctx_setup(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data)
+સ્થિર CURLcode cf_ngtcp2_tls_ctx_setup(સંરચના Curl_cfilter *cf,
+                                        સંરચના Curl_easy *data,
+                                        શૂન્ય *user_data)
 {
-  struct curl_tls_ctx *ctx = user_data;
+  સંરચના curl_tls_ctx *ctx = user_data;
 
 #ifdef USE_OPENSSL
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
-  if(ngtcp2_crypto_boringssl_configure_client_context(ctx->ossl.ssl_ctx)
+#જો defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+  જો(ngtcp2_crypto_boringssl_configure_client_context(ctx->ossl.ssl_ctx)
      != 0) {
     failf(data, "ngtcp2_crypto_boringssl_configure_client_context failed");
-    return CURLE_FAILED_INIT;
+    પાછા CURLE_FAILED_INIT;
   }
-#elif defined(OPENSSL_QUIC_API2)
+#અથવાજો defined(OPENSSL_QUIC_API2)
   /* nothing to do */
-#else
-  if(ngtcp2_crypto_quictls_configure_client_context(ctx->ossl.ssl_ctx) != 0) {
+#નહીંતર
+  જો(ngtcp2_crypto_quictls_configure_client_context(ctx->ossl.ssl_ctx) != 0) {
     failf(data, "ngtcp2_crypto_quictls_configure_client_context failed");
-    return CURLE_FAILED_INIT;
+    પાછા CURLE_FAILED_INIT;
   }
 #endif /* !OPENSSL_IS_AWSLC && !OPENSSL_IS_BORINGSSL */
-  if(Curl_ssl_scache_use(cf, data)) {
+  જો(Curl_ssl_scache_use(cf, data)) {
     /* Enable the session cache because it is a prerequisite for the
      * "new session" callback. Use the "external storage" mode to prevent
      * OpenSSL from creating an internal session cache.
@@ -890,41 +890,41 @@ static CURLcode cf_ngtcp2_tls_ctx_setup(struct Curl_cfilter *cf,
     SSL_CTX_sess_set_new_cb(ctx->ossl.ssl_ctx, quic_ossl_new_session_cb);
   }
 
-#elif defined(USE_GNUTLS)
-  if(ngtcp2_crypto_gnutls_configure_client_session(ctx->gtls.session) != 0) {
+#અથવાજો defined(USE_GNUTLS)
+  જો(ngtcp2_crypto_gnutls_configure_client_session(ctx->gtls.session) != 0) {
     failf(data, "ngtcp2_crypto_gnutls_configure_client_session failed");
-    return CURLE_FAILED_INIT;
+    પાછા CURLE_FAILED_INIT;
   }
-  if(Curl_ssl_scache_use(cf, data)) {
+  જો(Curl_ssl_scache_use(cf, data)) {
     gnutls_handshake_set_hook_function(ctx->gtls.session,
                                        GNUTLS_HANDSHAKE_ANY, GNUTLS_HOOK_POST,
                                        quic_gtls_handshake_cb);
   }
 
-#elif defined(USE_WOLFSSL)
-  if(ngtcp2_crypto_wolfssl_configure_client_context(ctx->wssl.ssl_ctx) != 0) {
+#અથવાજો defined(USE_WOLFSSL)
+  જો(ngtcp2_crypto_wolfssl_configure_client_context(ctx->wssl.ssl_ctx) != 0) {
     failf(data, "ngtcp2_crypto_wolfssl_configure_client_context failed");
-    return CURLE_FAILED_INIT;
+    પાછા CURLE_FAILED_INIT;
   }
-  if(Curl_ssl_scache_use(cf, data)) {
+  જો(Curl_ssl_scache_use(cf, data)) {
     /* Register to get notified when a new session is received */
     wolfSSL_CTX_sess_set_new_cb(ctx->wssl.ssl_ctx, wssl_quic_new_session_cb);
   }
 #endif
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode cf_ngtcp2_on_session_reuse(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct alpn_spec *alpns,
-                                           struct Curl_ssl_session *scs,
+સ્થિર CURLcode cf_ngtcp2_on_session_reuse(સંરચના Curl_cfilter *cf,
+                                           સંરચના Curl_easy *data,
+                                           સંરચના alpn_spec *alpns,
+                                           સંરચના Curl_ssl_session *scs,
                                            bool *do_early_data)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
   *do_early_data = FALSE;
-#if defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA)
+#જો defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA)
   ctx->earlydata_max = scs->earlydata_max;
 #endif
 #ifdef USE_GNUTLS
@@ -934,135 +934,135 @@ static CURLcode cf_ngtcp2_on_session_reuse(struct Curl_cfilter *cf,
 #ifdef USE_WOLFSSL
 #ifdef WOLFSSL_EARLY_DATA
   ctx->earlydata_max = scs->earlydata_max;
-#else
+#નહીંતર
   ctx->earlydata_max = 0;
 #endif /* WOLFSSL_EARLY_DATA */
 #endif
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || \
+#જો defined(USE_GNUTLS) || defined(USE_WOLFSSL) || \
   (defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA))
-  if(!ctx->earlydata_max) {
+  જો(!ctx->earlydata_max) {
     CURL_TRC_CF(data, cf, "SSL session does not allow earlydata");
   }
-  else if(!Curl_alpn_contains_proto(alpns, scs->alpn)) {
+  નહીંતર જો(!Curl_alpn_contains_proto(alpns, scs->alpn)) {
     CURL_TRC_CF(data, cf, "SSL session from different ALPN, no early data");
   }
-  else if(!scs->quic_tp || !scs->quic_tp_len) {
+  નહીંતર જો(!scs->quic_tp || !scs->quic_tp_len) {
     CURL_TRC_CF(data, cf, "no 0RTT transport parameters, no early data");
   }
-  else {
-    int rv;
+  નહીંતર {
+    પૂર્ણાંક rv;
     rv = ngtcp2_conn_decode_and_set_0rtt_transport_params(
-      ctx->qconn, (const uint8_t *)scs->quic_tp, scs->quic_tp_len);
-    if(rv)
+      ctx->qconn, (અચલ uint8_t *)scs->quic_tp, scs->quic_tp_len);
+    જો(rv)
       CURL_TRC_CF(data, cf, "no early data, failed to set 0RTT transport "
                   "parameters: %s", ngtcp2_strerror(rv));
-    else if(ctx->init_h3_conn_cb) {
+    નહીંતર જો(ctx->init_h3_conn_cb) {
       infof(data, "SSL session allows %zu bytes of early data, "
             "reusing ALPN '%s'", ctx->earlydata_max, scs->alpn);
       result = ctx->init_h3_conn_cb(cf, data, ctx);
-      if(!result) {
+      જો(!result) {
         ctx->use_earlydata = TRUE;
         cf->connected = TRUE;
         *do_early_data = TRUE;
       }
     }
-    else { /* init_h3_conn_cb not set, assume done */
+    નહીંતર { /* init_h3_conn_cb not set, assume done */
       ctx->use_earlydata = TRUE;
       cf->connected = TRUE;
       *do_early_data = TRUE;
     }
   }
-#else /* not supported in the TLS backend */
-  (void)data;
-  (void)ctx;
-  (void)scs;
-  (void)alpns;
+#નહીંતર /* not supported in the TLS backend */
+  (શૂન્ય)data;
+  (શૂન્ય)ctx;
+  (શૂન્ય)scs;
+  (શૂન્ય)alpns;
 #endif
-  return result;
+  પાછા result;
 }
 
 /*
  * Might be called twice for happy eyeballs.
  */
-static CURLcode cf_connect_start(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_ngtcp2_io_ctx *pktx)
+સ્થિર CURLcode cf_connect_start(સંરચના Curl_cfilter *cf,
+                                 સંરચના Curl_easy *data,
+                                 સંરચના cf_ngtcp2_io_ctx *pktx)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  int rc;
-  int rv;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  પૂર્ણાંક rc;
+  પૂર્ણાંક rv;
   CURLcode result;
-  const struct Curl_sockaddr_ex *sockaddr = NULL;
-  int qfd;
-  static const struct alpn_spec ALPN_SPEC_H3 = { { "h3", "h3-29" }, 2 };
+  અચલ સંરચના Curl_sockaddr_ex *sockaddr = ખાલી;
+  પૂર્ણાંક qfd;
+  સ્થિર અચલ સંરચના alpn_spec ALPN_SPEC_H3 = { { "h3", "h3-29" }, 2 };
 
   DEBUGASSERT(ctx->initialized);
   ctx->dcid.datalen = NGTCP2_MAX_CIDLEN;
   result = Curl_rand(data, ctx->dcid.data, NGTCP2_MAX_CIDLEN);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
   ctx->scid.datalen = NGTCP2_MAX_CIDLEN;
   result = Curl_rand(data, ctx->scid.data, NGTCP2_MAX_CIDLEN);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
-  (void)Curl_qlogdir(data, ctx->scid.data, NGTCP2_MAX_CIDLEN, &qfd);
+  (શૂન્ય)Curl_qlogdir(data, ctx->scid.data, NGTCP2_MAX_CIDLEN, &qfd);
   ctx->qlogfd = qfd; /* -1 if failure above */
   quic_settings(ctx, data, pktx);
 
   result = Curl_vquic_ctx_init(data, &ctx->q);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
   /* Query socket and remote address from sub-chain */
-  if(Curl_cf_socket_peek(cf->next, data, &ctx->q.sockfd, &sockaddr, NULL)) {
+  જો(Curl_cf_socket_peek(cf->next, data, &ctx->q.sockfd, &sockaddr, ખાલી)) {
     /* No direct socket - must be tunneled QUIC (CONNECT-UDP through proxy) */
     ctx->q.sockfd = CURL_SOCKET_BAD;
   }
 
-  if(ctx->q.sockfd != CURL_SOCKET_BAD) {
+  જો(ctx->q.sockfd != CURL_SOCKET_BAD) {
     /* Direct UDP socket - get local address for ngtcp2 */
-    ctx->q.local_addrlen = sizeof(ctx->q.local_addr);
-    rv = getsockname(ctx->q.sockfd, (struct sockaddr *)&ctx->q.local_addr,
+    ctx->q.local_addrlen = કદ(ctx->q.local_addr);
+    rv = getsockname(ctx->q.sockfd, (સંરચના sockaddr *)&ctx->q.local_addr,
                      &ctx->q.local_addrlen);
-    if(rv == -1)
-      return CURLE_QUIC_CONNECT_ERROR;
+    જો(rv == -1)
+      પાછા CURLE_QUIC_CONNECT_ERROR;
 
     ngtcp2_addr_init(&ctx->connected_path.local,
-                     (struct sockaddr *)&ctx->q.local_addr,
+                     (સંરચના sockaddr *)&ctx->q.local_addr,
                      ctx->q.local_addrlen);
     ngtcp2_addr_init(&ctx->connected_path.remote,
                      &sockaddr->curl_sa_addr, (socklen_t)sockaddr->addrlen);
   }
-  else {
+  નહીંતર {
     /* Tunneled QUIC (e.g. CONNECT-UDP): get remote address
        from the connected filter below */
-    const struct Curl_sockaddr_ex *remote = NULL;
-    if(cf->next->cft->query(cf->next, data, CF_QUERY_REMOTE_ADDR, NULL,
+    અચલ સંરચના Curl_sockaddr_ex *remote = ખાલી;
+    જો(cf->next->cft->query(cf->next, data, CF_QUERY_REMOTE_ADDR, ખાલી,
                             CURL_UNCONST(&remote)))
-      return CURLE_QUIC_CONNECT_ERROR;
-    if(!remote)
-      return CURLE_QUIC_CONNECT_ERROR;
+      પાછા CURLE_QUIC_CONNECT_ERROR;
+    જો(!remote)
+      પાછા CURLE_QUIC_CONNECT_ERROR;
 
-    memset(&ctx->q.local_addr, 0, sizeof(ctx->q.local_addr));
-    switch(remote->family) {
-    case AF_INET:
-      ((struct sockaddr_in *)&ctx->q.local_addr)->sin_family = AF_INET;
-      ctx->q.local_addrlen = sizeof(struct sockaddr_in);
-      break;
+    memset(&ctx->q.local_addr, 0, કદ(ctx->q.local_addr));
+    પસંદગી(remote->family) {
+    સ્થિતિ AF_INET:
+      ((સંરચના sockaddr_in *)&ctx->q.local_addr)->sin_family = AF_INET;
+      ctx->q.local_addrlen = કદ(સંરચના sockaddr_in);
+      તોડો;
 #ifdef USE_IPV6
-    case AF_INET6:
-      ((struct sockaddr_in6 *)&ctx->q.local_addr)->sin6_family = AF_INET6;
-      ctx->q.local_addrlen = sizeof(struct sockaddr_in6);
-      break;
+    સ્થિતિ AF_INET6:
+      ((સંરચના sockaddr_in6 *)&ctx->q.local_addr)->sin6_family = AF_INET6;
+      ctx->q.local_addrlen = કદ(સંરચના sockaddr_in6);
+      તોડો;
 #endif
-    default:
-      return CURLE_QUIC_CONNECT_ERROR;
+    મૂળભૂત:
+      પાછા CURLE_QUIC_CONNECT_ERROR;
     }
 
     ngtcp2_addr_init(&ctx->connected_path.local,
-                     (struct sockaddr *)&ctx->q.local_addr,
+                     (સંરચના sockaddr *)&ctx->q.local_addr,
                      ctx->q.local_addrlen);
     ngtcp2_addr_init(&ctx->connected_path.remote,
                      &remote->curl_sa_addr,
@@ -1074,8 +1074,8 @@ static CURLcode cf_connect_start(struct Curl_cfilter *cf,
                               NGTCP2_PROTO_VER_V1, &ng_callbacks,
                               &ctx->settings, &ctx->transport_params,
                               Curl_ngtcp2_mem(), cf);
-  if(rc)
-    return CURLE_QUIC_CONNECT_ERROR;
+  જો(rc)
+    પાછા CURLE_QUIC_CONNECT_ERROR;
 
   ctx->conn_ref.get_conn = get_conn;
   ctx->conn_ref.user_data = cf;
@@ -1085,36 +1085,36 @@ static CURLcode cf_connect_start(struct Curl_cfilter *cf,
                                cf_ngtcp2_tls_ctx_setup, &ctx->tls,
                                &ctx->conn_ref,
                                cf_ngtcp2_on_session_reuse);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
-#if defined(USE_OPENSSL) && defined(OPENSSL_QUIC_API2)
-  if(ngtcp2_crypto_ossl_ctx_new(&ctx->ossl_ctx, ctx->tls.ossl.ssl) != 0) {
+#જો defined(USE_OPENSSL) && defined(OPENSSL_QUIC_API2)
+  જો(ngtcp2_crypto_ossl_ctx_new(&ctx->ossl_ctx, ctx->tls.ossl.ssl) != 0) {
     failf(data, "ngtcp2_crypto_ossl_ctx_new failed");
-    return CURLE_FAILED_INIT;
+    પાછા CURLE_FAILED_INIT;
   }
   ngtcp2_conn_set_tls_native_handle(ctx->qconn, ctx->ossl_ctx);
-  if(ngtcp2_crypto_ossl_configure_client_session(ctx->tls.ossl.ssl) != 0) {
+  જો(ngtcp2_crypto_ossl_configure_client_session(ctx->tls.ossl.ssl) != 0) {
     failf(data, "ngtcp2_crypto_ossl_configure_client_session failed");
-    return CURLE_FAILED_INIT;
+    પાછા CURLE_FAILED_INIT;
   }
-#elif defined(USE_OPENSSL)
+#અથવાજો defined(USE_OPENSSL)
   SSL_set_quic_use_legacy_codepoint(ctx->tls.ossl.ssl, 0);
   ngtcp2_conn_set_tls_native_handle(ctx->qconn, ctx->tls.ossl.ssl);
-#elif defined(USE_GNUTLS)
+#અથવાજો defined(USE_GNUTLS)
   ngtcp2_conn_set_tls_native_handle(ctx->qconn, ctx->tls.gtls.session);
-#elif defined(USE_WOLFSSL)
+#અથવાજો defined(USE_WOLFSSL)
   ngtcp2_conn_set_tls_native_handle(ctx->qconn, ctx->tls.wssl.ssl);
-#else
+#નહીંતર
 #error "ngtcp2 TLS backend not defined"
 #endif
 
-#if defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA) && \
+#જો defined(USE_OPENSSL) && defined(HAVE_OPENSSL_EARLYDATA) && \
     defined(OPENSSL_QUIC_API2)
   /* We need to tell OpenSSL to *really* use Early Data for QUIC and
    * this only works *after* ngtcp2 has tweaked all SSL parameters,
    * otherwise OpenSSL does not accept it. */
-  if(ctx->use_earlydata &&
+  જો(ctx->use_earlydata &&
      !SSL_set_quic_tls_early_data_enabled(ctx->tls.ossl.ssl, 1)) {
     CURL_TRC_CF(data, cf, "OpenSSL refused to use early data");
     ctx->use_earlydata = FALSE;
@@ -1123,66 +1123,66 @@ static CURLcode cf_connect_start(struct Curl_cfilter *cf,
 #endif
   ngtcp2_ccerr_default(&ctx->last_error);
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-CURLcode Curl_cf_ngtcp2_cmn_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+CURLcode Curl_cf_ngtcp2_cmn_connect(સંરચના Curl_cfilter *cf,
+                                    સંરચના Curl_easy *data,
                                     bool *done)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
+  સંરચના cf_call_data save;
+  સંરચના cf_ngtcp2_io_ctx pktx;
 
-  if(cf->connected) {
+  જો(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    પાછા CURLE_OK;
   }
 
   /* Connect the sub-chain */
-  if(cf->next && !cf->next->connected) {
+  જો(cf->next && !cf->next->connected) {
     result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    જો(result || !*done)
+      પાછા result;
   }
 
   *done = FALSE;
 
-  if(Curl_ssl_need_httpsrr(cf) &&
+  જો(Curl_ssl_need_httpsrr(cf) &&
      !Curl_conn_dns_resolved_https(data, cf->sockindex, ctx->ssl_peer.peer)) {
     CURL_TRC_CF(data, cf, "need HTTPS-RR, delaying connect");
-    return CURLE_OK;
+    પાછા CURLE_OK;
   }
 
   Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
   CF_DATA_SAVE(save, cf, data);
 
-  if(!ctx->qconn) {
+  જો(!ctx->qconn) {
     ctx->started_at = *Curl_pgrs_now(data);
     result = cf_connect_start(cf, data, &pktx);
-    if(result)
-      goto out;
-    if(cf->connected) {
+    જો(result)
+      જાઓ out;
+    જો(cf->connected) {
       *done = TRUE;
-      goto out;
+      જાઓ out;
     }
     result = Curl_cf_ngtcp2_progress_egress(cf, data, &pktx);
     /* we do not expect to be able to recv anything yet */
-    goto out;
+    જાઓ out;
   }
 
   result = Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx);
-  if(result)
-    goto out;
+  જો(result)
+    જાઓ out;
 
   result = Curl_cf_ngtcp2_progress_egress(cf, data, &pktx);
-  if(result)
-    goto out;
+  જો(result)
+    જાઓ out;
 
-  if(ngtcp2_conn_get_handshake_completed(ctx->qconn)) {
+  જો(ngtcp2_conn_get_handshake_completed(ctx->qconn)) {
     result = ctx->tls_vrfy_result;
-    if(!result) {
+    જો(!result) {
       CURL_TRC_CF(data, cf, "peer verified");
       cf->connected = TRUE;
       *done = TRUE;
@@ -1190,27 +1190,27 @@ CURLcode Curl_cf_ngtcp2_cmn_connect(struct Curl_cfilter *cf,
   }
 
 out:
-  if(ctx->tls_vrfy_result)
+  જો(ctx->tls_vrfy_result)
     result = ctx->tls_vrfy_result;
-  if(ctx->qconn &&
+  જો(ctx->qconn &&
      ((result == CURLE_RECV_ERROR) || (result == CURLE_SEND_ERROR)) &&
      ngtcp2_conn_in_draining_period(ctx->qconn)) {
-    const ngtcp2_ccerr *cerr = ngtcp2_conn_get_ccerr(ctx->qconn);
+    અચલ ngtcp2_ccerr *cerr = ngtcp2_conn_get_ccerr(ctx->qconn);
 
     result = CURLE_COULDNT_CONNECT;
-    if(cerr) {
+    જો(cerr) {
       CURL_TRC_CF(data, cf, "connect error, type=%d, code=%" PRIu64,
-                  (int)cerr->type, cerr->error_code);
-      switch(cerr->type) {
-      case NGTCP2_CCERR_TYPE_VERSION_NEGOTIATION:
+                  (પૂર્ણાંક)cerr->type, cerr->error_code);
+      પસંદગી(cerr->type) {
+      સ્થિતિ NGTCP2_CCERR_TYPE_VERSION_NEGOTIATION:
         CURL_TRC_CF(data, cf, "error in version negotiation");
-        break;
-      default:
-        if(cerr->error_code >= NGTCP2_CRYPTO_ERROR) {
+        તોડો;
+      મૂળભૂત:
+        જો(cerr->error_code >= NGTCP2_CRYPTO_ERROR) {
           CURL_TRC_CF(data, cf, "crypto error, tls alert=%u",
-                      (unsigned int)(cerr->error_code & 0xffU));
+                      (unsigned પૂર્ણાંક)(cerr->error_code & 0xffU));
         }
-        else if(cerr->error_code == NGTCP2_CONNECTION_REFUSED) {
+        નહીંતર જો(cerr->error_code == NGTCP2_CONNECTION_REFUSED) {
           CURL_TRC_CF(data, cf, "connection refused by server");
           /* When a QUIC server instance is shutting down, it may send us a
            * CONNECTION_CLOSE with this code right away. We want
@@ -1222,93 +1222,93 @@ out:
   }
 
 #ifdef CURLVERBOSE
-  if(result) {
-    if(ctx->q.sockfd != CURL_SOCKET_BAD) {
+  જો(result) {
+    જો(ctx->q.sockfd != CURL_SOCKET_BAD) {
       /* Direct UDP socket - get IP info for error reporting */
-      struct ip_quadruple ip;
+      સંરચના ip_quadruple ip;
 
-      if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
+      જો(!Curl_cf_socket_peek(cf->next, data, ખાલી, ખાલી, &ip))
         infof(data, "QUIC connect to %s port %u failed: %s",
               ip.remote_ip, ip.remote_port, curl_easy_strerror(result));
     }
   }
 #endif
-  if(!result && ctx->qconn) {
+  જો(!result && ctx->qconn) {
     result = Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx);
   }
-  if(result || *done)
-    CURL_TRC_CF(data, cf, "connect -> %d, done=%d", (int)result, *done);
+  જો(result || *done)
+    CURL_TRC_CF(data, cf, "connect -> %d, done=%d", (પૂર્ણાંક)result, *done);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  પાછા result;
 }
 
-CURLcode Curl_cf_ngtcp2_cmn_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data, bool *done)
+CURLcode Curl_cf_ngtcp2_cmn_shutdown(સંરચના Curl_cfilter *cf,
+                                     સંરચના Curl_easy *data, bool *done)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_call_data save;
+  સંરચના cf_ngtcp2_io_ctx pktx;
   CURLcode result = CURLE_OK;
 
-  if(cf->shutdown || !ctx->qconn) {
+  જો(cf->shutdown || !ctx->qconn) {
     *done = TRUE;
-    return CURLE_OK;
+    પાછા CURLE_OK;
   }
 
-  if(!cf->next) {
+  જો(!cf->next) {
     Curl_bufq_reset(&ctx->q.sendbuf);
     *done = TRUE;
-    return CURLE_OK;
+    પાછા CURLE_OK;
   }
 
   CF_DATA_SAVE(save, cf, data);
   *done = FALSE;
   Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
 
-  if(!ctx->shutdown_started) {
-    char buffer[NGTCP2_MAX_UDP_PAYLOAD_SIZE];
+  જો(!ctx->shutdown_started) {
+    અક્ષર buffer[NGTCP2_MAX_UDP_PAYLOAD_SIZE];
     ngtcp2_ssize nwritten;
 
-    if(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+    જો(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
       CURL_TRC_CF(data, cf, "shutdown, flushing sendbuf");
       result = Curl_cf_ngtcp2_progress_egress(cf, data, &pktx);
-      if(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+      જો(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
         CURL_TRC_CF(data, cf, "sending shutdown packets blocked");
         result = CURLE_OK;
-        goto out;
+        જાઓ out;
       }
-      else if(result) {
+      નહીંતર જો(result) {
         CURL_TRC_CF(data, cf, "shutdown, error %d flushing sendbuf",
-                    (int)result);
+                    (પૂર્ણાંક)result);
         *done = TRUE;
-        goto out;
+        જાઓ out;
       }
     }
 
     DEBUGASSERT(Curl_bufq_is_empty(&ctx->q.sendbuf));
     ctx->shutdown_started = TRUE;
     nwritten = ngtcp2_conn_write_connection_close(
-      ctx->qconn, NULL, /* path */
-      NULL, /* pkt_info */
-      (uint8_t *)buffer, sizeof(buffer),
+      ctx->qconn, ખાલી, /* path */
+      ખાલી, /* pkt_info */
+      (uint8_t *)buffer, કદ(buffer),
       &ctx->last_error, pktx.ts);
     CURL_TRC_CF(data, cf, "start shutdown(err_type=%d, err_code=%"
-                PRIu64 ") -> %zd", (int)ctx->last_error.type,
+                PRIu64 ") -> %zd", (પૂર્ણાંક)ctx->last_error.type,
                 ctx->last_error.error_code, (ssize_t)nwritten);
     /* there are cases listed in ngtcp2 documentation where this call
      * may fail. Since we are doing a connection shutdown as graceful
      * as we can, such an error is ignored here. */
-    if(nwritten > 0) {
+    જો(nwritten > 0) {
       /* Ignore amount written. sendbuf was empty and has always room for
        * NGTCP2_MAX_UDP_PAYLOAD_SIZE. It can only completely fail, in which
        * case `result` is set non zero. */
       size_t n;
-      result = Curl_bufq_write(&ctx->q.sendbuf, (const unsigned char *)buffer,
+      result = Curl_bufq_write(&ctx->q.sendbuf, (અચલ unsigned અક્ષર *)buffer,
                                (size_t)nwritten, &n);
-      if(result) {
+      જો(result) {
         CURL_TRC_CF(data, cf, "error %d adding shutdown packets to sendbuf, "
-                    "aborting shutdown", (int)result);
-        goto out;
+                    "aborting shutdown", (પૂર્ણાંક)result);
+        જાઓ out;
       }
 
       ctx->q.no_gso = TRUE;
@@ -1317,23 +1317,23 @@ CURLcode Curl_cf_ngtcp2_cmn_shutdown(struct Curl_cfilter *cf,
     }
   }
 
-  if(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  જો(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
     CURL_TRC_CF(data, cf, "shutdown, flushing egress");
     result = Curl_vquic_flush(cf, data, &ctx->q);
-    if(result == CURLE_AGAIN) {
+    જો(result == CURLE_AGAIN) {
       CURL_TRC_CF(data, cf, "sending shutdown packets blocked");
       result = CURLE_OK;
-      goto out;
+      જાઓ out;
     }
-    else if(result) {
+    નહીંતર જો(result) {
       CURL_TRC_CF(data, cf, "shutdown, error %d flushing sendbuf",
-                  (int)result);
+                  (પૂર્ણાંક)result);
       *done = TRUE;
-      goto out;
+      જાઓ out;
     }
   }
 
-  if(Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  જો(Curl_bufq_is_empty(&ctx->q.sendbuf)) {
     /* Sent everything off. ngtcp2 seems to have no support for graceful
      * shutdowns. We are done. */
     CURL_TRC_CF(data, cf, "shutdown completely sent off, done");
@@ -1342,46 +1342,46 @@ CURLcode Curl_cf_ngtcp2_cmn_shutdown(struct Curl_cfilter *cf,
   }
 out:
   CF_DATA_RESTORE(cf, save);
-  return result;
+  પાછા result;
 }
 
-void Curl_cf_ngtcp2_cmn_conn_close(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+શૂન્ય Curl_cf_ngtcp2_cmn_conn_close(સંરચના Curl_cfilter *cf,
+                                   સંરચના Curl_easy *data)
 {
   bool done;
   Curl_cf_ngtcp2_cmn_shutdown(cf, data, &done);
 }
 
-static bool cf_ngtcp2_err_is_fatal(int code)
+સ્થિર bool cf_ngtcp2_err_is_fatal(પૂર્ણાંક code)
 {
-  return (NGTCP2_ERR_FATAL >= code) ||
+  પાછા (NGTCP2_ERR_FATAL >= code) ||
          (NGTCP2_ERR_DROP_CONN == code) ||
          (NGTCP2_ERR_IDLE_CLOSE == code);
 }
 
-void Curl_cf_ngtcp2_cmn_err_set(struct Curl_cfilter *cf,
-                                struct Curl_easy *data, int code)
+શૂન્ય Curl_cf_ngtcp2_cmn_err_set(સંરચના Curl_cfilter *cf,
+                                સંરચના Curl_easy *data, પૂર્ણાંક code)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  if(!ctx->last_error.error_code) {
-    if(NGTCP2_ERR_CRYPTO == code) {
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  જો(!ctx->last_error.error_code) {
+    જો(NGTCP2_ERR_CRYPTO == code) {
       ngtcp2_ccerr_set_tls_alert(&ctx->last_error,
                                  ngtcp2_conn_get_tls_alert(ctx->qconn),
-                                 NULL, 0);
+                                 ખાલી, 0);
     }
-    else {
-      ngtcp2_ccerr_set_liberr(&ctx->last_error, code, NULL, 0);
+    નહીંતર {
+      ngtcp2_ccerr_set_liberr(&ctx->last_error, code, ખાલી, 0);
     }
   }
-  if(cf_ngtcp2_err_is_fatal(code))
+  જો(cf_ngtcp2_err_is_fatal(code))
     Curl_cf_ngtcp2_cmn_conn_close(cf, data);
 }
 
-void Curl_cf_ngtcp2_io_ctx_init(struct cf_ngtcp2_io_ctx *io_ctx,
-                                struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+શૂન્ય Curl_cf_ngtcp2_io_ctx_init(સંરચના cf_ngtcp2_io_ctx *io_ctx,
+                                સંરચના Curl_cfilter *cf,
+                                સંરચના Curl_easy *data)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
 
   io_ctx->cf = cf;
   io_ctx->data = data;
@@ -1392,11 +1392,11 @@ void Curl_cf_ngtcp2_io_ctx_init(struct cf_ngtcp2_io_ctx *io_ctx,
                ((ngtcp2_tstamp)io_ctx->now.tv_usec * NGTCP2_MICROSECONDS);
 }
 
-void Curl_cf_ngtcp2_io_ctx_update_time(struct Curl_easy *data,
-                                       struct cf_ngtcp2_io_ctx *io_ctx,
-                                       struct Curl_cfilter *cf)
+શૂન્ય Curl_cf_ngtcp2_io_ctx_update_time(સંરચના Curl_easy *data,
+                                       સંરચના cf_ngtcp2_io_ctx *io_ctx,
+                                       સંરચના Curl_cfilter *cf)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
 
   io_ctx->now = *Curl_pgrs_now(data);
   Curl_vquic_ctx_update_time(&ctx->q, &io_ctx->now);
@@ -1404,40 +1404,40 @@ void Curl_cf_ngtcp2_io_ctx_update_time(struct Curl_easy *data,
                ((ngtcp2_tstamp)io_ctx->now.tv_usec * NGTCP2_MICROSECONDS);
 }
 
-#if NGTCP2_VERSION_NUM < 0x011100
-struct cf_ngtcp2_sfind_ctx {
+#જો NGTCP2_VERSION_અંક < 0x011100
+સંરચના cf_ngtcp2_sfind_ctx {
   int64_t stream_id;
-  struct h3_stream_ctx *stream;
+  સંરચના h3_stream_ctx *stream;
   uint32_t mid;
 };
 
-static bool cf_ngtcp2_sfind(uint32_t mid, void *value, void *user_data)
+સ્થિર bool cf_ngtcp2_sfind(uint32_t mid, શૂન્ય *કિંમત, શૂન્ય *user_data)
 {
-  struct cf_ngtcp2_sfind_ctx *fctx = user_data;
-  struct h3_stream_ctx *stream = value;
+  સંરચના cf_ngtcp2_sfind_ctx *fctx = user_data;
+  સંરચના h3_stream_ctx *stream = કિંમત;
 
-  if(fctx->stream_id == stream->id) {
+  જો(fctx->stream_id == stream->id) {
     fctx->mid = mid;
     fctx->stream = stream;
-    return FALSE;
+    પાછા FALSE;
   }
-  return TRUE; /* continue */
+  પાછા TRUE; /* continue */
 }
 
-static struct h3_stream_ctx *cf_ngtcp2_get_stream(struct cf_ngtcp2_ctx *ctx,
+સ્થિર સંરચના h3_stream_ctx *cf_ngtcp2_get_stream(સંરચના cf_ngtcp2_ctx *ctx,
                                                   int64_t stream_id)
 {
-  struct cf_ngtcp2_sfind_ctx fctx;
+  સંરચના cf_ngtcp2_sfind_ctx fctx;
   fctx.stream_id = stream_id;
-  fctx.stream = NULL;
+  fctx.stream = ખાલી;
   Curl_u32_ptrset_visit(&ctx->streams, cf_ngtcp2_sfind, &fctx);
-  return fctx.stream;
+  પાછા fctx.stream;
 }
-#else
-static struct h3_stream_ctx *cf_ngtcp2_get_stream(struct cf_ngtcp2_ctx *ctx,
+#નહીંતર
+સ્થિર સંરચના h3_stream_ctx *cf_ngtcp2_get_stream(સંરચના cf_ngtcp2_ctx *ctx,
                                                   int64_t stream_id)
 {
-  return ngtcp2_conn_get_stream_user_data(ctx->qconn, stream_id);
+  પાછા ngtcp2_conn_get_stream_user_data(ctx->qconn, stream_id);
 }
 #endif
 
@@ -1445,18 +1445,18 @@ static struct h3_stream_ctx *cf_ngtcp2_get_stream(struct cf_ngtcp2_ctx *ctx,
  * Read a network packet to send from ngtcp2 into `buf`.
  * Return number of bytes written or -1 with *err set.
  */
-static CURLcode read_pkt_to_send(void *userp,
-                                 unsigned char *buf, size_t buflen,
+સ્થિર CURLcode read_pkt_to_send(શૂન્ય *userp,
+                                 unsigned અક્ષર *buf, size_t buflen,
                                  size_t *pnread)
 {
-  struct cf_ngtcp2_io_ctx *x = userp;
-  struct cf_ngtcp2_ctx *ctx = x->cf->ctx;
+  સંરચના cf_ngtcp2_io_ctx *x = userp;
+  સંરચના cf_ngtcp2_ctx *ctx = x->cf->ctx;
   nghttp3_vec vec[16];
   nghttp3_ssize veccnt;
   ngtcp2_ssize ndatalen;
   uint32_t flags;
   int64_t stream_id;
-  int fin;
+  પૂર્ણાંક fin;
   ssize_t n;
 
   *pnread = 0;
@@ -1471,110 +1471,110 @@ static CURLcode read_pkt_to_send(void *userp,
    * When ngtcp2 is happy (because it has no other frame that would fit
    * or it has nothing more to send), it returns the total length
    * of the assembled packet. This may be 0 if there was nothing to send. */
-  for(;;) {
+  માટે(;;) {
 
-    if(ctx->h3conn && ngtcp2_conn_get_max_data_left(ctx->qconn)) {
+    જો(ctx->h3conn && ngtcp2_conn_get_max_data_ડાબું(ctx->qconn)) {
       veccnt = nghttp3_conn_writev_stream(ctx->h3conn, &stream_id, &fin, vec,
                                           CURL_ARRAYSIZE(vec));
-      if(veccnt < 0) {
+      જો(veccnt < 0) {
         failf(x->data, "nghttp3_conn_writev_stream returned error: %s",
-              nghttp3_strerror((int)veccnt));
-        Curl_cf_ngtcp2_h3_err_set(x->cf, x->data, (int)veccnt);
-        return CURLE_SEND_ERROR;
+              nghttp3_strerror((પૂર્ણાંક)veccnt));
+        Curl_cf_ngtcp2_h3_err_set(x->cf, x->data, (પૂર્ણાંક)veccnt);
+        પાછા CURLE_SEND_ERROR;
       }
     }
 
     flags = NGTCP2_WRITE_STREAM_FLAG_MORE |
             (fin ? NGTCP2_WRITE_STREAM_FLAG_FIN : 0);
     n = ngtcp2_conn_writev_stream(ctx->qconn, &x->ps.path,
-                                  NULL, buf, buflen,
+                                  ખાલી, buf, buflen,
                                   &ndatalen, flags, stream_id,
-                                  (const ngtcp2_vec *)vec, veccnt, x->ts);
-    if(n == 0) {
+                                  (અચલ ngtcp2_vec *)vec, veccnt, x->ts);
+    જો(n == 0) {
       /* nothing to send */
-      return CURLE_AGAIN;
+      પાછા CURLE_AGAIN;
     }
-    else if(n < 0) {
-      switch(n) {
-      case NGTCP2_ERR_STREAM_DATA_BLOCKED: {
-        struct h3_stream_ctx *stream;
+    નહીંતર જો(n < 0) {
+      પસંદગી(n) {
+      સ્થિતિ NGTCP2_ERR_STREAM_DATA_BLOCKED: {
+        સંરચના h3_stream_ctx *stream;
         DEBUGASSERT(ndatalen == -1);
         nghttp3_conn_block_stream(ctx->h3conn, stream_id);
         CURL_TRC_CF(x->data, x->cf, "[%" PRId64 "] block quic flow",
                     stream_id);
         stream = cf_ngtcp2_get_stream(ctx, stream_id);
-        if(stream) /* it might be not one of our h3 streams? */
+        જો(stream) /* it might be not one of our h3 streams? */
           stream->quic_flow_blocked = TRUE;
         n = 0;
-        break;
+        તોડો;
       }
-      case NGTCP2_ERR_STREAM_SHUT_WR:
+      સ્થિતિ NGTCP2_ERR_STREAM_SHUT_WR:
         DEBUGASSERT(ndatalen == -1);
         nghttp3_conn_shutdown_stream_write(ctx->h3conn, stream_id);
         n = 0;
-        break;
-      case NGTCP2_ERR_WRITE_MORE:
+        તોડો;
+      સ્થિતિ NGTCP2_ERR_WRITE_MORE:
         /* ngtcp2 wants to send more. update the flow of the stream whose data
          * is in the buffer and continue */
         DEBUGASSERT(ndatalen >= 0);
         n = 0;
-        break;
-      default:
+        તોડો;
+      મૂળભૂત:
         DEBUGASSERT(ndatalen == -1);
         failf(x->data, "ngtcp2_conn_writev_stream returned error: %s",
-              ngtcp2_strerror((int)n));
-        Curl_cf_ngtcp2_cmn_err_set(x->cf, x->data, (int)n);
-        return CURLE_SEND_ERROR;
+              ngtcp2_strerror((પૂર્ણાંક)n));
+        Curl_cf_ngtcp2_cmn_err_set(x->cf, x->data, (પૂર્ણાંક)n);
+        પાછા CURLE_SEND_ERROR;
       }
     }
 
-    if(ndatalen >= 0) {
+    જો(ndatalen >= 0) {
       /* we add the amount of data bytes to the flow windows */
-      int rv = nghttp3_conn_add_write_offset(ctx->h3conn, stream_id, ndatalen);
-      if(rv) {
+      પૂર્ણાંક rv = nghttp3_conn_add_write_offset(ctx->h3conn, stream_id, ndatalen);
+      જો(rv) {
         failf(x->data, "nghttp3_conn_add_write_offset returned error: %s",
               nghttp3_strerror(rv));
-        return CURLE_SEND_ERROR;
+        પાછા CURLE_SEND_ERROR;
       }
     }
 
-    if(n > 0) {
+    જો(n > 0) {
       /* packet assembled, leave */
       *pnread = (size_t)n;
-      return CURLE_OK;
+      પાછા CURLE_OK;
     }
   }
 }
 
-CURLcode Curl_cf_ngtcp2_progress_egress(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct cf_ngtcp2_io_ctx *pktx)
+CURLcode Curl_cf_ngtcp2_progress_egress(સંરચના Curl_cfilter *cf,
+                                        સંરચના Curl_easy *data,
+                                        સંરચના cf_ngtcp2_io_ctx *pktx)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
   size_t nread;
   size_t max_payload_size, path_max_payload_size;
   size_t pktcnt = 0;
   size_t gsolen = 0;  /* this disables gso until we have a clue */
   size_t send_quantum;
   CURLcode result;
-  struct cf_ngtcp2_io_ctx local_pktx;
+  સંરચના cf_ngtcp2_io_ctx local_pktx;
 
-  if(!pktx) {
+  જો(!pktx) {
     Curl_cf_ngtcp2_io_ctx_init(&local_pktx, cf, data);
     pktx = &local_pktx;
   }
-  else {
+  નહીંતર {
     Curl_cf_ngtcp2_io_ctx_update_time(data, pktx, cf);
     ngtcp2_path_storage_zero(&pktx->ps);
   }
 
   result = Curl_vquic_flush(cf, data, &ctx->q);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  જો(result) {
+    જો(result == CURLE_AGAIN) {
       Curl_expire_set(data, EXPIRE_QUIC, 1, &pktx->now);
-      return CURLE_OK;
+      પાછા CURLE_OK;
     }
-    return result;
+    પાછા result;
   }
 
   /* In UDP, there is a maximum theoretical packet payload length and
@@ -1594,191 +1594,191 @@ CURLcode Curl_cf_ngtcp2_progress_egress(struct Curl_cfilter *cf,
   send_quantum = ngtcp2_conn_get_send_quantum(ctx->qconn);
   CURL_TRC_CF(data, cf, "egress, collect and send packets, quantum=%zu",
               send_quantum);
-  for(;;) {
+  માટે(;;) {
     /* add the next packet to send, if any, to our buffer */
     result = Curl_bufq_sipn(&ctx->q.sendbuf, max_payload_size,
                             read_pkt_to_send, pktx, &nread);
-    if(result == CURLE_AGAIN)
-      break;
-    else if(result)
-      return result;
-    else {
+    જો(result == CURLE_AGAIN)
+      તોડો;
+    નહીંતર જો(result)
+      પાછા result;
+    નહીંતર {
       size_t buflen = Curl_bufq_len(&ctx->q.sendbuf);
-      if((buflen >= send_quantum) ||
+      જો((buflen >= send_quantum) ||
          ((buflen + gsolen) >= ctx->q.sendbuf.chunk_size))
-        break;
+        તોડો;
       DEBUGASSERT(nread > 0);
       ++pktcnt;
-      if(pktcnt == 1) {
+      જો(pktcnt == 1) {
         /* first packet in buffer. This is either of a known, "good"
          * payload size or it is a PMTUD. We shall see. */
         gsolen = nread;
       }
-      else if(nread > gsolen ||
+      નહીંતર જો(nread > gsolen ||
               (gsolen > path_max_payload_size && nread != gsolen)) {
         /* The added packet is a PMTUD *or* the one(s) before the added were
          * PMTUD and the last one is smaller. Flush the buffer before the last
          * add. */
         result = Curl_vquic_send_tail_split(cf, data, &ctx->q,
                                             gsolen, nread, nread);
-        if(result) {
-          if(result == CURLE_AGAIN) {
+        જો(result) {
+          જો(result == CURLE_AGAIN) {
             Curl_expire_set(data, EXPIRE_QUIC, 1, &pktx->now);
-            return CURLE_OK;
+            પાછા CURLE_OK;
           }
-          return result;
+          પાછા result;
         }
         pktcnt = 0;
       }
-      else if(nread < gsolen) {
+      નહીંતર જો(nread < gsolen) {
         /* Reached capacity of our buffer *or*
          * last add was shorter than the previous ones, flush */
-        break;
+        તોડો;
       }
     }
   }
 
-  if(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  જો(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
     /* time to send */
     CURL_TRC_CF(data, cf, "egress, send collected %zu packets in %zu bytes",
                 pktcnt, Curl_bufq_len(&ctx->q.sendbuf));
     result = Curl_vquic_send(cf, data, &ctx->q, gsolen);
-    if(result) {
-      if(result == CURLE_AGAIN) {
+    જો(result) {
+      જો(result == CURLE_AGAIN) {
         Curl_expire_set(data, EXPIRE_QUIC, 1, &pktx->now);
-        return CURLE_OK;
+        પાછા CURLE_OK;
       }
-      return result;
+      પાછા result;
     }
     Curl_cf_ngtcp2_io_ctx_update_time(data, pktx, cf);
     ngtcp2_conn_update_pkt_tx_time(ctx->qconn, pktx->ts);
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-struct cf_ngtcp2_recv_ctx {
-  struct cf_ngtcp2_io_ctx *pktx;
-  size_t pkt_count;
+સંરચના cf_ngtcp2_recv_ctx {
+  સંરચના cf_ngtcp2_io_ctx *pktx;
+  size_t pkt_ગણતરી;
 };
 
-static CURLcode cf_ngtcp2_recv_pkts(const unsigned char *buf, size_t buflen,
+સ્થિર CURLcode cf_ngtcp2_recv_pkts(અચલ unsigned અક્ષર *buf, size_t buflen,
                                     size_t gso_size,
-                                    struct sockaddr_storage *remote_addr,
+                                    સંરચના sockaddr_storage *remote_addr,
                                     socklen_t remote_addrlen, uint8_t ecn,
-                                    void *userp)
+                                    શૂન્ય *userp)
 {
-  struct cf_ngtcp2_recv_ctx *rctx = userp;
-  struct cf_ngtcp2_io_ctx *pktx = rctx->pktx;
-  struct cf_ngtcp2_ctx *ctx = pktx->cf->ctx;
+  સંરચના cf_ngtcp2_recv_ctx *rctx = userp;
+  સંરચના cf_ngtcp2_io_ctx *pktx = rctx->pktx;
+  સંરચના cf_ngtcp2_ctx *ctx = pktx->cf->ctx;
   ngtcp2_pkt_info pi;
   ngtcp2_path path;
   size_t offset, pktlen;
-  int rv;
+  પૂર્ણાંક rv;
 
-  if(!rctx->pkt_count) {
+  જો(!rctx->pkt_ગણતરી) {
     Curl_cf_ngtcp2_io_ctx_update_time(pktx->data, pktx, pktx->cf);
     ngtcp2_path_storage_zero(&pktx->ps);
   }
 
-  if(ecn)
+  જો(ecn)
     CURL_TRC_CF(pktx->data, pktx->cf, "vquic_recv(len=%zu, gso=%zu, ecn=%x)",
                 buflen, gso_size, (unsigned)ecn);
-  ngtcp2_addr_init(&path.local, (struct sockaddr *)&ctx->q.local_addr,
+  ngtcp2_addr_init(&path.local, (સંરચના sockaddr *)&ctx->q.local_addr,
                    ctx->q.local_addrlen);
-  ngtcp2_addr_init(&path.remote, (struct sockaddr *)remote_addr,
+  ngtcp2_addr_init(&path.remote, (સંરચના sockaddr *)remote_addr,
                    remote_addrlen);
   pi.ecn = (uint8_t)ecn;
 
-  for(offset = 0; offset < buflen; offset += gso_size) {
-    rctx->pkt_count++;
+  માટે(offset = 0; offset < buflen; offset += gso_size) {
+    rctx->pkt_ગણતરી++;
     pktlen = ((offset + gso_size) <= buflen) ? gso_size : (buflen - offset);
     rv = ngtcp2_conn_read_pkt(ctx->qconn, &path, &pi,
                               buf + offset, pktlen, pktx->ts);
-    if(rv) {
+    જો(rv) {
       CURL_TRC_CF(pktx->data, pktx->cf, "ingress, read_pkt -> %s (%d)",
                   ngtcp2_strerror(rv), rv);
       Curl_cf_ngtcp2_cmn_err_set(pktx->cf, pktx->data, rv);
 
-      if(rv == NGTCP2_ERR_CRYPTO)
+      જો(rv == NGTCP2_ERR_CRYPTO)
         /* this is a "TLS problem", but a failed certificate verification
            is a common reason for this */
-        return CURLE_PEER_FAILED_VERIFICATION;
-      return CURLE_RECV_ERROR;
+        પાછા CURLE_PEER_FAILED_VERIFICATION;
+      પાછા CURLE_RECV_ERROR;
     }
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-CURLcode Curl_cf_ngtcp2_progress_ingress(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct cf_ngtcp2_io_ctx *pktx)
+CURLcode Curl_cf_ngtcp2_progress_ingress(સંરચના Curl_cfilter *cf,
+                                         સંરચના Curl_easy *data,
+                                         સંરચના cf_ngtcp2_io_ctx *pktx)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct cf_ngtcp2_io_ctx local_pktx;
-  struct cf_ngtcp2_recv_ctx rctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_io_ctx local_pktx;
+  સંરચના cf_ngtcp2_recv_ctx rctx;
   CURLcode result = CURLE_OK;
 
-  if(!pktx) {
+  જો(!pktx) {
     Curl_cf_ngtcp2_io_ctx_init(&local_pktx, cf, data);
     pktx = &local_pktx;
   }
 
   result = Curl_vquic_tls_before_recv(&ctx->tls, cf, data);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
   rctx.pktx = pktx;
-  rctx.pkt_count = 0;
+  rctx.pkt_ગણતરી = 0;
 
-  if(ctx->q.sockfd != CURL_SOCKET_BAD) {
+  જો(ctx->q.sockfd != CURL_SOCKET_BAD) {
     /* Direct UDP socket (via happy eyeballs) */
     CURL_TRC_CF(data, cf, "progress_ingress(socket)");
-    return Curl_vquic_recv_packets(cf, data, &ctx->q, 1000,
+    પાછા Curl_vquic_recv_packets(cf, data, &ctx->q, 1000,
                                    cf_ngtcp2_recv_pkts, &rctx);
   }
-  else {
+  નહીંતર {
     /* Tunneled QUIC (CONNECT-UDP through proxy) */
-    unsigned char *buf;
+    unsigned અક્ષર *buf;
     size_t max_udp_payload = QUIC_TUNNEL_INBUF_SIZE;
     size_t pkt_limit = QUIC_TUNNEL_INGRESS_PKT_LIMIT;
     size_t nread;
-    struct sockaddr_storage remote_addr;
+    સંરચના sockaddr_storage remote_addr;
     socklen_t remote_addrlen;
 
     CURL_TRC_CF(data, cf, "progress_ingress(sub-filters)");
-    if(ctx->qconn) {
+    જો(ctx->qconn) {
       size_t max_path_payload;
       max_path_payload =
         ngtcp2_conn_get_path_max_tx_udp_payload_size(ctx->qconn);
-      if(max_path_payload > max_udp_payload)
+      જો(max_path_payload > max_udp_payload)
         max_udp_payload = max_path_payload;
     }
 
-    if(ctx->tunnel_inbuf_len < max_udp_payload) {
-      unsigned char *newbuf = curlx_realloc(ctx->tunnel_inbuf,
+    જો(ctx->tunnel_inbuf_len < max_udp_payload) {
+      unsigned અક્ષર *newbuf = curlx_realloc(ctx->tunnel_inbuf,
                                             max_udp_payload);
-      if(!newbuf)
-        return CURLE_OUT_OF_MEMORY;
+      જો(!newbuf)
+        પાછા CURLE_OUT_OF_MEMORY;
       ctx->tunnel_inbuf = newbuf;
       ctx->tunnel_inbuf_len = max_udp_payload;
     }
     buf = ctx->tunnel_inbuf;
 
-    while(pkt_limit--) {
-      result = Curl_conn_cf_recv(cf->next, data, (char *)buf,
+    જ્યારે(pkt_limit--) {
+      result = Curl_conn_cf_recv(cf->next, data, (અક્ષર *)buf,
                                  ctx->tunnel_inbuf_len, &nread);
-      if(result == CURLE_AGAIN) {
+      જો(result == CURLE_AGAIN) {
         /* no more data available at the moment */
-        return CURLE_OK;
+        પાછા CURLE_OK;
       }
-      if(result) {
+      જો(result) {
         CURL_TRC_CF(data, cf, "ingress, recv from tunnel failed: %d",
-                    (int)result);
-        return result;
+                    (પૂર્ણાંક)result);
+        પાછા result;
       }
-      if(nread == 0) {
+      જો(nread == 0) {
         /* tunnel closed */
-        return CURLE_OK;
+        પાછા CURLE_OK;
       }
 
       memcpy(&remote_addr, ctx->connected_path.remote.addr,
@@ -1786,16 +1786,16 @@ CURLcode Curl_cf_ngtcp2_progress_ingress(struct Curl_cfilter *cf,
       remote_addrlen = (socklen_t)ctx->connected_path.remote.addrlen;
       result = cf_ngtcp2_recv_pkts(buf, nread, nread, &remote_addr,
                                    remote_addrlen, 0, &rctx);
-      if(result)
-        return result;
+      જો(result)
+        પાછા result;
 
-      if(!ctx->q.got_first_byte) {
+      જો(!ctx->q.got_first_byte) {
         ctx->q.got_first_byte = TRUE;
         ctx->q.first_byte_at = ctx->q.last_op;
       }
       ctx->q.last_io = ctx->q.last_op;
     }
-    return CURLE_OK;
+    પાછા CURLE_OK;
   }
 }
 
@@ -1806,49 +1806,49 @@ CURLcode Curl_cf_ngtcp2_progress_ingress(struct Curl_cfilter *cf,
  * ngtcp2 tells us when it wants to be invoked again. We handle that via
  * the `Curl_expire()` mechanisms.
  */
-CURLcode Curl_cf_ngtcp2_cmn_set_expiry(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct cf_ngtcp2_io_ctx *pktx)
+CURLcode Curl_cf_ngtcp2_cmn_set_expiry(સંરચના Curl_cfilter *cf,
+                                       સંરચના Curl_easy *data,
+                                       સંરચના cf_ngtcp2_io_ctx *pktx)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct cf_ngtcp2_io_ctx local_pktx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_io_ctx local_pktx;
   ngtcp2_tstamp expiry;
 
-  if(!pktx) {
+  જો(!pktx) {
     Curl_cf_ngtcp2_io_ctx_init(&local_pktx, cf, data);
     pktx = &local_pktx;
   }
-  else {
+  નહીંતર {
     Curl_cf_ngtcp2_io_ctx_update_time(data, pktx, cf);
   }
 
   expiry = ngtcp2_conn_get_expiry(ctx->qconn);
-  if(expiry != UINT64_MAX) {
-    if(expiry <= pktx->ts) {
+  જો(expiry != UINT64_MAX) {
+    જો(expiry <= pktx->ts) {
       CURLcode result;
-      int rv = ngtcp2_conn_handle_expiry(ctx->qconn, pktx->ts);
-      if(rv) {
+      પૂર્ણાંક rv = ngtcp2_conn_handle_expiry(ctx->qconn, pktx->ts);
+      જો(rv) {
         failf(data, "ngtcp2_conn_handle_expiry returned error: %s",
               ngtcp2_strerror(rv));
         Curl_cf_ngtcp2_cmn_err_set(cf, data, rv);
-        return CURLE_SEND_ERROR;
+        પાછા CURLE_SEND_ERROR;
       }
       result = Curl_cf_ngtcp2_progress_ingress(cf, data, pktx);
-      if(!result)
+      જો(!result)
         result = Curl_cf_ngtcp2_progress_egress(cf, data, pktx);
-      if(result) {
+      જો(result) {
         /* a verify failure during ingress must win over generic errors */
-        if(ctx->tls_vrfy_result)
+        જો(ctx->tls_vrfy_result)
           result = ctx->tls_vrfy_result;
-        return result;
+        પાછા result;
       }
       /* ask again, things might have changed */
       expiry = ngtcp2_conn_get_expiry(ctx->qconn);
     }
 
-    if(expiry > pktx->ts) {
+    જો(expiry > pktx->ts) {
       ngtcp2_duration timeout = expiry - pktx->ts;
-      if(timeout % NGTCP2_MILLISECONDS) {
+      જો(timeout % NGTCP2_MILLISECONDS) {
         timeout += NGTCP2_MILLISECONDS;
       }
       Curl_expire_set(data, EXPIRE_QUIC,
@@ -1856,14 +1856,14 @@ CURLcode Curl_cf_ngtcp2_cmn_set_expiry(struct Curl_cfilter *cf,
                       &pktx->now);
     }
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static void cf_ngtcp2_setup_keep_alive(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data)
+સ્થિર શૂન્ય cf_ngtcp2_setup_keep_alive(સંરચના Curl_cfilter *cf,
+                                       સંરચના Curl_easy *data)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  const ngtcp2_transport_params *rp;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  અચલ ngtcp2_transport_params *rp;
   /* Peer should have sent us its transport parameters. If it
    * announces a positive `max_idle_timeout` it closes the
    * connection when it does not hear from us for that time.
@@ -1873,19 +1873,19 @@ static void cf_ngtcp2_setup_keep_alive(struct Curl_cfilter *cf,
    * to a request may take a considerable amount of time. We need
    * to prevent the peer's QUIC stack from closing in this case.
    */
-  if(!ctx->qconn)
-    return;
+  જો(!ctx->qconn)
+    પાછા;
 
   rp = ngtcp2_conn_get_remote_transport_params(ctx->qconn);
-  if(!rp || !rp->max_idle_timeout) {
+  જો(!rp || !rp->max_idle_timeout) {
     ngtcp2_conn_set_keep_alive_timeout(ctx->qconn, UINT64_MAX);
     CURL_TRC_CF(data, cf, "no peer idle timeout, unset keep-alive");
   }
-  else if(!Curl_u32_ptrset_count(&ctx->streams)) {
+  નહીંતર જો(!Curl_u32_ptrset_ગણતરી(&ctx->streams)) {
     ngtcp2_conn_set_keep_alive_timeout(ctx->qconn, UINT64_MAX);
     CURL_TRC_CF(data, cf, "no active streams, unset keep-alive");
   }
-  else {
+  નહીંતર {
     ngtcp2_duration keep_ns;
     keep_ns = (rp->max_idle_timeout > 1) ? (rp->max_idle_timeout / 2) : 1;
     ngtcp2_conn_set_keep_alive_timeout(ctx->qconn, keep_ns);
@@ -1896,25 +1896,25 @@ static void cf_ngtcp2_setup_keep_alive(struct Curl_cfilter *cf,
   }
 }
 
-CURLcode Curl_cf_ngtcp2_h3_stream_setup(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct h3_stream_ctx **pstream)
+CURLcode Curl_cf_ngtcp2_h3_stream_setup(સંરચના Curl_cfilter *cf,
+                                        સંરચના Curl_easy *data,
+                                        સંરચના h3_stream_ctx **pstream)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
 
-  *pstream = NULL;
-  if(!data)
-    return CURLE_FAILED_INIT;
+  *pstream = ખાલી;
+  જો(!data)
+    પાછા CURLE_FAILED_INIT;
 
-  if(stream) {
+  જો(stream) {
     *pstream = stream;
-    return CURLE_OK;
+    પાછા CURLE_OK;
   }
 
-  stream = curlx_calloc(1, sizeof(*stream));
-  if(!stream)
-    return CURLE_OUT_OF_MEMORY;
+  stream = curlx_calloc(1, કદ(*stream));
+  જો(!stream)
+    પાછા CURLE_OUT_OF_MEMORY;
 
   stream->id = -1;
   stream->xfer_id = data->id;
@@ -1927,202 +1927,202 @@ CURLcode Curl_cf_ngtcp2_h3_stream_setup(struct Curl_cfilter *cf,
   Curl_bufq_initp(&stream->sendbuf, &ctx->stream_bufcp,
                   H3_STREAM_SEND_CHUNKS, BUFQ_OPT_NONE);
   stream->tx_in_flight_size = 0;
-  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
+  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_લીટી_LEN);
 
-  if(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
+  જો(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
     Curl_cf_ngtcp2_h3_stream_ctx_free(stream);
-    return CURLE_OUT_OF_MEMORY;
+    પાછા CURLE_OUT_OF_MEMORY;
   }
 
-  if(Curl_u32_ptrset_count(&ctx->streams) == 1)
+  જો(Curl_u32_ptrset_ગણતરી(&ctx->streams) == 1)
     cf_ngtcp2_setup_keep_alive(cf, data);
 
   *pstream = stream;
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-void Curl_cf_ngtcp2_h3_stream_close(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct h3_stream_ctx *stream)
+શૂન્ય Curl_cf_ngtcp2_h3_stream_close(સંરચના Curl_cfilter *cf,
+                                    સંરચના Curl_easy *data,
+                                    સંરચના h3_stream_ctx *stream)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
   DEBUGASSERT(data);
   DEBUGASSERT(stream);
-  if(!stream->closed && ctx->qconn && ctx->h3conn) {
+  જો(!stream->closed && ctx->qconn && ctx->h3conn) {
     CURLcode result;
 
-    nghttp3_conn_set_stream_user_data(ctx->h3conn, stream->id, NULL);
-    ngtcp2_conn_set_stream_user_data(ctx->qconn, stream->id, NULL);
+    nghttp3_conn_set_stream_user_data(ctx->h3conn, stream->id, ખાલી);
+    ngtcp2_conn_set_stream_user_data(ctx->qconn, stream->id, ખાલી);
     stream->closed = TRUE;
-    (void)ngtcp2_conn_shutdown_stream(ctx->qconn, 0, stream->id,
+    (શૂન્ય)ngtcp2_conn_shutdown_stream(ctx->qconn, 0, stream->id,
                                       NGHTTP3_H3_REQUEST_CANCELLED);
-    result = Curl_cf_ngtcp2_progress_egress(cf, data, NULL);
-    if(result)
+    result = Curl_cf_ngtcp2_progress_egress(cf, data, ખાલી);
+    જો(result)
       CURL_TRC_CF(data, cf, "[%" PRId64 "] cancel stream -> %d",
-                  stream->id, (int)result);
+                  stream->id, (પૂર્ણાંક)result);
   }
 }
 
-void Curl_cf_ngtcp2_h3_stream_done(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+શૂન્ય Curl_cf_ngtcp2_h3_stream_done(સંરચના Curl_cfilter *cf,
+                                   સંરચના Curl_easy *data)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  (void)cf;
-  if(stream) {
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  (શૂન્ય)cf;
+  જો(stream) {
     CURL_TRC_CF(data, cf, "[%" PRId64 "] easy handle is done", stream->id);
     Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
     Curl_u32_ptrset_unset(&ctx->streams, data->mid);
-    if(!Curl_u32_ptrset_count(&ctx->streams))
+    જો(!Curl_u32_ptrset_ગણતરી(&ctx->streams))
       cf_ngtcp2_setup_keep_alive(cf, data);
   }
 }
 
-bool Curl_cf_ngtcp2_cmn_conn_is_alive(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *input_pending)
+bool Curl_cf_ngtcp2_cmn_conn_is_alive(સંરચના Curl_cfilter *cf,
+                                      સંરચના Curl_easy *data,
+                                      bool *આગત_pending)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
   bool alive = FALSE;
-  const ngtcp2_transport_params *rp;
-  struct cf_call_data save;
+  અચલ ngtcp2_transport_params *rp;
+  સંરચના cf_call_data save;
 
   CF_DATA_SAVE(save, cf, data);
-  *input_pending = FALSE;
-  if(!ctx->qconn || ctx->shutdown_started)
-    goto out;
+  *આગત_pending = FALSE;
+  જો(!ctx->qconn || ctx->shutdown_started)
+    જાઓ out;
 
   /* We do not announce a max idle timeout, but when the peer does
    * it closes the connection when it expires. */
   rp = ngtcp2_conn_get_remote_transport_params(ctx->qconn);
-  if(rp && rp->max_idle_timeout) {
+  જો(rp && rp->max_idle_timeout) {
     timediff_t idletime_ms =
       curlx_ptimediff_ms(Curl_pgrs_now(data), &ctx->q.last_io);
-    if(idletime_ms > 0) {
+    જો(idletime_ms > 0) {
       uint64_t max_idle_ms =
         (uint64_t)(rp->max_idle_timeout / NGTCP2_MILLISECONDS);
-      if((uint64_t)idletime_ms > max_idle_ms)
-        goto out;
+      જો((uint64_t)idletime_ms > max_idle_ms)
+        જાઓ out;
     }
   }
 
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    goto out;
+  જો(!cf->next || !cf->next->cft->is_alive(cf->next, data, આગત_pending))
+    જાઓ out;
 
   alive = TRUE;
-  if(*input_pending) {
+  જો(*આગત_pending) {
     CURLcode result;
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
-    *input_pending = FALSE;
-    result = Curl_cf_ngtcp2_progress_ingress(cf, data, NULL);
-    CURL_TRC_CF(data, cf, "is_alive, progress ingress -> %d", (int)result);
+    *આગત_pending = FALSE;
+    result = Curl_cf_ngtcp2_progress_ingress(cf, data, ખાલી);
+    CURL_TRC_CF(data, cf, "is_alive, progress ingress -> %d", (પૂર્ણાંક)result);
     alive = result ? FALSE : TRUE;
   }
 
 out:
   CF_DATA_RESTORE(cf, save);
-  return alive;
+  પાછા alive;
 }
 
-CURLcode Curl_cf_ngtcp2_h3_init_ctrls(struct cf_ngtcp2_ctx *ctx,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_ngtcp2_h3_init_ctrls(સંરચના cf_ngtcp2_ctx *ctx,
+                                      સંરચના Curl_easy *data)
 {
   int64_t ctrl_stream_id, qpack_enc_stream_id, qpack_dec_stream_id;
-  int rc;
+  પૂર્ણાંક rc;
 
-  rc = ngtcp2_conn_open_uni_stream(ctx->qconn, &ctrl_stream_id, NULL);
-  if(rc) {
+  rc = ngtcp2_conn_open_uni_stream(ctx->qconn, &ctrl_stream_id, ખાલી);
+  જો(rc) {
     failf(data, "error creating HTTP/3 control stream: %s",
           ngtcp2_strerror(rc));
-    return CURLE_QUIC_CONNECT_ERROR;
+    પાછા CURLE_QUIC_CONNECT_ERROR;
   }
   rc = nghttp3_conn_bind_control_stream(ctx->h3conn, ctrl_stream_id);
-  if(rc) {
+  જો(rc) {
     failf(data, "error binding HTTP/3 control stream: %s",
           ngtcp2_strerror(rc));
-    return CURLE_QUIC_CONNECT_ERROR;
+    પાછા CURLE_QUIC_CONNECT_ERROR;
   }
-  rc = ngtcp2_conn_open_uni_stream(ctx->qconn, &qpack_enc_stream_id, NULL);
-  if(rc) {
+  rc = ngtcp2_conn_open_uni_stream(ctx->qconn, &qpack_enc_stream_id, ખાલી);
+  જો(rc) {
     failf(data, "error creating HTTP/3 qpack encoding stream: %s",
           ngtcp2_strerror(rc));
-    return CURLE_QUIC_CONNECT_ERROR;
+    પાછા CURLE_QUIC_CONNECT_ERROR;
   }
-  rc = ngtcp2_conn_open_uni_stream(ctx->qconn, &qpack_dec_stream_id, NULL);
-  if(rc) {
+  rc = ngtcp2_conn_open_uni_stream(ctx->qconn, &qpack_dec_stream_id, ખાલી);
+  જો(rc) {
     failf(data, "error creating HTTP/3 qpack decoding stream: %s",
           ngtcp2_strerror(rc));
-    return CURLE_QUIC_CONNECT_ERROR;
+    પાછા CURLE_QUIC_CONNECT_ERROR;
   }
   rc = nghttp3_conn_bind_qpack_streams(ctx->h3conn, qpack_enc_stream_id,
                                        qpack_dec_stream_id);
-  if(rc) {
+  જો(rc) {
     failf(data, "error binding HTTP/3 qpack streams: %s", ngtcp2_strerror(rc));
-    return CURLE_QUIC_CONNECT_ERROR;
+    પાછા CURLE_QUIC_CONNECT_ERROR;
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-CURLcode Curl_cf_ngtcp2_cmn_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+CURLcode Curl_cf_ngtcp2_cmn_query(સંરચના Curl_cfilter *cf,
+                                  સંરચના Curl_easy *data,
+                                  પૂર્ણાંક query, પૂર્ણાંક *pres1, શૂન્ય *pres2)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_CONNECT_REPLY_MS:
-    if((ctx->q.sockfd != CURL_SOCKET_BAD) && ctx->q.got_first_byte) {
+  પસંદગી(query) {
+  સ્થિતિ CF_QUERY_CONNECT_REPLY_MS:
+    જો((ctx->q.sockfd != CURL_SOCKET_BAD) && ctx->q.got_first_byte) {
       timediff_t ms = curlx_ptimediff_ms(&ctx->q.first_byte_at,
                                          &ctx->started_at);
-      *pres1 = (ms < INT_MAX) ? (int)ms : INT_MAX;
-      return CURLE_OK;
+      *pres1 = (ms < INT_MAX) ? (પૂર્ણાંક)ms : INT_MAX;
+      પાછા CURLE_OK;
     }
-    break;
-  case CF_QUERY_REALLY_CONNECTED:
-    if(ctx->q.sockfd != CURL_SOCKET_BAD) {
+    તોડો;
+  સ્થિતિ CF_QUERY_REALLY_CONNECTED:
+    જો(ctx->q.sockfd != CURL_SOCKET_BAD) {
       *pres1 = ctx->q.got_first_byte;
-      return CURLE_OK;
+      પાછા CURLE_OK;
     }
-    break;
-  default:
-    break;
+    તોડો;
+  મૂળભૂત:
+    તોડો;
   }
-  return cf->next ?
+  પાછા cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-CURLcode Curl_cf_ngtcp2_cmn_cntrl(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int event, int arg1, void *arg2)
+CURLcode Curl_cf_ngtcp2_cmn_cntrl(સંરચના Curl_cfilter *cf,
+                                  સંરચના Curl_easy *data,
+                                  પૂર્ણાંક event, પૂર્ણાંક arg1, શૂન્ય *arg2)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  સંરચના cf_ngtcp2_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !ctx->stats_reported) {
-      if((cf->cft->flags & CF_TYPE_PROXY) &&
+  (શૂન્ય)arg1;
+  (શૂન્ય)arg2;
+  પસંદગી(event) {
+  સ્થિતિ CF_CTRL_REPORT_STATS:
+    જો(cf->connected && !ctx->stats_reported) {
+      જો((cf->cft->flags & CF_TYPE_PROXY) &&
          (ctx->q.sockfd != CURL_SOCKET_BAD) && ctx->q.got_first_byte) {
         Curl_pgrsTimeWas(data, TIMER_CONNECT, ctx->q.first_byte_at);
         ctx->stats_reported = TRUE;
       }
-      else if(ctx->handshake_at.tv_sec || ctx->handshake_at.tv_usec) {
-        if(ctx->q.sockfd != CURL_SOCKET_BAD)
+      નહીંતર જો(ctx->handshake_at.tv_sec || ctx->handshake_at.tv_usec) {
+        જો(ctx->q.sockfd != CURL_SOCKET_BAD)
           Curl_pgrsTimeWas(data, TIMER_CONNECT, ctx->q.first_byte_at);
         Curl_pgrsTimeWas(data, TIMER_APPCONNECT, ctx->handshake_at);
         ctx->stats_reported = TRUE;
       }
     }
-    break;
-  default:
-    break;
+    તોડો;
+  મૂળભૂત:
+    તોડો;
   }
-  return result;
+  પાછા result;
 }
 
 #endif /* !CURL_DISABLE_HTTP && USE_NGTCP2 && USE_NGHTTP3 */

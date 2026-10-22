@@ -23,48 +23,48 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifdef USE_CURL_NTLM_CORE
 
-struct ntlmdata;
+સંરચના ntlmdata;
 
 /* Helpers to generate function byte arguments in little endian order */
-#define SHORTPAIR(x)   ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff))
-#define LONGQUARTET(x) ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff)), \
-  ((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
+#define SHORTPAIR(x)   ((પૂર્ણાંક)((x) & 0xff)), ((પૂર્ણાંક)(((x) >> 8) & 0xff))
+#define LONGQUARTET(x) ((પૂર્ણાંક)((x) & 0xff)), ((પૂર્ણાંક)(((x) >> 8) & 0xff)), \
+  ((પૂર્ણાંક)(((x) >> 16) & 0xff)), ((પૂર્ણાંક)(((x) >> 24) & 0xff))
 
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results);
+શૂન્ય Curl_ntlm_core_lm_resp(અચલ unsigned અક્ષર *ચાવીઓ,
+                            અચલ unsigned અક્ષર *plaintext,
+                            unsigned અક્ષર *results);
 
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_lm_hash(અચલ અક્ષર *password,
+                                   unsigned અક્ષર *lmbuffer /* 21 bytes */);
 
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_nt_hash(અચલ અક્ષર *password,
+                                   unsigned અક્ષર *ntbuffer /* 21 bytes */);
 
 #ifndef USE_WINDOWS_SSPI
 
-CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
-                       const unsigned char *data, unsigned int datalen,
-                       unsigned char *output);
+CURLcode Curl_hmac_md5(અચલ unsigned અક્ષર *ચાવી, unsigned પૂર્ણાંક keylen,
+                       અચલ unsigned અક્ષર *data, unsigned પૂર્ણાંક datalen,
+                       unsigned અક્ષર *output);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash);
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(અચલ અક્ષર *user, size_t userlen,
+                                       અચલ અક્ષર *domain, size_t domlen,
+                                       unsigned અક્ષર *ntlmhash,
+                                       unsigned અક્ષર *ntlmv2hash);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len);
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(અચલ unsigned અક્ષર *ntlmv2hash,
+                                       અચલ unsigned અક્ષર *challenge_client,
+                                       અચલ સંરચના ntlmdata *ntlm,
+                                       unsigned અક્ષર **ntresp,
+                                       unsigned પૂર્ણાંક *ntresp_len);
 
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp);
+CURLcode Curl_ntlm_core_mk_lmv2_resp(અચલ unsigned અક્ષર *ntlmv2hash,
+                                     અચલ unsigned અક્ષર *challenge_client,
+                                     અચલ unsigned અક્ષર *challenge_server,
+                                     unsigned અક્ષર *lmresp);
 
 #endif /* !USE_WINDOWS_SSPI */
 

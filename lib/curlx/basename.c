@@ -21,11 +21,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifndef HAVE_BASENAME
 
-#include "curlx/basename.h"
+#અન્તર્ભાવ "curlx/basename.h"
 
 /* (Quote from The Open Group Base Specifications Issue 6 IEEE Std 1003.1, 2004
    Edition)
@@ -49,24 +49,24 @@
    The basename() function need not be reentrant. A function that is not
    required to be reentrant is not required to be thread-safe.
  */
-char *curlx_basename(char *path)
+અક્ષર *curlx_basename(અક્ષર *path)
 {
   /* Ignore all the details above for now and make a quick and simple
      implementation here */
-  char *s1;
-  char *s2;
+  અક્ષર *s1;
+  અક્ષર *s2;
 
   s1 = strrchr(path, '/');
   s2 = strrchr(path, '\\');
 
-  if(s1 && s2)
+  જો(s1 && s2)
     path = ((s1 > s2) ? s1 : s2) + 1;
-  else if(s1)
+  નહીંતર જો(s1)
     path = s1 + 1;
-  else if(s2)
+  નહીંતર જો(s2)
     path = s2 + 1;
 
-  return path;
+  પાછા path;
 }
 
 #endif /* !HAVE_BASENAME */

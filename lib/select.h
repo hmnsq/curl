@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifdef HAVE_POLL_H
-#include <poll.h>
-#elif defined(HAVE_SYS_POLL_H)
-#include <sys/poll.h>
+#અન્તર્ભાવ <poll.h>
+#અથવાજો defined(HAVE_SYS_POLL_H)
+#અન્તર્ભાવ <sys/poll.h>
 #endif
 
 /*
  * Definition of pollfd struct and constants for platforms lacking them.
  */
 
-#if !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
+#જો !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
 
 #define POLLIN      0x01
 #define POLLPRI     0x02
@@ -44,7 +44,7 @@
 #define POLLHUP     0x10
 #define POLLNVAL    0x20
 
-struct pollfd {
+સંરચના pollfd {
   curl_socket_t fd;
   short events;
   short revents;
@@ -69,7 +69,7 @@ struct pollfd {
    therefore defined here */
 #define CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
 
-int Curl_socket_check(curl_socket_t readfd0,
+પૂર્ણાંક Curl_socket_check(curl_socket_t readfd0,
                       curl_socket_t readfd1,
                       curl_socket_t writefd,
                       timediff_t timeout_ms);
@@ -78,7 +78,7 @@ int Curl_socket_check(curl_socket_t readfd0,
 #define SOCKET_WRITABLE(x, z)                               \
   Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
 
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
+પૂર્ણાંક Curl_poll(સંરચના pollfd ufds[], unsigned પૂર્ણાંક nfds, timediff_t timeout_ms);
 
 /* With Winsock the valid range is [0..INVALID_SOCKET-1] according to
    https://learn.microsoft.com/windows/win32/winsock/socket-data-type-2 */
@@ -86,43 +86,43 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
 #define VALID_SOCK(s) ((s) < INVALID_SOCKET)
 #define FDSET_SOCK(x) 1
 #define VERIFY_SOCK(x)           \
-  do {                           \
-    if(!VALID_SOCK(x)) {         \
+  કરો {                           \
+    જો(!VALID_SOCK(x)) {         \
       SET_SOCKERRNO(SOCKEINVAL); \
-      return -1;                 \
+      પાછા -1;                 \
     }                            \
-  } while(0)
-#else
+  } જ્યારે(0)
+#નહીંતર
 #define VALID_SOCK(s) ((s) >= 0)
 
 /* If the socket is small enough to get set or read from an fdset */
 #define FDSET_SOCK(s) ((s) < FD_SETSIZE)
 
 #define VERIFY_SOCK(x)                     \
-  do {                                     \
-    if(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
+  કરો {                                     \
+    જો(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
       SET_SOCKERRNO(SOCKEINVAL);           \
-      return -1;                           \
+      પાછા -1;                           \
     }                                      \
-  } while(0)
+  } જ્યારે(0)
 #endif
 
 /* Keep the sockets to poll for an easy handle.
  * `actions` are bitmaps of CURL_POLL_IN and CURL_POLL_OUT.
  * Starts with small capacity, grows on demand.
  */
-#define EZ_POLLSET_DEF_COUNT 2
+#define EZ_POLLSET_DEF_ગણતરી 2
 
-struct easy_pollset {
+સંરચના easy_pollset {
   curl_socket_t *sockets;
-  unsigned char *actions;
-  unsigned int n;
-  unsigned int count;
+  unsigned અક્ષર *actions;
+  unsigned પૂર્ણાંક n;
+  unsigned પૂર્ણાંક ગણતરી;
 #ifdef DEBUGBUILD
-  int init;
+  પૂર્ણાંક init;
 #endif
-  curl_socket_t def_sockets[EZ_POLLSET_DEF_COUNT];
-  unsigned char def_actions[EZ_POLLSET_DEF_COUNT];
+  curl_socket_t def_sockets[EZ_POLLSET_DEF_ગણતરી];
+  unsigned અક્ષર def_actions[EZ_POLLSET_DEF_ગણતરી];
 };
 
 #ifdef DEBUGBUILD
@@ -130,30 +130,30 @@ struct easy_pollset {
 #endif
 
 /* allocate and initialize */
-struct easy_pollset *Curl_pollset_create(void);
+સંરચના easy_pollset *Curl_pollset_create(શૂન્ય);
 
 /* Initialize before first use */
-void Curl_pollset_init(struct easy_pollset *ps);
+શૂન્ય Curl_pollset_init(સંરચના easy_pollset *ps);
 /* Free any allocated resources */
-void Curl_pollset_cleanup(struct easy_pollset *ps);
+શૂન્ય Curl_pollset_cleanup(સંરચના easy_pollset *ps);
 /* Reset to an empty pollset */
-void Curl_pollset_reset(struct easy_pollset *ps);
+શૂન્ય Curl_pollset_reset(સંરચના easy_pollset *ps);
 /* Move pollset from to pollset to, replacing all in to,
  * leaving from empty. */
-void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from);
+શૂન્ય Curl_pollset_move(સંરચના easy_pollset *to, સંરચના easy_pollset *from);
 
 /* Change the poll flags (CURL_POLL_IN/CURL_POLL_OUT) to the poll set for
  * socket `sock`. If the socket is not already part of the poll set, it
  * will be added.
  * If the socket is present and all poll flags are cleared, it will be removed.
  */
-CURLcode Curl_pollset_change(struct Curl_easy *data,
-                             struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags,
-                             int remove_flags) WARN_UNUSED_RESULT;
+CURLcode Curl_pollset_change(સંરચના Curl_easy *data,
+                             સંરચના easy_pollset *ps, curl_socket_t sock,
+                             પૂર્ણાંક add_flags,
+                             પૂર્ણાંક remove_flags) WARN_UNUSED_RESULT;
 
-CURLcode Curl_pollset_set(struct Curl_easy *data,
-                          struct easy_pollset *ps, curl_socket_t sock,
+CURLcode Curl_pollset_set(સંરચના Curl_easy *data,
+                          સંરચના easy_pollset *ps, curl_socket_t sock,
                           bool do_in, bool do_out) WARN_UNUSED_RESULT;
 
 #define Curl_pollset_add_in(data, ps, sock) \
@@ -171,62 +171,62 @@ CURLcode Curl_pollset_set(struct Curl_easy *data,
 #define Curl_pollset_set_out_only(data, ps, sock) \
   Curl_pollset_change(data, ps, sock, CURL_POLL_OUT, CURL_POLL_IN)
 
-void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock);
+શૂન્ય Curl_pollset_remove(સંરચના easy_pollset *ps, curl_socket_t sock);
 
 /* return < = on error, 0 on timeout or how many sockets are ready */
-int Curl_pollset_poll(struct Curl_easy *data,
-                      struct easy_pollset *ps,
+પૂર્ણાંક Curl_pollset_poll(સંરચના Curl_easy *data,
+                      સંરચના easy_pollset *ps,
                       timediff_t timeout_ms);
 
 /**
  * Check if the pollset, as is, wants to read and/or write regarding
  * the given socket.
  */
-void Curl_pollset_check(struct Curl_easy *data,
-                        struct easy_pollset *ps, curl_socket_t sock,
+શૂન્ય Curl_pollset_check(સંરચના Curl_easy *data,
+                        સંરચના easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write);
 
 /* TRUE if the pollset contains socket with CURL_POLL_IN. */
-bool Curl_pollset_want_recv(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_recv(સંરચના Curl_easy *data,
+                            સંરચના easy_pollset *ps,
                             curl_socket_t sock);
 /* TRUE if the pollset contains socket with CURL_POLL_OUT. */
-bool Curl_pollset_want_send(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_send(સંરચના Curl_easy *data,
+                            સંરચના easy_pollset *ps,
                             curl_socket_t sock);
 
-struct curl_pollfds {
-  struct pollfd *pfds;
-  unsigned int n;
-  unsigned int count;
+સંરચના curl_pollfds {
+  સંરચના pollfd *pfds;
+  unsigned પૂર્ણાંક n;
+  unsigned પૂર્ણાંક ગણતરી;
   BIT(allocated_pfds);
 };
 
-void Curl_pollfds_init(struct curl_pollfds *cpfds,
-                       struct pollfd *static_pfds,
-                       unsigned int static_count);
+શૂન્ય Curl_pollfds_init(સંરચના curl_pollfds *cpfds,
+                       સંરચના pollfd *static_pfds,
+                       unsigned પૂર્ણાંક static_ગણતરી);
 
-void Curl_pollfds_reset(struct curl_pollfds *cpfds);
+શૂન્ય Curl_pollfds_reset(સંરચના curl_pollfds *cpfds);
 
-void Curl_pollfds_cleanup(struct curl_pollfds *cpfds);
+શૂન્ય Curl_pollfds_cleanup(સંરચના curl_pollfds *cpfds);
 
-CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
-                             struct easy_pollset *ps);
+CURLcode Curl_pollfds_add_ps(સંરચના curl_pollfds *cpfds,
+                             સંરચના easy_pollset *ps);
 
-CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
+CURLcode Curl_pollfds_add_sock(સંરચના curl_pollfds *cpfds,
                                curl_socket_t sock, short events);
 
-struct Curl_waitfds {
-  struct curl_waitfd *wfds;
-  unsigned int n;
-  unsigned int count;
+સંરચના Curl_waitfds {
+  સંરચના curl_waitfd *wfds;
+  unsigned પૂર્ણાંક n;
+  unsigned પૂર્ણાંક ગણતરી;
 };
 
-void Curl_waitfds_init(struct Curl_waitfds *cwfds,
-                       struct curl_waitfd *static_wfds,
-                       unsigned int static_count);
+શૂન્ય Curl_waitfds_init(સંરચના Curl_waitfds *cwfds,
+                       સંરચના curl_waitfd *static_wfds,
+                       unsigned પૂર્ણાંક static_ગણતરી);
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
-                                 struct easy_pollset *ps);
+unsigned પૂર્ણાંક Curl_waitfds_add_ps(સંરચના Curl_waitfds *cwfds,
+                                 સંરચના easy_pollset *ps);
 
 #endif /* HEADER_CURL_SELECT_H */

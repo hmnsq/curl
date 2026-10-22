@@ -24,12 +24,12 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#જો !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "curlx/dynbuf.h"
-#include "bufq.h"
+#અન્તર્ભાવ "curlx/dynbuf.h"
+#અન્તર્ભાવ "bufq.h"
 
 /* HTTP Capsule constants */
 #define HTTP_CAPSULE_HEADER_MAX_SIZE    10
@@ -43,11 +43,11 @@
  * @param blen  Payload buffer length
  * @return CURLE_OK on success, error code on failure
  */
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen);
+CURLcode Curl_capsule_encap_udp_datagram(સંરચના bufq *q,
+                                         અચલ શૂન્ય *buf, size_t blen);
 
-struct Curl_easy;
-struct Curl_cfilter;
+સંરચના Curl_easy;
+સંરચના Curl_cfilter;
 
 /**
  * Process one UDP capsule from buffer into raw datagram payload bytes.
@@ -59,10 +59,10 @@ struct Curl_cfilter;
  * @param err       Error code output
  * @return Number of payload bytes written. Check `err` for status.
  */
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(સંરચના Curl_cfilter *cf,
+                                    સંરચના Curl_easy *data,
+                                    સંરચના bufq *recvbufq,
+                                    unsigned અક્ષર *buf, size_t len,
                                     CURLcode *err);
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

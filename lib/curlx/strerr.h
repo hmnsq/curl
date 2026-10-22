@@ -24,6 +24,6 @@
  *
  ***************************************************************************/
 
-const char *curlx_strerror(int err, char *buf, size_t buflen);
+અચલ અક્ષર *curlx_strerror(પૂર્ણાંક err, અક્ષર *buf, size_t buflen);
 
 #endif /* HEADER_CURL_STRERR_H */

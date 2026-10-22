@@ -21,86 +21,86 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#અન્તર્ભાવ <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#અન્તર્ભાવ <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#અન્તર્ભાવ <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+#અન્તર્ભાવ <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#અન્તર્ભાવ <sys/ioctl.h>
 #endif
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#અન્તર્ભાવ <sys/param.h>
 #endif
 
-#include "urldata.h"
-#include "api.h"
-#include "transfer.h"
-#include "vdns/hostip.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "vquic/vquic.h"
-#include "url.h"
-#include "getinfo.h"
-#include "curlx/strdup.h"
-#include "easyif.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "select.h"
-#include "cfilters.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "connect.h" /* for Curl_getconnectinfo */
-#include "slist.h"
-#include "mime.h"
-#include "amigaos.h"
-#include "macos.h"
-#include "curlx/wait.h"
-#include "sigpipe.h"
-#include "vssh/ssh.h"
-#include "setopt.h"
-#include "http_digest.h"
-#include "curlx/dynbuf.h"
-#include "bufref.h"
-#include "altsvc.h"
-#include "hsts.h"
-#include "curl_sspi.h" /* Curl_sspi_global_init()/Curl_sspi_global_cleanup() */
-#include "curlx/timeval.h" /* for curlx_now_init() */
-#include "curlx/version_win32.h" /* for curlx_verify_windows_init() */
+#અન્તર્ભાવ "urldata.h"
+#અન્તર્ભાવ "api.h"
+#અન્તર્ભાવ "transfer.h"
+#અન્તર્ભાવ "vdns/hostip.h"
+#અન્તર્ભાવ "vtls/vtls.h"
+#અન્તર્ભાવ "vtls/vtls_scache.h"
+#અન્તર્ભાવ "vquic/vquic.h"
+#અન્તર્ભાવ "url.h"
+#અન્તર્ભાવ "getinfo.h"
+#અન્તર્ભાવ "curlx/strdup.h"
+#અન્તર્ભાવ "easyif.h"
+#અન્તર્ભાવ "multiif.h"
+#અન્તર્ભાવ "multi_ev.h"
+#અન્તર્ભાવ "select.h"
+#અન્તર્ભાવ "cfilters.h"
+#અન્તર્ભાવ "sendf.h"
+#અન્તર્ભાવ "curl_trc.h"
+#અન્તર્ભાવ "connect.h" /* for Curl_getconnectinfo */
+#અન્તર્ભાવ "slist.h"
+#અન્તર્ભાવ "mime.h"
+#અન્તર્ભાવ "amigaos.h"
+#અન્તર્ભાવ "macos.h"
+#અન્તર્ભાવ "curlx/wait.h"
+#અન્તર્ભાવ "sigpipe.h"
+#અન્તર્ભાવ "vssh/ssh.h"
+#અન્તર્ભાવ "setopt.h"
+#અન્તર્ભાવ "http_digest.h"
+#અન્તર્ભાવ "curlx/dynbuf.h"
+#અન્તર્ભાવ "bufref.h"
+#અન્તર્ભાવ "altsvc.h"
+#અન્તર્ભાવ "hsts.h"
+#અન્તર્ભાવ "curl_sspi.h" /* Curl_sspi_global_init()/Curl_sspi_global_cleanup() */
+#અન્તર્ભાવ "curlx/timeval.h" /* for curlx_now_init() */
+#અન્તર્ભાવ "curlx/version_win32.h" /* for curlx_verify_windows_init() */
 
-#include "easy_lock.h"
+#અન્તર્ભાવ "easy_lock.h"
 
 /* true globals -- for curl_global_init() and curl_global_cleanup() */
-static unsigned int initialized;
+સ્થિર unsigned પૂર્ણાંક initialized;
 #ifdef USE_WINSOCK
-static bool winsock_initialized;
+સ્થિર bool winsock_initialized;
 #endif
 
 #ifdef GLOBAL_INIT_IS_THREADSAFE
 
-static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
+સ્થિર curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
 #define global_init_lock()   curl_simple_lock_lock(&s_lock)
 #define global_init_unlock() curl_simple_lock_unlock(&s_lock)
 
-#else
+#નહીંતર
 
 #define global_init_lock()
 #define global_init_unlock()
 
 #endif
 
-#if defined(_MSC_VER) && defined(_DLL)
-#  pragma warning(push)
+#જો defined(_MSC_VER) && defined(_DLL)
+#  pragma warning(ધકેલો)
 #  pragma warning(disable:4232) /* MSVC extension, dllimport identity */
 #endif
 
@@ -109,36 +109,36 @@ static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
  * curl_global_init() is called, we need to have these pointers set already.
  */
 curl_malloc_callback Curl_cmalloc = (curl_malloc_callback)malloc;
-curl_free_callback Curl_cfree = (curl_free_callback)free;
+curl_free_callback Curl_cfree = (curl_free_callback)મુક્ત;
 curl_realloc_callback Curl_crealloc = (curl_realloc_callback)realloc;
-curl_strdup_callback Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_LOW;
+curl_strdup_callback Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_નીચલું;
 curl_calloc_callback Curl_ccalloc = (curl_calloc_callback)calloc;
 
-#if defined(_MSC_VER) && defined(_DLL)
-#  pragma warning(pop)
+#જો defined(_MSC_VER) && defined(_DLL)
+#  pragma warning(કાઢો)
 #endif
 
 #ifdef DEBUGBUILD
-static char *leakpointer;
+સ્થિર અક્ષર *leakpointer;
 #endif
 
 /**
  * curl_global_init() globally initializes curl given a bitwise set of the
  * different features of what to initialize.
  */
-static CURLcode global_init(long flags, bool memoryfuncs)
+સ્થિર CURLcode global_init(long flags, bool memoryfuncs)
 {
-  (void)flags;
+  (શૂન્ય)flags;
 
-  if(initialized++)
-    return CURLE_OK;
+  જો(initialized++)
+    પાછા CURLE_OK;
 
-  if(memoryfuncs) {
+  જો(memoryfuncs) {
     /* Setup the default memory functions here (again) */
     Curl_cmalloc = (curl_malloc_callback)malloc;
-    Curl_cfree = (curl_free_callback)free;
+    Curl_cfree = (curl_free_callback)મુક્ત;
     Curl_crealloc = (curl_realloc_callback)realloc;
-    Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_LOW;
+    Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_નીચલું;
     Curl_ccalloc = (curl_calloc_callback)calloc;
   }
 
@@ -147,83 +147,83 @@ static CURLcode global_init(long flags, bool memoryfuncs)
   curlx_now_init();
 #endif
 
-  if(Curl_trc_init()) {
+  જો(Curl_trc_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_trc_init failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 
 #ifdef USE_WINDOWS_SSPI
-  if(Curl_sspi_global_init()) {
+  જો(Curl_sspi_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_sspi_global_init() failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 #endif
 
 #ifdef USE_WINSOCK
   /* CURL_GLOBAL_WINSOCK controls the *optional* part of the Windows
      initialization which is for the Windows sockets library (Winsock). */
-  if(flags & CURL_GLOBAL_WINSOCK) {
+  જો(flags & CURL_GLOBAL_WINSOCK) {
     WSADATA wsa;
-    if(WSAStartup(MAKEWORD(2, 2), &wsa)) {
+    જો(WSAStartup(MAKEWORD(2, 2), &wsa)) {
       DEBUGF(curl_mfprintf(stderr, "Error: WSAStartup() failed\n"));
-      goto fail;
+      જાઓ fail;
     }
     winsock_initialized = TRUE;
   }
 #endif
 
-  if(!Curl_ssl_init()) {
+  જો(!Curl_ssl_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_ssl_init failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 
-  if(Curl_hash_global_init()) {
+  જો(Curl_hash_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_hash_global_init failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 
-  if(!Curl_vquic_init()) {
+  જો(!Curl_vquic_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_vquic_init failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 
-  if(Curl_amiga_init()) {
+  જો(Curl_amiga_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_amiga_init failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 
-  if(Curl_macos_init()) {
+  જો(Curl_macos_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_macos_init failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 
-  if(Curl_async_global_init()) {
+  જો(Curl_async_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_async_global_init failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 
-  if(Curl_ssh_init()) {
+  જો(Curl_ssh_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_ssh_init failed\n"));
-    goto fail;
+    જાઓ fail;
   }
 
 #ifdef DEBUGBUILD
-  if(getenv("CURL_GLOBAL_INIT"))
+  જો(getenv("CURL_GLOBAL_INIT"))
     /* alloc data that will leak if *cleanup() is not called! */
     leakpointer = curlx_malloc(1);
 #endif
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 
 fail:
 #ifdef USE_WINSOCK
-  if(winsock_initialized) {
+  જો(winsock_initialized) {
     WSACleanup();
     winsock_initialized = FALSE;
   }
 #endif
   initialized--; /* undo the increase */
-  return CURLE_FAILED_INIT;
+  પાછા CURLE_FAILED_INIT;
 }
 
 /**
@@ -239,7 +239,7 @@ CURLcode curl_global_init(long flags)
 
   global_init_unlock();
 
-  return result;
+  પાછા result;
 }
 
 /*
@@ -253,18 +253,18 @@ CURLcode curl_global_init_mem(long flags, curl_malloc_callback m,
   CURLcode result;
 
   /* Invalid input, return immediately */
-  if(!m || !f || !r || !s || !c)
-    return CURLE_FAILED_INIT;
+  જો(!m || !f || !r || !s || !c)
+    પાછા CURLE_FAILED_INIT;
 
   global_init_lock();
 
-  if(initialized) {
+  જો(initialized) {
     /* Already initialized, do not do it again, but bump the variable anyway to
        work like curl_global_init() and require the same amount of cleanup
        calls. */
     initialized++;
     global_init_unlock();
-    return CURLE_OK;
+    પાછા CURLE_OK;
   }
 
   /* set memory functions before global_init() in case it wants memory
@@ -280,24 +280,24 @@ CURLcode curl_global_init_mem(long flags, curl_malloc_callback m,
 
   global_init_unlock();
 
-  return result;
+  પાછા result;
 }
 
 /**
  * curl_global_cleanup() globally cleanups curl.
  */
-void curl_global_cleanup(void)
+શૂન્ય curl_global_cleanup(શૂન્ય)
 {
   global_init_lock();
 
-  if(!initialized) {
+  જો(!initialized) {
     global_init_unlock();
-    return;
+    પાછા;
   }
 
-  if(--initialized) {
+  જો(--initialized) {
     global_init_unlock();
-    return;
+    પાછા;
   }
 
   Curl_ssh_cleanup();
@@ -307,7 +307,7 @@ void curl_global_cleanup(void)
   Curl_amiga_cleanup();
 
 #ifdef USE_WINSOCK
-  if(winsock_initialized) {
+  જો(winsock_initialized) {
     WSACleanup();
     winsock_initialized = FALSE;
   }
@@ -327,7 +327,7 @@ void curl_global_cleanup(void)
 /**
  * curl_global_trace() globally initializes curl logging.
  */
-CURLcode curl_global_trace(const char *config)
+CURLcode curl_global_trace(અચલ અક્ષર *config)
 {
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
   CURLcode result;
@@ -337,18 +337,18 @@ CURLcode curl_global_trace(const char *config)
 
   global_init_unlock();
 
-  return result;
-#else
-  (void)config;
-  return CURLE_OK;
+  પાછા result;
+#નહીંતર
+  (શૂન્ય)config;
+  પાછા CURLE_OK;
 #endif
 }
 
 /*
  * curl_global_sslset() globally initializes the SSL backend to use.
  */
-CURLsslset curl_global_sslset(curl_sslbackend id, const char *name,
-                              const curl_ssl_backend ***avail)
+CURLsslset curl_global_sslset(curl_sslbackend id, અચલ અક્ષર *name,
+                              અચલ curl_ssl_backend ***avail)
 {
   CURLsslset rc;
 
@@ -358,55 +358,55 @@ CURLsslset curl_global_sslset(curl_sslbackend id, const char *name,
 
   global_init_unlock();
 
-  return rc;
+  પાછા rc;
 }
 
 /*
  * curl_easy_init() is the external interface to alloc, setup and init an
  * easy handle that is returned. If anything goes wrong, NULL is returned.
  */
-CURL *curl_easy_init(void)
+CURL *curl_easy_init(શૂન્ય)
 {
   CURLcode result;
-  struct Curl_easy *data;
+  સંરચના Curl_easy *data;
 
   /* Make sure we inited the global SSL stuff */
   global_init_lock();
 
-  if(!initialized) {
+  જો(!initialized) {
     result = global_init(CURL_GLOBAL_DEFAULT, TRUE);
-    if(result) {
+    જો(result) {
       /* something in the global init failed, return nothing */
       DEBUGF(curl_mfprintf(stderr, "Error: curl_global_init failed\n"));
       global_init_unlock();
-      return NULL;
+      પાછા ખાલી;
     }
   }
   global_init_unlock();
 
   /* We use Curl_open() with undefined URL so far */
   result = Curl_open(&data);
-  if(result) {
+  જો(result) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_open failed\n"));
-    return NULL;
+    પાછા ખાલી;
   }
 
-  return data;
+  પાછા data;
 }
 
 #ifdef DEBUGBUILD
 
-struct socketmonitor {
-  struct socketmonitor *next; /* the next node in the list or NULL */
-  struct pollfd socket; /* socket info of what to monitor */
+સંરચના socketmonitor {
+  સંરચના socketmonitor *next; /* the next node in the list or NULL */
+  સંરચના pollfd socket; /* socket info of what to monitor */
 };
 
-struct events {
+સંરચના events {
   long ms;              /* timeout, run the timeout function when reached */
   bool msbump;          /* set TRUE when timeout is set by callback */
-  int num_sockets;      /* number of nodes in the monitor list */
-  struct socketmonitor *list; /* list of sockets to monitor */
-  int running_handles;  /* store the returned number */
+  પૂર્ણાંક અંક_sockets;      /* number of nodes in the monitor list */
+  સંરચના socketmonitor *list; /* list of sockets to monitor */
+  પૂર્ણાંક running_handles;  /* store the returned number */
 };
 
 #define DEBUG_EV_POLL   0
@@ -416,48 +416,48 @@ struct events {
  * Callback that gets called with a new value when the timeout should be
  * updated.
  */
-static int events_timer(CURLM *multi,    /* multi handle */
+સ્થિર પૂર્ણાંક events_timer(CURLM *multi,    /* multi handle */
                         long timeout_ms, /* see above */
-                        void *userp)     /* private callback pointer */
+                        શૂન્ય *userp)     /* private callback pointer */
 {
-  struct events *ev = userp;
-  (void)multi;
-#if DEBUG_EV_POLL
+  સંરચના events *ev = userp;
+  (શૂન્ય)multi;
+#જો DEBUG_EV_POLL
   curl_mfprintf(stderr, "events_timer: set timeout %ldms\n", timeout_ms);
 #endif
   ev->ms = timeout_ms;
   ev->msbump = TRUE;
-  return 0;
+  પાછા 0;
 }
 
 /* poll2cselect
  *
  * convert from poll() bit definitions to libcurl's CURL_CSELECT_* ones
  */
-static int poll2cselect(int pollmask)
+સ્થિર પૂર્ણાંક poll2cselect(પૂર્ણાંક pollmask)
 {
-  int omask = 0;
-  if(pollmask & POLLIN)
+  પૂર્ણાંક omask = 0;
+  જો(pollmask & POLLIN)
     omask |= CURL_CSELECT_IN;
-  if(pollmask & POLLOUT)
+  જો(pollmask & POLLOUT)
     omask |= CURL_CSELECT_OUT;
-  if(pollmask & POLLERR)
+  જો(pollmask & POLLERR)
     omask |= CURL_CSELECT_ERR;
-  return omask;
+  પાછા omask;
 }
 
 /* socketcb2poll
  *
  * convert from libcurl' CURL_POLL_* bit definitions to poll()'s
  */
-static short socketcb2poll(int pollmask)
+સ્થિર short socketcb2poll(પૂર્ણાંક pollmask)
 {
   short omask = 0;
-  if(pollmask & CURL_POLL_IN)
+  જો(pollmask & CURL_POLL_IN)
     omask |= POLLIN;
-  if(pollmask & CURL_POLL_OUT)
+  જો(pollmask & CURL_POLL_OUT)
     omask |= POLLOUT;
-  return omask;
+  પાછા omask;
 }
 
 /* events_socket
@@ -465,40 +465,40 @@ static short socketcb2poll(int pollmask)
  * Callback that gets called with information about socket activity to
  * monitor.
  */
-static int events_socket(CURL *easy,      /* easy handle */
+સ્થિર પૂર્ણાંક events_socket(CURL *easy,      /* easy handle */
                          curl_socket_t s, /* socket */
-                         int what,        /* see above */
-                         void *userp,     /* private callback
+                         પૂર્ણાંક what,        /* see above */
+                         શૂન્ય *userp,     /* private callback
                                              pointer */
-                         void *socketp)   /* private socket
+                         શૂન્ય *socketp)   /* private socket
                                              pointer */
 {
-  struct events *ev = userp;
-  struct socketmonitor *m;
-  struct socketmonitor *prev = NULL;
+  સંરચના events *ev = userp;
+  સંરચના socketmonitor *m;
+  સંરચના socketmonitor *prev = ખાલી;
   bool found = FALSE;
-  struct Curl_easy *data = easy;
+  સંરચના Curl_easy *data = easy;
 
 #ifdef CURL_DISABLE_VERBOSE_STRINGS
-  (void)easy;
+  (શૂન્ય)easy;
 #endif
-  (void)socketp;
+  (શૂન્ય)socketp;
 
   m = ev->list;
-  while(m) {
-    if(m->socket.fd == s) {
+  જ્યારે(m) {
+    જો(m->socket.fd == s) {
       found = TRUE;
-      if(what == CURL_POLL_REMOVE) {
-        struct socketmonitor *nxt = m->next;
+      જો(what == CURL_POLL_REMOVE) {
+        સંરચના socketmonitor *nxt = m->next;
         /* remove this node from the list of monitored sockets */
-        if(prev)
+        જો(prev)
           prev->next = nxt;
-        else
+        નહીંતર
           ev->list = nxt;
         curlx_free(m);
         infof(data, "socket cb: socket %" FMT_SOCKET_T " REMOVED", s);
       }
-      else {
+      નહીંતર {
         /* The socket 's' is already being monitored, update the activity
            mask. Convert from libcurl bitmask to the poll one. */
         m->socket.events = socketcb2poll(what);
@@ -506,22 +506,22 @@ static int events_socket(CURL *easy,      /* easy handle */
               (what & CURL_POLL_IN) ? "IN" : "",
               (what & CURL_POLL_OUT) ? "OUT" : "");
       }
-      break;
+      તોડો;
     }
     prev = m;
     m = m->next; /* move to next node */
   }
 
-  if(!found) {
-    if(what == CURL_POLL_REMOVE) {
+  જો(!found) {
+    જો(what == CURL_POLL_REMOVE) {
       /* should not happen if our logic is correct, but is no drama. */
       DEBUGF(infof(data, "socket cb: asked to REMOVE socket %"
                    FMT_SOCKET_T "but not present!", s));
       DEBUGASSERT(0);
     }
-    else {
-      m = curlx_malloc(sizeof(struct socketmonitor));
-      if(m) {
+    નહીંતર {
+      m = curlx_malloc(કદ(સંરચના socketmonitor));
+      જો(m) {
         m->next = ev->list;
         m->socket.fd = s;
         m->socket.events = socketcb2poll(what);
@@ -531,12 +531,12 @@ static int events_socket(CURL *easy,      /* easy handle */
               (what & CURL_POLL_IN) ? "IN" : "",
               (what & CURL_POLL_OUT) ? "OUT" : "");
       }
-      else
-        return CURLE_OUT_OF_MEMORY;
+      નહીંતર
+        પાછા CURLE_OUT_OF_MEMORY;
     }
   }
 
-  return 0;
+  પાછા 0;
 }
 
 /*
@@ -544,7 +544,7 @@ static int events_socket(CURL *easy,      /* easy handle */
  *
  * Do the multi handle setups that only event-based transfers need.
  */
-static void events_setup(struct Curl_multi *multi, struct events *ev)
+સ્થિર શૂન્ય events_setup(સંરચના Curl_multi *multi, સંરચના events *ev)
 {
   /* timer callback */
   curl_multi_setopt(multi, CURLMOPT_TIMERFUNCTION, events_timer);
@@ -555,100 +555,100 @@ static void events_setup(struct Curl_multi *multi, struct events *ev)
   curl_multi_setopt(multi, CURLMOPT_SOCKETDATA, ev);
 }
 
-static CURLcode populate_cpfds(struct curl_pollfds *cpfds, struct events *ev)
+સ્થિર CURLcode populate_cpfds(સંરચના curl_pollfds *cpfds, સંરચના events *ev)
 {
-  struct socketmonitor *m;
+  સંરચના socketmonitor *m;
   CURLcode result = CURLE_OK;
 
   Curl_pollfds_reset(cpfds);
-  for(m = ev->list; m && !result; m = m->next) {
+  માટે(m = ev->list; m && !result; m = m->next) {
     result = Curl_pollfds_add_sock(cpfds, m->socket.fd, m->socket.events);
-#if DEBUG_EV_POLL
-    if(!result)
+#જો DEBUG_EV_POLL
+    જો(!result)
       curl_mfprintf(stderr, "poll() %d check socket %d\n",
                     cpfds->n - 1, cpfds->pfds[cpfds->n - 1].fd);
 #endif
   }
-  return result;
+  પાછા result;
 }
 
-static CURLcode poll_cpfds(struct events *ev,
-                           struct curl_pollfds *cpfds,
-                           int *pollrc)
+સ્થિર CURLcode poll_cpfds(સંરચના events *ev,
+                           સંરચના curl_pollfds *cpfds,
+                           પૂર્ણાંક *pollrc)
 {
-  if(cpfds->n) {
+  જો(cpfds->n) {
     /* wait for activity or timeout */
-#if DEBUG_EV_POLL
+#જો DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll(numfds=%u, timeout=%ldms)\n",
                   cpfds->n, ev->ms);
 #endif
     *pollrc = Curl_poll(cpfds->pfds, cpfds->n, ev->ms);
-#if DEBUG_EV_POLL
+#જો DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll(numfds=%u, timeout=%ldms) -> %d\n",
                   cpfds->n, ev->ms, *pollrc);
 #endif
-    if(*pollrc < 0)
-      return CURLE_UNRECOVERABLE_POLL;
+    જો(*pollrc < 0)
+      પાછા CURLE_UNRECOVERABLE_POLL;
   }
-  else {
-#if DEBUG_EV_POLL
+  નહીંતર {
+#જો DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll, but no fds, wait timeout=%ldms\n", ev->ms);
 #endif
     *pollrc = 0;
-    if(ev->ms > 0)
+    જો(ev->ms > 0)
       curlx_wait_ms(ev->ms);
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
 /* wait_or_timeout()
  *
  * waits for activity on any of the given sockets, or the timeout to trigger.
  */
-static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
+સ્થિર CURLcode wait_or_timeout(સંરચના Curl_multi *multi, સંરચના events *ev)
 {
-  struct pollfd fds_on_stack[8];
-  struct curl_pollfds cpfds;
+  સંરચના pollfd fds_on_ઢગલો[8];
+  સંરચના curl_pollfds cpfds;
   bool done = FALSE;
   CURLMcode mresult = CURLM_OK;
   CURLcode result = CURLE_OK;
 
-  Curl_pollfds_init(&cpfds, fds_on_stack, CURL_ARRAYSIZE(fds_on_stack));
-  while(!done) {
-    CURLMsg *msg;
-    int pollrc;
-    struct curltime start;
+  Curl_pollfds_init(&cpfds, fds_on_ઢગલો, CURL_ARRAYSIZE(fds_on_ઢગલો));
+  જ્યારે(!done) {
+    CURLMsg *સંદેશ;
+    પૂર્ણાંક pollrc;
+    સંરચના curltime start;
 
     result = populate_cpfds(&cpfds, ev);
-    if(result)
-      goto out;
+    જો(result)
+      જાઓ out;
 
     /* get the time stamp to use to figure out how long poll takes */
     curlx_pnow(&start);
 
     result = poll_cpfds(ev, &cpfds, &pollrc);
-    if(result)
-      goto out;
+    જો(result)
+      જાઓ out;
 
     ev->msbump = FALSE; /* reset here */
 
-    if(!pollrc) {
+    જો(!pollrc) {
       /* timeout! */
       ev->ms = 0;
-#if DEBUG_EV_POLL
+#જો DEBUG_EV_POLL
       curl_mfprintf(stderr, "call curl_multi_socket_action(TIMEOUT)\n");
 #endif
       mresult = curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0,
                                          &ev->running_handles);
     }
-    else {
+    નહીંતર {
       /* here pollrc is > 0 */
       /* loop over the monitored sockets to see which ones had activity */
-      unsigned int i;
-      for(i = 0; i < cpfds.n; i++) {
-        if(cpfds.pfds[i].revents) {
+      unsigned પૂર્ણાંક i;
+      માટે(i = 0; i < cpfds.n; i++) {
+        જો(cpfds.pfds[i].revents) {
           /* socket activity, tell libcurl */
-          int act = poll2cselect(cpfds.pfds[i].revents); /* convert */
+          પૂર્ણાંક act = poll2cselect(cpfds.pfds[i].revents); /* convert */
 
           /* sending infof "randomly" to the first easy handle */
           infof(multi->admin, "call curl_multi_socket_action(socket "
@@ -658,96 +658,96 @@ static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
         }
       }
 
-      if(!ev->msbump && ev->ms >= 0) {
+      જો(!ev->msbump && ev->ms >= 0) {
         /* If nothing updated the timeout, we decrease it by the spent time.
          * If it was updated, it has the new timeout time stored already.
          */
         timediff_t spent_ms = curlx_timediff_ms(curlx_now(), start);
-        if(spent_ms > 0) {
-#if DEBUG_EV_POLL
+        જો(spent_ms > 0) {
+#જો DEBUG_EV_POLL
         curl_mfprintf(stderr, "poll timeout %ldms not updated, decrease by "
                       "time spent %ldms\n", ev->ms, (long)spent_ms);
 #endif
-          if(spent_ms > ev->ms)
+          જો(spent_ms > ev->ms)
             ev->ms = 0;
-          else
+          નહીંતર
             ev->ms -= (long)spent_ms;
         }
       }
     }
 
-    if(mresult) {
+    જો(mresult) {
       result = CURLE_URL_MALFORMAT;
-      goto out;
+      જાઓ out;
     }
 
     /* we do not really care about the "msgs_in_queue" value returned in the
        second argument */
-    msg = curl_multi_info_read(multi, &pollrc);
-    if(msg) {
-      result = msg->data.result;
+    સંદેશ = curl_multi_info_read(multi, &pollrc);
+    જો(સંદેશ) {
+      result = સંદેશ->data.result;
       done = TRUE;
     }
   }
 out:
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  પાછા result;
 }
 
 /* easy_events()
  *
  * Runs a transfer in a blocking manner using the events-based API
  */
-static CURLcode easy_events(struct Curl_multi *multi)
+સ્થિર CURLcode easy_events(સંરચના Curl_multi *multi)
 {
   /* this struct is made static to allow it to be used after this function
      returns and curl_multi_remove_handle() is called */
-  static struct events evs = { -1, FALSE, 0, NULL, 0 };
+  સ્થિર સંરચના events evs = { -1, FALSE, 0, ખાલી, 0 };
 
   /* if running event-based, do some further multi inits */
   events_setup(multi, &evs);
 
-  return wait_or_timeout(multi, &evs);
+  પાછા wait_or_timeout(multi, &evs);
 }
-#else /* DEBUGBUILD */
+#નહીંતર /* DEBUGBUILD */
 /* when not built with debug, this function does not exist */
 #define easy_events(x) CURLE_NOT_BUILT_IN
 #endif
 
-static CURLcode easy_transfer(struct Curl_multi *multi)
+સ્થિર CURLcode easy_transfer(સંરચના Curl_multi *multi)
 {
   bool done = FALSE;
   CURLMcode mresult = CURLM_OK;
   CURLcode result = CURLE_OK;
 
-  while(!done && !mresult) {
-    int still_running = 0;
+  જ્યારે(!done && !mresult) {
+    પૂર્ણાંક still_running = 0;
 
-    mresult = curl_multi_poll(multi, NULL, 0, 1000, NULL);
+    mresult = curl_multi_poll(multi, ખાલી, 0, 1000, ખાલી);
 
-    if(!mresult)
+    જો(!mresult)
       mresult = curl_multi_perform(multi, &still_running);
 
     /* only read 'still_running' if curl_multi_perform() return OK */
-    if(!mresult && !still_running) {
-      int rc;
-      CURLMsg *msg = curl_multi_info_read(multi, &rc);
-      if(msg) {
-        result = msg->data.result;
+    જો(!mresult && !still_running) {
+      પૂર્ણાંક rc;
+      CURLMsg *સંદેશ = curl_multi_info_read(multi, &rc);
+      જો(સંદેશ) {
+        result = સંદેશ->data.result;
         done = TRUE;
       }
     }
   }
 
   /* Make sure to return some kind of error if there was a multi problem */
-  if(mresult) {
+  જો(mresult) {
     result = (mresult == CURLM_OUT_OF_MEMORY) ? CURLE_OUT_OF_MEMORY :
       /* The other multi errors should never happen, so return
          something suitably generic */
       CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  return result;
+  પાછા result;
 }
 
 /*
@@ -767,60 +767,60 @@ static CURLcode easy_transfer(struct Curl_multi *multi)
  * DEBUG: if 'events' is set TRUE, this function will use a replacement engine
  * instead of curl_multi_perform() and use curl_multi_socket_action().
  */
-static CURLcode easy_perform(struct Curl_easy *data, bool events)
+સ્થિર CURLcode easy_perform(સંરચના Curl_easy *data, bool events)
 {
-  struct Curl_multi *multi;
+  સંરચના Curl_multi *multi;
   CURLMcode mresult;
   CURLcode result = CURLE_OK;
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  સંરચના Curl_sigpipe_ctx sigpipe_ctx;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  જો(!data)
+    પાછા CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(data->set.errorbuffer)
+  જો(data->set.errorbuffer)
     /* clear this as early as possible */
     data->set.errorbuffer[0] = 0;
 
   data->state.os_errno = 0;
 
-  if(data->multi) {
+  જો(data->multi) {
     failf(data, "easy handle already used in multi handle");
-    return CURLE_FAILED_INIT;
+    પાછા CURLE_FAILED_INIT;
   }
 
   /* if the handle has a connection still attached (it is/was a connect-only
      handle) then disconnect before performing */
-  if(data->conn) {
-    struct connectdata *conn = data->conn;
+  જો(data->conn) {
+    સંરચના connectdata *conn = data->conn;
     Curl_detach_connection(data);
     Curl_conn_close(data, conn, TRUE);
     DEBUGASSERT(!data->conn);
   }
 
-  if(data->multi_easy)
+  જો(data->multi_easy)
     multi = data->multi_easy;
-  else {
+  નહીંતર {
     /* this multi handle will only ever have a single easy handle attached to
        it, so make it use minimal hash sizes */
     multi = Curl_multi_handle(16, 1, 3, 7, 3);
-    if(!multi)
-      return CURLE_OUT_OF_MEMORY;
+    જો(!multi)
+      પાછા CURLE_OUT_OF_MEMORY;
   }
 
-  if(Curl_api_multi_is_in_callback(multi))
-    return CURLE_RECURSIVE_API_CALL;
+  જો(Curl_api_multi_is_in_callback(multi))
+    પાછા CURLE_RECURSIVE_API_CALL;
 
   /* Copy relevant easy options to the multi handle */
   curl_multi_setopt(multi, CURLMOPT_MAXCONNECTS, (long)data->set.maxconnects);
   curl_multi_setopt(multi, CURLMOPT_QUICK_EXIT, (long)data->set.quick_exit);
 
-  data->multi_easy = NULL; /* pretend it does not exist */
+  data->multi_easy = ખાલી; /* pretend it does not exist */
   mresult = Curl_multi_add_handle(multi, data);
-  if(mresult) {
+  જો(mresult) {
     curl_multi_cleanup(multi);
-    if(mresult == CURLM_OUT_OF_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
-    return CURLE_FAILED_INIT;
+    જો(mresult == CURLM_OUT_OF_MEMORY)
+      પાછા CURLE_OUT_OF_MEMORY;
+    પાછા CURLE_FAILED_INIT;
   }
 
   /* assign this after curl_multi_add_handle() */
@@ -834,12 +834,12 @@ static CURLcode easy_perform(struct Curl_easy *data, bool events)
 
   /* ignoring the return code is not nice, but atm we cannot really handle
      a failure here, room for future improvement! */
-  (void)Curl_multi_remove_handle(multi, data);
+  (શૂન્ય)Curl_multi_remove_handle(multi, data);
 
   sigpipe_restore(&sigpipe_ctx);
 
   /* The multi handle is kept alive, owned by the easy handle */
-  return result;
+  પાછા result;
 }
 
 /*
@@ -848,14 +848,14 @@ static CURLcode easy_perform(struct Curl_easy *data, bool events)
  */
 CURLcode curl_easy_perform(CURL *curl)
 {
-  struct Curl_eapi_guard guard = { 0 };
+  સંરચના Curl_eapi_guard guard = { 0 };
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_perform, &result)) {
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_perform, &result)) {
     result = easy_perform(curl, FALSE);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  પાછા result;
 }
 
 #ifdef DEBUGBUILD
@@ -863,16 +863,16 @@ CURLcode curl_easy_perform(CURL *curl)
  * curl_easy_perform_ev() is the external interface that performs a blocking
  * transfer using the event-based API internally.
  */
-CURLcode curl_easy_perform_ev(struct Curl_easy *easy)
+CURLcode curl_easy_perform_ev(સંરચના Curl_easy *easy)
 {
-  struct Curl_eapi_guard guard;
+  સંરચના Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, easy, easy_perform_ev, &result)) {
+  જો(CURL_EAPI_ENTER(&guard, easy, easy_perform_ev, &result)) {
     result = easy_perform(easy, TRUE);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  પાછા result;
 }
 #endif
 
@@ -880,13 +880,13 @@ CURLcode curl_easy_perform_ev(struct Curl_easy *easy)
  * curl_easy_cleanup() is the external interface to cleaning/freeing the given
  * easy handle.
  */
-void curl_easy_cleanup(CURL *curl)
+શૂન્ય curl_easy_cleanup(CURL *curl)
 {
-  struct Curl_eapi_guard guard;
+  સંરચના Curl_eapi_guard guard;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_cleanup, NULL)) {
-    struct Curl_easy *data = curl;
-    struct Curl_sigpipe_ctx sigpipe_ctx;
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_cleanup, ખાલી)) {
+    સંરચના Curl_easy *data = curl;
+    સંરચના Curl_sigpipe_ctx sigpipe_ctx;
     sigpipe_ignore(data, &sigpipe_ctx);
     Curl_close(&data);
     sigpipe_restore(&sigpipe_ctx);
@@ -901,93 +901,93 @@ void curl_easy_cleanup(CURL *curl)
 #undef curl_easy_getinfo
 CURLcode curl_easy_getinfo(CURL *curl, CURLINFO info, ...)
 {
-  struct Curl_eapi_guard guard;
+  સંરચના Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_getinfo, &result)) {
-    struct Curl_easy *data = curl;
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_getinfo, &result)) {
+    સંરચના Curl_easy *data = curl;
     va_list arg;
-    void *paramp;
+    શૂન્ય *paramp;
 
     va_start(arg, info);
-    paramp = va_arg(arg, void *);
+    paramp = va_arg(arg, શૂન્ય *);
 
     result = Curl_getinfo(data, info, paramp);
 
     va_end(arg);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  પાછા result;
 }
 
-static CURLcode dupset(struct Curl_easy *dst, struct Curl_easy *src)
+સ્થિર CURLcode dupset(સંરચના Curl_easy *dst, સંરચના Curl_easy *src)
 {
   CURLcode result = CURLE_OK;
-  enum dupblob j;
+  ગણના dupblob j;
 
   /* Copy src->set into dst->set first, then deal with the strings
      afterwards */
   dst->set = src->set;
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  dst->set.mimepostp = NULL;
+#જો !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  dst->set.mimepostp = ખાલી;
 #endif
-  dst->set.str_copypostfields = NULL;
+  dst->set.str_copypostfields = ખાલી;
 
   Curl_u8_strset_init(&dst->set.strings);
   /* clear all dest string and blob pointers first, in case we error out
      mid-function */
-  memset(dst->set.blobs, 0, BLOB_LAST * sizeof(struct curl_blob *));
+  memset(dst->set.blobs, 0, BLOB_LAST * કદ(સંરચના curl_blob *));
 
   /* duplicate all strings */
   result = Curl_u8_strset_copy(&dst->set.strings, &src->set.strings);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
   /* duplicate all blobs */
-  for(j = (enum dupblob)0; j < BLOB_LAST; j++) {
+  માટે(j = (ગણના dupblob)0; j < BLOB_LAST; j++) {
     result = Curl_setblobopt(&dst->set.blobs[j], src->set.blobs[j]);
-    if(result)
-      return result;
+    જો(result)
+      પાછા result;
   }
 
   /* duplicate memory areas pointed to */
-  if(src->set.str_copypostfields) {
-    if(src->set.postfieldsize == -1)
+  જો(src->set.str_copypostfields) {
+    જો(src->set.postfieldsize == -1)
       dst->set.str_copypostfields = curlx_strdup(src->set.str_copypostfields);
-    else
+    નહીંતર
       /* postfieldsize is curl_off_t, curlx_memdup0() takes a size_t ... */
       dst->set.str_copypostfields =
         curlx_memdup0(src->set.str_copypostfields,
                       curlx_sotouz(src->set.postfieldsize));
-    if(!dst->set.str_copypostfields)
-      return CURLE_OUT_OF_MEMORY;
+    જો(!dst->set.str_copypostfields)
+      પાછા CURLE_OUT_OF_MEMORY;
     /* point to the new copy */
     dst->set.postfields = dst->set.str_copypostfields;
   }
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  if(src->set.mimepostp) {
+#જો !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  જો(src->set.mimepostp) {
     /* Duplicate mime data. Get a mimepost struct for the clone as well */
-    dst->set.mimepostp = curlx_malloc(sizeof(*dst->set.mimepostp));
-    if(!dst->set.mimepostp)
-      return CURLE_OUT_OF_MEMORY;
+    dst->set.mimepostp = curlx_malloc(કદ(*dst->set.mimepostp));
+    જો(!dst->set.mimepostp)
+      પાછા CURLE_OUT_OF_MEMORY;
 
     Curl_mime_initpart(dst->set.mimepostp);
     result = Curl_mime_duppart(dst, dst->set.mimepostp, src->set.mimepostp);
-    if(result)
-      return result;
+    જો(result)
+      પાછા result;
   }
 #endif
 
-  if(src->set.resolve)
+  જો(src->set.resolve)
     dst->state.resolve = dst->set.resolve;
 
-  return result;
+  પાછા result;
 }
 
-static void dupeasy_meta_freeentry(void *p)
+સ્થિર શૂન્ય dupeasy_meta_freeentry(શૂન્ય *p)
 {
-  (void)p;
+  (શૂન્ય)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
@@ -1001,15 +1001,15 @@ static void dupeasy_meta_freeentry(void *p)
  */
 CURL *curl_easy_duphandle(CURL *curl)
 {
-  struct Curl_eapi_guard guard;
-  struct Curl_easy *outcurl = NULL;
+  સંરચના Curl_eapi_guard guard;
+  સંરચના Curl_easy *outcurl = ખાલી;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_duphandle, NULL)) {
-    struct Curl_easy *data = curl;
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_duphandle, ખાલી)) {
+    સંરચના Curl_easy *data = curl;
 
-    outcurl = curlx_calloc(1, sizeof(struct Curl_easy));
-    if(!outcurl)
-      goto fail;
+    outcurl = curlx_calloc(1, કદ(સંરચના Curl_easy));
+    જો(!outcurl)
+      જાઓ fail;
 
     /*
      * We setup a few buffers we need. We should probably make them
@@ -1033,87 +1033,87 @@ CURL *curl_easy_duphandle(CURL *curl)
     outcurl->master_mid = UINT32_MAX;
 
 #ifndef CURL_DISABLE_HTTP
-    Curl_llist_init(&outcurl->state.httphdrs, NULL);
+    Curl_llist_init(&outcurl->state.httphdrs, ખાલી);
 #endif
     Curl_initinfo(outcurl);
 
     /* copy all userdefined values */
-    if(dupset(outcurl, data))
-      goto fail;
+    જો(dupset(outcurl, data))
+      જાઓ fail;
 
     outcurl->progress.hide     = data->progress.hide;
     outcurl->progress.callback = data->progress.callback;
 
 #ifndef CURL_DISABLE_COOKIES
-    outcurl->state.cookielist = NULL;
-    if(data->cookies && data->state.cookie_engine) {
+    outcurl->state.cookielist = ખાલી;
+    જો(data->cookies && data->state.cookie_engine) {
       /* If cookies are enabled in the parent handle, we enable them
          in the clone as well! */
       outcurl->cookies = Curl_cookie_init();
-      if(!outcurl->cookies)
-        goto fail;
+      જો(!outcurl->cookies)
+        જાઓ fail;
       outcurl->state.cookie_engine = TRUE;
     }
 
-    if(data->state.cookielist) {
+    જો(data->state.cookielist) {
       outcurl->state.cookielist = Curl_slist_duplicate(data->state.cookielist);
-      if(!outcurl->state.cookielist)
-        goto fail;
+      જો(!outcurl->state.cookielist)
+        જાઓ fail;
     }
 #endif
 
-    if(Curl_bufref_ptr(&data->state.url)) {
+    જો(Curl_bufref_ptr(&data->state.url)) {
       Curl_bufref_set(&outcurl->state.url,
                       Curl_bufref_dup(&data->state.url), 0,
                       curl_free);
-      if(!Curl_bufref_ptr(&outcurl->state.url))
-        goto fail;
+      જો(!Curl_bufref_ptr(&outcurl->state.url))
+        જાઓ fail;
     }
-    if(Curl_bufref_ptr(&data->state.referer)) {
+    જો(Curl_bufref_ptr(&data->state.referer)) {
       Curl_bufref_set(&outcurl->state.referer,
                       Curl_bufref_dup(&data->state.referer), 0,
                       curl_free);
-      if(!Curl_bufref_ptr(&outcurl->state.referer))
-        goto fail;
+      જો(!Curl_bufref_ptr(&outcurl->state.referer))
+        જાઓ fail;
     }
 
 #ifndef CURL_DISABLE_ALTSVC
-    if(data->asi) {
-      const char *str;
+    જો(data->asi) {
+      અચલ અક્ષર *str;
       outcurl->asi = Curl_altsvc_init();
-      if(!outcurl->asi)
-        goto fail;
+      જો(!outcurl->asi)
+        જાઓ fail;
       str = CURL_EASY_STR(outcurl, STRING_ALTSVC);
-      if(str)
-        (void)Curl_altsvc_load(outcurl->asi, str);
+      જો(str)
+        (શૂન્ય)Curl_altsvc_load(outcurl->asi, str);
     }
 #endif
 #ifndef CURL_DISABLE_HSTS
-    if(data->hsts) {
-      const char *str;
+    જો(data->hsts) {
+      અચલ અક્ષર *str;
       outcurl->hsts = Curl_hsts_init();
-      if(!outcurl->hsts)
-        goto fail;
+      જો(!outcurl->hsts)
+        જાઓ fail;
       str = CURL_EASY_STR(outcurl, STRING_HSTS);
-      if(str)
-        (void)Curl_hsts_loadfile(outcurl, outcurl->hsts, str);
-      (void)Curl_hsts_loadcb(outcurl, outcurl->hsts);
+      જો(str)
+        (શૂન્ય)Curl_hsts_loadfile(outcurl, outcurl->hsts, str);
+      (શૂન્ય)Curl_hsts_loadcb(outcurl, outcurl->hsts);
 
       /* Copy entries learned at runtime. (E.g. Strict-Transport-Security
          headers.) */
-      if(Curl_hsts_copy(outcurl->hsts, data->hsts))
-        goto fail;
+      જો(Curl_hsts_copy(outcurl->hsts, data->hsts))
+        જાઓ fail;
     }
 #endif
 
     /* we reach this point and thus we are OK */
-    outcurl->magic = CURLEASY_MAGIC_NUMBER;
+    outcurl->magic = CURLEASY_MAGIC_સંખ્યા;
   }
   CURL_EAPI_LEAVE(&guard);
-  return outcurl;
+  પાછા outcurl;
 
 fail:
-  if(outcurl) {
+  જો(outcurl) {
 #ifndef CURL_DISABLE_COOKIES
     curlx_free(outcurl->cookies);
 #endif
@@ -1125,19 +1125,19 @@ fail:
   }
 
   CURL_EAPI_LEAVE(&guard);
-  return NULL;
+  પાછા ખાલી;
 }
 
 /*
  * curl_easy_reset() is an external interface that allows an app to re-
  * initialize a session handle to the default values.
  */
-void curl_easy_reset(CURL *curl)
+શૂન્ય curl_easy_reset(CURL *curl)
 {
-  struct Curl_eapi_guard guard;
+  સંરચના Curl_eapi_guard guard;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_reset, NULL)) {
-    struct Curl_easy *data = curl;
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_reset, ખાલી)) {
+    સંરચના Curl_easy *data = curl;
 
     data->state.last_conn_id = -1; /* clear remembered connection id */
     data->state.last_cpid = UINT32_MAX;
@@ -1148,11 +1148,11 @@ void curl_easy_reset(CURL *curl)
     Curl_meta_reset(data);
     /* zero out UserDefined data: */
     Curl_freeset(data);
-    memset(&data->set, 0, sizeof(struct UserDefined));
+    memset(&data->set, 0, કદ(સંરચના UserDefined));
     Curl_init_userdefined(data);
 
     /* zero out Progress data: */
-    memset(&data->progress, 0, sizeof(struct Progress));
+    memset(&data->progress, 0, કદ(સંરચના Progress));
 
     /* zero out PureInfo data: */
     Curl_initinfo(data);
@@ -1160,10 +1160,10 @@ void curl_easy_reset(CURL *curl)
     data->progress.hide = TRUE;
 
     /* zero out authentication data: */
-    memset(&data->state.authhost, 0, sizeof(struct auth));
-    memset(&data->state.authproxy, 0, sizeof(struct auth));
+    memset(&data->state.authhost, 0, કદ(સંરચના auth));
+    memset(&data->state.authproxy, 0, કદ(સંરચના auth));
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#જો !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
     Curl_http_auth_cleanup_digest(data);
 #endif
     data->master_mid = UINT32_MAX;
@@ -1184,21 +1184,21 @@ void curl_easy_reset(CURL *curl)
  * NOTE: This is one of few API functions that are allowed to be called from
  * within a callback.
  */
-CURLcode curl_easy_pause(CURL *curl, int action)
+CURLcode curl_easy_pause(CURL *curl, પૂર્ણાંક action)
 {
-  struct Curl_eapi_guard guard;
+  સંરચના Curl_eapi_guard guard;
   CURLcode result = CURLE_OK;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_pause, &result)) {
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_pause, &result)) {
     bool changed = FALSE;
-    struct Curl_easy *data = curl;
+    સંરચના Curl_easy *data = curl;
     bool recv_paused, recv_paused_new;
     bool send_paused, send_paused_new;
 
-    if(!data->conn) {
+    જો(!data->conn) {
       /* crazy input, do not continue */
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      જાઓ out;
     }
 
     recv_paused = Curl_xfer_recv_is_paused(data);
@@ -1206,64 +1206,64 @@ CURLcode curl_easy_pause(CURL *curl, int action)
     send_paused = Curl_xfer_send_is_paused(data);
     send_paused_new = (action & CURLPAUSE_SEND);
 
-    if((send_paused != send_paused_new) ||
+    જો((send_paused != send_paused_new) ||
        (send_paused_new != Curl_creader_is_paused(data))) {
       changed = TRUE;
       result = Curl_1st_fatal(
         result, Curl_xfer_pause_send(data, send_paused_new));
     }
 
-    if(recv_paused != recv_paused_new) {
+    જો(recv_paused != recv_paused_new) {
       changed = TRUE;
       result = Curl_1st_fatal(
         result, Curl_xfer_pause_recv(data, recv_paused_new));
     }
 
     /* If not completely pausing both directions, run again in any case. */
-    if(!Curl_xfer_is_blocked(data)) {
+    જો(!Curl_xfer_is_blocked(data)) {
       /* reset the too-slow time keeper */
       data->state.keeps_speed.tv_sec = 0;
-      if(data->multi) {
+      જો(data->multi) {
         Curl_multi_mark_dirty(data); /* make it run */
         /* On changes, tell application to update its timers. */
-        if(changed && Curl_update_timer(data->multi) && !result)
+        જો(changed && Curl_update_timer(data->multi) && !result)
           result = CURLE_ABORTED_BY_CALLBACK;
       }
     }
 
-    if(!result && changed && !data->state.done && data->multi &&
+    જો(!result && changed && !data->state.done && data->multi &&
        /* pause/unpausing may result in multi event changes */
        Curl_multi_ev_assess_xfer(data->multi, data))
       result = CURLE_ABORTED_BY_CALLBACK;
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  પાછા result;
 }
 
-static CURLcode easy_connection(struct Curl_easy *data,
-                                struct connectdata **connp)
+સ્થિર CURLcode easy_connection(સંરચના Curl_easy *data,
+                                સંરચના connectdata **connp)
 {
   curl_socket_t sfd;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  જો(!data)
+    પાછા CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* only allow these to be called on handles with CURLOPT_CONNECT_ONLY */
-  if(!data->set.connect_only) {
+  જો(!data->set.connect_only) {
     failf(data, "CONNECT_ONLY is required");
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    પાછા CURLE_UNSUPPORTED_PROTOCOL;
   }
 
   sfd = Curl_getconnectinfo(data, connp);
 
-  if(sfd == CURL_SOCKET_BAD) {
+  જો(sfd == CURL_SOCKET_BAD) {
     failf(data, "Failed to get last socket used for connection #%" FMT_OFF_T,
           data->state.last_conn_id);
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    પાછા CURLE_UNSUPPORTED_PROTOCOL;
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
 /*
@@ -1271,58 +1271,58 @@ static CURLcode easy_connection(struct Curl_easy *data,
  * curl_easy_perform() with CURLOPT_CONNECT_ONLY option.
  * Returns CURLE_OK on success, error code on error.
  */
-CURLcode Curl_easy_recv(struct Curl_easy *data,
-                        void *buffer, size_t buflen, size_t *n)
+CURLcode Curl_easy_recv(સંરચના Curl_easy *data,
+                        શૂન્ય *buffer, size_t buflen, size_t *n)
 {
   CURLcode result;
-  struct connectdata *c;
+  સંરચના connectdata *c;
 
   result = easy_connection(data, &c);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
-  if(!data->conn)
+  જો(!data->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
     Curl_attach_connection(data, c, TRUE);
 
   *n = 0;
-  return Curl_conn_recv(data, FIRSTSOCKET, buffer, buflen, n);
+  પાછા Curl_conn_recv(data, FIRSTSOCKET, buffer, buflen, n);
 }
 
-CURLcode curl_easy_recv(CURL *curl, void *buffer, size_t buflen, size_t *n)
+CURLcode curl_easy_recv(CURL *curl, શૂન્ય *buffer, size_t buflen, size_t *n)
 {
-  struct Curl_eapi_guard guard;
+  સંરચના Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_recv, &result)) {
-    if(!n || (buflen && !buffer)) {
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_recv, &result)) {
+    જો(!n || (buflen && !buffer)) {
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      જાઓ out;
     }
     result = Curl_easy_recv(curl, buffer, buflen, n);
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  પાછા result;
 }
 
 #ifndef CURL_DISABLE_WEBSOCKETS
-CURLcode Curl_connect_only_attach(struct Curl_easy *data)
+CURLcode Curl_connect_only_attach(સંરચના Curl_easy *data)
 {
   CURLcode result;
-  struct connectdata *c = NULL;
+  સંરચના connectdata *c = ખાલી;
 
   result = easy_connection(data, &c);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
-  if(!data->conn)
+  જો(!data->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
     Curl_attach_connection(data, c, TRUE);
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 #endif /* !CURL_DISABLE_WEBSOCKETS */
 
@@ -1331,19 +1331,19 @@ CURLcode Curl_connect_only_attach(struct Curl_easy *data)
  *
  * This is the private internal version of curl_easy_send()
  */
-CURLcode Curl_senddata(struct Curl_easy *data, const void *buffer,
+CURLcode Curl_senddata(સંરચના Curl_easy *data, અચલ શૂન્ય *buffer,
                        size_t buflen, size_t *n)
 {
   CURLcode result;
-  struct connectdata *c = NULL;
-  struct Curl_sigpipe_ctx sigpipe_ctx;
+  સંરચના connectdata *c = ખાલી;
+  સંરચના Curl_sigpipe_ctx sigpipe_ctx;
 
   *n = 0;
   result = easy_connection(data, &c);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
-  if(!data->conn)
+  જો(!data->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
     Curl_attach_connection(data, c, TRUE);
@@ -1352,35 +1352,35 @@ CURLcode Curl_senddata(struct Curl_easy *data, const void *buffer,
   result = Curl_conn_send(data, FIRSTSOCKET, buffer, buflen, FALSE, n);
   sigpipe_restore(&sigpipe_ctx);
 
-  if(result && result != CURLE_AGAIN)
-    return CURLE_SEND_ERROR;
-  return result;
+  જો(result && result != CURLE_AGAIN)
+    પાછા CURLE_SEND_ERROR;
+  પાછા result;
 }
 
 /*
  * Sends data over the connected socket. Use after successful
  * curl_easy_perform() with CURLOPT_CONNECT_ONLY option.
  */
-CURLcode curl_easy_send(CURL *curl, const void *buffer, size_t buflen,
+CURLcode curl_easy_send(CURL *curl, અચલ શૂન્ય *buffer, size_t buflen,
                         size_t *n)
 {
-  struct Curl_eapi_guard guard;
+  સંરચના Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_send, &result)) {
-    struct Curl_easy *data = curl;
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_send, &result)) {
+    સંરચના Curl_easy *data = curl;
     size_t written = 0;
 
-    if(!n || (buflen && !buffer)) {
+    જો(!n || (buflen && !buffer)) {
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      જાઓ out;
     }
     result = Curl_senddata(data, buffer, buflen, &written);
     *n = written;
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  પાછા result;
 }
 
 /*
@@ -1388,93 +1388,93 @@ out:
  */
 CURLcode curl_easy_upkeep(CURL *curl)
 {
-  struct Curl_eapi_guard guard;
+  સંરચના Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_upkeep, &result)) {
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_upkeep, &result)) {
     /* Use the common function to keep connections alive. */
-    result = Curl_cpool_upkeep((struct Curl_easy *)curl);
+    result = Curl_cpool_upkeep((સંરચના Curl_easy *)curl);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  પાછા result;
 }
 
-CURLcode curl_easy_ssls_import(CURL *curl, const char *session_key,
-                               const unsigned char *shmac, size_t shmac_len,
-                               const unsigned char *sdata, size_t sdata_len)
+CURLcode curl_easy_ssls_import(CURL *curl, અચલ અક્ષર *session_ચાવી,
+                               અચલ unsigned અક્ષર *shmac, size_t shmac_len,
+                               અચલ unsigned અક્ષર *sdata, size_t sdata_len)
 {
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
-  struct Curl_eapi_guard guard;
+#જો defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+  સંરચના Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_ssls_import, &result)) {
-    if(!sdata || !sdata_len)
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_ssls_import, &result)) {
+    જો(!sdata || !sdata_len)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      result = Curl_ssl_session_import((struct Curl_easy *)curl, session_key,
+    નહીંતર
+      result = Curl_ssl_session_import((સંરચના Curl_easy *)curl, session_ચાવી,
                                        shmac, shmac_len, sdata, sdata_len);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
-#else
-  (void)curl;
-  (void)session_key;
-  (void)shmac;
-  (void)shmac_len;
-  (void)sdata;
-  (void)sdata_len;
-  return CURLE_NOT_BUILT_IN;
+  પાછા result;
+#નહીંતર
+  (શૂન્ય)curl;
+  (શૂન્ય)session_ચાવી;
+  (શૂન્ય)shmac;
+  (શૂન્ય)shmac_len;
+  (શૂન્ય)sdata;
+  (શૂન્ય)sdata_len;
+  પાછા CURLE_NOT_BUILT_IN;
 #endif
 }
 
 CURLcode curl_easy_ssls_export(CURL *curl,
                                curl_ssls_export_cb *export_fn,
-                               void *userptr)
+                               શૂન્ય *userptr)
 {
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
-  struct Curl_eapi_guard guard;
+#જો defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+  સંરચના Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_ssls_export, &result)) {
-    if(!export_fn)
+  જો(CURL_EAPI_ENTER(&guard, curl, easy_ssls_export, &result)) {
+    જો(!export_fn)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      result = Curl_ssl_session_export((struct Curl_easy *)curl,
+    નહીંતર
+      result = Curl_ssl_session_export((સંરચના Curl_easy *)curl,
                                        export_fn, userptr);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
-#else
-  (void)curl;
-  (void)export_fn;
-  (void)userptr;
-  return CURLE_NOT_BUILT_IN;
+  પાછા result;
+#નહીંતર
+  (શૂન્ય)curl;
+  (શૂન્ય)export_fn;
+  (શૂન્ય)userptr;
+  પાછા CURLE_NOT_BUILT_IN;
 #endif
 }
 
-CURLcode Curl_meta_set(struct Curl_easy *data, const char *key,
-                       void *meta_data, Curl_meta_dtor *meta_dtor)
+CURLcode Curl_meta_set(સંરચના Curl_easy *data, અચલ અક્ષર *ચાવી,
+                       શૂન્ય *meta_data, Curl_meta_dtor *meta_dtor)
 {
   DEBUGASSERT(meta_data); /* never set to NULL */
-  if(!Curl_hash_add2(&data->meta_hash, key, strlen(key) + 1,
+  જો(!Curl_hash_add2(&data->meta_hash, ચાવી, strlen(ચાવી) + 1,
                      meta_data, meta_dtor)) {
-    meta_dtor(key, strlen(key) + 1, meta_data);
-    return CURLE_OUT_OF_MEMORY;
+    meta_dtor(ચાવી, strlen(ચાવી) + 1, meta_data);
+    પાછા CURLE_OUT_OF_MEMORY;
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-void Curl_meta_remove(struct Curl_easy *data, const char *key)
+શૂન્ય Curl_meta_remove(સંરચના Curl_easy *data, અચલ અક્ષર *ચાવી)
 {
-  Curl_hash_delete(&data->meta_hash, key, strlen(key) + 1);
+  Curl_hash_delete(&data->meta_hash, ચાવી, strlen(ચાવી) + 1);
 }
 
-void *Curl_meta_get(struct Curl_easy *data, const char *key)
+શૂન્ય *Curl_meta_get(સંરચના Curl_easy *data, અચલ અક્ષર *ચાવી)
 {
-  return Curl_hash_pick(&data->meta_hash, key, strlen(key) + 1);
+  પાછા Curl_hash_pick(&data->meta_hash, ચાવી, strlen(ચાવી) + 1);
 }
 
-void Curl_meta_reset(struct Curl_easy *data)
+શૂન્ય Curl_meta_reset(સંરચના Curl_easy *data)
 {
   Curl_hash_clean(&data->meta_hash);
 }

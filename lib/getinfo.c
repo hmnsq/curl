@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#include "urldata.h"
-#include "getinfo.h"
-#include "cfilters.h"
-#include "vtls/vtls.h"
-#include "connect.h" /* Curl_getconnectinfo() */
-#include "bufref.h"
-#include "url.h" /* Curl_uc_to_curlcode() */
-#include "curlx/strparse.h"
+#અન્તર્ભાવ "urldata.h"
+#અન્તર્ભાવ "getinfo.h"
+#અન્તર્ભાવ "cfilters.h"
+#અન્તર્ભાવ "vtls/vtls.h"
+#અન્તર્ભાવ "connect.h" /* Curl_getconnectinfo() */
+#અન્તર્ભાવ "bufref.h"
+#અન્તર્ભાવ "url.h" /* Curl_uc_to_curlcode() */
+#અન્તર્ભાવ "curlx/strparse.h"
 
 /*
  * Initialize statistical and informational data.
@@ -39,13 +39,13 @@
  * beginning of a perform session. It must reset the session-info variables,
  * in particular all variables in struct PureInfo.
  */
-void Curl_initinfo(struct Curl_easy *data)
+શૂન્ય Curl_initinfo(સંરચના Curl_easy *data)
 {
-  struct Progress *pro = &data->progress;
-  struct PureInfo *info = &data->info;
+  સંરચના Progress *pro = &data->progress;
+  સંરચના PureInfo *info = &data->info;
 
-  memset(&pro->delta, 0, sizeof(pro->delta));
-  memset(&pro->total, 0, sizeof(pro->total));
+  memset(&pro->delta, 0, કદ(pro->delta));
+  memset(&pro->total, 0, કદ(pro->total));
   pro->startransfer_added = FALSE;
 
   info->httpcode = 0;
@@ -66,7 +66,7 @@ void Curl_initinfo(struct Curl_easy *data)
   curlx_safefree(info->wouldredirect);
   curlx_safefree(info->effective_url);
 
-  memset(&info->primary, 0, sizeof(info->primary));
+  memset(&info->primary, 0, કદ(info->primary));
   info->retry_after = 0;
 
   info->conn_scheme = 0;
@@ -78,636 +78,636 @@ void Curl_initinfo(struct Curl_easy *data)
 #endif
 }
 
-static CURLcode effective_url(struct Curl_easy *data,
-                              const char **param_charp)
+સ્થિર CURLcode effective_url(સંરચના Curl_easy *data,
+                              અચલ અક્ષર **param_charp)
 {
-  const char *s = Curl_bufref_ptr(&data->state.url);
+  અચલ અક્ષર *s = Curl_bufref_ptr(&data->state.url);
   /* never return the URL unfiltered */
-  *param_charp = s ? NULL : "";
-  if(s) {
-    char *url = NULL;
+  *param_charp = s ? ખાલી : "";
+  જો(s) {
+    અક્ષર *url = ખાલી;
     /* Make a copy of the URL without credentials */
     CURLU *u = curl_url();
     CURLUcode uc;
-    if(!u)
-      return CURLE_OUT_OF_MEMORY;
+    જો(!u)
+      પાછા CURLE_OUT_OF_MEMORY;
 
     uc = curl_url_set(u, CURLUPART_URL, s,
                       CURLU_NON_SUPPORT_SCHEME |
                       (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
-    if(!uc)
-      uc = curl_url_set(u, CURLUPART_USER, NULL, 0);
-    if(!uc)
-      uc = curl_url_set(u, CURLUPART_PASSWORD, NULL, 0);
-    if(!uc)
+    જો(!uc)
+      uc = curl_url_set(u, CURLUPART_USER, ખાલી, 0);
+    જો(!uc)
+      uc = curl_url_set(u, CURLUPART_PASSWORD, ખાલી, 0);
+    જો(!uc)
       uc = curl_url_get(u, CURLUPART_URL, &url, CURLU_GET_EMPTY);
 
     curl_url_cleanup(u);
 
-    if(uc || !url)
-      return uc ? Curl_uc_to_curlcode(uc) : CURLE_OUT_OF_MEMORY;
-    if(strcmp(url, s)) {
+    જો(uc || !url)
+      પાછા uc ? Curl_uc_to_curlcode(uc) : CURLE_OUT_OF_MEMORY;
+    જો(strcmp(url, s)) {
       /* they are different */
       curlx_free(data->info.effective_url);
       data->info.effective_url = url;
       *param_charp = url;
     }
-    else {
+    નહીંતર {
       curl_free(url);
       *param_charp = s;
     }
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode getinfo_char(struct Curl_easy *data, CURLINFO info,
-                             const char **param_charp)
+સ્થિર CURLcode getinfo_char(સંરચના Curl_easy *data, CURLINFO info,
+                             અચલ અક્ષર **param_charp)
 {
-  switch(info) {
-  case CURLINFO_EFFECTIVE_URL:
-    return effective_url(data, param_charp);
-  case CURLINFO_EFFECTIVE_METHOD: {
-    const char *m = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
-    if(!m) {
-      if(data->set.opt_no_body)
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_EFFECTIVE_URL:
+    પાછા effective_url(data, param_charp);
+  સ્થિતિ CURLINFO_EFFECTIVE_METHOD: {
+    અચલ અક્ષર *m = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+    જો(!m) {
+      જો(data->set.opt_no_body)
         m = "HEAD";
 #ifndef CURL_DISABLE_HTTP
-      else {
-        switch(data->state.httpreq) {
-        case HTTPREQ_POST:
-        case HTTPREQ_POST_FORM:
-        case HTTPREQ_POST_MIME:
+      નહીંતર {
+        પસંદગી(data->state.httpreq) {
+        સ્થિતિ HTTPREQ_POST:
+        સ્થિતિ HTTPREQ_POST_FORM:
+        સ્થિતિ HTTPREQ_POST_MIME:
           m = "POST";
-          break;
-        case HTTPREQ_PUT:
+          તોડો;
+        સ્થિતિ HTTPREQ_PUT:
           m = "PUT";
-          break;
-        default: /* this should never happen */
-        case HTTPREQ_GET:
+          તોડો;
+        મૂળભૂત: /* this should never happen */
+        સ્થિતિ HTTPREQ_GET:
           m = "GET";
-          break;
-        case HTTPREQ_HEAD:
+          તોડો;
+        સ્થિતિ HTTPREQ_HEAD:
           m = "HEAD";
-          break;
+          તોડો;
         }
       }
 #endif
     }
     *param_charp = m;
   }
-    break;
-  case CURLINFO_CONTENT_TYPE:
+    તોડો;
+  સ્થિતિ CURLINFO_CONTENT_TYPE:
     *param_charp = data->info.contenttype;
-    break;
-  case CURLINFO_PRIVATE:
-    *param_charp = (const char *)data->set.private_data;
-    break;
-  case CURLINFO_FTP_ENTRY_PATH:
+    તોડો;
+  સ્થિતિ CURLINFO_PRIVATE:
+    *param_charp = (અચલ અક્ષર *)data->set.private_data;
+    તોડો;
+  સ્થિતિ CURLINFO_FTP_ENTRY_PATH:
     /* Return the entrypath string from the most recent connection.
        This pointer was copied from the connectdata structure by FTP.
        The actual string may be freed by subsequent libcurl calls so
        it must be copied to a safer area before the next libcurl call.
        Callers must never free it themselves. */
     *param_charp = data->state.most_recent_ftp_entrypath;
-    break;
-  case CURLINFO_REDIRECT_URL:
+    તોડો;
+  સ્થિતિ CURLINFO_REDIRECT_URL:
     /* Return the URL this request would have been redirected to if that
        option had been enabled! */
     *param_charp = data->info.wouldredirect;
-    break;
-  case CURLINFO_REFERER:
+    તોડો;
+  સ્થિતિ CURLINFO_REFERER:
     /* Return the referrer header for this request, or NULL if unset */
     *param_charp = Curl_bufref_ptr(&data->state.referer);
-    break;
-  case CURLINFO_PRIMARY_IP:
+    તોડો;
+  સ્થિતિ CURLINFO_PRIMARY_IP:
     /* Return the ip address of the most recent (primary) connection */
     *param_charp = data->info.primary.remote_ip;
-    break;
-  case CURLINFO_LOCAL_IP:
+    તોડો;
+  સ્થિતિ CURLINFO_LOCAL_IP:
     /* Return the source/local ip address of the most recent (primary)
        connection */
     *param_charp = data->info.primary.local_ip;
-    break;
-  case CURLINFO_RTSP_SESSION_ID:
+    તોડો;
+  સ્થિતિ CURLINFO_RTSP_SESSION_ID:
 #ifndef CURL_DISABLE_RTSP
     *param_charp = CURL_EASY_STR(data, STRING_RTSP_SESSION_ID);
-#else
-    *param_charp = NULL;
+#નહીંતર
+    *param_charp = ખાલી;
 #endif
-    break;
-  case CURLINFO_SCHEME:
+    તોડો;
+  સ્થિતિ CURLINFO_SCHEME:
     *param_charp = data->info.conn_scheme;
-    break;
-  case CURLINFO_CAPATH:
+    તોડો;
+  સ્થિતિ CURLINFO_CAPATH:
 #ifdef CURL_CA_PATH
     *param_charp = CURL_CA_PATH;
-#else
-    *param_charp = NULL;
+#નહીંતર
+    *param_charp = ખાલી;
 #endif
-    break;
-  case CURLINFO_CAINFO:
+    તોડો;
+  સ્થિતિ CURLINFO_CAINFO:
 #ifdef CURL_CA_BUNDLE
     *param_charp = CURL_CA_BUNDLE;
-#else
-    *param_charp = NULL;
+#નહીંતર
+    *param_charp = ખાલી;
 #endif
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    તોડો;
+  મૂળભૂત:
+    પાછા CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode getinfo_long(struct Curl_easy *data, CURLINFO info,
+સ્થિર CURLcode getinfo_long(સંરચના Curl_easy *data, CURLINFO info,
                              long *param_longp)
 {
   curl_socket_t sockfd;
 
-  union {
+  સંઘ {
     unsigned long *to_ulong;
     long          *to_long;
   } lptr;
 
 #ifdef DEBUGBUILD
-  const char *envstr;
+  અચલ અક્ષર *envstr;
 
   /* use another variable for this to allow different values */
-  switch(info) {
-  case CURLINFO_LOCAL_PORT:
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_LOCAL_PORT:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    જો(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, TIME_T_MAX);
+      curlx_str_સંખ્યા(&envstr, &val, TIME_T_MAX);
       *param_longp = (long)val;
-      return CURLE_OK;
+      પાછા CURLE_OK;
     }
-    break;
-  case CURLINFO_HEADER_SIZE:
-  case CURLINFO_REQUEST_SIZE:
+    તોડો;
+  સ્થિતિ CURLINFO_HEADER_SIZE:
+  સ્થિતિ CURLINFO_REQUEST_SIZE:
     envstr = getenv("CURL_DEBUG_SIZE");
-    if(envstr) {
+    જો(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, LONG_MAX);
+      curlx_str_સંખ્યા(&envstr, &val, LONG_MAX);
       *param_longp = (long)val;
-      return CURLE_OK;
+      પાછા CURLE_OK;
     }
-    break;
-  default:
-    break;
+    તોડો;
+  મૂળભૂત:
+    તોડો;
   }
 #endif
 
-  switch(info) {
-  case CURLINFO_RESPONSE_CODE:
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_RESPONSE_CODE:
     *param_longp = data->info.httpcode;
-    break;
-  case CURLINFO_HTTP_CONNECTCODE:
+    તોડો;
+  સ્થિતિ CURLINFO_HTTP_CONNECTCODE:
     *param_longp = data->info.httpproxycode;
-    break;
-  case CURLINFO_FILETIME:
-    if(data->info.filetime > LONG_MAX)
+    તોડો;
+  સ્થિતિ CURLINFO_FILETIME:
+    જો(data->info.filetime > LONG_MAX)
       *param_longp = LONG_MAX;
-#if !defined(MSDOS) && !defined(__AMIGA__)
-    else if(data->info.filetime < LONG_MIN)
+#જો !defined(MSDOS) && !defined(__AMIGA__)
+    નહીંતર જો(data->info.filetime < LONG_MIN)
       *param_longp = LONG_MIN;
 #endif
-    else
+    નહીંતર
       *param_longp = (long)data->info.filetime;
-    break;
-  case CURLINFO_HEADER_SIZE:
+    તોડો;
+  સ્થિતિ CURLINFO_HEADER_SIZE:
     *param_longp = (long)data->info.header_size;
-    break;
-  case CURLINFO_REQUEST_SIZE:
+    તોડો;
+  સ્થિતિ CURLINFO_REQUEST_SIZE:
     *param_longp = (long)data->info.request_size;
-    break;
-  case CURLINFO_SSL_VERIFYRESULT:
+    તોડો;
+  સ્થિતિ CURLINFO_SSL_VERIFYRESULT:
     *param_longp = data->set.ssl.certverifyresult;
-    break;
-  case CURLINFO_PROXY_SSL_VERIFYRESULT:
+    તોડો;
+  સ્થિતિ CURLINFO_PROXY_SSL_VERIFYRESULT:
 #ifndef CURL_DISABLE_PROXY
     *param_longp = data->set.proxy_ssl.certverifyresult;
-#else
+#નહીંતર
     *param_longp = 0;
 #endif
-    break;
-  case CURLINFO_REDIRECT_COUNT:
+    તોડો;
+  સ્થિતિ CURLINFO_REDIRECT_ગણતરી:
     *param_longp = data->state.followlocation;
-    break;
-  case CURLINFO_HTTPAUTH_AVAIL:
+    તોડો;
+  સ્થિતિ CURLINFO_HTTPAUTH_AVAIL:
     lptr.to_long = param_longp;
     *lptr.to_ulong = data->info.httpauthavail;
-    break;
-  case CURLINFO_PROXYAUTH_AVAIL:
+    તોડો;
+  સ્થિતિ CURLINFO_PROXYAUTH_AVAIL:
     lptr.to_long = param_longp;
     *lptr.to_ulong = data->info.proxyauthavail;
-    break;
-  case CURLINFO_HTTPAUTH_USED:
+    તોડો;
+  સ્થિતિ CURLINFO_HTTPAUTH_USED:
     lptr.to_long = param_longp;
     *lptr.to_ulong = data->info.httpauthpicked;
-    break;
-  case CURLINFO_PROXYAUTH_USED:
+    તોડો;
+  સ્થિતિ CURLINFO_PROXYAUTH_USED:
     lptr.to_long = param_longp;
     *lptr.to_ulong = data->info.proxyauthpicked;
-    break;
-  case CURLINFO_OS_ERRNO:
+    તોડો;
+  સ્થિતિ CURLINFO_OS_ERRNO:
     *param_longp = data->state.os_errno;
-    break;
-  case CURLINFO_NUM_CONNECTS:
-#if SIZEOF_LONG < SIZEOF_CURL_OFF_T
-    if(data->info.numconnects > LONG_MAX)
+    તોડો;
+  સ્થિતિ CURLINFO_અંક_CONNECTS:
+#જો SIZEOF_LONG < SIZEOF_CURL_OFF_T
+    જો(data->info.numconnects > LONG_MAX)
       *param_longp = LONG_MAX;
-    else
+    નહીંતર
 #endif
       *param_longp = (long)data->info.numconnects;
-    break;
-  case CURLINFO_LASTSOCKET:
-    sockfd = Curl_getconnectinfo(data, NULL);
+    તોડો;
+  સ્થિતિ CURLINFO_LASTSOCKET:
+    sockfd = Curl_getconnectinfo(data, ખાલી);
 
     /* note: this is not a good conversion for systems with 64-bit sockets and
        32-bit longs */
-    if(sockfd != CURL_SOCKET_BAD)
+    જો(sockfd != CURL_SOCKET_BAD)
       *param_longp = (long)sockfd;
-    else
+    નહીંતર
       /* this interface is documented to return -1 in case of badness, which
          may not be the same as the CURL_SOCKET_BAD value */
       *param_longp = -1;
-    break;
-  case CURLINFO_PRIMARY_PORT:
+    તોડો;
+  સ્થિતિ CURLINFO_PRIMARY_PORT:
     /* Return the (remote) port of the most recent (primary) connection */
-    if(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
+    જો(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
       *param_longp = data->info.primary.remote_port;
-    else
+    નહીંતર
       *param_longp = -1;
-    break;
-  case CURLINFO_LOCAL_PORT:
+    તોડો;
+  સ્થિતિ CURLINFO_LOCAL_PORT:
     /* Return the local port of the most recent (primary) connection */
-    if(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
+    જો(CUR_IP_QUAD_HAS_PORTS(&data->info.primary))
       *param_longp = data->info.primary.local_port;
-    else
+    નહીંતર
       *param_longp = -1;
-    break;
-  case CURLINFO_PROXY_ERROR:
+    તોડો;
+  સ્થિતિ CURLINFO_PROXY_ERROR:
     *param_longp = (long)data->info.pxcode;
-    break;
-  case CURLINFO_CONDITION_UNMET:
-    if(data->info.httpcode == 304)
+    તોડો;
+  સ્થિતિ CURLINFO_CONDITION_UNMET:
+    જો(data->info.httpcode == 304)
       *param_longp = 1L;
-    else
+    નહીંતર
       /* return if the condition prevented the document to get transferred */
       *param_longp = data->info.timecond ? 1L : 0L;
-    break;
+    તોડો;
 #ifndef CURL_DISABLE_RTSP
-  case CURLINFO_RTSP_CLIENT_CSEQ:
+  સ્થિતિ CURLINFO_RTSP_CLIENT_CSEQ:
     *param_longp = data->state.rtsp_next_client_CSeq;
-    break;
-  case CURLINFO_RTSP_SERVER_CSEQ:
+    તોડો;
+  સ્થિતિ CURLINFO_RTSP_SERVER_CSEQ:
     *param_longp = data->state.rtsp_next_server_CSeq;
-    break;
-  case CURLINFO_RTSP_CSEQ_RECV:
+    તોડો;
+  સ્થિતિ CURLINFO_RTSP_CSEQ_RECV:
     *param_longp = data->state.rtsp_CSeq_recv;
-    break;
-#else
-  case CURLINFO_RTSP_CLIENT_CSEQ:
-  case CURLINFO_RTSP_SERVER_CSEQ:
-  case CURLINFO_RTSP_CSEQ_RECV:
+    તોડો;
+#નહીંતર
+  સ્થિતિ CURLINFO_RTSP_CLIENT_CSEQ:
+  સ્થિતિ CURLINFO_RTSP_SERVER_CSEQ:
+  સ્થિતિ CURLINFO_RTSP_CSEQ_RECV:
     *param_longp = 0;
-    break;
+    તોડો;
 #endif
-  case CURLINFO_HTTP_VERSION:
-    switch(data->info.httpversion) {
-    case 10:
+  સ્થિતિ CURLINFO_HTTP_VERSION:
+    પસંદગી(data->info.httpversion) {
+    સ્થિતિ 10:
       *param_longp = CURL_HTTP_VERSION_1_0;
-      break;
-    case 11:
+      તોડો;
+    સ્થિતિ 11:
       *param_longp = CURL_HTTP_VERSION_1_1;
-      break;
-    case 20:
+      તોડો;
+    સ્થિતિ 20:
       *param_longp = CURL_HTTP_VERSION_2_0;
-      break;
-    case 30:
+      તોડો;
+    સ્થિતિ 30:
       *param_longp = CURL_HTTP_VERSION_3;
-      break;
-    default:
+      તોડો;
+    મૂળભૂત:
       *param_longp = CURL_HTTP_VERSION_NONE;
-      break;
+      તોડો;
     }
-    break;
-  case CURLINFO_PROTOCOL:
+    તોડો;
+  સ્થિતિ CURLINFO_PROTOCOL:
     *param_longp = (long)data->info.conn_protocol;
-    break;
-  case CURLINFO_USED_PROXY:
+    તોડો;
+  સ્થિતિ CURLINFO_USED_PROXY:
     *param_longp =
 #ifdef CURL_DISABLE_PROXY
       0
-#else
+#નહીંતર
       data->info.used_proxy
 #endif
       ;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    તોડો;
+  મૂળભૂત:
+    પાછા CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-#define DOUBLE_SECS(x) ((double)(x) / 1000000)
+#define DOUBLE_SECS(x) ((દ્વિગુણ)(x) / 1000000)
 
-static CURLcode getinfo_offt(struct Curl_easy *data, CURLINFO info,
+સ્થિર CURLcode getinfo_offt(સંરચના Curl_easy *data, CURLINFO info,
                              curl_off_t *param_offt)
 {
 #ifdef DEBUGBUILD
-  const char *envstr;
-  switch(info) {
-  case CURLINFO_TOTAL_TIME_T:
-  case CURLINFO_NAMELOOKUP_TIME_T:
-  case CURLINFO_CONNECT_TIME_T:
-  case CURLINFO_APPCONNECT_TIME_T:
-  case CURLINFO_PRETRANSFER_TIME_T:
-  case CURLINFO_POSTTRANSFER_TIME_T:
-  case CURLINFO_QUEUE_TIME_T:
-  case CURLINFO_STARTTRANSFER_TIME_T:
-  case CURLINFO_REDIRECT_TIME_T:
-  case CURLINFO_SPEED_DOWNLOAD_T:
-  case CURLINFO_SPEED_UPLOAD_T:
+  અચલ અક્ષર *envstr;
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_TOTAL_TIME_T:
+  સ્થિતિ CURLINFO_NAMELOOKUP_TIME_T:
+  સ્થિતિ CURLINFO_CONNECT_TIME_T:
+  સ્થિતિ CURLINFO_APPCONNECT_TIME_T:
+  સ્થિતિ CURLINFO_PRETRANSFER_TIME_T:
+  સ્થિતિ CURLINFO_POSTTRANSFER_TIME_T:
+  સ્થિતિ CURLINFO_QUEUE_TIME_T:
+  સ્થિતિ CURLINFO_STARTTRANSFER_TIME_T:
+  સ્થિતિ CURLINFO_REDIRECT_TIME_T:
+  સ્થિતિ CURLINFO_SPEED_DOWNLOAD_T:
+  સ્થિતિ CURLINFO_SPEED_UPLOAD_T:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    જો(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
+      curlx_str_સંખ્યા(&envstr, &val, CURL_OFF_T_MAX);
       *param_offt = (curl_off_t)val;
-      return CURLE_OK;
+      પાછા CURLE_OK;
     }
-    break;
-  default:
-    break;
+    તોડો;
+  મૂળભૂત:
+    તોડો;
   }
 #endif
-  switch(info) {
-  case CURLINFO_FILETIME_T:
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_FILETIME_T:
     *param_offt = (curl_off_t)data->info.filetime;
-    break;
-  case CURLINFO_SIZE_DELIVERED:
+    તોડો;
+  સ્થિતિ CURLINFO_SIZE_DELIVERED:
     *param_offt = data->progress.deliver;
-    break;
-  case CURLINFO_SIZE_UPLOAD_T:
+    તોડો;
+  સ્થિતિ CURLINFO_SIZE_UPLOAD_T:
     *param_offt = data->progress.ul.cur_size;
-    break;
-  case CURLINFO_SIZE_DOWNLOAD_T:
+    તોડો;
+  સ્થિતિ CURLINFO_SIZE_DOWNLOAD_T:
     *param_offt = data->progress.dl.cur_size;
-    break;
-  case CURLINFO_SPEED_DOWNLOAD_T:
+    તોડો;
+  સ્થિતિ CURLINFO_SPEED_DOWNLOAD_T:
     *param_offt = data->progress.dl.speed;
-    break;
-  case CURLINFO_SPEED_UPLOAD_T:
+    તોડો;
+  સ્થિતિ CURLINFO_SPEED_UPLOAD_T:
     *param_offt = data->progress.ul.speed;
-    break;
-  case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
+    તોડો;
+  સ્થિતિ CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
     *param_offt = data->progress.dl_size_known ?
       data->progress.dl.total_size : -1;
-    break;
-  case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
+    તોડો;
+  સ્થિતિ CURLINFO_CONTENT_LENGTH_UPLOAD_T:
     *param_offt = data->progress.ul_size_known ?
       data->progress.ul.total_size : -1;
-    break;
-   case CURLINFO_TOTAL_TIME_T:
+    તોડો;
+   સ્થિતિ CURLINFO_TOTAL_TIME_T:
     *param_offt = data->progress.total.spent_us;
-    break;
-  case CURLINFO_NAMELOOKUP_TIME_T:
+    તોડો;
+  સ્થિતિ CURLINFO_NAMELOOKUP_TIME_T:
     *param_offt = data->progress.total.nslookup_us;
-    break;
-  case CURLINFO_CONNECT_TIME_T:
+    તોડો;
+  સ્થિતિ CURLINFO_CONNECT_TIME_T:
     *param_offt = data->progress.total.connect_us;
-    break;
-  case CURLINFO_APPCONNECT_TIME_T:
+    તોડો;
+  સ્થિતિ CURLINFO_APPCONNECT_TIME_T:
     *param_offt = data->progress.total.appconnect_us;
-    break;
-  case CURLINFO_PRETRANSFER_TIME_T:
+    તોડો;
+  સ્થિતિ CURLINFO_PRETRANSFER_TIME_T:
     *param_offt = data->progress.total.pretransfer_us;
-    break;
-  case CURLINFO_POSTTRANSFER_TIME_T:
+    તોડો;
+  સ્થિતિ CURLINFO_POSTTRANSFER_TIME_T:
     *param_offt = data->progress.total.posttransfer_us;
-    break;
-  case CURLINFO_STARTTRANSFER_TIME_T:
+    તોડો;
+  સ્થિતિ CURLINFO_STARTTRANSFER_TIME_T:
     *param_offt = data->progress.total.starttransfer_us;
-    break;
-  case CURLINFO_QUEUE_TIME_T:
+    તોડો;
+  સ્થિતિ CURLINFO_QUEUE_TIME_T:
     *param_offt = data->progress.total.queued_us;
-    break;
-  case CURLINFO_REDIRECT_TIME_T:
+    તોડો;
+  સ્થિતિ CURLINFO_REDIRECT_TIME_T:
     *param_offt = data->progress.delta.startredirect_us;
-    break;
-  case CURLINFO_RETRY_AFTER:
+    તોડો;
+  સ્થિતિ CURLINFO_RETRY_AFTER:
     *param_offt = data->info.retry_after;
-    break;
-  case CURLINFO_XFER_ID:
+    તોડો;
+  સ્થિતિ CURLINFO_XFER_ID:
     *param_offt = data->id;
-    break;
-  case CURLINFO_CONN_ID:
+    તોડો;
+  સ્થિતિ CURLINFO_CONN_ID:
     *param_offt = data->state.last_conn_id;
-    break;
-  case CURLINFO_EARLYDATA_SENT_T:
+    તોડો;
+  સ્થિતિ CURLINFO_EARLYDATA_SENT_T:
     *param_offt = data->progress.earlydata_sent;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    તોડો;
+  મૂળભૂત:
+    પાછા CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode getinfo_double(struct Curl_easy *data, CURLINFO info,
-                               double *param_doublep)
+સ્થિર CURLcode getinfo_double(સંરચના Curl_easy *data, CURLINFO info,
+                               દ્વિગુણ *param_doublep)
 {
 #ifdef DEBUGBUILD
-  const char *envstr;
+  અચલ અક્ષર *envstr;
 
-  switch(info) {
-  case CURLINFO_TOTAL_TIME:
-  case CURLINFO_NAMELOOKUP_TIME:
-  case CURLINFO_CONNECT_TIME:
-  case CURLINFO_APPCONNECT_TIME:
-  case CURLINFO_PRETRANSFER_TIME:
-  case CURLINFO_STARTTRANSFER_TIME:
-  case CURLINFO_REDIRECT_TIME:
-  case CURLINFO_SPEED_DOWNLOAD:
-  case CURLINFO_SPEED_UPLOAD:
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_TOTAL_TIME:
+  સ્થિતિ CURLINFO_NAMELOOKUP_TIME:
+  સ્થિતિ CURLINFO_CONNECT_TIME:
+  સ્થિતિ CURLINFO_APPCONNECT_TIME:
+  સ્થિતિ CURLINFO_PRETRANSFER_TIME:
+  સ્થિતિ CURLINFO_STARTTRANSFER_TIME:
+  સ્થિતિ CURLINFO_REDIRECT_TIME:
+  સ્થિતિ CURLINFO_SPEED_DOWNLOAD:
+  સ્થિતિ CURLINFO_SPEED_UPLOAD:
     envstr = getenv("CURL_TIME");
-    if(envstr) {
+    જો(envstr) {
       curl_off_t val;
-      curlx_str_number(&envstr, &val, CURL_OFF_T_MAX);
-      *param_doublep = (double)val;
-      return CURLE_OK;
+      curlx_str_સંખ્યા(&envstr, &val, CURL_OFF_T_MAX);
+      *param_doublep = (દ્વિગુણ)val;
+      પાછા CURLE_OK;
     }
-    break;
-  default:
-    break;
+    તોડો;
+  મૂળભૂત:
+    તોડો;
   }
 #endif
-  switch(info) {
-  case CURLINFO_TOTAL_TIME:
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_TOTAL_TIME:
     *param_doublep = DOUBLE_SECS(data->progress.total.spent_us);
-    break;
-  case CURLINFO_NAMELOOKUP_TIME:
+    તોડો;
+  સ્થિતિ CURLINFO_NAMELOOKUP_TIME:
     *param_doublep = DOUBLE_SECS(data->progress.total.nslookup_us);
-    break;
-  case CURLINFO_CONNECT_TIME:
+    તોડો;
+  સ્થિતિ CURLINFO_CONNECT_TIME:
     *param_doublep = DOUBLE_SECS(data->progress.total.connect_us);
-    break;
-  case CURLINFO_APPCONNECT_TIME:
+    તોડો;
+  સ્થિતિ CURLINFO_APPCONNECT_TIME:
     *param_doublep = DOUBLE_SECS(data->progress.total.appconnect_us);
-    break;
-  case CURLINFO_PRETRANSFER_TIME:
+    તોડો;
+  સ્થિતિ CURLINFO_PRETRANSFER_TIME:
     *param_doublep = DOUBLE_SECS(data->progress.total.pretransfer_us);
-    break;
-  case CURLINFO_STARTTRANSFER_TIME:
+    તોડો;
+  સ્થિતિ CURLINFO_STARTTRANSFER_TIME:
     *param_doublep = DOUBLE_SECS(data->progress.total.starttransfer_us);
-    break;
-  case CURLINFO_SIZE_UPLOAD:
-    *param_doublep = (double)data->progress.ul.cur_size;
-    break;
-  case CURLINFO_SIZE_DOWNLOAD:
-    *param_doublep = (double)data->progress.dl.cur_size;
-    break;
-  case CURLINFO_SPEED_DOWNLOAD:
-    *param_doublep = (double)data->progress.dl.speed;
-    break;
-  case CURLINFO_SPEED_UPLOAD:
-    *param_doublep = (double)data->progress.ul.speed;
-    break;
-  case CURLINFO_CONTENT_LENGTH_DOWNLOAD:
+    તોડો;
+  સ્થિતિ CURLINFO_SIZE_UPLOAD:
+    *param_doublep = (દ્વિગુણ)data->progress.ul.cur_size;
+    તોડો;
+  સ્થિતિ CURLINFO_SIZE_DOWNLOAD:
+    *param_doublep = (દ્વિગુણ)data->progress.dl.cur_size;
+    તોડો;
+  સ્થિતિ CURLINFO_SPEED_DOWNLOAD:
+    *param_doublep = (દ્વિગુણ)data->progress.dl.speed;
+    તોડો;
+  સ્થિતિ CURLINFO_SPEED_UPLOAD:
+    *param_doublep = (દ્વિગુણ)data->progress.ul.speed;
+    તોડો;
+  સ્થિતિ CURLINFO_CONTENT_LENGTH_DOWNLOAD:
     *param_doublep = data->progress.dl_size_known ?
-      (double)data->progress.dl.total_size : -1;
-    break;
-  case CURLINFO_CONTENT_LENGTH_UPLOAD:
+      (દ્વિગુણ)data->progress.dl.total_size : -1;
+    તોડો;
+  સ્થિતિ CURLINFO_CONTENT_LENGTH_UPLOAD:
     *param_doublep = data->progress.ul_size_known ?
-      (double)data->progress.ul.total_size : -1;
-    break;
-  case CURLINFO_REDIRECT_TIME:
+      (દ્વિગુણ)data->progress.ul.total_size : -1;
+    તોડો;
+  સ્થિતિ CURLINFO_REDIRECT_TIME:
     *param_doublep = DOUBLE_SECS(data->progress.delta.startredirect_us);
-    break;
+    તોડો;
 
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  મૂળભૂત:
+    પાછા CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode getinfo_slist(struct Curl_easy *data, CURLINFO info,
-                              struct curl_slist **param_slistp)
+સ્થિર CURLcode getinfo_slist(સંરચના Curl_easy *data, CURLINFO info,
+                              સંરચના curl_slist **param_slistp)
 {
-  union {
-    struct curl_certinfo *to_certinfo;
-    struct curl_slist    *to_slist;
+  સંઘ {
+    સંરચના curl_certinfo *to_certinfo;
+    સંરચના curl_slist    *to_slist;
   } ptr;
 
-  switch(info) {
-  case CURLINFO_SSL_ENGINES:
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_SSL_ENGINES:
     *param_slistp = Curl_ssl_engines_list(data);
-    break;
-  case CURLINFO_COOKIELIST:
+    તોડો;
+  સ્થિતિ CURLINFO_COOKIELIST:
     *param_slistp = Curl_cookie_list(data);
-    break;
-  case CURLINFO_CERTINFO:
+    તોડો;
+  સ્થિતિ CURLINFO_CERTINFO:
     /* Return the a pointer to the certinfo struct. Not really an slist
        pointer but we can pretend it is here */
     ptr.to_certinfo = &data->info.certs;
     *param_slistp = ptr.to_slist;
-    break;
-  case CURLINFO_TLS_SESSION:
-  case CURLINFO_TLS_SSL_PTR: {
-    int query = (info == CURLINFO_TLS_SSL_PTR) ?
+    તોડો;
+  સ્થિતિ CURLINFO_TLS_SESSION:
+  સ્થિતિ CURLINFO_TLS_SSL_PTR: {
+    પૂર્ણાંક query = (info == CURLINFO_TLS_SSL_PTR) ?
       CF_QUERY_SSL_INFO : CF_QUERY_SSL_CTX_INFO;
-    struct curl_tlssessioninfo **tsip = (struct curl_tlssessioninfo **)
+    સંરચના curl_tlssessioninfo **tsip = (સંરચના curl_tlssessioninfo **)
       param_slistp;
-    struct curl_tlssessioninfo *tsi = &data->tsi;
+    સંરચના curl_tlssessioninfo *tsi = &data->tsi;
 
     /* we are exposing a pointer to internal memory with unknown
      * lifetime here. */
     *tsip = tsi;
-    if(!Curl_conn_get_ssl_info(data, data->conn, FIRSTSOCKET, query, tsi)) {
+    જો(!Curl_conn_get_ssl_info(data, data->conn, FIRSTSOCKET, query, tsi)) {
       tsi->backend = Curl_ssl_backend();
-      tsi->internals = NULL;
+      tsi->internals = ખાલી;
     }
   }
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    તોડો;
+  મૂળભૂત:
+    પાછા CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode getinfo_socket(struct Curl_easy *data, CURLINFO info,
+સ્થિર CURLcode getinfo_socket(સંરચના Curl_easy *data, CURLINFO info,
                                curl_socket_t *param_socketp)
 {
-  switch(info) {
-  case CURLINFO_ACTIVESOCKET:
-    *param_socketp = Curl_getconnectinfo(data, NULL);
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  પસંદગી(info) {
+  સ્થિતિ CURLINFO_ACTIVESOCKET:
+    *param_socketp = Curl_getconnectinfo(data, ખાલી);
+    તોડો;
+  મૂળભૂત:
+    પાછા CURLE_UNKNOWN_OPTION;
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...)
+CURLcode Curl_getinfo(સંરચના Curl_easy *data, CURLINFO info, ...)
 {
   va_list arg;
-  long *param_longp = NULL;
-  double *param_doublep = NULL;
-  curl_off_t *param_offt = NULL;
-  const char **param_charp = NULL;
-  struct curl_slist **param_slistp = NULL;
-  curl_socket_t *param_socketp = NULL;
-  int type;
+  long *param_longp = ખાલી;
+  દ્વિગુણ *param_doublep = ખાલી;
+  curl_off_t *param_offt = ખાલી;
+  અચલ અક્ષર **param_charp = ખાલી;
+  સંરચના curl_slist **param_slistp = ખાલી;
+  curl_socket_t *param_socketp = ખાલી;
+  પૂર્ણાંક type;
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  જો(!data)
+    પાછા CURLE_BAD_FUNCTION_ARGUMENT;
 
   va_start(arg, info);
 
-  type = CURLINFO_TYPEMASK & (int)info;
-  switch(type) {
-  case CURLINFO_STRING:
-    param_charp = va_arg(arg, const char **);
-    if(param_charp)
+  type = CURLINFO_TYPEMASK & (પૂર્ણાંક)info;
+  પસંદગી(type) {
+  સ્થિતિ CURLINFO_STRING:
+    param_charp = va_arg(arg, અચલ અક્ષર **);
+    જો(param_charp)
       result = getinfo_char(data, info, param_charp);
-    break;
-  case CURLINFO_LONG:
+    તોડો;
+  સ્થિતિ CURLINFO_LONG:
     param_longp = va_arg(arg, long *);
-    if(param_longp)
+    જો(param_longp)
       result = getinfo_long(data, info, param_longp);
-    break;
-  case CURLINFO_DOUBLE:
-    param_doublep = va_arg(arg, double *);
-    if(param_doublep)
+    તોડો;
+  સ્થિતિ CURLINFO_DOUBLE:
+    param_doublep = va_arg(arg, દ્વિગુણ *);
+    જો(param_doublep)
       result = getinfo_double(data, info, param_doublep);
-    break;
-  case CURLINFO_OFF_T:
+    તોડો;
+  સ્થિતિ CURLINFO_OFF_T:
     param_offt = va_arg(arg, curl_off_t *);
-    if(param_offt)
+    જો(param_offt)
       result = getinfo_offt(data, info, param_offt);
-    break;
-  case CURLINFO_SLIST:
-    param_slistp = va_arg(arg, struct curl_slist **);
-    if(param_slistp)
+    તોડો;
+  સ્થિતિ CURLINFO_SLIST:
+    param_slistp = va_arg(arg, સંરચના curl_slist **);
+    જો(param_slistp)
       result = getinfo_slist(data, info, param_slistp);
-    break;
-  case CURLINFO_SOCKET:
+    તોડો;
+  સ્થિતિ CURLINFO_SOCKET:
     param_socketp = va_arg(arg, curl_socket_t *);
-    if(param_socketp)
+    જો(param_socketp)
       result = getinfo_socket(data, info, param_socketp);
-    break;
-  default:
+    તોડો;
+  મૂળભૂત:
     result = CURLE_UNKNOWN_OPTION;
-    break;
+    તોડો;
   }
 
   va_end(arg);
 
-  return result;
+  પાછા result;
 }

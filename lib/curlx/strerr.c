@@ -21,207 +21,207 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifdef HAVE_STRERROR_R
-#  if (!defined(HAVE_POSIX_STRERROR_R) && \
+#  જો (!defined(HAVE_POSIX_STRERROR_R) && \
        !defined(HAVE_GLIBC_STRERROR_R)) || \
       (defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R))
 #    error "strerror_r MUST be either POSIX, glibc style"
 #  endif
 #endif
 
-#include "curlx/winapi.h"
-#include "curlx/snprintf.h"
-#include "curlx/strerr.h"
-#include "curlx/strcopy.h"
+#અન્તર્ભાવ "curlx/winapi.h"
+#અન્તર્ભાવ "curlx/snprintf.h"
+#અન્તર્ભાવ "curlx/strerr.h"
+#અન્તર્ભાવ "curlx/strcopy.h"
 
 #ifdef USE_WINSOCK
 /* This is a helper function for curlx_strerror that converts Winsock error
  * codes (WSAGetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-static const char *get_winsock_error(int err, char *buf, size_t len)
+સ્થિર અચલ અક્ષર *get_winsock_error(પૂર્ણાંક err, અક્ષર *buf, size_t len)
 {
-  VERBOSE(const char *p);
+  VERBOSE(અચલ અક્ષર *p);
 
-  if(!len)
-    return NULL;
+  જો(!len)
+    પાછા ખાલી;
 
   *buf = '\0';
 
 #ifndef CURLVERBOSE
-  (void)err;
-  return NULL;
-#else
-  switch(err) {
-  case WSAEINTR:
+  (શૂન્ય)err;
+  પાછા ખાલી;
+#નહીંતર
+  પસંદગી(err) {
+  સ્થિતિ WSAEINTR:
     p = "Call interrupted";
-    break;
-  case WSAEBADF:
+    તોડો;
+  સ્થિતિ WSAEBADF:
     p = "Bad file";
-    break;
-  case WSAEACCES:
+    તોડો;
+  સ્થિતિ WSAEACCES:
     p = "Bad access";
-    break;
-  case WSAEFAULT:
+    તોડો;
+  સ્થિતિ WSAEFAULT:
     p = "Bad argument";
-    break;
-  case WSAEINVAL:
+    તોડો;
+  સ્થિતિ WSAEINVAL:
     p = "Invalid arguments";
-    break;
-  case WSAEMFILE:
+    તોડો;
+  સ્થિતિ WSAEMFILE:
     p = "Out of file descriptors";
-    break;
-  case WSAEWOULDBLOCK:
+    તોડો;
+  સ્થિતિ WSAEWOULDBLOCK:
     p = "Call would block";
-    break;
-  case WSAEINPROGRESS:
-  case WSAEALREADY:
+    તોડો;
+  સ્થિતિ WSAEINPROGRESS:
+  સ્થિતિ WSAEALREADY:
     p = "Blocking call in progress";
-    break;
-  case WSAENOTSOCK:
+    તોડો;
+  સ્થિતિ WSAENOTSOCK:
     p = "Descriptor is not a socket";
-    break;
-  case WSAEDESTADDRREQ:
+    તોડો;
+  સ્થિતિ WSAEDESTADDRREQ:
     p = "Need destination address";
-    break;
-  case WSAEMSGSIZE:
+    તોડો;
+  સ્થિતિ WSAEMSGSIZE:
     p = "Bad message size";
-    break;
-  case WSAEPROTOTYPE:
+    તોડો;
+  સ્થિતિ WSAEPROTOTYPE:
     p = "Bad protocol";
-    break;
-  case WSAENOPROTOOPT:
+    તોડો;
+  સ્થિતિ WSAENOPROTOOPT:
     p = "Protocol option is unsupported";
-    break;
-  case WSAEPROTONOSUPPORT:
+    તોડો;
+  સ્થિતિ WSAEPROTONOSUPPORT:
     p = "Protocol is unsupported";
-    break;
-  case WSAESOCKTNOSUPPORT:
+    તોડો;
+  સ્થિતિ WSAESOCKTNOSUPPORT:
     p = "Socket is unsupported";
-    break;
-  case WSAEOPNOTSUPP:
+    તોડો;
+  સ્થિતિ WSAEOPNOTSUPP:
     p = "Operation not supported";
-    break;
-  case WSAEAFNOSUPPORT:
+    તોડો;
+  સ્થિતિ WSAEAFNOSUPPORT:
     p = "Address family not supported";
-    break;
-  case WSAEPFNOSUPPORT:
+    તોડો;
+  સ્થિતિ WSAEPFNOSUPPORT:
     p = "Protocol family not supported";
-    break;
-  case WSAEADDRINUSE:
+    તોડો;
+  સ્થિતિ WSAEADDRINUSE:
     p = "Address already in use";
-    break;
-  case WSAEADDRNOTAVAIL:
+    તોડો;
+  સ્થિતિ WSAEADDRNOTAVAIL:
     p = "Address not available";
-    break;
-  case WSAENETDOWN:
+    તોડો;
+  સ્થિતિ WSAENETDOWN:
     p = "Network down";
-    break;
-  case WSAENETUNREACH:
+    તોડો;
+  સ્થિતિ WSAENETUNREACH:
     p = "Network unreachable";
-    break;
-  case WSAENETRESET:
+    તોડો;
+  સ્થિતિ WSAENETRESET:
     p = "Network has been reset";
-    break;
-  case WSAECONNABORTED:
+    તોડો;
+  સ્થિતિ WSAECONNABORTED:
     p = "Connection was aborted";
-    break;
-  case WSAECONNRESET:
+    તોડો;
+  સ્થિતિ WSAECONNRESET:
     p = "Connection was reset";
-    break;
-  case WSAENOBUFS:
+    તોડો;
+  સ્થિતિ WSAENOBUFS:
     p = "No buffer space";
-    break;
-  case WSAEISCONN:
+    તોડો;
+  સ્થિતિ WSAEISCONN:
     p = "Socket is already connected";
-    break;
-  case WSAENOTCONN:
+    તોડો;
+  સ્થિતિ WSAENOTCONN:
     p = "Socket is not connected";
-    break;
-  case WSAESHUTDOWN:
+    તોડો;
+  સ્થિતિ WSAESHUTDOWN:
     p = "Socket has been shut down";
-    break;
-  case WSAETOOMANYREFS:
+    તોડો;
+  સ્થિતિ WSAETOOMANYREFS:
     p = "Too many references";
-    break;
-  case WSAETIMEDOUT:
+    તોડો;
+  સ્થિતિ WSAETIMEDOUT:
     p = "Timed out";
-    break;
-  case WSAECONNREFUSED:
+    તોડો;
+  સ્થિતિ WSAECONNREFUSED:
     p = "Connection refused";
-    break;
-  case WSAELOOP:
+    તોડો;
+  સ્થિતિ WSAELOOP:
     p = "Loop??";
-    break;
-  case WSAENAMETOOLONG:
+    તોડો;
+  સ્થિતિ WSAENAMETOOLONG:
     p = "Name too long";
-    break;
-  case WSAEHOSTDOWN:
+    તોડો;
+  સ્થિતિ WSAEHOSTDOWN:
     p = "Host down";
-    break;
-  case WSAEHOSTUNREACH:
+    તોડો;
+  સ્થિતિ WSAEHOSTUNREACH:
     p = "Host unreachable";
-    break;
-  case WSAENOTEMPTY:
+    તોડો;
+  સ્થિતિ WSAENOTEMPTY:
     p = "Not empty";
-    break;
-  case WSAEPROCLIM:
+    તોડો;
+  સ્થિતિ WSAEPROCLIM:
     p = "Process limit reached";
-    break;
-  case WSAEUSERS:
+    તોડો;
+  સ્થિતિ WSAEUSERS:
     p = "Too many users";
-    break;
-  case WSAEDQUOT:
+    તોડો;
+  સ્થિતિ WSAEDQUOT:
     p = "Bad quota";
-    break;
-  case WSAESTALE:
+    તોડો;
+  સ્થિતિ WSAESTALE:
     p = "Something is stale";
-    break;
-  case WSAEREMOTE:
+    તોડો;
+  સ્થિતિ WSAEREMOTE:
     p = "Remote error";
-    break;
-  case WSAEDISCON:
+    તોડો;
+  સ્થિતિ WSAEDISCON:
     p = "Disconnected";
-    break;
+    તોડો;
     /* Extended Winsock errors */
-  case WSASYSNOTREADY:
+  સ્થિતિ WSASYSNOTREADY:
     p = "Winsock library is not ready";
-    break;
-  case WSANOTINITIALISED:
+    તોડો;
+  સ્થિતિ WSANOTINITIALISED:
     p = "Winsock library not initialized";
-    break;
-  case WSAVERNOTSUPPORTED:
+    તોડો;
+  સ્થિતિ WSAVERNOTSUPPORTED:
     p = "Winsock version not supported";
-    break;
+    તોડો;
 
     /* getXbyY() errors (already handled in herrmsg):
      * Authoritative Answer: Host not found */
-  case WSAHOST_NOT_FOUND:
+  સ્થિતિ WSAHOST_NOT_FOUND:
     p = "Host not found";
-    break;
+    તોડો;
 
     /* Non-Authoritative: Host not found, or SERVERFAIL */
-  case WSATRY_AGAIN:
+  સ્થિતિ WSATRY_AGAIN:
     p = "Host not found, try again";
-    break;
+    તોડો;
 
     /* Non recoverable errors, FORMERR, REFUSED, NOTIMP */
-  case WSANO_RECOVERY:
+  સ્થિતિ WSANO_RECOVERY:
     p = "Unrecoverable error in call to nameserver";
-    break;
+    તોડો;
 
     /* Valid name, no data record of requested type */
-  case WSANO_DATA:
+  સ્થિતિ WSANO_DATA:
     p = "No data record of requested type";
-    break;
+    તોડો;
 
-  default:
-    return NULL;
+  મૂળભૂત:
+    પાછા ખાલી;
   }
   curlx_strcopy(buf, len, p, strlen(p));
-  return buf;
+  પાછા buf;
 #endif
 }
 #endif /* USE_WINSOCK */
@@ -245,16 +245,16 @@ static const char *get_winsock_error(int err, char *buf, size_t len)
  * Call Curl_sspi_strerror if the error code is definitely Windows SSPI.
  * Call curlx_winapi_strerror if the error code is definitely Windows API.
  */
-const char *curlx_strerror(int err, char *buf, size_t buflen)
+અચલ અક્ષર *curlx_strerror(પૂર્ણાંક err, અક્ષર *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
-  char *p;
+  પૂર્ણાંક old_errno = errno;
+  અક્ષર *p;
 
-  if(!buflen)
-    return NULL;
+  જો(!buflen)
+    પાછા ખાલી;
 
 #ifndef _WIN32
   DEBUGASSERT(err >= 0);
@@ -263,46 +263,46 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
   *buf = '\0';
 
 #ifdef _WIN32
-  if((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
+  જો((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
 #ifdef USE_WINSOCK
      !get_winsock_error(err, buf, buflen) &&
 #endif
      !curlx_get_winapi_error((DWORD)err, buf, buflen))
-    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned int)err);
-#else /* !_WIN32 */
+    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned પૂર્ણાંક)err);
+#નહીંતર /* !_WIN32 */
 
-#if defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
+#જો defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
   /*
    * The POSIX-style strerror_r() may set errno to ERANGE if insufficient
    * storage is supplied via 'strerrbuf' and 'buflen' to hold the generated
    * message string, or EINVAL if 'errnum' is not a valid error number.
    */
-  if(strerror_r(err, buf, buflen) &&
-     buflen > sizeof("Unknown error ") + 20) {
-    if(buf[0] == '\0')
+  જો(strerror_r(err, buf, buflen) &&
+     buflen > કદ("Unknown error ") + 20) {
+    જો(buf[0] == '\0')
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#elif defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
+#અથવાજો defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
   /*
    * The glibc-style strerror_r() only *might* use the buffer we pass to
    * the function, but it always returns the error message as a pointer,
    * so we must copy that string unconditionally (if non-NULL).
    */
   {
-    char buffer[256];
-    const char *msg = strerror_r(err, buffer, sizeof(buffer));
-    if(msg && buflen > 1)
-      SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    અક્ષર buffer[256];
+    અચલ અક્ષર *સંદેશ = strerror_r(err, buffer, કદ(buffer));
+    જો(સંદેશ && buflen > 1)
+      SNPRINTF(buf, buflen, "%s", સંદેશ);
+    નહીંતર જો(buflen > કદ("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#else
+#નહીંતર
   {
     /* !checksrc! disable BANNEDFUNC 1 */
-    const char *msg = strerror(err);
-    if(msg && buflen > 1)
-      SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    અચલ અક્ષર *સંદેશ = strerror(err);
+    જો(સંદેશ && buflen > 1)
+      SNPRINTF(buf, buflen, "%s", સંદેશ);
+    નહીંતર જો(buflen > કદ("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
 #endif
@@ -311,19 +311,19 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
 
   /* strip trailing '\r\n' or '\n'. */
   p = strrchr(buf, '\n');
-  if(p && (p - buf) >= 2)
+  જો(p && (p - buf) >= 2)
     *p = '\0';
   p = strrchr(buf, '\r');
-  if(p && (p - buf) >= 1)
+  જો(p && (p - buf) >= 1)
     *p = '\0';
 
-  if(errno != old_errno)
+  જો(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  જો(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  પાછા buf;
 }

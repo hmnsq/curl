@@ -24,19 +24,19 @@
  * RFC7616 DIGEST-SHA256, DIGEST-SHA512-256 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
 
-#include "vauth/vauth.h"
-#include "vauth/digest.h"
-#include "curlx/base64.h"
-#include "curl_md5.h"
-#include "curl_sha256.h"
-#include "curl_sha512_256.h"
-#include "curlx/strparse.h"
-#include "rand.h"
-#include "escape.h"
+#અન્તર્ભાવ "vauth/vauth.h"
+#અન્તર્ભાવ "vauth/digest.h"
+#અન્તર્ભાવ "curlx/base64.h"
+#અન્તર્ભાવ "curl_md5.h"
+#અન્તર્ભાવ "curl_sha256.h"
+#અન્તર્ભાવ "curl_sha512_256.h"
+#અન્તર્ભાવ "curlx/strparse.h"
+#અન્તર્ભાવ "rand.h"
+#અન્તર્ભાવ "escape.h"
 
 #ifndef USE_WINDOWS_SSPI
 #define SESSION_ALGO 1 /* for algos with this bit set */
@@ -48,76 +48,76 @@
 #define ALGO_SHA512_256 4
 #define ALGO_SHA512_256SESS (ALGO_SHA512_256 | SESSION_ALGO)
 
-#define DIGEST_QOP_VALUE_AUTH             (1 << 0)
-#define DIGEST_QOP_VALUE_AUTH_INT         (1 << 1)
-#define DIGEST_QOP_VALUE_AUTH_CONF        (1 << 2)
+#define DIGEST_QOP_કિંમત_AUTH             (1 << 0)
+#define DIGEST_QOP_કિંમત_AUTH_INT         (1 << 1)
+#define DIGEST_QOP_કિંમત_AUTH_CONF        (1 << 2)
 
-#define DIGEST_QOP_VALUE_STRING_AUTH      "auth"
-#define DIGEST_QOP_VALUE_STRING_AUTH_INT  "auth-int"
-#define DIGEST_QOP_VALUE_STRING_AUTH_CONF "auth-conf"
+#define DIGEST_QOP_કિંમત_STRING_AUTH      "auth"
+#define DIGEST_QOP_કિંમત_STRING_AUTH_INT  "auth-int"
+#define DIGEST_QOP_કિંમત_STRING_AUTH_CONF "auth-conf"
 #endif
 
-bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
-                               char *content, const char **endptr)
+bool Curl_auth_digest_get_pair(અચલ અક્ષર *str, સંરચના Curl_str *કિંમત,
+                               અક્ષર *content, અચલ અક્ષર **endptr)
 {
-  int c;
+  પૂર્ણાંક c;
   size_t content_length = 0;
   bool starts_with_quote = FALSE;
   bool escape = FALSE;
 
-  if(curlx_str_until(&str, value, DIGEST_MAX_VALUE_LENGTH, '=') ||
+  જો(curlx_str_until(&str, કિંમત, DIGEST_MAX_કિંમત_LENGTH, '=') ||
      curlx_str_single(&str, '='))
     /* eek, no match */
-    return FALSE;
+    પાછા FALSE;
 
-  if('\"' == *str) {
+  જો('\"' == *str) {
     /* This starts with a quote so it must end with one as well! */
     str++;
     starts_with_quote = TRUE;
   }
 
-  for(c = DIGEST_MAX_CONTENT_LENGTH; *str && c--; str++) {
-    if(!escape) {
-      switch(*str) {
-      case '\\':
-        if(starts_with_quote) {
+  માટે(c = DIGEST_MAX_CONTENT_LENGTH; *str && c--; str++) {
+    જો(!escape) {
+      પસંદગી(*str) {
+      સ્થિતિ '\\':
+        જો(starts_with_quote) {
           /* the start of an escaped quote */
           escape = TRUE;
-          continue;
+          ચાલુ;
         }
-        break;
+        તોડો;
 
-      case ',':
-        if(!starts_with_quote) {
+      સ્થિતિ ',':
+        જો(!starts_with_quote) {
           /* This signals the end of the content if we did not get a starting
              quote and then we do "sloppy" parsing */
           c = 0; /* the end */
-          continue;
+          ચાલુ;
         }
-        break;
+        તોડો;
 
-      case '\r':
-      case '\n':
+      સ્થિતિ '\r':
+      સ્થિતિ '\n':
         /* end of string */
-        if(starts_with_quote)
-          return FALSE; /* No closing quote */
+        જો(starts_with_quote)
+          પાછા FALSE; /* No closing quote */
         c = 0;
-        continue;
+        ચાલુ;
 
-      case '\"':
-        if(starts_with_quote) {
+      સ્થિતિ '\"':
+        જો(starts_with_quote) {
           /* end of string */
           c = 0;
-          continue;
+          ચાલુ;
         }
-        else
-          return FALSE;
+        નહીંતર
+          પાછા FALSE;
       }
     }
 
-    if(content_length >= DIGEST_MAX_CONTENT_LENGTH - 1) {
+    જો(content_length >= DIGEST_MAX_CONTENT_LENGTH - 1) {
       /* no room for this byte plus the terminator */
-      return FALSE;
+      પાછા FALSE;
     }
 
     escape = FALSE;
@@ -125,135 +125,135 @@ bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
     content_length++;
   }
 
-  if(escape)
-    return FALSE; /* No character after backslash */
+  જો(escape)
+    પાછા FALSE; /* No character after backslash */
 
   *content = 0;
   *endptr = str;
 
-  return TRUE;
+  પાછા TRUE;
 }
 
 #ifndef USE_WINDOWS_SSPI
 /* Convert MD5 chunk to RFC2617 (section 3.1.3) -suitable ASCII string */
-static void auth_digest_md5_to_ascii(
-  const unsigned char *source, /* 16 bytes */
-  unsigned char *dest)         /* 33 bytes */
+સ્થિર શૂન્ય auth_digest_md5_to_ascii(
+  અચલ unsigned અક્ષર *source, /* 16 bytes */
+  unsigned અક્ષર *dest)         /* 33 bytes */
 {
-  int i;
-  for(i = 0; i < 16; i++)
-    curl_msnprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
+  પૂર્ણાંક i;
+  માટે(i = 0; i < 16; i++)
+    curl_msnprintf((અક્ષર *)&dest[i * 2], 3, "%02x", source[i]);
 }
 
 /* Convert sha256 or SHA-512/256 chunk to RFC7616 -suitable ASCII string */
-static void auth_digest_sha256_to_ascii(
-  const unsigned char *source, /* 32 bytes */
-  unsigned char *dest)         /* 65 bytes */
+સ્થિર શૂન્ય auth_digest_sha256_to_ascii(
+  અચલ unsigned અક્ષર *source, /* 32 bytes */
+  unsigned અક્ષર *dest)         /* 65 bytes */
 {
-  int i;
-  for(i = 0; i < 32; i++)
-    curl_msnprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
+  પૂર્ણાંક i;
+  માટે(i = 0; i < 32; i++)
+    curl_msnprintf((અક્ષર *)&dest[i * 2], 3, "%02x", source[i]);
 }
 
 /* Perform quoted-string escaping as described in RFC2616 and its errata */
-static char *auth_digest_string_quoted(const char *s)
+સ્થિર અક્ષર *auth_digest_string_quoted(અચલ અક્ષર *s)
 {
-  struct dynbuf out;
+  સંરચના dynbuf out;
   curlx_dyn_init(&out, 2048);
-  if(!*s) /* for zero length input, make sure we return an empty string */
-    return curlx_strdup("");
-  while(*s) {
+  જો(!*s) /* for zero length input, make sure we return an empty string */
+    પાછા curlx_strdup("");
+  જ્યારે(*s) {
     CURLcode result;
-    if(*s == '"' || *s == '\\') {
+    જો(*s == '"' || *s == '\\') {
       result = curlx_dyn_addn(&out, "\\", 1);
-      if(!result)
+      જો(!result)
         result = curlx_dyn_addn(&out, s, 1);
     }
-    else if((*s < ' ') || (*s > 0x7e)) {
-      unsigned char buf[3] = { '%' };
-      Curl_hexbyte(&buf[1], (unsigned char)*s);
+    નહીંતર જો((*s < ' ') || (*s > 0x7e)) {
+      unsigned અક્ષર buf[3] = { '%' };
+      Curl_hexbyte(&buf[1], (unsigned અક્ષર)*s);
       result = curlx_dyn_addn(&out, buf, 3);
     }
-    else
+    નહીંતર
       result = curlx_dyn_addn(&out, s, 1);
-    if(result)
-      return NULL;
+    જો(result)
+      પાછા ખાલી;
     s++;
   }
-  return curlx_dyn_ptr(&out);
+  પાછા curlx_dyn_ptr(&out);
 }
 
 /* Retrieves the value for a corresponding key from the challenge string
  * returns TRUE if the key could be found, FALSE if it does not exist
  */
-static bool auth_digest_get_key_value(const char *chlg, const char *key,
-                                      char *buf, size_t buflen)
+સ્થિર bool auth_digest_get_ચાવી_કિંમત(અચલ અક્ષર *chlg, અચલ અક્ષર *ચાવી,
+                                      અક્ષર *buf, size_t buflen)
 {
   /* keyword=[value],keyword2=[value]
      The values may or may not be quoted.
    */
 
-  do {
-    struct Curl_str data;
-    struct Curl_str name;
+  કરો {
+    સંરચના Curl_str data;
+    સંરચના Curl_str name;
 
     curlx_str_passblanks(&chlg);
 
-    if(!curlx_str_until(&chlg, &name, 64, '=') &&
+    જો(!curlx_str_until(&chlg, &name, 64, '=') &&
        !curlx_str_single(&chlg, '=')) {
       /* this is the key, get the value, possibly quoted */
-      int rc = curlx_str_quotedword(&chlg, &data, 256);
-      if(rc == STRE_BEGQUOTE)
+      પૂર્ણાંક rc = curlx_str_quotedword(&chlg, &data, 256);
+      જો(rc == STRE_BEGQUOTE)
         /* try unquoted until comma */
         rc = curlx_str_until(&chlg, &data, 256, ',');
-      if(rc)
-        return FALSE; /* weird */
+      જો(rc)
+        પાછા FALSE; /* weird */
 
-      if(curlx_str_cmp(&name, key)) {
+      જો(curlx_str_cmp(&name, ચાવી)) {
         /* if this is our key, return the value */
         size_t len = curlx_strlen(&data);
-        const char *src = curlx_str(&data);
+        અચલ અક્ષર *src = curlx_str(&data);
         size_t i;
         size_t outlen = 0;
 
-        if(len >= buflen)
+        જો(len >= buflen)
           /* does not fit */
-          return FALSE;
+          પાછા FALSE;
 
-        for(i = 0; i < len; i++) {
-          if(src[i] == '\\' && i + 1 < len) {
+        માટે(i = 0; i < len; i++) {
+          જો(src[i] == '\\' && i + 1 < len) {
             i++; /* skip backslash */
           }
           buf[outlen++] = src[i];
         }
         buf[outlen] = 0;
-        return TRUE;
+        પાછા TRUE;
       }
-      if(curlx_str_single(&chlg, ','))
-        return FALSE;
+      જો(curlx_str_single(&chlg, ','))
+        પાછા FALSE;
     }
-    else /* odd syntax */
-      break;
-  } while(1);
+    નહીંતર /* odd syntax */
+      તોડો;
+  } જ્યારે(1);
 
-  return FALSE;
+  પાછા FALSE;
 }
 
-static void auth_digest_get_qop_values(const char *options, int *value)
+સ્થિર શૂન્ય auth_digest_get_qop_કિંમતો(અચલ અક્ષર *options, પૂર્ણાંક *કિંમત)
 {
-  struct Curl_str out;
+  સંરચના Curl_str out;
   /* Initialize the output */
-  *value = 0;
+  *કિંમત = 0;
 
-  while(!curlx_str_until(&options, &out, 32, ',')) {
-    if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
-      *value |= DIGEST_QOP_VALUE_AUTH;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_INT))
-      *value |= DIGEST_QOP_VALUE_AUTH_INT;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
-      *value |= DIGEST_QOP_VALUE_AUTH_CONF;
-    if(curlx_str_single(&options, ','))
-      break;
+  જ્યારે(!curlx_str_until(&options, &out, 32, ',')) {
+    જો(curlx_str_casecompare(&out, DIGEST_QOP_કિંમત_STRING_AUTH))
+      *કિંમત |= DIGEST_QOP_કિંમત_AUTH;
+    નહીંતર જો(curlx_str_casecompare(&out, DIGEST_QOP_કિંમત_STRING_AUTH_INT))
+      *કિંમત |= DIGEST_QOP_કિંમત_AUTH_INT;
+    નહીંતર જો(curlx_str_casecompare(&out, DIGEST_QOP_કિંમત_STRING_AUTH_CONF))
+      *કિંમત |= DIGEST_QOP_કિંમત_AUTH_CONF;
+    જો(curlx_str_single(&options, ','))
+      તોડો;
   }
 }
 
@@ -277,37 +277,37 @@ static void auth_digest_get_qop_values(const char *options, int *value)
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
-                                               char *nonce, size_t nlen,
-                                               char *realm, size_t rlen,
-                                               char *alg, size_t alen,
-                                               char *qop, size_t qlen)
+સ્થિર CURLcode auth_decode_digest_md5_message(અચલ સંરચના bufref *chlgref,
+                                               અક્ષર *nonce, size_t nlen,
+                                               અક્ષર *realm, size_t rlen,
+                                               અક્ષર *alg, size_t alen,
+                                               અક્ષર *qop, size_t qlen)
 {
-  const char *chlg = Curl_bufref_ptr(chlgref);
+  અચલ અક્ષર *chlg = Curl_bufref_ptr(chlgref);
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlgref))
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(!Curl_bufref_len(chlgref))
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve nonce string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "nonce", nonce, nlen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(!auth_digest_get_ચાવી_કિંમત(chlg, "nonce", nonce, nlen))
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve realm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "realm", realm, rlen)) {
+  જો(!auth_digest_get_ચાવી_કિંમત(chlg, "realm", realm, rlen)) {
     /* Challenge does not have a realm, set empty string [RFC2831] page 6 */
     *realm = '\0';
   }
 
   /* Retrieve algorithm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "algorithm", alg, alen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(!auth_digest_get_ચાવી_કિંમત(chlg, "algorithm", alg, alen))
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve qop-options string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "qop", qop, qlen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(!auth_digest_get_ચાવી_કિંમત(chlg, "qop", qop, qlen))
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
 /*
@@ -319,9 +319,9 @@ static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
  *
  * Returns TRUE as DIGEST as handled by libcurl.
  */
-bool Curl_auth_is_digest_supported(void)
+bool Curl_auth_is_digest_supported(શૂન્ય)
 {
-  return TRUE;
+  પાછા TRUE;
 }
 
 /*
@@ -341,148 +341,148 @@ bool Curl_auth_is_digest_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
-                                             const struct bufref *chlg,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_digest_md5_message(સંરચના Curl_easy *data,
+                                             અચલ સંરચના bufref *chlg,
+                                             સંરચના Curl_creds *creds,
+                                             અચલ અક્ષર *default_service,
+                                             સંરચના bufref *out)
 {
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  અચલ અક્ષર *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
   size_t i;
-  struct MD5_context *ctxt;
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  char *response = NULL;
-  unsigned char digest[MD5_DIGEST_LEN];
-  char HA1_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char HA2_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char resp_hash_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char nonce[64];
-  char realm[128];
-  char algorithm[64];
-  char qop_options[64];
-  int qop_values;
-  char cnonce[33];
-  char nonceCount[] = "00000001";
-  char method[]     = "AUTHENTICATE";
-  char qop[]        = DIGEST_QOP_VALUE_STRING_AUTH;
-  char *spn         = NULL;
-  char *qrealm;
-  char *qnonce;
-  char *quserp;
-  char *qspn;
+  સંરચના MD5_context *ctxt;
+  અચલ અક્ષર *userp = Curl_creds_user(creds);
+  અચલ અક્ષર *passwdp = Curl_creds_passwd(creds);
+  અક્ષર *response = ખાલી;
+  unsigned અક્ષર digest[MD5_DIGEST_LEN];
+  અક્ષર HA1_hex[(2 * MD5_DIGEST_LEN) + 1];
+  અક્ષર HA2_hex[(2 * MD5_DIGEST_LEN) + 1];
+  અક્ષર resp_hash_hex[(2 * MD5_DIGEST_LEN) + 1];
+  અક્ષર nonce[64];
+  અક્ષર realm[128];
+  અક્ષર algorithm[64];
+  અક્ષર qop_options[64];
+  પૂર્ણાંક qop_કિંમતો;
+  અક્ષર cnonce[33];
+  અક્ષર nonce_ગણતરી[] = "00000001";
+  અક્ષર method[]     = "AUTHENTICATE";
+  અક્ષર qop[]        = DIGEST_QOP_કિંમત_STRING_AUTH;
+  અક્ષર *spn         = ખાલી;
+  અક્ષર *qrealm;
+  અક્ષર *qnonce;
+  અક્ષર *quserp;
+  અક્ષર *qspn;
 
   /* Decode the challenge message */
   CURLcode result = auth_decode_digest_md5_message(chlg,
-                                                   nonce, sizeof(nonce),
-                                                   realm, sizeof(realm),
+                                                   nonce, કદ(nonce),
+                                                   realm, કદ(realm),
                                                    algorithm,
-                                                   sizeof(algorithm),
+                                                   કદ(algorithm),
                                                    qop_options,
-                                                   sizeof(qop_options));
-  if(result)
-    return result;
+                                                   કદ(qop_options));
+  જો(result)
+    પાછા result;
 
   /* We only support md5 sessions */
-  if(strcmp(algorithm, "md5-sess"))
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(strcmp(algorithm, "md5-sess"))
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
   /* Get the qop-values from the qop-options */
-  auth_digest_get_qop_values(qop_options, &qop_values);
+  auth_digest_get_qop_કિંમતો(qop_options, &qop_કિંમતો);
 
   /* We only support auth quality-of-protection */
-  if(!(qop_values & DIGEST_QOP_VALUE_AUTH))
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(!(qop_કિંમતો & DIGEST_QOP_કિંમત_AUTH))
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
   /* Generate 32 random hex chars, 32 bytes + 1 null-termination */
-  result = Curl_rand_hex(data, (unsigned char *)cnonce, sizeof(cnonce));
-  if(result)
-    return result;
+  result = Curl_rand_hex(data, (unsigned અક્ષર *)cnonce, કદ(cnonce));
+  જો(result)
+    પાછા result;
 
   /* Good so far, now calculate A1 and H(A1) according to RFC 2831 */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  જો(!ctxt)
+    પાછા CURLE_OUT_OF_MEMORY;
 
-  Curl_MD5_update(ctxt, (const unsigned char *)userp,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)userp,
                   curlx_uztoui(strlen(userp)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)realm,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)realm,
                   curlx_uztoui(strlen(realm)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)passwdp,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)passwdp,
                   curlx_uztoui(strlen(passwdp)));
   Curl_MD5_final(ctxt, digest);
 
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  જો(!ctxt)
+    પાછા CURLE_OUT_OF_MEMORY;
 
-  Curl_MD5_update(ctxt, (const unsigned char *)digest, MD5_DIGEST_LEN);
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)nonce,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)digest, MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)nonce,
                   curlx_uztoui(strlen(nonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)cnonce,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)cnonce,
                   curlx_uztoui(strlen(cnonce)));
   Curl_MD5_final(ctxt, digest);
 
   /* Convert calculated 16 octet hex into 32 bytes string */
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  માટે(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&HA1_hex[2 * i], 3, "%02x", digest[i]);
 
   /* Generate our SPN */
-  spn = Curl_auth_build_spn(service, data->state.origin->hostname, NULL);
-  if(!spn)
-    return CURLE_OUT_OF_MEMORY;
+  spn = Curl_auth_build_spn(service, data->state.origin->hostname, ખાલી);
+  જો(!spn)
+    પાછા CURLE_OUT_OF_MEMORY;
 
   /* Calculate H(A2) */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt) {
+  જો(!ctxt) {
     curlx_free(spn);
 
-    return CURLE_OUT_OF_MEMORY;
+    પાછા CURLE_OUT_OF_MEMORY;
   }
 
-  Curl_MD5_update(ctxt, (const unsigned char *)method,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)method,
                   curlx_uztoui(strlen(method)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)spn,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)spn,
                   curlx_uztoui(strlen(spn)));
   Curl_MD5_final(ctxt, digest);
 
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  માટે(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&HA2_hex[2 * i], 3, "%02x", digest[i]);
 
   /* Now calculate the response hash */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt) {
+  જો(!ctxt) {
     curlx_free(spn);
 
-    return CURLE_OUT_OF_MEMORY;
+    પાછા CURLE_OUT_OF_MEMORY;
   }
 
-  Curl_MD5_update(ctxt, (const unsigned char *)HA1_hex, 2 * MD5_DIGEST_LEN);
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)nonce,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)HA1_hex, 2 * MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)nonce,
                   curlx_uztoui(strlen(nonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
 
-  Curl_MD5_update(ctxt, (const unsigned char *)nonceCount,
-                  curlx_uztoui(strlen(nonceCount)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)cnonce,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)nonce_ગણતરી,
+                  curlx_uztoui(strlen(nonce_ગણતરી)));
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)cnonce,
                   curlx_uztoui(strlen(cnonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)qop,
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)qop,
                   curlx_uztoui(strlen(qop)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)":", 1);
 
-  Curl_MD5_update(ctxt, (const unsigned char *)HA2_hex, 2 * MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (અચલ unsigned અક્ષર *)HA2_hex, 2 * MD5_DIGEST_LEN);
   Curl_MD5_final(ctxt, digest);
 
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  માટે(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&resp_hash_hex[2 * i], 3, "%02x", digest[i]);
 
   /* escape double quotes and backslashes in the username, realm, nonce and
@@ -491,25 +491,25 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   qnonce = auth_digest_string_quoted(nonce);
   quserp = auth_digest_string_quoted(userp);
   qspn = auth_digest_string_quoted(spn);
-  if(qrealm && qnonce && quserp && qspn)
+  જો(qrealm && qnonce && quserp && qspn)
     /* Generate the response */
     response = curl_maprintf("username=\"%s\",realm=\"%s\",nonce=\"%s\","
                              "cnonce=\"%s\",nc=\"%s\",digest-uri=\"%s\","
                              "response=%s,qop=%s",
                              quserp, qrealm, qnonce,
-                             cnonce, nonceCount, qspn, resp_hash_hex, qop);
+                             cnonce, nonce_ગણતરી, qspn, resp_hash_hex, qop);
 
   curlx_free(qrealm);
   curlx_free(qnonce);
   curlx_free(quserp);
   curlx_free(spn);
   curlx_free(qspn);
-  if(!response)
-    return CURLE_OUT_OF_MEMORY;
+  જો(!response)
+    પાછા CURLE_OUT_OF_MEMORY;
 
   /* Return the response. */
   Curl_bufref_set(out, response, strlen(response), curl_free);
-  return result;
+  પાછા result;
 }
 
 /*
@@ -525,149 +525,149 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
-                                              struct digestdata *digest)
+CURLcode Curl_auth_decode_digest_http_message(અચલ અક્ષર *chlg,
+                                              સંરચના digestdata *digest)
 {
   bool before = FALSE; /* got a nonce before */
 
   /* If we already have received a nonce, keep that in mind */
-  if(digest->nonce)
+  જો(digest->nonce)
     before = TRUE;
 
   /* Clean up any former leftovers and initialize to defaults */
   Curl_auth_digest_cleanup(digest);
 
-  for(;;) {
-    struct Curl_str value;
-    char content[DIGEST_MAX_CONTENT_LENGTH];
+  માટે(;;) {
+    સંરચના Curl_str કિંમત;
+    અક્ષર content[DIGEST_MAX_CONTENT_LENGTH];
 
     /* Pass all additional spaces here */
     curlx_str_passblanks(&chlg);
 
     /* Extract a value=content pair */
-    if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-      if(curlx_str_casecompare(&value, "nonce")) {
+    જો(Curl_auth_digest_get_pair(chlg, &કિંમત, content, &chlg)) {
+      જો(curlx_str_casecompare(&કિંમત, "nonce")) {
         curlx_free(digest->nonce);
         digest->nonce = curlx_strdup(content);
-        if(!digest->nonce)
-          return CURLE_OUT_OF_MEMORY;
+        જો(!digest->nonce)
+          પાછા CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "stale")) {
-        if(curl_strequal(content, "true")) {
+      નહીંતર જો(curlx_str_casecompare(&કિંમત, "stale")) {
+        જો(curl_strequal(content, "true")) {
           digest->stale = TRUE;
           digest->nc = 1; /* we make a new nonce now */
         }
       }
-      else if(curlx_str_casecompare(&value, "realm")) {
+      નહીંતર જો(curlx_str_casecompare(&કિંમત, "realm")) {
         curlx_free(digest->realm);
         digest->realm = curlx_strdup(content);
-        if(!digest->realm)
-          return CURLE_OUT_OF_MEMORY;
+        જો(!digest->realm)
+          પાછા CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "opaque")) {
+      નહીંતર જો(curlx_str_casecompare(&કિંમત, "opaque")) {
         curlx_free(digest->opaque);
         digest->opaque = curlx_strdup(content);
-        if(!digest->opaque)
-          return CURLE_OUT_OF_MEMORY;
+        જો(!digest->opaque)
+          પાછા CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "qop")) {
-        const char *token = content;
-        struct Curl_str out;
+      નહીંતર જો(curlx_str_casecompare(&કિંમત, "qop")) {
+        અચલ અક્ષર *token = content;
+        સંરચના Curl_str out;
         bool foundAuth = FALSE;
         bool foundAuthInt = FALSE;
         /* Pass leading spaces */
         curlx_str_passblanks(&token);
 
-        while(!curlx_str_until(&token, &out, 32, ',')) {
-          if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
+        જ્યારે(!curlx_str_until(&token, &out, 32, ',')) {
+          જો(curlx_str_casecompare(&out, DIGEST_QOP_કિંમત_STRING_AUTH))
             foundAuth = TRUE;
-          else if(curlx_str_casecompare(&out,
-                                        DIGEST_QOP_VALUE_STRING_AUTH_INT))
+          નહીંતર જો(curlx_str_casecompare(&out,
+                                        DIGEST_QOP_કિંમત_STRING_AUTH_INT))
             foundAuthInt = TRUE;
-          if(curlx_str_single(&token, ','))
-            break;
+          જો(curlx_str_single(&token, ','))
+            તોડો;
           curlx_str_passblanks(&token);
         }
 
         /* Select only auth or auth-int. Otherwise, ignore */
-        if(foundAuth) {
+        જો(foundAuth) {
           curlx_free(digest->qop);
-          digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH);
-          if(!digest->qop)
-            return CURLE_OUT_OF_MEMORY;
+          digest->qop = curlx_strdup(DIGEST_QOP_કિંમત_STRING_AUTH);
+          જો(!digest->qop)
+            પાછા CURLE_OUT_OF_MEMORY;
         }
-        else if(foundAuthInt) {
+        નહીંતર જો(foundAuthInt) {
           curlx_free(digest->qop);
-          digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH_INT);
-          if(!digest->qop)
-            return CURLE_OUT_OF_MEMORY;
+          digest->qop = curlx_strdup(DIGEST_QOP_કિંમત_STRING_AUTH_INT);
+          જો(!digest->qop)
+            પાછા CURLE_OUT_OF_MEMORY;
         }
       }
-      else if(curlx_str_casecompare(&value, "algorithm")) {
+      નહીંતર જો(curlx_str_casecompare(&કિંમત, "algorithm")) {
         curlx_free(digest->algorithm);
         digest->algorithm = curlx_strdup(content);
-        if(!digest->algorithm)
-          return CURLE_OUT_OF_MEMORY;
+        જો(!digest->algorithm)
+          પાછા CURLE_OUT_OF_MEMORY;
 
-        if(curl_strequal(content, "MD5-sess"))
+        જો(curl_strequal(content, "MD5-sess"))
           digest->algo = ALGO_MD5SESS;
-        else if(curl_strequal(content, "MD5"))
+        નહીંતર જો(curl_strequal(content, "MD5"))
           digest->algo = ALGO_MD5;
-        else if(curl_strequal(content, "SHA-256"))
+        નહીંતર જો(curl_strequal(content, "SHA-256"))
           digest->algo = ALGO_SHA256;
-        else if(curl_strequal(content, "SHA-256-SESS"))
+        નહીંતર જો(curl_strequal(content, "SHA-256-SESS"))
           digest->algo = ALGO_SHA256SESS;
-        else if(curl_strequal(content, "SHA-512-256")) {
+        નહીંતર જો(curl_strequal(content, "SHA-512-256")) {
 #ifdef CURL_HAVE_SHA512_256
           digest->algo = ALGO_SHA512_256;
-#else /* !CURL_HAVE_SHA512_256 */
-          return CURLE_NOT_BUILT_IN;
+#નહીંતર /* !CURL_HAVE_SHA512_256 */
+          પાછા CURLE_NOT_BUILT_IN;
 #endif /* CURL_HAVE_SHA512_256 */
         }
-        else if(curl_strequal(content, "SHA-512-256-SESS")) {
+        નહીંતર જો(curl_strequal(content, "SHA-512-256-SESS")) {
 #ifdef CURL_HAVE_SHA512_256
           digest->algo = ALGO_SHA512_256SESS;
-#else /* !CURL_HAVE_SHA512_256 */
-          return CURLE_NOT_BUILT_IN;
+#નહીંતર /* !CURL_HAVE_SHA512_256 */
+          પાછા CURLE_NOT_BUILT_IN;
 #endif /* CURL_HAVE_SHA512_256 */
         }
-        else
-          return CURLE_BAD_CONTENT_ENCODING;
+        નહીંતર
+          પાછા CURLE_BAD_CONTENT_ENCODING;
       }
-      else if(curlx_str_casecompare(&value, "userhash")) {
-        if(curl_strequal(content, "true")) {
+      નહીંતર જો(curlx_str_casecompare(&કિંમત, "userhash")) {
+        જો(curl_strequal(content, "true")) {
           digest->userhash = TRUE;
         }
       }
-      else {
+      નહીંતર {
         /* Unknown specifier, ignore it! */
       }
     }
-    else
-      break; /* We are done here */
+    નહીંતર
+      તોડો; /* We are done here */
 
     /* Pass all additional spaces here */
     curlx_str_passblanks(&chlg);
 
     /* Allow the list to be comma-separated */
-    (void)curlx_str_single(&chlg, ',');
+    (શૂન્ય)curlx_str_single(&chlg, ',');
   }
 
   /* We had a nonce since before, and we got another one now without
      'stale=true'. This means we provided bad credentials in the previous
      request */
-  if(before && !digest->stale)
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(before && !digest->stale)
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
   /* We got this header without a nonce, that is a bad Digest line! */
-  if(!digest->nonce)
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(!digest->nonce)
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
   /* "<algo>-sess" protocol versions require "auth" or "auth-int" qop */
-  if(!digest->qop && (digest->algo & SESSION_ALGO))
-    return CURLE_BAD_CONTENT_ENCODING;
+  જો(!digest->qop && (digest->algo & SESSION_ALGO))
+    પાછા CURLE_BAD_CONTENT_ENCODING;
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
 /*
@@ -689,70 +689,70 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode auth_create_digest_http_message(
-  struct Curl_easy *data,
-  struct Curl_creds *creds,
-  const unsigned char *request,
-  const unsigned char *uripath,
-  struct digestdata *digest,
-  char **outptr, size_t *outlen,
-  void (*convert_to_ascii)(const unsigned char *, unsigned char *),
-  CURLcode (*hash)(unsigned char *, const unsigned char *, const size_t))
+સ્થિર CURLcode auth_create_digest_http_message(
+  સંરચના Curl_easy *data,
+  સંરચના Curl_creds *creds,
+  અચલ unsigned અક્ષર *request,
+  અચલ unsigned અક્ષર *uripath,
+  સંરચના digestdata *digest,
+  અક્ષર **outptr, size_t *outlen,
+  શૂન્ય (*convert_to_ascii)(અચલ unsigned અક્ષર *, unsigned અક્ષર *),
+  CURLcode (*hash)(unsigned અક્ષર *, અચલ unsigned અક્ષર *, અચલ size_t))
 {
   CURLcode result;
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  unsigned char hashbuf[32]; /* 32 bytes/256 bits */
-  unsigned char request_digest[65];
-  unsigned char ha1[65];    /* 64 digits and 1 zero byte */
-  unsigned char ha2[65];    /* 64 digits and 1 zero byte */
-  char userh[65];
-  char *cnonce = NULL;
+  અચલ અક્ષર *userp = Curl_creds_user(creds);
+  અચલ અક્ષર *passwdp = Curl_creds_passwd(creds);
+  unsigned અક્ષર hashbuf[32]; /* 32 bytes/256 bits */
+  unsigned અક્ષર request_digest[65];
+  unsigned અક્ષર ha1[65];    /* 64 digits and 1 zero byte */
+  unsigned અક્ષર ha2[65];    /* 64 digits and 1 zero byte */
+  અક્ષર userh[65];
+  અક્ષર *cnonce = ખાલી;
   size_t cnonce_sz = 0;
-  char *userp_quoted = NULL;
-  char *realm_quoted = NULL;
-  char *nonce_quoted = NULL;
-  char *hashthis = NULL;
-  char *uri_quoted = NULL;
-  struct dynbuf response;
-  *outptr = NULL;
+  અક્ષર *userp_quoted = ખાલી;
+  અક્ષર *realm_quoted = ખાલી;
+  અક્ષર *nonce_quoted = ખાલી;
+  અક્ષર *hashthis = ખાલી;
+  અક્ષર *uri_quoted = ખાલી;
+  સંરચના dynbuf response;
+  *outptr = ખાલી;
 
   curlx_dyn_init(&response, 4096); /* arbitrary max */
 
-  memset(hashbuf, 0, sizeof(hashbuf));
-  if(!digest->nc)
+  memset(hashbuf, 0, કદ(hashbuf));
+  જો(!digest->nc)
     digest->nc = 1;
 
-  if(!digest->cnonce) {
-    char cnoncebuf[12];
+  જો(!digest->cnonce) {
+    અક્ષર cnoncebuf[12];
     result = Curl_rand_bytes(data,
 #ifdef DEBUGBUILD
                              TRUE,
 #endif
-                             (unsigned char *)cnoncebuf,
-                             sizeof(cnoncebuf));
-    if(!result)
-      result = curlx_base64_encode((uint8_t *)cnoncebuf, sizeof(cnoncebuf),
+                             (unsigned અક્ષર *)cnoncebuf,
+                             કદ(cnoncebuf));
+    જો(!result)
+      result = curlx_base64_encode((uint8_t *)cnoncebuf, કદ(cnoncebuf),
                                    &cnonce, &cnonce_sz);
-    if(result)
-      goto oom;
+    જો(result)
+      જાઓ oom;
 
     digest->cnonce = cnonce;
   }
 
-  if(digest->userhash) {
-    char *hasht = curl_maprintf("%s:%s", userp,
+  જો(digest->userhash) {
+    અક્ષર *hasht = curl_maprintf("%s:%s", userp,
                                 digest->realm ? digest->realm : "");
-    if(!hasht) {
+    જો(!hasht) {
       result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+      જાઓ oom;
     }
 
-    result = hash(hashbuf, (unsigned char *)hasht, strlen(hasht));
+    result = hash(hashbuf, (unsigned અક્ષર *)hasht, strlen(hasht));
     curlx_free(hasht);
-    if(result)
-      goto oom;
-    convert_to_ascii(hashbuf, (unsigned char *)userh);
+    જો(result)
+      જાઓ oom;
+    convert_to_ascii(hashbuf, (unsigned અક્ષર *)userh);
   }
 
   /* If the algorithm is "MD5" or unspecified (which then defaults to MD5):
@@ -767,29 +767,29 @@ static CURLcode auth_create_digest_http_message(
 
   hashthis = curl_maprintf("%s:%s:%s", userp, digest->realm ?
                            digest->realm : "", passwdp);
-  if(!hashthis) {
+  જો(!hashthis) {
     result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+    જાઓ oom;
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  result = hash(hashbuf, (unsigned અક્ષર *)hashthis, strlen(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
+  જો(result)
+    જાઓ oom;
   convert_to_ascii(hashbuf, ha1);
 
-  if(digest->algo & SESSION_ALGO) {
+  જો(digest->algo & SESSION_ALGO) {
     /* nonce and cnonce are OUTSIDE the hash */
-    char *tmp = curl_maprintf("%s:%s:%s", ha1, digest->nonce, digest->cnonce);
-    if(!tmp) {
+    અક્ષર *tmp = curl_maprintf("%s:%s:%s", ha1, digest->nonce, digest->cnonce);
+    જો(!tmp) {
       result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+      જાઓ oom;
     }
 
-    result = hash(hashbuf, (unsigned char *)tmp, strlen(tmp));
+    result = hash(hashbuf, (unsigned અક્ષર *)tmp, strlen(tmp));
     curlx_free(tmp);
-    if(result)
-      goto oom;
+    જો(result)
+      જાઓ oom;
     convert_to_ascii(hashbuf, ha1);
   }
 
@@ -805,61 +805,61 @@ static CURLcode auth_create_digest_http_message(
      5.1.1 of RFC 2616)
    */
 
-  uri_quoted = auth_digest_string_quoted((const char *)uripath);
-  if(!uri_quoted) {
+  uri_quoted = auth_digest_string_quoted((અચલ અક્ષર *)uripath);
+  જો(!uri_quoted) {
     result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+    જાઓ oom;
   }
 
   hashthis = curl_maprintf("%s:%s", request, uripath);
-  if(!hashthis) {
+  જો(!hashthis) {
     result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+    જાઓ oom;
   }
 
-  if(digest->qop && curl_strequal(digest->qop, "auth-int")) {
+  જો(digest->qop && curl_strequal(digest->qop, "auth-int")) {
     /* We do not support auth-int for PUT or POST */
-    char hashed[65];
-    char *hashthis2;
+    અક્ષર hashed[65];
+    અક્ષર *hashthis2;
 
-    result = hash(hashbuf, (const unsigned char *)"", 0);
-    if(result) {
+    result = hash(hashbuf, (અચલ unsigned અક્ષર *)"", 0);
+    જો(result) {
       curlx_free(hashthis);
-      goto oom;
+      જાઓ oom;
     }
-    convert_to_ascii(hashbuf, (unsigned char *)hashed);
+    convert_to_ascii(hashbuf, (unsigned અક્ષર *)hashed);
 
     hashthis2 = curl_maprintf("%s:%s", hashthis, hashed);
     curlx_free(hashthis);
     hashthis = hashthis2;
-    if(!hashthis) {
+    જો(!hashthis) {
       result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+      જાઓ oom;
     }
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  result = hash(hashbuf, (unsigned અક્ષર *)hashthis, strlen(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
+  જો(result)
+    જાઓ oom;
   convert_to_ascii(hashbuf, ha2);
 
-  if(digest->qop)
+  જો(digest->qop)
     hashthis = curl_maprintf("%s:%s:%08x:%s:%s:%s", ha1, digest->nonce,
-                             (unsigned int)digest->nc, digest->cnonce,
+                             (unsigned પૂર્ણાંક)digest->nc, digest->cnonce,
                              digest->qop, ha2);
-  else
+  નહીંતર
     hashthis = curl_maprintf("%s:%s:%s", ha1, digest->nonce, ha2);
 
-  if(!hashthis) {
+  જો(!hashthis) {
     result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+    જાઓ oom;
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  result = hash(hashbuf, (unsigned અક્ષર *)hashthis, strlen(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
+  જો(result)
+    જાઓ oom;
   convert_to_ascii(hashbuf, request_digest);
 
   /* For test case 64 (snooped from a Mozilla 1.3a request)
@@ -876,29 +876,29 @@ static CURLcode auth_create_digest_http_message(
      characters.
    */
   userp_quoted = auth_digest_string_quoted(digest->userhash ? userh : userp);
-  if(!userp_quoted) {
+  જો(!userp_quoted) {
     result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+    જાઓ oom;
   }
-  if(digest->realm)
+  જો(digest->realm)
     realm_quoted = auth_digest_string_quoted(digest->realm);
-  else {
+  નહીંતર {
     realm_quoted = curlx_malloc(1);
-    if(realm_quoted)
+    જો(realm_quoted)
       realm_quoted[0] = 0;
   }
-  if(!realm_quoted) {
+  જો(!realm_quoted) {
     result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+    જાઓ oom;
   }
 
   nonce_quoted = auth_digest_string_quoted(digest->nonce);
-  if(!nonce_quoted) {
+  જો(!nonce_quoted) {
     result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+    જાઓ oom;
   }
 
-  if(digest->qop) {
+  જો(digest->qop) {
     result = curlx_dyn_addf(&response, "username=\"%s\", "
                             "realm=\"%s\", "
                             "nonce=\"%s\", "
@@ -912,14 +912,14 @@ static CURLcode auth_create_digest_http_message(
                             nonce_quoted,
                             uri_quoted,
                             digest->cnonce,
-                            (unsigned int)digest->nc,
+                            (unsigned પૂર્ણાંક)digest->nc,
                             digest->qop,
                             request_digest);
 
     /* Increment nonce-count to use another nc value for the next request */
     digest->nc++;
   }
-  else {
+  નહીંતર {
     result = curlx_dyn_addf(&response, "username=\"%s\", "
                             "realm=\"%s\", "
                             "nonce=\"%s\", "
@@ -931,35 +931,35 @@ static CURLcode auth_create_digest_http_message(
                             uri_quoted,
                             request_digest);
   }
-  if(result)
-    goto oom;
+  જો(result)
+    જાઓ oom;
 
   /* Add the optional fields */
-  if(digest->opaque) {
+  જો(digest->opaque) {
     /* Append the opaque */
-    char *opaque_quoted = auth_digest_string_quoted(digest->opaque);
-    if(!opaque_quoted) {
+    અક્ષર *opaque_quoted = auth_digest_string_quoted(digest->opaque);
+    જો(!opaque_quoted) {
       result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+      જાઓ oom;
     }
     result = curlx_dyn_addf(&response, ", opaque=\"%s\"", opaque_quoted);
     curlx_free(opaque_quoted);
-    if(result)
-      goto oom;
+    જો(result)
+      જાઓ oom;
   }
 
-  if(digest->algorithm) {
+  જો(digest->algorithm) {
     /* Append the algorithm */
     result = curlx_dyn_addf(&response, ", algorithm=%s", digest->algorithm);
-    if(result)
-      goto oom;
+    જો(result)
+      જાઓ oom;
   }
 
-  if(digest->userhash) {
+  જો(digest->userhash) {
     /* Append the userhash */
     result = curlx_dyn_add(&response, ", userhash=true");
-    if(result)
-      goto oom;
+    જો(result)
+      જાઓ oom;
   }
 
   /* Return the output */
@@ -972,9 +972,9 @@ oom:
   curlx_free(realm_quoted);
   curlx_free(uri_quoted);
   curlx_free(userp_quoted);
-  if(result)
+  જો(result)
     curlx_dyn_free(&response);
-  return result;
+  પાછા result;
 }
 
 /*
@@ -997,29 +997,29 @@ oom:
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const unsigned char *request,
-                                              const unsigned char *uripath,
-                                              struct digestdata *digest,
-                                              char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_digest_http_message(સંરચના Curl_easy *data,
+                                              સંરચના Curl_creds *creds,
+                                              અચલ unsigned અક્ષર *request,
+                                              અચલ unsigned અક્ષર *uripath,
+                                              સંરચના digestdata *digest,
+                                              અક્ષર **outptr, size_t *outlen)
 {
-  if(digest->algo <= ALGO_MD5SESS)
-    return auth_create_digest_http_message(data, creds,
+  જો(digest->algo <= ALGO_MD5SESS)
+    પાછા auth_create_digest_http_message(data, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
                                            auth_digest_md5_to_ascii,
                                            Curl_md5it);
 
-  if(digest->algo <= ALGO_SHA256SESS)
-    return auth_create_digest_http_message(data, creds,
+  જો(digest->algo <= ALGO_SHA256SESS)
+    પાછા auth_create_digest_http_message(data, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
                                            auth_digest_sha256_to_ascii,
                                            Curl_sha256it);
 #ifdef CURL_HAVE_SHA512_256
-  if(digest->algo <= ALGO_SHA512_256SESS)
-    return auth_create_digest_http_message(data, creds,
+  જો(digest->algo <= ALGO_SHA512_256SESS)
+    પાછા auth_create_digest_http_message(data, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
                                            auth_digest_sha256_to_ascii,
@@ -1027,7 +1027,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
 #endif /* CURL_HAVE_SHA512_256 */
 
   /* Should be unreachable */
-  return CURLE_BAD_CONTENT_ENCODING;
+  પાછા CURLE_BAD_CONTENT_ENCODING;
 }
 
 /*
@@ -1040,7 +1040,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
  * digest    [in/out] - The digest data struct being cleaned up.
  *
  */
-void Curl_auth_digest_cleanup(struct digestdata *digest)
+શૂન્ય Curl_auth_digest_cleanup(સંરચના digestdata *digest)
 {
   Curl_peer_unlink(&digest->origin);
   Curl_creds_unlink(&digest->creds);

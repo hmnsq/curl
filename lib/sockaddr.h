@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-struct Curl_sockaddr_storage {
-  union {
-    struct sockaddr sa;
-    struct sockaddr_in sa_in;
+સંરચના Curl_sockaddr_storage {
+  સંઘ {
+    સંરચના sockaddr sa;
+    સંરચના sockaddr_in sa_in;
 #ifdef USE_IPV6
-    struct sockaddr_in6 sa_in6;
+    સંરચના sockaddr_in6 sa_in6;
 #endif
 #ifdef HAVE_STRUCT_SOCKADDR_STORAGE
-    struct sockaddr_storage sa_stor;
-#else
-    char cbuf[256];   /* this should be big enough to fit a lot */
+    સંરચના sockaddr_storage sa_stor;
+#નહીંતર
+    અક્ષર cbuf[256];   /* this should be big enough to fit a lot */
 #endif
   } buffer;
 };
@@ -47,14 +47,14 @@ struct Curl_sockaddr_storage {
  * used to pass / receive data to/from the fopensocket callback if this has
  * been set, before that, it is initialized from parameters.
  */
-struct Curl_sockaddr_ex {
-  int family;
-  int socktype;
-  int protocol;
-  unsigned int addrlen;
-  union {
-    struct sockaddr sa;
-    struct Curl_sockaddr_storage buf;
+સંરચના Curl_sockaddr_ex {
+  પૂર્ણાંક family;
+  પૂર્ણાંક socktype;
+  પૂર્ણાંક protocol;
+  unsigned પૂર્ણાંક addrlen;
+  સંઘ {
+    સંરચના sockaddr sa;
+    સંરચના Curl_sockaddr_storage buf;
   } addr;
 };
 

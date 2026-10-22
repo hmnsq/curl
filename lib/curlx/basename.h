@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifndef HAVE_BASENAME
-char *curlx_basename(char *path);
-#else
+અક્ષર *curlx_basename(અક્ષર *path);
+#નહીંતર
 
 #ifdef HAVE_LIBGEN_H
-#include <libgen.h>
+#અન્તર્ભાવ <libgen.h>
 #endif
 
 #define curlx_basename(x) basename(x)

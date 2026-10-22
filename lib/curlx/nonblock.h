@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */);
+પૂર્ણાંક curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   પૂર્ણાંક nonblock   /* TRUE or FALSE */);
 
 #endif /* HEADER_CURL_NONBLOCK_H */

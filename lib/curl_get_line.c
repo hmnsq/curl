@@ -21,46 +21,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#જો !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
-#include "curl_get_line.h"
+#અન્તર્ભાવ "curl_get_line.h"
 
 /*
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_લીટી(સંરચના dynbuf *buf, FILE *આગત, bool *eof)
 {
   CURLcode result;
-  char buffer[128];
+  અક્ષર buffer[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  જ્યારે(1) {
     size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    અચલ અક્ષર *b = fgets(buffer, કદ(buffer), આગત);
+    જો(!b && ferror(આગત))
+      પાછા CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = feof(આગત);
 
     rlen = b ? strlen(b) : 0;
-    if(rlen) {
+    જો(rlen) {
       result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+      જો(result)
         /* too long line or out of memory */
-        return result;
+        પાછા result;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    જો(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      પાછા CURLE_OK; /* all good */
+    જો(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      પાછા curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */

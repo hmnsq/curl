@@ -24,21 +24,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_HTTPSIG) ||     \
+#જો !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_HTTPSIG) ||     \
   !defined(CURL_DISABLE_DIGEST_AUTH) ||                                 \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#include "curl_hmac.h"
+#અન્તર્ભાવ "curl_hmac.h"
 
-extern const struct HMAC_params Curl_HMAC_SHA256;
+બાહ્ય અચલ સંરચના HMAC_params Curl_HMAC_SHA256;
 
 #ifndef CURL_SHA256_DIGEST_LENGTH
 #define CURL_SHA256_DIGEST_LENGTH 32 /* fixed size */
 #endif
 
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(unsigned અક્ષર *output, અચલ unsigned અક્ષર *આગત,
                        size_t len);
 
 #endif

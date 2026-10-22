@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifdef USE_CURL_NTLM_CORE
 
 #define MD4_DIGEST_LENGTH 16
 
-CURLcode Curl_md4it(unsigned char *output, const unsigned char *input,
-                    const size_t len);
+CURLcode Curl_md4it(unsigned અક્ષર *output, અચલ unsigned અક્ષર *આગત,
+                    અચલ size_t len);
 
 #endif /* USE_CURL_NTLM_CORE */
 

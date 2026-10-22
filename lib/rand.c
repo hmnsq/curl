@@ -21,53 +21,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#અન્તર્ભાવ <arpa/inet.h>
 #endif
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "escape.h"
+#અન્તર્ભાવ "urldata.h"
+#અન્તર્ભાવ "vtls/vtls.h"
+#અન્તર્ભાવ "curl_trc.h"
+#અન્તર્ભાવ "rand.h"
+#અન્તર્ભાવ "escape.h"
 
-#include "curlx/winapi.h"
+#અન્તર્ભાવ "curlx/winapi.h"
 
 #ifndef USE_SSL
 /* ---- possibly non-cryptographic version following ---- */
-static CURLcode weak_random(struct Curl_easy *data,
-                            unsigned char *entropy,
+સ્થિર CURLcode weak_random(સંરચના Curl_easy *data,
+                            unsigned અક્ષર *entropy,
                             size_t length) /* always 4, size of int */
 {
-  unsigned int r;
-  DEBUGASSERT(length == sizeof(int));
+  unsigned પૂર્ણાંક r;
+  DEBUGASSERT(length == કદ(પૂર્ણાંક));
 
   /* Trying cryptographically secure functions first */
 #ifdef _WIN32
-  (void)data;
+  (શૂન્ય)data;
   {
     CURLcode result = curlx_win32_random(entropy, length);
-    if(result != CURLE_NOT_BUILT_IN)
-      return result;
+    જો(result != CURLE_NOT_BUILT_IN)
+      પાછા result;
   }
 #endif
 
 #ifdef HAVE_ARC4RANDOM
-  (void)data;
-  r = (unsigned int)arc4random();
+  (શૂન્ય)data;
+  r = (unsigned પૂર્ણાંક)arc4random();
   memcpy(entropy, &r, length);
-#else
+#નહીંતર
   infof(data, "WARNING: using weak random seed");
   {
-    static unsigned int randseed;
-    static bool seeded = FALSE;
-    unsigned int rnd;
-    if(!seeded) {
-      struct curltime now;
+    સ્થિર unsigned પૂર્ણાંક randseed;
+    સ્થિર bool seeded = FALSE;
+    unsigned પૂર્ણાંક rnd;
+    જો(!seeded) {
+      સંરચના curltime now;
       curlx_pnow(&now);
-      randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+      randseed += (unsigned પૂર્ણાંક)now.tv_usec + (unsigned પૂર્ણાંક)now.tv_sec;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
@@ -80,44 +80,44 @@ static CURLcode weak_random(struct Curl_easy *data,
     memcpy(entropy, &rnd, length);
   }
 #endif
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 #endif
 
-static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
+સ્થિર CURLcode randit(સંરચના Curl_easy *data, unsigned પૂર્ણાંક *rnd,
                        bool env_override)
 {
 #ifdef DEBUGBUILD
-  if(env_override) {
-    char *force_entropy = getenv("CURL_ENTROPY");
-    if(force_entropy) {
-      static unsigned int randseed;
-      static bool seeded = FALSE;
+  જો(env_override) {
+    અક્ષર *force_entropy = getenv("CURL_ENTROPY");
+    જો(force_entropy) {
+      સ્થિર unsigned પૂર્ણાંક randseed;
+      સ્થિર bool seeded = FALSE;
 
-      if(!seeded) {
-        unsigned int seed = 0;
+      જો(!seeded) {
+        unsigned પૂર્ણાંક seed = 0;
         size_t elen = strlen(force_entropy);
-        size_t clen = sizeof(seed);
+        size_t clen = કદ(seed);
         size_t min = elen < clen ? elen : clen;
-        memcpy((char *)&seed, force_entropy, min);
+        memcpy((અક્ષર *)&seed, force_entropy, min);
         randseed = ntohl(seed);
         seeded = TRUE;
       }
-      else
+      નહીંતર
         randseed++;
       *rnd = randseed;
-      return CURLE_OK;
+      પાછા CURLE_OK;
     }
   }
-#else
-  (void)env_override;
+#નહીંતર
+  (શૂન્ય)env_override;
 #endif
 
   /* data may be NULL! */
 #ifdef USE_SSL
-  return Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#else
-  return weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
+  પાછા Curl_ssl_random(data, (unsigned અક્ષર *)rnd, કદ(*rnd));
+#નહીંતર
+  પાછા weak_random(data, (unsigned અક્ષર *)rnd, કદ(*rnd));
 #endif
 }
 
@@ -136,36 +136,36 @@ static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
  *
  */
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
+CURLcode Curl_rand_bytes(સંરચના Curl_easy *data,
 #ifdef DEBUGBUILD
                          bool env_override,
 #endif
-                         unsigned char *rnd, size_t num)
+                         unsigned અક્ષર *rnd, size_t અંક)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 #ifndef DEBUGBUILD
-  const bool env_override = FALSE;
+  અચલ bool env_override = FALSE;
 #endif
 
-  DEBUGASSERT(num);
+  DEBUGASSERT(અંક);
 
-  while(num) {
-    unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+  જ્યારે(અંક) {
+    unsigned પૂર્ણાંક r;
+    size_t ડાબું = અંક < કદ(unsigned પૂર્ણાંક) ? અંક : કદ(unsigned પૂર્ણાંક);
 
     result = randit(data, &r, env_override);
-    if(result)
-      return result;
+    જો(result)
+      પાછા result;
 
-    while(left) {
-      *rnd++ = (unsigned char)(r & 0xFF);
+    જ્યારે(ડાબું) {
+      *rnd++ = (unsigned અક્ષર)(r & 0xFF);
       r >>= 8;
-      --num;
-      --left;
+      --અંક;
+      --ડાબું;
     }
   }
 
-  return result;
+  પાછા result;
 }
 
 /*
@@ -174,26 +174,26 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
+CURLcode Curl_rand_hex(સંરચના Curl_easy *data, unsigned અક્ષર *rnd, size_t અંક)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  unsigned char buffer[128];
-  DEBUGASSERT(num > 1);
+  unsigned અક્ષર buffer[128];
+  DEBUGASSERT(અંક > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  જો((અંક / 2 >= કદ(buffer)) || !(અંક & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
     DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    પાછા CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  num--; /* save one for null-termination */
+  અંક--; /* save one for null-termination */
 
-  result = Curl_rand(data, buffer, num / 2);
-  if(result)
-    return result;
+  result = Curl_rand(data, buffer, અંક / 2);
+  જો(result)
+    પાછા result;
 
-  Curl_hexencode(buffer, num / 2, rnd, num + 1);
-  return result;
+  Curl_hexencode(buffer, અંક / 2, rnd, અંક + 1);
+  પાછા result;
 }
 
 /*
@@ -201,30 +201,30 @@ CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
  * alphanumerical chars PLUS a null-terminator byte.
  */
 
-static const char alnum[] =
+સ્થિર અચલ અક્ષર alnum[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num)
+CURLcode Curl_rand_alnum(સંરચના Curl_easy *data, unsigned અક્ષર *rnd,
+                         size_t અંક)
 {
   CURLcode result = CURLE_OK;
-  const unsigned int alnumspace = CURL_CSTRLEN(alnum);
-  unsigned int r;
-  DEBUGASSERT(num > 1);
+  અચલ unsigned પૂર્ણાંક alnumspace = CURL_CSTRLEN(alnum);
+  unsigned પૂર્ણાંક r;
+  DEBUGASSERT(અંક > 1);
 
-  num--; /* save one for null-termination */
+  અંક--; /* save one for null-termination */
 
-  while(num) {
-    do {
+  જ્યારે(અંક) {
+    કરો {
       result = randit(data, &r, TRUE);
-      if(result)
-        return result;
-    } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
+      જો(result)
+        પાછા result;
+    } જ્યારે(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
-    *rnd++ = (unsigned char)alnum[r % alnumspace];
-    num--;
+    *rnd++ = (unsigned અક્ષર)alnum[r % alnumspace];
+    અંક--;
   }
   *rnd = 0;
 
-  return result;
+  પાછા result;
 }

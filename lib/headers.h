@@ -23,42 +23,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#જો !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+સંરચના Curl_header_store {
+  સંરચના Curl_llist_ગાંઠ ગાંઠ;
+  અક્ષર *name; /* points into 'buffer' */
+  અક્ષર *કિંમત; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
   size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  પૂર્ણાંક request; /* 0 is the first request, then 1.. 2.. */
+  unsigned અક્ષર type; /* CURLH_* defines */
+  અક્ષર buffer[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_headers_init(સંરચના Curl_easy *data);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_headers_ધકેલો(સંરચના Curl_easy *data, અચલ અક્ષર *header,
+                           size_t hlen, unsigned અક્ષર type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_headers_cleanup(સંરચના Curl_easy *data);
 
-#else
+#નહીંતર
 #define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
+#define Curl_headers_ધકેલો(x, y, z, a) \
+  ((શૂન્ય)(x), (શૂન્ય)(y), (શૂન્ય)(z), (શૂન્ય)(a), CURLE_OK)
 #define Curl_headers_cleanup(x)       Curl_nop_stmt
 #endif
 

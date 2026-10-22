@@ -37,16 +37,16 @@
 /* Hide the stuff we are overriding */
 #define getenv decc_getenv
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE != 64
+#  જો __INITIAL_POINTER_SIZE != 64
 #    define getpwuid decc_getpwuid
 #  endif
 #endif
-#include <stdlib.h>
-char *decc$getenv(const char *__name);
-#include <pwd.h>
+#અન્તર્ભાવ <stdlib.h>
+અક્ષર *decc$getenv(અચલ અક્ષર *__name);
+#અન્તર્ભાવ <pwd.h>
 
-#include <string.h>
-#include <unixlib.h>
+#અન્તર્ભાવ <string.h>
+#અન્તર્ભાવ <unixlib.h>
 
 #undef getenv
 #undef getpwuid
@@ -59,47 +59,47 @@ char *decc$getenv(const char *__name);
 #define sys$qiow   SYS$QIOW
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  જો __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __save
 #  endif
 #endif
 
-#if __USE_LONG_GID_T
+#જો __USE_LONG_GID_T
 #  define decc_getpwuid DECC$__LONG_GID_GETPWUID
-#else
-#  if __INITIAL_POINTER_SIZE
+#નહીંતર
+#  જો __INITIAL_POINTER_SIZE
 #    define decc_getpwuid decc$__32_getpwuid
-#  else
+#  નહીંતર
 #    define decc_getpwuid decc$getpwuid
 #  endif
 #endif
 
-struct passwd *decc_getpwuid(uid_t uid);
+સંરચના passwd *decc_getpwuid(uid_t uid);
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE == 32
+#  જો __INITIAL_POINTER_SIZE == 32
 /* Translate the path, but only if the path is a VMS file specification */
 /* The translation is usually only needed for older versions of VMS */
-static char *vms_translate_path(const char *path)
+સ્થિર અક્ષર *vms_translate_path(અચલ અક્ષર *path)
 {
-  char *unix_path;
-  char *test_str;
+  અક્ષર *unix_path;
+  અક્ષર *test_str;
 
   /* See if the result is in VMS format, if not, we are done */
   /* Assume that this is a PATH, not some data */
   test_str = strpbrk(path, ":[<^");
-  if(!test_str) {
-    return (char *)path;
+  જો(!test_str) {
+    પાછા (અક્ષર *)path;
   }
 
   unix_path = decc$translate_vms(path);
 
-  if((int)unix_path <= 0) {
+  જો((પૂર્ણાંક)unix_path <= 0) {
     /* We can not translate it, so return the original string */
-    return (char *)path;
+    પાછા (અક્ષર *)path;
   }
 }
-#  else
+#  નહીંતર
    /* VMS translate path is actually not needed on the current 64-bit */
    /* VMS platforms, so instead of figuring out the pointer settings */
    /* Change it to a noop */
@@ -108,20 +108,20 @@ static char *vms_translate_path(const char *path)
 #endif
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  જો __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __restore
 #  endif
 #endif
 
-static char *vms_getenv(const char *envvar)
+સ્થિર અક્ષર *vms_getenv(અચલ અક્ષર *envvar)
 {
-  char *result;
-  char *vms_path;
+  અક્ષર *result;
+  અક્ષર *vms_path;
 
   /* first use the DECC getenv() function */
   result = decc$getenv(envvar);
-  if(!result) {
-    return result;
+  જો(!result) {
+    પાછા result;
   }
 
   vms_path = result;
@@ -133,41 +133,41 @@ static char *vms_getenv(const char *envvar)
   /* Do not do a free() for DEC C RTL builds, which should be used for */
   /* VMS 5.5-2 and later, even if using GCC */
 
-  return result;
+  પાછા result;
 }
 
-static struct passwd vms_passwd_cache;
+સ્થિર સંરચના passwd vms_passwd_cache;
 
-static struct passwd *vms_getpwuid(uid_t uid)
+સ્થિર સંરચના passwd *vms_getpwuid(uid_t uid)
 {
-  struct passwd *my_passwd;
+  સંરચના passwd *my_passwd;
 
 /* Hack needed to support 64-bit builds, decc_getpwnam is 32-bit only */
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  જો __INITIAL_POINTER_SIZE
   __char_ptr32 unix_path;
-#  else
-  char *unix_path;
+#  નહીંતર
+  અક્ષર *unix_path;
 #  endif
-#else
-  char *unix_path;
+#નહીંતર
+  અક્ષર *unix_path;
 #endif
 
   my_passwd = decc_getpwuid(uid);
-  if(!my_passwd) {
-    return my_passwd;
+  જો(!my_passwd) {
+    પાછા my_passwd;
   }
 
   unix_path = vms_translate_path(my_passwd->pw_dir);
 
-  if((long)unix_path <= 0) {
+  જો((long)unix_path <= 0) {
     /* We can not translate it, so return the original string */
-    return my_passwd;
+    પાછા my_passwd;
   }
 
   /* If no changes needed, return it */
-  if(unix_path == my_passwd->pw_dir) {
-    return my_passwd;
+  જો(unix_path == my_passwd->pw_dir) {
+    પાછા my_passwd;
   }
 
   /* Need to copy the structure returned */
@@ -179,7 +179,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
   vms_passwd_cache.pw_dir = unix_path;
   vms_passwd_cache.pw_shell = my_passwd->pw_shell;
 
-  return &vms_passwd_cache;
+  પાછા &vms_passwd_cache;
 }
 
 #ifdef __DECC
@@ -200,7 +200,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #define BIO_new                    BIO_NEW
 #define BIO_s_mem                  BIO_S_MEM
 #define BN_bn2bin                  BN_BN2BIN
-#define BN_num_bits                BN_NUM_BITS
+#define BN_અંક_bits                BN_અંક_BITS
 #define CRYPTO_cleanup_all_ex_data CRYPTO_CLEANUP_ALL_EX_DATA
 #define CRYPTO_free                CRYPTO_FREE
 #define CRYPTO_malloc              CRYPTO_MALLOC
@@ -210,15 +210,15 @@ static struct passwd *vms_getpwuid(uid_t uid)
   /* Ancient OpenSSL on VAX/VMS missing this constant */
 #    define CONF_MFLAGS_IGNORE_MISSING_FILE 0x10
 #    undef CONF_modules_load_file
-static int CONF_modules_load_file(const char *filename,
-                                  const char *appname,
+સ્થિર પૂર્ણાંક CONF_modules_load_file(અચલ અક્ષર *filename,
+                                  અચલ અક્ષર *appname,
                                   unsigned long flags) {
-  return 1;
+  પાછા 1;
 }
 #  endif
 #endif
 #define DES_ecb_encrypt             DES_ECB_ENCRYPT
-#define DES_set_key                 DES_SET_KEY
+#define DES_set_ચાવી                 DES_SET_ચાવી
 #define DES_set_odd_parity          DES_SET_ODD_PARITY
 #define ENGINE_ctrl                 ENGINE_CTRL
 #define ENGINE_ctrl_cmd             ENGINE_CTRL_CMD
@@ -229,7 +229,7 @@ static int CONF_modules_load_file(const char *filename,
 #define ENGINE_get_next             ENGINE_GET_NEXT
 #define ENGINE_init                 ENGINE_INIT
 #define ENGINE_load_builtin_engines ENGINE_LOAD_BUILTIN_ENGINES
-#define ENGINE_load_private_key     ENGINE_LOAD_PRIVATE_KEY
+#define ENGINE_load_private_ચાવી     ENGINE_LOAD_PRIVATE_ચાવી
 #define ENGINE_set_default          ENGINE_SET_DEFAULT
 #define ERR_clear_error             ERR_CLEAR_ERROR
 #define ERR_error_string            ERR_ERROR_STRING
@@ -265,7 +265,7 @@ static int CONF_modules_load_file(const char *filename,
 #define SSL_CIPHER_get_name             SSL_CIPHER_GET_NAME
 #define SSL_CTX_add_client_CA           SSL_CTX_ADD_CLIENT_CA
 #define SSL_CTX_callback_ctrl           SSL_CTX_CALLBACK_CTRL
-#define SSL_CTX_check_private_key       SSL_CTX_CHECK_PRIVATE_KEY
+#define SSL_CTX_check_private_ચાવી       SSL_CTX_CHECK_PRIVATE_ચાવી
 #define SSL_CTX_ctrl                    SSL_CTX_CTRL
 #define SSL_CTX_free                    SSL_CTX_FREE
 #define SSL_CTX_get_cert_store          SSL_CTX_GET_CERT_STORE
@@ -274,10 +274,10 @@ static int CONF_modules_load_file(const char *filename,
 #define SSL_CTX_set_cipher_list         SSL_CTX_SET_CIPHER_LIST
 #define SSL_CTX_set_def_passwd_cb_ud    SSL_CTX_SET_DEF_PASSWD_CB_UD
 #define SSL_CTX_set_default_passwd_cb   SSL_CTX_SET_DEFAULT_PASSWD_CB
-#define SSL_CTX_set_msg_callback        SSL_CTX_SET_MSG_CALLBACK
+#define SSL_CTX_set_સંદેશ_callback        SSL_CTX_SET_સંદેશ_CALLBACK
 #define SSL_CTX_set_verify              SSL_CTX_SET_VERIFY
-#define SSL_CTX_use_PrivateKey          SSL_CTX_USE_PRIVATEKEY
-#define SSL_CTX_use_PrivateKey_file     SSL_CTX_USE_PRIVATEKEY_FILE
+#define SSL_CTX_use_Private_ચાવી          SSL_CTX_USE_PRIVATEKEY
+#define SSL_CTX_use_Private_ચાવી_file     SSL_CTX_USE_PRIVATEKEY_FILE
 #define SSL_CTX_use_cert_chain_file     SSL_CTX_USE_CERT_CHAIN_FILE
 #define SSL_CTX_use_certificate         SSL_CTX_USE_CERTIFICATE
 #define SSL_CTX_use_certificate_file    SSL_CTX_USE_CERTIFICATE_FILE
@@ -313,7 +313,7 @@ static int CONF_modules_load_file(const char *filename,
 #define UI_create_method                UI_CREATE_METHOD
 #define UI_destroy_method               UI_DESTROY_METHOD
 #define UI_get0_user_data               UI_GET0_USER_DATA
-#define UI_get_input_flags              UI_GET_INPUT_FLAGS
+#define UI_get_આગત_flags              UI_GET_આગત_FLAGS
 #define UI_get_string_type              UI_GET_STRING_TYPE
 #define UI_create_method                UI_CREATE_METHOD
 #define UI_destroy_method               UI_DESTROY_METHOD
@@ -344,16 +344,16 @@ static int CONF_modules_load_file(const char *filename,
 #define X509_get_ext_d2i                X509_GET_EXT_D2I
 #define X509_get_issuer_name            X509_GET_ISSUER_NAME
 #define X509_get_pubkey                 X509_GET_PUBKEY
-#define X509_get_serialNumber           X509_GET_SERIALNUMBER
+#define X509_get_serial_સંખ્યા           X509_GET_SERIALNUMBER
 #define X509_get_subject_name           X509_GET_SUBJECT_NAME
 #define X509_load_crl_file              X509_LOAD_CRL_FILE
 #define X509_verify_cert_error_string   X509_VERIFY_CERT_ERROR_STRING
 #define d2i_PKCS12_fp                   D2I_PKCS12_FP
 #define i2t_ASN1_OBJECT                 I2T_ASN1_OBJECT
-#define sk_num                          SK_NUM
-#define sk_pop                          SK_POP
-#define sk_pop_free                     SK_POP_FREE
-#define sk_value                        SK_VALUE
+#define sk_અંક                          SK_અંક
+#define sk_કાઢો                          SK_કાઢો
+#define sk_કાઢો_free                     SK_કાઢો_FREE
+#define sk_કિંમત                        SK_કિંમત
 #define SHA256_Final  SHA256_FINAL
 #define SHA256_Init   SHA256_INIT
 #define SHA256_Update SHA256_UPDATE
@@ -366,7 +366,7 @@ static int CONF_modules_load_file(const char *filename,
 
 /* AI_NUMERICHOST needed for IP V6 support in curl */
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#અન્તર્ભાવ <netdb.h>
 #ifndef AI_NUMERICHOST
 #undef USE_IPV6
 #endif
@@ -389,7 +389,7 @@ static int CONF_modules_load_file(const char *filename,
 #  include <openssl/evp.h>
 #  ifndef OpenSSL_add_all_algorithms
 #    define OpenSSL_add_all_algorithms OPENSSL_ADD_ALL_ALGORITHMS
-     void OPENSSL_ADD_ALL_ALGORITHMS(void);
+     શૂન્ય OPENSSL_ADD_ALL_ALGORITHMS(શૂન્ય);
 #  endif
 #endif
 

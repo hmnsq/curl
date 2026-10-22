@@ -27,23 +27,23 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+સંરચના bufref {
+  શૂન્ય (*dtor)(શૂન્ય *);         /* Associated destructor. */
+  અચલ unsigned અક્ષર *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
 #ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
+  પૂર્ણાંક signature;                /* Detect API use mistakes. */
 #endif
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+શૂન્ય Curl_bufref_init(સંરચના bufref *br);
+શૂન્ય Curl_bufref_set(સંરચના bufref *br, અચલ શૂન્ય *ptr, size_t len,
+                     શૂન્ય (*dtor)(શૂન્ય *));
+અચલ અક્ષર *Curl_bufref_ptr(અચલ સંરચના bufref *br);
+અચલ unsigned અક્ષર *Curl_bufref_uptr(અચલ સંરચના bufref *br);
+size_t Curl_bufref_len(અચલ સંરચના bufref *br);
+CURLcode Curl_bufref_memdup0(સંરચના bufref *br, અચલ શૂન્ય *ptr, size_t len);
+શૂન્ય Curl_bufref_free(સંરચના bufref *br);
 
 /* return a strdup() version of the buffer */
 #define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))

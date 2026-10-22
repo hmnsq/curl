@@ -21,17 +21,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "multiif.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "cw-out.h"
-#include "cw-pause.h"
-#include "progress.h"
+#અન્તર્ભાવ "urldata.h"
+#અન્તર્ભાવ "cfilters.h"
+#અન્તર્ભાવ "multiif.h"
+#અન્તર્ભાવ "sendf.h"
+#અન્તર્ભાવ "curl_trc.h"
+#અન્તર્ભાવ "transfer.h"
+#અન્તર્ભાવ "cw-out.h"
+#અન્તર્ભાવ "cw-pause.h"
+#અન્તર્ભાવ "progress.h"
 
 /**
  * OVERALL DESIGN of this client writer
@@ -63,90 +63,90 @@
  * The amount of bytes being buffered is limited by `DYN_PAUSE_BUFFER`
  * and when that is exceeded `CURLE_TOO_LARGE` is returned as error.
  */
-typedef enum {
+પ્રકારવ્યાખ્યા ગણના {
   CW_OUT_NONE,
   CW_OUT_BODY,
   CW_OUT_BODY_0LEN,
   CW_OUT_HDS
 } cw_out_type;
 
-struct cw_out_buf {
-  struct cw_out_buf *next;
-  struct dynbuf b;
+સંરચના cw_out_buf {
+  સંરચના cw_out_buf *next;
+  સંરચના dynbuf b;
   cw_out_type type;
 };
 
-static struct cw_out_buf *cw_out_buf_create(cw_out_type otype)
+સ્થિર સંરચના cw_out_buf *cw_out_buf_create(cw_out_type otype)
 {
-  struct cw_out_buf *cwbuf = curlx_calloc(1, sizeof(*cwbuf));
-  if(cwbuf) {
+  સંરચના cw_out_buf *cwbuf = curlx_calloc(1, કદ(*cwbuf));
+  જો(cwbuf) {
     cwbuf->type = otype;
     curlx_dyn_init(&cwbuf->b, DYN_PAUSE_BUFFER);
   }
-  return cwbuf;
+  પાછા cwbuf;
 }
 
-static void cw_out_buf_free(struct cw_out_buf *cwbuf)
+સ્થિર શૂન્ય cw_out_buf_free(સંરચના cw_out_buf *cwbuf)
 {
-  if(cwbuf) {
+  જો(cwbuf) {
     curlx_dyn_free(&cwbuf->b);
     curlx_free(cwbuf);
   }
 }
 
-struct cw_out_ctx {
-  struct Curl_cwriter super;
-  struct cw_out_buf *buf;
-  struct cw_out_buf *tail;
+સંરચના cw_out_ctx {
+  સંરચના Curl_cwriter super;
+  સંરચના cw_out_buf *buf;
+  સંરચના cw_out_buf *tail;
   size_t buffered_len;
   BIT(errored);
 };
 
-static CURLcode cw_out_init(struct Curl_easy *data,
-                            struct Curl_cwriter *writer)
+સ્થિર CURLcode cw_out_init(સંરચના Curl_easy *data,
+                            સંરચના Curl_cwriter *writer)
 {
-  struct cw_out_ctx *ctx = writer->ctx;
-  (void)data;
-  ctx->buf = NULL;
-  ctx->tail = NULL;
+  સંરચના cw_out_ctx *ctx = writer->ctx;
+  (શૂન્ય)data;
+  ctx->buf = ખાલી;
+  ctx->tail = ખાલી;
   ctx->buffered_len = 0;
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static void cw_out_bufs_free(struct cw_out_ctx *ctx)
+સ્થિર શૂન્ય cw_out_bufs_free(સંરચના cw_out_ctx *ctx)
 {
-  while(ctx->buf) {
-    struct cw_out_buf *next = ctx->buf->next;
+  જ્યારે(ctx->buf) {
+    સંરચના cw_out_buf *next = ctx->buf->next;
     cw_out_buf_free(ctx->buf);
     ctx->buf = next;
   }
-  ctx->tail = NULL;
+  ctx->tail = ખાલી;
   ctx->buffered_len = 0;
 }
 
-static void cw_out_close(struct Curl_easy *data, struct Curl_cwriter *writer)
+સ્થિર શૂન્ય cw_out_close(સંરચના Curl_easy *data, સંરચના Curl_cwriter *writer)
 {
-  struct cw_out_ctx *ctx = writer->ctx;
+  સંરચના cw_out_ctx *ctx = writer->ctx;
 
-  (void)data;
+  (શૂન્ય)data;
   cw_out_bufs_free(ctx);
 }
 
 /**
  * Return the current curl_write_callback and user_data for the buf type
  */
-static void cw_get_writefunc(struct Curl_easy *data, cw_out_type otype,
-                             curl_write_callback *pwcb, void **pwcb_data,
+સ્થિર શૂન્ય cw_get_writefunc(સંરચના Curl_easy *data, cw_out_type otype,
+                             curl_write_callback *pwcb, શૂન્ય **pwcb_data,
                              size_t *pmax_write, size_t *pmin_write)
 {
-  switch(otype) {
-  case CW_OUT_BODY:
-  case CW_OUT_BODY_0LEN:
-    if(Curl_ftp_listmode(data)) {
+  પસંદગી(otype) {
+  સ્થિતિ CW_OUT_BODY:
+  સ્થિતિ CW_OUT_BODY_0LEN:
+    જો(Curl_ftp_listmode(data)) {
       *pwcb = Curl_ftp_parselist;
       *pwcb_data = data;
     }
-    else {
+    નહીંતર {
       *pwcb = data->set.fwrite_func;
       *pwcb_data = data->set.out;
     }
@@ -155,360 +155,360 @@ static void cw_get_writefunc(struct Curl_easy *data, cw_out_type otype,
      * the preferred size. The default should always be to pass data
      * to the client as it comes without delay */
     *pmin_write = 0;
-    break;
-  case CW_OUT_HDS:
+    તોડો;
+  સ્થિતિ CW_OUT_HDS:
     *pwcb = data->set.fwrite_header ? data->set.fwrite_header :
-             (data->set.writeheader ? data->set.fwrite_func : NULL);
+             (data->set.writeheader ? data->set.fwrite_func : ખાલી);
     *pwcb_data = data->set.writeheader;
     *pmax_write = 0; /* do not chunk-write headers, write them as they are */
     *pmin_write = 0;
-    break;
-  default:
-    *pwcb = NULL;
-    *pwcb_data = NULL;
+    તોડો;
+  મૂળભૂત:
+    *pwcb = ખાલી;
+    *pwcb_data = ખાલી;
     *pmax_write = CURL_MAX_WRITE_SIZE;
     *pmin_write = 0;
   }
 }
 
-static CURLcode cw_out_cb_write(struct Curl_easy *data,
+સ્થિર CURLcode cw_out_cb_write(સંરચના Curl_easy *data,
                                 curl_write_callback wcb,
-                                void *wcb_data,
+                                શૂન્ય *wcb_data,
                                 cw_out_type otype,
-                                const char *buf, size_t blen,
+                                અચલ અક્ષર *buf, size_t blen,
                                 size_t *pnwritten)
 {
   size_t nwritten;
   CURLcode result;
 
-  NOVERBOSE((void)otype);
+  NOVERBOSE((શૂન્ય)otype);
 
   DEBUGASSERT(data->conn);
   *pnwritten = 0;
   {
-    struct Curl_mapi_guard guard;
+    સંરચના Curl_mapi_guard guard;
     CURL_CBAPI_START(&guard, data, easy_cw_out_cb);
-    nwritten = wcb((char *)CURL_UNCONST(buf), 1, blen, wcb_data);
+    nwritten = wcb((અક્ષર *)CURL_UNCONST(buf), 1, blen, wcb_data);
     CURL_CBAPI_END(&guard);
   }
   CURL_TRC_WRITE(data, "[OUT] wrote %zu %s bytes, type=%x -> %zu",
                  blen, (otype == CW_OUT_HDS) ? "header" : "body",
-                 (unsigned int)otype, nwritten);
-  if(nwritten == CURL_WRITEFUNC_PAUSE) {
-    if(data->conn->scheme->flags & PROTOPT_NONETWORK) {
+                 (unsigned પૂર્ણાંક)otype, nwritten);
+  જો(nwritten == CURL_WRITEFUNC_PAUSE) {
+    જો(data->conn->scheme->flags & PROTOPT_NONETWORK) {
       /* Protocols that work without network cannot be paused. This is
          actually only file:// now, and it cannot pause since the transfer is
          not done using the "normal" procedure. */
       failf(data, "Write callback asked for PAUSE when not supported");
-      return CURLE_WRITE_ERROR;
+      પાછા CURLE_WRITE_ERROR;
     }
     data->req.writer.paused = TRUE;
     CURL_TRC_WRITE(data, "[OUT] PAUSE requested by client");
     result = Curl_xfer_pause_recv(data, TRUE);
-    return result ? result : CURLE_AGAIN;
+    પાછા result ? result : CURLE_AGAIN;
   }
-  else if(nwritten == CURL_WRITEFUNC_ERROR) {
+  નહીંતર જો(nwritten == CURL_WRITEFUNC_ERROR) {
     failf(data, "client returned ERROR on write of %zu bytes", blen);
-    return CURLE_WRITE_ERROR;
+    પાછા CURLE_WRITE_ERROR;
   }
-  else if(nwritten != blen) {
+  નહીંતર જો(nwritten != blen) {
     failf(data, "Failure writing output to destination, "
           "passed %zu returned %zu", blen, nwritten);
-    return CURLE_WRITE_ERROR;
+    પાછા CURLE_WRITE_ERROR;
   }
   *pnwritten = nwritten;
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode cw_out_ptr_flush(struct cw_out_ctx *ctx,
-                                 struct Curl_easy *data,
+સ્થિર CURLcode cw_out_ptr_flush(સંરચના cw_out_ctx *ctx,
+                                 સંરચના Curl_easy *data,
                                  cw_out_type otype,
                                  bool flush_all,
-                                 const char *buf, size_t blen,
+                                 અચલ અક્ષર *buf, size_t blen,
                                  size_t *pconsumed)
 {
-  curl_write_callback wcb = NULL;
-  void *wcb_data;
+  curl_write_callback wcb = ખાલી;
+  શૂન્ય *wcb_data;
   size_t max_write, min_write;
   size_t wlen, nwritten = 0;
   CURLcode result = CURLE_OK;
 
   /* If we errored once, we do not invoke the client callback again */
-  if(ctx->errored)
-    return CURLE_WRITE_ERROR;
+  જો(ctx->errored)
+    પાછા CURLE_WRITE_ERROR;
 
   /* write callbacks may get NULLed by the client between calls. */
   cw_get_writefunc(data, otype, &wcb, &wcb_data, &max_write, &min_write);
-  if(!wcb) {
+  જો(!wcb) {
     *pconsumed = blen;
-    return CURLE_OK;
+    પાછા CURLE_OK;
   }
 
   *pconsumed = 0;
-  if(otype == CW_OUT_BODY_0LEN) {
+  જો(otype == CW_OUT_BODY_0LEN) {
     DEBUGASSERT(!blen);
-    return cw_out_cb_write(data, wcb, wcb_data, otype,
+    પાછા cw_out_cb_write(data, wcb, wcb_data, otype,
                            buf, blen, &nwritten);
   }
-  else {
-    while(blen && !data->req.writer.paused) {
-      if(!flush_all && blen < min_write)
-        break;
+  નહીંતર {
+    જ્યારે(blen && !data->req.writer.paused) {
+      જો(!flush_all && blen < min_write)
+        તોડો;
       wlen = max_write ? CURLMIN(blen, max_write) : blen;
-      if(otype == CW_OUT_BODY)
+      જો(otype == CW_OUT_BODY)
         result = Curl_pgrs_deliver_check(data, wlen);
-      if(!result)
+      જો(!result)
         result = cw_out_cb_write(data, wcb, wcb_data, otype,
                                  buf, wlen, &nwritten);
-      if(result)
-        return result;
-      if(otype == CW_OUT_BODY)
+      જો(result)
+        પાછા result;
+      જો(otype == CW_OUT_BODY)
         Curl_pgrs_deliver_inc(data, nwritten);
       *pconsumed += nwritten;
       blen -= nwritten;
       buf += nwritten;
       /* write functions/data may have been re-setopt'ed. sigh. */
       cw_get_writefunc(data, otype, &wcb, &wcb_data, &max_write, &min_write);
-      if(!wcb) {
+      જો(!wcb) {
         *pconsumed += blen;
-        break;
+        તોડો;
       }
     }
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode cw_out_buf_flush(struct cw_out_ctx *ctx,
-                                 struct Curl_easy *data,
-                                 struct cw_out_buf *cwbuf,
+સ્થિર CURLcode cw_out_buf_flush(સંરચના cw_out_ctx *ctx,
+                                 સંરચના Curl_easy *data,
+                                 સંરચના cw_out_buf *cwbuf,
                                  bool flush_all)
 {
   CURLcode result = CURLE_OK;
 
-  if(curlx_dyn_len(&cwbuf->b) || (cwbuf->type == CW_OUT_BODY_0LEN)) {
+  જો(curlx_dyn_len(&cwbuf->b) || (cwbuf->type == CW_OUT_BODY_0LEN)) {
     size_t consumed;
 
     result = cw_out_ptr_flush(ctx, data, cwbuf->type, flush_all,
                               curlx_dyn_ptr(&cwbuf->b),
                               curlx_dyn_len(&cwbuf->b),
                               &consumed);
-    if(result && (result != CURLE_AGAIN))
-      return result;
+    જો(result && (result != CURLE_AGAIN))
+      પાછા result;
     result = CURLE_OK;
 
-    if(consumed) {
-      if(consumed == curlx_dyn_len(&cwbuf->b)) {
+    જો(consumed) {
+      જો(consumed == curlx_dyn_len(&cwbuf->b)) {
         curlx_dyn_free(&cwbuf->b);
       }
-      else {
+      નહીંતર {
         DEBUGASSERT(consumed < curlx_dyn_len(&cwbuf->b));
         result = curlx_dyn_tail(&cwbuf->b,
                                 curlx_dyn_len(&cwbuf->b) - consumed);
-        if(result)
-          return result;
+        જો(result)
+          પાછા result;
       }
     }
   }
-  return result;
+  પાછા result;
 }
 
-static CURLcode cw_out_flush_chain(struct cw_out_ctx *ctx,
-                                   struct Curl_easy *data,
+સ્થિર CURLcode cw_out_flush_chain(સંરચના cw_out_ctx *ctx,
+                                   સંરચના Curl_easy *data,
                                    bool flush_all)
 {
   CURLcode result;
 
   /* write the chain oldest first until it blocks or gets empty */
-  while(ctx->buf) {
-    struct cw_out_buf *cwbuf = ctx->buf;
+  જ્યારે(ctx->buf) {
+    સંરચના cw_out_buf *cwbuf = ctx->buf;
     size_t blen_before;
 
-    if(data->req.writer.paused)
-      return CURLE_OK;
+    જો(data->req.writer.paused)
+      પાછા CURLE_OK;
 
     blen_before = curlx_dyn_len(&cwbuf->b);
     result = cw_out_buf_flush(ctx, data, cwbuf, flush_all);
-    if(result)
-      return result;
+    જો(result)
+      પાછા result;
     ctx->buffered_len -= blen_before - curlx_dyn_len(&cwbuf->b);
 
-    if(curlx_dyn_len(&cwbuf->b)) {
+    જો(curlx_dyn_len(&cwbuf->b)) {
       /* could not write it all, paused again? */
       DEBUGASSERT(data->req.writer.paused);
-      return CURLE_OK;
+      પાછા CURLE_OK;
     }
 
     ctx->buf = cwbuf->next;
-    if(!ctx->buf)
-      ctx->tail = NULL;
+    જો(!ctx->buf)
+      ctx->tail = ખાલી;
     cw_out_buf_free(cwbuf);
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode cw_out_append(struct cw_out_ctx *ctx,
-                              struct Curl_easy *data,
+સ્થિર CURLcode cw_out_append(સંરચના cw_out_ctx *ctx,
+                              સંરચના Curl_easy *data,
                               cw_out_type otype,
-                              const char *buf, size_t blen)
+                              અચલ અક્ષર *buf, size_t blen)
 {
   CURLcode result;
 
   CURL_TRC_WRITE(data, "[OUT] paused, buffering %zu more bytes (%zu/%d)",
                  blen, ctx->buffered_len, DYN_PAUSE_BUFFER);
-  if(ctx->buffered_len + blen > DYN_PAUSE_BUFFER) {
+  જો(ctx->buffered_len + blen > DYN_PAUSE_BUFFER) {
     failf(data, "pause buffer not large enough -> CURLE_TOO_LARGE");
-    return CURLE_TOO_LARGE;
+    પાછા CURLE_TOO_LARGE;
   }
 
   /* if we do not have a buffer, or it is of another type, make a new one
    * and append it at the tail. For CW_OUT_HDS always make a new one, so
    * we "replay" headers exactly as they came in */
-  if(!ctx->tail || (ctx->tail->type != otype) || (otype == CW_OUT_HDS)) {
-    struct cw_out_buf *cwbuf = cw_out_buf_create(otype);
-    if(!cwbuf)
-      return CURLE_OUT_OF_MEMORY;
-    if(ctx->tail)
+  જો(!ctx->tail || (ctx->tail->type != otype) || (otype == CW_OUT_HDS)) {
+    સંરચના cw_out_buf *cwbuf = cw_out_buf_create(otype);
+    જો(!cwbuf)
+      પાછા CURLE_OUT_OF_MEMORY;
+    જો(ctx->tail)
       ctx->tail->next = cwbuf;
-    else
+    નહીંતર
       ctx->buf = cwbuf;
     ctx->tail = cwbuf;
   }
   DEBUGASSERT(ctx->tail && (ctx->tail->type == otype));
   result = curlx_dyn_addn(&ctx->tail->b, buf, blen);
-  if(!result)
+  જો(!result)
     ctx->buffered_len += blen;
-  return result;
+  પાછા result;
 }
 
-static CURLcode cw_out_do_write(struct cw_out_ctx *ctx,
-                                struct Curl_easy *data,
+સ્થિર CURLcode cw_out_do_write(સંરચના cw_out_ctx *ctx,
+                                સંરચના Curl_easy *data,
                                 cw_out_type otype,
                                 bool flush_all,
-                                const char *buf, size_t blen)
+                                અચલ અક્ષર *buf, size_t blen)
 {
   CURLcode result = CURLE_OK;
 
   /* if we have buffered data and the last chunk buffered is of a
    * different type than what we are writing now, try to flush all */
-  if(ctx->tail && ctx->tail->type != otype) {
+  જો(ctx->tail && ctx->tail->type != otype) {
     result = cw_out_flush_chain(ctx, data, TRUE);
-    if(result)
-      goto out;
+    જો(result)
+      જાઓ out;
   }
 
-  if(ctx->buf) {
+  જો(ctx->buf) {
     /* still have buffered data, append and flush */
     result = cw_out_append(ctx, data, otype, buf, blen);
-    if(result)
-      goto out;
+    જો(result)
+      જાઓ out;
     result = cw_out_flush_chain(ctx, data, flush_all);
-    if(result)
-      goto out;
+    જો(result)
+      જાઓ out;
   }
-  else {
+  નહીંતર {
     /* nothing buffered, try direct write */
     size_t consumed;
     result = cw_out_ptr_flush(ctx, data, otype, flush_all,
                               buf, blen, &consumed);
-    if(result && (result != CURLE_AGAIN))
-      return result;
+    જો(result && (result != CURLE_AGAIN))
+      પાછા result;
     result = CURLE_OK;
-    if(consumed < blen) {
+    જો(consumed < blen) {
       /* did not write all, append the rest */
       result = cw_out_append(ctx, data, otype,
                              buf + consumed, blen - consumed);
-      if(result)
-        goto out;
+      જો(result)
+        જાઓ out;
     }
   }
 
 out:
-  if(result) {
+  જો(result) {
     /* We do not want to invoke client callbacks a second time after
      * encountering an error. See issue #13337 */
     ctx->errored = TRUE;
     cw_out_bufs_free(ctx);
   }
-  return result;
+  પાછા result;
 }
 
-static CURLcode cw_out_write(struct Curl_easy *data,
-                             struct Curl_cwriter *writer, int type,
-                             const char *buf, size_t blen)
+સ્થિર CURLcode cw_out_write(સંરચના Curl_easy *data,
+                             સંરચના Curl_cwriter *writer, પૂર્ણાંક type,
+                             અચલ અક્ષર *buf, size_t blen)
 {
-  struct cw_out_ctx *ctx = writer->ctx;
+  સંરચના cw_out_ctx *ctx = writer->ctx;
   CURLcode result;
   bool flush_all = !!(type & CLIENTWRITE_EOS);
 
-  if((type & CLIENTWRITE_BODY) ||
+  જો((type & CLIENTWRITE_BODY) ||
      ((type & CLIENTWRITE_HEADER) && data->set.include_header)) {
     cw_out_type otype = (!blen && (type & CLIENTWRITE_0LEN)) ?
                         CW_OUT_BODY_0LEN : CW_OUT_BODY;
     result = cw_out_do_write(ctx, data, otype, flush_all, buf, blen);
-    if(result)
-      return result;
+    જો(result)
+      પાછા result;
   }
 
-  if(type & (CLIENTWRITE_HEADER | CLIENTWRITE_INFO)) {
+  જો(type & (CLIENTWRITE_HEADER | CLIENTWRITE_INFO)) {
     result = cw_out_do_write(ctx, data, CW_OUT_HDS, flush_all, buf, blen);
-    if(result)
-      return result;
+    જો(result)
+      પાછા result;
   }
 
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode cw_out_do_flush(struct Curl_easy *data,
-                                struct Curl_cwriter *cw_out,
+સ્થિર CURLcode cw_out_do_flush(સંરચના Curl_easy *data,
+                                સંરચના Curl_cwriter *cw_out,
                                 bool flush_all)
 {
-  struct cw_out_ctx *ctx = (struct cw_out_ctx *)cw_out;
+  સંરચના cw_out_ctx *ctx = (સંરચના cw_out_ctx *)cw_out;
 
-  if(ctx->errored)
-    return CURLE_WRITE_ERROR;
+  જો(ctx->errored)
+    પાછા CURLE_WRITE_ERROR;
 
-  if(!data->req.writer.paused && ctx->buf) {
+  જો(!data->req.writer.paused && ctx->buf) {
     CURLcode result;
 
     CURL_TRC_WRITE(data, "[OUT] flush");
     result = cw_out_flush_chain(ctx, data, flush_all);
-    if(result) {
+    જો(result) {
       ctx->errored = TRUE;
       cw_out_bufs_free(ctx);
-      return result;
+      પાછા result;
     }
   }
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode cw_out_flush(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+સ્થિર CURLcode cw_out_flush(સંરચના Curl_easy *data,
+                             સંરચના Curl_cwriter *writer)
 {
-  return cw_out_do_flush(data, writer, FALSE);
+  પાછા cw_out_do_flush(data, writer, FALSE);
 }
 
-const struct Curl_cwtype Curl_cwt_out = {
+અચલ સંરચના Curl_cwtype Curl_cwt_out = {
   "cw-out",
-  NULL,
+  ખાલી,
   0,
   cw_out_init,
   cw_out_write,
   cw_out_flush,
   cw_out_close,
-  sizeof(struct cw_out_ctx)
+  કદ(સંરચના cw_out_ctx)
 };
 
-CURLcode Curl_cw_out_done(struct Curl_easy *data)
+CURLcode Curl_cw_out_done(સંરચના Curl_easy *data)
 {
-  struct Curl_cwriter *cw_out;
+  સંરચના Curl_cwriter *cw_out;
   CURLcode result = CURLE_OK;
 
   cw_out = Curl_cwriter_get_by_type(data, &Curl_cwt_out);
-  if(cw_out) {
+  જો(cw_out) {
     CURL_TRC_WRITE(data, "[OUT] done");
     result = Curl_client_flush(data);
-    if(!result)
+    જો(!result)
       result = cw_out_do_flush(data, cw_out, TRUE);
   }
-  return result;
+  પાછા result;
 }

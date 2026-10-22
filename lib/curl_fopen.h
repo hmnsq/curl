@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/win32-fopen.h"
+#અન્તર્ભાવ "curlx/win32-fopen.h"
 
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname);
+CURLcode Curl_fopen(સંરચના Curl_easy *data, અચલ અક્ષર *filename,
+                    FILE **fh, અક્ષર **tempname);
 
 #endif

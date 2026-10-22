@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
 #ifdef CURL_MACOS_CALL_COPYPROXIES
-CURLcode Curl_macos_init(void);
-#else
+CURLcode Curl_macos_init(શૂન્ય);
+#નહીંતર
 #define Curl_macos_init() CURLE_OK
 #endif
 

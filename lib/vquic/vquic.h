@@ -23,69 +23,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_addrinfo;
+#જો !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+સંરચના Curl_cfilter;
+સંરચના Curl_easy;
+સંરચના connectdata;
+સંરચના Curl_addrinfo;
 
-void Curl_quic_ver(char *p, size_t len);
-int Curl_vquic_init(void);
-void Curl_vquic_cleanup(void);
+શૂન્ય Curl_quic_ver(અક્ષર *p, size_t len);
+પૂર્ણાંક Curl_vquic_init(શૂન્ય);
+શૂન્ય Curl_vquic_cleanup(શૂન્ય);
 
-CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+CURLcode Curl_qlogdir(સંરચના Curl_easy *data,
+                      unsigned અક્ષર *scid,
                       size_t scidlen,
-                      int *qlogfdp);
+                      પૂર્ણાંક *qlogfdp);
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer);
+CURLcode Curl_cf_quic_ઉમેરો_after(સંરચના Curl_cfilter *cf_at,
+                                   સંરચના Curl_easy *data,
+                                   સંરચના Curl_peer *origin,
+                                   સંરચના Curl_peer *peer);
 
-CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_quic_create(સંરચના Curl_cfilter **pcf,
+                             સંરચના Curl_easy *data,
+                             સંરચના Curl_peer *origin,
+                             સંરચના Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             સંરચના connectdata *conn,
+                             સંરચના Curl_sockaddr_ex *addr,
+                             સંરચના Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_http3;
+બાહ્ય સંરચના Curl_cftype Curl_cft_http3;
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#જો !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_h3_proxy_ઉમેરો_after(સંરચના Curl_cfilter *cf_at,
+                                       સંરચના Curl_easy *data,
+                                       સંરચના Curl_peer *origin,
+                                       સંરચના Curl_peer *peer,
+                                       સંરચના Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport);
 
-CURLcode Curl_cf_h3_proxy_create(struct Curl_cfilter **pcf,
-                                 struct Curl_easy *data,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
+CURLcode Curl_cf_h3_proxy_create(સંરચના Curl_cfilter **pcf,
+                                 સંરચના Curl_easy *data,
+                                 સંરચના Curl_peer *origin,
+                                 સંરચના Curl_peer *peer,
                                  uint8_t transport_peer,
-                                 struct connectdata *conn,
-                                 struct Curl_sockaddr_ex *addr,
-                                 struct Curl_peer *tunnel_peer,
+                                 સંરચના connectdata *conn,
+                                 સંરચના Curl_sockaddr_ex *addr,
+                                 સંરચના Curl_peer *tunnel_peer,
                                  uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_h3_proxy;
+બાહ્ય સંરચના Curl_cftype Curl_cft_h3_proxy;
 
 #endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-#else
+#નહીંતર
 #define Curl_vquic_init() 1
 #define Curl_vquic_cleanup()
 #endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn);
+CURLcode Curl_conn_may_http3(સંરચના Curl_easy *data,
+                             સંરચના connectdata *conn);
 
 #endif /* HEADER_CURL_VQUIC_QUIC_H */

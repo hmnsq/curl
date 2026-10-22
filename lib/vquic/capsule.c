@@ -22,43 +22,43 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#જો !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>  /* for htons() */
+#અન્તર્ભાવ <arpa/inet.h>  /* for htons() */
 #endif
 
-#include <curl/curl.h>
-#include "urldata.h"
-#include "curlx/dynbuf.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "vquic/capsule.h"
+#અન્તર્ભાવ <curl/curl.h>
+#અન્તર્ભાવ "urldata.h"
+#અન્તર્ભાવ "curlx/dynbuf.h"
+#અન્તર્ભાવ "cfilters.h"
+#અન્તર્ભાવ "curl_trc.h"
+#અન્તર્ભાવ "bufq.h"
+#અન્તર્ભાવ "vquic/capsule.h"
 
 
 /**
  * Convert 64-bit value from network byte order to host byte order
  */
-static uint64_t capsule_ntohll(uint64_t value)
+સ્થિર uint64_t capsule_ntohll(uint64_t કિંમત)
 {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-  return value;
-#elif (defined(__GNUC__) || defined(__clang__)) && \
+#જો defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+  પાછા કિંમત;
+#અથવાજો (defined(__GNUC__) || defined(__clang__)) && \
   defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-  return __builtin_bswap64(value);
-#else
-  union {
+  પાછા __builtin_bswap64(કિંમત);
+#નહીંતર
+  સંઘ {
     uint64_t u64;
     uint32_t u32[2];
   } src, dst;
 
-  src.u64 = value;
+  src.u64 = કિંમત;
   dst.u32[0] = ntohl(src.u32[1]);
   dst.u32[1] = ntohl(src.u32[0]);
-  return dst.u64;
+  પાછા dst.u64;
 #endif
 }
 
@@ -68,75 +68,75 @@ static uint64_t capsule_ntohll(uint64_t value)
  * @param value Value to encode (must be <= 0x3FFFFFFFFFFFFFFF)
  * @return Number of bytes written
  */
-static size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t value)
+સ્થિર size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t કિંમત)
 {
-  DEBUGASSERT(value <= 0x3FFFFFFFFFFFFFFF);
+  DEBUGASSERT(કિંમત <= 0x3FFFFFFFFFFFFFFF);
 
-  if(value <= 0x3F) {
-    buf[0] = (uint8_t)value;
-    return 1;
+  જો(કિંમત <= 0x3F) {
+    buf[0] = (uint8_t)કિંમત;
+    પાછા 1;
   }
-  else if(value <= 0x3FFF) {
-    uint16_t encoded = (uint16_t)value & 0x3FFF;
+  નહીંતર જો(કિંમત <= 0x3FFF) {
+    uint16_t encoded = (uint16_t)કિંમત & 0x3FFF;
     encoded = ntohs(encoded | 0x4000);
     memcpy(buf, &encoded, 2);
-    return 2;
+    પાછા 2;
   }
-  else if(value <= 0x3FFFFFFF) {
-    uint32_t encoded = (uint32_t)value & 0x3FFFFFFF;
+  નહીંતર જો(કિંમત <= 0x3FFFFFFF) {
+    uint32_t encoded = (uint32_t)કિંમત & 0x3FFFFFFF;
     encoded = ntohl(encoded | 0x80000000);
     memcpy(buf, &encoded, 4);
-    return 4;
+    પાછા 4;
   }
-  else {
-    uint64_t encoded = (uint64_t)value & 0x3FFFFFFFFFFFFFFF;
+  નહીંતર {
+    uint64_t encoded = (uint64_t)કિંમત & 0x3FFFFFFFFFFFFFFF;
     encoded = capsule_ntohll(encoded | 0xC000000000000000);
     memcpy(buf, &encoded, 8);
-    return 8;
+    પાછા 8;
   }
 }
 
-static CURLcode capsule_peek_u8(struct bufq *recvbufq,
+સ્થિર CURLcode capsule_peek_u8(સંરચના bufq *recvbufq,
                                 size_t offset,
                                 uint8_t *pbyte)
 {
-  const unsigned char *peek = NULL;
+  અચલ unsigned અક્ષર *peek = ખાલી;
   size_t peeklen = 0;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
-    return CURLE_AGAIN;
+  જો(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
+    પાછા CURLE_AGAIN;
   *pbyte = peek[0];
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
-static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
+સ્થિર CURLcode capsule_decode_varint_at(સંરચના bufq *recvbufq,
                                          size_t offset,
                                          uint64_t *pvalue,
                                          size_t *pconsumed)
 {
   uint8_t first_byte, byte;
-  uint64_t value;
+  uint64_t કિંમત;
   size_t nbytes;
   size_t i;
   CURLcode result;
 
   result = capsule_peek_u8(recvbufq, offset, &first_byte);
-  if(result)
-    return result;
+  જો(result)
+    પાછા result;
 
   nbytes = (size_t)1 << (first_byte >> 6); /* 1, 2, 4 or 8 bytes */
-  value = first_byte & 0x3F;
+  કિંમત = first_byte & 0x3F;
 
-  for(i = 1; i < nbytes; ++i) {
+  માટે(i = 1; i < nbytes; ++i) {
     result = capsule_peek_u8(recvbufq, offset + i, &byte);
-    if(result)
-      return result;
-    value = (value << 8) | byte;
+    જો(result)
+      પાછા result;
+    કિંમત = (કિંમત << 8) | byte;
   }
 
-  *pvalue = value;
+  *pvalue = કિંમત;
   *pconsumed = nbytes;
-  return CURLE_OK;
+  પાછા CURLE_OK;
 }
 
 /**
@@ -155,153 +155,153 @@ UNITTEST size_t capsule_encap_udp_hdr(uint8_t *hdr, size_t hdrlen,
 {
   size_t off = 0;
   DEBUGASSERT(hdrlen >= HTTP_CAPSULE_HEADER_MAX_SIZE);
-  if(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
-    return 0;
+  જો(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
+    પાછા 0;
   hdr[off++] = 0; /* capsule type: HTTP Datagram */
   off += capsule_encode_varint_buf(hdr + off, (uint64_t)payload_len + 1);
   hdr[off++] = 0; /* context ID */
-  return off;
+  પાછા off;
 }
 
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen)
+CURLcode Curl_capsule_encap_udp_datagram(સંરચના bufq *q,
+                                         અચલ શૂન્ય *buf, size_t blen)
 {
   CURLcode result;
   uint8_t hdr[HTTP_CAPSULE_HEADER_MAX_SIZE];
   size_t hdr_len, nwritten;
 
-  hdr_len = capsule_encap_udp_hdr(hdr, sizeof(hdr), blen);
+  hdr_len = capsule_encap_udp_hdr(hdr, કદ(hdr), blen);
   DEBUGASSERT(hdr_len);
-  if(!hdr_len)
-    return CURLE_FAILED_INIT;
+  જો(!hdr_len)
+    પાછા CURLE_FAILED_INIT;
 
   result = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
-  if(!result && (nwritten != hdr_len))
-    return CURLE_WRITE_ERROR;
-  if(!result) {
+  જો(!result && (nwritten != hdr_len))
+    પાછા CURLE_WRITE_ERROR;
+  જો(!result) {
     result = Curl_bufq_write(q, buf, blen, &nwritten);
-    if(!result && (nwritten != blen))
-      return CURLE_WRITE_ERROR;
+    જો(!result && (nwritten != blen))
+      પાછા CURLE_WRITE_ERROR;
   }
-  if(result == CURLE_AGAIN)
-    return CURLE_WRITE_ERROR;
-  return result;
+  જો(result == CURLE_AGAIN)
+    પાછા CURLE_WRITE_ERROR;
+  પાછા result;
 }
 
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(સંરચના Curl_cfilter *cf,
+                                    સંરચના Curl_easy *data,
+                                    સંરચના bufq *recvbufq,
+                                    unsigned અક્ષર *buf, size_t len,
                                     CURLcode *err)
 {
-  const unsigned char *context_id, *capsule_type;
+  અચલ unsigned અક્ષર *context_id, *capsule_type;
   size_t read_size, varint_len;
   uint64_t capsule_length;
   size_t offset, payload_len;
   size_t bytes_read = 0;
   CURLcode result = CURLE_OK;
 
-  if(!len) {
+  જો(!len) {
     *err = CURLE_BAD_FUNCTION_ARGUMENT;
-    return 0;
+    પાછા 0;
   }
 
-  if(Curl_bufq_is_empty(recvbufq)) {
+  જો(Curl_bufq_is_empty(recvbufq)) {
     *err = CURLE_AGAIN;
-    return 0;
+    પાછા 0;
   }
 
-  if(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
+  જો(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
     *err = CURLE_AGAIN;
-    return 0;
+    પાછા 0;
   }
 
-  if(capsule_type[0]) {
+  જો(capsule_type[0]) {
     infof(data, "Error! Invalid capsule type: %d", capsule_type[0]);
     Curl_bufq_skip(recvbufq, 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    પાછા 0;
   }
 
   offset = 1;
   result = capsule_decode_varint_at(recvbufq, offset, &capsule_length,
                                     &varint_len);
-  if(result == CURLE_AGAIN) {
+  જો(result == CURLE_AGAIN) {
     *err = CURLE_AGAIN;
-    return 0;
+    પાછા 0;
   }
-  else if(result) {
+  નહીંતર જો(result) {
     *err = CURLE_RECV_ERROR;
-    return 0;
+    પાછા 0;
   }
   offset += varint_len;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
+  જો(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
      !read_size) {
     *err = CURLE_AGAIN;
-    return 0;
+    પાછા 0;
   }
 
-  if(*context_id) {
+  જો(*context_id) {
     infof(data, "Error! Invalid context ID: %02x", *context_id);
     Curl_bufq_skip(recvbufq, offset + 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    પાછા 0;
   }
   offset += 1;
 
-  if(!capsule_length) {
+  જો(!capsule_length) {
     infof(data, "Error! Invalid capsule length: 0");
     Curl_bufq_skip(recvbufq, offset);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    પાછા 0;
   }
-  if(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
+  જો(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
     infof(data, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
           (curl_off_t)capsule_length);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    પાછા 0;
   }
   payload_len = (size_t)(capsule_length - 1);
 
-  if(payload_len > len) {
+  જો(payload_len > len) {
     infof(data, "UDP payload does not fit destination buffer: %zu > %zu",
           payload_len, len);
     Curl_bufq_skip(recvbufq, offset + payload_len);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    પાછા 0;
   }
 
-  if(Curl_bufq_len(recvbufq) < offset + payload_len) {
-    if(Curl_bufq_is_full(recvbufq)) {
+  જો(Curl_bufq_len(recvbufq) < offset + payload_len) {
+    જો(Curl_bufq_is_full(recvbufq)) {
       infof(data, "Error! Capsule does not fit the receive buffer: %zu",
             payload_len);
       *err = CURLE_RECV_ERROR;
-      return 0;
+      પાછા 0;
     }
     *err = CURLE_AGAIN;
-    return 0;
+    પાછા 0;
   }
 
   Curl_bufq_skip(recvbufq, offset);
-  if(!payload_len) {
+  જો(!payload_len) {
     *err = CURLE_OK;
-    return 0;
+    પાછા 0;
   }
   result = Curl_bufq_read(recvbufq, buf, payload_len, &bytes_read);
-  if(result || (bytes_read != payload_len)) {
+  જો(result || (bytes_read != payload_len)) {
     infof(data, "Error! Read less than expected %zu %zu",
           payload_len, bytes_read);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    પાછા 0;
   }
 
-  if(cf && data) {
+  જો(cf && data) {
     CURL_TRC_CF(data, cf, "Processed UDP capsule raw: size=%zu "
                 "length_left %zu", payload_len, Curl_bufq_len(recvbufq));
   }
   *err = CURLE_OK;
-  return bytes_read;
+  પાછા bytes_read;
 }
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

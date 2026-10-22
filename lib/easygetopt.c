@@ -21,77 +21,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-#include "easyoptions.h"
+#અન્તર્ભાવ "easyoptions.h"
 
 #ifndef CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static const struct curl_easyoption *lookup(const char *name, CURLoption id)
+સ્થિર અચલ સંરચના curl_easyoption *lookup(અચલ અક્ષર *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
-    const struct curl_easyoption *o = &Curl_easyopts[0];
-    do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+  જો(name || id) {
+    અચલ સંરચના curl_easyoption *o = &Curl_easyopts[0];
+    કરો {
+      જો(name) {
+        જો(curl_strequal(o->name, name))
+          પાછા o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      નહીંતર {
+        જો((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          પાછા o;
       }
       o++;
-    } while(o->name);
+    } જ્યારે(o->name);
   }
-  return NULL;
+  પાછા ખાલી;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+અચલ સંરચના curl_easyoption *curl_easy_option_by_name(અચલ અક્ષર *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  પાછા lookup(name, CURLOPT_LASTENTRY);
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+અચલ સંરચના curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  પાછા lookup(ખાલી, id);
 }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+અચલ સંરચના curl_easyoption *curl_easy_option_next(
+  અચલ સંરચના curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  જો(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    જો(prev->name)
+      પાછા prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  નહીંતર જો(!prev)
+    પાછા &Curl_easyopts[0];
+  પાછા ખાલી;
 }
 
-#else
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+#નહીંતર
+અચલ સંરચના curl_easyoption *curl_easy_option_by_name(અચલ અક્ષર *name)
 {
-  (void)name;
-  return NULL;
+  (શૂન્ય)name;
+  પાછા ખાલી;
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+અચલ સંરચના curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  (void)id;
-  return NULL;
+  (શૂન્ય)id;
+  પાછા ખાલી;
 }
 
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+અચલ સંરચના curl_easyoption *curl_easy_option_next(
+  અચલ સંરચના curl_easyoption *prev)
 {
-  (void)prev;
-  return NULL;
+  (શૂન્ય)prev;
+  પાછા ખાલી;
 }
 #endif

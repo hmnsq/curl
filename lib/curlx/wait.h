@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#અન્તર્ભાવ "curl_setup.h"
 
-int curlx_wait_ms(timediff_t timeout_ms);
+પૂર્ણાંક curlx_wait_ms(timediff_t timeout_ms);
 
 #endif /* HEADER_CURL_WAIT_H */

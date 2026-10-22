@@ -24,40 +24,40 @@
  *
  ***************************************************************************/
 
-struct dynbuf {
-  char *bufr;    /* point to a null-terminated allocated buffer */
+સંરચના dynbuf {
+  અક્ષર *bufr;    /* point to a null-terminated allocated buffer */
   size_t leng;   /* number of bytes *EXCLUDING* the null-terminator */
   size_t allc;   /* size of the current allocation */
   size_t toobig; /* size limit for the buffer */
 #ifdef DEBUGBUILD
-  int init;      /* detect API usage mistakes */
+  પૂર્ણાંક init;      /* detect API usage mistakes */
 #endif
 };
 
-void curlx_dyn_init(struct dynbuf *s, size_t toobig);
-void curlx_dyn_free(struct dynbuf *s);
-CURLcode curlx_dyn_addn(struct dynbuf *s, const void *mem, size_t len)
+શૂન્ય curlx_dyn_init(સંરચના dynbuf *s, size_t toobig);
+શૂન્ય curlx_dyn_free(સંરચના dynbuf *s);
+CURLcode curlx_dyn_addn(સંરચના dynbuf *s, અચલ શૂન્ય *mem, size_t len)
   WARN_UNUSED_RESULT;
-CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
+CURLcode curlx_dyn_add(સંરચના dynbuf *s, અચલ અક્ષર *str)
   WARN_UNUSED_RESULT;
-CURLcode curlx_dyn_addf(struct dynbuf *s, const char *fmt, ...)
+CURLcode curlx_dyn_addf(સંરચના dynbuf *s, અચલ અક્ષર *fmt, ...)
   WARN_UNUSED_RESULT CURL_PRINTF(2, 3);
-CURLcode curlx_dyn_vaddf(struct dynbuf *s, const char *fmt, va_list ap)
+CURLcode curlx_dyn_vaddf(સંરચના dynbuf *s, અચલ અક્ષર *fmt, va_list ap)
   WARN_UNUSED_RESULT CURL_PRINTF(2, 0);
-void curlx_dyn_reset(struct dynbuf *s);
-CURLcode curlx_dyn_tail(struct dynbuf *s, size_t trail);
-CURLcode curlx_dyn_setlen(struct dynbuf *s, size_t set);
-char *curlx_dyn_ptr(const struct dynbuf *s);
-unsigned char *curlx_dyn_uptr(const struct dynbuf *s);
-size_t curlx_dyn_len(const struct dynbuf *s);
+શૂન્ય curlx_dyn_reset(સંરચના dynbuf *s);
+CURLcode curlx_dyn_tail(સંરચના dynbuf *s, size_t trail);
+CURLcode curlx_dyn_setlen(સંરચના dynbuf *s, size_t set);
+અક્ષર *curlx_dyn_ptr(અચલ સંરચના dynbuf *s);
+unsigned અક્ષર *curlx_dyn_uptr(અચલ સંરચના dynbuf *s);
+size_t curlx_dyn_len(અચલ સંરચના dynbuf *s);
 
 /* returns 0 on success, -1 on error */
 /* The implementation of this function exists in mprintf.c */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args);
+પૂર્ણાંક curlx_dyn_vprintf(સંરચના dynbuf *dyn, અચલ અક્ષર *format, va_list args);
 
 /* Take the buffer out of the dynbuf. Caller has ownership and
  * dynbuf resets to initial state. */
-char *curlx_dyn_take(struct dynbuf *s, size_t *plen);
+અક્ષર *curlx_dyn_take(સંરચના dynbuf *s, size_t *plen);
 
 /* Dynamic buffer max sizes */
 #define MAX_DYNBUF_SIZE (SIZE_MAX / 2)
