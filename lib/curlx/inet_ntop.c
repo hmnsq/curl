@@ -16,34 +16,34 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#اگر_تعریف_شده HAVE_SYS_PARAM_H
+#ضمن <sys/param.h>
+#پایان_اگر
+#اگر_تعریف_شده HAVE_NETINET_درون_H
+#ضمن <netinet/in.h>
+#پایان_اگر
+#اگر_تعریف_شده HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#پایان_اگر
 
-#include "curlx/inet_ntop.h"
-#include "curlx/snprintf.h"
-#include "curlx/strcopy.h"
+#ضمن "curlx/inet_ntop.h"
+#ضمن "curlx/snprintf.h"
+#ضمن "curlx/strcopy.h"
 
-#define IN6ADDRSZ       16
+#تعریف_کن IN6ADDRSZ       16
 /* #define INADDRSZ         4 */
-#define INT16SZ          2
+#تعریف_کن INT16SZ          2
 
 /*
  * If USE_IPV6 is disabled, we still want to parse IPv6 addresses, so make
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
-#define AF_INET6 (AF_INET + 1)
-#endif
+#إذا !defined(USE_IPV6) && !defined(AF_INET6)
+#تعریف_کن AF_INET6 (AF_INET + 1)
+#پایان_اگر
 
 /*
  * Format an IPv4 address, more or less like inet_ntop().
@@ -53,31 +53,31 @@
  *  - uses no static variables
  *  - takes an unsigned char* not an in_addr as input
  */
-static CURLcode inet_ntop4(const unsigned char *src, char *dst, size_t size)
+ساكن CURLcode inet_ntop4(ثابت بیعلامت حرف *src, حرف *dst, size_t اندازه)
 {
-  char tmp[sizeof("255.255.255.255")];
+  حرف tmp[حجم("255.255.255.255")];
   size_t len;
 
-  DEBUGASSERT(size >= 16);
+  DEBUGASSERT(اندازه >= 16);
 
   /* this snprintf() does not overflow the buffer. */
-  SNPRINTF(tmp, sizeof(tmp), "%d.%d.%d.%d",
-           ((int)((unsigned char)src[0])) & 0xff,
-           ((int)((unsigned char)src[1])) & 0xff,
-           ((int)((unsigned char)src[2])) & 0xff,
-           ((int)((unsigned char)src[3])) & 0xff);
+  SNPRINTF(tmp, حجم(tmp), "%d.%d.%d.%d",
+           ((صحيح)((بیعلامت حرف)src[0])) & 0xff,
+           ((صحيح)((بیعلامت حرف)src[1])) & 0xff,
+           ((صحيح)((بیعلامت حرف)src[2])) & 0xff,
+           ((صحيح)((بیعلامت حرف)src[3])) & 0xff);
 
-  len = strlen(tmp);
-  if(len == 0 || len >= size)
-    return CURLE_TOO_LARGE;
-  curlx_strcopy(dst, size, tmp, len);
-  return CURLE_OK;
+  len = طول_رشته(tmp);
+  إذا(len == 0 || len >= اندازه)
+    أرجع CURLE_TOO_LARGE;
+  curlx_strcopy(dst, اندازه, tmp, len);
+  أرجع CURLE_OK;
 }
 
 /*
  * Convert IPv6 binary address into presentation (printable) format.
  */
-static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
+ساكن CURLcode inet_ntop6(ثابت بیعلامت حرف *src, حرف *dst, size_t اندازه)
 {
   /*
    * Note that int32_t and int16_t need only be "at least" large enough
@@ -86,84 +86,84 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
    * Keep this in mind if you think this function should have been coded
    * to use pointer overlays. All the world's not a VAX.
    */
-  char tmp[sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
-  char *tp;
-  struct {
-    int base;
-    int len;
-  } best, cur;
-  unsigned int words[IN6ADDRSZ / INT16SZ];
-  int i;
+  حرف tmp[حجم("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
+  حرف *tp;
+  بنية {
+    صحيح پایه;
+    صحيح len;
+  } بهترین, cur;
+  بیعلامت صحيح واژگان[IN6ADDRSZ / INT16SZ];
+  صحيح i;
 
   /* Preprocess:
    *  Copy the input (bytewise) array into a wordwise array.
    *  Find the longest run of 0x00's in src[] for :: shorthanding.
    */
-  memset(words, '\0', sizeof(words));
-  for(i = 0; i < IN6ADDRSZ; i++)
-    words[i / 2] |= ((unsigned int)src[i] << ((1 - (i % 2)) << 3));
+  memset(واژگان, '\0', حجم(واژگان));
+  لكل(i = 0; i < IN6ADDRSZ; i++)
+    واژگان[i / 2] |= ((بیعلامت صحيح)src[i] << ((1 - (i % 2)) << 3));
 
-  best.base = -1;
-  cur.base = -1;
-  best.len = 0;
+  بهترین.پایه = -1;
+  cur.پایه = -1;
+  بهترین.len = 0;
   cur.len = 0;
 
-  for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
-    if(words[i] == 0) {
-      if(cur.base == -1) {
-        cur.base = i;
+  لكل(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
+    إذا(واژگان[i] == 0) {
+      إذا(cur.پایه == -1) {
+        cur.پایه = i;
         cur.len = 1;
       }
-      else
+      وإلا
         cur.len++;
     }
-    else if(cur.base != -1) {
-      if(best.base == -1 || cur.len > best.len)
-        best = cur;
-      cur.base = -1;
+    وإلا إذا(cur.پایه != -1) {
+      إذا(بهترین.پایه == -1 || cur.len > بهترین.len)
+        بهترین = cur;
+      cur.پایه = -1;
     }
   }
-  if((cur.base != -1) && (best.base == -1 || cur.len > best.len))
-    best = cur;
-  if(best.base != -1 && best.len < 2)
-    best.base = -1;
+  إذا((cur.پایه != -1) && (بهترین.پایه == -1 || cur.len > بهترین.len))
+    بهترین = cur;
+  إذا(بهترین.پایه != -1 && بهترین.len < 2)
+    بهترین.پایه = -1;
   /* Format the result. */
   tp = tmp;
-  for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
+  لكل(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
     /* Are we inside the best run of 0x00's? */
-    if(best.base != -1 && i >= best.base && i < (best.base + best.len)) {
-      if(i == best.base)
+    إذا(بهترین.پایه != -1 && i >= بهترین.پایه && i < (بهترین.پایه + بهترین.len)) {
+      إذا(i == بهترین.پایه)
         *tp++ = ':';
-      continue;
+      استمر;
     }
 
     /* Are we following an initial run of 0x00s or any real hex?
      */
-    if(i)
+    إذا(i)
       *tp++ = ':';
 
     /* Is this address an encapsulated IPv4?
      */
-    if(i == 6 && best.base == 0 &&
-       (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
-      CURLcode result = inet_ntop4(src + 12, tp, sizeof(tmp) - (tp - tmp));
-      if(result)
-        return result;
-      tp += strlen(tp);
-      break;
+    إذا(i == 6 && بهترین.پایه == 0 &&
+       (بهترین.len == 6 || (بهترین.len == 5 && واژگان[5] == 0xffff))) {
+      CURLcode نتیجه = inet_ntop4(src + 12, tp, حجم(tmp) - (tp - tmp));
+      إذا(نتیجه)
+        أرجع نتیجه;
+      tp += طول_رشته(tp);
+      اكسر;
     }
-    else {
+    وإلا {
       /* Lower-case digits. Cannot use the set from mprintf.c since this
          needs to work as a curlx function */
-      static const unsigned char ldigits[] = "0123456789abcdef";
+      ساكن ثابت بیعلامت حرف ldigits[] = "0123456789abcdef";
 
-      unsigned int w = words[i];
+      بیعلامت صحيح w = واژگان[i];
       /* output lowercase 16-bit hex number but ignore leading zeroes */
-      if(w & 0xf000)
+      إذا(w & 0xf000)
         *tp++ = ldigits[(w & 0xf000) >> 12];
-      if(w & 0xff00)
+      إذا(w & 0xff00)
         *tp++ = ldigits[(w & 0x0f00) >> 8];
-      if(w & 0xfff0)
+      إذا(w & 0xfff0)
         *tp++ = ldigits[(w & 0x00f0) >> 4];
       *tp++ = ldigits[(w & 0x000f)];
     }
@@ -171,14 +171,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
 
   /* Was it a trailing run of 0x00's?
    */
-  if(best.base != -1 && (best.base + best.len) == (IN6ADDRSZ / INT16SZ))
+  إذا(بهترین.پایه != -1 && (بهترین.پایه + بهترین.len) == (IN6ADDRSZ / INT16SZ))
     *tp++ = ':';
 
   /* Check for overflow, copy, and we are done. */
-  if((size_t)(tp - tmp) >= size)
-    return CURLE_TOO_LARGE;
-  curlx_strcopy(dst, size, tmp, tp - tmp);
-  return CURLE_OK;
+  إذا((size_t)(tp - tmp) >= اندازه)
+    أرجع CURLE_TOO_LARGE;
+  curlx_strcopy(dst, اندازه, tmp, tp - tmp);
+  أرجع CURLE_OK;
 }
 
 /*
@@ -186,14 +186,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
  *
  * Copies result to 'buf' and returns CURLcode.
  */
-CURLcode curlx_inet_ntop(int af, const void *src, char *buf, size_t size)
+CURLcode curlx_inet_ntop(صحيح af, ثابت فراغ *src, حرف *buf, size_t اندازه)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_ntop4((const unsigned char *)src, buf, size);
-  case AF_INET6:
-    return inet_ntop6((const unsigned char *)src, buf, size);
-  default:
-    return CURLE_UNSUPPORTED_PROTOCOL;
+  بدل(af) {
+  حالة AF_INET:
+    أرجع inet_ntop4((ثابت بیعلامت حرف *)src, buf, اندازه);
+  حالة AF_INET6:
+    أرجع inet_ntop6((ثابت بیعلامت حرف *)src, buf, اندازه);
+  افتراضي:
+    أرجع CURLE_UNSUPPORTED_PROTOCOL;
   }
 }

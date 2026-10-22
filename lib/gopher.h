@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GOPHER_H
-#define HEADER_CURL_GOPHER_H
+#اگر_تعریف_نشده سرآیند_CURL_GOPHER_H
+#تعریف_کن سرآیند_CURL_GOPHER_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_GOPHER
-extern const struct Curl_protocol Curl_protocol_gopher;
-extern const struct Curl_protocol Curl_protocol_gophers;
-#endif
+#اگر_تعریف_نشده CURL_DISABLE_GOPHER
+خارجي ثابت بنية Curl_protocol Curl_protocol_gopher;
+خارجي ثابت بنية Curl_protocol Curl_protocol_gophers;
+#پایان_اگر
 
-#endif /* HEADER_CURL_GOPHER_H */
+#پایان_اگر /* HEADER_CURL_GOPHER_H */

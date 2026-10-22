@@ -28,118 +28,118 @@
  * Note: do not use the GnuTLS' *_t variable type names in this source code,
  * since they were not present in 1.0.x.
  */
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_GNUTLS
+#اگر_تعریف_شده USE_GNUTLS
 
-#include <gnutls/abstract.h>
-#include <gnutls/gnutls.h>
-#include <gnutls/x509.h>
-#include <gnutls/crypto.h>
-#include <nettle/sha2.h>
-#include <nettle/version.h>
+#ضمن <gnutls/abstract.h>
+#ضمن <gnutls/gnutls.h>
+#ضمن <gnutls/x509.h>
+#ضمن <gnutls/crypto.h>
+#ضمن <nettle/sha2.h>
+#ضمن <nettle/version.h>
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vtls/keylog.h"
-#include "vtls/gtls.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/apple.h"
-#include "vauth/vauth.h"
-#include "parsedate.h"
-#include "connect.h" /* for the connect timeout */
-#include "progress.h"
-#include "curlx/strdup.h"
-#include "curlx/win32-fopen.h"
-#include "vtls/x509asn1.h"
+#ضمن "urldata.h"
+#ضمن "curl_trc.h"
+#ضمن "vtls/keylog.h"
+#ضمن "vtls/gtls.h"
+#ضمن "vtls/vtls.h"
+#ضمن "vtls/vtls_int.h"
+#ضمن "vtls/vtls_scache.h"
+#ضمن "vtls/apple.h"
+#ضمن "vauth/vauth.h"
+#ضمن "parsedate.h"
+#ضمن "connect.h" /* for the connect timeout */
+#ضمن "progress.h"
+#ضمن "curlx/strdup.h"
+#ضمن "curlx/win32-fopen.h"
+#ضمن "vtls/x509asn1.h"
 
 /* Enable GnuTLS debugging by defining GTLSDEBUG */
-#if 0
-#define GTLSDEBUG
-#endif
+#إذا 0
+#تعریف_کن GTLSDEBUG
+#پایان_اگر
 
-#ifdef GTLSDEBUG
-static void tls_log_func(int level, const char *str)
+#اگر_تعریف_شده GTLSDEBUG
+ساكن فراغ tls_log_func(صحيح level, ثابت حرف *str)
 {
   curl_mfprintf(stderr, "|<%d>| %s", level, str);
 }
-#endif
+#پایان_اگر
 
-#if !defined(GNUTLS_VERSION_NUMBER) || (GNUTLS_VERSION_NUMBER < 0x030605)
-#error "too old GnuTLS version"
-#endif
+#إذا !defined(GNUTLS_نسخه_عدد) || (GNUTLS_نسخه_عدد < 0x030605)
+#خطا "too old GnuTLS version"
+#پایان_اگر
 
-#undef CURL_GNUTLS_EARLY_DATA
-#if GNUTLS_VERSION_NUMBER >= 0x030702
-#define CURL_GNUTLS_EARLY_DATA
-#endif
+#لغو_تعریف CURL_GNUTLS_EARLY_داده
+#إذا GNUTLS_نسخه_عدد >= 0x030702
+#تعریف_کن CURL_GNUTLS_EARLY_داده
+#پایان_اگر
 
-#include <gnutls/ocsp.h>
+#ضمن <gnutls/ocsp.h>
 
-struct gtls_ssl_backend_data {
-  struct gtls_ctx gtls;
+بنية gtls_ssl_backend_داده {
+  بنية gtls_ctx gtls;
 };
 
-static ssize_t gtls_push(void *s, const void *buf, size_t blen)
+ساكن ssize_t gtls_افزودن(فراغ *s, ثابت فراغ *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = s;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  بنية Curl_cfilter *cf = s;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  بنية Curl_easy *داده = CF_داده_CURRENT(cf);
   size_t nwritten;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  DEBUGASSERT(data);
-  result = Curl_conn_cf_send(cf->next, data, buf, blen, FALSE, &nwritten);
-  CURL_TRC_CF(data, cf, "gtls_push(len=%zu) -> %d, %zu",
-              blen, (int)result, nwritten);
-  backend->gtls.io_result = result;
-  if(result) {
+  DEBUGASSERT(داده);
+  نتیجه = Curl_conn_cf_send(cf->بعدی, داده, buf, blen, FALSE, &nwritten);
+  CURL_TRC_CF(داده, cf, "gtls_push(len=%zu) -> %d, %zu",
+              blen, (صحيح)نتیجه, nwritten);
+  backend->gtls.io_نتیجه = نتیجه;
+  إذا(نتیجه) {
     /* !checksrc! disable ERRNOVAR 1 */
-    gnutls_transport_set_errno(backend->gtls.session,
-                               (result == CURLE_AGAIN) ? EAGAIN : EINVAL);
-    return -1;
+    gnutls_transport_مجموعه_errno(backend->gtls.session,
+                               (نتیجه == CURLE_AGAIN) ? EAGAIN : EINVAL);
+    أرجع -1;
   }
-  return (ssize_t)nwritten;
+  أرجع (ssize_t)nwritten;
 }
 
-static ssize_t gtls_pull(void *s, void *buf, size_t blen)
+ساكن ssize_t gtls_pull(فراغ *s, فراغ *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = s;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  بنية Curl_cfilter *cf = s;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  بنية Curl_easy *داده = CF_داده_CURRENT(cf);
   size_t nread;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  DEBUGASSERT(data);
-  if(!backend->gtls.shared_creds->trust_setup) {
-    result = Curl_gtls_client_trust_setup(cf, data, &backend->gtls);
-    if(result) {
+  DEBUGASSERT(داده);
+  إذا(!backend->gtls.shared_creds->trust_راهاندازی) {
+    نتیجه = Curl_gtls_client_trust_راهاندازی(cf, داده, &backend->gtls);
+    إذا(نتیجه) {
       /* !checksrc! disable ERRNOVAR 1 */
-      gnutls_transport_set_errno(backend->gtls.session, EINVAL);
-      backend->gtls.io_result = result;
-      return -1;
+      gnutls_transport_مجموعه_errno(backend->gtls.session, EINVAL);
+      backend->gtls.io_نتیجه = نتیجه;
+      أرجع -1;
     }
   }
 
-  result = Curl_conn_cf_recv(cf->next, data, buf, blen, &nread);
-  CURL_TRC_CF(data, cf, "gtls_pull(len=%zu) -> %d, %zu", blen, (int)result,
+  نتیجه = Curl_conn_cf_recv(cf->بعدی, داده, buf, blen, &nread);
+  CURL_TRC_CF(داده, cf, "gtls_pull(len=%zu) -> %d, %zu", blen, (صحيح)نتیجه,
               nread);
-  backend->gtls.io_result = result;
-  if(result) {
+  backend->gtls.io_نتیجه = نتیجه;
+  إذا(نتیجه) {
     /* !checksrc! disable ERRNOVAR 1 */
-    gnutls_transport_set_errno(backend->gtls.session,
-                               (result == CURLE_AGAIN) ? EAGAIN : EINVAL);
-    return -1;
+    gnutls_transport_مجموعه_errno(backend->gtls.session,
+                               (نتیجه == CURLE_AGAIN) ? EAGAIN : EINVAL);
+    أرجع -1;
   }
-  else if(nread == 0)
+  وإلا إذا(nread == 0)
     connssl->peer_closed = TRUE;
-  return (ssize_t)nread;
+  أرجع (ssize_t)nread;
 }
 
 /**
@@ -153,37 +153,37 @@ static ssize_t gtls_pull(void *s, void *buf, size_t blen)
  * @retval 0 error initializing SSL
  * @retval 1 SSL initialized successfully
  */
-static int gtls_init(void)
+ساكن صحيح gtls_init(فراغ)
 {
-  int ret = 1;
+  صحيح ret = 1;
   ret = gnutls_global_init() ? 0 : 1;
-#ifdef GTLSDEBUG
-  gnutls_global_set_log_function(tls_log_func);
-  gnutls_global_set_log_level(2);
-#endif
-  return ret;
+#اگر_تعریف_شده GTLSDEBUG
+  gnutls_global_مجموعه_log_function(tls_log_func);
+  gnutls_global_مجموعه_log_level(2);
+#پایان_اگر
+  أرجع ret;
 }
 
-static void gtls_cleanup(void)
+ساكن فراغ gtls_cleanup(فراغ)
 {
   gnutls_global_deinit();
   Curl_tls_keylog_close();
 }
 
-#ifdef CURLVERBOSE
-static void showtime(struct Curl_easy *data, const char *text, time_t stamp)
+#اگر_تعریف_شده CURLVERBOSE
+ساكن فراغ showtime(بنية Curl_easy *داده, ثابت حرف *متن_3, time_t stamp)
 {
-  struct tm buffer;
-  const struct tm *tm = &buffer;
-  char str[96];
-  CURLcode result = curlx_gmtime(stamp, &buffer);
-  if(result)
-    return;
+  بنية tm میانگیر;
+  ثابت بنية tm *tm = &میانگیر;
+  حرف str[96];
+  CURLcode نتیجه = curlx_gmtime(stamp, &میانگیر);
+  إذا(نتیجه)
+    أرجع;
 
   curl_msnprintf(str,
-                 sizeof(str),
+                 حجم(str),
                  "  %s: %s, %02d %s %4d %02d:%02d:%02d GMT",
-                 text,
+                 متن_3,
                  Curl_wkday[tm->tm_wday ? tm->tm_wday-1 : 6],
                  tm->tm_mday,
                  Curl_month[tm->tm_mon],
@@ -191,250 +191,250 @@ static void showtime(struct Curl_easy *data, const char *text, time_t stamp)
                  tm->tm_hour,
                  tm->tm_min,
                  tm->tm_sec);
-  infof(data, "%s", str);
+  infof(داده, "%s", str);
 }
-#endif
+#پایان_اگر
 
-static gnutls_datum_t load_file(const char *file)
+ساكن gnutls_datum_t بارگیری_file(ثابت حرف *file)
 {
   FILE *f;
-  gnutls_datum_t loaded_file = { NULL, 0 };
-  long filelen;
-  void *ptr;
+  gnutls_datum_t loaded_file = { عدم, 0 };
+  دراز filelen;
+  فراغ *ptr;
 
   f = curlx_fopen(file, "rb");
-  if(!f)
-    return loaded_file;
-  if(fseek(f, 0, SEEK_END))
-    goto out;
+  إذا(!f)
+    أرجع loaded_file;
+  إذا(fseek(f, 0, SEEK_END))
+    اذهب بیرون;
   filelen = ftell(f);
-  if(filelen < 0 || filelen > CURL_MAX_INPUT_LENGTH)
-    goto out;
-  if(fseek(f, 0, SEEK_SET))
-    goto out;
+  إذا(filelen < 0 || filelen > CURL_MAX_درون_داد_درازی)
+    اذهب بیرون;
+  إذا(fseek(f, 0, SEEK_SET))
+    اذهب بیرون;
   ptr = curlx_malloc((size_t)filelen);
-  if(!ptr)
-    goto out;
-  if(fread(ptr, 1, (size_t)filelen, f) < (size_t)filelen) {
+  إذا(!ptr)
+    اذهب بیرون;
+  إذا(fread(ptr, 1, (size_t)filelen, f) < (size_t)filelen) {
     curlx_free(ptr);
-    goto out;
+    اذهب بیرون;
   }
 
-  loaded_file.data = ptr;
-  loaded_file.size = (unsigned int)filelen;
-out:
+  loaded_file.داده = ptr;
+  loaded_file.اندازه = (بیعلامت صحيح)filelen;
+بیرون:
   curlx_fclose(f);
-  return loaded_file;
+  أرجع loaded_file;
 }
 
-static void unload_file(gnutls_datum_t data)
+ساكن فراغ unload_file(gnutls_datum_t داده)
 {
-  curlx_free(data.data);
+  curlx_free(داده.داده);
 }
 
 /* this function does an SSL/TLS (re-)handshake */
-static CURLcode cf_gtls_handshake(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ساكن CURLcode cf_gtls_handshake(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
   gnutls_session_t session;
-  int rc;
+  صحيح rc;
 
   DEBUGASSERT(backend);
   session = backend->gtls.session;
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  backend->gtls.io_result = CURLE_OK;
+  backend->gtls.io_نتیجه = CURLE_OK;
   rc = gnutls_handshake(session);
 
-  if(!backend->gtls.shared_creds->trust_setup) {
+  إذا(!backend->gtls.shared_creds->trust_راهاندازی) {
     /* After having send off the ClientHello, we prepare the trust
      * store to verify the coming certificate from the server */
-    CURLcode result = Curl_gtls_client_trust_setup(cf, data, &backend->gtls);
-    if(result)
-      return result;
+    CURLcode نتیجه = Curl_gtls_client_trust_راهاندازی(cf, داده, &backend->gtls);
+    إذا(نتیجه)
+      أرجع نتیجه;
   }
 
-  if((rc == GNUTLS_E_AGAIN) || (rc == GNUTLS_E_INTERRUPTED)) {
+  إذا((rc == GNUTLS_E_AGAIN) || (rc == GNUTLS_E_INTERRUPTED)) {
     connssl->io_need =
-      gnutls_record_get_direction(session) ?
+      gnutls_رکورد_get_direction(session) ?
       CURL_SSL_IO_NEED_SEND : CURL_SSL_IO_NEED_RECV;
-    return CURLE_AGAIN;
+    أرجع CURLE_AGAIN;
   }
-  else if((rc < 0) && !gnutls_error_is_fatal(rc)) {
-#ifdef CURLVERBOSE
-    const char *strerr = NULL;
+  وإلا إذا((rc < 0) && !gnutls_error_is_fatal(rc)) {
+#اگر_تعریف_شده CURLVERBOSE
+    ثابت حرف *strerr = عدم;
 
-    if(rc == GNUTLS_E_WARNING_ALERT_RECEIVED) {
+    إذا(rc == GNUTLS_E_WARNING_ALERT_RECEIVED) {
       gnutls_alert_description_t alert = gnutls_alert_get(session);
       strerr = gnutls_alert_get_name(alert);
     }
 
-    if(!strerr)
+    إذا(!strerr)
       strerr = gnutls_strerror(rc);
 
-    infof(data, "gnutls_handshake() warning: %s", strerr);
-#endif
-    return CURLE_AGAIN;
+    infof(داده, "gnutls_handshake() warning: %s", strerr);
+#پایان_اگر
+    أرجع CURLE_AGAIN;
   }
-  else if((rc < 0) && backend->gtls.io_result) {
-    return backend->gtls.io_result;
+  وإلا إذا((rc < 0) && backend->gtls.io_نتیجه) {
+    أرجع backend->gtls.io_نتیجه;
   }
-  else if(rc < 0) {
-    const char *strerr = NULL;
+  وإلا إذا(rc < 0) {
+    ثابت حرف *strerr = عدم;
 
-    if(rc == GNUTLS_E_FATAL_ALERT_RECEIVED) {
+    إذا(rc == GNUTLS_E_FATAL_ALERT_RECEIVED) {
       gnutls_alert_description_t alert = gnutls_alert_get(session);
       strerr = gnutls_alert_get_name(alert);
     }
 
-    if(!strerr)
+    إذا(!strerr)
       strerr = gnutls_strerror(rc);
 
-    failf(data, "GnuTLS, handshake failed: %s", strerr);
-    return CURLE_SSL_CONNECT_ERROR;
+    failf(داده, "GnuTLS, handshake failed: %s", strerr);
+    أرجع CURLE_SSL_CONNECT_ERROR;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static gnutls_x509_crt_fmt_t gnutls_do_file_type(const char *type)
+ساكن gnutls_x509_crt_fmt_t gnutls_do_file_type(ثابت حرف *type)
 {
-  if(!type || !type[0])
-    return GNUTLS_X509_FMT_PEM;
-  if(curl_strequal(type, "PEM"))
-    return GNUTLS_X509_FMT_PEM;
-  if(curl_strequal(type, "DER"))
-    return GNUTLS_X509_FMT_DER;
-  return GNUTLS_X509_FMT_PEM; /* default to PEM */
+  إذا(!type || !type[0])
+    أرجع GNUTLS_X509_FMT_PEM;
+  إذا(curl_strequal(type, "PEM"))
+    أرجع GNUTLS_X509_FMT_PEM;
+  إذا(curl_strequal(type, "DER"))
+    أرجع GNUTLS_X509_FMT_DER;
+  أرجع GNUTLS_X509_FMT_PEM; /* default to PEM */
 }
 
-#define GNUTLS_CIPHERS "NORMAL:%PROFILE_MEDIUM:-ARCFOUR-128:" \
+#تعریف_کن GNUTLS_CIPHERS "NORMAL:%PROFILE_MEDIUM:-ARCFOUR-128:" \
   "-CTYPE-ALL:+CTYPE-X509"
 
-#define QUIC_PRIORITY \
+#تعریف_کن QUIC_اولویت \
   "NORMAL:%PROFILE_MEDIUM:-VERS-ALL:+VERS-TLS1.3:-CIPHER-ALL:+AES-128-GCM:" \
   "+AES-256-GCM:+CHACHA20-POLY1305:+AES-128-CCM:-GROUP-ALL:" \
   "+GROUP-SECP256R1:+GROUP-X25519:+GROUP-SECP384R1:+GROUP-SECP521R1:" \
   "%DISABLE_TLS13_COMPAT_MODE"
 
-static CURLcode gnutls_set_ssl_version_min_max(
-  struct Curl_easy *data,
-  struct ssl_peer *peer,
-  struct ssl_filter_config *conn_config,
-  const char **prioritylist,
+ساكن CURLcode gnutls_مجموعه_ssl_نسخه_min_max(
+  بنية Curl_easy *داده,
+  بنية ssl_peer *peer,
+  بنية ssl_filter_config *conn_config,
+  ثابت حرف **prioritylist,
   bool tls13support)
 {
-  long ssl_version = conn_config->version;
-  long ssl_version_max = conn_config->version_max;
+  دراز ssl_نسخه = conn_config->نسخه_2;
+  دراز ssl_نسخه_max = conn_config->نسخه_max;
 
-  DEBUGASSERT(ssl_version != CURL_SSLVERSION_DEFAULT);
-  if(ssl_version <= CURL_SSLVERSION_TLSv1)
-    ssl_version = CURL_SSLVERSION_TLSv1_0;
-  if((ssl_version_max == CURL_SSLVERSION_MAX_NONE) ||
-     (ssl_version_max == CURL_SSLVERSION_MAX_DEFAULT))
-    ssl_version_max = tls13support ?
+  DEBUGASSERT(ssl_نسخه != CURL_SSLVERSION_DEFAULT);
+  إذا(ssl_نسخه <= CURL_SSLVERSION_TLSv1)
+    ssl_نسخه = CURL_SSLVERSION_TLSv1_0;
+  إذا((ssl_نسخه_max == CURL_SSLVERSION_MAX_NONE) ||
+     (ssl_نسخه_max == CURL_SSLVERSION_MAX_DEFAULT))
+    ssl_نسخه_max = tls13support ?
       CURL_SSLVERSION_MAX_TLSv1_3 : CURL_SSLVERSION_MAX_TLSv1_2;
 
-  if(peer->transport == TRNSPRT_QUIC) {
-    if(ssl_version_max < CURL_SSLVERSION_MAX_TLSv1_3) {
-      failf(data, "QUIC needs at least TLS version 1.3");
-      return CURLE_SSL_CONNECT_ERROR;
+  إذا(peer->transport == TRNSPRT_QUIC) {
+    إذا(ssl_نسخه_max < CURL_SSLVERSION_MAX_TLSv1_3) {
+      failf(داده, "QUIC needs at least TLS version 1.3");
+      أرجع CURLE_SSL_CONNECT_ERROR;
     }
-    *prioritylist = QUIC_PRIORITY;
-    return CURLE_OK;
+    *prioritylist = QUIC_اولویت;
+    أرجع CURLE_OK;
   }
 
-  switch(ssl_version | ssl_version_max) {
-  case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_0:
+  بدل(ssl_نسخه | ssl_نسخه_max) {
+  حالة CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_0:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.0";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_1:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_1:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.1:+VERS-TLS1.0";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_2:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_2:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.2:+VERS-TLS1.1:+VERS-TLS1.0";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_1:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_1:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.1";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_2:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_2:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.2:+VERS-TLS1.1";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_2:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_2:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.2";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_3 | CURL_SSLVERSION_MAX_TLSv1_3:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_3 | CURL_SSLVERSION_MAX_TLSv1_3:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.3";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_3:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_0 | CURL_SSLVERSION_MAX_TLSv1_3:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_3:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_1 | CURL_SSLVERSION_MAX_TLSv1_3:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.3:+VERS-TLS1.2:+VERS-TLS1.1";
-    return CURLE_OK;
-  case CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_3:
+    أرجع CURLE_OK;
+  حالة CURL_SSLVERSION_TLSv1_2 | CURL_SSLVERSION_MAX_TLSv1_3:
     *prioritylist = GNUTLS_CIPHERS ":-VERS-SSL3.0:-VERS-TLS-ALL:"
       "+VERS-TLS1.3:+VERS-TLS1.2";
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
 
-  failf(data, "GnuTLS: cannot set TLS protocol");
-  return CURLE_SSL_CONNECT_ERROR;
+  failf(داده, "GnuTLS: cannot set TLS protocol");
+  أرجع CURLE_SSL_CONNECT_ERROR;
 }
 
-CURLcode Curl_gtls_shared_creds_create(struct Curl_easy *data,
-                                       struct gtls_shared_creds **pcreds)
+CURLcode Curl_gtls_shared_creds_create(بنية Curl_easy *داده,
+                                       بنية gtls_shared_creds **pcreds)
 {
-  struct gtls_shared_creds *shared;
-  int rc;
+  بنية gtls_shared_creds *shared;
+  صحيح rc;
 
-  *pcreds = NULL;
-  shared = curlx_calloc(1, sizeof(*shared));
-  if(!shared)
-    return CURLE_OUT_OF_MEMORY;
+  *pcreds = عدم;
+  shared = curlx_calloc(1, حجم(*shared));
+  إذا(!shared)
+    أرجع CURLE_بیرون_از_حافظه;
 
   rc = gnutls_certificate_allocate_credentials(&shared->creds);
-  if(rc != GNUTLS_E_SUCCESS) {
-    failf(data, "gnutls_certificate_allocate_credentials() failed: %s",
+  إذا(rc != GNUTLS_E_SUCCESS) {
+    failf(داده, "gnutls_certificate_allocate_credentials() failed: %s",
           gnutls_strerror(rc));
     curlx_free(shared);
-    return CURLE_SSL_CONNECT_ERROR;
+    أرجع CURLE_SSL_CONNECT_ERROR;
   }
 
   shared->refcount = 1;
-  shared->time = *Curl_pgrs_now(data);
+  shared->زمان = *Curl_pgrs_now(داده);
   *pcreds = shared;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_gtls_shared_creds_up_ref(struct gtls_shared_creds *creds)
+CURLcode Curl_gtls_shared_creds_به_بالا_ref(بنية gtls_shared_creds *creds)
 {
   DEBUGASSERT(creds);
-  if(creds->refcount < SIZE_MAX) {
+  إذا(creds->refcount < SIZE_MAX) {
     ++creds->refcount;
-    return CURLE_OK;
+    أرجع CURLE_OK;
   }
-  return CURLE_BAD_FUNCTION_ARGUMENT;
+  أرجع CURLE_BAD_FUNCTION_آرگومان;
 }
 
-void Curl_gtls_shared_creds_free(struct gtls_shared_creds **pcreds)
+فراغ Curl_gtls_shared_creds_free(بنية gtls_shared_creds **pcreds)
 {
-  struct gtls_shared_creds *shared = *pcreds;
-  *pcreds = NULL;
-  if(shared) {
+  بنية gtls_shared_creds *shared = *pcreds;
+  *pcreds = عدم;
+  إذا(shared) {
     --shared->refcount;
-    if(!shared->refcount) {
+    إذا(!shared->refcount) {
       gnutls_certificate_free_credentials(shared->creds);
       curlx_free(shared->CAfile);
       curlx_free(shared);
@@ -442,227 +442,227 @@ void Curl_gtls_shared_creds_free(struct gtls_shared_creds **pcreds)
   }
 }
 
-static CURLcode gtls_populate_creds(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+ساكن CURLcode gtls_populate_creds(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *داده,
                                     gnutls_certificate_credentials_t creds)
 {
-  struct ssl_filter_config *config = Curl_ssl_cf_get_filter_config(cf);
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  bool creds_are_empty = TRUE;
-  int rc;
+  بنية ssl_filter_config *config = Curl_ssl_cf_get_filter_config(cf);
+  بنية ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, داده);
+  bool creds_are_خالی = TRUE;
+  صحيح rc;
 
-  if(!config->verifypeer) {
-    infof(data, "SSL Trust: peer verification disabled");
-    return CURLE_OK;
+  إذا(!config->verifypeer) {
+    infof(داده, "SSL Trust: peer verification disabled");
+    أرجع CURLE_OK;
   }
 
-  infof(data, "SSL Trust Anchors:");
-  if(config->native_ca_store) {
-#ifdef USE_APPLE_SECTRUST
-    infof(data, "  Native: Apple SecTrust");
-    creds_are_empty = FALSE;
-#else
-    rc = gnutls_certificate_set_x509_system_trust(creds);
-    if(rc < 0)
-      infof(data, "error reading native CA store (%s), continuing anyway",
+  infof(داده, "SSL Trust Anchors:");
+  إذا(config->native_ca_store) {
+#اگر_تعریف_شده USE_APPLE_SECTRUST
+    infof(داده, "  Native: Apple SecTrust");
+    creds_are_خالی = FALSE;
+#وإلا
+    rc = gnutls_certificate_مجموعه_x509_system_trust(creds);
+    إذا(rc < 0)
+      infof(داده, "error reading native CA store (%s), continuing anyway",
             gnutls_strerror(rc));
-    else {
-      infof(data, "  Native: %d certificates from system trust", rc);
-      if(rc > 0)
-        creds_are_empty = FALSE;
+    وإلا {
+      infof(داده, "  Native: %d certificates from system trust", rc);
+      إذا(rc > 0)
+        creds_are_خالی = FALSE;
     }
-#endif
+#پایان_اگر
   }
 
-  if(config->ca_info_blob) {
+  إذا(config->ca_info_blob) {
     gnutls_datum_t ca_info_datum;
-    if(config->ca_info_blob->len > (size_t)UINT_MAX) {
-      failf(data, "certificate blob too long: %zu bytes",
+    إذا(config->ca_info_blob->len > (size_t)UINT_MAX) {
+      failf(داده, "certificate blob too long: %zu bytes",
             config->ca_info_blob->len);
-      return CURLE_SSL_CACERT_BADFILE;
+      أرجع CURLE_SSL_CACERT_BADFILE;
     }
-    ca_info_datum.data = config->ca_info_blob->data;
-    ca_info_datum.size = (unsigned int)config->ca_info_blob->len;
-    rc = gnutls_certificate_set_x509_trust_mem(creds, &ca_info_datum,
+    ca_info_datum.داده = config->ca_info_blob->داده;
+    ca_info_datum.اندازه = (بیعلامت صحيح)config->ca_info_blob->len;
+    rc = gnutls_certificate_مجموعه_x509_trust_mem(creds, &ca_info_datum,
                                                GNUTLS_X509_FMT_PEM);
-    creds_are_empty = creds_are_empty && (rc <= 0);
-    if(rc < 0) {
-      infof(data, "error reading CA cert blob (%s)%s", gnutls_strerror(rc),
-            (creds_are_empty ? "" : ", continuing anyway"));
-      if(creds_are_empty) {
+    creds_are_خالی = creds_are_خالی && (rc <= 0);
+    إذا(rc < 0) {
+      infof(داده, "error reading CA cert blob (%s)%s", gnutls_strerror(rc),
+            (creds_are_خالی ? "" : ", continuing anyway"));
+      إذا(creds_are_خالی) {
         ssl_config->certverifyresult = rc;
-        return CURLE_SSL_CACERT_BADFILE;
+        أرجع CURLE_SSL_CACERT_BADFILE;
       }
     }
-    else
-      infof(data, "  CA Blob: %d certificates", rc);
+    وإلا
+      infof(داده, "  CA Blob: %d certificates", rc);
   }
   /* CURLOPT_CAINFO_BLOB overrides CURLOPT_CAINFO */
-  else if(config->CAfile) {
+  وإلا إذا(config->CAfile) {
     /* set the trusted CA cert bundle file */
-    gnutls_certificate_set_verify_flags(creds,
+    gnutls_certificate_مجموعه_verify_flags(creds,
                                         GNUTLS_VERIFY_ALLOW_X509_V1_CA_CRT);
 
-    rc = gnutls_certificate_set_x509_trust_file(creds,
+    rc = gnutls_certificate_مجموعه_x509_trust_file(creds,
                                                 config->CAfile,
                                                 GNUTLS_X509_FMT_PEM);
-    creds_are_empty = creds_are_empty && (rc <= 0);
-    if(rc < 0) {
-      infof(data, "error reading CA cert file %s (%s)%s",
+    creds_are_خالی = creds_are_خالی && (rc <= 0);
+    إذا(rc < 0) {
+      infof(داده, "error reading CA cert file %s (%s)%s",
             config->CAfile, gnutls_strerror(rc),
-            (creds_are_empty ? "" : ", continuing anyway"));
-      if(creds_are_empty) {
+            (creds_are_خالی ? "" : ", continuing anyway"));
+      إذا(creds_are_خالی) {
         ssl_config->certverifyresult = rc;
-        return CURLE_SSL_CACERT_BADFILE;
+        أرجع CURLE_SSL_CACERT_BADFILE;
       }
     }
-    else
-      infof(data, "  CAfile: %d certificates in %s", rc, config->CAfile);
+    وإلا
+      infof(داده, "  CAfile: %d certificates in %s", rc, config->CAfile);
   }
 
-  if(config->CApath) {
+  إذا(config->CApath) {
     /* set the trusted CA cert directory */
-    rc = gnutls_certificate_set_x509_trust_dir(creds, config->CApath,
+    rc = gnutls_certificate_مجموعه_x509_trust_dir(creds, config->CApath,
                                                GNUTLS_X509_FMT_PEM);
-    creds_are_empty = creds_are_empty && (rc <= 0);
-    if(rc < 0) {
-      infof(data, "error reading CA cert file %s (%s)%s",
+    creds_are_خالی = creds_are_خالی && (rc <= 0);
+    إذا(rc < 0) {
+      infof(داده, "error reading CA cert file %s (%s)%s",
             config->CApath, gnutls_strerror(rc),
-            (creds_are_empty ? "" : ", continuing anyway"));
-      if(creds_are_empty) {
+            (creds_are_خالی ? "" : ", continuing anyway"));
+      إذا(creds_are_خالی) {
         ssl_config->certverifyresult = rc;
-        return CURLE_SSL_CACERT_BADFILE;
+        أرجع CURLE_SSL_CACERT_BADFILE;
       }
     }
-    else
-      infof(data, "  CApath: %d certificates in %s", rc, config->CApath);
+    وإلا
+      infof(داده, "  CApath: %d certificates in %s", rc, config->CApath);
   }
 
-  if(creds_are_empty)
-    infof(data, "  no trust anchors configured");
+  إذا(creds_are_خالی)
+    infof(داده, "  no trust anchors configured");
 
-#ifdef USE_APPLE_SECTRUST
-  if(config->CRLfile && config->native_ca_store) {
-    failf(data, "gnutls: CRL file not supported with native CA store; "
+#اگر_تعریف_شده USE_APPLE_SECTRUST
+  إذا(config->CRLfile && config->native_ca_store) {
+    failf(داده, "gnutls: CRL file not supported with native CA store; "
           "the platform verifier has no CRL attachment API");
-    return CURLE_NOT_BUILT_IN;
+    أرجع CURLE_NOT_BUILT_درون;
   }
-#endif
-  if(config->CRLfile) {
+#پایان_اگر
+  إذا(config->CRLfile) {
     /* set the CRL list file */
-    rc = gnutls_certificate_set_x509_crl_file(creds, config->CRLfile,
+    rc = gnutls_certificate_مجموعه_x509_crl_file(creds, config->CRLfile,
                                               GNUTLS_X509_FMT_PEM);
-    if(rc < 0) {
-      failf(data, "error reading CRL file %s (%s)",
+    إذا(rc < 0) {
+      failf(داده, "error reading CRL file %s (%s)",
             config->CRLfile, gnutls_strerror(rc));
-      return CURLE_SSL_CRL_BADFILE;
+      أرجع CURLE_SSL_CRL_BADFILE;
     }
-    else
-      infof(data, "  CRLfile: %d CRL in %s", rc, config->CRLfile);
+    وإلا
+      infof(داده, "  CRLfile: %d CRL in %s", rc, config->CRLfile);
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_GTLS_X509_KEY   "tls:gtls:x509:share"
+#تعریف_کن MPROTO_GTLS_X509_کلید   "tls:gtls:x509:share"
 
-static bool gtls_shared_creds_expired(struct Curl_easy *data,
-                                      const struct gtls_shared_creds *sc)
+ساكن bool gtls_shared_creds_expired(بنية Curl_easy *داده,
+                                      ثابت بنية gtls_shared_creds *sc)
 {
-  timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &sc->time);
-  timediff_t timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
+  timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(داده), &sc->زمان);
+  timediff_t timeout_ms = داده->مجموعه.ssl_ca_cache_timeout * (timediff_t)1000;
 
-  if(timeout_ms < 0)
-    return FALSE;
+  إذا(timeout_ms < 0)
+    أرجع FALSE;
 
-  return elapsed_ms >= timeout_ms;
+  أرجع elapsed_ms >= timeout_ms;
 }
 
-static bool gtls_shared_creds_different(struct Curl_cfilter *cf,
-                                        const struct gtls_shared_creds *sc)
+ساكن bool gtls_shared_creds_different(بنية Curl_cfilter *cf,
+                                        ثابت بنية gtls_shared_creds *sc)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!sc->CAfile || !conn_config->CAfile)
-    return sc->CAfile != conn_config->CAfile;
+  بنية ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  إذا(!sc->CAfile || !conn_config->CAfile)
+    أرجع sc->CAfile != conn_config->CAfile;
 
-  return strcmp(sc->CAfile, conn_config->CAfile);
+  أرجع strcmp(sc->CAfile, conn_config->CAfile);
 }
 
-static struct gtls_shared_creds *gtls_get_cached_creds(struct Curl_cfilter *cf,
-                                                       struct Curl_easy *data)
+ساكن بنية gtls_shared_creds *gtls_get_cached_creds(بنية Curl_cfilter *cf,
+                                                       بنية Curl_easy *داده)
 {
-  struct gtls_shared_creds *shared_creds;
+  بنية gtls_shared_creds *shared_creds;
 
-  if(data->multi) {
-    shared_creds = Curl_hash_pick(&data->multi->proto_hash,
-                                  MPROTO_GTLS_X509_KEY,
-                                  CURL_CSTRLEN(MPROTO_GTLS_X509_KEY));
-    if(shared_creds && shared_creds->creds &&
-       !gtls_shared_creds_expired(data, shared_creds) &&
+  إذا(داده->multi) {
+    shared_creds = Curl_hash_pick(&داده->multi->proto_hash,
+                                  MPROTO_GTLS_X509_کلید,
+                                  CURL_CSTRLEN(MPROTO_GTLS_X509_کلید));
+    إذا(shared_creds && shared_creds->creds &&
+       !gtls_shared_creds_expired(داده, shared_creds) &&
        !gtls_shared_creds_different(cf, shared_creds)) {
-      return shared_creds;
+      أرجع shared_creds;
     }
   }
-  return NULL;
+  أرجع عدم;
 }
 
-static void gtls_shared_creds_hash_free(const void *key,
-                                        size_t key_len, void *p)
+ساكن فراغ gtls_shared_creds_hash_free(ثابت فراغ *کلید,
+                                        size_t کلید_len, فراغ *p)
 {
-  struct gtls_shared_creds *sc = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_GTLS_X509_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_GTLS_X509_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
+  بنية gtls_shared_creds *sc = p;
+  DEBUGASSERT(کلید_len == CURL_CSTRLEN(MPROTO_GTLS_X509_کلید));
+  DEBUGASSERT(!memcmp(MPROTO_GTLS_X509_کلید, کلید, کلید_len));
+  (فراغ)کلید;
+  (فراغ)کلید_len;
   Curl_gtls_shared_creds_free(&sc); /* down reference */
 }
 
-static void gtls_set_cached_creds(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct gtls_shared_creds *sc)
+ساكن فراغ gtls_مجموعه_cached_creds(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده,
+                                  بنية gtls_shared_creds *sc)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  بنية ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
 
   DEBUGASSERT(sc);
   DEBUGASSERT(sc->creds);
   DEBUGASSERT(!sc->CAfile);
   DEBUGASSERT(sc->refcount == 1);
-  if(!data->multi)
-    return;
+  إذا(!داده->multi)
+    أرجع;
 
-  if(conn_config->CAfile) {
+  إذا(conn_config->CAfile) {
     sc->CAfile = curlx_strdup(conn_config->CAfile);
-    if(!sc->CAfile)
-      return;
+    إذا(!sc->CAfile)
+      أرجع;
   }
 
-  if(Curl_gtls_shared_creds_up_ref(sc))
-    return;
+  إذا(Curl_gtls_shared_creds_به_بالا_ref(sc))
+    أرجع;
 
-  if(!Curl_hash_add2(&data->multi->proto_hash,
-                     MPROTO_GTLS_X509_KEY,
-                     CURL_CSTRLEN(MPROTO_GTLS_X509_KEY),
+  إذا(!Curl_hash_add2(&داده->multi->proto_hash,
+                     MPROTO_GTLS_X509_کلید,
+                     CURL_CSTRLEN(MPROTO_GTLS_X509_کلید),
                      sc, gtls_shared_creds_hash_free)) {
     Curl_gtls_shared_creds_free(&sc); /* down reference again */
-    return;
+    أرجع;
   }
 }
 
-CURLcode Curl_gtls_client_trust_setup(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct gtls_ctx *gtls)
+CURLcode Curl_gtls_client_trust_راهاندازی(بنية Curl_cfilter *cf,
+                                      بنية Curl_easy *داده,
+                                      بنية gtls_ctx *gtls)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct gtls_shared_creds *cached_creds = NULL;
+  بنية ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  بنية gtls_shared_creds *cached_creds = عدم;
   bool cache_criteria_met;
-  CURLcode result;
-  int rc;
+  CURLcode نتیجه;
+  صحيح rc;
 
   /* Consider the X509 store cacheable if it comes exclusively from a CAfile,
      or no source is provided and we are falling back to OpenSSL's built-in
      default. */
-  cache_criteria_met = (data->set.ssl_ca_cache_timeout != 0) &&
+  cache_criteria_met = (داده->مجموعه.ssl_ca_cache_timeout != 0) &&
     conn_config->verifypeer &&
     !conn_config->CApath &&
     !conn_config->ca_info_blob &&
@@ -670,71 +670,71 @@ CURLcode Curl_gtls_client_trust_setup(struct Curl_cfilter *cf,
     !conn_config->native_ca_store &&
     !conn_config->clientcert; /* GnuTLS adds client cert to its credentials! */
 
-  if(cache_criteria_met)
-    cached_creds = gtls_get_cached_creds(cf, data);
+  إذا(cache_criteria_met)
+    cached_creds = gtls_get_cached_creds(cf, داده);
 
-  if(cached_creds && !Curl_gtls_shared_creds_up_ref(cached_creds)) {
-    CURL_TRC_CF(data, cf, "using shared trust anchors and CRLs");
+  إذا(cached_creds && !Curl_gtls_shared_creds_به_بالا_ref(cached_creds)) {
+    CURL_TRC_CF(داده, cf, "using shared trust anchors and CRLs");
     Curl_gtls_shared_creds_free(&gtls->shared_creds);
     gtls->shared_creds = cached_creds;
-    rc = gnutls_credentials_set(gtls->session, GNUTLS_CRD_CERTIFICATE,
+    rc = gnutls_credentials_مجموعه(gtls->session, GNUTLS_CRD_CERTIFICATE,
                                 gtls->shared_creds->creds);
-    if(rc != GNUTLS_E_SUCCESS) {
-      failf(data, "gnutls_credentials_set() failed: %s", gnutls_strerror(rc));
-      return CURLE_SSL_CONNECT_ERROR;
+    إذا(rc != GNUTLS_E_SUCCESS) {
+      failf(داده, "gnutls_credentials_set() failed: %s", gnutls_strerror(rc));
+      أرجع CURLE_SSL_CONNECT_ERROR;
     }
   }
-  else {
-    CURL_TRC_CF(data, cf, "loading trust anchors and CRLs");
-    result = gtls_populate_creds(cf, data, gtls->shared_creds->creds);
-    if(result)
-      return result;
-    gtls->shared_creds->trust_setup = TRUE;
-    if(cache_criteria_met)
-      gtls_set_cached_creds(cf, data, gtls->shared_creds);
+  وإلا {
+    CURL_TRC_CF(داده, cf, "loading trust anchors and CRLs");
+    نتیجه = gtls_populate_creds(cf, داده, gtls->shared_creds->creds);
+    إذا(نتیجه)
+      أرجع نتیجه;
+    gtls->shared_creds->trust_راهاندازی = TRUE;
+    إذا(cache_criteria_met)
+      gtls_مجموعه_cached_creds(cf, داده, gtls->shared_creds);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-static int gtls_get_ietf_proto(gnutls_session_t session)
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+ساكن صحيح gtls_get_ietf_proto(gnutls_session_t session)
 {
-  switch(gnutls_protocol_get_version(session)) {
-  case GNUTLS_SSL3:
-    return CURL_IETF_PROTO_SSL3;
-  case GNUTLS_TLS1_0:
-    return CURL_IETF_PROTO_TLS1;
-  case GNUTLS_TLS1_1:
-    return CURL_IETF_PROTO_TLS1_1;
-  case GNUTLS_TLS1_2:
-    return CURL_IETF_PROTO_TLS1_2;
-  case GNUTLS_TLS1_3:
-    return CURL_IETF_PROTO_TLS1_3;
-  default:
-    return CURL_IETF_PROTO_UNKNOWN;
+  بدل(gnutls_protocol_get_نسخه(session)) {
+  حالة GNUTLS_SSL3:
+    أرجع CURL_IETF_PROTO_SSL3;
+  حالة GNUTLS_TLS1_0:
+    أرجع CURL_IETF_PROTO_TLS1;
+  حالة GNUTLS_TLS1_1:
+    أرجع CURL_IETF_PROTO_TLS1_1;
+  حالة GNUTLS_TLS1_2:
+    أرجع CURL_IETF_PROTO_TLS1_2;
+  حالة GNUTLS_TLS1_3:
+    أرجع CURL_IETF_PROTO_TLS1_3;
+  افتراضي:
+    أرجع CURL_IETF_PROTO_UNKNOWN;
   }
 }
 
-CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+CURLcode Curl_gtls_cache_session(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *داده,
+                                 ثابت حرف *ssl_peer_کلید,
                                  gnutls_session_t session,
                                  curl_off_t valid_until,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
+                                 ثابت حرف *alpn,
+                                 بیعلامت حرف *quic_tp,
                                  size_t quic_tp_len,
-                                 struct Curl_ssl_session **psession)
+                                 بنية Curl_ssl_session **psession)
 {
-  struct Curl_ssl_session *sc_session = NULL, *sc_dup = NULL;
-  unsigned char *sdata, *qtp_clone = NULL;
+  بنية Curl_ssl_session *sc_session = عدم, *sc_dup = عدم;
+  بیعلامت حرف *sdata, *qtp_clone = عدم;
   size_t sdata_len = 0;
   size_t earlydata_max = 0;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
 
-  if(psession)
-    *psession = NULL;
-  if(!Curl_ssl_scache_use(cf, data))
-    return CURLE_OK;
+  إذا(psession)
+    *psession = عدم;
+  إذا(!Curl_ssl_scache_use(cf, داده))
+    أرجع CURLE_OK;
 
   /* we always unconditionally get the session id here, as even if we
      already got it from the cache and asked to use it in the connection, it
@@ -742,1063 +742,1063 @@ CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
      detect that. */
 
   /* get the session ID data size */
-  gnutls_session_get_data(session, NULL, &sdata_len);
-  if(!sdata_len) /* GnuTLS does this for some version combinations */
-    return CURLE_OK;
+  gnutls_session_get_داده(session, عدم, &sdata_len);
+  إذا(!sdata_len) /* GnuTLS does this for some version combinations */
+    أرجع CURLE_OK;
 
   sdata = curlx_malloc(sdata_len); /* get a buffer for it */
-  if(!sdata)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!sdata)
+    أرجع CURLE_بیرون_از_حافظه;
 
   /* extract session ID to the allocated buffer */
-  gnutls_session_get_data(session, sdata, &sdata_len);
-  earlydata_max = gnutls_record_get_max_early_data_size(session);
+  gnutls_session_get_داده(session, sdata, &sdata_len);
+  earlydata_max = gnutls_رکورد_get_max_early_داده_اندازه(session);
 
-  CURL_TRC_CF(data, cf, "get session id (len=%zu, alpn=%s, earlymax=%zu) "
+  CURL_TRC_CF(داده, cf, "get session id (len=%zu, alpn=%s, earlymax=%zu) "
               "and store in cache", sdata_len, alpn ? alpn : "-",
               earlydata_max);
-  if(quic_tp && quic_tp_len) {
-    qtp_clone = curlx_memdup0((const char *)quic_tp, quic_tp_len);
-    if(!qtp_clone) {
+  إذا(quic_tp && quic_tp_len) {
+    qtp_clone = curlx_memdup0((ثابت حرف *)quic_tp, quic_tp_len);
+    إذا(!qtp_clone) {
       curlx_free(sdata);
-      return CURLE_OUT_OF_MEMORY;
+      أرجع CURLE_بیرون_از_حافظه;
     }
   }
 
-  result = Curl_ssl_session_create2(sdata, sdata_len,
+  نتیجه = Curl_ssl_session_create2(sdata, sdata_len,
                                     gtls_get_ietf_proto(session),
                                     alpn, valid_until, earlydata_max,
                                     qtp_clone, quic_tp_len,
                                     &sc_session);
   /* call took ownership of `sdata` and `qtp_clone` */
-  if(!result && psession &&  /* return a duplicate if asked for and FTP */
+  إذا(!نتیجه && psession &&  /* return a duplicate if asked for and FTP */
      (cf->conn->scheme->family == CURLPROTO_FTP))
-    result = Curl_ssl_session_dup(sc_session, &sc_dup);
-  if(!result) {
-    result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
+    نتیجه = Curl_ssl_session_dup(sc_session, &sc_dup);
+  إذا(!نتیجه) {
+    نتیجه = Curl_ssl_scache_put(cf, داده, ssl_peer_کلید, sc_session);
     /* took ownership of `sc_session` */
-    sc_session = NULL;
+    sc_session = عدم;
   }
-  if(!result && psession) {
+  إذا(!نتیجه && psession) {
     *psession = sc_dup;
-    sc_dup = NULL;
+    sc_dup = عدم;
   }
   Curl_ssl_session_destroy(sc_session);
   Curl_ssl_session_destroy(sc_dup);
-  return result;
+  أرجع نتیجه;
 }
-#endif
+#پایان_اگر
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-static CURLcode cf_gtls_update_session_id(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+ساكن CURLcode cf_gtls_update_session_id(بنية Curl_cfilter *cf,
+                                          بنية Curl_easy *داده,
                                           gnutls_session_t session)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct Curl_ssl_session *scs = NULL;
-  CURLcode result;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية Curl_ssl_session *scs = عدم;
+  CURLcode نتیجه;
 
-  result = Curl_gtls_cache_session(cf, data, connssl->peer.scache_key,
+  نتیجه = Curl_gtls_cache_session(cf, داده, connssl->peer.scache_کلید,
                                    session, 0, connssl->negotiated.alpn,
-                                   NULL, 0, &scs);
-  if(!result) {
+                                   عدم, 0, &scs);
+  إذا(!نتیجه) {
     Curl_ssl_session_destroy(connssl->session);
     connssl->session = scs;
   }
-  return result;
+  أرجع نتیجه;
 }
 
-static int gtls_handshake_cb(gnutls_session_t session, unsigned int htype,
-                             unsigned when, unsigned int incoming,
-                             const gnutls_datum_t *msg)
+ساكن صحيح gtls_handshake_cb(gnutls_session_t session, بیعلامت صحيح htype,
+                             بیعلامت when, بیعلامت صحيح incoming,
+                             ثابت gnutls_datum_t *پیام)
 {
-  struct Curl_cfilter *cf = gnutls_session_get_ptr(session);
+  بنية Curl_cfilter *cf = gnutls_session_get_ptr(session);
 
-  (void)msg;
-  (void)incoming;
-  if(when) { /* after message has been processed */
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
-    if(data) {
-      CURL_TRC_CF(data, cf, "handshake: %s message type %u",
+  (فراغ)پیام;
+  (فراغ)incoming;
+  إذا(when) { /* after message has been processed */
+    بنية Curl_easy *داده = CF_داده_CURRENT(cf);
+    إذا(داده) {
+      CURL_TRC_CF(داده, cf, "handshake: %s message type %u",
                   incoming ? "incoming" : "outgoing", htype);
-      switch(htype) {
-      case GNUTLS_HANDSHAKE_NEW_SESSION_TICKET: {
-        cf_gtls_update_session_id(cf, data, session);
-        break;
+      بدل(htype) {
+      حالة GNUTLS_HANDSHAKE_NEW_SESSION_TICKET: {
+        cf_gtls_update_session_id(cf, داده, session);
+        اكسر;
       }
-      default:
-        break;
+      افتراضي:
+        اكسر;
       }
     }
   }
-  return 0;
+  أرجع 0;
 }
-#endif
+#پایان_اگر
 
-static CURLcode gtls_set_priority(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct gtls_ctx *gtls,
-                                  const char *priority)
+ساكن CURLcode gtls_مجموعه_اولویت(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده,
+                                  بنية gtls_ctx *gtls,
+                                  ثابت حرف *اولویت)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct dynbuf buf;
-  const char *err = NULL;
-  CURLcode result = CURLE_OK;
-  int rc;
+  بنية ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  بنية dynbuf buf;
+  ثابت حرف *err = عدم;
+  CURLcode نتیجه = CURLE_OK;
+  صحيح rc;
 
   curlx_dyn_init(&buf, 4096);
 
-  if(conn_config->cipher_list) {
-    if((conn_config->cipher_list[0] == '+') ||
+  إذا(conn_config->cipher_list) {
+    إذا((conn_config->cipher_list[0] == '+') ||
        (conn_config->cipher_list[0] == '-') ||
        (conn_config->cipher_list[0] == '!')) {
       /* add it to our own */
-      if(!curlx_dyn_len(&buf)) {  /* not added yet */
-        result = curlx_dyn_add(&buf, priority);
-        if(result)
-          goto out;
+      إذا(!curlx_dyn_len(&buf)) {  /* not added yet */
+        نتیجه = curlx_dyn_جمع_کن(&buf, اولویت);
+        إذا(نتیجه)
+          اذهب بیرون;
       }
-      result = curlx_dyn_addf(&buf, ":%s", conn_config->cipher_list);
-      if(result)
-        goto out;
-      priority = curlx_dyn_ptr(&buf);
+      نتیجه = curlx_dyn_addf(&buf, ":%s", conn_config->cipher_list);
+      إذا(نتیجه)
+        اذهب بیرون;
+      اولویت = curlx_dyn_ptr(&buf);
     }
-    else /* replace our own completely */
-      priority = conn_config->cipher_list;
+    وإلا /* replace our own completely */
+      اولویت = conn_config->cipher_list;
   }
 
-  infof(data, "GnuTLS priority: %s", priority);
-  rc = gnutls_priority_set_direct(gtls->session, priority, &err);
-  if(rc != GNUTLS_E_SUCCESS) {
-    failf(data, "Error %d setting GnuTLS priority: %s", rc, err);
-    result = CURLE_SSL_CONNECT_ERROR;
+  infof(داده, "GnuTLS priority: %s", اولویت);
+  rc = gnutls_اولویت_مجموعه_مستقیم(gtls->session, اولویت, &err);
+  إذا(rc != GNUTLS_E_SUCCESS) {
+    failf(داده, "Error %d setting GnuTLS priority: %s", rc, err);
+    نتیجه = CURLE_SSL_CONNECT_ERROR;
   }
 
-out:
+بیرون:
   curlx_dyn_free(&buf);
-  return result;
+  أرجع نتیجه;
 }
 
-static CURLcode gtls_client_init(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct ssl_peer *peer,
+ساكن CURLcode gtls_client_init(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *داده,
+                                 بنية ssl_peer *peer,
                                  size_t earlydata_max,
-                                 struct gtls_ctx *gtls)
+                                 بنية gtls_ctx *gtls)
 {
-  struct ssl_filter_config *config = Curl_ssl_cf_get_filter_config(cf);
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  unsigned int init_flags;
-  int rc;
-  const char *prioritylist;
+  بنية ssl_filter_config *config = Curl_ssl_cf_get_filter_config(cf);
+  بنية ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, داده);
+  بیعلامت صحيح init_flags;
+  صحيح rc;
+  ثابت حرف *prioritylist;
   bool tls13support;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  if(config->version == CURL_SSLVERSION_SSLv2 ||
-     config->version == CURL_SSLVERSION_SSLv3) {
-    failf(data, "GnuTLS does not support SSLv2 or SSLv3");
-    return CURLE_SSL_CONNECT_ERROR;
+  إذا(config->نسخه_2 == CURL_SSLVERSION_SSLv2 ||
+     config->نسخه_2 == CURL_SSLVERSION_SSLv3) {
+    failf(داده, "GnuTLS does not support SSLv2 or SSLv3");
+    أرجع CURLE_SSL_CONNECT_ERROR;
   }
 
   /* allocate a shared creds struct */
-  result = Curl_gtls_shared_creds_create(data, &gtls->shared_creds);
-  if(result)
-    return result;
+  نتیجه = Curl_gtls_shared_creds_create(داده, &gtls->shared_creds);
+  إذا(نتیجه)
+    أرجع نتیجه;
 
   ssl_config->certverifyresult = 0;
 
   /* Initialize TLS session as a client */
   init_flags = GNUTLS_CLIENT;
-#ifdef CURL_GNUTLS_EARLY_DATA
-  if(peer->transport == TRNSPRT_QUIC && earlydata_max > 0)
-    init_flags |= GNUTLS_ENABLE_EARLY_DATA | GNUTLS_NO_END_OF_EARLY_DATA;
-  else if(earlydata_max > 0 && earlydata_max != 0xFFFFFFFFUL)
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+  إذا(peer->transport == TRNSPRT_QUIC && earlydata_max > 0)
+    init_flags |= GNUTLS_ENABLE_EARLY_داده | GNUTLS_NO_انتها_از_EARLY_داده;
+  وإلا إذا(earlydata_max > 0 && earlydata_max != 0xFFFFFFFFUL)
     /* See https://gitlab.com/gnutls/gnutls/-/issues/1619
      * We cannot differentiate between a session announcing no earldata
      * and one announcing 0xFFFFFFFFUL. On TCP+TLS, this is unlikely, but
      * on QUIC this is common. */
-    init_flags |= GNUTLS_ENABLE_EARLY_DATA;
-#endif
+    init_flags |= GNUTLS_ENABLE_EARLY_داده;
+#پایان_اگر
 
-#ifdef GNUTLS_FORCE_CLIENT_CERT
+#اگر_تعریف_شده GNUTLS_FORCE_CLIENT_CERT
   init_flags |= GNUTLS_FORCE_CLIENT_CERT;
-#endif
+#پایان_اگر
 
-#ifdef GNUTLS_NO_TICKETS_TLS12
+#اگر_تعریف_شده GNUTLS_NO_TICKETS_TLS12
   init_flags |= GNUTLS_NO_TICKETS_TLS12;
-#endif
+#پایان_اگر
 
-#ifdef GNUTLS_NO_STATUS_REQUEST
-  if(!config->verifystatus)
+#اگر_تعریف_شده GNUTLS_NO_وضعیت_REQUEST
+  إذا(!config->verifystatus)
     /* Disable the "status_request" TLS extension, enabled by default since
        GnuTLS 3.8.0. */
-    init_flags |= GNUTLS_NO_STATUS_REQUEST;
-#endif
+    init_flags |= GNUTLS_NO_وضعیت_REQUEST;
+#پایان_اگر
 
-  CURL_TRC_CF(data, cf, "gnutls_init(flags=%x), earlydata=%zu",
+  CURL_TRC_CF(داده, cf, "gnutls_init(flags=%x), earlydata=%zu",
               init_flags, earlydata_max);
   rc = gnutls_init(&gtls->session, init_flags);
-  if(rc != GNUTLS_E_SUCCESS) {
-    failf(data, "gnutls_init() failed: %d", rc);
-    return CURLE_SSL_CONNECT_ERROR;
+  إذا(rc != GNUTLS_E_SUCCESS) {
+    failf(داده, "gnutls_init() failed: %d", rc);
+    أرجع CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(peer->sni) {
-    if(gnutls_server_name_set(gtls->session, GNUTLS_NAME_DNS,
-                              peer->sni, strlen(peer->sni)) < 0) {
-      failf(data, "Failed to set SNI");
-      return CURLE_SSL_CONNECT_ERROR;
+  إذا(peer->sni) {
+    إذا(gnutls_server_name_مجموعه(gtls->session, GNUTLS_NAME_DNS,
+                              peer->sni, طول_رشته(peer->sni)) < 0) {
+      failf(داده, "Failed to set SNI");
+      أرجع CURLE_SSL_CONNECT_ERROR;
     }
   }
 
   /* Use default priorities */
-  rc = gnutls_set_default_priority(gtls->session);
-  if(rc != GNUTLS_E_SUCCESS)
-    return CURLE_SSL_CONNECT_ERROR;
+  rc = gnutls_مجموعه_default_اولویت(gtls->session);
+  إذا(rc != GNUTLS_E_SUCCESS)
+    أرجع CURLE_SSL_CONNECT_ERROR;
 
   /* "In GnuTLS 3.6.5, TLS 1.3 is enabled by default" */
-  tls13support = !!gnutls_check_version("3.6.5");
+  tls13support = !!gnutls_check_نسخه("3.6.5");
 
-  if(config->version == CURL_SSLVERSION_TLSv1_3) {
-    if(!tls13support) {
-      failf(data, "This GnuTLS installation does not support TLS 1.3");
-      return CURLE_SSL_CONNECT_ERROR;
+  إذا(config->نسخه_2 == CURL_SSLVERSION_TLSv1_3) {
+    إذا(!tls13support) {
+      failf(داده, "This GnuTLS installation does not support TLS 1.3");
+      أرجع CURLE_SSL_CONNECT_ERROR;
     }
   }
 
   /* At this point we know we have a supported TLS version, so set it */
-  result = gnutls_set_ssl_version_min_max(data, peer,
+  نتیجه = gnutls_مجموعه_ssl_نسخه_min_max(داده, peer,
                                           config, &prioritylist, tls13support);
-  if(result)
-    return result;
+  إذا(نتیجه)
+    أرجع نتیجه;
 
-  result = gtls_set_priority(cf, data, gtls, prioritylist);
-  if(result)
-    return result;
+  نتیجه = gtls_مجموعه_اولویت(cf, داده, gtls, prioritylist);
+  إذا(نتیجه)
+    أرجع نتیجه;
 
-  if(config->clientcert) {
-    if(!gtls->shared_creds->trust_setup) {
-      result = Curl_gtls_client_trust_setup(cf, data, gtls);
-      if(result)
-        return result;
+  إذا(config->clientcert) {
+    إذا(!gtls->shared_creds->trust_راهاندازی) {
+      نتیجه = Curl_gtls_client_trust_راهاندازی(cf, داده, gtls);
+      إذا(نتیجه)
+        أرجع نتیجه;
     }
-    if(config->cert_type &&
+    إذا(config->cert_type &&
        curl_strequal(config->cert_type, "P12")) {
-      rc = gnutls_certificate_set_x509_simple_pkcs12_file(
+      rc = gnutls_certificate_مجموعه_x509_simple_pkcs12_file(
         gtls->shared_creds->creds, config->clientcert, GNUTLS_X509_FMT_DER,
-        config->key_passwd ? config->key_passwd : "");
-      if(rc != GNUTLS_E_SUCCESS) {
-        failf(data,
+        config->کلید_passwd ? config->کلید_passwd : "");
+      إذا(rc != GNUTLS_E_SUCCESS) {
+        failf(داده,
               "error reading X.509 potentially-encrypted key or certificate "
               "file: %s",
               gnutls_strerror(rc));
-        return CURLE_SSL_CONNECT_ERROR;
+        أرجع CURLE_SSL_CONNECT_ERROR;
       }
     }
-    else {
-      const unsigned int supported_key_encryption_algorithms =
+    وإلا {
+      ثابت بیعلامت صحيح supported_کلید_encryption_algorithms =
         GNUTLS_PKCS_USE_PKCS12_3DES | GNUTLS_PKCS_USE_PKCS12_ARCFOUR |
         GNUTLS_PKCS_USE_PKCS12_RC2_40 | GNUTLS_PKCS_USE_PBES2_3DES |
         GNUTLS_PKCS_USE_PBES2_AES_128 | GNUTLS_PKCS_USE_PBES2_AES_192 |
         GNUTLS_PKCS_USE_PBES2_AES_256;
-      rc = gnutls_certificate_set_x509_key_file2(
+      rc = gnutls_certificate_مجموعه_x509_کلید_file2(
            gtls->shared_creds->creds,
            config->clientcert,
-           config->key ? config->key : config->clientcert,
+           config->کلید ? config->کلید : config->clientcert,
            gnutls_do_file_type(config->cert_type),
-           config->key_passwd,
-           supported_key_encryption_algorithms);
-      if(rc != GNUTLS_E_SUCCESS) {
-        failf(data,
+           config->کلید_passwd,
+           supported_کلید_encryption_algorithms);
+      إذا(rc != GNUTLS_E_SUCCESS) {
+        failf(داده,
               "error reading X.509 %skey file: %s",
-              config->key_passwd ? "potentially-encrypted " : "",
+              config->کلید_passwd ? "potentially-encrypted " : "",
               gnutls_strerror(rc));
-        return CURLE_SSL_CONNECT_ERROR;
+        أرجع CURLE_SSL_CONNECT_ERROR;
       }
     }
   }
 
-  rc = gnutls_credentials_set(gtls->session, GNUTLS_CRD_CERTIFICATE,
+  rc = gnutls_credentials_مجموعه(gtls->session, GNUTLS_CRD_CERTIFICATE,
                               gtls->shared_creds->creds);
-  if(rc != GNUTLS_E_SUCCESS) {
-    failf(data, "gnutls_credentials_set() failed: %s", gnutls_strerror(rc));
-    return CURLE_SSL_CONNECT_ERROR;
+  إذا(rc != GNUTLS_E_SUCCESS) {
+    failf(داده, "gnutls_credentials_set() failed: %s", gnutls_strerror(rc));
+    أرجع CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(config->verifystatus) {
-    rc = gnutls_ocsp_status_request_enable_client(gtls->session,
-                                                  NULL, 0, NULL);
-    if(rc != GNUTLS_E_SUCCESS) {
-      failf(data, "gnutls_ocsp_status_request_enable_client() failed: %d", rc);
-      return CURLE_SSL_CONNECT_ERROR;
+  إذا(config->verifystatus) {
+    rc = gnutls_ocsp_وضعیت_request_enable_client(gtls->session,
+                                                  عدم, 0, عدم);
+    إذا(rc != GNUTLS_E_SUCCESS) {
+      failf(داده, "gnutls_ocsp_status_request_enable_client() failed: %d", rc);
+      أرجع CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-static int keylog_callback(gnutls_session_t session, const char *label,
-                           const gnutls_datum_t *secret)
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+ساكن صحيح keylog_callback(gnutls_session_t session, ثابت حرف *label,
+                           ثابت gnutls_datum_t *secret)
 {
   gnutls_datum_t crandom;
   gnutls_datum_t srandom;
 
   gnutls_session_get_random(session, &crandom, &srandom);
-  if(crandom.size != 32) {
-    return -1;
+  إذا(crandom.اندازه != 32) {
+    أرجع -1;
   }
 
-  Curl_tls_keylog_write(label, crandom.data, crandom.size,
-                        secret->data, secret->size);
-  return 0;
+  Curl_tls_keylog_write(label, crandom.داده, crandom.اندازه,
+                        secret->داده, secret->اندازه);
+  أرجع 0;
 }
 
-static CURLcode gtls_on_session_reuse(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct alpn_spec *alpns,
-                                      struct Curl_ssl_session *scs,
-                                      bool *do_early_data)
+ساكن CURLcode gtls_on_session_reuse(بنية Curl_cfilter *cf,
+                                      بنية Curl_easy *داده,
+                                      بنية alpn_spec *alpns,
+                                      بنية Curl_ssl_session *scs,
+                                      bool *do_early_داده)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
 
   connssl->earlydata_max =
-    gnutls_record_get_max_early_data_size(backend->gtls.session);
+    gnutls_رکورد_get_max_early_داده_اندازه(backend->gtls.session);
 
   /* Seems to be no GnuTLS way to signal no EarlyData in session */
-  return Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
+  أرجع Curl_on_session_reuse(cf, داده, alpns, scs, do_early_داده,
                                connssl->earlydata_max &&
                                connssl->earlydata_max != 0xFFFFFFFFUL);
 }
-#endif
+#پایان_اگر
 
-static CURLcode gtls_apply_session(
-  struct gtls_ctx *gctx,
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct ssl_peer *peer,
-  struct alpn_spec *alpns,
+ساكن CURLcode gtls_apply_session(
+  بنية gtls_ctx *gctx,
+  بنية Curl_cfilter *cf,
+  بنية Curl_easy *داده,
+  بنية ssl_peer *peer,
+  بنية alpn_spec *alpns,
   Curl_gtls_init_session_reuse_cb *sess_reuse_cb,
-  struct Curl_ssl_session *scs,
-  bool *pwas_setup)
+  بنية Curl_ssl_session *scs,
+  bool *pwas_راهاندازی)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  CURLcode result = CURLE_OK;
-  int rc;
+  بنية ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  CURLcode نتیجه = CURLE_OK;
+  صحيح rc;
 
-  if(scs && scs->sdata && scs->sdata_len &&
-     (!scs->alpn || Curl_alpn_contains_proto(alpns, scs->alpn))) {
+  إذا(scs && scs->sdata && scs->sdata_len &&
+     (!scs->alpn || Curl_alpn_شامل_است_proto(alpns, scs->alpn))) {
     /* we got a cached session, use it! */
 
-    result = gtls_client_init(cf, data, peer, scs->earlydata_max, gctx);
-    if(result)
-      goto out;
-    *pwas_setup = TRUE;
+    نتیجه = gtls_client_init(cf, داده, peer, scs->earlydata_max, gctx);
+    إذا(نتیجه)
+      اذهب بیرون;
+    *pwas_راهاندازی = TRUE;
 
-    rc = gnutls_session_set_data(gctx->session, scs->sdata, scs->sdata_len);
-    if(rc < 0)
-      infof(data, "SSL session not accepted by GnuTLS, continuing without");
-    else {
-      infof(data, "SSL reusing session with ALPN '%s'",
+    rc = gnutls_session_مجموعه_داده(gctx->session, scs->sdata, scs->sdata_len);
+    إذا(rc < 0)
+      infof(داده, "SSL session not accepted by GnuTLS, continuing without");
+    وإلا {
+      infof(داده, "SSL reusing session with ALPN '%s'",
             scs->alpn ? scs->alpn : "-");
-      if(conn_config->earlydata && scs->alpn &&
-         !cf->conn->bits.connect_only) {
-        bool do_early_data = FALSE;
-        if(sess_reuse_cb) {
-          result = sess_reuse_cb(cf, data, alpns, scs, &do_early_data);
-          if(result)
-            goto out;
+      إذا(conn_config->earlydata && scs->alpn &&
+         !cf->conn->بیتها.connect_only) {
+        bool do_early_داده = FALSE;
+        إذا(sess_reuse_cb) {
+          نتیجه = sess_reuse_cb(cf, داده, alpns, scs, &do_early_داده);
+          إذا(نتیجه)
+            اذهب بیرون;
         }
-        if(do_early_data) {
+        إذا(do_early_داده) {
           /* We only try the ALPN protocol the session used before,
            * otherwise we might send early data for the wrong protocol */
-          Curl_alpn_restrict_to(alpns, scs->alpn);
+          Curl_alpn_restrict_مقصد(alpns, scs->alpn);
         }
       }
     }
   }
-out:
-  return result;
+بیرون:
+  أرجع نتیجه;
 }
 
-CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
-                            Curl_gtls_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+CURLcode Curl_gtls_ctx_init(بنية gtls_ctx *gctx,
+                            بنية Curl_cfilter *cf,
+                            بنية Curl_easy *داده,
+                            بنية ssl_peer *peer,
+                            ثابت بنية alpn_spec *alpns_requested,
+                            Curl_gtls_ctx_راهاندازی_cb *cb_راهاندازی,
+                            فراغ *cb_user_داده,
+                            فراغ *ssl_user_داده,
                             Curl_gtls_init_session_reuse_cb *sess_reuse_cb)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_session *scs = NULL;
+  بنية ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  بنية Curl_ssl_session *scs = عدم;
   gnutls_datum_t gtls_alpns[ALPN_ENTRIES_MAX];
-  size_t gtls_alpns_count = 0;
-  bool gtls_session_setup = FALSE;
-  struct alpn_spec alpns;
-  CURLcode result = CURLE_OK;
+  size_t gtls_alpns_شمار = 0;
+  bool gtls_session_راهاندازی = FALSE;
+  بنية alpn_spec alpns;
+  CURLcode نتیجه = CURLE_OK;
 
   DEBUGASSERT(gctx);
   Curl_alpn_copy(&alpns, alpns_requested);
 
-  if((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
+  إذا((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
     /* FTP is a bitch. On TLS secured transfers, it is a common server
      * option to require the client to use the SAME TLS session as on
      * the control connection or it fails the request. See #22225. */
-    scs = Curl_ssl_get_cf_session(data, cf->cft, FIRSTSOCKET);
-    if(scs) {
-      result = gtls_apply_session(gctx, cf, data, peer, &alpns,
-                                  sess_reuse_cb, scs, &gtls_session_setup);
-      scs = NULL;
-      if(!result && gtls_session_setup) {
-        CURL_TRC_CF(data, cf, "applied SSL session from control connection");
+    scs = Curl_ssl_get_cf_session(داده, cf->cft, FIRSTSOCKET);
+    إذا(scs) {
+      نتیجه = gtls_apply_session(gctx, cf, داده, peer, &alpns,
+                                  sess_reuse_cb, scs, &gtls_session_راهاندازی);
+      scs = عدم;
+      إذا(!نتیجه && gtls_session_راهاندازی) {
+        CURL_TRC_CF(داده, cf, "applied SSL session from control connection");
       }
     }
   }
   /* This might be a reconnect, so we check for a session ID in the cache
      to speed up things. We need to do this before constructing the GnuTLS
      session since we need to set flags depending on the kind of reuse. */
-  if(!gtls_session_setup && conn_config->cache_session &&
+  إذا(!gtls_session_راهاندازی && conn_config->cache_session &&
      !conn_config->verifystatus) {
-    result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
-    if(result)
-      goto out;
-    result = gtls_apply_session(gctx, cf, data, peer, &alpns,
-                                sess_reuse_cb, scs, &gtls_session_setup);
+    نتیجه = Curl_ssl_scache_take(cf, داده, peer->scache_کلید, &scs);
+    إذا(نتیجه)
+      اذهب بیرون;
+    نتیجه = gtls_apply_session(gctx, cf, داده, peer, &alpns,
+                                sess_reuse_cb, scs, &gtls_session_راهاندازی);
   }
 
-  if(!gtls_session_setup) {
-    result = gtls_client_init(cf, data, peer, 0, gctx);
-    if(result)
-      goto out;
+  إذا(!gtls_session_راهاندازی) {
+    نتیجه = gtls_client_init(cf, داده, peer, 0, gctx);
+    إذا(نتیجه)
+      اذهب بیرون;
   }
 
-  gnutls_session_set_ptr(gctx->session, ssl_user_data);
+  gnutls_session_مجموعه_ptr(gctx->session, ssl_user_داده);
 
-  if(cb_setup) {
-    result = cb_setup(cf, data, cb_user_data);
-    if(result)
-      goto out;
+  إذا(cb_راهاندازی) {
+    نتیجه = cb_راهاندازی(cf, داده, cb_user_داده);
+    إذا(نتیجه)
+      اذهب بیرون;
   }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
   /* Open the file if a TLS or QUIC backend has not done this before. */
   Curl_tls_keylog_open();
-  if(Curl_tls_keylog_enabled()) {
-    gnutls_session_set_keylog_function(gctx->session, keylog_callback);
+  إذا(Curl_tls_keylog_enabled()) {
+    gnutls_session_مجموعه_keylog_function(gctx->session, keylog_callback);
   }
-#endif
+#پایان_اگر
 
   /* convert the ALPN string from our arguments to a list of strings that
    * GnuTLS wants and does convert internally back to this string for sending
    * to the server. nice. */
-  if(!gtls_alpns_count && alpns.count) {
+  إذا(!gtls_alpns_شمار && alpns.شمار) {
     size_t i;
-    DEBUGASSERT(CURL_ARRAYSIZE(gtls_alpns) >= alpns.count);
-    for(i = 0; i < alpns.count; ++i) {
-      gtls_alpns[i].data = (unsigned char *)alpns.entries[i];
-      gtls_alpns[i].size = (unsigned int)strlen(alpns.entries[i]);
+    DEBUGASSERT(CURL_ARRAYSIZE(gtls_alpns) >= alpns.شمار);
+    لكل(i = 0; i < alpns.شمار; ++i) {
+      gtls_alpns[i].داده = (بیعلامت حرف *)alpns.entries[i];
+      gtls_alpns[i].اندازه = (بیعلامت صحيح)طول_رشته(alpns.entries[i]);
     }
-    gtls_alpns_count = alpns.count;
+    gtls_alpns_شمار = alpns.شمار;
   }
 
-  if(gtls_alpns_count &&
-     gnutls_alpn_set_protocols(gctx->session,
-                               gtls_alpns, (unsigned int)gtls_alpns_count,
+  إذا(gtls_alpns_شمار &&
+     gnutls_alpn_مجموعه_protocols(gctx->session,
+                               gtls_alpns, (بیعلامت صحيح)gtls_alpns_شمار,
                                GNUTLS_ALPN_MANDATORY)) {
-    failf(data, "failed setting ALPN");
-    result = CURLE_SSL_CONNECT_ERROR;
+    failf(داده, "failed setting ALPN");
+    نتیجه = CURLE_SSL_CONNECT_ERROR;
   }
 
-out:
-  Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
-  return result;
+بیرون:
+  Curl_ssl_scache_return(cf, داده, peer->scache_کلید, scs);
+  أرجع نتیجه;
 }
 
-static CURLcode gtls_connect_step1(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+ساكن CURLcode gtls_connect_step1(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *داده)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  CURLcode نتیجه;
 
   DEBUGASSERT(backend);
 
-  if(connssl->state == ssl_connection_complete)
+  إذا(connssl->state == ssl_connection_complete)
     /* to make us tolerant against being called more than once for the
        same connection */
-    return CURLE_OK;
+    أرجع CURLE_OK;
 
-  result = Curl_gtls_ctx_init(&backend->gtls, cf, data, &connssl->peer,
-                              connssl->alpn, NULL, NULL, cf,
-#ifdef CURL_GNUTLS_EARLY_DATA
+  نتیجه = Curl_gtls_ctx_init(&backend->gtls, cf, داده, &connssl->peer,
+                              connssl->alpn, عدم, عدم, cf,
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
                               gtls_on_session_reuse
-#else
-                              NULL
-#endif
+#وإلا
+                              عدم
+#پایان_اگر
                               );
 
-  if(result)
-    return result;
+  إذا(نتیجه)
+    أرجع نتیجه;
 
-  if(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
-    struct alpn_proto_buf proto;
-    memset(&proto, 0, sizeof(proto));
-    Curl_alpn_to_proto_str(&proto, connssl->alpn);
-    infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
+  إذا(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
+    بنية alpn_proto_buf proto;
+    memset(&proto, 0, حجم(proto));
+    Curl_alpn_مقصد_proto_str(&proto, connssl->alpn);
+    infof(داده, VTLS_INFOF_ALPN_OFFER_1STR, proto.داده);
   }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-  gnutls_handshake_set_hook_function(backend->gtls.session,
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+  gnutls_handshake_مجموعه_hook_function(backend->gtls.session,
                                      GNUTLS_HANDSHAKE_ANY, GNUTLS_HOOK_POST,
                                      gtls_handshake_cb);
-#endif
+#پایان_اگر
 
   /* register callback functions and handle to send and receive data. */
-  gnutls_transport_set_ptr(backend->gtls.session, cf);
-  gnutls_transport_set_push_function(backend->gtls.session, gtls_push);
-  gnutls_transport_set_pull_function(backend->gtls.session, gtls_pull);
+  gnutls_transport_مجموعه_ptr(backend->gtls.session, cf);
+  gnutls_transport_مجموعه_افزودن_function(backend->gtls.session, gtls_افزودن);
+  gnutls_transport_مجموعه_pull_function(backend->gtls.session, gtls_pull);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode pkp_pin_peer_pubkey(struct Curl_easy *data,
+ساكن CURLcode pkp_pin_peer_pubkey(بنية Curl_easy *داده,
                                     gnutls_x509_crt_t cert,
-                                    const char *pinnedpubkey)
+                                    ثابت حرف *pinnedpubkey)
 {
   /* Scratch */
   size_t len1 = 0, len2 = 0;
-  unsigned char *buff1 = NULL;
+  بیعلامت حرف *buff1 = عدم;
 
-  gnutls_pubkey_t key = NULL;
+  gnutls_pubkey_t کلید = عدم;
 
   /* Result is returned to caller */
-  CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+  CURLcode نتیجه = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
+  إذا(!pinnedpubkey)
+    أرجع CURLE_OK;
 
-  if(!cert)
-    return result;
+  إذا(!cert)
+    أرجع نتیجه;
 
-  do {
-    int ret;
+  افعل {
+    صحيح ret;
 
     /* Begin Gyrations to get the public key */
-    ret = gnutls_pubkey_init(&key);
-    if(ret < 0)
-      break; /* failed */
+    ret = gnutls_pubkey_init(&کلید);
+    إذا(ret < 0)
+      اكسر; /* failed */
 
-    ret = gnutls_pubkey_import_x509(key, cert, 0);
-    if(ret < 0)
-      break; /* failed */
+    ret = gnutls_pubkey_import_x509(کلید, cert, 0);
+    إذا(ret < 0)
+      اكسر; /* failed */
 
-    ret = gnutls_pubkey_export(key, GNUTLS_X509_FMT_DER, NULL, &len1);
-    if(ret != GNUTLS_E_SHORT_MEMORY_BUFFER || len1 == 0)
-      break; /* failed */
+    ret = gnutls_pubkey_export(کلید, GNUTLS_X509_FMT_DER, عدم, &len1);
+    إذا(ret != GNUTLS_E_SHORT_حافظه_میانگیر || len1 == 0)
+      اكسر; /* failed */
 
     buff1 = curlx_malloc(len1);
-    if(!buff1)
-      break; /* failed */
+    إذا(!buff1)
+      اكسر; /* failed */
 
     len2 = len1;
 
-    ret = gnutls_pubkey_export(key, GNUTLS_X509_FMT_DER, buff1, &len2);
-    if(ret < 0 || len1 != len2)
-      break; /* failed */
+    ret = gnutls_pubkey_export(کلید, GNUTLS_X509_FMT_DER, buff1, &len2);
+    إذا(ret < 0 || len1 != len2)
+      اكسر; /* failed */
 
     /* End Gyrations */
 
     /* The one good exit point */
-    result = Curl_pin_peer_pubkey(data, pinnedpubkey, buff1, len1);
-  } while(0);
+    نتیجه = Curl_pin_peer_pubkey(داده, pinnedpubkey, buff1, len1);
+  } طالما(0);
 
-  if(key)
-    gnutls_pubkey_deinit(key);
+  إذا(کلید)
+    gnutls_pubkey_deinit(کلید);
 
   curlx_safefree(buff1);
 
-  return result;
+  أرجع نتیجه;
 }
 
-void Curl_gtls_report_handshake(struct Curl_easy *data, struct gtls_ctx *gctx)
+فراغ Curl_gtls_report_handshake(بنية Curl_easy *داده, بنية gtls_ctx *gctx)
 {
-#ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
-    const char *ptr;
-    gnutls_protocol_t version = gnutls_protocol_get_version(gctx->session);
+#اگر_تعریف_شده CURLVERBOSE
+  إذا(Curl_trc_is_verbose(داده)) {
+    ثابت حرف *ptr;
+    gnutls_protocol_t نسخه_2 = gnutls_protocol_get_نسخه(gctx->session);
 
     /* the name of the cipher suite used, e.g. ECDHE_RSA_AES_256_GCM_SHA384. */
     ptr = gnutls_cipher_suite_get_name(gnutls_kx_get(gctx->session),
                                        gnutls_cipher_get(gctx->session),
                                        gnutls_mac_get(gctx->session));
 
-    infof(data, "SSL connection using %s / %s",
-          gnutls_protocol_get_name(version), ptr);
+    infof(داده, "SSL connection using %s / %s",
+          gnutls_protocol_get_name(نسخه_2), ptr);
   }
-#else
-  (void)data;
-  (void)gctx;
-#endif
+#وإلا
+  (فراغ)داده;
+  (فراغ)gctx;
+#پایان_اگر
 }
 
-static void gtls_msg_verify_result(struct Curl_easy *data,
-                                   struct ssl_peer *peer,
+ساكن فراغ gtls_پیام_verify_نتیجه(بنية Curl_easy *داده,
+                                   بنية ssl_peer *peer,
                                    gnutls_x509_crt_t x509_cert,
                                    bool was_verified,
                                    bool needs_verified)
 {
-  char certname[65] = ""; /* limited to 64 chars by ASN.1 */
-  size_t size = sizeof(certname);
-  int rc;
+  حرف certname[65] = ""; /* limited to 64 chars by ASN.1 */
+  size_t اندازه = حجم(certname);
+  صحيح rc;
 
   rc = gnutls_x509_crt_get_dn_by_oid(x509_cert, GNUTLS_OID_X520_COMMON_NAME,
                                      0, /* the first and only one */
-                                     FALSE, certname, &size);
-  if(rc) {
-    infof(data, "error fetching CN from cert:%s", gnutls_strerror(rc));
+                                     FALSE, certname, &اندازه);
+  إذا(rc) {
+    infof(داده, "error fetching CN from cert:%s", gnutls_strerror(rc));
     certname[0] = 0;
   }
 
-  if(!was_verified) {
-    if(needs_verified) {
-      failf(data, "SSL: certificate subject name (%s) does not match "
+  إذا(!was_verified) {
+    إذا(needs_verified) {
+      failf(داده, "SSL: certificate subject name (%s) does not match "
             "target hostname '%s'", certname,
             peer->origin->user_hostname);
     }
-    else
-      infof(data, "  common name: %s (does not match '%s')",
+    وإلا
+      infof(داده, "  common name: %s (does not match '%s')",
             certname, peer->origin->user_hostname);
   }
-  else
-    infof(data, "  common name: %s (matched)", certname);
+  وإلا
+    infof(داده, "  common name: %s (matched)", certname);
 }
 
-static void gtls_infof_cert(struct Curl_easy *data,
+ساكن فراغ gtls_infof_cert(بنية Curl_easy *داده,
                             gnutls_x509_crt_t x509_cert)
 {
-#ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
+#اگر_تعریف_شده CURLVERBOSE
+  إذا(Curl_trc_is_verbose(داده)) {
     gnutls_datum_t certfields;
-    int rc, algo;
+    صحيح rc, algo;
     time_t tstamp;
-    unsigned int bits;
+    بیعلامت صحيح بیتها;
 
     /* public key algorithm's parameters */
-    algo = gnutls_x509_crt_get_pk_algorithm(x509_cert, &bits);
-    infof(data, "  certificate public key: %s",
+    algo = gnutls_x509_crt_get_pk_algorithm(x509_cert, &بیتها);
+    infof(داده, "  certificate public key: %s",
           gnutls_pk_algorithm_get_name((gnutls_pk_algorithm_t)algo));
 
     /* version of the X.509 certificate. */
-    infof(data, "  certificate version: #%d",
-          gnutls_x509_crt_get_version(x509_cert));
+    infof(داده, "  certificate version: #%d",
+          gnutls_x509_crt_get_نسخه(x509_cert));
 
     rc = gnutls_x509_crt_get_dn2(x509_cert, &certfields);
-    if(rc)
-      infof(data, "Failed to get certificate name");
-    else {
-      infof(data, "  subject: %s", certfields.data);
+    إذا(rc)
+      infof(داده, "Failed to get certificate name");
+    وإلا {
+      infof(داده, "  subject: %s", certfields.داده);
 
-      tstamp = gnutls_x509_crt_get_activation_time(x509_cert);
-      showtime(data, "start date", tstamp);
+      tstamp = gnutls_x509_crt_get_activation_زمان(x509_cert);
+      showtime(داده, "start date", tstamp);
 
-      tstamp = gnutls_x509_crt_get_expiration_time(x509_cert);
-      showtime(data, "expire date", tstamp);
+      tstamp = gnutls_x509_crt_get_expiration_زمان(x509_cert);
+      showtime(داده, "expire date", tstamp);
 
-      gnutls_free(certfields.data);
+      gnutls_free(certfields.داده);
     }
 
     rc = gnutls_x509_crt_get_issuer_dn2(x509_cert, &certfields);
-    if(rc)
-      infof(data, "Failed to get certificate issuer");
-    else {
-      infof(data, "  issuer: %s", certfields.data);
+    إذا(rc)
+      infof(داده, "Failed to get certificate issuer");
+    وإلا {
+      infof(داده, "  issuer: %s", certfields.داده);
 
-      gnutls_free(certfields.data);
+      gnutls_free(certfields.داده);
     }
   }
-#else
-  (void)data;
-  (void)x509_cert;
-#endif
+#وإلا
+  (فراغ)داده;
+  (فراغ)x509_cert;
+#پایان_اگر
 }
 
-static CURLcode gtls_verify_ocsp_status(struct Curl_easy *data,
+ساكن CURLcode gtls_verify_ocsp_وضعیت(بنية Curl_easy *داده,
                                         gnutls_session_t session,
                                         gnutls_x509_crt_t cert)
 {
   gnutls_datum_t ocsp_raw;
-  gnutls_ocsp_resp_t ocsp_resp = NULL;
-  CURLcode result = CURLE_SSL_INVALIDCERTSTATUS;
-  int rc, idx;
+  gnutls_ocsp_resp_t ocsp_resp = عدم;
+  CURLcode نتیجه = CURLE_SSL_INVALIDCERTSTATUS;
+  صحيح rc, idx;
   bool ocsp_init = FALSE;
-  gnutls_ocsp_cert_status_t status = GNUTLS_OCSP_CERT_UNKNOWN;
+  gnutls_ocsp_cert_وضعیت_t وضعیت = GNUTLS_OCSP_CERT_UNKNOWN;
 
   /* Get the OCSP stapled response. We require it to be there. */
-  rc = gnutls_ocsp_status_request_get(session, &ocsp_raw);
-  if(rc == GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE) {
-    failf(data, "No OCSP response received");
-    goto out;
+  rc = gnutls_ocsp_وضعیت_request_get(session, &ocsp_raw);
+  إذا(rc == GNUTLS_E_REQUESTED_داده_NOT_موجود) {
+    failf(داده, "No OCSP response received");
+    اذهب بیرون;
   }
-  else if(rc < 0) {
-    failf(data, "Invalid OCSP response received");
-    goto out;
+  وإلا إذا(rc < 0) {
+    failf(داده, "Invalid OCSP response received");
+    اذهب بیرون;
   }
   /* Parse the OCSP response, which needs to succeed. */
   rc = gnutls_ocsp_resp_init(&ocsp_resp);
-  if(rc < 0) {
-    failf(data, "failed to init OCSP response parsing");
-    goto out;
+  إذا(rc < 0) {
+    failf(داده, "failed to init OCSP response parsing");
+    اذهب بیرون;
   }
   ocsp_init = TRUE;
   rc = gnutls_ocsp_resp_import(ocsp_resp, &ocsp_raw);
-  if(rc < 0) {
-    failf(data, "failed to parse OCSP response");
-    goto out;
+  إذا(rc < 0) {
+    failf(داده, "failed to parse OCSP response");
+    اذهب بیرون;
   }
   /* OCSP responses carry a basic, overall status and then individual
    * parts for different certificates. The overall status must be good. */
-  if(gnutls_ocsp_resp_get_status(ocsp_resp) != GNUTLS_OCSP_RESP_SUCCESSFUL) {
-    failf(data, "OCSP response basic part is not successful");
-    goto out;
+  إذا(gnutls_ocsp_resp_get_وضعیت(ocsp_resp) != GNUTLS_OCSP_RESP_SUCCESSFUL) {
+    failf(داده, "OCSP response basic part is not successful");
+    اذهب بیرون;
   }
   /* Find the OCSP sub-response for the peer certificate. */
-  for(idx = 0;; idx++) {
+  لكل(idx = 0;; idx++) {
     rc = gnutls_ocsp_resp_check_crt(ocsp_resp, idx, cert);
-    if(!rc || (rc == GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE))
-      break;
+    إذا(!rc || (rc == GNUTLS_E_REQUESTED_داده_NOT_موجود))
+      اكسر;
   }
-  if(rc < 0) {
-    failf(data, "OCSP does not carry status for peer cert");
-    goto out;
+  إذا(rc < 0) {
+    failf(داده, "OCSP does not carry status for peer cert");
+    اذهب بیرون;
   }
   /* The peer certificate OCSP status is at index `idx`.
    * Coming here means that GnuTLS has already checked that
    * - the signature of this OCSP status has been verified
    * - the timestamp of this OCSP status has been tested
    * We therefore need only to inspect that actual status code. */
-  rc = gnutls_ocsp_resp_get_single(ocsp_resp, idx, NULL, NULL, NULL, NULL,
-                                   &status, NULL, NULL, NULL, NULL);
-  if(rc < 0) {
-    failf(data, "failed to parse OCSP response for peer cert");
-    goto out;
+  rc = gnutls_ocsp_resp_get_single(ocsp_resp, idx, عدم, عدم, عدم, عدم,
+                                   &وضعیت, عدم, عدم, عدم, عدم);
+  إذا(rc < 0) {
+    failf(داده, "failed to parse OCSP response for peer cert");
+    اذهب بیرون;
   }
-  switch(status) {
-  case GNUTLS_OCSP_CERT_GOOD:
+  بدل(وضعیت) {
+  حالة GNUTLS_OCSP_CERT_GOOD:
     /* We only regard this as OK and fail all other status codes. */
-    result = CURLE_OK;
-    break;
-  case GNUTLS_OCSP_CERT_REVOKED:
-    failf(data, "peer certificate is revoked");
-    break;
-  default:
-    failf(data, "peer certificate OCSP status is not good: %d", (int)status);
-    break;
+    نتیجه = CURLE_OK;
+    اكسر;
+  حالة GNUTLS_OCSP_CERT_REVOKED:
+    failf(داده, "peer certificate is revoked");
+    اكسر;
+  افتراضي:
+    failf(داده, "peer certificate OCSP status is not good: %d", (صحيح)وضعیت);
+    اكسر;
   }
 
-out:
-  if(ocsp_init)
+بیرون:
+  إذا(ocsp_init)
     gnutls_ocsp_resp_deinit(ocsp_resp);
-  return result;
+  أرجع نتیجه;
 }
 
-struct gtls_cert_chain {
-  const gnutls_datum_t *certs;
-  unsigned int num_certs;
+بنية gtls_cert_chain {
+  ثابت gnutls_datum_t *certs;
+  بیعلامت صحيح رقم_certs;
 };
 
-#ifdef USE_APPLE_SECTRUST
-static CURLcode gtls_chain_get_der(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   void *user_data,
+#اگر_تعریف_شده USE_APPLE_SECTRUST
+ساكن CURLcode gtls_chain_get_der(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *داده,
+                                   فراغ *user_داده,
                                    size_t i,
-                                   unsigned char **pder,
+                                   بیعلامت حرف **pder,
                                    size_t *pder_len)
 {
-  struct gtls_cert_chain *chain = user_data;
+  بنية gtls_cert_chain *chain = user_داده;
 
-  (void)cf;
-  (void)data;
+  (فراغ)cf;
+  (فراغ)داده;
   *pder_len = 0;
-  *pder = NULL;
+  *pder = عدم;
 
-  if(i >= chain->num_certs)
-    return CURLE_TOO_LARGE;
-  *pder = chain->certs[i].data;
-  *pder_len = (size_t)chain->certs[i].size;
-  return CURLE_OK;
+  إذا(i >= chain->رقم_certs)
+    أرجع CURLE_TOO_LARGE;
+  *pder = chain->certs[i].داده;
+  *pder_len = (size_t)chain->certs[i].اندازه;
+  أرجع CURLE_OK;
 }
-#endif /* USE_APPLE_SECTRUST */
+#پایان_اگر /* USE_APPLE_SECTRUST */
 
 /* This function verifies the peer's certificate and returns CURLE_OK on
    success or an appropriate CURLcode on error. The certificate verification
    status bitmask (trusted, invalid etc.) is stored in
    ssl_config->certverifyresult as one or more gnutls_certificate_status_t
    enumerated elements bitwise or'd. */
-static CURLcode gtls_verify_cert(struct Curl_easy *data,
-                                 struct ssl_filter_config *config,
-                                 struct ssl_easy_config *ssl_config,
+ساكن CURLcode gtls_verify_cert(بنية Curl_easy *داده,
+                                 بنية ssl_filter_config *config,
+                                 بنية ssl_easy_config *ssl_config,
                                  gnutls_session_t session,
-                                 struct Curl_cfilter *cf,
-                                 struct ssl_peer *peer,
-                                 struct gtls_cert_chain *chain,
+                                 بنية Curl_cfilter *cf,
+                                 بنية ssl_peer *peer,
+                                 بنية gtls_cert_chain *chain,
                                  bool *pocsp_checked)
 {
   bool verified = FALSE;
-  unsigned int verify_status = 0;
-  long * const certverifyresult = &ssl_config->certverifyresult;
-  int rc;
+  بیعلامت صحيح verify_وضعیت = 0;
+  دراز * ثابت certverifyresult = &ssl_config->certverifyresult;
+  صحيح rc;
 
   *pocsp_checked = FALSE;
-  rc = gnutls_certificate_verify_peers2(session, &verify_status);
-  if(rc < 0) {
-    failf(data, "server cert verify failed: %d", rc);
+  rc = gnutls_certificate_verify_peers2(session, &verify_وضعیت);
+  إذا(rc < 0) {
+    failf(داده, "server cert verify failed: %d", rc);
     *certverifyresult = rc;
-    return CURLE_SSL_CONNECT_ERROR;
+    أرجع CURLE_SSL_CONNECT_ERROR;
   }
-  *certverifyresult = verify_status;
-  verified = !(verify_status & GNUTLS_CERT_INVALID);
-  if(verified)
-    infof(data, "  SSL certificate verified by GnuTLS");
+  *certverifyresult = verify_وضعیت;
+  verified = !(verify_وضعیت & GNUTLS_CERT_INVALID);
+  إذا(verified)
+    infof(داده, "  SSL certificate verified by GnuTLS");
 
-#ifdef USE_APPLE_SECTRUST
-  if(!verified && config->native_ca_store) {
+#اگر_تعریف_شده USE_APPLE_SECTRUST
+  إذا(!verified && config->native_ca_store) {
     gnutls_datum_t ocsp_raw;
-    CURLcode result;
+    CURLcode نتیجه;
 
-    if(gnutls_ocsp_status_request_get(session, &ocsp_raw)) {
-      ocsp_raw.data = NULL;
-      ocsp_raw.size = 0;
+    إذا(gnutls_ocsp_وضعیت_request_get(session, &ocsp_raw)) {
+      ocsp_raw.داده = عدم;
+      ocsp_raw.اندازه = 0;
     }
-    if(config->verifystatus && !ocsp_raw.size) {
-      failf(data, "No OCSP response received");
-      return CURLE_SSL_INVALIDCERTSTATUS;
+    إذا(config->verifystatus && !ocsp_raw.اندازه) {
+      failf(داده, "No OCSP response received");
+      أرجع CURLE_SSL_INVALIDCERTSTATUS;
     }
-    result = Curl_vtls_apple_verify(cf, data, peer, chain->num_certs,
+    نتیجه = Curl_vtls_apple_verify(cf, داده, peer, chain->رقم_certs,
                                     gtls_chain_get_der, chain,
-                                    ocsp_raw.data, ocsp_raw.size,
+                                    ocsp_raw.داده, ocsp_raw.اندازه,
                                     config->verifystatus);
-    if(result && (result != CURLE_PEER_FAILED_VERIFICATION))
-      return result; /* no further failure analysis needed */
-    verified = !result;
-    if(verified) {
-      infof(data, "SSL certificate verified via Apple SecTrust.");
+    إذا(نتیجه && (نتیجه != CURLE_PEER_FAILED_VERIFICATION))
+      أرجع نتیجه; /* no further failure analysis needed */
+    verified = !نتیجه;
+    إذا(verified) {
+      infof(داده, "SSL certificate verified via Apple SecTrust.");
       *certverifyresult = 0;
       *pocsp_checked = TRUE;
     }
   }
-#else
-  (void)cf;
-  (void)peer;
-  (void)chain;
-#endif
+#وإلا
+  (فراغ)cf;
+  (فراغ)peer;
+  (فراغ)chain;
+#پایان_اگر
 
-  if(!verified) {
-    CURLcode result = CURLE_PEER_FAILED_VERIFICATION;
+  إذا(!verified) {
+    CURLcode نتیجه = CURLE_PEER_FAILED_VERIFICATION;
     /* verify_status is a bitmask of gnutls_certificate_status bits */
-    const char *cause = "certificate error, no details available";
-    if(verify_status & GNUTLS_CERT_EXPIRED)
+    ثابت حرف *cause = "certificate error, no details available";
+    إذا(verify_وضعیت & GNUTLS_CERT_EXPIRED)
       cause = "certificate has expired";
-    else if(verify_status & GNUTLS_CERT_SIGNER_NOT_FOUND)
+    وإلا إذا(verify_وضعیت & GNUTLS_CERT_SIGNER_NOT_یافت)
       cause = "certificate signer not trusted";
-    else if(verify_status & GNUTLS_CERT_INSECURE_ALGORITHM)
+    وإلا إذا(verify_وضعیت & GNUTLS_CERT_INSECURE_ALGORITHM)
       cause = "certificate uses insecure algorithm";
-    else if(verify_status & GNUTLS_CERT_INVALID_OCSP_STATUS) {
+    وإلا إذا(verify_وضعیت & GNUTLS_CERT_INVALID_OCSP_وضعیت) {
       cause = "OCSP status response is invalid";
-      result = CURLE_SSL_INVALIDCERTSTATUS;
+      نتیجه = CURLE_SSL_INVALIDCERTSTATUS;
     }
-    failf(data, "SSL certificate verification failed: %s. (CAfile: %s "
+    failf(داده, "SSL certificate verification failed: %s. (CAfile: %s "
           "CRLfile: %s)", cause,
           config->CAfile ? config->CAfile : "none",
           config->CRLfile ?
           config->CRLfile : "none");
 
-    return result;
+    أرجع نتیجه;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+CURLcode Curl_gtls_verifyserver(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *داده,
                                 gnutls_session_t session,
-                                struct ssl_filter_config *config,
-                                struct ssl_easy_config *ssl_config,
-                                struct ssl_peer *peer,
-                                const char *pinned_key)
+                                بنية ssl_filter_config *config,
+                                بنية ssl_easy_config *ssl_config,
+                                بنية ssl_peer *peer,
+                                ثابت حرف *pinned_کلید)
 {
-  struct gtls_cert_chain chain;
-  gnutls_x509_crt_t x509_cert = NULL, x509_issuer = NULL;
+  بنية gtls_cert_chain chain;
+  gnutls_x509_crt_t x509_cert = عدم, x509_issuer = عدم;
   time_t certclock;
   bool ocsp_checked = FALSE;
-  int rc;
-  CURLcode result = CURLE_OK;
-  long * const certverifyresult = &ssl_config->certverifyresult;
+  صحيح rc;
+  CURLcode نتیجه = CURLE_OK;
+  دراز * ثابت certverifyresult = &ssl_config->certverifyresult;
 
-  (void)cf;
+  (فراغ)cf;
   /* This function returns the peer's raw certificate (chain) as sent by
      the peer. These certificates are in raw format (DER encoded for
      X.509). In case of a X.509 then a certificate list may be present. The
      first certificate in the list is the peer's certificate, following the
      issuer's certificate, then the issuer's issuer etc. */
 
-  chain.certs = gnutls_certificate_get_peers(session, &chain.num_certs);
-  if(!chain.certs) {
-    if(config->verifypeer ||
+  chain.certs = gnutls_certificate_get_peers(session, &chain.رقم_certs);
+  إذا(!chain.certs) {
+    إذا(config->verifypeer ||
        config->verifyhost ||
        config->issuercert) {
-      failf(data, "failed to get server cert");
-      *certverifyresult = GNUTLS_E_NO_CERTIFICATE_FOUND;
-      result = CURLE_PEER_FAILED_VERIFICATION;
-      goto out;
+      failf(داده, "failed to get server cert");
+      *certverifyresult = GNUTLS_E_NO_CERTIFICATE_یافت;
+      نتیجه = CURLE_PEER_FAILED_VERIFICATION;
+      اذهب بیرون;
     }
-    infof(data, " common name: WARNING could not obtain");
+    infof(داده, " common name: WARNING could not obtain");
   }
 
-  if(data->set.ssl.certinfo && chain.certs) {
-    if(chain.num_certs > MAX_ALLOWED_CERT_AMOUNT) {
-      failf(data, "%u certificates is more than allowed (%d)",
-            chain.num_certs, MAX_ALLOWED_CERT_AMOUNT);
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+  إذا(داده->مجموعه.ssl.certinfo && chain.certs) {
+    إذا(chain.رقم_certs > MAX_ALLOWED_CERT_AMOUNT) {
+      failf(داده, "%u certificates is more than allowed (%d)",
+            chain.رقم_certs, MAX_ALLOWED_CERT_AMOUNT);
+      نتیجه = CURLE_SSL_CONNECT_ERROR;
+      اذهب بیرون;
     }
-    else {
-      unsigned int i;
+    وإلا {
+      بیعلامت صحيح i;
 
-      result = Curl_ssl_init_certinfo(data, (int)chain.num_certs);
-      if(result)
-        goto out;
+      نتیجه = Curl_ssl_init_certinfo(داده, (صحيح)chain.رقم_certs);
+      إذا(نتیجه)
+        اذهب بیرون;
 
-      for(i = 0; i < chain.num_certs; i++) {
-        const uint8_t *beg = chain.certs[i].data;
-        const uint8_t *end = beg + chain.certs[i].size;
+      لكل(i = 0; i < chain.رقم_certs; i++) {
+        ثابت uint8_t *beg = chain.certs[i].داده;
+        ثابت uint8_t *انتها = beg + chain.certs[i].اندازه;
 
-        result = Curl_extract_certinfo(data, (int)i, beg, end);
-        if(result)
-          goto out;
+        نتیجه = Curl_استخراج_certinfo(داده, (صحيح)i, beg, انتها);
+        إذا(نتیجه)
+          اذهب بیرون;
       }
     }
   }
 
-  if(config->verifypeer) {
-    result = gtls_verify_cert(data, config, ssl_config, session,
+  إذا(config->verifypeer) {
+    نتیجه = gtls_verify_cert(داده, config, ssl_config, session,
                               cf, peer, &chain, &ocsp_checked);
-    if(result)
-      goto out;
+    إذا(نتیجه)
+      اذهب بیرون;
   }
-  else
-    infof(data, "  SSL certificate verification SKIPPED");
+  وإلا
+    infof(داده, "  SSL certificate verification SKIPPED");
 
   /* initialize an X.509 certificate structure. */
-  if(gnutls_x509_crt_init(&x509_cert)) {
-    failf(data, "failed to init GnuTLS x509_crt");
-    *certverifyresult = GNUTLS_E_NO_CERTIFICATE_FOUND;
-    result = CURLE_SSL_CONNECT_ERROR;
-    goto out;
+  إذا(gnutls_x509_crt_init(&x509_cert)) {
+    failf(داده, "failed to init GnuTLS x509_crt");
+    *certverifyresult = GNUTLS_E_NO_CERTIFICATE_یافت;
+    نتیجه = CURLE_SSL_CONNECT_ERROR;
+    اذهب بیرون;
   }
 
-  if(chain.certs) {
+  إذا(chain.certs) {
     /* convert the given DER or PEM encoded Certificate to the native
        gnutls_x509_crt_t format */
     rc = gnutls_x509_crt_import(x509_cert, chain.certs, GNUTLS_X509_FMT_DER);
-    if(rc) {
-      failf(data, "error parsing server's certificate chain");
-      *certverifyresult = GNUTLS_E_NO_CERTIFICATE_FOUND;
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+    إذا(rc) {
+      failf(داده, "error parsing server's certificate chain");
+      *certverifyresult = GNUTLS_E_NO_CERTIFICATE_یافت;
+      نتیجه = CURLE_SSL_CONNECT_ERROR;
+      اذهب بیرون;
     }
   }
 
   /* Check for time-based validity */
-  certclock = gnutls_x509_crt_get_expiration_time(x509_cert);
+  certclock = gnutls_x509_crt_get_expiration_زمان(x509_cert);
 
-  if(certclock == (time_t)-1) {
-    if(config->verifypeer) {
-      failf(data, "server cert expiration date verify failed");
+  إذا(certclock == (time_t)-1) {
+    إذا(config->verifypeer) {
+      failf(داده, "server cert expiration date verify failed");
       *certverifyresult = GNUTLS_CERT_EXPIRED;
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      نتیجه = CURLE_SSL_CONNECT_ERROR;
+      اذهب بیرون;
     }
-    else
-      infof(data, "  SSL certificate expiration date verify FAILED");
+    وإلا
+      infof(داده, "  SSL certificate expiration date verify FAILED");
   }
-  else {
-    if(certclock < time(NULL)) {
-      if(config->verifypeer) {
-        failf(data, "server certificate expiration date has passed.");
+  وإلا {
+    إذا(certclock < زمان(عدم)) {
+      إذا(config->verifypeer) {
+        failf(داده, "server certificate expiration date has passed.");
         *certverifyresult = GNUTLS_CERT_EXPIRED;
-        result = CURLE_PEER_FAILED_VERIFICATION;
-        goto out;
+        نتیجه = CURLE_PEER_FAILED_VERIFICATION;
+        اذهب بیرون;
       }
-      else
-        infof(data, "  SSL certificate expiration date FAILED");
+      وإلا
+        infof(داده, "  SSL certificate expiration date FAILED");
     }
-    else
-      infof(data, "  SSL certificate expiration date OK");
+    وإلا
+      infof(داده, "  SSL certificate expiration date OK");
   }
 
-  certclock = gnutls_x509_crt_get_activation_time(x509_cert);
+  certclock = gnutls_x509_crt_get_activation_زمان(x509_cert);
 
-  if(certclock == (time_t)-1) {
-    if(config->verifypeer) {
-      failf(data, "server cert activation date verify failed");
+  إذا(certclock == (time_t)-1) {
+    إذا(config->verifypeer) {
+      failf(داده, "server cert activation date verify failed");
       *certverifyresult = GNUTLS_CERT_NOT_ACTIVATED;
-      result = CURLE_SSL_CONNECT_ERROR;
-      goto out;
+      نتیجه = CURLE_SSL_CONNECT_ERROR;
+      اذهب بیرون;
     }
-    else
-      infof(data, "  SSL certificate activation date verify FAILED");
+    وإلا
+      infof(داده, "  SSL certificate activation date verify FAILED");
   }
-  else {
-    if(certclock > time(NULL)) {
-      if(config->verifypeer) {
-        failf(data, "server certificate not activated yet.");
+  وإلا {
+    إذا(certclock > زمان(عدم)) {
+      إذا(config->verifypeer) {
+        failf(داده, "server certificate not activated yet.");
         *certverifyresult = GNUTLS_CERT_NOT_ACTIVATED;
-        result = CURLE_PEER_FAILED_VERIFICATION;
-        goto out;
+        نتیجه = CURLE_PEER_FAILED_VERIFICATION;
+        اذهب بیرون;
       }
-      else
-        infof(data, "  SSL certificate activation date FAILED");
+      وإلا
+        infof(داده, "  SSL certificate activation date FAILED");
     }
-    else
-      infof(data, "  SSL certificate activation date OK");
+    وإلا
+      infof(داده, "  SSL certificate activation date OK");
   }
 
-  if(config->verifystatus && !ocsp_checked) {
-    result = gtls_verify_ocsp_status(data, session, x509_cert);
-    if(result)
-      goto out;
+  إذا(config->verifystatus && !ocsp_checked) {
+    نتیجه = gtls_verify_ocsp_وضعیت(داده, session, x509_cert);
+    إذا(نتیجه)
+      اذهب بیرون;
   }
-  else
-    infof(data, "  SSL certificate status verification SKIPPED");
+  وإلا
+    infof(داده, "  SSL certificate status verification SKIPPED");
 
-  if(config->issuercert) {
+  إذا(config->issuercert) {
     gnutls_datum_t issuerp;
-    if(gnutls_x509_crt_init(&x509_issuer)) {
-      failf(data, "failed to init GnuTLS x509_crt for issuer");
-      result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+    إذا(gnutls_x509_crt_init(&x509_issuer)) {
+      failf(داده, "failed to init GnuTLS x509_crt for issuer");
+      نتیجه = CURLE_SSL_ISSUER_ERROR;
+      اذهب بیرون;
     }
-    issuerp = load_file(config->issuercert);
+    issuerp = بارگیری_file(config->issuercert);
     rc = gnutls_x509_crt_import(x509_issuer, &issuerp, GNUTLS_X509_FMT_PEM);
     unload_file(issuerp);
-    if(rc) {
-      failf(data, "failed to import issuer certificate (%s) (Issuer Cert: %s)",
+    إذا(rc) {
+      failf(داده, "failed to import issuer certificate (%s) (Issuer Cert: %s)",
             gnutls_strerror(rc), config->issuercert);
-      result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+      نتیجه = CURLE_SSL_ISSUER_ERROR;
+      اذهب بیرون;
     }
-    rc = (int)gnutls_x509_crt_check_issuer(x509_cert, x509_issuer);
-    if(rc <= 0) {
-      failf(data, "server certificate issuer check failed (Issuer Cert: %s)",
+    rc = (صحيح)gnutls_x509_crt_check_issuer(x509_cert, x509_issuer);
+    إذا(rc <= 0) {
+      failf(داده, "server certificate issuer check failed (Issuer Cert: %s)",
             config->issuercert);
-      result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+      نتیجه = CURLE_SSL_ISSUER_ERROR;
+      اذهب بیرون;
     }
-    infof(data, "  SSL certificate issuer check OK (Issuer Cert: %s)",
+    infof(داده, "  SSL certificate issuer check OK (Issuer Cert: %s)",
           config->issuercert);
   }
 
@@ -1811,91 +1811,91 @@ CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
   /* This function does not handle trailing dots, so if we have an SNI name
      use that and fallback to the hostname only if there is no SNI (like for
      IP addresses) */
-  rc = (int)gnutls_x509_crt_check_hostname(x509_cert,
+  rc = (صحيح)gnutls_x509_crt_check_hostname(x509_cert,
                                            peer->sni ? peer->sni :
                                            peer->origin->hostname);
-  result = (!rc && config->verifyhost) ?
+  نتیجه = (!rc && config->verifyhost) ?
     CURLE_PEER_FAILED_VERIFICATION : CURLE_OK;
-  gtls_msg_verify_result(data, peer, x509_cert, rc, config->verifyhost);
-  if(result)
-    goto out;
+  gtls_پیام_verify_نتیجه(داده, peer, x509_cert, rc, config->verifyhost);
+  إذا(نتیجه)
+    اذهب بیرون;
 
-  if(pinned_key) {
-    result = pkp_pin_peer_pubkey(data, x509_cert, pinned_key);
-    if(result != CURLE_OK) {
-      failf(data, "SSL: public key does not match pinned public key");
-      goto out;
+  إذا(pinned_کلید) {
+    نتیجه = pkp_pin_peer_pubkey(داده, x509_cert, pinned_کلید);
+    إذا(نتیجه != CURLE_OK) {
+      failf(داده, "SSL: public key does not match pinned public key");
+      اذهب بیرون;
     }
   }
 
-  gtls_infof_cert(data, x509_cert);
+  gtls_infof_cert(داده, x509_cert);
 
-out:
-  if(x509_issuer)
+بیرون:
+  إذا(x509_issuer)
     gnutls_x509_crt_deinit(x509_issuer);
-  if(x509_cert)
+  إذا(x509_cert)
     gnutls_x509_crt_deinit(x509_cert);
-  return result;
+  أرجع نتیجه;
 }
 
-static CURLcode gtls_verifyserver(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+ساكن CURLcode gtls_verifyserver(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده,
                                   gnutls_session_t session)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-#ifndef CURL_DISABLE_PROXY
-  const char *pinned_key = Curl_ssl_cf_is_proxy(cf) ?
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#else
-  const char *pinned_key = CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#endif
-  CURLcode result;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  بنية ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, داده);
+#اگر_تعریف_نشده CURL_DISABLE_PROXY
+  ثابت حرف *pinned_کلید = Curl_ssl_cf_is_proxy(cf) ?
+    CURL_EASY_STR(داده, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
+    CURL_EASY_STR(داده, STRING_SSL_PINNEDPUBLICKEY);
+#وإلا
+  ثابت حرف *pinned_کلید = CURL_EASY_STR(داده, STRING_SSL_PINNEDPUBLICKEY);
+#پایان_اگر
+  CURLcode نتیجه;
 
-  result = Curl_gtls_verifyserver(cf, data, session, conn_config, ssl_config,
-                                  &connssl->peer, pinned_key);
-  if(result)
-    goto out;
+  نتیجه = Curl_gtls_verifyserver(cf, داده, session, conn_config, ssl_config,
+                                  &connssl->peer, pinned_کلید);
+  إذا(نتیجه)
+    اذهب بیرون;
 
-#ifdef CURL_GNUTLS_EARLY_DATA
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
   /* Only on TLSv1.2 or lower do we have the session id now. For
    * TLSv1.3 we get it via a SESSION_TICKET message that arrives later. */
-  if(gnutls_protocol_get_version(session) < GNUTLS_TLS1_3)
-    result = cf_gtls_update_session_id(cf, data, session);
-#endif
+  إذا(gnutls_protocol_get_نسخه(session) < GNUTLS_TLS1_3)
+    نتیجه = cf_gtls_update_session_id(cf, داده, session);
+#پایان_اگر
 
-out:
-  return result;
+بیرون:
+  أرجع نتیجه;
 }
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-static CURLcode gtls_send_earlydata(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+ساكن CURLcode gtls_send_earlydata(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *داده)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
-  const unsigned char *buf;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  CURLcode نتیجه = CURLE_OK;
+  ثابت بیعلامت حرف *buf;
   size_t blen;
   ssize_t n;
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sending);
-  backend->gtls.io_result = CURLE_OK;
-  while(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
-    n = gnutls_record_send_early_data(backend->gtls.session, buf, blen);
-    CURL_TRC_CF(data, cf, "gtls_send_earlydata(len=%zu) -> %zd", blen, n);
-    if(n < 0) {
-      if(n == GNUTLS_E_AGAIN)
-        result = CURLE_AGAIN;
-      else
-        result = backend->gtls.io_result ?
-                 backend->gtls.io_result : CURLE_SEND_ERROR;
-      goto out;
+  backend->gtls.io_نتیجه = CURLE_OK;
+  طالما(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
+    n = gnutls_رکورد_send_early_داده(backend->gtls.session, buf, blen);
+    CURL_TRC_CF(داده, cf, "gtls_send_earlydata(len=%zu) -> %zd", blen, n);
+    إذا(n < 0) {
+      إذا(n == GNUTLS_E_AGAIN)
+        نتیجه = CURLE_AGAIN;
+      وإلا
+        نتیجه = backend->gtls.io_نتیجه ?
+                 backend->gtls.io_نتیجه : CURLE_SEND_ERROR;
+      اذهب بیرون;
     }
-    else if(!n) {
+    وإلا إذا(!n) {
       /* GnuTLS is buggy, it *SHOULD* return the amount of bytes it took in.
        * Instead it returns 0 if everything was written. */
       n = (ssize_t)blen;
@@ -1904,11 +1904,11 @@ static CURLcode gtls_send_earlydata(struct Curl_cfilter *cf,
     Curl_bufq_skip(&connssl->earlydata, (size_t)n);
   }
   /* sent everything there was */
-  infof(data, "SSL sending %zu bytes of early data", connssl->earlydata_skip);
-out:
-  return result;
+  infof(داده, "SSL sending %zu bytes of early data", connssl->earlydata_skip);
+بیرون:
+  أرجع نتیجه;
 }
-#endif
+#پایان_اگر
 
 /*
  * This function is called after the TCP connect has completed. Setup the TLS
@@ -1919,380 +1919,380 @@ out:
    'ssl_connect_2' (doing handshake with the server), and
    'ssl_connect_3' (verifying and getting stats).
  */
-static CURLcode gtls_connect_common(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *done)
+ساكن CURLcode gtls_connect_common(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *داده,
+                                    bool *انجامشده)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  CURLcode نتیجه = CURLE_OK;
 
   DEBUGASSERT(backend);
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(ssl_connection_complete == connssl->state) {
+    *انجامشده = TRUE;
+    أرجع CURLE_OK;
   }
 
-  *done = FALSE;
+  *انجامشده = FALSE;
 
   /* Initiate the connection, if not already done */
-  if(connssl->connecting_state == ssl_connect_1) {
-    result = gtls_connect_step1(cf, data);
-    if(result)
-      goto out;
+  إذا(connssl->connecting_state == ssl_connect_1) {
+    نتیجه = gtls_connect_step1(cf, داده);
+    إذا(نتیجه)
+      اذهب بیرون;
     connssl->connecting_state = ssl_connect_2;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
-#ifdef CURL_GNUTLS_EARLY_DATA
-    if(connssl->earlydata_state == ssl_earlydata_await) {
-      goto out;
+  إذا(connssl->connecting_state == ssl_connect_2) {
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+    إذا(connssl->earlydata_state == ssl_earlydata_await) {
+      اذهب بیرون;
     }
-    else if(connssl->earlydata_state == ssl_earlydata_sending) {
-      result = gtls_send_earlydata(cf, data);
-      if(result)
-        goto out;
-      connssl->earlydata_state = ssl_earlydata_sent;
+    وإلا إذا(connssl->earlydata_state == ssl_earlydata_sending) {
+      نتیجه = gtls_send_earlydata(cf, داده);
+      إذا(نتیجه)
+        اذهب بیرون;
+      connssl->earlydata_state = ssl_earlydata_فرستاده;
     }
     DEBUGASSERT((connssl->earlydata_state == ssl_earlydata_none) ||
-                (connssl->earlydata_state == ssl_earlydata_sent));
-#endif
-    result = cf_gtls_handshake(cf, data);
-    if(result)
-      goto out;
+                (connssl->earlydata_state == ssl_earlydata_فرستاده));
+#پایان_اگر
+    نتیجه = cf_gtls_handshake(cf, داده);
+    إذا(نتیجه)
+      اذهب بیرون;
     connssl->connecting_state = ssl_connect_3;
   }
 
   /* Finish connecting once the handshake is done */
-  if(connssl->connecting_state == ssl_connect_3) {
+  إذا(connssl->connecting_state == ssl_connect_3) {
     gnutls_datum_t proto;
-    int rc;
+    صحيح rc;
 
-    Curl_gtls_report_handshake(data, &backend->gtls);
+    Curl_gtls_report_handshake(داده, &backend->gtls);
 
-    result = gtls_verifyserver(cf, data, backend->gtls.session);
-    if(result)
-      goto out;
+    نتیجه = gtls_verifyserver(cf, داده, backend->gtls.session);
+    إذا(نتیجه)
+      اذهب بیرون;
 
     connssl->state = ssl_connection_complete;
 
     rc = gnutls_alpn_get_selected_protocol(backend->gtls.session, &proto);
-    if(rc) {  /* No ALPN from server */
-      proto.data = NULL;
-      proto.size = 0;
+    إذا(rc) {  /* No ALPN from server */
+      proto.داده = عدم;
+      proto.اندازه = 0;
     }
 
-    result = Curl_alpn_set_negotiated(cf, data, connssl,
-                                      proto.data, proto.size);
-    if(result)
-      goto out;
+    نتیجه = Curl_alpn_مجموعه_negotiated(cf, داده, connssl,
+                                      proto.داده, proto.اندازه);
+    إذا(نتیجه)
+      اذهب بیرون;
 
-#ifdef CURL_GNUTLS_EARLY_DATA
-    if(connssl->earlydata_state > ssl_earlydata_none) {
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+    إذا(connssl->earlydata_state > ssl_earlydata_none) {
       /* We should be in this state by now */
-      DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sent);
+      DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_فرستاده);
       connssl->earlydata_state =
         (gnutls_session_get_flags(backend->gtls.session) &
-         GNUTLS_SFLAGS_EARLY_DATA) ?
+         GNUTLS_SFLAGS_EARLY_داده) ?
         ssl_earlydata_accepted : ssl_earlydata_rejected;
     }
-#endif
-    connssl->connecting_state = ssl_connect_done;
+#پایان_اگر
+    connssl->connecting_state = ssl_connect_انجامشده;
   }
 
-  if(connssl->connecting_state == ssl_connect_done)
+  إذا(connssl->connecting_state == ssl_connect_انجامشده)
     DEBUGASSERT(connssl->state == ssl_connection_complete);
 
-out:
-  if(result == CURLE_AGAIN) {
-    *done = FALSE;
-    return CURLE_OK;
+بیرون:
+  إذا(نتیجه == CURLE_AGAIN) {
+    *انجامشده = FALSE;
+    أرجع CURLE_OK;
   }
-  *done = ((connssl->state == ssl_connection_complete) ||
+  *انجامشده = ((connssl->state == ssl_connection_complete) ||
            (connssl->state == ssl_connection_deferred));
-  CURL_TRC_CF(data, cf, "gtls_connect_common() -> %d, done=%d", (int)result,
-              *done);
-  return result;
+  CURL_TRC_CF(داده, cf, "gtls_connect_common() -> %d, done=%d", (صحيح)نتیجه,
+              *انجامشده);
+  أرجع نتیجه;
 }
 
-static CURLcode gtls_connect(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             bool *done)
+ساكن CURLcode gtls_connect(بنية Curl_cfilter *cf,
+                             بنية Curl_easy *داده,
+                             bool *انجامشده)
 {
-#ifdef CURL_GNUTLS_EARLY_DATA
-  struct ssl_connect_data *connssl = cf->ctx;
-  if((connssl->state == ssl_connection_deferred) &&
+#اگر_تعریف_شده CURL_GNUTLS_EARLY_داده
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  إذا((connssl->state == ssl_connection_deferred) &&
      (connssl->earlydata_state == ssl_earlydata_await)) {
     /* We refuse to be pushed, we are waiting for someone to send/recv. */
-    *done = TRUE;
-    return CURLE_OK;
+    *انجامشده = TRUE;
+    أرجع CURLE_OK;
   }
-#endif
-  return gtls_connect_common(cf, data, done);
+#پایان_اگر
+  أرجع gtls_connect_common(cf, داده, انجامشده);
 }
 
-static bool gtls_data_pending(struct Curl_cfilter *cf,
-                              const struct Curl_easy *data)
+ساكن bool gtls_داده_pending(بنية Curl_cfilter *cf,
+                              ثابت بنية Curl_easy *داده)
 {
-  struct ssl_connect_data *ctx = cf->ctx;
-  struct gtls_ssl_backend_data *backend;
+  بنية ssl_connect_داده *ctx = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend;
 
-  (void)data;
+  (فراغ)داده;
   DEBUGASSERT(ctx && ctx->backend);
-  backend = (struct gtls_ssl_backend_data *)ctx->backend;
-  if(backend->gtls.session &&
-     gnutls_record_check_pending(backend->gtls.session) != 0)
-    return TRUE;
-  return FALSE;
+  backend = (بنية gtls_ssl_backend_داده *)ctx->backend;
+  إذا(backend->gtls.session &&
+     gnutls_رکورد_check_pending(backend->gtls.session) != 0)
+    أرجع TRUE;
+  أرجع FALSE;
 }
 
-static CURLcode gtls_send(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          const void *buf,
+ساكن CURLcode gtls_send(بنية Curl_cfilter *cf,
+                          بنية Curl_easy *داده,
+                          ثابت فراغ *buf,
                           size_t blen,
                           size_t *pnwritten)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  CURLcode نتیجه = CURLE_OK;
   ssize_t nwritten;
   size_t remain = blen;
 
   DEBUGASSERT(backend);
   *pnwritten = 0;
 
-  while(remain) {
-    backend->gtls.io_result = CURLE_OK;
-    nwritten = gnutls_record_send(backend->gtls.session, buf, remain);
+  طالما(remain) {
+    backend->gtls.io_نتیجه = CURLE_OK;
+    nwritten = gnutls_رکورد_send(backend->gtls.session, buf, remain);
 
-    if(nwritten >= 0) {
-      if((size_t)nwritten > remain) {
+    إذا(nwritten >= 0) {
+      إذا((size_t)nwritten > remain) {
         DEBUGASSERT(0);
-        failf(data, "gnutls_record_send(len=%zu) returned %zd",
+        failf(داده, "gnutls_record_send(len=%zu) returned %zd",
               remain, nwritten);
-        return CURLE_SEND_ERROR;
+        أرجع CURLE_SEND_ERROR;
       }
       *pnwritten += (size_t)nwritten;
-      buf = (char *)CURL_UNCONST(buf) + (size_t)nwritten;
+      buf = (حرف *)CURL_UNCONST(buf) + (size_t)nwritten;
       remain -= (size_t)nwritten;
     }
-    else {
-      if(*pnwritten && (nwritten == GNUTLS_E_AGAIN)) {
-        result = CURLE_OK;
-        goto out;
+    وإلا {
+      إذا(*pnwritten && (nwritten == GNUTLS_E_AGAIN)) {
+        نتیجه = CURLE_OK;
+        اذهب بیرون;
       }
-      result = (nwritten == GNUTLS_E_AGAIN) ?
+      نتیجه = (nwritten == GNUTLS_E_AGAIN) ?
         CURLE_AGAIN :
-        (backend->gtls.io_result ? backend->gtls.io_result : CURLE_SEND_ERROR);
-      goto out;
+        (backend->gtls.io_نتیجه ? backend->gtls.io_نتیجه : CURLE_SEND_ERROR);
+      اذهب بیرون;
     }
   }
 
-out:
-  CURL_TRC_CF(data, cf, "gtls_send(len=%zu) -> %d, %zu",
-              blen, (int)result, *pnwritten);
-  return result;
+بیرون:
+  CURL_TRC_CF(داده, cf, "gtls_send(len=%zu) -> %d, %zu",
+              blen, (صحيح)نتیجه, *pnwritten);
+  أرجع نتیجه;
 }
 
 /*
  * This function is called to shut down the SSL layer but keep the
  * socket open (CCC - Clear Command Channel)
  */
-static CURLcode gtls_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              bool send_shutdown, bool *done)
+ساكن CURLcode gtls_shutdown(بنية Curl_cfilter *cf,
+                              بنية Curl_easy *داده,
+                              bool send_shutdown, bool *انجامشده)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  char buf[1024];
-  CURLcode result = CURLE_OK;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  حرف buf[1024];
+  CURLcode نتیجه = CURLE_OK;
   ssize_t nread = 0;
   size_t i;
 
   DEBUGASSERT(backend);
   /* If we have no handshaked connection or already shut down */
-  if(!backend->gtls.session || cf->shutdown ||
+  إذا(!backend->gtls.session || cf->shutdown ||
      connssl->state != ssl_connection_complete) {
-    *done = TRUE;
-    goto out;
+    *انجامشده = TRUE;
+    اذهب بیرون;
   }
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  *done = FALSE;
+  *انجامشده = FALSE;
 
-  if(!backend->gtls.sent_shutdown) {
+  إذا(!backend->gtls.فرستاده_shutdown) {
     /* do this only once */
-    backend->gtls.sent_shutdown = TRUE;
-    if(send_shutdown) {
-      int ret = gnutls_bye(backend->gtls.session, GNUTLS_SHUT_RDWR);
-      if((ret == GNUTLS_E_AGAIN) || (ret == GNUTLS_E_INTERRUPTED)) {
-        CURL_TRC_CF(data, cf, "SSL shutdown, gnutls_bye EAGAIN");
-        connssl->io_need = gnutls_record_get_direction(backend->gtls.session) ?
+    backend->gtls.فرستاده_shutdown = TRUE;
+    إذا(send_shutdown) {
+      صحيح ret = gnutls_bye(backend->gtls.session, GNUTLS_SHUT_RDWR);
+      إذا((ret == GNUTLS_E_AGAIN) || (ret == GNUTLS_E_INTERRUPTED)) {
+        CURL_TRC_CF(داده, cf, "SSL shutdown, gnutls_bye EAGAIN");
+        connssl->io_need = gnutls_رکورد_get_direction(backend->gtls.session) ?
           CURL_SSL_IO_NEED_SEND : CURL_SSL_IO_NEED_RECV;
-        backend->gtls.sent_shutdown = FALSE;
-        result = CURLE_OK;
-        goto out;
+        backend->gtls.فرستاده_shutdown = FALSE;
+        نتیجه = CURLE_OK;
+        اذهب بیرون;
       }
-      if(ret != GNUTLS_E_SUCCESS) {
-        CURL_TRC_CF(data, cf, "SSL shutdown, gnutls_bye error: '%s'(%d)",
-                    gnutls_strerror((int)ret), (int)ret);
-        result = CURLE_RECV_ERROR;
-        goto out;
+      إذا(ret != GNUTLS_E_SUCCESS) {
+        CURL_TRC_CF(داده, cf, "SSL shutdown, gnutls_bye error: '%s'(%d)",
+                    gnutls_strerror((صحيح)ret), (صحيح)ret);
+        نتیجه = CURLE_RECV_ERROR;
+        اذهب بیرون;
       }
     }
   }
 
   /* SSL should now have started the shutdown from our side. Since it
    * was not complete, we are lacking the close notify from the server. */
-  for(i = 0; i < 10; ++i) {
-    nread = gnutls_record_recv(backend->gtls.session, buf, sizeof(buf));
-    if(nread <= 0)
-      break;
+  لكل(i = 0; i < 10; ++i) {
+    nread = gnutls_رکورد_recv(backend->gtls.session, buf, حجم(buf));
+    إذا(nread <= 0)
+      اكسر;
   }
-  if(nread > 0) {
+  إذا(nread > 0) {
     /* still data coming in? */
   }
-  else if(nread == 0) {
+  وإلا إذا(nread == 0) {
     /* We got the close notify alert and are done. */
-    *done = TRUE;
+    *انجامشده = TRUE;
   }
-  else if((nread == GNUTLS_E_AGAIN) || (nread == GNUTLS_E_INTERRUPTED)) {
-    connssl->io_need = gnutls_record_get_direction(backend->gtls.session) ?
+  وإلا إذا((nread == GNUTLS_E_AGAIN) || (nread == GNUTLS_E_INTERRUPTED)) {
+    connssl->io_need = gnutls_رکورد_get_direction(backend->gtls.session) ?
       CURL_SSL_IO_NEED_SEND : CURL_SSL_IO_NEED_RECV;
   }
-  else {
-    CURL_TRC_CF(data, cf, "SSL shutdown, error: '%s'(%d)",
-                gnutls_strerror((int)nread), (int)nread);
-    result = CURLE_RECV_ERROR;
+  وإلا {
+    CURL_TRC_CF(داده, cf, "SSL shutdown, error: '%s'(%d)",
+                gnutls_strerror((صحيح)nread), (صحيح)nread);
+    نتیجه = CURLE_RECV_ERROR;
   }
 
-out:
-  cf->shutdown = (result || *done);
-  return result;
+بیرون:
+  cf->shutdown = (نتیجه || *انجامشده);
+  أرجع نتیجه;
 }
 
-static void gtls_close(struct Curl_cfilter *cf,
-                       struct Curl_easy *data)
+ساكن فراغ gtls_close(بنية Curl_cfilter *cf,
+                       بنية Curl_easy *داده)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
 
   DEBUGASSERT(backend);
-  CURL_TRC_CF(data, cf, "close");
-  if(backend->gtls.session) {
+  CURL_TRC_CF(داده, cf, "close");
+  إذا(backend->gtls.session) {
     gnutls_deinit(backend->gtls.session);
-    backend->gtls.session = NULL;
+    backend->gtls.session = عدم;
   }
-  if(backend->gtls.shared_creds) {
+  إذا(backend->gtls.shared_creds) {
     Curl_gtls_shared_creds_free(&backend->gtls.shared_creds);
   }
 }
 
-static CURLcode gtls_recv(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          char *buf, size_t blen,
+ساكن CURLcode gtls_recv(بنية Curl_cfilter *cf,
+                          بنية Curl_easy *داده,
+                          حرف *buf, size_t blen,
                           size_t *pnread)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  بنية ssl_connect_داده *connssl = cf->ctx;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  CURLcode نتیجه = CURLE_OK;
   ssize_t nread;
 
   DEBUGASSERT(backend);
 
-  nread = gnutls_record_recv(backend->gtls.session, buf, blen);
+  nread = gnutls_رکورد_recv(backend->gtls.session, buf, blen);
 
-  if(nread >= 0)
+  إذا(nread >= 0)
     *pnread = (size_t)nread;
-  else {
-    if((nread == GNUTLS_E_AGAIN) || (nread == GNUTLS_E_INTERRUPTED)) {
-      result = CURLE_AGAIN;
-      goto out;
+  وإلا {
+    إذا((nread == GNUTLS_E_AGAIN) || (nread == GNUTLS_E_INTERRUPTED)) {
+      نتیجه = CURLE_AGAIN;
+      اذهب بیرون;
     }
-    else if(nread == GNUTLS_E_REHANDSHAKE) {
+    وإلا إذا(nread == GNUTLS_E_REHANDSHAKE) {
       /* Either TLSv1.2 renegotiate or a TLSv1.3 session key update. */
-      result = cf_gtls_handshake(cf, data);
-      if(!result)
-        result = CURLE_AGAIN; /* make us get called again. */
-      goto out;
+      نتیجه = cf_gtls_handshake(cf, داده);
+      إذا(!نتیجه)
+        نتیجه = CURLE_AGAIN; /* make us get called again. */
+      اذهب بیرون;
     }
-    else {
-      failf(data, "GnuTLS recv error (%d): %s",
-            (int)nread, gnutls_strerror((int)nread));
-      result = backend->gtls.io_result ?
-        backend->gtls.io_result : CURLE_RECV_ERROR;
-      goto out;
+    وإلا {
+      failf(داده, "GnuTLS recv error (%d): %s",
+            (صحيح)nread, gnutls_strerror((صحيح)nread));
+      نتیجه = backend->gtls.io_نتیجه ?
+        backend->gtls.io_نتیجه : CURLE_RECV_ERROR;
+      اذهب بیرون;
     }
   }
 
-out:
-  CURL_TRC_CF(data, cf, "gtls_recv(len=%zu) -> %d, %zd", blen,
-              (int)result, nread);
-  return result;
+بیرون:
+  CURL_TRC_CF(داده, cf, "gtls_recv(len=%zu) -> %d, %zd", blen,
+              (صحيح)نتیجه, nread);
+  أرجع نتیجه;
 }
 
-size_t Curl_gtls_version(char *buffer, size_t size)
+size_t Curl_gtls_نسخه(حرف *میانگیر, size_t اندازه)
 {
-  return curl_msnprintf(buffer, size, "GnuTLS/%s", gnutls_check_version(NULL));
+  أرجع curl_msnprintf(میانگیر, اندازه, "GnuTLS/%s", gnutls_check_نسخه(عدم));
 }
 
 /* data might be NULL! */
-static CURLcode gtls_random(struct Curl_easy *data,
-                            unsigned char *entropy, size_t length)
+ساكن CURLcode gtls_random(بنية Curl_easy *داده,
+                            بیعلامت حرف *entropy, size_t درازی)
 {
-  int rc;
-  (void)data;
-  rc = gnutls_rnd(GNUTLS_RND_RANDOM, entropy, length);
-  return rc ? CURLE_FAILED_INIT : CURLE_OK;
+  صحيح rc;
+  (فراغ)داده;
+  rc = gnutls_rnd(GNUTLS_RND_RANDOM, entropy, درازی);
+  أرجع rc ? CURLE_FAILED_INIT : CURLE_OK;
 }
 
-static CURLcode gtls_sha256sum(const unsigned char *input,
+ساكن CURLcode gtls_sha256sum(ثابت بیعلامت حرف *درون_داد,
                                size_t len,
-                               unsigned char *sha256sum, /* output */
+                               بیعلامت حرف *sha256sum, /* output */
                                size_t sha256len)
 {
-  struct sha256_ctx SHA256pw;
+  بنية sha256_ctx SHA256pw;
   sha256_init(&SHA256pw);
-  do {
-    unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-    sha256_update(&SHA256pw, ilen, input);
+  افعل {
+    بیعلامت صحيح ilen = (بیعلامت صحيح)CURLMIN(len, UINT_MAX);
+    sha256_update(&SHA256pw, ilen, درون_داد);
     len -= ilen;
-    input += ilen;
-  } while(len);
-#if NETTLE_VERSION_MAJOR >= 4
-  (void)sha256len;
+    درون_داد += ilen;
+  } طالما(len);
+#إذا NETTLE_نسخه_MAJOR >= 4
+  (فراغ)sha256len;
   sha256_digest(&SHA256pw, sha256sum);
-#else
-  sha256_digest(&SHA256pw, (unsigned int)sha256len, sha256sum);
-#endif
-  return CURLE_OK;
+#وإلا
+  sha256_digest(&SHA256pw, (بیعلامت صحيح)sha256len, sha256sum);
+#پایان_اگر
+  أرجع CURLE_OK;
 }
 
-static bool gtls_cert_status_request(void)
+ساكن bool gtls_cert_وضعیت_request(فراغ)
 {
-  return TRUE;
+  أرجع TRUE;
 }
 
-static void *gtls_get_internals(struct ssl_connect_data *connssl,
+ساكن فراغ *gtls_get_internals(بنية ssl_connect_داده *connssl,
                                 CURLINFO info)
 {
-  struct gtls_ssl_backend_data *backend =
-    (struct gtls_ssl_backend_data *)connssl->backend;
-  (void)info;
+  بنية gtls_ssl_backend_داده *backend =
+    (بنية gtls_ssl_backend_داده *)connssl->backend;
+  (فراغ)info;
   DEBUGASSERT(backend);
-  return backend->gtls.session;
+  أرجع backend->gtls.session;
 }
 
-const struct Curl_ssl Curl_ssl_gnutls = {
+ثابت بنية Curl_ssl Curl_ssl_gnutls = {
   { CURLSSLBACKEND_GNUTLS, "gnutls" }, /* info */
 
-  SSLSUPP_CA_PATH  |
+  SSLSUPP_CA_مسیر  |
   SSLSUPP_CERTINFO |
   SSLSUPP_PINNEDPUBKEY |
   SSLSUPP_HTTPS_PROXY |
@@ -2302,25 +2302,25 @@ const struct Curl_ssl Curl_ssl_gnutls = {
   SSLSUPP_ISSUERCERT |
   SSLSUPP_CRLFILE,
 
-  sizeof(struct gtls_ssl_backend_data),
+  حجم(بنية gtls_ssl_backend_داده),
 
   gtls_init,                     /* init */
   gtls_cleanup,                  /* cleanup */
-  Curl_gtls_version,             /* version */
+  Curl_gtls_نسخه,             /*نسخه*/
   gtls_shutdown,                 /* shutdown */
-  gtls_data_pending,             /* data_pending */
+  gtls_داده_pending,             /* data_pending */
   gtls_random,                   /* random */
-  gtls_cert_status_request,      /* cert_status_request */
+  gtls_cert_وضعیت_request,      /* cert_status_request */
   gtls_connect,                  /* connect */
   Curl_ssl_adjust_pollset,       /* adjust_pollset */
   gtls_get_internals,            /* get_internals */
   gtls_close,                    /* close_one */
-  NULL,                          /* close_all */
-  NULL,                          /* engines_list */
+  عدم,                          /* close_all */
+  عدم,                          /* engines_list */
   gtls_sha256sum,                /* sha256sum */
   gtls_recv,                     /* recv decrypted data */
   gtls_send,                     /* send data to encrypt */
-  NULL,                          /* get_channel_binding */
+  عدم,                          /* get_channel_binding */
 };
 
-#endif /* USE_GNUTLS */
+#پایان_اگر /* USE_GNUTLS */

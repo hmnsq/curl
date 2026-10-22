@@ -32,24 +32,24 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#إذا !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-#include "urldata.h"
-#include "curlx/base64.h"
-#include "vauth/vauth.h"
-#include "cfilters.h"
-#include "curl_sasl.h"
-#include "curl_trc.h"
+#ضمن "urldata.h"
+#ضمن "curlx/base64.h"
+#ضمن "vauth/vauth.h"
+#ضمن "cfilters.h"
+#ضمن "curl_sasl.h"
+#ضمن "curl_trc.h"
 
 /* Supported mechanisms */
-static const struct {
-  const char    *name;  /* Name */
+ساكن ثابت بنية {
+  ثابت حرف    *name;  /* Name */
   size_t         len;   /* Name length */
-  unsigned short bit;   /* Flag bit */
+  بیعلامت کوتاه بیت_2;   /* Flag bit */
 } mechtable[] = {
   { "LOGIN",        5,  SASL_MECH_LOGIN },
   { "PLAIN",        5,  SASL_MECH_PLAIN },
@@ -78,28 +78,28 @@ static const struct {
  *
  * Returns the SASL mechanism token or 0 if no match.
  */
-unsigned short Curl_sasl_decode_mech(const char *ptr, size_t maxlen,
+بیعلامت کوتاه Curl_sasl_decode_mech(ثابت حرف *ptr, size_t maxlen,
                                      size_t *len)
 {
-  unsigned int i;
-  char c;
+  بیعلامت صحيح i;
+  حرف c;
 
-  for(i = 0; mechtable[i].name; i++) {
-    if(maxlen >= mechtable[i].len &&
+  لكل(i = 0; mechtable[i].name; i++) {
+    إذا(maxlen >= mechtable[i].len &&
        curl_strnequal(ptr, mechtable[i].name, mechtable[i].len)) {
-      if(len)
+      إذا(len)
         *len = mechtable[i].len;
 
-      if(maxlen == mechtable[i].len)
-        return mechtable[i].bit;
+      إذا(maxlen == mechtable[i].len)
+        أرجع mechtable[i].بیت_2;
 
       c = ptr[mechtable[i].len];
-      if(!ISUPPER(c) && !ISDIGIT(c) && c != '-' && c != '_')
-        return mechtable[i].bit;
+      إذا(!ISUPPER(c) && !ISDIGIT(c) && c != '-' && c != '_')
+        أرجع mechtable[i].بیت_2;
     }
   }
 
-  return 0;
+  أرجع 0;
 }
 
 /*
@@ -107,31 +107,31 @@ unsigned short Curl_sasl_decode_mech(const char *ptr, size_t maxlen,
  *
  * Parse the URL login options.
  */
-CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len)
+CURLcode Curl_sasl_parse_url_auth_option(بنية SASL *sasl,
+                                         ثابت حرف *مقدار, size_t len)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
   size_t mechlen;
 
-  if(!len)
-    return CURLE_URL_MALFORMAT;
+  إذا(!len)
+    أرجع CURLE_URL_MALFORMAT;
 
-  if(sasl->resetprefs) {
+  إذا(sasl->resetprefs) {
     sasl->resetprefs = FALSE;
     sasl->prefmech = SASL_AUTH_NONE;
   }
 
-  if(!strncmp(value, "*", len))
+  إذا(!مقایسه_رشته(مقدار, "*", len))
     sasl->prefmech = SASL_AUTH_DEFAULT;
-  else {
-    unsigned short mechbit = Curl_sasl_decode_mech(value, len, &mechlen);
-    if(mechbit && mechlen == len)
+  وإلا {
+    بیعلامت کوتاه mechbit = Curl_sasl_decode_mech(مقدار, len, &mechlen);
+    إذا(mechbit && mechlen == len)
       sasl->prefmech |= mechbit;
-    else
-      result = CURLE_URL_MALFORMAT;
+    وإلا
+      نتیجه = CURLE_URL_MALFORMAT;
   }
 
-  return result;
+  أرجع نتیجه;
 }
 
 /*
@@ -139,14 +139,14 @@ CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
  *
  * Initializes the SASL structure.
  */
-void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
-                    const struct SASLproto *params)
+فراغ Curl_sasl_init(بنية SASL *sasl, بنية Curl_easy *داده,
+                    ثابت بنية SASLproto *params)
 {
-  uint32_t auth = data->set.httpauth;
+  uint32_t auth = داده->مجموعه.httpauth;
 
   sasl->params = params;           /* Set protocol dependent parameters */
   sasl->state = SASL_STOP;         /* Not yet running */
-  sasl->curmech = NULL;            /* No mechanism yet. */
+  sasl->curmech = عدم;            /* No mechanism yet. */
   sasl->authmechs = SASL_AUTH_NONE; /* No known authentication mechanism yet */
   sasl->prefmech = params->defmechs; /* Default preferred mechanisms */
   sasl->authused = SASL_AUTH_NONE; /* The authentication mechanism used */
@@ -154,23 +154,23 @@ void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
   sasl->mutual_auth = FALSE;       /* No mutual authentication (GSSAPI only) */
   sasl->force_ir = FALSE;          /* Respect external option */
 
-  if(auth != CURLAUTH_BASIC) {
-    unsigned short mechs = SASL_AUTH_NONE;
+  إذا(auth != CURLAUTH_BASIC) {
+    بیعلامت کوتاه mechs = SASL_AUTH_NONE;
 
     /* If some usable http authentication options have been set, determine
        new defaults from them. */
-    if(auth & CURLAUTH_BASIC)
+    إذا(auth & CURLAUTH_BASIC)
       mechs |= SASL_MECH_PLAIN | SASL_MECH_LOGIN;
-    if(auth & CURLAUTH_DIGEST)
+    إذا(auth & CURLAUTH_DIGEST)
       mechs |= SASL_MECH_DIGEST_MD5;
-    if(auth & CURLAUTH_NTLM)
+    إذا(auth & CURLAUTH_NTLM)
       mechs |= SASL_MECH_NTLM;
-    if(auth & CURLAUTH_BEARER)
+    إذا(auth & CURLAUTH_BEARER)
       mechs |= SASL_MECH_OAUTHBEARER | SASL_MECH_XOAUTH2;
-    if(auth & CURLAUTH_GSSAPI)
+    إذا(auth & CURLAUTH_GSSAPI)
       mechs |= SASL_MECH_GSSAPI;
 
-    if(mechs != SASL_AUTH_NONE)
+    إذا(mechs != SASL_AUTH_NONE)
       sasl->prefmech = mechs;
   }
 }
@@ -180,12 +180,12 @@ void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
  *
  * This is the ONLY way to change SASL state!
  */
-static void sasl_state(struct SASL *sasl, struct Curl_easy *data,
+ساكن فراغ sasl_state(بنية SASL *sasl, بنية Curl_easy *داده,
                        saslstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#إذا defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
-  static const char * const names[] = {
+  ساكن ثابت حرف * ثابت نامها[] = {
     "STOP",
     "PLAIN",
     "LOGIN",
@@ -204,66 +204,66 @@ static void sasl_state(struct SASL *sasl, struct Curl_easy *data,
     "GSASL",
     "CANCEL",
     "FINAL",
-    /* LAST */
+    /*آخرین*/
   };
 
-  if(sasl->state != newstate)
-    infof(data, "SASL %p state change from %s to %s",
-          (void *)sasl, names[sasl->state], names[newstate]);
-#else
-  (void)data;
-#endif
+  إذا(sasl->state != newstate)
+    infof(داده, "SASL %p state change from %s to %s",
+          (فراغ *)sasl, نامها[sasl->state], نامها[newstate]);
+#وإلا
+  (فراغ)داده;
+#پایان_اگر
 
   sasl->state = newstate;
 }
 
-#if defined(USE_NTLM) || defined(USE_GSASL) || defined(USE_KERBEROS5) || \
+#إذا defined(USE_NTLM) || defined(USE_GSASL) || defined(USE_KERBEROS5) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 /* Get the SASL server message and convert it to binary. */
-static CURLcode get_server_message(struct SASL *sasl, struct Curl_easy *data,
-                                   struct bufref *out)
+ساكن CURLcode get_server_پیام(بنية SASL *sasl, بنية Curl_easy *داده,
+                                   بنية bufref *بیرون)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
 
-  result = sasl->params->getmessage(data, out);
-  if(!result && (sasl->params->flags & SASL_FLAG_BASE64)) {
-    const char *serverdata = Curl_bufref_ptr(out);
+  نتیجه = sasl->params->getmessage(داده, بیرون);
+  إذا(!نتیجه && (sasl->params->flags & SASL_FLAG_BASE64)) {
+    ثابت حرف *serverdata = Curl_bufref_ptr(بیرون);
 
-    if(!*serverdata)
-      Curl_bufref_set(out, NULL, 0, NULL);
-    else {
-      unsigned char *msg;
+    إذا(!*serverdata)
+      Curl_bufref_مجموعه(بیرون, عدم, 0, عدم);
+    وإلا {
+      بیعلامت حرف *پیام;
       size_t msglen;
 
-      result = curlx_base64_decode(serverdata, &msg, &msglen);
-      if(!result)
-        Curl_bufref_set(out, msg, msglen, curl_free);
+      نتیجه = curlx_base64_decode(serverdata, &پیام, &msglen);
+      إذا(!نتیجه)
+        Curl_bufref_مجموعه(بیرون, پیام, msglen, curl_free);
     }
   }
-  return result;
+  أرجع نتیجه;
 }
-#endif
+#پایان_اگر
 
 /* Encode the outgoing SASL message. */
-static CURLcode build_message(struct SASL *sasl, struct bufref *msg)
+ساكن CURLcode build_پیام(بنية SASL *sasl, بنية bufref *پیام)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
 
-  if(sasl->params->flags & SASL_FLAG_BASE64) {
-    if(!Curl_bufref_ptr(msg))                   /* Empty message. */
-      Curl_bufref_set(msg, "", 0, NULL);
-    else if(Curl_bufref_len(msg)) {
-      char *base64;
+  إذا(sasl->params->flags & SASL_FLAG_BASE64) {
+    إذا(!Curl_bufref_ptr(پیام))                   /* Empty message. */
+      Curl_bufref_مجموعه(پیام, "", 0, عدم);
+    وإلا إذا(Curl_bufref_len(پیام)) {
+      حرف *base64;
       size_t base64len;
 
-      result = curlx_base64_encode(Curl_bufref_uptr(msg),
-                                   Curl_bufref_len(msg), &base64, &base64len);
-      if(!result)
-        Curl_bufref_set(msg, base64, base64len, curl_free);
+      نتیجه = curlx_base64_encode(Curl_bufref_uptr(پیام),
+                                   Curl_bufref_len(پیام), &base64, &base64len);
+      إذا(!نتیجه)
+        Curl_bufref_مجموعه(پیام, base64, base64len, curl_free);
     }
   }
 
-  return result;
+  أرجع نتیجه;
 }
 
 /*
@@ -271,53 +271,53 @@ static CURLcode build_message(struct SASL *sasl, struct bufref *msg)
  *
  * Check if we have enough auth data and capabilities to authenticate.
  */
-bool Curl_sasl_can_authenticate(struct SASL *sasl, struct Curl_easy *data)
+bool Curl_sasl_can_authenticate(بنية SASL *sasl, بنية Curl_easy *داده)
 {
   /* Have credentials been provided? */
-  if(data->conn->creds)
-    return TRUE;
+  إذا(داده->conn->creds)
+    أرجع TRUE;
 
   /* EXTERNAL can authenticate without a username and/or password */
-  if(sasl->authmechs & sasl->prefmech & SASL_MECH_EXTERNAL)
-    return TRUE;
+  إذا(sasl->authmechs & sasl->prefmech & SASL_MECH_EXTERNAL)
+    أرجع TRUE;
 
-  return FALSE;
+  أرجع FALSE;
 }
 
-struct sasl_ctx {
-  struct SASL *sasl;
-  struct connectdata *conn;
-  unsigned short enabledmechs;
-  const char *mech;
+بنية sasl_ctx {
+  بنية SASL *sasl;
+  بنية connectdata *conn;
+  بیعلامت کوتاه enabledmechs;
+  ثابت حرف *mech;
   saslstate state1;
   saslstate state2;
-  struct bufref resp;
-  CURLcode result;
+  بنية bufref resp;
+  CURLcode نتیجه;
 };
 
-static bool sasl_choose_external(struct Curl_easy *data, struct sasl_ctx *sctx)
+ساكن bool sasl_انتخاب_external(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  if((sctx->enabledmechs & SASL_MECH_EXTERNAL) &&
+  إذا((sctx->enabledmechs & SASL_MECH_EXTERNAL) &&
      !Curl_creds_has_passwd(sctx->conn->creds)) {
     sctx->mech = SASL_MECH_STRING_EXTERNAL;
     sctx->state1 = SASL_EXTERNAL;
     sctx->sasl->authused = SASL_MECH_EXTERNAL;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
-      Curl_auth_create_external_message(
+    إذا(sctx->sasl->force_ir || داده->مجموعه.sasl_ir)
+      Curl_auth_create_external_پیام(
         Curl_creds_user(sctx->conn->creds), &sctx->resp);
-    return TRUE;
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-#ifdef USE_KERBEROS5
-static bool sasl_choose_krb5(struct Curl_easy *data, struct sasl_ctx *sctx)
+#اگر_تعریف_شده USE_KERBEROS5
+ساكن bool sasl_انتخاب_krb5(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  if((sctx->enabledmechs & SASL_MECH_GSSAPI) &&
+  إذا((sctx->enabledmechs & SASL_MECH_GSSAPI) &&
      Curl_auth_is_gssapi_supported() &&
-     Curl_auth_user_contains_domain(sctx->conn->creds)) {
-    const char *service = Curl_creds_has_sasl_service(sctx->conn->creds) ?
+     Curl_auth_user_شامل_است_domain(sctx->conn->creds)) {
+    ثابت حرف *service = Curl_creds_has_sasl_service(sctx->conn->creds) ?
       Curl_creds_sasl_service(sctx->conn->creds) : sctx->sasl->params->service;
 
     sctx->sasl->mutual_auth = FALSE;
@@ -326,180 +326,180 @@ static bool sasl_choose_krb5(struct Curl_easy *data, struct sasl_ctx *sctx)
     sctx->state2 = SASL_GSSAPI_TOKEN;
     sctx->sasl->authused = SASL_MECH_GSSAPI;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir) {
-      struct kerberos5data *krb5 = Curl_auth_krb5_get(sctx->conn);
-      sctx->result = !krb5 ? CURLE_OUT_OF_MEMORY :
-        Curl_auth_create_gssapi_user_message(data, sctx->conn->creds,
+    إذا(sctx->sasl->force_ir || داده->مجموعه.sasl_ir) {
+      بنية kerberos5data *krb5 = Curl_auth_krb5_get(sctx->conn);
+      sctx->نتیجه = !krb5 ? CURLE_بیرون_از_حافظه :
+        Curl_auth_create_gssapi_user_پیام(داده, sctx->conn->creds,
                                              service,
                                              sctx->conn->origin->hostname,
                                              (bool)sctx->sasl->mutual_auth,
-                                             NULL, krb5, &sctx->resp);
+                                             عدم, krb5, &sctx->resp);
     }
-    return TRUE;
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
-#endif /* USE_KERBEROS5 */
+#پایان_اگر /* USE_KERBEROS5 */
 
-#ifdef USE_GSASL
-static bool sasl_choose_gsasl(struct Curl_easy *data, struct sasl_ctx *sctx)
+#اگر_تعریف_شده USE_GSASL
+ساكن bool sasl_انتخاب_gsasl(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  struct gsasldata *gsasl;
-  struct bufref nullmsg;
+  بنية gsasldata *gsasl;
+  بنية bufref nullmsg;
 
-  if((sctx->enabledmechs &
+  إذا((sctx->enabledmechs &
       (SASL_MECH_SCRAM_SHA_256 | SASL_MECH_SCRAM_SHA_1))) {
     gsasl = Curl_auth_gsasl_get(sctx->conn);
-    if(!gsasl) {
-      sctx->result = CURLE_OUT_OF_MEMORY;
-      return TRUE; /* attempted, but failed */
+    إذا(!gsasl) {
+      sctx->نتیجه = CURLE_بیرون_از_حافظه;
+      أرجع TRUE; /* attempted, but failed */
     }
 
-    if((sctx->enabledmechs & SASL_MECH_SCRAM_SHA_256) &&
-       Curl_auth_gsasl_is_supported(data, SASL_MECH_STRING_SCRAM_SHA_256,
+    إذا((sctx->enabledmechs & SASL_MECH_SCRAM_SHA_256) &&
+       Curl_auth_gsasl_is_supported(داده, SASL_MECH_STRING_SCRAM_SHA_256,
                                     gsasl)) {
       sctx->mech = SASL_MECH_STRING_SCRAM_SHA_256;
       sctx->sasl->authused = SASL_MECH_SCRAM_SHA_256;
     }
-    else if((sctx->enabledmechs & SASL_MECH_SCRAM_SHA_1) &&
-            Curl_auth_gsasl_is_supported(data, SASL_MECH_STRING_SCRAM_SHA_1,
+    وإلا إذا((sctx->enabledmechs & SASL_MECH_SCRAM_SHA_1) &&
+            Curl_auth_gsasl_is_supported(داده, SASL_MECH_STRING_SCRAM_SHA_1,
                                          gsasl)) {
       sctx->mech = SASL_MECH_STRING_SCRAM_SHA_1;
       sctx->sasl->authused = SASL_MECH_SCRAM_SHA_1;
     }
-    else
-      return FALSE;
+    وإلا
+      أرجع FALSE;
 
     Curl_bufref_init(&nullmsg);
     sctx->state1 = SASL_GSASL;
     sctx->state2 = SASL_GSASL;
-    sctx->result = Curl_auth_gsasl_start(data, sctx->conn->creds, gsasl);
-    if(!sctx->result && (sctx->sasl->force_ir || data->set.sasl_ir))
-      sctx->result = Curl_auth_gsasl_token(data, &nullmsg, gsasl, &sctx->resp);
-    return TRUE;
+    sctx->نتیجه = Curl_auth_gsasl_شروع(داده, sctx->conn->creds, gsasl);
+    إذا(!sctx->نتیجه && (sctx->sasl->force_ir || داده->مجموعه.sasl_ir))
+      sctx->نتیجه = Curl_auth_gsasl_token(داده, &nullmsg, gsasl, &sctx->resp);
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-#endif /* USE_GSASL */
+#پایان_اگر /* USE_GSASL */
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
-static bool sasl_choose_digest(struct Curl_easy *data, struct sasl_ctx *sctx)
+#اگر_تعریف_نشده CURL_DISABLE_DIGEST_AUTH
+ساكن bool sasl_انتخاب_digest(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  (void)data;
-  if((sctx->enabledmechs & SASL_MECH_DIGEST_MD5) &&
+  (فراغ)داده;
+  إذا((sctx->enabledmechs & SASL_MECH_DIGEST_MD5) &&
      Curl_auth_is_digest_supported()) {
     sctx->mech = SASL_MECH_STRING_DIGEST_MD5;
     sctx->state1 = SASL_DIGESTMD5;
     sctx->sasl->authused = SASL_MECH_DIGEST_MD5;
-    return TRUE;
+    أرجع TRUE;
   }
-  else if(sctx->enabledmechs & SASL_MECH_CRAM_MD5) {
+  وإلا إذا(sctx->enabledmechs & SASL_MECH_CRAM_MD5) {
     sctx->mech = SASL_MECH_STRING_CRAM_MD5;
     sctx->state1 = SASL_CRAMMD5;
     sctx->sasl->authused = SASL_MECH_CRAM_MD5;
-    return TRUE;
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
-#endif /* !CURL_DISABLE_DIGEST_AUTH */
+#پایان_اگر /* !CURL_DISABLE_DIGEST_AUTH */
 
-#ifdef USE_NTLM
-static bool sasl_choose_ntlm(struct Curl_easy *data, struct sasl_ctx *sctx)
+#اگر_تعریف_شده USE_NTLM
+ساكن bool sasl_انتخاب_ntlm(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  if((sctx->enabledmechs & SASL_MECH_NTLM) &&
+  إذا((sctx->enabledmechs & SASL_MECH_NTLM) &&
      Curl_auth_is_ntlm_supported()) {
-     const char *service = Curl_creds_has_sasl_service(sctx->conn->creds) ?
+     ثابت حرف *service = Curl_creds_has_sasl_service(sctx->conn->creds) ?
       Curl_creds_sasl_service(sctx->conn->creds) : sctx->sasl->params->service;
-    const char *hostname;
+    ثابت حرف *hostname;
 
-    Curl_conn_get_current_host(data, FIRSTSOCKET, &hostname, NULL);
+    Curl_conn_get_current_host(داده, FIRSTSOCKET, &hostname, عدم);
 
     sctx->mech = SASL_MECH_STRING_NTLM;
     sctx->state1 = SASL_NTLM;
-    sctx->state2 = SASL_NTLM_TYPE2MSG;
+    sctx->state2 = SASL_NTLM_TYPE2_پیام;
     sctx->sasl->authused = SASL_MECH_NTLM;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir) {
-      struct ntlmdata *ntlm = Curl_auth_ntlm_get(sctx->conn, FALSE);
-      sctx->result = !ntlm ? CURLE_OUT_OF_MEMORY :
-        Curl_auth_create_ntlm_type1_message(data, sctx->conn->creds,
+    إذا(sctx->sasl->force_ir || داده->مجموعه.sasl_ir) {
+      بنية ntlmdata *ntlm = Curl_auth_ntlm_get(sctx->conn, FALSE);
+      sctx->نتیجه = !ntlm ? CURLE_بیرون_از_حافظه :
+        Curl_auth_create_ntlm_type1_پیام(داده, sctx->conn->creds,
                                             service, hostname,
                                             ntlm, &sctx->resp);
     }
-    return TRUE;
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
-#endif /* USE_NTLM */
+#پایان_اگر /* USE_NTLM */
 
-static bool sasl_choose_oauth(struct Curl_easy *data, struct sasl_ctx *sctx)
+ساكن bool sasl_انتخاب_oauth(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  if(Curl_creds_has_oauth_bearer(data->state.creds) &&
+  إذا(Curl_creds_has_oauth_bearer(داده->state.creds) &&
      (sctx->enabledmechs & SASL_MECH_OAUTHBEARER)) {
-    const char *hostname;
-    int port;
-    Curl_conn_get_current_host(data, FIRSTSOCKET, &hostname, &port);
+    ثابت حرف *hostname;
+    صحيح پورت;
+    Curl_conn_get_current_host(داده, FIRSTSOCKET, &hostname, &پورت);
 
     sctx->mech = SASL_MECH_STRING_OAUTHBEARER;
     sctx->state1 = SASL_OAUTH2;
     sctx->state2 = SASL_OAUTH2_RESP;
     sctx->sasl->authused = SASL_MECH_OAUTHBEARER;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
-      sctx->result =
-        Curl_auth_create_oauth_bearer_message(sctx->conn->creds,
-                                              hostname, port, &sctx->resp);
-    return TRUE;
+    إذا(sctx->sasl->force_ir || داده->مجموعه.sasl_ir)
+      sctx->نتیجه =
+        Curl_auth_create_oauth_bearer_پیام(sctx->conn->creds,
+                                              hostname, پورت, &sctx->resp);
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-static bool sasl_choose_oauth2(struct Curl_easy *data, struct sasl_ctx *sctx)
+ساكن bool sasl_انتخاب_oauth2(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  if(Curl_creds_has_oauth_bearer(sctx->conn->creds) &&
+  إذا(Curl_creds_has_oauth_bearer(sctx->conn->creds) &&
      (sctx->enabledmechs & SASL_MECH_XOAUTH2)) {
     sctx->mech = SASL_MECH_STRING_XOAUTH2;
     sctx->state1 = SASL_OAUTH2;
     sctx->sasl->authused = SASL_MECH_XOAUTH2;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
-      sctx->result = Curl_auth_create_xoauth_bearer_message(
+    إذا(sctx->sasl->force_ir || داده->مجموعه.sasl_ir)
+      sctx->نتیجه = Curl_auth_create_xoauth_bearer_پیام(
         sctx->conn->creds, &sctx->resp);
-    return TRUE;
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-static bool sasl_choose_plain(struct Curl_easy *data, struct sasl_ctx *sctx)
+ساكن bool sasl_انتخاب_plain(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  if(sctx->enabledmechs & SASL_MECH_PLAIN) {
+  إذا(sctx->enabledmechs & SASL_MECH_PLAIN) {
     sctx->mech = SASL_MECH_STRING_PLAIN;
     sctx->state1 = SASL_PLAIN;
     sctx->sasl->authused = SASL_MECH_PLAIN;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
-      sctx->result =
-        Curl_auth_create_plain_message(sctx->conn->creds, &sctx->resp);
-    return TRUE;
+    إذا(sctx->sasl->force_ir || داده->مجموعه.sasl_ir)
+      sctx->نتیجه =
+        Curl_auth_create_plain_پیام(sctx->conn->creds, &sctx->resp);
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
-static bool sasl_choose_login(struct Curl_easy *data, struct sasl_ctx *sctx)
+ساكن bool sasl_انتخاب_login(بنية Curl_easy *داده, بنية sasl_ctx *sctx)
 {
-  if(sctx->enabledmechs & SASL_MECH_LOGIN) {
+  إذا(sctx->enabledmechs & SASL_MECH_LOGIN) {
     sctx->mech = SASL_MECH_STRING_LOGIN;
     sctx->state1 = SASL_LOGIN;
     sctx->state2 = SASL_LOGIN_PASSWD;
     sctx->sasl->authused = SASL_MECH_LOGIN;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
-      Curl_auth_create_login_message(
+    إذا(sctx->sasl->force_ir || داده->مجموعه.sasl_ir)
+      Curl_auth_create_login_پیام(
         Curl_creds_user(sctx->conn->creds), &sctx->resp);
-    return TRUE;
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
 /*
@@ -507,18 +507,18 @@ static bool sasl_choose_login(struct Curl_easy *data, struct sasl_ctx *sctx)
  *
  * Calculate the required login details for SASL authentication.
  */
-CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
-                         bool force_ir, saslprogress *progress)
+CURLcode Curl_sasl_شروع(بنية SASL *sasl, بنية Curl_easy *داده,
+                         bool force_ir, saslprogress *پیشرفت)
 {
-  struct sasl_ctx sctx;
+  بنية sasl_ctx sctx;
 
   sasl->force_ir = force_ir;    /* Latch for future use */
   sasl->authused = 0;           /* No mechanism used yet */
-  *progress = SASL_IDLE;
+  *پیشرفت = SASL_IDLE;
 
-  memset(&sctx, 0, sizeof(sctx));
+  memset(&sctx, 0, حجم(sctx));
   sctx.sasl = sasl;
-  sctx.conn = data->conn;
+  sctx.conn = داده->conn;
   Curl_bufref_init(&sctx.resp);
   sctx.enabledmechs = sasl->authmechs & sasl->prefmech;
   sctx.state1 = SASL_STOP;
@@ -526,49 +526,49 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
 
   /* Calculate the supported authentication mechanism, by decreasing order of
      security, as well as the initial response where appropriate */
-  if(sasl_choose_external(data, &sctx) ||
-#ifdef USE_KERBEROS5
-     sasl_choose_krb5(data, &sctx) ||
-#endif
-#ifdef USE_GSASL
-     sasl_choose_gsasl(data, &sctx) ||
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-     sasl_choose_digest(data, &sctx) ||
-#endif
-#ifdef USE_NTLM
-     sasl_choose_ntlm(data, &sctx) ||
-#endif
-     sasl_choose_oauth(data, &sctx) ||
-     sasl_choose_oauth2(data, &sctx) ||
-     sasl_choose_plain(data, &sctx) ||
-     sasl_choose_login(data, &sctx)) {
+  إذا(sasl_انتخاب_external(داده, &sctx) ||
+#اگر_تعریف_شده USE_KERBEROS5
+     sasl_انتخاب_krb5(داده, &sctx) ||
+#پایان_اگر
+#اگر_تعریف_شده USE_GSASL
+     sasl_انتخاب_gsasl(داده, &sctx) ||
+#پایان_اگر
+#اگر_تعریف_نشده CURL_DISABLE_DIGEST_AUTH
+     sasl_انتخاب_digest(داده, &sctx) ||
+#پایان_اگر
+#اگر_تعریف_شده USE_NTLM
+     sasl_انتخاب_ntlm(داده, &sctx) ||
+#پایان_اگر
+     sasl_انتخاب_oauth(داده, &sctx) ||
+     sasl_انتخاب_oauth2(داده, &sctx) ||
+     sasl_انتخاب_plain(داده, &sctx) ||
+     sasl_انتخاب_login(داده, &sctx)) {
     /* selected, either we have a mechanism or a failure */
-    DEBUGASSERT(sctx.mech || sctx.result);
+    DEBUGASSERT(sctx.mech || sctx.نتیجه);
   }
 
-  if(!sctx.result && sctx.mech) {
+  إذا(!sctx.نتیجه && sctx.mech) {
     sasl->curmech = sctx.mech;
-    if(Curl_bufref_ptr(&sctx.resp))
-      sctx.result = build_message(sasl, &sctx.resp);
+    إذا(Curl_bufref_ptr(&sctx.resp))
+      sctx.نتیجه = build_پیام(sasl, &sctx.resp);
 
-    if(sasl->params->maxirlen &&
-       strlen(sctx.mech) + Curl_bufref_len(&sctx.resp) >
+    إذا(sasl->params->maxirlen &&
+       طول_رشته(sctx.mech) + Curl_bufref_len(&sctx.resp) >
          sasl->params->maxirlen)
       Curl_bufref_free(&sctx.resp);
 
-    if(!sctx.result)
-      sctx.result = sasl->params->sendauth(data, sctx.mech, &sctx.resp);
+    إذا(!sctx.نتیجه)
+      sctx.نتیجه = sasl->params->sendauth(داده, sctx.mech, &sctx.resp);
 
-    if(!sctx.result) {
-      *progress = SASL_INPROGRESS;
-      sasl_state(sasl, data, Curl_bufref_ptr(&sctx.resp) ?
+    إذا(!sctx.نتیجه) {
+      *پیشرفت = SASL_INPROGRESS;
+      sasl_state(sasl, داده, Curl_bufref_ptr(&sctx.resp) ?
                  sctx.state2 : sctx.state1);
     }
   }
 
   Curl_bufref_free(&sctx.resp);
-  return sctx.result;
+  أرجع sctx.نتیجه;
 }
 
 /*
@@ -576,333 +576,333 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
  *
  * Continue the authentication.
  */
-CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
-                            int code, saslprogress *progress)
+CURLcode Curl_sasl_continue(بنية SASL *sasl, بنية Curl_easy *داده,
+                            صحيح کد, saslprogress *پیشرفت)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  CURLcode نتیجه = CURLE_OK;
+  بنية connectdata *conn = داده->conn;
   saslstate newstate = SASL_FINAL;
-  struct bufref resp;
-  const char *hostname;
-  int port;
-  struct bufref serverdata;
+  بنية bufref resp;
+  ثابت حرف *hostname;
+  صحيح پورت;
+  بنية bufref serverdata;
 
-  Curl_conn_get_current_host(data, FIRSTSOCKET, &hostname, &port);
+  Curl_conn_get_current_host(داده, FIRSTSOCKET, &hostname, &پورت);
   Curl_bufref_init(&serverdata);
   Curl_bufref_init(&resp);
-  *progress = SASL_INPROGRESS;
+  *پیشرفت = SASL_INPROGRESS;
 
-  if(sasl->state == SASL_FINAL) {
-    if(code != sasl->params->finalcode)
-      result = CURLE_LOGIN_DENIED;
-    *progress = SASL_DONE;
-    sasl_state(sasl, data, SASL_STOP);
-    return result;
+  إذا(sasl->state == SASL_FINAL) {
+    إذا(کد != sasl->params->finalcode)
+      نتیجه = CURLE_LOGIN_DENIED;
+    *پیشرفت = SASL_انجامشده;
+    sasl_state(sasl, داده, SASL_STOP);
+    أرجع نتیجه;
   }
 
-  if(sasl->state != SASL_CANCEL && sasl->state != SASL_OAUTH2_RESP &&
-     code != sasl->params->contcode) {
-    *progress = SASL_DONE;
-    sasl_state(sasl, data, SASL_STOP);
-    return CURLE_LOGIN_DENIED;
+  إذا(sasl->state != SASL_CANCEL && sasl->state != SASL_OAUTH2_RESP &&
+     کد != sasl->params->contcode) {
+    *پیشرفت = SASL_انجامشده;
+    sasl_state(sasl, داده, SASL_STOP);
+    أرجع CURLE_LOGIN_DENIED;
   }
 
-  switch(sasl->state) {
-  case SASL_STOP:
-    *progress = SASL_DONE;
-    return result;
-  case SASL_PLAIN:
-    result = Curl_auth_create_plain_message(conn->creds, &resp);
-    break;
-  case SASL_LOGIN:
-    Curl_auth_create_login_message(Curl_creds_user(conn->creds), &resp);
+  بدل(sasl->state) {
+  حالة SASL_STOP:
+    *پیشرفت = SASL_انجامشده;
+    أرجع نتیجه;
+  حالة SASL_PLAIN:
+    نتیجه = Curl_auth_create_plain_پیام(conn->creds, &resp);
+    اكسر;
+  حالة SASL_LOGIN:
+    Curl_auth_create_login_پیام(Curl_creds_user(conn->creds), &resp);
     newstate = SASL_LOGIN_PASSWD;
-    break;
-  case SASL_LOGIN_PASSWD:
-    Curl_auth_create_login_message(Curl_creds_passwd(conn->creds), &resp);
-    break;
-  case SASL_EXTERNAL:
-    Curl_auth_create_external_message(Curl_creds_user(conn->creds), &resp);
-    break;
-#ifdef USE_GSASL
-  case SASL_GSASL:
-    result = get_server_message(sasl, data, &serverdata);
-    if(!result) {
-      struct gsasldata *gsasl = Curl_auth_gsasl_get(conn);
-      result = !gsasl ? CURLE_OUT_OF_MEMORY :
-        Curl_auth_gsasl_token(data, &serverdata, gsasl, &resp);
+    اكسر;
+  حالة SASL_LOGIN_PASSWD:
+    Curl_auth_create_login_پیام(Curl_creds_passwd(conn->creds), &resp);
+    اكسر;
+  حالة SASL_EXTERNAL:
+    Curl_auth_create_external_پیام(Curl_creds_user(conn->creds), &resp);
+    اكسر;
+#اگر_تعریف_شده USE_GSASL
+  حالة SASL_GSASL:
+    نتیجه = get_server_پیام(sasl, داده, &serverdata);
+    إذا(!نتیجه) {
+      بنية gsasldata *gsasl = Curl_auth_gsasl_get(conn);
+      نتیجه = !gsasl ? CURLE_بیرون_از_حافظه :
+        Curl_auth_gsasl_token(داده, &serverdata, gsasl, &resp);
     }
-    if(!result && Curl_bufref_len(&resp) > 0)
+    إذا(!نتیجه && Curl_bufref_len(&resp) > 0)
       newstate = SASL_GSASL;
-    break;
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  case SASL_CRAMMD5:
-    result = get_server_message(sasl, data, &serverdata);
-    if(!result)
-      result = Curl_auth_create_cram_md5_message(&serverdata, conn->creds,
+    اكسر;
+#پایان_اگر
+#اگر_تعریف_نشده CURL_DISABLE_DIGEST_AUTH
+  حالة SASL_CRAMMD5:
+    نتیجه = get_server_پیام(sasl, داده, &serverdata);
+    إذا(!نتیجه)
+      نتیجه = Curl_auth_create_cram_md5_پیام(&serverdata, conn->creds,
                                                  &resp);
-    break;
-  case SASL_DIGESTMD5:
-    result = get_server_message(sasl, data, &serverdata);
-    if(!result)
-      result = Curl_auth_create_digest_md5_message(data, &serverdata,
+    اكسر;
+  حالة SASL_DIGESTMD5:
+    نتیجه = get_server_پیام(sasl, داده, &serverdata);
+    إذا(!نتیجه)
+      نتیجه = Curl_auth_create_digest_md5_پیام(داده, &serverdata,
                                                    conn->creds,
                                                    sasl->params->service,
                                                    &resp);
-    if(!result && (sasl->params->flags & SASL_FLAG_BASE64))
+    إذا(!نتیجه && (sasl->params->flags & SASL_FLAG_BASE64))
       newstate = SASL_DIGESTMD5_RESP;
-    break;
-  case SASL_DIGESTMD5_RESP:
+    اكسر;
+  حالة SASL_DIGESTMD5_RESP:
     /* Keep response NULL to output an empty line. */
-    break;
-#endif
+    اكسر;
+#پایان_اگر
 
-#ifdef USE_NTLM
-  case SASL_NTLM: {
+#اگر_تعریف_شده USE_NTLM
+  حالة SASL_NTLM: {
     /* Create the type-1 message */
-    struct ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
-    result = !ntlm ? CURLE_OUT_OF_MEMORY :
-      Curl_auth_create_ntlm_type1_message(data, conn->creds,
+    بنية ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
+    نتیجه = !ntlm ? CURLE_بیرون_از_حافظه :
+      Curl_auth_create_ntlm_type1_پیام(داده, conn->creds,
                                           sasl->params->service, hostname,
                                           ntlm, &resp);
-    newstate = SASL_NTLM_TYPE2MSG;
-    break;
+    newstate = SASL_NTLM_TYPE2_پیام;
+    اكسر;
   }
-  case SASL_NTLM_TYPE2MSG: {
+  حالة SASL_NTLM_TYPE2_پیام: {
     /* Decode the type-2 message */
-    struct ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
-    result = !ntlm ? CURLE_OUT_OF_MEMORY :
-      get_server_message(sasl, data, &serverdata);
-    if(!result)
-      result = Curl_auth_decode_ntlm_type2_message(data, &serverdata, ntlm);
-    if(!result)
-      result = Curl_auth_create_ntlm_type3_message(data, conn->creds,
+    بنية ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
+    نتیجه = !ntlm ? CURLE_بیرون_از_حافظه :
+      get_server_پیام(sasl, داده, &serverdata);
+    إذا(!نتیجه)
+      نتیجه = Curl_auth_decode_ntlm_type2_پیام(داده, &serverdata, ntlm);
+    إذا(!نتیجه)
+      نتیجه = Curl_auth_create_ntlm_type3_پیام(داده, conn->creds,
                                                    ntlm, &resp);
-    break;
+    اكسر;
   }
-#endif
+#پایان_اگر
 
-#ifdef USE_KERBEROS5
-  case SASL_GSSAPI: {
-    struct kerberos5data *krb5 = Curl_auth_krb5_get(conn);
-    result = !krb5 ? CURLE_OUT_OF_MEMORY :
-      Curl_auth_create_gssapi_user_message(data, conn->creds,
+#اگر_تعریف_شده USE_KERBEROS5
+  حالة SASL_GSSAPI: {
+    بنية kerberos5data *krb5 = Curl_auth_krb5_get(conn);
+    نتیجه = !krb5 ? CURLE_بیرون_از_حافظه :
+      Curl_auth_create_gssapi_user_پیام(داده, conn->creds,
                                            sasl->params->service,
                                            conn->origin->hostname,
-                                           (bool)sasl->mutual_auth, NULL,
+                                           (bool)sasl->mutual_auth, عدم,
                                            krb5, &resp);
     newstate = SASL_GSSAPI_TOKEN;
-    break;
+    اكسر;
   }
-  case SASL_GSSAPI_TOKEN:
-    result = get_server_message(sasl, data, &serverdata);
-    if(!result) {
-      struct kerberos5data *krb5 = Curl_auth_krb5_get(conn);
-      if(!krb5)
-        result = CURLE_OUT_OF_MEMORY;
-      else if(sasl->mutual_auth) {
+  حالة SASL_GSSAPI_TOKEN:
+    نتیجه = get_server_پیام(sasl, داده, &serverdata);
+    إذا(!نتیجه) {
+      بنية kerberos5data *krb5 = Curl_auth_krb5_get(conn);
+      إذا(!krb5)
+        نتیجه = CURLE_بیرون_از_حافظه;
+      وإلا إذا(sasl->mutual_auth) {
         /* Decode the user token challenge and create the optional response
-           message */
-        result = Curl_auth_create_gssapi_user_message(data, NULL,
-                                                      NULL, NULL,
+پیام*/
+        نتیجه = Curl_auth_create_gssapi_user_پیام(داده, عدم,
+                                                      عدم, عدم,
                                                       (bool)sasl->mutual_auth,
                                                       &serverdata,
                                                       krb5, &resp);
-        newstate = SASL_GSSAPI_NO_DATA;
+        newstate = SASL_GSSAPI_NO_داده;
       }
-      else
+      وإلا
         /* Decode the security challenge and create the response message */
-        result = Curl_auth_create_gssapi_security_message(
-          data, Curl_creds_sasl_authzid(conn->creds), &serverdata,
+        نتیجه = Curl_auth_create_gssapi_security_پیام(
+          داده, Curl_creds_sasl_authzid(conn->creds), &serverdata,
           krb5, &resp);
     }
-    break;
-  case SASL_GSSAPI_NO_DATA:
+    اكسر;
+  حالة SASL_GSSAPI_NO_داده:
     /* Decode the security challenge and create the response message */
-    result = get_server_message(sasl, data, &serverdata);
-    if(!result) {
-      struct kerberos5data *krb5 = Curl_auth_krb5_get(conn);
-      if(!krb5)
-        result = CURLE_OUT_OF_MEMORY;
-      else
-        result = Curl_auth_create_gssapi_security_message(
-          data, Curl_creds_sasl_authzid(conn->creds), &serverdata,
+    نتیجه = get_server_پیام(sasl, داده, &serverdata);
+    إذا(!نتیجه) {
+      بنية kerberos5data *krb5 = Curl_auth_krb5_get(conn);
+      إذا(!krb5)
+        نتیجه = CURLE_بیرون_از_حافظه;
+      وإلا
+        نتیجه = Curl_auth_create_gssapi_security_پیام(
+          داده, Curl_creds_sasl_authzid(conn->creds), &serverdata,
           krb5, &resp);
     }
-    break;
-#endif
+    اكسر;
+#پایان_اگر
 
-  case SASL_OAUTH2:
+  حالة SASL_OAUTH2:
     /* Create the authorization message */
-    if(sasl->authused == SASL_MECH_OAUTHBEARER) {
-      result = Curl_auth_create_oauth_bearer_message(conn->creds,
+    إذا(sasl->authused == SASL_MECH_OAUTHBEARER) {
+      نتیجه = Curl_auth_create_oauth_bearer_پیام(conn->creds,
                                                      hostname,
-                                                     port,
+                                                     پورت,
                                                      &resp);
 
       /* Failures maybe sent by the server as continuations for OAUTHBEARER */
       newstate = SASL_OAUTH2_RESP;
     }
-    else
-      result = Curl_auth_create_xoauth_bearer_message(conn->creds,
+    وإلا
+      نتیجه = Curl_auth_create_xoauth_bearer_پیام(conn->creds,
                                                       &resp);
-    break;
+    اكسر;
 
-  case SASL_OAUTH2_RESP:
+  حالة SASL_OAUTH2_RESP:
     /* The continuation is optional so check the response code */
-    if(code == sasl->params->finalcode) {
+    إذا(کد == sasl->params->finalcode) {
       /* Final response was received so we are done */
-      *progress = SASL_DONE;
-      sasl_state(sasl, data, SASL_STOP);
-      return result;
+      *پیشرفت = SASL_انجامشده;
+      sasl_state(sasl, داده, SASL_STOP);
+      أرجع نتیجه;
     }
-    else if(code == sasl->params->contcode) {
+    وإلا إذا(کد == sasl->params->contcode) {
       /* Acknowledge the continuation by sending a 0x01 response. */
-      Curl_bufref_set(&resp, "\x01", 1, NULL);
-      break;
+      Curl_bufref_مجموعه(&resp, "\x01", 1, عدم);
+      اكسر;
     }
-    else {
-      *progress = SASL_DONE;
-      sasl_state(sasl, data, SASL_STOP);
-      return CURLE_LOGIN_DENIED;
+    وإلا {
+      *پیشرفت = SASL_انجامشده;
+      sasl_state(sasl, داده, SASL_STOP);
+      أرجع CURLE_LOGIN_DENIED;
     }
 
-  case SASL_CANCEL:
+  حالة SASL_CANCEL:
     /* Remove the offending mechanism from the supported list */
-    sasl->authmechs &= (unsigned short)~sasl->authused;
+    sasl->authmechs &= (بیعلامت کوتاه)~sasl->authused;
     sasl->authused = SASL_AUTH_NONE;
-    sasl->curmech = NULL;
+    sasl->curmech = عدم;
 
     /* Start an alternative SASL authentication */
-    return Curl_sasl_start(sasl, data, (bool)sasl->force_ir, progress);
-  default:
-    failf(data, "Unsupported SASL authentication mechanism");
-    result = CURLE_UNSUPPORTED_PROTOCOL;  /* Should not happen */
-    break;
+    أرجع Curl_sasl_شروع(sasl, داده, (bool)sasl->force_ir, پیشرفت);
+  افتراضي:
+    failf(داده, "Unsupported SASL authentication mechanism");
+    نتیجه = CURLE_UNSUPPORTED_PROTOCOL;  /* Should not happen */
+    اكسر;
   }
 
   Curl_bufref_free(&serverdata);
 
-  switch(result) {
-  case CURLE_BAD_CONTENT_ENCODING:
+  بدل(نتیجه) {
+  حالة CURLE_BAD_CONTENT_ENCODING:
     /* Cancel dialog */
-    result = sasl->params->cancelauth(data, sasl->curmech);
+    نتیجه = sasl->params->cancelauth(داده, sasl->curmech);
     newstate = SASL_CANCEL;
-    break;
-  case CURLE_OK:
-    result = build_message(sasl, &resp);
-    if(!result)
-      result = sasl->params->contauth(data, sasl->curmech, &resp);
-    break;
-  default:
+    اكسر;
+  حالة CURLE_OK:
+    نتیجه = build_پیام(sasl, &resp);
+    إذا(!نتیجه)
+      نتیجه = sasl->params->contauth(داده, sasl->curmech, &resp);
+    اكسر;
+  افتراضي:
     newstate = SASL_STOP;    /* Stop on error */
-    *progress = SASL_DONE;
-    break;
+    *پیشرفت = SASL_انجامشده;
+    اكسر;
   }
 
   Curl_bufref_free(&resp);
 
-  sasl_state(sasl, data, newstate);
+  sasl_state(sasl, داده, newstate);
 
-  return result;
+  أرجع نتیجه;
 }
 
-#ifdef CURLVERBOSE
-static void sasl_unchosen(struct Curl_easy *data, unsigned short mech,
-                          unsigned short enabledmechs,
-                          bool built_in, bool platform,
-                          const char *param_missing)
+#اگر_تعریف_شده CURLVERBOSE
+ساكن فراغ sasl_unchosen(بنية Curl_easy *داده, بیعلامت کوتاه mech,
+                          بیعلامت کوتاه enabledmechs,
+                          bool built_درون, bool platform,
+                          ثابت حرف *param_missing)
 {
-  const char *mname = NULL;
+  ثابت حرف *mname = عدم;
   size_t i;
 
-  if(!(enabledmechs & mech))
-    return;
+  إذا(!(enabledmechs & mech))
+    أرجع;
 
-  for(i = 0; mechtable[i].name; ++i) {
-    if(mechtable[i].bit == mech) {
+  لكل(i = 0; mechtable[i].name; ++i) {
+    إذا(mechtable[i].بیت_2 == mech) {
       mname = mechtable[i].name;
-      break;
+      اكسر;
     }
   }
-  if(!mname)  /* should not happen */
-    return;
-  if(!built_in)
-    infof(data, "SASL: %s not builtin", mname);
-  else if(!platform)
-    infof(data, "SASL: %s not supported by the platform/libraries", mname);
-  else {
-    if(param_missing)
-      infof(data, "SASL: %s is missing %s", mname, param_missing);
-    if(!Curl_creds_has_user(data->conn->creds))
-      infof(data, "SASL: %s is missing username", mname);
+  إذا(!mname)  /* should not happen */
+    أرجع;
+  إذا(!built_درون)
+    infof(داده, "SASL: %s not builtin", mname);
+  وإلا إذا(!platform)
+    infof(داده, "SASL: %s not supported by the platform/libraries", mname);
+  وإلا {
+    إذا(param_missing)
+      infof(داده, "SASL: %s is missing %s", mname, param_missing);
+    إذا(!Curl_creds_has_user(داده->conn->creds))
+      infof(داده, "SASL: %s is missing username", mname);
   }
 }
-#endif /* CURLVERBOSE */
+#پایان_اگر /* CURLVERBOSE */
 
-CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data)
+CURLcode Curl_sasl_is_blocked(بنية SASL *sasl, بنية Curl_easy *داده)
 {
-#ifdef CURLVERBOSE
-#ifdef USE_KERBEROS5
-#define CURL_SASL_KERBEROS5   TRUE
-#else
-#define CURL_SASL_KERBEROS5   FALSE
-#endif
-#ifdef USE_GSASL
-#define CURL_SASL_GASL        TRUE
-#else
-#define CURL_SASL_GASL        FALSE
-#endif
-#ifdef CURL_DISABLE_DIGEST_AUTH
-#define CURL_SASL_DIGEST      TRUE
-#else
-#define CURL_SASL_DIGEST      FALSE
-#endif
-#ifndef USE_NTLM
-#define CURL_SASL_NTLM        TRUE
-#else
-#define CURL_SASL_NTLM        FALSE
-#endif
+#اگر_تعریف_شده CURLVERBOSE
+#اگر_تعریف_شده USE_KERBEROS5
+#تعریف_کن CURL_SASL_KERBEROS5   TRUE
+#وإلا
+#تعریف_کن CURL_SASL_KERBEROS5   FALSE
+#پایان_اگر
+#اگر_تعریف_شده USE_GSASL
+#تعریف_کن CURL_SASL_GASL        TRUE
+#وإلا
+#تعریف_کن CURL_SASL_GASL        FALSE
+#پایان_اگر
+#اگر_تعریف_شده CURL_DISABLE_DIGEST_AUTH
+#تعریف_کن CURL_SASL_DIGEST      TRUE
+#وإلا
+#تعریف_کن CURL_SASL_DIGEST      FALSE
+#پایان_اگر
+#اگر_تعریف_نشده USE_NTLM
+#تعریف_کن CURL_SASL_NTLM        TRUE
+#وإلا
+#تعریف_کن CURL_SASL_NTLM        FALSE
+#پایان_اگر
   /* Failing SASL authentication is a pain. Give a helping hand if
    * we were unable to select an AUTH mechanism.
    * `sasl->authmechs` are mechanisms offered by the peer
    * `sasl->prefmech`  are mechanisms preferred by us */
-  unsigned short enabledmechs = sasl->authmechs & sasl->prefmech;
+  بیعلامت کوتاه enabledmechs = sasl->authmechs & sasl->prefmech;
 
-  if(!sasl->authmechs)
-    infof(data, "SASL: no auth mechanism was offered or recognized");
-  else if(!enabledmechs)
-    infof(data, "SASL: no overlap between offered and configured "
+  إذا(!sasl->authmechs)
+    infof(داده, "SASL: no auth mechanism was offered or recognized");
+  وإلا إذا(!enabledmechs)
+    infof(داده, "SASL: no overlap between offered and configured "
           "auth mechanisms");
-  else {
-    infof(data, "SASL: no auth mechanism offered could be selected");
-    if((enabledmechs & SASL_MECH_EXTERNAL) &&
-       Curl_creds_has_passwd(data->conn->creds))
-      infof(data, "SASL: auth EXTERNAL not chosen with password");
-    sasl_unchosen(data, SASL_MECH_GSSAPI, enabledmechs,
-                  CURL_SASL_KERBEROS5, Curl_auth_is_gssapi_supported(), NULL);
-    sasl_unchosen(data, SASL_MECH_SCRAM_SHA_256, enabledmechs,
-                  CURL_SASL_GASL, FALSE, NULL);
-    sasl_unchosen(data, SASL_MECH_SCRAM_SHA_1, enabledmechs,
-                  CURL_SASL_GASL, FALSE, NULL);
-    sasl_unchosen(data, SASL_MECH_DIGEST_MD5, enabledmechs,
-                  CURL_SASL_DIGEST, Curl_auth_is_digest_supported(), NULL);
-    sasl_unchosen(data, SASL_MECH_CRAM_MD5, enabledmechs,
-                  CURL_SASL_DIGEST, TRUE, NULL);
-    sasl_unchosen(data, SASL_MECH_NTLM, enabledmechs,
-                  CURL_SASL_NTLM, Curl_auth_is_ntlm_supported(), NULL);
-    sasl_unchosen(data, SASL_MECH_OAUTHBEARER, enabledmechs, TRUE, TRUE,
-                  Curl_creds_has_oauth_bearer(data->conn->creds) ?
-                  NULL : "CURLOPT_XOAUTH2_BEARER");
-    sasl_unchosen(data, SASL_MECH_XOAUTH2, enabledmechs, TRUE, TRUE,
-                  Curl_creds_has_oauth_bearer(data->conn->creds) ?
-                  NULL : "CURLOPT_XOAUTH2_BEARER");
+  وإلا {
+    infof(داده, "SASL: no auth mechanism offered could be selected");
+    إذا((enabledmechs & SASL_MECH_EXTERNAL) &&
+       Curl_creds_has_passwd(داده->conn->creds))
+      infof(داده, "SASL: auth EXTERNAL not chosen with password");
+    sasl_unchosen(داده, SASL_MECH_GSSAPI, enabledmechs,
+                  CURL_SASL_KERBEROS5, Curl_auth_is_gssapi_supported(), عدم);
+    sasl_unchosen(داده, SASL_MECH_SCRAM_SHA_256, enabledmechs,
+                  CURL_SASL_GASL, FALSE, عدم);
+    sasl_unchosen(داده, SASL_MECH_SCRAM_SHA_1, enabledmechs,
+                  CURL_SASL_GASL, FALSE, عدم);
+    sasl_unchosen(داده, SASL_MECH_DIGEST_MD5, enabledmechs,
+                  CURL_SASL_DIGEST, Curl_auth_is_digest_supported(), عدم);
+    sasl_unchosen(داده, SASL_MECH_CRAM_MD5, enabledmechs,
+                  CURL_SASL_DIGEST, TRUE, عدم);
+    sasl_unchosen(داده, SASL_MECH_NTLM, enabledmechs,
+                  CURL_SASL_NTLM, Curl_auth_is_ntlm_supported(), عدم);
+    sasl_unchosen(داده, SASL_MECH_OAUTHBEARER, enabledmechs, TRUE, TRUE,
+                  Curl_creds_has_oauth_bearer(داده->conn->creds) ?
+                  عدم : "CURLOPT_XOAUTH2_BEARER");
+    sasl_unchosen(داده, SASL_MECH_XOAUTH2, enabledmechs, TRUE, TRUE,
+                  Curl_creds_has_oauth_bearer(داده->conn->creds) ?
+                  عدم : "CURLOPT_XOAUTH2_BEARER");
   }
-#endif /* CURLVERBOSE */
-  (void)sasl;
-  (void)data;
-  return CURLE_LOGIN_DENIED;
+#پایان_اگر /* CURLVERBOSE */
+  (فراغ)sasl;
+  (فراغ)داده;
+  أرجع CURLE_LOGIN_DENIED;
 }
 
-#endif /* protocols are enabled that use SASL */
+#پایان_اگر /* protocols are enabled that use SASL */

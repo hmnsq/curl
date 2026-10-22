@@ -21,58 +21,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#اگر_تعریف_شده HAVE_NETINET_درون_H
+#ضمن <netinet/in.h>
+#پایان_اگر
+#اگر_تعریف_شده HAVE_NETDB_H
+#ضمن <netdb.h>
+#پایان_اگر
+#اگر_تعریف_شده HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#پایان_اگر
+#اگر_تعریف_شده __VMS
+#ضمن <in.h>
+#ضمن <inet.h>
+#پایان_اگر
 
-#ifdef USE_ARES
-#include <ares.h>
-#endif
+#اگر_تعریف_شده USE_ARES
+#ضمن <ares.h>
+#پایان_اگر
 
-#include "urldata.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "select.h"
-#include "url.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
+#ضمن "urldata.h"
+#ضمن "connect.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "curl_trc.h"
+#ضمن "multiif.h"
+#ضمن "progress.h"
+#ضمن "select.h"
+#ضمن "url.h"
+#ضمن "vdns/hostip.h"
+#ضمن "vdns/httpsrr.h"
 
 /***********************************************************************
  * Only for builds using asynchronous name resolves
  **********************************************************************/
-#ifdef CURLRES_ASYNCH
+#اگر_تعریف_شده CURLRES_ASYNCH
 
-timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
-                                  struct Curl_resolv_async *async)
+timediff_t Curl_async_timeleft_ms(بنية Curl_easy *داده,
+                                  بنية Curl_resolv_async *async)
 {
-  if(async->timeout_ms) {
+  إذا(async->timeout_ms) {
     timediff_t elapsed_ms =
-      curlx_ptimediff_ms(Curl_pgrs_now(data), &async->start);
-    return async->timeout_ms - elapsed_ms;
+      curlx_ptimediff_ms(Curl_pgrs_now(داده), &async->شروع);
+    أرجع async->timeout_ms - elapsed_ms;
   }
-  return Curl_timeleft_ms(data);
+  أرجع Curl_timeleft_ms(داده);
 }
 
-#ifdef USE_ARES
+#اگر_تعریف_شده USE_ARES
 
-#if ARES_VERSION < 0x011000
-#error "c-ares 1.16.0 or greater required"
-#endif
+#إذا ARES_نسخه < 0x011000
+#خطا "c-ares 1.16.0 or greater required"
+#پایان_اگر
 
 /*
  * Curl_ares_pollset() is called when the outside world (using
@@ -82,57 +82,57 @@ timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
  *
  * Returns: sockets-in-use-bitmap
  */
-CURLcode Curl_ares_pollset(struct Curl_easy *data,
+CURLcode Curl_ares_pollset(بنية Curl_easy *داده,
                            ares_channel channel,
-                           struct easy_pollset *ps)
+                           بنية easy_pollset *ps)
 {
   curl_socket_t sockets[16];  /* ARES documented limit */
-  unsigned int bitmap, i;
-  CURLcode result = CURLE_OK;
+  بیعلامت صحيح bitmap, i;
+  CURLcode نتیجه = CURLE_OK;
 
   DEBUGASSERT(channel);
-  if(!channel)
-    return CURLE_FAILED_INIT;
+  إذا(!channel)
+    أرجع CURLE_FAILED_INIT;
 
   bitmap = ares_getsock(channel, (ares_socket_t *)sockets,
                         CURL_ARRAYSIZE(sockets));
-  for(i = 0; i < CURL_ARRAYSIZE(sockets); ++i) {
-    int flags = 0;
-    if(ARES_GETSOCK_READABLE(bitmap, i))
-      flags |= CURL_POLL_IN;
-    if(ARES_GETSOCK_WRITABLE(bitmap, i))
-      flags |= CURL_POLL_OUT;
-    if(!flags)
-      break;
-    result = Curl_pollset_change(data, ps, sockets[i], flags, 0);
-    if(result)
-      return result;
+  لكل(i = 0; i < CURL_ARRAYSIZE(sockets); ++i) {
+    صحيح flags = 0;
+    إذا(ARES_GETSOCK_READABLE(bitmap, i))
+      flags |= CURL_POLL_درون;
+    إذا(ARES_GETSOCK_WRITABLE(bitmap, i))
+      flags |= CURL_POLL_بیرون;
+    إذا(!flags)
+      اكسر;
+    نتیجه = Curl_pollset_change(داده, ps, sockets[i], flags, 0);
+    إذا(نتیجه)
+      أرجع نتیجه;
   }
-  return result;
+  أرجع نتیجه;
 }
 
-timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
+timediff_t Curl_ares_timeout_ms(بنية Curl_easy *داده,
+                                بنية Curl_resolv_async *async,
                                 ares_channel channel)
 {
   timediff_t async_timeout_ms;
 
   DEBUGASSERT(channel);
-  if(!channel)
-    return -1;
+  إذا(!channel)
+    أرجع -1;
 
-  async_timeout_ms = Curl_async_timeleft_ms(data, async);
-  if((async_timeout_ms > 0) && (async_timeout_ms < INT_MAX)) {
-    struct timeval timebuf;
-    struct timeval *timeout;
-    struct timeval end = { (int)async_timeout_ms / 1000,
-                           ((int)async_timeout_ms % 1000) * 1000 };
+  async_timeout_ms = Curl_async_timeleft_ms(داده, async);
+  إذا((async_timeout_ms > 0) && (async_timeout_ms < بیشترین_صحیح)) {
+    بنية timeval timebuf;
+    بنية timeval *timeout;
+    بنية timeval انتها = { (صحيح)async_timeout_ms / 1000,
+                           ((صحيح)async_timeout_ms % 1000) * 1000 };
 
-    timeout = ares_timeout(channel, &end, &timebuf);
-    if(timeout)
-      return curlx_tvtoms(timeout);
+    timeout = ares_timeout(channel, &انتها, &timebuf);
+    إذا(timeout)
+      أرجع curlx_tvtoms(timeout);
   }
-  return async_timeout_ms;
+  أرجع async_timeout_ms;
 }
 
 /*
@@ -144,133 +144,133 @@ timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
  *
  * return number of sockets it worked on, or -1 on error
  */
-int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
+صحيح Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
 {
-  int nfds;
-  int bitmask;
+  صحيح nfds;
+  صحيح bitmask;
   ares_socket_t socks[ARES_GETSOCK_MAXNUM];
-  struct pollfd pfd[ARES_GETSOCK_MAXNUM];
-  int i;
-  int num = 0;
+  بنية pollfd pfd[ARES_GETSOCK_MAXNUM];
+  صحيح i;
+  صحيح رقم = 0;
 
-  if(!channel)
-    return 0;
+  إذا(!channel)
+    أرجع 0;
 
   bitmask = ares_getsock(channel, socks, ARES_GETSOCK_MAXNUM);
 
-  for(i = 0; i < ARES_GETSOCK_MAXNUM; i++) {
+  لكل(i = 0; i < ARES_GETSOCK_MAXNUM; i++) {
     pfd[i].events = 0;
     pfd[i].revents = 0;
-    if(ARES_GETSOCK_READABLE(bitmask, i)) {
+    إذا(ARES_GETSOCK_READABLE(bitmask, i)) {
       pfd[i].fd = socks[i];
       pfd[i].events |= POLLRDNORM | POLLIN;
     }
-    if(ARES_GETSOCK_WRITABLE(bitmask, i)) {
+    إذا(ARES_GETSOCK_WRITABLE(bitmask, i)) {
       pfd[i].fd = socks[i];
       pfd[i].events |= POLLWRNORM | POLLOUT;
     }
-    if(pfd[i].events)
-      num++;
-    else
-      break;
+    إذا(pfd[i].events)
+      رقم++;
+    وإلا
+      اكسر;
   }
 
-  if(num) {
-    nfds = Curl_poll(pfd, (unsigned int)num, timeout_ms);
-    if(nfds < 0)
-      return -1;
+  إذا(رقم) {
+    nfds = Curl_poll(pfd, (بیعلامت صحيح)رقم, timeout_ms);
+    إذا(nfds < 0)
+      أرجع -1;
   }
-  else
+  وإلا
     nfds = 0;
 
-  if(!nfds)
+  إذا(!nfds)
     /* Call ares_process() unconditionally here, even if we timed out
        above, as otherwise the ares name resolve will not timeout! */
     ares_process_fd(channel, ARES_SOCKET_BAD, ARES_SOCKET_BAD);
-  else {
+  وإلا {
     /* move through the descriptors and ask for processing on them */
-    for(i = 0; i < num; i++)
+    لكل(i = 0; i < رقم; i++)
       ares_process_fd(channel,
                       (pfd[i].revents & (POLLRDNORM | POLLIN)) ?
                       pfd[i].fd : ARES_SOCKET_BAD,
                       (pfd[i].revents & (POLLWRNORM | POLLOUT)) ?
                       pfd[i].fd : ARES_SOCKET_BAD);
   }
-  return nfds;
+  أرجع nfds;
 }
 
-#endif /* USE_ARES */
+#پایان_اگر /* USE_ARES */
 
-#endif /* CURLRES_ASYNCH */
+#پایان_اگر /* CURLRES_ASYNCH */
 
-#ifdef USE_CURL_ASYNC
+#اگر_تعریف_شده USE_CURL_ASYNC
 
-#include "doh.h"
+#ضمن "doh.h"
 
-void Curl_async_shutdown(struct Curl_easy *data,
-                         struct Curl_resolv_async *async)
+فراغ Curl_async_shutdown(بنية Curl_easy *داده,
+                         بنية Curl_resolv_async *async)
 {
-  if(async) {
-    CURL_TRC_DNS(data, "[%u] shutdown async", async->id);
+  إذا(async) {
+    CURL_TRC_DNS(داده, "[%u] shutdown async", async->id);
     async->shutdown = TRUE;
-#ifdef USE_RESOLV_ARES
-    Curl_async_ares_shutdown(data, async);
-#endif
-#ifdef USE_RESOLV_THREADED
-    Curl_async_thrdd_shutdown(data, async);
-#endif
-#ifndef CURL_DISABLE_DOH
-    Curl_doh_cleanup(data, async);
-#endif
+#اگر_تعریف_شده USE_RESOLV_ARES
+    Curl_async_ares_shutdown(داده, async);
+#پایان_اگر
+#اگر_تعریف_شده USE_RESOLV_THREADED
+    Curl_async_thrdd_shutdown(داده, async);
+#پایان_اگر
+#اگر_تعریف_نشده CURL_DISABLE_DOH
+    Curl_doh_cleanup(داده, async);
+#پایان_اگر
   }
 }
 
-void Curl_async_destroy(struct Curl_easy *data,
-                        struct Curl_resolv_async *async)
+فراغ Curl_async_destroy(بنية Curl_easy *داده,
+                        بنية Curl_resolv_async *async)
 {
-  if(async) {
-    CURL_TRC_DNS(data, "[%u] destroy async", async->id);
+  إذا(async) {
+    CURL_TRC_DNS(داده, "[%u] destroy async", async->id);
     async->shutdown = TRUE;
-#ifdef USE_RESOLV_ARES
-    Curl_async_ares_destroy(data, async);
-#endif
-#ifdef USE_RESOLV_THREADED
-    Curl_async_thrdd_destroy(data, async);
-#endif
-#ifndef CURL_DISABLE_DOH
-    Curl_doh_cleanup(data, async);
-#endif
-    if(async->ai_A)
+#اگر_تعریف_شده USE_RESOLV_ARES
+    Curl_async_ares_destroy(داده, async);
+#پایان_اگر
+#اگر_تعریف_شده USE_RESOLV_THREADED
+    Curl_async_thrdd_destroy(داده, async);
+#پایان_اگر
+#اگر_تعریف_نشده CURL_DISABLE_DOH
+    Curl_doh_cleanup(داده, async);
+#پایان_اگر
+    إذا(async->ai_A)
       Curl_freeaddrinfo(async->ai_A);
-    if(async->ai_AAAA)
+    إذا(async->ai_AAAA)
       Curl_freeaddrinfo(async->ai_AAAA);
-#ifdef USE_HTTPSRR
+#اگر_تعریف_شده USE_HTTPSRR
     Curl_httpsrr_destroy(async->httpsrr);
-#endif
+#پایان_اگر
     Curl_peer_unlink(&async->peer);
     curlx_safefree(async);
   }
 }
 
-CURLcode Curl_async_failed(struct Curl_easy *data,
-                           struct Curl_resolv_async *async,
-                           const char *detail)
+CURLcode Curl_async_failed(بنية Curl_easy *داده,
+                           بنية Curl_resolv_async *async,
+                           ثابت حرف *detail)
 {
-  const char *host_or_proxy = "host";
-  CURLcode result = CURLE_COULDNT_RESOLVE_HOST;
+  ثابت حرف *host_or_proxy = "host";
+  CURLcode نتیجه = CURLE_COULDNT_RESOLVE_HOST;
 
-#ifndef CURL_DISABLE_PROXY
-  if(async->for_proxy) {
+#اگر_تعریف_نشده CURL_DISABLE_PROXY
+  إذا(async->for_proxy) {
     host_or_proxy = "proxy";
-    result = CURLE_COULDNT_RESOLVE_PROXY;
+    نتیجه = CURLE_COULDNT_RESOLVE_PROXY;
   }
-#endif
+#پایان_اگر
 
-  if(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
-    failf(data, "Could not resolve %s: %s%s%s%s",
+  إذا(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+    failf(داده, "Could not resolve %s: %s%s%s%s",
           host_or_proxy, async->peer->hostname,
           detail ? " (" : "", detail ? detail : "", detail ? ")" : "");
-  return result;
+  أرجع نتیجه;
 }
 
-#endif /* USE_CURL_ASYNC */
+#پایان_اگر /* USE_CURL_ASYNC */

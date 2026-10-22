@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_DIGEST_H
-#define HEADER_CURL_HTTP_DIGEST_H
+#اگر_تعریف_نشده سرآیند_CURL_HTTP_DIGEST_H
+#تعریف_کن سرآیند_CURL_HTTP_DIGEST_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
 /* this is for digest header input */
-CURLcode Curl_input_digest(struct Curl_easy *data,
-                           bool proxy, const char *header);
+CURLcode Curl_درون_داد_digest(بنية Curl_easy *داده,
+                           bool proxy, ثابت حرف *سرآیند);
 
 /* this is for creating digest header output */
-CURLcode Curl_output_digest(struct Curl_easy *data,
+CURLcode Curl_output_digest(بنية Curl_easy *داده,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath);
+                            ثابت بیعلامت حرف *request,
+                            ثابت بیعلامت حرف *uripath);
 
-void Curl_http_auth_cleanup_digest(struct Curl_easy *data);
+فراغ Curl_http_auth_cleanup_digest(بنية Curl_easy *داده);
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_DIGEST_AUTH */
+#پایان_اگر /* !CURL_DISABLE_HTTP && !CURL_DISABLE_DIGEST_AUTH */
 
-#endif /* HEADER_CURL_HTTP_DIGEST_H */
+#پایان_اگر /* HEADER_CURL_HTTP_DIGEST_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_CAPSULE_H
-#define HEADER_CURL_CF_CAPSULE_H
+#اگر_تعریف_نشده سرآیند_CURL_CF_CAPSULE_H
+#تعریف_کن سرآیند_CURL_CF_CAPSULE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#إذا !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 /* Insert a capsule protocol filter after `cf_at` in the filter chain.
  * The capsule filter encapsulates/decapsulates UDP datagrams using
  * the HTTP Datagram capsule format (RFC 9297). */
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_capsule_درج_after(بنية Curl_cfilter *cf_at,
+                                      بنية Curl_easy *داده);
 
-extern struct Curl_cftype Curl_cft_capsule;
+خارجي بنية Curl_cftype Curl_cft_capsule;
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#پایان_اگر /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_CF_CAPSULE_H */
+#پایان_اگر /* HEADER_CURL_CF_CAPSULE_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H
-#define HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H
+#اگر_تعریف_نشده سرآیند_CURL_VQUIC_CF_NGTCP2_PROXY_H
+#تعریف_کن سرآیند_CURL_VQUIC_CF_NGTCP2_PROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,29 +24,29 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 
-CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                           struct Curl_easy *data,
-                                           struct Curl_peer *origin,
-                                           struct Curl_peer *peer,
-                                           struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_ngtcp2_proxy_درج_after(بنية Curl_cfilter *cf_at,
+                                           بنية Curl_easy *داده,
+                                           بنية Curl_peer *origin,
+                                           بنية Curl_peer *peer,
+                                           بنية Curl_peer *tunnel_peer,
                                            uint8_t tunnel_transport);
 
-CURLcode Curl_cf_ngtcp2_proxy_create(struct Curl_cfilter **pcf,
-                                     struct Curl_easy *data,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
+CURLcode Curl_cf_ngtcp2_proxy_create(بنية Curl_cfilter **pcf,
+                                     بنية Curl_easy *داده,
+                                     بنية Curl_peer *origin,
+                                     بنية Curl_peer *peer,
                                      uint8_t transport_peer,
-                                     struct connectdata *conn,
-                                     struct Curl_sockaddr_ex *addr,
-                                     struct Curl_peer *tunnel_peer,
+                                     بنية connectdata *conn,
+                                     بنية Curl_sockaddr_ex *addr,
+                                     بنية Curl_peer *tunnel_peer,
                                      uint8_t tunnel_transport);
 
-#endif
+#پایان_اگر
 
-#endif /* HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H */
+#پایان_اگر /* HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H */

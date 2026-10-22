@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CAPSULE_H
-#define HEADER_CURL_CAPSULE_H
+#اگر_تعریف_نشده سرآیند_CURL_CAPSULE_H
+#تعریف_کن سرآیند_CURL_CAPSULE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,15 +24,15 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#إذا !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "curlx/dynbuf.h"
-#include "bufq.h"
+#ضمن "curlx/dynbuf.h"
+#ضمن "bufq.h"
 
 /* HTTP Capsule constants */
-#define HTTP_CAPSULE_HEADER_MAX_SIZE    10
+#تعریف_کن HTTP_CAPSULE_سرآیند_MAX_اندازه    10
 
 /* HTTP Capsule function prototypes */
 
@@ -43,11 +43,11 @@
  * @param blen  Payload buffer length
  * @return CURLE_OK on success, error code on failure
  */
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen);
+CURLcode Curl_capsule_encap_udp_datagram(بنية bufq *q,
+                                         ثابت فراغ *buf, size_t blen);
 
-struct Curl_easy;
-struct Curl_cfilter;
+بنية Curl_easy;
+بنية Curl_cfilter;
 
 /**
  * Process one UDP capsule from buffer into raw datagram payload bytes.
@@ -59,12 +59,12 @@ struct Curl_cfilter;
  * @param err       Error code output
  * @return Number of payload bytes written. Check `err` for status.
  */
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *داده,
+                                    بنية bufq *recvbufq,
+                                    بیعلامت حرف *buf, size_t len,
                                     CURLcode *err);
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#پایان_اگر /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_CAPSULE_H */
+#پایان_اگر /* HEADER_CURL_CAPSULE_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETUP_VMS_H
-#define HEADER_CURL_SETUP_VMS_H
+#اگر_تعریف_نشده سرآیند_CURL_راهاندازی_VMS_H
+#تعریف_کن سرآیند_CURL_راهاندازی_VMS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -29,103 +29,103 @@
 /*                  Also need upper case symbols for system services, and   */
 /*                  OpenSSL, and some Kerberos image                        */
 
-#ifdef __DECC
-#pragma message save
-#pragma message disable dollarid
-#endif
+#اگر_تعریف_شده __DECC
+#رهنمود پیام_2 save
+#رهنمود پیام_2 disable dollarid
+#پایان_اگر
 
 /* Hide the stuff we are overriding */
-#define getenv decc_getenv
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE != 64
+#تعریف_کن getenv decc_getenv
+#اگر_تعریف_شده __DECC
+#  إذا __INITIAL_POINTER_SIZE != 64
 #    define getpwuid decc_getpwuid
 #  endif
-#endif
-#include <stdlib.h>
-char *decc$getenv(const char *__name);
-#include <pwd.h>
+#پایان_اگر
+#ضمن <stdlib.h>
+حرف *decc$getenv(ثابت حرف *__name);
+#ضمن <pwd.h>
 
-#include <string.h>
-#include <unixlib.h>
+#ضمن <string.h>
+#ضمن <unixlib.h>
 
-#undef getenv
-#undef getpwuid
-#define getenv   vms_getenv
-#define getpwuid vms_getpwuid
+#لغو_تعریف getenv
+#لغو_تعریف getpwuid
+#تعریف_کن getenv   vms_getenv
+#تعریف_کن getpwuid vms_getpwuid
 
 /* VAX needs these in upper case when compiling exact case */
-#define sys$assign SYS$ASSIGN
-#define sys$dassgn SYS$DASSGN
-#define sys$qiow   SYS$QIOW
+#تعریف_کن sys$تخصیص_بده SYS$تخصیص_بده_2
+#تعریف_کن sys$dassgn SYS$DASSGN
+#تعریف_کن sys$qiow   SYS$QIOW
 
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#اگر_تعریف_شده __DECC
+#  إذا __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __save
 #  endif
-#endif
+#پایان_اگر
 
-#if __USE_LONG_GID_T
+#إذا __USE_LONG_GID_T
 #  define decc_getpwuid DECC$__LONG_GID_GETPWUID
-#else
-#  if __INITIAL_POINTER_SIZE
+#وإلا
+#  إذا __INITIAL_POINTER_SIZE
 #    define decc_getpwuid decc$__32_getpwuid
-#  else
+#  وإلا
 #    define decc_getpwuid decc$getpwuid
 #  endif
-#endif
+#پایان_اگر
 
-struct passwd *decc_getpwuid(uid_t uid);
+بنية passwd *decc_getpwuid(uid_t uid);
 
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE == 32
+#اگر_تعریف_شده __DECC
+#  إذا __INITIAL_POINTER_SIZE == 32
 /* Translate the path, but only if the path is a VMS file specification */
 /* The translation is usually only needed for older versions of VMS */
-static char *vms_translate_path(const char *path)
+ساكن حرف *vms_translate_مسیر(ثابت حرف *مسیر)
 {
-  char *unix_path;
-  char *test_str;
+  حرف *unix_مسیر;
+  حرف *test_str;
 
   /* See if the result is in VMS format, if not, we are done */
   /* Assume that this is a PATH, not some data */
-  test_str = strpbrk(path, ":[<^");
-  if(!test_str) {
-    return (char *)path;
+  test_str = strpbrk(مسیر, ":[<^");
+  إذا(!test_str) {
+    أرجع (حرف *)مسیر;
   }
 
-  unix_path = decc$translate_vms(path);
+  unix_مسیر = decc$translate_vms(مسیر);
 
-  if((int)unix_path <= 0) {
+  إذا((صحيح)unix_مسیر <= 0) {
     /* We can not translate it, so return the original string */
-    return (char *)path;
+    أرجع (حرف *)مسیر;
   }
 }
-#  else
+#  وإلا
    /* VMS translate path is actually not needed on the current 64-bit */
    /* VMS platforms, so instead of figuring out the pointer settings */
    /* Change it to a noop */
-#  define vms_translate_path(__path) __path
+#  define vms_translate_مسیر(__path) __path
 #  endif
-#endif
+#پایان_اگر
 
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#اگر_تعریف_شده __DECC
+#  إذا __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __restore
 #  endif
-#endif
+#پایان_اگر
 
-static char *vms_getenv(const char *envvar)
+ساكن حرف *vms_getenv(ثابت حرف *envvar)
 {
-  char *result;
-  char *vms_path;
+  حرف *نتیجه;
+  حرف *vms_مسیر;
 
   /* first use the DECC getenv() function */
-  result = decc$getenv(envvar);
-  if(!result) {
-    return result;
+  نتیجه = decc$getenv(envvar);
+  إذا(!نتیجه) {
+    أرجع نتیجه;
   }
 
-  vms_path = result;
-  result = vms_translate_path(vms_path);
+  vms_مسیر = نتیجه;
+  نتیجه = vms_translate_مسیر(vms_مسیر);
 
   /* note that if you backport this to use VAX C RTL, that the VAX C RTL */
   /* may do a malloc(2048) for each call to getenv(), so you will need   */
@@ -133,41 +133,41 @@ static char *vms_getenv(const char *envvar)
   /* Do not do a free() for DEC C RTL builds, which should be used for */
   /* VMS 5.5-2 and later, even if using GCC */
 
-  return result;
+  أرجع نتیجه;
 }
 
-static struct passwd vms_passwd_cache;
+ساكن بنية passwd vms_passwd_cache;
 
-static struct passwd *vms_getpwuid(uid_t uid)
+ساكن بنية passwd *vms_getpwuid(uid_t uid)
 {
-  struct passwd *my_passwd;
+  بنية passwd *my_passwd;
 
 /* Hack needed to support 64-bit builds, decc_getpwnam is 32-bit only */
-#ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
-  __char_ptr32 unix_path;
-#  else
-  char *unix_path;
+#اگر_تعریف_شده __DECC
+#  إذا __INITIAL_POINTER_SIZE
+  __char_ptr32 unix_مسیر;
+#  وإلا
+  حرف *unix_مسیر;
 #  endif
-#else
-  char *unix_path;
-#endif
+#وإلا
+  حرف *unix_مسیر;
+#پایان_اگر
 
   my_passwd = decc_getpwuid(uid);
-  if(!my_passwd) {
-    return my_passwd;
+  إذا(!my_passwd) {
+    أرجع my_passwd;
   }
 
-  unix_path = vms_translate_path(my_passwd->pw_dir);
+  unix_مسیر = vms_translate_مسیر(my_passwd->pw_dir);
 
-  if((long)unix_path <= 0) {
+  إذا((دراز)unix_مسیر <= 0) {
     /* We can not translate it, so return the original string */
-    return my_passwd;
+    أرجع my_passwd;
   }
 
   /* If no changes needed, return it */
-  if(unix_path == my_passwd->pw_dir) {
-    return my_passwd;
+  إذا(unix_مسیر == my_passwd->pw_dir) {
+    أرجع my_passwd;
   }
 
   /* Need to copy the structure returned */
@@ -176,221 +176,221 @@ static struct passwd *vms_getpwuid(uid_t uid)
   vms_passwd_cache.pw_name = my_passwd->pw_name;
   vms_passwd_cache.pw_uid = my_passwd->pw_uid;
   vms_passwd_cache.pw_gid = my_passwd->pw_uid;
-  vms_passwd_cache.pw_dir = unix_path;
+  vms_passwd_cache.pw_dir = unix_مسیر;
   vms_passwd_cache.pw_shell = my_passwd->pw_shell;
 
-  return &vms_passwd_cache;
+  أرجع &vms_passwd_cache;
 }
 
-#ifdef __DECC
-#pragma message restore
-#endif
+#اگر_تعریف_شده __DECC
+#رهنمود پیام_2 restore
+#پایان_اگر
 
 /* Bug - VMS OpenSSL and Kerberos universal symbols are in uppercase only */
 /* VMS libraries should have universal symbols in exact and uppercase */
 
-#define ASN1_INTEGER_get           ASN1_INTEGER_GET
-#define ASN1_STRING_data           ASN1_STRING_DATA
-#define ASN1_STRING_length         ASN1_STRING_LENGTH
-#define ASN1_STRING_print          ASN1_STRING_PRINT
-#define ASN1_STRING_to_UTF8        ASN1_STRING_TO_UTF8
-#define ASN1_STRING_type           ASN1_STRING_TYPE
-#define BIO_ctrl                   BIO_CTRL
-#define BIO_free                   BIO_FREE
-#define BIO_new                    BIO_NEW
-#define BIO_s_mem                  BIO_S_MEM
-#define BN_bn2bin                  BN_BN2BIN
-#define BN_num_bits                BN_NUM_BITS
-#define CRYPTO_cleanup_all_ex_data CRYPTO_CLEANUP_ALL_EX_DATA
-#define CRYPTO_free                CRYPTO_FREE
-#define CRYPTO_malloc              CRYPTO_MALLOC
-#define CONF_modules_load_file     CONF_MODULES_LOAD_FILE
-#ifdef __VAX
+#تعریف_کن ASN1_INTEGER_get           ASN1_INTEGER_GET
+#تعریف_کن ASN1_STRING_داده           ASN1_STRING_داده_2
+#تعریف_کن ASN1_STRING_درازی         ASN1_STRING_درازی_2
+#تعریف_کن ASN1_STRING_print          ASN1_STRING_PRINT
+#تعریف_کن ASN1_STRING_مقصد_UTF8        ASN1_STRING_مقصد_UTF8_2
+#تعریف_کن ASN1_STRING_type           ASN1_STRING_TYPE
+#تعریف_کن BIO_ctrl                   BIO_CTRL
+#تعریف_کن BIO_free                   BIO_FREE
+#تعریف_کن BIO_new                    BIO_NEW
+#تعریف_کن BIO_s_mem                  BIO_S_MEM
+#تعریف_کن BN_bn2bin                  BN_BN2BIN
+#تعریف_کن BN_رقم_بیتها                BN_رقم_بیتها_2
+#تعریف_کن CRYPTO_cleanup_all_ex_داده CRYPTO_CLEANUP_ALL_EX_داده
+#تعریف_کن CRYPTO_free                CRYPTO_FREE
+#تعریف_کن CRYPTO_malloc              CRYPTO_MALLOC
+#تعریف_کن CONF_modules_بارگیری_file     CONF_MODULES_بارگیری_FILE
+#اگر_تعریف_شده __VAX
 #  ifdef VMS_OLD_SSL
   /* Ancient OpenSSL on VAX/VMS missing this constant */
 #    define CONF_MFLAGS_IGNORE_MISSING_FILE 0x10
-#    undef CONF_modules_load_file
-static int CONF_modules_load_file(const char *filename,
-                                  const char *appname,
-                                  unsigned long flags) {
-  return 1;
+#    undef CONF_modules_بارگیری_file
+ساكن صحيح CONF_modules_بارگیری_file(ثابت حرف *filename,
+                                  ثابت حرف *appname,
+                                  بیعلامت دراز flags) {
+  أرجع 1;
 }
 #  endif
-#endif
-#define DES_ecb_encrypt             DES_ECB_ENCRYPT
-#define DES_set_key                 DES_SET_KEY
-#define DES_set_odd_parity          DES_SET_ODD_PARITY
-#define ENGINE_ctrl                 ENGINE_CTRL
-#define ENGINE_ctrl_cmd             ENGINE_CTRL_CMD
-#define ENGINE_finish               ENGINE_FINISH
-#define ENGINE_free                 ENGINE_FREE
-#define ENGINE_get_first            ENGINE_GET_FIRST
-#define ENGINE_get_id               ENGINE_GET_ID
-#define ENGINE_get_next             ENGINE_GET_NEXT
-#define ENGINE_init                 ENGINE_INIT
-#define ENGINE_load_builtin_engines ENGINE_LOAD_BUILTIN_ENGINES
-#define ENGINE_load_private_key     ENGINE_LOAD_PRIVATE_KEY
-#define ENGINE_set_default          ENGINE_SET_DEFAULT
-#define ERR_clear_error             ERR_CLEAR_ERROR
-#define ERR_error_string            ERR_ERROR_STRING
-#define ERR_error_string_n          ERR_ERROR_STRING_N
-#define ERR_free_strings            ERR_FREE_STRINGS
-#define ERR_get_error               ERR_GET_ERROR
-#define ERR_peek_error              ERR_PEEK_ERROR
-#define ERR_remove_state            ERR_REMOVE_STATE
-#define EVP_PKEY_copy_parameters    EVP_PKEY_COPY_PARAMETERS
-#define EVP_PKEY_free               EVP_PKEY_FREE
-#define EVP_cleanup                 EVP_CLEANUP
-#define GENERAL_NAMES_free          GENERAL_NAMES_FREE
-#define i2d_X509_PUBKEY             I2D_X509_PUBKEY
-#define MD4_Final                   MD4_FINAL
-#define MD4_Init                    MD4_INIT
-#define MD4_Update                  MD4_UPDATE
-#define MD5_Final                   MD5_FINAL
-#define MD5_Init                    MD5_INIT
-#define MD5_Update                  MD5_UPDATE
-#define OPENSSL_add_all_algo_noconf OPENSSL_ADD_ALL_ALGO_NOCONF
-#ifndef __VAX
-#define OPENSSL_load_builtin_modules OPENSSL_LOAD_BUILTIN_MODULES
-#endif
-#define PEM_read_X509                   PEM_READ_X509
-#define PEM_write_bio_X509              PEM_WRITE_BIO_X509
-#define PKCS12_free                     PKCS12_FREE
-#define PKCS12_parse                    PKCS12_PARSE
-#define RAND_add                        RAND_ADD
-#define RAND_bytes                      RAND_BYTES
-#define RAND_file_name                  RAND_FILE_NAME
-#define RAND_load_file                  RAND_LOAD_FILE
-#define RAND_status                     RAND_STATUS
-#define SSL_CIPHER_get_name             SSL_CIPHER_GET_NAME
-#define SSL_CTX_add_client_CA           SSL_CTX_ADD_CLIENT_CA
-#define SSL_CTX_callback_ctrl           SSL_CTX_CALLBACK_CTRL
-#define SSL_CTX_check_private_key       SSL_CTX_CHECK_PRIVATE_KEY
-#define SSL_CTX_ctrl                    SSL_CTX_CTRL
-#define SSL_CTX_free                    SSL_CTX_FREE
-#define SSL_CTX_get_cert_store          SSL_CTX_GET_CERT_STORE
-#define SSL_CTX_load_verify_locations   SSL_CTX_LOAD_VERIFY_LOCATIONS
-#define SSL_CTX_new                     SSL_CTX_NEW
-#define SSL_CTX_set_cipher_list         SSL_CTX_SET_CIPHER_LIST
-#define SSL_CTX_set_def_passwd_cb_ud    SSL_CTX_SET_DEF_PASSWD_CB_UD
-#define SSL_CTX_set_default_passwd_cb   SSL_CTX_SET_DEFAULT_PASSWD_CB
-#define SSL_CTX_set_msg_callback        SSL_CTX_SET_MSG_CALLBACK
-#define SSL_CTX_set_verify              SSL_CTX_SET_VERIFY
-#define SSL_CTX_use_PrivateKey          SSL_CTX_USE_PRIVATEKEY
-#define SSL_CTX_use_PrivateKey_file     SSL_CTX_USE_PRIVATEKEY_FILE
-#define SSL_CTX_use_cert_chain_file     SSL_CTX_USE_CERT_CHAIN_FILE
-#define SSL_CTX_use_certificate         SSL_CTX_USE_CERTIFICATE
-#define SSL_CTX_use_certificate_file    SSL_CTX_USE_CERTIFICATE_FILE
-#define SSL_SESSION_free                SSL_SESSION_FREE
-#define SSL_connect                     SSL_CONNECT
-#define SSL_free                        SSL_FREE
-#define SSL_get1_session                SSL_GET1_SESSION
-#define SSL_get_certificate             SSL_GET_CERTIFICATE
-#define SSL_get_current_cipher          SSL_GET_CURRENT_CIPHER
-#define SSL_get_error                   SSL_GET_ERROR
-#define SSL_get_peer_cert_chain         SSL_GET_PEER_CERT_CHAIN
-#define SSL_get_peer_certificate        SSL_GET_PEER_CERTIFICATE
-#define SSL_get_privatekey              SSL_GET_PRIVATEKEY
-#define SSL_get_session                 SSL_GET_SESSION
-#define SSL_get_shutdown                SSL_GET_SHUTDOWN
-#define SSL_get_verify_result           SSL_GET_VERIFY_RESULT
-#define SSL_library_init                SSL_LIBRARY_INIT
-#define SSL_load_error_strings          SSL_LOAD_ERROR_STRINGS
-#define SSL_new                         SSL_NEW
-#define SSL_peek                        SSL_PEEK
-#define SSL_pending                     SSL_PENDING
-#define SSL_read                        SSL_READ
-#define SSL_set_connect_state           SSL_SET_CONNECT_STATE
-#define SSL_set_fd                      SSL_SET_FD
-#define SSL_set_session                 SSL_SET_SESSION
-#define SSL_shutdown                    SSL_SHUTDOWN
-#define SSL_version                     SSL_VERSION
-#define SSL_write                       SSL_WRITE
-#define SSLeay                          SSLEAY
-#define SSLv23_client_method            SSLV23_CLIENT_METHOD
-#define SSLv3_client_method             SSLV3_CLIENT_METHOD
-#define TLSv1_client_method             TLSV1_CLIENT_METHOD
-#define UI_create_method                UI_CREATE_METHOD
-#define UI_destroy_method               UI_DESTROY_METHOD
-#define UI_get0_user_data               UI_GET0_USER_DATA
-#define UI_get_input_flags              UI_GET_INPUT_FLAGS
-#define UI_get_string_type              UI_GET_STRING_TYPE
-#define UI_create_method                UI_CREATE_METHOD
-#define UI_destroy_method               UI_DESTROY_METHOD
-#define UI_method_get_closer            UI_METHOD_GET_CLOSER
-#define UI_method_get_opener            UI_METHOD_GET_OPENER
-#define UI_method_get_reader            UI_METHOD_GET_READER
-#define UI_method_get_writer            UI_METHOD_GET_WRITER
-#define UI_method_set_closer            UI_METHOD_SET_CLOSER
-#define UI_method_set_opener            UI_METHOD_SET_OPENER
-#define UI_method_set_reader            UI_METHOD_SET_READER
-#define UI_method_set_writer            UI_METHOD_SET_WRITER
-#define UI_OpenSSL                      UI_OPENSSL
-#define UI_set_result                   UI_SET_RESULT
-#define X509V3_EXT_print                X509V3_EXT_PRINT
-#define X509_EXTENSION_get_critical     X509_EXTENSION_GET_CRITICAL
-#define X509_EXTENSION_get_data         X509_EXTENSION_GET_DATA
-#define X509_EXTENSION_get_object       X509_EXTENSION_GET_OBJECT
-#define X509_LOOKUP_file                X509_LOOKUP_FILE
-#define X509_NAME_ENTRY_get_data        X509_NAME_ENTRY_GET_DATA
-#define X509_NAME_get_entry             X509_NAME_GET_ENTRY
-#define X509_NAME_get_index_by_NID      X509_NAME_GET_INDEX_BY_NID
-#define X509_NAME_print_ex              X509_NAME_PRINT_EX
-#define X509_STORE_CTX_get_current_cert X509_STORE_CTX_GET_CURRENT_CERT
-#define X509_STORE_add_lookup           X509_STORE_ADD_LOOKUP
-#define X509_STORE_set_flags            X509_STORE_SET_FLAGS
-#define X509_check_issued               X509_CHECK_ISSUED
-#define X509_free                       X509_FREE
-#define X509_get_ext_d2i                X509_GET_EXT_D2I
-#define X509_get_issuer_name            X509_GET_ISSUER_NAME
-#define X509_get_pubkey                 X509_GET_PUBKEY
-#define X509_get_serialNumber           X509_GET_SERIALNUMBER
-#define X509_get_subject_name           X509_GET_SUBJECT_NAME
-#define X509_load_crl_file              X509_LOAD_CRL_FILE
-#define X509_verify_cert_error_string   X509_VERIFY_CERT_ERROR_STRING
-#define d2i_PKCS12_fp                   D2I_PKCS12_FP
-#define i2t_ASN1_OBJECT                 I2T_ASN1_OBJECT
-#define sk_num                          SK_NUM
-#define sk_pop                          SK_POP
-#define sk_pop_free                     SK_POP_FREE
-#define sk_value                        SK_VALUE
-#define SHA256_Final  SHA256_FINAL
-#define SHA256_Init   SHA256_INIT
-#define SHA256_Update SHA256_UPDATE
+#پایان_اگر
+#تعریف_کن DES_ecb_encrypt             DES_ECB_ENCRYPT
+#تعریف_کن DES_مجموعه_کلید                 DES_مجموعه_کلید_2
+#تعریف_کن DES_مجموعه_odd_parity          DES_مجموعه_ODD_PARITY
+#تعریف_کن ENGINE_ctrl                 ENGINE_CTRL
+#تعریف_کن ENGINE_ctrl_cmd             ENGINE_CTRL_CMD
+#تعریف_کن ENGINE_پایان               ENGINE_پایان_2
+#تعریف_کن ENGINE_free                 ENGINE_FREE
+#تعریف_کن ENGINE_get_اولی            ENGINE_GET_اولی
+#تعریف_کن ENGINE_get_id               ENGINE_GET_ID
+#تعریف_کن ENGINE_get_بعدی             ENGINE_GET_بعدی
+#تعریف_کن ENGINE_init                 ENGINE_INIT
+#تعریف_کن ENGINE_بارگیری_builtin_engines ENGINE_بارگیری_BUILTIN_ENGINES
+#تعریف_کن ENGINE_بارگیری_خصوصی_کلید     ENGINE_بارگیری_خصوصی_کلید_2
+#تعریف_کن ENGINE_مجموعه_default          ENGINE_مجموعه_DEFAULT
+#تعریف_کن ERR_clear_error             ERR_CLEAR_ERROR
+#تعریف_کن ERR_error_string            ERR_ERROR_STRING
+#تعریف_کن ERR_error_string_n          ERR_ERROR_STRING_N
+#تعریف_کن ERR_free_رشتهها            ERR_FREE_رشتهها
+#تعریف_کن ERR_get_error               ERR_GET_ERROR
+#تعریف_کن ERR_peek_error              ERR_PEEK_ERROR
+#تعریف_کن ERR_remove_state            ERR_REMOVE_STATE
+#تعریف_کن EVP_PKEY_copy_parameters    EVP_PKEY_COPY_PARAMETERS
+#تعریف_کن EVP_PKEY_free               EVP_PKEY_FREE
+#تعریف_کن EVP_cleanup                 EVP_CLEANUP
+#تعریف_کن GENERAL_نامها_free          GENERAL_نامها_FREE
+#تعریف_کن i2d_X509_PUBKEY             I2D_X509_PUBKEY
+#تعریف_کن MD4_Final                   MD4_FINAL
+#تعریف_کن MD4_Init                    MD4_INIT
+#تعریف_کن MD4_Update                  MD4_UPDATE
+#تعریف_کن MD5_Final                   MD5_FINAL
+#تعریف_کن MD5_Init                    MD5_INIT
+#تعریف_کن MD5_Update                  MD5_UPDATE
+#تعریف_کن OPENSSL_جمع_کن_all_algo_noconf OPENSSL_جمع_کن_ALL_ALGO_NOCONF
+#اگر_تعریف_نشده __VAX
+#تعریف_کن OPENSSL_بارگیری_builtin_modules OPENSSL_بارگیری_BUILTIN_MODULES
+#پایان_اگر
+#تعریف_کن PEM_read_X509                   PEM_READ_X509
+#تعریف_کن PEM_write_bio_X509              PEM_WRITE_BIO_X509
+#تعریف_کن PKCS12_free                     PKCS12_FREE
+#تعریف_کن PKCS12_parse                    PKCS12_PARSE
+#تعریف_کن RAND_جمع_کن                        RAND_جمع_کن_2
+#تعریف_کن RAND_بایتها                      RAND_بایتها_2
+#تعریف_کن RAND_file_name                  RAND_FILE_NAME
+#تعریف_کن RAND_بارگیری_file                  RAND_بارگیری_FILE
+#تعریف_کن RAND_وضعیت                     RAND_وضعیت_2
+#تعریف_کن SSL_CIPHER_get_name             SSL_CIPHER_GET_NAME
+#تعریف_کن SSL_CTX_جمع_کن_client_CA           SSL_CTX_جمع_کن_CLIENT_CA
+#تعریف_کن SSL_CTX_callback_ctrl           SSL_CTX_CALLBACK_CTRL
+#تعریف_کن SSL_CTX_check_خصوصی_کلید       SSL_CTX_CHECK_خصوصی_کلید
+#تعریف_کن SSL_CTX_ctrl                    SSL_CTX_CTRL
+#تعریف_کن SSL_CTX_free                    SSL_CTX_FREE
+#تعریف_کن SSL_CTX_get_cert_store          SSL_CTX_GET_CERT_STORE
+#تعریف_کن SSL_CTX_بارگیری_verify_locations   SSL_CTX_بارگیری_VERIFY_LOCATIONS
+#تعریف_کن SSL_CTX_new                     SSL_CTX_NEW
+#تعریف_کن SSL_CTX_مجموعه_cipher_list         SSL_CTX_مجموعه_CIPHER_LIST
+#تعریف_کن SSL_CTX_مجموعه_def_passwd_cb_ud    SSL_CTX_مجموعه_DEF_PASSWD_CB_UD
+#تعریف_کن SSL_CTX_مجموعه_default_passwd_cb   SSL_CTX_مجموعه_DEFAULT_PASSWD_CB
+#تعریف_کن SSL_CTX_مجموعه_پیام_callback        SSL_CTX_مجموعه_پیام_CALLBACK
+#تعریف_کن SSL_CTX_مجموعه_verify              SSL_CTX_مجموعه_VERIFY
+#تعریف_کن SSL_CTX_use_خصوصی_کلید          SSL_CTX_USE_PRIVATEKEY
+#تعریف_کن SSL_CTX_use_خصوصی_کلید_file     SSL_CTX_USE_PRIVATEKEY_FILE
+#تعریف_کن SSL_CTX_use_cert_chain_file     SSL_CTX_USE_CERT_CHAIN_FILE
+#تعریف_کن SSL_CTX_use_certificate         SSL_CTX_USE_CERTIFICATE
+#تعریف_کن SSL_CTX_use_certificate_file    SSL_CTX_USE_CERTIFICATE_FILE
+#تعریف_کن SSL_SESSION_free                SSL_SESSION_FREE
+#تعریف_کن SSL_connect                     SSL_CONNECT
+#تعریف_کن SSL_free                        SSL_FREE
+#تعریف_کن SSL_get1_session                SSL_GET1_SESSION
+#تعریف_کن SSL_get_certificate             SSL_GET_CERTIFICATE
+#تعریف_کن SSL_get_current_cipher          SSL_GET_CURRENT_CIPHER
+#تعریف_کن SSL_get_error                   SSL_GET_ERROR
+#تعریف_کن SSL_get_peer_cert_chain         SSL_GET_PEER_CERT_CHAIN
+#تعریف_کن SSL_get_peer_certificate        SSL_GET_PEER_CERTIFICATE
+#تعریف_کن SSL_get_privatekey              SSL_GET_PRIVATEKEY
+#تعریف_کن SSL_get_session                 SSL_GET_SESSION
+#تعریف_کن SSL_get_shutdown                SSL_GET_SHUTDOWN
+#تعریف_کن SSL_get_verify_نتیجه           SSL_GET_VERIFY_نتیجه
+#تعریف_کن SSL_library_init                SSL_LIBRARY_INIT
+#تعریف_کن SSL_بارگیری_error_رشتهها          SSL_بارگیری_ERROR_رشتهها
+#تعریف_کن SSL_new                         SSL_NEW
+#تعریف_کن SSL_peek                        SSL_PEEK
+#تعریف_کن SSL_pending                     SSL_PENDING
+#تعریف_کن SSL_read                        SSL_READ
+#تعریف_کن SSL_مجموعه_connect_state           SSL_مجموعه_CONNECT_STATE
+#تعریف_کن SSL_مجموعه_fd                      SSL_مجموعه_FD
+#تعریف_کن SSL_مجموعه_session                 SSL_مجموعه_SESSION
+#تعریف_کن SSL_shutdown                    SSL_SHUTDOWN
+#تعریف_کن SSL_نسخه                     SSL_نسخه_2
+#تعریف_کن SSL_write                       SSL_WRITE
+#تعریف_کن SSLeay                          SSLEAY
+#تعریف_کن SSLv23_client_روش            SSLV23_CLIENT_روش
+#تعریف_کن SSLv3_client_روش             SSLV3_CLIENT_روش
+#تعریف_کن TLSv1_client_روش             TLSV1_CLIENT_روش
+#تعریف_کن UI_create_روش                UI_CREATE_روش
+#تعریف_کن UI_destroy_روش               UI_DESTROY_روش
+#تعریف_کن UI_get0_user_داده               UI_GET0_USER_داده
+#تعریف_کن UI_get_درون_داد_flags              UI_GET_درون_داد_FLAGS
+#تعریف_کن UI_get_string_type              UI_GET_STRING_TYPE
+#تعریف_کن UI_create_روش                UI_CREATE_روش
+#تعریف_کن UI_destroy_روش               UI_DESTROY_روش
+#تعریف_کن UI_روش_get_closer            UI_روش_GET_CLOSER
+#تعریف_کن UI_روش_get_opener            UI_روش_GET_OPENER
+#تعریف_کن UI_روش_get_reader            UI_روش_GET_READER
+#تعریف_کن UI_روش_get_writer            UI_روش_GET_WRITER
+#تعریف_کن UI_روش_مجموعه_closer            UI_روش_مجموعه_CLOSER
+#تعریف_کن UI_روش_مجموعه_opener            UI_روش_مجموعه_OPENER
+#تعریف_کن UI_روش_مجموعه_reader            UI_روش_مجموعه_READER
+#تعریف_کن UI_روش_مجموعه_writer            UI_روش_مجموعه_WRITER
+#تعریف_کن UI_OpenSSL                      UI_OPENSSL
+#تعریف_کن UI_مجموعه_نتیجه                   UI_مجموعه_نتیجه_2
+#تعریف_کن X509V3_EXT_print                X509V3_EXT_PRINT
+#تعریف_کن X509_EXTENSION_get_critical     X509_EXTENSION_GET_CRITICAL
+#تعریف_کن X509_EXTENSION_get_داده         X509_EXTENSION_GET_داده
+#تعریف_کن X509_EXTENSION_get_object       X509_EXTENSION_GET_OBJECT
+#تعریف_کن X509_LOOKUP_file                X509_LOOKUP_FILE
+#تعریف_کن X509_NAME_مدخل_get_داده        X509_NAME_مدخل_GET_داده
+#تعریف_کن X509_NAME_get_مدخل             X509_NAME_GET_مدخل
+#تعریف_کن X509_NAME_get_شاخص_by_NID      X509_NAME_GET_شاخص_BY_NID
+#تعریف_کن X509_NAME_print_ex              X509_NAME_PRINT_EX
+#تعریف_کن X509_STORE_CTX_get_current_cert X509_STORE_CTX_GET_CURRENT_CERT
+#تعریف_کن X509_STORE_جمع_کن_lookup           X509_STORE_جمع_کن_LOOKUP
+#تعریف_کن X509_STORE_مجموعه_flags            X509_STORE_مجموعه_FLAGS
+#تعریف_کن X509_check_issued               X509_CHECK_ISSUED
+#تعریف_کن X509_free                       X509_FREE
+#تعریف_کن X509_get_ext_d2i                X509_GET_EXT_D2I
+#تعریف_کن X509_get_issuer_name            X509_GET_ISSUER_NAME
+#تعریف_کن X509_get_pubkey                 X509_GET_PUBKEY
+#تعریف_کن X509_get_serial_عدد           X509_GET_SERIALNUMBER
+#تعریف_کن X509_get_subject_name           X509_GET_SUBJECT_NAME
+#تعریف_کن X509_بارگیری_crl_file              X509_بارگیری_CRL_FILE
+#تعریف_کن X509_verify_cert_error_string   X509_VERIFY_CERT_ERROR_STRING
+#تعریف_کن d2i_PKCS12_fp                   D2I_PKCS12_FP
+#تعریف_کن i2t_ASN1_OBJECT                 I2T_ASN1_OBJECT
+#تعریف_کن sk_رقم                          SK_رقم
+#تعریف_کن sk_برداشت                          SK_برداشت
+#تعریف_کن sk_برداشت_free                     SK_برداشت_FREE
+#تعریف_کن sk_مقدار                        SK_مقدار
+#تعریف_کن SHA256_Final  SHA256_FINAL
+#تعریف_کن SHA256_Init   SHA256_INIT
+#تعریف_کن SHA256_Update SHA256_UPDATE
 
-#define USE_UPPERCASE_GSSAPI 1
-#define gss_seal             GSS_SEAL
-#define gss_unseal           GSS_UNSEAL
+#تعریف_کن USE_UPPERCASE_GSSAPI 1
+#تعریف_کن gss_seal             GSS_SEAL
+#تعریف_کن gss_unseal           GSS_UNSEAL
 
-#define USE_UPPERCASE_KRBAPI 1
+#تعریف_کن USE_UPPERCASE_KRBAPI 1
 
 /* AI_NUMERICHOST needed for IP V6 support in curl */
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#ifndef AI_NUMERICHOST
-#undef USE_IPV6
-#endif
-#endif
+#اگر_تعریف_شده HAVE_NETDB_H
+#ضمن <netdb.h>
+#اگر_تعریف_نشده AI_NUMERICHOST
+#لغو_تعریف USE_IPV6
+#پایان_اگر
+#پایان_اگر
 
 /* VAX symbols are always in uppercase */
-#ifdef __VAX
-#define inflate       INFLATE
-#define inflateEnd    INFLATEEND
-#define inflateInit2_ INFLATEINIT2_
-#define inflateInit_  INFLATEINIT_
-#define zlibVersion   ZLIBVERSION
-#endif
+#اگر_تعریف_شده __VAX
+#تعریف_کن inflate       INFLATE
+#تعریف_کن inflate_انتها    INFLATEEND
+#تعریف_کن inflateInit2_ INFLATEINIT2_
+#تعریف_کن inflateInit_  INFLATEINIT_
+#تعریف_کن zlib_نسخه   ZLIBVERSION
+#پایان_اگر
 
 /* Older VAX OpenSSL port defines these as Macros */
 /* Need to include the headers first and then redefine */
 /* that way a newer port will also work if some one has one */
-#ifdef __VAX
+#اگر_تعریف_شده __VAX
 
 #  include <openssl/evp.h>
-#  ifndef OpenSSL_add_all_algorithms
-#    define OpenSSL_add_all_algorithms OPENSSL_ADD_ALL_ALGORITHMS
-     void OPENSSL_ADD_ALL_ALGORITHMS(void);
+#  ifndef Open_SSL_جمع_کن_all_algorithms
+#    define Open_SSL_جمع_کن_all_algorithms OPENSSL_جمع_کن_ALL_ALGORITHMS
+     فراغ OPENSSL_جمع_کن_ALL_ALGORITHMS(فراغ);
 #  endif
-#endif
+#پایان_اگر
 
-#endif /* HEADER_CURL_SETUP_VMS_H */
+#پایان_اگر /* HEADER_CURL_SETUP_VMS_H */

@@ -22,46 +22,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
+#ضمن "curl_setup.h"
+#ضمن "urldata.h"
 
-#ifndef CURL_DISABLE_MQTT
+#اگر_تعریف_نشده CURL_DISABLE_MQTT
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "mqtt.h"
-#include "select.h"
-#include "url.h"
-#include "escape.h"
-#include "rand.h"
-#include "cfilters.h"
-#include "connect.h"
+#ضمن "transfer.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "progress.h"
+#ضمن "mqtt.h"
+#ضمن "select.h"
+#ضمن "url.h"
+#ضمن "escape.h"
+#ضمن "rand.h"
+#ضمن "cfilters.h"
+#ضمن "connect.h"
 
 /* first byte is command.
    second byte is for flags. */
-#define MQTT_MSG_CONNECT    0x10
+#تعریف_کن MQTT_پیام_CONNECT    0x10
 /* #define MQTT_MSG_CONNACK    0x20 */
-#define MQTT_MSG_PUBLISH    0x30
-#define MQTT_MSG_SUBSCRIBE  0x82
-#define MQTT_MSG_SUBACK     0x90
-#define MQTT_MSG_DISCONNECT 0xe0
+#تعریف_کن MQTT_پیام_PUBLISH    0x30
+#تعریف_کن MQTT_پیام_SUBSCRIBE  0x82
+#تعریف_کن MQTT_پیام_SUBACK     0x90
+#تعریف_کن MQTT_پیام_DISCONNECT 0xe0
 /* #define MQTT_MSG_PINGREQ    0xC0 */
-#define MQTT_MSG_PINGRESP   0xD0
+#تعریف_کن MQTT_پیام_PINGRESP   0xD0
 
-#define MQTT_CONNACK_LEN  2
-#define MQTT_SUBACK_LEN   3
-#define MQTT_CLIENTID_LEN 12 /* "curl0123abcd" */
+#تعریف_کن MQTT_CONNACK_LEN  2
+#تعریف_کن MQTT_SUBACK_LEN   3
+#تعریف_کن MQTT_CLIENTID_LEN 12 /* "curl0123abcd" */
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_MQTT_EASY   "meta:proto:mqtt:easy"
+#تعریف_کن CURL_META_MQTT_EASY   "meta:proto:mqtt:easy"
 /* meta key for storing protocol meta at connection */
-#define CURL_META_MQTT_CONN   "meta:proto:mqtt:conn"
+#تعریف_کن CURL_META_MQTT_CONN   "meta:proto:mqtt:conn"
 
-enum mqttstate {
-  MQTT_FIRST,             /* 0 */
-  MQTT_REMAINING_LENGTH,  /* 1 */
+تعداد mqttstate {
+  MQTT_اولی,             /* 0 */
+  MQTT_مانده_درازی,  /* 1 */
   MQTT_CONNACK,           /* 2 */
   MQTT_SUBACK,            /* 3 */
   MQTT_SUBACK_COMING,     /* 4 - the SUBACK remainder */
@@ -73,193 +73,193 @@ enum mqttstate {
   MQTT_NOSTATE /* 9 - never used an actual state */
 };
 
-struct mqtt_conn {
-  enum mqttstate state;
-  enum mqttstate nextstate; /* switch to this after remaining length is
-                               done */
-  unsigned int packetid;
+بنية mqtt_conn {
+  تعداد mqttstate state;
+  تعداد mqttstate nextstate; /* switch to this after remaining length is
+انجامشده*/
+  بیعلامت صحيح packetid;
 };
 
 /* protocol-specific transfer-related data */
-struct MQTT {
-  struct dynbuf sendbuf;
+بنية MQTT {
+  بنية dynbuf sendbuf;
   /* when receiving */
-  struct dynbuf recvbuf;
+  بنية dynbuf recvbuf;
   size_t npacket; /* byte counter */
-  size_t remaining_length;
-  unsigned char pkt_hd[4]; /* for decoding the arriving packet length */
-  struct curltime lastTime; /* last time we sent or received data */
-  unsigned char firstbyte;
-  BIT(pingsent); /* 1 while we wait for ping response */
+  size_t مانده_درازی;
+  بیعلامت حرف pkt_hd[4]; /* for decoding the arriving packet length */
+  بنية curltime آخرین_زمان; /* last time we sent or received data */
+  بیعلامت حرف firstbyte;
+  بیت(pingsent); /* 1 while we wait for ping response */
 };
 
-static void mqtt_easy_dtor(const void *key, size_t klen, void *entry)
+ساكن فراغ mqtt_easy_dtor(ثابت فراغ *کلید, size_t klen, فراغ *مدخل)
 {
-  struct MQTT *mq = entry;
-  (void)key;
-  (void)klen;
+  بنية MQTT *mq = مدخل;
+  (فراغ)کلید;
+  (فراغ)klen;
   curlx_dyn_free(&mq->sendbuf);
   curlx_dyn_free(&mq->recvbuf);
   curlx_free(mq);
 }
 
-static void mqtt_conn_dtor(const void *key, size_t klen, void *entry)
+ساكن فراغ mqtt_conn_dtor(ثابت فراغ *کلید, size_t klen, فراغ *مدخل)
 {
-  (void)key;
-  (void)klen;
-  curlx_free(entry);
+  (فراغ)کلید;
+  (فراغ)klen;
+  curlx_free(مدخل);
 }
 
-static CURLcode mqtt_setup_conn(struct Curl_easy *data,
-                                struct connectdata *conn)
+ساكن CURLcode mqtt_راهاندازی_conn(بنية Curl_easy *داده,
+                                بنية connectdata *conn)
 {
   /* setup MQTT specific meta data at easy handle and connection */
-  struct mqtt_conn *mqtt;
-  struct MQTT *mq;
+  بنية mqtt_conn *mqtt;
+  بنية MQTT *mq;
 
-  mqtt = curlx_calloc(1, sizeof(*mqtt));
-  if(!mqtt ||
-     Curl_conn_meta_set(conn, CURL_META_MQTT_CONN, mqtt, mqtt_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  mqtt = curlx_calloc(1, حجم(*mqtt));
+  إذا(!mqtt ||
+     Curl_conn_meta_مجموعه(conn, CURL_META_MQTT_CONN, mqtt, mqtt_conn_dtor))
+    أرجع CURLE_بیرون_از_حافظه;
 
-  mq = curlx_calloc(1, sizeof(struct MQTT));
-  if(!mq)
-    return CURLE_OUT_OF_MEMORY;
+  mq = curlx_calloc(1, حجم(بنية MQTT));
+  إذا(!mq)
+    أرجع CURLE_بیرون_از_حافظه;
   curlx_dyn_init(&mq->recvbuf, DYN_MQTT_RECV);
   curlx_dyn_init(&mq->sendbuf, DYN_MQTT_SEND);
-  if(Curl_meta_set(data, CURL_META_MQTT_EASY, mq, mqtt_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  إذا(Curl_meta_مجموعه(داده, CURL_META_MQTT_EASY, mq, mqtt_easy_dtor))
+    أرجع CURLE_بیرون_از_حافظه;
+  أرجع CURLE_OK;
 }
 
-static CURLcode mqtt_send(struct Curl_easy *data,
-                          const char *buf, size_t len)
+ساكن CURLcode mqtt_send(بنية Curl_easy *داده,
+                          ثابت حرف *buf, size_t len)
 {
   size_t n;
-  CURLcode result;
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  CURLcode نتیجه;
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  إذا(!mq)
+    أرجع CURLE_FAILED_INIT;
 
   /* A new packet must not replace a previously queued packet tail. */
   DEBUGASSERT(!curlx_dyn_len(&mq->sendbuf));
-  result = Curl_xfer_send(data, buf, len, FALSE, &n);
-  if(result)
-    return result;
-  mq->lastTime = *Curl_pgrs_now(data);
-  Curl_debug(data, CURLINFO_HEADER_OUT, buf, n);
-  if(len != n)
-    result = curlx_dyn_addn(&mq->sendbuf, &buf[n], len - n);
-  return result;
+  نتیجه = Curl_xfer_send(داده, buf, len, FALSE, &n);
+  إذا(نتیجه)
+    أرجع نتیجه;
+  mq->آخرین_زمان = *Curl_pgrs_now(داده);
+  Curl_debug(داده, CURLINFO_سرآیند_بیرون, buf, n);
+  إذا(len != n)
+    نتیجه = curlx_dyn_addn(&mq->sendbuf, &buf[n], len - n);
+  أرجع نتیجه;
 }
 
 /* Send the queued tail, preserving any bytes that still cannot be sent. */
-static CURLcode mqtt_flush(struct Curl_easy *data)
+ساكن CURLcode mqtt_flush(بنية Curl_easy *داده)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
   size_t len, n;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  إذا(!mq)
+    أرجع CURLE_FAILED_INIT;
   len = curlx_dyn_len(&mq->sendbuf);
-  if(!len)
-    return CURLE_OK;
+  إذا(!len)
+    أرجع CURLE_OK;
 
-  result = Curl_xfer_send(data, curlx_dyn_ptr(&mq->sendbuf), len, FALSE, &n);
-  if(result)
-    return result;
-  mq->lastTime = *Curl_pgrs_now(data);
-  Curl_debug(data, CURLINFO_HEADER_OUT, curlx_dyn_ptr(&mq->sendbuf), n);
-  return curlx_dyn_tail(&mq->sendbuf, len - n);
+  نتیجه = Curl_xfer_send(داده, curlx_dyn_ptr(&mq->sendbuf), len, FALSE, &n);
+  إذا(نتیجه)
+    أرجع نتیجه;
+  mq->آخرین_زمان = *Curl_pgrs_now(داده);
+  Curl_debug(داده, CURLINFO_سرآیند_بیرون, curlx_dyn_ptr(&mq->sendbuf), n);
+  أرجع curlx_dyn_دم(&mq->sendbuf, len - n);
 }
 
 /* Generic function called by the multi interface to figure out what socket(s)
    to wait for and for what actions during the DOING and PROTOCONNECT
-   states */
-static CURLcode mqtt_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+حالتها*/
+ساكن CURLcode mqtt_pollset(بنية Curl_easy *داده,
+                             بنية easy_pollset *ps)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  if(mq && curlx_dyn_len(&mq->sendbuf))
-    return Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
-  return Curl_pollset_add_in(data, ps, data->conn->sock[FIRSTSOCKET]);
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
+  إذا(mq && curlx_dyn_len(&mq->sendbuf))
+    أرجع Curl_pollset_جمع_کن_بیرون(داده, ps, داده->conn->sock[FIRSTSOCKET]);
+  أرجع Curl_pollset_جمع_کن_درون(داده, ps, داده->conn->sock[FIRSTSOCKET]);
 }
 
-static int mqtt_encode_len(char *buf, size_t len)
+ساكن صحيح mqtt_encode_len(حرف *buf, size_t len)
 {
-  int i;
+  صحيح i;
 
-  for(i = 0; (len > 0) && (i < 4); i++) {
-    unsigned char encoded;
+  لكل(i = 0; (len > 0) && (i < 4); i++) {
+    بیعلامت حرف encoded;
     encoded = len % 0x80;
     len /= 0x80;
-    if(len)
+    إذا(len)
       encoded |= 0x80;
-    buf[i] = (char)encoded;
+    buf[i] = (حرف)encoded;
   }
 
-  return i;
+  أرجع i;
 }
 
 /* add the passwd to the CONNECT packet */
-static int add_passwd(const char *passwd, const size_t plen,
-                      char *pkt, const size_t start, int remain_pos)
+ساكن صحيح جمع_کن_passwd(ثابت حرف *passwd, ثابت size_t plen,
+                      حرف *pkt, ثابت size_t شروع, صحيح remain_pos)
 {
   /* magic number that need to be set properly */
-  const size_t conn_flags_pos = remain_pos + 8;
-  if(plen > 0xffff)
-    return 1;
+  ثابت size_t conn_flags_pos = remain_pos + 8;
+  إذا(plen > 0xffff)
+    أرجع 1;
 
   /* set password flag */
   pkt[conn_flags_pos] |= 0x40;
 
   /* length of password provided */
-  pkt[start] = (char)((plen >> 8) & 0xFF);
-  pkt[start + 1] = (char)(plen & 0xFF);
-  memcpy(&pkt[start + 2], passwd, plen);
-  return 0;
+  pkt[شروع] = (حرف)((plen >> 8) & 0xFF);
+  pkt[شروع + 1] = (حرف)(plen & 0xFF);
+  کپی_حافظه(&pkt[شروع + 2], passwd, plen);
+  أرجع 0;
 }
 
 /* add user to the CONNECT packet */
-static int add_user(const char *username, const size_t ulen,
-                    unsigned char *pkt, const size_t start, int remain_pos)
+ساكن صحيح جمع_کن_user(ثابت حرف *username, ثابت size_t ulen,
+                    بیعلامت حرف *pkt, ثابت size_t شروع, صحيح remain_pos)
 {
   /* magic number that need to be set properly */
-  const size_t conn_flags_pos = remain_pos + 8;
-  if(ulen > 0xffff)
-    return 1;
+  ثابت size_t conn_flags_pos = remain_pos + 8;
+  إذا(ulen > 0xffff)
+    أرجع 1;
 
   /* set username flag */
   pkt[conn_flags_pos] |= 0x80;
   /* length of username provided */
-  pkt[start] = (unsigned char)((ulen >> 8) & 0xFF);
-  pkt[start + 1] = (unsigned char)(ulen & 0xFF);
-  memcpy(&pkt[start + 2], username, ulen);
-  return 0;
+  pkt[شروع] = (بیعلامت حرف)((ulen >> 8) & 0xFF);
+  pkt[شروع + 1] = (بیعلامت حرف)(ulen & 0xFF);
+  کپی_حافظه(&pkt[شروع + 2], username, ulen);
+  أرجع 0;
 }
 
 /* add client ID to the CONNECT packet */
-static int add_client_id(const char *client_id, const size_t client_id_len,
-                         char *pkt, const size_t start)
+ساكن صحيح جمع_کن_client_id(ثابت حرف *client_id, ثابت size_t client_id_len,
+                         حرف *pkt, ثابت size_t شروع)
 {
-  if(client_id_len != MQTT_CLIENTID_LEN)
-    return 1;
-  pkt[start] = 0x00;
-  pkt[start + 1] = MQTT_CLIENTID_LEN;
-  memcpy(&pkt[start + 2], client_id, MQTT_CLIENTID_LEN);
-  return 0;
+  إذا(client_id_len != MQTT_CLIENTID_LEN)
+    أرجع 1;
+  pkt[شروع] = 0x00;
+  pkt[شروع + 1] = MQTT_CLIENTID_LEN;
+  کپی_حافظه(&pkt[شروع + 2], client_id, MQTT_CLIENTID_LEN);
+  أرجع 0;
 }
 
 /* Set initial values of CONNECT packet */
-static int init_connpack(char *packet, char *remain, int remain_pos)
+ساكن صحيح init_connpack(حرف *packet, حرف *remain, صحيح remain_pos)
 {
   /* Fixed header starts */
   /* packet type */
-  packet[0] = MQTT_MSG_CONNECT;
+  packet[0] = MQTT_پیام_CONNECT;
   /* remaining length field */
-  memcpy(&packet[1], remain, remain_pos);
+  کپی_حافظه(&packet[1], remain, remain_pos);
   /* Fixed header ends */
 
   /* Variable header starts */
@@ -279,29 +279,29 @@ static int init_connpack(char *packet, char *remain, int remain_pos)
   packet[remain_pos + 9] = 0x00;
   packet[remain_pos + 10] = 0x3c;
   /* end of variable header */
-  return remain_pos + 10;
+  أرجع remain_pos + 10;
 }
 
-static CURLcode mqtt_connect(struct Curl_easy *data)
+ساكن CURLcode mqtt_connect(بنية Curl_easy *داده)
 {
-  CURLcode result = CURLE_OK;
-  int pos = 0;
-  int rc = 0;
+  CURLcode نتیجه = CURLE_OK;
+  صحيح pos = 0;
+  صحيح rc = 0;
   /* remain length */
-  int remain_pos = 0;
-  char remain[4] = { 0 };
+  صحيح remain_pos = 0;
+  حرف remain[4] = { 0 };
   size_t packetlen = 0;
-  size_t start_user = 0;
-  size_t start_pwd = 0;
-  char client_id[MQTT_CLIENTID_LEN + 1] = "curl";
-  const size_t clen = CURL_CSTRLEN("curl");
-  char *packet = NULL;
+  size_t شروع_user = 0;
+  size_t شروع_pwd = 0;
+  حرف client_id[MQTT_CLIENTID_LEN + 1] = "curl";
+  ثابت size_t clen = CURL_CSTRLEN("curl");
+  حرف *packet = عدم;
 
   /* extracting username from request */
-  struct Curl_creds *creds = data->state.creds;
-  const size_t ulen = creds ? strlen(creds->user) : 0;
-  const size_t plen = creds ? strlen(creds->passwd) : 0;
-  const size_t payloadlen = ulen + plen + MQTT_CLIENTID_LEN + 2 +
+  بنية Curl_creds *creds = داده->state.creds;
+  ثابت size_t ulen = creds ? طول_رشته(creds->user) : 0;
+  ثابت size_t plen = creds ? طول_رشته(creds->passwd) : 0;
+  ثابت size_t payloadlen = ulen + plen + MQTT_CLIENTID_LEN + 2 +
   /* The plus 2s below are for the MSB and LSB describing the length of the
      string to be added on the payload. Refer to spec 1.5.2 and 1.5.4 */
     (ulen ? 2 : 0) +
@@ -314,348 +314,348 @@ static CURLcode mqtt_connect(struct Curl_easy *data)
   packetlen = payloadlen + 10 + remain_pos + 1;
 
   /* allocating packet */
-  if(packetlen > 0xFFFFFFF)
-    return CURLE_WEIRD_SERVER_REPLY;
+  إذا(packetlen > 0xFFFFFFF)
+    أرجع CURLE_WEIRD_SERVER_پاسخ;
   packet = curlx_calloc(1, packetlen);
-  if(!packet)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!packet)
+    أرجع CURLE_بیرون_از_حافظه;
 
   /* set initial values for the CONNECT packet */
   pos = init_connpack(packet, remain, remain_pos);
 
-  result = Curl_rand_alnum(data, (unsigned char *)&client_id[clen],
+  نتیجه = Curl_rand_alnum(داده, (بیعلامت حرف *)&client_id[clen],
                            MQTT_CLIENTID_LEN - clen + 1);
   /* add client id */
-  rc = add_client_id(client_id, strlen(client_id), packet, pos + 1);
-  if(rc) {
-    failf(data, "Client ID length mismatched: [%zu]", strlen(client_id));
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto end;
+  rc = جمع_کن_client_id(client_id, طول_رشته(client_id), packet, pos + 1);
+  إذا(rc) {
+    failf(داده, "Client ID length mismatched: [%zu]", طول_رشته(client_id));
+    نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+    اذهب انتها;
   }
-  infof(data, "Using client id '%s'", client_id);
+  infof(داده, "Using client id '%s'", client_id);
 
   /* position where the user payload starts */
-  start_user = pos + 3 + MQTT_CLIENTID_LEN;
+  شروع_user = pos + 3 + MQTT_CLIENTID_LEN;
   /* position where the password payload starts */
-  start_pwd = start_user + ulen;
+  شروع_pwd = شروع_user + ulen;
   /* if username was provided, add it to the packet */
-  if(ulen) {
-    start_pwd += 2;
+  إذا(ulen) {
+    شروع_pwd += 2;
 
-    rc = add_user(creds->user, ulen,
-                  (unsigned char *)packet, start_user, remain_pos);
-    if(rc) {
-      failf(data, "Username too long: [%zu]", ulen);
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+    rc = جمع_کن_user(creds->user, ulen,
+                  (بیعلامت حرف *)packet, شروع_user, remain_pos);
+    إذا(rc) {
+      failf(داده, "Username too long: [%zu]", ulen);
+      نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+      اذهب انتها;
     }
   }
 
   /* if passwd was provided, add it to the packet */
-  if(plen) {
-    rc = add_passwd(creds->passwd, plen, packet, start_pwd, remain_pos);
-    if(rc) {
-      failf(data, "Password too long: [%zu]", plen);
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+  إذا(plen) {
+    rc = جمع_کن_passwd(creds->passwd, plen, packet, شروع_pwd, remain_pos);
+    إذا(rc) {
+      failf(داده, "Password too long: [%zu]", plen);
+      نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+      اذهب انتها;
     }
   }
 
-  if(!result)
-    result = mqtt_send(data, packet, packetlen);
+  إذا(!نتیجه)
+    نتیجه = mqtt_send(داده, packet, packetlen);
 
-end:
-  if(packet) {
+انتها:
+  إذا(packet) {
     curlx_memzero(packet, packetlen);
     curlx_free(packet);
   }
-  Curl_creds_unlink(&data->state.creds);
-  return result;
+  Curl_creds_unlink(&داده->state.creds);
+  أرجع نتیجه;
 }
 
-static CURLcode mqtt_disconnect(struct Curl_easy *data)
+ساكن CURLcode mqtt_disconnect(بنية Curl_easy *داده)
 {
-  return mqtt_send(data, "\xe0\x00", 2);
+  أرجع mqtt_send(داده, "\xe0\x00", 2);
 }
 
-static CURLcode mqtt_recv_atleast(struct Curl_easy *data, size_t nbytes)
+ساكن CURLcode mqtt_recv_atleast(بنية Curl_easy *داده, size_t nbytes)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
   size_t rlen;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  إذا(!mq)
+    أرجع CURLE_FAILED_INIT;
   rlen = curlx_dyn_len(&mq->recvbuf);
 
-  if(rlen < nbytes) {
-    unsigned char readbuf[1024];
+  إذا(rlen < nbytes) {
+    بیعلامت حرف readbuf[1024];
     size_t nread;
 
-    DEBUGASSERT(nbytes - rlen < sizeof(readbuf));
-    result = Curl_xfer_recv(data, (char *)readbuf, nbytes - rlen, &nread);
-    if(result)
-      return result;
-    if(!nread) /* EOF */
-       return CURLE_RECV_ERROR;
-    if(curlx_dyn_addn(&mq->recvbuf, readbuf, nread))
-      return CURLE_OUT_OF_MEMORY;
+    DEBUGASSERT(nbytes - rlen < حجم(readbuf));
+    نتیجه = Curl_xfer_recv(داده, (حرف *)readbuf, nbytes - rlen, &nread);
+    إذا(نتیجه)
+      أرجع نتیجه;
+    إذا(!nread) /* EOF */
+       أرجع CURLE_RECV_ERROR;
+    إذا(curlx_dyn_addn(&mq->recvbuf, readbuf, nread))
+      أرجع CURLE_بیرون_از_حافظه;
     rlen = curlx_dyn_len(&mq->recvbuf);
   }
-  return (rlen >= nbytes) ? CURLE_OK : CURLE_AGAIN;
+  أرجع (rlen >= nbytes) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static void mqtt_recv_consume(struct Curl_easy *data, size_t nbytes)
+ساكن فراغ mqtt_recv_consume(بنية Curl_easy *داده, size_t nbytes)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
   DEBUGASSERT(mq);
-  if(mq) {
+  إذا(mq) {
     size_t rlen = curlx_dyn_len(&mq->recvbuf);
-    if(rlen <= nbytes)
+    إذا(rlen <= nbytes)
       curlx_dyn_reset(&mq->recvbuf);
-    else
-      curlx_dyn_tail(&mq->recvbuf, rlen - nbytes);
+    وإلا
+      curlx_dyn_دم(&mq->recvbuf, rlen - nbytes);
   }
 }
 
-static CURLcode mqtt_verify_connack(struct Curl_easy *data)
+ساكن CURLcode mqtt_verify_connack(بنية Curl_easy *داده)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result;
-  const char *ptr;
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
+  CURLcode نتیجه;
+  ثابت حرف *ptr;
 
   DEBUGASSERT(mq);
-  if(!mq)
-    return CURLE_FAILED_INIT;
-  if(mq->remaining_length != 2) {
-    failf(data, "CONNACK expected Remaining Length 2, got %zu",
-          mq->remaining_length);
-    return CURLE_WEIRD_SERVER_REPLY;
+  إذا(!mq)
+    أرجع CURLE_FAILED_INIT;
+  إذا(mq->مانده_درازی != 2) {
+    failf(داده, "CONNACK expected Remaining Length 2, got %zu",
+          mq->مانده_درازی);
+    أرجع CURLE_WEIRD_SERVER_پاسخ;
   }
 
-  result = mqtt_recv_atleast(data, MQTT_CONNACK_LEN);
-  if(result)
-    return result;
+  نتیجه = mqtt_recv_atleast(داده, MQTT_CONNACK_LEN);
+  إذا(نتیجه)
+    أرجع نتیجه;
 
   /* verify CONNACK */
   DEBUGASSERT(curlx_dyn_len(&mq->recvbuf) >= MQTT_CONNACK_LEN);
   ptr = curlx_dyn_ptr(&mq->recvbuf);
-  Curl_debug(data, CURLINFO_HEADER_IN, ptr, MQTT_CONNACK_LEN);
+  Curl_debug(داده, CURLINFO_سرآیند_درون, ptr, MQTT_CONNACK_LEN);
 
-  if(ptr[0] != 0x00 || ptr[1] != 0x00) {
-    failf(data, "Expected %02x%02x but got %02x%02x",
-          0x00U, 0x00U, (unsigned char)ptr[0], (unsigned char)ptr[1]);
+  إذا(ptr[0] != 0x00 || ptr[1] != 0x00) {
+    failf(داده, "Expected %02x%02x but got %02x%02x",
+          0x00U, 0x00U, (بیعلامت حرف)ptr[0], (بیعلامت حرف)ptr[1]);
     curlx_dyn_reset(&mq->recvbuf);
-    return CURLE_WEIRD_SERVER_REPLY;
+    أرجع CURLE_WEIRD_SERVER_پاسخ;
   }
-  mqtt_recv_consume(data, MQTT_CONNACK_LEN);
-  return CURLE_OK;
+  mqtt_recv_consume(داده, MQTT_CONNACK_LEN);
+  أرجع CURLE_OK;
 }
 
-static CURLcode mqtt_get_topic(struct Curl_easy *data,
-                               char **topic, size_t *topiclen)
+ساكن CURLcode mqtt_get_topic(بنية Curl_easy *داده,
+                               حرف **topic, size_t *topiclen)
 {
-  const char *path = data->state.up.path;
-  CURLcode result = CURLE_URL_MALFORMAT;
-  if(strlen(path) > 1) {
-    result = Curl_urldecode(path + 1, 0, topic, topiclen, REJECT_CTRL);
-    if(!result && (*topiclen > 0xffff)) {
-      failf(data, "Too long MQTT topic");
-      result = CURLE_URL_MALFORMAT;
+  ثابت حرف *مسیر = داده->state.به_بالا.مسیر;
+  CURLcode نتیجه = CURLE_URL_MALFORMAT;
+  إذا(طول_رشته(مسیر) > 1) {
+    نتیجه = Curl_urldecode(مسیر + 1, 0, topic, topiclen, REJECT_CTRL);
+    إذا(!نتیجه && (*topiclen > 0xffff)) {
+      failf(داده, "Too long MQTT topic");
+      نتیجه = CURLE_URL_MALFORMAT;
     }
   }
-  else
-    failf(data, "No MQTT topic found. Forgot to URL encode it?");
+  وإلا
+    failf(داده, "No MQTT topic found. Forgot to URL encode it?");
 
-  return result;
+  أرجع نتیجه;
 }
 
-static CURLcode mqtt_subscribe(struct Curl_easy *data)
+ساكن CURLcode mqtt_subscribe(بنية Curl_easy *داده)
 {
-  CURLcode result = CURLE_OK;
-  char *topic = NULL;
+  CURLcode نتیجه = CURLE_OK;
+  حرف *topic = عدم;
   size_t topiclen;
-  unsigned char *packet = NULL;
+  بیعلامت حرف *packet = عدم;
   size_t packetlen;
-  char encodedsize[4];
+  حرف encodedsize[4];
   size_t n;
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  بنية connectdata *conn = داده->conn;
+  بنية mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt)
-    return CURLE_FAILED_INIT;
+  إذا(!mqtt)
+    أرجع CURLE_FAILED_INIT;
 
-  result = mqtt_get_topic(data, &topic, &topiclen);
-  if(result)
-    goto fail;
+  نتیجه = mqtt_get_topic(داده, &topic, &topiclen);
+  إذا(نتیجه)
+    اذهب fail;
 
   mqtt->packetid++;
 
   packetlen = topiclen + 5; /* packetid + topic (has a two byte length field)
                                + 2 bytes topic length + QoS byte */
-  n = mqtt_encode_len((char *)encodedsize, packetlen);
+  n = mqtt_encode_len((حرف *)encodedsize, packetlen);
   packetlen += n + 1; /* add one for the control packet type byte */
 
   packet = curlx_malloc(packetlen);
-  if(!packet) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  إذا(!packet) {
+    نتیجه = CURLE_بیرون_از_حافظه;
+    اذهب fail;
   }
 
-  packet[0] = MQTT_MSG_SUBSCRIBE;
-  memcpy(&packet[1], encodedsize, n);
+  packet[0] = MQTT_پیام_SUBSCRIBE;
+  کپی_حافظه(&packet[1], encodedsize, n);
   packet[1 + n] = (mqtt->packetid >> 8) & 0xff;
   packet[2 + n] = mqtt->packetid & 0xff;
   packet[3 + n] = (topiclen >> 8) & 0xff;
   packet[4 + n] = topiclen & 0xff;
-  memcpy(&packet[5 + n], topic, topiclen);
+  کپی_حافظه(&packet[5 + n], topic, topiclen);
   packet[5 + n + topiclen] = 0; /* QoS zero */
 
-  result = mqtt_send(data, (const char *)packet, packetlen);
+  نتیجه = mqtt_send(داده, (ثابت حرف *)packet, packetlen);
 
 fail:
   curlx_free(topic);
   curlx_free(packet);
-  return result;
+  أرجع نتیجه;
 }
 
 /*
  * Called when the first byte was already read.
  */
-static CURLcode mqtt_verify_suback(struct Curl_easy *data)
+ساكن CURLcode mqtt_verify_suback(بنية Curl_easy *داده)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
-  CURLcode result;
-  const char *ptr;
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
+  بنية connectdata *conn = داده->conn;
+  بنية mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  CURLcode نتیجه;
+  ثابت حرف *ptr;
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  إذا(!mqtt || !mq)
+    أرجع CURLE_FAILED_INIT;
 
-  if(mq->remaining_length != 3) {
-    failf(data, "SUBACK expected Remaining Length 3, got %zu",
-          mq->remaining_length);
-    return CURLE_WEIRD_SERVER_REPLY;
+  إذا(mq->مانده_درازی != 3) {
+    failf(داده, "SUBACK expected Remaining Length 3, got %zu",
+          mq->مانده_درازی);
+    أرجع CURLE_WEIRD_SERVER_پاسخ;
   }
 
-  result = mqtt_recv_atleast(data, MQTT_SUBACK_LEN);
-  if(result)
-    goto fail;
+  نتیجه = mqtt_recv_atleast(داده, MQTT_SUBACK_LEN);
+  إذا(نتیجه)
+    اذهب fail;
 
   /* verify SUBACK */
   DEBUGASSERT(curlx_dyn_len(&mq->recvbuf) >= MQTT_SUBACK_LEN);
   ptr = curlx_dyn_ptr(&mq->recvbuf);
-  Curl_debug(data, CURLINFO_HEADER_IN, ptr, MQTT_SUBACK_LEN);
+  Curl_debug(داده, CURLINFO_سرآیند_درون, ptr, MQTT_SUBACK_LEN);
 
-  if(((unsigned char)ptr[0]) != ((mqtt->packetid >> 8) & 0xff) ||
-     ((unsigned char)ptr[1]) != (mqtt->packetid & 0xff) ||
+  إذا(((بیعلامت حرف)ptr[0]) != ((mqtt->packetid >> 8) & 0xff) ||
+     ((بیعلامت حرف)ptr[1]) != (mqtt->packetid & 0xff) ||
      ptr[2] != 0x00) {
     curlx_dyn_reset(&mq->recvbuf);
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto fail;
+    نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+    اذهب fail;
   }
-  mqtt_recv_consume(data, MQTT_SUBACK_LEN);
+  mqtt_recv_consume(داده, MQTT_SUBACK_LEN);
 fail:
-  return result;
+  أرجع نتیجه;
 }
 
-#define MAX_MQTT_MESSAGE_SIZE 0xFFFFFFF
+#تعریف_کن MAX_MQTT_پیام_اندازه 0xFFFFFFF
 
-static CURLcode mqtt_publish(struct Curl_easy *data)
+ساكن CURLcode mqtt_publish(بنية Curl_easy *داده)
 {
-  CURLcode result;
-  char *payload = data->set.postfields;
+  CURLcode نتیجه;
+  حرف *payload = داده->مجموعه.postfields;
   size_t payloadlen;
-  char *topic = NULL;
+  حرف *topic = عدم;
   size_t topiclen;
-  unsigned char *pkt = NULL;
+  بیعلامت حرف *pkt = عدم;
   size_t i = 0;
   size_t remaininglength;
   size_t encodelen;
-  char encodedbytes[4];
-  curl_off_t postfieldsize = data->set.postfieldsize;
+  حرف encodedbytes[4];
+  curl_off_t postfieldsize = داده->مجموعه.postfieldsize;
 
-  if(!payload) {
-    DEBUGF(infof(data, "mqtt_publish without payload, return bad arg"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(!payload) {
+    DEBUGF(infof(داده, "mqtt_publish without payload, return bad arg"));
+    أرجع CURLE_BAD_FUNCTION_آرگومان;
   }
-  if(!curlx_sotouz_fits(postfieldsize, &payloadlen)) {
-    if(postfieldsize > 0) /* off_t does not fit into size_t */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    payloadlen = strlen(payload);
+  إذا(!curlx_sotouz_میگنجد(postfieldsize, &payloadlen)) {
+    إذا(postfieldsize > 0) /* off_t does not fit into size_t */
+      أرجع CURLE_BAD_FUNCTION_آرگومان;
+    payloadlen = طول_رشته(payload);
   }
 
-  result = mqtt_get_topic(data, &topic, &topiclen);
-  if(result)
-    goto fail;
+  نتیجه = mqtt_get_topic(داده, &topic, &topiclen);
+  إذا(نتیجه)
+    اذهب fail;
 
   /* silly check for silly analyzers. On 32-bit systems a payload length close
      to 4GB can wrap, but it is impossible to have such a large buffer in
      memory on those systems */
-  if((SIZE_MAX - topiclen - 2) < payloadlen) {
-    result = CURLE_TOO_LARGE;
-    goto fail;
+  إذا((SIZE_MAX - topiclen - 2) < payloadlen) {
+    نتیجه = CURLE_TOO_LARGE;
+    اذهب fail;
   }
 
   remaininglength = payloadlen + 2 + topiclen;
   encodelen = mqtt_encode_len(encodedbytes, remaininglength);
-  if(remaininglength > (MAX_MQTT_MESSAGE_SIZE - encodelen - 1)) {
-    result = CURLE_TOO_LARGE;
-    goto fail;
+  إذا(remaininglength > (MAX_MQTT_پیام_اندازه - encodelen - 1)) {
+    نتیجه = CURLE_TOO_LARGE;
+    اذهب fail;
   }
 
   /* add the control byte and the encoded remaining length */
   pkt = curlx_malloc(remaininglength + 1 + encodelen);
-  if(!pkt) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  إذا(!pkt) {
+    نتیجه = CURLE_بیرون_از_حافظه;
+    اذهب fail;
   }
 
   /* assemble packet */
-  pkt[i++] = MQTT_MSG_PUBLISH;
-  memcpy(&pkt[i], encodedbytes, encodelen);
+  pkt[i++] = MQTT_پیام_PUBLISH;
+  کپی_حافظه(&pkt[i], encodedbytes, encodelen);
   i += encodelen;
   pkt[i++] = (topiclen >> 8) & 0xff;
   pkt[i++] = (topiclen & 0xff);
-  memcpy(&pkt[i], topic, topiclen);
+  کپی_حافظه(&pkt[i], topic, topiclen);
   i += topiclen;
-  memcpy(&pkt[i], payload, payloadlen);
+  کپی_حافظه(&pkt[i], payload, payloadlen);
   i += payloadlen;
-  result = mqtt_send(data, (const char *)pkt, i);
+  نتیجه = mqtt_send(داده, (ثابت حرف *)pkt, i);
 
 fail:
   curlx_free(pkt);
   curlx_free(topic);
-  return result;
+  أرجع نتیجه;
 }
 
 /* return FALSE on success, TRUE on error */
-static bool mqtt_decode_len(size_t *lenp, const unsigned char *buf,
+ساكن bool mqtt_decode_len(size_t *lenp, ثابت بیعلامت حرف *buf,
                             size_t buflen)
 {
   size_t len = 0;
   size_t mult = 1;
   size_t i;
-  unsigned char encoded = 128;
+  بیعلامت حرف encoded = 128;
 
-  for(i = 0; (i < buflen) && (encoded & 128); i++) {
-    if(i == 4)
-      return TRUE; /* bad size */
+  لكل(i = 0; (i < buflen) && (encoded & 128); i++) {
+    إذا(i == 4)
+      أرجع TRUE; /* bad size */
     encoded = buf[i];
     len += (encoded & 127) * mult;
     mult *= 128;
   }
-  if(encoded & 128)
+  إذا(encoded & 128)
     /* truncated size */
-    return TRUE;
+    أرجع TRUE;
 
   *lenp = len;
-  return FALSE;
+  أرجع FALSE;
 }
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
-static const char * const statenames[] = {
+#إذا defined(DEBUGBUILD) && defined(CURLVERBOSE)
+ساكن ثابت حرف * ثابت statenames[] = {
   "MQTT_FIRST",
   "MQTT_REMAINING_LENGTH",
   "MQTT_CONNACK",
@@ -668,260 +668,260 @@ static const char * const statenames[] = {
 
   "NOT A STATE"
 };
-#endif
+#پایان_اگر
 
 /* The only way to change state */
-static void mqstate(struct Curl_easy *data,
-                    enum mqttstate state,
-                    enum mqttstate nextstate) /* used if state == FIRST */
+ساكن فراغ mqstate(بنية Curl_easy *داده,
+                    تعداد mqttstate state,
+                    تعداد mqttstate nextstate) /* used if state == FIRST */
 {
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  بنية connectdata *conn = داده->conn;
+  بنية mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
   DEBUGASSERT(mqtt);
-  if(!mqtt)
-    return;
-#ifdef DEBUGBUILD
-  infof(data, "%s (from %s) (next is %s)",
+  إذا(!mqtt)
+    أرجع;
+#اگر_تعریف_شده DEBUGBUILD
+  infof(داده, "%s (from %s) (next is %s)",
         statenames[state],
         statenames[mqtt->state],
-        (state == MQTT_FIRST) ? statenames[nextstate] : "");
-#endif
+        (state == MQTT_اولی) ? statenames[nextstate] : "");
+#پایان_اگر
   mqtt->state = state;
-  if(state == MQTT_FIRST)
+  إذا(state == MQTT_اولی)
     mqtt->nextstate = nextstate;
 }
 
-static CURLcode mqtt_read_publish(struct Curl_easy *data, bool *done)
+ساكن CURLcode mqtt_read_publish(بنية Curl_easy *داده, bool *انجامشده)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  CURLcode نتیجه = CURLE_OK;
+  بنية connectdata *conn = داده->conn;
   size_t nread;
   size_t remlen;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  unsigned char packet;
+  بنية mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
+  بیعلامت حرف packet;
 
   DEBUGASSERT(mqtt);
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  إذا(!mqtt || !mq)
+    أرجع CURLE_FAILED_INIT;
 
-  switch(mqtt->state) {
+  بدل(mqtt->state) {
 MQTT_SUBACK_COMING:
-  case MQTT_SUBACK_COMING:
-    result = mqtt_verify_suback(data);
-    if(result)
-      break;
+  حالة MQTT_SUBACK_COMING:
+    نتیجه = mqtt_verify_suback(داده);
+    إذا(نتیجه)
+      اكسر;
 
-    mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
-    break;
+    mqstate(داده, MQTT_اولی, MQTT_PUBWAIT);
+    اكسر;
 
-  case MQTT_SUBACK:
-  case MQTT_PUBWAIT:
+  حالة MQTT_SUBACK:
+  حالة MQTT_PUBWAIT:
     /* we are expecting PUBLISH or SUBACK */
     packet = mq->firstbyte & 0xf0;
-    if(packet == MQTT_MSG_PUBLISH)
-      mqstate(data, MQTT_PUB_REMAIN, MQTT_NOSTATE);
-    else if(packet == MQTT_MSG_SUBACK) {
-      mqstate(data, MQTT_SUBACK_COMING, MQTT_NOSTATE);
-      goto MQTT_SUBACK_COMING;
+    إذا(packet == MQTT_پیام_PUBLISH)
+      mqstate(داده, MQTT_PUB_REMAIN, MQTT_NOSTATE);
+    وإلا إذا(packet == MQTT_پیام_SUBACK) {
+      mqstate(داده, MQTT_SUBACK_COMING, MQTT_NOSTATE);
+      اذهب MQTT_SUBACK_COMING;
     }
-    else if(packet == MQTT_MSG_DISCONNECT) {
-      infof(data, "Got DISCONNECT");
-      *done = TRUE;
-      goto end;
+    وإلا إذا(packet == MQTT_پیام_DISCONNECT) {
+      infof(داده, "Got DISCONNECT");
+      *انجامشده = TRUE;
+      اذهب انتها;
     }
-    else {
-      result = CURLE_WEIRD_SERVER_REPLY;
-      goto end;
+    وإلا {
+      نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+      اذهب انتها;
     }
 
     /* -- switched state -- */
-    remlen = mq->remaining_length;
-    infof(data, "Remaining length: %zu bytes", remlen);
-    if(data->set.max_filesize &&
-       (curl_off_t)remlen > data->set.max_filesize) {
-      failf(data, "Maximum file size exceeded");
-      result = CURLE_FILESIZE_EXCEEDED;
-      goto end;
+    remlen = mq->مانده_درازی;
+    infof(داده, "Remaining length: %zu bytes", remlen);
+    إذا(داده->مجموعه.max_filesize &&
+       (curl_off_t)remlen > داده->مجموعه.max_filesize) {
+      failf(داده, "Maximum file size exceeded");
+      نتیجه = CURLE_FILESIZE_EXCEEDED;
+      اذهب انتها;
     }
-    Curl_pgrsSetDownloadSize(data, remlen);
-    data->req.bytecount = 0;
-    data->req.size = remlen;
+    Curl_pgrs_مجموعه_Download_اندازه(داده, remlen);
+    داده->req.bytecount = 0;
+    داده->req.اندازه = remlen;
     mq->npacket = remlen; /* get this many bytes */
     FALLTHROUGH();
-  case MQTT_PUB_REMAIN: {
+  حالة MQTT_PUB_REMAIN: {
     /* read rest of packet, but no more. Cap to buffer size */
-    char buffer[4 * 1024];
+    حرف میانگیر[4 * 1024];
     size_t rest = mq->npacket;
-    if(rest > sizeof(buffer))
-      rest = sizeof(buffer);
-    result = Curl_xfer_recv(data, buffer, rest, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN) {
-        infof(data, "EEEE AAAAGAIN");
+    إذا(rest > حجم(میانگیر))
+      rest = حجم(میانگیر);
+    نتیجه = Curl_xfer_recv(داده, میانگیر, rest, &nread);
+    إذا(نتیجه) {
+      إذا(نتیجه == CURLE_AGAIN) {
+        infof(داده, "EEEE AAAAGAIN");
       }
-      goto end;
+      اذهب انتها;
     }
-    if(!nread) {
-      infof(data, "server disconnected");
-      result = CURLE_PARTIAL_FILE;
-      goto end;
+    إذا(!nread) {
+      infof(داده, "server disconnected");
+      نتیجه = CURLE_PARTIAL_FILE;
+      اذهب انتها;
     }
 
     /* we received something */
-    mq->lastTime = *Curl_pgrs_now(data);
+    mq->آخرین_زمان = *Curl_pgrs_now(داده);
 
     /* if QoS is set, message contains packet id */
-    result = Curl_client_write(data, CLIENTWRITE_BODY, buffer, nread);
-    if(result)
-      goto end;
+    نتیجه = Curl_client_write(داده, CLIENTWRITE_BODY, میانگیر, nread);
+    إذا(نتیجه)
+      اذهب انتها;
 
     mq->npacket -= nread;
-    if(!mq->npacket)
+    إذا(!mq->npacket)
       /* no more PUBLISH payload, back to subscribe wait state */
-      mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
-    break;
+      mqstate(داده, MQTT_اولی, MQTT_PUBWAIT);
+    اكسر;
   }
-  default:
-    DEBUGASSERT(NULL); /* illegal state */
-    result = CURLE_WEIRD_SERVER_REPLY;
-    goto end;
+  افتراضي:
+    DEBUGASSERT(عدم); /* illegal state */
+    نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+    اذهب انتها;
   }
-end:
-  return result;
+انتها:
+  أرجع نتیجه;
 }
 
-static CURLcode mqtt_do(struct Curl_easy *data, bool *done)
+ساكن CURLcode mqtt_do(بنية Curl_easy *داده, bool *انجامشده)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
-  *done = FALSE; /* unconditionally */
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
+  CURLcode نتیجه = CURLE_OK;
+  *انجامشده = FALSE; /* unconditionally */
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
-  mq->lastTime = *Curl_pgrs_now(data);
+  إذا(!mq)
+    أرجع CURLE_FAILED_INIT;
+  mq->آخرین_زمان = *Curl_pgrs_now(داده);
   mq->pingsent = FALSE;
 
-  result = mqtt_connect(data);
-  if(result) {
-    failf(data, "Error %d sending MQTT CONNECT request", (int)result);
-    return result;
+  نتیجه = mqtt_connect(داده);
+  إذا(نتیجه) {
+    failf(داده, "Error %d sending MQTT CONNECT request", (صحيح)نتیجه);
+    أرجع نتیجه;
   }
-  mqstate(data, MQTT_FIRST, MQTT_CONNACK);
-  return CURLE_OK;
+  mqstate(داده, MQTT_اولی, MQTT_CONNACK);
+  أرجع CURLE_OK;
 }
 
-static CURLcode mqtt_done(struct Curl_easy *data,
-                          CURLcode status, bool premature)
+ساكن CURLcode mqtt_انجامشده(بنية Curl_easy *داده,
+                          CURLcode وضعیت, bool premature)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  (void)status;
-  (void)premature;
-  if(mq) {
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
+  (فراغ)وضعیت;
+  (فراغ)premature;
+  إذا(mq) {
     curlx_dyn_free(&mq->sendbuf);
     curlx_dyn_free(&mq->recvbuf);
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /* we ping regularly to avoid being disconnected by the server */
-static CURLcode mqtt_ping(struct Curl_easy *data)
+ساكن CURLcode mqtt_ping(بنية Curl_easy *داده)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
+  CURLcode نتیجه = CURLE_OK;
+  بنية connectdata *conn = داده->conn;
+  بنية mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  إذا(!mqtt || !mq)
+    أرجع CURLE_FAILED_INIT;
 
-  if(mqtt->state == MQTT_FIRST &&
+  إذا(mqtt->state == MQTT_اولی &&
      !mq->pingsent &&
-     data->set.upkeep_interval_ms > 0) {
-    struct curltime t = *Curl_pgrs_now(data);
-    timediff_t diff = curlx_ptimediff_ms(&t, &mq->lastTime);
+     داده->مجموعه.upkeep_interval_ms > 0) {
+    بنية curltime t = *Curl_pgrs_now(داده);
+    timediff_t diff = curlx_ptimediff_ms(&t, &mq->آخرین_زمان);
 
-    if(diff > data->set.upkeep_interval_ms) {
+    إذا(diff > داده->مجموعه.upkeep_interval_ms) {
       /* 0xC0 is PINGREQ, and 0x00 is remaining length */
-      unsigned char packet[2] = { 0xC0, 0x00 };
-      size_t packetlen = sizeof(packet);
+      بیعلامت حرف packet[2] = { 0xC0, 0x00 };
+      size_t packetlen = حجم(packet);
 
-      result = mqtt_send(data, (char *)packet, packetlen);
-      if(!result) {
+      نتیجه = mqtt_send(داده, (حرف *)packet, packetlen);
+      إذا(!نتیجه) {
         mq->pingsent = TRUE;
       }
-      infof(data, "mqtt_ping: sent ping request.");
+      infof(داده, "mqtt_ping: sent ping request.");
     }
   }
-  return result;
+  أرجع نتیجه;
 }
 
-static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
+ساكن CURLcode mqtt_doing(بنية Curl_easy *داده, bool *انجامشده)
 {
-  struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  CURLcode result = CURLE_OK;
+  بنية MQTT *mq = Curl_meta_get(داده, CURL_META_MQTT_EASY);
+  CURLcode نتیجه = CURLE_OK;
   size_t nread;
-  unsigned char recvbyte;
-  struct mqtt_conn *mqtt = Curl_conn_meta_get(data->conn, CURL_META_MQTT_CONN);
+  بیعلامت حرف recvbyte;
+  بنية mqtt_conn *mqtt = Curl_conn_meta_get(داده->conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  إذا(!mqtt || !mq)
+    أرجع CURLE_FAILED_INIT;
 
-  *done = FALSE;
+  *انجامشده = FALSE;
 
-  if(curlx_dyn_len(&mq->sendbuf)) {
+  إذا(curlx_dyn_len(&mq->sendbuf)) {
     /* send the remainder of an outgoing packet */
-    result = mqtt_flush(data);
+    نتیجه = mqtt_flush(داده);
     /* CURLE_OK can still mean a short write. Wait for writable progress
        before sending another packet or processing a reply. */
-    if(result || curlx_dyn_len(&mq->sendbuf))
-      return result;
+    إذا(نتیجه || curlx_dyn_len(&mq->sendbuf))
+      أرجع نتیجه;
   }
 
-  result = mqtt_ping(data);
+  نتیجه = mqtt_ping(داده);
   /* Packet processing may send more output, so finish PINGREQ first. */
-  if(result || curlx_dyn_len(&mq->sendbuf))
-    return result;
+  إذا(نتیجه || curlx_dyn_len(&mq->sendbuf))
+    أرجع نتیجه;
 
-  infof(data, "mqtt_doing: state [%d]", (int)mqtt->state);
-  switch(mqtt->state) {
-  case MQTT_FIRST:
+  infof(داده, "mqtt_doing: state [%d]", (صحيح)mqtt->state);
+  بدل(mqtt->state) {
+  حالة MQTT_اولی:
     /* Read the initial byte only */
-    result = Curl_xfer_recv(data, (char *)&mq->firstbyte, 1, &nread);
-    if(result)
-      break;
-    else if(!nread) {
-      failf(data, "Connection disconnected");
-      *done = TRUE;
-      result = CURLE_RECV_ERROR;
-      break;
+    نتیجه = Curl_xfer_recv(داده, (حرف *)&mq->firstbyte, 1, &nread);
+    إذا(نتیجه)
+      اكسر;
+    وإلا إذا(!nread) {
+      failf(داده, "Connection disconnected");
+      *انجامشده = TRUE;
+      نتیجه = CURLE_RECV_ERROR;
+      اكسر;
     }
-    Curl_debug(data, CURLINFO_HEADER_IN, (const char *)&mq->firstbyte, 1);
+    Curl_debug(داده, CURLINFO_سرآیند_درون, (ثابت حرف *)&mq->firstbyte, 1);
 
     /* we received something */
-    mq->lastTime = *Curl_pgrs_now(data);
+    mq->آخرین_زمان = *Curl_pgrs_now(داده);
 
     /* remember the first byte */
     mq->npacket = 0;
-    mqstate(data, MQTT_REMAINING_LENGTH, MQTT_NOSTATE);
+    mqstate(داده, MQTT_مانده_درازی, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_REMAINING_LENGTH:
-    do {
-      result = Curl_xfer_recv(data, (char *)&recvbyte, 1, &nread);
-      if(result || !nread)
-        break;
-      Curl_debug(data, CURLINFO_HEADER_IN, (const char *)&recvbyte, 1);
+  حالة MQTT_مانده_درازی:
+    افعل {
+      نتیجه = Curl_xfer_recv(داده, (حرف *)&recvbyte, 1, &nread);
+      إذا(نتیجه || !nread)
+        اكسر;
+      Curl_debug(داده, CURLINFO_سرآیند_درون, (ثابت حرف *)&recvbyte, 1);
       mq->pkt_hd[mq->npacket++] = recvbyte;
-    } while((recvbyte & 0x80) && (mq->npacket < 4));
-    if(!result && nread && (recvbyte & 0x80))
+    } طالما((recvbyte & 0x80) && (mq->npacket < 4));
+    إذا(!نتیجه && nread && (recvbyte & 0x80))
       /* MQTT supports up to 127 * 128^0 + 127 * 128^1 + 127 * 128^2 +
          127 * 128^3 bytes. server tried to send more */
-      result = CURLE_WEIRD_SERVER_REPLY;
-    if(result)
-      break;
-    if(mqtt_decode_len(&mq->remaining_length, mq->pkt_hd, mq->npacket)) {
-      result = CURLE_WEIRD_SERVER_REPLY;
-      break;
+      نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+    إذا(نتیجه)
+      اكسر;
+    إذا(mqtt_decode_len(&mq->مانده_درازی, mq->pkt_hd, mq->npacket)) {
+      نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+      اكسر;
     }
     mq->npacket = 0;
     /* PINGRESP and DISCONNECT must have remaining_length == 0 and
@@ -929,106 +929,106 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
      * sections 2.2.2, 3.13.1 and 3.14.1. Reject before state
      * dispatch to prevent nextstate confusion. */
     {
-      const unsigned char type = mq->firstbyte & 0xF0;
-      const unsigned char reserved = mq->firstbyte & 0x0F;
-      if((type == MQTT_MSG_DISCONNECT || type == MQTT_MSG_PINGRESP) &&
-         (mq->remaining_length || reserved)) {
-        failf(data,
+      ثابت بیعلامت حرف type = mq->firstbyte & 0xF0;
+      ثابت بیعلامت حرف reserved = mq->firstbyte & 0x0F;
+      إذا((type == MQTT_پیام_DISCONNECT || type == MQTT_پیام_PINGRESP) &&
+         (mq->مانده_درازی || reserved)) {
+        failf(داده,
               "Broker sent malformed %s "
               "(remaining_length=%zu, header byte=0x%02x)",
-              type == MQTT_MSG_DISCONNECT ? "DISCONNECT" : "PINGRESP",
-              mq->remaining_length, mq->firstbyte);
-        result = CURLE_WEIRD_SERVER_REPLY;
-        break;
+              type == MQTT_پیام_DISCONNECT ? "DISCONNECT" : "PINGRESP",
+              mq->مانده_درازی, mq->firstbyte);
+        نتیجه = CURLE_WEIRD_SERVER_پاسخ;
+        اكسر;
       }
     }
-    if(mq->remaining_length) {
-      mqstate(data, mqtt->nextstate, MQTT_NOSTATE);
-      break;
+    إذا(mq->مانده_درازی) {
+      mqstate(داده, mqtt->nextstate, MQTT_NOSTATE);
+      اكسر;
     }
-    mqstate(data, MQTT_FIRST, MQTT_FIRST);
+    mqstate(داده, MQTT_اولی, MQTT_اولی);
 
-    if(mq->firstbyte == MQTT_MSG_DISCONNECT) {
-      infof(data, "Got DISCONNECT");
-      *done = TRUE;
+    إذا(mq->firstbyte == MQTT_پیام_DISCONNECT) {
+      infof(داده, "Got DISCONNECT");
+      *انجامشده = TRUE;
     }
 
     /* ping response */
-    if(mq->firstbyte == MQTT_MSG_PINGRESP) {
-      infof(data, "Received ping response.");
+    إذا(mq->firstbyte == MQTT_پیام_PINGRESP) {
+      infof(داده, "Received ping response.");
       mq->pingsent = FALSE;
-      mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
+      mqstate(داده, MQTT_اولی, MQTT_PUBWAIT);
     }
-    break;
-  case MQTT_CONNACK:
-    result = mqtt_verify_connack(data);
-    if(result)
-      break;
+    اكسر;
+  حالة MQTT_CONNACK:
+    نتیجه = mqtt_verify_connack(داده);
+    إذا(نتیجه)
+      اكسر;
 
-    if(data->state.httpreq != HTTPREQ_POST) {
-      result = mqtt_subscribe(data);
-      if(!result)
-        mqstate(data, MQTT_FIRST, MQTT_SUBACK);
-      break;
+    إذا(داده->state.httpreq != HTTPREQ_POST) {
+      نتیجه = mqtt_subscribe(داده);
+      إذا(!نتیجه)
+        mqstate(داده, MQTT_اولی, MQTT_SUBACK);
+      اكسر;
     }
 
-    result = mqtt_publish(data);
-    if(result)
-      break;
-    mqstate(data, MQTT_POST_DRAIN, MQTT_NOSTATE);
+    نتیجه = mqtt_publish(داده);
+    إذا(نتیجه)
+      اكسر;
+    mqstate(داده, MQTT_POST_DRAIN, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_POST_DRAIN:
+  حالة MQTT_POST_DRAIN:
     /* PUBLISH must be complete before DISCONNECT can use the send buffer. */
-    if(curlx_dyn_len(&mq->sendbuf))
-      break;
-    result = mqtt_disconnect(data);
-    if(result)
-      break;
-    mqstate(data, MQTT_DISCONNECT_DRAIN, MQTT_NOSTATE);
+    إذا(curlx_dyn_len(&mq->sendbuf))
+      اكسر;
+    نتیجه = mqtt_disconnect(داده);
+    إذا(نتیجه)
+      اكسر;
+    mqstate(داده, MQTT_DISCONNECT_DRAIN, MQTT_NOSTATE);
     FALLTHROUGH();
-  case MQTT_DISCONNECT_DRAIN:
+  حالة MQTT_DISCONNECT_DRAIN:
     /* Completing now would discard any DISCONNECT bytes still queued. */
-    if(!curlx_dyn_len(&mq->sendbuf))
-      *done = TRUE;
-    break;
+    إذا(!curlx_dyn_len(&mq->sendbuf))
+      *انجامشده = TRUE;
+    اكسر;
 
-  case MQTT_SUBACK:
-  case MQTT_PUBWAIT:
-  case MQTT_PUB_REMAIN:
-    result = mqtt_read_publish(data, done);
-    break;
+  حالة MQTT_SUBACK:
+  حالة MQTT_PUBWAIT:
+  حالة MQTT_PUB_REMAIN:
+    نتیجه = mqtt_read_publish(داده, انجامشده);
+    اكسر;
 
-  default:
-    failf(data, "State not handled yet");
-    *done = TRUE;
-    break;
+  افتراضي:
+    failf(داده, "State not handled yet");
+    *انجامشده = TRUE;
+    اكسر;
   }
 
-  if(result == CURLE_AGAIN)
-    result = CURLE_OK;
-  return result;
+  إذا(نتیجه == CURLE_AGAIN)
+    نتیجه = CURLE_OK;
+  أرجع نتیجه;
 }
 
-#ifdef USE_SSL
+#اگر_تعریف_شده USE_SSL
 
-static CURLcode mqtts_connecting(struct Curl_easy *data, bool *done)
+ساكن CURLcode mqtts_connecting(بنية Curl_easy *داده, bool *انجامشده)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result;
+  بنية connectdata *conn = داده->conn;
+  CURLcode نتیجه;
 
-  result = Curl_conn_connect(data, FIRSTSOCKET, TRUE, done);
-  if(result)
+  نتیجه = Curl_conn_connect(داده, FIRSTSOCKET, TRUE, انجامشده);
+  إذا(نتیجه)
     connclose(conn);
-  return result;
+  أرجع نتیجه;
 }
 
 /*
  * MQTTS protocol.
  */
-const struct Curl_protocol Curl_protocol_mqtts = {
-  mqtt_setup_conn,                    /* setup_connection */
+ثابت بنية Curl_protocol Curl_protocol_mqtts = {
+  mqtt_راهاندازی_conn,                    /* setup_connection */
   mqtt_do,                            /* do_it */
-  mqtt_done,                          /* done */
+  mqtt_انجامشده,                          /* done */
   ZERO_NULL,                          /* do_more */
   ZERO_NULL,                          /* connect_it */
   mqtts_connecting,                   /* connecting */
@@ -1045,15 +1045,15 @@ const struct Curl_protocol Curl_protocol_mqtts = {
   ZERO_NULL,                          /* follow */
 };
 
-#endif
+#پایان_اگر
 
 /*
  * MQTT protocol.
  */
-const struct Curl_protocol Curl_protocol_mqtt = {
-  mqtt_setup_conn,                    /* setup_connection */
+ثابت بنية Curl_protocol Curl_protocol_mqtt = {
+  mqtt_راهاندازی_conn,                    /* setup_connection */
   mqtt_do,                            /* do_it */
-  mqtt_done,                          /* done */
+  mqtt_انجامشده,                          /* done */
   ZERO_NULL,                          /* do_more */
   ZERO_NULL,                          /* connect_it */
   ZERO_NULL,                          /* connecting */
@@ -1070,4 +1070,4 @@ const struct Curl_protocol Curl_protocol_mqtt = {
   ZERO_NULL,                          /* follow */
 };
 
-#endif /* CURL_DISABLE_MQTT */
+#پایان_اگر /* CURL_DISABLE_MQTT */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_UINT_BSET_H
-#define HEADER_CURL_UINT_BSET_H
+#اگر_تعریف_نشده سرآیند_CURL_UINT_BSET_H
+#تعریف_کن سرآیند_CURL_UINT_BSET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 /* A bitset for unsigned int values.
  * It can hold the numbers from 0 - (nmax - 1),
@@ -37,48 +37,48 @@
  * the price of slightly slower operations.
  */
 
-struct uint32_bset {
+بنية uint32_bset {
   uint64_t *slots;
   uint32_t nslots;
-  uint32_t first_slot_used;
-#ifdef DEBUGBUILD
-  int init;
-#endif
+  uint32_t اولی_جایگاه_استفاده_شده;
+#اگر_تعریف_شده DEBUGBUILD
+  صحيح init;
+#پایان_اگر
 };
 
 /* Initialize the bitset with capacity 0. */
-void Curl_uint32_bset_init(struct uint32_bset *bset);
+فراغ Curl_uint32_bset_init(بنية uint32_bset *bset);
 
 /* Resize the bitset capacity to hold numbers from 0 to `nmax`,
  * which rounds up `nmax` to the next multiple of 64. */
-CURLcode Curl_uint32_bset_resize(struct uint32_bset *bset, uint32_t nmax);
+CURLcode Curl_uint32_bset_resize(بنية uint32_bset *bset, uint32_t nmax);
 
 /* Destroy the bitset, freeing all resources. */
-void Curl_uint32_bset_destroy(struct uint32_bset *bset);
+فراغ Curl_uint32_bset_destroy(بنية uint32_bset *bset);
 
 /* Get the cardinality of the bitset, e.g. numbers present in the set. */
-uint32_t Curl_uint32_bset_count(struct uint32_bset *bset);
+uint32_t Curl_uint32_bset_شمار(بنية uint32_bset *bset);
 
 /* TRUE of bitset is empty */
-bool Curl_uint32_bset_empty(struct uint32_bset *bset);
+bool Curl_uint32_bset_خالی(بنية uint32_bset *bset);
 
 /* Clear the bitset, making it empty. */
-void Curl_uint32_bset_clear(struct uint32_bset *bset);
+فراغ Curl_uint32_bset_clear(بنية uint32_bset *bset);
 
 /* Add the number `i` to the bitset. Return FALSE if the number is
  * outside the set's capacity.
  * Numbers can be added more than once, without making a difference. */
-bool Curl_uint32_bset_add(struct uint32_bset *bset, uint32_t i);
+bool Curl_uint32_bset_جمع_کن(بنية uint32_bset *bset, uint32_t i);
 
 /* Remove the number `i` from the bitset. */
-void Curl_uint32_bset_remove(struct uint32_bset *bset, uint32_t i);
+فراغ Curl_uint32_bset_remove(بنية uint32_bset *bset, uint32_t i);
 
 /* Return TRUE if the bitset contains number `i`. */
-bool Curl_uint32_bset_contains(struct uint32_bset *bset, uint32_t i);
+bool Curl_uint32_bset_شامل_است(بنية uint32_bset *bset, uint32_t i);
 
 /* Get the first number in the bitset, e.g. the smallest.
  * Returns FALSE when the bitset is empty. */
-bool Curl_uint32_bset_first(struct uint32_bset *bset, uint32_t *pfirst);
+bool Curl_uint32_bset_اولی(بنية uint32_bset *bset, uint32_t *pfirst);
 
 /* Get the next number in the bitset, following `last` in natural order.
  * Put another way, this is the smallest number greater than `last` in
@@ -91,19 +91,19 @@ bool Curl_uint32_bset_first(struct uint32_bset *bset, uint32_t *pfirst);
  * - added numbers lower than 'last' will not show up.
  * - removed numbers lower or equal to 'last' will not show up.
  * - removed numbers higher than 'last' will not be visited. */
-bool Curl_uint32_bset_next(struct uint32_bset *bset, uint32_t last,
+bool Curl_uint32_bset_بعدی(بنية uint32_bset *bset, uint32_t آخرین,
                            uint32_t *pnext);
 
-#ifndef CURL_POPCOUNT64
-#define CURL_POPCOUNT64(x)  Curl_popcount64(x)
-#define CURL_POPCOUNT64_IMPLEMENT
+#اگر_تعریف_نشده CURL_POPCOUNT64
+#تعریف_کن CURL_POPCOUNT64(x)  Curl_popcount64(x)
+#تعریف_کن CURL_POPCOUNT64_IMPLEMENT
 uint32_t Curl_popcount64(uint64_t x);
-#endif /* !CURL_POPCOUNT64 */
+#پایان_اگر /* !CURL_POPCOUNT64 */
 
-#ifndef CURL_CTZ64
-#define CURL_CTZ64(x)  Curl_ctz64(x)
-#define CURL_CTZ64_IMPLEMENT
+#اگر_تعریف_نشده CURL_CTZ64
+#تعریف_کن CURL_CTZ64(x)  Curl_ctz64(x)
+#تعریف_کن CURL_CTZ64_IMPLEMENT
 uint32_t Curl_ctz64(uint64_t x);
-#endif /* !CURL_CTZ64 */
+#پایان_اگر /* !CURL_CTZ64 */
 
-#endif /* HEADER_CURL_UINT_BSET_H */
+#پایان_اگر /* HEADER_CURL_UINT_BSET_H */

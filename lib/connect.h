@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONNECT_H
-#define HEADER_CURL_CONNECT_H
+#اگر_تعریف_نشده سرآیند_CURL_CONNECT_H
+#تعریف_کن سرآیند_CURL_CONNECT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "vdns/hostip.h"
-#include "curlx/timeval.h"
+#ضمن "vdns/hostip.h"
+#ضمن "curlx/timeval.h"
 
-struct Curl_peer;
-struct Curl_str;
+بنية Curl_peer;
+بنية Curl_str;
 
-enum alpnid Curl_alpn2alpnid(const unsigned char *name, size_t len);
+تعداد alpnid Curl_alpn2alpnid(ثابت بیعلامت حرف *name, size_t len);
 
 /* generic function that returns how much time there is left to run, according
    to the timeouts set */
-timediff_t Curl_timeleft_ms(struct Curl_easy *data);
-timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
-                                const struct curltime *pnow);
+timediff_t Curl_timeleft_ms(بنية Curl_easy *داده);
+timediff_t Curl_timeleft_now_ms(بنية Curl_easy *داده,
+                                ثابت بنية curltime *pnow);
 
-#define DEFAULT_CONNECT_TIMEOUT 300000 /* milliseconds == five minutes */
+#تعریف_کن DEFAULT_CONNECT_TIMEOUT 300000 /* milliseconds == five minutes */
 
 /*
  * Used to extract socket and connectdata struct for the most recent
@@ -47,8 +47,8 @@ timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
  *
  * The returned socket will be CURL_SOCKET_BAD in case of failure!
  */
-curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
-                                  struct connectdata **connp);
+curl_socket_t Curl_getconnectinfo(بنية Curl_easy *داده,
+                                  بنية connectdata **connp);
 
 /*
  * Curl_conncontrol() manipulates the `conn->bits.close` bit on
@@ -59,25 +59,25 @@ curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
  *                          multiplexed
  * The call does *NOT* cause any immediate connection close.
  */
-#define CONNCTRL_CONN_KEEP       0
-#define CONNCTRL_CONN_CLOSE      1
-#define CONNCTRL_STREAM_CLOSE    2
+#تعریف_کن CONNCTRL_CONN_KEEP       0
+#تعریف_کن CONNCTRL_CONN_CLOSE      1
+#تعریف_کن CONNCTRL_جریان_CLOSE    2
 
-void Curl_conncontrol(struct connectdata *conn, int ctrl);
+فراغ Curl_conncontrol(بنية connectdata *conn, صحيح ctrl);
 
-#define streamclose(x) Curl_conncontrol((x), CONNCTRL_STREAM_CLOSE)
-#define connclose(x)   Curl_conncontrol((x), CONNCTRL_CONN_CLOSE)
-#define connkeep(x)    Curl_conncontrol((x), CONNCTRL_CONN_KEEP)
+#تعریف_کن streamclose(x) Curl_conncontrol((x), CONNCTRL_جریان_CLOSE)
+#تعریف_کن connclose(x)   Curl_conncontrol((x), CONNCTRL_CONN_CLOSE)
+#تعریف_کن connkeep(x)    Curl_conncontrol((x), CONNCTRL_CONN_KEEP)
 
 /**
  * Setup the cfilters at `sockindex` in connection `conn`.
  * If no filter chain is installed yet, inspects the configuration
  * in `data` and `conn` to install a suitable filter chain.
  */
-CURLcode Curl_conn_setup(struct Curl_easy *data,
-                         struct connectdata *conn,
+CURLcode Curl_conn_راهاندازی(بنية Curl_easy *داده,
+                         بنية connectdata *conn,
                          int8_t sockindex,
-                         int ssl_mode);
+                         صحيح ssl_نما);
 
 /**
  * Bring the filter chain at `sockindex` for connection `data->conn` into
@@ -86,32 +86,32 @@ CURLcode Curl_conn_setup(struct Curl_easy *data,
  * When not `blocking`, calls may return without error and `*done != TRUE`,
  * while the individual filters negotiated the connection.
  */
-CURLcode Curl_conn_connect(struct Curl_easy *data, int8_t sockindex,
-                           bool blocking, bool *done);
+CURLcode Curl_conn_connect(بنية Curl_easy *داده, int8_t sockindex,
+                           bool blocking, bool *انجامشده);
 
 /**
  * The filter chain at `sockindex` failed to connect, e.g. the TLS handshake
  * timed out. Let the filters that did connect, like the TCP socket, report
  * their IP information and stats to the transfer.
  */
-void Curl_conn_report_failed(struct Curl_easy *data, int8_t sockindex);
+فراغ Curl_conn_report_failed(بنية Curl_easy *داده, int8_t sockindex);
 
 /* Set conn to allow multiplexing. */
-void Curl_conn_set_multiplex(struct connectdata *conn);
+فراغ Curl_conn_مجموعه_multiplex(بنية connectdata *conn);
 
 /* Get the origin peer at sockindex. */
-struct Curl_peer *Curl_conn_get_origin(struct connectdata *conn,
+بنية Curl_peer *Curl_conn_get_origin(بنية connectdata *conn,
                                        int8_t sockindex);
 
 /* Get the peer the connection actually connects to at sockindex.
  * Often the same as "origin", but can be redirected via "connect-to"
  * or "alt-svc". May tunnel through proxies. */
-struct Curl_peer *Curl_conn_get_destination(struct connectdata *conn,
+بنية Curl_peer *Curl_conn_get_destination(بنية connectdata *conn,
                                             int8_t sockindex);
 
 /* Get the peer curl connects its socket to.
  * Can be origin, "connect-to" or the first proxy. */
-struct Curl_peer *Curl_conn_get_first_peer(struct connectdata *conn,
+بنية Curl_peer *Curl_conn_get_اولی_peer(بنية connectdata *conn,
                                            int8_t sockindex);
 
-#endif /* HEADER_CURL_CONNECT_H */
+#پایان_اگر /* HEADER_CURL_CONNECT_H */

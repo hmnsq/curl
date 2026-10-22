@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FUNCTYPES_H
-#define HEADER_CURL_FUNCTYPES_H
+#اگر_تعریف_نشده سرآیند_CURL_FUNCTYPES_H
+#تعریف_کن سرآیند_CURL_FUNCTYPES_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -35,74 +35,74 @@
    2. For systems with config-*.h files, define them there.
  */
 
-#ifdef USE_WINSOCK
+#اگر_تعریف_شده USE_WINSOCK
 /* int recv(SOCKET, char *, int, int) */
-#define RECV_TYPE_ARG1 SOCKET
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 int
-#define RECV_TYPE_RETV int
+#تعریف_کن RECV_TYPE_ARG1 SOCKET
+#تعریف_کن RECV_TYPE_ARG2 حرف *
+#تعریف_کن RECV_TYPE_ARG3 صحيح
+#تعریف_کن RECV_TYPE_RETV صحيح
 
 /* int send(SOCKET, const char *, int, int); */
-#define SEND_TYPE_ARG1 SOCKET
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#تعریف_کن SEND_TYPE_ARG1 SOCKET
+#تعریف_کن SEND_TYPE_ARG2 حرف *
+#تعریف_کن SEND_TYPE_ARG3 صحيح
+#تعریف_کن SEND_TYPE_RETV صحيح
 
-#elif defined(__AMIGA__) /* Any AmigaOS flavor */
+#وإلاإذا defined(__AMIGA__) /* Any AmigaOS flavor */
 
 /* long recv(long, char *, long, long); */
-#define RECV_TYPE_ARG1 long
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 long
-#define RECV_TYPE_ARG4 long
-#define RECV_TYPE_RETV long
+#تعریف_کن RECV_TYPE_ARG1 دراز
+#تعریف_کن RECV_TYPE_ARG2 حرف *
+#تعریف_کن RECV_TYPE_ARG3 دراز
+#تعریف_کن RECV_TYPE_ARG4 دراز
+#تعریف_کن RECV_TYPE_RETV دراز
 
 /* int send(int, char *, int, int); */
-#define SEND_TYPE_ARG1 int
-#define SEND_NONCONST_ARG2
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
-#endif
+#تعریف_کن SEND_TYPE_ARG1 صحيح
+#تعریف_کن SEND_NONCONST_ARG2
+#تعریف_کن SEND_TYPE_ARG2 حرف *
+#تعریف_کن SEND_TYPE_ARG3 صحيح
+#تعریف_کن SEND_TYPE_RETV صحيح
+#پایان_اگر
 
-#ifndef RECV_TYPE_ARG1
-#define RECV_TYPE_ARG1 int
-#endif
+#اگر_تعریف_نشده RECV_TYPE_ARG1
+#تعریف_کن RECV_TYPE_ARG1 صحيح
+#پایان_اگر
 
-#ifndef RECV_TYPE_ARG2
-#define RECV_TYPE_ARG2 void *
-#endif
+#اگر_تعریف_نشده RECV_TYPE_ARG2
+#تعریف_کن RECV_TYPE_ARG2 فراغ *
+#پایان_اگر
 
-#ifndef RECV_TYPE_ARG3
-#define RECV_TYPE_ARG3 size_t
-#endif
+#اگر_تعریف_نشده RECV_TYPE_ARG3
+#تعریف_کن RECV_TYPE_ARG3 size_t
+#پایان_اگر
 
-#ifndef RECV_TYPE_ARG4
-#define RECV_TYPE_ARG4 int
-#endif
+#اگر_تعریف_نشده RECV_TYPE_ARG4
+#تعریف_کن RECV_TYPE_ARG4 صحيح
+#پایان_اگر
 
-#ifndef RECV_TYPE_RETV
-#define RECV_TYPE_RETV ssize_t
-#endif
+#اگر_تعریف_نشده RECV_TYPE_RETV
+#تعریف_کن RECV_TYPE_RETV ssize_t
+#پایان_اگر
 
-#ifndef SEND_TYPE_ARG1
-#define SEND_TYPE_ARG1 int
-#endif
+#اگر_تعریف_نشده SEND_TYPE_ARG1
+#تعریف_کن SEND_TYPE_ARG1 صحيح
+#پایان_اگر
 
-#ifndef SEND_TYPE_ARG2
-#define SEND_TYPE_ARG2 void *
-#endif
+#اگر_تعریف_نشده SEND_TYPE_ARG2
+#تعریف_کن SEND_TYPE_ARG2 فراغ *
+#پایان_اگر
 
-#ifndef SEND_TYPE_ARG3
-#define SEND_TYPE_ARG3 size_t
-#endif
+#اگر_تعریف_نشده SEND_TYPE_ARG3
+#تعریف_کن SEND_TYPE_ARG3 size_t
+#پایان_اگر
 
-#ifndef SEND_TYPE_ARG4
-#define SEND_TYPE_ARG4 int
-#endif
+#اگر_تعریف_نشده SEND_TYPE_ARG4
+#تعریف_کن SEND_TYPE_ARG4 صحيح
+#پایان_اگر
 
-#ifndef SEND_TYPE_RETV
-#define SEND_TYPE_RETV ssize_t
-#endif
+#اگر_تعریف_نشده SEND_TYPE_RETV
+#تعریف_کن SEND_TYPE_RETV ssize_t
+#پایان_اگر
 
-#endif /* HEADER_CURL_FUNCTYPES_H */
+#پایان_اگر /* HEADER_CURL_FUNCTYPES_H */

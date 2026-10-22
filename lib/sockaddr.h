@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SOCKADDR_H
-#define HEADER_CURL_SOCKADDR_H
+#اگر_تعریف_نشده سرآیند_CURL_SOCKADDR_H
+#تعریف_کن سرآیند_CURL_SOCKADDR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-struct Curl_sockaddr_storage {
-  union {
-    struct sockaddr sa;
-    struct sockaddr_in sa_in;
-#ifdef USE_IPV6
-    struct sockaddr_in6 sa_in6;
-#endif
-#ifdef HAVE_STRUCT_SOCKADDR_STORAGE
-    struct sockaddr_storage sa_stor;
-#else
-    char cbuf[256];   /* this should be big enough to fit a lot */
-#endif
-  } buffer;
+بنية Curl_sockaddr_storage {
+  اتحاد {
+    بنية sockaddr sa;
+    بنية sockaddr_in sa_درون;
+#اگر_تعریف_شده USE_IPV6
+    بنية sockaddr_in6 sa_in6;
+#پایان_اگر
+#اگر_تعریف_شده HAVE_STRUCT_SOCKADDR_STORAGE
+    بنية sockaddr_storage sa_stor;
+#وإلا
+    حرف cbuf[256];   /* this should be big enough to fit a lot */
+#پایان_اگر
+  } میانگیر;
 };
 
 /*
@@ -47,15 +47,15 @@ struct Curl_sockaddr_storage {
  * used to pass / receive data to/from the fopensocket callback if this has
  * been set, before that, it is initialized from parameters.
  */
-struct Curl_sockaddr_ex {
-  int family;
-  int socktype;
-  int protocol;
-  unsigned int addrlen;
-  union {
-    struct sockaddr sa;
-    struct Curl_sockaddr_storage buf;
+بنية Curl_sockaddr_ex {
+  صحيح family;
+  صحيح socktype;
+  صحيح protocol;
+  بیعلامت صحيح addrlen;
+  اتحاد {
+    بنية sockaddr sa;
+    بنية Curl_sockaddr_storage buf;
   } addr;
 };
 
-#endif /* HEADER_CURL_SOCKADDR_H */
+#پایان_اگر /* HEADER_CURL_SOCKADDR_H */

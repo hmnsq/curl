@@ -21,24 +21,24 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "u8_strset.h"
-#include "curlx/strdup.h"
+#ضمن "u8_strset.h"
+#ضمن "curlx/strdup.h"
 
 /* random patterns for API verification */
-#ifdef DEBUGBUILD
-#define CURL_U8_STRSET_MAGIC 0x7117e783
-#endif
+#اگر_تعریف_شده DEBUGBUILD
+#تعریف_کن CURL_U8_STRSET_MAGIC 0x7117e783
+#پایان_اگر
 
-#define CURL_U8_STRSET_DEBUG      0
+#تعریف_کن CURL_U8_STRSET_DEBUG      0
 
-#define CURL_SWAP(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
+#تعریف_کن CURL_جابجا(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
 
-#define CURL_U8_STRSET_SLOT_IDX(s, i)    (uint8_t)((i) & (s)->slotmask)
-#define CURL_U8_SLOT_CNT(i)              (uint16_t)((i) ? (1U << (i)) : 0)
-#define CURL_U8_SLOT_MASK(i)             (uint8_t)((1U << (i)) - 1)
-#define CURL_U8_STRSET_SLOT_CNT(s)       CURL_U8_SLOT_CNT((s)->slotbits)
+#تعریف_کن CURL_U8_STRSET_جایگاه_IDX(s, i)    (uint8_t)((i) & (s)->slotmask)
+#تعریف_کن CURL_U8_جایگاه_CNT(i)              (uint16_t)((i) ? (1U << (i)) : 0)
+#تعریف_کن CURL_U8_جایگاه_ماسک(i)             (uint8_t)((1U << (i)) - 1)
+#تعریف_کن CURL_U8_STRSET_جایگاه_CNT(s)       CURL_U8_جایگاه_CNT((s)->slotbits)
 
 /* A hashset for tuples (id, string) using Robin Hood Hashing.
  * <https://www.cs.cornell.edu/courses/JavaAndDS/files/hashing_RobinHood.pdf>
@@ -60,252 +60,252 @@
  *     the existing entry has a lower psl makes a swap. Put the new entry
  *     and its psl there, take the previous entry and its psl and find
  *     the next best slot for the previous entry. */
-void Curl_u8_strset_init(struct u8_strset *set)
+فراغ Curl_u8_strset_init(بنية u8_strset *مجموعه)
 {
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-  memset(set, 0, sizeof(*set));
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
-#endif
-  set->data = set->sdata;
-  set->ids = set->sids;
-  set->psl = set->spsl;
-  set->slotbits = CURL_U8_STRSET_START_BITS;
-  set->slotmask = CURL_U8_SLOT_MASK(set->slotbits);
-  set->count = 0;
-#ifdef DEBUGBUILD
-  set->init = CURL_U8_STRSET_MAGIC;
-#endif
+#إذا defined(__GNUC__) && __GNUC__ >= 13
+#رهنمود GCC diagnostic افزودن
+#رهنمود GCC diagnostic ignored "-Warray-bounds"
+#پایان_اگر
+  memset(مجموعه, 0, حجم(*مجموعه));
+#إذا defined(__GNUC__) && __GNUC__ >= 13
+#رهنمود GCC diagnostic برداشت
+#پایان_اگر
+  مجموعه->داده = مجموعه->sdata;
+  مجموعه->ids = مجموعه->sids;
+  مجموعه->psl = مجموعه->spsl;
+  مجموعه->slotbits = CURL_U8_STRSET_شروع_بیتها;
+  مجموعه->slotmask = CURL_U8_جایگاه_ماسک(مجموعه->slotbits);
+  مجموعه->شمار = 0;
+#اگر_تعریف_شده DEBUGBUILD
+  مجموعه->init = CURL_U8_STRSET_MAGIC;
+#پایان_اگر
 }
 
-void Curl_u8_strset_clear(struct u8_strset *set)
+فراغ Curl_u8_strset_clear(بنية u8_strset *مجموعه)
 {
   uint16_t i;
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  for(i = 0; i < CURL_U8_STRSET_SLOT_CNT(set); ++i)
-    curlx_safefree(set->data[i]);
+  DEBUGASSERT(مجموعه->init == CURL_U8_STRSET_MAGIC);
+  لكل(i = 0; i < CURL_U8_STRSET_جایگاه_CNT(مجموعه); ++i)
+    curlx_safefree(مجموعه->داده[i]);
 
-  if(set->data != set->sdata)
-    curlx_safefree(set->data);
-  Curl_u8_strset_init(set);
+  إذا(مجموعه->داده != مجموعه->sdata)
+    curlx_safefree(مجموعه->داده);
+  Curl_u8_strset_init(مجموعه);
 }
 
-static void u8_strset_addn(struct u8_strset *set, uint8_t id, char *val)
+ساكن فراغ u8_strset_addn(بنية u8_strset *مجموعه, uint8_t id, حرف *val)
 {
-  uint8_t i = CURL_U8_STRSET_SLOT_IDX(set, id);
+  uint8_t i = CURL_U8_STRSET_جایگاه_IDX(مجموعه, id);
   uint8_t psl = 0;
-  while(set->data[i]) {
-    if(psl > set->psl[i]) { /* SWAP */
-      char *tmpdata;
-      tmpdata = set->data[i];
-      set->data[i] = val;
+  طالما(مجموعه->داده[i]) {
+    إذا(psl > مجموعه->psl[i]) { /*جابجا*/
+      حرف *tmpdata;
+      tmpdata = مجموعه->داده[i];
+      مجموعه->داده[i] = val;
       val = tmpdata;
-      CURL_SWAP(set->psl[i], psl);
-      CURL_SWAP(set->ids[i], id);
+      CURL_جابجا(مجموعه->psl[i], psl);
+      CURL_جابجا(مجموعه->ids[i], id);
     }
-    i = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
+    i = CURL_U8_STRSET_جایگاه_IDX(مجموعه, i + 1);
     ++psl;
   }
-  set->ids[i] = id;
-  set->data[i] = val;
-  set->psl[i] = psl;
-  ++set->count;
+  مجموعه->ids[i] = id;
+  مجموعه->داده[i] = val;
+  مجموعه->psl[i] = psl;
+  ++مجموعه->شمار;
 }
 
-static bool u8_strset_grow(struct u8_strset *set)
+ساكن bool u8_strset_grow(بنية u8_strset *مجموعه)
 {
   uint8_t *prev_ids, nslotbits;
   uint16_t prev_slots;
-  char **prev_data;
+  حرف **prev_داده;
   size_t nslots;
-  void *d;
+  فراغ *d;
 
-  if(set->slotbits >= 8)
-    return FALSE;
-  nslotbits = (uint8_t)(set->slotbits + 1);
-#if CURL_U8_STRSET_DEBUG
+  إذا(مجموعه->slotbits >= 8)
+    أرجع FALSE;
+  nslotbits = (uint8_t)(مجموعه->slotbits + 1);
+#إذا CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_grow from %d to %d\n",
-                set->slotbits, nslotbits);
-#endif
-  nslots = CURL_U8_SLOT_CNT(nslotbits);
-  d = curlx_calloc(1, (nslots * sizeof(char *)) + (2 * nslots));
-  if(!d)
-    return FALSE;
+                مجموعه->slotbits, nslotbits);
+#پایان_اگر
+  nslots = CURL_U8_جایگاه_CNT(nslotbits);
+  d = curlx_calloc(1, (nslots * حجم(حرف *)) + (2 * nslots));
+  إذا(!d)
+    أرجع FALSE;
 
-  prev_data = set->data;
-  prev_ids = set->ids;
-  prev_slots = set->slotbits;
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
-#endif
-  set->data = (char **)d;
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
-#endif
-  set->ids = (uint8_t *)d + (nslots * sizeof(char *));
-  set->psl = set->ids + nslots;
-  set->slotbits = nslotbits;
-  set->slotmask = CURL_U8_SLOT_MASK(set->slotbits);
-  set->count = 0;
+  prev_داده = مجموعه->داده;
+  prev_ids = مجموعه->ids;
+  prev_slots = مجموعه->slotbits;
+#إذا defined(__GNUC__) && __GNUC__ >= 13
+#رهنمود GCC diagnostic افزودن
+#رهنمود GCC diagnostic ignored "-Wanalyzer-allocation-size"
+#پایان_اگر
+  مجموعه->داده = (حرف **)d;
+#إذا defined(__GNUC__) && __GNUC__ >= 13
+#رهنمود GCC diagnostic برداشت
+#پایان_اگر
+  مجموعه->ids = (uint8_t *)d + (nslots * حجم(حرف *));
+  مجموعه->psl = مجموعه->ids + nslots;
+  مجموعه->slotbits = nslotbits;
+  مجموعه->slotmask = CURL_U8_جایگاه_ماسک(مجموعه->slotbits);
+  مجموعه->شمار = 0;
   /* re-add previous entries */
   {
     uint16_t i;
-    for(i = 0; i < CURL_U8_SLOT_CNT(prev_slots); ++i) {
-      if(prev_data[i])
-        u8_strset_addn(set, prev_ids[i], prev_data[i]);
+    لكل(i = 0; i < CURL_U8_جایگاه_CNT(prev_slots); ++i) {
+      إذا(prev_داده[i])
+        u8_strset_addn(مجموعه, prev_ids[i], prev_داده[i]);
     }
   }
-  if(prev_data != set->sdata)
-    curlx_free(prev_data);
-  return TRUE;
+  إذا(prev_داده != مجموعه->sdata)
+    curlx_free(prev_داده);
+  أرجع TRUE;
 }
 
-static bool u8_strset_get_index(struct u8_strset *set,
+ساكن bool u8_strset_get_شاخص(بنية u8_strset *مجموعه,
                                 uint8_t id, uint8_t *pindex)
 {
-  uint8_t i = CURL_U8_STRSET_SLOT_IDX(set, id);
+  uint8_t i = CURL_U8_STRSET_جایگاه_IDX(مجموعه, id);
   uint8_t psl = 0;
-  while(set->data[i] && (psl <= set->psl[i])) {
-    if(set->ids[i] == id) {
+  طالما(مجموعه->داده[i] && (psl <= مجموعه->psl[i])) {
+    إذا(مجموعه->ids[i] == id) {
       *pindex = i;
-#if CURL_U8_STRSET_DEBUG
-      curl_mfprintf(stderr, "u8_strset_index %d=%s\n", id, set->data[i]);
-#endif
-      return TRUE;
+#إذا CURL_U8_STRSET_DEBUG
+      curl_mfprintf(stderr, "u8_strset_index %d=%s\n", id, مجموعه->داده[i]);
+#پایان_اگر
+      أرجع TRUE;
     }
-    i = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
+    i = CURL_U8_STRSET_جایگاه_IDX(مجموعه, i + 1);
     ++psl;
   }
-#if CURL_U8_STRSET_DEBUG
+#إذا CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_index %d not found\n", id);
-#endif
+#پایان_اگر
   *pindex = 0;
-  return FALSE;
+  أرجع FALSE;
 }
 
-#ifdef UNITTESTS
+#اگر_تعریف_شده UNITTESTS
 /* @unittest 3211 */
-uint16_t Curl_u8_strset_count(struct u8_strset *set)
+uint16_t Curl_u8_strset_شمار(بنية u8_strset *مجموعه)
 {
-  return set->count;
+  أرجع مجموعه->شمار;
 }
-#endif
+#پایان_اگر
 
-const char *Curl_u8_strset_get(struct u8_strset *set, uint8_t id)
+ثابت حرف *Curl_u8_strset_get(بنية u8_strset *مجموعه, uint8_t id)
 {
   uint8_t i;
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(u8_strset_get_index(set, id, &i))
-    return set->data[i];
-  return NULL;
+  DEBUGASSERT(مجموعه->init == CURL_U8_STRSET_MAGIC);
+  إذا(u8_strset_get_شاخص(مجموعه, id, &i))
+    أرجع مجموعه->داده[i];
+  أرجع عدم;
 }
 
-CURLcode Curl_u8_strset_setn(struct u8_strset *set,
-                             uint8_t id, char *str)
+CURLcode Curl_u8_strset_setn(بنية u8_strset *مجموعه,
+                             uint8_t id, حرف *str)
 {
   uint8_t i;
 
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-#if CURL_U8_STRSET_DEBUG
+  DEBUGASSERT(مجموعه->init == CURL_U8_STRSET_MAGIC);
+#إذا CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_setn %d=%s\n", id, str);
-#endif
-  if(!str) {
-    Curl_u8_strset_unset(set, id);
-    return CURLE_OK;
+#پایان_اگر
+  إذا(!str) {
+    Curl_u8_strset_unset(مجموعه, id);
+    أرجع CURLE_OK;
   }
 
-  if(u8_strset_get_index(set, id, &i)) {
+  إذا(u8_strset_get_شاخص(مجموعه, id, &i)) {
     /* `id` is in set, replace value */
-    curlx_free(set->data[i]);
-    set->data[i] = str;
-    return CURLE_OK;
+    curlx_free(مجموعه->داده[i]);
+    مجموعه->داده[i] = str;
+    أرجع CURLE_OK;
   }
   /* `id` not in set yet, grow if full */
-  if((set->count >= CURL_U8_STRSET_SLOT_CNT(set)) && !u8_strset_grow(set)) {
+  إذا((مجموعه->شمار >= CURL_U8_STRSET_جایگاه_CNT(مجموعه)) && !u8_strset_grow(مجموعه)) {
     curlx_free(str);
-    return CURLE_OUT_OF_MEMORY;
+    أرجع CURLE_بیرون_از_حافظه;
   }
 
-  u8_strset_addn(set, id, str);
-  return CURLE_OK;
+  u8_strset_addn(مجموعه, id, str);
+  أرجع CURLE_OK;
 }
 
-CURLcode Curl_u8_strset_setx(struct u8_strset *set,
-                             uint8_t id, const char *str, size_t slen)
+CURLcode Curl_u8_strset_setx(بنية u8_strset *مجموعه,
+                             uint8_t id, ثابت حرف *str, size_t slen)
 {
-  char *val;
+  حرف *val;
 
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(!str) {
-    Curl_u8_strset_unset(set, id);
-    return CURLE_OK;
+  DEBUGASSERT(مجموعه->init == CURL_U8_STRSET_MAGIC);
+  إذا(!str) {
+    Curl_u8_strset_unset(مجموعه, id);
+    أرجع CURLE_OK;
   }
 
   val = curlx_memdup0(str, slen);
-  if(!val)
-    return CURLE_OUT_OF_MEMORY;
-  return Curl_u8_strset_setn(set, id, val);
+  إذا(!val)
+    أرجع CURLE_بیرون_از_حافظه;
+  أرجع Curl_u8_strset_setn(مجموعه, id, val);
 }
 
 /* @unittest 3211 */
-UNITTEST CURLcode u8_strset_set(struct u8_strset *set,
-                                uint8_t id, const char *str);
-UNITTEST CURLcode u8_strset_set(struct u8_strset *set,
-                                uint8_t id, const char *str)
+UNITTEST CURLcode u8_strset_مجموعه(بنية u8_strset *مجموعه,
+                                uint8_t id, ثابت حرف *str);
+UNITTEST CURLcode u8_strset_مجموعه(بنية u8_strset *مجموعه,
+                                uint8_t id, ثابت حرف *str)
 {
-  return Curl_u8_strset_setx(set, id, str, str ? strlen(str) : 0);
+  أرجع Curl_u8_strset_setx(مجموعه, id, str, str ? طول_رشته(str) : 0);
 }
 
-static void u8_strset_unset(struct u8_strset *set, uint8_t id, bool zero)
+ساكن فراغ u8_strset_unset(بنية u8_strset *مجموعه, uint8_t id, bool zero)
 {
   uint8_t i, j;
 
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(u8_strset_get_index(set, id, &i)) {
+  DEBUGASSERT(مجموعه->init == CURL_U8_STRSET_MAGIC);
+  إذا(u8_strset_get_شاخص(مجموعه, id, &i)) {
     /* `id` is in set */
-    if(zero)
-      curlx_strzero(set->data[i]);
-    curlx_safefree(set->data[i]);
-    set->ids[i] = set->psl[i] = 0;
-    --set->count;
-    j = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
+    إذا(zero)
+      curlx_strzero(مجموعه->داده[i]);
+    curlx_safefree(مجموعه->داده[i]);
+    مجموعه->ids[i] = مجموعه->psl[i] = 0;
+    --مجموعه->شمار;
+    j = CURL_U8_STRSET_جایگاه_IDX(مجموعه, i + 1);
     /* shift all entries with positive psl "down" */
-    while(set->data[j] && set->psl[j]) {
-      set->data[i] = set->data[j];
-      set->ids[i] = set->ids[j];
-      set->psl[i] = (uint8_t)(set->psl[j] - 1);
-      set->data[j] = NULL;
-      set->ids[j] = set->psl[j] = 0;
+    طالما(مجموعه->داده[j] && مجموعه->psl[j]) {
+      مجموعه->داده[i] = مجموعه->داده[j];
+      مجموعه->ids[i] = مجموعه->ids[j];
+      مجموعه->psl[i] = (uint8_t)(مجموعه->psl[j] - 1);
+      مجموعه->داده[j] = عدم;
+      مجموعه->ids[j] = مجموعه->psl[j] = 0;
       i = j;
-      j = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
+      j = CURL_U8_STRSET_جایگاه_IDX(مجموعه, i + 1);
     }
   }
 }
 
-void Curl_u8_strset_unset(struct u8_strset *set, uint8_t id)
+فراغ Curl_u8_strset_unset(بنية u8_strset *مجموعه, uint8_t id)
 {
-  u8_strset_unset(set, id, FALSE);
+  u8_strset_unset(مجموعه, id, FALSE);
 }
 
-void Curl_u8_strset_unset0(struct u8_strset *set, uint8_t id)
+فراغ Curl_u8_strset_unset0(بنية u8_strset *مجموعه, uint8_t id)
 {
-  u8_strset_unset(set, id, TRUE);
+  u8_strset_unset(مجموعه, id, TRUE);
 }
 
-CURLcode Curl_u8_strset_copy(struct u8_strset *dest, struct u8_strset *src)
+CURLcode Curl_u8_strset_copy(بنية u8_strset *dest, بنية u8_strset *src)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
   uint16_t i;
 
   DEBUGASSERT(src->init == CURL_U8_STRSET_MAGIC);
   Curl_u8_strset_clear(dest);
-  for(i = 0; !result && (i < CURL_U8_STRSET_SLOT_CNT(src)); ++i) {
-    if(src->data[i])
-      result = u8_strset_set(dest, src->ids[i], src->data[i]);
+  لكل(i = 0; !نتیجه && (i < CURL_U8_STRSET_جایگاه_CNT(src)); ++i) {
+    إذا(src->داده[i])
+      نتیجه = u8_strset_مجموعه(dest, src->ids[i], src->داده[i]);
   }
-  return result;
+  أرجع نتیجه;
 }

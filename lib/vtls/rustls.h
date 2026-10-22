@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RUSTLS_H
-#define HEADER_CURL_RUSTLS_H
+#اگر_تعریف_نشده سرآیند_CURL_RUSTLS_H
+#تعریف_کن سرآیند_CURL_RUSTLS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_RUSTLS
+#اگر_تعریف_شده USE_RUSTLS
 
-extern const struct Curl_ssl Curl_ssl_rustls;
+خارجي ثابت بنية Curl_ssl Curl_ssl_rustls;
 
-#endif /* USE_RUSTLS */
-#endif /* HEADER_CURL_RUSTLS_H */
+#پایان_اگر /* USE_RUSTLS */
+#پایان_اگر /* HEADER_CURL_RUSTLS_H */

@@ -21,11 +21,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
+#إذا !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
 
-#include "curl_sha512_256.h"
+#ضمن "curl_sha512_256.h"
 
 /* The recommended order of the TLS backends:
  * 1. USE_OPENSSL
@@ -36,10 +36,10 @@
  * 6. USE_WIN32_CRYPTO (TBD)
  * Skip the backend if it does not support the required algorithm */
 
-#ifdef USE_OPENSSL
+#اگر_تعریف_شده USE_OPENSSL
 #  include <openssl/opensslv.h>
-#  if !defined(LIBRESSL_VERSION_NUMBER) || \
-  (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER >= 0x3080000fL)
+#  إذا !defined(LIBRESSL_نسخه_عدد) || \
+  (defined(LIBRESSL_نسخه_عدد) && LIBRESSL_نسخه_عدد >= 0x3080000fL)
 #    include <openssl/evp.h>
 #    define USE_OPENSSL_SHA512_256          1
 #    define HAS_SHA512_256_IMPLEMENTATION   1
@@ -54,7 +54,7 @@
  * NetBSD 10.99.11 development.
  * It is safe to apply the workaround even if the bug is not present, as
  * the workaround reduces performance slightly. */
-#      if  __NetBSD_Version__ <   904000000 ||  \
+#      إذا  __NetBSD_Version__ <   904000000 ||  \
           (__NetBSD_Version__ >=  999000000 &&  \
            __NetBSD_Version__ <  1000000000) || \
           (__NetBSD_Version__ >= 1099000000 &&  \
@@ -63,43 +63,43 @@
 #      endif
 #    endif
 #  endif
-#endif /* USE_OPENSSL */
+#پایان_اگر /* USE_OPENSSL */
 
-#if !defined(HAS_SHA512_256_IMPLEMENTATION) && defined(USE_WOLFSSL)
+#إذا !defined(HAS_SHA512_256_IMPLEMENTATION) && defined(USE_WOLFSSL)
 #  include <wolfssl/options.h>
 #  ifndef WOLFSSL_NOSHA512_256
 #    define USE_WOLFSSL_SHA512_256          1
 #    define HAS_SHA512_256_IMPLEMENTATION   1
 #  endif
-#endif
+#پایان_اگر
 
-#if !defined(HAS_SHA512_256_IMPLEMENTATION) && defined(USE_GNUTLS)
+#إذا !defined(HAS_SHA512_256_IMPLEMENTATION) && defined(USE_GNUTLS)
 #  include <nettle/sha2.h>
 #  include <nettle/version.h>
-#  ifdef SHA512_256_DIGEST_SIZE
+#  ifdef SHA512_256_DIGEST_اندازه
 #    define USE_GNUTLS_SHA512_256           1
 #  endif
-#endif /* !HAS_SHA512_256_IMPLEMENTATION && USE_GNUTLS */
+#پایان_اگر /* !HAS_SHA512_256_IMPLEMENTATION && USE_GNUTLS */
 
-#ifdef USE_OPENSSL_SHA512_256
+#اگر_تعریف_شده USE_OPENSSL_SHA512_256
 
 /* OpenSSL does not provide macros for SHA-512/256 sizes */
 
 /**
  * Size of the SHA-512/256 single processing block in bytes.
  */
-#define CURL_SHA512_256_BLOCK_SIZE 128
+#تعریف_کن CURL_SHA512_256_بلوک_اندازه 128
 
 /**
  * Size of the SHA-512/256 resulting digest in bytes.
  * This is the final digest size, not intermediate hash.
  */
-#define CURL_SHA512_256_DIGEST_SIZE CURL_SHA512_256_DIGEST_LENGTH
+#تعریف_کن CURL_SHA512_256_DIGEST_اندازه CURL_SHA512_256_DIGEST_درازی
 
 /**
  * Context type used for SHA-512/256 calculations
  */
-typedef EVP_MD_CTX *Curl_sha512_256_ctx;
+تعريفنوع EVP_MD_CTX *Curl_sha512_256_ctx;
 
 /**
  * Initialize structure for SHA-512/256 calculation.
@@ -108,26 +108,26 @@ typedef EVP_MD_CTX *Curl_sha512_256_ctx;
  * @return CURLE_OK if succeed,
  *         error code otherwise
  */
-static CURLcode Curl_sha512_256_init(void *context)
+ساكن CURLcode Curl_sha512_256_init(فراغ *context)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ثابت ctx = (Curl_sha512_256_ctx *)context;
 
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!*ctx)
+    أرجع CURLE_بیرون_از_حافظه;
 
-  if(EVP_DigestInit_ex(*ctx, EVP_sha512_256(), NULL)) {
+  إذا(EVP_DigestInit_ex(*ctx, EVP_sha512_256(), عدم)) {
     /* Check whether the header and this file use the same numbers */
-    DEBUGASSERT(EVP_MD_CTX_size(*ctx) == CURL_SHA512_256_DIGEST_SIZE);
+    DEBUGASSERT(EVP_MD_CTX_اندازه(*ctx) == CURL_SHA512_256_DIGEST_اندازه);
     /* Check whether the block size is correct */
-    DEBUGASSERT(EVP_MD_CTX_block_size(*ctx) == CURL_SHA512_256_BLOCK_SIZE);
+    DEBUGASSERT(EVP_MD_CTX_بلوک_اندازه(*ctx) == CURL_SHA512_256_بلوک_اندازه);
 
-    return CURLE_OK; /* Success */
+    أرجع CURLE_OK; /* Success */
   }
 
   /* Cleanup */
   EVP_MD_CTX_free(*ctx);
-  return CURLE_FAILED_INIT;
+  أرجع CURLE_FAILED_INIT;
 }
 
 /**
@@ -138,16 +138,16 @@ static CURLcode Curl_sha512_256_init(void *context)
  * @return CURLE_OK if succeed,
  *         error code otherwise
  */
-static CURLcode Curl_sha512_256_update(void *context,
-                                       const unsigned char *data,
-                                       size_t length)
+ساكن CURLcode Curl_sha512_256_update(فراغ *context,
+                                       ثابت بیعلامت حرف *داده,
+                                       size_t درازی)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ثابت ctx = (Curl_sha512_256_ctx *)context;
 
-  if(!EVP_DigestUpdate(*ctx, data, length))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  إذا(!EVP_DigestUpdate(*ctx, داده, درازی))
+    أرجع CURLE_BAD_FUNCTION_آرگومان;
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /**
@@ -159,76 +159,76 @@ static CURLcode Curl_sha512_256_update(void *context,
  * @return CURLE_OK if succeed,
  *         error code otherwise
  */
-static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
+ساكن CURLcode Curl_sha512_256_پایان(بیعلامت حرف *digest, فراغ *context)
 {
-  CURLcode result;
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  CURLcode نتیجه;
+  Curl_sha512_256_ctx * ثابت ctx = (Curl_sha512_256_ctx *)context;
 
-#ifdef NEED_NETBSD_SHA512_256_WORKAROUND
+#اگر_تعریف_شده NEED_NETBSD_SHA512_256_WORKAROUND
   /* Use a larger buffer to work around a bug in NetBSD:
      https://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=58039 */
-  unsigned char tmp_digest[CURL_SHA512_256_DIGEST_SIZE * 2];
-  result = EVP_DigestFinal_ex(*ctx, tmp_digest, NULL) ?
-    CURLE_OK : CURLE_BAD_FUNCTION_ARGUMENT;
-  if(result == CURLE_OK)
-    memcpy(digest, tmp_digest, CURL_SHA512_256_DIGEST_SIZE);
-  curlx_memzero(tmp_digest, sizeof(tmp_digest));
-#else /* !NEED_NETBSD_SHA512_256_WORKAROUND */
-  result = EVP_DigestFinal_ex(*ctx, digest, NULL) ?
-    CURLE_OK : CURLE_BAD_FUNCTION_ARGUMENT;
-#endif /* NEED_NETBSD_SHA512_256_WORKAROUND */
+  بیعلامت حرف tmp_digest[CURL_SHA512_256_DIGEST_اندازه * 2];
+  نتیجه = EVP_DigestFinal_ex(*ctx, tmp_digest, عدم) ?
+    CURLE_OK : CURLE_BAD_FUNCTION_آرگومان;
+  إذا(نتیجه == CURLE_OK)
+    کپی_حافظه(digest, tmp_digest, CURL_SHA512_256_DIGEST_اندازه);
+  curlx_memzero(tmp_digest, حجم(tmp_digest));
+#وإلا /* !NEED_NETBSD_SHA512_256_WORKAROUND */
+  نتیجه = EVP_DigestFinal_ex(*ctx, digest, عدم) ?
+    CURLE_OK : CURLE_BAD_FUNCTION_آرگومان;
+#پایان_اگر /* NEED_NETBSD_SHA512_256_WORKAROUND */
 
   EVP_MD_CTX_free(*ctx);
-  *ctx = NULL;
+  *ctx = عدم;
 
-  return result;
+  أرجع نتیجه;
 }
 
-#elif defined(USE_WOLFSSL_SHA512_256)
-#include <wolfssl/wolfcrypt/sha512.h>
+#وإلاإذا defined(USE_WOLFSSL_SHA512_256)
+#ضمن <wolfssl/wolfcrypt/sha512.h>
 
-#define CURL_SHA512_256_DIGEST_SIZE WC_SHA512_256_DIGEST_SIZE
-#define CURL_SHA512_256_BLOCK_SIZE  WC_SHA512_256_BLOCK_SIZE
+#تعریف_کن CURL_SHA512_256_DIGEST_اندازه WC_SHA512_256_DIGEST_اندازه
+#تعریف_کن CURL_SHA512_256_بلوک_اندازه  WC_SHA512_256_بلوک_اندازه
 
-typedef struct wc_Sha512 Curl_sha512_256_ctx;
+تعريفنوع بنية wc_Sha512 Curl_sha512_256_ctx;
 
-static CURLcode Curl_sha512_256_init(void *ctx)
+ساكن CURLcode Curl_sha512_256_init(فراغ *ctx)
 {
-  if(wc_InitSha512_256(ctx))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  إذا(wc_InitSha512_256(ctx))
+    أرجع CURLE_FAILED_INIT;
+  أرجع CURLE_OK;
 }
 
-static CURLcode Curl_sha512_256_update(void *ctx,
-                                       const unsigned char *data,
-                                       size_t length)
+ساكن CURLcode Curl_sha512_256_update(فراغ *ctx,
+                                       ثابت بیعلامت حرف *داده,
+                                       size_t درازی)
 {
-  do {
-    word32 ilen = (word32)CURLMIN(length, UINT_MAX);
-    if(wc_Sha512_256Update(ctx, data, ilen))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    length -= ilen;
-    data += ilen;
-  } while(length);
-  return CURLE_OK;
+  افعل {
+    word32 ilen = (word32)CURLMIN(درازی, UINT_MAX);
+    إذا(wc_Sha512_256Update(ctx, داده, ilen))
+      أرجع CURLE_BAD_FUNCTION_آرگومان;
+    درازی -= ilen;
+    داده += ilen;
+  } طالما(درازی);
+  أرجع CURLE_OK;
 }
 
-static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *ctx)
+ساكن CURLcode Curl_sha512_256_پایان(بیعلامت حرف *digest, فراغ *ctx)
 {
-  if(wc_Sha512_256Final(ctx, digest))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return CURLE_OK;
+  إذا(wc_Sha512_256Final(ctx, digest))
+    أرجع CURLE_BAD_FUNCTION_آرگومان;
+  أرجع CURLE_OK;
 }
 
-#elif defined(USE_GNUTLS_SHA512_256)
+#وإلاإذا defined(USE_GNUTLS_SHA512_256)
 
-#define CURL_SHA512_256_BLOCK_SIZE  SHA512_256_BLOCK_SIZE
-#define CURL_SHA512_256_DIGEST_SIZE SHA512_256_DIGEST_SIZE
+#تعریف_کن CURL_SHA512_256_بلوک_اندازه  SHA512_256_بلوک_اندازه
+#تعریف_کن CURL_SHA512_256_DIGEST_اندازه SHA512_256_DIGEST_اندازه
 
 /**
  * Context type used for SHA-512/256 calculations
  */
-typedef struct sha512_256_ctx Curl_sha512_256_ctx;
+تعريفنوع بنية sha512_256_ctx Curl_sha512_256_ctx;
 
 /**
  * Initialize structure for SHA-512/256 calculation.
@@ -236,16 +236,16 @@ typedef struct sha512_256_ctx Curl_sha512_256_ctx;
  * @param context the calculation context
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_init(void *context)
+ساكن CURLcode Curl_sha512_256_init(فراغ *context)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ثابت ctx = (Curl_sha512_256_ctx *)context;
 
   /* Check whether the header and this file use the same numbers */
-  DEBUGASSERT(CURL_SHA512_256_DIGEST_LENGTH == CURL_SHA512_256_DIGEST_SIZE);
+  DEBUGASSERT(CURL_SHA512_256_DIGEST_درازی == CURL_SHA512_256_DIGEST_اندازه);
 
   sha512_256_init(ctx);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /**
@@ -256,17 +256,17 @@ static CURLcode Curl_sha512_256_init(void *context)
  * @param length number of bytes in @a data
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_update(void *context,
-                                       const unsigned char *data,
-                                       size_t length)
+ساكن CURLcode Curl_sha512_256_update(فراغ *context,
+                                       ثابت بیعلامت حرف *داده,
+                                       size_t درازی)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ثابت ctx = (Curl_sha512_256_ctx *)context;
 
-  DEBUGASSERT(data || (length == 0));
+  DEBUGASSERT(داده || (درازی == 0));
 
-  sha512_256_update(ctx, length, (const uint8_t *)data);
+  sha512_256_update(ctx, درازی, (ثابت uint8_t *)داده);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /**
@@ -277,61 +277,61 @@ static CURLcode Curl_sha512_256_update(void *context,
  *             bytes
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
+ساكن CURLcode Curl_sha512_256_پایان(بیعلامت حرف *digest, فراغ *context)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ثابت ctx = (Curl_sha512_256_ctx *)context;
 
-#if NETTLE_VERSION_MAJOR >= 4
+#إذا NETTLE_نسخه_MAJOR >= 4
   sha512_256_digest(ctx, (uint8_t *)digest);
-#else
+#وإلا
   sha512_256_digest(ctx,
-                    (size_t)CURL_SHA512_256_DIGEST_SIZE, (uint8_t *)digest);
-#endif
+                    (size_t)CURL_SHA512_256_DIGEST_اندازه, (uint8_t *)digest);
+#پایان_اگر
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#else /* No system or TLS backend SHA-512/256 implementation available */
+#وإلا /* No system or TLS backend SHA-512/256 implementation available */
 
 /* ** This implementation of SHA-512/256 hash calculation was originally ** *
  * ** written by Evgeny Grin (Karlson2k) for GNU libmicrohttpd.          ** *
  * ** The author ported the code to libcurl. The ported code is provided ** *
  * ** under curl license.                                                ** */
 
-#ifdef __GNUC__
-#  if defined(__has_attribute) && defined(__STDC_VERSION__)
-#    if __has_attribute(always_inline) && __STDC_VERSION__ >= 199901L
+#اگر_تعریف_شده __GNUC__
+#  إذا defined(__has_attribute) && defined(__STDC_VERSION__)
+#    إذا __has_attribute(always_inline) && __STDC_VERSION__ >= 199901L
 #      define CURL_FORCEINLINE CURL_INLINE __attribute__((always_inline))
 #    endif
 #  endif
-#endif
+#پایان_اگر
 
-#if !defined(CURL_FORCEINLINE) && \
+#إذا !defined(CURL_FORCEINLINE) && \
   defined(_MSC_VER) && !defined(__GNUC__) && !defined(__clang__)
-#define CURL_FORCEINLINE __forceinline
-#endif
+#تعریف_کن CURL_FORCEINLINE __forceinline
+#پایان_اگر
 
 /* Assume that 'CURL_INLINE' keyword works or the
  * macro was already defined correctly. */
-#ifndef CURL_FORCEINLINE
-#define CURL_FORCEINLINE CURL_INLINE
-#endif
+#اگر_تعریف_نشده CURL_FORCEINLINE
+#تعریف_کن CURL_FORCEINLINE CURL_INLINE
+#پایان_اگر
 
 /* Bits manipulation macros and functions.
    Can be moved to other headers to reuse. */
 
-#define CURL_GET_64BIT_BE(ptr)                       \
-  (((uint64_t)(((const uint8_t *)(ptr))[0]) << 56) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[1]) << 48) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[2]) << 40) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[3]) << 32) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[4]) << 24) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[5]) << 16) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[6]) << 8)  | \
-    (uint64_t)(((const uint8_t *)(ptr))[7]))
+#تعریف_کن CURL_GET_64_بیت_BE(ptr)                       \
+  (((uint64_t)(((ثابت uint8_t *)(ptr))[0]) << 56) | \
+   ((uint64_t)(((ثابت uint8_t *)(ptr))[1]) << 48) | \
+   ((uint64_t)(((ثابت uint8_t *)(ptr))[2]) << 40) | \
+   ((uint64_t)(((ثابت uint8_t *)(ptr))[3]) << 32) | \
+   ((uint64_t)(((ثابت uint8_t *)(ptr))[4]) << 24) | \
+   ((uint64_t)(((ثابت uint8_t *)(ptr))[5]) << 16) | \
+   ((uint64_t)(((ثابت uint8_t *)(ptr))[6]) << 8)  | \
+    (uint64_t)(((ثابت uint8_t *)(ptr))[7]))
 
-#define CURL_PUT_64BIT_BE(ptr, val)                             \
-  do {                                                          \
+#تعریف_کن CURL_PUT_64_بیت_BE(ptr, val)                             \
+  افعل {                                                          \
     ((uint8_t *)(ptr))[7] = (uint8_t)((uint64_t)(val));         \
     ((uint8_t *)(ptr))[6] = (uint8_t)(((uint64_t)(val)) >> 8);  \
     ((uint8_t *)(ptr))[5] = (uint8_t)(((uint64_t)(val)) >> 16); \
@@ -340,18 +340,18 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
     ((uint8_t *)(ptr))[2] = (uint8_t)(((uint64_t)(val)) >> 40); \
     ((uint8_t *)(ptr))[1] = (uint8_t)(((uint64_t)(val)) >> 48); \
     ((uint8_t *)(ptr))[0] = (uint8_t)(((uint64_t)(val)) >> 56); \
-  } while(0)
+  } طالما(0)
 
 /* Defined as a function. The macro version may duplicate the binary code
  * size as each argument is used twice, so if any calculation is used
  * as an argument, the calculation could be done twice. */
-static CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t value, unsigned int bits)
+ساكن CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t مقدار, بیعلامت صحيح بیتها)
 {
-  bits %= 64;
-  if(bits == 0)
-    return value;
+  بیتها %= 64;
+  إذا(بیتها == 0)
+    أرجع مقدار;
   /* Defined in a form which modern compiler could optimize. */
-  return (value >> bits) | (value << (64 - bits));
+  أرجع (مقدار >> بیتها) | (مقدار << (64 - بیتها));
 }
 
 /* SHA-512/256 specific data */
@@ -359,79 +359,79 @@ static CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t value, unsigned int bits)
 /**
  * Number of bits in a single SHA-512/256 word.
  */
-#define SHA512_256_WORD_SIZE_BITS 64
+#تعریف_کن SHA512_256_کلمه_اندازه_بیتها 64
 
 /**
  * Number of bytes in a single SHA-512/256 word.
  */
-#define SHA512_256_BYTES_IN_WORD (SHA512_256_WORD_SIZE_BITS / 8)
+#تعریف_کن SHA512_256_بایتها_درون_کلمه (SHA512_256_کلمه_اندازه_بیتها / 8)
 
 /**
  * Hash is kept internally as 8 64-bit words.
  * This is the intermediate hash size, used during computing the final digest.
  */
-#define SHA512_256_HASH_SIZE_WORDS 8
+#تعریف_کن SHA512_256_HASH_اندازه_واژگان 8
 
 /**
  * Size of the SHA-512/256 resulting digest in words.
  * This is the final digest size, not intermediate hash.
  */
-#define SHA512_256_DIGEST_SIZE_WORDS (SHA512_256_HASH_SIZE_WORDS / 2)
+#تعریف_کن SHA512_256_DIGEST_اندازه_واژگان (SHA512_256_HASH_اندازه_واژگان / 2)
 
 /**
  * Size of the SHA-512/256 resulting digest in bytes
  * This is the final digest size, not intermediate hash.
  */
-#define CURL_SHA512_256_DIGEST_SIZE \
-  (SHA512_256_DIGEST_SIZE_WORDS * SHA512_256_BYTES_IN_WORD)
+#تعریف_کن CURL_SHA512_256_DIGEST_اندازه \
+  (SHA512_256_DIGEST_اندازه_واژگان * SHA512_256_بایتها_درون_کلمه)
 
 /**
  * Size of the SHA-512/256 single processing block in bits.
  */
-#define SHA512_256_BLOCK_SIZE_BITS 1024
+#تعریف_کن SHA512_256_بلوک_اندازه_بیتها 1024
 
 /**
  * Size of the SHA-512/256 single processing block in bytes.
  */
-#define CURL_SHA512_256_BLOCK_SIZE (SHA512_256_BLOCK_SIZE_BITS / 8)
+#تعریف_کن CURL_SHA512_256_بلوک_اندازه (SHA512_256_بلوک_اندازه_بیتها / 8)
 
 /**
  * Size of the SHA-512/256 single processing block in words.
  */
-#define SHA512_256_BLOCK_SIZE_WORDS \
-  (SHA512_256_BLOCK_SIZE_BITS / SHA512_256_WORD_SIZE_BITS)
+#تعریف_کن SHA512_256_بلوک_اندازه_واژگان \
+  (SHA512_256_بلوک_اندازه_بیتها / SHA512_256_کلمه_اندازه_بیتها)
 
 /**
  * SHA-512/256 calculation context
  */
-struct Curl_sha512_256ctx {
+بنية Curl_sha512_256ctx {
   /**
    * Intermediate hash value. The variable is properly aligned. Smart
    * compilers may automatically use fast load/store instruction for big
    * endian data on little endian machine.
    */
-  uint64_t H[SHA512_256_HASH_SIZE_WORDS];
+  uint64_t H[SHA512_256_HASH_اندازه_واژگان];
   /**
    * SHA-512/256 input data buffer. The buffer is properly aligned. Smart
    * compilers may automatically use fast load/store instruction for big
    * endian data on little endian machine.
    */
-  uint64_t buffer[SHA512_256_BLOCK_SIZE_WORDS];
+  uint64_t میانگیر[SHA512_256_بلوک_اندازه_واژگان];
   /**
    * The number of bytes, lower part
    */
-  uint64_t count;
+  uint64_t شمار;
   /**
    * The number of bits, high part. Unlike lower part, this counts the number
    * of bits, not bytes.
    */
-  uint64_t count_bits_hi;
+  uint64_t شمار_بیتها_hi;
 };
 
 /**
  * Context type used for SHA-512/256 calculations
  */
-typedef struct Curl_sha512_256ctx Curl_sha512_256_ctx;
+تعريفنوع بنية Curl_sha512_256ctx Curl_sha512_256_ctx;
 
 /**
  * Initialize structure for SHA-512/256 calculation.
@@ -439,14 +439,14 @@ typedef struct Curl_sha512_256ctx Curl_sha512_256_ctx;
  * @param context the calculation context
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_init(void *context)
+ساكن CURLcode Curl_sha512_256_init(فراغ *context)
 {
-  struct Curl_sha512_256ctx * const ctx = (struct Curl_sha512_256ctx *)context;
+  بنية Curl_sha512_256ctx * ثابت ctx = (بنية Curl_sha512_256ctx *)context;
 
   /* Check whether the header and this file use the same numbers */
-  DEBUGASSERT(CURL_SHA512_256_DIGEST_LENGTH == CURL_SHA512_256_DIGEST_SIZE);
+  DEBUGASSERT(CURL_SHA512_256_DIGEST_درازی == CURL_SHA512_256_DIGEST_اندازه);
 
-  DEBUGASSERT(sizeof(uint64_t) == 8);
+  DEBUGASSERT(حجم(uint64_t) == 8);
 
   /* Initial hash values, see FIPS PUB 180-4 section 5.3.6.2 */
   /* Values generated by "IV Generation Function" as described in
@@ -461,10 +461,10 @@ static CURLcode Curl_sha512_256_init(void *context)
   ctx->H[7] = UINT64_C(0x0EB72DDC81C52CA2);
 
   /* Initialize number of bytes and high part of number of bits. */
-  ctx->count = UINT64_C(0);
-  ctx->count_bits_hi = UINT64_C(0);
+  ctx->شمار = UINT64_C(0);
+  ctx->شمار_بیتها_hi = UINT64_C(0);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /**
@@ -473,8 +473,8 @@ static CURLcode Curl_sha512_256_init(void *context)
  * @param H     hash values
  * @param data  the data buffer with #CURL_SHA512_256_BLOCK_SIZE bytes block
  */
-static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
-                                      const void *data)
+ساكن فراغ Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_اندازه_واژگان],
+                                      ثابت فراغ *داده)
 {
   /* Working variables,
      see FIPS PUB 180-4 section 6.7, 6.4. */
@@ -493,21 +493,21 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
 
   /* 'Ch' and 'Maj' macro functions are defined with widely-used optimization.
      See FIPS PUB 180-4 formulae 4.8, 4.9. */
-#define Sha512_Ch(x, y, z)    ((z) ^ ((x) & ((y) ^ (z))))
-#define Sha512_Maj(x, y, z)   (((x) & (y)) ^ ((z) & ((x) ^ (y))))
+#تعریف_کن Sha512_Ch(x, y, z)    ((z) ^ ((x) & ((y) ^ (z))))
+#تعریف_کن Sha512_Maj(x, y, z)   (((x) & (y)) ^ ((z) & ((x) ^ (y))))
 
   /* Four 'Sigma' macro functions.
      See FIPS PUB 180-4 formulae 4.10, 4.11, 4.12, 4.13. */
-#define SIG0(x) (Curl_rotr64(x, 28) ^ Curl_rotr64(x, 34) ^ Curl_rotr64(x, 39))
-#define SIG1(x) (Curl_rotr64(x, 14) ^ Curl_rotr64(x, 18) ^ Curl_rotr64(x, 41))
-#define sig0(x) (Curl_rotr64(x,  1) ^ Curl_rotr64(x,  8) ^ ((x) >> 7))
-#define sig1(x) (Curl_rotr64(x, 19) ^ Curl_rotr64(x, 61) ^ ((x) >> 6))
+#تعریف_کن SIG0(x) (Curl_rotr64(x, 28) ^ Curl_rotr64(x, 34) ^ Curl_rotr64(x, 39))
+#تعریف_کن SIG1(x) (Curl_rotr64(x, 14) ^ Curl_rotr64(x, 18) ^ Curl_rotr64(x, 41))
+#تعریف_کن sig0(x) (Curl_rotr64(x,  1) ^ Curl_rotr64(x,  8) ^ ((x) >> 7))
+#تعریف_کن sig1(x) (Curl_rotr64(x, 19) ^ Curl_rotr64(x, 61) ^ ((x) >> 6))
 
-  if(1) {
-    unsigned int t;
+  إذا(1) {
+    بیعلامت صحيح t;
     /* K constants array.
        See FIPS PUB 180-4 section 4.2.3 for K values. */
-    static const uint64_t K[80] = {
+    ساكن ثابت uint64_t K[80] = {
       UINT64_C(0x428a2f98d728ae22), UINT64_C(0x7137449123ef65cd),
       UINT64_C(0xb5c0fbcfec4d3b2f), UINT64_C(0xe9b5dba58189dbbc),
       UINT64_C(0x3956c25bf348b538), UINT64_C(0x59f111f1b605d019),
@@ -560,17 +560,17 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
        * Note: 'wt' must be used exactly one time in this macro as macro for
        'wt' calculation may change other data as well every time when
        used. */
-#define SHA2STEP64(vA, vB, vC, vD, vE, vF, vG, vH, kt, wt)                    \
-  do {                                                                        \
+#تعریف_کن SHA2STEP64(vA, vB, vC, vD, vE, vF, vG, vH, kt, wt)                    \
+  افعل {                                                                        \
     (vD) += ((vH) += SIG1(vE) + Sha512_Ch(vE, vF, vG) + (kt) + (wt));         \
     (vH) += SIG0(vA) + Sha512_Maj(vA, vB, vC);                                \
-  } while(0)
+  } طالما(0)
 
     /* One step of SHA-512/256 computation with working variables rotation,
        see FIPS PUB 180-4 section 6.4.2 step 3. This macro version reassigns
        all working variables on each step. */
-#define SHA2STEP64RV(vA, vB, vC, vD, vE, vF, vG, vH, kt, wt)                  \
-  do {                                                                        \
+#تعریف_کن SHA2STEP64RV(vA, vB, vC, vD, vE, vF, vG, vH, kt, wt)                  \
+  افعل {                                                                        \
     uint64_t tmp_h_ = (vH);                                                   \
     SHA2STEP64(vA, vB, vC, vD, vE, vF, vG, tmp_h_, kt, wt);                   \
     (vH) = (vG);                                                              \
@@ -581,21 +581,21 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
     (vC) = (vB);                                                              \
     (vB) = (vA);                                                              \
     (vA) = tmp_h_;                                                            \
-  } while(0)
+  } طالما(0)
 
     /* Get value of W(t) from input data buffer for 0 <= t <= 15,
        See FIPS PUB 180-4 section 6.2.
        Input data must be read in big-endian bytes order,
        see FIPS PUB 180-4 section 3.1.2. */
-#define SHA512_GET_W_FROM_DATA(buf, t) \
-  CURL_GET_64BIT_BE((const uint8_t *)(buf) + ((t) * SHA512_256_BYTES_IN_WORD))
+#تعریف_کن SHA512_GET_W_FROM_داده(buf, t) \
+  CURL_GET_64_بیت_BE((ثابت uint8_t *)(buf) + ((t) * SHA512_256_بایتها_درون_کلمه))
 
     /* During first 16 steps, before making any calculation on each step, the
        W element is read from the input data buffer as a big-endian value and
        stored in the array of W elements. */
-    for(t = 0; t < 16; ++t) {
+    لكل(t = 0; t < 16; ++t) {
       SHA2STEP64RV(a, b, c, d, e, f, g, h, K[t],
-                   W[t] = SHA512_GET_W_FROM_DATA(data, t));
+                   W[t] = SHA512_GET_W_FROM_داده(داده, t));
     }
 
     /* 'W' generation and assignment for 16 <= t <= 79.
@@ -603,14 +603,14 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
        As only the last 16 'W' are used in calculations, it is possible to
        use 16 elements array of W as a cyclic buffer.
        Note: ((t-16) & 15) have same value as (t & 15) */
-#define Wgen(w, t)                                               \
+#تعریف_کن Wgen(w, t)                                               \
   (uint64_t)((w)[((t) - 16) & 15] + sig1((w)[((t) -  2) & 15]) + \
              (w)[((t) -  7) & 15] + sig0((w)[((t) - 15) & 15]))
 
     /* During the last 64 steps, before making any calculation on each step,
        current W element is generated from other W elements of the cyclic
        buffer and the generated value is stored back in the cyclic buffer. */
-    for(t = 16; t < 80; ++t) {
+    لكل(t = 16; t < 80; ++t) {
       SHA2STEP64RV(a, b, c, d, e, f, g, h, K[t],
                    W[t & 15] = Wgen(W, t));
     }
@@ -636,69 +636,69 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
  * @param length number of bytes in @a data
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_update(void *context,
-                                       const unsigned char *data,
-                                       size_t length)
+ساكن CURLcode Curl_sha512_256_update(فراغ *context,
+                                       ثابت بیعلامت حرف *داده,
+                                       size_t درازی)
 {
-  unsigned int bytes_have; /* Number of bytes in the context buffer */
-  struct Curl_sha512_256ctx * const ctx = (struct Curl_sha512_256ctx *)context;
+  بیعلامت صحيح بایتها_have; /* Number of bytes in the context buffer */
+  بنية Curl_sha512_256ctx * ثابت ctx = (بنية Curl_sha512_256ctx *)context;
   /* the void pointer here is required to mute Intel compiler warning */
-  void * const ctx_buf = ctx->buffer;
+  فراغ * ثابت ctx_buf = ctx->میانگیر;
 
-  DEBUGASSERT(data || (length == 0));
+  DEBUGASSERT(داده || (درازی == 0));
 
-  if(length == 0)
-    return CURLE_OK; /* Shortcut, do nothing */
+  إذا(درازی == 0)
+    أرجع CURLE_OK; /* Shortcut, do nothing */
 
   /* Note: (count & (CURL_SHA512_256_BLOCK_SIZE - 1))
      equals (count % CURL_SHA512_256_BLOCK_SIZE) for this block size. */
-  bytes_have = (unsigned int)(ctx->count & (CURL_SHA512_256_BLOCK_SIZE - 1));
-  ctx->count += length;
-  if(length > ctx->count)
-    ctx->count_bits_hi += 1U << 3; /* Value wrap */
-  ctx->count_bits_hi += ctx->count >> 61;
-  ctx->count &= UINT64_C(0x1FFFFFFFFFFFFFFF);
+  بایتها_have = (بیعلامت صحيح)(ctx->شمار & (CURL_SHA512_256_بلوک_اندازه - 1));
+  ctx->شمار += درازی;
+  إذا(درازی > ctx->شمار)
+    ctx->شمار_بیتها_hi += 1U << 3; /* Value wrap */
+  ctx->شمار_بیتها_hi += ctx->شمار >> 61;
+  ctx->شمار &= UINT64_C(0x1FFFFFFFFFFFFFFF);
 
-  if(bytes_have) {
-    unsigned int bytes_left = CURL_SHA512_256_BLOCK_SIZE - bytes_have;
-    if(length >= bytes_left) {
+  إذا(بایتها_have) {
+    بیعلامت صحيح بایتها_چپ = CURL_SHA512_256_بلوک_اندازه - بایتها_have;
+    إذا(درازی >= بایتها_چپ) {
       /* Combine new data with data in the buffer and process the full
          block. */
-      memcpy((unsigned char *)ctx_buf + bytes_have, data, bytes_left);
-      data += bytes_left;
-      length -= bytes_left;
-      Curl_sha512_256_transform(ctx->H, ctx->buffer);
-      bytes_have = 0;
+      کپی_حافظه((بیعلامت حرف *)ctx_buf + بایتها_have, داده, بایتها_چپ);
+      داده += بایتها_چپ;
+      درازی -= بایتها_چپ;
+      Curl_sha512_256_transform(ctx->H, ctx->میانگیر);
+      بایتها_have = 0;
     }
   }
 
-  while(CURL_SHA512_256_BLOCK_SIZE <= length) {
+  طالما(CURL_SHA512_256_بلوک_اندازه <= درازی) {
     /* Process any full blocks of new data directly,
        without copying to the buffer. */
-    Curl_sha512_256_transform(ctx->H, data);
-    data += CURL_SHA512_256_BLOCK_SIZE;
-    length -= CURL_SHA512_256_BLOCK_SIZE;
+    Curl_sha512_256_transform(ctx->H, داده);
+    داده += CURL_SHA512_256_بلوک_اندازه;
+    درازی -= CURL_SHA512_256_بلوک_اندازه;
   }
 
-  if(length) {
+  إذا(درازی) {
     /* Copy incomplete block of new data (if any)
        to the buffer. */
-    memcpy((unsigned char *)ctx_buf + bytes_have, data, length);
+    کپی_حافظه((بیعلامت حرف *)ctx_buf + بایتها_have, داده, درازی);
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /**
  * Size of "length" insertion in bits.
  * See FIPS PUB 180-4 section 5.1.2.
  */
-#define SHA512_256_SIZE_OF_LEN_ADD_BITS 128
+#تعریف_کن SHA512_256_اندازه_از_LEN_جمع_کن_بیتها 128
 
 /**
  * Size of "length" insertion in bytes.
  */
-#define SHA512_256_SIZE_OF_LEN_ADD (SHA512_256_SIZE_OF_LEN_ADD_BITS / 8)
+#تعریف_کن SHA512_256_اندازه_از_LEN_جمع_کن (SHA512_256_اندازه_از_LEN_جمع_کن_بیتها / 8)
 
 /**
  * Finalise SHA-512/256 calculation, return digest.
@@ -708,22 +708,22 @@ static CURLcode Curl_sha512_256_update(void *context,
  *             bytes
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
+ساكن CURLcode Curl_sha512_256_پایان(بیعلامت حرف *digest, فراغ *context)
 {
-  struct Curl_sha512_256ctx * const ctx = (struct Curl_sha512_256ctx *)context;
-  uint64_t num_bits; /* Number of processed bits */
-  unsigned int bytes_have; /* Number of bytes in the context buffer */
+  بنية Curl_sha512_256ctx * ثابت ctx = (بنية Curl_sha512_256ctx *)context;
+  uint64_t رقم_بیتها; /* Number of processed bits */
+  بیعلامت صحيح بایتها_have; /* Number of bytes in the context buffer */
   /* the void pointer here is required to mute Intel compiler warning */
-  void * const ctx_buf = ctx->buffer;
+  فراغ * ثابت ctx_buf = ctx->میانگیر;
 
   /* Memorise the number of processed bits.
      The padding and other data added here during the postprocessing must
      not change the amount of hashed data. */
-  num_bits = ctx->count << 3;
+  رقم_بیتها = ctx->شمار << 3;
 
   /* Note: (count & (CURL_SHA512_256_BLOCK_SIZE-1))
            equals (count % CURL_SHA512_256_BLOCK_SIZE) for this block size. */
-  bytes_have = (unsigned int)(ctx->count & (CURL_SHA512_256_BLOCK_SIZE - 1));
+  بایتها_have = (بیعلامت صحيح)(ctx->شمار & (CURL_SHA512_256_بلوک_اندازه - 1));
 
   /* Input data must be padded with a single bit "1", then with zeros and
      the finally the length of data in bits must be added as the final bytes
@@ -735,52 +735,52 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
      predefined (0x80). */
   /* Buffer always have space at least for one byte (as full buffers are
      processed when formed). */
-  ((unsigned char *)ctx_buf)[bytes_have++] = 0x80U;
+  ((بیعلامت حرف *)ctx_buf)[بایتها_have++] = 0x80U;
 
-  if(CURL_SHA512_256_BLOCK_SIZE - bytes_have < SHA512_256_SIZE_OF_LEN_ADD) {
+  إذا(CURL_SHA512_256_بلوک_اندازه - بایتها_have < SHA512_256_اندازه_از_LEN_جمع_کن) {
     /* No space in the current block to put the total length of message.
        Pad the current block with zeros and process it. */
-    if(bytes_have < CURL_SHA512_256_BLOCK_SIZE)
-      memset((unsigned char *)ctx_buf + bytes_have, 0,
-             CURL_SHA512_256_BLOCK_SIZE - bytes_have);
+    إذا(بایتها_have < CURL_SHA512_256_بلوک_اندازه)
+      memset((بیعلامت حرف *)ctx_buf + بایتها_have, 0,
+             CURL_SHA512_256_بلوک_اندازه - بایتها_have);
     /* Process the full block. */
-    Curl_sha512_256_transform(ctx->H, ctx->buffer);
+    Curl_sha512_256_transform(ctx->H, ctx->میانگیر);
     /* Start the new block. */
-    bytes_have = 0;
+    بایتها_have = 0;
   }
 
   /* Pad the rest of the buffer with zeros. */
-  memset((unsigned char *)ctx_buf + bytes_have, 0,
-         CURL_SHA512_256_BLOCK_SIZE - SHA512_256_SIZE_OF_LEN_ADD - bytes_have);
+  memset((بیعلامت حرف *)ctx_buf + بایتها_have, 0,
+         CURL_SHA512_256_بلوک_اندازه - SHA512_256_اندازه_از_LEN_جمع_کن - بایتها_have);
   /* Put high part of number of bits in processed message and then lower
      part of number of bits as big-endian values.
      See FIPS PUB 180-4 section 5.1.2. */
   /* Note: the target location is predefined and buffer is always aligned */
-  CURL_PUT_64BIT_BE((unsigned char *)ctx_buf +
-                    CURL_SHA512_256_BLOCK_SIZE - SHA512_256_SIZE_OF_LEN_ADD,
-                    ctx->count_bits_hi);
-  CURL_PUT_64BIT_BE((unsigned char *)ctx_buf +
-                    CURL_SHA512_256_BLOCK_SIZE - SHA512_256_SIZE_OF_LEN_ADD +
-                    SHA512_256_BYTES_IN_WORD,
-                    num_bits);
+  CURL_PUT_64_بیت_BE((بیعلامت حرف *)ctx_buf +
+                    CURL_SHA512_256_بلوک_اندازه - SHA512_256_اندازه_از_LEN_جمع_کن,
+                    ctx->شمار_بیتها_hi);
+  CURL_PUT_64_بیت_BE((بیعلامت حرف *)ctx_buf +
+                    CURL_SHA512_256_بلوک_اندازه - SHA512_256_اندازه_از_LEN_جمع_کن +
+                    SHA512_256_بایتها_درون_کلمه,
+                    رقم_بیتها);
   /* Process the full final block. */
-  Curl_sha512_256_transform(ctx->H, ctx->buffer);
+  Curl_sha512_256_transform(ctx->H, ctx->میانگیر);
 
   /* Put in BE mode the leftmost part of the hash as the final digest.
      See FIPS PUB 180-4 section 6.7. */
 
-  CURL_PUT_64BIT_BE(digest + (0 * SHA512_256_BYTES_IN_WORD), ctx->H[0]);
-  CURL_PUT_64BIT_BE(digest + (1 * SHA512_256_BYTES_IN_WORD), ctx->H[1]);
-  CURL_PUT_64BIT_BE(digest + (2 * SHA512_256_BYTES_IN_WORD), ctx->H[2]);
-  CURL_PUT_64BIT_BE(digest + (3 * SHA512_256_BYTES_IN_WORD), ctx->H[3]);
+  CURL_PUT_64_بیت_BE(digest + (0 * SHA512_256_بایتها_درون_کلمه), ctx->H[0]);
+  CURL_PUT_64_بیت_BE(digest + (1 * SHA512_256_بایتها_درون_کلمه), ctx->H[1]);
+  CURL_PUT_64_بیت_BE(digest + (2 * SHA512_256_بایتها_درون_کلمه), ctx->H[2]);
+  CURL_PUT_64_بیت_BE(digest + (3 * SHA512_256_بایتها_درون_کلمه), ctx->H[3]);
 
   /* Erase potentially sensitive data. */
-  memset(ctx, 0, sizeof(struct Curl_sha512_256ctx));
+  memset(ctx, 0, حجم(بنية Curl_sha512_256ctx));
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-#endif /* Local SHA-512/256 code */
+#پایان_اگر /* Local SHA-512/256 code */
 
 /**
  * Compute SHA-512/256 hash for the given data in one function call
@@ -789,59 +789,59 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
  * @param input_size the size of the data pointed by @a input
  * @return always #CURLE_OK
  */
-CURLcode Curl_sha512_256it(unsigned char *output, const unsigned char *input,
-                           size_t input_size)
+CURLcode Curl_sha512_256it(بیعلامت حرف *output, ثابت بیعلامت حرف *درون_داد,
+                           size_t درون_داد_اندازه)
 {
   Curl_sha512_256_ctx ctx;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  result = Curl_sha512_256_init(&ctx);
-  if(result != CURLE_OK)
-    return result;
+  نتیجه = Curl_sha512_256_init(&ctx);
+  إذا(نتیجه != CURLE_OK)
+    أرجع نتیجه;
 
-  result = Curl_sha512_256_update(&ctx, (const void *)input, input_size);
+  نتیجه = Curl_sha512_256_update(&ctx, (ثابت فراغ *)درون_داد, درون_داد_اندازه);
 
-  if(result != CURLE_OK) {
-    (void)Curl_sha512_256_finish(output, &ctx);
-    return result;
+  إذا(نتیجه != CURLE_OK) {
+    (فراغ)Curl_sha512_256_پایان(output, &ctx);
+    أرجع نتیجه;
   }
 
-  return Curl_sha512_256_finish(output, &ctx);
+  أرجع Curl_sha512_256_پایان(output, &ctx);
 }
 
 /* Wrapper function, takes 'unsigned int' as length type, returns void */
-static void Curl_sha512_256_update_i(void *context,
-                                     const unsigned char *data,
-                                     unsigned int length)
+ساكن فراغ Curl_sha512_256_update_i(فراغ *context,
+                                     ثابت بیعلامت حرف *داده,
+                                     بیعلامت صحيح درازی)
 {
   /* Hypothetically the function may fail, but assume it does not */
-  (void)Curl_sha512_256_update(context, data, length);
+  (فراغ)Curl_sha512_256_update(context, داده, درازی);
 }
 
 /* Wrapper function, returns void */
-static void Curl_sha512_256_finish_v(unsigned char *result, void *context)
+ساكن فراغ Curl_sha512_256_پایان_v(بیعلامت حرف *نتیجه, فراغ *context)
 {
   /* Hypothetically the function may fail, but assume it does not */
-  (void)Curl_sha512_256_finish(result, context);
+  (فراغ)Curl_sha512_256_پایان(نتیجه, context);
 }
 
 /* Wrapper function, takes 'unsigned int' as length type, returns void */
 
-const struct HMAC_params Curl_HMAC_SHA512_256[] = {
+ثابت بنية HMAC_params Curl_HMAC_SHA512_256[] = {
   {
     /* Initialize context procedure. */
     Curl_sha512_256_init,
     /* Update context with data. */
     Curl_sha512_256_update_i,
     /* Get final result procedure. */
-    Curl_sha512_256_finish_v,
+    Curl_sha512_256_پایان_v,
     /* Context structure size. */
-    sizeof(Curl_sha512_256_ctx),
+    حجم(Curl_sha512_256_ctx),
     /* Maximum key length (bytes). */
-    CURL_SHA512_256_BLOCK_SIZE,
+    CURL_SHA512_256_بلوک_اندازه,
     /* Result length (bytes). */
-    CURL_SHA512_256_DIGEST_SIZE
+    CURL_SHA512_256_DIGEST_اندازه
   }
 };
 
-#endif /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */
+#پایان_اگر /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */

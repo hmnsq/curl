@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RTSP_H
-#define HEADER_CURL_RTSP_H
+#اگر_تعریف_نشده سرآیند_CURL_RTSP_H
+#تعریف_کن سرآیند_CURL_RTSP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,25 +23,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_RTSP
-CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header);
-extern const struct Curl_protocol Curl_protocol_rtsp;
-#else
-#define Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_IN
-#endif
+#اگر_تعریف_نشده CURL_DISABLE_RTSP
+CURLcode Curl_rtsp_parseheader(بنية Curl_easy *داده, ثابت حرف *سرآیند);
+خارجي ثابت بنية Curl_protocol Curl_protocol_rtsp;
+#وإلا
+#تعریف_کن Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_درون
+#پایان_اگر
 
-#define RTSPREQ_NONE CURL_RTSPREQ_NONE
-#define RTSPREQ_OPTIONS CURL_RTSPREQ_OPTIONS
-#define RTSPREQ_DESCRIBE CURL_RTSPREQ_DESCRIBE
-#define RTSPREQ_ANNOUNCE CURL_RTSPREQ_ANNOUNCE
-#define RTSPREQ_SETUP CURL_RTSPREQ_SETUP
-#define RTSPREQ_PLAY CURL_RTSPREQ_PLAY
-#define RTSPREQ_PAUSE CURL_RTSPREQ_PAUSE
-#define RTSPREQ_TEARDOWN CURL_RTSPREQ_TEARDOWN
-#define RTSPREQ_GET_PARAMETER CURL_RTSPREQ_GET_PARAMETER
-#define RTSPREQ_SET_PARAMETER CURL_RTSPREQ_SET_PARAMETER
-#define RTSPREQ_RECORD CURL_RTSPREQ_RECORD
-#define RTSPREQ_RECEIVE CURL_RTSPREQ_RECEIVE
-#define RTSPREQ_LAST CURL_RTSPREQ_LAST
+#تعریف_کن RTSPREQ_NONE CURL_RTSPREQ_NONE
+#تعریف_کن RTSPREQ_OPTIONS CURL_RTSPREQ_OPTIONS
+#تعریف_کن RTSPREQ_DESCRIBE CURL_RTSPREQ_DESCRIBE
+#تعریف_کن RTSPREQ_ANNOUNCE CURL_RTSPREQ_ANNOUNCE
+#تعریف_کن RTSPREQ_راهاندازی CURL_RTSPREQ_راهاندازی
+#تعریف_کن RTSPREQ_PLAY CURL_RTSPREQ_PLAY
+#تعریف_کن RTSPREQ_PAUSE CURL_RTSPREQ_PAUSE
+#تعریف_کن RTSPREQ_TEARDOWN CURL_RTSPREQ_TEARDOWN
+#تعریف_کن RTSPREQ_GET_PARAMETER CURL_RTSPREQ_GET_PARAMETER
+#تعریف_کن RTSPREQ_مجموعه_PARAMETER CURL_RTSPREQ_مجموعه_PARAMETER
+#تعریف_کن RTSPREQ_رکورد CURL_RTSPREQ_رکورد
+#تعریف_کن RTSPREQ_RECEIVE CURL_RTSPREQ_RECEIVE
+#تعریف_کن RTSPREQ_آخرین CURL_RTSPREQ_آخرین
 
-#endif /* HEADER_CURL_RTSP_H */
+#پایان_اگر /* HEADER_CURL_RTSP_H */

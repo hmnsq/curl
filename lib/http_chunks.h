@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_CHUNKS_H
-#define HEADER_CURL_HTTP_CHUNKS_H
+#اگر_تعریف_نشده سرآیند_CURL_HTTP_CHUNKS_H
+#تعریف_کن سرآیند_CURL_HTTP_CHUNKS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#اگر_تعریف_نشده CURL_DISABLE_HTTP
 
-#include "curlx/dynbuf.h"
+#ضمن "curlx/dynbuf.h"
 
-struct connectdata;
+بنية connectdata;
 
 /*
  * The longest possible hexadecimal number we support in a chunked transfer.
@@ -37,9 +37,9 @@ struct connectdata;
  * the 64-bit curl_off_t we support 16 digits, excluding leading zeroes. But
  * why would a sane server prefix with zeroes? Let's accept one.
  */
-#define CHUNK_MAXNUM_LEN 17
+#تعریف_کن CHUNK_MAXNUM_LEN 17
 
-typedef enum {
+تعريفنوع تعداد {
   /* await and buffer all hexadecimal digits until we get one that is not a
      hexadecimal digit. When done, we go CHUNK_LF */
   CHUNK_HEX,
@@ -49,7 +49,7 @@ typedef enum {
 
   /* We eat the amount of data specified. When done, we move on to the
      POST_CR state. */
-  CHUNK_DATA,
+  CHUNK_داده,
 
   /* POSTLF should get a CR and then an LF and nothing else, then move back to
      HEX as the CRLF combination marks the end of a chunk. A missing CR is no
@@ -76,39 +76,39 @@ typedef enum {
   CHUNK_TRAILER_POSTCR,
 
   /* Successfully de-chunked everything */
-  CHUNK_DONE,
+  CHUNK_انجامشده,
 
   /* Failed on seeing a bad or not correctly terminated chunk */
   CHUNK_FAILED
 } ChunkyState;
 
-typedef enum {
+تعريفنوع تعداد {
   CHUNKE_OK = 0,
   CHUNKE_TOO_LONG_HEX = 1,
   CHUNKE_ILLEGAL_HEX,
   CHUNKE_BAD_CHUNK,
   CHUNKE_BAD_ENCODING,
-  CHUNKE_OUT_OF_MEMORY,
+  CHUNKE_بیرون_از_حافظه,
   CHUNKE_PASSTHRU_ERROR, /* Curl_httpchunk_read() returns a CURLcode to use */
-  CHUNKE_TRAILER_LIMIT /* Max header limit exceeded by trailers */
+  CHUNKE_TRAILER_حد /* Max header limit exceeded by trailers */
 } CHUNKcode;
 
-struct Curl_chunker {
+بنية Curl_chunker {
   curl_off_t datasize;
   ChunkyState state;
-  CHUNKcode last_code;
-  struct dynbuf trailer; /* for chunked-encoded trailer */
-  unsigned char hexindex;
-  char hexbuffer[CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
-  BIT(ignore_body); /* never write response body data */
-  BIT(in_connect); /* this is a CONNECT response body */
+  CHUNKcode آخرین_کد;
+  بنية dynbuf trailer; /* for chunked-encoded trailer */
+  بیعلامت حرف hexindex;
+  حرف hexbuffer[CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
+  بیت(ignore_body); /* never write response body data */
+  بیت(درون_connect); /* this is a CONNECT response body */
 };
 
 /* The following functions are defined in http_chunks.c */
-void Curl_httpchunk_init(struct Curl_easy *data, struct Curl_chunker *ch,
-                         bool ignore_body, bool in_connect);
-void Curl_httpchunk_free(struct Curl_easy *data, struct Curl_chunker *ch);
-void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
+فراغ Curl_httpchunk_init(بنية Curl_easy *داده, بنية Curl_chunker *ch,
+                         bool ignore_body, bool درون_connect);
+فراغ Curl_httpchunk_free(بنية Curl_easy *داده, بنية Curl_chunker *ch);
+فراغ Curl_httpchunk_reset(بنية Curl_easy *داده, بنية Curl_chunker *ch,
                           bool ignore_body);
 
 /*
@@ -127,23 +127,23 @@ void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
  * This function always uses ASCII hex values to accommodate non-ASCII hosts.
  * For example, 0x0d and 0x0a are used instead of '\r' and '\n'.
  */
-CURLcode Curl_httpchunk_read(struct Curl_easy *data, struct Curl_chunker *ch,
-                             char *buf, size_t blen, size_t *pconsumed);
+CURLcode Curl_httpchunk_read(بنية Curl_easy *داده, بنية Curl_chunker *ch,
+                             حرف *buf, size_t blen, size_t *pconsumed);
 
 /**
  * @return TRUE iff chunked decoded has finished successfully.
  */
-bool Curl_httpchunk_is_done(struct Curl_easy *data, struct Curl_chunker *ch);
+bool Curl_httpchunk_is_انجامشده(بنية Curl_easy *داده, بنية Curl_chunker *ch);
 
-extern const struct Curl_cwtype Curl_httpchunk_unencoder;
+خارجي ثابت بنية Curl_cwtype Curl_httpchunk_unencoder;
 
-extern const struct Curl_crtype Curl_httpchunk_encoder;
+خارجي ثابت بنية Curl_crtype Curl_httpchunk_encoder;
 
 /**
  * Add a transfer-encoding "chunked" reader to the transfers reader stack
  */
-CURLcode Curl_httpchunk_add_reader(struct Curl_easy *data);
+CURLcode Curl_httpchunk_جمع_کن_reader(بنية Curl_easy *داده);
 
-#endif /* !CURL_DISABLE_HTTP */
+#پایان_اگر /* !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_HTTP_CHUNKS_H */
+#پایان_اگر /* HEADER_CURL_HTTP_CHUNKS_H */

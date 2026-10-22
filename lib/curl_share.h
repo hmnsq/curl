@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SHARE_H
-#define HEADER_CURL_SHARE_H
+#اگر_تعریف_نشده سرآیند_CURL_SHARE_H
+#تعریف_کن سرآیند_CURL_SHARE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,78 +23,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curl_threads.h"
-#include "cookie.h"
-#include "psl.h"
-#include "urldata.h"
-#include "conncache.h"
+#ضمن "curl_threads.h"
+#ضمن "cookie.h"
+#ضمن "psl.h"
+#ضمن "urldata.h"
+#ضمن "conncache.h"
 
-struct Curl_easy;
-struct Curl_ssl_scache;
+بنية Curl_easy;
+بنية Curl_ssl_scache;
 
-#define CURL_GOOD_SHARE 0x7e117a1e
-#define GOOD_SHARE_HANDLE(x) ((x) && (x)->magic == CURL_GOOD_SHARE)
+#تعریف_کن CURL_GOOD_SHARE 0x7e117a1e
+#تعریف_کن GOOD_SHARE_HANDLE(x) ((x) && (x)->magic == CURL_GOOD_SHARE)
 
-#define CURL_SHARE_KEEP_CONNECT(s)                          \
-  ((s) && ((s)->specifier & (1 << CURL_LOCK_DATA_CONNECT)))
+#تعریف_کن CURL_SHARE_KEEP_CONNECT(s)                          \
+  ((s) && ((s)->specifier & (1 << CURL_قفل_داده_CONNECT)))
 
 /* this struct is libcurl-private, do not export details */
-struct Curl_share {
-  unsigned int magic; /* CURL_GOOD_SHARE */
-  unsigned int specifier;
+بنية Curl_share {
+  بیعلامت صحيح magic; /* CURL_GOOD_SHARE */
+  بیعلامت صحيح specifier;
 
-  uint32_t ref_count;
-#ifdef USE_MUTEX
+  uint32_t ref_شمار;
+#اگر_تعریف_شده USE_MUTEX
    /* do `ref_count` and `has_been_shared` checks using this mutex. */
-  curl_mutex_t lock;
-  int has_been_shared;
-#else
+  curl_mutex_t قفل;
+  صحيح has_been_shared;
+#وإلا
   /* this only ever goes from FALSE -> TRUE once. We need to check
    * this without being able to use the `lockfunc`. */
-  volatile int has_been_shared;
-#endif
-  curl_lock_function lockfunc;
+  متطاير صحيح has_been_shared;
+#پایان_اگر
+  curl_قفل_function lockfunc;
   curl_unlock_function unlockfunc;
-  void *clientdata;
-  struct Curl_easy *admin;
+  فراغ *clientdata;
+  بنية Curl_easy *admin;
 
-  struct cpool cpool;
-  struct Curl_dnscache dnscache; /* DNS cache */
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-  struct CookieInfo *cookies;
-#endif
-#ifdef USE_LIBPSL
-  struct PslCache psl;
-#endif
-#ifndef CURL_DISABLE_HSTS
-  struct hsts *hsts;
-#endif
-#ifdef USE_SSL
-  struct Curl_ssl_scache *ssl_scache;
-#endif
+  بنية cpool cpool;
+  بنية Curl_dnscache dnscache; /* DNS cache */
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+  بنية CookieInfo *cookies;
+#پایان_اگر
+#اگر_تعریف_شده USE_LIBPSL
+  بنية PslCache psl;
+#پایان_اگر
+#اگر_تعریف_نشده CURL_DISABLE_HSTS
+  بنية hsts *hsts;
+#پایان_اگر
+#اگر_تعریف_شده USE_SSL
+  بنية Curl_ssl_scache *ssl_scache;
+#پایان_اگر
 };
 
-CURLSHcode Curl_share_lock(struct Curl_easy *data, curl_lock_data type,
-                           curl_lock_access accesstype);
-CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type);
+CURLSHcode Curl_share_قفل(بنية Curl_easy *داده, curl_قفل_داده type,
+                           curl_قفل_access accesstype);
+CURLSHcode Curl_share_unlock(بنية Curl_easy *داده, curl_قفل_داده type);
 
-CURLSHcode Curl_share_lock_share(struct Curl_share *share,
-                                 struct Curl_easy *data,
-                                 curl_lock_data type,
-                                 curl_lock_access accesstype);
-CURLSHcode Curl_share_unlock_share(struct Curl_share *share,
-                                   struct Curl_easy *data,
-                                   curl_lock_data type);
+CURLSHcode Curl_share_قفل_share(بنية Curl_share *share,
+                                 بنية Curl_easy *داده,
+                                 curl_قفل_داده type,
+                                 curl_قفل_access accesstype);
+CURLSHcode Curl_share_unlock_share(بنية Curl_share *share,
+                                   بنية Curl_easy *داده,
+                                   curl_قفل_داده type);
 
 /* convenience macro to check if this handle is using a shared SSL spool */
-#define CURL_SHARE_ssl_scache(data)                                \
-  ((data)->share &&                                                \
-   ((data)->share->specifier & (1 << CURL_LOCK_DATA_SSL_SESSION)))
+#تعریف_کن CURL_SHARE_ssl_scache(داده)                                \
+  ((داده)->share &&                                                \
+   ((داده)->share->specifier & (1 << CURL_قفل_داده_SSL_SESSION)))
 
-CURLcode Curl_share_easy_unlink(struct Curl_easy *data);
-CURLcode Curl_share_easy_link(struct Curl_easy *data,
-                              struct Curl_share *share);
+CURLcode Curl_share_easy_unlink(بنية Curl_easy *داده);
+CURLcode Curl_share_easy_link(بنية Curl_easy *داده,
+                              بنية Curl_share *share);
 
-#endif /* HEADER_CURL_SHARE_H */
+#پایان_اگر /* HEADER_CURL_SHARE_H */

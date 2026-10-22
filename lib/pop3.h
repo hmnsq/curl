@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_POP3_H
-#define HEADER_CURL_POP3_H
+#اگر_تعریف_نشده سرآیند_CURL_POP3_H
+#تعریف_کن سرآیند_CURL_POP3_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_POP3
-extern const struct Curl_protocol Curl_protocol_pop3;
-#endif
+#اگر_تعریف_نشده CURL_DISABLE_POP3
+خارجي ثابت بنية Curl_protocol Curl_protocol_pop3;
+#پایان_اگر
 
-#endif /* HEADER_CURL_POP3_H */
+#پایان_اگر /* HEADER_CURL_POP3_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NTLM_CORE_H
-#define HEADER_CURL_NTLM_CORE_H
+#اگر_تعریف_نشده سرآیند_CURL_NTLM_CORE_H
+#تعریف_کن سرآیند_CURL_NTLM_CORE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,51 +23,51 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_CURL_NTLM_CORE
+#اگر_تعریف_شده USE_CURL_NTLM_CORE
 
-struct ntlmdata;
+بنية ntlmdata;
 
 /* Helpers to generate function byte arguments in little endian order */
-#define SHORTPAIR(x)   ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff))
-#define LONGQUARTET(x) ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff)), \
-  ((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
+#تعریف_کن SHORTPAIR(x)   ((صحيح)((x) & 0xff)), ((صحيح)(((x) >> 8) & 0xff))
+#تعریف_کن LONGQUARTET(x) ((صحيح)((x) & 0xff)), ((صحيح)(((x) >> 8) & 0xff)), \
+  ((صحيح)(((x) >> 16) & 0xff)), ((صحيح)(((x) >> 24) & 0xff))
 
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results);
+فراغ Curl_ntlm_core_lm_resp(ثابت بیعلامت حرف *کلیدها,
+                            ثابت بیعلامت حرف *plaintext,
+                            بیعلامت حرف *results);
 
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_lm_hash(ثابت حرف *password,
+                                   بیعلامت حرف *lmbuffer /* 21 bytes */);
 
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_nt_hash(ثابت حرف *password,
+                                   بیعلامت حرف *ntbuffer /* 21 bytes */);
 
-#ifndef USE_WINDOWS_SSPI
+#اگر_تعریف_نشده USE_WINDOWS_SSPI
 
-CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
-                       const unsigned char *data, unsigned int datalen,
-                       unsigned char *output);
+CURLcode Curl_hmac_md5(ثابت بیعلامت حرف *کلید, بیعلامت صحيح keylen,
+                       ثابت بیعلامت حرف *داده, بیعلامت صحيح datalen,
+                       بیعلامت حرف *output);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash);
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(ثابت حرف *user, size_t userlen,
+                                       ثابت حرف *domain, size_t domlen,
+                                       بیعلامت حرف *ntlmhash,
+                                       بیعلامت حرف *ntlmv2hash);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len);
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(ثابت بیعلامت حرف *ntlmv2hash,
+                                       ثابت بیعلامت حرف *challenge_client,
+                                       ثابت بنية ntlmdata *ntlm,
+                                       بیعلامت حرف **ntresp,
+                                       بیعلامت صحيح *ntresp_len);
 
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp);
+CURLcode Curl_ntlm_core_mk_lmv2_resp(ثابت بیعلامت حرف *ntlmv2hash,
+                                     ثابت بیعلامت حرف *challenge_client,
+                                     ثابت بیعلامت حرف *challenge_server,
+                                     بیعلامت حرف *lmresp);
 
-#endif /* !USE_WINDOWS_SSPI */
+#پایان_اگر /* !USE_WINDOWS_SSPI */
 
-#endif /* USE_CURL_NTLM_CORE */
+#پایان_اگر /* USE_CURL_NTLM_CORE */
 
-#endif /* HEADER_CURL_NTLM_CORE_H */
+#پایان_اگر /* HEADER_CURL_NTLM_CORE_H */

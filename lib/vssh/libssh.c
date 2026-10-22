@@ -24,88 +24,88 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_LIBSSH
+#اگر_تعریف_شده USE_LIBSSH
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#اگر_تعریف_شده HAVE_NETINET_درون_H
+#ضمن <netinet/in.h>
+#پایان_اگر
+#اگر_تعریف_شده HAVE_ARPA_INET_H
+#ضمن <arpa/inet.h>
+#پایان_اگر
+#اگر_تعریف_شده HAVE_NETDB_H
+#ضمن <netdb.h>
+#پایان_اگر
+#اگر_تعریف_شده __VMS
+#ضمن <in.h>
+#ضمن <inet.h>
+#پایان_اگر
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "vssh/ssh.h"
-#include "url.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "parsedate.h"          /* for the week day and month names */
-#include "curlx/strparse.h"
-#include "multiif.h"
-#include "select.h"
-#include "vssh/vssh.h"
-#include "curlx/base64.h" /* for curlx_base64_encode() */
+#ضمن "urldata.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "progress.h"
+#ضمن "transfer.h"
+#ضمن "vssh/ssh.h"
+#ضمن "url.h"
+#ضمن "cfilters.h"
+#ضمن "connect.h"
+#ضمن "parsedate.h"          /* for the week day and month names */
+#ضمن "curlx/strparse.h"
+#ضمن "multiif.h"
+#ضمن "select.h"
+#ضمن "vssh/vssh.h"
+#ضمن "curlx/base64.h" /* for curlx_base64_encode() */
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
+#اگر_تعریف_شده HAVE_UNISTD_H
+#ضمن <unistd.h>
+#پایان_اگر
+#اگر_تعریف_شده HAVE_FCNTL_H
+#ضمن <fcntl.h>
+#پایان_اگر
 
 /* A recent macro provided by libssh. Or make our own. */
-#ifndef SSH_STRING_FREE_CHAR
-#define SSH_STRING_FREE_CHAR(x) \
-  do {                          \
-    if(x) {                     \
+#اگر_تعریف_نشده SSH_STRING_FREE_CHAR
+#تعریف_کن SSH_STRING_FREE_CHAR(x) \
+  افعل {                          \
+    إذا(x) {                     \
       ssh_string_free_char(x);  \
-      x = NULL;                 \
+      x = عدم;                 \
     }                           \
-  } while(0)
-#endif
+  } طالما(0)
+#پایان_اگر
 
 /* These stat values may not be the same as the user's S_IFMT / S_IFLNK */
-#ifndef SSH_S_IFMT
-#define SSH_S_IFMT   00170000
-#endif
-#ifndef SSH_S_IFLNK
-#define SSH_S_IFLNK  0120000
-#endif
+#اگر_تعریف_نشده SSH_S_IFMT
+#تعریف_کن SSH_S_IFMT   00170000
+#پایان_اگر
+#اگر_تعریف_نشده SSH_S_IFLNK
+#تعریف_کن SSH_S_IFLNK  0120000
+#پایان_اگر
 
-static CURLcode sftp_error_to_CURLE(int err)
+ساكن CURLcode sftp_error_مقصد_CURLE(صحيح err)
 {
-  switch(err) {
-  case SSH_FX_OK:
-    return CURLE_OK;
+  بدل(err) {
+  حالة SSH_FX_OK:
+    أرجع CURLE_OK;
 
-  case SSH_FX_NO_SUCH_FILE:
-  case SSH_FX_NO_SUCH_PATH:
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+  حالة SSH_FX_NO_SUCH_FILE:
+  حالة SSH_FX_NO_SUCH_مسیر:
+    أرجع CURLE_REMOTE_FILE_NOT_یافت;
 
-  case SSH_FX_PERMISSION_DENIED:
-  case SSH_FX_WRITE_PROTECT:
-    return CURLE_REMOTE_ACCESS_DENIED;
+  حالة SSH_FX_PERMISSION_DENIED:
+  حالة SSH_FX_WRITE_PROTECT:
+    أرجع CURLE_REMOTE_ACCESS_DENIED;
 
-  case SSH_FX_FILE_ALREADY_EXISTS:
-    return CURLE_REMOTE_FILE_EXISTS;
+  حالة SSH_FX_FILE_ALREADY_EXISTS:
+    أرجع CURLE_REMOTE_FILE_EXISTS;
 
-  default:
-    break;
+  افتراضي:
+    اكسر;
   }
 
-  return CURLE_SSH;
+  أرجع CURLE_SSH;
 }
 
 /* Multiple options:
@@ -120,315 +120,315 @@ static CURLcode sftp_error_to_CURLE(int err)
  *
  * Returns SSH_OK or SSH_ERROR.
  */
-static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
+ساكن صحيح myssh_is_معلوم(بنية Curl_easy *داده, بنية ssh_conn *sshc)
 {
-  int rc;
-  ssh_key pubkey;
-  unsigned char *hash_sha256 = NULL;
+  صحيح rc;
+  ssh_کلید pubkey;
+  بیعلامت حرف *hash_sha256 = عدم;
   size_t hlen_sha256;
-  unsigned char *hash_md5 = NULL;
+  بیعلامت حرف *hash_md5 = عدم;
   size_t hlen_md5;
-  char *found_base64 = NULL;
-  char *known_base64 = NULL;
-  int vstate;
-  enum curl_khmatch keymatch;
-  struct curl_khkey foundkey;
-  struct curl_khkey *knownkeyp = NULL;
-  curl_sshkeycallback func = data->set.ssh_keyfunc;
-  struct ssh_knownhosts_entry *knownhostsentry = NULL;
-  struct curl_khkey knownkey;
+  حرف *یافت_base64 = عدم;
+  حرف *معلوم_base64 = عدم;
+  صحيح vstate;
+  تعداد curl_khmatch keymatch;
+  بنية curl_khkey foundkey;
+  بنية curl_khkey *knownkeyp = عدم;
+  curl_sshkeycallback func = داده->مجموعه.ssh_keyfunc;
+  بنية ssh_knownhosts_مدخل *knownhostsentry = عدم;
+  بنية curl_khkey knownkey;
 
   rc = ssh_get_server_publickey(sshc->ssh_session, &pubkey);
 
-  if(rc != SSH_OK)
-    return rc;
+  إذا(rc != SSH_OK)
+    أرجع rc;
 
-  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256)) {
-    const char *pubkey_sha256 =
-      CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256);
-    char *fingerprint_b64 = NULL;
+  إذا(CURL_EASY_STR(داده, STRING_SSH_HOST_عمومی_کلید_SHA256)) {
+    ثابت حرف *pubkey_sha256 =
+      CURL_EASY_STR(داده, STRING_SSH_HOST_عمومی_کلید_SHA256);
+    حرف *fingerprint_b64 = عدم;
     size_t fingerprint_b64_len;
     size_t pub_pos = 0;
     size_t b64_pos = 0;
 
     rc = ssh_get_publickey_hash(pubkey, SSH_PUBLICKEY_HASH_SHA256,
                                 &hash_sha256, &hlen_sha256);
-    if(rc != SSH_OK || hlen_sha256 != 32) {
-      failf(data, "Denied establishing ssh session: "
+    إذا(rc != SSH_OK || hlen_sha256 != 32) {
+      failf(داده, "Denied establishing ssh session: "
             "SHA256 fingerprint not available");
-      goto cleanup;
+      اذهب cleanup;
     }
 
-    if(curlx_base64_encode((const uint8_t *)hash_sha256, 32, &fingerprint_b64,
+    إذا(curlx_base64_encode((ثابت uint8_t *)hash_sha256, 32, &fingerprint_b64,
                            &fingerprint_b64_len) != CURLE_OK) {
       rc = SSH_ERROR;
-      goto cleanup;
+      اذهب cleanup;
     }
 
-    infof(data, "SSH SHA256 fingerprint: %s", fingerprint_b64);
+    infof(داده, "SSH SHA256 fingerprint: %s", fingerprint_b64);
 
     /* Find the position of any = padding characters in the public key */
-    while((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
+    طالما((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
       pub_pos++;
     }
 
     /* Find the position of any = padding characters in the base64 coded
      * hostkey fingerprint */
-    while((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
+    طالما((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
       b64_pos++;
     }
 
     /* Before we authenticate we check the hostkey's SHA256 fingerprint
      * against a known fingerprint, if available.
      */
-    if((pub_pos != b64_pos) ||
-       strncmp(fingerprint_b64, pubkey_sha256, pub_pos)) {
-      failf(data,
+    إذا((pub_pos != b64_pos) ||
+       مقایسه_رشته(fingerprint_b64, pubkey_sha256, pub_pos)) {
+      failf(داده,
             "Denied establishing ssh session: mismatch SHA256 fingerprint. "
             "Remote %s is not equal to %s", fingerprint_b64, pubkey_sha256);
       curlx_free(fingerprint_b64);
       rc = SSH_ERROR;
-      goto cleanup;
+      اذهب cleanup;
     }
 
     curlx_free(fingerprint_b64);
 
     rc = SSH_OK;
-    goto cleanup;
+    اذهب cleanup;
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5)) {
-    const char *pubkey_md5 =
-      CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5);
-    char md5buffer[33];
-    int i;
+  إذا(CURL_EASY_STR(داده, STRING_SSH_HOST_عمومی_کلید_MD5)) {
+    ثابت حرف *pubkey_md5 =
+      CURL_EASY_STR(داده, STRING_SSH_HOST_عمومی_کلید_MD5);
+    حرف md5buffer[33];
+    صحيح i;
 
     rc = ssh_get_publickey_hash(pubkey, SSH_PUBLICKEY_HASH_MD5,
                                 &hash_md5, &hlen_md5);
-    if(rc != SSH_OK || hlen_md5 != 16) {
-      failf(data,
+    إذا(rc != SSH_OK || hlen_md5 != 16) {
+      failf(داده,
             "Denied establishing ssh session: MD5 fingerprint not available");
-      goto cleanup;
+      اذهب cleanup;
     }
 
-    for(i = 0; i < 16; i++)
+    لكل(i = 0; i < 16; i++)
       curl_msnprintf(&md5buffer[i * 2], 3, "%02x", hash_md5[i]);
 
-    infof(data, "SSH MD5 fingerprint: %s", md5buffer);
+    infof(داده, "SSH MD5 fingerprint: %s", md5buffer);
 
-    if(!curl_strequal(md5buffer, pubkey_md5)) {
-      failf(data,
+    إذا(!curl_strequal(md5buffer, pubkey_md5)) {
+      failf(داده,
             "Denied establishing ssh session: mismatch MD5 fingerprint. "
             "Remote %s is not equal to %s", md5buffer, pubkey_md5);
       rc = SSH_ERROR;
-      goto cleanup;
+      اذهب cleanup;
     }
 
     rc = SSH_OK;
-    goto cleanup;
+    اذهب cleanup;
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
+  إذا(CURL_EASY_STR(داده, STRING_SSH_KNOWNHOSTS)) {
 
     /* Get the known_key from the known hosts file */
-    vstate = ssh_session_get_known_hosts_entry(sshc->ssh_session,
+    vstate = ssh_session_get_معلوم_hosts_مدخل(sshc->ssh_session,
                                                &knownhostsentry);
 
     /* Case an entry was found in a known hosts file */
-    if(knownhostsentry) {
-      if(knownhostsentry->publickey) {
+    إذا(knownhostsentry) {
+      إذا(knownhostsentry->publickey) {
         rc = ssh_pki_export_pubkey_base64(knownhostsentry->publickey,
-                                          &known_base64);
-        if(rc != SSH_OK) {
-          goto cleanup;
+                                          &معلوم_base64);
+        إذا(rc != SSH_OK) {
+          اذهب cleanup;
         }
-        knownkey.key = known_base64;
-        knownkey.len = strlen(known_base64);
+        knownkey.کلید = معلوم_base64;
+        knownkey.len = طول_رشته(معلوم_base64);
 
-        switch(ssh_key_type(knownhostsentry->publickey)) {
-        case SSH_KEYTYPE_RSA:
+        بدل(ssh_کلید_type(knownhostsentry->publickey)) {
+        حالة SSH_KEYTYPE_RSA:
           knownkey.keytype = CURLKHTYPE_RSA;
-          break;
-        case SSH_KEYTYPE_RSA1:
+          اكسر;
+        حالة SSH_KEYTYPE_RSA1:
           knownkey.keytype = CURLKHTYPE_RSA1;
-          break;
-        case SSH_KEYTYPE_ECDSA:
-        case SSH_KEYTYPE_ECDSA_P256:
-        case SSH_KEYTYPE_ECDSA_P384:
-        case SSH_KEYTYPE_ECDSA_P521:
+          اكسر;
+        حالة SSH_KEYTYPE_ECDSA:
+        حالة SSH_KEYTYPE_ECDSA_P256:
+        حالة SSH_KEYTYPE_ECDSA_P384:
+        حالة SSH_KEYTYPE_ECDSA_P521:
           knownkey.keytype = CURLKHTYPE_ECDSA;
-          break;
-        case SSH_KEYTYPE_ED25519:
+          اكسر;
+        حالة SSH_KEYTYPE_ED25519:
           knownkey.keytype = CURLKHTYPE_ED25519;
-          break;
-        case SSH_KEYTYPE_DSS:
+          اكسر;
+        حالة SSH_KEYTYPE_DSS:
           knownkey.keytype = CURLKHTYPE_DSS;
-          break;
-        default:
+          اكسر;
+        افتراضي:
           rc = SSH_ERROR;
-          goto cleanup;
+          اذهب cleanup;
         }
         knownkeyp = &knownkey;
       }
     }
 
-    switch(vstate) {
-    case SSH_KNOWN_HOSTS_OK:
+    بدل(vstate) {
+    حالة SSH_معلوم_HOSTS_OK:
       keymatch = CURLKHMATCH_OK;
-      break;
-    case SSH_KNOWN_HOSTS_OTHER:
+      اكسر;
+    حالة SSH_معلوم_HOSTS_OTHER:
       keymatch = CURLKHMATCH_MISMATCH;
-      break;
-    case SSH_KNOWN_HOSTS_NOT_FOUND:
-    case SSH_KNOWN_HOSTS_UNKNOWN:
-    case SSH_KNOWN_HOSTS_ERROR:
+      اكسر;
+    حالة SSH_معلوم_HOSTS_NOT_یافت:
+    حالة SSH_معلوم_HOSTS_UNKNOWN:
+    حالة SSH_معلوم_HOSTS_ERROR:
       keymatch = CURLKHMATCH_MISSING;
-      break;
-    default:
+      اكسر;
+    افتراضي:
       keymatch = CURLKHMATCH_MISMATCH;
-      break;
+      اكسر;
     }
 
-    if(func) { /* use callback to determine action */
-      struct Curl_mapi_guard guard;
+    إذا(func) { /* use callback to determine action */
+      بنية Curl_mapi_guard guard;
 
-      rc = ssh_pki_export_pubkey_base64(pubkey, &found_base64);
-      if(rc != SSH_OK)
-        goto cleanup;
+      rc = ssh_pki_export_pubkey_base64(pubkey, &یافت_base64);
+      إذا(rc != SSH_OK)
+        اذهب cleanup;
 
-      foundkey.key = found_base64;
-      foundkey.len = strlen(found_base64);
+      foundkey.کلید = یافت_base64;
+      foundkey.len = طول_رشته(یافت_base64);
 
-      switch(ssh_key_type(pubkey)) {
-      case SSH_KEYTYPE_RSA:
+      بدل(ssh_کلید_type(pubkey)) {
+      حالة SSH_KEYTYPE_RSA:
         foundkey.keytype = CURLKHTYPE_RSA;
-        break;
-      case SSH_KEYTYPE_RSA1:
+        اكسر;
+      حالة SSH_KEYTYPE_RSA1:
         foundkey.keytype = CURLKHTYPE_RSA1;
-        break;
-      case SSH_KEYTYPE_ECDSA:
-      case SSH_KEYTYPE_ECDSA_P256:
-      case SSH_KEYTYPE_ECDSA_P384:
-      case SSH_KEYTYPE_ECDSA_P521:
+        اكسر;
+      حالة SSH_KEYTYPE_ECDSA:
+      حالة SSH_KEYTYPE_ECDSA_P256:
+      حالة SSH_KEYTYPE_ECDSA_P384:
+      حالة SSH_KEYTYPE_ECDSA_P521:
         foundkey.keytype = CURLKHTYPE_ECDSA;
-        break;
-      case SSH_KEYTYPE_ED25519:
+        اكسر;
+      حالة SSH_KEYTYPE_ED25519:
         foundkey.keytype = CURLKHTYPE_ED25519;
-        break;
-      case SSH_KEYTYPE_DSS:
+        اكسر;
+      حالة SSH_KEYTYPE_DSS:
         foundkey.keytype = CURLKHTYPE_DSS;
-        break;
-      default:
+        اكسر;
+      افتراضي:
         rc = SSH_ERROR;
-        goto cleanup;
+        اذهب cleanup;
       }
 
-      CURL_CBAPI_START(&guard, data, easy_ssh_keyfunc);
-      rc = func(data, knownkeyp, /* from the knownhosts file */
+      CURL_CBAPI_شروع(&guard, داده, easy_ssh_keyfunc);
+      rc = func(داده, knownkeyp, /* from the knownhosts file */
                 &foundkey,       /* from the remote host */
-                keymatch, data->set.ssh_keyfunc_userp);
-      CURL_CBAPI_END(&guard);
+                keymatch, داده->مجموعه.ssh_keyfunc_userp);
+      CURL_CBAPI_انتها(&guard);
 
-      switch(rc) {
-      case CURLKHSTAT_FINE_ADD_TO_FILE:
-        rc = ssh_session_update_known_hosts(sshc->ssh_session);
-        if(rc != SSH_OK) {
-          goto cleanup;
+      بدل(rc) {
+      حالة CURLKHSTAT_FINE_جمع_کن_مقصد_FILE:
+        rc = ssh_session_update_معلوم_hosts(sshc->ssh_session);
+        إذا(rc != SSH_OK) {
+          اذهب cleanup;
         }
-        break;
-      case CURLKHSTAT_FINE:
-        break;
-      default: /* REJECT/DEFER */
+        اكسر;
+      حالة CURLKHSTAT_FINE:
+        اكسر;
+      افتراضي: /* REJECT/DEFER */
         rc = SSH_ERROR;
-        goto cleanup;
+        اذهب cleanup;
       }
     }
-    else {
-      if(keymatch != CURLKHMATCH_OK) {
+    وإلا {
+      إذا(keymatch != CURLKHMATCH_OK) {
         rc = SSH_ERROR;
-        goto cleanup;
+        اذهب cleanup;
       }
     }
   }
   rc = SSH_OK;
 
 cleanup:
-  if(found_base64) {
+  إذا(یافت_base64) {
     /* !checksrc! disable BANNEDFUNC 1 */
-    free(found_base64); /* allocated by libssh, deallocate with system free */
+    حرر(یافت_base64); /* allocated by libssh, deallocate with system free */
   }
-  if(known_base64) {
+  إذا(معلوم_base64) {
     /* !checksrc! disable BANNEDFUNC 1 */
-    free(known_base64); /* allocated by libssh, deallocate with system free */
+    حرر(معلوم_base64); /* allocated by libssh, deallocate with system free */
   }
-  if(hash_sha256)
+  إذا(hash_sha256)
     ssh_clean_pubkey_hash(&hash_sha256);
-  if(hash_md5)
+  إذا(hash_md5)
     ssh_clean_pubkey_hash(&hash_md5);
-  ssh_key_free(pubkey);
-  if(knownhostsentry) {
-    ssh_knownhosts_entry_free(knownhostsentry);
+  ssh_کلید_free(pubkey);
+  إذا(knownhostsentry) {
+    ssh_knownhosts_مدخل_free(knownhostsentry);
   }
-  return rc;
+  أرجع rc;
 }
 
-static int myssh_to_ERROR(struct Curl_easy *data,
-                          struct ssh_conn *sshc,
-                          CURLcode result)
+ساكن صحيح myssh_مقصد_ERROR(بنية Curl_easy *داده,
+                          بنية ssh_conn *sshc,
+                          CURLcode نتیجه)
 {
-  myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  sshc->actualcode = result;
-  return SSH_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SESSION_DISCONNECT);
+  sshc->actualcode = نتیجه;
+  أرجع SSH_ERROR;
 }
 
-static int myssh_to_SFTP_CLOSE(struct Curl_easy *data,
-                               struct ssh_conn *sshc)
+ساكن صحيح myssh_مقصد_SFTP_CLOSE(بنية Curl_easy *داده,
+                               بنية ssh_conn *sshc)
 {
-  myssh_to(data, sshc, SSH_SFTP_CLOSE);
-  sshc->actualcode = sftp_error_to_CURLE(sftp_get_error(sshc->sftp_session));
-  return SSH_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
+  sshc->actualcode = sftp_error_مقصد_CURLE(sftp_get_error(sshc->sftp_session));
+  أرجع SSH_ERROR;
 }
 
-static int myssh_to_PASSWD_AUTH(struct Curl_easy *data,
-                                struct ssh_conn *sshc)
+ساكن صحيح myssh_مقصد_PASSWD_AUTH(بنية Curl_easy *داده,
+                                بنية ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
-    myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
-    return SSH_OK;
+  إذا(sshc->auth_methods & SSH_AUTH_روش_PASSWORD) {
+    myssh_مقصد(داده, sshc, SSH_AUTH_PASS_INIT);
+    أرجع SSH_OK;
   }
-  return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_LOGIN_DENIED);
 }
 
-static int myssh_to_KEY_AUTH(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+ساكن صحيح myssh_مقصد_کلید_AUTH(بنية Curl_easy *داده,
+                             بنية ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
-    return SSH_OK;
+  إذا(sshc->auth_methods & SSH_AUTH_روش_INTERACTIVE) {
+    myssh_مقصد(داده, sshc, SSH_AUTH_کلید_INIT);
+    أرجع SSH_OK;
   }
-  return myssh_to_PASSWD_AUTH(data, sshc);
+  أرجع myssh_مقصد_PASSWD_AUTH(داده, sshc);
 }
 
-static int myssh_to_GSSAPI_AUTH(struct Curl_easy *data,
-                                struct ssh_conn *sshc)
+ساكن صحيح myssh_مقصد_GSSAPI_AUTH(بنية Curl_easy *داده,
+                                بنية ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
-    myssh_to(data, sshc, SSH_AUTH_GSSAPI);
-    return SSH_OK;
+  إذا(sshc->auth_methods & SSH_AUTH_روش_GSSAPI_MIC) {
+    myssh_مقصد(داده, sshc, SSH_AUTH_GSSAPI);
+    أرجع SSH_OK;
   }
-  return myssh_to_KEY_AUTH(data, sshc);
+  أرجع myssh_مقصد_کلید_AUTH(داده, sshc);
 }
 
-static int myssh_in_SFTP_READDIR_INIT(struct Curl_easy *data,
-                                      struct ssh_conn *sshc,
-                                      struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_READDIR_INIT(بنية Curl_easy *داده,
+                                      بنية ssh_conn *sshc,
+                                      بنية SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
-  Curl_pgrsSetDownloadSize(data, -1);
-  if(data->req.no_body) {
-    myssh_to(data, sshc, SSH_STOP);
-    return SSH_NO_ERROR;
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
+  Curl_pgrs_مجموعه_Download_اندازه(داده, -1);
+  إذا(داده->req.no_body) {
+    myssh_مقصد(داده, sshc, SSH_STOP);
+    أرجع SSH_NO_ERROR;
   }
 
   /*
@@ -436,123 +436,123 @@ static int myssh_in_SFTP_READDIR_INIT(struct Curl_easy *data,
    * listing
    */
   sshc->sftp_dir = sftp_opendir(sshc->sftp_session,
-                                sshp->path);
-  if(!sshc->sftp_dir) {
-    failf(data, "Could not open directory for reading: %s",
+                                sshp->مسیر);
+  إذا(!sshc->sftp_dir) {
+    failf(داده, "Could not open directory for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    أرجع myssh_مقصد_SFTP_CLOSE(داده, sshc);
   }
-  myssh_to(data, sshc, SSH_SFTP_READDIR);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_READDIR);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR(struct Curl_easy *data,
-                                 struct ssh_conn *sshc,
-                                 struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_READDIR(بنية Curl_easy *داده,
+                                 بنية ssh_conn *sshc,
+                                 بنية SSHPROTO *sshp)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
   curlx_dyn_reset(&sshc->readdir_buf);
-  if(sshc->readdir_attrs)
-    sftp_attributes_free(sshc->readdir_attrs);
+  إذا(sshc->readdir_attrs)
+    sftp_صفات_free(sshc->readdir_attrs);
 
   sshc->readdir_attrs = sftp_readdir(sshc->sftp_session, sshc->sftp_dir);
-  if(sshc->readdir_attrs) {
+  إذا(sshc->readdir_attrs) {
     sshc->readdir_filename = sshc->readdir_attrs->name;
     sshc->readdir_longentry = sshc->readdir_attrs->longname;
-    sshc->readdir_len = strlen(sshc->readdir_filename);
+    sshc->readdir_len = طول_رشته(sshc->readdir_filename);
 
-    if(data->set.list_only) {
-      char *tmpLine;
+    إذا(داده->مجموعه.list_only) {
+      حرف *tmp_سطر;
 
-      tmpLine = curl_maprintf("%s\n", sshc->readdir_filename);
-      if(!tmpLine) {
-        myssh_to(data, sshc, SSH_SFTP_CLOSE);
-        sshc->actualcode = CURLE_OUT_OF_MEMORY;
-        return SSH_ERROR;
+      tmp_سطر = curl_maprintf("%s\n", sshc->readdir_filename);
+      إذا(!tmp_سطر) {
+        myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
+        sshc->actualcode = CURLE_بیرون_از_حافظه;
+        أرجع SSH_ERROR;
       }
-      result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                 tmpLine, sshc->readdir_len + 1);
-      curlx_free(tmpLine);
+      نتیجه = Curl_client_write(داده, CLIENTWRITE_BODY,
+                                 tmp_سطر, sshc->readdir_len + 1);
+      curlx_free(tmp_سطر);
 
-      if(result) {
-        myssh_to(data, sshc, SSH_STOP);
-        sshc->actualcode = result;
-        return SSH_NO_ERROR;
+      إذا(نتیجه) {
+        myssh_مقصد(داده, sshc, SSH_STOP);
+        sshc->actualcode = نتیجه;
+        أرجع SSH_NO_ERROR;
       }
     }
-    else {
-      if(curlx_dyn_add(&sshc->readdir_buf, sshc->readdir_longentry)) {
-        sshc->actualcode = CURLE_OUT_OF_MEMORY;
-        myssh_to(data, sshc, SSH_STOP);
-        return SSH_ERROR;
+    وإلا {
+      إذا(curlx_dyn_جمع_کن(&sshc->readdir_buf, sshc->readdir_longentry)) {
+        sshc->actualcode = CURLE_بیرون_از_حافظه;
+        myssh_مقصد(داده, sshc, SSH_STOP);
+        أرجع SSH_ERROR;
       }
 
-      if((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) &&
+      إذا((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) &&
          ((sshc->readdir_attrs->permissions & SSH_S_IFMT) ==
           SSH_S_IFLNK)) {
-        sshc->readdir_linkPath = curl_maprintf("%s%s", sshp->path,
+        sshc->readdir_link_مسیر = curl_maprintf("%s%s", sshp->مسیر,
                                                sshc->readdir_filename);
 
-        if(!sshc->readdir_linkPath) {
-          myssh_to(data, sshc, SSH_SFTP_CLOSE);
-          sshc->actualcode = CURLE_OUT_OF_MEMORY;
-          return SSH_ERROR;
+        إذا(!sshc->readdir_link_مسیر) {
+          myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
+          sshc->actualcode = CURLE_بیرون_از_حافظه;
+          أرجع SSH_ERROR;
         }
 
-        myssh_to(data, sshc, SSH_SFTP_READDIR_LINK);
-        return SSH_NO_ERROR;
+        myssh_مقصد(داده, sshc, SSH_SFTP_READDIR_LINK);
+        أرجع SSH_NO_ERROR;
       }
-      myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
-      return SSH_NO_ERROR;
+      myssh_مقصد(داده, sshc, SSH_SFTP_READDIR_BOTTOM);
+      أرجع SSH_NO_ERROR;
     }
   }
-  else if(sftp_dir_eof(sshc->sftp_dir)) {
-    myssh_to(data, sshc, SSH_SFTP_READDIR_DONE);
+  وإلا إذا(sftp_dir_eof(sshc->sftp_dir)) {
+    myssh_مقصد(داده, sshc, SSH_SFTP_READDIR_انجامشده);
   }
-  else {
-    failf(data, "Could not open remote directory for reading: %s",
+  وإلا {
+    failf(داده, "Could not open remote directory for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    أرجع myssh_مقصد_SFTP_CLOSE(داده, sshc);
   }
-  return SSH_NO_ERROR;
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_READDIR_LINK(بنية Curl_easy *داده,
+                                      بنية ssh_conn *sshc)
 {
-  if(sshc->readdir_link_attrs)
-    sftp_attributes_free(sshc->readdir_link_attrs);
+  إذا(sshc->readdir_link_attrs)
+    sftp_صفات_free(sshc->readdir_link_attrs);
 
   sshc->readdir_link_attrs = sftp_lstat(sshc->sftp_session,
-                                        sshc->readdir_linkPath);
-  if(!sshc->readdir_link_attrs) {
-    failf(data, "Could not read symlink for reading: %s",
+                                        sshc->readdir_link_مسیر);
+  إذا(!sshc->readdir_link_attrs) {
+    failf(داده, "Could not read symlink for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    أرجع myssh_مقصد_SFTP_CLOSE(داده, sshc);
   }
 
-  if(!sshc->readdir_link_attrs->name) {
+  إذا(!sshc->readdir_link_attrs->name) {
     sshc->readdir_tmp = sftp_readlink(sshc->sftp_session,
-                                      sshc->readdir_linkPath);
-    if(!sshc->readdir_tmp)
+                                      sshc->readdir_link_مسیر);
+    إذا(!sshc->readdir_tmp)
       sshc->readdir_len = 0;
-    else
-      sshc->readdir_len = strlen(sshc->readdir_tmp);
-    sshc->readdir_longentry = NULL;
+    وإلا
+      sshc->readdir_len = طول_رشته(sshc->readdir_tmp);
+    sshc->readdir_longentry = عدم;
     sshc->readdir_filename = sshc->readdir_tmp;
   }
-  else {
-    sshc->readdir_len = strlen(sshc->readdir_link_attrs->name);
+  وإلا {
+    sshc->readdir_len = طول_رشته(sshc->readdir_link_attrs->name);
     sshc->readdir_filename = sshc->readdir_link_attrs->name;
     sshc->readdir_longentry = sshc->readdir_link_attrs->longname;
   }
 
-  curlx_safefree(sshc->readdir_linkPath);
+  curlx_safefree(sshc->readdir_link_مسیر);
 
-  if(curlx_dyn_addf(&sshc->readdir_buf, " -> %s", sshc->readdir_filename)) {
+  إذا(curlx_dyn_addf(&sshc->readdir_buf, " -> %s", sshc->readdir_filename)) {
     /* Not using:
      * return myssh_to_SFTP_CLOSE(data, sshc);
      *
@@ -560,504 +560,504 @@ static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
      * assigning sshc->actualcode whereas the current
      * error is curlx_dyn_addf() related.
      */
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-    sshc->actualcode = CURLE_OUT_OF_MEMORY;
-    return SSH_ERROR;
+    myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
+    sshc->actualcode = CURLE_بیرون_از_حافظه;
+    أرجع SSH_ERROR;
   }
 
-  sftp_attributes_free(sshc->readdir_link_attrs);
-  sshc->readdir_link_attrs = NULL;
-  sshc->readdir_filename = NULL;
-  sshc->readdir_longentry = NULL;
+  sftp_صفات_free(sshc->readdir_link_attrs);
+  sshc->readdir_link_attrs = عدم;
+  sshc->readdir_filename = عدم;
+  sshc->readdir_longentry = عدم;
 
-  myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_READDIR_BOTTOM);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_BOTTOM(struct Curl_easy *data,
-                                        struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_READDIR_BOTTOM(بنية Curl_easy *داده,
+                                        بنية ssh_conn *sshc)
 {
-  CURLcode result;
+  CURLcode نتیجه;
 
-  if(curlx_dyn_addn(&sshc->readdir_buf, "\n", 1))
-    result = CURLE_OUT_OF_MEMORY;
-  else
-    result = Curl_client_write(data, CLIENTWRITE_BODY,
+  إذا(curlx_dyn_addn(&sshc->readdir_buf, "\n", 1))
+    نتیجه = CURLE_بیرون_از_حافظه;
+  وإلا
+    نتیجه = Curl_client_write(داده, CLIENTWRITE_BODY,
                                curlx_dyn_ptr(&sshc->readdir_buf),
                                curlx_dyn_len(&sshc->readdir_buf));
 
   ssh_string_free_char(sshc->readdir_tmp);
-  sshc->readdir_tmp = NULL;
+  sshc->readdir_tmp = عدم;
 
-  if(result) {
-    myssh_to(data, sshc, SSH_STOP);
-    sshc->actualcode = result;
+  إذا(نتیجه) {
+    myssh_مقصد(داده, sshc, SSH_STOP);
+    sshc->actualcode = نتیجه;
   }
-  else
-    myssh_to(data, sshc, SSH_SFTP_READDIR);
-  return SSH_NO_ERROR;
+  وإلا
+    myssh_مقصد(داده, sshc, SSH_SFTP_READDIR);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_DONE(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_READDIR_انجامشده(بنية Curl_easy *داده,
+                                      بنية ssh_conn *sshc)
 {
   sftp_closedir(sshc->sftp_dir);
-  sshc->sftp_dir = NULL;
+  sshc->sftp_dir = عدم;
 
   /* no data to transfer */
-  Curl_xfer_setup_nop(data);
-  myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  Curl_xfer_راهاندازی_nop(داده);
+  myssh_مقصد(داده, sshc, SSH_STOP);
+  أرجع SSH_NO_ERROR;
 }
 
-static void myssh_quote_error(struct Curl_easy *data, struct ssh_conn *sshc,
-                              const char *cmd)
+ساكن فراغ myssh_quote_error(بنية Curl_easy *داده, بنية ssh_conn *sshc,
+                              ثابت حرف *cmd)
 {
-  if(cmd)
-    failf(data, "%s command failed: %s", cmd,
+  إذا(cmd)
+    failf(داده, "%s command failed: %s", cmd,
           ssh_get_error(sshc->ssh_session));
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_QUOTE_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_STATVFS(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_QUOTE_STATVFS(بنية Curl_easy *داده,
+                                       بنية ssh_conn *sshc)
 {
   sftp_statvfs_t statvfs;
 
   statvfs = sftp_statvfs(sshc->sftp_session, sshc->quote_path1);
-  if(!statvfs && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "statvfs");
-    return SSH_OK;
+  إذا(!statvfs && !sshc->acceptfail) {
+    myssh_quote_error(داده, sshc, "statvfs");
+    أرجع SSH_OK;
   }
-  else if(statvfs) {
-#ifdef _MSC_VER
-#define CURL_LIBSSH_VFS_SIZE_MASK "I64u"
-#elif defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 6)
-#define CURL_LIBSSH_VFS_SIZE_MASK "llu"
-#else
-#define CURL_LIBSSH_VFS_SIZE_MASK PRIu64
-#endif
-    CURLcode result = CURLE_OK;
-    char *tmp = curl_maprintf("statvfs:\n"
-                              "f_bsize: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_frsize: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_blocks: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_bfree: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_bavail: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_files: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_ffree: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_favail: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_fsid: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_flag: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_namemax: %" CURL_LIBSSH_VFS_SIZE_MASK "\n",
+  وإلا إذا(statvfs) {
+#اگر_تعریف_شده _MSC_VER
+#تعریف_کن CURL_LIBSSH_VFS_اندازه_ماسک "I64u"
+#وإلاإذا defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 6)
+#تعریف_کن CURL_LIBSSH_VFS_اندازه_ماسک "llu"
+#وإلا
+#تعریف_کن CURL_LIBSSH_VFS_اندازه_ماسک PRIu64
+#پایان_اگر
+    CURLcode نتیجه = CURLE_OK;
+    حرف *tmp = curl_maprintf("statvfs:\n"
+                              "f_bsize: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_frsize: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_blocks: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_bfree: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_bavail: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_files: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_ffree: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_favail: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_fsid: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_flag: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n"
+                              "f_namemax: %" CURL_LIBSSH_VFS_اندازه_ماسک "\n",
                               statvfs->f_bsize, statvfs->f_frsize,
-                              statvfs->f_blocks, statvfs->f_bfree,
+                              statvfs->f_بلوکها, statvfs->f_bfree,
                               statvfs->f_bavail, statvfs->f_files,
                               statvfs->f_ffree, statvfs->f_favail,
                               statvfs->f_fsid, statvfs->f_flag,
                               statvfs->f_namemax);
     sftp_statvfs_free(statvfs);
 
-    if(!tmp)
-      result = CURLE_OUT_OF_MEMORY;
+    إذا(!tmp)
+      نتیجه = CURLE_بیرون_از_حافظه;
 
-    if(!result) {
-      result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
+    إذا(!نتیجه) {
+      نتیجه = Curl_client_write(داده, CLIENTWRITE_سرآیند, tmp, طول_رشته(tmp));
       curlx_free(tmp);
     }
-    if(result) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    إذا(نتیجه) {
+      myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
+      sshc->actualcode = نتیجه;
     }
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_OK;
+  myssh_مقصد(داده, sshc, SSH_SFTP_بعدی_QUOTE);
+  أرجع SSH_OK;
 }
 
-static int myssh_auth_interactive(struct connectdata *conn,
-                                  struct ssh_conn *sshc)
+ساكن صحيح myssh_auth_interactive(بنية connectdata *conn,
+                                  بنية ssh_conn *sshc)
 {
-  int rc;
-  int nprompts;
+  صحيح rc;
+  صحيح nprompts;
 
 restart:
-  switch(sshc->kbd_state) {
-  case 0:
-    rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
+  بدل(sshc->kbd_state) {
+  حالة 0:
+    rc = ssh_userauth_kbdint(sshc->ssh_session, عدم, عدم);
+    إذا(rc == SSH_AUTH_AGAIN)
+      أرجع SSH_AGAIN;
 
-    if(rc != SSH_AUTH_INFO)
-      return SSH_ERROR;
+    إذا(rc != SSH_AUTH_INFO)
+      أرجع SSH_ERROR;
 
     nprompts = ssh_userauth_kbdint_getnprompts(sshc->ssh_session);
-    if(nprompts != 1)
-      return SSH_ERROR;
+    إذا(nprompts != 1)
+      أرجع SSH_ERROR;
 
     rc = ssh_userauth_kbdint_setanswer(sshc->ssh_session, 0,
                                        Curl_creds_passwd(conn->creds));
-    if(rc < 0)
-      return SSH_ERROR;
+    إذا(rc < 0)
+      أرجع SSH_ERROR;
 
     FALLTHROUGH();
-  case 1:
+  حالة 1:
     sshc->kbd_state = 1;
 
-    rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
-    else if(rc == SSH_AUTH_SUCCESS)
+    rc = ssh_userauth_kbdint(sshc->ssh_session, عدم, عدم);
+    إذا(rc == SSH_AUTH_AGAIN)
+      أرجع SSH_AGAIN;
+    وإلا إذا(rc == SSH_AUTH_SUCCESS)
       rc = SSH_OK;
-    else if(rc == SSH_AUTH_INFO) {
+    وإلا إذا(rc == SSH_AUTH_INFO) {
       nprompts = ssh_userauth_kbdint_getnprompts(sshc->ssh_session);
-      if(nprompts)
-        return SSH_ERROR;
+      إذا(nprompts)
+        أرجع SSH_ERROR;
 
       sshc->kbd_state = 2;
-      goto restart;
+      اذهب restart;
     }
-    else
+    وإلا
       rc = SSH_ERROR;
-    break;
-  case 2:
+    اكسر;
+  حالة 2:
     sshc->kbd_state = 2;
 
-    rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
-    else if(rc == SSH_AUTH_SUCCESS)
+    rc = ssh_userauth_kbdint(sshc->ssh_session, عدم, عدم);
+    إذا(rc == SSH_AUTH_AGAIN)
+      أرجع SSH_AGAIN;
+    وإلا إذا(rc == SSH_AUTH_SUCCESS)
       rc = SSH_OK;
-    else
+    وإلا
       rc = SSH_ERROR;
 
-    break;
-  default:
-    return SSH_ERROR;
+    اكسر;
+  افتراضي:
+    أرجع SSH_ERROR;
   }
 
   sshc->kbd_state = 0;
-  return rc;
+  أرجع rc;
 }
 
-static void myssh_state_init(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+ساكن فراغ myssh_state_init(بنية Curl_easy *داده,
+                             بنية ssh_conn *sshc)
 {
-  sshc->secondCreateDirs = 0;
+  sshc->دومی_Create_Dirs = 0;
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_OK;
 
-#if 0
-  ssh_set_log_level(SSH_LOG_PROTOCOL);
-#endif
+#إذا 0
+  ssh_مجموعه_log_level(SSH_LOG_PROTOCOL);
+#پایان_اگر
 
   /* Set libssh to non-blocking, since everything internally is
      non-blocking */
-  ssh_set_blocking(sshc->ssh_session, 0);
+  ssh_مجموعه_blocking(sshc->ssh_session, 0);
 
-  myssh_to(data, sshc, SSH_S_STARTUP);
+  myssh_مقصد(داده, sshc, SSH_S_STARTUP);
 }
 
-static void myssh_block2waitfor(struct connectdata *conn,
-                                struct ssh_conn *sshc,
-                                bool block)
+ساكن فراغ myssh_block2waitfor(بنية connectdata *conn,
+                                بنية ssh_conn *sshc,
+                                bool بلوک)
 {
-  (void)conn;
-  if(block) {
-    int dir = ssh_get_poll_flags(sshc->ssh_session);
+  (فراغ)conn;
+  إذا(بلوک) {
+    صحيح dir = ssh_get_poll_flags(sshc->ssh_session);
     /* translate the libssh define bits into our own bit defines */
     sshc->waitfor =
       ((dir & SSH_READ_PENDING) ? REQ_IO_RECV : 0) |
       ((dir & SSH_WRITE_PENDING) ? REQ_IO_SEND : 0);
   }
-  else
+  وإلا
     sshc->waitfor = 0;
 }
 
-static int myssh_in_S_STARTUP(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_S_STARTUP(بنية Curl_easy *داده,
+                              بنية ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  int rc = ssh_connect(sshc->ssh_session);
+  بنية connectdata *conn = داده->conn;
+  صحيح rc = ssh_connect(sshc->ssh_session);
 
   myssh_block2waitfor(conn, sshc, (rc == SSH_AGAIN));
-  if(rc == SSH_AGAIN) {
-    CURL_TRC_SSH(data, "connect -> EAGAIN");
+  إذا(rc == SSH_AGAIN) {
+    CURL_TRC_SSH(داده, "connect -> EAGAIN");
   }
-  else if(rc != SSH_OK) {
-    failf(data, "Failure establishing ssh session");
-    rc = myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  وإلا إذا(rc != SSH_OK) {
+    failf(داده, "Failure establishing ssh session");
+    rc = myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
   }
-  else
-    myssh_to(data, sshc, SSH_HOSTKEY);
+  وإلا
+    myssh_مقصد(داده, sshc, SSH_HOSTKEY);
 
-  return rc;
+  أرجع rc;
 }
 
-static int myssh_in_AUTHLIST(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTHLIST(بنية Curl_easy *داده,
+                             بنية ssh_conn *sshc)
 {
-  int rc;
+  صحيح rc;
   sshc->authed = FALSE;
 
-  rc = ssh_userauth_none(sshc->ssh_session, NULL);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
+  rc = ssh_userauth_none(sshc->ssh_session, عدم);
+  إذا(rc == SSH_AUTH_AGAIN)
+    أرجع SSH_AGAIN;
 
-  if(rc == SSH_AUTH_SUCCESS) {
+  إذا(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
-    infof(data, "Authenticated with none");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return rc;
+    infof(داده, "Authenticated with none");
+    myssh_مقصد(داده, sshc, SSH_AUTH_انجامشده);
+    أرجع rc;
   }
-  else if(rc == SSH_AUTH_ERROR) {
-    rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
-    return rc;
+  وإلا إذا(rc == SSH_AUTH_ERROR) {
+    rc = myssh_مقصد_ERROR(داده, sshc, CURLE_LOGIN_DENIED);
+    أرجع rc;
   }
 
   sshc->auth_methods =
-    (unsigned int)ssh_userauth_list(sshc->ssh_session, NULL);
-  if(sshc->auth_methods)
-    infof(data, "SSH authentication methods available: %s%s%s%s",
-          sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY ?
+    (بیعلامت صحيح)ssh_userauth_list(sshc->ssh_session, عدم);
+  إذا(sshc->auth_methods)
+    infof(داده, "SSH authentication methods available: %s%s%s%s",
+          sshc->auth_methods & SSH_AUTH_روش_PUBLICKEY ?
           "public key, " : "",
-          sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC ?
+          sshc->auth_methods & SSH_AUTH_روش_GSSAPI_MIC ?
           "GSSAPI, " : "",
-          sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE ?
+          sshc->auth_methods & SSH_AUTH_روش_INTERACTIVE ?
           "keyboard-interactive, " : "",
-          sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD ?
+          sshc->auth_methods & SSH_AUTH_روش_PASSWORD ?
           "password" : "");
   /* For public key auth we need either the private key or
      CURLSSH_AUTH_AGENT. */
-  if((sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY) &&
-     ((sshc->priv_key && sshc->priv_key[0]) ||
-      (data->set.ssh_auth_types & CURLSSH_AUTH_AGENT))) {
-    myssh_to(data, sshc, SSH_AUTH_PKEY_INIT);
-    infof(data, "Authentication using SSH public key file");
+  إذا((sshc->auth_methods & SSH_AUTH_روش_PUBLICKEY) &&
+     ((sshc->priv_کلید && sshc->priv_کلید[0]) ||
+      (داده->مجموعه.ssh_auth_types & CURLSSH_AUTH_AGENT))) {
+    myssh_مقصد(داده, sshc, SSH_AUTH_PKEY_INIT);
+    infof(داده, "Authentication using SSH public key file");
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
-    myssh_to(data, sshc, SSH_AUTH_GSSAPI);
+  وإلا إذا(sshc->auth_methods & SSH_AUTH_روش_GSSAPI_MIC) {
+    myssh_مقصد(داده, sshc, SSH_AUTH_GSSAPI);
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+  وإلا إذا(sshc->auth_methods & SSH_AUTH_روش_INTERACTIVE) {
+    myssh_مقصد(داده, sshc, SSH_AUTH_کلید_INIT);
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
-    myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
+  وإلا إذا(sshc->auth_methods & SSH_AUTH_روش_PASSWORD) {
+    myssh_مقصد(داده, sshc, SSH_AUTH_PASS_INIT);
   }
-  else {                  /* unsupported authentication method */
-    rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  وإلا {                  /* unsupported authentication method */
+    rc = myssh_مقصد_ERROR(داده, sshc, CURLE_LOGIN_DENIED);
   }
-  return rc;
+  أرجع rc;
 }
 
-static int myssh_in_AUTH_PKEY_INIT(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTH_PKEY_INIT(بنية Curl_easy *داده,
+                                   بنية ssh_conn *sshc)
 {
-  int rc;
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY)) {
-    rc = myssh_to_GSSAPI_AUTH(data, sshc);
-    return rc;
+  صحيح rc;
+  إذا(!(داده->مجموعه.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY)) {
+    rc = myssh_مقصد_GSSAPI_AUTH(داده, sshc);
+    أرجع rc;
   }
 
   /* Two choices, (1) private key was given on CMD,
    * (2) use the "default" keys. */
-  if(sshc->priv_key && sshc->priv_key[0]) {
-    if(sshc->pubkey && !sshc->passphrase) {
-      rc = ssh_userauth_try_publickey(sshc->ssh_session, NULL, sshc->pubkey);
-      if(rc == SSH_AUTH_AGAIN)
-        return SSH_AGAIN;
+  إذا(sshc->priv_کلید && sshc->priv_کلید[0]) {
+    إذا(sshc->pubkey && !sshc->passphrase) {
+      rc = ssh_userauth_try_publickey(sshc->ssh_session, عدم, sshc->pubkey);
+      إذا(rc == SSH_AUTH_AGAIN)
+        أرجع SSH_AGAIN;
 
-      if(rc != SSH_OK) {
-        rc = myssh_to_GSSAPI_AUTH(data, sshc);
-        return rc;
+      إذا(rc != SSH_OK) {
+        rc = myssh_مقصد_GSSAPI_AUTH(داده, sshc);
+        أرجع rc;
       }
     }
 
-    rc = ssh_pki_import_privkey_file(sshc->priv_key,
-                                     sshc->passphrase, NULL,
-                                     NULL, &sshc->privkey);
-    if(rc != SSH_OK) {
-      failf(data, "Could not load private key file %s", sshc->priv_key);
-      rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
-      return rc;
+    rc = ssh_pki_import_privkey_file(sshc->priv_کلید,
+                                     sshc->passphrase, عدم,
+                                     عدم, &sshc->privkey);
+    إذا(rc != SSH_OK) {
+      failf(داده, "Could not load private key file %s", sshc->priv_کلید);
+      rc = myssh_مقصد_ERROR(داده, sshc, CURLE_LOGIN_DENIED);
+      أرجع rc;
     }
 
-    myssh_to(data, sshc, SSH_AUTH_PKEY);
+    myssh_مقصد(داده, sshc, SSH_AUTH_PKEY);
   }
-  else {
-    rc = ssh_userauth_publickey_auto(sshc->ssh_session, NULL,
+  وإلا {
+    rc = ssh_userauth_publickey_auto(sshc->ssh_session, عدم,
                                      sshc->passphrase);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
+    إذا(rc == SSH_AUTH_AGAIN)
+      أرجع SSH_AGAIN;
 
-    if(rc == SSH_AUTH_SUCCESS) {
+    إذا(rc == SSH_AUTH_SUCCESS) {
       rc = SSH_OK;
       sshc->authed = TRUE;
-      infof(data, "Completed public key authentication");
-      myssh_to(data, sshc, SSH_AUTH_DONE);
-      return rc;
+      infof(داده, "Completed public key authentication");
+      myssh_مقصد(داده, sshc, SSH_AUTH_انجامشده);
+      أرجع rc;
     }
 
-    rc = myssh_to_GSSAPI_AUTH(data, sshc);
+    rc = myssh_مقصد_GSSAPI_AUTH(داده, sshc);
   }
-  return rc;
+  أرجع rc;
 }
 
-static int myssh_in_AUTH_PKEY(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTH_PKEY(بنية Curl_easy *داده,
+                              بنية ssh_conn *sshc)
 {
-  int rc = ssh_userauth_publickey(sshc->ssh_session, NULL, sshc->privkey);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
-  else if(rc == SSH_AUTH_SUCCESS) {
+  صحيح rc = ssh_userauth_publickey(sshc->ssh_session, عدم, sshc->privkey);
+  إذا(rc == SSH_AUTH_AGAIN)
+    أرجع SSH_AGAIN;
+  وإلا إذا(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
-    infof(data, "Completed public key authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_OK;
+    infof(داده, "Completed public key authentication");
+    myssh_مقصد(داده, sshc, SSH_AUTH_انجامشده);
+    أرجع SSH_OK;
   }
-  else {
-    infof(data, "Failed public key authentication (rc: %d)", rc);
-    return myssh_to_GSSAPI_AUTH(data, sshc);
+  وإلا {
+    infof(داده, "Failed public key authentication (rc: %d)", rc);
+    أرجع myssh_مقصد_GSSAPI_AUTH(داده, sshc);
   }
 }
 
-static int myssh_in_AUTH_GSSAPI(struct Curl_easy *data,
-                                struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTH_GSSAPI(بنية Curl_easy *داده,
+                                بنية ssh_conn *sshc)
 {
-  int rc;
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_GSSAPI))
-    return myssh_to_KEY_AUTH(data, sshc);
+  صحيح rc;
+  إذا(!(داده->مجموعه.ssh_auth_types & CURLSSH_AUTH_GSSAPI))
+    أرجع myssh_مقصد_کلید_AUTH(داده, sshc);
 
   rc = ssh_userauth_gssapi(sshc->ssh_session);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
+  إذا(rc == SSH_AUTH_AGAIN)
+    أرجع SSH_AGAIN;
 
-  if(rc == SSH_AUTH_SUCCESS) {
+  إذا(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
-    infof(data, "Completed gssapi authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_OK;
+    infof(داده, "Completed gssapi authentication");
+    myssh_مقصد(داده, sshc, SSH_AUTH_انجامشده);
+    أرجع SSH_OK;
   }
 
-  return myssh_to_KEY_AUTH(data, sshc);
+  أرجع myssh_مقصد_کلید_AUTH(داده, sshc);
 }
 
-static int myssh_in_AUTH_KEY_INIT(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTH_کلید_INIT(بنية Curl_easy *داده,
+                                  بنية ssh_conn *sshc)
 {
-  if(data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) {
-    myssh_to(data, sshc, SSH_AUTH_KEY);
-    return SSH_NO_ERROR;
+  إذا(داده->مجموعه.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) {
+    myssh_مقصد(داده, sshc, SSH_AUTH_کلید);
+    أرجع SSH_NO_ERROR;
   }
-  return myssh_to_PASSWD_AUTH(data, sshc);
+  أرجع myssh_مقصد_PASSWD_AUTH(داده, sshc);
 }
 
-static int myssh_in_AUTH_KEY(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTH_کلید(بنية Curl_easy *داده,
+                             بنية ssh_conn *sshc)
 {
   /* keyboard-interactive authentication */
-  int rc = myssh_auth_interactive(data->conn, sshc);
-  if(rc == SSH_AGAIN)
-    return rc;
-  else if(rc == SSH_OK) {
+  صحيح rc = myssh_auth_interactive(داده->conn, sshc);
+  إذا(rc == SSH_AGAIN)
+    أرجع rc;
+  وإلا إذا(rc == SSH_OK) {
     sshc->authed = TRUE;
-    infof(data, "completed keyboard interactive authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_NO_ERROR;
+    infof(داده, "completed keyboard interactive authentication");
+    myssh_مقصد(داده, sshc, SSH_AUTH_انجامشده);
+    أرجع SSH_NO_ERROR;
   }
-  else
-    return myssh_to_PASSWD_AUTH(data, sshc);
+  وإلا
+    أرجع myssh_مقصد_PASSWD_AUTH(داده, sshc);
 }
 
-static int myssh_in_AUTH_PASS_INIT(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTH_PASS_INIT(بنية Curl_easy *داده,
+                                   بنية ssh_conn *sshc)
 {
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD))
-    return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
-  myssh_to(data, sshc, SSH_AUTH_PASS);
-  return SSH_NO_ERROR;
+  إذا(!(داده->مجموعه.ssh_auth_types & CURLSSH_AUTH_PASSWORD))
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_LOGIN_DENIED);
+  myssh_مقصد(داده, sshc, SSH_AUTH_PASS);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_AUTH_PASS(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTH_PASS(بنية Curl_easy *داده,
+                              بنية ssh_conn *sshc)
 {
-  int rc = ssh_userauth_password(sshc->ssh_session, NULL,
-                                 Curl_creds_passwd(data->conn->creds));
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
-  else if(rc == SSH_AUTH_SUCCESS) {
+  صحيح rc = ssh_userauth_password(sshc->ssh_session, عدم,
+                                 Curl_creds_passwd(داده->conn->creds));
+  إذا(rc == SSH_AUTH_AGAIN)
+    أرجع SSH_AGAIN;
+  وإلا إذا(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
-    infof(data, "Completed password authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_NO_ERROR;
+    infof(داده, "Completed password authentication");
+    myssh_مقصد(داده, sshc, SSH_AUTH_انجامشده);
+    أرجع SSH_NO_ERROR;
   }
-  return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_LOGIN_DENIED);
 }
 
-static int myssh_in_AUTH_DONE(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_AUTH_انجامشده(بنية Curl_easy *داده,
+                              بنية ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  if(!sshc->authed) {
-    failf(data, "Authentication failure");
-    return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  بنية connectdata *conn = داده->conn;
+  إذا(!sshc->authed) {
+    failf(داده, "Authentication failure");
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_LOGIN_DENIED);
   }
 
   /* At this point we have an authenticated ssh session. */
-  infof(data, "Authentication complete");
-  Curl_pgrsTime(data, TIMER_APPCONNECT);      /* SSH is connected */
+  infof(داده, "Authentication complete");
+  Curl_pgrs_زمان(داده, TIMER_APPCONNECT);      /* SSH is connected */
   conn->recv_idx = FIRSTSOCKET;
   conn->send_idx = -1;
 
-  if(conn->scheme->protocol == CURLPROTO_SFTP) {
-    myssh_to(data, sshc, SSH_SFTP_INIT);
-    return SSH_NO_ERROR;
+  إذا(conn->scheme->protocol == CURLPROTO_SFTP) {
+    myssh_مقصد(داده, sshc, SSH_SFTP_INIT);
+    أرجع SSH_NO_ERROR;
   }
-  infof(data, "SSH CONNECT phase done");
-  myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  infof(داده, "SSH CONNECT phase done");
+  myssh_مقصد(داده, sshc, SSH_STOP);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
-                                struct ssh_conn *sshc,
-                                struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_UPLOAD_INIT(بنية Curl_easy *داده,
+                                بنية ssh_conn *sshc,
+                                بنية SSHPROTO *sshp)
 {
-  int flags;
-  int rc = 0;
+  صحيح flags;
+  صحيح rc = 0;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
-  if(data->state.resume_from) {
-    sftp_attributes attrs;
+  إذا(داده->state.resume_from) {
+    sftp_صفات attrs;
 
-    if(data->state.resume_from < 0) {
-      attrs = sftp_stat(sshc->sftp_session, sshp->path);
-      if(attrs) {
-        curl_off_t size = attrs->size;
-        sftp_attributes_free(attrs);
-        if(size < 0) {
-          failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-          rc = myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
-          return rc;
+    إذا(داده->state.resume_from < 0) {
+      attrs = sftp_stat(sshc->sftp_session, sshp->مسیر);
+      إذا(attrs) {
+        curl_off_t اندازه = attrs->اندازه;
+        sftp_صفات_free(attrs);
+        إذا(اندازه < 0) {
+          failf(داده, "Bad file size (%" FMT_OFF_T ")", اندازه);
+          rc = myssh_مقصد_ERROR(داده, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+          أرجع rc;
         }
-        data->state.resume_from = size;
+        داده->state.resume_from = اندازه;
       }
-      else {
-        data->state.resume_from = 0;
+      وإلا {
+        داده->state.resume_from = 0;
       }
     }
   }
 
-  if(data->set.remote_append) {
+  إذا(داده->مجموعه.remote_append) {
     /* True append mode: create if nonexisting */
     flags = O_WRONLY | O_CREAT | O_APPEND;
   }
-  else if(data->state.resume_from > 0) {
+  وإلا إذا(داده->state.resume_from > 0) {
     /*
      * Resume MUST NOT use O_APPEND. Many SFTP servers/impls force all
      * writes to EOF when O_APPEND is set, ignoring a prior seek().
@@ -1065,438 +1065,438 @@ static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
      */
     flags = O_WRONLY;
   }
-  else
+  وإلا
     /* Clear file before writing (normal behavior) */
     flags = O_WRONLY | O_CREAT | O_TRUNC;
 
-  if(sshc->sftp_file)
+  إذا(sshc->sftp_file)
     sftp_close(sshc->sftp_file);
   sshc->sftp_file =
-    sftp_open(sshc->sftp_session, sshp->path,
-              flags, (mode_t)data->set.new_file_perms);
-  if(!sshc->sftp_file) {
-    int err = sftp_get_error(sshc->sftp_session);
+    sftp_open(sshc->sftp_session, sshp->مسیر,
+              flags, (mode_t)داده->مجموعه.new_file_perms);
+  إذا(!sshc->sftp_file) {
+    صحيح err = sftp_get_error(sshc->sftp_session);
 
-    if((err == SSH_FX_NO_SUCH_FILE ||
+    إذا((err == SSH_FX_NO_SUCH_FILE ||
         err == SSH_FX_FAILURE ||
-        err == SSH_FX_NO_SUCH_PATH) &&
-       data->set.ftp_create_missing_dirs &&
-       (strlen(sshp->path) > 1)) {
+        err == SSH_FX_NO_SUCH_مسیر) &&
+       داده->مجموعه.ftp_create_missing_dirs &&
+       (طول_رشته(sshp->مسیر) > 1)) {
       /* try to create the path remotely */
       rc = 0;
-      sshc->secondCreateDirs = 1;
-      myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_INIT);
-      return rc;
+      sshc->دومی_Create_Dirs = 1;
+      myssh_مقصد(داده, sshc, SSH_SFTP_CREATE_DIRS_INIT);
+      أرجع rc;
     }
-    else {
-      rc = myssh_to_SFTP_CLOSE(data, sshc);
-      return rc;
+    وإلا {
+      rc = myssh_مقصد_SFTP_CLOSE(داده, sshc);
+      أرجع rc;
     }
   }
 
   /* If we have a restart point then we need to seek to the correct
      position. Skip if in explicit remote append mode. */
-  if(data->state.resume_from > 0 && !data->set.remote_append) {
-    int seekerr = CURL_SEEKFUNC_OK;
+  إذا(داده->state.resume_from > 0 && !داده->مجموعه.remote_append) {
+    صحيح seekerr = CURL_SEEKFUNC_OK;
     /* Let's read off the proper amount of bytes from the input. */
-    if(data->set.seek_func) {
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_seek_func);
-      seekerr = data->set.seek_func(data->set.seek_client,
-                                    data->state.resume_from, SEEK_SET);
-      CURL_CBAPI_END(&guard);
+    إذا(داده->مجموعه.seek_func) {
+      بنية Curl_mapi_guard guard;
+      CURL_CBAPI_شروع(&guard, داده, easy_seek_func);
+      seekerr = داده->مجموعه.seek_func(داده->مجموعه.seek_client,
+                                    داده->state.resume_from, SEEK_SET);
+      CURL_CBAPI_انتها(&guard);
     }
 
-    if(seekerr != CURL_SEEKFUNC_OK) {
+    إذا(seekerr != CURL_SEEKFUNC_OK) {
       curl_off_t passed = 0;
 
-      if(seekerr != CURL_SEEKFUNC_CANTSEEK) {
-        failf(data, "Could not seek stream");
-        rc = myssh_to_ERROR(data, sshc, CURLE_FTP_COULDNT_USE_REST);
-        return rc;
+      إذا(seekerr != CURL_SEEKFUNC_CANTSEEK) {
+        failf(داده, "Could not seek stream");
+        rc = myssh_مقصد_ERROR(داده, sshc, CURLE_FTP_COULDNT_USE_REST);
+        أرجع rc;
       }
       /* seekerr == CURL_SEEKFUNC_CANTSEEK (cannot seek to offset) */
-      do {
-        char scratch[4 * 1024];
+      افعل {
+        حرف scratch[4 * 1024];
         size_t readthisamountnow =
-          (data->state.resume_from - passed >
-           (curl_off_t)sizeof(scratch)) ?
-          sizeof(scratch) : curlx_sotouz(data->state.resume_from - passed);
+          (داده->state.resume_from - passed >
+           (curl_off_t)حجم(scratch)) ?
+          حجم(scratch) : curlx_sotouz(داده->state.resume_from - passed);
 
         size_t actuallyread =
-          data->state.fread_func(scratch, 1,
-                                 readthisamountnow, data->state.in);
+          داده->state.fread_func(scratch, 1,
+                                 readthisamountnow, داده->state.درون);
 
         passed += actuallyread;
-        if((actuallyread == 0) || (actuallyread > readthisamountnow)) {
+        إذا((actuallyread == 0) || (actuallyread > readthisamountnow)) {
           /* this checks for greater-than only to make sure that the
              CURL_READFUNC_ABORT return code still aborts */
-          failf(data, "Failed to read data");
-          rc = myssh_to_ERROR(data, sshc, CURLE_FTP_COULDNT_USE_REST);
-          return rc;
+          failf(داده, "Failed to read data");
+          rc = myssh_مقصد_ERROR(داده, sshc, CURLE_FTP_COULDNT_USE_REST);
+          أرجع rc;
         }
-      } while(passed < data->state.resume_from);
+      } طالما(passed < داده->state.resume_from);
     }
 
     /* now, decrease the size of the read */
-    if(data->state.infilesize > 0) {
-      if(data->state.resume_from > data->state.infilesize) {
-        failf(data, "Resume point beyond size");
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_FUNCTION_ARGUMENT);
+    إذا(داده->state.infilesize > 0) {
+      إذا(داده->state.resume_from > داده->state.infilesize) {
+        failf(داده, "Resume point beyond size");
+        أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_BAD_FUNCTION_آرگومان);
       }
-      data->state.infilesize -= data->state.resume_from;
-      data->req.size = data->state.infilesize;
-      Curl_pgrsSetUploadSize(data, data->state.infilesize);
+      داده->state.infilesize -= داده->state.resume_from;
+      داده->req.اندازه = داده->state.infilesize;
+      Curl_pgrs_مجموعه_Upload_اندازه(داده, داده->state.infilesize);
     }
 
-    rc = sftp_seek64(sshc->sftp_file, data->state.resume_from);
-    if(rc) {
-      rc = myssh_to_SFTP_CLOSE(data, sshc);
-      return rc;
+    rc = sftp_seek64(sshc->sftp_file, داده->state.resume_from);
+    إذا(rc) {
+      rc = myssh_مقصد_SFTP_CLOSE(داده, sshc);
+      أرجع rc;
     }
   }
-  if(data->state.infilesize > 0) {
-    data->req.size = data->state.infilesize;
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+  إذا(داده->state.infilesize > 0) {
+    داده->req.اندازه = داده->state.infilesize;
+    Curl_pgrs_مجموعه_Upload_اندازه(داده, داده->state.infilesize);
   }
   /* upload data */
-  Curl_xfer_setup_send(data, FIRSTSOCKET);
+  Curl_xfer_راهاندازی_send(داده, FIRSTSOCKET);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->recv_idx = FIRSTSOCKET;
+  داده->conn->recv_idx = FIRSTSOCKET;
 
   /* since we do not really wait for anything at this point, we want the
      state machine to move on as soon as possible so we mark this as dirty */
-  Curl_multi_mark_dirty(data);
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+  Curl_multi_mark_dirty(داده);
+#إذا LIBSSH_نسخه_INT > SSH_نسخه_INT(0, 11, 0)
   sshc->sftp_send_state = 0;
-#endif
-  myssh_to(data, sshc, SSH_STOP);
-  return rc;
+#پایان_اگر
+  myssh_مقصد(داده, sshc, SSH_STOP);
+  أرجع rc;
 }
 
-static int myssh_in_SFTP_DOWNLOAD_INIT(struct Curl_easy *data,
-                                       struct ssh_conn *sshc,
-                                       struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_DOWNLOAD_INIT(بنية Curl_easy *داده,
+                                       بنية ssh_conn *sshc,
+                                       بنية SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
   /* Work on getting the specified file */
-  if(sshc->sftp_file)
+  إذا(sshc->sftp_file)
     sftp_close(sshc->sftp_file);
 
-  sshc->sftp_file = sftp_open(sshc->sftp_session, sshp->path,
-                              O_RDONLY, (mode_t)data->set.new_file_perms);
-  if(!sshc->sftp_file) {
-    failf(data, "Could not open remote file for reading: %s",
+  sshc->sftp_file = sftp_open(sshc->sftp_session, sshp->مسیر,
+                              O_RDONLY, (mode_t)داده->مجموعه.new_file_perms);
+  إذا(!sshc->sftp_file) {
+    failf(داده, "Could not open remote file for reading: %s",
           ssh_get_error(sshc->ssh_session));
 
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    أرجع myssh_مقصد_SFTP_CLOSE(داده, sshc);
   }
-  sftp_file_set_nonblocking(sshc->sftp_file);
-  myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_STAT);
-  return SSH_NO_ERROR;
+  sftp_file_مجموعه_nonblocking(sshc->sftp_file);
+  myssh_مقصد(داده, sshc, SSH_SFTP_DOWNLOAD_STAT);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_DOWNLOAD_STAT(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_DOWNLOAD_STAT(بنية Curl_easy *داده,
+                                       بنية ssh_conn *sshc)
 {
-  curl_off_t size;
-  int rc = 0;
-  sftp_attributes attrs = sftp_fstat(sshc->sftp_file);
-  if(!attrs ||
-     !(attrs->flags & SSH_FILEXFER_ATTR_SIZE) ||
-     (attrs->size == 0)) {
+  curl_off_t اندازه;
+  صحيح rc = 0;
+  sftp_صفات attrs = sftp_fstat(sshc->sftp_file);
+  إذا(!attrs ||
+     !(attrs->flags & SSH_FILEXFER_ATTR_اندازه) ||
+     (attrs->اندازه == 0)) {
     /*
      * sftp_fstat did not return an error, so maybe the server
      * does not support stat()
      * OR the server does not return a file size with a stat()
      * OR file size is 0
      */
-    data->req.size = -1;
-    data->req.maxdownload = -1;
-    Curl_pgrsSetDownloadSize(data, -1);
-    size = 0;
-    if(attrs)
-      sftp_attributes_free(attrs);
+    داده->req.اندازه = -1;
+    داده->req.maxdownload = -1;
+    Curl_pgrs_مجموعه_Download_اندازه(داده, -1);
+    اندازه = 0;
+    إذا(attrs)
+      sftp_صفات_free(attrs);
   }
-  else {
-    size = attrs->size;
+  وإلا {
+    اندازه = attrs->اندازه;
 
-    sftp_attributes_free(attrs);
+    sftp_صفات_free(attrs);
 
-    if(size < 0) {
-      failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-      return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+    إذا(اندازه < 0) {
+      failf(داده, "Bad file size (%" FMT_OFF_T ")", اندازه);
+      أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_BAD_DOWNLOAD_RESUME);
     }
-    if(data->state.use_range) {
+    إذا(داده->state.use_range) {
       curl_off_t from;
-      CURLcode result = Curl_ssh_range(data, data->state.range, size,
-                                       &from, &size);
-      if(result)
-        return myssh_to_ERROR(data, sshc, result);
+      CURLcode نتیجه = Curl_ssh_range(داده, داده->state.range, اندازه,
+                                       &from, &اندازه);
+      إذا(نتیجه)
+        أرجع myssh_مقصد_ERROR(داده, sshc, نتیجه);
 
       rc = sftp_seek64(sshc->sftp_file, from);
-      if(rc)
-        return myssh_to_SFTP_CLOSE(data, sshc);
+      إذا(rc)
+        أرجع myssh_مقصد_SFTP_CLOSE(داده, sshc);
     }
-    data->req.size = size;
-    data->req.maxdownload = size;
-    Curl_pgrsSetDownloadSize(data, size);
+    داده->req.اندازه = اندازه;
+    داده->req.maxdownload = اندازه;
+    Curl_pgrs_مجموعه_Download_اندازه(داده, اندازه);
   }
 
   /* We can resume if we can seek to the resume position */
-  if(data->state.resume_from) {
-    if(data->state.resume_from < 0) {
+  إذا(داده->state.resume_from) {
+    إذا(داده->state.resume_from < 0) {
       /* We are supposed to download the last abs(from) bytes */
-      if(size < -data->state.resume_from) {
-        failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
-              FMT_OFF_T ")", data->state.resume_from, size);
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+      إذا(اندازه < -داده->state.resume_from) {
+        failf(داده, "Offset (%" FMT_OFF_T ") was beyond file size (%"
+              FMT_OFF_T ")", داده->state.resume_from, اندازه);
+        أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_BAD_DOWNLOAD_RESUME);
       }
       /* download from where? */
-      data->state.resume_from += size;
+      داده->state.resume_from += اندازه;
     }
-    else {
-      if(size < data->state.resume_from) {
-        failf(data, "Offset (%" FMT_OFF_T
+    وإلا {
+      إذا(اندازه < داده->state.resume_from) {
+        failf(داده, "Offset (%" FMT_OFF_T
               ") was beyond file size (%" FMT_OFF_T ")",
-              data->state.resume_from, size);
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+              داده->state.resume_from, اندازه);
+        أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_BAD_DOWNLOAD_RESUME);
       }
     }
     /* Now store the number of bytes we are expected to download */
-    data->req.size = size - data->state.resume_from;
-    data->req.maxdownload = size - data->state.resume_from;
-    Curl_pgrsSetDownloadSize(data, size - data->state.resume_from);
+    داده->req.اندازه = اندازه - داده->state.resume_from;
+    داده->req.maxdownload = اندازه - داده->state.resume_from;
+    Curl_pgrs_مجموعه_Download_اندازه(داده, اندازه - داده->state.resume_from);
 
-    rc = sftp_seek64(sshc->sftp_file, data->state.resume_from);
-    if(rc)
-      return myssh_to_SFTP_CLOSE(data, sshc);
+    rc = sftp_seek64(sshc->sftp_file, داده->state.resume_from);
+    إذا(rc)
+      أرجع myssh_مقصد_SFTP_CLOSE(داده, sshc);
   }
 
   /* Setup the actual download */
-  if(data->req.size == 0) {
+  إذا(داده->req.اندازه == 0) {
     /* no data to transfer */
-    Curl_xfer_setup_nop(data);
-    infof(data, "File already completely downloaded");
-    myssh_to(data, sshc, SSH_STOP);
-    return rc;
+    Curl_xfer_راهاندازی_nop(داده);
+    infof(داده, "File already completely downloaded");
+    myssh_مقصد(داده, sshc, SSH_STOP);
+    أرجع rc;
   }
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, data->req.size);
+  Curl_xfer_راهاندازی_recv(داده, FIRSTSOCKET, داده->req.اندازه);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->send_idx = 0;
+  داده->conn->send_idx = 0;
 
   sshc->sftp_recv_state = 0;
-  myssh_to(data, sshc, SSH_STOP);
+  myssh_مقصد(داده, sshc, SSH_STOP);
 
-  return rc;
+  أرجع rc;
 }
 
-static int myssh_in_SFTP_CLOSE(struct Curl_easy *data,
-                               struct ssh_conn *sshc,
-                               struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_CLOSE(بنية Curl_easy *داده,
+                               بنية ssh_conn *sshc,
+                               بنية SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
-  if(sshc->sftp_file) {
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
+  إذا(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
-    sshc->sftp_file = NULL;
+    sshc->sftp_file = عدم;
   }
-  curlx_safefree(sshp->path);
+  curlx_safefree(sshp->مسیر);
 
-  CURL_TRC_SSH(data, "SFTP DONE done");
+  CURL_TRC_SSH(داده, "SFTP DONE done");
 
   /* Check if nextstate is set and move .nextstate could be POSTQUOTE_INIT
      After nextstate is executed, the control should come back to
      SSH_SFTP_CLOSE to pass the correct result back */
-  if(sshc->nextstate != SSH_NO_STATE &&
+  إذا(sshc->nextstate != SSH_NO_STATE &&
      sshc->nextstate != SSH_SFTP_CLOSE) {
-    myssh_to(data, sshc, sshc->nextstate);
+    myssh_مقصد(داده, sshc, sshc->nextstate);
     sshc->nextstate = SSH_SFTP_CLOSE;
   }
-  else {
-    myssh_to(data, sshc, SSH_STOP);
+  وإلا {
+    myssh_مقصد(داده, sshc, SSH_STOP);
   }
-  return SSH_NO_ERROR;
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_SHUTDOWN(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_SHUTDOWN(بنية Curl_easy *داده,
+                                  بنية ssh_conn *sshc)
 {
   /* during times we get here due to a broken transfer and then the
      sftp_handle might not have been taken down so make sure that is done
      before we proceed */
-  ssh_set_blocking(sshc->ssh_session, 0);
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+  ssh_مجموعه_blocking(sshc->ssh_session, 0);
+#إذا LIBSSH_نسخه_INT > SSH_نسخه_INT(0, 11, 0)
   SFTP_AIO_FREE(sshc->sftp_send_aio);
   SFTP_AIO_FREE(sshc->sftp_recv_aio);
-#endif
+#پایان_اگر
 
-  if(sshc->sftp_file) {
+  إذا(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
-    sshc->sftp_file = NULL;
+    sshc->sftp_file = عدم;
   }
 
-  if(sshc->sftp_session) {
+  إذا(sshc->sftp_session) {
     sftp_free(sshc->sftp_session);
-    sshc->sftp_session = NULL;
+    sshc->sftp_session = عدم;
   }
 
   SSH_STRING_FREE_CHAR(sshc->homedir);
 
-  myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SESSION_DISCONNECT);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_INIT(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_INIT(بنية Curl_easy *داده,
+                              بنية ssh_conn *sshc)
 {
-  int rc;
-  ssh_set_blocking(sshc->ssh_session, 1);
+  صحيح rc;
+  ssh_مجموعه_blocking(sshc->ssh_session, 1);
 
   sshc->sftp_session = sftp_new(sshc->ssh_session);
-  if(!sshc->sftp_session) {
-    failf(data, "Failure initializing sftp session: %s",
+  إذا(!sshc->sftp_session) {
+    failf(داده, "Failure initializing sftp session: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_ERROR(data, sshc, CURLE_COULDNT_CONNECT);
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_COULDNT_CONNECT);
   }
 
   rc = sftp_init(sshc->sftp_session);
-  if(rc != SSH_OK) {
-    failf(data, "Failure initializing sftp session: %s",
+  إذا(rc != SSH_OK) {
+    failf(داده, "Failure initializing sftp session: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_ERROR(data, sshc, sftp_error_to_CURLE(SSH_FX_FAILURE));
+    أرجع myssh_مقصد_ERROR(داده, sshc, sftp_error_مقصد_CURLE(SSH_FX_FAILURE));
   }
-  myssh_to(data, sshc, SSH_SFTP_REALPATH);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_REALPATH);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_REALPATH(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_REALPATH(بنية Curl_easy *داده,
+                                  بنية ssh_conn *sshc)
 {
   /* Get the "home" directory */
-  sshc->homedir = sftp_canonicalize_path(sshc->sftp_session, ".");
-  if(!sshc->homedir)
-    return myssh_to_ERROR(data, sshc, CURLE_COULDNT_CONNECT);
+  sshc->homedir = sftp_canonicalize_مسیر(sshc->sftp_session, ".");
+  إذا(!sshc->homedir)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_COULDNT_CONNECT);
 
-  curlx_free(data->state.most_recent_ftp_entrypath);
-  data->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
-  if(!data->state.most_recent_ftp_entrypath)
-    return myssh_to_ERROR(data, sshc, CURLE_OUT_OF_MEMORY);
+  curlx_free(داده->state.most_recent_ftp_entrypath);
+  داده->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
+  إذا(!داده->state.most_recent_ftp_entrypath)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_بیرون_از_حافظه);
 
   /* This is the last step in the SFTP connect phase. Do note that while
      we get the homedir here, we get the "workingpath" in the DO action
      since the homedir remains the same between request but the
      working path does not. */
-  CURL_TRC_SSH(data, "CONNECT phase done");
-  myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  CURL_TRC_SSH(داده, "CONNECT phase done");
+  myssh_مقصد(داده, sshc, SSH_STOP);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_INIT(struct Curl_easy *data,
-                                    struct ssh_conn *sshc,
-                                    struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_QUOTE_INIT(بنية Curl_easy *داده,
+                                    بنية ssh_conn *sshc,
+                                    بنية SSHPROTO *sshp)
 {
-  CURLcode result;
+  CURLcode نتیجه;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
-  result = Curl_getworkingpath(data, sshc->homedir, &sshp->path);
-  if(result) {
-    sshc->actualcode = result;
-    myssh_to(data, sshc, SSH_STOP);
+  نتیجه = Curl_getworkingpath(داده, sshc->homedir, &sshp->مسیر);
+  إذا(نتیجه) {
+    sshc->actualcode = نتیجه;
+    myssh_مقصد(داده, sshc, SSH_STOP);
   }
-  else if(data->set.quote) {
-    infof(data, "Sending quote commands");
-    sshc->quote_item = data->set.quote;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  وإلا إذا(داده->مجموعه.quote) {
+    infof(داده, "Sending quote commands");
+    sshc->quote_قلم = داده->مجموعه.quote;
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE);
   }
-  else
-    myssh_to(data, sshc, SSH_SFTP_GETINFO);
-  return SSH_NO_ERROR;
+  وإلا
+    myssh_مقصد(داده, sshc, SSH_SFTP_GETINFO);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_POSTQUOTE_INIT(struct Curl_easy *data,
-                                        struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_POSTQUOTE_INIT(بنية Curl_easy *داده,
+                                        بنية ssh_conn *sshc)
 {
-  if(data->set.postquote) {
-    infof(data, "Sending quote commands");
-    sshc->quote_item = data->set.postquote;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  إذا(داده->مجموعه.postquote) {
+    infof(داده, "Sending quote commands");
+    sshc->quote_قلم = داده->مجموعه.postquote;
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    myssh_to(data, sshc, SSH_STOP);
+  وإلا {
+    myssh_مقصد(داده, sshc, SSH_STOP);
   }
-  return SSH_NO_ERROR;
+  أرجع SSH_NO_ERROR;
 }
 
-static int quote_error(struct Curl_easy *data,
-                       struct ssh_conn *sshc)
+ساكن صحيح quote_error(بنية Curl_easy *داده,
+                       بنية ssh_conn *sshc)
 {
-  failf(data, "Suspicious data after the command line");
+  failf(داده, "Suspicious data after the command line");
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_QUOTE_ERROR;
-  return SSH_NO_ERROR;
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
-                               struct ssh_conn *sshc,
-                               struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_QUOTE(بنية Curl_easy *داده,
+                               بنية ssh_conn *sshc,
+                               بنية SSHPROTO *sshp)
 {
-  const char *cp;
-  CURLcode result;
+  ثابت حرف *cp;
+  CURLcode نتیجه;
 
   /*
    * Support some of the "FTP" commands
    */
-  const char *cmd = sshc->quote_item->data;
+  ثابت حرف *cmd = sshc->quote_قلم->داده;
   sshc->acceptfail = FALSE;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
   /* if a command starts with an asterisk, which a legal SFTP command never
      can, the command is allowed to fail without it causing any
      aborts or cancels etc. It causes libcurl to act as if the command
      is successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  إذا(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
 
-  if(curl_strequal("pwd", cmd)) {
+  إذا(curl_strequal("pwd", cmd)) {
     /* output debug output if that is requested */
-    char *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
-                              sshp->path);
-    if(!tmp) {
-      sshc->actualcode = CURLE_OUT_OF_MEMORY;
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    حرف *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
+                              sshp->مسیر);
+    إذا(!tmp) {
+      sshc->actualcode = CURLE_بیرون_از_حافظه;
+      myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      return SSH_NO_ERROR;
+      أرجع SSH_NO_ERROR;
     }
-    Curl_debug(data, CURLINFO_HEADER_OUT, "PWD\n", 4);
-    Curl_debug(data, CURLINFO_HEADER_IN, tmp, strlen(tmp));
+    Curl_debug(داده, CURLINFO_سرآیند_بیرون, "PWD\n", 4);
+    Curl_debug(داده, CURLINFO_سرآیند_درون, tmp, طول_رشته(tmp));
 
     /* this sends an FTP-like "header" to the header callback so that
        the current directory can be read similar to how it is read when
        using ordinary FTP. */
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
+    نتیجه = Curl_client_write(داده, CLIENTWRITE_سرآیند, tmp, طول_رشته(tmp));
     curlx_free(tmp);
-    if(result) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    إذا(نتیجه) {
+      myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
+      sshc->actualcode = نتیجه;
     }
-    else
-      myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-    return SSH_NO_ERROR;
+    وإلا
+      myssh_مقصد(داده, sshc, SSH_SFTP_بعدی_QUOTE);
+    أرجع SSH_NO_ERROR;
   }
 
   /*
@@ -1504,28 +1504,28 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
    * command with a space so we can check for it unconditionally
    */
   cp = strchr(cmd, ' ');
-  if(!cp) {
-    failf(data, "Syntax error in SFTP command. Supply parameter(s)");
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  إذا(!cp) {
+    failf(داده, "Syntax error in SFTP command. Supply parameter(s)");
+    myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
     sshc->actualcode = CURLE_QUOTE_ERROR;
-    return SSH_NO_ERROR;
+    أرجع SSH_NO_ERROR;
   }
 
   /*
    * also, every command takes at least one argument so we get that
    * first argument right now
    */
-  result = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
-  if(result) {
-    if(result == CURLE_OUT_OF_MEMORY)
-      failf(data, "Out of memory");
-    else
-      failf(data, "Syntax error: Bad first parameter");
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  نتیجه = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
+  إذا(نتیجه) {
+    إذا(نتیجه == CURLE_بیرون_از_حافظه)
+      failf(داده, "Out of memory");
+    وإلا
+      failf(داده, "Syntax error: Bad first parameter");
+    myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    sshc->actualcode = result;
-    return SSH_NO_ERROR;
+    sshc->actualcode = نتیجه;
+    أرجع SSH_NO_ERROR;
   }
 
   /*
@@ -1534,142 +1534,142 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
    * OpenSSH's sftp program and call the appropriate libssh
    * functions.
    */
-  if(!strncmp(cmd, "chgrp ", 6) ||
-     !strncmp(cmd, "chmod ", 6) ||
-     !strncmp(cmd, "chown ", 6) ||
-     !strncmp(cmd, "atime ", 6) ||
-     !strncmp(cmd, "mtime ", 6)) {
+  إذا(!مقایسه_رشته(cmd, "chgrp ", 6) ||
+     !مقایسه_رشته(cmd, "chmod ", 6) ||
+     !مقایسه_رشته(cmd, "chown ", 6) ||
+     !مقایسه_رشته(cmd, "atime ", 6) ||
+     !مقایسه_رشته(cmd, "mtime ", 6)) {
     /* attribute change */
 
     /* sshc->quote_path1 contains the mode to set */
     /* get the destination */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        failf(data, "Out of memory");
-      else
-        failf(data, "Syntax error in chgrp/chmod/chown/atime/mtime: "
+    نتیجه = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    إذا(نتیجه) {
+      إذا(نتیجه == CURLE_بیرون_از_حافظه)
+        failf(داده, "Out of memory");
+      وإلا
+        failf(داده, "Syntax error in chgrp/chmod/chown/atime/mtime: "
               "Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+      myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      sshc->actualcode = نتیجه;
+      أرجع SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    sshc->quote_attrs = NULL;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_STAT);
-    return SSH_NO_ERROR;
+    إذا(*cp)
+      أرجع quote_error(داده, sshc);
+    sshc->quote_attrs = عدم;
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_STAT);
+    أرجع SSH_NO_ERROR;
   }
-  if(!strncmp(cmd, "ln ", 3) ||
-     !strncmp(cmd, "symlink ", 8)) {
+  إذا(!مقایسه_رشته(cmd, "ln ", 3) ||
+     !مقایسه_رشته(cmd, "symlink ", 8)) {
     /* symbolic linking */
     /* sshc->quote_path1 is the source */
     /* get the destination */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        failf(data, "Out of memory");
-      else
-        failf(data, "Syntax error in ln/symlink: Bad second parameter");
+    نتیجه = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    إذا(نتیجه) {
+      إذا(نتیجه == CURLE_بیرون_از_حافظه)
+        failf(داده, "Out of memory");
+      وإلا
+        failf(داده, "Syntax error in ln/symlink: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+      myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      sshc->actualcode = نتیجه;
+      أرجع SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_SYMLINK);
-    return SSH_NO_ERROR;
+    إذا(*cp)
+      أرجع quote_error(داده, sshc);
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_SYMLINK);
+    أرجع SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "mkdir ", 6)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  وإلا إذا(!مقایسه_رشته(cmd, "mkdir ", 6)) {
+    إذا(*cp)
+      أرجع quote_error(داده, sshc);
     /* create directory */
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_MKDIR);
-    return SSH_NO_ERROR;
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_MKDIR);
+    أرجع SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rename ", 7)) {
+  وإلا إذا(!مقایسه_رشته(cmd, "rename ", 7)) {
     /* rename file */
     /* first param is the source path */
     /* second param is the dest. path */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        failf(data, "Out of memory");
-      else
-        failf(data, "Syntax error in rename: Bad second parameter");
+    نتیجه = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    إذا(نتیجه) {
+      إذا(نتیجه == CURLE_بیرون_از_حافظه)
+        failf(داده, "Out of memory");
+      وإلا
+        failf(داده, "Syntax error in rename: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+      myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      sshc->actualcode = نتیجه;
+      أرجع SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_RENAME);
-    return SSH_NO_ERROR;
+    إذا(*cp)
+      أرجع quote_error(داده, sshc);
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_RENAME);
+    أرجع SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rmdir ", 6)) {
+  وإلا إذا(!مقایسه_رشته(cmd, "rmdir ", 6)) {
     /* delete directory */
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_RMDIR);
-    return SSH_NO_ERROR;
+    إذا(*cp)
+      أرجع quote_error(داده, sshc);
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_RMDIR);
+    أرجع SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rm ", 3)) {
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_UNLINK);
-    return SSH_NO_ERROR;
+  وإلا إذا(!مقایسه_رشته(cmd, "rm ", 3)) {
+    إذا(*cp)
+      أرجع quote_error(داده, sshc);
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_UNLINK);
+    أرجع SSH_NO_ERROR;
   }
-#ifdef HAS_STATVFS_SUPPORT
-  else if(!strncmp(cmd, "statvfs ", 8)) {
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_STATVFS);
-    return SSH_NO_ERROR;
+#اگر_تعریف_شده HAS_STATVFS_SUPPORT
+  وإلا إذا(!مقایسه_رشته(cmd, "statvfs ", 8)) {
+    إذا(*cp)
+      أرجع quote_error(داده, sshc);
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_STATVFS);
+    أرجع SSH_NO_ERROR;
   }
-#endif
+#پایان_اگر
 
-  failf(data, "Unknown SFTP command");
+  failf(داده, "Unknown SFTP command");
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_QUOTE_ERROR;
-  return SSH_NO_ERROR;
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_NEXT_QUOTE(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_بعدی_QUOTE(بنية Curl_easy *داده,
+                                    بنية ssh_conn *sshc)
 {
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
 
-  sshc->quote_item = sshc->quote_item->next;
+  sshc->quote_قلم = sshc->quote_قلم->بعدی;
 
-  if(sshc->quote_item) {
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  إذا(sshc->quote_قلم) {
+    myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    if(sshc->nextstate != SSH_NO_STATE) {
-      myssh_to(data, sshc, sshc->nextstate);
+  وإلا {
+    إذا(sshc->nextstate != SSH_NO_STATE) {
+      myssh_مقصد(داده, sshc, sshc->nextstate);
       sshc->nextstate = SSH_NO_STATE;
     }
-    else {
-      myssh_to(data, sshc, SSH_SFTP_GETINFO);
+    وإلا {
+      myssh_مقصد(داده, sshc, SSH_SFTP_GETINFO);
     }
   }
-  return SSH_NO_ERROR;
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_QUOTE_STAT(بنية Curl_easy *داده,
+                                    بنية ssh_conn *sshc)
 {
-  const char *cmd = sshc->quote_item->data;
+  ثابت حرف *cmd = sshc->quote_قلم->داده;
   sshc->acceptfail = FALSE;
 
   /* if a command starts with an asterisk, which a legal SFTP command never
@@ -1677,7 +1677,7 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
      aborts or cancels etc. It causes libcurl to act as if the command
      is successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  إذا(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
@@ -1687,440 +1687,440 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
    * QUOTE_SETSTAT state to write new ones.
    */
 
-  if(sshc->quote_attrs)
-    sftp_attributes_free(sshc->quote_attrs);
+  إذا(sshc->quote_attrs)
+    sftp_صفات_free(sshc->quote_attrs);
   sshc->quote_attrs = sftp_stat(sshc->sftp_session, sshc->quote_path2);
-  if(!sshc->quote_attrs) {
-    failf(data, "Attempt to get SFTP stats failed: %d",
+  إذا(!sshc->quote_attrs) {
+    failf(داده, "Attempt to get SFTP stats failed: %d",
           sftp_get_error(sshc->sftp_session));
-    myssh_quote_error(data, sshc, NULL);
-    return SSH_NO_ERROR;
+    myssh_quote_error(داده, sshc, عدم);
+    أرجع SSH_NO_ERROR;
   }
 
   /* Now set the new attributes... */
-  if(!strncmp(cmd, "chgrp", 5)) {
-    const char *p = sshc->quote_path1;
+  إذا(!مقایسه_رشته(cmd, "chgrp", 5)) {
+    ثابت حرف *p = sshc->quote_path1;
     curl_off_t gid;
-    if(curlx_str_number(&p, &gid, UINT_MAX)) {
-      failf(data, "Syntax error: chgrp gid not a number");
-      myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+    إذا(curlx_str_عدد(&p, &gid, UINT_MAX)) {
+      failf(داده, "Syntax error: chgrp gid not a number");
+      myssh_quote_error(داده, sshc, عدم);
+      أرجع SSH_NO_ERROR;
     }
     sshc->quote_attrs->gid = (uint32_t)gid;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_UIDGID;
   }
-  else if(!strncmp(cmd, "chmod", 5)) {
+  وإلا إذا(!مقایسه_رشته(cmd, "chmod", 5)) {
     curl_off_t perms;
-    const char *p = sshc->quote_path1;
-    if(curlx_str_octal(&p, &perms, 07777)) {
-      failf(data, "Syntax error: chmod permissions not a number");
-      myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+    ثابت حرف *p = sshc->quote_path1;
+    إذا(curlx_str_octal(&p, &perms, 07777)) {
+      failf(داده, "Syntax error: chmod permissions not a number");
+      myssh_quote_error(داده, sshc, عدم);
+      أرجع SSH_NO_ERROR;
     }
     sshc->quote_attrs->permissions = (mode_t)perms;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_PERMISSIONS;
   }
-  else if(!strncmp(cmd, "chown", 5)) {
-    const char *p = sshc->quote_path1;
+  وإلا إذا(!مقایسه_رشته(cmd, "chown", 5)) {
+    ثابت حرف *p = sshc->quote_path1;
     curl_off_t uid;
-    if(curlx_str_number(&p, &uid, UINT_MAX)) {
-      failf(data, "Syntax error: chown uid not a number");
-      myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+    إذا(curlx_str_عدد(&p, &uid, UINT_MAX)) {
+      failf(داده, "Syntax error: chown uid not a number");
+      myssh_quote_error(داده, sshc, عدم);
+      أرجع SSH_NO_ERROR;
     }
     sshc->quote_attrs->uid = (uint32_t)uid;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_UIDGID;
   }
-  else if(!strncmp(cmd, "atime", 5) ||
-          !strncmp(cmd, "mtime", 5)) {
+  وإلا إذا(!مقایسه_رشته(cmd, "atime", 5) ||
+          !مقایسه_رشته(cmd, "mtime", 5)) {
     time_t date;
     bool fail = FALSE;
-    if(Curl_getdate_capped(sshc->quote_path1, &date)) {
-      failf(data, "incorrect date format for %.*s", 5, cmd);
+    إذا(Curl_getdate_capped(sshc->quote_path1, &date)) {
+      failf(داده, "incorrect date format for %.*s", 5, cmd);
       fail = TRUE;
     }
-#if SIZEOF_TIME_T > 4
-    else if(date > 0xffffffff) {
-      failf(data, "date overflow");
+#إذا SIZEOF_زمان_T > 4
+    وإلا إذا(date > 0xffffffff) {
+      failf(داده, "date overflow");
       fail = TRUE; /* avoid setting a capped time */
     }
-#endif
-    if(fail) {
-      myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+#پایان_اگر
+    إذا(fail) {
+      myssh_quote_error(داده, sshc, عدم);
+      أرجع SSH_NO_ERROR;
     }
-    if(!strncmp(cmd, "atime", 5))
+    إذا(!مقایسه_رشته(cmd, "atime", 5))
       sshc->quote_attrs->atime = (uint32_t)date;
-    else /* mtime */
+    وإلا /* mtime */
       sshc->quote_attrs->mtime = (uint32_t)date;
 
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_ACMODTIME;
   }
 
   /* Now send the completed structure... */
-  myssh_to(data, sshc, SSH_SFTP_QUOTE_SETSTAT);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_SETSTAT);
+  أرجع SSH_NO_ERROR;
 }
 
-static void conn_forget_socket(struct Curl_easy *data, int8_t sockindex)
+ساكن فراغ conn_forget_socket(بنية Curl_easy *داده, int8_t sockindex)
 {
-  struct connectdata *conn = data->conn;
-  if(conn && CONN_SOCK_IDX_VALID(sockindex)) {
-    struct Curl_cfilter *cf = conn->cfilter[sockindex];
-    if(cf)
-      (void)Curl_conn_cf_cntrl(cf, data, TRUE, CF_CTRL_FORGET_SOCKET, 0, NULL);
+  بنية connectdata *conn = داده->conn;
+  إذا(conn && CONN_SOCK_IDX_VALID(sockindex)) {
+    بنية Curl_cfilter *cf = conn->cfilter[sockindex];
+    إذا(cf)
+      (فراغ)Curl_conn_cf_cntrl(cf, داده, TRUE, CF_CTRL_FORGET_SOCKET, 0, عدم);
     fake_sclose(conn->sock[sockindex]);
     conn->sock[sockindex] = CURL_SOCKET_BAD;
   }
 }
 
-static void myssh_SESSION_DISCONNECT(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+ساكن فراغ myssh_SESSION_DISCONNECT(بنية Curl_easy *داده,
+                                     بنية ssh_conn *sshc)
 {
   /* during weird times when we have been prematurely aborted, the channel
      is still alive when we reach this state and we MUST kill the channel
      properly first */
-  if(sshc->scp_session) {
+  إذا(sshc->scp_session) {
     ssh_scp_free(sshc->scp_session);
-    sshc->scp_session = NULL;
+    sshc->scp_session = عدم;
   }
 
-  if(sshc->sftp_file) {
+  إذا(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
-    sshc->sftp_file = NULL;
+    sshc->sftp_file = عدم;
   }
-  if(sshc->sftp_session) {
+  إذا(sshc->sftp_session) {
     sftp_free(sshc->sftp_session);
-    sshc->sftp_session = NULL;
+    sshc->sftp_session = عدم;
   }
 
   ssh_disconnect(sshc->ssh_session);
-  if(!ssh_version(SSH_VERSION_INT(0, 10, 0))) {
+  إذا(!ssh_نسخه(SSH_نسخه_INT(0, 10, 0))) {
     /* conn->sock[FIRSTSOCKET] is closed by ssh_disconnect behind our back,
        tell the connection to forget about it. This libssh
        bug is fixed in 0.10.0. */
-    conn_forget_socket(data, FIRSTSOCKET);
+    conn_forget_socket(داده, FIRSTSOCKET);
   }
 
   SSH_STRING_FREE_CHAR(sshc->homedir);
 
-  myssh_to(data, sshc, SSH_SESSION_FREE);
+  myssh_مقصد(داده, sshc, SSH_SESSION_FREE);
 }
 
-static int myssh_SSH_SCP_DOWNLOAD(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+ساكن صحيح myssh_SSH_SCP_DOWNLOAD(بنية Curl_easy *داده,
+                                  بنية ssh_conn *sshc)
 {
   uint64_t bytecount;
-  int rc = ssh_scp_pull_request(sshc->scp_session);
-  if(rc != SSH_SCP_REQUEST_NEWFILE) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_REMOTE_FILE_NOT_FOUND);
+  صحيح rc = ssh_scp_pull_request(sshc->scp_session);
+  إذا(rc != SSH_SCP_REQUEST_NEWFILE) {
+    ثابت حرف *err_پیام = ssh_get_error(sshc->ssh_session);
+    failf(داده, "%s", err_پیام);
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_REMOTE_FILE_NOT_یافت);
   }
 
   /* download data */
   bytecount = ssh_scp_request_get_size64(sshc->scp_session);
-  if(bytecount > CURL_OFF_T_MAX)
+  إذا(bytecount > CURL_OFF_T_MAX)
     /* unlikely to be a real file */
-    return myssh_to_ERROR(data, sshc, CURLE_TOO_LARGE);
-  data->req.maxdownload = (curl_off_t)bytecount;
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, data->req.maxdownload);
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_TOO_LARGE);
+  داده->req.maxdownload = (curl_off_t)bytecount;
+  Curl_xfer_راهاندازی_recv(داده, FIRSTSOCKET, داده->req.maxdownload);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->send_idx = 0;
+  داده->conn->send_idx = 0;
 
-  myssh_to(data, sshc, SSH_STOP);
-  return 0;
+  myssh_مقصد(داده, sshc, SSH_STOP);
+  أرجع 0;
 }
 
-static int myssh_in_TRANS_INIT(struct Curl_easy *data, struct ssh_conn *sshc,
-                               struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_TRANS_INIT(بنية Curl_easy *داده, بنية ssh_conn *sshc,
+                               بنية SSHPROTO *sshp)
 {
-  CURLcode result;
-  int rc = 0;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  CURLcode نتیجه;
+  صحيح rc = 0;
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
-  result = Curl_getworkingpath(data, sshc->homedir, &sshp->path);
-  if(result) {
-    sshc->actualcode = result;
-    myssh_to(data, sshc, SSH_STOP);
-    return 0;
+  نتیجه = Curl_getworkingpath(داده, sshc->homedir, &sshp->مسیر);
+  إذا(نتیجه) {
+    sshc->actualcode = نتیجه;
+    myssh_مقصد(داده, sshc, SSH_STOP);
+    أرجع 0;
   }
 
   /* Functions from the SCP subsystem cannot handle/return SSH_AGAIN */
-  ssh_set_blocking(sshc->ssh_session, 1);
+  ssh_مجموعه_blocking(sshc->ssh_session, 1);
 
-  if(data->state.upload) {
-    if(data->state.infilesize < 0) {
-      failf(data, "SCP requires a known file size for upload");
-      return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+  إذا(داده->state.upload) {
+    إذا(داده->state.infilesize < 0) {
+      failf(داده, "SCP requires a known file size for upload");
+      أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_UPLOAD_FAILED);
     }
 
     sshc->scp_session =
-      ssh_scp_new(sshc->ssh_session, SSH_SCP_WRITE, sshp->path);
-    myssh_to(data, sshc, SSH_SCP_UPLOAD_INIT);
+      ssh_scp_new(sshc->ssh_session, SSH_SCP_WRITE, sshp->مسیر);
+    myssh_مقصد(داده, sshc, SSH_SCP_UPLOAD_INIT);
   }
-  else {
+  وإلا {
     sshc->scp_session =
-      ssh_scp_new(sshc->ssh_session, SSH_SCP_READ, sshp->path);
-    myssh_to(data, sshc, SSH_SCP_DOWNLOAD_INIT);
+      ssh_scp_new(sshc->ssh_session, SSH_SCP_READ, sshp->مسیر);
+    myssh_مقصد(داده, sshc, SSH_SCP_DOWNLOAD_INIT);
   }
 
-  if(!sshc->scp_session) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    rc = myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+  إذا(!sshc->scp_session) {
+    ثابت حرف *err_پیام = ssh_get_error(sshc->ssh_session);
+    failf(داده, "%s", err_پیام);
+    rc = myssh_مقصد_ERROR(داده, sshc, CURLE_UPLOAD_FAILED);
   }
-  return rc;
+  أرجع rc;
 }
 
-static void sshc_cleanup(struct ssh_conn *sshc)
+ساكن فراغ sshc_cleanup(بنية ssh_conn *sshc)
 {
-  if(sshc->initialized) {
-    if(sshc->sftp_file) {
+  إذا(sshc->initialized) {
+    إذا(sshc->sftp_file) {
       sftp_close(sshc->sftp_file);
-      sshc->sftp_file = NULL;
+      sshc->sftp_file = عدم;
     }
-    if(sshc->sftp_session) {
+    إذا(sshc->sftp_session) {
       sftp_free(sshc->sftp_session);
-      sshc->sftp_session = NULL;
+      sshc->sftp_session = عدم;
     }
-    if(sshc->ssh_session) {
+    إذا(sshc->ssh_session) {
       ssh_free(sshc->ssh_session);
-      sshc->ssh_session = NULL;
+      sshc->ssh_session = عدم;
     }
 
     /* worst-case scenario cleanup */
     DEBUGASSERT(!sshc->ssh_session);
     DEBUGASSERT(!sshc->scp_session);
 
-    if(sshc->readdir_tmp) {
+    إذا(sshc->readdir_tmp) {
       ssh_string_free_char(sshc->readdir_tmp);
-      sshc->readdir_tmp = NULL;
+      sshc->readdir_tmp = عدم;
     }
-    if(sshc->quote_attrs) {
-      sftp_attributes_free(sshc->quote_attrs);
-      sshc->quote_attrs = NULL;
+    إذا(sshc->quote_attrs) {
+      sftp_صفات_free(sshc->quote_attrs);
+      sshc->quote_attrs = عدم;
     }
-    if(sshc->readdir_attrs) {
-      sftp_attributes_free(sshc->readdir_attrs);
-      sshc->readdir_attrs = NULL;
+    إذا(sshc->readdir_attrs) {
+      sftp_صفات_free(sshc->readdir_attrs);
+      sshc->readdir_attrs = عدم;
     }
-    if(sshc->readdir_link_attrs) {
-      sftp_attributes_free(sshc->readdir_link_attrs);
-      sshc->readdir_link_attrs = NULL;
+    إذا(sshc->readdir_link_attrs) {
+      sftp_صفات_free(sshc->readdir_link_attrs);
+      sshc->readdir_link_attrs = عدم;
     }
-    if(sshc->privkey) {
-      ssh_key_free(sshc->privkey);
-      sshc->privkey = NULL;
+    إذا(sshc->privkey) {
+      ssh_کلید_free(sshc->privkey);
+      sshc->privkey = عدم;
     }
-    if(sshc->pubkey) {
-      ssh_key_free(sshc->pubkey);
-      sshc->pubkey = NULL;
+    إذا(sshc->pubkey) {
+      ssh_کلید_free(sshc->pubkey);
+      sshc->pubkey = عدم;
     }
 
     curlx_safefree(sshc->passphrase);
-    curlx_safefree(sshc->pub_key);
-    curlx_safefree(sshc->priv_key);
+    curlx_safefree(sshc->pub_کلید);
+    curlx_safefree(sshc->priv_کلید);
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
     curlx_dyn_free(&sshc->readdir_buf);
-    curlx_safefree(sshc->readdir_linkPath);
+    curlx_safefree(sshc->readdir_link_مسیر);
     SSH_STRING_FREE_CHAR(sshc->homedir);
     sshc->initialized = FALSE;
   }
 }
 
-static int myssh_in_SFTP_QUOTE_SETSTAT(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_QUOTE_SETSTAT(بنية Curl_easy *داده,
+                                       بنية ssh_conn *sshc)
 {
-  int rc = sftp_setstat(sshc->sftp_session, sshc->quote_path2,
+  صحيح rc = sftp_setstat(sshc->sftp_session, sshc->quote_path2,
                         sshc->quote_attrs);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "setstat");
-    return rc;
+  إذا(rc == SSH_AGAIN)
+    أرجع rc;
+  إذا(rc && !sshc->acceptfail) {
+    myssh_quote_error(داده, sshc, "setstat");
+    أرجع rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_بعدی_QUOTE);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_SYMLINK(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_QUOTE_SYMLINK(بنية Curl_easy *داده,
+                                       بنية ssh_conn *sshc)
 {
-  int rc = sftp_symlink(sshc->sftp_session, sshc->quote_path2,
+  صحيح rc = sftp_symlink(sshc->sftp_session, sshc->quote_path2,
                         sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "symlink");
-    return rc;
+  إذا(rc == SSH_AGAIN)
+    أرجع rc;
+  إذا(rc && !sshc->acceptfail) {
+    myssh_quote_error(داده, sshc, "symlink");
+    أرجع rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_بعدی_QUOTE);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_MKDIR(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_QUOTE_MKDIR(بنية Curl_easy *داده,
+                                     بنية ssh_conn *sshc)
 {
-  int rc = sftp_mkdir(sshc->sftp_session, sshc->quote_path1,
-                      (mode_t)data->set.new_directory_perms);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "mkdir");
-    return rc;
+  صحيح rc = sftp_mkdir(sshc->sftp_session, sshc->quote_path1,
+                      (mode_t)داده->مجموعه.new_directory_perms);
+  إذا(rc == SSH_AGAIN)
+    أرجع rc;
+  إذا(rc && !sshc->acceptfail) {
+    myssh_quote_error(داده, sshc, "mkdir");
+    أرجع rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_بعدی_QUOTE);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_RENAME(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_QUOTE_RENAME(بنية Curl_easy *داده,
+                                      بنية ssh_conn *sshc)
 {
-  int rc = sftp_rename(sshc->sftp_session, sshc->quote_path1,
+  صحيح rc = sftp_rename(sshc->sftp_session, sshc->quote_path1,
                        sshc->quote_path2);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "rename");
-    return rc;
+  إذا(rc == SSH_AGAIN)
+    أرجع rc;
+  إذا(rc && !sshc->acceptfail) {
+    myssh_quote_error(داده, sshc, "rename");
+    أرجع rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_بعدی_QUOTE);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_RMDIR(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_QUOTE_RMDIR(بنية Curl_easy *داده,
+                                     بنية ssh_conn *sshc)
 {
-  int rc = sftp_rmdir(sshc->sftp_session, sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "rmdir");
-    return rc;
+  صحيح rc = sftp_rmdir(sshc->sftp_session, sshc->quote_path1);
+  إذا(rc == SSH_AGAIN)
+    أرجع rc;
+  إذا(rc && !sshc->acceptfail) {
+    myssh_quote_error(داده, sshc, "rmdir");
+    أرجع rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_بعدی_QUOTE);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_UNLINK(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_QUOTE_UNLINK(بنية Curl_easy *داده,
+                                      بنية ssh_conn *sshc)
 {
-  int rc = sftp_unlink(sshc->sftp_session, sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "rm");
-    return rc;
+  صحيح rc = sftp_unlink(sshc->sftp_session, sshc->quote_path1);
+  إذا(rc == SSH_AGAIN)
+    أرجع rc;
+  إذا(rc && !sshc->acceptfail) {
+    myssh_quote_error(داده, sshc, "rm");
+    أرجع rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_بعدی_QUOTE);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_GETINFO(struct Curl_easy *data,
-                                 struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SFTP_GETINFO(بنية Curl_easy *داده,
+                                 بنية ssh_conn *sshc)
 {
-  if(data->set.get_filetime)
-    myssh_to(data, sshc, SSH_SFTP_FILETIME);
-  else
-    myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return SSH_NO_ERROR;
+  إذا(داده->مجموعه.get_filetime)
+    myssh_مقصد(داده, sshc, SSH_SFTP_FILETIME);
+  وإلا
+    myssh_مقصد(داده, sshc, SSH_SFTP_TRANS_INIT);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_FILETIME(struct Curl_easy *data,
-                                  struct ssh_conn *sshc,
-                                  struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_FILETIME(بنية Curl_easy *داده,
+                                  بنية ssh_conn *sshc,
+                                  بنية SSHPROTO *sshp)
 {
-  sftp_attributes attrs;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  sftp_صفات attrs;
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
-  attrs = sftp_stat(sshc->sftp_session, sshp->path);
-  if(attrs) {
-    data->info.filetime = attrs->mtime;
-    sftp_attributes_free(attrs);
+  attrs = sftp_stat(sshc->sftp_session, sshp->مسیر);
+  إذا(attrs) {
+    داده->info.filetime = attrs->mtime;
+    sftp_صفات_free(attrs);
   }
 
-  myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_TRANS_INIT);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_TRANS_INIT(struct Curl_easy *data,
-                                    struct ssh_conn *sshc,
-                                    struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_TRANS_INIT(بنية Curl_easy *داده,
+                                    بنية ssh_conn *sshc,
+                                    بنية SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
-  if(data->state.upload)
-    myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  else {
-    size_t path_len = strlen(sshp->path);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
+  إذا(داده->state.upload)
+    myssh_مقصد(داده, sshc, SSH_SFTP_UPLOAD_INIT);
+  وإلا {
+    size_t مسیر_len = طول_رشته(sshp->مسیر);
 
-    if(path_len && sshp->path[path_len - 1] == '/')
-      myssh_to(data, sshc, SSH_SFTP_READDIR_INIT);
-    else
-      myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_INIT);
+    إذا(مسیر_len && sshp->مسیر[مسیر_len - 1] == '/')
+      myssh_مقصد(داده, sshc, SSH_SFTP_READDIR_INIT);
+    وإلا
+      myssh_مقصد(داده, sshc, SSH_SFTP_DOWNLOAD_INIT);
   }
 
-  return SSH_NO_ERROR;
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS_INIT(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_CREATE_DIRS_INIT(بنية Curl_easy *داده,
+                                          بنية ssh_conn *sshc,
+                                          بنية SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
-  if(strlen(sshp->path) > 1) {
-    sshc->slash_pos = sshp->path + 1; /* ignore the leading '/' */
-    myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
+  إذا(طول_رشته(sshp->مسیر) > 1) {
+    sshc->slash_pos = sshp->مسیر + 1; /* ignore the leading '/' */
+    myssh_مقصد(داده, sshc, SSH_SFTP_CREATE_DIRS);
   }
-  else {
-    myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
+  وإلا {
+    myssh_مقصد(داده, sshc, SSH_SFTP_UPLOAD_INIT);
   }
-  return SSH_NO_ERROR;
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS(struct Curl_easy *data,
-                                     struct ssh_conn *sshc,
-                                     struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_CREATE_DIRS(بنية Curl_easy *داده,
+                                     بنية ssh_conn *sshc,
+                                     بنية SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
   sshc->slash_pos = strchr(sshc->slash_pos, '/');
-  if(sshc->slash_pos) {
+  إذا(sshc->slash_pos) {
     *sshc->slash_pos = 0;
 
-    infof(data, "Creating directory '%s'", sshp->path);
-    myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
-    return SSH_NO_ERROR;
+    infof(داده, "Creating directory '%s'", sshp->مسیر);
+    myssh_مقصد(داده, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
+    أرجع SSH_NO_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SFTP_UPLOAD_INIT);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS_MKDIR(struct Curl_easy *data,
-                                           struct ssh_conn *sshc,
-                                           struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SFTP_CREATE_DIRS_MKDIR(بنية Curl_easy *داده,
+                                           بنية ssh_conn *sshc,
+                                           بنية SSHPROTO *sshp)
 {
-  int rc;
-  int err;
+  صحيح rc;
+  صحيح err;
   /* 'mode' - parameter is preliminary - default to 0644 */
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
-  rc = sftp_mkdir(sshc->sftp_session, sshp->path,
-                  (mode_t)data->set.new_directory_perms);
-  if(rc == SSH_AGAIN)
-    return rc;
+  rc = sftp_mkdir(sshc->sftp_session, sshp->مسیر,
+                  (mode_t)داده->مجموعه.new_directory_perms);
+  إذا(rc == SSH_AGAIN)
+    أرجع rc;
   *sshc->slash_pos = '/';
   ++sshc->slash_pos;
-  if(rc < 0) {
+  إذا(rc < 0) {
     /*
      * Abort if failure was not that the directory already
      * exists or the permission was denied (creation might
@@ -2128,126 +2128,126 @@ static int myssh_in_SFTP_CREATE_DIRS_MKDIR(struct Curl_easy *data,
      * FAILURE also
      */
     err = sftp_get_error(sshc->sftp_session);
-    if((err != SSH_FX_FILE_ALREADY_EXISTS) &&
+    إذا((err != SSH_FX_FILE_ALREADY_EXISTS) &&
        (err != SSH_FX_FAILURE) &&
        (err != SSH_FX_PERMISSION_DENIED)) {
-      return myssh_to_SFTP_CLOSE(data, sshc);
+      أرجع myssh_مقصد_SFTP_CLOSE(داده, sshc);
     }
     rc = 0; /* clear rc and continue */
   }
-  myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
-  return rc;
+  myssh_مقصد(داده, sshc, SSH_SFTP_CREATE_DIRS);
+  أرجع rc;
 }
 
-static int myssh_in_SCP_UPLOAD_INIT(struct Curl_easy *data,
-                                    struct ssh_conn *sshc,
-                                    struct SSHPROTO *sshp)
+ساكن صحيح myssh_درون_SCP_UPLOAD_INIT(بنية Curl_easy *داده,
+                                    بنية ssh_conn *sshc,
+                                    بنية SSHPROTO *sshp)
 {
-  int rc;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  صحيح rc;
+  إذا(!sshp)
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_FAILED_INIT);
 
   rc = ssh_scp_init(sshc->scp_session);
-  if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+  إذا(rc != SSH_OK) {
+    ثابت حرف *err_پیام = ssh_get_error(sshc->ssh_session);
+    failf(داده, "%s", err_پیام);
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_UPLOAD_FAILED);
   }
 
-  rc = ssh_scp_push_file64(sshc->scp_session, sshp->path,
-                           (uint64_t)data->state.infilesize,
-                           (int)data->set.new_file_perms);
+  rc = ssh_scp_افزودن_file64(sshc->scp_session, sshp->مسیر,
+                           (uint64_t)داده->state.infilesize,
+                           (صحيح)داده->مجموعه.new_file_perms);
 
-  if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+  إذا(rc != SSH_OK) {
+    ثابت حرف *err_پیام = ssh_get_error(sshc->ssh_session);
+    failf(داده, "%s", err_پیام);
+    أرجع myssh_مقصد_ERROR(داده, sshc, CURLE_UPLOAD_FAILED);
   }
 
   /* upload data */
-  Curl_xfer_setup_send(data, FIRSTSOCKET);
+  Curl_xfer_راهاندازی_send(داده, FIRSTSOCKET);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->recv_idx = FIRSTSOCKET;
+  داده->conn->recv_idx = FIRSTSOCKET;
 
-  myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_STOP);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_DOWNLOAD_INIT(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SCP_DOWNLOAD_INIT(بنية Curl_easy *داده,
+                                      بنية ssh_conn *sshc)
 {
-  int rc = ssh_scp_init(sshc->scp_session);
-  if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc,
+  صحيح rc = ssh_scp_init(sshc->scp_session);
+  إذا(rc != SSH_OK) {
+    ثابت حرف *err_پیام = ssh_get_error(sshc->ssh_session);
+    failf(داده, "%s", err_پیام);
+    أرجع myssh_مقصد_ERROR(داده, sshc,
                           CURLE_COULDNT_CONNECT);
   }
-  myssh_to(data, sshc, SSH_SCP_DOWNLOAD);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SCP_DOWNLOAD);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_DONE(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SCP_انجامشده(بنية Curl_easy *داده,
+                             بنية ssh_conn *sshc)
 {
-  if(data->state.upload)
-    myssh_to(data, sshc, SSH_SCP_SEND_EOF);
-  else
-    myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return SSH_NO_ERROR;
+  إذا(داده->state.upload)
+    myssh_مقصد(داده, sshc, SSH_SCP_SEND_EOF);
+  وإلا
+    myssh_مقصد(داده, sshc, SSH_SCP_CHANNEL_FREE);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_SEND_EOF(struct Curl_easy *data,
-                                 struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SCP_SEND_EOF(بنية Curl_easy *داده,
+                                 بنية ssh_conn *sshc)
 {
-  if(sshc->scp_session) {
-    int rc = ssh_scp_close(sshc->scp_session);
-    if(rc == SSH_AGAIN) {
+  إذا(sshc->scp_session) {
+    صحيح rc = ssh_scp_close(sshc->scp_session);
+    إذا(rc == SSH_AGAIN) {
       /* Currently the ssh_scp_close handles waiting for
        * EOF in blocking way.
        */
-      return SSH_AGAIN;
+      أرجع SSH_AGAIN;
     }
-    if(rc != SSH_OK) {
-      infof(data,
+    إذا(rc != SSH_OK) {
+      infof(داده,
             "Failed to close libssh scp channel: %s",
             ssh_get_error(sshc->ssh_session));
     }
   }
 
-  myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SCP_CHANNEL_FREE);
+  أرجع SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_CHANNEL_FREE(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+ساكن صحيح myssh_درون_SCP_CHANNEL_FREE(بنية Curl_easy *داده,
+                                     بنية ssh_conn *sshc)
 {
-  if(sshc->scp_session) {
+  إذا(sshc->scp_session) {
     ssh_scp_free(sshc->scp_session);
-    sshc->scp_session = NULL;
+    sshc->scp_session = عدم;
   }
-  CURL_TRC_SSH(data, "SCP DONE phase complete");
+  CURL_TRC_SSH(داده, "SCP DONE phase complete");
 
-  ssh_set_blocking(sshc->ssh_session, 0);
+  ssh_مجموعه_blocking(sshc->ssh_session, 0);
 
-  myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  return SSH_NO_ERROR;
+  myssh_مقصد(داده, sshc, SSH_SESSION_DISCONNECT);
+  أرجع SSH_NO_ERROR;
 }
 
-static CURLcode myssh_in_SESSION_FREE(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+ساكن CURLcode myssh_درون_SESSION_FREE(بنية Curl_easy *داده,
+                                      بنية ssh_conn *sshc)
 {
-  CURLcode result;
+  CURLcode نتیجه;
   sshc_cleanup(sshc);
   /* the code we are about to return */
-  result = sshc->actualcode;
-  memset(sshc, 0, sizeof(struct ssh_conn));
-  connclose(data->conn);
+  نتیجه = sshc->actualcode;
+  memset(sshc, 0, حجم(بنية ssh_conn));
+  connclose(داده->conn);
   sshc->state = SSH_SESSION_FREE;   /* current */
   sshc->nextstate = SSH_NO_STATE;
-  myssh_to(data, sshc, SSH_STOP);
-  return result;
+  myssh_مقصد(داده, sshc, SSH_STOP);
+  أرجع نتیجه;
 }
 
 /*
@@ -2256,276 +2256,276 @@ static CURLcode myssh_in_SESSION_FREE(struct Curl_easy *data,
  * to is set to TRUE if the libssh function returns SSH_AGAIN
  * meaning it wants to be called again when the socket is ready
  */
-static CURLcode myssh_statemachine(struct Curl_easy *data,
-                                   struct ssh_conn *sshc,
-                                   struct SSHPROTO *sshp,
-                                   bool *block)
+ساكن CURLcode myssh_statemachine(بنية Curl_easy *داده,
+                                   بنية ssh_conn *sshc,
+                                   بنية SSHPROTO *sshp,
+                                   bool *بلوک)
 {
-  CURLcode result = CURLE_OK;
-  int rc = SSH_NO_ERROR;
+  CURLcode نتیجه = CURLE_OK;
+  صحيح rc = SSH_NO_ERROR;
 
-  *block = FALSE;                   /* we are not blocking by default */
-  do {
+  *بلوک = FALSE;                   /* we are not blocking by default */
+  افعل {
 
-    switch(sshc->state) {
-    case SSH_INIT:
-      myssh_state_init(data, sshc);
+    بدل(sshc->state) {
+    حالة SSH_INIT:
+      myssh_state_init(داده, sshc);
       FALLTHROUGH();
-    case SSH_S_STARTUP:
-      rc = myssh_in_S_STARTUP(data, sshc);
-      if(rc)
-        break;
+    حالة SSH_S_STARTUP:
+      rc = myssh_درون_S_STARTUP(داده, sshc);
+      إذا(rc)
+        اكسر;
       FALLTHROUGH();
-    case SSH_HOSTKEY:
-      rc = myssh_is_known(data, sshc);
-      if(rc != SSH_OK) {
-        rc = myssh_to_ERROR(data, sshc, CURLE_PEER_FAILED_VERIFICATION);
-        break;
+    حالة SSH_HOSTKEY:
+      rc = myssh_is_معلوم(داده, sshc);
+      إذا(rc != SSH_OK) {
+        rc = myssh_مقصد_ERROR(داده, sshc, CURLE_PEER_FAILED_VERIFICATION);
+        اكسر;
       }
-      myssh_to(data, sshc, SSH_AUTHLIST);
+      myssh_مقصد(داده, sshc, SSH_AUTHLIST);
       FALLTHROUGH();
-    case SSH_AUTHLIST:
-      rc = myssh_in_AUTHLIST(data, sshc);
-      break;
-    case SSH_AUTH_PKEY_INIT:
-      rc = myssh_in_AUTH_PKEY_INIT(data, sshc);
-      break;
-    case SSH_AUTH_PKEY:
-      rc = myssh_in_AUTH_PKEY(data, sshc);
-      break;
-    case SSH_AUTH_GSSAPI:
-      rc = myssh_in_AUTH_GSSAPI(data, sshc);
-      break;
-    case SSH_AUTH_KEY_INIT:
-      rc = myssh_in_AUTH_KEY_INIT(data, sshc);
-      break;
-    case SSH_AUTH_KEY:
-      rc = myssh_in_AUTH_KEY(data, sshc);
-      break;
-    case SSH_AUTH_PASS_INIT:
-      rc = myssh_in_AUTH_PASS_INIT(data, sshc);
-      break;
-    case SSH_AUTH_PASS:
-      rc = myssh_in_AUTH_PASS(data, sshc);
-      break;
-    case SSH_AUTH_DONE:
-      rc = myssh_in_AUTH_DONE(data, sshc);
-      break;
-    case SSH_SFTP_INIT:
-      rc = myssh_in_SFTP_INIT(data, sshc);
-      break;
-    case SSH_SFTP_REALPATH:
-      rc = myssh_in_SFTP_REALPATH(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_INIT:
-      rc = myssh_in_SFTP_QUOTE_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_POSTQUOTE_INIT:
-      rc = myssh_in_SFTP_POSTQUOTE_INIT(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE:
-      rc = myssh_in_SFTP_QUOTE(data, sshc, sshp);
-      break;
-    case SSH_SFTP_NEXT_QUOTE:
-      rc = myssh_in_SFTP_NEXT_QUOTE(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_STAT:
-      rc = myssh_in_SFTP_QUOTE_STAT(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_SETSTAT:
-      rc = myssh_in_SFTP_QUOTE_SETSTAT(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_SYMLINK:
-      rc = myssh_in_SFTP_QUOTE_SYMLINK(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_MKDIR:
-      rc = myssh_in_SFTP_QUOTE_MKDIR(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_RENAME:
-      rc = myssh_in_SFTP_QUOTE_RENAME(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_RMDIR:
-      rc = myssh_in_SFTP_QUOTE_RMDIR(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_UNLINK:
-      rc = myssh_in_SFTP_QUOTE_UNLINK(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_STATVFS:
-      rc = myssh_in_SFTP_QUOTE_STATVFS(data, sshc);
-      break;
-    case SSH_SFTP_GETINFO:
-      rc = myssh_in_SFTP_GETINFO(data, sshc);
-      break;
-    case SSH_SFTP_FILETIME:
-      rc = myssh_in_SFTP_FILETIME(data, sshc, sshp);
-      break;
-    case SSH_SFTP_TRANS_INIT:
-      rc = myssh_in_SFTP_TRANS_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_UPLOAD_INIT:
-      rc = myssh_in_UPLOAD_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_CREATE_DIRS_INIT:
-      rc = myssh_in_SFTP_CREATE_DIRS_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_CREATE_DIRS:
-      rc = myssh_in_SFTP_CREATE_DIRS(data, sshc, sshp);
-      break;
-    case SSH_SFTP_CREATE_DIRS_MKDIR:
-      rc = myssh_in_SFTP_CREATE_DIRS_MKDIR(data, sshc, sshp);
-      break;
-    case SSH_SFTP_READDIR_INIT:
-      rc = myssh_in_SFTP_READDIR_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_READDIR:
-      rc = myssh_in_SFTP_READDIR(data, sshc, sshp);
-      break;
-    case SSH_SFTP_READDIR_LINK:
-      rc = myssh_in_SFTP_READDIR_LINK(data, sshc);
-      break;
-    case SSH_SFTP_READDIR_BOTTOM:
-      rc = myssh_in_SFTP_READDIR_BOTTOM(data, sshc);
-      break;
-    case SSH_SFTP_READDIR_DONE:
-      rc = myssh_in_SFTP_READDIR_DONE(data, sshc);
-      break;
-    case SSH_SFTP_DOWNLOAD_INIT:
-      rc = myssh_in_SFTP_DOWNLOAD_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_DOWNLOAD_STAT:
-      rc = myssh_in_SFTP_DOWNLOAD_STAT(data, sshc);
-      break;
-    case SSH_SFTP_CLOSE:
-      rc = myssh_in_SFTP_CLOSE(data, sshc, sshp);
-      break;
-    case SSH_SFTP_SHUTDOWN:
-      rc = myssh_in_SFTP_SHUTDOWN(data, sshc);
-      break;
-    case SSH_SCP_TRANS_INIT:
-      rc = myssh_in_TRANS_INIT(data, sshc, sshp);
-      break;
-    case SSH_SCP_UPLOAD_INIT:
-      rc = myssh_in_SCP_UPLOAD_INIT(data, sshc, sshp);
-      break;
-    case SSH_SCP_DOWNLOAD_INIT:
-      rc = myssh_in_SCP_DOWNLOAD_INIT(data, sshc);
-      if(rc)
-        break;
+    حالة SSH_AUTHLIST:
+      rc = myssh_درون_AUTHLIST(داده, sshc);
+      اكسر;
+    حالة SSH_AUTH_PKEY_INIT:
+      rc = myssh_درون_AUTH_PKEY_INIT(داده, sshc);
+      اكسر;
+    حالة SSH_AUTH_PKEY:
+      rc = myssh_درون_AUTH_PKEY(داده, sshc);
+      اكسر;
+    حالة SSH_AUTH_GSSAPI:
+      rc = myssh_درون_AUTH_GSSAPI(داده, sshc);
+      اكسر;
+    حالة SSH_AUTH_کلید_INIT:
+      rc = myssh_درون_AUTH_کلید_INIT(داده, sshc);
+      اكسر;
+    حالة SSH_AUTH_کلید:
+      rc = myssh_درون_AUTH_کلید(داده, sshc);
+      اكسر;
+    حالة SSH_AUTH_PASS_INIT:
+      rc = myssh_درون_AUTH_PASS_INIT(داده, sshc);
+      اكسر;
+    حالة SSH_AUTH_PASS:
+      rc = myssh_درون_AUTH_PASS(داده, sshc);
+      اكسر;
+    حالة SSH_AUTH_انجامشده:
+      rc = myssh_درون_AUTH_انجامشده(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_INIT:
+      rc = myssh_درون_SFTP_INIT(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_REALPATH:
+      rc = myssh_درون_SFTP_REALPATH(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_INIT:
+      rc = myssh_درون_SFTP_QUOTE_INIT(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_POSTQUOTE_INIT:
+      rc = myssh_درون_SFTP_POSTQUOTE_INIT(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE:
+      rc = myssh_درون_SFTP_QUOTE(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_بعدی_QUOTE:
+      rc = myssh_درون_SFTP_بعدی_QUOTE(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_STAT:
+      rc = myssh_درون_SFTP_QUOTE_STAT(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_SETSTAT:
+      rc = myssh_درون_SFTP_QUOTE_SETSTAT(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_SYMLINK:
+      rc = myssh_درون_SFTP_QUOTE_SYMLINK(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_MKDIR:
+      rc = myssh_درون_SFTP_QUOTE_MKDIR(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_RENAME:
+      rc = myssh_درون_SFTP_QUOTE_RENAME(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_RMDIR:
+      rc = myssh_درون_SFTP_QUOTE_RMDIR(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_UNLINK:
+      rc = myssh_درون_SFTP_QUOTE_UNLINK(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_QUOTE_STATVFS:
+      rc = myssh_درون_SFTP_QUOTE_STATVFS(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_GETINFO:
+      rc = myssh_درون_SFTP_GETINFO(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_FILETIME:
+      rc = myssh_درون_SFTP_FILETIME(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_TRANS_INIT:
+      rc = myssh_درون_SFTP_TRANS_INIT(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_UPLOAD_INIT:
+      rc = myssh_درون_UPLOAD_INIT(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_CREATE_DIRS_INIT:
+      rc = myssh_درون_SFTP_CREATE_DIRS_INIT(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_CREATE_DIRS:
+      rc = myssh_درون_SFTP_CREATE_DIRS(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_CREATE_DIRS_MKDIR:
+      rc = myssh_درون_SFTP_CREATE_DIRS_MKDIR(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_READDIR_INIT:
+      rc = myssh_درون_SFTP_READDIR_INIT(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_READDIR:
+      rc = myssh_درون_SFTP_READDIR(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_READDIR_LINK:
+      rc = myssh_درون_SFTP_READDIR_LINK(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_READDIR_BOTTOM:
+      rc = myssh_درون_SFTP_READDIR_BOTTOM(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_READDIR_انجامشده:
+      rc = myssh_درون_SFTP_READDIR_انجامشده(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_DOWNLOAD_INIT:
+      rc = myssh_درون_SFTP_DOWNLOAD_INIT(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_DOWNLOAD_STAT:
+      rc = myssh_درون_SFTP_DOWNLOAD_STAT(داده, sshc);
+      اكسر;
+    حالة SSH_SFTP_CLOSE:
+      rc = myssh_درون_SFTP_CLOSE(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SFTP_SHUTDOWN:
+      rc = myssh_درون_SFTP_SHUTDOWN(داده, sshc);
+      اكسر;
+    حالة SSH_SCP_TRANS_INIT:
+      rc = myssh_درون_TRANS_INIT(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SCP_UPLOAD_INIT:
+      rc = myssh_درون_SCP_UPLOAD_INIT(داده, sshc, sshp);
+      اكسر;
+    حالة SSH_SCP_DOWNLOAD_INIT:
+      rc = myssh_درون_SCP_DOWNLOAD_INIT(داده, sshc);
+      إذا(rc)
+        اكسر;
       FALLTHROUGH();
-    case SSH_SCP_DOWNLOAD:
-      rc = myssh_SSH_SCP_DOWNLOAD(data, sshc);
-      break;
-    case SSH_SCP_DONE:
-      rc = myssh_in_SCP_DONE(data, sshc);
-      break;
-    case SSH_SCP_SEND_EOF:
-      rc = myssh_in_SCP_SEND_EOF(data, sshc);
-      break;
-    case SSH_SCP_CHANNEL_FREE:
-      myssh_in_SCP_CHANNEL_FREE(data, sshc);
+    حالة SSH_SCP_DOWNLOAD:
+      rc = myssh_SSH_SCP_DOWNLOAD(داده, sshc);
+      اكسر;
+    حالة SSH_SCP_انجامشده:
+      rc = myssh_درون_SCP_انجامشده(داده, sshc);
+      اكسر;
+    حالة SSH_SCP_SEND_EOF:
+      rc = myssh_درون_SCP_SEND_EOF(داده, sshc);
+      اكسر;
+    حالة SSH_SCP_CHANNEL_FREE:
+      myssh_درون_SCP_CHANNEL_FREE(داده, sshc);
       FALLTHROUGH();
-    case SSH_SESSION_DISCONNECT:
-      myssh_SESSION_DISCONNECT(data, sshc);
+    حالة SSH_SESSION_DISCONNECT:
+      myssh_SESSION_DISCONNECT(داده, sshc);
       FALLTHROUGH();
-    case SSH_SESSION_FREE:
-      result = myssh_in_SESSION_FREE(data, sshc);
-      break;
-    case SSH_QUIT:
-    default:
+    حالة SSH_SESSION_FREE:
+      نتیجه = myssh_درون_SESSION_FREE(داده, sshc);
+      اكسر;
+    حالة SSH_QUIT:
+    افتراضي:
       /* internal error */
       sshc->nextstate = SSH_NO_STATE;
-      myssh_to(data, sshc, SSH_STOP);
-      break;
+      myssh_مقصد(داده, sshc, SSH_STOP);
+      اكسر;
     }
     /* break the loop only on STOP or SSH_AGAIN. If `rc` is some
      * other error code, we will have progressed the state accordingly. */
-  } while((rc != SSH_AGAIN) && (sshc->state != SSH_STOP));
+  } طالما((rc != SSH_AGAIN) && (sshc->state != SSH_STOP));
 
-  if(rc == SSH_AGAIN) {
+  إذا(rc == SSH_AGAIN) {
     /* we would block, we need to wait for the socket to be ready (in the
        right direction too)! */
-    *block = TRUE;
+    *بلوک = TRUE;
   }
-  if(!result && (sshc->state == SSH_STOP))
-    result = sshc->actualcode;
-  CURL_TRC_SSH(data, "[%s] statemachine() -> %d, block=%d",
-               Curl_ssh_statename(sshc->state), (int)result, *block);
-  return result;
+  إذا(!نتیجه && (sshc->state == SSH_STOP))
+    نتیجه = sshc->actualcode;
+  CURL_TRC_SSH(داده, "[%s] statemachine() -> %d, block=%d",
+               Curl_ssh_statename(sshc->state), (صحيح)نتیجه, *بلوک);
+  أرجع نتیجه;
 }
 
 /* called repeatedly until done from multi.c */
-static CURLcode myssh_multi_statemach(struct Curl_easy *data,
-                                      bool *done)
+ساكن CURLcode myssh_multi_statemach(بنية Curl_easy *داده,
+                                      bool *انجامشده)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  bool block;    /* we store the status and use that to provide
+  بنية connectdata *conn = داده->conn;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  بنية SSHPROTO *sshp = Curl_meta_get(داده, CURL_META_SSH_EASY);
+  bool بلوک;    /* we store the status and use that to provide
                     a Curl_ssh_pollset() implementation */
-  CURLcode result;
+  CURLcode نتیجه;
 
-  if(!sshc || !sshp)
-    return CURLE_FAILED_INIT;
-  result = myssh_statemachine(data, sshc, sshp, &block);
-  *done = (sshc->state == SSH_STOP);
-  myssh_block2waitfor(conn, sshc, block);
+  إذا(!sshc || !sshp)
+    أرجع CURLE_FAILED_INIT;
+  نتیجه = myssh_statemachine(داده, sshc, sshp, &بلوک);
+  *انجامشده = (sshc->state == SSH_STOP);
+  myssh_block2waitfor(conn, sshc, بلوک);
 
-  return result;
+  أرجع نتیجه;
 }
 
-static CURLcode myssh_block_statemach(struct Curl_easy *data,
-                                      struct ssh_conn *sshc,
-                                      struct SSHPROTO *sshp,
+ساكن CURLcode myssh_بلوک_statemach(بنية Curl_easy *داده,
+                                      بنية ssh_conn *sshc,
+                                      بنية SSHPROTO *sshp,
                                       bool disconnect)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
+  بنية connectdata *conn = داده->conn;
+  CURLcode نتیجه = CURLE_OK;
 
-  while((sshc->state != SSH_STOP) && !result) {
-    bool block;
-    timediff_t left_ms = 1000;
+  طالما((sshc->state != SSH_STOP) && !نتیجه) {
+    bool بلوک;
+    timediff_t چپ_ms = 1000;
 
-    result = myssh_statemachine(data, sshc, sshp, &block);
-    if(result)
-      break;
+    نتیجه = myssh_statemachine(داده, sshc, sshp, &بلوک);
+    إذا(نتیجه)
+      اكسر;
 
-    if(!disconnect) {
-      result = Curl_pgrsCheck(data);
-      if(result)
-        break;
+    إذا(!disconnect) {
+      نتیجه = Curl_pgrsCheck(داده);
+      إذا(نتیجه)
+        اكسر;
 
-      left_ms = Curl_timeleft_ms(data);
-      if(left_ms < 0) {
-        failf(data, "Operation timed out");
-        return CURLE_OPERATION_TIMEDOUT;
+      چپ_ms = Curl_timeleft_ms(داده);
+      إذا(چپ_ms < 0) {
+        failf(داده, "Operation timed out");
+        أرجع CURLE_OPERATION_TIMEDOUT;
       }
     }
 
-    if(block) {
+    إذا(بلوک) {
       curl_socket_t fd_read = conn->sock[FIRSTSOCKET];
       /* wait for the socket to become ready */
-      (void)SOCKET_READABLE(fd_read,
-                            (!left_ms || left_ms > 1000) ? 1000 : left_ms);
+      (فراغ)SOCKET_READABLE(fd_read,
+                            (!چپ_ms || چپ_ms > 1000) ? 1000 : چپ_ms);
     }
   }
 
-  return result;
+  أرجع نتیجه;
 }
 
-static void myssh_easy_dtor(const void *key, size_t klen, void *entry)
+ساكن فراغ myssh_easy_dtor(ثابت فراغ *کلید, size_t klen, فراغ *مدخل)
 {
-  struct SSHPROTO *sshp = entry;
-  (void)key;
-  (void)klen;
-  curlx_safefree(sshp->path);
+  بنية SSHPROTO *sshp = مدخل;
+  (فراغ)کلید;
+  (فراغ)klen;
+  curlx_safefree(sshp->مسیر);
   curlx_free(sshp);
 }
 
-static void myssh_conn_dtor(const void *key, size_t klen, void *entry)
+ساكن فراغ myssh_conn_dtor(ثابت فراغ *کلید, size_t klen, فراغ *مدخل)
 {
-  struct ssh_conn *sshc = entry;
-  (void)key;
-  (void)klen;
+  بنية ssh_conn *sshc = مدخل;
+  (فراغ)کلید;
+  (فراغ)klen;
   sshc_cleanup(sshc);
   curlx_free(sshc);
 }
@@ -2533,164 +2533,164 @@ static void myssh_conn_dtor(const void *key, size_t klen, void *entry)
 /*
  * SSH setup connection
  */
-static CURLcode myssh_setup_connection(struct Curl_easy *data,
-                                       struct connectdata *conn)
+ساكن CURLcode myssh_راهاندازی_connection(بنية Curl_easy *داده,
+                                       بنية connectdata *conn)
 {
-  struct SSHPROTO *sshp;
-  struct ssh_conn *sshc;
+  بنية SSHPROTO *sshp;
+  بنية ssh_conn *sshc;
 
-  sshc = curlx_calloc(1, sizeof(*sshc));
-  if(!sshc)
-    return CURLE_OUT_OF_MEMORY;
+  sshc = curlx_calloc(1, حجم(*sshc));
+  إذا(!sshc)
+    أرجع CURLE_بیرون_از_حافظه;
 
-  curlx_dyn_init(&sshc->readdir_buf, CURL_PATH_MAX * 2);
+  curlx_dyn_init(&sshc->readdir_buf, CURL_مسیر_MAX * 2);
   sshc->initialized = TRUE;
-  if(Curl_conn_meta_set(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  إذا(Curl_conn_meta_مجموعه(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
+    أرجع CURLE_بیرون_از_حافظه;
 
-  sshp = curlx_calloc(1, sizeof(*sshp));
-  if(!sshp ||
-     Curl_meta_set(data, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  sshp = curlx_calloc(1, حجم(*sshp));
+  إذا(!sshp ||
+     Curl_meta_مجموعه(داده, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
+    أرجع CURLE_بیرون_از_حافظه;
 
-  return Curl_ssh_setup_pkey(data, sshc);
+  أرجع Curl_ssh_راهاندازی_pkey(داده, sshc);
 }
 
-static Curl_recv scp_recv, sftp_recv;
-static Curl_send scp_send, sftp_send;
+ساكن Curl_recv scp_recv, sftp_recv;
+ساكن Curl_send scp_send, sftp_send;
 
 /*
  * Curl_ssh_connect() gets called from Curl_protocol_connect() to allow us to
  * do protocol-specific actions at connect-time.
  */
-static CURLcode myssh_connect(struct Curl_easy *data, bool *done)
+ساكن CURLcode myssh_connect(بنية Curl_easy *داده, bool *انجامشده)
 {
-  CURLcode result;
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *ssh = Curl_meta_get(data, CURL_META_SSH_EASY);
+  CURLcode نتیجه;
+  بنية connectdata *conn = داده->conn;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  بنية SSHPROTO *ssh = Curl_meta_get(داده, CURL_META_SSH_EASY);
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int rc;
+  صحيح rc;
 
-  if(!sshc || !ssh)
-    return CURLE_FAILED_INIT;
+  إذا(!sshc || !ssh)
+    أرجع CURLE_FAILED_INIT;
 
-  CURL_TRC_SSH(data, "myssh_connect");
-  if(conn->scheme->protocol & CURLPROTO_SCP) {
+  CURL_TRC_SSH(داده, "myssh_connect");
+  إذا(conn->scheme->protocol & CURLPROTO_SCP) {
     conn->recv[FIRSTSOCKET] = scp_recv;
     conn->send[FIRSTSOCKET] = scp_send;
   }
-  else {
+  وإلا {
     conn->recv[FIRSTSOCKET] = sftp_recv;
     conn->send[FIRSTSOCKET] = sftp_send;
   }
 
   sshc->ssh_session = ssh_new();
-  if(!sshc->ssh_session) {
-    failf(data, "Failure initializing ssh session");
-    return CURLE_FAILED_INIT;
+  إذا(!sshc->ssh_session) {
+    failf(داده, "Failure initializing ssh session");
+    أرجع CURLE_FAILED_INIT;
   }
 
   /* For IPv6 origins, use the `user_hostname` that has the "[]" enclosure.
    * Otherwise, use `hostname` that is IDN converted. */
-  rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_HOST,
+  rc = ssh_options_مجموعه(sshc->ssh_session, SSH_OPTIONS_HOST,
                        conn->origin->ipv6 ?
                        conn->origin->user_hostname : conn->origin->hostname);
 
-  if(rc != SSH_OK) {
-    failf(data, "Could not set remote host");
-    return CURLE_FAILED_INIT;
+  إذا(rc != SSH_OK) {
+    failf(داده, "Could not set remote host");
+    أرجع CURLE_FAILED_INIT;
   }
 
-  rc = ssh_options_parse_config(sshc->ssh_session, NULL);
-  if(rc != SSH_OK) {
-    infof(data, "Could not parse SSH configuration files");
+  rc = ssh_options_parse_config(sshc->ssh_session, عدم);
+  إذا(rc != SSH_OK) {
+    infof(داده, "Could not parse SSH configuration files");
     /* ignore */
   }
 
-  CURL_TRC_SSH(data, "myssh_connect, set socket=%" FMT_SOCKET_T, sock);
-  rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_FD, &sock);
-  if(rc != SSH_OK) {
-    failf(data, "Could not set socket");
-    return CURLE_FAILED_INIT;
+  CURL_TRC_SSH(داده, "myssh_connect, set socket=%" FMT_SOCKET_T, sock);
+  rc = ssh_options_مجموعه(sshc->ssh_session, SSH_OPTIONS_FD, &sock);
+  إذا(rc != SSH_OK) {
+    failf(داده, "Could not set socket");
+    أرجع CURLE_FAILED_INIT;
   }
 
-  if(Curl_creds_has_user(conn->creds)) {
-    infof(data, "User: %s", conn->creds->user);
-    rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_USER,
+  إذا(Curl_creds_has_user(conn->creds)) {
+    infof(داده, "User: %s", conn->creds->user);
+    rc = ssh_options_مجموعه(sshc->ssh_session, SSH_OPTIONS_USER,
                          conn->creds->user);
-    if(rc != SSH_OK) {
-      failf(data, "Could not set user");
-      return CURLE_FAILED_INIT;
+    إذا(rc != SSH_OK) {
+      failf(داده, "Could not set user");
+      أرجع CURLE_FAILED_INIT;
     }
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
-    infof(data, "Known hosts: %s",
-          CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-    rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_KNOWNHOSTS,
-                         CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-    if(rc == SSH_OK)
+  إذا(CURL_EASY_STR(داده, STRING_SSH_KNOWNHOSTS)) {
+    infof(داده, "Known hosts: %s",
+          CURL_EASY_STR(داده, STRING_SSH_KNOWNHOSTS));
+    rc = ssh_options_مجموعه(sshc->ssh_session, SSH_OPTIONS_KNOWNHOSTS,
+                         CURL_EASY_STR(داده, STRING_SSH_KNOWNHOSTS));
+    إذا(rc == SSH_OK)
       /* libssh has two separate options for this. Set both to the same file
          to avoid surprises */
-      rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS,
-                           CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-    if(rc != SSH_OK) {
-      failf(data, "Could not set known hosts file path");
-      return CURLE_FAILED_INIT;
+      rc = ssh_options_مجموعه(sshc->ssh_session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS,
+                           CURL_EASY_STR(داده, STRING_SSH_KNOWNHOSTS));
+    إذا(rc != SSH_OK) {
+      failf(داده, "Could not set known hosts file path");
+      أرجع CURLE_FAILED_INIT;
     }
   }
 
-  if(conn->origin->port) {
-    rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_PORT,
-                         &conn->origin->port);
-    if(rc != SSH_OK) {
-      failf(data, "Could not set remote port");
-      return CURLE_FAILED_INIT;
+  إذا(conn->origin->پورت) {
+    rc = ssh_options_مجموعه(sshc->ssh_session, SSH_OPTIONS_پورت,
+                         &conn->origin->پورت);
+    إذا(rc != SSH_OK) {
+      failf(داده, "Could not set remote port");
+      أرجع CURLE_FAILED_INIT;
     }
   }
 
-  if(data->set.ssh_compression) {
-    rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_COMPRESSION,
+  إذا(داده->مجموعه.ssh_compression) {
+    rc = ssh_options_مجموعه(sshc->ssh_session, SSH_OPTIONS_COMPRESSION,
                          "zlib,zlib@openssh.com,none");
-    if(rc != SSH_OK) {
-      failf(data, "Could not set compression");
-      return CURLE_FAILED_INIT;
+    إذا(rc != SSH_OK) {
+      failf(داده, "Could not set compression");
+      أرجع CURLE_FAILED_INIT;
     }
   }
 
-  sshc->privkey = NULL;
-  sshc->pubkey = NULL;
+  sshc->privkey = عدم;
+  sshc->pubkey = عدم;
 
-  if(sshc->pub_key) {
-    rc = ssh_pki_import_pubkey_file(sshc->pub_key, &sshc->pubkey);
-    if(rc != SSH_OK) {
-      failf(data, "Could not load public key file");
-      return CURLE_FAILED_INIT;
+  إذا(sshc->pub_کلید) {
+    rc = ssh_pki_import_pubkey_file(sshc->pub_کلید, &sshc->pubkey);
+    إذا(rc != SSH_OK) {
+      failf(داده, "Could not load public key file");
+      أرجع CURLE_FAILED_INIT;
     }
   }
 
   /* we do not verify here, we do it at the state machine,
    * after connection */
 
-  myssh_to(data, sshc, SSH_INIT);
+  myssh_مقصد(داده, sshc, SSH_INIT);
 
-  result = myssh_multi_statemach(data, done);
+  نتیجه = myssh_multi_statemach(داده, انجامشده);
 
-  return result;
+  أرجع نتیجه;
 }
 
 /* called from multi.c while DOing */
-static CURLcode scp_doing(struct Curl_easy *data, bool *dophase_done)
+ساكن CURLcode scp_doing(بنية Curl_easy *داده, bool *dophase_انجامشده)
 {
-  CURLcode result;
+  CURLcode نتیجه;
 
-  result = myssh_multi_statemach(data, dophase_done);
+  نتیجه = myssh_multi_statemach(داده, dophase_انجامشده);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  إذا(*dophase_انجامشده) {
+    CURL_TRC_SSH(داده, "DO phase is complete");
   }
-  return result;
+  أرجع نتیجه;
 }
 
 /*
@@ -2702,152 +2702,152 @@ static CURLcode scp_doing(struct Curl_easy *data, bool *dophase_done)
  * the options previously setup.
  */
 
-static CURLcode scp_perform(struct Curl_easy *data,
-                            bool *connected, bool *dophase_done)
+ساكن CURLcode scp_perform(بنية Curl_easy *داده,
+                            bool *connected, bool *dophase_انجامشده)
 {
-  CURLcode result = CURLE_OK;
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
+  CURLcode نتیجه = CURLE_OK;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(داده->conn, CURL_META_SSH_CONN);
 
-  CURL_TRC_SSH(data, "DO phase starts");
+  CURL_TRC_SSH(داده, "DO phase starts");
 
-  *dophase_done = FALSE;        /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  *dophase_انجامشده = FALSE;        /* not done yet */
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
-  myssh_to(data, sshc, SSH_SCP_TRANS_INIT);
+  myssh_مقصد(داده, sshc, SSH_SCP_TRANS_INIT);
 
-  result = myssh_multi_statemach(data, dophase_done);
+  نتیجه = myssh_multi_statemach(داده, dophase_انجامشده);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(داده->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  إذا(*dophase_انجامشده) {
+    CURL_TRC_SSH(داده, "DO phase is complete");
   }
 
-  return result;
+  أرجع نتیجه;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
    this is still blocking is that the multi interface code has no support for
    disconnecting operations that takes a while */
-static CURLcode scp_disconnect(struct Curl_easy *data,
-                               struct connectdata *conn,
+ساكن CURLcode scp_disconnect(بنية Curl_easy *داده,
+                               بنية connectdata *conn,
                                bool dead_connection)
 {
-  CURLcode result = CURLE_OK;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  (void)dead_connection;
+  CURLcode نتیجه = CURLE_OK;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  بنية SSHPROTO *sshp = Curl_meta_get(داده, CURL_META_SSH_EASY);
+  (فراغ)dead_connection;
 
-  if(sshc && sshc->ssh_session) {
+  إذا(sshc && sshc->ssh_session) {
     /* only if there is a session still around to use! */
-    myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-    result = myssh_block_statemach(data, sshc, sshp, TRUE);
+    myssh_مقصد(داده, sshc, SSH_SESSION_DISCONNECT);
+    نتیجه = myssh_بلوک_statemach(داده, sshc, sshp, TRUE);
   }
 
-  return result;
+  أرجع نتیجه;
 }
 
 /* generic done function for both SCP and SFTP called from their specific
    done functions */
-static CURLcode myssh_done(struct Curl_easy *data,
-                           struct ssh_conn *sshc,
-                           CURLcode status)
+ساكن CURLcode myssh_انجامشده(بنية Curl_easy *داده,
+                           بنية ssh_conn *sshc,
+                           CURLcode وضعیت)
 {
-  CURLcode result = CURLE_OK;
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
+  CURLcode نتیجه = CURLE_OK;
+  بنية SSHPROTO *sshp = Curl_meta_get(داده, CURL_META_SSH_EASY);
 
-  if(!status && sshp) {
+  إذا(!وضعیت && sshp) {
     /* run the state-machine */
-    result = myssh_block_statemach(data, sshc, sshp, FALSE);
+    نتیجه = myssh_بلوک_statemach(داده, sshc, sshp, FALSE);
   }
-  else
-    result = status;
+  وإلا
+    نتیجه = وضعیت;
 
-  if(Curl_pgrsDone(data, Curl_pgrs_now(data)))
-    return CURLE_ABORTED_BY_CALLBACK;
+  إذا(Curl_pgrs_انجامشده(داده, Curl_pgrs_now(داده)))
+    أرجع CURLE_ABORTED_BY_CALLBACK;
 
-  CURL_REQ_CLEAR_IO(data);
-  return result;
+  CURL_REQ_CLEAR_IO(داده);
+  أرجع نتیجه;
 }
 
-static CURLcode scp_done(struct Curl_easy *data, CURLcode status,
+ساكن CURLcode scp_انجامشده(بنية Curl_easy *داده, CURLcode وضعیت,
                          bool premature)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  (void)premature;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(داده->conn, CURL_META_SSH_CONN);
+  (فراغ)premature;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
-  if(!status)
-    myssh_to(data, sshc, SSH_SCP_DONE);
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
+  إذا(!وضعیت)
+    myssh_مقصد(داده, sshc, SSH_SCP_انجامشده);
 
-  return myssh_done(data, sshc, status);
+  أرجع myssh_انجامشده(داده, sshc, وضعیت);
 }
 
-static CURLcode scp_send(struct Curl_easy *data, int8_t sockindex,
-                         const uint8_t *mem, size_t len, bool eos,
+ساكن CURLcode scp_send(بنية Curl_easy *داده, int8_t sockindex,
+                         ثابت uint8_t *mem, size_t len, bool eos,
                          size_t *pnwritten)
 {
-  int rc;
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  صحيح rc;
+  بنية connectdata *conn = داده->conn;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  (void)sockindex; /* we only support SCP on the fixed known primary socket */
-  (void)eos;
+  (فراغ)sockindex; /* we only support SCP on the fixed known primary socket */
+  (فراغ)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
 
   rc = ssh_scp_write(sshc->scp_session, mem, len);
 
-#if 0
+#إذا 0
   /* The following code is misleading, mostly added as wishful thinking
    * that libssh at some point would implement non-blocking ssh_scp_write/read.
    * Currently rc can only be number of bytes read or SSH_ERROR. */
   myssh_block2waitfor(conn, sshc, (rc == SSH_AGAIN));
 
-  if(rc == SSH_AGAIN)
-    return CURLE_AGAIN;
-  else
-#endif
-  if(rc != SSH_OK)
-    return CURLE_SSH;
+  إذا(rc == SSH_AGAIN)
+    أرجع CURLE_AGAIN;
+  وإلا
+#پایان_اگر
+  إذا(rc != SSH_OK)
+    أرجع CURLE_SSH;
 
   *pnwritten = len;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
-                         char *mem, size_t len, size_t *pnread)
+ساكن CURLcode scp_recv(بنية Curl_easy *داده, int8_t sockindex,
+                         حرف *mem, size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  int nread;
+  بنية connectdata *conn = داده->conn;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  صحيح nread;
 
-  (void)sockindex; /* we only support SCP on the fixed known primary socket */
+  (فراغ)sockindex; /* we only support SCP on the fixed known primary socket */
   *pnread = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
 
   /* libssh returns int */
   nread = ssh_scp_read(sshc->scp_session, mem, len);
-  if(nread == SSH_ERROR)
-    return CURLE_SSH;
-#if 0
+  إذا(nread == SSH_ERROR)
+    أرجع CURLE_SSH;
+#إذا 0
   /* The following code is misleading, mostly added as wishful thinking
    * that libssh at some point would implement non-blocking ssh_scp_write/read.
    * Currently rc can only be SSH_OK or SSH_ERROR. */
 
   myssh_block2waitfor(conn, sshc, (nread == SSH_AGAIN));
-  if(nread == SSH_AGAIN)
-    return CURLE_AGAIN;
-#endif
+  إذا(nread == SSH_AGAIN)
+    أرجع CURLE_AGAIN;
+#پایان_اگر
   *pnread = (size_t)nread;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
@@ -2863,121 +2863,121 @@ static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
  * the options previously setup.
  */
 
-static CURLcode sftp_perform(struct Curl_easy *data,
+ساكن CURLcode sftp_perform(بنية Curl_easy *داده,
                              bool *connected,
-                             bool *dophase_done)
+                             bool *dophase_انجامشده)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(داده->conn, CURL_META_SSH_CONN);
+  CURLcode نتیجه = CURLE_OK;
 
-  CURL_TRC_SSH(data, "DO phase starts");
+  CURL_TRC_SSH(داده, "DO phase starts");
 
-  *dophase_done = FALSE; /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  *dophase_انجامشده = FALSE; /* not done yet */
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
-  myssh_to(data, sshc, SSH_SFTP_QUOTE_INIT);
+  myssh_مقصد(داده, sshc, SSH_SFTP_QUOTE_INIT);
 
   /* run the state-machine */
-  result = myssh_multi_statemach(data, dophase_done);
+  نتیجه = myssh_multi_statemach(داده, dophase_انجامشده);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(داده->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  إذا(*dophase_انجامشده) {
+    CURL_TRC_SSH(داده, "DO phase is complete");
   }
 
-  return result;
+  أرجع نتیجه;
 }
 
 /* called from multi.c while DOing */
-static CURLcode sftp_doing(struct Curl_easy *data,
-                           bool *dophase_done)
+ساكن CURLcode sftp_doing(بنية Curl_easy *داده,
+                           bool *dophase_انجامشده)
 {
-  CURLcode result = myssh_multi_statemach(data, dophase_done);
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  CURLcode نتیجه = myssh_multi_statemach(داده, dophase_انجامشده);
+  إذا(*dophase_انجامشده) {
+    CURL_TRC_SSH(داده, "DO phase is complete");
   }
-  return result;
+  أرجع نتیجه;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
    this is still blocking is that the multi interface code has no support for
    disconnecting operations that takes a while */
-static CURLcode sftp_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn,
+ساكن CURLcode sftp_disconnect(بنية Curl_easy *داده,
+                                بنية connectdata *conn,
                                 bool dead_connection)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  CURLcode result = CURLE_OK;
-  (void)dead_connection;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  بنية SSHPROTO *sshp = Curl_meta_get(داده, CURL_META_SSH_EASY);
+  CURLcode نتیجه = CURLE_OK;
+  (فراغ)dead_connection;
 
-  CURL_TRC_SSH(data, "DISCONNECT starts now");
+  CURL_TRC_SSH(داده, "DISCONNECT starts now");
 
-  if(sshc && sshc->ssh_session) {
+  إذا(sshc && sshc->ssh_session) {
     /* only if there is a session still around to use! */
-    myssh_to(data, sshc, SSH_SFTP_SHUTDOWN);
-    result = myssh_block_statemach(data, sshc, sshp, TRUE);
+    myssh_مقصد(داده, sshc, SSH_SFTP_SHUTDOWN);
+    نتیجه = myssh_بلوک_statemach(داده, sshc, sshp, TRUE);
   }
 
-  CURL_TRC_SSH(data, "DISCONNECT is done");
-  return result;
+  CURL_TRC_SSH(داده, "DISCONNECT is done");
+  أرجع نتیجه;
 }
 
-static CURLcode sftp_done(struct Curl_easy *data, CURLcode status,
+ساكن CURLcode sftp_انجامشده(بنية Curl_easy *داده, CURLcode وضعیت,
                           bool premature)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  بنية connectdata *conn = داده->conn;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
-  if(!status) {
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
+  إذا(!وضعیت) {
     /* Post quote commands are executed after the SFTP_CLOSE state to avoid
        errors that could happen due to open file handles during POSTQUOTE
        operation */
-    if(!premature && data->set.postquote && !conn->bits.retry)
+    إذا(!premature && داده->مجموعه.postquote && !conn->بیتها.retry)
       sshc->nextstate = SSH_SFTP_POSTQUOTE_INIT;
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_مقصد(داده, sshc, SSH_SFTP_CLOSE);
   }
-  return myssh_done(data, sshc, status);
+  أرجع myssh_انجامشده(داده, sshc, وضعیت);
 }
 
 /* return number of sent bytes */
-static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
-                          const uint8_t *mem, size_t len, bool eos,
+ساكن CURLcode sftp_send(بنية Curl_easy *داده, int8_t sockindex,
+                          ثابت uint8_t *mem, size_t len, bool eos,
                           size_t *pnwritten)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  بنية connectdata *conn = داده->conn;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   ssize_t nwrite;
 
-  (void)sockindex;
-  (void)eos;
+  (فراغ)sockindex;
+  (فراغ)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
 
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
-  switch(sshc->sftp_send_state) {
-  case 0:
-    sftp_file_set_nonblocking(sshc->sftp_file);
-    if(sftp_aio_begin_write(sshc->sftp_file, mem, len,
+#إذا LIBSSH_نسخه_INT > SSH_نسخه_INT(0, 11, 0)
+  بدل(sshc->sftp_send_state) {
+  حالة 0:
+    sftp_file_مجموعه_nonblocking(sshc->sftp_file);
+    إذا(sftp_aio_begin_write(sshc->sftp_file, mem, len,
                             &sshc->sftp_send_aio) == SSH_ERROR) {
-      return CURLE_SEND_ERROR;
+      أرجع CURLE_SEND_ERROR;
     }
     sshc->sftp_send_state = 1;
     FALLTHROUGH();
-  case 1:
+  حالة 1:
     nwrite = sftp_aio_wait_write(&sshc->sftp_send_aio);
     myssh_block2waitfor(conn, sshc, (nwrite == SSH_AGAIN) ? TRUE : FALSE);
-    if(nwrite == SSH_AGAIN)
-      return CURLE_AGAIN;
-    else if(nwrite < 0)
-      return CURLE_SEND_ERROR;
+    إذا(nwrite == SSH_AGAIN)
+      أرجع CURLE_AGAIN;
+    وإلا إذا(nwrite < 0)
+      أرجع CURLE_SEND_ERROR;
 
     /*
      * sftp_aio_wait_write() would free sftp_send_aio and
@@ -2987,12 +2987,12 @@ static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
 
     sshc->sftp_send_state = 0;
     *pnwritten = (size_t)nwrite;
-    return CURLE_OK;
-  default:
+    أرجع CURLE_OK;
+  افتراضي:
     /* we never reach here */
-    return CURLE_SEND_ERROR;
+    أرجع CURLE_SEND_ERROR;
   }
-#else
+#وإلا
   /*
    * limit the writes to the maximum specified in Section 3 of
    * https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02
@@ -3001,77 +3001,77 @@ static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
    * internally since version 0.11.0, hence such an operation is
    * not needed for versions after (and including) 0.11.0.
    */
-  if(len > 32768)
+  إذا(len > 32768)
     len = 32768;
 
   nwrite = sftp_write(sshc->sftp_file, mem, len);
 
   myssh_block2waitfor(conn, sshc, FALSE);
 
-#if 0 /* not returned by libssh on write */
-  if(nwrite == SSH_AGAIN) {
+#إذا 0 /* not returned by libssh on write */
+  إذا(nwrite == SSH_AGAIN) {
     *err = CURLE_AGAIN;
     nwrite = 0;
   }
-  else
-#endif
-  if(nwrite < 0)
-    return CURLE_SSH;
+  وإلا
+#پایان_اگر
+  إذا(nwrite < 0)
+    أرجع CURLE_SSH;
 
   *pnwritten = (size_t)nwrite;
-  return CURLE_OK;
-#endif
+  أرجع CURLE_OK;
+#پایان_اگر
 }
 
 /*
  * Return number of received (decrypted) bytes
  * or <0 on error
  */
-static CURLcode sftp_recv(struct Curl_easy *data, int8_t sockindex,
-                          char *mem, size_t len, size_t *pnread)
+ساكن CURLcode sftp_recv(بنية Curl_easy *داده, int8_t sockindex,
+                          حرف *mem, size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  بنية connectdata *conn = داده->conn;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   ssize_t nread;
 
-  (void)sockindex;
+  (فراغ)sockindex;
   *pnread = 0;
 
-  DEBUGASSERT(len < CURL_MAX_READ_SIZE);
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  DEBUGASSERT(len < CURL_MAX_READ_اندازه);
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
 
-  switch(sshc->sftp_recv_state) {
-  case 0:
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
-    if(sftp_aio_begin_read(sshc->sftp_file, len,
+  بدل(sshc->sftp_recv_state) {
+  حالة 0:
+#إذا LIBSSH_نسخه_INT > SSH_نسخه_INT(0, 11, 0)
+    إذا(sftp_aio_begin_read(sshc->sftp_file, len,
                            &sshc->sftp_recv_aio) == SSH_ERROR) {
-      return CURLE_RECV_ERROR;
+      أرجع CURLE_RECV_ERROR;
     }
-#else
-    sshc->sftp_file_index =
+#وإلا
+    sshc->sftp_file_شاخص =
       sftp_async_read_begin(sshc->sftp_file, (uint32_t)len);
-    if(sshc->sftp_file_index < 0)
-      return CURLE_RECV_ERROR;
-#endif
+    إذا(sshc->sftp_file_شاخص < 0)
+      أرجع CURLE_RECV_ERROR;
+#پایان_اگر
 
     FALLTHROUGH();
-  case 1:
+  حالة 1:
     sshc->sftp_recv_state = 1;
 
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+#إذا LIBSSH_نسخه_INT > SSH_نسخه_INT(0, 11, 0)
     nread = sftp_aio_wait_read(&sshc->sftp_recv_aio, mem, len);
-#else
+#وإلا
     nread = sftp_async_read(sshc->sftp_file, mem, (uint32_t)len,
-                            (uint32_t)sshc->sftp_file_index);
-#endif
+                            (uint32_t)sshc->sftp_file_شاخص);
+#پایان_اگر
 
     myssh_block2waitfor(conn, sshc, (nread == SSH_AGAIN));
 
-    if(nread == SSH_AGAIN)
-      return CURLE_AGAIN;
-    else if(nread < 0)
-      return CURLE_RECV_ERROR;
+    إذا(nread == SSH_AGAIN)
+      أرجع CURLE_AGAIN;
+    وإلا إذا(nread < 0)
+      أرجع CURLE_RECV_ERROR;
 
     /*
      * sftp_aio_wait_read() would free sftp_recv_aio and
@@ -3081,67 +3081,67 @@ static CURLcode sftp_recv(struct Curl_easy *data, int8_t sockindex,
 
     sshc->sftp_recv_state = 0;
     *pnread = (size_t)nread;
-    return CURLE_OK;
+    أرجع CURLE_OK;
 
-  default:
+  افتراضي:
     /* we never reach here */
-    return CURLE_RECV_ERROR;
+    أرجع CURLE_RECV_ERROR;
   }
 }
 
-static CURLcode myssh_do_it(struct Curl_easy *data, bool *done)
+ساكن CURLcode myssh_do_it(بنية Curl_easy *داده, bool *انجامشده)
 {
-  CURLcode result;
+  CURLcode نتیجه;
   bool connected = FALSE;
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  بنية connectdata *conn = داده->conn;
+  بنية ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  *done = FALSE;                /* default to false */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  *انجامشده = FALSE;                /* default to false */
+  إذا(!sshc)
+    أرجع CURLE_FAILED_INIT;
 
-  data->req.size = -1;          /* make sure this is unknown at this point */
+  داده->req.اندازه = -1;          /* make sure this is unknown at this point */
 
   sshc->actualcode = CURLE_OK;  /* reset error code */
-  sshc->secondCreateDirs = 0;   /* reset the create directory attempt state
+  sshc->دومی_Create_Dirs = 0;   /* reset the create directory attempt state
                                    variable */
 
-  Curl_pgrsReset(data);
+  Curl_pgrsReset(داده);
 
-  if(conn->scheme->protocol & CURLPROTO_SCP)
-    result = scp_perform(data, &connected, done);
-  else
-    result = sftp_perform(data, &connected, done);
+  إذا(conn->scheme->protocol & CURLPROTO_SCP)
+    نتیجه = scp_perform(داده, &connected, انجامشده);
+  وإلا
+    نتیجه = sftp_perform(داده, &connected, انجامشده);
 
-  return result;
+  أرجع نتیجه;
 }
 
-CURLcode Curl_ssh_init(void)
+CURLcode Curl_ssh_init(فراغ)
 {
-  if(ssh_init()) {
+  إذا(ssh_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: libssh_init failed\n"));
-    return CURLE_FAILED_INIT;
+    أرجع CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-void Curl_ssh_cleanup(void)
+فراغ Curl_ssh_cleanup(فراغ)
 {
-  (void)ssh_finalize();
+  (فراغ)ssh_finalize();
 }
 
-void Curl_ssh_version(char *buffer, size_t buflen)
+فراغ Curl_ssh_نسخه(حرف *میانگیر, size_t buflen)
 {
-  (void)curl_msnprintf(buffer, buflen, "libssh/%s", ssh_version(0));
+  (فراغ)curl_msnprintf(میانگیر, buflen, "libssh/%s", ssh_نسخه(0));
 }
 
 /*
  * SCP.
  */
-const struct Curl_protocol Curl_protocol_scp = {
-  myssh_setup_connection,               /* setup_connection */
+ثابت بنية Curl_protocol Curl_protocol_scp = {
+  myssh_راهاندازی_connection,               /* setup_connection */
   myssh_do_it,                          /* do_it */
-  scp_done,                             /* done */
+  scp_انجامشده,                             /* done */
   ZERO_NULL,                            /* do_more */
   myssh_connect,                        /* connect_it */
   myssh_multi_statemach,                /* connecting */
@@ -3161,10 +3161,10 @@ const struct Curl_protocol Curl_protocol_scp = {
 /*
  * SFTP.
  */
-const struct Curl_protocol Curl_protocol_sftp = {
-  myssh_setup_connection,               /* setup_connection */
+ثابت بنية Curl_protocol Curl_protocol_sftp = {
+  myssh_راهاندازی_connection,               /* setup_connection */
   myssh_do_it,                          /* do_it */
-  sftp_done,                            /* done */
+  sftp_انجامشده,                            /* done */
   ZERO_NULL,                            /* do_more */
   myssh_connect,                        /* connect_it */
   myssh_multi_statemach,                /* connecting */
@@ -3181,4 +3181,4 @@ const struct Curl_protocol Curl_protocol_sftp = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif /* USE_LIBSSH */
+#پایان_اگر /* USE_LIBSSH */

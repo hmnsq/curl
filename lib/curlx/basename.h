@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_BASENAME_H
-#define HEADER_CURLX_BASENAME_H
+#اگر_تعریف_نشده سرآیند_CURLX_BASENAME_H
+#تعریف_کن سرآیند_CURLX_BASENAME_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef HAVE_BASENAME
-char *curlx_basename(char *path);
-#else
+#اگر_تعریف_نشده HAVE_BASENAME
+حرف *curlx_basename(حرف *مسیر);
+#وإلا
 
-#ifdef HAVE_LIBGEN_H
-#include <libgen.h>
-#endif
+#اگر_تعریف_شده HAVE_LIBGEN_H
+#ضمن <libgen.h>
+#پایان_اگر
 
-#define curlx_basename(x) basename(x)
-#endif /* !HAVE_BASENAME */
+#تعریف_کن curlx_basename(x) basename(x)
+#پایان_اگر /* !HAVE_BASENAME */
 
-#endif /* HEADER_CURLX_BASENAME_H */
+#پایان_اگر /* HEADER_CURLX_BASENAME_H */

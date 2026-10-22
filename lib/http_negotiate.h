@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_NEGOTIATE_H
-#define HEADER_CURL_HTTP_NEGOTIATE_H
+#اگر_تعریف_نشده سرآیند_CURL_HTTP_NEGOTIATE_H
+#تعریف_کن سرآیند_CURL_HTTP_NEGOTIATE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
 
 /* this is for Negotiate header input */
-CURLcode Curl_input_negotiate(struct Curl_easy *data, struct connectdata *conn,
-                              bool proxy, const char *header);
+CURLcode Curl_درون_داد_negotiate(بنية Curl_easy *داده, بنية connectdata *conn,
+                              bool proxy, ثابت حرف *سرآیند);
 
 /* this is for creating Negotiate header output */
-CURLcode Curl_output_negotiate(struct Curl_easy *data,
-                               struct connectdata *conn, bool proxy);
+CURLcode Curl_output_negotiate(بنية Curl_easy *داده,
+                               بنية connectdata *conn, bool proxy);
 
-#endif
+#پایان_اگر
 
-#endif /* HEADER_CURL_HTTP_NEGOTIATE_H */
+#پایان_اگر /* HEADER_CURL_HTTP_NEGOTIATE_H */

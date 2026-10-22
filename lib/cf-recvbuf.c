@@ -21,64 +21,64 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_WEBSOCKETS
+#اگر_تعریف_نشده CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "cf-recvbuf.h"
-#include "curl_trc.h"
+#ضمن "urldata.h"
+#ضمن "bufq.h"
+#ضمن "cfilters.h"
+#ضمن "cf-recvbuf.h"
+#ضمن "curl_trc.h"
 
-#define CURL_CF_RECVBUF_CHUNK     (16 * 1024)
+#تعریف_کن CURL_CF_RECVBUF_CHUNK     (16 * 1024)
 
-struct cf_recvbuf_ctx {
-  struct bufq recvbuf;
+بنية cf_recvbuf_ctx {
+  بنية bufq recvbuf;
 };
 
-static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+ساكن فراغ cf_recvbuf_destroy(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *داده)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  بنية cf_recvbuf_ctx *ctx = cf->ctx;
+  (فراغ)داده;
+  إذا(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+ساكن CURLcode cf_recvbuf_recv(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *داده,
+                                حرف *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  بنية cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  إذا(!Curl_bufq_is_خالی(&ctx->recvbuf)) {
+    أرجع Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  إذا(cf->بعدی)
+    أرجع cf->بعدی->cft->do_recv(cf->بعدی, داده, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  أرجع CURLE_RECV_ERROR;
 }
 
-static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+ساكن bool cf_recvbuf_داده_pending(بنية Curl_cfilter *cf,
+                                    ثابت بنية Curl_easy *داده)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  بنية cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  إذا(!Curl_bufq_is_خالی(&ctx->recvbuf))
+    أرجع TRUE;
 
-  return cf->next ?
-    cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  أرجع cf->بعدی ?
+    cf->بعدی->cft->has_داده_pending(cf->بعدی, داده) : FALSE;
 }
 
-struct Curl_cftype Curl_cft_recvbuf = {
+بنية Curl_cftype Curl_cft_recvbuf = {
   "RECVBUF",
   0,
   CURL_LOG_LVL_NONE,
@@ -86,7 +86,7 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_connect,
   Curl_cf_def_shutdown,
   Curl_cf_def_adjust_pollset,
-  cf_recvbuf_data_pending,
+  cf_recvbuf_داده_pending,
   Curl_cf_def_send,
   cf_recvbuf_recv,
   Curl_cf_def_cntrl,
@@ -95,63 +95,63 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  const uint8_t *buf, size_t blen)
+ساكن CURLcode cf_recvbuf_create(بنية Curl_cfilter **pcf,
+                                  بنية Curl_easy *داده,
+                                  ثابت uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_recvbuf_ctx *ctx;
-  CURLcode result = CURLE_OK;
+  بنية Curl_cfilter *cf = عدم;
+  بنية cf_recvbuf_ctx *ctx;
+  CURLcode نتیجه = CURLE_OK;
   size_t nwritten = 0;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (فراغ)داده;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتیجه = CURLE_بیرون_از_حافظه;
+    اذهب بیرون;
   }
   Curl_bufq_init2(&ctx->recvbuf, CURL_CF_RECVBUF_CHUNK,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
-                  (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-  result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
-    goto out;
-  if(nwritten != blen) {
-    result = CURLE_FAILED_INIT;
-    goto out;
+                  (BUFQ_OPT_SOFT_حد | BUFQ_OPT_NO_SPARES));
+  نتیجه = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
+  إذا(نتیجه)
+    اذهب بیرون;
+  إذا(nwritten != blen) {
+    نتیجه = CURLE_FAILED_INIT;
+    اذهب بیرون;
   }
 
-  result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  نتیجه = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
+  إذا(نتیجه)
+    اذهب بیرون;
+  ctx = عدم;
 
-out:
-  *pcf = result ? NULL : cf;
-  if(ctx) {
+بیرون:
+  *pcf = نتیجه ? عدم : cf;
+  إذا(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  أرجع نتیجه;
 }
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_جمع_کن(بنية Curl_easy *داده,
+                             بنية connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen)
+                             ثابت uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  بنية Curl_cfilter *cf;
+  CURLcode نتیجه = CURLE_OK;
 
-  DEBUGASSERT(data);
-  result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
-    goto out;
+  DEBUGASSERT(داده);
+  نتیجه = cf_recvbuf_create(&cf, داده, buf, blen);
+  إذا(نتیجه)
+    اذهب بیرون;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
-  Curl_conn_cf_add(data, conn, sockindex, cf);
-out:
-  return result;
+  Curl_conn_cf_جمع_کن(داده, conn, sockindex, cf);
+بیرون:
+  أرجع نتیجه;
 }
 
-#endif /* !CURL_DISABLE_WEBSOCKETS */
+#پایان_اگر /* !CURL_DISABLE_WEBSOCKETS */

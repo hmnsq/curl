@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ASYN_H
-#define HEADER_CURL_ASYN_H
+#اگر_تعریف_نشده سرآیند_CURL_ASYN_H
+#تعریف_کن سرآیند_CURL_ASYN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(USE_HTTPSRR) && defined(USE_ARES)
-#include "vdns/httpsrr.h"
-#endif
+#إذا defined(USE_HTTPSRR) && defined(USE_ARES)
+#ضمن "vdns/httpsrr.h"
+#پایان_اگر
 
-struct Curl_easy;
-struct Curl_dns_entry;
-struct Curl_resolv_async;
-struct Curl_multi;
-struct easy_pollset;
+بنية Curl_easy;
+بنية Curl_dns_مدخل;
+بنية Curl_resolv_async;
+بنية Curl_multi;
+بنية easy_pollset;
 
-#ifdef CURLRES_ASYNCH
+#اگر_تعریف_شده CURLRES_ASYNCH
 
-#include "curl_addrinfo.h"
+#ضمن "curl_addrinfo.h"
 
-struct hostent;
-struct connectdata;
-struct easy_pollset;
+بنية hostent;
+بنية connectdata;
+بنية easy_pollset;
 
-#if defined(USE_RESOLV_ARES) && defined(USE_RESOLV_THREADED)
-#error cannot have both USE_RESOLV_ARES and USE_RESOLV_THREADED defined
-#endif
+#إذا defined(USE_RESOLV_ARES) && defined(USE_RESOLV_THREADED)
+#خطا cannot have both USE_RESOLV_ARES and USE_RESOLV_THREADED defined
+#پایان_اگر
 
 /*
  * This header defines all functions in the internal asynch resolver interface.
@@ -60,13 +60,13 @@ struct easy_pollset;
  * Called from curl_global_init() to initialize global resolver environment.
  * Returning anything else than CURLE_OK fails curl_global_init().
  */
-int Curl_async_global_init(void);
+صحيح Curl_async_global_init(فراغ);
 
 /*
  * Curl_async_global_cleanup()
  * Called from curl_global_cleanup() to destroy global resolver environment.
  */
-void Curl_async_global_cleanup(void);
+فراغ Curl_async_global_cleanup(فراغ);
 
 /*
  * Curl_async_getaddrinfo() - when using this resolver
@@ -79,85 +79,85 @@ void Curl_async_global_cleanup(void);
  * Each resolver backend must of course make sure to return data in the
  * correct format to comply with this.
  */
-CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
-                                struct Curl_resolv_async *async);
+CURLcode Curl_async_getaddrinfo(بنية Curl_easy *داده,
+                                بنية Curl_resolv_async *async);
 
-#ifdef USE_HTTPSRR
-bool Curl_async_knows_https(struct Curl_easy *data,
-                            struct Curl_resolv_async *async);
-#endif /* USE_HTTPSRR */
+#اگر_تعریف_شده USE_HTTPSRR
+bool Curl_async_knows_https(بنية Curl_easy *داده,
+                            بنية Curl_resolv_async *async);
+#پایان_اگر /* USE_HTTPSRR */
 
-#ifdef USE_ARES
+#اگر_تعریف_شده USE_ARES
 /* common functions for c-ares and threaded resolver with HTTPSRR */
-#include <ares.h>
+#ضمن <ares.h>
 
-CURLcode Curl_ares_pollset(struct Curl_easy *data,
+CURLcode Curl_ares_pollset(بنية Curl_easy *داده,
                            ares_channel channel,
-                           struct easy_pollset *ps);
+                           بنية easy_pollset *ps);
 
-timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
+timediff_t Curl_ares_timeout_ms(بنية Curl_easy *داده,
+                                بنية Curl_resolv_async *async,
                                 ares_channel channel);
 
-int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms);
-#endif
+صحيح Curl_ares_perform(ares_channel channel, timediff_t timeout_ms);
+#پایان_اگر
 
-#ifdef USE_RESOLV_ARES
+#اگر_تعریف_شده USE_RESOLV_ARES
 /* async resolving implementation using c-ares alone */
-struct async_ares_ctx {
+بنية async_ares_ctx {
   ares_channel channel;
-  int ares_status;               /* ARES_SUCCESS, ARES_ENOTFOUND, etc. */
-  CURLcode result;               /* CURLE_OK or error handling response */
-  BIT(transient_err); /* an A/AAAA query failed without the resolver
+  صحيح ares_وضعیت;               /* ARES_SUCCESS, ARES_ENOTFOUND, etc. */
+  CURLcode نتیجه;               /* CURLE_OK or error handling response */
+  بیت(transient_err); /* an A/AAAA query failed without the resolver
                          answering that the name does not exist */
 };
 
-void Curl_async_ares_shutdown(struct Curl_easy *data,
-                              struct Curl_resolv_async *async);
-void Curl_async_ares_destroy(struct Curl_easy *data,
-                             struct Curl_resolv_async *async);
+فراغ Curl_async_ares_shutdown(بنية Curl_easy *داده,
+                              بنية Curl_resolv_async *async);
+فراغ Curl_async_ares_destroy(بنية Curl_easy *داده,
+                             بنية Curl_resolv_async *async);
 
-#endif /* USE_RESOLV_ARES */
+#پایان_اگر /* USE_RESOLV_ARES */
 
-#ifdef USE_RESOLV_THREADED
+#اگر_تعریف_شده USE_RESOLV_THREADED
 
-struct async_thrdd_item;
+بنية async_thrdd_قلم;
 
 /* Context for threaded resolver */
-struct async_thrdd_ctx {
-  struct async_thrdd_item *res_A; /* IPv4 final result */
-  struct async_thrdd_item *res_AAAA; /* IPv6 final result */
-#if defined(USE_HTTPSRR) && defined(USE_ARES)
-  struct {
+بنية async_thrdd_ctx {
+  بنية async_thrdd_قلم *res_A; /* IPv4 final result */
+  بنية async_thrdd_قلم *res_AAAA; /* IPv6 final result */
+#إذا defined(USE_HTTPSRR) && defined(USE_ARES)
+  بنية {
     ares_channel channel;
   } rr;
-#endif
-  BIT(processed_A);
-  BIT(processed_AAAA);
+#پایان_اگر
+  بیت(processed_A);
+  بیت(processed_AAAA);
 };
 
-void Curl_async_thrdd_shutdown(struct Curl_easy *data,
-                               struct Curl_resolv_async *async);
-void Curl_async_thrdd_destroy(struct Curl_easy *data,
-                              struct Curl_resolv_async *async);
+فراغ Curl_async_thrdd_shutdown(بنية Curl_easy *داده,
+                               بنية Curl_resolv_async *async);
+فراغ Curl_async_thrdd_destroy(بنية Curl_easy *داده,
+                              بنية Curl_resolv_async *async);
 
-CURLcode Curl_async_thrdd_multi_init(struct Curl_multi *multi,
-                                     uint32_t min_threads,
-                                     uint32_t max_threads,
-                                     uint32_t idle_time_ms);
-void Curl_async_thrdd_multi_destroy(struct Curl_multi *multi, bool join);
-void Curl_async_thrdd_multi_process(struct Curl_multi *multi);
+CURLcode Curl_async_thrdd_multi_init(بنية Curl_multi *multi,
+                                     uint32_t min_نخها,
+                                     uint32_t max_نخها,
+                                     uint32_t idle_زمان_ms);
+فراغ Curl_async_thrdd_multi_destroy(بنية Curl_multi *multi, bool join);
+فراغ Curl_async_thrdd_multi_process(بنية Curl_multi *multi);
 
-CURLcode Curl_async_thrdd_multi_set_props(struct Curl_multi *multi,
-                                          uint32_t min_threads,
-                                          uint32_t max_threads,
-                                          uint32_t idle_time_ms);
+CURLcode Curl_async_thrdd_multi_مجموعه_props(بنية Curl_multi *multi,
+                                          uint32_t min_نخها,
+                                          uint32_t max_نخها,
+                                          uint32_t idle_زمان_ms);
 
-#endif /* USE_RESOLV_THREADED */
+#پایان_اگر /* USE_RESOLV_THREADED */
 
-#ifndef CURL_DISABLE_DOH
-struct doh_probes;
-#endif
+#اگر_تعریف_نشده CURL_DISABLE_DOH
+بنية doh_probes;
+#پایان_اگر
 
 /*
  * Curl_async_await()
@@ -170,17 +170,17 @@ struct doh_probes;
  * Returns CURLE_COULDNT_RESOLVE_HOST if the host was not resolved,
  * CURLE_OPERATION_TIMEDOUT if a time-out occurred, or other errors.
  */
-CURLcode Curl_async_await(struct Curl_easy *data, uint32_t resolv_id,
-                          struct Curl_dns_entry **pdns);
+CURLcode Curl_async_await(بنية Curl_easy *داده, uint32_t resolv_id,
+                          بنية Curl_dns_مدخل **pdns);
 
 /*
  * Take the result of an async resolve operation.
  * Returns CURLE_OK with `*pdns` != NULL, CURLE_AGAIN while still
  * ongoing or an error code for a failed resolve.
  */
-CURLcode Curl_async_take_result(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
-                                struct Curl_dns_entry **pdns);
+CURLcode Curl_async_take_نتیجه(بنية Curl_easy *داده,
+                                بنية Curl_resolv_async *async,
+                                بنية Curl_dns_مدخل **pdns);
 
 /* Curl_async_pollset()
  *
@@ -190,82 +190,82 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
  * return bitmask indicating what file descriptors (referring to array indexes
  * in the 'sock' array) to wait for, read/write.
  */
-CURLcode Curl_async_pollset(struct Curl_easy *data,
-                            struct Curl_resolv_async *async,
-                            struct easy_pollset *ps);
+CURLcode Curl_async_pollset(بنية Curl_easy *داده,
+                            بنية Curl_resolv_async *async,
+                            بنية easy_pollset *ps);
 
-#else /* CURLRES_ASYNCH */
+#وإلا /* CURLRES_ASYNCH */
 
 /* convert these functions if an asynch resolver is not used */
-#define Curl_async_global_init()        CURLE_OK
-#define Curl_async_global_cleanup()     Curl_nop_stmt
-#define Curl_async_await(a, b, c)       CURLE_COULDNT_RESOLVE_HOST
-#define Curl_async_take_result(x, y, z) CURLE_COULDNT_RESOLVE_HOST
-#define Curl_async_pollset(x, y, z)     CURLE_OK
-#define Curl_async_knows_https(x, y)    TRUE
-#endif /* !CURLRES_ASYNCH */
+#تعریف_کن Curl_async_global_init()        CURLE_OK
+#تعریف_کن Curl_async_global_cleanup()     Curl_nop_stmt
+#تعریف_کن Curl_async_await(a, b, c)       CURLE_COULDNT_RESOLVE_HOST
+#تعریف_کن Curl_async_take_نتیجه(x, y, z) CURLE_COULDNT_RESOLVE_HOST
+#تعریف_کن Curl_async_pollset(x, y, z)     CURLE_OK
+#تعریف_کن Curl_async_knows_https(x, y)    TRUE
+#پایان_اگر /* !CURLRES_ASYNCH */
 
-#if defined(CURLRES_ASYNCH) || !defined(CURL_DISABLE_DOH)
-#define USE_CURL_ASYNC
-#endif
+#إذا defined(CURLRES_ASYNCH) || !defined(CURL_DISABLE_DOH)
+#تعریف_کن USE_CURL_ASYNC
+#پایان_اگر
 
-#ifdef USE_CURL_ASYNC
+#اگر_تعریف_شده USE_CURL_ASYNC
 
-struct Curl_resolv_async {
-  struct Curl_resolv_async *next;
-  struct Curl_peer *peer;
-  struct Curl_addrinfo *ai_A;
-  struct Curl_addrinfo *ai_AAAA;
-#ifdef USE_HTTPSRR
-  struct Curl_https_rrinfo *httpsrr;
-#endif
-#ifdef USE_RESOLV_ARES
-  struct async_ares_ctx ares;
-#elif defined(USE_RESOLV_THREADED)
-  struct async_thrdd_ctx thrdd;
-#endif
-#ifndef CURL_DISABLE_DOH
-  struct doh_probes *doh; /* DoH specific data for this request */
-#endif
-  struct curltime start;
-  timediff_t interval_end;
+بنية Curl_resolv_async {
+  بنية Curl_resolv_async *بعدی;
+  بنية Curl_peer *peer;
+  بنية Curl_addrinfo *ai_A;
+  بنية Curl_addrinfo *ai_AAAA;
+#اگر_تعریف_شده USE_HTTPSRR
+  بنية Curl_https_rrinfo *httpsrr;
+#پایان_اگر
+#اگر_تعریف_شده USE_RESOLV_ARES
+  بنية async_ares_ctx ares;
+#وإلاإذا defined(USE_RESOLV_THREADED)
+  بنية async_thrdd_ctx thrdd;
+#پایان_اگر
+#اگر_تعریف_نشده CURL_DISABLE_DOH
+  بنية doh_probes *doh; /* DoH specific data for this request */
+#پایان_اگر
+  بنية curltime شروع;
+  timediff_t interval_انتها;
   timediff_t timeout_ms;
-  CURLcode result;
+  CURLcode نتیجه;
   uint32_t poll_interval;
   uint32_t id; /* unique id per easy handle of the resolve operation */
   uint8_t dns_queries; /* what queries are being performed */
   uint8_t dns_responses; /* what queries had responses so far. */
   uint8_t transport;
   uint8_t queries_ongoing;
-  BIT(is_ipaddr);
-  BIT(is_ipv4addr);
-  BIT(for_proxy);
-  BIT(done);
-  BIT(shutdown);
-  BIT(negative_answer); /* resolver answered that the name does not
+  بیت(is_ipaddr);
+  بیت(is_ipv4addr);
+  بیت(for_proxy);
+  بیت(انجامشده);
+  بیت(shutdown);
+  بیت(negative_answer); /* resolver answered that the name does not
                            exist. Only such failures may be cached as
                            negative entries, not transient or local
                            resolver failures. */
 };
 
-timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
-                                  struct Curl_resolv_async *async);
+timediff_t Curl_async_timeleft_ms(بنية Curl_easy *داده,
+                                  بنية Curl_resolv_async *async);
 
 /* Shut down the given async resolve. */
-void Curl_async_shutdown(struct Curl_easy *data,
-                         struct Curl_resolv_async *async);
+فراغ Curl_async_shutdown(بنية Curl_easy *داده,
+                         بنية Curl_resolv_async *async);
 
 /* Frees the resources of the given async resolve and the struct itself. */
-void Curl_async_destroy(struct Curl_easy *data,
-                        struct Curl_resolv_async *async);
+فراغ Curl_async_destroy(بنية Curl_easy *داده,
+                        بنية Curl_resolv_async *async);
 
-CURLcode Curl_async_failed(struct Curl_easy *data,
-                           struct Curl_resolv_async *async,
-                           const char *detail);
+CURLcode Curl_async_failed(بنية Curl_easy *داده,
+                           بنية Curl_resolv_async *async,
+                           ثابت حرف *detail);
 
-#else /* !USE_CURL_ASYNC */
-#define Curl_async_shutdown(x, y) Curl_nop_stmt
-#endif /* USE_CURL_ASYNC */
+#وإلا /* !USE_CURL_ASYNC */
+#تعریف_کن Curl_async_shutdown(x, y) Curl_nop_stmt
+#پایان_اگر /* USE_CURL_ASYNC */
 
 /********** end of generic resolver interface functions *****************/
-#endif /* HEADER_CURL_ASYN_H */
+#پایان_اگر /* HEADER_CURL_ASYN_H */

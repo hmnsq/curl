@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ALTSVC_H
-#define HEADER_CURL_ALTSVC_H
+#اگر_تعریف_نشده سرآیند_CURL_ALTSVC_H
+#تعریف_کن سرآیند_CURL_ALTSVC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,56 +23,56 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
-#include "llist.h"
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
+#ضمن "llist.h"
 
-struct Curl_peer;
+بنية Curl_peer;
 
 /* the maximum number of alt-svc entries kept in a single cache */
-#define MAX_ALTSVC_ENTRIES 5000
+#تعریف_کن MAX_ALTSVC_ENTRIES 5000
 
-struct althost {
-  char *host;
-  uint16_t port;
-  enum alpnid alpnid;
+بنية althost {
+  حرف *host;
+  uint16_t پورت;
+  تعداد alpnid alpnid;
 };
 
-struct altsvc {
-  struct althost src;
-  struct althost dst;
+بنية altsvc {
+  بنية althost src;
+  بنية althost dst;
   time_t expires;
-  struct Curl_llist_node node;
-  BIT(persist);
+  بنية Curl_llist_گره گره;
+  بیت(persist);
 };
 
-struct altsvcinfo {
-  char *filename;
-  struct Curl_llist list; /* list of entries */
-  long flags; /* the publicly set bitmask */
+بنية altsvcinfo {
+  حرف *filename;
+  بنية Curl_llist list; /* list of entries */
+  دراز flags; /* the publicly set bitmask */
 };
 
-const char *Curl_alpnid2str(enum alpnid id);
-struct altsvcinfo *Curl_altsvc_init(void);
-CURLcode Curl_altsvc_load(struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_save(struct Curl_easy *data,
-                          struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_ctrl(struct Curl_easy *data, const long ctrl);
-void Curl_altsvc_cleanup(struct altsvcinfo **asi);
-CURLcode Curl_altsvc_parse(struct Curl_easy *data,
-                           struct altsvcinfo *asi, const char *value,
-                           struct Curl_peer *origin,
-                           enum alpnid origin_alpnid);
-bool Curl_altsvc_lookup(struct altsvcinfo *asi,
-                        struct Curl_peer *origin,
-                        enum alpnid origin_alpnid,
-                        struct altsvc **dstentry,
-                        const int versions, /* CURLALTSVC_H* bits */
+ثابت حرف *Curl_alpnid2str(تعداد alpnid id);
+بنية altsvcinfo *Curl_altsvc_init(فراغ);
+CURLcode Curl_altsvc_بارگیری(بنية altsvcinfo *asi, ثابت حرف *file);
+CURLcode Curl_altsvc_save(بنية Curl_easy *داده,
+                          بنية altsvcinfo *asi, ثابت حرف *file);
+CURLcode Curl_altsvc_ctrl(بنية Curl_easy *داده, ثابت دراز ctrl);
+فراغ Curl_altsvc_cleanup(بنية altsvcinfo **asi);
+CURLcode Curl_altsvc_parse(بنية Curl_easy *داده,
+                           بنية altsvcinfo *asi, ثابت حرف *مقدار,
+                           بنية Curl_peer *origin,
+                           تعداد alpnid origin_alpnid);
+bool Curl_altsvc_lookup(بنية altsvcinfo *asi,
+                        بنية Curl_peer *origin,
+                        تعداد alpnid origin_alpnid,
+                        بنية altsvc **dstentry,
+                        ثابت صحيح versions, /* CURLALTSVC_H* bits */
                         bool *psame_destination);
-#else
+#وإلا
 /* disabled */
-#define Curl_altsvc_save(a, b, c)
-#define Curl_altsvc_cleanup(x)
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_ALTSVC */
-#endif /* HEADER_CURL_ALTSVC_H */
+#تعریف_کن Curl_altsvc_save(a, b, c)
+#تعریف_کن Curl_altsvc_cleanup(x)
+#پایان_اگر /* !CURL_DISABLE_HTTP && !CURL_DISABLE_ALTSVC */
+#پایان_اگر /* HEADER_CURL_ALTSVC_H */

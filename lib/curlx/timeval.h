@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TIMEVAL_H
-#define HEADER_CURL_TIMEVAL_H
+#اگر_تعریف_نشده سرآیند_CURL_TIMEVAL_H
+#تعریف_کن سرآیند_CURL_TIMEVAL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curlx/timediff.h"
+#ضمن "curlx/timediff.h"
 
-struct curltime {
+بنية curltime {
   time_t tv_sec; /* seconds */
-  int tv_usec;   /* microseconds */
+  صحيح tv_usec;   /* microseconds */
 };
 
-#ifdef _WIN32
+#اگر_تعریف_شده _WIN32
 /* For tool or tests, we must initialize before calling curlx_now() */
-void curlx_now_init(void);
-#endif
+فراغ curlx_now_init(فراغ);
+#پایان_اگر
 
-struct curltime curlx_now(void);
-void curlx_pnow(struct curltime *pnow);
+بنية curltime curlx_now(فراغ);
+فراغ curlx_pnow(بنية curltime *pnow);
 
 /*
  * Make sure that the first argument (newer) is the more recent time and older
@@ -46,9 +46,9 @@ void curlx_pnow(struct curltime *pnow);
  *
  * Returns: the time difference in number of milliseconds.
  */
-timediff_t curlx_timediff_ms(struct curltime newer, struct curltime older);
-timediff_t curlx_ptimediff_ms(const struct curltime *newer,
-                              const struct curltime *older);
+timediff_t curlx_timediff_ms(بنية curltime newer, بنية curltime older);
+timediff_t curlx_ptimediff_ms(ثابت بنية curltime *newer,
+                              ثابت بنية curltime *older);
 
 /*
  * Make sure that the first argument (newer) is the more recent time and older
@@ -56,11 +56,11 @@ timediff_t curlx_ptimediff_ms(const struct curltime *newer,
  *
  * Returns: the time difference in number of milliseconds, rounded up.
  */
-timediff_t curlx_timediff_ceil_ms(struct curltime newer,
-                                  struct curltime older);
+timediff_t curlx_timediff_ceil_ms(بنية curltime newer,
+                                  بنية curltime older);
 
 /* Returns milliseconds from microseconds, rounded up. */
-timediff_t curlx_us_to_ceil_ms(timediff_t us);
+timediff_t curlx_us_مقصد_ceil_ms(timediff_t us);
 
 /*
  * Make sure that the first argument (newer) is the more recent time and older
@@ -68,10 +68,10 @@ timediff_t curlx_us_to_ceil_ms(timediff_t us);
  *
  * Returns: the time difference in number of microseconds.
  */
-timediff_t curlx_timediff_us(struct curltime newer, struct curltime older);
-timediff_t curlx_ptimediff_us(const struct curltime *newer,
-                              const struct curltime *older);
+timediff_t curlx_timediff_us(بنية curltime newer, بنية curltime older);
+timediff_t curlx_ptimediff_us(ثابت بنية curltime *newer,
+                              ثابت بنية curltime *older);
 
-CURLcode curlx_gmtime(time_t intime, struct tm *store);
+CURLcode curlx_gmtime(time_t intime, بنية tm *store);
 
-#endif /* HEADER_CURL_TIMEVAL_H */
+#پایان_اگر /* HEADER_CURL_TIMEVAL_H */

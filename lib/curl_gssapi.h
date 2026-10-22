@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GSSAPI_H
-#define HEADER_CURL_GSSAPI_H
+#اگر_تعریف_نشده سرآیند_CURL_GSSAPI_H
+#تعریف_کن سرآیند_CURL_GSSAPI_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,74 +23,74 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
+#ضمن "urldata.h"
 
-#ifdef HAVE_GSSAPI
-extern gss_OID_desc Curl_spnego_mech_oid;
-extern gss_OID_desc Curl_krb5_mech_oid;
+#اگر_تعریف_شده HAVE_GSSAPI
+خارجي gss_OID_desc Curl_spnego_mech_oid;
+خارجي gss_OID_desc Curl_krb5_mech_oid;
 
 /* Common method for using GSS-API */
-OM_uint32 Curl_gss_init_sec_context(struct Curl_easy *data,
-                                    OM_uint32 *minor_status,
+OM_uint32 Curl_gss_init_sec_context(بنية Curl_easy *داده,
+                                    OM_uint32 *minor_وضعیت,
                                     gss_ctx_id_t *context,
-                                    gss_name_t target_name,
+                                    gss_name_t هدف_name,
                                     gss_OID mech_type,
-                                    gss_channel_bindings_t input_chan_bindings,
-                                    gss_buffer_t input_token,
-                                    gss_buffer_t output_token,
-                                    const bool mutual_auth,
+                                    gss_channel_bindings_t درون_داد_chan_bindings,
+                                    gss_میانگیر_t درون_داد_token,
+                                    gss_میانگیر_t output_token,
+                                    ثابت bool mutual_auth,
                                     OM_uint32 *ret_flags,
                                     gss_cred_id_t cred_handle);
 
 OM_uint32 Curl_gss_delete_sec_context(OM_uint32 *min,
                                       gss_ctx_id_t *context,
-                                      gss_buffer_t output_token);
+                                      gss_میانگیر_t output_token);
 
-OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_وضعیت,
                                     gss_ctx_id_t context,
                                     gss_OID *mech_type);
 
-OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_وضعیت,
                                 gss_name_t desired_name,
-                                OM_uint32 time_req,
-                                gss_OID_set desired_mechs,
+                                OM_uint32 زمان_req,
+                                gss_OID_مجموعه desired_mechs,
                                 gss_cred_usage_t cred_usage,
                                 gss_cred_id_t *output_cred_handle,
-                                gss_OID_set *actual_mechs,
-                                OM_uint32 *time_rec);
+                                gss_OID_مجموعه *actual_mechs,
+                                OM_uint32 *زمان_rec);
 
-OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_status,
-                                  gss_OID_set *mech_set);
+OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_وضعیت,
+                                  gss_OID_مجموعه *mech_مجموعه);
 
-#ifdef HAVE_GSS_SET_NEG_MECHS
-OM_uint32 Curl_gss_set_neg_mechs(OM_uint32 *minor_status,
+#اگر_تعریف_شده HAVE_GSS_مجموعه_NEG_MECHS
+OM_uint32 Curl_gss_مجموعه_neg_mechs(OM_uint32 *minor_وضعیت,
                                  gss_cred_id_t cred_handle,
-                                 const gss_OID_set mech_set);
-#endif
+                                 ثابت gss_OID_مجموعه mech_مجموعه);
+#پایان_اگر
 
-OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_وضعیت,
                                 gss_cred_id_t *cred_handle);
 
-#ifdef CURLVERBOSE
+#اگر_تعریف_شده CURLVERBOSE
 /* Helper to log a GSS-API error status */
-void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
+فراغ Curl_gss_log_error(بنية Curl_easy *داده, ثابت حرف *پیشوند,
                         OM_uint32 major, OM_uint32 minor);
-#else
-#define Curl_gss_log_error(data, prefix, major, minor) \
-  do {                                                 \
-    (void)(data);                                      \
-    (void)(prefix);                                    \
-    (void)(major);                                     \
-    (void)(minor);                                     \
-  } while(0)
-#endif
+#وإلا
+#تعریف_کن Curl_gss_log_error(داده, پیشوند, major, minor) \
+  افعل {                                                 \
+    (فراغ)(داده);                                      \
+    (فراغ)(پیشوند);                                    \
+    (فراغ)(major);                                     \
+    (فراغ)(minor);                                     \
+  } طالما(0)
+#پایان_اگر
 
 /* Define our privacy and integrity protection values */
-#define GSSAUTH_P_NONE      1
-#define GSSAUTH_P_INTEGRITY 2
-#define GSSAUTH_P_PRIVACY   4
+#تعریف_کن GSSAUTH_P_NONE      1
+#تعریف_کن GSSAUTH_P_INTEGRITY 2
+#تعریف_کن GSSAUTH_P_PRIVACY   4
 
-#endif /* HAVE_GSSAPI */
-#endif /* HEADER_CURL_GSSAPI_H */
+#پایان_اگر /* HAVE_GSSAPI */
+#پایان_اگر /* HEADER_CURL_GSSAPI_H */

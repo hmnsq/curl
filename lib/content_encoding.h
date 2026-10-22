@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONTENT_ENCODING_H
-#define HEADER_CURL_CONTENT_ENCODING_H
+#اگر_تعریف_نشده سرآیند_CURL_CONTENT_ENCODING_H
+#تعریف_کن سرآیند_CURL_CONTENT_ENCODING_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-struct Curl_cwriter;
+بنية Curl_cwriter;
 
 /* returns an allocated string or NULL */
-char *Curl_get_content_encodings(void);
+حرف *Curl_get_content_encodings(فراغ);
 
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer);
-#endif /* HEADER_CURL_CONTENT_ENCODING_H */
+CURLcode Curl_build_unencoding_پشته(بنية Curl_easy *داده,
+                                     ثابت حرف *enclist, صحيح is_transfer);
+#پایان_اگر /* HEADER_CURL_CONTENT_ENCODING_H */

@@ -21,109 +21,109 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#إذا !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
-#include "urldata.h"
-#include "url.h"
-#include "u32_ptrset.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "multiif.h"
-#include "cfilters.h"
-#include "cf-socket.h"
-#include "connect.h"
-#include "progress.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/dynbuf.h"
-#include "http1.h"
-#include "select.h"
-#include "transfer.h"
-#include "bufref.h"
-#include "vdns/cf-dns.h"
-#include "vquic/vquic.h"
-#include "vquic/vquic_int.h"
-#include "vquic/cf-ngtcp2-cmn.h"
-#include "vquic/cf-ngtcp2.h"
+#ضمن "urldata.h"
+#ضمن "url.h"
+#ضمن "u32_ptrset.h"
+#ضمن "curl_trc.h"
+#ضمن "rand.h"
+#ضمن "multiif.h"
+#ضمن "cfilters.h"
+#ضمن "cf-socket.h"
+#ضمن "connect.h"
+#ضمن "progress.h"
+#ضمن "curlx/win32-fopen.h"
+#ضمن "curlx/dynbuf.h"
+#ضمن "http1.h"
+#ضمن "select.h"
+#ضمن "transfer.h"
+#ضمن "bufref.h"
+#ضمن "vdns/cf-dns.h"
+#ضمن "vquic/vquic.h"
+#ضمن "vquic/vquic_int.h"
+#ضمن "vquic/cf-ngtcp2-cmn.h"
+#ضمن "vquic/cf-ngtcp2.h"
 
 
-static int cb_h3_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
-                                uint64_t datalen, void *user_data,
-                                void *stream_user_data);
+ساكن صحيح cb_h3_acked_req_body(nghttp3_conn *conn, int64_t جریان_id,
+                                uint64_t datalen, فراغ *user_داده,
+                                فراغ *جریان_user_داده);
 
-static CURLcode cf_ngtcp2_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps)
+ساكن CURLcode cf_ngtcp2_adjust_pollset(بنية Curl_cfilter *cf,
+                                         بنية Curl_easy *داده,
+                                         بنية easy_pollset *ps)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
   bool want_recv, want_send;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
   curl_socket_t sock = (ctx->q.sockfd != CURL_SOCKET_BAD) ?
-   ctx->q.sockfd : Curl_conn_cf_get_socket(cf, data);
+   ctx->q.sockfd : Curl_conn_cf_get_socket(cf, داده);
 
-  if(!ctx->qconn || (sock == CURL_SOCKET_BAD))
-    return CURLE_OK;
+  إذا(!ctx->qconn || (sock == CURL_SOCKET_BAD))
+    أرجع CURLE_OK;
 
-  Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
-  if(!want_send && !Curl_bufq_is_empty(&ctx->q.sendbuf))
+  Curl_pollset_check(داده, ps, sock, &want_recv, &want_send);
+  إذا(!want_send && !Curl_bufq_is_خالی(&ctx->q.sendbuf))
     want_send = TRUE;
 
-  if(want_recv || want_send) {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    struct cf_call_data save;
+  إذا(want_recv || want_send) {
+    بنية h3_جریان_ctx *جریان = H3_جریان_CTX(ctx, داده);
+    بنية cf_call_داده save;
     bool c_exhaust, s_exhaust;
 
-    CF_DATA_SAVE(save, cf, data);
-    c_exhaust = want_send && (!ngtcp2_conn_get_cwnd_left(ctx->qconn) ||
-                              !ngtcp2_conn_get_max_data_left(ctx->qconn));
-    s_exhaust = want_send && stream && stream->id >= 0 &&
-                (stream->quic_flow_blocked ||
-                 stream->tx_in_flight_size >= stream->tx_in_flight_ideal);
+    CF_داده_SAVE(save, cf, داده);
+    c_exhaust = want_send && (!ngtcp2_conn_get_cwnd_چپ(ctx->qconn) ||
+                              !ngtcp2_conn_get_max_داده_چپ(ctx->qconn));
+    s_exhaust = want_send && جریان && جریان->id >= 0 &&
+                (جریان->quic_flow_blocked ||
+                 جریان->tx_درون_flight_اندازه >= جریان->tx_درون_flight_ideal);
     want_recv = (want_recv || c_exhaust || s_exhaust);
     want_send = (!s_exhaust && want_send) ||
-                 !Curl_bufq_is_empty(&ctx->q.sendbuf);
+                 !Curl_bufq_is_خالی(&ctx->q.sendbuf);
 
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CF_DATA_RESTORE(cf, save);
+    نتیجه = Curl_pollset_مجموعه(داده, ps, sock, want_recv, want_send);
+    CF_داده_RESTORE(cf, save);
   }
-  return result;
+  أرجع نتیجه;
 }
 
-static int cb_h3_stream_close(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+ساكن صحيح cb_h3_جریان_close(nghttp3_conn *conn, int64_t جریان_id,
+                              uint64_t app_error_کد, فراغ *user_داده,
+                              فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  (void)conn;
-  (void)stream_id;
+  بنية Curl_cfilter *cf = user_داده;
+  بنية h3_جریان_ctx *جریان;
+  بنية Curl_easy *داده =
+    Curl_cf_ngtcp2_get_xfer(cf, جریان_user_داده, &جریان);
+  (فراغ)conn;
+  (فراغ)جریان_id;
 
   /* we might be called by nghttp3 after we already cleaned up */
-  if(!data || !stream)
-    return 0;
+  إذا(!داده || !جریان)
+    أرجع 0;
 
-  stream->closed = TRUE;
-  stream->error3 = app_error_code;
-  if(stream->error3 != NGHTTP3_H3_NO_ERROR) {
-    stream->reset = TRUE;
-    stream->send_closed = TRUE;
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] RESET: error %" PRIu64,
-                stream->id, stream->error3);
+  جریان->closed = TRUE;
+  جریان->error3 = app_error_کد;
+  إذا(جریان->error3 != NGHTTP3_H3_NO_ERROR) {
+    جریان->reset = TRUE;
+    جریان->send_closed = TRUE;
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] RESET: error %" PRIu64,
+                جریان->id, جریان->error3);
   }
-  else {
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] CLOSED", stream->id);
+  وإلا {
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] CLOSED", جریان->id);
   }
-  Curl_multi_mark_dirty(data);
-  return 0;
+  Curl_multi_mark_dirty(داده);
+  أرجع 0;
 }
 
-static void h3_xfer_write_resp_hd(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct h3_stream_ctx *stream,
-                                  const char *buf, size_t buflen, bool eos)
+ساكن فراغ h3_xfer_write_resp_hd(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده,
+                                  بنية h3_جریان_ctx *جریان,
+                                  ثابت حرف *buf, size_t buflen, bool eos)
 {
   /* This function returns no error intentionally, but records
    * the result at the stream, skipping further writes once the
@@ -131,19 +131,19 @@ static void h3_xfer_write_resp_hd(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
-    stream->xfer_result = Curl_xfer_write_resp_hd(data, buf, buflen, eos);
-    if(stream->xfer_result)
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] error %d writing %zu "
-                  "bytes of headers", stream->id, (int)stream->xfer_result,
+  إذا(!جریان->xfer_نتیجه) {
+    جریان->xfer_نتیجه = Curl_xfer_write_resp_hd(داده, buf, buflen, eos);
+    إذا(جریان->xfer_نتیجه)
+      CURL_TRC_CF(داده, cf, "[%" PRId64 "] error %d writing %zu "
+                  "bytes of headers", جریان->id, (صحيح)جریان->xfer_نتیجه,
                   buflen);
   }
 }
 
-static void h3_xfer_write_resp(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h3_stream_ctx *stream,
-                               const char *buf, size_t buflen, bool eos)
+ساكن فراغ h3_xfer_write_resp(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *داده,
+                               بنية h3_جریان_ctx *جریان,
+                               ثابت حرف *buf, size_t buflen, bool eos)
 {
   /* This function returns no error intentionally, but records
    * the result at the stream, skipping further writes once the
@@ -151,290 +151,290 @@ static void h3_xfer_write_resp(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
-    stream->xfer_result = Curl_xfer_write_resp(data, buf, buflen, eos);
+  إذا(!جریان->xfer_نتیجه) {
+    جریان->xfer_نتیجه = Curl_xfer_write_resp(داده, buf, buflen, eos);
     /* If the transfer write is errored, we do not want any more data */
-    if(stream->xfer_result) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] error %d writing %zu bytes of data",
-                  stream->id, (int)stream->xfer_result, buflen);
+    إذا(جریان->xfer_نتیجه) {
+      CURL_TRC_CF(داده, cf, "[%" PRId64 "] error %d writing %zu bytes of data",
+                  جریان->id, (صحيح)جریان->xfer_نتیجه, buflen);
     }
   }
 }
 
-static void cf_ngtcp2_upd_rx_win(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h3_stream_ctx *stream)
+ساكن فراغ cf_ngtcp2_upd_rx_win(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *داده,
+                                 بنية h3_جریان_ctx *جریان)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  uint64_t cur_win, wanted_win = H3_STREAM_WINDOW_SIZE_MAX;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  uint64_t cur_win, wanted_win = H3_جریان_پنجره_اندازه_MAX;
 
   /* how much does rate limiting allow us to acknowledge? */
-  if(Curl_rlimit_active(&data->progress.dl.rlimit)) {
+  إذا(Curl_rlimit_فعال(&داده->پیشرفت.dl.rlimit)) {
     int64_t avail;
 
     /* start rate limit updates only after first bytes arrived */
-    if(!stream->rx_offset)
-      return;
+    إذا(!جریان->rx_جابه_جایی)
+      أرجع;
 
-    avail = Curl_rlimit_avail(&data->progress.dl.rlimit, NULL);
-    if(avail <= 0) {
+    avail = Curl_rlimit_avail(&داده->پیشرفت.dl.rlimit, عدم);
+    إذا(avail <= 0) {
       /* nothing available, do not extend the rx offset */
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] dl rate limit exhausted (%" PRId64
-                  " tokens)", stream->id, avail);
-      return;
+      CURL_TRC_CF(داده, cf, "[%" PRId64 "] dl rate limit exhausted (%" PRId64
+                  " tokens)", جریان->id, avail);
+      أرجع;
     }
-    wanted_win = CURLMIN((uint64_t)avail, H3_STREAM_WINDOW_SIZE_MAX);
+    wanted_win = CURLMIN((uint64_t)avail, H3_جریان_پنجره_اندازه_MAX);
   }
 
-  if(stream->rx_offset_max < stream->rx_offset) {
+  إذا(جریان->rx_جابه_جایی_max < جریان->rx_جابه_جایی) {
     DEBUGASSERT(0);
-    return;
+    أرجع;
   }
-  cur_win = stream->rx_offset_max - stream->rx_offset;
+  cur_win = جریان->rx_جابه_جایی_max - جریان->rx_جابه_جایی;
 
-  if(wanted_win > cur_win) {
+  إذا(wanted_win > cur_win) {
     uint64_t delta = wanted_win - cur_win;
 
-    if(UINT64_MAX - delta < stream->rx_offset_max)
-      delta = UINT64_MAX - stream->rx_offset_max;
-    if(delta) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] rx window, extend by %" PRIu64
-                  " bytes", stream->id, delta);
-      stream->rx_offset_max += delta;
-      ngtcp2_conn_extend_max_stream_offset(ctx->qconn, stream->id, delta);
+    إذا(UINT64_MAX - delta < جریان->rx_جابه_جایی_max)
+      delta = UINT64_MAX - جریان->rx_جابه_جایی_max;
+    إذا(delta) {
+      CURL_TRC_CF(داده, cf, "[%" PRId64 "] rx window, extend by %" PRIu64
+                  " bytes", جریان->id, delta);
+      جریان->rx_جابه_جایی_max += delta;
+      ngtcp2_conn_extend_max_جریان_جابه_جایی(ctx->qconn, جریان->id, delta);
     }
   }
 }
 
-static int cb_h3_recv_data(nghttp3_conn *conn, int64_t stream3_id,
-                           const uint8_t *buf, size_t buflen,
-                           void *user_data, void *stream_user_data)
+ساكن صحيح cb_h3_recv_داده(nghttp3_conn *conn, int64_t stream3_id,
+                           ثابت uint8_t *buf, size_t buflen,
+                           فراغ *user_داده, فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
+  بنية Curl_cfilter *cf = user_داده;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية h3_جریان_ctx *جریان;
+  بنية Curl_easy *داده =
+    Curl_cf_ngtcp2_get_xfer(cf, جریان_user_داده, &جریان);
 
-  (void)conn;
-  (void)stream3_id;
+  (فراغ)conn;
+  (فراغ)stream3_id;
 
-  if(!stream || !data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  إذا(!جریان || !داده)
+    أرجع NGHTTP3_ERR_CALLBACK_FAILURE;
 
-  h3_xfer_write_resp(cf, data, stream, (const char *)buf, buflen, FALSE);
+  h3_xfer_write_resp(cf, داده, جریان, (ثابت حرف *)buf, buflen, FALSE);
 
-  ngtcp2_conn_extend_max_offset(ctx->qconn, buflen);
-  stream->rx_offset += buflen;
-  if(stream->rx_offset_max < stream->rx_offset)
-    stream->rx_offset_max = stream->rx_offset;
+  ngtcp2_conn_extend_max_جابه_جایی(ctx->qconn, buflen);
+  جریان->rx_جابه_جایی += buflen;
+  إذا(جریان->rx_جابه_جایی_max < جریان->rx_جابه_جایی)
+    جریان->rx_جابه_جایی_max = جریان->rx_جابه_جایی;
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] DATA len=%zu, rx win=%" PRIu64,
-              stream->id, buflen, stream->rx_offset_max - stream->rx_offset);
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
-  return 0;
+  CURL_TRC_CF(داده, cf, "[%" PRId64 "] DATA len=%zu, rx win=%" PRIu64,
+              جریان->id, buflen, جریان->rx_جابه_جایی_max - جریان->rx_جابه_جایی);
+  cf_ngtcp2_upd_rx_win(cf, داده, جریان);
+  أرجع 0;
 }
 
-static int cb_h3_deferred_consume(nghttp3_conn *conn, int64_t stream3_id,
-                                  size_t consumed, void *user_data,
-                                  void *stream_user_data)
+ساكن صحيح cb_h3_deferred_consume(nghttp3_conn *conn, int64_t stream3_id,
+                                  size_t consumed, فراغ *user_داده,
+                                  فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = stream_user_data;
-  (void)conn;
+  بنية Curl_cfilter *cf = user_داده;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية h3_جریان_ctx *جریان = جریان_user_داده;
+  (فراغ)conn;
 
   /* nghttp3 has consumed bytes on the QUIC stream and we need to
    * tell the QUIC connection to increase its flow control */
-  ngtcp2_conn_extend_max_stream_offset(ctx->qconn, stream3_id, consumed);
-  ngtcp2_conn_extend_max_offset(ctx->qconn, consumed);
+  ngtcp2_conn_extend_max_جریان_جابه_جایی(ctx->qconn, stream3_id, consumed);
+  ngtcp2_conn_extend_max_جابه_جایی(ctx->qconn, consumed);
 
-  if(stream) {
-    stream->rx_offset += consumed;
-    stream->rx_offset_max += consumed;
+  إذا(جریان) {
+    جریان->rx_جابه_جایی += consumed;
+    جریان->rx_جابه_جایی_max += consumed;
   }
-  return 0;
+  أرجع 0;
 }
 
-static int cb_h3_end_headers(nghttp3_conn *conn, int64_t stream_id,
-                             int fin, void *user_data, void *stream_user_data)
+ساكن صحيح cb_h3_انتها_سرآیندها(nghttp3_conn *conn, int64_t جریان_id,
+                             صحيح fin, فراغ *user_داده, فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  (void)conn;
-  (void)stream_id;
-  (void)fin;
-  (void)cf;
+  بنية Curl_cfilter *cf = user_داده;
+  بنية h3_جریان_ctx *جریان;
+  بنية Curl_easy *داده =
+    Curl_cf_ngtcp2_get_xfer(cf, جریان_user_داده, &جریان);
+  (فراغ)conn;
+  (فراغ)جریان_id;
+  (فراغ)fin;
+  (فراغ)cf;
 
-  if(!stream || !data)
-    return 0;
+  إذا(!جریان || !داده)
+    أرجع 0;
   /* add a CRLF only if we have received some headers */
-  h3_xfer_write_resp_hd(cf, data, stream, STRCONST("\r\n"),
-                        (bool)stream->closed);
+  h3_xfer_write_resp_hd(cf, داده, جریان, STRCONST("\r\n"),
+                        (bool)جریان->closed);
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] end_headers, status=%d",
-              stream_id, stream->status_code);
-  if(stream->status_code / 100 != 1) {
-    stream->resp_hds_complete = TRUE;
+  CURL_TRC_CF(داده, cf, "[%" PRId64 "] end_headers, status=%d",
+              جریان_id, جریان->وضعیت_کد);
+  إذا(جریان->وضعیت_کد / 100 != 1) {
+    جریان->resp_hds_complete = TRUE;
   }
-  Curl_multi_mark_dirty(data);
-  return 0;
+  Curl_multi_mark_dirty(داده);
+  أرجع 0;
 }
 
-static int cb_h3_recv_header(nghttp3_conn *conn, int64_t stream_id,
+ساكن صحيح cb_h3_recv_سرآیند(nghttp3_conn *conn, int64_t جریان_id,
                              int32_t token, nghttp3_rcbuf *name,
-                             nghttp3_rcbuf *value, uint8_t flags,
-                             void *user_data, void *stream_user_data)
+                             nghttp3_rcbuf *مقدار, uint8_t flags,
+                             فراغ *user_داده, فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية Curl_cfilter *cf = user_داده;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
   nghttp3_vec h3name = nghttp3_rcbuf_get_buf(name);
-  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(value);
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  CURLcode result = CURLE_OK;
-  (void)conn;
-  (void)stream_id;
-  (void)token;
-  (void)flags;
-  (void)cf;
+  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(مقدار);
+  بنية h3_جریان_ctx *جریان;
+  بنية Curl_easy *داده =
+    Curl_cf_ngtcp2_get_xfer(cf, جریان_user_داده, &جریان);
+  CURLcode نتیجه = CURLE_OK;
+  (فراغ)conn;
+  (فراغ)جریان_id;
+  (فراغ)token;
+  (فراغ)flags;
+  (فراغ)cf;
 
   /* we might have cleaned up this transfer already */
-  if(!stream || !data)
-    return 0;
+  إذا(!جریان || !داده)
+    أرجع 0;
 
-  if(token == NGHTTP3_QPACK_TOKEN__STATUS) {
+  إذا(token == NGHTTP3_QPACK_TOKEN_وضعیت) {
 
-    result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)h3val.base, h3val.len);
-    if(result)
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    نتیجه = Curl_http_decode_وضعیت(&جریان->وضعیت_کد,
+                                     (ثابت حرف *)h3val.پایه, h3val.len);
+    إذا(نتیجه)
+      أرجع NGHTTP3_ERR_CALLBACK_FAILURE;
     curlx_dyn_reset(&ctx->scratch);
-    result = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/3 "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch,
-                              (const char *)h3val.base, h3val.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
-    if(!result)
-      h3_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
+    نتیجه = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/3 "));
+    إذا(!نتیجه)
+      نتیجه = curlx_dyn_addn(&ctx->scratch,
+                              (ثابت حرف *)h3val.پایه, h3val.len);
+    إذا(!نتیجه)
+      نتیجه = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
+    إذا(!نتیجه)
+      h3_xfer_write_resp_hd(cf, داده, جریان, curlx_dyn_ptr(&ctx->scratch),
                             curlx_dyn_len(&ctx->scratch), FALSE);
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] status: %s",
-                stream_id, curlx_dyn_ptr(&ctx->scratch));
-    if(result) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] status: %s",
+                جریان_id, curlx_dyn_ptr(&ctx->scratch));
+    إذا(نتیجه) {
+      أرجع NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  else {
+  وإلا {
     /* store as an HTTP1-style header */
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] header: %.*s: %.*s",
-                stream_id, (int)h3name.len, h3name.base,
-                (int)h3val.len, h3val.base);
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] header: %.*s: %.*s",
+                جریان_id, (صحيح)h3name.len, h3name.پایه,
+                (صحيح)h3val.len, h3val.پایه);
     curlx_dyn_reset(&ctx->scratch);
-    result = curlx_dyn_addn(&ctx->scratch,
-                            (const char *)h3name.base, h3name.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch,
-                              (const char *)h3val.base, h3val.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
-    if(!result)
-      h3_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
+    نتیجه = curlx_dyn_addn(&ctx->scratch,
+                            (ثابت حرف *)h3name.پایه, h3name.len);
+    إذا(!نتیجه)
+      نتیجه = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
+    إذا(!نتیجه)
+      نتیجه = curlx_dyn_addn(&ctx->scratch,
+                              (ثابت حرف *)h3val.پایه, h3val.len);
+    إذا(!نتیجه)
+      نتیجه = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
+    إذا(!نتیجه)
+      h3_xfer_write_resp_hd(cf, داده, جریان, curlx_dyn_ptr(&ctx->scratch),
                             curlx_dyn_len(&ctx->scratch), FALSE);
   }
-  return 0;
+  أرجع 0;
 }
 
-static int cb_h3_stop_sending(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+ساكن صحيح cb_h3_stop_sending(nghttp3_conn *conn, int64_t جریان_id,
+                              uint64_t app_error_کد, فراغ *user_داده,
+                              فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  int rv;
-  (void)conn;
-  (void)stream_user_data;
+  بنية Curl_cfilter *cf = user_داده;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  صحيح rv;
+  (فراغ)conn;
+  (فراغ)جریان_user_داده;
 
-  rv = ngtcp2_conn_shutdown_stream_read(ctx->qconn, 0, stream_id,
-                                        app_error_code);
-  if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  rv = ngtcp2_conn_shutdown_جریان_read(ctx->qconn, 0, جریان_id,
+                                        app_error_کد);
+  إذا(rv && rv != NGTCP2_ERR_جریان_NOT_یافت) {
+    أرجع NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  أرجع 0;
 }
 
-static int cb_h3_reset_stream(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+ساكن صحيح cb_h3_reset_جریان(nghttp3_conn *conn, int64_t جریان_id,
+                              uint64_t app_error_کد, فراغ *user_داده,
+                              فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, NULL);
-  int rv;
-  (void)conn;
+  بنية Curl_cfilter *cf = user_داده;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية Curl_easy *داده = Curl_cf_ngtcp2_get_xfer(cf, جریان_user_داده, عدم);
+  صحيح rv;
+  (فراغ)conn;
 
-  rv = ngtcp2_conn_shutdown_stream_write(ctx->qconn, 0, stream_id,
-                                         app_error_code);
-  if(data)
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] reset -> %d", stream_id, rv);
-  if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  rv = ngtcp2_conn_shutdown_جریان_write(ctx->qconn, 0, جریان_id,
+                                         app_error_کد);
+  إذا(داده)
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] reset -> %d", جریان_id, rv);
+  إذا(rv && rv != NGTCP2_ERR_جریان_NOT_یافت) {
+    أرجع NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  أرجع 0;
 }
 
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
-static nghttp3_callbacks ngh3_callbacks = {
+#اگر_تعریف_شده CURL_HAVE_DIAG
+#رهنمود GCC diagnostic افزودن
+#رهنمود GCC diagnostic ignored "-Wmissing-field-initializers"
+#پایان_اگر
+ساكن nghttp3_callbacks ngh3_callbacks = {
   cb_h3_acked_req_body, /* acked_stream_data */
-  cb_h3_stream_close,
-  cb_h3_recv_data,
+  cb_h3_جریان_close,
+  cb_h3_recv_داده,
   cb_h3_deferred_consume,
-  NULL, /* begin_headers */
-  cb_h3_recv_header,
-  cb_h3_end_headers,
-  NULL, /* begin_trailers */
-  cb_h3_recv_header,
-  NULL, /* end_trailers */
+  عدم, /* begin_headers */
+  cb_h3_recv_سرآیند,
+  cb_h3_انتها_سرآیندها,
+  عدم, /* begin_trailers */
+  cb_h3_recv_سرآیند,
+  عدم, /* end_trailers */
   cb_h3_stop_sending,
-  NULL, /* end_stream */
-  cb_h3_reset_stream,
-  NULL, /* shutdown */
-  NULL, /* recv_settings (deprecated) */
-#ifdef NGHTTP3_CALLBACKS_V2  /* nghttp3 v1.11.0+ */
-  NULL, /* recv_origin */
-  NULL, /* end_origin */
-  NULL, /* rand */
-#endif
-#ifdef NGHTTP3_CALLBACKS_V3  /* nghttp3 v1.14.0+ */
-  NULL, /* recv_settings2 */
-#endif
-#ifdef NGHTTP3_CALLBACKS_V4  /* nghttp3 v1.18.0+ */
-  NULL, /* stream_close2 */
-#endif
+  عدم, /* end_stream */
+  cb_h3_reset_جریان,
+  عدم, /* shutdown */
+  عدم, /* recv_settings (deprecated) */
+#اگر_تعریف_شده NGHTTP3_CALLBACKS_V2  /* nghttp3 v1.11.0+ */
+  عدم, /* recv_origin */
+  عدم, /* end_origin */
+  عدم, /* rand */
+#پایان_اگر
+#اگر_تعریف_شده NGHTTP3_CALLBACKS_V3  /* nghttp3 v1.14.0+ */
+  عدم, /* recv_settings2 */
+#پایان_اگر
+#اگر_تعریف_شده NGHTTP3_CALLBACKS_V4  /* nghttp3 v1.18.0+ */
+  عدم, /* stream_close2 */
+#پایان_اگر
 };
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
+#اگر_تعریف_شده CURL_HAVE_DIAG
+#رهنمود GCC diagnostic برداشت
+#پایان_اگر
 
-static CURLcode init_ngh3_conn(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct cf_ngtcp2_ctx *ctx)
+ساكن CURLcode init_ngh3_conn(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *داده,
+                               بنية cf_ngtcp2_ctx *ctx)
 {
-  int rc;
+  صحيح rc;
 
-  if(ngtcp2_conn_get_streams_uni_left(ctx->qconn) < 3) {
-    failf(data, "QUIC connection lacks 3 uni streams to run HTTP/3");
-    return CURLE_QUIC_CONNECT_ERROR;
+  إذا(ngtcp2_conn_get_streams_uni_چپ(ctx->qconn) < 3) {
+    failf(داده, "QUIC connection lacks 3 uni streams to run HTTP/3");
+    أرجع CURLE_QUIC_CONNECT_ERROR;
   }
 
   nghttp3_settings_default(&ctx->h3settings);
@@ -444,67 +444,67 @@ static CURLcode init_ngh3_conn(struct Curl_cfilter *cf,
                                &ctx->h3settings,
                                Curl_nghttp3_mem(),
                                cf);
-  if(rc) {
-    failf(data, "error creating nghttp3 connection instance");
-    return CURLE_OUT_OF_MEMORY;
+  إذا(rc) {
+    failf(داده, "error creating nghttp3 connection instance");
+    أرجع CURLE_بیرون_از_حافظه;
   }
 
-  return Curl_cf_ngtcp2_h3_init_ctrls(ctx, data);
+  أرجع Curl_cf_ngtcp2_h3_init_ctrls(ctx, داده);
 }
 
-static CURLcode recv_closed_stream(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct h3_stream_ctx *stream,
+ساكن CURLcode recv_closed_جریان(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *داده,
+                                   بنية h3_جریان_ctx *جریان,
                                    size_t *pnread)
 {
-  (void)cf;
+  (فراغ)cf;
   *pnread = 0;
-  if(stream->reset) {
-    if(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
-      infof(data, "HTTP/3 stream %" PRId64 " refused by server, try again "
-            "on a new connection", stream->id);
+  إذا(جریان->reset) {
+    إذا(جریان->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
+      infof(داده, "HTTP/3 stream %" PRId64 " refused by server, try again "
+            "on a new connection", جریان->id);
       connclose(cf->conn); /* do not use this anymore */
-      data->state.refused_stream = TRUE;
-      return CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
+      داده->state.refused_جریان = TRUE;
+      أرجع CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
-        CURL_TRC_CF(data, cf, "[%" PRId64 "] error after response headers, "
+    وإلا إذا(جریان->resp_hds_complete && داده->req.no_body) {
+        CURL_TRC_CF(داده, cf, "[%" PRId64 "] error after response headers, "
                     "but we did not want a body anyway, ignore error 0x%"
-                    PRIx64 " %s", stream->id, stream->error3,
-                    Curl_vquic_h3_err_str(stream->error3));
-        return CURLE_OK;
+                    PRIx64 " %s", جریان->id, جریان->error3,
+                    Curl_vquic_h3_err_str(جریان->error3));
+        أرجع CURLE_OK;
     }
-    failf(data, "HTTP/3 stream %" PRId64 " reset by server (error 0x%" PRIx64
-          " %s)", stream->id, stream->error3,
-          Curl_vquic_h3_err_str(stream->error3));
-    return data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
+    failf(داده, "HTTP/3 stream %" PRId64 " reset by server (error 0x%" PRIx64
+          " %s)", جریان->id, جریان->error3,
+          Curl_vquic_h3_err_str(جریان->error3));
+    أرجع داده->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
   }
-  else if(!stream->resp_hds_complete) {
-    failf(data,
+  وإلا إذا(!جریان->resp_hds_complete) {
+    failf(داده,
           "HTTP/3 stream %" PRId64 " was closed cleanly, but before "
           "getting all response header fields, treated as error",
-          stream->id);
-    return CURLE_HTTP3;
+          جریان->id);
+    أرجع CURLE_HTTP3;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /* incoming data frames on the h3 stream */
-static CURLcode cf_ngtcp2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               char *buf, size_t buflen, size_t *pnread)
+ساكن CURLcode cf_ngtcp2_recv(بنية Curl_cfilter *cf, بنية Curl_easy *داده,
+                               حرف *buf, size_t buflen, size_t *pnread)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
-  CURLcode result = CURLE_OK;
-  int i;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية h3_جریان_ctx *جریان = H3_جریان_CTX(ctx, داده);
+  بنية cf_call_داده save;
+  بنية cf_ngtcp2_io_ctx pktx;
+  CURLcode نتیجه = CURLE_OK;
+  صحيح i;
 
-  (void)ctx;
-  (void)buf;
-  NOVERBOSE((void)buflen);
+  (فراغ)ctx;
+  (فراغ)buf;
+  NOVERBOSE((فراغ)buflen);
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_داده_SAVE(save, cf, داده);
   DEBUGASSERT(cf->connected);
   DEBUGASSERT(ctx);
   DEBUGASSERT(ctx->qconn);
@@ -512,109 +512,109 @@ static CURLcode cf_ngtcp2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
   *pnread = 0;
 
   /* handshake verification failed in callback, do not recv anything */
-  if(ctx->tls_vrfy_result) {
-    result = ctx->tls_vrfy_result;
-    goto denied;
+  إذا(ctx->tls_vrfy_نتیجه) {
+    نتیجه = ctx->tls_vrfy_نتیجه;
+    اذهب denied;
   }
 
-  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
+  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, داده);
 
-  if(!stream || ctx->shutdown_started) {
-    result = CURLE_RECV_ERROR;
-    goto out;
+  إذا(!جریان || ctx->shutdown_started) {
+    نتیجه = CURLE_RECV_ERROR;
+    اذهب بیرون;
   }
 
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
+  cf_ngtcp2_upd_rx_win(cf, داده, جریان);
 
   /* first check for results/closed already known without touching
    * the connection. For an already failed/closed stream, errors on
    * the connection do not count.
    * Then handle incoming data and check for failed/closed again.
    */
-  for(i = 0; i < 2; ++i) {
-    if(stream->xfer_result) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] xfer write failed", stream->id);
-      Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-      result = stream->xfer_result;
-      goto out;
+  لكل(i = 0; i < 2; ++i) {
+    إذا(جریان->xfer_نتیجه) {
+      CURL_TRC_CF(داده, cf, "[%" PRId64 "] xfer write failed", جریان->id);
+      Curl_cf_ngtcp2_h3_جریان_close(cf, داده, جریان);
+      نتیجه = جریان->xfer_نتیجه;
+      اذهب بیرون;
     }
-    else if(stream->closed) {
-      result = recv_closed_stream(cf, data, stream, pnread);
-      goto out;
+    وإلا إذا(جریان->closed) {
+      نتیجه = recv_closed_جریان(cf, داده, جریان, pnread);
+      اذهب بیرون;
     }
 
-    if(!i && Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx)) {
-      result = CURLE_RECV_ERROR;
-      goto out;
+    إذا(!i && Curl_cf_ngtcp2_پیشرفت_ingress(cf, داده, &pktx)) {
+      نتیجه = CURLE_RECV_ERROR;
+      اذهب بیرون;
     }
   }
 
-  result = CURLE_AGAIN;
+  نتیجه = CURLE_AGAIN;
 
-out:
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_progress_egress(cf, data, &pktx));
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
-  if(ctx->tls_vrfy_result)
-    result = ctx->tls_vrfy_result;
+بیرون:
+  نتیجه = Curl_1st_fatal(نتیجه,
+                          Curl_cf_ngtcp2_پیشرفت_egress(cf, داده, &pktx));
+  نتیجه = Curl_1st_fatal(نتیجه,
+                          Curl_cf_ngtcp2_cmn_مجموعه_expiry(cf, داده, &pktx));
+  إذا(ctx->tls_vrfy_نتیجه)
+    نتیجه = ctx->tls_vrfy_نتیجه;
 denied:
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_recv(buflen=%zu) -> %d, %zu",
-              stream ? stream->id : -1, buflen, (int)result, *pnread);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(داده, cf, "[%" PRId64 "] cf_recv(buflen=%zu) -> %d, %zu",
+              جریان ? جریان->id : -1, buflen, (صحيح)نتیجه, *pnread);
+  CF_داده_RESTORE(cf, save);
+  أرجع نتیجه;
 }
 
-static int cb_h3_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
-                                uint64_t datalen, void *user_data,
-                                void *stream_user_data)
+ساكن صحيح cb_h3_acked_req_body(nghttp3_conn *conn, int64_t جریان_id,
+                                uint64_t datalen, فراغ *user_داده,
+                                فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream = stream_user_data;
+  بنية Curl_cfilter *cf = user_داده;
+  بنية h3_جریان_ctx *جریان = جریان_user_داده;
   size_t skiplen;
 
-  (void)cf;
-  if(!stream)
-    return 0;
+  (فراغ)cf;
+  إذا(!جریان)
+    أرجع 0;
   /* The server acknowledged `datalen` of bytes from our request body.
    * This is a delta. We have kept this data in `sendbuf` for
    * re-transmissions and can free it now. */
-  if(datalen >= (uint64_t)stream->tx_in_flight_size)
-    skiplen = stream->tx_in_flight_size;
-  else
+  إذا(datalen >= (uint64_t)جریان->tx_درون_flight_اندازه)
+    skiplen = جریان->tx_درون_flight_اندازه;
+  وإلا
     skiplen = (size_t)datalen;
-  Curl_bufq_skip(&stream->sendbuf, skiplen);
-  stream->tx_in_flight_size -= skiplen;
+  Curl_bufq_skip(&جریان->sendbuf, skiplen);
+  جریان->tx_درون_flight_اندازه -= skiplen;
 
   /* Resume upload processing if we have more data to send */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
-    int rv = nghttp3_conn_resume_stream(conn, stream_id);
-    if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+  إذا(جریان->tx_درون_flight_اندازه < Curl_bufq_len(&جریان->sendbuf)) {
+    صحيح rv = nghttp3_conn_resume_جریان(conn, جریان_id);
+    إذا(rv && rv != NGHTTP3_ERR_جریان_NOT_یافت) {
+      أرجع NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  return 0;
+  أرجع 0;
 }
 
-static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t stream_id,
+ساكن nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t جریان_id,
                                          nghttp3_vec *vec, size_t veccnt,
-                                         uint32_t *pflags, void *user_data,
-                                         void *stream_user_data)
+                                         uint32_t *pflags, فراغ *user_داده,
+                                         فراغ *جریان_user_داده)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
+  بنية Curl_cfilter *cf = user_داده;
+  بنية h3_جریان_ctx *جریان;
+  بنية Curl_easy *داده =
+    Curl_cf_ngtcp2_get_xfer(cf, جریان_user_داده, &جریان);
   size_t nwritten = 0;
   size_t nvecs = 0;
-  (void)cf;
-  (void)conn;
-  (void)stream_id;
-  (void)user_data;
-  (void)veccnt;
+  (فراغ)cf;
+  (فراغ)conn;
+  (فراغ)جریان_id;
+  (فراغ)user_داده;
+  (فراغ)veccnt;
 
-  if(!stream || !data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  إذا(!جریان || !داده)
+    أرجع NGHTTP3_ERR_CALLBACK_FAILURE;
   /* nghttp3 keeps references to the sendbuf data until it is ACKed
    * by the server (see `cb_h3_acked_req_body()` for updates).
    * `tx_in_flight_size` is the amount of bytes in `sendbuf`
@@ -622,435 +622,435 @@ static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t stream_id,
    * ACKed yet.
    * Any amount beyond `tx_in_flight_size` we need still to pass
    * to nghttp3. Do that now, if we can. */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
+  إذا(جریان->tx_درون_flight_اندازه < Curl_bufq_len(&جریان->sendbuf)) {
     nvecs = 0;
-    while(nvecs < veccnt &&
-          Curl_bufq_peek_at(&stream->sendbuf,
-                            stream->tx_in_flight_size,
-                            CURL_UNCONST(&vec[nvecs].base),
+    طالما(nvecs < veccnt &&
+          Curl_bufq_peek_at(&جریان->sendbuf,
+                            جریان->tx_درون_flight_اندازه,
+                            CURL_UNCONST(&vec[nvecs].پایه),
                             &vec[nvecs].len)) {
-      stream->tx_in_flight_size += vec[nvecs].len;
+      جریان->tx_درون_flight_اندازه += vec[nvecs].len;
       nwritten += vec[nvecs].len;
       ++nvecs;
     }
     DEBUGASSERT(nvecs > 0); /* we SHOULD have been be able to peek */
   }
 
-  if(nwritten > 0 && stream->upload_left != -1)
-    stream->upload_left -= nwritten;
+  إذا(nwritten > 0 && جریان->upload_چپ != -1)
+    جریان->upload_چپ -= nwritten;
 
   /* When we stopped sending and everything in `sendbuf` is "in flight",
    * we are at the end of the request body. */
-  if(stream->upload_left == 0) {
-    *pflags = NGHTTP3_DATA_FLAG_EOF;
-    stream->send_closed = TRUE;
+  إذا(جریان->upload_چپ == 0) {
+    *pflags = NGHTTP3_داده_FLAG_EOF;
+    جریان->send_closed = TRUE;
   }
-  else if(!nwritten) {
+  وإلا إذا(!nwritten) {
     /* Not EOF, and nothing to give, we signal WOULDBLOCK. */
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> AGAIN", stream->id);
-    return NGHTTP3_ERR_WOULDBLOCK;
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] read req body -> AGAIN", جریان->id);
+    أرجع NGHTTP3_ERR_WOULDBLOCK;
   }
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> "
+  CURL_TRC_CF(داده, cf, "[%" PRId64 "] read req body -> "
               "%zu vecs%s with %zu (buffered=%zu, left=%" FMT_OFF_T ")",
-              stream->id, nvecs,
-              *pflags == NGHTTP3_DATA_FLAG_EOF ? " EOF" : "",
-              nwritten, Curl_bufq_len(&stream->sendbuf),
-              stream->upload_left);
-  return (nghttp3_ssize)nvecs;
+              جریان->id, nvecs,
+              *pflags == NGHTTP3_داده_FLAG_EOF ? " EOF" : "",
+              nwritten, Curl_bufq_len(&جریان->sendbuf),
+              جریان->upload_چپ);
+  أرجع (nghttp3_ssize)nvecs;
 }
 
-static CURLcode h3_stream_open(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               const uint8_t *buf, size_t len,
+ساكن CURLcode h3_جریان_open(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *داده,
+                               ثابت uint8_t *buf, size_t len,
                                size_t *pnwritten)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = NULL;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية h3_جریان_ctx *جریان = عدم;
   int64_t sid;
-  struct dynhds h2_headers;
+  بنية dynhds h2_سرآیندها;
   size_t nheader;
-  nghttp3_nv *nva = NULL;
-  int rc = 0;
-  unsigned int i;
-  nghttp3_data_reader reader;
-  nghttp3_data_reader *preader = NULL;
-  CURLcode result;
+  nghttp3_nv *nva = عدم;
+  صحيح rc = 0;
+  بیعلامت صحيح i;
+  nghttp3_داده_reader reader;
+  nghttp3_داده_reader *preader = عدم;
+  CURLcode نتیجه;
 
   *pnwritten = 0;
-  Curl_dynhds_init(&h2_headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&h2_سرآیندها, 0, DYN_HTTP_REQUEST);
 
-  result = Curl_cf_ngtcp2_h3_stream_setup(cf, data, &stream);
-  if(result)
-    goto out;
+  نتیجه = Curl_cf_ngtcp2_h3_جریان_راهاندازی(cf, داده, &جریان);
+  إذا(نتیجه)
+    اذهب بیرون;
 
-  result = Curl_h1_req_parse_read(&stream->h1, buf, len, NULL,
-    !data->state.http_ignorecustom ?
-    CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : NULL,
+  نتیجه = Curl_h1_req_parse_read(&جریان->h1, buf, len, عدم,
+    !داده->state.http_ignorecustom ?
+    CURL_EASY_STR(داده, STRING_CUSTOMREQUEST) : عدم,
     0, pnwritten);
-  if(result)
-    goto out;
-  if(!stream->h1.done) {
+  إذا(نتیجه)
+    اذهب بیرون;
+  إذا(!جریان->h1.انجامشده) {
     /* need more data */
-    goto out;
+    اذهب بیرون;
   }
-  DEBUGASSERT(stream->h1.req);
+  DEBUGASSERT(جریان->h1.req);
 
-  result = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
-  if(result)
-    goto out;
+  نتیجه = Curl_http_req_مقصد_h2(&h2_سرآیندها, جریان->h1.req, داده);
+  إذا(نتیجه)
+    اذهب بیرون;
 
   /* no longer needed */
-  Curl_h1_req_parse_free(&stream->h1);
+  Curl_h1_req_parse_free(&جریان->h1);
 
-  nheader = Curl_dynhds_count(&h2_headers);
-  nva = curlx_malloc(sizeof(nghttp3_nv) * nheader);
-  if(!nva) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  nheader = Curl_dynhds_شمار(&h2_سرآیندها);
+  nva = curlx_malloc(حجم(nghttp3_nv) * nheader);
+  إذا(!nva) {
+    نتیجه = CURLE_بیرون_از_حافظه;
+    اذهب بیرون;
   }
 
-  for(i = 0; i < nheader; ++i) {
-    struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
-    nva[i].name = (unsigned char *)e->name;
+  لكل(i = 0; i < nheader; ++i) {
+    بنية dynhds_مدخل *e = Curl_dynhds_getn(&h2_سرآیندها, i);
+    nva[i].name = (بیعلامت حرف *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].مقدار = (بیعلامت حرف *)e->مقدار;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP3_NV_FLAG_NONE;
   }
 
-  rc = ngtcp2_conn_open_bidi_stream(ctx->qconn, &sid, stream);
-  if(rc) {
-    failf(data, "cannot open bidi streams");
-    result = CURLE_SEND_ERROR;
-    goto out;
+  rc = ngtcp2_conn_open_bidi_جریان(ctx->qconn, &sid, جریان);
+  إذا(rc) {
+    failf(داده, "cannot open bidi streams");
+    نتیجه = CURLE_SEND_ERROR;
+    اذهب بیرون;
   }
-  stream->id = sid;
-  ++ctx->used_bidi_streams;
+  جریان->id = sid;
+  ++ctx->استفاده_شده_bidi_streams;
 
-  switch(data->state.httpreq) {
-  case HTTPREQ_POST:
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-  case HTTPREQ_PUT:
+  بدل(داده->state.httpreq) {
+  حالة HTTPREQ_POST:
+  حالة HTTPREQ_POST_FORM:
+  حالة HTTPREQ_POST_MIME:
+  حالة HTTPREQ_PUT:
     /* known request body size or -1 */
-    if(data->state.infilesize != -1)
-      stream->upload_left = data->state.infilesize;
-    else
+    إذا(داده->state.infilesize != -1)
+      جریان->upload_چپ = داده->state.infilesize;
+    وإلا
       /* data sending without specifying the data amount up front */
-      stream->upload_left = -1; /* unknown */
-    break;
-  default:
+      جریان->upload_چپ = -1; /* unknown */
+    اكسر;
+  افتراضي:
     /* there is no request body */
-    stream->upload_left = 0; /* no request body */
-    break;
+    جریان->upload_چپ = 0; /* no request body */
+    اكسر;
   }
 
-  stream->send_closed = (stream->upload_left == 0);
-  if(!stream->send_closed) {
-    reader.read_data = cb_h3_read_req_body;
+  جریان->send_closed = (جریان->upload_چپ == 0);
+  إذا(!جریان->send_closed) {
+    reader.read_داده = cb_h3_read_req_body;
     preader = &reader;
   }
 
-  rc = nghttp3_conn_submit_request(ctx->h3conn, stream->id,
-                                   nva, nheader, preader, stream);
-  if(rc) {
-    switch(rc) {
-    case NGHTTP3_ERR_CONN_CLOSING:
-      CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send, "
-                  "connection is closing", stream->id);
-      break;
-    default:
-      CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send -> "
-                  "%d (%s)", stream->id, rc, nghttp3_strerror(rc));
-      break;
+  rc = nghttp3_conn_submit_request(ctx->h3conn, جریان->id,
+                                   nva, nheader, preader, جریان);
+  إذا(rc) {
+    بدل(rc) {
+    حالة NGHTTP3_ERR_CONN_CLOSING:
+      CURL_TRC_CF(داده, cf, "h3sid[%" PRId64 "] failed to send, "
+                  "connection is closing", جریان->id);
+      اكسر;
+    افتراضي:
+      CURL_TRC_CF(داده, cf, "h3sid[%" PRId64 "] failed to send -> "
+                  "%d (%s)", جریان->id, rc, nghttp3_strerror(rc));
+      اكسر;
     }
-    Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-    result = CURLE_SEND_ERROR;
-    goto out;
+    Curl_cf_ngtcp2_h3_جریان_close(cf, داده, جریان);
+    نتیجه = CURLE_SEND_ERROR;
+    اذهب بیرون;
   }
 
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
+  cf_ngtcp2_upd_rx_win(cf, داده, جریان);
 
-  if(Curl_trc_is_verbose(data)) {
-    infof(data, "[HTTP/3] [%" PRId64 "] OPENED stream for %s",
-          stream->id, Curl_bufref_ptr(&data->state.url));
-    for(i = 0; i < nheader; ++i) {
-      infof(data, "[HTTP/3] [%" PRId64 "] [%.*s: %.*s]", stream->id,
-            (int)nva[i].namelen, nva[i].name,
-            (int)nva[i].valuelen, nva[i].value);
+  إذا(Curl_trc_is_verbose(داده)) {
+    infof(داده, "[HTTP/3] [%" PRId64 "] OPENED stream for %s",
+          جریان->id, Curl_bufref_ptr(&داده->state.url));
+    لكل(i = 0; i < nheader; ++i) {
+      infof(داده, "[HTTP/3] [%" PRId64 "] [%.*s: %.*s]", جریان->id,
+            (صحيح)nva[i].namelen, nva[i].name,
+            (صحيح)nva[i].valuelen, nva[i].مقدار);
     }
   }
 
-out:
+بیرون:
   curlx_free(nva);
-  Curl_dynhds_free(&h2_headers);
-  return result;
+  Curl_dynhds_free(&h2_سرآیندها);
+  أرجع نتیجه;
 }
 
-static CURLcode cf_ngtcp2_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               const uint8_t *buf, size_t len, bool eos,
+ساكن CURLcode cf_ngtcp2_send(بنية Curl_cfilter *cf, بنية Curl_easy *داده,
+                               ثابت uint8_t *buf, size_t len, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
-  CURLcode result = CURLE_OK;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية h3_جریان_ctx *جریان = H3_جریان_CTX(ctx, داده);
+  بنية cf_call_داده save;
+  بنية cf_ngtcp2_io_ctx pktx;
+  CURLcode نتیجه = CURLE_OK;
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_داده_SAVE(save, cf, داده);
   DEBUGASSERT(cf->connected);
   DEBUGASSERT(ctx->qconn);
   DEBUGASSERT(ctx->h3conn);
-  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
+  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, داده);
   *pnwritten = 0;
 
   /* handshake verification failed in callback, do not send anything */
-  if(ctx->tls_vrfy_result) {
-    result = ctx->tls_vrfy_result;
-    goto denied;
+  إذا(ctx->tls_vrfy_نتیجه) {
+    نتیجه = ctx->tls_vrfy_نتیجه;
+    اذهب denied;
   }
 
-  (void)eos; /* use for stream EOF and block handling */
-  result = Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx);
-  if(result)
-    goto out;
+  (فراغ)eos; /* use for stream EOF and block handling */
+  نتیجه = Curl_cf_ngtcp2_پیشرفت_ingress(cf, داده, &pktx);
+  إذا(نتیجه)
+    اذهب بیرون;
 
-  if(!stream || stream->id < 0) {
-    if(ctx->shutdown_started) {
-      CURL_TRC_CF(data, cf, "cannot open stream on closed connection");
-      result = CURLE_SEND_ERROR;
-      goto out;
+  إذا(!جریان || جریان->id < 0) {
+    إذا(ctx->shutdown_started) {
+      CURL_TRC_CF(داده, cf, "cannot open stream on closed connection");
+      نتیجه = CURLE_SEND_ERROR;
+      اذهب بیرون;
     }
-    result = h3_stream_open(cf, data, buf, len, pnwritten);
-    if(result) {
-      CURL_TRC_CF(data, cf, "failed to open stream -> %d", (int)result);
-      goto out;
+    نتیجه = h3_جریان_open(cf, داده, buf, len, pnwritten);
+    إذا(نتیجه) {
+      CURL_TRC_CF(داده, cf, "failed to open stream -> %d", (صحيح)نتیجه);
+      اذهب بیرون;
     }
-    stream = H3_STREAM_CTX(ctx, data);
+    جریان = H3_جریان_CTX(ctx, داده);
   }
-  else if(stream->xfer_result) {
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] xfer write failed", stream->id);
-    Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-    result = stream->xfer_result;
-    goto out;
+  وإلا إذا(جریان->xfer_نتیجه) {
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] xfer write failed", جریان->id);
+    Curl_cf_ngtcp2_h3_جریان_close(cf, داده, جریان);
+    نتیجه = جریان->xfer_نتیجه;
+    اذهب بیرون;
   }
-  else if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  وإلا إذا(جریان->closed) {
+    إذا(جریان->resp_hds_complete) {
       /* Server decided to close the stream after having sent us a final
        * response. This is valid if it is not interested in the request
        * body. This happens on 30x or 40x responses.
        * We silently discard the data sent, since this is not a transport
        * error situation. */
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] discarding data"
-                  "on closed stream with response", stream->id);
-      result = CURLE_OK;
+      CURL_TRC_CF(داده, cf, "[%" PRId64 "] discarding data"
+                  "on closed stream with response", جریان->id);
+      نتیجه = CURLE_OK;
       *pnwritten = len;
-      goto out;
+      اذهب بیرون;
     }
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] send_body(len=%zu) "
-                "-> stream closed", stream->id, len);
-    result = CURLE_HTTP3;
-    goto out;
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] send_body(len=%zu) "
+                "-> stream closed", جریان->id, len);
+    نتیجه = CURLE_HTTP3;
+    اذهب بیرون;
   }
-  else if(ctx->shutdown_started) {
-    CURL_TRC_CF(data, cf, "cannot send on closed connection");
-    result = CURLE_SEND_ERROR;
-    goto out;
+  وإلا إذا(ctx->shutdown_started) {
+    CURL_TRC_CF(داده, cf, "cannot send on closed connection");
+    نتیجه = CURLE_SEND_ERROR;
+    اذهب بیرون;
   }
-  else if(stream->tx_in_flight_size >= stream->tx_in_flight_ideal) {
-    result = CURLE_AGAIN;
-    goto out;
+  وإلا إذا(جریان->tx_درون_flight_اندازه >= جریان->tx_درون_flight_ideal) {
+    نتیجه = CURLE_AGAIN;
+    اذهب بیرون;
   }
-  else {
-    result = Curl_bufq_write(&stream->sendbuf, buf, len, pnwritten);
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send, add to "
+  وإلا {
+    نتیجه = Curl_bufq_write(&جریان->sendbuf, buf, len, pnwritten);
+    CURL_TRC_CF(داده, cf, "[%" PRId64 "] cf_send, add to "
                 "sendbuf(len=%zu) -> %d, %zu",
-                stream->id, len, (int)result, *pnwritten);
-    if(result)
-      goto out;
-    (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
+                جریان->id, len, (صحيح)نتیجه, *pnwritten);
+    إذا(نتیجه)
+      اذهب بیرون;
+    (فراغ)nghttp3_conn_resume_جریان(ctx->h3conn, جریان->id);
   }
 
-  if(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
+  إذا(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
     ctx->earlydata_skip += *pnwritten;
 
-  DEBUGASSERT(!result);
-  result = Curl_cf_ngtcp2_progress_egress(cf, data, &pktx);
+  DEBUGASSERT(!نتیجه);
+  نتیجه = Curl_cf_ngtcp2_پیشرفت_egress(cf, داده, &pktx);
 
-  if(*pnwritten > 0) {
-    const size_t delta = (2 * 1024);
-    if(stream->tx_in_flight_size > (stream->tx_in_flight_ideal + delta)) {
+  إذا(*pnwritten > 0) {
+    ثابت size_t delta = (2 * 1024);
+    إذا(جریان->tx_درون_flight_اندازه > (جریان->tx_درون_flight_ideal + delta)) {
       /* ngtcp2 keeps more in flight than we try to provide for,
        * increase our "ideal" tx buffer length */
-      stream->tx_in_flight_ideal += delta;
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
+      جریان->tx_درون_flight_ideal += delta;
+      CURL_TRC_CF(داده, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
                   "inflight=%zu, increase tx_win=%zu",
-                  stream->id, len, *pnwritten,
-                  stream->tx_in_flight_size, stream->tx_in_flight_ideal);
+                  جریان->id, len, *pnwritten,
+                  جریان->tx_درون_flight_اندازه, جریان->tx_درون_flight_ideal);
     }
-    else if((stream->tx_in_flight_size + delta) < stream->tx_in_flight_ideal) {
+    وإلا إذا((جریان->tx_درون_flight_اندازه + delta) < جریان->tx_درون_flight_ideal) {
       /* ngtcp2 keeps less in flight than we try to provide for,
        * decrease our "ideal" tx buffer length */
-      stream->tx_in_flight_ideal -= delta;
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
+      جریان->tx_درون_flight_ideal -= delta;
+      CURL_TRC_CF(داده, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
                   "inflight=%zu, reduce tx_win=%zu",
-                  stream->id, len, *pnwritten,
-                  stream->tx_in_flight_size, stream->tx_in_flight_ideal);
+                  جریان->id, len, *pnwritten,
+                  جریان->tx_درون_flight_اندازه, جریان->tx_درون_flight_ideal);
     }
   }
 
-out:
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
-  if(ctx->tls_vrfy_result)
-    result = ctx->tls_vrfy_result;
+بیرون:
+  نتیجه = Curl_1st_fatal(نتیجه,
+                          Curl_cf_ngtcp2_cmn_مجموعه_expiry(cf, داده, &pktx));
+  إذا(ctx->tls_vrfy_نتیجه)
+    نتیجه = ctx->tls_vrfy_نتیجه;
 denied:
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(len=%zu) -> %d, %zu",
-              stream ? stream->id : -1, len, (int)result, *pnwritten);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(داده, cf, "[%" PRId64 "] cf_send(len=%zu) -> %d, %zu",
+              جریان ? جریان->id : -1, len, (صحيح)نتیجه, *pnwritten);
+  CF_داده_RESTORE(cf, save);
+  أرجع نتیجه;
 }
 
-static CURLcode h3_data_pause(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+ساكن CURLcode h3_داده_pause(بنية Curl_cfilter *cf,
+                              بنية Curl_easy *داده,
                               bool pause)
 {
   /* There seems to exist no API in ngtcp2 to shrink/enlarge the streams
    * windows. As we do in HTTP/2. */
-  (void)cf;
-  if(!pause)
-    Curl_multi_mark_dirty(data);
-  return CURLE_OK;
+  (فراغ)cf;
+  إذا(!pause)
+    Curl_multi_mark_dirty(داده);
+  أرجع CURLE_OK;
 }
 
-static CURLcode cf_ngtcp2_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2)
+ساكن CURLcode cf_ngtcp2_cntrl(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *داده,
+                                صحيح event, صحيح arg1, فراغ *arg2)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  CURLcode نتیجه = CURLE_OK;
+  بنية cf_call_داده save;
 
-  CF_DATA_SAVE(save, cf, data);
-  switch(event) {
-  case CF_CTRL_DATA_SETUP:
-    break;
-  case CF_CTRL_DATA_PAUSE:
-    result = h3_data_pause(cf, data, (arg1 != 0));
-    break;
-  case CF_CTRL_DATA_DONE:
-    Curl_cf_ngtcp2_h3_stream_done(cf, data);
-    break;
-  case CF_CTRL_DATA_DONE_SEND: {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    if(stream && !stream->send_closed) {
-      stream->send_closed = TRUE;
-      stream->upload_left = Curl_bufq_len(&stream->sendbuf) -
-        stream->tx_in_flight_size;
-      (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
+  CF_داده_SAVE(save, cf, داده);
+  بدل(event) {
+  حالة CF_CTRL_داده_راهاندازی:
+    اكسر;
+  حالة CF_CTRL_داده_PAUSE:
+    نتیجه = h3_داده_pause(cf, داده, (arg1 != 0));
+    اكسر;
+  حالة CF_CTRL_داده_انجامشده:
+    Curl_cf_ngtcp2_h3_جریان_انجامشده(cf, داده);
+    اكسر;
+  حالة CF_CTRL_داده_انجامشده_SEND: {
+    بنية h3_جریان_ctx *جریان = H3_جریان_CTX(ctx, داده);
+    إذا(جریان && !جریان->send_closed) {
+      جریان->send_closed = TRUE;
+      جریان->upload_چپ = Curl_bufq_len(&جریان->sendbuf) -
+        جریان->tx_درون_flight_اندازه;
+      (فراغ)nghttp3_conn_resume_جریان(ctx->h3conn, جریان->id);
     }
-    break;
+    اكسر;
   }
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(!cf->sockindex && cf->connected) {
-      cf->conn->httpversion_seen = 30;
-      Curl_conn_set_multiplex(cf->conn);
+  حالة CF_CTRL_CONN_INFO_UPDATE:
+    إذا(!cf->sockindex && cf->connected) {
+      cf->conn->httpversion_دیده = 30;
+      Curl_conn_مجموعه_multiplex(cf->conn);
     }
-    break;
-  default:
-    result = Curl_cf_ngtcp2_cmn_cntrl(cf, data, event, arg1, arg2);
-    break;
+    اكسر;
+  افتراضي:
+    نتیجه = Curl_cf_ngtcp2_cmn_cntrl(cf, داده, event, arg1, arg2);
+    اكسر;
   }
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_داده_RESTORE(cf, save);
+  أرجع نتیجه;
 }
 
-static void cf_ngtcp2_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+ساكن فراغ cf_ngtcp2_destroy(بنية Curl_cfilter *cf, بنية Curl_easy *داده)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  if(ctx) {
-    if(ctx->qconn) {
-      struct cf_call_data save;
-      CF_DATA_SAVE(save, cf, data);
-      Curl_cf_ngtcp2_cmn_conn_close(cf, data);
-      CF_DATA_RESTORE(cf, save);
+  CURL_TRC_CF(داده, cf, "destroy");
+  إذا(ctx) {
+    إذا(ctx->qconn) {
+      بنية cf_call_داده save;
+      CF_داده_SAVE(save, cf, داده);
+      Curl_cf_ngtcp2_cmn_conn_close(cf, داده);
+      CF_داده_RESTORE(cf, save);
     }
     Curl_cf_ngtcp2_ctx_cleanup(ctx);
     curlx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = عدم;
   }
 }
 
-static CURLcode cf_ngtcp2_connect(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *done)
+ساكن CURLcode cf_ngtcp2_connect(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده,
+                                  bool *انجامشده)
 {
-  return Curl_cf_ngtcp2_cmn_connect(cf, data, done);
+  أرجع Curl_cf_ngtcp2_cmn_connect(cf, داده, انجامشده);
 }
 
-static CURLcode cf_ngtcp2_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2)
+ساكن CURLcode cf_ngtcp2_query(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *داده,
+                                صحيح query, صحيح *pres1, فراغ *pres2)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  بنية cf_ngtcp2_ctx *ctx = cf->ctx;
+  بنية cf_call_داده save;
 
-  switch(query) {
-  case CF_QUERY_MAX_CONCURRENT: {
+  بدل(query) {
+  حالة CF_QUERY_MAX_CONCURRENT: {
     DEBUGASSERT(pres1);
-    CF_DATA_SAVE(save, cf, data);
+    CF_داده_SAVE(save, cf, داده);
     /* Set after transport params arrived and continually updated
      * by callback. QUIC counts the number over the lifetime of the
      * connection, ever increasing.
      * We count the *open* transfers plus the budget for new ones. */
-    if(!ctx->qconn || ctx->shutdown_started) {
+    إذا(!ctx->qconn || ctx->shutdown_started) {
       *pres1 = 0;
     }
-    else if(ctx->max_bidi_streams) {
+    وإلا إذا(ctx->max_bidi_streams) {
       uint64_t avail_bidi_streams = 0;
       uint64_t max_streams = cf->conn->attached_xfers;
-      if(ctx->max_bidi_streams > ctx->used_bidi_streams)
-        avail_bidi_streams = ctx->max_bidi_streams - ctx->used_bidi_streams;
+      إذا(ctx->max_bidi_streams > ctx->استفاده_شده_bidi_streams)
+        avail_bidi_streams = ctx->max_bidi_streams - ctx->استفاده_شده_bidi_streams;
       max_streams += avail_bidi_streams;
-      *pres1 = (max_streams > INT_MAX) ? INT_MAX : (int)max_streams;
+      *pres1 = (max_streams > بیشترین_صحیح) ? بیشترین_صحیح : (صحيح)max_streams;
     }
-    else {  /* transport params not arrived yet? take our default. */
-      uint32_t n = Curl_multi_max_concurrent_streams(data->multi);
-      *pres1 = (n < INT_MAX) ? (int)n : INT_MAX;
+    وإلا {  /* transport params not arrived yet? take our default. */
+      uint32_t n = Curl_multi_max_concurrent_streams(داده->multi);
+      *pres1 = (n < بیشترین_صحیح) ? (صحيح)n : بیشترین_صحیح;
     }
-    CURL_TRC_CF(data, cf, "query conn[%" FMT_OFF_T "]: "
+    CURL_TRC_CF(داده, cf, "query conn[%" FMT_OFF_T "]: "
                 "MAX_CONCURRENT -> %d (%u in use)",
                 cf->conn->connection_id, *pres1, cf->conn->attached_xfers);
-    CF_DATA_RESTORE(cf, save);
-    return CURLE_OK;
+    CF_داده_RESTORE(cf, save);
+    أرجع CURLE_OK;
   }
-  case CF_QUERY_HTTP_VERSION:
+  حالة CF_QUERY_HTTP_نسخه:
     *pres1 = 30;
-    return CURLE_OK;
-  case CF_QUERY_SSL_INFO:
-  case CF_QUERY_SSL_CTX_INFO: {
-    struct curl_tlssessioninfo *info = pres2;
-    if(Curl_vquic_tls_get_ssl_info(&ctx->tls,
+    أرجع CURLE_OK;
+  حالة CF_QUERY_SSL_INFO:
+  حالة CF_QUERY_SSL_CTX_INFO: {
+    بنية curl_tlssessioninfo *info = pres2;
+    إذا(Curl_vquic_tls_get_ssl_info(&ctx->tls,
                                    (query == CF_QUERY_SSL_CTX_INFO), info))
-      return CURLE_OK;
-    break;
+      أرجع CURLE_OK;
+    اكسر;
   }
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  حالة CF_QUERY_ALPN_NEGOTIATED: {
+    ثابت حرف **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = cf->connected ? "h3" : NULL;
-    return CURLE_OK;
+    *palpn = cf->connected ? "h3" : عدم;
+    أرجع CURLE_OK;
   }
-  default:
-    break;
+  افتراضي:
+    اكسر;
   }
-  return Curl_cf_ngtcp2_cmn_query(cf, data, query, pres1, pres2);
+  أرجع Curl_cf_ngtcp2_cmn_query(cf, داده, query, pres1, pres2);
 }
 
-struct Curl_cftype Curl_cft_http3 = {
+بنية Curl_cftype Curl_cft_http3 = {
   "HTTP/3",
   CF_TYPE_IP_CONNECT | CF_TYPE_SSL | CF_TYPE_MULTIPLEX | CF_TYPE_HTTP,
   0,
@@ -1058,7 +1058,7 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_ngtcp2_connect,
   Curl_cf_ngtcp2_cmn_shutdown,
   cf_ngtcp2_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_داده_pending,
   cf_ngtcp2_send,
   cf_ngtcp2_recv,
   cf_ngtcp2_cntrl,
@@ -1067,81 +1067,81 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_ngtcp2_query,
 };
 
-CURLcode Curl_cf_ngtcp2_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr)
+CURLcode Curl_cf_ngtcp2_create(بنية Curl_cfilter **pcf,
+                               بنية Curl_easy *داده,
+                               بنية Curl_peer *origin,
+                               بنية Curl_peer *peer,
+                               بنية connectdata *conn,
+                               بنية Curl_sockaddr_ex *addr)
 {
-  struct cf_ngtcp2_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  بنية cf_ngtcp2_ctx *ctx = عدم;
+  بنية Curl_cfilter *cf = عدم;
+  CURLcode نتیجه;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتیجه = CURLE_بیرون_از_حافظه;
+    اذهب بیرون;
   }
-  result = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
+  نتیجه = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
                                    &conn->ssl_config, init_ngh3_conn);
-  if(!result)
-    result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
-    goto out;
+  إذا(!نتیجه)
+    نتیجه = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
+  إذا(نتیجه)
+    اذهب بیرون;
   cf->conn = conn;
 
-  result = Curl_cf_udp_create(&cf->next, data, origin, peer, TRNSPRT_QUIC,
-                              conn, addr, NULL, TRNSPRT_QUIC);
-  if(result)
-    goto out;
-  cf->next->conn = cf->conn;
-  cf->next->sockindex = cf->sockindex;
+  نتیجه = Curl_cf_udp_create(&cf->بعدی, داده, origin, peer, TRNSPRT_QUIC,
+                              conn, addr, عدم, TRNSPRT_QUIC);
+  إذا(نتیجه)
+    اذهب بیرون;
+  cf->بعدی->conn = cf->conn;
+  cf->بعدی->sockindex = cf->sockindex;
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
-    if(cf)
-      Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx) {
+بیرون:
+  *pcf = (!نتیجه) ? cf : عدم;
+  إذا(نتیجه) {
+    إذا(cf)
+      Curl_conn_cf_discard_chain(&cf, داده);
+    وإلا إذا(ctx) {
       Curl_cf_ngtcp2_ctx_cleanup(ctx);
       curlx_free(ctx);
     }
   }
-  return result;
+  أرجع نتیجه;
 }
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf)
+CURLcode Curl_cf_ngtcp2_درج_after(بنية Curl_cfilter *cf_at,
+                                     بنية Curl_peer *origin,
+                                     بنية Curl_peer *peer,
+                                     بنية Curl_cfilter **pcf)
 {
-  struct cf_ngtcp2_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  بنية cf_ngtcp2_ctx *ctx = عدم;
+  بنية Curl_cfilter *cf = عدم;
+  CURLcode نتیجه;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتیجه = CURLE_بیرون_از_حافظه;
+    اذهب بیرون;
   }
-  result = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
+  نتیجه = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
                                    &cf_at->conn->ssl_config, init_ngh3_conn);
-  if(!result)
-    result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
-out:
-  if(result) {
+  إذا(!نتیجه)
+    نتیجه = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
+  إذا(نتیجه)
+    اذهب بیرون;
+  Curl_conn_cf_درج_after(cf_at, cf);
+بیرون:
+  إذا(نتیجه) {
     curlx_safefree(cf);
-    if(ctx) {
+    إذا(ctx) {
       Curl_cf_ngtcp2_ctx_cleanup(ctx);
       curlx_free(ctx);
     }
   }
   *pcf = cf;
-  return result;
+  أرجع نتیجه;
 }
 
-#endif
+#پایان_اگر

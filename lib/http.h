@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_H
-#define HEADER_CURL_HTTP_H
+#اگر_تعریف_نشده سرآیند_CURL_HTTP_H
+#تعریف_کن سرآیند_CURL_HTTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,109 +23,109 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "bufq.h"
-#include "dynhds.h"
+#ضمن "bufq.h"
+#ضمن "dynhds.h"
 
-typedef enum {
+تعريفنوع تعداد {
   HTTPREQ_GET,
   HTTPREQ_POST,
   HTTPREQ_POST_FORM, /* we make a difference internally */
   HTTPREQ_POST_MIME, /* we make a difference internally */
   HTTPREQ_PUT,
-  HTTPREQ_HEAD
+  HTTPREQ_سر
 } Curl_HttpReq;
 
-#define CURL_HTTP_V1x   (1 << 0)
-#define CURL_HTTP_V2x   (1 << 1)
-#define CURL_HTTP_V3x   (1 << 2)
+#تعریف_کن CURL_HTTP_V1x   (1 << 0)
+#تعریف_کن CURL_HTTP_V2x   (1 << 1)
+#تعریف_کن CURL_HTTP_V3x   (1 << 2)
 /* bitmask of CURL_HTTP_V* values */
-typedef unsigned char http_majors;
+تعريفنوع بیعلامت حرف http_majors;
 
-#ifndef CURL_DISABLE_HTTP
+#اگر_تعریف_نشده CURL_DISABLE_HTTP
 
-extern const struct Curl_protocol Curl_protocol_http;
+خارجي ثابت بنية Curl_protocol Curl_protocol_http;
 
-struct dynhds;
+بنية dynhds;
 
-struct http_negotiation {
-  unsigned char rcvd_min; /* minimum version seen in responses, 09, 10, 11 */
+بنية http_negotiation {
+  بیعلامت حرف rcvd_min; /* minimum version seen in responses, 09, 10, 11 */
   http_majors wanted;  /* wanted major versions when talking to server */
   http_majors allowed; /* allowed major versions when talking to server */
   http_majors preferred; /* preferred major version when talking to server */
-  BIT(h2_upgrade);  /* Do HTTP Upgrade from 1.1 to 2 */
-  BIT(h2_prior_knowledge); /* Directly do HTTP/2 without ALPN/SSL */
-  BIT(accept_09); /* Accept an HTTP/0.9 response */
-  BIT(only_10); /* When using major version 1x, use only 1.0 */
+  بیت(h2_upgrade);  /* Do HTTP Upgrade from 1.1 to 2 */
+  بیت(h2_پیشین_knowledge); /* Directly do HTTP/2 without ALPN/SSL */
+  بیت(accept_09); /* Accept an HTTP/0.9 response */
+  بیت(only_10); /* When using major version 1x, use only 1.0 */
 };
 
-void Curl_http_neg_init(struct Curl_easy *data, struct http_negotiation *neg);
+فراغ Curl_http_neg_init(بنية Curl_easy *داده, بنية http_negotiation *neg);
 
-CURLcode Curl_bump_headersize(struct Curl_easy *data,
+CURLcode Curl_bump_headersize(بنية Curl_easy *داده,
                               size_t delta,
                               bool connect_only);
 
 /* Header specific functions */
-bool Curl_compareheader(const char *headerline,  /* line to check */
-                        const char *header,   /* header keyword _with_ colon */
-                        const size_t hlen,   /* len of the keyword in bytes */
-                        const char *content, /* content string to find */
-                        const size_t clen);   /* len of the content in bytes */
+bool Curl_compareheader(ثابت حرف *headerline,  /* line to check */
+                        ثابت حرف *سرآیند,   /* header keyword _with_ colon */
+                        ثابت size_t hlen,   /* len of the keyword in bytes */
+                        ثابت حرف *content, /* content string to find */
+                        ثابت size_t clen);   /* len of the content in bytes */
 
-char *Curl_copy_header_value(const char *header);
+حرف *Curl_copy_سرآیند_مقدار(ثابت حرف *سرآیند);
 
-char *Curl_checkProxyheaders(struct Curl_easy *data,
-                             const struct connectdata *conn,
-                             const char *thisheader,
-                             const size_t thislen);
+حرف *Curl_checkProxyheaders(بنية Curl_easy *داده,
+                             ثابت بنية connectdata *conn,
+                             ثابت حرف *thisheader,
+                             ثابت size_t thislen);
 
-CURLcode Curl_add_timecondition(struct Curl_easy *data, struct dynbuf *req);
-CURLcode Curl_add_custom_headers(struct Curl_easy *data, bool is_connect,
-                                 int httpversion, struct dynbuf *req);
+CURLcode Curl_جمع_کن_timecondition(بنية Curl_easy *داده, بنية dynbuf *req);
+CURLcode Curl_جمع_کن_custom_سرآیندها(بنية Curl_easy *داده, bool is_connect,
+                                 صحيح httpversion, بنية dynbuf *req);
 
-void Curl_http_to_fold(struct dynbuf *bf);
+فراغ Curl_http_مقصد_fold(بنية dynbuf *bf);
 
-void Curl_http_method(struct Curl_easy *data,
-                      const char **method, Curl_HttpReq *reqp);
+فراغ Curl_http_روش(بنية Curl_easy *داده,
+                      ثابت حرف **روش, Curl_HttpReq *reqp);
 
 /* protocol-specific functions set up to be called by the main engine */
-CURLcode Curl_http_setup_conn(struct Curl_easy *data,
-                              struct connectdata *conn);
-CURLcode Curl_http(struct Curl_easy *data, bool *done);
-CURLcode Curl_http_done(struct Curl_easy *data,
-                        CURLcode status, bool premature);
-CURLcode Curl_http_doing_pollset(struct Curl_easy *data,
-                                 struct easy_pollset *ps);
-CURLcode Curl_http_perform_pollset(struct Curl_easy *data,
-                                   struct easy_pollset *ps);
-CURLcode Curl_http_write_resp(struct Curl_easy *data,
-                              const char *buf, size_t blen,
+CURLcode Curl_http_راهاندازی_conn(بنية Curl_easy *داده,
+                              بنية connectdata *conn);
+CURLcode Curl_http(بنية Curl_easy *داده, bool *انجامشده);
+CURLcode Curl_http_انجامشده(بنية Curl_easy *داده,
+                        CURLcode وضعیت, bool premature);
+CURLcode Curl_http_doing_pollset(بنية Curl_easy *داده,
+                                 بنية easy_pollset *ps);
+CURLcode Curl_http_perform_pollset(بنية Curl_easy *داده,
+                                   بنية easy_pollset *ps);
+CURLcode Curl_http_write_resp(بنية Curl_easy *داده,
+                              ثابت حرف *buf, size_t blen,
                               bool is_eos);
-CURLcode Curl_http_write_resp_hd(struct Curl_easy *data,
-                                 const char *hd, size_t hdlen,
+CURLcode Curl_http_write_resp_hd(بنية Curl_easy *داده,
+                                 ثابت حرف *hd, size_t hdlen,
                                  bool is_eos);
 
 /* check a received header line for forbidden bytes/format, the same checks
    applied to regular response headers */
-CURLcode Curl_verify_header(struct Curl_easy *data,
-                            const char *hd, size_t hdlen);
+CURLcode Curl_verify_سرآیند(بنية Curl_easy *داده,
+                            ثابت حرف *hd, size_t hdlen);
 
 /* These functions are in http.c */
-CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
-                              const char *auth);
+CURLcode Curl_http_درون_داد_auth(بنية Curl_easy *داده, bool proxy,
+                              ثابت حرف *auth);
 
-CURLcode Curl_http_auth_act(struct Curl_easy *data);
+CURLcode Curl_http_auth_act(بنية Curl_easy *داده);
 
 /* follow a redirect or not */
-CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
+CURLcode Curl_http_follow(بنية Curl_easy *داده, ثابت حرف *newurl,
                           followtype type);
 
 /* If only the PICKNONE bit is set, there has been a round-trip and we
    selected to use no auth at all. Ie, we actively select no auth, as opposed
    to not having one selected. The other CURLAUTH_* defines are present in the
    public curl/curl.h header. */
-#define CURLAUTH_PICKNONE (1 << 30) /* do not use auth */
+#تعریف_کن CURLAUTH_PICKNONE (1 << 30) /* do not use auth */
 
 /* MAX_INITIAL_POST_SIZE indicates the number of bytes that will make the POST
    data get included in the initial data chunk sent to the server. If the
@@ -138,37 +138,37 @@ CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
    always be afforded to send twice.
 
    It must not be greater than 64K to work on VMS. */
-#ifndef MAX_INITIAL_POST_SIZE
-#define MAX_INITIAL_POST_SIZE (64 * 1024)
-#endif
+#اگر_تعریف_نشده MAX_INITIAL_POST_اندازه
+#تعریف_کن MAX_INITIAL_POST_اندازه (64 * 1024)
+#پایان_اگر
 
 /* EXPECT_100_THRESHOLD is the request body size limit for when libcurl will
  * automatically add an "Expect: 100-continue" header in HTTP requests. When
  * the size is unknown, it will always add it.
  *
  */
-#ifndef EXPECT_100_THRESHOLD
-#define EXPECT_100_THRESHOLD (1024 * 1024)
-#endif
+#اگر_تعریف_نشده EXPECT_100_آستانه
+#تعریف_کن EXPECT_100_آستانه (1024 * 1024)
+#پایان_اگر
 
 /* MAX_HTTP_RESP_HEADER_SIZE is the maximum size of all response headers
    combined that libcurl allows for a single HTTP response, any HTTP
    version. This count includes CONNECT response headers. */
-#define MAX_HTTP_RESP_HEADER_SIZE (300 * 1024)
+#تعریف_کن MAX_HTTP_RESP_سرآیند_اندازه (300 * 1024)
 
 /* MAX_HTTP_RESP_HEADER_COUNT is the maximum number of response headers that
    libcurl allows for a single HTTP response, including CONNECT and
    redirects. */
-#define MAX_HTTP_RESP_HEADER_COUNT 5000
+#تعریف_کن MAX_HTTP_RESP_سرآیند_شمار 5000
 
-#endif /* CURL_DISABLE_HTTP */
+#پایان_اگر /* CURL_DISABLE_HTTP */
 
 /****************************************************************************
  * HTTP unique setup
  ***************************************************************************/
 
-CURLcode Curl_http_write_resp_hds(struct Curl_easy *data,
-                                  const char *buf, size_t blen,
+CURLcode Curl_http_write_resp_hds(بنية Curl_easy *داده,
+                                  ثابت حرف *buf, size_t blen,
                                   size_t *pconsumed);
 
 /**
@@ -188,49 +188,49 @@ CURLcode Curl_http_write_resp_hds(struct Curl_easy *data,
  *
  * @returns CURLcode
  */
-CURLcode Curl_http_output_auth(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const char *request,
+CURLcode Curl_http_output_auth(بنية Curl_easy *داده,
+                               بنية connectdata *conn,
+                               ثابت حرف *request,
                                Curl_HttpReq httpreq,
-                               const char *path,
-                               const char *query,
+                               ثابت حرف *مسیر,
+                               ثابت حرف *query,
                                bool is_connect);
 
 /* Decode HTTP status code string. */
-CURLcode Curl_http_decode_status(int32_t *pstatus, const char *s, size_t len);
+CURLcode Curl_http_decode_وضعیت(int32_t *pstatus, ثابت حرف *s, size_t len);
 
 /**
  * All about a core HTTP request, excluding body and trailers
  */
-struct httpreq {
-  struct dynhds headers;
-  struct dynhds trailers;
-  char *scheme;
-  char *authority;
-  char *path;
-  char method[1];
+بنية httpreq {
+  بنية dynhds سرآیندها;
+  بنية dynhds trailers;
+  حرف *scheme;
+  حرف *authority;
+  حرف *مسیر;
+  حرف روش[1];
 };
 
 /**
  * Create an HTTP request struct.
  */
-CURLcode Curl_http_req_make(struct httpreq **preq,
-                            const char *method, size_t m_len,
-                            const char *scheme, size_t s_len,
-                            const char *authority, size_t a_len,
-                            const char *path, size_t p_len);
+CURLcode Curl_http_req_make(بنية httpreq **preq,
+                            ثابت حرف *روش, size_t m_len,
+                            ثابت حرف *scheme, size_t s_len,
+                            ثابت حرف *authority, size_t a_len,
+                            ثابت حرف *مسیر, size_t p_len);
 
-CURLcode Curl_http_req_make2(struct httpreq **preq,
-                             const char *method, size_t m_len,
-                             CURLU *url, const char *scheme_default);
+CURLcode Curl_http_req_make2(بنية httpreq **preq,
+                             ثابت حرف *روش, size_t m_len,
+                             CURLU *url, ثابت حرف *scheme_default);
 
-void Curl_http_req_free(struct httpreq *req);
+فراغ Curl_http_req_free(بنية httpreq *req);
 
-#define HTTP_PSEUDO_METHOD    ":method"
-#define HTTP_PSEUDO_SCHEME    ":scheme"
-#define HTTP_PSEUDO_AUTHORITY ":authority"
-#define HTTP_PSEUDO_PATH      ":path"
-#define HTTP_PSEUDO_STATUS    ":status"
+#تعریف_کن HTTP_PSEUDO_روش    ":method"
+#تعریف_کن HTTP_PSEUDO_SCHEME    ":scheme"
+#تعریف_کن HTTP_PSEUDO_AUTHORITY ":authority"
+#تعریف_کن HTTP_PSEUDO_مسیر      ":path"
+#تعریف_کن HTTP_PSEUDO_وضعیت    ":status"
 
 /**
  * Create the list of HTTP/2 headers which represent the request,
@@ -247,27 +247,27 @@ void Curl_http_req_free(struct httpreq *req);
  * @param req        the request to transform
  * @param data       the handle to lookup defaults like ' :scheme' from
  */
-CURLcode Curl_http_req_to_h2(struct dynhds *h2_headers,
-                             struct httpreq *req, struct Curl_easy *data);
+CURLcode Curl_http_req_مقصد_h2(بنية dynhds *h2_سرآیندها,
+                             بنية httpreq *req, بنية Curl_easy *داده);
 
 /**
  * All about a core HTTP response, excluding body and trailers
  */
-struct http_resp {
-  int status;
-  char *description;
-  struct dynhds headers;
-  struct dynhds trailers;
-  struct http_resp *prev;
+بنية http_resp {
+  صحيح وضعیت;
+  حرف *description;
+  بنية dynhds سرآیندها;
+  بنية dynhds trailers;
+  بنية http_resp *prev;
 };
 
 /**
  * Create an HTTP response struct.
  */
-CURLcode Curl_http_resp_make(struct http_resp **presp,
-                             int status,
-                             const char *description);
+CURLcode Curl_http_resp_make(بنية http_resp **presp,
+                             صحيح وضعیت,
+                             ثابت حرف *description);
 
-void Curl_http_resp_free(struct http_resp *resp);
+فراغ Curl_http_resp_free(بنية http_resp *resp);
 
-#endif /* HEADER_CURL_HTTP_H */
+#پایان_اگر /* HEADER_CURL_HTTP_H */

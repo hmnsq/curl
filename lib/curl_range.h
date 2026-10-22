@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RANGE_H
-#define HEADER_CURL_RANGE_H
+#اگر_تعریف_نشده سرآیند_CURL_RANGE_H
+#تعریف_کن سرآیند_CURL_RANGE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
+#ضمن "urldata.h"
 
-CURLcode Curl_range(struct Curl_easy *data);
-#endif /* HEADER_CURL_RANGE_H */
+CURLcode Curl_range(بنية Curl_easy *داده);
+#پایان_اگر /* HEADER_CURL_RANGE_H */

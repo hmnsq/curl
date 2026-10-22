@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SLIST_H
-#define HEADER_CURL_SLIST_H
+#اگر_تعریف_نشده سرآیند_CURL_SLIST_H
+#تعریف_کن سرآیند_CURL_SLIST_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -29,13 +29,13 @@
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist);
+بنية curl_slist *Curl_slist_duplicate(بنية curl_slist *inlist);
 
 /*
  * Curl_slist_append_nodup() takes ownership of the given string and appends
  * it to the list.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data);
+بنية curl_slist *Curl_slist_append_nodup(بنية curl_slist *list,
+                                           ثابت حرف *داده);
 
-#endif /* HEADER_CURL_SLIST_H */
+#پایان_اگر /* HEADER_CURL_SLIST_H */

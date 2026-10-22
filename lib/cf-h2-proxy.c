@@ -21,42 +21,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_NGHTTP2)
 
-#include <nghttp2/nghttp2.h>
+#ضمن <nghttp2/nghttp2.h>
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "curlx/dynbuf.h"
-#include "dynhds.h"
-#include "http2.h"
-#include "http_proxy.h"
-#include "multiif.h"
-#include "ngh2_shim.h"
-#include "sendf.h"
-#include "select.h"
-#include "cf-h2-proxy.h"
+#ضمن "urldata.h"
+#ضمن "url.h"
+#ضمن "cfilters.h"
+#ضمن "connect.h"
+#ضمن "curl_trc.h"
+#ضمن "bufq.h"
+#ضمن "curlx/dynbuf.h"
+#ضمن "dynhds.h"
+#ضمن "http2.h"
+#ضمن "http_proxy.h"
+#ضمن "multiif.h"
+#ضمن "ngh2_shim.h"
+#ضمن "sendf.h"
+#ضمن "select.h"
+#ضمن "cf-h2-proxy.h"
 
-#define PROXY_H2_CHUNK_SIZE  (16 * 1024)
+#تعریف_کن PROXY_H2_CHUNK_اندازه  (16 * 1024)
 
-#define PROXY_HTTP2_HUGE_WINDOW_SIZE (100 * 1024 * 1024)
-#define H2_TUNNEL_WINDOW_SIZE        (10 * 1024 * 1024)
+#تعریف_کن PROXY_HTTP2_HUGE_پنجره_اندازه (100 * 1024 * 1024)
+#تعریف_کن H2_TUNNEL_پنجره_اندازه        (10 * 1024 * 1024)
 
-#define PROXY_H2_NW_RECV_CHUNKS   (H2_TUNNEL_WINDOW_SIZE / PROXY_H2_CHUNK_SIZE)
-#define PROXY_H2_NW_SEND_CHUNKS   1
+#تعریف_کن PROXY_H2_NW_RECV_CHUNKS   (H2_TUNNEL_پنجره_اندازه / PROXY_H2_CHUNK_اندازه)
+#تعریف_کن PROXY_H2_NW_SEND_CHUNKS   1
 
-#define H2_TUNNEL_RECV_CHUNKS   (H2_TUNNEL_WINDOW_SIZE / PROXY_H2_CHUNK_SIZE)
-#define H2_TUNNEL_SEND_CHUNKS   ((128 * 1024) / PROXY_H2_CHUNK_SIZE)
+#تعریف_کن H2_TUNNEL_RECV_CHUNKS   (H2_TUNNEL_پنجره_اندازه / PROXY_H2_CHUNK_اندازه)
+#تعریف_کن H2_TUNNEL_SEND_CHUNKS   ((128 * 1024) / PROXY_H2_CHUNK_اندازه)
 
 
-typedef enum {
+تعريفنوع تعداد {
   H2_TUNNEL_INIT,     /* init/default/no tunnel state */
   H2_TUNNEL_CONNECT,  /* CONNECT request is being send */
   H2_TUNNEL_RESPONSE, /* CONNECT response received completely */
@@ -64,46 +64,46 @@ typedef enum {
   H2_TUNNEL_FAILED
 } h2_tunnel_state;
 
-struct tunnel_stream {
-  struct http_resp *resp;
-  struct bufq recvbuf;
-  struct bufq sendbuf;
-  char *authority;
-  int32_t stream_id;
+بنية tunnel_جریان {
+  بنية http_resp *resp;
+  بنية bufq recvbuf;
+  بنية bufq sendbuf;
+  حرف *authority;
+  int32_t جریان_id;
   uint32_t error;
   h2_tunnel_state state;
-  BIT(has_final_response);
-  BIT(closed);
-  BIT(reset);
+  بیت(has_final_response);
+  بیت(closed);
+  بیت(reset);
 };
 
-static CURLcode tunnel_stream_init(struct tunnel_stream *ts,
-                                   struct Curl_peer *dest)
+ساكن CURLcode tunnel_جریان_init(بنية tunnel_جریان *ts,
+                                   بنية Curl_peer *dest)
 {
   ts->state = H2_TUNNEL_INIT;
-  ts->stream_id = -1;
-  Curl_bufq_init2(&ts->recvbuf, PROXY_H2_CHUNK_SIZE, H2_TUNNEL_RECV_CHUNKS,
-                  BUFQ_OPT_SOFT_LIMIT);
-  Curl_bufq_init(&ts->sendbuf, PROXY_H2_CHUNK_SIZE, H2_TUNNEL_SEND_CHUNKS);
+  ts->جریان_id = -1;
+  Curl_bufq_init2(&ts->recvbuf, PROXY_H2_CHUNK_اندازه, H2_TUNNEL_RECV_CHUNKS,
+                  BUFQ_OPT_SOFT_حد);
+  Curl_bufq_init(&ts->sendbuf, PROXY_H2_CHUNK_اندازه, H2_TUNNEL_SEND_CHUNKS);
 
   /* host:port with IPv6 support */
   ts->authority = curl_maprintf("%s%s%s:%u", dest->ipv6 ? "[" : "",
                                 dest->hostname,
                                 dest->ipv6 ? "]" : "",
-                                dest->port);
-  if(!ts->authority)
-    return CURLE_OUT_OF_MEMORY;
+                                dest->پورت);
+  إذا(!ts->authority)
+    أرجع CURLE_بیرون_از_حافظه;
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static void tunnel_stream_reset(struct tunnel_stream *ts)
+ساكن فراغ tunnel_جریان_reset(بنية tunnel_جریان *ts)
 {
   Curl_http_resp_free(ts->resp);
-  ts->resp = NULL;
+  ts->resp = عدم;
   Curl_bufq_reset(&ts->recvbuf);
   Curl_bufq_reset(&ts->sendbuf);
-  ts->stream_id = -1;
+  ts->جریان_id = -1;
   ts->error = 0;
   ts->has_final_response = FALSE;
   ts->closed = FALSE;
@@ -111,199 +111,199 @@ static void tunnel_stream_reset(struct tunnel_stream *ts)
   ts->state = H2_TUNNEL_INIT;
 }
 
-static void tunnel_stream_clear(struct tunnel_stream *ts)
+ساكن فراغ tunnel_جریان_clear(بنية tunnel_جریان *ts)
 {
   Curl_http_resp_free(ts->resp);
   Curl_bufq_free(&ts->recvbuf);
   Curl_bufq_free(&ts->sendbuf);
   curlx_safefree(ts->authority);
-  memset(ts, 0, sizeof(*ts));
+  memset(ts, 0, حجم(*ts));
   ts->state = H2_TUNNEL_INIT;
 }
 
-static void h2_tunnel_go_state(struct Curl_cfilter *cf,
-                               struct tunnel_stream *ts,
+ساكن فراغ h2_tunnel_go_state(بنية Curl_cfilter *cf,
+                               بنية tunnel_جریان *ts,
                                h2_tunnel_state new_state,
-                               struct Curl_easy *data,
+                               بنية Curl_easy *داده,
                                bool udp_tunnel)
 {
-  (void)cf;
-  (void)udp_tunnel;
+  (فراغ)cf;
+  (فراغ)udp_tunnel;
 
-  if(ts->state == new_state)
-    return;
+  إذا(ts->state == new_state)
+    أرجع;
   /* leaving this one */
-  switch(ts->state) {
-  case H2_TUNNEL_CONNECT:
-    data->req.ignorebody = FALSE;
-    break;
-  default:
-    break;
+  بدل(ts->state) {
+  حالة H2_TUNNEL_CONNECT:
+    داده->req.ignorebody = FALSE;
+    اكسر;
+  افتراضي:
+    اكسر;
   }
   /* entering this one */
-  switch(new_state) {
-  case H2_TUNNEL_INIT:
-    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'init'", ts->stream_id);
-    tunnel_stream_reset(ts);
-    break;
+  بدل(new_state) {
+  حالة H2_TUNNEL_INIT:
+    CURL_TRC_CF(داده, cf, "[%d] new tunnel state 'init'", ts->جریان_id);
+    tunnel_جریان_reset(ts);
+    اكسر;
 
-  case H2_TUNNEL_CONNECT:
-    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'connect'", ts->stream_id);
+  حالة H2_TUNNEL_CONNECT:
+    CURL_TRC_CF(داده, cf, "[%d] new tunnel state 'connect'", ts->جریان_id);
     ts->state = H2_TUNNEL_CONNECT;
-    break;
+    اكسر;
 
-  case H2_TUNNEL_RESPONSE:
-    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'response'", ts->stream_id);
+  حالة H2_TUNNEL_RESPONSE:
+    CURL_TRC_CF(داده, cf, "[%d] new tunnel state 'response'", ts->جریان_id);
     ts->state = H2_TUNNEL_RESPONSE;
-    break;
+    اكسر;
 
-  case H2_TUNNEL_ESTABLISHED:
-    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'established'",
-                ts->stream_id);
-    infof(data, "CONNECT%s phase completed for HTTP/2 proxy",
+  حالة H2_TUNNEL_ESTABLISHED:
+    CURL_TRC_CF(داده, cf, "[%d] new tunnel state 'established'",
+                ts->جریان_id);
+    infof(داده, "CONNECT%s phase completed for HTTP/2 proxy",
           udp_tunnel ? "-UDP" : "");
-    data->state.authproxy.done = TRUE;
-    data->state.authproxy.multipass = FALSE;
+    داده->state.authproxy.انجامشده = TRUE;
+    داده->state.authproxy.multipass = FALSE;
     FALLTHROUGH();
-  case H2_TUNNEL_FAILED:
-    if(new_state == H2_TUNNEL_FAILED)
-      CURL_TRC_CF(data, cf, "[%d] new tunnel state 'failed'", ts->stream_id);
+  حالة H2_TUNNEL_FAILED:
+    إذا(new_state == H2_TUNNEL_FAILED)
+      CURL_TRC_CF(داده, cf, "[%d] new tunnel state 'failed'", ts->جریان_id);
     ts->state = new_state;
     /* If a proxy-authorization header was used for the proxy, then we should
        make sure that it is not accidentally used for the document request
        after we have connected. Let's thus free and clear it here. */
-    curlx_safefree(data->req.hd_proxy_auth);
-    break;
+    curlx_safefree(داده->req.hd_proxy_auth);
+    اكسر;
   }
 }
 
-struct cf_h2_proxy_ctx {
-  struct curl_ngh2 ngh2;
+بنية cf_h2_proxy_ctx {
+  بنية curl_ngh2 ngh2;
   /* The easy handle used in the current filter call, cleared at return */
-  struct cf_call_data call_data;
+  بنية cf_call_داده call_داده;
 
-  struct bufq inbufq;  /* network receive buffer */
-  struct bufq outbufq; /* network send buffer */
+  بنية bufq inbufq;  /* network receive buffer */
+  بنية bufq outbufq; /* network send buffer */
 
-  struct Curl_peer *peer; /* proxy we talk to */
-  struct Curl_peer *dest; /* where to tunnel to */
-  struct tunnel_stream tunnel; /* our tunnel CONNECT stream */
+  بنية Curl_peer *peer; /* proxy we talk to */
+  بنية Curl_peer *dest; /* where to tunnel to */
+  بنية tunnel_جریان tunnel; /* our tunnel CONNECT stream */
   int32_t goaway_error;
   int32_t remote_max_sid;
-  BIT(conn_closed);
-  BIT(rcvd_goaway);
-  BIT(sent_goaway);
-  BIT(nw_out_blocked);
-  BIT(udp_tunnel);
+  بیت(conn_closed);
+  بیت(rcvd_goaway);
+  بیت(فرستاده_goaway);
+  بیت(nw_بیرون_blocked);
+  بیت(udp_tunnel);
 };
 
 /* How to access `call_data` from a cf_h2 filter */
-#undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct cf_h2_proxy_ctx *)(cf)->ctx)->call_data
+#لغو_تعریف CF_CTX_CALL_داده
+#تعریف_کن CF_CTX_CALL_داده(cf) ((بنية cf_h2_proxy_ctx *)(cf)->ctx)->call_داده
 
-static void cf_h2_proxy_ctx_clear(struct cf_h2_proxy_ctx *ctx)
+ساكن فراغ cf_h2_proxy_ctx_clear(بنية cf_h2_proxy_ctx *ctx)
 {
-  struct cf_call_data save = ctx->call_data;
+  بنية cf_call_داده save = ctx->call_داده;
 
   Curl_ngh2_del(&ctx->ngh2);
   Curl_bufq_free(&ctx->inbufq);
   Curl_bufq_free(&ctx->outbufq);
   Curl_peer_unlink(&ctx->peer);
   Curl_peer_unlink(&ctx->dest);
-  tunnel_stream_clear(&ctx->tunnel);
-  memset(ctx, 0, sizeof(*ctx));
-  ctx->call_data = save;
+  tunnel_جریان_clear(&ctx->tunnel);
+  memset(ctx, 0, حجم(*ctx));
+  ctx->call_داده = save;
 }
 
-static void cf_h2_proxy_ctx_free(struct cf_h2_proxy_ctx *ctx)
+ساكن فراغ cf_h2_proxy_ctx_free(بنية cf_h2_proxy_ctx *ctx)
 {
-  if(ctx) {
+  إذا(ctx) {
     cf_h2_proxy_ctx_clear(ctx);
     curlx_free(ctx);
   }
 }
 
-static void drain_tunnel(struct Curl_cfilter *cf,
-                         struct Curl_easy *data,
-                         struct tunnel_stream *tunnel)
+ساكن فراغ drain_tunnel(بنية Curl_cfilter *cf,
+                         بنية Curl_easy *داده,
+                         بنية tunnel_جریان *tunnel)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  (void)cf;
-  if(!tunnel->closed && !tunnel->reset &&
-     (!Curl_bufq_is_empty(&ctx->tunnel.sendbuf) ||
-      !Curl_bufq_is_empty(&ctx->tunnel.recvbuf)))
-    Curl_multi_mark_dirty(data);
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  (فراغ)cf;
+  إذا(!tunnel->closed && !tunnel->reset &&
+     (!Curl_bufq_is_خالی(&ctx->tunnel.sendbuf) ||
+      !Curl_bufq_is_خالی(&ctx->tunnel.recvbuf)))
+    Curl_multi_mark_dirty(داده);
 }
 
-static CURLcode proxy_h2_nw_out_writer(void *writer_ctx,
-                                       const uint8_t *buf, size_t buflen,
+ساكن CURLcode proxy_h2_nw_بیرون_writer(فراغ *writer_ctx,
+                                       ثابت uint8_t *buf, size_t buflen,
                                        size_t *pnwritten)
 {
-  struct Curl_cfilter *cf = writer_ctx;
+  بنية Curl_cfilter *cf = writer_ctx;
   *pnwritten = 0;
-  if(cf) {
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
-    CURLcode result;
-    result = Curl_conn_cf_send(cf->next, data, buf, buflen, FALSE, pnwritten);
-    CURL_TRC_CF(data, cf, "[0] nw_out_writer(len=%zu) -> %d, %zu",
-                buflen, (int)result, *pnwritten);
-    return result;
+  إذا(cf) {
+    بنية Curl_easy *داده = CF_داده_CURRENT(cf);
+    CURLcode نتیجه;
+    نتیجه = Curl_conn_cf_send(cf->بعدی, داده, buf, buflen, FALSE, pnwritten);
+    CURL_TRC_CF(داده, cf, "[0] nw_out_writer(len=%zu) -> %d, %zu",
+                buflen, (صحيح)نتیجه, *pnwritten);
+    أرجع نتیجه;
   }
-  return CURLE_FAILED_INIT;
+  أرجع CURLE_FAILED_INIT;
 }
 
-static int proxy_h2_client_new(struct Curl_cfilter *cf,
+ساكن صحيح proxy_h2_client_new(بنية Curl_cfilter *cf,
                                nghttp2_session_callbacks *cbs)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
   nghttp2_option *o;
-  nghttp2_mem mem = { NULL, Curl_nghttp2_malloc, Curl_nghttp2_free,
+  nghttp2_mem mem = { عدم, Curl_nghttp2_malloc, Curl_nghttp2_free,
                       Curl_nghttp2_calloc, Curl_nghttp2_realloc };
 
-  int rc = nghttp2_option_new(&o);
-  if(rc)
-    return rc;
+  صحيح rc = nghttp2_option_new(&o);
+  إذا(rc)
+    أرجع rc;
   /* We handle window updates ourself to enforce buffer limits */
-  nghttp2_option_set_no_auto_window_update(o, 1);
-#if NGHTTP2_VERSION_NUM >= 0x013200 /* with 1.50.0 */
+  nghttp2_option_مجموعه_no_auto_پنجره_update(o, 1);
+#إذا NGHTTP2_نسخه_رقم >= 0x013200 /* with 1.50.0 */
   /* turn off RFC 9113 leading and trailing white spaces validation against
      HTTP field value. */
-  nghttp2_option_set_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
-#endif
+  nghttp2_option_مجموعه_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
+#پایان_اگر
   rc = Curl_ngh2_session_client_new3(&ctx->ngh2, cbs, cf, o, &mem);
   nghttp2_option_del(o);
-  return rc;
+  أرجع rc;
 }
 
-static int proxy_h2_should_close_session(struct cf_h2_proxy_ctx *ctx)
+ساكن صحيح proxy_h2_should_close_session(بنية cf_h2_proxy_ctx *ctx)
 {
-  return !Curl_ngh2_valid(&ctx->ngh2) ||
+  أرجع !Curl_ngh2_valid(&ctx->ngh2) ||
     (!Curl_ngh2_session_want_read(&ctx->ngh2) &&
      !Curl_ngh2_session_want_write(&ctx->ngh2));
 }
 
-static CURLcode proxy_h2_nw_out_flush(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+ساكن CURLcode proxy_h2_nw_بیرون_flush(بنية Curl_cfilter *cf,
+                                      بنية Curl_easy *داده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
   size_t nwritten;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  if(Curl_bufq_is_empty(&ctx->outbufq))
-    return CURLE_OK;
+  إذا(Curl_bufq_is_خالی(&ctx->outbufq))
+    أرجع CURLE_OK;
 
-  result = Curl_bufq_pass(&ctx->outbufq, proxy_h2_nw_out_writer, cf,
+  نتیجه = Curl_bufq_pass(&ctx->outbufq, proxy_h2_nw_بیرون_writer, cf,
                           &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      CURL_TRC_CF(data, cf, "[0] flush nw send buffer(%zu) -> EAGAIN",
+  إذا(نتیجه) {
+    إذا(نتیجه == CURLE_AGAIN) {
+      CURL_TRC_CF(داده, cf, "[0] flush nw send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->outbufq));
-      ctx->nw_out_blocked = 1;
+      ctx->nw_بیرون_blocked = 1;
     }
-    return result;
+    أرجع نتیجه;
   }
-  CURL_TRC_CF(data, cf, "[0] nw send buffer flushed");
-  return Curl_bufq_is_empty(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
+  CURL_TRC_CF(داده, cf, "[0] nw send buffer flushed");
+  أرجع Curl_bufq_is_خالی(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
 }
 
 /*
@@ -311,1167 +311,1167 @@ static CURLcode proxy_h2_nw_out_flush(struct Curl_cfilter *cf,
  * This function returns 0 if it succeeds, or -1 and error code will
  * be assigned to *err.
  */
-static CURLcode proxy_h2_process_pending_input(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data)
+ساكن CURLcode proxy_h2_process_pending_درون_داد(بنية Curl_cfilter *cf,
+                                               بنية Curl_easy *داده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  const unsigned char *buf;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  ثابت بیعلامت حرف *buf;
   size_t blen, nread;
   ssize_t rv;
 
-  while(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
+  طالما(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
 
-    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (const uint8_t *)buf, blen);
-    CURL_TRC_CF(data, cf, "[0] %zu bytes to nghttp2 -> %zd", blen, rv);
-    if(!curlx_sztouz(rv, &nread)) {
-      failf(data,
+    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (ثابت uint8_t *)buf, blen);
+    CURL_TRC_CF(داده, cf, "[0] %zu bytes to nghttp2 -> %zd", blen, rv);
+    إذا(!curlx_sztouz(rv, &nread)) {
+      failf(داده,
             "process_pending_input: nghttp2_session_mem_recv() returned "
-            "%zd:%s", rv, nghttp2_strerror((int)rv));
-      return CURLE_RECV_ERROR;
+            "%zd:%s", rv, nghttp2_strerror((صحيح)rv));
+      أرجع CURLE_RECV_ERROR;
     }
-    else if(!nread) {
+    وإلا إذا(!nread) {
       /* nghttp2 does not want to process more, but has no error. This
        * probably cannot happen, but be safe. */
-      break;
+      اكسر;
     }
     Curl_bufq_skip(&ctx->inbufq, nread);
-    if(Curl_bufq_is_empty(&ctx->inbufq)) {
-      CURL_TRC_CF(data, cf, "[0] all data in connection buffer processed");
-      break;
+    إذا(Curl_bufq_is_خالی(&ctx->inbufq)) {
+      CURL_TRC_CF(داده, cf, "[0] all data in connection buffer processed");
+      اكسر;
     }
-    else {
-      CURL_TRC_CF(data, cf, "[0] process_pending_input: %zu bytes left "
+    وإلا {
+      CURL_TRC_CF(داده, cf, "[0] process_pending_input: %zu bytes left "
                   "in connection buffer", Curl_bufq_len(&ctx->inbufq));
     }
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode proxy_h2_progress_ingress(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data)
+ساكن CURLcode proxy_h2_پیشرفت_ingress(بنية Curl_cfilter *cf,
+                                          بنية Curl_easy *داده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجه = CURLE_OK;
   size_t nread;
 
   /* Process network input buffer first */
-  if(!Curl_bufq_is_empty(&ctx->inbufq)) {
-    CURL_TRC_CF(data, cf, "[0] process %zu bytes in connection buffer",
+  إذا(!Curl_bufq_is_خالی(&ctx->inbufq)) {
+    CURL_TRC_CF(داده, cf, "[0] process %zu bytes in connection buffer",
                 Curl_bufq_len(&ctx->inbufq));
-    result = proxy_h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    نتیجه = proxy_h2_process_pending_درون_داد(cf, داده);
+    إذا(نتیجه)
+      أرجع نتیجه;
   }
 
   /* Receive data from the "lower" filters, e.g. network until
    * it is time to stop or we have enough data for this stream */
-  while(!ctx->conn_closed &&                /* not closed the connection */
+  طالما(!ctx->conn_closed &&                /* not closed the connection */
         !ctx->tunnel.closed &&              /* nor the tunnel */
-        Curl_bufq_is_empty(&ctx->inbufq) && /* and we consumed our input */
-        !Curl_bufq_is_full(&ctx->tunnel.recvbuf)) {
+        Curl_bufq_is_خالی(&ctx->inbufq) && /* and we consumed our input */
+        !Curl_bufq_is_پر(&ctx->tunnel.recvbuf)) {
 
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
-    CURL_TRC_CF(data, cf, "[0] read %zu bytes nw data -> %d, %zu",
-                Curl_bufq_len(&ctx->inbufq), (int)result, nread);
-    if(result) {
-      if(result != CURLE_AGAIN) {
-        failf(data, "Failed receiving HTTP2 proxy data");
-        return result;
+    نتیجه = Curl_cf_recv_bufq(cf->بعدی, داده, &ctx->inbufq, 0, &nread);
+    CURL_TRC_CF(داده, cf, "[0] read %zu bytes nw data -> %d, %zu",
+                Curl_bufq_len(&ctx->inbufq), (صحيح)نتیجه, nread);
+    إذا(نتیجه) {
+      إذا(نتیجه != CURLE_AGAIN) {
+        failf(داده, "Failed receiving HTTP2 proxy data");
+        أرجع نتیجه;
       }
-      break;
+      اكسر;
     }
-    else if(nread == 0) {
-      CURL_TRC_CF(data, cf, "server closed connection");
+    وإلا إذا(nread == 0) {
+      CURL_TRC_CF(داده, cf, "server closed connection");
       ctx->conn_closed = TRUE;
-      break;
+      اكسر;
     }
 
-    result = proxy_h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    نتیجه = proxy_h2_process_pending_درون_داد(cf, داده);
+    إذا(نتیجه)
+      أرجع نتیجه;
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode proxy_h2_progress_egress(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+ساكن CURLcode proxy_h2_پیشرفت_egress(بنية Curl_cfilter *cf,
+                                         بنية Curl_easy *داده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  int rv = 0;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  صحيح rv = 0;
 
-  ctx->nw_out_blocked = 0;
-  while(!rv && !ctx->nw_out_blocked &&
+  ctx->nw_بیرون_blocked = 0;
+  طالما(!rv && !ctx->nw_بیرون_blocked &&
         Curl_ngh2_session_want_write(&ctx->ngh2))
     rv = Curl_ngh2_session_send(&ctx->ngh2);
 
-  if(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
+  إذا(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
     VERBOSE(rv = Curl_ngh2_fatal(&ctx->ngh2));
-    CURL_TRC_CF(data, cf, "[0] nghttp2_session_send error (%s)%d",
+    CURL_TRC_CF(داده, cf, "[0] nghttp2_session_send error (%s)%d",
                 nghttp2_strerror(rv), rv);
-    return CURLE_SEND_ERROR;
+    أرجع CURLE_SEND_ERROR;
   }
-  return proxy_h2_nw_out_flush(cf, data);
+  أرجع proxy_h2_nw_بیرون_flush(cf, داده);
 }
 
-static ssize_t on_session_send(nghttp2_session *h2,
-                               const uint8_t *buf, size_t blen, int flags,
-                               void *userp)
+ساكن ssize_t on_session_send(nghttp2_session *h2,
+                               ثابت uint8_t *buf, size_t blen, صحيح flags,
+                               فراغ *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  بنية Curl_cfilter *cf = userp;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية Curl_easy *داده = CF_داده_CURRENT(cf);
   size_t nwritten;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
 
-  (void)h2;
-  (void)flags;
-  DEBUGASSERT(data);
+  (فراغ)h2;
+  (فراغ)flags;
+  DEBUGASSERT(داده);
 
-  result = Curl_bufq_write_pass(&ctx->outbufq, buf, blen,
-                                proxy_h2_nw_out_writer, cf, &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      ctx->nw_out_blocked = 1;
-      return NGHTTP2_ERR_WOULDBLOCK;
+  نتیجه = Curl_bufq_write_pass(&ctx->outbufq, buf, blen,
+                                proxy_h2_nw_بیرون_writer, cf, &nwritten);
+  إذا(نتیجه) {
+    إذا(نتیجه == CURLE_AGAIN) {
+      ctx->nw_بیرون_blocked = 1;
+      أرجع NGHTTP2_ERR_WOULDBLOCK;
     }
-    failf(data, "Failed sending HTTP2 data");
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    failf(داده, "Failed sending HTTP2 data");
+    أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(!nwritten)
-    return NGHTTP2_ERR_WOULDBLOCK;
+  إذا(!nwritten)
+    أرجع NGHTTP2_ERR_WOULDBLOCK;
 
-  return (nwritten > SSIZE_MAX) ?
+  أرجع (nwritten > SSIZE_MAX) ?
     NGHTTP2_ERR_CALLBACK_FAILURE : (ssize_t)nwritten;
 }
 
-#ifdef CURLVERBOSE
-static int proxy_h2_on_frame_send(nghttp2_session *session,
-                                  const nghttp2_frame *frame,
-                                  void *userp)
+#اگر_تعریف_شده CURLVERBOSE
+ساكن صحيح proxy_h2_on_قاب_send(nghttp2_session *session,
+                                  ثابت nghttp2_قاب *قاب,
+                                  فراغ *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  بنية Curl_cfilter *cf = userp;
+  بنية Curl_easy *داده = CF_داده_CURRENT(cf);
 
-  (void)session;
-  DEBUGASSERT(data);
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
-    buffer[len] = 0;
-    CURL_TRC_CF(data, cf, "[%d] -> %s", frame->hd.stream_id, buffer);
+  (فراغ)session;
+  DEBUGASSERT(داده);
+  إذا(Curl_trc_cf_is_verbose(cf, داده)) {
+    حرف میانگیر[256];
+    صحيح len;
+    len = Curl_nghttp2_fr_print(قاب, میانگیر, حجم(میانگیر) - 1);
+    میانگیر[len] = 0;
+    CURL_TRC_CF(داده, cf, "[%d] -> %s", قاب->hd.جریان_id, میانگیر);
   }
-  return 0;
+  أرجع 0;
 }
-#endif /* CURLVERBOSE */
+#پایان_اگر /* CURLVERBOSE */
 
-static int proxy_h2_on_frame_recv(nghttp2_session *session,
-                                  const nghttp2_frame *frame,
-                                  void *userp)
+ساكن صحيح proxy_h2_on_قاب_recv(nghttp2_session *session,
+                                  ثابت nghttp2_قاب *قاب,
+                                  فراغ *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  int32_t stream_id = frame->hd.stream_id;
+  بنية Curl_cfilter *cf = userp;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية Curl_easy *داده = CF_داده_CURRENT(cf);
+  int32_t جریان_id = قاب->hd.جریان_id;
 
-  (void)session;
-  DEBUGASSERT(data);
-#ifdef CURLVERBOSE
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
-    buffer[len] = 0;
-    CURL_TRC_CF(data, cf, "[%d] <- %s", frame->hd.stream_id, buffer);
+  (فراغ)session;
+  DEBUGASSERT(داده);
+#اگر_تعریف_شده CURLVERBOSE
+  إذا(Curl_trc_cf_is_verbose(cf, داده)) {
+    حرف میانگیر[256];
+    صحيح len;
+    len = Curl_nghttp2_fr_print(قاب, میانگیر, حجم(میانگیر) - 1);
+    میانگیر[len] = 0;
+    CURL_TRC_CF(داده, cf, "[%d] <- %s", قاب->hd.جریان_id, میانگیر);
   }
-#endif /* CURLVERBOSE */
+#پایان_اگر /* CURLVERBOSE */
 
-  if(!stream_id) {
+  إذا(!جریان_id) {
     /* stream ID zero is for connection-oriented stuff */
-    DEBUGASSERT(data);
-    switch(frame->hd.type) {
-    case NGHTTP2_SETTINGS:
+    DEBUGASSERT(داده);
+    بدل(قاب->hd.type) {
+    حالة NGHTTP2_SETTINGS:
       /* Since the initial stream window is 64K, a request might be on HOLD,
        * due to exhaustion. The (initial) SETTINGS may announce a much larger
        * window and *assume* that we treat this like a WINDOW_UPDATE. Some
        * servers send an explicit WINDOW_UPDATE, but not all seem to do that.
        * To be safe, we UNHOLD a stream in order not to stall. */
-      if(CURL_REQ_WANT_SEND(data)) {
-        drain_tunnel(cf, data, &ctx->tunnel);
+      إذا(CURL_REQ_WANT_SEND(داده)) {
+        drain_tunnel(cf, داده, &ctx->tunnel);
       }
-      break;
-    case NGHTTP2_GOAWAY:
+      اكسر;
+    حالة NGHTTP2_GOAWAY:
       ctx->rcvd_goaway = TRUE;
-      ctx->remote_max_sid = frame->goaway.last_stream_id;
-      if(data) {
-        infof(data, "received GOAWAY, error=%u, last_stream=%d",
-              frame->goaway.error_code, ctx->remote_max_sid);
+      ctx->remote_max_sid = قاب->goaway.آخرین_جریان_id;
+      إذا(داده) {
+        infof(داده, "received GOAWAY, error=%u, last_stream=%d",
+              قاب->goaway.error_کد, ctx->remote_max_sid);
       }
-      break;
-    default:
-      break;
+      اكسر;
+    افتراضي:
+      اكسر;
     }
-    return 0;
+    أرجع 0;
   }
 
-  if(stream_id != ctx->tunnel.stream_id) {
-    CURL_TRC_CF(data, cf, "[%d] rcvd FRAME not for tunnel", stream_id);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  إذا(جریان_id != ctx->tunnel.جریان_id) {
+    CURL_TRC_CF(داده, cf, "[%d] rcvd FRAME not for tunnel", جریان_id);
+    أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  switch(frame->hd.type) {
-  case NGHTTP2_HEADERS:
+  بدل(قاب->hd.type) {
+  حالة NGHTTP2_سرآیندها:
     /* nghttp2 guarantees that :status is received, and we store it to
        stream->status_code. Fuzzing has proven this can still be reached
        without status code having been set. */
-    if(!ctx->tunnel.resp)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    إذا(!ctx->tunnel.resp)
+      أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
     /* Only final status code signals the end of header */
-    CURL_TRC_CF(data, cf, "[%d] got http status: %d",
-                stream_id, ctx->tunnel.resp->status);
-    if(!ctx->tunnel.has_final_response && ctx->tunnel.resp->status / 100 != 1)
+    CURL_TRC_CF(داده, cf, "[%d] got http status: %d",
+                جریان_id, ctx->tunnel.resp->وضعیت);
+    إذا(!ctx->tunnel.has_final_response && ctx->tunnel.resp->وضعیت / 100 != 1)
       ctx->tunnel.has_final_response = TRUE;
-    break;
-  case NGHTTP2_WINDOW_UPDATE:
-    if(CURL_REQ_WANT_SEND(data)) {
-      drain_tunnel(cf, data, &ctx->tunnel);
+    اكسر;
+  حالة NGHTTP2_پنجره_UPDATE:
+    إذا(CURL_REQ_WANT_SEND(داده)) {
+      drain_tunnel(cf, داده, &ctx->tunnel);
     }
-    break;
-  case NGHTTP2_RST_STREAM:
-    if(frame->rst_stream.error_code)
+    اكسر;
+  حالة NGHTTP2_RST_جریان:
+    إذا(قاب->rst_جریان.error_کد)
       ctx->tunnel.reset = TRUE;
-    break;
-  default:
-    break;
+    اكسر;
+  افتراضي:
+    اكسر;
   }
-  return 0;
+  أرجع 0;
 }
 
-static int proxy_h2_on_header(nghttp2_session *session,
-                              const nghttp2_frame *frame,
-                              const uint8_t *name, size_t namelen,
-                              const uint8_t *value, size_t valuelen,
+ساكن صحيح proxy_h2_on_سرآیند(nghttp2_session *session,
+                              ثابت nghttp2_قاب *قاب,
+                              ثابت uint8_t *name, size_t namelen,
+                              ثابت uint8_t *مقدار, size_t valuelen,
                               uint8_t flags,
-                              void *userp)
+                              فراغ *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  int32_t stream_id = frame->hd.stream_id;
-  CURLcode result;
+  بنية Curl_cfilter *cf = userp;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية Curl_easy *داده = CF_داده_CURRENT(cf);
+  int32_t جریان_id = قاب->hd.جریان_id;
+  CURLcode نتیجه;
 
-  (void)flags;
-  (void)session;
-  DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
-  if(stream_id != ctx->tunnel.stream_id) {
-    CURL_TRC_CF(data, cf, "[%d] header for non-tunnel stream: "
-                "%.*s: %.*s", stream_id,
-                (int)namelen, name, (int)valuelen, value);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  (فراغ)flags;
+  (فراغ)session;
+  DEBUGASSERT(جریان_id); /* should never be a zero stream ID here */
+  إذا(جریان_id != ctx->tunnel.جریان_id) {
+    CURL_TRC_CF(داده, cf, "[%d] header for non-tunnel stream: "
+                "%.*s: %.*s", جریان_id,
+                (صحيح)namelen, name, (صحيح)valuelen, مقدار);
+    أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(frame->hd.type == NGHTTP2_PUSH_PROMISE)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  إذا(قاب->hd.type == NGHTTP2_افزودن_PROMISE)
+    أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  if(ctx->tunnel.has_final_response) {
+  إذا(ctx->tunnel.has_final_response) {
     /* we do not do anything with trailers for tunnel streams */
-    return 0;
+    أرجع 0;
   }
 
-  if(namelen == CURL_CSTRLEN(HTTP_PSEUDO_STATUS) &&
-     !memcmp(HTTP_PSEUDO_STATUS, name, namelen)) {
-    int32_t http_status;
-    struct http_resp *resp;
+  إذا(namelen == CURL_CSTRLEN(HTTP_PSEUDO_وضعیت) &&
+     !memcmp(HTTP_PSEUDO_وضعیت, name, namelen)) {
+    int32_t http_وضعیت;
+    بنية http_resp *resp;
 
     /* status: always comes first, we might get more than one response,
      * discard previous, interim responses */
-    result = Curl_http_decode_status(&http_status,
-                                    (const char *)value, valuelen);
-    if(result)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    result = Curl_http_resp_make(&resp, http_status, NULL);
-    if(result)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    if(ctx->tunnel.resp)
+    نتیجه = Curl_http_decode_وضعیت(&http_وضعیت,
+                                    (ثابت حرف *)مقدار, valuelen);
+    إذا(نتیجه)
+      أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
+    نتیجه = Curl_http_resp_make(&resp, http_وضعیت, عدم);
+    إذا(نتیجه)
+      أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
+    إذا(ctx->tunnel.resp)
       Curl_http_resp_free(ctx->tunnel.resp);
     ctx->tunnel.resp = resp;
-    CURL_TRC_CF(data, cf, "[%d] status: HTTP/2 %03d",
-                stream_id, ctx->tunnel.resp->status);
-    return 0;
+    CURL_TRC_CF(داده, cf, "[%d] status: HTTP/2 %03d",
+                جریان_id, ctx->tunnel.resp->وضعیت);
+    أرجع 0;
   }
 
-  if(!ctx->tunnel.resp)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  إذا(!ctx->tunnel.resp)
+    أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  result = Curl_dynhds_add(&ctx->tunnel.resp->headers,
-                           (const char *)name, namelen,
-                           (const char *)value, valuelen);
-  if(result)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  نتیجه = Curl_dynhds_جمع_کن(&ctx->tunnel.resp->سرآیندها,
+                           (ثابت حرف *)name, namelen,
+                           (ثابت حرف *)مقدار, valuelen);
+  إذا(نتیجه)
+    أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  CURL_TRC_CF(data, cf, "[%d] header: %.*s: %.*s",
-              stream_id, (int)namelen, name, (int)valuelen, value);
+  CURL_TRC_CF(داده, cf, "[%d] header: %.*s: %.*s",
+              جریان_id, (صحيح)namelen, name, (صحيح)valuelen, مقدار);
 
-  return 0; /* 0 is successful */
+  أرجع 0; /* 0 is successful */
 }
 
-static ssize_t tunnel_send_callback(nghttp2_session *session,
-                                    int32_t stream_id,
-                                    uint8_t *buf, size_t length,
-                                    uint32_t *data_flags,
-                                    nghttp2_data_source *source,
-                                    void *userp)
+ساكن ssize_t tunnel_send_callback(nghttp2_session *session,
+                                    int32_t جریان_id,
+                                    uint8_t *buf, size_t درازی,
+                                    uint32_t *داده_flags,
+                                    nghttp2_داده_منبع *منبع,
+                                    فراغ *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  struct tunnel_stream *ts;
-  CURLcode result;
+  بنية Curl_cfilter *cf = userp;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية Curl_easy *داده = CF_داده_CURRENT(cf);
+  بنية tunnel_جریان *ts;
+  CURLcode نتیجه;
   size_t nread;
 
-  (void)session;
-  (void)source;
-  (void)ctx;
+  (فراغ)session;
+  (فراغ)منبع;
+  (فراغ)ctx;
 
-  if(!stream_id)
-    return NGHTTP2_ERR_INVALID_ARGUMENT;
+  إذا(!جریان_id)
+    أرجع NGHTTP2_ERR_INVALID_آرگومان;
 
-  ts = Curl_ngh2_session_get_stream_user_data(&ctx->ngh2, stream_id);
-  if(!ts)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  ts = Curl_ngh2_session_get_جریان_user_داده(&ctx->ngh2, جریان_id);
+  إذا(!ts)
+    أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
   DEBUGASSERT(ts == &ctx->tunnel);
 
-  result = Curl_bufq_read(&ts->sendbuf, buf, length, &nread);
-  if(result) {
-    if(result != CURLE_AGAIN)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    return NGHTTP2_ERR_DEFERRED;
+  نتیجه = Curl_bufq_read(&ts->sendbuf, buf, درازی, &nread);
+  إذا(نتیجه) {
+    إذا(نتیجه != CURLE_AGAIN)
+      أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
+    أرجع NGHTTP2_ERR_DEFERRED;
   }
-  if(ts->closed && Curl_bufq_is_empty(&ts->sendbuf))
-    *data_flags = NGHTTP2_DATA_FLAG_EOF;
+  إذا(ts->closed && Curl_bufq_is_خالی(&ts->sendbuf))
+    *داده_flags = NGHTTP2_داده_FLAG_EOF;
 
-  CURL_TRC_CF(data, cf, "[%d] tunnel_send_callback -> %zu",
-              ts->stream_id, nread);
-  return (nread  > SSIZE_MAX) ?
+  CURL_TRC_CF(داده, cf, "[%d] tunnel_send_callback -> %zu",
+              ts->جریان_id, nread);
+  أرجع (nread  > SSIZE_MAX) ?
     NGHTTP2_ERR_CALLBACK_FAILURE : (ssize_t)nread;
 }
 
-static int tunnel_recv_callback(nghttp2_session *session, uint8_t flags,
-                                int32_t stream_id,
-                                const uint8_t *mem, size_t len, void *userp)
+ساكن صحيح tunnel_recv_callback(nghttp2_session *session, uint8_t flags,
+                                int32_t جریان_id,
+                                ثابت uint8_t *mem, size_t len, فراغ *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية Curl_cfilter *cf = userp;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
   size_t nwritten;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  (void)flags;
-  (void)session;
-  DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
+  (فراغ)flags;
+  (فراغ)session;
+  DEBUGASSERT(جریان_id); /* should never be a zero stream ID here */
 
-  if(stream_id != ctx->tunnel.stream_id)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  إذا(جریان_id != ctx->tunnel.جریان_id)
+    أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  result = Curl_bufq_write(&ctx->tunnel.recvbuf, mem, len, &nwritten);
-  if(result) {
-    if(result != CURLE_AGAIN)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-#ifdef DEBUGBUILD
+  نتیجه = Curl_bufq_write(&ctx->tunnel.recvbuf, mem, len, &nwritten);
+  إذا(نتیجه) {
+    إذا(نتیجه != CURLE_AGAIN)
+      أرجع NGHTTP2_ERR_CALLBACK_FAILURE;
+#اگر_تعریف_شده DEBUGBUILD
     nwritten = 0;
-#endif
+#پایان_اگر
   }
   /* tunnel.recbuf has soft limit, any success MUST add all data */
   DEBUGASSERT(nwritten == len);
-  return 0;
+  أرجع 0;
 }
 
-static int proxy_h2_on_stream_close(nghttp2_session *session,
-                                    int32_t stream_id,
-                                    uint32_t error_code, void *userp)
+ساكن صحيح proxy_h2_on_جریان_close(nghttp2_session *session,
+                                    int32_t جریان_id,
+                                    uint32_t error_کد, فراغ *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  بنية Curl_cfilter *cf = userp;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية Curl_easy *داده = CF_داده_CURRENT(cf);
 
-  (void)session;
+  (فراغ)session;
 
-  if(stream_id != ctx->tunnel.stream_id)
-    return 0;
+  إذا(جریان_id != ctx->tunnel.جریان_id)
+    أرجع 0;
 
-  CURL_TRC_CF(data, cf, "[%d] proxy_h2_on_stream_close, %s (err %u)",
-              stream_id, nghttp2_http2_strerror(error_code), error_code);
+  CURL_TRC_CF(داده, cf, "[%d] proxy_h2_on_stream_close, %s (err %u)",
+              جریان_id, nghttp2_http2_strerror(error_کد), error_کد);
   ctx->tunnel.closed = TRUE;
-  ctx->tunnel.error = error_code;
-  if(error_code)
+  ctx->tunnel.error = error_کد;
+  إذا(error_کد)
     ctx->tunnel.reset = TRUE;
 
-  return 0;
+  أرجع 0;
 }
 
-static CURLcode proxy_h2_submit(
+ساكن CURLcode proxy_h2_submit(
   int32_t *pstream_id,
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct curl_ngh2 *ngh2,
-  struct httpreq *req,
-  const nghttp2_priority_spec *pri_spec,
-  void *stream_user_data,
-  nghttp2_data_source_read_callback read_callback,
-  void *read_ctx)
+  بنية Curl_cfilter *cf,
+  بنية Curl_easy *داده,
+  بنية curl_ngh2 *ngh2,
+  بنية httpreq *req,
+  ثابت nghttp2_اولویت_spec *pri_spec,
+  فراغ *جریان_user_داده,
+  nghttp2_داده_منبع_read_callback read_callback,
+  فراغ *read_ctx)
 {
-  struct dynhds h2_headers;
-  nghttp2_nv *nva = NULL;
-  int32_t stream_id = -1;
+  بنية dynhds h2_سرآیندها;
+  nghttp2_nv *nva = عدم;
+  int32_t جریان_id = -1;
   size_t nheader;
-  CURLcode result;
+  CURLcode نتیجه;
 
-  (void)cf;
-  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
-  result = Curl_http_req_to_h2(&h2_headers, req, data);
-  if(result)
-    goto out;
+  (فراغ)cf;
+  Curl_dynhds_init(&h2_سرآیندها, MAX_HTTP_RESP_سرآیند_شمار, DYN_HTTP_REQUEST);
+  نتیجه = Curl_http_req_مقصد_h2(&h2_سرآیندها, req, داده);
+  إذا(نتیجه)
+    اذهب بیرون;
 
-  nva = Curl_dynhds_to_nva(&h2_headers, &nheader);
-  if(!nva) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  nva = Curl_dynhds_مقصد_nva(&h2_سرآیندها, &nheader);
+  إذا(!nva) {
+    نتیجه = CURLE_بیرون_از_حافظه;
+    اذهب بیرون;
   }
 
-  if(read_callback) {
-    nghttp2_data_provider data_prd;
+  إذا(read_callback) {
+    nghttp2_داده_provider داده_prd;
 
-    data_prd.read_callback = read_callback;
-    data_prd.source.ptr = read_ctx;
-    stream_id = Curl_ngh2_submit_request(
-      ngh2, pri_spec, nva, nheader, &data_prd, stream_user_data);
+    داده_prd.read_callback = read_callback;
+    داده_prd.منبع.ptr = read_ctx;
+    جریان_id = Curl_ngh2_submit_request(
+      ngh2, pri_spec, nva, nheader, &داده_prd, جریان_user_داده);
   }
-  else {
-    stream_id = Curl_ngh2_submit_request(
-      ngh2, pri_spec, nva, nheader, NULL, stream_user_data);
+  وإلا {
+    جریان_id = Curl_ngh2_submit_request(
+      ngh2, pri_spec, nva, nheader, عدم, جریان_user_داده);
   }
 
-  if(stream_id < 0) {
-    failf(data, "nghttp2_session_upgrade2() failed: %s(%d)",
-          nghttp2_strerror(stream_id), stream_id);
-    result = CURLE_SEND_ERROR;
-    goto out;
+  إذا(جریان_id < 0) {
+    failf(داده, "nghttp2_session_upgrade2() failed: %s(%d)",
+          nghttp2_strerror(جریان_id), جریان_id);
+    نتیجه = CURLE_SEND_ERROR;
+    اذهب بیرون;
   }
-  result = CURLE_OK;
+  نتیجه = CURLE_OK;
 
-out:
+بیرون:
   curlx_free(nva);
-  Curl_dynhds_free(&h2_headers);
-  *pstream_id = stream_id;
-  return result;
+  Curl_dynhds_free(&h2_سرآیندها);
+  *pstream_id = جریان_id;
+  أرجع نتیجه;
 }
 
-static CURLcode submit_CONNECT(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct tunnel_stream *ts)
+ساكن CURLcode submit_CONNECT(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *داده,
+                               بنية tunnel_جریان *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result;
-  struct httpreq *req = NULL;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجه;
+  بنية httpreq *req = عدم;
 
-  result = Curl_http_proxy_create_tunnel_request(&req, cf, data,
+  نتیجه = Curl_http_proxy_create_tunnel_request(&req, cf, داده,
                                                  ctx->peer, ctx->dest,
                                                   PROXY_HTTP_V2,
                                                   (bool)ctx->udp_tunnel);
-  if(result)
-    goto out;
-  result = Curl_creader_set_null(data);
-  if(result)
-    goto out;
+  إذا(نتیجه)
+    اذهب بیرون;
+  نتیجه = Curl_creader_مجموعه_null(داده);
+  إذا(نتیجه)
+    اذهب بیرون;
 
-  result = proxy_h2_submit(&ts->stream_id, cf, data, &ctx->ngh2, req,
-                           NULL, ts, tunnel_send_callback, cf);
-  if(result) {
-    CURL_TRC_CF(data, cf, "[%d] send, nghttp2_submit_request error: %s",
-                ts->stream_id, nghttp2_strerror(ts->stream_id));
+  نتیجه = proxy_h2_submit(&ts->جریان_id, cf, داده, &ctx->ngh2, req,
+                           عدم, ts, tunnel_send_callback, cf);
+  إذا(نتیجه) {
+    CURL_TRC_CF(داده, cf, "[%d] send, nghttp2_submit_request error: %s",
+                ts->جریان_id, nghttp2_strerror(ts->جریان_id));
   }
 
-out:
-  if(req)
+بیرون:
+  إذا(req)
     Curl_http_req_free(req);
-  if(result)
-    failf(data, "Failed sending CONNECT to proxy");
-  return result;
+  إذا(نتیجه)
+    failf(داده, "Failed sending CONNECT to proxy");
+  أرجع نتیجه;
 }
 
-static CURLcode inspect_response(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct tunnel_stream *ts)
+ساكن CURLcode inspect_response(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *داده,
+                                 بنية tunnel_جریان *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  proxy_inspect_result res;
-  CURLcode result;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  proxy_inspect_نتیجه res;
+  CURLcode نتیجه;
 
-  result = Curl_http_proxy_inspect_tunnel_response(
-      cf, data, ts->resp, (bool)ctx->udp_tunnel, &res);
-  if(result)
-    return result;
-  switch(res) {
-  case PROXY_INSPECT_OK:
-    h2_tunnel_go_state(cf, ts, H2_TUNNEL_ESTABLISHED, data,
+  نتیجه = Curl_http_proxy_inspect_tunnel_response(
+      cf, داده, ts->resp, (bool)ctx->udp_tunnel, &res);
+  إذا(نتیجه)
+    أرجع نتیجه;
+  بدل(res) {
+  حالة PROXY_INSPECT_OK:
+    h2_tunnel_go_state(cf, ts, H2_TUNNEL_ESTABLISHED, داده,
                        (bool)ctx->udp_tunnel);
-    break;
-  case PROXY_INSPECT_FAILED:
-    h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
+    اكسر;
+  حالة PROXY_INSPECT_FAILED:
+    h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, داده,
                        (bool)ctx->udp_tunnel);
-    result = CURLE_COULDNT_CONNECT;
-    break;
-  case PROXY_INSPECT_AUTH_RETRY:
-    h2_tunnel_go_state(cf, ts, H2_TUNNEL_INIT, data,
+    نتیجه = CURLE_COULDNT_CONNECT;
+    اكسر;
+  حالة PROXY_INSPECT_AUTH_RETRY:
+    h2_tunnel_go_state(cf, ts, H2_TUNNEL_INIT, داده,
                        (bool)ctx->udp_tunnel);
-    break;
+    اكسر;
   }
-  return result;
+  أرجع نتیجه;
 }
 
-static CURLcode H2_CONNECT(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct tunnel_stream *ts)
+ساكن CURLcode H2_CONNECT(بنية Curl_cfilter *cf,
+                           بنية Curl_easy *داده,
+                           بنية tunnel_جریان *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجه = CURLE_OK;
 
   DEBUGASSERT(ts);
   DEBUGASSERT(ts->authority);
-  if(ctx->conn_closed) {
-    failf(data, "proxy closed connection");
-    return CURLE_COULDNT_CONNECT;
+  إذا(ctx->conn_closed) {
+    failf(داده, "proxy closed connection");
+    أرجع CURLE_COULDNT_CONNECT;
   }
 
-  do {
-    switch(ts->state) {
-    case H2_TUNNEL_INIT:
+  افعل {
+    بدل(ts->state) {
+    حالة H2_TUNNEL_INIT:
       /* Prepare the CONNECT request and make a first attempt to send. */
-      CURL_TRC_CF(data, cf, "[0] CONNECT start for %s", ts->authority);
-      result = submit_CONNECT(cf, data, ts);
-      if(result)
-        goto out;
-      h2_tunnel_go_state(cf, ts, H2_TUNNEL_CONNECT, data,
+      CURL_TRC_CF(داده, cf, "[0] CONNECT start for %s", ts->authority);
+      نتیجه = submit_CONNECT(cf, داده, ts);
+      إذا(نتیجه)
+        اذهب بیرون;
+      h2_tunnel_go_state(cf, ts, H2_TUNNEL_CONNECT, داده,
                          (bool)ctx->udp_tunnel);
       FALLTHROUGH();
 
-    case H2_TUNNEL_CONNECT:
+    حالة H2_TUNNEL_CONNECT:
       /* see that the request is completely sent */
-      result = proxy_h2_progress_ingress(cf, data);
-      if(!result)
-        result = proxy_h2_progress_egress(cf, data);
-      if(result && result != CURLE_AGAIN) {
-        h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
+      نتیجه = proxy_h2_پیشرفت_ingress(cf, داده);
+      إذا(!نتیجه)
+        نتیجه = proxy_h2_پیشرفت_egress(cf, داده);
+      إذا(نتیجه && نتیجه != CURLE_AGAIN) {
+        h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, داده,
                            (bool)ctx->udp_tunnel);
-        break;
+        اكسر;
       }
 
-      if(ts->has_final_response) {
-        h2_tunnel_go_state(cf, ts, H2_TUNNEL_RESPONSE, data,
+      إذا(ts->has_final_response) {
+        h2_tunnel_go_state(cf, ts, H2_TUNNEL_RESPONSE, داده,
                            (bool)ctx->udp_tunnel);
       }
-      else {
-        result = CURLE_OK;
-        goto out;
+      وإلا {
+        نتیجه = CURLE_OK;
+        اذهب بیرون;
       }
       FALLTHROUGH();
 
-    case H2_TUNNEL_RESPONSE:
+    حالة H2_TUNNEL_RESPONSE:
       DEBUGASSERT(ts->has_final_response);
-      result = inspect_response(cf, data, ts);
-      if(result)
-        goto out;
-      break;
+      نتیجه = inspect_response(cf, داده, ts);
+      إذا(نتیجه)
+        اذهب بیرون;
+      اكسر;
 
-    case H2_TUNNEL_ESTABLISHED:
-      return CURLE_OK;
+    حالة H2_TUNNEL_ESTABLISHED:
+      أرجع CURLE_OK;
 
-    case H2_TUNNEL_FAILED:
-      return CURLE_RECV_ERROR;
+    حالة H2_TUNNEL_FAILED:
+      أرجع CURLE_RECV_ERROR;
 
-    default:
-      break;
+    افتراضي:
+      اكسر;
     }
 
-  } while(ts->state == H2_TUNNEL_INIT);
+  } طالما(ts->state == H2_TUNNEL_INIT);
 
-out:
-  if((result && (result != CURLE_AGAIN)) || ctx->tunnel.closed)
-    h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
+بیرون:
+  إذا((نتیجه && (نتیجه != CURLE_AGAIN)) || ctx->tunnel.closed)
+    h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, داده,
                        (bool)ctx->udp_tunnel);
-  return result;
+  أرجع نتیجه;
 }
 
 /*
  * Initialize the cfilter context
  */
-static CURLcode cf_h2_proxy_ctx_init(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data)
+ساكن CURLcode cf_h2_proxy_ctx_init(بنية Curl_cfilter *cf,
+                                     بنية Curl_easy *داده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  nghttp2_session_callbacks *cbs = NULL;
-  int rc;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجه = CURLE_بیرون_از_حافظه;
+  nghttp2_session_callbacks *cbs = عدم;
+  صحيح rc;
 
   DEBUGASSERT(!ctx->ngh2.s);
-  memset(&ctx->tunnel, 0, sizeof(ctx->tunnel));
+  memset(&ctx->tunnel, 0, حجم(ctx->tunnel));
 
-  Curl_bufq_init(&ctx->inbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_RECV_CHUNKS);
-  Curl_bufq_init(&ctx->outbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_SEND_CHUNKS);
+  Curl_bufq_init(&ctx->inbufq, PROXY_H2_CHUNK_اندازه, PROXY_H2_NW_RECV_CHUNKS);
+  Curl_bufq_init(&ctx->outbufq, PROXY_H2_CHUNK_اندازه, PROXY_H2_NW_SEND_CHUNKS);
   ctx->remote_max_sid = INT32_MAX;
 
-  if(tunnel_stream_init(&ctx->tunnel, ctx->dest))
-    goto out;
+  إذا(tunnel_جریان_init(&ctx->tunnel, ctx->dest))
+    اذهب بیرون;
 
   rc = nghttp2_session_callbacks_new(&cbs);
-  if(rc) {
-    failf(data, "Could not initialize nghttp2 callbacks");
-    goto out;
+  إذا(rc) {
+    failf(داده, "Could not initialize nghttp2 callbacks");
+    اذهب بیرون;
   }
 
-  nghttp2_session_callbacks_set_send_callback(cbs, on_session_send);
-  nghttp2_session_callbacks_set_on_frame_recv_callback(
-    cbs, proxy_h2_on_frame_recv);
-#ifdef CURLVERBOSE
-  nghttp2_session_callbacks_set_on_frame_send_callback(cbs,
-                                                       proxy_h2_on_frame_send);
-#endif
-  nghttp2_session_callbacks_set_on_data_chunk_recv_callback(
+  nghttp2_session_callbacks_مجموعه_send_callback(cbs, on_session_send);
+  nghttp2_session_callbacks_مجموعه_on_قاب_recv_callback(
+    cbs, proxy_h2_on_قاب_recv);
+#اگر_تعریف_شده CURLVERBOSE
+  nghttp2_session_callbacks_مجموعه_on_قاب_send_callback(cbs,
+                                                       proxy_h2_on_قاب_send);
+#پایان_اگر
+  nghttp2_session_callbacks_مجموعه_on_داده_chunk_recv_callback(
     cbs, tunnel_recv_callback);
-  nghttp2_session_callbacks_set_on_stream_close_callback(
-    cbs, proxy_h2_on_stream_close);
-  nghttp2_session_callbacks_set_on_header_callback(cbs, proxy_h2_on_header);
+  nghttp2_session_callbacks_مجموعه_on_جریان_close_callback(
+    cbs, proxy_h2_on_جریان_close);
+  nghttp2_session_callbacks_مجموعه_on_سرآیند_callback(cbs, proxy_h2_on_سرآیند);
 
   /* The nghttp2 session is not yet setup, do it */
   rc = proxy_h2_client_new(cf, cbs);
-  if(rc) {
-    failf(data, "Could not initialize nghttp2");
-    goto out;
+  إذا(rc) {
+    failf(داده, "Could not initialize nghttp2");
+    اذهب بیرون;
   }
 
   {
-    nghttp2_settings_entry iv[3];
+    nghttp2_settings_مدخل iv[3];
 
     iv[0].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
-    iv[0].value = Curl_multi_max_concurrent_streams(data->multi);
-    iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-    iv[1].value = H2_TUNNEL_WINDOW_SIZE;
-    iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_PUSH;
-    iv[2].value = 0;
+    iv[0].مقدار = Curl_multi_max_concurrent_streams(داده->multi);
+    iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_پنجره_اندازه;
+    iv[1].مقدار = H2_TUNNEL_پنجره_اندازه;
+    iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_افزودن;
+    iv[2].مقدار = 0;
     rc = Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, iv, 3);
-    if(rc) {
-      failf(data, "nghttp2_submit_settings() failed: %s(%d)",
+    إذا(rc) {
+      failf(داده, "nghttp2_submit_settings() failed: %s(%d)",
             nghttp2_strerror(rc), rc);
-      result = CURLE_HTTP2;
-      goto out;
+      نتیجه = CURLE_HTTP2;
+      اذهب بیرون;
     }
   }
 
-  rc = Curl_ngh2_session_set_local_window_size(
-    &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, PROXY_HTTP2_HUGE_WINDOW_SIZE);
-  if(rc) {
-    failf(data, "nghttp2_session_set_local_window_size() failed: %s(%d)",
+  rc = Curl_ngh2_session_مجموعه_local_پنجره_اندازه(
+    &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, PROXY_HTTP2_HUGE_پنجره_اندازه);
+  إذا(rc) {
+    failf(داده, "nghttp2_session_set_local_window_size() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
-    result = CURLE_HTTP2;
-    goto out;
+    نتیجه = CURLE_HTTP2;
+    اذهب بیرون;
   }
 
   /* all set, traffic will be send on connect */
-  result = CURLE_OK;
+  نتیجه = CURLE_OK;
 
-out:
-  if(cbs)
+بیرون:
+  إذا(cbs)
     nghttp2_session_callbacks_del(cbs);
-  CURL_TRC_CF(data, cf, "[0] init proxy ctx -> %d", (int)result);
-  return result;
+  CURL_TRC_CF(داده, cf, "[0] init proxy ctx -> %d", (صحيح)نتیجه);
+  أرجع نتیجه;
 }
 
-static CURLcode cf_h2_proxy_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    bool *done)
+ساكن CURLcode cf_h2_proxy_connect(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *داده,
+                                    bool *انجامشده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
-  struct tunnel_stream *ts = &ctx->tunnel;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجه = CURLE_OK;
+  بنية cf_call_داده save;
+  بنية tunnel_جریان *ts = &ctx->tunnel;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(cf->connected) {
+    *انجامشده = TRUE;
+    أرجع CURLE_OK;
   }
 
   /* Connect the lower filters first */
-  if(!cf->next->connected) {
-    result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  إذا(!cf->بعدی->connected) {
+    نتیجه = Curl_conn_cf_connect(cf->بعدی, داده, انجامشده);
+    إذا(نتیجه || !*انجامشده)
+      أرجع نتیجه;
   }
 
-  *done = FALSE;
+  *انجامشده = FALSE;
 
-  CF_DATA_SAVE(save, cf, data);
-  if(!ctx->ngh2.s) {
-    result = cf_h2_proxy_ctx_init(cf, data);
-    if(result)
-      goto out;
+  CF_داده_SAVE(save, cf, داده);
+  إذا(!ctx->ngh2.s) {
+    نتیجه = cf_h2_proxy_ctx_init(cf, داده);
+    إذا(نتیجه)
+      اذهب بیرون;
   }
   DEBUGASSERT(ts->authority);
 
-  if(Curl_timeleft_ms(data) < 0) {
-    failf(data, "Proxy CONNECT aborted due to timeout");
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto out;
+  إذا(Curl_timeleft_ms(داده) < 0) {
+    failf(داده, "Proxy CONNECT aborted due to timeout");
+    نتیجه = CURLE_OPERATION_TIMEDOUT;
+    اذهب بیرون;
   }
 
   /* for the secondary socket (FTP), use the "connect to host"
    * but ignore the "connect to port" (use the secondary port)
    */
-  result = H2_CONNECT(cf, data, ts);
+  نتیجه = H2_CONNECT(cf, داده, ts);
 
-out:
-  *done = (result == CURLE_OK) && (ts->state == H2_TUNNEL_ESTABLISHED);
-  if(*done) {
+بیرون:
+  *انجامشده = (نتیجه == CURLE_OK) && (ts->state == H2_TUNNEL_ESTABLISHED);
+  إذا(*انجامشده) {
     cf->connected = TRUE;
     /* The real request will follow the CONNECT, reset request partially */
-    Curl_req_soft_reset(&data->req, data);
-    Curl_client_reset(data);
+    Curl_req_soft_reset(&داده->req, داده);
+    Curl_client_reset(داده);
   }
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_داده_RESTORE(cf, save);
+  أرجع نتیجه;
 }
 
-static void cf_h2_proxy_destroy(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+ساكن فراغ cf_h2_proxy_destroy(بنية Curl_cfilter *cf,
+                                بنية Curl_easy *داده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
 
-  (void)data;
-  if(ctx) {
+  (فراغ)داده;
+  إذا(ctx) {
     cf_h2_proxy_ctx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = عدم;
   }
 }
 
-static CURLcode cf_h2_proxy_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data, bool *done)
+ساكن CURLcode cf_h2_proxy_shutdown(بنية Curl_cfilter *cf,
+                                     بنية Curl_easy *داده, bool *انجامشده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
-  int rv;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_call_داده save;
+  CURLcode نتیجه;
+  صحيح rv;
 
-  if(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
+  إذا(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
      cf->shutdown || ctx->conn_closed) {
-    *done = TRUE;
-    return CURLE_OK;
+    *انجامشده = TRUE;
+    أرجع CURLE_OK;
   }
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_داده_SAVE(save, cf, داده);
 
-  if(!ctx->sent_goaway) {
+  إذا(!ctx->فرستاده_goaway) {
     rv = Curl_ngh2_submit_goaway(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, 0,
-      (const uint8_t *)"shutdown", sizeof("shutdown"));
-    if(rv) {
-      failf(data, "nghttp2_submit_goaway() failed: %s(%d)",
+      (ثابت uint8_t *)"shutdown", حجم("shutdown"));
+    إذا(rv) {
+      failf(داده, "nghttp2_submit_goaway() failed: %s(%d)",
             nghttp2_strerror(rv), rv);
-      result = CURLE_SEND_ERROR;
-      goto out;
+      نتیجه = CURLE_SEND_ERROR;
+      اذهب بیرون;
     }
-    ctx->sent_goaway = TRUE;
+    ctx->فرستاده_goaway = TRUE;
   }
   /* GOAWAY submitted, process egress and ingress until nghttp2 is done. */
-  result = CURLE_OK;
-  if(Curl_ngh2_session_want_write(&ctx->ngh2))
-    result = proxy_h2_progress_egress(cf, data);
-  if(!result && Curl_ngh2_session_want_read(&ctx->ngh2))
-    result = proxy_h2_progress_ingress(cf, data);
+  نتیجه = CURLE_OK;
+  إذا(Curl_ngh2_session_want_write(&ctx->ngh2))
+    نتیجه = proxy_h2_پیشرفت_egress(cf, داده);
+  إذا(!نتیجه && Curl_ngh2_session_want_read(&ctx->ngh2))
+    نتیجه = proxy_h2_پیشرفت_ingress(cf, داده);
 
-  *done = (ctx->conn_closed ||
-           (!result && !Curl_ngh2_session_want_write(&ctx->ngh2) &&
+  *انجامشده = (ctx->conn_closed ||
+           (!نتیجه && !Curl_ngh2_session_want_write(&ctx->ngh2) &&
             !Curl_ngh2_session_want_read(&ctx->ngh2)));
-out:
-  CF_DATA_RESTORE(cf, save);
-  cf->shutdown = (result || *done);
-  return result;
+بیرون:
+  CF_داده_RESTORE(cf, save);
+  cf->shutdown = (نتیجه || *انجامشده);
+  أرجع نتیجه;
 }
 
-static bool cf_h2_proxy_data_pending(struct Curl_cfilter *cf,
-                                     const struct Curl_easy *data)
+ساكن bool cf_h2_proxy_داده_pending(بنية Curl_cfilter *cf,
+                                     ثابت بنية Curl_easy *داده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  if((ctx && !Curl_bufq_is_empty(&ctx->inbufq)) ||
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  إذا((ctx && !Curl_bufq_is_خالی(&ctx->inbufq)) ||
      (ctx && ctx->tunnel.state == H2_TUNNEL_ESTABLISHED &&
-      !Curl_bufq_is_empty(&ctx->tunnel.recvbuf)))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+      !Curl_bufq_is_خالی(&ctx->tunnel.recvbuf)))
+    أرجع TRUE;
+  أرجع cf->بعدی ? cf->بعدی->cft->has_داده_pending(cf->بعدی, داده) : FALSE;
 }
 
-static CURLcode cf_h2_proxy_adjust_pollset(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct easy_pollset *ps)
+ساكن CURLcode cf_h2_proxy_adjust_pollset(بنية Curl_cfilter *cf,
+                                           بنية Curl_easy *داده,
+                                           بنية easy_pollset *ps)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_call_داده save;
+  curl_socket_t sock = Curl_conn_cf_get_socket(cf, داده);
   bool want_recv, want_send;
-  CURLcode result = CURLE_OK;
+  CURLcode نتیجه = CURLE_OK;
 
-  if(!cf->connected && Curl_ngh2_valid(&ctx->ngh2)) {
+  إذا(!cf->connected && Curl_ngh2_valid(&ctx->ngh2)) {
     want_send = Curl_ngh2_session_want_write(&ctx->ngh2) ||
-                !Curl_bufq_is_empty(&ctx->outbufq) ||
-                !Curl_bufq_is_empty(&ctx->tunnel.sendbuf);
+                !Curl_bufq_is_خالی(&ctx->outbufq) ||
+                !Curl_bufq_is_خالی(&ctx->tunnel.sendbuf);
     want_recv = Curl_ngh2_session_want_read(&ctx->ngh2);
   }
-  else
-    Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
+  وإلا
+    Curl_pollset_check(داده, ps, sock, &want_recv, &want_send);
 
-  if(Curl_ngh2_valid(&ctx->ngh2) && (want_recv || want_send)) {
+  إذا(Curl_ngh2_valid(&ctx->ngh2) && (want_recv || want_send)) {
     bool c_exhaust, s_exhaust;
 
-    CF_DATA_SAVE(save, cf, data);
-    c_exhaust = !Curl_ngh2_session_get_remote_window_size(&ctx->ngh2);
-    s_exhaust = ctx->tunnel.stream_id >= 0 &&
-                !Curl_ngh2_session_get_stream_remote_window_size(
-                  &ctx->ngh2, ctx->tunnel.stream_id);
+    CF_داده_SAVE(save, cf, داده);
+    c_exhaust = !Curl_ngh2_session_get_remote_پنجره_اندازه(&ctx->ngh2);
+    s_exhaust = ctx->tunnel.جریان_id >= 0 &&
+                !Curl_ngh2_session_get_جریان_remote_پنجره_اندازه(
+                  &ctx->ngh2, ctx->tunnel.جریان_id);
     want_recv = (want_recv || c_exhaust || s_exhaust);
     want_send = (!s_exhaust && want_send) ||
                 (!c_exhaust && Curl_ngh2_session_want_write(&ctx->ngh2)) ||
-                !Curl_bufq_is_empty(&ctx->outbufq) ||
-                !Curl_bufq_is_empty(&ctx->tunnel.sendbuf);
+                !Curl_bufq_is_خالی(&ctx->outbufq) ||
+                !Curl_bufq_is_خالی(&ctx->tunnel.sendbuf);
 
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CURL_TRC_CF(data, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
-                want_recv, want_send, (int)result);
-    CF_DATA_RESTORE(cf, save);
+    نتیجه = Curl_pollset_مجموعه(داده, ps, sock, want_recv, want_send);
+    CURL_TRC_CF(داده, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
+                want_recv, want_send, (صحيح)نتیجه);
+    CF_داده_RESTORE(cf, save);
   }
-  else if(ctx->sent_goaway && !cf->shutdown) {
+  وإلا إذا(ctx->فرستاده_goaway && !cf->shutdown) {
     /* shutdown in progress */
-    CF_DATA_SAVE(save, cf, data);
+    CF_داده_SAVE(save, cf, داده);
     want_send = Curl_ngh2_session_want_write(&ctx->ngh2) ||
-                !Curl_bufq_is_empty(&ctx->outbufq) ||
-                !Curl_bufq_is_empty(&ctx->tunnel.sendbuf);
+                !Curl_bufq_is_خالی(&ctx->outbufq) ||
+                !Curl_bufq_is_خالی(&ctx->tunnel.sendbuf);
     want_recv = Curl_ngh2_session_want_read(&ctx->ngh2);
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CURL_TRC_CF(data, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
-                want_recv, want_send, (int)result);
-    CF_DATA_RESTORE(cf, save);
+    نتیجه = Curl_pollset_مجموعه(داده, ps, sock, want_recv, want_send);
+    CURL_TRC_CF(داده, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
+                want_recv, want_send, (صحيح)نتیجه);
+    CF_داده_RESTORE(cf, save);
   }
-  return result;
+  أرجع نتیجه;
 }
 
-static CURLcode h2_handle_tunnel_close(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
+ساكن CURLcode h2_handle_tunnel_close(بنية Curl_cfilter *cf,
+                                       بنية Curl_easy *داده,
                                        size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
 
   *pnread = 0;
-  if(ctx->tunnel.error) {
-    failf(data, "HTTP/2 stream %d reset by %s (error 0x%x %s)",
-          ctx->tunnel.stream_id, ctx->tunnel.reset ? "server" : "curl",
+  إذا(ctx->tunnel.error) {
+    failf(داده, "HTTP/2 stream %d reset by %s (error 0x%x %s)",
+          ctx->tunnel.جریان_id, ctx->tunnel.reset ? "server" : "curl",
           ctx->tunnel.error, nghttp2_http2_strerror(ctx->tunnel.error));
-    return CURLE_RECV_ERROR;
+    أرجع CURLE_RECV_ERROR;
   }
 
-  CURL_TRC_CF(data, cf, "[%d] handle_tunnel_close -> 0",
-              ctx->tunnel.stream_id);
-  return CURLE_OK;
+  CURL_TRC_CF(داده, cf, "[%d] handle_tunnel_close -> 0",
+              ctx->tunnel.جریان_id);
+  أرجع CURLE_OK;
 }
 
-static CURLcode tunnel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            char *buf, size_t len, size_t *pnread)
+ساكن CURLcode tunnel_recv(بنية Curl_cfilter *cf, بنية Curl_easy *داده,
+                            حرف *buf, size_t len, size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_AGAIN;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجه = CURLE_AGAIN;
 
   *pnread = 0;
-  if(!Curl_bufq_is_empty(&ctx->tunnel.recvbuf))
-    result = Curl_bufq_cread(&ctx->tunnel.recvbuf, buf, len, pnread);
-  else {
-    if(ctx->tunnel.closed) {
-      result = h2_handle_tunnel_close(cf, data, pnread);
+  إذا(!Curl_bufq_is_خالی(&ctx->tunnel.recvbuf))
+    نتیجه = Curl_bufq_cread(&ctx->tunnel.recvbuf, buf, len, pnread);
+  وإلا {
+    إذا(ctx->tunnel.closed) {
+      نتیجه = h2_handle_tunnel_close(cf, داده, pnread);
     }
-    else if(ctx->tunnel.reset ||
-            (ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) ||
+    وإلا إذا(ctx->tunnel.reset ||
+            (ctx->conn_closed && Curl_bufq_is_خالی(&ctx->inbufq)) ||
             (ctx->rcvd_goaway &&
-             ctx->remote_max_sid < ctx->tunnel.stream_id)) {
-      result = CURLE_RECV_ERROR;
+             ctx->remote_max_sid < ctx->tunnel.جریان_id)) {
+      نتیجه = CURLE_RECV_ERROR;
     }
-    else
-      result = CURLE_AGAIN;
+    وإلا
+      نتیجه = CURLE_AGAIN;
   }
 
-  CURL_TRC_CF(data, cf, "[%d] tunnel_recv(len=%zu) -> %d, %zu",
-              ctx->tunnel.stream_id, len, (int)result, *pnread);
-  return result;
+  CURL_TRC_CF(داده, cf, "[%d] tunnel_recv(len=%zu) -> %d, %zu",
+              ctx->tunnel.جریان_id, len, (صحيح)نتیجه, *pnread);
+  أرجع نتیجه;
 }
 
-static CURLcode cf_h2_proxy_recv(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 char *buf, size_t len,
+ساكن CURLcode cf_h2_proxy_recv(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *داده,
+                                 حرف *buf, size_t len,
                                  size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_call_داده save;
+  CURLcode نتیجه;
 
   *pnread = 0;
-  CF_DATA_SAVE(save, cf, data);
+  CF_داده_SAVE(save, cf, داده);
 
-  if(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
-    result = CURLE_RECV_ERROR;
-    goto out;
+  إذا(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
+    نتیجه = CURLE_RECV_ERROR;
+    اذهب بیرون;
   }
 
-  if(Curl_bufq_is_empty(&ctx->tunnel.recvbuf)) {
-    result = proxy_h2_progress_ingress(cf, data);
-    if(result)
-      goto out;
+  إذا(Curl_bufq_is_خالی(&ctx->tunnel.recvbuf)) {
+    نتیجه = proxy_h2_پیشرفت_ingress(cf, داده);
+    إذا(نتیجه)
+      اذهب بیرون;
   }
 
-  result = tunnel_recv(cf, data, buf, len, pnread);
+  نتیجه = tunnel_recv(cf, داده, buf, len, pnread);
 
-  if(!result) {
-    CURL_TRC_CF(data, cf, "[%d] increase window by %zu",
-                ctx->tunnel.stream_id, *pnread);
-    Curl_ngh2_session_consume(&ctx->ngh2, ctx->tunnel.stream_id, *pnread);
+  إذا(!نتیجه) {
+    CURL_TRC_CF(داده, cf, "[%d] increase window by %zu",
+                ctx->tunnel.جریان_id, *pnread);
+    Curl_ngh2_session_consume(&ctx->ngh2, ctx->tunnel.جریان_id, *pnread);
   }
 
-  result = Curl_1st_fatal(result, proxy_h2_progress_egress(cf, data));
+  نتیجه = Curl_1st_fatal(نتیجه, proxy_h2_پیشرفت_egress(cf, داده));
 
-out:
-  if((!Curl_bufq_is_empty(&ctx->tunnel.recvbuf) ||
-      !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) &&
-     (!result || (result == CURLE_AGAIN))) {
+بیرون:
+  إذا((!Curl_bufq_is_خالی(&ctx->tunnel.recvbuf) ||
+      !Curl_bufq_is_خالی(&ctx->tunnel.sendbuf)) &&
+     (!نتیجه || (نتیجه == CURLE_AGAIN))) {
     /* data pending and no fatal error to report. Need to trigger
      * draining to avoid stalling when no socket events happen. */
-    drain_tunnel(cf, data, &ctx->tunnel);
+    drain_tunnel(cf, داده, &ctx->tunnel);
   }
-  CURL_TRC_CF(data, cf, "[%d] cf_recv(len=%zu) -> %d, %zu",
-              ctx->tunnel.stream_id, len, (int)result, *pnread);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(داده, cf, "[%d] cf_recv(len=%zu) -> %d, %zu",
+              ctx->tunnel.جریان_id, len, (صحيح)نتیجه, *pnread);
+  CF_داده_RESTORE(cf, save);
+  أرجع نتیجه;
 }
 
-static CURLcode cf_h2_proxy_send(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const uint8_t *buf, size_t len, bool eos,
+ساكن CURLcode cf_h2_proxy_send(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *داده,
+                                 ثابت uint8_t *buf, size_t len, bool eos,
                                  size_t *pnwritten)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_call_داده save;
+  CURLcode نتیجه;
 
-  (void)eos;
+  (فراغ)eos;
   *pnwritten = 0;
-  CF_DATA_SAVE(save, cf, data);
+  CF_داده_SAVE(save, cf, داده);
 
-  if(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
-    result = CURLE_SEND_ERROR;
-    goto out;
+  إذا(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
+    نتیجه = CURLE_SEND_ERROR;
+    اذهب بیرون;
   }
 
-  if(ctx->tunnel.closed) {
-    result = CURLE_SEND_ERROR;
-    goto out;
+  إذا(ctx->tunnel.closed) {
+    نتیجه = CURLE_SEND_ERROR;
+    اذهب بیرون;
   }
 
-  result = Curl_bufq_write(&ctx->tunnel.sendbuf, buf, len, pnwritten);
-  CURL_TRC_CF(data, cf, "cf_send(), bufq_write %d, %zu", (int)result,
+  نتیجه = Curl_bufq_write(&ctx->tunnel.sendbuf, buf, len, pnwritten);
+  CURL_TRC_CF(داده, cf, "cf_send(), bufq_write %d, %zu", (صحيح)نتیجه,
               *pnwritten);
-  if(result && (result != CURLE_AGAIN))
-    goto out;
+  إذا(نتیجه && (نتیجه != CURLE_AGAIN))
+    اذهب بیرون;
 
-  if(!Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
+  إذا(!Curl_bufq_is_خالی(&ctx->tunnel.sendbuf)) {
     /* req body data is buffered, resume the potentially suspended stream */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
-         Curl_ngh2_session_resume_data(&ctx->ngh2, ctx->tunnel.stream_id))) {
-      result = CURLE_SEND_ERROR;
-      goto out;
+    إذا(Curl_ngh2_is_fatal(&ctx->ngh2,
+         Curl_ngh2_session_resume_داده(&ctx->ngh2, ctx->tunnel.جریان_id))) {
+      نتیجه = CURLE_SEND_ERROR;
+      اذهب بیرون;
     }
   }
 
-  result = Curl_1st_fatal(result, proxy_h2_progress_ingress(cf, data));
-  result = Curl_1st_fatal(result, proxy_h2_progress_egress(cf, data));
+  نتیجه = Curl_1st_fatal(نتیجه, proxy_h2_پیشرفت_ingress(cf, داده));
+  نتیجه = Curl_1st_fatal(نتیجه, proxy_h2_پیشرفت_egress(cf, داده));
 
-  if(!result && proxy_h2_should_close_session(ctx)) {
+  إذا(!نتیجه && proxy_h2_should_close_session(ctx)) {
     /* nghttp2 thinks this session is done. If the stream has not been
      * closed, this is an error state for out transfer */
-    if(ctx->tunnel.closed) {
-      result = CURLE_SEND_ERROR;
+    إذا(ctx->tunnel.closed) {
+      نتیجه = CURLE_SEND_ERROR;
     }
-    else {
-      CURL_TRC_CF(data, cf, "[0] send: nothing to do in this session");
-      result = CURLE_HTTP2;
+    وإلا {
+      CURL_TRC_CF(داده, cf, "[0] send: nothing to do in this session");
+      نتیجه = CURLE_HTTP2;
     }
   }
 
-out:
-  if((!Curl_bufq_is_empty(&ctx->tunnel.recvbuf) ||
-      !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) &&
-     (!result || (result == CURLE_AGAIN))) {
+بیرون:
+  إذا((!Curl_bufq_is_خالی(&ctx->tunnel.recvbuf) ||
+      !Curl_bufq_is_خالی(&ctx->tunnel.sendbuf)) &&
+     (!نتیجه || (نتیجه == CURLE_AGAIN))) {
     /* data pending and no fatal error to report. Need to trigger
      * draining to avoid stalling when no socket events happen. */
-    drain_tunnel(cf, data, &ctx->tunnel);
+    drain_tunnel(cf, داده, &ctx->tunnel);
   }
-  CURL_TRC_CF(data, cf, "[%d] cf_send(len=%zu) -> %d, %zu, "
+  CURL_TRC_CF(داده, cf, "[%d] cf_send(len=%zu) -> %d, %zu, "
               "h2 windows %d-%d (stream-conn), buffers %zu-%zu (stream-conn)",
-              ctx->tunnel.stream_id, len, (int)result, *pnwritten,
-              Curl_ngh2_session_get_stream_remote_window_size(
-                &ctx->ngh2, ctx->tunnel.stream_id),
-              Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
+              ctx->tunnel.جریان_id, len, (صحيح)نتیجه, *pnwritten,
+              Curl_ngh2_session_get_جریان_remote_پنجره_اندازه(
+                &ctx->ngh2, ctx->tunnel.جریان_id),
+              Curl_ngh2_session_get_remote_پنجره_اندازه(&ctx->ngh2),
               Curl_bufq_len(&ctx->tunnel.sendbuf),
               Curl_bufq_len(&ctx->outbufq));
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_داده_RESTORE(cf, save);
+  أرجع نتیجه;
 }
 
-static CURLcode cf_h2_proxy_flush(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ساكن CURLcode cf_h2_proxy_flush(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_call_داده save;
+  CURLcode نتیجه = CURLE_OK;
 
-  CF_DATA_SAVE(save, cf, data);
-  if(!Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
+  CF_داده_SAVE(save, cf, داده);
+  إذا(!Curl_bufq_is_خالی(&ctx->tunnel.sendbuf)) {
     /* resume the potentially suspended tunnel */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
-         Curl_ngh2_session_resume_data(&ctx->ngh2, ctx->tunnel.stream_id))) {
-      result = CURLE_SEND_ERROR;
-      goto out;
+    إذا(Curl_ngh2_is_fatal(&ctx->ngh2,
+         Curl_ngh2_session_resume_داده(&ctx->ngh2, ctx->tunnel.جریان_id))) {
+      نتیجه = CURLE_SEND_ERROR;
+      اذهب بیرون;
     }
   }
 
-  result = proxy_h2_progress_egress(cf, data);
+  نتیجه = proxy_h2_پیشرفت_egress(cf, داده);
 
-out:
-  CURL_TRC_CF(data, cf, "[%d] flush -> %d, "
+بیرون:
+  CURL_TRC_CF(داده, cf, "[%d] flush -> %d, "
               "h2 windows %d-%d (stream-conn), buffers %zu-%zu (stream-conn)",
-              ctx->tunnel.stream_id, (int)result,
-              Curl_ngh2_session_get_stream_remote_window_size(
-                &ctx->ngh2, ctx->tunnel.stream_id),
-              Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
+              ctx->tunnel.جریان_id, (صحيح)نتیجه,
+              Curl_ngh2_session_get_جریان_remote_پنجره_اندازه(
+                &ctx->ngh2, ctx->tunnel.جریان_id),
+              Curl_ngh2_session_get_remote_پنجره_اندازه(&ctx->ngh2),
               Curl_bufq_len(&ctx->tunnel.sendbuf),
               Curl_bufq_len(&ctx->outbufq));
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_داده_RESTORE(cf, save);
+  أرجع نتیجه;
 }
 
-static bool proxy_h2_connisalive(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool *input_pending)
+ساكن bool proxy_h2_connisalive(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *داده,
+                                 bool *درون_داد_pending)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    return FALSE;
+  *درون_داد_pending = FALSE;
+  إذا(!cf->بعدی || !cf->بعدی->cft->is_alive(cf->بعدی, داده, درون_داد_pending))
+    أرجع FALSE;
 
-  if(*input_pending) {
+  إذا(*درون_داد_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
-    CURLcode result;
+    CURLcode نتیجه;
     size_t nread;
 
-    *input_pending = FALSE;
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
-    if(!result) {
-      if(proxy_h2_process_pending_input(cf, data))
+    *درون_داد_pending = FALSE;
+    نتیجه = Curl_cf_recv_bufq(cf->بعدی, داده, &ctx->inbufq, 0, &nread);
+    إذا(!نتیجه) {
+      إذا(proxy_h2_process_pending_درون_داد(cf, داده))
         /* immediate error, considered dead */
         alive = FALSE;
-      else {
+      وإلا {
         alive = !proxy_h2_should_close_session(ctx);
       }
     }
-    else if(result != CURLE_AGAIN) {
+    وإلا إذا(نتیجه != CURLE_AGAIN) {
       /* the read failed so let's say this is dead anyway */
       alive = FALSE;
     }
   }
 
-  return alive;
+  أرجع alive;
 }
 
-static bool cf_h2_proxy_is_alive(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool *input_pending)
+ساكن bool cf_h2_proxy_is_alive(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *داده,
+                                 bool *درون_داد_pending)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
   bool alive;
-  struct cf_call_data save;
+  بنية cf_call_داده save;
 
-  *input_pending = FALSE;
-  CF_DATA_SAVE(save, cf, data);
+  *درون_داد_pending = FALSE;
+  CF_داده_SAVE(save, cf, داده);
   alive = (ctx && Curl_ngh2_valid(&ctx->ngh2) &&
-          proxy_h2_connisalive(cf, data, input_pending));
-  CURL_TRC_CF(data, cf, "[0] conn alive -> %d, input_pending=%d",
-              alive, *input_pending);
-  CF_DATA_RESTORE(cf, save);
-  return alive;
+          proxy_h2_connisalive(cf, داده, درون_داد_pending));
+  CURL_TRC_CF(داده, cf, "[0] conn alive -> %d, input_pending=%d",
+              alive, *درون_داد_pending);
+  CF_داده_RESTORE(cf, save);
+  أرجع alive;
 }
 
-static CURLcode cf_h2_proxy_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+ساكن CURLcode cf_h2_proxy_query(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده,
+                                  صحيح query, صحيح *pres1, فراغ *pres2)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  بنية cf_h2_proxy_ctx *ctx = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_HOST_PORT:
-    *pres1 = (int)ctx->dest->port;
-    *((const char **)pres2) = ctx->dest->hostname;
-    return CURLE_OK;
-  case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->outbufq) ||
-       !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
-      CURL_TRC_CF(data, cf, "needs flush");
+  بدل(query) {
+  حالة CF_QUERY_HOST_پورت:
+    *pres1 = (صحيح)ctx->dest->پورت;
+    *((ثابت حرف **)pres2) = ctx->dest->hostname;
+    أرجع CURLE_OK;
+  حالة CF_QUERY_NEED_FLUSH: {
+    إذا(!Curl_bufq_is_خالی(&ctx->outbufq) ||
+       !Curl_bufq_is_خالی(&ctx->tunnel.sendbuf)) {
+      CURL_TRC_CF(داده, cf, "needs flush");
       *pres1 = TRUE;
-      return CURLE_OK;
+      أرجع CURLE_OK;
     }
-    break;
+    اكسر;
   }
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  حالة CF_QUERY_ALPN_NEGOTIATED: {
+    ثابت حرف **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = NULL;
-    return CURLE_OK;
+    *palpn = عدم;
+    أرجع CURLE_OK;
   }
-  default:
-    break;
+  افتراضي:
+    اكسر;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  أرجع cf->بعدی ?
+    cf->بعدی->cft->query(cf->بعدی, داده, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_h2_proxy_cntrl(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int event, int arg1, void *arg2)
+ساكن CURLcode cf_h2_proxy_cntrl(بنية Curl_cfilter *cf,
+                                  بنية Curl_easy *داده,
+                                  صحيح event, صحيح arg1, فراغ *arg2)
 {
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  CURLcode نتیجه = CURLE_OK;
+  بنية cf_call_داده save;
 
-  (void)arg1;
-  (void)arg2;
+  (فراغ)arg1;
+  (فراغ)arg2;
 
-  switch(event) {
-  case CF_CTRL_FLUSH:
-    CF_DATA_SAVE(save, cf, data);
-    result = cf_h2_proxy_flush(cf, data);
-    CF_DATA_RESTORE(cf, save);
-    break;
-  default:
-    break;
+  بدل(event) {
+  حالة CF_CTRL_FLUSH:
+    CF_داده_SAVE(save, cf, داده);
+    نتیجه = cf_h2_proxy_flush(cf, داده);
+    CF_داده_RESTORE(cf, save);
+    اكسر;
+  افتراضي:
+    اكسر;
   }
-  return result;
+  أرجع نتیجه;
 }
 
-struct Curl_cftype Curl_cft_h2_proxy = {
+بنية Curl_cftype Curl_cft_h2_proxy = {
   "H2-PROXY",
   CF_TYPE_IP_CONNECT | CF_TYPE_PROXY,
   CURL_LOG_LVL_NONE,
@@ -1479,7 +1479,7 @@ struct Curl_cftype Curl_cft_h2_proxy = {
   cf_h2_proxy_connect,
   cf_h2_proxy_shutdown,
   cf_h2_proxy_adjust_pollset,
-  cf_h2_proxy_data_pending,
+  cf_h2_proxy_داده_pending,
   cf_h2_proxy_send,
   cf_h2_proxy_recv,
   cf_h2_proxy_cntrl,
@@ -1488,33 +1488,33 @@ struct Curl_cftype Curl_cft_h2_proxy = {
   cf_h2_proxy_query,
 };
 
-CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
+CURLcode Curl_cf_h2_proxy_درج_after(بنية Curl_cfilter *cf,
+                                       بنية Curl_easy *داده,
+                                       بنية Curl_peer *peer,
+                                       بنية Curl_peer *dest,
                                        bool udp_tunnel)
 {
-  struct Curl_cfilter *cf_h2_proxy = NULL;
-  struct cf_h2_proxy_ctx *ctx;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  بنية Curl_cfilter *cf_h2_proxy = عدم;
+  بنية cf_h2_proxy_ctx *ctx;
+  CURLcode نتیجه = CURLE_بیرون_از_حافظه;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    goto out;
+  (فراغ)داده;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx)
+    اذهب بیرون;
   Curl_peer_link(&ctx->peer, peer);
   Curl_peer_link(&ctx->dest, dest);
   ctx->udp_tunnel = udp_tunnel;
 
-  result = Curl_cf_create(&cf_h2_proxy, &Curl_cft_h2_proxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
-  Curl_conn_cf_insert_after(cf, cf_h2_proxy);
+  نتیجه = Curl_cf_create(&cf_h2_proxy, &Curl_cft_h2_proxy, ctx);
+  إذا(نتیجه)
+    اذهب بیرون;
+  ctx = عدم;
+  Curl_conn_cf_درج_after(cf, cf_h2_proxy);
 
-out:
+بیرون:
   cf_h2_proxy_ctx_free(ctx);
-  return result;
+  أرجع نتیجه;
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY && USE_NGHTTP2 */
+#پایان_اگر /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY && USE_NGHTTP2 */

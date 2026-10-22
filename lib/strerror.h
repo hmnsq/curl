@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRERROR_H
-#define HEADER_CURL_STRERROR_H
+#اگر_تعریف_نشده سرآیند_CURL_STRERROR_H
+#تعریف_کن سرآیند_CURL_STRERROR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,10 +23,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifdef USE_WINDOWS_SSPI
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen);
-#endif
+#اگر_تعریف_شده USE_WINDOWS_SSPI
+ثابت حرف *Curl_sspi_strerror(SECURITY_وضعیت err, حرف *buf, size_t buflen);
+#پایان_اگر
 
-#endif /* HEADER_CURL_STRERROR_H */
+#پایان_اگر /* HEADER_CURL_STRERROR_H */

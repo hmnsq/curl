@@ -21,57 +21,57 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "transfer.h"
-#include "curlx/strcopy.h"
+#ضمن "urldata.h"
+#ضمن "curl_trc.h"
+#ضمن "multiif.h"
+#ضمن "progress.h"
+#ضمن "transfer.h"
+#ضمن "curlx/strcopy.h"
 
-#ifndef CURL_DISABLE_PROGRESS_METER
+#اگر_تعریف_نشده CURL_DISABLE_پیشرفت_METER
 /* Provide a string that is 7 letters long (plus the zero byte).
 
    @unittest 1636 */
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds);
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
+UNITTEST فراغ time2str(حرف *r, size_t rsize, curl_off_t seconds);
+UNITTEST فراغ time2str(حرف *r, size_t rsize, curl_off_t seconds)
 {
   curl_off_t h;
-  if(seconds <= 0) {
+  إذا(seconds <= 0) {
     curlx_strcopy(r, rsize, STRCONST("       "));
-    return;
+    أرجع;
   }
   h = seconds / 3600;
-  if(h <= 99) {
+  إذا(h <= 99) {
     curl_off_t m = (seconds - (h * 3600)) / 60;
-    if(h <= 9) {
+    إذا(h <= 9) {
       curl_off_t s = (seconds - (h * 3600)) - (m * 60);
-      if(h)
+      إذا(h)
         curl_msnprintf(r, rsize, "%" FMT_OFF_T ":%02" FMT_OFF_T ":"
                        "%02" FMT_OFF_T, h, m, s);
-      else
+      وإلا
         curl_msnprintf(r, rsize, "  %02" FMT_OFF_T ":%02" FMT_OFF_T, m, s);
     }
-    else
+    وإلا
       curl_msnprintf(r, rsize, "%" FMT_OFF_T "h %02" FMT_OFF_T "m", h, m);
   }
-  else {
+  وإلا {
     curl_off_t d = seconds / 86400;
     h = (seconds - (d * 86400)) / 3600;
-    if(d <= 99)
+    إذا(d <= 99)
       curl_msnprintf(r, rsize, "%2" FMT_OFF_T "d %02" FMT_OFF_T "h", d, h);
-    else if(d <= 999)
+    وإلا إذا(d <= 999)
       curl_msnprintf(r, rsize, "%6" FMT_OFF_T "d", d);
-    else { /* more than 999 days */
+    وإلا { /* more than 999 days */
       curl_off_t m = d / 30;
-      if(m <= 999)
+      إذا(m <= 999)
         curl_msnprintf(r, rsize, "%6" FMT_OFF_T "m", m);
-      else { /* more than 999 months */
+      وإلا { /* more than 999 months */
         curl_off_t y = d / 365;
-        if(y <= 99999)
+        إذا(y <= 99999)
           curl_msnprintf(r, rsize, "%6" FMT_OFF_T "y", y);
-        else
+        وإلا
           curlx_strcopy(r, rsize, STRCONST(">99999y"));
       }
     }
@@ -83,95 +83,95 @@ UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
    Add suffix k, M, G when suitable...
 
    @unittest 1636 */
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen);
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen)
+UNITTEST حرف *max6out(curl_off_t بایتها, حرف *max6, size_t mlen);
+UNITTEST حرف *max6out(curl_off_t بایتها, حرف *max6, size_t mlen)
 {
   /* a signed 64-bit value is 8192 petabytes maximum, shown as
      8.0E (exabytes)*/
-  if(bytes < 100000)
-    curl_msnprintf(max6, mlen, "%6" CURL_FORMAT_CURL_OFF_T, bytes);
-  else {
-    static const char unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
-    int k = 0;
+  إذا(بایتها < 100000)
+    curl_msnprintf(max6, mlen, "%6" CURL_FORMAT_CURL_OFF_T, بایتها);
+  وإلا {
+    ساكن ثابت حرف unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
+    صحيح k = 0;
     curl_off_t nbytes;
     curl_off_t rest;
-    do {
-      nbytes = bytes / 1024;
-      if(nbytes < 1000)
-        break;
-      bytes = nbytes;
+    افعل {
+      nbytes = بایتها / 1024;
+      إذا(nbytes < 1000)
+        اكسر;
+      بایتها = nbytes;
       k++;
       DEBUGASSERT(unit[k]);
-    } while(unit[k]);
-    rest = bytes % 1024;
-    if(nbytes <= 99)
+    } طالما(unit[k]);
+    rest = بایتها % 1024;
+    إذا(nbytes <= 99)
       /* xx.yyU */
       curl_msnprintf(max6, mlen, "%2" CURL_FORMAT_CURL_OFF_T
                      ".%02" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 100 / 1024, unit[k]);
-    else
+    وإلا
       /* xxx.yU */
       curl_msnprintf(max6, mlen, "%3" CURL_FORMAT_CURL_OFF_T
                      ".%" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 10 / 1024, unit[k]);
   }
-  return max6;
+  أرجع max6;
 }
-#endif
+#پایان_اگر
 
-static void pgrs_speedinit(struct Curl_easy *data)
+ساكن فراغ pgrs_speedinit(بنية Curl_easy *داده)
 {
-  memset(&data->state.keeps_speed, 0, sizeof(struct curltime));
+  memset(&داده->state.keeps_سرعت, 0, حجم(بنية curltime));
 }
 
 /*
  * @unittest 1606
  */
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow);
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow)
+UNITTEST CURLcode pgrs_speedcheck(بنية Curl_easy *داده,
+                                  ثابت بنية curltime *pnow);
+UNITTEST CURLcode pgrs_speedcheck(بنية Curl_easy *داده,
+                                  ثابت بنية curltime *pnow)
 {
-  if(!data->set.low_speed_time || !data->set.low_speed_limit ||
-     Curl_xfer_recv_is_paused(data) || Curl_xfer_send_is_paused(data))
+  إذا(!داده->مجموعه.کم_سرعت_زمان || !داده->مجموعه.کم_سرعت_حد ||
+     Curl_xfer_recv_is_paused(داده) || Curl_xfer_send_is_paused(داده))
     /* A paused transfer is not qualified for speed checks */
-    return CURLE_OK;
+    أرجع CURLE_OK;
 
-  if(data->progress.current_speed >= 0) {
-    if(data->progress.current_speed < data->set.low_speed_limit) {
-      if(!data->state.keeps_speed.tv_sec)
+  إذا(داده->پیشرفت.current_سرعت >= 0) {
+    إذا(داده->پیشرفت.current_سرعت < داده->مجموعه.کم_سرعت_حد) {
+      إذا(!داده->state.keeps_سرعت.tv_sec)
         /* under the limit at this moment */
-        data->state.keeps_speed = *pnow;
-      else {
+        داده->state.keeps_سرعت = *pnow;
+      وإلا {
         /* how long has it been under the limit */
         timediff_t howlong =
-          curlx_ptimediff_ms(pnow, &data->state.keeps_speed);
+          curlx_ptimediff_ms(pnow, &داده->state.keeps_سرعت);
 
-        if(howlong >= data->set.low_speed_time * 1000) {
+        إذا(howlong >= داده->مجموعه.کم_سرعت_زمان * 1000) {
           /* too long */
-          failf(data, "Operation too slow. Less than %" FMT_OFF_T
+          failf(داده, "Operation too slow. Less than %" FMT_OFF_T
                 " bytes/sec transferred the last %u seconds",
-                data->set.low_speed_limit, data->set.low_speed_time);
-          return CURLE_OPERATION_TIMEDOUT;
+                داده->مجموعه.کم_سرعت_حد, داده->مجموعه.کم_سرعت_زمان);
+          أرجع CURLE_OPERATION_TIMEDOUT;
         }
       }
     }
-    else
+    وإلا
       /* faster right now */
-      data->state.keeps_speed.tv_sec = 0;
+      داده->state.keeps_سرعت.tv_sec = 0;
   }
 
   /* since low speed limit is enabled, set the expire timer to make this
      connection's speed get checked again in a second */
-  Curl_expire_set(data, EXPIRE_SPEEDCHECK, 1000, pnow);
+  Curl_expire_مجموعه(داده, EXPIRE_SPEEDCHECK, 1000, pnow);
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
+ثابت بنية curltime *Curl_pgrs_now(بنية Curl_easy *داده)
 {
-  curlx_pnow(&data->progress.now);
-  return &data->progress.now;
+  curlx_pnow(&داده->پیشرفت.now);
+  أرجع &داده->پیشرفت.now;
 }
 
 /* New proposed interface, 9th of February 2000:
@@ -185,58 +185,58 @@ const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
    pgrsDone() - transfer complete
  */
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow)
+صحيح Curl_pgrs_انجامشده(بنية Curl_easy *داده, ثابت بنية curltime *pnow)
 {
-  int rc;
-  data->progress.delta.lastshow_us = -1;
-  rc = Curl_pgrsUpdateX(data, pnow); /* the final (forced) update */
-  if(rc)
-    return rc;
+  صحيح rc;
+  داده->پیشرفت.delta.lastshow_us = -1;
+  rc = Curl_pgrsUpdateX(داده, pnow); /* the final (forced) update */
+  إذا(rc)
+    أرجع rc;
 
-  if(!data->progress.hide && !data->progress.callback)
+  إذا(!داده->پیشرفت.hide && !داده->پیشرفت.callback)
     /* only output if we do not use a progress callback and we are not
      * hidden */
-    curl_mfprintf(data->set.err, "\n");
+    curl_mfprintf(داده->مجموعه.err, "\n");
 
-  return 0;
+  أرجع 0;
 }
 
-void Curl_pgrsReset(struct Curl_easy *data)
+فراغ Curl_pgrsReset(بنية Curl_easy *داده)
 {
-  Curl_pgrsSetUploadCounter(data, 0);
-  data->progress.dl.cur_size = 0;
-  Curl_pgrsSetUploadSize(data, -1);
-  Curl_pgrsSetDownloadSize(data, -1);
-  data->progress.speeder_c = 0; /* reset speed records */
-  data->progress.deliver = 0;
-  pgrs_speedinit(data);
+  Curl_pgrs_مجموعه_Upload_Counter(داده, 0);
+  داده->پیشرفت.dl.cur_اندازه = 0;
+  Curl_pgrs_مجموعه_Upload_اندازه(داده, -1);
+  Curl_pgrs_مجموعه_Download_اندازه(داده, -1);
+  داده->پیشرفت.speeder_c = 0; /* reset speed records */
+  داده->پیشرفت.deliver = 0;
+  pgrs_speedinit(داده);
 }
 
 /* reset the known transfer sizes */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data)
+فراغ Curl_pgrsResetTransferSizes(بنية Curl_easy *داده)
 {
-  Curl_pgrsSetDownloadSize(data, -1);
-  Curl_pgrsSetUploadSize(data, -1);
+  Curl_pgrs_مجموعه_Download_اندازه(داده, -1);
+  Curl_pgrs_مجموعه_Upload_اندازه(داده, -1);
 }
 
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable)
+فراغ Curl_pgrsRecvPause(بنية Curl_easy *داده, bool enable)
 {
-  if(!enable) {
-    data->progress.speeder_c = 0; /* reset speed records */
-    pgrs_speedinit(data); /* reset low speed measurements */
+  إذا(!enable) {
+    داده->پیشرفت.speeder_c = 0; /* reset speed records */
+    pgrs_speedinit(داده); /* reset low speed measurements */
   }
 }
 
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable)
+فراغ Curl_pgrsSendPause(بنية Curl_easy *داده, bool enable)
 {
-  if(!enable) {
-    data->progress.speeder_c = 0; /* reset speed records */
-    pgrs_speedinit(data); /* reset low speed measurements */
+  إذا(!enable) {
+    داده->پیشرفت.speeder_c = 0; /* reset speed records */
+    pgrs_speedinit(داده); /* reset low speed measurements */
   }
 }
 
-#ifdef CURLVERBOSE
-static const char * const pgrs_timer_names[] = {
+#اگر_تعریف_شده CURLVERBOSE
+ساكن ثابت حرف * ثابت pgrs_timer_نامها[] = {
   "PGRS-NONE",
   "PGRS-STARTOP",
   "PGRS-STARTSINGLE",
@@ -250,93 +250,93 @@ static const char * const pgrs_timer_names[] = {
   "PGRS-REDIRECT",
 };
 
-static const char *pgrs_timer_name(timerid timer)
+ساكن ثابت حرف *pgrs_timer_name(timerid timer)
 {
-  if((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_names))
-    return pgrs_timer_names[(size_t)timer];
-  return "?";
+  إذا((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_نامها))
+    أرجع pgrs_timer_نامها[(size_t)timer];
+  أرجع "?";
 }
-#endif /* CURLVERBOSE */
+#پایان_اگر /* CURLVERBOSE */
 
 /*
  * Curl_pgrsTimeWas(). Store the timestamp time at the given label.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp)
+فراغ Curl_pgrs_زمان_Was(بنية Curl_easy *داده, timerid timer,
+                      بنية curltime timestamp)
 {
-  timediff_t *delta = NULL;
+  timediff_t *delta = عدم;
 
-  switch(timer) {
-  default:
-  case TIMER_NONE:
+  بدل(timer) {
+  افتراضي:
+  حالة TIMER_NONE:
     /* mistake filter */
-    break;
-  case TIMER_STARTOP:
+    اكسر;
+  حالة TIMER_STARTOP:
     /* This is set at the start of a transfer */
-    data->progress.delta.startop_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
-    data->progress.delta.startqueue_us = data->progress.delta.startop_us;
-    break;
-  case TIMER_STARTSINGLE:
+    داده->پیشرفت.delta.startop_us =
+      curlx_ptimediff_us(&timestamp, &داده->پیشرفت.شروع);
+    داده->پیشرفت.delta.startqueue_us = داده->پیشرفت.delta.startop_us;
+    اكسر;
+  حالة TIMER_STARTSINGLE:
     /* This is set at the start of each single transfer */
-    data->progress.delta.startsingle_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
-    data->progress.startransfer_added = FALSE;
-    break;
-  case TIMER_POSTQUEUE:
+    داده->پیشرفت.delta.startsingle_us =
+      curlx_ptimediff_us(&timestamp, &داده->پیشرفت.شروع);
+    داده->پیشرفت.startransfer_added = FALSE;
+    اكسر;
+  حالة TIMER_POSTQUEUE:
     /* Queue time is accumulative from all involved redirects */
-    data->progress.total.queued_us +=
-      curlx_ptimediff_us(&timestamp, &data->progress.start) -
-      data->progress.delta.startqueue_us;
-    break;
-  case TIMER_NAMELOOKUP:
-    delta = &data->progress.total.nslookup_us;
-    break;
-  case TIMER_CONNECT:
-    delta = &data->progress.total.connect_us;
-    break;
-  case TIMER_APPCONNECT:
-    delta = &data->progress.total.appconnect_us;
-    break;
-  case TIMER_PRETRANSFER:
-    delta = &data->progress.total.pretransfer_us;
-    break;
-  case TIMER_STARTTRANSFER:
+    داده->پیشرفت.مجموع.queued_us +=
+      curlx_ptimediff_us(&timestamp, &داده->پیشرفت.شروع) -
+      داده->پیشرفت.delta.startqueue_us;
+    اكسر;
+  حالة TIMER_NAMELOOKUP:
+    delta = &داده->پیشرفت.مجموع.nslookup_us;
+    اكسر;
+  حالة TIMER_CONNECT:
+    delta = &داده->پیشرفت.مجموع.connect_us;
+    اكسر;
+  حالة TIMER_APPCONNECT:
+    delta = &داده->پیشرفت.مجموع.appconnect_us;
+    اكسر;
+  حالة TIMER_PRETRANSFER:
+    delta = &داده->پیشرفت.مجموع.pretransfer_us;
+    اكسر;
+  حالة TIMER_STARTTRANSFER:
     /* prevent updating t_starttransfer unless:
      *   1. this is the first time we are setting t_starttransfer
      *   2. a redirect has occurred since the last time t_starttransfer was set
      * This prevents repeated invocations of the function from incorrectly
      * changing the t_starttransfer time.
      */
-    if(data->progress.startransfer_added) {
-      CURL_TRC_M(data, "[%s] ignored", pgrs_timer_name(timer));
-      return;
+    إذا(داده->پیشرفت.startransfer_added) {
+      CURL_TRC_M(داده, "[%s] ignored", pgrs_timer_name(timer));
+      أرجع;
     }
-    data->progress.startransfer_added = TRUE;
-    delta = &data->progress.total.starttransfer_us;
-    break;
-  case TIMER_POSTRANSFER:
-    delta = &data->progress.total.posttransfer_us;
-    break;
-  case TIMER_REDIRECT:
-    data->progress.delta.startredirect_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
+    داده->پیشرفت.startransfer_added = TRUE;
+    delta = &داده->پیشرفت.مجموع.starttransfer_us;
+    اكسر;
+  حالة TIMER_POSTRANSFER:
+    delta = &داده->پیشرفت.مجموع.posttransfer_us;
+    اكسر;
+  حالة TIMER_REDIRECT:
+    داده->پیشرفت.delta.startredirect_us =
+      curlx_ptimediff_us(&timestamp, &داده->پیشرفت.شروع);
     /* transfer starts queueing again */
-    data->progress.delta.startqueue_us =
-      data->progress.delta.startredirect_us;
-    break;
+    داده->پیشرفت.delta.startqueue_us =
+      داده->پیشرفت.delta.startredirect_us;
+    اكسر;
   }
-  if(delta) {
-    timediff_t us = curlx_ptimediff_us(&timestamp, &data->progress.start) -
-                    data->progress.delta.startsingle_us;
-    if(us < 1)
+  إذا(delta) {
+    timediff_t us = curlx_ptimediff_us(&timestamp, &داده->پیشرفت.شروع) -
+                    داده->پیشرفت.delta.startsingle_us;
+    إذا(us < 1)
       us = 1; /* make sure at least one microsecond passed */
     *delta += us;
-    CURL_TRC_M(data, "[%s] added %" FMT_TIMEDIFF_T "us",
+    CURL_TRC_M(داده, "[%s] added %" FMT_TIMEDIFF_T "us",
                pgrs_timer_name(timer), us);
   }
-  else
-    CURL_TRC_M(data, "[%s] set", pgrs_timer_name(timer));
+  وإلا
+    CURL_TRC_M(داده, "[%s] set", pgrs_timer_name(timer));
 }
 
 /*
@@ -345,427 +345,427 @@ void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
  *
  * @unittest: 1399
  */
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer)
+فراغ Curl_pgrs_زمان(بنية Curl_easy *داده, timerid timer)
 {
-  Curl_pgrsTimeWas(data, timer, *Curl_pgrs_now(data));
+  Curl_pgrs_زمان_Was(داده, timer, *Curl_pgrs_now(داده));
 }
 
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow)
+فراغ Curl_pgrs_شروع(بنية Curl_easy *داده, ثابت بنية curltime *pnow)
 {
-  struct Progress *p = &data->progress;
+  بنية پیشرفت_2 *p = &داده->پیشرفت;
 
-  if(!pnow)
-    pnow = Curl_pgrs_now(data);
+  إذا(!pnow)
+    pnow = Curl_pgrs_now(داده);
   p->speeder_c = 0; /* reset the progress meter display */
-  p->start = *pnow;
-  memset(&p->delta, 0, sizeof(p->delta));
-  memset(&p->total, 0, sizeof(p->total));
+  p->شروع = *pnow;
+  memset(&p->delta, 0, حجم(p->delta));
+  memset(&p->مجموع, 0, حجم(p->مجموع));
   p->startransfer_added = FALSE;
-  p->dl.cur_size = 0;
-  p->ul.cur_size = 0;
+  p->dl.cur_اندازه = 0;
+  p->ul.cur_اندازه = 0;
   /* the sizes are unknown at start */
-  p->dl_size_known = FALSE;
-  p->ul_size_known = FALSE;
+  p->dl_اندازه_معلوم = FALSE;
+  p->ul_اندازه_معلوم = FALSE;
 }
 
 /* check that the 'delta' amount of bytes are okay to deliver to the
    application, or return error if not. */
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta)
+CURLcode Curl_pgrs_deliver_check(بنية Curl_easy *داده, size_t delta)
 {
-  if(data->set.max_filesize &&
-     ((curl_off_t)delta > data->set.max_filesize - data->progress.deliver)) {
-    failf(data, "Would have exceeded max file size");
-    return CURLE_FILESIZE_EXCEEDED;
+  إذا(داده->مجموعه.max_filesize &&
+     ((curl_off_t)delta > داده->مجموعه.max_filesize - داده->پیشرفت.deliver)) {
+    failf(داده, "Would have exceeded max file size");
+    أرجع CURLE_FILESIZE_EXCEEDED;
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /* this counts how much data is delivered to the application, which
    in compressed cases may differ from downloaded amount */
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta)
+فراغ Curl_pgrs_deliver_inc(بنية Curl_easy *داده, size_t delta)
 {
-  data->progress.deliver += delta;
+  داده->پیشرفت.deliver += delta;
 }
 
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta)
+فراغ Curl_pgrs_download_inc(بنية Curl_easy *داده, size_t delta)
 {
-  if(delta) {
-    data->progress.dl.cur_size += delta;
-    Curl_rlimit_drain(&data->progress.dl.rlimit, delta, NULL);
+  إذا(delta) {
+    داده->پیشرفت.dl.cur_اندازه += delta;
+    Curl_rlimit_drain(&داده->پیشرفت.dl.rlimit, delta, عدم);
   }
 }
 
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta)
+فراغ Curl_pgrs_upload_inc(بنية Curl_easy *داده, size_t delta)
 {
-  if(delta) {
-    data->progress.ul.cur_size += delta;
-    Curl_rlimit_drain(&data->progress.ul.rlimit, delta, NULL);
+  إذا(delta) {
+    داده->پیشرفت.ul.cur_اندازه += delta;
+    Curl_rlimit_drain(&داده->پیشرفت.ul.rlimit, delta, عدم);
   }
 }
 
 /*
  * Set the number of uploaded bytes so far.
  */
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size)
+فراغ Curl_pgrs_مجموعه_Upload_Counter(بنية Curl_easy *داده, curl_off_t اندازه)
 {
-  data->progress.ul.cur_size = size;
+  داده->پیشرفت.ul.cur_اندازه = اندازه;
 }
 
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size)
+فراغ Curl_pgrs_مجموعه_Download_اندازه(بنية Curl_easy *داده, curl_off_t اندازه)
 {
-  if(size >= 0) {
-    data->progress.dl.total_size = size;
-    data->progress.dl_size_known = TRUE;
+  إذا(اندازه >= 0) {
+    داده->پیشرفت.dl.مجموع_اندازه = اندازه;
+    داده->پیشرفت.dl_اندازه_معلوم = TRUE;
   }
-  else {
-    data->progress.dl.total_size = 0;
-    data->progress.dl_size_known = FALSE;
-  }
-}
-
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size)
-{
-  if(size >= 0) {
-    data->progress.ul.total_size = size;
-    data->progress.ul_size_known = TRUE;
-  }
-  else {
-    data->progress.ul.total_size = 0;
-    data->progress.ul_size_known = FALSE;
+  وإلا {
+    داده->پیشرفت.dl.مجموع_اندازه = 0;
+    داده->پیشرفت.dl_اندازه_معلوم = FALSE;
   }
 }
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent)
+فراغ Curl_pgrs_مجموعه_Upload_اندازه(بنية Curl_easy *داده, curl_off_t اندازه)
 {
-  data->progress.earlydata_sent = sent;
+  إذا(اندازه >= 0) {
+    داده->پیشرفت.ul.مجموع_اندازه = اندازه;
+    داده->پیشرفت.ul_اندازه_معلوم = TRUE;
+  }
+  وإلا {
+    داده->پیشرفت.ul.مجموع_اندازه = 0;
+    داده->پیشرفت.ul_اندازه_معلوم = FALSE;
+  }
+}
+
+فراغ Curl_pgrs_Early_داده(بنية Curl_easy *داده, curl_off_t فرستاده)
+{
+  داده->پیشرفت.earlydata_فرستاده = فرستاده;
 }
 
 /* returns the average speed in bytes / second */
-static curl_off_t trspeed(curl_off_t size, /* number of bytes */
+ساكن curl_off_t trspeed(curl_off_t اندازه, /* number of bytes */
                           curl_off_t us)   /* microseconds */
 {
-  if(us < 1)
-    return size * 1000000;
-  else if(size < CURL_OFF_T_MAX / 1000000)
-    return (size * 1000000) / us;
-  else if(us >= 1000000)
-    return size / (us / 1000000);
-  else
-    return CURL_OFF_T_MAX;
+  إذا(us < 1)
+    أرجع اندازه * 1000000;
+  وإلا إذا(اندازه < CURL_OFF_T_MAX / 1000000)
+    أرجع (اندازه * 1000000) / us;
+  وإلا إذا(us >= 1000000)
+    أرجع اندازه / (us / 1000000);
+  وإلا
+    أرجع CURL_OFF_T_MAX;
 }
 
 /* returns TRUE if it is time to show the progress meter */
-static bool progress_calc(struct Curl_easy *data,
-                          const struct curltime *pnow)
+ساكن bool پیشرفت_calc(بنية Curl_easy *داده,
+                          ثابت بنية curltime *pnow)
 {
-  struct Progress * const p = &data->progress;
-  int i_next, i_oldest, i_latest;
+  بنية پیشرفت_2 * ثابت p = &داده->پیشرفت;
+  صحيح i_بعدی, i_oldest, i_latest;
   timediff_t duration_us, elapsed_us;
   curl_off_t amount;
 
   /* The time spent so far (from the start) in microseconds */
-  elapsed_us = curlx_ptimediff_us(pnow, &p->start);
-  p->total.spent_us = elapsed_us;
-  p->dl.speed = trspeed(p->dl.cur_size, p->total.spent_us);
-  p->ul.speed = trspeed(p->ul.cur_size, p->total.spent_us);
+  elapsed_us = curlx_ptimediff_us(pnow, &p->شروع);
+  p->مجموع.spent_us = elapsed_us;
+  p->dl.سرعت = trspeed(p->dl.cur_اندازه, p->مجموع.spent_us);
+  p->ul.سرعت = trspeed(p->ul.cur_اندازه, p->مجموع.spent_us);
 
-  if(!p->speeder_c) { /* no previous record exists */
-    p->speed_amount[0] = p->dl.cur_size + p->ul.cur_size;
-    p->speed_time[0] = elapsed_us;
+  إذا(!p->speeder_c) { /* no previous record exists */
+    p->سرعت_amount[0] = p->dl.cur_اندازه + p->ul.cur_اندازه;
+    p->سرعت_زمان[0] = elapsed_us;
     p->speeder_c++;
     /* use the overall average at the start */
-    p->current_speed = p->ul.speed + p->dl.speed;
+    p->current_سرعت = p->ul.سرعت + p->dl.سرعت;
     p->delta.lastshow_us = elapsed_us;
-    return TRUE;
+    أرجع TRUE;
   }
   /* We have at least one record now. Where to put the next and
    * where is the latest one? */
-  i_next = p->speeder_c % CURL_SPEED_RECORDS;
-  i_latest = (i_next > 0) ? (i_next - 1) : (CURL_SPEED_RECORDS - 1);
+  i_بعدی = p->speeder_c % CURL_سرعت_رکوردها;
+  i_latest = (i_بعدی > 0) ? (i_بعدی - 1) : (CURL_سرعت_رکوردها - 1);
 
   /* Make a new record only when some time has passed.
    * Too frequent calls otherwise ruin the history. */
-  if((elapsed_us - p->speed_time[i_latest]) >= (1000 * 1000)) {
+  إذا((elapsed_us - p->سرعت_زمان[i_latest]) >= (1000 * 1000)) {
     p->speeder_c++;
-    i_latest = i_next;
-    p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
-    p->speed_time[i_latest] = elapsed_us;
+    i_latest = i_بعدی;
+    p->سرعت_amount[i_latest] = p->dl.cur_اندازه + p->ul.cur_اندازه;
+    p->سرعت_زمان[i_latest] = elapsed_us;
   }
-  else if(data->req.done) {
+  وإلا إذا(داده->req.انجامشده) {
     /* When a transfer is done, and we did not have a current speed
      * already, update the last record. Otherwise, stay at the speed
      * we have. The last chunk of data, when rate limiting, would increase
      * reported speed since it no longer measures a full second. */
-    if(!p->current_speed) {
-      p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
-      p->speed_time[i_latest] = elapsed_us;
+    إذا(!p->current_سرعت) {
+      p->سرعت_amount[i_latest] = p->dl.cur_اندازه + p->ul.cur_اندازه;
+      p->سرعت_زمان[i_latest] = elapsed_us;
     }
   }
-  else {
+  وإلا {
     /* transfer ongoing, wait for more time to pass. */
-    return FALSE;
+    أرجع FALSE;
   }
 
-  i_oldest = (p->speeder_c < CURL_SPEED_RECORDS) ? 0 :
-             ((i_latest + 1) % CURL_SPEED_RECORDS);
+  i_oldest = (p->speeder_c < CURL_سرعت_رکوردها) ? 0 :
+             ((i_latest + 1) % CURL_سرعت_رکوردها);
 
   /* How much we transferred between oldest and current records */
-  amount = p->speed_amount[i_latest] - p->speed_amount[i_oldest];
+  amount = p->سرعت_amount[i_latest] - p->سرعت_amount[i_oldest];
   /* How long this took */
-  duration_us = p->speed_time[i_latest] - p->speed_time[i_oldest];
-  if(duration_us <= 0)
+  duration_us = p->سرعت_زمان[i_latest] - p->سرعت_زمان[i_oldest];
+  إذا(duration_us <= 0)
     duration_us = 1;
 
-  if(amount > (CURL_OFF_T_MAX / 1000000)) {
+  إذا(amount > (CURL_OFF_T_MAX / 1000000)) {
     /* the 'amount' value is bigger than would fit in 64 bits if
        multiplied with 1000000, so we use the double math for this */
-    p->current_speed =
-      (curl_off_t)(((double)amount * 1000000.0) / (double)duration_us);
+    p->current_سرعت =
+      (curl_off_t)(((مزدوج)amount * 1000000.0) / (مزدوج)duration_us);
   }
-  else {
-    p->current_speed = amount * 1000000 / duration_us;
+  وإلا {
+    p->current_سرعت = amount * 1000000 / duration_us;
   }
 
-  if((p->delta.lastshow_us >= 0) && !data->req.done &&
+  إذا((p->delta.lastshow_us >= 0) && !داده->req.انجامشده &&
      ((elapsed_us - p->delta.lastshow_us) < (1000 * 1000)))
-    return FALSE;
+    أرجع FALSE;
   p->delta.lastshow_us = elapsed_us;
-  return TRUE;
+  أرجع TRUE;
 }
 
-#ifndef CURL_DISABLE_PROGRESS_METER
+#اگر_تعریف_نشده CURL_DISABLE_پیشرفت_METER
 
-struct pgrs_estimate {
+بنية pgrs_estimate {
   curl_off_t secs;
   curl_off_t percent;
 };
 
-static curl_off_t pgrs_est_percent(curl_off_t total, curl_off_t cur)
+ساكن curl_off_t pgrs_est_percent(curl_off_t مجموع, curl_off_t cur)
 {
-  if(total > 10000)
-    return cur / (total / 100);
-  else if(total > 0)
-    return (cur * 100) / total;
-  return 0;
+  إذا(مجموع > 10000)
+    أرجع cur / (مجموع / 100);
+  وإلا إذا(مجموع > 0)
+    أرجع (cur * 100) / مجموع;
+  أرجع 0;
 }
 
-static void pgrs_estimates(struct pgrs_dir *d,
-                           bool total_known,
-                           struct pgrs_estimate *est)
+ساكن فراغ pgrs_estimates(بنية pgrs_dir *d,
+                           bool مجموع_معلوم,
+                           بنية pgrs_estimate *est)
 {
   est->secs = 0;
   est->percent = 0;
-  if(total_known && (d->speed > 0)) {
-    est->secs = d->total_size / d->speed;
-    est->percent = pgrs_est_percent(d->total_size, d->cur_size);
+  إذا(مجموع_معلوم && (d->سرعت > 0)) {
+    est->secs = d->مجموع_اندازه / d->سرعت;
+    est->percent = pgrs_est_percent(d->مجموع_اندازه, d->cur_اندازه);
   }
 }
 
-static void progress_meter(struct Curl_easy *data)
+ساكن فراغ پیشرفت_meter(بنية Curl_easy *داده)
 {
-  struct Progress *p = &data->progress;
-  char max6[6][7];
-  struct pgrs_estimate dl_estm;
-  struct pgrs_estimate ul_estm;
-  struct pgrs_estimate total_estm;
-  curl_off_t total_cur_size;
-  curl_off_t total_expected_size;
-  curl_off_t dl_size;
-  char time_left[8];
-  char time_total[8];
-  char time_spent[8];
-  curl_off_t cur_secs = (curl_off_t)p->total.spent_us / 1000000;
+  بنية پیشرفت_2 *p = &داده->پیشرفت;
+  حرف max6[6][7];
+  بنية pgrs_estimate dl_estm;
+  بنية pgrs_estimate ul_estm;
+  بنية pgrs_estimate مجموع_estm;
+  curl_off_t مجموع_cur_اندازه;
+  curl_off_t مجموع_expected_اندازه;
+  curl_off_t dl_اندازه;
+  حرف زمان_چپ[8];
+  حرف زمان_مجموع[8];
+  حرف زمان_spent[8];
+  curl_off_t cur_secs = (curl_off_t)p->مجموع.spent_us / 1000000;
 
-  if(!p->headers_out) {
-    if(data->state.resume_from) {
-      curl_mfprintf(data->set.err,
+  إذا(!p->سرآیندها_بیرون) {
+    إذا(داده->state.resume_from) {
+      curl_mfprintf(داده->مجموعه.err,
                     "** Resuming transfer from byte position %" FMT_OFF_T "\n",
-                    data->state.resume_from);
+                    داده->state.resume_from);
     }
-    curl_mfprintf(data->set.err,
+    curl_mfprintf(داده->مجموعه.err,
                   "  %% Total    %% Received %% Xferd  Average Speed  "
                   "Time    Time    Time   Current\n"
                   "                                 Dload  Upload  "
                   "Total   Spent   Left   Speed\n");
-    p->headers_out = TRUE; /* headers are shown */
+    p->سرآیندها_بیرون = TRUE; /* headers are shown */
   }
 
   /* Figure out the estimated time of arrival for upload and download */
-  pgrs_estimates(&p->ul, (bool)p->ul_size_known, &ul_estm);
-  pgrs_estimates(&p->dl, (bool)p->dl_size_known, &dl_estm);
+  pgrs_estimates(&p->ul, (bool)p->ul_اندازه_معلوم, &ul_estm);
+  pgrs_estimates(&p->dl, (bool)p->dl_اندازه_معلوم, &dl_estm);
 
   /* Since both happen at the same time, total expected duration is max. */
-  total_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
+  مجموع_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
   /* create the three time strings */
-  time2str(time_left, sizeof(time_left),
-           total_estm.secs > 0 ? (total_estm.secs - cur_secs) : 0);
-  time2str(time_total, sizeof(time_total), total_estm.secs);
-  time2str(time_spent, sizeof(time_spent), cur_secs);
+  time2str(زمان_چپ, حجم(زمان_چپ),
+           مجموع_estm.secs > 0 ? (مجموع_estm.secs - cur_secs) : 0);
+  time2str(زمان_مجموع, حجم(زمان_مجموع), مجموع_estm.secs);
+  time2str(زمان_spent, حجم(زمان_spent), cur_secs);
 
   /* Get the total amount of data expected to get transferred */
-  total_expected_size = p->ul_size_known ? p->ul.total_size : p->ul.cur_size;
+  مجموع_expected_اندازه = p->ul_اندازه_معلوم ? p->ul.مجموع_اندازه : p->ul.cur_اندازه;
 
-  dl_size = p->dl_size_known ? p->dl.total_size : p->dl.cur_size;
+  dl_اندازه = p->dl_اندازه_معلوم ? p->dl.مجموع_اندازه : p->dl.cur_اندازه;
 
   /* integer overflow check */
-  if((CURL_OFF_T_MAX - total_expected_size) < dl_size)
-    total_expected_size = CURL_OFF_T_MAX; /* capped */
-  else
-    total_expected_size += dl_size;
+  إذا((CURL_OFF_T_MAX - مجموع_expected_اندازه) < dl_اندازه)
+    مجموع_expected_اندازه = CURL_OFF_T_MAX; /* capped */
+  وإلا
+    مجموع_expected_اندازه += dl_اندازه;
 
   /* We have transferred this much so far */
-  total_cur_size = p->dl.cur_size + p->ul.cur_size;
+  مجموع_cur_اندازه = p->dl.cur_اندازه + p->ul.cur_اندازه;
 
   /* Get the percentage of data transferred so far */
-  total_estm.percent = pgrs_est_percent(total_expected_size, total_cur_size);
+  مجموع_estm.percent = pgrs_est_percent(مجموع_expected_اندازه, مجموع_cur_اندازه);
 
-  curl_mfprintf(data->set.err,
+  curl_mfprintf(داده->مجموعه.err,
                 "\r"
                 "%3" FMT_OFF_T " %s "
                 "%3" FMT_OFF_T " %s "
                 "%3" FMT_OFF_T " %s %s %s %s %s %s %s",
-                total_estm.percent, /* 3 letters */    /* total % */
-                max6out(total_expected_size, max6[2],
-                        sizeof(max6[2])),              /* total size */
+                مجموع_estm.percent, /* 3 letters */    /* total % */
+                max6out(مجموع_expected_اندازه, max6[2],
+                        حجم(max6[2])),              /* total size */
                 dl_estm.percent, /* 3 letters */       /* rcvd % */
-                max6out(p->dl.cur_size, max6[0],
-                        sizeof(max6[0])),              /* rcvd size */
+                max6out(p->dl.cur_اندازه, max6[0],
+                        حجم(max6[0])),              /* rcvd size */
                 ul_estm.percent, /* 3 letters */       /* xfer % */
-                max6out(p->ul.cur_size, max6[1],
-                        sizeof(max6[1])),              /* xfer size */
-                max6out(p->dl.speed, max6[3],
-                        sizeof(max6[3])),              /* avrg dl speed */
-                max6out(p->ul.speed, max6[4],
-                        sizeof(max6[4])),              /* avrg ul speed */
-                time_total,    /* 7 letters */         /* total time */
-                time_spent,    /* 7 letters */         /* time spent */
-                time_left,     /* 7 letters */         /* time left */
-                max6out(p->current_speed, max6[5],
-                        sizeof(max6[5]))               /* current speed */
+                max6out(p->ul.cur_اندازه, max6[1],
+                        حجم(max6[1])),              /* xfer size */
+                max6out(p->dl.سرعت, max6[3],
+                        حجم(max6[3])),              /* avrg dl speed */
+                max6out(p->ul.سرعت, max6[4],
+                        حجم(max6[4])),              /* avrg ul speed */
+                زمان_مجموع,    /* 7 letters */         /* total time */
+                زمان_spent,    /* 7 letters */         /* time spent */
+                زمان_چپ,     /* 7 letters */         /* time left */
+                max6out(p->current_سرعت, max6[5],
+                        حجم(max6[5]))               /* current speed */
     );
 
   /* we flush the output stream to make it appear as soon as possible */
-  fflush(data->set.err);
+  fflush(داده->مجموعه.err);
 }
-#else /* CURL_DISABLE_PROGRESS_METER */
-#define progress_meter(x) Curl_nop_stmt
-#endif
+#وإلا /* CURL_DISABLE_PROGRESS_METER */
+#تعریف_کن پیشرفت_meter(x) Curl_nop_stmt
+#پایان_اگر
 
 /*
  * Curl_pgrsUpdate() returns 0 for success or the value returned by the
  * progress callback!
  */
-static CURLcode pgrsupdate(struct Curl_easy *data, bool showprogress)
+ساكن CURLcode pgrsupdate(بنية Curl_easy *داده, bool showprogress)
 {
-  if(!data->progress.hide) {
-    int rc;
-    if(data->set.fxferinfo) {
+  إذا(!داده->پیشرفت.hide) {
+    صحيح rc;
+    إذا(داده->مجموعه.fxferinfo) {
       /* There is a callback set, call that */
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_fxferinfo);
-      rc = data->set.fxferinfo(data->set.progress_client,
-                               data->progress.dl.total_size,
-                               data->progress.dl.cur_size,
-                               data->progress.ul.total_size,
-                               data->progress.ul.cur_size);
-      CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
-          failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+      بنية Curl_mapi_guard guard;
+      CURL_CBAPI_شروع(&guard, داده, easy_fxferinfo);
+      rc = داده->مجموعه.fxferinfo(داده->مجموعه.پیشرفت_client,
+                               داده->پیشرفت.dl.مجموع_اندازه,
+                               داده->پیشرفت.dl.cur_اندازه,
+                               داده->پیشرفت.ul.مجموع_اندازه,
+                               داده->پیشرفت.ul.cur_اندازه);
+      CURL_CBAPI_انتها(&guard);
+      إذا(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        إذا(rc) {
+          failf(داده, "Callback aborted");
+          أرجع CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        أرجع CURLE_OK;
       }
     }
-    else if(data->set.fprogress) {
+    وإلا إذا(داده->مجموعه.fprogress) {
       /* The older deprecated callback is set, call that */
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_fprogress);
-      rc = data->set.fprogress(data->set.progress_client,
-                               (double)data->progress.dl.total_size,
-                               (double)data->progress.dl.cur_size,
-                               (double)data->progress.ul.total_size,
-                               (double)data->progress.ul.cur_size);
-      CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
-          failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+      بنية Curl_mapi_guard guard;
+      CURL_CBAPI_شروع(&guard, داده, easy_fprogress);
+      rc = داده->مجموعه.fprogress(داده->مجموعه.پیشرفت_client,
+                               (مزدوج)داده->پیشرفت.dl.مجموع_اندازه,
+                               (مزدوج)داده->پیشرفت.dl.cur_اندازه,
+                               (مزدوج)داده->پیشرفت.ul.مجموع_اندازه,
+                               (مزدوج)داده->پیشرفت.ul.cur_اندازه);
+      CURL_CBAPI_انتها(&guard);
+      إذا(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        إذا(rc) {
+          failf(داده, "Callback aborted");
+          أرجع CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        أرجع CURLE_OK;
       }
     }
 
-    if(showprogress)
-      progress_meter(data);
+    إذا(showprogress)
+      پیشرفت_meter(داده);
   }
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-static CURLcode pgrs_update(struct Curl_easy *data,
-                            const struct curltime *pnow)
+ساكن CURLcode pgrs_update(بنية Curl_easy *داده,
+                            ثابت بنية curltime *pnow)
 {
-  bool showprogress = progress_calc(data, pnow);
-  return pgrsupdate(data, showprogress);
+  bool showprogress = پیشرفت_calc(داده, pnow);
+  أرجع pgrsupdate(داده, showprogress);
 }
 
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data)
+CURLcode Curl_pgrsUpdate(بنية Curl_easy *داده)
 {
-  return pgrs_update(data, Curl_pgrs_now(data));
+  أرجع pgrs_update(داده, Curl_pgrs_now(داده));
 }
 
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data,
-                          const struct curltime *pnow)
+CURLcode Curl_pgrsUpdateX(بنية Curl_easy *داده,
+                          ثابت بنية curltime *pnow)
 {
-  return pgrs_update(data, pnow);
+  أرجع pgrs_update(داده, pnow);
 }
 
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data,
-                         const struct curltime *pnow)
+CURLcode Curl_pgrsCheckX(بنية Curl_easy *داده,
+                         ثابت بنية curltime *pnow)
 {
-  CURLcode result;
+  CURLcode نتیجه;
 
-  result = pgrs_update(data, pnow);
-  if(!result && !data->req.done)
-    result = pgrs_speedcheck(data, pnow);
-  return result;
+  نتیجه = pgrs_update(داده, pnow);
+  إذا(!نتیجه && !داده->req.انجامشده)
+    نتیجه = pgrs_speedcheck(داده, pnow);
+  أرجع نتیجه;
 }
 
-CURLcode Curl_pgrsCheck(struct Curl_easy *data)
+CURLcode Curl_pgrsCheck(بنية Curl_easy *داده)
 {
-  return Curl_pgrsCheckX(data, Curl_pgrs_now(data));
+  أرجع Curl_pgrsCheckX(داده, Curl_pgrs_now(داده));
 }
 
 /*
  * Update all progress, do not do progress meter/callbacks.
  */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data)
+فراغ Curl_pgrsUpdate_nometer(بنية Curl_easy *داده)
 {
-  (void)progress_calc(data, Curl_pgrs_now(data));
+  (فراغ)پیشرفت_calc(داده, Curl_pgrs_now(داده));
 }
 
-void Curl_pgrsCompleted(struct Curl_easy *data)
+فراغ Curl_pgrsCompleted(بنية Curl_easy *داده)
 {
-  struct Progress * const p = &data->progress;
-  p->total.spent_us = curlx_ptimediff_us(Curl_pgrs_now(data), &p->start);
+  بنية پیشرفت_2 * ثابت p = &داده->پیشرفت;
+  p->مجموع.spent_us = curlx_ptimediff_us(Curl_pgrs_now(داده), &p->شروع);
 }
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(بنية Curl_easy *داده,
+                              ثابت بنية curltime *pnow,
                               timerid timer)
 {
-  if(!pnow)
-    pnow = Curl_pgrs_now(data);
-  switch(timer) {
-  case TIMER_STARTOP:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
-            data->progress.delta.startop_us) / 1000;
-  case TIMER_STARTSINGLE:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
-            data->progress.delta.startsingle_us) / 1000;
-  default:
+  إذا(!pnow)
+    pnow = Curl_pgrs_now(داده);
+  بدل(timer) {
+  حالة TIMER_STARTOP:
+    أرجع (curlx_ptimediff_us(pnow, &داده->پیشرفت.شروع) -
+            داده->پیشرفت.delta.startop_us) / 1000;
+  حالة TIMER_STARTSINGLE:
+    أرجع (curlx_ptimediff_us(pnow, &داده->پیشرفت.شروع) -
+            داده->پیشرفت.delta.startsingle_us) / 1000;
+  افتراضي:
     DEBUGASSERT(0);
-    return 0;
+    أرجع 0;
   }
 }

@@ -21,40 +21,40 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#اگر_تعریف_نشده CURL_DISABLE_PROXY
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "cf-haproxy.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "select.h"
+#ضمن "urldata.h"
+#ضمن "cfilters.h"
+#ضمن "cf-haproxy.h"
+#ضمن "connect.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "curl_trc.h"
+#ضمن "select.h"
 
 
-typedef enum {
+تعريفنوع تعداد {
   HAPROXY_INIT,     /* init/default/no tunnel state */
   HAPROXY_SEND,     /* data_out being sent */
-  HAPROXY_DONE      /* all work done */
+  HAPROXY_انجامشده      /* all work done */
 } haproxy_state;
 
-struct cf_haproxy_ctx {
-  int state;
-  struct dynbuf data_out;
+بنية cf_haproxy_ctx {
+  صحيح state;
+  بنية dynbuf داده_بیرون;
 };
 
-static void cf_haproxy_ctx_free(struct cf_haproxy_ctx *ctx)
+ساكن فراغ cf_haproxy_ctx_free(بنية cf_haproxy_ctx *ctx)
 {
-  if(ctx) {
-    curlx_dyn_free(&ctx->data_out);
+  إذا(ctx) {
+    curlx_dyn_free(&ctx->داده_بیرون);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data)
+ساكن CURLcode cf_haproxy_date_بیرون_مجموعه(بنية Curl_cfilter *cf,
+                                        بنية Curl_easy *داده)
 {
   /* We fake a client connection report to the upstream server
    * with the HAProxy protocol, reporting the client's source
@@ -62,132 +62,132 @@ static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
    * addresses: either the ones used to talk to the upstream
    *            OR the value supplied by the user
    * ports: the ports used in the upstream connection */
-  const char *client_source_ip;
-  const char *client_dest_ip;
-  struct cf_haproxy_ctx *ctx = cf->ctx;
-  CURLcode result;
-  struct ip_quadruple ipquad;
+  ثابت حرف *client_منبع_ip;
+  ثابت حرف *client_dest_ip;
+  بنية cf_haproxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجه;
+  بنية ip_quadruple ipquad;
   bool is_ipv6;
 
   DEBUGASSERT(ctx);
   DEBUGASSERT(ctx->state == HAPROXY_INIT);
-#ifdef USE_UNIX_SOCKETS
-  if(Curl_conn_get_first_peer(cf->conn, cf->sockindex)->unix_socket)
+#اگر_تعریف_شده USE_UNIX_SOCKETS
+  إذا(Curl_conn_get_اولی_peer(cf->conn, cf->sockindex)->unix_socket)
     /* the buffer is large enough to hold this! */
-    result = curlx_dyn_addn(&ctx->data_out, STRCONST("PROXY UNKNOWN\r\n"));
-  else {
-#endif /* USE_UNIX_SOCKETS */
-  result = Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad);
-  if(result)
-    return result;
+    نتیجه = curlx_dyn_addn(&ctx->داده_بیرون, STRCONST("PROXY UNKNOWN\r\n"));
+  وإلا {
+#پایان_اگر /* USE_UNIX_SOCKETS */
+  نتیجه = Curl_conn_cf_get_ip_info(cf->بعدی, داده, &is_ipv6, &ipquad);
+  إذا(نتیجه)
+    أرجع نتیجه;
 
-  client_source_ip = CURL_EASY_STR(data, STRING_HAPROXY_CLIENT_IP);
-  if(client_source_ip) {
-    client_dest_ip = client_source_ip;
-    is_ipv6 = !Curl_is_ipv4addr(client_source_ip);
+  client_منبع_ip = CURL_EASY_STR(داده, STRING_HAPROXY_CLIENT_IP);
+  إذا(client_منبع_ip) {
+    client_dest_ip = client_منبع_ip;
+    is_ipv6 = !Curl_is_ipv4addr(client_منبع_ip);
   }
-  else {
-    client_source_ip = ipquad.local_ip;
+  وإلا {
+    client_منبع_ip = ipquad.local_ip;
     client_dest_ip = ipquad.remote_ip;
   }
 
-  result = curlx_dyn_addf(&ctx->data_out, "PROXY %s %s %s %d %d\r\n",
+  نتیجه = curlx_dyn_addf(&ctx->داده_بیرون, "PROXY %s %s %s %d %d\r\n",
                           is_ipv6 ? "TCP6" : "TCP4",
-                          client_source_ip, client_dest_ip,
-                          ipquad.local_port, ipquad.remote_port);
+                          client_منبع_ip, client_dest_ip,
+                          ipquad.local_پورت, ipquad.remote_پورت);
 
-#ifdef USE_UNIX_SOCKETS
+#اگر_تعریف_شده USE_UNIX_SOCKETS
   }
-#endif /* USE_UNIX_SOCKETS */
-  return result;
+#پایان_اگر /* USE_UNIX_SOCKETS */
+  أرجع نتیجه;
 }
 
-static CURLcode cf_haproxy_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *done)
+ساكن CURLcode cf_haproxy_connect(بنية Curl_cfilter *cf,
+                                   بنية Curl_easy *داده,
+                                   bool *انجامشده)
 {
-  struct cf_haproxy_ctx *ctx = cf->ctx;
-  CURLcode result;
+  بنية cf_haproxy_ctx *ctx = cf->ctx;
+  CURLcode نتیجه;
   size_t len;
 
   DEBUGASSERT(ctx);
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  إذا(cf->connected) {
+    *انجامشده = TRUE;
+    أرجع CURLE_OK;
   }
 
-  result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  نتیجه = cf->بعدی->cft->do_connect(cf->بعدی, داده, انجامشده);
+  إذا(نتیجه || !*انجامشده)
+    أرجع نتیجه;
 
-  switch(ctx->state) {
-  case HAPROXY_INIT:
-    result = cf_haproxy_date_out_set(cf, data);
-    if(result)
-      goto out;
+  بدل(ctx->state) {
+  حالة HAPROXY_INIT:
+    نتیجه = cf_haproxy_date_بیرون_مجموعه(cf, داده);
+    إذا(نتیجه)
+      اذهب بیرون;
     ctx->state = HAPROXY_SEND;
     FALLTHROUGH();
-  case HAPROXY_SEND:
-    len = curlx_dyn_len(&ctx->data_out);
-    if(len > 0) {
+  حالة HAPROXY_SEND:
+    len = curlx_dyn_len(&ctx->داده_بیرون);
+    إذا(len > 0) {
       size_t nwritten;
-      result = Curl_conn_cf_send(cf->next, data,
-                                 curlx_dyn_uptr(&ctx->data_out), len, FALSE,
+      نتیجه = Curl_conn_cf_send(cf->بعدی, داده,
+                                 curlx_dyn_uptr(&ctx->داده_بیرون), len, FALSE,
                                  &nwritten);
-      if(result) {
-        if(result != CURLE_AGAIN)
-          goto out;
-        result = CURLE_OK;
+      إذا(نتیجه) {
+        إذا(نتیجه != CURLE_AGAIN)
+          اذهب بیرون;
+        نتیجه = CURLE_OK;
         nwritten = 0;
       }
-      curlx_dyn_tail(&ctx->data_out, len - nwritten);
-      if(curlx_dyn_len(&ctx->data_out) > 0) {
-        result = CURLE_OK;
-        goto out;
+      curlx_dyn_دم(&ctx->داده_بیرون, len - nwritten);
+      إذا(curlx_dyn_len(&ctx->داده_بیرون) > 0) {
+        نتیجه = CURLE_OK;
+        اذهب بیرون;
       }
     }
-    ctx->state = HAPROXY_DONE;
+    ctx->state = HAPROXY_انجامشده;
     FALLTHROUGH();
-  default:
-    curlx_dyn_free(&ctx->data_out);
-    break;
+  افتراضي:
+    curlx_dyn_free(&ctx->داده_بیرون);
+    اكسر;
   }
 
-out:
-  *done = (!result) && (ctx->state == HAPROXY_DONE);
-  cf->connected = *done;
-  return result;
+بیرون:
+  *انجامشده = (!نتیجه) && (ctx->state == HAPROXY_انجامشده);
+  cf->connected = *انجامشده;
+  أرجع نتیجه;
 }
 
-static void cf_haproxy_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+ساكن فراغ cf_haproxy_destroy(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *داده)
 {
-  CURL_TRC_CF(data, cf, "destroy");
+  CURL_TRC_CF(داده, cf, "destroy");
   cf_haproxy_ctx_free(cf->ctx);
 }
 
-static CURLcode cf_haproxy_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+ساكن CURLcode cf_haproxy_adjust_pollset(بنية Curl_cfilter *cf,
+                                          بنية Curl_easy *داده,
+                                          بنية easy_pollset *ps)
 {
-  if(cf->next->connected && !cf->connected) {
+  إذا(cf->بعدی->connected && !cf->connected) {
     /* If we are not connected, but the filter "below" is
      * and not waiting on something, we are sending. */
-    return Curl_pollset_set_out_only(
-      data, ps, Curl_conn_cf_get_socket(cf, data));
+    أرجع Curl_pollset_مجموعه_بیرون_only(
+      داده, ps, Curl_conn_cf_get_socket(cf, داده));
   }
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
-struct Curl_cftype Curl_cft_haproxy = {
+بنية Curl_cftype Curl_cft_haproxy = {
   "HAPROXY",
-  CF_TYPE_PROXY | CF_TYPE_SETUP,
+  CF_TYPE_PROXY | CF_TYPE_راهاندازی,
   0,
   cf_haproxy_destroy,
   cf_haproxy_connect,
   Curl_cf_def_shutdown,
   cf_haproxy_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_داده_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -196,46 +196,46 @@ struct Curl_cftype Curl_cft_haproxy = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_haproxy_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data)
+ساكن CURLcode cf_haproxy_create(بنية Curl_cfilter **pcf,
+                                  بنية Curl_easy *داده)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_haproxy_ctx *ctx;
-  CURLcode result;
+  بنية Curl_cfilter *cf = عدم;
+  بنية cf_haproxy_ctx *ctx;
+  CURLcode نتیجه;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (فراغ)داده;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  إذا(!ctx) {
+    نتیجه = CURLE_بیرون_از_حافظه;
+    اذهب بیرون;
   }
   ctx->state = HAPROXY_INIT;
-  curlx_dyn_init(&ctx->data_out, DYN_HAXPROXY);
+  curlx_dyn_init(&ctx->داده_بیرون, DYN_HAXPROXY);
 
-  result = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  نتیجه = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
+  إذا(نتیجه)
+    اذهب بیرون;
+  ctx = عدم;
 
-out:
+بیرون:
   cf_haproxy_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = نتیجه ? عدم : cf;
+  أرجع نتیجه;
 }
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_haproxy_درج_after(بنية Curl_cfilter *cf_at,
+                                      بنية Curl_easy *داده)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  بنية Curl_cfilter *cf;
+  CURLcode نتیجه;
 
-  result = cf_haproxy_create(&cf, data);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  نتیجه = cf_haproxy_create(&cf, داده);
+  إذا(نتیجه)
+    اذهب بیرون;
+  Curl_conn_cf_درج_after(cf_at, cf);
 
-out:
-  return result;
+بیرون:
+  أرجع نتیجه;
 }
 
-#endif /* !CURL_DISABLE_PROXY */
+#پایان_اگر /* !CURL_DISABLE_PROXY */

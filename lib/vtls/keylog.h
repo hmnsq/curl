@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_KEYLOG_H
-#define HEADER_CURL_KEYLOG_H
+#اگر_تعریف_نشده سرآیند_CURL_KEYLOG_H
+#تعریف_کن سرآیند_CURL_KEYLOG_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,53 +23,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#define KEYLOG_LABEL_MAXLEN CURL_CSTRLEN("CLIENT_HANDSHAKE_TRAFFIC_SECRET")
+#تعریف_کن KEYLOG_LABEL_MAXLEN CURL_CSTRLEN("CLIENT_HANDSHAKE_TRAFFIC_SECRET")
 
-#define CLIENT_RANDOM_SIZE  32
+#تعریف_کن CLIENT_RANDOM_اندازه  32
 
 /*
  * The master secret in TLS 1.2 and before is always 48 bytes. In TLS 1.3, the
  * secret size depends on the cipher suite's hash function which is 32 bytes
  * for SHA-256 and 48 bytes for SHA-384.
  */
-#define SECRET_MAXLEN       48
+#تعریف_کن SECRET_MAXLEN       48
 
 /*
  * Opens the TLS key log file if requested by the user. The SSLKEYLOGFILE
  * environment variable specifies the output file.
  */
-void Curl_tls_keylog_open(void);
+فراغ Curl_tls_keylog_open(فراغ);
 
 /*
  * Closes the TLS key log file if not already.
  */
-void Curl_tls_keylog_close(void);
+فراغ Curl_tls_keylog_close(فراغ);
 
 /*
  * Returns true if the user successfully enabled the TLS key log file.
  */
-bool Curl_tls_keylog_enabled(void);
+bool Curl_tls_keylog_enabled(فراغ);
 
 /*
  * Returns a pointer to the filename keys are being written to, if enabled.
  */
-const char *Curl_tls_keylog_file_name(void);
+ثابت حرف *Curl_tls_keylog_file_name(فراغ);
 
 /*
  * Appends a key log file entry.
  * Returns true iff the key log file is open and a valid entry was provided.
  */
-bool Curl_tls_keylog_write(const char *label,
-                           const unsigned char *client_random,
-                           size_t random_size,
-                           const unsigned char *secret, size_t secretlen);
+bool Curl_tls_keylog_write(ثابت حرف *label,
+                           ثابت بیعلامت حرف *client_random,
+                           size_t random_اندازه,
+                           ثابت بیعلامت حرف *secret, size_t secretlen);
 
 /*
  * Appends a line to the key log file, ensure it is terminated by an LF.
  * Returns true iff the key log file is open and a valid line was provided.
  */
-bool Curl_tls_keylog_write_line(const char *line);
+bool Curl_tls_keylog_write_سطر(ثابت حرف *سطر);
 
-#endif /* HEADER_CURL_KEYLOG_H */
+#پایان_اگر /* HEADER_CURL_KEYLOG_H */

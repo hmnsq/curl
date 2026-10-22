@@ -21,63 +21,63 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "ratelimit.h"
+#ضمن "urldata.h"
+#ضمن "ratelimit.h"
 
-#define CURL_US_PER_SEC         1000000
-#define CURL_RLIMIT_MIN_RATE    (4 * 1024)  /* minimum step rate */
-#define CURL_RLIMIT_STEP_MIN_MS 2  /* minimum step duration */
+#تعریف_کن CURL_US_در_هر_SEC         1000000
+#تعریف_کن CURL_RLIMIT_MIN_نرخ    (4 * 1024)  /* minimum step rate */
+#تعریف_کن CURL_RLIMIT_گام_MIN_MS 2  /* minimum step duration */
 
-static void rlimit_update(struct Curl_rlimit *r,
-                          const struct curltime *pts)
+ساكن فراغ rlimit_update(بنية Curl_rlimit *r,
+                          ثابت بنية curltime *pts)
 {
-  timediff_t elapsed_us, elapsed_steps;
+  timediff_t elapsed_us, elapsed_گامها;
   int64_t token_gain;
 
-  DEBUGASSERT(r->rate_per_step);
-  if((r->ts.tv_sec == pts->tv_sec) && (r->ts.tv_usec == pts->tv_usec))
-    return;
+  DEBUGASSERT(r->نرخ_در_هر_گام);
+  إذا((r->ts.tv_sec == pts->tv_sec) && (r->ts.tv_usec == pts->tv_usec))
+    أرجع;
 
   elapsed_us = curlx_ptimediff_us(pts, &r->ts);
-  if(elapsed_us < 0) { /* not going back in time */
+  إذا(elapsed_us < 0) { /* not going back in time */
     DEBUGASSERT(0);
-    return;
+    أرجع;
   }
 
-  elapsed_us += r->spare_us;
-  if(elapsed_us < r->step_us)
-    return;
+  elapsed_us += r->یدکی_us;
+  إذا(elapsed_us < r->گام_us)
+    أرجع;
 
   /* we do the update */
   r->ts = *pts;
-  elapsed_steps = elapsed_us / r->step_us;
-  r->spare_us = elapsed_us % r->step_us;
+  elapsed_گامها = elapsed_us / r->گام_us;
+  r->یدکی_us = elapsed_us % r->گام_us;
 
   /* How many tokens did we gain since the last update? */
-  if(r->rate_per_step > (INT64_MAX / elapsed_steps))
+  إذا(r->نرخ_در_هر_گام > (INT64_MAX / elapsed_گامها))
     token_gain = INT64_MAX;
-  else {
-    token_gain = r->rate_per_step * elapsed_steps;
+  وإلا {
+    token_gain = r->نرخ_در_هر_گام * elapsed_گامها;
   }
 
-  if((INT64_MAX - token_gain) > r->tokens)
-    r->tokens += token_gain;
-  else
-    r->tokens = INT64_MAX;
+  إذا((INT64_MAX - token_gain) > r->نشانهها)
+    r->نشانهها += token_gain;
+  وإلا
+    r->نشانهها = INT64_MAX;
 
   /* Limit the token again by the burst rate (if set), so we
    * do not suddenly have a huge number of tokens after inactivity. */
-  if(r->burst_per_step && (r->tokens > r->burst_per_step)) {
-    r->tokens = r->burst_per_step;
+  إذا(r->مدت_در_هر_گام && (r->نشانهها > r->مدت_در_هر_گام)) {
+    r->نشانهها = r->مدت_در_هر_گام;
   }
 }
 
-static void rlimit_tune_steps(struct Curl_rlimit *r,
-                              int64_t tokens_total)
+ساكن فراغ rlimit_tune_گامها(بنية Curl_rlimit *r,
+                              int64_t نشانهها_مجموع)
 {
-  int64_t tokens_last, tokens_main, msteps;
+  int64_t نشانهها_آخرین, نشانهها_main, msteps;
 
   /* Tune the ratelimit at the start *if* we know how many tokens
    * are expected to be consumed in total.
@@ -98,224 +98,224 @@ static void rlimit_tune_steps(struct Curl_rlimit *r,
    * 1 percent of the total tokens (at least 1). The rest of the tokens
    * are to be consumed in the steps before by adjusting the duration of
    * the step and the amount of tokens it provides. */
-  if(!r->rate_per_step ||
-     (tokens_total <= 1) ||
-     (tokens_total > (INT64_MAX / 1000)))
-    return;
+  إذا(!r->نرخ_در_هر_گام ||
+     (نشانهها_مجموع <= 1) ||
+     (نشانهها_مجموع > (INT64_MAX / 1000)))
+    أرجع;
 
   /* Calculate tokens for the last step and the ones before. */
-  tokens_last = tokens_total / 100;
-  if(!tokens_last) /* less than 100 total, use 1 */
-    tokens_last = 1;
-  else if(tokens_last > CURL_RLIMIT_MIN_RATE)
-    tokens_last = CURL_RLIMIT_MIN_RATE;
-  DEBUGASSERT(tokens_last);
-  tokens_main = tokens_total - tokens_last;
-  DEBUGASSERT(tokens_main);
+  نشانهها_آخرین = نشانهها_مجموع / 100;
+  إذا(!نشانهها_آخرین) /* less than 100 total, use 1 */
+    نشانهها_آخرین = 1;
+  وإلا إذا(نشانهها_آخرین > CURL_RLIMIT_MIN_نرخ)
+    نشانهها_آخرین = CURL_RLIMIT_MIN_نرخ;
+  DEBUGASSERT(نشانهها_آخرین);
+  نشانهها_main = نشانهها_مجموع - نشانهها_آخرین;
+  DEBUGASSERT(نشانهها_main);
 
   /* how many milli-steps will it take to consume those, give the
   * original rate limit per second? */
-  DEBUGASSERT(r->step_us == CURL_US_PER_SEC);
+  DEBUGASSERT(r->گام_us == CURL_US_در_هر_SEC);
 
-  msteps = (tokens_main * 1000 / r->rate_per_step);
-  if(msteps < CURL_RLIMIT_STEP_MIN_MS) {
+  msteps = (نشانهها_main * 1000 / r->نرخ_در_هر_گام);
+  إذا(msteps < CURL_RLIMIT_گام_MIN_MS) {
     /* Steps this small will not work. Do not tune. */
-    return;
+    أرجع;
   }
-  else if(msteps < 1000) {
+  وإلا إذا(msteps < 1000) {
     /* It needs less than one step to provide the needed tokens.
      * Make it exactly that long and with exactly those tokens. */
-    r->step_us = (timediff_t)msteps * 1000;
-    r->rate_per_step = tokens_main;
-    r->tokens = r->rate_per_step;
+    r->گام_us = (timediff_t)msteps * 1000;
+    r->نرخ_در_هر_گام = نشانهها_main;
+    r->نشانهها = r->نرخ_در_هر_گام;
   }
-  else {
+  وإلا {
     /* More than 1 step. Spread the remainder milli steps and
      * the tokens they need to provide across all steps. If integer
      * arithmetic can do it. */
     curl_off_t ms_unaccounted = (msteps % 1000);
     curl_off_t mstep_inc = (ms_unaccounted / (msteps / 1000));
-    if(mstep_inc) {
-      curl_off_t rate_inc = ((r->rate_per_step * mstep_inc) / 1000);
-      if(rate_inc) {
-        r->step_us = CURL_US_PER_SEC + ((timediff_t)mstep_inc * 1000);
-        r->rate_per_step += rate_inc;
-        r->tokens = r->rate_per_step;
-        if(r->burst_per_step) {
-          curl_off_t burst_inc = ((r->burst_per_step * mstep_inc) / 1000);
-          if(burst_inc)
-            r->burst_per_step += burst_inc;
+    إذا(mstep_inc) {
+      curl_off_t نرخ_inc = ((r->نرخ_در_هر_گام * mstep_inc) / 1000);
+      إذا(نرخ_inc) {
+        r->گام_us = CURL_US_در_هر_SEC + ((timediff_t)mstep_inc * 1000);
+        r->نرخ_در_هر_گام += نرخ_inc;
+        r->نشانهها = r->نرخ_در_هر_گام;
+        إذا(r->مدت_در_هر_گام) {
+          curl_off_t مدت_inc = ((r->مدت_در_هر_گام * mstep_inc) / 1000);
+          إذا(مدت_inc)
+            r->مدت_در_هر_گام += مدت_inc;
         }
       }
     }
   }
 }
 
-void Curl_rlimit_init(struct Curl_rlimit *r,
-                      int64_t rate_per_sec,
-                      int64_t burst_per_sec,
-                      const struct curltime *pts)
+فراغ Curl_rlimit_init(بنية Curl_rlimit *r,
+                      int64_t نرخ_در_هر_sec,
+                      int64_t مدت_در_هر_sec,
+                      ثابت بنية curltime *pts)
 {
-  DEBUGASSERT(rate_per_sec >= 0);
-  DEBUGASSERT(burst_per_sec >= rate_per_sec || !burst_per_sec);
+  DEBUGASSERT(نرخ_در_هر_sec >= 0);
+  DEBUGASSERT(مدت_در_هر_sec >= نرخ_در_هر_sec || !مدت_در_هر_sec);
   DEBUGASSERT(pts);
-  r->rate_per_step = r->rate_per_sec = rate_per_sec;
-  r->burst_per_step = r->burst_per_sec = burst_per_sec;
-  r->step_us = CURL_US_PER_SEC;
-  r->spare_us = 0;
-  r->tokens = r->rate_per_step;
+  r->نرخ_در_هر_گام = r->نرخ_در_هر_sec = نرخ_در_هر_sec;
+  r->مدت_در_هر_گام = r->مدت_در_هر_sec = مدت_در_هر_sec;
+  r->گام_us = CURL_US_در_هر_SEC;
+  r->یدکی_us = 0;
+  r->نشانهها = r->نرخ_در_هر_گام;
   r->ts = *pts;
   r->blocked = FALSE;
 }
 
-void Curl_rlimit_change(struct Curl_rlimit *r,
-                        int64_t rate_per_sec,
-                        int64_t burst_per_sec)
+فراغ Curl_rlimit_change(بنية Curl_rlimit *r,
+                        int64_t نرخ_در_هر_sec,
+                        int64_t مدت_در_هر_sec)
 {
-  DEBUGASSERT(rate_per_sec >= 0);
-  DEBUGASSERT(burst_per_sec >= rate_per_sec || !burst_per_sec);
-  r->rate_per_step = r->rate_per_sec = rate_per_sec;
-  r->burst_per_step = r->burst_per_sec = burst_per_sec;
-  r->step_us = CURL_US_PER_SEC;
-  r->spare_us = 0;
-  if(r->tokens > r->rate_per_step)
-    r->tokens = r->rate_per_step;
+  DEBUGASSERT(نرخ_در_هر_sec >= 0);
+  DEBUGASSERT(مدت_در_هر_sec >= نرخ_در_هر_sec || !مدت_در_هر_sec);
+  r->نرخ_در_هر_گام = r->نرخ_در_هر_sec = نرخ_در_هر_sec;
+  r->مدت_در_هر_گام = r->مدت_در_هر_sec = مدت_در_هر_sec;
+  r->گام_us = CURL_US_در_هر_SEC;
+  r->یدکی_us = 0;
+  إذا(r->نشانهها > r->نرخ_در_هر_گام)
+    r->نشانهها = r->نرخ_در_هر_گام;
   /* ts and blocked stay as they are, a paused transfer stays paused */
 }
 
-void Curl_rlimit_start(struct Curl_rlimit *r, const struct curltime *pts,
-                       int64_t total_tokens)
+فراغ Curl_rlimit_شروع(بنية Curl_rlimit *r, ثابت بنية curltime *pts,
+                       int64_t مجموع_نشانهها)
 {
   /* A start always resets the values to initial defaults, then
    * fine tunes the intervals for the total_tokens expected. */
-  r->rate_per_step = r->rate_per_sec;
-  r->burst_per_step = r->burst_per_sec;
-  r->step_us = CURL_US_PER_SEC;
-  r->spare_us = 0;
-  r->tokens = r->rate_per_step;
+  r->نرخ_در_هر_گام = r->نرخ_در_هر_sec;
+  r->مدت_در_هر_گام = r->مدت_در_هر_sec;
+  r->گام_us = CURL_US_در_هر_SEC;
+  r->یدکی_us = 0;
+  r->نشانهها = r->نرخ_در_هر_گام;
   r->ts = *pts;
-  rlimit_tune_steps(r, total_tokens);
+  rlimit_tune_گامها(r, مجموع_نشانهها);
 }
 
-int64_t Curl_rlimit_per_step(struct Curl_rlimit *r)
+int64_t Curl_rlimit_در_هر_گام(بنية Curl_rlimit *r)
 {
-  return r->rate_per_step;
+  أرجع r->نرخ_در_هر_گام;
 }
 
-bool Curl_rlimit_active(struct Curl_rlimit *r)
+bool Curl_rlimit_فعال(بنية Curl_rlimit *r)
 {
-  return (r->rate_per_step > 0) || r->blocked;
+  أرجع (r->نرخ_در_هر_گام > 0) || r->blocked;
 }
 
-bool Curl_rlimit_is_blocked(struct Curl_rlimit *r)
+bool Curl_rlimit_is_blocked(بنية Curl_rlimit *r)
 {
-  return (bool)r->blocked;
+  أرجع (bool)r->blocked;
 }
 
-int64_t Curl_rlimit_avail(struct Curl_rlimit *r,
-                          const struct curltime *pts)
+int64_t Curl_rlimit_avail(بنية Curl_rlimit *r,
+                          ثابت بنية curltime *pts)
 {
-  struct curltime ts;
+  بنية curltime ts;
 
-  if(r->blocked)
-    return 0;
-  else if(r->rate_per_step) {
-    if(!pts) {
+  إذا(r->blocked)
+    أرجع 0;
+  وإلا إذا(r->نرخ_در_هر_گام) {
+    إذا(!pts) {
       curlx_pnow(&ts);
       pts = &ts;
     }
     rlimit_update(r, pts);
-    return r->tokens;
+    أرجع r->نشانهها;
   }
-  else
-    return INT64_MAX;
+  وإلا
+    أرجع INT64_MAX;
 }
 
-void Curl_rlimit_drain(struct Curl_rlimit *r, size_t tokens,
-                       const struct curltime *pts)
+فراغ Curl_rlimit_drain(بنية Curl_rlimit *r, size_t نشانهها,
+                       ثابت بنية curltime *pts)
 {
-  struct curltime ts;
+  بنية curltime ts;
 
-  if(r->blocked || !r->rate_per_step)
-    return;
+  إذا(r->blocked || !r->نرخ_در_هر_گام)
+    أرجع;
 
-  if(!pts) {
+  إذا(!pts) {
     curlx_pnow(&ts);
     pts = &ts;
   }
   rlimit_update(r, pts);
-#if 8 <= SIZEOF_SIZE_T
-  if(tokens > INT64_MAX) {
-    r->tokens = INT64_MAX;
+#إذا 8 <= SIZEOF_اندازه_T
+  إذا(نشانهها > INT64_MAX) {
+    r->نشانهها = INT64_MAX;
   }
-  else
-#endif
+  وإلا
+#پایان_اگر
   {
-    int64_t val = (int64_t)tokens;
-    if((INT64_MIN + val) < r->tokens)
-      r->tokens -= val;
-    else
-      r->tokens = INT64_MIN;
+    int64_t val = (int64_t)نشانهها;
+    إذا((INT64_MIN + val) < r->نشانهها)
+      r->نشانهها -= val;
+    وإلا
+      r->نشانهها = INT64_MIN;
   }
 }
 
-timediff_t Curl_rlimit_wait_ms(struct Curl_rlimit *r,
-                               const struct curltime *pts)
+timediff_t Curl_rlimit_wait_ms(بنية Curl_rlimit *r,
+                               ثابت بنية curltime *pts)
 {
   timediff_t wait_us, elapsed_us;
 
-  if(r->blocked || !r->rate_per_step)
-    return 0;
+  إذا(r->blocked || !r->نرخ_در_هر_گام)
+    أرجع 0;
   rlimit_update(r, pts);
-  if(r->tokens > 0)
-    return 0;
+  إذا(r->نشانهها > 0)
+    أرجع 0;
 
   /* How much time will it take tokens to become positive again?
    * Deduct `spare_us` and check against already elapsed time */
-  wait_us = r->step_us - r->spare_us;
-  if(r->tokens < 0) {
-    curl_off_t debt_pct = ((-r->tokens) * 100 / r->rate_per_step);
-    if(debt_pct)
-      wait_us += (r->step_us * debt_pct / 100);
+  wait_us = r->گام_us - r->یدکی_us;
+  إذا(r->نشانهها < 0) {
+    curl_off_t debt_pct = ((-r->نشانهها) * 100 / r->نرخ_در_هر_گام);
+    إذا(debt_pct)
+      wait_us += (r->گام_us * debt_pct / 100);
   }
 
   elapsed_us = curlx_ptimediff_us(pts, &r->ts);
-  if(elapsed_us >= wait_us)
-    return 0;
+  إذا(elapsed_us >= wait_us)
+    أرجع 0;
   wait_us -= elapsed_us;
-  return (wait_us + 999) / 1000; /* in milliseconds */
+  أرجع (wait_us + 999) / 1000; /* in milliseconds */
 }
 
-timediff_t Curl_rlimit_next_step_ms(struct Curl_rlimit *r,
-                                    const struct curltime *pts)
+timediff_t Curl_rlimit_بعدی_گام_ms(بنية Curl_rlimit *r,
+                                    ثابت بنية curltime *pts)
 {
-  if(!r->blocked && r->rate_per_step) {
-    timediff_t elapsed_us, next_us;
+  إذا(!r->blocked && r->نرخ_در_هر_گام) {
+    timediff_t elapsed_us, بعدی_us;
 
-    elapsed_us = curlx_ptimediff_us(pts, &r->ts) + r->spare_us;
-    if(r->step_us > elapsed_us) {
-      next_us = r->step_us - elapsed_us;
-      return (next_us + 999) / 1000; /* in milliseconds */
+    elapsed_us = curlx_ptimediff_us(pts, &r->ts) + r->یدکی_us;
+    إذا(r->گام_us > elapsed_us) {
+      بعدی_us = r->گام_us - elapsed_us;
+      أرجع (بعدی_us + 999) / 1000; /* in milliseconds */
     }
   }
-  return 0;
+  أرجع 0;
 }
 
-void Curl_rlimit_block(struct Curl_rlimit *r,
+فراغ Curl_rlimit_بلوک(بنية Curl_rlimit *r,
                        bool activate,
-                       const struct curltime *pts)
+                       ثابت بنية curltime *pts)
 {
-  if(!activate == !r->blocked)
-    return;
+  إذا(!activate == !r->blocked)
+    أرجع;
 
   r->ts = *pts;
   r->blocked = activate;
-  if(!r->blocked) {
+  إذا(!r->blocked) {
     /* Start rate limiting fresh. The amount of time this was blocked
      * does not generate extra tokens. */
-    Curl_rlimit_start(r, pts, -1);
+    Curl_rlimit_شروع(r, pts, -1);
   }
-  else {
-    r->tokens = 0;
+  وإلا {
+    r->نشانهها = 0;
   }
 }

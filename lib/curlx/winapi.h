@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_WINAPI_H
-#define HEADER_CURLX_WINAPI_H
+#اگر_تعریف_نشده سرآیند_CURLX_WINAPI_H
+#تعریف_کن سرآیند_CURLX_WINAPI_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,11 +24,11 @@
  *
  ***************************************************************************/
 
-#ifdef _WIN32
-#define WINAPI_ERROR_LEN 100
-const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen);
-const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen);
-CURLcode curlx_win32_random(unsigned char *entropy, size_t length);
-#endif
+#اگر_تعریف_شده _WIN32
+#تعریف_کن WINAPI_ERROR_LEN 100
+ثابت حرف *curlx_get_winapi_error(DWORD err, حرف *buf, size_t buflen);
+ثابت حرف *curlx_winapi_strerror(DWORD err, حرف *buf, size_t buflen);
+CURLcode curlx_win32_random(بیعلامت حرف *entropy, size_t درازی);
+#پایان_اگر
 
-#endif /* HEADER_CURLX_WINAPI_H */
+#پایان_اگر /* HEADER_CURLX_WINAPI_H */

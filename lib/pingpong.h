@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PINGPONG_H
-#define HEADER_CURL_PINGPONG_H
+#اگر_تعریف_نشده سرآیند_CURL_PINGPONG_H
+#تعریف_کن سرآیند_CURL_PINGPONG_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_FTP) || \
+#إذا !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_FTP) || \
   !defined(CURL_DISABLE_POP3) || !defined(CURL_DISABLE_SMTP)
-#define USE_PINGPONG
-#endif
+#تعریف_کن USE_PINGPONG
+#پایان_اگر
 
 /* forward-declaration, this is defined in urldata.h */
-struct connectdata;
+بنية connectdata;
 
-typedef enum {
+تعريفنوع تعداد {
   PPTRANSFER_BODY, /* yes do transfer a body */
   PPTRANSFER_INFO, /* do still go through to get info/headers */
   PPTRANSFER_NONE  /* do not get anything and do not get info */
@@ -45,40 +45,40 @@ typedef enum {
  *
  * It holds response cache and non-blocking sending data.
  */
-struct pingpong {
+بنية pingpong {
   size_t nread_resp;  /* number of bytes currently read of a server response */
-  char *sendthis; /* pointer to a buffer that is to be sent to the server */
+  حرف *sendthis; /* pointer to a buffer that is to be sent to the server */
   size_t sendleft; /* number of bytes left to send from the sendthis buffer */
   size_t sendsize; /* total size of the sendthis buffer */
-  struct curltime response; /* set to Curl_now() when a command has been sent
+  بنية curltime response; /* set to Curl_now() when a command has been sent
                                off, used to time-out response reading */
-  struct dynbuf sendbuf;
-  struct dynbuf recvbuf;
-  size_t overflow; /* number of bytes left after a final response line */
+  بنية dynbuf sendbuf;
+  بنية dynbuf recvbuf;
+  size_t سرریز; /* number of bytes left after a final response line */
   size_t nfinal;   /* number of bytes in the final response line, which
                       after a match is first in the receive buffer */
 
   /* Function pointers the protocols MUST implement and provide for the
      pingpong layer to function */
 
-  CURLcode (*statemachine)(struct Curl_easy *data, struct connectdata *conn);
-  bool (*endofresp)(struct Curl_easy *data, struct connectdata *conn,
-                    const char *ptr, size_t len, int *code);
-  BIT(initialized);
-  BIT(pending_resp);  /* set TRUE when a server response is pending or in
+  CURLcode (*statemachine)(بنية Curl_easy *داده, بنية connectdata *conn);
+  bool (*endofresp)(بنية Curl_easy *داده, بنية connectdata *conn,
+                    ثابت حرف *ptr, size_t len, صحيح *کد);
+  بیت(initialized);
+  بیت(pending_resp);  /* set TRUE when a server response is pending or in
                          progress, and is cleared once the last response is
                          read */
 };
 
 /* Default pingpong response timeout in milliseconds, unless a transfer
  * has CURLOPT_SERVER_RESPONSE_TIMEOUT(_MS) set. */
-#define PINGPONG_TIMEOUT_MS      (60 * 1000)
+#تعریف_کن PINGPONG_TIMEOUT_MS      (60 * 1000)
 
-#define PINGPONG_SETUP(pp, s, e) \
-  do {                           \
+#تعریف_کن PINGPONG_راهاندازی(pp, s, e) \
+  افعل {                           \
     (pp)->statemachine = s;      \
     (pp)->endofresp = e;         \
-  } while(0)
+  } طالما(0)
 
 /*
  * Curl_pp_statemach()
@@ -86,16 +86,16 @@ struct pingpong {
  * called repeatedly until done. Set 'wait' to make it wait a while on the
  * socket if there is no traffic.
  */
-CURLcode Curl_pp_statemach(struct Curl_easy *data, struct pingpong *pp,
-                           bool block, bool disconnecting);
+CURLcode Curl_pp_statemach(بنية Curl_easy *داده, بنية pingpong *pp,
+                           bool بلوک, bool disconnecting);
 
 /* initialize stuff to prepare for reading a fresh new response */
-void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow);
+فراغ Curl_pp_init(بنية pingpong *pp, ثابت بنية curltime *pnow);
 
 /* Returns time remaining in ms. 0 or negative number means the
   timeout has already triggered */
-timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
-                                     struct pingpong *pp);
+timediff_t Curl_pp_state_timeleft_ms(بنية Curl_easy *داده,
+                                     بنية pingpong *pp);
 
 /***********************************************************************
  *
@@ -107,9 +107,9 @@ timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
  *
  * made to never block
  */
-CURLcode Curl_pp_sendf(struct Curl_easy *data,
-                       struct pingpong *pp,
-                       const char *fmt, ...) CURL_PRINTF(3, 4);
+CURLcode Curl_pp_sendf(بنية Curl_easy *داده,
+                       بنية pingpong *pp,
+                       ثابت حرف *fmt, ...) CURL_PRINTF(3, 4);
 
 /***********************************************************************
  *
@@ -122,35 +122,35 @@ CURLcode Curl_pp_sendf(struct Curl_easy *data,
  *
  * made to never block
  */
-CURLcode Curl_pp_vsendf(struct Curl_easy *data,
-                        struct pingpong *pp,
-                        const char *prefix,
-                        const char *fmt,
-                        va_list args) CURL_PRINTF(4, 0);
+CURLcode Curl_pp_vsendf(بنية Curl_easy *داده,
+                        بنية pingpong *pp,
+                        ثابت حرف *پیشوند,
+                        ثابت حرف *fmt,
+                        va_list آرگومانها) CURL_PRINTF(4, 0);
 
 /*
  * Curl_pp_readresp()
  *
  * Reads a piece of a server response.
  */
-CURLcode Curl_pp_readresp(struct Curl_easy *data,
+CURLcode Curl_pp_readresp(بنية Curl_easy *داده,
                           int8_t sockindex,
-                          struct pingpong *pp,
-                          int *code, /* return the server code if done */
-                          size_t *size); /* size of the response */
+                          بنية pingpong *pp,
+                          صحيح *کد, /* return the server code if done */
+                          size_t *اندازه); /* size of the response */
 
-bool Curl_pp_needs_flush(struct Curl_easy *data,
-                         struct pingpong *pp);
+bool Curl_pp_needs_flush(بنية Curl_easy *داده,
+                         بنية pingpong *pp);
 
-CURLcode Curl_pp_flushsend(struct Curl_easy *data,
-                           struct pingpong *pp);
+CURLcode Curl_pp_flushsend(بنية Curl_easy *داده,
+                           بنية pingpong *pp);
 
 /* call this when a pingpong connection is disconnected */
-CURLcode Curl_pp_disconnect(struct pingpong *pp);
+CURLcode Curl_pp_disconnect(بنية pingpong *pp);
 
-CURLcode Curl_pp_pollset(struct Curl_easy *data,
-                         struct pingpong *pp,
-                         struct easy_pollset *ps);
+CURLcode Curl_pp_pollset(بنية Curl_easy *داده,
+                         بنية pingpong *pp,
+                         بنية easy_pollset *ps);
 
 /***********************************************************************
  *
@@ -159,6 +159,6 @@ CURLcode Curl_pp_pollset(struct Curl_easy *data,
  * Returns whether there are still more data in the cache and so a call
  * to Curl_pp_readresp() will not block.
  */
-bool Curl_pp_moredata(struct pingpong *pp);
+bool Curl_pp_moredata(بنية pingpong *pp);
 
-#endif /* HEADER_CURL_PINGPONG_H */
+#پایان_اگر /* HEADER_CURL_PINGPONG_H */

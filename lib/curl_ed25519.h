@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ED25519_H
-#define HEADER_CURL_ED25519_H
+#اگر_تعریف_نشده سرآیند_CURL_ED25519_H
+#تعریف_کن سرآیند_CURL_ED25519_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#إذا !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
-#define CURL_ED25519_SIGLEN 64
-#define CURL_ED25519_KEYLEN 32
+#تعریف_کن CURL_ED25519_SIGLEN 64
+#تعریف_کن CURL_ED25519_KEYLEN 32
 
 /* Sign with Ed25519 (RFC 8032).
  * key/keylen: raw 32-byte private seed
@@ -36,9 +36,9 @@
  * sig: output buffer (at least CURL_ED25519_SIGLEN bytes)
  * siglen: out - actual signature length on success
  * Returns CURLE_OK or CURLE_NOT_BUILT_IN if no backend supports Ed25519. */
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen);
+CURLcode Curl_ed25519_sign(ثابت بیعلامت حرف *کلید, size_t keylen,
+                           ثابت بیعلامت حرف *پیام, size_t msglen,
+                           بیعلامت حرف *sig, size_t *siglen);
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
-#endif /* HEADER_CURL_ED25519_H */
+#پایان_اگر /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
+#پایان_اگر /* HEADER_CURL_ED25519_H */

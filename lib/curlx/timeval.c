@@ -21,34 +21,34 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timeval.h"
+#ضمن "curlx/timeval.h"
 
-#ifdef _WIN32
+#اگر_تعریف_شده _WIN32
 
-static LARGE_INTEGER s_time_freq;
+ساكن LARGE_INTEGER s_زمان_freq;
 
 /* For tool or tests, we must initialize before calling curlx_now().
    Providing this function here is wrong. */
-void curlx_now_init(void)
+فراغ curlx_now_init(فراغ)
 {
-  QueryPerformanceFrequency(&s_time_freq);
+  QueryPerformanceFrequency(&s_زمان_freq);
 }
 
 /* In case of bug fix this function has a counterpart in tool_util.c */
-void curlx_pnow(struct curltime *pnow)
+فراغ curlx_pnow(بنية curltime *pnow)
 {
-  LARGE_INTEGER count;
-  DEBUGASSERT(s_time_freq.QuadPart);
-  QueryPerformanceCounter(&count);
-  pnow->tv_sec = (time_t)(count.QuadPart / s_time_freq.QuadPart);
-  pnow->tv_usec = (int)((count.QuadPart % s_time_freq.QuadPart) * 1000000 /
-                        s_time_freq.QuadPart);
+  LARGE_INTEGER شمار;
+  DEBUGASSERT(s_زمان_freq.QuadPart);
+  QueryPerformanceCounter(&شمار);
+  pnow->tv_sec = (time_t)(شمار.QuadPart / s_زمان_freq.QuadPart);
+  pnow->tv_usec = (صحيح)((شمار.QuadPart % s_زمان_freq.QuadPart) * 1000000 /
+                        s_زمان_freq.QuadPart);
 }
 
-#elif defined(HAVE_CLOCK_GETTIME_MONOTONIC) || \
+#وإلاإذا defined(HAVE_CLOCK_GETTIME_MONOTONIC) || \
   defined(HAVE_CLOCK_GETTIME_MONOTONIC_RAW)
 
-void curlx_pnow(struct curltime *pnow)
+فراغ curlx_pnow(بنية curltime *pnow)
 {
   /*
    * clock_gettime() is granted to be increased monotonically when the
@@ -57,67 +57,67 @@ void curlx_pnow(struct curltime *pnow)
    * in any case the time starting point does not change once that the
    * system has started up.
    */
-  struct timespec tsnow;
+  بنية timespec tsnow;
 
   /*
    * clock_gettime() may be defined by Apple's SDK as weak symbol thus
    * code compiles but fails during runtime if clock_gettime() is
    * called on unsupported OS version.
    */
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
-  (HAVE_BUILTIN_AVAILABLE == 1)
+#إذا defined(__APPLE__) && defined(HAVE_BUILTIN_موجود) && \
+  (HAVE_BUILTIN_موجود == 1)
   bool have_clock_gettime = FALSE;
-  if(__builtin_available(macOS 10.12, iOS 10, tvOS 10, watchOS 3, *))
+  إذا(__builtin_available(macOS 10.12, iOS 10, tvOS 10, watchOS 3, *))
     have_clock_gettime = TRUE;
-#endif
+#پایان_اگر
 
-#ifdef HAVE_CLOCK_GETTIME_MONOTONIC_RAW
-  if(
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
-  (HAVE_BUILTIN_AVAILABLE == 1)
+#اگر_تعریف_شده HAVE_CLOCK_GETTIME_MONOTONIC_RAW
+  إذا(
+#إذا defined(__APPLE__) && defined(HAVE_BUILTIN_موجود) && \
+  (HAVE_BUILTIN_موجود == 1)
     have_clock_gettime &&
-#endif
+#پایان_اگر
     (clock_gettime(CLOCK_MONOTONIC_RAW, &tsnow) == 0)) {
     pnow->tv_sec = tsnow.tv_sec;
-    pnow->tv_usec = (int)(tsnow.tv_nsec / 1000);
+    pnow->tv_usec = (صحيح)(tsnow.tv_nsec / 1000);
   }
-  else
-#endif
+  وإلا
+#پایان_اگر
 
-  if(
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
-  (HAVE_BUILTIN_AVAILABLE == 1)
+  إذا(
+#إذا defined(__APPLE__) && defined(HAVE_BUILTIN_موجود) && \
+  (HAVE_BUILTIN_موجود == 1)
     have_clock_gettime &&
-#endif
+#پایان_اگر
     (clock_gettime(CLOCK_MONOTONIC, &tsnow) == 0)) {
     pnow->tv_sec = tsnow.tv_sec;
-    pnow->tv_usec = (int)(tsnow.tv_nsec / 1000);
+    pnow->tv_usec = (صحيح)(tsnow.tv_nsec / 1000);
   }
   /*
    * Even when the configure process has truly detected monotonic clock
    * availability, it might happen that it is not actually available at
    * runtime. When this occurs, fallback to other time source.
    */
-#ifdef HAVE_GETTIMEOFDAY
-  else {
-    struct timeval now;
-    (void)gettimeofday(&now, NULL);
+#اگر_تعریف_شده HAVE_GETTIMEOFDAY
+  وإلا {
+    بنية timeval now;
+    (فراغ)gettimeofday(&now, عدم);
     pnow->tv_sec = now.tv_sec;
-    pnow->tv_usec = (int)now.tv_usec;
+    pnow->tv_usec = (صحيح)now.tv_usec;
   }
-#else
-  else {
-    pnow->tv_sec = time(NULL);
+#وإلا
+  وإلا {
+    pnow->tv_sec = زمان(عدم);
     pnow->tv_usec = 0;
   }
-#endif
+#پایان_اگر
 }
 
-#elif defined(HAVE_MACH_ABSOLUTE_TIME)
+#وإلاإذا defined(HAVE_MACH_ABSOLUTE_زمان)
 
-#include <mach/mach_time.h>
+#ضمن <mach/mach_time.h>
 
-void curlx_pnow(struct curltime *pnow)
+فراغ curlx_pnow(بنية curltime *pnow)
 {
   /*
    * Monotonic timer on macOS is provided by mach_absolute_time(), which
@@ -125,56 +125,56 @@ void curlx_pnow(struct curltime *pnow)
    * To convert to nanoseconds, one must use conversion factors specified by
    * mach_timebase_info().
    */
-  static mach_timebase_info_data_t timebase;
+  ساكن mach_timebase_info_داده_t timebase;
   uint64_t usecs;
 
-  if(timebase.denom == 0)
-    (void)mach_timebase_info(&timebase);
+  إذا(timebase.denom == 0)
+    (فراغ)mach_timebase_info(&timebase);
 
-  usecs = mach_absolute_time();
+  usecs = mach_absolute_زمان();
   usecs *= timebase.numer; /* spellchecker:disable-line */
   usecs /= timebase.denom;
   usecs /= 1000;
 
   pnow->tv_sec = usecs / 1000000;
-  pnow->tv_usec = (int)(usecs % 1000000);
+  pnow->tv_usec = (صحيح)(usecs % 1000000);
 }
 
-#elif defined(HAVE_GETTIMEOFDAY)
+#وإلاإذا defined(HAVE_GETTIMEOFDAY)
 
-void curlx_pnow(struct curltime *pnow)
+فراغ curlx_pnow(بنية curltime *pnow)
 {
   /*
    * gettimeofday() is not granted to be increased monotonically, due to
    * clock drifting and external source time synchronization it can jump
    * forward or backward in time.
    */
-  struct timeval now;
-  (void)gettimeofday(&now, NULL);
+  بنية timeval now;
+  (فراغ)gettimeofday(&now, عدم);
   pnow->tv_sec = now.tv_sec;
-  pnow->tv_usec = (int)now.tv_usec;
+  pnow->tv_usec = (صحيح)now.tv_usec;
 }
 
-#else
+#وإلا
 
-void curlx_pnow(struct curltime *pnow)
+فراغ curlx_pnow(بنية curltime *pnow)
 {
   /*
    * time() returns the value of time in seconds since the Epoch.
    */
-  pnow->tv_sec = time(NULL);
+  pnow->tv_sec = زمان(عدم);
   pnow->tv_usec = 0;
-  if(!pnow->tv_sec) /* avoid a `now` fully zero */
+  إذا(!pnow->tv_sec) /* avoid a `now` fully zero */
     pnow->tv_usec = 1;
 }
 
-#endif
+#پایان_اگر
 
-struct curltime curlx_now(void)
+بنية curltime curlx_now(فراغ)
 {
-  struct curltime now;
+  بنية curltime now;
   curlx_pnow(&now);
-  return now;
+  أرجع now;
 }
 
 /*
@@ -183,94 +183,94 @@ struct curltime curlx_now(void)
  *
  * @unittest: 1323
  */
-timediff_t curlx_ptimediff_ms(const struct curltime *newer,
-                              const struct curltime *older)
+timediff_t curlx_ptimediff_ms(ثابت بنية curltime *newer,
+                              ثابت بنية curltime *older)
 {
   timediff_t diff = (timediff_t)newer->tv_sec - older->tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000) + ((newer->tv_usec - older->tv_usec) / 1000);
+  إذا(diff >= (TIMEDIFF_T_MAX / 1000))
+    أرجع TIMEDIFF_T_MAX;
+  وإلا إذا(diff <= (TIMEDIFF_T_MIN / 1000))
+    أرجع TIMEDIFF_T_MIN;
+  أرجع (diff * 1000) + ((newer->tv_usec - older->tv_usec) / 1000);
 }
 
-timediff_t curlx_timediff_ms(struct curltime newer, struct curltime older)
+timediff_t curlx_timediff_ms(بنية curltime newer, بنية curltime older)
 {
-  return curlx_ptimediff_ms(&newer, &older);
+  أرجع curlx_ptimediff_ms(&newer, &older);
 }
 
 /*
  * Returns: time difference in number of milliseconds, rounded up.
  * For too large diffs it returns max value.
  */
-timediff_t curlx_timediff_ceil_ms(struct curltime newer,
-                                  struct curltime older)
+timediff_t curlx_timediff_ceil_ms(بنية curltime newer,
+                                  بنية curltime older)
 {
   timediff_t diff = (timediff_t)newer.tv_sec - older.tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000) + ((newer.tv_usec - older.tv_usec + 999) / 1000);
+  إذا(diff >= (TIMEDIFF_T_MAX / 1000))
+    أرجع TIMEDIFF_T_MAX;
+  وإلا إذا(diff <= (TIMEDIFF_T_MIN / 1000))
+    أرجع TIMEDIFF_T_MIN;
+  أرجع (diff * 1000) + ((newer.tv_usec - older.tv_usec + 999) / 1000);
 }
 
-timediff_t curlx_us_to_ceil_ms(timediff_t us)
+timediff_t curlx_us_مقصد_ceil_ms(timediff_t us)
 {
-  return (us / 1000) + ((us > 0) && (us % 1000));
+  أرجع (us / 1000) + ((us > 0) && (us % 1000));
 }
 
 /*
  * Returns: time difference in number of microseconds. For too large diffs it
  * returns max value.
  */
-timediff_t curlx_ptimediff_us(const struct curltime *newer,
-                              const struct curltime *older)
+timediff_t curlx_ptimediff_us(ثابت بنية curltime *newer,
+                              ثابت بنية curltime *older)
 {
   timediff_t diff = (timediff_t)newer->tv_sec - older->tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000000) + newer->tv_usec - older->tv_usec;
+  إذا(diff >= (TIMEDIFF_T_MAX / 1000000))
+    أرجع TIMEDIFF_T_MAX;
+  وإلا إذا(diff <= (TIMEDIFF_T_MIN / 1000000))
+    أرجع TIMEDIFF_T_MIN;
+  أرجع (diff * 1000000) + newer->tv_usec - older->tv_usec;
 }
 
-timediff_t curlx_timediff_us(struct curltime newer, struct curltime older)
+timediff_t curlx_timediff_us(بنية curltime newer, بنية curltime older)
 {
-  return curlx_ptimediff_us(&newer, &older);
+  أرجع curlx_ptimediff_us(&newer, &older);
 }
 
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 3)
-#include <sec_api/time_s.h>  /* for _gmtime32_s(), _gmtime64_s() */
-#ifdef _USE_32BIT_TIME_T
-#define gmtime_s _gmtime32_s
-#else
-#define gmtime_s _gmtime64_s
-#endif
-#endif
+#إذا defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 3)
+#ضمن <sec_api/time_s.h>  /* for _gmtime32_s(), _gmtime64_s() */
+#اگر_تعریف_شده USE_32_بیت_زمان_T
+#تعریف_کن gmtime_s _gmtime32_s
+#وإلا
+#تعریف_کن gmtime_s _gmtime64_s
+#پایان_اگر
+#پایان_اگر
 
 /*
  * curlx_gmtime() is a gmtime() replacement for portability. Do not use
  * the gmtime_s(), gmtime_r() or gmtime() functions anywhere else but here.
  */
-CURLcode curlx_gmtime(time_t intime, struct tm *store)
+CURLcode curlx_gmtime(time_t intime, بنية tm *store)
 {
-#ifdef _WIN32
-  if(gmtime_s(store, &intime)) /* thread-safe */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#elif defined(HAVE_GMTIME_R)
-  const struct tm *tm;
+#اگر_تعریف_شده _WIN32
+  إذا(gmtime_s(store, &intime)) /* thread-safe */
+    أرجع CURLE_BAD_FUNCTION_آرگومان;
+#وإلاإذا defined(HAVE_GMTIME_R)
+  ثابت بنية tm *tm;
   tm = gmtime_r(&intime, store); /* thread-safe */
-  if(!tm)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#else
-  const struct tm *tm;
+  إذا(!tm)
+    أرجع CURLE_BAD_FUNCTION_آرگومان;
+#وإلا
+  ثابت بنية tm *tm;
   /* !checksrc! disable BANNEDFUNC 1 */
   tm = gmtime(&intime); /* not thread-safe */
-  if(tm)
+  إذا(tm)
     *store = *tm; /* copy the pointed struct to the local copy */
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#endif
+  وإلا
+    أرجع CURLE_BAD_FUNCTION_آرگومان;
+#پایان_اگر
 
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
