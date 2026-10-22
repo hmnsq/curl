@@ -33,7 +33,7 @@
 #define GOOD_EASY_HANDLE(x) \
   (((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER)) ? TRUE : \
    (DEBUGASSERT(!(x)), FALSE))
-#else
+#інакше
 #define GOOD_EASY_HANDLE(x) \
   ((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER))
 #endif
@@ -47,7 +47,7 @@
 #define GOOD_MULTI_HANDLE(x)                         \
   (((x) && (x)->magic == CURLMULTI_MAGIC_NUMBER) ? TRUE : \
   (DEBUGASSERT(!(x)), FALSE))
-#else
+#інакше
 #define GOOD_MULTI_HANDLE(x) \
   ((x) && (x)->magic == CURLMULTI_MAGIC_NUMBER)
 #endif

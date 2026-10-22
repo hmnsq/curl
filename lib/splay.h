@@ -52,7 +52,7 @@ bool Curl_timeouts_has(struct Curl_easy *data);
 timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
                                    const struct curltime *pts);
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
+ціле Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
                           const struct curltime *pnow,
                           timediff_t *pexpire_offset_us,
                           uint32_t *pmid);

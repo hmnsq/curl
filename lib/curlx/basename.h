@@ -27,7 +27,7 @@
 
 #ifndef HAVE_BASENAME
 char *curlx_basename(char *path);
-#else
+#інакше
 
 #ifdef HAVE_LIBGEN_H
 #include <libgen.h>

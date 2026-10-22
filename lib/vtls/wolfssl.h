@@ -46,7 +46,7 @@ struct wssl_ctx {
   struct WOLFSSL *ssl;
   CURLcode io_result;      /* result of last BIO cfilter operation */
   CURLcode hs_result;      /* result of handshake */
-  int io_send_blocked_len; /* length of last BIO write that EAGAIN-ed */
+  ціле io_send_blocked_len; /* length of last BIO write that EAGAIN-ed */
   BIT(x509_store_setup);   /* x509 store has been set up */
   BIT(shutting_down);      /* TLS is being shut down */
 };
@@ -82,7 +82,7 @@ CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
                                  const char *ssl_peer_key,
                                  struct WOLFSSL_SESSION *session,
-                                 int ietf_tls_id,
+                                 ціле ietf_tls_id,
                                  const char *alpn,
                                  unsigned char *quic_tp,
                                  size_t quic_tp_len,

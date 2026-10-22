@@ -33,8 +33,8 @@
 #define IPV6_SCOPE_NODELOCAL    4       /* Loopback. */
 
 #ifdef USE_IPV6
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa);
-#else
+unsigned ціле Curl_ipv6_scope(const struct sockaddr *sa);
+#інакше
 #define Curl_ipv6_scope(x) 0
 #endif
 
@@ -44,10 +44,10 @@ typedef enum {
   IF2IP_FOUND = 2 /* The address has been stored in "buf" */
 } if2ip_result_t;
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(ціле af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned ціле remote_scope,
+                          unsigned ціле local_scope_id,
 #endif
                           const char *interf,
                           char *buf, size_t buf_size);
@@ -68,8 +68,8 @@ struct ifreq {
     struct sockaddr ifru_netmask;
     struct sockaddr ifru_hwaddr;
     short ifru_flags;
-    int ifru_metric;
-    int ifru_mtu;
+    ціле ifru_metric;
+    ціле ifru_mtu;
   } ifr_ifru;
 };
 

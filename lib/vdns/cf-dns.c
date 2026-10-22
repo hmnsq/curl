@@ -62,8 +62,8 @@ static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
   struct cf_dns_ctx *ctx;
 
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    return NULL;
+  якщо(!ctx)
+    повернути NULL;
 
   Curl_peer_link(&ctx->peer, peer);
   ctx->dns_queries = dns_queries;
@@ -73,9 +73,9 @@ static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
 #ifdef DEBUGBUILD
   {
     const char *p = getenv("CURL_DBG_HE_AAAA_AWAIT_MS");
-    if(p) {
+    якщо(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      якщо(!curlx_str_number(&p, &l, UINT32_MAX)) {
         ctx->he_aaaa_await_ms = (uint32_t)l;
       }
     }
@@ -85,13 +85,13 @@ static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
   CURL_TRC_DNS(data, "[%s] created DNS filter for %s:%u, transport=%x",
                Curl_resolv_query_str(ctx->dns_queries),
                peer->hostname, peer->port, ctx->transport);
-  return ctx;
+  повернути ctx;
 }
 
 static void cf_dns_ctx_destroy(struct Curl_easy *data,
                                struct cf_dns_ctx *ctx)
 {
-  if(ctx) {
+  якщо(ctx) {
     Curl_peer_unlink(&ctx->peer);
     Curl_dns_entry_unlink(data, &ctx->dns);
     curlx_free(ctx);
@@ -102,7 +102,7 @@ static void cf_dns_ctx_destroy(struct Curl_easy *data,
 static void cf_dns_report_addr(struct Curl_easy *data,
                                struct dynbuf *tmp,
                                const char *label,
-                               int ai_family,
+                               ціле ai_family,
                                const struct Curl_addrinfo *ai)
 {
   char buf[MAX_IPADR_LEN];
@@ -110,13 +110,13 @@ static void cf_dns_report_addr(struct Curl_easy *data,
   CURLcode result;
 
   curlx_dyn_reset(tmp);
-  for(; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family) {
+  для(; ai; ai = ai->ai_next) {
+    якщо(ai->ai_family == ai_family) {
       Curl_printable_address(ai, buf, sizeof(buf));
       result = curlx_dyn_addf(tmp, "%s%s", sep, buf);
-      if(result) {
+      якщо(result) {
         infof(data, "too many IP, cannot show");
-        return;
+        повернути;
       }
       sep = ", ";
     }
@@ -133,21 +133,21 @@ static void cf_dns_report(struct Curl_cfilter *cf,
   struct cf_dns_ctx *ctx = cf->ctx;
   struct dynbuf tmp;
 
-  if(!Curl_trc_is_verbose(data) ||
+  якщо(!Curl_trc_is_verbose(data) ||
      /* ignore no name or numerical IP addresses */
      !dns->hostname[0] || Curl_host_is_ipnum(dns->hostname))
-    return;
+    повернути;
 
-  if(ctx->peer->unix_socket) {
+  якщо(ctx->peer->unix_socket) {
 #ifdef USE_UNIX_SOCKETS
     CURL_TRC_CF(data, cf, "resolved unix://%s", ctx->peer->hostname);
-#else
+#інакше
     DEBUGASSERT(0);
 #endif
   }
-  else {
+  інакше {
     curlx_dyn_init(&tmp, 1024);
-    if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+    якщо(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
       infof(data, "Host %s:%u was resolved.", dns->hostname, dns->port);
 #ifdef CURLRES_IPV6
       cf_dns_report_addr(data, &tmp, "IPv6: ", AF_INET6, dns->addr);
@@ -155,18 +155,18 @@ static void cf_dns_report(struct Curl_cfilter *cf,
       cf_dns_report_addr(data, &tmp, "IPv4: ", AF_INET, dns->addr);
     }
 #ifdef USE_HTTPSRR
-    else if(ctx->dns_queries & CURL_DNSQ_HTTPS) {
-      if(!dns->hinfo)
+    інакше якщо(ctx->dns_queries & CURL_DNSQ_HTTPS) {
+      якщо(!dns->hinfo)
         infof(data, "HTTPS-RR %s:%u: -", dns->hostname, dns->port);
-      else if(!Curl_httpsrr_applicable(data, dns->hinfo))
+      інакше якщо(!Curl_httpsrr_applicable(data, dns->hinfo))
         infof(data, "HTTPS-RR %s:%u: not applicable",
               dns->hostname, dns->port);
-      else {
+      інакше {
         CURLcode result = Curl_httpsrr_print(&tmp, dns->hinfo);
-        if(!result)
+        якщо(!result)
           infof(data, "HTTPS-RR %s:%u: %s",
                 dns->hostname, dns->port, curlx_dyn_ptr(&tmp));
-        else
+        інакше
           infof(data, "Error printing HTTPS-RR information");
       }
     }
@@ -174,7 +174,7 @@ static void cf_dns_report(struct Curl_cfilter *cf,
     curlx_dyn_free(&tmp);
   }
 }
-#else
+#інакше
 #define cf_dns_report(x, y, z) Curl_nop_stmt
 #endif
 
@@ -195,14 +195,14 @@ static CURLcode cf_dns_start(struct Curl_cfilter *cf,
               Curl_resolv_query_str(ctx->dns_queries),
               ctx->peer->unix_socket ? "unix-domain-socket" : "host",
               ctx->peer->hostname, ctx->peer->port);
-  if(ctx->peer->unix_socket)
+  якщо(ctx->peer->unix_socket)
     ctx->dns_queries = CURL_DNSQ_A; /* treat it like an A resolve */
 
-  if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
-    if(Curl_is_ipv4addr(ctx->peer->hostname))
+  якщо(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+    якщо(Curl_is_ipv4addr(ctx->peer->hostname))
       ctx->dns_queries |= CURL_DNSQ_A;
 #ifdef USE_IPV6
-    else if(ctx->peer->ipv6)
+    інакше якщо(ctx->peer->ipv6)
       ctx->dns_queries |= CURL_DNSQ_AAAA;
 #endif
 
@@ -211,35 +211,35 @@ static CURLcode cf_dns_start(struct Curl_cfilter *cf,
                          &ctx->resolv_id, pdns);
   }
 #ifdef USE_HTTPSRR
-  else if(ctx->dns_queries == CURL_DNSQ_HTTPS) {
+  інакше якщо(ctx->dns_queries == CURL_DNSQ_HTTPS) {
     result = Curl_resolv_https(data, ctx->peer, (bool)ctx->for_proxy,
                                timeout_ms, &ctx->resolv_id, pdns);
   }
 #endif
-  else {
+  інакше {
     failf(data, "unsupported DNS queries %x", ctx->dns_queries);
-    return CURLE_FAILED_INIT;
+    повернути CURLE_FAILED_INIT;
   }
 
   DEBUGASSERT(!result || !*pdns);
-  if(!result) { /* resolved right away, either sync or from dnscache */
+  якщо(!result) { /* resolved right away, either sync or from dnscache */
     DEBUGASSERT(*pdns);
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
-  else if(result == CURLE_AGAIN) { /* async resolv in progress */
-    return CURLE_OK;
+  інакше якщо(result == CURLE_AGAIN) { /* async resolv in progress */
+    повернути CURLE_OK;
   }
-  else if(result == CURLE_OPERATION_TIMEDOUT) { /* took too long */
+  інакше якщо(result == CURLE_OPERATION_TIMEDOUT) { /* took too long */
     failf(data, "Failed to resolve '%s' with timeout after %"
           FMT_TIMEDIFF_T " ms", ctx->peer->hostname,
           Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-    return CURLE_OPERATION_TIMEDOUT;
+    повернути CURLE_OPERATION_TIMEDOUT;
   }
-  else {
+  інакше {
     DEBUGASSERT(result);
-    if(ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+    якщо(ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
       failf(data, "Could not resolve: %s", ctx->peer->hostname);
-    return result;
+    повернути result;
   }
 }
 
@@ -248,12 +248,12 @@ static bool cf_dns_ready_to_connect(struct Curl_cfilter *cf,
 {
   struct cf_dns_ctx *ctx = cf->ctx;
 
-  if(ctx->resolv_result)
-    return TRUE;
-  else if(ctx->dns)
-    return TRUE;
+  якщо(ctx->resolv_result)
+    повернути TRUE;
+  інакше якщо(ctx->dns)
+    повернути TRUE;
 #ifdef USE_CURL_ASYNC
-  else if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+  інакше якщо(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
     const struct curltime *pnow;
     timediff_t remain_ms;
     /* For Happy Eyeballing, we can start on either A or AAAA resolves,
@@ -261,26 +261,26 @@ static bool cf_dns_ready_to_connect(struct Curl_cfilter *cf,
      * AAAA to arrive, then we let the connect continue.
      * Note: if AAAA was never started (-4), it is considered to have
      * an answer (e.g. a negative one). */
-    if(Curl_resolv_has_answers(data, ctx->resolv_id, CURL_DNSQ_AAAA))
-      return TRUE;
+    якщо(Curl_resolv_has_answers(data, ctx->resolv_id, CURL_DNSQ_AAAA))
+      повернути TRUE;
     pnow = Curl_pgrs_now(data);
     remain_ms = ctx->he_aaaa_await_ms -
                 Curl_resolv_elapsed_ms(data, ctx->resolv_id, pnow);
-    if(remain_ms <= 0)
-      return TRUE;
+    якщо(remain_ms <= 0)
+      повернути TRUE;
     CURL_TRC_CF(data, cf, "[%s] still waiting %" FMT_TIMEDIFF_T
                 "ms for AAAA result",
                 Curl_resolv_query_str(ctx->dns_queries), remain_ms);
     Curl_expire_set(data, EXPIRE_HAPPY_EYEBALLS, remain_ms, pnow);
-    return FALSE;
+    повернути FALSE;
   }
-  else {
-    return TRUE;
+  інакше {
+    повернути TRUE;
   }
-#else
+#інакше
   (void)data;
   DEBUGASSERT(0); /* We should not come here */
-  return FALSE;
+  повернути FALSE;
 #endif /* USE_CURL_ASYNC */
 }
 
@@ -291,33 +291,33 @@ static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
   struct cf_dns_ctx *ctx = cf->ctx;
   bool ip_query = (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA));
 
-  if(cf->connected) {
+  якщо(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
   *done = FALSE;
-  if(!ctx->started) {
+  якщо(!ctx->started) {
     ctx->started = TRUE;
     ctx->resolv_result = cf_dns_start(cf, data, &ctx->dns);
   }
 
-  if(!ctx->dns && !ctx->resolv_result) {
+  якщо(!ctx->dns && !ctx->resolv_result) {
     ctx->resolv_result =
       Curl_resolv_take_result(data, ctx->resolv_id, &ctx->dns);
   }
 
-  if(ctx->resolv_result && ip_query) {
+  якщо(ctx->resolv_result && ip_query) {
     /* failing A|AAAA resolves is a hard failure. */
     CURL_TRC_CF(data, cf, "[%s] error resolving: %d",
                 Curl_resolv_query_str(ctx->dns_queries),
-                (int)ctx->resolv_result);
-    return ctx->resolv_result;
+                (ціле)ctx->resolv_result);
+    повернути ctx->resolv_result;
   }
 
-  if(ctx->dns && !ctx->announced) {
+  якщо(ctx->dns && !ctx->announced) {
     ctx->announced = TRUE;
-    if((cf->sockindex == FIRSTSOCKET) && ip_query) {
+    якщо((cf->sockindex == FIRSTSOCKET) && ip_query) {
       cf->conn->bits.dns_resolved = TRUE;
       Curl_pgrsTime(data, TIMER_NAMELOOKUP);
     }
@@ -325,15 +325,15 @@ static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
   }
 
   /* Delay connection sub-filters when we are still waiting for AAAA */
-  if(!cf_dns_ready_to_connect(cf, data)) {
-    return CURLE_OK;
+  якщо(!cf_dns_ready_to_connect(cf, data)) {
+    повернути CURLE_OK;
   }
 
-  if(cf->next && !cf->next->connected) {
+  якщо(cf->next && !cf->next->connected) {
     bool sub_done;
     CURLcode result = Curl_conn_cf_connect(cf->next, data, &sub_done);
-    if(result || !sub_done)
-      return result;
+    якщо(result || !sub_done)
+      повернути result;
     DEBUGASSERT(sub_done);
   }
 
@@ -343,7 +343,7 @@ static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
   *done = TRUE;
   cf->connected = TRUE;
   Curl_resolv_destroy(data, ctx->resolv_id);
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static void cf_dns_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
@@ -359,35 +359,35 @@ static CURLcode cf_dns_adjust_pollset(struct Curl_cfilter *cf,
                                       struct easy_pollset *ps)
 {
 #ifdef USE_CURL_ASYNC
-  if(!cf->connected) {
+  якщо(!cf->connected) {
     /* The pollset only works when we have started the resolving.
      * Otherwise we might wait on the WAKEUP socketpair forever.
      * Since DNS filters can be added in the middle of a connect
      * attempt, they are not always started that way. */
     struct cf_dns_ctx *ctx = cf->ctx;
-    if(!ctx->started) {
+    якщо(!ctx->started) {
       CURL_TRC_CF(data, cf, "adjust_pollset, starting %s:%u queries=%s",
                   ctx->peer->hostname, ctx->peer->port,
                   Curl_resolv_query_str(ctx->dns_queries));
       ctx->started = TRUE;
       ctx->resolv_result = cf_dns_start(cf, data, &ctx->dns);
-      if(ctx->resolv_result || ctx->dns) {
+      якщо(ctx->resolv_result || ctx->dns) {
         Curl_multi_mark_dirty(data);
       }
     }
-    return Curl_resolv_pollset(data, ps);
+    повернути Curl_resolv_pollset(data, ps);
   }
-#else
+#інакше
   (void)cf;
   (void)data;
   (void)ps;
 #endif
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cf_dns_cntrl(struct Curl_cfilter *cf,
                              struct Curl_easy *data,
-                             int event, int arg1, void *arg2)
+                             ціле event, ціле arg1, void *arg2)
 {
   struct cf_dns_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
@@ -396,7 +396,7 @@ static CURLcode cf_dns_cntrl(struct Curl_cfilter *cf,
   (void)arg2;
   switch(event) {
   case CF_CTRL_DATA_DONE:
-    if(ctx->dns) {
+    якщо(ctx->dns) {
       /* Should only come here when the connect attempt failed and
        * `data` is giving up on it. On a successful connect, we already
        * unlinked the DNS entry. */
@@ -406,7 +406,7 @@ static CURLcode cf_dns_cntrl(struct Curl_cfilter *cf,
   default:
     break;
   }
-  return result;
+  повернути result;
 }
 
 struct Curl_cftype Curl_cft_dns = {
@@ -439,7 +439,7 @@ static CURLcode cf_dns_create(struct Curl_cfilter **pcf,
 
   (void)data;
   ctx = cf_dns_ctx_create(data, peer, dns_queries, transport, for_proxy);
-  if(!ctx) {
+  якщо(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -448,9 +448,9 @@ static CURLcode cf_dns_create(struct Curl_cfilter **pcf,
 
 out:
   *pcf = result ? NULL : cf;
-  if(result)
+  якщо(result)
     cf_dns_ctx_destroy(data, ctx);
-  return result;
+  повернути result;
 }
 
 /* Adds a "resolv" filter at the top of the connection's filter chain.
@@ -466,19 +466,19 @@ static CURLcode cf_dns_add(struct Curl_easy *data,
   bool for_proxy = FALSE;
   CURLcode result;
 
-  if(!peer)
-    return CURLE_FAILED_INIT;
+  якщо(!peer)
+    повернути CURLE_FAILED_INIT;
 #ifndef CURL_DISABLE_PROXY
   for_proxy = (peer == conn->socks_proxy.peer) ||
               (peer == conn->http_proxy.peer);
 #endif
 
   result = cf_dns_create(&cf, data, peer, dns_queries, transport, for_proxy);
-  if(result)
+  якщо(result)
     goto out;
   Curl_conn_cf_add(data, conn, sockindex, cf);
 out:
-  return result;
+  повернути result;
 }
 
 /* Insert a new "resolv" filter directly after `cf`. It will
@@ -497,11 +497,11 @@ static CURLcode cf_dns_insert_after(struct Curl_cfilter *cf_at,
   CURLcode result;
 
   result = cf_dns_create(&cf, data, peer, dns_queries, transport, FALSE);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
   Curl_conn_cf_insert_after(cf_at, cf);
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cf_dns_add_resolve(struct Curl_easy *data,
@@ -515,43 +515,43 @@ static CURLcode cf_dns_add_resolve(struct Curl_easy *data,
   struct Curl_cfilter *cf_dns = NULL;
   bool is_addr = CURL_DNSQ_IS_ADDR(dns_queries);
 
-  if((dns_queries & CURL_DNSQ_HTTPS) &&
+  якщо((dns_queries & CURL_DNSQ_HTTPS) &&
      Curl_is_ipaddr(peer->hostname)) {
     dns_queries = (uint8_t)(dns_queries & ~CURL_DNSQ_HTTPS);
   }
 
-  for(; cf && dns_queries; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
+  для(; cf && dns_queries; cf = cf->next) {
+    якщо(cf->cft == &Curl_cft_dns) {
       struct cf_dns_ctx *ctx = cf->ctx;
       cf_dns = cf;
-      if(Curl_peer_same_destination(ctx->peer, peer)) {
+      якщо(Curl_peer_same_destination(ctx->peer, peer)) {
         /* subtract queries already being scheduled/ongoing */
         dns_queries = (uint8_t)(~ctx->dns_queries & dns_queries);
-        if(!dns_queries) { /* already there */
-          return CURLE_OK;
+        якщо(!dns_queries) { /* already there */
+          повернути CURLE_OK;
         }
-        else if(is_addr && !ctx->started &&
+        інакше якщо(is_addr && !ctx->started &&
                 CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
           ctx->dns_queries |= dns_queries;
           CURL_TRC_DNS(data, "[%s] added queries=%s for %s:%u",
                        Curl_resolv_query_str(ctx->dns_queries),
                        Curl_resolv_query_str(dns_queries),
                        peer->hostname, peer->port);
-          return CURLE_OK;
+          повернути CURLE_OK;
         }
       }
     }
   }
 
-  if(dns_queries) {
+  якщо(dns_queries) {
     /* No existing filter is handling these, add a new DNS filter
      * (after the last one if there was one already. FCFS. */
-    if(cf_dns)
-      return cf_dns_insert_after(cf_dns, data, peer, dns_queries, transport);
-    else
-      return cf_dns_add(data, conn, sockindex, peer, dns_queries, transport);
+    якщо(cf_dns)
+      повернути cf_dns_insert_after(cf_dns, data, peer, dns_queries, transport);
+    інакше
+      повернути cf_dns_add(data, conn, sockindex, peer, dns_queries, transport);
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
@@ -563,7 +563,7 @@ CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
 {
   /* should only have address query bits */
   DEBUGASSERT(!(dns_queries & ~CURL_DNSQ_ADDR));
-  return cf_dns_add_resolve(data, conn, sockindex, peer,
+  повернути cf_dns_add_resolve(data, conn, sockindex, peer,
                             (dns_queries & CURL_DNSQ_ADDR), transport);
 }
 
@@ -579,18 +579,18 @@ CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
                                    struct Curl_peer *peer)
 {
   struct Curl_cfilter *cf = conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
+  для(; cf; cf = cf->next) {
+    якщо(cf->cft == &Curl_cft_dns) {
       struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+      якщо(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))) {
-        if(ctx->dns || ctx->resolv_result)
-          return ctx->resolv_result;
-        return CURLE_AGAIN;
+        якщо(ctx->dns || ctx->resolv_result)
+          повернути ctx->resolv_result;
+        повернути CURLE_AGAIN;
       }
     }
   }
-  return CURLE_FAILED_INIT; /* no one is resolving */
+  повернути CURLE_FAILED_INIT; /* no one is resolving */
 }
 
 /* Return the addrinfo at `index` for the given `family` from the
@@ -600,38 +600,38 @@ CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
 const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
                                                  struct Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index)
+                                                 ціле ai_family,
+                                                 unsigned ціле index)
 {
   struct connectdata *conn = data->conn;
   struct Curl_cfilter *cf = conn->cfilter[sockindex];
 
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
+  для(; cf; cf = cf->next) {
+    якщо(cf->cft == &Curl_cft_dns) {
       struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+      якщо(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))) {
         CURL_TRC_CF(data, cf, "get %uth result for %s:%u, family=%d, dns=%d",
                     index, peer->hostname, peer->port, ai_family, !!ctx->dns);
-        if(ctx->resolv_result)
-          return NULL;
-        else if(ctx->dns) {
+        якщо(ctx->resolv_result)
+          повернути NULL;
+        інакше якщо(ctx->dns) {
           /* A cached DNS entry may contain address families that we
            * here never queried for. We want to give no results for those. */
-          if((ai_family == AF_INET) && !(ctx->dns_queries & CURL_DNSQ_A))
-            return NULL;
+          якщо((ai_family == AF_INET) && !(ctx->dns_queries & CURL_DNSQ_A))
+            повернути NULL;
 #ifdef USE_IPV6
-          if((ai_family == AF_INET6) && !(ctx->dns_queries & CURL_DNSQ_AAAA))
-            return NULL;
+          якщо((ai_family == AF_INET6) && !(ctx->dns_queries & CURL_DNSQ_AAAA))
+            повернути NULL;
 #endif
-          return Curl_addrinfo_get(ctx->dns->addr, ai_family, index);
+          повернути Curl_addrinfo_get(ctx->dns->addr, ai_family, index);
         }
-        else
-          return Curl_resolv_get_ai(data, ctx->resolv_id, ai_family, index);
+        інакше
+          повернути Curl_resolv_get_ai(data, ctx->resolv_id, ai_family, index);
       }
     }
   }
-  return NULL;
+  повернути NULL;
 }
 
 #ifdef USE_HTTPSRR
@@ -640,7 +640,7 @@ CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
                                          int8_t sockindex,
                                          struct Curl_peer *peer)
 {
-  return cf_dns_add_resolve(data, conn, sockindex, peer,
+  повернути cf_dns_add_resolve(data, conn, sockindex, peer,
                             CURL_DNSQ_HTTPS, conn->transport_wanted);
 }
 
@@ -653,19 +653,19 @@ const struct Curl_https_rrinfo *Curl_conn_dns_get_https(struct Curl_easy *data,
                                                         struct Curl_peer *peer)
 {
   struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
+  для(; cf; cf = cf->next) {
+    якщо(cf->cft == &Curl_cft_dns) {
       struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+      якщо(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & CURL_DNSQ_HTTPS)) {
-        if(ctx->dns)
-          return ctx->dns->hinfo;
-        else
-          return Curl_resolv_get_https(data, ctx->resolv_id);
+        якщо(ctx->dns)
+          повернути ctx->dns->hinfo;
+        інакше
+          повернути Curl_resolv_get_https(data, ctx->resolv_id);
       }
     }
   }
-  return NULL;
+  повернути NULL;
 }
 
 bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
@@ -673,19 +673,19 @@ bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
                                   struct Curl_peer *peer)
 {
   struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
+  для(; cf; cf = cf->next) {
+    якщо(cf->cft == &Curl_cft_dns) {
       struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+      якщо(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & CURL_DNSQ_HTTPS)) {
-        if(ctx->dns)
-          return TRUE;
-        else
-          return Curl_resolv_knows_https(data, ctx->resolv_id);
+        якщо(ctx->dns)
+          повернути TRUE;
+        інакше
+          повернути Curl_resolv_knows_https(data, ctx->resolv_id);
       }
     }
   }
-  return TRUE;
+  повернути TRUE;
 }
 
 #endif /* USE_HTTPSRR */

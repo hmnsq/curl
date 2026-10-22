@@ -81,9 +81,9 @@ struct Curl_easy *Curl_get_admin(struct Curl_easy *data);
  * result != (CURLE_OK | CURLE_AGAIN) or `r1`. */
 CURLcode Curl_1st_fatal(CURLcode r1, CURLcode r2);
 
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
+#якщо defined(USE_HTTP2) || defined(USE_HTTP3)
 void Curl_data_priority_clear_state(struct Curl_easy *data);
-#else
+#інакше
 #define Curl_data_priority_clear_state(x)
 #endif /* USE_HTTP2 || USE_HTTP3 */
 
@@ -91,7 +91,7 @@ void Curl_data_priority_clear_state(struct Curl_easy *data);
 CURLcode Curl_data_priority_add_child(struct Curl_easy *parent,
                                       struct Curl_easy *child,
                                       bool exclusive);
-#else
+#інакше
 #define Curl_data_priority_add_child(x, y, z) CURLE_NOT_BUILT_IN
 #endif
 

@@ -79,43 +79,43 @@ static CURLcode dyn_nappend(struct dynbuf *s,
   DEBUGASSERT(a <= s->toobig);
   DEBUGASSERT(!len || mem);
 
-  if(fit > s->toobig) {
+  якщо(fit > s->toobig) {
     curlx_dyn_free(s);
-    return CURLE_TOO_LARGE;
+    повернути CURLE_TOO_LARGE;
   }
-  else if(!a) {
+  інакше якщо(!a) {
     DEBUGASSERT(!idx);
     /* first invoke */
-    if(MIN_FIRST_ALLOC > s->toobig)
+    якщо(MIN_FIRST_ALLOC > s->toobig)
       a = s->toobig;
-    else if(fit < MIN_FIRST_ALLOC)
+    інакше якщо(fit < MIN_FIRST_ALLOC)
       a = MIN_FIRST_ALLOC;
-    else
+    інакше
       a = fit;
   }
-  else {
-    while(a < fit)
+  інакше {
+    поки(a < fit)
       a *= 2;
-    if(a > s->toobig)
+    якщо(a > s->toobig)
       /* no point in allocating a larger buffer than this is allowed to use */
       a = s->toobig;
   }
 
-  if(a != s->allc) {
+  якщо(a != s->allc) {
     void *p = curlx_realloc(s->bufr, a);
-    if(!p) {
+    якщо(!p) {
       curlx_dyn_free(s);
-      return CURLE_OUT_OF_MEMORY;
+      повернути CURLE_OUT_OF_MEMORY;
     }
     s->bufr = p;
     s->allc = a;
   }
 
-  if(len)
+  якщо(len)
     memcpy(&s->bufr[idx], mem, len);
   s->leng = idx + len;
   s->bufr[s->leng] = 0;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /*
@@ -127,7 +127,7 @@ void curlx_dyn_reset(struct dynbuf *s)
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(s->leng)
+  якщо(s->leng)
     s->bufr[0] = 0;
   s->leng = 0;
 }
@@ -141,19 +141,19 @@ CURLcode curlx_dyn_tail(struct dynbuf *s, size_t trail)
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(trail > s->leng)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  else if(trail == s->leng)
-    return CURLE_OK;
-  else if(!trail) {
+  якщо(trail > s->leng)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
+  інакше якщо(trail == s->leng)
+    повернути CURLE_OK;
+  інакше якщо(!trail) {
     curlx_dyn_reset(s);
   }
-  else {
+  інакше {
     memmove(&s->bufr[0], &s->bufr[s->leng - trail], trail);
     s->leng = trail;
     s->bufr[s->leng] = 0;
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /*
@@ -164,7 +164,7 @@ CURLcode curlx_dyn_addn(struct dynbuf *s, const void *mem, size_t len)
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return dyn_nappend(s, mem, len);
+  повернути dyn_nappend(s, mem, len);
 }
 
 /*
@@ -178,7 +178,7 @@ CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
   n = strlen(str);
-  return dyn_nappend(s, (const unsigned char *)str, n);
+  повернути dyn_nappend(s, (const unsigned char *)str, n);
 }
 
 /*
@@ -187,30 +187,30 @@ CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
 CURLcode curlx_dyn_vaddf(struct dynbuf *s, const char *fmt, va_list ap)
 {
 #ifdef BUILDING_LIBCURL
-  int rc;
+  ціле rc;
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
   DEBUGASSERT(fmt);
   rc = curlx_dyn_vprintf(s, fmt, ap);
 
-  if(!rc)
-    return CURLE_OK;
-  else if(rc == MERR_TOO_LARGE)
-    return CURLE_TOO_LARGE;
-  return CURLE_OUT_OF_MEMORY;
-#else
+  якщо(!rc)
+    повернути CURLE_OK;
+  інакше якщо(rc == MERR_TOO_LARGE)
+    повернути CURLE_TOO_LARGE;
+  повернути CURLE_OUT_OF_MEMORY;
+#інакше
   char *str;
   str = curl_mvaprintf(fmt, ap); /* this allocs a new string to append */
 
-  if(str) {
+  якщо(str) {
     CURLcode result = dyn_nappend(s, (const unsigned char *)str, strlen(str));
     curl_free(str);
-    return result;
+    повернути result;
   }
   /* If we failed, we cleanup the whole buffer and return error */
   curlx_dyn_free(s);
-  return CURLE_OUT_OF_MEMORY;
+  повернути CURLE_OUT_OF_MEMORY;
 #endif
 }
 
@@ -228,7 +228,7 @@ CURLcode curlx_dyn_addf(struct dynbuf *s, const char *fmt, ...)
   va_start(ap, fmt);
   result = curlx_dyn_vaddf(s, fmt, ap);
   va_end(ap);
-  return result;
+  повернути result;
 }
 
 /*
@@ -239,7 +239,7 @@ char *curlx_dyn_ptr(const struct dynbuf *s)
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return s->bufr;
+  повернути s->bufr;
 }
 
 char *curlx_dyn_take(struct dynbuf *s, size_t *plen)
@@ -251,7 +251,7 @@ char *curlx_dyn_take(struct dynbuf *s, size_t *plen)
   s->bufr = NULL;
   s->leng = 0;
   s->allc = 0;
-  return ptr;
+  повернути ptr;
 }
 
 /*
@@ -262,7 +262,7 @@ unsigned char *curlx_dyn_uptr(const struct dynbuf *s)
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return (unsigned char *)s->bufr;
+  повернути (unsigned char *)s->bufr;
 }
 
 /*
@@ -273,7 +273,7 @@ size_t curlx_dyn_len(const struct dynbuf *s)
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return s->leng;
+  повернути s->leng;
 }
 
 /*
@@ -284,9 +284,9 @@ CURLcode curlx_dyn_setlen(struct dynbuf *s, size_t set)
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(set > s->leng)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(set > s->leng)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
   s->leng = set;
   s->bufr[s->leng] = 0;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }

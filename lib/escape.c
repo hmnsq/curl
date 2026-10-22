@@ -33,15 +33,15 @@ struct Curl_easy;
 #include "curl_printf.h"
 
 /* for ABI-compatibility with previous versions */
-char *curl_escape(const char *string, int length)
+char *curl_escape(const char *string, ціле length)
 {
-  return curl_easy_escape(NULL, string, length);
+  повернути curl_easy_escape(NULL, string, length);
 }
 
 /* for ABI-compatibility with previous versions */
-char *curl_unescape(const char *string, int length)
+char *curl_unescape(const char *string, ціле length)
 {
-  return curl_easy_unescape(NULL, string, length, NULL);
+  повернути curl_easy_unescape(NULL, string, length, NULL);
 }
 
 #define NOPE 0xff
@@ -153,7 +153,7 @@ static const char hexpairs[][2] = {
 /* Escapes for URL the given unescaped string of given length.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_escape(CURL *curl, const char *string, int length)
+char *curl_easy_escape(CURL *curl, const char *string, ціле length)
 {
   size_t len;
   const char *f = string;
@@ -162,28 +162,28 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
   char *encoded;
   (void)curl;
 
-  if(!string || (length < 0))
-    return NULL;
+  якщо(!string || (length < 0))
+    повернути NULL;
 
   len = (length ? (size_t)length : strlen(string));
-  if(!len)
-    return curlx_strdup("");
+  якщо(!len)
+    повернути curlx_strdup("");
 
-  if(len > SIZE_MAX / 16)
-    return NULL;
+  якщо(len > SIZE_MAX / 16)
+    повернути NULL;
 
   encoded = target = curlx_malloc((len * 3) + 1);
-  if(!target)
-    return NULL;
+  якщо(!target)
+    повернути NULL;
 
-  while(len--) {
+  поки(len--) {
     uint8_t in = (uint8_t)*string++;
 
-    if(!(hextable[in] & 0x80))
+    якщо(!(hextable[in] & 0x80))
       /* append this */
       nappend++;
-    else {
-      if(nappend) {
+    інакше {
+      якщо(nappend) {
         memcpy(target, f, nappend);
         target += nappend;
         nappend = 0;
@@ -195,13 +195,13 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
       target += 3;
     }
   }
-  if(nappend) {
+  якщо(nappend) {
     memcpy(target, f, nappend);
     target += nappend;
   }
   *target = '\0'; /* null-terminate */
 
-  return encoded;
+  повернути encoded;
 }
 
 /*
@@ -234,8 +234,8 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   alloc = (length ? length : strlen(string));
   ns = curlx_malloc(alloc + 1);
 
-  if(!ns)
-    return CURLE_OUT_OF_MEMORY;
+  якщо(!ns)
+    повернути CURLE_OUT_OF_MEMORY;
 
   /* store output string */
   *ostring = ns;
@@ -243,18 +243,18 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   reject_limit = (ctrl == REJECT_CTRL) ? 0x20 :
     (ctrl == REJECT_ZERO) ? 1 : 0;
 
-  while(alloc) {
+  поки(alloc) {
     uint8_t in;
 
-    if(*string == '%') {
-      if(alloc > 2) {
+    якщо(*string == '%') {
+      якщо(alloc > 2) {
         uint8_t h1 = hextable[(uint8_t)string[1]];
         uint8_t h2 = hextable[(uint8_t)string[2]];
-        if(!((h1 | h2) & 0xf0)) {
+        якщо(!((h1 | h2) & 0xf0)) {
           in = (uint8_t)((h1 << 4) | h2);
           string += 3;
           alloc -= 3;
-          if(in < reject_limit)
+          якщо(in < reject_limit)
             goto error;
           *ns++ = (char)in;
           continue;
@@ -266,19 +266,19 @@ CURLcode Curl_urldecode(const char *string, size_t length,
       *ns++ = (char)in;
       continue;
     }
-    else {
+    інакше {
       const char *p = memchr(string + 1, '%', alloc - 1);
       size_t n = p ? (size_t)(p - string) : alloc;
 
-      if(reject_limit) {
-        if(reject_limit == 1) {
-          if(memchr(string, 0, n))
+      якщо(reject_limit) {
+        якщо(reject_limit == 1) {
+          якщо(memchr(string, 0, n))
             goto error;
         }
-        else {
+        інакше {
           size_t i;
-          for(i = 0; i < n; i++) {
-            if((uint8_t)string[i] < 0x20)
+          для(i = 0; i < n; i++) {
+            якщо((uint8_t)string[i] < 0x20)
               goto error;
           }
         }
@@ -292,14 +292,14 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   }
   *ns = 0; /* terminate it */
 
-  if(olen)
+  якщо(olen)
     /* store output size */
     *olen = (size_t)(ns - *ostring);
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 error:
   curlx_safefree(*ostring);
-  return CURLE_URL_MALFORMAT;
+  повернути CURLE_URL_MALFORMAT;
 }
 
 /*
@@ -309,28 +309,28 @@ error:
  * If olen == NULL, no output length is stored.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_unescape(CURL *curl, const char *string, int inlength,
-                         int *outlength)
+char *curl_easy_unescape(CURL *curl, const char *string, ціле inlength,
+                         ціле *outlength)
 {
   char *str = NULL;
   (void)curl;
-  if(string && (inlength >= 0)) {
+  якщо(string && (inlength >= 0)) {
     size_t inputlen = (size_t)inlength;
     size_t outputlen;
     CURLcode res = Curl_urldecode(string, inputlen, &str, &outputlen,
                                   REJECT_NADA);
-    if(res)
-      return NULL;
+    якщо(res)
+      повернути NULL;
 
-    if(outlength) {
-      if(outputlen <= (size_t)INT_MAX)
+    якщо(outlength) {
+      якщо(outputlen <= (size_t)INT_MAX)
         *outlength = curlx_uztosi(outputlen);
-      else
+      інакше
         /* too large to return in an int, fail! */
         curlx_safefree(str);
     }
   }
-  return str;
+  повернути str;
 }
 
 /* For operating systems/environments that use different malloc/free
@@ -351,8 +351,8 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
                     unsigned char *out, size_t olen) /* output buffer size */
 {
   DEBUGASSERT(src && len && (olen >= 3));
-  if(src && len && (olen >= 3)) {
-    while(len-- && (olen >= 3)) {
+  якщо(src && len && (olen >= 3)) {
+    поки(len-- && (olen >= 3)) {
       out[0] = Curl_ldigits[*src >> 4];
       out[1] = Curl_ldigits[*src & 0x0F];
       ++src;
@@ -361,7 +361,7 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
     }
     *out = 0;
   }
-  else if(olen)
+  інакше якщо(olen)
     *out = 0;
 }
 

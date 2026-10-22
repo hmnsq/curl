@@ -25,20 +25,20 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#якщо !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
 struct Curl_cfilter;
 struct Curl_easy;
 struct connectdata;
 struct Curl_addrinfo;
 
 void Curl_quic_ver(char *p, size_t len);
-int Curl_vquic_init(void);
+ціле Curl_vquic_init(void);
 void Curl_vquic_cleanup(void);
 
 CURLcode Curl_qlogdir(struct Curl_easy *data,
                       unsigned char *scid,
                       size_t scidlen,
-                      int *qlogfdp);
+                      ціле *qlogfdp);
 
 CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
                                    struct Curl_easy *data,
@@ -57,7 +57,7 @@ CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
 
 extern struct Curl_cftype Curl_cft_http3;
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#якщо !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
 CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
                                        struct Curl_easy *data,
@@ -80,7 +80,7 @@ extern struct Curl_cftype Curl_cft_h3_proxy;
 
 #endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-#else
+#інакше
 #define Curl_vquic_init() 1
 #define Curl_vquic_cleanup()
 #endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */

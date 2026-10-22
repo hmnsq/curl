@@ -60,7 +60,7 @@ struct alpn_spec {
 
 struct alpn_proto_buf {
   unsigned char data[ALPN_PROTO_BUF_MAX];
-  int len;
+  ціле len;
 };
 
 CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
@@ -128,7 +128,7 @@ struct ssl_connect_data {
   ssl_connection_state state;
   ssl_connect_state connecting_state;
   ssl_earlydata_state earlydata_state;
-  int io_need;                      /* TLS signals special SEND/RECV needs */
+  ціле io_need;                      /* TLS signals special SEND/RECV needs */
   BIT(peer_closed);                 /* peer has closed connection */
   BIT(prefs_checked);               /* SSL preferences have been checked */
   BIT(input_pending);               /* data for SSL_read() may be available */
@@ -143,10 +143,10 @@ struct Curl_ssl {
    * backends in curl_global_sslset().
    */
   curl_ssl_backend info;
-  unsigned int supports; /* bitfield, see above */
+  unsigned ціле supports; /* bitfield, see above */
   size_t sizeof_ssl_backend_data;
 
-  int (*init)(void);
+  ціле (*init)(void);
   void (*cleanup)(void);
 
   size_t (*version)(char *buffer, size_t size);

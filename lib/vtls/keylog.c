@@ -24,7 +24,7 @@
 #include "curl_setup.h"
 #include "vtls/keylog.h"
 
-#if defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL) || \
+#якщо defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL) || \
   defined(USE_RUSTLS)
 
 #include "escape.h"
@@ -37,15 +37,15 @@ static char *keylog_file_name;
 
 void Curl_tls_keylog_open(void)
 {
-  if(!keylog_file_fp) {
+  якщо(!keylog_file_fp) {
     keylog_file_name = getenv("SSLKEYLOGFILE");
-    if(keylog_file_name) {
+    якщо(keylog_file_name) {
       keylog_file_fp = curlx_fopen(keylog_file_name, FOPEN_APPENDTEXT);
-      if(keylog_file_fp) {
+      якщо(keylog_file_fp) {
 #ifdef _WIN32
-        if(setvbuf(keylog_file_fp, NULL, _IONBF, 0))
-#else
-        if(setvbuf(keylog_file_fp, NULL, _IOLBF, 4096))
+        якщо(setvbuf(keylog_file_fp, NULL, _IONBF, 0))
+#інакше
+        якщо(setvbuf(keylog_file_fp, NULL, _IOLBF, 4096))
 #endif
         {
           curlx_fclose(keylog_file_fp);
@@ -58,7 +58,7 @@ void Curl_tls_keylog_open(void)
 
 void Curl_tls_keylog_close(void)
 {
-  if(keylog_file_fp) {
+  якщо(keylog_file_fp) {
     curlx_fclose(keylog_file_fp);
     keylog_file_fp = NULL;
   }
@@ -66,12 +66,12 @@ void Curl_tls_keylog_close(void)
 
 bool Curl_tls_keylog_enabled(void)
 {
-  return !!keylog_file_fp;
+  повернути !!keylog_file_fp;
 }
 
 const char *Curl_tls_keylog_file_name(void)
 {
-  return keylog_file_name;
+  повернути keylog_file_name;
 }
 
 bool Curl_tls_keylog_write_line(const char *line)
@@ -80,18 +80,18 @@ bool Curl_tls_keylog_write_line(const char *line)
   size_t linelen;
   char buf[256];
 
-  if(!keylog_file_fp || !line) {
-    return FALSE;
+  якщо(!keylog_file_fp || !line) {
+    повернути FALSE;
   }
 
   linelen = strlen(line);
-  if(linelen == 0 || linelen > sizeof(buf) - 2) {
+  якщо(linelen == 0 || linelen > sizeof(buf) - 2) {
     /* Empty line or too big to fit in an LF and NUL. */
-    return FALSE;
+    повернути FALSE;
   }
 
   memcpy(buf, line, linelen);
-  if(line[linelen - 1] != '\n') {
+  якщо(line[linelen - 1] != '\n') {
     buf[linelen++] = '\n';
   }
   buf[linelen] = '\0';
@@ -99,7 +99,7 @@ bool Curl_tls_keylog_write_line(const char *line)
   /* Using fputs here instead of fprintf since libcurl's fprintf replacement
      may not be thread-safe. */
   fputs(buf, keylog_file_fp);
-  return TRUE;
+  повернути TRUE;
 }
 
 bool Curl_tls_keylog_write(const char *label,
@@ -112,29 +112,29 @@ bool Curl_tls_keylog_write(const char *label,
                      (2 * CLIENT_RANDOM_SIZE) + 1 +
                      (2 * SECRET_MAXLEN) + 1 + 1];
   DEBUGASSERT(random_size >= CLIENT_RANDOM_SIZE);
-  if(random_size < CLIENT_RANDOM_SIZE)
-    return FALSE;
-  if(!keylog_file_fp)
-    return FALSE;
+  якщо(random_size < CLIENT_RANDOM_SIZE)
+    повернути FALSE;
+  якщо(!keylog_file_fp)
+    повернути FALSE;
 
   pos = strlen(label);
-  if(pos > KEYLOG_LABEL_MAXLEN || !secretlen || secretlen > SECRET_MAXLEN) {
+  якщо(pos > KEYLOG_LABEL_MAXLEN || !secretlen || secretlen > SECRET_MAXLEN) {
     /* Should never happen - sanity check anyway. */
-    return FALSE;
+    повернути FALSE;
   }
 
   memcpy(line, label, pos);
   line[pos++] = ' ';
 
   /* Client Random */
-  for(i = 0; i < CLIENT_RANDOM_SIZE; i++) {
+  для(i = 0; i < CLIENT_RANDOM_SIZE; i++) {
     Curl_hexbyte(&line[pos], client_random[i]);
     pos += 2;
   }
   line[pos++] = ' ';
 
   /* Secret */
-  for(i = 0; i < secretlen; i++) {
+  для(i = 0; i < secretlen; i++) {
     Curl_hexbyte(&line[pos], secret[i]);
     pos += 2;
   }
@@ -144,19 +144,19 @@ bool Curl_tls_keylog_write(const char *label,
   /* Using fputs here instead of fprintf since libcurl's fprintf replacement
      may not be thread-safe. */
   fputs((char *)line, keylog_file_fp);
-  return TRUE;
+  повернути TRUE;
 }
 
-#else /* TLS backend */
+#інакше /* TLS backend */
 
 bool Curl_tls_keylog_enabled(void)
 {
-  return FALSE;
+  повернути FALSE;
 }
 
 const char *Curl_tls_keylog_file_name(void)
 {
-  return NULL;
+  повернути NULL;
 }
 
 #endif  /* TLS backend */

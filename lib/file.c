@@ -62,7 +62,7 @@
 #include "curlx/win32-fopen.h"
 #include "curl_range.h"
 
-#if defined(_WIN32) || defined(MSDOS)
+#якщо defined(_WIN32) || defined(MSDOS)
 #define DOS_FILESYSTEM 1
 #elif defined(__amigaos4__)
 #define AMIGA_FILESYSTEM 1
@@ -75,7 +75,7 @@ struct FILEPROTO {
   char *path; /* the path we operate on */
   char *freepath; /* pointer to the allocated block we must free, this might
                      differ from the 'path' pointer */
-  int fd;     /* open file descriptor to read from! */
+  ціле fd;     /* open file descriptor to read from! */
   bool is_dir;
 };
 
@@ -84,7 +84,7 @@ static void file_cleanup(struct FILEPROTO *file)
   curlx_safefree(file->freepath);
   file->path = NULL;
   file->is_dir = FALSE;
-  if(file->fd != -1) {
+  якщо(file->fd != -1) {
     curlx_close(file->fd);
     file->fd = -1;
   }
@@ -106,13 +106,13 @@ static CURLcode file_setup_connection(struct Curl_easy *data,
   (void)conn;
   /* allocate the FILE specific struct */
   filep = curlx_calloc(1, sizeof(*filep));
-  if(filep)
+  якщо(filep)
     filep->fd = -1;
-  if(!filep ||
+  якщо(!filep ||
      Curl_meta_set(data, CURL_META_FILE_EASY, filep, file_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    повернути CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode file_done(struct Curl_easy *data,
@@ -122,29 +122,29 @@ static CURLcode file_done(struct Curl_easy *data,
   (void)status;
   (void)premature;
 
-  if(file)
+  якщо(file)
     file_cleanup(file);
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
-static int file_stat(const char *path, curlx_struct_stat *statbuf)
+static ціле file_stat(const char *path, curlx_struct_stat *statbuf)
 {
 #ifdef _WIN32
-  int result = curlx_stat(path, statbuf);
+  ціле result = curlx_stat(path, statbuf);
 
-  if(result) {
+  якщо(result) {
     size_t pathlen = strlen(path);
 
     /* MSVCRT's narrow stat() rejects trailing directory separators. */
-    if((pathlen > 3) &&
+    якщо((pathlen > 3) &&
        ((path[pathlen - 1] == '\\') || (path[pathlen - 1] == '/'))) {
       char *trimmed = curlx_strdup(path);
 
-      if(trimmed) {
+      якщо(trimmed) {
         do {
           trimmed[--pathlen] = '\0';
-        } while((pathlen > 3) &&
+        } поки((pathlen > 3) &&
                 ((trimmed[pathlen - 1] == '\\') ||
                  (trimmed[pathlen - 1] == '/')));
 
@@ -154,9 +154,9 @@ static int file_stat(const char *path, curlx_struct_stat *statbuf)
     }
   }
 
-  return result;
-#else
-  return curlx_stat(path, statbuf);
+  повернути result;
+#інакше
+  повернути curlx_stat(path, statbuf);
 #endif
 }
 
@@ -172,7 +172,7 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
 #ifdef _WIN32
   curlx_struct_stat statbuf;
 #endif
-  int fd;
+  ціле fd;
 #ifdef DOS_FILESYSTEM
   size_t i;
   char *actual_path;
@@ -180,22 +180,22 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
   size_t real_path_len;
   CURLcode result;
 
-  if(!file)
-    return CURLE_FAILED_INIT;
+  якщо(!file)
+    повернути CURLE_FAILED_INIT;
 
-  if(file->path) {
+  якщо(file->path) {
     /* already connected.
      * the handler->connect_it() is normally only called once, but
      * FILE does a special check on setting up the connection which
      * calls this explicitly. */
     *done = TRUE;
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
   result = Curl_urldecode(data->state.up.path, 0, &real_path,
                           &real_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
 #ifdef DOS_FILESYSTEM
   /* If the first character is a slash, and there is
@@ -212,7 +212,7 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
      absolute pathname. On Windows, absolute paths start
      with a drive letter. */
   actual_path = real_path;
-  if((actual_path[0] == '/') &&
+  якщо((actual_path[0] == '/') &&
       actual_path[1] &&
      (actual_path[2] == ':' || actual_path[2] == '|')) {
     actual_path[2] = ':';
@@ -221,21 +221,21 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
   }
 
   /* change path separators from '/' to '\\' for DOS, Windows and OS/2 */
-  for(i = 0; i < real_path_len; ++i)
-    if(actual_path[i] == '/')
+  для(i = 0; i < real_path_len; ++i)
+    якщо(actual_path[i] == '/')
       actual_path[i] = '\\';
-    else if(!actual_path[i]) { /* binary zero */
+    інакше якщо(!actual_path[i]) { /* binary zero */
       curlx_safefree(real_path);
-      return CURLE_URL_MALFORMAT;
+      повернути CURLE_URL_MALFORMAT;
     }
 
   fd = curlx_open(actual_path, O_RDONLY | CURL_O_BINARY);
   file->path = actual_path;
-#else
-  if(memchr(real_path, 0, real_path_len)) {
+#інакше
+  якщо(memchr(real_path, 0, real_path_len)) {
     /* binary zeroes indicate foul play */
     curlx_safefree(real_path);
-    return CURLE_URL_MALFORMAT;
+    повернути CURLE_URL_MALFORMAT;
   }
 
 #ifdef AMIGA_FILESYSTEM
@@ -249,19 +249,19 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
   fd = -1;
   file->path = real_path;
 
-  if(real_path[0] == '/') {
-    extern int __unix_path_semantics;
-    if(strchr(real_path + 1, ':')) {
+  якщо(real_path[0] == '/') {
+    extern ціле __unix_path_semantics;
+    якщо(strchr(real_path + 1, ':')) {
       /* Amiga absolute path */
       fd = curlx_open(real_path + 1, O_RDONLY);
       file->path++;
     }
-    else if(__unix_path_semantics) {
+    інакше якщо(__unix_path_semantics) {
       /* -lunix fallback */
       fd = curlx_open(real_path, O_RDONLY);
     }
   }
-#else
+#інакше
   fd = curlx_open(real_path, O_RDONLY);
   file->path = real_path;
 #endif
@@ -271,19 +271,19 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
 
   file->fd = fd;
 #ifdef _WIN32
-  if(!data->state.upload && (fd == -1) &&
+  якщо(!data->state.upload && (fd == -1) &&
      !file_stat(file->path, &statbuf) && S_ISDIR(statbuf.st_mode))
     file->is_dir = TRUE;
 #endif
 
-  if(!data->state.upload && (fd == -1) && !file->is_dir) {
+  якщо(!data->state.upload && (fd == -1) && !file->is_dir) {
     failf(data, "Could not open file %s", data->state.up.path);
     file_done(data, CURLE_FILE_COULDNT_READ_FILE, FALSE);
-    return CURLE_FILE_COULDNT_READ_FILE;
+    повернути CURLE_FILE_COULDNT_READ_FILE;
   }
   *done = TRUE;
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode file_disconnect(struct Curl_easy *data,
@@ -292,12 +292,12 @@ static CURLcode file_disconnect(struct Curl_easy *data,
 {
   (void)dead_connection;
   (void)conn;
-  return file_done(data, CURLE_OK, FALSE);
+  повернути file_done(data, CURLE_OK, FALSE);
 }
 
 #ifdef DOS_FILESYSTEM
 #define DIRSEP '\\'
-#else
+#інакше
 #define DIRSEP '/'
 #endif
 
@@ -305,8 +305,8 @@ static CURLcode file_upload(struct Curl_easy *data,
                             struct FILEPROTO *file)
 {
   const char *dir = strchr(file->path, DIRSEP);
-  int fd;
-  int mode;
+  ціле fd;
+  ціле mode;
   CURLcode result = CURLE_OK;
   char *xfer_ulbuf;
   size_t xfer_ulblen;
@@ -319,81 +319,81 @@ static CURLcode file_upload(struct Curl_easy *data,
    * assignments here.
    */
 
-  if(!dir)
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  якщо(!dir)
+    повернути CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  if(!dir[1])
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  якщо(!dir[1])
+    повернути CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
   mode = O_WRONLY | O_CREAT | CURL_O_BINARY;
-  if(data->state.resume_from)
+  якщо(data->state.resume_from)
     mode |= O_APPEND;
-  else
+  інакше
     mode |= O_TRUNC;
 
   fd = curlx_open(file->path, mode,
 #ifdef _WIN32
                   data->set.new_file_perms & (_S_IREAD | _S_IWRITE)
-#else
+#інакше
                   (mode_t)data->set.new_file_perms
 #endif
                   );
-  if(fd < 0) {
+  якщо(fd < 0) {
     failf(data, "cannot open %s for writing", file->path);
-    return CURLE_WRITE_ERROR;
+    повернути CURLE_WRITE_ERROR;
   }
 
-  if(data->state.infilesize != -1)
+  якщо(data->state.infilesize != -1)
     /* known size of data to "upload" */
     Curl_pgrsSetUploadSize(data, data->state.infilesize);
 
   /* treat the negative resume offset value as the case of "-" */
-  if(data->state.resume_from < 0) {
-    if(curlx_fstat(fd, &file_stat)) {
+  якщо(data->state.resume_from < 0) {
+    якщо(curlx_fstat(fd, &file_stat)) {
       curlx_close(fd);
       failf(data, "cannot get the size of %s", file->path);
-      return CURLE_WRITE_ERROR;
+      повернути CURLE_WRITE_ERROR;
     }
     data->state.resume_from = (curl_off_t)file_stat.st_size;
   }
 
   result = Curl_multi_xfer_ulbuf_borrow(data, &xfer_ulbuf, &xfer_ulblen);
-  if(result)
+  якщо(result)
     goto out;
 
-  while(!result && !eos) {
+  поки(!result && !eos) {
     size_t nread, nwritten;
     ssize_t rv;
     size_t readcount;
 
     result = Curl_client_read(data, xfer_ulbuf, xfer_ulblen, &readcount, &eos);
-    if(result)
+    якщо(result)
       break;
 
-    if(!readcount)
+    якщо(!readcount)
       break;
 
     nread = readcount;
 
     /* skip bytes before resume point */
-    if(data->state.resume_from) {
-      if((curl_off_t)nread <= data->state.resume_from) {
+    якщо(data->state.resume_from) {
+      якщо((curl_off_t)nread <= data->state.resume_from) {
         data->state.resume_from -= nread;
         nread = 0;
         sendbuf = xfer_ulbuf;
       }
-      else {
+      інакше {
         sendbuf = xfer_ulbuf + data->state.resume_from;
         nread -= (size_t)data->state.resume_from;
         data->state.resume_from = 0;
       }
     }
-    else
+    інакше
       sendbuf = xfer_ulbuf;
 
     /* write the data to the target */
     rv = write(fd, sendbuf, nread);
-    if(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
+    якщо(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
       result = CURLE_SEND_ERROR;
       break;
     }
@@ -401,17 +401,17 @@ static CURLcode file_upload(struct Curl_easy *data,
 
     result = Curl_pgrsCheck(data);
   }
-  if(!result)
+  якщо(!result)
     result = Curl_pgrsUpdate(data);
 
 out:
   curlx_close(fd);
   Curl_multi_xfer_ulbuf_release(data, xfer_ulbuf);
 
-  return result;
+  повернути result;
 }
 
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+#якщо defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
 static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
 {
   WIN32_FIND_DATA entry;
@@ -425,19 +425,19 @@ static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
                           pathlen &&
                           (path[pathlen - 1] == '\\' ||
                            path[pathlen - 1] == '/') ? "" : "\\");
-  if(!pattern)
-    return CURLE_OUT_OF_MEMORY;
+  якщо(!pattern)
+    повернути CURLE_OUT_OF_MEMORY;
 
   handle = curlx_FindFirstFile(pattern, &entry);
   curlx_free(pattern);
-  if(handle == INVALID_HANDLE_VALUE)
-    return CURLE_READ_ERROR;
+  якщо(handle == INVALID_HANDLE_VALUE)
+    повернути CURLE_READ_ERROR;
 
   do {
-    if(entry.cFileName[0] != TEXT('.')) {
+    якщо(entry.cFileName[0] != TEXT('.')) {
       char *name = curlx_convert_tchar_to_UTF8(entry.cFileName);
 
-      if(!name) {
+      якщо(!name) {
         result = CURLE_OUT_OF_MEMORY;
         break;
       }
@@ -445,21 +445,21 @@ static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
       result = Curl_client_write(data, CLIENTWRITE_BODY,
                                  name, strlen(name));
       curlx_free(name);
-      if(result)
+      якщо(result)
         break;
 
       result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
+      якщо(result)
         break;
     }
-  } while(FindNextFile(handle, &entry));
+  } поки(FindNextFile(handle, &entry));
 
   error = GetLastError();
-  if(!result && error != ERROR_NO_MORE_FILES)
+  якщо(!result && error != ERROR_NO_MORE_FILES)
     result = CURLE_READ_ERROR;
 
   FindClose(handle);
-  return result;
+  повернути result;
 }
 #endif
 
@@ -483,60 +483,60 @@ static CURLcode file_do(struct Curl_easy *data, bool *done)
   curl_off_t expected_size = -1;
   bool size_known;
   bool fstated = FALSE;
-  int fd;
+  ціле fd;
   char *xfer_buf;
   size_t xfer_blen;
 
   *done = TRUE; /* unconditionally */
-  if(!file)
-    return CURLE_FAILED_INIT;
+  якщо(!file)
+    повернути CURLE_FAILED_INIT;
 
-  if(data->state.upload)
-    return file_upload(data, file);
+  якщо(data->state.upload)
+    повернути file_upload(data, file);
 
   /* get the fd from the connection phase */
   fd = file->fd;
 
   /* VMS: This only works reliable for STREAMLF files */
-  if((file->is_dir ? file_stat(file->path, &statbuf) :
+  якщо((file->is_dir ? file_stat(file->path, &statbuf) :
                      curlx_fstat(fd, &statbuf)) != -1) {
     file->is_dir = (fd == -1) || S_ISDIR(statbuf.st_mode);
-    if(!file->is_dir)
+    якщо(!file->is_dir)
       expected_size = statbuf.st_size;
     /* and store the modification time */
     data->info.filetime = statbuf.st_mtime;
     fstated = TRUE;
   }
 
-  if(fstated && !data->state.range && data->set.timecondition &&
+  якщо(fstated && !data->state.range && data->set.timecondition &&
      !Curl_meets_timecondition(data, data->info.filetime))
-    return CURLE_OK;
+    повернути CURLE_OK;
 
-  if(fstated) {
+  якщо(fstated) {
     time_t filetime;
     struct tm buffer;
     const struct tm *tm = &buffer;
     char header[80];
-    int headerlen;
+    ціле headerlen;
     static const char accept_ranges[] = { "Accept-ranges: bytes\r\n" };
-    if(expected_size >= 0) {
+    якщо(expected_size >= 0) {
       headerlen =
         curl_msnprintf(header, sizeof(header),
                        "Content-Length: %" FMT_OFF_T "\r\n", expected_size);
       result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-      if(result)
-        return result;
+      якщо(result)
+        повернути result;
 
       result = Curl_client_write(data, CLIENTWRITE_HEADER,
                                  accept_ranges, CURL_CSTRLEN(accept_ranges));
-      if(result != CURLE_OK)
-        return result;
+      якщо(result != CURLE_OK)
+        повернути result;
     }
 
     filetime = (time_t)statbuf.st_mtime;
     result = curlx_gmtime(filetime, &buffer);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
 
     /* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
     headerlen =
@@ -550,147 +550,147 @@ static CURLcode file_do(struct Curl_easy *data, bool *done)
                      tm->tm_min,
                      tm->tm_sec);
     result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-    if(!result)
+    якщо(!result)
       /* end of headers */
       result = Curl_client_write(data, CLIENTWRITE_HEADER, "\r\n", 2);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
     /* set the file size to make it available post transfer */
     Curl_pgrsSetDownloadSize(data, expected_size);
-    if(data->req.no_body)
-      return CURLE_OK;
+    якщо(data->req.no_body)
+      повернути CURLE_OK;
   }
 
   /* Check whether file range has been specified */
   result = Curl_range(data);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
   /* Adjust the start offset in case we want to get the N last bytes
    * of the stream if the filesize could be determined */
-  if(data->state.resume_from < 0) {
-    if(!fstated) {
+  якщо(data->state.resume_from < 0) {
+    якщо(!fstated) {
       failf(data, "cannot get the size of file.");
-      return CURLE_READ_ERROR;
+      повернути CURLE_READ_ERROR;
     }
     data->state.resume_from += (curl_off_t)statbuf.st_size;
   }
 
-  if(data->state.resume_from > 0) {
+  якщо(data->state.resume_from > 0) {
     /* We check explicitly if we have a start offset, because
      * expected_size may be -1 if we do not know how large the file is,
      * in which case we should not adjust it. */
-    if(data->state.resume_from <= expected_size)
+    якщо(data->state.resume_from <= expected_size)
       expected_size -= data->state.resume_from;
-    else {
+    інакше {
       failf(data, "failed to resume file:// transfer");
-      return CURLE_BAD_DOWNLOAD_RESUME;
+      повернути CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
   /* A high water mark has been specified so we obey... */
-  if(data->req.maxdownload > 0)
+  якщо(data->req.maxdownload > 0)
     expected_size = data->req.maxdownload;
 
-  if(!fstated || (expected_size <= 0))
+  якщо(!fstated || (expected_size <= 0))
     size_known = FALSE;
-  else
+  інакше
     size_known = TRUE;
 
   /* The following is a shortcut implementation of file reading
      this is both more efficient than the former call to download() and
      it avoids problems with select() and recv() on file descriptors
      in Winsock */
-  if(size_known)
+  якщо(size_known)
     Curl_pgrsSetDownloadSize(data, expected_size);
 
-  if(data->state.resume_from) {
-    if(!file->is_dir) {
-      if(data->state.resume_from !=
+  якщо(data->state.resume_from) {
+    якщо(!file->is_dir) {
+      якщо(data->state.resume_from !=
          curl_lseek(fd, data->state.resume_from, SEEK_SET))
-        return CURLE_BAD_DOWNLOAD_RESUME;
+        повернути CURLE_BAD_DOWNLOAD_RESUME;
     }
-    else {
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    інакше {
+      повернути CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
   result = Curl_multi_xfer_buf_borrow(data, &xfer_buf, &xfer_blen);
-  if(result)
+  якщо(result)
     goto out;
 
-  if(!file->is_dir) {
-    while(!result) {
+  якщо(!file->is_dir) {
+    поки(!result) {
       ssize_t nread;
       /* Do not fill a whole buffer if we want less than all data */
       size_t bytestoread;
 
-      if(size_known) {
+      якщо(size_known) {
         bytestoread = (expected_size < (curl_off_t)(xfer_blen - 1)) ?
           curlx_sotouz(expected_size) : (xfer_blen - 1);
       }
-      else
+      інакше
         bytestoread = xfer_blen - 1;
 
       nread = read(fd, xfer_buf, bytestoread);
 
-      if(nread > 0)
+      якщо(nread > 0)
         xfer_buf[nread] = 0;
 
-      if(nread <= 0 || (size_known && (expected_size == 0)))
+      якщо(nread <= 0 || (size_known && (expected_size == 0)))
         break;
 
-      if(size_known)
+      якщо(size_known)
         expected_size -= nread;
 
       result = Curl_client_write(data, CLIENTWRITE_BODY, xfer_buf, nread);
-      if(result)
+      якщо(result)
         goto out;
 
       result = Curl_pgrsCheck(data);
-      if(result)
+      якщо(result)
         goto out;
     }
   }
-  else {
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+  інакше {
+#якщо defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
     result = win32_file_list(data, file->path);
-    if(result)
+    якщо(result)
       goto out;
 #elif defined(HAVE_OPENDIR)
     DIR *dir = opendir(file->path);
     struct dirent *entry;
 
-    if(!dir) {
+    якщо(!dir) {
       result = CURLE_READ_ERROR;
       goto out;
     }
-    else {
-      while((entry = readdir(dir))) {
-        if(entry->d_name[0] != '.') {
+    інакше {
+      поки((entry = readdir(dir))) {
+        якщо(entry->d_name[0] != '.') {
           result = Curl_client_write(data, CLIENTWRITE_BODY,
                    entry->d_name, strlen(entry->d_name));
-          if(result)
+          якщо(result)
             break;
           result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-          if(result)
+          якщо(result)
             break;
         }
       }
       closedir(dir);
     }
-#else
+#інакше
     failf(data, "Directory listing not yet implemented on this platform.");
     result = CURLE_READ_ERROR;
 #endif
   }
 
-  if(!result)
+  якщо(!result)
     result = Curl_pgrsUpdate(data);
 
 out:
   Curl_multi_xfer_buf_release(data, xfer_buf);
-  return result;
+  повернути result;
 }
 
 const struct Curl_protocol Curl_protocol_file = {

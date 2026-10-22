@@ -81,7 +81,7 @@
 #include "easy_lock.h"
 
 /* true globals -- for curl_global_init() and curl_global_cleanup() */
-static unsigned int initialized;
+static unsigned ціле initialized;
 #ifdef USE_WINSOCK
 static bool winsock_initialized;
 #endif
@@ -92,14 +92,14 @@ static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
 #define global_init_lock()   curl_simple_lock_lock(&s_lock)
 #define global_init_unlock() curl_simple_lock_unlock(&s_lock)
 
-#else
+#інакше
 
 #define global_init_lock()
 #define global_init_unlock()
 
 #endif
 
-#if defined(_MSC_VER) && defined(_DLL)
+#якщо defined(_MSC_VER) && defined(_DLL)
 #  pragma warning(push)
 #  pragma warning(disable:4232) /* MSVC extension, dllimport identity */
 #endif
@@ -114,7 +114,7 @@ curl_realloc_callback Curl_crealloc = (curl_realloc_callback)realloc;
 curl_strdup_callback Curl_cstrdup = (curl_strdup_callback)CURLX_STRDUP_LOW;
 curl_calloc_callback Curl_ccalloc = (curl_calloc_callback)calloc;
 
-#if defined(_MSC_VER) && defined(_DLL)
+#якщо defined(_MSC_VER) && defined(_DLL)
 #  pragma warning(pop)
 #endif
 
@@ -130,10 +130,10 @@ static CURLcode global_init(long flags, bool memoryfuncs)
 {
   (void)flags;
 
-  if(initialized++)
-    return CURLE_OK;
+  якщо(initialized++)
+    повернути CURLE_OK;
 
-  if(memoryfuncs) {
+  якщо(memoryfuncs) {
     /* Setup the default memory functions here (again) */
     Curl_cmalloc = (curl_malloc_callback)malloc;
     Curl_cfree = (curl_free_callback)free;
@@ -147,13 +147,13 @@ static CURLcode global_init(long flags, bool memoryfuncs)
   curlx_now_init();
 #endif
 
-  if(Curl_trc_init()) {
+  якщо(Curl_trc_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_trc_init failed\n"));
     goto fail;
   }
 
 #ifdef USE_WINDOWS_SSPI
-  if(Curl_sspi_global_init()) {
+  якщо(Curl_sspi_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_sspi_global_init() failed\n"));
     goto fail;
   }
@@ -162,9 +162,9 @@ static CURLcode global_init(long flags, bool memoryfuncs)
 #ifdef USE_WINSOCK
   /* CURL_GLOBAL_WINSOCK controls the *optional* part of the Windows
      initialization which is for the Windows sockets library (Winsock). */
-  if(flags & CURL_GLOBAL_WINSOCK) {
+  якщо(flags & CURL_GLOBAL_WINSOCK) {
     WSADATA wsa;
-    if(WSAStartup(MAKEWORD(2, 2), &wsa)) {
+    якщо(WSAStartup(MAKEWORD(2, 2), &wsa)) {
       DEBUGF(curl_mfprintf(stderr, "Error: WSAStartup() failed\n"));
       goto fail;
     }
@@ -172,58 +172,58 @@ static CURLcode global_init(long flags, bool memoryfuncs)
   }
 #endif
 
-  if(!Curl_ssl_init()) {
+  якщо(!Curl_ssl_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_ssl_init failed\n"));
     goto fail;
   }
 
-  if(Curl_hash_global_init()) {
+  якщо(Curl_hash_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_hash_global_init failed\n"));
     goto fail;
   }
 
-  if(!Curl_vquic_init()) {
+  якщо(!Curl_vquic_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_vquic_init failed\n"));
     goto fail;
   }
 
-  if(Curl_amiga_init()) {
+  якщо(Curl_amiga_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_amiga_init failed\n"));
     goto fail;
   }
 
-  if(Curl_macos_init()) {
+  якщо(Curl_macos_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_macos_init failed\n"));
     goto fail;
   }
 
-  if(Curl_async_global_init()) {
+  якщо(Curl_async_global_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_async_global_init failed\n"));
     goto fail;
   }
 
-  if(Curl_ssh_init()) {
+  якщо(Curl_ssh_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_ssh_init failed\n"));
     goto fail;
   }
 
 #ifdef DEBUGBUILD
-  if(getenv("CURL_GLOBAL_INIT"))
+  якщо(getenv("CURL_GLOBAL_INIT"))
     /* alloc data that will leak if *cleanup() is not called! */
     leakpointer = curlx_malloc(1);
 #endif
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 
 fail:
 #ifdef USE_WINSOCK
-  if(winsock_initialized) {
+  якщо(winsock_initialized) {
     WSACleanup();
     winsock_initialized = FALSE;
   }
 #endif
   initialized--; /* undo the increase */
-  return CURLE_FAILED_INIT;
+  повернути CURLE_FAILED_INIT;
 }
 
 /**
@@ -239,7 +239,7 @@ CURLcode curl_global_init(long flags)
 
   global_init_unlock();
 
-  return result;
+  повернути result;
 }
 
 /*
@@ -253,18 +253,18 @@ CURLcode curl_global_init_mem(long flags, curl_malloc_callback m,
   CURLcode result;
 
   /* Invalid input, return immediately */
-  if(!m || !f || !r || !s || !c)
-    return CURLE_FAILED_INIT;
+  якщо(!m || !f || !r || !s || !c)
+    повернути CURLE_FAILED_INIT;
 
   global_init_lock();
 
-  if(initialized) {
+  якщо(initialized) {
     /* Already initialized, do not do it again, but bump the variable anyway to
        work like curl_global_init() and require the same amount of cleanup
        calls. */
     initialized++;
     global_init_unlock();
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
   /* set memory functions before global_init() in case it wants memory
@@ -280,7 +280,7 @@ CURLcode curl_global_init_mem(long flags, curl_malloc_callback m,
 
   global_init_unlock();
 
-  return result;
+  повернути result;
 }
 
 /**
@@ -290,14 +290,14 @@ void curl_global_cleanup(void)
 {
   global_init_lock();
 
-  if(!initialized) {
+  якщо(!initialized) {
     global_init_unlock();
-    return;
+    повернути;
   }
 
-  if(--initialized) {
+  якщо(--initialized) {
     global_init_unlock();
-    return;
+    повернути;
   }
 
   Curl_ssh_cleanup();
@@ -307,7 +307,7 @@ void curl_global_cleanup(void)
   Curl_amiga_cleanup();
 
 #ifdef USE_WINSOCK
-  if(winsock_initialized) {
+  якщо(winsock_initialized) {
     WSACleanup();
     winsock_initialized = FALSE;
   }
@@ -337,10 +337,10 @@ CURLcode curl_global_trace(const char *config)
 
   global_init_unlock();
 
-  return result;
-#else
+  повернути result;
+#інакше
   (void)config;
-  return CURLE_OK;
+  повернути CURLE_OK;
 #endif
 }
 
@@ -358,7 +358,7 @@ CURLsslset curl_global_sslset(curl_sslbackend id, const char *name,
 
   global_init_unlock();
 
-  return rc;
+  повернути rc;
 }
 
 /*
@@ -373,25 +373,25 @@ CURL *curl_easy_init(void)
   /* Make sure we inited the global SSL stuff */
   global_init_lock();
 
-  if(!initialized) {
+  якщо(!initialized) {
     result = global_init(CURL_GLOBAL_DEFAULT, TRUE);
-    if(result) {
+    якщо(result) {
       /* something in the global init failed, return nothing */
       DEBUGF(curl_mfprintf(stderr, "Error: curl_global_init failed\n"));
       global_init_unlock();
-      return NULL;
+      повернути NULL;
     }
   }
   global_init_unlock();
 
   /* We use Curl_open() with undefined URL so far */
   result = Curl_open(&data);
-  if(result) {
+  якщо(result) {
     DEBUGF(curl_mfprintf(stderr, "Error: Curl_open failed\n"));
-    return NULL;
+    повернути NULL;
   }
 
-  return data;
+  повернути data;
 }
 
 #ifdef DEBUGBUILD
@@ -404,9 +404,9 @@ struct socketmonitor {
 struct events {
   long ms;              /* timeout, run the timeout function when reached */
   bool msbump;          /* set TRUE when timeout is set by callback */
-  int num_sockets;      /* number of nodes in the monitor list */
+  ціле num_sockets;      /* number of nodes in the monitor list */
   struct socketmonitor *list; /* list of sockets to monitor */
-  int running_handles;  /* store the returned number */
+  ціле running_handles;  /* store the returned number */
 };
 
 #define DEBUG_EV_POLL   0
@@ -416,48 +416,48 @@ struct events {
  * Callback that gets called with a new value when the timeout should be
  * updated.
  */
-static int events_timer(CURLM *multi,    /* multi handle */
+static ціле events_timer(CURLM *multi,    /* multi handle */
                         long timeout_ms, /* see above */
                         void *userp)     /* private callback pointer */
 {
   struct events *ev = userp;
   (void)multi;
-#if DEBUG_EV_POLL
+#якщо DEBUG_EV_POLL
   curl_mfprintf(stderr, "events_timer: set timeout %ldms\n", timeout_ms);
 #endif
   ev->ms = timeout_ms;
   ev->msbump = TRUE;
-  return 0;
+  повернути 0;
 }
 
 /* poll2cselect
  *
  * convert from poll() bit definitions to libcurl's CURL_CSELECT_* ones
  */
-static int poll2cselect(int pollmask)
+static ціле poll2cselect(ціле pollmask)
 {
-  int omask = 0;
-  if(pollmask & POLLIN)
+  ціле omask = 0;
+  якщо(pollmask & POLLIN)
     omask |= CURL_CSELECT_IN;
-  if(pollmask & POLLOUT)
+  якщо(pollmask & POLLOUT)
     omask |= CURL_CSELECT_OUT;
-  if(pollmask & POLLERR)
+  якщо(pollmask & POLLERR)
     omask |= CURL_CSELECT_ERR;
-  return omask;
+  повернути omask;
 }
 
 /* socketcb2poll
  *
  * convert from libcurl' CURL_POLL_* bit definitions to poll()'s
  */
-static short socketcb2poll(int pollmask)
+static short socketcb2poll(ціле pollmask)
 {
   short omask = 0;
-  if(pollmask & CURL_POLL_IN)
+  якщо(pollmask & CURL_POLL_IN)
     omask |= POLLIN;
-  if(pollmask & CURL_POLL_OUT)
+  якщо(pollmask & CURL_POLL_OUT)
     omask |= POLLOUT;
-  return omask;
+  повернути omask;
 }
 
 /* events_socket
@@ -465,9 +465,9 @@ static short socketcb2poll(int pollmask)
  * Callback that gets called with information about socket activity to
  * monitor.
  */
-static int events_socket(CURL *easy,      /* easy handle */
+static ціле events_socket(CURL *easy,      /* easy handle */
                          curl_socket_t s, /* socket */
-                         int what,        /* see above */
+                         ціле what,        /* see above */
                          void *userp,     /* private callback
                                              pointer */
                          void *socketp)   /* private socket
@@ -485,20 +485,20 @@ static int events_socket(CURL *easy,      /* easy handle */
   (void)socketp;
 
   m = ev->list;
-  while(m) {
-    if(m->socket.fd == s) {
+  поки(m) {
+    якщо(m->socket.fd == s) {
       found = TRUE;
-      if(what == CURL_POLL_REMOVE) {
+      якщо(what == CURL_POLL_REMOVE) {
         struct socketmonitor *nxt = m->next;
         /* remove this node from the list of monitored sockets */
-        if(prev)
+        якщо(prev)
           prev->next = nxt;
-        else
+        інакше
           ev->list = nxt;
         curlx_free(m);
         infof(data, "socket cb: socket %" FMT_SOCKET_T " REMOVED", s);
       }
-      else {
+      інакше {
         /* The socket 's' is already being monitored, update the activity
            mask. Convert from libcurl bitmask to the poll one. */
         m->socket.events = socketcb2poll(what);
@@ -512,16 +512,16 @@ static int events_socket(CURL *easy,      /* easy handle */
     m = m->next; /* move to next node */
   }
 
-  if(!found) {
-    if(what == CURL_POLL_REMOVE) {
+  якщо(!found) {
+    якщо(what == CURL_POLL_REMOVE) {
       /* should not happen if our logic is correct, but is no drama. */
       DEBUGF(infof(data, "socket cb: asked to REMOVE socket %"
                    FMT_SOCKET_T "but not present!", s));
       DEBUGASSERT(0);
     }
-    else {
+    інакше {
       m = curlx_malloc(sizeof(struct socketmonitor));
-      if(m) {
+      якщо(m) {
         m->next = ev->list;
         m->socket.fd = s;
         m->socket.events = socketcb2poll(what);
@@ -531,12 +531,12 @@ static int events_socket(CURL *easy,      /* easy handle */
               (what & CURL_POLL_IN) ? "IN" : "",
               (what & CURL_POLL_OUT) ? "OUT" : "");
       }
-      else
-        return CURLE_OUT_OF_MEMORY;
+      інакше
+        повернути CURLE_OUT_OF_MEMORY;
     }
   }
 
-  return 0;
+  повернути 0;
 }
 
 /*
@@ -561,44 +561,44 @@ static CURLcode populate_cpfds(struct curl_pollfds *cpfds, struct events *ev)
   CURLcode result = CURLE_OK;
 
   Curl_pollfds_reset(cpfds);
-  for(m = ev->list; m && !result; m = m->next) {
+  для(m = ev->list; m && !result; m = m->next) {
     result = Curl_pollfds_add_sock(cpfds, m->socket.fd, m->socket.events);
-#if DEBUG_EV_POLL
-    if(!result)
+#якщо DEBUG_EV_POLL
+    якщо(!result)
       curl_mfprintf(stderr, "poll() %d check socket %d\n",
                     cpfds->n - 1, cpfds->pfds[cpfds->n - 1].fd);
 #endif
   }
-  return result;
+  повернути result;
 }
 
 static CURLcode poll_cpfds(struct events *ev,
                            struct curl_pollfds *cpfds,
-                           int *pollrc)
+                           ціле *pollrc)
 {
-  if(cpfds->n) {
+  якщо(cpfds->n) {
     /* wait for activity or timeout */
-#if DEBUG_EV_POLL
+#якщо DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll(numfds=%u, timeout=%ldms)\n",
                   cpfds->n, ev->ms);
 #endif
     *pollrc = Curl_poll(cpfds->pfds, cpfds->n, ev->ms);
-#if DEBUG_EV_POLL
+#якщо DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll(numfds=%u, timeout=%ldms) -> %d\n",
                   cpfds->n, ev->ms, *pollrc);
 #endif
-    if(*pollrc < 0)
-      return CURLE_UNRECOVERABLE_POLL;
+    якщо(*pollrc < 0)
+      повернути CURLE_UNRECOVERABLE_POLL;
   }
-  else {
-#if DEBUG_EV_POLL
+  інакше {
+#якщо DEBUG_EV_POLL
     curl_mfprintf(stderr, "poll, but no fds, wait timeout=%ldms\n", ev->ms);
 #endif
     *pollrc = 0;
-    if(ev->ms > 0)
+    якщо(ev->ms > 0)
       curlx_wait_ms(ev->ms);
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /* wait_or_timeout()
@@ -614,41 +614,41 @@ static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
   CURLcode result = CURLE_OK;
 
   Curl_pollfds_init(&cpfds, fds_on_stack, CURL_ARRAYSIZE(fds_on_stack));
-  while(!done) {
+  поки(!done) {
     CURLMsg *msg;
-    int pollrc;
+    ціле pollrc;
     struct curltime start;
 
     result = populate_cpfds(&cpfds, ev);
-    if(result)
+    якщо(result)
       goto out;
 
     /* get the time stamp to use to figure out how long poll takes */
     curlx_pnow(&start);
 
     result = poll_cpfds(ev, &cpfds, &pollrc);
-    if(result)
+    якщо(result)
       goto out;
 
     ev->msbump = FALSE; /* reset here */
 
-    if(!pollrc) {
+    якщо(!pollrc) {
       /* timeout! */
       ev->ms = 0;
-#if DEBUG_EV_POLL
+#якщо DEBUG_EV_POLL
       curl_mfprintf(stderr, "call curl_multi_socket_action(TIMEOUT)\n");
 #endif
       mresult = curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0,
                                          &ev->running_handles);
     }
-    else {
+    інакше {
       /* here pollrc is > 0 */
       /* loop over the monitored sockets to see which ones had activity */
-      unsigned int i;
-      for(i = 0; i < cpfds.n; i++) {
-        if(cpfds.pfds[i].revents) {
+      unsigned ціле i;
+      для(i = 0; i < cpfds.n; i++) {
+        якщо(cpfds.pfds[i].revents) {
           /* socket activity, tell libcurl */
-          int act = poll2cselect(cpfds.pfds[i].revents); /* convert */
+          ціле act = poll2cselect(cpfds.pfds[i].revents); /* convert */
 
           /* sending infof "randomly" to the first easy handle */
           infof(multi->admin, "call curl_multi_socket_action(socket "
@@ -658,25 +658,25 @@ static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
         }
       }
 
-      if(!ev->msbump && ev->ms >= 0) {
+      якщо(!ev->msbump && ev->ms >= 0) {
         /* If nothing updated the timeout, we decrease it by the spent time.
          * If it was updated, it has the new timeout time stored already.
          */
         timediff_t spent_ms = curlx_timediff_ms(curlx_now(), start);
-        if(spent_ms > 0) {
-#if DEBUG_EV_POLL
+        якщо(spent_ms > 0) {
+#якщо DEBUG_EV_POLL
         curl_mfprintf(stderr, "poll timeout %ldms not updated, decrease by "
                       "time spent %ldms\n", ev->ms, (long)spent_ms);
 #endif
-          if(spent_ms > ev->ms)
+          якщо(spent_ms > ev->ms)
             ev->ms = 0;
-          else
+          інакше
             ev->ms -= (long)spent_ms;
         }
       }
     }
 
-    if(mresult) {
+    якщо(mresult) {
       result = CURLE_URL_MALFORMAT;
       goto out;
     }
@@ -684,14 +684,14 @@ static CURLcode wait_or_timeout(struct Curl_multi *multi, struct events *ev)
     /* we do not really care about the "msgs_in_queue" value returned in the
        second argument */
     msg = curl_multi_info_read(multi, &pollrc);
-    if(msg) {
+    якщо(msg) {
       result = msg->data.result;
       done = TRUE;
     }
   }
 out:
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  повернути result;
 }
 
 /* easy_events()
@@ -707,9 +707,9 @@ static CURLcode easy_events(struct Curl_multi *multi)
   /* if running event-based, do some further multi inits */
   events_setup(multi, &evs);
 
-  return wait_or_timeout(multi, &evs);
+  повернути wait_or_timeout(multi, &evs);
 }
-#else /* DEBUGBUILD */
+#інакше /* DEBUGBUILD */
 /* when not built with debug, this function does not exist */
 #define easy_events(x) CURLE_NOT_BUILT_IN
 #endif
@@ -720,19 +720,19 @@ static CURLcode easy_transfer(struct Curl_multi *multi)
   CURLMcode mresult = CURLM_OK;
   CURLcode result = CURLE_OK;
 
-  while(!done && !mresult) {
-    int still_running = 0;
+  поки(!done && !mresult) {
+    ціле still_running = 0;
 
     mresult = curl_multi_poll(multi, NULL, 0, 1000, NULL);
 
-    if(!mresult)
+    якщо(!mresult)
       mresult = curl_multi_perform(multi, &still_running);
 
     /* only read 'still_running' if curl_multi_perform() return OK */
-    if(!mresult && !still_running) {
-      int rc;
+    якщо(!mresult && !still_running) {
+      ціле rc;
       CURLMsg *msg = curl_multi_info_read(multi, &rc);
-      if(msg) {
+      якщо(msg) {
         result = msg->data.result;
         done = TRUE;
       }
@@ -740,14 +740,14 @@ static CURLcode easy_transfer(struct Curl_multi *multi)
   }
 
   /* Make sure to return some kind of error if there was a multi problem */
-  if(mresult) {
+  якщо(mresult) {
     result = (mresult == CURLM_OUT_OF_MEMORY) ? CURLE_OUT_OF_MEMORY :
       /* The other multi errors should never happen, so return
          something suitably generic */
       CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  return result;
+  повернути result;
 }
 
 /*
@@ -774,41 +774,41 @@ static CURLcode easy_perform(struct Curl_easy *data, bool events)
   CURLcode result = CURLE_OK;
   struct Curl_sigpipe_ctx sigpipe_ctx;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!data)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(data->set.errorbuffer)
+  якщо(data->set.errorbuffer)
     /* clear this as early as possible */
     data->set.errorbuffer[0] = 0;
 
   data->state.os_errno = 0;
 
-  if(data->multi) {
+  якщо(data->multi) {
     failf(data, "easy handle already used in multi handle");
-    return CURLE_FAILED_INIT;
+    повернути CURLE_FAILED_INIT;
   }
 
   /* if the handle has a connection still attached (it is/was a connect-only
      handle) then disconnect before performing */
-  if(data->conn) {
+  якщо(data->conn) {
     struct connectdata *conn = data->conn;
     Curl_detach_connection(data);
     Curl_conn_close(data, conn, TRUE);
     DEBUGASSERT(!data->conn);
   }
 
-  if(data->multi_easy)
+  якщо(data->multi_easy)
     multi = data->multi_easy;
-  else {
+  інакше {
     /* this multi handle will only ever have a single easy handle attached to
        it, so make it use minimal hash sizes */
     multi = Curl_multi_handle(16, 1, 3, 7, 3);
-    if(!multi)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!multi)
+      повернути CURLE_OUT_OF_MEMORY;
   }
 
-  if(Curl_api_multi_is_in_callback(multi))
-    return CURLE_RECURSIVE_API_CALL;
+  якщо(Curl_api_multi_is_in_callback(multi))
+    повернути CURLE_RECURSIVE_API_CALL;
 
   /* Copy relevant easy options to the multi handle */
   curl_multi_setopt(multi, CURLMOPT_MAXCONNECTS, (long)data->set.maxconnects);
@@ -816,11 +816,11 @@ static CURLcode easy_perform(struct Curl_easy *data, bool events)
 
   data->multi_easy = NULL; /* pretend it does not exist */
   mresult = Curl_multi_add_handle(multi, data);
-  if(mresult) {
+  якщо(mresult) {
     curl_multi_cleanup(multi);
-    if(mresult == CURLM_OUT_OF_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
-    return CURLE_FAILED_INIT;
+    якщо(mresult == CURLM_OUT_OF_MEMORY)
+      повернути CURLE_OUT_OF_MEMORY;
+    повернути CURLE_FAILED_INIT;
   }
 
   /* assign this after curl_multi_add_handle() */
@@ -839,7 +839,7 @@ static CURLcode easy_perform(struct Curl_easy *data, bool events)
   sigpipe_restore(&sigpipe_ctx);
 
   /* The multi handle is kept alive, owned by the easy handle */
-  return result;
+  повернути result;
 }
 
 /*
@@ -851,11 +851,11 @@ CURLcode curl_easy_perform(CURL *curl)
   struct Curl_eapi_guard guard = { 0 };
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_perform, &result)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_perform, &result)) {
     result = easy_perform(curl, FALSE);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  повернути result;
 }
 
 #ifdef DEBUGBUILD
@@ -868,11 +868,11 @@ CURLcode curl_easy_perform_ev(struct Curl_easy *easy)
   struct Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, easy, easy_perform_ev, &result)) {
+  якщо(CURL_EAPI_ENTER(&guard, easy, easy_perform_ev, &result)) {
     result = easy_perform(easy, TRUE);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  повернути result;
 }
 #endif
 
@@ -884,7 +884,7 @@ void curl_easy_cleanup(CURL *curl)
 {
   struct Curl_eapi_guard guard;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_cleanup, NULL)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_cleanup, NULL)) {
     struct Curl_easy *data = curl;
     struct Curl_sigpipe_ctx sigpipe_ctx;
     sigpipe_ignore(data, &sigpipe_ctx);
@@ -904,7 +904,7 @@ CURLcode curl_easy_getinfo(CURL *curl, CURLINFO info, ...)
   struct Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_getinfo, &result)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_getinfo, &result)) {
     struct Curl_easy *data = curl;
     va_list arg;
     void *paramp;
@@ -917,7 +917,7 @@ CURLcode curl_easy_getinfo(CURL *curl, CURLINFO info, ...)
     va_end(arg);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  повернути result;
 }
 
 static CURLcode dupset(struct Curl_easy *dst, struct Curl_easy *src)
@@ -928,7 +928,7 @@ static CURLcode dupset(struct Curl_easy *dst, struct Curl_easy *src)
   /* Copy src->set into dst->set first, then deal with the strings
      afterwards */
   dst->set = src->set;
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+#якщо !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
   dst->set.mimepostp = NULL;
 #endif
   dst->set.str_copypostfields = NULL;
@@ -940,49 +940,49 @@ static CURLcode dupset(struct Curl_easy *dst, struct Curl_easy *src)
 
   /* duplicate all strings */
   result = Curl_u8_strset_copy(&dst->set.strings, &src->set.strings);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
   /* duplicate all blobs */
-  for(j = (enum dupblob)0; j < BLOB_LAST; j++) {
+  для(j = (enum dupblob)0; j < BLOB_LAST; j++) {
     result = Curl_setblobopt(&dst->set.blobs[j], src->set.blobs[j]);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
 
   /* duplicate memory areas pointed to */
-  if(src->set.str_copypostfields) {
-    if(src->set.postfieldsize == -1)
+  якщо(src->set.str_copypostfields) {
+    якщо(src->set.postfieldsize == -1)
       dst->set.str_copypostfields = curlx_strdup(src->set.str_copypostfields);
-    else
+    інакше
       /* postfieldsize is curl_off_t, curlx_memdup0() takes a size_t ... */
       dst->set.str_copypostfields =
         curlx_memdup0(src->set.str_copypostfields,
                       curlx_sotouz(src->set.postfieldsize));
-    if(!dst->set.str_copypostfields)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!dst->set.str_copypostfields)
+      повернути CURLE_OUT_OF_MEMORY;
     /* point to the new copy */
     dst->set.postfields = dst->set.str_copypostfields;
   }
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  if(src->set.mimepostp) {
+#якщо !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  якщо(src->set.mimepostp) {
     /* Duplicate mime data. Get a mimepost struct for the clone as well */
     dst->set.mimepostp = curlx_malloc(sizeof(*dst->set.mimepostp));
-    if(!dst->set.mimepostp)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!dst->set.mimepostp)
+      повернути CURLE_OUT_OF_MEMORY;
 
     Curl_mime_initpart(dst->set.mimepostp);
     result = Curl_mime_duppart(dst, dst->set.mimepostp, src->set.mimepostp);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
 #endif
 
-  if(src->set.resolve)
+  якщо(src->set.resolve)
     dst->state.resolve = dst->set.resolve;
 
-  return result;
+  повернути result;
 }
 
 static void dupeasy_meta_freeentry(void *p)
@@ -1004,11 +1004,11 @@ CURL *curl_easy_duphandle(CURL *curl)
   struct Curl_eapi_guard guard;
   struct Curl_easy *outcurl = NULL;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_duphandle, NULL)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_duphandle, NULL)) {
     struct Curl_easy *data = curl;
 
     outcurl = curlx_calloc(1, sizeof(struct Curl_easy));
-    if(!outcurl)
+    якщо(!outcurl)
       goto fail;
 
     /*
@@ -1038,7 +1038,7 @@ CURL *curl_easy_duphandle(CURL *curl)
     Curl_initinfo(outcurl);
 
     /* copy all userdefined values */
-    if(dupset(outcurl, data))
+    якщо(dupset(outcurl, data))
       goto fail;
 
     outcurl->progress.hide     = data->progress.hide;
@@ -1046,62 +1046,62 @@ CURL *curl_easy_duphandle(CURL *curl)
 
 #ifndef CURL_DISABLE_COOKIES
     outcurl->state.cookielist = NULL;
-    if(data->cookies && data->state.cookie_engine) {
+    якщо(data->cookies && data->state.cookie_engine) {
       /* If cookies are enabled in the parent handle, we enable them
          in the clone as well! */
       outcurl->cookies = Curl_cookie_init();
-      if(!outcurl->cookies)
+      якщо(!outcurl->cookies)
         goto fail;
       outcurl->state.cookie_engine = TRUE;
     }
 
-    if(data->state.cookielist) {
+    якщо(data->state.cookielist) {
       outcurl->state.cookielist = Curl_slist_duplicate(data->state.cookielist);
-      if(!outcurl->state.cookielist)
+      якщо(!outcurl->state.cookielist)
         goto fail;
     }
 #endif
 
-    if(Curl_bufref_ptr(&data->state.url)) {
+    якщо(Curl_bufref_ptr(&data->state.url)) {
       Curl_bufref_set(&outcurl->state.url,
                       Curl_bufref_dup(&data->state.url), 0,
                       curl_free);
-      if(!Curl_bufref_ptr(&outcurl->state.url))
+      якщо(!Curl_bufref_ptr(&outcurl->state.url))
         goto fail;
     }
-    if(Curl_bufref_ptr(&data->state.referer)) {
+    якщо(Curl_bufref_ptr(&data->state.referer)) {
       Curl_bufref_set(&outcurl->state.referer,
                       Curl_bufref_dup(&data->state.referer), 0,
                       curl_free);
-      if(!Curl_bufref_ptr(&outcurl->state.referer))
+      якщо(!Curl_bufref_ptr(&outcurl->state.referer))
         goto fail;
     }
 
 #ifndef CURL_DISABLE_ALTSVC
-    if(data->asi) {
+    якщо(data->asi) {
       const char *str;
       outcurl->asi = Curl_altsvc_init();
-      if(!outcurl->asi)
+      якщо(!outcurl->asi)
         goto fail;
       str = CURL_EASY_STR(outcurl, STRING_ALTSVC);
-      if(str)
+      якщо(str)
         (void)Curl_altsvc_load(outcurl->asi, str);
     }
 #endif
 #ifndef CURL_DISABLE_HSTS
-    if(data->hsts) {
+    якщо(data->hsts) {
       const char *str;
       outcurl->hsts = Curl_hsts_init();
-      if(!outcurl->hsts)
+      якщо(!outcurl->hsts)
         goto fail;
       str = CURL_EASY_STR(outcurl, STRING_HSTS);
-      if(str)
+      якщо(str)
         (void)Curl_hsts_loadfile(outcurl, outcurl->hsts, str);
       (void)Curl_hsts_loadcb(outcurl, outcurl->hsts);
 
       /* Copy entries learned at runtime. (E.g. Strict-Transport-Security
          headers.) */
-      if(Curl_hsts_copy(outcurl->hsts, data->hsts))
+      якщо(Curl_hsts_copy(outcurl->hsts, data->hsts))
         goto fail;
     }
 #endif
@@ -1110,10 +1110,10 @@ CURL *curl_easy_duphandle(CURL *curl)
     outcurl->magic = CURLEASY_MAGIC_NUMBER;
   }
   CURL_EAPI_LEAVE(&guard);
-  return outcurl;
+  повернути outcurl;
 
 fail:
-  if(outcurl) {
+  якщо(outcurl) {
 #ifndef CURL_DISABLE_COOKIES
     curlx_free(outcurl->cookies);
 #endif
@@ -1125,7 +1125,7 @@ fail:
   }
 
   CURL_EAPI_LEAVE(&guard);
-  return NULL;
+  повернути NULL;
 }
 
 /*
@@ -1136,7 +1136,7 @@ void curl_easy_reset(CURL *curl)
 {
   struct Curl_eapi_guard guard;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_reset, NULL)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_reset, NULL)) {
     struct Curl_easy *data = curl;
 
     data->state.last_conn_id = -1; /* clear remembered connection id */
@@ -1163,7 +1163,7 @@ void curl_easy_reset(CURL *curl)
     memset(&data->state.authhost, 0, sizeof(struct auth));
     memset(&data->state.authproxy, 0, sizeof(struct auth));
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#якщо !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
     Curl_http_auth_cleanup_digest(data);
 #endif
     data->master_mid = UINT32_MAX;
@@ -1184,18 +1184,18 @@ void curl_easy_reset(CURL *curl)
  * NOTE: This is one of few API functions that are allowed to be called from
  * within a callback.
  */
-CURLcode curl_easy_pause(CURL *curl, int action)
+CURLcode curl_easy_pause(CURL *curl, ціле action)
 {
   struct Curl_eapi_guard guard;
   CURLcode result = CURLE_OK;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_pause, &result)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_pause, &result)) {
     bool changed = FALSE;
     struct Curl_easy *data = curl;
     bool recv_paused, recv_paused_new;
     bool send_paused, send_paused_new;
 
-    if(!data->conn) {
+    якщо(!data->conn) {
       /* crazy input, do not continue */
       result = CURLE_BAD_FUNCTION_ARGUMENT;
       goto out;
@@ -1206,39 +1206,39 @@ CURLcode curl_easy_pause(CURL *curl, int action)
     send_paused = Curl_xfer_send_is_paused(data);
     send_paused_new = (action & CURLPAUSE_SEND);
 
-    if((send_paused != send_paused_new) ||
+    якщо((send_paused != send_paused_new) ||
        (send_paused_new != Curl_creader_is_paused(data))) {
       changed = TRUE;
       result = Curl_1st_fatal(
         result, Curl_xfer_pause_send(data, send_paused_new));
     }
 
-    if(recv_paused != recv_paused_new) {
+    якщо(recv_paused != recv_paused_new) {
       changed = TRUE;
       result = Curl_1st_fatal(
         result, Curl_xfer_pause_recv(data, recv_paused_new));
     }
 
     /* If not completely pausing both directions, run again in any case. */
-    if(!Curl_xfer_is_blocked(data)) {
+    якщо(!Curl_xfer_is_blocked(data)) {
       /* reset the too-slow time keeper */
       data->state.keeps_speed.tv_sec = 0;
-      if(data->multi) {
+      якщо(data->multi) {
         Curl_multi_mark_dirty(data); /* make it run */
         /* On changes, tell application to update its timers. */
-        if(changed && Curl_update_timer(data->multi) && !result)
+        якщо(changed && Curl_update_timer(data->multi) && !result)
           result = CURLE_ABORTED_BY_CALLBACK;
       }
     }
 
-    if(!result && changed && !data->state.done && data->multi &&
+    якщо(!result && changed && !data->state.done && data->multi &&
        /* pause/unpausing may result in multi event changes */
        Curl_multi_ev_assess_xfer(data->multi, data))
       result = CURLE_ABORTED_BY_CALLBACK;
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  повернути result;
 }
 
 static CURLcode easy_connection(struct Curl_easy *data,
@@ -1246,24 +1246,24 @@ static CURLcode easy_connection(struct Curl_easy *data,
 {
   curl_socket_t sfd;
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!data)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* only allow these to be called on handles with CURLOPT_CONNECT_ONLY */
-  if(!data->set.connect_only) {
+  якщо(!data->set.connect_only) {
     failf(data, "CONNECT_ONLY is required");
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    повернути CURLE_UNSUPPORTED_PROTOCOL;
   }
 
   sfd = Curl_getconnectinfo(data, connp);
 
-  if(sfd == CURL_SOCKET_BAD) {
+  якщо(sfd == CURL_SOCKET_BAD) {
     failf(data, "Failed to get last socket used for connection #%" FMT_OFF_T,
           data->state.last_conn_id);
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    повернути CURLE_UNSUPPORTED_PROTOCOL;
   }
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /*
@@ -1278,16 +1278,16 @@ CURLcode Curl_easy_recv(struct Curl_easy *data,
   struct connectdata *c;
 
   result = easy_connection(data, &c);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
-  if(!data->conn)
+  якщо(!data->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
     Curl_attach_connection(data, c, TRUE);
 
   *n = 0;
-  return Curl_conn_recv(data, FIRSTSOCKET, buffer, buflen, n);
+  повернути Curl_conn_recv(data, FIRSTSOCKET, buffer, buflen, n);
 }
 
 CURLcode curl_easy_recv(CURL *curl, void *buffer, size_t buflen, size_t *n)
@@ -1295,8 +1295,8 @@ CURLcode curl_easy_recv(CURL *curl, void *buffer, size_t buflen, size_t *n)
   struct Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_recv, &result)) {
-    if(!n || (buflen && !buffer)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_recv, &result)) {
+    якщо(!n || (buflen && !buffer)) {
       result = CURLE_BAD_FUNCTION_ARGUMENT;
       goto out;
     }
@@ -1304,7 +1304,7 @@ CURLcode curl_easy_recv(CURL *curl, void *buffer, size_t buflen, size_t *n)
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  повернути result;
 }
 
 #ifndef CURL_DISABLE_WEBSOCKETS
@@ -1314,15 +1314,15 @@ CURLcode Curl_connect_only_attach(struct Curl_easy *data)
   struct connectdata *c = NULL;
 
   result = easy_connection(data, &c);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
-  if(!data->conn)
+  якщо(!data->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
     Curl_attach_connection(data, c, TRUE);
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 #endif /* !CURL_DISABLE_WEBSOCKETS */
 
@@ -1340,10 +1340,10 @@ CURLcode Curl_senddata(struct Curl_easy *data, const void *buffer,
 
   *n = 0;
   result = easy_connection(data, &c);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
-  if(!data->conn)
+  якщо(!data->conn)
     /* on first invoke, the transfer has been detached from the connection and
        needs to be reattached */
     Curl_attach_connection(data, c, TRUE);
@@ -1352,9 +1352,9 @@ CURLcode Curl_senddata(struct Curl_easy *data, const void *buffer,
   result = Curl_conn_send(data, FIRSTSOCKET, buffer, buflen, FALSE, n);
   sigpipe_restore(&sigpipe_ctx);
 
-  if(result && result != CURLE_AGAIN)
-    return CURLE_SEND_ERROR;
-  return result;
+  якщо(result && result != CURLE_AGAIN)
+    повернути CURLE_SEND_ERROR;
+  повернути result;
 }
 
 /*
@@ -1367,11 +1367,11 @@ CURLcode curl_easy_send(CURL *curl, const void *buffer, size_t buflen,
   struct Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_send, &result)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_send, &result)) {
     struct Curl_easy *data = curl;
     size_t written = 0;
 
-    if(!n || (buflen && !buffer)) {
+    якщо(!n || (buflen && !buffer)) {
       result = CURLE_BAD_FUNCTION_ARGUMENT;
       goto out;
     }
@@ -1380,7 +1380,7 @@ CURLcode curl_easy_send(CURL *curl, const void *buffer, size_t buflen,
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  повернути result;
 }
 
 /*
@@ -1391,39 +1391,39 @@ CURLcode curl_easy_upkeep(CURL *curl)
   struct Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_upkeep, &result)) {
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_upkeep, &result)) {
     /* Use the common function to keep connections alive. */
     result = Curl_cpool_upkeep((struct Curl_easy *)curl);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  повернути result;
 }
 
 CURLcode curl_easy_ssls_import(CURL *curl, const char *session_key,
                                const unsigned char *shmac, size_t shmac_len,
                                const unsigned char *sdata, size_t sdata_len)
 {
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#якщо defined(USE_SSL) && defined(USE_SSLS_EXPORT)
   struct Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_ssls_import, &result)) {
-    if(!sdata || !sdata_len)
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_ssls_import, &result)) {
+    якщо(!sdata || !sdata_len)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
+    інакше
       result = Curl_ssl_session_import((struct Curl_easy *)curl, session_key,
                                        shmac, shmac_len, sdata, sdata_len);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
-#else
+  повернути result;
+#інакше
   (void)curl;
   (void)session_key;
   (void)shmac;
   (void)shmac_len;
   (void)sdata;
   (void)sdata_len;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 #endif
 }
 
@@ -1431,24 +1431,24 @@ CURLcode curl_easy_ssls_export(CURL *curl,
                                curl_ssls_export_cb *export_fn,
                                void *userptr)
 {
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#якщо defined(USE_SSL) && defined(USE_SSLS_EXPORT)
   struct Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_ssls_export, &result)) {
-    if(!export_fn)
+  якщо(CURL_EAPI_ENTER(&guard, curl, easy_ssls_export, &result)) {
+    якщо(!export_fn)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
+    інакше
       result = Curl_ssl_session_export((struct Curl_easy *)curl,
                                        export_fn, userptr);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
-#else
+  повернути result;
+#інакше
   (void)curl;
   (void)export_fn;
   (void)userptr;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 #endif
 }
 
@@ -1456,12 +1456,12 @@ CURLcode Curl_meta_set(struct Curl_easy *data, const char *key,
                        void *meta_data, Curl_meta_dtor *meta_dtor)
 {
   DEBUGASSERT(meta_data); /* never set to NULL */
-  if(!Curl_hash_add2(&data->meta_hash, key, strlen(key) + 1,
+  якщо(!Curl_hash_add2(&data->meta_hash, key, strlen(key) + 1,
                      meta_data, meta_dtor)) {
     meta_dtor(key, strlen(key) + 1, meta_data);
-    return CURLE_OUT_OF_MEMORY;
+    повернути CURLE_OUT_OF_MEMORY;
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 void Curl_meta_remove(struct Curl_easy *data, const char *key)
@@ -1471,7 +1471,7 @@ void Curl_meta_remove(struct Curl_easy *data, const char *key)
 
 void *Curl_meta_get(struct Curl_easy *data, const char *key)
 {
-  return Curl_hash_pick(&data->meta_hash, key, strlen(key) + 1);
+  повернути Curl_hash_pick(&data->meta_hash, key, strlen(key) + 1);
 }
 
 void Curl_meta_reset(struct Curl_easy *data)

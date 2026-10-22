@@ -36,12 +36,12 @@ extern const unsigned char Curl_tolowermap[256];
    <ctype.h>, whose behavior is altered by the current locale. */
 static CURL_INLINE char Curl_raw_toupper(char in)
 {
-  return (char)Curl_touppermap[(unsigned char)in];
+  повернути (char)Curl_touppermap[(unsigned char)in];
 }
 
 static CURL_INLINE char Curl_raw_tolower(char in)
 {
-  return (char)Curl_tolowermap[(unsigned char)in];
+  повернути (char)Curl_tolowermap[(unsigned char)in];
 }
 
 /* checkprefix() is a shorter version of the above, used when the first
@@ -52,6 +52,6 @@ void Curl_strntoupper(char *dest, const char *src, size_t n);
 void Curl_strntolower(char *dest, const char *src, size_t n);
 
 bool Curl_safecmp(const char *a, const char *b);
-int Curl_timestrcmp(const char *a, const char *b);
+ціле Curl_timestrcmp(const char *a, const char *b);
 
 #endif /* HEADER_CURL_STRCASE_H */

@@ -74,7 +74,7 @@ bool Curl_host_is_ipnum(const char *hostname);
 #ifdef USE_IPV6
 /* probe if it seems to work */
 CURLcode Curl_probeipv6(struct Curl_multi *multi);
-#else
+#інакше
 #define Curl_probeipv6(x) CURLE_OK
 #endif
 
@@ -151,8 +151,8 @@ bool Curl_resolv_has_answers(struct Curl_easy *data,
 
 const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
                                                uint32_t resolv_id,
-                                               int ai_family,
-                                               unsigned int index);
+                                               ціле ai_family,
+                                               unsigned ціле index);
 #ifdef USE_HTTPSRR
 
 /* Start DNS resolving for HTTPS records. Returns
@@ -175,7 +175,7 @@ const struct Curl_https_rrinfo *Curl_resolv_get_https(struct Curl_easy *data,
 bool Curl_resolv_knows_https(struct Curl_easy *data, uint32_t resolv_id);
 #endif /* USE_HTTPSRR */
 
-#else /* !USE_CURL_ASYNC */
+#інакше /* !USE_CURL_ASYNC */
 #define Curl_resolv_shutdown_all(x)      Curl_nop_stmt
 #define Curl_resolv_destroy_all(x)       Curl_nop_stmt
 #define Curl_resolv_take_result(x, y, z) CURLE_NOT_BUILT_IN

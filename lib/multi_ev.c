@@ -45,12 +45,12 @@ struct mev_sh_entry {
   struct uint32_spbset xfers; /* bitset of transfers `mid`s on this socket */
   struct connectdata *conn; /* connection using this socket or NULL */
   void *user_data;      /* libcurl app data via curl_multi_assign() */
-  unsigned int action;  /* CURL_POLL_IN/CURL_POLL_OUT we last told the
+  unsigned ціле action;  /* CURL_POLL_IN/CURL_POLL_OUT we last told the
                          * libcurl application to watch out for */
-  unsigned int readers; /* this many transfers want to read */
-  unsigned int writers; /* this many transfers want to write */
+  unsigned ціле readers; /* this many transfers want to read */
+  unsigned ціле writers; /* this many transfers want to write */
 #ifdef DEBUGBUILD
-  unsigned int magic;
+  unsigned ціле magic;
 #endif
   BIT(announced);       /* this socket has been passed to the socket
                            callback at least once */
@@ -71,11 +71,11 @@ static void mev_sh_entry_dtor(void *freethis)
 static struct mev_sh_entry *mev_sh_entry_get(struct Curl_hash *sh,
                                              curl_socket_t s)
 {
-  if(s != CURL_SOCKET_BAD) {
+  якщо(s != CURL_SOCKET_BAD) {
     /* only look for proper sockets */
-    return Curl_hash_pick(sh, (const char *)&s, sizeof(curl_socket_t));
+    повернути Curl_hash_pick(sh, (const char *)&s, sizeof(curl_socket_t));
   }
-  return NULL;
+  повернути NULL;
 }
 
 /* make sure this socket is present in the hash for this handle */
@@ -85,27 +85,27 @@ static struct mev_sh_entry *mev_sh_entry_add(struct Curl_hash *sh,
   struct mev_sh_entry *there = mev_sh_entry_get(sh, s);
   struct mev_sh_entry *check;
 
-  if(there) {
+  якщо(there) {
     /* it is present, return fine */
-    return there;
+    повернути there;
   }
 
   /* not present, add it */
   check = curlx_calloc(1, sizeof(struct mev_sh_entry));
-  if(!check)
-    return NULL; /* major failure */
+  якщо(!check)
+    повернути NULL; /* major failure */
 
   Curl_uint32_spbset_init(&check->xfers);
 
   /* make/add new hash entry */
-  if(!Curl_hash_add(sh, (char *)&s, sizeof(curl_socket_t), check)) {
+  якщо(!Curl_hash_add(sh, (char *)&s, sizeof(curl_socket_t), check)) {
     mev_sh_entry_dtor(check);
-    return NULL; /* major failure */
+    повернути NULL; /* major failure */
   }
 #ifdef DEBUGBUILD
   check->magic = SH_ENTRY_MAGIC;
 #endif
-  return check; /* things are good in sockhash land */
+  повернути check; /* things are good in sockhash land */
 }
 
 /* delete the given socket entry from the hash */
@@ -116,19 +116,19 @@ static void mev_sh_entry_kill(struct Curl_multi *multi, curl_socket_t s)
 
 static size_t mev_sh_entry_user_count(struct mev_sh_entry *e)
 {
-  return Curl_uint32_spbset_count(&e->xfers) + (e->conn ? 1 : 0);
+  повернути Curl_uint32_spbset_count(&e->xfers) + (e->conn ? 1 : 0);
 }
 
 static bool mev_sh_entry_xfer_known(struct mev_sh_entry *e,
                                     struct Curl_easy *data)
 {
-  return Curl_uint32_spbset_contains(&e->xfers, data->mid);
+  повернути Curl_uint32_spbset_contains(&e->xfers, data->mid);
 }
 
 static bool mev_sh_entry_conn_known(struct mev_sh_entry *e,
                                     struct connectdata *conn)
 {
-  return (e->conn == conn);
+  повернути (e->conn == conn);
 }
 
 static void mev_pollset_dtor(const void *key, size_t klen, void *entry)
@@ -136,7 +136,7 @@ static void mev_pollset_dtor(const void *key, size_t klen, void *entry)
   struct easy_pollset *ps = entry;
   (void)key;
   (void)klen;
-  if(ps) {
+  якщо(ps) {
     Curl_pollset_cleanup(ps);
     curlx_free(ps);
   }
@@ -147,11 +147,11 @@ static struct easy_pollset *mev_add_new_conn_pollset(struct connectdata *conn)
   struct easy_pollset *ps;
 
   ps = Curl_pollset_create();
-  if(!ps)
-    return NULL;
-  if(Curl_conn_meta_set(conn, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
-    return NULL;
-  return ps;
+  якщо(!ps)
+    повернути NULL;
+  якщо(Curl_conn_meta_set(conn, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
+    повернути NULL;
+  повернути ps;
 }
 
 static struct easy_pollset *mev_add_new_xfer_pollset(struct Curl_easy *data)
@@ -159,22 +159,22 @@ static struct easy_pollset *mev_add_new_xfer_pollset(struct Curl_easy *data)
   struct easy_pollset *ps;
 
   ps = Curl_pollset_create();
-  if(!ps)
-    return NULL;
-  if(Curl_meta_set(data, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
-    return NULL;
-  return ps;
+  якщо(!ps)
+    повернути NULL;
+  якщо(Curl_meta_set(data, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
+    повернути NULL;
+  повернути ps;
 }
 
 static struct easy_pollset *mev_get_last_pollset(struct Curl_easy *data,
                                                  struct connectdata *conn)
 {
-  if(data) {
-    if(conn)
-      return Curl_conn_meta_get(conn, CURL_META_MEV_POLLSET);
-    return Curl_meta_get(data, CURL_META_MEV_POLLSET);
+  якщо(data) {
+    якщо(conn)
+      повернути Curl_conn_meta_get(conn, CURL_META_MEV_POLLSET);
+    повернути Curl_meta_get(data, CURL_META_MEV_POLLSET);
   }
-  return NULL;
+  повернути NULL;
 }
 
 static bool mev_sh_entry_xfer_add(struct mev_sh_entry *e,
@@ -182,7 +182,7 @@ static bool mev_sh_entry_xfer_add(struct mev_sh_entry *e,
 {
    /* detect weird values */
   DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
-  return Curl_uint32_spbset_add(&e->xfers, data->mid);
+  повернути Curl_uint32_spbset_add(&e->xfers, data->mid);
 }
 
 static bool mev_sh_entry_conn_add(struct mev_sh_entry *e,
@@ -191,30 +191,30 @@ static bool mev_sh_entry_conn_add(struct mev_sh_entry *e,
    /* detect weird values */
   DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
   DEBUGASSERT(!e->conn);
-  if(e->conn)
-    return FALSE;
+  якщо(e->conn)
+    повернути FALSE;
   e->conn = conn;
-  return TRUE;
+  повернути TRUE;
 }
 
 static bool mev_sh_entry_xfer_remove(struct mev_sh_entry *e,
                                      struct Curl_easy *data)
 {
   bool present = Curl_uint32_spbset_contains(&e->xfers, data->mid);
-  if(present)
+  якщо(present)
     Curl_uint32_spbset_remove(&e->xfers, data->mid);
-  return present;
+  повернути present;
 }
 
 static bool mev_sh_entry_conn_remove(struct mev_sh_entry *e,
                                      struct connectdata *conn)
 {
   DEBUGASSERT(e->conn == conn);
-  if(e->conn == conn) {
+  якщо(e->conn == conn) {
     e->conn = NULL;
-    return TRUE;
+    повернути TRUE;
   }
-  return FALSE;
+  повернути FALSE;
 }
 
 /* Purge any information about socket `s`.
@@ -226,31 +226,31 @@ static CURLMcode mev_forget_socket(struct Curl_multi *multi,
 {
   struct mev_sh_entry *entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
   uint32_t mid;
-  int rc = 0;
+  ціле rc = 0;
 
-  if(!entry) /* we never knew or already forgot about this socket */
-    return CURLM_OK;
+  якщо(!entry) /* we never knew or already forgot about this socket */
+    повернути CURLM_OK;
 
   /* Remove the socket from any pollset that is still registered. */
-  if(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
+  якщо(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
     do {
       struct Curl_easy *sdata = Curl_multi_get_easy(multi, mid);
-      if(sdata) {
+      якщо(sdata) {
         struct easy_pollset *ps = mev_get_last_pollset(sdata, NULL);
-        if(ps)
+        якщо(ps)
           Curl_pollset_remove(ps, s);
       }
-    } while(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
+    } поки(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
   }
 
-  if(entry->conn) {
+  якщо(entry->conn) {
     struct easy_pollset *ps = mev_get_last_pollset(data, entry->conn);
-    if(ps)
+    якщо(ps)
       Curl_pollset_remove(ps, s);
   }
 
   /* We managed this socket before, tell the socket callback to forget it. */
-  if(entry->announced && multi->socket_cb) {
+  якщо(entry->announced && multi->socket_cb) {
     struct Curl_mapi_guard guard;
 
     NOVERBOSE((void)cause);
@@ -260,16 +260,16 @@ static CURLMcode mev_forget_socket(struct Curl_multi *multi,
                           multi->socket_userp, entry->user_data);
     CURL_CBAPI_END(&guard);
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-    if(entry)
+    якщо(entry)
       entry->announced = FALSE;
   }
 
   mev_sh_entry_kill(multi, s);
-  if(rc == -1) {
+  якщо(rc == -1) {
     multi->dead = TRUE;
-    return CURLM_ABORTED_BY_CALLBACK;
+    повернути CURLM_ABORTED_BY_CALLBACK;
   }
-  return CURLM_OK;
+  повернути CURLM_OK;
 }
 
 static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
@@ -279,34 +279,34 @@ static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
                                      unsigned char last_action,
                                      unsigned char cur_action)
 {
-  int rc, comboaction;
+  ціле rc, comboaction;
 
   /* we should only be called when the callback exists */
   DEBUGASSERT(multi->socket_cb);
   DEBUGASSERT(entry->magic == SH_ENTRY_MAGIC);
-  if(!multi->socket_cb)
-    return CURLM_OK;
+  якщо(!multi->socket_cb)
+    повернути CURLM_OK;
 
   /* Transfer `data` goes from `last_action` to `cur_action` on socket `s`
    * with `multi->ev.sh_entries` entry `entry`. Update `entry` and trigger
    * `multi->socket_cb` on change, if the callback is set. */
-  if(last_action == cur_action)  /* nothing from `data` changed */
-    return CURLM_OK;
+  якщо(last_action == cur_action)  /* nothing from `data` changed */
+    повернути CURLM_OK;
 
-  if(last_action & CURL_POLL_IN) {
+  якщо(last_action & CURL_POLL_IN) {
     DEBUGASSERT(entry->readers);
-    if(!(cur_action & CURL_POLL_IN))
+    якщо(!(cur_action & CURL_POLL_IN))
       entry->readers--;
   }
-  else if(cur_action & CURL_POLL_IN)
+  інакше якщо(cur_action & CURL_POLL_IN)
     entry->readers++;
 
-  if(last_action & CURL_POLL_OUT) {
+  якщо(last_action & CURL_POLL_OUT) {
     DEBUGASSERT(entry->writers);
-    if(!(cur_action & CURL_POLL_OUT))
+    якщо(!(cur_action & CURL_POLL_OUT))
       entry->writers--;
   }
-  else if(cur_action & CURL_POLL_OUT)
+  інакше якщо(cur_action & CURL_POLL_OUT)
     entry->writers++;
 
   DEBUGASSERT(entry->readers <= mev_sh_entry_user_count(entry));
@@ -323,8 +323,8 @@ static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
 
   comboaction = (entry->writers ? CURL_POLL_OUT : 0) |
                 (entry->readers ? CURL_POLL_IN : 0);
-  if(((int)entry->action == comboaction)) /* nothing for socket changed */
-    return CURLM_OK;
+  якщо(((ціле)entry->action == comboaction)) /* nothing for socket changed */
+    повернути CURLM_OK;
 
   CURL_TRC_M(data, "ev update call(fd=%" FMT_SOCKET_T ", ev=%s%s)",
              s, (comboaction & CURL_POLL_IN) ? "IN" : "",
@@ -336,19 +336,19 @@ static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
                           entry->user_data);
     CURL_CBAPI_MULTI_END(&guard);
   }
-  if(rc == -1) {
+  якщо(rc == -1) {
     multi->dead = TRUE;
-    return CURLM_ABORTED_BY_CALLBACK;
+    повернути CURLM_ABORTED_BY_CALLBACK;
   }
   /* curl_easy_pause() is documented as callable from any callback; it
    * re-enters mev_assess() which may free this 'entry'. Re-fetch. */
   entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-  if(entry) {
+  якщо(entry) {
     DEBUGASSERT(entry->magic == SH_ENTRY_MAGIC);
     entry->announced = TRUE;
-    entry->action = (unsigned int)comboaction;
+    entry->action = (unsigned ціле)comboaction;
   }
-  return CURLM_OK;
+  повернути CURLM_OK;
 }
 
 static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
@@ -359,7 +359,7 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
 {
   struct mev_sh_entry *entry;
   curl_socket_t s;
-  unsigned int i, j;
+  unsigned ціле i, j;
   CURLMcode mresult;
 
   /* The transfer `data` reports in `ps` the sockets it is interested
@@ -374,25 +374,25 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
   DEBUGASSERT(prev_ps);
 
   /* Handle changes to sockets the transfer is interested in. */
-  for(i = 0; i < ps->n; i++) {
+  для(i = 0; i < ps->n; i++) {
     unsigned char last_action;
     bool first_time = FALSE; /* data/conn appears first time on socket */
 
     s = ps->sockets[i];
     /* Have we handled this socket before? */
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-    if(!entry) {
+    якщо(!entry) {
       /* new socket, add new entry */
       first_time = TRUE;
       entry = mev_sh_entry_add(&multi->ev.sh_entries, s);
-      if(!entry) /* fatal */
-        return CURLM_OUT_OF_MEMORY;
+      якщо(!entry) /* fatal */
+        повернути CURLM_OUT_OF_MEMORY;
       CURL_TRC_M(data, "ev new entry fd=%" FMT_SOCKET_T, s);
     }
-    else if(conn) {
+    інакше якщо(conn) {
       first_time = !mev_sh_entry_conn_known(entry, conn);
     }
-    else {
+    інакше {
       first_time = !mev_sh_entry_xfer_known(entry, data);
     }
 
@@ -402,14 +402,14 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
      * reopened. We would have cleared the sh_entry for that, but the socket
      * might still be mentioned in the hashed pollsets. */
     last_action = 0;
-    if(first_time) {
-      if(conn) {
-        if(!mev_sh_entry_conn_add(entry, conn))
-          return CURLM_OUT_OF_MEMORY;
+    якщо(first_time) {
+      якщо(conn) {
+        якщо(!mev_sh_entry_conn_add(entry, conn))
+          повернути CURLM_OUT_OF_MEMORY;
       }
-      else {
-        if(!mev_sh_entry_xfer_add(entry, data))
-          return CURLM_OUT_OF_MEMORY;
+      інакше {
+        якщо(!mev_sh_entry_xfer_add(entry, data))
+          повернути CURLM_OUT_OF_MEMORY;
       }
       CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", added %s #%" FMT_OFF_T
                  ", total=%u/%d (xfer/conn)", s,
@@ -418,9 +418,9 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
                  Curl_uint32_spbset_count(&entry->xfers),
                  entry->conn ? 1 : 0);
     }
-    else {
-      for(j = 0; j < prev_ps->n; j++) {
-        if(s == prev_ps->sockets[j]) {
+    інакше {
+      для(j = 0; j < prev_ps->n; j++) {
+        якщо(s == prev_ps->sockets[j]) {
           last_action = prev_ps->actions[j];
           break;
         }
@@ -429,33 +429,33 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
     /* track readers/writers changes and report to socket callback */
     mresult = mev_sh_entry_update(multi, data, entry, s,
                                   last_action, ps->actions[i]);
-    if(mresult)
-      return mresult;
+    якщо(mresult)
+      повернути mresult;
   }
 
   /* Handle changes to sockets the transfer is NO LONGER interested in. */
-  for(i = 0; i < prev_ps->n; i++) {
+  для(i = 0; i < prev_ps->n; i++) {
     bool stillused = FALSE;
 
     s = prev_ps->sockets[i];
-    for(j = 0; j < ps->n; j++) {
-      if(s == ps->sockets[j]) {
+    для(j = 0; j < ps->n; j++) {
+      якщо(s == ps->sockets[j]) {
         /* socket is still supervised */
         stillused = TRUE;
         break;
       }
     }
-    if(stillused)
+    якщо(stillused)
       continue;
 
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
     /* if entry does not exist, we were either never told about it or
      * have already cleaned up this socket via Curl_multi_ev_socket_done().
      * In other words: this is perfectly normal */
-    if(!entry)
+    якщо(!entry)
       continue;
 
-    if(conn && !mev_sh_entry_conn_remove(entry, conn)) {
+    якщо(conn && !mev_sh_entry_conn_remove(entry, conn)) {
       /* `conn` says in `prev_ps` that it had been using a socket,
        * but `conn` has not been registered for it.
        * This should not happen if our book-keeping is correct? */
@@ -465,7 +465,7 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
       continue;
     }
 
-    if(!conn && !mev_sh_entry_xfer_remove(entry, data)) {
+    якщо(!conn && !mev_sh_entry_xfer_remove(entry, data)) {
       /* `data` says in `prev_ps` that it had been using a socket,
        * but `data` has not been registered for it.
        * This should not happen if our book-keeping is correct? */
@@ -475,27 +475,27 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
       continue;
     }
 
-    if(mev_sh_entry_user_count(entry)) {
+    якщо(mev_sh_entry_user_count(entry)) {
       /* track readers/writers changes and report to socket callback */
       mresult = mev_sh_entry_update(multi, data, entry, s,
                                     prev_ps->actions[i], 0);
-      if(mresult)
-        return mresult;
+      якщо(mresult)
+        повернути mresult;
       CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", removed transfer, "
                  "total=%u/%d (xfer/conn)", s,
                  Curl_uint32_spbset_count(&entry->xfers),
                  entry->conn ? 1 : 0);
     }
-    else {
+    інакше {
       mresult = mev_forget_socket(multi, data, s, "last user gone");
-      if(mresult)
-        return mresult;
+      якщо(mresult)
+        повернути mresult;
     }
   } /* for loop over num */
 
   /* Remember for next time */
   Curl_pollset_move(prev_ps, ps);
-  return CURLM_OK;
+  повернути CURLM_OK;
 }
 
 static CURLMcode mev_assess(struct Curl_multi *multi,
@@ -505,53 +505,53 @@ static CURLMcode mev_assess(struct Curl_multi *multi,
   struct easy_pollset ps, *last_ps;
   CURLMcode mresult = CURLM_OK;
 
-  if(!multi || !multi->socket_cb)
-    return CURLM_OK;
+  якщо(!multi || !multi->socket_cb)
+    повернути CURLM_OK;
 
   Curl_pollset_init(&ps);
-  if(conn) {
+  якщо(conn) {
     CURLcode result = Curl_conn_adjust_pollset(data, conn, &ps);
-    if(result) {
+    якщо(result) {
       mresult = (result == CURLE_OUT_OF_MEMORY) ?
         CURLM_OUT_OF_MEMORY : CURLM_INTERNAL_ERROR;
       goto out;
     }
   }
-  else
+  інакше
     Curl_multi_pollset(data, &ps);
   last_ps = mev_get_last_pollset(data, conn);
 
-  if(!last_ps && ps.n) {
-    if(conn)
+  якщо(!last_ps && ps.n) {
+    якщо(conn)
       last_ps = mev_add_new_conn_pollset(conn);
-    else
+    інакше
       last_ps = mev_add_new_xfer_pollset(data);
-    if(!last_ps) {
+    якщо(!last_ps) {
       mresult = CURLM_OUT_OF_MEMORY;
       goto out;
     }
   }
 
-  if(last_ps)
+  якщо(last_ps)
     mresult = mev_pollset_diff(multi, data, conn, &ps, last_ps);
-  else
+  інакше
     DEBUGASSERT(!ps.n);
 out:
   Curl_pollset_cleanup(&ps);
-  return mresult;
+  повернути mresult;
 }
 
 CURLMcode Curl_multi_ev_assess_xfer(struct Curl_multi *multi,
                                     struct Curl_easy *data)
 {
-  return mev_assess(multi, data, NULL);
+  повернути mev_assess(multi, data, NULL);
 }
 
 CURLMcode Curl_multi_ev_assess_conn(struct Curl_multi *multi,
                                     struct Curl_easy *data,
                                     struct connectdata *conn)
 {
-  return mev_assess(multi, data, conn);
+  повернути mev_assess(multi, data, conn);
 }
 
 CURLMcode Curl_multi_ev_assess_xfer_bset(struct Curl_multi *multi,
@@ -560,15 +560,15 @@ CURLMcode Curl_multi_ev_assess_xfer_bset(struct Curl_multi *multi,
   uint32_t mid;
   CURLMcode mresult = CURLM_OK;
 
-  if(multi && multi->socket_cb && Curl_uint32_bset_first(set, &mid)) {
+  якщо(multi && multi->socket_cb && Curl_uint32_bset_first(set, &mid)) {
     do {
       struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
+      якщо(data) {
         mresult = Curl_multi_ev_assess_xfer(multi, data);
       }
-    } while(!mresult && Curl_uint32_bset_next(set, mid, &mid));
+    } поки(!mresult && Curl_uint32_bset_next(set, mid, &mid));
   }
-  return mresult;
+  повернути mresult;
 }
 
 CURLMcode Curl_multi_ev_assign(struct Curl_multi *multi,
@@ -576,10 +576,10 @@ CURLMcode Curl_multi_ev_assign(struct Curl_multi *multi,
                                void *user_data)
 {
   struct mev_sh_entry *e = mev_sh_entry_get(&multi->ev.sh_entries, s);
-  if(!e)
-    return CURLM_BAD_SOCKET;
+  якщо(!e)
+    повернути CURLM_BAD_SOCKET;
   e->user_data = user_data;
-  return CURLM_OK;
+  повернути CURLM_OK;
 }
 
 void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
@@ -595,24 +595,24 @@ void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
      the application actions even though the socket was previously
      asked to get removed, so thus we better survive stray socket actions
      and move on. */
-  if(entry) {
+  якщо(entry) {
     struct Curl_easy *data;
     uint32_t mid;
 
-    if(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
+    якщо(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
       do {
         data = Curl_multi_get_easy(multi, mid);
-        if(data) {
+        якщо(data) {
           Curl_multi_mark_dirty(data);
         }
-        else {
+        інакше {
           CURL_TRC_M(multi->admin, "socket transfer %u no longer found", mid);
           Curl_uint32_spbset_remove(&entry->xfers, mid);
         }
-      } while(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
+      } поки(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
     }
 
-    if(entry->conn)
+    якщо(entry->conn)
       Curl_multi_mark_dirty(multi->admin);
   }
 }

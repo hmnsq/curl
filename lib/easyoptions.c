@@ -387,8 +387,8 @@ const struct curl_easyoption Curl_easyopts[] = {
  * Curl_easyopts_check() is a debug-only function that returns non-zero
  * if this source file is not in sync with the options listed in curl/curl.h
  */
-int Curl_easyopts_check(void)
+ціле Curl_easyopts_check(void)
 {
-  return (CURLOPT_LASTENTRY % 10000) != (332 + 1);
+  повернути (CURLOPT_LASTENTRY % 10000) != (332 + 1);
 }
 #endif

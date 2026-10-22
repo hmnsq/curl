@@ -68,7 +68,7 @@ static CURLcode cf_ssl_peer_key_add_string(struct dynbuf *buf,
                                            const char *name,
                                            const char *value)
 {
-  return curlx_dyn_addf(buf, ":%s-%zu:%s", name, strlen(value), value);
+  повернути curlx_dyn_addf(buf, ":%s-%zu:%s", name, strlen(value), value);
 }
 
 static CURLcode cf_ssl_peer_key_add_path(struct dynbuf *buf,
@@ -76,34 +76,34 @@ static CURLcode cf_ssl_peer_key_add_path(struct dynbuf *buf,
                                          const char *path,
                                          bool *is_local)
 {
-  if(path && path[0]) {
+  якщо(path && path[0]) {
     /* We try to add absolute paths, so that the session key can stay valid
      * when used in another process with different CWD. When a path does not
      * exist, this does not work. Then, we add the path as is. */
 #ifdef _WIN32
     char *abspath = _fullpath(NULL, path, 0);
-    if(abspath) {
+    якщо(abspath) {
       CURLcode result = cf_ssl_peer_key_add_string(buf, name, abspath);
       /* !checksrc! disable BANNEDFUNC 1 */
       free(abspath); /* allocated by CRT, use system free() */
-      return result;
+      повернути result;
     }
     *is_local = TRUE;
 #elif defined(HAVE_REALPATH)
-    if(path[0] != '/') {
+    якщо(path[0] != '/') {
       char *abspath = realpath(path, NULL);
-      if(abspath) {
+      якщо(abspath) {
         CURLcode result = cf_ssl_peer_key_add_string(buf, name, abspath);
         /* !checksrc! disable BANNEDFUNC 1 */
         free(abspath); /* allocated by libc, free without memdebug */
-        return result;
+        повернути result;
       }
       *is_local = TRUE;
     }
 #endif
-    return cf_ssl_peer_key_add_string(buf, name, path);
+    повернути cf_ssl_peer_key_add_string(buf, name, path);
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cf_ssl_peer_key_add_hash(struct dynbuf *buf,
@@ -111,24 +111,24 @@ static CURLcode cf_ssl_peer_key_add_hash(struct dynbuf *buf,
                                          struct curl_blob *blob)
 {
   CURLcode result = CURLE_OK;
-  if(blob && blob->len) {
+  якщо(blob && blob->len) {
     unsigned char hash[CURL_SHA256_DIGEST_LENGTH];
     size_t i;
 
     result = curlx_dyn_addf(buf, ":%s-", name);
-    if(result)
+    якщо(result)
       goto out;
     result = Curl_sha256it(hash, blob->data, blob->len);
-    if(result)
+    якщо(result)
       goto out;
-    for(i = 0; i < CURL_SHA256_DIGEST_LENGTH; ++i) {
+    для(i = 0; i < CURL_SHA256_DIGEST_LENGTH; ++i) {
       result = curlx_dyn_addf(buf, "%02x", hash[i]);
-      if(result)
+      якщо(result)
         goto out;
     }
   }
 out:
-  return result;
+  повернути result;
 }
 
 static CURLcode cf_ssl_peer_key_add_mtls(struct dynbuf *buf,
@@ -136,41 +136,41 @@ static CURLcode cf_ssl_peer_key_add_mtls(struct dynbuf *buf,
                                          bool *is_local)
 {
   CURLcode result = CURLE_OK;
-  if(ssl->clientcert && ssl->clientcert[0]) {
+  якщо(ssl->clientcert && ssl->clientcert[0]) {
     result = cf_ssl_peer_key_add_path(buf, "CCERT", ssl->clientcert, is_local);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->key && ssl->key[0]) {
+  якщо(ssl->key && ssl->key[0]) {
     result = cf_ssl_peer_key_add_path(buf, "KEY", ssl->key, is_local);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->key_blob) {
+  якщо(ssl->key_blob) {
     result = cf_ssl_peer_key_add_hash(buf, "KEYBlob", ssl->key_blob);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->cert_type && ssl->cert_type[0]) {
+  якщо(ssl->cert_type && ssl->cert_type[0]) {
     size_t i;
     result = curlx_dyn_addf(buf, ":CT-%zu:", strlen(ssl->cert_type));
-    for(i = 0; !result && ssl->cert_type[i]; i++) {
+    для(i = 0; !result && ssl->cert_type[i]; i++) {
       char c = Curl_raw_toupper(ssl->cert_type[i]);
       result = curlx_dyn_addn(buf, &c, 1);
     }
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->key_type && ssl->key_type[0]) {
+  якщо(ssl->key_type && ssl->key_type[0]) {
     size_t i;
     result = curlx_dyn_addf(buf, ":KT-%zu:", strlen(ssl->key_type));
-    for(i = 0; !result && ssl->key_type[i]; i++) {
+    для(i = 0; !result && ssl->key_type[i]; i++) {
       char c = Curl_raw_toupper(ssl->key_type[i]);
       result = curlx_dyn_addn(buf, &c, 1);
     }
   }
 out:
-  return result;
+  повернути result;
 }
 
 #define CURL_SSLS_LOCAL_SUFFIX     ":L"
@@ -179,7 +179,7 @@ out:
 static bool cf_ssl_peer_key_is_global(const char *peer_key)
 {
   size_t len = peer_key ? strlen(peer_key) : 0;
-  return (len > 2) &&
+  повернути (len > 2) &&
          (peer_key[len - 1] == 'G') &&
          (peer_key[len - 2] == ':');
 }
@@ -189,15 +189,15 @@ static CURLcode ssl_peer_key_add_transport(struct dynbuf *buf,
 {
   switch(transport) {
   case TRNSPRT_TCP:
-    return CURLE_OK;
+    повернути CURLE_OK;
   case TRNSPRT_UDP:
-    return curlx_dyn_add(buf, ":UDP");
+    повернути curlx_dyn_add(buf, ":UDP");
   case TRNSPRT_QUIC:
-    return curlx_dyn_add(buf, ":QUIC");
+    повернути curlx_dyn_add(buf, ":QUIC");
   case TRNSPRT_UNIX:
-    return curlx_dyn_add(buf, ":UNIX");
+    повернути curlx_dyn_add(buf, ":UNIX");
   default:
-    return curlx_dyn_addf(buf, ":TRNSPRT-%d", transport);
+    повернути curlx_dyn_addf(buf, ":TRNSPRT-%d", transport);
   }
 }
 
@@ -207,30 +207,30 @@ static CURLcode ssl_peer_key_add_vrfy(struct dynbuf *buf,
 {
   CURLcode result;
 
-  if(!ssl->verifypeer) {
+  якщо(!ssl->verifypeer) {
     result = curlx_dyn_add(buf, ":NO-VRFY-PEER");
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
-  if(!ssl->verifyhost) {
+  якщо(!ssl->verifyhost) {
     result = curlx_dyn_add(buf, ":NO-VRFY-HOST");
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
-  if(ssl->verifystatus) {
+  якщо(ssl->verifystatus) {
     result = curlx_dyn_add(buf, ":VRFY-STATUS");
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
-  if((!ssl->verifypeer || !ssl->verifyhost) &&
+  якщо((!ssl->verifypeer || !ssl->verifyhost) &&
      peer->peer && !Curl_peer_equal(peer->origin, peer->peer)) {
     result = cf_ssl_peer_key_add_string(buf, "CHOST", peer->peer->hostname);
-    if(!result)
+    якщо(!result)
       result = curlx_dyn_addf(buf, ":CPORT-%u", peer->peer->port);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode ssl_peer_key_build(struct ssl_filter_config *ssl,
@@ -249,99 +249,99 @@ static CURLcode ssl_peer_key_build(struct ssl_filter_config *ssl,
   result = curlx_dyn_addf(&buf, "%s:%s:%d:KEY-V3",
                           peer->origin->scheme->name,
                           peer->origin->hostname, peer->origin->port);
-  if(result)
+  якщо(result)
     goto out;
   result = ssl_peer_key_add_transport(&buf, peer->transport);
-  if(result)
+  якщо(result)
     goto out;
   result = ssl_peer_key_add_vrfy(&buf, ssl, peer);
-  if(result)
+  якщо(result)
     goto out;
-  if(ssl->version || ssl->version_max) {
+  якщо(ssl->version || ssl->version_max) {
     result = curlx_dyn_addf(&buf, ":TLSVER-%d-%u", ssl->version,
                             (ssl->version_max >> 16));
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->ssl_options) {
+  якщо(ssl->ssl_options) {
     result = curlx_dyn_addf(&buf, ":TLSOPT-%x", ssl->ssl_options);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->cipher_list) {
+  якщо(ssl->cipher_list) {
     result = cf_ssl_peer_key_add_string(&buf, "CIPHER", ssl->cipher_list);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->cipher_list13) {
+  якщо(ssl->cipher_list13) {
     result = cf_ssl_peer_key_add_string(&buf, "CIPHER13", ssl->cipher_list13);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->curves) {
+  якщо(ssl->curves) {
     result = cf_ssl_peer_key_add_string(&buf, "CURVES", ssl->curves);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->signature_algorithms) {
+  якщо(ssl->signature_algorithms) {
     result = cf_ssl_peer_key_add_string(&buf, "SIGALGS",
                                         ssl->signature_algorithms);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->verifypeer) {
+  якщо(ssl->verifypeer) {
     result = cf_ssl_peer_key_add_path(&buf, "CA", ssl->CAfile, &is_local);
-    if(!result)
+    якщо(!result)
       result = cf_ssl_peer_key_add_path(&buf, "CApath",
                                         ssl->CApath, &is_local);
-    if(!result && ssl->native_ca_store)
+    якщо(!result && ssl->native_ca_store)
       result = curlx_dyn_add(&buf, ":NATIVE-CA");
-    if(!result)
+    якщо(!result)
       result = cf_ssl_peer_key_add_path(&buf, "CRL", ssl->CRLfile, &is_local);
-    if(result)
+    якщо(result)
       goto out;
     result = cf_ssl_peer_key_add_path(&buf, "Issuer", ssl->issuercert,
                                       &is_local);
-    if(result)
+    якщо(result)
       goto out;
-    if(ssl->ca_info_blob) {
+    якщо(ssl->ca_info_blob) {
       result = cf_ssl_peer_key_add_hash(&buf, "CAInfoBlob", ssl->ca_info_blob);
-      if(result)
+      якщо(result)
         goto out;
     }
-    if(ssl->issuercert_blob) {
+    якщо(ssl->issuercert_blob) {
       result = cf_ssl_peer_key_add_hash(&buf, "IssuerBlob",
                                         ssl->issuercert_blob);
-      if(result)
+      якщо(result)
         goto out;
     }
   }
-  if(ssl->cert_blob) {
+  якщо(ssl->cert_blob) {
     result = cf_ssl_peer_key_add_hash(&buf, "CertBlob", ssl->cert_blob);
-    if(result)
+    якщо(result)
       goto out;
   }
-  if(ssl->pinned_key && ssl->pinned_key[0]) {
+  якщо(ssl->pinned_key && ssl->pinned_key[0]) {
     result = cf_ssl_peer_key_add_string(&buf, "Pinned", ssl->pinned_key);
-    if(result)
+    якщо(result)
       goto out;
   }
 
   result = cf_ssl_peer_key_add_mtls(&buf, ssl, &is_local);
-  if(result)
+  якщо(result)
     goto out;
 
-  if(!tls_id || !tls_id[0]) {
+  якщо(!tls_id || !tls_id[0]) {
     result = CURLE_FAILED_INIT;
     goto out;
   }
   result = cf_ssl_peer_key_add_string(&buf, "IMPL", tls_id);
-  if(result)
+  якщо(result)
     goto out;
 
   result = curlx_dyn_addf(&buf, is_local ?
                           CURL_SSLS_LOCAL_SUFFIX : CURL_SSLS_GLOBAL_SUFFIX);
-  if(result)
+  якщо(result)
     goto out;
 
   *ppeer_key = curlx_dyn_take(&buf, &key_len);
@@ -350,7 +350,7 @@ static CURLcode ssl_peer_key_build(struct ssl_filter_config *ssl,
 
 out:
   curlx_dyn_free(&buf);
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_ssl_peer_key_make(const struct ssl_peer *peer,
@@ -358,14 +358,14 @@ CURLcode Curl_ssl_peer_key_make(const struct ssl_peer *peer,
                                 const char *tls_id,
                                 char **ppeer_key)
 {
-  return ssl_peer_key_build(sslc, peer, tls_id, ppeer_key);
+  повернути ssl_peer_key_build(sslc, peer, tls_id, ppeer_key);
 }
 
 struct Curl_ssl_scache {
-  unsigned int magic;
+  unsigned ціле magic;
   struct Curl_ssl_scache_peer *peers;
   size_t peer_count;
-  int default_lifetime_secs;
+  ціле default_lifetime_secs;
   long age;
 #ifdef USE_MUTEX
   curl_mutex_t mutex;
@@ -378,17 +378,17 @@ static struct Curl_ssl_scache *cf_ssl_scache_get(struct Curl_easy *data)
 {
   struct Curl_ssl_scache *scache = NULL;
   /* If a share is present, its ssl_scache has preference over the multi */
-  if(data->share && data->share->ssl_scache)
+  якщо(data->share && data->share->ssl_scache)
     scache = data->share->ssl_scache;
-  else if(data->multi && data->multi->ssl_scache)
+  інакше якщо(data->multi && data->multi->ssl_scache)
     scache = data->multi->ssl_scache;
-  if(scache && !GOOD_SCACHE(scache)) {
+  якщо(scache && !GOOD_SCACHE(scache)) {
     failf(data, "transfer would use an invalid scache at %p, denied",
           (void *)scache);
     DEBUGASSERT(0);
-    return NULL;
+    повернути NULL;
   }
-  return scache;
+  повернути scache;
 }
 
 static void cf_ssl_scache_session_ldestroy(void *udata, void *obj)
@@ -402,34 +402,34 @@ static void cf_ssl_scache_session_ldestroy(void *udata, void *obj)
 }
 
 CURLcode Curl_ssl_session_create(void *sdata, size_t sdata_len,
-                                 int ietf_tls_id, const char *alpn,
+                                 ціле ietf_tls_id, const char *alpn,
                                  curl_off_t valid_until, size_t earlydata_max,
                                  struct Curl_ssl_session **psession)
 {
-  return Curl_ssl_session_create2(sdata, sdata_len, ietf_tls_id, alpn,
+  повернути Curl_ssl_session_create2(sdata, sdata_len, ietf_tls_id, alpn,
                                   valid_until, earlydata_max,
                                   NULL, 0, psession);
 }
 
 CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
-                                  int ietf_tls_id, const char *alpn,
+                                  ціле ietf_tls_id, const char *alpn,
                                   curl_off_t valid_until, size_t earlydata_max,
                                   unsigned char *quic_tp, size_t quic_tp_len,
                                   struct Curl_ssl_session **psession)
 {
   struct Curl_ssl_session *s;
 
-  if(!sdata || !sdata_len) {
+  якщо(!sdata || !sdata_len) {
     curlx_free(sdata);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   *psession = NULL;
   s = curlx_calloc(1, sizeof(*s));
-  if(!s) {
+  якщо(!s) {
     curlx_free(sdata);
     curlx_free(quic_tp);
-    return CURLE_OUT_OF_MEMORY;
+    повернути CURLE_OUT_OF_MEMORY;
   }
 
   s->ietf_tls_id = ietf_tls_id;
@@ -439,24 +439,24 @@ CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
   s->sdata_len = sdata_len;
   s->quic_tp = quic_tp;
   s->quic_tp_len = quic_tp_len;
-  if(alpn) {
+  якщо(alpn) {
     s->alpn = curlx_strdup(alpn);
-    if(!s->alpn) {
+    якщо(!s->alpn) {
       cf_ssl_scache_session_ldestroy(NULL, s);
-      return CURLE_OUT_OF_MEMORY;
+      повернути CURLE_OUT_OF_MEMORY;
     }
   }
   *psession = s;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 void Curl_ssl_session_destroy(struct Curl_ssl_session *s)
 {
-  if(s) {
+  якщо(s) {
     /* if in the list, the list destructor takes care of it */
-    if(Curl_node_llist(&s->list))
+    якщо(Curl_node_llist(&s->list))
       Curl_node_remove(&s->list);
-    else {
+    інакше {
       cf_ssl_scache_session_ldestroy(NULL, s);
     }
   }
@@ -468,54 +468,54 @@ CURLcode Curl_ssl_session_dup(struct Curl_ssl_session *src,
   struct Curl_ssl_session *dest = NULL;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(!src || !pdest)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!src || !pdest)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
   *pdest = NULL;
 
   dest = curlx_calloc(1, sizeof(*dest));
-  if(!dest)
+  якщо(!dest)
     goto out;
 
   dest->ietf_tls_id = src->ietf_tls_id;
   dest->valid_until = src->valid_until;
   dest->earlydata_max = src->earlydata_max;
   dest->sectrust_verified = src->sectrust_verified;
-  if(src->sdata_len) {
+  якщо(src->sdata_len) {
     dest->sdata = curlx_memdup(src->sdata, src->sdata_len);
-    if(!dest->sdata)
+    якщо(!dest->sdata)
       goto out;
     dest->sdata_len = src->sdata_len;
   }
-  if(src->quic_tp_len) {
+  якщо(src->quic_tp_len) {
     dest->quic_tp = curlx_memdup(src->quic_tp, src->quic_tp_len);
-    if(!dest->quic_tp)
+    якщо(!dest->quic_tp)
       goto out;
     dest->quic_tp_len = src->quic_tp_len;
   }
-  if(src->alpn) {
+  якщо(src->alpn) {
     dest->alpn = curlx_strdup(src->alpn);
-    if(!dest->alpn)
+    якщо(!dest->alpn)
       goto out;
   }
   result = CURLE_OK;
 
 out:
-  if(!result)
+  якщо(!result)
     *pdest = dest;
-  else {
+  інакше {
     *pdest = NULL;
-    if(dest)
+    якщо(dest)
       Curl_ssl_session_destroy(dest);
   }
-  return result;
+  повернути result;
 }
 
 static void cf_ssl_scache_clear_peer(struct Curl_ssl_scache_peer *peer)
 {
   Curl_llist_destroy(&peer->sessions, NULL);
-  if(peer->sobj) {
+  якщо(peer->sobj) {
     DEBUGASSERT(peer->sobj_free);
-    if(peer->sobj_free)
+    якщо(peer->sobj_free)
       peer->sobj_free(peer->sobj);
     peer->sobj = NULL;
   }
@@ -532,7 +532,7 @@ static void cf_ssl_scache_peer_set_obj(struct Curl_ssl_scache_peer *peer,
                                        Curl_ssl_scache_obj_dtor *sobj_free)
 {
   DEBUGASSERT(peer);
-  if(peer->sobj_free) {
+  якщо(peer->sobj_free) {
     peer->sobj_free(peer->sobj);
   }
   peer->sobj = sobj;
@@ -561,37 +561,37 @@ static CURLcode cf_ssl_scache_peer_init(struct Curl_ssl_scache_peer *peer,
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
   DEBUGASSERT(!peer->ssl_peer_key);
-  if(ssl_peer_key) {
+  якщо(ssl_peer_key) {
     peer->ssl_peer_key = curlx_strdup(ssl_peer_key);
-    if(!peer->ssl_peer_key)
+    якщо(!peer->ssl_peer_key)
       goto out;
     peer->hmac_set = FALSE;
   }
-  else if(salt && hmac) {
+  інакше якщо(salt && hmac) {
     memcpy(peer->key_salt, salt, sizeof(peer->key_salt));
     memcpy(peer->key_hmac, hmac, sizeof(peer->key_hmac));
     peer->hmac_set = TRUE;
   }
-  else {
+  інакше {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
-  if(clientcert) {
+  якщо(clientcert) {
     peer->clientcert = curlx_strdup(clientcert);
-    if(!peer->clientcert)
+    якщо(!peer->clientcert)
       goto out;
   }
-  if(key_passwd) {
+  якщо(key_passwd) {
     peer->key_passwd = curlx_strdup(key_passwd);
-    if(!peer->key_passwd)
+    якщо(!peer->key_passwd)
       goto out;
   }
   cf_ssl_cache_peer_update(peer);
   result = CURLE_OK;
 out:
-  if(result)
+  якщо(result)
     cf_ssl_scache_clear_peer(peer);
-  return result;
+  повернути result;
 }
 
 static void cf_scache_session_remove(struct Curl_ssl_scache_peer *peer,
@@ -605,17 +605,17 @@ static void cf_scache_session_remove(struct Curl_ssl_scache_peer *peer,
 static bool cf_scache_session_expired(struct Curl_ssl_session *s,
                                       curl_off_t now)
 {
-  return (s->valid_until > 0) && (s->valid_until < now);
+  повернути (s->valid_until > 0) && (s->valid_until < now);
 }
 
 static void cf_scache_peer_remove_expired(struct Curl_ssl_scache_peer *peer,
                                           curl_off_t now)
 {
   struct Curl_llist_node *n = Curl_llist_head(&peer->sessions);
-  while(n) {
+  поки(n) {
     struct Curl_ssl_session *s = Curl_node_elem(n);
     n = Curl_node_next(n);
-    if(cf_scache_session_expired(s, now))
+    якщо(cf_scache_session_expired(s, now))
       cf_scache_session_remove(peer, s);
   }
 }
@@ -623,10 +623,10 @@ static void cf_scache_peer_remove_expired(struct Curl_ssl_scache_peer *peer,
 static void cf_scache_peer_remove_non13(struct Curl_ssl_scache_peer *peer)
 {
   struct Curl_llist_node *n = Curl_llist_head(&peer->sessions);
-  while(n) {
+  поки(n) {
     struct Curl_ssl_session *s = Curl_node_elem(n);
     n = Curl_node_next(n);
-    if(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3)
+    якщо(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3)
       cf_scache_session_remove(peer, s);
   }
 }
@@ -641,13 +641,13 @@ CURLcode Curl_ssl_scache_create(size_t max_peers,
 
   *pscache = NULL;
   peers = curlx_calloc(max_peers, sizeof(*peers));
-  if(!peers)
-    return CURLE_OUT_OF_MEMORY;
+  якщо(!peers)
+    повернути CURLE_OUT_OF_MEMORY;
 
   scache = curlx_calloc(1, sizeof(*scache));
-  if(!scache) {
+  якщо(!scache) {
     curlx_free(peers);
-    return CURLE_OUT_OF_MEMORY;
+    повернути CURLE_OUT_OF_MEMORY;
   }
 
   scache->magic = CURL_SCACHE_MAGIC;
@@ -655,7 +655,7 @@ CURLcode Curl_ssl_scache_create(size_t max_peers,
   scache->peer_count = max_peers;
   scache->peers = peers;
   scache->age = 1;
-  for(i = 0; i < scache->peer_count; ++i) {
+  для(i = 0; i < scache->peer_count; ++i) {
     scache->peers[i].max_sessions = max_sessions_per_peer;
     Curl_llist_init(&scache->peers[i].sessions,
                     cf_ssl_scache_session_ldestroy);
@@ -664,15 +664,15 @@ CURLcode Curl_ssl_scache_create(size_t max_peers,
   Curl_mutex_init(&scache->mutex);
 #endif
   *pscache = scache;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache)
 {
-  if(GOOD_SCACHE(scache)) {
+  якщо(GOOD_SCACHE(scache)) {
     size_t i;
     scache->magic = 0;
-    for(i = 0; i < scache->peer_count; ++i) {
+    для(i = 0; i < scache->peer_count; ++i) {
       cf_ssl_scache_clear_peer(&scache->peers[i]);
     }
     curlx_free(scache->peers);
@@ -685,20 +685,20 @@ void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache)
 
 bool Curl_ssl_scache_use(struct Curl_cfilter *cf, struct Curl_easy *data)
 {
-  if(cf_ssl_scache_get(data)) {
+  якщо(cf_ssl_scache_get(data)) {
     struct ssl_filter_config *conn_config =
       Curl_ssl_cf_get_filter_config(cf);
-    return conn_config ? conn_config->cache_session : FALSE;
+    повернути conn_config ? conn_config->cache_session : FALSE;
   }
-  return FALSE;
+  повернути FALSE;
 }
 
 /* Lock shared SSL session data */
 void Curl_ssl_scache_lock(struct Curl_easy *data)
 {
   struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  if(scache) {
-    if(CURL_SHARE_ssl_scache(data))
+  якщо(scache) {
+    якщо(CURL_SHARE_ssl_scache(data))
       Curl_share_lock(data, CURL_LOCK_DATA_SSL_SESSION,
                       CURL_LOCK_ACCESS_SINGLE);
 #ifdef USE_MUTEX
@@ -707,7 +707,7 @@ void Curl_ssl_scache_lock(struct Curl_easy *data)
     DEBUGASSERT(!scache->is_locked);
     scache->is_locked = TRUE;
     Curl_mutex_release(&scache->mutex);
-#else
+#інакше
     DEBUGASSERT(!scache->is_locked);
     scache->is_locked = TRUE;
 #endif
@@ -718,18 +718,18 @@ void Curl_ssl_scache_lock(struct Curl_easy *data)
 void Curl_ssl_scache_unlock(struct Curl_easy *data)
 {
   struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  if(scache) {
+  якщо(scache) {
 #ifdef USE_MUTEX
     Curl_mutex_acquire(&scache->mutex);
     scache->locking_thread = 0;
     DEBUGASSERT(scache->is_locked);
     scache->is_locked = FALSE;
     Curl_mutex_release(&scache->mutex);
-#else
+#інакше
     DEBUGASSERT(scache->is_locked);
     scache->is_locked = FALSE;
 #endif
-    if(CURL_SHARE_ssl_scache(data))
+    якщо(CURL_SHARE_ssl_scache(data))
       Curl_share_unlock(data, CURL_LOCK_DATA_SSL_SESSION);
   }
 }
@@ -738,31 +738,31 @@ bool Curl_ssl_scache_is_locked_by_current_thread(struct Curl_easy *data)
 {
   struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
   bool locked = FALSE;
-  if(!scache)
-    return FALSE;
+  якщо(!scache)
+    повернути FALSE;
 #ifdef USE_MUTEX
   Curl_mutex_acquire(&scache->mutex);
   locked = scache->is_locked && Curl_thread_is_current(scache->locking_thread);
   Curl_mutex_release(&scache->mutex);
-#else
+#інакше
   locked = (bool)scache->is_locked;
 #endif
-  return locked;
+  повернути locked;
 }
 
 static bool cf_ssl_scache_match_auth(struct Curl_ssl_scache_peer *peer,
                                      struct ssl_filter_config *conn_config)
 {
-  if(!conn_config) {
-    if(peer->clientcert || peer->key_passwd)
-      return FALSE;
-    return TRUE;
+  якщо(!conn_config) {
+    якщо(peer->clientcert || peer->key_passwd)
+      повернути FALSE;
+    повернути TRUE;
   }
-  else if(!Curl_safecmp(peer->clientcert, conn_config->clientcert))
-    return FALSE;
-  if(Curl_timestrcmp(peer->key_passwd, conn_config->key_passwd))
-    return FALSE;
-  return TRUE;
+  інакше якщо(!Curl_safecmp(peer->clientcert, conn_config->clientcert))
+    повернути FALSE;
+  якщо(Curl_timestrcmp(peer->key_passwd, conn_config->key_passwd))
+    повернути FALSE;
+  повернути TRUE;
 }
 
 static CURLcode cf_ssl_find_peer_by_key(struct Curl_easy *data,
@@ -775,16 +775,16 @@ static CURLcode cf_ssl_find_peer_by_key(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   *ppeer = NULL;
-  if(!GOOD_SCACHE(scache)) {
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!GOOD_SCACHE(scache)) {
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   CURL_TRC_SSLS(data, "find peer slot for %s among %zu slots",
                 ssl_peer_key, scache->peer_count);
 
   /* check for entries with known peer_key */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    if(scache->peers[i].ssl_peer_key &&
+  для(i = 0; scache && i < scache->peer_count; i++) {
+    якщо(scache->peers[i].ssl_peer_key &&
        !strcmp(ssl_peer_key, scache->peers[i].ssl_peer_key) &&
        cf_ssl_scache_match_auth(&scache->peers[i], conn_config)) {
       /* yes, we have a cached session for this! */
@@ -793,13 +793,13 @@ static CURLcode cf_ssl_find_peer_by_key(struct Curl_easy *data,
     }
   }
   /* check for entries with HMAC set but no known peer_key */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    if(!scache->peers[i].ssl_peer_key &&
+  для(i = 0; scache && i < scache->peer_count; i++) {
+    якщо(!scache->peers[i].ssl_peer_key &&
        scache->peers[i].hmac_set &&
        cf_ssl_scache_match_auth(&scache->peers[i], conn_config)) {
       /* possible entry with unknown peer_key, check hmac */
       unsigned char my_hmac[CURL_SHA256_DIGEST_LENGTH];
-      if(!peer_key_len) /* we are lazy */
+      якщо(!peer_key_len) /* we are lazy */
         peer_key_len = strlen(ssl_peer_key);
       result = Curl_hmacit(&Curl_HMAC_SHA256,
                            scache->peers[i].key_salt,
@@ -807,14 +807,14 @@ static CURLcode cf_ssl_find_peer_by_key(struct Curl_easy *data,
                            (const unsigned char *)ssl_peer_key,
                            peer_key_len,
                            my_hmac);
-      if(result)
+      якщо(result)
         goto out;
-      if(!memcmp(scache->peers[i].key_hmac, my_hmac, sizeof(my_hmac))) {
+      якщо(!memcmp(scache->peers[i].key_hmac, my_hmac, sizeof(my_hmac))) {
         /* remember peer_key for future lookups */
         CURL_TRC_SSLS(data, "peer entry %zu key recovered: %s",
                       i, ssl_peer_key);
         scache->peers[i].ssl_peer_key = curlx_strdup(ssl_peer_key);
-        if(!scache->peers[i].ssl_peer_key) {
+        якщо(!scache->peers[i].ssl_peer_key) {
           result = CURLE_OUT_OF_MEMORY;
           goto out;
         }
@@ -826,7 +826,7 @@ static CURLcode cf_ssl_find_peer_by_key(struct Curl_easy *data,
   }
   CURL_TRC_SSLS(data, "peer not found for %s", ssl_peer_key);
 out:
-  return result;
+  повернути result;
 }
 
 static struct Curl_ssl_scache_peer *cf_ssl_get_free_peer(
@@ -836,27 +836,27 @@ static struct Curl_ssl_scache_peer *cf_ssl_get_free_peer(
   size_t i;
 
   /* find empty or oldest peer */
-  for(i = 0; i < scache->peer_count; ++i) {
+  для(i = 0; i < scache->peer_count; ++i) {
     /* free peer entry? */
-    if(!scache->peers[i].ssl_peer_key && !scache->peers[i].hmac_set) {
+    якщо(!scache->peers[i].ssl_peer_key && !scache->peers[i].hmac_set) {
       peer = &scache->peers[i];
       break;
     }
     /* peer without sessions and obj */
-    if(!scache->peers[i].sobj &&
+    якщо(!scache->peers[i].sobj &&
        !Curl_llist_count(&scache->peers[i].sessions)) {
       peer = &scache->peers[i];
       break;
     }
     /* remember "oldest" peer */
-    if(!peer || (scache->peers[i].age < peer->age)) {
+    якщо(!peer || (scache->peers[i].age < peer->age)) {
       peer = &scache->peers[i];
     }
   }
   DEBUGASSERT(peer);
-  if(peer)
+  якщо(peer)
     cf_ssl_scache_clear_peer(peer);
-  return peer;
+  повернути peer;
 }
 
 static CURLcode cf_ssl_add_peer(struct Curl_easy *data,
@@ -869,24 +869,24 @@ static CURLcode cf_ssl_add_peer(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   *ppeer = NULL;
-  if(ssl_peer_key) {
+  якщо(ssl_peer_key) {
     result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
                                      &peer);
-    if(result || !scache->peer_count)
-      return result;
+    якщо(result || !scache->peer_count)
+      повернути result;
   }
 
-  if(peer) {
+  якщо(peer) {
     *ppeer = peer;
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
   peer = cf_ssl_get_free_peer(scache);
-  if(peer) {
+  якщо(peer) {
     char buffer[64];
     const char *ccert = conn_config ? conn_config->clientcert : NULL;
     const char *kpasswd = conn_config ? conn_config->key_passwd : NULL;
-    if(!ccert && conn_config && conn_config->cert_blob) {
+    якщо(!ccert && conn_config && conn_config->cert_blob) {
       /* when using a client cert blob, create a name for it */
       curl_msnprintf(buffer, sizeof(buffer),
                      "cert-%p", conn_config->cert_blob->data);
@@ -894,7 +894,7 @@ static CURLcode cf_ssl_add_peer(struct Curl_easy *data,
     }
     result = cf_ssl_scache_peer_init(peer, ssl_peer_key, ccert, kpasswd,
                                      NULL, NULL);
-    if(result)
+    якщо(result)
       goto out;
     /* all ready */
     *ppeer = peer;
@@ -902,10 +902,10 @@ static CURLcode cf_ssl_add_peer(struct Curl_easy *data,
   }
 
 out:
-  if(result) {
+  якщо(result) {
     cf_ssl_scache_clear_peer(peer);
   }
-  return result;
+  повернути result;
 }
 
 static void cf_scache_peer_add_session(struct Curl_ssl_scache_peer *peer,
@@ -913,16 +913,16 @@ static void cf_scache_peer_add_session(struct Curl_ssl_scache_peer *peer,
                                        curl_off_t now)
 {
   /* A session not from TLSv1.3 replaces all other. */
-  if(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3) {
+  якщо(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3) {
     Curl_llist_destroy(&peer->sessions, NULL);
     Curl_llist_append(&peer->sessions, s, &s->list);
   }
-  else {
+  інакше {
     /* Expire existing, append, trim from head to obey max_sessions */
     cf_scache_peer_remove_expired(peer, now);
     cf_scache_peer_remove_non13(peer);
     Curl_llist_append(&peer->sessions, s, &s->list);
-    while(Curl_llist_count(&peer->sessions) > peer->max_sessions) {
+    поки(Curl_llist_count(&peer->sessions) > peer->max_sessions) {
       Curl_node_remove(Curl_llist_head(&peer->sessions));
     }
   }
@@ -940,29 +940,29 @@ static CURLcode cf_scache_add_session(struct Curl_cfilter *cf,
   curl_off_t now = (curl_off_t)time(NULL);
   curl_off_t max_lifetime;
 
-  if(!scache || !scache->peer_count) {
+  якщо(!scache || !scache->peer_count) {
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
-  if(s->valid_until <= 0)
+  якщо(s->valid_until <= 0)
     s->valid_until = now + scache->default_lifetime_secs;
 
   max_lifetime = (s->ietf_tls_id == CURL_IETF_PROTO_TLS1_3) ?
                  CURL_SCACHE_MAX_13_LIFETIME_SEC :
                  CURL_SCACHE_MAX_12_LIFETIME_SEC;
-  if(s->valid_until > (now + max_lifetime))
+  якщо(s->valid_until > (now + max_lifetime))
     s->valid_until = now + max_lifetime;
 
-  if(cf_scache_session_expired(s, now)) {
+  якщо(cf_scache_session_expired(s, now)) {
     CURL_TRC_SSLS(data, "add, session already expired");
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
   result = cf_ssl_add_peer(data, scache, ssl_peer_key, conn_config, &peer);
-  if(result || !peer) {
-    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (int)result);
+  якщо(result || !peer) {
+    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (ціле)result);
     Curl_ssl_session_destroy(s);
     goto out;
   }
@@ -970,18 +970,18 @@ static CURLcode cf_scache_add_session(struct Curl_cfilter *cf,
   cf_scache_peer_add_session(peer, s, now);
 
 out:
-  if(result) {
+  якщо(result) {
     failf(data, "[SCACHE] failed to add session for %s, error=%d",
-          ssl_peer_key, (int)result);
+          ssl_peer_key, (ціле)result);
   }
-  else
+  інакше
     CURL_TRC_SSLS(data, "added session for %s [proto=0x%x, "
                   "valid_secs=%" FMT_OFF_T ", alpn=%s, earlydata=%zu, "
                   "quic_tp=%s], peer has %zu sessions now", ssl_peer_key,
-                  (unsigned int)s->ietf_tls_id, s->valid_until - now,
+                  (unsigned ціле)s->ietf_tls_id, s->valid_until - now,
                   s->alpn, s->earlydata_max, s->quic_tp ? "yes" : "no",
                   peer ? Curl_llist_count(&peer->sessions) : 0);
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
@@ -994,15 +994,15 @@ CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
   CURLcode result;
   DEBUGASSERT(conn_config);
 
-  if(!scache || !conn_config->cache_session) {
+  якщо(!scache || !conn_config->cache_session) {
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
   Curl_ssl_scache_lock(data);
   result = cf_scache_add_session(cf, data, scache, ssl_peer_key, s);
   Curl_ssl_scache_unlock(data);
-  return result;
+  повернути result;
 }
 
 void Curl_ssl_scache_return(struct Curl_cfilter *cf,
@@ -1012,9 +1012,9 @@ void Curl_ssl_scache_return(struct Curl_cfilter *cf,
 {
   /* See RFC 8446 C.4:
    * "Clients SHOULD NOT reuse a ticket for multiple connections." */
-  if(s && s->ietf_tls_id < 0x304)
+  якщо(s && s->ietf_tls_id < 0x304)
     (void)Curl_ssl_scache_put(cf, data, ssl_peer_key, s);
-  else
+  інакше
     Curl_ssl_session_destroy(s);
 }
 
@@ -1031,34 +1031,34 @@ CURLcode Curl_ssl_scache_take(struct Curl_cfilter *cf,
   CURLcode result;
 
   *ps = NULL;
-  if(!scache)
-    return CURLE_OK;
+  якщо(!scache)
+    повернути CURLE_OK;
 
   Curl_ssl_scache_lock(data);
   result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
                                    &peer);
-  if(!result && peer) {
+  якщо(!result && peer) {
     cf_scache_peer_remove_expired(peer, (curl_off_t)time(NULL));
     n = Curl_llist_head(&peer->sessions);
-    if(n) {
+    якщо(n) {
       s = Curl_node_take_elem(n);
       scache->age++;           /* increase general age */
       peer->age = scache->age; /* set this as used in this age */
     }
   }
-  if(s) {
+  якщо(s) {
     *ps = s;
     CURL_TRC_SSLS(data, "took session for %s [proto=0x%x, "
                   "alpn=%s, earlydata=%zu, quic_tp=%s], %zu sessions remain",
-                  ssl_peer_key, (unsigned int)s->ietf_tls_id, s->alpn,
+                  ssl_peer_key, (unsigned ціле)s->ietf_tls_id, s->alpn,
                   s->earlydata_max, s->quic_tp ? "yes" : "no",
                   Curl_llist_count(&peer->sessions));
   }
-  else {
+  інакше {
     CURL_TRC_SSLS(data, "no cached session for %s", ssl_peer_key);
   }
   Curl_ssl_scache_unlock(data);
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
@@ -1075,14 +1075,14 @@ CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
   DEBUGASSERT(sobj);
   DEBUGASSERT(sobj_dtor_cb);
 
-  if(!scache) {
+  якщо(!scache) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
 
   result = cf_ssl_add_peer(data, scache, ssl_peer_key, conn_config, &peer);
-  if(result || !peer) {
-    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (int)result);
+  якщо(result || !peer) {
+    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (ціле)result);
     goto out;
   }
 
@@ -1090,9 +1090,9 @@ CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
   sobj = NULL;  /* peer took ownership */
 
 out:
-  if(sobj && sobj_dtor_cb)
+  якщо(sobj && sobj_dtor_cb)
     sobj_dtor_cb(sobj);
-  return result;
+  повернути result;
 }
 
 void *Curl_ssl_scache_get_obj(struct Curl_cfilter *cf,
@@ -1105,19 +1105,19 @@ void *Curl_ssl_scache_get_obj(struct Curl_cfilter *cf,
   CURLcode result;
   void *sobj;
 
-  if(!scache)
-    return NULL;
+  якщо(!scache)
+    повернути NULL;
 
   result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
                                    &peer);
-  if(result)
-    return NULL;
+  якщо(result)
+    повернути NULL;
 
   sobj = peer ? peer->sobj : NULL;
 
   CURL_TRC_SSLS(data, "%s cached session for '%s'",
                 sobj ? "Found" : "No", ssl_peer_key);
-  return sobj;
+  повернути sobj;
 }
 
 void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
@@ -1130,13 +1130,13 @@ void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
   CURLcode result;
 
   (void)cf;
-  if(!scache)
-    return;
+  якщо(!scache)
+    повернути;
 
   Curl_ssl_scache_lock(data);
   result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
                                    &peer);
-  if(!result && peer)
+  якщо(!result && peer)
     cf_ssl_scache_clear_peer(peer);
   Curl_ssl_scache_unlock(data);
 }
@@ -1150,21 +1150,21 @@ static CURLcode cf_ssl_scache_peer_set_hmac(struct Curl_ssl_scache_peer *peer)
   CURLcode result;
 
   DEBUGASSERT(peer);
-  if(!peer->ssl_peer_key)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!peer->ssl_peer_key)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   result = Curl_rand(NULL, peer->key_salt, sizeof(peer->key_salt));
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
   result = Curl_hmacit(&Curl_HMAC_SHA256,
                        peer->key_salt, sizeof(peer->key_salt),
                        (const unsigned char *)peer->ssl_peer_key,
                        strlen(peer->ssl_peer_key),
                        peer->key_hmac);
-  if(!result)
+  якщо(!result)
     peer->hmac_set = TRUE;
-  return result;
+  повернути result;
 }
 
 static CURLcode cf_ssl_find_peer_by_hmac(struct Curl_ssl_scache *scache,
@@ -1176,23 +1176,23 @@ static CURLcode cf_ssl_find_peer_by_hmac(struct Curl_ssl_scache *scache,
   CURLcode result = CURLE_OK;
 
   *ppeer = NULL;
-  if(!GOOD_SCACHE(scache))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!GOOD_SCACHE(scache))
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* look for an entry that matches salt+hmac exactly or has a known
    * ssl_peer_key which salt+hmac's to the same. */
-  for(i = 0; scache && i < scache->peer_count; i++) {
+  для(i = 0; scache && i < scache->peer_count; i++) {
     struct Curl_ssl_scache_peer *peer = &scache->peers[i];
-    if(!cf_ssl_scache_match_auth(peer, NULL))
+    якщо(!cf_ssl_scache_match_auth(peer, NULL))
       continue;
-    if(scache->peers[i].hmac_set &&
+    якщо(scache->peers[i].hmac_set &&
        !memcmp(peer->key_salt, salt, sizeof(peer->key_salt)) &&
        !memcmp(peer->key_hmac, hmac, sizeof(peer->key_hmac))) {
       /* found exact match, return */
       *ppeer = peer;
       goto out;
     }
-    else if(peer->ssl_peer_key) {
+    інакше якщо(peer->ssl_peer_key) {
       unsigned char my_hmac[CURL_SHA256_DIGEST_LENGTH];
       /* compute hmac for the passed salt */
       result = Curl_hmacit(&Curl_HMAC_SHA256,
@@ -1200,11 +1200,11 @@ static CURLcode cf_ssl_find_peer_by_hmac(struct Curl_ssl_scache *scache,
                            (const unsigned char *)peer->ssl_peer_key,
                            strlen(peer->ssl_peer_key),
                            my_hmac);
-      if(result)
+      якщо(result)
         goto out;
-      if(!memcmp(my_hmac, hmac, sizeof(my_hmac))) {
+      якщо(!memcmp(my_hmac, hmac, sizeof(my_hmac))) {
         /* cryptohash match, take over salt+hmac if no set and return */
-        if(!peer->hmac_set) {
+        якщо(!peer->hmac_set) {
           memcpy(peer->key_salt, salt, sizeof(peer->key_salt));
           memcpy(peer->key_hmac, hmac, sizeof(peer->key_hmac));
           peer->hmac_set = TRUE;
@@ -1215,7 +1215,7 @@ static CURLcode cf_ssl_find_peer_by_hmac(struct Curl_ssl_scache *scache,
     }
   }
 out:
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_ssl_session_import(struct Curl_easy *data,
@@ -1229,52 +1229,52 @@ CURLcode Curl_ssl_session_import(struct Curl_easy *data,
   bool have_lock = FALSE;
   CURLcode result;
 
-  if(!scache || !sdata || !sdata_len) {
+  якщо(!scache || !sdata || !sdata_len) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
-  if(!ssl_peer_key && (!shmac || !shmac_len)) {
+  якщо(!ssl_peer_key && (!shmac || !shmac_len)) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
 
   result = Curl_ssl_session_unpack(data, sdata, sdata_len, &s);
-  if(result)
+  якщо(result)
     goto out;
 
   Curl_ssl_scache_lock(data);
   have_lock = TRUE;
 
-  if(ssl_peer_key) {
+  якщо(ssl_peer_key) {
     result = cf_ssl_add_peer(data, scache, ssl_peer_key, NULL, &peer);
-    if(result)
+    якщо(result)
       goto out;
   }
-  else if(shmac_len != (sizeof(peer->key_salt) + sizeof(peer->key_hmac))) {
+  інакше якщо(shmac_len != (sizeof(peer->key_salt) + sizeof(peer->key_hmac))) {
     /* Either salt+hmac was garbled by caller or is from a curl version
      * that does things differently */
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
-  else {
+  інакше {
     const unsigned char *salt = shmac;
     const unsigned char *hmac = shmac + sizeof(peer->key_salt);
 
     result = cf_ssl_find_peer_by_hmac(scache, salt, hmac, &peer);
-    if(result)
+    якщо(result)
       goto out;
-    if(!peer) {
+    якщо(!peer) {
       peer = cf_ssl_get_free_peer(scache);
-      if(peer) {
+      якщо(peer) {
         result = cf_ssl_scache_peer_init(peer, ssl_peer_key, NULL, NULL,
                                          salt, hmac);
-        if(result)
+        якщо(result)
           goto out;
       }
     }
   }
 
-  if(peer) {
+  якщо(peer) {
     cf_scache_peer_add_session(peer, s, time(NULL));
     s = NULL; /* peer is now owner */
     CURL_TRC_SSLS(data, "successfully imported ticket for peer %s, now "
@@ -1284,10 +1284,10 @@ CURLcode Curl_ssl_session_import(struct Curl_easy *data,
   }
 
 out:
-  if(scache && have_lock)
+  якщо(scache && have_lock)
     Curl_ssl_scache_unlock(data);
   Curl_ssl_session_destroy(s);
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_ssl_session_export(struct Curl_easy *data,
@@ -1305,44 +1305,44 @@ CURLcode Curl_ssl_session_export(struct Curl_easy *data,
   size_t npeers = 0, ntickets = 0;
 #endif
 
-  if(!export_fn)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!export_fn)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   Curl_ssl_scache_lock(data);
 
   curlx_dyn_init(&hbuf, (CURL_SHA256_DIGEST_LENGTH * 2) + 1);
   curlx_dyn_init(&sbuf, CURL_SSL_TICKET_MAX);
 
-  for(i = 0; scache && i < scache->peer_count; i++) {
+  для(i = 0; scache && i < scache->peer_count; i++) {
     peer = &scache->peers[i];
-    if(!peer->ssl_peer_key && !peer->hmac_set)
+    якщо(!peer->ssl_peer_key && !peer->hmac_set)
       continue; /* skip free entry */
-    if(!peer->exportable)
+    якщо(!peer->exportable)
       continue;
 
     curlx_dyn_reset(&hbuf);
     cf_scache_peer_remove_expired(peer, now);
     n = Curl_llist_head(&peer->sessions);
-    if(n)
+    якщо(n)
       VERBOSE(++npeers);
-    while(n) {
+    поки(n) {
       struct Curl_ssl_session *s = Curl_node_elem(n);
-      if(!peer->hmac_set) {
+      якщо(!peer->hmac_set) {
         result = cf_ssl_scache_peer_set_hmac(peer);
-        if(result)
+        якщо(result)
           goto out;
       }
-      if(!curlx_dyn_len(&hbuf)) {
+      якщо(!curlx_dyn_len(&hbuf)) {
         result = curlx_dyn_addn(&hbuf, peer->key_salt, sizeof(peer->key_salt));
-        if(result)
+        якщо(result)
           goto out;
         result = curlx_dyn_addn(&hbuf, peer->key_hmac, sizeof(peer->key_hmac));
-        if(result)
+        якщо(result)
           goto out;
       }
       curlx_dyn_reset(&sbuf);
       result = Curl_ssl_session_pack(data, s, &sbuf);
-      if(result)
+      якщо(result)
         goto out;
 
       result = export_fn(data, userptr, peer->ssl_peer_key,
@@ -1350,7 +1350,7 @@ CURLcode Curl_ssl_session_export(struct Curl_easy *data,
                          curlx_dyn_uptr(&sbuf), curlx_dyn_len(&sbuf),
                          s->valid_until, s->ietf_tls_id,
                          s->alpn, s->earlydata_max);
-      if(result)
+      якщо(result)
         goto out;
       VERBOSE(++ntickets);
       n = Curl_node_next(n);
@@ -1364,7 +1364,7 @@ out:
   Curl_ssl_scache_unlock(data);
   curlx_dyn_free(&hbuf);
   curlx_dyn_free(&sbuf);
-  return result;
+  повернути result;
 }
 
 #endif /* USE_SSLS_EXPORT */

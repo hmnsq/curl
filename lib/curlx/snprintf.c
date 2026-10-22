@@ -31,8 +31,8 @@
 void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
 {
   va_list ap;
-  if(!maxlen)
-    return;
+  якщо(!maxlen)
+    повернути;
   va_start(ap, fmt);
 #ifdef CURL_HAVE_DIAG
 #pragma GCC diagnostic push

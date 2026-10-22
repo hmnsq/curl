@@ -36,7 +36,7 @@ struct Curl_easy;
 #include "curlx/win32-fopen.h"
 #include "curlx/base64.h"
 
-#if !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
+#якщо !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
                                     !defined(CURL_DISABLE_SMTP) ||      \
                                     !defined(CURL_DISABLE_IMAP))
 
@@ -96,7 +96,7 @@ static const char aschex[] =
 #define filesize(name, stat_data) stat_data.st_size
 #define fopen_read                curlx_fopen
 
-#else
+#інакше
 
 #include <fabdef.h>
 /*
@@ -113,23 +113,23 @@ curl_off_t VmsRealFileSize(const char *name, const curlx_struct_stat *stat_buf)
 {
   char buffer[8192];
   curl_off_t count;
-  int ret_stat;
+  ціле ret_stat;
   FILE *file;
 
   file = curlx_fopen(name, FOPEN_READTEXT); /* VMS */
-  if(!file)
-    return 0;
+  якщо(!file)
+    повернути 0;
 
   count = 0;
   ret_stat = 1;
-  while(ret_stat > 0) {
+  поки(ret_stat > 0) {
     ret_stat = fread(buffer, 1, sizeof(buffer), file);
-    if(ret_stat)
+    якщо(ret_stat)
       count += ret_stat;
   }
   curlx_fclose(file);
 
-  return count;
+  повернути count;
 }
 
 /*
@@ -144,10 +144,10 @@ static curl_off_t VmsSpecialSize(const char *name,
   switch(stat_buf->st_fab_rfm) {
   case FAB$C_VAR:
   case FAB$C_VFC:
-    return VmsRealFileSize(name, stat_buf);
+    повернути VmsRealFileSize(name, stat_buf);
     break;
   default:
-    return stat_buf->st_size;
+    повернути stat_buf->st_size;
   }
 }
 
@@ -164,20 +164,20 @@ static curl_off_t VmsSpecialSize(const char *name,
 static FILE *vmsfopenread(const char *file, const char *mode)
 {
   curlx_struct_stat statbuf;
-  int res = curlx_stat(file, &statbuf);
+  ціле res = curlx_stat(file, &statbuf);
 
-  if(res != -1) {
+  якщо(res != -1) {
     switch(statbuf.st_fab_rfm) {
     case FAB$C_VAR:
     case FAB$C_VFC:
     case FAB$C_STMCR:
-      return curlx_fopen(file, FOPEN_READTEXT); /* VMS */
+      повернути curlx_fopen(file, FOPEN_READTEXT); /* VMS */
       break;
     default:
-      return curlx_fopen(file, FOPEN_READTEXT, "rfm=stmlf", "ctx=stm");
+      повернути curlx_fopen(file, FOPEN_READTEXT, "rfm=stmlf", "ctx=stm");
     }
   }
-  return NULL;
+  повернути NULL;
 }
 
 #define fopen_read vmsfopenread
@@ -222,22 +222,22 @@ static char *escape_string(struct Curl_easy *data,
   table = formtable;
   /* data can be NULL when this function is called indirectly from
      curl_formget(). */
-  if(strategy == MIMESTRATEGY_MAIL || (data && data->set.mime_formescape))
+  якщо(strategy == MIMESTRATEGY_MAIL || (data && data->set.mime_formescape))
     table = mimetable;
 
   curlx_dyn_init(&db, CURL_MAX_INPUT_LENGTH);
 
-  for(result = curlx_dyn_addn(&db, STRCONST("")); !result && *src; src++) {
-    for(p = table; *p && **p != *src; p++)
+  для(result = curlx_dyn_addn(&db, STRCONST("")); !result && *src; src++) {
+    для(p = table; *p && **p != *src; p++)
       ;
 
-    if(*p)
+    якщо(*p)
       result = curlx_dyn_add(&db, *p + 1);
-    else
+    інакше
       result = curlx_dyn_addn(&db, src, 1);
   }
 
-  return curlx_dyn_ptr(&db);
+  повернути curlx_dyn_ptr(&db);
 }
 
 /* Check if header matches. */
@@ -245,10 +245,10 @@ static char *match_header(struct curl_slist *hdr, const char *lbl, size_t len)
 {
   char *value = NULL;
 
-  if(curl_strnequal(hdr->data, lbl, len) && hdr->data[len] == ':')
-    for(value = hdr->data + len + 1; *value == ' '; value++)
+  якщо(curl_strnequal(hdr->data, lbl, len) && hdr->data[len] == ':')
+    для(value = hdr->data + len + 1; *value == ' '; value++)
       ;
-  return value;
+  повернути value;
 }
 
 /* Get a header from an slist. */
@@ -257,10 +257,10 @@ static char *search_header(struct curl_slist *hdrlist,
 {
   char *value = NULL;
 
-  for(; !value && hdrlist; hdrlist = hdrlist->next)
+  для(; !value && hdrlist; hdrlist = hdrlist->next)
     value = match_header(hdrlist, hdr, len);
 
-  return value;
+  повернути value;
 }
 
 static char *strippath(const char *fullfile)
@@ -269,13 +269,13 @@ static char *strippath(const char *fullfile)
   char *base;
   filename = curlx_strdup(fullfile); /* duplicate since basename() may ruin
                                         the buffer it works on */
-  if(!filename)
-    return NULL;
+  якщо(!filename)
+    повернути NULL;
   base = curlx_strdup(curlx_basename(filename));
 
   curlx_free(filename); /* free temporary buffer */
 
-  return base; /* returns an allocated string or NULL ! */
+  повернути base; /* returns an allocated string or NULL ! */
 }
 
 /* Initialize data encoder state. */
@@ -295,22 +295,22 @@ static size_t encoder_nop_read(char *buffer, size_t size, bool ateof,
 
   (void)ateof;
 
-  if(!size)
-    return STOP_FILLING;
+  якщо(!size)
+    повернути STOP_FILLING;
 
-  if(size > insize)
+  якщо(size > insize)
     size = insize;
 
-  if(size)
+  якщо(size)
     memcpy(buffer, st->buf + st->bufbeg, size);
 
   st->bufbeg += size;
-  return size;
+  повернути size;
 }
 
 static curl_off_t encoder_nop_size(curl_mimepart *part)
 {
-  return part->datasize;
+  повернути part->datasize;
 }
 
 /* 7-bit encoder: the encoder is a data validity check. */
@@ -322,20 +322,20 @@ static size_t encoder_7bit_read(char *buffer, size_t size, bool ateof,
 
   (void)ateof;
 
-  if(!size)
-    return STOP_FILLING;
+  якщо(!size)
+    повернути STOP_FILLING;
 
-  if(size > cursize)
+  якщо(size > cursize)
     size = cursize;
 
-  for(cursize = 0; cursize < size; cursize++) {
+  для(cursize = 0; cursize < size; cursize++) {
     *buffer = st->buf[st->bufbeg];
-    if(*buffer++ & 0x80)
-      return cursize ? cursize : READ_ERROR;
+    якщо(*buffer++ & 0x80)
+      повернути cursize ? cursize : READ_ERROR;
     st->bufbeg++;
   }
 
-  return cursize;
+  повернути cursize;
 }
 
 /* Base64 content encoder. */
@@ -344,16 +344,16 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
 {
   struct mime_encoder_state *st = &part->encstate;
   size_t cursize = 0;
-  int i;
+  ціле i;
   char *ptr = buffer;
 
-  while(st->bufbeg < st->bufend) {
+  поки(st->bufbeg < st->bufend) {
     /* Line full ? */
-    if(st->pos > MAX_ENCODED_LINE_LENGTH - 4) {
+    якщо(st->pos > MAX_ENCODED_LINE_LENGTH - 4) {
       /* Yes, we need 2 characters for CRLF. */
-      if(size < 2) {
-        if(!cursize)
-          return STOP_FILLING;
+      якщо(size < 2) {
+        якщо(!cursize)
+          повернути STOP_FILLING;
         break;
       }
       *ptr++ = '\r';
@@ -364,12 +364,12 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
     }
 
     /* Be sure there is enough space and input data for a base64 group. */
-    if(size < 4) {
-      if(!cursize)
-        return STOP_FILLING;
+    якщо(size < 4) {
+      якщо(!cursize)
+        повернути STOP_FILLING;
       break;
     }
-    if(st->bufend - st->bufbeg < 3)
+    якщо(st->bufend - st->bufbeg < 3)
       break;
 
     /* Encode three bytes as four characters. */
@@ -386,26 +386,26 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
   }
 
   /* If at eof, we have to flush the buffered data. */
-  if(ateof) {
-    if(size < 4) {
-      if(!cursize)
-        return STOP_FILLING;
+  якщо(ateof) {
+    якщо(size < 4) {
+      якщо(!cursize)
+        повернути STOP_FILLING;
     }
-    else {
+    інакше {
       /* Buffered data size can only be 0, 1 or 2. */
       ptr[2] = ptr[3] = '=';
       i = 0;
 
       /* If there is buffered data */
-      if(st->bufend != st->bufbeg) {
+      якщо(st->bufend != st->bufbeg) {
 
-        if(st->bufend - st->bufbeg == 2)
+        якщо(st->bufend - st->bufbeg == 2)
           i = (st->buf[st->bufbeg + 1] & 0xFF) << 8;
 
         i |= (st->buf[st->bufbeg] & 0xFF) << 16;
         ptr[0] = curlx_base64encdec[(i >> 18) & 0x3F];
         ptr[1] = curlx_base64encdec[(i >> 12) & 0x3F];
-        if(++st->bufbeg != st->bufend) {
+        якщо(++st->bufbeg != st->bufend) {
           ptr[2] = curlx_base64encdec[(i >> 6) & 0x3F];
           st->bufbeg++;
         }
@@ -415,7 +415,7 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
     }
   }
 
-  return cursize;
+  повернути cursize;
 }
 
 /* The maximum input size that does not cause an overflow. */
@@ -427,18 +427,18 @@ static curl_off_t encoder_base64_size(curl_mimepart *part)
 {
   curl_off_t size = part->datasize;
 
-  if(size <= 0)
-    return size;    /* Unknown size or no data. */
+  якщо(size <= 0)
+    повернути size;    /* Unknown size or no data. */
 
   /* Prevent integer overflows */
-  if(size > BASE64_MAX_INPUT_SIZE)
-    return -1;
+  якщо(size > BASE64_MAX_INPUT_SIZE)
+    повернути -1;
 
   /* Compute base64 character count. */
   size = 4 * (1 + ((size - 1) / 3));
 
   /* Effective character count must include CRLFs. */
-  return size + (2 * ((size - 1) / MAX_ENCODED_LINE_LENGTH));
+  повернути size + (2 * ((size - 1) / MAX_ENCODED_LINE_LENGTH));
 }
 
 /* Quoted-printable lookahead.
@@ -446,17 +446,17 @@ static curl_off_t encoder_base64_size(curl_mimepart *part)
  * Check if a CRLF or end of data is in input buffer at current position + n.
  * Return -1 if more data needed, 1 if CRLF or end of data, else 0.
  */
-static int qp_lookahead_eol(struct mime_encoder_state *st, int ateof, size_t n)
+static ціле qp_lookahead_eol(struct mime_encoder_state *st, ціле ateof, size_t n)
 {
   n += st->bufbeg;
-  if(n >= st->bufend && ateof)
-    return 1;
-  if(n + 2 > st->bufend)
-    return ateof ? 0 : -1;
-  if(qp_class[st->buf[n] & 0xFF] == QP_CR &&
+  якщо(n >= st->bufend && ateof)
+    повернути 1;
+  якщо(n + 2 > st->bufend)
+    повернути ateof ? 0 : -1;
+  якщо(qp_class[st->buf[n] & 0xFF] == QP_CR &&
      qp_class[st->buf[n + 1] & 0xFF] == QP_LF)
-    return 1;
-  return 0;
+    повернути 1;
+  повернути 0;
 }
 
 /* Quoted-printable encoder. */
@@ -466,17 +466,17 @@ static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
   struct mime_encoder_state *st = &part->encstate;
   char *ptr = buffer;
   size_t cursize = 0;
-  int softlinebreak;
+  ціле softlinebreak;
   char buf[4];
 
   /* On all platforms, input is supposed to be ASCII compatible: for this
      reason, we use hexadecimal ASCII codes in this function rather than
      character constants that can be interpreted as non-ASCII on some
      platforms. Preserve ASCII encoding on output too. */
-  while(st->bufbeg < st->bufend) {
+  поки(st->bufbeg < st->bufend) {
     size_t len = 1;
     size_t consumed = 1;
-    int i = (unsigned char)st->buf[st->bufbeg];
+    ціле i = (unsigned char)st->buf[st->bufbeg];
     buf[0] = (char)i;
     buf[1] = aschex[(i >> 4) & 0xF];
     buf[2] = aschex[i & 0xF];
@@ -488,7 +488,7 @@ static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
       /* Spacing must be escaped if followed by CRLF. */
       switch(qp_lookahead_eol(st, ateof, 1)) {
       case -1:          /* More input data needed. */
-        return cursize;
+        повернути cursize;
       case 0:           /* No encoding needed. */
         break;
       default:          /* CRLF after space or tab. */
@@ -502,7 +502,7 @@ static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
          Else escape it. */
       switch(qp_lookahead_eol(st, ateof, 0)) {
       case -1:          /* Need more data. */
-        return cursize;
+        повернути cursize;
       case 1:           /* CRLF found. */
         buf[len++] = '\x0A';    /* Append '\n'. */
         consumed = 2;
@@ -520,20 +520,20 @@ static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
     }
 
     /* Be sure the encoded character fits within maximum line length. */
-    if(buf[len - 1] != '\x0A') {    /* '\n' */
+    якщо(buf[len - 1] != '\x0A') {    /* '\n' */
       softlinebreak = st->pos + len > MAX_ENCODED_LINE_LENGTH;
-      if(!softlinebreak && st->pos + len == MAX_ENCODED_LINE_LENGTH) {
+      якщо(!softlinebreak && st->pos + len == MAX_ENCODED_LINE_LENGTH) {
         /* We may use the current line only if end of data or followed by
            a CRLF. */
         switch(qp_lookahead_eol(st, ateof, consumed)) {
         case -1:        /* Need more data. */
-          return cursize;
+          повернути cursize;
         case 0:         /* Not followed by a CRLF. */
           softlinebreak = 1;
           break;
         }
       }
-      if(softlinebreak) {
+      якщо(softlinebreak) {
         curlx_strcopy(buf, sizeof(buf), STRCONST("\x3D\x0D\x0A")); /* =\r\n */
         len = 3;
         consumed = 0;
@@ -541,9 +541,9 @@ static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
     }
 
     /* If the output buffer would overflow, do not store. */
-    if(len > size) {
-      if(!cursize)
-        return STOP_FILLING;
+    якщо(len > size) {
+      якщо(!cursize)
+        повернути STOP_FILLING;
       break;
     }
 
@@ -553,19 +553,19 @@ static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
     ptr += len;
     size -= len;
     st->pos += len;
-    if(buf[len - 1] == '\x0A')    /* '\n' */
+    якщо(buf[len - 1] == '\x0A')    /* '\n' */
       st->pos = 0;
     st->bufbeg += consumed;
   }
 
-  return cursize;
+  повернути cursize;
 }
 
 static curl_off_t encoder_qp_size(curl_mimepart *part)
 {
   /* Determining the size can only be done by reading the data: unless the
      data size is 0, we return it as unknown (-1). */
-  return part->datasize ? -1 : 0;
+  повернути part->datasize ? -1 : 0;
 }
 
 /* In-memory data callbacks. */
@@ -577,19 +577,19 @@ static size_t mime_mem_read(char *buffer, size_t size, size_t nitems,
   size_t sz = curlx_sotouz(part->datasize - part->state.offset);
   (void)size;  /* Always 1 */
 
-  if(!nitems)
-    return STOP_FILLING;
+  якщо(!nitems)
+    повернути STOP_FILLING;
 
-  if(sz > nitems)
+  якщо(sz > nitems)
     sz = nitems;
 
-  if(sz)
+  якщо(sz)
     memcpy(buffer, part->data + curlx_sotouz(part->state.offset), sz);
 
-  return sz;
+  повернути sz;
 }
 
-static int mime_mem_seek(void *instream, curl_off_t offset, int whence)
+static ціле mime_mem_seek(void *instream, curl_off_t offset, ціле whence)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
@@ -602,11 +602,11 @@ static int mime_mem_seek(void *instream, curl_off_t offset, int whence)
     break;
   }
 
-  if(offset < 0 || offset > part->datasize)
-    return CURL_SEEKFUNC_FAIL;
+  якщо(offset < 0 || offset > part->datasize)
+    повернути CURL_SEEKFUNC_FAIL;
 
   part->state.offset = offset;
-  return CURL_SEEKFUNC_OK;
+  повернути CURL_SEEKFUNC_OK;
 }
 
 static void mime_mem_free(void *ptr)
@@ -620,10 +620,10 @@ static bool mime_open_file(curl_mimepart *part)
 {
   /* Open a MIMEKIND_FILE part. */
 
-  if(part->fp)
-    return FALSE;
+  якщо(part->fp)
+    повернути FALSE;
   part->fp = fopen_read(part->data, "rb");
-  return part->fp ? FALSE : TRUE;
+  повернути part->fp ? FALSE : TRUE;
 }
 
 static size_t mime_file_read(char *buffer, size_t size, size_t nitems,
@@ -631,26 +631,26 @@ static size_t mime_file_read(char *buffer, size_t size, size_t nitems,
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
-  if(!nitems)
-    return STOP_FILLING;
+  якщо(!nitems)
+    повернути STOP_FILLING;
 
-  if(mime_open_file(part))
-    return READ_ERROR;
+  якщо(mime_open_file(part))
+    повернути READ_ERROR;
 
-  return fread(buffer, size, nitems, part->fp);
+  повернути fread(buffer, size, nitems, part->fp);
 }
 
-static int mime_file_seek(void *instream, curl_off_t offset, int whence)
+static ціле mime_file_seek(void *instream, curl_off_t offset, ціле whence)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
-  if(whence == SEEK_SET && !offset && !part->fp)
-    return CURL_SEEKFUNC_OK;   /* Not open: implicitly already at BOF. */
+  якщо(whence == SEEK_SET && !offset && !part->fp)
+    повернути CURL_SEEKFUNC_OK;   /* Not open: implicitly already at BOF. */
 
-  if(mime_open_file(part))
-    return CURL_SEEKFUNC_FAIL;
+  якщо(mime_open_file(part))
+    повернути CURL_SEEKFUNC_FAIL;
 
-  return curlx_fseek(part->fp, offset, whence) ?
+  повернути curlx_fseek(part->fp, offset, whence) ?
     CURL_SEEKFUNC_CANTSEEK : CURL_SEEKFUNC_OK;
 }
 
@@ -658,7 +658,7 @@ static void mime_file_free(void *ptr)
 {
   curl_mimepart *part = (curl_mimepart *)ptr;
 
-  if(part->fp) {
+  якщо(part->fp) {
     curlx_fclose(part->fp);
     part->fp = NULL;
   }
@@ -677,24 +677,24 @@ static size_t readback_bytes(struct mime_state *state,
   size_t sz;
   size_t offset = curlx_sotouz(state->offset);
 
-  if(numbytes > offset) {
+  якщо(numbytes > offset) {
     sz = numbytes - offset;
     bytes += offset;
   }
-  else {
+  інакше {
     sz = offset - numbytes;
-    if(sz >= traillen)
-      return 0;
+    якщо(sz >= traillen)
+      повернути 0;
     bytes = trail + sz;
     sz = traillen - sz;
   }
 
-  if(sz > bufsize)
+  якщо(sz > bufsize)
     sz = bufsize;
 
   memcpy(buffer, bytes, sz);
   state->offset += sz;
-  return sz;
+  повернути sz;
 }
 
 /* Read a non-encoded part content. */
@@ -709,17 +709,17 @@ static size_t read_part_content(curl_mimepart *part, char *buffer,
   case CURL_READFUNC_ABORT:
   case CURL_READFUNC_PAUSE:
   case READ_ERROR:
-    return part->lastreadstatus;
+    повернути part->lastreadstatus;
   default:
     break;
   }
 
   /* If we can determine we are at end of part data, spare a read. */
-  if(part->datasize != (curl_off_t)-1 &&
+  якщо(part->datasize != (curl_off_t)-1 &&
      part->state.offset >= part->datasize) {
     /* sz is already zero. */
   }
-  else {
+  інакше {
     switch(part->kind) {
     case MIMEKIND_MULTIPART:
       /*
@@ -729,14 +729,14 @@ static size_t read_part_content(curl_mimepart *part, char *buffer,
       sz = mime_subparts_read(buffer, 1, bufsize, part->arg, hasread);
       break;
     case MIMEKIND_FILE:
-      if(part->fp && feof(part->fp))
+      якщо(part->fp && feof(part->fp))
         break;  /* At EOF. */
       FALLTHROUGH();
     default:
-      if(part->readfunc) {
-        if(!(part->flags & MIME_FAST_READ)) {
-          if(*hasread)
-            return STOP_FILLING;
+      якщо(part->readfunc) {
+        якщо(!(part->flags & MIME_FAST_READ)) {
+          якщо(*hasread)
+            повернути STOP_FILLING;
           *hasread = TRUE;
         }
         sz = part->readfunc(buffer, 1, bufsize, part->arg);
@@ -760,7 +760,7 @@ static size_t read_part_content(curl_mimepart *part, char *buffer,
     break;
   }
 
-  return sz;
+  повернути sz;
 }
 
 /* Read and encode part content. */
@@ -772,18 +772,18 @@ static size_t read_encoded_part_content(curl_mimepart *part, char *buffer,
   size_t sz;
   bool ateof = FALSE;
 
-  for(;;) {
-    if(st->bufbeg < st->bufend || ateof) {
+  для(;;) {
+    якщо(st->bufbeg < st->bufend || ateof) {
       /* Encode buffered data. */
       sz = part->encoder->encodefunc(buffer, bufsize, ateof, part);
       switch(sz) {
       case 0:
-        if(ateof)
-          return cursize;
+        якщо(ateof)
+          повернути cursize;
         break;
       case READ_ERROR:
       case STOP_FILLING:
-        return cursize ? cursize : sz;
+        повернути cursize ? cursize : sz;
       default:
         cursize += sz;
         buffer += sz;
@@ -793,16 +793,16 @@ static size_t read_encoded_part_content(curl_mimepart *part, char *buffer,
     }
 
     /* We need more data in input buffer. */
-    if(st->bufbeg) {
+    якщо(st->bufbeg) {
       size_t len = st->bufend - st->bufbeg;
 
-      if(len)
+      якщо(len)
         memmove(st->buf, st->buf + st->bufbeg, len);
       st->bufbeg = 0;
       st->bufend = len;
     }
-    if(st->bufend >= sizeof(st->buf))
-      return cursize ? cursize : READ_ERROR;    /* Buffer full. */
+    якщо(st->bufend >= sizeof(st->buf))
+      повернути cursize ? cursize : READ_ERROR;    /* Buffer full. */
     sz = read_part_content(part, st->buf + st->bufend,
                            sizeof(st->buf) - st->bufend, hasread);
     switch(sz) {
@@ -813,7 +813,7 @@ static size_t read_encoded_part_content(curl_mimepart *part, char *buffer,
     case CURL_READFUNC_PAUSE:
     case READ_ERROR:
     case STOP_FILLING:
-      return cursize ? cursize : sz;
+      повернути cursize ? cursize : sz;
     default:
       st->bufend += sz;
       break;
@@ -830,7 +830,7 @@ static size_t readback_part(curl_mimepart *part,
   size_t cursize = 0;
 
   /* Readback from part. */
-  while(bufsize) {
+  поки(bufsize) {
     size_t sz = 0;
     struct curl_slist *hdr = (struct curl_slist *)part->state.ptr;
     switch(part->state.state) {
@@ -841,29 +841,29 @@ static size_t readback_part(curl_mimepart *part,
                    part->curlheaders);
       break;
     case MIMESTATE_USERHEADERS:
-      if(!hdr) {
+      якщо(!hdr) {
         mimesetstate(&part->state, MIMESTATE_EOH, NULL);
         break;
       }
-      if(match_header(hdr, "Content-Type", 12)) {
+      якщо(match_header(hdr, "Content-Type", 12)) {
         mimesetstate(&part->state, MIMESTATE_USERHEADERS, hdr->next);
         break;
       }
       FALLTHROUGH();
     case MIMESTATE_CURLHEADERS:
-      if(!hdr)
+      якщо(!hdr)
         mimesetstate(&part->state, MIMESTATE_USERHEADERS, part->userheaders);
-      else {
+      інакше {
         sz = readback_bytes(&part->state, buffer, bufsize,
                             hdr->data, strlen(hdr->data), STRCONST("\r\n"));
-        if(!sz)
+        якщо(!sz)
           mimesetstate(&part->state, part->state.state, hdr->next);
       }
       break;
     case MIMESTATE_EOH:
       sz = readback_bytes(&part->state, buffer, bufsize, STRCONST("\r\n"),
                           STRCONST(""));
-      if(!sz)
+      якщо(!sz)
         mimesetstate(&part->state, MIMESTATE_BODY, NULL);
       break;
     case MIMESTATE_BODY:
@@ -871,15 +871,15 @@ static size_t readback_part(curl_mimepart *part,
       mimesetstate(&part->state, MIMESTATE_CONTENT, NULL);
       break;
     case MIMESTATE_CONTENT:
-      if(part->encoder)
+      якщо(part->encoder)
         sz = read_encoded_part_content(part, buffer, bufsize, hasread);
-      else
+      інакше
         sz = read_part_content(part, buffer, bufsize, hasread);
       switch(sz) {
       case 0:
         mimesetstate(&part->state, MIMESTATE_END, NULL);
         /* Try sparing open file descriptors. */
-        if(part->kind == MIMEKIND_FILE && part->fp) {
+        якщо(part->kind == MIMEKIND_FILE && part->fp) {
           curlx_fclose(part->fp);
           part->fp = NULL;
         }
@@ -888,11 +888,11 @@ static size_t readback_part(curl_mimepart *part,
       case CURL_READFUNC_PAUSE:
       case READ_ERROR:
       case STOP_FILLING:
-        return cursize ? cursize : sz;
+        повернути cursize ? cursize : sz;
       }
       break;
     case MIMESTATE_END:
-      return cursize;
+      повернути cursize;
     default:
       break;    /* Other values not in part state. */
     }
@@ -903,7 +903,7 @@ static size_t readback_part(curl_mimepart *part,
     bufsize -= sz;
   }
 
-  return cursize;
+  повернути cursize;
 }
 
 /* Readback from mime. Warning: not a read callback function. */
@@ -914,7 +914,7 @@ static size_t mime_subparts_read(char *buffer, size_t size, size_t nitems,
   size_t cursize = 0;
   (void)size;  /* Always 1 */
 
-  while(nitems) {
+  поки(nitems) {
     size_t sz = 0;
     curl_mimepart *part = mime->state.ptr;
     switch(mime->state.state) {
@@ -929,22 +929,22 @@ static size_t mime_subparts_read(char *buffer, size_t size, size_t nitems,
     case MIMESTATE_BOUNDARY1:
       sz = readback_bytes(&mime->state, buffer, nitems, STRCONST("\r\n--"),
                           STRCONST(""));
-      if(!sz)
+      якщо(!sz)
         mimesetstate(&mime->state, MIMESTATE_BOUNDARY2, part);
       break;
     case MIMESTATE_BOUNDARY2:
-      if(part)
+      якщо(part)
         sz = readback_bytes(&mime->state, buffer, nitems, mime->boundary,
                             MIME_BOUNDARY_LEN, STRCONST("\r\n"));
-      else
+      інакше
         sz = readback_bytes(&mime->state, buffer, nitems, mime->boundary,
                             MIME_BOUNDARY_LEN, STRCONST("--\r\n"));
-      if(!sz) {
+      якщо(!sz) {
         mimesetstate(&mime->state, MIMESTATE_CONTENT, part);
       }
       break;
     case MIMESTATE_CONTENT:
-      if(!part) {
+      якщо(!part) {
         mimesetstate(&mime->state, MIMESTATE_END, NULL);
         break;
       }
@@ -954,14 +954,14 @@ static size_t mime_subparts_read(char *buffer, size_t size, size_t nitems,
       case CURL_READFUNC_PAUSE:
       case READ_ERROR:
       case STOP_FILLING:
-        return cursize ? cursize : sz;
+        повернути cursize ? cursize : sz;
       case 0:
         mimesetstate(&mime->state, MIMESTATE_BOUNDARY1, part->nextpart);
         break;
       }
       break;
     case MIMESTATE_END:
-      return cursize;
+      повернути cursize;
     default:
       break;    /* other values not used in mime state. */
     }
@@ -972,20 +972,20 @@ static size_t mime_subparts_read(char *buffer, size_t size, size_t nitems,
     nitems -= sz;
   }
 
-  return cursize;
+  повернути cursize;
 }
 
-static int mime_part_rewind(curl_mimepart *part)
+static ціле mime_part_rewind(curl_mimepart *part)
 {
-  int res = CURL_SEEKFUNC_OK;
+  ціле res = CURL_SEEKFUNC_OK;
   enum mimestate targetstate = MIMESTATE_BEGIN;
 
-  if(part->flags & MIME_BODY_ONLY)
+  якщо(part->flags & MIME_BODY_ONLY)
     targetstate = MIMESTATE_BODY;
   cleanup_encoder_state(&part->encstate);
-  if(part->state.state > targetstate) {
+  якщо(part->state.state > targetstate) {
     res = CURL_SEEKFUNC_CANTSEEK;
-    if(part->seekfunc) {
+    якщо(part->seekfunc) {
       res = part->seekfunc(part->arg, (curl_off_t)0, SEEK_SET);
       switch(res) {
       case CURL_SEEKFUNC_OK:
@@ -1002,41 +1002,41 @@ static int mime_part_rewind(curl_mimepart *part)
     }
   }
 
-  if(res == CURL_SEEKFUNC_OK)
+  якщо(res == CURL_SEEKFUNC_OK)
     mimesetstate(&part->state, targetstate, NULL);
 
   part->lastreadstatus = 1; /* Successful read status. */
-  return res;
+  повернути res;
 }
 
-static int mime_subparts_seek(void *instream, curl_off_t offset, int whence)
+static ціле mime_subparts_seek(void *instream, curl_off_t offset, ціле whence)
 {
   curl_mime *mime = (curl_mime *)instream;
   curl_mimepart *part;
-  int rc = CURL_SEEKFUNC_OK;
+  ціле rc = CURL_SEEKFUNC_OK;
 
-  if(whence != SEEK_SET || offset)
-    return CURL_SEEKFUNC_CANTSEEK;    /* Only support full rewind. */
+  якщо(whence != SEEK_SET || offset)
+    повернути CURL_SEEKFUNC_CANTSEEK;    /* Only support full rewind. */
 
-  if(mime->state.state == MIMESTATE_BEGIN)
-    return CURL_SEEKFUNC_OK;           /* Already rewound. */
+  якщо(mime->state.state == MIMESTATE_BEGIN)
+    повернути CURL_SEEKFUNC_OK;           /* Already rewound. */
 
-  for(part = mime->firstpart; part; part = part->nextpart) {
-    int res = mime_part_rewind(part);
-    if(res != CURL_SEEKFUNC_OK)
+  для(part = mime->firstpart; part; part = part->nextpart) {
+    ціле res = mime_part_rewind(part);
+    якщо(res != CURL_SEEKFUNC_OK)
       rc = res;
   }
 
-  if(rc == CURL_SEEKFUNC_OK)
+  якщо(rc == CURL_SEEKFUNC_OK)
     mimesetstate(&mime->state, MIMESTATE_BEGIN, NULL);
 
-  return rc;
+  повернути rc;
 }
 
 /* Release part content. */
 static void cleanup_part_content(curl_mimepart *part)
 {
-  if(part->freefunc)
+  якщо(part->freefunc)
     part->freefunc(part->arg);
 
   part->readfunc = NULL;
@@ -1048,7 +1048,7 @@ static void cleanup_part_content(curl_mimepart *part)
   part->datasize = (curl_off_t)0;     /* No size yet. */
   cleanup_encoder_state(&part->encstate);
   part->kind = MIMEKIND_NONE;
-  part->flags &= ~(unsigned int)MIME_FAST_READ;
+  part->flags &= ~(unsigned ціле)MIME_FAST_READ;
   part->lastreadstatus = 1; /* Successful read status. */
   part->state.state = MIMESTATE_BEGIN;
 }
@@ -1057,7 +1057,7 @@ static void mime_subparts_free(void *ptr)
 {
   curl_mime *mime = (curl_mime *)ptr;
 
-  if(mime && mime->parent) {
+  якщо(mime && mime->parent) {
     mime->parent->freefunc = NULL;  /* Be sure we will not be called again. */
     cleanup_part_content(mime->parent);  /* Avoid dangling pointer in part. */
   }
@@ -1069,7 +1069,7 @@ static void mime_subparts_unbind(void *ptr)
 {
   curl_mime *mime = (curl_mime *)ptr;
 
-  if(mime && mime->parent) {
+  якщо(mime && mime->parent) {
     mime->parent->freefunc = NULL;  /* Be sure we will not be called again. */
     cleanup_part_content(mime->parent);  /* Avoid dangling pointer in part. */
     mime->parent = NULL;
@@ -1078,10 +1078,10 @@ static void mime_subparts_unbind(void *ptr)
 
 void Curl_mime_cleanpart(curl_mimepart *part)
 {
-  if(part) {
+  якщо(part) {
     cleanup_part_content(part);
     curl_slist_free_all(part->curlheaders);
-    if(part->flags & MIME_USERHEADERS_OWNER)
+    якщо(part->flags & MIME_USERHEADERS_OWNER)
       curl_slist_free_all(part->userheaders);
     curlx_safefree(part->mimetype);
     curlx_safefree(part->name);
@@ -1095,16 +1095,16 @@ void curl_mime_free(curl_mime *mime)
 {
   curl_mimepart *part;
 
-  if(!mime)
-    return;
+  якщо(!mime)
+    повернути;
 
   mime_subparts_unbind(mime);  /* Be sure it is not referenced anymore. */
 
-  while(mime) {
+  поки(mime) {
     part = mime->firstpart;
-    if(part) {
+    якщо(part) {
       mime->firstpart = part->nextpart;
-      if(part->kind == MIMEKIND_MULTIPART && part->arg &&
+      якщо(part->kind == MIMEKIND_MULTIPART && part->arg &&
          part->freefunc == mime_subparts_free) {
         curl_mime *subparts = (curl_mime *)part->arg;
         part->freefunc = NULL;
@@ -1115,7 +1115,7 @@ void curl_mime_free(curl_mime *mime)
       Curl_mime_cleanpart(part);
       curlx_free(part);
     }
-    else {
+    інакше {
       curl_mime *parent = (curl_mime *)mime->parent;
       curlx_free(mime);
       mime = parent;
@@ -1127,20 +1127,20 @@ static bool mime_is_too_deep(const curl_mimepart *part, size_t call_depth)
 {
   DEBUGASSERT(part);
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return TRUE;
+  якщо(++call_depth > MAX_MIME_LEVELS)
+    повернути TRUE;
 
-  if(part->kind == MIMEKIND_MULTIPART && part->arg) {
+  якщо(part->kind == MIMEKIND_MULTIPART && part->arg) {
     const curl_mime *mime = (const curl_mime *)part->arg;
     const curl_mimepart *s;
 
-    for(s = mime->firstpart; s; s = s->nextpart) {
-      if(mime_is_too_deep(s, call_depth))
-        return TRUE;
+    для(s = mime->firstpart; s; s = s->nextpart) {
+      якщо(mime_is_too_deep(s, call_depth))
+        повернути TRUE;
     }
   }
 
-  return FALSE;
+  повернути FALSE;
 }
 
 static CURLcode mime_duppart(struct Curl_easy *data,
@@ -1155,8 +1155,8 @@ static CURLcode mime_duppart(struct Curl_easy *data,
   DEBUGASSERT(dst);
   DEBUGASSERT(src);
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return CURLE_TOO_LARGE;
+  якщо(++call_depth > MAX_MIME_LEVELS)
+    повернути CURLE_TOO_LARGE;
 
   /* Duplicate content. */
   switch(src->kind) {
@@ -1168,7 +1168,7 @@ static CURLcode mime_duppart(struct Curl_easy *data,
   case MIMEKIND_FILE:
     result = curl_mime_filedata(dst, src->data);
     /* Do not abort duplication if file is not readable. */
-    if(result == CURLE_READ_ERROR)
+    якщо(result == CURLE_READ_ERROR)
       result = CURLE_OK;
     break;
   case MIMEKIND_CALLBACK:
@@ -1182,7 +1182,7 @@ static CURLcode mime_duppart(struct Curl_easy *data,
     result = mime ? curl_mime_subparts(dst, mime) : CURLE_OUT_OF_MEMORY;
 
     /* Duplicate subparts. */
-    for(s = ((curl_mime *)src->arg)->firstpart; !result && s;
+    для(s = ((curl_mime *)src->arg)->firstpart; !result && s;
         s = s->nextpart) {
       d = curl_mime_addpart(mime);
       result = d ? mime_duppart(data, d, s, call_depth) : CURLE_OUT_OF_MEMORY;
@@ -1195,47 +1195,47 @@ static CURLcode mime_duppart(struct Curl_easy *data,
   }
 
   /* Duplicate headers. */
-  if(!result && src->userheaders) {
+  якщо(!result && src->userheaders) {
     struct curl_slist *hdrs = Curl_slist_duplicate(src->userheaders);
 
-    if(!hdrs)
+    якщо(!hdrs)
       result = CURLE_OUT_OF_MEMORY;
-    else {
+    інакше {
       /* No one but this procedure knows about the new header list,
          so always take ownership. */
       result = curl_mime_headers(dst, hdrs, TRUE);
-      if(result)
+      якщо(result)
         curl_slist_free_all(hdrs);
     }
   }
 
-  if(!result) {
+  якщо(!result) {
     /* Duplicate other fields. */
     dst->encoder = src->encoder;
     result = curl_mime_type(dst, src->mimetype);
   }
-  if(!result)
+  якщо(!result)
     result = curl_mime_name(dst, src->name);
-  if(!result)
+  якщо(!result)
     result = curl_mime_filename(dst, src->filename);
 
   /* If an error occurred, rollback. */
-  if(result)
+  якщо(result)
     Curl_mime_cleanpart(dst);
 
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_mime_duppart(struct Curl_easy *data,
                            curl_mimepart *dst, const curl_mimepart *src)
 {
-  if(!dst || !src)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!dst || !src)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(mime_is_too_deep(src, 0))
-    return CURLE_TOO_LARGE;
+  якщо(mime_is_too_deep(src, 0))
+    повернути CURLE_TOO_LARGE;
 
-  return mime_duppart(data, dst, src, 0);
+  повернути mime_duppart(data, dst, src, 0);
 }
 
 /*
@@ -1247,23 +1247,23 @@ curl_mime *curl_mime_init(void *easy)
 {
   curl_mime *mime = curlx_malloc(sizeof(*mime));
 
-  if(mime) {
+  якщо(mime) {
     mime->parent = NULL;
     mime->firstpart = NULL;
     mime->lastpart = NULL;
 
     memset(mime->boundary, '-', MIME_BOUNDARY_DASHES);
-    if(Curl_rand_alnum(easy,
+    якщо(Curl_rand_alnum(easy,
                        (unsigned char *)&mime->boundary[MIME_BOUNDARY_DASHES],
                        MIME_RAND_BOUNDARY_CHARS + 1)) {
       /* failed to get random separator, bail out */
       curlx_free(mime);
-      return NULL;
+      повернути NULL;
     }
     mimesetstate(&mime->state, MIMESTATE_BEGIN, NULL);
   }
 
-  return mime;
+  повернути mime;
 }
 
 /* Initialize a mime part. */
@@ -1279,75 +1279,75 @@ curl_mimepart *curl_mime_addpart(curl_mime *mime)
 {
   curl_mimepart *part;
 
-  if(!mime)
-    return NULL;
+  якщо(!mime)
+    повернути NULL;
 
   part = curlx_malloc(sizeof(*part));
 
-  if(part) {
+  якщо(part) {
     Curl_mime_initpart(part);
     part->parent = mime;
 
-    if(mime->lastpart)
+    якщо(mime->lastpart)
       mime->lastpart->nextpart = part;
-    else
+    інакше
       mime->firstpart = part;
 
     mime->lastpart = part;
   }
 
-  return part;
+  повернути part;
 }
 
 /* Set mime part name. */
 CURLcode curl_mime_name(curl_mimepart *part, const char *name)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!part)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   curlx_safefree(part->name);
 
-  if(name) {
+  якщо(name) {
     part->name = curlx_strdup(name);
-    if(!part->name)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!part->name)
+      повернути CURLE_OUT_OF_MEMORY;
   }
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /* Set mime part remote filename. */
 CURLcode curl_mime_filename(curl_mimepart *part, const char *filename)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!part)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   curlx_safefree(part->filename);
 
-  if(filename) {
+  якщо(filename) {
     part->filename = curlx_strdup(filename);
-    if(!part->filename)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!part->filename)
+      повернути CURLE_OUT_OF_MEMORY;
   }
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /* Set mime part content from memory data. */
 CURLcode curl_mime_data(curl_mimepart *part, const char *data, size_t datasize)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!part)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   cleanup_part_content(part);
 
-  if(data) {
-    if(datasize == CURL_ZERO_TERMINATED)
+  якщо(data) {
+    якщо(datasize == CURL_ZERO_TERMINATED)
       datasize = strlen(data);
 
     part->data = curlx_memdup0(data, datasize);
-    if(!part->data)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!part->data)
+      повернути CURLE_OUT_OF_MEMORY;
 
     part->datasize = datasize;
     part->readfunc = mime_mem_read;
@@ -1357,7 +1357,7 @@ CURLcode curl_mime_data(curl_mimepart *part, const char *data, size_t datasize)
     part->kind = MIMEKIND_DATA;
   }
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /* Set mime part content from named local file. */
@@ -1365,24 +1365,24 @@ CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
 {
   CURLcode result = CURLE_OK;
 
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!part)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   cleanup_part_content(part);
 
-  if(filename) {
+  якщо(filename) {
     char *base;
     curlx_struct_stat sbuf;
 
-    if(curlx_stat(filename, &sbuf))
+    якщо(curlx_stat(filename, &sbuf))
       result = CURLE_READ_ERROR;
-    else {
+    інакше {
       part->data = curlx_strdup(filename);
-      if(!part->data)
+      якщо(!part->data)
         result = CURLE_OUT_OF_MEMORY;
-      else {
+      інакше {
         part->datasize = -1;
-        if(S_ISREG(sbuf.st_mode)) {
+        якщо(S_ISREG(sbuf.st_mode)) {
           part->datasize = filesize(filename, sbuf);
           part->seekfunc = mime_file_seek;
         }
@@ -1396,33 +1396,33 @@ CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
            curl_mime_filename() with a NULL filename argument after the current
            call. */
         base = strippath(filename);
-        if(!base)
+        якщо(!base)
           result = CURLE_OUT_OF_MEMORY;
-        else {
+        інакше {
           result = curl_mime_filename(part, base);
           curlx_free(base);
         }
       }
     }
   }
-  return result;
+  повернути result;
 }
 
 /* Set mime part type. */
 CURLcode curl_mime_type(curl_mimepart *part, const char *mimetype)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!part)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   curlx_safefree(part->mimetype);
 
-  if(mimetype) {
+  якщо(mimetype) {
     part->mimetype = curlx_strdup(mimetype);
-    if(!part->mimetype)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!part->mimetype)
+      повернути CURLE_OUT_OF_MEMORY;
   }
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static const struct mime_encoder encoders[] = {
@@ -1440,39 +1440,39 @@ CURLcode curl_mime_encoder(curl_mimepart *part, const char *encoding)
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
   const struct mime_encoder *mep;
 
-  if(!part)
-    return result;
+  якщо(!part)
+    повернути result;
 
   part->encoder = NULL;
 
-  if(!encoding)
-    return CURLE_OK;    /* Removing current encoder. */
+  якщо(!encoding)
+    повернути CURLE_OK;    /* Removing current encoder. */
 
-  for(mep = encoders; mep->name; mep++)
-    if(curl_strequal(encoding, mep->name)) {
+  для(mep = encoders; mep->name; mep++)
+    якщо(curl_strequal(encoding, mep->name)) {
       part->encoder = mep;
       result = CURLE_OK;
     }
 
-  return result;
+  повернути result;
 }
 
 /* Set mime part headers. */
 CURLcode curl_mime_headers(curl_mimepart *part,
-                           struct curl_slist *headers, int take_ownership)
+                           struct curl_slist *headers, ціле take_ownership)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!part)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(part->flags & MIME_USERHEADERS_OWNER) {
-    if(part->userheaders != headers)  /* Allow setting twice the same list. */
+  якщо(part->flags & MIME_USERHEADERS_OWNER) {
+    якщо(part->userheaders != headers)  /* Allow setting twice the same list. */
       curl_slist_free_all(part->userheaders);
-    part->flags &= ~(unsigned int)MIME_USERHEADERS_OWNER;
+    part->flags &= ~(unsigned ціле)MIME_USERHEADERS_OWNER;
   }
   part->userheaders = headers;
-  if(headers && take_ownership)
+  якщо(headers && take_ownership)
     part->flags |= MIME_USERHEADERS_OWNER;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /* Set mime part content from callback. */
@@ -1481,12 +1481,12 @@ CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
                            curl_seek_callback seekfunc,
                            curl_free_callback freefunc, void *arg)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!part)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   cleanup_part_content(part);
 
-  if(readfunc) {
+  якщо(readfunc) {
     part->readfunc = readfunc;
     part->seekfunc = seekfunc;
     part->freefunc = freefunc;
@@ -1495,37 +1495,37 @@ CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
     part->kind = MIMEKIND_CALLBACK;
   }
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /* Set mime part content from subparts. */
 CURLcode Curl_mime_set_subparts(curl_mimepart *part,
-                                curl_mime *subparts, int take_ownership)
+                                curl_mime *subparts, ціле take_ownership)
 {
   curl_mime *root;
 
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  якщо(!part)
+    повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* Accept setting twice the same subparts. */
-  if(part->kind == MIMEKIND_MULTIPART && part->arg == subparts)
-    return CURLE_OK;
+  якщо(part->kind == MIMEKIND_MULTIPART && part->arg == subparts)
+    повернути CURLE_OK;
 
   cleanup_part_content(part);
 
-  if(subparts) {
+  якщо(subparts) {
     /* Should not have been attached already. */
-    if(subparts->parent)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    якщо(subparts->parent)
+      повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
     /* Should not be the part's root. */
     root = part->parent;
-    if(root) {
-      while(root->parent && root->parent->parent)
+    якщо(root) {
+      поки(root->parent && root->parent->parent)
         root = root->parent->parent;
-      if(subparts == root) {
+      якщо(subparts == root) {
         /* cannot add as a subpart of itself. */
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+        повернути CURLE_BAD_FUNCTION_ARGUMENT;
       }
     }
 
@@ -1533,9 +1533,9 @@ CURLcode Curl_mime_set_subparts(curl_mimepart *part,
        they might not be positioned at start. Rewind them now, as
        a future check while rewinding the parent may cause this
        content to be skipped. */
-    if(mime_subparts_seek(subparts, (curl_off_t)0, SEEK_SET) !=
+    якщо(mime_subparts_seek(subparts, (curl_off_t)0, SEEK_SET) !=
        CURL_SEEKFUNC_OK)
-      return CURLE_SEND_FAIL_REWIND;
+      повернути CURLE_SEND_FAIL_REWIND;
 
     subparts->parent = part;
     /* Subparts are processed internally: no read callback. */
@@ -1547,12 +1547,12 @@ CURLcode Curl_mime_set_subparts(curl_mimepart *part,
     part->kind = MIMEKIND_MULTIPART;
   }
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 CURLcode curl_mime_subparts(curl_mimepart *part, curl_mime *subparts)
 {
-  return Curl_mime_set_subparts(part, subparts, TRUE);
+  повернути Curl_mime_set_subparts(part, subparts, TRUE);
 }
 
 /* Readback from top mime. */
@@ -1576,15 +1576,15 @@ size_t Curl_mime_read(char *buffer, size_t size, size_t nitems, void *instream)
      * deliver a new bunch for the few data accumulated so far), force another
      * read until we get enough data or a special exit code.
      */
-  } while(ret == STOP_FILLING);
+  } поки(ret == STOP_FILLING);
 
-  return ret;
+  повернути ret;
 }
 
 /* Rewind mime stream. */
 static CURLcode mime_rewind(curl_mimepart *part)
 {
-  return mime_part_rewind(part) == CURL_SEEKFUNC_OK ?
+  повернути mime_part_rewind(part) == CURL_SEEKFUNC_OK ?
          CURLE_OK : CURLE_SEND_FAIL_REWIND;
 }
 
@@ -1594,10 +1594,10 @@ static size_t slist_size(struct curl_slist *s,
 {
   size_t size = 0;
 
-  for(; s; s = s->next)
-    if(!skip || !match_header(s, skip, skiplen))
+  для(; s; s = s->next)
+    якщо(!skip || !match_header(s, skip, skiplen))
       size += strlen(s->data) + overhead;
-  return size;
+  повернути size;
 }
 
 /* Get/compute multipart size. */
@@ -1607,23 +1607,23 @@ static curl_off_t multipart_size(curl_mime *mime)
   curl_off_t boundarysize;
   curl_mimepart *part;
 
-  if(!mime)
-    return 0;           /* Not present -> empty. */
+  якщо(!mime)
+    повернути 0;           /* Not present -> empty. */
 
   boundarysize = 4 + MIME_BOUNDARY_LEN + 2;
   size = boundarysize;  /* Final boundary - CRLF after headers. */
 
-  for(part = mime->firstpart; part; part = part->nextpart) {
+  для(part = mime->firstpart; part; part = part->nextpart) {
     curl_off_t sz = mime_size(part);
 
-    if(sz < 0)
+    якщо(sz < 0)
       size = sz;
 
-    if(size >= 0)
+    якщо(size >= 0)
       size += boundarysize + sz;
   }
 
-  return size;
+  повернути size;
 }
 
 /* Get/compute mime size. */
@@ -1631,21 +1631,21 @@ static curl_off_t mime_size(curl_mimepart *part)
 {
   curl_off_t size;
 
-  if(part->kind == MIMEKIND_MULTIPART)
+  якщо(part->kind == MIMEKIND_MULTIPART)
     part->datasize = multipart_size(part->arg);
 
   size = part->datasize;
 
-  if(part->encoder)
+  якщо(part->encoder)
     size = part->encoder->sizefunc(part);
 
-  if(size >= 0 && !(part->flags & MIME_BODY_ONLY)) {
+  якщо(size >= 0 && !(part->flags & MIME_BODY_ONLY)) {
     /* Compute total part size. */
     size += slist_size(part->curlheaders, 2, NULL, 0);
     size += slist_size(part->userheaders, 2, STRCONST("Content-Type"));
     size += 2;    /* CRLF after headers. */
   }
-  return size;
+  повернути size;
 }
 
 /* Add a header. */
@@ -1660,22 +1660,22 @@ CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
   s = curl_mvaprintf(fmt, ap);
   va_end(ap);
 
-  if(s) {
+  якщо(s) {
     hdr = Curl_slist_append_nodup(*slp, s);
-    if(hdr)
+    якщо(hdr)
       *slp = hdr;
-    else
+    інакше
       curlx_free(s);
   }
 
-  return hdr ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  повернути hdr ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 
 /* Add a content type header. */
 static CURLcode add_content_type(struct curl_slist **slp,
                                  const char *type, const char *boundary)
 {
-  return Curl_mime_add_header(slp, "Content-Type: %s%s%s", type,
+  повернути Curl_mime_add_header(slp, "Content-Type: %s%s%s", type,
                               boundary ? "; boundary=" : "",
                               boundary ? boundary : "");
 }
@@ -1703,25 +1703,25 @@ const char *Curl_mime_contenttype(const char *filename)
     { ".xml",  "application/xml" }
   };
 
-  if(filename) {
+  якщо(filename) {
     size_t len1 = strlen(filename);
     const char *nameend = filename + len1;
-    unsigned int i;
+    unsigned ціле i;
 
-    for(i = 0; i < CURL_ARRAYSIZE(ctts); i++) {
+    для(i = 0; i < CURL_ARRAYSIZE(ctts); i++) {
       size_t len2 = strlen(ctts[i].extension);
 
-      if(len1 >= len2 && curl_strequal(nameend - len2, ctts[i].extension))
-        return ctts[i].type;
+      якщо(len1 >= len2 && curl_strequal(nameend - len2, ctts[i].extension))
+        повернути ctts[i].type;
     }
   }
-  return NULL;
+  повернути NULL;
 }
 
 static bool content_type_match(const char *contenttype,
                                const char *target, size_t len)
 {
-  if(contenttype && curl_strnequal(contenttype, target, len))
+  якщо(contenttype && curl_strnequal(contenttype, target, len))
     switch(contenttype[len]) {
     case '\0':
     case '\t':
@@ -1729,9 +1729,9 @@ static bool content_type_match(const char *contenttype,
     case '\n':
     case ' ':
     case ';':
-      return TRUE;
+      повернути TRUE;
     }
-  return FALSE;
+  повернути FALSE;
 }
 
 static CURLcode add_content_disposition(struct Curl_easy *data,
@@ -1740,16 +1740,16 @@ static CURLcode add_content_disposition(struct Curl_easy *data,
                                         const char *contenttype,
                                         enum mimestrategy strategy)
 {
-  if(!disposition &&
+  якщо(!disposition &&
      (part->filename || part->name ||
       (contenttype && !curl_strnequal(contenttype, "multipart/", 10))))
     disposition = DISPOSITION_DEFAULT;
 
-  if(disposition && curl_strequal(disposition, "attachment") &&
+  якщо(disposition && curl_strequal(disposition, "attachment") &&
      !part->name && !part->filename)
     disposition = NULL;
 
-  if(disposition) {
+  якщо(disposition) {
     CURLcode result = CURLE_OK;
     char *name = NULL;
     char *filename = NULL;
@@ -1759,22 +1759,22 @@ static CURLcode add_content_disposition(struct Curl_easy *data,
        form strategy percent-encodes CR/LF (see escape_string) and is safe. */
     bool backslash = (strategy == MIMESTRATEGY_MAIL) ||
                      (data && data->set.mime_formescape);
-    if(backslash &&
+    якщо(backslash &&
        ((part->name && part->name[strcspn(part->name, "\r\n")]) ||
         (part->filename && part->filename[strcspn(part->filename, "\r\n")])))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      повернути CURLE_BAD_FUNCTION_ARGUMENT;
 
-    if(part->name) {
+    якщо(part->name) {
       name = escape_string(data, part->name, strategy);
-      if(!name)
-        return CURLE_OUT_OF_MEMORY;
+      якщо(!name)
+        повернути CURLE_OUT_OF_MEMORY;
     }
-    if(part->filename) {
+    якщо(part->filename) {
       filename = escape_string(data, part->filename, strategy);
-      if(!filename)
+      якщо(!filename)
         result = CURLE_OUT_OF_MEMORY;
     }
-    if(!result)
+    якщо(!result)
       result = Curl_mime_add_header(&part->curlheaders,
                                     "Content-Disposition: %s%s%s%s%s%s%s",
                                     disposition,
@@ -1786,10 +1786,10 @@ static CURLcode add_content_disposition(struct Curl_easy *data,
                                     filename ? "\"" : "");
     curlx_safefree(name);
     curlx_safefree(filename);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode mime_prepare_headers(struct Curl_easy *data,
@@ -1805,35 +1805,35 @@ static CURLcode mime_prepare_headers(struct Curl_easy *data,
   const char *cte = NULL;
   CURLcode result = CURLE_OK;
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return CURLE_TOO_LARGE;
+  якщо(++call_depth > MAX_MIME_LEVELS)
+    повернути CURLE_TOO_LARGE;
 
   /* Get rid of previously prepared headers. */
   curl_slist_free_all(part->curlheaders);
   part->curlheaders = NULL;
 
   /* Be sure we will not access old headers later. */
-  if(part->state.state == MIMESTATE_CURLHEADERS)
+  якщо(part->state.state == MIMESTATE_CURLHEADERS)
     mimesetstate(&part->state, MIMESTATE_CURLHEADERS, NULL);
 
   /* Check if content type is specified. */
   customct = part->mimetype;
-  if(!customct)
+  якщо(!customct)
     customct = search_header(part->userheaders, STRCONST("Content-Type"));
-  if(customct)
+  якщо(customct)
     contenttype = customct;
 
   /* If content type is not specified, try to determine it. */
-  if(!contenttype) {
+  якщо(!contenttype) {
     switch(part->kind) {
     case MIMEKIND_MULTIPART:
       contenttype = MULTIPART_CONTENTTYPE_DEFAULT;
       break;
     case MIMEKIND_FILE:
       contenttype = Curl_mime_contenttype(part->filename);
-      if(!contenttype)
+      якщо(!contenttype)
         contenttype = Curl_mime_contenttype(part->data);
-      if(!contenttype && part->filename)
+      якщо(!contenttype && part->filename)
         contenttype = FILE_CONTENTTYPE_DEFAULT;
       break;
     default:
@@ -1842,67 +1842,67 @@ static CURLcode mime_prepare_headers(struct Curl_easy *data,
     }
   }
 
-  if(part->kind == MIMEKIND_MULTIPART) {
+  якщо(part->kind == MIMEKIND_MULTIPART) {
     mime = (curl_mime *)part->arg;
-    if(mime)
+    якщо(mime)
       boundary = mime->boundary;
   }
-  else if(contenttype && !customct &&
+  інакше якщо(contenttype && !customct &&
           content_type_match(contenttype, STRCONST("text/plain")) &&
           (strategy == MIMESTRATEGY_MAIL || !part->filename))
     contenttype = NULL;
 
   /* Issue content-disposition header only if not already set by caller. */
-  if(!search_header(part->userheaders, STRCONST("Content-Disposition"))) {
+  якщо(!search_header(part->userheaders, STRCONST("Content-Disposition"))) {
     result = add_content_disposition(data, part, disposition,
                                      contenttype, strategy);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
 
   /* Issue Content-Type header. */
-  if(contenttype) {
+  якщо(contenttype) {
     result = add_content_type(&part->curlheaders, contenttype, boundary);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
 
   /* Content-Transfer-Encoding header. */
-  if(!search_header(part->userheaders,
+  якщо(!search_header(part->userheaders,
                     STRCONST("Content-Transfer-Encoding"))) {
-    if(part->encoder)
+    якщо(part->encoder)
       cte = part->encoder->name;
-    else if(contenttype && strategy == MIMESTRATEGY_MAIL &&
+    інакше якщо(contenttype && strategy == MIMESTRATEGY_MAIL &&
             part->kind != MIMEKIND_MULTIPART)
       cte = "8bit";
-    if(cte) {
+    якщо(cte) {
       result = Curl_mime_add_header(&part->curlheaders,
                                     "Content-Transfer-Encoding: %s", cte);
-      if(result)
-        return result;
+      якщо(result)
+        повернути result;
     }
   }
 
   /* If we were reading curl-generated headers, restart with new ones (this
      should not occur). */
-  if(part->state.state == MIMESTATE_CURLHEADERS)
+  якщо(part->state.state == MIMESTATE_CURLHEADERS)
     mimesetstate(&part->state, MIMESTATE_CURLHEADERS, part->curlheaders);
 
   /* Process subparts. */
-  if(part->kind == MIMEKIND_MULTIPART && mime) {
+  якщо(part->kind == MIMEKIND_MULTIPART && mime) {
     curl_mimepart *subpart;
 
     disposition = NULL;
-    if(content_type_match(contenttype, STRCONST("multipart/form-data")))
+    якщо(content_type_match(contenttype, STRCONST("multipart/form-data")))
       disposition = "form-data";
-    for(subpart = mime->firstpart; subpart; subpart = subpart->nextpart) {
+    для(subpart = mime->firstpart; subpart; subpart = subpart->nextpart) {
       result = mime_prepare_headers(data, subpart, NULL,
                                     disposition, strategy, call_depth);
-      if(result)
-        return result;
+      якщо(result)
+        повернути result;
     }
   }
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_mime_prepare_headers(struct Curl_easy *data,
@@ -1911,23 +1911,23 @@ CURLcode Curl_mime_prepare_headers(struct Curl_easy *data,
                                    const char *disposition,
                                    enum mimestrategy strategy)
 {
-  return mime_prepare_headers(data, part, contenttype, disposition,
+  повернути mime_prepare_headers(data, part, contenttype, disposition,
                               strategy, 0);
 }
 
 /* Recursively reset paused status in the given part. */
 static void mime_unpause(curl_mimepart *part)
 {
-  if(part) {
-    if(part->lastreadstatus == CURL_READFUNC_PAUSE)
+  якщо(part) {
+    якщо(part->lastreadstatus == CURL_READFUNC_PAUSE)
       part->lastreadstatus = 1; /* Successful read status. */
-    if(part->kind == MIMEKIND_MULTIPART) {
+    якщо(part->kind == MIMEKIND_MULTIPART) {
       curl_mime *mime = (curl_mime *)part->arg;
 
-      if(mime) {
+      якщо(mime) {
         curl_mimepart *subpart;
 
-        for(subpart = mime->firstpart; subpart; subpart = subpart->nextpart)
+        для(subpart = mime->firstpart; subpart; subpart = subpart->nextpart)
           mime_unpause(subpart);
       }
     }
@@ -1953,7 +1953,7 @@ static CURLcode cr_mime_init(struct Curl_easy *data,
   ctx->total_len = -1;
   ctx->read_len = 0;
   Curl_bufq_init2(&ctx->tmpbuf, 1024, 1, BUFQ_OPT_NO_SPARES);
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static void cr_mime_close(struct Curl_easy *data,
@@ -1976,61 +1976,61 @@ static CURLcode cr_mime_read(struct Curl_easy *data,
   char tmp[256];
 
   /* Once we have errored, we will return the same error forever */
-  if(ctx->errored) {
+  якщо(ctx->errored) {
     CURL_TRC_READ(data, "cr_mime_read(len=%zu) is errored -> %d, eos=0",
-                  blen, (int)ctx->error_result);
+                  blen, (ціле)ctx->error_result);
     *pnread = 0;
     *peos = FALSE;
-    return ctx->error_result;
+    повернути ctx->error_result;
   }
-  if(ctx->seen_eos) {
+  якщо(ctx->seen_eos) {
     CURL_TRC_READ(data, "cr_mime_read(len=%zu) seen eos -> 0, eos=1", blen);
     *pnread = 0;
     *peos = TRUE;
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
   /* respect length limitations */
-  if(ctx->total_len >= 0) {
+  якщо(ctx->total_len >= 0) {
     curl_off_t remain = ctx->total_len - ctx->read_len;
-    if(remain <= 0)
+    якщо(remain <= 0)
       blen = 0;
-    else if(remain < (curl_off_t)blen)
+    інакше якщо(remain < (curl_off_t)blen)
       blen = (size_t)remain;
   }
 
-  if(!Curl_bufq_is_empty(&ctx->tmpbuf)) {
+  якщо(!Curl_bufq_is_empty(&ctx->tmpbuf)) {
     result = Curl_bufq_read(&ctx->tmpbuf, (unsigned char *)buf, blen, &nread);
-    if(result) {
+    якщо(result) {
       ctx->errored = TRUE;
       ctx->error_result = result;
-      return result;
+      повернути result;
     }
   }
-  else if(blen <= 4) {
+  інакше якщо(blen <= 4) {
     /* Curl_mime_read() may go into an infinite loop when reading
      * via a base64 encoder, as it stalls when the read buffer is too small
      * to contain a complete 3-byte encoding. Read into a larger buffer
      * and use that until empty. */
     CURL_TRC_READ(data, "cr_mime_read(len=%zu), small read, using tmp", blen);
     nread = Curl_mime_read(tmp, 1, sizeof(tmp), ctx->part);
-    if(nread <= sizeof(tmp)) {
+    якщо(nread <= sizeof(tmp)) {
       size_t n;
       result = Curl_bufq_write(&ctx->tmpbuf, (unsigned char *)tmp, nread, &n);
-      if(result) {
+      якщо(result) {
         ctx->errored = TRUE;
         ctx->error_result = result;
-        return result;
+        повернути result;
       }
       /* stored it, read again */
       result = Curl_bufq_cread(&ctx->tmpbuf, buf, blen, &nread);
-      if(result) {
+      якщо(result) {
         ctx->errored = TRUE;
         ctx->error_result = result;
-        return result;
+        повернути result;
       }
     }
   }
-  else
+  інакше
     nread = Curl_mime_read(buf, 1, blen, ctx->part);
 
   CURL_TRC_READ(data, "cr_mime_read(len=%zu), mime_read() -> %zu",
@@ -2038,11 +2038,11 @@ static CURLcode cr_mime_read(struct Curl_easy *data,
 
   switch(nread) {
   case 0:
-    if((ctx->total_len >= 0) && (ctx->read_len < ctx->total_len)) {
+    якщо((ctx->total_len >= 0) && (ctx->read_len < ctx->total_len)) {
       failf(data, "client mime read EOF fail, "
             "only %" FMT_OFF_T "/%" FMT_OFF_T
             " of needed bytes read", ctx->read_len, ctx->total_len);
-      return CURLE_READ_ERROR;
+      повернути CURLE_READ_ERROR;
     }
     *pnread = 0;
     *peos = TRUE;
@@ -2077,17 +2077,17 @@ static CURLcode cr_mime_read(struct Curl_easy *data,
     break;
 
   default:
-    if(nread > blen) {
+    якщо(nread > blen) {
       /* the read function returned a too large value */
       failf(data, "read function returned funny value");
       *pnread = 0;
       *peos = FALSE;
       ctx->errored = TRUE;
       ctx->error_result = CURLE_READ_ERROR;
-      return CURLE_READ_ERROR;
+      повернути CURLE_READ_ERROR;
     }
     ctx->read_len += nread;
-    if(ctx->total_len >= 0)
+    якщо(ctx->total_len >= 0)
       ctx->seen_eos = (ctx->read_len >= ctx->total_len);
     *pnread = nread;
     *peos = (bool)ctx->seen_eos;
@@ -2096,8 +2096,8 @@ static CURLcode cr_mime_read(struct Curl_easy *data,
 
   CURL_TRC_READ(data, "cr_mime_read(len=%zu, total=%" FMT_OFF_T
                 ", read=%" FMT_OFF_T ") -> %d, %zu, %d", blen,
-                ctx->total_len, ctx->read_len, (int)result, *pnread, *peos);
-  return result;
+                ctx->total_len, ctx->read_len, (ціле)result, *pnread, *peos);
+  повернути result;
 }
 
 static bool cr_mime_needs_rewind(struct Curl_easy *data,
@@ -2105,7 +2105,7 @@ static bool cr_mime_needs_rewind(struct Curl_easy *data,
 {
   struct cr_mime_ctx *ctx = reader->ctx;
   (void)data;
-  return ctx->read_len > 0;
+  повернути ctx->read_len > 0;
 }
 
 static curl_off_t cr_mime_total_length(struct Curl_easy *data,
@@ -2113,7 +2113,7 @@ static curl_off_t cr_mime_total_length(struct Curl_easy *data,
 {
   struct cr_mime_ctx *ctx = reader->ctx;
   (void)data;
-  return ctx->total_len;
+  повернути ctx->total_len;
 }
 
 static CURLcode cr_mime_resume_from(struct Curl_easy *data,
@@ -2122,7 +2122,7 @@ static CURLcode cr_mime_resume_from(struct Curl_easy *data,
 {
   struct cr_mime_ctx *ctx = reader->ctx;
 
-  if(offset > 0) {
+  якщо(offset > 0) {
     curl_off_t passed = 0;
 
     do {
@@ -2135,27 +2135,27 @@ static CURLcode cr_mime_resume_from(struct Curl_easy *data,
 
       nread = Curl_mime_read(scratch, 1, readthisamountnow, ctx->part);
       passed += (curl_off_t)nread;
-      if((nread == 0) || (nread > readthisamountnow)) {
+      якщо((nread == 0) || (nread > readthisamountnow)) {
         /* this checks for greater-than only to make sure that the
            CURL_READFUNC_ABORT return code still aborts */
         failf(data, "Could only read %" FMT_OFF_T
               " bytes from the mime post", passed);
-        return CURLE_READ_ERROR;
+        повернути CURLE_READ_ERROR;
       }
-    } while(passed < offset);
+    } поки(passed < offset);
 
     /* now, decrease the size of the read */
-    if(ctx->total_len > 0) {
+    якщо(ctx->total_len > 0) {
       ctx->total_len -= offset;
 
-      if(ctx->total_len <= 0) {
+      якщо(ctx->total_len <= 0) {
         failf(data, "Mime post already completely uploaded");
-        return CURLE_PARTIAL_FILE;
+        повернути CURLE_PARTIAL_FILE;
       }
     }
     /* we have passed, proceed as normal */
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cr_mime_cntrl(struct Curl_easy *data,
@@ -2166,9 +2166,9 @@ static CURLcode cr_mime_cntrl(struct Curl_easy *data,
   switch(opcode) {
   case CURL_CRCNTRL_REWIND: {
     CURLcode result = mime_rewind(ctx->part);
-    if(result)
+    якщо(result)
       failf(data, "Cannot rewind mime/post data");
-    return result;
+    повернути result;
   }
   case CURL_CRCNTRL_UNPAUSE:
     mime_unpause(ctx->part);
@@ -2179,7 +2179,7 @@ static CURLcode cr_mime_cntrl(struct Curl_easy *data,
   default:
     break;
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static bool cr_mime_is_paused(struct Curl_easy *data,
@@ -2187,7 +2187,7 @@ static bool cr_mime_is_paused(struct Curl_easy *data,
 {
   struct cr_mime_ctx *ctx = reader->ctx;
   (void)data;
-  return ctx->part && ctx->part->lastreadstatus == CURL_READFUNC_PAUSE;
+  повернути ctx->part && ctx->part->lastreadstatus == CURL_READFUNC_PAUSE;
 }
 
 static const struct Curl_crtype cr_mime = {
@@ -2211,22 +2211,22 @@ CURLcode Curl_creader_set_mime(struct Curl_easy *data, curl_mimepart *part)
   CURLcode result;
 
   result = Curl_creader_create(&r, data, &cr_mime, CURL_CR_CLIENT);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
   ctx = r->ctx;
   ctx->part = part;
   /* Make sure we will read the entire mime structure. */
   result = mime_rewind(ctx->part);
-  if(result) {
+  якщо(result) {
     Curl_creader_free(data, r);
-    return result;
+    повернути result;
   }
   ctx->total_len = mime_size(ctx->part);
 
-  return Curl_creader_set(data, r);
+  повернути Curl_creader_set(data, r);
 }
 
-#else /* !CURL_DISABLE_MIME && (!CURL_DISABLE_HTTP ||
+#інакше /* !CURL_DISABLE_MIME && (!CURL_DISABLE_HTTP ||
                                 !CURL_DISABLE_SMTP ||
                                 !CURL_DISABLE_IMAP) */
 
@@ -2234,7 +2234,7 @@ CURLcode Curl_creader_set_mime(struct Curl_easy *data, curl_mimepart *part)
 curl_mime *curl_mime_init(CURL *easy)
 {
   (void)easy;
-  return NULL;
+  повернути NULL;
 }
 
 void curl_mime_free(curl_mime *mime)
@@ -2245,35 +2245,35 @@ void curl_mime_free(curl_mime *mime)
 curl_mimepart *curl_mime_addpart(curl_mime *mime)
 {
   (void)mime;
-  return NULL;
+  повернути NULL;
 }
 
 CURLcode curl_mime_name(curl_mimepart *part, const char *name)
 {
   (void)part;
   (void)name;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode curl_mime_filename(curl_mimepart *part, const char *filename)
 {
   (void)part;
   (void)filename;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode curl_mime_type(curl_mimepart *part, const char *mimetype)
 {
   (void)part;
   (void)mimetype;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode curl_mime_encoder(curl_mimepart *part, const char *encoding)
 {
   (void)part;
   (void)encoding;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode curl_mime_data(curl_mimepart *part, const char *data, size_t datasize)
@@ -2281,14 +2281,14 @@ CURLcode curl_mime_data(curl_mimepart *part, const char *data, size_t datasize)
   (void)part;
   (void)data;
   (void)datasize;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
 {
   (void)part;
   (void)filename;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
@@ -2303,30 +2303,30 @@ CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
   (void)seekfunc;
   (void)freefunc;
   (void)arg;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode curl_mime_subparts(curl_mimepart *part, curl_mime *subparts)
 {
   (void)part;
   (void)subparts;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode curl_mime_headers(curl_mimepart *part,
-                           struct curl_slist *headers, int take_ownership)
+                           struct curl_slist *headers, ціле take_ownership)
 {
   (void)part;
   (void)headers;
   (void)take_ownership;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
 {
   (void)slp;
   (void)fmt;
-  return CURLE_NOT_BUILT_IN;
+  повернути CURLE_NOT_BUILT_IN;
 }
 
 #endif /* if disabled */

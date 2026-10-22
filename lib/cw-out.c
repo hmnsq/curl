@@ -79,16 +79,16 @@ struct cw_out_buf {
 static struct cw_out_buf *cw_out_buf_create(cw_out_type otype)
 {
   struct cw_out_buf *cwbuf = curlx_calloc(1, sizeof(*cwbuf));
-  if(cwbuf) {
+  якщо(cwbuf) {
     cwbuf->type = otype;
     curlx_dyn_init(&cwbuf->b, DYN_PAUSE_BUFFER);
   }
-  return cwbuf;
+  повернути cwbuf;
 }
 
 static void cw_out_buf_free(struct cw_out_buf *cwbuf)
 {
-  if(cwbuf) {
+  якщо(cwbuf) {
     curlx_dyn_free(&cwbuf->b);
     curlx_free(cwbuf);
   }
@@ -110,12 +110,12 @@ static CURLcode cw_out_init(struct Curl_easy *data,
   ctx->buf = NULL;
   ctx->tail = NULL;
   ctx->buffered_len = 0;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static void cw_out_bufs_free(struct cw_out_ctx *ctx)
 {
-  while(ctx->buf) {
+  поки(ctx->buf) {
     struct cw_out_buf *next = ctx->buf->next;
     cw_out_buf_free(ctx->buf);
     ctx->buf = next;
@@ -142,11 +142,11 @@ static void cw_get_writefunc(struct Curl_easy *data, cw_out_type otype,
   switch(otype) {
   case CW_OUT_BODY:
   case CW_OUT_BODY_0LEN:
-    if(Curl_ftp_listmode(data)) {
+    якщо(Curl_ftp_listmode(data)) {
       *pwcb = Curl_ftp_parselist;
       *pwcb_data = data;
     }
-    else {
+    інакше {
       *pwcb = data->set.fwrite_func;
       *pwcb_data = data->set.out;
     }
@@ -193,31 +193,31 @@ static CURLcode cw_out_cb_write(struct Curl_easy *data,
   }
   CURL_TRC_WRITE(data, "[OUT] wrote %zu %s bytes, type=%x -> %zu",
                  blen, (otype == CW_OUT_HDS) ? "header" : "body",
-                 (unsigned int)otype, nwritten);
-  if(nwritten == CURL_WRITEFUNC_PAUSE) {
-    if(data->conn->scheme->flags & PROTOPT_NONETWORK) {
+                 (unsigned ціле)otype, nwritten);
+  якщо(nwritten == CURL_WRITEFUNC_PAUSE) {
+    якщо(data->conn->scheme->flags & PROTOPT_NONETWORK) {
       /* Protocols that work without network cannot be paused. This is
          actually only file:// now, and it cannot pause since the transfer is
          not done using the "normal" procedure. */
       failf(data, "Write callback asked for PAUSE when not supported");
-      return CURLE_WRITE_ERROR;
+      повернути CURLE_WRITE_ERROR;
     }
     data->req.writer.paused = TRUE;
     CURL_TRC_WRITE(data, "[OUT] PAUSE requested by client");
     result = Curl_xfer_pause_recv(data, TRUE);
-    return result ? result : CURLE_AGAIN;
+    повернути result ? result : CURLE_AGAIN;
   }
-  else if(nwritten == CURL_WRITEFUNC_ERROR) {
+  інакше якщо(nwritten == CURL_WRITEFUNC_ERROR) {
     failf(data, "client returned ERROR on write of %zu bytes", blen);
-    return CURLE_WRITE_ERROR;
+    повернути CURLE_WRITE_ERROR;
   }
-  else if(nwritten != blen) {
+  інакше якщо(nwritten != blen) {
     failf(data, "Failure writing output to destination, "
           "passed %zu returned %zu", blen, nwritten);
-    return CURLE_WRITE_ERROR;
+    повернути CURLE_WRITE_ERROR;
   }
   *pnwritten = nwritten;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cw_out_ptr_flush(struct cw_out_ctx *ctx,
@@ -234,48 +234,48 @@ static CURLcode cw_out_ptr_flush(struct cw_out_ctx *ctx,
   CURLcode result = CURLE_OK;
 
   /* If we errored once, we do not invoke the client callback again */
-  if(ctx->errored)
-    return CURLE_WRITE_ERROR;
+  якщо(ctx->errored)
+    повернути CURLE_WRITE_ERROR;
 
   /* write callbacks may get NULLed by the client between calls. */
   cw_get_writefunc(data, otype, &wcb, &wcb_data, &max_write, &min_write);
-  if(!wcb) {
+  якщо(!wcb) {
     *pconsumed = blen;
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
   *pconsumed = 0;
-  if(otype == CW_OUT_BODY_0LEN) {
+  якщо(otype == CW_OUT_BODY_0LEN) {
     DEBUGASSERT(!blen);
-    return cw_out_cb_write(data, wcb, wcb_data, otype,
+    повернути cw_out_cb_write(data, wcb, wcb_data, otype,
                            buf, blen, &nwritten);
   }
-  else {
-    while(blen && !data->req.writer.paused) {
-      if(!flush_all && blen < min_write)
+  інакше {
+    поки(blen && !data->req.writer.paused) {
+      якщо(!flush_all && blen < min_write)
         break;
       wlen = max_write ? CURLMIN(blen, max_write) : blen;
-      if(otype == CW_OUT_BODY)
+      якщо(otype == CW_OUT_BODY)
         result = Curl_pgrs_deliver_check(data, wlen);
-      if(!result)
+      якщо(!result)
         result = cw_out_cb_write(data, wcb, wcb_data, otype,
                                  buf, wlen, &nwritten);
-      if(result)
-        return result;
-      if(otype == CW_OUT_BODY)
+      якщо(result)
+        повернути result;
+      якщо(otype == CW_OUT_BODY)
         Curl_pgrs_deliver_inc(data, nwritten);
       *pconsumed += nwritten;
       blen -= nwritten;
       buf += nwritten;
       /* write functions/data may have been re-setopt'ed. sigh. */
       cw_get_writefunc(data, otype, &wcb, &wcb_data, &max_write, &min_write);
-      if(!wcb) {
+      якщо(!wcb) {
         *pconsumed += blen;
         break;
       }
     }
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cw_out_buf_flush(struct cw_out_ctx *ctx,
@@ -285,31 +285,31 @@ static CURLcode cw_out_buf_flush(struct cw_out_ctx *ctx,
 {
   CURLcode result = CURLE_OK;
 
-  if(curlx_dyn_len(&cwbuf->b) || (cwbuf->type == CW_OUT_BODY_0LEN)) {
+  якщо(curlx_dyn_len(&cwbuf->b) || (cwbuf->type == CW_OUT_BODY_0LEN)) {
     size_t consumed;
 
     result = cw_out_ptr_flush(ctx, data, cwbuf->type, flush_all,
                               curlx_dyn_ptr(&cwbuf->b),
                               curlx_dyn_len(&cwbuf->b),
                               &consumed);
-    if(result && (result != CURLE_AGAIN))
-      return result;
+    якщо(result && (result != CURLE_AGAIN))
+      повернути result;
     result = CURLE_OK;
 
-    if(consumed) {
-      if(consumed == curlx_dyn_len(&cwbuf->b)) {
+    якщо(consumed) {
+      якщо(consumed == curlx_dyn_len(&cwbuf->b)) {
         curlx_dyn_free(&cwbuf->b);
       }
-      else {
+      інакше {
         DEBUGASSERT(consumed < curlx_dyn_len(&cwbuf->b));
         result = curlx_dyn_tail(&cwbuf->b,
                                 curlx_dyn_len(&cwbuf->b) - consumed);
-        if(result)
-          return result;
+        якщо(result)
+          повернути result;
       }
     }
   }
-  return result;
+  повернути result;
 }
 
 static CURLcode cw_out_flush_chain(struct cw_out_ctx *ctx,
@@ -319,31 +319,31 @@ static CURLcode cw_out_flush_chain(struct cw_out_ctx *ctx,
   CURLcode result;
 
   /* write the chain oldest first until it blocks or gets empty */
-  while(ctx->buf) {
+  поки(ctx->buf) {
     struct cw_out_buf *cwbuf = ctx->buf;
     size_t blen_before;
 
-    if(data->req.writer.paused)
-      return CURLE_OK;
+    якщо(data->req.writer.paused)
+      повернути CURLE_OK;
 
     blen_before = curlx_dyn_len(&cwbuf->b);
     result = cw_out_buf_flush(ctx, data, cwbuf, flush_all);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
     ctx->buffered_len -= blen_before - curlx_dyn_len(&cwbuf->b);
 
-    if(curlx_dyn_len(&cwbuf->b)) {
+    якщо(curlx_dyn_len(&cwbuf->b)) {
       /* could not write it all, paused again? */
       DEBUGASSERT(data->req.writer.paused);
-      return CURLE_OK;
+      повернути CURLE_OK;
     }
 
     ctx->buf = cwbuf->next;
-    if(!ctx->buf)
+    якщо(!ctx->buf)
       ctx->tail = NULL;
     cw_out_buf_free(cwbuf);
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cw_out_append(struct cw_out_ctx *ctx,
@@ -355,29 +355,29 @@ static CURLcode cw_out_append(struct cw_out_ctx *ctx,
 
   CURL_TRC_WRITE(data, "[OUT] paused, buffering %zu more bytes (%zu/%d)",
                  blen, ctx->buffered_len, DYN_PAUSE_BUFFER);
-  if(ctx->buffered_len + blen > DYN_PAUSE_BUFFER) {
+  якщо(ctx->buffered_len + blen > DYN_PAUSE_BUFFER) {
     failf(data, "pause buffer not large enough -> CURLE_TOO_LARGE");
-    return CURLE_TOO_LARGE;
+    повернути CURLE_TOO_LARGE;
   }
 
   /* if we do not have a buffer, or it is of another type, make a new one
    * and append it at the tail. For CW_OUT_HDS always make a new one, so
    * we "replay" headers exactly as they came in */
-  if(!ctx->tail || (ctx->tail->type != otype) || (otype == CW_OUT_HDS)) {
+  якщо(!ctx->tail || (ctx->tail->type != otype) || (otype == CW_OUT_HDS)) {
     struct cw_out_buf *cwbuf = cw_out_buf_create(otype);
-    if(!cwbuf)
-      return CURLE_OUT_OF_MEMORY;
-    if(ctx->tail)
+    якщо(!cwbuf)
+      повернути CURLE_OUT_OF_MEMORY;
+    якщо(ctx->tail)
       ctx->tail->next = cwbuf;
-    else
+    інакше
       ctx->buf = cwbuf;
     ctx->tail = cwbuf;
   }
   DEBUGASSERT(ctx->tail && (ctx->tail->type == otype));
   result = curlx_dyn_addn(&ctx->tail->b, buf, blen);
-  if(!result)
+  якщо(!result)
     ctx->buffered_len += blen;
-  return result;
+  повернути result;
 }
 
 static CURLcode cw_out_do_write(struct cw_out_ctx *ctx,
@@ -390,72 +390,72 @@ static CURLcode cw_out_do_write(struct cw_out_ctx *ctx,
 
   /* if we have buffered data and the last chunk buffered is of a
    * different type than what we are writing now, try to flush all */
-  if(ctx->tail && ctx->tail->type != otype) {
+  якщо(ctx->tail && ctx->tail->type != otype) {
     result = cw_out_flush_chain(ctx, data, TRUE);
-    if(result)
+    якщо(result)
       goto out;
   }
 
-  if(ctx->buf) {
+  якщо(ctx->buf) {
     /* still have buffered data, append and flush */
     result = cw_out_append(ctx, data, otype, buf, blen);
-    if(result)
+    якщо(result)
       goto out;
     result = cw_out_flush_chain(ctx, data, flush_all);
-    if(result)
+    якщо(result)
       goto out;
   }
-  else {
+  інакше {
     /* nothing buffered, try direct write */
     size_t consumed;
     result = cw_out_ptr_flush(ctx, data, otype, flush_all,
                               buf, blen, &consumed);
-    if(result && (result != CURLE_AGAIN))
-      return result;
+    якщо(result && (result != CURLE_AGAIN))
+      повернути result;
     result = CURLE_OK;
-    if(consumed < blen) {
+    якщо(consumed < blen) {
       /* did not write all, append the rest */
       result = cw_out_append(ctx, data, otype,
                              buf + consumed, blen - consumed);
-      if(result)
+      якщо(result)
         goto out;
     }
   }
 
 out:
-  if(result) {
+  якщо(result) {
     /* We do not want to invoke client callbacks a second time after
      * encountering an error. See issue #13337 */
     ctx->errored = TRUE;
     cw_out_bufs_free(ctx);
   }
-  return result;
+  повернути result;
 }
 
 static CURLcode cw_out_write(struct Curl_easy *data,
-                             struct Curl_cwriter *writer, int type,
+                             struct Curl_cwriter *writer, ціле type,
                              const char *buf, size_t blen)
 {
   struct cw_out_ctx *ctx = writer->ctx;
   CURLcode result;
   bool flush_all = !!(type & CLIENTWRITE_EOS);
 
-  if((type & CLIENTWRITE_BODY) ||
+  якщо((type & CLIENTWRITE_BODY) ||
      ((type & CLIENTWRITE_HEADER) && data->set.include_header)) {
     cw_out_type otype = (!blen && (type & CLIENTWRITE_0LEN)) ?
                         CW_OUT_BODY_0LEN : CW_OUT_BODY;
     result = cw_out_do_write(ctx, data, otype, flush_all, buf, blen);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
 
-  if(type & (CLIENTWRITE_HEADER | CLIENTWRITE_INFO)) {
+  якщо(type & (CLIENTWRITE_HEADER | CLIENTWRITE_INFO)) {
     result = cw_out_do_write(ctx, data, CW_OUT_HDS, flush_all, buf, blen);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cw_out_do_flush(struct Curl_easy *data,
@@ -464,27 +464,27 @@ static CURLcode cw_out_do_flush(struct Curl_easy *data,
 {
   struct cw_out_ctx *ctx = (struct cw_out_ctx *)cw_out;
 
-  if(ctx->errored)
-    return CURLE_WRITE_ERROR;
+  якщо(ctx->errored)
+    повернути CURLE_WRITE_ERROR;
 
-  if(!data->req.writer.paused && ctx->buf) {
+  якщо(!data->req.writer.paused && ctx->buf) {
     CURLcode result;
 
     CURL_TRC_WRITE(data, "[OUT] flush");
     result = cw_out_flush_chain(ctx, data, flush_all);
-    if(result) {
+    якщо(result) {
       ctx->errored = TRUE;
       cw_out_bufs_free(ctx);
-      return result;
+      повернути result;
     }
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode cw_out_flush(struct Curl_easy *data,
                              struct Curl_cwriter *writer)
 {
-  return cw_out_do_flush(data, writer, FALSE);
+  повернути cw_out_do_flush(data, writer, FALSE);
 }
 
 const struct Curl_cwtype Curl_cwt_out = {
@@ -504,11 +504,11 @@ CURLcode Curl_cw_out_done(struct Curl_easy *data)
   CURLcode result = CURLE_OK;
 
   cw_out = Curl_cwriter_get_by_type(data, &Curl_cwt_out);
-  if(cw_out) {
+  якщо(cw_out) {
     CURL_TRC_WRITE(data, "[OUT] done");
     result = Curl_client_flush(data);
-    if(!result)
+    якщо(!result)
       result = cw_out_do_flush(data, cw_out, TRUE);
   }
-  return result;
+  повернути result;
 }

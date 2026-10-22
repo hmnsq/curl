@@ -36,7 +36,7 @@ struct Curl_llist {
   Curl_llist_dtor _dtor;
   size_t _size;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  ціле _init;      /* detect API usage mistakes */
 #endif
 };
 
@@ -46,7 +46,7 @@ struct Curl_llist_node {
   struct Curl_llist_node *_prev;
   struct Curl_llist_node *_next;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  ціле _init;      /* detect API usage mistakes */
 #endif
 };
 

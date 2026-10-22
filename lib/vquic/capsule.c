@@ -24,7 +24,7 @@
 
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#якщо !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>  /* for htons() */
@@ -44,12 +44,12 @@
  */
 static uint64_t capsule_ntohll(uint64_t value)
 {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-  return value;
+#якщо defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+  повернути value;
 #elif (defined(__GNUC__) || defined(__clang__)) && \
   defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-  return __builtin_bswap64(value);
-#else
+  повернути __builtin_bswap64(value);
+#інакше
   union {
     uint64_t u64;
     uint32_t u32[2];
@@ -58,7 +58,7 @@ static uint64_t capsule_ntohll(uint64_t value)
   src.u64 = value;
   dst.u32[0] = ntohl(src.u32[1]);
   dst.u32[1] = ntohl(src.u32[0]);
-  return dst.u64;
+  повернути dst.u64;
 #endif
 }
 
@@ -72,27 +72,27 @@ static size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t value)
 {
   DEBUGASSERT(value <= 0x3FFFFFFFFFFFFFFF);
 
-  if(value <= 0x3F) {
+  якщо(value <= 0x3F) {
     buf[0] = (uint8_t)value;
-    return 1;
+    повернути 1;
   }
-  else if(value <= 0x3FFF) {
+  інакше якщо(value <= 0x3FFF) {
     uint16_t encoded = (uint16_t)value & 0x3FFF;
     encoded = ntohs(encoded | 0x4000);
     memcpy(buf, &encoded, 2);
-    return 2;
+    повернути 2;
   }
-  else if(value <= 0x3FFFFFFF) {
+  інакше якщо(value <= 0x3FFFFFFF) {
     uint32_t encoded = (uint32_t)value & 0x3FFFFFFF;
     encoded = ntohl(encoded | 0x80000000);
     memcpy(buf, &encoded, 4);
-    return 4;
+    повернути 4;
   }
-  else {
+  інакше {
     uint64_t encoded = (uint64_t)value & 0x3FFFFFFFFFFFFFFF;
     encoded = capsule_ntohll(encoded | 0xC000000000000000);
     memcpy(buf, &encoded, 8);
-    return 8;
+    повернути 8;
   }
 }
 
@@ -103,10 +103,10 @@ static CURLcode capsule_peek_u8(struct bufq *recvbufq,
   const unsigned char *peek = NULL;
   size_t peeklen = 0;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
-    return CURLE_AGAIN;
+  якщо(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
+    повернути CURLE_AGAIN;
   *pbyte = peek[0];
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
@@ -121,22 +121,22 @@ static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
   CURLcode result;
 
   result = capsule_peek_u8(recvbufq, offset, &first_byte);
-  if(result)
-    return result;
+  якщо(result)
+    повернути result;
 
   nbytes = (size_t)1 << (first_byte >> 6); /* 1, 2, 4 or 8 bytes */
   value = first_byte & 0x3F;
 
-  for(i = 1; i < nbytes; ++i) {
+  для(i = 1; i < nbytes; ++i) {
     result = capsule_peek_u8(recvbufq, offset + i, &byte);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
     value = (value << 8) | byte;
   }
 
   *pvalue = value;
   *pconsumed = nbytes;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /**
@@ -155,12 +155,12 @@ UNITTEST size_t capsule_encap_udp_hdr(uint8_t *hdr, size_t hdrlen,
 {
   size_t off = 0;
   DEBUGASSERT(hdrlen >= HTTP_CAPSULE_HEADER_MAX_SIZE);
-  if(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
-    return 0;
+  якщо(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
+    повернути 0;
   hdr[off++] = 0; /* capsule type: HTTP Datagram */
   off += capsule_encode_varint_buf(hdr + off, (uint64_t)payload_len + 1);
   hdr[off++] = 0; /* context ID */
-  return off;
+  повернути off;
 }
 
 CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
@@ -172,20 +172,20 @@ CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
 
   hdr_len = capsule_encap_udp_hdr(hdr, sizeof(hdr), blen);
   DEBUGASSERT(hdr_len);
-  if(!hdr_len)
-    return CURLE_FAILED_INIT;
+  якщо(!hdr_len)
+    повернути CURLE_FAILED_INIT;
 
   result = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
-  if(!result && (nwritten != hdr_len))
-    return CURLE_WRITE_ERROR;
-  if(!result) {
+  якщо(!result && (nwritten != hdr_len))
+    повернути CURLE_WRITE_ERROR;
+  якщо(!result) {
     result = Curl_bufq_write(q, buf, blen, &nwritten);
-    if(!result && (nwritten != blen))
-      return CURLE_WRITE_ERROR;
+    якщо(!result && (nwritten != blen))
+      повернути CURLE_WRITE_ERROR;
   }
-  if(result == CURLE_AGAIN)
-    return CURLE_WRITE_ERROR;
-  return result;
+  якщо(result == CURLE_AGAIN)
+    повернути CURLE_WRITE_ERROR;
+  повернути result;
 }
 
 size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
@@ -201,107 +201,107 @@ size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
   size_t bytes_read = 0;
   CURLcode result = CURLE_OK;
 
-  if(!len) {
+  якщо(!len) {
     *err = CURLE_BAD_FUNCTION_ARGUMENT;
-    return 0;
+    повернути 0;
   }
 
-  if(Curl_bufq_is_empty(recvbufq)) {
+  якщо(Curl_bufq_is_empty(recvbufq)) {
     *err = CURLE_AGAIN;
-    return 0;
+    повернути 0;
   }
 
-  if(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
+  якщо(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
     *err = CURLE_AGAIN;
-    return 0;
+    повернути 0;
   }
 
-  if(capsule_type[0]) {
+  якщо(capsule_type[0]) {
     infof(data, "Error! Invalid capsule type: %d", capsule_type[0]);
     Curl_bufq_skip(recvbufq, 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    повернути 0;
   }
 
   offset = 1;
   result = capsule_decode_varint_at(recvbufq, offset, &capsule_length,
                                     &varint_len);
-  if(result == CURLE_AGAIN) {
+  якщо(result == CURLE_AGAIN) {
     *err = CURLE_AGAIN;
-    return 0;
+    повернути 0;
   }
-  else if(result) {
+  інакше якщо(result) {
     *err = CURLE_RECV_ERROR;
-    return 0;
+    повернути 0;
   }
   offset += varint_len;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
+  якщо(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
      !read_size) {
     *err = CURLE_AGAIN;
-    return 0;
+    повернути 0;
   }
 
-  if(*context_id) {
+  якщо(*context_id) {
     infof(data, "Error! Invalid context ID: %02x", *context_id);
     Curl_bufq_skip(recvbufq, offset + 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    повернути 0;
   }
   offset += 1;
 
-  if(!capsule_length) {
+  якщо(!capsule_length) {
     infof(data, "Error! Invalid capsule length: 0");
     Curl_bufq_skip(recvbufq, offset);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    повернути 0;
   }
-  if(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
+  якщо(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
     infof(data, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
           (curl_off_t)capsule_length);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    повернути 0;
   }
   payload_len = (size_t)(capsule_length - 1);
 
-  if(payload_len > len) {
+  якщо(payload_len > len) {
     infof(data, "UDP payload does not fit destination buffer: %zu > %zu",
           payload_len, len);
     Curl_bufq_skip(recvbufq, offset + payload_len);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    повернути 0;
   }
 
-  if(Curl_bufq_len(recvbufq) < offset + payload_len) {
-    if(Curl_bufq_is_full(recvbufq)) {
+  якщо(Curl_bufq_len(recvbufq) < offset + payload_len) {
+    якщо(Curl_bufq_is_full(recvbufq)) {
       infof(data, "Error! Capsule does not fit the receive buffer: %zu",
             payload_len);
       *err = CURLE_RECV_ERROR;
-      return 0;
+      повернути 0;
     }
     *err = CURLE_AGAIN;
-    return 0;
+    повернути 0;
   }
 
   Curl_bufq_skip(recvbufq, offset);
-  if(!payload_len) {
+  якщо(!payload_len) {
     *err = CURLE_OK;
-    return 0;
+    повернути 0;
   }
   result = Curl_bufq_read(recvbufq, buf, payload_len, &bytes_read);
-  if(result || (bytes_read != payload_len)) {
+  якщо(result || (bytes_read != payload_len)) {
     infof(data, "Error! Read less than expected %zu %zu",
           payload_len, bytes_read);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    повернути 0;
   }
 
-  if(cf && data) {
+  якщо(cf && data) {
     CURL_TRC_CF(data, cf, "Processed UDP capsule raw: size=%zu "
                 "length_left %zu", payload_len, Curl_bufq_len(recvbufq));
   }
   *err = CURLE_OK;
-  return bytes_read;
+  повернути bytes_read;
 }
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

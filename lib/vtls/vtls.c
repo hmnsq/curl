@@ -76,7 +76,7 @@
 #endif
 
 #ifdef USE_SSL
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
+#якщо !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
 static const struct alpn_spec ALPN_SPEC_H11 = {
   { ALPN_HTTP_1_1 }, 1
 };
@@ -100,40 +100,40 @@ static const struct alpn_spec *alpn_get_spec(http_majors wanted,
                                              bool only_http_10,
                                              bool use_alpn)
 {
-  if(!use_alpn)
-    return NULL;
+  якщо(!use_alpn)
+    повернути NULL;
   /* If HTTP/1.0 is the wanted protocol then use ALPN http/1.0 and http/1.1.
      This is for compatibility reasons since some HTTP/1.0 servers with old
      ALPN implementations understand ALPN http/1.1 but not http/1.0. */
-  if(only_http_10 && (wanted & CURL_HTTP_V1x))
-    return &ALPN_SPEC_H10_H11;
+  якщо(only_http_10 && (wanted & CURL_HTTP_V1x))
+    повернути &ALPN_SPEC_H10_H11;
 #ifdef USE_HTTP2
-  if(wanted & CURL_HTTP_V2x) {
-    if(wanted & CURL_HTTP_V1x)
-      return (preferred == CURL_HTTP_V1x) ?
+  якщо(wanted & CURL_HTTP_V2x) {
+    якщо(wanted & CURL_HTTP_V1x)
+      повернути (preferred == CURL_HTTP_V1x) ?
         &ALPN_SPEC_H11_H2 : &ALPN_SPEC_H2_H11;
-    return &ALPN_SPEC_H2;
+    повернути &ALPN_SPEC_H2;
   }
-#else
+#інакше
   (void)wanted;
   (void)preferred;
 #endif
-  return &ALPN_SPEC_H11;
+  повернути &ALPN_SPEC_H11;
 }
 #endif /* !CURL_DISABLE_HTTP || !CURL_DISABLE_PROXY */
 #endif /* USE_SSL */
 
 #ifdef USE_SSL
-static int multissl_setup(const struct Curl_ssl *backend);
+static ціле multissl_setup(const struct Curl_ssl *backend);
 #endif
 
 curl_sslbackend Curl_ssl_backend(void)
 {
 #ifdef USE_SSL
   multissl_setup(NULL);
-  return Curl_ssl->info.id;
-#else
-  return CURLSSLBACKEND_NONE;
+  повернути Curl_ssl->info.id;
+#інакше
+  повернути CURLSSLBACKEND_NONE;
 #endif
 }
 
@@ -148,16 +148,16 @@ static bool init_ssl = FALSE;
  * @retval 0 error initializing SSL
  * @retval 1 SSL initialized successfully
  */
-int Curl_ssl_init(void)
+ціле Curl_ssl_init(void)
 {
   /* make sure this is only done once */
-  if(init_ssl)
-    return 1;
+  якщо(init_ssl)
+    повернути 1;
   init_ssl = TRUE; /* never again */
 
-  if(Curl_ssl->init)
-    return Curl_ssl->init();
-  return 1;
+  якщо(Curl_ssl->init)
+    повернути Curl_ssl->init();
+  повернути 1;
 }
 
 static bool ssl_prefs_check(struct Curl_cfilter *cf,
@@ -165,9 +165,9 @@ static bool ssl_prefs_check(struct Curl_cfilter *cf,
 {
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   /* check for CURLOPT_SSLVERSION invalid parameter value */
-  if(conn_config->version >= CURL_SSLVERSION_LAST) {
+  якщо(conn_config->version >= CURL_SSLVERSION_LAST) {
     failf(data, "Unrecognized parameter value passed via CURLOPT_SSLVERSION");
-    return FALSE;
+    повернути FALSE;
   }
 
   switch(conn_config->version_max) {
@@ -176,13 +176,13 @@ static bool ssl_prefs_check(struct Curl_cfilter *cf,
     break;
 
   default:
-    if((conn_config->version_max >> 16) < conn_config->version) {
+    якщо((conn_config->version_max >> 16) < conn_config->version) {
       failf(data, "CURL_SSLVERSION_MAX incompatible with CURL_SSLVERSION");
-      return FALSE;
+      повернути FALSE;
     }
   }
 
-  return TRUE;
+  повернути TRUE;
 }
 
 static struct ssl_connect_data *cf_ctx_new(struct Curl_easy *data,
@@ -192,23 +192,23 @@ static struct ssl_connect_data *cf_ctx_new(struct Curl_easy *data,
 
   (void)data;
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    return NULL;
+  якщо(!ctx)
+    повернути NULL;
 
   ctx->ssl_impl = Curl_ssl;
   ctx->alpn = alpn;
   Curl_bufq_init2(&ctx->earlydata, CURL_SSL_EARLY_MAX, 1, BUFQ_OPT_NO_SPARES);
   ctx->backend = curlx_calloc(1, ctx->ssl_impl->sizeof_ssl_backend_data);
-  if(!ctx->backend) {
+  якщо(!ctx->backend) {
     curlx_free(ctx);
-    return NULL;
+    повернути NULL;
   }
-  return ctx;
+  повернути ctx;
 }
 
 static void cf_ctx_free(struct ssl_connect_data *ctx)
 {
-  if(ctx) {
+  якщо(ctx) {
     curlx_safefree(ctx->negotiated.alpn);
     Curl_bufq_free(&ctx->earlydata);
     curlx_free(ctx->backend);
@@ -219,14 +219,14 @@ static void cf_ctx_free(struct ssl_connect_data *ctx)
 CURLcode Curl_ssl_get_channel_binding(struct Curl_easy *data, int8_t sockindex,
                                       struct dynbuf *binding)
 {
-  if(Curl_ssl->get_channel_binding)
-    return Curl_ssl->get_channel_binding(data, sockindex, binding);
-  return CURLE_OK;
+  якщо(Curl_ssl->get_channel_binding)
+    повернути Curl_ssl->get_channel_binding(data, sockindex, binding);
+  повернути CURLE_OK;
 }
 
 void Curl_ssl_close_all(struct Curl_easy *data)
 {
-  if(Curl_ssl->close_all)
+  якщо(Curl_ssl->close_all)
     Curl_ssl->close_all(data);
 }
 
@@ -236,32 +236,32 @@ CURLcode Curl_ssl_adjust_pollset(struct Curl_cfilter *cf,
 {
   struct ssl_connect_data *connssl = cf->ctx;
 
-  if(connssl->io_need) {
+  якщо(connssl->io_need) {
     curl_socket_t sock = Curl_conn_cf_get_socket(cf->next, data);
     CURLcode result = CURLE_OK;
-    if(sock != CURL_SOCKET_BAD) {
-      if(connssl->io_need & CURL_SSL_IO_NEED_SEND) {
+    якщо(sock != CURL_SOCKET_BAD) {
+      якщо(connssl->io_need & CURL_SSL_IO_NEED_SEND) {
         result = Curl_pollset_set_out_only(data, ps, sock);
         CURL_TRC_CF(data, cf, "adjust_pollset, POLLOUT fd=%" FMT_SOCKET_T,
                     sock);
       }
-      else {
+      інакше {
         result = Curl_pollset_set_in_only(data, ps, sock);
         CURL_TRC_CF(data, cf, "adjust_pollset, POLLIN fd=%" FMT_SOCKET_T,
                     sock);
       }
     }
-    return result;
+    повернути result;
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /* Return list of OpenSSL crypto engine names. */
 struct curl_slist *Curl_ssl_engines_list(struct Curl_easy *data)
 {
-  if(Curl_ssl->engines_list)
-    return Curl_ssl->engines_list(data);
-  return NULL;
+  якщо(Curl_ssl->engines_list)
+    повернути Curl_ssl->engines_list(data);
+  повернути NULL;
 }
 
 static size_t multissl_version(char *buffer, size_t size);
@@ -270,7 +270,7 @@ void Curl_ssl_version(char *buffer, size_t size)
 {
 #ifdef CURL_WITH_MULTI_SSL
   (void)multissl_version(buffer, size);
-#else
+#інакше
   (void)Curl_ssl->version(buffer, size);
 #endif
 }
@@ -279,10 +279,10 @@ void Curl_ssl_free_certinfo(struct Curl_easy *data)
 {
   struct curl_certinfo *ci = &data->info.certs;
 
-  if(ci->num_of_certs) {
+  якщо(ci->num_of_certs) {
     /* free all individual lists used */
-    int i;
-    for(i = 0; i < ci->num_of_certs; i++) {
+    ціле i;
+    для(i = 0; i < ci->num_of_certs; i++) {
       curl_slist_free_all(ci->certinfo[i]);
       ci->certinfo[i] = NULL;
     }
@@ -292,7 +292,7 @@ void Curl_ssl_free_certinfo(struct Curl_easy *data)
   }
 }
 
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num)
+CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, ціле num)
 {
   struct curl_certinfo *ci = &data->info.certs;
   struct curl_slist **table;
@@ -302,20 +302,20 @@ CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num)
 
   /* Allocate the required certificate information structures */
   table = curlx_calloc((size_t)num, sizeof(struct curl_slist *));
-  if(!table)
-    return CURLE_OUT_OF_MEMORY;
+  якщо(!table)
+    повернути CURLE_OUT_OF_MEMORY;
 
   ci->num_of_certs = num;
   ci->certinfo = table;
 
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 /*
  * 'value' is NOT a null-terminated string
  */
 CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data,
-                                    int certnum,
+                                    ціле certnum,
                                     const char *label,
                                     const char *value,
                                     size_t valuelen)
@@ -329,31 +329,31 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data,
 
   curlx_dyn_init(&build, CURL_X509_STR_MAX);
 
-  if(curlx_dyn_add(&build, label) ||
+  якщо(curlx_dyn_add(&build, label) ||
      curlx_dyn_addn(&build, ":", 1) ||
      curlx_dyn_addn(&build, value, valuelen))
-    return CURLE_OUT_OF_MEMORY;
+    повернути CURLE_OUT_OF_MEMORY;
 
   nl = Curl_slist_append_nodup(ci->certinfo[certnum], curlx_dyn_ptr(&build));
-  if(!nl) {
+  якщо(!nl) {
     curlx_dyn_free(&build);
     curl_slist_free_all(ci->certinfo[certnum]);
     result = CURLE_OUT_OF_MEMORY;
   }
 
   ci->certinfo[certnum] = nl;
-  return result;
+  повернути result;
 }
 
 /* get length bytes of randomness */
 CURLcode Curl_ssl_random(struct Curl_easy *data,
                          unsigned char *buffer, size_t length)
 {
-  DEBUGASSERT(length == sizeof(int));
-  if(Curl_ssl->random)
-    return Curl_ssl->random(data, buffer, length);
-  else
-    return CURLE_NOT_BUILT_IN;
+  DEBUGASSERT(length == sizeof(ціле));
+  якщо(Curl_ssl->random)
+    повернути Curl_ssl->random(data, buffer, length);
+  інакше
+    повернути CURLE_NOT_BUILT_IN;
 }
 
 /*
@@ -369,27 +369,27 @@ static CURLcode pubkey_pem_to_der(const char *pem,
   struct dynbuf pbuf;
 
   /* if no pem, exit. */
-  if(!pem)
-    return CURLE_BAD_CONTENT_ENCODING;
+  якщо(!pem)
+    повернути CURLE_BAD_CONTENT_ENCODING;
 
   curlx_dyn_init(&pbuf, MAX_PINNED_PUBKEY_SIZE);
 
   begin_pos = strstr(pem, "-----BEGIN PUBLIC KEY-----");
-  if(!begin_pos)
-    return CURLE_BAD_CONTENT_ENCODING;
+  якщо(!begin_pos)
+    повернути CURLE_BAD_CONTENT_ENCODING;
 
   pem_count = begin_pos - pem;
   /* Invalid if not at beginning AND not directly following \n */
-  if(pem_count && '\n' != pem[pem_count - 1])
-    return CURLE_BAD_CONTENT_ENCODING;
+  якщо(pem_count && '\n' != pem[pem_count - 1])
+    повернути CURLE_BAD_CONTENT_ENCODING;
 
   /* 26 is length of "-----BEGIN PUBLIC KEY-----" */
   pem_count += 26;
 
   /* Invalid if not directly following \n */
   end_pos = strstr(pem + pem_count, "\n-----END PUBLIC KEY-----");
-  if(!end_pos)
-    return CURLE_BAD_CONTENT_ENCODING;
+  якщо(!end_pos)
+    повернути CURLE_BAD_CONTENT_ENCODING;
 
   pem_len = end_pos - pem;
 
@@ -398,23 +398,23 @@ static CURLcode pubkey_pem_to_der(const char *pem,
    * correct indices, and place each character that is not '\n' or '\r'
    * into the stripped_pem array, which should represent the raw base64 string
    */
-  while(pem_count < pem_len) {
-    if('\n' != pem[pem_count] && '\r' != pem[pem_count]) {
+  поки(pem_count < pem_len) {
+    якщо('\n' != pem[pem_count] && '\r' != pem[pem_count]) {
       result = curlx_dyn_addn(&pbuf, &pem[pem_count], 1);
-      if(result)
-        return result;
+      якщо(result)
+        повернути result;
     }
     ++pem_count;
   }
 
-  if(curlx_dyn_len(&pbuf)) {
+  якщо(curlx_dyn_len(&pbuf)) {
     result = curlx_base64_decode(curlx_dyn_ptr(&pbuf), der, der_len);
     curlx_dyn_free(&pbuf);
   }
-  else
+  інакше
     result = CURLE_BAD_CONTENT_ENCODING;
 
-  return result;
+  повернути result;
 }
 
 /*
@@ -428,44 +428,44 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
   CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
-  if(!pubkey || !pubkeylen)
-    return result;
+  якщо(!pinnedpubkey)
+    повернути CURLE_OK;
+  якщо(!pubkey || !pubkeylen)
+    повернути result;
 
   /* only do this if pinnedpubkey starts with "sha256//", length 8 */
-  if(!strncmp(pinnedpubkey, "sha256//", 8)) {
+  якщо(!strncmp(pinnedpubkey, "sha256//", 8)) {
     CURLcode encode;
     char *cert_hash = NULL;
     const char *pinned_hash, *end_pos;
     size_t cert_hash_len = 0, pinned_hash_len;
     unsigned char *sha256sumdigest;
 
-    if(!Curl_ssl->sha256sum) {
+    якщо(!Curl_ssl->sha256sum) {
       /* without sha256 support, this cannot match */
-      return result;
+      повернути result;
     }
 
     /* compute sha256sum of public key */
     sha256sumdigest = curlx_malloc(CURL_SHA256_DIGEST_LENGTH);
-    if(!sha256sumdigest)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!sha256sumdigest)
+      повернути CURLE_OUT_OF_MEMORY;
     encode = Curl_ssl->sha256sum(pubkey, pubkeylen,
                                  sha256sumdigest, CURL_SHA256_DIGEST_LENGTH);
 
-    if(!encode)
+    якщо(!encode)
       encode = curlx_base64_encode(sha256sumdigest,
                                    CURL_SHA256_DIGEST_LENGTH,
                                    &cert_hash, &cert_hash_len);
     curlx_safefree(sha256sumdigest);
 
-    if(encode)
-      return encode;
+    якщо(encode)
+      повернути encode;
 
     infof(data, " public key hash: sha256//%s", cert_hash);
 
     pinned_hash = pinnedpubkey;
-    while(pinned_hash &&
+    поки(pinned_hash &&
           !strncmp(pinned_hash, "sha256//", CURL_CSTRLEN("sha256//"))) {
       pinned_hash = pinned_hash + CURL_CSTRLEN("sha256//");
       end_pos = strchr(pinned_hash, ';');
@@ -473,7 +473,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
                         (size_t)(end_pos - pinned_hash) : strlen(pinned_hash);
 
       /* compare base64 sha256 digests */
-      if(cert_hash_len == pinned_hash_len &&
+      якщо(cert_hash_len == pinned_hash_len &&
          !memcmp(cert_hash, pinned_hash, cert_hash_len)) {
         DEBUGF(infof(data, "public key hash matches pinned value"));
         result = CURLE_OK;
@@ -481,13 +481,13 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
       }
 
       DEBUGF(infof(data, "public key hash does not match 'sha256//%.*s'",
-                   (int)pinned_hash_len, pinned_hash));
+                   (ціле)pinned_hash_len, pinned_hash));
       /* next one or we are at the end */
       pinned_hash = end_pos ? (end_pos + 1) : NULL;
     }
     curlx_safefree(cert_hash);
   }
-  else {
+  інакше {
     long filesize;
     size_t size, pem_len;
     CURLcode pem_read;
@@ -495,18 +495,18 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
     unsigned char *pem_ptr = NULL;
     size_t left;
     FILE *fp = curlx_fopen(pinnedpubkey, "rb");
-    if(!fp)
-      return result;
+    якщо(!fp)
+      повернути result;
 
     curlx_dyn_init(&buf, MAX_PINNED_PUBKEY_SIZE);
 
     /* Determine the file's size */
-    if(fseek(fp, 0, SEEK_END))
+    якщо(fseek(fp, 0, SEEK_END))
       goto end;
     filesize = ftell(fp);
-    if(fseek(fp, 0, SEEK_SET))
+    якщо(fseek(fp, 0, SEEK_SET))
       goto end;
-    if(filesize < 0 || filesize > MAX_PINNED_PUBKEY_SIZE)
+    якщо(filesize < 0 || filesize > MAX_PINNED_PUBKEY_SIZE)
       goto end;
 
     /*
@@ -514,7 +514,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
      * size then it cannot match
      */
     size = curlx_sotouz((curl_off_t)filesize);
-    if(pubkeylen > size)
+    якщо(pubkeylen > size)
       goto end;
 
     /*
@@ -524,16 +524,16 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
     do {
       char buffer[1024];
       size_t want = left > sizeof(buffer) ? sizeof(buffer) : left;
-      if(fread(buffer, 1, want, fp) != want)
+      якщо(fread(buffer, 1, want, fp) != want)
         goto end;
-      if(curlx_dyn_addn(&buf, buffer, want))
+      якщо(curlx_dyn_addn(&buf, buffer, want))
         goto end;
       left -= want;
-    } while(left);
+    } поки(left);
 
     /* If the sizes are the same, it cannot be base64 encoded, must be der */
-    if(pubkeylen == size) {
-      if(!memcmp(pubkey, curlx_dyn_ptr(&buf), pubkeylen))
+    якщо(pubkeylen == size) {
+      якщо(!memcmp(pubkey, curlx_dyn_ptr(&buf), pubkeylen))
         result = CURLE_OK;
       goto end;
     }
@@ -544,14 +544,14 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
      */
     pem_read = pubkey_pem_to_der(curlx_dyn_ptr(&buf), &pem_ptr, &pem_len);
     /* if it was not read successfully, exit */
-    if(pem_read)
+    якщо(pem_read)
       goto end;
 
     /*
      * if the size of our certificate does not match the size of
      * the decoded file, they cannot be the same, otherwise compare
      */
-    if(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
+    якщо(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
       result = CURLE_OK;
 end:
     curlx_dyn_free(&buf);
@@ -559,7 +559,7 @@ end:
     curlx_fclose(fp);
   }
 
-  return result;
+  повернути result;
 }
 
 /*
@@ -567,57 +567,57 @@ end:
  */
 bool Curl_ssl_cert_status_request(void)
 {
-  if(Curl_ssl->cert_status_request)
-    return Curl_ssl->cert_status_request();
-  return FALSE;
+  якщо(Curl_ssl->cert_status_request)
+    повернути Curl_ssl->cert_status_request();
+  повернути FALSE;
 }
 
-static int multissl_init(void)
+static ціле multissl_init(void)
 {
-  if(multissl_setup(NULL))
-    return 1;
-  if(Curl_ssl->init)
-    return Curl_ssl->init();
-  return 1;
+  якщо(multissl_setup(NULL))
+    повернути 1;
+  якщо(Curl_ssl->init)
+    повернути Curl_ssl->init();
+  повернути 1;
 }
 
 static CURLcode multissl_random(struct Curl_easy *data,
                                 unsigned char *entropy, size_t length)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->random(data, entropy, length);
+  якщо(multissl_setup(NULL))
+    повернути CURLE_FAILED_INIT;
+  повернути Curl_ssl->random(data, entropy, length);
 }
 
 static CURLcode multissl_connect(struct Curl_cfilter *cf,
                                  struct Curl_easy *data, bool *done)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->do_connect(cf, data, done);
+  якщо(multissl_setup(NULL))
+    повернути CURLE_FAILED_INIT;
+  повернути Curl_ssl->do_connect(cf, data, done);
 }
 
 static CURLcode multissl_adjust_pollset(struct Curl_cfilter *cf,
                                         struct Curl_easy *data,
                                         struct easy_pollset *ps)
 {
-  if(multissl_setup(NULL))
-    return CURLE_OK;
-  return Curl_ssl->adjust_pollset(cf, data, ps);
+  якщо(multissl_setup(NULL))
+    повернути CURLE_OK;
+  повернути Curl_ssl->adjust_pollset(cf, data, ps);
 }
 
 static void *multissl_get_internals(struct ssl_connect_data *connssl,
                                     CURLINFO info)
 {
-  if(multissl_setup(NULL))
-    return NULL;
-  return Curl_ssl->get_internals(connssl, info);
+  якщо(multissl_setup(NULL))
+    повернути NULL;
+  повернути Curl_ssl->get_internals(connssl, info);
 }
 
 static void multissl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
 {
-  if(multissl_setup(NULL))
-    return;
+  якщо(multissl_setup(NULL))
+    повернути;
   Curl_ssl->close(cf, data);
 }
 
@@ -625,9 +625,9 @@ static CURLcode multissl_recv_plain(struct Curl_cfilter *cf,
                                     struct Curl_easy *data,
                                     char *buf, size_t len, size_t *pnread)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->recv_plain(cf, data, buf, len, pnread);
+  якщо(multissl_setup(NULL))
+    повернути CURLE_FAILED_INIT;
+  повернути Curl_ssl->recv_plain(cf, data, buf, len, pnread);
 }
 
 static CURLcode multissl_send_plain(struct Curl_cfilter *cf,
@@ -635,9 +635,9 @@ static CURLcode multissl_send_plain(struct Curl_cfilter *cf,
                                     const void *mem, size_t len,
                                     size_t *pnwritten)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->send_plain(cf, data, mem, len, pnwritten);
+  якщо(multissl_setup(NULL))
+    повернути CURLE_FAILED_INIT;
+  повернути Curl_ssl->send_plain(cf, data, mem, len, pnwritten);
 }
 
 static const struct Curl_ssl Curl_ssl_multi = {
@@ -679,7 +679,7 @@ const struct Curl_ssl *Curl_ssl =
   &Curl_ssl_openssl;
 #elif defined(USE_SCHANNEL)
   &Curl_ssl_schannel;
-#else
+#інакше
 #error "Missing struct Curl_ssl for selected SSL backend"
 #endif
 
@@ -708,9 +708,9 @@ static const struct Curl_ssl *available_backends[] = {
 /* Global cleanup */
 void Curl_ssl_cleanup(void)
 {
-  if(init_ssl) {
+  якщо(init_ssl) {
     /* only cleanup if we did a previous init */
-    if(Curl_ssl->cleanup)
+    якщо(Curl_ssl->cleanup)
       Curl_ssl->cleanup();
 #ifdef CURL_WITH_MULTI_SSL
     Curl_ssl = &Curl_ssl_multi;
@@ -728,20 +728,20 @@ static size_t multissl_version(char *buffer, size_t size)
 
   current = Curl_ssl == &Curl_ssl_multi ? available_backends[0] : Curl_ssl;
 
-  if(current != selected) {
+  якщо(current != selected) {
     char *p = backends;
     const char *end = backends + sizeof(backends);
-    int i;
+    ціле i;
 
     selected = current;
 
     backends[0] = '\0';
 
-    for(i = 0; available_backends[i]; ++i) {
+    для(i = 0; available_backends[i]; ++i) {
       char vb[200];
       bool paren = (selected != available_backends[i]);
 
-      if(available_backends[i]->version(vb, sizeof(vb))) {
+      якщо(available_backends[i]->version(vb, sizeof(vb))) {
         p += curl_msnprintf(p, end - p, "%s%s%s%s", (p != backends ? " " : ""),
                             (paren ? "(" : ""), vb, (paren ? ")" : ""));
       }
@@ -750,46 +750,46 @@ static size_t multissl_version(char *buffer, size_t size)
     backends_len = p - backends;
   }
 
-  if(size) {
+  якщо(size) {
     curlx_strcopy(buffer, size, backends, backends_len);
   }
-  return 0;
+  повернути 0;
 }
 
-static int multissl_setup(const struct Curl_ssl *backend)
+static ціле multissl_setup(const struct Curl_ssl *backend)
 {
-  int i;
+  ціле i;
   char *env;
 
-  if(Curl_ssl != &Curl_ssl_multi)
-    return 1;
+  якщо(Curl_ssl != &Curl_ssl_multi)
+    повернути 1;
 
-  if(backend) {
+  якщо(backend) {
     Curl_ssl = backend;
-    return 0;
+    повернути 0;
   }
 
-  if(!available_backends[0])
-    return 1;
+  якщо(!available_backends[0])
+    повернути 1;
 
   env = curl_getenv("CURL_SSL_BACKEND");
-  if(env) {
-    for(i = 0; available_backends[i]; i++) {
-      if(curl_strequal(env, available_backends[i]->info.name)) {
+  якщо(env) {
+    для(i = 0; available_backends[i]; i++) {
+      якщо(curl_strequal(env, available_backends[i]->info.name)) {
         Curl_ssl = available_backends[i];
         curlx_free(env);
-        return 0;
+        повернути 0;
       }
     }
   }
 
 #ifdef CURL_DEFAULT_SSL_BACKEND
-  for(i = 0; available_backends[i]; i++) {
-    if(curl_strequal(CURL_DEFAULT_SSL_BACKEND,
+  для(i = 0; available_backends[i]; i++) {
+    якщо(curl_strequal(CURL_DEFAULT_SSL_BACKEND,
                      available_backends[i]->info.name)) {
       Curl_ssl = available_backends[i];
       curlx_free(env);
-      return 0;
+      повернути 0;
     }
   }
 #endif
@@ -797,7 +797,7 @@ static int multissl_setup(const struct Curl_ssl *backend)
   /* Fall back to first available backend */
   Curl_ssl = available_backends[0];
   curlx_free(env);
-  return 0;
+  повернути 0;
 }
 
 /* This function is used to select the SSL backend to use. It is called by
@@ -805,40 +805,40 @@ static int multissl_setup(const struct Curl_ssl *backend)
 CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
                                    const curl_ssl_backend ***avail)
 {
-  int i;
+  ціле i;
 
-  if(avail)
+  якщо(avail)
     *avail = (const curl_ssl_backend **)&available_backends;
 
-  if(Curl_ssl != &Curl_ssl_multi)
-    return id == Curl_ssl->info.id ||
+  якщо(Curl_ssl != &Curl_ssl_multi)
+    повернути id == Curl_ssl->info.id ||
            (name && curl_strequal(name, Curl_ssl->info.name)) ?
            CURLSSLSET_OK :
 #ifdef CURL_WITH_MULTI_SSL
            CURLSSLSET_TOO_LATE;
-#else
+#інакше
            CURLSSLSET_UNKNOWN_BACKEND;
 #endif
 
-  for(i = 0; available_backends[i]; i++) {
-    if(available_backends[i]->info.id == id ||
+  для(i = 0; available_backends[i]; i++) {
+    якщо(available_backends[i]->info.id == id ||
        (name && curl_strequal(available_backends[i]->info.name, name))) {
       multissl_setup(available_backends[i]);
-      return CURLSSLSET_OK;
+      повернути CURLSSLSET_OK;
     }
   }
 
-  return CURLSSLSET_UNKNOWN_BACKEND;
+  повернути CURLSSLSET_UNKNOWN_BACKEND;
 }
 
-#else /* USE_SSL */
+#інакше /* USE_SSL */
 CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
                                    const curl_ssl_backend ***avail)
 {
   (void)id;
   (void)name;
   (void)avail;
-  return CURLSSLSET_NO_BACKENDS;
+  повернути CURLSSLSET_NO_BACKENDS;
 }
 
 #endif /* !USE_SSL */
@@ -857,21 +857,21 @@ void Curl_ssl_peer_cleanup(struct ssl_peer *peer)
 
 static ssl_peer_type get_peer_type(const char *hostname)
 {
-  if(hostname && hostname[0]) {
+  якщо(hostname && hostname[0]) {
 #ifdef USE_IPV6
     struct in6_addr addr;
-#else
+#інакше
     struct in_addr addr;
 #endif
-    if(curlx_inet_pton(AF_INET, hostname, &addr))
-      return CURL_SSL_PEER_IPV4;
+    якщо(curlx_inet_pton(AF_INET, hostname, &addr))
+      повернути CURL_SSL_PEER_IPV4;
 #ifdef USE_IPV6
-    else if(curlx_inet_pton(AF_INET6, hostname, &addr)) {
-      return CURL_SSL_PEER_IPV6;
+    інакше якщо(curlx_inet_pton(AF_INET6, hostname, &addr)) {
+      повернути CURL_SSL_PEER_IPV6;
     }
 #endif
   }
-  return CURL_SSL_PEER_DNS;
+  повернути CURL_SSL_PEER_DNS;
 }
 
 CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
@@ -884,9 +884,9 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
   /* We expect a clean struct, e.g. called only ONCE */
-  if(!ssl_peer || !origin) {
+  якщо(!ssl_peer || !origin) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    повернути CURLE_FAILED_INIT;
   }
   DEBUGASSERT(!ssl_peer->origin);
   DEBUGASSERT(!ssl_peer->peer);
@@ -896,15 +896,15 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
   Curl_peer_link(&ssl_peer->origin, origin);
   Curl_peer_link(&ssl_peer->peer, peer);
   ssl_peer->type = get_peer_type(origin->hostname);
-  if(ssl_peer->type == CURL_SSL_PEER_DNS) {
+  якщо(ssl_peer->type == CURL_SSL_PEER_DNS) {
     /* not an IP address, normalize according to RCC 6066 ch. 3,
      * max len of SNI is 2^16-1, no trailing dot */
     size_t len = strlen(origin->hostname);
-    if(len && (origin->hostname[len - 1] == '.'))
+    якщо(len && (origin->hostname[len - 1] == '.'))
       len--;
-    if(len < USHRT_MAX) {
+    якщо(len < USHRT_MAX) {
       ssl_peer->sni = curlx_calloc(1, len + 1);
-      if(!ssl_peer->sni)
+      якщо(!ssl_peer->sni)
         goto out;
       Curl_strntolower(ssl_peer->sni, origin->hostname, len);
       ssl_peer->sni[len] = 0;
@@ -915,15 +915,15 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
                                   &ssl_peer->scache_key);
 
 out:
-  if(result)
+  якщо(result)
     Curl_ssl_peer_cleanup(ssl_peer);
-  return result;
+  повернути result;
 }
 
 static void ssl_cf_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
 {
   struct ssl_connect_data *connssl = cf->ctx;
-  if(connssl) {
+  якщо(connssl) {
     connssl->ssl_impl->close(cf, data);
     connssl->state = ssl_connection_none;
     connssl->connecting_state = ssl_connect_1;
@@ -944,20 +944,20 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
   struct cf_call_data save;
   CURLcode result;
 
-  if(cf->connected && (connssl->state != ssl_connection_deferred)) {
+  якщо(cf->connected && (connssl->state != ssl_connection_deferred)) {
     *done = TRUE;
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
 
-  if(!cf->next || !connssl->peer.origin) {
+  якщо(!cf->next || !connssl->peer.origin) {
     *done = FALSE;
-    return CURLE_FAILED_INIT;
+    повернути CURLE_FAILED_INIT;
   }
 
-  if(!cf->next->connected) {
+  якщо(!cf->next->connected) {
     result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    якщо(result || !*done)
+      повернути result;
   }
 
   CF_DATA_SAVE(save, cf, data);
@@ -966,8 +966,8 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
 
   *done = FALSE;
 
-  if(!connssl->prefs_checked) {
-    if(!ssl_prefs_check(cf, data)) {
+  якщо(!connssl->prefs_checked) {
+    якщо(!ssl_prefs_check(cf, data)) {
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
@@ -976,12 +976,12 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
 
   result = connssl->ssl_impl->do_connect(cf, data, done);
 
-  if(!result && *done) {
+  якщо(!result && *done) {
     cf->connected = TRUE;
-    if(connssl->state == ssl_connection_complete) {
+    якщо(connssl->state == ssl_connection_complete) {
       connssl->handshake_done = *Curl_pgrs_now(data);
     }
-    if(Curl_tls_keylog_enabled()) {
+    якщо(Curl_tls_keylog_enabled()) {
       infof(data, "SSLKEYLOGFILE set, all TLS secrets are logged to '%s'",
             Curl_tls_keylog_file_name());
 #ifdef LIBRESSL_VERSION_NUMBER
@@ -995,9 +995,9 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
                 connssl->earlydata_state > ssl_earlydata_none);
   }
 out:
-  CURL_TRC_CF(data, cf, "cf_connect() -> %d, done=%d", (int)result, *done);
+  CURL_TRC_CF(data, cf, "cf_connect() -> %d, done=%d", (ціле)result, *done);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  повернути result;
 }
 
 static CURLcode ssl_cf_set_earlydata(struct Curl_cfilter *cf,
@@ -1010,16 +1010,16 @@ static CURLcode ssl_cf_set_earlydata(struct Curl_cfilter *cf,
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_await);
   DEBUGASSERT(Curl_bufq_is_empty(&connssl->earlydata));
-  if(blen) {
-    if(blen > connssl->earlydata_max)
+  якщо(blen) {
+    якщо(blen > connssl->earlydata_max)
       blen = connssl->earlydata_max;
     result = Curl_bufq_write(&connssl->earlydata, buf, blen, &nwritten);
     CURL_TRC_CF(data, cf, "ssl_cf_set_earlydata(len=%zu) -> %zu",
                 blen, nwritten);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
@@ -1032,10 +1032,10 @@ static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
 
   DEBUGASSERT(connssl->state == ssl_connection_deferred);
   *done = FALSE;
-  if(connssl->earlydata_state == ssl_earlydata_await) {
+  якщо(connssl->earlydata_state == ssl_earlydata_await) {
     result = ssl_cf_set_earlydata(cf, data, buf, blen);
-    if(result)
-      return result;
+    якщо(result)
+      повернути result;
     /* we buffered any early data we would like to send. Actually
      * do the connect now which sends it and performs the handshake. */
     connssl->earlydata_state = ssl_earlydata_sending;
@@ -1044,8 +1044,8 @@ static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
 
   result = ssl_cf_connect(cf, data, done);
 
-  if(!result && *done) {
-    if(!connssl->stats_reported && (cf->cft == &Curl_cft_ssl)) {
+  якщо(!result && *done) {
+    якщо(!connssl->stats_reported && (cf->cft == &Curl_cft_ssl)) {
       Curl_pgrsTimeWas(data, TIMER_APPCONNECT, connssl->handshake_done);
       connssl->stats_reported = TRUE;
     }
@@ -1053,13 +1053,13 @@ static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
     case ssl_earlydata_none:
       break;
     case ssl_earlydata_accepted:
-      if(!Curl_ssl_cf_is_proxy(cf))
+      якщо(!Curl_ssl_cf_is_proxy(cf))
         Curl_pgrsEarlyData(data, (curl_off_t)connssl->earlydata_skip);
       infof(data, "Server accepted %zu bytes of TLS early data.",
             connssl->earlydata_skip);
       break;
     case ssl_earlydata_rejected:
-      if(!Curl_ssl_cf_is_proxy(cf))
+      якщо(!Curl_ssl_cf_is_proxy(cf))
         Curl_pgrsEarlyData(data, -(curl_off_t)connssl->earlydata_skip);
       infof(data, "Server rejected TLS early data.");
       connssl->earlydata_skip = 0;
@@ -1071,7 +1071,7 @@ static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
       break;
     }
   }
-  return result;
+  повернути result;
 }
 
 static bool ssl_cf_data_pending(struct Curl_cfilter *cf,
@@ -1082,13 +1082,13 @@ static bool ssl_cf_data_pending(struct Curl_cfilter *cf,
   bool pending;
 
   CF_DATA_SAVE(save, cf, data);
-  if(connssl->ssl_impl->data_pending &&
+  якщо(connssl->ssl_impl->data_pending &&
      connssl->ssl_impl->data_pending(cf, data))
     pending = TRUE;
-  else
+  інакше
     pending = cf->next->cft->has_data_pending(cf->next, data);
   CF_DATA_RESTORE(cf, save);
-  return pending;
+  повернути pending;
 }
 
 static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
@@ -1104,26 +1104,26 @@ static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
   *pnwritten = 0;
   CF_DATA_SAVE(save, cf, data);
 
-  if(connssl->state == ssl_connection_deferred) {
+  якщо(connssl->state == ssl_connection_deferred) {
     bool done = FALSE;
     result = ssl_cf_connect_deferred(cf, data, buf, blen, &done);
-    if(result)
+    якщо(result)
       goto out;
-    else if(!done) {
+    інакше якщо(!done) {
       result = CURLE_AGAIN;
       goto out;
     }
     DEBUGASSERT(connssl->state == ssl_connection_complete);
   }
 
-  if(connssl->earlydata_skip) {
-    if(connssl->earlydata_skip >= blen) {
+  якщо(connssl->earlydata_skip) {
+    якщо(connssl->earlydata_skip >= blen) {
       connssl->earlydata_skip -= blen;
       result = CURLE_OK;
       *pnwritten = blen;
       goto out;
     }
-    else {
+    інакше {
       *pnwritten = connssl->earlydata_skip;
       buf = buf + connssl->earlydata_skip;
       blen -= connssl->earlydata_skip;
@@ -1132,16 +1132,16 @@ static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
   }
 
   /* OpenSSL and maybe other TLS libs do not like 0-length writes. Skip. */
-  if(blen > 0) {
+  якщо(blen > 0) {
     size_t nwritten;
     result = connssl->ssl_impl->send_plain(cf, data, buf, blen, &nwritten);
-    if(!result)
+    якщо(!result)
       *pnwritten += nwritten;
   }
 
 out:
   CF_DATA_RESTORE(cf, save);
-  return result;
+  повернути result;
 }
 
 static CURLcode ssl_cf_recv(struct Curl_cfilter *cf,
@@ -1154,12 +1154,12 @@ static CURLcode ssl_cf_recv(struct Curl_cfilter *cf,
 
   CF_DATA_SAVE(save, cf, data);
   *pnread = 0;
-  if(connssl->state == ssl_connection_deferred) {
+  якщо(connssl->state == ssl_connection_deferred) {
     bool done = FALSE;
     result = ssl_cf_connect_deferred(cf, data, NULL, 0, &done);
-    if(result)
+    якщо(result)
       goto out;
-    else if(!done) {
+    інакше якщо(!done) {
       result = CURLE_AGAIN;
       goto out;
     }
@@ -1170,7 +1170,7 @@ static CURLcode ssl_cf_recv(struct Curl_cfilter *cf,
 
 out:
   CF_DATA_RESTORE(cf, save);
-  return result;
+  повернути result;
 }
 
 static CURLcode ssl_cf_shutdown(struct Curl_cfilter *cf,
@@ -1182,17 +1182,17 @@ static CURLcode ssl_cf_shutdown(struct Curl_cfilter *cf,
 
   *done = TRUE;
   /* If we have done the SSL handshake, shut down the connection cleanly */
-  if(cf->connected && (connssl->state == ssl_connection_complete) &&
+  якщо(cf->connected && (connssl->state == ssl_connection_complete) &&
      !cf->shutdown && Curl_ssl->shut_down) {
     struct cf_call_data save;
 
     CF_DATA_SAVE(save, cf, data);
     result = connssl->ssl_impl->shut_down(cf, data, TRUE, done);
-    CURL_TRC_CF(data, cf, "cf_shutdown -> %d, done=%d", (int)result, *done);
+    CURL_TRC_CF(data, cf, "cf_shutdown -> %d, done=%d", (ціле)result, *done);
     CF_DATA_RESTORE(cf, save);
     cf->shutdown = (result || *done);
   }
-  return result;
+  повернути result;
 }
 
 static CURLcode ssl_cf_adjust_pollset(struct Curl_cfilter *cf,
@@ -1206,19 +1206,19 @@ static CURLcode ssl_cf_adjust_pollset(struct Curl_cfilter *cf,
   CF_DATA_SAVE(save, cf, data);
   result = connssl->ssl_impl->adjust_pollset(cf, data, ps);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  повернути result;
 }
 
 static CURLcode ssl_cf_query(struct Curl_cfilter *cf,
                              struct Curl_easy *data,
-                             int query, int *pres1, void *pres2)
+                             ціле query, ціле *pres1, void *pres2)
 {
   struct ssl_connect_data *connssl = cf->ctx;
 
   switch(query) {
   case CF_QUERY_SSL_INFO:
   case CF_QUERY_SSL_CTX_INFO:
-    if(!Curl_ssl_cf_is_proxy(cf)) {
+    якщо(!Curl_ssl_cf_is_proxy(cf)) {
       struct curl_tlssessioninfo *info = pres2;
       struct cf_call_data save;
       CF_DATA_SAVE(save, cf, data);
@@ -1227,7 +1227,7 @@ static CURLcode ssl_cf_query(struct Curl_cfilter *cf,
         cf->ctx, (query == CF_QUERY_SSL_INFO) ?
         CURLINFO_TLS_SSL_PTR : CURLINFO_TLS_SESSION);
       CF_DATA_RESTORE(cf, save);
-      return CURLE_OK;
+      повернути CURLE_OK;
     }
     break;
   case CF_QUERY_ALPN_NEGOTIATED: {
@@ -1235,19 +1235,19 @@ static CURLcode ssl_cf_query(struct Curl_cfilter *cf,
     DEBUGASSERT(palpn);
     *palpn = connssl->negotiated.alpn;
     CURL_TRC_CF(data, cf, "query ALPN: returning '%s'", *palpn);
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
   default:
     break;
   }
-  return cf->next ?
+  повернути cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
 static CURLcode ssl_cf_cntrl(struct Curl_cfilter *cf,
                              struct Curl_easy *data,
-                             int event, int arg1, void *arg2)
+                             ціле event, ціле arg1, void *arg2)
 {
   struct ssl_connect_data *connssl = cf->ctx;
 
@@ -1256,17 +1256,17 @@ static CURLcode ssl_cf_cntrl(struct Curl_cfilter *cf,
   (void)data;
   switch(event) {
   case CF_CTRL_CONN_INFO_UPDATE:
-    if(connssl->negotiated.alpn && !cf->sockindex) {
-      if(!strcmp("http/1.1", connssl->negotiated.alpn))
+    якщо(connssl->negotiated.alpn && !cf->sockindex) {
+      якщо(!strcmp("http/1.1", connssl->negotiated.alpn))
         cf->conn->httpversion_seen = 11;
-      else if(!strcmp("h2", connssl->negotiated.alpn))
+      інакше якщо(!strcmp("h2", connssl->negotiated.alpn))
         cf->conn->httpversion_seen = 20;
-      else if(!strcmp("h3", connssl->negotiated.alpn))
+      інакше якщо(!strcmp("h3", connssl->negotiated.alpn))
         cf->conn->httpversion_seen = 30;
     }
     break;
   case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !connssl->stats_reported &&
+    якщо(cf->connected && !connssl->stats_reported &&
        (cf->cft == &Curl_cft_ssl) &&
        (connssl->handshake_done.tv_sec || connssl->handshake_done.tv_usec)) {
       Curl_pgrsTimeWas(data, TIMER_APPCONNECT, connssl->handshake_done);
@@ -1274,7 +1274,7 @@ static CURLcode ssl_cf_cntrl(struct Curl_cfilter *cf,
     }
     break;
   }
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 static bool cf_ssl_is_alive(struct Curl_cfilter *cf, struct Curl_easy *data,
@@ -1283,7 +1283,7 @@ static bool cf_ssl_is_alive(struct Curl_cfilter *cf, struct Curl_easy *data,
   /*
    * This function tries to determine connection status.
    */
-  return cf->next ?
+  повернути cf->next ?
     cf->next->cft->is_alive(cf->next, data, input_pending) :
     FALSE; /* pessimistic in absence of data */
 }
@@ -1341,13 +1341,13 @@ static CURLcode cf_ssl_create(struct Curl_cfilter **pcf,
   /* We only support ALPN for HTTP so far. */
   DEBUGASSERT(!conn->bits.tls_enable_alpn);
   ctx = cf_ctx_new(data, NULL);
-#else
+#інакше
   ctx = cf_ctx_new(data, alpn_get_spec(data->state.http_neg.wanted,
                                        data->state.http_neg.preferred,
                                        (bool)data->state.http_neg.only_10,
                                        (bool)conn->bits.tls_enable_alpn));
 #endif
-  if(!ctx) {
+  якщо(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -1355,10 +1355,10 @@ static CURLcode cf_ssl_create(struct Curl_cfilter **pcf,
   result = Curl_cf_create(&cf, &Curl_cft_ssl, ctx);
 
 out:
-  if(result)
+  якщо(result)
     cf_ctx_free(ctx);
   *pcf = result ? NULL : cf;
-  return result;
+  повернути result;
 }
 
 static CURLcode cf_ssl_peer_init(struct Curl_cfilter *cf,
@@ -1369,7 +1369,7 @@ static CURLcode cf_ssl_peer_init(struct Curl_cfilter *cf,
   struct ssl_connect_data *connssl = cf->ctx;
   char tls_id[80];
   connssl->ssl_impl->version(tls_id, sizeof(tls_id) - 1);
-  return Curl_ssl_peer_init(&connssl->peer, origin, peer, sslc,
+  повернути Curl_ssl_peer_init(&connssl->peer, origin, peer, sslc,
                             tls_id, TRNSPRT_TCP);
 }
 
@@ -1384,13 +1384,13 @@ CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
   CURLcode result;
 
   result = cf_ssl_create(&cf, data, conn);
-  if(!result)
+  якщо(!result)
     result = cf_ssl_peer_init(cf, origin, peer, &conn->ssl_config);
-  if(!result)
+  якщо(!result)
     Curl_conn_cf_add(data, conn, sockindex, cf);
-  else if(cf)
+  інакше якщо(cf)
     Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
@@ -1402,22 +1402,22 @@ CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
   CURLcode result;
 
   result = cf_ssl_create(&cf, data, cf_at->conn);
-  if(!result)
+  якщо(!result)
     result = cf_ssl_peer_init(cf, origin, peer, &cf_at->conn->ssl_config);
-  if(!result) {
+  якщо(!result) {
     Curl_conn_cf_insert_after(cf_at, cf);
-#if defined(USE_HTTPSRR) && defined(USE_ECH)
+#якщо defined(USE_HTTPSRR) && defined(USE_ECH)
     /* When using ECH, kick off the HTTPS-RR resolve */
-    if((origin->scheme->family == CURLPROTO_HTTP) &&
+    якщо((origin->scheme->family == CURLPROTO_HTTP) &&
        Curl_ssl_need_httpsrr(cf)) {
       result = Curl_conn_dns_add_https_resolve(data, cf->conn, cf->sockindex,
                                                origin);
     }
 #endif /* USE_HTTPSRR && USE_ECH */
   }
-  else if(cf)
+  інакше якщо(cf)
     Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  повернути result;
 }
 
 #ifndef CURL_DISABLE_PROXY
@@ -1435,24 +1435,24 @@ static CURLcode cf_ssl_proxy_create(struct Curl_cfilter **pcf,
 
   (void)conn;
 #ifdef USE_HTTP2
-  if(conn->http_proxy.proxytype == CURLPROXY_HTTPS2) {
+  якщо(conn->http_proxy.proxytype == CURLPROXY_HTTPS2) {
     use_alpn = TRUE;
     wanted = (CURL_HTTP_V1x | CURL_HTTP_V2x);
   }
 #endif
 
   ctx = cf_ctx_new(data, alpn_get_spec(wanted, 0, FALSE, use_alpn));
-  if(!ctx) {
+  якщо(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
   result = Curl_cf_create(&cf, &Curl_cft_ssl_proxy, ctx);
 
 out:
-  if(result)
+  якщо(result)
     cf_ctx_free(ctx);
   *pcf = result ? NULL : cf;
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
@@ -1463,44 +1463,44 @@ CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
   CURLcode result;
 
   result = cf_ssl_proxy_create(&cf, data, cf_at->conn);
-  if(!result)
+  якщо(!result)
     result = cf_ssl_peer_init(cf, peer, NULL, &cf_at->conn->proxy_ssl_config);
-  if(!result)
+  якщо(!result)
     Curl_conn_cf_insert_after(cf_at, cf);
-  else if(cf)
+  інакше якщо(cf)
     Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  повернути result;
 }
 
 #endif /* !CURL_DISABLE_PROXY */
 
-bool Curl_ssl_supports(struct Curl_easy *data, unsigned int ssl_option)
+bool Curl_ssl_supports(struct Curl_easy *data, unsigned ціле ssl_option)
 {
   (void)data;
-  return (Curl_ssl->supports & ssl_option);
+  повернути (Curl_ssl->supports & ssl_option);
 }
 
 #ifdef USE_ECH
 bool Curl_ssl_ech_enabled(struct Curl_cfilter *cf)
 {
-  if(Curl_ssl->supports & SSLSUPP_ECH) {
+  якщо(Curl_ssl->supports & SSLSUPP_ECH) {
     struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-    return !!conn_config->ech;
+    повернути !!conn_config->ech;
   }
-  return FALSE;
+  повернути FALSE;
 }
 
 bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf)
 {
-  if(Curl_ssl->supports & SSLSUPP_ECH) {
+  якщо(Curl_ssl->supports & SSLSUPP_ECH) {
     struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-    if(!conn_config->ech)
-      return FALSE;
-    if((conn_config->ech == CURLECH_GREASE) || conn_config->ech_config)
-      return FALSE;
-    return TRUE;
+    якщо(!conn_config->ech)
+      повернути FALSE;
+    якщо((conn_config->ech == CURLECH_GREASE) || conn_config->ech_config)
+      повернути FALSE;
+    повернути TRUE;
   }
-  return FALSE;
+  повернути FALSE;
 }
 #endif
 
@@ -1512,19 +1512,19 @@ static CURLcode vtls_shutdown_blocking(struct Curl_cfilter *cf,
   struct cf_call_data save;
   CURLcode result = CURLE_OK;
   timediff_t timeout_ms;
-  int what, loop = 10;
+  ціле what, loop = 10;
 
-  if(cf->shutdown) {
+  якщо(cf->shutdown) {
     *done = TRUE;
-    return CURLE_OK;
+    повернути CURLE_OK;
   }
   CF_DATA_SAVE(save, cf, data);
 
   *done = FALSE;
-  while(!result && !*done && loop--) {
+  поки(!result && !*done && loop--) {
     timeout_ms = Curl_cshutdn_timeleft_ms(data, cf->conn, cf->sockindex);
 
-    if(timeout_ms < 0) {
+    якщо(timeout_ms < 0) {
       /* no need to continue if time is already up */
       failf(data, "SSL shutdown timeout");
       result = CURLE_OPERATION_TIMEDOUT;
@@ -1532,18 +1532,18 @@ static CURLcode vtls_shutdown_blocking(struct Curl_cfilter *cf,
     }
 
     result = connssl->ssl_impl->shut_down(cf, data, send_shutdown, done);
-    if(result || *done)
+    якщо(result || *done)
       goto out;
 
-    if(connssl->io_need) {
+    якщо(connssl->io_need) {
       what = Curl_conn_cf_poll(cf, data, timeout_ms);
-      if(what < 0) {
+      якщо(what < 0) {
         /* fatal error */
         failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);
         result = CURLE_RECV_ERROR;
         goto out;
       }
-      else if(what == 0) {
+      інакше якщо(what == 0) {
         /* timeout */
         failf(data, "SSL shutdown timeout");
         result = CURLE_OPERATION_TIMEDOUT;
@@ -1555,7 +1555,7 @@ static CURLcode vtls_shutdown_blocking(struct Curl_cfilter *cf,
 out:
   CF_DATA_RESTORE(cf, save);
   cf->shutdown = (result || *done);
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
@@ -1565,27 +1565,27 @@ CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   head = data->conn ? data->conn->cfilter[sockindex] : NULL;
-  for(cf = head; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_ssl) {
+  для(cf = head; cf; cf = cf->next) {
+    якщо(cf->cft == &Curl_cft_ssl) {
       bool done;
       CURL_TRC_CF(data, cf, "shutdown and remove SSL, start");
       Curl_cshutdn_start_timer(data, sockindex, 0);
       result = vtls_shutdown_blocking(cf, data, send_shutdown, &done);
       Curl_cshutdn_clear_timer(data, sockindex);
-      if(!result && !done) /* blocking failed? */
+      якщо(!result && !done) /* blocking failed? */
         result = CURLE_SSL_SHUTDOWN_FAILED;
       Curl_conn_cf_discard(&cf, data);
       CURL_TRC_CF(data, cf, "shutdown and remove SSL, done -> %d",
-                  (int)result);
+                  (ціле)result);
       break;
     }
   }
-  return result;
+  повернути result;
 }
 
 bool Curl_ssl_cf_is_proxy(struct Curl_cfilter *cf)
 {
-  return (cf->cft->flags & CF_TYPE_SSL) && (cf->cft->flags & CF_TYPE_PROXY);
+  повернути (cf->cft->flags & CF_TYPE_SSL) && (cf->cft->flags & CF_TYPE_PROXY);
 }
 
 struct ssl_easy_config *
@@ -1594,9 +1594,9 @@ Curl_ssl_cf_get_easy_config(struct Curl_cfilter *cf,
 {
 #ifdef CURL_DISABLE_PROXY
   (void)cf;
-  return &data->set.ssl;
-#else
-  return Curl_ssl_cf_is_proxy(cf) ? &data->set.proxy_ssl : &data->set.ssl;
+  повернути &data->set.ssl;
+#інакше
+  повернути Curl_ssl_cf_is_proxy(cf) ? &data->set.proxy_ssl : &data->set.ssl;
 #endif
 }
 
@@ -1604,9 +1604,9 @@ struct ssl_filter_config *
 Curl_ssl_cf_get_filter_config(struct Curl_cfilter *cf)
 {
 #ifdef CURL_DISABLE_PROXY
-  return &cf->conn->ssl_config;
-#else
-  return Curl_ssl_cf_is_proxy(cf) ?
+  повернути &cf->conn->ssl_config;
+#інакше
+  повернути Curl_ssl_cf_is_proxy(cf) ?
     &cf->conn->proxy_ssl_config : &cf->conn->ssl_config;
 #endif
 }
@@ -1615,23 +1615,23 @@ CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
                                 const struct alpn_spec *spec)
 {
   size_t i, len;
-  int off = 0;
+  ціле off = 0;
   unsigned char blen;
 
   memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
+  для(i = 0; spec && i < spec->count; ++i) {
     len = strlen(spec->entries[i]);
-    if(len >= ALPN_NAME_MAX)
-      return CURLE_FAILED_INIT;
+    якщо(len >= ALPN_NAME_MAX)
+      повернути CURLE_FAILED_INIT;
     blen = (unsigned char)len;
-    if(off + blen + 1 >= (int)sizeof(buf->data))
-      return CURLE_FAILED_INIT;
+    якщо(off + blen + 1 >= (ціле)sizeof(buf->data))
+      повернути CURLE_FAILED_INIT;
     buf->data[off++] = blen;
     memcpy(buf->data + off, spec->entries[i], blen);
     off += blen;
   }
   buf->len = off;
-  return CURLE_OK;
+  повернути CURLE_OK;
 }
 
 CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
@@ -1641,39 +1641,39 @@ CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
   size_t off = 0;
 
   memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
+  для(i = 0; spec && i < spec->count; ++i) {
     len = strlen(spec->entries[i]);
-    if(len >= ALPN_NAME_MAX)
-      return CURLE_FAILED_INIT;
-    if(off + len + 2 >= sizeof(buf->data))
-      return CURLE_FAILED_INIT;
-    if(off)
+    якщо(len >= ALPN_NAME_MAX)
+      повернути CURLE_FAILED_INIT;
+    якщо(off + len + 2 >= sizeof(buf->data))
+      повернути CURLE_FAILED_INIT;
+    якщо(off)
       buf->data[off++] = ',';
     memcpy(buf->data + off, spec->entries[i], len);
     off += len;
   }
   buf->data[off] = '\0';
-  buf->len = (int)off;
-  return CURLE_OK;
+  buf->len = (ціле)off;
+  повернути CURLE_OK;
 }
 
 bool Curl_alpn_contains_proto(const struct alpn_spec *spec,
                               const char *proto)
 {
   size_t i, plen = proto ? strlen(proto) : 0;
-  for(i = 0; spec && plen && i < spec->count; ++i) {
+  для(i = 0; spec && plen && i < spec->count; ++i) {
     size_t slen = strlen(spec->entries[i]);
-    if((slen == plen) && !memcmp(proto, spec->entries[i], plen))
-      return TRUE;
+    якщо((slen == plen) && !memcmp(proto, spec->entries[i], plen))
+      повернути TRUE;
   }
-  return FALSE;
+  повернути FALSE;
 }
 
 void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto)
 {
   size_t plen = strlen(proto);
   DEBUGASSERT(plen < sizeof(spec->entries[0]));
-  if(plen < sizeof(spec->entries[0])) {
+  якщо(plen < sizeof(spec->entries[0])) {
     memcpy(spec->entries[0], proto, plen + 1);
     spec->count = 1;
   }
@@ -1681,9 +1681,9 @@ void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto)
 
 void Curl_alpn_copy(struct alpn_spec *dest, const struct alpn_spec *src)
 {
-  if(src)
+  якщо(src)
     memcpy(dest, src, sizeof(*dest));
-  else
+  інакше
     memset(dest, 0, sizeof(*dest));
 }
 
@@ -1696,27 +1696,27 @@ CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
   (void)cf;
 
-  if(connssl->negotiated.alpn) {
+  якщо(connssl->negotiated.alpn) {
     /* When we ask for a specific ALPN protocol, we need the confirmation
      * of it by the server, as we have installed protocol handler and
      * connection filter chain for exactly this protocol. */
-    if(!proto_len) {
+    якщо(!proto_len) {
       failf(data, "ALPN: asked for '%s' from previous session, "
             "but server did not confirm it. Refusing to continue.",
             connssl->negotiated.alpn);
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
-    else if(!proto) {
+    інакше якщо(!proto) {
       DEBUGASSERT(0); /* with length, we need a pointer */
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
-    else if((strlen(connssl->negotiated.alpn) != proto_len) ||
+    інакше якщо((strlen(connssl->negotiated.alpn) != proto_len) ||
             memcmp(connssl->negotiated.alpn, proto, proto_len)) {
       failf(data, "ALPN: asked for '%s' from previous session, but server "
             "selected '%.*s'. Refusing to continue.",
-            connssl->negotiated.alpn, (int)proto_len, proto);
+            connssl->negotiated.alpn, (ціле)proto_len, proto);
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
@@ -1726,33 +1726,33 @@ CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
     goto out;
   }
 
-  if(proto && proto_len) {
-    if(memchr(proto, '\0', proto_len)) {
+  якщо(proto && proto_len) {
+    якщо(memchr(proto, '\0', proto_len)) {
       failf(data, "ALPN: server selected protocol contains NUL. "
                   "Refusing to continue.");
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
     connssl->negotiated.alpn = curlx_memdup0((const char *)proto, proto_len);
-    if(!connssl->negotiated.alpn)
-      return CURLE_OUT_OF_MEMORY;
+    якщо(!connssl->negotiated.alpn)
+      повернути CURLE_OUT_OF_MEMORY;
   }
 
-  if(proto && proto_len) {
-    if(connssl->state == ssl_connection_deferred)
-      infof(data, VTLS_INFOF_ALPN_DEFERRED, (int)proto_len, proto);
-    else
-      infof(data, VTLS_INFOF_ALPN_ACCEPTED, (int)proto_len, proto);
+  якщо(proto && proto_len) {
+    якщо(connssl->state == ssl_connection_deferred)
+      infof(data, VTLS_INFOF_ALPN_DEFERRED, (ціле)proto_len, proto);
+    інакше
+      infof(data, VTLS_INFOF_ALPN_ACCEPTED, (ціле)proto_len, proto);
   }
-  else {
-    if(connssl->state == ssl_connection_deferred)
+  інакше {
+    якщо(connssl->state == ssl_connection_deferred)
       infof(data, VTLS_INFOF_NO_ALPN_DEFERRED);
-    else
+    інакше
       infof(data, VTLS_INFOF_NO_ALPN);
   }
 
 out:
-  return result;
+  повернути result;
 }
 
 CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
@@ -1766,13 +1766,13 @@ CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
 
   *do_early_data = FALSE;
 
-  if(!early_data_allowed) {
+  якщо(!early_data_allowed) {
     CURL_TRC_CF(data, cf, "SSL session does not allow earlydata");
   }
-  else if(!Curl_alpn_contains_proto(alpns, scs->alpn)) {
+  інакше якщо(!Curl_alpn_contains_proto(alpns, scs->alpn)) {
     CURL_TRC_CF(data, cf, "SSL session has different ALPN, no early data");
   }
-  else {
+  інакше {
     infof(data, "SSL session allows %zu bytes of early data, "
           "reusing ALPN '%s'", connssl->earlydata_max, scs->alpn);
     connssl->earlydata_state = ssl_earlydata_await;
@@ -1782,33 +1782,33 @@ CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
                                       scs->alpn ? strlen(scs->alpn) : 0);
     *do_early_data = !result;
   }
-  return result;
+  повернути result;
 }
 
 struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
                                                  const struct Curl_cftype *cft,
                                                  int8_t sockindex)
 {
-  if(data->conn &&
+  якщо(data->conn &&
 #ifndef CURL_DISABLE_PROXY
      ((cft == &Curl_cft_ssl) || (cft == &Curl_cft_ssl_proxy))) {
-#else
+#інакше
      (cft == &Curl_cft_ssl)) {
 #endif
     struct Curl_cfilter *cf1 = data->conn->cfilter[sockindex];
-    for(; cf1; cf1 = cf1->next) {
+    для(; cf1; cf1 = cf1->next) {
       /* A tunneling proxy does not offer end2end encryption, even if
        * it does SSL itself (e.g. QUIC H3 proxy) */
-      if(cf1->cft == cft)
+      якщо(cf1->cft == cft)
         break;
     }
-    if(cf1) {
+    якщо(cf1) {
       struct ssl_connect_data *connssl = cf1->ctx;
-      if(connssl)
-        return connssl->session;
+      якщо(connssl)
+        повернути connssl->session;
     }
   }
-  return NULL;
+  повернути NULL;
 }
 
 #endif /* USE_SSL */

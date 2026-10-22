@@ -60,8 +60,8 @@ CURLUcode Curl_url_set_authority(CURLU *u, const char *authority);
 
 CURLUcode Curl_junkscan(const char *url, size_t *urllen, bool allowspace);
 
-#define U_CURLU_URLDECODE  (unsigned int)CURLU_URLDECODE
-#define U_CURLU_PATH_AS_IS (unsigned int)CURLU_PATH_AS_IS
+#define U_CURLU_URLDECODE  (unsigned ціле)CURLU_URLDECODE
+#define U_CURLU_PATH_AS_IS (unsigned ціле)CURLU_PATH_AS_IS
 
 bool Curl_url_same_origin(CURLU *base, CURLU *href);
 

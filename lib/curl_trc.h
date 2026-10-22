@@ -83,8 +83,8 @@ void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
                        const char *fmt, ...) CURL_PRINTF(3, 4);
 void Curl_trc_multi(struct Curl_easy *data,
                     const char *fmt, ...) CURL_PRINTF(2, 3);
-const char *Curl_trc_mstate_name(int state);
-const char *Curl_trc_timer_name(int tid);
+const char *Curl_trc_mstate_name(ціле state);
+const char *Curl_trc_timer_name(ціле tid);
 void Curl_trc_easy_timers(struct Curl_easy *data);
 
 void Curl_trc_write(struct Curl_easy *data,
@@ -93,12 +93,12 @@ void Curl_trc_read(struct Curl_easy *data,
                    const char *fmt, ...) CURL_PRINTF(2, 3);
 void Curl_trc_dns(struct Curl_easy *data,
                   const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_timer(struct Curl_easy *data, int tid,
+void Curl_trc_timer(struct Curl_easy *data, ціле tid,
                     const char *fmt, ...) CURL_PRINTF(3, 4);
 
 struct curl_trc_feat {
   const char *name;
-  int log_level;
+  ціле log_level;
 };
 
 void Curl_trc_feat_infof(struct Curl_easy *data,
@@ -125,7 +125,7 @@ extern struct curl_trc_feat Curl_trc_feat_ssh;
 void Curl_trc_ssh(struct Curl_easy *data,
                   const char *fmt, ...) CURL_PRINTF(2, 3);
 #endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#якщо !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 extern struct curl_trc_feat Curl_trc_feat_ws;
 void Curl_trc_ws(struct Curl_easy *data,
                  const char *fmt, ...) CURL_PRINTF(2, 3);
@@ -138,77 +138,77 @@ void Curl_trc_ws(struct Curl_easy *data,
 #define CURL_TRC_TIMER_is_verbose(data) \
   Curl_trc_ft_is_verbose(data, &Curl_trc_feat_timer)
 
-#if defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
+#якщо defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
 #define infof(data, ...)             \
   do {                               \
-    if(Curl_trc_is_verbose(data))    \
+    якщо(Curl_trc_is_verbose(data))    \
       Curl_infof(data, __VA_ARGS__); \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_M(data, ...)            \
   do {                                   \
-    if(CURL_TRC_M_is_verbose(data))      \
+    якщо(CURL_TRC_M_is_verbose(data))      \
       Curl_trc_multi(data, __VA_ARGS__); \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_CF(data, cf, ...)              \
   do {                                          \
-    if(Curl_trc_cf_is_verbose(cf, data))        \
+    якщо(Curl_trc_cf_is_verbose(cf, data))        \
       Curl_trc_cf_infof(data, cf, __VA_ARGS__); \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_WRITE(data, ...)                          \
   do {                                                     \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) \
+    якщо(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) \
       Curl_trc_write(data, __VA_ARGS__);                   \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_READ(data, ...)                          \
   do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) \
+    якщо(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) \
       Curl_trc_read(data, __VA_ARGS__);                   \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_DNS(data, ...)        \
   do {                                 \
-    if(CURL_TRC_DNS_is_verbose(data))  \
+    якщо(CURL_TRC_DNS_is_verbose(data))  \
       Curl_trc_dns(data, __VA_ARGS__); \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_TIMER(data, tid, ...)        \
   do {                                        \
-    if(CURL_TRC_TIMER_is_verbose(data))       \
+    якщо(CURL_TRC_TIMER_is_verbose(data))       \
       Curl_trc_timer(data, tid, __VA_ARGS__); \
-  } while(0)
+  } поки(0)
 
 #ifndef CURL_DISABLE_FTP
 #define CURL_TRC_FTP(data, ...)                          \
   do {                                                   \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) \
+    якщо(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) \
       Curl_trc_ftp(data, __VA_ARGS__);                   \
-  } while(0)
+  } поки(0)
 #endif /* !CURL_DISABLE_FTP */
 #ifndef CURL_DISABLE_SMTP
 #define CURL_TRC_SMTP(data, ...)                          \
   do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) \
+    якщо(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) \
       Curl_trc_smtp(data, __VA_ARGS__);                   \
-  } while(0)
+  } поки(0)
 #endif /* !CURL_DISABLE_SMTP */
 #ifdef USE_SSL
 #define CURL_TRC_SSLS(data, ...)                          \
   do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) \
+    якщо(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) \
       Curl_trc_ssls(data, __VA_ARGS__);                   \
-  } while(0)
+  } поки(0)
 #endif /* USE_SSL */
 #ifdef USE_SSH
 #define CURL_TRC_SSH(data, ...)                          \
   do {                                                   \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) \
+    якщо(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) \
       Curl_trc_ssh(data, __VA_ARGS__);                   \
-  } while(0)
+  } поки(0)
 #endif /* USE_SSH */
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#якщо !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 #define CURL_TRC_WS(data, ...)                          \
   do {                                                  \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) \
+    якщо(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) \
       Curl_trc_ws(data, __VA_ARGS__);                   \
-  } while(0)
+  } поки(0)
 #endif /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
 
 #elif defined(CURL_HAVE_MACRO_VARARG) && defined(CURL_DISABLE_VERBOSE_STRINGS)
@@ -216,65 +216,65 @@ void Curl_trc_ws(struct Curl_easy *data,
 #define infof(data, ...) \
   do {                   \
     (void)(data);        \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_M(data, ...) \
   do {                        \
     (void)(data);             \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_CF(data, cf, ...) \
   do {                             \
     (void)(data);                  \
     (void)(cf);                    \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_WRITE(data, ...) \
   do {                            \
     (void)(data);                 \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_READ(data, ...) \
   do {                           \
     (void)(data);                \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_DNS(data, ...) \
   do {                          \
     (void)(data);               \
-  } while(0)
+  } поки(0)
 #define CURL_TRC_TIMER(data, tid, ...) \
   do {                                 \
     (void)(data);                      \
     (void)(tid);                       \
-  } while(0)
+  } поки(0)
 #ifndef CURL_DISABLE_FTP
 #define CURL_TRC_FTP(data, ...) \
   do {                          \
     (void)(data);               \
-  } while(0)
+  } поки(0)
 #endif /* !CURL_DISABLE_FTP */
 #ifndef CURL_DISABLE_SMTP
 #define CURL_TRC_SMTP(data, ...) \
   do {                           \
     (void)(data);                \
-  } while(0)
+  } поки(0)
 #endif /* !CURL_DISABLE_SMTP */
 #ifdef USE_SSL
 #define CURL_TRC_SSLS(data, ...) \
   do {                           \
     (void)(data);                \
-  } while(0)
+  } поки(0)
 #endif /* USE_SSL */
 #ifdef USE_SSH
 #define CURL_TRC_SSH(data, ...) \
   do {                          \
     (void)(data);               \
-  } while(0)
+  } поки(0)
 #endif /* USE_SSH */
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#якщо !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 #define CURL_TRC_WS(data, ...) \
   do {                         \
     (void)(data);              \
-  } while(0)
+  } поки(0)
 #endif
 
-#else /* !CURL_HAVE_MACRO_VARARG */
+#інакше /* !CURL_HAVE_MACRO_VARARG */
 
 #define infof          Curl_infof
 #define CURL_TRC_M     Curl_trc_multi
@@ -296,7 +296,7 @@ void Curl_trc_ws(struct Curl_easy *data,
 #ifdef USE_SSH
 #define CURL_TRC_SSH   Curl_trc_ssh
 #endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#якщо !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 #define CURL_TRC_WS    Curl_trc_ws
 #endif
 
@@ -328,14 +328,14 @@ extern struct curl_trc_feat Curl_trc_feat_threads;
 #define Curl_trc_ft_is_verbose(data, ft) \
   (Curl_trc_is_verbose(data) &&          \
    (ft)->log_level >= CURL_LOG_LVL_INFO)
-#define CURL_MSTATE_NAME(s)  Curl_trc_mstate_name((int)(s))
+#define CURL_MSTATE_NAME(s)  Curl_trc_mstate_name((ціле)(s))
 #define CURL_TRC_EASY_TIMERS(data)      \
   do {                                  \
-    if(CURL_TRC_TIMER_is_verbose(data)) \
+    якщо(CURL_TRC_TIMER_is_verbose(data)) \
       Curl_trc_easy_timers(data);       \
-  } while(0)
+  } поки(0)
 
-#else /* CURL_DISABLE_VERBOSE_STRINGS */
+#інакше /* CURL_DISABLE_VERBOSE_STRINGS */
 /* All informational messages are not compiled in for size savings */
 #define Curl_trc_is_verbose(d)        FALSE
 #define Curl_trc_cf_is_verbose(x, y)  FALSE
