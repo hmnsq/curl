@@ -23,13 +23,13 @@
  * RFC2104 Keyed-Hashing for Message Authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#जइ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_SSL)
 
-#include "curl_hmac.h"
+#अन्तर्भाव "curl_hmac.h"
 
 /*
  * Generic HMAC algorithm.
@@ -39,88 +39,88 @@
  * initialization.
  */
 
-static const unsigned char hmac_ipad = 0x36;
-static const unsigned char hmac_opad = 0x5C;
+स्थिर ध्रुव unsigned वर्ण hmac_ipad = 0x36;
+स्थिर ध्रुव unsigned वर्ण hmac_opad = 0x5C;
 
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
-                                    unsigned int keylen)
+संरचना HMAC_context *Curl_HMAC_init(ध्रुव संरचना HMAC_params *hashparams,
+                                    ध्रुव unsigned वर्ण *कुञ्चिका,
+                                    unsigned पूर्णाङ्क keylen)
 {
   size_t i;
-  struct HMAC_context *ctxt;
-  unsigned char *hkey;
-  unsigned char b;
+  संरचना HMAC_context *ctxt;
+  unsigned वर्ण *hkey;
+  unsigned वर्ण b;
 
   /* Create HMAC context. */
-  i = sizeof(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
+  i = परिमाण(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
   ctxt = curlx_malloc(i);
 
-  if(!ctxt)
-    return ctxt;
+  जइ(!ctxt)
+    प्रत्यागम ctxt;
 
   ctxt->hash = hashparams;
-  ctxt->hashctxt1 = (void *)(ctxt + 1);
-  ctxt->hashctxt2 = (void *)((char *)ctxt->hashctxt1 + hashparams->ctxtsize);
+  ctxt->hashctxt1 = (शून्य *)(ctxt + 1);
+  ctxt->hashctxt2 = (शून्य *)((वर्ण *)ctxt->hashctxt1 + hashparams->ctxtsize);
 
   /* If the key is too long, replace it by its hash digest. */
-  if(keylen > hashparams->maxkeylen) {
-    if(hashparams->hinit(ctxt->hashctxt1))
-      goto fail;
-    hashparams->hupdate(ctxt->hashctxt1, key, keylen);
-    hkey = (unsigned char *)ctxt->hashctxt2 + hashparams->ctxtsize;
+  जइ(keylen > hashparams->maxkeylen) {
+    जइ(hashparams->hinit(ctxt->hashctxt1))
+      गच्छ fail;
+    hashparams->hupdate(ctxt->hashctxt1, कुञ्चिका, keylen);
+    hkey = (unsigned वर्ण *)ctxt->hashctxt2 + hashparams->ctxtsize;
     hashparams->hfinal(hkey, ctxt->hashctxt1);
-    key = hkey;
+    कुञ्चिका = hkey;
     keylen = hashparams->resultlen;
   }
 
   /* Prime the two hash contexts with the modified key. */
-  if(hashparams->hinit(ctxt->hashctxt1) ||
+  जइ(hashparams->hinit(ctxt->hashctxt1) ||
      hashparams->hinit(ctxt->hashctxt2))
-    goto fail;
+    गच्छ fail;
 
-  for(i = 0; i < keylen; i++) {
-    b = (unsigned char)(*key ^ hmac_ipad);
+  प्रति(i = 0; i < keylen; i++) {
+    b = (unsigned वर्ण)(*कुञ्चिका ^ hmac_ipad);
     hashparams->hupdate(ctxt->hashctxt1, &b, 1);
-    b = (unsigned char)(*key++ ^ hmac_opad);
+    b = (unsigned वर्ण)(*कुञ्चिका++ ^ hmac_opad);
     hashparams->hupdate(ctxt->hashctxt2, &b, 1);
   }
 
-  for(; i < hashparams->maxkeylen; i++) {
+  प्रति(; i < hashparams->maxkeylen; i++) {
     hashparams->hupdate(ctxt->hashctxt1, &hmac_ipad, 1);
     hashparams->hupdate(ctxt->hashctxt2, &hmac_opad, 1);
   }
 
   /* Done, return pointer to HMAC context. */
-  return ctxt;
+  प्रत्यागम ctxt;
 
 fail:
   curlx_free(ctxt);
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-void Curl_HMAC_update(struct HMAC_context *ctxt,
-                      const unsigned char *data,
-                      unsigned int len)
+शून्य Curl_HMAC_update(संरचना HMAC_context *ctxt,
+                      ध्रुव unsigned वर्ण *data,
+                      unsigned पूर्णाङ्क len)
 {
   /* Update first hash calculation. */
   ctxt->hash->hupdate(ctxt->hashctxt1, data, len);
 }
 
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
+पूर्णाङ्क Curl_HMAC_final(संरचना HMAC_context *ctxt, unsigned वर्ण *output)
 {
-  const struct HMAC_params *hashparams = ctxt->hash;
+  ध्रुव संरचना HMAC_params *hashparams = ctxt->hash;
 
   /* Do not get output if called with a null parameter: only release
      storage. */
 
-  if(!output)
-    output = (unsigned char *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
+  जइ(!output)
+    output = (unsigned वर्ण *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
 
   hashparams->hfinal(output, ctxt->hashctxt1);
   hashparams->hupdate(ctxt->hashctxt2, output, hashparams->resultlen);
   hashparams->hfinal(output, ctxt->hashctxt2);
   curlx_free(ctxt);
-  return 0;
+  प्रत्यागम 0;
 }
 
 /*
@@ -140,31 +140,31 @@ int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, size_t datalen,
-                     unsigned char *output)
+CURLcode Curl_hmacit(ध्रुव संरचना HMAC_params *hashparams,
+                     ध्रुव unsigned वर्ण *कुञ्चिका, ध्रुव size_t keylen,
+                     ध्रुव unsigned वर्ण *data, size_t datalen,
+                     unsigned वर्ण *output)
 {
-  struct HMAC_context *ctxt;
-  if(keylen > UINT_MAX) /* unlikely to ever happen */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  ctxt = Curl_HMAC_init(hashparams, key, curlx_uztoui(keylen));
+  संरचना HMAC_context *ctxt;
+  जइ(keylen > UINT_MAX) /* unlikely to ever happen */
+    प्रत्यागम CURLE_BAD_FUNCTION_ARGUMENT;
+  ctxt = Curl_HMAC_init(hashparams, कुञ्चिका, curlx_uztoui(keylen));
 
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  जइ(!ctxt)
+    प्रत्यागम CURLE_OUT_OF_MEMORY;
 
   /* Update the digest with the given challenge */
-  do {
-    unsigned int ilen = (unsigned int)CURLMIN(datalen, UINT_MAX);
+  करेहि {
+    unsigned पूर्णाङ्क ilen = (unsigned पूर्णाङ्क)CURLMIN(datalen, UINT_MAX);
     Curl_HMAC_update(ctxt, data, ilen);
     datalen -= ilen;
     data += ilen;
-  } while(datalen);
+  } जाव(datalen);
 
   /* Finalise the digest */
   Curl_HMAC_final(ctxt, output);
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 #endif /* Using NTLM (without SSPI) or AWS */

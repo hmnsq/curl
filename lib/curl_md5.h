@@ -24,43 +24,43 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#जइ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "curl_hmac.h"
+#अन्तर्भाव "curl_hmac.h"
 
 #define MD5_DIGEST_LEN  16
 
-typedef CURLcode (*Curl_MD5_init_func)(void *context);
-typedef void (*Curl_MD5_update_func)(void *context,
-                                     const unsigned char *data,
-                                     unsigned int len);
-typedef void (*Curl_MD5_final_func)(unsigned char *result, void *context);
+प्रकारनिर्देश CURLcode (*Curl_MD5_init_func)(शून्य *context);
+प्रकारनिर्देश शून्य (*Curl_MD5_update_func)(शून्य *context,
+                                     ध्रुव unsigned वर्ण *data,
+                                     unsigned पूर्णाङ्क len);
+प्रकारनिर्देश शून्य (*Curl_MD5_final_func)(unsigned वर्ण *result, शून्य *context);
 
-struct MD5_params {
+संरचना MD5_params {
   Curl_MD5_init_func md5_init_func;     /* Initialize context procedure */
   Curl_MD5_update_func md5_update_func; /* Update context with data */
   Curl_MD5_final_func md5_final_func;   /* Get final result procedure */
-  unsigned int md5_ctxtsize;            /* Context structure size */
-  unsigned int md5_resultlen;           /* Result length (bytes) */
+  unsigned पूर्णाङ्क md5_ctxtsize;            /* Context structure size */
+  unsigned पूर्णाङ्क md5_resultlen;           /* Result length (bytes) */
 };
 
-struct MD5_context {
-  const struct MD5_params *md5_hash;  /* Hash function definition */
-  void *md5_hashctx;                  /* Hash function context */
+संरचना MD5_context {
+  ध्रुव संरचना MD5_params *md5_hash;  /* Hash function definition */
+  शून्य *md5_hashctx;                  /* Hash function context */
 };
 
-extern const struct MD5_params Curl_DIGEST_MD5;
-extern const struct HMAC_params Curl_HMAC_MD5;
+बाह्य ध्रुव संरचना MD5_params Curl_DIGEST_MD5;
+बाह्य ध्रुव संरचना HMAC_params Curl_HMAC_MD5;
 
-CURLcode Curl_md5it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_md5it(unsigned वर्ण *output, ध्रुव unsigned वर्ण *निवेशः,
                     size_t len);
 
-struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params);
-CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input,
-                         unsigned int len);
-CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result);
+संरचना MD5_context *Curl_MD5_init(ध्रुव संरचना MD5_params *md5params);
+CURLcode Curl_MD5_update(संरचना MD5_context *context,
+                         ध्रुव unsigned वर्ण *निवेशः,
+                         unsigned पूर्णाङ्क len);
+CURLcode Curl_MD5_final(संरचना MD5_context *context, unsigned वर्ण *result);
 
 #endif
 

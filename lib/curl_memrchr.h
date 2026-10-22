@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef HAVE_MEMRCHR
 
@@ -31,8 +31,8 @@
 #  include <strings.h>
 #endif
 
-#else /* HAVE_MEMRCHR */
-void *Curl_memrchr(const void *s, int c, size_t n);
+#अण्णहा /* HAVE_MEMRCHR */
+शून्य *Curl_memrchr(ध्रुव शून्य *s, पूर्णाङ्क c, size_t n);
 #define memrchr(x, y, z)  Curl_memrchr(x, y, z)
 
 #endif /* HAVE_MEMRCHR */

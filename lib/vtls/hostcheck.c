@@ -21,30 +21,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if defined(USE_OPENSSL) || defined(USE_SCHANNEL)
+#जइ defined(USE_OPENSSL) || defined(USE_SCHANNEL)
 /* these backends use functions from this file */
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#अन्तर्भाव <netinet/in.h>
 #endif
 #ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
+#अन्तर्भाव <netinet/in6.h>
 #endif
 
-#include "curl_memrchr.h"
-#include "vdns/hostip.h"
-#include "vtls/hostcheck.h"
+#अन्तर्भाव "curl_memrchr.h"
+#अन्तर्भाव "vdns/hostip.h"
+#अन्तर्भाव "vtls/hostcheck.h"
 
 /* check the two input strings with given length, but do not
    assume they are null-terminated */
-static bool pmatch(const char *hostname, size_t hostlen,
-                   const char *pattern, size_t patternlen)
+स्थिर bool pmatch(ध्रुव वर्ण *hostname, size_t hostlen,
+                   ध्रुव वर्ण *pattern, size_t patternlen)
 {
-  if(hostlen != patternlen)
-    return FALSE;
-  return curl_strnequal(hostname, pattern, hostlen);
+  जइ(hostlen != patternlen)
+    प्रत्यागम FALSE;
+  प्रत्यागम curl_strnequal(hostname, pattern, hostlen);
 }
 
 /*
@@ -73,12 +73,12 @@ static bool pmatch(const char *hostname, size_t hostlen,
  * @unittest: 1397
  */
 
-static bool hostmatch(const char *hostname,
+स्थिर bool hostmatch(ध्रुव वर्ण *hostname,
                       size_t hostlen,
-                      const char *pattern,
+                      ध्रुव वर्ण *pattern,
                       size_t patternlen)
 {
-  const char *pattern_label_end;
+  ध्रुव वर्ण *pattern_label_end;
 
   DEBUGASSERT(pattern);
   DEBUGASSERT(patternlen);
@@ -86,45 +86,45 @@ static bool hostmatch(const char *hostname,
   DEBUGASSERT(hostlen);
 
   /* normalize pattern and hostname by stripping off trailing dots */
-  if(hostlen > 0 && hostname[hostlen - 1] == '.')
+  जइ(hostlen > 0 && hostname[hostlen - 1] == '.')
     hostlen--;
-  if(patternlen > 0 && pattern[patternlen - 1] == '.')
+  जइ(patternlen > 0 && pattern[patternlen - 1] == '.')
     patternlen--;
 
-  if(patternlen > 2 && strncmp(pattern, "*.", 2))
-    return pmatch(hostname, hostlen, pattern, patternlen);
+  जइ(patternlen > 2 && strncmp(pattern, "*.", 2))
+    प्रत्यागम pmatch(hostname, hostlen, pattern, patternlen);
 
   /* detect host as IP address or starting with a dot and fail if so */
-  else if(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
-    return FALSE;
+  अण्णहा जइ(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
+    प्रत्यागम FALSE;
 
   /* We require at least 2 dots in the pattern to avoid too wide wildcard
      match. */
   pattern_label_end = memchr(pattern, '.', patternlen);
-  if(!pattern_label_end ||
+  जइ(!pattern_label_end ||
      (memrchr(pattern, '.', patternlen) == pattern_label_end))
-    return pmatch(hostname, hostlen, pattern, patternlen);
-  else {
-    const char *hostname_label_end = memchr(hostname, '.', hostlen);
-    if(hostname_label_end) {
+    प्रत्यागम pmatch(hostname, hostlen, pattern, patternlen);
+  अण्णहा {
+    ध्रुव वर्ण *hostname_label_end = memchr(hostname, '.', hostlen);
+    जइ(hostname_label_end) {
       size_t skiphost = hostname_label_end - hostname;
       size_t skiplen = pattern_label_end - pattern;
-      return pmatch(hostname_label_end, hostlen - skiphost,
+      प्रत्यागम pmatch(hostname_label_end, hostlen - skiphost,
                     pattern_label_end, patternlen - skiplen);
     }
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
 /*
  * Curl_cert_hostcheck() returns TRUE if a match and FALSE if not.
  */
-bool Curl_cert_hostcheck(const char *match, size_t matchlen,
-                         const char *hostname, size_t hostlen)
+bool Curl_cert_hostcheck(ध्रुव वर्ण *match, size_t matchlen,
+                         ध्रुव वर्ण *hostname, size_t hostlen)
 {
-  if(matchlen > 0 && hostlen > 0)
-    return hostmatch(hostname, hostlen, match, matchlen);
-  return FALSE;
+  जइ(matchlen > 0 && hostlen > 0)
+    प्रत्यागम hostmatch(hostname, hostlen, match, matchlen);
+  प्रत्यागम FALSE;
 }
 
 #endif /* USE_OPENSSL || USE_SCHANNEL */

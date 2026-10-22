@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "curl_printf.h"
-#include "curlx/strparse.h"
-#include "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
+#अन्तर्भाव "curlx/dynbuf.h"
+#अन्तर्भाव "curl_printf.h"
+#अन्तर्भाव "curlx/strparse.h"
+#अन्तर्भाव "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
 
 #define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
                         fit negative DBL_MAX (317 letters) */
@@ -34,20 +34,20 @@
 #define MAX_SEGMENTS   128 /* number of output segments */
 
 /* Lower-case digits. */
-const unsigned char Curl_ldigits[] = "0123456789abcdef";
+ध्रुव unsigned वर्ण Curl_ldigits[] = "0123456789abcdef";
 
 /* Upper-case digits. */
-const unsigned char Curl_udigits[] = "0123456789ABCDEF";
+ध्रुव unsigned वर्ण Curl_udigits[] = "0123456789ABCDEF";
 
 #define OUTCHAR(x)                        \
-  do {                                    \
-    if(stream((unsigned char)(x), userp)) \
-      return TRUE;                        \
+  करेहि {                                    \
+    जइ(stream((unsigned वर्ण)(x), userp)) \
+      प्रत्यागम TRUE;                        \
     (*donep)++;                           \
-  } while(0)
+  } जाव(0)
 
 /* Data type to read from the arglist */
-typedef enum {
+प्रकारनिर्देश गणना {
   MTYPE_STRING,
   MTYPE_PTR,
   MTYPE_INTPTR,
@@ -64,10 +64,10 @@ typedef enum {
 } FormatType;
 
 /* conversion and display flags */
-enum {
+गणना {
   FLAGS_SPACE      = 1 << 0,
   FLAGS_SHOWSIGN   = 1 << 1,
-  FLAGS_LEFT       = 1 << 2,
+  FLAGS_वामः       = 1 << 2,
   FLAGS_ALT        = 1 << 3,
   FLAGS_SHORT      = 1 << 4,
   FLAGS_LONG       = 1 << 5,
@@ -88,7 +88,7 @@ enum {
   FLAGS_SUBSTR     = 1 << 20  /* no input, only substring */
 };
 
-enum {
+गणना {
   DOLLAR_UNKNOWN,
   DOLLAR_NOPE,
   DOLLAR_USE
@@ -97,31 +97,31 @@ enum {
 /*
  * Describes an input va_arg type and hold its value.
  */
-struct va_input {
+संरचना va_निवेशः {
   FormatType type; /* FormatType */
-  union {
-    const char *str;
-    void *ptr;
+  सङ्घ {
+    ध्रुव वर्ण *str;
+    शून्य *ptr;
     int64_t nums; /* signed */
     uint64_t numu; /* unsigned */
-    double dnum;
+    द्विगुण dnum;
   } val;
 };
 
 /*
  * Describes an output segment.
  */
-struct outsegment {
-  int width;     /* width OR width parameter number */
-  int precision; /* precision OR precision parameter number */
-  unsigned int flags;
-  unsigned int input; /* input argument array index */
-  const char *start; /* format string start to output */
+संरचना outsegment {
+  पूर्णाङ्क width;     /* width OR width parameter number */
+  पूर्णाङ्क precision; /* precision OR precision parameter number */
+  unsigned पूर्णाङ्क flags;
+  unsigned पूर्णाङ्क निवेशः; /* input argument array index */
+  ध्रुव वर्ण *start; /* format string start to output */
   size_t outlen;     /* number of bytes from the format string to output */
 };
 
-struct nsprintf {
-  char *buffer;
+संरचना nsprintf {
+  वर्ण *buffer;
   size_t length;
   size_t max;
 };
@@ -132,14 +132,14 @@ struct nsprintf {
    request line or header in a single flush. */
 #define ASPRINTF_STAGE_SIZE 512
 
-struct asprintf {
-  struct dynbuf *b;
-  char merr;
+संरचना asprintf {
+  संरचना dynbuf *b;
+  वर्ण merr;
   size_t nstage;
-  unsigned char stage[ASPRINTF_STAGE_SIZE];
+  unsigned वर्ण stage[ASPRINTF_STAGE_SIZE];
 };
 
-struct ioprintf {
+संरचना ioprintf {
   FILE *fd;
   bool error;
 };
@@ -148,18 +148,18 @@ struct ioprintf {
  *
  * returns -1 if no valid number was provided.
  */
-static int dollarstring(const char *p, const char **end)
+स्थिर पूर्णाङ्क dollarstring(ध्रुव वर्ण *p, ध्रुव वर्ण **end)
 {
-  curl_off_t num;
-  if(curlx_str_number(&p, &num, MAX_PARAMETERS) ||
-     curlx_str_single(&p, '$') || !num)
-    return -1;
+  curl_off_t अङ्कः;
+  जइ(curlx_str_सङ्ख्या(&p, &अङ्कः, MAX_PARAMETERS) ||
+     curlx_str_single(&p, '$') || !अङ्कः)
+    प्रत्यागम -1;
   *end = p;
-  return (int)num - 1;
+  प्रत्यागम (पूर्णाङ्क)अङ्कः - 1;
 }
 
 #define is_arg_used(x, y)   ((x)[(y) / 8] & (1 << ((y) & 7)))
-#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned char)(1 << ((y) & 7)))
+#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned वर्ण)(1 << ((y) & 7)))
 
 /*
  * Parse the format string.
@@ -182,345 +182,345 @@ static int dollarstring(const char *p, const char **end)
 #define PFMT_PRECARG    10 /* attempted to use same arg twice, for prec */
 #define PFMT_MANYSEGS   11 /* maxed out output segments */
 
-static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
-                       int *precp, int *widthp)
+स्थिर पूर्णाङ्क parse_flags(ध्रुव वर्ण **fmtp, unsigned पूर्णाङ्क *flagsp, पूर्णाङ्क use_dollar,
+                       पूर्णाङ्क *precp, पूर्णाङ्क *widthp)
 {
-  const char *fmt = *fmtp;
+  ध्रुव वर्ण *fmt = *fmtp;
   bool loopit = TRUE;
-  unsigned int flags = 0;
-  int width = 0;
-  int precision = 0;
+  unsigned पूर्णाङ्क flags = 0;
+  पूर्णाङ्क width = 0;
+  पूर्णाङ्क precision = 0;
 
   /* Handle the flags */
-  do {
-    switch(*fmt++) {
-    case ' ':
+  करेहि {
+    विकल्प(*fmt++) {
+    पक्ष ' ':
       flags |= FLAGS_SPACE;
-      break;
-    case '+':
+      भङ्ग;
+    पक्ष '+':
       flags |= FLAGS_SHOWSIGN;
-      break;
-    case '-':
-      flags |= FLAGS_LEFT;
-      flags &= ~(unsigned int)FLAGS_PAD_NIL;
-      break;
-    case '#':
+      भङ्ग;
+    पक्ष '-':
+      flags |= FLAGS_वामः;
+      flags &= ~(unsigned पूर्णाङ्क)FLAGS_PAD_NIL;
+      भङ्ग;
+    पक्ष '#':
       flags |= FLAGS_ALT;
-      break;
-    case '.':
-      if('*' == *fmt) {
+      भङ्ग;
+    पक्ष '.':
+      जइ('*' == *fmt) {
         /* The precision is picked from a specified parameter */
         flags |= FLAGS_PRECPARAM;
         fmt++;
 
-        if(use_dollar == DOLLAR_USE) {
+        जइ(use_dollar == DOLLAR_USE) {
           precision = dollarstring(fmt, &fmt);
-          if(precision < 0)
+          जइ(precision < 0)
             /* illegal combo */
-            return PFMT_DOLLARPREC;
+            प्रत्यागम PFMT_DOLLARPREC;
         }
-        else
+        अण्णहा
           /* get it from the next argument */
           precision = -1;
       }
-      else {
+      अण्णहा {
         bool is_neg;
-        curl_off_t num;
+        curl_off_t अङ्कः;
         flags |= FLAGS_PREC;
         is_neg = ('-' == *fmt);
-        if(is_neg)
+        जइ(is_neg)
           fmt++;
-        if(curlx_str_number(&fmt, &num, INT_MAX))
-          return PFMT_PREC;
-        precision = (int)num;
-        if(is_neg)
+        जइ(curlx_str_सङ्ख्या(&fmt, &अङ्कः, INT_MAX))
+          प्रत्यागम PFMT_PREC;
+        precision = (पूर्णाङ्क)अङ्कः;
+        जइ(is_neg)
           precision = -precision;
       }
-      if((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
+      जइ((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
          (FLAGS_PREC | FLAGS_PRECPARAM))
         /* it is not permitted to use both kinds of precision for the same
            argument */
-        return PFMT_PRECMIX;
-      break;
-    case 'h':
+        प्रत्यागम PFMT_PRECMIX;
+      भङ्ग;
+    पक्ष 'h':
       flags |= FLAGS_SHORT;
-      break;
+      भङ्ग;
 #ifdef _WIN32
-    case 'I':
+    पक्ष 'I':
       /* Non-ANSI integer extensions I32 I64 */
-      if((fmt[0] == '3') && (fmt[1] == '2')) {
+      जइ((fmt[0] == '3') && (fmt[1] == '2')) {
         flags |= FLAGS_LONG;
         fmt += 2;
       }
-      else if((fmt[0] == '6') && (fmt[1] == '4')) {
+      अण्णहा जइ((fmt[0] == '6') && (fmt[1] == '4')) {
         flags |= FLAGS_LONGLONG;
         fmt += 2;
       }
-      else {
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+      अण्णहा {
+#जइ SIZEOF_SIZE_T > SIZEOF_LONG
         flags |= FLAGS_LONGLONG;
-#else
+#अण्णहा
         flags |= FLAGS_LONG;
 #endif
       }
-      break;
+      भङ्ग;
 #endif /* _WIN32 */
-    case 'l':
-      if(flags & FLAGS_LONG)
+    पक्ष 'l':
+      जइ(flags & FLAGS_LONG)
         flags |= FLAGS_LONGLONG;
-      else
+      अण्णहा
         flags |= FLAGS_LONG;
-      break;
-    case 'L':
+      भङ्ग;
+    पक्ष 'L':
       flags |= FLAGS_LONGDOUBLE;
-      break;
-    case 'q':
+      भङ्ग;
+    पक्ष 'q':
       flags |= FLAGS_LONGLONG;
-      break;
-    case 'z':
+      भङ्ग;
+    पक्ष 'z':
       /* the code below generates a warning if -Wunreachable-code is
          used */
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+#जइ SIZEOF_SIZE_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#अण्णहा
       flags |= FLAGS_LONG;
 #endif
-      break;
-    case 'O':
-#if SIZEOF_CURL_OFF_T > SIZEOF_LONG
+      भङ्ग;
+    पक्ष 'O':
+#जइ SIZEOF_CURL_OFF_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#अण्णहा
       flags |= FLAGS_LONG;
 #endif
-      break;
-    case '0':
-      if(!(flags & FLAGS_LEFT))
+      भङ्ग;
+    पक्ष '0':
+      जइ(!(flags & FLAGS_वामः))
         flags |= FLAGS_PAD_NIL;
       FALLTHROUGH();
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9': {
-      curl_off_t num;
+    पक्ष '1':
+    पक्ष '2':
+    पक्ष '3':
+    पक्ष '4':
+    पक्ष '5':
+    पक्ष '6':
+    पक्ष '7':
+    पक्ष '8':
+    पक्ष '9': {
+      curl_off_t अङ्कः;
       flags |= FLAGS_WIDTH;
       fmt--;
-      if(curlx_str_number(&fmt, &num, INT_MAX))
-        return PFMT_WIDTH;
-      width = (int)num;
-      break;
+      जइ(curlx_str_सङ्ख्या(&fmt, &अङ्कः, INT_MAX))
+        प्रत्यागम PFMT_WIDTH;
+      width = (पूर्णाङ्क)अङ्कः;
+      भङ्ग;
     }
-    case '*':  /* read width from argument list */
+    पक्ष '*':  /* read width from argument list */
       flags |= FLAGS_WIDTHPARAM;
-      if(use_dollar == DOLLAR_USE) {
+      जइ(use_dollar == DOLLAR_USE) {
         width = dollarstring(fmt, &fmt);
-        if(width < 0)
+        जइ(width < 0)
           /* illegal combo */
-          return PFMT_DOLLARWIDTH;
+          प्रत्यागम PFMT_DOLLARWIDTH;
       }
-      else
+      अण्णहा
         /* pick from the next argument */
         width = -1;
-      break;
-    default:
+      भङ्ग;
+    स्वभाव:
       loopit = FALSE;
       fmt--;
-      break;
+      भङ्ग;
     } /* switch */
-  } while(loopit); /* do */
+  } जाव(loopit); /* do */
   *flagsp = flags;
   *precp = precision;
   *widthp = width;
   *fmtp = fmt;
-  return PFMT_OK;
+  प्रत्यागम PFMT_OK;
 }
 
-static bool parse_conversion(const char f, unsigned int *flagp,
+स्थिर bool parse_conversion(ध्रुव वर्ण f, unsigned पूर्णाङ्क *flagp,
                              FormatType *typep)
 {
-  unsigned int flags = *flagp;
+  unsigned पूर्णाङ्क flags = *flagp;
   FormatType type;
-  switch(f) {
-  case 'S':
+  विकल्प(f) {
+  पक्ष 'S':
     flags |= FLAGS_ALT;
     type = MTYPE_STRING;
-    break;
-  case 's':
+    भङ्ग;
+  पक्ष 's':
     type = MTYPE_STRING;
-    break;
-  case 'n':
+    भङ्ग;
+  पक्ष 'n':
     type = MTYPE_INTPTR;
-    break;
-  case 'p':
+    भङ्ग;
+  पक्ष 'p':
     type = MTYPE_PTR;
-    break;
-  case 'd':
-  case 'i':
-    if(flags & FLAGS_LONGLONG)
+    भङ्ग;
+  पक्ष 'd':
+  पक्ष 'i':
+    जइ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONG;
-    else if(flags & FLAGS_LONG)
+    अण्णहा जइ(flags & FLAGS_LONG)
       type = MTYPE_LONG;
-    else
+    अण्णहा
       type = MTYPE_INT;
-    break;
-  case 'u':
-    if(flags & FLAGS_LONGLONG)
+    भङ्ग;
+  पक्ष 'u':
+    जइ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    अण्णहा जइ(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    अण्णहा
       type = MTYPE_INTU;
     flags |= FLAGS_UNSIGNED;
-    break;
-  case 'o':
-    if(flags & FLAGS_LONGLONG)
+    भङ्ग;
+  पक्ष 'o':
+    जइ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    अण्णहा जइ(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    अण्णहा
       type = MTYPE_INTU;
     flags |= FLAGS_OCTAL | FLAGS_UNSIGNED;
-    break;
-  case 'x':
-    if(flags & FLAGS_LONGLONG)
+    भङ्ग;
+  पक्ष 'x':
+    जइ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    अण्णहा जइ(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    अण्णहा
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UNSIGNED;
-    break;
-  case 'X':
-    if(flags & FLAGS_LONGLONG)
+    भङ्ग;
+  पक्ष 'X':
+    जइ(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    अण्णहा जइ(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    अण्णहा
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UPPER | FLAGS_UNSIGNED;
-    break;
-  case 'c':
+    भङ्ग;
+  पक्ष 'c':
     type = MTYPE_INT;
     flags |= FLAGS_CHAR;
-    break;
-  case 'f':
+    भङ्ग;
+  पक्ष 'f':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
-    break;
-  case 'F':
+    भङ्ग;
+  पक्ष 'F':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_UPPER;
-    break;
-  case 'e':
+    भङ्ग;
+  पक्ष 'e':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE;
-    break;
-  case 'E':
+    भङ्ग;
+  पक्ष 'E':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE | FLAGS_UPPER;
-    break;
-  case 'g':
+    भङ्ग;
+  पक्ष 'g':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG;
-    break;
-  case 'G':
+    भङ्ग;
+  पक्ष 'G':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG | FLAGS_UPPER;
-    break;
-  default:
+    भङ्ग;
+  स्वभाव:
     /* invalid instruction, disregard and continue */
-    return TRUE;
+    प्रत्यागम TRUE;
   } /* switch */
 
   *flagp |= flags;
   *typep = type;
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-static int parsefmt(const char *format,
-                    struct outsegment *out,
-                    struct va_input *in,
-                    int *opieces,
-                    int *ipieces, va_list arglist)
+स्थिर पूर्णाङ्क parsefmt(ध्रुव वर्ण *format,
+                    संरचना outsegment *out,
+                    संरचना va_निवेशः *in,
+                    पूर्णाङ्क *opieces,
+                    पूर्णाङ्क *ipieces, va_list arglist)
 {
-  const char *fmt = format;
-  int param_num = 0;
-  int max_param = -1;
-  int i;
-  int ocount = 0;
-  unsigned char usedinput[MAX_PARAMETERS / 8];
+  ध्रुव वर्ण *fmt = format;
+  पूर्णाङ्क param_अङ्कः = 0;
+  पूर्णाङ्क max_param = -1;
+  पूर्णाङ्क i;
+  पूर्णाङ्क ocount = 0;
+  unsigned वर्ण usedinput[MAX_PARAMETERS / 8];
   size_t outlen = 0;
-  struct outsegment *optr;
-  int use_dollar = DOLLAR_UNKNOWN;
-  const char *start = fmt;
+  संरचना outsegment *optr;
+  पूर्णाङ्क use_dollar = DOLLAR_UNKNOWN;
+  ध्रुव वर्ण *start = fmt;
 
   /* clear, set a bit for each used input */
-  memset(usedinput, 0, sizeof(usedinput));
+  memset(usedinput, 0, परिमाण(usedinput));
 
-  while(*fmt) {
-    if(*fmt == '%') {
-      struct va_input *iptr;
+  जाव(*fmt) {
+    जइ(*fmt == '%') {
+      संरचना va_निवेशः *iptr;
       FormatType type;
-      unsigned int flags = 0;
-      int width = 0;
-      int precision = 0;
-      int param = -1;
-      int rc;
+      unsigned पूर्णाङ्क flags = 0;
+      पूर्णाङ्क width = 0;
+      पूर्णाङ्क precision = 0;
+      पूर्णाङ्क param = -1;
+      पूर्णाङ्क rc;
       fmt++;
       outlen = (size_t)(fmt - start - 1);
-      if(*fmt == '%') {
+      जइ(*fmt == '%') {
         /* this means a %% that should be output only as %. Create an output
            segment. */
-        if(outlen) {
+        जइ(outlen) {
           optr = &out[ocount++];
-          if(ocount > MAX_SEGMENTS)
-            return PFMT_MANYSEGS;
-          optr->input = 0;
+          जइ(ocount > MAX_SEGMENTS)
+            प्रत्यागम PFMT_MANYSEGS;
+          optr->निवेशः = 0;
           optr->flags = FLAGS_SUBSTR;
           optr->start = start;
           optr->outlen = outlen;
         }
         start = fmt;
         fmt++;
-        continue; /* while */
+        अनुवर्त; /* while */
       }
 
-      if(use_dollar != DOLLAR_NOPE) {
+      जइ(use_dollar != DOLLAR_NOPE) {
         param = dollarstring(fmt, &fmt);
-        if(param < 0) {
-          if(use_dollar == DOLLAR_USE)
+        जइ(param < 0) {
+          जइ(use_dollar == DOLLAR_USE)
             /* illegal combo */
-            return PFMT_DOLLAR;
+            प्रत्यागम PFMT_DOLLAR;
 
           /* we got no positional, get the next arg */
           param = -1;
           use_dollar = DOLLAR_NOPE;
         }
-        else
+        अण्णहा
           use_dollar = DOLLAR_USE;
       }
 
       rc = parse_flags(&fmt, &flags, use_dollar, &precision, &width);
-      if(rc)
-        return rc;
+      जइ(rc)
+        प्रत्यागम rc;
 
-      if(parse_conversion(*fmt, &flags, &type))
-        continue;
+      जइ(parse_conversion(*fmt, &flags, &type))
+        अनुवर्त;
 
-      if(flags & FLAGS_WIDTHPARAM) {
-        if(width < 0)
-          width = param_num++;
-        else {
+      जइ(flags & FLAGS_WIDTHPARAM) {
+        जइ(width < 0)
+          width = param_अङ्कः++;
+        अण्णहा {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, width))
-            return PFMT_WIDTHARG;
+          जइ(is_arg_used(usedinput, width))
+            प्रत्यागम PFMT_WIDTHARG;
         }
-        if(width >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(width >= max_param)
+        जइ(width >= MAX_PARAMETERS)
+          प्रत्यागम PFMT_MANYARGS;
+        जइ(width >= max_param)
           max_param = width;
 
         in[width].type = MTYPE_WIDTH;
@@ -528,17 +528,17 @@ static int parsefmt(const char *format,
         mark_arg_used(usedinput, width);
       }
 
-      if(flags & FLAGS_PRECPARAM) {
-        if(precision < 0)
-          precision = param_num++;
-        else {
+      जइ(flags & FLAGS_PRECPARAM) {
+        जइ(precision < 0)
+          precision = param_अङ्कः++;
+        अण्णहा {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, precision))
-            return PFMT_PRECARG;
+          जइ(is_arg_used(usedinput, precision))
+            प्रत्यागम PFMT_PRECARG;
         }
-        if(precision >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(precision >= max_param)
+        जइ(precision >= MAX_PARAMETERS)
+          प्रत्यागम PFMT_MANYARGS;
+        जइ(precision >= max_param)
           max_param = precision;
 
         in[precision].type = MTYPE_PRECISION;
@@ -546,11 +546,11 @@ static int parsefmt(const char *format,
       }
 
       /* Handle the specifier */
-      if(param < 0)
-        param = param_num++;
-      if(param >= MAX_PARAMETERS)
-        return PFMT_MANYARGS;
-      if(param >= max_param)
+      जइ(param < 0)
+        param = param_अङ्कः++;
+      जइ(param >= MAX_PARAMETERS)
+        प्रत्यागम PFMT_MANYARGS;
+      जइ(param >= max_param)
         max_param = param;
 
       iptr = &in[param];
@@ -561,9 +561,9 @@ static int parsefmt(const char *format,
 
       fmt++;
       optr = &out[ocount++];
-      if(ocount > MAX_SEGMENTS)
-        return PFMT_MANYSEGS;
-      optr->input = (unsigned int)param;
+      जइ(ocount > MAX_SEGMENTS)
+        प्रत्यागम PFMT_MANYSEGS;
+      optr->निवेशः = (unsigned पूर्णाङ्क)param;
       optr->flags = flags;
       optr->width = width;
       optr->precision = precision;
@@ -571,149 +571,149 @@ static int parsefmt(const char *format,
       optr->outlen = outlen;
       start = fmt;
     }
-    else
+    अण्णहा
       fmt++;
   }
 
   /* is there a trailing piece */
   outlen = (size_t)(fmt - start);
-  if(outlen) {
+  जइ(outlen) {
     optr = &out[ocount++];
-    if(ocount > MAX_SEGMENTS)
-      return PFMT_MANYSEGS;
-    optr->input = 0;
+    जइ(ocount > MAX_SEGMENTS)
+      प्रत्यागम PFMT_MANYSEGS;
+    optr->निवेशः = 0;
     optr->flags = FLAGS_SUBSTR;
     optr->start = start;
     optr->outlen = outlen;
   }
 
   /* Read the arg list parameters into our data list */
-  for(i = 0; i < max_param + 1; i++) {
-    struct va_input *iptr = &in[i];
-    if(!is_arg_used(usedinput, i))
+  प्रति(i = 0; i < max_param + 1; i++) {
+    संरचना va_निवेशः *iptr = &in[i];
+    जइ(!is_arg_used(usedinput, i))
       /* bad input */
-      return PFMT_INPUTGAP;
+      प्रत्यागम PFMT_INPUTGAP;
 
     /* based on the type, read the correct argument */
-    switch(iptr->type) {
-    case MTYPE_STRING:
-      iptr->val.str = va_arg(arglist, const char *);
-      break;
+    विकल्प(iptr->type) {
+    पक्ष MTYPE_STRING:
+      iptr->val.str = va_arg(arglist, ध्रुव वर्ण *);
+      भङ्ग;
 
-    case MTYPE_INTPTR:
-    case MTYPE_PTR:
-      iptr->val.ptr = va_arg(arglist, void *);
-      break;
+    पक्ष MTYPE_INTPTR:
+    पक्ष MTYPE_PTR:
+      iptr->val.ptr = va_arg(arglist, शून्य *);
+      भङ्ग;
 
-    case MTYPE_LONGLONGU:
+    पक्ष MTYPE_LONGLONGU:
       iptr->val.numu = va_arg(arglist, uint64_t);
-      break;
+      भङ्ग;
 
-    case MTYPE_LONGLONG:
+    पक्ष MTYPE_LONGLONG:
       iptr->val.nums = va_arg(arglist, int64_t);
-      break;
+      भङ्ग;
 
-    case MTYPE_LONGU:
+    पक्ष MTYPE_LONGU:
       iptr->val.numu = va_arg(arglist, unsigned long);
-      break;
+      भङ्ग;
 
-    case MTYPE_LONG:
+    पक्ष MTYPE_LONG:
       iptr->val.nums = va_arg(arglist, long);
-      break;
+      भङ्ग;
 
-    case MTYPE_INTU:
-      iptr->val.numu = va_arg(arglist, unsigned int);
-      break;
+    पक्ष MTYPE_INTU:
+      iptr->val.numu = va_arg(arglist, unsigned पूर्णाङ्क);
+      भङ्ग;
 
-    case MTYPE_INT:
-    case MTYPE_WIDTH:
-    case MTYPE_PRECISION:
-      iptr->val.nums = va_arg(arglist, int);
-      break;
+    पक्ष MTYPE_INT:
+    पक्ष MTYPE_WIDTH:
+    पक्ष MTYPE_PRECISION:
+      iptr->val.nums = va_arg(arglist, पूर्णाङ्क);
+      भङ्ग;
 
-    case MTYPE_DOUBLE:
-      iptr->val.dnum = va_arg(arglist, double);
-      break;
+    पक्ष MTYPE_DOUBLE:
+      iptr->val.dnum = va_arg(arglist, द्विगुण);
+      भङ्ग;
 
-    case MTYPE_LONGDOUBLE:
-      iptr->val.dnum = (double)va_arg(arglist, long double);
-      break;
+    पक्ष MTYPE_LONGDOUBLE:
+      iptr->val.dnum = (द्विगुण)va_arg(arglist, long द्विगुण);
+      भङ्ग;
 
-    default:
-      DEBUGASSERT(NULL); /* unexpected */
-      break;
+    स्वभाव:
+      DEBUGASSERT(रिक्त); /* unexpected */
+      भङ्ग;
     }
   }
   *ipieces = max_param + 1;
   *opieces = ocount;
 
-  return PFMT_OK;
+  प्रत्यागम PFMT_OK;
 }
 
-struct mproperty {
-  int width;            /* Width of a field. */
-  int prec;             /* Precision of a field. */
-  unsigned int flags;
+संरचना mproperty {
+  पूर्णाङ्क width;            /* Width of a field. */
+  पूर्णाङ्क prec;             /* Precision of a field. */
+  unsigned पूर्णाङ्क flags;
 };
 
 /* block output callback: consume up to 'len' bytes, return the number of
    bytes accepted. Accepting fewer than 'len' bytes aborts formatting, like
    the byte callback returning failure. May be NULL, in which case output
    falls back to the per-byte 'stream' callback. */
-typedef size_t (*mp_streamn)(const unsigned char *buf, size_t len, void *f);
+प्रकारनिर्देश size_t (*mp_streamn)(ध्रुव unsigned वर्ण *buf, size_t len, शून्य *f);
 
 /* commit any output the sink is holding. Returns non-zero on failure. Sinks
    whose accepted bytes are already committed do not need one. */
-typedef int (*mp_flush)(void *f);
+प्रकारनिर्देश पूर्णाङ्क (*mp_flush)(शून्य *f);
 
 /* emit a run of bytes through the block callback when available, else byte
    by byte. Returns TRUE to abort formatting (mirroring OUTCHAR). */
-static bool stream_run(void *userp,
-                       int (*stream)(unsigned char, void *),
+स्थिर bool stream_run(शून्य *userp,
+                       पूर्णाङ्क (*stream)(unsigned वर्ण, शून्य *),
                        mp_streamn streamn,
-                       const unsigned char *buf, size_t len, int *donep)
+                       ध्रुव unsigned वर्ण *buf, size_t len, पूर्णाङ्क *donep)
 {
-  if(!len)
-    return FALSE;
-  if(streamn) {
+  जइ(!len)
+    प्रत्यागम FALSE;
+  जइ(streamn) {
     size_t n = streamn(buf, len, userp);
-    *donep += (int)n;
-    return n != len;
+    *donep += (पूर्णाङ्क)n;
+    प्रत्यागम n != len;
   }
-  while(len--) {
-    if(stream(*buf++, userp))
-      return TRUE;
+  जाव(len--) {
+    जइ(stream(*buf++, userp))
+      प्रत्यागम TRUE;
     (*donep)++;
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
 /* Padding is always spaces or zeros, so it comes from a constant rather than a
    buffer that has to be filled first. 16 keeps every width used in the tree to
    a single run; wider padding loops. */
-static const char pad_spaces[] = "                ";
-static const char pad_zeros[] = "0000000000000000";
+स्थिर ध्रुव वर्ण pad_spaces[] = "                ";
+स्थिर ध्रुव वर्ण pad_zeros[] = "0000000000000000";
 #define PAD_RUN 16 /* strlen() of both of the above */
 
 /* emit 'num' copies of the pad byte. Returns TRUE to abort formatting. */
-static bool stream_pad(void *userp,
-                       int (*stream)(unsigned char, void *),
+स्थिर bool stream_pad(शून्य *userp,
+                       पूर्णाङ्क (*stream)(unsigned वर्ण, शून्य *),
                        mp_streamn streamn,
-                       unsigned char pad, int num, int *donep)
+                       unsigned वर्ण pad, पूर्णाङ्क अङ्कः, पूर्णाङ्क *donep)
 {
-  const unsigned char *src;
-  if(num <= 0)
-    return FALSE;
-  if(pad == '0')
-    src = (const unsigned char *)pad_zeros;
-  else
-    src = (const unsigned char *)pad_spaces;
-  while(num > PAD_RUN) {
-    if(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
-      return TRUE;
-    num -= PAD_RUN;
+  ध्रुव unsigned वर्ण *src;
+  जइ(अङ्कः <= 0)
+    प्रत्यागम FALSE;
+  जइ(pad == '0')
+    src = (ध्रुव unsigned वर्ण *)pad_zeros;
+  अण्णहा
+    src = (ध्रुव unsigned वर्ण *)pad_spaces;
+  जाव(अङ्कः > PAD_RUN) {
+    जइ(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
+      प्रत्यागम TRUE;
+    अङ्कः -= PAD_RUN;
   }
-  return stream_run(userp, stream, streamn, src, (size_t)num, donep);
+  प्रत्यागम stream_run(userp, stream, streamn, src, (size_t)अङ्कः, donep);
 }
 
 /* emit the leading null-terminated part of a run of at most 'len' bytes.
@@ -722,83 +722,83 @@ static bool stream_pad(void *userp,
    A byte loop and not memchr(): 'len' is the requested precision, which
    out_string() does not clamp to the string length, so "%.64s" on a 10-byte
    string arrives with len == 64 and memchr() would read past the object. */
-static bool stream_zrun(void *userp,
-                        int (*stream)(unsigned char, void *),
+स्थिर bool stream_zrun(शून्य *userp,
+                        पूर्णाङ्क (*stream)(unsigned वर्ण, शून्य *),
                         mp_streamn streamn,
-                        const char *str, size_t len, int *donep)
+                        ध्रुव वर्ण *str, size_t len, पूर्णाङ्क *donep)
 {
   size_t n = 0;
-  while(n < len && str[n])
+  जाव(n < len && str[n])
     n++;
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)str, n, donep);
+  प्रत्यागम stream_run(userp, stream, streamn,
+                    (ध्रुव unsigned वर्ण *)str, n, donep);
 }
 
-static bool out_double(void *userp,
-                       int (*stream)(unsigned char, void *),
+स्थिर bool out_double(शून्य *userp,
+                       पूर्णाङ्क (*stream)(unsigned वर्ण, शून्य *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       double dnum,
-                       char *work, int *donep)
+                       संरचना mproperty *p,
+                       द्विगुण dnum,
+                       वर्ण *work, पूर्णाङ्क *donep)
 {
-  char fmt[32] = "%";
-  char *fptr = &fmt[1];
-  size_t left = sizeof(fmt) - strlen(fmt);
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  वर्ण fmt[32] = "%";
+  वर्ण *fptr = &fmt[1];
+  size_t वामः = परिमाण(fmt) - strlen(fmt);
+  पूर्णाङ्क flags = p->flags;
+  पूर्णाङ्क width = p->width;
+  पूर्णाङ्क prec = p->prec;
 
-  if(flags & FLAGS_LEFT)
+  जइ(flags & FLAGS_वामः)
     *fptr++ = '-';
-  if(flags & FLAGS_SHOWSIGN)
+  जइ(flags & FLAGS_SHOWSIGN)
     *fptr++ = '+';
-  if(flags & FLAGS_SPACE)
+  जइ(flags & FLAGS_SPACE)
     *fptr++ = ' ';
-  if(flags & FLAGS_ALT)
+  जइ(flags & FLAGS_ALT)
     *fptr++ = '#';
 
   *fptr = 0;
 
-  if(width >= 0) {
+  जइ(width >= 0) {
     size_t dlen;
-    if(width >= BUFFSIZE)
+    जइ(width >= BUFFSIZE)
       width = BUFFSIZE - 1;
     /* RECURSIVE USAGE */
-    dlen = (size_t)curl_msnprintf(fptr, left, "%d", width);
+    dlen = (size_t)curl_msnprintf(fptr, वामः, "%d", width);
     fptr += dlen;
-    left -= dlen;
+    वामः -= dlen;
   }
-  if(prec >= 0) {
+  जइ(prec >= 0) {
     /* for each digit in the integer part, we can have one less
        precision */
-    int maxprec = BUFFSIZE - 1;
-    double val = dnum;
-    int len;
-    if(prec > maxprec)
+    पूर्णाङ्क maxprec = BUFFSIZE - 1;
+    द्विगुण val = dnum;
+    पूर्णाङ्क len;
+    जइ(prec > maxprec)
       prec = maxprec - 1;
-    if(width > 0 && prec <= width)
+    जइ(width > 0 && prec <= width)
       maxprec -= width;
-    while(maxprec && (val >= 10.0)) {
+    जाव(maxprec && (val >= 10.0)) {
       val /= 10;
       maxprec--;
     }
 
-    if(prec > maxprec)
+    जइ(prec > maxprec)
       prec = maxprec - 1;
-    if(prec < 0)
+    जइ(prec < 0)
       prec = 0;
     /* RECURSIVE USAGE */
-    len = curl_msnprintf(fptr, left, ".%d", prec);
+    len = curl_msnprintf(fptr, वामः, ".%d", prec);
     fptr += len;
   }
-  if(flags & FLAGS_LONG)
+  जइ(flags & FLAGS_LONG)
     *fptr++ = 'l';
 
-  if(flags & FLAGS_FLOATE)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'E' : 'e');
-  else if(flags & FLAGS_FLOATG)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'G' : 'g');
-  else
+  जइ(flags & FLAGS_FLOATE)
+    *fptr++ = (वर्ण)((flags & FLAGS_UPPER) ? 'E' : 'e');
+  अण्णहा जइ(flags & FLAGS_FLOATG)
+    *fptr++ = (वर्ण)((flags & FLAGS_UPPER) ? 'G' : 'g');
+  अण्णहा
     *fptr++ = (flags & FLAGS_UPPER) ? 'F' : 'f';
 
   *fptr = 0; /* and a final null-termination */
@@ -806,269 +806,269 @@ static bool out_double(void *userp,
   /* NOTE NOTE NOTE!! Not all sprintf implementations return number of
      output characters */
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic प्रक्षिप
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
 #ifdef _WIN32
   curlx_win32_snprintf(work, BUFFSIZE, fmt, dnum);
-#else
+#अण्णहा
   /* !checksrc! disable BANNEDFUNC 1 */
   snprintf(work, BUFFSIZE, fmt, dnum);
 #endif
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic निष्कासय
 #endif
   DEBUGASSERT(strlen(work) < BUFFSIZE);
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)work, strlen(work), donep);
+  प्रत्यागम stream_run(userp, stream, streamn,
+                    (ध्रुव unsigned वर्ण *)work, strlen(work), donep);
 }
 
-static bool out_number(void *userp,
-                       int (*stream)(unsigned char, void *),
+स्थिर bool out_सङ्ख्या(शून्य *userp,
+                       पूर्णाङ्क (*stream)(unsigned वर्ण, शून्य *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       uint64_t num,
+                       संरचना mproperty *p,
+                       uint64_t अङ्कः,
                        int64_t nums,
-                       char *work, int *donep)
+                       वर्ण *work, पूर्णाङ्क *donep)
 {
-  const unsigned char *digits = Curl_ldigits;
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  ध्रुव unsigned वर्ण *digits = Curl_ldigits;
+  पूर्णाङ्क flags = p->flags;
+  पूर्णाङ्क width = p->width;
+  पूर्णाङ्क prec = p->prec;
   bool is_alt = flags & FLAGS_ALT;
   bool is_neg = FALSE;
-  int base = 10;
+  पूर्णाङ्क base = 10;
 
   /* 'workend' points to the final buffer byte position, but with an extra
      byte as margin to avoid the (FALSE?) warning Coverity gives us
      otherwise */
-  char *workend = &work[BUFFSIZE - 2];
-  char *w;
+  वर्ण *workend = &work[BUFFSIZE - 2];
+  वर्ण *w;
 
-  if(flags & FLAGS_CHAR) {
+  जइ(flags & FLAGS_CHAR) {
     /* Character. */
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    जइ(!(flags & FLAGS_वामः)) {
+      जइ(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        प्रत्यागम TRUE;
       width = 1;
     }
-    OUTCHAR((char)num);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    OUTCHAR((वर्ण)अङ्कः);
+    जइ(flags & FLAGS_वामः) {
+      जइ(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        प्रत्यागम TRUE;
     }
-    return FALSE;
+    प्रत्यागम FALSE;
   }
-  if(flags & FLAGS_OCTAL)
+  जइ(flags & FLAGS_OCTAL)
     /* Octal unsigned integer */
     base = 8;
 
-  else if(flags & FLAGS_HEX) {
+  अण्णहा जइ(flags & FLAGS_HEX) {
     /* Hexadecimal unsigned integer */
     digits = (flags & FLAGS_UPPER) ? Curl_udigits : Curl_ldigits;
     base = 16;
   }
-  else if(flags & FLAGS_UNSIGNED)
+  अण्णहा जइ(flags & FLAGS_UNSIGNED)
     /* Decimal unsigned integer */
     ;
 
-  else {
+  अण्णहा {
     /* Decimal integer. */
     is_neg = (nums < 0);
-    if(is_neg) {
+    जइ(is_neg) {
       /* signed_num might fail to hold absolute negative minimum by 1 */
-      int64_t signed_num; /* Used to convert negative in positive. */
-      signed_num = nums + (int64_t)1;
-      signed_num = -signed_num;
-      num = (uint64_t)signed_num;
-      num += (uint64_t)1;
+      int64_t signed_अङ्कः; /* Used to convert negative in positive. */
+      signed_अङ्कः = nums + (int64_t)1;
+      signed_अङ्कः = -signed_अङ्कः;
+      अङ्कः = (uint64_t)signed_अङ्कः;
+      अङ्कः += (uint64_t)1;
     }
   }
 
   /* Supply a default precision if none was given. */
-  if(prec == -1)
+  जइ(prec == -1)
     prec = 1;
 
   /* Put the number in WORK. */
   w = workend;
   DEBUGASSERT(base <= 16);
-  switch(base) {
-  case 10:
-    while(num > 0) {
-      *w-- = (char)('0' + (num % 10));
-      num /= 10;
+  विकल्प(base) {
+  पक्ष 10:
+    जाव(अङ्कः > 0) {
+      *w-- = (वर्ण)('0' + (अङ्कः % 10));
+      अङ्कः /= 10;
     }
-    break;
-  default:
-    while(num > 0) {
-      *w-- = digits[num % base];
-      num /= base;
+    भङ्ग;
+  स्वभाव:
+    जाव(अङ्कः > 0) {
+      *w-- = digits[अङ्कः % base];
+      अङ्कः /= base;
     }
-    break;
+    भङ्ग;
   }
-  width -= (int)(workend - w);
-  prec -= (int)(workend - w);
+  width -= (पूर्णाङ्क)(workend - w);
+  prec -= (पूर्णाङ्क)(workend - w);
 
-  if(is_alt && base == 8 && prec <= 0) {
+  जइ(is_alt && base == 8 && prec <= 0) {
     *w-- = '0';
     --width;
   }
 
-  if(prec > 0) {
+  जइ(prec > 0) {
     width -= prec;
-    while(prec-- > 0 && w >= work)
+    जाव(prec-- > 0 && w >= work)
       *w-- = '0';
   }
 
-  if(is_alt && base == 16)
+  जइ(is_alt && base == 16)
     width -= 2;
 
-  if(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
+  जइ(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
     --width;
 
-  if(!(flags & FLAGS_LEFT) && !(flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  जइ(!(flags & FLAGS_वामः) && !(flags & FLAGS_PAD_NIL)) {
+    जइ(stream_pad(userp, stream, streamn, ' ', width, donep))
+      प्रत्यागम TRUE;
     width = 0;
   }
 
-  if(is_neg)
+  जइ(is_neg)
     OUTCHAR('-');
-  else if(flags & FLAGS_SHOWSIGN)
+  अण्णहा जइ(flags & FLAGS_SHOWSIGN)
     OUTCHAR('+');
-  else if(flags & FLAGS_SPACE)
+  अण्णहा जइ(flags & FLAGS_SPACE)
     OUTCHAR(' ');
 
-  if(is_alt && base == 16) {
+  जइ(is_alt && base == 16) {
     OUTCHAR('0');
-    if(flags & FLAGS_UPPER)
+    जइ(flags & FLAGS_UPPER)
       OUTCHAR('X');
-    else
+    अण्णहा
       OUTCHAR('x');
   }
 
-  if(!(flags & FLAGS_LEFT) && (flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, '0', width, donep))
-      return TRUE;
+  जइ(!(flags & FLAGS_वामः) && (flags & FLAGS_PAD_NIL)) {
+    जइ(stream_pad(userp, stream, streamn, '0', width, donep))
+      प्रत्यागम TRUE;
     width = 0;
   }
 
   /* Write the number. */
-  if(stream_run(userp, stream, streamn, (const unsigned char *)w + 1,
+  जइ(stream_run(userp, stream, streamn, (ध्रुव unsigned वर्ण *)w + 1,
                 (size_t)(workend - w), donep))
-    return TRUE;
+    प्रत्यागम TRUE;
 
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  जइ(flags & FLAGS_वामः) {
+    जइ(stream_pad(userp, stream, streamn, ' ', width, donep))
+      प्रत्यागम TRUE;
   }
 
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-static const char nilstr[] = "(nil)";
+स्थिर ध्रुव वर्ण nilstr[] = "(nil)";
 
-static bool out_string(void *userp,
-                       int (*stream)(unsigned char, void *),
+स्थिर bool out_string(शून्य *userp,
+                       पूर्णाङ्क (*stream)(unsigned वर्ण, शून्य *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       const char *str,
-                       int *donep)
+                       संरचना mproperty *p,
+                       ध्रुव वर्ण *str,
+                       पूर्णाङ्क *donep)
 {
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  पूर्णाङ्क flags = p->flags;
+  पूर्णाङ्क width = p->width;
+  पूर्णाङ्क prec = p->prec;
   size_t len;
 
-  if(!str) {
+  जइ(!str) {
     /* Write null string if there is space. */
-    if(prec == -1 || prec >= (int)CURL_CSTRLEN(nilstr)) {
+    जइ(prec == -1 || prec >= (पूर्णाङ्क)CURL_CSTRLEN(nilstr)) {
       str = nilstr;
       len = CURL_CSTRLEN(nilstr);
       /* Disable quotes around (nil) */
-      flags &= ~(unsigned int)FLAGS_ALT;
+      flags &= ~(unsigned पूर्णाङ्क)FLAGS_ALT;
     }
-    else {
+    अण्णहा {
       str = "";
       len = 0;
     }
   }
-  else if(prec != -1)
+  अण्णहा जइ(prec != -1)
     len = (size_t)prec;
-  else if(*str == '\0')
+  अण्णहा जइ(*str == '\0')
     len = 0;
-  else
+  अण्णहा
     len = strlen(str);
 
-  width -= (len > INT_MAX) ? INT_MAX : (int)len;
+  width -= (len > INT_MAX) ? INT_MAX : (पूर्णाङ्क)len;
 
-  if(flags & FLAGS_ALT)
+  जइ(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  if(!(flags & FLAGS_LEFT)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  जइ(!(flags & FLAGS_वामः)) {
+    जइ(stream_pad(userp, stream, streamn, ' ', width, donep))
+      प्रत्यागम TRUE;
     width = 0;
   }
 
   /* With no precision, len is already the exact length; emit it without
      scanning again. With precision, scan up to len but stop at NUL, since
      the string may be shorter or the buffer may not be null-terminated. */
-  if(prec == -1) {
-    if(stream_run(userp, stream, streamn,
-                  (const unsigned char *)str, len, donep))
-      return TRUE;
+  जइ(prec == -1) {
+    जइ(stream_run(userp, stream, streamn,
+                  (ध्रुव unsigned वर्ण *)str, len, donep))
+      प्रत्यागम TRUE;
   }
-  else if(stream_zrun(userp, stream, streamn, str, len, donep))
-    return TRUE;
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  अण्णहा जइ(stream_zrun(userp, stream, streamn, str, len, donep))
+    प्रत्यागम TRUE;
+  जइ(flags & FLAGS_वामः) {
+    जइ(stream_pad(userp, stream, streamn, ' ', width, donep))
+      प्रत्यागम TRUE;
   }
 
-  if(flags & FLAGS_ALT)
+  जइ(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-static bool out_pointer(void *userp,
-                        int (*stream)(unsigned char, void *),
+स्थिर bool out_pointer(शून्य *userp,
+                        पूर्णाङ्क (*stream)(unsigned वर्ण, शून्य *),
                         mp_streamn streamn,
-                        struct mproperty *p,
-                        const char *ptr,
-                        char *work,
-                        int *donep)
+                        संरचना mproperty *p,
+                        ध्रुव वर्ण *ptr,
+                        वर्ण *work,
+                        पूर्णाङ्क *donep)
 {
   /* Generic pointer. */
-  if(ptr) {
-    size_t num = (size_t)ptr;
+  जइ(ptr) {
+    size_t अङ्कः = (size_t)ptr;
 
     /* If the pointer is not NULL, write it as a %#x spec. */
     p->flags |= FLAGS_HEX | FLAGS_ALT;
-    if(out_number(userp, stream, streamn, p, num, 0, work, donep))
-      return TRUE;
+    जइ(out_सङ्ख्या(userp, stream, streamn, p, अङ्कः, 0, work, donep))
+      प्रत्यागम TRUE;
   }
-  else {
+  अण्णहा {
     /* Write "(nil)" for a nil pointer. */
-    int width = p->width;
-    int flags = p->flags;
+    पूर्णाङ्क width = p->width;
+    पूर्णाङ्क flags = p->flags;
 
-    width -= (int)CURL_CSTRLEN(nilstr);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    width -= (पूर्णाङ्क)CURL_CSTRLEN(nilstr);
+    जइ(flags & FLAGS_वामः) {
+      जइ(stream_pad(userp, stream, streamn, ' ', width, donep))
+        प्रत्यागम TRUE;
       width = 0;
     }
-    if(stream_run(userp, stream, streamn, (const unsigned char *)nilstr,
-                  sizeof(nilstr) - 1, donep))
-      return TRUE;
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    जइ(stream_run(userp, stream, streamn, (ध्रुव unsigned वर्ण *)nilstr,
+                  परिमाण(nilstr) - 1, donep))
+      प्रत्यागम TRUE;
+    जइ(!(flags & FLAGS_वामः)) {
+      जइ(stream_pad(userp, stream, streamn, ' ', width, donep))
+        प्रत्यागम TRUE;
     }
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
 /*
@@ -1086,433 +1086,433 @@ static bool out_pointer(void *userp,
  *
  * All output is sent to the 'stream()' callback, one byte at a time.
  */
-static int formatf(void *userp, /* untouched by format(), sent to the
+स्थिर पूर्णाङ्क formatf(शून्य *userp, /* untouched by format(), sent to the
                                    stream() function in the second argument */
                    /* function pointer called for each output character */
-                   int (*stream)(unsigned char, void *),
+                   पूर्णाङ्क (*stream)(unsigned वर्ण, शून्य *),
                    /* optional block-output function pointer */
                    mp_streamn streamn,
                    /* optional, commits output the sink is holding */
                    mp_flush flush,
-                   const char *format, /* %-formatted string */
+                   ध्रुव वर्ण *format, /* %-formatted string */
                    va_list ap_save) /* list of parameters */
 {
-  int done = 0;   /* number of characters written */
-  int i;
-  int ocount = 0; /* number of output segments */
-  int icount = 0; /* number of input arguments */
+  पूर्णाङ्क done = 0;   /* number of characters written */
+  पूर्णाङ्क i;
+  पूर्णाङ्क ocount = 0; /* number of output segments */
+  पूर्णाङ्क icount = 0; /* number of input arguments */
 
-  struct outsegment output[MAX_SEGMENTS];
-  struct va_input input[MAX_PARAMETERS];
-  char work[BUFFSIZE + 2];
+  संरचना outsegment output[MAX_SEGMENTS];
+  संरचना va_निवेशः निवेशः[MAX_PARAMETERS];
+  वर्ण work[BUFFSIZE + 2];
 
   /* Parse the format string */
-  if(parsefmt(format, output, input, &ocount, &icount, ap_save))
-    return 0;
+  जइ(parsefmt(format, output, निवेशः, &ocount, &icount, ap_save))
+    प्रत्यागम 0;
 
-  for(i = 0; i < ocount; i++) {
-    struct outsegment *optr = &output[i];
-    struct va_input *iptr = &input[optr->input];
-    struct mproperty p;
+  प्रति(i = 0; i < ocount; i++) {
+    संरचना outsegment *optr = &output[i];
+    संरचना va_निवेशः *iptr = &निवेशः[optr->निवेशः];
+    संरचना mproperty p;
     size_t outlen = optr->outlen;
 
-    if(outlen) {
-      if(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
-        return done;
-      if(optr->flags & FLAGS_SUBSTR)
+    जइ(outlen) {
+      जइ(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
+        प्रत्यागम done;
+      जइ(optr->flags & FLAGS_SUBSTR)
         /* this is a substring */
-        continue;
+        अनुवर्त;
     }
 
     p.flags = optr->flags;
 
     /* pick up the specified width */
-    if(p.flags & FLAGS_WIDTHPARAM) {
-      p.width = (int)input[optr->width].val.nums;
-      if(p.width < 0) {
+    जइ(p.flags & FLAGS_WIDTHPARAM) {
+      p.width = (पूर्णाङ्क)निवेशः[optr->width].val.nums;
+      जइ(p.width < 0) {
         /* "A negative field width is taken as a '-' flag followed by a
            positive field width." */
-        if(p.width == INT_MIN)
+        जइ(p.width == INT_MIN)
           p.width = INT_MAX;
-        else
+        अण्णहा
           p.width = -p.width;
-        p.flags |= FLAGS_LEFT;
-        p.flags &= ~(unsigned int)FLAGS_PAD_NIL;
+        p.flags |= FLAGS_वामः;
+        p.flags &= ~(unsigned पूर्णाङ्क)FLAGS_PAD_NIL;
       }
     }
-    else
+    अण्णहा
       p.width = optr->width;
 
     /* pick up the specified precision */
-    if(p.flags & FLAGS_PRECPARAM) {
-      p.prec = (int)input[optr->precision].val.nums;
-      if(p.prec < 0)
+    जइ(p.flags & FLAGS_PRECPARAM) {
+      p.prec = (पूर्णाङ्क)निवेशः[optr->precision].val.nums;
+      जइ(p.prec < 0)
         /* "A negative precision is taken as if the precision were
            omitted." */
         p.prec = -1;
     }
-    else if(p.flags & FLAGS_PREC)
+    अण्णहा जइ(p.flags & FLAGS_PREC)
       p.prec = optr->precision;
-    else
+    अण्णहा
       p.prec = -1;
 
-    switch(iptr->type) {
-    case MTYPE_INTU:
-    case MTYPE_LONGU:
-    case MTYPE_LONGLONGU:
+    विकल्प(iptr->type) {
+    पक्ष MTYPE_INTU:
+    पक्ष MTYPE_LONGU:
+    पक्ष MTYPE_LONGLONGU:
       p.flags |= FLAGS_UNSIGNED;
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu, 0, work,
+      जइ(out_सङ्ख्या(userp, stream, streamn, &p, iptr->val.numu, 0, work,
                     &done))
-        return done;
-      break;
+        प्रत्यागम done;
+      भङ्ग;
 
-    case MTYPE_INT:
-    case MTYPE_LONG:
-    case MTYPE_LONGLONG:
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu,
+    पक्ष MTYPE_INT:
+    पक्ष MTYPE_LONG:
+    पक्ष MTYPE_LONGLONG:
+      जइ(out_सङ्ख्या(userp, stream, streamn, &p, iptr->val.numu,
                     iptr->val.nums, work, &done))
-        return done;
-      break;
+        प्रत्यागम done;
+      भङ्ग;
 
-    case MTYPE_STRING:
-      if(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
-        return done;
-      break;
+    पक्ष MTYPE_STRING:
+      जइ(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
+        प्रत्यागम done;
+      भङ्ग;
 
-    case MTYPE_PTR:
-      if(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
+    पक्ष MTYPE_PTR:
+      जइ(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
                      &done))
-        return done;
-      break;
+        प्रत्यागम done;
+      भङ्ग;
 
-    case MTYPE_DOUBLE:
-    case MTYPE_LONGDOUBLE:
-      if(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
+    पक्ष MTYPE_DOUBLE:
+    पक्ष MTYPE_LONGDOUBLE:
+      जइ(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
                     &done))
-        return done;
-      break;
+        प्रत्यागम done;
+      भङ्ग;
 
-    case MTYPE_INTPTR:
+    पक्ष MTYPE_INTPTR:
       /* %n is observable by the caller, so commit what is pending first and
          perform it only if that succeeded, as a sink that never holds output
          would. */
-      if(flush && flush(userp))
-        return done;
+      जइ(flush && flush(userp))
+        प्रत्यागम done;
       /* Answer the count of characters written. */
-      if(p.flags & FLAGS_LONGLONG)
+      जइ(p.flags & FLAGS_LONGLONG)
         *(int64_t *)iptr->val.ptr = (int64_t)done;
-      else if(p.flags & FLAGS_LONG)
+      अण्णहा जइ(p.flags & FLAGS_LONG)
         *(long *)iptr->val.ptr = (long)done;
-      else if(!(p.flags & FLAGS_SHORT))
-        *(int *)iptr->val.ptr = done;
-      else
+      अण्णहा जइ(!(p.flags & FLAGS_SHORT))
+        *(पूर्णाङ्क *)iptr->val.ptr = done;
+      अण्णहा
         *(short *)iptr->val.ptr = (short)done;
-      break;
+      भङ्ग;
 
-    default:
-      break;
+    स्वभाव:
+      भङ्ग;
     }
   }
-  return done;
+  प्रत्यागम done;
 }
 
 /* fputc() look-alike */
-static int addbyter(unsigned char outc, void *f)
+स्थिर पूर्णाङ्क addbyter(unsigned वर्ण outc, शून्य *f)
 {
-  struct nsprintf *infop = f;
-  if(infop->length < infop->max) {
+  संरचना nsprintf *infop = f;
+  जइ(infop->length < infop->max) {
     /* only do this if we have not reached max length yet */
-    *infop->buffer++ = (char)outc; /* store */
+    *infop->buffer++ = (वर्ण)outc; /* store */
     infop->length++; /* we are now one byte larger */
-    return 0;     /* fputc() returns like this on success */
+    प्रत्यागम 0;     /* fputc() returns like this on success */
   }
-  return 1;
+  प्रत्यागम 1;
 }
 
 /* block variant of addbyter */
-static size_t addrun(const unsigned char *buf, size_t len, void *f)
+स्थिर size_t addrun(ध्रुव unsigned वर्ण *buf, size_t len, शून्य *f)
 {
-  struct nsprintf *infop = f;
+  संरचना nsprintf *infop = f;
   size_t fit = infop->max - infop->length;
-  if(len > fit)
+  जइ(len > fit)
     len = fit;
-  if(len) {
+  जइ(len) {
     memcpy(infop->buffer, buf, len);
     infop->buffer += len;
     infop->length += len;
   }
-  return len;
+  प्रत्यागम len;
 }
 
-int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
+पूर्णाङ्क curl_mvsnprintf(वर्ण *buffer, size_t maxlength, ध्रुव वर्ण *format,
                     va_list args)
 {
-  int retcode;
-  struct nsprintf info;
+  पूर्णाङ्क retcode;
+  संरचना nsprintf info;
 
   info.buffer = buffer;
   info.length = 0;
   info.max = maxlength;
 
-  retcode = formatf(&info, addbyter, addrun, NULL, format, args);
-  if(info.max) {
+  retcode = formatf(&info, addbyter, addrun, रिक्त, format, args);
+  जइ(info.max) {
     /* we null-terminate this */
-    if(info.max == info.length) {
+    जइ(info.max == info.length) {
       /* we are at maximum, scrap the last letter */
       info.buffer[-1] = 0;
       DEBUGASSERT(retcode);
       retcode--; /* do not count the NUL byte */
     }
-    else
+    अण्णहा
       info.buffer[0] = 0;
   }
-  return retcode;
+  प्रत्यागम retcode;
 }
 
-int curl_msnprintf(char *buffer, size_t maxlength, const char *format, ...)
+पूर्णाङ्क curl_msnprintf(वर्ण *buffer, size_t maxlength, ध्रुव वर्ण *format, ...)
 {
-  int retcode;
+  पूर्णाङ्क retcode;
   va_list args; /* argument pointer */
   va_start(args, format);
   retcode = curl_mvsnprintf(buffer, maxlength, format, args);
   va_end(args);
-  return retcode;
+  प्रत्यागम retcode;
 }
 
 /* append the staged bytes to the dynbuf. Returns 1 on failure (and sets
    merr), 0 on success. */
-static int alloc_flush(void *f)
+स्थिर पूर्णाङ्क alloc_flush(शून्य *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage) {
+  संरचना asprintf *infop = f;
+  जइ(infop->nstage) {
     CURLcode result = curlx_dyn_addn(infop->b, infop->stage, infop->nstage);
     infop->nstage = 0;
-    if(result) {
+    जइ(result) {
       infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-      return 1; /* fail */
+      प्रत्यागम 1; /* fail */
     }
   }
-  return 0;
+  प्रत्यागम 0;
 }
 
 /* append directly, bypassing the stage. Returns 1 on failure. */
-static int alloc_addn(struct asprintf *infop, const unsigned char *buf,
+स्थिर पूर्णाङ्क alloc_addn(संरचना asprintf *infop, ध्रुव unsigned वर्ण *buf,
                       size_t len)
 {
   CURLcode result = curlx_dyn_addn(infop->b, buf, len);
-  if(result) {
+  जइ(result) {
     infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-    return 1; /* fail */
+    प्रत्यागम 1; /* fail */
   }
-  return 0;
+  प्रत्यागम 0;
 }
 
 /* TRUE if 'more' additional bytes still fit the dynbuf size limit, counting
    what is already staged. curlx_dyn_addn() rejects an append when
    len + leng + 1 exceeds it. */
-static bool alloc_fits(struct asprintf *infop, size_t more)
+स्थिर bool alloc_fits(संरचना asprintf *infop, size_t more)
 {
-  return (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
+  प्रत्यागम (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
 }
 
 /* fputc() look-alike */
-static int alloc_addbyter(unsigned char outc, void *f)
+स्थिर पूर्णाङ्क alloc_addbyter(unsigned वर्ण outc, शून्य *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage == sizeof(infop->stage) && alloc_flush(infop))
-    return 1; /* fail */
-  if(!alloc_fits(infop, 1)) {
+  संरचना asprintf *infop = f;
+  जइ(infop->nstage == परिमाण(infop->stage) && alloc_flush(infop))
+    प्रत्यागम 1; /* fail */
+  जइ(!alloc_fits(infop, 1)) {
     /* Does not fit the dynbuf size limit. Flush and append this byte on
        its own, so the limit is reported at exactly this byte and formatting
        stops where it would without staging. %n depends on that. */
-    if(alloc_flush(infop))
-      return 1;
-    return alloc_addn(infop, &outc, 1);
+    जइ(alloc_flush(infop))
+      प्रत्यागम 1;
+    प्रत्यागम alloc_addn(infop, &outc, 1);
   }
   infop->stage[infop->nstage++] = outc;
-  return 0;
+  प्रत्यागम 0;
 }
 
 /* block variant of alloc_addbyter */
-static size_t alloc_addrun(const unsigned char *buf, size_t len, void *f)
+स्थिर size_t alloc_addrun(ध्रुव unsigned वर्ण *buf, size_t len, शून्य *f)
 {
-  struct asprintf *infop = f;
+  संरचना asprintf *infop = f;
   size_t accepted = 0;
-  while(accepted < len) {
-    size_t room = sizeof(infop->stage) - infop->nstage;
+  जाव(accepted < len) {
+    size_t room = परिमाण(infop->stage) - infop->nstage;
     size_t n;
-    if(!room) {
-      if(alloc_flush(infop))
-        return accepted; /* accepted < len aborts formatting */
-      room = sizeof(infop->stage);
+    जइ(!room) {
+      जइ(alloc_flush(infop))
+        प्रत्यागम accepted; /* accepted < len aborts formatting */
+      room = परिमाण(infop->stage);
     }
     n = len - accepted;
-    if(n > room)
+    जइ(n > room)
       n = room;
-    if(!alloc_fits(infop, n)) {
+    जइ(!alloc_fits(infop, n)) {
       /* Run does not fit the dynbuf size limit. Stage what does, then
          append the first byte that does not on its own, so the limit is
          reported at exactly that byte. */
       size_t fits = infop->b->toobig - infop->b->leng - infop->nstage - 1;
-      if(fits) {
+      जइ(fits) {
         memcpy(&infop->stage[infop->nstage], buf + accepted, fits);
         infop->nstage += fits;
         accepted += fits;
       }
-      if(alloc_flush(infop))
-        return accepted;
-      if(alloc_addn(infop, buf + accepted, 1))
-        return accepted; /* accepted < len aborts formatting */
+      जइ(alloc_flush(infop))
+        प्रत्यागम accepted;
+      जइ(alloc_addn(infop, buf + accepted, 1))
+        प्रत्यागम accepted; /* accepted < len aborts formatting */
       accepted++;
-      continue;
+      अनुवर्त;
     }
     memcpy(&infop->stage[infop->nstage], buf + accepted, n);
     infop->nstage += n;
     accepted += n;
   }
-  return accepted;
+  प्रत्यागम accepted;
 }
 
 /* appends the formatted string, returns MERR error code */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
+पूर्णाङ्क curlx_dyn_vprintf(संरचना dynbuf *dyn, ध्रुव वर्ण *format, va_list args)
 {
-  struct asprintf info;
+  संरचना asprintf info;
   info.b = dyn;
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+  (शून्य)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  जइ(!info.merr)
+    (शून्य)alloc_flush(&info);
+  जइ(info.merr) {
     curlx_dyn_free(info.b);
-    return info.merr;
+    प्रत्यागम info.merr;
   }
-  return 0;
+  प्रत्यागम 0;
 }
 
-char *curl_mvaprintf(const char *format, va_list args)
+वर्ण *curl_mvaprintf(ध्रुव वर्ण *format, va_list args)
 {
-  struct asprintf info;
-  struct dynbuf dyn;
+  संरचना asprintf info;
+  संरचना dynbuf dyn;
   info.b = &dyn;
   curlx_dyn_init(info.b, DYN_APRINTF);
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+  (शून्य)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  जइ(!info.merr)
+    (शून्य)alloc_flush(&info);
+  जइ(info.merr) {
     curlx_dyn_free(info.b);
-    return NULL;
+    प्रत्यागम रिक्त;
   }
-  if(curlx_dyn_len(info.b))
-    return curlx_dyn_ptr(info.b);
-  return curlx_strdup("");
+  जइ(curlx_dyn_len(info.b))
+    प्रत्यागम curlx_dyn_ptr(info.b);
+  प्रत्यागम curlx_strdup("");
 }
 
-char *curl_maprintf(const char *format, ...)
+वर्ण *curl_maprintf(ध्रुव वर्ण *format, ...)
 {
   va_list args;
-  char *s;
+  वर्ण *s;
   va_start(args, format);
   s = curl_mvaprintf(format, args);
   va_end(args);
-  return s;
+  प्रत्यागम s;
 }
 
-static int storebuffer(unsigned char outc, void *f)
+स्थिर पूर्णाङ्क storebuffer(unsigned वर्ण outc, शून्य *f)
 {
-  char **buffer = f;
-  **buffer = (char)outc;
+  वर्ण **buffer = f;
+  **buffer = (वर्ण)outc;
   (*buffer)++;
-  return 0;
+  प्रत्यागम 0;
 }
 
 /* block variant of storebuffer */
-static size_t storerun(const unsigned char *buf, size_t len, void *f)
+स्थिर size_t storerun(ध्रुव unsigned वर्ण *buf, size_t len, शून्य *f)
 {
-  char **buffer = f;
+  वर्ण **buffer = f;
   memcpy(*buffer, buf, len);
   *buffer += len;
-  return len;
+  प्रत्यागम len;
 }
 
-int curl_msprintf(char *buffer, const char *format, ...)
+पूर्णाङ्क curl_msprintf(वर्ण *buffer, ध्रुव वर्ण *format, ...)
 {
   va_list args; /* argument pointer */
-  int retcode;
+  पूर्णाङ्क retcode;
   va_start(args, format);
-  retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  retcode = formatf(&buffer, storebuffer, storerun, रिक्त, format, args);
   va_end(args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  प्रत्यागम retcode;
 }
 
-static int fputc_wrapper(unsigned char outc, void *f)
+स्थिर पूर्णाङ्क fputc_wrapper(unsigned वर्ण outc, शून्य *f)
 {
-  struct ioprintf *i = f;
-  int out = outc;
+  संरचना ioprintf *i = f;
+  पूर्णाङ्क out = outc;
   FILE *s = i->fd;
-  int rc = fputc(out, s);
+  पूर्णाङ्क rc = fputc(out, s);
   i->error = (rc == EOF);
-  return (rc == EOF);
+  प्रत्यागम (rc == EOF);
 }
 
 /* block variant of fputc_wrapper */
-static size_t fwrite_wrapper(const unsigned char *buf, size_t len, void *f)
+स्थिर size_t fwrite_wrapper(ध्रुव unsigned वर्ण *buf, size_t len, शून्य *f)
 {
-  struct ioprintf *i = f;
+  संरचना ioprintf *i = f;
   size_t n;
   FILE *s = i->fd;
   n = fwrite(buf, 1, len, s);
   i->error = (n != len);
-  return n;
+  प्रत्यागम n;
 }
 
-int curl_mvfprintf(FILE *fd, const char *format, va_list args)
+पूर्णाङ्क curl_mvfprintf(FILE *fd, ध्रुव वर्ण *format, va_list args)
 {
-  struct ioprintf info;
-  int n;
+  संरचना ioprintf info;
+  पूर्णाङ्क n;
   info.fd = fd;
   info.error = FALSE;
-  n = formatf(&info, fputc_wrapper, fwrite_wrapper, NULL, format, args);
-  if(info.error)
-    return -1;
-  return n;
+  n = formatf(&info, fputc_wrapper, fwrite_wrapper, रिक्त, format, args);
+  जइ(info.error)
+    प्रत्यागम -1;
+  प्रत्यागम n;
 }
 
-int curl_mfprintf(FILE *fd, const char *format, ...)
+पूर्णाङ्क curl_mfprintf(FILE *fd, ध्रुव वर्ण *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  पूर्णाङ्क n;
   va_start(args, format);
   n = curl_mvfprintf(fd, format, args);
   va_end(args);
-  return n;
+  प्रत्यागम n;
 }
 
-int curl_mprintf(const char *format, ...)
+पूर्णाङ्क curl_mprintf(ध्रुव वर्ण *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  पूर्णाङ्क n;
   va_start(args, format);
   n = curl_mvfprintf(stdout, format, args);
   va_end(args);
-  return n;
+  प्रत्यागम n;
 }
 
-int curl_mvsprintf(char *buffer, const char *format, va_list args)
+पूर्णाङ्क curl_mvsprintf(वर्ण *buffer, ध्रुव वर्ण *format, va_list args)
 {
-  int retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  पूर्णाङ्क retcode = formatf(&buffer, storebuffer, storerun, रिक्त, format, args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  प्रत्यागम retcode;
 }
 
-int curl_mvprintf(const char *format, va_list args)
+पूर्णाङ्क curl_mvprintf(ध्रुव वर्ण *format, va_list args)
 {
-  return curl_mvfprintf(stdout, format, args);
+  प्रत्यागम curl_mvfprintf(stdout, format, args);
 }
