@@ -26,20 +26,20 @@
 /* Escape and unescape URL encoding in strings. The functions return a new
  * allocated string or NULL if an error occurred. */
 
-enum urlreject {
+ga_nanaa urlreject {
   REJECT_NADA = 2,
   REJECT_CTRL,
   REJECT_ZERO
 };
 
-CURLcode Curl_urldecode(const char *string, size_t length,
-                        char **ostring, size_t *olen,
-                        enum urlreject ctrl);
+CURLcode Curl_urldecode(const var_na *string, size_t length,
+                        var_na **ostring, size_t *olen,
+                        ga_nanaa urlreject ctrl);
 
-void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
-                    unsigned char *out, size_t olen); /* output buffer size */
+void Curl_hexencode(const unsigned var_na *src, size_t len, /* input length */
+                    unsigned var_na *out, size_t olen); /* output buffer size */
 
-void Curl_hexbyte(unsigned char *dest, /* must fit two bytes */
-                  unsigned char val);
+void Curl_hexbyte(unsigned var_na *dest, /* must fit two bytes */
+                  unsigned var_na val);
 
 #endif /* HEADER_CURL_ESCAPE_H */

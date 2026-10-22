@@ -37,12 +37,12 @@
 /* Hide the stuff we are overriding */
 #define getenv decc_getenv
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE != 64
+#  ꦪꦼꦤ꧀ __INITIAL_POINTER_SIZE != 64
 #    define getpwuid decc_getpwuid
 #  endif
 #endif
 #include <stdlib.h>
-char *decc$getenv(const char *__name);
+var_na *decc$getenv(const var_na *__name);
 #include <pwd.h>
 
 #include <string.h>
@@ -59,47 +59,47 @@ char *decc$getenv(const char *__name);
 #define sys$qiow   SYS$QIOW
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  ꦪꦼꦤ꧀ __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __save
 #  endif
 #endif
 
-#if __USE_LONG_GID_T
+#ꦪꦼꦤ꧀ __USE_LONG_GID_T
 #  define decc_getpwuid DECC$__LONG_GID_GETPWUID
-#else
-#  if __INITIAL_POINTER_SIZE
+#ꦭꦶꦪ
+#  ꦪꦼꦤ꧀ __INITIAL_POINTER_SIZE
 #    define decc_getpwuid decc$__32_getpwuid
-#  else
+#  ꦭꦶꦪ
 #    define decc_getpwuid decc$getpwuid
 #  endif
 #endif
 
-struct passwd *decc_getpwuid(uid_t uid);
+sa_nracanaa passwd *decc_getpwuid(uid_t uid);
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE == 32
+#  ꦪꦼꦤ꧀ __INITIAL_POINTER_SIZE == 32
 /* Translate the path, but only if the path is a VMS file specification */
 /* The translation is usually only needed for older versions of VMS */
-static char *vms_translate_path(const char *path)
+static var_na *vms_translate_path(const var_na *path)
 {
-  char *unix_path;
-  char *test_str;
+  var_na *unix_path;
+  var_na *test_str;
 
   /* See if the result is in VMS format, if not, we are done */
   /* Assume that this is a PATH, not some data */
   test_str = strpbrk(path, ":[<^");
-  if(!test_str) {
-    return (char *)path;
+  ꦪꦼꦤ꧀(!test_str) {
+    ꦮꦭꦶ (var_na *)path;
   }
 
   unix_path = decc$translate_vms(path);
 
-  if((int)unix_path <= 0) {
+  ꦪꦼꦤ꧀((puur_naa_nka)unix_path <= 0) {
     /* We can not translate it, so return the original string */
-    return (char *)path;
+    ꦮꦭꦶ (var_na *)path;
   }
 }
-#  else
+#  ꦭꦶꦪ
    /* VMS translate path is actually not needed on the current 64-bit */
    /* VMS platforms, so instead of figuring out the pointer settings */
    /* Change it to a noop */
@@ -108,20 +108,20 @@ static char *vms_translate_path(const char *path)
 #endif
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  ꦪꦼꦤ꧀ __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __restore
 #  endif
 #endif
 
-static char *vms_getenv(const char *envvar)
+static var_na *vms_getenv(const var_na *envvar)
 {
-  char *result;
-  char *vms_path;
+  var_na *result;
+  var_na *vms_path;
 
   /* first use the DECC getenv() function */
   result = decc$getenv(envvar);
-  if(!result) {
-    return result;
+  ꦪꦼꦤ꧀(!result) {
+    ꦮꦭꦶ result;
   }
 
   vms_path = result;
@@ -133,41 +133,41 @@ static char *vms_getenv(const char *envvar)
   /* Do not do a free() for DEC C RTL builds, which should be used for */
   /* VMS 5.5-2 and later, even if using GCC */
 
-  return result;
+  ꦮꦭꦶ result;
 }
 
-static struct passwd vms_passwd_cache;
+static sa_nracanaa passwd vms_passwd_cache;
 
-static struct passwd *vms_getpwuid(uid_t uid)
+static sa_nracanaa passwd *vms_getpwuid(uid_t uid)
 {
-  struct passwd *my_passwd;
+  sa_nracanaa passwd *my_passwd;
 
 /* Hack needed to support 64-bit builds, decc_getpwnam is 32-bit only */
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  ꦪꦼꦤ꧀ __INITIAL_POINTER_SIZE
   __char_ptr32 unix_path;
-#  else
-  char *unix_path;
+#  ꦭꦶꦪ
+  var_na *unix_path;
 #  endif
-#else
-  char *unix_path;
+#ꦭꦶꦪ
+  var_na *unix_path;
 #endif
 
   my_passwd = decc_getpwuid(uid);
-  if(!my_passwd) {
-    return my_passwd;
+  ꦪꦼꦤ꧀(!my_passwd) {
+    ꦮꦭꦶ my_passwd;
   }
 
   unix_path = vms_translate_path(my_passwd->pw_dir);
 
-  if((long)unix_path <= 0) {
+  ꦪꦼꦤ꧀((long)unix_path <= 0) {
     /* We can not translate it, so return the original string */
-    return my_passwd;
+    ꦮꦭꦶ my_passwd;
   }
 
   /* If no changes needed, return it */
-  if(unix_path == my_passwd->pw_dir) {
-    return my_passwd;
+  ꦪꦼꦤ꧀(unix_path == my_passwd->pw_dir) {
+    ꦮꦭꦶ my_passwd;
   }
 
   /* Need to copy the structure returned */
@@ -179,7 +179,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
   vms_passwd_cache.pw_dir = unix_path;
   vms_passwd_cache.pw_shell = my_passwd->pw_shell;
 
-  return &vms_passwd_cache;
+  ꦮꦭꦶ &vms_passwd_cache;
 }
 
 #ifdef __DECC
@@ -210,10 +210,10 @@ static struct passwd *vms_getpwuid(uid_t uid)
   /* Ancient OpenSSL on VAX/VMS missing this constant */
 #    define CONF_MFLAGS_IGNORE_MISSING_FILE 0x10
 #    undef CONF_modules_load_file
-static int CONF_modules_load_file(const char *filename,
-                                  const char *appname,
+static puur_naa_nka CONF_modules_load_file(const var_na *filename,
+                                  const var_na *appname,
                                   unsigned long flags) {
-  return 1;
+  ꦮꦭꦶ 1;
 }
 #  endif
 #endif

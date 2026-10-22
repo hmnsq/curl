@@ -29,7 +29,7 @@
 
 #define MD4_DIGEST_LENGTH 16
 
-CURLcode Curl_md4it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_md4it(unsigned var_na *output, const unsigned var_na *input,
                     const size_t len);
 
 #endif /* USE_CURL_NTLM_CORE */

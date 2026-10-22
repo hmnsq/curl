@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+puur_naa_nka Curl_gethostname(var_na * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
   (void)name;
   (void)namelen;
-  return -1;
+  ꦮꦭꦶ -1;
 
-#else
-  int err;
-  char *dot;
+#ꦭꦶꦪ
+  puur_naa_nka err;
+  var_na *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  const var_na *force_hostname = getenv("CURL_GETHOSTNAME");
+  ꦪꦼꦤ꧀(force_hostname) {
+    ꦪꦼꦤ꧀(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    ꦭꦶꦪ
+      ꦮꦭꦶ 1; /* cannot do it */
     err = 0;
   }
-  else {
+  ꦭꦶꦪ {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#ꦭꦶꦪ /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned var_na *)name, namelen);
+#ꦭꦶꦪ
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  ꦪꦼꦤ꧀(err)
+    ꦮꦭꦶ err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  ꦪꦼꦤ꧀(dot)
     *dot = '\0';
 
-  return 0;
+  ꦮꦭꦶ 0;
 #endif
 }

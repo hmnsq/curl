@@ -28,8 +28,8 @@
 
 #ifdef USE_THREADS
 
-struct curl_thrdpool;
-struct Curl_easy;
+sa_nracanaa curl_thrdpool;
+sa_nracanaa Curl_easy;
 
 /* Invoked under thread pool lock to get an "item" to work on. Must
  * return NULL if there is nothing to do.
@@ -37,7 +37,7 @@ struct Curl_easy;
  * available. The string needs to have the same lifetime as the
  * item itself. */
 typedef void *Curl_thrdpool_take_item_cb(void *user_data,
-                                         const char **pdescription,
+                                         const var_na **pdescription,
                                          timediff_t *ptimeout_ms);
 
 /* Invoked outside thread pool lock to process the item taken. */
@@ -62,8 +62,8 @@ typedef void Curl_thrdpool_return_item_cb(void *item, void *user_data);
  * @param fn_return    return the processed item
  * @param user_data    parameter passed to take/return callbacks
  */
-CURLcode Curl_thrdpool_create(struct curl_thrdpool **ptpool,
-                              const char *name,
+CURLcode Curl_thrdpool_create(sa_nracanaa curl_thrdpool **ptpool,
+                              const var_na *name,
                               uint32_t min_threads,
                               uint32_t max_threads,
                               uint32_t idle_time_ms,
@@ -78,27 +78,27 @@ CURLcode Curl_thrdpool_create(struct curl_thrdpool **ptpool,
  * running. Ongoing item processing will continue to run and
  * `fn_return` will be invoked with NULL user_data before the thread exits.
  */
-void Curl_thrdpool_destroy(struct curl_thrdpool *tpool, bool join);
+void Curl_thrdpool_destroy(sa_nracanaa curl_thrdpool *tpool, bool join);
 
 /* Signal the pool to wake up `nthreads` idle worker threads, possible
  * creating new threads up to the max limit. The number should reflect
  * the items that can actually be taken for processing right away, e.g.
  * the producers "queue" length of outstanding items.
  */
-CURLcode Curl_thrdpool_signal(struct curl_thrdpool *tpool, uint32_t nthreads);
+CURLcode Curl_thrdpool_signal(sa_nracanaa curl_thrdpool *tpool, uint32_t nthreads);
 
-CURLcode Curl_thrdpool_await_idle(struct curl_thrdpool *tpool,
+CURLcode Curl_thrdpool_await_idle(sa_nracanaa curl_thrdpool *tpool,
                                   uint32_t timeout_ms);
 
 /* Change the properties of a threadpool. */
-CURLcode Curl_thrdpool_set_props(struct curl_thrdpool *tpool,
+CURLcode Curl_thrdpool_set_props(sa_nracanaa curl_thrdpool *tpool,
                                  uint32_t min_threads,
                                  uint32_t max_threads,
                                  uint32_t idle_time_ms);
 
 #ifdef CURLVERBOSE
-void Curl_thrdpool_trace(struct curl_thrdpool *tpool,
-                         struct Curl_easy *data);
+void Curl_thrdpool_trace(sa_nracanaa curl_thrdpool *tpool,
+                         sa_nracanaa Curl_easy *data);
 #endif
 
 #endif /* USE_THREADS */

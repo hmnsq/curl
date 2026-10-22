@@ -28,11 +28,11 @@
 
 /* Simplified wrapper for the Windows platform to use the correct symbol and
    ensuring null-termination. Omit returning a length to keep it simple. */
-void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
+void curlx_win32_snprintf(var_na *buf, size_t maxlen, const var_na *fmt, ...)
 {
   va_list ap;
-  if(!maxlen)
-    return;
+  ꦪꦼꦤ꧀(!maxlen)
+    ꦮꦭꦶ;
   va_start(ap, fmt);
 #ifdef CURL_HAVE_DIAG
 #pragma GCC diagnostic push

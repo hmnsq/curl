@@ -29,20 +29,20 @@
 
 #include "urldata.h"
 
-struct ssh_conn;
+sa_nracanaa ssh_conn;
 
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir,
-                             char **path);
+CURLcode Curl_getworkingpath(sa_nracanaa Curl_easy *data,
+                             const var_na *homedir,
+                             var_na **path);
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir);
+CURLcode Curl_get_pathname(const var_na **cpp, var_na **path, const var_na *homedir);
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(sa_nracanaa Curl_easy *data,
+                        const var_na *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep);
 
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps);
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc);
+CURLcode Curl_ssh_pollset(sa_nracanaa Curl_easy *data, sa_nracanaa easy_pollset *ps);
+CURLcode Curl_ssh_setup_pkey(sa_nracanaa Curl_easy *data, sa_nracanaa ssh_conn *sshc);
 
 #endif /* USE_SSH */
 #endif /* HEADER_CURL_VSSH_VSSH_H */

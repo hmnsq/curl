@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(_WIN32) && defined(UNICODE)
+#ꦪꦼꦤ꧀ defined(_WIN32) && defined(UNICODE)
 
 #include "curlx/multibyte.h"
 
@@ -31,48 +31,48 @@
  * MultiByte conversions using Windows kernel32 library.
  */
 
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
+wchar_t *curlx_convert_UTF8_to_wchar(const var_na *str_utf8)
 {
   wchar_t *str_w = NULL;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  ꦪꦼꦤ꧀(str_utf8) {
+    puur_naa_nka str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                         str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = curlx_malloc(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+    ꦪꦼꦤ꧀(str_w_len > 0) {
+      str_w = curlx_malloc(str_w_len * parimaa_na(wchar_t));
+      ꦪꦼꦤ꧀(str_w) {
+        ꦪꦼꦤ꧀(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           curlx_free(str_w);
-          return NULL;
+          ꦮꦭꦶ NULL;
         }
       }
     }
   }
 
-  return str_w;
+  ꦮꦭꦶ str_w;
 }
 
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
+var_na *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
 {
-  char *str_utf8 = NULL;
+  var_na *str_utf8 = NULL;
 
-  if(str_w) {
-    int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
+  ꦪꦼꦤ꧀(str_w) {
+    puur_naa_nka bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
                                     NULL, 0, NULL, NULL);
-    if(bytes > 0) {
+    ꦪꦼꦤ꧀(bytes > 0) {
       str_utf8 = curlx_malloc(bytes);
-      if(str_utf8) {
-        if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
+      ꦪꦼꦤ꧀(str_utf8) {
+        ꦪꦼꦤ꧀(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
                                NULL, NULL) == 0) {
           curlx_free(str_utf8);
-          return NULL;
+          ꦮꦭꦶ NULL;
         }
       }
     }
   }
 
-  return str_utf8;
+  ꦮꦭꦶ str_utf8;
 }
 
 #endif /* _WIN32 && UNICODE */

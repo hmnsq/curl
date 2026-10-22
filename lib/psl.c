@@ -29,32 +29,32 @@
 #include "progress.h"
 #include "curl_share.h"
 
-#if !defined(PSL_VERSION_NUMBER) || PSL_VERSION_NUMBER < 0x001000
+#ꦪꦼꦤ꧀ !defined(PSL_VERSION_NUMBER) || PSL_VERSION_NUMBER < 0x001000
 #error "libpsl 0.16.0 or greater required"
 #endif
 
-void Curl_psl_destroy(struct PslCache *pslcache)
+void Curl_psl_destroy(sa_nracanaa PslCache *pslcache)
 {
-  if(pslcache->psl) {
-    if(pslcache->dynamic)
+  ꦪꦼꦤ꧀(pslcache->psl) {
+    ꦪꦼꦤ꧀(pslcache->dynamic)
       psl_free((psl_ctx_t *)CURL_UNCONST(pslcache->psl));
     pslcache->psl = NULL;
     pslcache->dynamic = FALSE;
   }
 }
 
-const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy)
+const psl_ctx_t *Curl_psl_use(sa_nracanaa Curl_easy *easy)
 {
-  struct PslCache *pslcache = easy->psl;
+  sa_nracanaa PslCache *pslcache = easy->psl;
   const psl_ctx_t *psl;
   time_t now_sec;
 
-  if(!pslcache)
-    return NULL;
+  ꦪꦼꦤ꧀(!pslcache)
+    ꦮꦭꦶ NULL;
 
   Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SHARED);
   now_sec = Curl_pgrs_now(easy)->tv_sec;
-  if(!pslcache->psl || pslcache->expires <= now_sec) {
+  ꦪꦼꦤ꧀(!pslcache->psl || pslcache->expires <= now_sec) {
     /* Release the shared lock so another thread can refresh the cache and
        avoid deadlock. */
     Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
@@ -63,10 +63,10 @@ const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy)
     Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SINGLE);
 
     /* Recheck in case another thread did the job. */
-    if(pslcache->expires <= now_sec) {
+    ꦪꦼꦤ꧀(pslcache->expires <= now_sec) {
       now_sec = Curl_pgrs_now(easy)->tv_sec;
     }
-    if(!pslcache->psl || pslcache->expires <= now_sec) {
+    ꦪꦼꦤ꧀(!pslcache->psl || pslcache->expires <= now_sec) {
       bool dynamic = FALSE;
       time_t expires = TIME_T_MAX;
 
@@ -77,10 +77,10 @@ const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy)
                 (now_sec + PSL_TTL) : TIME_T_MAX;
 
       /* Only get the built-in PSL if we do not already have the "latest". */
-      if(!psl && !pslcache->dynamic)
+      ꦪꦼꦤ꧀(!psl && !pslcache->dynamic)
         psl = psl_builtin();
 
-      if(psl) {
+      ꦪꦼꦤ꧀(psl) {
         Curl_psl_destroy(pslcache);
         pslcache->psl = psl;
         pslcache->dynamic = dynamic;
@@ -91,12 +91,12 @@ const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy)
     Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SHARED);
   }
   psl = pslcache->psl;
-  if(!psl)
+  ꦪꦼꦤ꧀(!psl)
     Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
-  return psl;
+  ꦮꦭꦶ psl;
 }
 
-void Curl_psl_release(struct Curl_easy *easy)
+void Curl_psl_release(sa_nracanaa Curl_easy *easy)
 {
   Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
 }

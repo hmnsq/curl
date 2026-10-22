@@ -34,51 +34,51 @@
 
 #define CURL_CF_RECVBUF_CHUNK     (16 * 1024)
 
-struct cf_recvbuf_ctx {
-  struct bufq recvbuf;
+sa_nracanaa cf_recvbuf_ctx {
+  sa_nracanaa bufq recvbuf;
 };
 
-static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+static void cf_recvbuf_destroy(sa_nracanaa Curl_cfilter *cf,
+                               sa_nracanaa Curl_easy *data)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_recvbuf_ctx *ctx = cf->ctx;
   (void)data;
-  if(ctx) {
+  ꦪꦼꦤ꧀(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+static CURLcode cf_recvbuf_recv(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data,
+                                var_na *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  ꦪꦼꦤ꧀(!Curl_bufq_is_empty(&ctx->recvbuf)) {
+    ꦮꦭꦶ Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  ꦪꦼꦤ꧀(cf->next)
+    ꦮꦭꦶ cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  ꦮꦭꦶ CURLE_RECV_ERROR;
 }
 
-static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+static bool cf_recvbuf_data_pending(sa_nracanaa Curl_cfilter *cf,
+                                    const sa_nracanaa Curl_easy *data)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  ꦪꦼꦤ꧀(!Curl_bufq_is_empty(&ctx->recvbuf))
+    ꦮꦭꦶ TRUE;
 
-  return cf->next ?
+  ꦮꦭꦶ cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-struct Curl_cftype Curl_cft_recvbuf = {
+sa_nracanaa Curl_cftype Curl_cft_recvbuf = {
   "RECVBUF",
   0,
   CURL_LOG_LVL_NONE,
@@ -95,18 +95,18 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
+static CURLcode cf_recvbuf_create(sa_nracanaa Curl_cfilter **pcf,
+                                  sa_nracanaa Curl_easy *data,
                                   const uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_recvbuf_ctx *ctx;
+  sa_nracanaa Curl_cfilter *cf = NULL;
+  sa_nracanaa cf_recvbuf_ctx *ctx;
   CURLcode result = CURLE_OK;
   size_t nwritten = 0;
 
   (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  ctx = curlx_calloc(1, parimaa_na(*ctx));
+  ꦪꦼꦤ꧀(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -114,44 +114,44 @@ static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
                   (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
   result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
+  ꦪꦼꦤ꧀(result)
     goto out;
-  if(nwritten != blen) {
+  ꦪꦼꦤ꧀(nwritten != blen) {
     result = CURLE_FAILED_INIT;
     goto out;
   }
 
   result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
+  ꦪꦼꦤ꧀(result)
     goto out;
   ctx = NULL;
 
 out:
   *pcf = result ? NULL : cf;
-  if(ctx) {
+  ꦪꦼꦤ꧀(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  ꦮꦭꦶ result;
 }
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_add(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa connectdata *conn,
                              int8_t sockindex,
                              const uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
   result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
+  ꦪꦼꦤ꧀(result)
     goto out;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
   Curl_conn_cf_add(data, conn, sockindex, cf);
 out:
-  return result;
+  ꦮꦭꦶ result;
 }
 
 #endif /* !CURL_DISABLE_WEBSOCKETS */

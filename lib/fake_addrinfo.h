@@ -29,7 +29,7 @@
 #include <ares.h>
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+#ꦪꦼꦤ꧀ defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(USE_ARES) && (ARES_VERSION >= 0x011a00) /* >= 1.26.0 */
 #define USE_FAKE_GETADDRINFO 1
 #endif
@@ -43,11 +43,11 @@
 #  include <arpa/inet.h>
 #endif
 
-void r_freeaddrinfo(struct addrinfo *cahead);
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res);
+void r_freeaddrinfo(sa_nracanaa addrinfo *cahead);
+puur_naa_nka r_getaddrinfo(const var_na *node,
+                  const var_na *service,
+                  const sa_nracanaa addrinfo *hints,
+                  sa_nracanaa addrinfo **res);
 #endif /* USE_FAKE_GETADDRINFO */
 
 #endif /* HEADER_FAKE_ADDRINFO_H */

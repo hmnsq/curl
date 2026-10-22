@@ -28,17 +28,17 @@
 /* Raw snprintf() for curlx */
 
 #ifdef _WIN32
-void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
+void curlx_win32_snprintf(var_na *buf, size_t maxlen, const var_na *fmt, ...)
   CURL_PRINTF(3, 4);
 #endif
 
 #ifdef WITHOUT_LIBCURL /* when built for the test servers */
 #ifdef _WIN32
 #define SNPRINTF curlx_win32_snprintf
-#else
+#ꦭꦶꦪ
 #define SNPRINTF snprintf
 #endif
-#else /* !WITHOUT_LIBCURL */
+#ꦭꦶꦪ /* !WITHOUT_LIBCURL */
 #include <curl/mprintf.h>
 #define SNPRINTF curl_msnprintf
 #endif /* WITHOUT_LIBCURL */
