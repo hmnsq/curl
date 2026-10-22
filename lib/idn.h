@@ -24,22 +24,22 @@
  *
  ***************************************************************************/
 
-struct Curl_str;
-struct hostname;
+संरचना Curl_str;
+संरचना hostname;
 
-bool Curl_is_ASCII_name(const char *hostname);
-bool Curl_is_ASCII_str(struct Curl_str *s);
+bool Curl_is_ASCII_name(स्थिरांक अक्षर *hostname);
+bool Curl_is_ASCII_str(संरचना Curl_str *s);
 
-CURLcode Curl_idnconvert_hostname(struct hostname *host);
+CURLcode Curl_idnconvert_hostname(संरचना hostname *host);
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#जर defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
 #define USE_IDN
-void Curl_free_idnconverted_hostname(struct hostname *host);
-CURLcode Curl_idn_decode(const char *input, char **output);
-CURLcode Curl_idn_encode(const char *puny, char **output);
-#else
+शून्य Curl_free_idnconverted_hostname(संरचना hostname *host);
+CURLcode Curl_idn_decode(स्थिरांक अक्षर *आदान, अक्षर **output);
+CURLcode Curl_idn_encode(स्थिरांक अक्षर *puny, अक्षर **output);
+#अन्यथा
 #define Curl_free_idnconverted_hostname(x)
-#define Curl_idn_decode(x) NULL
+#define Curl_idn_decode(x) रिक्त
 #endif
 
 #endif /* HEADER_CURL_IDN_H */

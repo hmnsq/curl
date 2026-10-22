@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef USE_NGHTTP2
 
@@ -34,37 +34,37 @@
 /*
  * Store nghttp2 version info in this buffer.
  */
-void Curl_http2_ver(char *p, size_t len);
+शून्य Curl_http2_ver(अक्षर *p, माप_प्रकार len);
 
 #ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
-                          size_t blen);
+पूर्णांक Curl_nghttp2_fr_print(स्थिरांक nghttp2_frame *frame, अक्षर *buffer,
+                          माप_प्रकार blen);
 #endif
 
-CURLcode Curl_http2_request_upgrade(struct dynbuf *req,
-                                    struct Curl_easy *data);
+CURLcode Curl_http2_request_upgrade(संरचना dynbuf *req,
+                                    संरचना Curl_easy *data);
 
 /* returns true if the HTTP/2 stream error was HTTP_1_1_REQUIRED */
-bool Curl_h2_http_1_1_error(struct Curl_easy *data);
+bool Curl_h2_http_1_1_error(संरचना Curl_easy *data);
 
-bool Curl_http2_may_switch(struct Curl_easy *data);
+bool Curl_http2_may_switch(संरचना Curl_easy *data);
 
-CURLcode Curl_http2_switch(struct Curl_easy *data);
+CURLcode Curl_http2_switch(संरचना Curl_easy *data);
 
-CURLcode Curl_http2_switch_at(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_http2_switch_at(संरचना Curl_cfilter *cf, संरचना Curl_easy *data);
 
-CURLcode Curl_http2_upgrade(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            const char *mem, size_t nread);
+CURLcode Curl_http2_upgrade(संरचना Curl_easy *data,
+                            संरचना connectdata *conn, int8_t sockindex,
+                            स्थिरांक अक्षर *mem, माप_प्रकार nread);
 
-void *Curl_nghttp2_malloc(size_t size, void *user_data);
-void Curl_nghttp2_free(void *ptr, void *user_data);
-void *Curl_nghttp2_calloc(size_t nmemb, size_t size, void *user_data);
-void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data);
+शून्य *Curl_nghttp2_malloc(माप_प्रकार size, शून्य *user_data);
+शून्य Curl_nghttp2_free(शून्य *ptr, शून्य *user_data);
+शून्य *Curl_nghttp2_calloc(माप_प्रकार nmemb, माप_प्रकार size, शून्य *user_data);
+शून्य *Curl_nghttp2_realloc(शून्य *ptr, माप_प्रकार size, शून्य *user_data);
 
-extern struct Curl_cftype Curl_cft_nghttp2;
+बाह्य संरचना Curl_cftype Curl_cft_nghttp2;
 
-#else /* USE_NGHTTP2 */
+#अन्यथा /* USE_NGHTTP2 */
 
 #define Curl_http2_may_switch(a) FALSE
 

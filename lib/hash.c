@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include <stddef.h> /* for offsetof() */
+#अन्तर्भाव <stddef.h> /* for offsetof() */
 
-#include "hash.h"
-#include "rand.h"
+#अन्तर्भाव "hash.h"
+#अन्तर्भाव "rand.h"
 
 /* random patterns for API verification */
 #ifdef DEBUGBUILD
@@ -35,173 +35,173 @@
 #endif
 
 
-typedef size_t (*hash_function)(const void *key,
-                                size_t key_length,
-                                size_t slots_num);
+प्रकारव्याख्या माप_प्रकार (*hash_function)(स्थिरांक शून्य *किल्ली,
+                                माप_प्रकार किल्ली_length,
+                                माप_प्रकार slots_अंक);
 
-typedef size_t (*comp_function)(const void *key1,
-                                size_t key1_len,
-                                const void *key2,
-                                size_t key2_len);
+प्रकारव्याख्या माप_प्रकार (*comp_function)(स्थिरांक शून्य *key1,
+                                माप_प्रकार key1_len,
+                                स्थिरांक शून्य *key2,
+                                माप_प्रकार key2_len);
 
 /* Curl_hash stores its type in a uint8_t. */
-typedef char hash_types_fit_uint8[
+प्रकारव्याख्या अक्षर hash_types_fit_uint8[
   ((CURL_HASH_TYPE_LAST - 1) <= UINT8_MAX) ? 1 : -1];
 
-struct hash_functions {
+संरचना hash_functions {
   hash_function hash;
   comp_function compare;
 };
 
 /* set at global init, read-only afterwards */
-static size_t hash_seed;
+स्थिर माप_प्रकार hash_seed;
 
-CURLcode Curl_hash_global_init(void)
+CURLcode Curl_hash_global_init(शून्य)
 {
-  static bool seeded;
-  unsigned char buf[sizeof(size_t)];
-  size_t seed = 0;
-  size_t i;
+  स्थिर bool seeded;
+  अचिन्हित अक्षर buf[आकार(माप_प्रकार)];
+  माप_प्रकार seed = 0;
+  माप_प्रकार i;
   CURLcode result;
 
-  if(seeded)
-    return CURLE_OK;
+  जर(seeded)
+    परत CURLE_OK;
 
-  result = Curl_rand_bytes(NULL,
+  result = Curl_rand_bytes(रिक्त,
 #ifdef DEBUGBUILD
                            FALSE,
 #endif
-                           buf, sizeof(buf));
-  if(result)
-    return result;
+                           buf, आकार(buf));
+  जर(result)
+    परत result;
 
-  for(i = 0; i < sizeof(buf); i++)
+  साठी(i = 0; i < आकार(buf); i++)
     seed = (seed << 8) | buf[i];
 
   hash_seed = seed ? seed : 1;
   seeded = TRUE;
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed);
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed)
+UNITTEST माप_प्रकार hash_str_seeded(स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_length,
+                                माप_प्रकार slots_अंक, माप_प्रकार seed);
+UNITTEST माप_प्रकार hash_str_seeded(स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_length,
+                                माप_प्रकार slots_अंक, माप_प्रकार seed)
 {
-  const char *key_str = (const char *)key;
-  const char *end = key_str + key_length;
-  size_t h = 5381 ^ seed;
+  स्थिरांक अक्षर *किल्ली_str = (स्थिरांक अक्षर *)किल्ली;
+  स्थिरांक अक्षर *end = किल्ली_str + किल्ली_length;
+  माप_प्रकार h = 5381 ^ seed;
 
-  while(key_str < end) {
-    size_t j = (size_t)*key_str++;
+  पर्यंत(किल्ली_str < end) {
+    माप_प्रकार j = (माप_प्रकार)*किल्ली_str++;
     h += h << 5;
     h ^= j;
   }
 
-  return (h % slots_num);
+  परत (h % slots_अंक);
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num);
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num)
+UNITTEST माप_प्रकार hash_str(स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_length, माप_प्रकार slots_अंक);
+UNITTEST माप_प्रकार hash_str(स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_length, माप_प्रकार slots_अंक)
 {
-  return hash_str_seeded(key, key_length, slots_num, hash_seed);
+  परत hash_str_seeded(किल्ली, किल्ली_length, slots_अंक, hash_seed);
 }
 
 /* Avoid treating the variable-length key[1] as a one-byte object. */
-static char *hash_elem_key(struct Curl_hash_element *he)
+स्थिर अक्षर *hash_elem_किल्ली(संरचना Curl_hash_element *he)
 {
-  return (char *)he + offsetof(struct Curl_hash_element, key);
+  परत (अक्षर *)he + दुरत्व(संरचना Curl_hash_element, किल्ली);
 }
 
-static size_t hash_socket(const void *key, size_t key_length,
-                          size_t slots_num)
+स्थिर माप_प्रकार hash_socket(स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_length,
+                          माप_प्रकार slots_अंक)
 {
   curl_socket_t socket;
 
-  DEBUGASSERT(key_length == sizeof(socket));
-  if(key_length != sizeof(socket))
-    return 0;
-  memcpy(&socket, key, sizeof(socket));
-  return (size_t)(socket % (curl_socket_t)slots_num);
+  DEBUGASSERT(किल्ली_length == आकार(socket));
+  जर(किल्ली_length != आकार(socket))
+    परत 0;
+  स_नकल(&socket, किल्ली, आकार(socket));
+  परत (माप_प्रकार)(socket % (curl_socket_t)slots_अंक);
 }
 
-static size_t compare_socket(const void *key1, size_t key1_len,
-                             const void *key2, size_t key2_len)
+स्थिर माप_प्रकार compare_socket(स्थिरांक शून्य *key1, माप_प्रकार key1_len,
+                             स्थिरांक शून्य *key2, माप_प्रकार key2_len)
 {
   curl_socket_t socket1;
   curl_socket_t socket2;
 
-  if((key1_len != sizeof(socket1)) || (key2_len != sizeof(socket2)))
-    return 0;
-  memcpy(&socket1, key1, sizeof(socket1));
-  memcpy(&socket2, key2, sizeof(socket2));
-  return socket1 == socket2;
+  जर((key1_len != आकार(socket1)) || (key2_len != आकार(socket2)))
+    परत 0;
+  स_नकल(&socket1, key1, आकार(socket1));
+  स_नकल(&socket2, key2, आकार(socket2));
+  परत socket1 == socket2;
 }
 
-static size_t compare_bytes(const void *key1, size_t key1_len,
-                            const void *key2, size_t key2_len)
+स्थिर माप_प्रकार compare_bytes(स्थिरांक शून्य *key1, माप_प्रकार key1_len,
+                            स्थिरांक शून्य *key2, माप_प्रकार key2_len)
 {
-  return (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
+  परत (key1_len == key2_len) && !स_भेद(key1, key2, key1_len);
 }
 
-static const struct hash_functions hash_functions[] = {
+स्थिर स्थिरांक संरचना hash_functions hash_functions[] = {
   { hash_str, compare_bytes },
   { hash_socket, compare_socket }
 };
 
-static const struct hash_functions *hash_get_functions(uint8_t type)
+स्थिर स्थिरांक संरचना hash_functions *hash_get_functions(uint8_t type)
 {
   DEBUGASSERT(CURL_ARRAYSIZE(hash_functions) == CURL_HASH_TYPE_LAST);
-  if((unsigned int)type >= CURL_HASH_TYPE_LAST)
+  जर((अचिन्हित पूर्णांक)type >= CURL_HASH_TYPE_LAST)
     type = CURL_HASH_TYPE_BYTES;
-  return &hash_functions[type];
+  परत &hash_functions[type];
 }
 
-static bool hash_key_is_valid(uint8_t type, size_t key_len)
+स्थिर bool hash_किल्ली_is_valid(uint8_t type, माप_प्रकार किल्ली_len)
 {
-  return (type == CURL_HASH_TYPE_BYTES) ||
+  परत (type == CURL_HASH_TYPE_BYTES) ||
     ((type == CURL_HASH_TYPE_SOCKET) &&
-     (key_len == sizeof(curl_socket_t)));
+     (किल्ली_len == आकार(curl_socket_t)));
 }
 
-#if 0 /* useful function for debugging hashes and their contents */
-void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
+#जर 0 /* useful function for debugging hashes and their contents */
+शून्य Curl_hash_print(संरचना Curl_hash *h, शून्य (*func)(शून्य *))
 {
-  struct Curl_hash_iterator iter;
-  struct Curl_hash_element *he;
-  size_t last_index = UINT_MAX;
+  संरचना Curl_hash_iterator iter;
+  संरचना Curl_hash_element *he;
+  माप_प्रकार last_index = अच_पूर्णांक_उच्च;
 
-  if(!h)
-    return;
+  जर(!h)
+    परत;
 
-  curl_mfprintf(stderr, "=Hash dump=\n");
+  curl_mfprintf(मानक_त्रुटि, "=Hash dump=\n");
 
   Curl_hash_start_iterate(h, &iter);
 
   he = Curl_hash_next_element(&iter);
-  while(he) {
-    if(iter.slot_index != last_index) {
-      curl_mfprintf(stderr, "index %d:", (int)iter.slot_index);
-      if(last_index != UINT_MAX) {
-        curl_mfprintf(stderr, "\n");
+  पर्यंत(he) {
+    जर(iter.slot_index != last_index) {
+      curl_mfprintf(मानक_त्रुटि, "index %d:", (पूर्णांक)iter.slot_index);
+      जर(last_index != अच_पूर्णांक_उच्च) {
+        curl_mfprintf(मानक_त्रुटि, "\n");
       }
       last_index = iter.slot_index;
     }
 
-    if(func)
+    जर(func)
       func(he->ptr);
-    else
-      curl_mfprintf(stderr, " [key=%.*s, he=%p, ptr=%p]",
-                    (int)he->key_len, hash_elem_key(he),
-                    (void *)he, (void *)he->ptr);
+    अन्यथा
+      curl_mfprintf(मानक_त्रुटि, " [key=%.*s, he=%p, ptr=%p]",
+                    (पूर्णांक)he->किल्ली_len, hash_elem_किल्ली(he),
+                    (शून्य *)he, (शून्य *)he->ptr);
 
     he = Curl_hash_next_element(&iter);
   }
-  curl_mfprintf(stderr, "\n");
+  curl_mfprintf(मानक_त्रुटि, "\n");
 }
 #endif
 
@@ -210,17 +210,17 @@ void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_init(struct Curl_hash *h,
-                    size_t slots,
+शून्य Curl_hash_init(संरचना Curl_hash *h,
+                    माप_प्रकार slots,
                     Curl_hash_type type,
                     Curl_hash_dtor dtor)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(slots);
-  DEBUGASSERT((unsigned int)type < CURL_HASH_TYPE_LAST);
+  DEBUGASSERT((अचिन्हित पूर्णांक)type < CURL_HASH_TYPE_LAST);
   DEBUGASSERT(dtor);
 
-  h->table = NULL;
+  h->table = रिक्त;
   h->dtor = dtor;
   h->size = 0;
   h->slots = slots;
@@ -230,100 +230,100 @@ void Curl_hash_init(struct Curl_hash *h,
 #endif
 }
 
-static struct Curl_hash_element *hash_elem_create(const void *key,
-                                                  size_t key_len,
-                                                  void *p,
+स्थिर संरचना Curl_hash_element *hash_elem_create(स्थिरांक शून्य *किल्ली,
+                                                  माप_प्रकार किल्ली_len,
+                                                  शून्य *p,
                                                   Curl_hash_elem_dtor dtor)
 {
-  struct Curl_hash_element *he;
+  संरचना Curl_hash_element *he;
 
   /* allocate the struct plus memory after it to store the key */
-  he = curlx_malloc(sizeof(struct Curl_hash_element) + key_len);
-  if(he) {
-    he->next = NULL;
+  he = curlx_malloc(आकार(संरचना Curl_hash_element) + किल्ली_len);
+  जर(he) {
+    he->next = रिक्त;
     /* copy the key */
-    memcpy(hash_elem_key(he), key, key_len);
-    he->key_len = key_len;
+    स_नकल(hash_elem_किल्ली(he), किल्ली, किल्ली_len);
+    he->किल्ली_len = किल्ली_len;
     he->ptr = p;
     he->dtor = dtor;
   }
-  return he;
+  परत he;
 }
 
-static void hash_elem_clear_ptr(struct Curl_hash *h,
-                                struct Curl_hash_element *he)
+स्थिर शून्य hash_elem_clear_ptr(संरचना Curl_hash *h,
+                                संरचना Curl_hash_element *he)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(he);
-  if(he->ptr) {
-    if(he->dtor)
-      he->dtor(hash_elem_key(he), he->key_len, he->ptr);
-    else
+  जर(he->ptr) {
+    जर(he->dtor)
+      he->dtor(hash_elem_किल्ली(he), he->किल्ली_len, he->ptr);
+    अन्यथा
       h->dtor(he->ptr);
-    he->ptr = NULL;
+    he->ptr = रिक्त;
   }
 }
 
-static void hash_elem_destroy(struct Curl_hash *h,
-                              struct Curl_hash_element *he)
+स्थिर शून्य hash_elem_destroy(संरचना Curl_hash *h,
+                              संरचना Curl_hash_element *he)
 {
   hash_elem_clear_ptr(h, he);
   curlx_free(he);
 }
 
-static void hash_elem_unlink(struct Curl_hash *h,
-                             struct Curl_hash_element **he_anchor,
-                             struct Curl_hash_element *he)
+स्थिर शून्य hash_elem_unlink(संरचना Curl_hash *h,
+                             संरचना Curl_hash_element **he_anchor,
+                             संरचना Curl_hash_element *he)
 {
   *he_anchor = he->next;
   --h->size;
 }
 
-static void hash_elem_link(struct Curl_hash *h,
-                           struct Curl_hash_element **he_anchor,
-                           struct Curl_hash_element *he)
+स्थिर शून्य hash_elem_link(संरचना Curl_hash *h,
+                           संरचना Curl_hash_element **he_anchor,
+                           संरचना Curl_hash_element *he)
 {
   he->next = *he_anchor;
   *he_anchor = he;
   ++h->size;
 }
 
-void *Curl_hash_add2(struct Curl_hash *h,
-                     const void *key, size_t key_len, void *p,
+शून्य *Curl_hash_add2(संरचना Curl_hash *h,
+                     स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_len, शून्य *p,
                      Curl_hash_elem_dtor dtor)
 {
-  const struct hash_functions *functions;
-  struct Curl_hash_element *he, **slot;
+  स्थिरांक संरचना hash_functions *functions;
+  संरचना Curl_hash_element *he, **slot;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(!h->table) {
-    h->table = curlx_calloc(h->slots, sizeof(struct Curl_hash_element *));
-    if(!h->table)
-      return NULL; /* OOM */
+  जर(!hash_किल्ली_is_valid(h->type, किल्ली_len))
+    परत रिक्त;
+  जर(!h->table) {
+    h->table = curlx_calloc(h->slots, आकार(संरचना Curl_hash_element *));
+    जर(!h->table)
+      परत रिक्त; /* OOM */
   }
 
   functions = hash_get_functions(h->type);
-  slot = &h->table[functions->hash(key, key_len, h->slots)];
-  for(he = *slot; he; he = he->next) {
-    if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+  slot = &h->table[functions->hash(किल्ली, किल्ली_len, h->slots)];
+  साठी(he = *slot; he; he = he->next) {
+    जर(functions->compare(hash_elem_किल्ली(he), he->किल्ली_len, किल्ली, किल्ली_len)) {
       /* existing key entry, overwrite by clearing old pointer */
       hash_elem_clear_ptr(h, he);
       he->ptr = p;
       he->dtor = dtor;
-      return p;
+      परत p;
     }
   }
 
-  he = hash_elem_create(key, key_len, p, dtor);
-  if(!he)
-    return NULL; /* OOM */
+  he = hash_elem_create(किल्ली, किल्ली_len, p, dtor);
+  जर(!he)
+    परत रिक्त; /* OOM */
 
   hash_elem_link(h, slot, he);
-  return p; /* return the new entry */
+  परत p; /* return the new entry */
 }
 
 /* Insert the data in the hash. If there already was a match in the hash, that
@@ -334,10 +334,10 @@ void *Curl_hash_add2(struct Curl_hash *h,
  * @unittest: 1602
  * @unittest: 1603
  */
-void *Curl_hash_add(struct Curl_hash *h,
-                    const void *key, size_t key_len, void *p)
+शून्य *Curl_hash_add(संरचना Curl_hash *h,
+                    स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_len, शून्य *p)
 {
-  return Curl_hash_add2(h, key, key_len, p, NULL);
+  परत Curl_hash_add2(h, किल्ली, किल्ली_len, p, रिक्त);
 }
 
 /* Remove the identified hash entry.
@@ -345,58 +345,58 @@ void *Curl_hash_add(struct Curl_hash *h,
  *
  * @unittest: 1603
  */
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len)
+पूर्णांक Curl_hash_delete(संरचना Curl_hash *h, स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_len)
 {
-  const struct hash_functions *functions;
+  स्थिरांक संरचना hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return 1;
-  if(h->table) {
-    struct Curl_hash_element *he, **he_anchor;
+  जर(!hash_किल्ली_is_valid(h->type, किल्ली_len))
+    परत 1;
+  जर(h->table) {
+    संरचना Curl_hash_element *he, **he_anchor;
 
     functions = hash_get_functions(h->type);
-    he_anchor = &h->table[functions->hash(key, key_len, h->slots)];
-    while(*he_anchor) {
+    he_anchor = &h->table[functions->hash(किल्ली, किल्ली_len, h->slots)];
+    पर्यंत(*he_anchor) {
       he = *he_anchor;
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+      जर(functions->compare(hash_elem_किल्ली(he), he->किल्ली_len, किल्ली, किल्ली_len)) {
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
-        return 0;
+        परत 0;
       }
       he_anchor = &he->next;
     }
   }
-  return 1;
+  परत 1;
 }
 
 /* Retrieves a hash element.
  *
  * @unittest: 1603
  */
-void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
+शून्य *Curl_hash_pick(संरचना Curl_hash *h, स्थिरांक शून्य *किल्ली, माप_प्रकार किल्ली_len)
 {
-  const struct hash_functions *functions;
+  स्थिरांक संरचना hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(h->table) {
-    struct Curl_hash_element *he;
+  जर(!hash_किल्ली_is_valid(h->type, किल्ली_len))
+    परत रिक्त;
+  जर(h->table) {
+    संरचना Curl_hash_element *he;
     DEBUGASSERT(h->slots);
     functions = hash_get_functions(h->type);
-    he = h->table[functions->hash(key, key_len, h->slots)];
-    while(he) {
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
-        return he->ptr;
+    he = h->table[functions->hash(किल्ली, किल्ली_len, h->slots)];
+    पर्यंत(he) {
+      जर(functions->compare(hash_elem_किल्ली(he), he->किल्ली_len, किल्ली, किल्ली_len)) {
+        परत he->ptr;
       }
       he = he->next;
     }
   }
-  return NULL;
+  परत रिक्त;
 }
 
 /* Destroys all the entries in the given hash and resets its attributes,
@@ -406,10 +406,10 @@ void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_destroy(struct Curl_hash *h)
+शून्य Curl_hash_destroy(संरचना Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  if(h->table) {
+  जर(h->table) {
     Curl_hash_clean(h);
     curlx_safefree(h->table);
   }
@@ -421,15 +421,15 @@ void Curl_hash_destroy(struct Curl_hash *h)
  *
  * @unittest: 1602
  */
-void Curl_hash_clean(struct Curl_hash *h)
+शून्य Curl_hash_clean(संरचना Curl_hash *h)
 {
-  if(h && h->table) {
-    struct Curl_hash_element *he, **he_anchor;
-    size_t i;
+  जर(h && h->table) {
+    संरचना Curl_hash_element *he, **he_anchor;
+    माप_प्रकार i;
     DEBUGASSERT(h->init == HASHINIT);
-    for(i = 0; i < h->slots; ++i) {
+    साठी(i = 0; i < h->slots; ++i) {
       he_anchor = &h->table[i];
-      while(*he_anchor) {
+      पर्यंत(*he_anchor) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
@@ -438,73 +438,73 @@ void Curl_hash_clean(struct Curl_hash *h)
   }
 }
 
-size_t Curl_hash_count(struct Curl_hash *h)
+माप_प्रकार Curl_hash_मोजणी(संरचना Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  return h->size;
+  परत h->size;
 }
 
 /* Cleans all entries that pass the comp function criteria. */
-void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
-                                    int (*comp)(void *, void *))
+शून्य Curl_hash_clean_with_criterium(संरचना Curl_hash *h, शून्य *user,
+                                    पूर्णांक (*comp)(शून्य *, शून्य *))
 {
-  size_t i;
+  माप_प्रकार i;
 
-  if(!h || !h->table)
-    return;
+  जर(!h || !h->table)
+    परत;
 
   DEBUGASSERT(h->init == HASHINIT);
-  for(i = 0; i < h->slots; ++i) {
-    struct Curl_hash_element *he, **he_anchor = &h->table[i];
-    while(*he_anchor) {
+  साठी(i = 0; i < h->slots; ++i) {
+    संरचना Curl_hash_element *he, **he_anchor = &h->table[i];
+    पर्यंत(*he_anchor) {
       /* ask the callback function if we shall remove this entry or not */
-      if(!comp || comp(user, (*he_anchor)->ptr)) {
+      जर(!comp || comp(user, (*he_anchor)->ptr)) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
       }
-      else
+      अन्यथा
         he_anchor = &(*he_anchor)->next;
     }
   }
 }
 
-void Curl_hash_start_iterate(struct Curl_hash *hash,
-                             struct Curl_hash_iterator *iter)
+शून्य Curl_hash_start_iterate(संरचना Curl_hash *hash,
+                             संरचना Curl_hash_iterator *iter)
 {
   DEBUGASSERT(hash->init == HASHINIT);
   iter->hash = hash;
   iter->slot_index = 0;
-  iter->current = NULL;
+  iter->current = रिक्त;
 #ifdef DEBUGBUILD
   iter->init = ITERINIT;
 #endif
 }
 
-struct Curl_hash_element *Curl_hash_next_element(
-  struct Curl_hash_iterator *iter)
+संरचना Curl_hash_element *Curl_hash_next_element(
+  संरचना Curl_hash_iterator *iter)
 {
-  struct Curl_hash *h;
+  संरचना Curl_hash *h;
   DEBUGASSERT(iter->init == ITERINIT);
   h = iter->hash;
-  if(!h->table)
-    return NULL; /* empty hash, nothing to return */
+  जर(!h->table)
+    परत रिक्त; /* empty hash, nothing to return */
 
   /* Get the next element in the current list, if any */
-  if(iter->current)
+  जर(iter->current)
     iter->current = iter->current->next;
 
   /* If we have reached the end of the list, find the next one */
-  if(!iter->current) {
-    size_t i;
-    for(i = iter->slot_index; i < h->slots; i++) {
-      if(h->table[i]) {
+  जर(!iter->current) {
+    माप_प्रकार i;
+    साठी(i = iter->slot_index; i < h->slots; i++) {
+      जर(h->table[i]) {
         iter->current = h->table[i];
         iter->slot_index = i + 1;
-        break;
+        थांबा;
       }
     }
   }
 
-  return iter->current;
+  परत iter->current;
 }

@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if defined(USE_HTTP3) && \
+#जर defined(USE_HTTP3) && \
   (defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL))
 
-#include "bufq.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
+#अन्तर्भाव "bufq.h"
+#अन्तर्भाव "vtls/vtls.h"
+#अन्तर्भाव "vtls/vtls_int.h"
 
-#include "vtls/openssl.h"
-#include "vtls/wolfssl.h"
+#अन्तर्भाव "vtls/openssl.h"
+#अन्तर्भाव "vtls/wolfssl.h"
 
-struct ssl_peer;
-struct Curl_ssl_session;
-struct curl_tlssessioninfo;
+संरचना ssl_peer;
+संरचना Curl_ssl_session;
+संरचना curl_tlssessioninfo;
 
-struct curl_tls_ctx {
+संरचना curl_tls_ctx {
 #ifdef USE_OPENSSL
-  struct ossl_ctx ossl;
-#elif defined(USE_GNUTLS)
-  struct gtls_ctx gtls;
-#elif defined(USE_WOLFSSL)
-  struct wssl_ctx wssl;
+  संरचना ossl_ctx ossl;
+#किंवाजर defined(USE_GNUTLS)
+  संरचना gtls_ctx gtls;
+#किंवाजर defined(USE_WOLFSSL)
+  संरचना wssl_ctx wssl;
 #endif
 };
 
@@ -56,20 +56,20 @@ struct curl_tls_ctx {
  * - openssl/wolfssl: SSL_CTX* has been created
  * - gnutls: gtls_client_init() has run
  */
-typedef CURLcode Curl_vquic_tls_ctx_setup(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          void *cb_user_data);
+प्रकारव्याख्या CURLcode Curl_vquic_tls_ctx_setup(संरचना Curl_cfilter *cf,
+                                          संरचना Curl_easy *data,
+                                          शून्य *cb_user_data);
 
-typedef CURLcode Curl_vquic_session_reuse_cb(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             struct alpn_spec *alpns,
-                                             struct Curl_ssl_session *scs,
+प्रकारव्याख्या CURLcode Curl_vquic_session_reuse_cb(संरचना Curl_cfilter *cf,
+                                             संरचना Curl_easy *data,
+                                             संरचना alpn_spec *alpns,
+                                             संरचना Curl_ssl_session *scs,
                                              bool *do_early_data);
 
-CURLcode Curl_vquic_tls_peer_init(struct Curl_peer *origin,
-                                  struct Curl_peer *peer,
-                                  struct ssl_filter_config *sslc,
-                                  struct ssl_peer *ssl_peer);
+CURLcode Curl_vquic_tls_peer_init(संरचना Curl_peer *origin,
+                                  संरचना Curl_peer *peer,
+                                  संरचना ssl_filter_config *sslc,
+                                  संरचना ssl_peer *ssl_peer);
 
 /**
  * Initialize the QUIC TLS instances based of the SSL configurations
@@ -84,41 +84,41 @@ CURLcode Curl_vquic_tls_peer_init(struct Curl_peer *origin,
  * @param ssl_user_data    optional pointer to set in TLS application context
  * @param session_reuse_cb callback to handle session reuse, signal early data
  */
-CURLcode Curl_vquic_tls_init(struct curl_tls_ctx *ctx,
-                             struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct ssl_peer *ssl_peer,
-                             const struct alpn_spec *alpns,
+CURLcode Curl_vquic_tls_init(संरचना curl_tls_ctx *ctx,
+                             संरचना Curl_cfilter *cf,
+                             संरचना Curl_easy *data,
+                             संरचना ssl_peer *ssl_peer,
+                             स्थिरांक संरचना alpn_spec *alpns,
                              Curl_vquic_tls_ctx_setup *cb_setup,
-                             void *cb_user_data,
-                             void *ssl_user_data,
+                             शून्य *cb_user_data,
+                             शून्य *ssl_user_data,
                              Curl_vquic_session_reuse_cb *session_reuse_cb);
 
 /**
  * Cleanup all data that has been initialized.
  */
-void Curl_vquic_tls_cleanup(struct curl_tls_ctx *ctx);
+शून्य Curl_vquic_tls_cleanup(संरचना curl_tls_ctx *ctx);
 
-CURLcode Curl_vquic_tls_before_recv(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data);
+CURLcode Curl_vquic_tls_before_recv(संरचना curl_tls_ctx *ctx,
+                                    संरचना Curl_cfilter *cf,
+                                    संरचना Curl_easy *data);
 
 /**
  * After the QUIC basic handshake has been, verify that the peer
  * (and its certificate) fulfill our requirements.
  */
-CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct ssl_peer *peer);
+CURLcode Curl_vquic_tls_verify_peer(संरचना curl_tls_ctx *ctx,
+                                    संरचना Curl_cfilter *cf,
+                                    संरचना Curl_easy *data,
+                                    संरचना ssl_peer *peer);
 
-bool Curl_vquic_tls_get_ssl_info(struct curl_tls_ctx *ctx,
+bool Curl_vquic_tls_get_ssl_info(संरचना curl_tls_ctx *ctx,
                                  bool give_ssl_ctx,
-                                 struct curl_tlssessioninfo *info);
+                                 संरचना curl_tlssessioninfo *info);
 
-void Curl_vquic_report_handshake(struct curl_tls_ctx *ctx,
-                                 struct Curl_cfilter *cf,
-                                 struct Curl_easy *data);
+शून्य Curl_vquic_report_handshake(संरचना curl_tls_ctx *ctx,
+                                 संरचना Curl_cfilter *cf,
+                                 संरचना Curl_easy *data);
 
 #endif /* !USE_HTTP3 && (USE_OPENSSL || USE_GNUTLS || USE_WOLFSSL) */
 

@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-struct Curl_easy;
+संरचना Curl_easy;
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
+CURLcode Curl_rand_bytes(संरचना Curl_easy *data,
 #ifdef DEBUGBUILD
                          bool env_override,
 #endif
-                         unsigned char *rnd, size_t num);
+                         अचिन्हित अक्षर *rnd, माप_प्रकार अंक);
 
 #ifdef DEBUGBUILD
 #define Curl_rand(a, b, c) Curl_rand_bytes(a, TRUE, b, c)
-#else
+#अन्यथा
 #define Curl_rand(a, b, c) Curl_rand_bytes(a, b, c)
 #endif
 
@@ -42,13 +42,13 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * hexadecimal digits PLUS a null-terminator byte. It must be an odd number
  * size.
  */
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num);
+CURLcode Curl_rand_hex(संरचना Curl_easy *data, अचिन्हित अक्षर *rnd, माप_प्रकार अंक);
 
 /*
  * Curl_rand_alnum() fills the 'rnd' buffer with a given 'num' size with random
  * alphanumerical chars PLUS a null-terminator byte.
  */
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num);
+CURLcode Curl_rand_alnum(संरचना Curl_easy *data, अचिन्हित अक्षर *rnd,
+                         माप_प्रकार अंक);
 
 #endif /* HEADER_CURL_RAND_H */

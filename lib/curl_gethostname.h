@@ -28,6 +28,6 @@
 #define HOSTNAME_MAX 1024
 
 /* This returns the local machine's un-qualified hostname */
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen);
+पूर्णांक Curl_gethostname(अक्षर * स्थिरांक name, GETHOSTNAME_TYPE_ARG2 namelen);
 
 #endif /* HEADER_CURL_GETHOSTNAME_H */

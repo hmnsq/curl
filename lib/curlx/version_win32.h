@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef _WIN32
 
 /* Version condition */
-typedef enum {
+प्रकारव्याख्या गणना {
   VERSION_LESS_THAN,
   VERSION_LESS_THAN_EQUAL,
   VERSION_EQUAL,
@@ -37,7 +37,7 @@ typedef enum {
 } VersionCondition;
 
 /* Platform identifier */
-typedef enum {
+प्रकारव्याख्या गणना {
   PLATFORM_DONT_CARE,
   PLATFORM_WINDOWS,
   PLATFORM_WINNT
@@ -45,15 +45,15 @@ typedef enum {
 
 #ifdef CURL_WINDOWS_UWP
 #define curlx_verify_windows_init() Curl_nop_stmt
-#else
-void curlx_verify_windows_init(void);
+#अन्यथा
+शून्य curlx_verify_windows_init(शून्य);
 #endif
 /* This is used to verify if we are running on a specific Windows version */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
-                                  const PlatformIdentifier platform,
-                                  const VersionCondition condition);
+bool curlx_verify_windows_version(स्थिरांक अचिन्हित पूर्णांक majorVersion,
+                                  स्थिरांक अचिन्हित पूर्णांक minorVersion,
+                                  स्थिरांक अचिन्हित पूर्णांक buildVersion,
+                                  स्थिरांक PlatformIdentifier platform,
+                                  स्थिरांक VersionCondition condition);
 
 #endif /* _WIN32 */
 

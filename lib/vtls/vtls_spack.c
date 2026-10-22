@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#जर defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/vtls_spack.h"
-#include "curlx/strdup.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "vtls/vtls_scache.h"
+#अन्तर्भाव "vtls/vtls_spack.h"
+#अन्तर्भाव "curlx/strdup.h"
 
 #define CURL_SPACK_VERSION       0x01
 #define CURL_SPACK_IETF_ID       0x02
@@ -40,61 +40,61 @@
 #define CURL_SPACK_QUICTP        0x07
 #define CURL_SPACK_SECTRUST      0x08
 
-static CURLcode spack_enc8(struct dynbuf *buf, uint8_t b)
+स्थिर CURLcode spack_enc8(संरचना dynbuf *buf, uint8_t b)
 {
-  return curlx_dyn_addn(buf, &b, 1);
+  परत curlx_dyn_addn(buf, &b, 1);
 }
 
-static CURLcode spack_dec8(uint8_t *val, const uint8_t **src,
-                           const uint8_t *end)
+स्थिर CURLcode spack_dec8(uint8_t *val, स्थिरांक uint8_t **src,
+                           स्थिरांक uint8_t *end)
 {
-  if(end - *src < 1)
-    return CURLE_READ_ERROR;
+  जर(end - *src < 1)
+    परत CURLE_READ_ERROR;
   *val = **src;
   *src += 1;
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-static CURLcode spack_enc16(struct dynbuf *buf, uint16_t val)
+स्थिर CURLcode spack_enc16(संरचना dynbuf *buf, uint16_t val)
 {
   uint8_t nval[2];
   nval[0] = (uint8_t)(val >> 8);
   nval[1] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  परत curlx_dyn_addn(buf, nval, आकार(nval));
 }
 
-static CURLcode spack_dec16(uint16_t *val, const uint8_t **src,
-                            const uint8_t *end)
+स्थिर CURLcode spack_dec16(uint16_t *val, स्थिरांक uint8_t **src,
+                            स्थिरांक uint8_t *end)
 {
-  if(end - *src < 2)
-    return CURLE_READ_ERROR;
+  जर(end - *src < 2)
+    परत CURLE_READ_ERROR;
   *val = (uint16_t)((*src)[0] << 8 | (*src)[1]);
   *src += 2;
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-static CURLcode spack_enc32(struct dynbuf *buf, uint32_t val)
+स्थिर CURLcode spack_enc32(संरचना dynbuf *buf, uint32_t val)
 {
   uint8_t nval[4];
   nval[0] = (uint8_t)(val >> 24);
   nval[1] = (uint8_t)(val >> 16);
   nval[2] = (uint8_t)(val >> 8);
   nval[3] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  परत curlx_dyn_addn(buf, nval, आकार(nval));
 }
 
-static CURLcode spack_dec32(uint32_t *val, const uint8_t **src,
-                            const uint8_t *end)
+स्थिर CURLcode spack_dec32(uint32_t *val, स्थिरांक uint8_t **src,
+                            स्थिरांक uint8_t *end)
 {
-  if(end - *src < 4)
-    return CURLE_READ_ERROR;
+  जर(end - *src < 4)
+    परत CURLE_READ_ERROR;
   *val = (uint32_t)(*src)[0] << 24 | (uint32_t)(*src)[1] << 16 |
          (uint32_t)(*src)[2] << 8 | (*src)[3];
   *src += 4;
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-static CURLcode spack_enc64(struct dynbuf *buf, uint64_t val)
+स्थिर CURLcode spack_enc64(संरचना dynbuf *buf, uint64_t val)
 {
   uint8_t nval[8];
   nval[0] = (uint8_t)(val >> 56);
@@ -105,232 +105,232 @@ static CURLcode spack_enc64(struct dynbuf *buf, uint64_t val)
   nval[5] = (uint8_t)(val >> 16);
   nval[6] = (uint8_t)(val >> 8);
   nval[7] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  परत curlx_dyn_addn(buf, nval, आकार(nval));
 }
 
-static CURLcode spack_dec64(uint64_t *val, const uint8_t **src,
-                            const uint8_t *end)
+स्थिर CURLcode spack_dec64(uint64_t *val, स्थिरांक uint8_t **src,
+                            स्थिरांक uint8_t *end)
 {
-  if(end - *src < 8)
-    return CURLE_READ_ERROR;
+  जर(end - *src < 8)
+    परत CURLE_READ_ERROR;
   *val = (uint64_t)(*src)[0] << 56 | (uint64_t)(*src)[1] << 48 |
          (uint64_t)(*src)[2] << 40 | (uint64_t)(*src)[3] << 32 |
          (uint64_t)(*src)[4] << 24 | (uint64_t)(*src)[5] << 16 |
          (uint64_t)(*src)[6] << 8 | (*src)[7];
   *src += 8;
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-static CURLcode spack_encstr16(struct dynbuf *buf, const char *s)
+स्थिर CURLcode spack_encstr16(संरचना dynbuf *buf, स्थिरांक अक्षर *s)
 {
-  size_t slen = strlen(s);
+  माप_प्रकार slen = म_माप(s);
   CURLcode result;
-  if(slen > UINT16_MAX)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  जर(slen > UINT16_MAX)
+    परत CURLE_BAD_FUNCTION_ARGUMENT;
   result = spack_enc16(buf, (uint16_t)slen);
-  if(!result) {
+  जर(!result) {
     result = curlx_dyn_addn(buf, s, slen);
   }
-  return result;
+  परत result;
 }
 
-static CURLcode spack_decstr16(char **val, const uint8_t **src,
-                               const uint8_t *end)
+स्थिर CURLcode spack_decstr16(अक्षर **val, स्थिरांक uint8_t **src,
+                               स्थिरांक uint8_t *end)
 {
   uint16_t slen;
   CURLcode result;
 
-  *val = NULL;
+  *val = रिक्त;
   result = spack_dec16(&slen, src, end);
-  if(result)
-    return result;
-  if(end - *src < slen)
-    return CURLE_READ_ERROR;
-  *val = curlx_memdup0((const char *)(*src), slen);
+  जर(result)
+    परत result;
+  जर(end - *src < slen)
+    परत CURLE_READ_ERROR;
+  *val = curlx_memdup0((स्थिरांक अक्षर *)(*src), slen);
   *src += slen;
-  return *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  परत *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 
-static CURLcode spack_encdata16(struct dynbuf *buf, const uint8_t *data,
-                                size_t data_len)
+स्थिर CURLcode spack_encdata16(संरचना dynbuf *buf, स्थिरांक uint8_t *data,
+                                माप_प्रकार data_len)
 {
   CURLcode result;
-  if(data_len > UINT16_MAX)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  जर(data_len > UINT16_MAX)
+    परत CURLE_BAD_FUNCTION_ARGUMENT;
   result = spack_enc16(buf, (uint16_t)data_len);
-  if(!result) {
+  जर(!result) {
     result = curlx_dyn_addn(buf, data, data_len);
   }
-  return result;
+  परत result;
 }
 
-static CURLcode spack_decdata16(uint8_t **val, size_t *val_len,
-                                const uint8_t **src, const uint8_t *end)
+स्थिर CURLcode spack_decdata16(uint8_t **val, माप_प्रकार *val_len,
+                                स्थिरांक uint8_t **src, स्थिरांक uint8_t *end)
 {
   uint16_t data_len;
   CURLcode result;
 
-  *val = NULL;
+  *val = रिक्त;
   result = spack_dec16(&data_len, src, end);
-  if(result)
-    return result;
-  if(end - *src < data_len)
-    return CURLE_READ_ERROR;
-  *val = curlx_memdup0((const char *)(*src), data_len);
+  जर(result)
+    परत result;
+  जर(end - *src < data_len)
+    परत CURLE_READ_ERROR;
+  *val = curlx_memdup0((स्थिरांक अक्षर *)(*src), data_len);
   *val_len = data_len;
   *src += data_len;
-  return *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  परत *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 
-CURLcode Curl_ssl_session_pack(struct Curl_easy *data,
-                               struct Curl_ssl_session *s,
-                               struct dynbuf *buf)
+CURLcode Curl_ssl_session_pack(संरचना Curl_easy *data,
+                               संरचना Curl_ssl_session *s,
+                               संरचना dynbuf *buf)
 {
   CURLcode result;
   DEBUGASSERT(s->sdata);
   DEBUGASSERT(s->sdata_len);
 
-  if(s->valid_until < 0)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  जर(s->valid_until < 0)
+    परत CURLE_BAD_FUNCTION_ARGUMENT;
 
   result = spack_enc8(buf, CURL_SPACK_VERSION);
-  if(!result)
+  जर(!result)
     result = spack_enc8(buf, CURL_SPACK_TICKET);
-  if(!result)
+  जर(!result)
     result = spack_encdata16(buf, s->sdata, s->sdata_len);
-  if(!result)
+  जर(!result)
     result = spack_enc8(buf, CURL_SPACK_IETF_ID);
-  if(!result)
+  जर(!result)
     result = spack_enc16(buf, (uint16_t)s->ietf_tls_id);
-  if(!result)
+  जर(!result)
     result = spack_enc8(buf, CURL_SPACK_VALID_UNTIL);
-  if(!result)
+  जर(!result)
     result = spack_enc64(buf, (uint64_t)s->valid_until);
-  if(!result && s->alpn) {
+  जर(!result && s->alpn) {
     result = spack_enc8(buf, CURL_SPACK_ALPN);
-    if(!result)
+    जर(!result)
       result = spack_encstr16(buf, s->alpn);
   }
-  if(!result && s->earlydata_max) {
-    if(s->earlydata_max > UINT32_MAX)
+  जर(!result && s->earlydata_max) {
+    जर(s->earlydata_max > UINT32_MAX)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    if(!result)
+    जर(!result)
       result = spack_enc8(buf, CURL_SPACK_EARLYDATA);
-    if(!result)
+    जर(!result)
       result = spack_enc32(buf, (uint32_t)s->earlydata_max);
   }
-  if(!result && s->sectrust_verified) {
+  जर(!result && s->sectrust_verified) {
     result = spack_enc8(buf, CURL_SPACK_SECTRUST);
   }
-  if(!result && s->quic_tp && s->quic_tp_len) {
+  जर(!result && s->quic_tp && s->quic_tp_len) {
     result = spack_enc8(buf, CURL_SPACK_QUICTP);
-    if(!result)
+    जर(!result)
       result = spack_encdata16(buf, s->quic_tp, s->quic_tp_len);
   }
 
-  if(result)
-    CURL_TRC_SSLS(data, "error packing data: %d", (int)result);
-  return result;
+  जर(result)
+    CURL_TRC_SSLS(data, "error packing data: %d", (पूर्णांक)result);
+  परत result;
 }
 
-CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
-                                 const void *bufv, size_t buflen,
-                                 struct Curl_ssl_session **ps)
+CURLcode Curl_ssl_session_unpack(संरचना Curl_easy *data,
+                                 स्थिरांक शून्य *bufv, माप_प्रकार buflen,
+                                 संरचना Curl_ssl_session **ps)
 {
-  struct Curl_ssl_session *s = NULL;
-  const unsigned char *buf = (const unsigned char *)bufv;
-  const unsigned char *end = buf + buflen;
+  संरचना Curl_ssl_session *s = रिक्त;
+  स्थिरांक अचिन्हित अक्षर *buf = (स्थिरांक अचिन्हित अक्षर *)bufv;
+  स्थिरांक अचिन्हित अक्षर *end = buf + buflen;
   uint8_t val8, *pval8;
   uint16_t val16;
   uint32_t val32;
   uint64_t val64;
-  size_t dlen;
+  माप_प्रकार dlen;
   CURLcode result;
 
   DEBUGASSERT(ps);
   DEBUGASSERT(buf);
   DEBUGASSERT(buflen);
-  *ps = NULL;
+  *ps = रिक्त;
 
   result = spack_dec8(&val8, &buf, end);
-  if(result)
-    goto out;
-  if(val8 != CURL_SPACK_VERSION) {
+  जर(result)
+    जा out;
+  जर(val8 != CURL_SPACK_VERSION) {
     result = CURLE_READ_ERROR;
-    goto out;
+    जा out;
   }
 
-  s = curlx_calloc(1, sizeof(*s));
-  if(!s) {
+  s = curlx_calloc(1, आकार(*s));
+  जर(!s) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    जा out;
   }
 
-  while(buf < end) {
+  पर्यंत(buf < end) {
     result = spack_dec8(&val8, &buf, end);
-    if(result)
-      goto out;
+    जर(result)
+      जा out;
 
-    switch(val8) {
-    case CURL_SPACK_ALPN:
+    निवड(val8) {
+    स्थिती CURL_SPACK_ALPN:
       curlx_free(s->alpn);
       result = spack_decstr16(&s->alpn, &buf, end);
-      if(result)
-        goto out;
-      break;
-    case CURL_SPACK_EARLYDATA:
+      जर(result)
+        जा out;
+      थांबा;
+    स्थिती CURL_SPACK_EARLYDATA:
       result = spack_dec32(&val32, &buf, end);
-      if(result)
-        goto out;
+      जर(result)
+        जा out;
       s->earlydata_max = val32;
-      break;
-    case CURL_SPACK_IETF_ID:
+      थांबा;
+    स्थिती CURL_SPACK_IETF_ID:
       result = spack_dec16(&val16, &buf, end);
-      if(result)
-        goto out;
+      जर(result)
+        जा out;
       s->ietf_tls_id = val16;
-      break;
-    case CURL_SPACK_QUICTP: {
+      थांबा;
+    स्थिती CURL_SPACK_QUICTP: {
       result = spack_decdata16(&pval8, &dlen, &buf, end);
-      if(result)
-        goto out;
+      जर(result)
+        जा out;
       curlx_free(s->quic_tp);
       s->quic_tp = pval8;
       s->quic_tp_len = dlen;
-      break;
+      थांबा;
     }
-    case CURL_SPACK_TICKET: {
+    स्थिती CURL_SPACK_TICKET: {
       result = spack_decdata16(&pval8, &dlen, &buf, end);
-      if(result)
-        goto out;
+      जर(result)
+        जा out;
       curlx_free(s->sdata);
       s->sdata = pval8;
       s->sdata_len = dlen;
-      break;
+      थांबा;
     }
-    case CURL_SPACK_VALID_UNTIL:
+    स्थिती CURL_SPACK_VALID_UNTIL:
       result = spack_dec64(&val64, &buf, end);
-      if(result)
-        goto out;
+      जर(result)
+        जा out;
       s->valid_until = (curl_off_t)val64;
-      break;
-    case CURL_SPACK_SECTRUST:
+      थांबा;
+    स्थिती CURL_SPACK_SECTRUST:
       s->sectrust_verified = TRUE;
-      break;
-    default:  /* unknown tag */
+      थांबा;
+    पूर्वनिर्धारित:  /* unknown tag */
       result = CURLE_READ_ERROR;
-      goto out;
+      जा out;
     }
   }
 
 out:
-  if(result) {
-    CURL_TRC_SSLS(data, "error unpacking data: %d", (int)result);
+  जर(result) {
+    CURL_TRC_SSLS(data, "error unpacking data: %d", (पूर्णांक)result);
     Curl_ssl_session_destroy(s);
   }
-  else
+  अन्यथा
     *ps = s;
-  return result;
+  परत result;
 }
 
 #endif /* USE_SSL && USE_SSLS_EXPORT */

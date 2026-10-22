@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
 #  include <netinet/in.h>
@@ -40,7 +40,7 @@
 #  include <inet.h>
 #endif
 
-struct Curl_str;
+संरचना Curl_str;
 
 /*
  * Curl_addrinfo is our internal struct definition that we use to allow
@@ -49,65 +49,65 @@ struct Curl_str;
  * IPv4 and IPV6 builds.
  */
 
-struct Curl_addrinfo {
-  int                   ai_flags;
-  int                   ai_family;
-  int                   ai_socktype;
-  int                   ai_protocol;
+संरचना Curl_addrinfo {
+  पूर्णांक                   ai_flags;
+  पूर्णांक                   ai_family;
+  पूर्णांक                   ai_socktype;
+  पूर्णांक                   ai_protocol;
   curl_socklen_t        ai_addrlen;   /* Follow rfc3493 struct addrinfo */
-  char                 *ai_canonname;
-  struct sockaddr      *ai_addr;
-  struct Curl_addrinfo *ai_next;
+  अक्षर                 *ai_canonname;
+  संरचना sockaddr      *ai_addr;
+  संरचना Curl_addrinfo *ai_next;
 };
 
-void Curl_freeaddrinfo(struct Curl_addrinfo *cahead);
+शून्य Curl_freeaddrinfo(संरचना Curl_addrinfo *cahead);
 
 /* Get the n-th addrinfo of family ai_family. */
-struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
-                                        int ai_family,
-                                        unsigned int n);
+संरचना Curl_addrinfo *Curl_addrinfo_get(संरचना Curl_addrinfo *ai,
+                                        पूर्णांक ai_family,
+                                        अचिन्हित पूर्णांक n);
 
 #ifdef HAVE_GETADDRINFO
-int Curl_getaddrinfo_ex(const char *nodename,
-                        const char *servname,
-                        const struct addrinfo *hints,
-                        struct Curl_addrinfo **result);
+पूर्णांक Curl_getaddrinfo_ex(स्थिरांक अक्षर *nodename,
+                        स्थिरांक अक्षर *servname,
+                        स्थिरांक संरचना addrinfo *hints,
+                        संरचना Curl_addrinfo **result);
 #endif
 
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
-struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port);
+#जर !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
+संरचना Curl_addrinfo *Curl_he2ai(स्थिरांक संरचना hostent *he, पूर्णांक port);
 #endif
 
-bool Curl_is_ipv4addr(const char *address);
-bool Curl_is_ipaddr(const char *address);
-bool Curl_looks_like_ipv6(const char *s, size_t len, bool maybe_url_encoded,
-                          struct Curl_str *host, struct Curl_str *zone);
+bool Curl_is_ipv4addr(स्थिरांक अक्षर *address);
+bool Curl_is_ipaddr(स्थिरांक अक्षर *address);
+bool Curl_looks_like_ipv6(स्थिरांक अक्षर *s, माप_प्रकार len, bool maybe_url_encoded,
+                          संरचना Curl_str *host, संरचना Curl_str *zone);
 
-CURLcode Curl_str2addr(const char *dotted, uint16_t port,
-                       struct Curl_addrinfo **addrp);
+CURLcode Curl_str2addr(स्थिरांक अक्षर *dotted, uint16_t port,
+                       संरचना Curl_addrinfo **addrp);
 
 #ifdef USE_UNIX_SOCKETS
-CURLcode Curl_unix2addr(const char *path, bool abstract,
-                        struct Curl_addrinfo **paddr);
+CURLcode Curl_unix2addr(स्थिरांक अक्षर *path, bool abstract,
+                        संरचना Curl_addrinfo **paddr);
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+#जर defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(HAVE_FREEADDRINFO)
-void curl_dbg_freeaddrinfo(struct addrinfo *freethis, int line,
-                           const char *source);
+शून्य curl_dbg_freeaddrinfo(संरचना addrinfo *freethis, पूर्णांक ओळ,
+                           स्थिरांक अक्षर *source);
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
-int curl_dbg_getaddrinfo(const char *hostname, const char *service,
-                         const struct addrinfo *hints,
-                         struct addrinfo **result, int line,
-                         const char *source);
+#जर defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
+पूर्णांक curl_dbg_getaddrinfo(स्थिरांक अक्षर *hostname, स्थिरांक अक्षर *service,
+                         स्थिरांक संरचना addrinfo *hints,
+                         संरचना addrinfo **result, पूर्णांक ओळ,
+                         स्थिरांक अक्षर *source);
 #endif
 
 #ifdef HAVE_GETADDRINFO
 #ifdef USE_RESOLVE_ON_IPS
-void Curl_addrinfo_set_port(struct Curl_addrinfo *addrinfo, int port);
-#else
+शून्य Curl_addrinfo_set_port(संरचना Curl_addrinfo *addrinfo, पूर्णांक port);
+#अन्यथा
 #define Curl_addrinfo_set_port(x, y)
 #endif
 #endif

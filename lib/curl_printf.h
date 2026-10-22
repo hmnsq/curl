@@ -29,9 +29,9 @@
 #define MERR_TOO_LARGE 2
 
 /* Lower-case digits. */
-extern const unsigned char Curl_ldigits[];
+बाह्य स्थिरांक अचिन्हित अक्षर Curl_ldigits[];
 
 /* Upper-case digits. */
-extern const unsigned char Curl_udigits[];
+बाह्य स्थिरांक अचिन्हित अक्षर Curl_udigits[];
 
 #endif /* HEADER_CURL_PRINTF_H */

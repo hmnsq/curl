@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_FILE
-extern const struct Curl_protocol Curl_protocol_file;
+बाह्य स्थिरांक संरचना Curl_protocol Curl_protocol_file;
 #endif
 
 #endif /* HEADER_CURL_FILE_H */

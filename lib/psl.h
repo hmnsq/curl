@@ -25,25 +25,25 @@
  ***************************************************************************/
 #ifdef USE_LIBPSL
 
-#include <libpsl.h>
+#अन्तर्भाव <libpsl.h>
 
-struct Curl_easy;
+संरचना Curl_easy;
 
 #define PSL_TTL (72 * 3600)     /* PSL time to live before a refresh. */
 
-struct PslCache {
-  const psl_ctx_t *psl; /* The PSL. */
-  time_t expires; /* Time this PSL life expires. */
+संरचना PslCache {
+  स्थिरांक psl_ctx_t *psl; /* The PSL. */
+  समय_प्रकार expires; /* Time this PSL life expires. */
   BIT(dynamic); /* PSL should be released when no longer needed. */
 };
 
-const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy);
-void Curl_psl_release(struct Curl_easy *easy);
-void Curl_psl_destroy(struct PslCache *pslcache);
+स्थिरांक psl_ctx_t *Curl_psl_use(संरचना Curl_easy *easy);
+शून्य Curl_psl_release(संरचना Curl_easy *easy);
+शून्य Curl_psl_destroy(संरचना PslCache *pslcache);
 
-#else
+#अन्यथा
 
-#define Curl_psl_use(easy) NULL
+#define Curl_psl_use(easy) रिक्त
 #define Curl_psl_release(easy)
 #define Curl_psl_destroy(pslcache)
 

@@ -21,20 +21,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
+#अन्तर्भाव <sys/select.h>
+#किंवाजर defined(HAVE_UNISTD_H)
+#अन्तर्भाव <unistd.h>
 #endif
 
 #ifdef MSDOS
-#include <dos.h>  /* delay() */
+#अन्तर्भाव <dos.h>  /* delay() */
 #endif
 
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#अन्तर्भाव "curlx/timediff.h"
+#अन्तर्भाव "curlx/wait.h"
 
 /*
  * Internal function used for waiting a specific amount of ms in
@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+पूर्णांक curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  पूर्णांक r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
+  जर(!timeout_ms)
+    परत 0;
+  जर(timeout_ms < 0) {
     SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+    परत -1;
   }
 #ifdef MSDOS
-  delay((unsigned int)timeout_ms);
-#elif defined(_WIN32)
+  delay((अचिन्हित पूर्णांक)timeout_ms);
+#किंवाजर defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
-    timeout_ms = ULONG_MAX - 1;
+#जर TIMEDIFF_T_MAX >= अच_दीर्घ_उच्च
+  जर(timeout_ms >= अच_दीर्घ_उच्च)
+    timeout_ms = अच_दीर्घ_उच्च - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
 #endif
   Sleep((DWORD)timeout_ms);
-#else
+#अन्यथा
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
-    r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
+    संरचना timeval pending_tv;
+    r = select(0, रिक्त, रिक्त, रिक्त, curlx_mstotv(&pending_tv, timeout_ms));
   }
 #endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  जर(r) {
+    जर((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    अन्यथा
       r = -1;
   }
-  return r;
+  परत r;
 }

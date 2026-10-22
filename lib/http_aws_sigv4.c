@@ -21,34 +21,34 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
+#जर !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
 
-#include "urldata.h"
-#include "strcase.h"
-#include "curlx/strdup.h"
-#include "http_aws_sigv4.h"
-#include "curl_sha256.h"
-#include "transfer.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "curlx/strparse.h"
-#include "slist.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "strcase.h"
+#अन्तर्भाव "curlx/strdup.h"
+#अन्तर्भाव "http_aws_sigv4.h"
+#अन्तर्भाव "curl_sha256.h"
+#अन्तर्भाव "transfer.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "escape.h"
+#अन्तर्भाव "curlx/strparse.h"
+#अन्तर्भाव "slist.h"
 
-#include <time.h>
+#अन्तर्भाव <time.h>
 
 #define HMAC_SHA256(k, kl, d, dl, o)                 \
-  do {                                               \
+  करा {                                               \
     result = Curl_hmacit(&Curl_HMAC_SHA256,          \
-                         (const unsigned char *)(k), \
+                         (स्थिरांक अचिन्हित अक्षर *)(k), \
                          kl,                         \
-                         (const unsigned char *)(d), \
+                         (स्थिरांक अचिन्हित अक्षर *)(d), \
                          dl, o);                     \
-    if(result) {                                     \
-      goto fail;                                     \
+    जर(result) {                                     \
+      जा fail;                                     \
     }                                                \
-  } while(0)
+  } पर्यंत(0)
 
 #define TIMESTAMP_SIZE 17
 
@@ -57,59 +57,59 @@
 
 #define MAX_QUERY_COMPONENTS 128
 
-struct pair {
-  struct dynbuf key;
-  struct dynbuf value;
+संरचना pair {
+  संरचना dynbuf किल्ली;
+  संरचना dynbuf मूल्य;
 };
 
-static void sha256_to_hex(char *dst, unsigned char *sha)
+स्थिर शून्य sha256_to_hex(अक्षर *dst, अचिन्हित अक्षर *sha)
 {
   Curl_hexencode(sha, CURL_SHA256_DIGEST_LENGTH,
-                 (unsigned char *)dst, SHA256_HEX_LENGTH);
+                 (अचिन्हित अक्षर *)dst, SHA256_HEX_LENGTH);
 }
 
-static char *find_date_hdr(struct Curl_easy *data, const char *sig_hdr)
+स्थिर अक्षर *find_date_hdr(संरचना Curl_easy *data, स्थिरांक अक्षर *sig_hdr)
 {
-  char *tmp = Curl_checkheaders(data, sig_hdr, strlen(sig_hdr));
+  अक्षर *tmp = Curl_checkheaders(data, sig_hdr, म_माप(sig_hdr));
 
-  if(tmp)
-    return tmp;
-  return Curl_checkheaders(data, STRCONST("Date"));
+  जर(tmp)
+    परत tmp;
+  परत Curl_checkheaders(data, STRCONST("Date"));
 }
 
 /* remove whitespace, and lowercase all headers */
-static void trim_headers(struct curl_slist *head)
+स्थिर शून्य trim_headers(संरचना curl_slist *head)
 {
-  struct curl_slist *l;
-  for(l = head; l; l = l->next) {
-    const char *value; /* to read from */
-    char *store;
-    size_t colon = strcspn(l->data, ":");
+  संरचना curl_slist *l;
+  साठी(l = head; l; l = l->next) {
+    स्थिरांक अक्षर *मूल्य; /* to read from */
+    अक्षर *store;
+    माप_प्रकार colon = म_खोज(l->data, ":");
     Curl_strntolower(l->data, l->data, colon);
 
-    value = &l->data[colon];
-    if(!*value)
-      continue;
-    ++value;
-    store = (char *)CURL_UNCONST(value);
+    मूल्य = &l->data[colon];
+    जर(!*मूल्य)
+      सुरूठेवा;
+    ++मूल्य;
+    store = (अक्षर *)CURL_UNCONST(मूल्य);
 
     /* skip leading whitespace */
-    curlx_str_passblanks(&value);
+    curlx_str_passblanks(&मूल्य);
 
-    while(*value) {
-      int space = 0;
-      while(ISBLANK(*value)) {
-        value++;
+    पर्यंत(*मूल्य) {
+      पूर्णांक space = 0;
+      पर्यंत(ISBLANK(*मूल्य)) {
+        मूल्य++;
         space++;
       }
-      if(space) {
+      जर(space) {
         /* replace any number of consecutive whitespace with a single space,
            unless at the end of the string, then nothing */
-        if(*value)
+        जर(*मूल्य)
           *store++ = ' ';
       }
-      else
-        *store++ = *value++;
+      अन्यथा
+        *store++ = *मूल्य++;
     }
     *store = 0; /* null-terminate */
   }
@@ -118,24 +118,24 @@ static void trim_headers(struct curl_slist *head)
 /*
  * Frees all allocated strings in a dynbuf pair array, and the dynbuf itself
  */
-static void pair_array_free(struct pair *pair_array, size_t num_elements)
+स्थिर शून्य pair_array_free(संरचना pair *pair_array, माप_प्रकार अंक_elements)
 {
-  size_t index;
+  माप_प्रकार index;
 
-  for(index = 0; index != num_elements; index++) {
-    curlx_dyn_free(&pair_array[index].key);
-    curlx_dyn_free(&pair_array[index].value);
+  साठी(index = 0; index != अंक_elements; index++) {
+    curlx_dyn_free(&pair_array[index].किल्ली);
+    curlx_dyn_free(&pair_array[index].मूल्य);
   }
 }
 
 /*
  * Frees all allocated strings in a split dynbuf, and the dynbuf itself
  */
-static void dyn_array_free(struct dynbuf *db, size_t num_elements)
+स्थिर शून्य dyn_array_free(संरचना dynbuf *db, माप_प्रकार अंक_elements)
 {
-  size_t index;
+  माप_प्रकार index;
 
-  for(index = 0; index < num_elements; index++)
+  साठी(index = 0; index < अंक_elements; index++)
     curlx_dyn_free((&db[index]));
 }
 
@@ -147,120 +147,120 @@ static void dyn_array_free(struct dynbuf *db, size_t num_elements)
 
 #define SPLIT_BY '&'
 
-static CURLcode split_to_dyn_array(const char *source,
-                                   struct dynbuf db[MAX_QUERY_COMPONENTS],
-                                   size_t *num_splits_out)
+स्थिर CURLcode split_to_dyn_array(स्थिरांक अक्षर *source,
+                                   संरचना dynbuf db[MAX_QUERY_COMPONENTS],
+                                   माप_प्रकार *अंक_splits_out)
 {
   CURLcode result = CURLE_OK;
-  size_t len = strlen(source);
-  size_t pos;         /* Position in result buffer */
-  size_t start = 0;   /* Start of current segment */
-  size_t segment_length = 0;
-  size_t index = 0;
-  size_t num_splits = 0;
+  माप_प्रकार len = म_माप(source);
+  माप_प्रकार pos;         /* Position in result buffer */
+  माप_प्रकार start = 0;   /* Start of current segment */
+  माप_प्रकार segment_length = 0;
+  माप_प्रकार index = 0;
+  माप_प्रकार अंक_splits = 0;
 
   /* Split source_ptr on SPLIT_BY and store the segment offsets and length in
    * array */
-  for(pos = 0; pos < len; pos++) {
-    if(source[pos] == SPLIT_BY) {
-      if(segment_length) {
+  साठी(pos = 0; pos < len; pos++) {
+    जर(source[pos] == SPLIT_BY) {
+      जर(segment_length) {
         curlx_dyn_init(&db[index], segment_length + 1);
         result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-        if(result)
-          goto fail;
+        जर(result)
+          जा fail;
 
         segment_length = 0;
         index++;
-        if(++num_splits == MAX_QUERY_COMPONENTS) {
+        जर(++अंक_splits == MAX_QUERY_COMPONENTS) {
           result = CURLE_TOO_LARGE;
-          goto fail;
+          जा fail;
         }
       }
       start = pos + 1;
     }
-    else {
+    अन्यथा {
       segment_length++;
     }
   }
 
-  if(segment_length) {
+  जर(segment_length) {
     curlx_dyn_init(&db[index], segment_length + 1);
     result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-    if(!result && ++num_splits == MAX_QUERY_COMPONENTS)
+    जर(!result && ++अंक_splits == MAX_QUERY_COMPONENTS)
       result = CURLE_TOO_LARGE;
   }
 fail:
-  *num_splits_out = num_splits;
-  return result;
+  *अंक_splits_out = अंक_splits;
+  परत result;
 }
 
-static bool is_reserved_char(const char c)
+स्थिर bool is_reserved_char(स्थिरांक अक्षर c)
 {
-  return (ISALNUM(c) || ISURLPUNTCS(c));
+  परत (ISALNUM(c) || ISURLPUNTCS(c));
 }
 
-static CURLcode uri_encode_path(struct Curl_str *original_path,
-                                struct dynbuf *new_path)
+स्थिर CURLcode uri_encode_path(संरचना Curl_str *original_path,
+                                संरचना dynbuf *new_path)
 {
-  const char *p = curlx_str(original_path);
-  size_t i;
+  स्थिरांक अक्षर *p = curlx_str(original_path);
+  माप_प्रकार i;
 
-  for(i = 0; i < curlx_strlen(original_path); i++) {
+  साठी(i = 0; i < curlx_strlen(original_path); i++) {
     /* Do not encode slashes or unreserved chars from RFC 3986 */
     CURLcode result = CURLE_OK;
-    unsigned char c = p[i];
-    if(is_reserved_char(c) || c == '/')
+    अचिन्हित अक्षर c = p[i];
+    जर(is_reserved_char(c) || c == '/')
       result = curlx_dyn_addn(new_path, &c, 1);
-    else
+    अन्यथा
       result = curlx_dyn_addf(new_path, "%%%02X", c);
-    if(result)
-      return result;
+    जर(result)
+      परत result;
   }
 
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
 /* Normalize the query part. Make sure %2B is left percent encoded, and not
    decoded to plus, then encoded to space. */
-static CURLcode normalize_query(const char *string, size_t len,
-                                struct dynbuf *db)
+स्थिर CURLcode normalize_query(स्थिरांक अक्षर *string, माप_प्रकार len,
+                                संरचना dynbuf *db)
 {
   CURLcode result = CURLE_OK;
 
-  while(len && !result) {
-    unsigned char in = (unsigned char)*string;
-    if(('%' == in) && (len > 2) &&
+  पर्यंत(len && !result) {
+    अचिन्हित अक्षर in = (अचिन्हित अक्षर)*string;
+    जर(('%' == in) && (len > 2) &&
        ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
       /* this is two hexadecimal digits following a '%' */
-      in = (unsigned char)((curlx_hexval(string[1]) << 4) |
+      in = (अचिन्हित अक्षर)((curlx_hexval(string[1]) << 4) |
                            curlx_hexval(string[2]));
       string += 3;
       len -= 3;
-      if(in == '+') {
+      जर(in == '+') {
         /* decodes to plus, so leave this encoded */
         result = curlx_dyn_addn(db, "%2B", 3);
-        continue;
+        सुरूठेवा;
       }
     }
-    else {
+    अन्यथा {
       string++;
       len--;
     }
 
-    if(is_reserved_char(in))
+    जर(is_reserved_char(in))
       /* Escape unreserved chars from RFC 3986 */
       result = curlx_dyn_addn(db, &in, 1);
-    else if(in == '+')
+    अन्यथा जर(in == '+')
       /* Encode '+' as space */
       result = curlx_dyn_add(db, "%20");
-    else
+    अन्यथा
       result = curlx_dyn_addf(db, "%%%02X", in);
   }
 
-  return result;
+  परत result;
 }
 
-static bool should_urlencode(struct Curl_str *service_name)
+स्थिर bool should_urlencode(संरचना Curl_str *service_name)
 {
   /*
    * These services require unmodified (not additionally URL-encoded) URL
@@ -268,88 +268,88 @@ static bool should_urlencode(struct Curl_str *service_name)
    * set in the AWS S3 endpoint rules. Urls are already normalized by the curl
    * URL parser
    */
-  if(curlx_str_cmp(service_name, "s3") ||
+  जर(curlx_str_cmp(service_name, "s3") ||
      curlx_str_cmp(service_name, "s3express") ||
      curlx_str_cmp(service_name, "s3-outposts") ||
      curlx_str_cmp(service_name, "s3-object-lambda")) {
-    return FALSE;
+    परत FALSE;
   }
-  return TRUE;
+  परत TRUE;
 }
 
 /* maximum length for the aws sivg4 parts */
 #define MAX_SIGV4_LEN    64
-#define DATE_HDR_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Date"))
+#define DATE_HDR_किल्ली_LEN (MAX_SIGV4_LEN + आकार("X--Date"))
 
 /* string been x-PROVIDER-date:TIMESTAMP, I need +1 for ':' */
-#define DATE_FULL_HDR_LEN (DATE_HDR_KEY_LEN + TIMESTAMP_SIZE + 1)
+#define DATE_FULL_HDR_LEN (DATE_HDR_किल्ली_LEN + TIMESTAMP_SIZE + 1)
 
 /* alphabetically compare two headers by their name, expecting
    headers to use ':' at this point */
-static int compare_header_names(const char *a, const char *b)
+स्थिर पूर्णांक compare_header_names(स्थिरांक अक्षर *a, स्थिरांक अक्षर *b)
 {
-  const char *colon_a;
-  const char *colon_b;
-  size_t len_a;
-  size_t len_b;
-  size_t min_len;
-  int cmp;
+  स्थिरांक अक्षर *colon_a;
+  स्थिरांक अक्षर *colon_b;
+  माप_प्रकार len_a;
+  माप_प्रकार len_b;
+  माप_प्रकार min_len;
+  पूर्णांक cmp;
 
-  colon_a = strchr(a, ':');
-  colon_b = strchr(b, ':');
+  colon_a = म_अक्षर(a, ':');
+  colon_b = म_अक्षर(b, ':');
 
   DEBUGASSERT(colon_a);
   DEBUGASSERT(colon_b);
 
-  len_a = colon_a ? (size_t)(colon_a - a) : strlen(a);
-  len_b = colon_b ? (size_t)(colon_b - b) : strlen(b);
+  len_a = colon_a ? (माप_प्रकार)(colon_a - a) : म_माप(a);
+  len_b = colon_b ? (माप_प्रकार)(colon_b - b) : म_माप(b);
 
   min_len = (len_a < len_b) ? len_a : len_b;
 
-  cmp = strncmp(a, b, min_len);
+  cmp = म_भेदन(a, b, min_len);
 
   /* return the shorter of the two if one is shorter */
-  if(!cmp)
-    return (int)(len_a - len_b);
+  जर(!cmp)
+    परत (पूर्णांक)(len_a - len_b);
 
-  return cmp;
+  परत cmp;
 }
 
 /* Merge duplicate header definitions by comma delimiting their values
    in the order defined the headers are defined, expecting headers to
    be alpha-sorted and use ':' at this point */
-static CURLcode merge_duplicate_headers(struct curl_slist *head)
+स्थिर CURLcode merge_duplicate_headers(संरचना curl_slist *head)
 {
-  struct curl_slist *curr = head;
+  संरचना curl_slist *curr = head;
   CURLcode result = CURLE_OK;
 
-  while(curr) {
-    struct curl_slist *next = curr->next;
-    if(!next)
-      break;
+  पर्यंत(curr) {
+    संरचना curl_slist *next = curr->next;
+    जर(!next)
+      थांबा;
 
-    if(compare_header_names(curr->data, next->data) == 0) {
-      struct dynbuf buf;
-      const char *colon_next;
-      const char *val_next;
+    जर(compare_header_names(curr->data, next->data) == 0) {
+      संरचना dynbuf buf;
+      स्थिरांक अक्षर *colon_next;
+      स्थिरांक अक्षर *val_next;
 
       curlx_dyn_init(&buf, CURL_MAX_HTTP_HEADER);
 
       result = curlx_dyn_add(&buf, curr->data);
-      if(result)
-        return result;
+      जर(result)
+        परत result;
 
-      colon_next = strchr(next->data, ':');
+      colon_next = म_अक्षर(next->data, ':');
       DEBUGASSERT(colon_next);
       val_next = colon_next + 1;
 
       result = curlx_dyn_addn(&buf, ",", 1);
-      if(result)
-        return result;
+      जर(result)
+        परत result;
 
       result = curlx_dyn_add(&buf, val_next);
-      if(result)
-        return result;
+      जर(result)
+        परत result;
 
       curlx_free(curr->data);
       curr->data = curlx_dyn_ptr(&buf);
@@ -358,60 +358,60 @@ static CURLcode merge_duplicate_headers(struct curl_slist *head)
       curlx_free(next->data);
       curlx_free(next);
     }
-    else {
+    अन्यथा {
       curr = curr->next;
     }
   }
 
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
 /* timestamp should point to a buffer of at last TIMESTAMP_SIZE bytes */
-static CURLcode make_headers(struct Curl_easy *data,
-                             char *timestamp,
-                             const char *provider1,
-                             size_t plen, /* length of provider1 */
-                             char **date_header,
-                             char *content_sha256_header,
-                             struct dynbuf *canonical_headers,
-                             struct dynbuf *signed_headers)
+स्थिर CURLcode make_headers(संरचना Curl_easy *data,
+                             अक्षर *timestamp,
+                             स्थिरांक अक्षर *provider1,
+                             माप_प्रकार plen, /* length of provider1 */
+                             अक्षर **date_header,
+                             अक्षर *content_sha256_header,
+                             संरचना dynbuf *canonical_headers,
+                             संरचना dynbuf *signed_headers)
 {
-  char date_hdr_key[DATE_HDR_KEY_LEN];
-  char date_full_hdr[DATE_FULL_HDR_LEN];
-  struct curl_slist *head = NULL;
-  struct curl_slist *tmp_head = NULL;
+  अक्षर date_hdr_किल्ली[DATE_HDR_किल्ली_LEN];
+  अक्षर date_full_hdr[DATE_FULL_HDR_LEN];
+  संरचना curl_slist *head = रिक्त;
+  संरचना curl_slist *tmp_head = रिक्त;
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct curl_slist *l;
+  संरचना curl_slist *l;
   bool again = TRUE;
 
-  curl_msnprintf(date_hdr_key, DATE_HDR_KEY_LEN, "X-%.*s-Date",
-                 (int)plen, provider1);
+  curl_msnprintf(date_hdr_किल्ली, DATE_HDR_किल्ली_LEN, "X-%.*s-Date",
+                 (पूर्णांक)plen, provider1);
   /* provider1 ucfirst */
-  Curl_strntolower(&date_hdr_key[2], provider1, plen);
-  date_hdr_key[2] = Curl_raw_toupper(provider1[0]);
+  Curl_strntolower(&date_hdr_किल्ली[2], provider1, plen);
+  date_hdr_किल्ली[2] = Curl_raw_toupper(provider1[0]);
 
   curl_msnprintf(date_full_hdr, DATE_FULL_HDR_LEN,
-                 "x-%.*s-date:%s", (int)plen, provider1, timestamp);
+                 "x-%.*s-date:%s", (पूर्णांक)plen, provider1, timestamp);
   /* provider1 lowercase */
   Curl_strntolower(&date_full_hdr[2], provider1, plen);
 
-  if(!Curl_checkheaders(data, STRCONST("Host")) &&
+  जर(!Curl_checkheaders(data, STRCONST("Host")) &&
      data->state.http_host) {
     /* Host: [host]:[port] */
-    char *fullhost = curlx_strdup(data->state.http_host);
+    अक्षर *fullhost = curlx_strdup(data->state.http_host);
 
-    if(fullhost)
-      head = Curl_slist_append_nodup(NULL, fullhost);
-    if(!head) {
+    जर(fullhost)
+      head = Curl_slist_append_nodup(रिक्त, fullhost);
+    जर(!head) {
       curlx_free(fullhost);
-      goto fail;
+      जा fail;
     }
   }
 
-  if(*content_sha256_header) {
+  जर(*content_sha256_header) {
     tmp_head = curl_slist_append(head, content_sha256_header);
-    if(!tmp_head)
-      goto fail;
+    जर(!tmp_head)
+      जा fail;
     head = tmp_head;
   }
 
@@ -430,176 +430,176 @@ static CURLcode make_headers(struct Curl_easy *data,
      user headers with a value of whitespace only, or without a colon or
      semi-colon, are not added to this list.
      */
-  for(l = data->set.headers; l; l = l->next) {
-    char *dupdata;
-    const char *ptr;
-    const char *sep = strchr(l->data, ':');
-    if(!sep)
-      sep = strchr(l->data, ';');
-    if(!sep || (*sep == ':' && !*(sep + 1)))
-      continue;
-    for(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
+  साठी(l = data->set.headers; l; l = l->next) {
+    अक्षर *dupdata;
+    स्थिरांक अक्षर *ptr;
+    स्थिरांक अक्षर *sep = म_अक्षर(l->data, ':');
+    जर(!sep)
+      sep = म_अक्षर(l->data, ';');
+    जर(!sep || (*sep == ':' && !*(sep + 1)))
+      सुरूठेवा;
+    साठी(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
       ;
-    if(!*ptr && ptr != sep + 1) /* a value of whitespace only */
-      continue;
+    जर(!*ptr && ptr != sep + 1) /* a value of whitespace only */
+      सुरूठेवा;
     dupdata = curlx_strdup(l->data);
-    if(!dupdata)
-      goto fail;
+    जर(!dupdata)
+      जा fail;
     dupdata[sep - l->data] = ':';
     tmp_head = Curl_slist_append_nodup(head, dupdata);
-    if(!tmp_head) {
+    जर(!tmp_head) {
       curlx_free(dupdata);
-      goto fail;
+      जा fail;
     }
     head = tmp_head;
   }
 
   trim_headers(head);
 
-  *date_header = find_date_hdr(data, date_hdr_key);
-  if(!*date_header) {
+  *date_header = find_date_hdr(data, date_hdr_किल्ली);
+  जर(!*date_header) {
     tmp_head = curl_slist_append(head, date_full_hdr);
-    if(!tmp_head)
-      goto fail;
+    जर(!tmp_head)
+      जा fail;
     head = tmp_head;
-    *date_header = curl_maprintf("%s: %s\r\n", date_hdr_key, timestamp);
-    if(!*date_header)
-      goto fail;
+    *date_header = curl_maprintf("%s: %s\r\n", date_hdr_किल्ली, timestamp);
+    जर(!*date_header)
+      जा fail;
   }
-  else {
-    const char *value;
-    const char *endp;
-    value = strchr(*date_header, ':');
-    if(!value) {
-      *date_header = NULL;
-      goto fail;
+  अन्यथा {
+    स्थिरांक अक्षर *मूल्य;
+    स्थिरांक अक्षर *endp;
+    मूल्य = म_अक्षर(*date_header, ':');
+    जर(!मूल्य) {
+      *date_header = रिक्त;
+      जा fail;
     }
-    ++value;
-    curlx_str_passblanks(&value);
-    endp = value;
-    while(*endp && ISALNUM(*endp))
+    ++मूल्य;
+    curlx_str_passblanks(&मूल्य);
+    endp = मूल्य;
+    पर्यंत(*endp && ISALNUM(*endp))
       ++endp;
     /* 16 bytes => "19700101T000000Z" */
-    if((endp - value) == TIMESTAMP_SIZE - 1) {
-      memcpy(timestamp, value, TIMESTAMP_SIZE - 1);
+    जर((endp - मूल्य) == TIMESTAMP_SIZE - 1) {
+      स_नकल(timestamp, मूल्य, TIMESTAMP_SIZE - 1);
       timestamp[TIMESTAMP_SIZE - 1] = 0;
     }
-    else
+    अन्यथा
       /* bad timestamp length */
       timestamp[0] = 0;
-    *date_header = NULL;
+    *date_header = रिक्त;
   }
 
   /* alpha-sort by header name in a case sensitive manner */
-  do {
+  करा {
     again = FALSE;
-    for(l = head; l; l = l->next) {
-      struct curl_slist *next = l->next;
+    साठी(l = head; l; l = l->next) {
+      संरचना curl_slist *next = l->next;
 
-      if(next && compare_header_names(l->data, next->data) > 0) {
-        char *tmp = l->data;
+      जर(next && compare_header_names(l->data, next->data) > 0) {
+        अक्षर *tmp = l->data;
 
         l->data = next->data;
         next->data = tmp;
         again = TRUE;
       }
     }
-  } while(again);
+  } पर्यंत(again);
 
   result = merge_duplicate_headers(head);
-  if(result)
-    goto fail;
+  जर(result)
+    जा fail;
 
-  for(l = head; l; l = l->next) {
-    char *tmp;
+  साठी(l = head; l; l = l->next) {
+    अक्षर *tmp;
 
-    if(curlx_dyn_add(canonical_headers, l->data))
-      goto fail;
-    if(curlx_dyn_add(canonical_headers, "\n"))
-      goto fail;
+    जर(curlx_dyn_add(canonical_headers, l->data))
+      जा fail;
+    जर(curlx_dyn_add(canonical_headers, "\n"))
+      जा fail;
 
-    tmp = strchr(l->data, ':');
-    if(tmp)
+    tmp = म_अक्षर(l->data, ':');
+    जर(tmp)
       *tmp = 0;
 
-    if(l != head && curlx_dyn_add(signed_headers, ";"))
-      goto fail;
-    if(curlx_dyn_add(signed_headers, l->data))
-      goto fail;
+    जर(l != head && curlx_dyn_add(signed_headers, ";"))
+      जा fail;
+    जर(curlx_dyn_add(signed_headers, l->data))
+      जा fail;
   }
 
   result = CURLE_OK;
 fail:
   curl_slist_free_all(head);
 
-  return result;
+  परत result;
 }
 
-#define CONTENT_SHA256_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Content-Sha256"))
+#define CONTENT_SHA256_किल्ली_LEN (MAX_SIGV4_LEN + आकार("X--Content-Sha256"))
 /* add 2 for ": " between header name and value */
-#define CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_KEY_LEN + 2 + SHA256_HEX_LENGTH)
+#define CONTENT_SHA256_HDR_LEN (CONTENT_SHA256_किल्ली_LEN + 2 + SHA256_HEX_LENGTH)
 
 /* try to parse a payload hash from the content-sha256 header */
-static const char *parse_content_sha_hdr(struct Curl_easy *data,
-                                         const char *provider1,
-                                         size_t plen,
-                                         size_t *value_len)
+स्थिर स्थिरांक अक्षर *parse_content_sha_hdr(संरचना Curl_easy *data,
+                                         स्थिरांक अक्षर *provider1,
+                                         माप_प्रकार plen,
+                                         माप_प्रकार *मूल्य_len)
 {
-  char key[CONTENT_SHA256_KEY_LEN];
-  size_t key_len;
-  const char *value;
-  size_t len;
+  अक्षर किल्ली[CONTENT_SHA256_किल्ली_LEN];
+  माप_प्रकार किल्ली_len;
+  स्थिरांक अक्षर *मूल्य;
+  माप_प्रकार len;
 
-  key_len = curl_msnprintf(key, sizeof(key), "x-%.*s-content-sha256",
-                           (int)plen, provider1);
+  किल्ली_len = curl_msnprintf(किल्ली, आकार(किल्ली), "x-%.*s-content-sha256",
+                           (पूर्णांक)plen, provider1);
 
-  value = Curl_checkheaders(data, key, key_len);
-  if(!value)
-    return NULL;
+  मूल्य = Curl_checkheaders(data, किल्ली, किल्ली_len);
+  जर(!मूल्य)
+    परत रिक्त;
 
-  value = strchr(value, ':');
-  if(!value)
-    return NULL;
-  ++value;
+  मूल्य = म_अक्षर(मूल्य, ':');
+  जर(!मूल्य)
+    परत रिक्त;
+  ++मूल्य;
 
-  curlx_str_passblanks(&value);
+  curlx_str_passblanks(&मूल्य);
 
-  len = strlen(value);
-  while(len > 0 && ISBLANK(value[len - 1]))
+  len = म_माप(मूल्य);
+  पर्यंत(len > 0 && ISBLANK(मूल्य[len - 1]))
     --len;
 
-  *value_len = len;
-  return value;
+  *मूल्य_len = len;
+  परत मूल्य;
 }
 
-static CURLcode calc_payload_hash(struct Curl_easy *data,
-                                  unsigned char *sha_hash, char *sha_hex)
+स्थिर CURLcode calc_payload_hash(संरचना Curl_easy *data,
+                                  अचिन्हित अक्षर *sha_hash, अक्षर *sha_hex)
 {
-  const char *post_data = data->set.postfields;
-  size_t post_data_len = 0;
+  स्थिरांक अक्षर *post_data = data->set.postfields;
+  माप_प्रकार post_data_len = 0;
   CURLcode result;
 
-  if(post_data) {
-    if(data->set.postfieldsize < 0)
-      post_data_len = strlen(post_data);
-    else
-      post_data_len = (size_t)data->set.postfieldsize;
+  जर(post_data) {
+    जर(data->set.postfieldsize < 0)
+      post_data_len = म_माप(post_data);
+    अन्यथा
+      post_data_len = (माप_प्रकार)data->set.postfieldsize;
   }
-  result = Curl_sha256it(sha_hash, (const unsigned char *)post_data,
+  result = Curl_sha256it(sha_hash, (स्थिरांक अचिन्हित अक्षर *)post_data,
                          post_data_len);
-  if(!result)
+  जर(!result)
     sha256_to_hex(sha_hex, sha_hash);
-  return result;
+  परत result;
 }
 
 #define S3_UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
 
-static CURLcode calc_s3_payload_hash(struct Curl_easy *data,
+स्थिर CURLcode calc_s3_payload_hash(संरचना Curl_easy *data,
                                      Curl_HttpReq httpreq,
-                                     const char *provider1,
-                                     size_t plen,
-                                     unsigned char *sha_hash,
-                                     char *sha_hex, char *header)
+                                     स्थिरांक अक्षर *provider1,
+                                     माप_प्रकार plen,
+                                     अचिन्हित अक्षर *sha_hash,
+                                     अक्षर *sha_hex, अक्षर *header)
 {
   bool empty_method = (httpreq == HTTPREQ_GET || httpreq == HTTPREQ_HEAD);
   /* The request method or filesize indicate no request payload */
@@ -608,336 +608,336 @@ static CURLcode calc_s3_payload_hash(struct Curl_easy *data,
   bool post_payload = (httpreq == HTTPREQ_POST && data->set.postfields);
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(empty_payload || post_payload) {
+  जर(empty_payload || post_payload) {
     /* Calculate a real hash when we know the request payload */
     result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      goto fail;
+    जर(result)
+      जा fail;
   }
-  else {
+  अन्यथा {
     /* Fall back to s3's UNSIGNED-PAYLOAD */
-    size_t len = CURL_CSTRLEN(S3_UNSIGNED_PAYLOAD);
+    माप_प्रकार len = CURL_CSTRLEN(S3_UNSIGNED_PAYLOAD);
     DEBUGASSERT(len < SHA256_HEX_LENGTH); /* 16 < 65 */
-    memcpy(sha_hex, S3_UNSIGNED_PAYLOAD, len);
+    स_नकल(sha_hex, S3_UNSIGNED_PAYLOAD, len);
     sha_hex[len] = 0;
   }
 
   /* format the required content-sha256 header */
   curl_msnprintf(header, CONTENT_SHA256_HDR_LEN,
-                 "x-%.*s-content-sha256: %s", (int)plen, provider1, sha_hex);
+                 "x-%.*s-content-sha256: %s", (पूर्णांक)plen, provider1, sha_hex);
 
   result = CURLE_OK;
 fail:
-  return result;
+  परत result;
 }
 
-static int compare_func(const void *a, const void *b)
+स्थिर पूर्णांक compare_func(स्थिरांक शून्य *a, स्थिरांक शून्य *b)
 {
-  const struct pair *aa = a;
-  const struct pair *bb = b;
-  const size_t aa_key_len = curlx_dyn_len(&aa->key);
-  const size_t bb_key_len = curlx_dyn_len(&bb->key);
-  const size_t aa_value_len = curlx_dyn_len(&aa->value);
-  const size_t bb_value_len = curlx_dyn_len(&bb->value);
-  int compare;
+  स्थिरांक संरचना pair *aa = a;
+  स्थिरांक संरचना pair *bb = b;
+  स्थिरांक माप_प्रकार aa_किल्ली_len = curlx_dyn_len(&aa->किल्ली);
+  स्थिरांक माप_प्रकार bb_किल्ली_len = curlx_dyn_len(&bb->किल्ली);
+  स्थिरांक माप_प्रकार aa_मूल्य_len = curlx_dyn_len(&aa->मूल्य);
+  स्थिरांक माप_प्रकार bb_मूल्य_len = curlx_dyn_len(&bb->मूल्य);
+  पूर्णांक compare;
 
   /* If one element is empty, the other is always sorted higher */
 
   /* Compare keys */
-  if((aa_key_len == 0) && (bb_key_len == 0))
-    return 0;
-  if(aa_key_len == 0)
-    return -1;
-  if(bb_key_len == 0)
-    return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->key), curlx_dyn_ptr(&bb->key));
-  if(compare) {
-    return compare;
+  जर((aa_किल्ली_len == 0) && (bb_किल्ली_len == 0))
+    परत 0;
+  जर(aa_किल्ली_len == 0)
+    परत -1;
+  जर(bb_किल्ली_len == 0)
+    परत 1;
+  compare = म_भेद(curlx_dyn_ptr(&aa->किल्ली), curlx_dyn_ptr(&bb->किल्ली));
+  जर(compare) {
+    परत compare;
   }
 
   /* Compare values */
-  if((aa_value_len == 0) && (bb_value_len == 0))
-    return 0;
-  if(aa_value_len == 0)
-    return -1;
-  if(bb_value_len == 0)
-    return 1;
-  compare = strcmp(curlx_dyn_ptr(&aa->value), curlx_dyn_ptr(&bb->value));
+  जर((aa_मूल्य_len == 0) && (bb_मूल्य_len == 0))
+    परत 0;
+  जर(aa_मूल्य_len == 0)
+    परत -1;
+  जर(bb_मूल्य_len == 0)
+    परत 1;
+  compare = म_भेद(curlx_dyn_ptr(&aa->मूल्य), curlx_dyn_ptr(&bb->मूल्य));
 
-  return compare;
+  परत compare;
 }
 
 /* @unittest 1979 */
-UNITTEST CURLcode canon_path(const char *q, size_t len,
-                             struct dynbuf *new_path,
+UNITTEST CURLcode canon_path(स्थिरांक अक्षर *q, माप_प्रकार len,
+                             संरचना dynbuf *new_path,
                              bool do_uri_encode);
-UNITTEST CURLcode canon_path(const char *q, size_t len,
-                             struct dynbuf *new_path,
+UNITTEST CURLcode canon_path(स्थिरांक अक्षर *q, माप_प्रकार len,
+                             संरचना dynbuf *new_path,
                              bool do_uri_encode)
 {
   CURLcode result = CURLE_OK;
 
-  struct Curl_str original_path;
+  संरचना Curl_str original_path;
 
   curlx_str_assign(&original_path, q, len);
 
   /* Normalized path will be either the same or shorter than the original
    * path, plus trailing slash */
 
-  if(do_uri_encode)
+  जर(do_uri_encode)
     result = uri_encode_path(&original_path, new_path);
-  else
+  अन्यथा
     result = curlx_dyn_addn(new_path, q, len);
 
-  if(!result && curlx_dyn_len(new_path) == 0)
+  जर(!result && curlx_dyn_len(new_path) == 0)
     result = curlx_dyn_add(new_path, "/");
 
-  return result;
+  परत result;
 }
 
 /* @unittest 1980 */
-UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq);
-UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
+UNITTEST CURLcode canon_query(स्थिरांक अक्षर *query, संरचना dynbuf *dq);
+UNITTEST CURLcode canon_query(स्थिरांक अक्षर *query, संरचना dynbuf *dq)
 {
   CURLcode result = CURLE_OK;
 
-  struct dynbuf query_array[MAX_QUERY_COMPONENTS];
-  struct pair encoded_query_array[MAX_QUERY_COMPONENTS];
-  size_t num_query_components;
-  size_t counted_query_components = 0;
-  size_t index;
+  संरचना dynbuf query_array[MAX_QUERY_COMPONENTS];
+  संरचना pair encoded_query_array[MAX_QUERY_COMPONENTS];
+  माप_प्रकार अंक_query_components;
+  माप_प्रकार counted_query_components = 0;
+  माप_प्रकार index;
 
-  if(!query)
-    return result;
+  जर(!query)
+    परत result;
 
-  result = split_to_dyn_array(query, &query_array[0], &num_query_components);
-  if(result) {
-    goto fail;
+  result = split_to_dyn_array(query, &query_array[0], &अंक_query_components);
+  जर(result) {
+    जा fail;
   }
 
   /* Create list of pairs, each pair containing an encoded query
    * component */
 
-  for(index = 0; index < num_query_components; index++) {
-    const char *in_key;
-    size_t in_key_len;
-    const char *offset;
-    size_t query_part_len = curlx_dyn_len(&query_array[index]);
-    const char *query_part = curlx_dyn_ptr(&query_array[index]);
+  साठी(index = 0; index < अंक_query_components; index++) {
+    स्थिरांक अक्षर *in_किल्ली;
+    माप_प्रकार in_किल्ली_len;
+    स्थिरांक अक्षर *offset;
+    माप_प्रकार query_part_len = curlx_dyn_len(&query_array[index]);
+    स्थिरांक अक्षर *query_part = curlx_dyn_ptr(&query_array[index]);
 
-    in_key = query_part;
+    in_किल्ली = query_part;
 
-    offset = strchr(query_part, '=');
+    offset = म_अक्षर(query_part, '=');
     /* If there is no equals, this key has no value */
-    if(!offset) {
-      in_key_len = strlen(in_key);
+    जर(!offset) {
+      in_किल्ली_len = म_माप(in_किल्ली);
     }
-    else {
-      in_key_len = offset - in_key;
+    अन्यथा {
+      in_किल्ली_len = offset - in_किल्ली;
     }
 
-    curlx_dyn_init(&encoded_query_array[index].key,
+    curlx_dyn_init(&encoded_query_array[index].किल्ली,
       (query_part_len * 3) + 1);
-    curlx_dyn_init(&encoded_query_array[index].value,
+    curlx_dyn_init(&encoded_query_array[index].मूल्य,
       (query_part_len * 3) + 1);
     counted_query_components++;
 
     /* Decode/encode the key */
-    result = normalize_query(in_key, in_key_len,
-                             &encoded_query_array[index].key);
-    if(result) {
-      goto fail;
+    result = normalize_query(in_किल्ली, in_किल्ली_len,
+                             &encoded_query_array[index].किल्ली);
+    जर(result) {
+      जा fail;
     }
 
     /* Decode/encode the value if it exists */
-    if(offset && offset != (query_part + query_part_len - 1)) {
-      size_t in_value_len;
-      const char *in_value = offset + 1;
-      in_value_len = query_part + query_part_len - (offset + 1);
-      result = normalize_query(in_value, in_value_len,
-                               &encoded_query_array[index].value);
-      if(result) {
-        goto fail;
+    जर(offset && offset != (query_part + query_part_len - 1)) {
+      माप_प्रकार in_मूल्य_len;
+      स्थिरांक अक्षर *in_मूल्य = offset + 1;
+      in_मूल्य_len = query_part + query_part_len - (offset + 1);
+      result = normalize_query(in_मूल्य, in_मूल्य_len,
+                               &encoded_query_array[index].मूल्य);
+      जर(result) {
+        जा fail;
       }
     }
-    else {
+    अन्यथा {
       /* If there is no value, the value is an empty string */
-      curlx_dyn_init(&encoded_query_array[index].value, 2);
-      result = curlx_dyn_addn(&encoded_query_array[index].value, "", 1);
+      curlx_dyn_init(&encoded_query_array[index].मूल्य, 2);
+      result = curlx_dyn_addn(&encoded_query_array[index].मूल्य, "", 1);
     }
 
-    if(result) {
-      goto fail;
+    जर(result) {
+      जा fail;
     }
   }
 
   /* Sort the encoded query components by key and value */
-  qsort(&encoded_query_array, num_query_components,
-        sizeof(struct pair), compare_func);
+  क्विक(&encoded_query_array, अंक_query_components,
+        आकार(संरचना pair), compare_func);
 
   /* Append the query components together to make a full query string */
-  for(index = 0; index < num_query_components; index++) {
+  साठी(index = 0; index < अंक_query_components; index++) {
 
-    if(index)
+    जर(index)
       result = curlx_dyn_addn(dq, "&", 1);
-    if(!result) {
-      const char *key_ptr = curlx_dyn_ptr(&encoded_query_array[index].key);
-      const char *value_ptr = curlx_dyn_ptr(&encoded_query_array[index].value);
-      size_t vlen = curlx_dyn_len(&encoded_query_array[index].value);
-      if(value_ptr && vlen) {
-        result = curlx_dyn_addf(dq, "%s=%s", key_ptr, value_ptr);
+    जर(!result) {
+      स्थिरांक अक्षर *किल्ली_ptr = curlx_dyn_ptr(&encoded_query_array[index].किल्ली);
+      स्थिरांक अक्षर *मूल्य_ptr = curlx_dyn_ptr(&encoded_query_array[index].मूल्य);
+      माप_प्रकार vlen = curlx_dyn_len(&encoded_query_array[index].मूल्य);
+      जर(मूल्य_ptr && vlen) {
+        result = curlx_dyn_addf(dq, "%s=%s", किल्ली_ptr, मूल्य_ptr);
       }
-      else {
+      अन्यथा {
         /* Empty value is always encoded to key= */
-        result = curlx_dyn_addf(dq, "%s=", key_ptr);
+        result = curlx_dyn_addf(dq, "%s=", किल्ली_ptr);
       }
     }
-    if(result)
-      break;
+    जर(result)
+      थांबा;
   }
 
 fail:
-  if(counted_query_components)
+  जर(counted_query_components)
     /* the encoded_query_array might not be initialized yet */
     pair_array_free(&encoded_query_array[0], counted_query_components);
-  dyn_array_free(&query_array[0], num_query_components);
-  return result;
+  dyn_array_free(&query_array[0], अंक_query_components);
+  परत result;
 }
 
-static CURLcode parse_sigv4_params(struct Curl_easy *data,
-                                   const char *hostname,
-                                   struct Curl_str *provider0,
-                                   struct Curl_str *provider1,
-                                   struct Curl_str *region,
-                                   struct Curl_str *service)
+स्थिर CURLcode parse_sigv4_params(संरचना Curl_easy *data,
+                                   स्थिरांक अक्षर *hostname,
+                                   संरचना Curl_str *provider0,
+                                   संरचना Curl_str *provider1,
+                                   संरचना Curl_str *region,
+                                   संरचना Curl_str *service)
 {
-  const char *line = CURL_EASY_STR(data, STRING_AWS_SIGV4);
-  if(!line || !*line)
-    line = "aws:amz";
+  स्थिरांक अक्षर *ओळ = CURL_EASY_STR(data, STRING_AWS_SIGV4);
+  जर(!ओळ || !*ओळ)
+    ओळ = "aws:amz";
 
   /* provider0[:provider1[:region[:service]]]
 
      No string can be longer than N bytes of non-whitespace */
-  if(curlx_str_until(&line, provider0, MAX_SIGV4_LEN, ':')) {
+  जर(curlx_str_until(&ओळ, provider0, MAX_SIGV4_LEN, ':')) {
     failf(data, "first aws-sigv4 provider cannot be empty");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    परत CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  if(curlx_str_single(&line, ':') ||
-     curlx_str_until(&line, provider1, MAX_SIGV4_LEN, ':')) {
+  जर(curlx_str_single(&ओळ, ':') ||
+     curlx_str_until(&ओळ, provider1, MAX_SIGV4_LEN, ':')) {
     *provider1 = *provider0;
   }
-  else if(curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, region, MAX_SIGV4_LEN, ':') ||
-          curlx_str_single(&line, ':') ||
-          curlx_str_until(&line, service, MAX_SIGV4_LEN, ':')) {
+  अन्यथा जर(curlx_str_single(&ओळ, ':') ||
+          curlx_str_until(&ओळ, region, MAX_SIGV4_LEN, ':') ||
+          curlx_str_single(&ओळ, ':') ||
+          curlx_str_until(&ओळ, service, MAX_SIGV4_LEN, ':')) {
     /* nothing to do */
   }
 
-  if(!curlx_strlen(service)) {
-    const char *p = hostname;
-    if(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
+  जर(!curlx_strlen(service)) {
+    स्थिरांक अक्षर *p = hostname;
+    जर(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
        curlx_str_single(&p, '.')) {
       failf(data, "aws-sigv4: service missing in parameters and hostname");
-      return CURLE_URL_MALFORMAT;
+      परत CURLE_URL_MALFORMAT;
     }
 
     infof(data, "aws_sigv4: picked service %.*s from host",
-          (int)curlx_strlen(service), curlx_str(service));
+          (पूर्णांक)curlx_strlen(service), curlx_str(service));
 
-    if(!curlx_strlen(region)) {
-      if(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
+    जर(!curlx_strlen(region)) {
+      जर(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
          curlx_str_single(&p, '.')) {
         failf(data, "aws-sigv4: region missing in parameters and hostname");
-        return CURLE_URL_MALFORMAT;
+        परत CURLE_URL_MALFORMAT;
       }
       infof(data, "aws_sigv4: picked region %.*s from host",
-            (int)curlx_strlen(region), curlx_str(region));
+            (पूर्णांक)curlx_strlen(region), curlx_str(region));
     }
   }
 
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-static CURLcode get_payload_hash(struct Curl_easy *data,
+स्थिर CURLcode get_payload_hash(संरचना Curl_easy *data,
                                  Curl_HttpReq httpreq,
-                                 struct Curl_str *provider0,
-                                 struct Curl_str *provider1,
-                                 struct Curl_str *service,
-                                 unsigned char *sha_hash,
-                                 char *sha_hex,
-                                 char *content_sha256_hdr,
-                                 const char **payload_hash_out,
-                                 size_t *payload_hash_len_out)
+                                 संरचना Curl_str *provider0,
+                                 संरचना Curl_str *provider1,
+                                 संरचना Curl_str *service,
+                                 अचिन्हित अक्षर *sha_hash,
+                                 अक्षर *sha_hex,
+                                 अक्षर *content_sha256_hdr,
+                                 स्थिरांक अक्षर **payload_hash_out,
+                                 माप_प्रकार *payload_hash_len_out)
 {
   *payload_hash_out =
     parse_content_sha_hdr(data, curlx_str(provider1),
                           curlx_strlen(provider1), payload_hash_len_out);
 
-  if(!*payload_hash_out) {
+  जर(!*payload_hash_out) {
     CURLcode result;
     /* AWS S3 requires a x-amz-content-sha256 header, and supports special
      * values like UNSIGNED-PAYLOAD */
     bool sign_as_s3 = curlx_str_casecompare(provider0, "aws") &&
                       curlx_str_casecompare(service, "s3");
 
-    if(sign_as_s3)
+    जर(sign_as_s3)
       result = calc_s3_payload_hash(data, httpreq, curlx_str(provider1),
                                     curlx_strlen(provider1), sha_hash,
                                     sha_hex, content_sha256_hdr);
-    else
+    अन्यथा
       result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      return result;
+    जर(result)
+      परत result;
 
     *payload_hash_out = sha_hex;
     /* may be shorter than SHA256_HEX_LENGTH, like S3_UNSIGNED_PAYLOAD */
-    *payload_hash_len_out = strlen(sha_hex);
+    *payload_hash_len_out = म_माप(sha_hex);
   }
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-static CURLcode get_timestamp(char *timestamp, size_t stampsize)
+स्थिर CURLcode get_timestamp(अक्षर *timestamp, माप_प्रकार stampsize)
 {
-  time_t clock;
-  struct tm tm;
+  समय_प्रकार घड़ी;
+  संरचना पंचांग पंचांग;
   CURLcode result;
 
 #ifdef DEBUGBUILD
   {
-    char *force_timestamp = getenv("CURL_FORCETIME");
-    if(force_timestamp)
-      clock = 0;
-    else
-      clock = time(NULL);
+    अक्षर *force_timestamp = दो_पर्या("CURL_FORCETIME");
+    जर(force_timestamp)
+      घड़ी = 0;
+    अन्यथा
+      घड़ी = समय(रिक्त);
   }
-#else
-  clock = time(NULL);
+#अन्यथा
+  घड़ी = समय(रिक्त);
 #endif
-  result = curlx_gmtime(clock, &tm);
-  if(result)
-    return result;
+  result = curlx_gmtime(घड़ी, &पंचांग);
+  जर(result)
+    परत result;
 
-  if(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
-    return CURLE_OUT_OF_MEMORY;
+  जर(!स_माला(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &पंचांग))
+    परत CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-static CURLcode make_canonical_request(struct Curl_easy *data,
-                                       char *timestamp,
-                                       struct Curl_str *provider1,
-                                       struct Curl_str *service,
-                                       const char *method,
-                                       const char *payload_hash,
-                                       size_t payload_hash_len,
-                                       char **date_header_out,
-                                       char *content_sha256_hdr,
-                                       struct dynbuf *canonical_headers,
-                                       struct dynbuf *signed_headers,
-                                       char **canonical_request_out)
+स्थिर CURLcode make_canonical_request(संरचना Curl_easy *data,
+                                       अक्षर *timestamp,
+                                       संरचना Curl_str *provider1,
+                                       संरचना Curl_str *service,
+                                       स्थिरांक अक्षर *method,
+                                       स्थिरांक अक्षर *payload_hash,
+                                       माप_प्रकार payload_hash_len,
+                                       अक्षर **date_header_out,
+                                       अक्षर *content_sha256_hdr,
+                                       संरचना dynbuf *canonical_headers,
+                                       संरचना dynbuf *signed_headers,
+                                       अक्षर **canonical_request_out)
 {
-  struct dynbuf canonical_query;
-  struct dynbuf canonical_path;
+  संरचना dynbuf canonical_query;
+  संरचना dynbuf canonical_path;
   CURLcode result;
 
   curlx_dyn_init(&canonical_query, CURL_MAX_HTTP_HEADER);
@@ -947,18 +947,18 @@ static CURLcode make_canonical_request(struct Curl_easy *data,
                         curlx_str(provider1), curlx_strlen(provider1),
                         date_header_out, content_sha256_hdr,
                         canonical_headers, signed_headers);
-  if(result)
-    goto fail;
+  जर(result)
+    जा fail;
 
   result = canon_query(data->state.up.query, &canonical_query);
-  if(result)
-    goto fail;
+  जर(result)
+    जा fail;
 
-  result = canon_path(data->state.up.path, strlen(data->state.up.path),
+  result = canon_path(data->state.up.path, म_माप(data->state.up.path),
                       &canonical_path,
                       should_urlencode(service));
-  if(result)
-    goto fail;
+  जर(result)
+    जा fail;
 
   *canonical_request_out =
     curl_maprintf("%s\n" /* HTTPRequestMethod */
@@ -973,62 +973,62 @@ static CURLcode make_canonical_request(struct Curl_easy *data,
                   curlx_dyn_ptr(&canonical_query) : "",
                   curlx_dyn_ptr(canonical_headers),
                   curlx_dyn_ptr(signed_headers),
-                  (int)payload_hash_len, payload_hash);
-  if(!*canonical_request_out) {
+                  (पूर्णांक)payload_hash_len, payload_hash);
+  जर(!*canonical_request_out) {
     result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+    जा fail;
   }
 
   result = CURLE_OK;
 fail:
   curlx_dyn_free(&canonical_query);
   curlx_dyn_free(&canonical_path);
-  return result;
+  परत result;
 }
 
-static CURLcode make_string_to_sign(struct Curl_easy *data,
-                                    struct Curl_str *provider0,
-                                    struct Curl_str *region,
-                                    struct Curl_str *service,
-                                    const char *date,
-                                    const char *timestamp,
-                                    const char *canonical_request,
-                                    char **request_type_out,
-                                    char **credential_scope_out,
-                                    char **str_to_sign_out)
+स्थिर CURLcode make_string_to_sign(संरचना Curl_easy *data,
+                                    संरचना Curl_str *provider0,
+                                    संरचना Curl_str *region,
+                                    संरचना Curl_str *service,
+                                    स्थिरांक अक्षर *date,
+                                    स्थिरांक अक्षर *timestamp,
+                                    स्थिरांक अक्षर *canonical_request,
+                                    अक्षर **request_type_out,
+                                    अक्षर **credential_scope_out,
+                                    अक्षर **str_to_sign_out)
 {
-  char *request_type;
-  char *credential_scope;
-  char *str_to_sign;
-  unsigned char sha_hash[CURL_SHA256_DIGEST_LENGTH];
-  char sha_hex[SHA256_HEX_LENGTH];
+  अक्षर *request_type;
+  अक्षर *credential_scope;
+  अक्षर *str_to_sign;
+  अचिन्हित अक्षर sha_hash[CURL_SHA256_DIGEST_LENGTH];
+  अक्षर sha_hex[SHA256_HEX_LENGTH];
 
   request_type = curl_maprintf("%.*s4_request",
-                               (int)curlx_strlen(provider0),
+                               (पूर्णांक)curlx_strlen(provider0),
                                curlx_str(provider0));
-  if(!request_type)
-    return CURLE_OUT_OF_MEMORY;
+  जर(!request_type)
+    परत CURLE_OUT_OF_MEMORY;
 
   /* provider0 is lowercased *after* curl_maprintf() so that the buffer
      can be written to */
   Curl_strntolower(request_type, request_type, curlx_strlen(provider0));
 
   credential_scope = curl_maprintf("%s/%.*s/%.*s/%s", date,
-                                   (int)curlx_strlen(region),
+                                   (पूर्णांक)curlx_strlen(region),
                                    curlx_str(region),
-                                   (int)curlx_strlen(service),
+                                   (पूर्णांक)curlx_strlen(service),
                                    curlx_str(service),
                                    request_type);
-  if(!credential_scope) {
+  जर(!credential_scope) {
     curlx_free(request_type);
-    return CURLE_OUT_OF_MEMORY;
+    परत CURLE_OUT_OF_MEMORY;
   }
 
-  if(Curl_sha256it(sha_hash, (const unsigned char *)canonical_request,
-                   strlen(canonical_request))) {
+  जर(Curl_sha256it(sha_hash, (स्थिरांक अचिन्हित अक्षर *)canonical_request,
+                   म_माप(canonical_request))) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    परत CURLE_OUT_OF_MEMORY;
   }
 
   sha256_to_hex(sha_hex, sha_hash);
@@ -1041,15 +1041,15 @@ static CURLcode make_string_to_sign(struct Curl_easy *data,
                               "%s\n" /* RequestDateTime */
                               "%s\n" /* CredentialScope */
                               "%s",  /* HashedCanonicalRequest in hex */
-                              (int)curlx_strlen(provider0),
+                              (पूर्णांक)curlx_strlen(provider0),
                               curlx_str(provider0),
                               timestamp,
                               credential_scope,
                               sha_hex);
-  if(!str_to_sign) {
+  जर(!str_to_sign) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    परत CURLE_OUT_OF_MEMORY;
   }
 
   /* make provider0 part done uppercase */
@@ -1062,48 +1062,48 @@ static CURLcode make_string_to_sign(struct Curl_easy *data,
   *request_type_out = request_type;
   *credential_scope_out = credential_scope;
   *str_to_sign_out = str_to_sign;
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
-                                          struct Curl_str *provider0,
-                                          struct Curl_str *region,
-                                          struct Curl_str *service,
-                                          const char *request_type,
-                                          const char *credential_scope,
-                                          const char *date,
-                                          const char *str_to_sign,
-                                          const char *date_header,
-                                          const char *content_sha256_hdr,
-                                          struct dynbuf *signed_headers)
+स्थिर CURLcode sign_and_set_auth_headers(संरचना Curl_easy *data,
+                                          संरचना Curl_str *provider0,
+                                          संरचना Curl_str *region,
+                                          संरचना Curl_str *service,
+                                          स्थिरांक अक्षर *request_type,
+                                          स्थिरांक अक्षर *credential_scope,
+                                          स्थिरांक अक्षर *date,
+                                          स्थिरांक अक्षर *str_to_sign,
+                                          स्थिरांक अक्षर *date_header,
+                                          स्थिरांक अक्षर *content_sha256_hdr,
+                                          संरचना dynbuf *signed_headers)
 {
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  const char *passwd = Curl_creds_passwd(data->state.creds);
-  char *secret = NULL;
-  unsigned char sign0[CURL_SHA256_DIGEST_LENGTH] = { 0 };
-  unsigned char sign1[CURL_SHA256_DIGEST_LENGTH] = { 0 };
-  char sha_hex[SHA256_HEX_LENGTH];
-  char *auth_headers = NULL;
-  char *user = curl_escape(Curl_creds_user(data->state.creds), 0);
-  if(!user)
-    return CURLE_OUT_OF_MEMORY;
+  स्थिरांक अक्षर *passwd = Curl_creds_passwd(data->state.creds);
+  अक्षर *secret = रिक्त;
+  अचिन्हित अक्षर sign0[CURL_SHA256_DIGEST_LENGTH] = { 0 };
+  अचिन्हित अक्षर sign1[CURL_SHA256_DIGEST_LENGTH] = { 0 };
+  अक्षर sha_hex[SHA256_HEX_LENGTH];
+  अक्षर *auth_headers = रिक्त;
+  अक्षर *user = curl_escape(Curl_creds_user(data->state.creds), 0);
+  जर(!user)
+    परत CURLE_OUT_OF_MEMORY;
 
-  secret = curl_maprintf("%.*s4%s", (int)curlx_strlen(provider0),
+  secret = curl_maprintf("%.*s4%s", (पूर्णांक)curlx_strlen(provider0),
                          curlx_str(provider0), passwd);
-  if(!secret)
-    goto fail;
+  जर(!secret)
+    जा fail;
   /* make provider0 part done uppercase */
   Curl_strntoupper(secret, curlx_str(provider0), curlx_strlen(provider0));
 
-  HMAC_SHA256(secret, strlen(secret), date, strlen(date), sign0);
-  HMAC_SHA256(sign0, sizeof(sign0),
+  HMAC_SHA256(secret, म_माप(secret), date, म_माप(date), sign0);
+  HMAC_SHA256(sign0, आकार(sign0),
               curlx_str(region), curlx_strlen(region), sign1);
-  HMAC_SHA256(sign1, sizeof(sign1),
+  HMAC_SHA256(sign1, आकार(sign1),
               curlx_str(service), curlx_strlen(service), sign0);
-  HMAC_SHA256(sign0, sizeof(sign0),
-              request_type, strlen(request_type), sign1);
-  HMAC_SHA256(sign1, sizeof(sign1),
-              str_to_sign, strlen(str_to_sign), sign0);
+  HMAC_SHA256(sign0, आकार(sign0),
+              request_type, म_माप(request_type), sign1);
+  HMAC_SHA256(sign1, आकार(sign1),
+              str_to_sign, म_माप(str_to_sign), sign0);
 
   sha256_to_hex(sha_hex, sign0);
 
@@ -1115,7 +1115,7 @@ static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
                                "Signature=%s\r\n"
                                "%s"
                                "%s%s",
-                               (int)curlx_strlen(provider0),
+                               (पूर्णांक)curlx_strlen(provider0),
                                curlx_str(provider0),
                                user,
                                credential_scope,
@@ -1129,8 +1129,8 @@ static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
                                date_header ? date_header : "",
                                content_sha256_hdr,
                                content_sha256_hdr[0] ? "\r\n": "");
-  if(!auth_headers)
-    goto fail;
+  जर(!auth_headers)
+    जा fail;
 
   /* provider 0 uppercase */
   Curl_strntoupper(&auth_headers[CURL_CSTRLEN("Authorization: ")],
@@ -1144,42 +1144,42 @@ static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
 fail:
   curlx_free(user);
   curlx_free(secret);
-  return result;
+  परत result;
 }
 
-CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
+CURLcode Curl_output_aws_sigv4(संरचना Curl_easy *data)
 {
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct Curl_str provider0 = { NULL, 0 };
-  struct Curl_str provider1 = { NULL, 0 };
-  struct Curl_str region = { NULL, 0 };
-  struct Curl_str service = { NULL, 0 };
-  const char *hostname = data->state.origin->hostname;
-  char timestamp[TIMESTAMP_SIZE];
-  char date[9];
-  struct dynbuf canonical_headers;
-  struct dynbuf signed_headers;
-  char *date_header = NULL;
+  संरचना Curl_str provider0 = { रिक्त, 0 };
+  संरचना Curl_str provider1 = { रिक्त, 0 };
+  संरचना Curl_str region = { रिक्त, 0 };
+  संरचना Curl_str service = { रिक्त, 0 };
+  स्थिरांक अक्षर *hostname = data->state.origin->hostname;
+  अक्षर timestamp[TIMESTAMP_SIZE];
+  अक्षर date[9];
+  संरचना dynbuf canonical_headers;
+  संरचना dynbuf signed_headers;
+  अक्षर *date_header = रिक्त;
   Curl_HttpReq httpreq;
-  const char *method = NULL;
-  const char *payload_hash = NULL;
-  size_t payload_hash_len = 0;
-  unsigned char sha_hash[CURL_SHA256_DIGEST_LENGTH];
-  char sha_hex[SHA256_HEX_LENGTH];
-  char content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
-  char *canonical_request = NULL;
-  char *request_type = NULL;
-  char *credential_scope = NULL;
-  char *str_to_sign = NULL;
+  स्थिरांक अक्षर *method = रिक्त;
+  स्थिरांक अक्षर *payload_hash = रिक्त;
+  माप_प्रकार payload_hash_len = 0;
+  अचिन्हित अक्षर sha_hash[CURL_SHA256_DIGEST_LENGTH];
+  अक्षर sha_hex[SHA256_HEX_LENGTH];
+  अक्षर content_sha256_hdr[CONTENT_SHA256_HDR_LEN + 2] = ""; /* add \r\n */
+  अक्षर *canonical_request = रिक्त;
+  अक्षर *request_type = रिक्त;
+  अक्षर *credential_scope = रिक्त;
+  अक्षर *str_to_sign = रिक्त;
 
-  if(data->set.path_as_is) {
+  जर(data->set.path_as_is) {
     failf(data, "Cannot use sigv4 authentication with path-as-is flag");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    परत CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(Curl_checkheaders(data, STRCONST("Authorization")))
+  जर(Curl_checkheaders(data, STRCONST("Authorization")))
     /* Authorization already present, Bailing out */
-    return CURLE_OK;
+    परत CURLE_OK;
 
   /* we init those buffers here, so goto fail will free initialized dynbuf */
   curlx_dyn_init(&canonical_headers, CURL_MAX_HTTP_HEADER);
@@ -1187,34 +1187,34 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
 
   result = parse_sigv4_params(data, hostname, &provider0, &provider1,
                               &region, &service);
-  if(!result) {
+  जर(!result) {
     Curl_http_method(data, &method, &httpreq);
     result = get_payload_hash(data, httpreq, &provider0, &provider1, &service,
                               sha_hash, sha_hex, content_sha256_hdr,
                               &payload_hash, &payload_hash_len);
   }
 
-  if(!result)
-    result = get_timestamp(timestamp, sizeof(timestamp));
+  जर(!result)
+    result = get_timestamp(timestamp, आकार(timestamp));
 
-  if(!result)
+  जर(!result)
     result = make_canonical_request(data, timestamp,
                                     &provider1, &service,
                                     method, payload_hash, payload_hash_len,
                                     &date_header, content_sha256_hdr,
                                     &canonical_headers, &signed_headers,
                                     &canonical_request);
-  if(!result) {
+  जर(!result) {
     /* the timestamp might have been updated in make_canonical_request */
-    memcpy(date, timestamp, sizeof(date) - 1);
-    date[sizeof(date) - 1] = 0;
+    स_नकल(date, timestamp, आकार(date) - 1);
+    date[आकार(date) - 1] = 0;
 
     result = make_string_to_sign(data, &provider0, &region, &service,
                                  date, timestamp, canonical_request,
                                  &request_type, &credential_scope,
                                  &str_to_sign);
   }
-  if(!result)
+  जर(!result)
     result = sign_and_set_auth_headers(data, &provider0, &region, &service,
                                        request_type, credential_scope,
                                        date, str_to_sign, date_header,
@@ -1227,7 +1227,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
   curlx_free(credential_scope);
   curlx_free(str_to_sign);
   curlx_free(date_header);
-  return result;
+  परत result;
 }
 
 #endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_AWS */

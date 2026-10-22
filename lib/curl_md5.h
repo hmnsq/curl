@@ -24,43 +24,43 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#जर (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "curl_hmac.h"
+#अन्तर्भाव "curl_hmac.h"
 
 #define MD5_DIGEST_LEN  16
 
-typedef CURLcode (*Curl_MD5_init_func)(void *context);
-typedef void (*Curl_MD5_update_func)(void *context,
-                                     const unsigned char *data,
-                                     unsigned int len);
-typedef void (*Curl_MD5_final_func)(unsigned char *result, void *context);
+प्रकारव्याख्या CURLcode (*Curl_MD5_init_func)(शून्य *context);
+प्रकारव्याख्या शून्य (*Curl_MD5_update_func)(शून्य *context,
+                                     स्थिरांक अचिन्हित अक्षर *data,
+                                     अचिन्हित पूर्णांक len);
+प्रकारव्याख्या शून्य (*Curl_MD5_final_func)(अचिन्हित अक्षर *result, शून्य *context);
 
-struct MD5_params {
+संरचना MD5_params {
   Curl_MD5_init_func md5_init_func;     /* Initialize context procedure */
   Curl_MD5_update_func md5_update_func; /* Update context with data */
   Curl_MD5_final_func md5_final_func;   /* Get final result procedure */
-  unsigned int md5_ctxtsize;            /* Context structure size */
-  unsigned int md5_resultlen;           /* Result length (bytes) */
+  अचिन्हित पूर्णांक md5_ctxtsize;            /* Context structure size */
+  अचिन्हित पूर्णांक md5_resultlen;           /* Result length (bytes) */
 };
 
-struct MD5_context {
-  const struct MD5_params *md5_hash;  /* Hash function definition */
-  void *md5_hashctx;                  /* Hash function context */
+संरचना MD5_context {
+  स्थिरांक संरचना MD5_params *md5_hash;  /* Hash function definition */
+  शून्य *md5_hashctx;                  /* Hash function context */
 };
 
-extern const struct MD5_params Curl_DIGEST_MD5;
-extern const struct HMAC_params Curl_HMAC_MD5;
+बाह्य स्थिरांक संरचना MD5_params Curl_DIGEST_MD5;
+बाह्य स्थिरांक संरचना HMAC_params Curl_HMAC_MD5;
 
-CURLcode Curl_md5it(unsigned char *output, const unsigned char *input,
-                    size_t len);
+CURLcode Curl_md5it(अचिन्हित अक्षर *output, स्थिरांक अचिन्हित अक्षर *आदान,
+                    माप_प्रकार len);
 
-struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params);
-CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input,
-                         unsigned int len);
-CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result);
+संरचना MD5_context *Curl_MD5_init(स्थिरांक संरचना MD5_params *md5params);
+CURLcode Curl_MD5_update(संरचना MD5_context *context,
+                         स्थिरांक अचिन्हित अक्षर *आदान,
+                         अचिन्हित पूर्णांक len);
+CURLcode Curl_MD5_final(संरचना MD5_context *context, अचिन्हित अक्षर *result);
 
 #endif
 

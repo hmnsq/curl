@@ -24,20 +24,20 @@
 
 /* Base64 encoding/decoding */
 
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "curlx/base64.h"
+#अन्तर्भाव "curlx/base64.h"
 
 /* ---- Base64 Encoding/Decoding Table --- */
-const char curlx_base64encdec[] =
+स्थिरांक अक्षर curlx_base64encdec[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /* The Base 64 encoding with a URL and filename safe alphabet, RFC 4648
    section 5 */
-static const char base64url[] =
+स्थिर स्थिरांक अक्षर base64url[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-static const unsigned char decodetable[256] = {
+स्थिर स्थिरांक अचिन्हित अक्षर decodetable[256] = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -85,87 +85,87 @@ static const unsigned char decodetable[256] = {
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64_decode(const char *src,
-                             uint8_t **outptr, size_t *outlen)
+CURLcode curlx_base64_decode(स्थिरांक अक्षर *src,
+                             uint8_t **outptr, माप_प्रकार *outlen)
 {
-  size_t srclen = 0;
-  size_t padding = 0;
-  size_t i;
-  size_t numQuantums;
-  size_t fullQuantums;
-  size_t rawlen = 0;
-  unsigned char *pos;
-  unsigned char *newstr;
+  माप_प्रकार srclen = 0;
+  माप_प्रकार padding = 0;
+  माप_प्रकार i;
+  माप_प्रकार अंक_Quantums;
+  माप_प्रकार fullQuantums;
+  माप_प्रकार rawlen = 0;
+  अचिन्हित अक्षर *pos;
+  अचिन्हित अक्षर *newstr;
 
-  *outptr = NULL;
+  *outptr = रिक्त;
   *outlen = 0;
-  srclen = strlen(src);
+  srclen = म_माप(src);
 
   /* Check the length of the input string is valid */
-  if(!srclen || srclen % 4)
-    return CURLE_BAD_CONTENT_ENCODING;
+  जर(!srclen || srclen % 4)
+    परत CURLE_BAD_CONTENT_ENCODING;
 
   /* srclen is at least 4 here */
-  while(src[srclen - 1 - padding] == '=') {
+  पर्यंत(src[srclen - 1 - padding] == '=') {
     /* count padding characters */
     padding++;
     /* A maximum of two = padding characters is allowed */
-    if(padding > 2)
-      return CURLE_BAD_CONTENT_ENCODING;
+    जर(padding > 2)
+      परत CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Calculate the number of quantums */
-  numQuantums = srclen / 4;
-  fullQuantums = numQuantums - (padding ? 1 : 0);
+  अंक_Quantums = srclen / 4;
+  fullQuantums = अंक_Quantums - (padding ? 1 : 0);
 
   /* Calculate the size of the decoded string */
-  rawlen = (numQuantums * 3) - padding;
+  rawlen = (अंक_Quantums * 3) - padding;
 
   /* Allocate our buffer including room for a null-terminator */
   newstr = curlx_malloc(rawlen + 1);
-  if(!newstr)
-    return CURLE_OUT_OF_MEMORY;
+  जर(!newstr)
+    परत CURLE_OUT_OF_MEMORY;
 
   pos = newstr;
 
   /* Decode the complete quantums first */
-  for(i = 0; i < fullQuantums; i++) {
-    unsigned char v0 = decodetable[(unsigned char)src[0]];
-    unsigned char v1 = decodetable[(unsigned char)src[1]];
-    unsigned char v2 = decodetable[(unsigned char)src[2]];
-    unsigned char v3 = decodetable[(unsigned char)src[3]];
-    if((v0 | v1 | v2 | v3) & 0x80)
-      goto bad;
-    pos[0] = (unsigned char)((v0 << 2) | (v1 >> 4));
-    pos[1] = (unsigned char)((v1 << 4) | (v2 >> 2));
-    pos[2] = (unsigned char)((v2 << 6) | v3);
+  साठी(i = 0; i < fullQuantums; i++) {
+    अचिन्हित अक्षर v0 = decodetable[(अचिन्हित अक्षर)src[0]];
+    अचिन्हित अक्षर v1 = decodetable[(अचिन्हित अक्षर)src[1]];
+    अचिन्हित अक्षर v2 = decodetable[(अचिन्हित अक्षर)src[2]];
+    अचिन्हित अक्षर v3 = decodetable[(अचिन्हित अक्षर)src[3]];
+    जर((v0 | v1 | v2 | v3) & 0x80)
+      जा bad;
+    pos[0] = (अचिन्हित अक्षर)((v0 << 2) | (v1 >> 4));
+    pos[1] = (अचिन्हित अक्षर)((v1 << 4) | (v2 >> 2));
+    pos[2] = (अचिन्हित अक्षर)((v2 << 6) | v3);
     pos += 3;
     src += 4;
   }
-  if(padding) {
+  जर(padding) {
     /* this means either 8 or 16 bits output */
-    unsigned char val;
-    unsigned int x = 0;
-    int j;
-    size_t padc = 0;
-    for(j = 0; j < 4; j++) {
-      if(*src == '=') {
+    अचिन्हित अक्षर val;
+    अचिन्हित पूर्णांक x = 0;
+    पूर्णांक j;
+    माप_प्रकार padc = 0;
+    साठी(j = 0; j < 4; j++) {
+      जर(*src == '=') {
         x <<= 6;
         src++;
-        if(++padc > padding)
+        जर(++padc > padding)
           /* this is a badly placed '=' symbol! */
-          goto bad;
+          जा bad;
       }
-      else {
-        val = decodetable[(unsigned char)*src++];
-        if(val == 0xff) /* bad symbol */
-          goto bad;
+      अन्यथा {
+        val = decodetable[(अचिन्हित अक्षर)*src++];
+        जर(val == 0xff) /* bad symbol */
+          जा bad;
         x = (x << 6) | val;
       }
     }
-    if(padding == 1)
-      pos[1] = (unsigned char)((x >> 8) & 0xff);
-    pos[0] = (unsigned char)((x >> 16) & 0xff);
+    जर(padding == 1)
+      pos[1] = (अचिन्हित अक्षर)((x >> 8) & 0xff);
+    pos[0] = (अचिन्हित अक्षर)((x >> 16) & 0xff);
     pos += 3 - padding;
   }
 
@@ -176,37 +176,37 @@ CURLcode curlx_base64_decode(const char *src,
   *outptr = newstr;
   *outlen = rawlen;
 
-  return CURLE_OK;
+  परत CURLE_OK;
 bad:
   curlx_free(newstr);
-  return CURLE_BAD_CONTENT_ENCODING;
+  परत CURLE_BAD_CONTENT_ENCODING;
 }
 
-static CURLcode base64_encode(const char *table64,
+स्थिर CURLcode base64_encode(स्थिरांक अक्षर *table64,
                               uint8_t padbyte,
-                              const uint8_t *inputbuff, size_t insize,
-                              char **outptr, size_t *outlen)
+                              स्थिरांक uint8_t *inputbuff, माप_प्रकार insize,
+                              अक्षर **outptr, माप_प्रकार *outlen)
 {
-  char *output;
-  char *base64data;
-  const unsigned char *in = (const unsigned char *)inputbuff;
+  अक्षर *output;
+  अक्षर *base64data;
+  स्थिरांक अचिन्हित अक्षर *in = (स्थिरांक अचिन्हित अक्षर *)inputbuff;
 
-  *outptr = NULL;
+  *outptr = रिक्त;
   *outlen = 0;
 
-  if(!insize)
-    return CURLE_OK;
+  जर(!insize)
+    परत CURLE_OK;
 
   /* safety precaution */
-  DEBUGASSERT(insize <= CURL_MAX_BASE64_INPUT);
-  if(insize > CURL_MAX_BASE64_INPUT)
-    return CURLE_TOO_LARGE;
+  DEBUGASSERT(insize <= CURL_MAX_BASE64_आदान);
+  जर(insize > CURL_MAX_BASE64_आदान)
+    परत CURLE_TOO_LARGE;
 
   base64data = output = curlx_malloc(((insize + 2) / 3 * 4) + 1);
-  if(!output)
-    return CURLE_OUT_OF_MEMORY;
+  जर(!output)
+    परत CURLE_OUT_OF_MEMORY;
 
-  while(insize >= 3) {
+  पर्यंत(insize >= 3) {
     /* Load all three input bytes before storing output, avoiding reloads when
        the compiler cannot rule out aliasing. Extract four 6-bit indices from
        the packed value; byte-wise loads avoid alignment and endian issues. */
@@ -219,21 +219,21 @@ static CURLcode base64_encode(const char *table64,
     insize -= 3;
     in += 3;
   }
-  if(insize) {
+  जर(insize) {
     /* this is only one or two bytes now */
     *output++ = table64[in[0] >> 2];
-    if(insize == 1) {
+    जर(insize == 1) {
       *output++ = table64[((in[0] & 0x03) << 4)];
-      if(padbyte) {
+      जर(padbyte) {
         *output++ = padbyte;
         *output++ = padbyte;
       }
     }
-    else {
+    अन्यथा {
       /* insize == 2 */
       *output++ = table64[((in[0] & 0x03) << 4) | ((in[1] & 0xF0) >> 4)];
       *output++ = table64[((in[1] & 0x0F) << 2)];
-      if(padbyte)
+      जर(padbyte)
         *output++ = padbyte;
     }
   }
@@ -245,9 +245,9 @@ static CURLcode base64_encode(const char *table64,
   *outptr = base64data;
 
   /* Return the length of the new data */
-  *outlen = (size_t)(output - base64data);
+  *outlen = (माप_प्रकार)(output - base64data);
 
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
 /*
@@ -263,10 +263,10 @@ static CURLcode base64_encode(const char *table64,
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen)
+CURLcode curlx_base64_encode(स्थिरांक uint8_t *inputbuff, माप_प्रकार insize,
+                             अक्षर **outptr, माप_प्रकार *outlen)
 {
-  return base64_encode(curlx_base64encdec, '=',
+  परत base64_encode(curlx_base64encdec, '=',
                        inputbuff, insize, outptr, outlen);
 }
 
@@ -285,8 +285,8 @@ CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen)
+CURLcode curlx_base64url_encode(स्थिरांक uint8_t *inputbuff, माप_प्रकार insize,
+                                अक्षर **outptr, माप_प्रकार *outlen)
 {
-  return base64_encode(base64url, 0, inputbuff, insize, outptr, outlen);
+  परत base64_encode(base64url, 0, inputbuff, insize, outptr, outlen);
 }

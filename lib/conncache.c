@@ -22,152 +22,152 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "progress.h"
-#include "multiif.h"
-#include "curl_trc.h"
-#include "cshutdn.h"
-#include "conncache.h"
-#include "curl_share.h"
-#include "sigpipe.h"
-#include "uint-spbset.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "url.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "progress.h"
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "cshutdn.h"
+#अन्तर्भाव "conncache.h"
+#अन्तर्भाव "curl_share.h"
+#अन्तर्भाव "sigpipe.h"
+#अन्तर्भाव "uint-spbset.h"
 
 
 #define CPOOL_IS_LOCKED(c)    ((c) && (c)->locked)
 
 #define CPOOL_LOCK(c, d)                                                \
-  do {                                                                  \
-    if(c) {                                                             \
-      if(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
+  करा {                                                                  \
+    जर(c) {                                                             \
+      जर(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
         Curl_share_lock_share((c)->share, (d), CURL_LOCK_DATA_CONNECT,  \
                         CURL_LOCK_ACCESS_SINGLE);                       \
       DEBUGASSERT(!(c)->locked);                                        \
       (c)->locked = TRUE;                                               \
     }                                                                   \
-  } while(0)
+  } पर्यंत(0)
 
 #define CPOOL_UNLOCK(c, d)                                              \
-  do {                                                                  \
-    if(c) {                                                             \
+  करा {                                                                  \
+    जर(c) {                                                             \
       DEBUGASSERT((c)->locked);                                         \
       (c)->locked = FALSE;                                              \
-      if(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
+      जर(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
         Curl_share_unlock_share((c)->share, (d), CURL_LOCK_DATA_CONNECT); \
     }                                                                   \
-  } while(0)
+  } पर्यंत(0)
 
 /* A set of connection pool ids to the same destination. */
-struct cpool_bundle {
-  struct uint32_spbset ids; /* bitset of connection `pool_id`s  */
+संरचना cpool_bundle {
+  संरचना uint32_spbset ids; /* bitset of connection `pool_id`s  */
   uint32_t refcount;
 };
 
-static void cpool_bundle_unlink(struct cpool_bundle **pbundle)
+स्थिर शून्य cpool_bundle_unlink(संरचना cpool_bundle **pbundle)
 {
-  if(*pbundle) {
-    struct cpool_bundle *bundle = *pbundle;
+  जर(*pbundle) {
+    संरचना cpool_bundle *bundle = *pbundle;
 
     DEBUGASSERT(bundle->refcount);
-    *pbundle = NULL;
-    if(bundle->refcount)
+    *pbundle = रिक्त;
+    जर(bundle->refcount)
       bundle->refcount--;
-    if(!bundle->refcount) {
+    जर(!bundle->refcount) {
       Curl_uint32_spbset_destroy(&bundle->ids);
       curlx_free(bundle);
     }
   }
 }
 
-static void cpool_bundle_link(struct cpool_bundle **pdest,
-                              struct cpool_bundle *src)
+स्थिर शून्य cpool_bundle_link(संरचना cpool_bundle **pdest,
+                              संरचना cpool_bundle *src)
 {
-  if(*pdest != src) {
+  जर(*pdest != src) {
     cpool_bundle_unlink(pdest);
     *pdest = src;
-    if(src) {
+    जर(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-static struct cpool_bundle *cpool_create_bundle(void)
+स्थिर संरचना cpool_bundle *cpool_create_bundle(शून्य)
 {
   /* created with refcount == 1 */
-  struct cpool_bundle *bundle = curlx_calloc(1, sizeof(*bundle));
-  if(!bundle)
-    return NULL;
+  संरचना cpool_bundle *bundle = curlx_calloc(1, आकार(*bundle));
+  जर(!bundle)
+    परत रिक्त;
 
   Curl_uint32_spbset_init(&bundle->ids);
   bundle->refcount = 1;
-  return bundle;
+  परत bundle;
 }
 
 /* Add a connection to a bundle */
-static bool cpool_bundle_add_id(struct cpool *cpool,
-                                struct cpool_bundle *bundle,
-                                const char *destination,
+स्थिर bool cpool_bundle_add_id(संरचना cpool *cpool,
+                                संरचना cpool_bundle *bundle,
+                                स्थिरांक अक्षर *destination,
                                 uint32_t pool_id)
 {
-  if(!Curl_uint32_spbset_add(&bundle->ids, pool_id))
-    return FALSE;
-  if(Curl_uint32_spbset_count(&bundle->ids) == 1) {
+  जर(!Curl_uint32_spbset_add(&bundle->ids, pool_id))
+    परत FALSE;
+  जर(Curl_uint32_spbset_मोजणी(&bundle->ids) == 1) {
     /* first one added, register bundle */
-    struct cpool_bundle *new_ref = NULL;
+    संरचना cpool_bundle *new_ref = रिक्त;
     cpool_bundle_link(&new_ref, bundle);
-    if(!Curl_hash_add(&cpool->dest2bundle,
-                      destination, strlen(destination), new_ref)) {
+    जर(!Curl_hash_add(&cpool->dest2bundle,
+                      destination, म_माप(destination), new_ref)) {
       cpool_bundle_unlink(&new_ref);
-      return FALSE;
+      परत FALSE;
     }
   }
-  return TRUE;
+  परत TRUE;
 }
 
 /* Remove a connection from a bundle */
-static void cpool_bundle_remove_id(struct cpool *cpool,
-                                   struct cpool_bundle *bundle,
-                                   const char *destination,
+स्थिर शून्य cpool_bundle_remove_id(संरचना cpool *cpool,
+                                   संरचना cpool_bundle *bundle,
+                                   स्थिरांक अक्षर *destination,
                                    uint32_t pool_id)
 {
   Curl_uint32_spbset_remove(&bundle->ids, pool_id);
-  if(!Curl_uint32_spbset_count(&bundle->ids)) {
+  जर(!Curl_uint32_spbset_मोजणी(&bundle->ids)) {
     /* Now empty, unregister bundle */
-    Curl_hash_delete(&cpool->dest2bundle, destination, strlen(destination));
+    Curl_hash_delete(&cpool->dest2bundle, destination, म_माप(destination));
   }
 }
 
-static void cpool_bundle_hash_dtor(void *entry)
+स्थिर शून्य cpool_bundle_hash_dtor(शून्य *entry)
 {
-  struct cpool_bundle *bundle = entry;
+  संरचना cpool_bundle *bundle = entry;
   cpool_bundle_unlink(&bundle);
 }
 
-static struct cpool_bundle *cpool_get_bundle(struct cpool *cpool,
-                                             const char *destination)
+स्थिर संरचना cpool_bundle *cpool_get_bundle(संरचना cpool *cpool,
+                                             स्थिरांक अक्षर *destination)
 {
-  struct cpool_bundle *bundle = NULL;
+  संरचना cpool_bundle *bundle = रिक्त;
   cpool_bundle_link(&bundle, Curl_hash_pick(
-    &cpool->dest2bundle, destination, strlen(destination)));
-  return bundle;
+    &cpool->dest2bundle, destination, म_माप(destination)));
+  परत bundle;
 }
 
-static void cpool_remove_conn(struct cpool *cpool,
-                              struct connectdata *conn)
+स्थिर शून्य cpool_remove_conn(संरचना cpool *cpool,
+                              संरचना connectdata *conn)
 {
   uint32_t cpid = conn->cpid;
 
   DEBUGASSERT(cpool);
-  if(cpid != UINT32_MAX) {
-    struct cpool_bundle *bundle;
+  जर(cpid != UINT32_MAX) {
+    संरचना cpool_bundle *bundle;
 
 #ifdef DEBUGBUILD
     {
-      struct connectdata *pooled_conn =
+      संरचना connectdata *pooled_conn =
         Curl_uint32_tbl_get(&cpool->conns, cpid);
       DEBUGASSERT(conn == pooled_conn);
     }
@@ -178,18 +178,18 @@ static void cpool_remove_conn(struct cpool *cpool,
 
     bundle = cpool_get_bundle(cpool, conn->destination);
     DEBUGASSERT(bundle);
-    if(bundle)
+    जर(bundle)
       cpool_bundle_remove_id(cpool, bundle, conn->destination, cpid);
     cpool_bundle_unlink(&bundle);
   }
 }
 
-static void cpool_discard_conn(struct cpool *cpool,
-                               struct Curl_easy *data,
-                               struct connectdata *conn,
+स्थिर शून्य cpool_discard_conn(संरचना cpool *cpool,
+                               संरचना Curl_easy *data,
+                               संरचना connectdata *conn,
                                bool aborted)
 {
-  struct Curl_easy *admin;
+  संरचना Curl_easy *admin;
   bool done = FALSE;
 
   DEBUGASSERT(data);
@@ -200,17 +200,17 @@ static void cpool_discard_conn(struct cpool *cpool,
   admin = Curl_get_admin(data);
   /* We MUST NOT discard a connection that is still in use and would
    * trigger Use-After-Free. */
-  if(CONN_INUSE(conn)) {
+  जर(CONN_INUSE(conn)) {
     CURL_TRC_M(admin, "[CPOOL] not discarding #%" FMT_OFF_T
                " still in use by %u transfers", conn->connection_id,
                conn->attached_xfers);
     DEBUGASSERT(0);
-    return;
+    परत;
   }
 
   /* treat the connection as aborted in CONNECT_ONLY situations, we do
    * not know what the APP did with it. */
-  if(conn->bits.connect_only)
+  जर(conn->bits.connect_only)
     aborted = TRUE;
   conn->bits.aborted = aborted;
 
@@ -219,33 +219,33 @@ static void cpool_discard_conn(struct cpool *cpool,
    * If we do a shutdown for an aborted transfer, the server might think
    * it was successful otherwise (for example an ftps: upload). This is
    * not what we want. */
-  if(aborted)
+  जर(aborted)
     done = TRUE;
-  if(!done) {
+  जर(!done) {
     /* Attempt to shutdown the connection right away. */
     Curl_cshutdn_try_once(admin, conn, &done);
   }
 
-  if(done || !data->multi)
+  जर(done || !data->multi)
     Curl_cshutdn_terminate(admin, conn, FALSE);
-  else {
-    struct Curl_multi *multi = data->multi;
-    size_t max_shutdowns = multi->max_total_connections;
-    uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
+  अन्यथा {
+    संरचना Curl_multi *multi = data->multi;
+    माप_प्रकार max_shutdowns = multi->max_total_connections;
+    uint32_t अंक_conns = Curl_uint32_tbl_मोजणी(&cpool->conns);
 
-    if(num_conns < max_shutdowns)
-      max_shutdowns -= num_conns;
-    else if(max_shutdowns)
+    जर(अंक_conns < max_shutdowns)
+      max_shutdowns -= अंक_conns;
+    अन्यथा जर(max_shutdowns)
       max_shutdowns = 1;
-    else /* no connection limit set, let's restrict growth nevertheless */
-      max_shutdowns = CURLMAX(num_conns / 4, 128);
+    अन्यथा /* no connection limit set, let's restrict growth nevertheless */
+      max_shutdowns = CURLMAX(अंक_conns / 4, 128);
     Curl_cshutdn_add(&multi->cshutdn, multi, conn, max_shutdowns);
   }
 }
 
-void Curl_cpool_init(struct cpool *cpool,
-                     struct Curl_share *share,
-                     size_t size)
+शून्य Curl_cpool_init(संरचना cpool *cpool,
+                     संरचना Curl_share *share,
+                     माप_प्रकार size)
 {
   Curl_uint32_tbl_init(&cpool->conns);
   Curl_uint32_bset_init(&cpool->idles);
@@ -257,27 +257,27 @@ void Curl_cpool_init(struct cpool *cpool,
   cpool->locked = FALSE;
 }
 
-void Curl_cpool_destroy(struct cpool *cpool, struct Curl_easy *admin)
+शून्य Curl_cpool_destroy(संरचना cpool *cpool, संरचना Curl_easy *admin)
 {
-  if(cpool && cpool->initialized && admin) {
-    void *entry;
+  जर(cpool && cpool->initialized && admin) {
+    शून्य *entry;
     uint32_t cpid;
 
     CURL_TRC_M(admin, "%s[CPOOL] destroy, %u connections",
                cpool->share ? "[SHARE] " : "",
-               Curl_uint32_tbl_count(&cpool->conns));
+               Curl_uint32_tbl_मोजणी(&cpool->conns));
     /* Move all connections to the shutdown list */
     CPOOL_LOCK(cpool, admin);
-    if(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
-      struct Curl_sigpipe_ctx pipe_ctx;
+    जर(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
+      संरचना Curl_sigpipe_ctx pipe_ctx;
 
       sigpipe_init(&pipe_ctx);
       sigpipe_apply(admin, &pipe_ctx);
-      do {
-        struct connectdata *conn = entry;
+      करा {
+        संरचना connectdata *conn = entry;
         cpool_remove_conn(cpool, conn);
         cpool_discard_conn(cpool, admin, conn, FALSE);
-      } while(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
+      } पर्यंत(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
       sigpipe_restore(&pipe_ctx);
     }
     CPOOL_UNLOCK(cpool, admin);
@@ -287,40 +287,40 @@ void Curl_cpool_destroy(struct cpool *cpool, struct Curl_easy *admin)
   }
 }
 
-static struct cpool *cpool_get_instance(struct Curl_easy *data)
+स्थिर संरचना cpool *cpool_get_instance(संरचना Curl_easy *data)
 {
   /* admin handles do not necessarily find the correct pool */
   DEBUGASSERT(data->mid);
-  if(CURL_SHARE_KEEP_CONNECT(data->share))
-    return &data->share->cpool;
-  else if(data->multi_easy)
-    return &data->multi_easy->cpool;
-  else if(data->multi)
-    return &data->multi->cpool;
-  return NULL;
+  जर(CURL_SHARE_KEEP_CONNECT(data->share))
+    परत &data->share->cpool;
+  अन्यथा जर(data->multi_easy)
+    परत &data->multi_easy->cpool;
+  अन्यथा जर(data->multi)
+    परत &data->multi->cpool;
+  परत रिक्त;
 }
 
-struct cpool *Curl_cpool_get_instance(struct Curl_easy *data)
+संरचना cpool *Curl_cpool_get_instance(संरचना Curl_easy *data)
 {
-  return cpool_get_instance(data);
+  परत cpool_get_instance(data);
 }
 
-void Curl_cpool_xfer_init(struct Curl_easy *data)
+शून्य Curl_cpool_xfer_init(संरचना Curl_easy *data)
 {
-  struct cpool *cpool = cpool_get_instance(data);
+  संरचना cpool *cpool = cpool_get_instance(data);
 
-  if(cpool) {
+  जर(cpool) {
     CPOOL_LOCK(cpool, data);
     /* the identifier inside the connection cache */
     data->id = cpool->next_easy_id++;
-    if(cpool->next_easy_id == CURL_OFF_T_MAX)
+    जर(cpool->next_easy_id == CURL_OFF_T_MAX)
       cpool->next_easy_id = 0;
     data->state.last_conn_id = -1;
     data->state.last_cpid = UINT32_MAX;
 
     CPOOL_UNLOCK(cpool, data);
   }
-  else {
+  अन्यथा {
     /* We should not get here, but in a non-debug build, do something */
     DEBUGASSERT(0);
     data->id = 0;
@@ -329,44 +329,44 @@ void Curl_cpool_xfer_init(struct Curl_easy *data)
   }
 }
 
-static bool cpool_conn_can_be_closed(struct connectdata *conn)
+स्थिर bool cpool_conn_can_be_closed(संरचना connectdata *conn)
 {
   /* CONNECT_ONLY sockets remain in use by the application. */
-  return (conn && !CONN_INUSE(conn) && !conn->bits.connect_only);
+  परत (conn && !CONN_INUSE(conn) && !conn->bits.connect_only);
 }
 
-static struct connectdata *cpool_bundle_get_oldest_idle(
-  struct cpool *cpool,
-  struct cpool_bundle *bundle,
-  const struct curltime *pnow)
+स्थिर संरचना connectdata *cpool_bundle_get_oldest_idle(
+  संरचना cpool *cpool,
+  संरचना cpool_bundle *bundle,
+  स्थिरांक संरचना curltime *pnow)
 {
   uint32_t cpid, oldest_id = UINT32_MAX;
   timediff_t unused_ms;
   timediff_t oldest_ms = -1;
 
-  if(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
-    do {
-      struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-      if(cpool_conn_can_be_closed(conn)) {
+  जर(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
+    करा {
+      संरचना connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+      जर(cpool_conn_can_be_closed(conn)) {
         /* Set higher score for the age passed since the connection was used */
         unused_ms =
           curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-        if(unused_ms > oldest_ms) {
+        जर(unused_ms > oldest_ms) {
           oldest_ms = unused_ms;
           oldest_id = cpid;
         }
       }
-      else if(!conn) {
+      अन्यथा जर(!conn) {
         DEBUGASSERT(0);
         Curl_uint32_spbset_remove(&bundle->ids, cpid);
       }
-    } while(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
+    } पर्यंत(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
   }
-  return Curl_uint32_tbl_get(&cpool->conns, oldest_id);
+  परत Curl_uint32_tbl_get(&cpool->conns, oldest_id);
 }
 
-static struct connectdata *cpool_get_oldest_idle(struct cpool *cpool,
-                                                 const struct curltime *pnow,
+स्थिर संरचना connectdata *cpool_get_oldest_idle(संरचना cpool *cpool,
+                                                 स्थिरांक संरचना curltime *pnow,
                                                  timediff_t min_age_ms)
 {
   uint32_t cpid, oldest_id = UINT32_MAX;
@@ -375,84 +375,84 @@ static struct connectdata *cpool_get_oldest_idle(struct cpool *cpool,
 
   /* Iterate over all connections that once were idle. They may
    * no longer be, in which case we remove them from the set again. */
-  if(Curl_uint32_bset_first(&cpool->idles, &cpid)) {
-    do {
-      struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-      if(cpool_conn_can_be_closed(conn)) {
+  जर(Curl_uint32_bset_first(&cpool->idles, &cpid)) {
+    करा {
+      संरचना connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+      जर(cpool_conn_can_be_closed(conn)) {
         idle_ms = curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-        if((idle_ms >= min_age_ms) && (idle_ms > oldest_idle_ms)) {
+        जर((idle_ms >= min_age_ms) && (idle_ms > oldest_idle_ms)) {
           oldest_idle_ms = idle_ms;
           oldest_id = cpid;
         }
       }
-      else {
+      अन्यथा {
         DEBUGASSERT(conn);
         Curl_uint32_bset_remove(&cpool->idles, cpid);
       }
-    } while(Curl_uint32_bset_next(&cpool->idles, cpid, &cpid));
+    } पर्यंत(Curl_uint32_bset_next(&cpool->idles, cpid, &cpid));
   }
-  return Curl_uint32_tbl_get(&cpool->conns, oldest_id);
+  परत Curl_uint32_tbl_get(&cpool->conns, oldest_id);
 }
 
-static void cpool_conn_close(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             struct connectdata *conn,
+स्थिर शून्य cpool_conn_close(संरचना cpool *cpool,
+                             संरचना Curl_easy *data,
+                             संरचना connectdata *conn,
                              bool aborted)
 {
-  struct Curl_easy *admin;
+  संरचना Curl_easy *admin;
   bool do_lock;
 
   DEBUGASSERT(cpool);
   DEBUGASSERT(data && !data->conn);
-  if(!cpool)
-    return;
+  जर(!cpool)
+    परत;
 
   /* If this connection is not marked to force-close, leave it open if there
    * are other users of it */
-  if(CONN_INUSE(conn) && !aborted) {
+  जर(CONN_INUSE(conn) && !aborted) {
     DEBUGASSERT(0); /* does this ever happen? */
     DEBUGF(infof(data, "conn terminate when inuse: %u", conn->attached_xfers));
-    return;
+    परत;
   }
 
   /* This method may be called while we are under lock, e.g. from a
    * user callback in find. */
   admin = Curl_get_admin(data);
   do_lock = !CPOOL_IS_LOCKED(cpool);
-  if(do_lock)
+  जर(do_lock)
     CPOOL_LOCK(cpool, admin);
 
-  if(conn->cpid != UINT32_MAX) {
+  जर(conn->cpid != UINT32_MAX) {
     cpool_remove_conn(cpool, conn);
     DEBUGASSERT(conn->cpid == UINT32_MAX);
   }
 
   /* treat the connection as aborted in CONNECT_ONLY situations,
    * so no graceful shutdown is attempted. */
-  if(conn->bits.connect_only)
+  जर(conn->bits.connect_only)
     aborted = TRUE;
 
-  if(data->multi) {
+  जर(data->multi) {
     /* Add it to the multi's cpool for shutdown handling */
     infof(data, "%s connection #%" FMT_OFF_T,
           aborted ? "closing" : "shutting down", conn->connection_id);
     cpool_discard_conn(&data->multi->cpool, data, conn, aborted);
   }
-  else {
+  अन्यथा {
     /* No multi available, terminate */
     infof(data, "closing connection #%" FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, !aborted);
   }
 
-  if(do_lock)
+  जर(do_lock)
     CPOOL_UNLOCK(cpool, admin);
 }
 
-void Curl_conn_close(struct Curl_easy *data,
-                     struct connectdata *conn,
+शून्य Curl_conn_close(संरचना Curl_easy *data,
+                     संरचना connectdata *conn,
                      bool aborted)
 {
-  struct cpool *cpool = cpool_get_instance(data);
+  संरचना cpool *cpool = cpool_get_instance(data);
   cpool_conn_close(cpool, data, conn, aborted);
 }
 
@@ -460,15 +460,15 @@ void Curl_conn_close(struct Curl_easy *data,
  * a share has no multi that could perform a controlled shutdown of the
  * connection; terminate it right away. Otherwise, hand it to the
  * transfer's multi for shutdown. Expects the pool to be locked. */
-static void cpool_evict_conn(struct cpool *cpool,
-                             struct Curl_easy *admin,
-                             struct connectdata *conn)
+स्थिर शून्य cpool_evict_conn(संरचना cpool *cpool,
+                             संरचना Curl_easy *admin,
+                             संरचना connectdata *conn)
 {
-  if(cpool->share) {
+  जर(cpool->share) {
     cpool_remove_conn(cpool, conn);
     Curl_cshutdn_terminate(admin, conn, TRUE);
   }
-  else
+  अन्यथा
     cpool_conn_close(cpool, admin, conn, FALSE);
 }
 
@@ -476,38 +476,38 @@ static void cpool_evict_conn(struct cpool *cpool,
 #define CPOOL_LIMIT_DEST   1
 #define CPOOL_LIMIT_TOTAL  2
 
-static int cpool_check_limits(struct Curl_easy *data,
+स्थिर पूर्णांक cpool_check_limits(संरचना Curl_easy *data,
                               uint32_t max_total,
-                              struct connectdata *to_add,
+                              संरचना connectdata *to_add,
                               uint32_t max_host,
-                              struct cpool_bundle *bundle,
-                              const struct curltime *pnow)
+                              संरचना cpool_bundle *bundle,
+                              स्थिरांक संरचना curltime *pnow)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct cshutdn *cshutdn = data->multi ? &data->multi->cshutdn : NULL;
-  struct Curl_easy *admin = NULL;
+  संरचना cpool *cpool = cpool_get_instance(data);
+  संरचना cshutdn *cshutdn = data->multi ? &data->multi->cshutdn : रिक्त;
+  संरचना Curl_easy *admin = रिक्त;
 
-  if(!cpool)
-    return CPOOL_LIMIT_OK;
+  जर(!cpool)
+    परत CPOOL_LIMIT_OK;
 
-  if(!max_total && !max_host)
-    return CPOOL_LIMIT_OK;
+  जर(!max_total && !max_host)
+    परत CPOOL_LIMIT_OK;
 
-  if(max_host) {
-    size_t live = 0, shutdowns = 0;
+  जर(max_host) {
+    माप_प्रकार live = 0, shutdowns = 0;
     /* if we are at or above `dest_limit`, try to get rid of connections
      * in shutdown and, if that does not lower it, evict idle connections
      * from the pool. */
     admin = Curl_get_admin(data);
-    if(bundle) {
-      live = Curl_uint32_spbset_count(&bundle->ids);
-      if(live >= max_host) {
-        size_t over = live - max_host + 1;
-        for(; over; --over) {
-          struct connectdata *oldest_idle =
+    जर(bundle) {
+      live = Curl_uint32_spbset_मोजणी(&bundle->ids);
+      जर(live >= max_host) {
+        माप_प्रकार over = live - max_host + 1;
+        साठी(; over; --over) {
+          संरचना connectdata *oldest_idle =
             cpool_bundle_get_oldest_idle(cpool, bundle, pnow);
-          if(!oldest_idle)
-            break;
+          जर(!oldest_idle)
+            थांबा;
           /* disconnect the old conn and continue */
           CURL_TRC_M(admin, "Shutting down connection #%" FMT_OFF_T
                      " to '%s' due to destination limit of %u",
@@ -515,36 +515,36 @@ static int cpool_check_limits(struct Curl_easy *data,
                      max_host);
           cpool_evict_conn(cpool, admin, oldest_idle);
         }
-        live = Curl_uint32_spbset_count(&bundle->ids);
+        live = Curl_uint32_spbset_मोजणी(&bundle->ids);
       }
     }
-    if(cshutdn) {
-      shutdowns = Curl_cshutdn_dest_count(cshutdn, to_add->destination);
-      if(shutdowns && ((live + shutdowns) >= max_host)) {
-        size_t over = live + shutdowns - max_host + 1;
+    जर(cshutdn) {
+      shutdowns = Curl_cshutdn_dest_मोजणी(cshutdn, to_add->destination);
+      जर(shutdowns && ((live + shutdowns) >= max_host)) {
+        माप_प्रकार over = live + shutdowns - max_host + 1;
         shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin,
                                                to_add->destination, over);
       }
     }
     /* We may not have gotten rid of as many connections as we wanted to */
-    if((live + shutdowns) >= max_host)
-      return CPOOL_LIMIT_DEST;
+    जर((live + shutdowns) >= max_host)
+      परत CPOOL_LIMIT_DEST;
   }
 
   /* Internal transfers are outside the total limit */
-  if(max_total && !data->state.internal) {
-    size_t shutdowns = 0;
-    uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
+  जर(max_total && !data->state.internal) {
+    माप_प्रकार shutdowns = 0;
+    uint32_t अंक_conns = Curl_uint32_tbl_मोजणी(&cpool->conns);
 
-    if(!admin)
+    जर(!admin)
       admin = Curl_get_admin(data);
-    if(num_conns >= max_total) {
-      size_t over = num_conns - max_total + 1;
-      for(; over; --over) {
-        struct connectdata *oldest_idle =
+    जर(अंक_conns >= max_total) {
+      माप_प्रकार over = अंक_conns - max_total + 1;
+      साठी(; over; --over) {
+        संरचना connectdata *oldest_idle =
           cpool_get_oldest_idle(cpool, pnow, 0);
-        if(!oldest_idle)
-          break;
+        जर(!oldest_idle)
+          थांबा;
         /* disconnect the old conn and continue */
         CURL_TRC_M(admin, "Shutting down idle connection #%"
                    FMT_OFF_T " to '%s' due to total limit of %u",
@@ -554,36 +554,36 @@ static int cpool_check_limits(struct Curl_easy *data,
       }
     }
 
-    num_conns = Curl_uint32_tbl_count(&cpool->conns);
-    if(cshutdn) {
-      shutdowns = Curl_cshutdn_count(cshutdn);
-      if(shutdowns && (num_conns + shutdowns) >= max_total) {
-        size_t over = num_conns + shutdowns - max_total + 1;
-        shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin, NULL, over);
+    अंक_conns = Curl_uint32_tbl_मोजणी(&cpool->conns);
+    जर(cshutdn) {
+      shutdowns = Curl_cshutdn_मोजणी(cshutdn);
+      जर(shutdowns && (अंक_conns + shutdowns) >= max_total) {
+        माप_प्रकार over = अंक_conns + shutdowns - max_total + 1;
+        shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin, रिक्त, over);
       }
     }
-    if((num_conns + shutdowns) >= max_total)
-      return CPOOL_LIMIT_TOTAL;
+    जर((अंक_conns + shutdowns) >= max_total)
+      परत CPOOL_LIMIT_TOTAL;
   }
 
-  return CPOOL_LIMIT_OK;
+  परत CPOOL_LIMIT_OK;
 }
 
-CURLcode Curl_cpool_add(struct Curl_easy *data,
-                        struct connectdata *conn,
+CURLcode Curl_cpool_add(संरचना Curl_easy *data,
+                        संरचना connectdata *conn,
                         uint32_t max_total,
                         uint32_t max_host,
-                        const struct curltime *pnow)
+                        स्थिरांक संरचना curltime *pnow)
 {
   CURLcode result = CURLE_OK;
-  struct cpool_bundle *bundle = NULL;
-  struct cpool *cpool = cpool_get_instance(data);
+  संरचना cpool_bundle *bundle = रिक्त;
+  संरचना cpool *cpool = cpool_get_instance(data);
   uint32_t capacity, cpid;
   DEBUGASSERT(conn);
 
   DEBUGASSERT(cpool);
-  if(!cpool)
-    return CURLE_FAILED_INIT;
+  जर(!cpool)
+    परत CURLE_FAILED_INIT;
 
   DEBUGASSERT(conn->cpid == UINT32_MAX);
   conn->created = *pnow;
@@ -594,75 +594,75 @@ CURLcode Curl_cpool_add(struct Curl_easy *data,
   /* Find the bundle, should it exist, and check the limits */
   bundle = cpool_get_bundle(cpool, conn->destination);
 
-  switch(cpool_check_limits(data, max_total, conn, max_host, bundle, pnow)) {
-  case CPOOL_LIMIT_DEST:
+  निवड(cpool_check_limits(data, max_total, conn, max_host, bundle, pnow)) {
+  स्थिती CPOOL_LIMIT_DEST:
     infof(data, "No more connections allowed to host");
     result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
-  case CPOOL_LIMIT_TOTAL:
+    जा out;
+  स्थिती CPOOL_LIMIT_TOTAL:
     infof(data, "No connections available, total of %u reached.",
           data->multi->max_total_connections);
     result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
-  default:
-    break;
+    जा out;
+  पूर्वनिर्धारित:
+    थांबा;
   }
 
   /* We add the connection */
   capacity = Curl_uint32_tbl_capacity(&cpool->conns);
-  if(capacity == UINT32_MAX) {
+  जर(capacity == UINT32_MAX) {
     infof(data, "No connections available, pool at max capacity");
     result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
+    जा out;
   }
-  if(Curl_uint32_tbl_count(&cpool->conns) >= capacity) {
+  जर(Curl_uint32_tbl_मोजणी(&cpool->conns) >= capacity) {
     uint32_t growth, ncapacity;
 
     growth = CURLMAX(capacity, 16);
-    if((UINT32_MAX - growth) >= capacity)
+    जर((UINT32_MAX - growth) >= capacity)
       ncapacity = capacity + growth;
-    else
+    अन्यथा
       ncapacity = UINT32_MAX;
     /* Grow bitset first, so table resize failure does not leave a too
      * short bitset should that one fail. */
-    if(Curl_uint32_bset_resize(&cpool->idles, ncapacity) ||
+    जर(Curl_uint32_bset_resize(&cpool->idles, ncapacity) ||
        Curl_uint32_tbl_resize(&cpool->conns, ncapacity)) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      जा out;
     }
   }
 
-  if(!bundle) {
+  जर(!bundle) {
     bundle = cpool_create_bundle();
-    if(!bundle) {
+    जर(!bundle) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      जा out;
     }
   }
 
-  if(!Curl_uint32_tbl_add(&cpool->conns, conn, &cpid)) {
+  जर(!Curl_uint32_tbl_add(&cpool->conns, conn, &cpid)) {
     DEBUGASSERT(0);
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    जा out;
   }
   conn->cpid = cpid;
 
-  if(!cpool_bundle_add_id(cpool, bundle, conn->destination, cpid)) {
+  जर(!cpool_bundle_add_id(cpool, bundle, conn->destination, cpid)) {
     Curl_uint32_tbl_remove(&cpool->conns, cpid);
     conn->cpid = UINT32_MAX;
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    जा out;
   }
 
   conn->connection_id = cpool->next_connection_id++;
   CURL_TRC_M(data, "[CPOOL] added connection %" FMT_OFF_T ". "
              "The cache now contains %u members",
-             conn->connection_id, Curl_uint32_tbl_count(&cpool->conns));
+             conn->connection_id, Curl_uint32_tbl_मोजणी(&cpool->conns));
 out:
   cpool_bundle_unlink(&bundle);
   CPOOL_UNLOCK(cpool, data);
 
-  return result;
+  परत result;
 }
 
 /* This function iterates the entire connection pool and calls the function
@@ -677,27 +677,27 @@ out:
 
    Return 0 from func() to continue the loop, return 1 to abort it.
  */
-static bool cpool_foreach(struct Curl_easy *data,
-                          struct cpool *cpool,
-                          void *param,
-                          int (*func)(struct cpool *cpool,
-                                      struct Curl_easy *data,
-                                      struct connectdata *conn, void *param))
+स्थिर bool cpool_foreach(संरचना Curl_easy *data,
+                          संरचना cpool *cpool,
+                          शून्य *param,
+                          पूर्णांक (*func)(संरचना cpool *cpool,
+                                      संरचना Curl_easy *data,
+                                      संरचना connectdata *conn, शून्य *param))
 {
-  void *entry;
+  शून्य *entry;
   uint32_t cpid;
 
-  if(!cpool)
-    return FALSE;
+  जर(!cpool)
+    परत FALSE;
 
-  if(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
-    do {
-      struct connectdata *conn = entry;
-      if(conn && func(cpool, data, conn, param) == 1)
-        return TRUE;
-    } while(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
+  जर(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
+    करा {
+      संरचना connectdata *conn = entry;
+      जर(conn && func(cpool, data, conn, param) == 1)
+        परत TRUE;
+    } पर्यंत(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
   }
-  return FALSE;
+  परत FALSE;
 }
 
 /*
@@ -706,23 +706,23 @@ static bool cpool_foreach(struct Curl_easy *data,
  *
  * Return TRUE if idle connection kept in pool, FALSE if closed.
  */
-static bool cpool_conn_now_idle(struct cpool *cpool,
-                                struct Curl_easy *data,
-                                struct connectdata *conn,
-                                const struct curltime *pnow)
+स्थिर bool cpool_conn_now_idle(संरचना cpool *cpool,
+                                संरचना Curl_easy *data,
+                                संरचना connectdata *conn,
+                                स्थिरांक संरचना curltime *pnow)
 {
-  struct connectdata *oldest_idle = NULL;
-  struct Curl_easy *admin;
+  संरचना connectdata *oldest_idle = रिक्त;
+  संरचना Curl_easy *admin;
   uint32_t maxconnects;
   bool kept = TRUE;
   timediff_t min_age_ms = 0;
 
-  if(!data || !data->multi)
-    return kept;
+  जर(!data || !data->multi)
+    परत kept;
 
   Curl_uint32_bset_add(&cpool->idles, conn->cpid);
 
-  if(!data->multi->maxconnects) {
+  जर(!data->multi->maxconnects) {
     /* Attached transfers is a weak indicator of business. */
     uint32_t attached = Curl_multi_xfers_attached(data->multi);
     maxconnects = (attached <= UINT32_MAX / 2) ? attached * 2 : UINT32_MAX;
@@ -730,85 +730,85 @@ static bool cpool_conn_now_idle(struct cpool *cpool,
      * when has not been used for this long, */
     min_age_ms = 1000;
   }
-  else {
+  अन्यथा {
     maxconnects = data->multi->maxconnects;
   }
 
-  if(cpool && maxconnects && (maxconnects < UINT32_MAX)) {
-    uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
+  जर(cpool && maxconnects && (maxconnects < UINT32_MAX)) {
+    uint32_t अंक_conns = Curl_uint32_tbl_मोजणी(&cpool->conns);
     admin = Curl_get_admin(data);
-    if(num_conns > maxconnects) {
+    जर(अंक_conns > maxconnects) {
       infof(data, "Connection pool is full, closing the oldest of %u/%u",
-            num_conns, maxconnects);
+            अंक_conns, maxconnects);
       oldest_idle = cpool_get_oldest_idle(cpool, pnow, min_age_ms);
       kept = (oldest_idle != conn);
-      if(oldest_idle) {
+      जर(oldest_idle) {
         cpool_evict_conn(cpool, admin, oldest_idle);
       }
     }
   }
 
-  return kept;
+  परत kept;
 }
 
-static void cpool_prune_dead(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             const struct curltime *pnow);
+स्थिर शून्य cpool_prune_dead(संरचना cpool *cpool,
+                             संरचना Curl_easy *data,
+                             स्थिरांक संरचना curltime *pnow);
 
-static bool cpool_find_act(struct cpool *cpool,
-                           struct Curl_easy *data,
-                           struct connectdata *conn,
+स्थिर bool cpool_find_act(संरचना cpool *cpool,
+                           संरचना Curl_easy *data,
+                           संरचना connectdata *conn,
                            cpool_match_result match)
 {
-  switch(match) {
-  case CPOOL_MATCH_FOUND:
-    return TRUE;
-  case CPOOL_MATCH_TOO_OLD:
-    if(!cpool_conn_can_be_closed(conn))
-      return FALSE;
+  निवड(match) {
+  स्थिती CPOOL_MATCH_FOUND:
+    परत TRUE;
+  स्थिती CPOOL_MATCH_TOO_OLD:
+    जर(!cpool_conn_can_be_closed(conn))
+      परत FALSE;
     FALLTHROUGH();
-  case CPOOL_MATCH_CLOSE:
+  स्थिती CPOOL_MATCH_CLOSE:
     cpool_conn_close(cpool, data, conn, FALSE);
-    break;
-  default:
-    break;
+    थांबा;
+  पूर्वनिर्धारित:
+    थांबा;
   }
-  return FALSE;
+  परत FALSE;
 }
 
-bool Curl_cpool_find(struct Curl_easy *data,
-                     const char *destination,
+bool Curl_cpool_find(संरचना Curl_easy *data,
+                     स्थिरांक अक्षर *destination,
                      bool prune_dead,
-                     const struct curltime *pnow,
+                     स्थिरांक संरचना curltime *pnow,
                      Curl_cpool_conn_match_cb *conn_cb,
                      Curl_cpool_done_match_cb *done_cb,
-                     void *userdata)
+                     शून्य *userdata)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct cpool_bundle *bundle = NULL;
+  संरचना cpool *cpool = cpool_get_instance(data);
+  संरचना cpool_bundle *bundle = रिक्त;
   bool found = FALSE;
 
   DEBUGASSERT(cpool);
   DEBUGASSERT(conn_cb);
-  if(!cpool)
-    return FALSE;
+  जर(!cpool)
+    परत FALSE;
 
   CPOOL_LOCK(cpool, data);
 
-  if(prune_dead)
+  जर(prune_dead)
     cpool_prune_dead(cpool, data, pnow);
 
-  if(data->state.last_cpid != UINT32_MAX) {
-    struct connectdata *conn =
+  जर(data->state.last_cpid != UINT32_MAX) {
+    संरचना connectdata *conn =
       Curl_uint32_tbl_get(&cpool->conns, data->state.last_cpid);
-    if(conn && (data->state.last_conn_id == conn->connection_id)) {
+    जर(conn && (data->state.last_conn_id == conn->connection_id)) {
       /* Indeed the last connection used by `data` still exists.
        * Check that first, so that connection use gets "sticky". */
       found = cpool_find_act(cpool, data, conn, conn_cb(conn, userdata));
-      if(found)
-        goto out;
+      जर(found)
+        जा out;
     }
-    else {
+    अन्यथा {
       /* No longer found here. */
       data->state.last_conn_id = -1;
       data->state.last_cpid = UINT32_MAX;
@@ -816,55 +816,55 @@ bool Curl_cpool_find(struct Curl_easy *data,
   }
 
   bundle = cpool_get_bundle(cpool, destination);
-  if(bundle) {
+  जर(bundle) {
     uint32_t cpid;
-    if(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
-      do {
-        struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-        if(conn) {
-          if(data->state.last_conn_id != conn->connection_id) {
+    जर(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
+      करा {
+        संरचना connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+        जर(conn) {
+          जर(data->state.last_conn_id != conn->connection_id) {
             found = cpool_find_act(cpool, data, conn, conn_cb(conn, userdata));
-            if(found)
-              goto out;
+            जर(found)
+              जा out;
           }
         }
-        else {
+        अन्यथा {
           DEBUGASSERT(0);
           Curl_uint32_spbset_remove(&bundle->ids, cpid);
         }
-      } while(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
+      } पर्यंत(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
     }
   }
 
 out:
-  if(done_cb) {
+  जर(done_cb) {
     found = done_cb(userdata);
   }
   cpool_bundle_unlink(&bundle);
   CPOOL_UNLOCK(cpool, data);
-  return found;
+  परत found;
 }
 
-struct cpool_reaper_ctx {
-  size_t reaped;
-  const struct curltime *pnow;
+संरचना cpool_reaper_ctx {
+  माप_प्रकार reaped;
+  स्थिरांक संरचना curltime *pnow;
 };
 
-static int cpool_reap_dead_cb(struct cpool *cpool,
-                              struct Curl_easy *admin,
-                              struct connectdata *conn, void *param)
+स्थिर पूर्णांक cpool_reap_dead_cb(संरचना cpool *cpool,
+                              संरचना Curl_easy *admin,
+                              संरचना connectdata *conn, शून्य *param)
 {
-  struct cpool_reaper_ctx *reaper = param;
+  संरचना cpool_reaper_ctx *reaper = param;
 
-  if(cpool_conn_can_be_closed(conn)) {
-    if(conn->bits.no_reuse || conn->bits.close ||
+  जर(cpool_conn_can_be_closed(conn)) {
+    जर(conn->bits.no_reuse || conn->bits.बंद ||
        !Curl_cpool_conn_seems_healthy(conn, admin, reaper->pnow)) {
       /* terminate conn and stop the iteration */
       reaper->reaped++;
       cpool_conn_close(cpool, admin, conn, FALSE);
     }
   }
-  return 0; /* continue iteration */
+  परत 0; /* continue iteration */
 }
 
 /*
@@ -872,32 +872,32 @@ static int cpool_reap_dead_cb(struct cpool *cpool,
  * connections, closes and removes them.
  * The cleanup is done at most once per second.
  */
-static void cpool_prune_dead(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             const struct curltime *pnow)
+स्थिर शून्य cpool_prune_dead(संरचना cpool *cpool,
+                             संरचना Curl_easy *data,
+                             स्थिरांक संरचना curltime *pnow)
 {
   timediff_t elapsed_ms = curlx_ptimediff_ms(pnow, &cpool->last_cleanup);
 
-  if(elapsed_ms >= 1000L) {
-    struct Curl_easy *admin = Curl_get_admin(data);
-    struct cpool_reaper_ctx reaper;
+  जर(elapsed_ms >= 1000L) {
+    संरचना Curl_easy *admin = Curl_get_admin(data);
+    संरचना cpool_reaper_ctx reaper;
 
-    memset(&reaper, 0, sizeof(reaper));
+    स_रखो(&reaper, 0, आकार(reaper));
     reaper.pnow = pnow;
     cpool_foreach(admin, cpool, &reaper, cpool_reap_dead_cb);
     cpool->last_cleanup = *pnow;
   }
 }
 
-static int conn_upkeep(struct cpool *cpool,
-                       struct Curl_easy *admin,
-                       struct connectdata *conn,
-                       void *param)
+स्थिर पूर्णांक conn_upkeep(संरचना cpool *cpool,
+                       संरचना Curl_easy *admin,
+                       संरचना connectdata *conn,
+                       शून्य *param)
 {
-  const struct curltime *pnow = Curl_pgrs_now(admin);
+  स्थिरांक संरचना curltime *pnow = Curl_pgrs_now(admin);
 
-  (void)param;
-  if((curlx_ptimediff_ms(pnow, &conn->created) - conn->lastupkeep_ms) >=
+  (शून्य)param;
+  जर((curlx_ptimediff_ms(pnow, &conn->created) - conn->lastupkeep_ms) >=
      admin->set.upkeep_interval_ms) {
     CURLcode result;
 
@@ -907,50 +907,50 @@ static int conn_upkeep(struct cpool *cpool,
     result = Curl_conn_keep_alive(admin, conn);
     Curl_detach_connection(admin);
 
-    if(result && cpool_conn_can_be_closed(conn)) {
+    जर(result && cpool_conn_can_be_closed(conn)) {
       cpool_conn_close(cpool, admin, conn, FALSE);
     }
   }
-  return 0; /* continue iteration */
+  परत 0; /* continue iteration */
 }
 
-CURLcode Curl_cpool_upkeep(struct Curl_easy *data)
+CURLcode Curl_cpool_upkeep(संरचना Curl_easy *data)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct Curl_easy *admin = Curl_get_admin(data);
+  संरचना cpool *cpool = cpool_get_instance(data);
+  संरचना Curl_easy *admin = Curl_get_admin(data);
 
-  if(!cpool)
-    return CURLE_OK;
+  जर(!cpool)
+    परत CURLE_OK;
 
   CPOOL_LOCK(cpool, admin);
-  cpool_foreach(admin, cpool, NULL, conn_upkeep);
+  cpool_foreach(admin, cpool, रिक्त, conn_upkeep);
   CPOOL_UNLOCK(cpool, admin);
-  return CURLE_OK;
+  परत CURLE_OK;
 }
 
-struct connectdata *Curl_cpool_get_last_conn(struct Curl_easy *data)
+संरचना connectdata *Curl_cpool_get_last_conn(संरचना Curl_easy *data)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  if(cpool && (data->state.last_cpid != UINT32_MAX)) {
-    struct connectdata *conn;
+  संरचना cpool *cpool = cpool_get_instance(data);
+  जर(cpool && (data->state.last_cpid != UINT32_MAX)) {
+    संरचना connectdata *conn;
 
     CPOOL_LOCK(cpool, data);
     conn = Curl_uint32_tbl_get(&cpool->conns, data->state.last_cpid);
     CPOOL_UNLOCK(cpool, data);
-    if(conn && (data->state.last_conn_id == conn->connection_id))
-      return conn;
+    जर(conn && (data->state.last_conn_id == conn->connection_id))
+      परत conn;
     data->state.last_cpid = UINT32_MAX;
     data->state.last_conn_id = -1;
   }
-  return NULL;
+  परत रिक्त;
 }
 
-void Curl_cpool_return(struct Curl_easy *data,
-                       struct connectdata *conn,
-                       Curl_cpool_return_cb *cb, void *cbdata,
-                       const struct curltime *pnow)
+शून्य Curl_cpool_return(संरचना Curl_easy *data,
+                       संरचना connectdata *conn,
+                       Curl_cpool_return_cb *cb, शून्य *cbdata,
+                       स्थिरांक संरचना curltime *pnow)
 {
-  struct cpool *cpool = cpool_get_instance(data);
+  संरचना cpool *cpool = cpool_get_instance(data);
 
   CPOOL_LOCK(cpool, data);
 
@@ -958,49 +958,49 @@ void Curl_cpool_return(struct Curl_easy *data,
   conn->lastchecked_ms = conn->lastupkeep_ms = conn->lastused_ms =
     curlx_ptimediff_ms(pnow, &conn->created);
 
-  switch(cb(data, conn, cbdata, pnow)) {
-  case CPOOL_DO_KEEP:
-    break;
-  case CPOOL_DO_IDLE:
+  निवड(cb(data, conn, cbdata, pnow)) {
+  स्थिती CPOOL_DO_KEEP:
+    थांबा;
+  स्थिती CPOOL_DO_IDLE:
     /* the connection is no longer in use by any transfer */
-    if(cpool_conn_now_idle(cpool, data, conn, pnow)) {
+    जर(cpool_conn_now_idle(cpool, data, conn, pnow)) {
       /* connection kept in the cpool */
       infof(data, "Connection #%" FMT_OFF_T " to host %s:%u left intact",
             conn->connection_id, conn->origin->user_hostname,
             conn->origin->port);
     }
-    else { /* connection was removed from the cpool and destroyed. */
+    अन्यथा { /* connection was removed from the cpool and destroyed. */
       data->state.last_conn_id = -1;
       data->state.last_cpid = UINT32_MAX;
     }
-    break;
-  case CPOOL_DO_CLOSE:
+    थांबा;
+  स्थिती CPOOL_DO_CLOSE:
     Curl_conn_close(data, conn, FALSE);
-    break;
-  case CPOOL_DO_TERMINATE:
+    थांबा;
+  स्थिती CPOOL_DO_TERMINATE:
     Curl_conn_close(data, conn, TRUE);
-    break;
+    थांबा;
   }
 
   CPOOL_UNLOCK(cpool, data);
 }
 
-static int cpool_reap_no_reuse(struct cpool *cpool,
-                               struct Curl_easy *admin,
-                               struct connectdata *conn, void *param)
+स्थिर पूर्णांक cpool_reap_no_reuse(संरचना cpool *cpool,
+                               संरचना Curl_easy *admin,
+                               संरचना connectdata *conn, शून्य *param)
 {
-  (void)param;
+  (शून्य)param;
   conn->bits.no_reuse = TRUE;
-  if(cpool_conn_can_be_closed(conn))
+  जर(cpool_conn_can_be_closed(conn))
     cpool_conn_close(cpool, admin, conn, FALSE);
-  return 0; /* continue iteration */
+  परत 0; /* continue iteration */
 }
 
-void Curl_cpool_nw_changed(struct cpool *cpool, struct Curl_easy *admin)
+शून्य Curl_cpool_nw_changed(संरचना cpool *cpool, संरचना Curl_easy *admin)
 {
-  if(cpool && admin) {
+  जर(cpool && admin) {
     CPOOL_LOCK(cpool, admin);
-    cpool_foreach(admin, cpool, NULL, cpool_reap_no_reuse);
+    cpool_foreach(admin, cpool, रिक्त, cpool_reap_no_reuse);
     CPOOL_UNLOCK(cpool, admin);
   }
 }
@@ -1008,71 +1008,71 @@ void Curl_cpool_nw_changed(struct cpool *cpool, struct Curl_easy *admin)
 /* A connection has to have been idle for less than 'conn_max_idle_ms'
    (the success rate is too low after this), or created less than
    'conn_max_age_ms' ago, to be subject for reuse. */
-static bool cpool_conn_too_old(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const struct curltime *pnow)
+स्थिर bool cpool_conn_too_old(संरचना Curl_easy *data,
+                               संरचना connectdata *conn,
+                               स्थिरांक संरचना curltime *pnow)
 {
   timediff_t age_ms;
 
-  if(data->set.conn_max_idle_ms) {
+  जर(data->set.conn_max_idle_ms) {
     age_ms = curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-    if(age_ms > data->set.conn_max_idle_ms) {
+    जर(age_ms > data->set.conn_max_idle_ms) {
       infof(data, "Too old connection (%" FMT_TIMEDIFF_T
             " ms idle, max idle is %" FMT_TIMEDIFF_T " ms), disconnect it",
             age_ms, data->set.conn_max_idle_ms);
-      return TRUE;
+      परत TRUE;
     }
   }
 
-  if(data->set.conn_max_age_ms) {
+  जर(data->set.conn_max_age_ms) {
     age_ms = curlx_ptimediff_ms(pnow, &conn->created);
-    if(age_ms > data->set.conn_max_age_ms) {
+    जर(age_ms > data->set.conn_max_age_ms) {
       infof(data,
             "Too old connection (created %" FMT_TIMEDIFF_T
             " ms ago, max lifetime is %" FMT_TIMEDIFF_T " ms), disconnect it",
             age_ms, data->set.conn_max_age_ms);
-      return TRUE;
+      परत TRUE;
     }
   }
 
-  return FALSE;
+  परत FALSE;
 }
 
-bool Curl_cpool_conn_seems_healthy(struct connectdata *conn,
-                                   struct Curl_easy *data,
-                                   const struct curltime *pnow)
+bool Curl_cpool_conn_seems_healthy(संरचना connectdata *conn,
+                                   संरचना Curl_easy *data,
+                                   स्थिरांक संरचना curltime *pnow)
 {
-  struct Curl_easy *admin;
+  संरचना Curl_easy *admin;
   bool healthy = TRUE;
-  bool poll_input;
+  bool poll_आदान;
 
   DEBUGASSERT(!data->conn);
-  if(cpool_conn_can_be_closed(conn) && cpool_conn_too_old(data, conn, pnow))
-    return FALSE;
+  जर(cpool_conn_can_be_closed(conn) && cpool_conn_too_old(data, conn, pnow))
+    परत FALSE;
 
   /* An idle, non-multiplexed connection must not be reused when it has
    * input pending (RFC 9112, section 9.2), so that is polled on every
    * reuse. The once a second limit only applies to the other checks. */
-  poll_input = cpool_conn_can_be_closed(conn) &&
+  poll_आदान = cpool_conn_can_be_closed(conn) &&
     !Curl_conn_is_multiplex(conn, FIRSTSOCKET) &&
     !conn->scheme->run->connection_is_dead;
-  if(!poll_input &&
+  जर(!poll_आदान &&
      (curlx_ptimediff_ms(pnow, &conn->created) - conn->lastchecked_ms) < 1000)
-    return TRUE;
+    परत TRUE;
 
   admin = Curl_get_admin(data);
-  if(conn->scheme->run->connection_is_dead) {
+  जर(conn->scheme->run->connection_is_dead) {
     Curl_attach_connection(admin, conn, FALSE);
     healthy = !conn->scheme->run->connection_is_dead(admin, conn);
     Curl_detach_connection(admin);
   }
-  else {
-    bool input_pending = FALSE;
+  अन्यथा {
+    bool आदान_pending = FALSE;
 
     Curl_attach_connection(admin, conn, FALSE);
-    healthy = Curl_conn_is_alive(admin, conn, &input_pending);
+    healthy = Curl_conn_is_alive(admin, conn, &आदान_pending);
     Curl_detach_connection(admin);
-    if(healthy && input_pending && poll_input) {
+    जर(healthy && आदान_pending && poll_आदान) {
       /* Non-multiplexed connections without attached transfers should
        * not have input pending. The input might be a TLS Notify Close,
        * for all we know. */
@@ -1081,23 +1081,23 @@ bool Curl_cpool_conn_seems_healthy(struct connectdata *conn,
     }
   }
 
-  if(healthy)
+  जर(healthy)
     conn->lastchecked_ms = curlx_ptimediff_ms(pnow, &conn->created);
-  return healthy;
+  परत healthy;
 }
 
-void Curl_cpool_conn_was_used(struct Curl_easy *data,
-                              struct connectdata *conn,
-                              const struct curltime *pnow)
+शून्य Curl_cpool_conn_was_used(संरचना Curl_easy *data,
+                              संरचना connectdata *conn,
+                              स्थिरांक संरचना curltime *pnow)
 {
-  (void)data;
+  (शून्य)data;
   conn->lastupkeep_ms = curlx_ptimediff_ms(pnow, &conn->created);
 }
 
-timediff_t Curl_cpool_conn_age_ms(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  const struct curltime *pnow)
+timediff_t Curl_cpool_conn_age_ms(संरचना Curl_easy *data,
+                                  संरचना connectdata *conn,
+                                  स्थिरांक संरचना curltime *pnow)
 {
-  (void)data;
-  return curlx_ptimediff_ms(pnow, &conn->created);
+  (शून्य)data;
+  परत curlx_ptimediff_ms(pnow, &conn->created);
 }

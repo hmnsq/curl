@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_TFTP
-extern const struct Curl_protocol Curl_protocol_tftp;
+बाह्य स्थिरांक संरचना Curl_protocol Curl_protocol_tftp;
 #endif
 
 #define TFTP_BLKSIZE_MIN 8

@@ -21,64 +21,64 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifndef CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "cf-recvbuf.h"
-#include "curl_trc.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "bufq.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "cf-recvbuf.h"
+#अन्तर्भाव "curl_trc.h"
 
 #define CURL_CF_RECVBUF_CHUNK     (16 * 1024)
 
-struct cf_recvbuf_ctx {
-  struct bufq recvbuf;
+संरचना cf_recvbuf_ctx {
+  संरचना bufq recvbuf;
 };
 
-static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+स्थिर शून्य cf_recvbuf_destroy(संरचना Curl_cfilter *cf,
+                               संरचना Curl_easy *data)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  संरचना cf_recvbuf_ctx *ctx = cf->ctx;
+  (शून्य)data;
+  जर(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
-                                size_t *pnread)
+स्थिर CURLcode cf_recvbuf_recv(संरचना Curl_cfilter *cf,
+                                संरचना Curl_easy *data,
+                                अक्षर *buf, माप_प्रकार len,
+                                माप_प्रकार *pnread)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  संरचना cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  जर(!Curl_bufq_is_empty(&ctx->recvbuf)) {
+    परत Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  जर(cf->next)
+    परत cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  परत CURLE_RECV_ERROR;
 }
 
-static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+स्थिर bool cf_recvbuf_data_pending(संरचना Curl_cfilter *cf,
+                                    स्थिरांक संरचना Curl_easy *data)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  संरचना cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  जर(!Curl_bufq_is_empty(&ctx->recvbuf))
+    परत TRUE;
 
-  return cf->next ?
+  परत cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-struct Curl_cftype Curl_cft_recvbuf = {
+संरचना Curl_cftype Curl_cft_recvbuf = {
   "RECVBUF",
   0,
   CURL_LOG_LVL_NONE,
@@ -95,63 +95,63 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  const uint8_t *buf, size_t blen)
+स्थिर CURLcode cf_recvbuf_create(संरचना Curl_cfilter **pcf,
+                                  संरचना Curl_easy *data,
+                                  स्थिरांक uint8_t *buf, माप_प्रकार blen)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_recvbuf_ctx *ctx;
+  संरचना Curl_cfilter *cf = रिक्त;
+  संरचना cf_recvbuf_ctx *ctx;
   CURLcode result = CURLE_OK;
-  size_t nwritten = 0;
+  माप_प्रकार nwritten = 0;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  (शून्य)data;
+  ctx = curlx_calloc(1, आकार(*ctx));
+  जर(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    जा out;
   }
   Curl_bufq_init2(&ctx->recvbuf, CURL_CF_RECVBUF_CHUNK,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
                   (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
   result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
-    goto out;
-  if(nwritten != blen) {
+  जर(result)
+    जा out;
+  जर(nwritten != blen) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    जा out;
   }
 
   result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  जर(result)
+    जा out;
+  ctx = रिक्त;
 
 out:
-  *pcf = result ? NULL : cf;
-  if(ctx) {
+  *pcf = result ? रिक्त : cf;
+  जर(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  परत result;
 }
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_add(संरचना Curl_easy *data,
+                             संरचना connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen)
+                             स्थिरांक uint8_t *buf, माप_प्रकार blen)
 {
-  struct Curl_cfilter *cf;
+  संरचना Curl_cfilter *cf;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
   result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
-    goto out;
+  जर(result)
+    जा out;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
   Curl_conn_cf_add(data, conn, sockindex, cf);
 out:
-  return result;
+  परत result;
 }
 
 #endif /* !CURL_DISABLE_WEBSOCKETS */

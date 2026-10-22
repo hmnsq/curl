@@ -21,22 +21,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "urldata.h"
-#include "api.h"
-#include "curl_threads.h"
-#include "multiif.h"
-#include "vtls/vtls_scache.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "api.h"
+#अन्तर्भाव "curl_threads.h"
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "vtls/vtls_scache.h"
 
-typedef char mapi_fn_ids_fit_uint8[
+प्रकारव्याख्या अक्षर mapi_fn_ids_fit_uint8[
   (CURL_MAPI_FN_LAST <= CURL_CBAPI_FN_START) ? 1 : -1];
-typedef char cbapi_fn_ids_fit_uint8[
+प्रकारव्याख्या अक्षर cbapi_fn_ids_fit_uint8[
   ((CURL_CBAPI_FN_LAST - 1) <= UINT8_MAX) ? 1 : -1];
-typedef char mapi_depth_fits_uint8[
+प्रकारव्याख्या अक्षर mapi_depth_fits_uint8[
   (CURL_MAPI_MAX_RECURSION <= UINT8_MAX) ? 1 : -1];
 
-struct Curl_eapi_fn_props {
+संरचना Curl_eapi_fn_props {
   Curl_eapi_fn fn;
   uint8_t data_is_killed; /* easy handle is killed in call */
   uint8_t recurse;        /* may be called when another call is in progress */
@@ -45,7 +45,7 @@ struct Curl_eapi_fn_props {
                              locked by current thread */
 };
 
-static const struct Curl_eapi_fn_props eapi_fn_props[CURL_EAPI_FN_LAST] = {
+स्थिर स्थिरांक संरचना Curl_eapi_fn_props eapi_fn_props[CURL_EAPI_FN_LAST] = {
   /* function                   kill rec  RO !sc */
   { CURL_EAPI_FN_easy_cleanup,     1,  0,  0,  0 },
   { CURL_EAPI_FN_easy_duphandle,   0,  1,  1,  0 },
@@ -67,7 +67,7 @@ static const struct Curl_eapi_fn_props eapi_fn_props[CURL_EAPI_FN_LAST] = {
   { CURL_EAPI_FN_ws_start_frame,   0,  1,  0,  0 },
 };
 
-struct Curl_mapi_fn_props {
+संरचना Curl_mapi_fn_props {
   Curl_mapi_fn fn;
   uint8_t multi_is_killed; /* multi handle is killed during call */
   uint8_t recurse;         /* may be called when another call is in progress */
@@ -76,7 +76,7 @@ struct Curl_mapi_fn_props {
                               locked by current thread */
 };
 
-static const struct Curl_mapi_fn_props mapi_fn_props[CURL_MAPI_FN_LAST] = {
+स्थिर स्थिरांक संरचना Curl_mapi_fn_props mapi_fn_props[CURL_MAPI_FN_LAST] = {
   /* function                       kill rec ntfy !scach */
   { CURL_MAPI_FN_multi_add_handle,     0,  0,   1,  0 },
   { CURL_MAPI_FN_multi_assign,         0,  1,   1,  0 },
@@ -99,12 +99,12 @@ static const struct Curl_mapi_fn_props mapi_fn_props[CURL_MAPI_FN_LAST] = {
   { CURL_MAPI_FN_multi_waitfds,        0,  0,   1,  0 },
 };
 
-struct Curl_cbapi_fn_props {
+संरचना Curl_cbapi_fn_props {
   Curl_cbapi_fn fn;
   uint8_t set_readonly;    /* only allows readonly, recursive easy calls */
 };
 
-static const struct Curl_cbapi_fn_props
+स्थिर स्थिरांक संरचना Curl_cbapi_fn_props
 cbapi_fn_props[CURL_CBAPI_FN_LAST - CURL_CBAPI_FN_START] = {
   { CURL_CBAPI_FN_easy_chunk_bgn,             0 },
   { CURL_CBAPI_FN_easy_chunk_end,             0 },
@@ -130,183 +130,183 @@ cbapi_fn_props[CURL_CBAPI_FN_LAST - CURL_CBAPI_FN_START] = {
   { CURL_CBAPI_FN_easy_trailer_callback,      0 },
 
   { CURL_CBAPI_FN_multi_ntfy_cb,              0 },
-  { CURL_CBAPI_FN_multi_push_cb,              0 },
+  { CURL_CBAPI_FN_multi_ढकला_cb,              0 },
   { CURL_CBAPI_FN_multi_socket_cb,            1 },
   { CURL_CBAPI_FN_multi_timer_cb,             1 },
 };
 
-static bool eapi_in_readonly_cb(struct Curl_easy *data)
+स्थिर bool eapi_in_readonly_cb(संरचना Curl_easy *data)
 {
-  struct Curl_multi *multi = data->multi;
-  if(multi && multi->callstack.count) {
-    size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] >= CURL_CBAPI_FN_START) {
+  संरचना Curl_multi *multi = data->multi;
+  जर(multi && multi->callstack.मोजणी) {
+    माप_प्रकार i;
+    साठी(i = 0; i < multi->callstack.मोजणी; ++i) {
+      जर(multi->callstack.calls[i] >= CURL_CBAPI_FN_START) {
         uint8_t fn = multi->callstack.calls[i];
-        if((fn < CURL_CBAPI_FN_LAST) &&
+        जर((fn < CURL_CBAPI_FN_LAST) &&
            cbapi_fn_props[fn - CURL_CBAPI_FN_START].set_readonly)
-          return TRUE;
+          परत TRUE;
       }
     }
   }
-  return FALSE;
+  परत FALSE;
 }
 
-static bool mapi_in_ntfy_cb(struct Curl_multi *multi)
+स्थिर bool mapi_in_ntfy_cb(संरचना Curl_multi *multi)
 {
-  if(multi && multi->callstack.count) {
-    size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] == CURL_CBAPI_FN_multi_ntfy_cb)
-        return TRUE;
+  जर(multi && multi->callstack.मोजणी) {
+    माप_प्रकार i;
+    साठी(i = 0; i < multi->callstack.मोजणी; ++i) {
+      जर(multi->callstack.calls[i] == CURL_CBAPI_FN_multi_ntfy_cb)
+        परत TRUE;
     }
   }
-  return FALSE;
+  परत FALSE;
 }
 
-bool Curl_api_multi_is_in_callback(struct Curl_multi *multi)
+bool Curl_api_multi_is_in_callback(संरचना Curl_multi *multi)
 {
-  if(multi && multi->callstack.count) {
-    size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] >= CURL_CBAPI_FN_START)
-        return TRUE;
+  जर(multi && multi->callstack.मोजणी) {
+    माप_प्रकार i;
+    साठी(i = 0; i < multi->callstack.मोजणी; ++i) {
+      जर(multi->callstack.calls[i] >= CURL_CBAPI_FN_START)
+        परत TRUE;
     }
   }
-  return FALSE;
+  परत FALSE;
 }
 
-bool Curl_api_is_in_callback(struct Curl_easy *data)
+bool Curl_api_is_in_callback(संरचना Curl_easy *data)
 {
-  if(data && data->multi) {
-    return Curl_api_multi_is_in_callback(data->multi);
+  जर(data && data->multi) {
+    परत Curl_api_multi_is_in_callback(data->multi);
   }
-  return FALSE;
+  परत FALSE;
 }
 
-bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
+bool Curl_eapi_enter(संरचना Curl_eapi_guard *guard,
                      CURL *curl,
                      Curl_eapi_fn fn,
                      CURLcode *presult)
 {
-  struct Curl_easy *data = curl;
-  const struct Curl_eapi_fn_props *fn_props;
+  संरचना Curl_easy *data = curl;
+  स्थिरांक संरचना Curl_eapi_fn_props *fn_props;
   CURLcode result = CURLE_OK;
 
   guard->depth = 0;
 
   /* Verify that we got an easy handle we can work with. */
-  if(!GOOD_EASY_HANDLE(data) || data->state.internal) {
+  जर(!GOOD_EASY_HANDLE(data) || data->state.internal) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    जा out;
   }
   /* verify that is either not added to a multi handle OR has a
    * GOOD multi handle that knows `data` for `data->mid`. */
-  if(data->mid != UINT32_MAX) {
-    if(GOOD_MULTI_HANDLE(data->multi)) {
-      if(!Curl_multi_knows_easy(data->multi, data)) {
+  जर(data->mid != UINT32_MAX) {
+    जर(GOOD_MULTI_HANDLE(data->multi)) {
+      जर(!Curl_multi_knows_easy(data->multi, data)) {
         /* But multi does not know it, something is fishy, better deny call */
         DEBUGASSERT(0);
         result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto out;
+        जा out;
       }
     }
-    else {
+    अन्यथा {
       DEBUGASSERT(0); /* data needs to have a GOOD multi handle */
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      जा out;
     }
   }
-  else if(data->multi) {
+  अन्यथा जर(data->multi) {
     DEBUGASSERT(0); /* data should not have a multi handle */
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    जा out;
   }
   /* verify that the call `fn` we're about to enter is known
    * and check call properties to be admitting. */
-  if(fn >= CURL_EAPI_FN_LAST) {
+  जर(fn >= CURL_EAPI_FN_LAST) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    जा out;
   }
   fn_props = &eapi_fn_props[fn];
   DEBUGASSERT(fn_props->fn == fn);
-  if(!fn_props->recurse) {
-    if(data->callstack.count) {
+  जर(!fn_props->recurse) {
+    जर(data->callstack.मोजणी) {
 #ifdef CURLVERBOSE
-      DEBUGF(curl_mfprintf(stderr,
+      DEBUGF(curl_mfprintf(मानक_त्रुटि,
         "EAPI guard: calling %hu with call to %u ongoing\n", (uint16_t)fn,
-        data->callstack.calls[data->callstack.count - 1]));
+        data->callstack.calls[data->callstack.मोजणी - 1]));
 #endif
       result = CURLE_RECURSIVE_API_CALL;
-      goto out;
+      जा out;
     }
-    if(data->multi && data->multi->callstack.count) {
+    जर(data->multi && data->multi->callstack.मोजणी) {
 #ifdef CURLVERBOSE
 
-      DEBUGF(curl_mfprintf(stderr,
+      DEBUGF(curl_mfprintf(मानक_त्रुटि,
         "EAPI guard: calling %hu with multi call to %u ongoing\n",
         (uint16_t)fn,
-        data->multi->callstack.calls[data->multi->callstack.count - 1]));
+        data->multi->callstack.calls[data->multi->callstack.मोजणी - 1]));
 #endif
       result = CURLE_RECURSIVE_API_CALL;
-      goto out;
+      जा out;
     }
   }
 
-  if(!fn_props->readonly && eapi_in_readonly_cb(data)) {
+  जर(!fn_props->readonly && eapi_in_readonly_cb(data)) {
     /* Not allowed to be invoked while an event cb is ongoing */
 #ifdef CURLVERBOSE
-      DEBUGF(curl_mfprintf(stderr,
+      DEBUGF(curl_mfprintf(मानक_त्रुटि,
         "EAPI guard: calling %hu in readonly enforcing callback\n",
         (uint16_t)fn));
 #endif
     result = CURLE_RECURSIVE_API_CALL;
-    goto out;
+    जा out;
   }
 
-#if defined(USE_SSL) && defined(USE_MUTEX)
-  if(fn_props->no_scache_lock &&
+#जर defined(USE_SSL) && defined(USE_MUTEX)
+  जर(fn_props->no_scache_lock &&
      Curl_ssl_scache_is_locked_by_current_thread(data)) {
 #ifdef CURLVERBOSE
-      DEBUGF(curl_mfprintf(stderr,
+      DEBUGF(curl_mfprintf(मानक_त्रुटि,
         "EAPI guard: calling %hu while vtls_scache is locked by "
         "current thread\n", (uint16_t)fn));
 #endif
     result = CURLE_RECURSIVE_API_CALL;
-    goto out;
+    जा out;
   }
 #endif
 
   /* all fine, add to data's callstack */
-  if(data->callstack.count >= CURL_EAPI_MAX_RECURSION) {
+  जर(data->callstack.मोजणी >= CURL_EAPI_MAX_RECURSION) {
     result = CURLE_RECURSIVE_API_CALL;
-    goto out;
+    जा out;
   }
-  data->callstack.calls[data->callstack.count] = (uint16_t)fn;
-  ++data->callstack.count;
-  guard->depth = data->callstack.count;
-  guard->data = fn_props->data_is_killed ? NULL : data;
+  data->callstack.calls[data->callstack.मोजणी] = (uint16_t)fn;
+  ++data->callstack.मोजणी;
+  guard->depth = data->callstack.मोजणी;
+  guard->data = fn_props->data_is_killed ? रिक्त : data;
 
 out:
-  if(presult)
+  जर(presult)
     *presult = result;
-  return guard->depth > 0;
+  परत guard->depth > 0;
 }
 
-void Curl_eapi_leave(struct Curl_eapi_guard *guard)
+शून्य Curl_eapi_leave(संरचना Curl_eapi_guard *guard)
 {
-  if(guard->depth) {
+  जर(guard->depth) {
     /* guard->data is set when handle is supposed to stay alive during call */
-    if(guard->data && GOOD_EASY_HANDLE(guard->data)) {
-      if(guard->depth > guard->data->callstack.count) {
+    जर(guard->data && GOOD_EASY_HANDLE(guard->data)) {
+      जर(guard->depth > guard->data->callstack.मोजणी) {
         DEBUGASSERT(0); /* something very wrong */
       }
-      else {
-        if(guard->depth < guard->data->callstack.count) {
+      अन्यथा {
+        जर(guard->depth < guard->data->callstack.मोजणी) {
           DEBUGASSERT(0); /* someone forgot to clean up */
         }
         /* reset to depth the guard was entered in */
-        guard->data->callstack.count = (uint16_t)(guard->depth - 1);
+        guard->data->callstack.मोजणी = (uint16_t)(guard->depth - 1);
       }
     }
   }
@@ -314,136 +314,136 @@ void Curl_eapi_leave(struct Curl_eapi_guard *guard)
 
 CURLHcode Curl_eapi_hcode(CURLcode result)
 {
-  switch(result) {
-  case CURLE_OK:
-    return CURLHE_OK;
-  case CURLE_BAD_FUNCTION_ARGUMENT:
-    return CURLHE_BAD_ARGUMENT;
-  case CURLE_OUT_OF_MEMORY:
-    return CURLHE_OUT_OF_MEMORY;
-  case CURLE_NOT_BUILT_IN:
-    return CURLHE_NOT_BUILT_IN;
-  default:
+  निवड(result) {
+  स्थिती CURLE_OK:
+    परत CURLHE_OK;
+  स्थिती CURLE_BAD_FUNCTION_ARGUMENT:
+    परत CURLHE_BAD_ARGUMENT;
+  स्थिती CURLE_OUT_OF_MEMORY:
+    परत CURLHE_OUT_OF_MEMORY;
+  स्थिती CURLE_NOT_BUILT_IN:
+    परत CURLHE_NOT_BUILT_IN;
+  पूर्वनिर्धारित:
     /* Unfortunately, we cannot convert RECURSIVE_API_CALL,
      * but since the header API is reentrant, this should not happen. */
-    return CURLHE_BAD_ARGUMENT;
+    परत CURLHE_BAD_ARGUMENT;
   }
 }
 
-bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
+bool Curl_mapi_enter(संरचना Curl_mapi_guard *guard,
                      CURLM *m,
                      Curl_mapi_fn fn,
                      CURLMcode *pmresult)
 {
-  struct Curl_multi *multi = m;
-  const struct Curl_mapi_fn_props *fn_props;
+  संरचना Curl_multi *multi = m;
+  स्थिरांक संरचना Curl_mapi_fn_props *fn_props;
   CURLMcode mresult = CURLM_OK;
 
   guard->depth = 0;
 
   /* Verify that we got an easy handle we can work with. */
-  if(!GOOD_MULTI_HANDLE(multi)) {
+  जर(!GOOD_MULTI_HANDLE(multi)) {
     mresult = CURLM_BAD_HANDLE;
-    goto out;
+    जा out;
   }
-  if(fn >= CURL_MAPI_FN_LAST) {
+  जर(fn >= CURL_MAPI_FN_LAST) {
     mresult = CURLM_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    जा out;
   }
   fn_props = &mapi_fn_props[fn];
   DEBUGASSERT(fn_props->fn == fn);
-  if(fn_props->allow_ntfy_cb && mapi_in_ntfy_cb(multi)) {
+  जर(fn_props->allow_ntfy_cb && mapi_in_ntfy_cb(multi)) {
     /* explicitly allowed, even though normal recursion may not */
   }
-  else if(!fn_props->recurse && multi->callstack.count) {
+  अन्यथा जर(!fn_props->recurse && multi->callstack.मोजणी) {
 #ifdef CURLVERBOSE
-      DEBUGF(curl_mfprintf(stderr,
+      DEBUGF(curl_mfprintf(मानक_त्रुटि,
         "MAPI guard: calling %hu with call to %u ongoing\n", (uint16_t)fn,
-        multi->callstack.calls[multi->callstack.count - 1]));
+        multi->callstack.calls[multi->callstack.मोजणी - 1]));
 #endif
     mresult = CURLM_RECURSIVE_API_CALL;
-    goto out;
+    जा out;
   }
 
-#if defined(USE_SSL) && defined(USE_MUTEX)
-  if(fn_props->no_scache_lock && multi->ssl_scache &&
+#जर defined(USE_SSL) && defined(USE_MUTEX)
+  जर(fn_props->no_scache_lock && multi->ssl_scache &&
      Curl_ssl_scache_is_locked_by_current_thread(multi->admin)) {
 #ifdef CURLVERBOSE
-      DEBUGF(curl_mfprintf(stderr,
+      DEBUGF(curl_mfprintf(मानक_त्रुटि,
         "MAPI guard: calling %hu while its vtls_scache is locked by "
         "current thread\n", (uint16_t)fn));
 #endif
     mresult = CURLM_RECURSIVE_API_CALL;
-    goto out;
+    जा out;
   }
 #endif
 
   /* all fine, add to data's callstack */
-  if(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
+  जर(multi->callstack.मोजणी >= CURL_MAPI_MAX_RECURSION) {
     mresult = CURLM_RECURSIVE_API_CALL;
-    goto out;
+    जा out;
   }
-  multi->callstack.calls[multi->callstack.count] = (uint8_t)fn;
-  ++multi->callstack.count;
-  guard->depth = multi->callstack.count;
-  guard->multi = fn_props->multi_is_killed ? NULL : multi;
+  multi->callstack.calls[multi->callstack.मोजणी] = (uint8_t)fn;
+  ++multi->callstack.मोजणी;
+  guard->depth = multi->callstack.मोजणी;
+  guard->multi = fn_props->multi_is_killed ? रिक्त : multi;
 
 out:
-  if(pmresult)
+  जर(pmresult)
     *pmresult = mresult;
-  return guard->depth > 0;
+  परत guard->depth > 0;
 }
 
-void Curl_mapi_leave(struct Curl_mapi_guard *guard)
+शून्य Curl_mapi_leave(संरचना Curl_mapi_guard *guard)
 {
-  if(guard->depth) {
+  जर(guard->depth) {
     /* guard->data is set when handle is supposed to stay alive during call */
-    if(guard->multi && GOOD_MULTI_HANDLE(guard->multi)) {
-      if(guard->depth > guard->multi->callstack.count) {
+    जर(guard->multi && GOOD_MULTI_HANDLE(guard->multi)) {
+      जर(guard->depth > guard->multi->callstack.मोजणी) {
         DEBUGASSERT(0); /* something very wrong */
       }
-      else {
-        if(guard->depth < guard->multi->callstack.count) {
+      अन्यथा {
+        जर(guard->depth < guard->multi->callstack.मोजणी) {
           DEBUGASSERT(0); /* someone forgot to clean up */
         }
         /* reset to depth the guard was entered in */
-        guard->multi->callstack.count = (uint8_t)(guard->depth - 1);
+        guard->multi->callstack.मोजणी = (uint8_t)(guard->depth - 1);
       }
     }
   }
 }
 
-void Curl_cbapi_enter(struct Curl_mapi_guard *guard,
-                      struct Curl_easy *data,
-                      struct Curl_multi *multi,
+शून्य Curl_cbapi_enter(संरचना Curl_mapi_guard *guard,
+                      संरचना Curl_easy *data,
+                      संरचना Curl_multi *multi,
                       Curl_cbapi_fn fn)
 {
   guard->depth = 0;
 
-  if(!multi)
-    multi = data ? data->multi : NULL;
+  जर(!multi)
+    multi = data ? data->multi : रिक्त;
   /* if not multi is involved here, just leave */
-  if(!multi)
-    return;
+  जर(!multi)
+    परत;
   /* invalid callback specifier? */
-  if((fn >= CURL_CBAPI_FN_LAST) || (fn < CURL_CBAPI_FN_START)) {
+  जर((fn >= CURL_CBAPI_FN_LAST) || (fn < CURL_CBAPI_FN_START)) {
     DEBUGASSERT(0);
-    return;
+    परत;
   }
   DEBUGASSERT(cbapi_fn_props[fn - CURL_CBAPI_FN_START].fn == fn);
   /* all fine, add to data's callstack */
   /* if multi callstack already at max depth, leave */
-  if(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
+  जर(multi->callstack.मोजणी >= CURL_MAPI_MAX_RECURSION) {
     DEBUGASSERT(0);
-    return;
+    परत;
   }
-  multi->callstack.calls[multi->callstack.count] = (uint8_t)fn;
-  ++multi->callstack.count;
-  guard->depth = multi->callstack.count;
+  multi->callstack.calls[multi->callstack.मोजणी] = (uint8_t)fn;
+  ++multi->callstack.मोजणी;
+  guard->depth = multi->callstack.मोजणी;
   guard->multi = multi;
 }
 
-void Curl_cbapi_leave(struct Curl_mapi_guard *guard)
+शून्य Curl_cbapi_leave(संरचना Curl_mapi_guard *guard)
 {
   Curl_mapi_leave(guard);
 }
