@@ -23,15 +23,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifndef CURL_DISABLE_FTP
-extern const struct Curl_protocol Curl_protocol_ftp;
+बाह्य अचर संरचना Curl_protocol Curl_protocol_ftp;
 
-bool Curl_ftp_conns_match(struct connectdata *needle,
-                          struct connectdata *conn);
+bool Curl_ftp_conns_match(संरचना connectdata *needle,
+                          संरचना connectdata *conn);
 
-typedef enum {
+प्रकारनिर्देश गणना {
   FTPFILE_MULTICWD  = 1, /* as defined by RFC1738 */
   FTPFILE_NOCWD     = 2, /* use SIZE / RETR / STOR on the full path */
   FTPFILE_SINGLECWD = 3  /* make one CWD, then SIZE / RETR / STOR on the

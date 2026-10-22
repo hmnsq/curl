@@ -21,105 +21,105 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 /*
  * curlx_winapi_strerror:
  * Variant of curlx_strerror if the error code is definitely Windows API.
  */
 #ifdef _WIN32
-#include "curlx/winapi.h"
-#include "curlx/snprintf.h"
-#include "curlx/strcopy.h"
+#अन्तर्भाव "curlx/winapi.h"
+#अन्तर्भाव "curlx/snprintf.h"
+#अन्तर्भाव "curlx/strcopy.h"
 
 /* This is a helper function for curlx_strerror that converts Windows API error
  * codes (GetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen)
+अचर वर्ण *curlx_get_winapi_error(DWORD err, वर्ण *buf, माप_प्रकार buflen)
 {
-  char *p;
+  वर्ण *p;
 
-  if(!buflen)
-    return NULL;
+  यदि(!buflen)
+    फर्काऊ रिक्त;
 
   /* We return the local codepage version of the error string because if it is
      output to the user's terminal, it is likely done with functions which
      expect the local codepage (eg fprintf, failf, infof). */
-  if(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
-                      FORMAT_MESSAGE_IGNORE_INSERTS), NULL, err,
-                     LANG_NEUTRAL, buf, (DWORD)buflen, NULL)) {
+  यदि(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
+                      FORMAT_MESSAGE_IGNORE_INSERTS), रिक्त, err,
+                     LANG_NEUTRAL, buf, (DWORD)buflen, रिक्त)) {
     *buf = '\0';
-    return NULL;
+    फर्काऊ रिक्त;
   }
 
   /* Truncate multiple lines */
-  p = strchr(buf, '\n');
-  if(p) {
-    if(p > buf && *(p - 1) == '\r')
+  p = म_अक्षर(buf, '\n');
+  यदि(p) {
+    यदि(p > buf && *(p - 1) == '\r')
       *(p - 1) = '\0';
-    else
+    अन्यथा
       *p = '\0';
   }
 
-  return *buf ? buf : NULL;
+  फर्काऊ *buf ? buf : रिक्त;
 }
 
-const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen)
+अचर वर्ण *curlx_winapi_strerror(DWORD err, वर्ण *buf, माप_प्रकार buflen)
 {
   DWORD old_win_err = GetLastError();
-  int old_errno = errno;
+  पूर्णाङ्क old_errno = त्रुटि_सं;
 
-  if(!buflen)
-    return NULL;
+  यदि(!buflen)
+    फर्काऊ रिक्त;
 
   *buf = '\0';
 
 #ifdef CURLVERBOSE
-  if(!curlx_get_winapi_error(err, buf, buflen)) {
-#if defined(__GNUC__) && __GNUC__ >= 7
-#pragma GCC diagnostic push
+  यदि(!curlx_get_winapi_error(err, buf, buflen)) {
+#यदि defined(__GNUC__) && __GNUC__ >= 7
+#pragma GCC diagnostic थप
 #pragma GCC diagnostic warning "-Wformat-truncation=1"
 #endif
     /* some GCC compilers cause false positive warnings if we allow this
        warning */
     SNPRINTF(buf, buflen, "Unknown error %lu (0x%08lx)", err, err);
-#if defined(__GNUC__) && __GNUC__ >= 7
-#pragma GCC diagnostic pop
+#यदि defined(__GNUC__) && __GNUC__ >= 7
+#pragma GCC diagnostic झिक
 #endif
   }
-#else
+#अन्यथा
   {
-    const char *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
-    curlx_strcopy(buf, buflen, txt, strlen(txt));
+    अचर वर्ण *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
+    curlx_strcopy(buf, buflen, txt, म_माप(txt));
   }
 #endif
 
-  if(errno != old_errno)
-    errno = old_errno;
+  यदि(त्रुटि_सं != old_errno)
+    त्रुटि_सं = old_errno;
 
-  if(old_win_err != GetLastError())
+  यदि(old_win_err != GetLastError())
     SetLastError(old_win_err);
 
-  return buf;
+  फर्काऊ buf;
 }
 
 #ifndef WITHOUT_LIBCURL
 
-#include <bcrypt.h>
+#अन्तर्भाव <bcrypt.h>
 #ifndef STATUS_SUCCESS
 #define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
 #endif
 
-CURLcode curlx_win32_random(unsigned char *entropy, size_t length)
+CURLcode curlx_win32_random(अचिन्हित वर्ण *entropy, माप_प्रकार length)
 {
-  memset(entropy, 0, length);
+  स_रखो(entropy, 0, length);
 
-  if(BCryptGenRandom(NULL, entropy, (ULONG)length,
+  यदि(BCryptGenRandom(रिक्त, entropy, (ULONG)length,
                      BCRYPT_USE_SYSTEM_PREFERRED_RNG) != STATUS_SUCCESS)
-    return CURLE_FAILED_INIT;
+    फर्काऊ CURLE_FAILED_INIT;
 
-  return CURLE_OK;
+  फर्काऊ CURLE_OK;
 }
 #endif /* WITHOUT_LIBCURL */
 

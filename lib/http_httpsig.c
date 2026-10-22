@@ -21,233 +21,233 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
-#include "urldata.h"
-#include "http_httpsig.h"
-#include "curl_ed25519.h"
-#include "curl_hmac.h"
-#include "curl_sha256.h"
-#include "http.h"
-#include "transfer.h"
-#include "curl_trc.h"
-#include "slist.h"
-#include "curlx/dynbuf.h"
-#include "curlx/base64.h"
-#include "curlx/strdup.h"
-#include "curlx/strparse.h"
-#include "strcase.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "http_httpsig.h"
+#अन्तर्भाव "curl_ed25519.h"
+#अन्तर्भाव "curl_hmac.h"
+#अन्तर्भाव "curl_sha256.h"
+#अन्तर्भाव "http.h"
+#अन्तर्भाव "transfer.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "slist.h"
+#अन्तर्भाव "curlx/dynbuf.h"
+#अन्तर्भाव "curlx/base64.h"
+#अन्तर्भाव "curlx/strdup.h"
+#अन्तर्भाव "curlx/strparse.h"
+#अन्तर्भाव "strcase.h"
 
-#include <time.h>
+#अन्तर्भाव <time.h>
 
 #define HTTPSIG_MAX_SIG_BASE   CURL_MAX_HTTP_HEADER
 #define HTTPSIG_MAX_COMPONENTS 16
 #define HTTPSIG_MAX_RAW_SIG    CURL_ED25519_SIGLEN
 #define HTTPSIG_DEFAULT_LABEL  "sig1"
 
-enum httpsig_alg {
+गणना httpsig_alg {
   HTTPSIG_ALG_ED25519,
   HTTPSIG_ALG_HMAC_SHA256,
   HTTPSIG_ALG_UNKNOWN
 };
 
-static const char *alg_to_str(enum httpsig_alg alg)
+स्थिर अचर वर्ण *alg_to_str(गणना httpsig_alg alg)
 {
-  switch(alg) {
-  case HTTPSIG_ALG_ED25519:
-    return "ed25519";
-  case HTTPSIG_ALG_HMAC_SHA256:
-    return "hmac-sha256";
-  default:
-    break;
+  विकल्प(alg) {
+  पक्ष HTTPSIG_ALG_ED25519:
+    फर्काऊ "ed25519";
+  पक्ष HTTPSIG_ALG_HMAC_SHA256:
+    फर्काऊ "hmac-sha256";
+  स्वभाव:
+    रोक;
   }
-  return NULL;
+  फर्काऊ रिक्त;
 }
 
-static enum httpsig_alg id_to_alg(uint8_t val)
+स्थिर गणना httpsig_alg id_to_alg(uint8_t val)
 {
-  switch(val) {
-  case CURLHTTPSIG_ED25519:
-    return HTTPSIG_ALG_ED25519;
-  case CURLHTTPSIG_HMAC_SHA256:
-    return HTTPSIG_ALG_HMAC_SHA256;
-  default:
-    break;
+  विकल्प(val) {
+  पक्ष CURLHTTPSIG_ED25519:
+    फर्काऊ HTTPSIG_ALG_ED25519;
+  पक्ष CURLHTTPSIG_HMAC_SHA256:
+    फर्काऊ HTTPSIG_ALG_HMAC_SHA256;
+  स्वभाव:
+    रोक;
   }
-  return HTTPSIG_ALG_UNKNOWN;
+  फर्काऊ HTTPSIG_ALG_UNKNOWN;
 }
 
-static CURLcode decode_hex_key(struct Curl_easy *data,
-                               const char *hexstr,
-                               unsigned char **keyout,
-                               size_t *keylen)
+स्थिर CURLcode decode_hex_साँचो(संरचना Curl_easy *data,
+                               अचर वर्ण *hexstr,
+                               अचिन्हित वर्ण **keyout,
+                               माप_प्रकार *keylen)
 {
-  size_t len, i;
-  unsigned char *keybuf;
+  माप_प्रकार len, i;
+  अचिन्हित वर्ण *keybuf;
 
-  *keyout = NULL;
+  *keyout = रिक्त;
   *keylen = 0;
 
-  len = strlen(hexstr);
-  while(len > 0 && ISNEWLINE(hexstr[len - 1]))
+  len = म_माप(hexstr);
+  जबसम्म(len > 0 && ISNEWLINE(hexstr[len - 1]))
     len--;
 
-  if(len == 0 || (len & 1) != 0) {
+  यदि(len == 0 || (len & 1) != 0) {
     failf(data, "httpsig: invalid hex key (length %zu)", len);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(len > CURL_MAX_INPUT_LENGTH) {
+  यदि(len > CURL_MAX_आगत_LENGTH) {
     failf(data, "httpsig: hex key too long");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   keybuf = curlx_malloc(len / 2);
-  if(!keybuf)
-    return CURLE_OUT_OF_MEMORY;
+  यदि(!keybuf)
+    फर्काऊ CURLE_OUT_OF_MEMORY;
 
-  for(i = 0; i < len; i += 2) {
-    if(!ISXDIGIT(hexstr[i]) || !ISXDIGIT(hexstr[i + 1])) {
+  लागि(i = 0; i < len; i += 2) {
+    यदि(!ISXDIGIT(hexstr[i]) || !ISXDIGIT(hexstr[i + 1])) {
       failf(data, "httpsig: invalid hex at position %zu ('%c%c')",
             i, hexstr[i], hexstr[i + 1]);
       curlx_free(keybuf);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    keybuf[i / 2] = (unsigned char)((curlx_hexval(hexstr[i]) << 4) |
+    keybuf[i / 2] = (अचिन्हित वर्ण)((curlx_hexval(hexstr[i]) << 4) |
                                      curlx_hexval(hexstr[i + 1]));
   }
 
   *keyout = keybuf;
   *keylen = len / 2;
-  return CURLE_OK;
+  फर्काऊ CURLE_OK;
 }
 
 /* @authority matches the Host header field-value when available (RFC 9421).
    data->state.http_host is produced by http_set_aptr_host() before auth. */
-static CURLcode httpsig_authority(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct dynbuf *authority_buf)
+स्थिर CURLcode httpsig_authority(संरचना Curl_easy *data,
+                                  संरचना connectdata *conn,
+                                  संरचना dynbuf *authority_buf)
 {
-  const char *h = data->state.http_host;
+  अचर वर्ण *h = data->state.http_host;
 
-  if(h && curl_strnequal(h, "host:", 5)) {
-    const char *value = h + 5;
-    const char *end;
+  यदि(h && curl_strnequal(h, "host:", 5)) {
+    अचर वर्ण *मान = h + 5;
+    अचर वर्ण *end;
 
-    while(ISBLANK(*value))
-      value++;
-    if(*value) {
+    जबसम्म(ISBLANK(*मान))
+      मान++;
+    यदि(*मान) {
       CURLcode result;
 
-      end = value;
-      while(*end && !ISNEWLINE(*end))
+      end = मान;
+      जबसम्म(*end && !ISNEWLINE(*end))
         end++;
-      while(end > value && ISBLANK(end[-1]))
+      जबसम्म(end > मान && ISBLANK(end[-1]))
         end--;
-      result = curlx_dyn_addn(authority_buf, value, (size_t)(end - value));
-      if(result)
-        return result;
-      return CURLE_OK;
+      result = curlx_dyn_addn(authority_buf, मान, (माप_प्रकार)(end - मान));
+      यदि(result)
+        फर्काऊ result;
+      फर्काऊ CURLE_OK;
     }
   }
 
   {
-    const char *hostname = conn->origin->hostname;
+    अचर वर्ण *hostname = conn->origin->hostname;
     uint16_t port = conn->origin->port;
 
-    if((conn->origin->scheme->defport != port) && port)
-      return curlx_dyn_addf(authority_buf, "%s:%u", hostname, port);
-    return curlx_dyn_add(authority_buf, hostname);
+    यदि((conn->origin->scheme->defport != port) && port)
+      फर्काऊ curlx_dyn_addf(authority_buf, "%s:%u", hostname, port);
+    फर्काऊ curlx_dyn_add(authority_buf, hostname);
   }
 }
 
-static CURLcode sf_append_quoted(struct dynbuf *buf, const char *str)
+स्थिर CURLcode sf_append_quoted(संरचना dynbuf *buf, अचर वर्ण *str)
 {
   CURLcode result = curlx_dyn_addn(buf, "\"", 1);
-  if(result)
-    return result;
-  while(*str) {
-    if(ISCNTRL(*str))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(*str == '\\' || *str == '"') {
+  यदि(result)
+    फर्काऊ result;
+  जबसम्म(*str) {
+    यदि(ISCNTRL(*str))
+      फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
+    यदि(*str == '\\' || *str == '"') {
       result = curlx_dyn_addn(buf, "\\", 1);
-      if(result)
-        return result;
+      यदि(result)
+        फर्काऊ result;
     }
     result = curlx_dyn_addn(buf, str, 1);
-    if(result)
-      return result;
+    यदि(result)
+      फर्काऊ result;
     str++;
   }
-  return curlx_dyn_addn(buf, "\"", 1);
+  फर्काऊ curlx_dyn_addn(buf, "\"", 1);
 }
 
 /* base64-encode raw bytes into an RFC 8941 byte sequence (:base64:) */
-static CURLcode sf_encode_byte_seq(const unsigned char *raw, size_t rawlen,
-                                   struct dynbuf *out)
+स्थिर CURLcode sf_encode_byte_seq(अचर अचिन्हित वर्ण *raw, माप_प्रकार rawlen,
+                                   संरचना dynbuf *out)
 {
   CURLcode result;
-  size_t b64len;
-  char *b64;
+  माप_प्रकार b64len;
+  वर्ण *b64;
 
   result = curlx_base64_encode(raw, rawlen, &b64, &b64len);
-  if(result)
-    return result;
+  यदि(result)
+    फर्काऊ result;
 
   result = curlx_dyn_addn(out, ":", 1);
-  if(!result)
+  यदि(!result)
     result = curlx_dyn_addn(out, b64, b64len);
-  if(!result)
+  यदि(!result)
     result = curlx_dyn_addn(out, ":", 1);
 
   curlx_free(b64);
-  return result;
+  फर्काऊ result;
 }
 
-static CURLcode build_sig_params(struct dynbuf *params,
-                                 const char **components, size_t count,
-                                 time_t created, const char *keyid,
-                                 enum httpsig_alg alg)
+स्थिर CURLcode build_sig_params(संरचना dynbuf *params,
+                                 अचर वर्ण **components, माप_प्रकार गन्ती,
+                                 समय_प्रकार created, अचर वर्ण *keyid,
+                                 गणना httpsig_alg alg)
 {
   CURLcode result;
-  size_t i;
+  माप_प्रकार i;
 
   result = curlx_dyn_addn(params, "(", 1);
-  if(result)
-    return result;
+  यदि(result)
+    फर्काऊ result;
 
-  for(i = 0; i < count; i++) {
-    if(i > 0) {
+  लागि(i = 0; i < गन्ती; i++) {
+    यदि(i > 0) {
       result = curlx_dyn_addn(params, " ", 1);
-      if(result)
-        return result;
+      यदि(result)
+        फर्काऊ result;
     }
     result = sf_append_quoted(params, components[i]);
-    if(result)
-      return result;
+    यदि(result)
+      फर्काऊ result;
   }
 
   result = curlx_dyn_addn(params, ")", 1);
-  if(result)
-    return result;
+  यदि(result)
+    फर्काऊ result;
 
-  result = curlx_dyn_addf(params, ";created=%lld", (long long)created);
-  if(result)
-    return result;
+  result = curlx_dyn_addf(params, ";created=%lld", (दीर्घ दीर्घ)created);
+  यदि(result)
+    फर्काऊ result;
 
-  if(keyid && *keyid) {
+  यदि(keyid && *keyid) {
     result = curlx_dyn_add(params, ";keyid=");
-    if(result)
-      return result;
+    यदि(result)
+      फर्काऊ result;
     result = sf_append_quoted(params, keyid);
-    if(result)
-      return result;
+    यदि(result)
+      फर्काऊ result;
   }
 
   result = curlx_dyn_addf(params, ";alg=\"%s\"", alg_to_str(alg));
-  return result;
+  फर्काऊ result;
 }
 
 /* strings defined by RFC 9421 */
@@ -261,369 +261,369 @@ static CURLcode build_sig_params(struct dynbuf *params,
  * duplicate field values with ", " per RFC 9421 Section 2.1. Each
  * individual value is trimmed of leading/trailing OWS and the trailing
  * \r\n. The combined result is written into the caller-provided buffer. */
-static CURLcode resolve_component(const char *name,
-                                  const char *method,
-                                  const char *authority,
-                                  const char *path,
-                                  const char *query,
-                                  struct Curl_easy *data,
-                                  struct dynbuf *valbuf,
-                                  const char **out)
+स्थिर CURLcode resolve_component(अचर वर्ण *name,
+                                  अचर वर्ण *method,
+                                  अचर वर्ण *authority,
+                                  अचर वर्ण *path,
+                                  अचर वर्ण *query,
+                                  संरचना Curl_easy *data,
+                                  संरचना dynbuf *valbuf,
+                                  अचर वर्ण **out)
 {
-  *out = NULL;
+  *out = रिक्त;
 
-  if(name[0] == '@') {
-    if(curl_strequal(name, SIG_METHOD))
+  यदि(name[0] == '@') {
+    यदि(curl_strequal(name, SIG_METHOD))
       *out = method;
-    else if(curl_strequal(name, SIG_AUTHORITY))
+    अन्यथा यदि(curl_strequal(name, SIG_AUTHORITY))
       *out = authority;
-    else if(curl_strequal(name, SIG_PATH))
+    अन्यथा यदि(curl_strequal(name, SIG_PATH))
       *out = path;
-    else if(curl_strequal(name, SIG_QUERY))
+    अन्यथा यदि(curl_strequal(name, SIG_QUERY))
       *out = query;
-    else {
+    अन्यथा {
       failf(data, "httpsig: unsupported derived component '%s'", name);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if(!*out) {
+    यदि(!*out) {
       failf(data, "httpsig: derived component '%s' has no value", name);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    return CURLE_OK;
+    फर्काऊ CURLE_OK;
   }
-  else {
+  अन्यथा {
     /* RFC 9421 Section 2.1: walk all user-supplied headers and combine
        duplicate field values with ", " per HTTP field combination rules. */
-    struct curl_slist *head;
-    size_t namelen = strlen(name);
+    संरचना curl_slist *head;
+    माप_प्रकार namelen = म_माप(name);
     bool found = FALSE;
 
     curlx_dyn_reset(valbuf);
 
-    for(head = data->set.headers; head; head = head->next) {
-      if(curl_strnequal(head->data, name, namelen) &&
+    लागि(head = data->set.headers; head; head = head->next) {
+      यदि(curl_strnequal(head->data, name, namelen) &&
          Curl_headersep(head->data[namelen])) {
-        const char *p = strchr(head->data, ':');
-        if(p) {
+        अचर वर्ण *p = म_अक्षर(head->data, ':');
+        यदि(p) {
           CURLcode result;
-          struct Curl_str content;
-          curlx_str_assign(&content, p + 1, strlen(p + 1));
+          संरचना Curl_str content;
+          curlx_str_assign(&content, p + 1, म_माप(p + 1));
           curlx_str_trimblanks(&content);
-          if(found) {
+          यदि(found) {
             result = curlx_dyn_addn(valbuf, ", ", 2);
-            if(result)
-              return result;
+            यदि(result)
+              फर्काऊ result;
           }
           result = curlx_dyn_addn(valbuf, curlx_str(&content),
                                   curlx_strlen(&content));
-          if(result)
-            return result;
+          यदि(result)
+            फर्काऊ result;
           found = TRUE;
         }
       }
     }
 
-    if(found) {
+    यदि(found) {
       *out = curlx_dyn_ptr(valbuf);
-      return CURLE_OK;
+      फर्काऊ CURLE_OK;
     }
     failf(data, "httpsig: header '%s' not found in request", name);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 }
 
-static CURLcode build_sig_base(struct dynbuf *base,
-                               const char **components, size_t count,
-                               const char *method,
-                               const char *authority,
-                               const char *path,
-                               const char *query,
-                               struct Curl_easy *data,
-                               const char *sig_params)
+स्थिर CURLcode build_sig_base(संरचना dynbuf *base,
+                               अचर वर्ण **components, माप_प्रकार गन्ती,
+                               अचर वर्ण *method,
+                               अचर वर्ण *authority,
+                               अचर वर्ण *path,
+                               अचर वर्ण *query,
+                               संरचना Curl_easy *data,
+                               अचर वर्ण *sig_params)
 {
   CURLcode result;
-  size_t i;
-  struct dynbuf hdrvalbuf;
+  माप_प्रकार i;
+  संरचना dynbuf hdrvalbuf;
 
   curlx_dyn_init(&hdrvalbuf, CURL_MAX_HTTP_HEADER);
 
-  for(i = 0; i < count; i++) {
-    const char *val = NULL;
+  लागि(i = 0; i < गन्ती; i++) {
+    अचर वर्ण *val = रिक्त;
     result = resolve_component(components[i], method,
                                authority, path, query, data,
                                &hdrvalbuf, &val);
-    if(result || !val) {
+    यदि(result || !val) {
       failf(data, "httpsig: cannot resolve component '%s'", components[i]);
       curlx_dyn_free(&hdrvalbuf);
-      return result ? result : CURLE_BAD_FUNCTION_ARGUMENT;
+      फर्काऊ result ? result : CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
     result = curlx_dyn_addf(base, "\"%s\": %s\n", components[i], val);
-    if(result) {
+    यदि(result) {
       curlx_dyn_free(&hdrvalbuf);
-      return result;
+      फर्काऊ result;
     }
   }
 
   curlx_dyn_free(&hdrvalbuf);
   result = curlx_dyn_addf(base, "\"@signature-params\": %s", sig_params);
-  return result;
+  फर्काऊ result;
 }
 
-static CURLcode parse_components(struct Curl_easy *data,
-                                 const char *query,
-                                 const char **components,
-                                 size_t *ncomp_out,
-                                 char **hdrs_copy_out)
+स्थिर CURLcode parse_components(संरचना Curl_easy *data,
+                                 अचर वर्ण *query,
+                                 अचर वर्ण **components,
+                                 माप_प्रकार *ncomp_out,
+                                 वर्ण **hdrs_copy_out)
 {
-  const char *hdrs = CURL_EASY_STR(data, STRING_HTTPSIG_HEADERS);
-  size_t ncomp = 0;
+  अचर वर्ण *hdrs = CURL_EASY_STR(data, STRING_HTTPSIG_HEADERS);
+  माप_प्रकार ncomp = 0;
 
-  *hdrs_copy_out = NULL;
-  if(hdrs && *hdrs) {
-    char *p;
-    char *hdrs_copy = curlx_strdup(hdrs);
-    if(!hdrs_copy)
-      return CURLE_OUT_OF_MEMORY;
+  *hdrs_copy_out = रिक्त;
+  यदि(hdrs && *hdrs) {
+    वर्ण *p;
+    वर्ण *hdrs_copy = curlx_strdup(hdrs);
+    यदि(!hdrs_copy)
+      फर्काऊ CURLE_OUT_OF_MEMORY;
     *hdrs_copy_out = hdrs_copy;
     p = hdrs_copy;
-    while(*p && ncomp < HTTPSIG_MAX_COMPONENTS) {
-      char *start;
-      size_t tlen = 0;
-      const char *p2 = p;
+    जबसम्म(*p && ncomp < HTTPSIG_MAX_COMPONENTS) {
+      वर्ण *start;
+      माप_प्रकार tlen = 0;
+      अचर वर्ण *p2 = p;
 
       curlx_str_passblanks(&p2);
-      if(!*p2)
-        break;
+      यदि(!*p2)
+        रोक;
       p = start = CURL_UNCONST(p2);
-      while(*p && !ISBLANK(*p)) {
-        if((*p == '\"') || (*p == '\\'))
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+      जबसम्म(*p && !ISBLANK(*p)) {
+        यदि((*p == '\"') || (*p == '\\'))
+          फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
         p++;
         tlen++;
       }
-      if(*p)
+      यदि(*p)
         *p++ = '\0';
 
-      if(tlen && start[tlen - 1] == ':') {
+      यदि(tlen && start[tlen - 1] == ':') {
         /* Header field: drop the trailing ':' marker. RFC 9421 field
            names are canonically lowercase (Section 2.1). */
         start[--tlen] = '\0';
-        if(!tlen) {
+        यदि(!tlen) {
           failf(data, "httpsig: empty header component name");
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+          फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
         }
         Curl_strntolower(start, start, tlen);
         components[ncomp++] = start;
       }
-      else {
+      अन्यथा {
         /* Derived component: map the bare name to its canonical RFC 9421
            '@'-prefixed identifier (Section 2.2). */
         Curl_strntolower(start, start, tlen);
-        if(!strcmp(start, "method"))
+        यदि(!म_भेद(start, "method"))
           components[ncomp++] = SIG_METHOD;
-        else if(!strcmp(start, "authority"))
+        अन्यथा यदि(!म_भेद(start, "authority"))
           components[ncomp++] = SIG_AUTHORITY;
-        else if(!strcmp(start, "path"))
+        अन्यथा यदि(!म_भेद(start, "path"))
           components[ncomp++] = SIG_PATH;
-        else if(!strcmp(start, "query"))
+        अन्यथा यदि(!म_भेद(start, "query"))
           components[ncomp++] = SIG_QUERY;
-        else {
+        अन्यथा {
           failf(data, "httpsig: unknown component '%s'", start);
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+          फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
         }
       }
     }
-    if(!ncomp) {
+    यदि(!ncomp) {
       failf(data, "httpsig: no signature components specified");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if(*p) {
+    यदि(*p) {
       failf(data, "httpsig: too many signature components (max %u)",
-            (unsigned int)HTTPSIG_MAX_COMPONENTS);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+            (अचिन्हित पूर्णाङ्क)HTTPSIG_MAX_COMPONENTS);
+      फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
     /* RFC 9421 Section 2: each covered component MUST occur only once */
     {
-      size_t i, j;
+      माप_प्रकार i, j;
 
-      for(i = 0; i < ncomp; i++) {
-        for(j = i + 1; j < ncomp; j++) {
-          if(!strcmp(components[i], components[j])) {
+      लागि(i = 0; i < ncomp; i++) {
+        लागि(j = i + 1; j < ncomp; j++) {
+          यदि(!म_भेद(components[i], components[j])) {
             failf(data, "httpsig: duplicate signature component '%s'",
                   components[i]);
-            return CURLE_BAD_FUNCTION_ARGUMENT;
+            फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
           }
         }
       }
     }
   }
-  else {
+  अन्यथा {
     components[ncomp++] = SIG_METHOD;
     components[ncomp++] = SIG_AUTHORITY;
     components[ncomp++] = SIG_PATH;
-    if(query)
+    यदि(query)
       components[ncomp++] = SIG_QUERY;
   }
 
   *ncomp_out = ncomp;
-  return CURLE_OK;
+  फर्काऊ CURLE_OK;
 }
 
-static time_t httpsig_get_created(void)
+स्थिर समय_प्रकार httpsig_get_created(शून्य)
 {
 #ifdef DEBUGBUILD
-  char *force = getenv("CURL_FORCETIME");
-  if(force && *force) {
-    char *sigts = getenv("CURL_HTTPSIG_CREATED");
-    if(sigts && *sigts) {
-      const char *p = sigts;
-      curl_off_t num;
-      if(!curlx_str_number(&p, &num, CURL_OFF_T_MAX))
-        return (time_t)num;
+  वर्ण *force = दो_पर्या("CURL_FORCETIME");
+  यदि(force && *force) {
+    वर्ण *sigts = दो_पर्या("CURL_HTTPSIG_CREATED");
+    यदि(sigts && *sigts) {
+      अचर वर्ण *p = sigts;
+      curl_off_t अङ्क;
+      यदि(!curlx_str_सङ्ख्या(&p, &अङ्क, CURL_OFF_T_MAX))
+        फर्काऊ (समय_प्रकार)अङ्क;
     }
-    return 0;
+    फर्काऊ 0;
   }
 #endif
-  return time(NULL);
+  फर्काऊ समय(रिक्त);
 }
 
-static CURLcode httpsig_sign_base(struct Curl_easy *data,
-                                  enum httpsig_alg alg,
-                                  const unsigned char *keybuf,
-                                  size_t keylen,
-                                  const struct dynbuf *sig_base,
-                                  unsigned char *raw_sig,
-                                  size_t *raw_sig_len)
+स्थिर CURLcode httpsig_sign_base(संरचना Curl_easy *data,
+                                  गणना httpsig_alg alg,
+                                  अचर अचिन्हित वर्ण *keybuf,
+                                  माप_प्रकार keylen,
+                                  अचर संरचना dynbuf *sig_base,
+                                  अचिन्हित वर्ण *raw_sig,
+                                  माप_प्रकार *raw_sig_len)
 {
   CURLcode result;
 
-  switch(alg) {
-  case HTTPSIG_ALG_ED25519:
+  विकल्प(alg) {
+  पक्ष HTTPSIG_ALG_ED25519:
     result = Curl_ed25519_sign(
       keybuf, keylen,
-      (const unsigned char *)curlx_dyn_ptr(sig_base),
+      (अचर अचिन्हित वर्ण *)curlx_dyn_ptr(sig_base),
       curlx_dyn_len(sig_base),
       raw_sig, raw_sig_len);
-    break;
-  case HTTPSIG_ALG_HMAC_SHA256:
+    रोक;
+  पक्ष HTTPSIG_ALG_HMAC_SHA256:
     result = Curl_hmacit(&Curl_HMAC_SHA256, keybuf, keylen,
-                         (const unsigned char *)curlx_dyn_ptr(sig_base),
+                         (अचर अचिन्हित वर्ण *)curlx_dyn_ptr(sig_base),
                          curlx_dyn_len(sig_base), raw_sig);
-    if(!result)
+    यदि(!result)
       *raw_sig_len = CURL_SHA256_DIGEST_LENGTH;
-    break;
-  default:
+    रोक;
+  स्वभाव:
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    break;
+    रोक;
   }
 
-  if(result && result == CURLE_NOT_BUILT_IN) {
+  यदि(result && result == CURLE_NOT_BUILT_IN) {
     failf(data, "httpsig: algorithm '%s' not supported by TLS backend",
           alg_to_str(alg));
   }
-  return result;
+  फर्काऊ result;
 }
 
-CURLcode Curl_output_httpsig(struct Curl_easy *data)
+CURLcode Curl_output_httpsig(संरचना Curl_easy *data)
 {
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  struct connectdata *conn = data->conn;
-  const char *path;
-  const char *query;
+  संरचना connectdata *conn = data->conn;
+  अचर वर्ण *path;
+  अचर वर्ण *query;
   Curl_HttpReq httpreq;
-  const char *method = NULL;
-  const char *hexkey = CURL_EASY_STR(data, STRING_HTTPSIG_KEY);
-  const char *keyid = CURL_EASY_STR(data, STRING_HTTPSIG_KEYID);
-  enum httpsig_alg alg;
-  time_t created;
-  struct dynbuf sig_params;
-  struct dynbuf sig_base;
-  struct dynbuf sig_hdr;
-  struct dynbuf input_hdr;
-  struct dynbuf authority_buf;
-  const char *authority;
-  const char *components[HTTPSIG_MAX_COMPONENTS];
-  size_t ncomp = 0;
-  unsigned char *keybuf = NULL;
-  size_t keylen = 0;
-  unsigned char raw_sig[HTTPSIG_MAX_RAW_SIG];
-  size_t raw_sig_len = 0;
-  char *auth_headers = NULL;
-  char *hdrs_copy = NULL;
-  struct dynbuf query_dyn;
+  अचर वर्ण *method = रिक्त;
+  अचर वर्ण *hexkey = CURL_EASY_STR(data, STRING_HTTPSIG_साँचो);
+  अचर वर्ण *keyid = CURL_EASY_STR(data, STRING_HTTPSIG_KEYID);
+  गणना httpsig_alg alg;
+  समय_प्रकार created;
+  संरचना dynbuf sig_params;
+  संरचना dynbuf sig_base;
+  संरचना dynbuf sig_hdr;
+  संरचना dynbuf आगत_hdr;
+  संरचना dynbuf authority_buf;
+  अचर वर्ण *authority;
+  अचर वर्ण *components[HTTPSIG_MAX_COMPONENTS];
+  माप_प्रकार ncomp = 0;
+  अचिन्हित वर्ण *keybuf = रिक्त;
+  माप_प्रकार keylen = 0;
+  अचिन्हित वर्ण raw_sig[HTTPSIG_MAX_RAW_SIG];
+  माप_प्रकार raw_sig_len = 0;
+  वर्ण *auth_headers = रिक्त;
+  वर्ण *hdrs_copy = रिक्त;
+  संरचना dynbuf query_dyn;
 
   alg = id_to_alg(data->set.httpsig_algorithm);
-  if(alg == HTTPSIG_ALG_UNKNOWN) {
+  यदि(alg == HTTPSIG_ALG_UNKNOWN) {
     failf(data, "httpsig: CURLOPT_HTTPSIG_ALGORITHM is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(!hexkey || !*hexkey) {
+  यदि(!hexkey || !*hexkey) {
     failf(data, "httpsig: CURLOPT_HTTPSIG_KEY is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  if(!keyid || !*keyid) {
+  यदि(!keyid || !*keyid) {
     failf(data, "httpsig: CURLOPT_HTTPSIG_KEYID is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    फर्काऊ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   curlx_dyn_init(&sig_params, CURL_MAX_HTTP_HEADER);
   curlx_dyn_init(&sig_base, HTTPSIG_MAX_SIG_BASE);
   curlx_dyn_init(&sig_hdr, CURL_MAX_HTTP_HEADER);
-  curlx_dyn_init(&input_hdr, CURL_MAX_HTTP_HEADER);
+  curlx_dyn_init(&आगत_hdr, CURL_MAX_HTTP_HEADER);
   curlx_dyn_init(&authority_buf, CURL_MAX_HTTP_HEADER);
   curlx_dyn_init(&query_dyn, CURL_MAX_HTTP_HEADER);
 
-  if(Curl_checkheaders(data, STRCONST("Signature")) ||
+  यदि(Curl_checkheaders(data, STRCONST("Signature")) ||
      Curl_checkheaders(data, STRCONST("Signature-Input"))) {
     /* user provides their own Signature / Signature-Input headers, consider
        this done */
-    goto done;
+    गच्छ done;
   }
 
-  result = decode_hex_key(data, hexkey, &keybuf, &keylen);
-  if(result)
-    goto fail;
+  result = decode_hex_साँचो(data, hexkey, &keybuf, &keylen);
+  यदि(result)
+    गच्छ fail;
 
-  if(alg == HTTPSIG_ALG_ED25519 && keylen != 32) {
+  यदि(alg == HTTPSIG_ALG_ED25519 && keylen != 32) {
     failf(data, "httpsig: ed25519 requires a 32-byte key (got %zu)", keylen);
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto fail;
+    गच्छ fail;
   }
 
   Curl_http_method(data, &method, &httpreq);
 
   path = data->state.up.path;
-  if(!path || !*path)
+  यदि(!path || !*path)
     path = "/";
 
   query = data->state.up.query;
 
   result = httpsig_authority(data, conn, &authority_buf);
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
   authority = curlx_dyn_ptr(&authority_buf);
 
   /* Build @query value: RFC 9421 Section 2.2.7 - always starts with "?" */
-  if(query && *query)
+  यदि(query && *query)
     result = curlx_dyn_addf(&query_dyn, "?%s", query);
-  else
+  अन्यथा
     result = curlx_dyn_add(&query_dyn, "?");
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
 
   result = parse_components(data, query, components, &ncomp, &hdrs_copy);
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
 
   created = httpsig_get_created();
 
   result = build_sig_params(&sig_params, components, ncomp,
                             created, keyid, alg);
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
 
   infof(data, "httpsig: Signature-Input params: %s",
         curlx_dyn_ptr(&sig_params));
@@ -632,37 +632,37 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
                           method, authority, path,
                           curlx_dyn_ptr(&query_dyn),
                           data, curlx_dyn_ptr(&sig_params));
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
 
   infof(data, "httpsig: Signature base: [%s]",
         curlx_dyn_ptr(&sig_base));
 
   result = httpsig_sign_base(data, alg, keybuf, keylen, &sig_base,
                              raw_sig, &raw_sig_len);
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
 
   result = curlx_dyn_add(&sig_hdr, HTTPSIG_DEFAULT_LABEL "=");
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
   result = sf_encode_byte_seq(raw_sig, raw_sig_len, &sig_hdr);
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
 
-  result = curlx_dyn_addf(&input_hdr, "%s=%s", HTTPSIG_DEFAULT_LABEL,
+  result = curlx_dyn_addf(&आगत_hdr, "%s=%s", HTTPSIG_DEFAULT_LABEL,
                           curlx_dyn_ptr(&sig_params));
-  if(result)
-    goto fail;
+  यदि(result)
+    गच्छ fail;
 
   auth_headers = curl_maprintf("Signature-Input: %s\r\n"
                                "Signature: %s\r\n",
-                               curlx_dyn_ptr(&input_hdr),
+                               curlx_dyn_ptr(&आगत_hdr),
                                curlx_dyn_ptr(&sig_hdr));
-  if(!auth_headers)
-    goto fail;
+  यदि(!auth_headers)
+    गच्छ fail;
 
-  infof(data, "httpsig: Signature-Input: %s", curlx_dyn_ptr(&input_hdr));
+  infof(data, "httpsig: Signature-Input: %s", curlx_dyn_ptr(&आगत_hdr));
   infof(data, "httpsig: Signature: %s", curlx_dyn_ptr(&sig_hdr));
 done:
   curlx_free(data->req.hd_auth);
@@ -671,19 +671,19 @@ done:
   result = CURLE_OK;
 
 fail:
-  if(keybuf) {
-    memset(keybuf, 0, keylen);
+  यदि(keybuf) {
+    स_रखो(keybuf, 0, keylen);
     curlx_free(keybuf);
   }
-  memset(raw_sig, 0, sizeof(raw_sig));
+  स_रखो(raw_sig, 0, परिमाण(raw_sig));
   curlx_free(hdrs_copy);
   curlx_dyn_free(&sig_params);
   curlx_dyn_free(&sig_base);
   curlx_dyn_free(&sig_hdr);
-  curlx_dyn_free(&input_hdr);
+  curlx_dyn_free(&आगत_hdr);
   curlx_dyn_free(&authority_buf);
   curlx_dyn_free(&query_dyn);
-  return result;
+  फर्काऊ result;
 }
 
 #endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */

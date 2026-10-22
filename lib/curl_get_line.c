@@ -21,46 +21,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#यदि !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
-#include "curl_get_line.h"
+#अन्तर्भाव "curl_get_line.h"
 
 /*
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_पङ्क्ति(संरचना dynbuf *buf, खाता *आगत, bool *eof)
 {
   CURLcode result;
-  char buffer[128];
+  वर्ण buffer[128];
   curlx_dyn_reset(buf);
-  while(1) {
-    size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+  जबसम्म(1) {
+    माप_प्रकार rlen;
+    अचर वर्ण *b = ख_माला_लो(buffer, परिमाण(buffer), आगत);
+    यदि(!b && ख_त्रुटि(आगत))
+      फर्काऊ CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = ख_पूर्ण(आगत);
 
-    rlen = b ? strlen(b) : 0;
-    if(rlen) {
+    rlen = b ? म_माप(b) : 0;
+    यदि(rlen) {
       result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+      यदि(result)
         /* too long line or out of memory */
-        return result;
+        फर्काऊ result;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    यदि(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      फर्काऊ CURLE_OK; /* all good */
+    यदि(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      फर्काऊ curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */

@@ -23,16 +23,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
+#यदि !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
 
 /* this is for NTLM header input */
-CURLcode Curl_input_ntlm(struct Curl_easy *data, bool proxy,
-                         const char *header);
+CURLcode Curl_आगत_ntlm(संरचना Curl_easy *data, bool proxy,
+                         अचर वर्ण *header);
 
 /* this is for creating NTLM header output */
-CURLcode Curl_output_ntlm(struct Curl_easy *data, bool proxy);
+CURLcode Curl_output_ntlm(संरचना Curl_easy *data, bool proxy);
 
 #endif
 

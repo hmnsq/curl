@@ -23,53 +23,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "hash.h"
-#include "curlx/timeval.h"
-#include "curlx/strparse.h"
+#अन्तर्भाव "hash.h"
+#अन्तर्भाव "curlx/timeval.h"
+#अन्तर्भाव "curlx/strparse.h"
 
-struct addrinfo;
-struct hostent;
-struct Curl_easy;
-struct connectdata;
-struct easy_pollset;
-struct Curl_https_rrinfo;
-struct Curl_multi;
-struct Curl_peer;
+संरचना addrinfo;
+संरचना hostent;
+संरचना Curl_easy;
+संरचना connectdata;
+संरचना easy_pollset;
+संरचना Curl_https_rrinfo;
+संरचना Curl_multi;
+संरचना Curl_peer;
 
 #define CURL_DNST_INIT      '\0'
 #define CURL_DNST_ADDR      'A'
 #define CURL_DNST_HTTPS     'H'
 
-struct Curl_dns_entry {
-  struct Curl_addrinfo *addr;
+संरचना Curl_dns_entry {
+  संरचना Curl_addrinfo *addr;
 #ifdef USE_HTTPSRR
-  struct Curl_https_rrinfo *hinfo;
+  संरचना Curl_https_rrinfo *hinfo;
 #endif
-  struct curltime added; /* time this entry was added to the cache */
+  संरचना curltime added; /* time this entry was added to the cache */
   uint32_t refcount; /* reference counter, entry is freed on reaching 0 */
   uint16_t hostlen; /* length of hostname */
   uint16_t port; /* host port */
-  char type; /* CURL_DNST_ADDR or CURL_DNST_HTTPS */
+  वर्ण type; /* CURL_DNST_ADDR or CURL_DNST_HTTPS */
   uint8_t dns_queries; /* CURL_DNSQ_* type of queries performed for this */
   uint8_t dns_responses; /* CURL_DNSQ_* type this entry has responses for */
   BIT(permanent); /* entry is permanent, e.g. does not time out */
   /* hostname that resolved to addr. may be NULL (Unix domain sockets). */
-  char hostname[1];
+  वर्ण hostname[1];
 };
 
-struct dnsc_id {
-  struct Curl_str name;
+संरचना dnsc_id {
+  संरचना Curl_str name;
   uint16_t port;
-  char type;
+  वर्ण type;
 };
 
 #define MAX_HOSTCACHE_LEN (255 + 3) /* max FQDN + type + port */
 
-struct dnsc_key {
+संरचना dnsc_साँचो {
   uint8_t data[MAX_HOSTCACHE_LEN];
-  size_t len;
+  माप_प्रकार len;
 };
 
 /*
@@ -81,42 +81,42 @@ struct dnsc_key {
  *
  * Returns entry or NULL on OOM.
  */
-struct Curl_dns_entry *Curl_dnsc_mk_addr(struct Curl_easy *data,
+संरचना Curl_dns_entry *Curl_dnsc_mk_addr(संरचना Curl_easy *data,
                                          uint8_t dns_queries,
-                                         struct Curl_addrinfo **paddr,
-                                         struct Curl_peer *peer);
+                                         संरचना Curl_addrinfo **paddr,
+                                         संरचना Curl_peer *peer);
 
-struct Curl_dns_entry *Curl_dnsc_mk_addr2(struct Curl_easy *data,
+संरचना Curl_dns_entry *Curl_dnsc_mk_addr2(संरचना Curl_easy *data,
                                           uint8_t dns_queries,
-                                          struct Curl_addrinfo **paddr1,
-                                          struct Curl_addrinfo **paddr2,
-                                          struct Curl_peer *peer);
+                                          संरचना Curl_addrinfo **paddr1,
+                                          संरचना Curl_addrinfo **paddr2,
+                                          संरचना Curl_peer *peer);
 
 #ifdef USE_HTTPSRR
-struct Curl_dns_entry *Curl_dnsc_mk_https(struct Curl_easy *data,
-                                          struct Curl_https_rrinfo **phinfo,
-                                          struct Curl_peer *peer);
+संरचना Curl_dns_entry *Curl_dnsc_mk_https(संरचना Curl_easy *data,
+                                          संरचना Curl_https_rrinfo **phinfo,
+                                          संरचना Curl_peer *peer);
 #endif /* USE_HTTPSRR */
 
 /* unlink a dns entry, frees all resources if it was the last reference.
  * Always clears `*pdns`` */
-void Curl_dns_entry_unlink(struct Curl_easy *data,
-                           struct Curl_dns_entry **pdns);
+शून्य Curl_dns_entry_unlink(संरचना Curl_easy *data,
+                           संरचना Curl_dns_entry **pdns);
 
-struct Curl_dnscache {
-  struct Curl_hash entries;
+संरचना Curl_dnscache {
+  संरचना Curl_hash entries;
 };
 
 /* init a new dns cache */
-void Curl_dnscache_init(struct Curl_dnscache *dns, size_t size);
+शून्य Curl_dnscache_init(संरचना Curl_dnscache *dns, माप_प्रकार size);
 
-void Curl_dnscache_destroy(struct Curl_dnscache *dns);
+शून्य Curl_dnscache_destroy(संरचना Curl_dnscache *dns);
 
 /* prune old entries from the DNS cache */
-void Curl_dnscache_prune(struct Curl_easy *data, const struct curltime *pnow);
+शून्य Curl_dnscache_prune(संरचना Curl_easy *data, अचर संरचना curltime *pnow);
 
 /* clear the DNS cache */
-void Curl_dnscache_clear(struct Curl_easy *data);
+शून्य Curl_dnscache_clear(संरचना Curl_easy *data);
 
 /*
  * Curl_dnscache_get() fetches a 'Curl_dns_entry' already in the DNS cache.
@@ -128,27 +128,27 @@ void Curl_dnscache_clear(struct Curl_easy *data);
  * Returns CURLE_OK or CURLE_COULDNT_RESOLVE_HOST when a negative
  * entry was in the cache.
  */
-CURLcode Curl_dnscache_get(struct Curl_easy *data,
+CURLcode Curl_dnscache_get(संरचना Curl_easy *data,
                            uint8_t dns_queries,
-                           struct Curl_peer *peer,
-                           struct Curl_dns_entry **pentry);
+                           संरचना Curl_peer *peer,
+                           संरचना Curl_dns_entry **pentry);
 
 /*
  * Curl_dnscache_addr() adds `entry` to the cache, increasing its
  * reference count on success.
  */
-CURLcode Curl_dnscache_add(struct Curl_easy *data,
-                           struct Curl_dns_entry *entry);
+CURLcode Curl_dnscache_add(संरचना Curl_easy *data,
+                           संरचना Curl_dns_entry *entry);
 
 /* Store a "negative" entry for host:port, e.g. remember that
  * it could not be resolved. */
-CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
+CURLcode Curl_dnscache_add_negative(संरचना Curl_easy *data,
                                     uint8_t dns_queries,
-                                    struct Curl_peer *peer);
+                                    संरचना Curl_peer *peer);
 
 /*
  * Populate the cache with specified entries from CURLOPT_RESOLVE.
  */
-CURLcode Curl_loadhostpairs(struct Curl_easy *data);
+CURLcode Curl_loadhostpairs(संरचना Curl_easy *data);
 
 #endif /* HEADER_CURL_DNSCACHE_H */

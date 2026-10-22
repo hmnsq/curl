@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef USE_SSL
 
-#include "cfilters.h"
-#include "select.h"
-#include "urldata.h"
-#include "vtls/vtls.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "select.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "vtls/vtls.h"
 
-struct Curl_ssl;
-struct ssl_connect_data;
-struct Curl_ssl_session;
+संरचना Curl_ssl;
+संरचना ssl_connect_data;
+संरचना Curl_ssl_session;
 
 /* see https://www.iana.org/assignments/tls-extensiontype-values/ */
 #define ALPN_HTTP_1_0_LENGTH 8
@@ -53,47 +53,47 @@ struct Curl_ssl_session;
 #define ALPN_ENTRIES_MAX   3
 #define ALPN_PROTO_BUF_MAX (ALPN_ENTRIES_MAX * (ALPN_NAME_MAX + 1))
 
-struct alpn_spec {
-  char entries[ALPN_ENTRIES_MAX][ALPN_NAME_MAX];
-  size_t count; /* number of entries */
+संरचना alpn_spec {
+  वर्ण entries[ALPN_ENTRIES_MAX][ALPN_NAME_MAX];
+  माप_प्रकार गन्ती; /* number of entries */
 };
 
-struct alpn_proto_buf {
-  unsigned char data[ALPN_PROTO_BUF_MAX];
-  int len;
+संरचना alpn_proto_buf {
+  अचिन्हित वर्ण data[ALPN_PROTO_BUF_MAX];
+  पूर्णाङ्क len;
 };
 
-CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec);
-CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec);
-void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto);
-void Curl_alpn_copy(struct alpn_spec *dest, const struct alpn_spec *src);
+CURLcode Curl_alpn_to_proto_buf(संरचना alpn_proto_buf *buf,
+                                अचर संरचना alpn_spec *spec);
+CURLcode Curl_alpn_to_proto_str(संरचना alpn_proto_buf *buf,
+                                अचर संरचना alpn_spec *spec);
+शून्य Curl_alpn_restrict_to(संरचना alpn_spec *spec, अचर वर्ण *proto);
+शून्य Curl_alpn_copy(संरचना alpn_spec *dest, अचर संरचना alpn_spec *src);
 
-CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct ssl_connect_data *connssl,
-                                  const unsigned char *proto,
-                                  size_t proto_len);
+CURLcode Curl_alpn_set_negotiated(संरचना Curl_cfilter *cf,
+                                  संरचना Curl_easy *data,
+                                  संरचना ssl_connect_data *connssl,
+                                  अचर अचिन्हित वर्ण *proto,
+                                  माप_प्रकार proto_len);
 
-bool Curl_alpn_contains_proto(const struct alpn_spec *spec, const char *proto);
+bool Curl_alpn_contains_proto(अचर संरचना alpn_spec *spec, अचर वर्ण *proto);
 
 /* enum for the nonblocking SSL connection state machine */
-typedef enum {
+प्रकारनिर्देश गणना {
   ssl_connect_1,
   ssl_connect_2,
   ssl_connect_3,
   ssl_connect_done
 } ssl_connect_state;
 
-typedef enum {
+प्रकारनिर्देश गणना {
   ssl_connection_none,
   ssl_connection_deferred,
   ssl_connection_negotiating,
   ssl_connection_complete
 } ssl_connection_state;
 
-typedef enum {
+प्रकारनिर्देश गणना {
   ssl_earlydata_none,
   ssl_earlydata_await,
   ssl_earlydata_sending,
@@ -110,104 +110,104 @@ typedef enum {
 #define CURL_SSL_EARLY_MAX      (64 * 1024)
 
 /* Information in each SSL cfilter context: cf->ctx */
-struct ssl_connect_data {
-  const struct Curl_ssl *ssl_impl;  /* TLS backend for this filter */
-  struct ssl_peer peer;             /* peer the filter talks to */
-  const struct alpn_spec *alpn;     /* ALPN to use or NULL for none */
-  void *backend;                    /* vtls backend specific props */
-  struct cf_call_data call_data;    /* data handle used in current call */
-  struct Curl_ssl_session *session; /* TLS session in use or NULL */
-  struct curltime handshake_done;   /* time when handshake finished */
-  struct {
-    char *alpn;                     /* ALPN value or NULL */
+संरचना ssl_connect_data {
+  अचर संरचना Curl_ssl *ssl_impl;  /* TLS backend for this filter */
+  संरचना ssl_peer peer;             /* peer the filter talks to */
+  अचर संरचना alpn_spec *alpn;     /* ALPN to use or NULL for none */
+  शून्य *backend;                    /* vtls backend specific props */
+  संरचना cf_call_data call_data;    /* data handle used in current call */
+  संरचना Curl_ssl_session *session; /* TLS session in use or NULL */
+  संरचना curltime handshake_done;   /* time when handshake finished */
+  संरचना {
+    वर्ण *alpn;                     /* ALPN value or NULL */
   } negotiated;
-  struct bufq earlydata;            /* earlydata to be send to peer */
-  size_t earlydata_max;             /* max earlydata allowed by peer */
-  size_t earlydata_skip;            /* sending bytes to skip when earlydata
+  संरचना bufq earlydata;            /* earlydata to be send to peer */
+  माप_प्रकार earlydata_max;             /* max earlydata allowed by peer */
+  माप_प्रकार earlydata_skip;            /* sending bytes to skip when earlydata
                                      * is accepted by peer */
   ssl_connection_state state;
   ssl_connect_state connecting_state;
   ssl_earlydata_state earlydata_state;
-  int io_need;                      /* TLS signals special SEND/RECV needs */
+  पूर्णाङ्क io_need;                      /* TLS signals special SEND/RECV needs */
   BIT(peer_closed);                 /* peer has closed connection */
   BIT(prefs_checked);               /* SSL preferences have been checked */
-  BIT(input_pending);               /* data for SSL_read() may be available */
+  BIT(आगत_pending);               /* data for SSL_read() may be available */
   BIT(stats_reported);              /* connect times have been reported */
 };
 
 /* Definitions for SSL Implementations */
 
-struct Curl_ssl {
+संरचना Curl_ssl {
   /*
    * This *must* be the first entry to allow returning the list of available
    * backends in curl_global_sslset().
    */
   curl_ssl_backend info;
-  unsigned int supports; /* bitfield, see above */
-  size_t sizeof_ssl_backend_data;
+  अचिन्हित पूर्णाङ्क supports; /* bitfield, see above */
+  माप_प्रकार sizeof_ssl_backend_data;
 
-  int (*init)(void);
-  void (*cleanup)(void);
+  पूर्णाङ्क (*init)(शून्य);
+  शून्य (*cleanup)(शून्य);
 
-  size_t (*version)(char *buffer, size_t size);
-  CURLcode (*shut_down)(struct Curl_cfilter *cf, struct Curl_easy *data,
+  माप_प्रकार (*version)(वर्ण *buffer, माप_प्रकार size);
+  CURLcode (*shut_down)(संरचना Curl_cfilter *cf, संरचना Curl_easy *data,
                         bool send_shutdown, bool *done);
 
   /* data_pending() shall return TRUE when it wants to get called again to
      drain internal buffers and deliver data instead of waiting for the socket
      to get readable */
-  bool (*data_pending)(struct Curl_cfilter *cf, const struct Curl_easy *data);
+  bool (*data_pending)(संरचना Curl_cfilter *cf, अचर संरचना Curl_easy *data);
 
   /* return 0 if a find random is filled in */
-  CURLcode (*random)(struct Curl_easy *data, unsigned char *entropy,
-                     size_t length);
-  bool (*cert_status_request)(void);
+  CURLcode (*random)(संरचना Curl_easy *data, अचिन्हित वर्ण *entropy,
+                     माप_प्रकार length);
+  bool (*cert_status_request)(शून्य);
 
-  CURLcode (*do_connect)(struct Curl_cfilter *cf, struct Curl_easy *data,
+  CURLcode (*do_connect)(संरचना Curl_cfilter *cf, संरचना Curl_easy *data,
                          bool *done);
 
   /* During handshake/shutdown, adjust the pollset to include the socket
    * for POLLOUT or POLLIN as needed. Mandatory. */
-  CURLcode (*adjust_pollset)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                             struct easy_pollset *ps);
-  void *(*get_internals)(struct ssl_connect_data *connssl, CURLINFO info);
-  void (*close)(struct Curl_cfilter *cf, struct Curl_easy *data);
-  void (*close_all)(struct Curl_easy *data);
+  CURLcode (*adjust_pollset)(संरचना Curl_cfilter *cf, संरचना Curl_easy *data,
+                             संरचना easy_pollset *ps);
+  शून्य *(*get_internals)(संरचना ssl_connect_data *connssl, CURLINFO info);
+  शून्य (*बंद)(संरचना Curl_cfilter *cf, संरचना Curl_easy *data);
+  शून्य (*close_all)(संरचना Curl_easy *data);
 
-  struct curl_slist *(*engines_list)(struct Curl_easy *data);
+  संरचना curl_slist *(*engines_list)(संरचना Curl_easy *data);
 
-  CURLcode (*sha256sum)(const unsigned char *input, size_t inputlen,
-                        unsigned char *sha256sum, size_t sha256sumlen);
-  CURLcode (*recv_plain)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         char *buf, size_t len, size_t *pnread);
-  CURLcode (*send_plain)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         const void *mem, size_t len, size_t *pnwritten);
+  CURLcode (*sha256sum)(अचर अचिन्हित वर्ण *आगत, माप_प्रकार inputlen,
+                        अचिन्हित वर्ण *sha256sum, माप_प्रकार sha256sumlen);
+  CURLcode (*recv_plain)(संरचना Curl_cfilter *cf, संरचना Curl_easy *data,
+                         वर्ण *buf, माप_प्रकार len, माप_प्रकार *pnread);
+  CURLcode (*send_plain)(संरचना Curl_cfilter *cf, संरचना Curl_easy *data,
+                         अचर शून्य *mem, माप_प्रकार len, माप_प्रकार *pnwritten);
 
-  CURLcode (*get_channel_binding)(struct Curl_easy *data, int8_t sockindex,
-                                  struct dynbuf *binding);
+  CURLcode (*get_channel_binding)(संरचना Curl_easy *data, int8_t sockindex,
+                                  संरचना dynbuf *binding);
 };
 
-extern const struct Curl_ssl *Curl_ssl;
+बाह्य अचर संरचना Curl_ssl *Curl_ssl;
 
-CURLcode Curl_ssl_adjust_pollset(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct easy_pollset *ps);
+CURLcode Curl_ssl_adjust_pollset(संरचना Curl_cfilter *cf,
+                                 संरचना Curl_easy *data,
+                                 संरचना easy_pollset *ps);
 
 /**
  * Get the SSL filter below the given one or NULL if there is none.
  */
-bool Curl_ssl_cf_is_proxy(struct Curl_cfilter *cf);
+bool Curl_ssl_cf_is_proxy(संरचना Curl_cfilter *cf);
 
-CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct alpn_spec *alpns,
-                               struct Curl_ssl_session *scs,
+CURLcode Curl_on_session_reuse(संरचना Curl_cfilter *cf,
+                               संरचना Curl_easy *data,
+                               संरचना alpn_spec *alpns,
+                               संरचना Curl_ssl_session *scs,
                                bool *do_early_data, bool early_data_allowed);
 
 /* Retrieve the SSL session held at the filter of type `cft` at
  * data's connection at `sockindex` or NULL if not found/available. */
-struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
-                                                 const struct Curl_cftype *cft,
+संरचना Curl_ssl_session *Curl_ssl_get_cf_session(संरचना Curl_easy *data,
+                                                 अचर संरचना Curl_cftype *cft,
                                                  int8_t sockindex);
 
 #endif /* USE_SSL */
@@ -217,5 +217,5 @@ struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
 #ifdef USE_SSL
 /* Restore the default SSL filter call_data accessor for unity builds. */
 #undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct ssl_connect_data *)(cf)->ctx)->call_data
+#define CF_CTX_CALL_DATA(cf) ((संरचना ssl_connect_data *)(cf)->ctx)->call_data
 #endif

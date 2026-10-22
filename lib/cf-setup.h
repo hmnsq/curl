@@ -23,24 +23,24 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-struct Curl_dns_entry;
-struct ip_quadruple;
-struct Curl_peer;
-struct Curl_str;
+संरचना Curl_dns_entry;
+संरचना ip_quadruple;
+संरचना Curl_peer;
+संरचना Curl_str;
 
-CURLcode Curl_cf_setup_add(struct Curl_easy *data,
-                           struct connectdata *conn,
+CURLcode Curl_cf_setup_add(संरचना Curl_easy *data,
+                           संरचना connectdata *conn,
                            int8_t sockindex,
                            uint8_t transport,
-                           int ssl_mode);
+                           पूर्णाङ्क ssl_mode);
 
-CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter *cf_at,
-                                    struct Curl_easy *data,
+CURLcode Curl_cf_setup_घुसाउ_after(संरचना Curl_cfilter *cf_at,
+                                    संरचना Curl_easy *data,
                                     uint8_t transport,
-                                    int ssl_mode);
+                                    पूर्णाङ्क ssl_mode);
 
-extern struct Curl_cftype Curl_cft_setup;
+बाह्य संरचना Curl_cftype Curl_cft_setup;
 
 #endif /* HEADER_CURL_CF_SETUP_H */

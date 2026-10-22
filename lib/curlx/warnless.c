@@ -21,222 +21,222 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "curlx/warnless.h"
+#अन्तर्भाव "curlx/warnless.h"
 
-#if defined(__INTEL_COMPILER) && defined(__unix__)
+#यदि defined(__INTEL_COMPILER) && defined(__unix__)
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#अन्तर्भाव <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#अन्तर्भाव <arpa/inet.h>
 #endif
 
 #endif /* __INTEL_COMPILER && __unix__ */
 
-#define CURL_MASK_UCHAR   ((unsigned char)~0)
+#define CURL_MASK_UCHAR   ((अचिन्हित वर्ण)~0)
 
-#define CURL_MASK_USHORT  ((unsigned short)~0)
+#define CURL_MASK_USHORT  ((अचिन्हित लघु)~0)
 
-#define CURL_MASK_UINT    ((unsigned int)~0)
+#define CURL_MASK_UINT    ((अचिन्हित पूर्णाङ्क)~0)
 #define CURL_MASK_SINT    (CURL_MASK_UINT >> 1)
 
-#define CURL_MASK_ULONG   ((unsigned long)~0)
+#define CURL_MASK_ULONG   ((अचिन्हित दीर्घ)~0)
 
-#define CURL_MASK_USIZE_T ((size_t)~0)
+#define CURL_MASK_USIZE_T ((माप_प्रकार)~0)
 #define CURL_MASK_SSIZE_T (CURL_MASK_USIZE_T >> 1)
 
 #ifdef __INTEL_COMPILER
-#pragma warning(push)
+#pragma warning(थप)
 #pragma warning(disable:810) /* conversion may lose significant bits */
 #endif
 
 /*
  * unsigned long to unsigned char
  */
-unsigned char curlx_ultouc(unsigned long ulnum)
+अचिन्हित वर्ण curlx_ultouc(अचिन्हित दीर्घ ulnum)
 {
-  DEBUGASSERT(ulnum <= (unsigned long)CURL_MASK_UCHAR);
-  return (unsigned char)(ulnum & (unsigned long)CURL_MASK_UCHAR);
+  DEBUGASSERT(ulnum <= (अचिन्हित दीर्घ)CURL_MASK_UCHAR);
+  फर्काऊ (अचिन्हित वर्ण)(ulnum & (अचिन्हित दीर्घ)CURL_MASK_UCHAR);
 }
 
 /*
  * unsigned size_t to signed int
  */
-int curlx_uztosi(size_t uznum)
+पूर्णाङ्क curlx_uztosi(माप_प्रकार uznum)
 {
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_SINT);
-  return (int)(uznum & (size_t)CURL_MASK_SINT);
+  DEBUGASSERT(uznum <= (माप_प्रकार)CURL_MASK_SINT);
+  फर्काऊ (पूर्णाङ्क)(uznum & (माप_प्रकार)CURL_MASK_SINT);
 }
 
 /*
  * unsigned size_t to unsigned long
  */
-unsigned long curlx_uztoul(size_t uznum)
+अचिन्हित दीर्घ curlx_uztoul(माप_प्रकार uznum)
 {
-#if ULONG_MAX < SIZE_MAX
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_ULONG);
+#यदि अच_दीर्घ_उच्च < SIZE_MAX
+  DEBUGASSERT(uznum <= (माप_प्रकार)CURL_MASK_ULONG);
 #endif
-  return (unsigned long)(uznum & (size_t)CURL_MASK_ULONG);
+  फर्काऊ (अचिन्हित दीर्घ)(uznum & (माप_प्रकार)CURL_MASK_ULONG);
 }
 
 /*
  * unsigned size_t to unsigned int
  */
-unsigned int curlx_uztoui(size_t uznum)
+अचिन्हित पूर्णाङ्क curlx_uztoui(माप_प्रकार uznum)
 {
-#if UINT_MAX < SIZE_MAX
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_UINT);
+#यदि अच_पूर्णांक_उच्च < SIZE_MAX
+  DEBUGASSERT(uznum <= (माप_प्रकार)CURL_MASK_UINT);
 #endif
-  return (unsigned int)(uznum & (size_t)CURL_MASK_UINT);
+  फर्काऊ (अचिन्हित पूर्णाङ्क)(uznum & (माप_प्रकार)CURL_MASK_UINT);
 }
 
 /*
  * signed long to signed int
  */
-int curlx_sltosi(long slnum)
+पूर्णाङ्क curlx_sltosi(दीर्घ slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if INT_MAX < LONG_MAX
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_SINT);
+#यदि पूर्णांक_उच्च < दीर्घ_उच्च
+  DEBUGASSERT((अचिन्हित दीर्घ)slnum <= (अचिन्हित दीर्घ)CURL_MASK_SINT);
 #endif
-  return (int)(slnum & (long)CURL_MASK_SINT);
+  फर्काऊ (पूर्णाङ्क)(slnum & (दीर्घ)CURL_MASK_SINT);
 }
 
 /*
  * signed long to unsigned int
  */
-unsigned int curlx_sltoui(long slnum)
+अचिन्हित पूर्णाङ्क curlx_sltoui(दीर्घ slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if UINT_MAX < LONG_MAX
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_UINT);
+#यदि अच_पूर्णांक_उच्च < दीर्घ_उच्च
+  DEBUGASSERT((अचिन्हित दीर्घ)slnum <= (अचिन्हित दीर्घ)CURL_MASK_UINT);
 #endif
-  return (unsigned int)(slnum & (long)CURL_MASK_UINT);
+  फर्काऊ (अचिन्हित पूर्णाङ्क)(slnum & (दीर्घ)CURL_MASK_UINT);
 }
 
 /*
  * signed long to unsigned short
  */
-unsigned short curlx_sltous(long slnum)
+अचिन्हित लघु curlx_sltous(दीर्घ slnum)
 {
   DEBUGASSERT(slnum >= 0);
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_USHORT);
-  return (unsigned short)(slnum & (long)CURL_MASK_USHORT);
+  DEBUGASSERT((अचिन्हित दीर्घ)slnum <= (अचिन्हित दीर्घ)CURL_MASK_USHORT);
+  फर्काऊ (अचिन्हित लघु)(slnum & (दीर्घ)CURL_MASK_USHORT);
 }
 
 /*
  * unsigned size_t to signed ssize_t
  */
-ssize_t curlx_uztosz(size_t uznum)
+ssize_t curlx_uztosz(माप_प्रकार uznum)
 {
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_SSIZE_T);
-  return (ssize_t)(uznum & (size_t)CURL_MASK_SSIZE_T);
+  DEBUGASSERT(uznum <= (माप_प्रकार)CURL_MASK_SSIZE_T);
+  फर्काऊ (ssize_t)(uznum & (माप_प्रकार)CURL_MASK_SSIZE_T);
 }
 
 /*
  * signed curl_off_t to unsigned size_t
  */
-size_t curlx_sotouz(curl_off_t sonum)
+माप_प्रकार curlx_sotouz(curl_off_t sonum)
 {
   DEBUGASSERT(sonum >= 0);
-  return (size_t)(sonum & (curl_off_t)CURL_MASK_USIZE_T);
+  फर्काऊ (माप_प्रकार)(sonum & (curl_off_t)CURL_MASK_USIZE_T);
 }
 
 /*
  * signed ssize_t to signed int
  */
-int curlx_sztosi(ssize_t sznum)
+पूर्णाङ्क curlx_sztosi(ssize_t sznum)
 {
   DEBUGASSERT(sznum >= 0);
-#if INT_MAX < SSIZE_MAX
-  DEBUGASSERT((size_t)sznum <= (size_t)CURL_MASK_SINT);
+#यदि पूर्णांक_उच्च < SSIZE_MAX
+  DEBUGASSERT((माप_प्रकार)sznum <= (माप_प्रकार)CURL_MASK_SINT);
 #endif
-  return (int)(sznum & (ssize_t)CURL_MASK_SINT);
+  फर्काऊ (पूर्णाङ्क)(sznum & (ssize_t)CURL_MASK_SINT);
 }
 
 /*
  * unsigned int to unsigned short
  */
-unsigned short curlx_uitous(unsigned int uinum)
+अचिन्हित लघु curlx_uitous(अचिन्हित पूर्णाङ्क uinum)
 {
-  DEBUGASSERT(uinum <= (unsigned int)CURL_MASK_USHORT);
-  return (unsigned short)(uinum & (unsigned int)CURL_MASK_USHORT);
+  DEBUGASSERT(uinum <= (अचिन्हित पूर्णाङ्क)CURL_MASK_USHORT);
+  फर्काऊ (अचिन्हित लघु)(uinum & (अचिन्हित पूर्णाङ्क)CURL_MASK_USHORT);
 }
 
 /*
  * signed int to unsigned size_t
  */
-size_t curlx_sitouz(int sinum)
+माप_प्रकार curlx_sitouz(पूर्णाङ्क sinum)
 {
   DEBUGASSERT(sinum >= 0);
-  return (size_t)sinum;
+  फर्काऊ (माप_प्रकार)sinum;
 }
 
 #ifdef __INTEL_COMPILER
-#pragma warning(pop)
+#pragma warning(झिक)
 #endif
 
-size_t curlx_uitouz(unsigned int uinum)
+माप_प्रकार curlx_uitouz(अचिन्हित पूर्णाङ्क uinum)
 {
-  return (size_t)uinum;
+  फर्काऊ (माप_प्रकार)uinum;
 }
 
-size_t curlx_sotouz_range(curl_off_t sonum, size_t uzmin, size_t uzmax)
+माप_प्रकार curlx_sotouz_range(curl_off_t sonum, माप_प्रकार uzmin, माप_प्रकार uzmax)
 {
-  if(sonum < 0)
-    return uzmin;
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX)
-    return uzmax;
+  यदि(sonum < 0)
+    फर्काऊ uzmin;
+#यदि SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
+  यदि(sonum > SIZE_MAX)
+    फर्काऊ uzmax;
 #endif
-  return CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
+  फर्काऊ CURLMIN(CURLMAX((माप_प्रकार)sonum, uzmin), uzmax);
 }
 
-bool curlx_sztouz(ssize_t sznum, size_t *puznum)
+bool curlx_sztouz(ssize_t sznum, माप_प्रकार *puznum)
 {
-  if(sznum < 0) {
+  यदि(sznum < 0) {
     *puznum = 0;
-    return FALSE;
+    फर्काऊ FALSE;
   }
-  *puznum = (size_t)sznum;
-  return TRUE;
+  *puznum = (माप_प्रकार)sznum;
+  फर्काऊ TRUE;
 }
 
-bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum)
+bool curlx_sotouz_fits(curl_off_t sonum, माप_प्रकार *puznum)
 {
-  if(sonum < 0) {
+  यदि(sonum < 0) {
     *puznum = 0;
-    return FALSE;
+    फर्काऊ FALSE;
   }
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX) {
+#यदि SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
+  यदि(sonum > SIZE_MAX) {
     *puznum = 0;
-    return FALSE;
+    फर्काऊ FALSE;
   }
 #endif
-  *puznum = (size_t)sonum;
-  return TRUE;
+  *puznum = (माप_प्रकार)sonum;
+  फर्काऊ TRUE;
 }
 
-bool curlx_sltouz(long slnum, size_t *puznum)
+bool curlx_sltouz(दीर्घ slnum, माप_प्रकार *puznum)
 {
-  if(slnum < 0) {
+  यदि(slnum < 0) {
     *puznum = 0;
-    return FALSE;
+    फर्काऊ FALSE;
   }
   /* We error in curl_setup.h if SIZEOF_LONG > SIZEOF_SIZE_T */
-  *puznum = (size_t)slnum;
-  return TRUE;
+  *puznum = (माप_प्रकार)slnum;
+  फर्काऊ TRUE;
 }
 
-curl_off_t curlx_uztoso(size_t uznum)
+curl_off_t curlx_uztoso(माप_प्रकार uznum)
 {
-#if SIZEOF_SIZE_T >= SIZEOF_CURL_OFF_T
-  if(uznum > (size_t)CURL_OFF_T_MAX)
-    return CURL_OFF_T_MAX;
+#यदि SIZEOF_SIZE_T >= SIZEOF_CURL_OFF_T
+  यदि(uznum > (माप_प्रकार)CURL_OFF_T_MAX)
+    फर्काऊ CURL_OFF_T_MAX;
 #endif
-  return (curl_off_t)uznum;
+  फर्काऊ (curl_off_t)uznum;
 }

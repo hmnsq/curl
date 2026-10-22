@@ -29,13 +29,13 @@
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist);
+संरचना curl_slist *Curl_slist_duplicate(संरचना curl_slist *inlist);
 
 /*
  * Curl_slist_append_nodup() takes ownership of the given string and appends
  * it to the list.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data);
+संरचना curl_slist *Curl_slist_append_nodup(संरचना curl_slist *list,
+                                           अचर वर्ण *data);
 
 #endif /* HEADER_CURL_SLIST_H */

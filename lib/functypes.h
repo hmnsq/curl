@@ -38,47 +38,47 @@
 #ifdef USE_WINSOCK
 /* int recv(SOCKET, char *, int, int) */
 #define RECV_TYPE_ARG1 SOCKET
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 int
-#define RECV_TYPE_RETV int
+#define RECV_TYPE_ARG2 वर्ण *
+#define RECV_TYPE_ARG3 पूर्णाङ्क
+#define RECV_TYPE_RETV पूर्णाङ्क
 
 /* int send(SOCKET, const char *, int, int); */
 #define SEND_TYPE_ARG1 SOCKET
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#define SEND_TYPE_ARG2 वर्ण *
+#define SEND_TYPE_ARG3 पूर्णाङ्क
+#define SEND_TYPE_RETV पूर्णाङ्क
 
-#elif defined(__AMIGA__) /* Any AmigaOS flavor */
+#अथवायदि defined(__AMIGA__) /* Any AmigaOS flavor */
 
 /* long recv(long, char *, long, long); */
-#define RECV_TYPE_ARG1 long
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 long
-#define RECV_TYPE_ARG4 long
-#define RECV_TYPE_RETV long
+#define RECV_TYPE_ARG1 दीर्घ
+#define RECV_TYPE_ARG2 वर्ण *
+#define RECV_TYPE_ARG3 दीर्घ
+#define RECV_TYPE_ARG4 दीर्घ
+#define RECV_TYPE_RETV दीर्घ
 
 /* int send(int, char *, int, int); */
-#define SEND_TYPE_ARG1 int
+#define SEND_TYPE_ARG1 पूर्णाङ्क
 #define SEND_NONCONST_ARG2
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#define SEND_TYPE_ARG2 वर्ण *
+#define SEND_TYPE_ARG3 पूर्णाङ्क
+#define SEND_TYPE_RETV पूर्णाङ्क
 #endif
 
 #ifndef RECV_TYPE_ARG1
-#define RECV_TYPE_ARG1 int
+#define RECV_TYPE_ARG1 पूर्णाङ्क
 #endif
 
 #ifndef RECV_TYPE_ARG2
-#define RECV_TYPE_ARG2 void *
+#define RECV_TYPE_ARG2 शून्य *
 #endif
 
 #ifndef RECV_TYPE_ARG3
-#define RECV_TYPE_ARG3 size_t
+#define RECV_TYPE_ARG3 माप_प्रकार
 #endif
 
 #ifndef RECV_TYPE_ARG4
-#define RECV_TYPE_ARG4 int
+#define RECV_TYPE_ARG4 पूर्णाङ्क
 #endif
 
 #ifndef RECV_TYPE_RETV
@@ -86,19 +86,19 @@
 #endif
 
 #ifndef SEND_TYPE_ARG1
-#define SEND_TYPE_ARG1 int
+#define SEND_TYPE_ARG1 पूर्णाङ्क
 #endif
 
 #ifndef SEND_TYPE_ARG2
-#define SEND_TYPE_ARG2 void *
+#define SEND_TYPE_ARG2 शून्य *
 #endif
 
 #ifndef SEND_TYPE_ARG3
-#define SEND_TYPE_ARG3 size_t
+#define SEND_TYPE_ARG3 माप_प्रकार
 #endif
 
 #ifndef SEND_TYPE_ARG4
-#define SEND_TYPE_ARG4 int
+#define SEND_TYPE_ARG4 पूर्णाङ्क
 #endif
 
 #ifndef SEND_TYPE_RETV

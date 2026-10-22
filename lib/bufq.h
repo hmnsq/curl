@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 /**
  * A chunk of bytes for reading and writing.
  * The size is fixed a creation with read and write offset
  * for where unread content is.
  */
-struct buf_chunk {
-  struct buf_chunk *next;  /* to keep it in a list */
-  size_t dlen;             /* the amount of allocated x.data[] */
-  size_t r_offset;         /* first unread bytes */
-  size_t w_offset;         /* one after last written byte */
-  union {
+संरचना buf_chunk {
+  संरचना buf_chunk *next;  /* to keep it in a list */
+  माप_प्रकार dlen;             /* the amount of allocated x.data[] */
+  माप_प्रकार r_offset;         /* first unread bytes */
+  माप_प्रकार w_offset;         /* one after last written byte */
+  सङ्घ {
     uint8_t data[1];       /* the buffer for `dlen` bytes */
-    void *dummy;           /* alignment */
+    शून्य *dummy;           /* alignment */
   } x;
 };
 
@@ -47,17 +47,17 @@ struct buf_chunk {
  * The same pool can be shared by many `bufq` instances. A pool is not thread
  * safe. All bufqs using it are supposed to operate in the same thread.
  */
-struct bufc_pool {
-  struct buf_chunk *spare;  /* list of available spare chunks */
-  size_t chunk_size;        /* the size of chunks in this pool */
-  size_t spare_count;       /* current number of spare chunks in list */
-  size_t spare_max;         /* max number of spares to keep */
+संरचना bufc_pool {
+  संरचना buf_chunk *spare;  /* list of available spare chunks */
+  माप_प्रकार chunk_size;        /* the size of chunks in this pool */
+  माप_प्रकार spare_गन्ती;       /* current number of spare chunks in list */
+  माप_प्रकार spare_max;         /* max number of spares to keep */
 };
 
-void Curl_bufcp_init(struct bufc_pool *pool,
-                     size_t chunk_size, size_t spare_max);
+शून्य Curl_bufcp_init(संरचना bufc_pool *pool,
+                     माप_प्रकार chunk_size, माप_प्रकार spare_max);
 
-void Curl_bufcp_free(struct bufc_pool *pool);
+शून्य Curl_bufcp_free(संरचना bufc_pool *pool);
 
 /**
  * A queue of byte chunks for reading and writing.
@@ -88,15 +88,15 @@ void Curl_bufcp_free(struct bufc_pool *pool);
  * When providing a pool to a bufq, all chunk creation and spare handling
  * will be delegated to that pool.
  */
-struct bufq {
-  struct buf_chunk *head;       /* chunk with bytes to read from */
-  struct buf_chunk *tail;       /* chunk to write to */
-  struct buf_chunk *spare;      /* list of free chunks, unless `pool` */
-  struct bufc_pool *pool;       /* optional pool for free chunks */
-  size_t chunk_count;           /* current number of chunks in `head+spare` */
-  size_t max_chunks;            /* max `head` chunks to use */
-  size_t chunk_size;            /* size of chunks to manage */
-  int opts;                     /* options for handling queue, see below */
+संरचना bufq {
+  संरचना buf_chunk *head;       /* chunk with bytes to read from */
+  संरचना buf_chunk *tail;       /* chunk to write to */
+  संरचना buf_chunk *spare;      /* list of free chunks, unless `pool` */
+  संरचना bufc_pool *pool;       /* optional pool for free chunks */
+  माप_प्रकार chunk_गन्ती;           /* current number of chunks in `head+spare` */
+  माप_प्रकार max_chunks;            /* max `head` chunks to use */
+  माप_प्रकार chunk_size;            /* size of chunks to manage */
+  पूर्णाङ्क opts;                     /* options for handling queue, see below */
 };
 
 /**
@@ -119,66 +119,66 @@ struct bufq {
  * each of size `chunk_size`. The bufq will not allow writing of
  * more bytes than can be held in `max_chunks`.
  */
-void Curl_bufq_init(struct bufq *q, size_t chunk_size, size_t max_chunks);
+शून्य Curl_bufq_init(संरचना bufq *q, माप_प्रकार chunk_size, माप_प्रकार max_chunks);
 
 /**
  * Initialize a buffer queue that can hold up to `max_chunks` buffers
  * each of size `chunk_size` with the given options. See `BUFQ_OPT_*`.
  */
-void Curl_bufq_init2(struct bufq *q, size_t chunk_size,
-                     size_t max_chunks, int opts);
+शून्य Curl_bufq_init2(संरचना bufq *q, माप_प्रकार chunk_size,
+                     माप_प्रकार max_chunks, पूर्णाङ्क opts);
 
-void Curl_bufq_initp(struct bufq *q, struct bufc_pool *pool,
-                     size_t max_chunks, int opts);
+शून्य Curl_bufq_initp(संरचना bufq *q, संरचना bufc_pool *pool,
+                     माप_प्रकार max_chunks, पूर्णाङ्क opts);
 
 /**
  * Reset the buffer queue to be empty. Keep any allocated buffer chunks
  * around.
  */
-void Curl_bufq_reset(struct bufq *q);
+शून्य Curl_bufq_reset(संरचना bufq *q);
 
 /**
  * Free all resources held by the buffer queue.
  */
-void Curl_bufq_free(struct bufq *q);
+शून्य Curl_bufq_free(संरचना bufq *q);
 
 /**
  * Return the total amount of data in the queue.
  */
-size_t Curl_bufq_len(const struct bufq *q);
+माप_प्रकार Curl_bufq_len(अचर संरचना bufq *q);
 
 /**
  * Returns TRUE iff there is no data in the buffer queue.
  */
-bool Curl_bufq_is_empty(const struct bufq *q);
+bool Curl_bufq_is_empty(अचर संरचना bufq *q);
 
 /**
  * Returns TRUE iff there is no space left in the buffer queue.
  */
-bool Curl_bufq_is_full(const struct bufq *q);
+bool Curl_bufq_is_full(अचर संरचना bufq *q);
 
 /**
  * Write buf to the end of the buffer queue. The buf is copied
  * and the amount of copied bytes is returned.
  * CURLE_AGAIN is returned if the buffer queue is full.
  */
-CURLcode Curl_bufq_write(struct bufq *q,
-                         const uint8_t *buf, size_t len,
-                         size_t *pnwritten);
+CURLcode Curl_bufq_write(संरचना bufq *q,
+                         अचर uint8_t *buf, माप_प्रकार len,
+                         माप_प्रकार *pnwritten);
 
-CURLcode Curl_bufq_cwrite(struct bufq *q,
-                          const char *buf, size_t len,
-                          size_t *pnwritten);
+CURLcode Curl_bufq_cwrite(संरचना bufq *q,
+                          अचर वर्ण *buf, माप_प्रकार len,
+                          माप_प्रकार *pnwritten);
 
 /**
  * Read buf from the start of the buffer queue. The buf is copied
  * and the amount of copied bytes is returned.
  */
-CURLcode Curl_bufq_read(struct bufq *q, uint8_t *buf, size_t len,
-                        size_t *pnread);
+CURLcode Curl_bufq_read(संरचना bufq *q, uint8_t *buf, माप_प्रकार len,
+                        माप_प्रकार *pnread);
 
-CURLcode Curl_bufq_cread(struct bufq *q, char *buf, size_t len,
-                         size_t *pnread);
+CURLcode Curl_bufq_cread(संरचना bufq *q, वर्ण *buf, माप_प्रकार len,
+                         माप_प्रकार *pnread);
 
 /**
  * Peek at the head chunk in the buffer queue. Returns a pointer to
@@ -189,21 +189,21 @@ CURLcode Curl_bufq_cread(struct bufq *q, char *buf, size_t len,
  * Repeated calls return the same information until the buffer queue
  * is modified, see `Curl_bufq_skip()``
  */
-bool Curl_bufq_peek(struct bufq *q,
-                    const uint8_t **pbuf, size_t *plen);
+bool Curl_bufq_peek(संरचना bufq *q,
+                    अचर uint8_t **pbuf, माप_प्रकार *plen);
 
-bool Curl_bufq_peek_at(struct bufq *q, size_t offset,
-                       const uint8_t **pbuf, size_t *plen);
+bool Curl_bufq_peek_at(संरचना bufq *q, माप_प्रकार offset,
+                       अचर uint8_t **pbuf, माप_प्रकार *plen);
 
 /**
  * Tell the buffer queue to discard `amount` buf bytes at the head of the
  * queue. Skipping more buf than is currently buffered will empty the queue.
  */
-void Curl_bufq_skip(struct bufq *q, size_t amount);
+शून्य Curl_bufq_skip(संरचना bufq *q, माप_प्रकार amount);
 
-typedef CURLcode Curl_bufq_writer(void *writer_ctx,
-                                  const uint8_t *buf, size_t len,
-                                  size_t *pwritten);
+प्रकारनिर्देश CURLcode Curl_bufq_writer(शून्य *writer_ctx,
+                                  अचर uint8_t *buf, माप_प्रकार len,
+                                  माप_प्रकार *pwritten);
 
 /**
  * Passes the chunks in the buffer queue to the writer and returns
@@ -214,12 +214,12 @@ typedef CURLcode Curl_bufq_writer(void *writer_ctx,
  * Note that in case of a -1 chunks may have been written and
  * the buffer queue will have different length than before.
  */
-CURLcode Curl_bufq_pass(struct bufq *q, Curl_bufq_writer *writer,
-                        void *writer_ctx, size_t *pwritten);
+CURLcode Curl_bufq_pass(संरचना bufq *q, Curl_bufq_writer *writer,
+                        शून्य *writer_ctx, माप_प्रकार *pwritten);
 
-typedef CURLcode Curl_bufq_reader(void *reader_ctx,
-                                  uint8_t *buf, size_t len,
-                                  size_t *pnread);
+प्रकारनिर्देश CURLcode Curl_bufq_reader(शून्य *reader_ctx,
+                                  uint8_t *buf, माप_प्रकार len,
+                                  माप_प्रकार *pnread);
 
 /**
  * Read bytes and append them to the end of the buffer queue until the
@@ -229,8 +229,8 @@ typedef CURLcode Curl_bufq_reader(void *reader_ctx,
  * Note that in case of an error chunks may have been read and
  * the buffer queue will have different length than before.
  */
-CURLcode Curl_bufq_slurp(struct bufq *q, Curl_bufq_reader *reader,
-                         void *reader_ctx, size_t *pnread);
+CURLcode Curl_bufq_slurp(संरचना bufq *q, Curl_bufq_reader *reader,
+                         शून्य *reader_ctx, माप_प्रकार *pnread);
 
 /**
  * Read *once* up to `max_len` bytes and append it to the buffer.
@@ -238,9 +238,9 @@ CURLcode Curl_bufq_slurp(struct bufq *q, Curl_bufq_reader *reader,
  * Returns the total amount of buf read (may be 0) or -1 on other
  * reader errors.
  */
-CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
-                        Curl_bufq_reader *reader, void *reader_ctx,
-                        size_t *pnread);
+CURLcode Curl_bufq_sipn(संरचना bufq *q, माप_प्रकार max_len,
+                        Curl_bufq_reader *reader, शून्य *reader_ctx,
+                        माप_प्रकार *pnread);
 
 /**
  * Write buf to the end of the buffer queue.
@@ -249,9 +249,9 @@ CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
  * on or is placed into the buffer, depending on `len` and current
  * amount buffered, chunk size, etc.
  */
-CURLcode Curl_bufq_write_pass(struct bufq *q,
-                              const uint8_t *buf, size_t len,
-                              Curl_bufq_writer *writer, void *writer_ctx,
-                              size_t *pwritten);
+CURLcode Curl_bufq_write_pass(संरचना bufq *q,
+                              अचर uint8_t *buf, माप_प्रकार len,
+                              Curl_bufq_writer *writer, शून्य *writer_ctx,
+                              माप_प्रकार *pwritten);
 
 #endif /* HEADER_CURL_BUFQ_H */
