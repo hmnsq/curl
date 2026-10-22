@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_URLAPI_INT_H
-#define HEADER_CURL_URLAPI_INT_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_URLAPI_INT_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_URLAPI_INT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,48 +23,48 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include <curl/urlapi.h>
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ <curl/urlapi.h>
 
 /* Internal representation of CURLU. Point to URL-encoded strings. */
-struct Curl_URL {
-  char *scheme;
-  char *user;
-  char *password;
-  char *options; /* IMAP only? */
-  char *host;
-  char *zoneid; /* for numerical IPv6 addresses */
-  char *path;
-  char *query;
-  char *fragment;
+ರಚನೆ Curl_URL {
+  ಅಕ್ಷರ *scheme;
+  ಅಕ್ಷರ *user;
+  ಅಕ್ಷರ *password;
+  ಅಕ್ಷರ *options; /* IMAP only? */
+  ಅಕ್ಷರ *host;
+  ಅಕ್ಷರ *zoneid; /* for numerical IPv6 addresses */
+  ಅಕ್ಷರ *ಮಾರ್ಗ;
+  ಅಕ್ಷರ *query;
+  ಅಕ್ಷರ *fragment;
   uint16_t portnum; /* the numerical port if present */
-  BIT(port_present);    /* to support missing port */
-  BIT(query_present);    /* to support blank */
-  BIT(fragment_present); /* to support blank */
-  BIT(guessed_scheme);   /* when a URL without scheme is parsed */
+  ಬಿಟ್(ಪೋರ್ಟ್_present);    /* to support missing port */
+  ಬಿಟ್(query_present);    /* to support blank */
+  ಬಿಟ್(fragment_present); /* to support blank */
+  ಬಿಟ್(guessed_scheme);   /* when a URL without scheme is parsed */
 };
 
-#define HOST_ERROR   (-1) /* out of memory */
-#define HOST_NAME    1
-#define HOST_IPV4    2
-#define HOST_IPV6    3
+#ವ್ಯಾಖ್ಯಾನಿಸು HOST_ERROR   (-1) /* out of memory */
+#ವ್ಯಾಖ್ಯಾನಿಸು HOST_NAME    1
+#ವ್ಯಾಖ್ಯಾನಿಸು HOST_IPV4    2
+#ವ್ಯಾಖ್ಯಾನಿಸು HOST_IPV6    3
 
-#define QUERY_NO      2
-#define QUERY_NOT_YET 3 /* allow to change to query */
-#define QUERY_YES     4
+#ವ್ಯಾಖ್ಯಾನಿಸು QUERY_NO      2
+#ವ್ಯಾಖ್ಯಾನಿಸು QUERY_NOT_YET 3 /* allow to change to query */
+#ವ್ಯಾಖ್ಯಾನಿಸು QUERY_YES     4
 
-size_t Curl_is_absolute_url(const char *url, char *buf, size_t buflen,
+size_t Curl_is_absolute_url(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url, ಅಕ್ಷರ *buf, size_t buflen,
                             bool guess_scheme);
 
-CURLUcode Curl_url_set_authority(CURLU *u, const char *authority);
+CURLUcode Curl_url_ಗಣ_authority(CURLU *u, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *authority);
 
-CURLUcode Curl_junkscan(const char *url, size_t *urllen, bool allowspace);
+CURLUcode Curl_junkscan(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url, size_t *urllen, bool allowspace);
 
-#define U_CURLU_URLDECODE  (unsigned int)CURLU_URLDECODE
-#define U_CURLU_PATH_AS_IS (unsigned int)CURLU_PATH_AS_IS
+#ವ್ಯಾಖ್ಯಾನಿಸು U_CURLU_URLDECODE  (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)CURLU_URLDECODE
+#ವ್ಯಾಖ್ಯಾನಿಸು U_CURLU_ಮಾರ್ಗ_AS_IS (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)CURLU_ಮಾರ್ಗ_AS_IS
 
-bool Curl_url_same_origin(CURLU *base, CURLU *href);
+bool Curl_url_same_origin(CURLU *ತಳ, CURLU *href);
 
-CURLUcode Curl_url_get_port(CURLU *u, uint16_t *pport);
+CURLUcode Curl_url_get_ಪೋರ್ಟ್(CURLU *u, uint16_t *pport);
 
-#endif /* HEADER_CURL_URLAPI_INT_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_URLAPI_INT_H */

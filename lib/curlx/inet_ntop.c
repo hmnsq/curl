@@ -16,34 +16,34 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYS_PARAM_H
+#ಅನ್ತರ್ಭಾವ <sys/param.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ARPA_INET_H
+#ಅನ್ತರ್ಭಾವ <arpa/inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "curlx/inet_ntop.h"
-#include "curlx/snprintf.h"
-#include "curlx/strcopy.h"
+#ಅನ್ತರ್ಭಾವ "curlx/inet_ntop.h"
+#ಅನ್ತರ್ಭಾವ "curlx/snprintf.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strcopy.h"
 
-#define IN6ADDRSZ       16
+#ವ್ಯಾಖ್ಯಾನಿಸು IN6ADDRSZ       16
 /* #define INADDRSZ         4 */
-#define INT16SZ          2
+#ವ್ಯಾಖ್ಯಾನಿಸು INT16SZ          2
 
 /*
  * If USE_IPV6 is disabled, we still want to parse IPv6 addresses, so make
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
-#define AF_INET6 (AF_INET + 1)
-#endif
+#ಆದರೆ !defined(USE_IPV6) && !defined(AF_INET6)
+#ವ್ಯಾಖ್ಯಾನಿಸು AF_INET6 (AF_INET + 1)
+#ಆದರೆ_ಅಂತ್ಯ
 
 /*
  * Format an IPv4 address, more or less like inet_ntop().
@@ -53,31 +53,31 @@
  *  - uses no static variables
  *  - takes an unsigned char* not an in_addr as input
  */
-static CURLcode inet_ntop4(const unsigned char *src, char *dst, size_t size)
+ಸ್ಥಿರ CURLcode inet_ntop4(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *src, ಅಕ್ಷರ *dst, size_t ಗಾತ್ರ_2)
 {
-  char tmp[sizeof("255.255.255.255")];
+  ಅಕ್ಷರ tmp[ಗಾತ್ರ("255.255.255.255")];
   size_t len;
 
-  DEBUGASSERT(size >= 16);
+  DEBUGASSERT(ಗಾತ್ರ_2 >= 16);
 
   /* this snprintf() does not overflow the buffer. */
-  SNPRINTF(tmp, sizeof(tmp), "%d.%d.%d.%d",
-           ((int)((unsigned char)src[0])) & 0xff,
-           ((int)((unsigned char)src[1])) & 0xff,
-           ((int)((unsigned char)src[2])) & 0xff,
-           ((int)((unsigned char)src[3])) & 0xff);
+  SNPRINTF(tmp, ಗಾತ್ರ(tmp), "%d.%d.%d.%d",
+           ((ಪೂರ್ಣಾಂಕ)((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)src[0])) & 0xff,
+           ((ಪೂರ್ಣಾಂಕ)((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)src[1])) & 0xff,
+           ((ಪೂರ್ಣಾಂಕ)((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)src[2])) & 0xff,
+           ((ಪೂರ್ಣಾಂಕ)((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)src[3])) & 0xff);
 
-  len = strlen(tmp);
-  if(len == 0 || len >= size)
-    return CURLE_TOO_LARGE;
-  curlx_strcopy(dst, size, tmp, len);
-  return CURLE_OK;
+  len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(tmp);
+  ಆದರೆ(len == 0 || len >= ಗಾತ್ರ_2)
+    ಹಿಂತಿರುಗಿ CURLE_TOO_LARGE;
+  curlx_strcopy(dst, ಗಾತ್ರ_2, tmp, len);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
  * Convert IPv6 binary address into presentation (printable) format.
  */
-static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
+ಸ್ಥಿರ CURLcode inet_ntop6(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *src, ಅಕ್ಷರ *dst, size_t ಗಾತ್ರ_2)
 {
   /*
    * Note that int32_t and int16_t need only be "at least" large enough
@@ -86,84 +86,84 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
    * Keep this in mind if you think this function should have been coded
    * to use pointer overlays. All the world's not a VAX.
    */
-  char tmp[sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
-  char *tp;
-  struct {
-    int base;
-    int len;
-  } best, cur;
-  unsigned int words[IN6ADDRSZ / INT16SZ];
-  int i;
+  ಅಕ್ಷರ tmp[ಗಾತ್ರ("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
+  ಅಕ್ಷರ *tp;
+  ರಚನೆ {
+    ಪೂರ್ಣಾಂಕ ತಳ;
+    ಪೂರ್ಣಾಂಕ len;
+  } ಉತ್ತಮ, cur;
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ ಪದಗಳು[IN6ADDRSZ / INT16SZ];
+  ಪೂರ್ಣಾಂಕ i;
 
   /* Preprocess:
    *  Copy the input (bytewise) array into a wordwise array.
    *  Find the longest run of 0x00's in src[] for :: shorthanding.
    */
-  memset(words, '\0', sizeof(words));
-  for(i = 0; i < IN6ADDRSZ; i++)
-    words[i / 2] |= ((unsigned int)src[i] << ((1 - (i % 2)) << 3));
+  memset(ಪದಗಳು, '\0', ಗಾತ್ರ(ಪದಗಳು));
+  ಗಾಗಿ(i = 0; i < IN6ADDRSZ; i++)
+    ಪದಗಳು[i / 2] |= ((ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)src[i] << ((1 - (i % 2)) << 3));
 
-  best.base = -1;
-  cur.base = -1;
-  best.len = 0;
+  ಉತ್ತಮ.ತಳ = -1;
+  cur.ತಳ = -1;
+  ಉತ್ತಮ.len = 0;
   cur.len = 0;
 
-  for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
-    if(words[i] == 0) {
-      if(cur.base == -1) {
-        cur.base = i;
+  ಗಾಗಿ(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
+    ಆದರೆ(ಪದಗಳು[i] == 0) {
+      ಆದರೆ(cur.ತಳ == -1) {
+        cur.ತಳ = i;
         cur.len = 1;
       }
-      else
+      ಇಲ್ಲದಿದ್ದರೆ
         cur.len++;
     }
-    else if(cur.base != -1) {
-      if(best.base == -1 || cur.len > best.len)
-        best = cur;
-      cur.base = -1;
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cur.ತಳ != -1) {
+      ಆದರೆ(ಉತ್ತಮ.ತಳ == -1 || cur.len > ಉತ್ತಮ.len)
+        ಉತ್ತಮ = cur;
+      cur.ತಳ = -1;
     }
   }
-  if((cur.base != -1) && (best.base == -1 || cur.len > best.len))
-    best = cur;
-  if(best.base != -1 && best.len < 2)
-    best.base = -1;
+  ಆದರೆ((cur.ತಳ != -1) && (ಉತ್ತಮ.ತಳ == -1 || cur.len > ಉತ್ತಮ.len))
+    ಉತ್ತಮ = cur;
+  ಆದರೆ(ಉತ್ತಮ.ತಳ != -1 && ಉತ್ತಮ.len < 2)
+    ಉತ್ತಮ.ತಳ = -1;
   /* Format the result. */
   tp = tmp;
-  for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
+  ಗಾಗಿ(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
     /* Are we inside the best run of 0x00's? */
-    if(best.base != -1 && i >= best.base && i < (best.base + best.len)) {
-      if(i == best.base)
+    ಆದರೆ(ಉತ್ತಮ.ತಳ != -1 && i >= ಉತ್ತಮ.ತಳ && i < (ಉತ್ತಮ.ತಳ + ಉತ್ತಮ.len)) {
+      ಆದರೆ(i == ಉತ್ತಮ.ತಳ)
         *tp++ = ':';
-      continue;
+      ಮುಂದುವರಿ;
     }
 
     /* Are we following an initial run of 0x00s or any real hex?
      */
-    if(i)
+    ಆದರೆ(i)
       *tp++ = ':';
 
     /* Is this address an encapsulated IPv4?
      */
-    if(i == 6 && best.base == 0 &&
-       (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
-      CURLcode result = inet_ntop4(src + 12, tp, sizeof(tmp) - (tp - tmp));
-      if(result)
-        return result;
-      tp += strlen(tp);
-      break;
+    ಆದರೆ(i == 6 && ಉತ್ತಮ.ತಳ == 0 &&
+       (ಉತ್ತಮ.len == 6 || (ಉತ್ತಮ.len == 5 && ಪದಗಳು[5] == 0xffff))) {
+      CURLcode ಫಲಿತಾಂಶ = inet_ntop4(src + 12, tp, ಗಾತ್ರ(tmp) - (tp - tmp));
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
+      tp += ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(tp);
+      ನಿಲ್ಲಿಸು;
     }
-    else {
+    ಇಲ್ಲದಿದ್ದರೆ {
       /* Lower-case digits. Cannot use the set from mprintf.c since this
          needs to work as a curlx function */
-      static const unsigned char ldigits[] = "0123456789abcdef";
+      ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ ldigits[] = "0123456789abcdef";
 
-      unsigned int w = words[i];
+      ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ w = ಪದಗಳು[i];
       /* output lowercase 16-bit hex number but ignore leading zeroes */
-      if(w & 0xf000)
+      ಆದರೆ(w & 0xf000)
         *tp++ = ldigits[(w & 0xf000) >> 12];
-      if(w & 0xff00)
+      ಆದರೆ(w & 0xff00)
         *tp++ = ldigits[(w & 0x0f00) >> 8];
-      if(w & 0xfff0)
+      ಆದರೆ(w & 0xfff0)
         *tp++ = ldigits[(w & 0x00f0) >> 4];
       *tp++ = ldigits[(w & 0x000f)];
     }
@@ -171,14 +171,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
 
   /* Was it a trailing run of 0x00's?
    */
-  if(best.base != -1 && (best.base + best.len) == (IN6ADDRSZ / INT16SZ))
+  ಆದರೆ(ಉತ್ತಮ.ತಳ != -1 && (ಉತ್ತಮ.ತಳ + ಉತ್ತಮ.len) == (IN6ADDRSZ / INT16SZ))
     *tp++ = ':';
 
   /* Check for overflow, copy, and we are done. */
-  if((size_t)(tp - tmp) >= size)
-    return CURLE_TOO_LARGE;
-  curlx_strcopy(dst, size, tmp, tp - tmp);
-  return CURLE_OK;
+  ಆದರೆ((size_t)(tp - tmp) >= ಗಾತ್ರ_2)
+    ಹಿಂತಿರುಗಿ CURLE_TOO_LARGE;
+  curlx_strcopy(dst, ಗಾತ್ರ_2, tmp, tp - tmp);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -186,14 +186,14 @@ static CURLcode inet_ntop6(const unsigned char *src, char *dst, size_t size)
  *
  * Copies result to 'buf' and returns CURLcode.
  */
-CURLcode curlx_inet_ntop(int af, const void *src, char *buf, size_t size)
+CURLcode curlx_inet_ntop(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *src, ಅಕ್ಷರ *buf, size_t ಗಾತ್ರ_2)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_ntop4((const unsigned char *)src, buf, size);
-  case AF_INET6:
-    return inet_ntop6((const unsigned char *)src, buf, size);
-  default:
-    return CURLE_UNSUPPORTED_PROTOCOL;
+  ಆಯ್ಕೆ(af) {
+  ಸ್ಥಿತಿ AF_INET:
+    ಹಿಂತಿರುಗಿ inet_ntop4((ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)src, buf, ಗಾತ್ರ_2);
+  ಸ್ಥಿತಿ AF_INET6:
+    ಹಿಂತಿರುಗಿ inet_ntop6((ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)src, buf, ಗಾತ್ರ_2);
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    ಹಿಂತಿರುಗಿ CURLE_UNSUPPORTED_PROTOCOL;
   }
 }

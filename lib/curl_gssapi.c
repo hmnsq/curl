@@ -21,44 +21,44 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef HAVE_GSSAPI
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GSSAPI
 
-#include "curl_gssapi.h"
-#include "curl_trc.h"
-#include "curlx/strcopy.h"
+#ಅನ್ತರ್ಭಾವ "curl_gssapi.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strcopy.h"
 
-#ifdef DEBUGBUILD
-#if defined(HAVE_GSSGNU) || !defined(_WIN32)
-#define Curl_gss_alloc malloc  /* freed via the GSS API gss_release_buffer() */
-#define Curl_gss_free  free    /* pair of the above */
-#define CURL_GSS_STUB
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+#ಆದರೆ defined(HAVE_GSSGNU) || !defined(_WIN32)
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_gss_alloc ಸ್ಮರಣೆ_ಕೊಡು  /* freed via the GSS API gss_release_buffer() */
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_gss_free  ಬಿಡುಗಡೆ    /* pair of the above */
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_GSS_STUB
 /* For correctness this would be required for all platforms, not only Windows,
    but, as of v1.22.1, MIT Kerberos uses a special allocator only for Windows,
    and the availability of 'gssapi/gssapi_alloc.h' is difficult to detect,
    because GSS headers are not versioned, and there is also no other macro to
    indicate 1.18+ vs. previous versions. On Windows we can use 'GSS_S_BAD_MIC'.
  */
-#elif defined(_WIN32) && defined(GSS_S_BAD_MIC) /* MIT Kerberos 1.15+ */
+#ಅಥವಾಆದರೆ defined(_WIN32) && defined(GSS_S_BAD_MIC) /* MIT Kerberos 1.15+ */
 /* MIT Kerberos 1.10+ (Windows), 1.18+ (all platforms), missing from GNU GSS */
-#include <gssapi/gssapi_alloc.h>
-#define Curl_gss_alloc gssalloc_malloc
-#define Curl_gss_free  gssalloc_free
-#define CURL_GSS_STUB
-#endif
-#endif /* DEBUGBUILD */
+#ಅನ್ತರ್ಭಾವ <gssapi/gssapi_alloc.h>
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_gss_alloc gssalloc_malloc
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_gss_free  gssalloc_free
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_GSS_STUB
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ /* DEBUGBUILD */
 
-#ifdef __GNUC__
-#define CURL_ALIGN8  __attribute__((aligned(8)))
-#else
-#define CURL_ALIGN8
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __GNUC__
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ALIGN8  __attribute__((aligned(8)))
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ALIGN8
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#ಆದರೆ defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#ಸೂಚನೆ GCC diagnostic ತಳ್ಳು
+#ಸೂಚನೆ GCC diagnostic ignored "-Wdeprecated-declarations"
+#ಆದರೆ_ಅಂತ್ಯ
 
 gss_OID_desc Curl_spnego_mech_oid CURL_ALIGN8 = {
   6, CURL_UNCONST("\x2b\x06\x01\x05\x05\x02")
@@ -67,16 +67,16 @@ gss_OID_desc Curl_krb5_mech_oid CURL_ALIGN8 = {
   9, CURL_UNCONST("\x2a\x86\x48\x86\xf7\x12\x01\x02\x02")
 };
 
-#ifdef CURL_GSS_STUB
-enum min_err_code {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_GSS_STUB
+ಎಣಿಕೆ min_err_ಸಂಕೇತ {
   STUB_GSS_OK = 0,
-  STUB_GSS_NO_MEMORY,
-  STUB_GSS_INVALID_ARGS,
+  STUB_GSS_NO_ಸ್ಮರಣೆ,
+  STUB_GSS_INVALID_ವಾದಗಳು,
   STUB_GSS_INVALID_CREDS,
   STUB_GSS_INVALID_CTX,
   STUB_GSS_SERVER_ERR,
   STUB_GSS_NO_MECH,
-  STUB_GSS_LAST
+  STUB_GSS_ಕೊನೆಯ
 };
 
 /* libcurl is also passing this struct to these functions, which are not yet
@@ -84,591 +84,591 @@ enum min_err_code {
  *   gss_unwrap()
  *   gss_wrap()
  */
-struct stub_gss_ctx_id_t_desc {
-  enum { STUB_GSS_NONE, STUB_GSS_KRB5, STUB_GSS_NTLM1, STUB_GSS_NTLM3 } sent;
-  int have_krb5;
-  int have_ntlm;
+ರಚನೆ stub_gss_ctx_id_t_desc {
+  ಎಣಿಕೆ { STUB_GSS_NONE, STUB_GSS_KRB5, STUB_GSS_NTLM1, STUB_GSS_NTLM3 } ಕಳುಹಿಸಿದ;
+  ಪೂರ್ಣಾಂಕ have_krb5;
+  ಪೂರ್ಣಾಂಕ have_ntlm;
   OM_uint32 flags;
-  char creds[250];
+  ಅಕ್ಷರ creds[250];
 };
 
 /* Stub credential: tracks which mechanisms are allowed */
-struct stub_gss_cred_id_t_desc {
-  int allow_krb5;
-  int allow_ntlm;
+ರಚನೆ stub_gss_cred_id_t_desc {
+  ಪೂರ್ಣಾಂಕ allow_krb5;
+  ಪೂರ್ಣಾಂಕ allow_ntlm;
 };
 
-static OM_uint32 stub_gss_init_sec_context(
+ಸ್ಥಿರ OM_uint32 stub_gss_init_sec_context(
   OM_uint32 *min,
   gss_cred_id_t initiator_cred_handle,
-  struct stub_gss_ctx_id_t_desc **context,
-  gss_name_t target_name,
-  const gss_OID mech_type,
+  ರಚನೆ stub_gss_ctx_id_t_desc **context,
+  gss_name_t ಗುರಿ_name,
+  ಸ್ಥಿರಾಂಕ gss_OID mech_type,
   OM_uint32 req_flags,
-  OM_uint32 time_req,
-  const gss_channel_bindings_t input_chan_bindings,
-  gss_buffer_desc *input_token,
+  OM_uint32 ಸಮಯ_req,
+  ಸ್ಥಿರಾಂಕ gss_channel_bindings_t ಒಳಹರಿವು_chan_bindings,
+  gss_ಬಫರ್_desc *ಒಳಹರಿವು_token,
   gss_OID *actual_mech_type,
-  gss_buffer_desc *output_token,
+  gss_ಬಫರ್_desc *output_token,
   OM_uint32 *ret_flags,
-  OM_uint32 *time_rec)
+  OM_uint32 *ಸಮಯ_rec)
 {
-  struct stub_gss_ctx_id_t_desc *ctx = NULL;
+  ರಚನೆ stub_gss_ctx_id_t_desc *ctx = ಖಾಲಿ;
 
   /* The token will be encoded in base64 */
-  size_t length = sizeof(ctx->creds) * 3 / 4;
-  size_t used = 0;
-  char *token = NULL;
-  const char *creds = NULL;
+  size_t ಉದ್ದಳತೆ = ಗಾತ್ರ(ctx->creds) * 3 / 4;
+  size_t ಬಳಸಿದ = 0;
+  ಅಕ್ಷರ *token = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *creds = ಖಾಲಿ;
 
-  (void)mech_type;
-  (void)time_req;
-  (void)input_chan_bindings;
-  (void)actual_mech_type;
+  (ಶೂನ್ಯ)mech_type;
+  (ಶೂನ್ಯ)ಸಮಯ_req;
+  (ಶೂನ್ಯ)ಒಳಹರಿವು_chan_bindings;
+  (ಶೂನ್ಯ)actual_mech_type;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  ಆದರೆ(!min)
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
 
   *min = 0;
 
-  if(!context || !target_name || !output_token) {
-    *min = STUB_GSS_INVALID_ARGS;
-    return GSS_S_FAILURE;
+  ಆದರೆ(!context || !ಗುರಿ_name || !output_token) {
+    *min = STUB_GSS_INVALID_ವಾದಗಳು;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
 
   creds = getenv("CURL_STUB_GSS_CREDS");
-  if(!creds || strlen(creds) >= sizeof(ctx->creds)) {
+  ಆದರೆ(!creds || ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(creds) >= ಗಾತ್ರ(ctx->creds)) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
 
   ctx = *context;
-  if(ctx && strcmp(ctx->creds, creds)) {
+  ಆದರೆ(ctx && strcmp(ctx->creds, creds)) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
 
-  output_token->length = 0;
-  output_token->value = NULL;
+  output_token->ಉದ್ದಳತೆ = 0;
+  output_token->ಮೌಲ್ಯ = ಖಾಲಿ;
 
-  if(input_token && input_token->length) {
-    if(!ctx) {
+  ಆದರೆ(ಒಳಹರಿವು_token && ಒಳಹರಿವು_token->ಉದ್ದಳತೆ) {
+    ಆದರೆ(!ctx) {
       *min = STUB_GSS_INVALID_CTX;
-      return GSS_S_FAILURE;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
 
     /* Server response, either D (RA==) or C (Qw==) */
-    if(((char *)input_token->value)[0] == 'D') {
-      /* Done */
-      switch(ctx->sent) {
-      case STUB_GSS_KRB5:
-      case STUB_GSS_NTLM3:
-        if(ret_flags)
+    ಆದರೆ(((ಅಕ್ಷರ *)ಒಳಹರಿವು_token->ಮೌಲ್ಯ)[0] == 'D') {
+      /*ಮುಗಿದ*/
+      ಆಯ್ಕೆ(ctx->ಕಳುಹಿಸಿದ) {
+      ಸ್ಥಿತಿ STUB_GSS_KRB5:
+      ಸ್ಥಿತಿ STUB_GSS_NTLM3:
+        ಆದರೆ(ret_flags)
           *ret_flags = ctx->flags;
-        if(time_rec)
-          *time_rec = GSS_C_INDEFINITE;
-        return GSS_S_COMPLETE;
-      default:
+        ಆದರೆ(ಸಮಯ_rec)
+          *ಸಮಯ_rec = GSS_C_INDEFINITE;
+        ಹಿಂತಿರುಗಿ GSS_S_COMPLETE;
+      ಪೂರ್ವನಿಯೋಜಿತ:
         *min = STUB_GSS_SERVER_ERR;
-        return GSS_S_FAILURE;
+        ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
       }
     }
 
-    if(((char *)input_token->value)[0] != 'C') {
+    ಆದರೆ(((ಅಕ್ಷರ *)ಒಳಹರಿವು_token->ಮೌಲ್ಯ)[0] != 'C') {
       /* We only support Done or Continue */
       *min = STUB_GSS_SERVER_ERR;
-      return GSS_S_FAILURE;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
 
     /* Continue */
-    switch(ctx->sent) {
-    case STUB_GSS_KRB5:
+    ಆಯ್ಕೆ(ctx->ಕಳುಹಿಸಿದ) {
+    ಸ್ಥಿತಿ STUB_GSS_KRB5:
       /* We sent KRB5 and it failed, let's try NTLM */
-      if(ctx->have_ntlm) {
-        ctx->sent = STUB_GSS_NTLM1;
-        break;
+      ಆದರೆ(ctx->have_ntlm) {
+        ctx->ಕಳುಹಿಸಿದ = STUB_GSS_NTLM1;
+        ನಿಲ್ಲಿಸು;
       }
-      else {
+      ಇಲ್ಲದಿದ್ದರೆ {
         *min = STUB_GSS_SERVER_ERR;
-        return GSS_S_FAILURE;
+        ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
       }
-    case STUB_GSS_NTLM1:
-      ctx->sent = STUB_GSS_NTLM3;
-      break;
-    default:
+    ಸ್ಥಿತಿ STUB_GSS_NTLM1:
+      ctx->ಕಳುಹಿಸಿದ = STUB_GSS_NTLM3;
+      ನಿಲ್ಲಿಸು;
+    ಪೂರ್ವನಿಯೋಜಿತ:
       *min = STUB_GSS_SERVER_ERR;
-      return GSS_S_FAILURE;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
   }
-  else {
-    if(ctx) {
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಆದರೆ(ctx) {
       *min = STUB_GSS_INVALID_CTX;
-      return GSS_S_FAILURE;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
 
-    ctx = curlx_calloc(1, sizeof(*ctx));
-    if(!ctx) {
-      *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+    ctx = curlx_calloc(1, ಗಾತ್ರ(*ctx));
+    ಆದರೆ(!ctx) {
+      *min = STUB_GSS_NO_ಸ್ಮರಣೆ;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
 
-    if(strstr(creds, "KRB5"))
+    ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು(creds, "KRB5"))
       ctx->have_krb5 = 1;
 
-    if(strstr(creds, "NTLM"))
+    ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು(creds, "NTLM"))
       ctx->have_ntlm = 1;
 
     /* If a credential restricts allowed mechs, honour it */
-    if(initiator_cred_handle != GSS_C_NO_CREDENTIAL) {
-      struct stub_gss_cred_id_t_desc *cred =
-        (struct stub_gss_cred_id_t_desc *)initiator_cred_handle;
-      if(!cred->allow_krb5)
+    ಆದರೆ(initiator_cred_handle != GSS_C_NO_CREDENTIAL) {
+      ರಚನೆ stub_gss_cred_id_t_desc *cred =
+        (ರಚನೆ stub_gss_cred_id_t_desc *)initiator_cred_handle;
+      ಆದರೆ(!cred->allow_krb5)
         ctx->have_krb5 = 0;
-      if(!cred->allow_ntlm)
+      ಆದರೆ(!cred->allow_ntlm)
         ctx->have_ntlm = 0;
     }
 
-    if(ctx->have_krb5)
-      ctx->sent = STUB_GSS_KRB5;
-    else if(ctx->have_ntlm)
-      ctx->sent = STUB_GSS_NTLM1;
-    else {
+    ಆದರೆ(ctx->have_krb5)
+      ctx->ಕಳುಹಿಸಿದ = STUB_GSS_KRB5;
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ctx->have_ntlm)
+      ctx->ಕಳುಹಿಸಿದ = STUB_GSS_NTLM1;
+    ಇಲ್ಲದಿದ್ದರೆ {
       curlx_free(ctx);
       *min = STUB_GSS_NO_MECH;
-      return GSS_S_FAILURE;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
 
-    curlx_strcopy(ctx->creds, sizeof(ctx->creds), creds, strlen(creds));
+    curlx_strcopy(ctx->creds, ಗಾತ್ರ(ctx->creds), creds, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(creds));
     ctx->flags = req_flags;
   }
 
-  token = Curl_gss_alloc(length);
-  if(!token) {
+  token = Curl_gss_alloc(ಉದ್ದಳತೆ);
+  ಆದರೆ(!token) {
     curlx_free(ctx);
-    *min = STUB_GSS_NO_MEMORY;
-    return GSS_S_FAILURE;
+    *min = STUB_GSS_NO_ಸ್ಮರಣೆ;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
 
   {
-    gss_buffer_desc target_desc;
+    gss_ಬಫರ್_desc ಗುರಿ_desc;
     gss_OID name_type = GSS_C_NO_OID;
-    OM_uint32 minor_status;
-    OM_uint32 major_status;
-    major_status = gss_display_name(&minor_status, target_name,
-                                    &target_desc, &name_type);
-    if(GSS_ERROR(major_status)) {
+    OM_uint32 minor_ಸ್ಥಿತಿ;
+    OM_uint32 major_ಸ್ಥಿತಿ;
+    major_ಸ್ಥಿತಿ = gss_display_name(&minor_ಸ್ಥಿತಿ, ಗುರಿ_name,
+                                    &ಗುರಿ_desc, &name_type);
+    ಆದರೆ(GSS_ERROR(major_ಸ್ಥಿತಿ)) {
       Curl_gss_free(token);
       curlx_free(ctx);
-      *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+      *min = STUB_GSS_NO_ಸ್ಮರಣೆ;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
 
-    if(strlen(creds) + target_desc.length + 5 >= sizeof(ctx->creds)) {
+    ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(creds) + ಗುರಿ_desc.ಉದ್ದಳತೆ + 5 >= ಗಾತ್ರ(ctx->creds)) {
       Curl_gss_free(token);
       curlx_free(ctx);
-      *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+      *min = STUB_GSS_NO_ಸ್ಮರಣೆ;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
 
     /* Token format: creds:target:type:padding */
-    used = curl_msnprintf(token, length, "%s:%.*s:%d:", creds,
-                          (int)target_desc.length,
-                          (const char *)target_desc.value,
-                          (int)ctx->sent);
+    ಬಳಸಿದ = curl_msnprintf(token, ಉದ್ದಳತೆ, "%s:%.*s:%d:", creds,
+                          (ಪೂರ್ಣಾಂಕ)ಗುರಿ_desc.ಉದ್ದಳತೆ,
+                          (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)ಗುರಿ_desc.ಮೌಲ್ಯ,
+                          (ಪೂರ್ಣಾಂಕ)ctx->ಕಳುಹಿಸಿದ);
 
-    gss_release_buffer(&minor_status, &target_desc);
+    gss_release_ಬಫರ್(&minor_ಸ್ಥಿತಿ, &ಗುರಿ_desc);
   }
 
-  if(used >= length) {
+  ಆದರೆ(ಬಳಸಿದ >= ಉದ್ದಳತೆ) {
     Curl_gss_free(token);
     curlx_free(ctx);
-    *min = STUB_GSS_NO_MEMORY;
-    return GSS_S_FAILURE;
+    *min = STUB_GSS_NO_ಸ್ಮರಣೆ;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
 
   /* Overwrite null-terminator */
-  memset(token + used, 'A', length - used);
+  memset(token + ಬಳಸಿದ, 'A', ಉದ್ದಳತೆ - ಬಳಸಿದ);
 
   *context = ctx;
 
-  output_token->value = token;
-  output_token->length = length;
+  output_token->ಮೌಲ್ಯ = token;
+  output_token->ಉದ್ದಳತೆ = ಉದ್ದಳತೆ;
 
-  return GSS_S_CONTINUE_NEEDED;
+  ಹಿಂತಿರುಗಿ GSS_S_CONTINUE_NEEDED;
 }
 
-static OM_uint32 stub_gss_delete_sec_context(
+ಸ್ಥಿರ OM_uint32 stub_gss_delete_sec_context(
   OM_uint32 *min,
-  struct stub_gss_ctx_id_t_desc **context,
-  gss_buffer_t output_token)
+  ರಚನೆ stub_gss_ctx_id_t_desc **context,
+  gss_ಬಫರ್_t output_token)
 {
-  (void)output_token;
+  (ಶೂನ್ಯ)output_token;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  ಆದರೆ(!min)
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
 
-  if(!context) {
+  ಆದರೆ(!context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
-  if(!*context) {
+  ಆದರೆ(!*context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
 
   curlx_safefree(*context);
   *min = 0;
 
-  return GSS_S_COMPLETE;
+  ಹಿಂತಿರುಗಿ GSS_S_COMPLETE;
 }
 
 /* NTLMSSP OID: 1.3.6.1.4.1.311.2.2.10 */
-static gss_OID_desc stub_ntlmssp_oid = {
+ಸ್ಥಿರ gss_OID_desc stub_ntlmssp_oid = {
   10, CURL_UNCONST("\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a")
 };
 
-static OM_uint32 stub_gss_inquire_context(
+ಸ್ಥಿರ OM_uint32 stub_gss_inquire_context(
   OM_uint32 *min,
-  struct stub_gss_ctx_id_t_desc *context,
+  ರಚನೆ stub_gss_ctx_id_t_desc *context,
   gss_name_t *src_name,
   gss_name_t *targ_name,
   OM_uint32 *lifetime_rec,
   gss_OID *mech_type,
   OM_uint32 *ctx_flags,
-  int *locally_initiated,
-  int *open_context)
+  ಪೂರ್ಣಾಂಕ *locally_initiated,
+  ಪೂರ್ಣಾಂಕ *open_context)
 {
-  (void)src_name;
-  (void)targ_name;
-  (void)lifetime_rec;
-  (void)ctx_flags;
-  (void)locally_initiated;
-  (void)open_context;
+  (ಶೂನ್ಯ)src_name;
+  (ಶೂನ್ಯ)targ_name;
+  (ಶೂನ್ಯ)lifetime_rec;
+  (ಶೂನ್ಯ)ctx_flags;
+  (ಶೂನ್ಯ)locally_initiated;
+  (ಶೂನ್ಯ)open_context;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  ಆದರೆ(!min)
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
 
-  if(!context) {
+  ಆದರೆ(!context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
 
   *min = 0;
-  if(mech_type) {
-    switch(context->sent) {
-    case STUB_GSS_NTLM1:
-    case STUB_GSS_NTLM3:
+  ಆದರೆ(mech_type) {
+    ಆಯ್ಕೆ(context->ಕಳುಹಿಸಿದ) {
+    ಸ್ಥಿತಿ STUB_GSS_NTLM1:
+    ಸ್ಥಿತಿ STUB_GSS_NTLM3:
       *mech_type = &stub_ntlmssp_oid;
-      break;
-    default:
+      ನಿಲ್ಲಿಸು;
+    ಪೂರ್ವನಿಯೋಜಿತ:
       *mech_type = (gss_OID)&Curl_krb5_mech_oid;
-      break;
+      ನಿಲ್ಲಿಸು;
     }
   }
 
-  return GSS_S_COMPLETE;
+  ಹಿಂತಿರುಗಿ GSS_S_COMPLETE;
 }
-static OM_uint32 stub_gss_acquire_cred(
+ಸ್ಥಿರ OM_uint32 stub_gss_acquire_cred(
   OM_uint32 *min,
   gss_name_t desired_name,
-  OM_uint32 time_req,
-  gss_OID_set desired_mechs,
+  OM_uint32 ಸಮಯ_req,
+  gss_OID_ಗಣ desired_mechs,
   gss_cred_usage_t cred_usage,
   gss_cred_id_t *output_cred_handle,
-  gss_OID_set *actual_mechs,
-  OM_uint32 *time_rec)
+  gss_OID_ಗಣ *actual_mechs,
+  OM_uint32 *ಸಮಯ_rec)
 {
-  (void)desired_name;
-  (void)time_req;
-  (void)desired_mechs;
-  (void)cred_usage;
-  (void)actual_mechs;
-  (void)time_rec;
+  (ಶೂನ್ಯ)desired_name;
+  (ಶೂನ್ಯ)ಸಮಯ_req;
+  (ಶೂನ್ಯ)desired_mechs;
+  (ಶೂನ್ಯ)cred_usage;
+  (ಶೂನ್ಯ)actual_mechs;
+  (ಶೂನ್ಯ)ಸಮಯ_rec;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  ಆದರೆ(!min)
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
 
   *min = 0;
   /* Allocate a stub credential that initially allows all mechanisms */
-  if(output_cred_handle) {
-    struct stub_gss_cred_id_t_desc *cred =
-      curlx_calloc(1, sizeof(*cred));
-    if(!cred) {
-      *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+  ಆದರೆ(output_cred_handle) {
+    ರಚನೆ stub_gss_cred_id_t_desc *cred =
+      curlx_calloc(1, ಗಾತ್ರ(*cred));
+    ಆದರೆ(!cred) {
+      *min = STUB_GSS_NO_ಸ್ಮರಣೆ;
+      ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
     }
     cred->allow_krb5 = 1;
     cred->allow_ntlm = 1;
     *output_cred_handle = (gss_cred_id_t)cred;
   }
-  return GSS_S_COMPLETE;
+  ಹಿಂತಿರುಗಿ GSS_S_COMPLETE;
 }
 
-static OM_uint32 stub_gss_indicate_mechs(
+ಸ್ಥಿರ OM_uint32 stub_gss_indicate_mechs(
   OM_uint32 *min,
-  gss_OID_set *mech_set)
+  gss_OID_ಗಣ *mech_ಗಣ)
 {
-  const char *creds;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *creds;
   OM_uint32 major;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  ಆದರೆ(!min)
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
 
   *min = 0;
   creds = getenv("CURL_STUB_GSS_CREDS");
-  if(!creds) {
+  ಆದರೆ(!creds) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
   }
 
-  major = gss_create_empty_oid_set(min, mech_set);
-  if(GSS_ERROR(major))
-    return major;
+  major = gss_create_ಖಾಲಿಗಳು_oid_ಗಣ(min, mech_ಗಣ);
+  ಆದರೆ(GSS_ERROR(major))
+    ಹಿಂತಿರುಗಿ major;
 
   /* Always include Kerberos */
-  gss_add_oid_set_member(min, (gss_OID)&Curl_krb5_mech_oid, mech_set);
+  gss_ಕೂಡಿಸು_oid_ಗಣ_member(min, (gss_OID)&Curl_krb5_mech_oid, mech_ಗಣ);
 
   /* Include NTLM if the stub creds contain NTLM */
-  if(strstr(creds, "NTLM"))
-    gss_add_oid_set_member(min, &stub_ntlmssp_oid, mech_set);
+  ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು(creds, "NTLM"))
+    gss_ಕೂಡಿಸು_oid_ಗಣ_member(min, &stub_ntlmssp_oid, mech_ಗಣ);
 
-  return GSS_S_COMPLETE;
+  ಹಿಂತಿರುಗಿ GSS_S_COMPLETE;
 }
 
-#ifdef HAVE_GSS_SET_NEG_MECHS  /* MIT Kerberos 1.8+ (2010-03-02),
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GSS_ಗಣ_NEG_MECHS  /* MIT Kerberos 1.8+ (2010-03-02),
                                   missing from Apple GSS, GNU GSS */
-static OM_uint32 stub_gss_set_neg_mechs(OM_uint32 *min,
+ಸ್ಥಿರ OM_uint32 stub_gss_ಗಣ_neg_mechs(OM_uint32 *min,
                                         gss_cred_id_t cred_handle,
-                                        const gss_OID_set mech_set)
+                                        ಸ್ಥಿರಾಂಕ gss_OID_ಗಣ mech_ಗಣ)
 {
-  struct stub_gss_cred_id_t_desc *cred;
+  ರಚನೆ stub_gss_cred_id_t_desc *cred;
   size_t i;
-  int found_krb5 = 0;
-  int found_ntlm = 0;
+  ಪೂರ್ಣಾಂಕ ಸಿಕ್ಕಿತು_krb5 = 0;
+  ಪೂರ್ಣಾಂಕ ಸಿಕ್ಕಿತು_ntlm = 0;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  ಆದರೆ(!min)
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
 
   *min = 0;
-  if(cred_handle == GSS_C_NO_CREDENTIAL)
-    return GSS_S_FAILURE;
+  ಆದರೆ(cred_handle == GSS_C_NO_CREDENTIAL)
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
 
-  cred = (struct stub_gss_cred_id_t_desc *)cred_handle;
+  cred = (ರಚನೆ stub_gss_cred_id_t_desc *)cred_handle;
 
   /* Determine which mechs are in the allowed set */
-  if(mech_set) {
-    for(i = 0; i < mech_set->count; i++) {
-      gss_OID oid = &mech_set->elements[i];
-      if(oid->length == Curl_krb5_mech_oid.length &&
-         !memcmp(oid->elements, Curl_krb5_mech_oid.elements, oid->length))
-        found_krb5 = 1;
-      if(oid->length == stub_ntlmssp_oid.length &&
-         !memcmp(oid->elements, stub_ntlmssp_oid.elements, oid->length))
-        found_ntlm = 1;
+  ಆದರೆ(mech_ಗಣ) {
+    ಗಾಗಿ(i = 0; i < mech_ಗಣ->ಎಣಿಕೆ_2; i++) {
+      gss_OID oid = &mech_ಗಣ->elements[i];
+      ಆದರೆ(oid->ಉದ್ದಳತೆ == Curl_krb5_mech_oid.ಉದ್ದಳತೆ &&
+         !memcmp(oid->elements, Curl_krb5_mech_oid.elements, oid->ಉದ್ದಳತೆ))
+        ಸಿಕ್ಕಿತು_krb5 = 1;
+      ಆದರೆ(oid->ಉದ್ದಳತೆ == stub_ntlmssp_oid.ಉದ್ದಳತೆ &&
+         !memcmp(oid->elements, stub_ntlmssp_oid.elements, oid->ಉದ್ದಳತೆ))
+        ಸಿಕ್ಕಿತು_ntlm = 1;
     }
   }
 
-  cred->allow_krb5 = found_krb5;
-  cred->allow_ntlm = found_ntlm;
-  return GSS_S_COMPLETE;
+  cred->allow_krb5 = ಸಿಕ್ಕಿತು_krb5;
+  cred->allow_ntlm = ಸಿಕ್ಕಿತು_ntlm;
+  ಹಿಂತಿರುಗಿ GSS_S_COMPLETE;
 }
-#endif /* HAVE_GSS_SET_NEG_MECHS */
+#ಆದರೆ_ಅಂತ್ಯ /* HAVE_GSS_SET_NEG_MECHS */
 
-static OM_uint32 stub_gss_release_cred(
+ಸ್ಥಿರ OM_uint32 stub_gss_release_cred(
   OM_uint32 *min,
   gss_cred_id_t *cred_handle)
 {
-  if(!min)
-    return GSS_S_FAILURE;
+  ಆದರೆ(!min)
+    ಹಿಂತಿರುಗಿ GSS_S_FAILURE;
 
   *min = 0;
-  if(cred_handle && *cred_handle != GSS_C_NO_CREDENTIAL) {
+  ಆದರೆ(cred_handle && *cred_handle != GSS_C_NO_CREDENTIAL) {
     curlx_free(*cred_handle);
     *cred_handle = GSS_C_NO_CREDENTIAL;
   }
-  return GSS_S_COMPLETE;
+  ಹಿಂತಿರುಗಿ GSS_S_COMPLETE;
 }
 
-#endif /* CURL_GSS_STUB */
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_GSS_STUB */
 
-OM_uint32 Curl_gss_init_sec_context(struct Curl_easy *data,
-                                    OM_uint32 *minor_status,
+OM_uint32 Curl_gss_init_sec_context(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                    OM_uint32 *minor_ಸ್ಥಿತಿ,
                                     gss_ctx_id_t *context,
-                                    gss_name_t target_name,
+                                    gss_name_t ಗುರಿ_name,
                                     gss_OID mech_type,
-                                    gss_channel_bindings_t input_chan_bindings,
-                                    gss_buffer_t input_token,
-                                    gss_buffer_t output_token,
-                                    const bool mutual_auth,
+                                    gss_channel_bindings_t ಒಳಹರಿವು_chan_bindings,
+                                    gss_ಬಫರ್_t ಒಳಹರಿವು_token,
+                                    gss_ಬಫರ್_t output_token,
+                                    ಸ್ಥಿರಾಂಕ bool mutual_auth,
                                     OM_uint32 *ret_flags,
                                     gss_cred_id_t cred_handle)
 {
   OM_uint32 req_flags = GSS_C_REPLAY_FLAG;
 
-  if(mutual_auth)
+  ಆದರೆ(mutual_auth)
     req_flags |= GSS_C_MUTUAL_FLAG;
 
-  if(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_POLICY_FLAG) {
-#ifdef GSS_C_DELEG_POLICY_FLAG  /* MIT Kerberos 1.7+ (2009-06-02), Apple GSS,
+  ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.gssapi_delegation & CURLGSSAPI_DELEGATION_POLICY_FLAG) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ GSS_C_DELEG_POLICY_FLAG  /* MIT Kerberos 1.7+ (2009-06-02), Apple GSS,
                                    missing from GNU GSS */
     req_flags |= GSS_C_DELEG_POLICY_FLAG;
-#else
-    infof(data, "WARNING: support for CURLGSSAPI_DELEGATION_POLICY_FLAG not "
+#ಇಲ್ಲದಿದ್ದರೆ
+    infof(ದತ್ತಾಂಶ, "WARNING: support for CURLGSSAPI_DELEGATION_POLICY_FLAG not "
           "compiled in");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   }
 
-  if(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
+  ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
     req_flags |= GSS_C_DELEG_FLAG;
 
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_init_sec_context(minor_status,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_GSS_STUB
+  ಆದರೆ(getenv("CURL_STUB_GSS_CREDS"))
+    ಹಿಂತಿರುಗಿ stub_gss_init_sec_context(minor_ಸ್ಥಿತಿ,
                                      cred_handle,
-                                     (struct stub_gss_ctx_id_t_desc **)context,
-                                     target_name,
+                                     (ರಚನೆ stub_gss_ctx_id_t_desc **)context,
+                                     ಗುರಿ_name,
                                      mech_type,
                                      req_flags,
                                      0, /* time_req */
-                                     input_chan_bindings,
-                                     input_token,
-                                     NULL, /* actual_mech_type */
+                                     ಒಳಹರಿವು_chan_bindings,
+                                     ಒಳಹರಿವು_token,
+                                     ಖಾಲಿ, /* actual_mech_type */
                                      output_token,
                                      ret_flags,
-                                     NULL /* time_rec */);
-#endif /* CURL_GSS_STUB */
+                                     ಖಾಲಿ /* time_rec */);
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_GSS_STUB */
 
-  return gss_init_sec_context(minor_status,
+  ಹಿಂತಿರುಗಿ gss_init_sec_context(minor_ಸ್ಥಿತಿ,
                               cred_handle,
                               context,
-                              target_name,
+                              ಗುರಿ_name,
                               mech_type,
                               req_flags,
                               0, /* time_req */
-                              input_chan_bindings,
-                              input_token,
-                              NULL, /* actual_mech_type */
+                              ಒಳಹರಿವು_chan_bindings,
+                              ಒಳಹರಿವು_token,
+                              ಖಾಲಿ, /* actual_mech_type */
                               output_token,
                               ret_flags,
-                              NULL /* time_rec */);
+                              ಖಾಲಿ /* time_rec */);
 }
 
 OM_uint32 Curl_gss_delete_sec_context(OM_uint32 *min,
                                       gss_ctx_id_t *context,
-                                      gss_buffer_t output_token)
+                                      gss_ಬಫರ್_t output_token)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_delete_sec_context(min,
-                                     (struct stub_gss_ctx_id_t_desc **)context,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_GSS_STUB
+  ಆದರೆ(getenv("CURL_STUB_GSS_CREDS"))
+    ಹಿಂತಿರುಗಿ stub_gss_delete_sec_context(min,
+                                     (ರಚನೆ stub_gss_ctx_id_t_desc **)context,
                                      output_token);
-#endif /* CURL_GSS_STUB */
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_GSS_STUB */
 
-  return gss_delete_sec_context(min, context, output_token);
+  ಹಿಂತಿರುಗಿ gss_delete_sec_context(min, context, output_token);
 }
 
-OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_ಸ್ಥಿತಿ,
                                    gss_ctx_id_t context,
                                    gss_OID *mech_type)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_inquire_context(minor_status,
-                             (struct stub_gss_ctx_id_t_desc *)context,
-                             NULL, NULL, NULL, mech_type,
-                             NULL, NULL, NULL);
-#endif /* CURL_GSS_STUB */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_GSS_STUB
+  ಆದರೆ(getenv("CURL_STUB_GSS_CREDS"))
+    ಹಿಂತಿರುಗಿ stub_gss_inquire_context(minor_ಸ್ಥಿತಿ,
+                             (ರಚನೆ stub_gss_ctx_id_t_desc *)context,
+                             ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ, mech_type,
+                             ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ);
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_GSS_STUB */
 
-  return gss_inquire_context(minor_status, context,
-                             NULL, NULL, NULL, mech_type,
-                             NULL, NULL, NULL);
+  ಹಿಂತಿರುಗಿ gss_inquire_context(minor_ಸ್ಥಿತಿ, context,
+                             ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ, mech_type,
+                             ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ);
 }
 
-OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_ಸ್ಥಿತಿ,
                                 gss_name_t desired_name,
-                                OM_uint32 time_req,
-                                gss_OID_set desired_mechs,
+                                OM_uint32 ಸಮಯ_req,
+                                gss_OID_ಗಣ desired_mechs,
                                 gss_cred_usage_t cred_usage,
                                 gss_cred_id_t *output_cred_handle,
-                                gss_OID_set *actual_mechs,
-                                OM_uint32 *time_rec)
+                                gss_OID_ಗಣ *actual_mechs,
+                                OM_uint32 *ಸಮಯ_rec)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_acquire_cred(minor_status, desired_name, time_req,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_GSS_STUB
+  ಆದರೆ(getenv("CURL_STUB_GSS_CREDS"))
+    ಹಿಂತಿರುಗಿ stub_gss_acquire_cred(minor_ಸ್ಥಿತಿ, desired_name, ಸಮಯ_req,
                                  desired_mechs, cred_usage,
-                                 output_cred_handle, actual_mechs, time_rec);
-#endif /* CURL_GSS_STUB */
+                                 output_cred_handle, actual_mechs, ಸಮಯ_rec);
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_GSS_STUB */
 
-  return gss_acquire_cred(minor_status, desired_name, time_req,
+  ಹಿಂತಿರುಗಿ gss_acquire_cred(minor_ಸ್ಥಿತಿ, desired_name, ಸಮಯ_req,
                           desired_mechs, cred_usage,
-                          output_cred_handle, actual_mechs, time_rec);
+                          output_cred_handle, actual_mechs, ಸಮಯ_rec);
 }
 
-OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_status,
-                                  gss_OID_set *mech_set)
+OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_ಸ್ಥಿತಿ,
+                                  gss_OID_ಗಣ *mech_ಗಣ)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_indicate_mechs(minor_status, mech_set);
-#endif /* CURL_GSS_STUB */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_GSS_STUB
+  ಆದರೆ(getenv("CURL_STUB_GSS_CREDS"))
+    ಹಿಂತಿರುಗಿ stub_gss_indicate_mechs(minor_ಸ್ಥಿತಿ, mech_ಗಣ);
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_GSS_STUB */
 
-  return gss_indicate_mechs(minor_status, mech_set);
+  ಹಿಂತಿರುಗಿ gss_indicate_mechs(minor_ಸ್ಥಿತಿ, mech_ಗಣ);
 }
 
-#ifdef HAVE_GSS_SET_NEG_MECHS
-OM_uint32 Curl_gss_set_neg_mechs(OM_uint32 *minor_status,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GSS_ಗಣ_NEG_MECHS
+OM_uint32 Curl_gss_ಗಣ_neg_mechs(OM_uint32 *minor_ಸ್ಥಿತಿ,
                                  gss_cred_id_t cred_handle,
-                                 const gss_OID_set mech_set)
+                                 ಸ್ಥಿರಾಂಕ gss_OID_ಗಣ mech_ಗಣ)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_set_neg_mechs(minor_status, cred_handle, mech_set);
-#endif /* CURL_GSS_STUB */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_GSS_STUB
+  ಆದರೆ(getenv("CURL_STUB_GSS_CREDS"))
+    ಹಿಂತಿರುಗಿ stub_gss_ಗಣ_neg_mechs(minor_ಸ್ಥಿತಿ, cred_handle, mech_ಗಣ);
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_GSS_STUB */
 
-  return gss_set_neg_mechs(minor_status, cred_handle, mech_set);
+  ಹಿಂತಿರುಗಿ gss_ಗಣ_neg_mechs(minor_ಸ್ಥಿತಿ, cred_handle, mech_ಗಣ);
 }
-#endif /* HAVE_GSS_SET_NEG_MECHS */
+#ಆದರೆ_ಅಂತ್ಯ /* HAVE_GSS_SET_NEG_MECHS */
 
-OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_status,
+OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_ಸ್ಥಿತಿ,
                                 gss_cred_id_t *cred_handle)
 {
-#ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_release_cred(minor_status, cred_handle);
-#endif /* CURL_GSS_STUB */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_GSS_STUB
+  ಆದರೆ(getenv("CURL_STUB_GSS_CREDS"))
+    ಹಿಂತಿರುಗಿ stub_gss_release_cred(minor_ಸ್ಥಿತಿ, cred_handle);
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_GSS_STUB */
 
-  return gss_release_cred(minor_status, cred_handle);
+  ಹಿಂತಿರುಗಿ gss_release_cred(minor_ಸ್ಥಿತಿ, cred_handle);
 }
 
-#ifdef CURLVERBOSE
-#define GSS_LOG_BUFFER_LEN 1024
-static size_t display_gss_error(OM_uint32 status, int type,
-                                char *buf, size_t len)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLVERBOSE
+#ವ್ಯಾಖ್ಯಾನಿಸು GSS_LOG_ಬಫರ್_LEN 1024
+ಸ್ಥಿರ size_t display_gss_error(OM_uint32 ಸ್ಥಿತಿ_2, ಪೂರ್ಣಾಂಕ type,
+                                ಅಕ್ಷರ *buf, size_t len)
 {
   OM_uint32 maj_stat;
   OM_uint32 min_stat;
-  OM_uint32 msg_ctx = 0;
-  gss_buffer_desc status_string = GSS_C_EMPTY_BUFFER;
+  OM_uint32 ಸಂದೇಶ_ctx = 0;
+  gss_ಬಫರ್_desc ಸ್ಥಿತಿ_string = GSS_C_ಖಾಲಿಗಳು_ಬಫರ್;
 
-  do {
-    maj_stat = gss_display_status(&min_stat,
-                                  status,
+  ಮಾಡು {
+    maj_stat = gss_display_ಸ್ಥಿತಿ(&min_stat,
+                                  ಸ್ಥಿತಿ_2,
                                   type,
                                   GSS_C_NO_OID,
-                                  &msg_ctx,
-                                  &status_string);
-    if(maj_stat == GSS_S_COMPLETE && status_string.length > 0) {
-      if(GSS_LOG_BUFFER_LEN > len + status_string.length + 3) {
-        len += curl_msnprintf(buf + len, GSS_LOG_BUFFER_LEN - len,
-                              "%.*s. ", (int)status_string.length,
-                              (char *)status_string.value);
+                                  &ಸಂದೇಶ_ctx,
+                                  &ಸ್ಥಿತಿ_string);
+    ಆದರೆ(maj_stat == GSS_S_COMPLETE && ಸ್ಥಿತಿ_string.ಉದ್ದಳತೆ > 0) {
+      ಆದರೆ(GSS_LOG_ಬಫರ್_LEN > len + ಸ್ಥಿತಿ_string.ಉದ್ದಳತೆ + 3) {
+        len += curl_msnprintf(buf + len, GSS_LOG_ಬಫರ್_LEN - len,
+                              "%.*s. ", (ಪೂರ್ಣಾಂಕ)ಸ್ಥಿತಿ_string.ಉದ್ದಳತೆ,
+                              (ಅಕ್ಷರ *)ಸ್ಥಿತಿ_string.ಮೌಲ್ಯ);
       }
     }
-    gss_release_buffer(&min_stat, &status_string);
-  } while(!GSS_ERROR(maj_stat) && msg_ctx);
+    gss_release_ಬಫರ್(&min_stat, &ಸ್ಥಿತಿ_string);
+  } ಆಗ(!GSS_ERROR(maj_stat) && ಸಂದೇಶ_ctx);
 
-  return len;
+  ಹಿಂತಿರುಗಿ len;
 }
 
 /*
@@ -683,23 +683,23 @@ static size_t display_gss_error(OM_uint32 status, int type,
  * major   [in] - The major status code.
  * minor   [in] - The minor status code.
  */
-void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
+ಶೂನ್ಯ Curl_gss_log_error(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ,
                         OM_uint32 major, OM_uint32 minor)
 {
-  char buf[GSS_LOG_BUFFER_LEN] = "";
+  ಅಕ್ಷರ buf[GSS_LOG_ಬಫರ್_LEN] = "";
   size_t len = 0;
 
-  if(major != GSS_S_FAILURE)
-    len = display_gss_error(major, GSS_C_GSS_CODE, buf, len);
+  ಆದರೆ(major != GSS_S_FAILURE)
+    len = display_gss_error(major, GSS_C_GSS_ಸಂಕೇತ, buf, len);
 
-  display_gss_error(minor, GSS_C_MECH_CODE, buf, len);
+  display_gss_error(minor, GSS_C_MECH_ಸಂಕೇತ, buf, len);
 
-  infof(data, "%s%s", prefix, buf);
+  infof(ದತ್ತಾಂಶ, "%s%s", ಪೂರ್ವಪ್ರತ್ಯಯ, buf);
 }
-#endif /* CURLVERBOSE */
+#ಆದರೆ_ಅಂತ್ಯ /* CURLVERBOSE */
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
-#endif
+#ಆದರೆ defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#ಸೂಚನೆ GCC diagnostic ತೆಗೆ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HAVE_GSSAPI */
+#ಆದರೆ_ಅಂತ್ಯ /* HAVE_GSSAPI */

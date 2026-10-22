@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CAPSULE_H
-#define HEADER_CURL_CAPSULE_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_CAPSULE_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_CAPSULE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,15 +24,15 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#ಆದರೆ !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "curlx/dynbuf.h"
-#include "bufq.h"
+#ಅನ್ತರ್ಭಾವ "curlx/dynbuf.h"
+#ಅನ್ತರ್ಭಾವ "bufq.h"
 
 /* HTTP Capsule constants */
-#define HTTP_CAPSULE_HEADER_MAX_SIZE    10
+#ವ್ಯಾಖ್ಯಾನಿಸು HTTP_CAPSULE_ಶೀರ್ಷಿಕೆ_MAX_ಗಾತ್ರ    10
 
 /* HTTP Capsule function prototypes */
 
@@ -43,11 +43,11 @@
  * @param blen  Payload buffer length
  * @return CURLE_OK on success, error code on failure
  */
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen);
+CURLcode Curl_capsule_encap_udp_datagram(ರಚನೆ bufq *q,
+                                         ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *buf, size_t blen);
 
-struct Curl_easy;
-struct Curl_cfilter;
+ರಚನೆ Curl_easy;
+ರಚನೆ Curl_cfilter;
 
 /**
  * Process one UDP capsule from buffer into raw datagram payload bytes.
@@ -59,12 +59,12 @@ struct Curl_cfilter;
  * @param err       Error code output
  * @return Number of payload bytes written. Check `err` for status.
  */
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(ರಚನೆ Curl_cfilter *cf,
+                                    ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                    ರಚನೆ bufq *recvbufq,
+                                    ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *buf, size_t len,
                                     CURLcode *err);
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_CAPSULE_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_CAPSULE_H */

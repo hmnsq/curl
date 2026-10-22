@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_SCACHE_H
-#define HEADER_CURL_VTLS_SCACHE_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_VTLS_SCACHE_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_VTLS_SCACHE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,31 +23,31 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_SSL
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
 
-#include "cfilters.h"
-#include "urldata.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct Curl_ssl_scache;
-struct Curl_ssl_session;
-struct ssl_peer;
+ರಚನೆ Curl_cfilter;
+ರಚನೆ Curl_easy;
+ರಚನೆ Curl_ssl_scache;
+ರಚನೆ Curl_ssl_session;
+ರಚನೆ ssl_peer;
 
 /* RFC 8446 (TLSv1.3) restrict lifetime to one week max, for
  * other, less secure versions, we restrict it to a day */
-#define CURL_SCACHE_MAX_13_LIFETIME_SEC    (60 * 60 * 24 * 7)
-#define CURL_SCACHE_MAX_12_LIFETIME_SEC    (60 * 60 * 24)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_SCACHE_MAX_13_LIFETIME_SEC    (60 * 60 * 24 * 7)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_SCACHE_MAX_12_LIFETIME_SEC    (60 * 60 * 24)
 
 /* Create a session cache for up to max_peers endpoints with a total
  * of up to max_sessions SSL sessions per peer */
 CURLcode Curl_ssl_scache_create(size_t max_peers,
-                                size_t max_sessions_per_peer,
-                                struct Curl_ssl_scache **pscache);
+                                size_t max_sessions_ಪ್ರತಿ_peer,
+                                ರಚನೆ Curl_ssl_scache **pscache);
 
-void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache);
+ಶೂನ್ಯ Curl_ssl_scache_destroy(ರಚನೆ Curl_ssl_scache *scache);
 
 /* Create a key from peer and TLS configuration information that is
  * unique for how the connection filter wants to establish a TLS
@@ -61,16 +61,16 @@ void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache);
  *                is to be avoided.
  * @param ppeer_key on successful return, the key generated
  */
-CURLcode Curl_ssl_peer_key_make(const struct ssl_peer *peer,
-                                struct ssl_filter_config *sslc,
-                                const char *tls_id,
-                                char **ppeer_key);
+CURLcode Curl_ssl_peer_ಕೀಲಿ_make(ಸ್ಥಿರಾಂಕ ರಚನೆ ssl_peer *peer,
+                                ರಚನೆ ssl_filter_config *sslc,
+                                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tls_id,
+                                ಅಕ್ಷರ **ppeer_ಕೀಲಿ);
 
 /* Return if there is a session cache shall be used.
  * An SSL session might not be configured or not available for
  * "connect-only" transfers.
  */
-bool Curl_ssl_scache_use(struct Curl_cfilter *cf, struct Curl_easy *data);
+bool Curl_ssl_scache_use(ರಚನೆ Curl_cfilter *cf, ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
 /* Lock session cache mutex.
  * Call this before calling other Curl_ssl_*session* functions
@@ -79,10 +79,10 @@ bool Curl_ssl_scache_use(struct Curl_cfilter *cf, struct Curl_easy *data);
  * The purpose of explicitly locking SSL session cache data is to allow
  * individual SSL engines to manage session lifetime in their specific way.
  */
-void Curl_ssl_scache_lock(struct Curl_easy *data);
+ಶೂನ್ಯ Curl_ssl_scache_ಬೀಗ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
 /* Unlock session cache mutex */
-void Curl_ssl_scache_unlock(struct Curl_easy *data);
+ಶೂನ್ಯ Curl_ssl_scache_unlock(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
 /* Get TLS session object from the cache for the ssl_peer_key.
  * scache mutex must be locked (see Curl_ssl_scache_lock).
@@ -94,11 +94,11 @@ void Curl_ssl_scache_unlock(struct Curl_easy *data);
  * @param ssl_peer_key the key for lookup
  * @retval sobj   the object for the peer key or NULL
  */
-void *Curl_ssl_scache_get_obj(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key);
+ಶೂನ್ಯ *Curl_ssl_scache_get_obj(ರಚನೆ Curl_cfilter *cf,
+                              ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ssl_peer_ಕೀಲಿ);
 
-typedef void Curl_ssl_scache_obj_dtor(void *sobj);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಶೂನ್ಯ Curl_ssl_scache_obj_dtor(ಶೂನ್ಯ *sobj);
 
 /* Add a TLS session related object to the cache.
  * Replaces an existing object with the same peer_key.
@@ -114,24 +114,24 @@ typedef void Curl_ssl_scache_obj_dtor(void *sobj);
  * @param sobj    the TLS session object
  * @param sobj_free_cb callback to free the session object
  */
-CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 void *sobj,
+CURLcode Curl_ssl_scache_ಕೂಡಿಸು_obj(ರಚನೆ Curl_cfilter *cf,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ssl_peer_ಕೀಲಿ,
+                                 ಶೂನ್ಯ *sobj,
                                  Curl_ssl_scache_obj_dtor *sobj_dtor_cb);
 
 /* All about an SSL session ticket */
-struct Curl_ssl_session {
+ರಚನೆ Curl_ssl_session {
   uint8_t *sdata;              /* session ticket data, plain bytes */
   size_t sdata_len;            /* number of bytes in sdata */
   curl_off_t valid_until;      /* seconds since EPOCH until ticket expires */
-  int ietf_tls_id;             /* TLS protocol identifier negotiated */
-  char *alpn;                  /* APLN TLS negotiated protocol string */
+  ಪೂರ್ಣಾಂಕ ietf_tls_id;             /* TLS protocol identifier negotiated */
+  ಅಕ್ಷರ *alpn;                  /* APLN TLS negotiated protocol string */
   size_t earlydata_max;        /* max 0-RTT data supported by peer */
   uint8_t *quic_tp;            /* Optional QUIC transport param bytes */
   size_t quic_tp_len;          /* number of bytes in quic_tp */
-  struct Curl_llist_node list; /*  internal storage handling */
-  BIT(sectrust_verified);      /* session comes from sectrust verified TLS */
+  ರಚನೆ Curl_llist_ಗಂಟು list; /*  internal storage handling */
+  ಬಿಟ್(sectrust_verified);      /* session comes from sectrust verified TLS */
 };
 
 /* Create a `session` instance. Does NOT need locking.
@@ -144,26 +144,26 @@ struct Curl_ssl_session {
  *                  in case this is not known.
  * @param psession on return the scached session instance created
  */
-CURLcode Curl_ssl_session_create(void *sdata, size_t sdata_len,
-                                 int ietf_tls_id, const char *alpn,
+CURLcode Curl_ssl_session_create(ಶೂನ್ಯ *sdata, size_t sdata_len,
+                                 ಪೂರ್ಣಾಂಕ ietf_tls_id, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *alpn,
                                  curl_off_t valid_until, size_t earlydata_max,
-                                 struct Curl_ssl_session **psession);
+                                 ರಚನೆ Curl_ssl_session **psession);
 
 /* Variation of session creation with quic transport parameter bytes,
  * Takes ownership of `quic_tp` regardless of return code. */
-CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
-                                  int ietf_tls_id, const char *alpn,
+CURLcode Curl_ssl_session_create2(ಶೂನ್ಯ *sdata, size_t sdata_len,
+                                  ಪೂರ್ಣಾಂಕ ietf_tls_id, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *alpn,
                                   curl_off_t valid_until, size_t earlydata_max,
-                                  unsigned char *quic_tp, size_t quic_tp_len,
-                                  struct Curl_ssl_session **psession);
+                                  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *quic_tp, size_t quic_tp_len,
+                                  ರಚನೆ Curl_ssl_session **psession);
 
 /* Duplicate an ssl session */
-CURLcode Curl_ssl_session_dup(struct Curl_ssl_session *src,
-                              struct Curl_ssl_session **pdest);
+CURLcode Curl_ssl_session_dup(ರಚನೆ Curl_ssl_session *src,
+                              ರಚನೆ Curl_ssl_session **pdest);
 
 /* Destroy a `session` instance. Can be called with NULL.
  * Does NOT need locking. */
-void Curl_ssl_session_destroy(struct Curl_ssl_session *s);
+ಶೂನ್ಯ Curl_ssl_session_destroy(ರಚನೆ Curl_ssl_session *s);
 
 /* Put the scache session into the cache. Does NOT need locking.
  * Call takes ownership of `s` in all outcomes.
@@ -172,10 +172,10 @@ void Curl_ssl_session_destroy(struct Curl_ssl_session *s);
  * @param ssl_peer_key the key for lookup
  * @param s       the scache session object
  */
-CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             const char *ssl_peer_key,
-                             struct Curl_ssl_session *s);
+CURLcode Curl_ssl_scache_put(ರಚನೆ Curl_cfilter *cf,
+                             ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                             ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ssl_peer_ಕೀಲಿ,
+                             ರಚನೆ Curl_ssl_session *s);
 
 /* Take a matching scache session from the cache. Does NOT need locking.
  * @param cf      the connection filter wanting to use it
@@ -183,39 +183,39 @@ CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
  * @param ssl_peer_key the key for lookup
  * @param s       on return, the scache session object or NULL
  */
-CURLcode Curl_ssl_scache_take(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key,
-                              struct Curl_ssl_session **ps);
+CURLcode Curl_ssl_scache_take(ರಚನೆ Curl_cfilter *cf,
+                              ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ssl_peer_ಕೀಲಿ,
+                              ರಚನೆ Curl_ssl_session **ps);
 
 /* Return a taken scache session to the cache. Does NOT need locking.
  * Depending on TLS version and other criteria, it may cache it again
  * or destroy it. Maybe called with a NULL session.
  */
-void Curl_ssl_scache_return(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            const char *ssl_peer_key,
-                            struct Curl_ssl_session *s);
+ಶೂನ್ಯ Curl_ssl_scache_return(ರಚನೆ Curl_cfilter *cf,
+                            ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ssl_peer_ಕೀಲಿ,
+                            ರಚನೆ Curl_ssl_session *s);
 
 /* Remove all sessions and obj for the peer_key. Does NOT need locking. */
-void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const char *ssl_peer_key);
+ಶೂನ್ಯ Curl_ssl_scache_remove_all(ರಚನೆ Curl_cfilter *cf,
+                                ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ssl_peer_ಕೀಲಿ);
 
-bool Curl_ssl_scache_is_locked_by_current_thread(struct Curl_easy *data);
+bool Curl_ssl_scache_is_locked_by_current_thread(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-#ifdef USE_SSLS_EXPORT
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSLS_EXPORT
 
-CURLcode Curl_ssl_session_import(struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 const unsigned char *shmac, size_t shmac_len,
-                                 const void *sdata, size_t sdata_len);
+CURLcode Curl_ssl_session_import(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ssl_peer_ಕೀಲಿ,
+                                 ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *shmac, size_t shmac_len,
+                                 ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *sdata, size_t sdata_len);
 
-CURLcode Curl_ssl_session_export(struct Curl_easy *data,
+CURLcode Curl_ssl_session_export(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                                  curl_ssls_export_cb *export_fn,
-                                 void *userptr);
+                                 ಶೂನ್ಯ *userptr);
 
-#endif /* USE_SSLS_EXPORT */
-#endif /* USE_SSL */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSLS_EXPORT */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSL */
 
-#endif /* HEADER_CURL_VTLS_SCACHE_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_VTLS_SCACHE_H */

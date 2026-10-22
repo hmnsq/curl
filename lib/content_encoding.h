@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONTENT_ENCODING_H
-#define HEADER_CURL_CONTENT_ENCODING_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_CONTENT_ENCODING_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_CONTENT_ENCODING_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-struct Curl_cwriter;
+ರಚನೆ Curl_cwriter;
 
 /* returns an allocated string or NULL */
-char *Curl_get_content_encodings(void);
+ಅಕ್ಷರ *Curl_get_content_encodings(ಶೂನ್ಯ);
 
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer);
-#endif /* HEADER_CURL_CONTENT_ENCODING_H */
+CURLcode Curl_build_unencoding_ರಾಶಿ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                     ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *enclist, ಪೂರ್ಣಾಂಕ is_transfer);
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_CONTENT_ENCODING_H */

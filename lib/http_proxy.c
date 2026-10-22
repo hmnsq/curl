@@ -21,276 +21,276 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "http_proxy.h"
+#ಅನ್ತರ್ಭಾವ "http_proxy.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
 
-#include "curl_trc.h"
-#include "http.h"
-#include "url.h"
-#include "cfilters.h"
-#include "cf-h1-proxy.h"
-#include "cf-h2-proxy.h"
-#include "connect.h"
-#include "vauth/vauth.h"
-#include "vquic/vquic.h"
-#include "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "http.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "cf-h1-proxy.h"
+#ಅನ್ತರ್ಭಾವ "cf-h2-proxy.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "vauth/vauth.h"
+#ಅನ್ತರ್ಭಾವ "vquic/vquic.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
 
-static CURLcode dynhds_add_custom(struct Curl_easy *data,
-                                  bool is_connect, int httpversion,
-                                  bool is_udp, struct dynhds *hds)
+ಸ್ಥಿರ CURLcode dynhds_ಕೂಡಿಸು_custom(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                  bool is_connect, ಪೂರ್ಣಾಂಕ httpversion,
+                                  bool is_udp, ರಚನೆ dynhds *hds)
 {
-  struct connectdata *conn = data->conn;
-  struct curl_slist *h[2];
-  struct curl_slist *headers;
-  int numlists = 1; /* by default */
-  int i;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
+  ರಚನೆ curl_slist *h[2];
+  ರಚನೆ curl_slist *ಶೀರ್ಷಿಕೆಗಳು;
+  ಪೂರ್ಣಾಂಕ numlists = 1; /* by default */
+  ಪೂರ್ಣಾಂಕ i;
 
-  enum Curl_proxy_use proxy;
+  ಎಣಿಕೆ Curl_proxy_use proxy;
 
-  if(is_connect && !is_udp)
-    proxy = HEADER_CONNECT;
-  else if(is_connect && is_udp)
-    proxy = HEADER_CONNECT_UDP;
-  else
-    proxy = conn->bits.origin_is_proxy ? HEADER_PROXY : HEADER_SERVER;
+  ಆದರೆ(is_connect && !is_udp)
+    proxy = ಶೀರ್ಷಿಕೆ_CONNECT;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(is_connect && is_udp)
+    proxy = ಶೀರ್ಷಿಕೆ_CONNECT_UDP;
+  ಇಲ್ಲದಿದ್ದರೆ
+    proxy = conn->ಬಿಟ್ಟುಗಳು.origin_is_proxy ? ಶೀರ್ಷಿಕೆ_PROXY : ಶೀರ್ಷಿಕೆ_SERVER;
 
-  switch(proxy) {
-  case HEADER_SERVER:
-    h[0] = data->set.headers;
-    break;
-  case HEADER_PROXY:
-    h[0] = data->set.headers;
-    if(data->set.sep_headers) {
-      h[1] = data->set.proxyheaders;
+  ಆಯ್ಕೆ(proxy) {
+  ಸ್ಥಿತಿ ಶೀರ್ಷಿಕೆ_SERVER:
+    h[0] = ದತ್ತಾಂಶ->ಗಣ.ಶೀರ್ಷಿಕೆಗಳು;
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ ಶೀರ್ಷಿಕೆ_PROXY:
+    h[0] = ದತ್ತಾಂಶ->ಗಣ.ಶೀರ್ಷಿಕೆಗಳು;
+    ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.sep_ಶೀರ್ಷಿಕೆಗಳು) {
+      h[1] = ದತ್ತಾಂಶ->ಗಣ.proxyheaders;
       numlists++;
     }
-    break;
-  case HEADER_CONNECT:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
-  case HEADER_CONNECT_UDP:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ ಶೀರ್ಷಿಕೆ_CONNECT:
+    ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.sep_ಶೀರ್ಷಿಕೆಗಳು)
+      h[0] = ದತ್ತಾಂಶ->ಗಣ.proxyheaders;
+    ಇಲ್ಲದಿದ್ದರೆ
+      h[0] = ದತ್ತಾಂಶ->ಗಣ.ಶೀರ್ಷಿಕೆಗಳು;
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ ಶೀರ್ಷಿಕೆ_CONNECT_UDP:
+    ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.sep_ಶೀರ್ಷಿಕೆಗಳು)
+      h[0] = ದತ್ತಾಂಶ->ಗಣ.proxyheaders;
+    ಇಲ್ಲದಿದ್ದರೆ
+      h[0] = ದತ್ತಾಂಶ->ಗಣ.ಶೀರ್ಷಿಕೆಗಳು;
+    ನಿಲ್ಲಿಸು;
   }
 
   /* loop through one or two lists */
-  for(i = 0; i < numlists; i++) {
-    for(headers = h[i]; headers; headers = headers->next) {
-      struct Curl_str name;
-      const char *value = NULL;
+  ಗಾಗಿ(i = 0; i < numlists; i++) {
+    ಗಾಗಿ(ಶೀರ್ಷಿಕೆಗಳು = h[i]; ಶೀರ್ಷಿಕೆಗಳು; ಶೀರ್ಷಿಕೆಗಳು = ಶೀರ್ಷಿಕೆಗಳು->ಮುಂದಿನ) {
+      ರಚನೆ Curl_str name;
+      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ = ಖಾಲಿ;
       size_t valuelen = 0;
-      const char *ptr = headers->data;
+      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ptr = ಶೀರ್ಷಿಕೆಗಳು->ದತ್ತಾಂಶ;
 
       /* There are 2 quirks in place for custom headers:
        * 1. setting only 'name:' to suppress a header from being sent
        * 2. setting only 'name;' to send an empty (illegal) header
        */
-      if(!curlx_str_cspn(&ptr, &name, ";:")) {
-        if(!curlx_str_single(&ptr, ':')) {
+      ಆದರೆ(!curlx_str_cspn(&ptr, &name, ";:")) {
+        ಆದರೆ(!curlx_str_single(&ptr, ':')) {
           curlx_str_passblanks(&ptr);
-          if(*ptr) {
-            value = ptr;
-            valuelen = strlen(value);
+          ಆದರೆ(*ptr) {
+            ಮೌಲ್ಯ = ptr;
+            valuelen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮೌಲ್ಯ);
           }
-          else {
+          ಇಲ್ಲದಿದ್ದರೆ {
             /* quirk #1, suppress this header */
-            continue;
+            ಮುಂದುವರಿ;
           }
         }
-        else if(!curlx_str_single(&ptr, ';')) {
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!curlx_str_single(&ptr, ';')) {
           curlx_str_passblanks(&ptr);
-          if(!*ptr) {
+          ಆದರೆ(!*ptr) {
             /* quirk #2, send an empty header */
-            value = "";
+            ಮೌಲ್ಯ = "";
             valuelen = 0;
           }
-          else {
+          ಇಲ್ಲದಿದ್ದರೆ {
             /* this may be used for something else in the future,
              * ignore this for now */
-            continue;
+            ಮುಂದುವರಿ;
           }
         }
-        else
+        ಇಲ್ಲದಿದ್ದರೆ
           /* neither : nor ; in provided header value. We ignore this
            * silently */
-          continue;
+          ಮುಂದುವರಿ;
       }
-      else
+      ಇಲ್ಲದಿದ್ದರೆ
         /* no name, move on */
-        continue;
+        ಮುಂದುವರಿ;
 
-      DEBUGASSERT(curlx_strlen(&name) && value);
+      DEBUGASSERT(curlx_strlen(&name) && ಮೌಲ್ಯ);
       /* trim surrounding whitespace so a padded field name (e.g.
          `Authorization :`) cannot slip past the Authorization/Cookie check */
       curlx_str_trimblanks(&name);
-      if(!curlx_strlen(&name))
-        continue;
-      if(data->state.http_host &&
+      ಆದರೆ(!curlx_strlen(&name))
+        ಮುಂದುವರಿ;
+      ಆದರೆ(ದತ್ತಾಂಶ->state.http_host &&
          /* a Host: header was sent already, do not pass on any custom Host:
             header as that will produce *two* in the same request! */
          curlx_str_casecompare(&name, "Host"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_FORM &&
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ದತ್ತಾಂಶ->state.httpreq == HTTPREQ_POST_FORM &&
               /* this header (extended by formdata.c) is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_MIME &&
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ದತ್ತಾಂಶ->state.httpreq == HTTPREQ_POST_MIME &&
               /* this header is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->req.authneg &&
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ದತ್ತಾಂಶ->req.authneg &&
               /* while doing auth neg, do not allow the custom length since
                  we will force length zero then */
               curlx_str_casecompare(&name, "Content-Length"))
         ;
-      else if((httpversion >= 20) &&
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ((httpversion >= 20) &&
               curlx_str_casecompare(&name, "Transfer-Encoding"))
         ;
       /* HTTP/2 and HTTP/3 do not support chunked requests */
-      else if((curlx_str_casecompare(&name, "Authorization") ||
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ((curlx_str_casecompare(&name, "Authorization") ||
                curlx_str_casecompare(&name, "Cookie")) &&
               /* be careful of sending this potentially sensitive header to
                  other hosts */
-              !Curl_auth_allowed_to_host(data))
+              !Curl_auth_allowed_ಗಮ್ಯ_host(ದತ್ತಾಂಶ))
         ;
-      else {
-        CURLcode result =
-          Curl_dynhds_add(hds, curlx_str(&name), curlx_strlen(&name),
-                          value, valuelen);
-        if(result)
-          return result;
+      ಇಲ್ಲದಿದ್ದರೆ {
+        CURLcode ಫಲಿತಾಂಶ =
+          Curl_dynhds_ಕೂಡಿಸು(hds, curlx_str(&name), curlx_strlen(&name),
+                          ಮೌಲ್ಯ, valuelen);
+        ಆದರೆ(ಫಲಿತಾಂಶ)
+          ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
       }
     }
   }
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-struct cf_proxy_ctx {
-  struct Curl_peer *peer; /* proxy */
-  struct Curl_peer *tunnel_peer; /* tunnel destination */
+ರಚನೆ cf_proxy_ctx {
+  ರಚನೆ Curl_peer *peer; /* proxy */
+  ರಚನೆ Curl_peer *tunnel_peer; /* tunnel destination */
   uint8_t proxytype;
   uint8_t tunnel_transport;
-  BIT(sub_filter_installed);
+  ಬಿಟ್(sub_filter_installed);
 };
 
-static int proxy_http_ver_major(proxy_http_ver ver)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ proxy_http_ver_major(proxy_http_ver ver)
 {
-  switch(ver) {
-  case PROXY_HTTP_V1:
-    return 11;
-  case PROXY_HTTP_V2:
-    return 20;
-  case PROXY_HTTP_V3:
-    return 30;
+  ಆಯ್ಕೆ(ver) {
+  ಸ್ಥಿತಿ PROXY_HTTP_V1:
+    ಹಿಂತಿರುಗಿ 11;
+  ಸ್ಥಿತಿ PROXY_HTTP_V2:
+    ಹಿಂತಿರುಗಿ 20;
+  ಸ್ಥಿತಿ PROXY_HTTP_V3:
+    ಹಿಂತಿರುಗಿ 30;
   }
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static CURLcode http_proxy_create_CONNECT(struct httpreq **preq,
-                                          struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct Curl_peer *peer,
-                                          struct Curl_peer *dest,
+ಸ್ಥಿರ CURLcode http_proxy_create_CONNECT(ರಚನೆ httpreq **preq,
+                                          ರಚನೆ Curl_cfilter *cf,
+                                          ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                          ರಚನೆ Curl_peer *peer,
+                                          ರಚನೆ Curl_peer *dest,
                                           proxy_http_ver ver)
 {
-  char *authority = NULL;
-  const char *ua;
-  int httpversion = proxy_http_ver_major(ver);
-  CURLcode result;
-  struct httpreq *req = NULL;
+  ಅಕ್ಷರ *authority = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ua;
+  ಪೂರ್ಣಾಂಕ httpversion = proxy_http_ver_major(ver);
+  CURLcode ಫಲಿತಾಂಶ;
+  ರಚನೆ httpreq *req = ಖಾಲಿ;
 
-  (void)peer;
+  (ಶೂನ್ಯ)peer;
   authority = curl_maprintf("%s%s%s:%u",
                             dest->ipv6 ? "[" : "",
                             dest->hostname,
                             dest->ipv6 ? "]" : "",
-                            dest->port);
-  if(!authority) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+                            dest->ಪೋರ್ಟ್);
+  ಆದರೆ(!authority) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  result = Curl_http_req_make(&req, STRCONST("CONNECT"),
-                              NULL, 0, authority, strlen(authority),
-                              NULL, 0);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_http_req_make(&req, STRCONST("CONNECT"),
+                              ಖಾಲಿ, 0, authority, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(authority),
+                              ಖಾಲಿ, 0);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
   /* Setup the proxy-authorization header, if any */
-  result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
-                                 req->authority, NULL, TRUE);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_http_output_auth(ದತ್ತಾಂಶ, cf->conn, req->ವಿಧಾನ, HTTPREQ_GET,
+                                 req->authority, ಖಾಲಿ, TRUE);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
   /* If user is not overriding Host: header, we add for HTTP/1.x */
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Host"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Host", authority);
-    if(result)
-      goto out;
+  ಆದರೆ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(ದತ್ತಾಂಶ, cf->conn, STRCONST("Host"))) {
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "Host", authority);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  if(data->req.hd_proxy_auth) {
-    result = Curl_dynhds_h1_cadd_line(&req->headers,
-                                      data->req.hd_proxy_auth);
-    if(result)
-      goto out;
+  ಆದರೆ(ದತ್ತಾಂಶ->req.hd_proxy_auth) {
+    ಫಲಿತಾಂಶ = Curl_dynhds_h1_cadd_ಸಾಲು(&req->ಶೀರ್ಷಿಕೆಗಳು,
+                                      ದತ್ತಾಂಶ->req.hd_proxy_auth);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  ua = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(!Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
+  ua = CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_USERAGENT);
+  ಆದರೆ(!Curl_checkProxyheaders(ದತ್ತಾಂಶ, cf->conn, STRCONST("User-Agent")) &&
      ua && *ua) {
-    result = Curl_dynhds_cadd(&req->headers, "User-Agent", ua);
-    if(result)
-      goto out;
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "User-Agent", ua);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Proxy-Connection"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Proxy-Connection", "Keep-Alive");
-    if(result)
-      goto out;
+  ಆದರೆ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(ದತ್ತಾಂಶ, cf->conn, STRCONST("Proxy-Connection"))) {
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "Proxy-Connection", "Keep-Alive");
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  result = dynhds_add_custom(data, TRUE, httpversion,
-                             FALSE, &req->headers);
+  ಫಲಿತಾಂಶ = dynhds_ಕೂಡಿಸು_custom(ದತ್ತಾಂಶ, TRUE, httpversion,
+                             FALSE, &req->ಶೀರ್ಷಿಕೆಗಳು);
 
-out:
-  if(result && req) {
+ಹೊರಹೋಗು:
+  ಆದರೆ(ಫಲಿತಾಂಶ && req) {
     Curl_http_req_free(req);
-    req = NULL;
+    req = ಖಾಲಿ;
   }
   curlx_free(authority);
   *preq = req;
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
-                                             struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             struct Curl_peer *peer,
-                                             struct Curl_peer *dest,
+ಸ್ಥಿರ CURLcode http_proxy_create_CONNECTUDP(ರಚನೆ httpreq **preq,
+                                             ರಚನೆ Curl_cfilter *cf,
+                                             ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ರಚನೆ Curl_peer *peer,
+                                             ರಚನೆ Curl_peer *dest,
                                              proxy_http_ver ver)
 {
-  const char *proxy_scheme = "http", *ua;
-  int httpversion = proxy_http_ver_major(ver);
-  char *authority = NULL;
-  char *path = NULL;
-  char *encoded_host = NULL;
-  struct httpreq *req = NULL;
-  CURLcode result;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *proxy_scheme = "http", *ua;
+  ಪೂರ್ಣಾಂಕ httpversion = proxy_http_ver_major(ver);
+  ಅಕ್ಷರ *authority = ಖಾಲಿ;
+  ಅಕ್ಷರ *ಮಾರ್ಗ = ಖಾಲಿ;
+  ಅಕ್ಷರ *encoded_host = ಖಾಲಿ;
+  ರಚನೆ httpreq *req = ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  if(cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS ||
+  ಆದರೆ(cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS ||
      cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS2 ||
      cf->conn->http_proxy.proxytype == CURLPROXY_HTTPS3)
     proxy_scheme = "https";
@@ -299,419 +299,419 @@ static CURLcode http_proxy_create_CONNECTUDP(struct httpreq **preq,
                             peer->ipv6 ? "[" : "",
                             peer->hostname,
                             peer->ipv6 ? "]" : "",
-                            peer->port);
-  if(!authority) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+                            peer->ಪೋರ್ಟ್);
+  ಆದರೆ(!authority) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  if(dest->ipv6) {
+  ಆದರೆ(dest->ipv6) {
     /* RFC 9298: colons in IPv6 addresses MUST be percent-encoded
      * in the URI template (e.g. "2001:db8::1" -> "2001%3Adb8%3A%3A1") */
-    const char *s = dest->hostname;
-    char *d;
-    size_t hlen = strlen(s);
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s = dest->hostname;
+    ಅಕ್ಷರ *d;
+    size_t hlen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
     encoded_host = curlx_malloc(hlen * 3 + 1);
-    if(!encoded_host) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    ಆದರೆ(!encoded_host) {
+      ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
     d = encoded_host;
-    while(*s) {
-      if(*s == ':') {
+    ಆಗ(*s) {
+      ಆದರೆ(*s == ':') {
         *d++ = '%';
         *d++ = '3';
         *d++ = 'A';
       }
-      else
+      ಇಲ್ಲದಿದ್ದರೆ
         *d++ = *s;
       s++;
     }
     *d = '\0';
-    path = curl_maprintf("/.well-known/masque/udp/%s/%u/",
-                         encoded_host, (unsigned int)dest->port);
+    ಮಾರ್ಗ = curl_maprintf("/.well-known/masque/udp/%s/%u/",
+                         encoded_host, (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)dest->ಪೋರ್ಟ್);
   }
-  else {
-    path = curl_maprintf("/.well-known/masque/udp/%s/%u/",
-                         dest->hostname, (unsigned int)dest->port);
-  }
-
-  if(!path) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಮಾರ್ಗ = curl_maprintf("/.well-known/masque/udp/%s/%u/",
+                         dest->hostname, (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)dest->ಪೋರ್ಟ್);
   }
 
-  if(ver == PROXY_HTTP_V1) {
-    result = Curl_http_req_make(&req, "GET", CURL_CSTRLEN("GET"),
-                                proxy_scheme, strlen(proxy_scheme),
-                                authority, strlen(authority),
-                                path, strlen(path));
-    if(result)
-      goto out;
+  ಆದರೆ(!ಮಾರ್ಗ) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  else if(ver == PROXY_HTTP_V2 || ver == PROXY_HTTP_V3) {
-    result = Curl_http_req_make(&req, STRCONST("CONNECT"),
-                                proxy_scheme, strlen(proxy_scheme),
-                                authority, strlen(authority),
-                                path, strlen(path));
-    if(result)
-      goto out;
+
+  ಆದರೆ(ver == PROXY_HTTP_V1) {
+    ಫಲಿತಾಂಶ = Curl_http_req_make(&req, "GET", CURL_CSTRLEN("GET"),
+                                proxy_scheme, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(proxy_scheme),
+                                authority, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(authority),
+                                ಮಾರ್ಗ, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮಾರ್ಗ));
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
-  else {
-    result = CURLE_FAILED_INIT;
-    goto out;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ver == PROXY_HTTP_V2 || ver == PROXY_HTTP_V3) {
+    ಫಲಿತಾಂಶ = Curl_http_req_make(&req, STRCONST("CONNECT"),
+                                proxy_scheme, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(proxy_scheme),
+                                authority, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(authority),
+                                ಮಾರ್ಗ, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮಾರ್ಗ));
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
+  }
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಫಲಿತಾಂಶ = CURLE_FAILED_INIT;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
   /* Setup the proxy-authorization header, if any */
-  result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
-                                 req->authority, NULL, TRUE);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_http_output_auth(ದತ್ತಾಂಶ, cf->conn, req->ವಿಧಾನ, HTTPREQ_GET,
+                                 req->authority, ಖಾಲಿ, TRUE);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
   /* If user is not overriding Host: header, we add for HTTP/1.x */
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Host"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Host", authority);
-    if(result)
-      goto out;
+  ಆದರೆ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(ದತ್ತಾಂಶ, cf->conn, STRCONST("Host"))) {
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "Host", authority);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  if(data->req.hd_proxy_auth) {
-    result = Curl_dynhds_h1_cadd_line(&req->headers,
-                                      data->req.hd_proxy_auth);
-    if(result)
-      goto out;
+  ಆದರೆ(ದತ್ತಾಂಶ->req.hd_proxy_auth) {
+    ಫಲಿತಾಂಶ = Curl_dynhds_h1_cadd_ಸಾಲು(&req->ಶೀರ್ಷಿಕೆಗಳು,
+                                      ದತ್ತಾಂಶ->req.hd_proxy_auth);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  ua = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) &&
+  ua = CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_USERAGENT);
+  ಆದರೆ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(ದತ್ತಾಂಶ, cf->conn, STRCONST("User-Agent")) &&
      ua && *ua) {
-    result = Curl_dynhds_cadd(&req->headers, "User-Agent", ua);
-    if(result)
-      goto out;
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "User-Agent", ua);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  if(ver == PROXY_HTTP_V1 &&
-     !Curl_checkProxyheaders(data, cf->conn, STRCONST("Proxy-Connection"))) {
-    result = Curl_dynhds_cadd(&req->headers, "Proxy-Connection", "Keep-Alive");
-    if(result)
-      goto out;
+  ಆದರೆ(ver == PROXY_HTTP_V1 &&
+     !Curl_checkProxyheaders(ದತ್ತಾಂಶ, cf->conn, STRCONST("Proxy-Connection"))) {
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "Proxy-Connection", "Keep-Alive");
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  if(ver == PROXY_HTTP_V1) {
-    result = Curl_dynhds_cadd(&req->headers, "Connection", "Upgrade");
-    if(result)
-      goto out;
+  ಆದರೆ(ver == PROXY_HTTP_V1) {
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "Connection", "Upgrade");
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
 
-    result = Curl_dynhds_cadd(&req->headers, "Upgrade", "connect-udp");
-    if(result)
-      goto out;
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "Upgrade", "connect-udp");
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
 
-    result = Curl_dynhds_cadd(&req->headers, "Capsule-Protocol", "?1");
-    if(result)
-      goto out;
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "Capsule-Protocol", "?1");
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
-  else {
-    result = Curl_dynhds_cadd(&req->headers, ":Protocol", "connect-udp");
-    if(result)
-      goto out;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, ":Protocol", "connect-udp");
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
 
-    if(ver >= PROXY_HTTP_V2) {
-      result = Curl_dynhds_cadd(&req->headers, "Capsule-Protocol", "?1");
-      if(result)
-        goto out;
+    ಆದರೆ(ver >= PROXY_HTTP_V2) {
+      ಫಲಿತಾಂಶ = Curl_dynhds_cadd(&req->ಶೀರ್ಷಿಕೆಗಳು, "Capsule-Protocol", "?1");
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹೋಗು ಹೊರಹೋಗು;
     }
   }
 
-  result = dynhds_add_custom(data, TRUE, httpversion,
-                             TRUE, &req->headers);
+  ಫಲಿತಾಂಶ = dynhds_ಕೂಡಿಸು_custom(ದತ್ತಾಂಶ, TRUE, httpversion,
+                             TRUE, &req->ಶೀರ್ಷಿಕೆಗಳು);
 
-out:
-  if(result && req) {
+ಹೊರಹೋಗು:
+  ಆದರೆ(ಫಲಿತಾಂಶ && req) {
     Curl_http_req_free(req);
-    req = NULL;
+    req = ಖಾಲಿ;
   }
   curlx_free(authority);
-  curlx_free(path);
+  curlx_free(ಮಾರ್ಗ);
   curlx_free(encoded_host);
   *preq = req;
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 CURLcode Curl_http_proxy_create_tunnel_request(
-    struct httpreq **preq, struct Curl_cfilter *cf,
-    struct Curl_easy *data, struct Curl_peer *peer, struct Curl_peer *dest,
+    ರಚನೆ httpreq **preq, ರಚನೆ Curl_cfilter *cf,
+    ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ Curl_peer *peer, ರಚನೆ Curl_peer *dest,
     proxy_http_ver ver, bool udp_tunnel)
 {
-  CURLcode result = udp_tunnel ?
-    http_proxy_create_CONNECTUDP(preq, cf, data, peer, dest, ver) :
-    http_proxy_create_CONNECT(preq, cf, data, peer, dest, ver);
-  if(result)
-    return result;
+  CURLcode ಫಲಿತಾಂಶ = udp_tunnel ?
+    http_proxy_create_CONNECTUDP(preq, cf, ದತ್ತಾಂಶ, peer, dest, ver) :
+    http_proxy_create_CONNECT(preq, cf, ದತ್ತಾಂಶ, peer, dest, ver);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
-  infof(data, "Establishing %s proxy %stunnel to %s:%u",
+  infof(ದತ್ತಾಂಶ, "Establishing %s proxy %stunnel to %s:%u",
         (ver == PROXY_HTTP_V2) ? "HTTP/2" :
         (ver == PROXY_HTTP_V3) ? "HTTP/3" : "HTTP",
         udp_tunnel ? "UDP " : "",
-        dest->user_hostname, dest->port);
-  return CURLE_OK;
+        dest->user_hostname, dest->ಪೋರ್ಟ್);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 CURLcode Curl_http_proxy_inspect_tunnel_response(
-    struct Curl_cfilter *cf, struct Curl_easy *data,
-    struct http_resp *resp, bool udp_tunnel,
-    proxy_inspect_result *presult)
+    ರಚನೆ Curl_cfilter *cf, ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+    ರಚನೆ http_resp *resp, bool udp_tunnel,
+    proxy_inspect_ಫಲಿತಾಂಶ *presult)
 {
-  struct dynhds_entry *capsule_protocol = NULL;
-  struct dynhds_entry *auth_reply = NULL;
-  size_t i, header_count;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ dynhds_ನಮೂದು *capsule_protocol = ಖಾಲಿ;
+  ರಚನೆ dynhds_ನಮೂದು *auth_ಉತ್ತರ = ಖಾಲಿ;
+  size_t i, ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
   DEBUGASSERT(resp);
 
-  header_count = Curl_dynhds_count(&resp->headers);
-  infof(data, "CONNECT%s Response Status %d",
-        udp_tunnel ? "-UDP" : "", resp->status);
-  infof(data, "Response Headers (%zu total):", header_count);
-  for(i = 0; i < header_count; i++) {
-    struct dynhds_entry *entry = Curl_dynhds_getn(&resp->headers, i);
-    if(entry)
-      infof(data, "  %s: %s", entry->name, entry->value);
+  ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ = Curl_dynhds_ಎಣಿಕೆ(&resp->ಶೀರ್ಷಿಕೆಗಳು);
+  infof(ದತ್ತಾಂಶ, "CONNECT%s Response Status %d",
+        udp_tunnel ? "-UDP" : "", resp->ಸ್ಥಿತಿ_2);
+  infof(ದತ್ತಾಂಶ, "Response Headers (%zu total):", ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ);
+  ಗಾಗಿ(i = 0; i < ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ; i++) {
+    ರಚನೆ dynhds_ನಮೂದು *ನಮೂದು = Curl_dynhds_getn(&resp->ಶೀರ್ಷಿಕೆಗಳು, i);
+    ಆದರೆ(ನಮೂದು)
+      infof(ದತ್ತಾಂಶ, "  %s: %s", ನಮೂದು->name, ನಮೂದು->ಮೌಲ್ಯ);
   }
 
-  if(resp->status == 407) {
-    auth_reply = Curl_dynhds_cget(&resp->headers, "Proxy-Authenticate");
+  ಆದರೆ(resp->ಸ್ಥಿತಿ_2 == 407) {
+    auth_ಉತ್ತರ = Curl_dynhds_cget(&resp->ಶೀರ್ಷಿಕೆಗಳು, "Proxy-Authenticate");
   }
 
-  if(auth_reply) {
-    CURL_TRC_CF(data, cf, "[0] CONNECT%s: fwd auth header '%s'",
-                udp_tunnel ? "-UDP" : "", auth_reply->value);
-    result = Curl_http_input_auth(data, resp->status == 407,
-                                  auth_reply->value);
-    if(result)
-      return result;
-    if(data->req.newurl) {
-      curlx_safefree(data->req.newurl);
+  ಆದರೆ(auth_ಉತ್ತರ) {
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[0] CONNECT%s: fwd auth header '%s'",
+                udp_tunnel ? "-UDP" : "", auth_ಉತ್ತರ->ಮೌಲ್ಯ);
+    ಫಲಿತಾಂಶ = Curl_http_ಒಳಹರಿವು_auth(ದತ್ತಾಂಶ, resp->ಸ್ಥಿತಿ_2 == 407,
+                                  auth_ಉತ್ತರ->ಮೌಲ್ಯ);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
+    ಆದರೆ(ದತ್ತಾಂಶ->req.newurl) {
+      curlx_safefree(ದತ್ತಾಂಶ->req.newurl);
       *presult = PROXY_INSPECT_AUTH_RETRY;
-      return CURLE_OK;
+      ಹಿಂತಿರುಗಿ CURLE_OK;
     }
   }
 
-  if(udp_tunnel) {
-    if(resp->status / 100 == 2) {
-      capsule_protocol = Curl_dynhds_cget(&resp->headers,
+  ಆದರೆ(udp_tunnel) {
+    ಆದರೆ(resp->ಸ್ಥಿತಿ_2 / 100 == 2) {
+      capsule_protocol = Curl_dynhds_cget(&resp->ಶೀರ್ಷಿಕೆಗಳು,
                                            "capsule-protocol");
-      if(capsule_protocol) {
-        if(!strncmp(capsule_protocol->value, "?1", 2) &&
-           !capsule_protocol->value[2]) {
-          infof(data, "CONNECT-UDP tunnel established, response %d",
-                resp->status);
+      ಆದರೆ(capsule_protocol) {
+        ಆದರೆ(!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(capsule_protocol->ಮೌಲ್ಯ, "?1", 2) &&
+           !capsule_protocol->ಮೌಲ್ಯ[2]) {
+          infof(ದತ್ತಾಂಶ, "CONNECT-UDP tunnel established, response %d",
+                resp->ಸ್ಥಿತಿ_2);
           *presult = PROXY_INSPECT_OK;
-          return CURLE_OK;
+          ಹಿಂತಿರುಗಿ CURLE_OK;
         }
-        failf(data, "Failed to establish CONNECT-UDP tunnel, response %d, "
+        failf(ದತ್ತಾಂಶ, "Failed to establish CONNECT-UDP tunnel, response %d, "
               "unsupported capsule-protocol value '%s'",
-              resp->status, capsule_protocol->value);
+              resp->ಸ್ಥಿತಿ_2, capsule_protocol->ಮೌಲ್ಯ);
         *presult = PROXY_INSPECT_FAILED;
-        return CURLE_COULDNT_CONNECT;
+        ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
       }
-      else {
+      ಇಲ್ಲದಿದ್ದರೆ {
         /* NOTE proxies may not set capsule protocol in the headers */
-        infof(data, "CONNECT-UDP tunnel established, response %d "
-                    "but no capsule-protocol header found", resp->status);
+        infof(ದತ್ತಾಂಶ, "CONNECT-UDP tunnel established, response %d "
+                    "but no capsule-protocol header found", resp->ಸ್ಥಿತಿ_2);
         *presult = PROXY_INSPECT_OK;
-        return CURLE_OK;
+        ಹಿಂತಿರುಗಿ CURLE_OK;
       }
     }
-    else {
-      failf(data, "Failed to establish CONNECT-UDP tunnel, "
-                  "response %d", resp->status);
+    ಇಲ್ಲದಿದ್ದರೆ {
+      failf(ದತ್ತಾಂಶ, "Failed to establish CONNECT-UDP tunnel, "
+                  "response %d", resp->ಸ್ಥಿತಿ_2);
       *presult = PROXY_INSPECT_FAILED;
-      return CURLE_COULDNT_CONNECT;
+      ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
     }
   }
 
-  if(resp->status / 100 == 2) {
-    infof(data, "CONNECT tunnel established, response %d", resp->status);
+  ಆದರೆ(resp->ಸ್ಥಿತಿ_2 / 100 == 2) {
+    infof(ದತ್ತಾಂಶ, "CONNECT tunnel established, response %d", resp->ಸ್ಥಿತಿ_2);
     *presult = PROXY_INSPECT_OK;
-    return CURLE_OK;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
 
   *presult = PROXY_INSPECT_FAILED;
-  return CURLE_COULDNT_CONNECT;
+  ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
 }
 
-static CURLcode http_proxy_cf_connect(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *done)
+ಸ್ಥಿರ CURLcode http_proxy_cf_connect(ರಚನೆ Curl_cfilter *cf,
+                                      ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                      bool *ಮುಗಿದ)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  CURLcode result;
+  ರಚನೆ cf_proxy_ctx *ctx = cf->ctx;
+  CURLcode ಫಲಿತಾಂಶ;
   bool udp_tunnel = TRNSPRT_IS_DGRAM(ctx->tunnel_transport);
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ಆದರೆ(cf->connected) {
+    *ಮುಗಿದ = TRUE;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
 
-  CURL_TRC_CF(data, cf, "CONNECT%s", udp_tunnel ? "-UDP" : "");
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "CONNECT%s", udp_tunnel ? "-UDP" : "");
 connect_sub:
   /* in case of h3_proxy, cf->next will be NULL initially */
-  if(cf->next) {
-    result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  ಆದರೆ(cf->ಮುಂದಿನ) {
+    ಫಲಿತಾಂಶ = cf->ಮುಂದಿನ->cft->do_connect(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, ಮುಗಿದ);
+    ಆದರೆ(ಫಲಿತಾಂಶ || !*ಮುಗಿದ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
   }
 
-  *done = FALSE;
-  if(!ctx->sub_filter_installed) {
-    const char *alpn = NULL;
+  *ಮುಗಿದ = FALSE;
+  ಆದರೆ(!ctx->sub_filter_installed) {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *alpn = ಖಾಲಿ;
 
     /* in case of h3_proxy, cf->next will be NULL initially */
-    if(cf->next) {
-      alpn = Curl_conn_cf_get_alpn_negotiated(cf->next, data);
+    ಆದರೆ(cf->ಮುಂದಿನ) {
+      alpn = Curl_conn_cf_get_alpn_negotiated(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ);
     }
 
-    if(alpn)
-      infof(data, "CONNECT%s: '%s' negotiated",
+    ಆದರೆ(alpn)
+      infof(ದತ್ತಾಂಶ, "CONNECT%s: '%s' negotiated",
             udp_tunnel ? "-UDP" : "", alpn);
-    else if(!alpn) {
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!alpn) {
       /* No ALPN, proxytype rules. Fake ALPN */
-      infof(data, "CONNECT%s: no ALPN negotiated", udp_tunnel ? "-UDP" : "");
-      switch(ctx->proxytype) {
-      case CURLPROXY_HTTP_1_0:
+      infof(ದತ್ತಾಂಶ, "CONNECT%s: no ALPN negotiated", udp_tunnel ? "-UDP" : "");
+      ಆಯ್ಕೆ(ctx->proxytype) {
+      ಸ್ಥಿತಿ CURLPROXY_HTTP_1_0:
         alpn = "http/1.0";
-        break;
-      case CURLPROXY_HTTPS2:
+        ನಿಲ್ಲಿಸು;
+      ಸ್ಥಿತಿ CURLPROXY_HTTPS2:
         alpn = "h2";
-        break;
-      case CURLPROXY_HTTPS3:
+        ನಿಲ್ಲಿಸು;
+      ಸ್ಥಿತಿ CURLPROXY_HTTPS3:
         alpn = "h3";
-        break;
-      default:
+        ನಿಲ್ಲಿಸು;
+      ಪೂರ್ವನಿಯೋಜಿತ:
         alpn = "http/1.1";
-        break;
+        ನಿಲ್ಲಿಸು;
       }
     }
 
-    if(!strcmp(alpn, "http/1.0")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/1.0");
-      result = Curl_cf_h1_proxy_insert_after(cf, data, ctx->peer,
+    ಆದರೆ(!strcmp(alpn, "http/1.0")) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "installing subfilter for HTTP/1.0");
+      ಫಲಿತಾಂಶ = Curl_cf_h1_proxy_ಸೇರಿಸು_after(cf, ದತ್ತಾಂಶ, ctx->peer,
                                              ctx->tunnel_peer, 10, udp_tunnel);
-      if(result)
-        goto out;
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹೋಗು ಹೊರಹೋಗು;
     }
-    else if(!strcmp(alpn, "http/1.1")) {
-      int httpversion = (ctx->proxytype == CURLPROXY_HTTP_1_0) ? 10 : 11;
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/1.%d",
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strcmp(alpn, "http/1.1")) {
+      ಪೂರ್ಣಾಂಕ httpversion = (ctx->proxytype == CURLPROXY_HTTP_1_0) ? 10 : 11;
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "installing subfilter for HTTP/1.%d",
                   httpversion % 10);
-      result = Curl_cf_h1_proxy_insert_after(cf, data, ctx->peer,
+      ಫಲಿತಾಂಶ = Curl_cf_h1_proxy_ಸೇರಿಸು_after(cf, ದತ್ತಾಂಶ, ctx->peer,
                                              ctx->tunnel_peer,
                                              httpversion, udp_tunnel);
-      if(result)
-        goto out;
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹೋಗು ಹೊರಹೋಗು;
     }
-#ifdef USE_NGHTTP2
-    else if(!strcmp(alpn, "h2")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/2");
-      result = Curl_cf_h2_proxy_insert_after(cf, data, ctx->peer,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_NGHTTP2
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strcmp(alpn, "h2")) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "installing subfilter for HTTP/2");
+      ಫಲಿತಾಂಶ = Curl_cf_h2_proxy_ಸೇರಿಸು_after(cf, ದತ್ತಾಂಶ, ctx->peer,
                                              ctx->tunnel_peer, udp_tunnel);
-      if(result)
-        goto out;
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹೋಗು ಹೊರಹೋಗು;
     }
-#endif /* USE_NGHTTP2 */
-#if defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) && \
+#ಆದರೆ_ಅಂತ್ಯ /* USE_NGHTTP2 */
+#ಆದರೆ defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) && \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
-    else if(!strcmp(alpn, "h3")) {
-      CURL_TRC_CF(data, cf, "installing subfilter for HTTP/3");
-      result = Curl_cf_h3_proxy_insert_after(cf, data, ctx->peer, ctx->peer,
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!strcmp(alpn, "h3")) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "installing subfilter for HTTP/3");
+      ಫಲಿತಾಂಶ = Curl_cf_h3_proxy_ಸೇರಿಸು_after(cf, ದತ್ತಾಂಶ, ctx->peer, ctx->peer,
                                              ctx->tunnel_peer,
                                              ctx->tunnel_transport);
-      if(result)
-        goto out;
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹೋಗು ಹೊರಹೋಗು;
     }
-#endif /* USE_PROXY_HTTP3 && USE_NGHTTP3 && USE_NGTCP2 && USE_OPENSSL */
-    else {
-      failf(data, "CONNECT%s: negotiated ALPN '%s' not supported",
+#ಆದರೆ_ಅಂತ್ಯ /* USE_PROXY_HTTP3 && USE_NGHTTP3 && USE_NGTCP2 && USE_OPENSSL */
+    ಇಲ್ಲದಿದ್ದರೆ {
+      failf(ದತ್ತಾಂಶ, "CONNECT%s: negotiated ALPN '%s' not supported",
             udp_tunnel ? "-UDP" : "", alpn);
-      result = CURLE_COULDNT_CONNECT;
-      goto out;
+      ಫಲಿತಾಂಶ = CURLE_COULDNT_CONNECT;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
 
     ctx->sub_filter_installed = TRUE;
     /* after we installed the filter "below" us, we call connect
      * on out sub-chain again.
      */
-    goto connect_sub;
+    ಹೋಗು connect_sub;
   }
-  else {
+  ಇಲ್ಲದಿದ್ದರೆ {
     /* subchain connected and we had already installed the protocol filter.
      * This means the protocol tunnel is established, we are done. */
     DEBUGASSERT(ctx->sub_filter_installed);
-    result = CURLE_OK;
+    ಫಲಿತಾಂಶ = CURLE_OK;
   }
 
-out:
-  if(!result) {
+ಹೊರಹೋಗು:
+  ಆದರೆ(!ಫಲಿತಾಂಶ) {
     cf->connected = TRUE;
-    *done = TRUE;
+    *ಮುಗಿದ = TRUE;
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode cf_http_proxy_query(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    int query, int *pres1, void *pres2)
+ಸ್ಥಿರ CURLcode cf_http_proxy_query(ರಚನೆ Curl_cfilter *cf,
+                                    ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                    ಪೂರ್ಣಾಂಕ query, ಪೂರ್ಣಾಂಕ *pres1, ಶೂನ್ಯ *pres2)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  switch(query) {
-  case CF_QUERY_HOST_PORT:
-    *pres1 = (int)ctx->tunnel_peer->port;
-    *((const char **)pres2) = ctx->tunnel_peer->hostname;
-    return CURLE_OK;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  ರಚನೆ cf_proxy_ctx *ctx = cf->ctx;
+  ಆಯ್ಕೆ(query) {
+  ಸ್ಥಿತಿ CF_QUERY_HOST_ಪೋರ್ಟ್:
+    *pres1 = (ಪೂರ್ಣಾಂಕ)ctx->tunnel_peer->ಪೋರ್ಟ್;
+    *((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **)pres2) = ctx->tunnel_peer->hostname;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
+  ಸ್ಥಿತಿ CF_QUERY_ALPN_NEGOTIATED: {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = NULL;
-    return CURLE_OK;
+    *palpn = ಖಾಲಿ;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
-  default:
-    break;
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    ನಿಲ್ಲಿಸು;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  ಹಿಂತಿರುಗಿ cf->ಮುಂದಿನ ?
+    cf->ಮುಂದಿನ->cft->query(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static void cf_https_proxy_ctx_free(struct cf_proxy_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_https_proxy_ctx_free(ರಚನೆ cf_proxy_ctx *ctx)
 {
-  if(ctx) {
+  ಆದರೆ(ctx) {
     Curl_peer_unlink(&ctx->peer);
     Curl_peer_unlink(&ctx->tunnel_peer);
     curlx_free(ctx);
   }
 }
 
-static void http_proxy_cf_destroy(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ http_proxy_cf_destroy(ರಚನೆ Curl_cfilter *cf,
+                                  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct cf_proxy_ctx *ctx = cf->ctx;
-  if(ctx) {
-    CURL_TRC_CF(data, cf, "destroy");
+  ರಚನೆ cf_proxy_ctx *ctx = cf->ctx;
+  ಆದರೆ(ctx) {
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "destroy");
     cf_https_proxy_ctx_free(ctx);
   }
 }
 
-struct Curl_cftype Curl_cft_http_proxy = {
+ರಚನೆ Curl_cftype Curl_cft_http_proxy = {
   "HTTP-PROXY",
-  CF_TYPE_IP_CONNECT | CF_TYPE_PROXY | CF_TYPE_SETUP,
+  CF_TYPE_IP_CONNECT | CF_TYPE_PROXY | CF_TYPE_ಸಿದ್ಧತೆ,
   0,
   http_proxy_cf_destroy,
   http_proxy_cf_connect,
   Curl_cf_def_shutdown,
   Curl_cf_def_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_ದತ್ತಾಂಶ_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -720,50 +720,50 @@ struct Curl_cftype Curl_cft_http_proxy = {
   cf_http_proxy_query,
 };
 
-CURLcode Curl_cf_http_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                         struct Curl_easy *data,
-                                         struct Curl_peer *peer,
-                                         struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_http_proxy_ಸೇರಿಸು_after(ರಚನೆ Curl_cfilter *cf_at,
+                                         ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                         ರಚನೆ Curl_peer *peer,
+                                         ರಚನೆ Curl_peer *tunnel_peer,
                                          uint8_t tunnel_transport,
                                          uint8_t proxytype)
 {
-  struct Curl_cfilter *cf;
-  struct cf_proxy_ctx *ctx = NULL;
-  CURLcode result;
+  ರಚನೆ Curl_cfilter *cf;
+  ರಚನೆ cf_proxy_ctx *ctx = ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  (void)data;
-  if(!peer || !tunnel_peer)
-    return CURLE_FAILED_INIT;
+  (ಶೂನ್ಯ)ದತ್ತಾಂಶ;
+  ಆದರೆ(!peer || !tunnel_peer)
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, ಗಾತ್ರ(*ctx));
+  ಆದರೆ(!ctx) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
   Curl_peer_link(&ctx->peer, peer);
   Curl_peer_link(&ctx->tunnel_peer, tunnel_peer);
   ctx->proxytype = proxytype;
   ctx->tunnel_transport = tunnel_transport;
 
-  result = Curl_cf_create(&cf, &Curl_cft_http_proxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  ಫಲಿತಾಂಶ = Curl_cf_create(&cf, &Curl_cft_http_proxy, ctx);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
+  ctx = ಖಾಲಿ;
+  Curl_conn_cf_ಸೇರಿಸು_after(cf_at, cf);
 
-out:
+ಹೊರಹೋಗು:
   cf_https_proxy_ctx_free(ctx);
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 uint8_t Curl_http_proxy_transport(uint8_t proxytype)
 {
-  switch(proxytype) {
-  case CURLPROXY_HTTPS3:
-    return TRNSPRT_QUIC;
-  default:
-    return TRNSPRT_TCP;
+  ಆಯ್ಕೆ(proxytype) {
+  ಸ್ಥಿತಿ CURLPROXY_HTTPS3:
+    ಹಿಂತಿರುಗಿ TRNSPRT_QUIC;
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    ಹಿಂತಿರುಗಿ TRNSPRT_TCP;
   }
 }
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY */

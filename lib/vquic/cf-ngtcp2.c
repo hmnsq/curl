@@ -21,109 +21,109 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
-#include "urldata.h"
-#include "url.h"
-#include "u32_ptrset.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "multiif.h"
-#include "cfilters.h"
-#include "cf-socket.h"
-#include "connect.h"
-#include "progress.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/dynbuf.h"
-#include "http1.h"
-#include "select.h"
-#include "transfer.h"
-#include "bufref.h"
-#include "vdns/cf-dns.h"
-#include "vquic/vquic.h"
-#include "vquic/vquic_int.h"
-#include "vquic/cf-ngtcp2-cmn.h"
-#include "vquic/cf-ngtcp2.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "u32_ptrset.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "rand.h"
+#ಅನ್ತರ್ಭಾವ "multiif.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "cf-socket.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "progress.h"
+#ಅನ್ತರ್ಭಾವ "curlx/win32-fopen.h"
+#ಅನ್ತರ್ಭಾವ "curlx/dynbuf.h"
+#ಅನ್ತರ್ಭಾವ "http1.h"
+#ಅನ್ತರ್ಭಾವ "select.h"
+#ಅನ್ತರ್ಭಾವ "transfer.h"
+#ಅನ್ತರ್ಭಾವ "bufref.h"
+#ಅನ್ತರ್ಭಾವ "vdns/cf-dns.h"
+#ಅನ್ತರ್ಭಾವ "vquic/vquic.h"
+#ಅನ್ತರ್ಭಾವ "vquic/vquic_int.h"
+#ಅನ್ತರ್ಭಾವ "vquic/cf-ngtcp2-cmn.h"
+#ಅನ್ತರ್ಭಾವ "vquic/cf-ngtcp2.h"
 
 
-static int cb_h3_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
-                                uint64_t datalen, void *user_data,
-                                void *stream_user_data);
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_acked_req_body(nghttp3_conn *conn, int64_t ಹರಿವು_id,
+                                uint64_t datalen, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ,
+                                ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ);
 
-static CURLcode cf_ngtcp2_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps)
+ಸ್ಥಿರ CURLcode cf_ngtcp2_adjust_pollset(ರಚನೆ Curl_cfilter *cf,
+                                         ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                         ರಚನೆ easy_pollset *ps)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
   bool want_recv, want_send;
-  CURLcode result = CURLE_OK;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
   curl_socket_t sock = (ctx->q.sockfd != CURL_SOCKET_BAD) ?
-   ctx->q.sockfd : Curl_conn_cf_get_socket(cf, data);
+   ctx->q.sockfd : Curl_conn_cf_get_socket(cf, ದತ್ತಾಂಶ);
 
-  if(!ctx->qconn || (sock == CURL_SOCKET_BAD))
-    return CURLE_OK;
+  ಆದರೆ(!ctx->qconn || (sock == CURL_SOCKET_BAD))
+    ಹಿಂತಿರುಗಿ CURLE_OK;
 
-  Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
-  if(!want_send && !Curl_bufq_is_empty(&ctx->q.sendbuf))
+  Curl_pollset_check(ದತ್ತಾಂಶ, ps, sock, &want_recv, &want_send);
+  ಆದರೆ(!want_send && !Curl_bufq_is_ಖಾಲಿಗಳು(&ctx->q.sendbuf))
     want_send = TRUE;
 
-  if(want_recv || want_send) {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    struct cf_call_data save;
+  ಆದರೆ(want_recv || want_send) {
+    ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು = H3_ಹರಿವು_CTX(ctx, ದತ್ತಾಂಶ);
+    ರಚನೆ cf_call_ದತ್ತಾಂಶ save;
     bool c_exhaust, s_exhaust;
 
-    CF_DATA_SAVE(save, cf, data);
-    c_exhaust = want_send && (!ngtcp2_conn_get_cwnd_left(ctx->qconn) ||
-                              !ngtcp2_conn_get_max_data_left(ctx->qconn));
-    s_exhaust = want_send && stream && stream->id >= 0 &&
-                (stream->quic_flow_blocked ||
-                 stream->tx_in_flight_size >= stream->tx_in_flight_ideal);
+    CF_ದತ್ತಾಂಶ_SAVE(save, cf, ದತ್ತಾಂಶ);
+    c_exhaust = want_send && (!ngtcp2_conn_get_cwnd_ಎಡ(ctx->qconn) ||
+                              !ngtcp2_conn_get_max_ದತ್ತಾಂಶ_ಎಡ(ctx->qconn));
+    s_exhaust = want_send && ಹರಿವು && ಹರಿವು->id >= 0 &&
+                (ಹರಿವು->quic_flow_blocked ||
+                 ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ >= ಹರಿವು->tx_ಒಳ_flight_ideal);
     want_recv = (want_recv || c_exhaust || s_exhaust);
     want_send = (!s_exhaust && want_send) ||
-                 !Curl_bufq_is_empty(&ctx->q.sendbuf);
+                 !Curl_bufq_is_ಖಾಲಿಗಳು(&ctx->q.sendbuf);
 
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CF_DATA_RESTORE(cf, save);
+    ಫಲಿತಾಂಶ = Curl_pollset_ಗಣ(ದತ್ತಾಂಶ, ps, sock, want_recv, want_send);
+    CF_ದತ್ತಾಂಶ_RESTORE(cf, save);
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static int cb_h3_stream_close(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_ಹರಿವು_close(nghttp3_conn *conn, int64_t ಹರಿವು_id,
+                              uint64_t app_error_ಸಂಕೇತ, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ,
+                              ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  (void)conn;
-  (void)stream_id;
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು;
+  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ =
+    Curl_cf_ngtcp2_get_xfer(cf, ಹರಿವು_user_ದತ್ತಾಂಶ, &ಹರಿವು);
+  (ಶೂನ್ಯ)conn;
+  (ಶೂನ್ಯ)ಹರಿವು_id;
 
   /* we might be called by nghttp3 after we already cleaned up */
-  if(!data || !stream)
-    return 0;
+  ಆದರೆ(!ದತ್ತಾಂಶ || !ಹರಿವು)
+    ಹಿಂತಿರುಗಿ 0;
 
-  stream->closed = TRUE;
-  stream->error3 = app_error_code;
-  if(stream->error3 != NGHTTP3_H3_NO_ERROR) {
-    stream->reset = TRUE;
-    stream->send_closed = TRUE;
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] RESET: error %" PRIu64,
-                stream->id, stream->error3);
+  ಹರಿವು->closed = TRUE;
+  ಹರಿವು->error3 = app_error_ಸಂಕೇತ;
+  ಆದರೆ(ಹರಿವು->error3 != NGHTTP3_H3_NO_ERROR) {
+    ಹರಿವು->reset = TRUE;
+    ಹರಿವು->send_closed = TRUE;
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] RESET: error %" PRIu64,
+                ಹರಿವು->id, ಹರಿವು->error3);
   }
-  else {
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] CLOSED", stream->id);
+  ಇಲ್ಲದಿದ್ದರೆ {
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] CLOSED", ಹರಿವು->id);
   }
-  Curl_multi_mark_dirty(data);
-  return 0;
+  Curl_multi_mark_dirty(ದತ್ತಾಂಶ);
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static void h3_xfer_write_resp_hd(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct h3_stream_ctx *stream,
-                                  const char *buf, size_t buflen, bool eos)
+ಸ್ಥಿರ ಶೂನ್ಯ h3_xfer_write_resp_hd(ರಚನೆ Curl_cfilter *cf,
+                                  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು,
+                                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *buf, size_t buflen, bool eos)
 {
   /* This function returns no error intentionally, but records
    * the result at the stream, skipping further writes once the
@@ -131,19 +131,19 @@ static void h3_xfer_write_resp_hd(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
-    stream->xfer_result = Curl_xfer_write_resp_hd(data, buf, buflen, eos);
-    if(stream->xfer_result)
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] error %d writing %zu "
-                  "bytes of headers", stream->id, (int)stream->xfer_result,
+  ಆದರೆ(!ಹರಿವು->xfer_ಫಲಿತಾಂಶ) {
+    ಹರಿವು->xfer_ಫಲಿತಾಂಶ = Curl_xfer_write_resp_hd(ದತ್ತಾಂಶ, buf, buflen, eos);
+    ಆದರೆ(ಹರಿವು->xfer_ಫಲಿತಾಂಶ)
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] error %d writing %zu "
+                  "bytes of headers", ಹರಿವು->id, (ಪೂರ್ಣಾಂಕ)ಹರಿವು->xfer_ಫಲಿತಾಂಶ,
                   buflen);
   }
 }
 
-static void h3_xfer_write_resp(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h3_stream_ctx *stream,
-                               const char *buf, size_t buflen, bool eos)
+ಸ್ಥಿರ ಶೂನ್ಯ h3_xfer_write_resp(ರಚನೆ Curl_cfilter *cf,
+                               ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು,
+                               ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *buf, size_t buflen, bool eos)
 {
   /* This function returns no error intentionally, but records
    * the result at the stream, skipping further writes once the
@@ -151,290 +151,290 @@ static void h3_xfer_write_resp(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
-    stream->xfer_result = Curl_xfer_write_resp(data, buf, buflen, eos);
+  ಆದರೆ(!ಹರಿವು->xfer_ಫಲಿತಾಂಶ) {
+    ಹರಿವು->xfer_ಫಲಿತಾಂಶ = Curl_xfer_write_resp(ದತ್ತಾಂಶ, buf, buflen, eos);
     /* If the transfer write is errored, we do not want any more data */
-    if(stream->xfer_result) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] error %d writing %zu bytes of data",
-                  stream->id, (int)stream->xfer_result, buflen);
+    ಆದರೆ(ಹರಿವು->xfer_ಫಲಿತಾಂಶ) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] error %d writing %zu bytes of data",
+                  ಹರಿವು->id, (ಪೂರ್ಣಾಂಕ)ಹರಿವು->xfer_ಫಲಿತಾಂಶ, buflen);
     }
   }
 }
 
-static void cf_ngtcp2_upd_rx_win(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h3_stream_ctx *stream)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_ngtcp2_upd_rx_win(ರಚನೆ Curl_cfilter *cf,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  uint64_t cur_win, wanted_win = H3_STREAM_WINDOW_SIZE_MAX;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  uint64_t cur_win, wanted_win = H3_ಹರಿವು_ಕಿಟಕಿ_ಗಾತ್ರ_MAX;
 
   /* how much does rate limiting allow us to acknowledge? */
-  if(Curl_rlimit_active(&data->progress.dl.rlimit)) {
+  ಆದರೆ(Curl_rlimit_ಸಕ್ರಿಯ(&ದತ್ತಾಂಶ->ಪ್ರಗತಿ.dl.rlimit)) {
     int64_t avail;
 
     /* start rate limit updates only after first bytes arrived */
-    if(!stream->rx_offset)
-      return;
+    ಆದರೆ(!ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ)
+      ಹಿಂತಿರುಗಿ;
 
-    avail = Curl_rlimit_avail(&data->progress.dl.rlimit, NULL);
-    if(avail <= 0) {
+    avail = Curl_rlimit_avail(&ದತ್ತಾಂಶ->ಪ್ರಗತಿ.dl.rlimit, ಖಾಲಿ);
+    ಆದರೆ(avail <= 0) {
       /* nothing available, do not extend the rx offset */
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] dl rate limit exhausted (%" PRId64
-                  " tokens)", stream->id, avail);
-      return;
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] dl rate limit exhausted (%" PRId64
+                  " tokens)", ಹರಿವು->id, avail);
+      ಹಿಂತಿರುಗಿ;
     }
-    wanted_win = CURLMIN((uint64_t)avail, H3_STREAM_WINDOW_SIZE_MAX);
+    wanted_win = CURLMIN((uint64_t)avail, H3_ಹರಿವು_ಕಿಟಕಿ_ಗಾತ್ರ_MAX);
   }
 
-  if(stream->rx_offset_max < stream->rx_offset) {
+  ಆದರೆ(ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max < ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ) {
     DEBUGASSERT(0);
-    return;
+    ಹಿಂತಿರುಗಿ;
   }
-  cur_win = stream->rx_offset_max - stream->rx_offset;
+  cur_win = ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max - ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ;
 
-  if(wanted_win > cur_win) {
+  ಆದರೆ(wanted_win > cur_win) {
     uint64_t delta = wanted_win - cur_win;
 
-    if(UINT64_MAX - delta < stream->rx_offset_max)
-      delta = UINT64_MAX - stream->rx_offset_max;
-    if(delta) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] rx window, extend by %" PRIu64
-                  " bytes", stream->id, delta);
-      stream->rx_offset_max += delta;
-      ngtcp2_conn_extend_max_stream_offset(ctx->qconn, stream->id, delta);
+    ಆದರೆ(UINT64_MAX - delta < ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max)
+      delta = UINT64_MAX - ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max;
+    ಆದರೆ(delta) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] rx window, extend by %" PRIu64
+                  " bytes", ಹರಿವು->id, delta);
+      ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max += delta;
+      ngtcp2_conn_extend_max_ಹರಿವು_ಸ್ಥಾನಾಂತರ(ctx->qconn, ಹರಿವು->id, delta);
     }
   }
 }
 
-static int cb_h3_recv_data(nghttp3_conn *conn, int64_t stream3_id,
-                           const uint8_t *buf, size_t buflen,
-                           void *user_data, void *stream_user_data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_recv_ದತ್ತಾಂಶ(nghttp3_conn *conn, int64_t stream3_id,
+                           ಸ್ಥಿರಾಂಕ uint8_t *buf, size_t buflen,
+                           ಶೂನ್ಯ *user_ದತ್ತಾಂಶ, ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು;
+  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ =
+    Curl_cf_ngtcp2_get_xfer(cf, ಹರಿವು_user_ದತ್ತಾಂಶ, &ಹರಿವು);
 
-  (void)conn;
-  (void)stream3_id;
+  (ಶೂನ್ಯ)conn;
+  (ಶೂನ್ಯ)stream3_id;
 
-  if(!stream || !data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ಆದರೆ(!ಹರಿವು || !ದತ್ತಾಂಶ)
+    ಹಿಂತಿರುಗಿ NGHTTP3_ERR_CALLBACK_FAILURE;
 
-  h3_xfer_write_resp(cf, data, stream, (const char *)buf, buflen, FALSE);
+  h3_xfer_write_resp(cf, ದತ್ತಾಂಶ, ಹರಿವು, (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)buf, buflen, FALSE);
 
-  ngtcp2_conn_extend_max_offset(ctx->qconn, buflen);
-  stream->rx_offset += buflen;
-  if(stream->rx_offset_max < stream->rx_offset)
-    stream->rx_offset_max = stream->rx_offset;
+  ngtcp2_conn_extend_max_ಸ್ಥಾನಾಂತರ(ctx->qconn, buflen);
+  ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ += buflen;
+  ಆದರೆ(ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max < ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ)
+    ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max = ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ;
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] DATA len=%zu, rx win=%" PRIu64,
-              stream->id, buflen, stream->rx_offset_max - stream->rx_offset);
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
-  return 0;
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] DATA len=%zu, rx win=%" PRIu64,
+              ಹರಿವು->id, buflen, ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max - ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ);
+  cf_ngtcp2_upd_rx_win(cf, ದತ್ತಾಂಶ, ಹರಿವು);
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int cb_h3_deferred_consume(nghttp3_conn *conn, int64_t stream3_id,
-                                  size_t consumed, void *user_data,
-                                  void *stream_user_data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_deferred_consume(nghttp3_conn *conn, int64_t stream3_id,
+                                  size_t consumed, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ,
+                                  ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = stream_user_data;
-  (void)conn;
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು = ಹರಿವು_user_ದತ್ತಾಂಶ;
+  (ಶೂನ್ಯ)conn;
 
   /* nghttp3 has consumed bytes on the QUIC stream and we need to
    * tell the QUIC connection to increase its flow control */
-  ngtcp2_conn_extend_max_stream_offset(ctx->qconn, stream3_id, consumed);
-  ngtcp2_conn_extend_max_offset(ctx->qconn, consumed);
+  ngtcp2_conn_extend_max_ಹರಿವು_ಸ್ಥಾನಾಂತರ(ctx->qconn, stream3_id, consumed);
+  ngtcp2_conn_extend_max_ಸ್ಥಾನಾಂತರ(ctx->qconn, consumed);
 
-  if(stream) {
-    stream->rx_offset += consumed;
-    stream->rx_offset_max += consumed;
+  ಆದರೆ(ಹರಿವು) {
+    ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ += consumed;
+    ಹರಿವು->rx_ಸ್ಥಾನಾಂತರ_max += consumed;
   }
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int cb_h3_end_headers(nghttp3_conn *conn, int64_t stream_id,
-                             int fin, void *user_data, void *stream_user_data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_ಕೊನೆ_ಶೀರ್ಷಿಕೆಗಳು(nghttp3_conn *conn, int64_t ಹರಿವು_id,
+                             ಪೂರ್ಣಾಂಕ fin, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ, ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  (void)conn;
-  (void)stream_id;
-  (void)fin;
-  (void)cf;
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು;
+  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ =
+    Curl_cf_ngtcp2_get_xfer(cf, ಹರಿವು_user_ದತ್ತಾಂಶ, &ಹರಿವು);
+  (ಶೂನ್ಯ)conn;
+  (ಶೂನ್ಯ)ಹರಿವು_id;
+  (ಶೂನ್ಯ)fin;
+  (ಶೂನ್ಯ)cf;
 
-  if(!stream || !data)
-    return 0;
+  ಆದರೆ(!ಹರಿವು || !ದತ್ತಾಂಶ)
+    ಹಿಂತಿರುಗಿ 0;
   /* add a CRLF only if we have received some headers */
-  h3_xfer_write_resp_hd(cf, data, stream, STRCONST("\r\n"),
-                        (bool)stream->closed);
+  h3_xfer_write_resp_hd(cf, ದತ್ತಾಂಶ, ಹರಿವು, STRCONST("\r\n"),
+                        (bool)ಹರಿವು->closed);
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] end_headers, status=%d",
-              stream_id, stream->status_code);
-  if(stream->status_code / 100 != 1) {
-    stream->resp_hds_complete = TRUE;
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] end_headers, status=%d",
+              ಹರಿವು_id, ಹರಿವು->ಸ್ಥಿತಿ_ಸಂಕೇತ);
+  ಆದರೆ(ಹರಿವು->ಸ್ಥಿತಿ_ಸಂಕೇತ / 100 != 1) {
+    ಹರಿವು->resp_hds_complete = TRUE;
   }
-  Curl_multi_mark_dirty(data);
-  return 0;
+  Curl_multi_mark_dirty(ದತ್ತಾಂಶ);
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int cb_h3_recv_header(nghttp3_conn *conn, int64_t stream_id,
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_recv_ಶೀರ್ಷಿಕೆ(nghttp3_conn *conn, int64_t ಹರಿವು_id,
                              int32_t token, nghttp3_rcbuf *name,
-                             nghttp3_rcbuf *value, uint8_t flags,
-                             void *user_data, void *stream_user_data)
+                             nghttp3_rcbuf *ಮೌಲ್ಯ, uint8_t flags,
+                             ಶೂನ್ಯ *user_ದತ್ತಾಂಶ, ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
   nghttp3_vec h3name = nghttp3_rcbuf_get_buf(name);
-  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(value);
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  CURLcode result = CURLE_OK;
-  (void)conn;
-  (void)stream_id;
-  (void)token;
-  (void)flags;
-  (void)cf;
+  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(ಮೌಲ್ಯ);
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು;
+  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ =
+    Curl_cf_ngtcp2_get_xfer(cf, ಹರಿವು_user_ದತ್ತಾಂಶ, &ಹರಿವು);
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  (ಶೂನ್ಯ)conn;
+  (ಶೂನ್ಯ)ಹರಿವು_id;
+  (ಶೂನ್ಯ)token;
+  (ಶೂನ್ಯ)flags;
+  (ಶೂನ್ಯ)cf;
 
   /* we might have cleaned up this transfer already */
-  if(!stream || !data)
-    return 0;
+  ಆದರೆ(!ಹರಿವು || !ದತ್ತಾಂಶ)
+    ಹಿಂತಿರುಗಿ 0;
 
-  if(token == NGHTTP3_QPACK_TOKEN__STATUS) {
+  ಆದರೆ(token == NGHTTP3_QPACK_TOKEN_ಸ್ಥಿತಿ) {
 
-    result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)h3val.base, h3val.len);
-    if(result)
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    ಫಲಿತಾಂಶ = Curl_http_decode_ಸ್ಥಿತಿ(&ಹರಿವು->ಸ್ಥಿತಿ_ಸಂಕೇತ,
+                                     (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)h3val.ತಳ, h3val.len);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ NGHTTP3_ERR_CALLBACK_FAILURE;
     curlx_dyn_reset(&ctx->scratch);
-    result = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/3 "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch,
-                              (const char *)h3val.base, h3val.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
-    if(!result)
-      h3_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
+    ಫಲಿತಾಂಶ = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/3 "));
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(&ctx->scratch,
+                              (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)h3val.ತಳ, h3val.len);
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
+      h3_xfer_write_resp_hd(cf, ದತ್ತಾಂಶ, ಹರಿವು, curlx_dyn_ptr(&ctx->scratch),
                             curlx_dyn_len(&ctx->scratch), FALSE);
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] status: %s",
-                stream_id, curlx_dyn_ptr(&ctx->scratch));
-    if(result) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] status: %s",
+                ಹರಿವು_id, curlx_dyn_ptr(&ctx->scratch));
+    ಆದರೆ(ಫಲಿತಾಂಶ) {
+      ಹಿಂತಿರುಗಿ NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  else {
+  ಇಲ್ಲದಿದ್ದರೆ {
     /* store as an HTTP1-style header */
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] header: %.*s: %.*s",
-                stream_id, (int)h3name.len, h3name.base,
-                (int)h3val.len, h3val.base);
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] header: %.*s: %.*s",
+                ಹರಿವು_id, (ಪೂರ್ಣಾಂಕ)h3name.len, h3name.ತಳ,
+                (ಪೂರ್ಣಾಂಕ)h3val.len, h3val.ತಳ);
     curlx_dyn_reset(&ctx->scratch);
-    result = curlx_dyn_addn(&ctx->scratch,
-                            (const char *)h3name.base, h3name.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch,
-                              (const char *)h3val.base, h3val.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
-    if(!result)
-      h3_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
+    ಫಲಿತಾಂಶ = curlx_dyn_addn(&ctx->scratch,
+                            (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)h3name.ತಳ, h3name.len);
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(&ctx->scratch,
+                              (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)h3val.ತಳ, h3val.len);
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
+      h3_xfer_write_resp_hd(cf, ದತ್ತಾಂಶ, ಹರಿವು, curlx_dyn_ptr(&ctx->scratch),
                             curlx_dyn_len(&ctx->scratch), FALSE);
   }
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int cb_h3_stop_sending(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_stop_sending(nghttp3_conn *conn, int64_t ಹರಿವು_id,
+                              uint64_t app_error_ಸಂಕೇತ, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ,
+                              ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  int rv;
-  (void)conn;
-  (void)stream_user_data;
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  ಪೂರ್ಣಾಂಕ rv;
+  (ಶೂನ್ಯ)conn;
+  (ಶೂನ್ಯ)ಹರಿವು_user_ದತ್ತಾಂಶ;
 
-  rv = ngtcp2_conn_shutdown_stream_read(ctx->qconn, 0, stream_id,
-                                        app_error_code);
-  if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  rv = ngtcp2_conn_shutdown_ಹರಿವು_read(ctx->qconn, 0, ಹರಿವು_id,
+                                        app_error_ಸಂಕೇತ);
+  ಆದರೆ(rv && rv != NGTCP2_ERR_ಹರಿವು_NOT_ಸಿಕ್ಕಿತು) {
+    ಹಿಂತಿರುಗಿ NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static int cb_h3_reset_stream(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_reset_ಹರಿವು(nghttp3_conn *conn, int64_t ಹರಿವು_id,
+                              uint64_t app_error_ಸಂಕೇತ, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ,
+                              ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, NULL);
-  int rv;
-  (void)conn;
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ = Curl_cf_ngtcp2_get_xfer(cf, ಹರಿವು_user_ದತ್ತಾಂಶ, ಖಾಲಿ);
+  ಪೂರ್ಣಾಂಕ rv;
+  (ಶೂನ್ಯ)conn;
 
-  rv = ngtcp2_conn_shutdown_stream_write(ctx->qconn, 0, stream_id,
-                                         app_error_code);
-  if(data)
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] reset -> %d", stream_id, rv);
-  if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  rv = ngtcp2_conn_shutdown_ಹರಿವು_write(ctx->qconn, 0, ಹರಿವು_id,
+                                         app_error_ಸಂಕೇತ);
+  ಆದರೆ(ದತ್ತಾಂಶ)
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] reset -> %d", ಹರಿವು_id, rv);
+  ಆದರೆ(rv && rv != NGTCP2_ERR_ಹರಿವು_NOT_ಸಿಕ್ಕಿತು) {
+    ಹಿಂತಿರುಗಿ NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
-static nghttp3_callbacks ngh3_callbacks = {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_HAVE_DIAG
+#ಸೂಚನೆ GCC diagnostic ತಳ್ಳು
+#ಸೂಚನೆ GCC diagnostic ignored "-Wmissing-field-initializers"
+#ಆದರೆ_ಅಂತ್ಯ
+ಸ್ಥಿರ nghttp3_callbacks ngh3_callbacks = {
   cb_h3_acked_req_body, /* acked_stream_data */
-  cb_h3_stream_close,
-  cb_h3_recv_data,
+  cb_h3_ಹರಿವು_close,
+  cb_h3_recv_ದತ್ತಾಂಶ,
   cb_h3_deferred_consume,
-  NULL, /* begin_headers */
-  cb_h3_recv_header,
-  cb_h3_end_headers,
-  NULL, /* begin_trailers */
-  cb_h3_recv_header,
-  NULL, /* end_trailers */
+  ಖಾಲಿ, /* begin_headers */
+  cb_h3_recv_ಶೀರ್ಷಿಕೆ,
+  cb_h3_ಕೊನೆ_ಶೀರ್ಷಿಕೆಗಳು,
+  ಖಾಲಿ, /* begin_trailers */
+  cb_h3_recv_ಶೀರ್ಷಿಕೆ,
+  ಖಾಲಿ, /* end_trailers */
   cb_h3_stop_sending,
-  NULL, /* end_stream */
-  cb_h3_reset_stream,
-  NULL, /* shutdown */
-  NULL, /* recv_settings (deprecated) */
-#ifdef NGHTTP3_CALLBACKS_V2  /* nghttp3 v1.11.0+ */
-  NULL, /* recv_origin */
-  NULL, /* end_origin */
-  NULL, /* rand */
-#endif
-#ifdef NGHTTP3_CALLBACKS_V3  /* nghttp3 v1.14.0+ */
-  NULL, /* recv_settings2 */
-#endif
-#ifdef NGHTTP3_CALLBACKS_V4  /* nghttp3 v1.18.0+ */
-  NULL, /* stream_close2 */
-#endif
+  ಖಾಲಿ, /* end_stream */
+  cb_h3_reset_ಹರಿವು,
+  ಖಾಲಿ, /* shutdown */
+  ಖಾಲಿ, /* recv_settings (deprecated) */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ NGHTTP3_CALLBACKS_V2  /* nghttp3 v1.11.0+ */
+  ಖಾಲಿ, /* recv_origin */
+  ಖಾಲಿ, /* end_origin */
+  ಖಾಲಿ, /* rand */
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ NGHTTP3_CALLBACKS_V3  /* nghttp3 v1.14.0+ */
+  ಖಾಲಿ, /* recv_settings2 */
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ NGHTTP3_CALLBACKS_V4  /* nghttp3 v1.18.0+ */
+  ಖಾಲಿ, /* stream_close2 */
+#ಆದರೆ_ಅಂತ್ಯ
 };
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_HAVE_DIAG
+#ಸೂಚನೆ GCC diagnostic ತೆಗೆ
+#ಆದರೆ_ಅಂತ್ಯ
 
-static CURLcode init_ngh3_conn(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct cf_ngtcp2_ctx *ctx)
+ಸ್ಥಿರ CURLcode init_ngh3_conn(ರಚನೆ Curl_cfilter *cf,
+                               ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ರಚನೆ cf_ngtcp2_ctx *ctx)
 {
-  int rc;
+  ಪೂರ್ಣಾಂಕ rc;
 
-  if(ngtcp2_conn_get_streams_uni_left(ctx->qconn) < 3) {
-    failf(data, "QUIC connection lacks 3 uni streams to run HTTP/3");
-    return CURLE_QUIC_CONNECT_ERROR;
+  ಆದರೆ(ngtcp2_conn_get_streams_uni_ಎಡ(ctx->qconn) < 3) {
+    failf(ದತ್ತಾಂಶ, "QUIC connection lacks 3 uni streams to run HTTP/3");
+    ಹಿಂತಿರುಗಿ CURLE_QUIC_CONNECT_ERROR;
   }
 
   nghttp3_settings_default(&ctx->h3settings);
@@ -444,67 +444,67 @@ static CURLcode init_ngh3_conn(struct Curl_cfilter *cf,
                                &ctx->h3settings,
                                Curl_nghttp3_mem(),
                                cf);
-  if(rc) {
-    failf(data, "error creating nghttp3 connection instance");
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(rc) {
+    failf(ದತ್ತಾಂಶ, "error creating nghttp3 connection instance");
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
-  return Curl_cf_ngtcp2_h3_init_ctrls(ctx, data);
+  ಹಿಂತಿರುಗಿ Curl_cf_ngtcp2_h3_init_ctrls(ctx, ದತ್ತಾಂಶ);
 }
 
-static CURLcode recv_closed_stream(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct h3_stream_ctx *stream,
+ಸ್ಥಿರ CURLcode recv_closed_ಹರಿವು(ರಚನೆ Curl_cfilter *cf,
+                                   ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                   ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು,
                                    size_t *pnread)
 {
-  (void)cf;
+  (ಶೂನ್ಯ)cf;
   *pnread = 0;
-  if(stream->reset) {
-    if(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
-      infof(data, "HTTP/3 stream %" PRId64 " refused by server, try again "
-            "on a new connection", stream->id);
+  ಆದರೆ(ಹರಿವು->reset) {
+    ಆದರೆ(ಹರಿವು->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
+      infof(ದತ್ತಾಂಶ, "HTTP/3 stream %" PRId64 " refused by server, try again "
+            "on a new connection", ಹರಿವು->id);
       connclose(cf->conn); /* do not use this anymore */
-      data->state.refused_stream = TRUE;
-      return CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
+      ದತ್ತಾಂಶ->state.refused_ಹರಿವು = TRUE;
+      ಹಿಂತಿರುಗಿ CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
-        CURL_TRC_CF(data, cf, "[%" PRId64 "] error after response headers, "
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಹರಿವು->resp_hds_complete && ದತ್ತಾಂಶ->req.no_body) {
+        CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] error after response headers, "
                     "but we did not want a body anyway, ignore error 0x%"
-                    PRIx64 " %s", stream->id, stream->error3,
-                    Curl_vquic_h3_err_str(stream->error3));
-        return CURLE_OK;
+                    PRIx64 " %s", ಹರಿವು->id, ಹರಿವು->error3,
+                    Curl_vquic_h3_err_str(ಹರಿವು->error3));
+        ಹಿಂತಿರುಗಿ CURLE_OK;
     }
-    failf(data, "HTTP/3 stream %" PRId64 " reset by server (error 0x%" PRIx64
-          " %s)", stream->id, stream->error3,
-          Curl_vquic_h3_err_str(stream->error3));
-    return data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
+    failf(ದತ್ತಾಂಶ, "HTTP/3 stream %" PRId64 " reset by server (error 0x%" PRIx64
+          " %s)", ಹರಿವು->id, ಹರಿವು->error3,
+          Curl_vquic_h3_err_str(ಹರಿವು->error3));
+    ಹಿಂತಿರುಗಿ ದತ್ತಾಂಶ->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
   }
-  else if(!stream->resp_hds_complete) {
-    failf(data,
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!ಹರಿವು->resp_hds_complete) {
+    failf(ದತ್ತಾಂಶ,
           "HTTP/3 stream %" PRId64 " was closed cleanly, but before "
           "getting all response header fields, treated as error",
-          stream->id);
-    return CURLE_HTTP3;
+          ಹರಿವು->id);
+    ಹಿಂತಿರುಗಿ CURLE_HTTP3;
   }
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /* incoming data frames on the h3 stream */
-static CURLcode cf_ngtcp2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               char *buf, size_t buflen, size_t *pnread)
+ಸ್ಥಿರ CURLcode cf_ngtcp2_recv(ರಚನೆ Curl_cfilter *cf, ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ಅಕ್ಷರ *buf, size_t buflen, size_t *pnread)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
-  CURLcode result = CURLE_OK;
-  int i;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು = H3_ಹರಿವು_CTX(ctx, ದತ್ತಾಂಶ);
+  ರಚನೆ cf_call_ದತ್ತಾಂಶ save;
+  ರಚನೆ cf_ngtcp2_io_ctx pktx;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ಪೂರ್ಣಾಂಕ i;
 
-  (void)ctx;
-  (void)buf;
-  NOVERBOSE((void)buflen);
+  (ಶೂನ್ಯ)ctx;
+  (ಶೂನ್ಯ)buf;
+  NOVERBOSE((ಶೂನ್ಯ)buflen);
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_ದತ್ತಾಂಶ_SAVE(save, cf, ದತ್ತಾಂಶ);
   DEBUGASSERT(cf->connected);
   DEBUGASSERT(ctx);
   DEBUGASSERT(ctx->qconn);
@@ -512,109 +512,109 @@ static CURLcode cf_ngtcp2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
   *pnread = 0;
 
   /* handshake verification failed in callback, do not recv anything */
-  if(ctx->tls_vrfy_result) {
-    result = ctx->tls_vrfy_result;
-    goto denied;
+  ಆದರೆ(ctx->tls_vrfy_ಫಲಿತಾಂಶ) {
+    ಫಲಿತಾಂಶ = ctx->tls_vrfy_ಫಲಿತಾಂಶ;
+    ಹೋಗು denied;
   }
 
-  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
+  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, ದತ್ತಾಂಶ);
 
-  if(!stream || ctx->shutdown_started) {
-    result = CURLE_RECV_ERROR;
-    goto out;
+  ಆದರೆ(!ಹರಿವು || ctx->shutdown_started) {
+    ಫಲಿತಾಂಶ = CURLE_RECV_ERROR;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
+  cf_ngtcp2_upd_rx_win(cf, ದತ್ತಾಂಶ, ಹರಿವು);
 
   /* first check for results/closed already known without touching
    * the connection. For an already failed/closed stream, errors on
    * the connection do not count.
    * Then handle incoming data and check for failed/closed again.
    */
-  for(i = 0; i < 2; ++i) {
-    if(stream->xfer_result) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] xfer write failed", stream->id);
-      Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-      result = stream->xfer_result;
-      goto out;
+  ಗಾಗಿ(i = 0; i < 2; ++i) {
+    ಆದರೆ(ಹರಿವು->xfer_ಫಲಿತಾಂಶ) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] xfer write failed", ಹರಿವು->id);
+      Curl_cf_ngtcp2_h3_ಹರಿವು_close(cf, ದತ್ತಾಂಶ, ಹರಿವು);
+      ಫಲಿತಾಂಶ = ಹರಿವು->xfer_ಫಲಿತಾಂಶ;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    else if(stream->closed) {
-      result = recv_closed_stream(cf, data, stream, pnread);
-      goto out;
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಹರಿವು->closed) {
+      ಫಲಿತಾಂಶ = recv_closed_ಹರಿವು(cf, ದತ್ತಾಂಶ, ಹರಿವು, pnread);
+      ಹೋಗು ಹೊರಹೋಗು;
     }
 
-    if(!i && Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx)) {
-      result = CURLE_RECV_ERROR;
-      goto out;
+    ಆದರೆ(!i && Curl_cf_ngtcp2_ಪ್ರಗತಿ_ingress(cf, ದತ್ತಾಂಶ, &pktx)) {
+      ಫಲಿತಾಂಶ = CURLE_RECV_ERROR;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
   }
 
-  result = CURLE_AGAIN;
+  ಫಲಿತಾಂಶ = CURLE_AGAIN;
 
-out:
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_progress_egress(cf, data, &pktx));
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
-  if(ctx->tls_vrfy_result)
-    result = ctx->tls_vrfy_result;
+ಹೊರಹೋಗು:
+  ಫಲಿತಾಂಶ = Curl_1st_fatal(ಫಲಿತಾಂಶ,
+                          Curl_cf_ngtcp2_ಪ್ರಗತಿ_egress(cf, ದತ್ತಾಂಶ, &pktx));
+  ಫಲಿತಾಂಶ = Curl_1st_fatal(ಫಲಿತಾಂಶ,
+                          Curl_cf_ngtcp2_cmn_ಗಣ_expiry(cf, ದತ್ತಾಂಶ, &pktx));
+  ಆದರೆ(ctx->tls_vrfy_ಫಲಿತಾಂಶ)
+    ಫಲಿತಾಂಶ = ctx->tls_vrfy_ಫಲಿತಾಂಶ;
 denied:
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_recv(buflen=%zu) -> %d, %zu",
-              stream ? stream->id : -1, buflen, (int)result, *pnread);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] cf_recv(buflen=%zu) -> %d, %zu",
+              ಹರಿವು ? ಹರಿವು->id : -1, buflen, (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ, *pnread);
+  CF_ದತ್ತಾಂಶ_RESTORE(cf, save);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static int cb_h3_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
-                                uint64_t datalen, void *user_data,
-                                void *stream_user_data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cb_h3_acked_req_body(nghttp3_conn *conn, int64_t ಹರಿವು_id,
+                                uint64_t datalen, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ,
+                                ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream = stream_user_data;
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು = ಹರಿವು_user_ದತ್ತಾಂಶ;
   size_t skiplen;
 
-  (void)cf;
-  if(!stream)
-    return 0;
+  (ಶೂನ್ಯ)cf;
+  ಆದರೆ(!ಹರಿವು)
+    ಹಿಂತಿರುಗಿ 0;
   /* The server acknowledged `datalen` of bytes from our request body.
    * This is a delta. We have kept this data in `sendbuf` for
    * re-transmissions and can free it now. */
-  if(datalen >= (uint64_t)stream->tx_in_flight_size)
-    skiplen = stream->tx_in_flight_size;
-  else
+  ಆದರೆ(datalen >= (uint64_t)ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ)
+    skiplen = ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ;
+  ಇಲ್ಲದಿದ್ದರೆ
     skiplen = (size_t)datalen;
-  Curl_bufq_skip(&stream->sendbuf, skiplen);
-  stream->tx_in_flight_size -= skiplen;
+  Curl_bufq_skip(&ಹರಿವು->sendbuf, skiplen);
+  ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ -= skiplen;
 
   /* Resume upload processing if we have more data to send */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
-    int rv = nghttp3_conn_resume_stream(conn, stream_id);
-    if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ಆದರೆ(ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ < Curl_bufq_len(&ಹರಿವು->sendbuf)) {
+    ಪೂರ್ಣಾಂಕ rv = nghttp3_conn_resume_ಹರಿವು(conn, ಹರಿವು_id);
+    ಆದರೆ(rv && rv != NGHTTP3_ERR_ಹರಿವು_NOT_ಸಿಕ್ಕಿತು) {
+      ಹಿಂತಿರುಗಿ NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t stream_id,
+ಸ್ಥಿರ nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t ಹರಿವು_id,
                                          nghttp3_vec *vec, size_t veccnt,
-                                         uint32_t *pflags, void *user_data,
-                                         void *stream_user_data)
+                                         uint32_t *pflags, ಶೂನ್ಯ *user_ದತ್ತಾಂಶ,
+                                         ಶೂನ್ಯ *ಹರಿವು_user_ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
+  ರಚನೆ Curl_cfilter *cf = user_ದತ್ತಾಂಶ;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು;
+  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ =
+    Curl_cf_ngtcp2_get_xfer(cf, ಹರಿವು_user_ದತ್ತಾಂಶ, &ಹರಿವು);
   size_t nwritten = 0;
   size_t nvecs = 0;
-  (void)cf;
-  (void)conn;
-  (void)stream_id;
-  (void)user_data;
-  (void)veccnt;
+  (ಶೂನ್ಯ)cf;
+  (ಶೂನ್ಯ)conn;
+  (ಶೂನ್ಯ)ಹರಿವು_id;
+  (ಶೂನ್ಯ)user_ದತ್ತಾಂಶ;
+  (ಶೂನ್ಯ)veccnt;
 
-  if(!stream || !data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ಆದರೆ(!ಹರಿವು || !ದತ್ತಾಂಶ)
+    ಹಿಂತಿರುಗಿ NGHTTP3_ERR_CALLBACK_FAILURE;
   /* nghttp3 keeps references to the sendbuf data until it is ACKed
    * by the server (see `cb_h3_acked_req_body()` for updates).
    * `tx_in_flight_size` is the amount of bytes in `sendbuf`
@@ -622,435 +622,435 @@ static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t stream_id,
    * ACKed yet.
    * Any amount beyond `tx_in_flight_size` we need still to pass
    * to nghttp3. Do that now, if we can. */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
+  ಆದರೆ(ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ < Curl_bufq_len(&ಹರಿವು->sendbuf)) {
     nvecs = 0;
-    while(nvecs < veccnt &&
-          Curl_bufq_peek_at(&stream->sendbuf,
-                            stream->tx_in_flight_size,
-                            CURL_UNCONST(&vec[nvecs].base),
+    ಆಗ(nvecs < veccnt &&
+          Curl_bufq_peek_at(&ಹರಿವು->sendbuf,
+                            ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ,
+                            CURL_UNCONST(&vec[nvecs].ತಳ),
                             &vec[nvecs].len)) {
-      stream->tx_in_flight_size += vec[nvecs].len;
+      ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ += vec[nvecs].len;
       nwritten += vec[nvecs].len;
       ++nvecs;
     }
     DEBUGASSERT(nvecs > 0); /* we SHOULD have been be able to peek */
   }
 
-  if(nwritten > 0 && stream->upload_left != -1)
-    stream->upload_left -= nwritten;
+  ಆದರೆ(nwritten > 0 && ಹರಿವು->upload_ಎಡ != -1)
+    ಹರಿವು->upload_ಎಡ -= nwritten;
 
   /* When we stopped sending and everything in `sendbuf` is "in flight",
    * we are at the end of the request body. */
-  if(stream->upload_left == 0) {
-    *pflags = NGHTTP3_DATA_FLAG_EOF;
-    stream->send_closed = TRUE;
+  ಆದರೆ(ಹರಿವು->upload_ಎಡ == 0) {
+    *pflags = NGHTTP3_ದತ್ತಾಂಶ_FLAG_EOF;
+    ಹರಿವು->send_closed = TRUE;
   }
-  else if(!nwritten) {
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!nwritten) {
     /* Not EOF, and nothing to give, we signal WOULDBLOCK. */
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> AGAIN", stream->id);
-    return NGHTTP3_ERR_WOULDBLOCK;
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] read req body -> AGAIN", ಹರಿವು->id);
+    ಹಿಂತಿರುಗಿ NGHTTP3_ERR_WOULDBLOCK;
   }
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> "
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] read req body -> "
               "%zu vecs%s with %zu (buffered=%zu, left=%" FMT_OFF_T ")",
-              stream->id, nvecs,
-              *pflags == NGHTTP3_DATA_FLAG_EOF ? " EOF" : "",
-              nwritten, Curl_bufq_len(&stream->sendbuf),
-              stream->upload_left);
-  return (nghttp3_ssize)nvecs;
+              ಹರಿವು->id, nvecs,
+              *pflags == NGHTTP3_ದತ್ತಾಂಶ_FLAG_EOF ? " EOF" : "",
+              nwritten, Curl_bufq_len(&ಹರಿವು->sendbuf),
+              ಹರಿವು->upload_ಎಡ);
+  ಹಿಂತಿರುಗಿ (nghttp3_ssize)nvecs;
 }
 
-static CURLcode h3_stream_open(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               const uint8_t *buf, size_t len,
+ಸ್ಥಿರ CURLcode h3_ಹರಿವು_open(ರಚನೆ Curl_cfilter *cf,
+                               ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ಸ್ಥಿರಾಂಕ uint8_t *buf, size_t len,
                                size_t *pnwritten)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = NULL;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು = ಖಾಲಿ;
   int64_t sid;
-  struct dynhds h2_headers;
+  ರಚನೆ dynhds h2_ಶೀರ್ಷಿಕೆಗಳು;
   size_t nheader;
-  nghttp3_nv *nva = NULL;
-  int rc = 0;
-  unsigned int i;
-  nghttp3_data_reader reader;
-  nghttp3_data_reader *preader = NULL;
-  CURLcode result;
+  nghttp3_nv *nva = ಖಾಲಿ;
+  ಪೂರ್ಣಾಂಕ rc = 0;
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ i;
+  nghttp3_ದತ್ತಾಂಶ_reader reader;
+  nghttp3_ದತ್ತಾಂಶ_reader *preader = ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ;
 
   *pnwritten = 0;
-  Curl_dynhds_init(&h2_headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&h2_ಶೀರ್ಷಿಕೆಗಳು, 0, DYN_HTTP_REQUEST);
 
-  result = Curl_cf_ngtcp2_h3_stream_setup(cf, data, &stream);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_cf_ngtcp2_h3_ಹರಿವು_ಸಿದ್ಧತೆ(cf, ದತ್ತಾಂಶ, &ಹರಿವು);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  result = Curl_h1_req_parse_read(&stream->h1, buf, len, NULL,
-    !data->state.http_ignorecustom ?
-    CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : NULL,
+  ಫಲಿತಾಂಶ = Curl_h1_req_parse_read(&ಹರಿವು->h1, buf, len, ಖಾಲಿ,
+    !ದತ್ತಾಂಶ->state.http_ignorecustom ?
+    CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_CUSTOMREQUEST) : ಖಾಲಿ,
     0, pnwritten);
-  if(result)
-    goto out;
-  if(!stream->h1.done) {
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
+  ಆದರೆ(!ಹರಿವು->h1.ಮುಗಿದ) {
     /* need more data */
-    goto out;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  DEBUGASSERT(stream->h1.req);
+  DEBUGASSERT(ಹರಿವು->h1.req);
 
-  result = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_http_req_ಗಮ್ಯ_h2(&h2_ಶೀರ್ಷಿಕೆಗಳು, ಹರಿವು->h1.req, ದತ್ತಾಂಶ);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
   /* no longer needed */
-  Curl_h1_req_parse_free(&stream->h1);
+  Curl_h1_req_parse_free(&ಹರಿವು->h1);
 
-  nheader = Curl_dynhds_count(&h2_headers);
-  nva = curlx_malloc(sizeof(nghttp3_nv) * nheader);
-  if(!nva) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  nheader = Curl_dynhds_ಎಣಿಕೆ(&h2_ಶೀರ್ಷಿಕೆಗಳು);
+  nva = curlx_malloc(ಗಾತ್ರ(nghttp3_nv) * nheader);
+  ಆದರೆ(!nva) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  for(i = 0; i < nheader; ++i) {
-    struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
-    nva[i].name = (unsigned char *)e->name;
+  ಗಾಗಿ(i = 0; i < nheader; ++i) {
+    ರಚನೆ dynhds_ನಮೂದು *e = Curl_dynhds_getn(&h2_ಶೀರ್ಷಿಕೆಗಳು, i);
+    nva[i].name = (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].ಮೌಲ್ಯ = (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)e->ಮೌಲ್ಯ;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP3_NV_FLAG_NONE;
   }
 
-  rc = ngtcp2_conn_open_bidi_stream(ctx->qconn, &sid, stream);
-  if(rc) {
-    failf(data, "cannot open bidi streams");
-    result = CURLE_SEND_ERROR;
-    goto out;
+  rc = ngtcp2_conn_open_bidi_ಹರಿವು(ctx->qconn, &sid, ಹರಿವು);
+  ಆದರೆ(rc) {
+    failf(ದತ್ತಾಂಶ, "cannot open bidi streams");
+    ಫಲಿತಾಂಶ = CURLE_SEND_ERROR;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  stream->id = sid;
-  ++ctx->used_bidi_streams;
+  ಹರಿವು->id = sid;
+  ++ctx->ಬಳಸಿದ_bidi_streams;
 
-  switch(data->state.httpreq) {
-  case HTTPREQ_POST:
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-  case HTTPREQ_PUT:
+  ಆಯ್ಕೆ(ದತ್ತಾಂಶ->state.httpreq) {
+  ಸ್ಥಿತಿ HTTPREQ_POST:
+  ಸ್ಥಿತಿ HTTPREQ_POST_FORM:
+  ಸ್ಥಿತಿ HTTPREQ_POST_MIME:
+  ಸ್ಥಿತಿ HTTPREQ_PUT:
     /* known request body size or -1 */
-    if(data->state.infilesize != -1)
-      stream->upload_left = data->state.infilesize;
-    else
+    ಆದರೆ(ದತ್ತಾಂಶ->state.infilesize != -1)
+      ಹರಿವು->upload_ಎಡ = ದತ್ತಾಂಶ->state.infilesize;
+    ಇಲ್ಲದಿದ್ದರೆ
       /* data sending without specifying the data amount up front */
-      stream->upload_left = -1; /* unknown */
-    break;
-  default:
+      ಹರಿವು->upload_ಎಡ = -1; /* unknown */
+    ನಿಲ್ಲಿಸು;
+  ಪೂರ್ವನಿಯೋಜಿತ:
     /* there is no request body */
-    stream->upload_left = 0; /* no request body */
-    break;
+    ಹರಿವು->upload_ಎಡ = 0; /* no request body */
+    ನಿಲ್ಲಿಸು;
   }
 
-  stream->send_closed = (stream->upload_left == 0);
-  if(!stream->send_closed) {
-    reader.read_data = cb_h3_read_req_body;
+  ಹರಿವು->send_closed = (ಹರಿವು->upload_ಎಡ == 0);
+  ಆದರೆ(!ಹರಿವು->send_closed) {
+    reader.read_ದತ್ತಾಂಶ = cb_h3_read_req_body;
     preader = &reader;
   }
 
-  rc = nghttp3_conn_submit_request(ctx->h3conn, stream->id,
-                                   nva, nheader, preader, stream);
-  if(rc) {
-    switch(rc) {
-    case NGHTTP3_ERR_CONN_CLOSING:
-      CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send, "
-                  "connection is closing", stream->id);
-      break;
-    default:
-      CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send -> "
-                  "%d (%s)", stream->id, rc, nghttp3_strerror(rc));
-      break;
+  rc = nghttp3_conn_submit_request(ctx->h3conn, ಹರಿವು->id,
+                                   nva, nheader, preader, ಹರಿವು);
+  ಆದರೆ(rc) {
+    ಆಯ್ಕೆ(rc) {
+    ಸ್ಥಿತಿ NGHTTP3_ERR_CONN_CLOSING:
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "h3sid[%" PRId64 "] failed to send, "
+                  "connection is closing", ಹರಿವು->id);
+      ನಿಲ್ಲಿಸು;
+    ಪೂರ್ವನಿಯೋಜಿತ:
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "h3sid[%" PRId64 "] failed to send -> "
+                  "%d (%s)", ಹರಿವು->id, rc, nghttp3_strerror(rc));
+      ನಿಲ್ಲಿಸು;
     }
-    Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-    result = CURLE_SEND_ERROR;
-    goto out;
+    Curl_cf_ngtcp2_h3_ಹರಿವು_close(cf, ದತ್ತಾಂಶ, ಹರಿವು);
+    ಫಲಿತಾಂಶ = CURLE_SEND_ERROR;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
+  cf_ngtcp2_upd_rx_win(cf, ದತ್ತಾಂಶ, ಹರಿವು);
 
-  if(Curl_trc_is_verbose(data)) {
-    infof(data, "[HTTP/3] [%" PRId64 "] OPENED stream for %s",
-          stream->id, Curl_bufref_ptr(&data->state.url));
-    for(i = 0; i < nheader; ++i) {
-      infof(data, "[HTTP/3] [%" PRId64 "] [%.*s: %.*s]", stream->id,
-            (int)nva[i].namelen, nva[i].name,
-            (int)nva[i].valuelen, nva[i].value);
+  ಆದರೆ(Curl_trc_is_verbose(ದತ್ತಾಂಶ)) {
+    infof(ದತ್ತಾಂಶ, "[HTTP/3] [%" PRId64 "] OPENED stream for %s",
+          ಹರಿವು->id, Curl_bufref_ptr(&ದತ್ತಾಂಶ->state.url));
+    ಗಾಗಿ(i = 0; i < nheader; ++i) {
+      infof(ದತ್ತಾಂಶ, "[HTTP/3] [%" PRId64 "] [%.*s: %.*s]", ಹರಿವು->id,
+            (ಪೂರ್ಣಾಂಕ)nva[i].namelen, nva[i].name,
+            (ಪೂರ್ಣಾಂಕ)nva[i].valuelen, nva[i].ಮೌಲ್ಯ);
     }
   }
 
-out:
+ಹೊರಹೋಗು:
   curlx_free(nva);
-  Curl_dynhds_free(&h2_headers);
-  return result;
+  Curl_dynhds_free(&h2_ಶೀರ್ಷಿಕೆಗಳು);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode cf_ngtcp2_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               const uint8_t *buf, size_t len, bool eos,
+ಸ್ಥಿರ CURLcode cf_ngtcp2_send(ರಚನೆ Curl_cfilter *cf, ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ಸ್ಥಿರಾಂಕ uint8_t *buf, size_t len, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು = H3_ಹರಿವು_CTX(ctx, ದತ್ತಾಂಶ);
+  ರಚನೆ cf_call_ದತ್ತಾಂಶ save;
+  ರಚನೆ cf_ngtcp2_io_ctx pktx;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_ದತ್ತಾಂಶ_SAVE(save, cf, ದತ್ತಾಂಶ);
   DEBUGASSERT(cf->connected);
   DEBUGASSERT(ctx->qconn);
   DEBUGASSERT(ctx->h3conn);
-  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
+  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, ದತ್ತಾಂಶ);
   *pnwritten = 0;
 
   /* handshake verification failed in callback, do not send anything */
-  if(ctx->tls_vrfy_result) {
-    result = ctx->tls_vrfy_result;
-    goto denied;
+  ಆದರೆ(ctx->tls_vrfy_ಫಲಿತಾಂಶ) {
+    ಫಲಿತಾಂಶ = ctx->tls_vrfy_ಫಲಿತಾಂಶ;
+    ಹೋಗು denied;
   }
 
-  (void)eos; /* use for stream EOF and block handling */
-  result = Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx);
-  if(result)
-    goto out;
+  (ಶೂನ್ಯ)eos; /* use for stream EOF and block handling */
+  ಫಲಿತಾಂಶ = Curl_cf_ngtcp2_ಪ್ರಗತಿ_ingress(cf, ದತ್ತಾಂಶ, &pktx);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  if(!stream || stream->id < 0) {
-    if(ctx->shutdown_started) {
-      CURL_TRC_CF(data, cf, "cannot open stream on closed connection");
-      result = CURLE_SEND_ERROR;
-      goto out;
+  ಆದರೆ(!ಹರಿವು || ಹರಿವು->id < 0) {
+    ಆದರೆ(ctx->shutdown_started) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "cannot open stream on closed connection");
+      ಫಲಿತಾಂಶ = CURLE_SEND_ERROR;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    result = h3_stream_open(cf, data, buf, len, pnwritten);
-    if(result) {
-      CURL_TRC_CF(data, cf, "failed to open stream -> %d", (int)result);
-      goto out;
+    ಫಲಿತಾಂಶ = h3_ಹರಿವು_open(cf, ದತ್ತಾಂಶ, buf, len, pnwritten);
+    ಆದರೆ(ಫಲಿತಾಂಶ) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "failed to open stream -> %d", (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ);
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    stream = H3_STREAM_CTX(ctx, data);
+    ಹರಿವು = H3_ಹರಿವು_CTX(ctx, ದತ್ತಾಂಶ);
   }
-  else if(stream->xfer_result) {
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] xfer write failed", stream->id);
-    Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-    result = stream->xfer_result;
-    goto out;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಹರಿವು->xfer_ಫಲಿತಾಂಶ) {
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] xfer write failed", ಹರಿವು->id);
+    Curl_cf_ngtcp2_h3_ಹರಿವು_close(cf, ದತ್ತಾಂಶ, ಹರಿವು);
+    ಫಲಿತಾಂಶ = ಹರಿವು->xfer_ಫಲಿತಾಂಶ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  else if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಹರಿವು->closed) {
+    ಆದರೆ(ಹರಿವು->resp_hds_complete) {
       /* Server decided to close the stream after having sent us a final
        * response. This is valid if it is not interested in the request
        * body. This happens on 30x or 40x responses.
        * We silently discard the data sent, since this is not a transport
        * error situation. */
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] discarding data"
-                  "on closed stream with response", stream->id);
-      result = CURLE_OK;
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] discarding data"
+                  "on closed stream with response", ಹರಿವು->id);
+      ಫಲಿತಾಂಶ = CURLE_OK;
       *pnwritten = len;
-      goto out;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] send_body(len=%zu) "
-                "-> stream closed", stream->id, len);
-    result = CURLE_HTTP3;
-    goto out;
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] send_body(len=%zu) "
+                "-> stream closed", ಹರಿವು->id, len);
+    ಫಲಿತಾಂಶ = CURLE_HTTP3;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  else if(ctx->shutdown_started) {
-    CURL_TRC_CF(data, cf, "cannot send on closed connection");
-    result = CURLE_SEND_ERROR;
-    goto out;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ctx->shutdown_started) {
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "cannot send on closed connection");
+    ಫಲಿತಾಂಶ = CURLE_SEND_ERROR;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  else if(stream->tx_in_flight_size >= stream->tx_in_flight_ideal) {
-    result = CURLE_AGAIN;
-    goto out;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ >= ಹರಿವು->tx_ಒಳ_flight_ideal) {
+    ಫಲಿತಾಂಶ = CURLE_AGAIN;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  else {
-    result = Curl_bufq_write(&stream->sendbuf, buf, len, pnwritten);
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send, add to "
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಫಲಿತಾಂಶ = Curl_bufq_write(&ಹರಿವು->sendbuf, buf, len, pnwritten);
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] cf_send, add to "
                 "sendbuf(len=%zu) -> %d, %zu",
-                stream->id, len, (int)result, *pnwritten);
-    if(result)
-      goto out;
-    (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
+                ಹರಿವು->id, len, (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ, *pnwritten);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
+    (ಶೂನ್ಯ)nghttp3_conn_resume_ಹರಿವು(ctx->h3conn, ಹರಿವು->id);
   }
 
-  if(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
+  ಆದರೆ(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
     ctx->earlydata_skip += *pnwritten;
 
-  DEBUGASSERT(!result);
-  result = Curl_cf_ngtcp2_progress_egress(cf, data, &pktx);
+  DEBUGASSERT(!ಫಲಿತಾಂಶ);
+  ಫಲಿತಾಂಶ = Curl_cf_ngtcp2_ಪ್ರಗತಿ_egress(cf, ದತ್ತಾಂಶ, &pktx);
 
-  if(*pnwritten > 0) {
-    const size_t delta = (2 * 1024);
-    if(stream->tx_in_flight_size > (stream->tx_in_flight_ideal + delta)) {
+  ಆದರೆ(*pnwritten > 0) {
+    ಸ್ಥಿರಾಂಕ size_t delta = (2 * 1024);
+    ಆದರೆ(ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ > (ಹರಿವು->tx_ಒಳ_flight_ideal + delta)) {
       /* ngtcp2 keeps more in flight than we try to provide for,
        * increase our "ideal" tx buffer length */
-      stream->tx_in_flight_ideal += delta;
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
+      ಹರಿವು->tx_ಒಳ_flight_ideal += delta;
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
                   "inflight=%zu, increase tx_win=%zu",
-                  stream->id, len, *pnwritten,
-                  stream->tx_in_flight_size, stream->tx_in_flight_ideal);
+                  ಹರಿವು->id, len, *pnwritten,
+                  ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ, ಹರಿವು->tx_ಒಳ_flight_ideal);
     }
-    else if((stream->tx_in_flight_size + delta) < stream->tx_in_flight_ideal) {
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ((ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ + delta) < ಹರಿವು->tx_ಒಳ_flight_ideal) {
       /* ngtcp2 keeps less in flight than we try to provide for,
        * decrease our "ideal" tx buffer length */
-      stream->tx_in_flight_ideal -= delta;
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
+      ಹರಿವು->tx_ಒಳ_flight_ideal -= delta;
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
                   "inflight=%zu, reduce tx_win=%zu",
-                  stream->id, len, *pnwritten,
-                  stream->tx_in_flight_size, stream->tx_in_flight_ideal);
+                  ಹರಿವು->id, len, *pnwritten,
+                  ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ, ಹರಿವು->tx_ಒಳ_flight_ideal);
     }
   }
 
-out:
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
-  if(ctx->tls_vrfy_result)
-    result = ctx->tls_vrfy_result;
+ಹೊರಹೋಗು:
+  ಫಲಿತಾಂಶ = Curl_1st_fatal(ಫಲಿತಾಂಶ,
+                          Curl_cf_ngtcp2_cmn_ಗಣ_expiry(cf, ದತ್ತಾಂಶ, &pktx));
+  ಆದರೆ(ctx->tls_vrfy_ಫಲಿತಾಂಶ)
+    ಫಲಿತಾಂಶ = ctx->tls_vrfy_ಫಲಿತಾಂಶ;
 denied:
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(len=%zu) -> %d, %zu",
-              stream ? stream->id : -1, len, (int)result, *pnwritten);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "[%" PRId64 "] cf_send(len=%zu) -> %d, %zu",
+              ಹರಿವು ? ಹರಿವು->id : -1, len, (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ, *pnwritten);
+  CF_ದತ್ತಾಂಶ_RESTORE(cf, save);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode h3_data_pause(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+ಸ್ಥಿರ CURLcode h3_ದತ್ತಾಂಶ_pause(ರಚನೆ Curl_cfilter *cf,
+                              ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                               bool pause)
 {
   /* There seems to exist no API in ngtcp2 to shrink/enlarge the streams
    * windows. As we do in HTTP/2. */
-  (void)cf;
-  if(!pause)
-    Curl_multi_mark_dirty(data);
-  return CURLE_OK;
+  (ಶೂನ್ಯ)cf;
+  ಆದರೆ(!pause)
+    Curl_multi_mark_dirty(ದತ್ತಾಂಶ);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static CURLcode cf_ngtcp2_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2)
+ಸ್ಥಿರ CURLcode cf_ngtcp2_cntrl(ರಚನೆ Curl_cfilter *cf,
+                                ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                ಪೂರ್ಣಾಂಕ event, ಪೂರ್ಣಾಂಕ arg1, ಶೂನ್ಯ *arg2)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ರಚನೆ cf_call_ದತ್ತಾಂಶ save;
 
-  CF_DATA_SAVE(save, cf, data);
-  switch(event) {
-  case CF_CTRL_DATA_SETUP:
-    break;
-  case CF_CTRL_DATA_PAUSE:
-    result = h3_data_pause(cf, data, (arg1 != 0));
-    break;
-  case CF_CTRL_DATA_DONE:
-    Curl_cf_ngtcp2_h3_stream_done(cf, data);
-    break;
-  case CF_CTRL_DATA_DONE_SEND: {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    if(stream && !stream->send_closed) {
-      stream->send_closed = TRUE;
-      stream->upload_left = Curl_bufq_len(&stream->sendbuf) -
-        stream->tx_in_flight_size;
-      (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
+  CF_ದತ್ತಾಂಶ_SAVE(save, cf, ದತ್ತಾಂಶ);
+  ಆಯ್ಕೆ(event) {
+  ಸ್ಥಿತಿ CF_CTRL_ದತ್ತಾಂಶ_ಸಿದ್ಧತೆ:
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ CF_CTRL_ದತ್ತಾಂಶ_PAUSE:
+    ಫಲಿತಾಂಶ = h3_ದತ್ತಾಂಶ_pause(cf, ದತ್ತಾಂಶ, (arg1 != 0));
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ CF_CTRL_ದತ್ತಾಂಶ_ಮುಗಿದ:
+    Curl_cf_ngtcp2_h3_ಹರಿವು_ಮುಗಿದ(cf, ದತ್ತಾಂಶ);
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ CF_CTRL_ದತ್ತಾಂಶ_ಮುಗಿದ_SEND: {
+    ರಚನೆ h3_ಹರಿವು_ctx *ಹರಿವು = H3_ಹರಿವು_CTX(ctx, ದತ್ತಾಂಶ);
+    ಆದರೆ(ಹರಿವು && !ಹರಿವು->send_closed) {
+      ಹರಿವು->send_closed = TRUE;
+      ಹರಿವು->upload_ಎಡ = Curl_bufq_len(&ಹರಿವು->sendbuf) -
+        ಹರಿವು->tx_ಒಳ_flight_ಗಾತ್ರ;
+      (ಶೂನ್ಯ)nghttp3_conn_resume_ಹರಿವು(ctx->h3conn, ಹರಿವು->id);
     }
-    break;
+    ನಿಲ್ಲಿಸು;
   }
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(!cf->sockindex && cf->connected) {
-      cf->conn->httpversion_seen = 30;
-      Curl_conn_set_multiplex(cf->conn);
+  ಸ್ಥಿತಿ CF_CTRL_CONN_INFO_UPDATE:
+    ಆದರೆ(!cf->sockindex && cf->connected) {
+      cf->conn->httpversion_ನೋಡಿದ = 30;
+      Curl_conn_ಗಣ_multiplex(cf->conn);
     }
-    break;
-  default:
-    result = Curl_cf_ngtcp2_cmn_cntrl(cf, data, event, arg1, arg2);
-    break;
+    ನಿಲ್ಲಿಸು;
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    ಫಲಿತಾಂಶ = Curl_cf_ngtcp2_cmn_cntrl(cf, ದತ್ತಾಂಶ, event, arg1, arg2);
+    ನಿಲ್ಲಿಸು;
   }
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_ದತ್ತಾಂಶ_RESTORE(cf, save);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static void cf_ngtcp2_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_ngtcp2_destroy(ರಚನೆ Curl_cfilter *cf, ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  if(ctx) {
-    if(ctx->qconn) {
-      struct cf_call_data save;
-      CF_DATA_SAVE(save, cf, data);
-      Curl_cf_ngtcp2_cmn_conn_close(cf, data);
-      CF_DATA_RESTORE(cf, save);
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "destroy");
+  ಆದರೆ(ctx) {
+    ಆದರೆ(ctx->qconn) {
+      ರಚನೆ cf_call_ದತ್ತಾಂಶ save;
+      CF_ದತ್ತಾಂಶ_SAVE(save, cf, ದತ್ತಾಂಶ);
+      Curl_cf_ngtcp2_cmn_conn_close(cf, ದತ್ತಾಂಶ);
+      CF_ದತ್ತಾಂಶ_RESTORE(cf, save);
     }
     Curl_cf_ngtcp2_ctx_cleanup(ctx);
     curlx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = ಖಾಲಿ;
   }
 }
 
-static CURLcode cf_ngtcp2_connect(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *done)
+ಸ್ಥಿರ CURLcode cf_ngtcp2_connect(ರಚನೆ Curl_cfilter *cf,
+                                  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                  bool *ಮುಗಿದ)
 {
-  return Curl_cf_ngtcp2_cmn_connect(cf, data, done);
+  ಹಿಂತಿರುಗಿ Curl_cf_ngtcp2_cmn_connect(cf, ದತ್ತಾಂಶ, ಮುಗಿದ);
 }
 
-static CURLcode cf_ngtcp2_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2)
+ಸ್ಥಿರ CURLcode cf_ngtcp2_query(ರಚನೆ Curl_cfilter *cf,
+                                ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                ಪೂರ್ಣಾಂಕ query, ಪೂರ್ಣಾಂಕ *pres1, ಶೂನ್ಯ *pres2)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_call_ದತ್ತಾಂಶ save;
 
-  switch(query) {
-  case CF_QUERY_MAX_CONCURRENT: {
+  ಆಯ್ಕೆ(query) {
+  ಸ್ಥಿತಿ CF_QUERY_MAX_CONCURRENT: {
     DEBUGASSERT(pres1);
-    CF_DATA_SAVE(save, cf, data);
+    CF_ದತ್ತಾಂಶ_SAVE(save, cf, ದತ್ತಾಂಶ);
     /* Set after transport params arrived and continually updated
      * by callback. QUIC counts the number over the lifetime of the
      * connection, ever increasing.
      * We count the *open* transfers plus the budget for new ones. */
-    if(!ctx->qconn || ctx->shutdown_started) {
+    ಆದರೆ(!ctx->qconn || ctx->shutdown_started) {
       *pres1 = 0;
     }
-    else if(ctx->max_bidi_streams) {
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ctx->max_bidi_streams) {
       uint64_t avail_bidi_streams = 0;
       uint64_t max_streams = cf->conn->attached_xfers;
-      if(ctx->max_bidi_streams > ctx->used_bidi_streams)
-        avail_bidi_streams = ctx->max_bidi_streams - ctx->used_bidi_streams;
+      ಆದರೆ(ctx->max_bidi_streams > ctx->ಬಳಸಿದ_bidi_streams)
+        avail_bidi_streams = ctx->max_bidi_streams - ctx->ಬಳಸಿದ_bidi_streams;
       max_streams += avail_bidi_streams;
-      *pres1 = (max_streams > INT_MAX) ? INT_MAX : (int)max_streams;
+      *pres1 = (max_streams > ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ) ? ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ : (ಪೂರ್ಣಾಂಕ)max_streams;
     }
-    else {  /* transport params not arrived yet? take our default. */
-      uint32_t n = Curl_multi_max_concurrent_streams(data->multi);
-      *pres1 = (n < INT_MAX) ? (int)n : INT_MAX;
+    ಇಲ್ಲದಿದ್ದರೆ {  /* transport params not arrived yet? take our default. */
+      uint32_t n = Curl_multi_max_concurrent_streams(ದತ್ತಾಂಶ->multi);
+      *pres1 = (n < ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ) ? (ಪೂರ್ಣಾಂಕ)n : ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ;
     }
-    CURL_TRC_CF(data, cf, "query conn[%" FMT_OFF_T "]: "
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "query conn[%" FMT_OFF_T "]: "
                 "MAX_CONCURRENT -> %d (%u in use)",
                 cf->conn->connection_id, *pres1, cf->conn->attached_xfers);
-    CF_DATA_RESTORE(cf, save);
-    return CURLE_OK;
+    CF_ದತ್ತಾಂಶ_RESTORE(cf, save);
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
-  case CF_QUERY_HTTP_VERSION:
+  ಸ್ಥಿತಿ CF_QUERY_HTTP_ಆವೃತ್ತಿ:
     *pres1 = 30;
-    return CURLE_OK;
-  case CF_QUERY_SSL_INFO:
-  case CF_QUERY_SSL_CTX_INFO: {
-    struct curl_tlssessioninfo *info = pres2;
-    if(Curl_vquic_tls_get_ssl_info(&ctx->tls,
+    ಹಿಂತಿರುಗಿ CURLE_OK;
+  ಸ್ಥಿತಿ CF_QUERY_SSL_INFO:
+  ಸ್ಥಿತಿ CF_QUERY_SSL_CTX_INFO: {
+    ರಚನೆ curl_tlssessioninfo *info = pres2;
+    ಆದರೆ(Curl_vquic_tls_get_ssl_info(&ctx->tls,
                                    (query == CF_QUERY_SSL_CTX_INFO), info))
-      return CURLE_OK;
-    break;
+      ಹಿಂತಿರುಗಿ CURLE_OK;
+    ನಿಲ್ಲಿಸು;
   }
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  ಸ್ಥಿತಿ CF_QUERY_ALPN_NEGOTIATED: {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = cf->connected ? "h3" : NULL;
-    return CURLE_OK;
+    *palpn = cf->connected ? "h3" : ಖಾಲಿ;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
-  default:
-    break;
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    ನಿಲ್ಲಿಸು;
   }
-  return Curl_cf_ngtcp2_cmn_query(cf, data, query, pres1, pres2);
+  ಹಿಂತಿರುಗಿ Curl_cf_ngtcp2_cmn_query(cf, ದತ್ತಾಂಶ, query, pres1, pres2);
 }
 
-struct Curl_cftype Curl_cft_http3 = {
+ರಚನೆ Curl_cftype Curl_cft_http3 = {
   "HTTP/3",
   CF_TYPE_IP_CONNECT | CF_TYPE_SSL | CF_TYPE_MULTIPLEX | CF_TYPE_HTTP,
   0,
@@ -1058,7 +1058,7 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_ngtcp2_connect,
   Curl_cf_ngtcp2_cmn_shutdown,
   cf_ngtcp2_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_ದತ್ತಾಂಶ_pending,
   cf_ngtcp2_send,
   cf_ngtcp2_recv,
   cf_ngtcp2_cntrl,
@@ -1067,81 +1067,81 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_ngtcp2_query,
 };
 
-CURLcode Curl_cf_ngtcp2_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr)
+CURLcode Curl_cf_ngtcp2_create(ರಚನೆ Curl_cfilter **pcf,
+                               ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ರಚನೆ Curl_peer *origin,
+                               ರಚನೆ Curl_peer *peer,
+                               ರಚನೆ connectdata *conn,
+                               ರಚನೆ Curl_sockaddr_ex *addr)
 {
-  struct cf_ngtcp2_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = ಖಾಲಿ;
+  ರಚನೆ Curl_cfilter *cf = ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, ಗಾತ್ರ(*ctx));
+  ಆದರೆ(!ctx) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  result = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
+  ಫಲಿತಾಂಶ = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
                                    &conn->ssl_config, init_ngh3_conn);
-  if(!result)
-    result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
-    goto out;
+  ಆದರೆ(!ಫಲಿತಾಂಶ)
+    ಫಲಿತಾಂಶ = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
   cf->conn = conn;
 
-  result = Curl_cf_udp_create(&cf->next, data, origin, peer, TRNSPRT_QUIC,
-                              conn, addr, NULL, TRNSPRT_QUIC);
-  if(result)
-    goto out;
-  cf->next->conn = cf->conn;
-  cf->next->sockindex = cf->sockindex;
+  ಫಲಿತಾಂಶ = Curl_cf_udp_create(&cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, origin, peer, TRNSPRT_QUIC,
+                              conn, addr, ಖಾಲಿ, TRNSPRT_QUIC);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
+  cf->ಮುಂದಿನ->conn = cf->conn;
+  cf->ಮುಂದಿನ->sockindex = cf->sockindex;
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
-    if(cf)
-      Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx) {
+ಹೊರಹೋಗು:
+  *pcf = (!ಫಲಿತಾಂಶ) ? cf : ಖಾಲಿ;
+  ಆದರೆ(ಫಲಿತಾಂಶ) {
+    ಆದರೆ(cf)
+      Curl_conn_cf_discard_chain(&cf, ದತ್ತಾಂಶ);
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ctx) {
       Curl_cf_ngtcp2_ctx_cleanup(ctx);
       curlx_free(ctx);
     }
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf)
+CURLcode Curl_cf_ngtcp2_ಸೇರಿಸು_after(ರಚನೆ Curl_cfilter *cf_at,
+                                     ರಚನೆ Curl_peer *origin,
+                                     ರಚನೆ Curl_peer *peer,
+                                     ರಚನೆ Curl_cfilter **pcf)
 {
-  struct cf_ngtcp2_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  ರಚನೆ cf_ngtcp2_ctx *ctx = ಖಾಲಿ;
+  ರಚನೆ Curl_cfilter *cf = ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, ಗಾತ್ರ(*ctx));
+  ಆದರೆ(!ctx) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
-  result = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
+  ಫಲಿತಾಂಶ = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
                                    &cf_at->conn->ssl_config, init_ngh3_conn);
-  if(!result)
-    result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
-out:
-  if(result) {
+  ಆದರೆ(!ಫಲಿತಾಂಶ)
+    ಫಲಿತಾಂಶ = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
+  Curl_conn_cf_ಸೇರಿಸು_after(cf_at, cf);
+ಹೊರಹೋಗು:
+  ಆದರೆ(ಫಲಿತಾಂಶ) {
     curlx_safefree(cf);
-    if(ctx) {
+    ಆದರೆ(ctx) {
       Curl_cf_ngtcp2_ctx_cleanup(ctx);
       curlx_free(ctx);
     }
   }
   *pcf = cf;
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CW_OUT_H
-#define HEADER_CURL_CW_OUT_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_CW_ಹೊರಹೋಗು_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_CW_ಹೊರಹೋಗು_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-struct Curl_easy;
+ರಚನೆ Curl_easy;
 
 /**
  * The client writer type "cw-out" that does the actual writing to
  * the client callbacks. Intended to be the last installed in the
  * client writer stack of a transfer.
  */
-extern const struct Curl_cwtype Curl_cwt_out;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_cwtype Curl_cwt_ಹೊರಹೋಗು;
 
 /**
  * Mark EndOfStream reached and flush ALL data to the client.
  */
-CURLcode Curl_cw_out_done(struct Curl_easy *data);
+CURLcode Curl_cw_ಹೊರಹೋಗು_ಮುಗಿದ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-#endif /* HEADER_CURL_CW_OUT_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_CW_OUT_H */

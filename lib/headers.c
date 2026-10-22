@@ -21,78 +21,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "headers.h"
-#include "strcase.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "sendf.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "headers.h"
+#ಅನ್ತರ್ಭಾವ "strcase.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ಶೀರ್ಷಿಕೆಗಳು_API)
 
 /* Generate the curl_header struct for the user. This function MUST assign all
    struct fields in the output struct. */
-static void copy_header_external(struct Curl_header_store *hs,
-                                 size_t index,
+ಸ್ಥಿರ ಶೂನ್ಯ copy_ಶೀರ್ಷಿಕೆ_external(ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *hs,
+                                 size_t ಸೂಚ್ಯಂಕ,
                                  size_t amount,
-                                 struct Curl_llist_node *e,
-                                 struct curl_header *hout)
+                                 ರಚನೆ Curl_llist_ಗಂಟು *e,
+                                 ರಚನೆ curl_ಶೀರ್ಷಿಕೆ *hout)
 {
-  struct curl_header *h = hout;
+  ರಚನೆ curl_ಶೀರ್ಷಿಕೆ *h = hout;
   h->name = hs->name;
-  h->value = hs->value;
+  h->ಮೌಲ್ಯ = hs->ಮೌಲ್ಯ;
   h->amount = amount;
-  h->index = index;
+  h->ಸೂಚ್ಯಂಕ = ಸೂಚ್ಯಂಕ;
   /* this will randomly OR a reserved bit for the sole purpose of making it
      impossible for applications to do == comparisons, as that would otherwise
      be tempting and then lead to the reserved bits not being reserved
      anymore. */
-  h->origin = (unsigned int)(hs->type | (1 << 27));
+  h->origin = (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)(hs->type | (1 << 27));
   h->anchor = e;
 }
 
 /* public API */
-CURLHcode curl_easy_header(CURL *curl,
-                           const char *name,
+CURLHcode curl_easy_ಶೀರ್ಷಿಕೆ(CURL *curl,
+                           ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name,
                            size_t nameindex,
-                           unsigned int origin,
-                           int request,
-                           struct curl_header **hout)
+                           ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ origin,
+                           ಪೂರ್ಣಾಂಕ request,
+                           ರಚನೆ curl_ಶೀರ್ಷಿಕೆ **hout)
 {
-  struct Curl_eapi_guard guard;
+  ರಚನೆ Curl_eapi_guard guard;
   CURLHcode hresult = CURLHE_OK;
-  CURLcode result;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
-    struct Curl_easy *data = curl;
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *e_pick = NULL;
-    size_t match = 0;
+  ಆದರೆ(CURL_EAPI_ENTER(&guard, curl, easy_ಶೀರ್ಷಿಕೆ, &ಫಲಿತಾಂಶ)) {
+    ರಚನೆ Curl_easy *ದತ್ತಾಂಶ = curl;
+    ರಚನೆ Curl_llist_ಗಂಟು *e;
+    ರಚನೆ Curl_llist_ಗಂಟು *e_pick = ಖಾಲಿ;
+    size_t ಹೊಂದಿಕೆ = 0;
     size_t amount = 0;
-    struct Curl_header_store *hs = NULL;
-    struct Curl_header_store *pick = NULL;
-    if(!name || !hout || !data ||
-       (origin > (CURLH_HEADER | CURLH_TRAILER | CURLH_CONNECT | CURLH_1XX |
+    ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *hs = ಖಾಲಿ;
+    ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *pick = ಖಾಲಿ;
+    ಆದರೆ(!name || !hout || !ದತ್ತಾಂಶ ||
+       (origin > (CURLH_ಶೀರ್ಷಿಕೆ | CURLH_TRAILER | CURLH_CONNECT | CURLH_1XX |
                   CURLH_PSEUDO)) || !origin || (request < -1)) {
-      hresult = CURLHE_BAD_ARGUMENT;
-      goto out;
+      hresult = CURLHE_BAD_ವಾದ;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    if(!Curl_llist_count(&data->state.httphdrs)) {
+    ಆದರೆ(!Curl_llist_ಎಣಿಕೆ(&ದತ್ತಾಂಶ->state.httphdrs)) {
       hresult = CURLHE_NOHEADERS; /* no headers available */
-      goto out;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    if(request > data->state.requests) {
+    ಆದರೆ(request > ದತ್ತಾಂಶ->state.ವಿನಂತಿಗಳು) {
       hresult = CURLHE_NOREQUEST;
-      goto out;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    if(request == -1)
-      request = data->state.requests;
+    ಆದರೆ(request == -1)
+      request = ದತ್ತಾಂಶ->state.ವಿನಂತಿಗಳು;
 
     /* we need a first round to count amount of this header */
-    for(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_node_next(e)) {
-      hs = Curl_node_elem(e);
-      if(curl_strequal(hs->name, name) &&
+    ಗಾಗಿ(e = Curl_llist_ತಲೆ(&ದತ್ತಾಂಶ->state.httphdrs); e; e = Curl_ಗಂಟು_ಮುಂದಿನ(e)) {
+      hs = Curl_ಗಂಟು_elem(e);
+      ಆದರೆ(curl_strequal(hs->name, name) &&
          (hs->type & origin) &&
          (hs->request == request)) {
         amount++;
@@ -100,234 +100,234 @@ CURLHcode curl_easy_header(CURL *curl,
         e_pick = e;
       }
     }
-    if(!amount)
+    ಆದರೆ(!amount)
       hresult = CURLHE_MISSING;
-    else if(nameindex >= amount)
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(nameindex >= amount)
       hresult = CURLHE_BADINDEX;
-    if(hresult)
-      goto out;
+    ಆದರೆ(hresult)
+      ಹೋಗು ಹೊರಹೋಗು;
 
-    if(nameindex == amount - 1)
+    ಆದರೆ(nameindex == amount - 1)
       /* if the last or only occurrence is what's asked for, then we know it */
       hs = pick;
-    else {
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        hs = Curl_node_elem(e);
-        if(curl_strequal(hs->name, name) &&
+    ಇಲ್ಲದಿದ್ದರೆ {
+      ಗಾಗಿ(e = Curl_llist_ತಲೆ(&ದತ್ತಾಂಶ->state.httphdrs); e;
+          e = Curl_ಗಂಟು_ಮುಂದಿನ(e)) {
+        hs = Curl_ಗಂಟು_elem(e);
+        ಆದರೆ(curl_strequal(hs->name, name) &&
            (hs->type & origin) &&
            (hs->request == request) &&
-           (match++ == nameindex)) {
+           (ಹೊಂದಿಕೆ++ == nameindex)) {
           e_pick = e;
-          break;
+          ನಿಲ್ಲಿಸು;
         }
       }
-      if(!e) { /* this should not happen */
+      ಆದರೆ(!e) { /* this should not happen */
         hresult = CURLHE_MISSING;
-        goto out;
+        ಹೋಗು ಹೊರಹೋಗು;
       }
     }
     /* this is the name we want */
-    copy_header_external(hs, nameindex, amount, e_pick,
-                         &data->state.headerout[0]);
-    *hout = &data->state.headerout[0];
+    copy_ಶೀರ್ಷಿಕೆ_external(hs, nameindex, amount, e_pick,
+                         &ದತ್ತಾಂಶ->state.headerout[0]);
+    *hout = &ದತ್ತಾಂಶ->state.headerout[0];
     hresult = CURLHE_OK;
   }
-out:
+ಹೊರಹೋಗು:
   CURL_EAPI_LEAVE(&guard);
-  if(result)
-    hresult = Curl_eapi_hcode(result);
-  return hresult;
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    hresult = Curl_eapi_hcode(ಫಲಿತಾಂಶ);
+  ಹಿಂತಿರುಗಿ hresult;
 }
 
-struct nextheader_cache_entry {
-  struct Curl_header_store *header;
-  size_t order;
+ರಚನೆ nextheader_cache_ನಮೂದು {
+  ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *ಶೀರ್ಷಿಕೆ;
+  size_t ಕ್ರಮ;
 };
 
-static int nextheader_compare(const void *p1, const void *p2)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ nextheader_compare(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *p1, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *p2)
 {
-  const struct nextheader_cache_entry *e1 = p1;
-  const struct nextheader_cache_entry *e2 = p2;
-  const struct Curl_header_store *h1 = e1->header;
-  const struct Curl_header_store *h2 = e2->header;
-  const char *n1 = h1->name;
-  const char *n2 = h2->name;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ nextheader_cache_ನಮೂದು *e1 = p1;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ nextheader_cache_ನಮೂದು *e2 = p2;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *h1 = e1->ಶೀರ್ಷಿಕೆ;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *h2 = e2->ಶೀರ್ಷಿಕೆ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *n1 = h1->name;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *n2 = h2->name;
 
-  while(*n1 && *n2) {
-    unsigned char c1 = (unsigned char)Curl_raw_toupper(*n1++);
-    unsigned char c2 = (unsigned char)Curl_raw_toupper(*n2++);
-    if(c1 != c2)
-      return c1 > c2 ? 1 : -1;
+  ಆಗ(*n1 && *n2) {
+    ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ c1 = (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)Curl_raw_toupper(*n1++);
+    ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ c2 = (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)Curl_raw_toupper(*n2++);
+    ಆದರೆ(c1 != c2)
+      ಹಿಂತಿರುಗಿ c1 > c2 ? 1 : -1;
   }
-  if(*n1)
-    return 1;
-  if(*n2)
-    return -1;
-  if(e1->order != e2->order)
-    return e1->order > e2->order ? 1 : -1;
-  return 0;
+  ಆದರೆ(*n1)
+    ಹಿಂತಿರುಗಿ 1;
+  ಆದರೆ(*n2)
+    ಹಿಂತಿರುಗಿ -1;
+  ಆದರೆ(e1->ಕ್ರಮ != e2->ಕ್ರಮ)
+    ಹಿಂತಿರುಗಿ e1->ಕ್ರಮ > e2->ಕ್ರಮ ? 1 : -1;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static bool nextheader_cache_build(struct Curl_easy *data,
-                                   unsigned int origin,
-                                   int request, size_t count)
+ಸ್ಥಿರ bool nextheader_cache_build(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                   ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ origin,
+                                   ಪೂರ್ಣಾಂಕ request, size_t ಎಣಿಕೆ_2)
 {
-  struct nextheader_cache_entry *headers;
-  struct Curl_llist_node *e;
+  ರಚನೆ nextheader_cache_ನಮೂದು *ಶೀರ್ಷಿಕೆಗಳು;
+  ರಚನೆ Curl_llist_ಗಂಟು *e;
   size_t i = 0;
-  size_t first;
+  size_t ಮೊದಲ;
 
-  headers = curlx_malloc(sizeof(*headers) * count);
-  if(!headers)
-    return FALSE;
+  ಶೀರ್ಷಿಕೆಗಳು = curlx_malloc(ಗಾತ್ರ(*ಶೀರ್ಷಿಕೆಗಳು) * ಎಣಿಕೆ_2);
+  ಆದರೆ(!ಶೀರ್ಷಿಕೆಗಳು)
+    ಹಿಂತಿರುಗಿ FALSE;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e;
-      e = Curl_node_next(e)) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    if((hs->type & origin) && (hs->request == request)) {
-      headers[i].header = hs;
-      headers[i].order = i;
+  ಗಾಗಿ(e = Curl_llist_ತಲೆ(&ದತ್ತಾಂಶ->state.httphdrs); e;
+      e = Curl_ಗಂಟು_ಮುಂದಿನ(e)) {
+    ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *hs = Curl_ಗಂಟು_elem(e);
+    ಆದರೆ((hs->type & origin) && (hs->request == request)) {
+      ಶೀರ್ಷಿಕೆಗಳು[i].ಶೀರ್ಷಿಕೆ = hs;
+      ಶೀರ್ಷಿಕೆಗಳು[i].ಕ್ರಮ = i;
       i++;
     }
   }
 
-  qsort(headers, i, sizeof(*headers), nextheader_compare);
-  for(first = 0; first < i;) {
-    size_t last = first + 1;
-    size_t index;
-    while((last < i) &&
-          curl_strequal(headers[first].header->name,
-                        headers[last].header->name))
-      last++;
-    for(index = first; index < last; index++) {
-      headers[index].header->nh_amount = last - first;
-      headers[index].header->nh_index = index - first;
+  qsort(ಶೀರ್ಷಿಕೆಗಳು, i, ಗಾತ್ರ(*ಶೀರ್ಷಿಕೆಗಳು), nextheader_compare);
+  ಗಾಗಿ(ಮೊದಲ = 0; ಮೊದಲ < i;) {
+    size_t ಕೊನೆಯ = ಮೊದಲ + 1;
+    size_t ಸೂಚ್ಯಂಕ;
+    ಆಗ((ಕೊನೆಯ < i) &&
+          curl_strequal(ಶೀರ್ಷಿಕೆಗಳು[ಮೊದಲ].ಶೀರ್ಷಿಕೆ->name,
+                        ಶೀರ್ಷಿಕೆಗಳು[ಕೊನೆಯ].ಶೀರ್ಷಿಕೆ->name))
+      ಕೊನೆಯ++;
+    ಗಾಗಿ(ಸೂಚ್ಯಂಕ = ಮೊದಲ; ಸೂಚ್ಯಂಕ < ಕೊನೆಯ; ಸೂಚ್ಯಂಕ++) {
+      ಶೀರ್ಷಿಕೆಗಳು[ಸೂಚ್ಯಂಕ].ಶೀರ್ಷಿಕೆ->nh_amount = ಕೊನೆಯ - ಮೊದಲ;
+      ಶೀರ್ಷಿಕೆಗಳು[ಸೂಚ್ಯಂಕ].ಶೀರ್ಷಿಕೆ->nh_ಸೂಚ್ಯಂಕ = ಸೂಚ್ಯಂಕ - ಮೊದಲ;
     }
-    first = last;
+    ಮೊದಲ = ಕೊನೆಯ;
   }
-  curlx_free(headers);
+  curlx_free(ಶೀರ್ಷಿಕೆಗಳು);
 
-  data->state.nh_origin = origin;
-  data->state.nh_request = request;
-  data->state.nh_count = count;
-  return TRUE;
+  ದತ್ತಾಂಶ->state.nh_origin = origin;
+  ದತ್ತಾಂಶ->state.nh_request = request;
+  ದತ್ತಾಂಶ->state.nh_ಎಣಿಕೆ = ಎಣಿಕೆ_2;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
 /* public API */
-struct curl_header *curl_easy_nextheader(CURL *curl,
-                                         unsigned int origin,
-                                         int request,
-                                         struct curl_header *prev)
+ರಚನೆ curl_ಶೀರ್ಷಿಕೆ *curl_easy_nextheader(CURL *curl,
+                                         ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ origin,
+                                         ಪೂರ್ಣಾಂಕ request,
+                                         ರಚನೆ curl_ಶೀರ್ಷಿಕೆ *prev)
 {
-  struct Curl_eapi_guard guard;
-  struct curl_header *hd = NULL;
-  CURLcode result;
+  ರಚನೆ Curl_eapi_guard guard;
+  ರಚನೆ curl_ಶೀರ್ಷಿಕೆ *hd = ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
-    struct Curl_easy *data = curl;
-    struct Curl_llist_node *pick;
-    struct Curl_llist_node *e;
-    struct Curl_header_store *hs;
+  ಆದರೆ(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &ಫಲಿತಾಂಶ)) {
+    ರಚನೆ Curl_easy *ದತ್ತಾಂಶ = curl;
+    ರಚನೆ Curl_llist_ಗಂಟು *pick;
+    ರಚನೆ Curl_llist_ಗಂಟು *e;
+    ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *hs;
     size_t amount = 0;
-    size_t index = 0;
-    size_t count;
+    size_t ಸೂಚ್ಯಂಕ = 0;
+    size_t ಎಣಿಕೆ_2;
 
-    if(request > data->state.requests)
-      goto out;
-    if(request == -1)
-      request = data->state.requests;
+    ಆದರೆ(request > ದತ್ತಾಂಶ->state.ವಿನಂತಿಗಳು)
+      ಹೋಗು ಹೊರಹೋಗು;
+    ಆದರೆ(request == -1)
+      request = ದತ್ತಾಂಶ->state.ವಿನಂತಿಗಳು;
 
-    if(prev) {
+    ಆದರೆ(prev) {
       pick = prev->anchor;
-      if(!pick)
+      ಆದರೆ(!pick)
         /* something is wrong */
-        goto out;
-      pick = Curl_node_next(pick);
+        ಹೋಗು ಹೊರಹೋಗು;
+      pick = Curl_ಗಂಟು_ಮುಂದಿನ(pick);
     }
-    else
-      pick = Curl_llist_head(&data->state.httphdrs);
+    ಇಲ್ಲದಿದ್ದರೆ
+      pick = Curl_llist_ತಲೆ(&ದತ್ತಾಂಶ->state.httphdrs);
 
-    if(pick) {
+    ಆದರೆ(pick) {
       /* make sure it is the next header of the desired type */
-      do {
-        hs = Curl_node_elem(pick);
-        if((hs->type & origin) && (hs->request == request))
-          break;
-        pick = Curl_node_next(pick);
-      } while(pick);
+      ಮಾಡು {
+        hs = Curl_ಗಂಟು_elem(pick);
+        ಆದರೆ((hs->type & origin) && (hs->request == request))
+          ನಿಲ್ಲಿಸು;
+        pick = Curl_ಗಂಟು_ಮುಂದಿನ(pick);
+      } ಆಗ(pick);
     }
 
-    if(!pick)
+    ಆದರೆ(!pick)
       /* no more headers available */
-      goto out;
+      ಹೋಗು ಹೊರಹೋಗು;
 
-    hs = Curl_node_elem(pick);
-    count = Curl_llist_count(&data->state.httphdrs);
+    hs = Curl_ಗಂಟು_elem(pick);
+    ಎಣಿಕೆ_2 = Curl_llist_ಎಣಿಕೆ(&ದತ್ತಾಂಶ->state.httphdrs);
 
-    if(((data->state.nh_count == count) &&
-        (data->state.nh_origin == origin) &&
-        (data->state.nh_request == request)) ||
-       nextheader_cache_build(data, origin, request, count)) {
+    ಆದರೆ(((ದತ್ತಾಂಶ->state.nh_ಎಣಿಕೆ == ಎಣಿಕೆ_2) &&
+        (ದತ್ತಾಂಶ->state.nh_origin == origin) &&
+        (ದತ್ತಾಂಶ->state.nh_request == request)) ||
+       nextheader_cache_build(ದತ್ತಾಂಶ, origin, request, ಎಣಿಕೆ_2)) {
       amount = hs->nh_amount;
-      index = hs->nh_index;
+      ಸೂಚ್ಯಂಕ = hs->nh_ಸೂಚ್ಯಂಕ;
     }
-    else {
+    ಇಲ್ಲದಿದ್ದರೆ {
       /* count number of occurrences of this name within the mask and figure
          out the index for the currently selected entry */
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        struct Curl_header_store *check = Curl_node_elem(e);
-        if(curl_strequal(hs->name, check->name) &&
+      ಗಾಗಿ(e = Curl_llist_ತಲೆ(&ದತ್ತಾಂಶ->state.httphdrs); e;
+          e = Curl_ಗಂಟು_ಮುಂದಿನ(e)) {
+        ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *check = Curl_ಗಂಟು_elem(e);
+        ಆದರೆ(curl_strequal(hs->name, check->name) &&
            (check->request == request) &&
            (check->type & origin))
           amount++;
-        if(e == pick)
-          index = amount - 1;
+        ಆದರೆ(e == pick)
+          ಸೂಚ್ಯಂಕ = amount - 1;
       }
     }
-    copy_header_external(hs, index, amount, pick,
-                         &data->state.headerout[1]);
-    hd = &data->state.headerout[1];
+    copy_ಶೀರ್ಷಿಕೆ_external(hs, ಸೂಚ್ಯಂಕ, amount, pick,
+                         &ದತ್ತಾಂಶ->state.headerout[1]);
+    hd = &ದತ್ತಾಂಶ->state.headerout[1];
   }
-out:
+ಹೊರಹೋಗು:
   CURL_EAPI_LEAVE(&guard);
-  return hd;
+  ಹಿಂತಿರುಗಿ hd;
 }
 
-static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
-                          char **name, char **value)
+ಸ್ಥಿರ CURLcode namevalue(ಅಕ್ಷರ *ಶೀರ್ಷಿಕೆ, size_t hlen, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ type,
+                          ಅಕ್ಷರ **name, ಅಕ್ಷರ **ಮೌಲ್ಯ)
 {
-  char *end = header + hlen - 1; /* point to the last byte */
+  ಅಕ್ಷರ *ಕೊನೆ = ಶೀರ್ಷಿಕೆ + hlen - 1; /* point to the last byte */
   DEBUGASSERT(hlen);
-  *name = header;
+  *name = ಶೀರ್ಷಿಕೆ;
 
-  if(type == CURLH_PSEUDO) {
-    if(*header != ':')
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    header++;
+  ಆದರೆ(type == CURLH_PSEUDO) {
+    ಆದರೆ(*ಶೀರ್ಷಿಕೆ != ':')
+      ಹಿಂತಿರುಗಿ CURLE_BAD_FUNCTION_ವಾದ;
+    ಶೀರ್ಷಿಕೆ++;
   }
 
   /* Find the end of the header name */
-  while(*header && (*header != ':'))
-    ++header;
+  ಆಗ(*ಶೀರ್ಷಿಕೆ && (*ಶೀರ್ಷಿಕೆ != ':'))
+    ++ಶೀರ್ಷಿಕೆ;
 
-  if(*header)
+  ಆದರೆ(*ಶೀರ್ಷಿಕೆ)
     /* Skip over colon, null it */
-    *header++ = 0;
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    *ಶೀರ್ಷಿಕೆ++ = 0;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ CURLE_BAD_FUNCTION_ವಾದ;
 
   /* skip all leading blank letters */
-  while(ISBLANK(*header))
-    header++;
+  ಆಗ(ISBLANK(*ಶೀರ್ಷಿಕೆ))
+    ಶೀರ್ಷಿಕೆ++;
 
-  *value = header;
+  *ಮೌಲ್ಯ = ಶೀರ್ಷಿಕೆ;
 
   /* skip all trailing space letters */
-  while((end > header) && ISBLANK(*end))
-    *end-- = 0; /* null-terminate */
-  return CURLE_OK;
+  ಆಗ((ಕೊನೆ > ಶೀರ್ಷಿಕೆ) && ISBLANK(*ಕೊನೆ))
+    *ಕೊನೆ-- = 0; /* null-terminate */
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -335,178 +335,178 @@ static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
  * immediately before the header callback. The header is CRLF, CR or LF
  * terminated.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
+CURLcode Curl_ಶೀರ್ಷಿಕೆಗಳು_ತಳ್ಳು(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶೀರ್ಷಿಕೆ,
                            size_t hlen, /* length of header */
-                           unsigned char type)
+                           ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ type)
 {
-  char *value = NULL;
-  char *name = NULL;
-  struct Curl_header_store *hs;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  const size_t ilen = hlen;
+  ಅಕ್ಷರ *ಮೌಲ್ಯ = ಖಾಲಿ;
+  ಅಕ್ಷರ *name = ಖಾಲಿ;
+  ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *hs;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+  ಸ್ಥಿರಾಂಕ size_t ilen = hlen;
 
-  if((header[0] == '\r') || (header[0] == '\n'))
+  ಆದರೆ((ಶೀರ್ಷಿಕೆ[0] == '\r') || (ಶೀರ್ಷಿಕೆ[0] == '\n'))
     /* ignore the body separator */
-    return CURLE_OK;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
 
   /* trim off newline characters */
-  if(hlen && (header[hlen - 1] == '\n'))
+  ಆದರೆ(hlen && (ಶೀರ್ಷಿಕೆ[hlen - 1] == '\n'))
     hlen--;
-  if(hlen && (header[hlen - 1] == '\r'))
+  ಆದರೆ(hlen && (ಶೀರ್ಷಿಕೆ[hlen - 1] == '\r'))
     hlen--;
-  if(hlen == ilen)
+  ಆದರೆ(hlen == ilen)
     /* neither CR nor LF as terminator is not a valid header */
-    return CURLE_WEIRD_SERVER_REPLY;
+    ಹಿಂತಿರುಗಿ CURLE_WEIRD_SERVER_ಉತ್ತರ;
 
-  if(ISBLANK(header[0])) {
+  ಆದರೆ(ISBLANK(ಶೀರ್ಷಿಕೆ[0])) {
     /* pass leading blanks */
-    while(hlen && ISBLANK(*header)) {
-      header++;
+    ಆಗ(hlen && ISBLANK(*ಶೀರ್ಷಿಕೆ)) {
+      ಶೀರ್ಷಿಕೆ++;
       hlen--;
     }
-    if(!hlen)
-      return CURLE_WEIRD_SERVER_REPLY;
+    ಆದರೆ(!hlen)
+      ಹಿಂತಿರುಗಿ CURLE_WEIRD_SERVER_ಉತ್ತರ;
   }
-  if(Curl_llist_count(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_COUNT) {
-    failf(data, "Too many response headers, %d is max",
-          MAX_HTTP_RESP_HEADER_COUNT);
-    return CURLE_TOO_LARGE;
+  ಆದರೆ(Curl_llist_ಎಣಿಕೆ(&ದತ್ತಾಂಶ->state.httphdrs) >= MAX_HTTP_RESP_ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ) {
+    failf(ದತ್ತಾಂಶ, "Too many response headers, %d is max",
+          MAX_HTTP_RESP_ಶೀರ್ಷಿಕೆ_ಎಣಿಕೆ);
+    ಹಿಂತಿರುಗಿ CURLE_TOO_LARGE;
   }
 
-  hs = curlx_calloc(1, sizeof(*hs) + hlen);
-  if(!hs)
-    return CURLE_OUT_OF_MEMORY;
-  memcpy(hs->buffer, header, hlen);
-  hs->buffer[hlen] = 0; /* null-terminate */
+  hs = curlx_calloc(1, ಗಾತ್ರ(*hs) + hlen);
+  ಆದರೆ(!hs)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+  ಸ್ಮರಣೆ_ನಕಲು(hs->ಬಫರ್, ಶೀರ್ಷಿಕೆ, hlen);
+  hs->ಬಫರ್[hlen] = 0; /* null-terminate */
 
-  result = namevalue(hs->buffer, hlen, type, &name, &value);
-  if(!result) {
+  ಫಲಿತಾಂಶ = namevalue(hs->ಬಫರ್, hlen, type, &name, &ಮೌಲ್ಯ);
+  ಆದರೆ(!ಫಲಿತಾಂಶ) {
     hs->name = name;
-    hs->value = value;
+    hs->ಮೌಲ್ಯ = ಮೌಲ್ಯ;
     hs->type = type;
-    hs->request = data->state.requests;
+    hs->request = ದತ್ತಾಂಶ->state.ವಿನಂತಿಗಳು;
 
     /* insert this node into the list of headers */
-    Curl_llist_append(&data->state.httphdrs, hs, &hs->node);
+    Curl_llist_append(&ದತ್ತಾಂಶ->state.httphdrs, hs, &hs->ಗಂಟು);
   }
-  else {
-    failf(data, "Invalid response header");
+  ಇಲ್ಲದಿದ್ದರೆ {
+    failf(ದತ್ತಾಂಶ, "Invalid response header");
     curlx_free(hs);
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
  * Curl_headers_reset(). Reset the headers subsystem.
  */
-static void headers_reset(struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ ಶೀರ್ಷಿಕೆಗಳು_reset(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  Curl_llist_init(&data->state.httphdrs, NULL);
-  data->state.nh_count = 0;
+  Curl_llist_init(&ದತ್ತಾಂಶ->state.httphdrs, ಖಾಲಿ);
+  ದತ್ತಾಂಶ->state.nh_ಎಣಿಕೆ = 0;
 }
 
-struct hds_cw_collect_ctx {
-  struct Curl_cwriter super;
+ರಚನೆ hds_cw_collect_ctx {
+  ರಚನೆ Curl_cwriter super;
 };
 
-static CURLcode hds_cw_collect_write(struct Curl_easy *data,
-                                     struct Curl_cwriter *writer, int type,
-                                     const char *buf, size_t blen)
+ಸ್ಥಿರ CURLcode hds_cw_collect_write(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                     ರಚನೆ Curl_cwriter *writer, ಪೂರ್ಣಾಂಕ type,
+                                     ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *buf, size_t blen)
 {
-  if((type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS)) {
-    unsigned char htype = (unsigned char)
+  ಆದರೆ((type & CLIENTWRITE_ಶೀರ್ಷಿಕೆ) && !(type & CLIENTWRITE_ಸ್ಥಿತಿ)) {
+    ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ htype = (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)
       (type & CLIENTWRITE_CONNECT ? CURLH_CONNECT :
        (type & CLIENTWRITE_1XX ? CURLH_1XX :
         (type & CLIENTWRITE_TRAILER ? CURLH_TRAILER :
-         CURLH_HEADER)));
-    CURLcode result = Curl_headers_push(data, buf, blen, htype);
-    CURL_TRC_WRITE(data, "header_collect pushed(type=%x, len=%zu) -> %d",
-                   htype, blen, (int)result);
-    if(result)
-      return result;
+         CURLH_ಶೀರ್ಷಿಕೆ)));
+    CURLcode ಫಲಿತಾಂಶ = Curl_ಶೀರ್ಷಿಕೆಗಳು_ತಳ್ಳು(ದತ್ತಾಂಶ, buf, blen, htype);
+    CURL_TRC_WRITE(ದತ್ತಾಂಶ, "header_collect pushed(type=%x, len=%zu) -> %d",
+                   htype, blen, (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
   }
-  return Curl_cwriter_write(data, writer->next, type, buf, blen);
+  ಹಿಂತಿರುಗಿ Curl_cwriter_write(ದತ್ತಾಂಶ, writer->ಮುಂದಿನ, type, buf, blen);
 }
 
-static const struct Curl_cwtype hds_cw_collect = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_cwtype hds_cw_collect = {
   "hds-collect",
-  NULL,
+  ಖಾಲಿ,
   0,
   Curl_cwriter_def_init,
   hds_cw_collect_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct hds_cw_collect_ctx)
+  ಗಾತ್ರ(ರಚನೆ hds_cw_collect_ctx)
 };
 
-CURLcode Curl_headers_init(struct Curl_easy *data)
+CURLcode Curl_ಶೀರ್ಷಿಕೆಗಳು_init(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct Curl_cwriter *writer;
-  CURLcode result;
+  ರಚನೆ Curl_cwriter *writer;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  if(data->conn && (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
+  ಆದರೆ(ದತ್ತಾಂಶ->conn && (ದತ್ತಾಂಶ->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
     /* avoid installing it twice */
-    if(Curl_cwriter_get_by_name(data, hds_cw_collect.name))
-      return CURLE_OK;
+    ಆದರೆ(Curl_cwriter_get_by_name(ದತ್ತಾಂಶ, hds_cw_collect.name))
+      ಹಿಂತಿರುಗಿ CURLE_OK;
 
-    result = Curl_cwriter_create(&writer, data, &hds_cw_collect,
+    ಫಲಿತಾಂಶ = Curl_cwriter_create(&writer, ದತ್ತಾಂಶ, &hds_cw_collect,
                                  CURL_CW_PROTOCOL);
-    if(result)
-      return result;
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
-    result = Curl_cwriter_add(data, writer);
-    if(result) {
-      Curl_cwriter_free(data, writer);
-      return result;
+    ಫಲಿತಾಂಶ = Curl_cwriter_ಕೂಡಿಸು(ದತ್ತಾಂಶ, writer);
+    ಆದರೆ(ಫಲಿತಾಂಶ) {
+      Curl_cwriter_free(ದತ್ತಾಂಶ, writer);
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
   }
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data)
+CURLcode Curl_ಶೀರ್ಷಿಕೆಗಳು_cleanup(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
+  ರಚನೆ Curl_llist_ಗಂಟು *e;
+  ರಚನೆ Curl_llist_ಗಂಟು *n;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    n = Curl_node_next(e);
+  ಗಾಗಿ(e = Curl_llist_ತಲೆ(&ದತ್ತಾಂಶ->state.httphdrs); e; e = n) {
+    ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store *hs = Curl_ಗಂಟು_elem(e);
+    n = Curl_ಗಂಟು_ಮುಂದಿನ(e);
     curlx_free(hs);
   }
-  headers_reset(data);
-  return CURLE_OK;
+  ಶೀರ್ಷಿಕೆಗಳು_reset(ದತ್ತಾಂಶ);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-#else /* HTTP-disabled builds below */
+#ಇಲ್ಲದಿದ್ದರೆ /* HTTP-disabled builds below */
 
-CURLHcode curl_easy_header(CURL *easy,
-                           const char *name,
-                           size_t index,
-                           unsigned int origin,
-                           int request,
-                           struct curl_header **hout)
+CURLHcode curl_easy_ಶೀರ್ಷಿಕೆ(CURL *easy,
+                           ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name,
+                           size_t ಸೂಚ್ಯಂಕ,
+                           ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ origin,
+                           ಪೂರ್ಣಾಂಕ request,
+                           ರಚನೆ curl_ಶೀರ್ಷಿಕೆ **hout)
 {
-  (void)easy;
-  (void)name;
-  (void)index;
-  (void)origin;
-  (void)request;
-  (void)hout;
-  return CURLHE_NOT_BUILT_IN;
+  (ಶೂನ್ಯ)easy;
+  (ಶೂನ್ಯ)name;
+  (ಶೂನ್ಯ)ಸೂಚ್ಯಂಕ;
+  (ಶೂನ್ಯ)origin;
+  (ಶೂನ್ಯ)request;
+  (ಶೂನ್ಯ)hout;
+  ಹಿಂತಿರುಗಿ CURLHE_NOT_BUILT_ಒಳ;
 }
 
-struct curl_header *curl_easy_nextheader(CURL *easy,
-                                         unsigned int type,
-                                         int request,
-                                         struct curl_header *prev)
+ರಚನೆ curl_ಶೀರ್ಷಿಕೆ *curl_easy_nextheader(CURL *easy,
+                                         ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ type,
+                                         ಪೂರ್ಣಾಂಕ request,
+                                         ರಚನೆ curl_ಶೀರ್ಷಿಕೆ *prev)
 {
-  (void)easy;
-  (void)type;
-  (void)request;
-  (void)prev;
-  return NULL;
+  (ಶೂನ್ಯ)easy;
+  (ಶೂನ್ಯ)type;
+  (ಶೂನ್ಯ)request;
+  (ಶೂನ್ಯ)prev;
+  ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

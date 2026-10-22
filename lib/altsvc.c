@@ -25,205 +25,205 @@
  * The Alt-Svc: header is defined in RFC 7838:
  * https://datatracker.ietf.org/doc/html/rfc7838
  */
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
-#include "urldata.h"
-#include "altsvc.h"
-#include "curl_fopen.h"
-#include "curl_get_line.h"
-#include "parsedate.h"
-#include "curl_trc.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
-#include "connect.h"
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "altsvc.h"
+#ಅನ್ತರ್ಭಾವ "curl_fopen.h"
+#ಅನ್ತರ್ಭಾವ "curl_get_line.h"
+#ಅನ್ತರ್ಭಾವ "parsedate.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "curlx/inet_pton.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
 
-#define MAX_ALTSVC_LINE    4095
-#define MAX_ALTSVC_DATELEN 17
-#define MAX_ALTSVC_HOSTLEN 2048
-#define MAX_ALTSVC_ALPNLEN 10
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_ALTSVC_ಸಾಲು    4095
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_ALTSVC_DATELEN 17
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_ALTSVC_HOSTLEN 2048
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_ALTSVC_ALPNLEN 10
 
-#define H3VERSION "h3"
+#ವ್ಯಾಖ್ಯಾನಿಸು H3_ಆವೃತ್ತಿ "h3"
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#ಆದರೆ defined(DEBUGBUILD) || defined(UNITTESTS)
 /* to play well with debug builds, we can *set* a fixed time this will
    return */
-static time_t altsvc_debugtime(void *unused)
+ಸ್ಥಿರ time_t altsvc_debugtime(ಶೂನ್ಯ *ಬಳಸದ)
 {
-  const char *timestr = getenv("CURL_TIME");
-  (void)unused;
-  if(timestr) {
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *timestr = getenv("CURL_TIME");
+  (ಶೂನ್ಯ)ಬಳಸದ;
+  ಆದರೆ(timestr) {
     curl_off_t val;
-    curlx_str_number(&timestr, &val, TIME_T_MAX);
-    return (time_t)val;
+    curlx_str_ಸಂಖ್ಯೆ(&timestr, &val, ಸಮಯ_T_MAX);
+    ಹಿಂತಿರುಗಿ (time_t)val;
   }
-  return time(NULL);
+  ಹಿಂತಿರುಗಿ ಸಮಯ(ಖಾಲಿ);
 }
-#undef time
-#define time(x) altsvc_debugtime(x)
-#endif
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು ಸಮಯ
+#ವ್ಯಾಖ್ಯಾನಿಸು ಸಮಯ(x) altsvc_debugtime(x)
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* Given the ALPN ID, return the name */
-const char *Curl_alpnid2str(enum alpnid id)
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *Curl_alpnid2str(ಎಣಿಕೆ alpnid id)
 {
-  switch(id) {
-  case ALPN_h1:
-    return "h1";
-  case ALPN_h2:
-    return "h2";
-  case ALPN_h3:
-    return H3VERSION;
-  default:
-    return ""; /* bad */
+  ಆಯ್ಕೆ(id) {
+  ಸ್ಥಿತಿ ALPN_h1:
+    ಹಿಂತಿರುಗಿ "h1";
+  ಸ್ಥಿತಿ ALPN_h2:
+    ಹಿಂತಿರುಗಿ "h2";
+  ಸ್ಥಿತಿ ALPN_h3:
+    ಹಿಂತಿರುಗಿ H3_ಆವೃತ್ತಿ;
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    ಹಿಂತಿರುಗಿ ""; /* bad */
   }
 }
 
-static enum alpnid Curl_str2alpnid(const struct Curl_str *cstr)
+ಸ್ಥಿರ ಎಣಿಕೆ alpnid Curl_str2alpnid(ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_str *cstr)
 {
-  return Curl_alpn2alpnid((const unsigned char *)curlx_str(cstr),
+  ಹಿಂತಿರುಗಿ Curl_alpn2alpnid((ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)curlx_str(cstr),
                           curlx_strlen(cstr));
 }
 
-#define altsvc_free(x) curlx_free(x)
+#ವ್ಯಾಖ್ಯಾನಿಸು altsvc_free(x) curlx_free(x)
 
-static struct altsvc *altsvc_createid(const char *srchost,
+ಸ್ಥಿರ ರಚನೆ altsvc *altsvc_createid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *srchost,
                                       size_t hlen,
-                                      const char *dsthost,
+                                      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *dsthost,
                                       size_t dlen, /* dsthost length */
-                                      enum alpnid srcalpnid,
-                                      enum alpnid dstalpnid,
+                                      ಎಣಿಕೆ alpnid srcalpnid,
+                                      ಎಣಿಕೆ alpnid dstalpnid,
                                       size_t srcport,
                                       size_t dstport)
 {
-  struct altsvc *as;
-  if((hlen > 2) && srchost[0] == '[') {
+  ರಚನೆ altsvc *as;
+  ಆದರೆ((hlen > 2) && srchost[0] == '[') {
     /* IPv6 address, strip off brackets */
     srchost++;
     hlen -= 2;
   }
-  else if(hlen && (srchost[hlen - 1] == '.')) {
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(hlen && (srchost[hlen - 1] == '.')) {
     /* strip off trailing dot */
     hlen--;
   }
-  if((dlen > 2) && dsthost[0] == '[') {
+  ಆದರೆ((dlen > 2) && dsthost[0] == '[') {
     /* IPv6 address, strip off brackets */
     dsthost++;
     dlen -= 2;
   }
-  if(!hlen || !dlen)
+  ಆದರೆ(!hlen || !dlen)
     /* bad input */
-    return NULL;
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
   /* struct size plus both strings */
-  as = curlx_calloc(1, sizeof(struct altsvc) + (hlen + 1) + (dlen + 1));
-  if(!as)
-    return NULL;
-  as->src.host = (char *)as + sizeof(struct altsvc);
-  memcpy(as->src.host, srchost, hlen);
+  as = curlx_calloc(1, ಗಾತ್ರ(ರಚನೆ altsvc) + (hlen + 1) + (dlen + 1));
+  ಆದರೆ(!as)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
+  as->src.host = (ಅಕ್ಷರ *)as + ಗಾತ್ರ(ರಚನೆ altsvc);
+  ಸ್ಮರಣೆ_ನಕಲು(as->src.host, srchost, hlen);
   /* the null-terminator is already there */
 
-  as->dst.host = (char *)as + sizeof(struct altsvc) + hlen + 1;
-  memcpy(as->dst.host, dsthost, dlen);
+  as->dst.host = (ಅಕ್ಷರ *)as + ಗಾತ್ರ(ರಚನೆ altsvc) + hlen + 1;
+  ಸ್ಮರಣೆ_ನಕಲು(as->dst.host, dsthost, dlen);
   /* the null-terminator is already there */
 
   as->src.alpnid = srcalpnid;
   as->dst.alpnid = dstalpnid;
-  as->src.port = (unsigned short)srcport;
-  as->dst.port = (unsigned short)dstport;
+  as->src.ಪೋರ್ಟ್ = (ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)srcport;
+  as->dst.ಪೋರ್ಟ್ = (ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)dstport;
 
-  return as;
+  ಹಿಂತಿರುಗಿ as;
 }
 
-static struct altsvc *altsvc_create(struct Curl_str *srchost,
-                                    struct Curl_str *dsthost,
-                                    struct Curl_str *srcalpn,
-                                    struct Curl_str *dstalpn,
+ಸ್ಥಿರ ರಚನೆ altsvc *altsvc_create(ರಚನೆ Curl_str *srchost,
+                                    ರಚನೆ Curl_str *dsthost,
+                                    ರಚನೆ Curl_str *srcalpn,
+                                    ರಚನೆ Curl_str *dstalpn,
                                     size_t srcport,
                                     size_t dstport)
 {
-  enum alpnid dstalpnid = Curl_str2alpnid(dstalpn);
-  enum alpnid srcalpnid = Curl_str2alpnid(srcalpn);
-  if(!srcalpnid || !dstalpnid)
-    return NULL;
-  return altsvc_createid(curlx_str(srchost), curlx_strlen(srchost),
+  ಎಣಿಕೆ alpnid dstalpnid = Curl_str2alpnid(dstalpn);
+  ಎಣಿಕೆ alpnid srcalpnid = Curl_str2alpnid(srcalpn);
+  ಆದರೆ(!srcalpnid || !dstalpnid)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ altsvc_createid(curlx_str(srchost), curlx_strlen(srchost),
                          curlx_str(dsthost), curlx_strlen(dsthost),
                          srcalpnid, dstalpnid,
                          srcport, dstport);
 }
 
 /* append the new entry to the list after possibly removing an old entry
-   first */
-static void altsvc_append(struct altsvcinfo *asi, struct altsvc *as)
+ಮೊದಲ*/
+ಸ್ಥಿರ ಶೂನ್ಯ altsvc_append(ರಚನೆ altsvcinfo *asi, ರಚನೆ altsvc *as)
 {
-  while(Curl_llist_count(&asi->list) >= MAX_ALTSVC_ENTRIES) {
+  ಆಗ(Curl_llist_ಎಣಿಕೆ(&asi->list) >= MAX_ALTSVC_ENTRIES) {
     /* It is full. Remove the first entry in the list */
-    struct Curl_llist_node *e = Curl_llist_head(&asi->list);
-    struct altsvc *oldas = Curl_node_elem(e);
-    Curl_node_remove(e);
+    ರಚನೆ Curl_llist_ಗಂಟು *e = Curl_llist_ತಲೆ(&asi->list);
+    ರಚನೆ altsvc *oldas = Curl_ಗಂಟು_elem(e);
+    Curl_ಗಂಟು_remove(e);
     altsvc_free(oldas);
   }
-  Curl_llist_append(&asi->list, as, &as->node);
+  Curl_llist_append(&asi->list, as, &as->ಗಂಟು);
 }
 
 /* only returns SERIOUS errors */
-static CURLcode altsvc_add(struct altsvcinfo *asi, const char *line)
+ಸ್ಥಿರ CURLcode altsvc_ಕೂಡಿಸು(ರಚನೆ altsvcinfo *asi, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಾಲು)
 {
   /* Example line:
      h2 example.com 443 h3 shiny.example.com 8443 "20191231 10:00:00" 1
    */
-  struct Curl_str srchost;
-  struct Curl_str dsthost;
-  struct Curl_str srcalpn;
-  struct Curl_str dstalpn;
-  struct Curl_str date;
+  ರಚನೆ Curl_str srchost;
+  ರಚನೆ Curl_str dsthost;
+  ರಚನೆ Curl_str srcalpn;
+  ರಚನೆ Curl_str dstalpn;
+  ರಚನೆ Curl_str date;
   curl_off_t srcport;
   curl_off_t dstport;
   curl_off_t persist;
   curl_off_t prio;
 
-  if(curlx_str_word(&line, &srcalpn, MAX_ALTSVC_ALPNLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_word(&line, &srchost, MAX_ALTSVC_HOSTLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_number(&line, &srcport, 65535) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_word(&line, &dstalpn, MAX_ALTSVC_ALPNLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_word(&line, &dsthost, MAX_ALTSVC_HOSTLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_number(&line, &dstport, 65535) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_quotedword(&line, &date, MAX_ALTSVC_DATELEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_number(&line, &persist, 1) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_number(&line, &prio, 0) ||
-     curlx_str_newline(&line))
+  ಆದರೆ(curlx_str_ಶಬ್ದ(&ಸಾಲು, &srcalpn, MAX_ALTSVC_ALPNLEN) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_ಶಬ್ದ(&ಸಾಲು, &srchost, MAX_ALTSVC_HOSTLEN) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_ಸಂಖ್ಯೆ(&ಸಾಲು, &srcport, 65535) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_ಶಬ್ದ(&ಸಾಲು, &dstalpn, MAX_ALTSVC_ALPNLEN) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_ಶಬ್ದ(&ಸಾಲು, &dsthost, MAX_ALTSVC_HOSTLEN) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_ಸಂಖ್ಯೆ(&ಸಾಲು, &dstport, 65535) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_quotedword(&ಸಾಲು, &date, MAX_ALTSVC_DATELEN) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_ಸಂಖ್ಯೆ(&ಸಾಲು, &persist, 1) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_ಸಂಖ್ಯೆ(&ಸಾಲು, &prio, 0) ||
+     curlx_str_newline(&ಸಾಲು))
     ;
-  else {
-    char dbuf[MAX_ALTSVC_DATELEN + 1];
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಅಕ್ಷರ dbuf[MAX_ALTSVC_DATELEN + 1];
     time_t expires = 0;
-    time_t now = time(NULL);
+    time_t now = ಸಮಯ(ಖಾಲಿ);
 
     /* The date parser works on a null-terminated string. The maximum length
        is upheld by curlx_str_quotedword(). */
-    memcpy(dbuf, curlx_str(&date), curlx_strlen(&date));
+    ಸ್ಮರಣೆ_ನಕಲು(dbuf, curlx_str(&date), curlx_strlen(&date));
     dbuf[curlx_strlen(&date)] = 0;
     Curl_getdate_capped(dbuf, &expires);
 
-    if(now < expires) {
-      struct altsvc *as = altsvc_create(&srchost, &dsthost, &srcalpn, &dstalpn,
+    ಆದರೆ(now < expires) {
+      ರಚನೆ altsvc *as = altsvc_create(&srchost, &dsthost, &srcalpn, &dstalpn,
                                         (size_t)srcport, (size_t)dstport);
-      if(as) {
+      ಆದರೆ(as) {
         as->expires = expires;
         as->persist = persist ? 1 : 0;
         altsvc_append(asi, as);
       }
-      else
-        return CURLE_OUT_OF_MEMORY;
+      ಇಲ್ಲದಿದ್ದರೆ
+        ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
     }
   }
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -234,69 +234,69 @@ static CURLcode altsvc_add(struct altsvcinfo *asi, const char *line)
  * handling to work completely. It will ignore individual syntactical errors
  * etc.
  */
-static CURLcode altsvc_load(struct altsvcinfo *asi, const char *file)
+ಸ್ಥಿರ CURLcode altsvc_ತುಂಬು(ರಚನೆ altsvcinfo *asi, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
   FILE *fp;
 
   /* we need a private copy of the filename so that the altsvc cache file
      name survives an easy handle reset */
   curlx_free(asi->filename);
   asi->filename = curlx_strdup(file);
-  if(!asi->filename)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!asi->filename)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
   fp = curlx_fopen(file, FOPEN_READTEXT);
-  if(fp) {
+  ಆದರೆ(fp) {
     curlx_struct_stat stat;
-    if((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
+    ಆದರೆ((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_ಬಹುಲಕ)) {
       bool eof = FALSE;
-      struct dynbuf buf;
-      curlx_dyn_init(&buf, MAX_ALTSVC_LINE);
-      do {
-        result = Curl_get_line(&buf, fp, &eof);
-        if(!result) {
-          const char *lineptr = curlx_dyn_ptr(&buf);
+      ರಚನೆ dynbuf buf;
+      curlx_dyn_init(&buf, MAX_ALTSVC_ಸಾಲು);
+      ಮಾಡು {
+        ಫಲಿತಾಂಶ = Curl_get_ಸಾಲು(&buf, fp, &eof);
+        ಆದರೆ(!ಫಲಿತಾಂಶ) {
+          ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *lineptr = curlx_dyn_ptr(&buf);
           curlx_str_passblanks(&lineptr);
-          if(curlx_str_single(&lineptr, '#'))
-            altsvc_add(asi, lineptr);
+          ಆದರೆ(curlx_str_single(&lineptr, '#'))
+            altsvc_ಕೂಡಿಸು(asi, lineptr);
         }
-      } while(!result && !eof);
+      } ಆಗ(!ಫಲಿತಾಂಶ && !eof);
       curlx_dyn_free(&buf); /* free the line buffer */
     }
     curlx_fclose(fp);
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
  * Write this single altsvc entry to a single output line
  */
-static CURLcode altsvc_out(struct altsvc *as, FILE *fp)
+ಸ್ಥಿರ CURLcode altsvc_ಹೊರಹೋಗು(ರಚನೆ altsvc *as, FILE *fp)
 {
-  struct tm stamp;
-  const char *dst6_pre = "";
-  const char *dst6_post = "";
-  const char *src6_pre = "";
-  const char *src6_post = "";
-  CURLcode result = curlx_gmtime(as->expires, &stamp);
-  if(result)
+  ರಚನೆ tm stamp;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *dst6_pre = "";
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *dst6_post = "";
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src6_pre = "";
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src6_post = "";
+  CURLcode ಫಲಿತಾಂಶ = curlx_gmtime(as->expires, &stamp);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
     /* fail silently for date errors so that only this entry gets
        skipped */
-    return CURLE_OK;
-#ifdef USE_IPV6
-  else {
-    char ipv6_unused[16];
-    if(curlx_inet_pton(AF_INET6, as->dst.host, ipv6_unused) == 1) {
+    ಹಿಂತಿರುಗಿ CURLE_OK;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_IPV6
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಅಕ್ಷರ ipv6_ಬಳಸದ[16];
+    ಆದರೆ(curlx_inet_pton(AF_INET6, as->dst.host, ipv6_ಬಳಸದ) == 1) {
       dst6_pre = "[";
       dst6_post = "]";
     }
-    if(curlx_inet_pton(AF_INET6, as->src.host, ipv6_unused) == 1) {
+    ಆದರೆ(curlx_inet_pton(AF_INET6, as->src.host, ipv6_ಬಳಸದ) == 1) {
       src6_pre = "[";
       src6_post = "]";
     }
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   curl_mfprintf(fp,
                 "%s %s%s%s %u "
                 "%s %s%s%s %u "
@@ -305,16 +305,16 @@ static CURLcode altsvc_out(struct altsvc *as, FILE *fp)
                 "%d 0\n", /* prio still always zero */
                 Curl_alpnid2str(as->src.alpnid),
                 src6_pre, as->src.host, src6_post,
-                as->src.port,
+                as->src.ಪೋರ್ಟ್,
 
                 Curl_alpnid2str(as->dst.alpnid),
                 dst6_pre, as->dst.host, dst6_post,
-                as->dst.port,
+                as->dst.ಪೋರ್ಟ್,
 
                 stamp.tm_year + 1900, stamp.tm_mon + 1, stamp.tm_mday,
                 stamp.tm_hour, stamp.tm_min, stamp.tm_sec,
                 as->persist);
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /* ---- library-wide functions below ---- */
@@ -323,260 +323,260 @@ static CURLcode altsvc_out(struct altsvc *as, FILE *fp)
  * Curl_altsvc_init() creates a new altsvc cache.
  * It returns the new instance or NULL if something goes wrong.
  */
-struct altsvcinfo *Curl_altsvc_init(void)
+ರಚನೆ altsvcinfo *Curl_altsvc_init(ಶೂನ್ಯ)
 {
-  struct altsvcinfo *asi = curlx_calloc(1, sizeof(struct altsvcinfo));
-  if(!asi)
-    return NULL;
-  Curl_llist_init(&asi->list, NULL);
+  ರಚನೆ altsvcinfo *asi = curlx_calloc(1, ಗಾತ್ರ(ರಚನೆ altsvcinfo));
+  ಆದರೆ(!asi)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
+  Curl_llist_init(&asi->list, ಖಾಲಿ);
 
   /* set default behavior */
   asi->flags = CURLALTSVC_H1
-#ifdef USE_HTTP2
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_HTTP2
     | CURLALTSVC_H2
-#endif
-#ifdef USE_HTTP3
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_HTTP3
     | CURLALTSVC_H3
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
     ;
-  return asi;
+  ಹಿಂತಿರುಗಿ asi;
 }
 
 /*
  * Curl_altsvc_load() loads alt-svc from file.
  */
-CURLcode Curl_altsvc_load(struct altsvcinfo *asi, const char *file)
+CURLcode Curl_altsvc_ತುಂಬು(ರಚನೆ altsvcinfo *asi, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file)
 {
   DEBUGASSERT(asi);
-  return altsvc_load(asi, file);
+  ಹಿಂತಿರುಗಿ altsvc_ತುಂಬು(asi, file);
 }
 
 /*
  * Curl_altsvc_ctrl() passes on the external bitmask.
  */
-CURLcode Curl_altsvc_ctrl(struct Curl_easy *data, const long ctrl)
+CURLcode Curl_altsvc_ctrl(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ದೀರ್ಘ ctrl)
 {
-  DEBUGASSERT(data);
-  if(!ctrl)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  DEBUGASSERT(ದತ್ತಾಂಶ);
+  ಆದರೆ(!ctrl)
+    ಹಿಂತಿರುಗಿ CURLE_BAD_FUNCTION_ವಾದ;
 
-  if(!data->asi) {
-    data->asi = Curl_altsvc_init();
-    if(!data->asi)
-      return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!ದತ್ತಾಂಶ->asi) {
+    ದತ್ತಾಂಶ->asi = Curl_altsvc_init();
+    ಆದರೆ(!ದತ್ತಾಂಶ->asi)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
-  data->asi->flags = ctrl;
-  return CURLE_OK;
+  ದತ್ತಾಂಶ->asi->flags = ctrl;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
  * Curl_altsvc_cleanup() frees an altsvc cache instance and all associated
  * resources.
  */
-void Curl_altsvc_cleanup(struct altsvcinfo **asi)
+ಶೂನ್ಯ Curl_altsvc_cleanup(ರಚನೆ altsvcinfo **asi)
 {
-  if(*asi) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
-    struct altsvcinfo *altsvc = *asi;
-    for(e = Curl_llist_head(&altsvc->list); e; e = n) {
-      struct altsvc *as = Curl_node_elem(e);
-      n = Curl_node_next(e);
+  ಆದರೆ(*asi) {
+    ರಚನೆ Curl_llist_ಗಂಟು *e;
+    ರಚನೆ Curl_llist_ಗಂಟು *n;
+    ರಚನೆ altsvcinfo *altsvc = *asi;
+    ಗಾಗಿ(e = Curl_llist_ತಲೆ(&altsvc->list); e; e = n) {
+      ರಚನೆ altsvc *as = Curl_ಗಂಟು_elem(e);
+      n = Curl_ಗಂಟು_ಮುಂದಿನ(e);
       altsvc_free(as);
     }
     curlx_free(altsvc->filename);
     curlx_free(altsvc);
-    *asi = NULL; /* clear the pointer */
+    *asi = ಖಾಲಿ; /* clear the pointer */
   }
 }
 
 /*
  * Curl_altsvc_save() writes the altsvc cache to a file.
  */
-CURLcode Curl_altsvc_save(struct Curl_easy *data,
-                          struct altsvcinfo *asi, const char *file)
+CURLcode Curl_altsvc_save(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                          ರಚನೆ altsvcinfo *asi, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file)
 {
-  CURLcode result = CURLE_OK;
-  FILE *out;
-  char *tempstore = NULL;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  FILE *ಹೊರಹೋಗು;
+  ಅಕ್ಷರ *tempstore = ಖಾಲಿ;
 
-  if(!asi)
+  ಆದರೆ(!asi)
     /* no cache activated */
-    return CURLE_OK;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
 
   /* if not new name is given, use the one we stored from the load */
-  if(!file && asi->filename)
+  ಆದರೆ(!file && asi->filename)
     file = asi->filename;
 
-  if((asi->flags & CURLALTSVC_READONLYFILE) || !file || !file[0])
+  ಆದರೆ((asi->flags & CURLALTSVC_READONLYFILE) || !file || !file[0])
     /* marked as read-only, no file or zero length filename */
-    return CURLE_OK;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
 
-  result = Curl_fopen(data, file, &out, &tempstore);
-  if(!result) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
+  ಫಲಿತಾಂಶ = Curl_fopen(ದತ್ತಾಂಶ, file, &ಹೊರಹೋಗು, &tempstore);
+  ಆದರೆ(!ಫಲಿತಾಂಶ) {
+    ರಚನೆ Curl_llist_ಗಂಟು *e;
+    ರಚನೆ Curl_llist_ಗಂಟು *n;
     fputs("# Your alt-svc cache. https://curl.se/docs/alt-svc.html\n"
           "# This file was generated by libcurl! Edit at your own risk.\n",
-          out);
-    for(e = Curl_llist_head(&asi->list); e; e = n) {
-      struct altsvc *as = Curl_node_elem(e);
-      n = Curl_node_next(e);
-      result = altsvc_out(as, out);
-      if(result)
-        break;
+          ಹೊರಹೋಗು);
+    ಗಾಗಿ(e = Curl_llist_ತಲೆ(&asi->list); e; e = n) {
+      ರಚನೆ altsvc *as = Curl_ಗಂಟು_elem(e);
+      n = Curl_ಗಂಟು_ಮುಂದಿನ(e);
+      ಫಲಿತಾಂಶ = altsvc_ಹೊರಹೋಗು(as, ಹೊರಹೋಗು);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ನಿಲ್ಲಿಸು;
     }
-    curlx_fclose(out);
-    if(!result && tempstore && curlx_rename(tempstore, file))
-      result = CURLE_WRITE_ERROR;
+    curlx_fclose(ಹೊರಹೋಗು);
+    ಆದರೆ(!ಫಲಿತಾಂಶ && tempstore && curlx_rename(tempstore, file))
+      ಫಲಿತಾಂಶ = CURLE_WRITE_ERROR;
 
-    if(result && tempstore)
+    ಆದರೆ(ಫಲಿತಾಂಶ && tempstore)
       unlink(tempstore);
   }
   curlx_free(tempstore);
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /* hostcompare() returns true if 'host' matches 'check'. The first host
  * argument may have a trailing dot present that will be ignored.
  */
-static bool hostcompare(const char *host, const char *check)
+ಸ್ಥಿರ bool hostcompare(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *host, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *check)
 {
-  size_t hlen = strlen(host);
-  size_t clen = strlen(check);
+  size_t hlen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(host);
+  size_t clen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(check);
 
-  if(hlen && (host[hlen - 1] == '.'))
+  ಆದರೆ(hlen && (host[hlen - 1] == '.'))
     hlen--;
-  if(hlen != clen)
+  ಆದರೆ(hlen != clen)
     /* they cannot match if they have different lengths */
-    return FALSE;
-  return curl_strnequal(host, check, hlen);
+    ಹಿಂತಿರುಗಿ FALSE;
+  ಹಿಂತಿರುಗಿ curl_strnequal(host, check, hlen);
 }
 
 /* altsvc_flush() removes all alternatives for this source origin from the
    list */
-static void altsvc_flush(struct altsvcinfo *asi,
-                         struct Curl_peer *origin,
-                         enum alpnid origin_alpnid)
+ಸ್ಥಿರ ಶೂನ್ಯ altsvc_flush(ರಚನೆ altsvcinfo *asi,
+                         ರಚನೆ Curl_peer *origin,
+                         ಎಣಿಕೆ alpnid origin_alpnid)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
-  for(e = Curl_llist_head(&asi->list); e; e = n) {
-    struct altsvc *as = Curl_node_elem(e);
-    n = Curl_node_next(e);
-    if((origin_alpnid == as->src.alpnid) &&
-       (origin->port == as->src.port) &&
+  ರಚನೆ Curl_llist_ಗಂಟು *e;
+  ರಚನೆ Curl_llist_ಗಂಟು *n;
+  ಗಾಗಿ(e = Curl_llist_ತಲೆ(&asi->list); e; e = n) {
+    ರಚನೆ altsvc *as = Curl_ಗಂಟು_elem(e);
+    n = Curl_ಗಂಟು_ಮುಂದಿನ(e);
+    ಆದರೆ((origin_alpnid == as->src.alpnid) &&
+       (origin->ಪೋರ್ಟ್ == as->src.ಪೋರ್ಟ್) &&
        hostcompare(origin->hostname, as->src.host)) {
-      Curl_node_remove(e);
+      Curl_ಗಂಟು_remove(e);
       altsvc_free(as);
     }
   }
 }
 
-#define CAP_ALTSVC_MAX_AGE (2*365*24*3600) /* two years cap */
+#ವ್ಯಾಖ್ಯಾನಿಸು CAP_ALTSVC_MAX_AGE (2*365*24*3600) /* two years cap */
 
-#define ALTSVC_MA      1
-#define ALTSVC_PERSIST 2
-static void altsvc_parse_params(const char **pp,
+#ವ್ಯಾಖ್ಯಾನಿಸು ALTSVC_MA      1
+#ವ್ಯಾಖ್ಯಾನಿಸು ALTSVC_PERSIST 2
+ಸ್ಥಿರ ಶೂನ್ಯ altsvc_parse_params(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **pp,
                                 time_t *pmaxage,
                                 bool *ppersist)
 {
   curlx_str_passblanks(pp);
-  if(curlx_str_single(pp, ';'))
-    return;
+  ಆದರೆ(curlx_str_single(pp, ';'))
+    ಹಿಂತಿರುಗಿ;
 
-  for(;;) {
-    struct Curl_str name;
-    struct Curl_str val;
-    curl_off_t num;
-    int keyword = 0;
+  ಗಾಗಿ(;;) {
+    ರಚನೆ Curl_str name;
+    ರಚನೆ Curl_str val;
+    curl_off_t ಅಂಕೆ;
+    ಪೂರ್ಣಾಂಕ keyword = 0;
 
     /* allow some extra whitespaces around name and value */
-    if(curlx_str_until(pp, &name, MAX_ALTSVC_LINE, '=') ||
+    ಆದರೆ(curlx_str_until(pp, &name, MAX_ALTSVC_ಸಾಲು, '=') ||
        curlx_str_single(pp, '='))
-      break;  /* skip further parameter parsing */
+      ನಿಲ್ಲಿಸು;  /* skip further parameter parsing */
 
     curlx_str_trimblanks(&name);
     curlx_str_passblanks(pp);
-    if(**pp == '\"') {
-      if(curlx_str_quotedword(pp, &val, MAX_ALTSVC_LINE))
-        break;
+    ಆದರೆ(**pp == '\"') {
+      ಆದರೆ(curlx_str_quotedword(pp, &val, MAX_ALTSVC_ಸಾಲು))
+        ನಿಲ್ಲಿಸು;
     }
-    else {
-      if(curlx_str_cspn(pp, &val, ",;\r\n"))
-        break;
+    ಇಲ್ಲದಿದ್ದರೆ {
+      ಆದರೆ(curlx_str_cspn(pp, &val, ",;\r\n"))
+        ನಿಲ್ಲಿಸು;
     }
     curlx_str_trimblanks(&val);
 
-    if(curlx_str_casecompare(&name, "ma"))
+    ಆದರೆ(curlx_str_casecompare(&name, "ma"))
       keyword = ALTSVC_MA;
-    else if(curlx_str_casecompare(&name, "persist"))
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&name, "persist"))
       keyword = ALTSVC_PERSIST;
 
-    if(keyword) {
-      const char *vp = curlx_str(&val);
-      const char *vend = vp + curlx_strlen(&val);
-      if(curlx_str_number(&vp, &num, CURL_OFF_T_MAX))
-        break; /* not a number, skip further parameter parsing */
-      if(vp != vend)
-        break; /* not entirely a number, skip further parameter parsing */
-      if(keyword == ALTSVC_MA) {
-        if(num > CAP_ALTSVC_MAX_AGE)
-          num = CAP_ALTSVC_MAX_AGE;
-        *pmaxage = (time_t)num;
+    ಆದರೆ(keyword) {
+      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *vp = curlx_str(&val);
+      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *vend = vp + curlx_strlen(&val);
+      ಆದರೆ(curlx_str_ಸಂಖ್ಯೆ(&vp, &ಅಂಕೆ, CURL_OFF_T_MAX))
+        ನಿಲ್ಲಿಸು; /* not a number, skip further parameter parsing */
+      ಆದರೆ(vp != vend)
+        ನಿಲ್ಲಿಸು; /* not entirely a number, skip further parameter parsing */
+      ಆದರೆ(keyword == ALTSVC_MA) {
+        ಆದರೆ(ಅಂಕೆ > CAP_ALTSVC_MAX_AGE)
+          ಅಂಕೆ = CAP_ALTSVC_MAX_AGE;
+        *pmaxage = (time_t)ಅಂಕೆ;
       }
-      else if(num == 1)
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಅಂಕೆ == 1)
         *ppersist = TRUE;
     }
 
     curlx_str_passblanks(pp);
-    if(curlx_str_single(pp, ';'))
-      break; /* no further parameters */
+    ಆದರೆ(curlx_str_single(pp, ';'))
+      ನಿಲ್ಲಿಸು; /* no further parameters */
   }
 }
 
-static bool altsvc_parse_dest(const char **pp,
-                              struct Curl_easy *data,
-                              struct Curl_peer *origin,
-                              struct Curl_str *dsthost,
+ಸ್ಥಿರ bool altsvc_parse_dest(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **pp,
+                              ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ರಚನೆ Curl_peer *origin,
+                              ರಚನೆ Curl_str *dsthost,
                               uint16_t *pdstport)
 {
-  curl_off_t port = 0;
+  curl_off_t ಪೋರ್ಟ್ = 0;
 
-  if(curlx_str_single(pp, '\"'))
-    return FALSE;
+  ಆದರೆ(curlx_str_single(pp, '\"'))
+    ಹಿಂತಿರುಗಿ FALSE;
 
   /* quoted string, with hostname or just :port ? */
-  if(curlx_str_single(pp, ':')) { /* is hostname:port ? */
-    if(curlx_str_single(pp, '[')) { /* DNS hostname/IPv4 */
-      if(curlx_str_until(pp, dsthost, MAX_ALTSVC_HOSTLEN, ':')) {
-        infof(data, "Bad alt-svc hostname, ignoring.");
-        return FALSE;
+  ಆದರೆ(curlx_str_single(pp, ':')) { /* is hostname:port ? */
+    ಆದರೆ(curlx_str_single(pp, '[')) { /* DNS hostname/IPv4 */
+      ಆದರೆ(curlx_str_until(pp, dsthost, MAX_ALTSVC_HOSTLEN, ':')) {
+        infof(ದತ್ತಾಂಶ, "Bad alt-svc hostname, ignoring.");
+        ಹಿಂತಿರುಗಿ FALSE;
       }
     }
-    else { /* IPv6 hostname */
-      if(curlx_str_until(pp, dsthost, MAX_IPADR_LEN, ']') ||
+    ಇಲ್ಲದಿದ್ದರೆ { /* IPv6 hostname */
+      ಆದರೆ(curlx_str_until(pp, dsthost, MAX_IPADR_LEN, ']') ||
          curlx_str_single(pp, ']')) {
-        infof(data, "Bad alt-svc IPv6 hostname, ignoring.");
-        return FALSE;
+        infof(ದತ್ತಾಂಶ, "Bad alt-svc IPv6 hostname, ignoring.");
+        ಹಿಂತಿರುಗಿ FALSE;
       }
     }
-    if(curlx_str_single(pp, ':'))
-      return FALSE; /* not followed by ':' */
+    ಆದರೆ(curlx_str_single(pp, ':'))
+      ಹಿಂತಿರುಗಿ FALSE; /* not followed by ':' */
   }
-  else  /* is only :port, hostname is effectively origin */
-    curlx_str_assign(dsthost, origin->hostname,
-                     strlen(origin->hostname));
+  ಇಲ್ಲದಿದ್ದರೆ  /* is only :port, hostname is effectively origin */
+    curlx_str_ನಿಯೋಜಿಸು(dsthost, origin->hostname,
+                     ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(origin->hostname));
 
-  if(curlx_str_number(pp, &port, 0xffff)) {
-    infof(data, "Unknown alt-svc port number, ignoring.");
-    return FALSE;
+  ಆದರೆ(curlx_str_ಸಂಖ್ಯೆ(pp, &ಪೋರ್ಟ್, 0xffff)) {
+    infof(ದತ್ತಾಂಶ, "Unknown alt-svc port number, ignoring.");
+    ಹಿಂತಿರುಗಿ FALSE;
   }
 
-  *pdstport = (uint16_t)port;
-  if(curlx_str_single(pp, '\"'))
-    return FALSE; /* quoted string not ending here as expected */
-  return TRUE;
+  *pdstport = (uint16_t)ಪೋರ್ಟ್;
+  ಆದರೆ(curlx_str_single(pp, '\"'))
+    ಹಿಂತಿರುಗಿ FALSE; /* quoted string not ending here as expected */
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
 /*
@@ -590,15 +590,15 @@ static bool altsvc_parse_dest(const char **pp,
  * Invalid hostname, port number will result in the specific alternative
  * being rejected. Unknown protocols are skipped.
  */
-CURLcode Curl_altsvc_parse(struct Curl_easy *data,
-                           struct altsvcinfo *asi, const char *value,
-                           struct Curl_peer *origin,
-                           enum alpnid origin_alpnid)
+CURLcode Curl_altsvc_parse(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                           ರಚನೆ altsvcinfo *asi, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ,
+                           ರಚನೆ Curl_peer *origin,
+                           ಎಣಿಕೆ alpnid origin_alpnid)
 {
-  struct altsvc *as;
+  ರಚನೆ altsvc *as;
   size_t entries = 0;
-  struct Curl_str alpn;
-  const char *p;
+  ರಚನೆ Curl_str alpn;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
 
   DEBUGASSERT(asi);
   DEBUGASSERT(origin);
@@ -610,85 +610,85 @@ CURLcode Curl_altsvc_parse(struct Curl_easy *data,
    */
 
   /* Try to catch a standalone "clear" */
-  p = value;
-  if(!curlx_str_cspn(&p, &alpn, ";\n\r")) {
+  p = ಮೌಲ್ಯ;
+  ಆದರೆ(!curlx_str_cspn(&p, &alpn, ";\n\r")) {
     curlx_str_trimblanks(&alpn);
     /* "clear" is a magic keyword */
-    if(curlx_str_casecompare(&alpn, "clear")) {
+    ಆದರೆ(curlx_str_casecompare(&alpn, "clear")) {
       /* Flush cached alternatives for this source origin */
       altsvc_flush(asi, origin, origin_alpnid);
-      return CURLE_OK;
+      ಹಿಂತಿರುಗಿ CURLE_OK;
     }
   }
 
   /* Not a standalone "clear", parse from start for alpn entries */
-  for(p = value; *p;) {
+  ಗಾಗಿ(p = ಮೌಲ್ಯ; *p;) {
     time_t maxage = 24 * 3600; /* default is 24 hours */
     bool persist = FALSE;
-    enum alpnid dstalpnid;
-    struct Curl_str dsthost;
+    ಎಣಿಕೆ alpnid dstalpnid;
+    ರಚನೆ Curl_str dsthost;
     uint16_t dstport;
 
-    if(curlx_str_until(&p, &alpn, MAX_ALTSVC_LINE, '='))
-      break; /* not another entry, leave */
+    ಆದರೆ(curlx_str_until(&p, &alpn, MAX_ALTSVC_ಸಾಲು, '='))
+      ನಿಲ್ಲಿಸು; /* not another entry, leave */
     curlx_str_trimblanks(&alpn);
     dstalpnid = Curl_str2alpnid(&alpn);
 
-    if(curlx_str_single(&p, '='))
-      break;
+    ಆದರೆ(curlx_str_single(&p, '='))
+      ನಿಲ್ಲಿಸು;
 
     /* Parse altsvc hostname:port */
-    if(!altsvc_parse_dest(&p, data, origin, &dsthost, &dstport))
-      break;
+    ಆದರೆ(!altsvc_parse_dest(&p, ದತ್ತಾಂಶ, origin, &dsthost, &dstport))
+      ನಿಲ್ಲಿಸು;
 
     /* Parse optional parameters */
     altsvc_parse_params(&p, &maxage, &persist);
 
-    if(dstalpnid) { /* this is a known ALPN id, e.g. not ALPN_none */
-      if(!entries++)
+    ಆದರೆ(dstalpnid) { /* this is a known ALPN id, e.g. not ALPN_none */
+      ಆದರೆ(!entries++)
         /* Flush cached alternatives for this source origin, if any - when
            this is the first entry of the line. */
         altsvc_flush(asi, origin, origin_alpnid);
 
-      as = altsvc_createid(origin->hostname, strlen(origin->hostname),
+      as = altsvc_createid(origin->hostname, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(origin->hostname),
                            curlx_str(&dsthost),
                            curlx_strlen(&dsthost),
                            origin_alpnid, dstalpnid,
-                           origin->port, dstport);
-      if(as) {
-        time_t secs = time(NULL);
+                           origin->ಪೋರ್ಟ್, dstport);
+      ಆದರೆ(as) {
+        time_t secs = ಸಮಯ(ಖಾಲಿ);
         /* The expires time also needs to take the Age: value (if any)
            into account. [See RFC 7838 section 3.1] */
-        if(maxage > (TIME_T_MAX - secs))
-          as->expires = TIME_T_MAX;
-        else
+        ಆದರೆ(maxage > (ಸಮಯ_T_MAX - secs))
+          as->expires = ಸಮಯ_T_MAX;
+        ಇಲ್ಲದಿದ್ದರೆ
           as->expires = maxage + secs;
         as->persist = persist;
         altsvc_append(asi, as);
-        infof(data, "Added alt-svc: %.*s:%u over %s",
-              (int)curlx_strlen(&dsthost), curlx_str(&dsthost),
+        infof(ದತ್ತಾಂಶ, "Added alt-svc: %.*s:%u over %s",
+              (ಪೂರ್ಣಾಂಕ)curlx_strlen(&dsthost), curlx_str(&dsthost),
               dstport, Curl_alpnid2str(dstalpnid));
       }
-      else
-        return CURLE_OUT_OF_MEMORY;
+      ಇಲ್ಲದಿದ್ದರೆ
+        ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
     }
 
     /* When this is followed by a comma, we expect another entry */
-    if(curlx_str_single(&p, ','))
-      break;
+    ಆದರೆ(curlx_str_single(&p, ','))
+      ನಿಲ್ಲಿಸು;
   }
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
  * Return TRUE on a match
  */
-bool Curl_altsvc_lookup(struct altsvcinfo *asi,
-                        struct Curl_peer *origin,
-                        enum alpnid origin_alpnid,
-                        struct altsvc **dstentry,
-                        const int versions, /* one or more bits */
+bool Curl_altsvc_lookup(ರಚನೆ altsvcinfo *asi,
+                        ರಚನೆ Curl_peer *origin,
+                        ಎಣಿಕೆ alpnid origin_alpnid,
+                        ರಚನೆ altsvc **dstentry,
+                        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ versions, /* one or more bits */
                         bool *psame_destination)
 {
   DEBUGASSERT(asi);
@@ -696,38 +696,38 @@ bool Curl_altsvc_lookup(struct altsvcinfo *asi,
   DEBUGASSERT(dstentry);
   *psame_destination = FALSE;
 
-  if(Curl_llist_count(&asi->list)) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
-    time_t now = time(NULL);
+  ಆದರೆ(Curl_llist_ಎಣಿಕೆ(&asi->list)) {
+    ರಚನೆ Curl_llist_ಗಂಟು *e;
+    ರಚನೆ Curl_llist_ಗಂಟು *n;
+    time_t now = ಸಮಯ(ಖಾಲಿ);
 
-    for(e = Curl_llist_head(&asi->list); e; e = n) {
-      struct altsvc *as = Curl_node_elem(e);
-      n = Curl_node_next(e);
-      if(as->expires < now) {
+    ಗಾಗಿ(e = Curl_llist_ತಲೆ(&asi->list); e; e = n) {
+      ರಚನೆ altsvc *as = Curl_ಗಂಟು_elem(e);
+      n = Curl_ಗಂಟು_ಮುಂದಿನ(e);
+      ಆದರೆ(as->expires < now) {
         /* an expired entry, remove */
-        Curl_node_remove(e);
+        Curl_ಗಂಟು_remove(e);
         altsvc_free(as);
-        continue;
+        ಮುಂದುವರಿ;
       }
-      if((origin_alpnid == as->src.alpnid) &&
-         (versions & (int)as->dst.alpnid) &&
-         (origin->port == as->src.port) &&
+      ಆದರೆ((origin_alpnid == as->src.alpnid) &&
+         (versions & (ಪೂರ್ಣಾಂಕ)as->dst.alpnid) &&
+         (origin->ಪೋರ್ಟ್ == as->src.ಪೋರ್ಟ್) &&
          hostcompare(origin->hostname, as->src.host)) {
-        /* match */
+        /*ಹೊಂದಿಕೆ*/
         *dstentry = as;
         /* alt-svc on the same host+port or another one? */
-        *psame_destination = (origin->port == as->dst.port) &&
+        *psame_destination = (origin->ಪೋರ್ಟ್ == as->dst.ಪೋರ್ಟ್) &&
                              hostcompare(origin->hostname, as->dst.host);
-        return TRUE;
+        ಹಿಂತಿರುಗಿ TRUE;
       }
     }
   }
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
-#undef time
-#endif
+#ಆದರೆ defined(DEBUGBUILD) || defined(UNITTESTS)
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು ಸಮಯ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_ALTSVC */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_HTTP && !CURL_DISABLE_ALTSVC */

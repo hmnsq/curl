@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PEER_H
-#define HEADER_CURL_PEER_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_PEER_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_PEER_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,23 +24,23 @@
  *
  ***************************************************************************/
 
-struct Curl_scheme;
+ರಚನೆ Curl_scheme;
 
 /* if peer hostname starts with this, the peer is a unix domain socket
  * path, e.g. the remainder after 'localhost'. */
-#define CURL_PEER_UDS_PREFIX "localhost/"
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_PEER_UDS_ಪೂರ್ವಪ್ರತ್ಯಯ "localhost/"
 
-struct Curl_peer {
-  const struct Curl_scheme *scheme; /* url scheme */
-  char *hostname; /* normalized hostname (IDN decoded when supported) */
-  char *zoneid; /* NULL or IPv6 zone identifier */
+ರಚನೆ Curl_peer {
+  ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_scheme *scheme; /* url scheme */
+  ಅಕ್ಷರ *hostname; /* normalized hostname (IDN decoded when supported) */
+  ಅಕ್ಷರ *zoneid; /* NULL or IPv6 zone identifier */
   uint32_t refcount;  /* created with 1, freed when dropping to 0 */
   uint32_t scopeid;  /* != 0, IPv6 scope to use */
-  uint16_t port;
-  BIT(unix_socket); /* hostname is a UDS path without the prefix */
-  BIT(abstract_uds); /* only TRUE when `unix_socket` also TRUE */
-  BIT(ipv6); /* hostname is an IPv6 address stripped of '[]' */
-  char user_hostname[1]; /* hostname supplied by user/url */
+  uint16_t ಪೋರ್ಟ್;
+  ಬಿಟ್(unix_socket); /* hostname is a UDS path without the prefix */
+  ಬಿಟ್(abstract_uds); /* only TRUE when `unix_socket` also TRUE */
+  ಬಿಟ್(ipv6); /* hostname is an IPv6 address stripped of '[]' */
+  ಅಕ್ಷರ user_hostname[1]; /* hostname supplied by user/url */
 };
 
 /* Create a new peer:
@@ -54,55 +54,55 @@ struct Curl_peer {
  * - `zoneid` IPv6 zone identifier or NULL
  * - `scopeid` IPv6 scopeid of zoneid, when known.
  */
-CURLcode Curl_peer_create(struct Curl_easy *data,
-                          const struct Curl_scheme *scheme,
-                          const char *hostname,
-                          uint16_t port,
-                          struct Curl_peer **ppeer);
+CURLcode Curl_peer_create(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                          ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_scheme *scheme,
+                          ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname,
+                          uint16_t ಪೋರ್ಟ್,
+                          ರಚನೆ Curl_peer **ppeer);
 
-#ifdef USE_UNIX_SOCKETS
-CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
-                              const char *path,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_UNIX_SOCKETS
+CURLcode Curl_peer_uds_create(ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_scheme *scheme,
+                              ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ,
                               bool abstract_unix_socket,
-                              struct Curl_peer **ppeer);
-#endif
+                              ರಚನೆ Curl_peer **ppeer);
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* Unlink any peer in `*pdest`, assign src, increase src
  * refcount when not NULL. */
-void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src);
+ಶೂನ್ಯ Curl_peer_link(ರಚನೆ Curl_peer **pdest, ರಚನೆ Curl_peer *src);
 
 /* Drop a reference, peer may be passed as NULL */
-void Curl_peer_unlink(struct Curl_peer **ppeer);
+ಶೂನ್ಯ Curl_peer_unlink(ರಚನೆ Curl_peer **ppeer);
 
 /* TRUE if both peers are NULL or have completely same properties. */
-bool Curl_peer_equal(struct Curl_peer *p1, struct Curl_peer *p2);
+bool Curl_peer_equal(ರಚನೆ Curl_peer *p1, ರಚನೆ Curl_peer *p2);
 
 /* TRUE if both peers are NULL or have same properties except the scheme. */
-bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2);
+bool Curl_peer_same_destination(ರಚನೆ Curl_peer *p1, ರಚನೆ Curl_peer *p2);
 
-CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
-                            uint16_t port_override,
+CURLcode Curl_peer_from_url(CURLU *uh, ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            uint16_t ಪೋರ್ಟ್_override,
                             uint32_t scopeid_override,
-                            struct Curl_peer **ppeer);
+                            ರಚನೆ Curl_peer **ppeer);
 
-CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
-                                   const struct Curl_peer *dest,
-                                   const char *connect_to,
-                                   struct Curl_peer **ppeer);
+CURLcode Curl_peer_from_connect_ಗಮ್ಯ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                   ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_peer *dest,
+                                   ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *connect_ಗಮ್ಯ,
+                                   ರಚನೆ Curl_peer **ppeer);
 
-#ifndef CURL_DISABLE_PROXY
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
 
-CURLcode Curl_scheme_to_proxytype(struct Curl_easy *data,
-                                  const char *scheme,
+CURLcode Curl_scheme_ಗಮ್ಯ_proxytype(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *scheme,
                                   uint8_t *proxytype,
-                                  const char *url);
+                                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url);
 
 CURLcode Curl_peer_from_proxy_url(CURLU *uh,
-                                  struct Curl_easy *data,
-                                  const char *url,
+                                  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url,
                                   uint8_t proxytype,
-                                  struct Curl_peer **ppeer,
+                                  ರಚನೆ Curl_peer **ppeer,
                                   uint8_t *pproxytype);
-#endif /* !CURL_DISABLE_PROXY */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_PEER_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_PEER_H */

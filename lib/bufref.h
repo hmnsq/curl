@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BUFREF_H
-#define HEADER_CURL_BUFREF_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_BUFREF_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_BUFREF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -27,25 +27,25 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+ರಚನೆ bufref {
+  ಶೂನ್ಯ (*dtor)(ಶೂನ್ಯ *);         /* Associated destructor. */
+  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
-#ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+  ಪೂರ್ಣಾಂಕ signature;                /* Detect API use mistakes. */
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+ಶೂನ್ಯ Curl_bufref_init(ರಚನೆ bufref *br);
+ಶೂನ್ಯ Curl_bufref_ಗಣ(ರಚನೆ bufref *br, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ptr, size_t len,
+                     ಶೂನ್ಯ (*dtor)(ಶೂನ್ಯ *));
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *Curl_bufref_ptr(ಸ್ಥಿರಾಂಕ ರಚನೆ bufref *br);
+ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *Curl_bufref_uptr(ಸ್ಥಿರಾಂಕ ರಚನೆ bufref *br);
+size_t Curl_bufref_len(ಸ್ಥಿರಾಂಕ ರಚನೆ bufref *br);
+CURLcode Curl_bufref_memdup0(ರಚನೆ bufref *br, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ptr, size_t len);
+ಶೂನ್ಯ Curl_bufref_free(ರಚನೆ bufref *br);
 
 /* return a strdup() version of the buffer */
-#define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

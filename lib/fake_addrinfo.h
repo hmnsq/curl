@@ -1,5 +1,5 @@
-#ifndef HEADER_FAKE_ADDRINFO_H
-#define HEADER_FAKE_ADDRINFO_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_FAKE_ADDRINFO_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_FAKE_ADDRINFO_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,31 +23,31 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_ARES
-#include <ares.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_ARES
+#ಅನ್ತರ್ಭಾವ <ares.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
-  defined(USE_ARES) && (ARES_VERSION >= 0x011a00) /* >= 1.26.0 */
-#define USE_FAKE_GETADDRINFO 1
-#endif
+#ಆದರೆ defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+  defined(USE_ARES) && (ARES_ಆವೃತ್ತಿ >= 0x011a00) /* >= 1.26.0 */
+#ವ್ಯಾಖ್ಯಾನಿಸು USE_FAKE_GETADDRINFO 1
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_FAKE_GETADDRINFO
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_FAKE_GETADDRINFO
 
-#ifdef HAVE_NETDB_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETDB_H
 #  include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ARPA_INET_H
 #  include <arpa/inet.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-void r_freeaddrinfo(struct addrinfo *cahead);
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res);
-#endif /* USE_FAKE_GETADDRINFO */
+ಶೂನ್ಯ r_freeaddrinfo(ರಚನೆ addrinfo *cahead);
+ಪೂರ್ಣಾಂಕ r_getaddrinfo(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗಂಟು,
+                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *service,
+                  ಸ್ಥಿರಾಂಕ ರಚನೆ addrinfo *hints,
+                  ರಚನೆ addrinfo **res);
+#ಆದರೆ_ಅಂತ್ಯ /* USE_FAKE_GETADDRINFO */
 
-#endif /* HEADER_FAKE_ADDRINFO_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_FAKE_ADDRINFO_H */

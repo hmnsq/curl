@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRERR_H
-#define HEADER_CURL_STRERR_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_STRERR_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_STRERR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,6 +24,6 @@
  *
  ***************************************************************************/
 
-const char *curlx_strerror(int err, char *buf, size_t buflen);
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *curlx_strerror(ಪೂರ್ಣಾಂಕ err, ಅಕ್ಷರ *buf, size_t buflen);
 
-#endif /* HEADER_CURL_STRERR_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_STRERR_H */

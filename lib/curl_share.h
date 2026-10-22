@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SHARE_H
-#define HEADER_CURL_SHARE_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_SHARE_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_SHARE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,78 +23,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "curl_threads.h"
-#include "cookie.h"
-#include "psl.h"
-#include "urldata.h"
-#include "conncache.h"
+#ಅನ್ತರ್ಭಾವ "curl_threads.h"
+#ಅನ್ತರ್ಭಾವ "cookie.h"
+#ಅನ್ತರ್ಭಾವ "psl.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "conncache.h"
 
-struct Curl_easy;
-struct Curl_ssl_scache;
+ರಚನೆ Curl_easy;
+ರಚನೆ Curl_ssl_scache;
 
-#define CURL_GOOD_SHARE 0x7e117a1e
-#define GOOD_SHARE_HANDLE(x) ((x) && (x)->magic == CURL_GOOD_SHARE)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_GOOD_SHARE 0x7e117a1e
+#ವ್ಯಾಖ್ಯಾನಿಸು GOOD_SHARE_HANDLE(x) ((x) && (x)->magic == CURL_GOOD_SHARE)
 
-#define CURL_SHARE_KEEP_CONNECT(s)                          \
-  ((s) && ((s)->specifier & (1 << CURL_LOCK_DATA_CONNECT)))
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_SHARE_KEEP_CONNECT(s)                          \
+  ((s) && ((s)->specifier & (1 << CURL_ಬೀಗ_ದತ್ತಾಂಶ_CONNECT)))
 
 /* this struct is libcurl-private, do not export details */
-struct Curl_share {
-  unsigned int magic; /* CURL_GOOD_SHARE */
-  unsigned int specifier;
+ರಚನೆ Curl_share {
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ magic; /* CURL_GOOD_SHARE */
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ specifier;
 
-  uint32_t ref_count;
-#ifdef USE_MUTEX
+  uint32_t ref_ಎಣಿಕೆ;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_MUTEX
    /* do `ref_count` and `has_been_shared` checks using this mutex. */
-  curl_mutex_t lock;
-  int has_been_shared;
-#else
+  curl_mutex_t ಬೀಗ;
+  ಪೂರ್ಣಾಂಕ has_been_shared;
+#ಇಲ್ಲದಿದ್ದರೆ
   /* this only ever goes from FALSE -> TRUE once. We need to check
    * this without being able to use the `lockfunc`. */
-  volatile int has_been_shared;
-#endif
-  curl_lock_function lockfunc;
+  ಅಸ್ಥಿರ ಪೂರ್ಣಾಂಕ has_been_shared;
+#ಆದರೆ_ಅಂತ್ಯ
+  curl_ಬೀಗ_function lockfunc;
   curl_unlock_function unlockfunc;
-  void *clientdata;
-  struct Curl_easy *admin;
+  ಶೂನ್ಯ *clientdata;
+  ರಚನೆ Curl_easy *admin;
 
-  struct cpool cpool;
-  struct Curl_dnscache dnscache; /* DNS cache */
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-  struct CookieInfo *cookies;
-#endif
-#ifdef USE_LIBPSL
-  struct PslCache psl;
-#endif
-#ifndef CURL_DISABLE_HSTS
-  struct hsts *hsts;
-#endif
-#ifdef USE_SSL
-  struct Curl_ssl_scache *ssl_scache;
-#endif
+  ರಚನೆ cpool cpool;
+  ರಚನೆ Curl_dnscache dnscache; /* DNS cache */
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+  ರಚನೆ CookieInfo *cookies;
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBPSL
+  ರಚನೆ PslCache psl;
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_HSTS
+  ರಚನೆ hsts *hsts;
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+  ರಚನೆ Curl_ssl_scache *ssl_scache;
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
-CURLSHcode Curl_share_lock(struct Curl_easy *data, curl_lock_data type,
-                           curl_lock_access accesstype);
-CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type);
+CURLSHcode Curl_share_ಬೀಗ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, curl_ಬೀಗ_ದತ್ತಾಂಶ type,
+                           curl_ಬೀಗ_access accesstype);
+CURLSHcode Curl_share_unlock(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, curl_ಬೀಗ_ದತ್ತಾಂಶ type);
 
-CURLSHcode Curl_share_lock_share(struct Curl_share *share,
-                                 struct Curl_easy *data,
-                                 curl_lock_data type,
-                                 curl_lock_access accesstype);
-CURLSHcode Curl_share_unlock_share(struct Curl_share *share,
-                                   struct Curl_easy *data,
-                                   curl_lock_data type);
+CURLSHcode Curl_share_ಬೀಗ_share(ರಚನೆ Curl_share *share,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 curl_ಬೀಗ_ದತ್ತಾಂಶ type,
+                                 curl_ಬೀಗ_access accesstype);
+CURLSHcode Curl_share_unlock_share(ರಚನೆ Curl_share *share,
+                                   ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                   curl_ಬೀಗ_ದತ್ತಾಂಶ type);
 
 /* convenience macro to check if this handle is using a shared SSL spool */
-#define CURL_SHARE_ssl_scache(data)                                \
-  ((data)->share &&                                                \
-   ((data)->share->specifier & (1 << CURL_LOCK_DATA_SSL_SESSION)))
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_SHARE_ssl_scache(ದತ್ತಾಂಶ)                                \
+  ((ದತ್ತಾಂಶ)->share &&                                                \
+   ((ದತ್ತಾಂಶ)->share->specifier & (1 << CURL_ಬೀಗ_ದತ್ತಾಂಶ_SSL_SESSION)))
 
-CURLcode Curl_share_easy_unlink(struct Curl_easy *data);
-CURLcode Curl_share_easy_link(struct Curl_easy *data,
-                              struct Curl_share *share);
+CURLcode Curl_share_easy_unlink(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
+CURLcode Curl_share_easy_link(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ರಚನೆ Curl_share *share);
 
-#endif /* HEADER_CURL_SHARE_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_SHARE_H */

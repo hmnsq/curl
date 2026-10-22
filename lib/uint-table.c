@@ -21,179 +21,179 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "uint-table.h"
+#ಅನ್ತರ್ಭಾವ "uint-table.h"
 
-#ifdef DEBUGBUILD
-#define CURL_UINT32_TBL_MAGIC  0x62757473
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_UINT32_TBL_MAGIC  0x62757473
+#ಆದರೆ_ಅಂತ್ಯ
 
-void Curl_uint32_tbl_init(struct uint32_tbl *tbl)
+ಶೂನ್ಯ Curl_uint32_tbl_init(ರಚನೆ uint32_tbl *tbl)
 {
-  memset(tbl, 0, sizeof(*tbl));
-  tbl->last_key_added = UINT32_MAX;
-#ifdef DEBUGBUILD
+  memset(tbl, 0, ಗಾತ್ರ(*tbl));
+  tbl->ಕೊನೆಯ_ಕೀಲಿ_added = UINT32_MAX;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
   tbl->init = CURL_UINT32_TBL_MAGIC;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-static void uint32_tbl_clear_rows(struct uint32_tbl *tbl,
+ಸ್ಥಿರ ಶೂನ್ಯ uint32_tbl_clear_ಅಡ್ಡಸಾಲುಗಳು(ರಚನೆ uint32_tbl *tbl,
                                   uint32_t from,
                                   uint32_t upto_excluding)
 {
-  uint32_t i, end;
+  uint32_t i, ಕೊನೆ;
 
-  end = CURLMIN(upto_excluding, tbl->nrows);
-  for(i = from; i < end; ++i) {
-    if(tbl->rows[i]) {
-      tbl->rows[i] = NULL;
+  ಕೊನೆ = CURLMIN(upto_excluding, tbl->nrows);
+  ಗಾಗಿ(i = from; i < ಕೊನೆ; ++i) {
+    ಆದರೆ(tbl->ಅಡ್ಡಸಾಲುಗಳು[i]) {
+      tbl->ಅಡ್ಡಸಾಲುಗಳು[i] = ಖಾಲಿ;
       tbl->nentries--;
     }
   }
 }
 
-CURLcode Curl_uint32_tbl_resize(struct uint32_tbl *tbl, uint32_t nrows)
+CURLcode Curl_uint32_tbl_resize(ರಚನೆ uint32_tbl *tbl, uint32_t nrows)
 {
   /* we use `tbl->nrows + 1` during iteration, want that to work */
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  if(!nrows)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(nrows != tbl->nrows) {
-    void **rows = curlx_calloc(nrows, sizeof(void *));
-    if(!rows)
-      return CURLE_OUT_OF_MEMORY;
-    if(tbl->rows) {
-      memcpy(rows, tbl->rows, (CURLMIN(nrows, tbl->nrows) * sizeof(void *)));
-      if(nrows < tbl->nrows)
-        uint32_tbl_clear_rows(tbl, nrows, tbl->nrows);
-      curlx_free(tbl->rows);
+  ಆದರೆ(!nrows)
+    ಹಿಂತಿರುಗಿ CURLE_BAD_FUNCTION_ವಾದ;
+  ಆದರೆ(nrows != tbl->nrows) {
+    ಶೂನ್ಯ **ಅಡ್ಡಸಾಲುಗಳು = curlx_calloc(nrows, ಗಾತ್ರ(ಶೂನ್ಯ *));
+    ಆದರೆ(!ಅಡ್ಡಸಾಲುಗಳು)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಆದರೆ(tbl->ಅಡ್ಡಸಾಲುಗಳು) {
+      ಸ್ಮರಣೆ_ನಕಲು(ಅಡ್ಡಸಾಲುಗಳು, tbl->ಅಡ್ಡಸಾಲುಗಳು, (CURLMIN(nrows, tbl->nrows) * ಗಾತ್ರ(ಶೂನ್ಯ *)));
+      ಆದರೆ(nrows < tbl->nrows)
+        uint32_tbl_clear_ಅಡ್ಡಸಾಲುಗಳು(tbl, nrows, tbl->nrows);
+      curlx_free(tbl->ಅಡ್ಡಸಾಲುಗಳು);
     }
-    tbl->rows = rows;
+    tbl->ಅಡ್ಡಸಾಲುಗಳು = ಅಡ್ಡಸಾಲುಗಳು;
     tbl->nrows = nrows;
   }
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /* Clear the table, making it empty.
 
    @unittest 3212
  */
-UNITTEST void uint32_tbl_clear(struct uint32_tbl *tbl);
-UNITTEST void uint32_tbl_clear(struct uint32_tbl *tbl)
+UNITTEST ಶೂನ್ಯ uint32_tbl_clear(ರಚನೆ uint32_tbl *tbl);
+UNITTEST ಶೂನ್ಯ uint32_tbl_clear(ರಚನೆ uint32_tbl *tbl)
 {
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  uint32_tbl_clear_rows(tbl, 0, tbl->nrows);
+  uint32_tbl_clear_ಅಡ್ಡಸಾಲುಗಳು(tbl, 0, tbl->nrows);
   DEBUGASSERT(!tbl->nentries);
-  tbl->last_key_added = UINT32_MAX;
+  tbl->ಕೊನೆಯ_ಕೀಲಿ_added = UINT32_MAX;
 }
 
-void Curl_uint32_tbl_destroy(struct uint32_tbl *tbl)
+ಶೂನ್ಯ Curl_uint32_tbl_destroy(ರಚನೆ uint32_tbl *tbl)
 {
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
   uint32_tbl_clear(tbl);
-  curlx_free(tbl->rows);
-  memset(tbl, 0, sizeof(*tbl));
+  curlx_free(tbl->ಅಡ್ಡಸಾಲುಗಳು);
+  memset(tbl, 0, ಗಾತ್ರ(*tbl));
 }
 
-uint32_t Curl_uint32_tbl_capacity(struct uint32_tbl *tbl)
+uint32_t Curl_uint32_tbl_ಸಾಮರ್ಥ್ಯ(ರಚನೆ uint32_tbl *tbl)
 {
-  return tbl->nrows;
+  ಹಿಂತಿರುಗಿ tbl->nrows;
 }
 
-uint32_t Curl_uint32_tbl_count(struct uint32_tbl *tbl)
+uint32_t Curl_uint32_tbl_ಎಣಿಕೆ(ರಚನೆ uint32_tbl *tbl)
 {
-  return tbl->nentries;
+  ಹಿಂತಿರುಗಿ tbl->nentries;
 }
 
-void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t key)
+ಶೂನ್ಯ *Curl_uint32_tbl_get(ರಚನೆ uint32_tbl *tbl, uint32_t ಕೀಲಿ)
 {
-  return (key < tbl->nrows) ? tbl->rows[key] : NULL;
+  ಹಿಂತಿರುಗಿ (ಕೀಲಿ < tbl->nrows) ? tbl->ಅಡ್ಡಸಾಲುಗಳು[ಕೀಲಿ] : ಖಾಲಿ;
 }
 
-bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey)
+bool Curl_uint32_tbl_ಕೂಡಿಸು(ರಚನೆ uint32_tbl *tbl, ಶೂನ್ಯ *ನಮೂದು, uint32_t *pkey)
 {
-  uint32_t key, start_pos;
+  uint32_t ಕೀಲಿ, ಆರಂಭ_pos;
 
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  if(!entry || !pkey)
-    return FALSE;
+  ಆದರೆ(!ನಮೂದು || !pkey)
+    ಹಿಂತಿರುಗಿ FALSE;
   *pkey = UINT32_MAX;
-  if(tbl->nentries == tbl->nrows)  /* full */
-    return FALSE;
+  ಆದರೆ(tbl->nentries == tbl->nrows)  /*ತುಂಬಿದ*/
+    ಹಿಂತಿರುಗಿ FALSE;
 
-  start_pos = CURLMIN(tbl->last_key_added, tbl->nrows) + 1;
-  for(key = start_pos; key < tbl->nrows; ++key) {
-    if(!tbl->rows[key]) {
-      tbl->rows[key] = entry;
+  ಆರಂಭ_pos = CURLMIN(tbl->ಕೊನೆಯ_ಕೀಲಿ_added, tbl->nrows) + 1;
+  ಗಾಗಿ(ಕೀಲಿ = ಆರಂಭ_pos; ಕೀಲಿ < tbl->nrows; ++ಕೀಲಿ) {
+    ಆದರೆ(!tbl->ಅಡ್ಡಸಾಲುಗಳು[ಕೀಲಿ]) {
+      tbl->ಅಡ್ಡಸಾಲುಗಳು[ಕೀಲಿ] = ನಮೂದು;
       tbl->nentries++;
-      tbl->last_key_added = key;
-      *pkey = key;
-      return TRUE;
+      tbl->ಕೊನೆಯ_ಕೀಲಿ_added = ಕೀಲಿ;
+      *pkey = ಕೀಲಿ;
+      ಹಿಂತಿರುಗಿ TRUE;
     }
   }
   /* no free entry at or above tbl->maybe_next_key, wrap around */
-  for(key = 0; key < start_pos; ++key) {
-    if(!tbl->rows[key]) {
-      tbl->rows[key] = entry;
+  ಗಾಗಿ(ಕೀಲಿ = 0; ಕೀಲಿ < ಆರಂಭ_pos; ++ಕೀಲಿ) {
+    ಆದರೆ(!tbl->ಅಡ್ಡಸಾಲುಗಳು[ಕೀಲಿ]) {
+      tbl->ಅಡ್ಡಸಾಲುಗಳು[ಕೀಲಿ] = ನಮೂದು;
       tbl->nentries++;
-      tbl->last_key_added = key;
-      *pkey = key;
-      return TRUE;
+      tbl->ಕೊನೆಯ_ಕೀಲಿ_added = ಕೀಲಿ;
+      *pkey = ಕೀಲಿ;
+      ಹಿಂತಿರುಗಿ TRUE;
     }
   }
   /* Did not find any free row? Should not happen */
   DEBUGASSERT(0);
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t key)
+ಶೂನ್ಯ Curl_uint32_tbl_remove(ರಚನೆ uint32_tbl *tbl, uint32_t ಕೀಲಿ)
 {
-  if(key < tbl->nrows)
-    uint32_tbl_clear_rows(tbl, key, key + 1);
+  ಆದರೆ(ಕೀಲಿ < tbl->nrows)
+    uint32_tbl_clear_ಅಡ್ಡಸಾಲುಗಳು(tbl, ಕೀಲಿ, ಕೀಲಿ + 1);
 }
 
-bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t key)
+bool Curl_uint32_tbl_ಒಳಗೊಂಡಿದೆ(ರಚನೆ uint32_tbl *tbl, uint32_t ಕೀಲಿ)
 {
-  return (key < tbl->nrows) ? !!tbl->rows[key] : FALSE;
+  ಹಿಂತಿರುಗಿ (ಕೀಲಿ < tbl->nrows) ? !!tbl->ಅಡ್ಡಸಾಲುಗಳು[ಕೀಲಿ] : FALSE;
 }
 
-static bool uint32_tbl_next_at(struct uint32_tbl *tbl, uint32_t key,
-                               uint32_t *pkey, void **pentry)
+ಸ್ಥಿರ bool uint32_tbl_ಮುಂದಿನ_at(ರಚನೆ uint32_tbl *tbl, uint32_t ಕೀಲಿ,
+                               uint32_t *pkey, ಶೂನ್ಯ **pentry)
 {
-  for(; key < tbl->nrows; ++key) {
-    if(tbl->rows[key]) {
-      *pkey = key;
-      *pentry = tbl->rows[key];
-      return TRUE;
+  ಗಾಗಿ(; ಕೀಲಿ < tbl->nrows; ++ಕೀಲಿ) {
+    ಆದರೆ(tbl->ಅಡ್ಡಸಾಲುಗಳು[ಕೀಲಿ]) {
+      *pkey = ಕೀಲಿ;
+      *pentry = tbl->ಅಡ್ಡಸಾಲುಗಳು[ಕೀಲಿ];
+      ಹಿಂತಿರುಗಿ TRUE;
     }
   }
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
-                           uint32_t *pkey, void **pentry)
+bool Curl_uint32_tbl_ಮೊದಲ(ರಚನೆ uint32_tbl *tbl,
+                           uint32_t *pkey, ಶೂನ್ಯ **pentry)
 {
-  if(!pkey || !pentry)
-    return FALSE;
-  if(tbl->nentries && uint32_tbl_next_at(tbl, 0, pkey, pentry))
-    return TRUE;
+  ಆದರೆ(!pkey || !pentry)
+    ಹಿಂತಿರುಗಿ FALSE;
+  ಆದರೆ(tbl->nentries && uint32_tbl_ಮುಂದಿನ_at(tbl, 0, pkey, pentry))
+    ಹಿಂತಿರುಗಿ TRUE;
   DEBUGASSERT(!tbl->nentries);
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_key,
-                          uint32_t *pkey, void **pentry)
+bool Curl_uint32_tbl_ಮುಂದಿನ(ರಚನೆ uint32_tbl *tbl, uint32_t ಕೊನೆಯ_ಕೀಲಿ,
+                          uint32_t *pkey, ಶೂನ್ಯ **pentry)
 {
-  if(!pkey || !pentry)
-    return FALSE;
-  if(uint32_tbl_next_at(tbl, last_key + 1, pkey, pentry))
-    return TRUE;
+  ಆದರೆ(!pkey || !pentry)
+    ಹಿಂತಿರುಗಿ FALSE;
+  ಆದರೆ(uint32_tbl_ಮುಂದಿನ_at(tbl, ಕೊನೆಯ_ಕೀಲಿ + 1, pkey, pentry))
+    ಹಿಂತಿರುಗಿ TRUE;
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ FALSE;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_QUIC_H
-#define HEADER_CURL_VQUIC_QUIC_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_VQUIC_QUIC_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_VQUIC_QUIC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,69 +23,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_addrinfo;
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+ರಚನೆ Curl_cfilter;
+ರಚನೆ Curl_easy;
+ರಚನೆ connectdata;
+ರಚನೆ Curl_addrinfo;
 
-void Curl_quic_ver(char *p, size_t len);
-int Curl_vquic_init(void);
-void Curl_vquic_cleanup(void);
+ಶೂನ್ಯ Curl_quic_ver(ಅಕ್ಷರ *p, size_t len);
+ಪೂರ್ಣಾಂಕ Curl_vquic_init(ಶೂನ್ಯ);
+ಶೂನ್ಯ Curl_vquic_cleanup(ಶೂನ್ಯ);
 
-CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+CURLcode Curl_qlogdir(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                      ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *scid,
                       size_t scidlen,
-                      int *qlogfdp);
+                      ಪೂರ್ಣಾಂಕ *qlogfdp);
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer);
+CURLcode Curl_cf_quic_ಸೇರಿಸು_after(ರಚನೆ Curl_cfilter *cf_at,
+                                   ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                   ರಚನೆ Curl_peer *origin,
+                                   ರಚನೆ Curl_peer *peer);
 
-CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_quic_create(ರಚನೆ Curl_cfilter **pcf,
+                             ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                             ರಚನೆ Curl_peer *origin,
+                             ರಚನೆ Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             ರಚನೆ connectdata *conn,
+                             ರಚನೆ Curl_sockaddr_ex *addr,
+                             ರಚನೆ Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_http3;
+ಬಾಹ್ಯ ರಚನೆ Curl_cftype Curl_cft_http3;
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#ಆದರೆ !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_h3_proxy_ಸೇರಿಸು_after(ರಚನೆ Curl_cfilter *cf_at,
+                                       ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                       ರಚನೆ Curl_peer *origin,
+                                       ರಚನೆ Curl_peer *peer,
+                                       ರಚನೆ Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport);
 
-CURLcode Curl_cf_h3_proxy_create(struct Curl_cfilter **pcf,
-                                 struct Curl_easy *data,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
+CURLcode Curl_cf_h3_proxy_create(ರಚನೆ Curl_cfilter **pcf,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 ರಚನೆ Curl_peer *origin,
+                                 ರಚನೆ Curl_peer *peer,
                                  uint8_t transport_peer,
-                                 struct connectdata *conn,
-                                 struct Curl_sockaddr_ex *addr,
-                                 struct Curl_peer *tunnel_peer,
+                                 ರಚನೆ connectdata *conn,
+                                 ರಚನೆ Curl_sockaddr_ex *addr,
+                                 ರಚನೆ Curl_peer *tunnel_peer,
                                  uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_h3_proxy;
+ಬಾಹ್ಯ ರಚನೆ Curl_cftype Curl_cft_h3_proxy;
 
-#endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-#else
-#define Curl_vquic_init() 1
-#define Curl_vquic_cleanup()
-#endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_vquic_init() 1
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_vquic_cleanup()
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_HTTP && USE_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn);
+CURLcode Curl_conn_may_http3(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                             ರಚನೆ connectdata *conn);
 
-#endif /* HEADER_CURL_VQUIC_QUIC_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_VQUIC_QUIC_H */

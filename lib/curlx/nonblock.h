@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NONBLOCK_H
-#define HEADER_CURL_NONBLOCK_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_NONBLOCK_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_NONBLOCK_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */);
+ಪೂರ್ಣಾಂಕ curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   ಪೂರ್ಣಾಂಕ nonblock   /* TRUE or FALSE */);
 
-#endif /* HEADER_CURL_NONBLOCK_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_NONBLOCK_H */

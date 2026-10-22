@@ -21,35 +21,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 /***********************************************************************
  * Only for plain IPv4 builds
  **********************************************************************/
-#ifdef CURLRES_IPV4 /* plain IPv4 code coming up */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLRES_IPV4 /* plain IPv4 code coming up */
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETDB_H
+#ಅನ್ತರ್ಭಾವ <netdb.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ARPA_INET_H
+#ಅನ್ತರ್ಭಾವ <arpa/inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __VMS
+#ಅನ್ತರ್ಭಾವ <in.h>
+#ಅನ್ತರ್ಭಾವ <inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "vdns/hostip.h"
-#include "url.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "curl_addrinfo.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "vdns/hostip.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
 
 
-#ifdef CURLRES_SYNCH
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLRES_SYNCH
 
 /*
  * Curl_sync_getaddrinfo() - the IPv4 synchronous version.
@@ -67,27 +67,27 @@
  * flavors have thread-safe versions of the plain gethostbyname() etc.
  *
  */
-struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
+ರಚನೆ Curl_addrinfo *Curl_sync_getaddrinfo(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                                             uint8_t dns_queries,
-                                            const char *hostname,
-                                            uint16_t port,
+                                            ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname,
+                                            uint16_t ಪೋರ್ಟ್,
                                             uint8_t transport)
 {
-  struct Curl_addrinfo *ai = NULL;
+  ರಚನೆ Curl_addrinfo *ai = ಖಾಲಿ;
 
-  (void)dns_queries;
-  (void)transport;
+  (ಶೂನ್ಯ)dns_queries;
+  (ಶೂನ್ಯ)transport;
 
-  ai = Curl_ipv4_resolve_r(hostname, port);
-  if(!ai)
-    infof(data, "Curl_ipv4_resolve_r failed for %s", hostname);
+  ai = Curl_ipv4_resolve_r(hostname, ಪೋರ್ಟ್);
+  ಆದರೆ(!ai)
+    infof(ದತ್ತಾಂಶ, "Curl_ipv4_resolve_r failed for %s", hostname);
 
-  return ai;
+  ಹಿಂತಿರುಗಿ ai;
 }
-#endif /* CURLRES_SYNCH */
-#endif /* CURLRES_IPV4 */
+#ಆದರೆ_ಅಂತ್ಯ /* CURLRES_SYNCH */
+#ಆದರೆ_ಅಂತ್ಯ /* CURLRES_IPV4 */
 
-#if defined(CURLRES_IPV4) && !defined(USE_RESOLV_ARES) && \
+#ಆದರೆ defined(CURLRES_IPV4) && !defined(USE_RESOLV_ARES) && \
   !defined(CURLRES_AMIGA)
 
 /*
@@ -97,57 +97,57 @@ struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
  * implying that only thread-safe code and function calls may be used.
  *
  */
-struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
-                                          uint16_t port)
+ರಚನೆ Curl_addrinfo *Curl_ipv4_resolve_r(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname,
+                                          uint16_t ಪೋರ್ಟ್)
 {
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE)) && \
+#ಆದರೆ !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE)) && \
   defined(HAVE_GETHOSTBYNAME_R_3)
-  int res;
-#endif
-  struct Curl_addrinfo *ai = NULL;
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
-  struct hostent *h = NULL;
-  struct hostent *buf = NULL;
-#endif
+  ಪೂರ್ಣಾಂಕ res;
+#ಆದರೆ_ಅಂತ್ಯ
+  ರಚನೆ Curl_addrinfo *ai = ಖಾಲಿ;
+#ಆದರೆ !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
+  ರಚನೆ hostent *h = ಖಾಲಿ;
+  ರಚನೆ hostent *buf = ಖಾಲಿ;
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE)
-  struct addrinfo hints;
-  char sbuf[12];
-  char *sbufptr = NULL;
+#ಆದರೆ defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE)
+  ರಚನೆ addrinfo hints;
+  ಅಕ್ಷರ sbuf[12];
+  ಅಕ್ಷರ *sbufptr = ಖಾಲಿ;
 
-  memset(&hints, 0, sizeof(hints));
+  memset(&hints, 0, ಗಾತ್ರ(hints));
   hints.ai_family = PF_INET;
   hints.ai_socktype = SOCK_STREAM;
-  if(port) {
-    curl_msnprintf(sbuf, sizeof(sbuf), "%d", port);
+  ಆದರೆ(ಪೋರ್ಟ್) {
+    curl_msnprintf(sbuf, ಗಾತ್ರ(sbuf), "%d", ಪೋರ್ಟ್);
     sbufptr = sbuf;
   }
 
-  (void)Curl_getaddrinfo_ex(hostname, sbufptr, &hints, &ai);
+  (ಶೂನ್ಯ)Curl_getaddrinfo_ex(hostname, sbufptr, &hints, &ai);
 
-#elif defined(HAVE_GETHOSTBYNAME_R)
+#ಅಥವಾಆದರೆ defined(HAVE_GETHOSTBYNAME_R)
   /*
    * gethostbyname_r() is the preferred resolve function for many platforms.
    * Since there are three different versions of it, the following code is
    * somewhat #ifdef-ridden.
    */
-  int h_errnop;
+  ಪೂರ್ಣಾಂಕ h_errnop;
 
-  buf = curlx_calloc(1, CURL_HOSTENT_SIZE);
-  if(!buf)
-    return NULL; /* major failure */
+  buf = curlx_calloc(1, CURL_HOSTENT_ಗಾತ್ರ);
+  ಆದರೆ(!buf)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ; /* major failure */
   /*
    * The clearing of the buffer is a workaround for a gethostbyname_r bug in
    * QNX Neutrino and it is also _required_ for some of these functions on some
    * platforms.
    */
 
-#ifdef HAVE_GETHOSTBYNAME_R_5
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GETHOSTBYNAME_R_5
   /* Solaris, IRIX and more */
   h = gethostbyname_r(hostname,
-                      (struct hostent *)buf,
-                      (char *)buf + sizeof(struct hostent),
-                      CURL_HOSTENT_SIZE - sizeof(struct hostent),
+                      (ರಚನೆ hostent *)buf,
+                      (ಅಕ್ಷರ *)buf + ಗಾತ್ರ(ರಚನೆ hostent),
+                      CURL_HOSTENT_ಗಾತ್ರ - ಗಾತ್ರ(ರಚನೆ hostent),
                       &h_errnop);
 
   /* If the buffer is too small, it returns NULL and sets errno to
@@ -156,17 +156,17 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
    * used properly for threads.
    */
 
-  if(h) {
+  ಆದರೆ(h) {
     ;
   }
-  else
-#elif defined(HAVE_GETHOSTBYNAME_R_6)
+  ಇಲ್ಲದಿದ್ದರೆ
+#ಅಥವಾಆದರೆ defined(HAVE_GETHOSTBYNAME_R_6)
   /* Linux */
 
-  (void)gethostbyname_r(hostname,
-                        (struct hostent *)buf,
-                        (char *)buf + sizeof(struct hostent),
-                        CURL_HOSTENT_SIZE - sizeof(struct hostent),
+  (ಶೂನ್ಯ)gethostbyname_r(hostname,
+                        (ರಚನೆ hostent *)buf,
+                        (ಅಕ್ಷರ *)buf + ಗಾತ್ರ(ರಚನೆ hostent),
+                        CURL_HOSTENT_ಗಾತ್ರ - ಗಾತ್ರ(ರಚನೆ hostent),
                         &h, /* DIFFERENCE */
                         &h_errnop);
   /* Redhat 8, using glibc 2.2.93 changed the behavior. Now all of a
@@ -200,8 +200,8 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
    * thread-safe variable.
    */
 
-  if(!h) /* failure */
-#elif defined(HAVE_GETHOSTBYNAME_R_3)
+  ಆದರೆ(!h) /* failure */
+#ಅಥವಾಆದರೆ defined(HAVE_GETHOSTBYNAME_R_3)
   /* AIX, Digital UNIX/Tru64, HP-UX 10, more? */
 
   /* For AIX 4.3 or later, we do not use gethostbyname_r() at all, because of
@@ -222,8 +222,8 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
    * thread-safe", but at least the gethostbyname() function is.
    */
 
-  if(CURL_HOSTENT_SIZE >=
-     (sizeof(struct hostent) + sizeof(struct hostent_data))) {
+  ಆದರೆ(CURL_HOSTENT_ಗಾತ್ರ >=
+     (ಗಾತ್ರ(ರಚನೆ hostent) + ಗಾತ್ರ(ರಚನೆ hostent_ದತ್ತಾಂಶ))) {
 
     /* August 22nd, 2000: Albert Chin-A-Young brought an updated version
      * that should work! September 20: Richard Prescott worked on the buffer
@@ -231,15 +231,15 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
      */
 
     res = gethostbyname_r(hostname,
-                          (struct hostent *)buf,
-                          (struct hostent_data *)((char *)buf +
-                                                  sizeof(struct hostent)));
+                          (ರಚನೆ hostent *)buf,
+                          (ರಚನೆ hostent_ದತ್ತಾಂಶ *)((ಅಕ್ಷರ *)buf +
+                                                  ಗಾತ್ರ(ರಚನೆ hostent)));
     h_errnop = SOCKERRNO; /* we do not deal with this, but set it anyway */
   }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     res = -1; /* failure, too smallish buffer size */
 
-  if(!res) { /* success */
+  ಆದರೆ(!res) { /* success */
 
     h = buf; /* result expected in h */
 
@@ -252,13 +252,13 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
      * memory area to the actually used amount.
      */
   }
-  else
-#endif /* HAVE_...BYNAME_R_5 || HAVE_...BYNAME_R_6 || HAVE_...BYNAME_R_3 */
+  ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ /* HAVE_...BYNAME_R_5 || HAVE_...BYNAME_R_6 || HAVE_...BYNAME_R_3 */
   {
-    h = NULL; /* set return code to NULL */
+    h = ಖಾಲಿ; /* set return code to NULL */
     curlx_free(buf);
   }
-#else /* (HAVE_GETADDRINFO && HAVE_GETADDRINFO_THREADSAFE) ||
+#ಇಲ್ಲದಿದ್ದರೆ /* (HAVE_GETADDRINFO && HAVE_GETADDRINFO_THREADSAFE) ||
           HAVE_GETHOSTBYNAME_R */
   /*
    * Here is code for platforms that do not have a thread-safe
@@ -266,18 +266,18 @@ struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname,
    * gethostbyname() is the preferred one.
    */
   h = gethostbyname(CURL_UNCONST(hostname));
-#endif /* (HAVE_GETADDRINFO && HAVE_GETADDRINFO_THREADSAFE) ||
+#ಆದರೆ_ಅಂತ್ಯ /* (HAVE_GETADDRINFO && HAVE_GETADDRINFO_THREADSAFE) ||
            HAVE_GETHOSTBYNAME_R */
 
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
-  if(h) {
-    ai = Curl_he2ai(h, port);
+#ಆದರೆ !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
+  ಆದರೆ(h) {
+    ai = Curl_he2ai(h, ಪೋರ್ಟ್);
 
-    if(buf) /* used a *_r() function */
+    ಆದರೆ(buf) /* used a *_r() function */
       curlx_free(buf);
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  return ai;
+  ಹಿಂತಿರುಗಿ ai;
 }
-#endif /* CURLRES_IPV4 && !USE_RESOLV_ARES && !CURLRES_AMIGA */
+#ಆದರೆ_ಅಂತ್ಯ /* CURLRES_IPV4 && !USE_RESOLV_ARES && !CURLRES_AMIGA */

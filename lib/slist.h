@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SLIST_H
-#define HEADER_CURL_SLIST_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_SLIST_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_SLIST_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -29,13 +29,13 @@
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist);
+ರಚನೆ curl_slist *Curl_slist_duplicate(ರಚನೆ curl_slist *inlist);
 
 /*
  * Curl_slist_append_nodup() takes ownership of the given string and appends
  * it to the list.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data);
+ರಚನೆ curl_slist *Curl_slist_append_nodup(ರಚನೆ curl_slist *list,
+                                           ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ದತ್ತಾಂಶ);
 
-#endif /* HEADER_CURL_SLIST_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_SLIST_H */

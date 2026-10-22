@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ALTSVC_H
-#define HEADER_CURL_ALTSVC_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_ALTSVC_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_ALTSVC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,56 +23,56 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
-#include "llist.h"
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
+#ಅನ್ತರ್ಭಾವ "llist.h"
 
-struct Curl_peer;
+ರಚನೆ Curl_peer;
 
 /* the maximum number of alt-svc entries kept in a single cache */
-#define MAX_ALTSVC_ENTRIES 5000
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_ALTSVC_ENTRIES 5000
 
-struct althost {
-  char *host;
-  uint16_t port;
-  enum alpnid alpnid;
+ರಚನೆ althost {
+  ಅಕ್ಷರ *host;
+  uint16_t ಪೋರ್ಟ್;
+  ಎಣಿಕೆ alpnid alpnid;
 };
 
-struct altsvc {
-  struct althost src;
-  struct althost dst;
+ರಚನೆ altsvc {
+  ರಚನೆ althost src;
+  ರಚನೆ althost dst;
   time_t expires;
-  struct Curl_llist_node node;
-  BIT(persist);
+  ರಚನೆ Curl_llist_ಗಂಟು ಗಂಟು;
+  ಬಿಟ್(persist);
 };
 
-struct altsvcinfo {
-  char *filename;
-  struct Curl_llist list; /* list of entries */
-  long flags; /* the publicly set bitmask */
+ರಚನೆ altsvcinfo {
+  ಅಕ್ಷರ *filename;
+  ರಚನೆ Curl_llist list; /* list of entries */
+  ದೀರ್ಘ flags; /* the publicly set bitmask */
 };
 
-const char *Curl_alpnid2str(enum alpnid id);
-struct altsvcinfo *Curl_altsvc_init(void);
-CURLcode Curl_altsvc_load(struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_save(struct Curl_easy *data,
-                          struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_ctrl(struct Curl_easy *data, const long ctrl);
-void Curl_altsvc_cleanup(struct altsvcinfo **asi);
-CURLcode Curl_altsvc_parse(struct Curl_easy *data,
-                           struct altsvcinfo *asi, const char *value,
-                           struct Curl_peer *origin,
-                           enum alpnid origin_alpnid);
-bool Curl_altsvc_lookup(struct altsvcinfo *asi,
-                        struct Curl_peer *origin,
-                        enum alpnid origin_alpnid,
-                        struct altsvc **dstentry,
-                        const int versions, /* CURLALTSVC_H* bits */
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *Curl_alpnid2str(ಎಣಿಕೆ alpnid id);
+ರಚನೆ altsvcinfo *Curl_altsvc_init(ಶೂನ್ಯ);
+CURLcode Curl_altsvc_ತುಂಬು(ರಚನೆ altsvcinfo *asi, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file);
+CURLcode Curl_altsvc_save(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                          ರಚನೆ altsvcinfo *asi, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file);
+CURLcode Curl_altsvc_ctrl(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ದೀರ್ಘ ctrl);
+ಶೂನ್ಯ Curl_altsvc_cleanup(ರಚನೆ altsvcinfo **asi);
+CURLcode Curl_altsvc_parse(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                           ರಚನೆ altsvcinfo *asi, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ,
+                           ರಚನೆ Curl_peer *origin,
+                           ಎಣಿಕೆ alpnid origin_alpnid);
+bool Curl_altsvc_lookup(ರಚನೆ altsvcinfo *asi,
+                        ರಚನೆ Curl_peer *origin,
+                        ಎಣಿಕೆ alpnid origin_alpnid,
+                        ರಚನೆ altsvc **dstentry,
+                        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ versions, /* CURLALTSVC_H* bits */
                         bool *psame_destination);
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 /* disabled */
-#define Curl_altsvc_save(a, b, c)
-#define Curl_altsvc_cleanup(x)
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_ALTSVC */
-#endif /* HEADER_CURL_ALTSVC_H */
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_altsvc_save(a, b, c)
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_altsvc_cleanup(x)
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_HTTP && !CURL_DISABLE_ALTSVC */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_ALTSVC_H */

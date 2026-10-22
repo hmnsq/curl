@@ -21,24 +21,24 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "u8_strset.h"
-#include "curlx/strdup.h"
+#ಅನ್ತರ್ಭಾವ "u8_strset.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strdup.h"
 
 /* random patterns for API verification */
-#ifdef DEBUGBUILD
-#define CURL_U8_STRSET_MAGIC 0x7117e783
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_U8_STRSET_MAGIC 0x7117e783
+#ಆದರೆ_ಅಂತ್ಯ
 
-#define CURL_U8_STRSET_DEBUG      0
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_U8_STRSET_DEBUG      0
 
-#define CURL_SWAP(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ಅದಲುಬದಲು(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
 
-#define CURL_U8_STRSET_SLOT_IDX(s, i)    (uint8_t)((i) & (s)->slotmask)
-#define CURL_U8_SLOT_CNT(i)              (uint16_t)((i) ? (1U << (i)) : 0)
-#define CURL_U8_SLOT_MASK(i)             (uint8_t)((1U << (i)) - 1)
-#define CURL_U8_STRSET_SLOT_CNT(s)       CURL_U8_SLOT_CNT((s)->slotbits)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_U8_STRSET_ಸ್ಥಾನ_IDX(s, i)    (uint8_t)((i) & (s)->slotmask)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_U8_ಸ್ಥಾನ_CNT(i)              (uint16_t)((i) ? (1U << (i)) : 0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_U8_ಸ್ಥಾನ_ಮುಖವಾಡ(i)             (uint8_t)((1U << (i)) - 1)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_U8_STRSET_ಸ್ಥಾನ_CNT(s)       CURL_U8_ಸ್ಥಾನ_CNT((s)->slotbits)
 
 /* A hashset for tuples (id, string) using Robin Hood Hashing.
  * <https://www.cs.cornell.edu/courses/JavaAndDS/files/hashing_RobinHood.pdf>
@@ -60,252 +60,252 @@
  *     the existing entry has a lower psl makes a swap. Put the new entry
  *     and its psl there, take the previous entry and its psl and find
  *     the next best slot for the previous entry. */
-void Curl_u8_strset_init(struct u8_strset *set)
+ಶೂನ್ಯ Curl_u8_strset_init(ರಚನೆ u8_strset *ಗಣ)
 {
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-  memset(set, 0, sizeof(*set));
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
-#endif
-  set->data = set->sdata;
-  set->ids = set->sids;
-  set->psl = set->spsl;
-  set->slotbits = CURL_U8_STRSET_START_BITS;
-  set->slotmask = CURL_U8_SLOT_MASK(set->slotbits);
-  set->count = 0;
-#ifdef DEBUGBUILD
-  set->init = CURL_U8_STRSET_MAGIC;
-#endif
+#ಆದರೆ defined(__GNUC__) && __GNUC__ >= 13
+#ಸೂಚನೆ GCC diagnostic ತಳ್ಳು
+#ಸೂಚನೆ GCC diagnostic ignored "-Warray-bounds"
+#ಆದರೆ_ಅಂತ್ಯ
+  memset(ಗಣ, 0, ಗಾತ್ರ(*ಗಣ));
+#ಆದರೆ defined(__GNUC__) && __GNUC__ >= 13
+#ಸೂಚನೆ GCC diagnostic ತೆಗೆ
+#ಆದರೆ_ಅಂತ್ಯ
+  ಗಣ->ದತ್ತಾಂಶ = ಗಣ->sdata;
+  ಗಣ->ids = ಗಣ->sids;
+  ಗಣ->psl = ಗಣ->spsl;
+  ಗಣ->slotbits = CURL_U8_STRSET_ಆರಂಭ_ಬಿಟ್ಟುಗಳು;
+  ಗಣ->slotmask = CURL_U8_ಸ್ಥಾನ_ಮುಖವಾಡ(ಗಣ->slotbits);
+  ಗಣ->ಎಣಿಕೆ_2 = 0;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+  ಗಣ->init = CURL_U8_STRSET_MAGIC;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-void Curl_u8_strset_clear(struct u8_strset *set)
+ಶೂನ್ಯ Curl_u8_strset_clear(ರಚನೆ u8_strset *ಗಣ)
 {
   uint16_t i;
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  for(i = 0; i < CURL_U8_STRSET_SLOT_CNT(set); ++i)
-    curlx_safefree(set->data[i]);
+  DEBUGASSERT(ಗಣ->init == CURL_U8_STRSET_MAGIC);
+  ಗಾಗಿ(i = 0; i < CURL_U8_STRSET_ಸ್ಥಾನ_CNT(ಗಣ); ++i)
+    curlx_safefree(ಗಣ->ದತ್ತಾಂಶ[i]);
 
-  if(set->data != set->sdata)
-    curlx_safefree(set->data);
-  Curl_u8_strset_init(set);
+  ಆದರೆ(ಗಣ->ದತ್ತಾಂಶ != ಗಣ->sdata)
+    curlx_safefree(ಗಣ->ದತ್ತಾಂಶ);
+  Curl_u8_strset_init(ಗಣ);
 }
 
-static void u8_strset_addn(struct u8_strset *set, uint8_t id, char *val)
+ಸ್ಥಿರ ಶೂನ್ಯ u8_strset_addn(ರಚನೆ u8_strset *ಗಣ, uint8_t id, ಅಕ್ಷರ *val)
 {
-  uint8_t i = CURL_U8_STRSET_SLOT_IDX(set, id);
+  uint8_t i = CURL_U8_STRSET_ಸ್ಥಾನ_IDX(ಗಣ, id);
   uint8_t psl = 0;
-  while(set->data[i]) {
-    if(psl > set->psl[i]) { /* SWAP */
-      char *tmpdata;
-      tmpdata = set->data[i];
-      set->data[i] = val;
+  ಆಗ(ಗಣ->ದತ್ತಾಂಶ[i]) {
+    ಆದರೆ(psl > ಗಣ->psl[i]) { /*ಅದಲುಬದಲು*/
+      ಅಕ್ಷರ *tmpdata;
+      tmpdata = ಗಣ->ದತ್ತಾಂಶ[i];
+      ಗಣ->ದತ್ತಾಂಶ[i] = val;
       val = tmpdata;
-      CURL_SWAP(set->psl[i], psl);
-      CURL_SWAP(set->ids[i], id);
+      CURL_ಅದಲುಬದಲು(ಗಣ->psl[i], psl);
+      CURL_ಅದಲುಬದಲು(ಗಣ->ids[i], id);
     }
-    i = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
+    i = CURL_U8_STRSET_ಸ್ಥಾನ_IDX(ಗಣ, i + 1);
     ++psl;
   }
-  set->ids[i] = id;
-  set->data[i] = val;
-  set->psl[i] = psl;
-  ++set->count;
+  ಗಣ->ids[i] = id;
+  ಗಣ->ದತ್ತಾಂಶ[i] = val;
+  ಗಣ->psl[i] = psl;
+  ++ಗಣ->ಎಣಿಕೆ_2;
 }
 
-static bool u8_strset_grow(struct u8_strset *set)
+ಸ್ಥಿರ bool u8_strset_grow(ರಚನೆ u8_strset *ಗಣ)
 {
   uint8_t *prev_ids, nslotbits;
   uint16_t prev_slots;
-  char **prev_data;
+  ಅಕ್ಷರ **prev_ದತ್ತಾಂಶ;
   size_t nslots;
-  void *d;
+  ಶೂನ್ಯ *d;
 
-  if(set->slotbits >= 8)
-    return FALSE;
-  nslotbits = (uint8_t)(set->slotbits + 1);
-#if CURL_U8_STRSET_DEBUG
+  ಆದರೆ(ಗಣ->slotbits >= 8)
+    ಹಿಂತಿರುಗಿ FALSE;
+  nslotbits = (uint8_t)(ಗಣ->slotbits + 1);
+#ಆದರೆ CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_grow from %d to %d\n",
-                set->slotbits, nslotbits);
-#endif
-  nslots = CURL_U8_SLOT_CNT(nslotbits);
-  d = curlx_calloc(1, (nslots * sizeof(char *)) + (2 * nslots));
-  if(!d)
-    return FALSE;
+                ಗಣ->slotbits, nslotbits);
+#ಆದರೆ_ಅಂತ್ಯ
+  nslots = CURL_U8_ಸ್ಥಾನ_CNT(nslotbits);
+  d = curlx_calloc(1, (nslots * ಗಾತ್ರ(ಅಕ್ಷರ *)) + (2 * nslots));
+  ಆದರೆ(!d)
+    ಹಿಂತಿರುಗಿ FALSE;
 
-  prev_data = set->data;
-  prev_ids = set->ids;
-  prev_slots = set->slotbits;
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
-#endif
-  set->data = (char **)d;
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
-#endif
-  set->ids = (uint8_t *)d + (nslots * sizeof(char *));
-  set->psl = set->ids + nslots;
-  set->slotbits = nslotbits;
-  set->slotmask = CURL_U8_SLOT_MASK(set->slotbits);
-  set->count = 0;
+  prev_ದತ್ತಾಂಶ = ಗಣ->ದತ್ತಾಂಶ;
+  prev_ids = ಗಣ->ids;
+  prev_slots = ಗಣ->slotbits;
+#ಆದರೆ defined(__GNUC__) && __GNUC__ >= 13
+#ಸೂಚನೆ GCC diagnostic ತಳ್ಳು
+#ಸೂಚನೆ GCC diagnostic ignored "-Wanalyzer-allocation-size"
+#ಆದರೆ_ಅಂತ್ಯ
+  ಗಣ->ದತ್ತಾಂಶ = (ಅಕ್ಷರ **)d;
+#ಆದರೆ defined(__GNUC__) && __GNUC__ >= 13
+#ಸೂಚನೆ GCC diagnostic ತೆಗೆ
+#ಆದರೆ_ಅಂತ್ಯ
+  ಗಣ->ids = (uint8_t *)d + (nslots * ಗಾತ್ರ(ಅಕ್ಷರ *));
+  ಗಣ->psl = ಗಣ->ids + nslots;
+  ಗಣ->slotbits = nslotbits;
+  ಗಣ->slotmask = CURL_U8_ಸ್ಥಾನ_ಮುಖವಾಡ(ಗಣ->slotbits);
+  ಗಣ->ಎಣಿಕೆ_2 = 0;
   /* re-add previous entries */
   {
     uint16_t i;
-    for(i = 0; i < CURL_U8_SLOT_CNT(prev_slots); ++i) {
-      if(prev_data[i])
-        u8_strset_addn(set, prev_ids[i], prev_data[i]);
+    ಗಾಗಿ(i = 0; i < CURL_U8_ಸ್ಥಾನ_CNT(prev_slots); ++i) {
+      ಆದರೆ(prev_ದತ್ತಾಂಶ[i])
+        u8_strset_addn(ಗಣ, prev_ids[i], prev_ದತ್ತಾಂಶ[i]);
     }
   }
-  if(prev_data != set->sdata)
-    curlx_free(prev_data);
-  return TRUE;
+  ಆದರೆ(prev_ದತ್ತಾಂಶ != ಗಣ->sdata)
+    curlx_free(prev_ದತ್ತಾಂಶ);
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
-static bool u8_strset_get_index(struct u8_strset *set,
+ಸ್ಥಿರ bool u8_strset_get_ಸೂಚ್ಯಂಕ(ರಚನೆ u8_strset *ಗಣ,
                                 uint8_t id, uint8_t *pindex)
 {
-  uint8_t i = CURL_U8_STRSET_SLOT_IDX(set, id);
+  uint8_t i = CURL_U8_STRSET_ಸ್ಥಾನ_IDX(ಗಣ, id);
   uint8_t psl = 0;
-  while(set->data[i] && (psl <= set->psl[i])) {
-    if(set->ids[i] == id) {
+  ಆಗ(ಗಣ->ದತ್ತಾಂಶ[i] && (psl <= ಗಣ->psl[i])) {
+    ಆದರೆ(ಗಣ->ids[i] == id) {
       *pindex = i;
-#if CURL_U8_STRSET_DEBUG
-      curl_mfprintf(stderr, "u8_strset_index %d=%s\n", id, set->data[i]);
-#endif
-      return TRUE;
+#ಆದರೆ CURL_U8_STRSET_DEBUG
+      curl_mfprintf(stderr, "u8_strset_index %d=%s\n", id, ಗಣ->ದತ್ತಾಂಶ[i]);
+#ಆದರೆ_ಅಂತ್ಯ
+      ಹಿಂತಿರುಗಿ TRUE;
     }
-    i = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
+    i = CURL_U8_STRSET_ಸ್ಥಾನ_IDX(ಗಣ, i + 1);
     ++psl;
   }
-#if CURL_U8_STRSET_DEBUG
+#ಆದರೆ CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_index %d not found\n", id);
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   *pindex = 0;
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-#ifdef UNITTESTS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNITTESTS
 /* @unittest 3211 */
-uint16_t Curl_u8_strset_count(struct u8_strset *set)
+uint16_t Curl_u8_strset_ಎಣಿಕೆ(ರಚನೆ u8_strset *ಗಣ)
 {
-  return set->count;
+  ಹಿಂತಿರುಗಿ ಗಣ->ಎಣಿಕೆ_2;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-const char *Curl_u8_strset_get(struct u8_strset *set, uint8_t id)
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *Curl_u8_strset_get(ರಚನೆ u8_strset *ಗಣ, uint8_t id)
 {
   uint8_t i;
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(u8_strset_get_index(set, id, &i))
-    return set->data[i];
-  return NULL;
+  DEBUGASSERT(ಗಣ->init == CURL_U8_STRSET_MAGIC);
+  ಆದರೆ(u8_strset_get_ಸೂಚ್ಯಂಕ(ಗಣ, id, &i))
+    ಹಿಂತಿರುಗಿ ಗಣ->ದತ್ತಾಂಶ[i];
+  ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-CURLcode Curl_u8_strset_setn(struct u8_strset *set,
-                             uint8_t id, char *str)
+CURLcode Curl_u8_strset_setn(ರಚನೆ u8_strset *ಗಣ,
+                             uint8_t id, ಅಕ್ಷರ *str)
 {
   uint8_t i;
 
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-#if CURL_U8_STRSET_DEBUG
+  DEBUGASSERT(ಗಣ->init == CURL_U8_STRSET_MAGIC);
+#ಆದರೆ CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_setn %d=%s\n", id, str);
-#endif
-  if(!str) {
-    Curl_u8_strset_unset(set, id);
-    return CURLE_OK;
+#ಆದರೆ_ಅಂತ್ಯ
+  ಆದರೆ(!str) {
+    Curl_u8_strset_unset(ಗಣ, id);
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
 
-  if(u8_strset_get_index(set, id, &i)) {
+  ಆದರೆ(u8_strset_get_ಸೂಚ್ಯಂಕ(ಗಣ, id, &i)) {
     /* `id` is in set, replace value */
-    curlx_free(set->data[i]);
-    set->data[i] = str;
-    return CURLE_OK;
+    curlx_free(ಗಣ->ದತ್ತಾಂಶ[i]);
+    ಗಣ->ದತ್ತಾಂಶ[i] = str;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
   /* `id` not in set yet, grow if full */
-  if((set->count >= CURL_U8_STRSET_SLOT_CNT(set)) && !u8_strset_grow(set)) {
+  ಆದರೆ((ಗಣ->ಎಣಿಕೆ_2 >= CURL_U8_STRSET_ಸ್ಥಾನ_CNT(ಗಣ)) && !u8_strset_grow(ಗಣ)) {
     curlx_free(str);
-    return CURLE_OUT_OF_MEMORY;
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
-  u8_strset_addn(set, id, str);
-  return CURLE_OK;
+  u8_strset_addn(ಗಣ, id, str);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-CURLcode Curl_u8_strset_setx(struct u8_strset *set,
-                             uint8_t id, const char *str, size_t slen)
+CURLcode Curl_u8_strset_setx(ರಚನೆ u8_strset *ಗಣ,
+                             uint8_t id, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, size_t slen)
 {
-  char *val;
+  ಅಕ್ಷರ *val;
 
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(!str) {
-    Curl_u8_strset_unset(set, id);
-    return CURLE_OK;
+  DEBUGASSERT(ಗಣ->init == CURL_U8_STRSET_MAGIC);
+  ಆದರೆ(!str) {
+    Curl_u8_strset_unset(ಗಣ, id);
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
 
   val = curlx_memdup0(str, slen);
-  if(!val)
-    return CURLE_OUT_OF_MEMORY;
-  return Curl_u8_strset_setn(set, id, val);
+  ಆದರೆ(!val)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+  ಹಿಂತಿರುಗಿ Curl_u8_strset_setn(ಗಣ, id, val);
 }
 
 /* @unittest 3211 */
-UNITTEST CURLcode u8_strset_set(struct u8_strset *set,
-                                uint8_t id, const char *str);
-UNITTEST CURLcode u8_strset_set(struct u8_strset *set,
-                                uint8_t id, const char *str)
+UNITTEST CURLcode u8_strset_ಗಣ(ರಚನೆ u8_strset *ಗಣ,
+                                uint8_t id, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str);
+UNITTEST CURLcode u8_strset_ಗಣ(ರಚನೆ u8_strset *ಗಣ,
+                                uint8_t id, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str)
 {
-  return Curl_u8_strset_setx(set, id, str, str ? strlen(str) : 0);
+  ಹಿಂತಿರುಗಿ Curl_u8_strset_setx(ಗಣ, id, str, str ? ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(str) : 0);
 }
 
-static void u8_strset_unset(struct u8_strset *set, uint8_t id, bool zero)
+ಸ್ಥಿರ ಶೂನ್ಯ u8_strset_unset(ರಚನೆ u8_strset *ಗಣ, uint8_t id, bool zero)
 {
   uint8_t i, j;
 
-  DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(u8_strset_get_index(set, id, &i)) {
+  DEBUGASSERT(ಗಣ->init == CURL_U8_STRSET_MAGIC);
+  ಆದರೆ(u8_strset_get_ಸೂಚ್ಯಂಕ(ಗಣ, id, &i)) {
     /* `id` is in set */
-    if(zero)
-      curlx_strzero(set->data[i]);
-    curlx_safefree(set->data[i]);
-    set->ids[i] = set->psl[i] = 0;
-    --set->count;
-    j = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
+    ಆದರೆ(zero)
+      curlx_strzero(ಗಣ->ದತ್ತಾಂಶ[i]);
+    curlx_safefree(ಗಣ->ದತ್ತಾಂಶ[i]);
+    ಗಣ->ids[i] = ಗಣ->psl[i] = 0;
+    --ಗಣ->ಎಣಿಕೆ_2;
+    j = CURL_U8_STRSET_ಸ್ಥಾನ_IDX(ಗಣ, i + 1);
     /* shift all entries with positive psl "down" */
-    while(set->data[j] && set->psl[j]) {
-      set->data[i] = set->data[j];
-      set->ids[i] = set->ids[j];
-      set->psl[i] = (uint8_t)(set->psl[j] - 1);
-      set->data[j] = NULL;
-      set->ids[j] = set->psl[j] = 0;
+    ಆಗ(ಗಣ->ದತ್ತಾಂಶ[j] && ಗಣ->psl[j]) {
+      ಗಣ->ದತ್ತಾಂಶ[i] = ಗಣ->ದತ್ತಾಂಶ[j];
+      ಗಣ->ids[i] = ಗಣ->ids[j];
+      ಗಣ->psl[i] = (uint8_t)(ಗಣ->psl[j] - 1);
+      ಗಣ->ದತ್ತಾಂಶ[j] = ಖಾಲಿ;
+      ಗಣ->ids[j] = ಗಣ->psl[j] = 0;
       i = j;
-      j = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
+      j = CURL_U8_STRSET_ಸ್ಥಾನ_IDX(ಗಣ, i + 1);
     }
   }
 }
 
-void Curl_u8_strset_unset(struct u8_strset *set, uint8_t id)
+ಶೂನ್ಯ Curl_u8_strset_unset(ರಚನೆ u8_strset *ಗಣ, uint8_t id)
 {
-  u8_strset_unset(set, id, FALSE);
+  u8_strset_unset(ಗಣ, id, FALSE);
 }
 
-void Curl_u8_strset_unset0(struct u8_strset *set, uint8_t id)
+ಶೂನ್ಯ Curl_u8_strset_unset0(ರಚನೆ u8_strset *ಗಣ, uint8_t id)
 {
-  u8_strset_unset(set, id, TRUE);
+  u8_strset_unset(ಗಣ, id, TRUE);
 }
 
-CURLcode Curl_u8_strset_copy(struct u8_strset *dest, struct u8_strset *src)
+CURLcode Curl_u8_strset_copy(ರಚನೆ u8_strset *dest, ರಚನೆ u8_strset *src)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
   uint16_t i;
 
   DEBUGASSERT(src->init == CURL_U8_STRSET_MAGIC);
   Curl_u8_strset_clear(dest);
-  for(i = 0; !result && (i < CURL_U8_STRSET_SLOT_CNT(src)); ++i) {
-    if(src->data[i])
-      result = u8_strset_set(dest, src->ids[i], src->data[i]);
+  ಗಾಗಿ(i = 0; !ಫಲಿತಾಂಶ && (i < CURL_U8_STRSET_ಸ್ಥಾನ_CNT(src)); ++i) {
+    ಆದರೆ(src->ದತ್ತಾಂಶ[i])
+      ಫಲಿತಾಂಶ = u8_strset_ಗಣ(dest, src->ids[i], src->ದತ್ತಾಂಶ[i]);
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }

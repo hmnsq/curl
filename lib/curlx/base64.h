@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BASE64_H
-#define HEADER_CURL_BASE64_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_BASE64_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_BASE64_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,17 +24,17 @@
  *
  ***************************************************************************/
 
-CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen);
-CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen);
-CURLcode curlx_base64_decode(const char *src,
+CURLcode curlx_base64_encode(ಸ್ಥಿರಾಂಕ uint8_t *inputbuff, size_t insize,
+                             ಅಕ್ಷರ **outptr, size_t *outlen);
+CURLcode curlx_base64url_encode(ಸ್ಥಿರಾಂಕ uint8_t *inputbuff, size_t insize,
+                                ಅಕ್ಷರ **outptr, size_t *outlen);
+CURLcode curlx_base64_decode(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src,
                              uint8_t **outptr, size_t *outlen);
 
-extern const char curlx_base64encdec[];
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ curlx_base64encdec[];
 
 /* maximum input length acceptable to base64 encode, here to catch and prevent
    mistakes */
-#define CURL_MAX_BASE64_INPUT 16000000
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_MAX_BASE64_ಒಳಹರಿವು 16000000
 
-#endif /* HEADER_CURL_BASE64_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_BASE64_H */

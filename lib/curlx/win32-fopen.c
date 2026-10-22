@@ -21,71 +21,71 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "curlx/win32-fopen.h"
+#ಅನ್ತರ್ಭಾವ "curlx/win32-fopen.h"
 
-int curlx_fseek(void *stream, curl_off_t offset, int whence)
+ಪೂರ್ಣಾಂಕ curlx_fseek(ಶೂನ್ಯ *ಹರಿವು, curl_off_t ಸ್ಥಾನಾಂತರ, ಪೂರ್ಣಾಂಕ whence)
 {
-#ifdef _WIN32
-  return _fseeki64(stream, (__int64)offset, whence);
-#elif defined(HAVE_FSEEKO) && defined(HAVE_DECL_FSEEKO)
-  return fseeko(stream, (off_t)offset, whence);
-#else
-  if(offset > LONG_MAX)
-    return -1;
-  return fseek(stream, (long)offset, whence);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
+  ಹಿಂತಿರುಗಿ _fseeki64(ಹರಿವು, (__int64)ಸ್ಥಾನಾಂತರ, whence);
+#ಅಥವಾಆದರೆ defined(HAVE_FSEEKO) && defined(HAVE_DECL_FSEEKO)
+  ಹಿಂತಿರುಗಿ fseeko(ಹರಿವು, (off_t)ಸ್ಥಾನಾಂತರ, whence);
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಆದರೆ(ಸ್ಥಾನಾಂತರ > LONG_MAX)
+    ಹಿಂತಿರುಗಿ -1;
+  ಹಿಂತಿರುಗಿ fseek(ಹರಿವು, (ದೀರ್ಘ)ಸ್ಥಾನಾಂತರ, whence);
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-#ifdef _WIN32
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
 
-#include <direct.h>  /* for _mkdir(), _wmkdir() */
-#include <share.h>  /* for _SH_DENYNO */
+#ಅನ್ತರ್ಭಾವ <direct.h>  /* for _mkdir(), _wmkdir() */
+#ಅನ್ತರ್ಭಾವ <share.h>  /* for _SH_DENYNO */
 
-#include "curlx/multibyte.h"
-#include "curlx/timeval.h"
+#ಅನ್ತರ್ಭಾವ "curlx/multibyte.h"
+#ಅನ್ತರ್ಭಾವ "curlx/timeval.h"
 
-#ifdef CURL_MEMDEBUG
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_MEMDEBUG
 /*
  * Use system allocators to avoid infinite recursion when called by curl's
  * memory tracker memdebug functions.
  */
-#define CURLX_MALLOC(x) malloc(x)
-#define CURLX_FREE(x)   free(x)
-#else
-#define CURLX_MALLOC(x) curlx_malloc(x)
-#define CURLX_FREE(x)   curlx_free(x)
-#endif
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLX_MALLOC(x) ಸ್ಮರಣೆ_ಕೊಡು(x)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLX_FREE(x)   ಬಿಡುಗಡೆ(x)
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLX_MALLOC(x) curlx_malloc(x)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLX_FREE(x)   curlx_free(x)
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef _UNICODE
-static wchar_t *fn_convert_UTF8_to_wchar(const char *str_utf8)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _UNICODE
+ಸ್ಥಿರ wchar_t *fn_convert_UTF8_ಗಮ್ಯ_wchar(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str_utf8)
 {
-  wchar_t *str_w = NULL;
+  wchar_t *str_w = ಖಾಲಿ;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                        str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = CURLX_MALLOC(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  ಆದರೆ(str_utf8) {
+    ಪೂರ್ಣಾಂಕ str_w_len = Multi_Byte_ಗಮ್ಯ_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, ಖಾಲಿ, 0);
+    ಆದರೆ(str_w_len > 0) {
+      str_w = CURLX_MALLOC(str_w_len * ಗಾತ್ರ(wchar_t));
+      ಆದರೆ(str_w) {
+        ಆದರೆ(Multi_Byte_ಗಮ್ಯ_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           CURLX_FREE(str_w);
-          return NULL;
+          ಹಿಂತಿರುಗಿ ಖಾಲಿ;
         }
       }
     }
   }
-  return str_w;
+  ಹಿಂತಿರುಗಿ str_w;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* declare GetFullPathNameW for mingw-w64 UWP builds targeting old Windows */
-#if defined(CURL_WINDOWS_UWP) && defined(__MINGW32__) && \
+#ಆದರೆ defined(CURL_WINDOWS_UWP) && defined(__MINGW32__) && \
   (_WIN32_WINNT < _WIN32_WINNT_WIN10)
-WINBASEAPI DWORD WINAPI GetFullPathNameW(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
-#endif
+WINBASEAPI DWORD WINAPI Get_ತುಂಬಿದ_ಮಾರ್ಗ_Name_W(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* Fix excessive paths (paths that exceed MAX_PATH length of 260).
  *
@@ -105,59 +105,59 @@ WINBASEAPI DWORD WINAPI GetFullPathNameW(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
  * the full path is then converted from Unicode to multibyte that fails if any
  * directories in the path contain characters not in the current codepage.
  */
-static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
+ಸ್ಥಿರ bool fix_excessive_ಮಾರ್ಗ(ಸ್ಥಿರಾಂಕ TCHAR *ಒಳ, TCHAR **ಹೊರಹೋಗು)
 {
-  size_t needed, count;
-  const wchar_t *in_w;
-  wchar_t *fbuf = NULL;
+  size_t needed, ಎಣಿಕೆ_2;
+  ಸ್ಥಿರಾಂಕ wchar_t *ಒಳ_w;
+  wchar_t *fbuf = ಖಾಲಿ;
 
   /* MS-documented "approximate" limit for the maximum path length */
-  const size_t max_path_len = 32767;
+  ಸ್ಥಿರಾಂಕ size_t max_ಮಾರ್ಗ_len = 32767;
 
-#ifndef _UNICODE
-  wchar_t *ibuf = NULL;
-  char *obuf = NULL;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ _UNICODE
+  wchar_t *ibuf = ಖಾಲಿ;
+  ಅಕ್ಷರ *obuf = ಖಾಲಿ;
+#ಆದರೆ_ಅಂತ್ಯ
 
-  *out = NULL;
+  *ಹೊರಹೋಗು = ಖಾಲಿ;
 
   /* skip paths already normalized */
-  if(!_tcsncmp(in, _TEXT("\\\\?\\"), 4))
-    goto cleanup;
+  ಆದರೆ(!_tcsncmp(ಒಳ, ಪಠ್ಯ("\\\\?\\"), 4))
+    ಹೋಗು cleanup;
 
-#ifndef _UNICODE
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ _UNICODE
   /* convert multibyte input to unicode */
-  if(mbstowcs_s(&needed, NULL, 0, in, 0))
-    goto cleanup;
-  if(!needed || needed >= max_path_len)
-    goto cleanup;
-  ibuf = CURLX_MALLOC(needed * sizeof(wchar_t));
-  if(!ibuf)
-    goto cleanup;
-  if(mbstowcs_s(&count, ibuf, needed, in, needed - 1))
-    goto cleanup;
-  if(count != needed)
-    goto cleanup;
-  in_w = ibuf;
-#else
-  in_w = in;
-#endif
+  ಆದರೆ(mbstowcs_s(&needed, ಖಾಲಿ, 0, ಒಳ, 0))
+    ಹೋಗು cleanup;
+  ಆದರೆ(!needed || needed >= max_ಮಾರ್ಗ_len)
+    ಹೋಗು cleanup;
+  ibuf = CURLX_MALLOC(needed * ಗಾತ್ರ(wchar_t));
+  ಆದರೆ(!ibuf)
+    ಹೋಗು cleanup;
+  ಆದರೆ(mbstowcs_s(&ಎಣಿಕೆ_2, ibuf, needed, ಒಳ, needed - 1))
+    ಹೋಗು cleanup;
+  ಆದರೆ(ಎಣಿಕೆ_2 != needed)
+    ಹೋಗು cleanup;
+  ಒಳ_w = ibuf;
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಒಳ_w = ಒಳ;
+#ಆದರೆ_ಅಂತ್ಯ
 
   /* GetFullPathNameW returns the normalized full path in unicode. It converts
      forward slashes to backslashes, processes .. to remove directory segments,
      etc. Unlike GetFullPathNameA it can process paths that exceed MAX_PATH. */
-  needed = (size_t)GetFullPathNameW(in_w, 0, NULL, NULL);
-  if(!needed || needed > max_path_len)
-    goto cleanup;
+  needed = (size_t)Get_ತುಂಬಿದ_ಮಾರ್ಗ_Name_W(ಒಳ_w, 0, ಖಾಲಿ, ಖಾಲಿ);
+  ಆದರೆ(!needed || needed > max_ಮಾರ್ಗ_len)
+    ಹೋಗು cleanup;
   /* skip paths that are not excessive and do not need modification */
-  if(needed <= MAX_PATH)
-    goto cleanup;
-  fbuf = CURLX_MALLOC(needed * sizeof(wchar_t));
-  if(!fbuf)
-    goto cleanup;
-  count = (size_t)GetFullPathNameW(in_w, (DWORD)needed, fbuf, NULL);
-  if(!count || count >= needed)
-    goto cleanup;
+  ಆದರೆ(needed <= MAX_ಮಾರ್ಗ)
+    ಹೋಗು cleanup;
+  fbuf = CURLX_MALLOC(needed * ಗಾತ್ರ(wchar_t));
+  ಆದರೆ(!fbuf)
+    ಹೋಗು cleanup;
+  ಎಣಿಕೆ_2 = (size_t)Get_ತುಂಬಿದ_ಮಾರ್ಗ_Name_W(ಒಳ_w, (DWORD)needed, fbuf, ಖಾಲಿ);
+  ಆದರೆ(!ಎಣಿಕೆ_2 || ಎಣಿಕೆ_2 >= needed)
+    ಹೋಗು cleanup;
 
   /* prepend \\?\ or \\?\UNC\ to the excessively long path.
    *
@@ -168,386 +168,386 @@ static bool fix_excessive_path(const TCHAR *in, TCHAR **out)
    *
    * https://learn.microsoft.com/dotnet/standard/io/file-path-formats
    */
-  if(!wcsncmp(fbuf, L"\\\\?\\", 4))
+  ಆದರೆ(!wcsncmp(fbuf, L"\\\\?\\", 4))
     ; /* do nothing */
-  else if(!wcsncmp(fbuf, L"\\\\.\\", 4))
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!wcsncmp(fbuf, L"\\\\.\\", 4))
     fbuf[2] = '?';
-  else if(!wcsncmp(fbuf, L"\\\\.", 3) || !wcsncmp(fbuf, L"\\\\?", 3)) {
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!wcsncmp(fbuf, L"\\\\.", 3) || !wcsncmp(fbuf, L"\\\\?", 3)) {
     /* Unexpected, not UNC. The formatting doc does not allow this AFAICT. */
-    goto cleanup;
+    ಹೋಗು cleanup;
   }
-  else {
-    wchar_t *temp;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    wchar_t *ತಾತ್ಕಾಲಿಕ;
 
-    if(!wcsncmp(fbuf, L"\\\\", 2)) {
+    ಆದರೆ(!wcsncmp(fbuf, L"\\\\", 2)) {
       /* "\\?\UNC\" + full path without "\\" + null */
-      needed = 8 + (count - 2) + 1;
-      if(needed > max_path_len)
-        goto cleanup;
+      needed = 8 + (ಎಣಿಕೆ_2 - 2) + 1;
+      ಆದರೆ(needed > max_ಮಾರ್ಗ_len)
+        ಹೋಗು cleanup;
 
-      temp = CURLX_MALLOC(needed * sizeof(wchar_t));
-      if(!temp)
-        goto cleanup;
+      ತಾತ್ಕಾಲಿಕ = CURLX_MALLOC(needed * ಗಾತ್ರ(wchar_t));
+      ಆದರೆ(!ತಾತ್ಕಾಲಿಕ)
+        ಹೋಗು cleanup;
 
-      if(wcsncpy_s(temp, needed, L"\\\\?\\UNC\\", 8)) {
-        CURLX_FREE(temp);
-        goto cleanup;
+      ಆದರೆ(wcsncpy_s(ತಾತ್ಕಾಲಿಕ, needed, L"\\\\?\\UNC\\", 8)) {
+        CURLX_FREE(ತಾತ್ಕಾಲಿಕ);
+        ಹೋಗು cleanup;
       }
-      if(wcscpy_s(temp + 8, needed, fbuf + 2)) {
-        CURLX_FREE(temp);
-        goto cleanup;
+      ಆದರೆ(wcscpy_s(ತಾತ್ಕಾಲಿಕ + 8, needed, fbuf + 2)) {
+        CURLX_FREE(ತಾತ್ಕಾಲಿಕ);
+        ಹೋಗು cleanup;
       }
     }
-    else {
+    ಇಲ್ಲದಿದ್ದರೆ {
       /* "\\?\" + full path + null */
-      needed = 4 + count + 1;
-      if(needed > max_path_len)
-        goto cleanup;
+      needed = 4 + ಎಣಿಕೆ_2 + 1;
+      ಆದರೆ(needed > max_ಮಾರ್ಗ_len)
+        ಹೋಗು cleanup;
 
-      temp = CURLX_MALLOC(needed * sizeof(wchar_t));
-      if(!temp)
-        goto cleanup;
+      ತಾತ್ಕಾಲಿಕ = CURLX_MALLOC(needed * ಗಾತ್ರ(wchar_t));
+      ಆದರೆ(!ತಾತ್ಕಾಲಿಕ)
+        ಹೋಗು cleanup;
 
-      if(wcsncpy_s(temp, needed, L"\\\\?\\", 4)) {
-        CURLX_FREE(temp);
-        goto cleanup;
+      ಆದರೆ(wcsncpy_s(ತಾತ್ಕಾಲಿಕ, needed, L"\\\\?\\", 4)) {
+        CURLX_FREE(ತಾತ್ಕಾಲಿಕ);
+        ಹೋಗು cleanup;
       }
-      if(wcscpy_s(temp + 4, needed, fbuf)) {
-        CURLX_FREE(temp);
-        goto cleanup;
+      ಆದರೆ(wcscpy_s(ತಾತ್ಕಾಲಿಕ + 4, needed, fbuf)) {
+        CURLX_FREE(ತಾತ್ಕಾಲಿಕ);
+        ಹೋಗು cleanup;
       }
     }
 
     CURLX_FREE(fbuf);
-    fbuf = temp;
+    fbuf = ತಾತ್ಕಾಲಿಕ;
   }
 
-#ifndef _UNICODE
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ _UNICODE
   /* convert unicode full path to multibyte output */
-  if(wcstombs_s(&needed, NULL, 0, fbuf, 0))
-    goto cleanup;
-  if(!needed || needed >= max_path_len)
-    goto cleanup;
+  ಆದರೆ(wcstombs_s(&needed, ಖಾಲಿ, 0, fbuf, 0))
+    ಹೋಗು cleanup;
+  ಆದರೆ(!needed || needed >= max_ಮಾರ್ಗ_len)
+    ಹೋಗು cleanup;
   obuf = CURLX_MALLOC(needed);
-  if(!obuf)
-    goto cleanup;
-  if(wcstombs_s(&count, obuf, needed, fbuf, needed - 1))
-    goto cleanup;
-  if(count != needed)
-    goto cleanup;
-  *out = obuf;
-  obuf = NULL;
-#else
-  *out = fbuf;
-  fbuf = NULL;
-#endif
+  ಆದರೆ(!obuf)
+    ಹೋಗು cleanup;
+  ಆದರೆ(wcstombs_s(&ಎಣಿಕೆ_2, obuf, needed, fbuf, needed - 1))
+    ಹೋಗು cleanup;
+  ಆದರೆ(ಎಣಿಕೆ_2 != needed)
+    ಹೋಗು cleanup;
+  *ಹೊರಹೋಗು = obuf;
+  obuf = ಖಾಲಿ;
+#ಇಲ್ಲದಿದ್ದರೆ
+  *ಹೊರಹೋಗು = fbuf;
+  fbuf = ಖಾಲಿ;
+#ಆದರೆ_ಅಂತ್ಯ
 
 cleanup:
   CURLX_FREE(fbuf);
-#ifndef _UNICODE
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ _UNICODE
   CURLX_FREE(ibuf);
   CURLX_FREE(obuf);
-#endif
-  return !!*out;
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ !!*ಹೊರಹೋಗು;
 }
 
-#ifndef CURL_WINDOWS_UWP
-HANDLE curlx_CreateFile(const char *filename,
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_WINDOWS_UWP
+HANDLE curlx_CreateFile(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *filename,
                         DWORD dwDesiredAccess,
-                        DWORD dwShareMode,
-                        LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                        DWORD dw_Share_ಬಹುಲಕ,
+                        LPSECURITY_ಗುಣಲಕ್ಷಣಗಳು lp_Security_ಗುಣಲಕ್ಷಣಗಳು,
                         DWORD dwCreationDisposition,
-                        DWORD dwFlagsAndAttributes,
+                        DWORD dw_Flags_And_ಗುಣಲಕ್ಷಣಗಳು,
                         HANDLE hTemplateFile)
 {
-  HANDLE handle = INVALID_HANDLE_VALUE;
+  HANDLE handle = INVALID_HANDLE_ಮೌಲ್ಯ;
 
-#ifdef UNICODE
-  TCHAR *filename_t = curlx_convert_UTF8_to_wchar(filename);
-#else
-  const TCHAR *filename_t = filename;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNICODE
+  TCHAR *filename_t = curlx_convert_UTF8_ಗಮ್ಯ_wchar(filename);
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಸ್ಥಿರಾಂಕ TCHAR *filename_t = filename;
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if(filename_t) {
-    TCHAR *fixed = NULL;
-    const TCHAR *target = NULL;
+  ಆದರೆ(filename_t) {
+    TCHAR *fixed = ಖಾಲಿ;
+    ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ = ಖಾಲಿ;
 
-    if(fix_excessive_path(filename_t, &fixed))
-      target = fixed;
-    else
-      target = filename_t;
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(filename_t, &fixed))
+      ಗುರಿ = fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ = filename_t;
     /* !checksrc! disable BANNEDFUNC 1 */
-    handle = CreateFile(target,
+    handle = CreateFile(ಗುರಿ,
                         dwDesiredAccess,
-                        dwShareMode,
-                        lpSecurityAttributes,
+                        dw_Share_ಬಹುಲಕ,
+                        lp_Security_ಗುಣಲಕ್ಷಣಗಳು,
                         dwCreationDisposition,
-                        dwFlagsAndAttributes,
+                        dw_Flags_And_ಗುಣಲಕ್ಷಣಗಳು,
                         hTemplateFile);
     CURLX_FREE(fixed);
-#ifdef UNICODE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNICODE
     curlx_free(filename_t);
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   }
 
-  return handle;
+  ಹಿಂತಿರುಗಿ handle;
 }
 
-HANDLE curlx_FindFirstFile(const char *filename,
-                           WIN32_FIND_DATA *find_data)
+HANDLE curlx_ಕಂಡುಹಿಡಿ_ಮೊದಲ_File(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *filename,
+                           WIN32_ಕಂಡುಹಿಡಿ_ದತ್ತಾಂಶ *ಕಂಡುಹಿಡಿ_ದತ್ತಾಂಶ)
 {
-  HANDLE handle = INVALID_HANDLE_VALUE;
+  HANDLE handle = INVALID_HANDLE_ಮೌಲ್ಯ;
 
-#ifdef UNICODE
-  TCHAR *filename_t = curlx_convert_UTF8_to_wchar(filename);
-#else
-  const TCHAR *filename_t = filename;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNICODE
+  TCHAR *filename_t = curlx_convert_UTF8_ಗಮ್ಯ_wchar(filename);
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಸ್ಥಿರಾಂಕ TCHAR *filename_t = filename;
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if(filename_t) {
-    TCHAR *fixed = NULL;
-    const TCHAR *target;
+  ಆದರೆ(filename_t) {
+    TCHAR *fixed = ಖಾಲಿ;
+    ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ;
 
-    if(fix_excessive_path(filename_t, &fixed))
-      target = fixed;
-    else
-      target = filename_t;
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(filename_t, &fixed))
+      ಗುರಿ = fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ = filename_t;
 
-    handle = FindFirstFile(target, find_data);
+    handle = ಕಂಡುಹಿಡಿ_ಮೊದಲ_File(ಗುರಿ, ಕಂಡುಹಿಡಿ_ದತ್ತಾಂಶ);
     CURLX_FREE(fixed);
 
-#ifdef UNICODE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNICODE
     curlx_free(filename_t);
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   }
 
-  return handle;
+  ಹಿಂತಿರುಗಿ handle;
 }
-#endif /* !CURL_WINDOWS_UWP */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_WINDOWS_UWP */
 
-int curlx_win32_open(const char *filename, int oflag, ...)
+ಪೂರ್ಣಾಂಕ curlx_win32_open(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *filename, ಪೂರ್ಣಾಂಕ oflag, ...)
 {
-  int pmode = 0;
-  int res = -1;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  ಪೂರ್ಣಾಂಕ pmode = 0;
+  ಪೂರ್ಣಾಂಕ res = -1;
+  TCHAR *fixed = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ = ಖಾಲಿ;
 
-#ifdef _UNICODE
-  wchar_t *filename_w = fn_convert_UTF8_to_wchar(filename);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _UNICODE
+  wchar_t *filename_w = fn_convert_UTF8_ಗಮ್ಯ_wchar(filename);
+#ಆದರೆ_ಅಂತ್ಯ
 
   va_list param;
   va_start(param, oflag);
-  if(oflag & O_CREAT)
-    pmode = va_arg(param, int);
+  ಆದರೆ(oflag & O_CREAT)
+    pmode = va_arg(param, ಪೂರ್ಣಾಂಕ);
   va_end(param);
 
-#ifdef _UNICODE
-  if(filename_w) {
-    if(fix_excessive_path(filename_w, &fixed))
-      target = fixed;
-    else
-      target = filename_w;
-    errno = _wsopen_s(&res, target, oflag, _SH_DENYNO, pmode);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _UNICODE
+  ಆದರೆ(filename_w) {
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(filename_w, &fixed))
+      ಗುರಿ = fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ = filename_w;
+    errno = _wsopen_s(&res, ಗುರಿ, oflag, _SH_DENYNO, pmode);
     CURLX_FREE(filename_w);
   }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
-#else
-  if(fix_excessive_path(filename, &fixed))
-    target = fixed;
-  else
-    target = filename;
-  errno = _sopen_s(&res, target, oflag, _SH_DENYNO, pmode);
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಆದರೆ(fix_excessive_ಮಾರ್ಗ(filename, &fixed))
+    ಗುರಿ = fixed;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಗುರಿ = filename;
+  errno = _sopen_s(&res, ಗುರಿ, oflag, _SH_DENYNO, pmode);
+#ಆದರೆ_ಅಂತ್ಯ
 
   CURLX_FREE(fixed);
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
-FILE *curlx_win32_fopen(const char *filename, const char *mode)
+FILE *curlx_win32_fopen(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *filename, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬಹುಲಕ)
 {
-  FILE *file = NULL;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  FILE *file = ಖಾಲಿ;
+  TCHAR *fixed = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ = ಖಾಲಿ;
 
-#ifdef _UNICODE
-  wchar_t *filename_w = fn_convert_UTF8_to_wchar(filename);
-  wchar_t *mode_w = fn_convert_UTF8_to_wchar(mode);
-  if(filename_w && mode_w) {
-    if(fix_excessive_path(filename_w, &fixed))
-      target = fixed;
-    else
-      target = filename_w;
-    file = _wfsopen(target, mode_w, _SH_DENYNO);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _UNICODE
+  wchar_t *filename_w = fn_convert_UTF8_ಗಮ್ಯ_wchar(filename);
+  wchar_t *ಬಹುಲಕ_w = fn_convert_UTF8_ಗಮ್ಯ_wchar(ಬಹುಲಕ);
+  ಆದರೆ(filename_w && ಬಹುಲಕ_w) {
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(filename_w, &fixed))
+      ಗುರಿ = fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ = filename_w;
+    file = _wfsopen(ಗುರಿ, ಬಹುಲಕ_w, _SH_DENYNO);
   }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
   CURLX_FREE(filename_w);
-  CURLX_FREE(mode_w);
-#else
-  if(fix_excessive_path(filename, &fixed))
-    target = fixed;
-  else
-    target = filename;
-  file = _fsopen(target, mode, _SH_DENYNO);
-#endif
+  CURLX_FREE(ಬಹುಲಕ_w);
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಆದರೆ(fix_excessive_ಮಾರ್ಗ(filename, &fixed))
+    ಗುರಿ = fixed;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಗುರಿ = filename;
+  file = _fsopen(ಗುರಿ, ಬಹುಲಕ, _SH_DENYNO);
+#ಆದರೆ_ಅಂತ್ಯ
 
   CURLX_FREE(fixed);
-  return file;
+  ಹಿಂತಿರುಗಿ file;
 }
 
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR < 5)
-_CRTIMP errno_t __cdecl freopen_s(FILE **file, const char *filename,
-                                  const char *mode, FILE *stream);
-#endif
+#ಆದರೆ defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR < 5)
+_CRTIMP errno_t __cdecl freopen_s(FILE **file, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *filename,
+                                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬಹುಲಕ, FILE *ಹರಿವು);
+#ಆದರೆ_ಅಂತ್ಯ
 
-FILE *curlx_win32_freopen(const char *filename, const char *mode, FILE *fp)
+FILE *curlx_win32_freopen(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *filename, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬಹುಲಕ, FILE *fp)
 {
-  FILE *file = NULL;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  FILE *file = ಖಾಲಿ;
+  TCHAR *fixed = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ = ಖಾಲಿ;
 
-#ifdef _UNICODE
-  wchar_t *filename_w = fn_convert_UTF8_to_wchar(filename);
-  wchar_t *mode_w = fn_convert_UTF8_to_wchar(mode);
-  if(filename_w && mode_w) {
-    if(fix_excessive_path(filename_w, &fixed))
-      target = fixed;
-    else
-      target = filename_w;
-    errno = _wfreopen_s(&file, target, mode_w, fp);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _UNICODE
+  wchar_t *filename_w = fn_convert_UTF8_ಗಮ್ಯ_wchar(filename);
+  wchar_t *ಬಹುಲಕ_w = fn_convert_UTF8_ಗಮ್ಯ_wchar(ಬಹುಲಕ);
+  ಆದರೆ(filename_w && ಬಹುಲಕ_w) {
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(filename_w, &fixed))
+      ಗುರಿ = fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ = filename_w;
+    errno = _wfreopen_s(&file, ಗುರಿ, ಬಹುಲಕ_w, fp);
   }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
   CURLX_FREE(filename_w);
-  CURLX_FREE(mode_w);
-#else
-  if(fix_excessive_path(filename, &fixed))
-    target = fixed;
-  else
-    target = filename;
-  errno = freopen_s(&file, target, mode, fp);
-#endif
+  CURLX_FREE(ಬಹುಲಕ_w);
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಆದರೆ(fix_excessive_ಮಾರ್ಗ(filename, &fixed))
+    ಗುರಿ = fixed;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಗುರಿ = filename;
+  errno = freopen_s(&file, ಗುರಿ, ಬಹುಲಕ, fp);
+#ಆದರೆ_ಅಂತ್ಯ
 
   CURLX_FREE(fixed);
-  return file;
+  ಹಿಂತಿರುಗಿ file;
 }
 
-int curlx_win32_stat(const char *path, curlx_struct_stat *buffer)
+ಪೂರ್ಣಾಂಕ curlx_win32_stat(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, curlx_struct_stat *ಬಫರ್)
 {
-  int res = -1;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  ಪೂರ್ಣಾಂಕ res = -1;
+  TCHAR *fixed = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ = ಖಾಲಿ;
 
-#ifdef _UNICODE
-  wchar_t *path_w = curlx_convert_UTF8_to_wchar(path);
-  if(path_w) {
-    if(fix_excessive_path(path_w, &fixed))
-      target = fixed;
-    else
-      target = path_w;
-    res = _wstati64(target, buffer);
-    curlx_free(path_w);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _UNICODE
+  wchar_t *ಮಾರ್ಗ_w = curlx_convert_UTF8_ಗಮ್ಯ_wchar(ಮಾರ್ಗ);
+  ಆದರೆ(ಮಾರ್ಗ_w) {
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(ಮಾರ್ಗ_w, &fixed))
+      ಗುರಿ = fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ = ಮಾರ್ಗ_w;
+    res = _wstati64(ಗುರಿ, ಬಫರ್);
+    curlx_free(ಮಾರ್ಗ_w);
   }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
-#else
-  if(fix_excessive_path(path, &fixed))
-    target = fixed;
-  else
-    target = path;
-  res = _stati64(target, buffer);
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಆದರೆ(fix_excessive_ಮಾರ್ಗ(ಮಾರ್ಗ, &fixed))
+    ಗುರಿ = fixed;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಗುರಿ = ಮಾರ್ಗ;
+  res = _stati64(ಗುರಿ, ಬಫರ್);
+#ಆದರೆ_ಅಂತ್ಯ
 
   CURLX_FREE(fixed);
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
-int curlx_win32_mkdir(const char *path)
+ಪೂರ್ಣಾಂಕ curlx_win32_mkdir(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ)
 {
-  int res = -1;
-  TCHAR *fixed = NULL;
-  const TCHAR *target = NULL;
+  ಪೂರ್ಣಾಂಕ res = -1;
+  TCHAR *fixed = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ = ಖಾಲಿ;
 
-#ifdef _UNICODE
-  wchar_t *path_w = curlx_convert_UTF8_to_wchar(path);
-  if(path_w) {
-    if(fix_excessive_path(path_w, &fixed))
-      target = fixed;
-    else
-      target = path_w;
-    res = _wmkdir(target);
-    curlx_free(path_w);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _UNICODE
+  wchar_t *ಮಾರ್ಗ_w = curlx_convert_UTF8_ಗಮ್ಯ_wchar(ಮಾರ್ಗ);
+  ಆದರೆ(ಮಾರ್ಗ_w) {
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(ಮಾರ್ಗ_w, &fixed))
+      ಗುರಿ = fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ = ಮಾರ್ಗ_w;
+    res = _wmkdir(ಗುರಿ);
+    curlx_free(ಮಾರ್ಗ_w);
   }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     /* !checksrc! disable ERRNOVAR 1 */
     errno = EINVAL;
-#else
-  if(fix_excessive_path(path, &fixed))
-    target = fixed;
-  else
-    target = path;
-  res = _mkdir(target);
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಆದರೆ(fix_excessive_ಮಾರ್ಗ(ಮಾರ್ಗ, &fixed))
+    ಗುರಿ = fixed;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಗುರಿ = ಮಾರ್ಗ;
+  res = _mkdir(ಗುರಿ);
+#ಆದರೆ_ಅಂತ್ಯ
 
   CURLX_FREE(fixed);
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_COOKIES) || \
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_COOKIES) || \
   !defined(CURL_DISABLE_ALTSVC)
 /* rename() on Windows does not overwrite, so we cannot use it here.
    MoveFileEx() does overwrite and is usually atomic but fails when there are
    open handles to the file. */
-int curlx_win32_rename(const char *oldpath, const char *newpath)
+ಪೂರ್ಣಾಂಕ curlx_win32_rename(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *oldpath, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *newpath)
 {
-  int res = -1; /* fail */
+  ಪೂರ್ಣಾಂಕ res = -1; /* fail */
 
-#ifdef UNICODE
-  TCHAR *tchar_oldpath = curlx_convert_UTF8_to_wchar(oldpath);
-  TCHAR *tchar_newpath = curlx_convert_UTF8_to_wchar(newpath);
-#else
-  const TCHAR *tchar_oldpath = oldpath;
-  const TCHAR *tchar_newpath = newpath;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNICODE
+  TCHAR *tchar_oldpath = curlx_convert_UTF8_ಗಮ್ಯ_wchar(oldpath);
+  TCHAR *tchar_newpath = curlx_convert_UTF8_ಗಮ್ಯ_wchar(newpath);
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಸ್ಥಿರಾಂಕ TCHAR *tchar_oldpath = oldpath;
+  ಸ್ಥಿರಾಂಕ TCHAR *tchar_newpath = newpath;
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if(tchar_oldpath && tchar_newpath) {
-    const int max_wait_ms = 1000;
-    struct curltime start;
+  ಆದರೆ(tchar_oldpath && tchar_newpath) {
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ max_wait_ms = 1000;
+    ರಚನೆ curltime ಆರಂಭ;
 
-    TCHAR *oldpath_fixed = NULL;
-    TCHAR *newpath_fixed = NULL;
-    const TCHAR *target_oldpath;
-    const TCHAR *target_newpath;
+    TCHAR *oldpath_fixed = ಖಾಲಿ;
+    TCHAR *newpath_fixed = ಖಾಲಿ;
+    ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ_oldpath;
+    ಸ್ಥಿರಾಂಕ TCHAR *ಗುರಿ_newpath;
 
-    if(fix_excessive_path(tchar_oldpath, &oldpath_fixed))
-      target_oldpath = oldpath_fixed;
-    else
-      target_oldpath = tchar_oldpath;
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(tchar_oldpath, &oldpath_fixed))
+      ಗುರಿ_oldpath = oldpath_fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ_oldpath = tchar_oldpath;
 
-    if(fix_excessive_path(tchar_newpath, &newpath_fixed))
-      target_newpath = newpath_fixed;
-    else
-      target_newpath = tchar_newpath;
+    ಆದರೆ(fix_excessive_ಮಾರ್ಗ(tchar_newpath, &newpath_fixed))
+      ಗುರಿ_newpath = newpath_fixed;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಗುರಿ_newpath = tchar_newpath;
 
-    start = curlx_now();
+    ಆರಂಭ = curlx_now();
 
-    for(;;) {
+    ಗಾಗಿ(;;) {
       timediff_t diff;
       /* !checksrc! disable BANNEDFUNC 1 */
-      if(MoveFileEx(target_oldpath, target_newpath,
+      ಆದರೆ(MoveFileEx(ಗುರಿ_oldpath, ಗುರಿ_newpath,
                     MOVEFILE_REPLACE_EXISTING)) {
         res = 0; /* success */
-        break;
+        ನಿಲ್ಲಿಸು;
       }
-      diff = curlx_timediff_ms(curlx_now(), start);
-      if(diff < 0 || diff > max_wait_ms) {
-        break;
+      diff = curlx_timediff_ms(curlx_now(), ಆರಂಭ);
+      ಆದರೆ(diff < 0 || diff > max_wait_ms) {
+        ನಿಲ್ಲಿಸು;
       }
       Sleep(1);
     }
@@ -556,16 +556,16 @@ int curlx_win32_rename(const char *oldpath, const char *newpath)
     CURLX_FREE(newpath_fixed);
   }
 
-#ifdef UNICODE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNICODE
   curlx_free(tchar_oldpath);
   curlx_free(tchar_newpath);
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#undef CURLX_MALLOC
-#undef CURLX_FREE
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು CURLX_MALLOC
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು CURLX_FREE
 
-#endif /* _WIN32 */
+#ಆದರೆ_ಅಂತ್ಯ /* _WIN32 */

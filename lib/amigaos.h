@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_AMIGAOS_H
-#define HEADER_CURL_AMIGAOS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_AMIGAOS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_AMIGAOS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if defined(__AMIGA__) && defined(HAVE_PROTO_BSDSOCKET_H) && \
+#ಆದರೆ defined(__AMIGA__) && defined(HAVE_PROTO_BSDSOCKET_H) && \
   (!defined(USE_AMISSL) || defined(__amigaos4__))
 
-CURLcode Curl_amiga_init(void);
-void Curl_amiga_cleanup(void);
+CURLcode Curl_amiga_init(ಶೂನ್ಯ);
+ಶೂನ್ಯ Curl_amiga_cleanup(ಶೂನ್ಯ);
 
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 
-#define Curl_amiga_init()    CURLE_OK
-#define Curl_amiga_cleanup() Curl_nop_stmt
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_amiga_init()    CURLE_OK
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_amiga_cleanup() Curl_nop_stmt
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HEADER_CURL_AMIGAOS_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_AMIGAOS_H */

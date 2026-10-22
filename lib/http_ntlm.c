@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
 
 /*
  * NTLM details:
@@ -32,222 +32,222 @@
  * https://www.innovation.ch/java/ntlm.html
  */
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "http_ntlm.h"
-#include "curl_ntlm_core.h"
-#include "curlx/base64.h"
-#include "vauth/vauth.h"
-#include "url.h"
-#include "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "strcase.h"
+#ಅನ್ತರ್ಭಾವ "http_ntlm.h"
+#ಅನ್ತರ್ಭಾವ "curl_ntlm_core.h"
+#ಅನ್ತರ್ಭಾವ "curlx/base64.h"
+#ಅನ್ತರ್ಭಾವ "vauth/vauth.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
 
 /* SSL backend-specific #if branches in this file must be kept in the order
    documented in curl_ntlm_core. */
-#ifdef USE_WINDOWS_SSPI
-#include "curl_sspi.h"
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_WINDOWS_SSPI
+#ಅನ್ತರ್ಭಾವ "curl_sspi.h"
+#ಆದರೆ_ಅಂತ್ಯ
 
-CURLcode Curl_input_ntlm(struct Curl_easy *data,
+CURLcode Curl_ಒಳಹರಿವು_ntlm(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                          bool proxy,         /* if proxy or not */
-                         const char *header) /* rest of the www-authenticate:
-                                                header */
+                         ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶೀರ್ಷಿಕೆ) /* rest of the www-authenticate:
+ಶೀರ್ಷಿಕೆ*/
 {
   /* point to the correct struct with this */
   curlntlm *state;
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
 
   state = proxy ? &conn->proxy_ntlm_state : &conn->http_ntlm_state;
 
-  if(checkprefix("NTLM", header)) {
-    struct ntlmdata *ntlm = Curl_auth_ntlm_get(conn, proxy);
-    if(!ntlm)
-      return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(checkprefix("NTLM", ಶೀರ್ಷಿಕೆ)) {
+    ರಚನೆ ntlmdata *ntlm = Curl_auth_ntlm_get(conn, proxy);
+    ಆದರೆ(!ntlm)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-    header += CURL_CSTRLEN("NTLM");
-    curlx_str_passblanks(&header);
-    if(*header) {
-      unsigned char *hdr;
+    ಶೀರ್ಷಿಕೆ += CURL_CSTRLEN("NTLM");
+    curlx_str_passblanks(&ಶೀರ್ಷಿಕೆ);
+    ಆದರೆ(*ಶೀರ್ಷಿಕೆ) {
+      ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *hdr;
       size_t hdrlen;
 
-      result = curlx_base64_decode(header, &hdr, &hdrlen);
-      if(!result) {
-        struct bufref hdrbuf;
+      ಫಲಿತಾಂಶ = curlx_base64_decode(ಶೀರ್ಷಿಕೆ, &hdr, &hdrlen);
+      ಆದರೆ(!ಫಲಿತಾಂಶ) {
+        ರಚನೆ bufref hdrbuf;
 
         Curl_bufref_init(&hdrbuf);
-        Curl_bufref_set(&hdrbuf, hdr, hdrlen, curl_free);
-        result = Curl_auth_decode_ntlm_type2_message(data, &hdrbuf, ntlm);
+        Curl_bufref_ಗಣ(&hdrbuf, hdr, hdrlen, curl_free);
+        ಫಲಿತಾಂಶ = Curl_auth_decode_ntlm_type2_ಸಂದೇಶ(ದತ್ತಾಂಶ, &hdrbuf, ntlm);
         Curl_bufref_free(&hdrbuf);
       }
-      if(result)
-        return result;
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
       *state = NTLMSTATE_TYPE2; /* We got a type-2 message */
     }
-    else {
-      if(*state == NTLMSTATE_LAST) {
-        infof(data, "NTLM auth restarted");
+    ಇಲ್ಲದಿದ್ದರೆ {
+      ಆದರೆ(*state == NTLMSTATE_ಕೊನೆಯ) {
+        infof(ದತ್ತಾಂಶ, "NTLM auth restarted");
         Curl_auth_ntlm_remove(conn, proxy);
       }
-      else if(*state == NTLMSTATE_TYPE3) {
-        infof(data, "NTLM handshake rejected");
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(*state == NTLMSTATE_TYPE3) {
+        infof(ದತ್ತಾಂಶ, "NTLM handshake rejected");
         Curl_auth_ntlm_remove(conn, proxy);
         Curl_peer_unlink(&conn->creds_origin);
         Curl_creds_unlink(&conn->creds);
         *state = NTLMSTATE_NONE;
-        return CURLE_REMOTE_ACCESS_DENIED;
+        ಹಿಂತಿರುಗಿ CURLE_REMOTE_ACCESS_DENIED;
       }
-      else if(*state >= NTLMSTATE_TYPE1) {
-        infof(data, "NTLM handshake failure (internal error)");
-        return CURLE_REMOTE_ACCESS_DENIED;
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(*state >= NTLMSTATE_TYPE1) {
+        infof(ದತ್ತಾಂಶ, "NTLM handshake failure (internal error)");
+        ಹಿಂತಿರುಗಿ CURLE_REMOTE_ACCESS_DENIED;
       }
 
       *state = NTLMSTATE_TYPE1; /* We should send away a type-1 */
     }
   }
 
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
  * This is for creating NTLM header output
  */
-CURLcode Curl_output_ntlm(struct Curl_easy *data, bool proxy)
+CURLcode Curl_output_ntlm(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool proxy)
 {
-  char *base64 = NULL;
+  ಅಕ್ಷರ *base64 = ಖಾಲಿ;
   size_t len = 0;
-  CURLcode result = CURLE_OK;
-  struct bufref ntlmmsg;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ರಚನೆ bufref ntlmmsg;
 
   /* point to the address of the pointer that holds the string to send to the
      server, which is for a plain host or for an HTTP proxy */
-  char **allocuserpwd;
+  ಅಕ್ಷರ **allocuserpwd;
 
   /* point to credentials and host */
-  struct Curl_creds *creds = NULL;
-  const char *hostname = NULL;
+  ರಚನೆ Curl_creds *creds = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname = ಖಾಲಿ;
 
   /* point to the correct struct with this */
-  struct ntlmdata *ntlm;
+  ರಚನೆ ntlmdata *ntlm;
   curlntlm *state;
-  struct auth *authp;
-  struct connectdata *conn = data->conn;
+  ರಚನೆ auth *authp;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
 
   DEBUGASSERT(conn);
-  DEBUGASSERT(data);
+  DEBUGASSERT(ದತ್ತಾಂಶ);
 
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-    allocuserpwd = &data->req.hd_proxy_auth;
+  ಆದರೆ(proxy) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
+    allocuserpwd = &ದತ್ತಾಂಶ->req.hd_proxy_auth;
     creds = conn->http_proxy.creds;
     hostname = conn->http_proxy.peer->hostname;
     state = &conn->proxy_ntlm_state;
-    authp = &data->state.authproxy;
-#else
-    return CURLE_NOT_BUILT_IN;
-#endif
+    authp = &ದತ್ತಾಂಶ->state.authproxy;
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ CURLE_NOT_BUILT_ಒಳ;
+#ಆದರೆ_ಅಂತ್ಯ
   }
-  else {
-    allocuserpwd = &data->req.hd_auth;
-    creds = data->state.creds;
-    hostname = data->state.origin->hostname;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    allocuserpwd = &ದತ್ತಾಂಶ->req.hd_auth;
+    creds = ದತ್ತಾಂಶ->state.creds;
+    hostname = ದತ್ತಾಂಶ->state.origin->hostname;
     state = &conn->http_ntlm_state;
-    authp = &data->state.authhost;
+    authp = &ದತ್ತಾಂಶ->state.authhost;
   }
 
   ntlm = Curl_auth_ntlm_get(conn, proxy);
-  if(!ntlm)
-    return CURLE_OUT_OF_MEMORY;
-  authp->done = FALSE;
+  ಆದರೆ(!ntlm)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+  authp->ಮುಗಿದ = FALSE;
 
-#ifdef USE_WINDOWS_SSPI
-  if(!Curl_pSecFn) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_WINDOWS_SSPI
+  ಆದರೆ(!Curl_pSecFn) {
     /* not thread-safe and leaks - use curl_global_init() to avoid */
-    result = Curl_sspi_global_init();
-    if(!Curl_pSecFn)
-      return result;
+    ಫಲಿತಾಂಶ = Curl_sspi_global_init();
+    ಆದರೆ(!Curl_pSecFn)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
   }
   ntlm->sslContext = conn->sslContext;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
   Curl_bufref_init(&ntlmmsg);
 
   /* connection is already authenticated, do not send a header in future
    * requests so go directly to NTLMSTATE_LAST */
-  if(*state == NTLMSTATE_TYPE3)
-    *state = NTLMSTATE_LAST;
+  ಆದರೆ(*state == NTLMSTATE_TYPE3)
+    *state = NTLMSTATE_ಕೊನೆಯ;
 
-  switch(*state) {
-  case NTLMSTATE_TYPE1:
-  default:  /* for the weird cases we (re)start here */
-    if(!proxy) {
+  ಆಯ್ಕೆ(*state) {
+  ಸ್ಥಿತಿ NTLMSTATE_TYPE1:
+  ಪೂರ್ವನಿಯೋಜಿತ:  /* for the weird cases we (re)start here */
+    ಆದರೆ(!proxy) {
       /* Start it up. From this time onwards, the connection is tied
        * tp the credentials used. */
-      if(conn->creds_origin &&
-         !Curl_peer_equal(conn->creds_origin, data->state.origin)) {
+      ಆದರೆ(conn->creds_origin &&
+         !Curl_peer_equal(conn->creds_origin, ದತ್ತಾಂಶ->state.origin)) {
         DEBUGASSERT(0); /* should not happen. */
-        return CURLE_FAILED_INIT;
+        ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
       }
-      if(conn->creds && !Curl_creds_same(creds, conn->creds)) {
+      ಆದರೆ(conn->creds && !Curl_creds_same(creds, conn->creds)) {
         DEBUGASSERT(0); /* should not happen. */
-        return CURLE_FAILED_INIT;
+        ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
       }
-      Curl_peer_link(&conn->creds_origin, data->state.origin);
+      Curl_peer_link(&conn->creds_origin, ದತ್ತಾಂಶ->state.origin);
       Curl_creds_link(&conn->creds, creds);
     }
-    result = Curl_auth_create_ntlm_type1_message(data, creds, "HTTP",
+    ಫಲಿತಾಂಶ = Curl_auth_create_ntlm_type1_ಸಂದೇಶ(ದತ್ತಾಂಶ, creds, "HTTP",
                                                  hostname, ntlm, &ntlmmsg);
-    if(!result) {
+    ಆದರೆ(!ಫಲಿತಾಂಶ) {
       DEBUGASSERT(Curl_bufref_len(&ntlmmsg) != 0);
-      result = curlx_base64_encode(Curl_bufref_uptr(&ntlmmsg),
+      ಫಲಿತಾಂಶ = curlx_base64_encode(Curl_bufref_uptr(&ntlmmsg),
                                    Curl_bufref_len(&ntlmmsg), &base64, &len);
-      if(!result) {
+      ಆದರೆ(!ಫಲಿತಾಂಶ) {
         curlx_free(*allocuserpwd);
         *allocuserpwd = curl_maprintf("%sAuthorization: NTLM %s\r\n",
                                       proxy ? "Proxy-" : "", base64);
         curlx_free(base64);
-        if(!*allocuserpwd)
-          result = CURLE_OUT_OF_MEMORY;
+        ಆದರೆ(!*allocuserpwd)
+          ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
       }
     }
-    break;
+    ನಿಲ್ಲಿಸು;
 
-  case NTLMSTATE_TYPE2:
+  ಸ್ಥಿತಿ NTLMSTATE_TYPE2:
     /* We already received the type-2 message, create a type-3 message */
-    result = Curl_auth_create_ntlm_type3_message(data, creds, ntlm, &ntlmmsg);
-    if(!result && Curl_bufref_len(&ntlmmsg)) {
-      result = curlx_base64_encode(Curl_bufref_uptr(&ntlmmsg),
+    ಫಲಿತಾಂಶ = Curl_auth_create_ntlm_type3_ಸಂದೇಶ(ದತ್ತಾಂಶ, creds, ntlm, &ntlmmsg);
+    ಆದರೆ(!ಫಲಿತಾಂಶ && Curl_bufref_len(&ntlmmsg)) {
+      ಫಲಿತಾಂಶ = curlx_base64_encode(Curl_bufref_uptr(&ntlmmsg),
                                    Curl_bufref_len(&ntlmmsg), &base64, &len);
-      if(!result) {
+      ಆದರೆ(!ಫಲಿತಾಂಶ) {
         curlx_free(*allocuserpwd);
         *allocuserpwd = curl_maprintf("%sAuthorization: NTLM %s\r\n",
                                       proxy ? "Proxy-" : "", base64);
         curlx_free(base64);
-        if(!*allocuserpwd)
-          result = CURLE_OUT_OF_MEMORY;
-        else {
+        ಆದರೆ(!*allocuserpwd)
+          ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+        ಇಲ್ಲದಿದ್ದರೆ {
           *state = NTLMSTATE_TYPE3; /* we send a type-3 */
-          authp->done = TRUE;
+          authp->ಮುಗಿದ = TRUE;
         }
       }
     }
-    break;
+    ನಿಲ್ಲಿಸು;
 
-  case NTLMSTATE_LAST:
+  ಸ್ಥಿತಿ NTLMSTATE_ಕೊನೆಯ:
     /* since this is a little artificial in that this is used without any
        outgoing auth headers being set, we need to set the bit by force */
-    if(proxy)
-      data->info.proxyauthpicked = CURLAUTH_NTLM;
-    else
-      data->info.httpauthpicked = CURLAUTH_NTLM;
+    ಆದರೆ(proxy)
+      ದತ್ತಾಂಶ->info.proxyauthpicked = CURLAUTH_NTLM;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ದತ್ತಾಂಶ->info.httpauthpicked = CURLAUTH_NTLM;
     curlx_safefree(*allocuserpwd);
-    authp->done = TRUE;
-    break;
+    authp->ಮುಗಿದ = TRUE;
+    ನಿಲ್ಲಿಸು;
   }
   Curl_bufref_free(&ntlmmsg);
 
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-#endif /* !CURL_DISABLE_HTTP && USE_NTLM */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_HTTP && USE_NTLM */

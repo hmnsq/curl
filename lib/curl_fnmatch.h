@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FNMATCH_H
-#define HEADER_CURL_FNMATCH_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_FNMATCH_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_FNMATCH_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#define CURL_FNMATCH_MATCH    0
-#define CURL_FNMATCH_NOMATCH  1
-#define CURL_FNMATCH_FAIL     2
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_FNMATCH_ಹೊಂದಿಕೆ    0
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_FNMATCH_NOMATCH  1
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_FNMATCH_FAIL     2
 
 /* default pattern matching function
  * =================================
@@ -40,6 +40,6 @@
  * keywords: alnum, digit, xdigit, alpha, print, blank, lower, graph, space
  *           and upper (use as "[[:alnum:]]")
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string);
+ಪೂರ್ಣಾಂಕ Curl_fnmatch(ಶೂನ್ಯ *ptr, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ನಮೂನೆ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *string);
 
-#endif /* HEADER_CURL_FNMATCH_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_FNMATCH_H */

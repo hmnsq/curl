@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HASH_H
-#define HEADER_CURL_HASH_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_HASH_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_HASH_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,73 +23,73 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-typedef void (*Curl_hash_dtor)(void *);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಶೂನ್ಯ (*Curl_hash_dtor)(ಶೂನ್ಯ *);
 
-typedef void (*Curl_hash_elem_dtor)(const void *key, size_t key_len, void *p);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಶೂನ್ಯ (*Curl_hash_elem_dtor)(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t ಕೀಲಿ_len, ಶೂನ್ಯ *p);
 
 /* How keys in a hash are interpreted. */
-typedef enum {
-  CURL_HASH_TYPE_BYTES,
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ {
+  CURL_HASH_TYPE_ಬೈಟುಗಳು,
   CURL_HASH_TYPE_SOCKET,
-  CURL_HASH_TYPE_LAST
+  CURL_HASH_TYPE_ಕೊನೆಯ
 } Curl_hash_type;
 
-struct Curl_hash_element {
-  struct Curl_hash_element *next;
-  void *ptr;
+ರಚನೆ Curl_hash_element {
+  ರಚನೆ Curl_hash_element *ಮುಂದಿನ;
+  ಶೂನ್ಯ *ptr;
   Curl_hash_elem_dtor dtor;
-  size_t key_len;
-  char key[1]; /* allocated memory following the struct */
+  size_t ಕೀಲಿ_len;
+  ಅಕ್ಷರ ಕೀಲಿ[1]; /* allocated memory following the struct */
 };
 
-struct Curl_hash {
-  struct Curl_hash_element **table;
+ರಚನೆ Curl_hash {
+  ರಚನೆ Curl_hash_element **ಕೋಷ್ಟಕ;
   /* General element destructor, unless element itself carries one */
   Curl_hash_dtor dtor;
   size_t slots;
-  size_t size;
+  size_t ಗಾತ್ರ_2;
   uint8_t type; /* Curl_hash_type */
-#ifdef DEBUGBUILD
-  int init;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+  ಪೂರ್ಣಾಂಕ init;
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
-struct Curl_hash_iterator {
-  struct Curl_hash *hash;
-  size_t slot_index;
-  struct Curl_hash_element *current;
-#ifdef DEBUGBUILD
-  int init;
-#endif
+ರಚನೆ Curl_hash_iterator {
+  ರಚನೆ Curl_hash *hash;
+  size_t ಸ್ಥಾನ_ಸೂಚ್ಯಂಕ;
+  ರಚನೆ Curl_hash_element *current;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+  ಪೂರ್ಣಾಂಕ init;
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
-CURLcode Curl_hash_global_init(void);
+CURLcode Curl_hash_global_init(ಶೂನ್ಯ);
 
-void Curl_hash_init(struct Curl_hash *h,
+ಶೂನ್ಯ Curl_hash_init(ರಚನೆ Curl_hash *h,
                     size_t slots,
                     Curl_hash_type type,
                     Curl_hash_dtor dtor);
 
-void *Curl_hash_add(struct Curl_hash *h,
-                    const void *key, size_t key_len, void *p);
-void *Curl_hash_add2(struct Curl_hash *h,
-                     const void *key, size_t key_len, void *p,
+ಶೂನ್ಯ *Curl_hash_ಕೂಡಿಸು(ರಚನೆ Curl_hash *h,
+                    ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t ಕೀಲಿ_len, ಶೂನ್ಯ *p);
+ಶೂನ್ಯ *Curl_hash_add2(ರಚನೆ Curl_hash *h,
+                     ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t ಕೀಲಿ_len, ಶೂನ್ಯ *p,
                      Curl_hash_elem_dtor dtor);
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len);
-void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len);
+ಪೂರ್ಣಾಂಕ Curl_hash_delete(ರಚನೆ Curl_hash *h, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t ಕೀಲಿ_len);
+ಶೂನ್ಯ *Curl_hash_pick(ರಚನೆ Curl_hash *h, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t ಕೀಲಿ_len);
 
-void Curl_hash_destroy(struct Curl_hash *h);
-size_t Curl_hash_count(struct Curl_hash *h);
-void Curl_hash_clean(struct Curl_hash *h);
-void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
-                                    int (*comp)(void *, void *));
-void Curl_hash_start_iterate(struct Curl_hash *hash,
-                             struct Curl_hash_iterator *iter);
-struct Curl_hash_element *Curl_hash_next_element(
-  struct Curl_hash_iterator *iter);
+ಶೂನ್ಯ Curl_hash_destroy(ರಚನೆ Curl_hash *h);
+size_t Curl_hash_ಎಣಿಕೆ(ರಚನೆ Curl_hash *h);
+ಶೂನ್ಯ Curl_hash_clean(ರಚನೆ Curl_hash *h);
+ಶೂನ್ಯ Curl_hash_clean_with_criterium(ರಚನೆ Curl_hash *h, ಶೂನ್ಯ *user,
+                                    ಪೂರ್ಣಾಂಕ (*comp)(ಶೂನ್ಯ *, ಶೂನ್ಯ *));
+ಶೂನ್ಯ Curl_hash_ಆರಂಭ_iterate(ರಚನೆ Curl_hash *hash,
+                             ರಚನೆ Curl_hash_iterator *iter);
+ರಚನೆ Curl_hash_element *Curl_hash_ಮುಂದಿನ_element(
+  ರಚನೆ Curl_hash_iterator *iter);
 
-void Curl_hash_print(struct Curl_hash *h, void (*func)(void *));
+ಶೂನ್ಯ Curl_hash_print(ರಚನೆ Curl_hash *h, ಶೂನ್ಯ (*func)(ಶೂನ್ಯ *));
 
-#endif /* HEADER_CURL_HASH_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_HASH_H */

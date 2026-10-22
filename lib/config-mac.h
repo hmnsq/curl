@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONFIG_MAC_H
-#define HEADER_CURL_CONFIG_MAC_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_CONFIG_MAC_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_CONFIG_MAC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -30,54 +30,54 @@
 /*   On macOS you must run configure to generate curl_config.h file    */
 /* =================================================================== */
 
-#ifndef CURL_OS
-#define CURL_OS "mac"
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_OS
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_OS "mac"
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include <ConditionalMacros.h>
+#ಅನ್ತರ್ಭಾವ <ConditionalMacros.h>
 
 /* Define if you want the built-in manual */
-#define USE_MANUAL              1
+#ವ್ಯಾಖ್ಯಾನಿಸು USE_MANUAL              1
 
-#define HAVE_NETINET_IN_H       1
-#define HAVE_NETDB_H            1
-#define HAVE_ARPA_INET_H        1
-#define HAVE_UNISTD_H           1
-#define HAVE_NET_IF_H           1
-#define HAVE_SYS_TYPES_H        1
-#define HAVE_GETTIMEOFDAY       1
-#define HAVE_FCNTL_H            1
-#define HAVE_UTIME_H            1
-#define HAVE_SYS_UTIME_H        1
-#define HAVE_SYS_IOCTL_H        1
-#define HAVE_ALARM              1
-#define HAVE_UTIME              1
-#define HAVE_SOCKET             1
-#define HAVE_STRUCT_TIMEVAL     1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_NETINET_ಒಳ_H       1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_NETDB_H            1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_ARPA_INET_H        1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_UNISTD_H           1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_NET_IF_H           1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_SYS_TYPES_H        1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_GETTIMEOFDAY       1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_FCNTL_H            1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_UTIME_H            1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_SYS_UTIME_H        1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_SYS_IOCTL_H        1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_ALARM              1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_UTIME              1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_SOCKET             1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_STRUCT_TIMEVAL     1
 
-#define HAVE_SIGACTION          1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_SIGACTION          1
 
-#define CURL_DISABLE_LDAP
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_DISABLE_LDAP
 
-#define HAVE_IOCTL_FIONBIO      1
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_IOCTL_FIONBIO      1
 
-#define SIZEOF_INT              4
-#define SIZEOF_LONG             4
-#define SIZEOF_SIZE_T           4
-#define SIZEOF_CURL_OFF_T       8
+#ವ್ಯಾಖ್ಯಾನಿಸು SIZEOF_INT              4
+#ವ್ಯಾಖ್ಯಾನಿಸು SIZEOF_LONG             4
+#ವ್ಯಾಖ್ಯಾನಿಸು SIZEOF_ಗಾತ್ರ_T           4
+#ವ್ಯಾಖ್ಯಾನಿಸು SIZEOF_CURL_OFF_T       8
 
-#define HAVE_RECV 1
-#define RECV_TYPE_ARG1 int
-#define RECV_TYPE_ARG2 void *
-#define RECV_TYPE_ARG3 size_t
-#define RECV_TYPE_ARG4 int
-#define RECV_TYPE_RETV ssize_t
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_RECV 1
+#ವ್ಯಾಖ್ಯಾನಿಸು RECV_TYPE_ARG1 ಪೂರ್ಣಾಂಕ
+#ವ್ಯಾಖ್ಯಾನಿಸು RECV_TYPE_ARG2 ಶೂನ್ಯ *
+#ವ್ಯಾಖ್ಯಾನಿಸು RECV_TYPE_ARG3 size_t
+#ವ್ಯಾಖ್ಯಾನಿಸು RECV_TYPE_ARG4 ಪೂರ್ಣಾಂಕ
+#ವ್ಯಾಖ್ಯಾನಿಸು RECV_TYPE_RETV ssize_t
 
-#define HAVE_SEND 1
-#define SEND_TYPE_ARG1 int
-#define SEND_TYPE_ARG2 void *
-#define SEND_TYPE_ARG3 size_t
-#define SEND_TYPE_ARG4 int
-#define SEND_TYPE_RETV ssize_t
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_SEND 1
+#ವ್ಯಾಖ್ಯಾನಿಸು SEND_TYPE_ARG1 ಪೂರ್ಣಾಂಕ
+#ವ್ಯಾಖ್ಯಾನಿಸು SEND_TYPE_ARG2 ಶೂನ್ಯ *
+#ವ್ಯಾಖ್ಯಾನಿಸು SEND_TYPE_ARG3 size_t
+#ವ್ಯಾಖ್ಯಾನಿಸು SEND_TYPE_ARG4 ಪೂರ್ಣಾಂಕ
+#ವ್ಯಾಖ್ಯಾನಿಸು SEND_TYPE_RETV ssize_t
 
-#endif /* HEADER_CURL_CONFIG_MAC_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_CONFIG_MAC_H */

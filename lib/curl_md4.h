@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MD4_H
-#define HEADER_CURL_MD4_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_MD4_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_MD4_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,15 +23,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_CURL_NTLM_CORE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_CURL_NTLM_CORE
 
-#define MD4_DIGEST_LENGTH 16
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_DIGEST_ಉದ್ದಳತೆ 16
 
-CURLcode Curl_md4it(unsigned char *output, const unsigned char *input,
-                    const size_t len);
+CURLcode Curl_md4it(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *output, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ಒಳಹರಿವು,
+                    ಸ್ಥಿರಾಂಕ size_t len);
 
-#endif /* USE_CURL_NTLM_CORE */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_CURL_NTLM_CORE */
 
-#endif /* HEADER_CURL_MD4_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_MD4_H */

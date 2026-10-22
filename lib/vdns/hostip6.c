@@ -21,37 +21,37 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 /***********************************************************************
  * Only for IPv6-enabled builds
  **********************************************************************/
-#ifdef CURLRES_IPV6
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLRES_IPV6
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETDB_H
+#ಅನ್ತರ್ಭಾವ <netdb.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ARPA_INET_H
+#ಅನ್ತರ್ಭಾವ <arpa/inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __VMS
+#ಅನ್ತರ್ಭಾವ <in.h>
+#ಅನ್ತರ್ಭಾವ <inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "vdns/hostip.h"
-#include "curlx/inet_pton.h"
-#include "connect.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "curl_addrinfo.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "vdns/hostip.h"
+#ಅನ್ತರ್ಭಾವ "curlx/inet_pton.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
 
-#ifdef CURLRES_SYNCH
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLRES_SYNCH
 
 /*
  * Curl_sync_getaddrinfo() when built IPv6-enabled (non-threading and
@@ -62,59 +62,59 @@
  * to memory we need to free after use. That memory *MUST* be freed with
  * Curl_freeaddrinfo(), nothing else.
  */
-struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
+ರಚನೆ Curl_addrinfo *Curl_sync_getaddrinfo(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                                             uint8_t dns_queries,
-                                            const char *hostname,
-                                            uint16_t port,
+                                            ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname,
+                                            uint16_t ಪೋರ್ಟ್,
                                             uint8_t transport)
 {
-  struct addrinfo hints;
-  struct Curl_addrinfo *res;
-  int error;
-  char sbuf[12];
-  char *sbufptr = NULL;
-#ifndef USE_RESOLVE_ON_IPS
-  char addrbuf[128];
-#endif
-  int pf = PF_INET;
+  ರಚನೆ addrinfo hints;
+  ರಚನೆ Curl_addrinfo *res;
+  ಪೂರ್ಣಾಂಕ error;
+  ಅಕ್ಷರ sbuf[12];
+  ಅಕ್ಷರ *sbufptr = ಖಾಲಿ;
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ USE_RESOLVE_ON_IPS
+  ಅಕ್ಷರ addrbuf[128];
+#ಆದರೆ_ಅಂತ್ಯ
+  ಪೂರ್ಣಾಂಕ pf = PF_INET;
 
-  if(dns_queries & CURL_DNSQ_AAAA)
+  ಆದರೆ(dns_queries & CURL_DNSQ_AAAA)
     pf = PF_UNSPEC;
 
-  memset(&hints, 0, sizeof(hints));
+  memset(&hints, 0, ಗಾತ್ರ(hints));
   hints.ai_family = pf;
   hints.ai_socktype = (transport == TRNSPRT_TCP) ?
     SOCK_STREAM : SOCK_DGRAM;
 
-#ifndef USE_RESOLVE_ON_IPS
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ USE_RESOLVE_ON_IPS
   /*
    * The AI_NUMERICHOST must not be set to get synthesized IPv6 address from
    * an IPv4 address on iOS and macOS.
    */
-  if((curlx_inet_pton(AF_INET, hostname, addrbuf) == 1) ||
+  ಆದರೆ((curlx_inet_pton(AF_INET, hostname, addrbuf) == 1) ||
      (curlx_inet_pton(AF_INET6, hostname, addrbuf) == 1)) {
     /* the given address is numerical only, prevent a reverse lookup */
     hints.ai_flags = AI_NUMERICHOST;
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if(port) {
-    curl_msnprintf(sbuf, sizeof(sbuf), "%d", port);
+  ಆದರೆ(ಪೋರ್ಟ್) {
+    curl_msnprintf(sbuf, ಗಾತ್ರ(sbuf), "%d", ಪೋರ್ಟ್);
     sbufptr = sbuf;
   }
 
   error = Curl_getaddrinfo_ex(hostname, sbufptr, &hints, &res);
-  if(error) {
-    infof(data, "getaddrinfo(3) failed for %s:%d", hostname, port);
-    return NULL;
+  ಆದರೆ(error) {
+    infof(ದತ್ತಾಂಶ, "getaddrinfo(3) failed for %s:%d", hostname, ಪೋರ್ಟ್);
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
   }
 
-  if(port) {
-    Curl_addrinfo_set_port(res, port);
+  ಆದರೆ(ಪೋರ್ಟ್) {
+    Curl_addrinfo_ಗಣ_ಪೋರ್ಟ್(res, ಪೋರ್ಟ್);
   }
 
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
-#endif /* CURLRES_SYNCH */
+#ಆದರೆ_ಅಂತ್ಯ /* CURLRES_SYNCH */
 
-#endif /* CURLRES_IPV6 */
+#ಆದರೆ_ಅಂತ್ಯ /* CURLRES_IPV6 */

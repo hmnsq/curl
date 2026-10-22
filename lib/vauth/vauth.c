@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "vauth/vauth.h"
-#include "creds.h"
-#include "curlx/multibyte.h"
-#include "url.h"
+#ಅನ್ತರ್ಭಾವ "vauth/vauth.h"
+#ಅನ್ತರ್ಭಾವ "creds.h"
+#ಅನ್ತರ್ಭಾವ "curlx/multibyte.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
 
 /*
  * Curl_auth_build_spn()
@@ -45,31 +45,31 @@
  *
  * Returns a pointer to the newly allocated SPN.
  */
-#ifndef USE_WINDOWS_SSPI
-char *Curl_auth_build_spn(const char *service, const char *host,
-                          const char *realm)
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ USE_WINDOWS_SSPI
+ಅಕ್ಷರ *Curl_auth_build_spn(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *service, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *host,
+                          ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *realm)
 {
-  char *spn = NULL;
+  ಅಕ್ಷರ *spn = ಖಾಲಿ;
 
   /* Generate our SPN */
-  if(host && realm)
+  ಆದರೆ(host && realm)
     spn = curl_maprintf("%s/%s@%s", service, host, realm);
-  else if(host)
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(host)
     spn = curl_maprintf("%s/%s", service, host);
-  else if(realm)
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(realm)
     spn = curl_maprintf("%s@%s", service, realm);
 
   /* Return our newly allocated SPN */
-  return spn;
+  ಹಿಂತಿರುಗಿ spn;
 }
-#else
-TCHAR *Curl_auth_build_spn(const char *service, const char *host,
-                           const char *realm)
+#ಇಲ್ಲದಿದ್ದರೆ
+TCHAR *Curl_auth_build_spn(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *service, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *host,
+                           ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *realm)
 {
-  char *utf8_spn = NULL;
-  TCHAR *tchar_spn = NULL;
+  ಅಕ್ಷರ *utf8_spn = ಖಾಲಿ;
+  TCHAR *tchar_spn = ಖಾಲಿ;
 
-  (void)realm;
+  (ಶೂನ್ಯ)realm;
 
   /* Note: We could use DsMakeSPN() or DsClientMakeSpnForTargetServer() rather
      than doing this ourselves but the first is only available in Windows XP
@@ -80,16 +80,16 @@ TCHAR *Curl_auth_build_spn(const char *service, const char *host,
 
   /* Generate our UTF8 based SPN */
   utf8_spn = curl_maprintf("%s/%s", service, host);
-  if(!utf8_spn)
-    return NULL;
+  ಆದರೆ(!utf8_spn)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
   /* Allocate and return a TCHAR based SPN. */
-  tchar_spn = curlx_convert_UTF8_to_tchar(utf8_spn);
+  tchar_spn = curlx_convert_UTF8_ಗಮ್ಯ_tchar(utf8_spn);
   curlx_free(utf8_spn);
 
-  return tchar_spn;
+  ಹಿಂತಿರುಗಿ tchar_spn;
 }
-#endif /* USE_WINDOWS_SSPI */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_WINDOWS_SSPI */
 
 /*
  * Curl_auth_user_contains_domain()
@@ -112,141 +112,141 @@ TCHAR *Curl_auth_build_spn(const char *service, const char *host,
  *
  * Returns TRUE on success; otherwise FALSE.
  */
-bool Curl_auth_user_contains_domain(struct Curl_creds *creds)
+bool Curl_auth_user_ಒಳಗೊಂಡಿದೆ_domain(ರಚನೆ Curl_creds *creds)
 {
   bool valid = FALSE;
 
-  if(Curl_creds_has_user(creds)) {
+  ಆದರೆ(Curl_creds_has_user(creds)) {
     /* Check we have a domain name or UPN present */
-    const char *p = strpbrk(creds->user, "\\/@");
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = strpbrk(creds->user, "\\/@");
 
     valid = p && (p > creds->user) &&
-            (p < (creds->user + strlen(creds->user) - 1));
+            (p < (creds->user + ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(creds->user) - 1));
   }
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  else
+#ಆದರೆ defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  ಇಲ್ಲದಿದ್ದರೆ
     /* User and domain are obtained from the GSS-API credentials cache or the
        currently logged in user from Windows */
     valid = TRUE;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  return valid;
+  ಹಿಂತಿರುಗಿ valid;
 }
 
 /*
  * Curl_auth_allowed_to_host() tells if authentication, cookies or other
  * "sensitive data" can be sent to the connection's origin.
  */
-bool Curl_auth_allowed_to_host(struct Curl_easy *data)
+bool Curl_auth_allowed_ಗಮ್ಯ_host(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  return Curl_auth_allowed_to_origin(data, data->state.origin);
+  ಹಿಂತಿರುಗಿ Curl_auth_allowed_ಗಮ್ಯ_origin(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->state.origin);
 }
 
-bool Curl_auth_allowed_to_origin(struct Curl_easy *data,
-                                 struct Curl_peer *origin)
+bool Curl_auth_allowed_ಗಮ್ಯ_origin(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 ರಚನೆ Curl_peer *origin)
 {
-  return data->set.allow_auth_to_other_hosts ||
-         Curl_peer_equal(data->state.initial_origin, origin);
+  ಹಿಂತಿರುಗಿ ದತ್ತಾಂಶ->ಗಣ.allow_auth_ಗಮ್ಯ_other_hosts ||
+         Curl_peer_equal(ದತ್ತಾಂಶ->state.initial_origin, origin);
 }
 
-#ifdef USE_NTLM
-static void ntlm_conn_dtor(const void *key, size_t klen, void *entry)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_NTLM
+ಸ್ಥಿರ ಶೂನ್ಯ ntlm_conn_dtor(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t klen, ಶೂನ್ಯ *ನಮೂದು)
 {
-  struct ntlmdata *ntlm = entry;
-  (void)key;
-  (void)klen;
+  ರಚನೆ ntlmdata *ntlm = ನಮೂದು;
+  (ಶೂನ್ಯ)ಕೀಲಿ;
+  (ಶೂನ್ಯ)klen;
   DEBUGASSERT(ntlm);
   Curl_auth_cleanup_ntlm(ntlm);
   curlx_free(ntlm);
 }
 
-struct ntlmdata *Curl_auth_ntlm_get(struct connectdata *conn, bool proxy)
+ರಚನೆ ntlmdata *Curl_auth_ntlm_get(ರಚನೆ connectdata *conn, bool proxy)
 {
-  const char *key = proxy ? CURL_META_NTLM_PROXY_CONN : CURL_META_NTLM_CONN;
-  struct ntlmdata *ntlm = Curl_conn_meta_get(conn, key);
-  if(!ntlm) {
-    ntlm = curlx_calloc(1, sizeof(*ntlm));
-    if(!ntlm || Curl_conn_meta_set(conn, key, ntlm, ntlm_conn_dtor))
-      return NULL;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ = proxy ? CURL_META_NTLM_PROXY_CONN : CURL_META_NTLM_CONN;
+  ರಚನೆ ntlmdata *ntlm = Curl_conn_meta_get(conn, ಕೀಲಿ);
+  ಆದರೆ(!ntlm) {
+    ntlm = curlx_calloc(1, ಗಾತ್ರ(*ntlm));
+    ಆದರೆ(!ntlm || Curl_conn_meta_ಗಣ(conn, ಕೀಲಿ, ntlm, ntlm_conn_dtor))
+      ಹಿಂತಿರುಗಿ ಖಾಲಿ;
   }
-  return ntlm;
+  ಹಿಂತಿರುಗಿ ntlm;
 }
 
-void Curl_auth_ntlm_remove(struct connectdata *conn, bool proxy)
+ಶೂನ್ಯ Curl_auth_ntlm_remove(ರಚನೆ connectdata *conn, bool proxy)
 {
   Curl_conn_meta_remove(conn, proxy ? CURL_META_NTLM_PROXY_CONN
                                     : CURL_META_NTLM_CONN);
 }
-#endif /* USE_NTLM */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_NTLM */
 
-#ifdef USE_KERBEROS5
-static void krb5_conn_dtor(const void *key, size_t klen, void *entry)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_KERBEROS5
+ಸ್ಥಿರ ಶೂನ್ಯ krb5_conn_dtor(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t klen, ಶೂನ್ಯ *ನಮೂದು)
 {
-  struct kerberos5data *krb5 = entry;
-  (void)key;
-  (void)klen;
+  ರಚನೆ kerberos5data *krb5 = ನಮೂದು;
+  (ಶೂನ್ಯ)ಕೀಲಿ;
+  (ಶೂನ್ಯ)klen;
   DEBUGASSERT(krb5);
   Curl_auth_cleanup_gssapi(krb5);
   curlx_free(krb5);
 }
 
-struct kerberos5data *Curl_auth_krb5_get(struct connectdata *conn)
+ರಚನೆ kerberos5data *Curl_auth_krb5_get(ರಚನೆ connectdata *conn)
 {
-  struct kerberos5data *krb5 = Curl_conn_meta_get(conn, CURL_META_KRB5_CONN);
-  if(!krb5) {
-    krb5 = curlx_calloc(1, sizeof(*krb5));
-    if(!krb5 ||
-       Curl_conn_meta_set(conn, CURL_META_KRB5_CONN, krb5, krb5_conn_dtor))
-      return NULL;
+  ರಚನೆ kerberos5data *krb5 = Curl_conn_meta_get(conn, CURL_META_KRB5_CONN);
+  ಆದರೆ(!krb5) {
+    krb5 = curlx_calloc(1, ಗಾತ್ರ(*krb5));
+    ಆದರೆ(!krb5 ||
+       Curl_conn_meta_ಗಣ(conn, CURL_META_KRB5_CONN, krb5, krb5_conn_dtor))
+      ಹಿಂತಿರುಗಿ ಖಾಲಿ;
   }
-  return krb5;
+  ಹಿಂತಿರುಗಿ krb5;
 }
-#endif /* USE_KERBEROS5 */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_KERBEROS5 */
 
-#ifdef USE_GSASL
-static void gsasl_conn_dtor(const void *key, size_t klen, void *entry)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_GSASL
+ಸ್ಥಿರ ಶೂನ್ಯ gsasl_conn_dtor(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t klen, ಶೂನ್ಯ *ನಮೂದು)
 {
-  struct gsasldata *gsasl = entry;
-  (void)key;
-  (void)klen;
+  ರಚನೆ gsasldata *gsasl = ನಮೂದು;
+  (ಶೂನ್ಯ)ಕೀಲಿ;
+  (ಶೂನ್ಯ)klen;
   DEBUGASSERT(gsasl);
   Curl_auth_gsasl_cleanup(gsasl);
   curlx_free(gsasl);
 }
 
-struct gsasldata *Curl_auth_gsasl_get(struct connectdata *conn)
+ರಚನೆ gsasldata *Curl_auth_gsasl_get(ರಚನೆ connectdata *conn)
 {
-  struct gsasldata *gsasl = Curl_conn_meta_get(conn, CURL_META_GSASL_CONN);
-  if(!gsasl) {
-    gsasl = curlx_calloc(1, sizeof(*gsasl));
-    if(!gsasl ||
-       Curl_conn_meta_set(conn, CURL_META_GSASL_CONN, gsasl, gsasl_conn_dtor))
-      return NULL;
+  ರಚನೆ gsasldata *gsasl = Curl_conn_meta_get(conn, CURL_META_GSASL_CONN);
+  ಆದರೆ(!gsasl) {
+    gsasl = curlx_calloc(1, ಗಾತ್ರ(*gsasl));
+    ಆದರೆ(!gsasl ||
+       Curl_conn_meta_ಗಣ(conn, CURL_META_GSASL_CONN, gsasl, gsasl_conn_dtor))
+      ಹಿಂತಿರುಗಿ ಖಾಲಿ;
   }
-  return gsasl;
+  ಹಿಂತಿರುಗಿ gsasl;
 }
-#endif /* USE_GSASL */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_GSASL */
 
-#ifdef USE_SPNEGO
-static void nego_conn_dtor(const void *key, size_t klen, void *entry)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SPNEGO
+ಸ್ಥಿರ ಶೂನ್ಯ nego_conn_dtor(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t klen, ಶೂನ್ಯ *ನಮೂದು)
 {
-  struct negotiatedata *nego = entry;
-  (void)key;
-  (void)klen;
+  ರಚನೆ negotiatedata *nego = ನಮೂದು;
+  (ಶೂನ್ಯ)ಕೀಲಿ;
+  (ಶೂನ್ಯ)klen;
   DEBUGASSERT(nego);
   Curl_auth_cleanup_spnego(nego);
   curlx_free(nego);
 }
 
-struct negotiatedata *Curl_auth_nego_get(struct connectdata *conn, bool proxy)
+ರಚನೆ negotiatedata *Curl_auth_nego_get(ರಚನೆ connectdata *conn, bool proxy)
 {
-  const char *key = proxy ? CURL_META_NEGO_PROXY_CONN : CURL_META_NEGO_CONN;
-  struct negotiatedata *nego = Curl_conn_meta_get(conn, key);
-  if(!nego) {
-    nego = curlx_calloc(1, sizeof(*nego));
-    if(!nego || Curl_conn_meta_set(conn, key, nego, nego_conn_dtor))
-      return NULL;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ = proxy ? CURL_META_NEGO_PROXY_CONN : CURL_META_NEGO_CONN;
+  ರಚನೆ negotiatedata *nego = Curl_conn_meta_get(conn, ಕೀಲಿ);
+  ಆದರೆ(!nego) {
+    nego = curlx_calloc(1, ಗಾತ್ರ(*nego));
+    ಆದರೆ(!nego || Curl_conn_meta_ಗಣ(conn, ಕೀಲಿ, nego, nego_conn_dtor))
+      ಹಿಂತಿರುಗಿ ಖಾಲಿ;
   }
-  return nego;
+  ಹಿಂತಿರುಗಿ nego;
 }
-#endif /* USE_SPNEGO */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SPNEGO */

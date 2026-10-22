@@ -21,49 +21,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#ಆದರೆ !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
-#include "curl_get_line.h"
+#ಅನ್ತರ್ಭಾವ "curl_get_line.h"
 
 /*
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_ಸಾಲು(ರಚನೆ dynbuf *buf, FILE *ಒಳಹರಿವು, bool *eof)
 {
-  CURLcode result;
-  char buffer[128];
+  CURLcode ಫಲಿತಾಂಶ;
+  ಅಕ್ಷರ ಬಫರ್[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  ಆಗ(1) {
     size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *b = fgets(ಬಫರ್, ಗಾತ್ರ(ಬಫರ್), ಒಳಹರಿವು);
+    ಆದರೆ(!b && ferror(ಒಳಹರಿವು))
+      ಹಿಂತಿರುಗಿ CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = feof(ಒಳಹರಿವು);
 
-    rlen = b ? strlen(b) : 0;
-    if(rlen) {
-      result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+    rlen = b ? ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(b) : 0;
+    ಆದರೆ(rlen) {
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(buf, b, rlen);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
         /* too long line or out of memory */
-        return result;
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    ಆದರೆ(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      ಹಿಂತಿರುಗಿ CURLE_OK; /* all good */
+    ಆದರೆ(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      ಹಿಂತಿರುಗಿ curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */
 }
 
-#endif /* if not disabled */
+#ಆದರೆ_ಅಂತ್ಯ /* if not disabled */

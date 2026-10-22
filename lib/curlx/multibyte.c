@@ -21,58 +21,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if defined(_WIN32) && defined(UNICODE)
+#ಆದರೆ defined(_WIN32) && defined(UNICODE)
 
-#include "curlx/multibyte.h"
+#ಅನ್ತರ್ಭಾವ "curlx/multibyte.h"
 
 /*
  * MultiByte conversions using Windows kernel32 library.
  */
 
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
+wchar_t *curlx_convert_UTF8_ಗಮ್ಯ_wchar(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str_utf8)
 {
-  wchar_t *str_w = NULL;
+  wchar_t *str_w = ಖಾಲಿ;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                        str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = curlx_malloc(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  ಆದರೆ(str_utf8) {
+    ಪೂರ್ಣಾಂಕ str_w_len = Multi_Byte_ಗಮ್ಯ_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, ಖಾಲಿ, 0);
+    ಆದರೆ(str_w_len > 0) {
+      str_w = curlx_malloc(str_w_len * ಗಾತ್ರ(wchar_t));
+      ಆದರೆ(str_w) {
+        ಆದರೆ(Multi_Byte_ಗಮ್ಯ_Wide_Char(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           curlx_free(str_w);
-          return NULL;
+          ಹಿಂತಿರುಗಿ ಖಾಲಿ;
         }
       }
     }
   }
 
-  return str_w;
+  ಹಿಂತಿರುಗಿ str_w;
 }
 
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
+ಅಕ್ಷರ *curlx_convert_wchar_ಗಮ್ಯ_UTF8(ಸ್ಥಿರಾಂಕ wchar_t *str_w)
 {
-  char *str_utf8 = NULL;
+  ಅಕ್ಷರ *str_utf8 = ಖಾಲಿ;
 
-  if(str_w) {
-    int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
-                                    NULL, 0, NULL, NULL);
-    if(bytes > 0) {
-      str_utf8 = curlx_malloc(bytes);
-      if(str_utf8) {
-        if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
-                               NULL, NULL) == 0) {
+  ಆದರೆ(str_w) {
+    ಪೂರ್ಣಾಂಕ ಬೈಟುಗಳು = Wide_Char_ಗಮ್ಯ_Multi_Byte(CP_UTF8, 0, str_w, -1,
+                                    ಖಾಲಿ, 0, ಖಾಲಿ, ಖಾಲಿ);
+    ಆದರೆ(ಬೈಟುಗಳು > 0) {
+      str_utf8 = curlx_malloc(ಬೈಟುಗಳು);
+      ಆದರೆ(str_utf8) {
+        ಆದರೆ(Wide_Char_ಗಮ್ಯ_Multi_Byte(CP_UTF8, 0, str_w, -1, str_utf8, ಬೈಟುಗಳು,
+                               ಖಾಲಿ, ಖಾಲಿ) == 0) {
           curlx_free(str_utf8);
-          return NULL;
+          ಹಿಂತಿರುಗಿ ಖಾಲಿ;
         }
       }
     }
   }
 
-  return str_utf8;
+  ಹಿಂತಿರುಗಿ str_utf8;
 }
 
-#endif /* _WIN32 && UNICODE */
+#ಆದರೆ_ಅಂತ್ಯ /* _WIN32 && UNICODE */

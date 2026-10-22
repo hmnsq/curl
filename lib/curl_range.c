@@ -21,71 +21,71 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "curl_range.h"
-#include "curl_trc.h"
-#include "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "curl_range.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
 
 /* Only include this function if one or more of FTP, FILE are enabled. */
-#if !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
+#ಆದರೆ !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
 
 /* Check if this is a range download, and if so, set the internal variables
    properly. */
-CURLcode Curl_range(struct Curl_easy *data)
+CURLcode Curl_range(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  if(data->state.use_range && data->state.range) {
-    curl_off_t from, to;
-    bool first_num = TRUE;
-    const char *p = data->state.range;
-    if(curlx_str_number(&p, &from, CURL_OFF_T_MAX))
-      first_num = FALSE;
+  ಆದರೆ(ದತ್ತಾಂಶ->state.use_range && ದತ್ತಾಂಶ->state.range) {
+    curl_off_t from, ಗಮ್ಯ;
+    bool ಮೊದಲ_ಅಂಕೆ = TRUE;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = ದತ್ತಾಂಶ->state.range;
+    ಆದರೆ(curlx_str_ಸಂಖ್ಯೆ(&p, &from, CURL_OFF_T_MAX))
+      ಮೊದಲ_ಅಂಕೆ = FALSE;
 
-    if(curlx_str_single(&p, '-'))
+    ಆದರೆ(curlx_str_single(&p, '-'))
       /* no leading dash or after the first number is an error */
-      return CURLE_RANGE_ERROR;
+      ಹಿಂತಿರುಗಿ CURLE_RANGE_ERROR;
 
-    if(curlx_str_number(&p, &to, CURL_OFF_T_MAX)) {
+    ಆದರೆ(curlx_str_ಸಂಖ್ಯೆ(&p, &ಗಮ್ಯ, CURL_OFF_T_MAX)) {
       /* no second number */
       /* X - */
-      data->state.resume_from = from;
-      DEBUGF(infof(data, "RANGE %" FMT_OFF_T " to end of file", from));
+      ದತ್ತಾಂಶ->state.resume_from = from;
+      DEBUGF(infof(ದತ್ತಾಂಶ, "RANGE %" FMT_OFF_T " to end of file", from));
     }
-    else if(!first_num) {
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!ಮೊದಲ_ಅಂಕೆ) {
       /* -Y */
-      if(!to)
+      ಆದರೆ(!ಗಮ್ಯ)
         /* "-0" is wrong */
-        return CURLE_RANGE_ERROR;
+        ಹಿಂತಿರುಗಿ CURLE_RANGE_ERROR;
 
-      data->req.maxdownload = to;
-      data->state.resume_from = -to;
-      DEBUGF(infof(data, "RANGE the last %" FMT_OFF_T " bytes", to));
+      ದತ್ತಾಂಶ->req.maxdownload = ಗಮ್ಯ;
+      ದತ್ತಾಂಶ->state.resume_from = -ಗಮ್ಯ;
+      DEBUGF(infof(ದತ್ತಾಂಶ, "RANGE the last %" FMT_OFF_T " bytes", ಗಮ್ಯ));
     }
-    else {
+    ಇಲ್ಲದಿದ್ದರೆ {
       /* X-Y */
       curl_off_t totalsize;
 
       /* Ensure the range is sensible - to should follow from. */
-      if(from > to)
-        return CURLE_RANGE_ERROR;
+      ಆದರೆ(from > ಗಮ್ಯ)
+        ಹಿಂತಿರುಗಿ CURLE_RANGE_ERROR;
 
-      totalsize = to - from;
-      if(totalsize == CURL_OFF_T_MAX)
-        return CURLE_RANGE_ERROR;
+      totalsize = ಗಮ್ಯ - from;
+      ಆದರೆ(totalsize == CURL_OFF_T_MAX)
+        ಹಿಂತಿರುಗಿ CURLE_RANGE_ERROR;
 
-      data->req.maxdownload = totalsize + 1; /* include last byte */
-      data->state.resume_from = from;
-      DEBUGF(infof(data, "RANGE from %" FMT_OFF_T
+      ದತ್ತಾಂಶ->req.maxdownload = totalsize + 1; /* include last byte */
+      ದತ್ತಾಂಶ->state.resume_from = from;
+      DEBUGF(infof(ದತ್ತಾಂಶ, "RANGE from %" FMT_OFF_T
                    " getting %" FMT_OFF_T " bytes",
-                   from, data->req.maxdownload));
+                   from, ದತ್ತಾಂಶ->req.maxdownload));
     }
-    DEBUGF(infof(data, "range-download from %" FMT_OFF_T
+    DEBUGF(infof(ದತ್ತಾಂಶ, "range-download from %" FMT_OFF_T
                  " to %" FMT_OFF_T ", totally %" FMT_OFF_T " bytes",
-                 from, to, data->req.maxdownload));
+                 from, ಗಮ್ಯ, ದತ್ತಾಂಶ->req.maxdownload));
   }
-  else
-    data->req.maxdownload = -1;
-  return CURLE_OK;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ದತ್ತಾಂಶ->req.maxdownload = -1;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VERSION_WIN32_H
-#define HEADER_CURL_VERSION_WIN32_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_ಆವೃತ್ತಿ_WIN32_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_ಆವೃತ್ತಿ_WIN32_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,38 +23,38 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef _WIN32
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
 
 /* Version condition */
-typedef enum {
-  VERSION_LESS_THAN,
-  VERSION_LESS_THAN_EQUAL,
-  VERSION_EQUAL,
-  VERSION_GREATER_THAN_EQUAL,
-  VERSION_GREATER_THAN
-} VersionCondition;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ {
+  ಆವೃತ್ತಿ_LESS_THAN,
+  ಆವೃತ್ತಿ_LESS_THAN_EQUAL,
+  ಆವೃತ್ತಿ_EQUAL,
+  ಆವೃತ್ತಿ_GREATER_THAN_EQUAL,
+  ಆವೃತ್ತಿ_GREATER_THAN
+} ಆವೃತ್ತಿ_Condition;
 
 /* Platform identifier */
-typedef enum {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ {
   PLATFORM_DONT_CARE,
   PLATFORM_WINDOWS,
   PLATFORM_WINNT
 } PlatformIdentifier;
 
-#ifdef CURL_WINDOWS_UWP
-#define curlx_verify_windows_init() Curl_nop_stmt
-#else
-void curlx_verify_windows_init(void);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_WINDOWS_UWP
+#ವ್ಯಾಖ್ಯಾನಿಸು curlx_verify_windows_init() Curl_nop_stmt
+#ಇಲ್ಲದಿದ್ದರೆ
+ಶೂನ್ಯ curlx_verify_windows_init(ಶೂನ್ಯ);
+#ಆದರೆ_ಅಂತ್ಯ
 /* This is used to verify if we are running on a specific Windows version */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
-                                  const PlatformIdentifier platform,
-                                  const VersionCondition condition);
+bool curlx_verify_windows_ಆವೃತ್ತಿ(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ major_ಆವೃತ್ತಿ,
+                                  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ minor_ಆವೃತ್ತಿ,
+                                  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ build_ಆವೃತ್ತಿ,
+                                  ಸ್ಥಿರಾಂಕ PlatformIdentifier platform,
+                                  ಸ್ಥಿರಾಂಕ ಆವೃತ್ತಿ_Condition condition);
 
-#endif /* _WIN32 */
+#ಆದರೆ_ಅಂತ್ಯ /* _WIN32 */
 
-#endif /* HEADER_CURL_VERSION_WIN32_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_VERSION_WIN32_H */

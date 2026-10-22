@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RTSP_H
-#define HEADER_CURL_RTSP_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_RTSP_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_RTSP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,25 +23,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_RTSP
-CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header);
-extern const struct Curl_protocol Curl_protocol_rtsp;
-#else
-#define Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_IN
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_RTSP
+CURLcode Curl_rtsp_parseheader(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶೀರ್ಷಿಕೆ);
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_protocol Curl_protocol_rtsp;
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_ಒಳ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#define RTSPREQ_NONE CURL_RTSPREQ_NONE
-#define RTSPREQ_OPTIONS CURL_RTSPREQ_OPTIONS
-#define RTSPREQ_DESCRIBE CURL_RTSPREQ_DESCRIBE
-#define RTSPREQ_ANNOUNCE CURL_RTSPREQ_ANNOUNCE
-#define RTSPREQ_SETUP CURL_RTSPREQ_SETUP
-#define RTSPREQ_PLAY CURL_RTSPREQ_PLAY
-#define RTSPREQ_PAUSE CURL_RTSPREQ_PAUSE
-#define RTSPREQ_TEARDOWN CURL_RTSPREQ_TEARDOWN
-#define RTSPREQ_GET_PARAMETER CURL_RTSPREQ_GET_PARAMETER
-#define RTSPREQ_SET_PARAMETER CURL_RTSPREQ_SET_PARAMETER
-#define RTSPREQ_RECORD CURL_RTSPREQ_RECORD
-#define RTSPREQ_RECEIVE CURL_RTSPREQ_RECEIVE
-#define RTSPREQ_LAST CURL_RTSPREQ_LAST
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_NONE CURL_RTSPREQ_NONE
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_OPTIONS CURL_RTSPREQ_OPTIONS
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_DESCRIBE CURL_RTSPREQ_DESCRIBE
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_ANNOUNCE CURL_RTSPREQ_ANNOUNCE
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_ಸಿದ್ಧತೆ CURL_RTSPREQ_ಸಿದ್ಧತೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_PLAY CURL_RTSPREQ_PLAY
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_PAUSE CURL_RTSPREQ_PAUSE
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_TEARDOWN CURL_RTSPREQ_TEARDOWN
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_GET_PARAMETER CURL_RTSPREQ_GET_PARAMETER
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_ಗಣ_PARAMETER CURL_RTSPREQ_ಗಣ_PARAMETER
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_ದಾಖಲೆ CURL_RTSPREQ_ದಾಖಲೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_RECEIVE CURL_RTSPREQ_RECEIVE
+#ವ್ಯಾಖ್ಯಾನಿಸು RTSPREQ_ಕೊನೆಯ CURL_RTSPREQ_ಕೊನೆಯ
 
-#endif /* HEADER_CURL_RTSP_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_RTSP_H */

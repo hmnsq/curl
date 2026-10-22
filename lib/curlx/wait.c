@@ -21,20 +21,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYS_SELECT_H
+#ಅನ್ತರ್ಭಾವ <sys/select.h>
+#ಅಥವಾಆದರೆ defined(HAVE_UNISTD_H)
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef MSDOS
-#include <dos.h>  /* delay() */
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ MSDOS
+#ಅನ್ತರ್ಭಾವ <dos.h>  /* delay() */
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#ಅನ್ತರ್ಭಾವ "curlx/timediff.h"
+#ಅನ್ತರ್ಭಾವ "curlx/wait.h"
 
 /*
  * Internal function used for waiting a specific amount of ms in
@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+ಪೂರ್ಣಾಂಕ curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  ಪೂರ್ಣಾಂಕ r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
-    SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+  ಆದರೆ(!timeout_ms)
+    ಹಿಂತಿರುಗಿ 0;
+  ಆದರೆ(timeout_ms < 0) {
+    ಗಣ_SOCKERRNO(SOCKEINVAL);
+    ಹಿಂತಿರುಗಿ -1;
   }
-#ifdef MSDOS
-  delay((unsigned int)timeout_ms);
-#elif defined(_WIN32)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ MSDOS
+  delay((ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)timeout_ms);
+#ಅಥವಾಆದರೆ defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
+#ಆದರೆ TIMEDIFF_T_MAX >= ULONG_MAX
+  ಆದರೆ(timeout_ms >= ULONG_MAX)
     timeout_ms = ULONG_MAX - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   Sleep((DWORD)timeout_ms);
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
-    r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
+    ರಚನೆ timeval pending_tv;
+    r = select(0, ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ, curlx_mstotv(&pending_tv, timeout_ms));
   }
-#endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+#ಆದರೆ_ಅಂತ್ಯ /* _WIN32 */
+  ಆದರೆ(r) {
+    ಆದರೆ((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    ಇಲ್ಲದಿದ್ದರೆ
       r = -1;
   }
-  return r;
+  ಹಿಂತಿರುಗಿ r;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HEADER_H
-#define HEADER_CURL_HEADER_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_ಶೀರ್ಷಿಕೆ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_ಶೀರ್ಷಿಕೆ_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,43 +23,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ಶೀರ್ಷಿಕೆಗಳು_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+ರಚನೆ Curl_ಶೀರ್ಷಿಕೆ_store {
+  ರಚನೆ Curl_llist_ಗಂಟು ಗಂಟು;
+  ಅಕ್ಷರ *name; /* points into 'buffer' */
+  ಅಕ್ಷರ *ಮೌಲ್ಯ; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
-  size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  size_t nh_ಸೂಚ್ಯಂಕ; /* cached index for curl_easy_nextheader() */
+  ಪೂರ್ಣಾಂಕ request; /* 0 is the first request, then 1.. 2.. */
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ type; /* CURLH_* defines */
+  ಅಕ್ಷರ ಬಫರ್[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_ಶೀರ್ಷಿಕೆಗಳು_init(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_ಶೀರ್ಷಿಕೆಗಳು_ತಳ್ಳು(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶೀರ್ಷಿಕೆ,
+                           size_t hlen, ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_ಶೀರ್ಷಿಕೆಗಳು_cleanup(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-#else
-#define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
-#define Curl_headers_cleanup(x)       Curl_nop_stmt
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ಶೀರ್ಷಿಕೆಗಳು_init(x)          CURLE_OK
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ಶೀರ್ಷಿಕೆಗಳು_ತಳ್ಳು(x, y, z, a) \
+  ((ಶೂನ್ಯ)(x), (ಶೂನ್ಯ)(y), (ಶೂನ್ಯ)(z), (ಶೂನ್ಯ)(a), CURLE_OK)
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ಶೀರ್ಷಿಕೆಗಳು_cleanup(x)       Curl_nop_stmt
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HEADER_CURL_HEADER_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_HEADER_H */

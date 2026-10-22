@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASY_LOCK_H
-#define HEADER_CURL_EASY_LOCK_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_EASY_ಬೀಗ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_EASY_ಬೀಗ_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,79 +23,79 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#define GLOBAL_INIT_IS_THREADSAFE
+#ವ್ಯಾಖ್ಯಾನಿಸು GLOBAL_INIT_IS_THREADSAFE
 
-#ifdef _WIN32
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
 
-#define curl_simple_lock      SRWLOCK
-#define CURL_SIMPLE_LOCK_INIT SRWLOCK_INIT
+#ವ್ಯಾಖ್ಯಾನಿಸು curl_simple_ಬೀಗ      SRWLOCK
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_SIMPLE_ಬೀಗ_INIT SRWLOCK_INIT
 
-#define curl_simple_lock_lock(m)   AcquireSRWLockExclusive(m)
-#define curl_simple_lock_unlock(m) ReleaseSRWLockExclusive(m)
+#ವ್ಯಾಖ್ಯಾನಿಸು curl_simple_ಬೀಗ_ಬೀಗ(m)   AcquireSRWLockExclusive(m)
+#ವ್ಯಾಖ್ಯಾನಿಸು curl_simple_ಬೀಗ_unlock(m) ReleaseSRWLockExclusive(m)
 
-#elif defined(HAVE_ATOMIC) && defined(HAVE_STDATOMIC_H)
-#include <stdatomic.h>
-#ifdef HAVE_SCHED_YIELD
-#include <sched.h>
-#endif
+#ಅಥವಾಆದರೆ defined(HAVE_ATOMIC) && defined(HAVE_STDATOMIC_H)
+#ಅನ್ತರ್ಭಾವ <stdatomic.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SCHED_YIELD
+#ಅನ್ತರ್ಭಾವ <sched.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#define curl_simple_lock      atomic_int
-#define CURL_SIMPLE_LOCK_INIT 0
+#ವ್ಯಾಖ್ಯಾನಿಸು curl_simple_ಬೀಗ      atomic_int
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_SIMPLE_ಬೀಗ_INIT 0
 
-#ifndef __INTEL_COMPILER
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ __INTEL_COMPILER
 /* The Intel compiler tries to look like GCC *and* clang *and* lies in its
    __has_builtin() function, so override it. */
 
 /* if GCC on i386/x86_64 or if the built-in is present */
-#if (defined(__GNUC__) && !defined(__clang__)) && \
+#ಆದರೆ (defined(__GNUC__) && !defined(__clang__)) && \
   (defined(__i386__) || defined(__x86_64__))
-#define HAVE_BUILTIN_IA32_PAUSE
-#elif defined(__has_builtin)  /* Keep this PP check separate from others */
-#if __has_builtin(__builtin_ia32_pause)
-#define HAVE_BUILTIN_IA32_PAUSE
-#endif
-#endif
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_BUILTIN_IA32_PAUSE
+#ಅಥವಾಆದರೆ defined(__has_builtin)  /* Keep this PP check separate from others */
+#ಆದರೆ __has_builtin(__builtin_ia32_pause)
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_BUILTIN_IA32_PAUSE
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* !__INTEL_COMPILER */
+#ಆದರೆ_ಅಂತ್ಯ /* !__INTEL_COMPILER */
 
-static CURL_INLINE void curl_simple_lock_lock(curl_simple_lock *lock)
+ಸ್ಥಿರ CURL_INLINE ಶೂನ್ಯ curl_simple_ಬೀಗ_ಬೀಗ(curl_simple_ಬೀಗ *ಬೀಗ)
 {
-  for(;;) {
-    if(!atomic_exchange_explicit(lock, true, memory_order_acquire))
-      break;
+  ಗಾಗಿ(;;) {
+    ಆದರೆ(!atomic_exchange_explicit(ಬೀಗ, true, ಸ್ಮರಣೆ_ಕ್ರಮ_acquire))
+      ನಿಲ್ಲಿಸು;
     /* Reduce cache coherency traffic */
-    while(atomic_load_explicit(lock, memory_order_relaxed)) {
+    ಆಗ(atomic_load_explicit(ಬೀಗ, ಸ್ಮರಣೆ_ಕ್ರಮ_relaxed)) {
       /* Reduce load (not mandatory) */
-#ifdef HAVE_BUILTIN_IA32_PAUSE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_BUILTIN_IA32_PAUSE
       __builtin_ia32_pause();
-#elif defined(__aarch64__)
+#ಅಥವಾಆದರೆ defined(__aarch64__)
       /* NOLINTNEXTLINE(portability-no-assembler) */
-      __asm__ volatile("yield" ::: "memory");
-#elif defined(HAVE_SCHED_YIELD)
+      __asm__ ಅಸ್ಥಿರ("yield" ::: "memory");
+#ಅಥವಾಆದರೆ defined(HAVE_SCHED_YIELD)
       sched_yield();
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
     }
   }
 }
 
-static CURL_INLINE void curl_simple_lock_unlock(curl_simple_lock *lock)
+ಸ್ಥಿರ CURL_INLINE ಶೂನ್ಯ curl_simple_ಬೀಗ_unlock(curl_simple_ಬೀಗ *ಬೀಗ)
 {
-  atomic_store_explicit(lock, false, memory_order_release);
+  atomic_store_explicit(ಬೀಗ, false, ಸ್ಮರಣೆ_ಕ್ರಮ_release);
 }
 
-#elif defined(HAVE_THREADS_POSIX)
+#ಅಥವಾಆದರೆ defined(HAVE_ಎಳೆಗಳು_POSIX)
 
-#define curl_simple_lock           pthread_mutex_t
-#define CURL_SIMPLE_LOCK_INIT      PTHREAD_MUTEX_INITIALIZER
-#define curl_simple_lock_lock(m)   pthread_mutex_lock(m)
-#define curl_simple_lock_unlock(m) pthread_mutex_unlock(m)
+#ವ್ಯಾಖ್ಯಾನಿಸು curl_simple_ಬೀಗ           pthread_mutex_t
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_SIMPLE_ಬೀಗ_INIT      PTHREAD_MUTEX_INITIALIZER
+#ವ್ಯಾಖ್ಯಾನಿಸು curl_simple_ಬೀಗ_ಬೀಗ(m)   pthread_mutex_ಬೀಗ(m)
+#ವ್ಯಾಖ್ಯಾನಿಸು curl_simple_ಬೀಗ_unlock(m) pthread_mutex_unlock(m)
 
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 
-#undef GLOBAL_INIT_IS_THREADSAFE
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು GLOBAL_INIT_IS_THREADSAFE
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HEADER_CURL_EASY_LOCK_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_EASY_LOCK_H */

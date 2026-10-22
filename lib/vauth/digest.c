@@ -24,236 +24,236 @@
  * RFC7616 DIGEST-SHA256, DIGEST-SHA512-256 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_DIGEST_AUTH
 
-#include "vauth/vauth.h"
-#include "vauth/digest.h"
-#include "curlx/base64.h"
-#include "curl_md5.h"
-#include "curl_sha256.h"
-#include "curl_sha512_256.h"
-#include "curlx/strparse.h"
-#include "rand.h"
-#include "escape.h"
+#ಅನ್ತರ್ಭಾವ "vauth/vauth.h"
+#ಅನ್ತರ್ಭಾವ "vauth/digest.h"
+#ಅನ್ತರ್ಭಾವ "curlx/base64.h"
+#ಅನ್ತರ್ಭಾವ "curl_md5.h"
+#ಅನ್ತರ್ಭಾವ "curl_sha256.h"
+#ಅನ್ತರ್ಭಾವ "curl_sha512_256.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "rand.h"
+#ಅನ್ತರ್ಭಾವ "escape.h"
 
-#ifndef USE_WINDOWS_SSPI
-#define SESSION_ALGO 1 /* for algos with this bit set */
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ USE_WINDOWS_SSPI
+#ವ್ಯಾಖ್ಯಾನಿಸು SESSION_ALGO 1 /* for algos with this bit set */
 
-#define ALGO_MD5 0
-#define ALGO_MD5SESS (ALGO_MD5 | SESSION_ALGO)
-#define ALGO_SHA256 2
-#define ALGO_SHA256SESS (ALGO_SHA256 | SESSION_ALGO)
-#define ALGO_SHA512_256 4
-#define ALGO_SHA512_256SESS (ALGO_SHA512_256 | SESSION_ALGO)
+#ವ್ಯಾಖ್ಯಾನಿಸು ALGO_MD5 0
+#ವ್ಯಾಖ್ಯಾನಿಸು ALGO_MD5SESS (ALGO_MD5 | SESSION_ALGO)
+#ವ್ಯಾಖ್ಯಾನಿಸು ALGO_SHA256 2
+#ವ್ಯಾಖ್ಯಾನಿಸು ALGO_SHA256SESS (ALGO_SHA256 | SESSION_ALGO)
+#ವ್ಯಾಖ್ಯಾನಿಸು ALGO_SHA512_256 4
+#ವ್ಯಾಖ್ಯಾನಿಸು ALGO_SHA512_256SESS (ALGO_SHA512_256 | SESSION_ALGO)
 
-#define DIGEST_QOP_VALUE_AUTH             (1 << 0)
-#define DIGEST_QOP_VALUE_AUTH_INT         (1 << 1)
-#define DIGEST_QOP_VALUE_AUTH_CONF        (1 << 2)
+#ವ್ಯಾಖ್ಯಾನಿಸು DIGEST_QOP_ಮೌಲ್ಯ_AUTH             (1 << 0)
+#ವ್ಯಾಖ್ಯಾನಿಸು DIGEST_QOP_ಮೌಲ್ಯ_AUTH_INT         (1 << 1)
+#ವ್ಯಾಖ್ಯಾನಿಸು DIGEST_QOP_ಮೌಲ್ಯ_AUTH_CONF        (1 << 2)
 
-#define DIGEST_QOP_VALUE_STRING_AUTH      "auth"
-#define DIGEST_QOP_VALUE_STRING_AUTH_INT  "auth-int"
-#define DIGEST_QOP_VALUE_STRING_AUTH_CONF "auth-conf"
-#endif
+#ವ್ಯಾಖ್ಯಾನಿಸು DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH      "auth"
+#ವ್ಯಾಖ್ಯಾನಿಸು DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH_INT  "auth-int"
+#ವ್ಯಾಖ್ಯಾನಿಸು DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH_CONF "auth-conf"
+#ಆದರೆ_ಅಂತ್ಯ
 
-bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
-                               char *content, const char **endptr)
+bool Curl_auth_digest_get_pair(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, ರಚನೆ Curl_str *ಮೌಲ್ಯ,
+                               ಅಕ್ಷರ *content, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **endptr)
 {
-  int c;
-  size_t content_length = 0;
+  ಪೂರ್ಣಾಂಕ c;
+  size_t content_ಉದ್ದಳತೆ = 0;
   bool starts_with_quote = FALSE;
   bool escape = FALSE;
 
-  if(curlx_str_until(&str, value, DIGEST_MAX_VALUE_LENGTH, '=') ||
+  ಆದರೆ(curlx_str_until(&str, ಮೌಲ್ಯ, DIGEST_MAX_ಮೌಲ್ಯ_ಉದ್ದಳತೆ, '=') ||
      curlx_str_single(&str, '='))
     /* eek, no match */
-    return FALSE;
+    ಹಿಂತಿರುಗಿ FALSE;
 
-  if('\"' == *str) {
+  ಆದರೆ('\"' == *str) {
     /* This starts with a quote so it must end with one as well! */
     str++;
     starts_with_quote = TRUE;
   }
 
-  for(c = DIGEST_MAX_CONTENT_LENGTH; *str && c--; str++) {
-    if(!escape) {
-      switch(*str) {
-      case '\\':
-        if(starts_with_quote) {
+  ಗಾಗಿ(c = DIGEST_MAX_CONTENT_ಉದ್ದಳತೆ; *str && c--; str++) {
+    ಆದರೆ(!escape) {
+      ಆಯ್ಕೆ(*str) {
+      ಸ್ಥಿತಿ '\\':
+        ಆದರೆ(starts_with_quote) {
           /* the start of an escaped quote */
           escape = TRUE;
-          continue;
+          ಮುಂದುವರಿ;
         }
-        break;
+        ನಿಲ್ಲಿಸು;
 
-      case ',':
-        if(!starts_with_quote) {
+      ಸ್ಥಿತಿ ',':
+        ಆದರೆ(!starts_with_quote) {
           /* This signals the end of the content if we did not get a starting
              quote and then we do "sloppy" parsing */
           c = 0; /* the end */
-          continue;
+          ಮುಂದುವರಿ;
         }
-        break;
+        ನಿಲ್ಲಿಸು;
 
-      case '\r':
-      case '\n':
+      ಸ್ಥಿತಿ '\r':
+      ಸ್ಥಿತಿ '\n':
         /* end of string */
-        if(starts_with_quote)
-          return FALSE; /* No closing quote */
+        ಆದರೆ(starts_with_quote)
+          ಹಿಂತಿರುಗಿ FALSE; /* No closing quote */
         c = 0;
-        continue;
+        ಮುಂದುವರಿ;
 
-      case '\"':
-        if(starts_with_quote) {
+      ಸ್ಥಿತಿ '\"':
+        ಆದರೆ(starts_with_quote) {
           /* end of string */
           c = 0;
-          continue;
+          ಮುಂದುವರಿ;
         }
-        else
-          return FALSE;
+        ಇಲ್ಲದಿದ್ದರೆ
+          ಹಿಂತಿರುಗಿ FALSE;
       }
     }
 
-    if(content_length >= DIGEST_MAX_CONTENT_LENGTH - 1) {
+    ಆದರೆ(content_ಉದ್ದಳತೆ >= DIGEST_MAX_CONTENT_ಉದ್ದಳತೆ - 1) {
       /* no room for this byte plus the terminator */
-      return FALSE;
+      ಹಿಂತಿರುಗಿ FALSE;
     }
 
     escape = FALSE;
     *content++ = *str;
-    content_length++;
+    content_ಉದ್ದಳತೆ++;
   }
 
-  if(escape)
-    return FALSE; /* No character after backslash */
+  ಆದರೆ(escape)
+    ಹಿಂತಿರುಗಿ FALSE; /* No character after backslash */
 
   *content = 0;
   *endptr = str;
 
-  return TRUE;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
-#ifndef USE_WINDOWS_SSPI
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ USE_WINDOWS_SSPI
 /* Convert MD5 chunk to RFC2617 (section 3.1.3) -suitable ASCII string */
-static void auth_digest_md5_to_ascii(
-  const unsigned char *source, /* 16 bytes */
-  unsigned char *dest)         /* 33 bytes */
+ಸ್ಥಿರ ಶೂನ್ಯ auth_digest_md5_ಗಮ್ಯ_ascii(
+  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ಮೂಲ, /* 16 bytes */
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *dest)         /* 33 bytes */
 {
-  int i;
-  for(i = 0; i < 16; i++)
-    curl_msnprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
+  ಪೂರ್ಣಾಂಕ i;
+  ಗಾಗಿ(i = 0; i < 16; i++)
+    curl_msnprintf((ಅಕ್ಷರ *)&dest[i * 2], 3, "%02x", ಮೂಲ[i]);
 }
 
 /* Convert sha256 or SHA-512/256 chunk to RFC7616 -suitable ASCII string */
-static void auth_digest_sha256_to_ascii(
-  const unsigned char *source, /* 32 bytes */
-  unsigned char *dest)         /* 65 bytes */
+ಸ್ಥಿರ ಶೂನ್ಯ auth_digest_sha256_ಗಮ್ಯ_ascii(
+  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ಮೂಲ, /* 32 bytes */
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *dest)         /* 65 bytes */
 {
-  int i;
-  for(i = 0; i < 32; i++)
-    curl_msnprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
+  ಪೂರ್ಣಾಂಕ i;
+  ಗಾಗಿ(i = 0; i < 32; i++)
+    curl_msnprintf((ಅಕ್ಷರ *)&dest[i * 2], 3, "%02x", ಮೂಲ[i]);
 }
 
 /* Perform quoted-string escaping as described in RFC2616 and its errata */
-static char *auth_digest_string_quoted(const char *s)
+ಸ್ಥಿರ ಅಕ್ಷರ *auth_digest_string_quoted(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s)
 {
-  struct dynbuf out;
-  curlx_dyn_init(&out, 2048);
-  if(!*s) /* for zero length input, make sure we return an empty string */
-    return curlx_strdup("");
-  while(*s) {
-    CURLcode result;
-    if(*s == '"' || *s == '\\') {
-      result = curlx_dyn_addn(&out, "\\", 1);
-      if(!result)
-        result = curlx_dyn_addn(&out, s, 1);
+  ರಚನೆ dynbuf ಹೊರಹೋಗು;
+  curlx_dyn_init(&ಹೊರಹೋಗು, 2048);
+  ಆದರೆ(!*s) /* for zero length input, make sure we return an empty string */
+    ಹಿಂತಿರುಗಿ curlx_strdup("");
+  ಆಗ(*s) {
+    CURLcode ಫಲಿತಾಂಶ;
+    ಆದರೆ(*s == '"' || *s == '\\') {
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(&ಹೊರಹೋಗು, "\\", 1);
+      ಆದರೆ(!ಫಲಿತಾಂಶ)
+        ಫಲಿತಾಂಶ = curlx_dyn_addn(&ಹೊರಹೋಗು, s, 1);
     }
-    else if((*s < ' ') || (*s > 0x7e)) {
-      unsigned char buf[3] = { '%' };
-      Curl_hexbyte(&buf[1], (unsigned char)*s);
-      result = curlx_dyn_addn(&out, buf, 3);
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ((*s < ' ') || (*s > 0x7e)) {
+      ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ buf[3] = { '%' };
+      Curl_hexbyte(&buf[1], (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)*s);
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(&ಹೊರಹೋಗು, buf, 3);
     }
-    else
-      result = curlx_dyn_addn(&out, s, 1);
-    if(result)
-      return NULL;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಫಲಿತಾಂಶ = curlx_dyn_addn(&ಹೊರಹೋಗು, s, 1);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಖಾಲಿ;
     s++;
   }
-  return curlx_dyn_ptr(&out);
+  ಹಿಂತಿರುಗಿ curlx_dyn_ptr(&ಹೊರಹೋಗು);
 }
 
 /* Retrieves the value for a corresponding key from the challenge string
  * returns TRUE if the key could be found, FALSE if it does not exist
  */
-static bool auth_digest_get_key_value(const char *chlg, const char *key,
-                                      char *buf, size_t buflen)
+ಸ್ಥಿರ bool auth_digest_get_ಕೀಲಿ_ಮೌಲ್ಯ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *chlg, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ,
+                                      ಅಕ್ಷರ *buf, size_t buflen)
 {
   /* keyword=[value],keyword2=[value]
      The values may or may not be quoted.
    */
 
-  do {
-    struct Curl_str data;
-    struct Curl_str name;
+  ಮಾಡು {
+    ರಚನೆ Curl_str ದತ್ತಾಂಶ;
+    ರಚನೆ Curl_str name;
 
     curlx_str_passblanks(&chlg);
 
-    if(!curlx_str_until(&chlg, &name, 64, '=') &&
+    ಆದರೆ(!curlx_str_until(&chlg, &name, 64, '=') &&
        !curlx_str_single(&chlg, '=')) {
       /* this is the key, get the value, possibly quoted */
-      int rc = curlx_str_quotedword(&chlg, &data, 256);
-      if(rc == STRE_BEGQUOTE)
+      ಪೂರ್ಣಾಂಕ rc = curlx_str_quotedword(&chlg, &ದತ್ತಾಂಶ, 256);
+      ಆದರೆ(rc == STRE_BEGQUOTE)
         /* try unquoted until comma */
-        rc = curlx_str_until(&chlg, &data, 256, ',');
-      if(rc)
-        return FALSE; /* weird */
+        rc = curlx_str_until(&chlg, &ದತ್ತಾಂಶ, 256, ',');
+      ಆದರೆ(rc)
+        ಹಿಂತಿರುಗಿ FALSE; /* weird */
 
-      if(curlx_str_cmp(&name, key)) {
+      ಆದರೆ(curlx_str_cmp(&name, ಕೀಲಿ)) {
         /* if this is our key, return the value */
-        size_t len = curlx_strlen(&data);
-        const char *src = curlx_str(&data);
+        size_t len = curlx_strlen(&ದತ್ತಾಂಶ);
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src = curlx_str(&ದತ್ತಾಂಶ);
         size_t i;
         size_t outlen = 0;
 
-        if(len >= buflen)
+        ಆದರೆ(len >= buflen)
           /* does not fit */
-          return FALSE;
+          ಹಿಂತಿರುಗಿ FALSE;
 
-        for(i = 0; i < len; i++) {
-          if(src[i] == '\\' && i + 1 < len) {
+        ಗಾಗಿ(i = 0; i < len; i++) {
+          ಆದರೆ(src[i] == '\\' && i + 1 < len) {
             i++; /* skip backslash */
           }
           buf[outlen++] = src[i];
         }
         buf[outlen] = 0;
-        return TRUE;
+        ಹಿಂತಿರುಗಿ TRUE;
       }
-      if(curlx_str_single(&chlg, ','))
-        return FALSE;
+      ಆದರೆ(curlx_str_single(&chlg, ','))
+        ಹಿಂತಿರುಗಿ FALSE;
     }
-    else /* odd syntax */
-      break;
-  } while(1);
+    ಇಲ್ಲದಿದ್ದರೆ /* odd syntax */
+      ನಿಲ್ಲಿಸು;
+  } ಆಗ(1);
 
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-static void auth_digest_get_qop_values(const char *options, int *value)
+ಸ್ಥಿರ ಶೂನ್ಯ auth_digest_get_qop_ಮೌಲ್ಯಗಳು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *options, ಪೂರ್ಣಾಂಕ *ಮೌಲ್ಯ)
 {
-  struct Curl_str out;
+  ರಚನೆ Curl_str ಹೊರಹೋಗು;
   /* Initialize the output */
-  *value = 0;
+  *ಮೌಲ್ಯ = 0;
 
-  while(!curlx_str_until(&options, &out, 32, ',')) {
-    if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
-      *value |= DIGEST_QOP_VALUE_AUTH;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_INT))
-      *value |= DIGEST_QOP_VALUE_AUTH_INT;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
-      *value |= DIGEST_QOP_VALUE_AUTH_CONF;
-    if(curlx_str_single(&options, ','))
-      break;
+  ಆಗ(!curlx_str_until(&options, &ಹೊರಹೋಗು, 32, ',')) {
+    ಆದರೆ(curlx_str_casecompare(&ಹೊರಹೋಗು, DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH))
+      *ಮೌಲ್ಯ |= DIGEST_QOP_ಮೌಲ್ಯ_AUTH;
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಹೊರಹೋಗು, DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH_INT))
+      *ಮೌಲ್ಯ |= DIGEST_QOP_ಮೌಲ್ಯ_AUTH_INT;
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಹೊರಹೋಗು, DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH_CONF))
+      *ಮೌಲ್ಯ |= DIGEST_QOP_ಮೌಲ್ಯ_AUTH_CONF;
+    ಆದರೆ(curlx_str_single(&options, ','))
+      ನಿಲ್ಲಿಸು;
   }
 }
 
@@ -277,37 +277,37 @@ static void auth_digest_get_qop_values(const char *options, int *value)
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
-                                               char *nonce, size_t nlen,
-                                               char *realm, size_t rlen,
-                                               char *alg, size_t alen,
-                                               char *qop, size_t qlen)
+ಸ್ಥಿರ CURLcode auth_decode_digest_md5_ಸಂದೇಶ(ಸ್ಥಿರಾಂಕ ರಚನೆ bufref *chlgref,
+                                               ಅಕ್ಷರ *nonce, size_t nlen,
+                                               ಅಕ್ಷರ *realm, size_t rlen,
+                                               ಅಕ್ಷರ *alg, size_t alen,
+                                               ಅಕ್ಷರ *qop, size_t qlen)
 {
-  const char *chlg = Curl_bufref_ptr(chlgref);
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *chlg = Curl_bufref_ptr(chlgref);
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlgref))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(!Curl_bufref_len(chlgref))
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve nonce string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "nonce", nonce, nlen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(!auth_digest_get_ಕೀಲಿ_ಮೌಲ್ಯ(chlg, "nonce", nonce, nlen))
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve realm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "realm", realm, rlen)) {
+  ಆದರೆ(!auth_digest_get_ಕೀಲಿ_ಮೌಲ್ಯ(chlg, "realm", realm, rlen)) {
     /* Challenge does not have a realm, set empty string [RFC2831] page 6 */
     *realm = '\0';
   }
 
   /* Retrieve algorithm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "algorithm", alg, alen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(!auth_digest_get_ಕೀಲಿ_ಮೌಲ್ಯ(chlg, "algorithm", alg, alen))
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve qop-options string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "qop", qop, qlen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(!auth_digest_get_ಕೀಲಿ_ಮೌಲ್ಯ(chlg, "qop", qop, qlen))
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -319,9 +319,9 @@ static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
  *
  * Returns TRUE as DIGEST as handled by libcurl.
  */
-bool Curl_auth_is_digest_supported(void)
+bool Curl_auth_is_digest_supported(ಶೂನ್ಯ)
 {
-  return TRUE;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
 /*
@@ -341,148 +341,148 @@ bool Curl_auth_is_digest_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
-                                             const struct bufref *chlg,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_digest_md5_ಸಂದೇಶ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ಸ್ಥಿರಾಂಕ ರಚನೆ bufref *chlg,
+                                             ರಚನೆ Curl_creds *creds,
+                                             ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *default_service,
+                                             ರಚನೆ bufref *ಹೊರಹೋಗು)
 {
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
   size_t i;
-  struct MD5_context *ctxt;
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  char *response = NULL;
-  unsigned char digest[MD5_DIGEST_LEN];
-  char HA1_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char HA2_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char resp_hash_hex[(2 * MD5_DIGEST_LEN) + 1];
-  char nonce[64];
-  char realm[128];
-  char algorithm[64];
-  char qop_options[64];
-  int qop_values;
-  char cnonce[33];
-  char nonceCount[] = "00000001";
-  char method[]     = "AUTHENTICATE";
-  char qop[]        = DIGEST_QOP_VALUE_STRING_AUTH;
-  char *spn         = NULL;
-  char *qrealm;
-  char *qnonce;
-  char *quserp;
-  char *qspn;
+  ರಚನೆ MD5_context *ctxt;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *userp = Curl_creds_user(creds);
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *passwdp = Curl_creds_passwd(creds);
+  ಅಕ್ಷರ *response = ಖಾಲಿ;
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ digest[MD5_DIGEST_LEN];
+  ಅಕ್ಷರ HA1_hex[(2 * MD5_DIGEST_LEN) + 1];
+  ಅಕ್ಷರ HA2_hex[(2 * MD5_DIGEST_LEN) + 1];
+  ಅಕ್ಷರ resp_hash_hex[(2 * MD5_DIGEST_LEN) + 1];
+  ಅಕ್ಷರ nonce[64];
+  ಅಕ್ಷರ realm[128];
+  ಅಕ್ಷರ algorithm[64];
+  ಅಕ್ಷರ qop_options[64];
+  ಪೂರ್ಣಾಂಕ qop_ಮೌಲ್ಯಗಳು;
+  ಅಕ್ಷರ cnonce[33];
+  ಅಕ್ಷರ nonce_ಎಣಿಕೆ[] = "00000001";
+  ಅಕ್ಷರ ವಿಧಾನ[]     = "AUTHENTICATE";
+  ಅಕ್ಷರ qop[]        = DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH;
+  ಅಕ್ಷರ *spn         = ಖಾಲಿ;
+  ಅಕ್ಷರ *qrealm;
+  ಅಕ್ಷರ *qnonce;
+  ಅಕ್ಷರ *quserp;
+  ಅಕ್ಷರ *qspn;
 
   /* Decode the challenge message */
-  CURLcode result = auth_decode_digest_md5_message(chlg,
-                                                   nonce, sizeof(nonce),
-                                                   realm, sizeof(realm),
+  CURLcode ಫಲಿತಾಂಶ = auth_decode_digest_md5_ಸಂದೇಶ(chlg,
+                                                   nonce, ಗಾತ್ರ(nonce),
+                                                   realm, ಗಾತ್ರ(realm),
                                                    algorithm,
-                                                   sizeof(algorithm),
+                                                   ಗಾತ್ರ(algorithm),
                                                    qop_options,
-                                                   sizeof(qop_options));
-  if(result)
-    return result;
+                                                   ಗಾತ್ರ(qop_options));
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
   /* We only support md5 sessions */
-  if(strcmp(algorithm, "md5-sess"))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(strcmp(algorithm, "md5-sess"))
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
   /* Get the qop-values from the qop-options */
-  auth_digest_get_qop_values(qop_options, &qop_values);
+  auth_digest_get_qop_ಮೌಲ್ಯಗಳು(qop_options, &qop_ಮೌಲ್ಯಗಳು);
 
   /* We only support auth quality-of-protection */
-  if(!(qop_values & DIGEST_QOP_VALUE_AUTH))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(!(qop_ಮೌಲ್ಯಗಳು & DIGEST_QOP_ಮೌಲ್ಯ_AUTH))
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
   /* Generate 32 random hex chars, 32 bytes + 1 null-termination */
-  result = Curl_rand_hex(data, (unsigned char *)cnonce, sizeof(cnonce));
-  if(result)
-    return result;
+  ಫಲಿತಾಂಶ = Curl_rand_hex(ದತ್ತಾಂಶ, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)cnonce, ಗಾತ್ರ(cnonce));
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
   /* Good so far, now calculate A1 and H(A1) according to RFC 2831 */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!ctxt)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-  Curl_MD5_update(ctxt, (const unsigned char *)userp,
-                  curlx_uztoui(strlen(userp)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)realm,
-                  curlx_uztoui(strlen(realm)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)passwdp,
-                  curlx_uztoui(strlen(passwdp)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)userp,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(userp)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)realm,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(realm)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)passwdp,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(passwdp)));
   Curl_MD5_final(ctxt, digest);
 
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!ctxt)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-  Curl_MD5_update(ctxt, (const unsigned char *)digest, MD5_DIGEST_LEN);
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)nonce,
-                  curlx_uztoui(strlen(nonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)cnonce,
-                  curlx_uztoui(strlen(cnonce)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)digest, MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)nonce,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(nonce)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)cnonce,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(cnonce)));
   Curl_MD5_final(ctxt, digest);
 
   /* Convert calculated 16 octet hex into 32 bytes string */
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  ಗಾಗಿ(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&HA1_hex[2 * i], 3, "%02x", digest[i]);
 
   /* Generate our SPN */
-  spn = Curl_auth_build_spn(service, data->state.origin->hostname, NULL);
-  if(!spn)
-    return CURLE_OUT_OF_MEMORY;
+  spn = Curl_auth_build_spn(service, ದತ್ತಾಂಶ->state.origin->hostname, ಖಾಲಿ);
+  ಆದರೆ(!spn)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
   /* Calculate H(A2) */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt) {
+  ಆದರೆ(!ctxt) {
     curlx_free(spn);
 
-    return CURLE_OUT_OF_MEMORY;
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
-  Curl_MD5_update(ctxt, (const unsigned char *)method,
-                  curlx_uztoui(strlen(method)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)spn,
-                  curlx_uztoui(strlen(spn)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)ವಿಧಾನ,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ವಿಧಾನ)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)spn,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(spn)));
   Curl_MD5_final(ctxt, digest);
 
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  ಗಾಗಿ(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&HA2_hex[2 * i], 3, "%02x", digest[i]);
 
   /* Now calculate the response hash */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt) {
+  ಆದರೆ(!ctxt) {
     curlx_free(spn);
 
-    return CURLE_OUT_OF_MEMORY;
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
-  Curl_MD5_update(ctxt, (const unsigned char *)HA1_hex, 2 * MD5_DIGEST_LEN);
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)nonce,
-                  curlx_uztoui(strlen(nonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)HA1_hex, 2 * MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)nonce,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(nonce)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
 
-  Curl_MD5_update(ctxt, (const unsigned char *)nonceCount,
-                  curlx_uztoui(strlen(nonceCount)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)cnonce,
-                  curlx_uztoui(strlen(cnonce)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
-  Curl_MD5_update(ctxt, (const unsigned char *)qop,
-                  curlx_uztoui(strlen(qop)));
-  Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)nonce_ಎಣಿಕೆ,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(nonce_ಎಣಿಕೆ)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)cnonce,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(cnonce)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)qop,
+                  curlx_uztoui(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(qop)));
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)":", 1);
 
-  Curl_MD5_update(ctxt, (const unsigned char *)HA2_hex, 2 * MD5_DIGEST_LEN);
+  Curl_MD5_update(ctxt, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)HA2_hex, 2 * MD5_DIGEST_LEN);
   Curl_MD5_final(ctxt, digest);
 
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  ಗಾಗಿ(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&resp_hash_hex[2 * i], 3, "%02x", digest[i]);
 
   /* escape double quotes and backslashes in the username, realm, nonce and
@@ -491,25 +491,25 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   qnonce = auth_digest_string_quoted(nonce);
   quserp = auth_digest_string_quoted(userp);
   qspn = auth_digest_string_quoted(spn);
-  if(qrealm && qnonce && quserp && qspn)
+  ಆದರೆ(qrealm && qnonce && quserp && qspn)
     /* Generate the response */
     response = curl_maprintf("username=\"%s\",realm=\"%s\",nonce=\"%s\","
                              "cnonce=\"%s\",nc=\"%s\",digest-uri=\"%s\","
                              "response=%s,qop=%s",
                              quserp, qrealm, qnonce,
-                             cnonce, nonceCount, qspn, resp_hash_hex, qop);
+                             cnonce, nonce_ಎಣಿಕೆ, qspn, resp_hash_hex, qop);
 
   curlx_free(qrealm);
   curlx_free(qnonce);
   curlx_free(quserp);
   curlx_free(spn);
   curlx_free(qspn);
-  if(!response)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!response)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
   /* Return the response. */
-  Curl_bufref_set(out, response, strlen(response), curl_free);
-  return result;
+  Curl_bufref_ಗಣ(ಹೊರಹೋಗು, response, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(response), curl_free);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
@@ -525,149 +525,149 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
-                                              struct digestdata *digest)
+CURLcode Curl_auth_decode_digest_http_ಸಂದೇಶ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *chlg,
+                                              ರಚನೆ digestdata *digest)
 {
   bool before = FALSE; /* got a nonce before */
 
   /* If we already have received a nonce, keep that in mind */
-  if(digest->nonce)
+  ಆದರೆ(digest->nonce)
     before = TRUE;
 
   /* Clean up any former leftovers and initialize to defaults */
   Curl_auth_digest_cleanup(digest);
 
-  for(;;) {
-    struct Curl_str value;
-    char content[DIGEST_MAX_CONTENT_LENGTH];
+  ಗಾಗಿ(;;) {
+    ರಚನೆ Curl_str ಮೌಲ್ಯ;
+    ಅಕ್ಷರ content[DIGEST_MAX_CONTENT_ಉದ್ದಳತೆ];
 
     /* Pass all additional spaces here */
     curlx_str_passblanks(&chlg);
 
     /* Extract a value=content pair */
-    if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-      if(curlx_str_casecompare(&value, "nonce")) {
+    ಆದರೆ(Curl_auth_digest_get_pair(chlg, &ಮೌಲ್ಯ, content, &chlg)) {
+      ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "nonce")) {
         curlx_free(digest->nonce);
         digest->nonce = curlx_strdup(content);
-        if(!digest->nonce)
-          return CURLE_OUT_OF_MEMORY;
+        ಆದರೆ(!digest->nonce)
+          ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
       }
-      else if(curlx_str_casecompare(&value, "stale")) {
-        if(curl_strequal(content, "true")) {
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "stale")) {
+        ಆದರೆ(curl_strequal(content, "true")) {
           digest->stale = TRUE;
           digest->nc = 1; /* we make a new nonce now */
         }
       }
-      else if(curlx_str_casecompare(&value, "realm")) {
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "realm")) {
         curlx_free(digest->realm);
         digest->realm = curlx_strdup(content);
-        if(!digest->realm)
-          return CURLE_OUT_OF_MEMORY;
+        ಆದರೆ(!digest->realm)
+          ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
       }
-      else if(curlx_str_casecompare(&value, "opaque")) {
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "opaque")) {
         curlx_free(digest->opaque);
         digest->opaque = curlx_strdup(content);
-        if(!digest->opaque)
-          return CURLE_OUT_OF_MEMORY;
+        ಆದರೆ(!digest->opaque)
+          ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
       }
-      else if(curlx_str_casecompare(&value, "qop")) {
-        const char *token = content;
-        struct Curl_str out;
-        bool foundAuth = FALSE;
-        bool foundAuthInt = FALSE;
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "qop")) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *token = content;
+        ರಚನೆ Curl_str ಹೊರಹೋಗು;
+        bool ಸಿಕ್ಕಿತು_Auth = FALSE;
+        bool ಸಿಕ್ಕಿತು_Auth_Int = FALSE;
         /* Pass leading spaces */
         curlx_str_passblanks(&token);
 
-        while(!curlx_str_until(&token, &out, 32, ',')) {
-          if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
-            foundAuth = TRUE;
-          else if(curlx_str_casecompare(&out,
-                                        DIGEST_QOP_VALUE_STRING_AUTH_INT))
-            foundAuthInt = TRUE;
-          if(curlx_str_single(&token, ','))
-            break;
+        ಆಗ(!curlx_str_until(&token, &ಹೊರಹೋಗು, 32, ',')) {
+          ಆದರೆ(curlx_str_casecompare(&ಹೊರಹೋಗು, DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH))
+            ಸಿಕ್ಕಿತು_Auth = TRUE;
+          ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಹೊರಹೋಗು,
+                                        DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH_INT))
+            ಸಿಕ್ಕಿತು_Auth_Int = TRUE;
+          ಆದರೆ(curlx_str_single(&token, ','))
+            ನಿಲ್ಲಿಸು;
           curlx_str_passblanks(&token);
         }
 
         /* Select only auth or auth-int. Otherwise, ignore */
-        if(foundAuth) {
+        ಆದರೆ(ಸಿಕ್ಕಿತು_Auth) {
           curlx_free(digest->qop);
-          digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH);
-          if(!digest->qop)
-            return CURLE_OUT_OF_MEMORY;
+          digest->qop = curlx_strdup(DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH);
+          ಆದರೆ(!digest->qop)
+            ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
         }
-        else if(foundAuthInt) {
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಸಿಕ್ಕಿತು_Auth_Int) {
           curlx_free(digest->qop);
-          digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH_INT);
-          if(!digest->qop)
-            return CURLE_OUT_OF_MEMORY;
+          digest->qop = curlx_strdup(DIGEST_QOP_ಮೌಲ್ಯ_STRING_AUTH_INT);
+          ಆದರೆ(!digest->qop)
+            ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
         }
       }
-      else if(curlx_str_casecompare(&value, "algorithm")) {
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "algorithm")) {
         curlx_free(digest->algorithm);
         digest->algorithm = curlx_strdup(content);
-        if(!digest->algorithm)
-          return CURLE_OUT_OF_MEMORY;
+        ಆದರೆ(!digest->algorithm)
+          ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-        if(curl_strequal(content, "MD5-sess"))
+        ಆದರೆ(curl_strequal(content, "MD5-sess"))
           digest->algo = ALGO_MD5SESS;
-        else if(curl_strequal(content, "MD5"))
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curl_strequal(content, "MD5"))
           digest->algo = ALGO_MD5;
-        else if(curl_strequal(content, "SHA-256"))
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curl_strequal(content, "SHA-256"))
           digest->algo = ALGO_SHA256;
-        else if(curl_strequal(content, "SHA-256-SESS"))
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curl_strequal(content, "SHA-256-SESS"))
           digest->algo = ALGO_SHA256SESS;
-        else if(curl_strequal(content, "SHA-512-256")) {
-#ifdef CURL_HAVE_SHA512_256
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curl_strequal(content, "SHA-512-256")) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_HAVE_SHA512_256
           digest->algo = ALGO_SHA512_256;
-#else /* !CURL_HAVE_SHA512_256 */
-          return CURLE_NOT_BUILT_IN;
-#endif /* CURL_HAVE_SHA512_256 */
+#ಇಲ್ಲದಿದ್ದರೆ /* !CURL_HAVE_SHA512_256 */
+          ಹಿಂತಿರುಗಿ CURLE_NOT_BUILT_ಒಳ;
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_HAVE_SHA512_256 */
         }
-        else if(curl_strequal(content, "SHA-512-256-SESS")) {
-#ifdef CURL_HAVE_SHA512_256
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curl_strequal(content, "SHA-512-256-SESS")) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_HAVE_SHA512_256
           digest->algo = ALGO_SHA512_256SESS;
-#else /* !CURL_HAVE_SHA512_256 */
-          return CURLE_NOT_BUILT_IN;
-#endif /* CURL_HAVE_SHA512_256 */
+#ಇಲ್ಲದಿದ್ದರೆ /* !CURL_HAVE_SHA512_256 */
+          ಹಿಂತಿರುಗಿ CURLE_NOT_BUILT_ಒಳ;
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_HAVE_SHA512_256 */
         }
-        else
-          return CURLE_BAD_CONTENT_ENCODING;
+        ಇಲ್ಲದಿದ್ದರೆ
+          ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
       }
-      else if(curlx_str_casecompare(&value, "userhash")) {
-        if(curl_strequal(content, "true")) {
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "userhash")) {
+        ಆದರೆ(curl_strequal(content, "true")) {
           digest->userhash = TRUE;
         }
       }
-      else {
+      ಇಲ್ಲದಿದ್ದರೆ {
         /* Unknown specifier, ignore it! */
       }
     }
-    else
-      break; /* We are done here */
+    ಇಲ್ಲದಿದ್ದರೆ
+      ನಿಲ್ಲಿಸು; /* We are done here */
 
     /* Pass all additional spaces here */
     curlx_str_passblanks(&chlg);
 
     /* Allow the list to be comma-separated */
-    (void)curlx_str_single(&chlg, ',');
+    (ಶೂನ್ಯ)curlx_str_single(&chlg, ',');
   }
 
   /* We had a nonce since before, and we got another one now without
      'stale=true'. This means we provided bad credentials in the previous
      request */
-  if(before && !digest->stale)
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(before && !digest->stale)
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
   /* We got this header without a nonce, that is a bad Digest line! */
-  if(!digest->nonce)
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(!digest->nonce)
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
   /* "<algo>-sess" protocol versions require "auth" or "auth-int" qop */
-  if(!digest->qop && (digest->algo & SESSION_ALGO))
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(!digest->qop && (digest->algo & SESSION_ALGO))
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -689,70 +689,70 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode auth_create_digest_http_message(
-  struct Curl_easy *data,
-  struct Curl_creds *creds,
-  const unsigned char *request,
-  const unsigned char *uripath,
-  struct digestdata *digest,
-  char **outptr, size_t *outlen,
-  void (*convert_to_ascii)(const unsigned char *, unsigned char *),
-  CURLcode (*hash)(unsigned char *, const unsigned char *, const size_t))
+ಸ್ಥಿರ CURLcode auth_create_digest_http_ಸಂದೇಶ(
+  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+  ರಚನೆ Curl_creds *creds,
+  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *request,
+  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *uripath,
+  ರಚನೆ digestdata *digest,
+  ಅಕ್ಷರ **outptr, size_t *outlen,
+  ಶೂನ್ಯ (*convert_ಗಮ್ಯ_ascii)(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *, ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *),
+  CURLcode (*hash)(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *, ಸ್ಥಿರಾಂಕ size_t))
 {
-  CURLcode result;
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  unsigned char hashbuf[32]; /* 32 bytes/256 bits */
-  unsigned char request_digest[65];
-  unsigned char ha1[65];    /* 64 digits and 1 zero byte */
-  unsigned char ha2[65];    /* 64 digits and 1 zero byte */
-  char userh[65];
-  char *cnonce = NULL;
+  CURLcode ಫಲಿತಾಂಶ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *userp = Curl_creds_user(creds);
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *passwdp = Curl_creds_passwd(creds);
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ hashbuf[32]; /* 32 bytes/256 bits */
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ request_digest[65];
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ ha1[65];    /* 64 digits and 1 zero byte */
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ ha2[65];    /* 64 digits and 1 zero byte */
+  ಅಕ್ಷರ userh[65];
+  ಅಕ್ಷರ *cnonce = ಖಾಲಿ;
   size_t cnonce_sz = 0;
-  char *userp_quoted = NULL;
-  char *realm_quoted = NULL;
-  char *nonce_quoted = NULL;
-  char *hashthis = NULL;
-  char *uri_quoted = NULL;
-  struct dynbuf response;
-  *outptr = NULL;
+  ಅಕ್ಷರ *userp_quoted = ಖಾಲಿ;
+  ಅಕ್ಷರ *realm_quoted = ಖಾಲಿ;
+  ಅಕ್ಷರ *nonce_quoted = ಖಾಲಿ;
+  ಅಕ್ಷರ *hashthis = ಖಾಲಿ;
+  ಅಕ್ಷರ *uri_quoted = ಖಾಲಿ;
+  ರಚನೆ dynbuf response;
+  *outptr = ಖಾಲಿ;
 
   curlx_dyn_init(&response, 4096); /* arbitrary max */
 
-  memset(hashbuf, 0, sizeof(hashbuf));
-  if(!digest->nc)
+  memset(hashbuf, 0, ಗಾತ್ರ(hashbuf));
+  ಆದರೆ(!digest->nc)
     digest->nc = 1;
 
-  if(!digest->cnonce) {
-    char cnoncebuf[12];
-    result = Curl_rand_bytes(data,
-#ifdef DEBUGBUILD
+  ಆದರೆ(!digest->cnonce) {
+    ಅಕ್ಷರ cnoncebuf[12];
+    ಫಲಿತಾಂಶ = Curl_rand_ಬೈಟುಗಳು(ದತ್ತಾಂಶ,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
                              TRUE,
-#endif
-                             (unsigned char *)cnoncebuf,
-                             sizeof(cnoncebuf));
-    if(!result)
-      result = curlx_base64_encode((uint8_t *)cnoncebuf, sizeof(cnoncebuf),
+#ಆದರೆ_ಅಂತ್ಯ
+                             (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)cnoncebuf,
+                             ಗಾತ್ರ(cnoncebuf));
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
+      ಫಲಿತಾಂಶ = curlx_base64_encode((uint8_t *)cnoncebuf, ಗಾತ್ರ(cnoncebuf),
                                    &cnonce, &cnonce_sz);
-    if(result)
-      goto oom;
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು oom;
 
     digest->cnonce = cnonce;
   }
 
-  if(digest->userhash) {
-    char *hasht = curl_maprintf("%s:%s", userp,
+  ಆದರೆ(digest->userhash) {
+    ಅಕ್ಷರ *hasht = curl_maprintf("%s:%s", userp,
                                 digest->realm ? digest->realm : "");
-    if(!hasht) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+    ಆದರೆ(!hasht) {
+      ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+      ಹೋಗು oom;
     }
 
-    result = hash(hashbuf, (unsigned char *)hasht, strlen(hasht));
+    ಫಲಿತಾಂಶ = hash(hashbuf, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)hasht, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(hasht));
     curlx_free(hasht);
-    if(result)
-      goto oom;
-    convert_to_ascii(hashbuf, (unsigned char *)userh);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು oom;
+    convert_ಗಮ್ಯ_ascii(hashbuf, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)userh);
   }
 
   /* If the algorithm is "MD5" or unspecified (which then defaults to MD5):
@@ -767,30 +767,30 @@ static CURLcode auth_create_digest_http_message(
 
   hashthis = curl_maprintf("%s:%s:%s", userp, digest->realm ?
                            digest->realm : "", passwdp);
-  if(!hashthis) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ಆದರೆ(!hashthis) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು oom;
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  ಫಲಿತಾಂಶ = hash(hashbuf, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)hashthis, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
-  convert_to_ascii(hashbuf, ha1);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು oom;
+  convert_ಗಮ್ಯ_ascii(hashbuf, ha1);
 
-  if(digest->algo & SESSION_ALGO) {
+  ಆದರೆ(digest->algo & SESSION_ALGO) {
     /* nonce and cnonce are OUTSIDE the hash */
-    char *tmp = curl_maprintf("%s:%s:%s", ha1, digest->nonce, digest->cnonce);
-    if(!tmp) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+    ಅಕ್ಷರ *tmp = curl_maprintf("%s:%s:%s", ha1, digest->nonce, digest->cnonce);
+    ಆದರೆ(!tmp) {
+      ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+      ಹೋಗು oom;
     }
 
-    result = hash(hashbuf, (unsigned char *)tmp, strlen(tmp));
+    ಫಲಿತಾಂಶ = hash(hashbuf, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)tmp, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(tmp));
     curlx_free(tmp);
-    if(result)
-      goto oom;
-    convert_to_ascii(hashbuf, ha1);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು oom;
+    convert_ಗಮ್ಯ_ascii(hashbuf, ha1);
   }
 
   /* If the "qop" directive's value is "auth" or is unspecified, then A2 is:
@@ -805,62 +805,62 @@ static CURLcode auth_create_digest_http_message(
      5.1.1 of RFC 2616)
    */
 
-  uri_quoted = auth_digest_string_quoted((const char *)uripath);
-  if(!uri_quoted) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  uri_quoted = auth_digest_string_quoted((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)uripath);
+  ಆದರೆ(!uri_quoted) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು oom;
   }
 
   hashthis = curl_maprintf("%s:%s", request, uripath);
-  if(!hashthis) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ಆದರೆ(!hashthis) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು oom;
   }
 
-  if(digest->qop && curl_strequal(digest->qop, "auth-int")) {
+  ಆದರೆ(digest->qop && curl_strequal(digest->qop, "auth-int")) {
     /* We do not support auth-int for PUT or POST */
-    char hashed[65];
-    char *hashthis2;
+    ಅಕ್ಷರ hashed[65];
+    ಅಕ್ಷರ *hashthis2;
 
-    result = hash(hashbuf, (const unsigned char *)"", 0);
-    if(result) {
+    ಫಲಿತಾಂಶ = hash(hashbuf, (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)"", 0);
+    ಆದರೆ(ಫಲಿತಾಂಶ) {
       curlx_free(hashthis);
-      goto oom;
+      ಹೋಗು oom;
     }
-    convert_to_ascii(hashbuf, (unsigned char *)hashed);
+    convert_ಗಮ್ಯ_ascii(hashbuf, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)hashed);
 
     hashthis2 = curl_maprintf("%s:%s", hashthis, hashed);
     curlx_free(hashthis);
     hashthis = hashthis2;
-    if(!hashthis) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+    ಆದರೆ(!hashthis) {
+      ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+      ಹೋಗು oom;
     }
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  ಫಲಿತಾಂಶ = hash(hashbuf, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)hashthis, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
-  convert_to_ascii(hashbuf, ha2);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು oom;
+  convert_ಗಮ್ಯ_ascii(hashbuf, ha2);
 
-  if(digest->qop)
+  ಆದರೆ(digest->qop)
     hashthis = curl_maprintf("%s:%s:%08x:%s:%s:%s", ha1, digest->nonce,
-                             (unsigned int)digest->nc, digest->cnonce,
+                             (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)digest->nc, digest->cnonce,
                              digest->qop, ha2);
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     hashthis = curl_maprintf("%s:%s:%s", ha1, digest->nonce, ha2);
 
-  if(!hashthis) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ಆದರೆ(!hashthis) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು oom;
   }
 
-  result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
+  ಫಲಿತಾಂಶ = hash(hashbuf, (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)hashthis, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(hashthis));
   curlx_free(hashthis);
-  if(result)
-    goto oom;
-  convert_to_ascii(hashbuf, request_digest);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು oom;
+  convert_ಗಮ್ಯ_ascii(hashbuf, request_digest);
 
   /* For test case 64 (snooped from a Mozilla 1.3a request)
 
@@ -876,30 +876,30 @@ static CURLcode auth_create_digest_http_message(
      characters.
    */
   userp_quoted = auth_digest_string_quoted(digest->userhash ? userh : userp);
-  if(!userp_quoted) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ಆದರೆ(!userp_quoted) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು oom;
   }
-  if(digest->realm)
+  ಆದರೆ(digest->realm)
     realm_quoted = auth_digest_string_quoted(digest->realm);
-  else {
+  ಇಲ್ಲದಿದ್ದರೆ {
     realm_quoted = curlx_malloc(1);
-    if(realm_quoted)
+    ಆದರೆ(realm_quoted)
       realm_quoted[0] = 0;
   }
-  if(!realm_quoted) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ಆದರೆ(!realm_quoted) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು oom;
   }
 
   nonce_quoted = auth_digest_string_quoted(digest->nonce);
-  if(!nonce_quoted) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto oom;
+  ಆದರೆ(!nonce_quoted) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು oom;
   }
 
-  if(digest->qop) {
-    result = curlx_dyn_addf(&response, "username=\"%s\", "
+  ಆದರೆ(digest->qop) {
+    ಫಲಿತಾಂಶ = curlx_dyn_addf(&response, "username=\"%s\", "
                             "realm=\"%s\", "
                             "nonce=\"%s\", "
                             "uri=\"%s\", "
@@ -912,15 +912,15 @@ static CURLcode auth_create_digest_http_message(
                             nonce_quoted,
                             uri_quoted,
                             digest->cnonce,
-                            (unsigned int)digest->nc,
+                            (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)digest->nc,
                             digest->qop,
                             request_digest);
 
     /* Increment nonce-count to use another nc value for the next request */
     digest->nc++;
   }
-  else {
-    result = curlx_dyn_addf(&response, "username=\"%s\", "
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಫಲಿತಾಂಶ = curlx_dyn_addf(&response, "username=\"%s\", "
                             "realm=\"%s\", "
                             "nonce=\"%s\", "
                             "uri=\"%s\", "
@@ -931,50 +931,50 @@ static CURLcode auth_create_digest_http_message(
                             uri_quoted,
                             request_digest);
   }
-  if(result)
-    goto oom;
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು oom;
 
   /* Add the optional fields */
-  if(digest->opaque) {
+  ಆದರೆ(digest->opaque) {
     /* Append the opaque */
-    char *opaque_quoted = auth_digest_string_quoted(digest->opaque);
-    if(!opaque_quoted) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto oom;
+    ಅಕ್ಷರ *opaque_quoted = auth_digest_string_quoted(digest->opaque);
+    ಆದರೆ(!opaque_quoted) {
+      ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+      ಹೋಗು oom;
     }
-    result = curlx_dyn_addf(&response, ", opaque=\"%s\"", opaque_quoted);
+    ಫಲಿತಾಂಶ = curlx_dyn_addf(&response, ", opaque=\"%s\"", opaque_quoted);
     curlx_free(opaque_quoted);
-    if(result)
-      goto oom;
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು oom;
   }
 
-  if(digest->algorithm) {
+  ಆದರೆ(digest->algorithm) {
     /* Append the algorithm */
-    result = curlx_dyn_addf(&response, ", algorithm=%s", digest->algorithm);
-    if(result)
-      goto oom;
+    ಫಲಿತಾಂಶ = curlx_dyn_addf(&response, ", algorithm=%s", digest->algorithm);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು oom;
   }
 
-  if(digest->userhash) {
+  ಆದರೆ(digest->userhash) {
     /* Append the userhash */
-    result = curlx_dyn_add(&response, ", userhash=true");
-    if(result)
-      goto oom;
+    ಫಲಿತಾಂಶ = curlx_dyn_ಕೂಡಿಸು(&response, ", userhash=true");
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು oom;
   }
 
   /* Return the output */
   *outptr = curlx_dyn_ptr(&response);
   *outlen = curlx_dyn_len(&response);
-  result = CURLE_OK;
+  ಫಲಿತಾಂಶ = CURLE_OK;
 
 oom:
   curlx_free(nonce_quoted);
   curlx_free(realm_quoted);
   curlx_free(uri_quoted);
   curlx_free(userp_quoted);
-  if(result)
+  ಆದರೆ(ಫಲಿತಾಂಶ)
     curlx_dyn_free(&response);
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
@@ -997,37 +997,37 @@ oom:
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const unsigned char *request,
-                                              const unsigned char *uripath,
-                                              struct digestdata *digest,
-                                              char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_digest_http_ಸಂದೇಶ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                              ರಚನೆ Curl_creds *creds,
+                                              ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *request,
+                                              ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *uripath,
+                                              ರಚನೆ digestdata *digest,
+                                              ಅಕ್ಷರ **outptr, size_t *outlen)
 {
-  if(digest->algo <= ALGO_MD5SESS)
-    return auth_create_digest_http_message(data, creds,
+  ಆದರೆ(digest->algo <= ALGO_MD5SESS)
+    ಹಿಂತಿರುಗಿ auth_create_digest_http_ಸಂದೇಶ(ದತ್ತಾಂಶ, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
-                                           auth_digest_md5_to_ascii,
+                                           auth_digest_md5_ಗಮ್ಯ_ascii,
                                            Curl_md5it);
 
-  if(digest->algo <= ALGO_SHA256SESS)
-    return auth_create_digest_http_message(data, creds,
+  ಆದರೆ(digest->algo <= ALGO_SHA256SESS)
+    ಹಿಂತಿರುಗಿ auth_create_digest_http_ಸಂದೇಶ(ದತ್ತಾಂಶ, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
-                                           auth_digest_sha256_to_ascii,
+                                           auth_digest_sha256_ಗಮ್ಯ_ascii,
                                            Curl_sha256it);
-#ifdef CURL_HAVE_SHA512_256
-  if(digest->algo <= ALGO_SHA512_256SESS)
-    return auth_create_digest_http_message(data, creds,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_HAVE_SHA512_256
+  ಆದರೆ(digest->algo <= ALGO_SHA512_256SESS)
+    ಹಿಂತಿರುಗಿ auth_create_digest_http_ಸಂದೇಶ(ದತ್ತಾಂಶ, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
-                                           auth_digest_sha256_to_ascii,
+                                           auth_digest_sha256_ಗಮ್ಯ_ascii,
                                            Curl_sha512_256it);
-#endif /* CURL_HAVE_SHA512_256 */
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_HAVE_SHA512_256 */
 
   /* Should be unreachable */
-  return CURLE_BAD_CONTENT_ENCODING;
+  ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
 }
 
 /*
@@ -1040,7 +1040,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
  * digest    [in/out] - The digest data struct being cleaned up.
  *
  */
-void Curl_auth_digest_cleanup(struct digestdata *digest)
+ಶೂನ್ಯ Curl_auth_digest_cleanup(ರಚನೆ digestdata *digest)
 {
   Curl_peer_unlink(&digest->origin);
   Curl_creds_unlink(&digest->creds);
@@ -1056,6 +1056,6 @@ void Curl_auth_digest_cleanup(struct digestdata *digest)
   digest->stale = FALSE;   /* default means normal, not stale */
   digest->userhash = FALSE;
 }
-#endif /* !USE_WINDOWS_SSPI */
+#ಆದರೆ_ಅಂತ್ಯ /* !USE_WINDOWS_SSPI */
 
-#endif /* !CURL_DISABLE_DIGEST_AUTH */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_DIGEST_AUTH */

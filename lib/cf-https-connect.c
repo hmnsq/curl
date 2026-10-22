@@ -21,26 +21,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_HTTP
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "cfilters.h"
-#include "cf-setup.h"
-#include "connect.h"
-#include "multiif.h"
-#include "cf-https-connect.h"
-#include "http2.h"
-#include "progress.h"
-#include "select.h"
-#include "vdns/cf-dns.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include "vquic/vquic.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "cf-setup.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "multiif.h"
+#ಅನ್ತರ್ಭಾವ "cf-https-connect.h"
+#ಅನ್ತರ್ಭಾವ "http2.h"
+#ಅನ್ತರ್ಭಾವ "progress.h"
+#ಅನ್ತರ್ಭಾವ "select.h"
+#ಅನ್ತರ್ಭಾವ "vdns/cf-dns.h"
+#ಅನ್ತರ್ಭಾವ "vdns/hostip.h"
+#ಅನ್ತರ್ಭಾವ "vdns/httpsrr.h"
+#ಅನ್ತರ್ಭಾವ "vquic/vquic.h"
 
-typedef enum {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ {
   CF_HC_RESOLV,
   CF_HC_INIT,
   CF_HC_CONNECT,
@@ -48,694 +48,694 @@ typedef enum {
   CF_HC_FAILURE
 } cf_hc_state;
 
-struct cf_hc_baller {
-  const char *name;
-  struct Curl_cfilter *cf;
-  CURLcode result;
-  int reply_ms;
+ರಚನೆ cf_hc_baller {
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
+  ರಚನೆ Curl_cfilter *cf;
+  CURLcode ಫಲಿತಾಂಶ;
+  ಪೂರ್ಣಾಂಕ ಉತ್ತರ_ms;
   uint8_t transport;
-  enum alpnid alpn_id;
-  BIT(shutdown);
+  ಎಣಿಕೆ alpnid alpn_id;
+  ಬಿಟ್(shutdown);
 };
 
-static void cf_hc_baller_discard(struct cf_hc_baller *b,
-                                 struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_hc_baller_discard(ರಚನೆ cf_hc_baller *b,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  if(b->cf) {
-    Curl_conn_cf_discard_chain(&b->cf, data);
-    b->cf = NULL;
+  ಆದರೆ(b->cf) {
+    Curl_conn_cf_discard_chain(&b->cf, ದತ್ತಾಂಶ);
+    b->cf = ಖಾಲಿ;
   }
 }
 
-static bool cf_hc_baller_is_connecting(struct cf_hc_baller *b)
+ಸ್ಥಿರ bool cf_hc_baller_is_connecting(ರಚನೆ cf_hc_baller *b)
 {
-  return b->cf && !b->result;
+  ಹಿಂತಿರುಗಿ b->cf && !b->ಫಲಿತಾಂಶ;
 }
 
-static bool cf_hc_baller_has_started(struct cf_hc_baller *b)
+ಸ್ಥಿರ bool cf_hc_baller_has_started(ರಚನೆ cf_hc_baller *b)
 {
-  return !!b->cf;
+  ಹಿಂತಿರುಗಿ !!b->cf;
 }
 
-static int cf_hc_baller_reply_ms(struct cf_hc_baller *b,
-                                 struct Curl_easy *data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cf_hc_baller_ಉತ್ತರ_ms(ರಚನೆ cf_hc_baller *b,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  if(b->cf && (b->reply_ms < 0))
-    b->cf->cft->query(b->cf, data, CF_QUERY_CONNECT_REPLY_MS,
-                      &b->reply_ms, NULL);
-  return b->reply_ms;
+  ಆದರೆ(b->cf && (b->ಉತ್ತರ_ms < 0))
+    b->cf->cft->query(b->cf, ದತ್ತಾಂಶ, CF_QUERY_CONNECT_ಉತ್ತರ_MS,
+                      &b->ಉತ್ತರ_ms, ಖಾಲಿ);
+  ಹಿಂತಿರುಗಿ b->ಉತ್ತರ_ms;
 }
 
-static bool cf_hc_baller_data_pending(struct cf_hc_baller *b,
-                                      const struct Curl_easy *data)
+ಸ್ಥಿರ bool cf_hc_baller_ದತ್ತಾಂಶ_pending(ರಚನೆ cf_hc_baller *b,
+                                      ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  return b->cf && !b->result && b->cf->cft->has_data_pending(b->cf, data);
+  ಹಿಂತಿರುಗಿ b->cf && !b->ಫಲಿತಾಂಶ && b->cf->cft->has_ದತ್ತಾಂಶ_pending(b->cf, ದತ್ತಾಂಶ);
 }
 
-static bool cf_hc_baller_needs_flush(struct cf_hc_baller *b,
-                                     struct Curl_easy *data)
+ಸ್ಥಿರ bool cf_hc_baller_needs_flush(ರಚನೆ cf_hc_baller *b,
+                                     ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  return b->cf && !b->result && Curl_conn_cf_needs_flush(b->cf, data);
+  ಹಿಂತಿರುಗಿ b->cf && !b->ಫಲಿತಾಂಶ && Curl_conn_cf_needs_flush(b->cf, ದತ್ತಾಂಶ);
 }
 
-static CURLcode cf_hc_baller_cntrl(struct cf_hc_baller *b,
-                                   struct Curl_easy *data,
-                                   int event, int arg1, void *arg2)
+ಸ್ಥಿರ CURLcode cf_hc_baller_cntrl(ರಚನೆ cf_hc_baller *b,
+                                   ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                   ಪೂರ್ಣಾಂಕ event, ಪೂರ್ಣಾಂಕ arg1, ಶೂನ್ಯ *arg2)
 {
-  if(b->cf && !b->result)
-    return Curl_conn_cf_cntrl(b->cf, data, FALSE, event, arg1, arg2);
-  return CURLE_OK;
+  ಆದರೆ(b->cf && !b->ಫಲಿತಾಂಶ)
+    ಹಿಂತಿರುಗಿ Curl_conn_cf_cntrl(b->cf, ದತ್ತಾಂಶ, FALSE, event, arg1, arg2);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-struct cf_hc_ctx {
+ರಚನೆ cf_hc_ctx {
   cf_hc_state state;
-  struct Curl_peer *destination; /* who we ultimately want to talk to */
-  struct curltime started;  /* when connect started */
-  CURLcode result;          /* overall result */
-  CURLcode check_h3_result;
-  struct cf_hc_baller ballers[2];
-  size_t baller_count;
+  ರಚನೆ Curl_peer *destination; /* who we ultimately want to talk to */
+  ರಚನೆ curltime started;  /* when connect started */
+  CURLcode ಫಲಿತಾಂಶ;          /* overall result */
+  CURLcode check_h3_ಫಲಿತಾಂಶ;
+  ರಚನೆ cf_hc_baller ballers[2];
+  size_t baller_ಎಣಿಕೆ;
   timediff_t soft_eyeballs_timeout_ms;
   timediff_t hard_eyeballs_timeout_ms;
   uint8_t def_transport;
-  BIT(httpsrr_resolved);
-  BIT(checked_h3);
-  BIT(ballers_complete);
+  ಬಿಟ್(httpsrr_resolved);
+  ಬಿಟ್(checked_h3);
+  ಬಿಟ್(ballers_complete);
 };
 
-static void cf_hc_ctx_destroy(struct Curl_easy *data,
-                              struct cf_hc_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_hc_ctx_destroy(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ರಚನೆ cf_hc_ctx *ctx)
 {
-  if(ctx) {
+  ಆದರೆ(ctx) {
     size_t i;
-    for(i = 0; i < ctx->baller_count; ++i)
-      cf_hc_baller_discard(&ctx->ballers[i], data);
+    ಗಾಗಿ(i = 0; i < ctx->baller_ಎಣಿಕೆ; ++i)
+      cf_hc_baller_discard(&ctx->ballers[i], ದತ್ತಾಂಶ);
     Curl_peer_unlink(&ctx->destination);
     curlx_free(ctx);
   }
 }
 
-static void cf_hc_baller_assign(struct cf_hc_baller *b,
-                                enum alpnid alpn_id,
+ಸ್ಥಿರ ಶೂನ್ಯ cf_hc_baller_ನಿಯೋಜಿಸು(ರಚನೆ cf_hc_baller *b,
+                                ಎಣಿಕೆ alpnid alpn_id,
                                 uint8_t def_transport)
 {
   b->alpn_id = alpn_id;
   b->transport = def_transport;
-  b->cf = NULL;
-  b->result = CURLE_OK;
-  b->reply_ms = -1;
+  b->cf = ಖಾಲಿ;
+  b->ಫಲಿತಾಂಶ = CURLE_OK;
+  b->ಉತ್ತರ_ms = -1;
   b->shutdown = FALSE;
-  switch(b->alpn_id) {
-  case ALPN_h3:
+  ಆಯ್ಕೆ(b->alpn_id) {
+  ಸ್ಥಿತಿ ALPN_h3:
     b->name = "h3";
     b->transport = TRNSPRT_QUIC;
-    break;
-  case ALPN_h2:
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ ALPN_h2:
     b->name = "h2";
-    break;
-  case ALPN_h1:
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ ALPN_h1:
     b->name = "h1";
-    break;
-  case ALPN_none:
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ ALPN_none:
     b->name = "no-alpn";
-    break;
-  default:
-    b->result = CURLE_FAILED_INIT;
-    break;
+    ನಿಲ್ಲಿಸು;
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    b->ಫಲಿತಾಂಶ = CURLE_FAILED_INIT;
+    ನಿಲ್ಲಿಸು;
   }
 }
 
-static void cf_hc_baller_init(struct cf_hc_baller *b,
-                              struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_hc_baller_init(ರಚನೆ cf_hc_baller *b,
+                              ರಚನೆ Curl_cfilter *cf,
+                              ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct Curl_cfilter *save = cf->next;
+  ರಚನೆ Curl_cfilter *save = cf->ಮುಂದಿನ;
 
-  cf->next = NULL;
-  b->result = Curl_cf_setup_insert_after(cf, data, b->transport,
+  cf->ಮುಂದಿನ = ಖಾಲಿ;
+  b->ಫಲಿತಾಂಶ = Curl_cf_ಸಿದ್ಧತೆ_ಸೇರಿಸು_after(cf, ದತ್ತಾಂಶ, b->transport,
                                          CURL_CF_SSL_ENABLE);
-  b->cf = cf->next;
-  cf->next = save;
+  b->cf = cf->ಮುಂದಿನ;
+  cf->ಮುಂದಿನ = save;
 }
 
-static CURLcode cf_hc_baller_connect(struct cf_hc_baller *b,
-                                     struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     bool *done)
+ಸ್ಥಿರ CURLcode cf_hc_baller_connect(ರಚನೆ cf_hc_baller *b,
+                                     ರಚನೆ Curl_cfilter *cf,
+                                     ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                     bool *ಮುಗಿದ)
 {
-  struct Curl_cfilter *save = cf->next;
+  ರಚನೆ Curl_cfilter *save = cf->ಮುಂದಿನ;
 
-  cf->next = b->cf;
-  b->result = Curl_conn_cf_connect(cf->next, data, done);
-  b->cf = cf->next; /* it might mutate */
-  cf->next = save;
-  return b->result;
+  cf->ಮುಂದಿನ = b->cf;
+  b->ಫಲಿತಾಂಶ = Curl_conn_cf_connect(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, ಮುಗಿದ);
+  b->cf = cf->ಮುಂದಿನ; /* it might mutate */
+  cf->ಮುಂದಿನ = save;
+  ಹಿಂತಿರುಗಿ b->ಫಲಿತಾಂಶ;
 }
 
-static CURLcode baller_connected(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_hc_baller *winner)
+ಸ್ಥಿರ CURLcode baller_connected(ರಚನೆ Curl_cfilter *cf,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 ರಚನೆ cf_hc_baller *winner)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
 
   /* Make the winner's connection filter out own sub-filter, check, move,
    * close all remaining. */
-  if(cf->next) {
+  ಆದರೆ(cf->ಮುಂದಿನ) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
   }
-  if(!winner->cf) {
+  ಆದರೆ(!winner->cf) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
   }
 
-  cf->next = winner->cf;
-  winner->cf = NULL;
+  cf->ಮುಂದಿನ = winner->cf;
+  winner->cf = ಖಾಲಿ;
   ctx->state = CF_HC_SUCCESS;
   cf->connected = TRUE;
 
   /* ballers may have failf()'d, the winner resets it, so our
    * errorbuf is clean again. */
-  Curl_reset_fail(data);
+  Curl_reset_fail(ದತ್ತಾಂಶ);
 
-#ifdef USE_NGHTTP2
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_NGHTTP2
   {
     /* For a negotiated HTTP/2 connection insert the h2 filter. */
-    const char *alpn = Curl_conn_cf_get_alpn_negotiated(cf->next, data);
-    if(alpn && !strcmp("h2", alpn)) {
-      CURLcode result = Curl_http2_switch_at(cf, data);
-      if(result) {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *alpn = Curl_conn_cf_get_alpn_negotiated(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ);
+    ಆದರೆ(alpn && !strcmp("h2", alpn)) {
+      CURLcode ಫಲಿತಾಂಶ = Curl_http2_switch_at(cf, ದತ್ತಾಂಶ);
+      ಆದರೆ(ಫಲಿತಾಂಶ) {
         ctx->state = CF_HC_FAILURE;
-        ctx->result = result;
-        return result;
+        ctx->ಫಲಿತಾಂಶ = ಫಲಿತಾಂಶ;
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
       }
     }
   }
-#endif
-  return CURLE_OK;
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static bool time_to_start_baller2(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  const struct curltime *pnow)
+ಸ್ಥಿರ bool ಸಮಯ_ಗಮ್ಯ_ಆರಂಭ_baller2(ರಚನೆ Curl_cfilter *cf,
+                                  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                  ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pnow)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
   timediff_t elapsed_ms;
 
-  if(ctx->baller_count < 2)
-    return FALSE;
-  else if(cf_hc_baller_has_started(&ctx->ballers[1]))
-    return FALSE;
-  else if(ctx->ballers[0].result) {
-    CURL_TRC_CF(data, cf, "%s baller failed, starting %s",
+  ಆದರೆ(ctx->baller_ಎಣಿಕೆ < 2)
+    ಹಿಂತಿರುಗಿ FALSE;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(cf_hc_baller_has_started(&ctx->ballers[1]))
+    ಹಿಂತಿರುಗಿ FALSE;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ctx->ballers[0].ಫಲಿತಾಂಶ) {
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "%s baller failed, starting %s",
                 ctx->ballers[0].name, ctx->ballers[1].name);
-    return TRUE;
+    ಹಿಂತಿರುಗಿ TRUE;
   }
 
   elapsed_ms = curlx_ptimediff_ms(pnow, &ctx->started);
-  if(elapsed_ms >= ctx->hard_eyeballs_timeout_ms) {
-    CURL_TRC_CF(data, cf, "%s inconclusive after %" FMT_TIMEDIFF_T ", "
+  ಆದರೆ(elapsed_ms >= ctx->hard_eyeballs_timeout_ms) {
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "%s inconclusive after %" FMT_TIMEDIFF_T ", "
                 "starting %s", ctx->ballers[0].name,
                 ctx->hard_eyeballs_timeout_ms, ctx->ballers[1].name);
-    return TRUE;
+    ಹಿಂತಿರುಗಿ TRUE;
   }
-  else if(elapsed_ms >= ctx->soft_eyeballs_timeout_ms) {
-    if(cf_hc_baller_reply_ms(&ctx->ballers[0], data) < 0) {
-      CURL_TRC_CF(data, cf, "%s has not seen any data after %"
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(elapsed_ms >= ctx->soft_eyeballs_timeout_ms) {
+    ಆದರೆ(cf_hc_baller_ಉತ್ತರ_ms(&ctx->ballers[0], ದತ್ತಾಂಶ) < 0) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "%s has not seen any data after %"
                   FMT_TIMEDIFF_T "ms, starting %s",
                   ctx->ballers[0].name, ctx->soft_eyeballs_timeout_ms,
                   ctx->ballers[1].name);
-      return TRUE;
+      ಹಿಂತಿರುಗಿ TRUE;
     }
     /* set the effective hard timeout again */
-    Curl_expire_set(data, EXPIRE_ALPN_EYEBALLS,
+    Curl_expire_ಗಣ(ದತ್ತಾಂಶ, EXPIRE_ALPN_EYEBALLS,
                     ctx->hard_eyeballs_timeout_ms - elapsed_ms, pnow);
   }
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-static bool cf_hc_may_h3(struct Curl_cfilter *cf,
-                         struct Curl_easy *data)
+ಸ್ಥಿರ bool cf_hc_may_h3(ರಚನೆ Curl_cfilter *cf,
+                         ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  if(!ctx->checked_h3) {
-    ctx->check_h3_result =
-      Curl_conn_may_http3(data, cf->conn);
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
+  ಆದರೆ(!ctx->checked_h3) {
+    ctx->check_h3_ಫಲಿತಾಂಶ =
+      Curl_conn_may_http3(ದತ್ತಾಂಶ, cf->conn);
     ctx->checked_h3 = TRUE;
   }
-  return !ctx->check_h3_result;
+  ಹಿಂತಿರುಗಿ !ctx->check_h3_ಫಲಿತಾಂಶ;
 }
 
-static enum alpnid cf_hc_get_httpsrr_alpn(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          enum alpnid not_this_one)
+ಸ್ಥಿರ ಎಣಿಕೆ alpnid cf_hc_get_httpsrr_alpn(ರಚನೆ Curl_cfilter *cf,
+                                          ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                          ಎಣಿಕೆ alpnid not_this_one)
 {
-#ifdef USE_HTTPSRR
-  struct cf_hc_ctx *ctx = cf->ctx;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_HTTPSRR
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
   /* Is there an HTTPSRR use its ALPNs here.
    * We are here after having selected a connection to a host+port and
    * can no longer change that. Any HTTPSRR advice for other hosts and ports
    * we need to ignore. */
-  const struct Curl_https_rrinfo *rr;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_https_rrinfo *rr;
   size_t i;
 
   /* Do we have HTTPS-RR information? */
-  rr = Curl_conn_dns_get_https(data, cf->sockindex, ctx->destination);
+  rr = Curl_conn_dns_get_https(ದತ್ತಾಂಶ, cf->sockindex, ctx->destination);
 
-  CURL_TRC_CF(data, cf, "HTTPS-RR %savailable", rr ? "" : "not ");
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "HTTPS-RR %savailable", rr ? "" : "not ");
   /* We do not support `rr->no_def_alpn`. */
-  if(Curl_httpsrr_applicable(data, rr) && !rr->no_def_alpn) {
-    for(i = 0; i < CURL_ARRAYSIZE(rr->alpns); ++i) {
-      enum alpnid alpn_rr = (enum alpnid)rr->alpns[i];
-      if(alpn_rr == not_this_one) /* do not want this one */
-        continue;
-      switch(alpn_rr) {
-      case ALPN_h3:
-        if((data->state.http_neg.allowed & CURL_HTTP_V3x) &&
-           cf_hc_may_h3(cf, data)) {
-          return alpn_rr;
+  ಆದರೆ(Curl_httpsrr_applicable(ದತ್ತಾಂಶ, rr) && !rr->no_def_alpn) {
+    ಗಾಗಿ(i = 0; i < CURL_ARRAYSIZE(rr->alpns); ++i) {
+      ಎಣಿಕೆ alpnid alpn_rr = (ಎಣಿಕೆ alpnid)rr->alpns[i];
+      ಆದರೆ(alpn_rr == not_this_one) /* do not want this one */
+        ಮುಂದುವರಿ;
+      ಆಯ್ಕೆ(alpn_rr) {
+      ಸ್ಥಿತಿ ALPN_h3:
+        ಆದರೆ((ದತ್ತಾಂಶ->state.http_neg.allowed & CURL_HTTP_V3x) &&
+           cf_hc_may_h3(cf, ದತ್ತಾಂಶ)) {
+          ಹಿಂತಿರುಗಿ alpn_rr;
         }
-        break;
-      case ALPN_h2:
-        if(data->state.http_neg.allowed & CURL_HTTP_V2x) {
-          return alpn_rr;
+        ನಿಲ್ಲಿಸು;
+      ಸ್ಥಿತಿ ALPN_h2:
+        ಆದರೆ(ದತ್ತಾಂಶ->state.http_neg.allowed & CURL_HTTP_V2x) {
+          ಹಿಂತಿರುಗಿ alpn_rr;
         }
-        break;
-      case ALPN_h1:
-        if(data->state.http_neg.allowed & CURL_HTTP_V1x) {
-          return alpn_rr;
+        ನಿಲ್ಲಿಸು;
+      ಸ್ಥಿತಿ ALPN_h1:
+        ಆದರೆ(ದತ್ತಾಂಶ->state.http_neg.allowed & CURL_HTTP_V1x) {
+          ಹಿಂತಿರುಗಿ alpn_rr;
         }
-        break;
-      default: /* ignore */
-        break;
+        ನಿಲ್ಲಿಸು;
+      ಪೂರ್ವನಿಯೋಜಿತ: /* ignore */
+        ನಿಲ್ಲಿಸು;
       }
     }
   }
-#else
-  (void)cf;
-  (void)data;
-  (void)not_this_one;
-#endif
-  return ALPN_none;
+#ಇಲ್ಲದಿದ್ದರೆ
+  (ಶೂನ್ಯ)cf;
+  (ಶೂನ್ಯ)ದತ್ತಾಂಶ;
+  (ಶೂನ್ಯ)not_this_one;
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ ALPN_none;
 }
 
-static enum alpnid cf_hc_get_pref_alpn(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       enum alpnid not_this_one)
+ಸ್ಥಿರ ಎಣಿಕೆ alpnid cf_hc_get_pref_alpn(ರಚನೆ Curl_cfilter *cf,
+                                       ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                       ಎಣಿಕೆ alpnid not_this_one)
 {
-  if((data->state.http_neg.preferred & data->state.http_neg.allowed)) {
-    switch(data->state.http_neg.preferred) {
-    case CURL_HTTP_V3x:
-      if(cf_hc_may_h3(cf, data) && (ALPN_h3 != not_this_one))
-        return ALPN_h3;
-      break;
-    case CURL_HTTP_V2x:
-      if(ALPN_h2 != not_this_one)
-        return ALPN_h2;
-      break;
-    case CURL_HTTP_V1x:
+  ಆದರೆ((ದತ್ತಾಂಶ->state.http_neg.preferred & ದತ್ತಾಂಶ->state.http_neg.allowed)) {
+    ಆಯ್ಕೆ(ದತ್ತಾಂಶ->state.http_neg.preferred) {
+    ಸ್ಥಿತಿ CURL_HTTP_V3x:
+      ಆದರೆ(cf_hc_may_h3(cf, ದತ್ತಾಂಶ) && (ALPN_h3 != not_this_one))
+        ಹಿಂತಿರುಗಿ ALPN_h3;
+      ನಿಲ್ಲಿಸು;
+    ಸ್ಥಿತಿ CURL_HTTP_V2x:
+      ಆದರೆ(ALPN_h2 != not_this_one)
+        ಹಿಂತಿರುಗಿ ALPN_h2;
+      ನಿಲ್ಲಿಸು;
+    ಸ್ಥಿತಿ CURL_HTTP_V1x:
       /* If we are trying h2 already, h1 is already used as fallback */
-      if((ALPN_h1 != not_this_one) && (ALPN_h2 != not_this_one))
-        return ALPN_h1;
-      break;
-    default:
-      break;
+      ಆದರೆ((ALPN_h1 != not_this_one) && (ALPN_h2 != not_this_one))
+        ಹಿಂತಿರುಗಿ ALPN_h1;
+      ನಿಲ್ಲಿಸು;
+    ಪೂರ್ವನಿಯೋಜಿತ:
+      ನಿಲ್ಲಿಸು;
     }
   }
-  return ALPN_none;
+  ಹಿಂತಿರುಗಿ ALPN_none;
 }
 
-static enum alpnid cf_hc_get_first_alpn(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
+ಸ್ಥಿರ ಎಣಿಕೆ alpnid cf_hc_get_ಮೊದಲ_alpn(ರಚನೆ Curl_cfilter *cf,
+                                        ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                                         http_majors choices,
-                                        enum alpnid not_this_one)
+                                        ಎಣಿಕೆ alpnid not_this_one)
 {
   /* When told to not try h2, we also do not try h1 and vice versa */
   bool allow_h1_or_h2 = (not_this_one != ALPN_h1) &&
                         (not_this_one != ALPN_h2);
-  if((ALPN_h3 != not_this_one) && (choices & CURL_HTTP_V3x) &&
-     cf_hc_may_h3(cf, data)) {
-    return ALPN_h3;
+  ಆದರೆ((ALPN_h3 != not_this_one) && (choices & CURL_HTTP_V3x) &&
+     cf_hc_may_h3(cf, ದತ್ತಾಂಶ)) {
+    ಹಿಂತಿರುಗಿ ALPN_h3;
   }
-  if(allow_h1_or_h2 && (choices & CURL_HTTP_V2x)) {
-    return ALPN_h2;
+  ಆದರೆ(allow_h1_or_h2 && (choices & CURL_HTTP_V2x)) {
+    ಹಿಂತಿರುಗಿ ALPN_h2;
   }
-  if(allow_h1_or_h2 && (choices & CURL_HTTP_V1x)) {
-    return ALPN_h1;
+  ಆದರೆ(allow_h1_or_h2 && (choices & CURL_HTTP_V1x)) {
+    ಹಿಂತಿರುಗಿ ALPN_h1;
   }
-  return ALPN_none;
+  ಹಿಂತಿರುಗಿ ALPN_none;
 }
 
-static CURLcode cf_hc_set_baller1(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+ಸ್ಥಿರ CURLcode cf_hc_ಗಣ_baller1(ರಚನೆ Curl_cfilter *cf,
+                                  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  enum alpnid alpn1 = ALPN_none;
-  VERBOSE(const char *source = "HTTPS-RR");
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
+  ಎಣಿಕೆ alpnid alpn1 = ALPN_none;
+  VERBOSE(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ = "HTTPS-RR");
 
-  DEBUGASSERT(cf->conn->bits.tls_enable_alpn);
+  DEBUGASSERT(cf->conn->ಬಿಟ್ಟುಗಳು.tls_enable_alpn);
 
-  alpn1 = cf_hc_get_httpsrr_alpn(cf, data, ALPN_none);
-  if(alpn1 == ALPN_none) {
+  alpn1 = cf_hc_get_httpsrr_alpn(cf, ದತ್ತಾಂಶ, ALPN_none);
+  ಆದರೆ(alpn1 == ALPN_none) {
     /* preference is configured and allowed, can we use it? */
-    VERBOSE(source = "preferred version");
-    alpn1 = cf_hc_get_pref_alpn(cf, data, ALPN_none);
+    VERBOSE(ಮೂಲ = "preferred version");
+    alpn1 = cf_hc_get_pref_alpn(cf, ದತ್ತಾಂಶ, ALPN_none);
   }
-  if(alpn1 == ALPN_none) {
-    VERBOSE(source = "wanted versions");
-    alpn1 = cf_hc_get_first_alpn(cf, data,
-                                 data->state.http_neg.wanted,
+  ಆದರೆ(alpn1 == ALPN_none) {
+    VERBOSE(ಮೂಲ = "wanted versions");
+    alpn1 = cf_hc_get_ಮೊದಲ_alpn(cf, ದತ್ತಾಂಶ,
+                                 ದತ್ತಾಂಶ->state.http_neg.wanted,
                                  ALPN_none);
   }
-  if(alpn1 == ALPN_none) {
-    VERBOSE(source = "allowed versions");
-    alpn1 = cf_hc_get_first_alpn(cf, data,
-                                 data->state.http_neg.allowed,
+  ಆದರೆ(alpn1 == ALPN_none) {
+    VERBOSE(ಮೂಲ = "allowed versions");
+    alpn1 = cf_hc_get_ಮೊದಲ_alpn(cf, ದತ್ತಾಂಶ,
+                                 ದತ್ತಾಂಶ->state.http_neg.allowed,
                                  ALPN_none);
   }
 
-  if(alpn1 == ALPN_none) {
+  ಆದರೆ(alpn1 == ALPN_none) {
     /* None of the wanted/allowed HTTP versions could be chosen */
-    if(ctx->check_h3_result) {
-      CURL_TRC_CF(data, cf, "unable to use HTTP/3");
-      return ctx->check_h3_result;
+    ಆದರೆ(ctx->check_h3_ಫಲಿತಾಂಶ) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "unable to use HTTP/3");
+      ಹಿಂತಿರುಗಿ ctx->check_h3_ಫಲಿತಾಂಶ;
     }
-    CURL_TRC_CF(data, cf, "unable to select HTTP version");
-    return CURLE_FAILED_INIT;
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "unable to select HTTP version");
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
   }
 
-  cf_hc_baller_assign(&ctx->ballers[0], alpn1, ctx->def_transport);
-  ctx->baller_count = 1;
-  CURL_TRC_CF(data, cf, "1st attempt uses %s from %s",
-              ctx->ballers[0].name, source);
+  cf_hc_baller_ನಿಯೋಜಿಸು(&ctx->ballers[0], alpn1, ctx->def_transport);
+  ctx->baller_ಎಣಿಕೆ = 1;
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "1st attempt uses %s from %s",
+              ctx->ballers[0].name, ಮೂಲ);
 
-  switch(alpn1) {
-  case ALPN_h1:
+  ಆಯ್ಕೆ(alpn1) {
+  ಸ್ಥಿತಿ ALPN_h1:
     /* We really want h1, switch off h2 to make it disappear in ALPN */
-    data->state.http_neg.wanted &= (uint8_t)~CURL_HTTP_V2x;
-    break;
-  default:
-    break;
+    ದತ್ತಾಂಶ->state.http_neg.wanted &= (uint8_t)~CURL_HTTP_V2x;
+    ನಿಲ್ಲಿಸು;
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    ನಿಲ್ಲಿಸು;
   }
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static void cf_hc_set_baller2(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_hc_ಗಣ_baller2(ರಚನೆ Curl_cfilter *cf,
+                              ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  enum alpnid alpn2 = ALPN_none, alpn1 = ctx->ballers[0].alpn_id;
-  VERBOSE(const char *source = "HTTPS-RR");
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
+  ಎಣಿಕೆ alpnid alpn2 = ALPN_none, alpn1 = ctx->ballers[0].alpn_id;
+  VERBOSE(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ = "HTTPS-RR");
 
-  if(ctx->ballers_complete)
-    return; /* already done */
-  if(!ctx->httpsrr_resolved)
-    return; /* HTTPS-RR pending */
+  ಆದರೆ(ctx->ballers_complete)
+    ಹಿಂತಿರುಗಿ; /* already done */
+  ಆದರೆ(!ctx->httpsrr_resolved)
+    ಹಿಂತಿರುಗಿ; /* HTTPS-RR pending */
 
-  alpn2 = cf_hc_get_httpsrr_alpn(cf, data, alpn1);
-  if(alpn2 == ALPN_none) {
+  alpn2 = cf_hc_get_httpsrr_alpn(cf, ದತ್ತಾಂಶ, alpn1);
+  ಆದರೆ(alpn2 == ALPN_none) {
     /* preference is configured and allowed, can we use it? */
-    VERBOSE(source = "preferred version");
-    alpn2 = cf_hc_get_pref_alpn(cf, data, alpn1);
+    VERBOSE(ಮೂಲ = "preferred version");
+    alpn2 = cf_hc_get_pref_alpn(cf, ದತ್ತಾಂಶ, alpn1);
   }
-  if(alpn2 == ALPN_none) {
-    VERBOSE(source = "wanted versions");
-    alpn2 = cf_hc_get_first_alpn(cf, data,
-                                 data->state.http_neg.wanted,
+  ಆದರೆ(alpn2 == ALPN_none) {
+    VERBOSE(ಮೂಲ = "wanted versions");
+    alpn2 = cf_hc_get_ಮೊದಲ_alpn(cf, ದತ್ತಾಂಶ,
+                                 ದತ್ತಾಂಶ->state.http_neg.wanted,
                                  alpn1);
   }
 
-  if(alpn2 != ALPN_none) {
-    cf_hc_baller_assign(&ctx->ballers[1], alpn2, ctx->def_transport);
-    ctx->baller_count = 2;
-    CURL_TRC_CF(data, cf, "2nd attempt uses %s from %s",
-                ctx->ballers[1].name, source);
+  ಆದರೆ(alpn2 != ALPN_none) {
+    cf_hc_baller_ನಿಯೋಜಿಸು(&ctx->ballers[1], alpn2, ctx->def_transport);
+    ctx->baller_ಎಣಿಕೆ = 2;
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "2nd attempt uses %s from %s",
+                ctx->ballers[1].name, ಮೂಲ);
   }
   ctx->ballers_complete = TRUE;
 }
 
-static CURLcode cf_hc_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              bool *done)
+ಸ್ಥಿರ CURLcode cf_hc_connect(ರಚನೆ Curl_cfilter *cf,
+                              ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              bool *ಮುಗಿದ)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  const struct curltime *pnow = NULL;
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pnow = ಖಾಲಿ;
 
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  ಆದರೆ(cf->connected) {
+    *ಮುಗಿದ = TRUE;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
 
-  *done = FALSE;
+  *ಮುಗಿದ = FALSE;
 
-  if(!ctx->httpsrr_resolved) {
+  ಆದರೆ(!ctx->httpsrr_resolved) {
     ctx->httpsrr_resolved = Curl_conn_dns_resolved_https(
-      data, cf->sockindex, ctx->destination);
-#ifdef DEBUGBUILD
-    if(!ctx->httpsrr_resolved && getenv("CURL_DBG_AWAIT_HTTPSRR")) {
-      CURL_TRC_CF(data, cf, "awaiting HTTPS-RR");
-      return CURLE_OK;
+      ದತ್ತಾಂಶ, cf->sockindex, ctx->destination);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+    ಆದರೆ(!ctx->httpsrr_resolved && getenv("CURL_DBG_AWAIT_HTTPSRR")) {
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "awaiting HTTPS-RR");
+      ಹಿಂತಿರುಗಿ CURLE_OK;
     }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   }
 
-  switch(ctx->state) {
-  case CF_HC_RESOLV:
+  ಆಯ್ಕೆ(ctx->state) {
+  ಸ್ಥಿತಿ CF_HC_RESOLV:
     ctx->state = CF_HC_INIT;
     FALLTHROUGH();
 
-  case CF_HC_INIT:
-    DEBUGASSERT(!cf->next);
-    CURL_TRC_CF(data, cf, "connect, init");
-    result = cf_hc_set_baller1(cf, data);
-    if(result) {
-      ctx->result = result;
+  ಸ್ಥಿತಿ CF_HC_INIT:
+    DEBUGASSERT(!cf->ಮುಂದಿನ);
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "connect, init");
+    ಫಲಿತಾಂಶ = cf_hc_ಗಣ_baller1(cf, ದತ್ತಾಂಶ);
+    ಆದರೆ(ಫಲಿತಾಂಶ) {
+      ctx->ಫಲಿತಾಂಶ = ಫಲಿತಾಂಶ;
       ctx->state = CF_HC_FAILURE;
-      goto out;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    cf_hc_set_baller2(cf, data);
-    pnow = Curl_pgrs_now(data);
+    cf_hc_ಗಣ_baller2(cf, ದತ್ತಾಂಶ);
+    pnow = Curl_pgrs_now(ದತ್ತಾಂಶ);
     ctx->started = *pnow;
-    cf_hc_baller_init(&ctx->ballers[0], cf, data);
-    if((ctx->baller_count > 1) || !ctx->ballers_complete) {
-      Curl_expire_set(data, EXPIRE_ALPN_EYEBALLS,
+    cf_hc_baller_init(&ctx->ballers[0], cf, ದತ್ತಾಂಶ);
+    ಆದರೆ((ctx->baller_ಎಣಿಕೆ > 1) || !ctx->ballers_complete) {
+      Curl_expire_ಗಣ(ದತ್ತಾಂಶ, EXPIRE_ALPN_EYEBALLS,
                       ctx->soft_eyeballs_timeout_ms, pnow);
     }
     ctx->state = CF_HC_CONNECT;
     FALLTHROUGH();
 
-  case CF_HC_CONNECT:
-    if(!ctx->ballers_complete)
-      cf_hc_set_baller2(cf, data);
+  ಸ್ಥಿತಿ CF_HC_CONNECT:
+    ಆದರೆ(!ctx->ballers_complete)
+      cf_hc_ಗಣ_baller2(cf, ದತ್ತಾಂಶ);
 
-    if(cf_hc_baller_is_connecting(&ctx->ballers[0])) {
-      result = cf_hc_baller_connect(&ctx->ballers[0], cf, data, done);
-      if(!result && *done) {
-        result = baller_connected(cf, data, &ctx->ballers[0]);
-        goto out;
+    ಆದರೆ(cf_hc_baller_is_connecting(&ctx->ballers[0])) {
+      ಫಲಿತಾಂಶ = cf_hc_baller_connect(&ctx->ballers[0], cf, ದತ್ತಾಂಶ, ಮುಗಿದ);
+      ಆದರೆ(!ಫಲಿತಾಂಶ && *ಮುಗಿದ) {
+        ಫಲಿತಾಂಶ = baller_connected(cf, ದತ್ತಾಂಶ, &ctx->ballers[0]);
+        ಹೋಗು ಹೊರಹೋಗು;
       }
     }
 
-    pnow = Curl_pgrs_now(data);
-    if(time_to_start_baller2(cf, data, pnow)) {
-      cf_hc_baller_init(&ctx->ballers[1], cf, data);
+    pnow = Curl_pgrs_now(ದತ್ತಾಂಶ);
+    ಆದರೆ(ಸಮಯ_ಗಮ್ಯ_ಆರಂಭ_baller2(cf, ದತ್ತಾಂಶ, pnow)) {
+      cf_hc_baller_init(&ctx->ballers[1], cf, ದತ್ತಾಂಶ);
     }
 
-    if(cf_hc_baller_is_connecting(&ctx->ballers[1])) {
-      result = cf_hc_baller_connect(&ctx->ballers[1], cf, data, done);
-      if(!result && *done) {
-        result = baller_connected(cf, data, &ctx->ballers[1]);
-        goto out;
+    ಆದರೆ(cf_hc_baller_is_connecting(&ctx->ballers[1])) {
+      ಫಲಿತಾಂಶ = cf_hc_baller_connect(&ctx->ballers[1], cf, ದತ್ತಾಂಶ, ಮುಗಿದ);
+      ಆದರೆ(!ಫಲಿತಾಂಶ && *ಮುಗಿದ) {
+        ಫಲಿತಾಂಶ = baller_connected(cf, ದತ್ತಾಂಶ, &ctx->ballers[1]);
+        ಹೋಗು ಹೊರಹೋಗು;
       }
     }
 
-    if(ctx->ballers[0].result &&
-       (ctx->ballers[1].result ||
-        (ctx->ballers_complete && (ctx->baller_count < 2)))) {
+    ಆದರೆ(ctx->ballers[0].ಫಲಿತಾಂಶ &&
+       (ctx->ballers[1].ಫಲಿತಾಂಶ ||
+        (ctx->ballers_complete && (ctx->baller_ಎಣಿಕೆ < 2)))) {
       /* all have failed. we give up */
-      CURL_TRC_CF(data, cf, "connect, all attempts failed");
-      ctx->result = result = ctx->ballers[0].result;
+      CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "connect, all attempts failed");
+      ctx->ಫಲಿತಾಂಶ = ಫಲಿತಾಂಶ = ctx->ballers[0].ಫಲಿತಾಂಶ;
       ctx->state = CF_HC_FAILURE;
-      goto out;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    result = CURLE_OK;
-    *done = FALSE;
-    break;
+    ಫಲಿತಾಂಶ = CURLE_OK;
+    *ಮುಗಿದ = FALSE;
+    ನಿಲ್ಲಿಸು;
 
-  case CF_HC_FAILURE:
-    result = ctx->result;
+  ಸ್ಥಿತಿ CF_HC_FAILURE:
+    ಫಲಿತಾಂಶ = ctx->ಫಲಿತಾಂಶ;
     cf->connected = FALSE;
-    *done = FALSE;
-    break;
+    *ಮುಗಿದ = FALSE;
+    ನಿಲ್ಲಿಸು;
 
-  case CF_HC_SUCCESS:
-    result = CURLE_OK;
+  ಸ್ಥಿತಿ CF_HC_SUCCESS:
+    ಫಲಿತಾಂಶ = CURLE_OK;
     cf->connected = TRUE;
-    *done = TRUE;
-    break;
+    *ಮುಗಿದ = TRUE;
+    ನಿಲ್ಲಿಸು;
   }
 
-out:
-  CURL_TRC_CF(data, cf, "connect -> %d, done=%d", (int)result, *done);
-  return result;
+ಹೊರಹೋಗು:
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "connect -> %d, done=%d", (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ, *ಮುಗಿದ);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode cf_hc_shutdown(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, bool *done)
+ಸ್ಥಿರ CURLcode cf_hc_shutdown(ರಚನೆ Curl_cfilter *cf,
+                               ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool *ಮುಗಿದ)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
   size_t i;
-  CURLcode result = CURLE_OK;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
-  DEBUGASSERT(data);
-  if(cf->connected) {
-    *done = TRUE;
-    return CURLE_OK;
+  DEBUGASSERT(ದತ್ತಾಂಶ);
+  ಆದರೆ(cf->connected) {
+    *ಮುಗಿದ = TRUE;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
 
   /* shutdown all ballers that have not done so already. If one fails,
    * continue shutting down others until all are shutdown. */
-  for(i = 0; i < ctx->baller_count; i++) {
-    struct cf_hc_baller *b = &ctx->ballers[i];
+  ಗಾಗಿ(i = 0; i < ctx->baller_ಎಣಿಕೆ; i++) {
+    ರಚನೆ cf_hc_baller *b = &ctx->ballers[i];
     bool bdone = FALSE;
-    if(!cf_hc_baller_is_connecting(b) || b->shutdown)
-      continue;
-    b->result = b->cf->cft->do_shutdown(b->cf, data, &bdone);
-    if(b->result || bdone)
+    ಆದರೆ(!cf_hc_baller_is_connecting(b) || b->shutdown)
+      ಮುಂದುವರಿ;
+    b->ಫಲಿತಾಂಶ = b->cf->cft->do_shutdown(b->cf, ದತ್ತಾಂಶ, &bdone);
+    ಆದರೆ(b->ಫಲಿತಾಂಶ || bdone)
       b->shutdown = TRUE; /* treat a failed shutdown as done */
   }
 
-  *done = TRUE;
-  for(i = 0; i < ctx->baller_count; i++) {
-    if(!ctx->ballers[i].shutdown)
-      *done = FALSE;
+  *ಮುಗಿದ = TRUE;
+  ಗಾಗಿ(i = 0; i < ctx->baller_ಎಣಿಕೆ; i++) {
+    ಆದರೆ(!ctx->ballers[i].shutdown)
+      *ಮುಗಿದ = FALSE;
   }
-  if(*done) {
-    for(i = 0; i < ctx->baller_count; i++) {
-      if(ctx->ballers[i].result)
-        result = ctx->ballers[i].result;
+  ಆದರೆ(*ಮುಗಿದ) {
+    ಗಾಗಿ(i = 0; i < ctx->baller_ಎಣಿಕೆ; i++) {
+      ಆದರೆ(ctx->ballers[i].ಫಲಿತಾಂಶ)
+        ಫಲಿತಾಂಶ = ctx->ballers[i].ಫಲಿತಾಂಶ;
     }
   }
-  CURL_TRC_CF(data, cf, "shutdown -> %d, done=%d", (int)result, *done);
-  return result;
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "shutdown -> %d, done=%d", (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ, *ಮುಗಿದ);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode cf_hc_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+ಸ್ಥಿರ CURLcode cf_hc_adjust_pollset(ರಚನೆ Curl_cfilter *cf,
+                                     ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                     ರಚನೆ easy_pollset *ps)
 {
-  CURLcode result = CURLE_OK;
-  if(!cf->connected) {
-    struct cf_hc_ctx *ctx = cf->ctx;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ಆದರೆ(!cf->connected) {
+    ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
     size_t i;
 
-    for(i = 0; (i < ctx->baller_count) && !result; i++) {
-      struct cf_hc_baller *b = &ctx->ballers[i];
-      if(!cf_hc_baller_is_connecting(b))
-        continue;
-      result = Curl_conn_cf_adjust_pollset(b->cf, data, ps);
+    ಗಾಗಿ(i = 0; (i < ctx->baller_ಎಣಿಕೆ) && !ಫಲಿತಾಂಶ; i++) {
+      ರಚನೆ cf_hc_baller *b = &ctx->ballers[i];
+      ಆದರೆ(!cf_hc_baller_is_connecting(b))
+        ಮುಂದುವರಿ;
+      ಫಲಿತಾಂಶ = Curl_conn_cf_adjust_pollset(b->cf, ದತ್ತಾಂಶ, ps);
     }
-    CURL_TRC_CF(data, cf, "adjust_pollset -> %d, %u socks", (int)result,
+    CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "adjust_pollset -> %d, %u socks", (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ,
                 ps->n);
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static bool cf_hc_data_pending(struct Curl_cfilter *cf,
-                               const struct Curl_easy *data)
+ಸ್ಥಿರ bool cf_hc_ದತ್ತಾಂಶ_pending(ರಚನೆ Curl_cfilter *cf,
+                               ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
   size_t i;
 
-  if(cf->connected)
-    return cf->next->cft->has_data_pending(cf->next, data);
+  ಆದರೆ(cf->connected)
+    ಹಿಂತಿರುಗಿ cf->ಮುಂದಿನ->cft->has_ದತ್ತಾಂಶ_pending(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ);
 
-  for(i = 0; i < ctx->baller_count; i++)
-    if(cf_hc_baller_data_pending(&ctx->ballers[i], data))
-      return TRUE;
-  return FALSE;
+  ಗಾಗಿ(i = 0; i < ctx->baller_ಎಣಿಕೆ; i++)
+    ಆದರೆ(cf_hc_baller_ದತ್ತಾಂಶ_pending(&ctx->ballers[i], ದತ್ತಾಂಶ))
+      ಹಿಂತಿರುಗಿ TRUE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-static CURLcode cf_hc_query(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            int query, int *pres1, void *pres2)
+ಸ್ಥಿರ CURLcode cf_hc_query(ರಚನೆ Curl_cfilter *cf,
+                            ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            ಪೂರ್ಣಾಂಕ query, ಪೂರ್ಣಾಂಕ *pres1, ಶೂನ್ಯ *pres2)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
   size_t i;
 
-  if(!cf->connected) {
-    switch(query) {
-    case CF_QUERY_NEED_FLUSH: {
-      for(i = 0; i < ctx->baller_count; i++)
-        if(cf_hc_baller_needs_flush(&ctx->ballers[i], data)) {
+  ಆದರೆ(!cf->connected) {
+    ಆಯ್ಕೆ(query) {
+    ಸ್ಥಿತಿ CF_QUERY_NEED_FLUSH: {
+      ಗಾಗಿ(i = 0; i < ctx->baller_ಎಣಿಕೆ; i++)
+        ಆದರೆ(cf_hc_baller_needs_flush(&ctx->ballers[i], ದತ್ತಾಂಶ)) {
           *pres1 = TRUE;
-          return CURLE_OK;
+          ಹಿಂತಿರುಗಿ CURLE_OK;
         }
-      break;
+      ನಿಲ್ಲಿಸು;
     }
-    default:
-      break;
+    ಪೂರ್ವನಿಯೋಜಿತ:
+      ನಿಲ್ಲಿಸು;
     }
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  ಹಿಂತಿರುಗಿ cf->ಮುಂದಿನ ?
+    cf->ಮುಂದಿನ->cft->query(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_hc_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            int event, int arg1, void *arg2)
+ಸ್ಥಿರ CURLcode cf_hc_cntrl(ರಚನೆ Curl_cfilter *cf,
+                            ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            ಪೂರ್ಣಾಂಕ event, ಪೂರ್ಣಾಂಕ arg1, ಶೂನ್ಯ *arg2)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
   size_t i;
 
-  if(!cf->connected) {
-    switch(event) {
-    case CF_CTRL_REPORT_STATS:
-    case CF_CTRL_CONN_INFO_UPDATE:
-      for(i = 0; i < ctx->baller_count; i++) {
+  ಆದರೆ(!cf->connected) {
+    ಆಯ್ಕೆ(event) {
+    ಸ್ಥಿತಿ CF_CTRL_REPORT_STATS:
+    ಸ್ಥಿತಿ CF_CTRL_CONN_INFO_UPDATE:
+      ಗಾಗಿ(i = 0; i < ctx->baller_ಎಣಿಕೆ; i++) {
         /* Make the first baller that connected at network level report */
-        if(Curl_conn_cf_is_ip_connected(ctx->ballers[i].cf, data)) {
-          Curl_conn_cf_cntrl(ctx->ballers[i].cf, data, TRUE,
+        ಆದರೆ(Curl_conn_cf_is_ip_connected(ctx->ballers[i].cf, ದತ್ತಾಂಶ)) {
+          Curl_conn_cf_cntrl(ctx->ballers[i].cf, ದತ್ತಾಂಶ, TRUE,
                              event, arg1, arg2);
-          break;
+          ನಿಲ್ಲಿಸು;
         }
       }
-      break;
-    default:
-      for(i = 0; i < ctx->baller_count; i++) {
-        result = cf_hc_baller_cntrl(&ctx->ballers[i], data, event, arg1, arg2);
-        if(result && (result != CURLE_AGAIN))
-          goto out;
+      ನಿಲ್ಲಿಸು;
+    ಪೂರ್ವನಿಯೋಜಿತ:
+      ಗಾಗಿ(i = 0; i < ctx->baller_ಎಣಿಕೆ; i++) {
+        ಫಲಿತಾಂಶ = cf_hc_baller_cntrl(&ctx->ballers[i], ದತ್ತಾಂಶ, event, arg1, arg2);
+        ಆದರೆ(ಫಲಿತಾಂಶ && (ಫಲಿತಾಂಶ != CURLE_AGAIN))
+          ಹೋಗು ಹೊರಹೋಗು;
       }
-      result = CURLE_OK;
-      break;
+      ಫಲಿತಾಂಶ = CURLE_OK;
+      ನಿಲ್ಲಿಸು;
     }
   }
-out:
-  return result;
+ಹೊರಹೋಗು:
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static void cf_hc_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_hc_destroy(ರಚನೆ Curl_cfilter *cf, ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct cf_hc_ctx *ctx = cf->ctx;
+  ರಚನೆ cf_hc_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  cf_hc_ctx_destroy(data, ctx);
+  CURL_TRC_CF(ದತ್ತಾಂಶ, cf, "destroy");
+  cf_hc_ctx_destroy(ದತ್ತಾಂಶ, ctx);
 }
 
-struct Curl_cftype Curl_cft_http_connect = {
+ರಚನೆ Curl_cftype Curl_cft_http_connect = {
   "HTTPS-CONNECT",
-  CF_TYPE_SETUP,
+  CF_TYPE_ಸಿದ್ಧತೆ,
   CURL_LOG_LVL_NONE,
   cf_hc_destroy,
   cf_hc_connect,
   cf_hc_shutdown,
   cf_hc_adjust_pollset,
-  cf_hc_data_pending,
+  cf_hc_ದತ್ತಾಂಶ_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   cf_hc_cntrl,
@@ -744,82 +744,82 @@ struct Curl_cftype Curl_cft_http_connect = {
   cf_hc_query,
 };
 
-static CURLcode cf_hc_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *destination,
+ಸ್ಥಿರ CURLcode cf_hc_create(ರಚನೆ Curl_cfilter **pcf,
+                             ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                             ರಚನೆ Curl_peer *destination,
                              uint8_t def_transport)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_hc_ctx *ctx;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ Curl_cfilter *cf = ಖಾಲಿ;
+  ರಚನೆ cf_hc_ctx *ctx;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, ಗಾತ್ರ(*ctx));
+  ಆದರೆ(!ctx) {
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
   Curl_peer_link(&ctx->destination, destination);
   ctx->def_transport = def_transport;
-  ctx->hard_eyeballs_timeout_ms = data->set.happy_eyeballs_timeout;
-  ctx->soft_eyeballs_timeout_ms = data->set.happy_eyeballs_timeout / 2;
+  ctx->hard_eyeballs_timeout_ms = ದತ್ತಾಂಶ->ಗಣ.happy_eyeballs_timeout;
+  ctx->soft_eyeballs_timeout_ms = ದತ್ತಾಂಶ->ಗಣ.happy_eyeballs_timeout / 2;
 
-  result = Curl_cf_create(&cf, &Curl_cft_http_connect, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  ಫಲಿತಾಂಶ = Curl_cf_create(&cf, &Curl_cft_http_connect, ctx);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
+  ctx = ಖಾಲಿ;
 
-out:
-  *pcf = result ? NULL : cf;
-  cf_hc_ctx_destroy(data, ctx);
-  return result;
+ಹೊರಹೋಗು:
+  *pcf = ಫಲಿತಾಂಶ ? ಖಾಲಿ : cf;
+  cf_hc_ctx_destroy(ದತ್ತಾಂಶ, ctx);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode cf_hc_add(struct Curl_easy *data,
-                          struct Curl_peer *destination,
-                          struct connectdata *conn,
+ಸ್ಥಿರ CURLcode cf_hc_ಕೂಡಿಸು(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                          ರಚನೆ Curl_peer *destination,
+                          ರಚನೆ connectdata *conn,
                           int8_t sockindex,
                           uint8_t def_transport)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ Curl_cfilter *cf;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
-  DEBUGASSERT(data);
-  result = cf_hc_create(&cf, data, destination, def_transport);
-  if(result)
-    goto out;
-  Curl_conn_cf_add(data, conn, sockindex, cf);
+  DEBUGASSERT(ದತ್ತಾಂಶ);
+  ಫಲಿತಾಂಶ = cf_hc_create(&cf, ದತ್ತಾಂಶ, destination, def_transport);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
+  Curl_conn_cf_ಕೂಡಿಸು(ದತ್ತಾಂಶ, conn, sockindex, cf);
 
-#ifdef USE_HTTPSRR
-  result = Curl_conn_dns_add_https_resolve(data, cf->conn, cf->sockindex,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_HTTPSRR
+  ಫಲಿತಾಂಶ = Curl_conn_dns_ಕೂಡಿಸು_https_resolve(ದತ್ತಾಂಶ, cf->conn, cf->sockindex,
                                            destination);
-#endif
-out:
-  return result;
+#ಆದರೆ_ಅಂತ್ಯ
+ಹೊರಹೋಗು:
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-CURLcode Curl_cf_https_setup(struct Curl_easy *data,
-                             struct Curl_peer *destination,
-                             struct connectdata *conn,
+CURLcode Curl_cf_https_ಸಿದ್ಧತೆ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                             ರಚನೆ Curl_peer *destination,
+                             ರಚನೆ connectdata *conn,
                              int8_t sockindex)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
   DEBUGASSERT(conn->scheme->protocol == CURLPROTO_HTTPS);
 
   /* This filter is intended for HTTPS using ALPN and does
    * not support HTTPS Eyeballing to a proxy. */
-  if((conn->scheme->protocol != CURLPROTO_HTTPS) ||
-#ifndef CURL_DISABLE_PROXY
-     conn->bits.origin_is_proxy ||
-#endif
-     !conn->bits.tls_enable_alpn)
-    goto out;
+  ಆದರೆ((conn->scheme->protocol != CURLPROTO_HTTPS) ||
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
+     conn->ಬಿಟ್ಟುಗಳು.origin_is_proxy ||
+#ಆದರೆ_ಅಂತ್ಯ
+     !conn->ಬಿಟ್ಟುಗಳು.tls_enable_alpn)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  result = cf_hc_add(data, destination, conn, sockindex,
+  ಫಲಿತಾಂಶ = cf_hc_ಕೂಡಿಸು(ದತ್ತಾಂಶ, destination, conn, sockindex,
                      conn->transport_wanted);
 
-out:
-  return result;
+ಹೊರಹೋಗು:
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-#endif /* !CURL_DISABLE_HTTP */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_HTTP */

@@ -21,143 +21,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "file.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "file.h"
 
-#ifndef CURL_DISABLE_FILE
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_FILE
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETDB_H
+#ಅನ್ತರ್ಭಾವ <netdb.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ARPA_INET_H
+#ಅನ್ತರ್ಭಾವ <arpa/inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NET_IF_H
+#ಅನ್ತರ್ಭಾವ <net/if.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYS_IOCTL_H
+#ಅನ್ತರ್ಭಾವ <sys/ioctl.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYS_PARAM_H
+#ಅನ್ತರ್ಭಾವ <sys/param.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_DIRENT_H
-#include <dirent.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_DIRENT_H
+#ಅನ್ತರ್ಭಾವ <dirent.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "progress.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "multiif.h"
-#include "transfer.h"
-#include "url.h"
-#include "parsedate.h" /* for the week day and month names */
-#include "curlx/win32-fopen.h"
-#include "curl_range.h"
+#ಅನ್ತರ್ಭಾವ "progress.h"
+#ಅನ್ತರ್ಭಾವ "sendf.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "escape.h"
+#ಅನ್ತರ್ಭಾವ "multiif.h"
+#ಅನ್ತರ್ಭಾವ "transfer.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "parsedate.h" /* for the week day and month names */
+#ಅನ್ತರ್ಭಾವ "curlx/win32-fopen.h"
+#ಅನ್ತರ್ಭಾವ "curl_range.h"
 
-#if defined(_WIN32) || defined(MSDOS)
-#define DOS_FILESYSTEM 1
-#elif defined(__amigaos4__)
-#define AMIGA_FILESYSTEM 1
-#endif
+#ಆದರೆ defined(_WIN32) || defined(MSDOS)
+#ವ್ಯಾಖ್ಯಾನಿಸು DOS_FILESYSTEM 1
+#ಅಥವಾಆದರೆ defined(__amigaos4__)
+#ವ್ಯಾಖ್ಯಾನಿಸು AMIGA_FILESYSTEM 1
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_FILE_EASY   "meta:proto:file:easy"
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_META_FILE_EASY   "meta:proto:file:easy"
 
-struct FILEPROTO {
-  char *path; /* the path we operate on */
-  char *freepath; /* pointer to the allocated block we must free, this might
+ರಚನೆ FILEPROTO {
+  ಅಕ್ಷರ *ಮಾರ್ಗ; /* the path we operate on */
+  ಅಕ್ಷರ *freepath; /* pointer to the allocated block we must free, this might
                      differ from the 'path' pointer */
-  int fd;     /* open file descriptor to read from! */
+  ಪೂರ್ಣಾಂಕ fd;     /* open file descriptor to read from! */
   bool is_dir;
 };
 
-static void file_cleanup(struct FILEPROTO *file)
+ಸ್ಥಿರ ಶೂನ್ಯ file_cleanup(ರಚನೆ FILEPROTO *file)
 {
   curlx_safefree(file->freepath);
-  file->path = NULL;
+  file->ಮಾರ್ಗ = ಖಾಲಿ;
   file->is_dir = FALSE;
-  if(file->fd != -1) {
+  ಆದರೆ(file->fd != -1) {
     curlx_close(file->fd);
     file->fd = -1;
   }
 }
 
-static void file_easy_dtor(const void *key, size_t klen, void *entry)
+ಸ್ಥಿರ ಶೂನ್ಯ file_easy_dtor(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, size_t klen, ಶೂನ್ಯ *ನಮೂದು)
 {
-  struct FILEPROTO *file = entry;
-  (void)key;
-  (void)klen;
+  ರಚನೆ FILEPROTO *file = ನಮೂದು;
+  (ಶೂನ್ಯ)ಕೀಲಿ;
+  (ಶೂನ್ಯ)klen;
   file_cleanup(file);
   curlx_free(file);
 }
 
-static CURLcode file_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ಸ್ಥಿರ CURLcode file_ಸಿದ್ಧತೆ_connection(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                      ರಚನೆ connectdata *conn)
 {
-  struct FILEPROTO *filep;
-  (void)conn;
+  ರಚನೆ FILEPROTO *filep;
+  (ಶೂನ್ಯ)conn;
   /* allocate the FILE specific struct */
-  filep = curlx_calloc(1, sizeof(*filep));
-  if(filep)
+  filep = curlx_calloc(1, ಗಾತ್ರ(*filep));
+  ಆದರೆ(filep)
     filep->fd = -1;
-  if(!filep ||
-     Curl_meta_set(data, CURL_META_FILE_EASY, filep, file_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!filep ||
+     Curl_meta_ಗಣ(ದತ್ತಾಂಶ, CURL_META_FILE_EASY, filep, file_easy_dtor))
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static CURLcode file_done(struct Curl_easy *data,
-                          CURLcode status, bool premature)
+ಸ್ಥಿರ CURLcode file_ಮುಗಿದ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                          CURLcode ಸ್ಥಿತಿ_2, bool premature)
 {
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-  (void)status;
-  (void)premature;
+  ರಚನೆ FILEPROTO *file = Curl_meta_get(ದತ್ತಾಂಶ, CURL_META_FILE_EASY);
+  (ಶೂನ್ಯ)ಸ್ಥಿತಿ_2;
+  (ಶೂನ್ಯ)premature;
 
-  if(file)
+  ಆದರೆ(file)
     file_cleanup(file);
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static int file_stat(const char *path, curlx_struct_stat *statbuf)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ file_stat(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, curlx_struct_stat *statbuf)
 {
-#ifdef _WIN32
-  int result = curlx_stat(path, statbuf);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
+  ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ = curlx_stat(ಮಾರ್ಗ, statbuf);
 
-  if(result) {
-    size_t pathlen = strlen(path);
+  ಆದರೆ(ಫಲಿತಾಂಶ) {
+    size_t pathlen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮಾರ್ಗ);
 
     /* MSVCRT's narrow stat() rejects trailing directory separators. */
-    if((pathlen > 3) &&
-       ((path[pathlen - 1] == '\\') || (path[pathlen - 1] == '/'))) {
-      char *trimmed = curlx_strdup(path);
+    ಆದರೆ((pathlen > 3) &&
+       ((ಮಾರ್ಗ[pathlen - 1] == '\\') || (ಮಾರ್ಗ[pathlen - 1] == '/'))) {
+      ಅಕ್ಷರ *trimmed = curlx_strdup(ಮಾರ್ಗ);
 
-      if(trimmed) {
-        do {
+      ಆದರೆ(trimmed) {
+        ಮಾಡು {
           trimmed[--pathlen] = '\0';
-        } while((pathlen > 3) &&
+        } ಆಗ((pathlen > 3) &&
                 ((trimmed[pathlen - 1] == '\\') ||
                  (trimmed[pathlen - 1] == '/')));
 
-        result = curlx_stat(trimmed, statbuf);
+        ಫಲಿತಾಂಶ = curlx_stat(trimmed, statbuf);
         curlx_free(trimmed);
       }
     }
   }
 
-  return result;
-#else
-  return curlx_stat(path, statbuf);
-#endif
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಹಿಂತಿರುಗಿ curlx_stat(ಮಾರ್ಗ, statbuf);
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
 /*
@@ -165,39 +165,39 @@ static int file_stat(const char *path, curlx_struct_stat *statbuf)
  * do protocol-specific actions at connect-time. We emulate a
  * connect-then-transfer protocol and "connect" to the file here
  */
-static CURLcode file_connect(struct Curl_easy *data, bool *done)
+ಸ್ಥಿರ CURLcode file_connect(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool *ಮುಗಿದ)
 {
-  char *real_path;
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-#ifdef _WIN32
+  ಅಕ್ಷರ *real_ಮಾರ್ಗ;
+  ರಚನೆ FILEPROTO *file = Curl_meta_get(ದತ್ತಾಂಶ, CURL_META_FILE_EASY);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
   curlx_struct_stat statbuf;
-#endif
-  int fd;
-#ifdef DOS_FILESYSTEM
+#ಆದರೆ_ಅಂತ್ಯ
+  ಪೂರ್ಣಾಂಕ fd;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DOS_FILESYSTEM
   size_t i;
-  char *actual_path;
-#endif
-  size_t real_path_len;
-  CURLcode result;
+  ಅಕ್ಷರ *actual_ಮಾರ್ಗ;
+#ಆದರೆ_ಅಂತ್ಯ
+  size_t real_ಮಾರ್ಗ_len;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  if(!file)
-    return CURLE_FAILED_INIT;
+  ಆದರೆ(!file)
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
 
-  if(file->path) {
+  ಆದರೆ(file->ಮಾರ್ಗ) {
     /* already connected.
      * the handler->connect_it() is normally only called once, but
      * FILE does a special check on setting up the connection which
      * calls this explicitly. */
-    *done = TRUE;
-    return CURLE_OK;
+    *ಮುಗಿದ = TRUE;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
   }
 
-  result = Curl_urldecode(data->state.up.path, 0, &real_path,
-                          &real_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  ಫಲಿತಾಂಶ = Curl_urldecode(ದತ್ತಾಂಶ->state.ಮೇಲೆ.ಮಾರ್ಗ, 0, &real_ಮಾರ್ಗ,
+                          &real_ಮಾರ್ಗ_len, REJECT_ZERO);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
-#ifdef DOS_FILESYSTEM
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DOS_FILESYSTEM
   /* If the first character is a slash, and there is
      something that looks like a drive at the beginning of
      the path, skip the slash. If we remove the initial
@@ -211,34 +211,34 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
      On other platforms, we need the slash to indicate an
      absolute pathname. On Windows, absolute paths start
      with a drive letter. */
-  actual_path = real_path;
-  if((actual_path[0] == '/') &&
-      actual_path[1] &&
-     (actual_path[2] == ':' || actual_path[2] == '|')) {
-    actual_path[2] = ':';
-    actual_path++;
-    real_path_len--;
+  actual_ಮಾರ್ಗ = real_ಮಾರ್ಗ;
+  ಆದರೆ((actual_ಮಾರ್ಗ[0] == '/') &&
+      actual_ಮಾರ್ಗ[1] &&
+     (actual_ಮಾರ್ಗ[2] == ':' || actual_ಮಾರ್ಗ[2] == '|')) {
+    actual_ಮಾರ್ಗ[2] = ':';
+    actual_ಮಾರ್ಗ++;
+    real_ಮಾರ್ಗ_len--;
   }
 
   /* change path separators from '/' to '\\' for DOS, Windows and OS/2 */
-  for(i = 0; i < real_path_len; ++i)
-    if(actual_path[i] == '/')
-      actual_path[i] = '\\';
-    else if(!actual_path[i]) { /* binary zero */
-      curlx_safefree(real_path);
-      return CURLE_URL_MALFORMAT;
+  ಗಾಗಿ(i = 0; i < real_ಮಾರ್ಗ_len; ++i)
+    ಆದರೆ(actual_ಮಾರ್ಗ[i] == '/')
+      actual_ಮಾರ್ಗ[i] = '\\';
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!actual_ಮಾರ್ಗ[i]) { /* binary zero */
+      curlx_safefree(real_ಮಾರ್ಗ);
+      ಹಿಂತಿರುಗಿ CURLE_URL_MALFORMAT;
     }
 
-  fd = curlx_open(actual_path, O_RDONLY | CURL_O_BINARY);
-  file->path = actual_path;
-#else
-  if(memchr(real_path, 0, real_path_len)) {
+  fd = curlx_open(actual_ಮಾರ್ಗ, O_RDONLY | CURL_O_ದ್ವಿಮಾನ);
+  file->ಮಾರ್ಗ = actual_ಮಾರ್ಗ;
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಆದರೆ(memchr(real_ಮಾರ್ಗ, 0, real_ಮಾರ್ಗ_len)) {
     /* binary zeroes indicate foul play */
-    curlx_safefree(real_path);
-    return CURLE_URL_MALFORMAT;
+    curlx_safefree(real_ಮಾರ್ಗ);
+    ಹಿಂತಿರುಗಿ CURLE_URL_MALFORMAT;
   }
 
-#ifdef AMIGA_FILESYSTEM
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ AMIGA_FILESYSTEM
   /*
    * A leading slash in an AmigaDOS path denotes the parent
    * directory, and hence we block this as it is relative.
@@ -247,71 +247,71 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
    * path, but only if the application was compiled with -lunix.
    */
   fd = -1;
-  file->path = real_path;
+  file->ಮಾರ್ಗ = real_ಮಾರ್ಗ;
 
-  if(real_path[0] == '/') {
-    extern int __unix_path_semantics;
-    if(strchr(real_path + 1, ':')) {
+  ಆದರೆ(real_ಮಾರ್ಗ[0] == '/') {
+    ಬಾಹ್ಯ ಪೂರ್ಣಾಂಕ __unix_path_semantics;
+    ಆದರೆ(strchr(real_ಮಾರ್ಗ + 1, ':')) {
       /* Amiga absolute path */
-      fd = curlx_open(real_path + 1, O_RDONLY);
-      file->path++;
+      fd = curlx_open(real_ಮಾರ್ಗ + 1, O_RDONLY);
+      file->ಮಾರ್ಗ++;
     }
-    else if(__unix_path_semantics) {
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(__unix_path_semantics) {
       /* -lunix fallback */
-      fd = curlx_open(real_path, O_RDONLY);
+      fd = curlx_open(real_ಮಾರ್ಗ, O_RDONLY);
     }
   }
-#else
-  fd = curlx_open(real_path, O_RDONLY);
-  file->path = real_path;
-#endif
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+  fd = curlx_open(real_ಮಾರ್ಗ, O_RDONLY);
+  file->ಮಾರ್ಗ = real_ಮಾರ್ಗ;
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
   curlx_free(file->freepath);
-  file->freepath = real_path; /* free this when done */
+  file->freepath = real_ಮಾರ್ಗ; /* free this when done */
 
   file->fd = fd;
-#ifdef _WIN32
-  if(!data->state.upload && (fd == -1) &&
-     !file_stat(file->path, &statbuf) && S_ISDIR(statbuf.st_mode))
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
+  ಆದರೆ(!ದತ್ತಾಂಶ->state.upload && (fd == -1) &&
+     !file_stat(file->ಮಾರ್ಗ, &statbuf) && S_ISDIR(statbuf.st_ಬಹುಲಕ))
     file->is_dir = TRUE;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if(!data->state.upload && (fd == -1) && !file->is_dir) {
-    failf(data, "Could not open file %s", data->state.up.path);
-    file_done(data, CURLE_FILE_COULDNT_READ_FILE, FALSE);
-    return CURLE_FILE_COULDNT_READ_FILE;
+  ಆದರೆ(!ದತ್ತಾಂಶ->state.upload && (fd == -1) && !file->is_dir) {
+    failf(ದತ್ತಾಂಶ, "Could not open file %s", ದತ್ತಾಂಶ->state.ಮೇಲೆ.ಮಾರ್ಗ);
+    file_ಮುಗಿದ(ದತ್ತಾಂಶ, CURLE_FILE_COULDNT_READ_FILE, FALSE);
+    ಹಿಂತಿರುಗಿ CURLE_FILE_COULDNT_READ_FILE;
   }
-  *done = TRUE;
+  *ಮುಗಿದ = TRUE;
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static CURLcode file_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn,
+ಸ್ಥಿರ CURLcode file_disconnect(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                ರಚನೆ connectdata *conn,
                                 bool dead_connection)
 {
-  (void)dead_connection;
-  (void)conn;
-  return file_done(data, CURLE_OK, FALSE);
+  (ಶೂನ್ಯ)dead_connection;
+  (ಶೂನ್ಯ)conn;
+  ಹಿಂತಿರುಗಿ file_ಮುಗಿದ(ದತ್ತಾಂಶ, CURLE_OK, FALSE);
 }
 
-#ifdef DOS_FILESYSTEM
-#define DIRSEP '\\'
-#else
-#define DIRSEP '/'
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DOS_FILESYSTEM
+#ವ್ಯಾಖ್ಯಾನಿಸು DIRSEP '\\'
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು DIRSEP '/'
+#ಆದರೆ_ಅಂತ್ಯ
 
-static CURLcode file_upload(struct Curl_easy *data,
-                            struct FILEPROTO *file)
+ಸ್ಥಿರ CURLcode file_upload(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            ರಚನೆ FILEPROTO *file)
 {
-  const char *dir = strchr(file->path, DIRSEP);
-  int fd;
-  int mode;
-  CURLcode result = CURLE_OK;
-  char *xfer_ulbuf;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *dir = strchr(file->ಮಾರ್ಗ, DIRSEP);
+  ಪೂರ್ಣಾಂಕ fd;
+  ಪೂರ್ಣಾಂಕ ಬಹುಲಕ;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ಅಕ್ಷರ *xfer_ulbuf;
   size_t xfer_ulblen;
   curlx_struct_stat file_stat;
-  const char *sendbuf;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *sendbuf;
   bool eos = FALSE;
 
   /*
@@ -319,149 +319,149 @@ static CURLcode file_upload(struct Curl_easy *data,
    * assignments here.
    */
 
-  if(!dir)
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  ಆದರೆ(!dir)
+    ಹಿಂತಿರುಗಿ CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  if(!dir[1])
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  ಆದರೆ(!dir[1])
+    ಹಿಂತಿರುಗಿ CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  mode = O_WRONLY | O_CREAT | CURL_O_BINARY;
-  if(data->state.resume_from)
-    mode |= O_APPEND;
-  else
-    mode |= O_TRUNC;
+  ಬಹುಲಕ = O_WRONLY | O_CREAT | CURL_O_ದ್ವಿಮಾನ;
+  ಆದರೆ(ದತ್ತಾಂಶ->state.resume_from)
+    ಬಹುಲಕ |= O_APPEND;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಬಹುಲಕ |= O_TRUNC;
 
-  fd = curlx_open(file->path, mode,
-#ifdef _WIN32
-                  data->set.new_file_perms & (_S_IREAD | _S_IWRITE)
-#else
-                  (mode_t)data->set.new_file_perms
-#endif
+  fd = curlx_open(file->ಮಾರ್ಗ, ಬಹುಲಕ,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _WIN32
+                  ದತ್ತಾಂಶ->ಗಣ.new_file_perms & (_S_IREAD | _S_IWRITE)
+#ಇಲ್ಲದಿದ್ದರೆ
+                  (mode_t)ದತ್ತಾಂಶ->ಗಣ.new_file_perms
+#ಆದರೆ_ಅಂತ್ಯ
                   );
-  if(fd < 0) {
-    failf(data, "cannot open %s for writing", file->path);
-    return CURLE_WRITE_ERROR;
+  ಆದರೆ(fd < 0) {
+    failf(ದತ್ತಾಂಶ, "cannot open %s for writing", file->ಮಾರ್ಗ);
+    ಹಿಂತಿರುಗಿ CURLE_WRITE_ERROR;
   }
 
-  if(data->state.infilesize != -1)
+  ಆದರೆ(ದತ್ತಾಂಶ->state.infilesize != -1)
     /* known size of data to "upload" */
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+    Curl_pgrs_ಗಣ_Upload_ಗಾತ್ರ(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->state.infilesize);
 
   /* treat the negative resume offset value as the case of "-" */
-  if(data->state.resume_from < 0) {
-    if(curlx_fstat(fd, &file_stat)) {
+  ಆದರೆ(ದತ್ತಾಂಶ->state.resume_from < 0) {
+    ಆದರೆ(curlx_fstat(fd, &file_stat)) {
       curlx_close(fd);
-      failf(data, "cannot get the size of %s", file->path);
-      return CURLE_WRITE_ERROR;
+      failf(ದತ್ತಾಂಶ, "cannot get the size of %s", file->ಮಾರ್ಗ);
+      ಹಿಂತಿರುಗಿ CURLE_WRITE_ERROR;
     }
-    data->state.resume_from = (curl_off_t)file_stat.st_size;
+    ದತ್ತಾಂಶ->state.resume_from = (curl_off_t)file_stat.st_ಗಾತ್ರ;
   }
 
-  result = Curl_multi_xfer_ulbuf_borrow(data, &xfer_ulbuf, &xfer_ulblen);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_multi_xfer_ulbuf_borrow(ದತ್ತಾಂಶ, &xfer_ulbuf, &xfer_ulblen);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  while(!result && !eos) {
+  ಆಗ(!ಫಲಿತಾಂಶ && !eos) {
     size_t nread, nwritten;
     ssize_t rv;
     size_t readcount;
 
-    result = Curl_client_read(data, xfer_ulbuf, xfer_ulblen, &readcount, &eos);
-    if(result)
-      break;
+    ಫಲಿತಾಂಶ = Curl_client_read(ದತ್ತಾಂಶ, xfer_ulbuf, xfer_ulblen, &readcount, &eos);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ನಿಲ್ಲಿಸು;
 
-    if(!readcount)
-      break;
+    ಆದರೆ(!readcount)
+      ನಿಲ್ಲಿಸು;
 
     nread = readcount;
 
     /* skip bytes before resume point */
-    if(data->state.resume_from) {
-      if((curl_off_t)nread <= data->state.resume_from) {
-        data->state.resume_from -= nread;
+    ಆದರೆ(ದತ್ತಾಂಶ->state.resume_from) {
+      ಆದರೆ((curl_off_t)nread <= ದತ್ತಾಂಶ->state.resume_from) {
+        ದತ್ತಾಂಶ->state.resume_from -= nread;
         nread = 0;
         sendbuf = xfer_ulbuf;
       }
-      else {
-        sendbuf = xfer_ulbuf + data->state.resume_from;
-        nread -= (size_t)data->state.resume_from;
-        data->state.resume_from = 0;
+      ಇಲ್ಲದಿದ್ದರೆ {
+        sendbuf = xfer_ulbuf + ದತ್ತಾಂಶ->state.resume_from;
+        nread -= (size_t)ದತ್ತಾಂಶ->state.resume_from;
+        ದತ್ತಾಂಶ->state.resume_from = 0;
       }
     }
-    else
+    ಇಲ್ಲದಿದ್ದರೆ
       sendbuf = xfer_ulbuf;
 
     /* write the data to the target */
-    rv = write(fd, sendbuf, nread);
-    if(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
-      result = CURLE_SEND_ERROR;
-      break;
+    rv = ಲಿಖ(fd, sendbuf, nread);
+    ಆದರೆ(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
+      ಫಲಿತಾಂಶ = CURLE_SEND_ERROR;
+      ನಿಲ್ಲಿಸು;
     }
-    Curl_pgrs_upload_inc(data, nwritten);
+    Curl_pgrs_upload_inc(ದತ್ತಾಂಶ, nwritten);
 
-    result = Curl_pgrsCheck(data);
+    ಫಲಿತಾಂಶ = Curl_pgrsCheck(ದತ್ತಾಂಶ);
   }
-  if(!result)
-    result = Curl_pgrsUpdate(data);
+  ಆದರೆ(!ಫಲಿತಾಂಶ)
+    ಫಲಿತಾಂಶ = Curl_pgrsUpdate(ದತ್ತಾಂಶ);
 
-out:
+ಹೊರಹೋಗು:
   curlx_close(fd);
-  Curl_multi_xfer_ulbuf_release(data, xfer_ulbuf);
+  Curl_multi_xfer_ulbuf_release(ದತ್ತಾಂಶ, xfer_ulbuf);
 
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
-static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
+#ಆದರೆ defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+ಸ್ಥಿರ CURLcode win32_file_list(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ)
 {
-  WIN32_FIND_DATA entry;
+  WIN32_ಕಂಡುಹಿಡಿ_ದತ್ತಾಂಶ ನಮೂದು;
   HANDLE handle;
-  char *pattern;
-  size_t pathlen = strlen(path);
-  CURLcode result = CURLE_OK;
+  ಅಕ್ಷರ *ನಮೂನೆ;
+  size_t pathlen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮಾರ್ಗ);
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
   DWORD error;
 
-  pattern = curl_maprintf("%s%s*", path,
+  ನಮೂನೆ = curl_maprintf("%s%s*", ಮಾರ್ಗ,
                           pathlen &&
-                          (path[pathlen - 1] == '\\' ||
-                           path[pathlen - 1] == '/') ? "" : "\\");
-  if(!pattern)
-    return CURLE_OUT_OF_MEMORY;
+                          (ಮಾರ್ಗ[pathlen - 1] == '\\' ||
+                           ಮಾರ್ಗ[pathlen - 1] == '/') ? "" : "\\");
+  ಆದರೆ(!ನಮೂನೆ)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-  handle = curlx_FindFirstFile(pattern, &entry);
-  curlx_free(pattern);
-  if(handle == INVALID_HANDLE_VALUE)
-    return CURLE_READ_ERROR;
+  handle = curlx_ಕಂಡುಹಿಡಿ_ಮೊದಲ_File(ನಮೂನೆ, &ನಮೂದು);
+  curlx_free(ನಮೂನೆ);
+  ಆದರೆ(handle == INVALID_HANDLE_ಮೌಲ್ಯ)
+    ಹಿಂತಿರುಗಿ CURLE_READ_ERROR;
 
-  do {
-    if(entry.cFileName[0] != TEXT('.')) {
-      char *name = curlx_convert_tchar_to_UTF8(entry.cFileName);
+  ಮಾಡು {
+    ಆದರೆ(ನಮೂದು.cFileName[0] != ಪಠ್ಯ_2('.')) {
+      ಅಕ್ಷರ *name = curlx_convert_tchar_ಗಮ್ಯ_UTF8(ನಮೂದು.cFileName);
 
-      if(!name) {
-        result = CURLE_OUT_OF_MEMORY;
-        break;
+      ಆದರೆ(!name) {
+        ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+        ನಿಲ್ಲಿಸು;
       }
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                 name, strlen(name));
+      ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_BODY,
+                                 name, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(name));
       curlx_free(name);
-      if(result)
-        break;
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ನಿಲ್ಲಿಸು;
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
-        break;
+      ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_BODY, "\n", 1);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ನಿಲ್ಲಿಸು;
     }
-  } while(FindNextFile(handle, &entry));
+  } ಆಗ(ಕಂಡುಹಿಡಿ_ಮುಂದಿನ_File(handle, &ನಮೂದು));
 
-  error = GetLastError();
-  if(!result && error != ERROR_NO_MORE_FILES)
-    result = CURLE_READ_ERROR;
+  error = Get_ಕೊನೆಯ_Error();
+  ಆದರೆ(!ಫಲಿತಾಂಶ && error != ERROR_NO_ಇನ್ನಷ್ಟು_FILES)
+    ಫಲಿತಾಂಶ = CURLE_READ_ERROR;
 
-  FindClose(handle);
-  return result;
+  ಕಂಡುಹಿಡಿ_Close(handle);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 /*
  * file_do() is the protocol-specific function for the do-phase, separated
@@ -471,76 +471,76 @@ static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
  * opposed to sockets) we instead perform the whole do-operation in this
  * function.
  */
-static CURLcode file_do(struct Curl_easy *data, bool *done)
+ಸ್ಥಿರ CURLcode file_do(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool *ಮುಗಿದ)
 {
   /* This implementation ignores the hostname in conformance with
      RFC 1738. Only local files (reachable via the standard file system)
      are supported. This means that files on remotely mounted directories
      (via NFS, Samba, NT sharing) can be accessed through a file:// URL */
-  struct FILEPROTO *file = Curl_meta_get(data, CURL_META_FILE_EASY);
-  CURLcode result = CURLE_OK;
+  ರಚನೆ FILEPROTO *file = Curl_meta_get(ದತ್ತಾಂಶ, CURL_META_FILE_EASY);
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
   curlx_struct_stat statbuf;
-  curl_off_t expected_size = -1;
-  bool size_known;
+  curl_off_t expected_ಗಾತ್ರ = -1;
+  bool ಗಾತ್ರ_ತಿಳಿದ;
   bool fstated = FALSE;
-  int fd;
-  char *xfer_buf;
+  ಪೂರ್ಣಾಂಕ fd;
+  ಅಕ್ಷರ *xfer_buf;
   size_t xfer_blen;
 
-  *done = TRUE; /* unconditionally */
-  if(!file)
-    return CURLE_FAILED_INIT;
+  *ಮುಗಿದ = TRUE; /* unconditionally */
+  ಆದರೆ(!file)
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
 
-  if(data->state.upload)
-    return file_upload(data, file);
+  ಆದರೆ(ದತ್ತಾಂಶ->state.upload)
+    ಹಿಂತಿರುಗಿ file_upload(ದತ್ತಾಂಶ, file);
 
   /* get the fd from the connection phase */
   fd = file->fd;
 
   /* VMS: This only works reliable for STREAMLF files */
-  if((file->is_dir ? file_stat(file->path, &statbuf) :
+  ಆದರೆ((file->is_dir ? file_stat(file->ಮಾರ್ಗ, &statbuf) :
                      curlx_fstat(fd, &statbuf)) != -1) {
-    file->is_dir = (fd == -1) || S_ISDIR(statbuf.st_mode);
-    if(!file->is_dir)
-      expected_size = statbuf.st_size;
+    file->is_dir = (fd == -1) || S_ISDIR(statbuf.st_ಬಹುಲಕ);
+    ಆದರೆ(!file->is_dir)
+      expected_ಗಾತ್ರ = statbuf.st_ಗಾತ್ರ;
     /* and store the modification time */
-    data->info.filetime = statbuf.st_mtime;
+    ದತ್ತಾಂಶ->info.filetime = statbuf.st_mtime;
     fstated = TRUE;
   }
 
-  if(fstated && !data->state.range && data->set.timecondition &&
-     !Curl_meets_timecondition(data, data->info.filetime))
-    return CURLE_OK;
+  ಆದರೆ(fstated && !ದತ್ತಾಂಶ->state.range && ದತ್ತಾಂಶ->ಗಣ.timecondition &&
+     !Curl_meets_timecondition(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->info.filetime))
+    ಹಿಂತಿರುಗಿ CURLE_OK;
 
-  if(fstated) {
+  ಆದರೆ(fstated) {
     time_t filetime;
-    struct tm buffer;
-    const struct tm *tm = &buffer;
-    char header[80];
-    int headerlen;
-    static const char accept_ranges[] = { "Accept-ranges: bytes\r\n" };
-    if(expected_size >= 0) {
+    ರಚನೆ tm ಬಫರ್;
+    ಸ್ಥಿರಾಂಕ ರಚನೆ tm *tm = &ಬಫರ್;
+    ಅಕ್ಷರ ಶೀರ್ಷಿಕೆ[80];
+    ಪೂರ್ಣಾಂಕ headerlen;
+    ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ accept_ranges[] = { "Accept-ranges: bytes\r\n" };
+    ಆದರೆ(expected_ಗಾತ್ರ >= 0) {
       headerlen =
-        curl_msnprintf(header, sizeof(header),
-                       "Content-Length: %" FMT_OFF_T "\r\n", expected_size);
-      result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-      if(result)
-        return result;
+        curl_msnprintf(ಶೀರ್ಷಿಕೆ, ಗಾತ್ರ(ಶೀರ್ಷಿಕೆ),
+                       "Content-Length: %" FMT_OFF_T "\r\n", expected_ಗಾತ್ರ);
+      ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_ಶೀರ್ಷಿಕೆ, ಶೀರ್ಷಿಕೆ, headerlen);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
-      result = Curl_client_write(data, CLIENTWRITE_HEADER,
+      ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_ಶೀರ್ಷಿಕೆ,
                                  accept_ranges, CURL_CSTRLEN(accept_ranges));
-      if(result != CURLE_OK)
-        return result;
+      ಆದರೆ(ಫಲಿತಾಂಶ != CURLE_OK)
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
 
     filetime = (time_t)statbuf.st_mtime;
-    result = curlx_gmtime(filetime, &buffer);
-    if(result)
-      return result;
+    ಫಲಿತಾಂಶ = curlx_gmtime(filetime, &ಬಫರ್);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
     /* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
     headerlen =
-      curl_msnprintf(header, sizeof(header),
+      curl_msnprintf(ಶೀರ್ಷಿಕೆ, ಗಾತ್ರ(ಶೀರ್ಷಿಕೆ),
                      "Last-Modified: %s, %02d %s %4d %02d:%02d:%02d GMT\r\n",
                      Curl_wkday[tm->tm_wday ? tm->tm_wday - 1 : 6],
                      tm->tm_mday,
@@ -549,154 +549,154 @@ static CURLcode file_do(struct Curl_easy *data, bool *done)
                      tm->tm_hour,
                      tm->tm_min,
                      tm->tm_sec);
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-    if(!result)
+    ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_ಶೀರ್ಷಿಕೆ, ಶೀರ್ಷಿಕೆ, headerlen);
+    ಆದರೆ(!ಫಲಿತಾಂಶ)
       /* end of headers */
-      result = Curl_client_write(data, CLIENTWRITE_HEADER, "\r\n", 2);
-    if(result)
-      return result;
+      ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_ಶೀರ್ಷಿಕೆ, "\r\n", 2);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     /* set the file size to make it available post transfer */
-    Curl_pgrsSetDownloadSize(data, expected_size);
-    if(data->req.no_body)
-      return CURLE_OK;
+    Curl_pgrs_ಗಣ_Download_ಗಾತ್ರ(ದತ್ತಾಂಶ, expected_ಗಾತ್ರ);
+    ಆದರೆ(ದತ್ತಾಂಶ->req.no_body)
+      ಹಿಂತಿರುಗಿ CURLE_OK;
   }
 
   /* Check whether file range has been specified */
-  result = Curl_range(data);
-  if(result)
-    return result;
+  ಫಲಿತಾಂಶ = Curl_range(ದತ್ತಾಂಶ);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
   /* Adjust the start offset in case we want to get the N last bytes
    * of the stream if the filesize could be determined */
-  if(data->state.resume_from < 0) {
-    if(!fstated) {
-      failf(data, "cannot get the size of file.");
-      return CURLE_READ_ERROR;
+  ಆದರೆ(ದತ್ತಾಂಶ->state.resume_from < 0) {
+    ಆದರೆ(!fstated) {
+      failf(ದತ್ತಾಂಶ, "cannot get the size of file.");
+      ಹಿಂತಿರುಗಿ CURLE_READ_ERROR;
     }
-    data->state.resume_from += (curl_off_t)statbuf.st_size;
+    ದತ್ತಾಂಶ->state.resume_from += (curl_off_t)statbuf.st_ಗಾತ್ರ;
   }
 
-  if(data->state.resume_from > 0) {
+  ಆದರೆ(ದತ್ತಾಂಶ->state.resume_from > 0) {
     /* We check explicitly if we have a start offset, because
      * expected_size may be -1 if we do not know how large the file is,
      * in which case we should not adjust it. */
-    if(data->state.resume_from <= expected_size)
-      expected_size -= data->state.resume_from;
-    else {
-      failf(data, "failed to resume file:// transfer");
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    ಆದರೆ(ದತ್ತಾಂಶ->state.resume_from <= expected_ಗಾತ್ರ)
+      expected_ಗಾತ್ರ -= ದತ್ತಾಂಶ->state.resume_from;
+    ಇಲ್ಲದಿದ್ದರೆ {
+      failf(ದತ್ತಾಂಶ, "failed to resume file:// transfer");
+      ಹಿಂತಿರುಗಿ CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
   /* A high water mark has been specified so we obey... */
-  if(data->req.maxdownload > 0)
-    expected_size = data->req.maxdownload;
+  ಆದರೆ(ದತ್ತಾಂಶ->req.maxdownload > 0)
+    expected_ಗಾತ್ರ = ದತ್ತಾಂಶ->req.maxdownload;
 
-  if(!fstated || (expected_size <= 0))
-    size_known = FALSE;
-  else
-    size_known = TRUE;
+  ಆದರೆ(!fstated || (expected_ಗಾತ್ರ <= 0))
+    ಗಾತ್ರ_ತಿಳಿದ = FALSE;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಗಾತ್ರ_ತಿಳಿದ = TRUE;
 
   /* The following is a shortcut implementation of file reading
      this is both more efficient than the former call to download() and
      it avoids problems with select() and recv() on file descriptors
      in Winsock */
-  if(size_known)
-    Curl_pgrsSetDownloadSize(data, expected_size);
+  ಆದರೆ(ಗಾತ್ರ_ತಿಳಿದ)
+    Curl_pgrs_ಗಣ_Download_ಗಾತ್ರ(ದತ್ತಾಂಶ, expected_ಗಾತ್ರ);
 
-  if(data->state.resume_from) {
-    if(!file->is_dir) {
-      if(data->state.resume_from !=
-         curl_lseek(fd, data->state.resume_from, SEEK_SET))
-        return CURLE_BAD_DOWNLOAD_RESUME;
+  ಆದರೆ(ದತ್ತಾಂಶ->state.resume_from) {
+    ಆದರೆ(!file->is_dir) {
+      ಆದರೆ(ದತ್ತಾಂಶ->state.resume_from !=
+         curl_lseek(fd, ದತ್ತಾಂಶ->state.resume_from, SEEK_SET))
+        ಹಿಂತಿರುಗಿ CURLE_BAD_DOWNLOAD_RESUME;
     }
-    else {
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    ಇಲ್ಲದಿದ್ದರೆ {
+      ಹಿಂತಿರುಗಿ CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
-  result = Curl_multi_xfer_buf_borrow(data, &xfer_buf, &xfer_blen);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_multi_xfer_buf_borrow(ದತ್ತಾಂಶ, &xfer_buf, &xfer_blen);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  if(!file->is_dir) {
-    while(!result) {
+  ಆದರೆ(!file->is_dir) {
+    ಆಗ(!ಫಲಿತಾಂಶ) {
       ssize_t nread;
       /* Do not fill a whole buffer if we want less than all data */
       size_t bytestoread;
 
-      if(size_known) {
-        bytestoread = (expected_size < (curl_off_t)(xfer_blen - 1)) ?
-          curlx_sotouz(expected_size) : (xfer_blen - 1);
+      ಆದರೆ(ಗಾತ್ರ_ತಿಳಿದ) {
+        bytestoread = (expected_ಗಾತ್ರ < (curl_off_t)(xfer_blen - 1)) ?
+          curlx_sotouz(expected_ಗಾತ್ರ) : (xfer_blen - 1);
       }
-      else
+      ಇಲ್ಲದಿದ್ದರೆ
         bytestoread = xfer_blen - 1;
 
-      nread = read(fd, xfer_buf, bytestoread);
+      nread = ಪಠ(fd, xfer_buf, bytestoread);
 
-      if(nread > 0)
+      ಆದರೆ(nread > 0)
         xfer_buf[nread] = 0;
 
-      if(nread <= 0 || (size_known && (expected_size == 0)))
-        break;
+      ಆದರೆ(nread <= 0 || (ಗಾತ್ರ_ತಿಳಿದ && (expected_ಗಾತ್ರ == 0)))
+        ನಿಲ್ಲಿಸು;
 
-      if(size_known)
-        expected_size -= nread;
+      ಆದರೆ(ಗಾತ್ರ_ತಿಳಿದ)
+        expected_ಗಾತ್ರ -= nread;
 
-      result = Curl_client_write(data, CLIENTWRITE_BODY, xfer_buf, nread);
-      if(result)
-        goto out;
+      ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_BODY, xfer_buf, nread);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹೋಗು ಹೊರಹೋಗು;
 
-      result = Curl_pgrsCheck(data);
-      if(result)
-        goto out;
+      ಫಲಿತಾಂಶ = Curl_pgrsCheck(ದತ್ತಾಂಶ);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹೋಗು ಹೊರಹೋಗು;
     }
   }
-  else {
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
-    result = win32_file_list(data, file->path);
-    if(result)
-      goto out;
-#elif defined(HAVE_OPENDIR)
-    DIR *dir = opendir(file->path);
-    struct dirent *entry;
+  ಇಲ್ಲದಿದ್ದರೆ {
+#ಆದರೆ defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+    ಫಲಿತಾಂಶ = win32_file_list(ದತ್ತಾಂಶ, file->ಮಾರ್ಗ);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
+#ಅಥವಾಆದರೆ defined(HAVE_OPENDIR)
+    DIR *dir = opendir(file->ಮಾರ್ಗ);
+    ರಚನೆ dirent *ನಮೂದು;
 
-    if(!dir) {
-      result = CURLE_READ_ERROR;
-      goto out;
+    ಆದರೆ(!dir) {
+      ಫಲಿತಾಂಶ = CURLE_READ_ERROR;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
-    else {
-      while((entry = readdir(dir))) {
-        if(entry->d_name[0] != '.') {
-          result = Curl_client_write(data, CLIENTWRITE_BODY,
-                   entry->d_name, strlen(entry->d_name));
-          if(result)
-            break;
-          result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-          if(result)
-            break;
+    ಇಲ್ಲದಿದ್ದರೆ {
+      ಆಗ((ನಮೂದು = readdir(dir))) {
+        ಆದರೆ(ನಮೂದು->d_name[0] != '.') {
+          ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_BODY,
+                   ನಮೂದು->d_name, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ನಮೂದು->d_name));
+          ಆದರೆ(ಫಲಿತಾಂಶ)
+            ನಿಲ್ಲಿಸು;
+          ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_BODY, "\n", 1);
+          ಆದರೆ(ಫಲಿತಾಂಶ)
+            ನಿಲ್ಲಿಸು;
         }
       }
       closedir(dir);
     }
-#else
-    failf(data, "Directory listing not yet implemented on this platform.");
-    result = CURLE_READ_ERROR;
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+    failf(ದತ್ತಾಂಶ, "Directory listing not yet implemented on this platform.");
+    ಫಲಿತಾಂಶ = CURLE_READ_ERROR;
+#ಆದರೆ_ಅಂತ್ಯ
   }
 
-  if(!result)
-    result = Curl_pgrsUpdate(data);
+  ಆದರೆ(!ಫಲಿತಾಂಶ)
+    ಫಲಿತಾಂಶ = Curl_pgrsUpdate(ದತ್ತಾಂಶ);
 
-out:
-  Curl_multi_xfer_buf_release(data, xfer_buf);
-  return result;
+ಹೊರಹೋಗು:
+  Curl_multi_xfer_buf_release(ದತ್ತಾಂಶ, xfer_buf);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-const struct Curl_protocol Curl_protocol_file = {
-  file_setup_connection,                /* setup_connection */
+ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_protocol Curl_protocol_file = {
+  file_ಸಿದ್ಧತೆ_connection,                /* setup_connection */
   file_do,                              /* do_it */
-  file_done,                            /* done */
+  file_ಮುಗಿದ,                            /* done */
   ZERO_NULL,                            /* do_more */
   file_connect,                         /* connect_it */
   ZERO_NULL,                            /* connecting */
@@ -713,4 +713,4 @@ const struct Curl_protocol Curl_protocol_file = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

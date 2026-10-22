@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WARNLESS_H
-#define HEADER_CURL_WARNLESS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_WARNLESS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_WARNLESS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,34 +24,34 @@
  *
  ***************************************************************************/
 
-#define CURLX_FUNCTION_CAST(target_type, func) \
-  (target_type)(void (*)(void))(func)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLX_FUNCTION_CAST(ಗುರಿ_type, func) \
+  (ಗುರಿ_type)(ಶೂನ್ಯ (*)(ಶೂನ್ಯ))(func)
 
-unsigned char curlx_ultouc(unsigned long ulnum);
+ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ curlx_ultouc(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ulnum);
 
-int curlx_uztosi(size_t uznum);
+ಪೂರ್ಣಾಂಕ curlx_uztosi(size_t uznum);
 
-unsigned long curlx_uztoul(size_t uznum);
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ curlx_uztoul(size_t uznum);
 
-unsigned int curlx_uztoui(size_t uznum);
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ curlx_uztoui(size_t uznum);
 
-int curlx_sltosi(long slnum);
+ಪೂರ್ಣಾಂಕ curlx_sltosi(ದೀರ್ಘ slnum);
 
-unsigned int curlx_sltoui(long slnum);
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ curlx_sltoui(ದೀರ್ಘ slnum);
 
-unsigned short curlx_sltous(long slnum);
+ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ curlx_sltous(ದೀರ್ಘ slnum);
 
 ssize_t curlx_uztosz(size_t uznum);
 
 size_t curlx_sotouz(curl_off_t sonum);
 
-int curlx_sztosi(ssize_t sznum);
+ಪೂರ್ಣಾಂಕ curlx_sztosi(ssize_t sznum);
 
-unsigned short curlx_uitous(unsigned int uinum);
+ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ curlx_uitous(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ uinum);
 
-size_t curlx_sitouz(int sinum);
+size_t curlx_sitouz(ಪೂರ್ಣಾಂಕ sinum);
 
-size_t curlx_uitouz(unsigned int uinum);
+size_t curlx_uitouz(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ uinum);
 
 /* Convert a curl_off_t to fit into size_t interval [uzmin, uzmax].
  * values outside this interval give the lower/upper bound. */
@@ -65,10 +65,10 @@ bool curlx_sztouz(ssize_t sznum, size_t *puznum);
 
 /* Convert a curl_off_t to size_t, return FALSE if negative or
  * too large and set 0 */
-bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum);
+bool curlx_sotouz_ಹೊಂದುತ್ತದೆ(curl_off_t sonum, size_t *puznum);
 
 /* Convert a long to size_t, return FALSE if negative or too large
  * and set 0 */
-bool curlx_sltouz(long slnum, size_t *puznum);
+bool curlx_sltouz(ದೀರ್ಘ slnum, size_t *puznum);
 
-#endif /* HEADER_CURL_WARNLESS_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_WARNLESS_H */

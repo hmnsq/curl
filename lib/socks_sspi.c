@@ -22,515 +22,515 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_PROXY)
+#ಆದರೆ defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_PROXY)
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "strerror.h"
-#include "curlx/nonblock.h"
-#include "socks.h"
-#include "curl_sspi.h"
-#include "curlx/multibyte.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "strerror.h"
+#ಅನ್ತರ್ಭಾವ "curlx/nonblock.h"
+#ಅನ್ತರ್ಭಾವ "socks.h"
+#ಅನ್ತರ್ಭಾವ "curl_sspi.h"
+#ಅನ್ತರ್ಭಾವ "curlx/multibyte.h"
 
 /*
  * Helper SSPI error functions.
  */
-static int check_sspi_err(struct Curl_easy *data,
-                          SECURITY_STATUS status,
-                          const char *function)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ check_sspi_err(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                          SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2,
+                          ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *function)
 {
-  if(status != SEC_E_OK &&
-     status != SEC_I_COMPLETE_AND_CONTINUE &&
-     status != SEC_I_COMPLETE_NEEDED &&
-     status != SEC_I_CONTINUE_NEEDED) {
-    char buffer[STRERROR_LEN];
-    failf(data, "SSPI error: %s failed: %s", function,
-          Curl_sspi_strerror(status, buffer, sizeof(buffer)));
-    return 1;
+  ಆದರೆ(ಸ್ಥಿತಿ_2 != SEC_E_OK &&
+     ಸ್ಥಿತಿ_2 != SEC_I_COMPLETE_AND_CONTINUE &&
+     ಸ್ಥಿತಿ_2 != SEC_I_COMPLETE_NEEDED &&
+     ಸ್ಥಿತಿ_2 != SEC_I_CONTINUE_NEEDED) {
+    ಅಕ್ಷರ ಬಫರ್[STRERROR_LEN];
+    failf(ದತ್ತಾಂಶ, "SSPI error: %s failed: %s", function,
+          Curl_sspi_strerror(ಸ್ಥಿತಿ_2, ಬಫರ್, ಗಾತ್ರ(ಬಫರ್)));
+    ಹಿಂತಿರುಗಿ 1;
   }
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
 /* This is the SSPI-using version of this function */
-static CURLcode socks5_sspi_setup(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct Curl_creds *creds,
+ಸ್ಥಿರ CURLcode socks5_sspi_ಸಿದ್ಧತೆ(ರಚನೆ Curl_cfilter *cf,
+                                  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                  ರಚನೆ Curl_creds *creds,
                                   CredHandle *cred_handle,
-                                  char **service_namep)
+                                  ಅಕ್ಷರ **service_namep)
 {
-  struct connectdata *conn = cf->conn;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  ರಚನೆ connectdata *conn = cf->conn;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : "rcmd";
-  SECURITY_STATUS status;
+  SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2;
 
   /* prepare service name */
-  if(strchr(service, '/'))
+  ಆದರೆ(strchr(service, '/'))
     *service_namep = curlx_strdup(service);
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     *service_namep = curl_maprintf("%s/%s",
                                    service, conn->socks_proxy.peer->hostname);
-  if(!*service_namep)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!*service_namep)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-  status =
-    Curl_pSecFn->AcquireCredentialsHandle(NULL, CURL_UNCONST(TEXT("Kerberos")),
+  ಸ್ಥಿತಿ_2 =
+    Curl_pSecFn->AcquireCredentialsHandle(ಖಾಲಿ, CURL_UNCONST(ಪಠ್ಯ_2("Kerberos")),
                                           SECPKG_CRED_OUTBOUND,
-                                          NULL, NULL, NULL, NULL,
-                                          cred_handle, NULL);
+                                          ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ,
+                                          cred_handle, ಖಾಲಿ);
 
-  if(check_sspi_err(data, status, "AcquireCredentialsHandle")) {
-    failf(data, "Failed to acquire credentials.");
-    return CURLE_COULDNT_CONNECT;
+  ಆದರೆ(check_sspi_err(ದತ್ತಾಂಶ, ಸ್ಥಿತಿ_2, "AcquireCredentialsHandle")) {
+    failf(ದತ್ತಾಂಶ, "Failed to acquire credentials.");
+    ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
   }
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static CURLcode socks5_free_token(SecBuffer *send_token,
-                                  CURLcode result)
+ಸ್ಥಿರ CURLcode socks5_free_token(Sec_ಬಫರ್ *send_token,
+                                  CURLcode ಫಲಿತಾಂಶ)
 {
-  if(send_token->pvBuffer) {
-    Curl_pSecFn->FreeContextBuffer(send_token->pvBuffer);
-    send_token->pvBuffer = NULL;
+  ಆದರೆ(send_token->pv_ಬಫರ್) {
+    Curl_pSecFn->Free_Context_ಬಫರ್(send_token->pv_ಬಫರ್);
+    send_token->pv_ಬಫರ್ = ಖಾಲಿ;
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode socks5_sspi_loop(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
+ಸ್ಥಿರ CURLcode socks5_sspi_loop(ರಚನೆ Curl_cfilter *cf,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                                  CredHandle *cred_handle,
                                  CtxtHandle *sspi_context,
-                                 char *service_name,
-                                 unsigned long *sspi_ret_flagsp)
+                                 ಅಕ್ಷರ *service_name,
+                                 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *sspi_ret_flagsp)
 {
-  struct connectdata *conn = cf->conn;
+  ರಚನೆ connectdata *conn = cf->conn;
   curl_socket_t sock = conn->sock[cf->sockindex];
-  CURLcode result = CURLE_OK;
-  CURLcode code;
-  SECURITY_STATUS status;
-  SecBuffer sspi_send_token, sspi_recv_token;
-  SecBufferDesc input_desc, output_desc;
-  PCtxtHandle context_handle = NULL;
-  unsigned short us_length;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  CURLcode ಸಂಕೇತ_2;
+  SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2;
+  Sec_ಬಫರ್ sspi_send_token, sspi_recv_token;
+  Sec_ಬಫರ್_Desc ಒಳಹರಿವು_desc, output_desc;
+  PCtxtHandle context_handle = ಖಾಲಿ;
+  ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ us_ಉದ್ದಳತೆ;
   size_t actualread;
   size_t written;
-  unsigned char socksreq[4];
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ socksreq[4];
 
-  input_desc.cBuffers = 1;
-  input_desc.pBuffers = &sspi_recv_token;
-  input_desc.ulVersion = SECBUFFER_VERSION;
+  ಒಳಹರಿವು_desc.cBuffers = 1;
+  ಒಳಹರಿವು_desc.pBuffers = &sspi_recv_token;
+  ಒಳಹರಿವು_desc.ul_ಆವೃತ್ತಿ = SECBUFFER_ಆವೃತ್ತಿ;
 
-  sspi_recv_token.BufferType = SECBUFFER_TOKEN;
-  sspi_recv_token.cbBuffer = 0;
-  sspi_recv_token.pvBuffer = NULL;
+  sspi_recv_token.ಬಫರ್_Type = SECBUFFER_TOKEN;
+  sspi_recv_token.cb_ಬಫರ್ = 0;
+  sspi_recv_token.pv_ಬಫರ್ = ಖಾಲಿ;
 
   output_desc.cBuffers = 1;
   output_desc.pBuffers = &sspi_send_token;
-  output_desc.ulVersion = SECBUFFER_VERSION;
+  output_desc.ul_ಆವೃತ್ತಿ = SECBUFFER_ಆವೃತ್ತಿ;
 
-  sspi_send_token.BufferType = SECBUFFER_TOKEN;
-  sspi_send_token.cbBuffer = 0;
-  sspi_send_token.pvBuffer = NULL;
+  sspi_send_token.ಬಫರ್_Type = SECBUFFER_TOKEN;
+  sspi_send_token.cb_ಬಫರ್ = 0;
+  sspi_send_token.pv_ಬಫರ್ = ಖಾಲಿ;
 
-  (void)curlx_nonblock(sock, FALSE);
+  (ಶೂನ್ಯ)curlx_nonblock(sock, FALSE);
 
-  for(;;) {
-    TCHAR *sname = curlx_convert_UTF8_to_tchar(service_name);
-    if(!sname) {
-      curlx_free(sspi_recv_token.pvBuffer);
-      return socks5_free_token(&sspi_send_token, CURLE_OUT_OF_MEMORY);
+  ಗಾಗಿ(;;) {
+    TCHAR *sname = curlx_convert_UTF8_ಗಮ್ಯ_tchar(service_name);
+    ಆದರೆ(!sname) {
+      curlx_free(sspi_recv_token.pv_ಬಫರ್);
+      ಹಿಂತಿರುಗಿ socks5_free_token(&sspi_send_token, CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ);
     }
 
-    status =
+    ಸ್ಥಿತಿ_2 =
       Curl_pSecFn->InitializeSecurityContext(cred_handle, context_handle,
                                              sname,
                                              ISC_REQ_MUTUAL_AUTH |
-                                             ISC_REQ_ALLOCATE_MEMORY |
+                                             ISC_REQ_ALLOCATE_ಸ್ಮರಣೆ |
                                              ISC_REQ_CONFIDENTIALITY |
                                              ISC_REQ_REPLAY_DETECT,
                                              0, SECURITY_NATIVE_DREP,
-                                             &input_desc, 0,
+                                             &ಒಳಹರಿವು_desc, 0,
                                              sspi_context,
                                              &output_desc,
-                                             sspi_ret_flagsp, NULL);
+                                             sspi_ret_flagsp, ಖಾಲಿ);
 
     curlx_free(sname);
-    curlx_safefree(sspi_recv_token.pvBuffer);
-    sspi_recv_token.cbBuffer = 0;
+    curlx_safefree(sspi_recv_token.pv_ಬಫರ್);
+    sspi_recv_token.cb_ಬಫರ್ = 0;
 
-    if(check_sspi_err(data, status, "InitializeSecurityContext")) {
-      failf(data, "Failed to initialize security context.");
-      return socks5_free_token(&sspi_send_token, CURLE_COULDNT_CONNECT);
+    ಆದರೆ(check_sspi_err(ದತ್ತಾಂಶ, ಸ್ಥಿತಿ_2, "InitializeSecurityContext")) {
+      failf(ದತ್ತಾಂಶ, "Failed to initialize security context.");
+      ಹಿಂತಿರುಗಿ socks5_free_token(&sspi_send_token, CURLE_COULDNT_CONNECT);
     }
 
-    if(sspi_send_token.cbBuffer) {
+    ಆದರೆ(sspi_send_token.cb_ಬಫರ್) {
       socksreq[0] = 1; /* GSS-API subnegotiation version */
       socksreq[1] = 1; /* authentication message type */
-      if(sspi_send_token.cbBuffer > 0xffff) {
+      ಆದರೆ(sspi_send_token.cb_ಬಫರ್ > 0xffff) {
         /* needs to fit in an unsigned 16-bit field */
-        return socks5_free_token(&sspi_send_token, CURLE_COULDNT_CONNECT);
+        ಹಿಂತಿರುಗಿ socks5_free_token(&sspi_send_token, CURLE_COULDNT_CONNECT);
       }
-      us_length = htons((unsigned short)sspi_send_token.cbBuffer);
-      memcpy(socksreq + 2, &us_length, sizeof(short));
+      us_ಉದ್ದಳತೆ = htons((ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)sspi_send_token.cb_ಬಫರ್);
+      ಸ್ಮರಣೆ_ನಕಲು(socksreq + 2, &us_ಉದ್ದಳತೆ, ಗಾತ್ರ(ಗಿಡ್ಡ));
 
-      code = Curl_conn_cf_send(cf->next, data, socksreq, 4, FALSE, &written);
-      if(code || (written != 4)) {
-        failf(data, "Failed to send SSPI authentication request.");
-        return socks5_free_token(&sspi_send_token, CURLE_COULDNT_CONNECT);
+      ಸಂಕೇತ_2 = Curl_conn_cf_send(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, socksreq, 4, FALSE, &written);
+      ಆದರೆ(ಸಂಕೇತ_2 || (written != 4)) {
+        failf(ದತ್ತಾಂಶ, "Failed to send SSPI authentication request.");
+        ಹಿಂತಿರುಗಿ socks5_free_token(&sspi_send_token, CURLE_COULDNT_CONNECT);
       }
 
-      code = Curl_conn_cf_send(cf->next, data,
-                               sspi_send_token.pvBuffer,
-                               sspi_send_token.cbBuffer, FALSE, &written);
-      if(code || (sspi_send_token.cbBuffer != written)) {
-        failf(data, "Failed to send SSPI authentication token.");
-        return socks5_free_token(&sspi_send_token, CURLE_COULDNT_CONNECT);
+      ಸಂಕೇತ_2 = Curl_conn_cf_send(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ,
+                               sspi_send_token.pv_ಬಫರ್,
+                               sspi_send_token.cb_ಬಫರ್, FALSE, &written);
+      ಆದರೆ(ಸಂಕೇತ_2 || (sspi_send_token.cb_ಬಫರ್ != written)) {
+        failf(ದತ್ತಾಂಶ, "Failed to send SSPI authentication token.");
+        ಹಿಂತಿರುಗಿ socks5_free_token(&sspi_send_token, CURLE_COULDNT_CONNECT);
       }
     }
 
-    if(sspi_send_token.pvBuffer)
+    ಆದರೆ(sspi_send_token.pv_ಬಫರ್)
       socks5_free_token(&sspi_send_token, CURLE_OK);
-    sspi_send_token.cbBuffer = 0;
+    sspi_send_token.cb_ಬಫರ್ = 0;
 
-    curlx_safefree(sspi_recv_token.pvBuffer);
-    sspi_recv_token.cbBuffer = 0;
+    curlx_safefree(sspi_recv_token.pv_ಬಫರ್);
+    sspi_recv_token.cb_ಬಫರ್ = 0;
 
-    if(status != SEC_I_CONTINUE_NEEDED)
-      break;
+    ಆದರೆ(ಸ್ಥಿತಿ_2 != SEC_I_CONTINUE_NEEDED)
+      ನಿಲ್ಲಿಸು;
 
-    result = Curl_blockread_all(cf, data, (char *)socksreq, 4, &actualread);
-    if(result || (actualread != 4)) {
-      failf(data, "Failed to receive SSPI authentication response.");
-      return result ? result : CURLE_COULDNT_CONNECT;
+    ಫಲಿತಾಂಶ = Curl_blockread_all(cf, ದತ್ತಾಂಶ, (ಅಕ್ಷರ *)socksreq, 4, &actualread);
+    ಆದರೆ(ಫಲಿತಾಂಶ || (actualread != 4)) {
+      failf(ದತ್ತಾಂಶ, "Failed to receive SSPI authentication response.");
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ ? ಫಲಿತಾಂಶ : CURLE_COULDNT_CONNECT;
     }
 
-    if(socksreq[1] == 255) {
-      failf(data, "User was rejected by the SOCKS5 server (%u %u).",
-            (unsigned int)socksreq[0], (unsigned int)socksreq[1]);
-      return CURLE_COULDNT_CONNECT;
+    ಆದರೆ(socksreq[1] == 255) {
+      failf(ದತ್ತಾಂಶ, "User was rejected by the SOCKS5 server (%u %u).",
+            (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)socksreq[0], (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)socksreq[1]);
+      ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
     }
 
-    if(socksreq[1] != 1) {
-      failf(data, "Invalid SSPI authentication response type (%u %u).",
-            (unsigned int)socksreq[0], (unsigned int)socksreq[1]);
-      return CURLE_COULDNT_CONNECT;
+    ಆದರೆ(socksreq[1] != 1) {
+      failf(ದತ್ತಾಂಶ, "Invalid SSPI authentication response type (%u %u).",
+            (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)socksreq[0], (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)socksreq[1]);
+      ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
     }
 
-    memcpy(&us_length, socksreq + 2, sizeof(short));
-    us_length = ntohs(us_length);
+    ಸ್ಮರಣೆ_ನಕಲು(&us_ಉದ್ದಳತೆ, socksreq + 2, ಗಾತ್ರ(ಗಿಡ್ಡ));
+    us_ಉದ್ದಳತೆ = ntohs(us_ಉದ್ದಳತೆ);
 
-    if(!us_length) {
-      failf(data, "Invalid zero-length SSPI authentication token.");
-      return CURLE_COULDNT_CONNECT;
+    ಆದರೆ(!us_ಉದ್ದಳತೆ) {
+      failf(ದತ್ತಾಂಶ, "Invalid zero-length SSPI authentication token.");
+      ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
     }
 
-    sspi_recv_token.cbBuffer = us_length;
-    sspi_recv_token.pvBuffer = curlx_malloc(us_length);
+    sspi_recv_token.cb_ಬಫರ್ = us_ಉದ್ದಳತೆ;
+    sspi_recv_token.pv_ಬಫರ್ = curlx_malloc(us_ಉದ್ದಳತೆ);
 
-    if(!sspi_recv_token.pvBuffer)
-      return CURLE_OUT_OF_MEMORY;
+    ಆದರೆ(!sspi_recv_token.pv_ಬಫರ್)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-    result = Curl_blockread_all(cf, data, (char *)sspi_recv_token.pvBuffer,
-                                sspi_recv_token.cbBuffer, &actualread);
+    ಫಲಿತಾಂಶ = Curl_blockread_all(cf, ದತ್ತಾಂಶ, (ಅಕ್ಷರ *)sspi_recv_token.pv_ಬಫರ್,
+                                sspi_recv_token.cb_ಬಫರ್, &actualread);
 
-    if(result || (actualread != us_length)) {
-      failf(data, "Failed to receive SSPI authentication token.");
-      curlx_free(sspi_recv_token.pvBuffer);
-      return result ? result : CURLE_COULDNT_CONNECT;
+    ಆದರೆ(ಫಲಿತಾಂಶ || (actualread != us_ಉದ್ದಳತೆ)) {
+      failf(ದತ್ತಾಂಶ, "Failed to receive SSPI authentication token.");
+      curlx_free(sspi_recv_token.pv_ಬಫರ್);
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ ? ಫಲಿತಾಂಶ : CURLE_COULDNT_CONNECT;
     }
 
     context_handle = sspi_context;
   }
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static CURLcode socks5_free(SecBuffer *sspi_w_token,
-                            CURLcode result)
+ಸ್ಥಿರ CURLcode socks5_free(Sec_ಬಫರ್ *sspi_w_token,
+                            CURLcode ಫಲಿತಾಂಶ)
 {
-  curlx_safefree(sspi_w_token[0].pvBuffer);
-  curlx_safefree(sspi_w_token[1].pvBuffer);
-  curlx_safefree(sspi_w_token[2].pvBuffer);
-  return result;
+  curlx_safefree(sspi_w_token[0].pv_ಬಫರ್);
+  curlx_safefree(sspi_w_token[1].pv_ಬಫರ್);
+  curlx_safefree(sspi_w_token[2].pv_ಬಫರ್);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode socks5_sspi_encrypt(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+ಸ್ಥಿರ CURLcode socks5_sspi_encrypt(ರಚನೆ Curl_cfilter *cf,
+                                    ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                                     CtxtHandle *sspi_context,
-                                    unsigned long sspi_ret_flags)
+                                    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ sspi_ret_flags)
 {
-  CURLcode result = CURLE_OK;
-  CURLcode code;
-  SECURITY_STATUS status;
-  unsigned char gss_enc;
-  SecBuffer sspi_w_token[3];
-  SecBufferDesc wrap_desc;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  CURLcode ಸಂಕೇತ_2;
+  SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2;
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ gss_enc;
+  Sec_ಬಫರ್ sspi_w_token[3];
+  Sec_ಬಫರ್_Desc wrap_desc;
   SecPkgContext_Sizes sspi_sizes;
-  unsigned short us_length;
-  unsigned long qop;
-  unsigned char socksreq[4];
-  uint8_t *etbuf = NULL;
-  size_t etbuf_size = 0;
+  ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ us_ಉದ್ದಳತೆ;
+  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ qop;
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ socksreq[4];
+  uint8_t *etbuf = ಖಾಲಿ;
+  size_t etbuf_ಗಾತ್ರ = 0;
   size_t actualread;
   size_t written;
 
   gss_enc = 0;
-  if(sspi_ret_flags & ISC_REQ_CONFIDENTIALITY)
+  ಆದರೆ(sspi_ret_flags & ISC_REQ_CONFIDENTIALITY)
     gss_enc = 2;
-  else if(sspi_ret_flags & ISC_REQ_INTEGRITY)
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(sspi_ret_flags & ISC_REQ_INTEGRITY)
     gss_enc = 1;
 
-  infof(data, "SOCKS5 server supports GSS-API %s data protection.",
+  infof(ದತ್ತಾಂಶ, "SOCKS5 server supports GSS-API %s data protection.",
         (gss_enc == 0) ? "no" :
         ((gss_enc == 1) ? "integrity" : "confidentiality"));
 
-  sspi_w_token[0].pvBuffer =
-    sspi_w_token[1].pvBuffer =
-    sspi_w_token[2].pvBuffer = NULL;
+  sspi_w_token[0].pv_ಬಫರ್ =
+    sspi_w_token[1].pv_ಬಫರ್ =
+    sspi_w_token[2].pv_ಬಫರ್ = ಖಾಲಿ;
 
   wrap_desc.cBuffers = 3;
   wrap_desc.pBuffers = sspi_w_token;
-  wrap_desc.ulVersion = SECBUFFER_VERSION;
+  wrap_desc.ul_ಆವೃತ್ತಿ = SECBUFFER_ಆವೃತ್ತಿ;
 
   socksreq[0] = 1;
   socksreq[1] = 2;
 
-  if(data->set.socks5_gssapi_nec) {
-    us_length = htons((unsigned short)1);
-    memcpy(socksreq + 2, &us_length, sizeof(short));
+  ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.socks5_gssapi_nec) {
+    us_ಉದ್ದಳತೆ = htons((ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)1);
+    ಸ್ಮರಣೆ_ನಕಲು(socksreq + 2, &us_ಉದ್ದಳತೆ, ಗಾತ್ರ(ಗಿಡ್ಡ));
   }
-  else {
-    status = Curl_pSecFn->QueryContextAttributes(sspi_context,
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಸ್ಥಿತಿ_2 = Curl_pSecFn->Query_Context_ಗುಣಲಕ್ಷಣಗಳು(sspi_context,
                                                  SECPKG_ATTR_SIZES,
                                                  &sspi_sizes);
-    if(check_sspi_err(data, status, "QueryContextAttributes")) {
-      failf(data, "Failed to query security context attributes.");
-      return CURLE_COULDNT_CONNECT;
+    ಆದರೆ(check_sspi_err(ದತ್ತಾಂಶ, ಸ್ಥಿತಿ_2, "QueryContextAttributes")) {
+      failf(ದತ್ತಾಂಶ, "Failed to query security context attributes.");
+      ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
     }
 
-    sspi_w_token[0].cbBuffer = sspi_sizes.cbSecurityTrailer;
-    sspi_w_token[0].BufferType = SECBUFFER_TOKEN;
-    sspi_w_token[0].pvBuffer = curlx_malloc(sspi_sizes.cbSecurityTrailer);
+    sspi_w_token[0].cb_ಬಫರ್ = sspi_sizes.cbSecurityTrailer;
+    sspi_w_token[0].ಬಫರ್_Type = SECBUFFER_TOKEN;
+    sspi_w_token[0].pv_ಬಫರ್ = curlx_malloc(sspi_sizes.cbSecurityTrailer);
 
-    if(!sspi_w_token[0].pvBuffer)
-      return CURLE_OUT_OF_MEMORY;
+    ಆದರೆ(!sspi_w_token[0].pv_ಬಫರ್)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-    sspi_w_token[1].cbBuffer = 1;
-    sspi_w_token[1].BufferType = SECBUFFER_DATA;
-    sspi_w_token[1].pvBuffer = curlx_malloc(1);
-    if(!sspi_w_token[1].pvBuffer)
-      return socks5_free(sspi_w_token, CURLE_OUT_OF_MEMORY);
+    sspi_w_token[1].cb_ಬಫರ್ = 1;
+    sspi_w_token[1].ಬಫರ್_Type = SECBUFFER_ದತ್ತಾಂಶ;
+    sspi_w_token[1].pv_ಬಫರ್ = curlx_malloc(1);
+    ಆದರೆ(!sspi_w_token[1].pv_ಬಫರ್)
+      ಹಿಂತಿರುಗಿ socks5_free(sspi_w_token, CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ);
 
-    memcpy(sspi_w_token[1].pvBuffer, &gss_enc, 1);
-    sspi_w_token[2].BufferType = SECBUFFER_PADDING;
-    sspi_w_token[2].cbBuffer = sspi_sizes.cbBlockSize;
-    sspi_w_token[2].pvBuffer = curlx_malloc(sspi_sizes.cbBlockSize);
-    if(!sspi_w_token[2].pvBuffer)
-      return socks5_free(sspi_w_token, CURLE_OUT_OF_MEMORY);
+    ಸ್ಮರಣೆ_ನಕಲು(sspi_w_token[1].pv_ಬಫರ್, &gss_enc, 1);
+    sspi_w_token[2].ಬಫರ್_Type = SECBUFFER_PADDING;
+    sspi_w_token[2].cb_ಬಫರ್ = sspi_sizes.cb_ಖಂಡ_ಗಾತ್ರ;
+    sspi_w_token[2].pv_ಬಫರ್ = curlx_malloc(sspi_sizes.cb_ಖಂಡ_ಗಾತ್ರ);
+    ಆದರೆ(!sspi_w_token[2].pv_ಬಫರ್)
+      ಹಿಂತಿರುಗಿ socks5_free(sspi_w_token, CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ);
 
-    status = Curl_pSecFn->EncryptMessage(sspi_context,
+    ಸ್ಥಿತಿ_2 = Curl_pSecFn->Encrypt_ಸಂದೇಶ(sspi_context,
                                          KERB_WRAP_NO_ENCRYPT,
                                          &wrap_desc, 0);
-    if(check_sspi_err(data, status, "EncryptMessage"))
-      return socks5_free(sspi_w_token, CURLE_COULDNT_CONNECT);
+    ಆದರೆ(check_sspi_err(ದತ್ತಾಂಶ, ಸ್ಥಿತಿ_2, "EncryptMessage"))
+      ಹಿಂತಿರುಗಿ socks5_free(sspi_w_token, CURLE_COULDNT_CONNECT);
 
-    etbuf_size = sspi_w_token[0].cbBuffer + sspi_w_token[1].cbBuffer +
-      sspi_w_token[2].cbBuffer;
-    if(etbuf_size > 0xffff)
-      return socks5_free(sspi_w_token, CURLE_COULDNT_CONNECT);
+    etbuf_ಗಾತ್ರ = sspi_w_token[0].cb_ಬಫರ್ + sspi_w_token[1].cb_ಬಫರ್ +
+      sspi_w_token[2].cb_ಬಫರ್;
+    ಆದರೆ(etbuf_ಗಾತ್ರ > 0xffff)
+      ಹಿಂತಿರುಗಿ socks5_free(sspi_w_token, CURLE_COULDNT_CONNECT);
 
-    etbuf = curlx_malloc(etbuf_size);
-    if(!etbuf)
-      return socks5_free(sspi_w_token, CURLE_OUT_OF_MEMORY);
+    etbuf = curlx_malloc(etbuf_ಗಾತ್ರ);
+    ಆದರೆ(!etbuf)
+      ಹಿಂತಿರುಗಿ socks5_free(sspi_w_token, CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ);
 
-    memcpy(etbuf, sspi_w_token[0].pvBuffer, sspi_w_token[0].cbBuffer);
-    memcpy(etbuf + sspi_w_token[0].cbBuffer,
-           sspi_w_token[1].pvBuffer, sspi_w_token[1].cbBuffer);
-    memcpy(etbuf + sspi_w_token[0].cbBuffer + sspi_w_token[1].cbBuffer,
-           sspi_w_token[2].pvBuffer, sspi_w_token[2].cbBuffer);
+    ಸ್ಮರಣೆ_ನಕಲು(etbuf, sspi_w_token[0].pv_ಬಫರ್, sspi_w_token[0].cb_ಬಫರ್);
+    ಸ್ಮರಣೆ_ನಕಲು(etbuf + sspi_w_token[0].cb_ಬಫರ್,
+           sspi_w_token[1].pv_ಬಫರ್, sspi_w_token[1].cb_ಬಫರ್);
+    ಸ್ಮರಣೆ_ನಕಲು(etbuf + sspi_w_token[0].cb_ಬಫರ್ + sspi_w_token[1].cb_ಬಫರ್,
+           sspi_w_token[2].pv_ಬಫರ್, sspi_w_token[2].cb_ಬಫರ್);
 
-    (void)socks5_free(sspi_w_token, CURLE_OK);
+    (ಶೂನ್ಯ)socks5_free(sspi_w_token, CURLE_OK);
 
-    us_length = htons((unsigned short)etbuf_size);
-    memcpy(socksreq + 2, &us_length, sizeof(short));
+    us_ಉದ್ದಳತೆ = htons((ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)etbuf_ಗಾತ್ರ);
+    ಸ್ಮರಣೆ_ನಕಲು(socksreq + 2, &us_ಉದ್ದಳತೆ, ಗಾತ್ರ(ಗಿಡ್ಡ));
   }
 
-  code = Curl_conn_cf_send(cf->next, data, socksreq, 4, FALSE, &written);
-  if(code || (written != 4)) {
-    failf(data, "Failed to send SSPI encryption request.");
+  ಸಂಕೇತ_2 = Curl_conn_cf_send(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, socksreq, 4, FALSE, &written);
+  ಆದರೆ(ಸಂಕೇತ_2 || (written != 4)) {
+    failf(ದತ್ತಾಂಶ, "Failed to send SSPI encryption request.");
     curlx_free(etbuf);
-    return CURLE_COULDNT_CONNECT;
+    ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
   }
 
-  if(data->set.socks5_gssapi_nec) {
-    memcpy(socksreq, &gss_enc, 1);
-    code = Curl_conn_cf_send(cf->next, data, socksreq, 1, FALSE, &written);
-    if(code || (written != 1)) {
-      failf(data, "Failed to send SSPI encryption type.");
-      return CURLE_COULDNT_CONNECT;
+  ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.socks5_gssapi_nec) {
+    ಸ್ಮರಣೆ_ನಕಲು(socksreq, &gss_enc, 1);
+    ಸಂಕೇತ_2 = Curl_conn_cf_send(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, socksreq, 1, FALSE, &written);
+    ಆದರೆ(ಸಂಕೇತ_2 || (written != 1)) {
+      failf(ದತ್ತಾಂಶ, "Failed to send SSPI encryption type.");
+      ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
     }
   }
-  else {
-    code = Curl_conn_cf_send(cf->next, data, etbuf, etbuf_size, FALSE,
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಸಂಕೇತ_2 = Curl_conn_cf_send(cf->ಮುಂದಿನ, ದತ್ತಾಂಶ, etbuf, etbuf_ಗಾತ್ರ, FALSE,
                              &written);
     curlx_free(etbuf);
-    if(code || (etbuf_size != written)) {
-      failf(data, "Failed to send SSPI encryption type.");
-      return CURLE_COULDNT_CONNECT;
+    ಆದರೆ(ಸಂಕೇತ_2 || (etbuf_ಗಾತ್ರ != written)) {
+      failf(ದತ್ತಾಂಶ, "Failed to send SSPI encryption type.");
+      ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
     }
   }
 
-  result = Curl_blockread_all(cf, data, (char *)socksreq, 4, &actualread);
-  if(result || (actualread != 4)) {
-    failf(data, "Failed to receive SSPI encryption response.");
-    return result ? result : CURLE_COULDNT_CONNECT;
+  ಫಲಿತಾಂಶ = Curl_blockread_all(cf, ದತ್ತಾಂಶ, (ಅಕ್ಷರ *)socksreq, 4, &actualread);
+  ಆದರೆ(ಫಲಿತಾಂಶ || (actualread != 4)) {
+    failf(ದತ್ತಾಂಶ, "Failed to receive SSPI encryption response.");
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ ? ಫಲಿತಾಂಶ : CURLE_COULDNT_CONNECT;
   }
 
-  if(socksreq[1] == 255) {
-    failf(data, "User was rejected by the SOCKS5 server (%u %u).",
-          (unsigned int)socksreq[0], (unsigned int)socksreq[1]);
-    return CURLE_COULDNT_CONNECT;
+  ಆದರೆ(socksreq[1] == 255) {
+    failf(ದತ್ತಾಂಶ, "User was rejected by the SOCKS5 server (%u %u).",
+          (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)socksreq[0], (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)socksreq[1]);
+    ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
   }
 
-  if(socksreq[1] != 2) {
-    failf(data, "Invalid SSPI encryption response type (%u %u).",
-          (unsigned int)socksreq[0], (unsigned int)socksreq[1]);
-    return CURLE_COULDNT_CONNECT;
+  ಆದರೆ(socksreq[1] != 2) {
+    failf(ದತ್ತಾಂಶ, "Invalid SSPI encryption response type (%u %u).",
+          (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)socksreq[0], (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)socksreq[1]);
+    ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
   }
 
-  memcpy(&us_length, socksreq + 2, sizeof(short));
-  us_length = ntohs(us_length);
+  ಸ್ಮರಣೆ_ನಕಲು(&us_ಉದ್ದಳತೆ, socksreq + 2, ಗಾತ್ರ(ಗಿಡ್ಡ));
+  us_ಉದ್ದಳತೆ = ntohs(us_ಉದ್ದಳತೆ);
 
-  if(!us_length) {
-    failf(data, "Invalid zero-length SSPI encryption token.");
-    return CURLE_COULDNT_CONNECT;
+  ಆದರೆ(!us_ಉದ್ದಳತೆ) {
+    failf(ದತ್ತಾಂಶ, "Invalid zero-length SSPI encryption token.");
+    ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
   }
 
-  sspi_w_token[0].cbBuffer = us_length;
-  sspi_w_token[0].pvBuffer = curlx_malloc(us_length);
-  if(!sspi_w_token[0].pvBuffer)
-    return CURLE_OUT_OF_MEMORY;
+  sspi_w_token[0].cb_ಬಫರ್ = us_ಉದ್ದಳತೆ;
+  sspi_w_token[0].pv_ಬಫರ್ = curlx_malloc(us_ಉದ್ದಳತೆ);
+  ಆದರೆ(!sspi_w_token[0].pv_ಬಫರ್)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-  result = Curl_blockread_all(cf, data, (char *)sspi_w_token[0].pvBuffer,
-                              sspi_w_token[0].cbBuffer, &actualread);
+  ಫಲಿತಾಂಶ = Curl_blockread_all(cf, ದತ್ತಾಂಶ, (ಅಕ್ಷರ *)sspi_w_token[0].pv_ಬಫರ್,
+                              sspi_w_token[0].cb_ಬಫರ್, &actualread);
 
-  if(result || (actualread != us_length)) {
-    failf(data, "Failed to receive SSPI encryption type.");
-    goto fail;
+  ಆದರೆ(ಫಲಿತಾಂಶ || (actualread != us_ಉದ್ದಳತೆ)) {
+    failf(ದತ್ತಾಂಶ, "Failed to receive SSPI encryption type.");
+    ಹೋಗು fail;
   }
 
-  if(!data->set.socks5_gssapi_nec) {
+  ಆದರೆ(!ದತ್ತಾಂಶ->ಗಣ.socks5_gssapi_nec) {
     wrap_desc.cBuffers = 2;
-    sspi_w_token[0].BufferType = SECBUFFER_STREAM;
-    sspi_w_token[1].BufferType = SECBUFFER_DATA;
-    sspi_w_token[1].cbBuffer = 0;
-    sspi_w_token[1].pvBuffer = NULL;
+    sspi_w_token[0].ಬಫರ್_Type = SECBUFFER_ಹರಿವು;
+    sspi_w_token[1].ಬಫರ್_Type = SECBUFFER_ದತ್ತಾಂಶ;
+    sspi_w_token[1].cb_ಬಫರ್ = 0;
+    sspi_w_token[1].pv_ಬಫರ್ = ಖಾಲಿ;
 
     /* At least one of the descriptors must be of type SECBUFFER_DATA. The
        message is decrypted in place so the SECBUFFER_DATA receives a pointer
        to the message in SECBUFFER_STREAM. */
-    status = Curl_pSecFn->DecryptMessage(sspi_context, &wrap_desc, 0, &qop);
+    ಸ್ಥಿತಿ_2 = Curl_pSecFn->Decrypt_ಸಂದೇಶ(sspi_context, &wrap_desc, 0, &qop);
 
-    if(check_sspi_err(data, status, "DecryptMessage"))
-      goto fail;
+    ಆದರೆ(check_sspi_err(ದತ್ತಾಂಶ, ಸ್ಥಿತಿ_2, "DecryptMessage"))
+      ಹೋಗು fail;
 
-    if(sspi_w_token[1].cbBuffer != 1) {
-      failf(data, "Invalid SSPI encryption response length (%lu).",
-            (unsigned long)sspi_w_token[1].cbBuffer);
-      goto fail;
+    ಆದರೆ(sspi_w_token[1].cb_ಬಫರ್ != 1) {
+      failf(ದತ್ತಾಂಶ, "Invalid SSPI encryption response length (%lu).",
+            (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)sspi_w_token[1].cb_ಬಫರ್);
+      ಹೋಗು fail;
     }
 
-    memcpy(socksreq, sspi_w_token[1].pvBuffer, sspi_w_token[1].cbBuffer);
+    ಸ್ಮರಣೆ_ನಕಲು(socksreq, sspi_w_token[1].pv_ಬಫರ್, sspi_w_token[1].cb_ಬಫರ್);
   }
-  else {
-    if(sspi_w_token[0].cbBuffer != 1) {
-      failf(data, "Invalid SSPI encryption response length (%lu).",
-            (unsigned long)sspi_w_token[0].cbBuffer);
-      goto fail;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಆದರೆ(sspi_w_token[0].cb_ಬಫರ್ != 1) {
+      failf(ದತ್ತಾಂಶ, "Invalid SSPI encryption response length (%lu).",
+            (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)sspi_w_token[0].cb_ಬಫರ್);
+      ಹೋಗು fail;
     }
-    memcpy(socksreq, sspi_w_token[0].pvBuffer, sspi_w_token[0].cbBuffer);
+    ಸ್ಮರಣೆ_ನಕಲು(socksreq, sspi_w_token[0].pv_ಬಫರ್, sspi_w_token[0].cb_ಬಫರ್);
   }
-  curlx_free(sspi_w_token[0].pvBuffer);
+  curlx_free(sspi_w_token[0].pv_ಬಫರ್);
 
-  infof(data, "SOCKS5 access %s protection granted BUT NOT USED.",
+  infof(ದತ್ತಾಂಶ, "SOCKS5 access %s protection granted BUT NOT USED.",
         (socksreq[0] == 0) ? "without GSS-API data" :
          ((socksreq[0] == 1) ? "with GSS-API integrity" :
           "with GSS-API confidentiality"));
 
   cf->conn->socks5_gssapi_enctype = socksreq[0];
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 
 fail:
-  curlx_free(sspi_w_token[0].pvBuffer);
-  return CURLE_COULDNT_CONNECT;
+  curlx_free(sspi_w_token[0].pv_ಬಫರ್);
+  ಹಿಂತಿರುಗಿ CURLE_COULDNT_CONNECT;
 }
 
-CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct Curl_creds *creds)
+CURLcode Curl_SOCKS5_gssapi_negotiate(ರಚನೆ Curl_cfilter *cf,
+                                      ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                      ರಚನೆ Curl_creds *creds)
 {
-  struct connectdata *conn = cf->conn;
+  ರಚನೆ connectdata *conn = cf->conn;
   curl_socket_t sock = conn->sock[cf->sockindex];
-  CURLcode result;
-  SECURITY_STATUS status;
+  CURLcode ಫಲಿತಾಂಶ;
+  SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2;
   CredHandle cred_handle;
   CtxtHandle sspi_context;
-  SecPkgCredentials_Names names;
-  char *service_name = NULL;
-  unsigned long sspi_ret_flags = 0;
+  Sec_Pkg_Credentials_ಹೆಸರುಗಳು ಹೆಸರುಗಳು;
+  ಅಕ್ಷರ *service_name = ಖಾಲಿ;
+  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ sspi_ret_flags = 0;
 
-  memset(&cred_handle, 0, sizeof(cred_handle));
-  memset(&sspi_context, 0, sizeof(sspi_context));
-  names.sUserName = NULL;
+  memset(&cred_handle, 0, ಗಾತ್ರ(cred_handle));
+  memset(&sspi_context, 0, ಗಾತ್ರ(sspi_context));
+  ಹೆಸರುಗಳು.sUserName = ಖಾಲಿ;
 
-  result = socks5_sspi_setup(cf, data, creds, &cred_handle, &service_name);
-  if(result)
-    goto error;
+  ಫಲಿತಾಂಶ = socks5_sspi_ಸಿದ್ಧತೆ(cf, ದತ್ತಾಂಶ, creds, &cred_handle, &service_name);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು error;
 
-  result = socks5_sspi_loop(cf, data, &cred_handle, &sspi_context,
+  ಫಲಿತಾಂಶ = socks5_sspi_loop(cf, ದತ್ತಾಂಶ, &cred_handle, &sspi_context,
                             service_name, &sspi_ret_flags);
-  if(result)
-    goto error;
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು error;
 
   curlx_safefree(service_name);
 
-  status = Curl_pSecFn->QueryCredentialsAttributes(&cred_handle,
-                                                   SECPKG_CRED_ATTR_NAMES,
-                                                   &names);
-  if(check_sspi_err(data, status, "QueryCredentialAttributes")) {
-    failf(data, "Failed to determine username.");
-    result = CURLE_COULDNT_CONNECT;
-    goto error;
+  ಸ್ಥಿತಿ_2 = Curl_pSecFn->Query_Credentials_ಗುಣಲಕ್ಷಣಗಳು(&cred_handle,
+                                                   SECPKG_CRED_ATTR_ಹೆಸರುಗಳು,
+                                                   &ಹೆಸರುಗಳು);
+  ಆದರೆ(check_sspi_err(ದತ್ತಾಂಶ, ಸ್ಥಿತಿ_2, "QueryCredentialAttributes")) {
+    failf(ದತ್ತಾಂಶ, "Failed to determine username.");
+    ಫಲಿತಾಂಶ = CURLE_COULDNT_CONNECT;
+    ಹೋಗು error;
   }
-  else {
-    VERBOSE(char *user_utf8 = curlx_convert_tchar_to_UTF8(names.sUserName));
-    infof(data, "SOCKS5 server authenticated user %s with GSS-API.",
+  ಇಲ್ಲದಿದ್ದರೆ {
+    VERBOSE(ಅಕ್ಷರ *user_utf8 = curlx_convert_tchar_ಗಮ್ಯ_UTF8(ಹೆಸರುಗಳು.sUserName));
+    infof(ದತ್ತಾಂಶ, "SOCKS5 server authenticated user %s with GSS-API.",
           (user_utf8 ? user_utf8 : "(unknown)"));
     VERBOSE(curlx_free(user_utf8));
-    Curl_pSecFn->FreeContextBuffer(names.sUserName);
-    names.sUserName = NULL;
+    Curl_pSecFn->Free_Context_ಬಫರ್(ಹೆಸರುಗಳು.sUserName);
+    ಹೆಸರುಗಳು.sUserName = ಖಾಲಿ;
   }
 
-  result = socks5_sspi_encrypt(cf, data, &sspi_context, sspi_ret_flags);
-  if(result)
-    goto error;
+  ಫಲಿತಾಂಶ = socks5_sspi_encrypt(cf, ದತ್ತಾಂಶ, &sspi_context, sspi_ret_flags);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು error;
 
-  (void)curlx_nonblock(sock, TRUE);
+  (ಶೂನ್ಯ)curlx_nonblock(sock, TRUE);
   Curl_pSecFn->DeleteSecurityContext(&sspi_context);
   Curl_pSecFn->FreeCredentialsHandle(&cred_handle);
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 
 error:
-  (void)curlx_nonblock(sock, TRUE);
+  (ಶೂನ್ಯ)curlx_nonblock(sock, TRUE);
   curlx_free(service_name);
   Curl_pSecFn->DeleteSecurityContext(&sspi_context);
   Curl_pSecFn->FreeCredentialsHandle(&cred_handle);
-  if(names.sUserName)
-    Curl_pSecFn->FreeContextBuffer(names.sUserName);
-  return result;
+  ಆದರೆ(ಹೆಸರುಗಳು.sUserName)
+    Curl_pSecFn->Free_Context_ಬಫರ್(ಹೆಸರುಗಳು.sUserName);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

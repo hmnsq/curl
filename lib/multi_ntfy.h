@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTI_NTFY_H
-#define HEADER_CURL_MULTI_NTFY_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_MULTI_NTFY_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_MULTI_NTFY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,39 +23,39 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#define CURL_MNTFY_FLAG_HAS_ENTRIES  ((uint32_t)1 << 31)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_MNTFY_FLAG_HAS_ENTRIES  ((uint32_t)1 << 31)
 
-struct Curl_easy;
-struct Curl_multi;
+ರಚನೆ Curl_easy;
+ರಚನೆ Curl_multi;
 
-struct curl_multi_ntfy {
+ರಚನೆ curl_multi_ntfy {
   curl_notify_callback ntfy_cb;
-  void *ntfy_cb_data;
-  struct mntfy_chunk *head;
-  struct mntfy_chunk *tail;
+  ಶೂನ್ಯ *ntfy_cb_ದತ್ತಾಂಶ;
+  ರಚನೆ mntfy_chunk *ತಲೆ;
+  ರಚನೆ mntfy_chunk *ಬಾಲ;
   uint32_t flags;
   CURLMcode failure;
 };
 
-void Curl_mntfy_init(struct Curl_multi *multi);
-void Curl_mntfy_cleanup(struct Curl_multi *multi);
+ಶೂನ್ಯ Curl_mntfy_init(ರಚನೆ Curl_multi *multi);
+ಶೂನ್ಯ Curl_mntfy_cleanup(ರಚನೆ Curl_multi *multi);
 
-CURLMcode Curl_mntfy_enable(struct Curl_multi *multi, unsigned int type);
-CURLMcode Curl_mntfy_disable(struct Curl_multi *multi, unsigned int type);
+CURLMcode Curl_mntfy_enable(ರಚನೆ Curl_multi *multi, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ type);
+CURLMcode Curl_mntfy_disable(ರಚನೆ Curl_multi *multi, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ type);
 
-void Curl_mntfy_add(struct Curl_easy *data, unsigned int type);
+ಶೂನ್ಯ Curl_mntfy_ಕೂಡಿಸು(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ type);
 
-#define CURLM_NTFY(d, t)                              \
-  do {                                                \
-    if((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
-      Curl_mntfy_add((d), (t));                       \
-  } while(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLM_NTFY(d, t)                              \
+  ಮಾಡು {                                                \
+    ಆದರೆ((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
+      Curl_mntfy_ಕೂಡಿಸು((d), (t));                       \
+  } ಆಗ(0)
 
-#define CURL_MNTFY_HAS_ENTRIES(m) \
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_MNTFY_HAS_ENTRIES(m) \
   ((m)->ntfy.flags & CURL_MNTFY_FLAG_HAS_ENTRIES)
 
-CURLMcode Curl_mntfy_dispatch_all(struct Curl_multi *multi);
+CURLMcode Curl_mntfy_dispatch_all(ರಚನೆ Curl_multi *multi);
 
-#endif /* HEADER_CURL_MULTI_NTFY_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_MULTI_NTFY_H */

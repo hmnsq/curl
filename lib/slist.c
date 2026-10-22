@@ -21,25 +21,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "slist.h"
+#ಅನ್ತರ್ಭಾವ "slist.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist *list)
+ಸ್ಥಿರ ರಚನೆ curl_slist *slist_get_ಕೊನೆಯ(ರಚನೆ curl_slist *list)
 {
-  struct curl_slist *item;
+  ರಚನೆ curl_slist *ಅಂಶ;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  ಆದರೆ(!list)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
   /* loop through to find the last item */
-  item = list;
-  while(item->next) {
-    item = item->next;
+  ಅಂಶ = list;
+  ಆಗ(ಅಂಶ->ಮುಂದಿನ) {
+    ಅಂಶ = ಅಂಶ->ಮುಂದಿನ;
   }
-  return item;
+  ಹಿಂತಿರುಗಿ ಅಂಶ;
 }
 
 /*
@@ -51,28 +51,28 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
  * If an error occurs, NULL is returned and the string argument is NOT
  * released.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data)
+ರಚನೆ curl_slist *Curl_slist_append_nodup(ರಚನೆ curl_slist *list,
+                                           ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ದತ್ತಾಂಶ)
 {
-  struct curl_slist *last;
-  struct curl_slist *new_item;
+  ರಚನೆ curl_slist *ಕೊನೆಯ;
+  ರಚನೆ curl_slist *new_ಅಂಶ;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(ದತ್ತಾಂಶ);
 
-  new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  new_ಅಂಶ = curlx_malloc(ಗಾತ್ರ(ರಚನೆ curl_slist));
+  ಆದರೆ(!new_ಅಂಶ)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-  new_item->next = NULL;
-  new_item->data = CURL_UNCONST(data);
+  new_ಅಂಶ->ಮುಂದಿನ = ಖಾಲಿ;
+  new_ಅಂಶ->ದತ್ತಾಂಶ = CURL_UNCONST(ದತ್ತಾಂಶ);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  ಆದರೆ(!list)
+    ಹಿಂತಿರುಗಿ new_ಅಂಶ;
 
-  last = slist_get_last(list);
-  last->next = new_item;
-  return list;
+  ಕೊನೆಯ = slist_get_ಕೊನೆಯ(list);
+  ಕೊನೆಯ->ಮುಂದಿನ = new_ಅಂಶ;
+  ಹಿಂತಿರುಗಿ list;
 }
 
 /*
@@ -82,18 +82,18 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
  * bothersome, then create a separate _init function and call it
  * appropriately from within the program.
  */
-struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
+ರಚನೆ curl_slist *curl_slist_append(ರಚನೆ curl_slist *list, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ದತ್ತಾಂಶ)
 {
-  char *dupdata = curlx_strdup(data);
+  ಅಕ್ಷರ *dupdata = curlx_strdup(ದತ್ತಾಂಶ);
 
-  if(!dupdata)
-    return NULL;
+  ಆದರೆ(!dupdata)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  ಆದರೆ(!list)
     curlx_free(dupdata);
 
-  return list;
+  ಹಿಂತಿರುಗಿ list;
 }
 
 /*
@@ -101,40 +101,40 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
+ರಚನೆ curl_slist *Curl_slist_duplicate(ರಚನೆ curl_slist *inlist)
 {
-  struct curl_slist *outlist = NULL;
-  struct curl_slist **tail = &outlist;
+  ರಚನೆ curl_slist *outlist = ಖಾಲಿ;
+  ರಚನೆ curl_slist **ಬಾಲ = &outlist;
 
-  while(inlist) {
-    struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
+  ಆಗ(inlist) {
+    ರಚನೆ curl_slist *tmp = curl_slist_append(ಖಾಲಿ, inlist->ದತ್ತಾಂಶ);
 
-    if(!tmp) {
+    ಆದರೆ(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      ಹಿಂತಿರುಗಿ ಖಾಲಿ;
     }
 
-    *tail = tmp;
-    tail = &tmp->next;
-    inlist = inlist->next;
+    *ಬಾಲ = tmp;
+    ಬಾಲ = &tmp->ಮುಂದಿನ;
+    inlist = inlist->ಮುಂದಿನ;
   }
-  return outlist;
+  ಹಿಂತಿರುಗಿ outlist;
 }
 
 /* be nice and clean up resources */
-void curl_slist_free_all(struct curl_slist *list)
+ಶೂನ್ಯ curl_slist_free_all(ರಚನೆ curl_slist *list)
 {
-  struct curl_slist *next;
-  struct curl_slist *item;
+  ರಚನೆ curl_slist *ಮುಂದಿನ;
+  ರಚನೆ curl_slist *ಅಂಶ;
 
-  if(!list)
-    return;
+  ಆದರೆ(!list)
+    ಹಿಂತಿರುಗಿ;
 
-  item = list;
-  do {
-    next = item->next;
-    curlx_safefree(item->data);
-    curlx_free(item);
-    item = next;
-  } while(next);
+  ಅಂಶ = list;
+  ಮಾಡು {
+    ಮುಂದಿನ = ಅಂಶ->ಮುಂದಿನ;
+    curlx_safefree(ಅಂಶ->ದತ್ತಾಂಶ);
+    curlx_free(ಅಂಶ);
+    ಅಂಶ = ಮುಂದಿನ;
+  } ಆಗ(ಮುಂದಿನ);
 }

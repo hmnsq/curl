@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NETRC_H
-#define HEADER_CURL_NETRC_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_NETRC_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_NETRC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,46 +23,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifndef CURL_DISABLE_NETRC
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_NETRC
 
-#include "curlx/dynbuf.h"
+#ಅನ್ತರ್ಭಾವ "curlx/dynbuf.h"
 
-struct Curl_easy;
-struct Curl_creds;
+ರಚನೆ Curl_easy;
+ರಚನೆ Curl_creds;
 
-struct store_netrc {
-  struct dynbuf filebuf;
-  char *filename;
-  BIT(loaded);
+ರಚನೆ store_netrc {
+  ರಚನೆ dynbuf filebuf;
+  ಅಕ್ಷರ *filename;
+  ಬಿಟ್(loaded);
 };
 
-typedef enum {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ {
   NETRC_OK,
-  NETRC_NO_MATCH,      /* no matching entry in the file */
+  NETRC_NO_ಹೊಂದಿಕೆ,      /* no matching entry in the file */
   NETRC_SYNTAX_ERROR,  /* in the netrc file */
   NETRC_FILE_MISSING,  /* the netrc file does not exist */
-  NETRC_OUT_OF_MEMORY, /* while parsing netrc */
-  NETRC_LAST /* never used */
+  NETRC_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ, /* while parsing netrc */
+  NETRC_ಕೊನೆಯ /* never used */
 } NETRCcode;
 
-const char *Curl_netrc_strerror(NETRCcode ret);
-void Curl_netrc_init(struct store_netrc *store);
-void Curl_netrc_cleanup(struct store_netrc *store);
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *Curl_netrc_strerror(NETRCcode ret);
+ಶೂನ್ಯ Curl_netrc_init(ರಚನೆ store_netrc *store);
+ಶೂನ್ಯ Curl_netrc_cleanup(ರಚನೆ store_netrc *store);
 
 /* Scan a netrc file for credentials matching hostname
  * and optional user. */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds);
-#else
+NETRCcode Curl_netrc_ಪರಿಶೀಲನೆ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                          ರಚನೆ store_netrc *store,
+                          ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname,
+                          ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *user,
+                          ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *netrcfile,
+                          ರಚನೆ Curl_creds **pcreds);
+#ಇಲ್ಲದಿದ್ದರೆ
 /* disabled */
-#define Curl_netrc_init(x)
-#define Curl_netrc_cleanup(x)
-#endif
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_netrc_init(x)
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_netrc_cleanup(x)
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HEADER_CURL_NETRC_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_NETRC_H */

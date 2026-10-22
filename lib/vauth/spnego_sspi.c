@@ -23,14 +23,14 @@
  * RFC4178 Simple and Protected GSS-API Negotiation Mechanism
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && defined(USE_SPNEGO)
+#ಆದರೆ defined(USE_WINDOWS_SSPI) && defined(USE_SPNEGO)
 
-#include "vauth/vauth.h"
-#include "curlx/base64.h"
-#include "curl_trc.h"
-#include "strerror.h"
+#ಅನ್ತರ್ಭಾವ "vauth/vauth.h"
+#ಅನ್ತರ್ಭಾವ "curlx/base64.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "strerror.h"
 
 /*
  * Curl_auth_is_spnego_supported()
@@ -41,22 +41,22 @@
  *
  * Returns TRUE if Negotiate is supported by Windows SSPI.
  */
-bool Curl_auth_is_spnego_supported(void)
+bool Curl_auth_is_spnego_supported(ಶೂನ್ಯ)
 {
   PSecPkgInfo SecurityPackage;
-  SECURITY_STATUS status;
+  SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2;
 
   /* Query the security package for Negotiate */
-  status = Curl_pSecFn->QuerySecurityPackageInfo(
-                                CURL_UNCONST(TEXT(SP_NAME_NEGOTIATE)),
+  ಸ್ಥಿತಿ_2 = Curl_pSecFn->QuerySecurityPackageInfo(
+                                CURL_UNCONST(ಪಠ್ಯ_2(SP_NAME_NEGOTIATE)),
                                 &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
-    Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  ಆದರೆ(ಸ್ಥಿತಿ_2 == SEC_E_OK) {
+    Curl_pSecFn->Free_Context_ಬಫರ್(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  ಹಿಂತಿರುಗಿ ಸ್ಥಿತಿ_2 == SEC_E_OK;
 }
 
 /*
@@ -77,138 +77,138 @@ bool Curl_auth_is_spnego_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
-                                         struct Curl_creds *creds,
-                                         const char *default_service,
-                                         const char *host,
-                                         const char *chlg64,
-                                         struct negotiatedata *nego)
+CURLcode Curl_auth_decode_spnego_ಸಂದೇಶ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                         ರಚನೆ Curl_creds *creds,
+                                         ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *default_service,
+                                         ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *host,
+                                         ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *chlg64,
+                                         ರಚನೆ negotiatedata *nego)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
   size_t chlglen = 0;
-  unsigned char *chlg = NULL;
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *chlg = ಖಾಲಿ;
   PSecPkgInfo SecurityPackage;
-  SecBuffer chlg_buf[2];
-  SecBuffer resp_buf;
-  SecBufferDesc chlg_desc;
-  SecBufferDesc resp_desc;
-  unsigned long attrs;
-  SecPkgContext_Bindings pkgBindings = { 0, NULL };
+  Sec_ಬಫರ್ chlg_buf[2];
+  Sec_ಬಫರ್ resp_buf;
+  Sec_ಬಫರ್_Desc chlg_desc;
+  Sec_ಬಫರ್_Desc resp_desc;
+  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ attrs;
+  SecPkgContext_Bindings pkgBindings = { 0, ಖಾಲಿ };
 
-  if(nego->context && nego->status == SEC_E_OK) {
+  ಆದರೆ(nego->context && nego->ಸ್ಥಿತಿ_2 == SEC_E_OK) {
     /* We finished successfully our part of authentication, but server
      * rejected it (since we are again here). Exit with an error since we
      * cannot invent anything better */
     Curl_auth_cleanup_spnego(nego);
-    return CURLE_LOGIN_DENIED;
+    ಹಿಂತಿರುಗಿ CURLE_LOGIN_DENIED;
   }
 
-  if(!nego->spn) {
+  ಆದರೆ(!nego->spn) {
     /* Generate our SPN */
-    const char *service = Curl_creds_has_sasl_service(creds) ?
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *service = Curl_creds_has_sasl_service(creds) ?
       Curl_creds_sasl_service(creds) : default_service;
-    nego->spn = Curl_auth_build_spn(service, host, NULL);
-    if(!nego->spn)
-      return CURLE_OUT_OF_MEMORY;
+    nego->spn = Curl_auth_build_spn(service, host, ಖಾಲಿ);
+    ಆದರೆ(!nego->spn)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
-  if(!nego->output_token) {
+  ಆದರೆ(!nego->output_token) {
     /* Query the security package for Negotiate */
-    nego->status = Curl_pSecFn->QuerySecurityPackageInfo(
-                                CURL_UNCONST(TEXT(SP_NAME_NEGOTIATE)),
+    nego->ಸ್ಥಿತಿ_2 = Curl_pSecFn->QuerySecurityPackageInfo(
+                                CURL_UNCONST(ಪಠ್ಯ_2(SP_NAME_NEGOTIATE)),
                                 &SecurityPackage);
-    if(nego->status != SEC_E_OK) {
-      failf(data, "SSPI: could not get auth info");
-      return CURLE_AUTH_ERROR;
+    ಆದರೆ(nego->ಸ್ಥಿತಿ_2 != SEC_E_OK) {
+      failf(ದತ್ತಾಂಶ, "SSPI: could not get auth info");
+      ಹಿಂತಿರುಗಿ CURLE_AUTH_ERROR;
     }
 
     nego->token_max = SecurityPackage->cbMaxToken;
 
     /* Release the package buffer as it is not required anymore */
-    Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+    Curl_pSecFn->Free_Context_ಬಫರ್(SecurityPackage);
 
     /* Allocate our output buffer */
     nego->output_token = curlx_malloc(nego->token_max);
-    if(!nego->output_token)
-      return CURLE_OUT_OF_MEMORY;
+    ಆದರೆ(!nego->output_token)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
-  if(!nego->credentials) {
+  ಆದರೆ(!nego->credentials) {
     /* Do we have credentials to use or are we using single sign-on? */
-    if(Curl_creds_has_user(creds)) {
+    ಆದರೆ(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
-      result = Curl_create_sspi_identity(creds->user, creds->passwd,
-                                         &nego->identity);
-      if(result)
-        return result;
+      ಫಲಿತಾಂಶ = Curl_create_sspi_ತಟಸ್ಥ(creds->user, creds->passwd,
+                                         &nego->ತಟಸ್ಥ);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
       /* Allow proper cleanup of the identity structure */
-      nego->p_identity = &nego->identity;
+      nego->p_ತಟಸ್ಥ = &nego->ತಟಸ್ಥ;
     }
-    else
+    ಇಲ್ಲದಿದ್ದರೆ
       /* Use the current Windows user */
-      nego->p_identity = NULL;
+      nego->p_ತಟಸ್ಥ = ಖಾಲಿ;
 
     /* Exclude NTLM from SPNEGO negotiation via the PackageList field */
-    if(!nego->p_identity) {
-      memset(&nego->identity, 0, sizeof(nego->identity));
-      nego->identity.Version = SEC_WINNT_AUTH_IDENTITY_VERSION;
-      nego->identity.Length = sizeof(nego->identity);
-      nego->identity.Flags = CURL_SEC_WINNT_AUTH_IDENTITY;
-      nego->p_identity = &nego->identity;
+    ಆದರೆ(!nego->p_ತಟಸ್ಥ) {
+      memset(&nego->ತಟಸ್ಥ, 0, ಗಾತ್ರ(nego->ತಟಸ್ಥ));
+      nego->ತಟಸ್ಥ.ಆವೃತ್ತಿ = SEC_WINNT_AUTH_ತಟಸ್ಥ_ಆವೃತ್ತಿ;
+      nego->ತಟಸ್ಥ.ಉದ್ದಳತೆ_2 = ಗಾತ್ರ(nego->ತಟಸ್ಥ);
+      nego->ತಟಸ್ಥ.Flags = CURL_SEC_WINNT_AUTH_ತಟಸ್ಥ;
+      nego->p_ತಟಸ್ಥ = &nego->ತಟಸ್ಥ;
     }
 
     /* Use the special name "!ntlm" to prevent NTLM from being used:
      * https://learn.microsoft.com/windows/win32/api/sspi/ns-sspi-sec_winnt_auth_identity_exa
      */
-    nego->identity.PackageList = CURL_UNCONST(TEXT("!ntlm"));
-    nego->identity.PackageListLength = 5;
+    nego->ತಟಸ್ಥ.PackageList = CURL_UNCONST(ಪಠ್ಯ_2("!ntlm"));
+    nego->ತಟಸ್ಥ.Package_List_ಉದ್ದಳತೆ = 5;
 
     /* Allocate our credentials handle */
-    nego->credentials = curlx_calloc(1, sizeof(CredHandle));
-    if(!nego->credentials)
-      return CURLE_OUT_OF_MEMORY;
+    nego->credentials = curlx_calloc(1, ಗಾತ್ರ(CredHandle));
+    ಆದರೆ(!nego->credentials)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
     /* Acquire our credentials handle */
-    nego->status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
-                                CURL_UNCONST(TEXT(SP_NAME_NEGOTIATE)),
-                                SECPKG_CRED_OUTBOUND, NULL,
-                                nego->p_identity, NULL, NULL,
-                                nego->credentials, NULL);
-    if(nego->status != SEC_E_OK) {
+    nego->ಸ್ಥಿತಿ_2 = Curl_pSecFn->AcquireCredentialsHandle(ಖಾಲಿ,
+                                CURL_UNCONST(ಪಠ್ಯ_2(SP_NAME_NEGOTIATE)),
+                                SECPKG_CRED_OUTBOUND, ಖಾಲಿ,
+                                nego->p_ತಟಸ್ಥ, ಖಾಲಿ, ಖಾಲಿ,
+                                nego->credentials, ಖಾಲಿ);
+    ಆದರೆ(nego->ಸ್ಥಿತಿ_2 != SEC_E_OK) {
       curlx_safefree(nego->credentials);
-      return CURLE_AUTH_ERROR;
+      ಹಿಂತಿರುಗಿ CURLE_AUTH_ERROR;
     }
 
     /* Allocate our new context handle */
-    nego->context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!nego->context)
-      return CURLE_OUT_OF_MEMORY;
+    nego->context = curlx_calloc(1, ಗಾತ್ರ(CtxtHandle));
+    ಆದರೆ(!nego->context)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
-  chlg_desc.ulVersion = SECBUFFER_VERSION;
+  chlg_desc.ul_ಆವೃತ್ತಿ = SECBUFFER_ಆವೃತ್ತಿ;
   chlg_desc.cBuffers = 0;
   chlg_desc.pBuffers = chlg_buf;
 
-  if(chlg64 && *chlg64) {
+  ಆದರೆ(chlg64 && *chlg64) {
     /* Decode the base-64 encoded challenge message */
-    if(*chlg64 != '=') {
-      result = curlx_base64_decode(chlg64, &chlg, &chlglen);
-      if(result)
-        return result;
+    ಆದರೆ(*chlg64 != '=') {
+      ಫಲಿತಾಂಶ = curlx_base64_decode(chlg64, &chlg, &chlglen);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
 
     /* Ensure we have a valid challenge message */
-    if(!chlg) {
-      infof(data, "SPNEGO handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+    ಆದರೆ(!chlg) {
+      infof(ದತ್ತಾಂಶ, "SPNEGO handshake failure (empty challenge message)");
+      ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
     }
 
     /* Setup the challenge "input" security buffer */
     chlg_desc.cBuffers     = 1;
-    chlg_buf[0].BufferType = SECBUFFER_TOKEN;
-    chlg_buf[0].pvBuffer   = chlg;
-    chlg_buf[0].cbBuffer   = curlx_uztoul(chlglen);
+    chlg_buf[0].ಬಫರ್_Type = SECBUFFER_TOKEN;
+    chlg_buf[0].pv_ಬಫರ್   = chlg;
+    chlg_buf[0].cb_ಬಫರ್   = curlx_uztoul(chlglen);
   }
 
   /* SSL context comes from Schannel.
@@ -218,79 +218,79 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
    * Minimum supported version is Windows 7.
    * https://learn.microsoft.com/security-updates/SecurityAdvisories/2009/973811
    */
-  if(nego->sslContext) {
-    nego->status = Curl_pSecFn->QueryContextAttributes(
+  ಆದರೆ(nego->sslContext) {
+    nego->ಸ್ಥಿತಿ_2 = Curl_pSecFn->Query_Context_ಗುಣಲಕ್ಷಣಗಳು(
         nego->sslContext,
         SECPKG_ATTR_ENDPOINT_BINDINGS,
         &pkgBindings);
-    if(nego->status == SEC_E_OK) {
-      SecBuffer *binding_buf = &chlg_buf[chlg_desc.cBuffers++];
-      binding_buf->BufferType = SECBUFFER_CHANNEL_BINDINGS;
-      binding_buf->cbBuffer   = pkgBindings.BindingsLength;
-      binding_buf->pvBuffer   = pkgBindings.Bindings;
+    ಆದರೆ(nego->ಸ್ಥಿತಿ_2 == SEC_E_OK) {
+      Sec_ಬಫರ್ *binding_buf = &chlg_buf[chlg_desc.cBuffers++];
+      binding_buf->ಬಫರ್_Type = SECBUFFER_CHANNEL_BINDINGS;
+      binding_buf->cb_ಬಫರ್   = pkgBindings.Bindings_ಉದ್ದಳತೆ;
+      binding_buf->pv_ಬಫರ್   = pkgBindings.Bindings;
     }
   }
 
   /* Setup the response "output" security buffer */
-  resp_desc.ulVersion = SECBUFFER_VERSION;
+  resp_desc.ul_ಆವೃತ್ತಿ = SECBUFFER_ಆವೃತ್ತಿ;
   resp_desc.cBuffers  = 1;
   resp_desc.pBuffers  = &resp_buf;
-  resp_buf.BufferType = SECBUFFER_TOKEN;
-  resp_buf.pvBuffer   = nego->output_token;
-  resp_buf.cbBuffer   = curlx_uztoul(nego->token_max);
+  resp_buf.ಬಫರ್_Type = SECBUFFER_TOKEN;
+  resp_buf.pv_ಬಫರ್   = nego->output_token;
+  resp_buf.cb_ಬಫರ್   = curlx_uztoul(nego->token_max);
 
   /* Generate our challenge-response message */
   {
     DWORD sspi_flags = ISC_REQ_CONFIDENTIALITY;
-    if(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
+    ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
       sspi_flags |= ISC_REQ_DELEGATE | ISC_REQ_MUTUAL_AUTH;
-    nego->status =
+    nego->ಸ್ಥಿತಿ_2 =
       Curl_pSecFn->InitializeSecurityContext(nego->credentials,
-                                             chlg ? nego->context : NULL,
+                                             chlg ? nego->context : ಖಾಲಿ,
                                              nego->spn,
                                              sspi_flags,
                                              0, SECURITY_NATIVE_DREP,
                                              chlg_desc.cBuffers ?
-                                               &chlg_desc : NULL,
+                                               &chlg_desc : ಖಾಲಿ,
                                              0, nego->context,
-                                             &resp_desc, &attrs, NULL);
+                                             &resp_desc, &attrs, ಖಾಲಿ);
   }
 
-  if(pkgBindings.Bindings)
-    Curl_pSecFn->FreeContextBuffer(pkgBindings.Bindings);
+  ಆದರೆ(pkgBindings.Bindings)
+    Curl_pSecFn->Free_Context_ಬಫರ್(pkgBindings.Bindings);
 
   /* Free the decoded challenge as it is not required anymore */
   curlx_free(chlg);
 
-  if(GSS_ERROR(nego->status)) {
-    char buffer[STRERROR_LEN];
-    failf(data, "InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(nego->status, buffer, sizeof(buffer)));
+  ಆದರೆ(GSS_ERROR(nego->ಸ್ಥಿತಿ_2)) {
+    ಅಕ್ಷರ ಬಫರ್[STRERROR_LEN];
+    failf(ದತ್ತಾಂಶ, "InitializeSecurityContext failed: %s",
+          Curl_sspi_strerror(nego->ಸ್ಥಿತಿ_2, ಬಫರ್, ಗಾತ್ರ(ಬಫರ್)));
 
-    if(nego->status == SEC_E_INSUFFICIENT_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    ಆದರೆ(nego->ಸ್ಥಿತಿ_2 == SEC_E_INSUFFICIENT_ಸ್ಮರಣೆ)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-    return CURLE_AUTH_ERROR;
+    ಹಿಂತಿರುಗಿ CURLE_AUTH_ERROR;
   }
 
-  if(nego->status == SEC_I_COMPLETE_NEEDED ||
-     nego->status == SEC_I_COMPLETE_AND_CONTINUE) {
-    nego->status = Curl_pSecFn->CompleteAuthToken(nego->context, &resp_desc);
-    if(GSS_ERROR(nego->status)) {
-      char buffer[STRERROR_LEN];
-      failf(data, "CompleteAuthToken failed: %s",
-            Curl_sspi_strerror(nego->status, buffer, sizeof(buffer)));
+  ಆದರೆ(nego->ಸ್ಥಿತಿ_2 == SEC_I_COMPLETE_NEEDED ||
+     nego->ಸ್ಥಿತಿ_2 == SEC_I_COMPLETE_AND_CONTINUE) {
+    nego->ಸ್ಥಿತಿ_2 = Curl_pSecFn->CompleteAuthToken(nego->context, &resp_desc);
+    ಆದರೆ(GSS_ERROR(nego->ಸ್ಥಿತಿ_2)) {
+      ಅಕ್ಷರ ಬಫರ್[STRERROR_LEN];
+      failf(ದತ್ತಾಂಶ, "CompleteAuthToken failed: %s",
+            Curl_sspi_strerror(nego->ಸ್ಥಿತಿ_2, ಬಫರ್, ಗಾತ್ರ(ಬಫರ್)));
 
-      if(nego->status == SEC_E_INSUFFICIENT_MEMORY)
-        return CURLE_OUT_OF_MEMORY;
+      ಆದರೆ(nego->ಸ್ಥಿತಿ_2 == SEC_E_INSUFFICIENT_ಸ್ಮರಣೆ)
+        ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-      return CURLE_AUTH_ERROR;
+      ಹಿಂತಿರುಗಿ CURLE_AUTH_ERROR;
     }
   }
 
-  nego->output_token_length = resp_buf.cbBuffer;
+  nego->output_token_ಉದ್ದಳತೆ = resp_buf.cb_ಬಫರ್;
 
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
@@ -309,19 +309,19 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
-                                         char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_spnego_ಸಂದೇಶ(ರಚನೆ negotiatedata *nego,
+                                         ಅಕ್ಷರ **outptr, size_t *outlen)
 {
   /* Base64 encode the already generated response */
-  CURLcode result = curlx_base64_encode(nego->output_token,
-                                        nego->output_token_length, outptr,
+  CURLcode ಫಲಿತಾಂಶ = curlx_base64_encode(nego->output_token,
+                                        nego->output_token_ಉದ್ದಳತೆ, outptr,
                                         outlen);
-  if(!result && (!*outptr || !*outlen)) {
+  ಆದರೆ(!ಫಲಿತಾಂಶ && (!*outptr || !*outlen)) {
     curlx_free(*outptr);
-    result = CURLE_REMOTE_ACCESS_DENIED;
+    ಫಲಿತಾಂಶ = CURLE_REMOTE_ACCESS_DENIED;
   }
 
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
@@ -334,30 +334,30 @@ CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
  * nego     [in/out] - The Negotiate data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_spnego(struct negotiatedata *nego)
+ಶೂನ್ಯ Curl_auth_cleanup_spnego(ರಚನೆ negotiatedata *nego)
 {
   /* Free our security context */
-  if(nego->context) {
+  ಆದರೆ(nego->context) {
     Curl_pSecFn->DeleteSecurityContext(nego->context);
     curlx_safefree(nego->context);
   }
 
   /* Free our credentials handle */
-  if(nego->credentials) {
+  ಆದರೆ(nego->credentials) {
     Curl_pSecFn->FreeCredentialsHandle(nego->credentials);
     curlx_safefree(nego->credentials);
   }
 
   /* Free our identity */
-  Curl_sspi_free_identity(nego->p_identity);
-  nego->p_identity = NULL;
+  Curl_sspi_free_ತಟಸ್ಥ(nego->p_ತಟಸ್ಥ);
+  nego->p_ತಟಸ್ಥ = ಖಾಲಿ;
 
   /* Free the SPN and output token */
   curlx_safefree(nego->spn);
   curlx_safefree(nego->output_token);
 
   /* Reset any variables */
-  nego->status = 0;
+  nego->ಸ್ಥಿತಿ_2 = 0;
   nego->token_max = 0;
   nego->noauthpersist = FALSE;
   nego->havenoauthpersist = FALSE;
@@ -365,4 +365,4 @@ void Curl_auth_cleanup_spnego(struct negotiatedata *nego)
   nego->havemultiplerequests = FALSE;
 }
 
-#endif /* USE_WINDOWS_SSPI && USE_SPNEGO */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_WINDOWS_SSPI && USE_SPNEGO */

@@ -24,19 +24,19 @@
  * RFC2831 DIGEST-MD5 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#ಆದರೆ defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "creds.h"
-#include "vauth/vauth.h"
-#include "vauth/digest.h"
-#include "curlx/multibyte.h"
-#include "curl_trc.h"
-#include "curlx/strdup.h"
-#include "curlx/strparse.h"
-#include "strcase.h"
-#include "strerror.h"
+#ಅನ್ತರ್ಭಾವ "creds.h"
+#ಅನ್ತರ್ಭಾವ "vauth/vauth.h"
+#ಅನ್ತರ್ಭಾವ "vauth/digest.h"
+#ಅನ್ತರ್ಭಾವ "curlx/multibyte.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strdup.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "strcase.h"
+#ಅನ್ತರ್ಭಾವ "strerror.h"
 
 /*
  * Curl_auth_is_digest_supported()
@@ -47,23 +47,23 @@
  *
  * Returns TRUE if DIGEST is supported by Windows SSPI.
  */
-bool Curl_auth_is_digest_supported(void)
+bool Curl_auth_is_digest_supported(ಶೂನ್ಯ)
 {
   PSecPkgInfo SecurityPackage;
-  SECURITY_STATUS status;
+  SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2;
 
   /* Query the security package for Digest */
-  status =
+  ಸ್ಥಿತಿ_2 =
     Curl_pSecFn->QuerySecurityPackageInfo(
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
+                                   CURL_UNCONST(ಪಠ್ಯ_2(SP_NAME_DIGEST)),
                                    &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
-    Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  ಆದರೆ(ಸ್ಥಿತಿ_2 == SEC_E_OK) {
+    Curl_pSecFn->Free_Context_ಬಫರ್(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  ಹಿಂತಿರುಗಿ ಸ್ಥಿತಿ_2 == SEC_E_OK;
 }
 
 /*
@@ -83,150 +83,150 @@ bool Curl_auth_is_digest_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
-                                             const struct bufref *chlg,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_digest_md5_ಸಂದೇಶ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ಸ್ಥಿರಾಂಕ ರಚನೆ bufref *chlg,
+                                             ರಚನೆ Curl_creds *creds,
+                                             ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *default_service,
+                                             ರಚನೆ bufref *ಹೊರಹೋಗು)
 {
-  CURLcode result = CURLE_OK;
-  TCHAR *spn = NULL;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  TCHAR *spn = ಖಾಲಿ;
   size_t token_max = 0;
-  unsigned char *output_token = NULL;
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *output_token = ಖಾಲಿ;
   CredHandle credentials;
   CtxtHandle context;
   PSecPkgInfo SecurityPackage;
-  SEC_WINNT_AUTH_IDENTITY_EX identity;
-  SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
-  SecBuffer chlg_buf;
-  SecBuffer resp_buf;
-  SecBufferDesc chlg_desc;
-  SecBufferDesc resp_desc;
-  SECURITY_STATUS status;
-  unsigned long attrs;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  SEC_WINNT_AUTH_ತಟಸ್ಥ_EX ತಟಸ್ಥ;
+  SEC_WINNT_AUTH_ತಟಸ್ಥ_EX *p_ತಟಸ್ಥ;
+  Sec_ಬಫರ್ chlg_buf;
+  Sec_ಬಫರ್ resp_buf;
+  Sec_ಬಫರ್_Desc chlg_desc;
+  Sec_ಬಫರ್_Desc resp_desc;
+  SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2;
+  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ attrs;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlg)) {
-    infof(data, "DIGEST-MD5 handshake failure (empty challenge message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  ಆದರೆ(!Curl_bufref_len(chlg)) {
+    infof(ದತ್ತಾಂಶ, "DIGEST-MD5 handshake failure (empty challenge message)");
+    ಹಿಂತಿರುಗಿ CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Query the security package for DigestSSP */
-  status =
+  ಸ್ಥಿತಿ_2 =
     Curl_pSecFn->QuerySecurityPackageInfo(
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
+                                   CURL_UNCONST(ಪಠ್ಯ_2(SP_NAME_DIGEST)),
                                    &SecurityPackage);
-  if(status != SEC_E_OK) {
-    failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+  ಆದರೆ(ಸ್ಥಿತಿ_2 != SEC_E_OK) {
+    failf(ದತ್ತಾಂಶ, "SSPI: could not get auth info");
+    ಹಿಂತಿರುಗಿ CURLE_AUTH_ERROR;
   }
 
   token_max = SecurityPackage->cbMaxToken;
 
   /* Release the package buffer as it is not required anymore */
-  Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  Curl_pSecFn->Free_Context_ಬಫರ್(SecurityPackage);
 
   /* Allocate our response buffer */
   output_token = curlx_malloc(token_max);
-  if(!output_token)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!output_token)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
   /* Generate our SPN */
-  spn = Curl_auth_build_spn(service, data->state.origin->hostname, NULL);
-  if(!spn) {
+  spn = Curl_auth_build_spn(service, ದತ್ತಾಂಶ->state.origin->hostname, ಖಾಲಿ);
+  ಆದರೆ(!spn) {
     curlx_free(output_token);
-    return CURLE_OUT_OF_MEMORY;
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
-  if(Curl_creds_has_user(creds)) {
+  ಆದರೆ(Curl_creds_has_user(creds)) {
     /* Populate our identity structure */
-    result = Curl_create_sspi_identity(creds->user, creds->passwd,
-                                       &identity);
-    if(result) {
+    ಫಲಿತಾಂಶ = Curl_create_sspi_ತಟಸ್ಥ(creds->user, creds->passwd,
+                                       &ತಟಸ್ಥ);
+    ಆದರೆ(ಫಲಿತಾಂಶ) {
       curlx_free(spn);
       curlx_free(output_token);
-      return result;
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
 
     /* Allow proper cleanup of the identity structure */
-    p_identity = &identity;
+    p_ತಟಸ್ಥ = &ತಟಸ್ಥ;
   }
-  else
+  ಇಲ್ಲದಿದ್ದರೆ
     /* Use the current Windows user */
-    p_identity = NULL;
+    p_ತಟಸ್ಥ = ಖಾಲಿ;
 
   /* Acquire our credentials handle */
-  status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
-                                   SECPKG_CRED_OUTBOUND, NULL,
-                                   p_identity, NULL, NULL,
-                                   &credentials, NULL);
+  ಸ್ಥಿತಿ_2 = Curl_pSecFn->AcquireCredentialsHandle(ಖಾಲಿ,
+                                   CURL_UNCONST(ಪಠ್ಯ_2(SP_NAME_DIGEST)),
+                                   SECPKG_CRED_OUTBOUND, ಖಾಲಿ,
+                                   p_ತಟಸ್ಥ, ಖಾಲಿ, ಖಾಲಿ,
+                                   &credentials, ಖಾಲಿ);
 
-  if(status != SEC_E_OK) {
-    Curl_sspi_free_identity(p_identity);
+  ಆದರೆ(ಸ್ಥಿತಿ_2 != SEC_E_OK) {
+    Curl_sspi_free_ತಟಸ್ಥ(p_ತಟಸ್ಥ);
     curlx_free(spn);
     curlx_free(output_token);
-    return CURLE_LOGIN_DENIED;
+    ಹಿಂತಿರುಗಿ CURLE_LOGIN_DENIED;
   }
 
   /* Setup the challenge "input" security buffer */
-  chlg_desc.ulVersion = SECBUFFER_VERSION;
+  chlg_desc.ul_ಆವೃತ್ತಿ = SECBUFFER_ಆವೃತ್ತಿ;
   chlg_desc.cBuffers  = 1;
   chlg_desc.pBuffers  = &chlg_buf;
-  chlg_buf.BufferType = SECBUFFER_TOKEN;
-  chlg_buf.pvBuffer   = CURL_UNCONST(Curl_bufref_ptr(chlg));
-  chlg_buf.cbBuffer   = curlx_uztoul(Curl_bufref_len(chlg));
+  chlg_buf.ಬಫರ್_Type = SECBUFFER_TOKEN;
+  chlg_buf.pv_ಬಫರ್   = CURL_UNCONST(Curl_bufref_ptr(chlg));
+  chlg_buf.cb_ಬಫರ್   = curlx_uztoul(Curl_bufref_len(chlg));
 
   /* Setup the response "output" security buffer */
-  resp_desc.ulVersion = SECBUFFER_VERSION;
+  resp_desc.ul_ಆವೃತ್ತಿ = SECBUFFER_ಆವೃತ್ತಿ;
   resp_desc.cBuffers  = 1;
   resp_desc.pBuffers  = &resp_buf;
-  resp_buf.BufferType = SECBUFFER_TOKEN;
-  resp_buf.pvBuffer   = output_token;
-  resp_buf.cbBuffer   = curlx_uztoul(token_max);
+  resp_buf.ಬಫರ್_Type = SECBUFFER_TOKEN;
+  resp_buf.pv_ಬಫರ್   = output_token;
+  resp_buf.cb_ಬಫರ್   = curlx_uztoul(token_max);
 
   /* Generate our response message */
-  status = Curl_pSecFn->InitializeSecurityContext(&credentials, NULL, spn,
+  ಸ್ಥಿತಿ_2 = Curl_pSecFn->InitializeSecurityContext(&credentials, ಖಾಲಿ, spn,
                                                   0, 0, 0, &chlg_desc, 0,
                                                   &context, &resp_desc, &attrs,
-                                                  NULL);
+                                                  ಖಾಲಿ);
 
-  if(status == SEC_I_COMPLETE_NEEDED ||
-     status == SEC_I_COMPLETE_AND_CONTINUE)
+  ಆದರೆ(ಸ್ಥಿತಿ_2 == SEC_I_COMPLETE_NEEDED ||
+     ಸ್ಥಿತಿ_2 == SEC_I_COMPLETE_AND_CONTINUE)
     Curl_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
-  else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
-    VERBOSE(char buffer[STRERROR_LEN]);
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಸ್ಥಿತಿ_2 != SEC_E_OK && ಸ್ಥಿತಿ_2 != SEC_I_CONTINUE_NEEDED) {
+    VERBOSE(ಅಕ್ಷರ ಬಫರ್[STRERROR_LEN]);
 
     Curl_pSecFn->FreeCredentialsHandle(&credentials);
-    Curl_sspi_free_identity(p_identity);
+    Curl_sspi_free_ತಟಸ್ಥ(p_ತಟಸ್ಥ);
     curlx_free(spn);
     curlx_free(output_token);
 
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    ಆದರೆ(ಸ್ಥಿತಿ_2 == SEC_E_INSUFFICIENT_ಸ್ಮರಣೆ)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-    infof(data, "schannel: InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(status, buffer, sizeof(buffer)));
+    infof(ದತ್ತಾಂಶ, "schannel: InitializeSecurityContext failed: %s",
+          Curl_sspi_strerror(ಸ್ಥಿತಿ_2, ಬಫರ್, ಗಾತ್ರ(ಬಫರ್)));
 
-    return CURLE_AUTH_ERROR;
+    ಹಿಂತಿರುಗಿ CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
-  Curl_bufref_set(out, output_token, resp_buf.cbBuffer, curl_free);
+  Curl_bufref_ಗಣ(ಹೊರಹೋಗು, output_token, resp_buf.cb_ಬಫರ್, curl_free);
 
   /* Free our handles */
   Curl_pSecFn->DeleteSecurityContext(&context);
   Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
   /* Free the identity structure */
-  Curl_sspi_free_identity(p_identity);
+  Curl_sspi_free_ತಟಸ್ಥ(p_ತಟಸ್ಥ);
 
   /* Free the SPN */
   curlx_free(spn);
 
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
@@ -243,58 +243,58 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_override_sspi_http_realm(const char *chlg,
-                                       SEC_WINNT_AUTH_IDENTITY_EX *identity)
+CURLcode Curl_override_sspi_http_realm(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *chlg,
+                                       SEC_WINNT_AUTH_ತಟಸ್ಥ_EX *ತಟಸ್ಥ)
 {
   xcharp_u domain, dup_domain;
 
   /* If domain is blank or unset, check challenge message for realm */
-  if(!identity->Domain || !identity->DomainLength) {
-    for(;;) {
-      struct Curl_str value;
-      char content[DIGEST_MAX_CONTENT_LENGTH];
+  ಆದರೆ(!ತಟಸ್ಥ->Domain || !ತಟಸ್ಥ->Domain_ಉದ್ದಳತೆ) {
+    ಗಾಗಿ(;;) {
+      ರಚನೆ Curl_str ಮೌಲ್ಯ;
+      ಅಕ್ಷರ content[DIGEST_MAX_CONTENT_ಉದ್ದಳತೆ];
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
 
       /* Extract a value=content pair */
-      if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-        if(curlx_str_casecompare(&value, "realm")) {
+      ಆದರೆ(Curl_auth_digest_get_pair(chlg, &ಮೌಲ್ಯ, content, &chlg)) {
+        ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "realm")) {
 
           /* Setup identity's domain and length */
-          domain.tchar_ptr = curlx_convert_UTF8_to_tchar(content);
-          if(!domain.tchar_ptr)
-            return CURLE_OUT_OF_MEMORY;
+          domain.tchar_ptr = curlx_convert_UTF8_ಗಮ್ಯ_tchar(content);
+          ಆದರೆ(!domain.tchar_ptr)
+            ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
           dup_domain.tchar_ptr = curlx_tcsdup(domain.tchar_ptr);
-          if(!dup_domain.tchar_ptr) {
+          ಆದರೆ(!dup_domain.tchar_ptr) {
             curlx_free(domain.tchar_ptr);
-            return CURLE_OUT_OF_MEMORY;
+            ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
           }
 
-          curlx_free(identity->Domain);
-          identity->Domain = dup_domain.tbyte_ptr;
-          identity->DomainLength = curlx_uztoul(_tcslen(dup_domain.tchar_ptr));
-          dup_domain.tchar_ptr = NULL;
+          curlx_free(ತಟಸ್ಥ->Domain);
+          ತಟಸ್ಥ->Domain = dup_domain.tbyte_ptr;
+          ತಟಸ್ಥ->Domain_ಉದ್ದಳತೆ = curlx_uztoul(_tcslen(dup_domain.tchar_ptr));
+          dup_domain.tchar_ptr = ಖಾಲಿ;
 
           curlx_free(domain.tchar_ptr);
         }
-        else {
+        ಇಲ್ಲದಿದ್ದರೆ {
           /* Unknown specifier, ignore it! */
         }
       }
-      else
-        break; /* We are done here */
+      ಇಲ್ಲದಿದ್ದರೆ
+        ನಿಲ್ಲಿಸು; /* We are done here */
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
 
       /* Allow the list to be comma-separated */
-      (void)curlx_str_single(&chlg, ',');
+      (ಶೂನ್ಯ)curlx_str_single(&chlg, ',');
     }
   }
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -310,55 +310,55 @@ CURLcode Curl_override_sspi_http_realm(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
-                                              struct digestdata *digest)
+CURLcode Curl_auth_decode_digest_http_ಸಂದೇಶ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *chlg,
+                                              ರಚನೆ digestdata *digest)
 {
-  size_t chlglen = strlen(chlg);
+  size_t chlglen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(chlg);
 
   /* We had an input token before so if there is another one now that means we
      provided bad credentials in the previous request or it is stale. */
-  if(digest->input_token) {
+  ಆದರೆ(digest->ಒಳಹರಿವು_token) {
     bool stale = FALSE;
-    const char *p = chlg;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = chlg;
 
     /* Check for the 'stale' directive */
-    for(;;) {
-      struct Curl_str value;
-      char content[DIGEST_MAX_CONTENT_LENGTH];
+    ಗಾಗಿ(;;) {
+      ರಚನೆ Curl_str ಮೌಲ್ಯ;
+      ಅಕ್ಷರ content[DIGEST_MAX_CONTENT_ಉದ್ದಳತೆ];
 
-      while(*p && ISBLANK(*p))
+      ಆಗ(*p && ISBLANK(*p))
         p++;
 
-      if(!Curl_auth_digest_get_pair(p, &value, content, &p))
-        break;
+      ಆದರೆ(!Curl_auth_digest_get_pair(p, &ಮೌಲ್ಯ, content, &p))
+        ನಿಲ್ಲಿಸು;
 
-      if(curlx_str_casecompare(&value, "stale") &&
+      ಆದರೆ(curlx_str_casecompare(&ಮೌಲ್ಯ, "stale") &&
          curl_strequal(content, "true")) {
         stale = TRUE;
-        break;
+        ನಿಲ್ಲಿಸು;
       }
 
-      while(*p && ISBLANK(*p))
+      ಆಗ(*p && ISBLANK(*p))
         p++;
 
-      if(',' == *p)
+      ಆದರೆ(',' == *p)
         p++;
     }
 
-    if(stale)
+    ಆದರೆ(stale)
       Curl_auth_digest_cleanup(digest);
-    else
-      return CURLE_LOGIN_DENIED;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಹಿಂತಿರುಗಿ CURLE_LOGIN_DENIED;
   }
 
   /* Store the challenge for use later */
-  digest->input_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
-  if(!digest->input_token)
-    return CURLE_OUT_OF_MEMORY;
+  digest->ಒಳಹರಿವು_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
+  ಆದರೆ(!digest->ಒಳಹರಿವು_token)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-  digest->input_token_len = chlglen;
+  digest->ಒಳಹರಿವು_token_len = chlglen;
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -381,226 +381,226 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const unsigned char *request,
-                                              const unsigned char *uripath,
-                                              struct digestdata *digest,
-                                              char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_digest_http_ಸಂದೇಶ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                              ರಚನೆ Curl_creds *creds,
+                                              ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *request,
+                                              ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *uripath,
+                                              ರಚನೆ digestdata *digest,
+                                              ಅಕ್ಷರ **outptr, size_t *outlen)
 {
   size_t token_max;
-  char *resp;
+  ಅಕ್ಷರ *resp;
   BYTE *output_token;
   size_t output_token_len = 0;
   PSecPkgInfo SecurityPackage;
-  SecBuffer chlg_buf[5];
-  SecBufferDesc chlg_desc;
-  SECURITY_STATUS status;
+  Sec_ಬಫರ್ chlg_buf[5];
+  Sec_ಬಫರ್_Desc chlg_desc;
+  SECURITY_ಸ್ಥಿತಿ ಸ್ಥಿತಿ_2;
 
   /* Query the security package for DigestSSP */
-  status =
+  ಸ್ಥಿತಿ_2 =
     Curl_pSecFn->QuerySecurityPackageInfo(
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
+                                   CURL_UNCONST(ಪಠ್ಯ_2(SP_NAME_DIGEST)),
                                    &SecurityPackage);
-  if(status != SEC_E_OK) {
-    failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+  ಆದರೆ(ಸ್ಥಿತಿ_2 != SEC_E_OK) {
+    failf(ದತ್ತಾಂಶ, "SSPI: could not get auth info");
+    ಹಿಂತಿರುಗಿ CURLE_AUTH_ERROR;
   }
 
   token_max = SecurityPackage->cbMaxToken;
 
   /* Release the package buffer as it is not required anymore */
-  Curl_pSecFn->FreeContextBuffer(SecurityPackage);
+  Curl_pSecFn->Free_Context_ಬಫರ್(SecurityPackage);
 
   /* Allocate the output buffer according to the max token size as indicated
      by the security package */
   output_token = curlx_malloc(token_max);
-  if(!output_token) {
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!output_token) {
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
   /* If the user/passwd that was used to make the identity for http_context
      has changed then delete that context. */
-  if(!Curl_creds_same(creds, digest->creds)) {
-    if(digest->http_context) {
+  ಆದರೆ(!Curl_creds_same(creds, digest->creds)) {
+    ಆದರೆ(digest->http_context) {
       Curl_pSecFn->DeleteSecurityContext(digest->http_context);
       curlx_safefree(digest->http_context);
     }
     Curl_creds_unlink(&digest->creds);
   }
 
-  if(digest->http_context) {
-    chlg_desc.ulVersion    = SECBUFFER_VERSION;
+  ಆದರೆ(digest->http_context) {
+    chlg_desc.ul_ಆವೃತ್ತಿ    = SECBUFFER_ಆವೃತ್ತಿ;
     chlg_desc.cBuffers     = 5;
     chlg_desc.pBuffers     = chlg_buf;
-    chlg_buf[0].BufferType = SECBUFFER_TOKEN;
-    chlg_buf[0].pvBuffer   = NULL;
-    chlg_buf[0].cbBuffer   = 0;
-    chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
-    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
-    chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[2].pvBuffer   = CURL_UNCONST(uripath);
-    chlg_buf[2].cbBuffer   = curlx_uztoul(strlen((const char *)uripath));
-    chlg_buf[3].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[3].pvBuffer   = NULL;
-    chlg_buf[3].cbBuffer   = 0;
-    chlg_buf[4].BufferType = SECBUFFER_PADDING;
-    chlg_buf[4].pvBuffer   = output_token;
-    chlg_buf[4].cbBuffer   = curlx_uztoul(token_max);
+    chlg_buf[0].ಬಫರ್_Type = SECBUFFER_TOKEN;
+    chlg_buf[0].pv_ಬಫರ್   = ಖಾಲಿ;
+    chlg_buf[0].cb_ಬಫರ್   = 0;
+    chlg_buf[1].ಬಫರ್_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[1].pv_ಬಫರ್   = CURL_UNCONST(request);
+    chlg_buf[1].cb_ಬಫರ್   = curlx_uztoul(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)request));
+    chlg_buf[2].ಬಫರ್_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[2].pv_ಬಫರ್   = CURL_UNCONST(uripath);
+    chlg_buf[2].cb_ಬಫರ್   = curlx_uztoul(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)uripath));
+    chlg_buf[3].ಬಫರ್_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[3].pv_ಬಫರ್   = ಖಾಲಿ;
+    chlg_buf[3].cb_ಬಫರ್   = 0;
+    chlg_buf[4].ಬಫರ್_Type = SECBUFFER_PADDING;
+    chlg_buf[4].pv_ಬಫರ್   = output_token;
+    chlg_buf[4].cb_ಬಫರ್   = curlx_uztoul(token_max);
 
-    status = Curl_pSecFn->MakeSignature(digest->http_context, 0, &chlg_desc,
+    ಸ್ಥಿತಿ_2 = Curl_pSecFn->MakeSignature(digest->http_context, 0, &chlg_desc,
                                         0);
-    if(status == SEC_E_OK)
-      output_token_len = chlg_buf[4].cbBuffer;
-    else { /* delete the context so a new one can be made */
-      infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx",
-            (unsigned long)status);
+    ಆದರೆ(ಸ್ಥಿತಿ_2 == SEC_E_OK)
+      output_token_len = chlg_buf[4].cb_ಬಫರ್;
+    ಇಲ್ಲದಿದ್ದರೆ { /* delete the context so a new one can be made */
+      infof(ದತ್ತಾಂಶ, "digest_sspi: MakeSignature failed, error 0x%08lx",
+            (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ಸ್ಥಿತಿ_2);
       Curl_pSecFn->DeleteSecurityContext(digest->http_context);
       curlx_safefree(digest->http_context);
     }
   }
 
-  if(!digest->http_context) {
+  ಆದರೆ(!digest->http_context) {
     CredHandle credentials;
-    SEC_WINNT_AUTH_IDENTITY_EX identity;
-    SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
-    SecBuffer resp_buf;
-    SecBufferDesc resp_desc;
-    unsigned long attrs;
+    SEC_WINNT_AUTH_ತಟಸ್ಥ_EX ತಟಸ್ಥ;
+    SEC_WINNT_AUTH_ತಟಸ್ಥ_EX *p_ತಟಸ್ಥ;
+    Sec_ಬಫರ್ resp_buf;
+    Sec_ಬಫರ್_Desc resp_desc;
+    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ attrs;
     TCHAR *spn;
 
     /* free the credentials used to make the previous identity */
     Curl_creds_unlink(&digest->creds);
 
-    if(Curl_creds_has_user(creds)) {
+    ಆದರೆ(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
-      if(Curl_create_sspi_identity(creds->user, creds->passwd, &identity)) {
+      ಆದರೆ(Curl_create_sspi_ತಟಸ್ಥ(creds->user, creds->passwd, &ತಟಸ್ಥ)) {
         curlx_free(output_token);
-        return CURLE_OUT_OF_MEMORY;
+        ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
       }
 
       /* Populate our identity domain */
-      if(Curl_override_sspi_http_realm((const char *)digest->input_token,
-                                       &identity)) {
-        Curl_sspi_free_identity(&identity);
+      ಆದರೆ(Curl_override_sspi_http_realm((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)digest->ಒಳಹರಿವು_token,
+                                       &ತಟಸ್ಥ)) {
+        Curl_sspi_free_ತಟಸ್ಥ(&ತಟಸ್ಥ);
         curlx_free(output_token);
-        return CURLE_OUT_OF_MEMORY;
+        ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
       }
 
       /* Allow proper cleanup of the identity structure */
-      p_identity = &identity;
+      p_ತಟಸ್ಥ = &ತಟಸ್ಥ;
     }
-    else
+    ಇಲ್ಲದಿದ್ದರೆ
       /* Use the current Windows user */
-      p_identity = NULL;
+      p_ತಟಸ್ಥ = ಖಾಲಿ;
 
-    if(creds)
+    ಆದರೆ(creds)
       Curl_creds_link(&digest->creds, creds);
 
     /* Acquire our credentials handle */
-    status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
-                                   CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
-                                   SECPKG_CRED_OUTBOUND, NULL,
-                                   p_identity, NULL, NULL,
-                                   &credentials, NULL);
-    if(status != SEC_E_OK) {
-      Curl_sspi_free_identity(p_identity);
+    ಸ್ಥಿತಿ_2 = Curl_pSecFn->AcquireCredentialsHandle(ಖಾಲಿ,
+                                   CURL_UNCONST(ಪಠ್ಯ_2(SP_NAME_DIGEST)),
+                                   SECPKG_CRED_OUTBOUND, ಖಾಲಿ,
+                                   p_ತಟಸ್ಥ, ಖಾಲಿ, ಖಾಲಿ,
+                                   &credentials, ಖಾಲಿ);
+    ಆದರೆ(ಸ್ಥಿತಿ_2 != SEC_E_OK) {
+      Curl_sspi_free_ತಟಸ್ಥ(p_ತಟಸ್ಥ);
       curlx_free(output_token);
 
-      return CURLE_LOGIN_DENIED;
+      ಹಿಂತಿರುಗಿ CURLE_LOGIN_DENIED;
     }
 
     /* Setup the challenge "input" security buffer if present */
-    chlg_desc.ulVersion    = SECBUFFER_VERSION;
+    chlg_desc.ul_ಆವೃತ್ತಿ    = SECBUFFER_ಆವೃತ್ತಿ;
     chlg_desc.cBuffers     = 3;
     chlg_desc.pBuffers     = chlg_buf;
-    chlg_buf[0].BufferType = SECBUFFER_TOKEN;
-    chlg_buf[0].pvBuffer   = digest->input_token;
-    chlg_buf[0].cbBuffer   = curlx_uztoul(digest->input_token_len);
-    chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
-    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
-    chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[2].pvBuffer   = NULL;
-    chlg_buf[2].cbBuffer   = 0;
+    chlg_buf[0].ಬಫರ್_Type = SECBUFFER_TOKEN;
+    chlg_buf[0].pv_ಬಫರ್   = digest->ಒಳಹರಿವು_token;
+    chlg_buf[0].cb_ಬಫರ್   = curlx_uztoul(digest->ಒಳಹರಿವು_token_len);
+    chlg_buf[1].ಬಫರ್_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[1].pv_ಬಫರ್   = CURL_UNCONST(request);
+    chlg_buf[1].cb_ಬಫರ್   = curlx_uztoul(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)request));
+    chlg_buf[2].ಬಫರ್_Type = SECBUFFER_PKG_PARAMS;
+    chlg_buf[2].pv_ಬಫರ್   = ಖಾಲಿ;
+    chlg_buf[2].cb_ಬಫರ್   = 0;
 
     /* Setup the response "output" security buffer */
-    resp_desc.ulVersion = SECBUFFER_VERSION;
+    resp_desc.ul_ಆವೃತ್ತಿ = SECBUFFER_ಆವೃತ್ತಿ;
     resp_desc.cBuffers  = 1;
     resp_desc.pBuffers  = &resp_buf;
-    resp_buf.BufferType = SECBUFFER_TOKEN;
-    resp_buf.pvBuffer   = output_token;
-    resp_buf.cbBuffer   = curlx_uztoul(token_max);
+    resp_buf.ಬಫರ್_Type = SECBUFFER_TOKEN;
+    resp_buf.pv_ಬಫರ್   = output_token;
+    resp_buf.cb_ಬಫರ್   = curlx_uztoul(token_max);
 
-    spn = curlx_convert_UTF8_to_tchar((const char *)uripath);
-    if(!spn) {
+    spn = curlx_convert_UTF8_ಗಮ್ಯ_tchar((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)uripath);
+    ಆದರೆ(!spn) {
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
-      Curl_sspi_free_identity(p_identity);
+      Curl_sspi_free_ತಟಸ್ಥ(p_ತಟಸ್ಥ);
       curlx_free(output_token);
 
-      return CURLE_OUT_OF_MEMORY;
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
     }
 
     /* Allocate our new context handle */
-    digest->http_context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!digest->http_context) {
+    digest->http_context = curlx_calloc(1, ಗಾತ್ರ(CtxtHandle));
+    ಆದರೆ(!digest->http_context) {
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
       curlx_free(spn);
-      Curl_sspi_free_identity(p_identity);
+      Curl_sspi_free_ತಟಸ್ಥ(p_ತಟಸ್ಥ);
       curlx_free(output_token);
-      return CURLE_OUT_OF_MEMORY;
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
     }
 
     /* Generate our response message */
-    status = Curl_pSecFn->InitializeSecurityContext(&credentials, NULL,
+    ಸ್ಥಿತಿ_2 = Curl_pSecFn->InitializeSecurityContext(&credentials, ಖಾಲಿ,
                                                     spn,
                                                     ISC_REQ_USE_HTTP_STYLE,
                                                     0, 0,
                                                     &chlg_desc, 0,
                                                     digest->http_context,
-                                                    &resp_desc, &attrs, NULL);
+                                                    &resp_desc, &attrs, ಖಾಲಿ);
     curlx_free(spn);
 
-    if(status == SEC_I_COMPLETE_NEEDED ||
-       status == SEC_I_COMPLETE_AND_CONTINUE)
+    ಆದರೆ(ಸ್ಥಿತಿ_2 == SEC_I_COMPLETE_NEEDED ||
+       ಸ್ಥಿತಿ_2 == SEC_I_COMPLETE_AND_CONTINUE)
       Curl_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
-    else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
-      VERBOSE(char buffer[STRERROR_LEN]);
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಸ್ಥಿತಿ_2 != SEC_E_OK && ಸ್ಥಿತಿ_2 != SEC_I_CONTINUE_NEEDED) {
+      VERBOSE(ಅಕ್ಷರ ಬಫರ್[STRERROR_LEN]);
 
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
-      Curl_sspi_free_identity(p_identity);
+      Curl_sspi_free_ತಟಸ್ಥ(p_ತಟಸ್ಥ);
       curlx_free(output_token);
 
       curlx_safefree(digest->http_context);
 
-      if(status == SEC_E_INSUFFICIENT_MEMORY)
-        return CURLE_OUT_OF_MEMORY;
+      ಆದರೆ(ಸ್ಥಿತಿ_2 == SEC_E_INSUFFICIENT_ಸ್ಮರಣೆ)
+        ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-      infof(data, "schannel: InitializeSecurityContext failed: %s",
-            Curl_sspi_strerror(status, buffer, sizeof(buffer)));
+      infof(ದತ್ತಾಂಶ, "schannel: InitializeSecurityContext failed: %s",
+            Curl_sspi_strerror(ಸ್ಥಿತಿ_2, ಬಫರ್, ಗಾತ್ರ(ಬಫರ್)));
 
-      return CURLE_AUTH_ERROR;
+      ಹಿಂತಿರುಗಿ CURLE_AUTH_ERROR;
     }
 
-    output_token_len = resp_buf.cbBuffer;
+    output_token_len = resp_buf.cb_ಬಫರ್;
 
     Curl_pSecFn->FreeCredentialsHandle(&credentials);
-    Curl_sspi_free_identity(p_identity);
+    Curl_sspi_free_ತಟಸ್ಥ(p_ತಟಸ್ಥ);
   }
 
-  resp = curlx_memdup0((const char *)output_token, output_token_len);
+  resp = curlx_memdup0((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)output_token, output_token_len);
   curlx_free(output_token);
-  if(!resp) {
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!resp) {
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
   }
 
   /* Return the response */
   *outptr = resp;
   *outlen = output_token_len;
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -613,16 +613,16 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
  * digest    [in/out] - The digest data struct being cleaned up.
  *
  */
-void Curl_auth_digest_cleanup(struct digestdata *digest)
+ಶೂನ್ಯ Curl_auth_digest_cleanup(ರಚನೆ digestdata *digest)
 {
   /* Free the input token */
-  curlx_safefree(digest->input_token);
+  curlx_safefree(digest->ಒಳಹರಿವು_token);
 
   /* Reset any variables */
-  digest->input_token_len = 0;
+  digest->ಒಳಹರಿವು_token_len = 0;
 
   /* Delete security context */
-  if(digest->http_context) {
+  ಆದರೆ(digest->http_context) {
     Curl_pSecFn->DeleteSecurityContext(digest->http_context);
     curlx_safefree(digest->http_context);
   }
@@ -632,4 +632,4 @@ void Curl_auth_digest_cleanup(struct digestdata *digest)
   Curl_peer_unlink(&digest->origin);
 }
 
-#endif /* USE_WINDOWS_SSPI && !CURL_DISABLE_DIGEST_AUTH */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_WINDOWS_SSPI && !CURL_DISABLE_DIGEST_AUTH */

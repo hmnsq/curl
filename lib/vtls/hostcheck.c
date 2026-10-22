@@ -21,30 +21,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if defined(USE_OPENSSL) || defined(USE_SCHANNEL)
+#ಆದರೆ defined(USE_OPENSSL) || defined(USE_SCHANNEL)
 /* these backends use functions from this file */
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_IN6_H
+#ಅನ್ತರ್ಭಾವ <netinet/in6.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "curl_memrchr.h"
-#include "vdns/hostip.h"
-#include "vtls/hostcheck.h"
+#ಅನ್ತರ್ಭಾವ "curl_memrchr.h"
+#ಅನ್ತರ್ಭಾವ "vdns/hostip.h"
+#ಅನ್ತರ್ಭಾವ "vtls/hostcheck.h"
 
 /* check the two input strings with given length, but do not
    assume they are null-terminated */
-static bool pmatch(const char *hostname, size_t hostlen,
-                   const char *pattern, size_t patternlen)
+ಸ್ಥಿರ bool pmatch(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname, size_t hostlen,
+                   ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ನಮೂನೆ, size_t patternlen)
 {
-  if(hostlen != patternlen)
-    return FALSE;
-  return curl_strnequal(hostname, pattern, hostlen);
+  ಆದರೆ(hostlen != patternlen)
+    ಹಿಂತಿರುಗಿ FALSE;
+  ಹಿಂತಿರುಗಿ curl_strnequal(hostname, ನಮೂನೆ, hostlen);
 }
 
 /*
@@ -73,58 +73,58 @@ static bool pmatch(const char *hostname, size_t hostlen,
  * @unittest: 1397
  */
 
-static bool hostmatch(const char *hostname,
+ಸ್ಥಿರ bool hostmatch(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname,
                       size_t hostlen,
-                      const char *pattern,
+                      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ನಮೂನೆ,
                       size_t patternlen)
 {
-  const char *pattern_label_end;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ನಮೂನೆ_label_ಕೊನೆ;
 
-  DEBUGASSERT(pattern);
+  DEBUGASSERT(ನಮೂನೆ);
   DEBUGASSERT(patternlen);
   DEBUGASSERT(hostname);
   DEBUGASSERT(hostlen);
 
   /* normalize pattern and hostname by stripping off trailing dots */
-  if(hostlen > 0 && hostname[hostlen - 1] == '.')
+  ಆದರೆ(hostlen > 0 && hostname[hostlen - 1] == '.')
     hostlen--;
-  if(patternlen > 0 && pattern[patternlen - 1] == '.')
+  ಆದರೆ(patternlen > 0 && ನಮೂನೆ[patternlen - 1] == '.')
     patternlen--;
 
-  if(patternlen > 2 && strncmp(pattern, "*.", 2))
-    return pmatch(hostname, hostlen, pattern, patternlen);
+  ಆದರೆ(patternlen > 2 && ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(ನಮೂನೆ, "*.", 2))
+    ಹಿಂತಿರುಗಿ pmatch(hostname, hostlen, ನಮೂನೆ, patternlen);
 
   /* detect host as IP address or starting with a dot and fail if so */
-  else if(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
-    return FALSE;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
+    ಹಿಂತಿರುಗಿ FALSE;
 
   /* We require at least 2 dots in the pattern to avoid too wide wildcard
      match. */
-  pattern_label_end = memchr(pattern, '.', patternlen);
-  if(!pattern_label_end ||
-     (memrchr(pattern, '.', patternlen) == pattern_label_end))
-    return pmatch(hostname, hostlen, pattern, patternlen);
-  else {
-    const char *hostname_label_end = memchr(hostname, '.', hostlen);
-    if(hostname_label_end) {
-      size_t skiphost = hostname_label_end - hostname;
-      size_t skiplen = pattern_label_end - pattern;
-      return pmatch(hostname_label_end, hostlen - skiphost,
-                    pattern_label_end, patternlen - skiplen);
+  ನಮೂನೆ_label_ಕೊನೆ = memchr(ನಮೂನೆ, '.', patternlen);
+  ಆದರೆ(!ನಮೂನೆ_label_ಕೊನೆ ||
+     (memrchr(ನಮೂನೆ, '.', patternlen) == ನಮೂನೆ_label_ಕೊನೆ))
+    ಹಿಂತಿರುಗಿ pmatch(hostname, hostlen, ನಮೂನೆ, patternlen);
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname_label_ಕೊನೆ = memchr(hostname, '.', hostlen);
+    ಆದರೆ(hostname_label_ಕೊನೆ) {
+      size_t skiphost = hostname_label_ಕೊನೆ - hostname;
+      size_t skiplen = ನಮೂನೆ_label_ಕೊನೆ - ನಮೂನೆ;
+      ಹಿಂತಿರುಗಿ pmatch(hostname_label_ಕೊನೆ, hostlen - skiphost,
+                    ನಮೂನೆ_label_ಕೊನೆ, patternlen - skiplen);
     }
   }
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
 /*
  * Curl_cert_hostcheck() returns TRUE if a match and FALSE if not.
  */
-bool Curl_cert_hostcheck(const char *match, size_t matchlen,
-                         const char *hostname, size_t hostlen)
+bool Curl_cert_hostcheck(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಹೊಂದಿಕೆ, size_t matchlen,
+                         ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hostname, size_t hostlen)
 {
-  if(matchlen > 0 && hostlen > 0)
-    return hostmatch(hostname, hostlen, match, matchlen);
-  return FALSE;
+  ಆದರೆ(matchlen > 0 && hostlen > 0)
+    ಹಿಂತಿರುಗಿ hostmatch(hostname, hostlen, ಹೊಂದಿಕೆ, matchlen);
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-#endif /* USE_OPENSSL || USE_SCHANNEL */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_OPENSSL || USE_SCHANNEL */

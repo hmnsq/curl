@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASYOPTIONS_H
-#define HEADER_CURL_EASYOPTIONS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_EASYOPTIONS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_EASYOPTIONS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -26,10 +26,10 @@
 /* should probably go into the public header */
 
 /* generated table with all easy options */
-extern const struct curl_easyoption Curl_easyopts[];
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ curl_easyoption Curl_easyopts[];
 
-#ifdef DEBUGBUILD
-int Curl_easyopts_check(void);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+ಪೂರ್ಣಾಂಕ Curl_easyopts_check(ಶೂನ್ಯ);
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HEADER_CURL_EASYOPTIONS_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_EASYOPTIONS_H */

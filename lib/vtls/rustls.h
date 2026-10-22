@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RUSTLS_H
-#define HEADER_CURL_RUSTLS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_RUSTLS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_RUSTLS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_RUSTLS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_RUSTLS
 
-extern const struct Curl_ssl Curl_ssl_rustls;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_ssl Curl_ssl_rustls;
 
-#endif /* USE_RUSTLS */
-#endif /* HEADER_CURL_RUSTLS_H */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_RUSTLS */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_RUSTLS_H */

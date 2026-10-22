@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_H
-#define HEADER_CURL_VTLS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_VTLS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_VTLS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,143 +23,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-struct connectdata;
-struct ssl_easy_config;
-struct ssl_filter_config;
-struct Curl_cfilter;
-struct Curl_easy;
-struct dynbuf;
+ರಚನೆ connectdata;
+ರಚನೆ ssl_easy_config;
+ರಚನೆ ssl_filter_config;
+ರಚನೆ Curl_cfilter;
+ರಚನೆ Curl_easy;
+ರಚನೆ dynbuf;
 
-#define SSLSUPP_CA_PATH      (1 << 0) /* supports CAPATH */
-#define SSLSUPP_CERTINFO     (1 << 1) /* supports CURLOPT_CERTINFO */
-#define SSLSUPP_PINNEDPUBKEY (1 << 2) /* supports CURLOPT_PINNEDPUBLICKEY */
-#define SSLSUPP_SSL_CTX      (1 << 3) /* supports CURLOPT_SSL_CTX */
-#define SSLSUPP_HTTPS_PROXY  (1 << 4) /* supports access via HTTPS proxies */
-#define SSLSUPP_TLS13_CIPHERSUITES (1 << 5) /* supports TLS 1.3 ciphersuites */
-#define SSLSUPP_CAINFO_BLOB  (1 << 6)
-#define SSLSUPP_ECH          (1 << 7)
-#define SSLSUPP_CA_CACHE     (1 << 8)
-#define SSLSUPP_CIPHER_LIST  (1 << 9) /* supports TLS 1.0-1.2 ciphersuites */
-#define SSLSUPP_SIGNATURE_ALGORITHMS (1 << 10) /* supports TLS sigalgs */
-#define SSLSUPP_ISSUERCERT   (1 << 11) /* supports CURLOPT_ISSUERCERT */
-#define SSLSUPP_SSL_EC_CURVES (1 << 12) /* supports CURLOPT_SSL_EC_CURVES */
-#define SSLSUPP_CRLFILE      (1 << 13) /* supports CURLOPT_CRLFILE */
-#define SSLSUPP_ISSUERCERT_BLOB (1 << 14) /* CURLOPT_ISSUERCERT_BLOB */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_CA_ಮಾರ್ಗ      (1 << 0) /* supports CAPATH */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_CERTINFO     (1 << 1) /* supports CURLOPT_CERTINFO */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_PINNEDPUBKEY (1 << 2) /* supports CURLOPT_PINNEDPUBLICKEY */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_SSL_CTX      (1 << 3) /* supports CURLOPT_SSL_CTX */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_HTTPS_PROXY  (1 << 4) /* supports access via HTTPS proxies */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_TLS13_CIPHERSUITES (1 << 5) /* supports TLS 1.3 ciphersuites */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_CAINFO_BLOB  (1 << 6)
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_ECH          (1 << 7)
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_CA_CACHE     (1 << 8)
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_CIPHER_LIST  (1 << 9) /* supports TLS 1.0-1.2 ciphersuites */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_SIGNATURE_ALGORITHMS (1 << 10) /* supports TLS sigalgs */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_ISSUERCERT   (1 << 11) /* supports CURLOPT_ISSUERCERT */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_SSL_EC_CURVES (1 << 12) /* supports CURLOPT_SSL_EC_CURVES */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_CRLFILE      (1 << 13) /* supports CURLOPT_CRLFILE */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSLSUPP_ISSUERCERT_BLOB (1 << 14) /* CURLOPT_ISSUERCERT_BLOB */
 
-#ifdef USE_ECH
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_ECH
 /* CURLECH_ values for the ech option */
-#define CURLECH_DISABLE    0
-#define CURLECH_GREASE     1
-#define CURLECH_ENABLE     2
-#define CURLECH_HARD       3
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLECH_DISABLE    0
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLECH_GREASE     1
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLECH_ENABLE     2
+#ವ್ಯಾಖ್ಯಾನಿಸು CURLECH_HARD       3
 
 /* TRUE if ECH is enabled (and supported) */
-bool Curl_ssl_ech_enabled(struct Curl_cfilter *cf);
+bool Curl_ssl_ech_enabled(ರಚನೆ Curl_cfilter *cf);
 /* TRUE if SSL ECH configuration requires DNS HTTPS-RR record */
-bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf);
-#else
-#define Curl_ssl_ech_enabled(c)      FALSE
-#define Curl_ssl_need_httpsrr(c)     FALSE
-#endif /* USE_ECH */
+bool Curl_ssl_need_httpsrr(ರಚನೆ Curl_cfilter *cf);
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_ech_enabled(c)      FALSE
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_need_httpsrr(c)     FALSE
+#ಆದರೆ_ಅಂತ್ಯ /* USE_ECH */
 
-#define ALPN_ACCEPTED "ALPN: server accepted "
+#ವ್ಯಾಖ್ಯಾನಿಸು ALPN_ACCEPTED "ALPN: server accepted "
 
-#define VTLS_INFOF_NO_ALPN            \
+#ವ್ಯಾಖ್ಯಾನಿಸು VTLS_INFOF_NO_ALPN            \
   "ALPN: server did not agree on a protocol. Uses default."
-#define VTLS_INFOF_ALPN_OFFER_1STR    \
+#ವ್ಯಾಖ್ಯಾನಿಸು VTLS_INFOF_ALPN_OFFER_1STR    \
   "ALPN: curl offers %s"
-#define VTLS_INFOF_ALPN_ACCEPTED      \
+#ವ್ಯಾಖ್ಯಾನಿಸು VTLS_INFOF_ALPN_ACCEPTED      \
   ALPN_ACCEPTED "%.*s"
 
-#define VTLS_INFOF_NO_ALPN_DEFERRED   \
+#ವ್ಯಾಖ್ಯಾನಿಸು VTLS_INFOF_NO_ALPN_DEFERRED   \
   "ALPN: deferred handshake for early data without specific protocol."
-#define VTLS_INFOF_ALPN_DEFERRED      \
+#ವ್ಯಾಖ್ಯಾನಿಸು VTLS_INFOF_ALPN_DEFERRED      \
   "ALPN: deferred handshake for early data using '%.*s'."
 
 /* IETF defined version numbers used in TLS protocol negotiation */
-#define CURL_IETF_PROTO_UNKNOWN       0x0
-#define CURL_IETF_PROTO_SSL3          0x0300
-#define CURL_IETF_PROTO_TLS1          0x0301
-#define CURL_IETF_PROTO_TLS1_1        0x0302
-#define CURL_IETF_PROTO_TLS1_2        0x0303
-#define CURL_IETF_PROTO_TLS1_3        0x0304
-#define CURL_IETF_PROTO_DTLS1         0xFEFF
-#define CURL_IETF_PROTO_DTLS1_2       0xFEFD
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_IETF_PROTO_UNKNOWN       0x0
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_IETF_PROTO_SSL3          0x0300
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_IETF_PROTO_TLS1          0x0301
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_IETF_PROTO_TLS1_1        0x0302
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_IETF_PROTO_TLS1_2        0x0303
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_IETF_PROTO_TLS1_3        0x0304
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_IETF_PROTO_DTLS1         0xFEFF
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_IETF_PROTO_DTLS1_2       0xFEFD
 
-typedef enum {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ {
   CURL_SSL_PEER_DNS,
   CURL_SSL_PEER_IPV4,
   CURL_SSL_PEER_IPV6
 } ssl_peer_type;
 
-struct ssl_peer {
-  struct Curl_peer *origin; /* the authority we talk to */
-  struct Curl_peer *peer;   /* the machine we are connected to */
-  char *sni;             /* SNI version of hostname or NULL if not usable */
-  char *scache_key;      /* for lookups in session cache */
+ರಚನೆ ssl_peer {
+  ರಚನೆ Curl_peer *origin; /* the authority we talk to */
+  ರಚನೆ Curl_peer *peer;   /* the machine we are connected to */
+  ಅಕ್ಷರ *sni;             /* SNI version of hostname or NULL if not usable */
+  ಅಕ್ಷರ *scache_ಕೀಲಿ;      /* for lookups in session cache */
   ssl_peer_type type;    /* type of the peer information */
   uint8_t transport;     /* one of TRNSPRT_* defines */
 };
 
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
-                                   const curl_ssl_backend ***avail);
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name,
+                                   ಸ್ಥಿರಾಂಕ curl_ssl_backend ***avail);
 
-#define MAX_PINNED_PUBKEY_SIZE (1024 * 1024) /* 1 MiB */
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_PINNED_PUBKEY_ಗಾತ್ರ (1024 * 1024) /* 1 MiB */
 
-curl_sslbackend Curl_ssl_backend(void);
+curl_sslbackend Curl_ssl_backend(ಶೂನ್ಯ);
 
 /**
  * Init SSL peer information for filter. Can be called repeatedly.
  */
-CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
-                            struct ssl_filter_config *sslc,
-                            const char *tls_id,
+CURLcode Curl_ssl_peer_init(ರಚನೆ ssl_peer *ssl_peer,
+                            ರಚನೆ Curl_peer *origin,
+                            ರಚನೆ Curl_peer *peer,
+                            ರಚನೆ ssl_filter_config *sslc,
+                            ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tls_id,
                             uint8_t transport);
 /**
  * Free all allocated data and reset peer information.
  */
-void Curl_ssl_peer_cleanup(struct ssl_peer *peer);
+ಶೂನ್ಯ Curl_ssl_peer_cleanup(ರಚನೆ ssl_peer *peer);
 
-#ifdef USE_SSL
-int Curl_ssl_init(void);
-void Curl_ssl_cleanup(void);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+ಪೂರ್ಣಾಂಕ Curl_ssl_init(ಶೂನ್ಯ);
+ಶೂನ್ಯ Curl_ssl_cleanup(ಶೂನ್ಯ);
 /* tell the SSL stuff to close down all open information regarding
    connections (and thus session ID caching etc) */
-void Curl_ssl_close_all(struct Curl_easy *data);
-CURLcode Curl_ssl_set_engine(struct Curl_easy *data, const char *engine);
+ಶೂನ್ಯ Curl_ssl_close_all(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
+CURLcode Curl_ssl_ಗಣ_engine(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *engine);
 /* Sets engine as default for all SSL operations */
-CURLcode Curl_ssl_set_engine_default(struct Curl_easy *data);
-struct curl_slist *Curl_ssl_engines_list(struct Curl_easy *data);
+CURLcode Curl_ssl_ಗಣ_engine_default(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
+ರಚನೆ curl_slist *Curl_ssl_engines_list(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-void Curl_ssl_version(char *buffer, size_t size);
+ಶೂನ್ಯ Curl_ssl_ಆವೃತ್ತಿ(ಅಕ್ಷರ *ಬಫರ್, size_t ಗಾತ್ರ_2);
 
 /* Certificate information list handling. */
-#define CURL_X509_STR_MAX  100000
-#define MAX_ALLOWED_CERT_AMOUNT 100
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_X509_STR_MAX  100000
+#ವ್ಯಾಖ್ಯಾನಿಸು MAX_ALLOWED_CERT_AMOUNT 100
 
-void Curl_ssl_free_certinfo(struct Curl_easy *data);
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num);
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data, int certnum,
-                                    const char *label, const char *value,
+ಶೂನ್ಯ Curl_ssl_free_certinfo(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
+CURLcode Curl_ssl_init_certinfo(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಪೂರ್ಣಾಂಕ ಅಂಕೆ);
+CURLcode Curl_ssl_ತಳ್ಳು_certinfo_len(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಪೂರ್ಣಾಂಕ certnum,
+                                    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *label, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ,
                                     size_t valuelen);
-CURLcode Curl_ssl_push_certinfo(struct Curl_easy *data, int certnum,
-                                const char *label, const char *value);
+CURLcode Curl_ssl_ತಳ್ಳು_certinfo(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಪೂರ್ಣಾಂಕ certnum,
+                                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *label, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
 
 /* Functions to be used by SSL library adaptation functions */
 
 /* get N random bytes into the buffer */
-CURLcode Curl_ssl_random(struct Curl_easy *data,
-                         unsigned char *buffer, size_t length);
+CURLcode Curl_ssl_random(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                         ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ಬಫರ್, size_t ಉದ್ದಳತೆ);
 /* Check pinned public key. */
-CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
-                              const char *pinnedpubkey,
-                              const unsigned char *pubkey, size_t pubkeylen);
+CURLcode Curl_pin_peer_pubkey(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pinnedpubkey,
+                              ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *pubkey, size_t pubkeylen);
 
-bool Curl_ssl_cert_status_request(void);
+bool Curl_ssl_cert_ಸ್ಥಿತಿ_request(ಶೂನ್ಯ);
 
 /* The maximum size of the SSL channel binding is 85 bytes, as defined in
  * RFC 5929, Section 4.1. The 'tls-server-end-point:' prefix is 21 bytes,
@@ -167,7 +167,7 @@ bool Curl_ssl_cert_status_request(void);
  * 64 bytes.
  * The maximum size of the channel binding is therefore 21 + 64 = 85 bytes.
  */
-#define SSL_CB_MAX_SIZE 85
+#ವ್ಯಾಖ್ಯಾನಿಸು SSL_CB_MAX_ಗಾತ್ರ 85
 
 /* Return the tls-server-end-point channel binding, including the
  * 'tls-server-end-point:' prefix.
@@ -177,68 +177,68 @@ bool Curl_ssl_cert_status_request(void);
  * If channel binding is not supported, binding stays empty and CURLE_OK is
  * returned.
  */
-CURLcode Curl_ssl_get_channel_binding(struct Curl_easy *data, int8_t sockindex,
-                                      struct dynbuf *binding);
+CURLcode Curl_ssl_get_channel_binding(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, int8_t sockindex,
+                                      ರಚನೆ dynbuf *binding);
 
-#define SSL_SHUTDOWN_TIMEOUT 10000 /* ms */
+#ವ್ಯಾಖ್ಯಾನಿಸು SSL_SHUTDOWN_TIMEOUT 10000 /* ms */
 
-CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
-                              struct Curl_peer *origin,
-                              struct connectdata *conn,
+CURLcode Curl_ssl_cfilter_ಕೂಡಿಸು(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ರಚನೆ Curl_peer *origin,
+                              ರಚನೆ connectdata *conn,
                               int8_t sockindex);
 
-CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
-                                  struct Curl_easy *data,
-                                  struct Curl_peer *origin,
-                                  struct Curl_peer *peer);
+CURLcode Curl_cf_ssl_ಸೇರಿಸು_after(ರಚನೆ Curl_cfilter *cf_at,
+                                  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                  ರಚನೆ Curl_peer *origin,
+                                  ರಚನೆ Curl_peer *peer);
 
-CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
+CURLcode Curl_ssl_cfilter_remove(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                                  int8_t sockindex, bool send_shutdown);
 
-#ifndef CURL_DISABLE_PROXY
-CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                        struct Curl_easy *data,
-                                        struct Curl_peer *peer);
-#endif /* !CURL_DISABLE_PROXY */
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
+CURLcode Curl_cf_ssl_proxy_ಸೇರಿಸು_after(ರಚನೆ Curl_cfilter *cf_at,
+                                        ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                        ರಚನೆ Curl_peer *peer);
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_PROXY */
 
 /**
  * True iff the underlying SSL implementation supports the option.
  * Option is one of the defined SSLSUPP_* values.
  * `data` maybe NULL for the features of the default implementation.
  */
-bool Curl_ssl_supports(struct Curl_easy *data, unsigned int ssl_option);
+bool Curl_ssl_supports(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ ssl_option);
 
 /* Get the ssl_easy_config from `data` relevant for cfilter `cf`. */
-struct ssl_easy_config *
-Curl_ssl_cf_get_easy_config(struct Curl_cfilter *cf,
-                            struct Curl_easy *data);
+ರಚನೆ ssl_easy_config *
+Curl_ssl_cf_get_easy_config(ರಚನೆ Curl_cfilter *cf,
+                            ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
 /* Get the filter config relevant for cfilter `cf`. */
-struct ssl_filter_config *
-Curl_ssl_cf_get_filter_config(struct Curl_cfilter *cf);
+ರಚನೆ ssl_filter_config *
+Curl_ssl_cf_get_filter_config(ರಚನೆ Curl_cfilter *cf);
 
-extern struct Curl_cftype Curl_cft_ssl;
-#ifndef CURL_DISABLE_PROXY
-extern struct Curl_cftype Curl_cft_ssl_proxy;
-#endif
+ಬಾಹ್ಯ ರಚನೆ Curl_cftype Curl_cft_ssl;
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
+ಬಾಹ್ಯ ರಚನೆ Curl_cftype Curl_cft_ssl_proxy;
+#ಆದರೆ_ಅಂತ್ಯ
 
-#else /* if not USE_SSL */
+#ಇಲ್ಲದಿದ್ದರೆ /* if not USE_SSL */
 
 /* When SSL support is not present, define away these function calls */
-#define Curl_ssl_init() 1
-#define Curl_ssl_cleanup() Curl_nop_stmt
-#define Curl_ssl_close_all(x) Curl_nop_stmt
-#define Curl_ssl_set_engine(x, y) CURLE_NOT_BUILT_IN
-#define Curl_ssl_set_engine_default(x) CURLE_NOT_BUILT_IN
-#define Curl_ssl_engines_list(x) NULL
-#define Curl_ssl_free_certinfo(x) Curl_nop_stmt
-#define Curl_ssl_random(x, y, z) ((void)(x), CURLE_NOT_BUILT_IN)
-#define Curl_ssl_cert_status_request() FALSE
-#define Curl_ssl_supports(a, b) FALSE
-#define Curl_ssl_cfilter_add(a, b, c, d) CURLE_NOT_BUILT_IN
-#define Curl_ssl_cfilter_remove(a, b, c) CURLE_OK
-#define Curl_ssl_cf_get_easy_config(a, b) NULL
-#define Curl_ssl_cf_get_filter_config(a) NULL
-#endif
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_init() 1
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_cleanup() Curl_nop_stmt
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_close_all(x) Curl_nop_stmt
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_ಗಣ_engine(x, y) CURLE_NOT_BUILT_ಒಳ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_ಗಣ_engine_default(x) CURLE_NOT_BUILT_ಒಳ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_engines_list(x) ಖಾಲಿ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_free_certinfo(x) Curl_nop_stmt
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_random(x, y, z) ((ಶೂನ್ಯ)(x), CURLE_NOT_BUILT_ಒಳ)
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_cert_ಸ್ಥಿತಿ_request() FALSE
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_supports(a, b) FALSE
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_cfilter_ಕೂಡಿಸು(a, b, c, d) CURLE_NOT_BUILT_ಒಳ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_cfilter_remove(a, b, c) CURLE_OK
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_cf_get_easy_config(a, b) ಖಾಲಿ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_ssl_cf_get_filter_config(a) ಖಾಲಿ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HEADER_CURL_VTLS_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_VTLS_H */

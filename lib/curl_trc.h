@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TRC_H
-#define HEADER_CURL_TRC_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_TRC_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_TRC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-struct Curl_easy;
-struct Curl_cfilter;
+ರಚನೆ Curl_easy;
+ರಚನೆ Curl_cfilter;
 
 /**
  * Init logging, return != 0 on failure.
  */
-CURLcode Curl_trc_init(void);
+CURLcode Curl_trc_init(ಶೂನ್ಯ);
 
 /**
  * Configure tracing. May be called several times during global
@@ -47,301 +47,301 @@ CURLcode Curl_trc_init(void);
  *
  * @param config configuration string
  */
-CURLcode Curl_trc_opt(const char *config);
+CURLcode Curl_trc_opt(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *config);
 
 /* the function used to output verbose information */
-void Curl_debug(struct Curl_easy *data, curl_infotype type,
-                const char *ptr, size_t size);
+ಶೂನ್ಯ Curl_debug(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, curl_infotype type,
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ptr, size_t ಗಾತ್ರ_2);
 
 /**
  * Output a failure message on registered callbacks for transfer.
  */
-void Curl_failf(struct Curl_easy *data,
-                const char *fmt, ...) CURL_PRINTF(2, 3);
+ಶೂನ್ಯ Curl_failf(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
 
-#define failf Curl_failf
+#ವ್ಯಾಖ್ಯಾನಿಸು failf Curl_failf
 
 /* In case failf() reported into the errorbuf, clear it again.
  * This is used to clear information from happy eyeballing attempts
  * when ultimately a successful attempt was made. */
-void Curl_reset_fail(struct Curl_easy *data);
+ಶೂನ್ಯ Curl_reset_fail(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-#define CURL_LOG_LVL_NONE  0
-#define CURL_LOG_LVL_INFO  1
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_LOG_LVL_NONE  0
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_LOG_LVL_INFO  1
 
 /**
  * Output an informational message when transfer's verbose logging is enabled.
  */
-void Curl_infof(struct Curl_easy *data,
-                const char *fmt, ...) CURL_PRINTF(2, 3);
+ಶೂನ್ಯ Curl_infof(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
 
 /**
  * Output an informational message when both transfer's verbose logging
  * and connection filters verbose logging are enabled.
  */
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...) CURL_PRINTF(3, 4);
-void Curl_trc_multi(struct Curl_easy *data,
-                    const char *fmt, ...) CURL_PRINTF(2, 3);
-const char *Curl_trc_mstate_name(int state);
-const char *Curl_trc_timer_name(int tid);
-void Curl_trc_easy_timers(struct Curl_easy *data);
+ಶೂನ್ಯ Curl_trc_cf_infof(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_cfilter *cf,
+                       ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(3, 4);
+ಶೂನ್ಯ Curl_trc_multi(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *Curl_trc_mstate_name(ಪೂರ್ಣಾಂಕ state);
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *Curl_trc_timer_name(ಪೂರ್ಣಾಂಕ tid);
+ಶೂನ್ಯ Curl_trc_easy_timers(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-void Curl_trc_write(struct Curl_easy *data,
-                    const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_read(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_dns(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
-void Curl_trc_timer(struct Curl_easy *data, int tid,
-                    const char *fmt, ...) CURL_PRINTF(3, 4);
+ಶೂನ್ಯ Curl_trc_write(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+ಶೂನ್ಯ Curl_trc_read(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                   ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+ಶೂನ್ಯ Curl_trc_dns(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+ಶೂನ್ಯ Curl_trc_timer(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಪೂರ್ಣಾಂಕ tid,
+                    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(3, 4);
 
-struct curl_trc_feat {
-  const char *name;
-  int log_level;
+ರಚನೆ curl_trc_feat {
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
+  ಪೂರ್ಣಾಂಕ log_level;
 };
 
-void Curl_trc_feat_infof(struct Curl_easy *data,
-                         struct curl_trc_feat *feat,
-                         const char *fmt, ...) CURL_PRINTF(3, 4);
+ಶೂನ್ಯ Curl_trc_feat_infof(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                         ರಚನೆ curl_trc_feat *feat,
+                         ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(3, 4);
 
-#ifndef CURL_DISABLE_FTP
-extern struct curl_trc_feat Curl_trc_feat_ftp;
-void Curl_trc_ftp(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
-#ifndef CURL_DISABLE_SMTP
-extern struct curl_trc_feat Curl_trc_feat_smtp;
-void Curl_trc_smtp(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
-#ifdef USE_SSL
-extern struct curl_trc_feat Curl_trc_feat_ssls;
-void Curl_trc_ssls(struct Curl_easy *data,
-                   const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
-#ifdef USE_SSH
-extern struct curl_trc_feat Curl_trc_feat_ssh;
-void Curl_trc_ssh(struct Curl_easy *data,
-                  const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-extern struct curl_trc_feat Curl_trc_feat_ws;
-void Curl_trc_ws(struct Curl_easy *data,
-                 const char *fmt, ...) CURL_PRINTF(2, 3);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_FTP
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_ftp;
+ಶೂನ್ಯ Curl_trc_ftp(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_SMTP
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_smtp;
+ಶೂನ್ಯ Curl_trc_smtp(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                   ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_ssls;
+ಶೂನ್ಯ Curl_trc_ssls(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                   ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_ssh;
+ಶೂನ್ಯ Curl_trc_ssh(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_ws;
+ಶೂನ್ಯ Curl_trc_ws(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                 ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) CURL_PRINTF(2, 3);
+#ಆದರೆ_ಅಂತ್ಯ
 
-#define CURL_TRC_M_is_verbose(data) \
-  Curl_trc_ft_is_verbose(data, &Curl_trc_feat_multi)
-#define CURL_TRC_DNS_is_verbose(data) \
-  Curl_trc_ft_is_verbose(data, &Curl_trc_feat_dns)
-#define CURL_TRC_TIMER_is_verbose(data) \
-  Curl_trc_ft_is_verbose(data, &Curl_trc_feat_timer)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_M_is_verbose(ದತ್ತಾಂಶ) \
+  Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_multi)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_DNS_is_verbose(ದತ್ತಾಂಶ) \
+  Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_dns)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_TIMER_is_verbose(ದತ್ತಾಂಶ) \
+  Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_timer)
 
-#if defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
-#define infof(data, ...)             \
-  do {                               \
-    if(Curl_trc_is_verbose(data))    \
-      Curl_infof(data, __VA_ARGS__); \
-  } while(0)
-#define CURL_TRC_M(data, ...)            \
-  do {                                   \
-    if(CURL_TRC_M_is_verbose(data))      \
-      Curl_trc_multi(data, __VA_ARGS__); \
-  } while(0)
-#define CURL_TRC_CF(data, cf, ...)              \
-  do {                                          \
-    if(Curl_trc_cf_is_verbose(cf, data))        \
-      Curl_trc_cf_infof(data, cf, __VA_ARGS__); \
-  } while(0)
-#define CURL_TRC_WRITE(data, ...)                          \
-  do {                                                     \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) \
-      Curl_trc_write(data, __VA_ARGS__);                   \
-  } while(0)
-#define CURL_TRC_READ(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) \
-      Curl_trc_read(data, __VA_ARGS__);                   \
-  } while(0)
-#define CURL_TRC_DNS(data, ...)        \
-  do {                                 \
-    if(CURL_TRC_DNS_is_verbose(data))  \
-      Curl_trc_dns(data, __VA_ARGS__); \
-  } while(0)
-#define CURL_TRC_TIMER(data, tid, ...)        \
-  do {                                        \
-    if(CURL_TRC_TIMER_is_verbose(data))       \
-      Curl_trc_timer(data, tid, __VA_ARGS__); \
-  } while(0)
+#ಆದರೆ defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_ಅಕ್ಷರಸರಣಿಗಳು)
+#ವ್ಯಾಖ್ಯಾನಿಸು infof(ದತ್ತಾಂಶ, ...)             \
+  ಮಾಡು {                               \
+    ಆದರೆ(Curl_trc_is_verbose(ದತ್ತಾಂಶ))    \
+      Curl_infof(ದತ್ತಾಂಶ, __VA_ARGS__); \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_M(ದತ್ತಾಂಶ, ...)            \
+  ಮಾಡು {                                   \
+    ಆದರೆ(CURL_TRC_M_is_verbose(ದತ್ತಾಂಶ))      \
+      Curl_trc_multi(ದತ್ತಾಂಶ, __VA_ARGS__); \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_CF(ದತ್ತಾಂಶ, cf, ...)              \
+  ಮಾಡು {                                          \
+    ಆದರೆ(Curl_trc_cf_is_verbose(cf, ದತ್ತಾಂಶ))        \
+      Curl_trc_cf_infof(ದತ್ತಾಂಶ, cf, __VA_ARGS__); \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_WRITE(ದತ್ತಾಂಶ, ...)                          \
+  ಮಾಡು {                                                     \
+    ಆದರೆ(Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_write)) \
+      Curl_trc_write(ದತ್ತಾಂಶ, __VA_ARGS__);                   \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_READ(ದತ್ತಾಂಶ, ...)                          \
+  ಮಾಡು {                                                    \
+    ಆದರೆ(Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_read)) \
+      Curl_trc_read(ದತ್ತಾಂಶ, __VA_ARGS__);                   \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_DNS(ದತ್ತಾಂಶ, ...)        \
+  ಮಾಡು {                                 \
+    ಆದರೆ(CURL_TRC_DNS_is_verbose(ದತ್ತಾಂಶ))  \
+      Curl_trc_dns(ದತ್ತಾಂಶ, __VA_ARGS__); \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_TIMER(ದತ್ತಾಂಶ, tid, ...)        \
+  ಮಾಡು {                                        \
+    ಆದರೆ(CURL_TRC_TIMER_is_verbose(ದತ್ತಾಂಶ))       \
+      Curl_trc_timer(ದತ್ತಾಂಶ, tid, __VA_ARGS__); \
+  } ಆಗ(0)
 
-#ifndef CURL_DISABLE_FTP
-#define CURL_TRC_FTP(data, ...)                          \
-  do {                                                   \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) \
-      Curl_trc_ftp(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* !CURL_DISABLE_FTP */
-#ifndef CURL_DISABLE_SMTP
-#define CURL_TRC_SMTP(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) \
-      Curl_trc_smtp(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* !CURL_DISABLE_SMTP */
-#ifdef USE_SSL
-#define CURL_TRC_SSLS(data, ...)                          \
-  do {                                                    \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) \
-      Curl_trc_ssls(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* USE_SSL */
-#ifdef USE_SSH
-#define CURL_TRC_SSH(data, ...)                          \
-  do {                                                   \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) \
-      Curl_trc_ssh(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* USE_SSH */
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-#define CURL_TRC_WS(data, ...)                          \
-  do {                                                  \
-    if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) \
-      Curl_trc_ws(data, __VA_ARGS__);                   \
-  } while(0)
-#endif /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_FTP
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_FTP(ದತ್ತಾಂಶ, ...)                          \
+  ಮಾಡು {                                                   \
+    ಆದರೆ(Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_ftp)) \
+      Curl_trc_ftp(ದತ್ತಾಂಶ, __VA_ARGS__);                   \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_FTP */
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_SMTP
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SMTP(ದತ್ತಾಂಶ, ...)                          \
+  ಮಾಡು {                                                    \
+    ಆದರೆ(Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_smtp)) \
+      Curl_trc_smtp(ದತ್ತಾಂಶ, __VA_ARGS__);                   \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_SMTP */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SSLS(ದತ್ತಾಂಶ, ...)                          \
+  ಮಾಡು {                                                    \
+    ಆದರೆ(Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_ssls)) \
+      Curl_trc_ssls(ದತ್ತಾಂಶ, __VA_ARGS__);                   \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSL */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SSH(ದತ್ತಾಂಶ, ...)                          \
+  ಮಾಡು {                                                   \
+    ಆದರೆ(Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_ssh)) \
+      Curl_trc_ssh(ದತ್ತಾಂಶ, __VA_ARGS__);                   \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSH */
+#ಆದರೆ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_WS(ದತ್ತಾಂಶ, ...)                          \
+  ಮಾಡು {                                                  \
+    ಆದರೆ(Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, &Curl_trc_feat_ws)) \
+      Curl_trc_ws(ದತ್ತಾಂಶ, __VA_ARGS__);                   \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
 
-#elif defined(CURL_HAVE_MACRO_VARARG) && defined(CURL_DISABLE_VERBOSE_STRINGS)
+#ಅಥವಾಆದರೆ defined(CURL_HAVE_MACRO_VARARG) && defined(CURL_DISABLE_VERBOSE_ಅಕ್ಷರಸರಣಿಗಳು)
 
-#define infof(data, ...) \
-  do {                   \
-    (void)(data);        \
-  } while(0)
-#define CURL_TRC_M(data, ...) \
-  do {                        \
-    (void)(data);             \
-  } while(0)
-#define CURL_TRC_CF(data, cf, ...) \
-  do {                             \
-    (void)(data);                  \
-    (void)(cf);                    \
-  } while(0)
-#define CURL_TRC_WRITE(data, ...) \
-  do {                            \
-    (void)(data);                 \
-  } while(0)
-#define CURL_TRC_READ(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
-#define CURL_TRC_DNS(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
-#define CURL_TRC_TIMER(data, tid, ...) \
-  do {                                 \
-    (void)(data);                      \
-    (void)(tid);                       \
-  } while(0)
-#ifndef CURL_DISABLE_FTP
-#define CURL_TRC_FTP(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
-#endif /* !CURL_DISABLE_FTP */
-#ifndef CURL_DISABLE_SMTP
-#define CURL_TRC_SMTP(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
-#endif /* !CURL_DISABLE_SMTP */
-#ifdef USE_SSL
-#define CURL_TRC_SSLS(data, ...) \
-  do {                           \
-    (void)(data);                \
-  } while(0)
-#endif /* USE_SSL */
-#ifdef USE_SSH
-#define CURL_TRC_SSH(data, ...) \
-  do {                          \
-    (void)(data);               \
-  } while(0)
-#endif /* USE_SSH */
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-#define CURL_TRC_WS(data, ...) \
-  do {                         \
-    (void)(data);              \
-  } while(0)
-#endif
+#ವ್ಯಾಖ್ಯಾನಿಸು infof(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                   \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);        \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_M(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                        \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);             \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_CF(ದತ್ತಾಂಶ, cf, ...) \
+  ಮಾಡು {                             \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);                  \
+    (ಶೂನ್ಯ)(cf);                    \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_WRITE(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                            \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);                 \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_READ(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                           \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);                \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_DNS(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                          \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);               \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_TIMER(ದತ್ತಾಂಶ, tid, ...) \
+  ಮಾಡು {                                 \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);                      \
+    (ಶೂನ್ಯ)(tid);                       \
+  } ಆಗ(0)
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_FTP
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_FTP(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                          \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);               \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_FTP */
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_SMTP
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SMTP(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                           \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);                \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_SMTP */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SSLS(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                           \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);                \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSL */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SSH(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                          \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);               \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSH */
+#ಆದರೆ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_WS(ದತ್ತಾಂಶ, ...) \
+  ಮಾಡು {                         \
+    (ಶೂನ್ಯ)(ದತ್ತಾಂಶ);              \
+  } ಆಗ(0)
+#ಆದರೆ_ಅಂತ್ಯ
 
-#else /* !CURL_HAVE_MACRO_VARARG */
+#ಇಲ್ಲದಿದ್ದರೆ /* !CURL_HAVE_MACRO_VARARG */
 
-#define infof          Curl_infof
-#define CURL_TRC_M     Curl_trc_multi
-#define CURL_TRC_CF    Curl_trc_cf_infof
-#define CURL_TRC_WRITE Curl_trc_write
-#define CURL_TRC_READ  Curl_trc_read
-#define CURL_TRC_DNS   Curl_trc_dns
-#define CURL_TRC_TIMER Curl_trc_timer
+#ವ್ಯಾಖ್ಯಾನಿಸು infof          Curl_infof
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_M     Curl_trc_multi
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_CF    Curl_trc_cf_infof
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_WRITE Curl_trc_write
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_READ  Curl_trc_read
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_DNS   Curl_trc_dns
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_TIMER Curl_trc_timer
 
-#ifndef CURL_DISABLE_FTP
-#define CURL_TRC_FTP   Curl_trc_ftp
-#endif
-#ifndef CURL_DISABLE_SMTP
-#define CURL_TRC_SMTP  Curl_trc_smtp
-#endif
-#ifdef USE_SSL
-#define CURL_TRC_SSLS  Curl_trc_ssls
-#endif
-#ifdef USE_SSH
-#define CURL_TRC_SSH   Curl_trc_ssh
-#endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-#define CURL_TRC_WS    Curl_trc_ws
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_FTP
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_FTP   Curl_trc_ftp
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_SMTP
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SMTP  Curl_trc_smtp
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SSLS  Curl_trc_ssls
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_SSH   Curl_trc_ssh
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_WS    Curl_trc_ws
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* CURL_HAVE_MACRO_VARARG */
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_HAVE_MACRO_VARARG */
 
-#ifdef CURLVERBOSE
-extern struct curl_trc_feat Curl_trc_feat_multi;
-extern struct curl_trc_feat Curl_trc_feat_read;
-extern struct curl_trc_feat Curl_trc_feat_write;
-extern struct curl_trc_feat Curl_trc_feat_dns;
-#ifndef CURL_DISABLE_DOH
-extern struct curl_trc_feat Curl_trc_feat_doh;
-#endif
-extern struct curl_trc_feat Curl_trc_feat_timer;
-#ifdef USE_THREADS
-extern struct curl_trc_feat Curl_trc_feat_threads;
-#endif
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLVERBOSE
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_multi;
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_read;
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_write;
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_dns;
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_DOH
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_doh;
+#ಆದರೆ_ಅಂತ್ಯ
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_timer;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_ಎಳೆಗಳು
+ಬಾಹ್ಯ ರಚನೆ curl_trc_feat Curl_trc_feat_ಎಳೆಗಳು;
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifndef CURL_DISABLE_VERBOSE_STRINGS
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_VERBOSE_ಅಕ್ಷರಸರಣಿಗಳು
 /* informational messages enabled */
-#define Curl_trc_is_verbose(data)                          \
-  ((data) && (data)->set.verbose &&                        \
-   (!(data)->state.feat ||                                 \
-    ((data)->state.feat->log_level >= CURL_LOG_LVL_INFO)))
-#define Curl_trc_cf_is_verbose(cf, data)              \
-  (Curl_trc_is_verbose(data) &&                       \
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_trc_is_verbose(ದತ್ತಾಂಶ)                          \
+  ((ದತ್ತಾಂಶ) && (ದತ್ತಾಂಶ)->ಗಣ.verbose &&                        \
+   (!(ದತ್ತಾಂಶ)->state.feat ||                                 \
+    ((ದತ್ತಾಂಶ)->state.feat->log_level >= CURL_LOG_LVL_INFO)))
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_trc_cf_is_verbose(cf, ದತ್ತಾಂಶ)              \
+  (Curl_trc_is_verbose(ದತ್ತಾಂಶ) &&                       \
    (cf) && (cf)->cft->log_level >= CURL_LOG_LVL_INFO)
-#define Curl_trc_ft_is_verbose(data, ft) \
-  (Curl_trc_is_verbose(data) &&          \
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_trc_ft_is_verbose(ದತ್ತಾಂಶ, ft) \
+  (Curl_trc_is_verbose(ದತ್ತಾಂಶ) &&          \
    (ft)->log_level >= CURL_LOG_LVL_INFO)
-#define CURL_MSTATE_NAME(s)  Curl_trc_mstate_name((int)(s))
-#define CURL_TRC_EASY_TIMERS(data)      \
-  do {                                  \
-    if(CURL_TRC_TIMER_is_verbose(data)) \
-      Curl_trc_easy_timers(data);       \
-  } while(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_MSTATE_NAME(s)  Curl_trc_mstate_name((ಪೂರ್ಣಾಂಕ)(s))
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_EASY_TIMERS(ದತ್ತಾಂಶ)      \
+  ಮಾಡು {                                  \
+    ಆದರೆ(CURL_TRC_TIMER_is_verbose(ದತ್ತಾಂಶ)) \
+      Curl_trc_easy_timers(ದತ್ತಾಂಶ);       \
+  } ಆಗ(0)
 
-#else /* CURL_DISABLE_VERBOSE_STRINGS */
+#ಇಲ್ಲದಿದ್ದರೆ /* CURL_DISABLE_VERBOSE_STRINGS */
 /* All informational messages are not compiled in for size savings */
-#define Curl_trc_is_verbose(d)        FALSE
-#define Curl_trc_cf_is_verbose(x, y)  FALSE
-#define Curl_trc_ft_is_verbose(x, y)  FALSE
-#define CURL_MSTATE_NAME(x)           ((void)(x), "-")
-#define CURL_TRC_EASY_TIMERS(x)       Curl_nop_stmt
-#endif /* !CURL_DISABLE_VERBOSE_STRINGS */
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_trc_is_verbose(d)        FALSE
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_trc_cf_is_verbose(x, y)  FALSE
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_trc_ft_is_verbose(x, y)  FALSE
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_MSTATE_NAME(x)           ((ಶೂನ್ಯ)(x), "-")
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_TRC_EASY_TIMERS(x)       Curl_nop_stmt
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_VERBOSE_STRINGS */
 
-#endif /* HEADER_CURL_TRC_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_TRC_H */

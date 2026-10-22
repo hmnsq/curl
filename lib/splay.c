@@ -21,74 +21,74 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "urldata.h"
-#include "splay.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "splay.h"
 
-static struct Curl_tree *splay(timediff_t key,
-                               struct Curl_tree *root);
+ಸ್ಥಿರ ರಚನೆ Curl_ವೃಕ್ಷ *splay(timediff_t ಕೀಲಿ,
+                               ರಚನೆ Curl_ವೃಕ್ಷ *ಬೇರು);
 
-#ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNITTESTS
+uint32_t Curl_splayget(ರಚನೆ Curl_ವೃಕ್ಷ *ಗಂಟು)
 {
-  DEBUGASSERT(node);
-  return node->id;
+  DEBUGASSERT(ಗಂಟು);
+  ಹಿಂತಿರುಗಿ ಗಂಟು->id;
 }
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base)
+ಶೂನ್ಯ Curl_timeouts_init(ರಚನೆ Curl_timeouts *timeouts,
+                        ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *ptime_ತಳ)
 {
-  struct curltime time_base = ptime_base ? *ptime_base : curlx_now();
-  timeouts->tree = NULL;
-  timeouts->time_base_sec = time_base.tv_sec;
+  ರಚನೆ curltime ಸಮಯ_ತಳ = ptime_ತಳ ? *ptime_ತಳ : curlx_now();
+  timeouts->ವೃಕ್ಷ = ಖಾಲಿ;
+  timeouts->ಸಮಯ_ತಳ_sec = ಸಮಯ_ತಳ.tv_sec;
 }
 
-bool Curl_timeouts_has(struct Curl_easy *data)
+bool Curl_timeouts_has(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct Curl_tree *node = data ? &data->state.timeouts.splaynode : NULL;
-  return node && node->registered;
+  ರಚನೆ Curl_ವೃಕ್ಷ *ಗಂಟು = ದತ್ತಾಂಶ ? &ದತ್ತಾಂಶ->state.timeouts.splaynode : ಖಾಲಿ;
+  ಹಿಂತಿರುಗಿ ಗಂಟು && ಗಂಟು->registered;
 }
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts)
+timediff_t Curl_timeouts_ಸ್ಥಾನಾಂತರ_us(ರಚನೆ Curl_timeouts *timeouts,
+                                   ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts)
 {
-  struct curltime time_base;
-  time_base.tv_sec = timeouts->time_base_sec;
-  time_base.tv_usec = 0;
-  return curlx_ptimediff_us(pts, &time_base);
+  ರಚನೆ curltime ಸಮಯ_ತಳ;
+  ಸಮಯ_ತಳ.tv_sec = timeouts->ಸಮಯ_ತಳ_sec;
+  ಸಮಯ_ತಳ.tv_usec = 0;
+  ಹಿಂತಿರುಗಿ curlx_ptimediff_us(pts, &ಸಮಯ_ತಳ);
 }
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
-                          timediff_t *pexpire_offset_us,
+ಪೂರ್ಣಾಂಕ Curl_timeouts_ಮುಂದಿನ_ms(ರಚನೆ Curl_timeouts *timeouts,
+                          ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pnow,
+                          timediff_t *pexpire_ಸ್ಥಾನಾಂತರ_us,
                           uint32_t *pmid)
 {
-  if(timeouts->tree) { /* splay the lowest key to the root */
-    timeouts->tree = splay(TIMEDIFF_T_MIN, timeouts->tree);
+  ಆದರೆ(timeouts->ವೃಕ್ಷ) { /* splay the lowest key to the root */
+    timeouts->ವೃಕ್ಷ = splay(TIMEDIFF_T_MIN, timeouts->ವೃಕ್ಷ);
   }
 
-  if(timeouts->tree) {
-    timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, pnow);
-    timediff_t delta_us = timeouts->tree->key - elapsed_us;
-    if(pmid)
-      *pmid = timeouts->tree->id;
-    if(pexpire_offset_us)
-      *pexpire_offset_us = timeouts->tree->key;
-    if(delta_us > 0) { /* expires in the future */
-      timediff_t ms = curlx_us_to_ceil_ms(delta_us);
-      return (ms > INT_MAX) ? INT_MAX : (int)ms;
+  ಆದರೆ(timeouts->ವೃಕ್ಷ) {
+    timediff_t elapsed_us = Curl_timeouts_ಸ್ಥಾನಾಂತರ_us(timeouts, pnow);
+    timediff_t delta_us = timeouts->ವೃಕ್ಷ->ಕೀಲಿ - elapsed_us;
+    ಆದರೆ(pmid)
+      *pmid = timeouts->ವೃಕ್ಷ->id;
+    ಆದರೆ(pexpire_ಸ್ಥಾನಾಂತರ_us)
+      *pexpire_ಸ್ಥಾನಾಂತರ_us = timeouts->ವೃಕ್ಷ->ಕೀಲಿ;
+    ಆದರೆ(delta_us > 0) { /* expires in the future */
+      timediff_t ms = curlx_us_ಗಮ್ಯ_ceil_ms(delta_us);
+      ಹಿಂತಿರುಗಿ (ms > ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ) ? ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ : (ಪೂರ್ಣಾಂಕ)ms;
     }
-    else /* has expired */
-      return 0;
+    ಇಲ್ಲದಿದ್ದರೆ /* has expired */
+      ಹಿಂತಿರುಗಿ 0;
   }
-  if(pmid)
+  ಆದರೆ(pmid)
     *pmid = UINT32_MAX;
-  if(pexpire_offset_us)
-    *pexpire_offset_us = 0;
-  return -1;
+  ಆದರೆ(pexpire_ಸ್ಥಾನಾಂತರ_us)
+    *pexpire_ಸ್ಥಾನಾಂತರ_us = 0;
+  ಹಿಂತಿರುಗಿ -1;
 }
 
 /*
@@ -99,72 +99,72 @@ int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
  * - root->key may equal `key` or not
  * <https://en.wikipedia.org/wiki/Splay_tree>
  */
-struct Curl_tree *splay(timediff_t key,
-                             struct Curl_tree *root)
+ರಚನೆ Curl_ವೃಕ್ಷ *splay(timediff_t ಕೀಲಿ,
+                             ರಚನೆ Curl_ವೃಕ್ಷ *ಬೇರು)
 {
-  struct Curl_tree N, *l, *r, *y;
+  ರಚನೆ Curl_ವೃಕ್ಷ N, *l, *r, *y;
 
-  if(!root)
-    return NULL;
-  N.smaller = N.larger = NULL;
+  ಆದರೆ(!ಬೇರು)
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
+  N.smaller = N.larger = ಖಾಲಿ;
   l = r = &N;
 
-  for(;;) {
-    if(key < root->key) {
+  ಗಾಗಿ(;;) {
+    ಆದರೆ(ಕೀಲಿ < ಬೇರು->ಕೀಲಿ) {
       /* key is somewhere in root->smaller branch */
-      if(!root->smaller)  /* which is empty, done */
-        break;
-      if(key < root->smaller->key) {
+      ಆದರೆ(!ಬೇರು->smaller)  /* which is empty, done */
+        ನಿಲ್ಲಿಸು;
+      ಆದರೆ(ಕೀಲಿ < ಬೇರು->smaller->ಕೀಲಿ) {
         /* key is somewhere in root->smaller->smaller, make a "Zig step" */
-        y = root->smaller;
-        root->smaller = y->larger;
-        y->larger = root;
-        root = y;
-        if(!root->smaller)
-          break;
+        y = ಬೇರು->smaller;
+        ಬೇರು->smaller = y->larger;
+        y->larger = ಬೇರು;
+        ಬೇರು = y;
+        ಆದರೆ(!ಬೇರು->smaller)
+          ನಿಲ್ಲಿಸು;
       }
       /* Making root->smaller the new root, the old root is no longer
        * referenced. Remember it in the N tree's `r`ight/larger side.
        * Everything in old root is smaller than what the right side
        * of N already has, so it gets added to r->smaller. */
-      r->smaller = root;
-      r = root;
-      root = root->smaller;
+      r->smaller = ಬೇರು;
+      r = ಬೇರು;
+      ಬೇರು = ಬೇರು->smaller;
     }
-    else if(key > root->key) {
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಕೀಲಿ > ಬೇರು->ಕೀಲಿ) {
       /* key is somewhere in root->larger branch */
-      if(!root->larger)  /* which is empty, done */
-        break;
-      if(key > root->larger->key) {
+      ಆದರೆ(!ಬೇರು->larger)  /* which is empty, done */
+        ನಿಲ್ಲಿಸು;
+      ಆದರೆ(ಕೀಲಿ > ಬೇರು->larger->ಕೀಲಿ) {
         /* key is somewhere in root->larger->larger, make a "Zig step" */
-        y = root->larger;
-        root->larger = y->smaller;
-        y->smaller = root;
-        root = y;
-        if(!root->larger)
-          break;
+        y = ಬೇರು->larger;
+        ಬೇರು->larger = y->smaller;
+        y->smaller = ಬೇರು;
+        ಬೇರು = y;
+        ಆದರೆ(!ಬೇರು->larger)
+          ನಿಲ್ಲಿಸು;
       }
       /* Making root->larger the new root, the old root is no longer
        * referenced. Remember it in the N tree's `l`eft/smaller side.
        * Everything in old root is larger than what the left side
        * of N already has, so it gets added to l->larger. */
-      l->larger = root;
-      l = root;
-      root = root->larger;
+      l->larger = ಬೇರು;
+      l = ಬೇರು;
+      ಬೇರು = ಬೇರು->larger;
     }
-    else  /* exact match, root is key, done */
-      break;
+    ಇಲ್ಲದಿದ್ದರೆ  /* exact match, root is key, done */
+      ನಿಲ್ಲಿಸು;
   }
 
   /* Put it all together again.
    * root->smaller has everything larger than current `l`.
    * root->larger has everything smaller than current `r`. */
-  l->larger = root->smaller;
-  r->smaller = root->larger;
-  root->smaller = N.larger;
-  root->larger = N.smaller;
+  l->larger = ಬೇರು->smaller;
+  r->smaller = ಬೇರು->larger;
+  ಬೇರು->smaller = N.larger;
+  ಬೇರು->larger = N.smaller;
 
-  return root;
+  ಹಿಂತಿರುಗಿ ಬೇರು;
 }
 
 /* Insert key i into the tree t. Return a pointer to the resulting tree or
@@ -172,61 +172,61 @@ struct Curl_tree *splay(timediff_t key,
  *
  * @unittest 1309
  */
-UNITTEST struct Curl_tree *splayinsert(timediff_t key,
-                                       struct Curl_tree *root,
-                                       struct Curl_tree *node,
+UNITTEST ರಚನೆ Curl_ವೃಕ್ಷ *splayinsert(timediff_t ಕೀಲಿ,
+                                       ರಚನೆ Curl_ವೃಕ್ಷ *ಬೇರು,
+                                       ರಚನೆ Curl_ವೃಕ್ಷ *ಗಂಟು,
                                        uint32_t id);
-UNITTEST struct Curl_tree *splayinsert(timediff_t key,
-                                       struct Curl_tree *root,
-                                       struct Curl_tree *node,
+UNITTEST ರಚನೆ Curl_ವೃಕ್ಷ *splayinsert(timediff_t ಕೀಲಿ,
+                                       ರಚನೆ Curl_ವೃಕ್ಷ *ಬೇರು,
+                                       ರಚನೆ Curl_ವೃಕ್ಷ *ಗಂಟು,
                                        uint32_t id)
 {
-  DEBUGASSERT(node);
+  DEBUGASSERT(ಗಂಟು);
 
-  node->key = key;
-  node->id = id;
-  node->same = NULL;
-  node->registered = TRUE;
-  if(root) {
-    root = splay(key, root);
-    DEBUGASSERT(root);
-    if(key == root->key) {
+  ಗಂಟು->ಕೀಲಿ = ಕೀಲಿ;
+  ಗಂಟು->id = id;
+  ಗಂಟು->same = ಖಾಲಿ;
+  ಗಂಟು->registered = TRUE;
+  ಆದರೆ(ಬೇರು) {
+    ಬೇರು = splay(ಕೀಲಿ, ಬೇರು);
+    DEBUGASSERT(ಬೇರು);
+    ಆದರೆ(ಕೀಲಿ == ಬೇರು->ಕೀಲಿ) {
       /* There already exists a node in the tree with the same key.
          Append the new node to the `same` list. */
-      struct Curl_tree **panchor = &root->same;
-      while(*panchor)
+      ರಚನೆ Curl_ವೃಕ್ಷ **panchor = &ಬೇರು->same;
+      ಆಗ(*panchor)
         panchor = &(*panchor)->same;
-      *panchor = node;
-      return root; /* the root node always stays the same */
+      *panchor = ಗಂಟು;
+      ಹಿಂತಿರುಗಿ ಬೇರು; /* the root node always stays the same */
     }
   }
 
   /* node becomes the new root. Insert old root as sub-branch. */
-  if(!root) {
-    node->smaller = node->larger = NULL;
+  ಆದರೆ(!ಬೇರು) {
+    ಗಂಟು->smaller = ಗಂಟು->larger = ಖಾಲಿ;
   }
-  else if(key < root->key) {
-    node->smaller = root->smaller;
-    node->larger = root;
-    root->smaller = NULL;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಕೀಲಿ < ಬೇರು->ಕೀಲಿ) {
+    ಗಂಟು->smaller = ಬೇರು->smaller;
+    ಗಂಟು->larger = ಬೇರು;
+    ಬೇರು->smaller = ಖಾಲಿ;
   }
-  else {
-    node->larger = root->larger;
-    node->smaller = root;
-    root->larger = NULL;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಗಂಟು->larger = ಬೇರು->larger;
+    ಗಂಟು->smaller = ಬೇರು;
+    ಬೇರು->larger = ಖಾಲಿ;
   }
 
-  return node;
+  ಹಿಂತಿರುಗಿ ಗಂಟು;
 }
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
-                       timediff_t offset_us)
+ಶೂನ್ಯ Curl_timeouts_ಕೂಡಿಸು(ರಚನೆ Curl_timeouts *timeouts,
+                       ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                       timediff_t ಸ್ಥಾನಾಂತರ_us)
 {
-  struct Curl_tree *node = &data->state.timeouts.splaynode;
-  DEBUGASSERT(!node->registered);
-  timeouts->tree = splayinsert(offset_us, timeouts->tree,
-                               node, data->mid);
+  ರಚನೆ Curl_ವೃಕ್ಷ *ಗಂಟು = &ದತ್ತಾಂಶ->state.timeouts.splaynode;
+  DEBUGASSERT(!ಗಂಟು->registered);
+  timeouts->ವೃಕ್ಷ = splayinsert(ಸ್ಥಾನಾಂತರ_us, timeouts->ವೃಕ್ಷ,
+                               ಗಂಟು, ದತ್ತಾಂಶ->mid);
 }
 
 /* Finds and deletes the best-fit node from the tree. Return a pointer to the
@@ -235,65 +235,65 @@ void Curl_timeouts_add(struct Curl_timeouts *timeouts,
 
    @unittest 1309
 */
-UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
-                                        struct Curl_tree *root,
-                                        struct Curl_tree **removed);
-UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
-                                        struct Curl_tree *root,
-                                        struct Curl_tree **removed)
+UNITTEST ರಚನೆ Curl_ವೃಕ್ಷ *splaygetbest(timediff_t ಕೀಲಿ,
+                                        ರಚನೆ Curl_ವೃಕ್ಷ *ಬೇರು,
+                                        ರಚನೆ Curl_ವೃಕ್ಷ **removed);
+UNITTEST ರಚನೆ Curl_ವೃಕ್ಷ *splaygetbest(timediff_t ಕೀಲಿ,
+                                        ರಚನೆ Curl_ವೃಕ್ಷ *ಬೇರು,
+                                        ರಚನೆ Curl_ವೃಕ್ಷ **removed)
 {
-  struct Curl_tree *x;
+  ರಚನೆ Curl_ವೃಕ್ಷ *x;
 
-  if(!root) {
-    *removed = NULL; /* none removed since there was no root */
-    return NULL;
+  ಆದರೆ(!ಬೇರು) {
+    *removed = ಖಾಲಿ; /* none removed since there was no root */
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
   }
 
   /* find smallest */
-  root = splay(TIMEDIFF_T_MIN, root);
-  DEBUGASSERT(root);
-  if(key < root->key) {
+  ಬೇರು = splay(TIMEDIFF_T_MIN, ಬೇರು);
+  DEBUGASSERT(ಬೇರು);
+  ಆದರೆ(ಕೀಲಿ < ಬೇರು->ಕೀಲಿ) {
     /* even the smallest is too big */
-    *removed = NULL;
-    return root;
+    *removed = ಖಾಲಿ;
+    ಹಿಂತಿರುಗಿ ಬೇರು;
   }
 
   /* FIRST! Check if there is a list with identical keys */
-  if(root->same) {
-    x = root->same;
-    DEBUGASSERT(x->key == root->key);
+  ಆದರೆ(ಬೇರು->same) {
+    x = ಬೇರು->same;
+    DEBUGASSERT(x->ಕೀಲಿ == ಬೇರು->ಕೀಲಿ);
     /* 'x' becomes the new root node */
-    x->larger = root->larger;
-    x->smaller = root->smaller;
-    root->same = NULL;
-    root->registered = FALSE;
-    *removed = root;
-    return x; /* new root */
+    x->larger = ಬೇರು->larger;
+    x->smaller = ಬೇರು->smaller;
+    ಬೇರು->same = ಖಾಲಿ;
+    ಬೇರು->registered = FALSE;
+    *removed = ಬೇರು;
+    ಹಿಂತಿರುಗಿ x; /* new root */
   }
 
   /* we splayed the tree to the smallest element, there is no smaller */
-  x = root->larger;
-  root->registered = FALSE;
-  *removed = root;
+  x = ಬೇರು->larger;
+  ಬೇರು->registered = FALSE;
+  *removed = ಬೇರು;
 
-  return x;
+  ಹಿಂತಿರುಗಿ x;
 }
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(ರಚನೆ Curl_timeouts *timeouts,
+                                  ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *ts,
                                   uint32_t *pmid)
 {
-  if(timeouts->tree) {
-    struct Curl_tree *t = NULL;
-    timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, ts);
-    timeouts->tree = splaygetbest(elapsed_us, timeouts->tree, &t);
-    if(t) {
+  ಆದರೆ(timeouts->ವೃಕ್ಷ) {
+    ರಚನೆ Curl_ವೃಕ್ಷ *t = ಖಾಲಿ;
+    timediff_t elapsed_us = Curl_timeouts_ಸ್ಥಾನಾಂತರ_us(timeouts, ts);
+    timeouts->ವೃಕ್ಷ = splaygetbest(elapsed_us, timeouts->ವೃಕ್ಷ, &t);
+    ಆದರೆ(t) {
       *pmid = t->id;
-      return TRUE;
+      ಹಿಂತಿರುಗಿ TRUE;
     }
   }
   *pmid = UINT32_MAX;
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
 /* Deletes the node we point out from the tree if it is there. Stores a
@@ -307,86 +307,86 @@ bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
  *
  * @unittest 1309
  */
-UNITTEST int splayremove(struct Curl_tree *root,
-                         struct Curl_tree *removenode,
-                         struct Curl_tree **newroot);
-UNITTEST int splayremove(struct Curl_tree *root,
-                         struct Curl_tree *removenode,
-                         struct Curl_tree **newroot)
+UNITTEST ಪೂರ್ಣಾಂಕ splayremove(ರಚನೆ Curl_ವೃಕ್ಷ *ಬೇರು,
+                         ರಚನೆ Curl_ವೃಕ್ಷ *removenode,
+                         ರಚನೆ Curl_ವೃಕ್ಷ **newroot);
+UNITTEST ಪೂರ್ಣಾಂಕ splayremove(ರಚನೆ Curl_ವೃಕ್ಷ *ಬೇರು,
+                         ರಚನೆ Curl_ವೃಕ್ಷ *removenode,
+                         ರಚನೆ Curl_ವೃಕ್ಷ **newroot)
 {
-  struct Curl_tree *x;
+  ರಚನೆ Curl_ವೃಕ್ಷ *x;
 
-  if(!root)
-    return 1;
+  ಆದರೆ(!ಬೇರು)
+    ಹಿಂತಿರುಗಿ 1;
 
   DEBUGASSERT(removenode);
-  if(!removenode->registered)
-    return 2;
+  ಆದರೆ(!removenode->registered)
+    ಹಿಂತಿರುಗಿ 2;
 
-  root = splay(removenode->key, root);
-  DEBUGASSERT(root);
+  ಬೇರು = splay(removenode->ಕೀಲಿ, ಬೇರು);
+  DEBUGASSERT(ಬೇರು);
 
   /* First make sure that we got the same root key as the one we want
      to remove, as otherwise we might be trying to remove a node that
      is not actually in the tree. */
-  if(root->key != removenode->key) {
+  ಆದರೆ(ಬೇರು->ಕೀಲಿ != removenode->ಕೀಲಿ) {
     DEBUGASSERT(0);
-    return 2;
+    ಹಿಂತಿರುಗಿ 2;
   }
 
-  if(root != removenode) {
+  ಆದರೆ(ಬೇರು != removenode) {
     /* Should be in the root->same list then */
-    struct Curl_tree **panchor;
-    for(panchor = &root->same; *panchor; panchor = &(*panchor)->same) {
-      if(*panchor == removenode) {
+    ರಚನೆ Curl_ವೃಕ್ಷ **panchor;
+    ಗಾಗಿ(panchor = &ಬೇರು->same; *panchor; panchor = &(*panchor)->same) {
+      ಆದರೆ(*panchor == removenode) {
         *panchor = removenode->same;
-        removenode->same = NULL;
+        removenode->same = ಖಾಲಿ;
         removenode->registered = FALSE;
-        *newroot = root;
-        return 0;
+        *newroot = ಬೇರು;
+        ಹಿಂತಿರುಗಿ 0;
       }
     }
     /* not found in same list, error */
     DEBUGASSERT(0);
-    return 2;
+    ಹಿಂತಿರುಗಿ 2;
   }
   /* removing the root node */
-  if(root->same) {
+  ಆದರೆ(ಬೇರು->same) {
     /* 'x' is the new root node, we make it use the root node's
        smaller/larger links */
-    x = root->same;
-    x->larger = root->larger;
-    x->smaller = root->smaller;
-    root->same = NULL;
+    x = ಬೇರು->same;
+    x->larger = ಬೇರು->larger;
+    x->smaller = ಬೇರು->smaller;
+    ಬೇರು->same = ಖಾಲಿ;
   }
-  else {
+  ಇಲ್ಲದಿದ್ದರೆ {
     /* Remove the root node */
-    if(!root->smaller)
-      x = root->larger;
-    else {
-      x = splay(removenode->key, root->smaller);
+    ಆದರೆ(!ಬೇರು->smaller)
+      x = ಬೇರು->larger;
+    ಇಲ್ಲದಿದ್ದರೆ {
+      x = splay(removenode->ಕೀಲಿ, ಬೇರು->smaller);
       DEBUGASSERT(x);
-      x->larger = root->larger;
+      x->larger = ಬೇರು->larger;
     }
   }
   removenode->registered = FALSE;
   *newroot = x; /* return new root */
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data)
+bool Curl_timeouts_remove(ರಚನೆ Curl_timeouts *timeouts,
+                          ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct Curl_tree *node = &data->state.timeouts.splaynode;
-  if(node->registered) {
-    int rc = splayremove(timeouts->tree, node, &timeouts->tree);
-#ifdef DEBUGBUILD
-    if(rc)
+  ರಚನೆ Curl_ವೃಕ್ಷ *ಗಂಟು = &ದತ್ತಾಂಶ->state.timeouts.splaynode;
+  ಆದರೆ(ಗಂಟು->registered) {
+    ಪೂರ್ಣಾಂಕ rc = splayremove(timeouts->ವೃಕ್ಷ, ಗಂಟು, &timeouts->ವೃಕ್ಷ);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+    ಆದರೆ(rc)
       curl_mfprintf(stderr, "Internal error removing splay node = %d\n", rc);
-#else
-    (void)rc;
-#endif
-    return TRUE;
+#ಇಲ್ಲದಿದ್ದರೆ
+    (ಶೂನ್ಯ)rc;
+#ಆದರೆ_ಅಂತ್ಯ
+    ಹಿಂತಿರುಗಿ TRUE;
   }
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }

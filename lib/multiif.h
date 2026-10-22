@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIIF_H
-#define HEADER_CURL_MULTIIF_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_MULTIIF_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_MULTIIF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -27,31 +27,31 @@
  * Prototypes for library-wide functions provided by multi.c
  */
 
-void Curl_expire(struct Curl_easy *data, timediff_t milli, expire_id eid);
-void Curl_expire_set(struct Curl_easy *data,
+ಶೂನ್ಯ Curl_expire(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, timediff_t milli, expire_id eid);
+ಶೂನ್ಯ Curl_expire_ಗಣ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                      expire_id eid, timediff_t ms,
-                     const struct curltime *pnow);
-void Curl_expire_clear(struct Curl_easy *data, expire_id eid);
-void Curl_expire_clear_all(struct Curl_easy *data);
-CURLMcode Curl_update_timer(struct Curl_multi *multi) WARN_UNUSED_RESULT;
-void Curl_attach_connection(struct Curl_easy *data,
-                            struct connectdata *conn,
+                     ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pnow);
+ಶೂನ್ಯ Curl_expire_clear(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, expire_id eid);
+ಶೂನ್ಯ Curl_expire_clear_all(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
+CURLMcode Curl_update_timer(ರಚನೆ Curl_multi *multi) WARN_ಬಳಸದ_ಫಲಿತಾಂಶ;
+ಶೂನ್ಯ Curl_attach_connection(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            ರಚನೆ connectdata *conn,
                             bool matched);
-void Curl_detach_connection(struct Curl_easy *data);
-bool Curl_multiplex_wanted(const struct Curl_multi *multi);
-CURLcode Curl_preconnect(struct Curl_easy *data);
-bool Curl_is_connecting(struct Curl_easy *data);
+ಶೂನ್ಯ Curl_detach_connection(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
+bool Curl_multiplex_wanted(ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_multi *multi);
+CURLcode Curl_preconnect(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
+bool Curl_is_connecting(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-void Curl_multi_connchanged(struct Curl_multi *multi);
+ಶೂನ್ಯ Curl_multi_connchanged(ರಚನೆ Curl_multi *multi);
 
-CURLMcode Curl_multi_add_handle(struct Curl_multi *multi,
-                                struct Curl_easy *data);
-CURLMcode Curl_multi_remove_handle(struct Curl_multi *multi,
-                                   struct Curl_easy *data);
+CURLMcode Curl_multi_ಕೂಡಿಸು_handle(ರಚನೆ Curl_multi *multi,
+                                ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
+CURLMcode Curl_multi_remove_handle(ರಚನೆ Curl_multi *multi,
+                                   ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
 /* Internal version of curl_multi_init() accepts size parameters for the
    socket, connection and dns hashes */
-struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
+ರಚನೆ Curl_multi *Curl_multi_handle(uint32_t xfer_ಕೋಷ್ಟಕ_ಗಾತ್ರ,
                                      size_t ev_hashsize,
                                      size_t chashsize,
                                      size_t dnssize,
@@ -63,20 +63,20 @@ struct Curl_multi *Curl_multi_handle(uint32_t xfer_table_size,
  * when the OS is using this socket (number) again subsequently,
  * the internal book keeping will not get confused.
  */
-void Curl_multi_will_close(struct Curl_easy *data, curl_socket_t s);
+ಶೂನ್ಯ Curl_multi_will_close(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, curl_socket_t s);
 
 /*
  * Add a handle and move it into PERFORM state at once. For pushed streams.
  */
-CURLMcode Curl_multi_add_perform(struct Curl_multi *multi,
-                                 struct Curl_easy *data,
-                                 struct connectdata *conn);
+CURLMcode Curl_multi_ಕೂಡಿಸು_perform(ರಚನೆ Curl_multi *multi,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 ರಚನೆ connectdata *conn);
 
 /* Return the value of the CURLMOPT_MAX_CONCURRENT_STREAMS option */
-uint32_t Curl_multi_max_concurrent_streams(struct Curl_multi *multi);
+uint32_t Curl_multi_max_concurrent_streams(ರಚನೆ Curl_multi *multi);
 
-CURLMcode Curl_multi_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps);
+CURLMcode Curl_multi_pollset(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                             ರಚನೆ easy_pollset *ps);
 
 /**
  * Borrow the transfer buffer from the multi, suitable
@@ -93,14 +93,14 @@ CURLMcode Curl_multi_pollset(struct Curl_easy *data,
  *         CURLE_FAILED_INIT if the easy handle is without multi.
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_buf_borrow(struct Curl_easy *data,
-                                    char **pbuf, size_t *pbuflen);
+CURLcode Curl_multi_xfer_buf_borrow(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                    ಅಕ್ಷರ **pbuf, size_t *pbuflen);
 /**
  * Release the borrowed buffer. All references into the buffer become
  * invalid after this.
  * @param buf the buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf);
+ಶೂನ್ಯ Curl_multi_xfer_buf_release(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಅಕ್ಷರ *buf);
 
 /**
  * Borrow the upload buffer from the multi, suitable
@@ -117,15 +117,15 @@ void Curl_multi_xfer_buf_release(struct Curl_easy *data, char *buf);
  *         CURLE_FAILED_INIT if the easy handle is without multi.
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_ulbuf_borrow(struct Curl_easy *data,
-                                      char **pbuf, size_t *pbuflen);
+CURLcode Curl_multi_xfer_ulbuf_borrow(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                      ಅಕ್ಷರ **pbuf, size_t *pbuflen);
 
 /**
  * Release the borrowed upload buffer. All references into the buffer become
  * invalid after this.
  * @param buf the upload buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf);
+ಶೂನ್ಯ Curl_multi_xfer_ulbuf_release(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಅಕ್ಷರ *buf);
 
 /**
  * Borrow the socket scratch buffer from the multi, suitable
@@ -141,39 +141,39 @@ void Curl_multi_xfer_ulbuf_release(struct Curl_easy *data, char *buf);
  *         CURLE_OUT_OF_MEMORY on failure to allocate the buffer,
  *         CURLE_AGAIN if the buffer is borrowed already.
  */
-CURLcode Curl_multi_xfer_sockbuf_borrow(struct Curl_easy *data,
-                                        size_t blen, char **pbuf);
+CURLcode Curl_multi_xfer_sockbuf_borrow(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                        size_t blen, ಅಕ್ಷರ **pbuf);
 /**
  * Release the borrowed buffer. All references into the buffer become
  * invalid after this.
  * @param buf the buffer pointer borrowed for coding error checks.
  */
-void Curl_multi_xfer_sockbuf_release(struct Curl_easy *data, char *buf);
+ಶೂನ್ಯ Curl_multi_xfer_sockbuf_release(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಅಕ್ಷರ *buf);
 
 /**
  * Get the easy handle for the given mid.
  * Returns NULL if not found or not a GOOD_EASY_HANDLE()
  */
-struct Curl_easy *Curl_multi_get_easy(struct Curl_multi *multi,
+ರಚನೆ Curl_easy *Curl_multi_get_easy(ರಚನೆ Curl_multi *multi,
                                       uint32_t mid);
 
 /* TRUE if multi knows about data via its `mid` */
-bool Curl_multi_knows_easy(struct Curl_multi *multi, struct Curl_easy *data);
+bool Curl_multi_knows_easy(ರಚನೆ Curl_multi *multi, ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
 /* Get the # of transfers attached to the multi, without the internal
  * admin handle. */
-uint32_t Curl_multi_xfers_attached(struct Curl_multi *multi);
+uint32_t Curl_multi_xfers_attached(ರಚನೆ Curl_multi *multi);
 
 /* Mark a transfer as dirty, e.g. to be rerun at earliest convenience.
  * A cheap operation, can be done many times repeatedly. */
-void Curl_multi_mark_dirty(struct Curl_easy *data);
+ಶೂನ್ಯ Curl_multi_mark_dirty(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 /* Clear transfer from the dirty set. */
-void Curl_multi_clear_dirty(struct Curl_easy *data);
+ಶೂನ್ಯ Curl_multi_clear_dirty(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-void Curl_multi_set_now(struct Curl_multi *multi);
+ಶೂನ್ಯ Curl_multi_ಗಣ_now(ರಚನೆ Curl_multi *multi);
 
-#ifdef ENABLE_INTERNAL_WAKEUP
-void Curl_multi_wakeup_internal(struct Curl_multi *multi);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ ENABLE_ಆಂತರಿಕ_WAKEUP
+ಶೂನ್ಯ Curl_multi_wakeup_ಆಂತರಿಕ(ರಚನೆ Curl_multi *multi);
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HEADER_CURL_MULTIIF_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_MULTIIF_H */

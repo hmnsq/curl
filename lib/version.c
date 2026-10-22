@@ -21,111 +21,111 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_NGHTTP2
-#include <nghttp2/nghttp2.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_NGHTTP2
+#ಅನ್ತರ್ಭಾವ <nghttp2/nghttp2.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "http2.h"
-#include "vssh/ssh.h"
-#include "vquic/vquic.h"
-#include "easy_lock.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "vtls/vtls.h"
+#ಅನ್ತರ್ಭಾವ "http2.h"
+#ಅನ್ತರ್ಭಾವ "vssh/ssh.h"
+#ಅನ್ತರ್ಭಾವ "vquic/vquic.h"
+#ಅನ್ತರ್ಭಾವ "easy_lock.h"
 
-#ifdef USE_ARES
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_ARES
 #  include <ares.h>
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_LIBIDN2
-#include <idn2.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBIDN2
+#ಅನ್ತರ್ಭಾವ <idn2.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_LIBPSL
-#include <libpsl.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBPSL
+#ಅನ್ತರ್ಭಾವ <libpsl.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_LIBZ
+#ಅನ್ತರ್ಭಾವ <zlib.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_BROTLI
-#ifdef CURL_HAVE_DIAG
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_BROTLI
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_HAVE_DIAG
 /* Ignore -Wvla warnings in brotli headers */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-#endif
-#include <brotli/decode.h>
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
-#endif
+#ಸೂಚನೆ GCC diagnostic ತಳ್ಳು
+#ಸೂಚನೆ GCC diagnostic ignored "-Wvla"
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <brotli/decode.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_HAVE_DIAG
+#ಸೂಚನೆ GCC diagnostic ತೆಗೆ
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_ZSTD
-#include <zstd.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ZSTD
+#ಅನ್ತರ್ಭಾವ <zstd.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_GSASL
-#include <gsasl.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_GSASL
+#ಅನ್ತರ್ಭಾವ <gsasl.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifndef CURL_DISABLE_LDAP
-#include "curl_ldap.h"
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_LDAP
+#ಅನ್ತರ್ಭಾವ "curl_ldap.h"
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_BROTLI
-static void brotli_version(char *buf, size_t bufsz)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_BROTLI
+ಸ್ಥಿರ ಶೂನ್ಯ brotli_ಆವೃತ್ತಿ(ಅಕ್ಷರ *buf, size_t bufsz)
 {
-  uint32_t brotli_version = BrotliDecoderVersion();
-  unsigned int major = brotli_version >> 24;
-  unsigned int minor = (brotli_version & 0x00FFFFFF) >> 12;
-  unsigned int patch = brotli_version & 0x00000FFF;
-  (void)curl_msnprintf(buf, bufsz, "brotli/%u.%u.%u", major, minor, patch);
+  uint32_t brotli_ಆವೃತ್ತಿ = Brotli_Decoder_ಆವೃತ್ತಿ();
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ major = brotli_ಆವೃತ್ತಿ >> 24;
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ minor = (brotli_ಆವೃತ್ತಿ & 0x00FFFFFF) >> 12;
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ patch = brotli_ಆವೃತ್ತಿ & 0x00000FFF;
+  (ಶೂನ್ಯ)curl_msnprintf(buf, bufsz, "brotli/%u.%u.%u", major, minor, patch);
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_ZSTD
-static void zstd_version(char *buf, size_t bufsz)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ZSTD
+ಸ್ಥಿರ ಶೂನ್ಯ zstd_ಆವೃತ್ತಿ(ಅಕ್ಷರ *buf, size_t bufsz)
 {
-  unsigned int version = ZSTD_versionNumber();
-  unsigned int major = version / (100 * 100);
-  unsigned int minor = (version - (major * 100 * 100)) / 100;
-  unsigned int patch = version - (major * 100 * 100) - (minor * 100);
-  (void)curl_msnprintf(buf, bufsz, "zstd/%u.%u.%u", major, minor, patch);
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ ಆವೃತ್ತಿ_2 = ZSTD_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ();
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ major = ಆವೃತ್ತಿ_2 / (100 * 100);
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ minor = (ಆವೃತ್ತಿ_2 - (major * 100 * 100)) / 100;
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ patch = ಆವೃತ್ತಿ_2 - (major * 100 * 100) - (minor * 100);
+  (ಶೂನ್ಯ)curl_msnprintf(buf, bufsz, "zstd/%u.%u.%u", major, minor, patch);
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_LIBPSL
-static void psl_version(char *buf, size_t bufsz)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBPSL
+ಸ್ಥಿರ ಶೂನ್ಯ psl_ಆವೃತ್ತಿ(ಅಕ್ಷರ *buf, size_t bufsz)
 {
-#if defined(PSL_VERSION_MAJOR) && (PSL_VERSION_MAJOR > 0 ||     \
-                                   PSL_VERSION_MINOR >= 11)
-  int num = psl_check_version_number(0);
+#ಆದರೆ defined(PSL_ಆವೃತ್ತಿ_MAJOR) && (PSL_ಆವೃತ್ತಿ_MAJOR > 0 ||     \
+                                   PSL_ಆವೃತ್ತಿ_MINOR >= 11)
+  ಪೂರ್ಣಾಂಕ ಅಂಕೆ = psl_check_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ(0);
   curl_msnprintf(buf, bufsz, "libpsl/%d.%d.%d",
-                 num >> 16, (num >> 8) & 0xff, num & 0xff);
-#else
-  curl_msnprintf(buf, bufsz, "libpsl/%s", psl_get_version());
-#endif
+                 ಅಂಕೆ >> 16, (ಅಂಕೆ >> 8) & 0xff, ಅಂಕೆ & 0xff);
+#ಇಲ್ಲದಿದ್ದರೆ
+  curl_msnprintf(buf, bufsz, "libpsl/%s", psl_get_ಆವೃತ್ತಿ());
+#ಆದರೆ_ಅಂತ್ಯ
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-#define USE_IDN
-#endif
+#ಆದರೆ defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#ವ್ಯಾಖ್ಯಾನಿಸು USE_IDN
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_IDN
-static void idn_version(char *buf, size_t bufsz)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_IDN
+ಸ್ಥಿರ ಶೂನ್ಯ idn_ಆವೃತ್ತಿ(ಅಕ್ಷರ *buf, size_t bufsz)
 {
-#ifdef USE_LIBIDN2
-  curl_msnprintf(buf, bufsz, "libidn2/%s", idn2_check_version(NULL));
-#elif defined(USE_WIN32_IDN)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBIDN2
+  curl_msnprintf(buf, bufsz, "libidn2/%s", idn2_check_ಆವೃತ್ತಿ(ಖಾಲಿ));
+#ಅಥವಾಆದರೆ defined(USE_WIN32_IDN)
   curl_msnprintf(buf, bufsz, "WinIDN");
-#elif defined(USE_APPLE_IDN)
+#ಅಥವಾಆದರೆ defined(USE_APPLE_IDN)
   curl_msnprintf(buf, bufsz, "AppleIDN");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 /*
  * curl_version() returns a pointer to a static buffer.
@@ -135,151 +135,151 @@ static void idn_version(char *buf, size_t bufsz)
  * zeros in the data.
  */
 
-#define VERSION_PARTS 16 /* number of substrings we can concatenate */
+#ವ್ಯಾಖ್ಯಾನಿಸು ಆವೃತ್ತಿ_PARTS 16 /* number of substrings we can concatenate */
 
-char *curl_version(void)
+ಅಕ್ಷರ *curl_ಆವೃತ್ತಿ(ಶೂನ್ಯ)
 {
-  static char out[300];
-  char *outp;
+  ಸ್ಥಿರ ಅಕ್ಷರ ಹೊರಹೋಗು[300];
+  ಅಕ್ಷರ *outp;
   size_t outlen;
-  const char *src[VERSION_PARTS];
-#ifdef USE_SSL
-  char ssl_version[200];
-#endif
-#ifdef HAVE_LIBZ
-  char z_version[30];
-#endif
-#ifdef HAVE_BROTLI
-  char br_version[30];
-#endif
-#ifdef HAVE_ZSTD
-  char zstd_ver[30];
-#endif
-#ifdef USE_ARES
-  char cares_version[30];
-#endif
-#ifdef USE_IDN
-  char idn_ver[30];
-#endif
-#ifdef USE_LIBPSL
-  char psl_ver[30];
-#endif
-#ifdef USE_SSH
-  char ssh_version[30];
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  char h2_version[30];
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  char h3_version[30];
-#endif
-#ifdef USE_GSASL
-  char gsasl_buf[30];
-#endif
-#ifdef HAVE_GSSAPI
-  char gss_buf[40];
-#endif
-#ifndef CURL_DISABLE_LDAP
-  char ldap_buf[30];
-#endif
-  int i = 0;
-  int j;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src[ಆವೃತ್ತಿ_PARTS];
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+  ಅಕ್ಷರ ssl_ಆವೃತ್ತಿ[200];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_LIBZ
+  ಅಕ್ಷರ z_ಆವೃತ್ತಿ[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_BROTLI
+  ಅಕ್ಷರ br_ಆವೃತ್ತಿ[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ZSTD
+  ಅಕ್ಷರ zstd_ver[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_ARES
+  ಅಕ್ಷರ cares_ಆವೃತ್ತಿ[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_IDN
+  ಅಕ್ಷರ idn_ver[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBPSL
+  ಅಕ್ಷರ psl_ver[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
+  ಅಕ್ಷರ ssh_ಆವೃತ್ತಿ[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  ಅಕ್ಷರ h2_ಆವೃತ್ತಿ[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  ಅಕ್ಷರ h3_ಆವೃತ್ತಿ[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_GSASL
+  ಅಕ್ಷರ gsasl_buf[30];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GSSAPI
+  ಅಕ್ಷರ gss_buf[40];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_LDAP
+  ಅಕ್ಷರ ldap_buf[30];
+#ಆದರೆ_ಅಂತ್ಯ
+  ಪೂರ್ಣಾಂಕ i = 0;
+  ಪೂರ್ಣಾಂಕ j;
 
-#ifdef DEBUGBUILD
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
   /* Override version string when environment variable CURL_DEBUG_VERSION is
-     set */
-  const char *debugversion = getenv("CURL_DEBUG_VERSION");
-  if(debugversion) {
-    curl_msnprintf(out, sizeof(out), "%s", debugversion);
-    return out;
+ಗಣ*/
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *debugversion = getenv("CURL_DEBUG_VERSION");
+  ಆದರೆ(debugversion) {
+    curl_msnprintf(ಹೊರಹೋಗು, ಗಾತ್ರ(ಹೊರಹೋಗು), "%s", debugversion);
+    ಹಿಂತಿರುಗಿ ಹೊರಹೋಗು;
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  src[i++] = LIBCURL_NAME "/" LIBCURL_VERSION;
-#ifdef USE_SSL
-  Curl_ssl_version(ssl_version, sizeof(ssl_version));
-  src[i++] = ssl_version;
-#endif
-#ifdef HAVE_LIBZ
-  curl_msnprintf(z_version, sizeof(z_version), "zlib/%s", zlibVersion());
-  src[i++] = z_version;
-#endif
-#ifdef HAVE_BROTLI
-  brotli_version(br_version, sizeof(br_version));
-  src[i++] = br_version;
-#endif
-#ifdef HAVE_ZSTD
-  zstd_version(zstd_ver, sizeof(zstd_ver));
+  src[i++] = LIBCURL_NAME "/" LIBCURL_ಆವೃತ್ತಿ;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+  Curl_ssl_ಆವೃತ್ತಿ(ssl_ಆವೃತ್ತಿ, ಗಾತ್ರ(ssl_ಆವೃತ್ತಿ));
+  src[i++] = ssl_ಆವೃತ್ತಿ;
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_LIBZ
+  curl_msnprintf(z_ಆವೃತ್ತಿ, ಗಾತ್ರ(z_ಆವೃತ್ತಿ), "zlib/%s", zlib_ಆವೃತ್ತಿ());
+  src[i++] = z_ಆವೃತ್ತಿ;
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_BROTLI
+  brotli_ಆವೃತ್ತಿ(br_ಆವೃತ್ತಿ, ಗಾತ್ರ(br_ಆವೃತ್ತಿ));
+  src[i++] = br_ಆವೃತ್ತಿ;
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ZSTD
+  zstd_ಆವೃತ್ತಿ(zstd_ver, ಗಾತ್ರ(zstd_ver));
   src[i++] = zstd_ver;
-#endif
-#ifdef USE_ARES
-  curl_msnprintf(cares_version, sizeof(cares_version),
-                 "c-ares/%s", ares_version(NULL));
-  src[i++] = cares_version;
-#endif
-#ifdef USE_IDN
-  idn_version(idn_ver, sizeof(idn_ver));
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_ARES
+  curl_msnprintf(cares_ಆವೃತ್ತಿ, ಗಾತ್ರ(cares_ಆವೃತ್ತಿ),
+                 "c-ares/%s", ares_ಆವೃತ್ತಿ(ಖಾಲಿ));
+  src[i++] = cares_ಆವೃತ್ತಿ;
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_IDN
+  idn_ಆವೃತ್ತಿ(idn_ver, ಗಾತ್ರ(idn_ver));
   src[i++] = idn_ver;
-#endif
-#ifdef USE_LIBPSL
-  psl_version(psl_ver, sizeof(psl_ver));
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBPSL
+  psl_ಆವೃತ್ತಿ(psl_ver, ಗಾತ್ರ(psl_ver));
   src[i++] = psl_ver;
-#endif
-#ifdef USE_SSH
-  Curl_ssh_version(ssh_version, sizeof(ssh_version));
-  src[i++] = ssh_version;
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  Curl_http2_ver(h2_version, sizeof(h2_version));
-  src[i++] = h2_version;
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  Curl_quic_ver(h3_version, sizeof(h3_version));
-  src[i++] = h3_version;
-#endif
-#ifdef USE_GSASL
-  curl_msnprintf(gsasl_buf, sizeof(gsasl_buf), "libgsasl/%s",
-                 gsasl_check_version(NULL));
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
+  Curl_ssh_ಆವೃತ್ತಿ(ssh_ಆವೃತ್ತಿ, ಗಾತ್ರ(ssh_ಆವೃತ್ತಿ));
+  src[i++] = ssh_ಆವೃತ್ತಿ;
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  Curl_http2_ver(h2_ಆವೃತ್ತಿ, ಗಾತ್ರ(h2_ಆವೃತ್ತಿ));
+  src[i++] = h2_ಆವೃತ್ತಿ;
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  Curl_quic_ver(h3_ಆವೃತ್ತಿ, ಗಾತ್ರ(h3_ಆವೃತ್ತಿ));
+  src[i++] = h3_ಆವೃತ್ತಿ;
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_GSASL
+  curl_msnprintf(gsasl_buf, ಗಾತ್ರ(gsasl_buf), "libgsasl/%s",
+                 gsasl_check_ಆವೃತ್ತಿ(ಖಾಲಿ));
   src[i++] = gsasl_buf;
-#endif
-#ifdef HAVE_GSSAPI
-#ifdef HAVE_GSSAPPLE
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "AppleGSS");
-#elif defined(HAVE_GSSGNU)
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "libgss/%s", GSS_VERSION);
-#elif defined(CURL_KRB5_VERSION)
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "mit-krb5/%s", CURL_KRB5_VERSION);
-#else
-  curl_msnprintf(gss_buf, sizeof(gss_buf), "mit-krb5");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GSSAPI
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GSSAPPLE
+  curl_msnprintf(gss_buf, ಗಾತ್ರ(gss_buf), "AppleGSS");
+#ಅಥವಾಆದರೆ defined(HAVE_GSSGNU)
+  curl_msnprintf(gss_buf, ಗಾತ್ರ(gss_buf), "libgss/%s", GSS_ಆವೃತ್ತಿ);
+#ಅಥವಾಆದರೆ defined(CURL_KRB5_ಆವೃತ್ತಿ)
+  curl_msnprintf(gss_buf, ಗಾತ್ರ(gss_buf), "mit-krb5/%s", CURL_KRB5_ಆವೃತ್ತಿ);
+#ಇಲ್ಲದಿದ್ದರೆ
+  curl_msnprintf(gss_buf, ಗಾತ್ರ(gss_buf), "mit-krb5");
+#ಆದರೆ_ಅಂತ್ಯ
   src[i++] = gss_buf;
-#endif /* HAVE_GSSAPI */
-#ifndef CURL_DISABLE_LDAP
-  Curl_ldap_version(ldap_buf, sizeof(ldap_buf));
+#ಆದರೆ_ಅಂತ್ಯ /* HAVE_GSSAPI */
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_LDAP
+  Curl_ldap_ಆವೃತ್ತಿ(ldap_buf, ಗಾತ್ರ(ldap_buf));
   src[i++] = ldap_buf;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  DEBUGASSERT(i <= VERSION_PARTS);
+  DEBUGASSERT(i <= ಆವೃತ್ತಿ_PARTS);
 
-  outp = &out[0];
-  outlen = sizeof(out);
-  for(j = 0; j < i; j++) {
-    size_t n = strlen(src[j]);
+  outp = &ಹೊರಹೋಗು[0];
+  outlen = ಗಾತ್ರ(ಹೊರಹೋಗು);
+  ಗಾಗಿ(j = 0; j < i; j++) {
+    size_t n = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(src[j]);
     /* we need room for a space, the string and the final zero */
-    if(outlen <= (n + 2))
-      break;
-    if(j) {
+    ಆದರೆ(outlen <= (n + 2))
+      ನಿಲ್ಲಿಸು;
+    ಆದರೆ(j) {
       /* prepend a space if not the first */
       *outp++ = ' ';
       outlen--;
     }
-    memcpy(outp, src[j], n);
+    ಸ್ಮರಣೆ_ನಕಲು(outp, src[j], n);
     outp += n;
     outlen -= n;
   }
   *outp = 0;
 
-  return out;
+  ಹಿಂತಿರುಗಿ ಹೊರಹೋಗು;
 }
 
 /* data for curl_version_info
@@ -288,87 +288,87 @@ char *curl_version(void)
    protocol line has its own #if line to make things easier on the eye.
  */
 
-static const char * const supported_protocols[] = {
-#ifndef CURL_DISABLE_DICT
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ supported_protocols[] = {
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_DICT
   "dict",
-#endif
-#ifndef CURL_DISABLE_FILE
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_FILE
   "file",
-#endif
-#ifndef CURL_DISABLE_FTP
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_FTP
   "ftp",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_FTP)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_FTP)
   "ftps",
-#endif
-#ifndef CURL_DISABLE_GOPHER
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_GOPHER
   "gopher",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_GOPHER)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_GOPHER)
   "gophers",
-#endif
-#ifndef CURL_DISABLE_HTTP
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_HTTP
   "http",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_HTTP)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_HTTP)
   "https",
-#endif
-#ifndef CURL_DISABLE_IMAP
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_IMAP
   "imap",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_IMAP)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_IMAP)
   "imaps",
-#endif
-#ifndef CURL_DISABLE_LDAP
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_LDAP
   "ldap",
-#if !defined(CURL_DISABLE_LDAPS) && \
+#ಆದರೆ !defined(CURL_DISABLE_LDAPS) && \
   ((defined(USE_OPENLDAP) && defined(USE_SSL)) || \
    (!defined(USE_OPENLDAP) && defined(HAVE_LDAP_SSL)))
   "ldaps",
-#endif
-#endif
-#ifndef CURL_DISABLE_MQTT
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_MQTT
   "mqtt",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_MQTT)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_MQTT)
   "mqtts",
-#endif
-#ifndef CURL_DISABLE_POP3
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_POP3
   "pop3",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_POP3)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_POP3)
   "pop3s",
-#endif
-#ifndef CURL_DISABLE_RTSP
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_RTSP
   "rtsp",
-#endif
-#ifdef USE_SSH
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
   "scp",
   "sftp",
-#endif
-#ifndef CURL_DISABLE_SMTP
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_SMTP
   "smtp",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_SMTP)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_SMTP)
   "smtps",
-#endif
-#ifndef CURL_DISABLE_TELNET
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_TELNET
   "telnet",
-#endif
-#ifndef CURL_DISABLE_TFTP
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_TFTP
   "tftp",
-#endif
-#ifndef CURL_DISABLE_HTTP
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_HTTP
   /* WebSocket support relies on HTTP */
-#ifndef CURL_DISABLE_WEBSOCKETS
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_WEBSOCKETS
   "ws",
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_WEBSOCKETS)
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_WEBSOCKETS)
   "wss",
-#endif
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
 
-  NULL
+  ಖಾಲಿ
 };
 
 /*
@@ -378,34 +378,34 @@ static const char * const supported_protocols[] = {
  * curl_global_init() and curl_global_cleanup() calls.
  */
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-static int idn_present(curl_version_info_data *info)
+#ಆದರೆ defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ idn_present(curl_ಆವೃತ್ತಿ_info_ದತ್ತಾಂಶ *info)
 {
-#if defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-  (void)info;
-  return TRUE;
-#else
-  return !!info->libidn;
-#endif
+#ಆದರೆ defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+  (ಶೂನ್ಯ)info;
+  ಹಿಂತಿರುಗಿ TRUE;
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಹಿಂತಿರುಗಿ !!info->libidn;
+#ಆದರೆ_ಅಂತ್ಯ
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
   !defined(CURL_DISABLE_HTTP)
-static int https_proxy_present(curl_version_info_data *info)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ https_proxy_present(curl_ಆವೃತ್ತಿ_info_ದತ್ತಾಂಶ *info)
 {
-  (void)info;
-  return Curl_ssl_supports(NULL, SSLSUPP_HTTPS_PROXY);
+  (ಶೂನ್ಯ)info;
+  ಹಿಂತಿರುಗಿ Curl_ssl_supports(ಖಾಲಿ, SSLSUPP_HTTPS_PROXY);
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(USE_SSL) && defined(USE_ECH)
-static int ech_present(curl_version_info_data *info)
+#ಆದರೆ defined(USE_SSL) && defined(USE_ECH)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ech_present(curl_ಆವೃತ್ತಿ_info_ದತ್ತಾಂಶ *info)
 {
-  (void)info;
-  return Curl_ssl_supports(NULL, SSLSUPP_ECH);
+  (ಶೂನ್ಯ)info;
+  ಹಿಂತಿರುಗಿ Curl_ssl_supports(ಖಾಲಿ, SSLSUPP_ECH);
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 /*
  * Features table.
@@ -414,263 +414,263 @@ static int ech_present(curl_version_info_data *info)
  * Use FEATURE() macro to define an entry: this allows documentation check.
  */
 
-#define FEATURE(name, present, bitmask) { (name), (present), (bitmask) }
+#ವ್ಯಾಖ್ಯಾನಿಸು FEATURE(name, present, bitmask) { (name), (present), (bitmask) }
 
-struct feat {
-  const char *name;
-  int        (*present)(curl_version_info_data *info);
-  int        bitmask;
+ರಚನೆ feat {
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
+  ಪೂರ್ಣಾಂಕ        (*present)(curl_ಆವೃತ್ತಿ_info_ದತ್ತಾಂಶ *info);
+  ಪೂರ್ಣಾಂಕ        bitmask;
 };
 
-static const struct feat features_table[] = {
-#ifndef CURL_DISABLE_ALTSVC
-  FEATURE("alt-svc",     NULL,                CURL_VERSION_ALTSVC),
-#endif
-#if defined(USE_ARES) && defined(USE_RESOLV_THREADED) && defined(USE_HTTPSRR)
-  FEATURE("asyn-rr",     NULL,                0),
-#endif
-#ifdef CURLRES_ASYNCH
-  FEATURE("AsynchDNS",   NULL,                CURL_VERSION_ASYNCHDNS),
-#endif
-#ifdef HAVE_BROTLI
-  FEATURE("brotli",      NULL,                CURL_VERSION_BROTLI),
-#endif
-#ifdef DEBUGBUILD
-  FEATURE("Debug",       NULL,                CURL_VERSION_DEBUG),
-#endif
-#if defined(USE_SSL) && defined(USE_ECH)
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ feat features_ಕೋಷ್ಟಕ[] = {
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_ALTSVC
+  FEATURE("alt-svc",     ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_ALTSVC),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_ARES) && defined(USE_RESOLV_THREADED) && defined(USE_HTTPSRR)
+  FEATURE("asyn-rr",     ಖಾಲಿ,                0),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLRES_ASYNCH
+  FEATURE("AsynchDNS",   ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_ASYNCHDNS),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_BROTLI
+  FEATURE("brotli",      ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_BROTLI),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+  FEATURE("Debug",       ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_DEBUG),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && defined(USE_ECH)
   FEATURE("ECH",         ech_present,         0),
 
-#ifndef USE_HTTPSRR
-#error "ECH enabled but not HTTPSRR, must be a config error"
-#endif
-#endif
-#ifdef USE_GSASL
-  FEATURE("gsasl",       NULL,                CURL_VERSION_GSASL),
-#endif
-#ifdef HAVE_GSSAPI
-  FEATURE("GSS-API",     NULL,                CURL_VERSION_GSSAPI),
-#endif
-#ifndef CURL_DISABLE_HSTS
-  FEATURE("HSTS",        NULL,                CURL_VERSION_HSTS),
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-  FEATURE("HTTP2",       NULL,                CURL_VERSION_HTTP2),
-#endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-  FEATURE("HTTP3",       NULL,                CURL_VERSION_HTTP3),
-#endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ USE_HTTPSRR
+#ದೋಷ "ECH enabled but not HTTPSRR, must be a config error"
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_GSASL
+  FEATURE("gsasl",       ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_GSASL),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GSSAPI
+  FEATURE("GSS-API",     ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_GSSAPI),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_HSTS
+  FEATURE("HSTS",        ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_HSTS),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+  FEATURE("HTTP2",       ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_HTTP2),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+  FEATURE("HTTP3",       ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_HTTP3),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
   !defined(CURL_DISABLE_HTTP)
-  FEATURE("HTTPS-proxy", https_proxy_present, CURL_VERSION_HTTPS_PROXY),
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
-  FEATURE("HTTPSIG",     NULL,                0),
-#endif
-#ifdef USE_HTTPSRR
-  FEATURE("HTTPSRR",     NULL,                0),
-#endif
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-  FEATURE("IDN",         idn_present,         CURL_VERSION_IDN),
-#endif
-#ifdef USE_IPV6
-  FEATURE("IPv6",        NULL,                CURL_VERSION_IPV6),
-#endif
-#ifdef USE_KERBEROS5
-  FEATURE("Kerberos",    NULL,                CURL_VERSION_KERBEROS5),
-#endif
-#if (SIZEOF_CURL_OFF_T > 4) && ((SIZEOF_OFF_T > 4) || defined(_WIN32))
-  FEATURE("Largefile",   NULL,                CURL_VERSION_LARGEFILE),
-#endif
-#ifdef HAVE_LIBZ
-  FEATURE("libz",        NULL,                CURL_VERSION_LIBZ),
-#endif
-#ifdef CURL_WITH_MULTI_SSL
-  FEATURE("MultiSSL",    NULL,                CURL_VERSION_MULTI_SSL),
-#endif
-#ifdef USE_NTLM
-  FEATURE("NTLM",        NULL,                CURL_VERSION_NTLM),
-#endif
-#ifdef USE_PROXY_HTTP3
-  FEATURE("proxy-HTTP3", NULL,                0),
-#endif
-#ifdef USE_LIBPSL
-  FEATURE("PSL",         NULL,                CURL_VERSION_PSL),
-#endif
-#ifdef USE_SSL
-#ifdef USE_APPLE_SECTRUST
-  FEATURE("AppleSecTrust", NULL,              0),
-#elif defined(CURL_CA_NATIVE)
-  FEATURE("NativeCA",    NULL,              0),
-#endif
-#endif /* USE_SSL */
-#ifdef USE_SPNEGO
-  FEATURE("SPNEGO",      NULL,                CURL_VERSION_SPNEGO),
-#endif
-#ifdef USE_SSL
-  FEATURE("SSL",         NULL,                CURL_VERSION_SSL),
-#endif
-#ifdef USE_SSLS_EXPORT
-  FEATURE("SSLS-EXPORT", NULL,                0),
-#endif
-#ifdef USE_WINDOWS_SSPI
-  FEATURE("SSPI",        NULL,                CURL_VERSION_SSPI),
-#endif
-#ifdef GLOBAL_INIT_IS_THREADSAFE
-  FEATURE("threadsafe",  NULL,                CURL_VERSION_THREADSAFE),
-#endif
-#if defined(_WIN32) && defined(UNICODE) && defined(_UNICODE)
-  FEATURE("Unicode",     NULL,                CURL_VERSION_UNICODE),
-#endif
-#ifdef USE_UNIX_SOCKETS
-  FEATURE("UnixSockets", NULL,                CURL_VERSION_UNIX_SOCKETS),
-#endif
-#ifdef HAVE_ZSTD
-  FEATURE("zstd",        NULL,                CURL_VERSION_ZSTD),
-#endif
-  {NULL,                 NULL,                0}
+  FEATURE("HTTPS-proxy", https_proxy_present, CURL_ಆವೃತ್ತಿ_HTTPS_PROXY),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_HTTPSIG
+  FEATURE("HTTPSIG",     ಖಾಲಿ,                0),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_HTTPSRR
+  FEATURE("HTTPSRR",     ಖಾಲಿ,                0),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+  FEATURE("IDN",         idn_present,         CURL_ಆವೃತ್ತಿ_IDN),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_IPV6
+  FEATURE("IPv6",        ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_IPV6),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_KERBEROS5
+  FEATURE("Kerberos",    ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_KERBEROS5),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ (SIZEOF_CURL_OFF_T > 4) && ((SIZEOF_OFF_T > 4) || defined(_WIN32))
+  FEATURE("Largefile",   ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_LARGEFILE),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_LIBZ
+  FEATURE("libz",        ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_LIBZ),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_WITH_MULTI_SSL
+  FEATURE("MultiSSL",    ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_MULTI_SSL),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_NTLM
+  FEATURE("NTLM",        ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_NTLM),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_PROXY_HTTP3
+  FEATURE("proxy-HTTP3", ಖಾಲಿ,                0),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBPSL
+  FEATURE("PSL",         ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_PSL),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_APPLE_SECTRUST
+  FEATURE("AppleSecTrust", ಖಾಲಿ,              0),
+#ಅಥವಾಆದರೆ defined(CURL_CA_NATIVE)
+  FEATURE("NativeCA",    ಖಾಲಿ,              0),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSL */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SPNEGO
+  FEATURE("SPNEGO",      ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_SPNEGO),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+  FEATURE("SSL",         ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_SSL),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSLS_EXPORT
+  FEATURE("SSLS-EXPORT", ಖಾಲಿ,                0),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_WINDOWS_SSPI
+  FEATURE("SSPI",        ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_SSPI),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ GLOBAL_INIT_IS_THREADSAFE
+  FEATURE("threadsafe",  ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_THREADSAFE),
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(_WIN32) && defined(UNICODE) && defined(_UNICODE)
+  FEATURE("Unicode",     ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_UNICODE),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_UNIX_SOCKETS
+  FEATURE("UnixSockets", ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_UNIX_SOCKETS),
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ZSTD
+  FEATURE("zstd",        ಖಾಲಿ,                CURL_ಆವೃತ್ತಿ_ZSTD),
+#ಆದರೆ_ಅಂತ್ಯ
+  {ಖಾಲಿ,                 ಖಾಲಿ,                0}
 };
 
-static const char *feature_names[CURL_ARRAYSIZE(features_table)] = { NULL };
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *feature_ಹೆಸರುಗಳು[CURL_ARRAYSIZE(features_ಕೋಷ್ಟಕ)] = { ಖಾಲಿ };
 
-static curl_version_info_data version_info = {
+ಸ್ಥಿರ curl_ಆವೃತ್ತಿ_info_ದತ್ತಾಂಶ ಆವೃತ್ತಿ_info = {
   CURLVERSION_NOW,
-  LIBCURL_VERSION,
-  LIBCURL_VERSION_NUM,
+  LIBCURL_ಆವೃತ್ತಿ,
+  LIBCURL_ಆವೃತ್ತಿ_ಅಂಕೆ,
   CURL_OS, /* as found by configure or set by hand at build-time */
   0,    /* features bitmask is built at runtime */
-  NULL, /* ssl_version */
+  ಖಾಲಿ, /* ssl_version */
   0,    /* ssl_version_num, this is kept at zero */
-  NULL, /* zlib_version */
+  ಖಾಲಿ, /* zlib_version */
   supported_protocols,
-  NULL, /* c-ares version */
+  ಖಾಲಿ, /* c-ares version */
   0,    /* c-ares version numerical */
-  NULL, /* libidn version */
+  ಖಾಲಿ, /* libidn version */
   0,    /* iconv version */
-  NULL, /* ssh lib version */
+  ಖಾಲಿ, /* ssh lib version */
   0,    /* brotli_ver_num */
-  NULL, /* brotli version */
+  ಖಾಲಿ, /* brotli version */
   0,    /* nghttp2 version number */
-  NULL, /* nghttp2 version string */
-  NULL, /* quic library string */
-#ifdef CURL_CA_BUNDLE
+  ಖಾಲಿ, /* nghttp2 version string */
+  ಖಾಲಿ, /* quic library string */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_CA_BUNDLE
   CURL_CA_BUNDLE, /* cainfo */
-#else
-  NULL,
-#endif
-#ifdef CURL_CA_PATH
-  CURL_CA_PATH,  /* capath */
-#else
-  NULL,
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಖಾಲಿ,
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_CA_ಮಾರ್ಗ
+  CURL_CA_ಮಾರ್ಗ,  /* capath */
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಖಾಲಿ,
+#ಆದರೆ_ಅಂತ್ಯ
   0,    /* zstd_ver_num */
-  NULL, /* zstd version */
-  NULL, /* Hyper version */
-  NULL, /* gsasl version */
-  feature_names,
-  NULL  /* rtmp version */
+  ಖಾಲಿ, /* zstd version */
+  ಖಾಲಿ, /* Hyper version */
+  ಖಾಲಿ, /* gsasl version */
+  feature_ಹೆಸರುಗಳು,
+  ಖಾಲಿ  /* rtmp version */
 };
 
-curl_version_info_data *curl_version_info(CURLversion stamp)
+curl_ಆವೃತ್ತಿ_info_ದತ್ತಾಂಶ *curl_ಆವೃತ್ತಿ_info(CURLversion stamp)
 {
   size_t n;
-  const struct feat *p;
-  int features = 0;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ feat *p;
+  ಪೂರ್ಣಾಂಕ features = 0;
 
-#ifdef USE_SSH
-  static char ssh_buf[80];  /* 'ssh_buffer' clashes with libssh/libssh.h */
-#endif
-#ifdef USE_SSL
-#ifdef CURL_WITH_MULTI_SSL
-  static char ssl_buffer[200];
-#else
-  static char ssl_buffer[80];
-#endif
-#endif
-#ifdef HAVE_BROTLI
-  static char brotli_buffer[80];
-#endif
-#ifdef HAVE_ZSTD
-  static char zstd_buffer[80];
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
+  ಸ್ಥಿರ ಅಕ್ಷರ ssh_buf[80];  /* 'ssh_buffer' clashes with libssh/libssh.h */
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_WITH_MULTI_SSL
+  ಸ್ಥಿರ ಅಕ್ಷರ ssl_ಬಫರ್[200];
+#ಇಲ್ಲದಿದ್ದರೆ
+  ಸ್ಥಿರ ಅಕ್ಷರ ssl_ಬಫರ್[80];
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_BROTLI
+  ಸ್ಥಿರ ಅಕ್ಷರ brotli_ಬಫರ್[80];
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ZSTD
+  ಸ್ಥಿರ ಅಕ್ಷರ zstd_ಬಫರ್[80];
+#ಆದರೆ_ಅಂತ್ಯ
 
-  (void)stamp;
+  (ಶೂನ್ಯ)stamp;
 
-#ifdef USE_SSL
-  Curl_ssl_version(ssl_buffer, sizeof(ssl_buffer));
-  version_info.ssl_version = ssl_buffer;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+  Curl_ssl_ಆವೃತ್ತಿ(ssl_ಬಫರ್, ಗಾತ್ರ(ssl_ಬಫರ್));
+  ಆವೃತ್ತಿ_info.ssl_ಆವೃತ್ತಿ = ssl_ಬಫರ್;
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_LIBZ
-  version_info.libz_version = zlibVersion();
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_LIBZ
+  ಆವೃತ್ತಿ_info.libz_ಆವೃತ್ತಿ = zlib_ಆವೃತ್ತಿ();
   /* libz left NULL if non-existing */
-#endif
-#ifdef USE_ARES
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_ARES
   {
-    int aresnum;
-    version_info.ares = ares_version(&aresnum);
-    version_info.ares_num = aresnum;
+    ಪೂರ್ಣಾಂಕ aresnum;
+    ಆವೃತ್ತಿ_info.ares = ares_ಆವೃತ್ತಿ(&aresnum);
+    ಆವೃತ್ತಿ_info.ares_ಅಂಕೆ = aresnum;
   }
-#endif
-#ifdef USE_LIBIDN2
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_LIBIDN2
   /* This returns a version string if we use the given version or later,
      otherwise it returns NULL */
-  version_info.libidn = idn2_check_version(IDN2_VERSION);
-#endif
+  ಆವೃತ್ತಿ_info.libidn = idn2_check_ಆವೃತ್ತಿ(IDN2_ಆವೃತ್ತಿ);
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_SSH
-  Curl_ssh_version(ssh_buf, sizeof(ssh_buf));
-  version_info.libssh_version = ssh_buf;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
+  Curl_ssh_ಆವೃತ್ತಿ(ssh_buf, ಗಾತ್ರ(ssh_buf));
+  ಆವೃತ್ತಿ_info.libssh_ಆವೃತ್ತಿ = ssh_buf;
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_BROTLI
-  version_info.brotli_ver_num = BrotliDecoderVersion();
-  brotli_version(brotli_buffer, sizeof(brotli_buffer));
-  version_info.brotli_version = brotli_buffer;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_BROTLI
+  ಆವೃತ್ತಿ_info.brotli_ver_ಅಂಕೆ = Brotli_Decoder_ಆವೃತ್ತಿ();
+  brotli_ಆವೃತ್ತಿ(brotli_ಬಫರ್, ಗಾತ್ರ(brotli_ಬಫರ್));
+  ಆವೃತ್ತಿ_info.brotli_ಆವೃತ್ತಿ = brotli_ಬಫರ್;
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_ZSTD
-  version_info.zstd_ver_num = ZSTD_versionNumber();
-  zstd_version(zstd_buffer, sizeof(zstd_buffer));
-  version_info.zstd_version = zstd_buffer;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ZSTD
+  ಆವೃತ್ತಿ_info.zstd_ver_ಅಂಕೆ = ZSTD_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ();
+  zstd_ಆವೃತ್ತಿ(zstd_ಬಫರ್, ಗಾತ್ರ(zstd_ಬಫರ್));
+  ಆವೃತ್ತಿ_info.zstd_ಆವೃತ್ತಿ = zstd_ಬಫರ್;
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_NGHTTP2
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_NGHTTP2
   {
-    nghttp2_info *h2 = nghttp2_version(0);
-    version_info.nghttp2_ver_num = (unsigned int)h2->version_num;
-    version_info.nghttp2_version = h2->version_str;
+    nghttp2_info *h2 = nghttp2_ಆವೃತ್ತಿ(0);
+    ಆವೃತ್ತಿ_info.nghttp2_ver_ಅಂಕೆ = (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)h2->ಆವೃತ್ತಿ_ಅಂಕೆ;
+    ಆವೃತ್ತಿ_info.nghttp2_ಆವೃತ್ತಿ = h2->ಆವೃತ್ತಿ_str;
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   {
-    static char quicbuffer[80];
-    Curl_quic_ver(quicbuffer, sizeof(quicbuffer));
-    version_info.quic_version = quicbuffer;
+    ಸ್ಥಿರ ಅಕ್ಷರ quicbuffer[80];
+    Curl_quic_ver(quicbuffer, ಗಾತ್ರ(quicbuffer));
+    ಆವೃತ್ತಿ_info.quic_ಆವೃತ್ತಿ = quicbuffer;
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_GSASL
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_GSASL
   {
-    version_info.gsasl_version = gsasl_check_version(NULL);
+    ಆವೃತ್ತಿ_info.gsasl_ಆವೃತ್ತಿ = gsasl_check_ಆವೃತ್ತಿ(ಖಾಲಿ);
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
   /* Get available features, build bitmask and names array. */
   n = 0;
-  for(p = features_table; p->name; p++)
-    if(!p->present || p->present(&version_info)) {
+  ಗಾಗಿ(p = features_ಕೋಷ್ಟಕ; p->name; p++)
+    ಆದರೆ(!p->present || p->present(&ಆವೃತ್ತಿ_info)) {
       features |= p->bitmask;
-      feature_names[n++] = p->name;
+      feature_ಹೆಸರುಗಳು[n++] = p->name;
     }
 
-#ifdef DEBUGBUILD
-  features |= CURL_VERSION_CURLDEBUG; /* for compatibility */
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+  features |= CURL_ಆವೃತ್ತಿ_CURLDEBUG; /* for compatibility */
+#ಆದರೆ_ಅಂತ್ಯ
 
-  feature_names[n] = NULL;  /* Terminate array. */
-  version_info.features = features;
+  feature_ಹೆಸರುಗಳು[n] = ಖಾಲಿ;  /* Terminate array. */
+  ಆವೃತ್ತಿ_info.features = features;
 
-  return &version_info;
+  ಹಿಂತಿರುಗಿ &ಆವೃತ್ತಿ_info;
 }

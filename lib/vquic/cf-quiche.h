@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_QUICHE_H
-#define HEADER_CURL_VQUIC_CF_QUICHE_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_VQUIC_CF_QUICHE_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_VQUIC_CF_QUICHE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 
-#include <quiche.h>
-#include <openssl/ssl.h>
+#ಅನ್ತರ್ಭಾವ <quiche.h>
+#ಅನ್ತರ್ಭಾವ <openssl/ssl.h>
 
-struct Curl_cfilter;
-struct Curl_easy;
+ರಚನೆ Curl_cfilter;
+ರಚನೆ Curl_easy;
 
-void Curl_quiche_ver(char *p, size_t len);
+ಶೂನ್ಯ Curl_quiche_ver(ಅಕ್ಷರ *p, size_t len);
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_quiche_create(ರಚನೆ Curl_cfilter **pcf,
+                               ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ರಚನೆ Curl_peer *origin,
+                               ರಚನೆ Curl_peer *peer,
+                               ರಚನೆ connectdata *conn,
+                               ರಚನೆ Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_quiche_ಸೇರಿಸು_after(ರಚನೆ Curl_cfilter *cf_at,
+                                     ರಚನೆ Curl_peer *origin,
+                                     ರಚನೆ Curl_peer *peer,
+                                     ರಚನೆ Curl_cfilter **pcf);
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* HEADER_CURL_VQUIC_CF_QUICHE_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_VQUIC_CF_QUICHE_H */

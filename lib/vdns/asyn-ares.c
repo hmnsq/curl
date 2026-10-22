@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_RESOLV_ARES
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_RESOLV_ARES
 
 /***********************************************************************
  * Only for ares-enabled builds and only for functions that fulfill
@@ -31,73 +31,73 @@
  * nothing else belongs in this file!
  **********************************************************************/
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETDB_H
+#ಅನ್ತರ್ಭಾವ <netdb.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ARPA_INET_H
+#ಅನ್ತರ್ಭಾವ <arpa/inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __VMS
+#ಅನ್ತರ್ಭಾವ <in.h>
+#ಅನ್ತರ್ಭಾವ <inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "multiif.h"
-#include "curlx/inet_pton.h"
-#include "connect.h"
-#include "select.h"
-#include "progress.h"
-#include "curlx/timediff.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include <ares.h>
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "curl_addrinfo.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "multiif.h"
+#ಅನ್ತರ್ಭಾವ "curlx/inet_pton.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "select.h"
+#ಅನ್ತರ್ಭಾವ "progress.h"
+#ಅನ್ತರ್ಭಾವ "curlx/timediff.h"
+#ಅನ್ತರ್ಭಾವ "vdns/hostip.h"
+#ಅನ್ತರ್ಭಾವ "vdns/httpsrr.h"
+#ಅನ್ತರ್ಭಾವ <ares.h>
 
-#if ARES_VERSION < 0x011000
-#error "c-ares 1.16.0 or greater required"
-#endif
+#ಆದರೆ ARES_ಆವೃತ್ತಿ < 0x011000
+#ದೋಷ "c-ares 1.16.0 or greater required"
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef USE_HTTPSRR
-#if ARES_VERSION < 0x011c00
-#error "c-ares 1.28.0 or greater required for HTTPSRR"
-#endif
-#define HTTPSRR_WORKS
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_HTTPSRR
+#ಆದರೆ ARES_ಆವೃತ್ತಿ < 0x011c00
+#ದೋಷ "c-ares 1.28.0 or greater required for HTTPSRR"
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿಸು HTTPSRR_ಕೆಲಸಮಾಡುತ್ತದೆ
+#ಆದರೆ_ಅಂತ್ಯ
 
-#define CARES_TIMEOUT_PER_ATTEMPT 2000
+#ವ್ಯಾಖ್ಯಾನಿಸು CARES_TIMEOUT_ಪ್ರತಿ_ATTEMPT 2000
 
-static int ares_ver = 0;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ares_ver = 0;
 
-static CURLcode async_ares_set_dns_servers(struct Curl_easy *data,
-                                           struct Curl_resolv_async *async);
-static CURLcode async_ares_set_dns_interface(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async);
-static CURLcode async_ares_set_dns_local_ip4(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async);
-static CURLcode async_ares_set_dns_local_ip6(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async);
+ಸ್ಥಿರ CURLcode async_ares_ಗಣ_dns_servers(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                           ರಚನೆ Curl_resolv_async *async);
+ಸ್ಥಿರ CURLcode async_ares_ಗಣ_dns_interface(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ರಚನೆ Curl_resolv_async *async);
+ಸ್ಥಿರ CURLcode async_ares_ಗಣ_dns_local_ip4(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ರಚನೆ Curl_resolv_async *async);
+ಸ್ಥಿರ CURLcode async_ares_ಗಣ_dns_local_ip6(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ರಚನೆ Curl_resolv_async *async);
 
 /*
  * Curl_async_global_init() - the generic low-level asynchronous name
  * resolve API. Called from curl_global_init() to initialize global resolver
  * environment. Initializes ares library.
  */
-int Curl_async_global_init(void)
+ಪೂರ್ಣಾಂಕ Curl_async_global_init(ಶೂನ್ಯ)
 {
-#ifdef CARES_HAVE_ARES_LIBRARY_INIT
-  if(ares_library_init(ARES_LIB_INIT_ALL)) {
-    return CURLE_FAILED_INIT;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CARES_HAVE_ARES_LIBRARY_INIT
+  ಆದರೆ(ares_library_init(ARES_LIB_INIT_ALL)) {
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
   }
-#endif
-  ares_version(&ares_ver);
-  return CURLE_OK;
+#ಆದರೆ_ಅಂತ್ಯ
+  ares_ಆವೃತ್ತಿ(&ares_ver);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -106,38 +106,38 @@ int Curl_async_global_init(void)
  * Called from curl_global_cleanup() to destroy global resolver environment.
  * Deinitializes ares library.
  */
-void Curl_async_global_cleanup(void)
+ಶೂನ್ಯ Curl_async_global_cleanup(ಶೂನ್ಯ)
 {
-#ifdef CARES_HAVE_ARES_LIBRARY_CLEANUP
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CARES_HAVE_ARES_LIBRARY_CLEANUP
   ares_library_cleanup();
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-static void sock_state_cb(void *data, ares_socket_t socket_fd,
-                          int readable, int writable)
+ಸ್ಥಿರ ಶೂನ್ಯ sock_state_cb(ಶೂನ್ಯ *ದತ್ತಾಂಶ, ares_socket_t socket_fd,
+                          ಪೂರ್ಣಾಂಕ readable, ಪೂರ್ಣಾಂಕ writable)
 {
-  struct Curl_easy *easy = data;
-  if(!readable && !writable) {
+  ರಚನೆ Curl_easy *easy = ದತ್ತಾಂಶ;
+  ಆದರೆ(!readable && !writable) {
     DEBUGASSERT(easy);
     Curl_multi_will_close(easy, socket_fd);
   }
 }
 
-static CURLcode async_ares_init(struct Curl_easy *data,
-                                struct Curl_resolv_async *async)
+ಸ್ಥಿರ CURLcode async_ares_init(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                ರಚನೆ Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  int status;
-  struct ares_options options;
-  int optmask = ARES_OPT_SOCK_STATE_CB;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ async_ares_ctx *ares = &async->ares;
+  ಪೂರ್ಣಾಂಕ ಸ್ಥಿತಿ_2;
+  ರಚನೆ ares_options options;
+  ಪೂರ್ಣಾಂಕ optmask = ARES_OPT_SOCK_STATE_CB;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
   /* initial status - failed */
-  ares->ares_status = ARES_ENOTFOUND;
+  ares->ares_ಸ್ಥಿತಿ = ARES_ENOTFOUND;
   async->queries_ongoing = 0;
 
   options.sock_state_cb = sock_state_cb;
-  options.sock_state_cb_data = data;
+  options.sock_state_cb_ದತ್ತಾಂಶ = ದತ್ತಾಂಶ;
 
   DEBUGASSERT(!ares->channel);
   /*
@@ -150,81 +150,81 @@ static CURLcode async_ares_init(struct Curl_easy *data,
      overwrite c-ares' timeout.
    */
   DEBUGASSERT(ares_ver);
-  if(ares_ver < 0x011400) {
-    options.timeout = CARES_TIMEOUT_PER_ATTEMPT;
+  ಆದರೆ(ares_ver < 0x011400) {
+    options.timeout = CARES_TIMEOUT_ಪ್ರತಿ_ATTEMPT;
     optmask |= ARES_OPT_TIMEOUTMS;
   }
 
-  status = ares_init_options(&ares->channel, &options, optmask);
-  if(status != ARES_SUCCESS) {
-    ares->channel = NULL;
-    result = (status == ARES_ENOMEM) ? CURLE_OUT_OF_MEMORY : CURLE_FAILED_INIT;
-    goto out;
+  ಸ್ಥಿತಿ_2 = ares_init_options(&ares->channel, &options, optmask);
+  ಆದರೆ(ಸ್ಥಿತಿ_2 != ARES_SUCCESS) {
+    ares->channel = ಖಾಲಿ;
+    ಫಲಿತಾಂಶ = (ಸ್ಥಿತಿ_2 == ARES_ENOMEM) ? CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ : CURLE_FAILED_INIT;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  result = async_ares_set_dns_servers(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
-    goto out;
+  ಫಲಿತಾಂಶ = async_ares_ಗಣ_dns_servers(ದತ್ತಾಂಶ, async);
+  ಆದರೆ(ಫಲಿತಾಂಶ && ಫಲಿತಾಂಶ != CURLE_NOT_BUILT_ಒಳ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  result = async_ares_set_dns_interface(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
-    goto out;
+  ಫಲಿತಾಂಶ = async_ares_ಗಣ_dns_interface(ದತ್ತಾಂಶ, async);
+  ಆದರೆ(ಫಲಿತಾಂಶ && ಫಲಿತಾಂಶ != CURLE_NOT_BUILT_ಒಳ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  result = async_ares_set_dns_local_ip4(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
-    goto out;
+  ಫಲಿತಾಂಶ = async_ares_ಗಣ_dns_local_ip4(ದತ್ತಾಂಶ, async);
+  ಆದರೆ(ಫಲಿತಾಂಶ && ಫಲಿತಾಂಶ != CURLE_NOT_BUILT_ಒಳ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  result = async_ares_set_dns_local_ip6(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
-    goto out;
+  ಫಲಿತಾಂಶ = async_ares_ಗಣ_dns_local_ip6(ದತ್ತಾಂಶ, async);
+  ಆದರೆ(ಫಲಿತಾಂಶ && ಫಲಿತಾಂಶ != CURLE_NOT_BUILT_ಒಳ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  result = CURLE_OK;
+  ಫಲಿತಾಂಶ = CURLE_OK;
 
-out:
-  if(result && ares->channel) {
+ಹೊರಹೋಗು:
+  ಆದರೆ(ಫಲಿತಾಂಶ && ares->channel) {
     ares_destroy(ares->channel);
-    ares->channel = NULL;
+    ares->channel = ಖಾಲಿ;
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-void Curl_async_ares_shutdown(struct Curl_easy *data,
-                              struct Curl_resolv_async *async)
+ಶೂನ್ಯ Curl_async_ares_shutdown(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ರಚನೆ Curl_resolv_async *async)
 {
   /* c-ares has a method to "cancel" operations on a channel, but
    * as reported in #18216, this does not totally reset the channel
    * and ares may get stuck.
    * We need to destroy the channel and on demand create a new
    * one to avoid that. */
-  Curl_async_ares_destroy(data, async);
+  Curl_async_ares_destroy(ದತ್ತಾಂಶ, async);
 }
 
-void Curl_async_ares_destroy(struct Curl_easy *data,
-                             struct Curl_resolv_async *async)
+ಶೂನ್ಯ Curl_async_ares_destroy(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                             ರಚನೆ Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  (void)data;
-  if(ares->channel) {
+  ರಚನೆ async_ares_ctx *ares = &async->ares;
+  (ಶೂನ್ಯ)ದತ್ತಾಂಶ;
+  ಆದರೆ(ares->channel) {
     ares_destroy(ares->channel);
-    ares->channel = NULL;
+    ares->channel = ಖಾಲಿ;
   }
 }
 
-CURLcode Curl_async_pollset(struct Curl_easy *data,
-                            struct Curl_resolv_async *async,
-                            struct easy_pollset *ps)
+CURLcode Curl_async_pollset(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            ರಚನೆ Curl_resolv_async *async,
+                            ರಚನೆ easy_pollset *ps)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ async_ares_ctx *ares = &async->ares;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
-  if(ares->channel) {
-    result = Curl_ares_pollset(data, ares->channel, ps);
-    if(!result) {
-      timediff_t ms = Curl_ares_timeout_ms(data, async, ares->channel);
-      Curl_expire(data, ms, EXPIRE_ASYNC_NAME);
+  ಆದರೆ(ares->channel) {
+    ಫಲಿತಾಂಶ = Curl_ares_pollset(ದತ್ತಾಂಶ, ares->channel, ps);
+    ಆದರೆ(!ಫಲಿತಾಂಶ) {
+      timediff_t ms = Curl_ares_timeout_ms(ದತ್ತಾಂಶ, async, ares->channel);
+      Curl_expire(ದತ್ತಾಂಶ, ms, EXPIRE_ASYNC_NAME);
     }
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
@@ -234,105 +234,105 @@ CURLcode Curl_async_pollset(struct Curl_easy *data,
  *
  * Returns normal CURLcode errors.
  */
-CURLcode Curl_async_take_result(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
-                                struct Curl_dns_entry **pdns)
+CURLcode Curl_async_take_ಫಲಿತಾಂಶ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                ರಚನೆ Curl_resolv_async *async,
+                                ರಚನೆ Curl_dns_ನಮೂದು **pdns)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  struct Curl_dns_entry *dns = NULL;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ async_ares_ctx *ares = &async->ares;
+  ರಚನೆ Curl_dns_ನಮೂದು *dns = ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
   DEBUGASSERT(pdns);
-  *pdns = NULL;
-  if(!ares)
-    return CURLE_FAILED_INIT;
+  *pdns = ಖಾಲಿ;
+  ಆದರೆ(!ares)
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
 
-  if(Curl_ares_perform(ares->channel, 0) < 0) {
-    result = CURLE_UNRECOVERABLE_POLL;
-    goto out;
+  ಆದರೆ(Curl_ares_perform(ares->channel, 0) < 0) {
+    ಫಲಿತಾಂಶ = CURLE_UNRECOVERABLE_POLL;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  if(async->queries_ongoing) {
-    result = CURLE_AGAIN;
-    goto out;
+  ಆದರೆ(async->queries_ongoing) {
+    ಫಲಿತಾಂಶ = CURLE_AGAIN;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
   /* all c-ares operations done, what is the result to report? */
-  result = ares->result;
-  if(ares->ares_status == ARES_SUCCESS && !result) {
+  ಫಲಿತಾಂಶ = ares->ಫಲಿತಾಂಶ;
+  ಆದರೆ(ares->ares_ಸ್ಥಿತಿ == ARES_SUCCESS && !ಫಲಿತಾಂಶ) {
 
-    if(CURL_DNSQ_IS_ADDR(async->dns_queries)) {
-      dns = Curl_dnsc_mk_addr2(data, async->dns_queries,
+    ಆದರೆ(CURL_DNSQ_IS_ADDR(async->dns_queries)) {
+      dns = Curl_dnsc_mk_addr2(ದತ್ತಾಂಶ, async->dns_queries,
                                &async->ai_AAAA, &async->ai_A,
                                async->peer);
-      if(!dns) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      ಆದರೆ(!dns) {
+        ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+        ಹೋಗು ಹೊರಹೋಗು;
       }
     }
 
-#ifdef HTTPSRR_WORKS
-    if(!dns && (async->dns_queries & CURL_DNSQ_HTTPS)) {
-      dns = Curl_dnsc_mk_https(data, &async->httpsrr, async->peer);
-      if(!dns) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HTTPSRR_ಕೆಲಸಮಾಡುತ್ತದೆ
+    ಆದರೆ(!dns && (async->dns_queries & CURL_DNSQ_HTTPS)) {
+      dns = Curl_dnsc_mk_https(ದತ್ತಾಂಶ, &async->httpsrr, async->peer);
+      ಆದರೆ(!dns) {
+        ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+        ಹೋಗು ಹೊರಹೋಗು;
       }
     }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   }
   /* if we have not found anything, report the proper
    * CURLE_COULDNT_RESOLVE_* code */
-  if(!result && !dns) {
-    const char *msg = NULL;
+  ಆದರೆ(!ಫಲಿತಾಂಶ && !dns) {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ = ಖಾಲಿ;
     /* only an authoritative "does not exist" answer from every query
        may be cached as a negative entry, not transient failures like
        timeouts or server troubles */
     async->negative_answer = !ares->transient_err &&
-      ((ares->ares_status == ARES_ENOTFOUND) ||
-       (ares->ares_status == ARES_ENODATA));
-    if(ares->ares_status != ARES_SUCCESS)
-      msg = ares_strerror(ares->ares_status);
-    result = Curl_async_failed(data, async, msg);
+      ((ares->ares_ಸ್ಥಿತಿ == ARES_ENOTFOUND) ||
+       (ares->ares_ಸ್ಥಿತಿ == ARES_ENODATA));
+    ಆದರೆ(ares->ares_ಸ್ಥಿತಿ != ARES_SUCCESS)
+      ಸಂದೇಶ = ares_strerror(ares->ares_ಸ್ಥಿತಿ);
+    ಫಲಿತಾಂಶ = Curl_async_failed(ದತ್ತಾಂಶ, async, ಸಂದೇಶ);
   }
 
-  CURL_TRC_DNS(data, "[%s] ares_take_result, result=%d, ares_result=%d, "
+  CURL_TRC_DNS(ದತ್ತಾಂಶ, "[%s] ares_take_result, result=%d, ares_result=%d, "
                "ares_status=%d, dns=%sfound",
                Curl_resolv_query_str(async->dns_queries),
-               (int)result, (int)ares->result, ares->ares_status,
+               (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ, (ಪೂರ್ಣಾಂಕ)ares->ಫಲಿತಾಂಶ, ares->ares_ಸ್ಥಿತಿ,
                dns ? "" : "not ");
 
-out:
-  if(result != CURLE_AGAIN)
-    ares->result = result;
-  *pdns = result ? NULL : dns;
-  return result;
+ಹೊರಹೋಗು:
+  ಆದರೆ(ಫಲಿತಾಂಶ != CURLE_AGAIN)
+    ares->ಫಲಿತಾಂಶ = ಫಲಿತಾಂಶ;
+  *pdns = ಫಲಿತಾಂಶ ? ಖಾಲಿ : dns;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static timediff_t async_ares_poll_timeout(struct async_ares_ctx *ares,
+ಸ್ಥಿರ timediff_t async_ares_poll_timeout(ರಚನೆ async_ares_ctx *ares,
                                           timediff_t timeout_ms)
 {
-  struct timeval *ares_calced, time_buf, max_timeout;
-  int itimeout_ms;
+  ರಚನೆ timeval *ares_calced, ಸಮಯ_buf, max_timeout;
+  ಪೂರ್ಣಾಂಕ itimeout_ms;
 
-#if TIMEDIFF_T_MAX > INT_MAX
-  itimeout_ms = (timeout_ms > INT_MAX) ? INT_MAX :
-                 ((timeout_ms < 0) ? -1 : (int)timeout_ms);
-#else
-  itimeout_ms = (int)timeout_ms;
-#endif
+#ಆದರೆ TIMEDIFF_T_MAX > ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ
+  itimeout_ms = (timeout_ms > ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ) ? ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ :
+                 ((timeout_ms < 0) ? -1 : (ಪೂರ್ಣಾಂಕ)timeout_ms);
+#ಇಲ್ಲದಿದ್ದರೆ
+  itimeout_ms = (ಪೂರ್ಣಾಂಕ)timeout_ms;
+#ಆದರೆ_ಅಂತ್ಯ
   max_timeout.tv_sec = itimeout_ms / 1000;
   max_timeout.tv_usec = (itimeout_ms % 1000) * 1000;
 
   /* c-ares tells us the shortest timeout of any operation on channel */
-  ares_calced = ares_timeout(ares->channel, &max_timeout, &time_buf);
+  ares_calced = ares_timeout(ares->channel, &max_timeout, &ಸಮಯ_buf);
   /* use the timeout period ares returned to us above if less than one
      second is left, otherwise use 1000ms to make sure the progress callback
      gets called frequent enough */
-  if(!ares_calced->tv_sec)
-    return (timediff_t)(ares_calced->tv_usec / 1000);
-  else
-    return 1000;
+  ಆದರೆ(!ares_calced->tv_sec)
+    ಹಿಂತಿರುಗಿ (timediff_t)(ares_calced->tv_usec / 1000);
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ 1000;
 }
 
 /*
@@ -346,121 +346,121 @@ static timediff_t async_ares_poll_timeout(struct async_ares_ctx *ares,
  * Returns CURLE_COULDNT_RESOLVE_HOST if the host was not resolved,
  * CURLE_OPERATION_TIMEDOUT if a time-out occurred, or other errors.
  */
-CURLcode Curl_async_await(struct Curl_easy *data, uint32_t resolv_id,
-                          struct Curl_dns_entry **pdns)
+CURLcode Curl_async_await(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, uint32_t resolv_id,
+                          ರಚನೆ Curl_dns_ನಮೂದು **pdns)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  struct curltime start = *Curl_pgrs_now(data);
-  CURLcode result = CURLE_OK;
+  ರಚನೆ Curl_resolv_async *async = Curl_async_get(ದತ್ತಾಂಶ, resolv_id);
+  ರಚನೆ async_ares_ctx *ares = async ? &async->ares : ಖಾಲಿ;
+  ರಚನೆ curltime ಆರಂಭ = *Curl_pgrs_now(ದತ್ತಾಂಶ);
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
   DEBUGASSERT(pdns);
-  *pdns = NULL; /* clear on entry */
+  *pdns = ಖಾಲಿ; /* clear on entry */
 
-  if(!ares)
-    return CURLE_FAILED_INIT;
+  ಆದರೆ(!ares)
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
 
   /* Wait for the name resolve query to complete or time out. */
-  while(!result) {
+  ಆಗ(!ಫಲಿತಾಂಶ) {
     timediff_t timeout_ms;
 
-    timeout_ms = Curl_timeleft_ms(data);
-    if(!timeout_ms) { /* no applicable timeout from `data`*/
-      timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &start);
-      if(elapsed_ms < CURL_TIMEOUT_RESOLVE_MS)
+    timeout_ms = Curl_timeleft_ms(ದತ್ತಾಂಶ);
+    ಆದರೆ(!timeout_ms) { /* no applicable timeout from `data`*/
+      timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(ದತ್ತಾಂಶ), &ಆರಂಭ);
+      ಆದರೆ(elapsed_ms < CURL_TIMEOUT_RESOLVE_MS)
         timeout_ms = CURL_TIMEOUT_RESOLVE_MS - elapsed_ms;
-      else
+      ಇಲ್ಲದಿದ್ದರೆ
         timeout_ms = -1;
     }
 
-    if(timeout_ms < 0) {
-      result = CURLE_OPERATION_TIMEDOUT;
-      break;
+    ಆದರೆ(timeout_ms < 0) {
+      ಫಲಿತಾಂಶ = CURLE_OPERATION_TIMEDOUT;
+      ನಿಲ್ಲಿಸು;
     }
 
-    if(Curl_ares_perform(ares->channel,
+    ಆದರೆ(Curl_ares_perform(ares->channel,
                          async_ares_poll_timeout(ares, timeout_ms)) < 0) {
-      result = CURLE_UNRECOVERABLE_POLL;
-      break;
+      ಫಲಿತಾಂಶ = CURLE_UNRECOVERABLE_POLL;
+      ನಿಲ್ಲಿಸು;
     }
 
-    result = Curl_async_take_result(data, async, pdns);
-    if(result == CURLE_AGAIN)
-      result = CURLE_OK;
-    else if(result || *pdns)
-      break;
+    ಫಲಿತಾಂಶ = Curl_async_take_ಫಲಿತಾಂಶ(ದತ್ತಾಂಶ, async, pdns);
+    ಆದರೆ(ಫಲಿತಾಂಶ == CURLE_AGAIN)
+      ಫಲಿತಾಂಶ = CURLE_OK;
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಫಲಿತಾಂಶ || *pdns)
+      ನಿಲ್ಲಿಸು;
 
-    if(Curl_pgrsUpdate(data)) {
-      result = CURLE_ABORTED_BY_CALLBACK;
-      break;
+    ಆದರೆ(Curl_pgrsUpdate(ದತ್ತಾಂಶ)) {
+      ಫಲಿತಾಂಶ = CURLE_ABORTED_BY_CALLBACK;
+      ನಿಲ್ಲಿಸು;
     }
   }
 
-  if(result)
+  ಆದರೆ(ಫಲಿತಾಂಶ)
     ares_cancel(ares->channel);
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-#define CARES_MAX_ADDRS 256
+#ವ್ಯಾಖ್ಯಾನಿಸು CARES_MAX_ADDRS 256
 
-static bool async_ares_addr_seen(const struct Curl_addrinfo *cafirst,
-                                 int family, size_t ss_size,
-                                 const void *addr)
+ಸ್ಥಿರ bool async_ares_addr_ನೋಡಿದ(ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_addrinfo *cafirst,
+                                 ಪೂರ್ಣಾಂಕ family, size_t ss_ಗಾತ್ರ,
+                                 ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *addr)
 {
-  const struct Curl_addrinfo *ca;
-  for(ca = cafirst; ca; ca = ca->ai_next) {
-    if((ca->ai_family == family) &&
-       ((size_t)ca->ai_addrlen == ss_size) &&
-       !memcmp(ca->ai_addr, addr, ss_size))
-      return TRUE;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_addrinfo *ca;
+  ಗಾಗಿ(ca = cafirst; ca; ca = ca->ai_ಮುಂದಿನ) {
+    ಆದರೆ((ca->ai_family == family) &&
+       ((size_t)ca->ai_addrlen == ss_ಗಾತ್ರ) &&
+       !memcmp(ca->ai_addr, addr, ss_ಗಾತ್ರ))
+      ಹಿಂತಿರುಗಿ TRUE;
   }
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
 /*
  * async_ares_node2addr() converts an address list provided by c-ares
  * to an internal libcurl compatible list.
  */
-static struct Curl_addrinfo *async_ares_node2addr(
-  struct ares_addrinfo_node *node)
+ಸ್ಥಿರ ರಚನೆ Curl_addrinfo *async_ares_node2addr(
+  ರಚನೆ ares_addrinfo_ಗಂಟು *ಗಂಟು)
 {
   /* traverse the ares_addrinfo_node list */
-  struct ares_addrinfo_node *ai;
-  struct Curl_addrinfo *cafirst = NULL;
-  struct Curl_addrinfo *calast = NULL;
-  int error = 0;
-  unsigned int naddrs = 0;
+  ರಚನೆ ares_addrinfo_ಗಂಟು *ai;
+  ರಚನೆ Curl_addrinfo *cafirst = ಖಾಲಿ;
+  ರಚನೆ Curl_addrinfo *calast = ಖಾಲಿ;
+  ಪೂರ್ಣಾಂಕ error = 0;
+  ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ naddrs = 0;
 
-  for(ai = node; ai && (naddrs < CARES_MAX_ADDRS); ai = ai->ai_next) {
-    size_t ss_size;
-    struct Curl_addrinfo *ca;
+  ಗಾಗಿ(ai = ಗಂಟು; ai && (naddrs < CARES_MAX_ADDRS); ai = ai->ai_ಮುಂದಿನ) {
+    size_t ss_ಗಾತ್ರ;
+    ರಚನೆ Curl_addrinfo *ca;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
-#ifdef USE_IPV6
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-#endif
-    else
-      continue;
+    ಆದರೆ(ai->ai_family == AF_INET)
+      ss_ಗಾತ್ರ = ಗಾತ್ರ(ರಚನೆ sockaddr_in);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_IPV6
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ai->ai_family == AF_INET6)
+      ss_ಗಾತ್ರ = ಗಾತ್ರ(ರಚನೆ sockaddr_in6);
+#ಆದರೆ_ಅಂತ್ಯ
+    ಇಲ್ಲದಿದ್ದರೆ
+      ಮುಂದುವರಿ;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
-      continue;
+    ಆದರೆ(!ai->ai_addr || !(ai->ai_addrlen > 0))
+      ಮುಂದುವರಿ;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
-      continue;
+    ಆದರೆ((size_t)ai->ai_addrlen < ss_ಗಾತ್ರ)
+      ಮುಂದುವರಿ;
 
     /* ignore duplicate addresses already collected */
-    if(async_ares_addr_seen(cafirst, ai->ai_family, ss_size, ai->ai_addr))
-      continue;
+    ಆದರೆ(async_ares_addr_ನೋಡಿದ(cafirst, ai->ai_family, ss_ಗಾತ್ರ, ai->ai_addr))
+      ಮುಂದುವರಿ;
 
-    ca = curlx_malloc(sizeof(struct Curl_addrinfo) + ss_size);
-    if(!ca) {
+    ca = curlx_malloc(ಗಾತ್ರ(ರಚನೆ Curl_addrinfo) + ss_ಗಾತ್ರ);
+    ಆದರೆ(!ca) {
       error = EAI_MEMORY;
-      break;
+      ನಿಲ್ಲಿಸು;
     }
 
     /* copy each structure member individually, member ordering,
@@ -470,158 +470,158 @@ static struct Curl_addrinfo *async_ares_node2addr(
     ca->ai_family    = ai->ai_family;
     ca->ai_socktype  = ai->ai_socktype;
     ca->ai_protocol  = ai->ai_protocol;
-    ca->ai_addrlen   = (curl_socklen_t)ss_size;
-    ca->ai_addr      = NULL;
-    ca->ai_canonname = NULL;
-    ca->ai_next      = NULL;
+    ca->ai_addrlen   = (curl_socklen_t)ss_ಗಾತ್ರ;
+    ca->ai_addr      = ಖಾಲಿ;
+    ca->ai_canonname = ಖಾಲಿ;
+    ca->ai_ಮುಂದಿನ      = ಖಾಲಿ;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-    memcpy(ca->ai_addr, ai->ai_addr, ss_size);
+    ca->ai_addr = (ಶೂನ್ಯ *)((ಅಕ್ಷರ *)ca + ಗಾತ್ರ(ರಚನೆ Curl_addrinfo));
+    ಸ್ಮರಣೆ_ನಕಲು(ca->ai_addr, ai->ai_addr, ss_ಗಾತ್ರ);
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    ಆದರೆ(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
-      calast->ai_next = ca;
+    ಆದರೆ(calast)
+      calast->ai_ಮುಂದಿನ = ca;
     calast = ca;
     ++naddrs;
   }
 
   /* if we failed, destroy the Curl_addrinfo list */
-  if(error) {
+  ಆದರೆ(error) {
     Curl_freeaddrinfo(cafirst);
-    cafirst = NULL;
+    cafirst = ಖಾಲಿ;
   }
 
-  return cafirst;
+  ಹಿಂತಿರುಗಿ cafirst;
 }
 
-static void async_ares_A_cb(void *user_data, int status, int timeouts,
-                            struct ares_addrinfo *ares_ai)
+ಸ್ಥಿರ ಶೂನ್ಯ async_ares_A_cb(ಶೂನ್ಯ *user_ದತ್ತಾಂಶ, ಪೂರ್ಣಾಂಕ ಸ್ಥಿತಿ_2, ಪೂರ್ಣಾಂಕ timeouts,
+                            ರಚನೆ ares_addrinfo *ares_ai)
 {
-  struct Curl_resolv_async *async = user_data;
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
+  ರಚನೆ Curl_resolv_async *async = user_ದತ್ತಾಂಶ;
+  ರಚನೆ async_ares_ctx *ares = async ? &async->ares : ಖಾಲಿ;
 
-  (void)timeouts;
-  if(!async)
-    return;
+  (ಶೂನ್ಯ)timeouts;
+  ಆದರೆ(!async)
+    ಹಿಂತಿರುಗಿ;
 
   async->dns_responses |= CURL_DNSQ_A;
   async->queries_ongoing--;
-  async->done = !async->queries_ongoing;
-  if(status == ARES_SUCCESS) {
-    ares->ares_status = ARES_SUCCESS;
+  async->ಮುಗಿದ = !async->queries_ongoing;
+  ಆದರೆ(ಸ್ಥಿತಿ_2 == ARES_SUCCESS) {
+    ares->ares_ಸ್ಥಿತಿ = ARES_SUCCESS;
     async->ai_A = async_ares_node2addr(ares_ai->nodes);
     ares_freeaddrinfo(ares_ai);
   }
-  else {
-    if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಆದರೆ((ಸ್ಥಿತಿ_2 != ARES_ENOTFOUND) && (ಸ್ಥಿತಿ_2 != ARES_ENODATA))
       ares->transient_err = TRUE;
-    if(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
-      ares->ares_status = status;
+    ಆದರೆ(ares->ares_ಸ್ಥಿತಿ != ARES_SUCCESS) /* do not overwrite success */
+      ares->ares_ಸ್ಥಿತಿ = ಸ್ಥಿತಿ_2;
   }
 }
 
-#ifdef CURLRES_IPV6
-static void async_ares_AAAA_cb(void *user_data, int status, int timeouts,
-                               struct ares_addrinfo *ares_ai)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLRES_IPV6
+ಸ್ಥಿರ ಶೂನ್ಯ async_ares_AAAA_cb(ಶೂನ್ಯ *user_ದತ್ತಾಂಶ, ಪೂರ್ಣಾಂಕ ಸ್ಥಿತಿ_2, ಪೂರ್ಣಾಂಕ timeouts,
+                               ರಚನೆ ares_addrinfo *ares_ai)
 {
-  struct Curl_resolv_async *async = user_data;
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
+  ರಚನೆ Curl_resolv_async *async = user_ದತ್ತಾಂಶ;
+  ರಚನೆ async_ares_ctx *ares = async ? &async->ares : ಖಾಲಿ;
 
-  (void)timeouts;
-  if(!async)
-    return;
+  (ಶೂನ್ಯ)timeouts;
+  ಆದರೆ(!async)
+    ಹಿಂತಿರುಗಿ;
 
   async->dns_responses |= CURL_DNSQ_AAAA;
   async->queries_ongoing--;
-  async->done = !async->queries_ongoing;
-  if(status == ARES_SUCCESS) {
-    ares->ares_status = ARES_SUCCESS;
+  async->ಮುಗಿದ = !async->queries_ongoing;
+  ಆದರೆ(ಸ್ಥಿತಿ_2 == ARES_SUCCESS) {
+    ares->ares_ಸ್ಥಿತಿ = ARES_SUCCESS;
     async->ai_AAAA = async_ares_node2addr(ares_ai->nodes);
     ares_freeaddrinfo(ares_ai);
   }
-  else {
-    if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಆದರೆ((ಸ್ಥಿತಿ_2 != ARES_ENOTFOUND) && (ಸ್ಥಿತಿ_2 != ARES_ENODATA))
       ares->transient_err = TRUE;
-    if(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
-      ares->ares_status = status;
+    ಆದರೆ(ares->ares_ಸ್ಥಿತಿ != ARES_SUCCESS) /* do not overwrite success */
+      ares->ares_ಸ್ಥಿತಿ = ಸ್ಥಿತಿ_2;
   }
 }
-#endif /* CURLRES_IPV6 */
+#ಆದರೆ_ಅಂತ್ಯ /* CURLRES_IPV6 */
 
-#ifdef USE_HTTPSRR
-static void async_ares_rr_done(void *user_data, ares_status_t status,
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_HTTPSRR
+ಸ್ಥಿರ ಶೂನ್ಯ async_ares_rr_ಮುಗಿದ(ಶೂನ್ಯ *user_ದತ್ತಾಂಶ, ares_ಸ್ಥಿತಿ_t ಸ್ಥಿತಿ_2,
                                size_t timeouts,
-                               const ares_dns_record_t *dnsrec)
+                               ಸ್ಥಿರಾಂಕ ares_dns_ದಾಖಲೆ_t *dnsrec)
 {
-  struct Curl_resolv_async *async = user_data;
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
+  ರಚನೆ Curl_resolv_async *async = user_ದತ್ತಾಂಶ;
+  ರಚನೆ async_ares_ctx *ares = async ? &async->ares : ಖಾಲಿ;
 
-  if(!async)
-    return;
+  ಆದರೆ(!async)
+    ಹಿಂತಿರುಗಿ;
 
-  (void)timeouts;
+  (ಶೂನ್ಯ)timeouts;
   async->dns_responses |= CURL_DNSQ_HTTPS;
   async->queries_ongoing--;
-  async->done = !async->queries_ongoing;
-  ares->ares_status = status;
-  if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  async->ಮುಗಿದ = !async->queries_ongoing;
+  ares->ares_ಸ್ಥಿತಿ = ಸ್ಥಿತಿ_2;
+  ಆದರೆ((ಸ್ಥಿತಿ_2 != ARES_ENOTFOUND) && (ಸ್ಥಿತಿ_2 != ARES_ENODATA))
     ares->transient_err = TRUE;
-  if((ARES_SUCCESS != status) || !dnsrec)
-    return;
-  ares->result = Curl_httpsrr_from_ares(dnsrec, &async->httpsrr);
+  ಆದರೆ((ARES_SUCCESS != ಸ್ಥಿತಿ_2) || !dnsrec)
+    ಹಿಂತಿರುಗಿ;
+  ares->ಫಲಿತಾಂಶ = Curl_httpsrr_from_ares(dnsrec, &async->httpsrr);
 }
-#endif /* USE_HTTPSRR */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_HTTPSRR */
 
 /*
  * Curl_async_getaddrinfo() - when using ares
  *
  * Starts a name resolve for the given hostname and port number.
  */
-CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
-                                struct Curl_resolv_async *async)
+CURLcode Curl_async_getaddrinfo(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                ರಚನೆ Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  char service[12];
-  int socktype;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ async_ares_ctx *ares = &async->ares;
+  ಅಕ್ಷರ service[12];
+  ಪೂರ್ಣಾಂಕ socktype;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
-  if(ares->channel) {
+  ಆದರೆ(ares->channel) {
     DEBUGASSERT(0);
-    result = CURLE_FAILED_INIT;
-    goto out;
+    ಫಲಿತಾಂಶ = CURLE_FAILED_INIT;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  result = async_ares_init(data, async);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = async_ares_init(ದತ್ತಾಂಶ, async);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-  result = Curl_resolv_announce_start(data, ares->channel);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_resolv_announce_ಆರಂಭ(ದತ್ತಾಂಶ, ares->channel);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
-#if defined(CURLVERBOSE) && ARES_VERSION >= 0x011800 /* >= v1.24.0 */
-  if(CURL_TRC_DNS_is_verbose(data)) {
-    char *csv = ares_get_servers_csv(ares->channel);
-    CURL_TRC_DNS(data, "ares: servers=%s", csv);
+#ಆದರೆ defined(CURLVERBOSE) && ARES_ಆವೃತ್ತಿ >= 0x011800 /* >= v1.24.0 */
+  ಆದರೆ(CURL_TRC_DNS_is_verbose(ದತ್ತಾಂಶ)) {
+    ಅಕ್ಷರ *csv = ares_get_servers_csv(ares->channel);
+    CURL_TRC_DNS(ದತ್ತಾಂಶ, "ares: servers=%s", csv);
     ares_free_string(csv);
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  curl_msnprintf(service, sizeof(service), "%d", async->peer->port);
+  curl_msnprintf(service, ಗಾತ್ರ(service), "%d", async->peer->ಪೋರ್ಟ್);
   socktype =
-    (Curl_conn_get_transport(data, data->conn) == TRNSPRT_TCP) ?
+    (Curl_conn_get_transport(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->conn) == TRNSPRT_TCP) ?
     SOCK_STREAM : SOCK_DGRAM;
 
-#ifdef CURLRES_IPV6
-  if(async->dns_queries & CURL_DNSQ_AAAA) {
-    struct ares_addrinfo_hints hints;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURLRES_IPV6
+  ಆದರೆ(async->dns_queries & CURL_DNSQ_AAAA) {
+    ರಚನೆ ares_addrinfo_hints hints;
 
-    memset(&hints, 0, sizeof(hints));
-    CURL_TRC_DNS(data, "[AAAA] ares: query records for %s",
+    memset(&hints, 0, ಗಾತ್ರ(hints));
+    CURL_TRC_DNS(ದತ್ತಾಂಶ, "[AAAA] ares: query records for %s",
                  async->peer->hostname);
     hints.ai_family = PF_INET6;
     hints.ai_socktype = socktype;
@@ -630,13 +630,13 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
     ares_getaddrinfo(ares->channel, async->peer->hostname,
                      service, &hints, async_ares_AAAA_cb, async);
   }
-#endif /* CURLRES_IPV6 */
+#ಆದರೆ_ಅಂತ್ಯ /* CURLRES_IPV6 */
 
-  if(async->dns_queries & CURL_DNSQ_A) {
-    struct ares_addrinfo_hints hints;
+  ಆದರೆ(async->dns_queries & CURL_DNSQ_A) {
+    ರಚನೆ ares_addrinfo_hints hints;
 
-    memset(&hints, 0, sizeof(hints));
-    CURL_TRC_DNS(data, "[A] ares: query records for %s",
+    memset(&hints, 0, ಗಾತ್ರ(hints));
+    CURL_TRC_DNS(ದತ್ತಾಂಶ, "[A] ares: query records for %s",
                  async->peer->hostname);
     hints.ai_family = PF_INET;
     hints.ai_socktype = socktype;
@@ -646,29 +646,29 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
                      service, &hints, async_ares_A_cb, async);
   }
 
-#ifdef USE_HTTPSRR
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
-    char *https_name = NULL;
-    if(async->peer->port != 443) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_HTTPSRR
+  ಆದರೆ(async->dns_queries & CURL_DNSQ_HTTPS) {
+    ಅಕ್ಷರ *https_name = ಖಾಲಿ;
+    ಆದರೆ(async->peer->ಪೋರ್ಟ್ != 443) {
       https_name = curl_maprintf("_%u._https.%s",
-                                 async->peer->port, async->peer->hostname);
-      if(!https_name)
-        return CURLE_OUT_OF_MEMORY;
+                                 async->peer->ಪೋರ್ಟ್, async->peer->hostname);
+      ಆದರೆ(!https_name)
+        ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
     }
-    CURL_TRC_DNS(data, "[HTTPS] ares: query records for %s",
+    CURL_TRC_DNS(ದತ್ತಾಂಶ, "[HTTPS] ares: query records for %s",
                  https_name ? https_name : async->peer->hostname);
     async->queries_ongoing++;
     ares_query_dnsrec(ares->channel,
                       https_name ? https_name : async->peer->hostname,
-                      ARES_CLASS_IN, ARES_REC_TYPE_HTTPS,
-                      async_ares_rr_done, async, NULL);
+                      ARES_CLASS_ಒಳ, ARES_REC_TYPE_HTTPS,
+                      async_ares_rr_ಮುಗಿದ, async, ಖಾಲಿ);
     curlx_free(https_name);
   }
-#endif /* USE_HTTPSRR */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_HTTPSRR */
 
-out:
-  ares->result = result;
-  return result ? result : (async->queries_ongoing ? CURLE_AGAIN : CURLE_OK);
+ಹೊರಹೋಗು:
+  ares->ಫಲಿತಾಂಶ = ಫಲಿತಾಂಶ;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ ? ಫಲಿತಾಂಶ : (async->queries_ongoing ? CURLE_AGAIN : CURLE_OK);
 }
 
 /* Set what DNS server are is to use. This is called in 2 situations:
@@ -677,112 +677,112 @@ out:
  *    we need to destroy and create the are channel anew, if there is one.
  * 2. When we lazy init the ares channel and NULL means that there
  *    are no preferences and we do not reset any existing channel. */
-static CURLcode async_ares_set_dns_servers(struct Curl_easy *data,
-                                           struct Curl_resolv_async *async)
+ಸ್ಥಿರ CURLcode async_ares_ಗಣ_dns_servers(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                           ರಚನೆ Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  CURLcode result = CURLE_NOT_BUILT_IN;
-  const char *servers = CURL_EASY_STR(data, STRING_DNS_SERVERS);
-  int ares_result = ARES_SUCCESS;
+  ರಚನೆ async_ares_ctx *ares = async ? &async->ares : ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_NOT_BUILT_ಒಳ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *servers = CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_DNS_SERVERS);
+  ಪೂರ್ಣಾಂಕ ares_ಫಲಿತಾಂಶ = ARES_SUCCESS;
 
-#ifdef DEBUGBUILD
-  if(getenv("CURL_DNS_SERVER"))
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+  ಆದರೆ(getenv("CURL_DNS_SERVER"))
     servers = getenv("CURL_DNS_SERVER");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if(!servers)
-    return CURLE_OK;
+  ಆದರೆ(!servers)
+    ಹಿಂತಿರುಗಿ CURLE_OK;
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
-    ares_result = ares_set_servers_ports_csv(ares->channel, servers);
-  switch(ares_result) {
-  case ARES_SUCCESS:
-    result = CURLE_OK;
-    break;
-  case ARES_ENOMEM:
-    result = CURLE_OUT_OF_MEMORY;
-    break;
-  case ARES_ENOTINITIALIZED:
-  case ARES_ENODATA:
-  case ARES_EBADSTR:
-  default:
-    DEBUGF(infof(data, "bad servers set"));
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    break;
+  ಆದರೆ(ares && ares->channel)
+    ares_ಫಲಿತಾಂಶ = ares_ಗಣ_servers_ports_csv(ares->channel, servers);
+  ಆಯ್ಕೆ(ares_ಫಲಿತಾಂಶ) {
+  ಸ್ಥಿತಿ ARES_SUCCESS:
+    ಫಲಿತಾಂಶ = CURLE_OK;
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ ARES_ENOMEM:
+    ಫಲಿತಾಂಶ = CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ ARES_ENOTINITIALIZED:
+  ಸ್ಥಿತಿ ARES_ENODATA:
+  ಸ್ಥಿತಿ ARES_EBADSTR:
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    DEBUGF(infof(ದತ್ತಾಂಶ, "bad servers set"));
+    ಫಲಿತಾಂಶ = CURLE_BAD_FUNCTION_ವಾದ;
+    ನಿಲ್ಲಿಸು;
   }
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode async_ares_set_dns_interface(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async)
+ಸ್ಥಿರ CURLcode async_ares_ಗಣ_dns_interface(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ರಚನೆ Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  const char *interf = CURL_EASY_STR(data, STRING_DNS_INTERFACE);
+  ರಚನೆ async_ares_ctx *ares = async ? &async->ares : ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *interf = CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_DNS_INTERFACE);
 
-  if(!interf)
+  ಆದರೆ(!interf)
     interf = "";
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
-    ares_set_local_dev(ares->channel, interf);
+  ಆದರೆ(ares && ares->channel)
+    ares_ಗಣ_local_dev(ares->channel, interf);
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static CURLcode async_ares_set_dns_local_ip4(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async)
+ಸ್ಥಿರ CURLcode async_ares_ಗಣ_dns_local_ip4(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ರಚನೆ Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  struct in_addr a4;
-  const char *local_ip4 = CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4);
+  ರಚನೆ async_ares_ctx *ares = async ? &async->ares : ಖಾಲಿ;
+  ರಚನೆ in_addr a4;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *local_ip4 = CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_DNS_LOCAL_IP4);
 
-  if(!local_ip4 || (local_ip4[0] == 0)) {
+  ಆದರೆ(!local_ip4 || (local_ip4[0] == 0)) {
     a4.s_addr = 0; /* disabled: do not bind to a specific address */
   }
-  else {
-    if(curlx_inet_pton(AF_INET, local_ip4, &a4) != 1) {
-      DEBUGF(infof(data, "bad DNS IPv4 address"));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಆದರೆ(curlx_inet_pton(AF_INET, local_ip4, &a4) != 1) {
+      DEBUGF(infof(ದತ್ತಾಂಶ, "bad DNS IPv4 address"));
+      ಹಿಂತಿರುಗಿ CURLE_BAD_FUNCTION_ವಾದ;
     }
   }
 
   /* if channel is not there yet, this is a parameter check */
-  if(ares && ares->channel)
-    ares_set_local_ip4(ares->channel, ntohl(a4.s_addr));
+  ಆದರೆ(ares && ares->channel)
+    ares_ಗಣ_local_ip4(ares->channel, ntohl(a4.s_addr));
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static CURLcode async_ares_set_dns_local_ip6(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async)
+ಸ್ಥಿರ CURLcode async_ares_ಗಣ_dns_local_ip6(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                             ರಚನೆ Curl_resolv_async *async)
 {
-#ifdef USE_IPV6
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  unsigned char a6[INET6_ADDRSTRLEN];
-  const char *local_ip6 = CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_IPV6
+  ರಚನೆ async_ares_ctx *ares = async ? &async->ares : ಖಾಲಿ;
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ a6[INET6_ADDRSTRLEN];
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *local_ip6 = CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_DNS_LOCAL_IP6);
 
-  if(!local_ip6 || (local_ip6[0] == 0)) {
+  ಆದರೆ(!local_ip6 || (local_ip6[0] == 0)) {
     /* disabled: do not bind to a specific address */
-    memset(a6, 0, sizeof(a6));
+    memset(a6, 0, ಗಾತ್ರ(a6));
   }
-  else {
-    if(curlx_inet_pton(AF_INET6, local_ip6, a6) != 1) {
-      DEBUGF(infof(data, "bad DNS IPv6 address"));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಆದರೆ(curlx_inet_pton(AF_INET6, local_ip6, a6) != 1) {
+      DEBUGF(infof(ದತ್ತಾಂಶ, "bad DNS IPv6 address"));
+      ಹಿಂತಿರುಗಿ CURLE_BAD_FUNCTION_ವಾದ;
     }
   }
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
-    ares_set_local_ip6(ares->channel, a6);
+  ಆದರೆ(ares && ares->channel)
+    ares_ಗಣ_local_ip6(ares->channel, a6);
 
-  return CURLE_OK;
-#else /* no IPv6 support */
-  (void)data;
-  (void)async;
-  return CURLE_NOT_BUILT_IN;
-#endif
+  ಹಿಂತಿರುಗಿ CURLE_OK;
+#ಇಲ್ಲದಿದ್ದರೆ /* no IPv6 support */
+  (ಶೂನ್ಯ)ದತ್ತಾಂಶ;
+  (ಶೂನ್ಯ)async;
+  ಹಿಂತಿರುಗಿ CURLE_NOT_BUILT_ಒಳ;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-#endif /* USE_RESOLV_ARES */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_RESOLV_ARES */

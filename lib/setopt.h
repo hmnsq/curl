@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETOPT_H
-#define HEADER_CURL_SETOPT_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_SETOPT_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_SETOPT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,18 +24,18 @@
  *
  ***************************************************************************/
 
-#ifdef USE_SSL
-CURLcode Curl_setopt_SSLVERSION(struct Curl_easy *data, CURLoption option,
-                                long arg);
-#else
-#define Curl_setopt_SSLVERSION(a, b, c) CURLE_NOT_BUILT_IN
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+CURLcode Curl_setopt_SSLVERSION(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, CURLoption option,
+                                ದೀರ್ಘ arg);
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು Curl_setopt_SSLVERSION(a, b, c) CURLE_NOT_BUILT_ಒಳ
+#ಆದರೆ_ಅಂತ್ಯ
 
-CURLcode Curl_setstropt(struct Curl_easy *data,
-                        enum dupstring id, const char *s) WARN_UNUSED_RESULT;
-CURLcode Curl_setblobopt(struct curl_blob **blobp,
-                         const struct curl_blob *blob) WARN_UNUSED_RESULT;
-CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
-  WARN_UNUSED_RESULT;
+CURLcode Curl_setstropt(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                        ಎಣಿಕೆ dupstring id, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s) WARN_ಬಳಸದ_ಫಲಿತಾಂಶ;
+CURLcode Curl_setblobopt(ರಚನೆ curl_blob **blobp,
+                         ಸ್ಥಿರಾಂಕ ರಚನೆ curl_blob *blob) WARN_ಬಳಸದ_ಫಲಿತಾಂಶ;
+CURLcode Curl_vsetopt(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, CURLoption option, va_list param)
+  WARN_ಬಳಸದ_ಫಲಿತಾಂಶ;
 
-#endif /* HEADER_CURL_SETOPT_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_SETOPT_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_CHUNKS_H
-#define HEADER_CURL_HTTP_CHUNKS_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_HTTP_CHUNKS_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_HTTP_CHUNKS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_HTTP
 
-#include "curlx/dynbuf.h"
+#ಅನ್ತರ್ಭಾವ "curlx/dynbuf.h"
 
-struct connectdata;
+ರಚನೆ connectdata;
 
 /*
  * The longest possible hexadecimal number we support in a chunked transfer.
@@ -37,9 +37,9 @@ struct connectdata;
  * the 64-bit curl_off_t we support 16 digits, excluding leading zeroes. But
  * why would a sane server prefix with zeroes? Let's accept one.
  */
-#define CHUNK_MAXNUM_LEN 17
+#ವ್ಯಾಖ್ಯಾನಿಸು CHUNK_MAXNUM_LEN 17
 
-typedef enum {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ {
   /* await and buffer all hexadecimal digits until we get one that is not a
      hexadecimal digit. When done, we go CHUNK_LF */
   CHUNK_HEX,
@@ -49,7 +49,7 @@ typedef enum {
 
   /* We eat the amount of data specified. When done, we move on to the
      POST_CR state. */
-  CHUNK_DATA,
+  CHUNK_ದತ್ತಾಂಶ,
 
   /* POSTLF should get a CR and then an LF and nothing else, then move back to
      HEX as the CRLF combination marks the end of a chunk. A missing CR is no
@@ -76,39 +76,39 @@ typedef enum {
   CHUNK_TRAILER_POSTCR,
 
   /* Successfully de-chunked everything */
-  CHUNK_DONE,
+  CHUNK_ಮುಗಿದ,
 
   /* Failed on seeing a bad or not correctly terminated chunk */
   CHUNK_FAILED
 } ChunkyState;
 
-typedef enum {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ {
   CHUNKE_OK = 0,
   CHUNKE_TOO_LONG_HEX = 1,
   CHUNKE_ILLEGAL_HEX,
   CHUNKE_BAD_CHUNK,
   CHUNKE_BAD_ENCODING,
-  CHUNKE_OUT_OF_MEMORY,
+  CHUNKE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ,
   CHUNKE_PASSTHRU_ERROR, /* Curl_httpchunk_read() returns a CURLcode to use */
-  CHUNKE_TRAILER_LIMIT /* Max header limit exceeded by trailers */
+  CHUNKE_TRAILER_ಎಲ್ಲೆ /* Max header limit exceeded by trailers */
 } CHUNKcode;
 
-struct Curl_chunker {
+ರಚನೆ Curl_chunker {
   curl_off_t datasize;
   ChunkyState state;
-  CHUNKcode last_code;
-  struct dynbuf trailer; /* for chunked-encoded trailer */
-  unsigned char hexindex;
-  char hexbuffer[CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
-  BIT(ignore_body); /* never write response body data */
-  BIT(in_connect); /* this is a CONNECT response body */
+  CHUNKcode ಕೊನೆಯ_ಸಂಕೇತ;
+  ರಚನೆ dynbuf trailer; /* for chunked-encoded trailer */
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ hexindex;
+  ಅಕ್ಷರ hexbuffer[CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
+  ಬಿಟ್(ignore_body); /* never write response body data */
+  ಬಿಟ್(ಒಳ_connect); /* this is a CONNECT response body */
 };
 
 /* The following functions are defined in http_chunks.c */
-void Curl_httpchunk_init(struct Curl_easy *data, struct Curl_chunker *ch,
-                         bool ignore_body, bool in_connect);
-void Curl_httpchunk_free(struct Curl_easy *data, struct Curl_chunker *ch);
-void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
+ಶೂನ್ಯ Curl_httpchunk_init(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ Curl_chunker *ch,
+                         bool ignore_body, bool ಒಳ_connect);
+ಶೂನ್ಯ Curl_httpchunk_free(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ Curl_chunker *ch);
+ಶೂನ್ಯ Curl_httpchunk_reset(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ Curl_chunker *ch,
                           bool ignore_body);
 
 /*
@@ -127,23 +127,23 @@ void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
  * This function always uses ASCII hex values to accommodate non-ASCII hosts.
  * For example, 0x0d and 0x0a are used instead of '\r' and '\n'.
  */
-CURLcode Curl_httpchunk_read(struct Curl_easy *data, struct Curl_chunker *ch,
-                             char *buf, size_t blen, size_t *pconsumed);
+CURLcode Curl_httpchunk_read(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ Curl_chunker *ch,
+                             ಅಕ್ಷರ *buf, size_t blen, size_t *pconsumed);
 
 /**
  * @return TRUE iff chunked decoded has finished successfully.
  */
-bool Curl_httpchunk_is_done(struct Curl_easy *data, struct Curl_chunker *ch);
+bool Curl_httpchunk_is_ಮುಗಿದ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ Curl_chunker *ch);
 
-extern const struct Curl_cwtype Curl_httpchunk_unencoder;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_cwtype Curl_httpchunk_unencoder;
 
-extern const struct Curl_crtype Curl_httpchunk_encoder;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_crtype Curl_httpchunk_encoder;
 
 /**
  * Add a transfer-encoding "chunked" reader to the transfers reader stack
  */
-CURLcode Curl_httpchunk_add_reader(struct Curl_easy *data);
+CURLcode Curl_httpchunk_ಕೂಡಿಸು_reader(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ);
 
-#endif /* !CURL_DISABLE_HTTP */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_HTTP_CHUNKS_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_HTTP_CHUNKS_H */

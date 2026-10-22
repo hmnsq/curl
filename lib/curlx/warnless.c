@@ -21,110 +21,110 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "curlx/warnless.h"
+#ಅನ್ತರ್ಭಾವ "curlx/warnless.h"
 
-#if defined(__INTEL_COMPILER) && defined(__unix__)
+#ಆದರೆ defined(__INTEL_COMPILER) && defined(__unix__)
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ARPA_INET_H
+#ಅನ್ತರ್ಭಾವ <arpa/inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* __INTEL_COMPILER && __unix__ */
+#ಆದರೆ_ಅಂತ್ಯ /* __INTEL_COMPILER && __unix__ */
 
-#define CURL_MASK_UCHAR   ((unsigned char)~0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ಮುಖವಾಡ_UCHAR   ((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)~0)
 
-#define CURL_MASK_USHORT  ((unsigned short)~0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ಮುಖವಾಡ_USHORT  ((ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)~0)
 
-#define CURL_MASK_UINT    ((unsigned int)~0)
-#define CURL_MASK_SINT    (CURL_MASK_UINT >> 1)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ಮುಖವಾಡ_UINT    ((ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)~0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ಮುಖವಾಡ_SINT    (CURL_ಮುಖವಾಡ_UINT >> 1)
 
-#define CURL_MASK_ULONG   ((unsigned long)~0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ಮುಖವಾಡ_ULONG   ((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)~0)
 
-#define CURL_MASK_USIZE_T ((size_t)~0)
-#define CURL_MASK_SSIZE_T (CURL_MASK_USIZE_T >> 1)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ಮುಖವಾಡ_USIZE_T ((size_t)~0)
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_ಮುಖವಾಡ_SSIZE_T (CURL_ಮುಖವಾಡ_USIZE_T >> 1)
 
-#ifdef __INTEL_COMPILER
-#pragma warning(push)
-#pragma warning(disable:810) /* conversion may lose significant bits */
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __INTEL_COMPILER
+#ಸೂಚನೆ warning(ತಳ್ಳು)
+#ಸೂಚನೆ warning(disable:810) /* conversion may lose significant bits */
+#ಆದರೆ_ಅಂತ್ಯ
 
 /*
  * unsigned long to unsigned char
  */
-unsigned char curlx_ultouc(unsigned long ulnum)
+ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ curlx_ultouc(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ulnum)
 {
-  DEBUGASSERT(ulnum <= (unsigned long)CURL_MASK_UCHAR);
-  return (unsigned char)(ulnum & (unsigned long)CURL_MASK_UCHAR);
+  DEBUGASSERT(ulnum <= (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)CURL_ಮುಖವಾಡ_UCHAR);
+  ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ)(ulnum & (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)CURL_ಮುಖವಾಡ_UCHAR);
 }
 
 /*
  * unsigned size_t to signed int
  */
-int curlx_uztosi(size_t uznum)
+ಪೂರ್ಣಾಂಕ curlx_uztosi(size_t uznum)
 {
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_SINT);
-  return (int)(uznum & (size_t)CURL_MASK_SINT);
+  DEBUGASSERT(uznum <= (size_t)CURL_ಮುಖವಾಡ_SINT);
+  ಹಿಂತಿರುಗಿ (ಪೂರ್ಣಾಂಕ)(uznum & (size_t)CURL_ಮುಖವಾಡ_SINT);
 }
 
 /*
  * unsigned size_t to unsigned long
  */
-unsigned long curlx_uztoul(size_t uznum)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ curlx_uztoul(size_t uznum)
 {
-#if ULONG_MAX < SIZE_MAX
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_ULONG);
-#endif
-  return (unsigned long)(uznum & (size_t)CURL_MASK_ULONG);
+#ಆದರೆ ULONG_MAX < SIZE_MAX
+  DEBUGASSERT(uznum <= (size_t)CURL_ಮುಖವಾಡ_ULONG);
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)(uznum & (size_t)CURL_ಮುಖವಾಡ_ULONG);
 }
 
 /*
  * unsigned size_t to unsigned int
  */
-unsigned int curlx_uztoui(size_t uznum)
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ curlx_uztoui(size_t uznum)
 {
-#if UINT_MAX < SIZE_MAX
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_UINT);
-#endif
-  return (unsigned int)(uznum & (size_t)CURL_MASK_UINT);
+#ಆದರೆ UINT_MAX < SIZE_MAX
+  DEBUGASSERT(uznum <= (size_t)CURL_ಮುಖವಾಡ_UINT);
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)(uznum & (size_t)CURL_ಮುಖವಾಡ_UINT);
 }
 
 /*
  * signed long to signed int
  */
-int curlx_sltosi(long slnum)
+ಪೂರ್ಣಾಂಕ curlx_sltosi(ದೀರ್ಘ slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if INT_MAX < LONG_MAX
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_SINT);
-#endif
-  return (int)(slnum & (long)CURL_MASK_SINT);
+#ಆದರೆ ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ < LONG_MAX
+  DEBUGASSERT((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)slnum <= (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)CURL_ಮುಖವಾಡ_SINT);
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ (ಪೂರ್ಣಾಂಕ)(slnum & (ದೀರ್ಘ)CURL_ಮುಖವಾಡ_SINT);
 }
 
 /*
  * signed long to unsigned int
  */
-unsigned int curlx_sltoui(long slnum)
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ curlx_sltoui(ದೀರ್ಘ slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if UINT_MAX < LONG_MAX
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_UINT);
-#endif
-  return (unsigned int)(slnum & (long)CURL_MASK_UINT);
+#ಆದರೆ UINT_MAX < LONG_MAX
+  DEBUGASSERT((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)slnum <= (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)CURL_ಮುಖವಾಡ_UINT);
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)(slnum & (ದೀರ್ಘ)CURL_ಮುಖವಾಡ_UINT);
 }
 
 /*
  * signed long to unsigned short
  */
-unsigned short curlx_sltous(long slnum)
+ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ curlx_sltous(ದೀರ್ಘ slnum)
 {
   DEBUGASSERT(slnum >= 0);
-  DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_USHORT);
-  return (unsigned short)(slnum & (long)CURL_MASK_USHORT);
+  DEBUGASSERT((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)slnum <= (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)CURL_ಮುಖವಾಡ_USHORT);
+  ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)(slnum & (ದೀರ್ಘ)CURL_ಮುಖವಾಡ_USHORT);
 }
 
 /*
@@ -132,8 +132,8 @@ unsigned short curlx_sltous(long slnum)
  */
 ssize_t curlx_uztosz(size_t uznum)
 {
-  DEBUGASSERT(uznum <= (size_t)CURL_MASK_SSIZE_T);
-  return (ssize_t)(uznum & (size_t)CURL_MASK_SSIZE_T);
+  DEBUGASSERT(uznum <= (size_t)CURL_ಮುಖವಾಡ_SSIZE_T);
+  ಹಿಂತಿರುಗಿ (ssize_t)(uznum & (size_t)CURL_ಮುಖವಾಡ_SSIZE_T);
 }
 
 /*
@@ -142,101 +142,101 @@ ssize_t curlx_uztosz(size_t uznum)
 size_t curlx_sotouz(curl_off_t sonum)
 {
   DEBUGASSERT(sonum >= 0);
-  return (size_t)(sonum & (curl_off_t)CURL_MASK_USIZE_T);
+  ಹಿಂತಿರುಗಿ (size_t)(sonum & (curl_off_t)CURL_ಮುಖವಾಡ_USIZE_T);
 }
 
 /*
  * signed ssize_t to signed int
  */
-int curlx_sztosi(ssize_t sznum)
+ಪೂರ್ಣಾಂಕ curlx_sztosi(ssize_t sznum)
 {
   DEBUGASSERT(sznum >= 0);
-#if INT_MAX < SSIZE_MAX
-  DEBUGASSERT((size_t)sznum <= (size_t)CURL_MASK_SINT);
-#endif
-  return (int)(sznum & (ssize_t)CURL_MASK_SINT);
+#ಆದರೆ ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ < SSIZE_MAX
+  DEBUGASSERT((size_t)sznum <= (size_t)CURL_ಮುಖವಾಡ_SINT);
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ (ಪೂರ್ಣಾಂಕ)(sznum & (ssize_t)CURL_ಮುಖವಾಡ_SINT);
 }
 
 /*
  * unsigned int to unsigned short
  */
-unsigned short curlx_uitous(unsigned int uinum)
+ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ curlx_uitous(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ uinum)
 {
-  DEBUGASSERT(uinum <= (unsigned int)CURL_MASK_USHORT);
-  return (unsigned short)(uinum & (unsigned int)CURL_MASK_USHORT);
+  DEBUGASSERT(uinum <= (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)CURL_ಮುಖವಾಡ_USHORT);
+  ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)(uinum & (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)CURL_ಮುಖವಾಡ_USHORT);
 }
 
 /*
  * signed int to unsigned size_t
  */
-size_t curlx_sitouz(int sinum)
+size_t curlx_sitouz(ಪೂರ್ಣಾಂಕ sinum)
 {
   DEBUGASSERT(sinum >= 0);
-  return (size_t)sinum;
+  ಹಿಂತಿರುಗಿ (size_t)sinum;
 }
 
-#ifdef __INTEL_COMPILER
-#pragma warning(pop)
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __INTEL_COMPILER
+#ಸೂಚನೆ warning(ತೆಗೆ)
+#ಆದರೆ_ಅಂತ್ಯ
 
-size_t curlx_uitouz(unsigned int uinum)
+size_t curlx_uitouz(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ uinum)
 {
-  return (size_t)uinum;
+  ಹಿಂತಿರುಗಿ (size_t)uinum;
 }
 
 size_t curlx_sotouz_range(curl_off_t sonum, size_t uzmin, size_t uzmax)
 {
-  if(sonum < 0)
-    return uzmin;
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX)
-    return uzmax;
-#endif
-  return CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
+  ಆದರೆ(sonum < 0)
+    ಹಿಂತಿರುಗಿ uzmin;
+#ಆದರೆ SIZEOF_CURL_OFF_T > SIZEOF_ಗಾತ್ರ_T
+  ಆದರೆ(sonum > SIZE_MAX)
+    ಹಿಂತಿರುಗಿ uzmax;
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
 }
 
 bool curlx_sztouz(ssize_t sznum, size_t *puznum)
 {
-  if(sznum < 0) {
+  ಆದರೆ(sznum < 0) {
     *puznum = 0;
-    return FALSE;
+    ಹಿಂತಿರುಗಿ FALSE;
   }
   *puznum = (size_t)sznum;
-  return TRUE;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
-bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum)
+bool curlx_sotouz_ಹೊಂದುತ್ತದೆ(curl_off_t sonum, size_t *puznum)
 {
-  if(sonum < 0) {
+  ಆದರೆ(sonum < 0) {
     *puznum = 0;
-    return FALSE;
+    ಹಿಂತಿರುಗಿ FALSE;
   }
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX) {
+#ಆದರೆ SIZEOF_CURL_OFF_T > SIZEOF_ಗಾತ್ರ_T
+  ಆದರೆ(sonum > SIZE_MAX) {
     *puznum = 0;
-    return FALSE;
+    ಹಿಂತಿರುಗಿ FALSE;
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   *puznum = (size_t)sonum;
-  return TRUE;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
-bool curlx_sltouz(long slnum, size_t *puznum)
+bool curlx_sltouz(ದೀರ್ಘ slnum, size_t *puznum)
 {
-  if(slnum < 0) {
+  ಆದರೆ(slnum < 0) {
     *puznum = 0;
-    return FALSE;
+    ಹಿಂತಿರುಗಿ FALSE;
   }
   /* We error in curl_setup.h if SIZEOF_LONG > SIZEOF_SIZE_T */
   *puznum = (size_t)slnum;
-  return TRUE;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
 curl_off_t curlx_uztoso(size_t uznum)
 {
-#if SIZEOF_SIZE_T >= SIZEOF_CURL_OFF_T
-  if(uznum > (size_t)CURL_OFF_T_MAX)
-    return CURL_OFF_T_MAX;
-#endif
-  return (curl_off_t)uznum;
+#ಆದರೆ SIZEOF_ಗಾತ್ರ_T >= SIZEOF_CURL_OFF_T
+  ಆದರೆ(uznum > (size_t)CURL_OFF_T_MAX)
+    ಹಿಂತಿರುಗಿ CURL_OFF_T_MAX;
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ (curl_off_t)uznum;
 }

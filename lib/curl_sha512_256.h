@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SHA512_256_H
-#define HEADER_CURL_SHA512_256_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_SHA512_256_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_SHA512_256_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
+#ಆದರೆ !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
 
-#include "curl_hmac.h"
+#ಅನ್ತರ್ಭಾವ "curl_hmac.h"
 
-#define CURL_HAVE_SHA512_256
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_HAVE_SHA512_256
 
-extern const struct HMAC_params Curl_HMAC_SHA512_256[1];
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ HMAC_params Curl_HMAC_SHA512_256[1];
 
-#define CURL_SHA512_256_DIGEST_LENGTH 32
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_SHA512_256_DIGEST_ಉದ್ದಳತೆ 32
 
-CURLcode Curl_sha512_256it(unsigned char *output, const unsigned char *input,
-                           size_t input_size);
+CURLcode Curl_sha512_256it(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *output, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ಒಳಹರಿವು,
+                           size_t ಒಳಹರಿವು_ಗಾತ್ರ);
 
-#endif /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */
 
-#endif /* HEADER_CURL_SHA256_H */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_SHA256_H */

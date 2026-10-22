@@ -21,59 +21,59 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#include <signal.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETINET_ಒಳ_H
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NETDB_H
+#ಅನ್ತರ್ಭಾವ <netdb.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ARPA_INET_H
+#ಅನ್ತರ್ಭಾವ <arpa/inet.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_NET_IF_H
+#ಅನ್ತರ್ಭಾವ <net/if.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYS_IOCTL_H
+#ಅನ್ತರ್ಭಾವ <sys/ioctl.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <signal.h>
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYS_PARAM_H
+#ಅನ್ತರ್ಭಾವ <sys/param.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYS_SELECT_H
+#ಅನ್ತರ್ಭಾವ <sys/select.h>
+#ಅಥವಾಆದರೆ defined(HAVE_UNISTD_H)
+#ಅನ್ತರ್ಭಾವ <unistd.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifndef HAVE_SOCKET
-#error "We cannot compile without socket() support"
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ HAVE_SOCKET
+#ದೋಷ "We cannot compile without socket() support"
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "urldata.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
 
-#include "cfilters.h"
-#include "cw-out.h"
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "http.h"
-#include "url.h"
-#include "getinfo.h"
-#include "multiif.h"
-#include "connect.h"
-#include "hsts.h"
-#include "setopt.h"
-#include "headers.h"
-#include "bufref.h"
-#include "rtsp.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "cw-out.h"
+#ಅನ್ತರ್ಭಾವ "transfer.h"
+#ಅನ್ತರ್ಭಾವ "sendf.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "progress.h"
+#ಅನ್ತರ್ಭಾವ "http.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "getinfo.h"
+#ಅನ್ತರ್ಭಾವ "multiif.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "hsts.h"
+#ಅನ್ತರ್ಭಾವ "setopt.h"
+#ಅನ್ತರ್ಭಾವ "headers.h"
+#ಅನ್ತರ್ಭಾವ "bufref.h"
+#ಅನ್ತರ್ಭಾವ "rtsp.h"
 
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_SMTP) || \
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_IMAP)
 /*
  * checkheaders() checks the linked list of custom headers for a
@@ -81,87 +81,87 @@
  *
  * Returns a pointer to the first matching header or NULL if none matched.
  */
-char *Curl_checkheaders(const struct Curl_easy *data,
-                        const char *thisheader,
-                        const size_t thislen)
+ಅಕ್ಷರ *Curl_checkheaders(ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *thisheader,
+                        ಸ್ಥಿರಾಂಕ size_t thislen)
 {
-  struct curl_slist *head;
+  ರಚನೆ curl_slist *ತಲೆ;
   DEBUGASSERT(thislen);
   DEBUGASSERT(thisheader[thislen - 1] != ':');
 
-  for(head = data->set.headers; head; head = head->next) {
-    if(curl_strnequal(head->data, thisheader, thislen) &&
-       Curl_headersep(head->data[thislen]))
-      return head->data;
+  ಗಾಗಿ(ತಲೆ = ದತ್ತಾಂಶ->ಗಣ.ಶೀರ್ಷಿಕೆಗಳು; ತಲೆ; ತಲೆ = ತಲೆ->ಮುಂದಿನ) {
+    ಆದರೆ(curl_strnequal(ತಲೆ->ದತ್ತಾಂಶ, thisheader, thislen) &&
+       Curl_headersep(ತಲೆ->ದತ್ತಾಂಶ[thislen]))
+      ಹಿಂತಿರುಗಿ ತಲೆ->ದತ್ತಾಂಶ;
   }
 
-  return NULL;
+  ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-static int data_pending(struct Curl_easy *data, bool rcvd_eagain)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ದತ್ತಾಂಶ_pending(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool rcvd_eagain)
 {
-  struct connectdata *conn = data->conn;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
 
-  if(conn->scheme->protocol & PROTO_FAMILY_FTP)
-    return Curl_conn_data_pending(data, SECONDARYSOCKET);
+  ಆದರೆ(conn->scheme->protocol & PROTO_FAMILY_FTP)
+    ಹಿಂತಿರುಗಿ Curl_conn_ದತ್ತಾಂಶ_pending(ದತ್ತಾಂಶ, SECONDARYSOCKET);
 
   /* in the case of libssh2, we can never be really sure that we have emptied
      its internal buffers so we MUST always try until we get EAGAIN back */
-  return (!rcvd_eagain &&
+  ಹಿಂತಿರುಗಿ (!rcvd_eagain &&
           conn->scheme->protocol & (CURLPROTO_SCP | CURLPROTO_SFTP)) ||
-         Curl_conn_data_pending(data, FIRSTSOCKET);
+         Curl_conn_ದತ್ತಾಂಶ_pending(ದತ್ತಾಂಶ, FIRSTSOCKET);
 }
 
 /*
  * Check to see if CURLOPT_TIMECONDITION was met by comparing the time of the
  * remote document with the time provided by CURLOPT_TIMEVAL
  */
-bool Curl_meets_timecondition(struct Curl_easy *data, time_t timeofdoc)
+bool Curl_meets_timecondition(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, time_t timeofdoc)
 {
-  if((timeofdoc == 0) || (data->set.timevalue == 0))
-    return TRUE;
+  ಆದರೆ((timeofdoc == 0) || (ದತ್ತಾಂಶ->ಗಣ.timevalue == 0))
+    ಹಿಂತಿರುಗಿ TRUE;
 
-  switch(data->set.timecondition) {
-  case CURL_TIMECOND_IFMODSINCE:
-  default:
-    if(timeofdoc <= data->set.timevalue) {
-      infof(data, "The requested document is not new enough");
-      data->info.timecond = TRUE;
-      return FALSE;
+  ಆಯ್ಕೆ(ದತ್ತಾಂಶ->ಗಣ.timecondition) {
+  ಸ್ಥಿತಿ CURL_TIMECOND_IFMODSINCE:
+  ಪೂರ್ವನಿಯೋಜಿತ:
+    ಆದರೆ(timeofdoc <= ದತ್ತಾಂಶ->ಗಣ.timevalue) {
+      infof(ದತ್ತಾಂಶ, "The requested document is not new enough");
+      ದತ್ತಾಂಶ->info.timecond = TRUE;
+      ಹಿಂತಿರುಗಿ FALSE;
     }
-    break;
-  case CURL_TIMECOND_IFUNMODSINCE:
-    if(timeofdoc >= data->set.timevalue) {
-      infof(data, "The requested document is not old enough");
-      data->info.timecond = TRUE;
-      return FALSE;
+    ನಿಲ್ಲಿಸು;
+  ಸ್ಥಿತಿ CURL_TIMECOND_IFUNMODSINCE:
+    ಆದರೆ(timeofdoc >= ದತ್ತಾಂಶ->ಗಣ.timevalue) {
+      infof(ದತ್ತಾಂಶ, "The requested document is not old enough");
+      ದತ್ತಾಂಶ->info.timecond = TRUE;
+      ಹಿಂತಿರುಗಿ FALSE;
     }
-    break;
+    ನಿಲ್ಲಿಸು;
   }
 
-  return TRUE;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
-static CURLcode xfer_recv_shutdown(struct Curl_easy *data, bool *done)
+ಸ್ಥಿರ CURLcode xfer_recv_shutdown(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool *ಮುಗಿದ)
 {
-  if(!data || !data->conn)
-    return CURLE_FAILED_INIT;
-  return Curl_cshutdn_try_once_idx(data, data->conn->recv_idx, done);
+  ಆದರೆ(!ದತ್ತಾಂಶ || !ದತ್ತಾಂಶ->conn)
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
+  ಹಿಂತಿರುಗಿ Curl_cshutdn_try_once_idx(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->conn->recv_idx, ಮುಗಿದ);
 }
 
-static bool xfer_recv_shutdown_started(struct Curl_easy *data)
+ಸ್ಥಿರ bool xfer_recv_shutdown_started(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  if(!data || !data->conn)
-    return FALSE;
-  return CURL_CONN_IN_SHUTDOWN(data->conn, data->conn->recv_idx);
+  ಆದರೆ(!ದತ್ತಾಂಶ || !ದತ್ತಾಂಶ->conn)
+    ಹಿಂತಿರುಗಿ FALSE;
+  ಹಿಂತಿರುಗಿ CURL_CONN_ಒಳ_SHUTDOWN(ದತ್ತಾಂಶ->conn, ದತ್ತಾಂಶ->conn->recv_idx);
 }
 
-CURLcode Curl_xfer_send_shutdown(struct Curl_easy *data, bool *done)
+CURLcode Curl_xfer_send_shutdown(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool *ಮುಗಿದ)
 {
-  if(!data || !data->conn)
-    return CURLE_FAILED_INIT;
-  return Curl_cshutdn_try_once_idx(data, data->conn->send_idx, done);
+  ಆದರೆ(!ದತ್ತಾಂಶ || !ದತ್ತಾಂಶ->conn)
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
+  ಹಿಂತಿರುಗಿ Curl_cshutdn_try_once_idx(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->conn->send_idx, ಮುಗಿದ);
 }
 
 /**
@@ -172,44 +172,44 @@ CURLcode Curl_xfer_send_shutdown(struct Curl_easy *data, bool *done)
  * @param eos_reliable if EOS detection in underlying connection is reliable
  * @return number of bytes read or -1 for error
  */
-static CURLcode xfer_recv_resp(struct Curl_easy *data,
-                               char *buf, size_t blen,
+ಸ್ಥಿರ CURLcode xfer_recv_resp(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ಅಕ್ಷರ *buf, size_t blen,
                                bool eos_reliable,
                                size_t *pnread)
 {
-  CURLcode result;
+  CURLcode ಫಲಿತಾಂಶ;
 
   DEBUGASSERT(blen > 0);
   *pnread = 0;
   /* If we are reading BODY data and the connection does NOT handle EOF
    * and we know the size of the BODY data, limit the read amount */
-  if(!eos_reliable && !data->req.header && data->req.size != -1) {
-    blen = curlx_sotouz_range(data->req.size - data->req.bytecount, 0, blen);
+  ಆದರೆ(!eos_reliable && !ದತ್ತಾಂಶ->req.ಶೀರ್ಷಿಕೆ && ದತ್ತಾಂಶ->req.ಗಾತ್ರ_2 != -1) {
+    blen = curlx_sotouz_range(ದತ್ತಾಂಶ->req.ಗಾತ್ರ_2 - ದತ್ತಾಂಶ->req.bytecount, 0, blen);
   }
-  else if(xfer_recv_shutdown_started(data)) {
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(xfer_recv_shutdown_started(ದತ್ತಾಂಶ)) {
     /* we already received everything. Do not try more. */
     blen = 0;
   }
 
-  if(blen) {
-    result = Curl_xfer_recv(data, buf, blen, pnread);
-    if(result)
-      return result;
+  ಆದರೆ(blen) {
+    ಫಲಿತಾಂಶ = Curl_xfer_recv(ದತ್ತಾಂಶ, buf, blen, pnread);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
   }
 
-  if(*pnread == 0) {
-    if(data->req.shutdown) {
-      bool done;
-      result = xfer_recv_shutdown(data, &done);
-      if(result)
-        return result;
-      if(!done) {
-        return CURLE_AGAIN;
+  ಆದರೆ(*pnread == 0) {
+    ಆದರೆ(ದತ್ತಾಂಶ->req.shutdown) {
+      bool ಮುಗಿದ;
+      ಫಲಿತಾಂಶ = xfer_recv_shutdown(ದತ್ತಾಂಶ, &ಮುಗಿದ);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
+      ಆದರೆ(!ಮುಗಿದ) {
+        ಹಿಂತಿರುಗಿ CURLE_AGAIN;
       }
     }
-    DEBUGF(infof(data, "sendrecv_dl: we are done"));
+    DEBUGF(infof(ದತ್ತಾಂಶ, "sendrecv_dl: we are done"));
   }
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -217,28 +217,28 @@ static CURLcode xfer_recv_resp(struct Curl_easy *data,
  * the stream was rewound (in which case we have data in a
  * buffer)
  */
-static CURLcode sendrecv_dl(struct Curl_easy *data,
-                            struct SingleRequest *k)
+ಸ್ಥಿರ CURLcode sendrecv_dl(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            ರಚನೆ SingleRequest *k)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
-  char *buf, *xfer_buf;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ಅಕ್ಷರ *buf, *xfer_buf;
   size_t blen, xfer_blen;
-  int maxloops = 10;
+  ಪೂರ್ಣಾಂಕ maxloops = 10;
   bool is_multiplex = FALSE;
   bool rcvd_eagain = FALSE;
-  bool is_eos = FALSE, rate_limited = FALSE;
+  bool is_eos = FALSE, ದರ_limited = FALSE;
 
-  result = Curl_multi_xfer_buf_borrow(data, &xfer_buf, &xfer_blen);
-  if(result)
-    goto out;
+  ಫಲಿತಾಂಶ = Curl_multi_xfer_buf_borrow(ದತ್ತಾಂಶ, &xfer_buf, &xfer_blen);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹೋಗು ಹೊರಹೋಗು;
 
   /* This is where we loop until we have read everything there is to
      read or we get a CURLE_AGAIN */
-  do {
+  ಮಾಡು {
     size_t bytestoread;
 
-    if(!is_multiplex) {
+    ಆದರೆ(!is_multiplex) {
       /* Multiplexed connection have inherent handling of EOF and we do not
        * have to carefully restrict the amount we try to read.
        * Multiplexed changes only in one direction. */
@@ -248,188 +248,188 @@ static CURLcode sendrecv_dl(struct Curl_easy *data,
     buf = xfer_buf;
     bytestoread = xfer_blen;
 
-    if(bytestoread && Curl_rlimit_active(&data->progress.dl.rlimit)) {
-      curl_off_t dl_avail = Curl_rlimit_avail(&data->progress.dl.rlimit, NULL);
-#if 0
-      DEBUGF(infof(data, "dl_rlimit, available=%" FMT_OFF_T, dl_avail));
-#endif
+    ಆದರೆ(bytestoread && Curl_rlimit_ಸಕ್ರಿಯ(&ದತ್ತಾಂಶ->ಪ್ರಗತಿ.dl.rlimit)) {
+      curl_off_t dl_avail = Curl_rlimit_avail(&ದತ್ತಾಂಶ->ಪ್ರಗತಿ.dl.rlimit, ಖಾಲಿ);
+#ಆದರೆ 0
+      DEBUGF(infof(ದತ್ತಾಂಶ, "dl_rlimit, available=%" FMT_OFF_T, dl_avail));
+#ಆದರೆ_ಅಂತ್ಯ
       /* In case of rate limited downloads: if this loop already got data and
        * less than 16k is left in the limit, break out. We want to stutter a
        * bit to keep in the limit, but too small receives will cost cpu
        * unnecessarily. */
-      if(dl_avail <= 0) {
-        rate_limited = TRUE;
-        break;
+      ಆದರೆ(dl_avail <= 0) {
+        ದರ_limited = TRUE;
+        ನಿಲ್ಲಿಸು;
       }
-      if(dl_avail < (curl_off_t)bytestoread)
+      ಆದರೆ(dl_avail < (curl_off_t)bytestoread)
         bytestoread = (size_t)dl_avail;
     }
 
     rcvd_eagain = FALSE;
-    result = xfer_recv_resp(data, buf, bytestoread, is_multiplex, &blen);
-    if(result) {
-      if(result != CURLE_AGAIN)
-        goto out; /* real error */
+    ಫಲಿತಾಂಶ = xfer_recv_resp(ದತ್ತಾಂಶ, buf, bytestoread, is_multiplex, &blen);
+    ಆದರೆ(ಫಲಿತಾಂಶ) {
+      ಆದರೆ(ಫಲಿತಾಂಶ != CURLE_AGAIN)
+        ಹೋಗು ಹೊರಹೋಗು; /* real error */
       rcvd_eagain = TRUE;
-      result = CURLE_OK;
-      if(data->req.download_done && data->req.no_body &&
-         !data->req.resp_trailer) {
-        DEBUGF(infof(data, "EAGAIN, download done, no trailer announced, "
+      ಫಲಿತಾಂಶ = CURLE_OK;
+      ಆದರೆ(ದತ್ತಾಂಶ->req.download_ಮುಗಿದ && ದತ್ತಾಂಶ->req.no_body &&
+         !ದತ್ತಾಂಶ->req.resp_trailer) {
+        DEBUGF(infof(ದತ್ತಾಂಶ, "EAGAIN, download done, no trailer announced, "
                      "not waiting for EOS"));
         blen = 0;
         /* continue as if we received the EOS */
       }
-      else
-        break; /* get out of loop */
+      ಇಲ್ಲದಿದ್ದರೆ
+        ನಿಲ್ಲಿಸು; /* get out of loop */
     }
 
     /* We only get a 0-length receive at the end of the response */
     is_eos = (blen == 0);
 
-    if(!blen) {
-      result = Curl_req_stop_send_recv(data);
-      if(result)
-        goto out;
-      if(k->eos_written) /* already did write this to client, leave */
-        break;
+    ಆದರೆ(!blen) {
+      ಫಲಿತಾಂಶ = Curl_req_stop_send_recv(ದತ್ತಾಂಶ);
+      ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹೋಗು ಹೊರಹೋಗು;
+      ಆದರೆ(k->eos_written) /* already did write this to client, leave */
+        ನಿಲ್ಲಿಸು;
     }
 
-    result = Curl_xfer_write_resp(data, buf, blen, is_eos);
-    if(result || data->req.done)
-      goto out;
+    ಫಲಿತಾಂಶ = Curl_xfer_write_resp(ದತ್ತಾಂಶ, buf, blen, is_eos);
+    ಆದರೆ(ಫಲಿತಾಂಶ || ದತ್ತಾಂಶ->req.ಮುಗಿದ)
+      ಹೋಗು ಹೊರಹೋಗು;
 
     /* if we are done, we stop receiving. On multiplexed connections,
      * we should read the EOS. Which may arrive as meta data after
      * the bytes. Not taking it in might lead to RST of streams. */
-    if((!is_multiplex && data->req.download_done) || is_eos) {
-      CURL_REQ_CLEAR_RECV(data);
+    ಆದರೆ((!is_multiplex && ದತ್ತಾಂಶ->req.download_ಮುಗಿದ) || is_eos) {
+      CURL_REQ_CLEAR_RECV(ದತ್ತಾಂಶ);
     }
     /* if we stopped receiving, leave the loop */
-    if(!CURL_REQ_WANT_RECV(data))
-      break;
+    ಆದರೆ(!CURL_REQ_WANT_RECV(ದತ್ತಾಂಶ))
+      ನಿಲ್ಲಿಸು;
 
-  } while(maxloops--);
+  } ಆಗ(maxloops--);
 
-  if(!is_eos && !rate_limited && CURL_REQ_WANT_RECV(data) &&
-     (!rcvd_eagain || data_pending(data, rcvd_eagain))) {
+  ಆದರೆ(!is_eos && !ದರ_limited && CURL_REQ_WANT_RECV(ದತ್ತಾಂಶ) &&
+     (!rcvd_eagain || ದತ್ತಾಂಶ_pending(ದತ್ತಾಂಶ, rcvd_eagain))) {
     /* Did not read until EAGAIN/EOS or there is still data pending
      * in buffers. Mark as read-again via simulated SELECT results. */
-    Curl_multi_mark_dirty(data);
-    CURL_TRC_M(data, "sendrecv_dl() no EAGAIN/pending data, mark as dirty");
+    Curl_multi_mark_dirty(ದತ್ತಾಂಶ);
+    CURL_TRC_M(ದತ್ತಾಂಶ, "sendrecv_dl() no EAGAIN/pending data, mark as dirty");
   }
 
-  if(!CURL_REQ_WANT_RECV(data) && CURL_REQ_WANT_SEND(data) &&
-     (conn->bits.close || is_multiplex)) {
+  ಆದರೆ(!CURL_REQ_WANT_RECV(ದತ್ತಾಂಶ) && CURL_REQ_WANT_SEND(ದತ್ತಾಂಶ) &&
+     (conn->ಬಿಟ್ಟುಗಳು.close || is_multiplex)) {
     /* When we have read the entire thing and the close bit is set, the server
        may now close the connection. If there is now any kind of sending going
        on from our side, we need to stop that immediately. */
-    infof(data, "we are done reading and this is set to close, stop send");
-    Curl_req_abort_sending(data);
+    infof(ದತ್ತಾಂಶ, "we are done reading and this is set to close, stop send");
+    Curl_req_abort_sending(ದತ್ತಾಂಶ);
   }
 
-out:
-  Curl_multi_xfer_buf_release(data, xfer_buf);
-  if(result)
-    DEBUGF(infof(data, "sendrecv_dl() -> %d", (int)result));
-  return result;
+ಹೊರಹೋಗು:
+  Curl_multi_xfer_buf_release(ದತ್ತಾಂಶ, xfer_buf);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    DEBUGF(infof(ದತ್ತಾಂಶ, "sendrecv_dl() -> %d", (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ));
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /*
  * Send data to upload to the server, when the socket is writable.
  */
-static CURLcode sendrecv_ul(struct Curl_easy *data)
+ಸ್ಥಿರ CURLcode sendrecv_ul(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
   /* We should not get here when the sending is already done. */
-  DEBUGASSERT(!Curl_req_done_sending(data));
+  DEBUGASSERT(!Curl_req_ಮುಗಿದ_sending(ದತ್ತಾಂಶ));
 
-  if(!Curl_req_done_sending(data))
-    return Curl_req_send_more(data);
-  return CURLE_OK;
+  ಆದರೆ(!Curl_req_ಮುಗಿದ_sending(ದತ್ತಾಂಶ))
+    ಹಿಂತಿರುಗಿ Curl_req_send_ಇನ್ನಷ್ಟು(ದತ್ತಾಂಶ);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
  * Curl_sendrecv() is the low-level function to be called when data is to
  * be read and written to/from the connection.
  */
-CURLcode Curl_sendrecv(struct Curl_easy *data)
+CURLcode Curl_sendrecv(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  struct SingleRequest *k = &data->req;
-  const struct curltime *pnow = NULL;
-  CURLcode result = CURLE_OK;
+  ರಚನೆ SingleRequest *k = &ದತ್ತಾಂಶ->req;
+  ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pnow = ಖಾಲಿ;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
-  if(Curl_xfer_is_blocked(data)) {
-    result = CURLE_OK;
-    goto out;
+  ಆದರೆ(Curl_xfer_is_blocked(ದತ್ತಾಂಶ)) {
+    ಫಲಿತಾಂಶ = CURLE_OK;
+    ಹೋಗು ಹೊರಹೋಗು;
   }
 
   /* We go ahead and do a read if we have a readable socket or if the stream
      was rewound (in which case we have data in a buffer) */
-  if(CURL_REQ_WANT_RECV(data)) {
-    result = sendrecv_dl(data, k);
-    if(result || data->req.done)
-      goto out;
+  ಆದರೆ(CURL_REQ_WANT_RECV(ದತ್ತಾಂಶ)) {
+    ಫಲಿತಾಂಶ = sendrecv_dl(ದತ್ತಾಂಶ, k);
+    ಆದರೆ(ಫಲಿತಾಂಶ || ದತ್ತಾಂಶ->req.ಮುಗಿದ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
   /* If we still have writing to do, we check if we have a writable socket. */
-  if(Curl_req_want_send(data)) {
-    result = sendrecv_ul(data);
-    if(result)
-      goto out;
+  ಆದರೆ(Curl_req_want_send(ದತ್ತಾಂಶ)) {
+    ಫಲಿತಾಂಶ = sendrecv_ul(ದತ್ತಾಂಶ);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹೋಗು ಹೊರಹೋಗು;
   }
 
-  pnow = Curl_pgrs_now(data);
-  if(CURL_REQ_WANT_IO(data)) {
-    if(Curl_timeleft_now_ms(data, pnow) < 0) {
-      if(k->size != -1) {
-        failf(data, "Operation timed out after %" FMT_TIMEDIFF_T
+  pnow = Curl_pgrs_now(ದತ್ತಾಂಶ);
+  ಆದರೆ(CURL_REQ_WANT_IO(ದತ್ತಾಂಶ)) {
+    ಆದರೆ(Curl_timeleft_now_ms(ದತ್ತಾಂಶ, pnow) < 0) {
+      ಆದರೆ(k->ಗಾತ್ರ_2 != -1) {
+        failf(ದತ್ತಾಂಶ, "Operation timed out after %" FMT_TIMEDIFF_T
               " milliseconds with %" FMT_OFF_T " out of %"
               FMT_OFF_T " bytes received",
-              Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE),
-              k->bytecount, k->size);
+              Curl_pgrs_since_ms(ದತ್ತಾಂಶ, ಖಾಲಿ, TIMER_STARTSINGLE),
+              k->bytecount, k->ಗಾತ್ರ_2);
       }
-      else {
-        failf(data, "Operation timed out after %" FMT_TIMEDIFF_T
+      ಇಲ್ಲದಿದ್ದರೆ {
+        failf(ದತ್ತಾಂಶ, "Operation timed out after %" FMT_TIMEDIFF_T
               " milliseconds with %" FMT_OFF_T " bytes received",
-              Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE),
+              Curl_pgrs_since_ms(ದತ್ತಾಂಶ, ಖಾಲಿ, TIMER_STARTSINGLE),
               k->bytecount);
       }
-      result = CURLE_OPERATION_TIMEDOUT;
-      goto out;
+      ಫಲಿತಾಂಶ = CURLE_OPERATION_TIMEDOUT;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
   }
-  else {
+  ಇಲ್ಲದಿದ್ದರೆ {
     /*
      * The transfer has been performed. Make some general checks before
      * returning.
      */
-    if(!data->req.no_body && (k->size != -1) &&
-       (k->bytecount != k->size) && !k->newurl) {
-      failf(data, "transfer closed with %" FMT_OFF_T
-            " bytes remaining to read", k->size - k->bytecount);
-      result = CURLE_PARTIAL_FILE;
-      goto out;
+    ಆದರೆ(!ದತ್ತಾಂಶ->req.no_body && (k->ಗಾತ್ರ_2 != -1) &&
+       (k->bytecount != k->ಗಾತ್ರ_2) && !k->newurl) {
+      failf(ದತ್ತಾಂಶ, "transfer closed with %" FMT_OFF_T
+            " bytes remaining to read", k->ಗಾತ್ರ_2 - k->bytecount);
+      ಫಲಿತಾಂಶ = CURLE_PARTIAL_FILE;
+      ಹೋಗು ಹೊರಹೋಗು;
     }
   }
 
   /* If there is nothing more to send/recv, the request is done */
-  if(!CURL_REQ_WANT_IO(data))
-    data->req.done = TRUE;
+  ಆದರೆ(!CURL_REQ_WANT_IO(ದತ್ತಾಂಶ))
+    ದತ್ತಾಂಶ->req.ಮುಗಿದ = TRUE;
 
-  result = Curl_pgrsCheckX(data, pnow);
+  ಫಲಿತಾಂಶ = Curl_pgrsCheckX(ದತ್ತಾಂಶ, pnow);
 
-out:
-  if(result)
-    DEBUGF(infof(data, "Curl_sendrecv() -> %d", (int)result));
-  return result;
+ಹೊರಹೋಗು:
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    DEBUGF(infof(ದತ್ತಾಂಶ, "Curl_sendrecv() -> %d", (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ));
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /* Curl_init_CONNECT() gets called each time the handle switches to CONNECT
    which means this gets called once for each subsequent redirect etc */
-void Curl_init_CONNECT(struct Curl_easy *data)
+ಶೂನ್ಯ Curl_init_CONNECT(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  data->state.fread_func = data->set.fread_func_set;
-  data->state.in = data->set.in_set;
-  data->state.upload = (data->state.httpreq == HTTPREQ_PUT);
+  ದತ್ತಾಂಶ->state.fread_func = ದತ್ತಾಂಶ->ಗಣ.fread_func_ಗಣ;
+  ದತ್ತಾಂಶ->state.ಒಳ = ದತ್ತಾಂಶ->ಗಣ.ಒಳ_ಗಣ;
+  ದತ್ತಾಂಶ->state.upload = (ದತ್ತಾಂಶ->state.httpreq == HTTPREQ_PUT);
 }
 
 /*
@@ -437,9 +437,9 @@ void Curl_init_CONNECT(struct Curl_easy *data)
  * once for one transfer no matter if it has redirects or do multi-pass
  * authentication etc.
  */
-CURLcode Curl_pretransfer(struct Curl_easy *data)
+CURLcode Curl_pretransfer(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
   /* Reset the retry count at the start of each request.
    * If the retry count is not reset, when the connection drops,
@@ -447,182 +447,182 @@ CURLcode Curl_pretransfer(struct Curl_easy *data)
    * and will immediately throw
    * "Connection died, tried CONN_MAX_RETRIES times before giving up".
    * By resetting it here, we ensure each new request starts fresh. */
-  data->state.retrycount = 0;
+  ದತ್ತಾಂಶ->state.retrycount = 0;
 
-  if(!CURL_EASY_STR(data, STRING_SET_URL) && !data->set.uh) {
+  ಆದರೆ(!CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_ಗಣ_URL) && !ದತ್ತಾಂಶ->ಗಣ.uh) {
     /* we cannot do anything without URL */
-    failf(data, "No URL set");
-    return CURLE_URL_MALFORMAT;
+    failf(ದತ್ತಾಂಶ, "No URL set");
+    ಹಿಂತಿರುಗಿ CURLE_URL_MALFORMAT;
   }
 
   /* CURLOPT_CURLU overrides CURLOPT_URL and the contents of the CURLU handle
      is allowed to be changed by the user between transfers */
-  if(data->set.uh) {
-    char *url = NULL;
+  ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.uh) {
+    ಅಕ್ಷರ *url = ಖಾಲಿ;
     CURLUcode uc;
-    uc = curl_url_get(data->set.uh, CURLUPART_URL, &url, 0);
-    if(uc) {
+    uc = curl_url_get(ದತ್ತಾಂಶ->ಗಣ.uh, CURLUPART_URL, &url, 0);
+    ಆದರೆ(uc) {
       /* clear the pointer to not point to freed memory anymore */
-      Curl_bufref_set(&data->state.url, NULL, 0, NULL);
-      failf(data, "No URL set");
-      return CURLE_URL_MALFORMAT;
+      Curl_bufref_ಗಣ(&ದತ್ತಾಂಶ->state.url, ಖಾಲಿ, 0, ಖಾಲಿ);
+      failf(ದತ್ತಾಂಶ, "No URL set");
+      ಹಿಂತಿರುಗಿ CURLE_URL_MALFORMAT;
     }
-    result = CURL_EASY_STR_SETN(data, STRING_SET_URL, url);
-    if(result)
-      return result;
+    ಫಲಿತಾಂಶ = CURL_EASY_STR_SETN(ದತ್ತಾಂಶ, STRING_ಗಣ_URL, url);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
   }
 
-  Curl_bufref_set(&data->state.url, CURL_EASY_STR(data, STRING_SET_URL),
-                  0, NULL);
+  Curl_bufref_ಗಣ(&ದತ್ತಾಂಶ->state.url, CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_ಗಣ_URL),
+                  0, ಖಾಲಿ);
 
-  if(data->set.postfields && data->set.set_resume_from) {
+  ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.postfields && ದತ್ತಾಂಶ->ಗಣ.ಗಣ_resume_from) {
     /* we cannot */
-    failf(data, "cannot mix POSTFIELDS with RESUME_FROM");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    failf(ದತ್ತಾಂಶ, "cannot mix POSTFIELDS with RESUME_FROM");
+    ಹಿಂತಿರುಗಿ CURLE_BAD_FUNCTION_ವಾದ;
   }
 
-  data->state.prefer_ascii = data->set.prefer_ascii;
-#ifdef CURL_LIST_ONLY_PROTOCOL
-  data->state.list_only = data->set.list_only;
-#endif
-  data->state.httpreq = data->set.method;
+  ದತ್ತಾಂಶ->state.prefer_ascii = ದತ್ತಾಂಶ->ಗಣ.prefer_ascii;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_LIST_ONLY_PROTOCOL
+  ದತ್ತಾಂಶ->state.list_only = ದತ್ತಾಂಶ->ಗಣ.list_only;
+#ಆದರೆ_ಅಂತ್ಯ
+  ದತ್ತಾಂಶ->state.httpreq = ದತ್ತಾಂಶ->ಗಣ.ವಿಧಾನ;
 
   /* initial transfer request coming up, forget the initial origin
    * from a previous perform() on this handle. */
-  Curl_peer_unlink(&data->state.initial_origin);
-  Curl_peer_unlink(&data->state.origin);
-  data->state.requests = 0;
-  data->state.followlocation = 0; /* reset the location-follow counter */
-  data->state.this_is_a_follow = FALSE; /* reset this */
-  data->state.http_ignorecustom = FALSE; /* use custom HTTP method */
-  data->state.errorbuf = FALSE; /* no error has occurred */
-#ifndef CURL_DISABLE_HTTP
-  Curl_http_neg_init(data, &data->state.http_neg);
-#endif
-  data->state.authproblem = FALSE;
-  data->state.authhost.want = data->set.httpauth;
-  data->state.authproxy.want = data->set.proxyauth;
-  curlx_safefree(data->info.wouldredirect);
-  curlx_safefree(data->info.effective_url);
-  Curl_data_priority_clear_state(data);
-  if(data->set.http_auto_referer)
-    Curl_bufref_free(&data->state.referer);
-  if(CURL_EASY_STR(data, STRING_SET_REFERER))
-    Curl_bufref_set(&data->state.referer,
-                    CURL_EASY_STR(data, STRING_SET_REFERER), 0, NULL);
-  else
-    Curl_bufref_free(&data->state.referer);
+  Curl_peer_unlink(&ದತ್ತಾಂಶ->state.initial_origin);
+  Curl_peer_unlink(&ದತ್ತಾಂಶ->state.origin);
+  ದತ್ತಾಂಶ->state.ವಿನಂತಿಗಳು = 0;
+  ದತ್ತಾಂಶ->state.followlocation = 0; /* reset the location-follow counter */
+  ದತ್ತಾಂಶ->state.this_is_a_follow = FALSE; /* reset this */
+  ದತ್ತಾಂಶ->state.http_ignorecustom = FALSE; /* use custom HTTP method */
+  ದತ್ತಾಂಶ->state.errorbuf = FALSE; /* no error has occurred */
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_HTTP
+  Curl_http_neg_init(ದತ್ತಾಂಶ, &ದತ್ತಾಂಶ->state.http_neg);
+#ಆದರೆ_ಅಂತ್ಯ
+  ದತ್ತಾಂಶ->state.authproblem = FALSE;
+  ದತ್ತಾಂಶ->state.authhost.want = ದತ್ತಾಂಶ->ಗಣ.httpauth;
+  ದತ್ತಾಂಶ->state.authproxy.want = ದತ್ತಾಂಶ->ಗಣ.proxyauth;
+  curlx_safefree(ದತ್ತಾಂಶ->info.wouldredirect);
+  curlx_safefree(ದತ್ತಾಂಶ->info.effective_url);
+  Curl_ದತ್ತಾಂಶ_ಆದ್ಯತೆ_clear_state(ದತ್ತಾಂಶ);
+  ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.http_auto_referer)
+    Curl_bufref_free(&ದತ್ತಾಂಶ->state.referer);
+  ಆದರೆ(CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_ಗಣ_REFERER))
+    Curl_bufref_ಗಣ(&ದತ್ತಾಂಶ->state.referer,
+                    CURL_EASY_STR(ದತ್ತಾಂಶ, STRING_ಗಣ_REFERER), 0, ಖಾಲಿ);
+  ಇಲ್ಲದಿದ್ದರೆ
+    Curl_bufref_free(&ದತ್ತಾಂಶ->state.referer);
 
-  if(data->state.httpreq == HTTPREQ_PUT)
-    data->state.infilesize = data->set.filesize;
-  else if((data->state.httpreq != HTTPREQ_GET) &&
-          (data->state.httpreq != HTTPREQ_HEAD)) {
-    data->state.infilesize = data->set.postfieldsize;
-    if(data->set.postfields && (data->state.infilesize == -1))
-      data->state.infilesize = (curl_off_t)strlen(data->set.postfields);
+  ಆದರೆ(ದತ್ತಾಂಶ->state.httpreq == HTTPREQ_PUT)
+    ದತ್ತಾಂಶ->state.infilesize = ದತ್ತಾಂಶ->ಗಣ.filesize;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ((ದತ್ತಾಂಶ->state.httpreq != HTTPREQ_GET) &&
+          (ದತ್ತಾಂಶ->state.httpreq != HTTPREQ_ತಲೆ)) {
+    ದತ್ತಾಂಶ->state.infilesize = ದತ್ತಾಂಶ->ಗಣ.postfieldsize;
+    ಆದರೆ(ದತ್ತಾಂಶ->ಗಣ.postfields && (ದತ್ತಾಂಶ->state.infilesize == -1))
+      ದತ್ತಾಂಶ->state.infilesize = (curl_off_t)ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ದತ್ತಾಂಶ->ಗಣ.postfields);
   }
-  else
-    data->state.infilesize = 0;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ದತ್ತಾಂಶ->state.infilesize = 0;
 
   /* If there is a list of cookie files to read, do it now! */
-  result = Curl_cookie_loadfiles(data,
-                                 data->set.cookiesession ?
+  ಫಲಿತಾಂಶ = Curl_cookie_loadfiles(ದತ್ತಾಂಶ,
+                                 ದತ್ತಾಂಶ->ಗಣ.cookiesession ?
                                  COOKIE_NOSESSION : 0);
-  if(!result)
-    Curl_cookie_run(data); /* activate */
+  ಆದರೆ(!ಫಲಿತಾಂಶ)
+    Curl_cookie_ಸತತ(ದತ್ತಾಂಶ); /* activate */
 
   /* If there is a list of host pairs to deal with */
-  if(!result && data->state.resolve)
-    result = Curl_loadhostpairs(data);
+  ಆದರೆ(!ಫಲಿತಾಂಶ && ದತ್ತಾಂಶ->state.resolve)
+    ಫಲಿತಾಂಶ = Curl_loadhostpairs(ದತ್ತಾಂಶ);
 
-  if(!result)
+  ಆದರೆ(!ಫಲಿತಾಂಶ)
     /* If there is a list of hsts files to read */
-    result = Curl_hsts_loadfiles(data);
+    ಫಲಿತಾಂಶ = Curl_hsts_loadfiles(ದತ್ತಾಂಶ);
 
-  if(!result) {
+  ಆದರೆ(!ಫಲಿತಾಂಶ) {
     /* Allow data->set.use_port to set which port to use. This needs to be
      * disabled for example when we follow Location: headers to URLs using
      * different ports! */
-    data->state.allow_port = TRUE;
+    ದತ್ತಾಂಶ->state.allow_ಪೋರ್ಟ್ = TRUE;
 
-#if defined(HAVE_SIGNAL) && defined(SIGPIPE) && !defined(MSG_NOSIGNAL)
+#ಆದರೆ defined(HAVE_SIGNAL) && defined(SIGPIPE) && !defined(MSG_NOSIGNAL)
     /*************************************************************
      * Tell signal handler to ignore SIGPIPE
      *************************************************************/
-    if(!data->set.no_signal)
-      data->state.prev_signal = signal(SIGPIPE, SIG_IGN);
-#endif
+    ಆದರೆ(!ದತ್ತಾಂಶ->ಗಣ.no_signal)
+      ದತ್ತಾಂಶ->state.prev_signal = ಸಂಕೇತ(SIGPIPE, SIG_IGN);
+#ಆದರೆ_ಅಂತ್ಯ
 
-    Curl_initinfo(data); /* reset session-specific information "variables" */
-    Curl_pgrsResetTransferSizes(data);
-    Curl_pgrsStart(data, NULL);
+    Curl_initinfo(ದತ್ತಾಂಶ); /* reset session-specific information "variables" */
+    Curl_pgrsResetTransferSizes(ದತ್ತಾಂಶ);
+    Curl_pgrs_ಆರಂಭ(ದತ್ತಾಂಶ, ಖಾಲಿ);
 
     /* In case the handle is reused and an authentication method was picked
        in the session we need to make sure we only use the one(s) we now
        consider to be fine */
-    data->state.authhost.picked &= data->state.authhost.want;
-    data->state.authproxy.picked &= data->state.authproxy.want;
+    ದತ್ತಾಂಶ->state.authhost.picked &= ದತ್ತಾಂಶ->state.authhost.want;
+    ದತ್ತಾಂಶ->state.authproxy.picked &= ದತ್ತಾಂಶ->state.authproxy.want;
 
-#ifndef CURL_DISABLE_FTP
-    data->state.wildcardmatch = data->set.wildcard_enabled;
-#ifdef DEBUGBUILD
-  if(getenv("CURL_DBG_FTP_WILDCARD"))
-    data->state.wildcardmatch = TRUE;
-#endif
-    if(data->state.wildcardmatch) {
-      struct WildcardData *wc;
-      if(!data->wildcard) {
-        data->wildcard = curlx_calloc(1, sizeof(struct WildcardData));
-        if(!data->wildcard)
-          return CURLE_OUT_OF_MEMORY;
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_FTP
+    ದತ್ತಾಂಶ->state.wildcardmatch = ದತ್ತಾಂಶ->ಗಣ.wildcard_enabled;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+  ಆದರೆ(getenv("CURL_DBG_FTP_WILDCARD"))
+    ದತ್ತಾಂಶ->state.wildcardmatch = TRUE;
+#ಆದರೆ_ಅಂತ್ಯ
+    ಆದರೆ(ದತ್ತಾಂಶ->state.wildcardmatch) {
+      ರಚನೆ Wildcard_ದತ್ತಾಂಶ *wc;
+      ಆದರೆ(!ದತ್ತಾಂಶ->wildcard) {
+        ದತ್ತಾಂಶ->wildcard = curlx_calloc(1, ಗಾತ್ರ(ರಚನೆ Wildcard_ದತ್ತಾಂಶ));
+        ಆದರೆ(!ದತ್ತಾಂಶ->wildcard)
+          ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
       }
-      wc = data->wildcard;
-      if(wc->state < CURLWC_INIT) {
-        if(wc->ftpwc)
+      wc = ದತ್ತಾಂಶ->wildcard;
+      ಆದರೆ(wc->state < CURLWC_INIT) {
+        ಆದರೆ(wc->ftpwc)
           wc->dtor(wc->ftpwc);
-        curlx_safefree(wc->pattern);
-        curlx_safefree(wc->path);
+        curlx_safefree(wc->ನಮೂನೆ);
+        curlx_safefree(wc->ಮಾರ್ಗ);
         Curl_wildcard_init(wc); /* init wildcard structures */
       }
     }
-#endif
-    result = Curl_hsts_loadcb(data, data->hsts);
+#ಆದರೆ_ಅಂತ್ಯ
+    ಫಲಿತಾಂಶ = Curl_hsts_loadcb(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->hsts);
   }
 
-  data->req.headerbytecount = 0;
+  ದತ್ತಾಂಶ->req.headerbytecount = 0;
   /* a previous transfer on this handle may have ended with a rewind request
    * still pending (a follow or auth retry that failed). This is a new
    * transfer, so drop those readers now instead of letting a later upload
    * read from them. */
-  data->req.rewind_read = FALSE;
-  Curl_client_reset(data);
-  Curl_headers_cleanup(data);
-  return result;
+  ದತ್ತಾಂಶ->req.rewind_read = FALSE;
+  Curl_client_reset(ದತ್ತಾಂಶ);
+  Curl_ಶೀರ್ಷಿಕೆಗಳು_cleanup(ದತ್ತಾಂಶ);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 /* Returns CURLE_OK *and* sets '*url' if a request retry is wanted.
 
    NOTE: that the *url is curlx_malloc()ed. */
-CURLcode Curl_retry_request(struct Curl_easy *data, char **url)
+CURLcode Curl_retry_request(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ಅಕ್ಷರ **url)
 {
-  struct connectdata *conn = data->conn;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
   bool retry = FALSE;
-  *url = NULL;
+  *url = ಖಾಲಿ;
 
   /* if we are talking upload, we cannot do the checks below, unless the
      protocol is HTTP as when uploading over HTTP we will still get a
      response */
-  if(data->state.upload &&
+  ಆದರೆ(ದತ್ತಾಂಶ->state.upload &&
      !(conn->scheme->protocol & (PROTO_FAMILY_HTTP | CURLPROTO_RTSP)))
-    return CURLE_OK;
+    ಹಿಂತಿರುಗಿ CURLE_OK;
 
-  if(conn->bits.reuse &&
-     (data->req.bytecount + data->req.headerbytecount == 0) &&
-     ((!data->req.no_body && !data->req.done) ||
+  ಆದರೆ(conn->ಬಿಟ್ಟುಗಳು.reuse &&
+     (ದತ್ತಾಂಶ->req.bytecount + ದತ್ತಾಂಶ->req.headerbytecount == 0) &&
+     ((!ದತ್ತಾಂಶ->req.no_body && !ದತ್ತಾಂಶ->req.ಮುಗಿದ) ||
       (conn->scheme->protocol & PROTO_FAMILY_HTTP))
-#ifndef CURL_DISABLE_RTSP
-     && (data->set.rtspreq != RTSPREQ_RECEIVE)
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_RTSP
+     && (ದತ್ತಾಂಶ->ಗಣ.rtspreq != RTSPREQ_RECEIVE)
+#ಆದರೆ_ಅಂತ್ಯ
     )
     /* We got no data, we attempted to reuse a connection. For HTTP this
        can be a retry so we try again regardless if we expected a body.
@@ -632,65 +632,65 @@ CURLcode Curl_retry_request(struct Curl_easy *data, char **url)
        done using it before, but that was closed when we wanted to read from
        it again. Bad luck. Retry the same request on a fresh connect! */
     retry = TRUE;
-  else if(data->state.refused_stream &&
-          (data->req.bytecount + data->req.headerbytecount == 0)) {
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ದತ್ತಾಂಶ->state.refused_ಹರಿವು &&
+          (ದತ್ತಾಂಶ->req.bytecount + ದತ್ತಾಂಶ->req.headerbytecount == 0)) {
     /* This was sent on a refused stream, safe to rerun. A refused stream
        error can typically only happen on HTTP/2 level if the stream is safe
        to issue again, but the nghttp2 API can deliver the message to other
        streams as well, which is why this adds the check the data counters
        too. */
-    infof(data, "REFUSED_STREAM, retrying a fresh connect");
-    data->state.refused_stream = FALSE; /* clear again */
+    infof(ದತ್ತಾಂಶ, "REFUSED_STREAM, retrying a fresh connect");
+    ದತ್ತಾಂಶ->state.refused_ಹರಿವು = FALSE; /* clear again */
     retry = TRUE;
   }
-  if(retry) {
-#define CONN_MAX_RETRIES 5
-    if(data->state.retrycount++ >= CONN_MAX_RETRIES) {
-      failf(data, "Connection died, tried %d times before giving up",
+  ಆದರೆ(retry) {
+#ವ್ಯಾಖ್ಯಾನಿಸು CONN_MAX_RETRIES 5
+    ಆದರೆ(ದತ್ತಾಂಶ->state.retrycount++ >= CONN_MAX_RETRIES) {
+      failf(ದತ್ತಾಂಶ, "Connection died, tried %d times before giving up",
             CONN_MAX_RETRIES);
-      data->state.retrycount = 0;
-      return CURLE_SEND_ERROR;
+      ದತ್ತಾಂಶ->state.retrycount = 0;
+      ಹಿಂತಿರುಗಿ CURLE_SEND_ERROR;
     }
-    infof(data, "Connection died, retrying a fresh connect (retry count: %d)",
-          data->state.retrycount);
-    *url = Curl_bufref_dup(&data->state.url);
-    if(!*url)
-      return CURLE_OUT_OF_MEMORY;
+    infof(ದತ್ತಾಂಶ, "Connection died, retrying a fresh connect (retry count: %d)",
+          ದತ್ತಾಂಶ->state.retrycount);
+    *url = Curl_bufref_dup(&ದತ್ತಾಂಶ->state.url);
+    ಆದರೆ(!*url)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
     connclose(conn); /* close this connection */
-    conn->bits.retry = TRUE; /* mark this as a connection we are about to
+    conn->ಬಿಟ್ಟುಗಳು.retry = TRUE; /* mark this as a connection we are about to
                                 retry. Marking it this way should prevent i.e
                                 HTTP transfers to return error because nothing
                                 has been transferred! */
-    Curl_creader_set_rewind(data, TRUE);
+    Curl_creader_ಗಣ_rewind(ದತ್ತಾಂಶ, TRUE);
   }
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static void xfer_setup(
-  struct Curl_easy *data,   /* transfer */
+ಸ್ಥಿರ ಶೂನ್ಯ xfer_ಸಿದ್ಧತೆ(
+  ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,   /* transfer */
   int8_t send_idx,             /* sockindex to send on or -1 */
   int8_t recv_idx,             /* sockindex to receive on or -1 */
-  curl_off_t recv_size      /* how much to receive, -1 if unknown */
+  curl_off_t recv_ಗಾತ್ರ      /* how much to receive, -1 if unknown */
   )
 {
-  struct SingleRequest *k = &data->req;
-  struct connectdata *conn = data->conn;
+  ರಚನೆ SingleRequest *k = &ದತ್ತಾಂಶ->req;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
 
   DEBUGASSERT(conn);
   /* indexes are in range */
   DEBUGASSERT((send_idx <= 1) && (send_idx >= -1));
   DEBUGASSERT((recv_idx <= 1) && (recv_idx >= -1));
   /* if request wants to send, switching off the send direction is wrong */
-  DEBUGASSERT((send_idx >= 0) || !Curl_req_want_send(data));
+  DEBUGASSERT((send_idx >= 0) || !Curl_req_want_send(ದತ್ತಾಂಶ));
 
   conn->send_idx = send_idx;
   conn->recv_idx = recv_idx;
 
   /* without receiving, there should be not recv_size */
-  DEBUGASSERT((conn->recv_idx >= 0) || (recv_size == -1));
-  k->size = recv_size;
-  k->header = !!conn->scheme->run->write_resp_hd;
+  DEBUGASSERT((conn->recv_idx >= 0) || (recv_ಗಾತ್ರ == -1));
+  k->ಗಾತ್ರ_2 = recv_ಗಾತ್ರ;
+  k->ಶೀರ್ಷಿಕೆ = !!conn->scheme->ಸತತ->write_resp_hd;
   /* by default, we do not shutdown at the end of the transfer */
   k->shutdown = FALSE;
   k->shutdown_err_ignore = FALSE;
@@ -698,217 +698,217 @@ static void xfer_setup(
   /* The code sequence below is placed in this function because all necessary
      input is not always known in do_complete() as this function may be called
      after that */
-  if(!k->header && (recv_size > 0))
-    Curl_pgrsSetDownloadSize(data, recv_size);
+  ಆದರೆ(!k->ಶೀರ್ಷಿಕೆ && (recv_ಗಾತ್ರ > 0))
+    Curl_pgrs_ಗಣ_Download_ಗಾತ್ರ(ದತ್ತಾಂಶ, recv_ಗಾತ್ರ);
 
   /* we want header and/or body, if neither then do not do this! */
-  if(conn->scheme->run->write_resp_hd || !data->req.no_body) {
-    if(conn->recv_idx != -1)
-      CURL_REQ_SET_RECV(data);
-    if(conn->send_idx != -1)
-      CURL_REQ_SET_SEND(data);
+  ಆದರೆ(conn->scheme->ಸತತ->write_resp_hd || !ದತ್ತಾಂಶ->req.no_body) {
+    ಆದರೆ(conn->recv_idx != -1)
+      CURL_REQ_ಗಣ_RECV(ದತ್ತಾಂಶ);
+    ಆದರೆ(conn->send_idx != -1)
+      CURL_REQ_ಗಣ_SEND(ದತ್ತಾಂಶ);
   }
-  CURL_TRC_M(data, "xfer_setup: recv_idx=%d, send_idx=%d",
+  CURL_TRC_M(ದತ್ತಾಂಶ, "xfer_setup: recv_idx=%d, send_idx=%d",
              conn->recv_idx, conn->send_idx);
 }
 
-void Curl_xfer_setup_nop(struct Curl_easy *data)
+ಶೂನ್ಯ Curl_xfer_ಸಿದ್ಧತೆ_nop(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  xfer_setup(data, -1, -1, -1);
+  xfer_ಸಿದ್ಧತೆ(ದತ್ತಾಂಶ, -1, -1, -1);
 }
 
-void Curl_xfer_setup_sendrecv(struct Curl_easy *data,
+ಶೂನ್ಯ Curl_xfer_ಸಿದ್ಧತೆ_sendrecv(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                               int8_t sockindex,
-                              curl_off_t recv_size)
+                              curl_off_t recv_ಗಾತ್ರ)
 {
-  xfer_setup(data, sockindex, sockindex, recv_size);
+  xfer_ಸಿದ್ಧತೆ(ದತ್ತಾಂಶ, sockindex, sockindex, recv_ಗಾತ್ರ);
 }
 
-void Curl_xfer_setup_send(struct Curl_easy *data,
+ಶೂನ್ಯ Curl_xfer_ಸಿದ್ಧತೆ_send(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                           int8_t sockindex)
 {
-  xfer_setup(data, sockindex, -1, -1);
+  xfer_ಸಿದ್ಧತೆ(ದತ್ತಾಂಶ, sockindex, -1, -1);
 }
 
-void Curl_xfer_setup_recv(struct Curl_easy *data,
+ಶೂನ್ಯ Curl_xfer_ಸಿದ್ಧತೆ_recv(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                           int8_t sockindex,
-                          curl_off_t recv_size)
+                          curl_off_t recv_ಗಾತ್ರ)
 {
-  xfer_setup(data, -1, sockindex, recv_size);
+  xfer_ಸಿದ್ಧತೆ(ದತ್ತಾಂಶ, -1, sockindex, recv_ಗಾತ್ರ);
 }
 
-void Curl_xfer_set_shutdown(struct Curl_easy *data,
+ಶೂನ್ಯ Curl_xfer_ಗಣ_shutdown(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                             bool shutdown,
                             bool ignore_errors)
 {
   /* Shutdown should only be set when the transfer only sends or receives. */
   DEBUGASSERT(!shutdown ||
-              (data->conn->send_idx < 0) || (data->conn->recv_idx < 0));
-  data->req.shutdown = shutdown;
-  data->req.shutdown_err_ignore = ignore_errors;
+              (ದತ್ತಾಂಶ->conn->send_idx < 0) || (ದತ್ತಾಂಶ->conn->recv_idx < 0));
+  ದತ್ತಾಂಶ->req.shutdown = shutdown;
+  ದತ್ತಾಂಶ->req.shutdown_err_ignore = ignore_errors;
 }
 
-CURLcode Curl_xfer_write_resp(struct Curl_easy *data,
-                              const char *buf, size_t blen,
+CURLcode Curl_xfer_write_resp(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                              ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *buf, size_t blen,
                               bool is_eos)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
 
-  if(data->conn->scheme->run->write_resp) {
+  ಆದರೆ(ದತ್ತಾಂಶ->conn->scheme->ಸತತ->write_resp) {
     /* protocol handlers offering this function take full responsibility
      * for writing all received download data to the client. */
-    result = data->conn->scheme->run->write_resp(data, buf, blen, is_eos);
+    ಫಲಿತಾಂಶ = ದತ್ತಾಂಶ->conn->scheme->ಸತತ->write_resp(ದತ್ತಾಂಶ, buf, blen, is_eos);
   }
-  else {
+  ಇಲ್ಲದಿದ್ದರೆ {
     /* No special handling by protocol handler, write all received data
      * as BODY to the client. */
-    if(blen || is_eos) {
-      int cwtype = CLIENTWRITE_BODY;
-      if(is_eos)
+    ಆದರೆ(blen || is_eos) {
+      ಪೂರ್ಣಾಂಕ cwtype = CLIENTWRITE_BODY;
+      ಆದರೆ(is_eos)
         cwtype |= CLIENTWRITE_EOS;
-      result = Curl_client_write(data, cwtype, buf, blen);
+      ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, cwtype, buf, blen);
     }
   }
 
-  if(!result && is_eos) {
+  ಆದರೆ(!ಫಲಿತಾಂಶ && is_eos) {
     /* If we wrote the EOS, we are definitely done */
-    data->req.eos_written = TRUE;
-    data->req.download_done = TRUE;
+    ದತ್ತಾಂಶ->req.eos_written = TRUE;
+    ದತ್ತಾಂಶ->req.download_ಮುಗಿದ = TRUE;
   }
-  CURL_TRC_WRITE(data, "xfer_write_resp(len=%zu, eos=%d) -> %d",
-                 blen, is_eos, (int)result);
-  return result;
+  CURL_TRC_WRITE(ದತ್ತಾಂಶ, "xfer_write_resp(len=%zu, eos=%d) -> %d",
+                 blen, is_eos, (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-bool Curl_xfer_write_is_paused(struct Curl_easy *data)
+bool Curl_xfer_write_is_paused(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  return Curl_cwriter_is_paused(data);
+  ಹಿಂತಿರುಗಿ Curl_cwriter_is_paused(ದತ್ತಾಂಶ);
 }
 
-CURLcode Curl_xfer_write_resp_hd(struct Curl_easy *data,
-                                 const char *hd0, size_t hdlen, bool is_eos)
+CURLcode Curl_xfer_write_resp_hd(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                 ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *hd0, size_t hdlen, bool is_eos)
 {
-  if(data->conn->scheme->run->write_resp_hd) {
+  ಆದರೆ(ದತ್ತಾಂಶ->conn->scheme->ಸತತ->write_resp_hd) {
     DEBUGASSERT(!hd0[hdlen]); /* null-terminated */
     /* protocol handlers offering this function take full responsibility
      * for writing all received download data to the client. */
-    return data->conn->scheme->run->write_resp_hd(data, hd0, hdlen, is_eos);
+    ಹಿಂತಿರುಗಿ ದತ್ತಾಂಶ->conn->scheme->ಸತತ->write_resp_hd(ದತ್ತಾಂಶ, hd0, hdlen, is_eos);
   }
   /* No special handling by protocol handler, write as response bytes */
-  return Curl_xfer_write_resp(data, hd0, hdlen, is_eos);
+  ಹಿಂತಿರುಗಿ Curl_xfer_write_resp(ದತ್ತಾಂಶ, hd0, hdlen, is_eos);
 }
 
-CURLcode Curl_xfer_write_done(struct Curl_easy *data, bool premature)
+CURLcode Curl_xfer_write_ಮುಗಿದ(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool premature)
 {
-  (void)premature;
-  return Curl_cw_out_done(data);
+  (ಶೂನ್ಯ)premature;
+  ಹಿಂತಿರುಗಿ Curl_cw_ಹೊರಹೋಗು_ಮುಗಿದ(ದತ್ತಾಂಶ);
 }
 
-bool Curl_xfer_needs_flush(struct Curl_easy *data)
+bool Curl_xfer_needs_flush(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  return Curl_conn_needs_flush(data, data->conn->send_idx);
+  ಹಿಂತಿರುಗಿ Curl_conn_needs_flush(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->conn->send_idx);
 }
 
-CURLcode Curl_xfer_flush(struct Curl_easy *data)
+CURLcode Curl_xfer_flush(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  return Curl_conn_flush(data, data->conn->send_idx);
+  ಹಿಂತಿರುಗಿ Curl_conn_flush(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->conn->send_idx);
 }
 
-CURLcode Curl_xfer_send(struct Curl_easy *data,
-                        const void *buf, size_t blen, bool eos,
+CURLcode Curl_xfer_send(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                        ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *buf, size_t blen, bool eos,
                         size_t *pnwritten)
 {
-  CURLcode result;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(ದತ್ತಾಂಶ);
+  DEBUGASSERT(ದತ್ತಾಂಶ->conn);
 
-  result = Curl_conn_send(data, data->conn->send_idx,
+  ಫಲಿತಾಂಶ = Curl_conn_send(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->conn->send_idx,
                           buf, blen, eos, pnwritten);
-  if(result == CURLE_AGAIN) {
-    result = CURLE_OK;
+  ಆದರೆ(ಫಲಿತಾಂಶ == CURLE_AGAIN) {
+    ಫಲಿತಾಂಶ = CURLE_OK;
     *pnwritten = 0;
   }
-  else if(!result && *pnwritten)
-    data->info.request_size += *pnwritten;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!ಫಲಿತಾಂಶ && *pnwritten)
+    ದತ್ತಾಂಶ->info.request_ಗಾತ್ರ += *pnwritten;
 
-  DEBUGF(infof(data, "Curl_xfer_send(len=%zu, eos=%d) -> %d, %zu",
-               blen, eos, (int)result, *pnwritten));
-  return result;
+  DEBUGF(infof(ದತ್ತಾಂಶ, "Curl_xfer_send(len=%zu, eos=%d) -> %d, %zu",
+               blen, eos, (ಪೂರ್ಣಾಂಕ)ಫಲಿತಾಂಶ, *pnwritten));
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-CURLcode Curl_xfer_recv(struct Curl_easy *data,
-                        char *buf, size_t blen,
+CURLcode Curl_xfer_recv(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                        ಅಕ್ಷರ *buf, size_t blen,
                         size_t *pnrcvd)
 {
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
-  DEBUGASSERT(data->set.buffer_size > 0);
+  DEBUGASSERT(ದತ್ತಾಂಶ);
+  DEBUGASSERT(ದತ್ತಾಂಶ->conn);
+  DEBUGASSERT(ದತ್ತಾಂಶ->ಗಣ.ಬಫರ್_ಗಾತ್ರ > 0);
 
-  if(curlx_uitouz(data->set.buffer_size) < blen)
-    blen = curlx_uitouz(data->set.buffer_size);
-  return Curl_conn_recv(data, data->conn->recv_idx, buf, blen, pnrcvd);
+  ಆದರೆ(curlx_uitouz(ದತ್ತಾಂಶ->ಗಣ.ಬಫರ್_ಗಾತ್ರ) < blen)
+    blen = curlx_uitouz(ದತ್ತಾಂಶ->ಗಣ.ಬಫರ್_ಗಾತ್ರ);
+  ಹಿಂತಿರುಗಿ Curl_conn_recv(ದತ್ತಾಂಶ, ದತ್ತಾಂಶ->conn->recv_idx, buf, blen, pnrcvd);
 }
 
-CURLcode Curl_xfer_send_close(struct Curl_easy *data)
+CURLcode Curl_xfer_send_close(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  Curl_conn_ev_data_done_send(data);
-  return CURLE_OK;
+  Curl_conn_ev_ದತ್ತಾಂಶ_ಮುಗಿದ_send(ದತ್ತಾಂಶ);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-bool Curl_xfer_is_blocked(struct Curl_easy *data)
+bool Curl_xfer_is_blocked(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  bool want_send = CURL_REQ_WANT_SEND(data);
-  bool want_recv = CURL_REQ_WANT_RECV(data);
-  if(!want_send)
-    return want_recv && Curl_xfer_recv_is_paused(data);
-  else if(!want_recv)
-    return want_send && Curl_xfer_send_is_paused(data);
-  else
-    return Curl_xfer_recv_is_paused(data) && Curl_xfer_send_is_paused(data);
+  bool want_send = CURL_REQ_WANT_SEND(ದತ್ತಾಂಶ);
+  bool want_recv = CURL_REQ_WANT_RECV(ದತ್ತಾಂಶ);
+  ಆದರೆ(!want_send)
+    ಹಿಂತಿರುಗಿ want_recv && Curl_xfer_recv_is_paused(ದತ್ತಾಂಶ);
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!want_recv)
+    ಹಿಂತಿರುಗಿ want_send && Curl_xfer_send_is_paused(ದತ್ತಾಂಶ);
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ Curl_xfer_recv_is_paused(ದತ್ತಾಂಶ) && Curl_xfer_send_is_paused(ದತ್ತಾಂಶ);
 }
 
-bool Curl_xfer_send_is_paused(struct Curl_easy *data)
+bool Curl_xfer_send_is_paused(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  return Curl_rlimit_is_blocked(&data->progress.ul.rlimit);
+  ಹಿಂತಿರುಗಿ Curl_rlimit_is_blocked(&ದತ್ತಾಂಶ->ಪ್ರಗತಿ.ul.rlimit);
 }
 
-bool Curl_xfer_recv_is_paused(struct Curl_easy *data)
+bool Curl_xfer_recv_is_paused(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-  return Curl_rlimit_is_blocked(&data->progress.dl.rlimit);
+  ಹಿಂತಿರುಗಿ Curl_rlimit_is_blocked(&ದತ್ತಾಂಶ->ಪ್ರಗತಿ.dl.rlimit);
 }
 
-CURLcode Curl_xfer_pause_send(struct Curl_easy *data, bool enable)
+CURLcode Curl_xfer_pause_send(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool enable)
 {
-  CURLcode result = CURLE_OK;
-  Curl_rlimit_block(&data->progress.ul.rlimit, enable, Curl_pgrs_now(data));
-  if(!enable && Curl_creader_is_paused(data))
-    result = Curl_creader_unpause(data);
-  Curl_pgrsSendPause(data, enable);
-  return result;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  Curl_rlimit_ಖಂಡ(&ದತ್ತಾಂಶ->ಪ್ರಗತಿ.ul.rlimit, enable, Curl_pgrs_now(ದತ್ತಾಂಶ));
+  ಆದರೆ(!enable && Curl_creader_is_paused(ದತ್ತಾಂಶ))
+    ಫಲಿತಾಂಶ = Curl_creader_unpause(ದತ್ತಾಂಶ);
+  Curl_pgrsSendPause(ದತ್ತಾಂಶ, enable);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-CURLcode Curl_xfer_pause_recv(struct Curl_easy *data, bool enable)
+CURLcode Curl_xfer_pause_recv(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool enable)
 {
-  CURLcode result = CURLE_OK;
-  Curl_rlimit_block(&data->progress.dl.rlimit, enable, Curl_pgrs_now(data));
-  if(!enable && Curl_cwriter_is_paused(data))
-    result = Curl_cwriter_unpause(data);
-  Curl_conn_ev_data_pause(data, enable);
-  Curl_pgrsRecvPause(data, enable);
-  return result;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  Curl_rlimit_ಖಂಡ(&ದತ್ತಾಂಶ->ಪ್ರಗತಿ.dl.rlimit, enable, Curl_pgrs_now(ದತ್ತಾಂಶ));
+  ಆದರೆ(!enable && Curl_cwriter_is_paused(ದತ್ತಾಂಶ))
+    ಫಲಿತಾಂಶ = Curl_cwriter_unpause(ದತ್ತಾಂಶ);
+  Curl_conn_ev_ದತ್ತಾಂಶ_pause(ದತ್ತಾಂಶ, enable);
+  Curl_pgrsRecvPause(ದತ್ತಾಂಶ, enable);
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-bool Curl_xfer_is_secure(struct Curl_easy *data)
+bool Curl_xfer_is_secure(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ)
 {
-#ifndef CURL_DISABLE_PROXY
-  if(data->conn && data->conn->bits.origin_is_proxy) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
+  ಆದರೆ(ದತ್ತಾಂಶ->conn && ದತ್ತಾಂಶ->conn->ಬಿಟ್ಟುಗಳು.origin_is_proxy) {
     /* talking to a forward proxy, not secure. we do not use
      * a forward proxy for https: and other 's' URLs. Let's just check that
      * this did not fail somewhere. */
-    DEBUGASSERT(!(data->state.origin->scheme->flags & PROTOPT_SSL));
-    return FALSE;
+    DEBUGASSERT(!(ದತ್ತಾಂಶ->state.origin->scheme->flags & PROTOPT_SSL));
+    ಹಿಂತಿರುಗಿ FALSE;
   }
-#endif
-  return (data->state.origin->scheme->flags & PROTOPT_SSL);
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ (ದತ್ತಾಂಶ->state.origin->scheme->flags & PROTOPT_SSL);
 }

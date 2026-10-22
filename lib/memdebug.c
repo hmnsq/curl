@@ -21,26 +21,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef CURL_MEMDEBUG
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_MEMDEBUG
 
-#include <stddef.h>  /* for offsetof() */
+#ಅನ್ತರ್ಭಾವ <stddef.h>  /* for offsetof() */
 
-#include "urldata.h"
-#include "curl_threads.h"
-#include "curlx/win32-fopen.h"  /* for CURLX_FOPEN_*() */
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "curl_threads.h"
+#ಅನ್ತರ್ಭಾವ "curlx/win32-fopen.h"  /* for CURLX_FOPEN_*() */
 
-#ifdef USE_BACKTRACE
-#include <backtrace.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_BACKTRACE
+#ಅನ್ತರ್ಭಾವ <backtrace.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-struct memdebug {
-  size_t size;
-  union {
+ರಚನೆ memdebug {
+  size_t ಗಾತ್ರ_2;
+  ಒಕ್ಕೂಟ {
     curl_off_t o;
-    double d;
-    void *p;
+    ದ್ವಿಗುಣ d;
+    ಶೂನ್ಯ *p;
   } mem[1];
   /* I am hoping this is the thing with the strictest alignment
    * requirements. That also means we waste some space :-( */
@@ -54,506 +54,506 @@ struct memdebug {
  * Do not use these with multi-threaded test programs!
  */
 
-FILE *curl_dbg_logfile = NULL;
-static bool registered_cleanup = FALSE; /* atexit registered cleanup */
-static bool memlimit = FALSE; /* enable memory limit */
-static long memsize = 0;  /* set number of mallocs allowed */
-#ifdef USE_BACKTRACE
-static struct backtrace_state *btstate;
-#endif
+FILE *curl_dbg_logfile = ಖಾಲಿ;
+ಸ್ಥಿರ bool registered_cleanup = FALSE; /* atexit registered cleanup */
+ಸ್ಥಿರ bool memlimit = FALSE; /* enable memory limit */
+ಸ್ಥಿರ ದೀರ್ಘ memsize = 0;  /* set number of mallocs allowed */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_BACKTRACE
+ಸ್ಥಿರ ರಚನೆ backtrace_state *btstate;
+#ಆದರೆ_ಅಂತ್ಯ
 
-static char membuf[10000];
-static size_t memwidx = 0; /* write index */
+ಸ್ಥಿರ ಅಕ್ಷರ membuf[10000];
+ಸ್ಥಿರ size_t memwidx = 0; /* write index */
 
-#ifdef USE_MUTEX
-static bool dbg_mutex_init = 0;
-static curl_mutex_t dbg_mutex;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_MUTEX
+ಸ್ಥಿರ bool dbg_mutex_init = 0;
+ಸ್ಥಿರ curl_mutex_t dbg_mutex;
+#ಆದರೆ_ಅಂತ್ಯ
 
-static bool curl_dbg_lock(void)
+ಸ್ಥಿರ bool curl_dbg_ಬೀಗ(ಶೂನ್ಯ)
 {
-#ifdef USE_MUTEX
-  if(dbg_mutex_init) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_MUTEX
+  ಆದರೆ(dbg_mutex_init) {
     Curl_mutex_acquire(&dbg_mutex);
-    return TRUE;
+    ಹಿಂತಿರುಗಿ TRUE;
   }
-#endif
-  return FALSE;
+#ಆದರೆ_ಅಂತ್ಯ
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-static void curl_dbg_unlock(bool was_locked)
+ಸ್ಥಿರ ಶೂನ್ಯ curl_dbg_unlock(bool was_locked)
 {
-#ifdef USE_MUTEX
-  if(was_locked)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_MUTEX
+  ಆದರೆ(was_locked)
     Curl_mutex_release(&dbg_mutex);
-#else
-  (void)was_locked;
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+  (ಶೂನ್ಯ)was_locked;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-static void curl_dbg_log_locked(const char *format, ...) CURL_PRINTF(1, 2);
+ಸ್ಥಿರ ಶೂನ್ಯ curl_dbg_log_locked(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...) CURL_PRINTF(1, 2);
 
 /* LeakSantizier (LSAN) calls _exit() instead of exit() when a leak is detected
    on exit so the logfile must be closed explicitly or data could be lost.
    Though _exit() does not call atexit handlers such as this, LSAN's call to
    _exit() comes after the atexit handlers are called. curl/curl#6620 */
-static void curl_dbg_cleanup(void)
+ಸ್ಥಿರ ಶೂನ್ಯ curl_dbg_cleanup(ಶೂನ್ಯ)
 {
-  bool locked = curl_dbg_lock();
-  if(curl_dbg_logfile &&
+  bool locked = curl_dbg_ಬೀಗ();
+  ಆದರೆ(curl_dbg_logfile &&
      curl_dbg_logfile != stderr &&
      curl_dbg_logfile != stdout) {
-    if(memwidx)
+    ಆದರೆ(memwidx)
       fwrite(membuf, 1, memwidx, curl_dbg_logfile);
     /* !checksrc! disable BANNEDFUNC 1 */
     fclose(curl_dbg_logfile);
   }
-  curl_dbg_logfile = NULL;
+  curl_dbg_logfile = ಖಾಲಿ;
   curl_dbg_unlock(locked);
-#ifdef USE_MUTEX
-  if(dbg_mutex_init) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_MUTEX
+  ಆದರೆ(dbg_mutex_init) {
     Curl_mutex_destroy(&dbg_mutex);
     dbg_mutex_init = FALSE;
   }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-#ifdef USE_BACKTRACE
-static void error_bt_callback(void *data, const char *message,
-                              int error_number)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_BACKTRACE
+ಸ್ಥಿರ ಶೂನ್ಯ error_bt_callback(ಶೂನ್ಯ *ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ_2,
+                              ಪೂರ್ಣಾಂಕ error_ಸಂಖ್ಯೆ)
 {
-  (void)data;
-  if(error_number == -1)
+  (ಶೂನ್ಯ)ದತ್ತಾಂಶ;
+  ಆದರೆ(error_ಸಂಖ್ಯೆ == -1)
     curl_dbg_log("compile with -g\n\n");
-  else
-    curl_dbg_log("Backtrace error %d: %s\n", error_number, message);
+  ಇಲ್ಲದಿದ್ದರೆ
+    curl_dbg_log("Backtrace error %d: %s\n", error_ಸಂಖ್ಯೆ, ಸಂದೇಶ_2);
 }
 
-static int full_callback(void *data, uintptr_t pc, const char *pathname,
-                         int line_number, const char *function)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ತುಂಬಿದ_callback(ಶೂನ್ಯ *ದತ್ತಾಂಶ, uintptr_t pc, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pathname,
+                         ಪೂರ್ಣಾಂಕ ಸಾಲು_ಸಂಖ್ಯೆ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *function)
 {
-  (void)data;
-  (void)pc;
-  if(pathname || function || line_number)
-    curl_dbg_log("BT %s:%d -- %s\n", pathname, line_number, function);
-  return 0;
+  (ಶೂನ್ಯ)ದತ್ತಾಂಶ;
+  (ಶೂನ್ಯ)pc;
+  ಆದರೆ(pathname || function || ಸಾಲು_ಸಂಖ್ಯೆ)
+    curl_dbg_log("BT %s:%d -- %s\n", pathname, ಸಾಲು_ಸಂಖ್ಯೆ, function);
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-static void dump_bt(void)
+ಸ್ಥಿರ ಶೂನ್ಯ dump_bt(ಶೂನ್ಯ)
 {
-  backtrace_full(btstate, 0, full_callback, error_bt_callback, NULL);
+  backtrace_ತುಂಬಿದ(btstate, 0, ತುಂಬಿದ_callback, error_bt_callback, ಖಾಲಿ);
 }
-#else
-#define dump_bt() /* nothing to do */
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು dump_bt() /* nothing to do */
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* this sets the log filename */
-void curl_dbg_memdebug(const char *logname)
+ಶೂನ್ಯ curl_dbg_memdebug(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *logname)
 {
-  if(!curl_dbg_logfile) {
-    if(logname && *logname)
-      curl_dbg_logfile = CURLX_FOPEN_LOW(logname, FOPEN_WRITETEXT);
-#ifdef MEMDEBUG_LOG_SYNC
+  ಆದರೆ(!curl_dbg_logfile) {
+    ಆದರೆ(logname && *logname)
+      curl_dbg_logfile = CURLX_FOPEN_ಕೆಳಗಿನ(logname, FOPEN_WRITETEXT);
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ MEMDEBUG_LOG_SYNC
     /* Flush the log file after every line so the log is not lost in a crash */
-    if(curl_dbg_logfile)
-      setbuf(curl_dbg_logfile, (char *)NULL);
-#endif
+    ಆದರೆ(curl_dbg_logfile)
+      setbuf(curl_dbg_logfile, (ಅಕ್ಷರ *)ಖಾಲಿ);
+#ಆದರೆ_ಅಂತ್ಯ
   }
-#ifdef USE_MUTEX
-  if(!dbg_mutex_init) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_MUTEX
+  ಆದರೆ(!dbg_mutex_init) {
     dbg_mutex_init = TRUE;
     Curl_mutex_init(&dbg_mutex);
   }
-#endif
-#ifdef USE_BACKTRACE
-  btstate = backtrace_create_state(NULL, 0, error_bt_callback, NULL);
-#endif
-  if(!registered_cleanup)
+#ಆದರೆ_ಅಂತ್ಯ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_BACKTRACE
+  btstate = backtrace_create_state(ಖಾಲಿ, 0, error_bt_callback, ಖಾಲಿ);
+#ಆದರೆ_ಅಂತ್ಯ
+  ಆದರೆ(!registered_cleanup)
     registered_cleanup = !atexit(curl_dbg_cleanup);
 }
 
 /* This function sets the number of malloc() calls that should return
    successfully! */
-void curl_dbg_memlimit(long limit)
+ಶೂನ್ಯ curl_dbg_memlimit(ದೀರ್ಘ ಎಲ್ಲೆ)
 {
-  if(!memlimit) {
+  ಆದರೆ(!memlimit) {
     memlimit = TRUE;
-    memsize = limit;
+    memsize = ಎಲ್ಲೆ;
   }
 }
 
 /* returns TRUE if this is not allowed! */
-static bool countcheck(const char *func, int line, const char *source)
+ಸ್ಥಿರ bool countcheck(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *func, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
   /* if source is NULL, then the call is made internally and this check
      should not be made */
-  if(memlimit && source) {
-    if(!memsize) {
+  ಆದರೆ(memlimit && ಮೂಲ) {
+    ಆದರೆ(!memsize) {
       /* log to file */
-      curl_dbg_log("LIMIT %s:%d %s reached memlimit\n", source, line, func);
+      curl_dbg_log("LIMIT %s:%d %s reached memlimit\n", ಮೂಲ, ಸಾಲು, func);
       /* log to stderr also */
       curl_mfprintf(stderr, "LIMIT %s:%d %s reached memlimit\n",
-                    source, line, func);
+                    ಮೂಲ, ಸಾಲು, func);
       dump_bt();
       fflush(curl_dbg_logfile); /* because it might crash now */
       /* !checksrc! disable ERRNOVAR 1 */
       errno = ENOMEM;
-      return TRUE; /* RETURN ERROR! */
+      ಹಿಂತಿರುಗಿ TRUE; /* RETURN ERROR! */
     }
-    else
+    ಇಲ್ಲದಿದ್ದರೆ
       memsize--; /* countdown */
   }
 
-  return FALSE; /* allow this */
+  ಹಿಂತಿರುಗಿ FALSE; /* allow this */
 }
 
 ALLOC_FUNC
-void *curl_dbg_malloc(size_t wantedsize, int line, const char *source)
+ಶೂನ್ಯ *curl_dbg_malloc(size_t wantedsize, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  struct memdebug *mem;
-  size_t size;
+  ರಚನೆ memdebug *mem;
+  size_t ಗಾತ್ರ_2;
 
   DEBUGASSERT(wantedsize != 0);
 
-  if(countcheck("malloc", line, source))
-    return NULL;
+  ಆದರೆ(countcheck("malloc", ಸಾಲು, ಮೂಲ))
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
   /* alloc at least 64 bytes */
-  size = sizeof(struct memdebug) + wantedsize;
+  ಗಾತ್ರ_2 = ಗಾತ್ರ(ರಚನೆ memdebug) + wantedsize;
 
-  mem = Curl_cmalloc(size);
-  if(mem) {
-    mem->size = wantedsize;
+  mem = Curl_cmalloc(ಗಾತ್ರ_2);
+  ಆದರೆ(mem) {
+    mem->ಗಾತ್ರ_2 = wantedsize;
   }
 
-  if(source)
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log("MEM %s:%d malloc(%zu) = %p\n",
-                 source, line, wantedsize,
-                 mem ? (void *)mem->mem : (void *)0);
+                 ಮೂಲ, ಸಾಲು, wantedsize,
+                 mem ? (ಶೂನ್ಯ *)mem->mem : (ಶೂನ್ಯ *)0);
 
-  return mem ? mem->mem : NULL;
+  ಹಿಂತಿರುಗಿ mem ? mem->mem : ಖಾಲಿ;
 }
 
 ALLOC_FUNC
-void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
-                      int line, const char *source)
+ಶೂನ್ಯ *curl_dbg_calloc(size_t wanted_elements, size_t wanted_ಗಾತ್ರ,
+                      ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  struct memdebug *mem;
-  size_t size, user_size;
+  ರಚನೆ memdebug *mem;
+  size_t ಗಾತ್ರ_2, user_ಗಾತ್ರ;
 
   DEBUGASSERT(wanted_elements != 0);
-  DEBUGASSERT(wanted_size != 0);
+  DEBUGASSERT(wanted_ಗಾತ್ರ != 0);
 
-  if(countcheck("calloc", line, source))
-    return NULL;
+  ಆದರೆ(countcheck("calloc", ಸಾಲು, ಮೂಲ))
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
   /* alloc at least 64 bytes */
-  user_size = wanted_size * wanted_elements;
-  size = sizeof(struct memdebug) + user_size;
+  user_ಗಾತ್ರ = wanted_ಗಾತ್ರ * wanted_elements;
+  ಗಾತ್ರ_2 = ಗಾತ್ರ(ರಚನೆ memdebug) + user_ಗಾತ್ರ;
 
-  mem = Curl_ccalloc(1, size);
-  if(mem)
-    mem->size = user_size;
+  mem = Curl_ccalloc(1, ಗಾತ್ರ_2);
+  ಆದರೆ(mem)
+    mem->ಗಾತ್ರ_2 = user_ಗಾತ್ರ;
 
-  if(source)
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log("MEM %s:%d calloc(%zu,%zu) = %p\n",
-                 source, line, wanted_elements, wanted_size,
-                 mem ? (void *)mem->mem : (void *)0);
+                 ಮೂಲ, ಸಾಲು, wanted_elements, wanted_ಗಾತ್ರ,
+                 mem ? (ಶೂನ್ಯ *)mem->mem : (ಶೂನ್ಯ *)0);
 
-  return mem ? mem->mem : NULL;
+  ಹಿಂತಿರುಗಿ mem ? mem->mem : ಖಾಲಿ;
 }
 
 ALLOC_FUNC
-char *curl_dbg_strdup(const char *str, int line, const char *source)
+ಅಕ್ಷರ *curl_dbg_strdup(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  char *mem;
+  ಅಕ್ಷರ *mem;
   size_t len;
 
   DEBUGASSERT(str);
 
-  if(countcheck("strdup", line, source))
-    return NULL;
+  ಆದರೆ(countcheck("strdup", ಸಾಲು, ಮೂಲ))
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-  len = strlen(str) + 1;
+  len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(str) + 1;
 
-  mem = curl_dbg_malloc(len, 0, NULL); /* NULL prevents logging */
-  if(mem)
-    memcpy(mem, str, len);
+  mem = curl_dbg_malloc(len, 0, ಖಾಲಿ); /* NULL prevents logging */
+  ಆದರೆ(mem)
+    ಸ್ಮರಣೆ_ನಕಲು(mem, str, len);
 
-  if(source)
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log("MEM %s:%d strdup(%p) (%zu) = %p\n",
-                 source, line, (const void *)str, len, (const void *)mem);
+                 ಮೂಲ, ಸಾಲು, (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *)str, len, (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *)mem);
 
-  return mem;
+  ಹಿಂತಿರುಗಿ mem;
 }
 
-#if defined(_WIN32) && defined(UNICODE)
+#ಆದರೆ defined(_WIN32) && defined(UNICODE)
 ALLOC_FUNC
-wchar_t *curl_dbg_wcsdup(const wchar_t *str, int line, const char *source)
+wchar_t *curl_dbg_wcsdup(ಸ್ಥಿರಾಂಕ wchar_t *str, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
   wchar_t *mem;
   size_t wsiz, bsiz;
 
   DEBUGASSERT(str);
 
-  if(countcheck("wcsdup", line, source))
-    return NULL;
+  ಆದರೆ(countcheck("wcsdup", ಸಾಲು, ಮೂಲ))
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
   wsiz = wcslen(str) + 1;
-  bsiz = wsiz * sizeof(wchar_t);
+  bsiz = wsiz * ಗಾತ್ರ(wchar_t);
 
-  mem = curl_dbg_malloc(bsiz, 0, NULL); /* NULL prevents logging */
-  if(mem)
-    memcpy(mem, str, bsiz);
+  mem = curl_dbg_malloc(bsiz, 0, ಖಾಲಿ); /* NULL prevents logging */
+  ಆದರೆ(mem)
+    ಸ್ಮರಣೆ_ನಕಲು(mem, str, bsiz);
 
-  if(source)
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log("MEM %s:%d wcsdup(%p) (%zu) = %p\n",
-                source, line, (const void *)str, bsiz, (void *)mem);
+                ಮೂಲ, ಸಾಲು, (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *)str, bsiz, (ಶೂನ್ಯ *)mem);
 
-  return mem;
+  ಹಿಂತಿರುಗಿ mem;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* We provide a realloc() that accepts a NULL as pointer, which then
    performs a malloc(). In order to work with ares. */
-void *curl_dbg_realloc(void *ptr, size_t wantedsize,
-                       int line, const char *source)
+ಶೂನ್ಯ *curl_dbg_realloc(ಶೂನ್ಯ *ptr, size_t wantedsize,
+                       ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  struct memdebug *mem = NULL;
+  ರಚನೆ memdebug *mem = ಖಾಲಿ;
   bool was_locked;
 
-  size_t size = sizeof(struct memdebug) + wantedsize;
+  size_t ಗಾತ್ರ_2 = ಗಾತ್ರ(ರಚನೆ memdebug) + wantedsize;
 
   DEBUGASSERT(wantedsize != 0);
 
-  if(countcheck("realloc", line, source))
-    return NULL;
+  ಆದರೆ(countcheck("realloc", ಸಾಲು, ಮೂಲ))
+    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
   /* need to realloc under lock, as we get out-of-order log
    * entries otherwise, since another thread might alloc the
    * memory released by realloc() before otherwise would log it. */
-  was_locked = curl_dbg_lock();
-#ifdef __INTEL_COMPILER
-#  pragma warning(push)
+  was_locked = curl_dbg_ಬೀಗ();
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __INTEL_COMPILER
+#  pragma warning(ತಳ್ಳು)
 #  pragma warning(disable:1684)
    /* 1684: conversion from pointer to same-sized integral type */
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if(ptr)
-    mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
+  ಆದರೆ(ptr)
+    mem = (ಶೂನ್ಯ *)((ಅಕ್ಷರ *)ptr - offsetof(ರಚನೆ memdebug, mem));
 
-#ifdef __INTEL_COMPILER
-#  pragma warning(pop)
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __INTEL_COMPILER
+#  pragma warning(ತೆಗೆ)
+#ಆದರೆ_ಅಂತ್ಯ
 
-  mem = Curl_crealloc(mem, size);
-  if(source)
+  mem = Curl_crealloc(mem, ಗಾತ್ರ_2);
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log_locked("MEM %s:%d realloc(%p, %zu) = %p\n",
-                        source, line, (void *)ptr, wantedsize,
-                        mem ? (void *)mem->mem : (void *)0);
+                        ಮೂಲ, ಸಾಲು, (ಶೂನ್ಯ *)ptr, wantedsize,
+                        mem ? (ಶೂನ್ಯ *)mem->mem : (ಶೂನ್ಯ *)0);
 
   curl_dbg_unlock(was_locked);
-  if(mem) {
-    mem->size = wantedsize;
-    return mem->mem;
+  ಆದರೆ(mem) {
+    mem->ಗಾತ್ರ_2 = wantedsize;
+    ಹಿಂತಿರುಗಿ mem->mem;
   }
 
-  return NULL;
+  ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-void curl_dbg_free(void *ptr, int line, const char *source)
+ಶೂನ್ಯ curl_dbg_free(ಶೂನ್ಯ *ptr, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  if(ptr) {
-    struct memdebug *mem;
+  ಆದರೆ(ptr) {
+    ರಚನೆ memdebug *mem;
 
-    if(source)
-      curl_dbg_log("MEM %s:%d free(%p)\n", source, line, (void *)ptr);
+    ಆದರೆ(ಮೂಲ)
+      curl_dbg_log("MEM %s:%d free(%p)\n", ಮೂಲ, ಸಾಲು, (ಶೂನ್ಯ *)ptr);
 
-#ifdef __INTEL_COMPILER
-#  pragma warning(push)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __INTEL_COMPILER
+#  pragma warning(ತಳ್ಳು)
 #  pragma warning(disable:1684)
    /* 1684: conversion from pointer to same-sized integral type */
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-    mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
+    mem = (ಶೂನ್ಯ *)((ಅಕ್ಷರ *)ptr - offsetof(ರಚನೆ memdebug, mem));
 
-#ifdef __INTEL_COMPILER
-#  pragma warning(pop)
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __INTEL_COMPILER
+#  pragma warning(ತೆಗೆ)
+#ಆದರೆ_ಅಂತ್ಯ
 
     /* free for real */
     Curl_cfree(mem);
   }
 }
 
-curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-                              int line, const char *source)
+curl_socket_t curl_dbg_socket(ಪೂರ್ಣಾಂಕ domain, ಪೂರ್ಣಾಂಕ type, ಪೂರ್ಣಾಂಕ protocol,
+                              ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
   curl_socket_t sockfd;
 
-  if(countcheck("socket", line, source))
-    return CURL_SOCKET_BAD;
+  ಆದರೆ(countcheck("socket", ಸಾಲು, ಮೂಲ))
+    ಹಿಂತಿರುಗಿ CURL_SOCKET_BAD;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   sockfd = socket(domain, type, protocol);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  ಆದರೆ(ಮೂಲ && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d socket() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 ಮೂಲ, ಸಾಲು, sockfd);
 
-  return sockfd;
+  ಹಿಂತಿರುಗಿ sockfd;
 }
 
-#ifdef HAVE_SOCKETPAIR
-int curl_dbg_socketpair(int domain, int type, int protocol,
-                        curl_socket_t socket_vector[2],
-                        int line, const char *source)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SOCKETPAIR
+ಪೂರ್ಣಾಂಕ curl_dbg_socketpair(ಪೂರ್ಣಾಂಕ domain, ಪೂರ್ಣಾಂಕ type, ಪೂರ್ಣಾಂಕ protocol,
+                        curl_socket_t socket_ಸದಿಶ[2],
+                        ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
   /* !checksrc! disable BANNEDFUNC 1 */
-  int res = socketpair(domain, type, protocol, socket_vector);
+  ಪೂರ್ಣಾಂಕ res = socketpair(domain, type, protocol, socket_ಸದಿಶ);
 
-  if(source && (res == 0))
+  ಆದರೆ(ಮೂಲ && (res == 0))
     curl_dbg_log("FD %s:%d socketpair() = "
                  "%" FMT_SOCKET_T " %" FMT_SOCKET_T "\n",
-                 source, line, socket_vector[0], socket_vector[1]);
+                 ಮೂಲ, ಸಾಲು, socket_ಸದಿಶ[0], socket_ಸದಿಶ[1]);
 
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-curl_socket_t curl_dbg_accept(curl_socket_t s, void *saddr, void *saddrlen,
-                              int line, const char *source)
+curl_socket_t curl_dbg_accept(curl_socket_t s, ಶೂನ್ಯ *saddr, ಶೂನ್ಯ *saddrlen,
+                              ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  struct sockaddr *addr = (struct sockaddr *)saddr;
+  ರಚನೆ sockaddr *addr = (ರಚನೆ sockaddr *)saddr;
   curl_socklen_t *addrlen = (curl_socklen_t *)saddrlen;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   curl_socket_t sockfd = accept(s, addr, addrlen);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  ಆದರೆ(ಮೂಲ && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d accept() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 ಮೂಲ, ಸಾಲು, sockfd);
 
-  return sockfd;
+  ಹಿಂತಿರುಗಿ sockfd;
 }
 
-#ifdef HAVE_ACCEPT4
-curl_socket_t curl_dbg_accept4(curl_socket_t s, void *saddr, void *saddrlen,
-                               int flags,
-                               int line, const char *source)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_ACCEPT4
+curl_socket_t curl_dbg_accept4(curl_socket_t s, ಶೂನ್ಯ *saddr, ಶೂನ್ಯ *saddrlen,
+                               ಪೂರ್ಣಾಂಕ flags,
+                               ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  struct sockaddr *addr = (struct sockaddr *)saddr;
+  ರಚನೆ sockaddr *addr = (ರಚನೆ sockaddr *)saddr;
   curl_socklen_t *addrlen = (curl_socklen_t *)saddrlen;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   curl_socket_t sockfd = accept4(s, addr, addrlen, flags);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  ಆದರೆ(ಮೂಲ && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d accept() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 ಮೂಲ, ಸಾಲು, sockfd);
 
-  return sockfd;
+  ಹಿಂತಿರುಗಿ sockfd;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* separate function to allow libcurl to mark a "faked" close */
-void curl_dbg_mark_sclose(curl_socket_t sockfd, int line, const char *source)
+ಶೂನ್ಯ curl_dbg_mark_sclose(curl_socket_t sockfd, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  if(source)
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log("FD %s:%d sclose(%" FMT_SOCKET_T ")\n",
-                 source, line, sockfd);
+                 ಮೂಲ, ಸಾಲು, sockfd);
 }
 
 /* this is our own defined way to close sockets on *ALL* platforms */
-int curl_dbg_sclose(curl_socket_t sockfd, int line, const char *source)
+ಪೂರ್ಣಾಂಕ curl_dbg_sclose(curl_socket_t sockfd, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  curl_dbg_mark_sclose(sockfd, line, source);
-  return CURL_SCLOSE(sockfd);
+  curl_dbg_mark_sclose(sockfd, ಸಾಲು, ಮೂಲ);
+  ಹಿಂತಿರುಗಿ CURL_SCLOSE(sockfd);
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_fopen(const char *file, const char *mode,
-                     int line, const char *source)
+FILE *curl_dbg_fopen(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬಹುಲಕ,
+                     ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  FILE *res = CURLX_FOPEN_LOW(file, mode);
-  if(source)
+  FILE *res = CURLX_FOPEN_ಕೆಳಗಿನ(file, ಬಹುಲಕ);
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log("FILE %s:%d fopen(\"%s\",\"%s\") = %p\n",
-                 source, line, file, mode, (void *)res);
+                 ಮೂಲ, ಸಾಲು, file, ಬಹುಲಕ, (ಶೂನ್ಯ *)res);
 
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_freopen(const char *file, const char *mode, FILE *fh,
-                       int line, const char *source)
+FILE *curl_dbg_freopen(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬಹುಲಕ, FILE *fh,
+                       ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  FILE *res = CURLX_FREOPEN_LOW(file, mode, fh);
-  if(source)
+  FILE *res = CURLX_FREOPEN_ಕೆಳಗಿನ(file, ಬಹುಲಕ, fh);
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log("FILE %s:%d freopen(\"%s\",\"%s\",%p) = %p\n",
-                 source, line, file, mode, (void *)fh, (void *)res);
+                 ಮೂಲ, ಸಾಲು, file, ಬಹುಲಕ, (ಶೂನ್ಯ *)fh, (ಶೂನ್ಯ *)res);
 
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_fdopen(int filedes, const char *mode,
-                      int line, const char *source)
+FILE *curl_dbg_fdopen(ಪೂರ್ಣಾಂಕ filedes, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬಹುಲಕ,
+                      ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  FILE *res = CURLX_FDOPEN_LOW(filedes, mode);
-  if(source)
+  FILE *res = CURLX_FDOPEN_ಕೆಳಗಿನ(filedes, ಬಹುಲಕ);
+  ಆದರೆ(ಮೂಲ)
     curl_dbg_log("FILE %s:%d fdopen(\"%d\",\"%s\") = %p\n",
-                 source, line, filedes, mode, (void *)res);
-  return res;
+                 ಮೂಲ, ಸಾಲು, filedes, ಬಹುಲಕ, (ಶೂನ್ಯ *)res);
+  ಹಿಂತಿರುಗಿ res;
 }
 
-int curl_dbg_fclose(FILE *file, int line, const char *source)
+ಪೂರ್ಣಾಂಕ curl_dbg_fclose(FILE *file, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೂಲ)
 {
-  int res;
+  ಪೂರ್ಣಾಂಕ res;
 
   DEBUGASSERT(file);
 
-  if(source)
-    curl_dbg_log("FILE %s:%d fclose(%p)\n", source, line, (void *)file);
+  ಆದರೆ(ಮೂಲ)
+    curl_dbg_log("FILE %s:%d fclose(%p)\n", ಮೂಲ, ಸಾಲು, (ಶೂನ್ಯ *)file);
 
   /* !checksrc! disable BANNEDFUNC 1 */
   res = fclose(file);
 
-  return res;
+  ಹಿಂತಿರುಗಿ res;
 }
 
-static void curl_dbg_vlog(const char * const fmt,
+ಸ್ಥಿರ ಶೂನ್ಯ curl_dbg_vlog(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ fmt,
                           va_list ap) CURL_PRINTF(1, 0);
 
-static void curl_dbg_vlog(const char * const fmt, va_list ap)
+ಸ್ಥಿರ ಶೂನ್ಯ curl_dbg_vlog(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ fmt, va_list ap)
 {
-  char buf[1024];
-  size_t nchars = curl_mvsnprintf(buf, sizeof(buf), fmt, ap);
+  ಅಕ್ಷರ buf[1024];
+  size_t nchars = curl_mvsnprintf(buf, ಗಾತ್ರ(buf), fmt, ap);
 
-  if(nchars > (int)sizeof(buf) - 1)
-    nchars = (int)sizeof(buf) - 1;
+  ಆದರೆ(nchars > (ಪೂರ್ಣಾಂಕ)ಗಾತ್ರ(buf) - 1)
+    nchars = (ಪೂರ್ಣಾಂಕ)ಗಾತ್ರ(buf) - 1;
 
-  if(nchars > 0) {
-    if(sizeof(membuf) - nchars < memwidx) {
+  ಆದರೆ(nchars > 0) {
+    ಆದರೆ(ಗಾತ್ರ(membuf) - nchars < memwidx) {
       /* flush */
       fwrite(membuf, 1, memwidx, curl_dbg_logfile);
       fflush(curl_dbg_logfile);
       memwidx = 0;
     }
-    if(memwidx) {
+    ಆದರೆ(memwidx) {
       /* the previous line ends with a newline */
       DEBUGASSERT(membuf[memwidx - 1] == '\n');
     }
-    memcpy(&membuf[memwidx], buf, nchars);
+    ಸ್ಮರಣೆ_ನಕಲು(&membuf[memwidx], buf, nchars);
     memwidx += nchars;
   }
 }
 
-static void curl_dbg_log_locked(const char *format, ...)
+ಸ್ಥಿರ ಶೂನ್ಯ curl_dbg_log_locked(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
   va_list ap;
 
-  if(!curl_dbg_logfile)
-    return;
+  ಆದರೆ(!curl_dbg_logfile)
+    ಹಿಂತಿರುಗಿ;
 
   va_start(ap, format);
   curl_dbg_vlog(format, ap);
@@ -561,19 +561,19 @@ static void curl_dbg_log_locked(const char *format, ...)
 }
 
 /* this does the writing to the memory tracking log file */
-void curl_dbg_log(const char *format, ...)
+ಶೂನ್ಯ curl_dbg_log(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
   bool was_locked;
   va_list ap;
 
-  if(!curl_dbg_logfile)
-    return;
+  ಆದರೆ(!curl_dbg_logfile)
+    ಹಿಂತಿರುಗಿ;
 
-  was_locked = curl_dbg_lock();
+  was_locked = curl_dbg_ಬೀಗ();
   va_start(ap, format);
   curl_dbg_vlog(format, ap);
   va_end(ap);
   curl_dbg_unlock(was_locked);
 }
 
-#endif /* CURL_MEMDEBUG */
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_MEMDEBUG */

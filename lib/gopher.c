@@ -21,82 +21,82 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "gopher.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "gopher.h"
 
-#ifndef CURL_DISABLE_GOPHER
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_GOPHER
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "escape.h"
+#ಅನ್ತರ್ಭಾವ "transfer.h"
+#ಅನ್ತರ್ಭಾವ "sendf.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "select.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "escape.h"
 
-#ifdef USE_SSL
-static CURLcode gopher_connect(struct Curl_easy *data, bool *done)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+ಸ್ಥಿರ CURLcode gopher_connect(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool *ಮುಗಿದ)
 {
-  (void)data;
-  (void)done;
-  return CURLE_OK;
+  (ಶೂನ್ಯ)ದತ್ತಾಂಶ;
+  (ಶೂನ್ಯ)ಮುಗಿದ;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-static CURLcode gopher_connecting(struct Curl_easy *data, bool *done)
+ಸ್ಥಿರ CURLcode gopher_connecting(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool *ಮುಗಿದ)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  result = Curl_conn_connect(data, FIRSTSOCKET, TRUE, done);
-  if(result)
+  ಫಲಿತಾಂಶ = Curl_conn_connect(ದತ್ತಾಂಶ, FIRSTSOCKET, TRUE, ಮುಗಿದ);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
     connclose(conn);
-  *done = TRUE;
-  return result;
+  *ಮುಗಿದ = TRUE;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* Sends buf to the server and, optionally, writes it to the client too. */
-static CURLcode send_buf(struct Curl_easy *data,
-                         const char *buf,
+ಸ್ಥಿರ CURLcode send_buf(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                         ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *buf,
                          size_t buf_len,
                          bool client_write)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ರಚನೆ connectdata *conn = ದತ್ತಾಂಶ->conn;
   curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
   size_t nwritten;
   timediff_t timeout_ms;
-  int what;
+  ಪೂರ್ಣಾಂಕ what;
 
-  while(buf_len) {
-    result = Curl_xfer_send(data, buf, buf_len, FALSE, &nwritten);
-    if(!result) { /* Which may not have written it all! */
-      if(client_write) {
-        result = Curl_client_write(data, CLIENTWRITE_HEADER, buf, nwritten);
-        if(result)
-          break;
+  ಆಗ(buf_len) {
+    ಫಲಿತಾಂಶ = Curl_xfer_send(ದತ್ತಾಂಶ, buf, buf_len, FALSE, &nwritten);
+    ಆದರೆ(!ಫಲಿತಾಂಶ) { /* Which may not have written it all! */
+      ಆದರೆ(client_write) {
+        ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_ಶೀರ್ಷಿಕೆ, buf, nwritten);
+        ಆದರೆ(ಫಲಿತಾಂಶ)
+          ನಿಲ್ಲಿಸು;
       }
 
-      if(nwritten > buf_len) {
+      ಆದರೆ(nwritten > buf_len) {
         DEBUGASSERT(0);
-        break;
+        ನಿಲ್ಲಿಸು;
       }
       buf_len -= nwritten;
       buf += nwritten;
-      if(!buf_len)
-        break; /* but it did write it all */
+      ಆದರೆ(!buf_len)
+        ನಿಲ್ಲಿಸು; /* but it did write it all */
     }
-    else
-      break;
+    ಇಲ್ಲದಿದ್ದರೆ
+      ನಿಲ್ಲಿಸು;
 
-    timeout_ms = Curl_timeleft_ms(data);
-    if(timeout_ms < 0) {
-      result = CURLE_OPERATION_TIMEDOUT;
-      break;
+    timeout_ms = Curl_timeleft_ms(ದತ್ತಾಂಶ);
+    ಆದರೆ(timeout_ms < 0) {
+      ಫಲಿತಾಂಶ = CURLE_OPERATION_TIMEDOUT;
+      ನಿಲ್ಲಿಸು;
     }
-    if(!timeout_ms)
+    ಆದರೆ(!timeout_ms)
       timeout_ms = TIMEDIFF_T_MAX;
 
     /* Do not busyloop. The entire loop thing is a workaround as it causes a
@@ -105,90 +105,90 @@ static CURLcode send_buf(struct Curl_easy *data,
        possible to send now will be sent in the doing function repeatedly
        until the entire request is sent. */
     what = SOCKET_WRITABLE(sockfd, timeout_ms);
-    if(what < 0) {
-      result = CURLE_SEND_ERROR;
-      break;
+    ಆದರೆ(what < 0) {
+      ಫಲಿತಾಂಶ = CURLE_SEND_ERROR;
+      ನಿಲ್ಲಿಸು;
     }
-    else if(!what) {
-      result = CURLE_OPERATION_TIMEDOUT;
-      break;
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(!what) {
+      ಫಲಿತಾಂಶ = CURLE_OPERATION_TIMEDOUT;
+      ನಿಲ್ಲಿಸು;
     }
   }
 
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-static CURLcode gopher_do(struct Curl_easy *data, bool *done)
+ಸ್ಥಿರ CURLcode gopher_do(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, bool *ಮುಗಿದ)
 {
-  CURLcode result = CURLE_OK;
-  char *gopherpath;
-  const char *path = data->state.up.path;
-  const char *query = data->state.up.query;
-  const char *buf = NULL;
-  char *buf_alloc = NULL;
+  CURLcode ಫಲಿತಾಂಶ = CURLE_OK;
+  ಅಕ್ಷರ *gopherpath;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ = ದತ್ತಾಂಶ->state.ಮೇಲೆ.ಮಾರ್ಗ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *query = ದತ್ತಾಂಶ->state.ಮೇಲೆ.query;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *buf = ಖಾಲಿ;
+  ಅಕ್ಷರ *buf_alloc = ಖಾಲಿ;
   size_t buf_len;
 
-  *done = TRUE; /* unconditionally */
+  *ಮುಗಿದ = TRUE; /* unconditionally */
 
   /* path is guaranteed non-NULL */
-  DEBUGASSERT(path);
+  DEBUGASSERT(ಮಾರ್ಗ);
 
-  if(query)
-    gopherpath = curl_maprintf("%s?%s", path, query);
-  else
-    gopherpath = curlx_strdup(path);
+  ಆದರೆ(query)
+    gopherpath = curl_maprintf("%s?%s", ಮಾರ್ಗ, query);
+  ಇಲ್ಲದಿದ್ದರೆ
+    gopherpath = curlx_strdup(ಮಾರ್ಗ);
 
-  if(!gopherpath)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!gopherpath)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
   /* Create selector. Degenerate cases: / and /1 => convert to "" */
-  if(strlen(gopherpath) <= 2) {
+  ಆದರೆ(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(gopherpath) <= 2) {
     buf = "";
     buf_len = 0;
     curlx_free(gopherpath);
   }
-  else {
-    const char *newp;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *newp;
 
     /* Otherwise, drop / and the first character (i.e., item type) ... */
     newp = gopherpath;
     newp += 2;
 
     /* ... and finally unescape */
-    result = Curl_urldecode(newp, 0, &buf_alloc, &buf_len, REJECT_ZERO);
+    ಫಲಿತಾಂಶ = Curl_urldecode(newp, 0, &buf_alloc, &buf_len, REJECT_ZERO);
     curlx_free(gopherpath);
-    if(result)
-      return result;
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     buf = buf_alloc;
 
     /* A decoded CR or LF would terminate the single-line gopher request and
        let a crafted URL smuggle additional bytes onto the wire. REJECT_ZERO
        only blocks NUL; reject CR and LF here too. A TAB is left alone as it
        is the legitimate gopher type-7 selector/search separator. */
-    if(memchr(buf, '\r', buf_len) || memchr(buf, '\n', buf_len)) {
+    ಆದರೆ(memchr(buf, '\r', buf_len) || memchr(buf, '\n', buf_len)) {
       curlx_free(buf_alloc);
-      failf(data, "Bad gopher selector, CR or LF not allowed");
-      return CURLE_URL_MALFORMAT;
+      failf(ದತ್ತಾಂಶ, "Bad gopher selector, CR or LF not allowed");
+      ಹಿಂತಿರುಗಿ CURLE_URL_MALFORMAT;
     }
   }
 
-  result = send_buf(data, buf, buf_len, TRUE);
+  ಫಲಿತಾಂಶ = send_buf(ದತ್ತಾಂಶ, buf, buf_len, TRUE);
   curlx_free(buf_alloc);
 
-  if(!result)
+  ಆದರೆ(!ಫಲಿತಾಂಶ)
     /* Send CRLF to the server now, but defer writing it to the client to
        preserve the historical behavior of this file. */
-    result = send_buf(data, "\r\n", 2, FALSE);
-  if(result) {
-    failf(data, "Failed sending Gopher request");
-    return result;
+    ಫಲಿತಾಂಶ = send_buf(ದತ್ತಾಂಶ, "\r\n", 2, FALSE);
+  ಆದರೆ(ಫಲಿತಾಂಶ) {
+    failf(ದತ್ತಾಂಶ, "Failed sending Gopher request");
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
   }
-  result = Curl_client_write(data, CLIENTWRITE_HEADER, "\r\n", 2);
-  if(result)
-    return result;
+  ಫಲಿತಾಂಶ = Curl_client_write(ದತ್ತಾಂಶ, CLIENTWRITE_ಶೀರ್ಷಿಕೆ, "\r\n", 2);
+  ಆದರೆ(ಫಲಿತಾಂಶ)
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
-  return CURLE_OK;
+  Curl_xfer_ಸಿದ್ಧತೆ_recv(ದತ್ತಾಂಶ, FIRSTSOCKET, -1);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -197,7 +197,7 @@ static CURLcode gopher_do(struct Curl_easy *data, bool *done)
  * connect-command-download protocols.
  */
 
-const struct Curl_protocol Curl_protocol_gopher = {
+ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_protocol Curl_protocol_gopher = {
   ZERO_NULL,                            /* setup_connection */
   gopher_do,                            /* do_it */
   ZERO_NULL,                            /* done */
@@ -217,8 +217,8 @@ const struct Curl_protocol Curl_protocol_gopher = {
   ZERO_NULL,                            /* follow */
 };
 
-#ifdef USE_SSL
-const struct Curl_protocol Curl_protocol_gophers = {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_protocol Curl_protocol_gophers = {
   ZERO_NULL,                            /* setup_connection */
   gopher_do,                            /* do_it */
   ZERO_NULL,                            /* done */
@@ -237,6 +237,6 @@ const struct Curl_protocol Curl_protocol_gophers = {
   ZERO_NULL,                            /* attach connection */
   ZERO_NULL,                            /* follow */
 };
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif /* CURL_DISABLE_GOPHER */
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_DISABLE_GOPHER */

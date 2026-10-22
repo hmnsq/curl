@@ -21,246 +21,246 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#ಆದರೆ !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "http_negotiate.h"
-#include "vauth/vauth.h"
-#include "vtls/vtls.h"
-#include "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "http_negotiate.h"
+#ಅನ್ತರ್ಭಾವ "vauth/vauth.h"
+#ಅನ್ತರ್ಭಾವ "vtls/vtls.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
 
 
-static void http_auth_nego_reset(struct connectdata *conn,
-                                 struct negotiatedata *neg_ctx,
+ಸ್ಥಿರ ಶೂನ್ಯ http_auth_nego_reset(ರಚನೆ connectdata *conn,
+                                 ರಚನೆ negotiatedata *neg_ctx,
                                  bool proxy)
 {
-  if(proxy)
+  ಆದರೆ(proxy)
     conn->proxy_negotiate_state = CURL_NEGO_AUTH_NONE;
-  else {
+  ಇಲ್ಲದಿದ್ದರೆ {
     conn->http_negotiate_state = CURL_NEGO_AUTH_NONE;
     Curl_peer_unlink(&conn->creds_origin);
     Curl_creds_unlink(&conn->creds);
   }
-  if(neg_ctx)
+  ಆದರೆ(neg_ctx)
     Curl_auth_cleanup_spnego(neg_ctx);
 }
 
-CURLcode Curl_input_negotiate(struct Curl_easy *data, struct connectdata *conn,
-                              bool proxy, const char *header)
+CURLcode Curl_ಒಳಹರಿವು_negotiate(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ connectdata *conn,
+                              bool proxy, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶೀರ್ಷಿಕೆ)
 {
-  CURLcode result;
+  CURLcode ಫಲಿತಾಂಶ;
   size_t len;
 
   /* Point to credentials and host */
-  struct Curl_creds *creds = NULL;
-  const char *host;
+  ರಚನೆ Curl_creds *creds = ಖಾಲಿ;
+  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *host;
 
   /* Point to the correct struct with this */
-  struct negotiatedata *neg_ctx;
+  ರಚನೆ negotiatedata *neg_ctx;
   uint8_t state;
 
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
+  ಆದರೆ(proxy) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
     creds = conn->http_proxy.creds;
     host = conn->http_proxy.peer->hostname;
     state = conn->proxy_negotiate_state;
-#else
-    return CURLE_NOT_BUILT_IN;
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ CURLE_NOT_BUILT_ಒಳ;
+#ಆದರೆ_ಅಂತ್ಯ
   }
-  else {
-    creds = data->state.creds;
-    host = data->state.origin->hostname;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    creds = ದತ್ತಾಂಶ->state.creds;
+    host = ದತ್ತಾಂಶ->state.origin->hostname;
     state = conn->http_negotiate_state;
   }
 
   neg_ctx = Curl_auth_nego_get(conn, proxy);
-  if(!neg_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!neg_ctx)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
   /* Obtain the input token, if any */
-  header += CURL_CSTRLEN("Negotiate");
-  curlx_str_passblanks(&header);
+  ಶೀರ್ಷಿಕೆ += CURL_CSTRLEN("Negotiate");
+  curlx_str_passblanks(&ಶೀರ್ಷಿಕೆ);
 
-  len = strlen(header);
+  len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಶೀರ್ಷಿಕೆ);
   neg_ctx->havenegdata = len != 0;
-  if(!len) {
-    if(state == CURL_NEGO_AUTH_SUCC) {
-      infof(data, "Negotiate auth restarted");
+  ಆದರೆ(!len) {
+    ಆದರೆ(state == CURL_NEGO_AUTH_SUCC) {
+      infof(ದತ್ತಾಂಶ, "Negotiate auth restarted");
       http_auth_nego_reset(conn, neg_ctx, proxy);
     }
-    else if(state != CURL_NEGO_AUTH_NONE) {
+    ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(state != CURL_NEGO_AUTH_NONE) {
       /* The server rejected our authentication and has not supplied any more
       negotiation mechanisms */
       http_auth_nego_reset(conn, neg_ctx, proxy);
-      return CURLE_LOGIN_DENIED;
+      ಹಿಂತಿರುಗಿ CURLE_LOGIN_DENIED;
     }
   }
 
   /* Supports SSL channel binding for Windows ISS extended protection */
-#ifdef USE_WINDOWS_SSPI
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_WINDOWS_SSPI
   neg_ctx->sslContext = conn->sslContext;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
   /* Check if the connection is using SSL and get the channel binding data */
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-#ifdef USE_SSL
-  curlx_dyn_init(&neg_ctx->channel_binding_data, SSL_CB_MAX_SIZE + 1);
-  if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = Curl_ssl_get_channel_binding(data, FIRSTSOCKET,
-                                          &neg_ctx->channel_binding_data);
-    if(result) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ GSS_C_CHANNEL_BOUND_FLAG
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSL
+  curlx_dyn_init(&neg_ctx->channel_binding_ದತ್ತಾಂಶ, SSL_CB_MAX_ಗಾತ್ರ + 1);
+  ಆದರೆ(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    ಫಲಿತಾಂಶ = Curl_ssl_get_channel_binding(ದತ್ತಾಂಶ, FIRSTSOCKET,
+                                          &neg_ctx->channel_binding_ದತ್ತಾಂಶ);
+    ಆದರೆ(ಫಲಿತಾಂಶ) {
       http_auth_nego_reset(conn, neg_ctx, proxy);
-      return result;
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
   }
-#else
-  curlx_dyn_init(&neg_ctx->channel_binding_data, 1);
-#endif /* USE_SSL */
-#endif /* GSS_C_CHANNEL_BOUND_FLAG */
+#ಇಲ್ಲದಿದ್ದರೆ
+  curlx_dyn_init(&neg_ctx->channel_binding_ದತ್ತಾಂಶ, 1);
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSL */
+#ಆದರೆ_ಅಂತ್ಯ /* GSS_C_CHANNEL_BOUND_FLAG */
 
   /* Initialize the security context and decode our challenge */
-  result = Curl_auth_decode_spnego_message(data, creds, "HTTP",
-                                           host, header, neg_ctx);
+  ಫಲಿತಾಂಶ = Curl_auth_decode_spnego_ಸಂದೇಶ(ದತ್ತಾಂಶ, creds, "HTTP",
+                                           host, ಶೀರ್ಷಿಕೆ, neg_ctx);
 
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-  curlx_dyn_free(&neg_ctx->channel_binding_data);
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ GSS_C_CHANNEL_BOUND_FLAG
+  curlx_dyn_free(&neg_ctx->channel_binding_ದತ್ತಾಂಶ);
+#ಆದರೆ_ಅಂತ್ಯ
 
-  if(result)
+  ಆದರೆ(ಫಲಿತಾಂಶ)
     http_auth_nego_reset(conn, neg_ctx, proxy);
 
-  if(!result && !proxy) {
+  ಆದರೆ(!ಫಲಿತಾಂಶ && !proxy) {
     /* Start it up. From this time onwards, the connection is tied
      * tp the credentials used. */
-    if(conn->creds_origin &&
-       !Curl_peer_equal(conn->creds_origin, data->state.origin)) {
+    ಆದರೆ(conn->creds_origin &&
+       !Curl_peer_equal(conn->creds_origin, ದತ್ತಾಂಶ->state.origin)) {
       DEBUGASSERT(0); /* should not happen. */
-      return CURLE_FAILED_INIT;
+      ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
     }
-    if(conn->creds && !Curl_creds_same(creds, conn->creds)) {
+    ಆದರೆ(conn->creds && !Curl_creds_same(creds, conn->creds)) {
       DEBUGASSERT(0); /* should not happen. */
-      return CURLE_FAILED_INIT;
+      ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
     }
-    Curl_peer_link(&conn->creds_origin, data->state.origin);
+    Curl_peer_link(&conn->creds_origin, ದತ್ತಾಂಶ->state.origin);
     Curl_creds_link(&conn->creds, creds);
   }
 
-  return result;
+  ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-CURLcode Curl_output_negotiate(struct Curl_easy *data,
-                               struct connectdata *conn, bool proxy)
+CURLcode Curl_output_negotiate(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ರಚನೆ connectdata *conn, bool proxy)
 {
-  struct negotiatedata *neg_ctx;
-  struct auth *authp;
+  ರಚನೆ negotiatedata *neg_ctx;
+  ರಚನೆ auth *authp;
   uint8_t *state;
-  char *base64 = NULL;
+  ಅಕ್ಷರ *base64 = ಖಾಲಿ;
   size_t len = 0;
-  char *userp;
-  CURLcode result;
+  ಅಕ್ಷರ *userp;
+  CURLcode ಫಲಿತಾಂಶ;
 
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-    authp = &data->state.authproxy;
+  ಆದರೆ(proxy) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
+    authp = &ದತ್ತಾಂಶ->state.authproxy;
     state = &conn->proxy_negotiate_state;
-#else
-    return CURLE_NOT_BUILT_IN;
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ CURLE_NOT_BUILT_ಒಳ;
+#ಆದರೆ_ಅಂತ್ಯ
   }
-  else {
-    authp = &data->state.authhost;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    authp = &ದತ್ತಾಂಶ->state.authhost;
     state = &conn->http_negotiate_state;
   }
   neg_ctx = Curl_auth_nego_get(conn, proxy);
-  if(!neg_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(!neg_ctx)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-  authp->done = FALSE;
+  authp->ಮುಗಿದ = FALSE;
 
-  if(*state == CURL_NEGO_AUTH_RECV) {
-    if(neg_ctx->havenegdata) {
+  ಆದರೆ(*state == CURL_NEGO_AUTH_RECV) {
+    ಆದರೆ(neg_ctx->havenegdata) {
       neg_ctx->havemultiplerequests = TRUE;
     }
   }
-  else if(*state == CURL_NEGO_AUTH_SUCC) {
-    if(!neg_ctx->havenoauthpersist) {
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(*state == CURL_NEGO_AUTH_SUCC) {
+    ಆದರೆ(!neg_ctx->havenoauthpersist) {
       neg_ctx->noauthpersist = !neg_ctx->havemultiplerequests;
     }
   }
 
-  if(neg_ctx->noauthpersist ||
-     (*state != CURL_NEGO_AUTH_DONE && *state != CURL_NEGO_AUTH_SUCC)) {
+  ಆದರೆ(neg_ctx->noauthpersist ||
+     (*state != CURL_NEGO_AUTH_ಮುಗಿದ && *state != CURL_NEGO_AUTH_SUCC)) {
 
-    if(neg_ctx->noauthpersist && *state == CURL_NEGO_AUTH_SUCC) {
-      infof(data, "Curl_output_negotiate, "
+    ಆದರೆ(neg_ctx->noauthpersist && *state == CURL_NEGO_AUTH_SUCC) {
+      infof(ದತ್ತಾಂಶ, "Curl_output_negotiate, "
             "no persistent authentication: cleanup existing context");
       http_auth_nego_reset(conn, neg_ctx, proxy);
     }
-    if(!neg_ctx->context) {
-      result = Curl_input_negotiate(data, conn, proxy, "Negotiate");
-      if(result == CURLE_AUTH_ERROR) {
+    ಆದರೆ(!neg_ctx->context) {
+      ಫಲಿತಾಂಶ = Curl_ಒಳಹರಿವು_negotiate(ದತ್ತಾಂಶ, conn, proxy, "Negotiate");
+      ಆದರೆ(ಫಲಿತಾಂಶ == CURLE_AUTH_ERROR) {
         /* negotiate auth failed, let's continue unauthenticated to stay
          * compatible with the behavior before curl-7_64_0-158-g6c6035532 */
-        authp->done = TRUE;
-        return CURLE_OK;
+        authp->ಮುಗಿದ = TRUE;
+        ಹಿಂತಿರುಗಿ CURLE_OK;
       }
-      else if(result)
-        return result;
+      ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಫಲಿತಾಂಶ)
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
 
-    result = Curl_auth_create_spnego_message(neg_ctx, &base64, &len);
-    if(result)
-      return result;
+    ಫಲಿತಾಂಶ = Curl_auth_create_spnego_ಸಂದೇಶ(neg_ctx, &base64, &len);
+    ಆದರೆ(ಫಲಿತಾಂಶ)
+      ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
     userp = curl_maprintf("%sAuthorization: Negotiate %s\r\n",
                           proxy ? "Proxy-" : "", base64);
 
-    if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-      curlx_free(data->req.hd_proxy_auth);
-      data->req.hd_proxy_auth = userp;
-#endif
+    ಆದರೆ(proxy) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ CURL_DISABLE_PROXY
+      curlx_free(ದತ್ತಾಂಶ->req.hd_proxy_auth);
+      ದತ್ತಾಂಶ->req.hd_proxy_auth = userp;
+#ಆದರೆ_ಅಂತ್ಯ
     }
-    else {
-      curlx_free(data->req.hd_auth);
-      data->req.hd_auth = userp;
+    ಇಲ್ಲದಿದ್ದರೆ {
+      curlx_free(ದತ್ತಾಂಶ->req.hd_auth);
+      ದತ್ತಾಂಶ->req.hd_auth = userp;
     }
 
     curlx_free(base64);
 
-    if(!userp) {
-      return CURLE_OUT_OF_MEMORY;
+    ಆದರೆ(!userp) {
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
     }
 
-    *state = CURL_NEGO_AUTH_SENT;
-#ifdef HAVE_GSSAPI
-    if(neg_ctx->status == GSS_S_COMPLETE ||
-       neg_ctx->status == GSS_S_CONTINUE_NEEDED) {
-      *state = CURL_NEGO_AUTH_DONE;
+    *state = CURL_NEGO_AUTH_ಕಳುಹಿಸಿದ;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_GSSAPI
+    ಆದರೆ(neg_ctx->ಸ್ಥಿತಿ_2 == GSS_S_COMPLETE ||
+       neg_ctx->ಸ್ಥಿತಿ_2 == GSS_S_CONTINUE_NEEDED) {
+      *state = CURL_NEGO_AUTH_ಮುಗಿದ;
     }
-#else
-#ifdef USE_WINDOWS_SSPI
-    if(neg_ctx->status == SEC_E_OK ||
-       neg_ctx->status == SEC_I_CONTINUE_NEEDED) {
-      *state = CURL_NEGO_AUTH_DONE;
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_WINDOWS_SSPI
+    ಆದರೆ(neg_ctx->ಸ್ಥಿತಿ_2 == SEC_E_OK ||
+       neg_ctx->ಸ್ಥಿತಿ_2 == SEC_I_CONTINUE_NEEDED) {
+      *state = CURL_NEGO_AUTH_ಮುಗಿದ;
     }
-#endif
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ
   }
 
-  if(*state == CURL_NEGO_AUTH_DONE || *state == CURL_NEGO_AUTH_SUCC) {
+  ಆದರೆ(*state == CURL_NEGO_AUTH_ಮುಗಿದ || *state == CURL_NEGO_AUTH_SUCC) {
     /* connection is already authenticated,
      * do not send a header in future requests */
-    authp->done = TRUE;
+    authp->ಮುಗಿದ = TRUE;
   }
 
   neg_ctx->havenegdata = FALSE;
 
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-#endif /* !CURL_DISABLE_HTTP && USE_SPNEGO */
+#ಆದರೆ_ಅಂತ್ಯ /* !CURL_DISABLE_HTTP && USE_SPNEGO */

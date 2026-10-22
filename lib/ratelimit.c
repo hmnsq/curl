@@ -21,63 +21,63 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "urldata.h"
-#include "ratelimit.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "ratelimit.h"
 
-#define CURL_US_PER_SEC         1000000
-#define CURL_RLIMIT_MIN_RATE    (4 * 1024)  /* minimum step rate */
-#define CURL_RLIMIT_STEP_MIN_MS 2  /* minimum step duration */
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_US_ಪ್ರತಿ_SEC         1000000
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_RLIMIT_MIN_ದರ    (4 * 1024)  /* minimum step rate */
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_RLIMIT_ಹೆಜ್ಜೆ_MIN_MS 2  /* minimum step duration */
 
-static void rlimit_update(struct Curl_rlimit *r,
-                          const struct curltime *pts)
+ಸ್ಥಿರ ಶೂನ್ಯ rlimit_update(ರಚನೆ Curl_rlimit *r,
+                          ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts)
 {
-  timediff_t elapsed_us, elapsed_steps;
+  timediff_t elapsed_us, elapsed_ಹೆಜ್ಜೆಗಳು;
   int64_t token_gain;
 
-  DEBUGASSERT(r->rate_per_step);
-  if((r->ts.tv_sec == pts->tv_sec) && (r->ts.tv_usec == pts->tv_usec))
-    return;
+  DEBUGASSERT(r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ);
+  ಆದರೆ((r->ts.tv_sec == pts->tv_sec) && (r->ts.tv_usec == pts->tv_usec))
+    ಹಿಂತಿರುಗಿ;
 
   elapsed_us = curlx_ptimediff_us(pts, &r->ts);
-  if(elapsed_us < 0) { /* not going back in time */
+  ಆದರೆ(elapsed_us < 0) { /* not going back in time */
     DEBUGASSERT(0);
-    return;
+    ಹಿಂತಿರುಗಿ;
   }
 
-  elapsed_us += r->spare_us;
-  if(elapsed_us < r->step_us)
-    return;
+  elapsed_us += r->ಹೆಚ್ಚುವರಿ_us;
+  ಆದರೆ(elapsed_us < r->ಹೆಜ್ಜೆ_us)
+    ಹಿಂತಿರುಗಿ;
 
   /* we do the update */
   r->ts = *pts;
-  elapsed_steps = elapsed_us / r->step_us;
-  r->spare_us = elapsed_us % r->step_us;
+  elapsed_ಹೆಜ್ಜೆಗಳು = elapsed_us / r->ಹೆಜ್ಜೆ_us;
+  r->ಹೆಚ್ಚುವರಿ_us = elapsed_us % r->ಹೆಜ್ಜೆ_us;
 
   /* How many tokens did we gain since the last update? */
-  if(r->rate_per_step > (INT64_MAX / elapsed_steps))
+  ಆದರೆ(r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ > (INT64_MAX / elapsed_ಹೆಜ್ಜೆಗಳು))
     token_gain = INT64_MAX;
-  else {
-    token_gain = r->rate_per_step * elapsed_steps;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    token_gain = r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ * elapsed_ಹೆಜ್ಜೆಗಳು;
   }
 
-  if((INT64_MAX - token_gain) > r->tokens)
-    r->tokens += token_gain;
-  else
-    r->tokens = INT64_MAX;
+  ಆದರೆ((INT64_MAX - token_gain) > r->ಟೋಕನುಗಳು)
+    r->ಟೋಕನುಗಳು += token_gain;
+  ಇಲ್ಲದಿದ್ದರೆ
+    r->ಟೋಕನುಗಳು = INT64_MAX;
 
   /* Limit the token again by the burst rate (if set), so we
    * do not suddenly have a huge number of tokens after inactivity. */
-  if(r->burst_per_step && (r->tokens > r->burst_per_step)) {
-    r->tokens = r->burst_per_step;
+  ಆದರೆ(r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ && (r->ಟೋಕನುಗಳು > r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ)) {
+    r->ಟೋಕನುಗಳು = r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ;
   }
 }
 
-static void rlimit_tune_steps(struct Curl_rlimit *r,
-                              int64_t tokens_total)
+ಸ್ಥಿರ ಶೂನ್ಯ rlimit_tune_ಹೆಜ್ಜೆಗಳು(ರಚನೆ Curl_rlimit *r,
+                              int64_t ಟೋಕನುಗಳು_ಒಟ್ಟು)
 {
-  int64_t tokens_last, tokens_main, msteps;
+  int64_t ಟೋಕನುಗಳು_ಕೊನೆಯ, ಟೋಕನುಗಳು_main, msteps;
 
   /* Tune the ratelimit at the start *if* we know how many tokens
    * are expected to be consumed in total.
@@ -98,224 +98,224 @@ static void rlimit_tune_steps(struct Curl_rlimit *r,
    * 1 percent of the total tokens (at least 1). The rest of the tokens
    * are to be consumed in the steps before by adjusting the duration of
    * the step and the amount of tokens it provides. */
-  if(!r->rate_per_step ||
-     (tokens_total <= 1) ||
-     (tokens_total > (INT64_MAX / 1000)))
-    return;
+  ಆದರೆ(!r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ ||
+     (ಟೋಕನುಗಳು_ಒಟ್ಟು <= 1) ||
+     (ಟೋಕನುಗಳು_ಒಟ್ಟು > (INT64_MAX / 1000)))
+    ಹಿಂತಿರುಗಿ;
 
   /* Calculate tokens for the last step and the ones before. */
-  tokens_last = tokens_total / 100;
-  if(!tokens_last) /* less than 100 total, use 1 */
-    tokens_last = 1;
-  else if(tokens_last > CURL_RLIMIT_MIN_RATE)
-    tokens_last = CURL_RLIMIT_MIN_RATE;
-  DEBUGASSERT(tokens_last);
-  tokens_main = tokens_total - tokens_last;
-  DEBUGASSERT(tokens_main);
+  ಟೋಕನುಗಳು_ಕೊನೆಯ = ಟೋಕನುಗಳು_ಒಟ್ಟು / 100;
+  ಆದರೆ(!ಟೋಕನುಗಳು_ಕೊನೆಯ) /* less than 100 total, use 1 */
+    ಟೋಕನುಗಳು_ಕೊನೆಯ = 1;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(ಟೋಕನುಗಳು_ಕೊನೆಯ > CURL_RLIMIT_MIN_ದರ)
+    ಟೋಕನುಗಳು_ಕೊನೆಯ = CURL_RLIMIT_MIN_ದರ;
+  DEBUGASSERT(ಟೋಕನುಗಳು_ಕೊನೆಯ);
+  ಟೋಕನುಗಳು_main = ಟೋಕನುಗಳು_ಒಟ್ಟು - ಟೋಕನುಗಳು_ಕೊನೆಯ;
+  DEBUGASSERT(ಟೋಕನುಗಳು_main);
 
   /* how many milli-steps will it take to consume those, give the
   * original rate limit per second? */
-  DEBUGASSERT(r->step_us == CURL_US_PER_SEC);
+  DEBUGASSERT(r->ಹೆಜ್ಜೆ_us == CURL_US_ಪ್ರತಿ_SEC);
 
-  msteps = (tokens_main * 1000 / r->rate_per_step);
-  if(msteps < CURL_RLIMIT_STEP_MIN_MS) {
+  msteps = (ಟೋಕನುಗಳು_main * 1000 / r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ);
+  ಆದರೆ(msteps < CURL_RLIMIT_ಹೆಜ್ಜೆ_MIN_MS) {
     /* Steps this small will not work. Do not tune. */
-    return;
+    ಹಿಂತಿರುಗಿ;
   }
-  else if(msteps < 1000) {
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(msteps < 1000) {
     /* It needs less than one step to provide the needed tokens.
      * Make it exactly that long and with exactly those tokens. */
-    r->step_us = (timediff_t)msteps * 1000;
-    r->rate_per_step = tokens_main;
-    r->tokens = r->rate_per_step;
+    r->ಹೆಜ್ಜೆ_us = (timediff_t)msteps * 1000;
+    r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ = ಟೋಕನುಗಳು_main;
+    r->ಟೋಕನುಗಳು = r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ;
   }
-  else {
+  ಇಲ್ಲದಿದ್ದರೆ {
     /* More than 1 step. Spread the remainder milli steps and
      * the tokens they need to provide across all steps. If integer
      * arithmetic can do it. */
     curl_off_t ms_unaccounted = (msteps % 1000);
     curl_off_t mstep_inc = (ms_unaccounted / (msteps / 1000));
-    if(mstep_inc) {
-      curl_off_t rate_inc = ((r->rate_per_step * mstep_inc) / 1000);
-      if(rate_inc) {
-        r->step_us = CURL_US_PER_SEC + ((timediff_t)mstep_inc * 1000);
-        r->rate_per_step += rate_inc;
-        r->tokens = r->rate_per_step;
-        if(r->burst_per_step) {
-          curl_off_t burst_inc = ((r->burst_per_step * mstep_inc) / 1000);
-          if(burst_inc)
-            r->burst_per_step += burst_inc;
+    ಆದರೆ(mstep_inc) {
+      curl_off_t ದರ_inc = ((r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ * mstep_inc) / 1000);
+      ಆದರೆ(ದರ_inc) {
+        r->ಹೆಜ್ಜೆ_us = CURL_US_ಪ್ರತಿ_SEC + ((timediff_t)mstep_inc * 1000);
+        r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ += ದರ_inc;
+        r->ಟೋಕನುಗಳು = r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ;
+        ಆದರೆ(r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ) {
+          curl_off_t ಅವಧಿ_inc = ((r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ * mstep_inc) / 1000);
+          ಆದರೆ(ಅವಧಿ_inc)
+            r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ += ಅವಧಿ_inc;
         }
       }
     }
   }
 }
 
-void Curl_rlimit_init(struct Curl_rlimit *r,
-                      int64_t rate_per_sec,
-                      int64_t burst_per_sec,
-                      const struct curltime *pts)
+ಶೂನ್ಯ Curl_rlimit_init(ರಚನೆ Curl_rlimit *r,
+                      int64_t ದರ_ಪ್ರತಿ_sec,
+                      int64_t ಅವಧಿ_ಪ್ರತಿ_sec,
+                      ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts)
 {
-  DEBUGASSERT(rate_per_sec >= 0);
-  DEBUGASSERT(burst_per_sec >= rate_per_sec || !burst_per_sec);
+  DEBUGASSERT(ದರ_ಪ್ರತಿ_sec >= 0);
+  DEBUGASSERT(ಅವಧಿ_ಪ್ರತಿ_sec >= ದರ_ಪ್ರತಿ_sec || !ಅವಧಿ_ಪ್ರತಿ_sec);
   DEBUGASSERT(pts);
-  r->rate_per_step = r->rate_per_sec = rate_per_sec;
-  r->burst_per_step = r->burst_per_sec = burst_per_sec;
-  r->step_us = CURL_US_PER_SEC;
-  r->spare_us = 0;
-  r->tokens = r->rate_per_step;
+  r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ = r->ದರ_ಪ್ರತಿ_sec = ದರ_ಪ್ರತಿ_sec;
+  r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ = r->ಅವಧಿ_ಪ್ರತಿ_sec = ಅವಧಿ_ಪ್ರತಿ_sec;
+  r->ಹೆಜ್ಜೆ_us = CURL_US_ಪ್ರತಿ_SEC;
+  r->ಹೆಚ್ಚುವರಿ_us = 0;
+  r->ಟೋಕನುಗಳು = r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ;
   r->ts = *pts;
   r->blocked = FALSE;
 }
 
-void Curl_rlimit_change(struct Curl_rlimit *r,
-                        int64_t rate_per_sec,
-                        int64_t burst_per_sec)
+ಶೂನ್ಯ Curl_rlimit_change(ರಚನೆ Curl_rlimit *r,
+                        int64_t ದರ_ಪ್ರತಿ_sec,
+                        int64_t ಅವಧಿ_ಪ್ರತಿ_sec)
 {
-  DEBUGASSERT(rate_per_sec >= 0);
-  DEBUGASSERT(burst_per_sec >= rate_per_sec || !burst_per_sec);
-  r->rate_per_step = r->rate_per_sec = rate_per_sec;
-  r->burst_per_step = r->burst_per_sec = burst_per_sec;
-  r->step_us = CURL_US_PER_SEC;
-  r->spare_us = 0;
-  if(r->tokens > r->rate_per_step)
-    r->tokens = r->rate_per_step;
+  DEBUGASSERT(ದರ_ಪ್ರತಿ_sec >= 0);
+  DEBUGASSERT(ಅವಧಿ_ಪ್ರತಿ_sec >= ದರ_ಪ್ರತಿ_sec || !ಅವಧಿ_ಪ್ರತಿ_sec);
+  r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ = r->ದರ_ಪ್ರತಿ_sec = ದರ_ಪ್ರತಿ_sec;
+  r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ = r->ಅವಧಿ_ಪ್ರತಿ_sec = ಅವಧಿ_ಪ್ರತಿ_sec;
+  r->ಹೆಜ್ಜೆ_us = CURL_US_ಪ್ರತಿ_SEC;
+  r->ಹೆಚ್ಚುವರಿ_us = 0;
+  ಆದರೆ(r->ಟೋಕನುಗಳು > r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ)
+    r->ಟೋಕನುಗಳು = r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ;
   /* ts and blocked stay as they are, a paused transfer stays paused */
 }
 
-void Curl_rlimit_start(struct Curl_rlimit *r, const struct curltime *pts,
-                       int64_t total_tokens)
+ಶೂನ್ಯ Curl_rlimit_ಆರಂಭ(ರಚನೆ Curl_rlimit *r, ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts,
+                       int64_t ಒಟ್ಟು_ಟೋಕನುಗಳು)
 {
   /* A start always resets the values to initial defaults, then
    * fine tunes the intervals for the total_tokens expected. */
-  r->rate_per_step = r->rate_per_sec;
-  r->burst_per_step = r->burst_per_sec;
-  r->step_us = CURL_US_PER_SEC;
-  r->spare_us = 0;
-  r->tokens = r->rate_per_step;
+  r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ = r->ದರ_ಪ್ರತಿ_sec;
+  r->ಅವಧಿ_ಪ್ರತಿ_ಹೆಜ್ಜೆ = r->ಅವಧಿ_ಪ್ರತಿ_sec;
+  r->ಹೆಜ್ಜೆ_us = CURL_US_ಪ್ರತಿ_SEC;
+  r->ಹೆಚ್ಚುವರಿ_us = 0;
+  r->ಟೋಕನುಗಳು = r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ;
   r->ts = *pts;
-  rlimit_tune_steps(r, total_tokens);
+  rlimit_tune_ಹೆಜ್ಜೆಗಳು(r, ಒಟ್ಟು_ಟೋಕನುಗಳು);
 }
 
-int64_t Curl_rlimit_per_step(struct Curl_rlimit *r)
+int64_t Curl_rlimit_ಪ್ರತಿ_ಹೆಜ್ಜೆ(ರಚನೆ Curl_rlimit *r)
 {
-  return r->rate_per_step;
+  ಹಿಂತಿರುಗಿ r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ;
 }
 
-bool Curl_rlimit_active(struct Curl_rlimit *r)
+bool Curl_rlimit_ಸಕ್ರಿಯ(ರಚನೆ Curl_rlimit *r)
 {
-  return (r->rate_per_step > 0) || r->blocked;
+  ಹಿಂತಿರುಗಿ (r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ > 0) || r->blocked;
 }
 
-bool Curl_rlimit_is_blocked(struct Curl_rlimit *r)
+bool Curl_rlimit_is_blocked(ರಚನೆ Curl_rlimit *r)
 {
-  return (bool)r->blocked;
+  ಹಿಂತಿರುಗಿ (bool)r->blocked;
 }
 
-int64_t Curl_rlimit_avail(struct Curl_rlimit *r,
-                          const struct curltime *pts)
+int64_t Curl_rlimit_avail(ರಚನೆ Curl_rlimit *r,
+                          ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts)
 {
-  struct curltime ts;
+  ರಚನೆ curltime ts;
 
-  if(r->blocked)
-    return 0;
-  else if(r->rate_per_step) {
-    if(!pts) {
+  ಆದರೆ(r->blocked)
+    ಹಿಂತಿರುಗಿ 0;
+  ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ(r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ) {
+    ಆದರೆ(!pts) {
       curlx_pnow(&ts);
       pts = &ts;
     }
     rlimit_update(r, pts);
-    return r->tokens;
+    ಹಿಂತಿರುಗಿ r->ಟೋಕನುಗಳು;
   }
-  else
-    return INT64_MAX;
+  ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ INT64_MAX;
 }
 
-void Curl_rlimit_drain(struct Curl_rlimit *r, size_t tokens,
-                       const struct curltime *pts)
+ಶೂನ್ಯ Curl_rlimit_drain(ರಚನೆ Curl_rlimit *r, size_t ಟೋಕನುಗಳು,
+                       ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts)
 {
-  struct curltime ts;
+  ರಚನೆ curltime ts;
 
-  if(r->blocked || !r->rate_per_step)
-    return;
+  ಆದರೆ(r->blocked || !r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ)
+    ಹಿಂತಿರುಗಿ;
 
-  if(!pts) {
+  ಆದರೆ(!pts) {
     curlx_pnow(&ts);
     pts = &ts;
   }
   rlimit_update(r, pts);
-#if 8 <= SIZEOF_SIZE_T
-  if(tokens > INT64_MAX) {
-    r->tokens = INT64_MAX;
+#ಆದರೆ 8 <= SIZEOF_ಗಾತ್ರ_T
+  ಆದರೆ(ಟೋಕನುಗಳು > INT64_MAX) {
+    r->ಟೋಕನುಗಳು = INT64_MAX;
   }
-  else
-#endif
+  ಇಲ್ಲದಿದ್ದರೆ
+#ಆದರೆ_ಅಂತ್ಯ
   {
-    int64_t val = (int64_t)tokens;
-    if((INT64_MIN + val) < r->tokens)
-      r->tokens -= val;
-    else
-      r->tokens = INT64_MIN;
+    int64_t val = (int64_t)ಟೋಕನುಗಳು;
+    ಆದರೆ((INT64_MIN + val) < r->ಟೋಕನುಗಳು)
+      r->ಟೋಕನುಗಳು -= val;
+    ಇಲ್ಲದಿದ್ದರೆ
+      r->ಟೋಕನುಗಳು = INT64_MIN;
   }
 }
 
-timediff_t Curl_rlimit_wait_ms(struct Curl_rlimit *r,
-                               const struct curltime *pts)
+timediff_t Curl_rlimit_wait_ms(ರಚನೆ Curl_rlimit *r,
+                               ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts)
 {
   timediff_t wait_us, elapsed_us;
 
-  if(r->blocked || !r->rate_per_step)
-    return 0;
+  ಆದರೆ(r->blocked || !r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ)
+    ಹಿಂತಿರುಗಿ 0;
   rlimit_update(r, pts);
-  if(r->tokens > 0)
-    return 0;
+  ಆದರೆ(r->ಟೋಕನುಗಳು > 0)
+    ಹಿಂತಿರುಗಿ 0;
 
   /* How much time will it take tokens to become positive again?
    * Deduct `spare_us` and check against already elapsed time */
-  wait_us = r->step_us - r->spare_us;
-  if(r->tokens < 0) {
-    curl_off_t debt_pct = ((-r->tokens) * 100 / r->rate_per_step);
-    if(debt_pct)
-      wait_us += (r->step_us * debt_pct / 100);
+  wait_us = r->ಹೆಜ್ಜೆ_us - r->ಹೆಚ್ಚುವರಿ_us;
+  ಆದರೆ(r->ಟೋಕನುಗಳು < 0) {
+    curl_off_t debt_pct = ((-r->ಟೋಕನುಗಳು) * 100 / r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ);
+    ಆದರೆ(debt_pct)
+      wait_us += (r->ಹೆಜ್ಜೆ_us * debt_pct / 100);
   }
 
   elapsed_us = curlx_ptimediff_us(pts, &r->ts);
-  if(elapsed_us >= wait_us)
-    return 0;
+  ಆದರೆ(elapsed_us >= wait_us)
+    ಹಿಂತಿರುಗಿ 0;
   wait_us -= elapsed_us;
-  return (wait_us + 999) / 1000; /* in milliseconds */
+  ಹಿಂತಿರುಗಿ (wait_us + 999) / 1000; /* in milliseconds */
 }
 
-timediff_t Curl_rlimit_next_step_ms(struct Curl_rlimit *r,
-                                    const struct curltime *pts)
+timediff_t Curl_rlimit_ಮುಂದಿನ_ಹೆಜ್ಜೆ_ms(ರಚನೆ Curl_rlimit *r,
+                                    ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts)
 {
-  if(!r->blocked && r->rate_per_step) {
-    timediff_t elapsed_us, next_us;
+  ಆದರೆ(!r->blocked && r->ದರ_ಪ್ರತಿ_ಹೆಜ್ಜೆ) {
+    timediff_t elapsed_us, ಮುಂದಿನ_us;
 
-    elapsed_us = curlx_ptimediff_us(pts, &r->ts) + r->spare_us;
-    if(r->step_us > elapsed_us) {
-      next_us = r->step_us - elapsed_us;
-      return (next_us + 999) / 1000; /* in milliseconds */
+    elapsed_us = curlx_ptimediff_us(pts, &r->ts) + r->ಹೆಚ್ಚುವರಿ_us;
+    ಆದರೆ(r->ಹೆಜ್ಜೆ_us > elapsed_us) {
+      ಮುಂದಿನ_us = r->ಹೆಜ್ಜೆ_us - elapsed_us;
+      ಹಿಂತಿರುಗಿ (ಮುಂದಿನ_us + 999) / 1000; /* in milliseconds */
     }
   }
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
-void Curl_rlimit_block(struct Curl_rlimit *r,
+ಶೂನ್ಯ Curl_rlimit_ಖಂಡ(ರಚನೆ Curl_rlimit *r,
                        bool activate,
-                       const struct curltime *pts)
+                       ಸ್ಥಿರಾಂಕ ರಚನೆ curltime *pts)
 {
-  if(!activate == !r->blocked)
-    return;
+  ಆದರೆ(!activate == !r->blocked)
+    ಹಿಂತಿರುಗಿ;
 
   r->ts = *pts;
   r->blocked = activate;
-  if(!r->blocked) {
+  ಆದರೆ(!r->blocked) {
     /* Start rate limiting fresh. The amount of time this was blocked
      * does not generate extra tokens. */
-    Curl_rlimit_start(r, pts, -1);
+    Curl_rlimit_ಆರಂಭ(r, pts, -1);
   }
-  else {
-    r->tokens = 0;
+  ಇಲ್ಲದಿದ್ದರೆ {
+    r->ಟೋಕನುಗಳು = 0;
   }
 }

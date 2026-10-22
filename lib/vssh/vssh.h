@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VSSH_VSSH_H
-#define HEADER_CURL_VSSH_VSSH_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_VSSH_VSSH_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_VSSH_VSSH_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,26 +23,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_SSH
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_SSH
 
-#include "urldata.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
 
-struct ssh_conn;
+ರಚನೆ ssh_conn;
 
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir,
-                             char **path);
+CURLcode Curl_getworkingpath(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                             ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *homedir,
+                             ಅಕ್ಷರ **ಮಾರ್ಗ);
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir);
+CURLcode Curl_get_pathname(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **cpp, ಅಕ್ಷರ **ಮಾರ್ಗ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *homedir);
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep);
 
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps);
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc);
+CURLcode Curl_ssh_pollset(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ easy_pollset *ps);
+CURLcode Curl_ssh_ಸಿದ್ಧತೆ_pkey(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ ssh_conn *sshc);
 
-#endif /* USE_SSH */
-#endif /* HEADER_CURL_VSSH_VSSH_H */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_SSH */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_VSSH_VSSH_H */

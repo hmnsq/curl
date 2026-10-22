@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SSLUSE_H
-#define HEADER_CURL_SSLUSE_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ ಶೀರ್ಷಿಕೆ_CURL_SSLUSE_H
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೀರ್ಷಿಕೆ_CURL_SSLUSE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_OPENSSL
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_OPENSSL
 
-#ifdef USE_WIN32_CRYPTO
-#include <wincrypt.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_WIN32_CRYPTO
+#ಅನ್ತರ್ಭಾವ <wincrypt.h>
 /* If <wincrypt.h> is included directly, or indirectly via <schannel.h>,
  * <winldap.h>, <iphlpapi.h>, or something else, <wincrypt.h> does this:
  *   #define X509_NAME  ((LPCSTR)7)
@@ -52,37 +52,37 @@
  *
  * LibreSSL automatically undefines these symbols before using them.
  */
-#undef X509_NAME
-#undef X509_EXTENSIONS
-#undef PKCS7_ISSUER_AND_SERIAL
-#undef PKCS7_SIGNER_INFO
-#undef OCSP_REQUEST
-#undef OCSP_RESPONSE
-#endif /* USE_WIN32_CRYPTO */
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು X509_NAME
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು X509_EXTENSIONS
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು PKCS7_ISSUER_AND_SERIAL
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು PKCS7_SIGNER_INFO
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು OCSP_REQUEST
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು OCSP_RESPONSE
+#ಆದರೆ_ಅಂತ್ಯ /* USE_WIN32_CRYPTO */
 
 /*
  * This header should only be needed to get included by vtls.c, openssl.c
  * and ngtcp2.c
  */
-#include <openssl/opensslv.h>
-#include <openssl/ossl_typ.h>
-#include <openssl/ssl.h>
+#ಅನ್ತರ್ಭಾವ <openssl/opensslv.h>
+#ಅನ್ತರ್ಭಾವ <openssl/ossl_typ.h>
+#ಅನ್ತರ್ಭಾವ <openssl/ssl.h>
 
-#include "urldata.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#define HAVE_OPENSSL3  /* non-fork OpenSSL 3.x or later */
-#endif
+#ಆದರೆ OPENSSL_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ >= 0x30000000L
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_OPENSSL3  /* non-fork OpenSSL 3.x or later */
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
-#define HAVE_BORINGSSL_LIKE
-#endif
+#ಆದರೆ defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_BORINGSSL_LIKE
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* OpenSSL 3.5.0+ has built-in 'SSLKEYLOGFILE' support if built with
    'enable-sslkeylog' */
-#if OPENSSL_VERSION_NUMBER >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
-#define HAVE_KEYLOG_UPSTREAM
-#endif
+#ಆದರೆ OPENSSL_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_KEYLOG_UPSTREAM
+#ಆದರೆ_ಅಂತ್ಯ
 
 /*
  * Whether SSL_CTX_set_keylog_callback is available.
@@ -90,133 +90,133 @@
  * LibreSSL: not supported. 3.5.0+ has a stub function that does nothing.
  * OpenSSL: supported since 1.1.1 https://github.com/openssl/openssl/pull/2287
  */
-#ifndef LIBRESSL_VERSION_NUMBER
-#define HAVE_KEYLOG_CALLBACK
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ LIBRESSL_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_KEYLOG_CALLBACK
+#ಆದರೆ_ಅಂತ್ಯ
 
 /* Check for OpenSSL 1.1.1 which has early data support. */
-#undef HAVE_OPENSSL_EARLYDATA
-#if defined(TLS1_3_VERSION) && !defined(HAVE_BORINGSSL_LIKE)
-#define HAVE_OPENSSL_EARLYDATA
-#endif
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು HAVE_OPENSSL_EARLYDATA
+#ಆದರೆ defined(TLS1_3_ಆವೃತ್ತಿ) && !defined(HAVE_BORINGSSL_LIKE)
+#ವ್ಯಾಖ್ಯಾನಿಸು HAVE_OPENSSL_EARLYDATA
+#ಆದರೆ_ಅಂತ್ಯ
 
-#ifdef LIBRESSL_VERSION_NUMBER
-typedef long ctx_option_t;
-#elif defined(HAVE_BORINGSSL_LIKE)
-typedef uint32_t ctx_option_t;
-#else
-typedef uint64_t ctx_option_t;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ LIBRESSL_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ದೀರ್ಘ ctx_option_t;
+#ಅಥವಾಆದರೆ defined(HAVE_BORINGSSL_LIKE)
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ uint32_t ctx_option_t;
+#ಇಲ್ಲದಿದ್ದರೆ
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ uint64_t ctx_option_t;
+#ಆದರೆ_ಅಂತ್ಯ
 
-struct alpn_spec;
-struct ssl_peer;
-struct Curl_ssl_session;
+ರಚನೆ alpn_spec;
+ರಚನೆ ssl_peer;
+ರಚನೆ Curl_ssl_session;
 
-struct provider {
+ರಚನೆ provider {
   /* void instead of ENGINE to avoid bleeding OpenSSL into this header */
-  void *engine;
+  ಶೂನ್ಯ *engine;
   /* void instead of OSSL_PROVIDER */
-  void *provider;
-  void *baseprov;
-  void *libctx;
-  char *propq; /* for a provider */
-  BIT(provider_loaded);
+  ಶೂನ್ಯ *provider;
+  ಶೂನ್ಯ *baseprov;
+  ಶೂನ್ಯ *libctx;
+  ಅಕ್ಷರ *propq; /* for a provider */
+  ಬಿಟ್(provider_loaded);
 };
 
 /* Struct to hold a curl OpenSSL instance */
-struct ossl_ctx {
+ರಚನೆ ossl_ctx {
   /* these ones requires specific SSL-types */
   SSL_CTX *ssl_ctx;
   SSL *ssl;
-  BIO_METHOD *bio_method;
-  struct provider p;
-  CURLcode io_result;       /* result of last BIO cfilter operation */
+  BIO_ವಿಧಾನ *bio_ವಿಧಾನ;
+  ರಚನೆ provider p;
+  CURLcode io_ಫಲಿತಾಂಶ;       /* result of last BIO cfilter operation */
   /* blocked writes need to retry with same length, remember it */
-  int blocked_ssl_write_len;
-#if !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
+  ಪೂರ್ಣಾಂಕ blocked_ssl_write_len;
+#ಆದರೆ !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
   /* Set to true once a valid keylog entry has been created to avoid dupes.
      This is a bool and not a bitfield because it is passed by address. */
-  bool keylog_done;
-#endif
-  BIT(x509_store_setup);            /* x509 store has been set up */
-  BIT(store_is_empty);              /* no certs/paths/blobs in x509 store */
-  BIT(reused_session);              /* session-ID was reused for this */
-#ifdef USE_APPLE_SECTRUST
-  BIT(sectrust_verified);           /* peer was verified by sectrust */
-  BIT(sectrust_session);            /* session from sectrust verified peer */
-#endif
+  bool keylog_ಮುಗಿದ;
+#ಆದರೆ_ಅಂತ್ಯ
+  ಬಿಟ್(x509_store_ಸಿದ್ಧತೆ);            /* x509 store has been set up */
+  ಬಿಟ್(store_is_ಖಾಲಿಗಳು);              /* no certs/paths/blobs in x509 store */
+  ಬಿಟ್(reused_session);              /* session-ID was reused for this */
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_APPLE_SECTRUST
+  ಬಿಟ್(sectrust_verified);           /* peer was verified by sectrust */
+  ಬಿಟ್(sectrust_session);            /* session from sectrust verified peer */
+#ಆದರೆ_ಅಂತ್ಯ
 };
 
-size_t Curl_ossl_version(char *buffer, size_t size);
+size_t Curl_ossl_ಆವೃತ್ತಿ(ಅಕ್ಷರ *ಬಫರ್, size_t ಗಾತ್ರ_2);
 
-typedef CURLcode Curl_ossl_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ CURLcode Curl_ossl_ctx_ಸಿದ್ಧತೆ_cb(ರಚನೆ Curl_cfilter *cf,
+                                        ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                        ಶೂನ್ಯ *user_ದತ್ತಾಂಶ);
 
-typedef int Curl_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid);
-typedef CURLcode Curl_ossl_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
-                                                 bool *do_early_data);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಪೂರ್ಣಾಂಕ Curl_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ CURLcode Curl_ossl_init_session_reuse_cb(ರಚನೆ Curl_cfilter *cf,
+                                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                                 ರಚನೆ alpn_spec *alpns,
+                                                 ರಚನೆ Curl_ssl_session *scs,
+                                                 bool *do_early_ದತ್ತಾಂಶ);
 
-CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
-                            Curl_ossl_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
+CURLcode Curl_ossl_ctx_init(ರಚನೆ ossl_ctx *octx,
+                            ರಚನೆ Curl_cfilter *cf,
+                            ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                            ರಚನೆ ssl_peer *peer,
+                            ಸ್ಥಿರಾಂಕ ರಚನೆ alpn_spec *alpns_requested,
+                            Curl_ossl_ctx_ಸಿದ್ಧತೆ_cb *cb_ಸಿದ್ಧತೆ,
+                            ಶೂನ್ಯ *cb_user_ದತ್ತಾಂಶ,
                             Curl_ossl_new_session_cb *cb_new_session,
-                            void *ssl_user_data,
+                            ಶೂನ್ಯ *ssl_user_ದತ್ತಾಂಶ,
                             Curl_ossl_init_session_reuse_cb *sess_reuse_cb);
 
-#ifndef HAVE_OPENSSL3
-#define SSL_get1_peer_certificate SSL_get_peer_certificate
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ HAVE_OPENSSL3
+#ವ್ಯಾಖ್ಯಾನಿಸು SSL_get1_peer_certificate SSL_get_peer_certificate
+#ಆದರೆ_ಅಂತ್ಯ
 
-extern const struct Curl_ssl Curl_ssl_openssl;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ Curl_ssl Curl_ssl_openssl;
 
 /**
  * Setup the OpenSSL X509_STORE in `ssl_ctx` for the cfilter `cf` and
  * easy handle `data`. Allows reuse of a shared cache if suitable
  * and configured.
  */
-CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct ossl_ctx *octx);
+CURLcode Curl_ssl_ಸಿದ್ಧತೆ_x509_store(ರಚನೆ Curl_cfilter *cf,
+                                   ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                   ರಚನೆ ossl_ctx *octx);
 
-CURLcode Curl_ossl_ctx_configure(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
+CURLcode Curl_ossl_ctx_configure(ರಚನೆ Curl_cfilter *cf,
+                                 ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
                                  SSL_CTX *ssl_ctx);
 
 /*
  * Add a new session to the cache. Takes ownership of the session.
  */
-CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct ossl_ctx *octx,
-                               const char *ssl_peer_key,
+CURLcode Curl_ossl_ಕೂಡಿಸು_session(ರಚನೆ Curl_cfilter *cf,
+                               ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                               ರಚನೆ ossl_ctx *octx,
+                               ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ssl_peer_ಕೀಲಿ,
                                SSL_SESSION *session,
-                               const char *alpn,
-                               unsigned char *quic_tp,
+                               ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *alpn,
+                               ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *quic_tp,
                                size_t quic_tp_len,
-                               struct Curl_ssl_session **psession);
+                               ರಚನೆ Curl_ssl_session **psession);
 
 /*
  * Get the server cert, verify it and show it, etc., only call failf() if
  * SSL config verifypeer or -host is set. Otherwise all this is for
  * informational purposes only!
  */
-CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct ossl_ctx *octx,
-                                   struct ssl_peer *peer);
+CURLcode Curl_ossl_check_peer_cert(ರಚನೆ Curl_cfilter *cf,
+                                   ರಚನೆ Curl_easy *ದತ್ತಾಂಶ,
+                                   ರಚನೆ ossl_ctx *octx,
+                                   ರಚನೆ ssl_peer *peer);
 
 /* Report properties of a successful handshake */
-void Curl_ossl_report_handshake(struct Curl_easy *data, struct ossl_ctx *octx);
+ಶೂನ್ಯ Curl_ossl_report_handshake(ರಚನೆ Curl_easy *ದತ್ತಾಂಶ, ರಚನೆ ossl_ctx *octx);
 
-void Curl_osslctx_cleanup(struct ossl_ctx *octx);
+ಶೂನ್ಯ Curl_osslctx_cleanup(ರಚನೆ ossl_ctx *octx);
 
-#endif /* USE_OPENSSL */
-#endif /* HEADER_CURL_SSLUSE_H */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_OPENSSL */
+#ಆದರೆ_ಅಂತ್ಯ /* HEADER_CURL_SSLUSE_H */

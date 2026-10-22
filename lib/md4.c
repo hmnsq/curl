@@ -21,85 +21,85 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#ifdef USE_CURL_NTLM_CORE
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_CURL_NTLM_CORE
 
-#include "curl_md4.h"
+#ಅನ್ತರ್ಭಾವ "curl_md4.h"
 
-#ifdef USE_OPENSSL
-#include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_OPENSSL
+#ಅನ್ತರ್ಭಾವ <openssl/opensslv.h>
+#ಆದರೆ OPENSSL_ಆವೃತ್ತಿ_ಸಂಖ್ಯೆ >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
-#define OPENSSL_NO_MD4
-#else
+#ವ್ಯಾಖ್ಯಾನಿಸು OPENSSL_NO_MD4
+#ಇಲ್ಲದಿದ್ದರೆ
 /* Cover also OPENSSL_NO_MD4 configured in OpenSSL */
-#include <openssl/opensslconf.h>
-#endif
-#endif /* USE_OPENSSL */
+#ಅನ್ತರ್ಭಾವ <openssl/opensslconf.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ_ಅಂತ್ಯ /* USE_OPENSSL */
 
-#ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ USE_WOLFSSL
+#ಅನ್ತರ್ಭಾವ <wolfssl/options.h>
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
-#include <openssl/evp.h>
+#ಆದರೆ defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
+#ಅನ್ತರ್ಭಾವ <openssl/evp.h>
 
-typedef EVP_MD_CTX *my_md4_ctx;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ EVP_MD_CTX *my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ my_md4_init(my_md4_ctx *ctx)
 {
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return 0;
+  ಆದರೆ(!*ctx)
+    ಹಿಂತಿರುಗಿ 0;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
+  ಆದರೆ(!EVP_DigestInit_ex(*ctx, EVP_md4(), ಖಾಲಿ)) {
     EVP_MD_CTX_free(*ctx);
-    return 0;
+    ಹಿಂತಿರುಗಿ 0;
   }
-  return 1;
+  ಹಿಂತಿರುಗಿ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_update(my_md4_ctx *ctx,
+                          ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ಒಳಹರಿವು, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ len)
 {
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (ಶೂನ್ಯ)EVP_DigestUpdate(*ctx, ಒಳಹರಿವು, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_final(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *digest, my_md4_ctx *ctx)
 {
-  (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
+  (ಶೂನ್ಯ)EVP_DigestFinal_ex(*ctx, digest, ಖಾಲಿ);
   EVP_MD_CTX_free(*ctx);
 }
 
-#elif defined(USE_WOLFSSL) && !defined(NO_MD4)
-#include <wolfssl/wolfcrypt/md4.h>
-#include <wolfssl/version.h>
+#ಅಥವಾಆದರೆ defined(USE_WOLFSSL) && !defined(NO_MD4)
+#ಅನ್ತರ್ಭಾವ <wolfssl/wolfcrypt/md4.h>
+#ಅನ್ತರ್ಭಾವ <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX >= 0x05007006
-typedef wc_Md4 my_md4_ctx;
-#else
-typedef Md4 my_md4_ctx;
-#endif
+#ಆದರೆ LIBWOLFSSL_ಆವೃತ್ತಿ_HEX >= 0x05007006
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ wc_Md4 my_md4_ctx;
+#ಇಲ್ಲದಿದ್ದರೆ
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ Md4 my_md4_ctx;
+#ಆದರೆ_ಅಂತ್ಯ
 
-static int my_md4_init(my_md4_ctx *ctx)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ my_md4_init(my_md4_ctx *ctx)
 {
   wc_InitMd4(ctx);
-  return 1;
+  ಹಿಂತಿರುಗಿ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_update(my_md4_ctx *ctx,
+                          ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಒಳಹರಿವು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
-  wc_Md4Update(ctx, input, (word32)len);
+  wc_Md4Update(ctx, ಒಳಹರಿವು, (word32)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_final(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *digest, my_md4_ctx *ctx)
 {
   wc_Md4Final(ctx, digest);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#ಅಥವಾಆದರೆ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040 && \
        defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
                __MAC_OS_X_VERSION_MIN_REQUIRED < 101500) || \
@@ -107,102 +107,102 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000 && \
        defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
                __IPHONE_OS_VERSION_MIN_REQUIRED < 130000)
-#include <CommonCrypto/CommonDigest.h>
+#ಅನ್ತರ್ಭಾವ <CommonCrypto/CommonDigest.h>
 
-typedef CC_MD4_CTX my_md4_ctx;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ CC_MD4_CTX my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ my_md4_init(my_md4_ctx *ctx)
 {
-  return CC_MD4_Init(ctx);  /* always returns 1 */
+  ಹಿಂತಿರುಗಿ CC_MD4_Init(ctx);  /* always returns 1 */
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_update(my_md4_ctx *ctx,
+                          ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಒಳಹರಿವು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
-  (void)CC_MD4_Update(ctx, input, (CC_LONG)len);
+  (ಶೂನ್ಯ)CC_MD4_Update(ctx, ಒಳಹರಿವು, (CC_LONG)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_final(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *digest, my_md4_ctx *ctx)
 {
-  (void)CC_MD4_Final(digest, ctx);
+  (ಶೂನ್ಯ)CC_MD4_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#ಅಥವಾಆದರೆ defined(USE_WIN32_CRYPTO)
+#ಅನ್ತರ್ಭಾವ <wincrypt.h>
 
-struct md4_ctx {
+ರಚನೆ md4_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md4_ctx my_md4_ctx;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ my_md4_init(my_md4_ctx *ctx)
 {
   ctx->hCryptProv = 0;
   ctx->hHash = 0;
 
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  ಆದರೆ(!CryptAcquireContext(&ctx->hCryptProv, ಖಾಲಿ, ಖಾಲಿ, PROV_RSA_ತುಂಬಿದ,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 0;
+    ಹಿಂತಿರುಗಿ 0;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
+  ಆದರೆ(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return 0;
+    ಹಿಂತಿರುಗಿ 0;
   }
 
-  return 1;
+  ಹಿಂತಿರುಗಿ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_update(my_md4_ctx *ctx,
+                          ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಒಳಹರಿವು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  Crypt_Hash_ದತ್ತಾಂಶ(ctx->hHash, (ಸ್ಥಿರಾಂಕ BYTE *)ಒಳಹರಿವು, (ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)len, 0);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_final(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *digest, my_md4_ctx *ctx)
 {
-  unsigned long length = 0;
+  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಉದ್ದಳತೆ = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD4_DIGEST_LENGTH)
-    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, ಖಾಲಿ, &ಉದ್ದಳತೆ, 0);
+  ಆದರೆ(ಉದ್ದಳತೆ == MD4_DIGEST_ಉದ್ದಳತೆ)
+    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &ಉದ್ದಳತೆ, 0);
 
-  if(ctx->hHash)
+  ಆದರೆ(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  ಆದರೆ(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/md4.h>
-#include <nettle/version.h>
+#ಅಥವಾಆದರೆ defined(USE_GNUTLS)
+#ಅನ್ತರ್ಭಾವ <nettle/md4.h>
+#ಅನ್ತರ್ಭಾವ <nettle/version.h>
 
-typedef struct md4_ctx my_md4_ctx;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ my_md4_init(my_md4_ctx *ctx)
 {
   md4_init(ctx);
-  return 1;
+  ಹಿಂತಿರುಗಿ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_update(my_md4_ctx *ctx,
+                          ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಒಳಹರಿವು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
-  md4_update(ctx, len, input);
+  md4_update(ctx, len, ಒಳಹರಿವು);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_final(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *digest, my_md4_ctx *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#ಆದರೆ NETTLE_ಆವೃತ್ತಿ_MAJOR >= 4
   md4_digest(ctx, digest);
-#else
-  md4_digest(ctx, MD4_DIGEST_SIZE, digest);
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+  md4_digest(ctx, MD4_DIGEST_ಗಾತ್ರ, digest);
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 /* When no other crypto library is available, or the crypto library does not
  * support MD4, we use this code segment this implementation of it
  *
@@ -230,13 +230,13 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md4_ctx {
+ರಚನೆ md4_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
-  uint32_t block[16];
+  ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ ಬಫರ್[64];
+  uint32_t ಖಂಡ[16];
 };
-typedef struct md4_ctx my_md4_ctx;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ md4_ctx my_md4_ctx;
 
 /*
  * The basic MD4 functions.
@@ -244,14 +244,14 @@ typedef struct md4_ctx my_md4_ctx;
  * F and G are optimized compared to their RFC 1320 definitions, with the
  * optimization for F borrowed from Colin Plumb's MD5 implementation.
  */
-#define MD4_F(x, y, z)                  ((z) ^ ((x) & ((y) ^ (z))))
-#define MD4_G(x, y, z)                  (((x) & ((y) | (z))) | ((y) & (z)))
-#define MD4_H(x, y, z)                  ((x) ^ (y) ^ (z))
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_F(x, y, z)                  ((z) ^ ((x) & ((y) ^ (z))))
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_G(x, y, z)                  (((x) & ((y) | (z))) | ((y) & (z)))
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_H(x, y, z)                  ((x) ^ (y) ^ (z))
 
 /*
  * The MD4 transformation for all three rounds.
  */
-#define MD4_STEP(f, a, b, c, d, x, s) \
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_ಹೆಜ್ಜೆ(f, a, b, c, d, x, s) \
   (a) += f(b, c, d) + (x); \
   (a) = (((a) << (s)) | (((a) & 0xffffffff) >> (32 - (s))));
 
@@ -262,36 +262,36 @@ typedef struct md4_ctx my_md4_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define MD4_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
-#define MD4_GET(n) MD4_SET(n)
-#else
-#define MD4_SET(n) (ctx->block[n] =      \
+#ಆದರೆ defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_ಗಣ(n) (*(ಸ್ಥಿರಾಂಕ uint32_t *)(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *)&ptr[(n) * 4])
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_GET(n) MD4_ಗಣ(n)
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_ಗಣ(n) (ctx->ಖಂಡ[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
   ((uint32_t)ptr[((n) * 4) + 2] << 16) | \
   ((uint32_t)ptr[((n) * 4) + 3] << 24))
-#define MD4_GET(n) ctx->block[n]
-#endif
+#ವ್ಯಾಖ್ಯಾನಿಸು MD4_GET(n) ctx->ಖಂಡ[n]
+#ಆದರೆ_ಅಂತ್ಯ
 
 /*
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters. There are no alignment requirements.
  */
-static const void *my_md4_body(my_md4_ctx *ctx,
-                               const void *input, unsigned long size)
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *my_md4_body(my_md4_ctx *ctx,
+                               ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಒಳಹರಿವು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2)
 {
-  const unsigned char *ptr;
+  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)input;
+  ptr = (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)ಒಳಹರಿವು;
 
   a = ctx->a;
   b = ctx->b;
   c = ctx->c;
   d = ctx->d;
 
-  do {
+  ಮಾಡು {
     uint32_t saved_a, saved_b, saved_c, saved_d;
 
     saved_a = a;
@@ -300,58 +300,58 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     saved_d = d;
 
     /* Round 1 */
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(0), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(1), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(2), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(3), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(4), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(5), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(6), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(7), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(8), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(9), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(10), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(11), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(12), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(13), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(14), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(15), 19)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, a, b, c, d, MD4_ಗಣ(0), 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, d, a, b, c, MD4_ಗಣ(1), 7)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, c, d, a, b, MD4_ಗಣ(2), 11)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, b, c, d, a, MD4_ಗಣ(3), 19)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, a, b, c, d, MD4_ಗಣ(4), 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, d, a, b, c, MD4_ಗಣ(5), 7)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, c, d, a, b, MD4_ಗಣ(6), 11)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, b, c, d, a, MD4_ಗಣ(7), 19)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, a, b, c, d, MD4_ಗಣ(8), 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, d, a, b, c, MD4_ಗಣ(9), 7)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, c, d, a, b, MD4_ಗಣ(10), 11)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, b, c, d, a, MD4_ಗಣ(11), 19)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, a, b, c, d, MD4_ಗಣ(12), 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, d, a, b, c, MD4_ಗಣ(13), 7)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, c, d, a, b, MD4_ಗಣ(14), 11)
+    MD4_ಹೆಜ್ಜೆ(MD4_F, b, c, d, a, MD4_ಗಣ(15), 19)
 
     /* Round 2 */
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(0) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(4) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(8) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(12) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(1) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(5) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(9) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(13) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(2) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(6) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(10) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(14) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(3) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(7) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(11) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(15) + 0x5a827999, 13)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, a, b, c, d, MD4_GET(0) + 0x5a827999, 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, d, a, b, c, MD4_GET(4) + 0x5a827999, 5)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, c, d, a, b, MD4_GET(8) + 0x5a827999, 9)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, b, c, d, a, MD4_GET(12) + 0x5a827999, 13)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, a, b, c, d, MD4_GET(1) + 0x5a827999, 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, d, a, b, c, MD4_GET(5) + 0x5a827999, 5)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, c, d, a, b, MD4_GET(9) + 0x5a827999, 9)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, b, c, d, a, MD4_GET(13) + 0x5a827999, 13)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, a, b, c, d, MD4_GET(2) + 0x5a827999, 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, d, a, b, c, MD4_GET(6) + 0x5a827999, 5)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, c, d, a, b, MD4_GET(10) + 0x5a827999, 9)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, b, c, d, a, MD4_GET(14) + 0x5a827999, 13)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, a, b, c, d, MD4_GET(3) + 0x5a827999, 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, d, a, b, c, MD4_GET(7) + 0x5a827999, 5)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, c, d, a, b, MD4_GET(11) + 0x5a827999, 9)
+    MD4_ಹೆಜ್ಜೆ(MD4_G, b, c, d, a, MD4_GET(15) + 0x5a827999, 13)
 
     /* Round 3 */
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(0) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(8) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(4) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(12) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(2) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(10) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(6) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(14) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(1) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(9) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(5) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(13) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(3) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(11) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(7) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(15) + 0x6ed9eba1, 15)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, a, b, c, d, MD4_GET(0) + 0x6ed9eba1, 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, d, a, b, c, MD4_GET(8) + 0x6ed9eba1, 9)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, c, d, a, b, MD4_GET(4) + 0x6ed9eba1, 11)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, b, c, d, a, MD4_GET(12) + 0x6ed9eba1, 15)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, a, b, c, d, MD4_GET(2) + 0x6ed9eba1, 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, d, a, b, c, MD4_GET(10) + 0x6ed9eba1, 9)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, c, d, a, b, MD4_GET(6) + 0x6ed9eba1, 11)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, b, c, d, a, MD4_GET(14) + 0x6ed9eba1, 15)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, a, b, c, d, MD4_GET(1) + 0x6ed9eba1, 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, d, a, b, c, MD4_GET(9) + 0x6ed9eba1, 9)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, c, d, a, b, MD4_GET(5) + 0x6ed9eba1, 11)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, b, c, d, a, MD4_GET(13) + 0x6ed9eba1, 15)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, a, b, c, d, MD4_GET(3) + 0x6ed9eba1, 3)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, d, a, b, c, MD4_GET(11) + 0x6ed9eba1, 9)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, c, d, a, b, MD4_GET(7) + 0x6ed9eba1, 11)
+    MD4_ಹೆಜ್ಜೆ(MD4_H, b, c, d, a, MD4_GET(15) + 0x6ed9eba1, 15)
 
     a += saved_a;
     b += saved_b;
@@ -359,17 +359,17 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } ಆಗ(ಗಾತ್ರ_2 -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  ಹಿಂತಿರುಗಿ ptr;
 }
 
-static int my_md4_init(my_md4_ctx *ctx)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ my_md4_init(my_md4_ctx *ctx)
 {
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
@@ -379,75 +379,75 @@ static int my_md4_init(my_md4_ctx *ctx)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return 1;
+  ಹಿಂತಿರುಗಿ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_update(my_md4_ctx *ctx,
+                          ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಒಳಹರಿವು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
   uint32_t saved_lo;
-  unsigned long used;
+  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಬಳಸಿದ;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  ಆದರೆ(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
-  used = saved_lo & 0x3f;
+  ಬಳಸಿದ = saved_lo & 0x3f;
 
-  if(used) {
-    unsigned long available = 64 - used;
+  ಆದರೆ(ಬಳಸಿದ) {
+    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಲಭ್ಯ = 64 - ಬಳಸಿದ;
 
-    if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
-      return;
+    ಆದರೆ(len < ಲಭ್ಯ) {
+      ಸ್ಮರಣೆ_ನಕಲು(&ctx->ಬಫರ್[ಬಳಸಿದ], ಒಳಹರಿವು, len);
+      ಹಿಂತಿರುಗಿ;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
-    len -= available;
-    my_md4_body(ctx, ctx->buffer, 64);
+    ಸ್ಮರಣೆ_ನಕಲು(&ctx->ಬಫರ್[ಬಳಸಿದ], ಒಳಹರಿವು, ಲಭ್ಯ);
+    ಒಳಹರಿವು = (ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)ಒಳಹರಿವು + ಲಭ್ಯ;
+    len -= ಲಭ್ಯ;
+    my_md4_body(ctx, ctx->ಬಫರ್, 64);
   }
 
-  if(len >= 64) {
-    input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
+  ಆದರೆ(len >= 64) {
+    ಒಳಹರಿವು = my_md4_body(ctx, ಒಳಹರಿವು, len & ~(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  ಸ್ಮರಣೆ_ನಕಲು(ctx->ಬಫರ್, ಒಳಹರಿವು, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md4_final(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *digest, my_md4_ctx *ctx)
 {
-  unsigned long used, available;
+  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಬಳಸಿದ, ಲಭ್ಯ;
 
-  used = ctx->lo & 0x3f;
+  ಬಳಸಿದ = ctx->lo & 0x3f;
 
-  ctx->buffer[used++] = 0x80;
+  ctx->ಬಫರ್[ಬಳಸಿದ++] = 0x80;
 
-  available = 64 - used;
+  ಲಭ್ಯ = 64 - ಬಳಸಿದ;
 
-  if(available < 8) {
-    memset(&ctx->buffer[used], 0, available);
-    my_md4_body(ctx, ctx->buffer, 64);
-    used = 0;
-    available = 64;
+  ಆದರೆ(ಲಭ್ಯ < 8) {
+    memset(&ctx->ಬಫರ್[ಬಳಸಿದ], 0, ಲಭ್ಯ);
+    my_md4_body(ctx, ctx->ಬಫರ್, 64);
+    ಬಳಸಿದ = 0;
+    ಲಭ್ಯ = 64;
   }
 
-  memset(&ctx->buffer[used], 0, available - 8);
+  memset(&ctx->ಬಫರ್[ಬಳಸಿದ], 0, ಲಭ್ಯ - 8);
 
   ctx->lo <<= 3;
-  ctx->buffer[56] = curlx_ultouc((ctx->lo) & 0xff);
-  ctx->buffer[57] = curlx_ultouc((ctx->lo >> 8) & 0xff);
-  ctx->buffer[58] = curlx_ultouc((ctx->lo >> 16) & 0xff);
-  ctx->buffer[59] = curlx_ultouc((ctx->lo >> 24) & 0xff);
-  ctx->buffer[60] = curlx_ultouc((ctx->hi) & 0xff);
-  ctx->buffer[61] = curlx_ultouc((ctx->hi >> 8) & 0xff);
-  ctx->buffer[62] = curlx_ultouc((ctx->hi >> 16) & 0xff);
-  ctx->buffer[63] = curlx_ultouc(ctx->hi >> 24);
+  ctx->ಬಫರ್[56] = curlx_ultouc((ctx->lo) & 0xff);
+  ctx->ಬಫರ್[57] = curlx_ultouc((ctx->lo >> 8) & 0xff);
+  ctx->ಬಫರ್[58] = curlx_ultouc((ctx->lo >> 16) & 0xff);
+  ctx->ಬಫರ್[59] = curlx_ultouc((ctx->lo >> 24) & 0xff);
+  ctx->ಬಫರ್[60] = curlx_ultouc((ctx->hi) & 0xff);
+  ctx->ಬಫರ್[61] = curlx_ultouc((ctx->hi >> 8) & 0xff);
+  ctx->ಬಫರ್[62] = curlx_ultouc((ctx->hi >> 16) & 0xff);
+  ctx->ಬಫರ್[63] = curlx_ultouc(ctx->hi >> 24);
 
-  my_md4_body(ctx, ctx->buffer, 64);
+  my_md4_body(ctx, ctx->ಬಫರ್, 64);
 
   digest[0] = curlx_ultouc((ctx->a) & 0xff);
   digest[1] = curlx_ultouc((ctx->a >> 8) & 0xff);
@@ -466,20 +466,20 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, ಗಾತ್ರ(*ctx));
 }
 
-#endif /* CRYPTO LIBS */
+#ಆದರೆ_ಅಂತ್ಯ /* CRYPTO LIBS */
 
-CURLcode Curl_md4it(unsigned char *output,
-                    const unsigned char *input, const size_t len)
+CURLcode Curl_md4it(ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *output,
+                    ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *ಒಳಹರಿವು, ಸ್ಥಿರಾಂಕ size_t len)
 {
   my_md4_ctx ctx;
-  if(!my_md4_init(&ctx))
-    return CURLE_FAILED_INIT;
-  my_md4_update(&ctx, input, curlx_uztoui(len));
+  ಆದರೆ(!my_md4_init(&ctx))
+    ಹಿಂತಿರುಗಿ CURLE_FAILED_INIT;
+  my_md4_update(&ctx, ಒಳಹರಿವು, curlx_uztoui(len));
   my_md4_final(output, &ctx);
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-#endif /* USE_CURL_NTLM_CORE */
+#ಆದರೆ_ಅಂತ್ಯ /* USE_CURL_NTLM_CORE */

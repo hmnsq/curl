@@ -24,13 +24,13 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#ಆದರೆ !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-#include "vauth/vauth.h"
+#ಅನ್ತರ್ಭಾವ "vauth/vauth.h"
 
 /*
  * Curl_auth_create_plain_message()
@@ -46,19 +46,19 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
-                                        struct bufref *out)
+CURLcode Curl_auth_create_plain_ಸಂದೇಶ(ರಚನೆ Curl_creds *creds,
+                                        ರಚನೆ bufref *ಹೊರಹೋಗು)
 {
   size_t len;
-  char *auth;
+  ಅಕ್ಷರ *auth;
 
-  size_t zlen = strlen(Curl_creds_sasl_authzid(creds));
-  size_t clen = strlen(Curl_creds_user(creds));
-  size_t plen = strlen(Curl_creds_passwd(creds));
+  size_t zlen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(Curl_creds_sasl_authzid(creds));
+  size_t clen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(Curl_creds_user(creds));
+  size_t plen = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(Curl_creds_passwd(creds));
 
-  if((zlen > CURL_MAX_INPUT_LENGTH) || (clen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH))
-    return CURLE_TOO_LARGE;
+  ಆದರೆ((zlen > CURL_MAX_ಒಳಹರಿವು_ಉದ್ದಳತೆ) || (clen > CURL_MAX_ಒಳಹರಿವು_ಉದ್ದಳತೆ) ||
+     (plen > CURL_MAX_ಒಳಹರಿವು_ಉದ್ದಳತೆ))
+    ಹಿಂತಿರುಗಿ CURLE_TOO_LARGE;
 
   len = zlen + clen + plen + 2;
 
@@ -66,10 +66,10 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
                        Curl_creds_sasl_authzid(creds), '\0',
                        Curl_creds_user(creds), '\0',
                        Curl_creds_passwd(creds));
-  if(!auth)
-    return CURLE_OUT_OF_MEMORY;
-  Curl_bufref_set(out, auth, len, curl_free);
-  return CURLE_OK;
+  ಆದರೆ(!auth)
+    ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
+  Curl_bufref_ಗಣ(ಹೊರಹೋಗು, auth, len, curl_free);
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
 /*
@@ -85,9 +85,9 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
  *
  * Returns void.
  */
-void Curl_auth_create_login_message(const char *value, struct bufref *out)
+ಶೂನ್ಯ Curl_auth_create_login_ಸಂದೇಶ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, ರಚನೆ bufref *ಹೊರಹೋಗು)
 {
-  Curl_bufref_set(out, value, strlen(value), NULL);
+  Curl_bufref_ಗಣ(ಹೊರಹೋಗು, ಮೌಲ್ಯ, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಮೌಲ್ಯ), ಖಾಲಿ);
 }
 
 /*
@@ -103,10 +103,10 @@ void Curl_auth_create_login_message(const char *value, struct bufref *out)
  *
  * Returns void.
  */
-void Curl_auth_create_external_message(const char *user, struct bufref *out)
+ಶೂನ್ಯ Curl_auth_create_external_ಸಂದೇಶ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *user, ರಚನೆ bufref *ಹೊರಹೋಗು)
 {
   /* This is the same formatting as the login message */
-  Curl_auth_create_login_message(user, out);
+  Curl_auth_create_login_ಸಂದೇಶ(user, ಹೊರಹೋಗು);
 }
 
-#endif /* if no users */
+#ಆದರೆ_ಅಂತ್ಯ /* if no users */

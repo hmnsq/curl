@@ -21,213 +21,213 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "uint-bset.h"
+#ಅನ್ತರ್ಭಾವ "uint-bset.h"
 
-#ifdef DEBUGBUILD
-#define CURL_UINT32_BSET_MAGIC  0x62757473
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
+#ವ್ಯಾಖ್ಯಾನಿಸು CURL_UINT32_BSET_MAGIC  0x62757473
+#ಆದರೆ_ಅಂತ್ಯ
 
-void Curl_uint32_bset_init(struct uint32_bset *bset)
+ಶೂನ್ಯ Curl_uint32_bset_init(ರಚನೆ uint32_bset *bset)
 {
-  memset(bset, 0, sizeof(*bset));
-#ifdef DEBUGBUILD
+  memset(bset, 0, ಗಾತ್ರ(*bset));
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ DEBUGBUILD
   bset->init = CURL_UINT32_BSET_MAGIC;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-CURLcode Curl_uint32_bset_resize(struct uint32_bset *bset, uint32_t nmax)
+CURLcode Curl_uint32_bset_resize(ರಚನೆ uint32_bset *bset, uint32_t nmax)
 {
   uint32_t nslots = (nmax < (UINT32_MAX - 63)) ?
                     ((nmax + 63) / 64) : (UINT32_MAX / 64);
 
   DEBUGASSERT(bset->init == CURL_UINT32_BSET_MAGIC);
-  if(nslots != bset->nslots) {
-    uint64_t *slots = curlx_calloc(nslots, sizeof(uint64_t));
-    if(!slots)
-      return CURLE_OUT_OF_MEMORY;
+  ಆದರೆ(nslots != bset->nslots) {
+    uint64_t *slots = curlx_calloc(nslots, ಗಾತ್ರ(uint64_t));
+    ಆದರೆ(!slots)
+      ಹಿಂತಿರುಗಿ CURLE_ಹೊರಹೋಗು_ದ_ಸ್ಮರಣೆ;
 
-    if(bset->slots) {
-      memcpy(slots, bset->slots,
-             (CURLMIN(nslots, bset->nslots) * sizeof(uint64_t)));
+    ಆದರೆ(bset->slots) {
+      ಸ್ಮರಣೆ_ನಕಲು(slots, bset->slots,
+             (CURLMIN(nslots, bset->nslots) * ಗಾತ್ರ(uint64_t)));
       curlx_free(bset->slots);
     }
     bset->slots = slots;
     bset->nslots = nslots;
-    bset->first_slot_used = 0;
+    bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ = 0;
   }
-  return CURLE_OK;
+  ಹಿಂತಿರುಗಿ CURLE_OK;
 }
 
-void Curl_uint32_bset_destroy(struct uint32_bset *bset)
+ಶೂನ್ಯ Curl_uint32_bset_destroy(ರಚನೆ uint32_bset *bset)
 {
   DEBUGASSERT(bset->init == CURL_UINT32_BSET_MAGIC);
   curlx_free(bset->slots);
-  memset(bset, 0, sizeof(*bset));
+  memset(bset, 0, ಗಾತ್ರ(*bset));
 }
 
-#ifdef UNITTESTS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ UNITTESTS
 /* @unittest 3211 */
-UNITTEST uint32_t uint32_bset_capacity(struct uint32_bset *bset);
-UNITTEST uint32_t uint32_bset_capacity(struct uint32_bset *bset)
+UNITTEST uint32_t uint32_bset_ಸಾಮರ್ಥ್ಯ(ರಚನೆ uint32_bset *bset);
+UNITTEST uint32_t uint32_bset_ಸಾಮರ್ಥ್ಯ(ರಚನೆ uint32_bset *bset)
 {
-  return bset->nslots * 64;
+  ಹಿಂತಿರುಗಿ bset->nslots * 64;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-uint32_t Curl_uint32_bset_count(struct uint32_bset *bset)
+uint32_t Curl_uint32_bset_ಎಣಿಕೆ(ರಚನೆ uint32_bset *bset)
 {
   uint32_t i;
   uint32_t n = 0;
-  for(i = bset->first_slot_used; i < bset->nslots; ++i) {
-    if(bset->slots[i])
+  ಗಾಗಿ(i = bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ; i < bset->nslots; ++i) {
+    ಆದರೆ(bset->slots[i])
       n += CURL_POPCOUNT64(bset->slots[i]);
   }
-  return n;
+  ಹಿಂತಿರುಗಿ n;
 }
 
-bool Curl_uint32_bset_empty(struct uint32_bset *bset)
+bool Curl_uint32_bset_ಖಾಲಿಗಳು(ರಚನೆ uint32_bset *bset)
 {
   uint32_t i;
-  for(i = bset->first_slot_used; i < bset->nslots; ++i) {
-    if(bset->slots[i])
-      return FALSE;
+  ಗಾಗಿ(i = bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ; i < bset->nslots; ++i) {
+    ಆದರೆ(bset->slots[i])
+      ಹಿಂತಿರುಗಿ FALSE;
   }
-  return TRUE;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
-void Curl_uint32_bset_clear(struct uint32_bset *bset)
+ಶೂನ್ಯ Curl_uint32_bset_clear(ರಚನೆ uint32_bset *bset)
 {
-  if(bset->nslots) {
-    memset(bset->slots, 0, bset->nslots * sizeof(uint64_t));
-    bset->first_slot_used = UINT32_MAX;
+  ಆದರೆ(bset->nslots) {
+    memset(bset->slots, 0, bset->nslots * ಗಾತ್ರ(uint64_t));
+    bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ = UINT32_MAX;
   }
 }
 
-bool Curl_uint32_bset_add(struct uint32_bset *bset, uint32_t i)
+bool Curl_uint32_bset_ಕೂಡಿಸು(ರಚನೆ uint32_bset *bset, uint32_t i)
 {
   uint32_t islot = i / 64;
-  if(islot >= bset->nslots)
-    return FALSE;
+  ಆದರೆ(islot >= bset->nslots)
+    ಹಿಂತಿರುಗಿ FALSE;
   bset->slots[islot] |= ((uint64_t)1 << (i % 64));
-  if(islot < bset->first_slot_used)
-    bset->first_slot_used = islot;
-  return TRUE;
+  ಆದರೆ(islot < bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ)
+    bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ = islot;
+  ಹಿಂತಿರುಗಿ TRUE;
 }
 
-void Curl_uint32_bset_remove(struct uint32_bset *bset, uint32_t i)
+ಶೂನ್ಯ Curl_uint32_bset_remove(ರಚನೆ uint32_bset *bset, uint32_t i)
 {
   size_t islot = i / 64;
-  if(islot < bset->nslots)
+  ಆದರೆ(islot < bset->nslots)
     bset->slots[islot] &= ~((uint64_t)1 << (i % 64));
 }
 
-bool Curl_uint32_bset_contains(struct uint32_bset *bset, uint32_t i)
+bool Curl_uint32_bset_ಒಳಗೊಂಡಿದೆ(ರಚನೆ uint32_bset *bset, uint32_t i)
 {
   uint32_t islot = i / 64;
-  if(islot >= bset->nslots)
-    return FALSE;
-  return (bset->slots[islot] & ((uint64_t)1 << (i % 64))) != 0;
+  ಆದರೆ(islot >= bset->nslots)
+    ಹಿಂತಿರುಗಿ FALSE;
+  ಹಿಂತಿರುಗಿ (bset->slots[islot] & ((uint64_t)1 << (i % 64))) != 0;
 }
 
-bool Curl_uint32_bset_first(struct uint32_bset *bset, uint32_t *pfirst)
+bool Curl_uint32_bset_ಮೊದಲ(ರಚನೆ uint32_bset *bset, uint32_t *pfirst)
 {
   uint32_t i;
-  for(i = bset->first_slot_used; i < bset->nslots; ++i) {
-    if(bset->slots[i]) {
+  ಗಾಗಿ(i = bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ; i < bset->nslots; ++i) {
+    ಆದರೆ(bset->slots[i]) {
       *pfirst = (i * 64) + CURL_CTZ64(bset->slots[i]);
-      bset->first_slot_used = i;
-      return TRUE;
+      bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ = i;
+      ಹಿಂತಿರುಗಿ TRUE;
     }
   }
-  bset->first_slot_used = *pfirst = UINT32_MAX;
-  return FALSE;
+  bset->ಮೊದಲ_ಸ್ಥಾನ_ಬಳಸಿದ = *pfirst = UINT32_MAX;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-bool Curl_uint32_bset_next(struct uint32_bset *bset, uint32_t last,
+bool Curl_uint32_bset_ಮುಂದಿನ(ರಚನೆ uint32_bset *bset, uint32_t ಕೊನೆಯ,
                            uint32_t *pnext)
 {
   uint32_t islot;
   uint64_t x;
 
-  ++last; /* look for number one higher than last */
-  islot = last / 64; /* the slot this would be in */
-  if(islot < bset->nslots) {
+  ++ಕೊನೆಯ; /* look for number one higher than last */
+  islot = ಕೊನೆಯ / 64; /* the slot this would be in */
+  ಆದರೆ(islot < bset->nslots) {
     /* shift away the bits we already iterated in this slot */
-    x = (bset->slots[islot] >> (last % 64));
-    if(x) {
+    x = (bset->slots[islot] >> (ಕೊನೆಯ % 64));
+    ಆದರೆ(x) {
       /* more bits set, next is `last` + trailing 0s of the shifted slot */
-      *pnext = last + CURL_CTZ64(x);
-      return TRUE;
+      *pnext = ಕೊನೆಯ + CURL_CTZ64(x);
+      ಹಿಂತಿರುಗಿ TRUE;
     }
     /* no more bits set in the last slot, scan forward */
-    for(islot = islot + 1; islot < bset->nslots; ++islot) {
-      if(bset->slots[islot]) {
+    ಗಾಗಿ(islot = islot + 1; islot < bset->nslots; ++islot) {
+      ಆದರೆ(bset->slots[islot]) {
         *pnext = (islot * 64) + CURL_CTZ64(bset->slots[islot]);
-        return TRUE;
+        ಹಿಂತಿರುಗಿ TRUE;
       }
     }
   }
   *pnext = UINT32_MAX; /* a value we cannot store */
-  return FALSE;
+  ಹಿಂತಿರುಗಿ FALSE;
 }
 
-#ifdef CURL_POPCOUNT64_IMPLEMENT
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_POPCOUNT64_IMPLEMENT
 uint32_t Curl_popcount64(uint64_t x)
 {
   /* Compute the "Hamming Distance" between 'x' and 0,
    * which is the number of set bits in 'x'.
    * See: https://en.wikipedia.org/wiki/Hamming_weight */
-  const uint64_t m1 = 0x5555555555555555LL; /* 0101+ */
-  const uint64_t m2 = 0x3333333333333333LL; /* 00110011+ */
-  const uint64_t m4 = 0x0f0f0f0f0f0f0f0fLL; /* 00001111+ */
+  ಸ್ಥಿರಾಂಕ uint64_t m1 = 0x5555555555555555LL; /* 0101+ */
+  ಸ್ಥಿರಾಂಕ uint64_t m2 = 0x3333333333333333LL; /* 00110011+ */
+  ಸ್ಥಿರಾಂಕ uint64_t m4 = 0x0f0f0f0f0f0f0f0fLL; /* 00001111+ */
   /* 1 + 256^1 + 256^2 + 256^3 + ... + 256^7 */
-  const uint64_t h01 = 0x0101010101010101LL;
+  ಸ್ಥಿರಾಂಕ uint64_t h01 = 0x0101010101010101LL;
   x -= (x >> 1) & m1;             /* replace every 2 bits with bits present */
   x = (x & m2) + ((x >> 2) & m2); /* replace every nibble with bits present */
   x = (x + (x >> 4)) & m4;        /* replace every byte with bits present */
   /* top 8 bits of x + (x << 8) + (x << 16) + (x << 24) + ... which makes the
    * top byte the sum of all individual 8 bytes, throw away the rest */
-  return (uint32_t)((x * h01) >> 56);
+  ಹಿಂತಿರುಗಿ (uint32_t)((x * h01) >> 56);
 }
-#endif /* CURL_POPCOUNT64_IMPLEMENT */
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_POPCOUNT64_IMPLEMENT */
 
-#ifdef CURL_CTZ64_IMPLEMENT
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CURL_CTZ64_IMPLEMENT
 uint32_t Curl_ctz64(uint64_t x)
 {
   /* count trailing zeros in a uint64_t.
    * divide and conquer to find the number of lower 0 bits */
-  const uint64_t ml32 = 0xFFFFFFFF; /* lower 32 bits */
-  const uint64_t ml16 = 0x0000FFFF; /* lower 16 bits */
-  const uint64_t ml8  = 0x000000FF; /* lower 8 bits */
-  const uint64_t ml4  = 0x0000000F; /* lower 4 bits */
-  const uint64_t ml2  = 0x00000003; /* lower 2 bits */
+  ಸ್ಥಿರಾಂಕ uint64_t ml32 = 0xFFFFFFFF; /* lower 32 bits */
+  ಸ್ಥಿರಾಂಕ uint64_t ml16 = 0x0000FFFF; /* lower 16 bits */
+  ಸ್ಥಿರಾಂಕ uint64_t ml8  = 0x000000FF; /* lower 8 bits */
+  ಸ್ಥಿರಾಂಕ uint64_t ml4  = 0x0000000F; /* lower 4 bits */
+  ಸ್ಥಿರಾಂಕ uint64_t ml2  = 0x00000003; /* lower 2 bits */
   uint32_t n;
 
-  if(!x)
-    return 64;
+  ಆದರೆ(!x)
+    ಹಿಂತಿರುಗಿ 64;
   n = 1;
-  if(!(x & ml32)) {
+  ಆದರೆ(!(x & ml32)) {
     n = n + 32;
     x = x >> 32;
   }
-  if(!(x & ml16)) {
+  ಆದರೆ(!(x & ml16)) {
     n = n + 16;
     x = x >> 16;
   }
-  if(!(x & ml8)) {
+  ಆದರೆ(!(x & ml8)) {
     n = n + 8;
     x = x >> 8;
   }
-  if(!(x & ml4)) {
+  ಆದರೆ(!(x & ml4)) {
     n = n + 4;
     x = x >> 4;
   }
-  if(!(x & ml2)) {
+  ಆದರೆ(!(x & ml2)) {
     n = n + 2;
     x = x >> 2;
   }
-  return n - (uint32_t)(x & 1);
+  ಹಿಂತಿರುಗಿ n - (uint32_t)(x & 1);
 }
-#endif /* CURL_CTZ64_IMPLEMENT */
+#ಆದರೆ_ಅಂತ್ಯ /* CURL_CTZ64_IMPLEMENT */

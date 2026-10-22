@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "curl_endian.h"
+#ಅನ್ತರ್ಭಾವ "curl_endian.h"
 
 /*
  * Curl_read16_le()
@@ -38,10 +38,10 @@
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_le(const unsigned char *buf)
+ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ Curl_read16_le(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0]) |
-                          ((unsigned short)buf[1] << 8));
+  ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)(((ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)buf[0]) |
+                          ((ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)buf[1] << 8));
 }
 
 /*
@@ -57,10 +57,10 @@ unsigned short Curl_read16_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned int Curl_read32_le(const unsigned char *buf)
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ Curl_read32_le(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *buf)
 {
-  return ((unsigned int)buf[0]) | ((unsigned int)buf[1] << 8) |
-         ((unsigned int)buf[2] << 16) | ((unsigned int)buf[3] << 24);
+  ಹಿಂತಿರುಗಿ ((ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)buf[0]) | ((ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)buf[1] << 8) |
+         ((ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)buf[2] << 16) | ((ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)buf[3] << 24);
 }
 
 /*
@@ -76,8 +76,8 @@ unsigned int Curl_read32_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned short Curl_read16_be(const unsigned char *buf)
+ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ Curl_read16_be(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0] << 8) |
-                          ((unsigned short)buf[1]));
+  ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)(((ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)buf[0] << 8) |
+                          ((ಚಿಹ್ನೆರಹಿತ ಗಿಡ್ಡ)buf[1]));
 }
