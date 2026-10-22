@@ -59,7 +59,7 @@ struct Curl_easy;
  * Write `len` bytes at `buf` to the client. `type` indicates what
  * kind of data is being written.
  */
-CURLcode Curl_client_write(struct Curl_easy *data, int type, const char *buf,
+CURLcode Curl_client_write(struct Curl_easy *data, số_nguyên type, const char *buf,
                            size_t len) WARN_UNUSED_RESULT;
 
 CURLcode Curl_client_flush(struct Curl_easy *data);
@@ -121,7 +121,7 @@ struct Curl_cwtype {
   CURLcode (*do_init)(struct Curl_easy *data,
                       struct Curl_cwriter *writer);
   CURLcode (*do_write)(struct Curl_easy *data,
-                       struct Curl_cwriter *writer, int type,
+                       struct Curl_cwriter *writer, số_nguyên type,
                        const char *buf, size_t nbytes);
   CURLcode (*do_flush)(struct Curl_easy *data,
                        struct Curl_cwriter *writer);
@@ -205,7 +205,7 @@ CURLcode Curl_cwriter_unpause(struct Curl_easy *data);
 CURLcode Curl_cwriter_def_init(struct Curl_easy *data,
                                struct Curl_cwriter *writer);
 CURLcode Curl_cwriter_def_write(struct Curl_easy *data,
-                                struct Curl_cwriter *writer, int type,
+                                struct Curl_cwriter *writer, số_nguyên type,
                                 const char *buf, size_t nbytes);
 CURLcode Curl_cwriter_def_flush(struct Curl_easy *data,
                                 struct Curl_cwriter *writer);
@@ -234,7 +234,7 @@ struct Curl_crtype {
                     Curl_creader_cntrl opcode);
   bool (*is_paused)(struct Curl_easy *data, struct Curl_creader *reader);
   void (*done)(struct Curl_easy *data,
-               struct Curl_creader *reader, int premature);
+               struct Curl_creader *reader, số_nguyên premature);
   size_t creader_size;  /* sizeof() allocated struct Curl_creader */
 };
 
@@ -285,7 +285,7 @@ CURLcode Curl_creader_def_cntrl(struct Curl_easy *data,
 bool Curl_creader_def_is_paused(struct Curl_easy *data,
                                 struct Curl_creader *reader);
 void Curl_creader_def_done(struct Curl_easy *data,
-                           struct Curl_creader *reader, int premature);
+                           struct Curl_creader *reader, số_nguyên premature);
 
 /**
  * Convenience method for calling `reader->do_read()` that
@@ -389,7 +389,7 @@ bool Curl_creader_is_paused(struct Curl_easy *data);
 /**
  * Tell all client readers that they are done.
  */
-void Curl_creader_done(struct Curl_easy *data, int premature);
+void Curl_creader_done(struct Curl_easy *data, số_nguyên premature);
 
 /**
  * Look up an installed client reader on `data` by its type.

@@ -31,7 +31,7 @@
 #include "vtls/vtls.h"
 #include "curl_sha256.h"
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1700)
+#nếu defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'LPCSTR' of greater size */
 #undef CERT_STORE_PROV_MEMORY
@@ -97,7 +97,7 @@ struct Curl_schannel_cred {
   CredHandle cred_handle;
   TCHAR *sni_hostname;
   HCERTSTORE client_cert_store;
-  int refcount;
+  số_nguyên refcount;
 };
 
 struct Curl_schannel_ctxt {
@@ -126,7 +126,7 @@ struct schannel_ssl_backend_data {
   struct schannel_renegotiate_state {
     bool started;
     struct curltime start_time;
-    int io_need;
+    số_nguyên io_need;
   } renegotiate_state;
   BIT(recv_sspi_close_notify); /* true if connection closed by close_notify */
   BIT(recv_connection_closed); /* true if connection closed, regardless how */

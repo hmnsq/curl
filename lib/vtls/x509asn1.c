@@ -23,15 +23,15 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#nếu defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
-#if defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
+#nếu defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
   defined(USE_WOLFSSL) || defined(USE_RUSTLS)
 #define WANT_PARSEX509 /* uses Curl_parseX509() */
 #endif
 
-#if defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
+#nếu defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
   defined(USE_RUSTLS)
 #define WANT_EXTRACT_CERTINFO /* uses Curl_extract_certinfo() */
 #endif
@@ -139,10 +139,10 @@ static const uint8_t *getASN1Element_(struct Curl_asn1Element *elem,
      ending at `end'.
      Returns a pointer in source string after the parsed element, or NULL
      if an error occurs. */
-  if(!beg || !end || beg >= end || !*beg ||
+  nếu(!beg || !end || beg >= end || !*beg ||
      ((size_t)(end - beg) > CURL_ASN1_MAX) ||
      lvl++ >= CURL_ASN1_MAX_RECURSIONS)
-    return NULL;
+    trả_về NULL;
 
   /* Process header byte. */
   elem->header = beg;
@@ -150,51 +150,51 @@ static const uint8_t *getASN1Element_(struct Curl_asn1Element *elem,
   elem->constructed = (b & 0x20) != 0;
   elem->eclass = (b >> 6) & 3;
   b &= 0x1F;
-  if(b == 0x1F)
-    return NULL; /* Long tag values not supported here. */
+  nếu(b == 0x1F)
+    trả_về NULL; /* Long tag values not supported here. */
   elem->tag = b;
 
   /* Process length. */
-  if(beg >= end)
-    return NULL;
+  nếu(beg >= end)
+    trả_về NULL;
   b = *beg++;
-  if(!(b & 0x80))
+  nếu(!(b & 0x80))
     len = b;
-  else {
+  không_thì {
     b &= 0x7F;
-    if(!b) {
+    nếu(!b) {
       /* Unspecified length. Since we have all the data, we can determine the
          effective length by skipping element until an EOC element is found. */
-      if(!elem->constructed)
-        return NULL;
+      nếu(!elem->constructed)
+        trả_về NULL;
       elem->beg = beg;
-      while(beg < end && *beg) {
+      trong_khi(beg < end && *beg) {
         beg = getASN1Element_(&lelem, beg, end, lvl);
-        if(!beg)
-          return NULL;
+        nếu(!beg)
+          trả_về NULL;
       }
-      if(end - beg < 2 || beg[1])       /* EOC must have a zero length. */
-        return NULL;
+      nếu(end - beg < 2 || beg[1])       /* EOC must have a zero length. */
+        trả_về NULL;
       elem->end = beg;                  /* Do not include EOC as content. */
-      return beg + 2;                   /* After EOC element. */
+      trả_về beg + 2;                   /* After EOC element. */
     }
-    else if(b > (size_t)(end - beg))
-      return NULL; /* Does not fit in source. */
-    else {
+    không_thì nếu(b > (size_t)(end - beg))
+      trả_về NULL; /* Does not fit in source. */
+    không_thì {
       /* Get long length. */
       len = 0;
       do {
-        if(len & 0xFF000000L)
-          return NULL;  /* Lengths > 32 bits are not supported. */
+        nếu(len & 0xFF000000L)
+          trả_về NULL;  /* Lengths > 32 bits are not supported. */
         len = (len << 8) | *beg++;
-      } while(--b);
+      } trong_khi(--b);
     }
   }
-  if(len > (size_t)(end - beg))
-    return NULL;  /* Element data does not fit in source. */
+  nếu(len > (size_t)(end - beg))
+    trả_về NULL;  /* Element data does not fit in source. */
   elem->beg = beg;
   elem->end = beg + len;
-  return elem->end;
+  trả_về elem->end;
 }
 
 /*
@@ -205,7 +205,7 @@ UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
 UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
                                        const uint8_t *beg, const uint8_t *end)
 {
-  return getASN1Element_(elem, beg, end, 0);
+  trả_về getASN1Element_(elem, beg, end, 0);
 }
 
 #ifdef WANT_EXTRACT_CERTINFO
@@ -217,11 +217,11 @@ UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
 static const struct Curl_OID *searchOID(const char *oid)
 {
   const struct Curl_OID *op;
-  for(op = OIDtable; op->numoid; op++)
-    if(!strcmp(op->numoid, oid) || curl_strequal(op->textoid, oid))
-      return op;
+  cho(op = OIDtable; op->numoid; op++)
+    nếu(!strcmp(op->numoid, oid) || curl_strequal(op->textoid, oid))
+      trả_về op;
 
-  return NULL;
+  trả_về NULL;
 }
 
 /*
@@ -234,12 +234,12 @@ static CURLcode bool2str(struct dynbuf *store,
                          const uint8_t *beg, const uint8_t *end)
 {
   uint8_t val;
-  if(end - beg != 1)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(end - beg != 1)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
   val = *beg;
-  if((val != 0xff) && (val != 0x00))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return curlx_dyn_add(store, val ? "TRUE" : "FALSE");
+  nếu((val != 0xff) && (val != 0x00))
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
+  trả_về curlx_dyn_add(store, val ? "TRUE" : "FALSE");
 }
 
 /*
@@ -252,10 +252,10 @@ static CURLcode octet2str(struct dynbuf *store,
 {
   CURLcode result = CURLE_OK;
 
-  while(!result && beg < end)
+  trong_khi(!result && beg < end)
     result = curlx_dyn_addf(store, "%02x:", *beg++);
 
-  return result;
+  trả_về result;
 }
 
 static CURLcode bit2str(struct dynbuf *store,
@@ -263,14 +263,14 @@ static CURLcode bit2str(struct dynbuf *store,
 {
   /* Convert an ASN.1 bit string to a printable string. */
 
-  if(beg < end) {
+  nếu(beg < end) {
     uint8_t unused_bits = *beg++;
-    if(unused_bits > 7)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    nếu(unused_bits > 7)
+      trả_về CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return octet2str(store, beg, end);
+  không_thì
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
+  trả_về octet2str(store, beg, end);
 }
 
 /*
@@ -287,26 +287,26 @@ static CURLcode int2str(struct dynbuf *store,
   size_t i;
   const uint8_t *p = beg;
 
-  if(!n)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(!n)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(n > 4)
-    return octet2str(store, beg, end);
+  nếu(n > 4)
+    trả_về octet2str(store, beg, end);
 
-  if(p[0] & 0x80)
+  nếu(p[0] & 0x80)
     uval = ~0U;
 
-  for(i = 0; i < n; i++)
+  cho(i = 0; i < n; i++)
     uval = (uval << 8) | p[i];
 
   sval = (int32_t)uval;
 
   /* small values are easier to read as decimals */
-  if(sval > -10000 && sval < 10000)
-    return curlx_dyn_addf(store, "%d", sval);
+  nếu(sval > -10000 && sval < 10000)
+    trả_về curlx_dyn_addf(store, "%d", sval);
 
   /* represent larger values as hex */
-  return curlx_dyn_addf(store, "0x%x", uval);
+  trả_về curlx_dyn_addf(store, "0x%x", uval);
 }
 
 /*
@@ -317,11 +317,11 @@ static CURLcode int2str(struct dynbuf *store,
  *
  * Returns error.
  */
-static CURLcode utf8asn1str(struct dynbuf *to, int type,
+static CURLcode utf8asn1str(struct dynbuf *to, số_nguyên type,
                             const uint8_t *from, const uint8_t *end)
 {
   size_t inlength = end - from;
-  int size = 1;
+  số_nguyên size = 1;
   CURLcode result = CURLE_OK;
 
   switch(type) {
@@ -339,23 +339,23 @@ static CURLcode utf8asn1str(struct dynbuf *to, int type,
   case CURL_ASN1_UTF8_STRING:
     break;
   default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;  /* Conversion not supported. */
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;  /* Conversion not supported. */
   }
 
-  if(inlength % size)
+  nếu(inlength % size)
     /* Length inconsistent with character size. */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(type == CURL_ASN1_UTF8_STRING) {
+  nếu(type == CURL_ASN1_UTF8_STRING) {
     /* copy. */
-    if(inlength)
+    nếu(inlength)
       result = curlx_dyn_addn(to, from, inlength);
   }
-  else {
-    while(!result && (from < end)) {
+  không_thì {
+    trong_khi(!result && (from < end)) {
       char buf[4]; /* decode buffer */
       size_t charsize = 1;
-      unsigned int wc = 0;
+      unsigned số_nguyên wc = 0;
 
       switch(size) {
       case 4:
@@ -368,12 +368,12 @@ static CURLcode utf8asn1str(struct dynbuf *to, int type,
       default: /* case 1: */
         wc = (wc << 8) | *from++;
       }
-      if(wc >= 0x00000080) {
-        if(wc >= 0x00000800) {
-          if(wc >= 0x00010000) {
-            if(wc >= 0x00200000) {
+      nếu(wc >= 0x00000080) {
+        nếu(wc >= 0x00000800) {
+          nếu(wc >= 0x00010000) {
+            nếu(wc >= 0x00200000) {
               /* Invalid char. size for target encoding. */
-              return CURLE_WEIRD_SERVER_REPLY;
+              trả_về CURLE_WEIRD_SERVER_REPLY;
             }
             buf[3] = (char)(0x80 | (wc & 0x3F));
             wc = (wc >> 6) | 0x00010000;
@@ -391,7 +391,7 @@ static CURLcode utf8asn1str(struct dynbuf *to, int type,
       result = curlx_dyn_addn(to, buf, charsize);
     }
   }
-  return result;
+  trả_về result;
 }
 
 /*
@@ -414,54 +414,54 @@ UNITTEST CURLcode encodeOID(struct dynbuf *store,
   uint32_t y;
   CURLcode result = CURLE_OK;
 
-  if(end <= beg)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(end <= beg)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* Process the first two numbers. The initial digit cannot be larger than
      2 */
   y = *beg++;
-  if(y <= 80)
+  nếu(y <= 80)
     x = y / 40;
-  else
+  không_thì
     x = 2;
   result = curlx_dyn_addf(store, "%u", x);
-  if(result)
-    return result;
+  nếu(result)
+    trả_về result;
 
-  if(y & 0x80) {
+  nếu(y & 0x80) {
     uint32_t t = (y & 0x7f); /* the second number */
-    if(!t)
+    nếu(!t)
       /* reject leading 0x80 padding */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      trả_về CURLE_BAD_FUNCTION_ARGUMENT;
     do {
-      if((t & 0xFE000000) || (beg >= end))
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+      nếu((t & 0xFE000000) || (beg >= end))
+        trả_về CURLE_BAD_FUNCTION_ARGUMENT;
       y = *beg++;
       t = (t << 7) | (y & 0x7F);
-    } while(y & 0x80);
+    } trong_khi(y & 0x80);
     y = t;
   }
 
   result = curlx_dyn_addf(store, ".%u", y - (x * 40));
-  if(result)
-    return result;
+  nếu(result)
+    trả_về result;
 
   /* Process the trailing numbers. */
-  while((beg < end) && !result) {
+  trong_khi((beg < end) && !result) {
     x = 0;
     y = 0;
     do {
       /* 0x80 as the first value is invalid since it only adds padding */
-      if((y & 0x80) && !x)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
-      else if((x & 0xFE000000) || (beg == end))
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+      nếu((y & 0x80) && !x)
+        trả_về CURLE_BAD_FUNCTION_ARGUMENT;
+      không_thì nếu((x & 0xFE000000) || (beg == end))
+        trả_về CURLE_BAD_FUNCTION_ARGUMENT;
       y = *beg++;
       x = (x << 7) | (y & 0x7F);
-    } while(y & 0x80);
+    } trong_khi(y & 0x80);
     result = curlx_dyn_addf(store, ".%u", x);
   }
-  return result;
+  trả_về result;
 }
 
 /*
@@ -474,21 +474,21 @@ static CURLcode OID2str(struct dynbuf *store,
                         const uint8_t *beg, const uint8_t *end)
 {
   CURLcode result = CURLE_OK;
-  if(beg < end) {
+  nếu(beg < end) {
     struct dynbuf buf;
     curlx_dyn_init(&buf, CURL_X509_STR_MAX);
     result = encodeOID(&buf, beg, end);
 
-    if(!result) {
+    nếu(!result) {
       const struct Curl_OID *op = searchOID(curlx_dyn_ptr(&buf));
-      if(op)
+      nếu(op)
         result = curlx_dyn_add(store, op->textoid);
-      else
+      không_thì
         result = curlx_dyn_add(store, curlx_dyn_ptr(&buf));
     }
     curlx_dyn_free(&buf);
   }
-  return result;
+  trả_về result;
 }
 
 /*
@@ -509,7 +509,7 @@ UNITTEST CURLcode GTime2str(struct dynbuf *store,
   /* Convert an ASN.1 Generalized time to a printable string.
      Return the dynamically allocated string, or NULL if an error occurs. */
 
-  for(fracp = beg; fracp < end && ISDIGIT(*fracp); fracp++)
+  cho(fracp = beg; fracp < end && ISDIGIT(*fracp); fracp++)
     ;
 
   /* Get seconds digits. */
@@ -525,53 +525,53 @@ UNITTEST CURLcode GTime2str(struct dynbuf *store,
     sec2 = fracp[-1];
     break;
   default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   /* timezone follows optional fractional seconds. */
   tzp = fracp;
   fracl = 0; /* no fractional seconds detected so far */
-  if(fracp < end && (*fracp == '.' || *fracp == ',')) {
+  nếu(fracp < end && (*fracp == '.' || *fracp == ',')) {
     /* Have fractional seconds, e.g. "[.,]\d+". How many? */
     fracp++; /* should be a digit char or BAD ARGUMENT */
     tzp = fracp;
-    while(tzp < end && ISDIGIT(*tzp))
+    trong_khi(tzp < end && ISDIGIT(*tzp))
       tzp++;
-    if(tzp == fracp) /* never looped, no digit after [.,] */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    nếu(tzp == fracp) /* never looped, no digit after [.,] */
+      trả_về CURLE_BAD_FUNCTION_ARGUMENT;
     fracl = tzp - fracp; /* number of fractional sec digits */
     DEBUGASSERT(fracl > 0);
     /* Strip trailing zeroes in fractional seconds.
      * May reduce fracl to 0 if only '0's are present. */
-    while(fracl && fracp[fracl - 1] == '0')
+    trong_khi(fracl && fracp[fracl - 1] == '0')
       fracl--;
   }
 
   /* Process timezone. */
-  if(tzp >= end) {
+  nếu(tzp >= end) {
     tzp = "";
     tzl = 0;
   }
-  else if(*tzp == 'Z') {
+  không_thì nếu(*tzp == 'Z') {
     sep = " ";
     tzp = "GMT";
     tzl = 3;
   }
-  else if((*tzp == '+') || (*tzp == '-')) {
+  không_thì nếu((*tzp == '+') || (*tzp == '-')) {
     sep = " UTC";
     tzl = end - tzp;
   }
-  else {
+  không_thì {
     sep = " ";
     tzl = end - tzp;
   }
 
-  return curlx_dyn_addf(store,
+  trả_về curlx_dyn_addf(store,
                         "%.4s-%.2s-%.2s %.2s:%.2s:%c%c%s%.*s%s%.*s",
                         beg, beg + 4, beg + 6,
                         beg + 8, beg + 10, sec1, sec2,
-                        fracl ? "." : "", (int)fracl, fracp,
-                        sep, (int)tzl, tzp);
+                        fracl ? "." : "", (số_nguyên)fracl, fracp,
+                        sep, (số_nguyên)tzl, tzp);
 }
 
 /*
@@ -586,7 +586,7 @@ static CURLcode UTime2str(struct dynbuf *store,
   size_t tzl;
   const char *sec;
 
-  for(tzp = beg; tzp < end && *tzp >= '0' && *tzp <= '9'; tzp++)
+  cho(tzp = beg; tzp < end && *tzp >= '0' && *tzp <= '9'; tzp++)
     ;
   /* Get the seconds. */
   sec = beg + 10;
@@ -597,22 +597,22 @@ static CURLcode UTime2str(struct dynbuf *store,
   case 2:
     break;
   default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   /* Process timezone. */
-  if(tzp >= end)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(*tzp == 'Z') {
+  nếu(tzp >= end)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(*tzp == 'Z') {
     tzp = "GMT";
     end = tzp + 3;
   }
 
   tzl = end - tzp;
-  return curlx_dyn_addf(store, "%d%.2s-%.2s-%.2s %.2s:%.2s:%.2s %.*s",
+  trả_về curlx_dyn_addf(store, "%d%.2s-%.2s-%.2s %.2s:%.2s:%.2s %.*s",
                         20 - (*beg >= '5'), beg, beg + 2, beg + 4,
                         beg + 6, beg + 8, sec,
-                        (int)tzl, tzp);
+                        (số_nguyên)tzl, tzp);
 }
 
 /*
@@ -628,9 +628,9 @@ UNITTEST CURLcode ASN1tostr(struct dynbuf *store,
                             struct Curl_asn1Element *elem)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  int type = elem->tag;
-  if(elem->constructed)
-    return result; /* No conversion of structured elements. */
+  số_nguyên type = elem->tag;
+  nếu(elem->constructed)
+    trả_về result; /* No conversion of structured elements. */
 
   switch(type) {
   case CURL_ASN1_BOOLEAN:
@@ -672,7 +672,7 @@ UNITTEST CURLcode ASN1tostr(struct dynbuf *store,
     break;
   }
 
-  return result;
+  trả_về result;
 }
 
 /*
@@ -695,65 +695,65 @@ static CURLcode encodeDN(struct dynbuf *store, struct Curl_asn1Element *dn)
   struct dynbuf temp;
   curlx_dyn_init(&temp, CURL_X509_STR_MAX);
 
-  for(p1 = dn->beg; p1 < dn->end;) {
+  cho(p1 = dn->beg; p1 < dn->end;) {
     p1 = getASN1Element(&rdn, p1, dn->end);
-    if(!p1) {
+    nếu(!p1) {
       result = CURLE_BAD_FUNCTION_ARGUMENT;
       goto error;
     }
-    for(p2 = rdn.beg; p2 < rdn.end;) {
+    cho(p2 = rdn.beg; p2 < rdn.end;) {
       p2 = getASN1Element(&atv, p2, rdn.end);
-      if(!p2) {
+      nếu(!p2) {
         result = CURLE_BAD_FUNCTION_ARGUMENT;
         goto error;
       }
       p3 = getASN1Element(&oid, atv.beg, atv.end);
-      if(!p3) {
+      nếu(!p3) {
         result = CURLE_BAD_FUNCTION_ARGUMENT;
         goto error;
       }
-      if(!getASN1Element(&value, p3, atv.end)) {
+      nếu(!getASN1Element(&value, p3, atv.end)) {
         result = CURLE_BAD_FUNCTION_ARGUMENT;
         goto error;
       }
       curlx_dyn_reset(&temp);
       result = ASN1tostr(&temp, &oid);
-      if(result)
+      nếu(result)
         goto error;
 
       str = curlx_dyn_uptr(&temp);
 
-      if(!str) {
+      nếu(!str) {
         result = CURLE_BAD_FUNCTION_ARGUMENT;
         goto error;
       }
 
       /* Encode delimiter.
          If attribute has a short uppercase name, delimiter is ", ". */
-      for(p3 = str; ISUPPER(*p3); p3++)
+      cho(p3 = str; ISUPPER(*p3); p3++)
         ;
-      if(added) {
-        if(p3 - str > 2)
+      nếu(added) {
+        nếu(p3 - str > 2)
           result = curlx_dyn_addn(store, "/", 1);
-        else
+        không_thì
           result = curlx_dyn_addn(store, ", ", 2);
-        if(result)
+        nếu(result)
           goto error;
       }
 
       /* Encode attribute name. */
       result = curlx_dyn_add(store, (const char *)str);
-      if(result)
+      nếu(result)
         goto error;
 
       /* Generate equal sign. */
       result = curlx_dyn_addn(store, "=", 1);
-      if(result)
+      nếu(result)
         goto error;
 
       /* Generate value. */
       result = ASN1tostr(store, &value);
-      if(result)
+      nếu(result)
         goto error;
       curlx_dyn_reset(&temp);
       added = TRUE; /* use separator for next */
@@ -762,7 +762,7 @@ static CURLcode encodeDN(struct dynbuf *store, struct Curl_asn1Element *dn)
 error:
   curlx_dyn_free(&temp);
 
-  return result;
+  trả_về result;
 }
 
 #endif /* WANT_EXTRACT_CERTINFO */
@@ -773,7 +773,7 @@ error:
  * Syntax is assumed to have already been checked by the SSL backend.
  * See RFC 5280.
  */
-int Curl_parseX509(struct Curl_X509certificate *cert,
+số_nguyên Curl_parseX509(struct Curl_X509certificate *cert,
                    const uint8_t *beg, const uint8_t *end)
 {
   struct Curl_asn1Element elem;
@@ -787,22 +787,22 @@ int Curl_parseX509(struct Curl_X509certificate *cert,
   cert->certificate.end = end;
 
   /* Get the sequence content. */
-  if(!getASN1Element(&elem, beg, end))
-    return -1;  /* Invalid bounds/size. */
+  nếu(!getASN1Element(&elem, beg, end))
+    trả_về -1;  /* Invalid bounds/size. */
   beg = elem.beg;
   end = elem.end;
 
   /* Get tbsCertificate. */
   beg = getASN1Element(&tbsCertificate, beg, end);
-  if(!beg)
-    return -1;
+  nếu(!beg)
+    trả_về -1;
   /* Skip the signatureAlgorithm. */
   beg = getASN1Element(&cert->signatureAlgorithm, beg, end);
-  if(!beg)
-    return -1;
+  nếu(!beg)
+    trả_về -1;
   /* Get the signatureValue. */
-  if(!getASN1Element(&cert->signature, beg, end))
-    return -1;
+  nếu(!getASN1Element(&cert->signature, beg, end))
+    trả_về -1;
 
   /* Parse TBSCertificate. */
   beg = tbsCertificate.beg;
@@ -812,50 +812,50 @@ int Curl_parseX509(struct Curl_X509certificate *cert,
   cert->version.beg = &defaultVersion;
   cert->version.end = &defaultVersion + sizeof(defaultVersion);
   beg = getASN1Element(&elem, beg, end);
-  if(!beg)
-    return -1;
-  if(elem.tag == 0) {
-    if(!getASN1Element(&cert->version, elem.beg, elem.end))
-      return -1;
+  nếu(!beg)
+    trả_về -1;
+  nếu(elem.tag == 0) {
+    nếu(!getASN1Element(&cert->version, elem.beg, elem.end))
+      trả_về -1;
     beg = getASN1Element(&elem, beg, end);
-    if(!beg)
-      return -1;
+    nếu(!beg)
+      trả_về -1;
   }
   cert->serialNumber = elem;
   /* Get signature algorithm. */
   beg = getASN1Element(&cert->signatureAlgorithm, beg, end);
   /* Get issuer. */
   beg = getASN1Element(&cert->issuer, beg, end);
-  if(!beg)
-    return -1;
+  nếu(!beg)
+    trả_về -1;
   /* Get notBefore and notAfter. */
   beg = getASN1Element(&elem, beg, end);
-  if(!beg)
-    return -1;
+  nếu(!beg)
+    trả_về -1;
   ccp = getASN1Element(&cert->notBefore, elem.beg, elem.end);
-  if(!ccp)
-    return -1;
-  if(!getASN1Element(&cert->notAfter, ccp, elem.end))
-    return -1;
+  nếu(!ccp)
+    trả_về -1;
+  nếu(!getASN1Element(&cert->notAfter, ccp, elem.end))
+    trả_về -1;
   /* These two fields MUST consume all of the validity elem */
-  if(elem.end != cert->notAfter.end)
-    return -1;
+  nếu(elem.end != cert->notAfter.end)
+    trả_về -1;
   /* Get subject. */
   beg = getASN1Element(&cert->subject, beg, end);
-  if(!beg)
-    return -1;
+  nếu(!beg)
+    trả_về -1;
   /* Get subjectPublicKeyAlgorithm and subjectPublicKey. */
   beg = getASN1Element(&cert->subjectPublicKeyInfo, beg, end);
-  if(!beg)
-    return -1;
+  nếu(!beg)
+    trả_về -1;
   ccp = getASN1Element(&cert->subjectPublicKeyAlgorithm,
                        cert->subjectPublicKeyInfo.beg,
                        cert->subjectPublicKeyInfo.end);
-  if(!ccp)
-    return -1;
-  if(!getASN1Element(&cert->subjectPublicKey, ccp,
+  nếu(!ccp)
+    trả_về -1;
+  nếu(!getASN1Element(&cert->subjectPublicKey, ccp,
                      cert->subjectPublicKeyInfo.end))
-    return -1;
+    trả_về -1;
   /* Get optional issuerUniqueID, subjectUniqueID and extensions. */
   cert->issuerUniqueID.tag = cert->subjectUniqueID.tag = 0;
   cert->extensions.tag = elem.tag = 0;
@@ -864,31 +864,31 @@ int Curl_parseX509(struct Curl_X509certificate *cert,
   cert->subjectUniqueID.beg = cert->subjectUniqueID.end = beg;
   cert->extensions.header = NULL;
   cert->extensions.beg = cert->extensions.end = beg;
-  if(beg < end) {
+  nếu(beg < end) {
     beg = getASN1Element(&elem, beg, end);
-    if(!beg)
-      return -1;
+    nếu(!beg)
+      trả_về -1;
   }
-  if(elem.tag == 1) {
+  nếu(elem.tag == 1) {
     cert->issuerUniqueID = elem;
-    if(beg < end) {
+    nếu(beg < end) {
       beg = getASN1Element(&elem, beg, end);
-      if(!beg)
-        return -1;
+      nếu(!beg)
+        trả_về -1;
     }
   }
-  if(elem.tag == 2) {
+  nếu(elem.tag == 2) {
     cert->subjectUniqueID = elem;
-    if(beg < end) {
+    nếu(beg < end) {
       beg = getASN1Element(&elem, beg, end);
-      if(!beg)
-        return -1;
+      nếu(!beg)
+        trả_về -1;
     }
   }
-  if(elem.tag == 3)
-    if(!getASN1Element(&cert->extensions, elem.beg, elem.end))
-      return -1;
-  return 0;
+  nếu(elem.tag == 3)
+    nếu(!getASN1Element(&cert->extensions, elem.beg, elem.end))
+      trả_về -1;
+  trả_về 0;
 }
 
 #endif /* WANT_PARSEX509 */
@@ -904,17 +904,17 @@ static CURLcode dumpAlgo(struct dynbuf *store,
   /* Get algorithm parameters and return algorithm name. */
 
   beg = getASN1Element(&oid, beg, end);
-  if(!beg)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(!beg)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
   param->header = NULL;
   param->tag = 0;
   param->beg = param->end = end;
-  if(beg < end) {
+  nếu(beg < end) {
     const uint8_t *p = getASN1Element(param, beg, end);
-    if(!p)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    nếu(!p)
+      trả_về CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  return OID2str(store, oid.beg, oid.end);
+  trả_về OID2str(store, oid.beg, oid.end);
 }
 
 /*
@@ -922,13 +922,13 @@ static CURLcode dumpAlgo(struct dynbuf *store,
  * terminated value.
  */
 static CURLcode ssl_push_certinfo(struct Curl_easy *data,
-                                  int certnum,
+                                  số_nguyên certnum,
                                   const char *label,
                                   const char *value)
 {
   size_t valuelen = strlen(value);
 
-  return Curl_ssl_push_certinfo_len(data, certnum, label, value, valuelen);
+  trả_về Curl_ssl_push_certinfo_len(data, certnum, label, value, valuelen);
 }
 
 /*
@@ -938,7 +938,7 @@ static CURLcode ssl_push_certinfo(struct Curl_easy *data,
  * It also does the verbose output if !certnum.
  */
 static CURLcode ssl_push_certinfo_dyn(struct Curl_easy *data,
-                                      int certnum,
+                                      số_nguyên certnum,
                                       const char *label,
                                       struct dynbuf *ptr)
 {
@@ -948,13 +948,13 @@ static CURLcode ssl_push_certinfo_dyn(struct Curl_easy *data,
   CURLcode result = Curl_ssl_push_certinfo_len(data, certnum, label,
                                                value, valuelen);
 
-  if(!certnum && !result)
+  nếu(!certnum && !result)
     infof(data, "   %s: %s", label, value);
 
-  return result;
+  trả_về result;
 }
 
-static CURLcode do_pubkey_field(struct Curl_easy *data, int certnum,
+static CURLcode do_pubkey_field(struct Curl_easy *data, số_nguyên certnum,
                                 const char *label,
                                 struct Curl_asn1Element *elem)
 {
@@ -966,14 +966,14 @@ static CURLcode do_pubkey_field(struct Curl_easy *data, int certnum,
   /* Generate a certificate information record for the public key. */
 
   result = ASN1tostr(&out, elem);
-  if(!result && data->set.ssl.certinfo)
+  nếu(!result && data->set.ssl.certinfo)
     result = ssl_push_certinfo_dyn(data, certnum, label, &out);
   curlx_dyn_free(&out);
-  return result;
+  trả_về result;
 }
 
 /* return 0 on success, 1 on error */
-static int do_pubkey(struct Curl_easy *data, int certnum, const char *algo,
+static số_nguyên do_pubkey(struct Curl_easy *data, số_nguyên certnum, const char *algo,
                      struct Curl_asn1Element *param,
                      struct Curl_asn1Element *pubkey)
 {
@@ -983,100 +983,100 @@ static int do_pubkey(struct Curl_easy *data, int certnum, const char *algo,
 
   /* Generate all information records for the public key. */
 
-  if(curl_strequal(algo, "ecPublicKey")) {
+  nếu(curl_strequal(algo, "ecPublicKey")) {
     /*
      * ECC public key is all the data, a value of type BIT STRING mapped to
      * OCTET STRING and should not be parsed as an ASN.1 value.
      */
     const size_t dlen = pubkey->end - pubkey->beg;
     size_t len;
-    if(dlen < 2)
+    nếu(dlen < 2)
       /* too small */
-      return 1;
+      trả_về 1;
     len = (dlen - 2) * 4;
-    if(!certnum)
+    nếu(!certnum)
       infof(data, "   ECC Public Key (%zu bits)", len);
-    if(data->set.ssl.certinfo) {
+    nếu(data->set.ssl.certinfo) {
       char q[(sizeof(len) * 8 / 3) + 1];
       (void)curl_msnprintf(q, sizeof(q), "%zu", len);
-      if(ssl_push_certinfo(data, certnum, "ECC Public Key", q))
-        return 1;
+      nếu(ssl_push_certinfo(data, certnum, "ECC Public Key", q))
+        trả_về 1;
     }
-    return do_pubkey_field(data, certnum, "ecPublicKey", pubkey) == CURLE_OK
+    trả_về do_pubkey_field(data, certnum, "ecPublicKey", pubkey) == CURLE_OK
       ? 0 : 1;
   }
 
   /* Get the public key (single element). */
-  if(!getASN1Element(&pk, pubkey->beg + 1, pubkey->end))
-    return 1;
+  nếu(!getASN1Element(&pk, pubkey->beg + 1, pubkey->end))
+    trả_về 1;
 
-  if(curl_strequal(algo, "rsaEncryption")) {
+  nếu(curl_strequal(algo, "rsaEncryption")) {
     const uint8_t *q;
     size_t len;
 
     p = getASN1Element(&elem, pk.beg, pk.end);
-    if(!p)
-      return 1;
+    nếu(!p)
+      trả_về 1;
 
     /* Compute key length. */
-    for(q = elem.beg; q < elem.end && !*q; q++)
+    cho(q = elem.beg; q < elem.end && !*q; q++)
       ;
     len = ((elem.end - q) * 8);
-    if(len) {
-      unsigned int i;
-      for(i = *q; !(i & 0x80); i <<= 1)
+    nếu(len) {
+      unsigned số_nguyên i;
+      cho(i = *q; !(i & 0x80); i <<= 1)
         len--;
     }
-    if(len > 32)
+    nếu(len > 32)
       elem.beg = q;     /* Strip leading zero bytes. */
-    if(!certnum)
+    nếu(!certnum)
       infof(data, "   RSA Public Key (%zu bits)", len);
-    if(data->set.ssl.certinfo) {
+    nếu(data->set.ssl.certinfo) {
       char r[(sizeof(len) * 8 / 3) + 1];
       curl_msnprintf(r, sizeof(r), "%zu", len);
-      if(ssl_push_certinfo(data, certnum, "RSA Public Key", r))
-        return 1;
+      nếu(ssl_push_certinfo(data, certnum, "RSA Public Key", r))
+        trả_về 1;
     }
     /* Generate coefficients. */
-    if(do_pubkey_field(data, certnum, "rsa(n)", &elem))
-      return 1;
-    if(!getASN1Element(&elem, p, pk.end))
-      return 1;
-    if(do_pubkey_field(data, certnum, "rsa(e)", &elem))
-      return 1;
+    nếu(do_pubkey_field(data, certnum, "rsa(n)", &elem))
+      trả_về 1;
+    nếu(!getASN1Element(&elem, p, pk.end))
+      trả_về 1;
+    nếu(do_pubkey_field(data, certnum, "rsa(e)", &elem))
+      trả_về 1;
   }
-  else if(curl_strequal(algo, "dsa")) {
+  không_thì nếu(curl_strequal(algo, "dsa")) {
     p = getASN1Element(&elem, param->beg, param->end);
-    if(p) {
-      if(do_pubkey_field(data, certnum, "dsa(p)", &elem))
-        return 1;
+    nếu(p) {
+      nếu(do_pubkey_field(data, certnum, "dsa(p)", &elem))
+        trả_về 1;
       p = getASN1Element(&elem, p, param->end);
-      if(p) {
-        if(do_pubkey_field(data, certnum, "dsa(q)", &elem))
-          return 1;
-        if(getASN1Element(&elem, p, param->end)) {
-          if(do_pubkey_field(data, certnum, "dsa(g)", &elem))
-            return 1;
-          if(do_pubkey_field(data, certnum, "dsa(pub_key)", &pk))
-            return 1;
+      nếu(p) {
+        nếu(do_pubkey_field(data, certnum, "dsa(q)", &elem))
+          trả_về 1;
+        nếu(getASN1Element(&elem, p, param->end)) {
+          nếu(do_pubkey_field(data, certnum, "dsa(g)", &elem))
+            trả_về 1;
+          nếu(do_pubkey_field(data, certnum, "dsa(pub_key)", &pk))
+            trả_về 1;
         }
       }
     }
   }
-  else if(curl_strequal(algo, "dhpublicnumber")) {
+  không_thì nếu(curl_strequal(algo, "dhpublicnumber")) {
     p = getASN1Element(&elem, param->beg, param->end);
-    if(p) {
-      if(do_pubkey_field(data, certnum, "dh(p)", &elem))
-        return 1;
-      if(getASN1Element(&elem, p, param->end)) {
-        if(do_pubkey_field(data, certnum, "dh(g)", &elem))
-          return 1;
-        if(do_pubkey_field(data, certnum, "dh(pub_key)", &pk))
-          return 1;
+    nếu(p) {
+      nếu(do_pubkey_field(data, certnum, "dh(p)", &elem))
+        trả_về 1;
+      nếu(getASN1Element(&elem, p, param->end)) {
+        nếu(do_pubkey_field(data, certnum, "dh(g)", &elem))
+          trả_về 1;
+        nếu(do_pubkey_field(data, certnum, "dh(pub_key)", &pk))
+          trả_về 1;
       }
     }
   }
-  return 0;
+  trả_về 0;
 }
 
 /*
@@ -1085,11 +1085,11 @@ static int do_pubkey(struct Curl_easy *data, int certnum, const char *algo,
  */
 static CURLcode DNtostr(struct dynbuf *store, struct Curl_asn1Element *dn)
 {
-  return encodeDN(store, dn);
+  trả_về encodeDN(store, dn);
 }
 
 CURLcode Curl_extract_certinfo(struct Curl_easy *data,
-                               int certnum,
+                               số_nguyên certnum,
                                const uint8_t *beg,
                                const uint8_t *end)
 {
@@ -1099,64 +1099,64 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   size_t clen;
   struct dynbuf out;
   CURLcode result = CURLE_OK;
-  unsigned int version;
+  unsigned số_nguyên version;
   const uint8_t *ptr;
-  int rc;
+  số_nguyên rc;
 
-  if(!data->set.ssl.certinfo)
-    if(certnum)
-      return CURLE_OK;
+  nếu(!data->set.ssl.certinfo)
+    nếu(certnum)
+      trả_về CURLE_OK;
 
   curlx_dyn_init(&out, CURL_X509_STR_MAX);
   /* Prepare the certificate information for curl_easy_getinfo(). */
 
   /* Extract the certificate ASN.1 elements. */
-  if(Curl_parseX509(&cert, beg, end))
-    return CURLE_PEER_FAILED_VERIFICATION;
+  nếu(Curl_parseX509(&cert, beg, end))
+    trả_về CURLE_PEER_FAILED_VERIFICATION;
 
   /* Subject. */
   result = DNtostr(&out, &cert.subject);
-  if(result)
+  nếu(result)
     goto done;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = ssl_push_certinfo_dyn(data, certnum, "Subject", &out);
-    if(result)
+    nếu(result)
       goto done;
   }
   curlx_dyn_reset(&out);
 
   /* Issuer. */
   result = DNtostr(&out, &cert.issuer);
-  if(result)
+  nếu(result)
     goto done;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = ssl_push_certinfo_dyn(data, certnum, "Issuer", &out);
-    if(result)
+    nếu(result)
       goto done;
   }
   curlx_dyn_reset(&out);
 
   /* Version (always fits in less than 32 bits). */
   version = 0;
-  for(ptr = cert.version.beg; ptr < cert.version.end; ptr++)
+  cho(ptr = cert.version.beg; ptr < cert.version.end; ptr++)
     version = (version << 8) | *ptr;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = curlx_dyn_addf(&out, "%x", version);
-    if(result)
+    nếu(result)
       goto done;
     result = ssl_push_certinfo_dyn(data, certnum, "Version", &out);
-    if(result)
+    nếu(result)
       goto done;
     curlx_dyn_reset(&out);
   }
 
   /* Serial number. */
   result = ASN1tostr(&out, &cert.serialNumber);
-  if(result)
+  nếu(result)
     goto done;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = ssl_push_certinfo_dyn(data, certnum, "Serial Number", &out);
-    if(result)
+    nếu(result)
       goto done;
   }
   curlx_dyn_reset(&out);
@@ -1164,33 +1164,33 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   /* Signature algorithm .*/
   result = dumpAlgo(&out, &param, cert.signatureAlgorithm.beg,
                     cert.signatureAlgorithm.end);
-  if(result)
+  nếu(result)
     goto done;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = ssl_push_certinfo_dyn(data, certnum, "Signature Algorithm", &out);
-    if(result)
+    nếu(result)
       goto done;
   }
   curlx_dyn_reset(&out);
 
   /* Start Date. */
   result = ASN1tostr(&out, &cert.notBefore);
-  if(result)
+  nếu(result)
     goto done;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = ssl_push_certinfo_dyn(data, certnum, "Start Date", &out);
-    if(result)
+    nếu(result)
       goto done;
   }
   curlx_dyn_reset(&out);
 
   /* Expire Date. */
   result = ASN1tostr(&out, &cert.notAfter);
-  if(result)
+  nếu(result)
     goto done;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = ssl_push_certinfo_dyn(data, certnum, "Expire Date", &out);
-    if(result)
+    nếu(result)
       goto done;
   }
   curlx_dyn_reset(&out);
@@ -1198,18 +1198,18 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   /* Public Key Algorithm. */
   result = dumpAlgo(&out, &param, cert.subjectPublicKeyAlgorithm.beg,
                     cert.subjectPublicKeyAlgorithm.end);
-  if(result)
+  nếu(result)
     goto done;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = ssl_push_certinfo_dyn(data, certnum, "Public Key Algorithm",
                                    &out);
-    if(result)
+    nếu(result)
       goto done;
   }
 
   rc = do_pubkey(data, certnum, curlx_dyn_ptr(&out),
                  &param, &cert.subjectPublicKey);
-  if(rc) {
+  nếu(rc) {
     result = CURLE_OUT_OF_MEMORY; /* the most likely error */
     goto done;
   }
@@ -1217,11 +1217,11 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
 
   /* Signature. */
   result = ASN1tostr(&out, &cert.signature);
-  if(result)
+  nếu(result)
     goto done;
-  if(data->set.ssl.certinfo) {
+  nếu(data->set.ssl.certinfo) {
     result = ssl_push_certinfo_dyn(data, certnum, "Signature", &out);
-    if(result)
+    nếu(result)
       goto done;
   }
   curlx_dyn_reset(&out);
@@ -1230,7 +1230,7 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   result = curlx_base64_encode((const uint8_t *)cert.certificate.beg,
                                cert.certificate.end - cert.certificate.beg,
                                &certptr, &clen);
-  if(result)
+  nếu(result)
     goto done;
 
   /* Generate the final output certificate string. Format is:
@@ -1246,29 +1246,29 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
 
   /* Build the certificate string. */
   result = curlx_dyn_add(&out, "-----BEGIN CERTIFICATE-----\n");
-  if(!result) {
+  nếu(!result) {
     size_t j = 0;
 
-    while(!result && (j < clen)) {
+    trong_khi(!result && (j < clen)) {
       size_t chunksize = (clen - j) > 64 ? 64 : (clen - j);
       result = curlx_dyn_addn(&out, &certptr[j], chunksize);
-      if(!result)
+      nếu(!result)
         result = curlx_dyn_addn(&out, "\n", 1);
       j += chunksize;
     }
-    if(!result)
+    nếu(!result)
       result = curlx_dyn_add(&out, "-----END CERTIFICATE-----\n");
   }
   curlx_free(certptr);
-  if(!result)
-    if(data->set.ssl.certinfo)
+  nếu(!result)
+    nếu(data->set.ssl.certinfo)
       result = ssl_push_certinfo_dyn(data, certnum, "Cert", &out);
 
 done:
-  if(result)
+  nếu(result)
     failf(data, "Failed extracting certificate chain");
   curlx_dyn_free(&out);
-  return result;
+  trả_về result;
 }
 
 #endif /* WANT_EXTRACT_CERTINFO */

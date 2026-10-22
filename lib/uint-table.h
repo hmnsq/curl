@@ -31,7 +31,7 @@ struct uint32_tbl {
   uint32_t nentries; /* entries in table */
   uint32_t last_key_added; /* UINT_MAX or last key added */
 #ifdef DEBUGBUILD
-  int init;
+  số_nguyên init;
 #endif
 };
 

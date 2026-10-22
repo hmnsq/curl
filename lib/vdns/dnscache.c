@@ -87,7 +87,7 @@ UNITTEST void dnsc_id2key(struct dnsc_key *key, struct dnsc_id *id);
 UNITTEST void dnsc_id2key(struct dnsc_key *key, struct dnsc_id *id)
 {
   size_t namelen = curlx_strlen(&id->name);
-  if(namelen > (MAX_HOSTCACHE_LEN - 3))
+  nếu(namelen > (MAX_HOSTCACHE_LEN - 3))
     namelen = MAX_HOSTCACHE_LEN - 3;
   /* store and lower case the name */
   key->data[0] = id->type;
@@ -103,7 +103,7 @@ UNITTEST bool dnsc_id_matches_entry(struct dnsc_id *id,
 UNITTEST bool dnsc_id_matches_entry(struct dnsc_id *id,
                                     struct Curl_dns_entry *dns)
 {
-  return dns &&
+  trả_về dns &&
          /* Neither the requested nor the cached key was truncated. */
          (((dns->hostlen <= (MAX_HOSTCACHE_LEN - 3)) &&
            (id->name.len <= (MAX_HOSTCACHE_LEN - 3))) ||
@@ -136,34 +136,34 @@ struct dnscache_prune_data {
  * Returning non-zero means remove the entry, return 0 to keep it in the
  * cache.
  */
-static int dnscache_entry_is_stale(void *datap, void *hc)
+static số_nguyên dnscache_entry_is_stale(void *datap, void *hc)
 {
   struct dnscache_prune_data *prune = (struct dnscache_prune_data *)datap;
   struct Curl_dns_entry *dns = (struct Curl_dns_entry *)hc;
 
-  if(!dns->permanent) {
+  nếu(!dns->permanent) {
     /* get age in milliseconds */
     timediff_t age_ms = curlx_ptimediff_ms(prune->pnow, &dns->added);
     switch(dns->type) {
     case CURL_DNST_ADDR:
-      if(!dns->addr)
+      nếu(!dns->addr)
         age_ms *= 2; /* negative entries age twice as fast */
       break;
 #ifdef USE_HTTPSRR
     case CURL_DNST_HTTPS:
-      if(!dns->hinfo)
+      nếu(!dns->hinfo)
         age_ms *= 2; /* negative entries age twice as fast */
       break;
 #endif
     default:
       break;
     }
-    if(age_ms >= prune->max_age_ms)
-      return TRUE;
-    if(age_ms > prune->oldest_ms)
+    nếu(age_ms >= prune->max_age_ms)
+      trả_về TRUE;
+    nếu(age_ms > prune->oldest_ms)
       prune->oldest_ms = age_ms;
   }
-  return FALSE;
+  trả_về FALSE;
 }
 
 /*
@@ -184,29 +184,29 @@ static timediff_t dnscache_prune(struct Curl_hash *hostcache,
                                  (void *)&user,
                                  dnscache_entry_is_stale);
 
-  return user.oldest_ms;
+  trả_về user.oldest_ms;
 }
 
 static struct Curl_dnscache *dnscache_get(struct Curl_easy *data)
 {
-  if(data->share && data->share->specifier & (1 << CURL_LOCK_DATA_DNS))
-    return &data->share->dnscache;
-  if(data->multi)
-    return &data->multi->dnscache;
-  return NULL;
+  nếu(data->share && data->share->specifier & (1 << CURL_LOCK_DATA_DNS))
+    trả_về &data->share->dnscache;
+  nếu(data->multi)
+    trả_về &data->multi->dnscache;
+  trả_về NULL;
 }
 
 static void dnscache_lock(struct Curl_easy *data,
                           struct Curl_dnscache *dnscache)
 {
-  if(data->share && dnscache == &data->share->dnscache)
+  nếu(data->share && dnscache == &data->share->dnscache)
     Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
 }
 
 static void dnscache_unlock(struct Curl_easy *data,
                             struct Curl_dnscache *dnscache)
 {
-  if(data->share && dnscache == &data->share->dnscache)
+  nếu(data->share && dnscache == &data->share->dnscache)
     Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
 }
 
@@ -220,9 +220,9 @@ void Curl_dnscache_prune(struct Curl_easy *data, const struct curltime *pnow)
   /* the timeout may be set -1 (forever) */
   timediff_t timeout_ms = data->set.dns_cache_timeout_ms;
 
-  if(!dnscache || (timeout_ms == -1))
+  nếu(!dnscache || (timeout_ms == -1))
     /* NULL hostcache means we cannot do it */
-    return;
+    trả_về;
 
   dnscache_lock(data, dnscache);
 
@@ -231,15 +231,15 @@ void Curl_dnscache_prune(struct Curl_easy *data, const struct curltime *pnow)
     timediff_t oldest_ms =
       dnscache_prune(&dnscache->entries, timeout_ms, pnow);
 
-    if(Curl_hash_count(&dnscache->entries) > MAX_DNS_CACHE_SIZE)
+    nếu(Curl_hash_count(&dnscache->entries) > MAX_DNS_CACHE_SIZE)
       /* prune the ones over half this age */
       timeout_ms = oldest_ms / 2;
-    else
+    không_thì
       break;
 
     /* if the cache size is still too big, use the oldest age as new prune
        limit */
-  } while(timeout_ms);
+  } trong_khi(timeout_ms);
 
   dnscache_unlock(data, dnscache);
 }
@@ -247,7 +247,7 @@ void Curl_dnscache_prune(struct Curl_easy *data, const struct curltime *pnow)
 void Curl_dnscache_clear(struct Curl_easy *data)
 {
   struct Curl_dnscache *dnscache = dnscache_get(data);
-  if(dnscache) {
+  nếu(dnscache) {
     dnscache_lock(data, dnscache);
     Curl_hash_clean(&dnscache->entries);
     dnscache_unlock(data, dnscache);
@@ -269,8 +269,8 @@ static CURLcode fetch_entry(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   *pdns = NULL;
-  if(!dnscache)
-    return CURLE_OK;
+  nếu(!dnscache)
+    trả_về CURLE_OK;
 
   dnsc_peer2id(&id, type, peer);
   dnsc_id2key(&key, &id);
@@ -278,13 +278,13 @@ static CURLcode fetch_entry(struct Curl_easy *data,
   /* See if it is already in our dns cache */
   dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
 
-  if(dns && !dnsc_id_matches_entry(&id, dns)) {
+  nếu(dns && !dnsc_id_matches_entry(&id, dns)) {
     /* May happen on hostnames longer than MAX_HOSTCACHE_LEN */
     dns = NULL;
   }
 
   /* No entry found in cache, check if we might have a wildcard entry */
-  if(!dns && (type == CURL_DNST_ADDR) && data->state.wildcard_resolve) {
+  nếu(!dns && (type == CURL_DNST_ADDR) && data->state.wildcard_resolve) {
     struct Curl_str wildname;
 
     curlx_str_assign(&wildname, "*", 1);
@@ -295,7 +295,7 @@ static CURLcode fetch_entry(struct Curl_easy *data,
     dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
   }
 
-  if(dns && (data->set.dns_cache_timeout_ms != -1)) {
+  nếu(dns && (data->set.dns_cache_timeout_ms != -1)) {
     /* See whether the returned entry is stale. Done before we release lock */
     struct dnscache_prune_data user;
 
@@ -303,7 +303,7 @@ static CURLcode fetch_entry(struct Curl_easy *data,
     user.max_age_ms = data->set.dns_cache_timeout_ms;
     user.oldest_ms = 0;
 
-    if(dnscache_entry_is_stale(&user, dns)) {
+    nếu(dnscache_entry_is_stale(&user, dns)) {
       infof(data, "Hostname in DNS cache was stale, zapped");
       dns = NULL; /* the memory deallocation is being handled by the hash */
       Curl_hash_delete(&dnscache->entries, key.data, key.len);
@@ -311,27 +311,27 @@ static CURLcode fetch_entry(struct Curl_easy *data,
   }
 
   /* We need to cache address information and HTTPS-RR separately. */
-  if(dns && CURL_DNSQ_IS_ADDR(dns_queries)) {
-    if((uint8_t)(dns->dns_queries & dns_queries) !=
+  nếu(dns && CURL_DNSQ_IS_ADDR(dns_queries)) {
+    nếu((uint8_t)(dns->dns_queries & dns_queries) !=
        (uint8_t)(dns_queries & CURL_DNSQ_ADDR)) {
       /* The entry does not cover all wanted address queries, a miss. */
       dns = NULL;
     }
-    else if(!(dns->dns_responses & dns_queries)) {
+    không_thì nếu(!(dns->dns_responses & dns_queries)) {
       /* The entry has no responses for the wanted DNS queries. */
       CURL_TRC_DNS(data, "cache entry does not have type=%s addresses",
                    Curl_resolv_query_str(dns_queries));
       dns = NULL;
       result = CURLE_COULDNT_RESOLVE_HOST;
     }
-    else if(dns && !dns->addr) { /* negative entry */
+    không_thì nếu(dns && !dns->addr) { /* negative entry */
       dns = NULL;
       result = CURLE_COULDNT_RESOLVE_HOST;
     }
   }
 
   *pdns = dns;
-  return result;
+  trả_về result;
 }
 
 /*
@@ -359,9 +359,9 @@ CURLcode Curl_dnscache_get(struct Curl_easy *data,
 
   dnscache_lock(data, dnscache);
   result = fetch_entry(data, dnscache, dns_queries, peer, &dns);
-  if(!result && dns)
+  nếu(!result && dns)
     dns->refcount++; /* we pass out a reference */
-  else if(result) {
+  không_thì nếu(result) {
     DEBUGASSERT(!dns);
     dns = NULL;
   }
@@ -369,23 +369,23 @@ CURLcode Curl_dnscache_get(struct Curl_easy *data,
 
   CURL_TRC_DNS(data, "cache lookup %s:%u queries=%s -> %d %sfound",
                peer->hostname, peer->port, Curl_resolv_query_str(dns_queries),
-               (int)result, dns ? "" : "not ");
+               (số_nguyên)result, dns ? "" : "not ");
   *pentry = dns;
-  return result;
+  trả_về result;
 }
 
 #ifndef CURL_DISABLE_SHUFFLE_DNS
 /*
  * Return # of addresses in a Curl_addrinfo struct
  */
-static int num_addresses(const struct Curl_addrinfo *addr)
+static số_nguyên num_addresses(const struct Curl_addrinfo *addr)
 {
-  int i = 0;
-  while(addr) {
+  số_nguyên i = 0;
+  trong_khi(addr) {
     addr = addr->ai_next;
     i++;
   }
-  return i;
+  trả_về i;
 }
 
 /*
@@ -406,37 +406,37 @@ UNITTEST CURLcode dns_shuffle_addr(struct Curl_easy *data,
                                    struct Curl_addrinfo **addr)
 {
   CURLcode result = CURLE_OK;
-  const int num_addrs = num_addresses(*addr);
+  const số_nguyên num_addrs = num_addresses(*addr);
 
-  if(num_addrs > 1) {
+  nếu(num_addrs > 1) {
     struct Curl_addrinfo **nodes;
     CURL_TRC_DNS(data, "Shuffling %d addresses", num_addrs);
 
     nodes = curlx_malloc(num_addrs * sizeof(*nodes));
-    if(nodes) {
-      int i;
-      unsigned int *rnd;
+    nếu(nodes) {
+      số_nguyên i;
+      unsigned số_nguyên *rnd;
       const size_t rnd_size = num_addrs * sizeof(*rnd);
 
       /* build a plain array of Curl_addrinfo pointers */
       nodes[0] = *addr;
-      for(i = 1; i < num_addrs; i++) {
+      cho(i = 1; i < num_addrs; i++) {
         nodes[i] = nodes[i - 1]->ai_next;
       }
 
       rnd = curlx_malloc(rnd_size);
-      if(rnd) {
+      nếu(rnd) {
         /* Fisher-Yates shuffle */
-        if(Curl_rand(data, (unsigned char *)rnd, rnd_size) == CURLE_OK) {
+        nếu(Curl_rand(data, (unsigned char *)rnd, rnd_size) == CURLE_OK) {
           struct Curl_addrinfo *swap_tmp;
-          for(i = num_addrs - 1; i > 0; i--) {
-            swap_tmp = nodes[rnd[i] % (unsigned int)(i + 1)];
-            nodes[rnd[i] % (unsigned int)(i + 1)] = nodes[i];
+          cho(i = num_addrs - 1; i > 0; i--) {
+            swap_tmp = nodes[rnd[i] % (unsigned số_nguyên)(i + 1)];
+            nodes[rnd[i] % (unsigned số_nguyên)(i + 1)] = nodes[i];
             nodes[i] = swap_tmp;
           }
 
           /* relink list in the new order */
-          for(i = 1; i < num_addrs; i++) {
+          cho(i = 1; i < num_addrs; i++) {
             nodes[i - 1]->ai_next = nodes[i];
           }
 
@@ -445,24 +445,24 @@ UNITTEST CURLcode dns_shuffle_addr(struct Curl_easy *data,
         }
         curlx_free(rnd);
       }
-      else
+      không_thì
         result = CURLE_OUT_OF_MEMORY;
       curlx_free(nodes);
     }
-    else
+    không_thì
       result = CURLE_OUT_OF_MEMORY;
   }
-  return result;
+  trả_về result;
 }
 #endif
 
-static bool dnscache_ai_has_family(struct Curl_addrinfo *ai, int ai_family)
+static bool dnscache_ai_has_family(struct Curl_addrinfo *ai, số_nguyên ai_family)
 {
-  for(; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family)
-      return TRUE;
+  cho(; ai; ai = ai->ai_next) {
+    nếu(ai->ai_family == ai_family)
+      trả_về TRUE;
   }
-  return FALSE;
+  trả_về FALSE;
 }
 
 static struct Curl_dns_entry *dnsc_entry_create(struct dnsc_id *pid,
@@ -470,25 +470,25 @@ static struct Curl_dns_entry *dnsc_entry_create(struct dnsc_id *pid,
 {
   struct Curl_dns_entry *dns = NULL;
 
-  if(curlx_strlen(&pid->name) > UINT16_MAX)
+  nếu(curlx_strlen(&pid->name) > UINT16_MAX)
     goto out;
 
   /* Create a new cache entry,
      struct already has the hostname null-terminator */
   dns = curlx_calloc(1, sizeof(struct Curl_dns_entry) +
                      curlx_strlen(&pid->name));
-  if(!dns)
+  nếu(!dns)
     goto out;
 
   dns->refcount = 1; /* the cache has the first reference */
   dns->port = pid->port;
   dns->hostlen = (uint16_t)curlx_strlen(&pid->name);
-  if(dns->hostlen)
+  nếu(dns->hostlen)
     memcpy(dns->hostname, curlx_str(&pid->name), dns->hostlen);
   dns->permanent = permanent;
 
 out:
-  return dns;
+  trả_về dns;
 }
 
 static struct Curl_dns_entry *dnsc_entry_assign_addr(
@@ -498,7 +498,7 @@ static struct Curl_dns_entry *dnsc_entry_assign_addr(
   struct Curl_addrinfo **paddr1,
   struct Curl_addrinfo **paddr2)
 {
-  if(!dns)
+  nếu(!dns)
     goto out;
   /* only do this when this is the only reference */
   DEBUGASSERT(dns->refcount == 1);
@@ -510,53 +510,53 @@ static struct Curl_dns_entry *dnsc_entry_assign_addr(
   dns->dns_queries = (dns_queries & CURL_DNSQ_ADDR);
 
   /* Take the given address lists into the entry */
-  if(paddr1 && *paddr1) {
+  nếu(paddr1 && *paddr1) {
     dns->addr = *paddr1;
     *paddr1 = NULL;
   }
-  if(paddr2 && *paddr2) {
+  nếu(paddr2 && *paddr2) {
     struct Curl_addrinfo **phead = &dns->addr;
-    while(*phead)
+    trong_khi(*phead)
       phead = &(*phead)->ai_next;
     *phead = *paddr2;
     *paddr2 = NULL;
   }
 
-  if((dns_queries & CURL_DNSQ_A) &&
+  nếu((dns_queries & CURL_DNSQ_A) &&
      dnscache_ai_has_family(dns->addr, PF_INET))
     dns->dns_responses |= CURL_DNSQ_A;
 
 #ifdef USE_IPV6
-  if((dns_queries & CURL_DNSQ_AAAA) &&
+  nếu((dns_queries & CURL_DNSQ_AAAA) &&
      dnscache_ai_has_family(dns->addr, PF_INET6))
     dns->dns_responses |= CURL_DNSQ_AAAA;
 #endif /* USE_IPV6 */
 
 #ifndef CURL_DISABLE_SHUFFLE_DNS
   /* shuffle addresses if requested */
-  if(data->set.dns_shuffle_addresses && dns->addr) {
+  nếu(data->set.dns_shuffle_addresses && dns->addr) {
     CURLcode result = dns_shuffle_addr(data, &dns->addr);
-    if(result) {
+    nếu(result) {
       /* free without lock, we are the sole owner */
       dnscache_entry_free(dns);
       dns = NULL;
       goto out;
     }
   }
-#else
+#không_thì
   (void)data;
 #endif
 
 out:
-  if(paddr1 && *paddr1) {
+  nếu(paddr1 && *paddr1) {
     Curl_freeaddrinfo(*paddr1);
     *paddr1 = NULL;
   }
-  if(paddr2 && *paddr2) {
+  nếu(paddr2 && *paddr2) {
     Curl_freeaddrinfo(*paddr2);
     *paddr2 = NULL;
   }
-  return dns;
+  trả_về dns;
 }
 
 struct Curl_dns_entry *Curl_dnsc_mk_addr(struct Curl_easy *data,
@@ -570,7 +570,7 @@ struct Curl_dns_entry *Curl_dnsc_mk_addr(struct Curl_easy *data,
   dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
   dns = dnsc_entry_create(&id, FALSE);
   dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  return dns;
+  trả_về dns;
 }
 
 struct Curl_dns_entry *Curl_dnsc_mk_addr2(struct Curl_easy *data,
@@ -585,7 +585,7 @@ struct Curl_dns_entry *Curl_dnsc_mk_addr2(struct Curl_easy *data,
   dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
   dns = dnsc_entry_create(&id, FALSE);
   dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr1, paddr2);
-  return dns;
+  trả_về dns;
 }
 
 static struct Curl_dns_entry *dnsc_add_entry(struct Curl_easy *data,
@@ -594,7 +594,7 @@ static struct Curl_dns_entry *dnsc_add_entry(struct Curl_easy *data,
                                              struct Curl_dns_entry *entry)
 {
   entry->added = *Curl_pgrs_now(data);
-  return Curl_hash_add(&dnscache->entries, key->data, key->len, entry);
+  trả_về Curl_hash_add(&dnscache->entries, key->data, key->len, entry);
 }
 
 #ifdef USE_HTTPSRR
@@ -602,28 +602,28 @@ static struct Curl_dns_entry *dnsc_entry_assign_https(
   struct Curl_dns_entry *dns,
   struct Curl_https_rrinfo **phinfo)
 {
-  if(!dns)
+  nếu(!dns)
     goto out;
   /* only do this when this is the only reference */
   DEBUGASSERT(dns->refcount == 1);
   DEBUGASSERT(dns->type == CURL_DNST_INIT);
 
-  if(dns->hinfo) {
+  nếu(dns->hinfo) {
     Curl_httpsrr_destroy(dns->hinfo);
     dns->hinfo = NULL;
   }
   dns->type = CURL_DNST_HTTPS;
   dns->dns_responses = dns->dns_queries = CURL_DNSQ_HTTPS;
-  if(phinfo) {
+  nếu(phinfo) {
     dns->hinfo = *phinfo;
     *phinfo = NULL;
   }
 out:
-  if(phinfo && *phinfo) {
+  nếu(phinfo && *phinfo) {
     Curl_httpsrr_destroy(*phinfo);
     *phinfo = NULL;
   }
-  return dns;
+  trả_về dns;
 }
 
 struct Curl_dns_entry *Curl_dnsc_mk_https(struct Curl_easy *data,
@@ -637,7 +637,7 @@ struct Curl_dns_entry *Curl_dnsc_mk_https(struct Curl_easy *data,
   dnsc_peer2id(&id, CURL_DNST_HTTPS, peer);
   dns = dnsc_entry_create(&id, FALSE);
   dns = dnsc_entry_assign_https(dns, phinfo);
-  return dns;
+  trả_về dns;
 }
 
 static struct Curl_dns_entry *dnsc_add_https(struct Curl_easy *data,
@@ -650,20 +650,20 @@ static struct Curl_dns_entry *dnsc_add_https(struct Curl_easy *data,
 
   dns = dnsc_entry_create(id, FALSE);
   dns = dnsc_entry_assign_https(dns, phinfo);
-  if(!dns)
-    return NULL;
+  nếu(!dns)
+    trả_về NULL;
 
   /* Store the resolved data in our DNS cache. */
   dnsc_id2key(&key, id);
   dns2 = dnsc_add_entry(data, dnscache, &key, dns);
-  if(!dns2) {
+  nếu(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    trả_về NULL;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  trả_về dns;
 }
 #endif /* USE_HTTPSRR */
 
@@ -680,19 +680,19 @@ static struct Curl_dns_entry *dnsc_add_addr(struct Curl_easy *data,
 
   dns = dnsc_entry_create(id, permanent);
   dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  if(!dns)
-    return NULL;
+  nếu(!dns)
+    trả_về NULL;
 
   /* Store the resolved data in our DNS cache. */
   dns2 = dnsc_add_entry(data, dnscache, key, dns);
-  if(!dns2) {
+  nếu(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    trả_về NULL;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  trả_về dns;
 }
 
 static struct Curl_dns_entry *dnsc_add_peer_addr(
@@ -709,20 +709,20 @@ static struct Curl_dns_entry *dnsc_add_peer_addr(
 
   dns = dnsc_entry_create(id, permanent);
   dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  if(!dns)
-    return NULL;
+  nếu(!dns)
+    trả_về NULL;
 
   /* Store the resolved data in our DNS cache. */
   dnsc_id2key(&key, id);
   dns2 = dnsc_add_entry(data, dnscache, &key, dns);
-  if(!dns2) {
+  nếu(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    trả_về NULL;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  trả_về dns;
 }
 
 CURLcode Curl_dnscache_add(struct Curl_easy *data,
@@ -733,10 +733,10 @@ CURLcode Curl_dnscache_add(struct Curl_easy *data,
   struct dnsc_id id;
   struct dnsc_key key;
 
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
-  if(!entry || (entry->type == CURL_DNST_INIT))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(!dnscache)
+    trả_về CURLE_FAILED_INIT;
+  nếu(!entry || (entry->type == CURL_DNST_INIT))
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
 
   curlx_str_assign(&name, entry->hostname, entry->hostlen);
   dnsc_str2id(&id, entry->type, &name, entry->port);
@@ -744,16 +744,16 @@ CURLcode Curl_dnscache_add(struct Curl_easy *data,
 
   /* Store the resolved data in our DNS cache and up ref count */
   dnscache_lock(data, dnscache);
-  if(!dnsc_add_entry(data, dnscache, &key, entry)) {
+  nếu(!dnsc_add_entry(data, dnscache, &key, entry)) {
     dnscache_unlock(data, dnscache);
-    return CURLE_OUT_OF_MEMORY;
+    trả_về CURLE_OUT_OF_MEMORY;
   }
   entry->refcount++;
   dnscache_unlock(data, dnscache);
   CURL_TRC_DNS(data, "cached entry for %s:%u queries=%s",
                entry->hostname, entry->port,
                Curl_resolv_query_str(entry->dns_queries));
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
@@ -766,32 +766,32 @@ CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(dnscache);
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
+  nếu(!dnscache)
+    trả_về CURLE_FAILED_INIT;
 
   dnscache_lock(data, dnscache);
 
-  if(dns_queries & CURL_DNSQ_ADDR) {
+  nếu(dns_queries & CURL_DNSQ_ADDR) {
     /* put this new host in the cache */
     dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
     dns = dnsc_add_peer_addr(data, dnscache, dns_queries, NULL, &id, FALSE);
-    if(!dns)
+    nếu(!dns)
       result = CURLE_OUT_OF_MEMORY;
   }
 #ifdef USE_HTTPSRR
-  else if(dns_queries == CURL_DNSQ_HTTPS) {
+  không_thì nếu(dns_queries == CURL_DNSQ_HTTPS) {
     dnsc_peer2id(&id, CURL_DNST_HTTPS, peer);
     dns = dnsc_add_https(data, dnscache, NULL, &id);
-    if(!dns)
+    nếu(!dns)
       result = CURLE_OUT_OF_MEMORY;
   }
 #endif
-  else {
+  không_thì {
     /* a query we do not know, just cache nothing */
     DEBUGASSERT(0);
   }
 
-  if(dns) {
+  nếu(dns) {
     /* release the returned reference; the cache itself will keep the
      * entry alive: */
     dns->refcount--;
@@ -800,7 +800,7 @@ CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
                  Curl_resolv_query_str(dns_queries));
   }
   dnscache_unlock(data, dnscache);
-  return result;
+  trả_về result;
 }
 
 /*
@@ -813,13 +813,13 @@ CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
 void Curl_dns_entry_unlink(struct Curl_easy *data,
                            struct Curl_dns_entry **pdns)
 {
-  if(*pdns) {
+  nếu(*pdns) {
     struct Curl_dnscache *dnscache = dnscache_get(data);
     struct Curl_dns_entry *dns = *pdns;
     *pdns = NULL;
     dnscache_lock(data, dnscache);
     dns->refcount--;
-    if(dns->refcount == 0)
+    nếu(dns->refcount == 0)
       dnscache_entry_free(dns);
     dnscache_unlock(data, dnscache);
   }
@@ -830,7 +830,7 @@ static void dnscache_entry_dtor(void *entry)
   struct Curl_dns_entry *dns = (struct Curl_dns_entry *)entry;
   DEBUGASSERT(dns && (dns->refcount > 0));
   dns->refcount--;
-  if(dns->refcount == 0)
+  nếu(dns->refcount == 0)
     dnscache_entry_free(dns);
 }
 
@@ -855,34 +855,34 @@ CURLcode Curl_loadhostpairs(struct Curl_easy *data)
   struct dnsc_id id;
   struct dnsc_key key;
 
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
+  nếu(!dnscache)
+    trả_về CURLE_FAILED_INIT;
 
   /* Default is no wildcard found */
   data->state.wildcard_resolve = FALSE;
 
-  for(hostp = data->state.resolve; hostp; hostp = hostp->next) {
+  cho(hostp = data->state.resolve; hostp; hostp = hostp->next) {
     const char *host = hostp->data;
     struct Curl_str source;
-    if(!host)
+    nếu(!host)
       continue;
-    if(*host == '-') {
+    nếu(*host == '-') {
       curl_off_t num = 0;
       host++;
-      if(!curlx_str_single(&host, '[')) {
-        if(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
+      nếu(!curlx_str_single(&host, '[')) {
+        nếu(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
            curlx_str_single(&host, ']') ||
            curlx_str_single(&host, ':'))
           continue;
       }
-      else {
-        if(curlx_str_until(&host, &source, 4096, ':') ||
+      không_thì {
+        nếu(curlx_str_until(&host, &source, 4096, ':') ||
            curlx_str_single(&host, ':')) {
           continue;
         }
       }
 
-      if(!curlx_str_number(&host, &num, 0xffff)) {
+      nếu(!curlx_str_number(&host, &num, 0xffff)) {
         /* Create an entry id, based upon the hostname and port */
         dnsc_str2id(&id, CURL_DNST_ADDR, &source, (uint16_t)num);
         dnsc_id2key(&key, &id);
@@ -892,7 +892,7 @@ CURLcode Curl_loadhostpairs(struct Curl_easy *data)
         dnscache_unlock(data, dnscache);
       }
     }
-    else {
+    không_thì {
       struct Curl_dns_entry *dns;
       struct Curl_addrinfo *head = NULL, *tail = NULL;
       char address[64];
@@ -902,20 +902,20 @@ CURLcode Curl_loadhostpairs(struct Curl_easy *data)
       bool error = TRUE;
       VERBOSE(const char *addresses = NULL);
 
-      if(*host == '+') {
+      nếu(*host == '+') {
         host++;
         permanent = FALSE;
       }
-      if(!curlx_str_single(&host, '[')) {
-        if(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
+      nếu(!curlx_str_single(&host, '[')) {
+        nếu(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
            curlx_str_single(&host, ']'))
           continue;
       }
-      else {
-        if(curlx_str_until(&host, &source, 4096, ':'))
+      không_thì {
+        nếu(curlx_str_until(&host, &source, 4096, ':'))
           continue;
       }
-      if(curlx_str_single(&host, ':') ||
+      nếu(curlx_str_single(&host, ':') ||
          curlx_str_number(&host, &tmpofft, 0xffff) ||
          curlx_str_single(&host, ':'))
         goto err;
@@ -924,66 +924,66 @@ CURLcode Curl_loadhostpairs(struct Curl_easy *data)
       VERBOSE(addresses = host);
 
       /* start the address section */
-      while(*host) {
+      trong_khi(*host) {
         struct Curl_str target;
         struct Curl_addrinfo *ai;
         CURLcode result;
 
-        if(!curlx_str_single(&host, '[')) {
-          if(curlx_str_until(&host, &target, MAX_IPADR_LEN, ']') ||
+        nếu(!curlx_str_single(&host, '[')) {
+          nếu(curlx_str_until(&host, &target, MAX_IPADR_LEN, ']') ||
              curlx_str_single(&host, ']'))
             goto err;
         }
-        else {
-          if(curlx_str_until(&host, &target, 4096, ',')) {
-            if(curlx_str_single(&host, ','))
+        không_thì {
+          nếu(curlx_str_until(&host, &target, 4096, ',')) {
+            nếu(curlx_str_single(&host, ','))
               goto err;
             /* survive nothing but a comma */
             continue;
           }
         }
 #ifndef USE_IPV6
-        if(memchr(curlx_str(&target), ':', curlx_strlen(&target))) {
+        nếu(memchr(curlx_str(&target), ':', curlx_strlen(&target))) {
           infof(data, "Ignoring resolve address '%.*s', missing IPv6 support.",
-                (int)curlx_strlen(&target), curlx_str(&target));
-          if(curlx_str_single(&host, ','))
+                (số_nguyên)curlx_strlen(&target), curlx_str(&target));
+          nếu(curlx_str_single(&host, ','))
             goto err;
           continue;
         }
 #endif
 
-        if(curlx_strlen(&target) >= sizeof(address))
+        nếu(curlx_strlen(&target) >= sizeof(address))
           goto err;
 
         memcpy(address, curlx_str(&target), curlx_strlen(&target));
         address[curlx_strlen(&target)] = '\0';
 
         result = Curl_str2addr(address, port, &ai);
-        if(result) {
+        nếu(result) {
           infof(data, "Resolve IP address '%s' found is illegal", address);
           goto err;
         }
 
-        if(tail) {
+        nếu(tail) {
           tail->ai_next = ai;
           tail = tail->ai_next;
         }
-        else {
+        không_thì {
           head = tail = ai;
         }
-        if(curlx_str_single(&host, ','))
+        nếu(curlx_str_single(&host, ','))
           break;
       }
 
-      if(!head)
+      nếu(!head)
         goto err;
 
       error = FALSE;
 err:
-      if(error) {
+      nếu(error) {
         failf(data, "Could not parse CURLOPT_RESOLVE entry '%s'", hostp->data);
         Curl_freeaddrinfo(head);
-        return CURLE_SETOPT_OPTION_SYNTAX;
+        trả_về CURLE_SETOPT_OPTION_SYNTAX;
       }
 
       dnsc_str2id(&id, CURL_DNST_ADDR, &source, port);
@@ -993,9 +993,9 @@ err:
       /* See if it is already in our dns cache */
       dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
 
-      if(dns) {
+      nếu(dns) {
         infof(data, "RESOLVE %.*s:%u - old addresses discarded",
-              (int)curlx_strlen(&source), curlx_str(&source), port);
+              (số_nguyên)curlx_strlen(&source), curlx_str(&source), port);
         /* delete old entry, there are two reasons for this
          1. old entry may have different addresses.
          2. even if entry with correct addresses is already in the cache,
@@ -1013,22 +1013,22 @@ err:
       /* put this new host in the cache, override all address queries */
       dns = dnsc_add_addr(data, dnscache, CURL_DNSQ_ADDR, &head,
                           &id, &key, permanent);
-      if(dns)
+      nếu(dns)
         /* release the returned reference; the cache itself will keep the
          * entry alive: */
         dns->refcount--;
 
       dnscache_unlock(data, dnscache);
 
-      if(!dns)
-        return CURLE_OUT_OF_MEMORY;
+      nếu(!dns)
+        trả_về CURLE_OUT_OF_MEMORY;
 
       infof(data, "[DNS] added %.*s:%u:%s to cache%s",
-            (int)curlx_strlen(&id.name), curlx_str(&id.name), id.port,
+            (số_nguyên)curlx_strlen(&id.name), curlx_str(&id.name), id.port,
             addresses, permanent ? "" : " (non-permanent)");
 
       /* Wildcard hostname */
-      if(curlx_str_casecompare(&source, "*")) {
+      nếu(curlx_str_casecompare(&source, "*")) {
         infof(data, "RESOLVE *:%u using wildcard", port);
         data->state.wildcard_resolve = TRUE;
       }
@@ -1036,5 +1036,5 @@ err:
   }
   data->state.resolve = NULL; /* dealt with now */
 
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }

@@ -103,14 +103,14 @@ static const char *c_memmem(const void *haystack, size_t haystacklen,
   const char *p;
   char first;
   const char *str_limit = (const char *)haystack + haystacklen;
-  if(!needlelen || needlelen > haystacklen)
-    return NULL;
+  nếu(!needlelen || needlelen > haystacklen)
+    trả_về NULL;
   first = *(const char *)needle;
-  for(p = (const char *)haystack; p <= (str_limit - needlelen); p++)
-    if((*p == first) && !memcmp(p, needle, needlelen))
-      return p;
+  cho(p = (const char *)haystack; p <= (str_limit - needlelen); p++)
+    nếu((*p == first) && !memcmp(p, needle, needlelen))
+      trả_về p;
 
-  return NULL;
+  trả_về NULL;
 }
 
 static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
@@ -122,33 +122,33 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
   const size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
   const size_t end_cert_len = CURL_CSTRLEN(END_CERT);
   CURLcode result = CURLE_OK;
-  int num_certs = 0;
+  số_nguyên num_certs = 0;
   bool more_certs = 1;
   const char *current_ca_file_ptr = ca_buffer;
   const char *ca_buffer_limit = ca_buffer + ca_buffer_size;
 
-  while(more_certs && (current_ca_file_ptr < ca_buffer_limit)) {
+  trong_khi(more_certs && (current_ca_file_ptr < ca_buffer_limit)) {
     const char *begin_cert_ptr = c_memmem(current_ca_file_ptr,
                                           ca_buffer_limit -
                                           current_ca_file_ptr - 1,
                                           BEGIN_CERT,
                                           begin_cert_len);
-    if(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
+    nếu(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
       more_certs = 0;
     }
-    else {
+    không_thì {
       const char *end_cert_ptr = c_memmem(begin_cert_ptr,
                                           ca_buffer_limit-begin_cert_ptr,
                                           END_CERT,
                                           end_cert_len);
-      if(!end_cert_ptr) {
+      nếu(!end_cert_ptr) {
         failf(data,
               "schannel: CA file '%s' is not correctly formatted",
               ca_file_text);
         result = CURLE_SSL_CACERT_BADFILE;
         more_certs = 0;
       }
-      else {
+      không_thì {
         CERT_BLOB cert_blob;
         const CERT_CONTEXT *cert_context = NULL;
         BOOL add_cert_result = FALSE;
@@ -158,7 +158,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
         cert_blob.pbData = (BYTE *)CURL_UNCONST(begin_cert_ptr);
         cert_blob.cbData = cert_size;
         /* Caution: CryptQueryObject() is deprecated */
-        if(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
+        nếu(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
                              &cert_blob,
                              CERT_QUERY_CONTENT_FLAG_CERT,
                              CERT_QUERY_FORMAT_FLAG_BASE64_ENCODED,
@@ -178,7 +178,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
           result = CURLE_SSL_CACERT_BADFILE;
           more_certs = 0;
         }
-        else {
+        không_thì {
           current_ca_file_ptr = begin_cert_ptr + cert_size;
 
           add_cert_result =
@@ -186,7 +186,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
                                              cert_context,
                                              CERT_STORE_ADD_ALWAYS,
                                              NULL);
-          if(!add_cert_result) {
+          nếu(!add_cert_result) {
             char buffer[WINAPI_ERROR_LEN];
             failf(data,
                   "schannel: failed to add certificate from CA file '%s' "
@@ -197,7 +197,7 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
             result = CURLE_SSL_CACERT_BADFILE;
             more_certs = 0;
           }
-          else {
+          không_thì {
             num_certs++;
           }
 
@@ -207,17 +207,17 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
     }
   }
 
-  if(result == CURLE_OK) {
-    if(!num_certs) {
+  nếu(result == CURLE_OK) {
+    nếu(!num_certs) {
       infof(data, "schannel: did not add any certificates from CA file '%s'",
             ca_file_text);
     }
-    else {
+    không_thì {
       infof(data, "schannel: added %d certificate(s) from CA file '%s'",
             num_certs, ca_file_text);
     }
   }
-  return result;
+  trả_về result;
 }
 
 static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
@@ -236,13 +236,13 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
    * small ( < 1 MiB ).
    */
   ca_file_handle = curlx_fopen(ca_file, "rb");
-  if(!ca_file_handle) {
+  nếu(!ca_file_handle) {
     failf(data, "schannel: failed to open CA file '%s'", ca_file);
     result = CURLE_SSL_CACERT_BADFILE;
     goto cleanup;
   }
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
+  nếu(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
     failf(data, "schannel: failed seeking to end of CA file '%s'", ca_file);
     result = CURLE_SSL_CACERT_BADFILE;
     goto cleanup;
@@ -250,20 +250,20 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
 
   ca_file_bufsize = ftell(ca_file_handle);
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
+  nếu(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
     failf(data, "schannel: failed seeking to beginning of CA file '%s'",
           ca_file);
     result = CURLE_SSL_CACERT_BADFILE;
     goto cleanup;
   }
 
-  if(ca_file_bufsize < 0) {
+  nếu(ca_file_bufsize < 0) {
     failf(data, "schannel: failed to get length of CA file '%s'", ca_file);
     result = CURLE_SSL_CACERT_BADFILE;
     goto cleanup;
   }
 
-  if(ca_file_bufsize > MAX_CAFILE_SIZE) {
+  nếu(ca_file_bufsize > MAX_CAFILE_SIZE) {
     failf(data, "schannel: CA file exceeds max size of %d bytes",
           MAX_CAFILE_SIZE);
     result = CURLE_SSL_CACERT_BADFILE;
@@ -271,26 +271,26 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
   }
 
   ca_file_buffer = curlx_malloc(ca_file_bufsize + 1);
-  if(!ca_file_buffer) {
+  nếu(!ca_file_buffer) {
     result = CURLE_OUT_OF_MEMORY;
     goto cleanup;
   }
 
-  while(total_bytes_read < ca_file_bufsize) {
+  trong_khi(total_bytes_read < ca_file_bufsize) {
     size_t nread = fread(ca_file_buffer + total_bytes_read, 1,
                          ca_file_bufsize - total_bytes_read, ca_file_handle);
 
-    if(ferror(ca_file_handle)) {
+    nếu(ferror(ca_file_handle)) {
       failf(data, "schannel: failed to read from CA file '%s'", ca_file);
       result = CURLE_SSL_CACERT_BADFILE;
       goto cleanup;
     }
 
-    if(nread == 0) {
+    nếu(nread == 0) {
       /* Premature EOF -- adjust the bufsize to the new value */
       ca_file_bufsize = total_bytes_read;
     }
-    else {
+    không_thì {
       total_bytes_read += (long)nread;
     }
   }
@@ -304,12 +304,12 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
                                    data);
 
 cleanup:
-  if(ca_file_handle) {
+  nếu(ca_file_handle) {
     curlx_fclose(ca_file_handle);
   }
   curlx_safefree(ca_file_buffer);
 
-  return result;
+  trả_về result;
 }
 
 /*
@@ -332,7 +332,7 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
   DWORD i;
 
   /* CERT_NAME_SEARCH_ALL_NAMES_FLAG is available from Windows 8 onwards. */
-  if(Win8_compat) {
+  nếu(Win8_compat) {
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
 #ifndef CERT_NAME_SEARCH_ALL_NAMES_FLAG
 #define CERT_NAME_SEARCH_ALL_NAMES_FLAG 0x2
@@ -347,59 +347,59 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
                                       NULL,
                                       host_names,
                                       length);
-    return actual_length;
+    trả_về actual_length;
   }
 
-  if(!alt_name_info)
-    return 0;
+  nếu(!alt_name_info)
+    trả_về 0;
 
   compute_content = host_names && length != 0;
 
   /* Initialize default return values. */
   actual_length = 1;
-  if(compute_content) {
+  nếu(compute_content) {
     *host_names = '\0';
   }
 
   current_pos = host_names;
 
   /* Iterate over the alternate names and populate host_names. */
-  for(i = 0; i < alt_name_info->cAltEntry; i++) {
+  cho(i = 0; i < alt_name_info->cAltEntry; i++) {
     const CERT_ALT_NAME_ENTRY *entry = &alt_name_info->rgAltEntry[i];
     wchar_t *dns_w = NULL;
     size_t current_length = 0;
 
-    if(entry->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
+    nếu(entry->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
       continue;
     }
-    if(!entry->pwszDNSName) {
+    nếu(!entry->pwszDNSName) {
       infof(data, "schannel: Empty DNS name.");
       continue;
     }
     current_length = wcslen(entry->pwszDNSName) + 1;
-    if(!compute_content) {
+    nếu(!compute_content) {
       actual_length += (DWORD)current_length;
       continue;
     }
     /* Sanity check to prevent buffer overrun. */
-    if((actual_length + current_length) > length) {
+    nếu((actual_length + current_length) > length) {
       failf(data, "schannel: Not enough memory to list all hostnames.");
       break;
     }
     dns_w = entry->pwszDNSName;
     /* pwszDNSName is in ia5 string format and hence does not contain any
      * non-ASCII characters. */
-    while(*dns_w != '\0') {
+    trong_khi(*dns_w != '\0') {
       *current_pos++ = (TCHAR)(*dns_w++);
     }
     *current_pos++ = '\0';
     actual_length += (DWORD)current_length;
   }
-  if(compute_content) {
+  nếu(compute_content) {
     /* Last string has double null-terminator. */
     *current_pos = '\0';
   }
-  return actual_length;
+  trả_về actual_length;
 }
 
 /*
@@ -410,22 +410,22 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
 static bool get_num_host_info(struct num_ip_data *ip_blob, LPCSTR hostname)
 {
   struct in_addr ia;
-  int res = curlx_inet_pton(AF_INET, hostname, &ia);
-  if(res) {
+  số_nguyên res = curlx_inet_pton(AF_INET, hostname, &ia);
+  nếu(res) {
     ip_blob->size = sizeof(struct in_addr);
     memcpy(&ip_blob->bData.ia, &ia, sizeof(struct in_addr));
-    return TRUE;
+    trả_về TRUE;
   }
-  else {
+  không_thì {
     struct in6_addr ia6;
     res = curlx_inet_pton(AF_INET6, hostname, &ia6);
-    if(res) {
+    nếu(res) {
       ip_blob->size = sizeof(struct in6_addr);
       memcpy(&ip_blob->bData.ia6, &ia6, sizeof(struct in6_addr));
-      return TRUE;
+      trả_về TRUE;
     }
   }
-  return FALSE;
+  trả_về FALSE;
 }
 
 static bool get_alt_name_info(struct Curl_easy *data,
@@ -437,26 +437,26 @@ static bool get_alt_name_info(struct Curl_easy *data,
   PCERT_EXTENSION extension = NULL;
   CRYPT_DECODE_PARA decode_para = { sizeof(CRYPT_DECODE_PARA), NULL, NULL };
 
-  if(!ctx) {
+  nếu(!ctx) {
     failf(data, "schannel: Null certificate context.");
-    return FALSE;
+    trả_về FALSE;
   }
 
   cert_info = ctx->pCertInfo;
-  if(!cert_info) {
+  nếu(!cert_info) {
     failf(data, "schannel: Null certificate info.");
-    return FALSE;
+    trả_về FALSE;
   }
 
   extension = CertFindExtension(szOID_SUBJECT_ALT_NAME2,
                                 cert_info->cExtension,
                                 cert_info->rgExtension);
-  if(!extension) {
+  nếu(!extension) {
     failf(data, "schannel: CertFindExtension() returned no extension.");
-    return FALSE;
+    trả_về FALSE;
   }
 
-  if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+  nếu(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                           szOID_SUBJECT_ALT_NAME2,
                           extension->Value.pbData,
                           extension->Value.cbData,
@@ -466,9 +466,9 @@ static bool get_alt_name_info(struct Curl_easy *data,
                           alt_name_info_size)) {
     failf(data, "schannel: CryptDecodeObjectEx() returned no alternate name "
           "information.");
-    return FALSE;
+    trả_về FALSE;
   }
-  return TRUE;
+  trả_về TRUE;
 }
 
 /* Verify the server's hostname */
@@ -496,7 +496,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
+  nếu((sspi_status != SEC_E_OK) || !pCertContextServer) {
     char buffer[WINAPI_ERROR_LEN];
     failf(data, "schannel: Failed to read remote certificate context: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
@@ -505,19 +505,19 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
 
   Win8_compat = curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
                                              VERSION_GREATER_THAN_EQUAL);
-  if(get_num_host_info(p, conn_hostname) || !Win8_compat) {
-    if(!get_alt_name_info(data, pCertContextServer,
+  nếu(get_num_host_info(p, conn_hostname) || !Win8_compat) {
+    nếu(!get_alt_name_info(data, pCertContextServer,
                           &alt_name_info, &alt_name_info_size)) {
       goto cleanup;
     }
   }
 
-  if(p->size && alt_name_info) {
-    for(i = 0; i < alt_name_info->cAltEntry; ++i) {
+  nếu(p->size && alt_name_info) {
+    cho(i = 0; i < alt_name_info->cAltEntry; ++i) {
       PCERT_ALT_NAME_ENTRY entry = &alt_name_info->rgAltEntry[i];
-      if(entry->dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS) {
-        if(entry->IPAddress.cbData == p->size) {
-          if(!memcmp(entry->IPAddress.pbData, &p->bData,
+      nếu(entry->dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS) {
+        nếu(entry->IPAddress.cbData == p->size) {
+          nếu(!memcmp(entry->IPAddress.pbData, &p->bData,
                      entry->IPAddress.cbData)) {
             result = CURLE_OK;
             infof(data,
@@ -529,11 +529,11 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
       }
     }
   }
-  else {
+  không_thì {
     /* Determine the size of the string needed for the cert hostname */
     len = cert_get_name_string(data, pCertContextServer,
                                NULL, 0, alt_name_info, Win8_compat);
-    if(len == 0) {
+    nếu(len == 0) {
       failf(data,
             "schannel: CertGetNameString() returned no "
             "certificate name information");
@@ -544,7 +544,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
      * embedded NUL bytes. This appears to be undocumented behavior.
      */
     cert_hostname_buff = curlx_malloc(len * sizeof(TCHAR));
-    if(!cert_hostname_buff) {
+    nếu(!cert_hostname_buff) {
       result = CURLE_OUT_OF_MEMORY;
       goto cleanup;
     }
@@ -553,7 +553,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
                                       alt_name_info, Win8_compat);
 
     /* Sanity check */
-    if(actual_len != len) {
+    nếu(actual_len != len) {
       failf(data,
             "schannel: CertGetNameString() returned certificate "
             "name information of unexpected size");
@@ -564,7 +564,7 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
      * null-terminated and the last DNS name is double null-terminated. Due to
      * this encoding, use the length of the buffer to iterate over all names.
      */
-    while(cert_hostname_buff_index < len &&
+    trong_khi(cert_hostname_buff_index < len &&
           cert_hostname_buff[cert_hostname_buff_index] != TEXT('\0') &&
           result == CURLE_PEER_FAILED_VERIFICATION) {
       char *cert_hostname;
@@ -575,18 +575,18 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
        */
       cert_hostname = curlx_convert_tchar_to_UTF8(
         &cert_hostname_buff[cert_hostname_buff_index]);
-      if(!cert_hostname) {
+      nếu(!cert_hostname) {
         result = CURLE_OUT_OF_MEMORY;
       }
-      else {
-        if(Curl_cert_hostcheck(cert_hostname, strlen(cert_hostname),
+      không_thì {
+        nếu(Curl_cert_hostcheck(cert_hostname, strlen(cert_hostname),
                                conn_hostname, hostlen)) {
           infof(data, "schannel: connection hostname (%s) validated "
                 "against certificate name (%s)",
                 conn_hostname, cert_hostname);
           result = CURLE_OK;
         }
-        else {
+        không_thì {
           size_t cert_hostname_len;
 
           infof(data,
@@ -606,13 +606,13 @@ CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
       }
     }
 
-    if(result == CURLE_PEER_FAILED_VERIFICATION) {
+    nếu(result == CURLE_PEER_FAILED_VERIFICATION) {
       failf(data,
             "schannel: CertGetNameString() failed to match "
             "connection hostname (%s) against server certificate names",
             conn_hostname);
     }
-    else if(result != CURLE_OK)
+    không_thì nếu(result != CURLE_OK)
       failf(data, "schannel: server certificate name verification failed");
   }
 
@@ -620,10 +620,10 @@ cleanup:
   LocalFree(alt_name_info);
   curlx_safefree(cert_hostname_buff);
 
-  if(pCertContextServer)
+  nếu(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  trả_về result;
 }
 
 /* Verify the server's certificate and hostname */
@@ -647,14 +647,14 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
+  nếu((sspi_status != SEC_E_OK) || !pCertContextServer) {
     char buffer[WINAPI_ERROR_LEN];
     failf(data, "schannel: Failed to read remote certificate context: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
     result = CURLE_PEER_FAILED_VERIFICATION;
   }
 
-  if(result == CURLE_OK &&
+  nếu(result == CURLE_OK &&
      (conn_config->CAfile || conn_config->ca_info_blob) &&
      BACKEND->use_manual_cred_validation) {
     /*
@@ -662,50 +662,50 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
      * trusted certificates. This is only supported on Windows 7+.
      */
 
-    if(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
+    nếu(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
                                     VERSION_LESS_THAN)) {
       failf(data, "schannel: this version of Windows is too old to support "
             "certificate verification via CA bundle file.");
       result = CURLE_SSL_CACERT_BADFILE;
     }
-    else {
+    không_thì {
       /* try cache */
       trust_store = Curl_schannel_get_cached_cert_store(cf, data);
 
-      if(trust_store) {
+      nếu(trust_store) {
         infof(data, "schannel: reusing certificate store from cache");
       }
-      else {
+      không_thì {
         /* Open the certificate store */
         trust_store = CertOpenStore(CERT_STORE_PROV_MEMORY,
                                     0,
                                     (HCRYPTPROV)NULL,
                                     CERT_STORE_CREATE_NEW_FLAG,
                                     NULL);
-        if(!trust_store) {
+        nếu(!trust_store) {
           char buffer[WINAPI_ERROR_LEN];
           failf(data, "schannel: failed to create certificate store: %s",
                 curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
           result = CURLE_SSL_CACERT_BADFILE;
         }
-        else {
+        không_thì {
           const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
           own_trust_store = trust_store;
 
-          if(ca_info_blob) {
+          nếu(ca_info_blob) {
             result = add_certs_data_to_store(trust_store,
                                              (const char *)ca_info_blob->data,
                                              ca_info_blob->len,
                                              "(memory blob)",
                                              data);
           }
-          else {
+          không_thì {
             result = add_certs_file_to_store(trust_store,
                                              conn_config->CAfile,
                                              data);
           }
-          if(result == CURLE_OK) {
-            if(Curl_schannel_set_cached_cert_store(cf, data, trust_store)) {
+          nếu(result == CURLE_OK) {
+            nếu(Curl_schannel_set_cached_cert_store(cf, data, trust_store)) {
               own_trust_store = NULL;
             }
           }
@@ -713,7 +713,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       }
     }
 
-    if(result == CURLE_OK) {
+    nếu(result == CURLE_OK) {
       struct cert_chain_engine_config_win8 engine_config;
       BOOL create_engine_result;
 
@@ -721,13 +721,13 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       engine_config.hExclusiveRoot = trust_store;
 
       /* Win8/Server2012 allows us to match partial chains */
-      if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
+      nếu(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
                                       VERSION_GREATER_THAN_EQUAL) &&
          !conn_config->no_partialchain) {
         engine_config.cbSize = sizeof(engine_config);
         engine_config.dwExclusiveFlags = CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG;
       }
-      else
+      không_thì
         engine_config.cbSize = sizeof(struct cert_chain_engine_config_win7);
 
       /* CertCreateCertificateChainEngine checks the expected size of the
@@ -738,7 +738,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       create_engine_result =
         CertCreateCertificateChainEngine(
           (CERT_CHAIN_ENGINE_CONFIG *)&engine_config, &cert_chain_engine);
-      if(!create_engine_result) {
+      nếu(!create_engine_result) {
         char buffer[WINAPI_ERROR_LEN];
         failf(data,
               "schannel: failed to create certificate chain engine: %s",
@@ -748,7 +748,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
     }
   }
 
-  if(result == CURLE_OK) {
+  nếu(result == CURLE_OK) {
     CERT_CHAIN_PARA ChainPara;
     LPSTR serverAuthOID = CURL_UNCONST(szOID_PKIX_KP_SERVER_AUTH);
 
@@ -758,7 +758,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
     ChainPara.RequestedUsage.Usage.cUsageIdentifier = 1;
     ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = &serverAuthOID;
 
-    if(!CertGetCertificateChain(cert_chain_engine,
+    nếu(!CertGetCertificateChain(cert_chain_engine,
                                 pCertContextServer,
                                 NULL,
                                 pCertContextServer->hCertStore,
@@ -774,12 +774,12 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    if(result == CURLE_OK) {
+    nếu(result == CURLE_OK) {
       CERT_SIMPLE_CHAIN *pSimpleChain = pChainContext->rgpChain[0];
       DWORD dwTrustErrorMask = ~(DWORD)(CERT_TRUST_IS_NOT_TIME_NESTED);
       dwTrustErrorMask &= pSimpleChain->TrustStatus.dwErrorStatus;
 
-      if(conn_config->revoke_best_effort) {
+      nếu(conn_config->revoke_best_effort) {
         /* Ignore errors when root certificates are missing the revocation
          * list URL, or when the list could not be downloaded because the
          * server is currently unreachable. */
@@ -787,48 +787,48 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
                                      CERT_TRUST_IS_OFFLINE_REVOCATION);
       }
 
-      if(dwTrustErrorMask) {
-        if(dwTrustErrorMask & CERT_TRUST_IS_REVOKED)
+      nếu(dwTrustErrorMask) {
+        nếu(dwTrustErrorMask & CERT_TRUST_IS_REVOKED)
           failf(data, "schannel: trust for this certificate or one of "
                 "the certificates in the certificate chain has been revoked");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_PARTIAL_CHAIN)
+        không_thì nếu(dwTrustErrorMask & CERT_TRUST_IS_PARTIAL_CHAIN)
           failf(data, "schannel: the certificate chain is incomplete");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_ROOT)
+        không_thì nếu(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_ROOT)
           failf(data, "schannel: the certificate or certificate chain is "
                 "based on an untrusted root");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_NOT_TIME_VALID)
+        không_thì nếu(dwTrustErrorMask & CERT_TRUST_IS_NOT_TIME_VALID)
           failf(data, "schannel: this certificate or one of the certificates "
                 "in the certificate chain is not time valid");
-        else if(dwTrustErrorMask & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
+        không_thì nếu(dwTrustErrorMask & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
           failf(data, "schannel: the revocation status is unknown");
-        else
+        không_thì
           failf(data, "schannel: error 0x%08lx", dwTrustErrorMask);
         result = CURLE_PEER_FAILED_VERIFICATION;
       }
     }
   }
 
-  if(result == CURLE_OK) {
-    if(conn_config->verifyhost) {
+  nếu(result == CURLE_OK) {
+    nếu(conn_config->verifyhost) {
       result = Curl_verify_host(cf, data);
     }
   }
 
-  if(cert_chain_engine) {
+  nếu(cert_chain_engine) {
     CertFreeCertificateChainEngine(cert_chain_engine);
   }
 
-  if(own_trust_store) {
+  nếu(own_trust_store) {
     CertCloseStore(own_trust_store, 0);
   }
 
-  if(pChainContext)
+  nếu(pChainContext)
     CertFreeCertificateChain(pChainContext);
 
-  if(pCertContextServer)
+  nếu(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  trả_về result;
 }
 
 #endif /* USE_SCHANNEL */

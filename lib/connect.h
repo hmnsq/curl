@@ -63,7 +63,7 @@ curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
 #define CONNCTRL_CONN_CLOSE      1
 #define CONNCTRL_STREAM_CLOSE    2
 
-void Curl_conncontrol(struct connectdata *conn, int ctrl);
+void Curl_conncontrol(struct connectdata *conn, số_nguyên ctrl);
 
 #define streamclose(x) Curl_conncontrol((x), CONNCTRL_STREAM_CLOSE)
 #define connclose(x)   Curl_conncontrol((x), CONNCTRL_CONN_CLOSE)
@@ -77,7 +77,7 @@ void Curl_conncontrol(struct connectdata *conn, int ctrl);
 CURLcode Curl_conn_setup(struct Curl_easy *data,
                          struct connectdata *conn,
                          int8_t sockindex,
-                         int ssl_mode);
+                         số_nguyên ssl_mode);
 
 /**
  * Bring the filter chain at `sockindex` for connection `data->conn` into

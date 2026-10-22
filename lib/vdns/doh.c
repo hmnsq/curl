@@ -66,24 +66,24 @@ static const char * const doh_code_str[] = {
 
 static const char *doh_strerror(DOHcode code)
 {
-  if((size_t)code < CURL_ARRAYSIZE(doh_code_str))
-    return doh_code_str[code];
-  return "bad error code";
+  nếu((size_t)code < CURL_ARRAYSIZE(doh_code_str))
+    trả_về doh_code_str[code];
+  trả_về "bad error code";
 }
 
 static const char *doh_type2name(DNStype dnstype)
 {
   switch(dnstype) {
   case CURL_DNS_TYPE_A:
-    return "A";
+    trả_về "A";
   case CURL_DNS_TYPE_AAAA:
-    return "AAAA";
+    trả_về "AAAA";
 #ifdef USE_HTTPSRR
   case CURL_DNS_TYPE_HTTPS:
-    return "HTTPS";
+    trả_về "HTTPS";
 #endif
   default:
-    return "unknown";
+    trả_về "unknown";
   }
 }
 
@@ -131,14 +131,14 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   size_t expected_len;
   DEBUGASSERT(hostlen);
   expected_len = 12 + 1 + hostlen + 4;
-  if(host[hostlen - 1] != '.')
+  nếu(host[hostlen - 1] != '.')
     expected_len++;
 
-  if(expected_len > DOH_MAX_DNSREQ_SIZE)
-    return DOH_DNS_NAME_TOO_LONG;
+  nếu(expected_len > DOH_MAX_DNSREQ_SIZE)
+    trả_về DOH_DNS_NAME_TOO_LONG;
 
-  if(len < expected_len)
-    return DOH_TOO_SMALL_BUFFER;
+  nếu(len < expected_len)
+    trả_về DOH_TOO_SMALL_BUFFER;
 
   *dnsp++ = 0; /* 16-bit id */
   *dnsp++ = 0;
@@ -154,17 +154,17 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   *dnsp++ = '\0'; /* ARCOUNT */
 
   /* encode each label and store it in the QNAME */
-  while(*hostp) {
+  trong_khi(*hostp) {
     size_t labellen;
     const char *dot = strchr(hostp, '.');
-    if(dot)
+    nếu(dot)
       labellen = dot - hostp;
-    else
+    không_thì
       labellen = strlen(hostp);
-    if((labellen > 63) || (!labellen)) {
+    nếu((labellen > 63) || (!labellen)) {
       /* label is too long or too short, error out */
       *olen = 0;
-      return DOH_DNS_BAD_LABEL;
+      trả_về DOH_DNS_BAD_LABEL;
     }
     /* label is non-empty, process it */
     *dnsp++ = (unsigned char)labellen;
@@ -172,7 +172,7 @@ UNITTEST DOHcode doh_req_encode(const char *host,
     dnsp += labellen;
     hostp += labellen;
     /* advance past dot, but only if there is one */
-    if(dot)
+    nếu(dot)
       hostp++;
   } /* next label */
 
@@ -190,7 +190,7 @@ UNITTEST DOHcode doh_req_encode(const char *host,
   /* verify that our estimation of length is valid, since
    * this has led to buffer overflows in this function */
   DEBUGASSERT(*olen == expected_len);
-  return DOH_OK;
+  trả_về DOH_OK;
 }
 
 static size_t doh_probe_write_cb(char *contents, size_t size, size_t nmemb,
@@ -199,13 +199,13 @@ static size_t doh_probe_write_cb(char *contents, size_t size, size_t nmemb,
   size_t realsize = size * nmemb;
   struct Curl_easy *data = userp;
   struct doh_request *doh_req = Curl_meta_get(data, CURL_EZM_DOH_PROBE);
-  if(!doh_req)
-    return CURL_WRITEFUNC_ERROR;
+  nếu(!doh_req)
+    trả_về CURL_WRITEFUNC_ERROR;
 
-  if(curlx_dyn_addn(&doh_req->resp_body, contents, realsize))
-    return 0;
+  nếu(curlx_dyn_addn(&doh_req->resp_body, contents, realsize))
+    trả_về 0;
 
-  return realsize;
+  trả_về realsize;
 }
 
 static void doh_probe_done(struct Curl_easy *doh,
@@ -214,7 +214,7 @@ static void doh_probe_dtor(const void *key, size_t klen, void *e)
 {
   (void)key;
   (void)klen;
-  if(e) {
+  nếu(e) {
     struct doh_request *doh_req = e;
     curl_slist_free_all(doh_req->req_hds);
     curlx_dyn_free(&doh_req->resp_body);
@@ -225,11 +225,11 @@ static void doh_probe_dtor(const void *key, size_t klen, void *e)
 #define ERROR_CHECK_SETOPT(x, y)                        \
   do {                                                  \
     result = curl_easy_setopt((CURL *)doh, x, y);       \
-    if(result &&                                        \
+    nếu(result &&                                        \
        result != CURLE_NOT_BUILT_IN &&                  \
        result != CURLE_UNKNOWN_OPTION)                  \
       goto error;                                       \
-  } while(0)
+  } trong_khi(0)
 
 static CURLcode doh_probe_run(struct Curl_easy *data,
                               DNStype dnstype,
@@ -248,8 +248,8 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
   *pmid = UINT32_MAX;
 
   doh_req = curlx_calloc(1, sizeof(*doh_req));
-  if(!doh_req)
-    return CURLE_OUT_OF_MEMORY;
+  nếu(!doh_req)
+    trả_về CURLE_OUT_OF_MEMORY;
   doh_req->resolv_id = resolv_id;
   doh_req->dnstype = dnstype;
   curlx_dyn_init(&doh_req->resp_body, DYN_DOH_RESPONSE);
@@ -257,28 +257,28 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
   d = doh_req_encode(host, dnstype, doh_req->req_body,
                      sizeof(doh_req->req_body),
                      &doh_req->req_body_len);
-  if(d) {
-    failf(data, "Failed to encode DoH packet [%d]", (int)d);
+  nếu(d) {
+    failf(data, "Failed to encode DoH packet [%d]", (số_nguyên)d);
     result = CURLE_OUT_OF_MEMORY;
     goto error;
   }
 
   timeout_ms = Curl_timeleft_ms(data);
-  if(timeout_ms < 0) {
+  nếu(timeout_ms < 0) {
     result = CURLE_OPERATION_TIMEDOUT;
     goto error;
   }
 
   doh_req->req_hds =
     curl_slist_append(NULL, "Content-Type: application/dns-message");
-  if(!doh_req->req_hds) {
+  nếu(!doh_req->req_hds) {
     result = CURLE_OUT_OF_MEMORY;
     goto error;
   }
 
   /* Curl_open() is the internal version of curl_easy_init() */
   result = Curl_open(&doh);
-  if(result)
+  nếu(result)
     goto error;
 
   /* pass in the struct pointer via a local variable to please coverity and
@@ -292,7 +292,7 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
   ERROR_CHECK_SETOPT(CURLOPT_POSTFIELDSIZE, (long)doh_req->req_body_len);
   ERROR_CHECK_SETOPT(CURLOPT_HTTPHEADER, doh_req->req_hds);
 #ifdef USE_HTTP2
-  if(maybe_https) {
+  nếu(maybe_https) {
     ERROR_CHECK_SETOPT(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
     ERROR_CHECK_SETOPT(CURLOPT_PIPEWAIT, 1L);
   }
@@ -300,42 +300,42 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
 #ifndef DEBUGBUILD
   /* enforce HTTPS if not debug */
   ERROR_CHECK_SETOPT(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-#else
+#không_thì
   /* in debug mode, also allow http */
   ERROR_CHECK_SETOPT(CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
 #endif
   ERROR_CHECK_SETOPT(CURLOPT_TIMEOUT_MS, (long)timeout_ms);
   ERROR_CHECK_SETOPT(CURLOPT_SHARE, (CURLSH *)data->share);
-  if(data->set.err && data->set.err != stderr)
+  nếu(data->set.err && data->set.err != stderr)
     ERROR_CHECK_SETOPT(CURLOPT_STDERR, data->set.err);
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_doh))
+  nếu(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_doh))
     ERROR_CHECK_SETOPT(CURLOPT_VERBOSE, 1L);
-  if(data->set.no_signal)
+  nếu(data->set.no_signal)
     ERROR_CHECK_SETOPT(CURLOPT_NOSIGNAL, 1L);
-  if(data->set.fdebug)
+  nếu(data->set.fdebug)
     ERROR_CHECK_SETOPT(CURLOPT_DEBUGFUNCTION, data->set.fdebug);
-  if(data->set.debugdata)
+  nếu(data->set.debugdata)
     ERROR_CHECK_SETOPT(CURLOPT_DEBUGDATA, data->set.debugdata);
 
 #ifdef USE_RESOLV_ARES
-  if(CURL_EASY_STR(data, STRING_DNS_SERVERS)) {
+  nếu(CURL_EASY_STR(data, STRING_DNS_SERVERS)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_SERVERS,
                        CURL_EASY_STR(data, STRING_DNS_SERVERS));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_INTERFACE)) {
+  nếu(CURL_EASY_STR(data, STRING_DNS_INTERFACE)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_INTERFACE,
                        CURL_EASY_STR(data, STRING_DNS_INTERFACE));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4)) {
+  nếu(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_LOCAL_IP4,
                        CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4));
   }
-  if(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6)) {
+  nếu(CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6)) {
     ERROR_CHECK_SETOPT(CURLOPT_DNS_LOCAL_IP6,
                        CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6));
   }
 #endif
-  if(maybe_https) {
+  nếu(maybe_https) {
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYHOST,
                        data->set.doh_verifyhost ? 2L : 0L);
     ERROR_CHECK_SETOPT(CURLOPT_SSL_VERIFYPEER,
@@ -354,28 +354,28 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
     doh->set.ssl.custom_cafile = data->set.ssl.custom_cafile;
     doh->set.ssl.custom_capath = data->set.ssl.custom_capath;
     doh->set.ssl.custom_cablob = data->set.ssl.custom_cablob;
-    if(CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
+    nếu(CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
       ERROR_CHECK_SETOPT(CURLOPT_CAINFO,
                          CURL_EASY_STR(data, STRING_SSL_CAFILE));
     }
-    if(data->set.blobs[BLOB_CAINFO]) {
+    nếu(data->set.blobs[BLOB_CAINFO]) {
       ERROR_CHECK_SETOPT(CURLOPT_CAINFO_BLOB, data->set.blobs[BLOB_CAINFO]);
     }
-    if(CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
+    nếu(CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
       ERROR_CHECK_SETOPT(CURLOPT_CAPATH,
                          CURL_EASY_STR(data, STRING_SSL_CAPATH));
     }
-    if(CURL_EASY_STR(data, STRING_SSL_CRLFILE)) {
+    nếu(CURL_EASY_STR(data, STRING_SSL_CRLFILE)) {
       ERROR_CHECK_SETOPT(CURLOPT_CRLFILE,
                          CURL_EASY_STR(data, STRING_SSL_CRLFILE));
     }
-    if(data->set.ssl.certinfo)
+    nếu(data->set.ssl.certinfo)
       ERROR_CHECK_SETOPT(CURLOPT_CERTINFO, 1L);
-    if(data->set.ssl_fsslctx)
+    nếu(data->set.ssl_fsslctx)
       ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_FUNCTION, data->set.ssl_fsslctx);
-    if(data->set.ssl_fsslctxp)
+    nếu(data->set.ssl_fsslctxp)
       ERROR_CHECK_SETOPT(CURLOPT_SSL_CTX_DATA, data->set.ssl_fsslctxp);
-    if(CURL_EASY_STR(data, STRING_SSL_EC_CURVES)) {
+    nếu(CURL_EASY_STR(data, STRING_SSL_EC_CURVES)) {
       ERROR_CHECK_SETOPT(CURLOPT_SSL_EC_CURVES,
                          CURL_EASY_STR(data, STRING_SSL_EC_CURVES));
     }
@@ -390,7 +390,7 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
 
   result = Curl_meta_set(doh, CURL_EZM_DOH_PROBE, doh_req, doh_probe_dtor);
   doh_req = NULL; /* call took ownership */
-  if(result)
+  nếu(result)
     goto error;
 
   /* DoH handles must not inherit private_data. The handles may be passed to
@@ -399,17 +399,17 @@ static CURLcode doh_probe_run(struct Curl_easy *data,
      private_data via CURLOPT_PRIVATE if they so choose. */
   DEBUGASSERT(!doh->set.private_data);
 
-  if(Curl_multi_add_handle(multi, doh))
+  nếu(Curl_multi_add_handle(multi, doh))
     goto error;
 
   *pmid = doh->mid;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 
 error:
   Curl_close(&doh);
-  if(doh_req)
+  nếu(doh_req)
     doh_probe_dtor(NULL, 0, doh_req);
-  return result;
+  trả_về result;
 }
 
 /*
@@ -426,71 +426,71 @@ CURLcode Curl_doh(struct Curl_easy *data,
 
   DEBUGASSERT(!async->doh);
   DEBUGASSERT(async->peer->hostname[0]);
-  if(async->doh) {
+  nếu(async->doh) {
     DEBUGASSERT(0); /* should not happen */
     Curl_doh_cleanup(data, async);
   }
 
-  if(!async->dns_queries)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(!async->dns_queries)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
 #ifdef USE_HTTPSRR
-  if(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
+  nếu(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
      (async->dns_queries & CURL_DNSQ_HTTPS)) {
     /* Can't mix those in the same async resolve */
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
   }
-#else
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
+#không_thì
+  nếu(async->dns_queries & CURL_DNSQ_HTTPS) {
     DEBUGASSERT(0);
-    return CURLE_NOT_BUILT_IN;
+    trả_về CURLE_NOT_BUILT_IN;
   }
 #endif
 
   /* start clean, consider allocating this struct on demand */
   async->doh = dohp = curlx_calloc(1, sizeof(struct doh_probes));
-  if(!dohp)
-    return CURLE_OUT_OF_MEMORY;
+  nếu(!dohp)
+    trả_về CURLE_OUT_OF_MEMORY;
 
-  for(i = 0; i < DOH_SLOT_COUNT; ++i) {
+  cho(i = 0; i < DOH_SLOT_COUNT; ++i) {
     dohp->probe_rc[i] = DOH_OK;
     dohp->probe_mid[i] = UINT32_MAX;
   }
 
 #ifdef USE_IPV6
   /* AAAA results have preference in happy eyeballing, trigger first */
-  if(async->dns_queries & CURL_DNSQ_AAAA) {
+  nếu(async->dns_queries & CURL_DNSQ_AAAA) {
     /* create IPv6 DoH request */
     result = doh_probe_run(data, CURL_DNS_TYPE_AAAA,
                            async->peer->hostname,
                            CURL_EASY_STR(data, STRING_DOH),
                            data->multi, async->id,
                            &dohp->probe_mid[DOH_SLOT_IPV6]);
-    if(result)
+    nếu(result)
       goto error;
     async->queries_ongoing++;
   }
 #endif
 
   /* create IPv4 DoH request */
-  if(async->dns_queries & CURL_DNSQ_A) {
+  nếu(async->dns_queries & CURL_DNSQ_A) {
     result = doh_probe_run(data, CURL_DNS_TYPE_A,
                            async->peer->hostname,
                            CURL_EASY_STR(data, STRING_DOH),
                            data->multi, async->id,
                            &dohp->probe_mid[DOH_SLOT_IPV4]);
-    if(result)
+    nếu(result)
       goto error;
     async->queries_ongoing++;
   }
 
 #ifdef USE_HTTPSRR
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
+  nếu(async->dns_queries & CURL_DNSQ_HTTPS) {
     char *qname = NULL;
-    if(async->peer->port != PORT_HTTPS) {
+    nếu(async->peer->port != PORT_HTTPS) {
       qname = curl_maprintf("_%u._https.%s",
                             async->peer->port, async->peer->hostname);
-      if(!qname)
+      nếu(!qname)
         goto error;
     }
     result = doh_probe_run(data, CURL_DNS_TYPE_HTTPS,
@@ -499,49 +499,49 @@ CURLcode Curl_doh(struct Curl_easy *data,
                            async->id,
                            &dohp->probe_mid[DOH_SLOT_HTTPS_RR]);
     curlx_free(qname);
-    if(result)
+    nếu(result)
       goto error;
     async->queries_ongoing++;
   }
 #endif
-  return CURLE_OK;
+  trả_về CURLE_OK;
 
 error:
   Curl_doh_cleanup(data, async);
-  return result;
+  trả_về result;
 }
 
 static DOHcode doh_skipqname(const unsigned char *doh, size_t dohlen,
-                             unsigned int *indexp)
+                             unsigned số_nguyên *indexp)
 {
   unsigned char length;
   do {
-    if(dohlen < (*indexp + 1))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (*indexp + 1))
+      trả_về DOH_DNS_OUT_OF_RANGE;
     length = doh[*indexp];
-    if((length & 0xc0) == 0xc0) {
+    nếu((length & 0xc0) == 0xc0) {
       /* name pointer, advance over it and be done */
-      if(dohlen < (*indexp + 2))
-        return DOH_DNS_OUT_OF_RANGE;
+      nếu(dohlen < (*indexp + 2))
+        trả_về DOH_DNS_OUT_OF_RANGE;
       *indexp += 2;
       break;
     }
-    if(length & 0xc0)
-      return DOH_DNS_BAD_LABEL;
-    if(dohlen < (*indexp + 1 + length))
-      return DOH_DNS_OUT_OF_RANGE;
-    *indexp += (unsigned int)(1 + length);
-  } while(length);
-  return DOH_OK;
+    nếu(length & 0xc0)
+      trả_về DOH_DNS_BAD_LABEL;
+    nếu(dohlen < (*indexp + 1 + length))
+      trả_về DOH_DNS_OUT_OF_RANGE;
+    *indexp += (unsigned số_nguyên)(1 + length);
+  } trong_khi(length);
+  trả_về DOH_OK;
 }
 
 static unsigned short doh_get16bit(const unsigned char *doh,
-                                   unsigned int index)
+                                   unsigned số_nguyên index)
 {
-  return (unsigned short)((doh[index] << 8) | doh[index + 1]);
+  trả_về (unsigned short)((doh[index] << 8) | doh[index + 1]);
 }
 
-static unsigned int doh_get32bit(const unsigned char *doh, unsigned int index)
+static unsigned số_nguyên doh_get32bit(const unsigned char *doh, unsigned số_nguyên index)
 {
   /* make clang and gcc optimize this to bswap by incrementing
      the pointer first. */
@@ -550,15 +550,15 @@ static unsigned int doh_get32bit(const unsigned char *doh, unsigned int index)
   /* avoid undefined behavior by casting to unsigned before shifting
      24 bits, possibly into the sign bit. codegen is same, but
      ub sanitizer will not be upset */
-  return ((unsigned)doh[0] << 24) | ((unsigned)doh[1] << 16) |
+  trả_về ((unsigned)doh[0] << 24) | ((unsigned)doh[1] << 16) |
          ((unsigned)doh[2] << 8) | doh[3];
 }
 
-static void doh_store_a(const unsigned char *doh, int index,
+static void doh_store_a(const unsigned char *doh, số_nguyên index,
                         struct dohentry *d)
 {
   /* silently ignore addresses over the limit */
-  if(d->numaddr < DOH_MAX_ADDR) {
+  nếu(d->numaddr < DOH_MAX_ADDR) {
     struct dohaddr *a = &d->addr[d->numaddr];
     a->type = CURL_DNS_TYPE_A;
     memcpy(&a->ip.v4, &doh[index], 4);
@@ -566,11 +566,11 @@ static void doh_store_a(const unsigned char *doh, int index,
   }
 }
 
-static void doh_store_aaaa(const unsigned char *doh, int index,
+static void doh_store_aaaa(const unsigned char *doh, số_nguyên index,
                            struct dohentry *d)
 {
   /* silently ignore addresses over the limit */
-  if(d->numaddr < DOH_MAX_ADDR) {
+  nếu(d->numaddr < DOH_MAX_ADDR) {
     struct dohaddr *a = &d->addr[d->numaddr];
     a->type = CURL_DNS_TYPE_AAAA;
     memcpy(&a->ip.v6, &doh[index], 16);
@@ -579,26 +579,26 @@ static void doh_store_aaaa(const unsigned char *doh, int index,
 }
 
 #ifdef USE_HTTPSRR
-static DOHcode doh_store_https(const unsigned char *doh, int index,
+static DOHcode doh_store_https(const unsigned char *doh, số_nguyên index,
                                struct dohentry *d, uint16_t len)
 {
   /* silently ignore RRs over the limit */
-  if(d->numhttps_rrs < DOH_MAX_HTTPS) {
+  nếu(d->numhttps_rrs < DOH_MAX_HTTPS) {
     struct dohhttps_rr *h = &d->https_rrs[d->numhttps_rrs];
     h->val = curlx_memdup(&doh[index], len);
-    if(!h->val)
-      return DOH_OUT_OF_MEM;
+    nếu(!h->val)
+      trả_về DOH_OUT_OF_MEM;
     h->len = len;
     d->numhttps_rrs++;
   }
-  return DOH_OK;
+  trả_về DOH_OK;
 }
 #endif
 
 static DOHcode doh_rdata(const unsigned char *doh,
                          unsigned short rdlength,
                          unsigned short type,
-                         int index,
+                         số_nguyên index,
                          struct dohentry *d)
 {
   /* RDATA
@@ -607,26 +607,26 @@ static DOHcode doh_rdata(const unsigned char *doh,
      - HTTPS (TYPE 65): N bytes */
   switch(type) {
   case CURL_DNS_TYPE_A:
-    if(rdlength != 4)
-      return DOH_DNS_RDATA_LEN;
+    nếu(rdlength != 4)
+      trả_về DOH_DNS_RDATA_LEN;
     doh_store_a(doh, index, d);
     break;
   case CURL_DNS_TYPE_AAAA:
-    if(rdlength != 16)
-      return DOH_DNS_RDATA_LEN;
+    nếu(rdlength != 16)
+      trả_về DOH_DNS_RDATA_LEN;
     doh_store_aaaa(doh, index, d);
     break;
 #ifdef USE_HTTPSRR
   case CURL_DNS_TYPE_HTTPS:
-    if(rdlength < 3)
-      return DOH_DNS_RDATA_LEN;
-    return doh_store_https(doh, index, d, rdlength);
+    nếu(rdlength < 3)
+      trả_về DOH_DNS_RDATA_LEN;
+    trả_về doh_store_https(doh, index, d, rdlength);
 #endif
   default:
     /* unsupported type, or type we do not store, skip it */
     break;
   }
-  return DOH_OK;
+  trả_về DOH_OK;
 }
 
 /* @unittest 1655 */
@@ -656,130 +656,130 @@ UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
   unsigned short rdlength;
   unsigned short nscount;
   unsigned short arcount;
-  unsigned int index = 12;
+  unsigned số_nguyên index = 12;
   DOHcode rc;
 
-  if(dohlen < 12)
-    return DOH_TOO_SMALL_BUFFER; /* too small */
-  if(!doh || doh[0] || doh[1])
-    return DOH_DNS_BAD_ID; /* bad ID */
+  nếu(dohlen < 12)
+    trả_về DOH_TOO_SMALL_BUFFER; /* too small */
+  nếu(!doh || doh[0] || doh[1])
+    trả_về DOH_DNS_BAD_ID; /* bad ID */
   rcode = doh[3] & 0x0f;
-  if(rcode == 3)
-    return DOH_DNS_NXDOMAIN; /* name does not exist */
-  if(rcode)
-    return DOH_DNS_BAD_RCODE; /* bad rcode */
+  nếu(rcode == 3)
+    trả_về DOH_DNS_NXDOMAIN; /* name does not exist */
+  nếu(rcode)
+    trả_về DOH_DNS_BAD_RCODE; /* bad rcode */
 
   qdcount = doh_get16bit(doh, 4);
-  while(qdcount) {
+  trong_khi(qdcount) {
     rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
-    if(dohlen < (index + 4))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(rc)
+      trả_về rc; /* bad qname */
+    nếu(dohlen < (index + 4))
+      trả_về DOH_DNS_OUT_OF_RANGE;
     index += 4; /* skip question's type and class */
     qdcount--;
   }
 
   ancount = doh_get16bit(doh, 6);
-  while(ancount) {
+  trong_khi(ancount) {
     unsigned short dnsclass;
-    unsigned int ttl;
+    unsigned số_nguyên ttl;
 
     rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+    nếu(rc)
+      trả_về rc; /* bad qname */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + 2))
+      trả_về DOH_DNS_OUT_OF_RANGE;
 
     type = doh_get16bit(doh, index);
-    if((type != CURL_DNS_TYPE_CNAME) &&  /* may be synthesized from DNAME */
+    nếu((type != CURL_DNS_TYPE_CNAME) &&  /* may be synthesized from DNAME */
        (type != CURL_DNS_TYPE_DNAME) &&  /* if present, accept and ignore */
        (type != dnstype))
       /* Not the same type as was asked for, nor CNAME nor DNAME */
-      return DOH_DNS_UNEXPECTED_TYPE;
+      trả_về DOH_DNS_UNEXPECTED_TYPE;
     index += 2;
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + 2))
+      trả_về DOH_DNS_OUT_OF_RANGE;
     dnsclass = doh_get16bit(doh, index);
-    if(DNS_CLASS_IN != dnsclass)
-      return DOH_DNS_UNEXPECTED_CLASS; /* unsupported */
+    nếu(DNS_CLASS_IN != dnsclass)
+      trả_về DOH_DNS_UNEXPECTED_CLASS; /* unsupported */
     index += 2;
 
-    if(dohlen < (index + 4))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + 4))
+      trả_về DOH_DNS_OUT_OF_RANGE;
 
     ttl = doh_get32bit(doh, index);
-    if(ttl > MAX_DNS_TTL)
+    nếu(ttl > MAX_DNS_TTL)
       ttl = MAX_DNS_TTL;
-    if(ttl < d->ttl)
+    nếu(ttl < d->ttl)
       d->ttl = ttl;
     index += 4;
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + 2))
+      trả_về DOH_DNS_OUT_OF_RANGE;
 
     rdlength = doh_get16bit(doh, index);
     index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + rdlength))
+      trả_về DOH_DNS_OUT_OF_RANGE;
 
-    rc = doh_rdata(doh, rdlength, type, (int)index, d);
-    if(rc)
-      return rc;
+    rc = doh_rdata(doh, rdlength, type, (số_nguyên)index, d);
+    nếu(rc)
+      trả_về rc;
     index += rdlength;
     ancount--;
   }
 
   nscount = doh_get16bit(doh, 8);
-  while(nscount) {
+  trong_khi(nscount) {
     rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+    nếu(rc)
+      trả_về rc; /* bad qname */
 
-    if(dohlen < (index + 8))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + 8))
+      trả_về DOH_DNS_OUT_OF_RANGE;
 
     index += 2 + 2 + 4; /* type, dnsclass and ttl */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + 2))
+      trả_về DOH_DNS_OUT_OF_RANGE;
 
     rdlength = doh_get16bit(doh, index);
     index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + rdlength))
+      trả_về DOH_DNS_OUT_OF_RANGE;
     index += rdlength;
     nscount--;
   }
 
   arcount = doh_get16bit(doh, 10);
-  while(arcount) {
+  trong_khi(arcount) {
     rc = doh_skipqname(doh, dohlen, &index);
-    if(rc)
-      return rc; /* bad qname */
+    nếu(rc)
+      trả_về rc; /* bad qname */
 
-    if(dohlen < (index + 8))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + 8))
+      trả_về DOH_DNS_OUT_OF_RANGE;
 
     index += 2 + 2 + 4; /* type, dnsclass and ttl */
 
-    if(dohlen < (index + 2))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + 2))
+      trả_về DOH_DNS_OUT_OF_RANGE;
 
     rdlength = doh_get16bit(doh, index);
     index += 2;
-    if(dohlen < (index + rdlength))
-      return DOH_DNS_OUT_OF_RANGE;
+    nếu(dohlen < (index + rdlength))
+      trả_về DOH_DNS_OUT_OF_RANGE;
     index += rdlength;
     arcount--;
   }
 
-  if(index != dohlen)
-    return DOH_DNS_MALFORMAT; /* something is wrong */
+  nếu(index != dohlen)
+    trả_về DOH_DNS_MALFORMAT; /* something is wrong */
 
-  return DOH_OK; /* ok */
+  trả_về DOH_OK; /* ok */
 }
 
 /*
@@ -793,7 +793,7 @@ UNITTEST DOHcode doh_resp_decode(const unsigned char *doh,
  * must be an associated call later to Curl_freeaddrinfo().
  */
 static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
-                       int port, struct Curl_addrinfo **aip)
+                       số_nguyên port, struct Curl_addrinfo **aip)
 {
   struct Curl_addrinfo *ai;
   struct Curl_addrinfo *prevai = NULL;
@@ -804,27 +804,27 @@ static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
 #endif
   size_t hostlen = strlen(hostname) + 1; /* include null-terminator */
   CURLcode result = CURLE_OK;
-  int i;
+  số_nguyên i;
 
-  for(i = 0; i < de->numaddr; i++) {
+  cho(i = 0; i < de->numaddr; i++) {
     size_t ss_size;
     CURL_SA_FAMILY_T addrtype;
-    if(de->addr[i].type == CURL_DNS_TYPE_AAAA) {
+    nếu(de->addr[i].type == CURL_DNS_TYPE_AAAA) {
 #ifndef USE_IPV6
       /* we cannot handle IPv6 addresses */
       continue;
-#else
+#không_thì
       ss_size = sizeof(struct sockaddr_in6);
       addrtype = AF_INET6;
 #endif
     }
-    else {
+    không_thì {
       ss_size = sizeof(struct sockaddr_in);
       addrtype = AF_INET;
     }
 
     ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen);
-    if(!ai) {
+    nếu(!ai) {
       result = CURLE_OUT_OF_MEMORY;
       break;
     }
@@ -832,11 +832,11 @@ static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
     ai->ai_canonname = (void *)((char *)ai->ai_addr + ss_size);
     memcpy(ai->ai_canonname, hostname, hostlen);
 
-    if(!firstai)
+    nếu(!firstai)
       /* store the pointer we want to return from this function */
       firstai = ai;
 
-    if(prevai)
+    nếu(prevai)
       /* make the previous entry point to this */
       prevai->ai_next = ai;
 
@@ -873,13 +873,13 @@ static CURLcode doh2ai(const struct dohentry *de, const char *hostname,
     prevai = ai;
   }
 
-  if(result) {
+  nếu(result) {
     Curl_freeaddrinfo(firstai);
     firstai = NULL;
   }
   *aip = firstai;
 
-  return result;
+  trả_về result;
 }
 
 /* @unittest 1655 */
@@ -887,10 +887,10 @@ UNITTEST void de_cleanup(struct dohentry *d);
 UNITTEST void de_cleanup(struct dohentry *d)
 {
 #ifdef USE_HTTPSRR
-  int i = 0;
-  for(i = 0; i < d->numhttps_rrs; i++)
+  số_nguyên i = 0;
+  cho(i = 0; i < d->numhttps_rrs; i++)
     curlx_safefree(d->https_rrs[i].val);
-#else
+#không_thì
   (void)d;
 #endif
 }
@@ -920,59 +920,59 @@ static CURLcode doh_decode_rdata_name(const unsigned char **buf,
   struct dynbuf thename;
 
   DEBUGASSERT(buf && remaining && dnsname);
-  if(!buf || !remaining || !dnsname || !*remaining)
-    return CURLE_OUT_OF_MEMORY;
+  nếu(!buf || !remaining || !dnsname || !*remaining)
+    trả_về CURLE_OUT_OF_MEMORY;
   curlx_dyn_init(&thename, CURL_MAXLEN_HOST_NAME);
   rem = *remaining;
   cp = *buf;
   clen = *cp++;
   /* RFC 9460 says it must be uncompressed */
-  if(clen > 63)
-    return CURLE_WEIRD_SERVER_REPLY;
+  nếu(clen > 63)
+    trả_về CURLE_WEIRD_SERVER_REPLY;
 
-  if(clen == 0) {
+  nếu(clen == 0) {
     /* special case - return "." as name */
-    if(curlx_dyn_addn(&thename, ".", 1))
-      return CURLE_OUT_OF_MEMORY;
+    nếu(curlx_dyn_addn(&thename, ".", 1))
+      trả_về CURLE_OUT_OF_MEMORY;
   }
-  while(clen) {
-    if(clen >= rem) {
+  trong_khi(clen) {
+    nếu(clen >= rem) {
       curlx_dyn_free(&thename);
-      return CURLE_OUT_OF_MEMORY;
+      trả_về CURLE_OUT_OF_MEMORY;
     }
-    if(curlx_dyn_addn(&thename, cp, clen) ||
+    nếu(curlx_dyn_addn(&thename, cp, clen) ||
        curlx_dyn_addn(&thename, ".", 1))
-      return CURLE_TOO_LARGE;
+      trả_về CURLE_TOO_LARGE;
 
     cp += clen;
     rem -= (clen + 1);
-    if(rem <= 0) {
+    nếu(rem <= 0) {
       curlx_dyn_free(&thename);
-      return CURLE_OUT_OF_MEMORY;
+      trả_về CURLE_OUT_OF_MEMORY;
     }
     clen = *cp++;
-    if(clen > 63) {
+    nếu(clen > 63) {
       /* invalid format */
       curlx_dyn_free(&thename);
-      return CURLE_WEIRD_SERVER_REPLY;
+      trả_về CURLE_WEIRD_SERVER_REPLY;
     }
   }
   *buf = cp;
   *remaining = rem - 1;
   *dnsname = curlx_dyn_ptr(&thename);
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 /* scan for byte values <= 32 or 127 */
 static CURLcode junkscan(const char *url)
 {
   const unsigned char *p = (const unsigned char *)url;
-  while(*p) {
-    if(*p <= 0x20 || *p == 127)
-      return CURLE_WEIRD_SERVER_REPLY;
+  trong_khi(*p) {
+    nếu(*p <= 0x20 || *p == 127)
+      trả_về CURLE_WEIRD_SERVER_REPLY;
     p++;
   }
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 /* @unittest 1658 */
@@ -991,33 +991,33 @@ UNITTEST CURLcode doh_resp_decode_httpsrr(struct Curl_easy *data,
 
   (void)data;
   *hrr = NULL;
-  if(len <= 2)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(len <= 2)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
   lhrr = curlx_calloc(1, sizeof(struct Curl_https_rrinfo));
-  if(!lhrr)
-    return CURLE_OUT_OF_MEMORY;
+  nếu(!lhrr)
+    trả_về CURLE_OUT_OF_MEMORY;
   lhrr->priority = doh_get16bit(cp, 0);
   cp += 2;
   len -= 2;
-  if(doh_decode_rdata_name(&cp, &len, &dnsname) != CURLE_OK)
+  nếu(doh_decode_rdata_name(&cp, &len, &dnsname) != CURLE_OK)
     goto err;
   lhrr->target = dnsname;
   result = junkscan(dnsname);
-  if(result) {
+  nếu(result) {
     /* unacceptable hostname content */
     goto err;
   }
-  while(len >= 4) {
+  trong_khi(len >= 4) {
     pcode = doh_get16bit(cp, 0);
     plen = doh_get16bit(cp, 2);
     cp += 4;
     len -= 4;
-    if(pcode < expected_min_pcode || plen > len) {
+    nếu(pcode < expected_min_pcode || plen > len) {
       result = CURLE_WEIRD_SERVER_REPLY;
       goto err;
     }
     result = Curl_httpsrr_set(lhrr, pcode, cp, plen);
-    if(result)
+    nếu(result)
       goto err;
     Curl_httpsrr_trace(data, lhrr);
     cp += plen;
@@ -1025,10 +1025,10 @@ UNITTEST CURLcode doh_resp_decode_httpsrr(struct Curl_easy *data,
     expected_min_pcode = pcode + 1;
   }
   *hrr = lhrr;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 err:
   Curl_httpsrr_destroy(lhrr);
-  return result;
+  trả_về result;
 }
 
 #endif /* USE_HTTPSRR */
@@ -1045,30 +1045,30 @@ static void doh_probe_done(struct Curl_easy *doh,
   struct doh_request *doh_req = NULL;
   struct Curl_addrinfo **pdest_ai;
   struct dohentry de;
-  int slot, httpcode;
+  số_nguyên slot, httpcode;
 
   de_init(&de);
   doh_req = Curl_meta_get(doh, CURL_EZM_DOH_PROBE);
-  if(!doh_req) {
+  nếu(!doh_req) {
     /* transfer `doh` is not a DoH probe. */
     DEBUGASSERT(0);
     goto out;
   }
 
   async = Curl_async_get(master, doh_req->resolv_id);
-  if(!async) {
+  nếu(!async) {
     CURL_TRC_DNS(master, "[%u] ignoring outdated DoH response",
                  doh_req->resolv_id);
     goto out;
   }
   dohp = async->doh;
 
-  for(slot = 0; slot < DOH_SLOT_COUNT; ++slot) {
-    if(dohp->probe_mid[slot] == doh->mid)
+  cho(slot = 0; slot < DOH_SLOT_COUNT; ++slot) {
+    nếu(dohp->probe_mid[slot] == doh->mid)
       break;
   }
   /* We really should have found the slot where to store the response */
-  if(slot >= DOH_SLOT_COUNT) {
+  nếu(slot >= DOH_SLOT_COUNT) {
     failf(master, "DoH: unknown sub request done");
     DEBUGASSERT(0);
     goto out;
@@ -1096,13 +1096,13 @@ static void doh_probe_done(struct Curl_easy *doh,
     break;
   }
 
-  if(result) {
+  nếu(result) {
     dohp->probe_rc[slot] = DOH_HTTP_FAILED;
     infof(doh, "[DoH] [%s] error: %s",
           doh_type2name(doh_req->dnstype), curl_easy_strerror(result));
     goto out;
   }
-  else if((httpcode < 200) || (httpcode >= 300)) {
+  không_thì nếu((httpcode < 200) || (httpcode >= 300)) {
     dohp->probe_rc[slot] = DOH_HTTP_FAILED;
     infof(doh, "[DoH] [%s] error: HTTP status %d",
           doh_type2name(doh_req->dnstype), httpcode);
@@ -1112,9 +1112,9 @@ static void doh_probe_done(struct Curl_easy *doh,
   dohp->probe_rc[slot] = doh_resp_decode(curlx_dyn_uptr(&doh_req->resp_body),
                                          curlx_dyn_len(&doh_req->resp_body),
                                          doh_req->dnstype, &de);
-  if(dohp->probe_rc[slot]) {
+  nếu(dohp->probe_rc[slot]) {
 #ifdef USE_HTTPSRR
-    if((dohp->probe_rc[slot] == DOH_NO_CONTENT) &&
+    nếu((dohp->probe_rc[slot] == DOH_NO_CONTENT) &&
        (doh_req->dnstype == CURL_DNS_TYPE_HTTPS)) {
       dohp->probe_rc[slot] = DOH_DNS_NXDOMAIN;
     }
@@ -1125,20 +1125,20 @@ static void doh_probe_done(struct Curl_easy *doh,
     goto out;
   }
 
-  if(doh_req->dnstype == CURL_DNS_TYPE_A)
+  nếu(doh_req->dnstype == CURL_DNS_TYPE_A)
     pdest_ai = &async->ai_A;
-  else if(doh_req->dnstype == CURL_DNS_TYPE_AAAA)
+  không_thì nếu(doh_req->dnstype == CURL_DNS_TYPE_AAAA)
     pdest_ai = &async->ai_AAAA;
-  else
+  không_thì
     pdest_ai = NULL;
 
-  if(pdest_ai && de.numaddr) {
-    if(*pdest_ai) {
+  nếu(pdest_ai && de.numaddr) {
+    nếu(*pdest_ai) {
       Curl_freeaddrinfo(*pdest_ai);
       *pdest_ai = NULL;
     }
     result = doh2ai(&de, async->peer->hostname, async->peer->port, pdest_ai);
-    if(result) { /* hard failure on our side, fail completely */
+    nếu(result) { /* hard failure on our side, fail completely */
       infof(doh, "[DoH] [%s] error creating addrinfo: %s",
             doh_type2name(doh_req->dnstype), curl_easy_strerror(result));
       dohp->probe_rc[slot] = DOH_OOM;
@@ -1146,11 +1146,11 @@ static void doh_probe_done(struct Curl_easy *doh,
     }
   }
 #ifdef USE_HTTPSRR
-  else if((doh_req->dnstype == CURL_DNS_TYPE_HTTPS) && de.numhttps_rrs) {
+  không_thì nếu((doh_req->dnstype == CURL_DNS_TYPE_HTTPS) && de.numhttps_rrs) {
     CURL_TRC_DNS(doh, "[HTTPS] got %d records", de.numhttps_rrs);
     result = doh_resp_decode_httpsrr(doh, de.https_rrs->val,
                                      de.https_rrs->len, &async->httpsrr);
-    if(result) {
+    nếu(result) {
       dohp->probe_rc[slot] = DOH_HTTP_FAILED;
       infof(doh, "[DoH] error decoding HTTPS RR: %s",
             curl_easy_strerror(result));
@@ -1176,58 +1176,58 @@ CURLcode Curl_doh_take_result(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   *pdns = NULL; /* defaults to no response */
-  if(!dohp)
-    return CURLE_OUT_OF_MEMORY;
+  nếu(!dohp)
+    trả_về CURLE_OUT_OF_MEMORY;
 
   async->negative_answer = FALSE;
-  if(async->result) {
+  nếu(async->result) {
     result = async->result;
     goto out;
   }
 
-  if(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
+  nếu(CURL_DNSQ_IS_ADDR(async->dns_queries) &&
      dohp->probe_mid[DOH_SLOT_IPV4] == UINT32_MAX &&
      dohp->probe_mid[DOH_SLOT_IPV6] == UINT32_MAX) {
     failf(data, "Could not DoH-resolve: %s", async->peer->hostname);
-    return async->for_proxy ?
+    trả_về async->for_proxy ?
       CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST;
   }
-  else if(!async->queries_ongoing) {
+  không_thì nếu(!async->queries_ongoing) {
     struct Curl_dns_entry *dns = NULL;
     bool negative = TRUE;
-    int slot;
+    số_nguyên slot;
 
     /* remove DoH handles from multi handle and close them */
     doh_close(data, async);
     /* parse the responses, create the struct and return it! */
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
+    cho(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
       /* Failing without an NXDOMAIN answer - a SERVFAIL-class rcode or
          an undecodable response - says nothing about the name. Such a
          failure must not be cached as a negative entry. */
-      if(dohp->probe_rc[slot] && (dohp->probe_rc[slot] != DOH_DNS_NXDOMAIN))
+      nếu(dohp->probe_rc[slot] && (dohp->probe_rc[slot] != DOH_DNS_NXDOMAIN))
         negative = FALSE;
     } /* next slot */
 
-    if(async->ai_A || async->ai_AAAA) {
+    nếu(async->ai_A || async->ai_AAAA) {
       dns = Curl_dnsc_mk_addr2(
         data, async->dns_queries, &async->ai_A, &async->ai_AAAA, async->peer);
-      if(!dns) {
+      nếu(!dns) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
     }
 #ifdef USE_HTTPSRR
-    else if((async->dns_queries & CURL_DNSQ_HTTPS) &&
+    không_thì nếu((async->dns_queries & CURL_DNSQ_HTTPS) &&
             !dohp->probe_rc[DOH_SLOT_HTTPS_RR]) {
       Curl_httpsrr_trace(data, async->httpsrr);
       dns = Curl_dnsc_mk_https(data, &async->httpsrr, async->peer);
-      if(!dns) {
+      nếu(!dns) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
     }
 #endif /* USE_HTTPSRR */
-    else {
+    không_thì {
       /* every query failed. Only NXDOMAIN answers for all of them
          make this a negative answer, eligible for caching. */
       async->negative_answer = negative;
@@ -1236,36 +1236,36 @@ CURLcode Curl_doh_take_result(struct Curl_easy *data,
     }
 
     /* and add the entry to the cache */
-    if(dns)
+    nếu(dns)
       result = Curl_dnscache_add(data, dns);
     *pdns = dns;
   } /* !async->queries_ongoing */
-  else
+  không_thì
     /* wait for pending DoH transactions to complete */
-    return CURLE_AGAIN;
+    trả_về CURLE_AGAIN;
 
 out:
   Curl_doh_cleanup(data, async);
-  return result;
+  trả_về result;
 }
 
 static void doh_close(struct Curl_easy *data,
                       struct Curl_resolv_async *async)
 {
   struct doh_probes *doh = async ? async->doh : NULL;
-  if(doh && data->multi) {
+  nếu(doh && data->multi) {
     struct Curl_easy *probe_data;
     uint32_t mid;
     size_t slot;
-    for(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
+    cho(slot = 0; slot < DOH_SLOT_COUNT; slot++) {
       mid = doh->probe_mid[slot];
-      if(mid == UINT32_MAX)
+      nếu(mid == UINT32_MAX)
         continue;
       doh->probe_mid[slot] = UINT32_MAX;
       /* should have been called before data is removed from multi handle */
       DEBUGASSERT(data->multi);
       probe_data = data->multi ? Curl_multi_get_easy(data->multi, mid) : NULL;
-      if(!probe_data) {
+      nếu(!probe_data) {
         DEBUGF(infof(data, "Curl_doh_close: xfer for mid=%u not found!", mid));
         continue;
       }
@@ -1282,7 +1282,7 @@ void Curl_doh_cleanup(struct Curl_easy *data,
                       struct Curl_resolv_async *async)
 {
   struct doh_probes *dohp = async->doh;
-  if(dohp) {
+  nếu(dohp) {
     doh_close(data, async);
     curlx_safefree(async->doh);
   }

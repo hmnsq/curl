@@ -50,10 +50,10 @@ struct Curl_str;
  */
 
 struct Curl_addrinfo {
-  int                   ai_flags;
-  int                   ai_family;
-  int                   ai_socktype;
-  int                   ai_protocol;
+  số_nguyên                   ai_flags;
+  số_nguyên                   ai_family;
+  số_nguyên                   ai_socktype;
+  số_nguyên                   ai_protocol;
   curl_socklen_t        ai_addrlen;   /* Follow rfc3493 struct addrinfo */
   char                 *ai_canonname;
   struct sockaddr      *ai_addr;
@@ -64,18 +64,18 @@ void Curl_freeaddrinfo(struct Curl_addrinfo *cahead);
 
 /* Get the n-th addrinfo of family ai_family. */
 struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
-                                        int ai_family,
-                                        unsigned int n);
+                                        số_nguyên ai_family,
+                                        unsigned số_nguyên n);
 
 #ifdef HAVE_GETADDRINFO
-int Curl_getaddrinfo_ex(const char *nodename,
+số_nguyên Curl_getaddrinfo_ex(const char *nodename,
                         const char *servname,
                         const struct addrinfo *hints,
                         struct Curl_addrinfo **result);
 #endif
 
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
-struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port);
+#nếu !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
+struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, số_nguyên port);
 #endif
 
 bool Curl_is_ipv4addr(const char *address);
@@ -91,23 +91,23 @@ CURLcode Curl_unix2addr(const char *path, bool abstract,
                         struct Curl_addrinfo **paddr);
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+#nếu defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(HAVE_FREEADDRINFO)
-void curl_dbg_freeaddrinfo(struct addrinfo *freethis, int line,
+void curl_dbg_freeaddrinfo(struct addrinfo *freethis, số_nguyên line,
                            const char *source);
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
-int curl_dbg_getaddrinfo(const char *hostname, const char *service,
+#nếu defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
+số_nguyên curl_dbg_getaddrinfo(const char *hostname, const char *service,
                          const struct addrinfo *hints,
-                         struct addrinfo **result, int line,
+                         struct addrinfo **result, số_nguyên line,
                          const char *source);
 #endif
 
 #ifdef HAVE_GETADDRINFO
 #ifdef USE_RESOLVE_ON_IPS
-void Curl_addrinfo_set_port(struct Curl_addrinfo *addrinfo, int port);
-#else
+void Curl_addrinfo_set_port(struct Curl_addrinfo *addrinfo, số_nguyên port);
+#không_thì
 #define Curl_addrinfo_set_port(x, y)
 #endif
 #endif

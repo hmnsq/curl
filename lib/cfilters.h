@@ -129,7 +129,7 @@ typedef CURLcode Curl_cft_conn_keep_alive(struct Curl_cfilter *cf,
  */
 typedef CURLcode Curl_cft_cntrl(struct Curl_cfilter *cf,
                                 struct Curl_easy *data,
-                                int event, int arg1, void *arg2);
+                                số_nguyên event, số_nguyên arg1, void *arg2);
 
 /**
  * Queries to ask via a `Curl_cft_query *query` method on a cfilter chain.
@@ -188,7 +188,7 @@ typedef CURLcode Curl_cft_cntrl(struct Curl_cfilter *cf,
  */
 typedef CURLcode Curl_cft_query(struct Curl_cfilter *cf,
                                 struct Curl_easy *data,
-                                int query, int *pres1, void *pres2);
+                                số_nguyên query, số_nguyên *pres1, void *pres2);
 
 /**
  * Type flags for connection filters. A filter can have none, one or
@@ -216,8 +216,8 @@ typedef CURLcode Curl_cft_query(struct Curl_cfilter *cf,
 /* A connection filter type, e.g. specific implementation. */
 struct Curl_cftype {
   const char *name;                        /* name of the filter type */
-  int flags;                               /* flags of filter type */
-  int log_level;                           /* log level for such filters */
+  số_nguyên flags;                               /* flags of filter type */
+  số_nguyên log_level;                           /* log level for such filters */
   Curl_cft_destroy_this *destroy;          /* destroy resources of this cf */
   Curl_cft_connect *do_connect;            /* establish connection */
   Curl_cft_shutdown *do_shutdown;          /* shutdown conn */
@@ -260,7 +260,7 @@ CURLcode Curl_cf_def_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
                           char *buf, size_t len, size_t *pnread);
 CURLcode Curl_cf_def_cntrl(struct Curl_cfilter *cf,
                            struct Curl_easy *data,
-                           int event, int arg1, void *arg2);
+                           số_nguyên event, số_nguyên arg1, void *arg2);
 bool     Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
                                    struct Curl_easy *data,
                                    bool *input_pending);
@@ -268,7 +268,7 @@ CURLcode Curl_cf_def_conn_keep_alive(struct Curl_cfilter *cf,
                                      struct Curl_easy *data);
 CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
                            struct Curl_easy *data,
-                           int query, int *pres1, void *pres2);
+                           số_nguyên query, số_nguyên *pres1, void *pres2);
 CURLcode Curl_cf_def_shutdown(struct Curl_cfilter *cf,
                               struct Curl_easy *data, bool *done);
 CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
@@ -333,7 +333,7 @@ CURLcode Curl_conn_cf_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
 CURLcode Curl_conn_cf_cntrl(struct Curl_cfilter *cf,
                             struct Curl_easy *data,
                             bool ignore_result,
-                            int event, int arg1, void *arg2);
+                            số_nguyên event, số_nguyên arg1, void *arg2);
 
 /**
  * Get the socket used by the filter chain starting at `cf`.
@@ -355,8 +355,8 @@ bool Curl_conn_cf_is_ip_connected(struct Curl_cfilter *cf,
 unsigned char Curl_conn_cf_get_transport(struct Curl_cfilter *cf,
                                          struct Curl_easy *data);
 
-int Curl_socktype_for_transport(uint8_t transport);
-int Curl_protocol_for_transport(uint8_t transport);
+số_nguyên Curl_socktype_for_transport(uint8_t transport);
+số_nguyên Curl_protocol_for_transport(uint8_t transport);
 
 const char *Curl_conn_cf_get_alpn_negotiated(struct Curl_cfilter *cf,
                                              struct Curl_easy *data);
@@ -401,7 +401,7 @@ bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex);
  */
 bool Curl_conn_get_ssl_info(struct Curl_easy *data,
                             struct connectdata *conn, int8_t sockindex,
-                            int query,
+                            số_nguyên query,
                             struct curl_tlssessioninfo *info);
 
 CURLcode Curl_conn_get_ip_info(struct Curl_easy *data,
@@ -433,7 +433,7 @@ void Curl_conn_cntrl_update_info(struct Curl_easy *data,
 
 void Curl_conn_cntrl_report_stats(struct Curl_easy *data,
                                   struct connectdata *conn,
-                                  int sockindex);
+                                  số_nguyên sockindex);
 
 void Curl_conn_remove_setup_filters(struct Curl_easy *data,
                                     int8_t sockindex);
@@ -491,7 +491,7 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
  * Returns 0 on timeout, negative on error or number of sockets
  * with requested poll events.
  */
-int Curl_conn_cf_poll(struct Curl_cfilter *cf,
+số_nguyên Curl_conn_cf_poll(struct Curl_cfilter *cf,
                       struct Curl_easy *data,
                       timediff_t timeout_ms);
 
@@ -578,7 +578,7 @@ CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
  * it will be the name and port the proxy currently negotiates with.
  */
 void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
-                                const char **phost, int *pport);
+                                const char **phost, số_nguyên *pport);
 
 /**
  * Get the maximum number of parallel transfers the connection
@@ -591,7 +591,7 @@ size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
 /**
  * Get the underlying error code for a transfer stream or 0 if not known.
  */
-int Curl_conn_get_stream_error(struct Curl_easy *data,
+số_nguyên Curl_conn_get_stream_error(struct Curl_easy *data,
                                struct connectdata *conn,
                                int8_t sockindex);
 
@@ -644,7 +644,7 @@ CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
 struct cf_call_data {
   struct Curl_easy *data;
 #ifdef DEBUGBUILD
-  int depth;
+  số_nguyên depth;
 #endif
 };
 
@@ -663,27 +663,27 @@ struct cf_call_data {
     DEBUGASSERT(!(save).data || (save).depth > 0); \
     CF_CTX_CALL_DATA(cf).depth++;  \
     CF_CTX_CALL_DATA(cf).data = (struct Curl_easy *)CURL_UNCONST(data); \
-  } while(0)
+  } trong_khi(0)
 
 #define CF_DATA_RESTORE(cf, save) \
   do { \
     DEBUGASSERT(CF_CTX_CALL_DATA(cf).depth == (save).depth + 1); \
     DEBUGASSERT(!(save).data || (save).depth > 0); \
     CF_CTX_CALL_DATA(cf) = (save); \
-  } while(0)
+  } trong_khi(0)
 
-#else /* DEBUGBUILD */
+#không_thì /* DEBUGBUILD */
 
 #define CF_DATA_SAVE(save, cf, data) \
   do { \
     (save) = CF_CTX_CALL_DATA(cf); \
     CF_CTX_CALL_DATA(cf).data = (struct Curl_easy *)CURL_UNCONST(data); \
-  } while(0)
+  } trong_khi(0)
 
 #define CF_DATA_RESTORE(cf, save) \
   do { \
     CF_CTX_CALL_DATA(cf) = (save); \
-  } while(0)
+  } trong_khi(0)
 
 #endif /* !DEBUGBUILD */
 

@@ -32,66 +32,66 @@ static const struct curl_easyoption *lookup(const char *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
+  nếu(name || id) {
     const struct curl_easyoption *o = &Curl_easyopts[0];
     do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+      nếu(name) {
+        nếu(curl_strequal(o->name, name))
+          trả_về o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      không_thì {
+        nếu((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          trả_về o;
       }
       o++;
-    } while(o->name);
+    } trong_khi(o->name);
   }
-  return NULL;
+  trả_về NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_by_name(const char *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  trả_về lookup(name, CURLOPT_LASTENTRY);
 }
 
 const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  trả_về lookup(NULL, id);
 }
 
 /* Iterates over available options */
 const struct curl_easyoption *curl_easy_option_next(
   const struct curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  nếu(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    nếu(prev->name)
+      trả_về prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  không_thì nếu(!prev)
+    trả_về &Curl_easyopts[0];
+  trả_về NULL;
 }
 
-#else
+#không_thì
 const struct curl_easyoption *curl_easy_option_by_name(const char *name)
 {
   (void)name;
-  return NULL;
+  trả_về NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
   (void)id;
-  return NULL;
+  trả_về NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_next(
   const struct curl_easyoption *prev)
 {
   (void)prev;
-  return NULL;
+  trả_về NULL;
 }
 #endif

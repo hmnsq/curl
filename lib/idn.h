@@ -32,12 +32,12 @@ bool Curl_is_ASCII_str(struct Curl_str *s);
 
 CURLcode Curl_idnconvert_hostname(struct hostname *host);
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#nếu defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
 #define USE_IDN
 void Curl_free_idnconverted_hostname(struct hostname *host);
 CURLcode Curl_idn_decode(const char *input, char **output);
 CURLcode Curl_idn_encode(const char *puny, char **output);
-#else
+#không_thì
 #define Curl_free_idnconverted_hostname(x)
 #define Curl_idn_decode(x) NULL
 #endif

@@ -24,7 +24,7 @@
 #include "curl_setup.h"
 
 #ifdef HAVE_STRERROR_R
-#  if (!defined(HAVE_POSIX_STRERROR_R) && \
+#  nếu (!defined(HAVE_POSIX_STRERROR_R) && \
        !defined(HAVE_GLIBC_STRERROR_R)) || \
       (defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R))
 #    error "strerror_r MUST be either POSIX, glibc style"
@@ -41,19 +41,19 @@
  * codes (WSAGetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-static const char *get_winsock_error(int err, char *buf, size_t len)
+static const char *get_winsock_error(số_nguyên err, char *buf, size_t len)
 {
   VERBOSE(const char *p);
 
-  if(!len)
-    return NULL;
+  nếu(!len)
+    trả_về NULL;
 
   *buf = '\0';
 
 #ifndef CURLVERBOSE
   (void)err;
-  return NULL;
-#else
+  trả_về NULL;
+#không_thì
   switch(err) {
   case WSAEINTR:
     p = "Call interrupted";
@@ -218,10 +218,10 @@ static const char *get_winsock_error(int err, char *buf, size_t len)
     break;
 
   default:
-    return NULL;
+    trả_về NULL;
   }
   curlx_strcopy(buf, len, p, strlen(p));
-  return buf;
+  trả_về buf;
 #endif
 }
 #endif /* USE_WINSOCK */
@@ -245,16 +245,16 @@ static const char *get_winsock_error(int err, char *buf, size_t len)
  * Call Curl_sspi_strerror if the error code is definitely Windows SSPI.
  * Call curlx_winapi_strerror if the error code is definitely Windows API.
  */
-const char *curlx_strerror(int err, char *buf, size_t buflen)
+const char *curlx_strerror(số_nguyên err, char *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
+  số_nguyên old_errno = errno;
   char *p;
 
-  if(!buflen)
-    return NULL;
+  nếu(!buflen)
+    trả_về NULL;
 
 #ifndef _WIN32
   DEBUGASSERT(err >= 0);
@@ -263,23 +263,23 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
   *buf = '\0';
 
 #ifdef _WIN32
-  if((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
+  nếu((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
 #ifdef USE_WINSOCK
      !get_winsock_error(err, buf, buflen) &&
 #endif
      !curlx_get_winapi_error((DWORD)err, buf, buflen))
-    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned int)err);
-#else /* !_WIN32 */
+    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned số_nguyên)err);
+#không_thì /* !_WIN32 */
 
-#if defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
+#nếu defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
   /*
    * The POSIX-style strerror_r() may set errno to ERANGE if insufficient
    * storage is supplied via 'strerrbuf' and 'buflen' to hold the generated
    * message string, or EINVAL if 'errnum' is not a valid error number.
    */
-  if(strerror_r(err, buf, buflen) &&
+  nếu(strerror_r(err, buf, buflen) &&
      buflen > sizeof("Unknown error ") + 20) {
-    if(buf[0] == '\0')
+    nếu(buf[0] == '\0')
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
 #elif defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
@@ -291,18 +291,18 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
   {
     char buffer[256];
     const char *msg = strerror_r(err, buffer, sizeof(buffer));
-    if(msg && buflen > 1)
+    nếu(msg && buflen > 1)
       SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    không_thì nếu(buflen > sizeof("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#else
+#không_thì
   {
     /* !checksrc! disable BANNEDFUNC 1 */
     const char *msg = strerror(err);
-    if(msg && buflen > 1)
+    nếu(msg && buflen > 1)
       SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    không_thì nếu(buflen > sizeof("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
 #endif
@@ -311,19 +311,19 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
 
   /* strip trailing '\r\n' or '\n'. */
   p = strrchr(buf, '\n');
-  if(p && (p - buf) >= 2)
+  nếu(p && (p - buf) >= 2)
     *p = '\0';
   p = strrchr(buf, '\r');
-  if(p && (p - buf) >= 1)
+  nếu(p && (p - buf) >= 1)
     *p = '\0';
 
-  if(errno != old_errno)
+  nếu(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  nếu(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  trả_về buf;
 }

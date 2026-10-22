@@ -42,7 +42,7 @@ CURLcode Curl_blockread_all(struct Curl_cfilter *cf,
                             size_t blen,
                             size_t *pnread);
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#nếu defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 /*
  * This function handles the SOCKS5 GSS-API negotiation and initialization
  */

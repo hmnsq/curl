@@ -35,10 +35,10 @@ void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
 #ifdef WITHOUT_LIBCURL /* when built for the test servers */
 #ifdef _WIN32
 #define SNPRINTF curlx_win32_snprintf
-#else
+#không_thì
 #define SNPRINTF snprintf
 #endif
-#else /* !WITHOUT_LIBCURL */
+#không_thì /* !WITHOUT_LIBCURL */
 #include <curl/mprintf.h>
 #define SNPRINTF curl_msnprintf
 #endif /* WITHOUT_LIBCURL */

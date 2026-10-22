@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_HTTP3) && \
+#nếu defined(USE_HTTP3) && \
   (defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL))
 
 #ifdef USE_OPENSSL
@@ -62,13 +62,13 @@ CURLcode Curl_vquic_tls_peer_init(struct Curl_peer *origin,
   Curl_gtls_version(tls_id, sizeof(tls_id));
 #elif defined(USE_WOLFSSL)
   Curl_wssl_version(tls_id, sizeof(tls_id));
-#else
+#không_thì
 #error "no TLS lib in used, should not happen"
-  return CURLE_FAILED_INIT;
+  trả_về CURLE_FAILED_INIT;
 #endif
-  if(ssl_peer->origin || ssl_peer->peer)
+  nếu(ssl_peer->origin || ssl_peer->peer)
     Curl_ssl_peer_cleanup(ssl_peer);
-  return Curl_ssl_peer_init(ssl_peer, origin, peer, sslc,
+  trả_về Curl_ssl_peer_init(ssl_peer, origin, peer, sslc,
                             tls_id, TRNSPRT_QUIC);
 }
 
@@ -82,20 +82,20 @@ CURLcode Curl_vquic_tls_init(struct curl_tls_ctx *ctx,
                              Curl_vquic_session_reuse_cb *session_reuse_cb)
 {
 #ifdef USE_OPENSSL
-  return Curl_ossl_ctx_init(&ctx->ossl, cf, data, ssl_peer, alpns,
+  trả_về Curl_ossl_ctx_init(&ctx->ossl, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data, NULL, ssl_user_data,
                             session_reuse_cb);
 #elif defined(USE_GNUTLS)
-  return Curl_gtls_ctx_init(&ctx->gtls, cf, data, ssl_peer, alpns,
+  trả_về Curl_gtls_ctx_init(&ctx->gtls, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data, ssl_user_data,
                             session_reuse_cb);
 #elif defined(USE_WOLFSSL)
-  return Curl_wssl_ctx_init(&ctx->wssl, cf, data, ssl_peer, alpns,
+  trả_về Curl_wssl_ctx_init(&ctx->wssl, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data,
                             ssl_user_data, session_reuse_cb);
-#else
+#không_thì
 #error "no TLS lib in used, should not happen"
-  return CURLE_FAILED_INIT;
+  trả_về CURLE_FAILED_INIT;
 #endif
 }
 
@@ -104,13 +104,13 @@ void Curl_vquic_tls_cleanup(struct curl_tls_ctx *ctx)
 #ifdef USE_OPENSSL
   Curl_osslctx_cleanup(&ctx->ossl);
 #elif defined(USE_GNUTLS)
-  if(ctx->gtls.session)
+  nếu(ctx->gtls.session)
     gnutls_deinit(ctx->gtls.session);
   Curl_gtls_shared_creds_free(&ctx->gtls.shared_creds);
 #elif defined(USE_WOLFSSL)
-  if(ctx->wssl.ssl)
+  nếu(ctx->wssl.ssl)
     wolfSSL_free(ctx->wssl.ssl);
-  if(ctx->wssl.ssl_ctx)
+  nếu(ctx->wssl.ssl_ctx)
     wolfSSL_CTX_free(ctx->wssl.ssl_ctx);
 #endif
   memset(ctx, 0, sizeof(*ctx));
@@ -121,30 +121,30 @@ CURLcode Curl_vquic_tls_before_recv(struct curl_tls_ctx *ctx,
                                     struct Curl_easy *data)
 {
 #ifdef USE_OPENSSL
-  if(!ctx->ossl.x509_store_setup) {
+  nếu(!ctx->ossl.x509_store_setup) {
     CURLcode result = Curl_ssl_setup_x509_store(cf, data, &ctx->ossl);
-    if(result)
-      return result;
+    nếu(result)
+      trả_về result;
     ctx->ossl.x509_store_setup = TRUE;
   }
 #elif defined(USE_WOLFSSL)
-  if(!ctx->wssl.x509_store_setup) {
+  nếu(!ctx->wssl.x509_store_setup) {
     CURLcode result = Curl_wssl_setup_x509_store(cf, data, &ctx->wssl);
-    if(result)
-      return result;
+    nếu(result)
+      trả_về result;
   }
 #elif defined(USE_GNUTLS)
-  if(!ctx->gtls.shared_creds->trust_setup) {
+  nếu(!ctx->gtls.shared_creds->trust_setup) {
     CURLcode result = Curl_gtls_client_trust_setup(cf, data, &ctx->gtls);
-    if(result)
-      return result;
+    nếu(result)
+      trả_về result;
   }
-#else
+#không_thì
   (void)ctx;
   (void)cf;
   (void)data;
 #endif
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
@@ -156,8 +156,8 @@ CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
   CURLcode result = CURLE_OK;
 
   conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!conn_config)
-    return CURLE_FAILED_INIT;
+  nếu(!conn_config)
+    trả_về CURLE_FAILED_INIT;
 
 #ifdef USE_OPENSSL
   (void)conn_config;
@@ -168,27 +168,27 @@ CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY));
 #elif defined(USE_WOLFSSL)
   (void)data;
-  if(conn_config->verifyhost) {
+  nếu(conn_config->verifyhost) {
     WOLFSSL_X509 *cert = wolfSSL_get_peer_certificate(ctx->wssl.ssl);
-    if(!cert)
+    nếu(!cert)
       result = CURLE_OUT_OF_MEMORY;
-    else if(peer->sni &&
+    không_thì nếu(peer->sni &&
             (wolfSSL_X509_check_host(cert, peer->sni, strlen(peer->sni), 0,
                                      NULL) == WOLFSSL_FAILURE))
       result = CURLE_PEER_FAILED_VERIFICATION;
-    else if(!peer->sni &&
+    không_thì nếu(!peer->sni &&
             (wolfSSL_X509_check_ip_asc(cert, peer->origin->hostname,
                                        0) == WOLFSSL_FAILURE))
       result = CURLE_PEER_FAILED_VERIFICATION;
     wolfSSL_X509_free(cert);
   }
-  if(!result)
+  nếu(!result)
     result = Curl_wssl_verify_pinned(cf, data, &ctx->wssl);
 #endif
   /* on error, remove any session we might have in the pool */
-  if(result)
+  nếu(result)
     Curl_ssl_scache_remove_all(cf, data, peer->scache_key);
-  return result;
+  trả_về result;
 }
 
 bool Curl_vquic_tls_get_ssl_info(struct curl_tls_ctx *ctx,
@@ -199,19 +199,19 @@ bool Curl_vquic_tls_get_ssl_info(struct curl_tls_ctx *ctx,
   info->backend = CURLSSLBACKEND_OPENSSL;
   info->internals = give_ssl_ctx ?
                     (void *)ctx->ossl.ssl_ctx : (void *)ctx->ossl.ssl;
-  return TRUE;
+  trả_về TRUE;
 #elif defined(USE_GNUTLS)
   (void)give_ssl_ctx; /* gnutls always returns its session */
   info->backend = CURLSSLBACKEND_GNUTLS;
   info->internals = ctx->gtls.session;
-  return TRUE;
+  trả_về TRUE;
 #elif defined(USE_WOLFSSL)
   info->backend = CURLSSLBACKEND_WOLFSSL;
   info->internals = give_ssl_ctx ?
                     (void *)ctx->wssl.ssl_ctx : (void *)ctx->wssl.ssl;
-  return TRUE;
-#else
-  return FALSE;
+  trả_về TRUE;
+#không_thì
+  trả_về FALSE;
 #endif
 }
 
@@ -227,7 +227,7 @@ void Curl_vquic_report_handshake(struct curl_tls_ctx *ctx,
   Curl_gtls_report_handshake(data, &ctx->gtls);
 #elif defined(USE_WOLFSSL)
   Curl_wssl_report_handshake(data, &ctx->wssl);
-#else
+#không_thì
   (void)data;
   (void)ctx;
 #endif

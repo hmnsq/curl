@@ -122,10 +122,10 @@ void Curl_thrdq_trace(struct curl_thrdq *tqueue,
                       struct Curl_easy *data);
 #define CURL_THRDQ_TRACE(t, d) \
   do { \
-    if(Curl_trc_ft_is_verbose(d, &Curl_trc_feat_threads)) \
+    nếu(Curl_trc_ft_is_verbose(d, &Curl_trc_feat_threads)) \
       Curl_thrdq_trace(t, d); \
-  } while(0)
-#else
+  } trong_khi(0)
+#không_thì
 #define CURL_THRDQ_TRACE(t, d)  Curl_nop_stmt
 #endif
 

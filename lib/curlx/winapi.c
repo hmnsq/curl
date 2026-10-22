@@ -40,68 +40,68 @@ const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen)
 {
   char *p;
 
-  if(!buflen)
-    return NULL;
+  nếu(!buflen)
+    trả_về NULL;
 
   /* We return the local codepage version of the error string because if it is
      output to the user's terminal, it is likely done with functions which
      expect the local codepage (eg fprintf, failf, infof). */
-  if(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
+  nếu(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
                       FORMAT_MESSAGE_IGNORE_INSERTS), NULL, err,
                      LANG_NEUTRAL, buf, (DWORD)buflen, NULL)) {
     *buf = '\0';
-    return NULL;
+    trả_về NULL;
   }
 
   /* Truncate multiple lines */
   p = strchr(buf, '\n');
-  if(p) {
-    if(p > buf && *(p - 1) == '\r')
+  nếu(p) {
+    nếu(p > buf && *(p - 1) == '\r')
       *(p - 1) = '\0';
-    else
+    không_thì
       *p = '\0';
   }
 
-  return *buf ? buf : NULL;
+  trả_về *buf ? buf : NULL;
 }
 
 const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen)
 {
   DWORD old_win_err = GetLastError();
-  int old_errno = errno;
+  số_nguyên old_errno = errno;
 
-  if(!buflen)
-    return NULL;
+  nếu(!buflen)
+    trả_về NULL;
 
   *buf = '\0';
 
 #ifdef CURLVERBOSE
-  if(!curlx_get_winapi_error(err, buf, buflen)) {
-#if defined(__GNUC__) && __GNUC__ >= 7
+  nếu(!curlx_get_winapi_error(err, buf, buflen)) {
+#nếu defined(__GNUC__) && __GNUC__ >= 7
 #pragma GCC diagnostic push
 #pragma GCC diagnostic warning "-Wformat-truncation=1"
 #endif
     /* some GCC compilers cause false positive warnings if we allow this
        warning */
     SNPRINTF(buf, buflen, "Unknown error %lu (0x%08lx)", err, err);
-#if defined(__GNUC__) && __GNUC__ >= 7
+#nếu defined(__GNUC__) && __GNUC__ >= 7
 #pragma GCC diagnostic pop
 #endif
   }
-#else
+#không_thì
   {
     const char *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
     curlx_strcopy(buf, buflen, txt, strlen(txt));
   }
 #endif
 
-  if(errno != old_errno)
+  nếu(errno != old_errno)
     errno = old_errno;
 
-  if(old_win_err != GetLastError())
+  nếu(old_win_err != GetLastError())
     SetLastError(old_win_err);
 
-  return buf;
+  trả_về buf;
 }
 
 #ifndef WITHOUT_LIBCURL
@@ -115,11 +115,11 @@ CURLcode curlx_win32_random(unsigned char *entropy, size_t length)
 {
   memset(entropy, 0, length);
 
-  if(BCryptGenRandom(NULL, entropy, (ULONG)length,
+  nếu(BCryptGenRandom(NULL, entropy, (ULONG)length,
                      BCRYPT_USE_SYSTEM_PREFERRED_RNG) != STATUS_SUCCESS)
-    return CURLE_FAILED_INIT;
+    trả_về CURLE_FAILED_INIT;
 
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 #endif /* WITHOUT_LIBCURL */
 

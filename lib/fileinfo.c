@@ -29,13 +29,13 @@
 
 struct fileinfo *Curl_fileinfo_alloc(void)
 {
-  return curlx_calloc(1, sizeof(struct fileinfo));
+  trả_về curlx_calloc(1, sizeof(struct fileinfo));
 }
 
 void Curl_fileinfo_cleanup(struct fileinfo *finfo)
 {
-  if(!finfo)
-    return;
+  nếu(!finfo)
+    trả_về;
 
   curlx_dyn_free(&finfo->buf);
   curlx_free(finfo);

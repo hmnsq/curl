@@ -69,11 +69,11 @@
 #ifndef SSH_STRING_FREE_CHAR
 #define SSH_STRING_FREE_CHAR(x) \
   do {                          \
-    if(x) {                     \
+    nếu(x) {                     \
       ssh_string_free_char(x);  \
       x = NULL;                 \
     }                           \
-  } while(0)
+  } trong_khi(0)
 #endif
 
 /* These stat values may not be the same as the user's S_IFMT / S_IFLNK */
@@ -84,28 +84,28 @@
 #define SSH_S_IFLNK  0120000
 #endif
 
-static CURLcode sftp_error_to_CURLE(int err)
+static CURLcode sftp_error_to_CURLE(số_nguyên err)
 {
   switch(err) {
   case SSH_FX_OK:
-    return CURLE_OK;
+    trả_về CURLE_OK;
 
   case SSH_FX_NO_SUCH_FILE:
   case SSH_FX_NO_SUCH_PATH:
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+    trả_về CURLE_REMOTE_FILE_NOT_FOUND;
 
   case SSH_FX_PERMISSION_DENIED:
   case SSH_FX_WRITE_PROTECT:
-    return CURLE_REMOTE_ACCESS_DENIED;
+    trả_về CURLE_REMOTE_ACCESS_DENIED;
 
   case SSH_FX_FILE_ALREADY_EXISTS:
-    return CURLE_REMOTE_FILE_EXISTS;
+    trả_về CURLE_REMOTE_FILE_EXISTS;
 
   default:
     break;
   }
 
-  return CURLE_SSH;
+  trả_về CURLE_SSH;
 }
 
 /* Multiple options:
@@ -120,9 +120,9 @@ static CURLcode sftp_error_to_CURLE(int err)
  *
  * Returns SSH_OK or SSH_ERROR.
  */
-static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
+static số_nguyên myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
 {
-  int rc;
+  số_nguyên rc;
   ssh_key pubkey;
   unsigned char *hash_sha256 = NULL;
   size_t hlen_sha256;
@@ -130,7 +130,7 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
   size_t hlen_md5;
   char *found_base64 = NULL;
   char *known_base64 = NULL;
-  int vstate;
+  số_nguyên vstate;
   enum curl_khmatch keymatch;
   struct curl_khkey foundkey;
   struct curl_khkey *knownkeyp = NULL;
@@ -140,10 +140,10 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
 
   rc = ssh_get_server_publickey(sshc->ssh_session, &pubkey);
 
-  if(rc != SSH_OK)
-    return rc;
+  nếu(rc != SSH_OK)
+    trả_về rc;
 
-  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256)) {
+  nếu(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256)) {
     const char *pubkey_sha256 =
       CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256);
     char *fingerprint_b64 = NULL;
@@ -153,13 +153,13 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
 
     rc = ssh_get_publickey_hash(pubkey, SSH_PUBLICKEY_HASH_SHA256,
                                 &hash_sha256, &hlen_sha256);
-    if(rc != SSH_OK || hlen_sha256 != 32) {
+    nếu(rc != SSH_OK || hlen_sha256 != 32) {
       failf(data, "Denied establishing ssh session: "
             "SHA256 fingerprint not available");
       goto cleanup;
     }
 
-    if(curlx_base64_encode((const uint8_t *)hash_sha256, 32, &fingerprint_b64,
+    nếu(curlx_base64_encode((const uint8_t *)hash_sha256, 32, &fingerprint_b64,
                            &fingerprint_b64_len) != CURLE_OK) {
       rc = SSH_ERROR;
       goto cleanup;
@@ -168,20 +168,20 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
     infof(data, "SSH SHA256 fingerprint: %s", fingerprint_b64);
 
     /* Find the position of any = padding characters in the public key */
-    while((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
+    trong_khi((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
       pub_pos++;
     }
 
     /* Find the position of any = padding characters in the base64 coded
      * hostkey fingerprint */
-    while((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
+    trong_khi((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
       b64_pos++;
     }
 
     /* Before we authenticate we check the hostkey's SHA256 fingerprint
      * against a known fingerprint, if available.
      */
-    if((pub_pos != b64_pos) ||
+    nếu((pub_pos != b64_pos) ||
        strncmp(fingerprint_b64, pubkey_sha256, pub_pos)) {
       failf(data,
             "Denied establishing ssh session: mismatch SHA256 fingerprint. "
@@ -197,26 +197,26 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
     goto cleanup;
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5)) {
+  nếu(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5)) {
     const char *pubkey_md5 =
       CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5);
     char md5buffer[33];
-    int i;
+    số_nguyên i;
 
     rc = ssh_get_publickey_hash(pubkey, SSH_PUBLICKEY_HASH_MD5,
                                 &hash_md5, &hlen_md5);
-    if(rc != SSH_OK || hlen_md5 != 16) {
+    nếu(rc != SSH_OK || hlen_md5 != 16) {
       failf(data,
             "Denied establishing ssh session: MD5 fingerprint not available");
       goto cleanup;
     }
 
-    for(i = 0; i < 16; i++)
+    cho(i = 0; i < 16; i++)
       curl_msnprintf(&md5buffer[i * 2], 3, "%02x", hash_md5[i]);
 
     infof(data, "SSH MD5 fingerprint: %s", md5buffer);
 
-    if(!curl_strequal(md5buffer, pubkey_md5)) {
+    nếu(!curl_strequal(md5buffer, pubkey_md5)) {
       failf(data,
             "Denied establishing ssh session: mismatch MD5 fingerprint. "
             "Remote %s is not equal to %s", md5buffer, pubkey_md5);
@@ -228,18 +228,18 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
     goto cleanup;
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
+  nếu(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
 
     /* Get the known_key from the known hosts file */
     vstate = ssh_session_get_known_hosts_entry(sshc->ssh_session,
                                                &knownhostsentry);
 
     /* Case an entry was found in a known hosts file */
-    if(knownhostsentry) {
-      if(knownhostsentry->publickey) {
+    nếu(knownhostsentry) {
+      nếu(knownhostsentry->publickey) {
         rc = ssh_pki_export_pubkey_base64(knownhostsentry->publickey,
                                           &known_base64);
-        if(rc != SSH_OK) {
+        nếu(rc != SSH_OK) {
           goto cleanup;
         }
         knownkey.key = known_base64;
@@ -289,11 +289,11 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
       break;
     }
 
-    if(func) { /* use callback to determine action */
+    nếu(func) { /* use callback to determine action */
       struct Curl_mapi_guard guard;
 
       rc = ssh_pki_export_pubkey_base64(pubkey, &found_base64);
-      if(rc != SSH_OK)
+      nếu(rc != SSH_OK)
         goto cleanup;
 
       foundkey.key = found_base64;
@@ -332,7 +332,7 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
       switch(rc) {
       case CURLKHSTAT_FINE_ADD_TO_FILE:
         rc = ssh_session_update_known_hosts(sshc->ssh_session);
-        if(rc != SSH_OK) {
+        nếu(rc != SSH_OK) {
           goto cleanup;
         }
         break;
@@ -343,8 +343,8 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
         goto cleanup;
       }
     }
-    else {
-      if(keymatch != CURLKHMATCH_OK) {
+    không_thì {
+      nếu(keymatch != CURLKHMATCH_OK) {
         rc = SSH_ERROR;
         goto cleanup;
       }
@@ -353,82 +353,82 @@ static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
   rc = SSH_OK;
 
 cleanup:
-  if(found_base64) {
+  nếu(found_base64) {
     /* !checksrc! disable BANNEDFUNC 1 */
     free(found_base64); /* allocated by libssh, deallocate with system free */
   }
-  if(known_base64) {
+  nếu(known_base64) {
     /* !checksrc! disable BANNEDFUNC 1 */
     free(known_base64); /* allocated by libssh, deallocate with system free */
   }
-  if(hash_sha256)
+  nếu(hash_sha256)
     ssh_clean_pubkey_hash(&hash_sha256);
-  if(hash_md5)
+  nếu(hash_md5)
     ssh_clean_pubkey_hash(&hash_md5);
   ssh_key_free(pubkey);
-  if(knownhostsentry) {
+  nếu(knownhostsentry) {
     ssh_knownhosts_entry_free(knownhostsentry);
   }
-  return rc;
+  trả_về rc;
 }
 
-static int myssh_to_ERROR(struct Curl_easy *data,
+static số_nguyên myssh_to_ERROR(struct Curl_easy *data,
                           struct ssh_conn *sshc,
                           CURLcode result)
 {
   myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
   sshc->actualcode = result;
-  return SSH_ERROR;
+  trả_về SSH_ERROR;
 }
 
-static int myssh_to_SFTP_CLOSE(struct Curl_easy *data,
+static số_nguyên myssh_to_SFTP_CLOSE(struct Curl_easy *data,
                                struct ssh_conn *sshc)
 {
   myssh_to(data, sshc, SSH_SFTP_CLOSE);
   sshc->actualcode = sftp_error_to_CURLE(sftp_get_error(sshc->sftp_session));
-  return SSH_ERROR;
+  trả_về SSH_ERROR;
 }
 
-static int myssh_to_PASSWD_AUTH(struct Curl_easy *data,
+static số_nguyên myssh_to_PASSWD_AUTH(struct Curl_easy *data,
                                 struct ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
+  nếu(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
     myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
-    return SSH_OK;
+    trả_về SSH_OK;
   }
-  return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  trả_về myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
 }
 
-static int myssh_to_KEY_AUTH(struct Curl_easy *data,
+static số_nguyên myssh_to_KEY_AUTH(struct Curl_easy *data,
                              struct ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
+  nếu(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
     myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
-    return SSH_OK;
+    trả_về SSH_OK;
   }
-  return myssh_to_PASSWD_AUTH(data, sshc);
+  trả_về myssh_to_PASSWD_AUTH(data, sshc);
 }
 
-static int myssh_to_GSSAPI_AUTH(struct Curl_easy *data,
+static số_nguyên myssh_to_GSSAPI_AUTH(struct Curl_easy *data,
                                 struct ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
+  nếu(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
     myssh_to(data, sshc, SSH_AUTH_GSSAPI);
-    return SSH_OK;
+    trả_về SSH_OK;
   }
-  return myssh_to_KEY_AUTH(data, sshc);
+  trả_về myssh_to_KEY_AUTH(data, sshc);
 }
 
-static int myssh_in_SFTP_READDIR_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_READDIR_INIT(struct Curl_easy *data,
                                       struct ssh_conn *sshc,
                                       struct SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
   Curl_pgrsSetDownloadSize(data, -1);
-  if(data->req.no_body) {
+  nếu(data->req.no_body) {
     myssh_to(data, sshc, SSH_STOP);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
 
   /*
@@ -437,114 +437,114 @@ static int myssh_in_SFTP_READDIR_INIT(struct Curl_easy *data,
    */
   sshc->sftp_dir = sftp_opendir(sshc->sftp_session,
                                 sshp->path);
-  if(!sshc->sftp_dir) {
+  nếu(!sshc->sftp_dir) {
     failf(data, "Could not open directory for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    trả_về myssh_to_SFTP_CLOSE(data, sshc);
   }
   myssh_to(data, sshc, SSH_SFTP_READDIR);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_READDIR(struct Curl_easy *data,
                                  struct ssh_conn *sshc,
                                  struct SSHPROTO *sshp)
 {
   CURLcode result = CURLE_OK;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
   curlx_dyn_reset(&sshc->readdir_buf);
-  if(sshc->readdir_attrs)
+  nếu(sshc->readdir_attrs)
     sftp_attributes_free(sshc->readdir_attrs);
 
   sshc->readdir_attrs = sftp_readdir(sshc->sftp_session, sshc->sftp_dir);
-  if(sshc->readdir_attrs) {
+  nếu(sshc->readdir_attrs) {
     sshc->readdir_filename = sshc->readdir_attrs->name;
     sshc->readdir_longentry = sshc->readdir_attrs->longname;
     sshc->readdir_len = strlen(sshc->readdir_filename);
 
-    if(data->set.list_only) {
+    nếu(data->set.list_only) {
       char *tmpLine;
 
       tmpLine = curl_maprintf("%s\n", sshc->readdir_filename);
-      if(!tmpLine) {
+      nếu(!tmpLine) {
         myssh_to(data, sshc, SSH_SFTP_CLOSE);
         sshc->actualcode = CURLE_OUT_OF_MEMORY;
-        return SSH_ERROR;
+        trả_về SSH_ERROR;
       }
       result = Curl_client_write(data, CLIENTWRITE_BODY,
                                  tmpLine, sshc->readdir_len + 1);
       curlx_free(tmpLine);
 
-      if(result) {
+      nếu(result) {
         myssh_to(data, sshc, SSH_STOP);
         sshc->actualcode = result;
-        return SSH_NO_ERROR;
+        trả_về SSH_NO_ERROR;
       }
     }
-    else {
-      if(curlx_dyn_add(&sshc->readdir_buf, sshc->readdir_longentry)) {
+    không_thì {
+      nếu(curlx_dyn_add(&sshc->readdir_buf, sshc->readdir_longentry)) {
         sshc->actualcode = CURLE_OUT_OF_MEMORY;
         myssh_to(data, sshc, SSH_STOP);
-        return SSH_ERROR;
+        trả_về SSH_ERROR;
       }
 
-      if((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) &&
+      nếu((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) &&
          ((sshc->readdir_attrs->permissions & SSH_S_IFMT) ==
           SSH_S_IFLNK)) {
         sshc->readdir_linkPath = curl_maprintf("%s%s", sshp->path,
                                                sshc->readdir_filename);
 
-        if(!sshc->readdir_linkPath) {
+        nếu(!sshc->readdir_linkPath) {
           myssh_to(data, sshc, SSH_SFTP_CLOSE);
           sshc->actualcode = CURLE_OUT_OF_MEMORY;
-          return SSH_ERROR;
+          trả_về SSH_ERROR;
         }
 
         myssh_to(data, sshc, SSH_SFTP_READDIR_LINK);
-        return SSH_NO_ERROR;
+        trả_về SSH_NO_ERROR;
       }
       myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
   }
-  else if(sftp_dir_eof(sshc->sftp_dir)) {
+  không_thì nếu(sftp_dir_eof(sshc->sftp_dir)) {
     myssh_to(data, sshc, SSH_SFTP_READDIR_DONE);
   }
-  else {
+  không_thì {
     failf(data, "Could not open remote directory for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    trả_về myssh_to_SFTP_CLOSE(data, sshc);
   }
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
                                       struct ssh_conn *sshc)
 {
-  if(sshc->readdir_link_attrs)
+  nếu(sshc->readdir_link_attrs)
     sftp_attributes_free(sshc->readdir_link_attrs);
 
   sshc->readdir_link_attrs = sftp_lstat(sshc->sftp_session,
                                         sshc->readdir_linkPath);
-  if(!sshc->readdir_link_attrs) {
+  nếu(!sshc->readdir_link_attrs) {
     failf(data, "Could not read symlink for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    trả_về myssh_to_SFTP_CLOSE(data, sshc);
   }
 
-  if(!sshc->readdir_link_attrs->name) {
+  nếu(!sshc->readdir_link_attrs->name) {
     sshc->readdir_tmp = sftp_readlink(sshc->sftp_session,
                                       sshc->readdir_linkPath);
-    if(!sshc->readdir_tmp)
+    nếu(!sshc->readdir_tmp)
       sshc->readdir_len = 0;
-    else
+    không_thì
       sshc->readdir_len = strlen(sshc->readdir_tmp);
     sshc->readdir_longentry = NULL;
     sshc->readdir_filename = sshc->readdir_tmp;
   }
-  else {
+  không_thì {
     sshc->readdir_len = strlen(sshc->readdir_link_attrs->name);
     sshc->readdir_filename = sshc->readdir_link_attrs->name;
     sshc->readdir_longentry = sshc->readdir_link_attrs->longname;
@@ -552,7 +552,7 @@ static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
 
   curlx_safefree(sshc->readdir_linkPath);
 
-  if(curlx_dyn_addf(&sshc->readdir_buf, " -> %s", sshc->readdir_filename)) {
+  nếu(curlx_dyn_addf(&sshc->readdir_buf, " -> %s", sshc->readdir_filename)) {
     /* Not using:
      * return myssh_to_SFTP_CLOSE(data, sshc);
      *
@@ -562,7 +562,7 @@ static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
      */
     myssh_to(data, sshc, SSH_SFTP_CLOSE);
     sshc->actualcode = CURLE_OUT_OF_MEMORY;
-    return SSH_ERROR;
+    trả_về SSH_ERROR;
   }
 
   sftp_attributes_free(sshc->readdir_link_attrs);
@@ -571,17 +571,17 @@ static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
   sshc->readdir_longentry = NULL;
 
   myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_BOTTOM(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_READDIR_BOTTOM(struct Curl_easy *data,
                                         struct ssh_conn *sshc)
 {
   CURLcode result;
 
-  if(curlx_dyn_addn(&sshc->readdir_buf, "\n", 1))
+  nếu(curlx_dyn_addn(&sshc->readdir_buf, "\n", 1))
     result = CURLE_OUT_OF_MEMORY;
-  else
+  không_thì
     result = Curl_client_write(data, CLIENTWRITE_BODY,
                                curlx_dyn_ptr(&sshc->readdir_buf),
                                curlx_dyn_len(&sshc->readdir_buf));
@@ -589,16 +589,16 @@ static int myssh_in_SFTP_READDIR_BOTTOM(struct Curl_easy *data,
   ssh_string_free_char(sshc->readdir_tmp);
   sshc->readdir_tmp = NULL;
 
-  if(result) {
+  nếu(result) {
     myssh_to(data, sshc, SSH_STOP);
     sshc->actualcode = result;
   }
-  else
+  không_thì
     myssh_to(data, sshc, SSH_SFTP_READDIR);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_DONE(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_READDIR_DONE(struct Curl_easy *data,
                                       struct ssh_conn *sshc)
 {
   sftp_closedir(sshc->sftp_dir);
@@ -607,13 +607,13 @@ static int myssh_in_SFTP_READDIR_DONE(struct Curl_easy *data,
   /* no data to transfer */
   Curl_xfer_setup_nop(data);
   myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
 static void myssh_quote_error(struct Curl_easy *data, struct ssh_conn *sshc,
                               const char *cmd)
 {
-  if(cmd)
+  nếu(cmd)
     failf(data, "%s command failed: %s", cmd,
           ssh_get_error(sshc->ssh_session));
   curlx_safefree(sshc->quote_path1);
@@ -623,22 +623,22 @@ static void myssh_quote_error(struct Curl_easy *data, struct ssh_conn *sshc,
   sshc->actualcode = CURLE_QUOTE_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_STATVFS(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_STATVFS(struct Curl_easy *data,
                                        struct ssh_conn *sshc)
 {
   sftp_statvfs_t statvfs;
 
   statvfs = sftp_statvfs(sshc->sftp_session, sshc->quote_path1);
-  if(!statvfs && !sshc->acceptfail) {
+  nếu(!statvfs && !sshc->acceptfail) {
     myssh_quote_error(data, sshc, "statvfs");
-    return SSH_OK;
+    trả_về SSH_OK;
   }
-  else if(statvfs) {
+  không_thì nếu(statvfs) {
 #ifdef _MSC_VER
 #define CURL_LIBSSH_VFS_SIZE_MASK "I64u"
 #elif defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 6)
 #define CURL_LIBSSH_VFS_SIZE_MASK "llu"
-#else
+#không_thì
 #define CURL_LIBSSH_VFS_SIZE_MASK PRIu64
 #endif
     CURLcode result = CURLE_OK;
@@ -662,86 +662,86 @@ static int myssh_in_SFTP_QUOTE_STATVFS(struct Curl_easy *data,
                               statvfs->f_namemax);
     sftp_statvfs_free(statvfs);
 
-    if(!tmp)
+    nếu(!tmp)
       result = CURLE_OUT_OF_MEMORY;
 
-    if(!result) {
+    nếu(!result) {
       result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
       curlx_free(tmp);
     }
-    if(result) {
+    nếu(result) {
       myssh_to(data, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
       sshc->actualcode = result;
     }
   }
   myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_OK;
+  trả_về SSH_OK;
 }
 
-static int myssh_auth_interactive(struct connectdata *conn,
+static số_nguyên myssh_auth_interactive(struct connectdata *conn,
                                   struct ssh_conn *sshc)
 {
-  int rc;
-  int nprompts;
+  số_nguyên rc;
+  số_nguyên nprompts;
 
 restart:
   switch(sshc->kbd_state) {
   case 0:
     rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
+    nếu(rc == SSH_AUTH_AGAIN)
+      trả_về SSH_AGAIN;
 
-    if(rc != SSH_AUTH_INFO)
-      return SSH_ERROR;
+    nếu(rc != SSH_AUTH_INFO)
+      trả_về SSH_ERROR;
 
     nprompts = ssh_userauth_kbdint_getnprompts(sshc->ssh_session);
-    if(nprompts != 1)
-      return SSH_ERROR;
+    nếu(nprompts != 1)
+      trả_về SSH_ERROR;
 
     rc = ssh_userauth_kbdint_setanswer(sshc->ssh_session, 0,
                                        Curl_creds_passwd(conn->creds));
-    if(rc < 0)
-      return SSH_ERROR;
+    nếu(rc < 0)
+      trả_về SSH_ERROR;
 
     FALLTHROUGH();
   case 1:
     sshc->kbd_state = 1;
 
     rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
-    else if(rc == SSH_AUTH_SUCCESS)
+    nếu(rc == SSH_AUTH_AGAIN)
+      trả_về SSH_AGAIN;
+    không_thì nếu(rc == SSH_AUTH_SUCCESS)
       rc = SSH_OK;
-    else if(rc == SSH_AUTH_INFO) {
+    không_thì nếu(rc == SSH_AUTH_INFO) {
       nprompts = ssh_userauth_kbdint_getnprompts(sshc->ssh_session);
-      if(nprompts)
-        return SSH_ERROR;
+      nếu(nprompts)
+        trả_về SSH_ERROR;
 
       sshc->kbd_state = 2;
       goto restart;
     }
-    else
+    không_thì
       rc = SSH_ERROR;
     break;
   case 2:
     sshc->kbd_state = 2;
 
     rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
-    else if(rc == SSH_AUTH_SUCCESS)
+    nếu(rc == SSH_AUTH_AGAIN)
+      trả_về SSH_AGAIN;
+    không_thì nếu(rc == SSH_AUTH_SUCCESS)
       rc = SSH_OK;
-    else
+    không_thì
       rc = SSH_ERROR;
 
     break;
   default:
-    return SSH_ERROR;
+    trả_về SSH_ERROR;
   }
 
   sshc->kbd_state = 0;
-  return rc;
+  trả_về rc;
 }
 
 static void myssh_state_init(struct Curl_easy *data,
@@ -751,7 +751,7 @@ static void myssh_state_init(struct Curl_easy *data,
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_OK;
 
-#if 0
+#nếu 0
   ssh_set_log_level(SSH_LOG_PROTOCOL);
 #endif
 
@@ -767,61 +767,61 @@ static void myssh_block2waitfor(struct connectdata *conn,
                                 bool block)
 {
   (void)conn;
-  if(block) {
-    int dir = ssh_get_poll_flags(sshc->ssh_session);
+  nếu(block) {
+    số_nguyên dir = ssh_get_poll_flags(sshc->ssh_session);
     /* translate the libssh define bits into our own bit defines */
     sshc->waitfor =
       ((dir & SSH_READ_PENDING) ? REQ_IO_RECV : 0) |
       ((dir & SSH_WRITE_PENDING) ? REQ_IO_SEND : 0);
   }
-  else
+  không_thì
     sshc->waitfor = 0;
 }
 
-static int myssh_in_S_STARTUP(struct Curl_easy *data,
+static số_nguyên myssh_in_S_STARTUP(struct Curl_easy *data,
                               struct ssh_conn *sshc)
 {
   struct connectdata *conn = data->conn;
-  int rc = ssh_connect(sshc->ssh_session);
+  số_nguyên rc = ssh_connect(sshc->ssh_session);
 
   myssh_block2waitfor(conn, sshc, (rc == SSH_AGAIN));
-  if(rc == SSH_AGAIN) {
+  nếu(rc == SSH_AGAIN) {
     CURL_TRC_SSH(data, "connect -> EAGAIN");
   }
-  else if(rc != SSH_OK) {
+  không_thì nếu(rc != SSH_OK) {
     failf(data, "Failure establishing ssh session");
     rc = myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
   }
-  else
+  không_thì
     myssh_to(data, sshc, SSH_HOSTKEY);
 
-  return rc;
+  trả_về rc;
 }
 
-static int myssh_in_AUTHLIST(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTHLIST(struct Curl_easy *data,
                              struct ssh_conn *sshc)
 {
-  int rc;
+  số_nguyên rc;
   sshc->authed = FALSE;
 
   rc = ssh_userauth_none(sshc->ssh_session, NULL);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
+  nếu(rc == SSH_AUTH_AGAIN)
+    trả_về SSH_AGAIN;
 
-  if(rc == SSH_AUTH_SUCCESS) {
+  nếu(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
     infof(data, "Authenticated with none");
     myssh_to(data, sshc, SSH_AUTH_DONE);
-    return rc;
+    trả_về rc;
   }
-  else if(rc == SSH_AUTH_ERROR) {
+  không_thì nếu(rc == SSH_AUTH_ERROR) {
     rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
-    return rc;
+    trả_về rc;
   }
 
   sshc->auth_methods =
-    (unsigned int)ssh_userauth_list(sshc->ssh_session, NULL);
-  if(sshc->auth_methods)
+    (unsigned số_nguyên)ssh_userauth_list(sshc->ssh_session, NULL);
+  nếu(sshc->auth_methods)
     infof(data, "SSH authentication methods available: %s%s%s%s",
           sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY ?
           "public key, " : "",
@@ -833,178 +833,178 @@ static int myssh_in_AUTHLIST(struct Curl_easy *data,
           "password" : "");
   /* For public key auth we need either the private key or
      CURLSSH_AUTH_AGENT. */
-  if((sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY) &&
+  nếu((sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY) &&
      ((sshc->priv_key && sshc->priv_key[0]) ||
       (data->set.ssh_auth_types & CURLSSH_AUTH_AGENT))) {
     myssh_to(data, sshc, SSH_AUTH_PKEY_INIT);
     infof(data, "Authentication using SSH public key file");
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
+  không_thì nếu(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
     myssh_to(data, sshc, SSH_AUTH_GSSAPI);
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
+  không_thì nếu(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
     myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
+  không_thì nếu(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
     myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
   }
-  else {                  /* unsupported authentication method */
+  không_thì {                  /* unsupported authentication method */
     rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
   }
-  return rc;
+  trả_về rc;
 }
 
-static int myssh_in_AUTH_PKEY_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTH_PKEY_INIT(struct Curl_easy *data,
                                    struct ssh_conn *sshc)
 {
-  int rc;
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY)) {
+  số_nguyên rc;
+  nếu(!(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY)) {
     rc = myssh_to_GSSAPI_AUTH(data, sshc);
-    return rc;
+    trả_về rc;
   }
 
   /* Two choices, (1) private key was given on CMD,
    * (2) use the "default" keys. */
-  if(sshc->priv_key && sshc->priv_key[0]) {
-    if(sshc->pubkey && !sshc->passphrase) {
+  nếu(sshc->priv_key && sshc->priv_key[0]) {
+    nếu(sshc->pubkey && !sshc->passphrase) {
       rc = ssh_userauth_try_publickey(sshc->ssh_session, NULL, sshc->pubkey);
-      if(rc == SSH_AUTH_AGAIN)
-        return SSH_AGAIN;
+      nếu(rc == SSH_AUTH_AGAIN)
+        trả_về SSH_AGAIN;
 
-      if(rc != SSH_OK) {
+      nếu(rc != SSH_OK) {
         rc = myssh_to_GSSAPI_AUTH(data, sshc);
-        return rc;
+        trả_về rc;
       }
     }
 
     rc = ssh_pki_import_privkey_file(sshc->priv_key,
                                      sshc->passphrase, NULL,
                                      NULL, &sshc->privkey);
-    if(rc != SSH_OK) {
+    nếu(rc != SSH_OK) {
       failf(data, "Could not load private key file %s", sshc->priv_key);
       rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
-      return rc;
+      trả_về rc;
     }
 
     myssh_to(data, sshc, SSH_AUTH_PKEY);
   }
-  else {
+  không_thì {
     rc = ssh_userauth_publickey_auto(sshc->ssh_session, NULL,
                                      sshc->passphrase);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
+    nếu(rc == SSH_AUTH_AGAIN)
+      trả_về SSH_AGAIN;
 
-    if(rc == SSH_AUTH_SUCCESS) {
+    nếu(rc == SSH_AUTH_SUCCESS) {
       rc = SSH_OK;
       sshc->authed = TRUE;
       infof(data, "Completed public key authentication");
       myssh_to(data, sshc, SSH_AUTH_DONE);
-      return rc;
+      trả_về rc;
     }
 
     rc = myssh_to_GSSAPI_AUTH(data, sshc);
   }
-  return rc;
+  trả_về rc;
 }
 
-static int myssh_in_AUTH_PKEY(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTH_PKEY(struct Curl_easy *data,
                               struct ssh_conn *sshc)
 {
-  int rc = ssh_userauth_publickey(sshc->ssh_session, NULL, sshc->privkey);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
-  else if(rc == SSH_AUTH_SUCCESS) {
+  số_nguyên rc = ssh_userauth_publickey(sshc->ssh_session, NULL, sshc->privkey);
+  nếu(rc == SSH_AUTH_AGAIN)
+    trả_về SSH_AGAIN;
+  không_thì nếu(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
     infof(data, "Completed public key authentication");
     myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_OK;
+    trả_về SSH_OK;
   }
-  else {
+  không_thì {
     infof(data, "Failed public key authentication (rc: %d)", rc);
-    return myssh_to_GSSAPI_AUTH(data, sshc);
+    trả_về myssh_to_GSSAPI_AUTH(data, sshc);
   }
 }
 
-static int myssh_in_AUTH_GSSAPI(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTH_GSSAPI(struct Curl_easy *data,
                                 struct ssh_conn *sshc)
 {
-  int rc;
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_GSSAPI))
-    return myssh_to_KEY_AUTH(data, sshc);
+  số_nguyên rc;
+  nếu(!(data->set.ssh_auth_types & CURLSSH_AUTH_GSSAPI))
+    trả_về myssh_to_KEY_AUTH(data, sshc);
 
   rc = ssh_userauth_gssapi(sshc->ssh_session);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
+  nếu(rc == SSH_AUTH_AGAIN)
+    trả_về SSH_AGAIN;
 
-  if(rc == SSH_AUTH_SUCCESS) {
+  nếu(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
     infof(data, "Completed gssapi authentication");
     myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_OK;
+    trả_về SSH_OK;
   }
 
-  return myssh_to_KEY_AUTH(data, sshc);
+  trả_về myssh_to_KEY_AUTH(data, sshc);
 }
 
-static int myssh_in_AUTH_KEY_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTH_KEY_INIT(struct Curl_easy *data,
                                   struct ssh_conn *sshc)
 {
-  if(data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) {
+  nếu(data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) {
     myssh_to(data, sshc, SSH_AUTH_KEY);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
-  return myssh_to_PASSWD_AUTH(data, sshc);
+  trả_về myssh_to_PASSWD_AUTH(data, sshc);
 }
 
-static int myssh_in_AUTH_KEY(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTH_KEY(struct Curl_easy *data,
                              struct ssh_conn *sshc)
 {
   /* keyboard-interactive authentication */
-  int rc = myssh_auth_interactive(data->conn, sshc);
-  if(rc == SSH_AGAIN)
-    return rc;
-  else if(rc == SSH_OK) {
+  số_nguyên rc = myssh_auth_interactive(data->conn, sshc);
+  nếu(rc == SSH_AGAIN)
+    trả_về rc;
+  không_thì nếu(rc == SSH_OK) {
     sshc->authed = TRUE;
     infof(data, "completed keyboard interactive authentication");
     myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
-  else
-    return myssh_to_PASSWD_AUTH(data, sshc);
+  không_thì
+    trả_về myssh_to_PASSWD_AUTH(data, sshc);
 }
 
-static int myssh_in_AUTH_PASS_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTH_PASS_INIT(struct Curl_easy *data,
                                    struct ssh_conn *sshc)
 {
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD))
-    return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  nếu(!(data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD))
+    trả_về myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
   myssh_to(data, sshc, SSH_AUTH_PASS);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_AUTH_PASS(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTH_PASS(struct Curl_easy *data,
                               struct ssh_conn *sshc)
 {
-  int rc = ssh_userauth_password(sshc->ssh_session, NULL,
+  số_nguyên rc = ssh_userauth_password(sshc->ssh_session, NULL,
                                  Curl_creds_passwd(data->conn->creds));
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
-  else if(rc == SSH_AUTH_SUCCESS) {
+  nếu(rc == SSH_AUTH_AGAIN)
+    trả_về SSH_AGAIN;
+  không_thì nếu(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
     infof(data, "Completed password authentication");
     myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
-  return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  trả_về myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
 }
 
-static int myssh_in_AUTH_DONE(struct Curl_easy *data,
+static số_nguyên myssh_in_AUTH_DONE(struct Curl_easy *data,
                               struct ssh_conn *sshc)
 {
   struct connectdata *conn = data->conn;
-  if(!sshc->authed) {
+  nếu(!sshc->authed) {
     failf(data, "Authentication failure");
-    return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+    trả_về myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
   }
 
   /* At this point we have an authenticated ssh session. */
@@ -1013,51 +1013,51 @@ static int myssh_in_AUTH_DONE(struct Curl_easy *data,
   conn->recv_idx = FIRSTSOCKET;
   conn->send_idx = -1;
 
-  if(conn->scheme->protocol == CURLPROTO_SFTP) {
+  nếu(conn->scheme->protocol == CURLPROTO_SFTP) {
     myssh_to(data, sshc, SSH_SFTP_INIT);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
   infof(data, "SSH CONNECT phase done");
   myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_UPLOAD_INIT(struct Curl_easy *data,
                                 struct ssh_conn *sshc,
                                 struct SSHPROTO *sshp)
 {
-  int flags;
-  int rc = 0;
+  số_nguyên flags;
+  số_nguyên rc = 0;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
-  if(data->state.resume_from) {
+  nếu(data->state.resume_from) {
     sftp_attributes attrs;
 
-    if(data->state.resume_from < 0) {
+    nếu(data->state.resume_from < 0) {
       attrs = sftp_stat(sshc->sftp_session, sshp->path);
-      if(attrs) {
+      nếu(attrs) {
         curl_off_t size = attrs->size;
         sftp_attributes_free(attrs);
-        if(size < 0) {
+        nếu(size < 0) {
           failf(data, "Bad file size (%" FMT_OFF_T ")", size);
           rc = myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
-          return rc;
+          trả_về rc;
         }
         data->state.resume_from = size;
       }
-      else {
+      không_thì {
         data->state.resume_from = 0;
       }
     }
   }
 
-  if(data->set.remote_append) {
+  nếu(data->set.remote_append) {
     /* True append mode: create if nonexisting */
     flags = O_WRONLY | O_CREAT | O_APPEND;
   }
-  else if(data->state.resume_from > 0) {
+  không_thì nếu(data->state.resume_from > 0) {
     /*
      * Resume MUST NOT use O_APPEND. Many SFTP servers/impls force all
      * writes to EOF when O_APPEND is set, ignoring a prior seek().
@@ -1065,19 +1065,19 @@ static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
      */
     flags = O_WRONLY;
   }
-  else
+  không_thì
     /* Clear file before writing (normal behavior) */
     flags = O_WRONLY | O_CREAT | O_TRUNC;
 
-  if(sshc->sftp_file)
+  nếu(sshc->sftp_file)
     sftp_close(sshc->sftp_file);
   sshc->sftp_file =
     sftp_open(sshc->sftp_session, sshp->path,
               flags, (mode_t)data->set.new_file_perms);
-  if(!sshc->sftp_file) {
-    int err = sftp_get_error(sshc->sftp_session);
+  nếu(!sshc->sftp_file) {
+    số_nguyên err = sftp_get_error(sshc->sftp_session);
 
-    if((err == SSH_FX_NO_SUCH_FILE ||
+    nếu((err == SSH_FX_NO_SUCH_FILE ||
         err == SSH_FX_FAILURE ||
         err == SSH_FX_NO_SUCH_PATH) &&
        data->set.ftp_create_missing_dirs &&
@@ -1086,20 +1086,20 @@ static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
       rc = 0;
       sshc->secondCreateDirs = 1;
       myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_INIT);
-      return rc;
+      trả_về rc;
     }
-    else {
+    không_thì {
       rc = myssh_to_SFTP_CLOSE(data, sshc);
-      return rc;
+      trả_về rc;
     }
   }
 
   /* If we have a restart point then we need to seek to the correct
      position. Skip if in explicit remote append mode. */
-  if(data->state.resume_from > 0 && !data->set.remote_append) {
-    int seekerr = CURL_SEEKFUNC_OK;
+  nếu(data->state.resume_from > 0 && !data->set.remote_append) {
+    số_nguyên seekerr = CURL_SEEKFUNC_OK;
     /* Let's read off the proper amount of bytes from the input. */
-    if(data->set.seek_func) {
+    nếu(data->set.seek_func) {
       struct Curl_mapi_guard guard;
       CURL_CBAPI_START(&guard, data, easy_seek_func);
       seekerr = data->set.seek_func(data->set.seek_client,
@@ -1107,13 +1107,13 @@ static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
       CURL_CBAPI_END(&guard);
     }
 
-    if(seekerr != CURL_SEEKFUNC_OK) {
+    nếu(seekerr != CURL_SEEKFUNC_OK) {
       curl_off_t passed = 0;
 
-      if(seekerr != CURL_SEEKFUNC_CANTSEEK) {
+      nếu(seekerr != CURL_SEEKFUNC_CANTSEEK) {
         failf(data, "Could not seek stream");
         rc = myssh_to_ERROR(data, sshc, CURLE_FTP_COULDNT_USE_REST);
-        return rc;
+        trả_về rc;
       }
       /* seekerr == CURL_SEEKFUNC_CANTSEEK (cannot seek to offset) */
       do {
@@ -1128,21 +1128,21 @@ static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
                                  readthisamountnow, data->state.in);
 
         passed += actuallyread;
-        if((actuallyread == 0) || (actuallyread > readthisamountnow)) {
+        nếu((actuallyread == 0) || (actuallyread > readthisamountnow)) {
           /* this checks for greater-than only to make sure that the
              CURL_READFUNC_ABORT return code still aborts */
           failf(data, "Failed to read data");
           rc = myssh_to_ERROR(data, sshc, CURLE_FTP_COULDNT_USE_REST);
-          return rc;
+          trả_về rc;
         }
-      } while(passed < data->state.resume_from);
+      } trong_khi(passed < data->state.resume_from);
     }
 
     /* now, decrease the size of the read */
-    if(data->state.infilesize > 0) {
-      if(data->state.resume_from > data->state.infilesize) {
+    nếu(data->state.infilesize > 0) {
+      nếu(data->state.resume_from > data->state.infilesize) {
         failf(data, "Resume point beyond size");
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_FUNCTION_ARGUMENT);
+        trả_về myssh_to_ERROR(data, sshc, CURLE_BAD_FUNCTION_ARGUMENT);
       }
       data->state.infilesize -= data->state.resume_from;
       data->req.size = data->state.infilesize;
@@ -1150,12 +1150,12 @@ static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
     }
 
     rc = sftp_seek64(sshc->sftp_file, data->state.resume_from);
-    if(rc) {
+    nếu(rc) {
       rc = myssh_to_SFTP_CLOSE(data, sshc);
-      return rc;
+      trả_về rc;
     }
   }
-  if(data->state.infilesize > 0) {
+  nếu(data->state.infilesize > 0) {
     data->req.size = data->state.infilesize;
     Curl_pgrsSetUploadSize(data, data->state.infilesize);
   }
@@ -1168,43 +1168,43 @@ static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
   /* since we do not really wait for anything at this point, we want the
      state machine to move on as soon as possible so we mark this as dirty */
   Curl_multi_mark_dirty(data);
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+#nếu LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
   sshc->sftp_send_state = 0;
 #endif
   myssh_to(data, sshc, SSH_STOP);
-  return rc;
+  trả_về rc;
 }
 
-static int myssh_in_SFTP_DOWNLOAD_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_DOWNLOAD_INIT(struct Curl_easy *data,
                                        struct ssh_conn *sshc,
                                        struct SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
   /* Work on getting the specified file */
-  if(sshc->sftp_file)
+  nếu(sshc->sftp_file)
     sftp_close(sshc->sftp_file);
 
   sshc->sftp_file = sftp_open(sshc->sftp_session, sshp->path,
                               O_RDONLY, (mode_t)data->set.new_file_perms);
-  if(!sshc->sftp_file) {
+  nếu(!sshc->sftp_file) {
     failf(data, "Could not open remote file for reading: %s",
           ssh_get_error(sshc->ssh_session));
 
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    trả_về myssh_to_SFTP_CLOSE(data, sshc);
   }
   sftp_file_set_nonblocking(sshc->sftp_file);
   myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_STAT);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_DOWNLOAD_STAT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_DOWNLOAD_STAT(struct Curl_easy *data,
                                        struct ssh_conn *sshc)
 {
   curl_off_t size;
-  int rc = 0;
+  số_nguyên rc = 0;
   sftp_attributes attrs = sftp_fstat(sshc->sftp_file);
-  if(!attrs ||
+  nếu(!attrs ||
      !(attrs->flags & SSH_FILEXFER_ATTR_SIZE) ||
      (attrs->size == 0)) {
     /*
@@ -1217,28 +1217,28 @@ static int myssh_in_SFTP_DOWNLOAD_STAT(struct Curl_easy *data,
     data->req.maxdownload = -1;
     Curl_pgrsSetDownloadSize(data, -1);
     size = 0;
-    if(attrs)
+    nếu(attrs)
       sftp_attributes_free(attrs);
   }
-  else {
+  không_thì {
     size = attrs->size;
 
     sftp_attributes_free(attrs);
 
-    if(size < 0) {
+    nếu(size < 0) {
       failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-      return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+      trả_về myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
     }
-    if(data->state.use_range) {
+    nếu(data->state.use_range) {
       curl_off_t from;
       CURLcode result = Curl_ssh_range(data, data->state.range, size,
                                        &from, &size);
-      if(result)
-        return myssh_to_ERROR(data, sshc, result);
+      nếu(result)
+        trả_về myssh_to_ERROR(data, sshc, result);
 
       rc = sftp_seek64(sshc->sftp_file, from);
-      if(rc)
-        return myssh_to_SFTP_CLOSE(data, sshc);
+      nếu(rc)
+        trả_về myssh_to_SFTP_CLOSE(data, sshc);
     }
     data->req.size = size;
     data->req.maxdownload = size;
@@ -1246,23 +1246,23 @@ static int myssh_in_SFTP_DOWNLOAD_STAT(struct Curl_easy *data,
   }
 
   /* We can resume if we can seek to the resume position */
-  if(data->state.resume_from) {
-    if(data->state.resume_from < 0) {
+  nếu(data->state.resume_from) {
+    nếu(data->state.resume_from < 0) {
       /* We are supposed to download the last abs(from) bytes */
-      if(size < -data->state.resume_from) {
+      nếu(size < -data->state.resume_from) {
         failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
               FMT_OFF_T ")", data->state.resume_from, size);
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+        trả_về myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
       }
       /* download from where? */
       data->state.resume_from += size;
     }
-    else {
-      if(size < data->state.resume_from) {
+    không_thì {
+      nếu(size < data->state.resume_from) {
         failf(data, "Offset (%" FMT_OFF_T
               ") was beyond file size (%" FMT_OFF_T ")",
               data->state.resume_from, size);
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+        trả_về myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
       }
     }
     /* Now store the number of bytes we are expected to download */
@@ -1271,17 +1271,17 @@ static int myssh_in_SFTP_DOWNLOAD_STAT(struct Curl_easy *data,
     Curl_pgrsSetDownloadSize(data, size - data->state.resume_from);
 
     rc = sftp_seek64(sshc->sftp_file, data->state.resume_from);
-    if(rc)
-      return myssh_to_SFTP_CLOSE(data, sshc);
+    nếu(rc)
+      trả_về myssh_to_SFTP_CLOSE(data, sshc);
   }
 
   /* Setup the actual download */
-  if(data->req.size == 0) {
+  nếu(data->req.size == 0) {
     /* no data to transfer */
     Curl_xfer_setup_nop(data);
     infof(data, "File already completely downloaded");
     myssh_to(data, sshc, SSH_STOP);
-    return rc;
+    trả_về rc;
   }
   Curl_xfer_setup_recv(data, FIRSTSOCKET, data->req.size);
 
@@ -1291,16 +1291,16 @@ static int myssh_in_SFTP_DOWNLOAD_STAT(struct Curl_easy *data,
   sshc->sftp_recv_state = 0;
   myssh_to(data, sshc, SSH_STOP);
 
-  return rc;
+  trả_về rc;
 }
 
-static int myssh_in_SFTP_CLOSE(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_CLOSE(struct Curl_easy *data,
                                struct ssh_conn *sshc,
                                struct SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
-  if(sshc->sftp_file) {
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
     sshc->sftp_file = NULL;
   }
@@ -1311,35 +1311,35 @@ static int myssh_in_SFTP_CLOSE(struct Curl_easy *data,
   /* Check if nextstate is set and move .nextstate could be POSTQUOTE_INIT
      After nextstate is executed, the control should come back to
      SSH_SFTP_CLOSE to pass the correct result back */
-  if(sshc->nextstate != SSH_NO_STATE &&
+  nếu(sshc->nextstate != SSH_NO_STATE &&
      sshc->nextstate != SSH_SFTP_CLOSE) {
     myssh_to(data, sshc, sshc->nextstate);
     sshc->nextstate = SSH_SFTP_CLOSE;
   }
-  else {
+  không_thì {
     myssh_to(data, sshc, SSH_STOP);
   }
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_SHUTDOWN(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_SHUTDOWN(struct Curl_easy *data,
                                   struct ssh_conn *sshc)
 {
   /* during times we get here due to a broken transfer and then the
      sftp_handle might not have been taken down so make sure that is done
      before we proceed */
   ssh_set_blocking(sshc->ssh_session, 0);
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+#nếu LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
   SFTP_AIO_FREE(sshc->sftp_send_aio);
   SFTP_AIO_FREE(sshc->sftp_recv_aio);
 #endif
 
-  if(sshc->sftp_file) {
+  nếu(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
     sshc->sftp_file = NULL;
   }
 
-  if(sshc->sftp_session) {
+  nếu(sshc->sftp_session) {
     sftp_free(sshc->sftp_session);
     sshc->sftp_session = NULL;
   }
@@ -1347,44 +1347,44 @@ static int myssh_in_SFTP_SHUTDOWN(struct Curl_easy *data,
   SSH_STRING_FREE_CHAR(sshc->homedir);
 
   myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_INIT(struct Curl_easy *data,
                               struct ssh_conn *sshc)
 {
-  int rc;
+  số_nguyên rc;
   ssh_set_blocking(sshc->ssh_session, 1);
 
   sshc->sftp_session = sftp_new(sshc->ssh_session);
-  if(!sshc->sftp_session) {
+  nếu(!sshc->sftp_session) {
     failf(data, "Failure initializing sftp session: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_ERROR(data, sshc, CURLE_COULDNT_CONNECT);
+    trả_về myssh_to_ERROR(data, sshc, CURLE_COULDNT_CONNECT);
   }
 
   rc = sftp_init(sshc->sftp_session);
-  if(rc != SSH_OK) {
+  nếu(rc != SSH_OK) {
     failf(data, "Failure initializing sftp session: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_ERROR(data, sshc, sftp_error_to_CURLE(SSH_FX_FAILURE));
+    trả_về myssh_to_ERROR(data, sshc, sftp_error_to_CURLE(SSH_FX_FAILURE));
   }
   myssh_to(data, sshc, SSH_SFTP_REALPATH);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_REALPATH(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_REALPATH(struct Curl_easy *data,
                                   struct ssh_conn *sshc)
 {
   /* Get the "home" directory */
   sshc->homedir = sftp_canonicalize_path(sshc->sftp_session, ".");
-  if(!sshc->homedir)
-    return myssh_to_ERROR(data, sshc, CURLE_COULDNT_CONNECT);
+  nếu(!sshc->homedir)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_COULDNT_CONNECT);
 
   curlx_free(data->state.most_recent_ftp_entrypath);
   data->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
-  if(!data->state.most_recent_ftp_entrypath)
-    return myssh_to_ERROR(data, sshc, CURLE_OUT_OF_MEMORY);
+  nếu(!data->state.most_recent_ftp_entrypath)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_OUT_OF_MEMORY);
 
   /* This is the last step in the SFTP connect phase. Do note that while
      we get the homedir here, we get the "workingpath" in the DO action
@@ -1392,48 +1392,48 @@ static int myssh_in_SFTP_REALPATH(struct Curl_easy *data,
      working path does not. */
   CURL_TRC_SSH(data, "CONNECT phase done");
   myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_INIT(struct Curl_easy *data,
                                     struct ssh_conn *sshc,
                                     struct SSHPROTO *sshp)
 {
   CURLcode result;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
   result = Curl_getworkingpath(data, sshc->homedir, &sshp->path);
-  if(result) {
+  nếu(result) {
     sshc->actualcode = result;
     myssh_to(data, sshc, SSH_STOP);
   }
-  else if(data->set.quote) {
+  không_thì nếu(data->set.quote) {
     infof(data, "Sending quote commands");
     sshc->quote_item = data->set.quote;
     myssh_to(data, sshc, SSH_SFTP_QUOTE);
   }
-  else
+  không_thì
     myssh_to(data, sshc, SSH_SFTP_GETINFO);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_POSTQUOTE_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_POSTQUOTE_INIT(struct Curl_easy *data,
                                         struct ssh_conn *sshc)
 {
-  if(data->set.postquote) {
+  nếu(data->set.postquote) {
     infof(data, "Sending quote commands");
     sshc->quote_item = data->set.postquote;
     myssh_to(data, sshc, SSH_SFTP_QUOTE);
   }
-  else {
+  không_thì {
     myssh_to(data, sshc, SSH_STOP);
   }
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int quote_error(struct Curl_easy *data,
+static số_nguyên quote_error(struct Curl_easy *data,
                        struct ssh_conn *sshc)
 {
   failf(data, "Suspicious data after the command line");
@@ -1442,10 +1442,10 @@ static int quote_error(struct Curl_easy *data,
   myssh_to(data, sshc, SSH_SFTP_CLOSE);
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_QUOTE_ERROR;
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE(struct Curl_easy *data,
                                struct ssh_conn *sshc,
                                struct SSHPROTO *sshp)
 {
@@ -1458,28 +1458,28 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
   const char *cmd = sshc->quote_item->data;
   sshc->acceptfail = FALSE;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
   /* if a command starts with an asterisk, which a legal SFTP command never
      can, the command is allowed to fail without it causing any
      aborts or cancels etc. It causes libcurl to act as if the command
      is successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  nếu(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
 
-  if(curl_strequal("pwd", cmd)) {
+  nếu(curl_strequal("pwd", cmd)) {
     /* output debug output if that is requested */
     char *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
                               sshp->path);
-    if(!tmp) {
+    nếu(!tmp) {
       sshc->actualcode = CURLE_OUT_OF_MEMORY;
       myssh_to(data, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
     Curl_debug(data, CURLINFO_HEADER_OUT, "PWD\n", 4);
     Curl_debug(data, CURLINFO_HEADER_IN, tmp, strlen(tmp));
@@ -1489,14 +1489,14 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
        using ordinary FTP. */
     result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
     curlx_free(tmp);
-    if(result) {
+    nếu(result) {
       myssh_to(data, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
       sshc->actualcode = result;
     }
-    else
+    không_thì
       myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
 
   /*
@@ -1504,12 +1504,12 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
    * command with a space so we can check for it unconditionally
    */
   cp = strchr(cmd, ' ');
-  if(!cp) {
+  nếu(!cp) {
     failf(data, "Syntax error in SFTP command. Supply parameter(s)");
     myssh_to(data, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
     sshc->actualcode = CURLE_QUOTE_ERROR;
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
 
   /*
@@ -1517,15 +1517,15 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
    * first argument right now
    */
   result = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
-  if(result) {
-    if(result == CURLE_OUT_OF_MEMORY)
+  nếu(result) {
+    nếu(result == CURLE_OUT_OF_MEMORY)
       failf(data, "Out of memory");
-    else
+    không_thì
       failf(data, "Syntax error: Bad first parameter");
     myssh_to(data, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
     sshc->actualcode = result;
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
 
   /*
@@ -1534,7 +1534,7 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
    * OpenSSH's sftp program and call the appropriate libssh
    * functions.
    */
-  if(!strncmp(cmd, "chgrp ", 6) ||
+  nếu(!strncmp(cmd, "chgrp ", 6) ||
      !strncmp(cmd, "chmod ", 6) ||
      !strncmp(cmd, "chown ", 6) ||
      !strncmp(cmd, "atime ", 6) ||
@@ -1544,93 +1544,93 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
     /* sshc->quote_path1 contains the mode to set */
     /* get the destination */
     result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
+    nếu(result) {
+      nếu(result == CURLE_OUT_OF_MEMORY)
         failf(data, "Out of memory");
-      else
+      không_thì
         failf(data, "Syntax error in chgrp/chmod/chown/atime/mtime: "
               "Bad second parameter");
       curlx_safefree(sshc->quote_path1);
       myssh_to(data, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
       sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
+    nếu(*cp)
+      trả_về quote_error(data, sshc);
     sshc->quote_attrs = NULL;
     myssh_to(data, sshc, SSH_SFTP_QUOTE_STAT);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
-  if(!strncmp(cmd, "ln ", 3) ||
+  nếu(!strncmp(cmd, "ln ", 3) ||
      !strncmp(cmd, "symlink ", 8)) {
     /* symbolic linking */
     /* sshc->quote_path1 is the source */
     /* get the destination */
     result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
+    nếu(result) {
+      nếu(result == CURLE_OUT_OF_MEMORY)
         failf(data, "Out of memory");
-      else
+      không_thì
         failf(data, "Syntax error in ln/symlink: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
       myssh_to(data, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
       sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
+    nếu(*cp)
+      trả_về quote_error(data, sshc);
     myssh_to(data, sshc, SSH_SFTP_QUOTE_SYMLINK);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "mkdir ", 6)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  không_thì nếu(!strncmp(cmd, "mkdir ", 6)) {
+    nếu(*cp)
+      trả_về quote_error(data, sshc);
     /* create directory */
     myssh_to(data, sshc, SSH_SFTP_QUOTE_MKDIR);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rename ", 7)) {
+  không_thì nếu(!strncmp(cmd, "rename ", 7)) {
     /* rename file */
     /* first param is the source path */
     /* second param is the dest. path */
     result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
+    nếu(result) {
+      nếu(result == CURLE_OUT_OF_MEMORY)
         failf(data, "Out of memory");
-      else
+      không_thì
         failf(data, "Syntax error in rename: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
       myssh_to(data, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
       sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
+    nếu(*cp)
+      trả_về quote_error(data, sshc);
     myssh_to(data, sshc, SSH_SFTP_QUOTE_RENAME);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rmdir ", 6)) {
+  không_thì nếu(!strncmp(cmd, "rmdir ", 6)) {
     /* delete directory */
-    if(*cp)
-      return quote_error(data, sshc);
+    nếu(*cp)
+      trả_về quote_error(data, sshc);
     myssh_to(data, sshc, SSH_SFTP_QUOTE_RMDIR);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rm ", 3)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  không_thì nếu(!strncmp(cmd, "rm ", 3)) {
+    nếu(*cp)
+      trả_về quote_error(data, sshc);
     myssh_to(data, sshc, SSH_SFTP_QUOTE_UNLINK);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
 #ifdef HAS_STATVFS_SUPPORT
-  else if(!strncmp(cmd, "statvfs ", 8)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  không_thì nếu(!strncmp(cmd, "statvfs ", 8)) {
+    nếu(*cp)
+      trả_về quote_error(data, sshc);
     myssh_to(data, sshc, SSH_SFTP_QUOTE_STATVFS);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
 #endif
 
@@ -1640,10 +1640,10 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
   myssh_to(data, sshc, SSH_SFTP_CLOSE);
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_QUOTE_ERROR;
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_NEXT_QUOTE(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_NEXT_QUOTE(struct Curl_easy *data,
                                     struct ssh_conn *sshc)
 {
   curlx_safefree(sshc->quote_path1);
@@ -1651,22 +1651,22 @@ static int myssh_in_SFTP_NEXT_QUOTE(struct Curl_easy *data,
 
   sshc->quote_item = sshc->quote_item->next;
 
-  if(sshc->quote_item) {
+  nếu(sshc->quote_item) {
     myssh_to(data, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    if(sshc->nextstate != SSH_NO_STATE) {
+  không_thì {
+    nếu(sshc->nextstate != SSH_NO_STATE) {
       myssh_to(data, sshc, sshc->nextstate);
       sshc->nextstate = SSH_NO_STATE;
     }
-    else {
+    không_thì {
       myssh_to(data, sshc, SSH_SFTP_GETINFO);
     }
   }
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
                                     struct ssh_conn *sshc)
 {
   const char *cmd = sshc->quote_item->data;
@@ -1677,7 +1677,7 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
      aborts or cancels etc. It causes libcurl to act as if the command
      is successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  nếu(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
@@ -1687,71 +1687,71 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
    * QUOTE_SETSTAT state to write new ones.
    */
 
-  if(sshc->quote_attrs)
+  nếu(sshc->quote_attrs)
     sftp_attributes_free(sshc->quote_attrs);
   sshc->quote_attrs = sftp_stat(sshc->sftp_session, sshc->quote_path2);
-  if(!sshc->quote_attrs) {
+  nếu(!sshc->quote_attrs) {
     failf(data, "Attempt to get SFTP stats failed: %d",
           sftp_get_error(sshc->sftp_session));
     myssh_quote_error(data, sshc, NULL);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
 
   /* Now set the new attributes... */
-  if(!strncmp(cmd, "chgrp", 5)) {
+  nếu(!strncmp(cmd, "chgrp", 5)) {
     const char *p = sshc->quote_path1;
     curl_off_t gid;
-    if(curlx_str_number(&p, &gid, UINT_MAX)) {
+    nếu(curlx_str_number(&p, &gid, UINT_MAX)) {
       failf(data, "Syntax error: chgrp gid not a number");
       myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
     sshc->quote_attrs->gid = (uint32_t)gid;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_UIDGID;
   }
-  else if(!strncmp(cmd, "chmod", 5)) {
+  không_thì nếu(!strncmp(cmd, "chmod", 5)) {
     curl_off_t perms;
     const char *p = sshc->quote_path1;
-    if(curlx_str_octal(&p, &perms, 07777)) {
+    nếu(curlx_str_octal(&p, &perms, 07777)) {
       failf(data, "Syntax error: chmod permissions not a number");
       myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
     sshc->quote_attrs->permissions = (mode_t)perms;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_PERMISSIONS;
   }
-  else if(!strncmp(cmd, "chown", 5)) {
+  không_thì nếu(!strncmp(cmd, "chown", 5)) {
     const char *p = sshc->quote_path1;
     curl_off_t uid;
-    if(curlx_str_number(&p, &uid, UINT_MAX)) {
+    nếu(curlx_str_number(&p, &uid, UINT_MAX)) {
       failf(data, "Syntax error: chown uid not a number");
       myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
     sshc->quote_attrs->uid = (uint32_t)uid;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_UIDGID;
   }
-  else if(!strncmp(cmd, "atime", 5) ||
+  không_thì nếu(!strncmp(cmd, "atime", 5) ||
           !strncmp(cmd, "mtime", 5)) {
     time_t date;
     bool fail = FALSE;
-    if(Curl_getdate_capped(sshc->quote_path1, &date)) {
+    nếu(Curl_getdate_capped(sshc->quote_path1, &date)) {
       failf(data, "incorrect date format for %.*s", 5, cmd);
       fail = TRUE;
     }
-#if SIZEOF_TIME_T > 4
-    else if(date > 0xffffffff) {
+#nếu SIZEOF_TIME_T > 4
+    không_thì nếu(date > 0xffffffff) {
       failf(data, "date overflow");
       fail = TRUE; /* avoid setting a capped time */
     }
 #endif
-    if(fail) {
+    nếu(fail) {
       myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+      trả_về SSH_NO_ERROR;
     }
-    if(!strncmp(cmd, "atime", 5))
+    nếu(!strncmp(cmd, "atime", 5))
       sshc->quote_attrs->atime = (uint32_t)date;
-    else /* mtime */
+    không_thì /* mtime */
       sshc->quote_attrs->mtime = (uint32_t)date;
 
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_ACMODTIME;
@@ -1759,15 +1759,15 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
 
   /* Now send the completed structure... */
   myssh_to(data, sshc, SSH_SFTP_QUOTE_SETSTAT);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
 static void conn_forget_socket(struct Curl_easy *data, int8_t sockindex)
 {
   struct connectdata *conn = data->conn;
-  if(conn && CONN_SOCK_IDX_VALID(sockindex)) {
+  nếu(conn && CONN_SOCK_IDX_VALID(sockindex)) {
     struct Curl_cfilter *cf = conn->cfilter[sockindex];
-    if(cf)
+    nếu(cf)
       (void)Curl_conn_cf_cntrl(cf, data, TRUE, CF_CTRL_FORGET_SOCKET, 0, NULL);
     fake_sclose(conn->sock[sockindex]);
     conn->sock[sockindex] = CURL_SOCKET_BAD;
@@ -1780,22 +1780,22 @@ static void myssh_SESSION_DISCONNECT(struct Curl_easy *data,
   /* during weird times when we have been prematurely aborted, the channel
      is still alive when we reach this state and we MUST kill the channel
      properly first */
-  if(sshc->scp_session) {
+  nếu(sshc->scp_session) {
     ssh_scp_free(sshc->scp_session);
     sshc->scp_session = NULL;
   }
 
-  if(sshc->sftp_file) {
+  nếu(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
     sshc->sftp_file = NULL;
   }
-  if(sshc->sftp_session) {
+  nếu(sshc->sftp_session) {
     sftp_free(sshc->sftp_session);
     sshc->sftp_session = NULL;
   }
 
   ssh_disconnect(sshc->ssh_session);
-  if(!ssh_version(SSH_VERSION_INT(0, 10, 0))) {
+  nếu(!ssh_version(SSH_VERSION_INT(0, 10, 0))) {
     /* conn->sock[FIRSTSOCKET] is closed by ssh_disconnect behind our back,
        tell the connection to forget about it. This libssh
        bug is fixed in 0.10.0. */
@@ -1807,22 +1807,22 @@ static void myssh_SESSION_DISCONNECT(struct Curl_easy *data,
   myssh_to(data, sshc, SSH_SESSION_FREE);
 }
 
-static int myssh_SSH_SCP_DOWNLOAD(struct Curl_easy *data,
+static số_nguyên myssh_SSH_SCP_DOWNLOAD(struct Curl_easy *data,
                                   struct ssh_conn *sshc)
 {
   uint64_t bytecount;
-  int rc = ssh_scp_pull_request(sshc->scp_session);
-  if(rc != SSH_SCP_REQUEST_NEWFILE) {
+  số_nguyên rc = ssh_scp_pull_request(sshc->scp_session);
+  nếu(rc != SSH_SCP_REQUEST_NEWFILE) {
     const char *err_msg = ssh_get_error(sshc->ssh_session);
     failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_REMOTE_FILE_NOT_FOUND);
+    trả_về myssh_to_ERROR(data, sshc, CURLE_REMOTE_FILE_NOT_FOUND);
   }
 
   /* download data */
   bytecount = ssh_scp_request_get_size64(sshc->scp_session);
-  if(bytecount > CURL_OFF_T_MAX)
+  nếu(bytecount > CURL_OFF_T_MAX)
     /* unlikely to be a real file */
-    return myssh_to_ERROR(data, sshc, CURLE_TOO_LARGE);
+    trả_về myssh_to_ERROR(data, sshc, CURLE_TOO_LARGE);
   data->req.maxdownload = (curl_off_t)bytecount;
   Curl_xfer_setup_recv(data, FIRSTSOCKET, data->req.maxdownload);
 
@@ -1830,63 +1830,63 @@ static int myssh_SSH_SCP_DOWNLOAD(struct Curl_easy *data,
   data->conn->send_idx = 0;
 
   myssh_to(data, sshc, SSH_STOP);
-  return 0;
+  trả_về 0;
 }
 
-static int myssh_in_TRANS_INIT(struct Curl_easy *data, struct ssh_conn *sshc,
+static số_nguyên myssh_in_TRANS_INIT(struct Curl_easy *data, struct ssh_conn *sshc,
                                struct SSHPROTO *sshp)
 {
   CURLcode result;
-  int rc = 0;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  số_nguyên rc = 0;
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
   result = Curl_getworkingpath(data, sshc->homedir, &sshp->path);
-  if(result) {
+  nếu(result) {
     sshc->actualcode = result;
     myssh_to(data, sshc, SSH_STOP);
-    return 0;
+    trả_về 0;
   }
 
   /* Functions from the SCP subsystem cannot handle/return SSH_AGAIN */
   ssh_set_blocking(sshc->ssh_session, 1);
 
-  if(data->state.upload) {
-    if(data->state.infilesize < 0) {
+  nếu(data->state.upload) {
+    nếu(data->state.infilesize < 0) {
       failf(data, "SCP requires a known file size for upload");
-      return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+      trả_về myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
     }
 
     sshc->scp_session =
       ssh_scp_new(sshc->ssh_session, SSH_SCP_WRITE, sshp->path);
     myssh_to(data, sshc, SSH_SCP_UPLOAD_INIT);
   }
-  else {
+  không_thì {
     sshc->scp_session =
       ssh_scp_new(sshc->ssh_session, SSH_SCP_READ, sshp->path);
     myssh_to(data, sshc, SSH_SCP_DOWNLOAD_INIT);
   }
 
-  if(!sshc->scp_session) {
+  nếu(!sshc->scp_session) {
     const char *err_msg = ssh_get_error(sshc->ssh_session);
     failf(data, "%s", err_msg);
     rc = myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
   }
-  return rc;
+  trả_về rc;
 }
 
 static void sshc_cleanup(struct ssh_conn *sshc)
 {
-  if(sshc->initialized) {
-    if(sshc->sftp_file) {
+  nếu(sshc->initialized) {
+    nếu(sshc->sftp_file) {
       sftp_close(sshc->sftp_file);
       sshc->sftp_file = NULL;
     }
-    if(sshc->sftp_session) {
+    nếu(sshc->sftp_session) {
       sftp_free(sshc->sftp_session);
       sshc->sftp_session = NULL;
     }
-    if(sshc->ssh_session) {
+    nếu(sshc->ssh_session) {
       ssh_free(sshc->ssh_session);
       sshc->ssh_session = NULL;
     }
@@ -1895,27 +1895,27 @@ static void sshc_cleanup(struct ssh_conn *sshc)
     DEBUGASSERT(!sshc->ssh_session);
     DEBUGASSERT(!sshc->scp_session);
 
-    if(sshc->readdir_tmp) {
+    nếu(sshc->readdir_tmp) {
       ssh_string_free_char(sshc->readdir_tmp);
       sshc->readdir_tmp = NULL;
     }
-    if(sshc->quote_attrs) {
+    nếu(sshc->quote_attrs) {
       sftp_attributes_free(sshc->quote_attrs);
       sshc->quote_attrs = NULL;
     }
-    if(sshc->readdir_attrs) {
+    nếu(sshc->readdir_attrs) {
       sftp_attributes_free(sshc->readdir_attrs);
       sshc->readdir_attrs = NULL;
     }
-    if(sshc->readdir_link_attrs) {
+    nếu(sshc->readdir_link_attrs) {
       sftp_attributes_free(sshc->readdir_link_attrs);
       sshc->readdir_link_attrs = NULL;
     }
-    if(sshc->privkey) {
+    nếu(sshc->privkey) {
       ssh_key_free(sshc->privkey);
       sshc->privkey = NULL;
     }
-    if(sshc->pubkey) {
+    nếu(sshc->pubkey) {
       ssh_key_free(sshc->pubkey);
       sshc->pubkey = NULL;
     }
@@ -1932,195 +1932,195 @@ static void sshc_cleanup(struct ssh_conn *sshc)
   }
 }
 
-static int myssh_in_SFTP_QUOTE_SETSTAT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_SETSTAT(struct Curl_easy *data,
                                        struct ssh_conn *sshc)
 {
-  int rc = sftp_setstat(sshc->sftp_session, sshc->quote_path2,
+  số_nguyên rc = sftp_setstat(sshc->sftp_session, sshc->quote_path2,
                         sshc->quote_attrs);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
+  nếu(rc == SSH_AGAIN)
+    trả_về rc;
+  nếu(rc && !sshc->acceptfail) {
     myssh_quote_error(data, sshc, "setstat");
-    return rc;
+    trả_về rc;
   }
   myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_SYMLINK(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_SYMLINK(struct Curl_easy *data,
                                        struct ssh_conn *sshc)
 {
-  int rc = sftp_symlink(sshc->sftp_session, sshc->quote_path2,
+  số_nguyên rc = sftp_symlink(sshc->sftp_session, sshc->quote_path2,
                         sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
+  nếu(rc == SSH_AGAIN)
+    trả_về rc;
+  nếu(rc && !sshc->acceptfail) {
     myssh_quote_error(data, sshc, "symlink");
-    return rc;
+    trả_về rc;
   }
   myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_MKDIR(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_MKDIR(struct Curl_easy *data,
                                      struct ssh_conn *sshc)
 {
-  int rc = sftp_mkdir(sshc->sftp_session, sshc->quote_path1,
+  số_nguyên rc = sftp_mkdir(sshc->sftp_session, sshc->quote_path1,
                       (mode_t)data->set.new_directory_perms);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
+  nếu(rc == SSH_AGAIN)
+    trả_về rc;
+  nếu(rc && !sshc->acceptfail) {
     myssh_quote_error(data, sshc, "mkdir");
-    return rc;
+    trả_về rc;
   }
   myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_RENAME(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_RENAME(struct Curl_easy *data,
                                       struct ssh_conn *sshc)
 {
-  int rc = sftp_rename(sshc->sftp_session, sshc->quote_path1,
+  số_nguyên rc = sftp_rename(sshc->sftp_session, sshc->quote_path1,
                        sshc->quote_path2);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
+  nếu(rc == SSH_AGAIN)
+    trả_về rc;
+  nếu(rc && !sshc->acceptfail) {
     myssh_quote_error(data, sshc, "rename");
-    return rc;
+    trả_về rc;
   }
   myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_RMDIR(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_RMDIR(struct Curl_easy *data,
                                      struct ssh_conn *sshc)
 {
-  int rc = sftp_rmdir(sshc->sftp_session, sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
+  số_nguyên rc = sftp_rmdir(sshc->sftp_session, sshc->quote_path1);
+  nếu(rc == SSH_AGAIN)
+    trả_về rc;
+  nếu(rc && !sshc->acceptfail) {
     myssh_quote_error(data, sshc, "rmdir");
-    return rc;
+    trả_về rc;
   }
   myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_UNLINK(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_QUOTE_UNLINK(struct Curl_easy *data,
                                       struct ssh_conn *sshc)
 {
-  int rc = sftp_unlink(sshc->sftp_session, sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
+  số_nguyên rc = sftp_unlink(sshc->sftp_session, sshc->quote_path1);
+  nếu(rc == SSH_AGAIN)
+    trả_về rc;
+  nếu(rc && !sshc->acceptfail) {
     myssh_quote_error(data, sshc, "rm");
-    return rc;
+    trả_về rc;
   }
   myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_GETINFO(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_GETINFO(struct Curl_easy *data,
                                  struct ssh_conn *sshc)
 {
-  if(data->set.get_filetime)
+  nếu(data->set.get_filetime)
     myssh_to(data, sshc, SSH_SFTP_FILETIME);
-  else
+  không_thì
     myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_FILETIME(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_FILETIME(struct Curl_easy *data,
                                   struct ssh_conn *sshc,
                                   struct SSHPROTO *sshp)
 {
   sftp_attributes attrs;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
   attrs = sftp_stat(sshc->sftp_session, sshp->path);
-  if(attrs) {
+  nếu(attrs) {
     data->info.filetime = attrs->mtime;
     sftp_attributes_free(attrs);
   }
 
   myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_TRANS_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_TRANS_INIT(struct Curl_easy *data,
                                     struct ssh_conn *sshc,
                                     struct SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
-  if(data->state.upload)
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(data->state.upload)
     myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  else {
+  không_thì {
     size_t path_len = strlen(sshp->path);
 
-    if(path_len && sshp->path[path_len - 1] == '/')
+    nếu(path_len && sshp->path[path_len - 1] == '/')
       myssh_to(data, sshc, SSH_SFTP_READDIR_INIT);
-    else
+    không_thì
       myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_INIT);
   }
 
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_CREATE_DIRS_INIT(struct Curl_easy *data,
                                           struct ssh_conn *sshc,
                                           struct SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
-  if(strlen(sshp->path) > 1) {
+  nếu(strlen(sshp->path) > 1) {
     sshc->slash_pos = sshp->path + 1; /* ignore the leading '/' */
     myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
   }
-  else {
+  không_thì {
     myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
   }
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_CREATE_DIRS(struct Curl_easy *data,
                                      struct ssh_conn *sshc,
                                      struct SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
   sshc->slash_pos = strchr(sshc->slash_pos, '/');
-  if(sshc->slash_pos) {
+  nếu(sshc->slash_pos) {
     *sshc->slash_pos = 0;
 
     infof(data, "Creating directory '%s'", sshp->path);
     myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
-    return SSH_NO_ERROR;
+    trả_về SSH_NO_ERROR;
   }
   myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS_MKDIR(struct Curl_easy *data,
+static số_nguyên myssh_in_SFTP_CREATE_DIRS_MKDIR(struct Curl_easy *data,
                                            struct ssh_conn *sshc,
                                            struct SSHPROTO *sshp)
 {
-  int rc;
-  int err;
+  số_nguyên rc;
+  số_nguyên err;
   /* 'mode' - parameter is preliminary - default to 0644 */
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
   rc = sftp_mkdir(sshc->sftp_session, sshp->path,
                   (mode_t)data->set.new_directory_perms);
-  if(rc == SSH_AGAIN)
-    return rc;
+  nếu(rc == SSH_AGAIN)
+    trả_về rc;
   *sshc->slash_pos = '/';
   ++sshc->slash_pos;
-  if(rc < 0) {
+  nếu(rc < 0) {
     /*
      * Abort if failure was not that the directory already
      * exists or the permission was denied (creation might
@@ -2128,40 +2128,40 @@ static int myssh_in_SFTP_CREATE_DIRS_MKDIR(struct Curl_easy *data,
      * FAILURE also
      */
     err = sftp_get_error(sshc->sftp_session);
-    if((err != SSH_FX_FILE_ALREADY_EXISTS) &&
+    nếu((err != SSH_FX_FILE_ALREADY_EXISTS) &&
        (err != SSH_FX_FAILURE) &&
        (err != SSH_FX_PERMISSION_DENIED)) {
-      return myssh_to_SFTP_CLOSE(data, sshc);
+      trả_về myssh_to_SFTP_CLOSE(data, sshc);
     }
     rc = 0; /* clear rc and continue */
   }
   myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
-  return rc;
+  trả_về rc;
 }
 
-static int myssh_in_SCP_UPLOAD_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SCP_UPLOAD_INIT(struct Curl_easy *data,
                                     struct ssh_conn *sshc,
                                     struct SSHPROTO *sshp)
 {
-  int rc;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  số_nguyên rc;
+  nếu(!sshp)
+    trả_về myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
 
   rc = ssh_scp_init(sshc->scp_session);
-  if(rc != SSH_OK) {
+  nếu(rc != SSH_OK) {
     const char *err_msg = ssh_get_error(sshc->ssh_session);
     failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+    trả_về myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
   }
 
   rc = ssh_scp_push_file64(sshc->scp_session, sshp->path,
                            (uint64_t)data->state.infilesize,
-                           (int)data->set.new_file_perms);
+                           (số_nguyên)data->set.new_file_perms);
 
-  if(rc != SSH_OK) {
+  nếu(rc != SSH_OK) {
     const char *err_msg = ssh_get_error(sshc->ssh_session);
     failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+    trả_về myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
   }
 
   /* upload data */
@@ -2171,45 +2171,45 @@ static int myssh_in_SCP_UPLOAD_INIT(struct Curl_easy *data,
   data->conn->recv_idx = FIRSTSOCKET;
 
   myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_DOWNLOAD_INIT(struct Curl_easy *data,
+static số_nguyên myssh_in_SCP_DOWNLOAD_INIT(struct Curl_easy *data,
                                       struct ssh_conn *sshc)
 {
-  int rc = ssh_scp_init(sshc->scp_session);
-  if(rc != SSH_OK) {
+  số_nguyên rc = ssh_scp_init(sshc->scp_session);
+  nếu(rc != SSH_OK) {
     const char *err_msg = ssh_get_error(sshc->ssh_session);
     failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc,
+    trả_về myssh_to_ERROR(data, sshc,
                           CURLE_COULDNT_CONNECT);
   }
   myssh_to(data, sshc, SSH_SCP_DOWNLOAD);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_DONE(struct Curl_easy *data,
+static số_nguyên myssh_in_SCP_DONE(struct Curl_easy *data,
                              struct ssh_conn *sshc)
 {
-  if(data->state.upload)
+  nếu(data->state.upload)
     myssh_to(data, sshc, SSH_SCP_SEND_EOF);
-  else
+  không_thì
     myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_SEND_EOF(struct Curl_easy *data,
+static số_nguyên myssh_in_SCP_SEND_EOF(struct Curl_easy *data,
                                  struct ssh_conn *sshc)
 {
-  if(sshc->scp_session) {
-    int rc = ssh_scp_close(sshc->scp_session);
-    if(rc == SSH_AGAIN) {
+  nếu(sshc->scp_session) {
+    số_nguyên rc = ssh_scp_close(sshc->scp_session);
+    nếu(rc == SSH_AGAIN) {
       /* Currently the ssh_scp_close handles waiting for
        * EOF in blocking way.
        */
-      return SSH_AGAIN;
+      trả_về SSH_AGAIN;
     }
-    if(rc != SSH_OK) {
+    nếu(rc != SSH_OK) {
       infof(data,
             "Failed to close libssh scp channel: %s",
             ssh_get_error(sshc->ssh_session));
@@ -2217,13 +2217,13 @@ static int myssh_in_SCP_SEND_EOF(struct Curl_easy *data,
   }
 
   myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_CHANNEL_FREE(struct Curl_easy *data,
+static số_nguyên myssh_in_SCP_CHANNEL_FREE(struct Curl_easy *data,
                                      struct ssh_conn *sshc)
 {
-  if(sshc->scp_session) {
+  nếu(sshc->scp_session) {
     ssh_scp_free(sshc->scp_session);
     sshc->scp_session = NULL;
   }
@@ -2232,7 +2232,7 @@ static int myssh_in_SCP_CHANNEL_FREE(struct Curl_easy *data,
   ssh_set_blocking(sshc->ssh_session, 0);
 
   myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  return SSH_NO_ERROR;
+  trả_về SSH_NO_ERROR;
 }
 
 static CURLcode myssh_in_SESSION_FREE(struct Curl_easy *data,
@@ -2247,7 +2247,7 @@ static CURLcode myssh_in_SESSION_FREE(struct Curl_easy *data,
   sshc->state = SSH_SESSION_FREE;   /* current */
   sshc->nextstate = SSH_NO_STATE;
   myssh_to(data, sshc, SSH_STOP);
-  return result;
+  trả_về result;
 }
 
 /*
@@ -2262,7 +2262,7 @@ static CURLcode myssh_statemachine(struct Curl_easy *data,
                                    bool *block)
 {
   CURLcode result = CURLE_OK;
-  int rc = SSH_NO_ERROR;
+  số_nguyên rc = SSH_NO_ERROR;
 
   *block = FALSE;                   /* we are not blocking by default */
   do {
@@ -2273,12 +2273,12 @@ static CURLcode myssh_statemachine(struct Curl_easy *data,
       FALLTHROUGH();
     case SSH_S_STARTUP:
       rc = myssh_in_S_STARTUP(data, sshc);
-      if(rc)
+      nếu(rc)
         break;
       FALLTHROUGH();
     case SSH_HOSTKEY:
       rc = myssh_is_known(data, sshc);
-      if(rc != SSH_OK) {
+      nếu(rc != SSH_OK) {
         rc = myssh_to_ERROR(data, sshc, CURLE_PEER_FAILED_VERIFICATION);
         break;
       }
@@ -2409,7 +2409,7 @@ static CURLcode myssh_statemachine(struct Curl_easy *data,
       break;
     case SSH_SCP_DOWNLOAD_INIT:
       rc = myssh_in_SCP_DOWNLOAD_INIT(data, sshc);
-      if(rc)
+      nếu(rc)
         break;
       FALLTHROUGH();
     case SSH_SCP_DOWNLOAD:
@@ -2439,18 +2439,18 @@ static CURLcode myssh_statemachine(struct Curl_easy *data,
     }
     /* break the loop only on STOP or SSH_AGAIN. If `rc` is some
      * other error code, we will have progressed the state accordingly. */
-  } while((rc != SSH_AGAIN) && (sshc->state != SSH_STOP));
+  } trong_khi((rc != SSH_AGAIN) && (sshc->state != SSH_STOP));
 
-  if(rc == SSH_AGAIN) {
+  nếu(rc == SSH_AGAIN) {
     /* we would block, we need to wait for the socket to be ready (in the
        right direction too)! */
     *block = TRUE;
   }
-  if(!result && (sshc->state == SSH_STOP))
+  nếu(!result && (sshc->state == SSH_STOP))
     result = sshc->actualcode;
   CURL_TRC_SSH(data, "[%s] statemachine() -> %d, block=%d",
-               Curl_ssh_statename(sshc->state), (int)result, *block);
-  return result;
+               Curl_ssh_statename(sshc->state), (số_nguyên)result, *block);
+  trả_về result;
 }
 
 /* called repeatedly until done from multi.c */
@@ -2464,13 +2464,13 @@ static CURLcode myssh_multi_statemach(struct Curl_easy *data,
                     a Curl_ssh_pollset() implementation */
   CURLcode result;
 
-  if(!sshc || !sshp)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc || !sshp)
+    trả_về CURLE_FAILED_INIT;
   result = myssh_statemachine(data, sshc, sshp, &block);
   *done = (sshc->state == SSH_STOP);
   myssh_block2waitfor(conn, sshc, block);
 
-  return result;
+  trả_về result;
 }
 
 static CURLcode myssh_block_statemach(struct Curl_easy *data,
@@ -2481,27 +2481,27 @@ static CURLcode myssh_block_statemach(struct Curl_easy *data,
   struct connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
 
-  while((sshc->state != SSH_STOP) && !result) {
+  trong_khi((sshc->state != SSH_STOP) && !result) {
     bool block;
     timediff_t left_ms = 1000;
 
     result = myssh_statemachine(data, sshc, sshp, &block);
-    if(result)
+    nếu(result)
       break;
 
-    if(!disconnect) {
+    nếu(!disconnect) {
       result = Curl_pgrsCheck(data);
-      if(result)
+      nếu(result)
         break;
 
       left_ms = Curl_timeleft_ms(data);
-      if(left_ms < 0) {
+      nếu(left_ms < 0) {
         failf(data, "Operation timed out");
-        return CURLE_OPERATION_TIMEDOUT;
+        trả_về CURLE_OPERATION_TIMEDOUT;
       }
     }
 
-    if(block) {
+    nếu(block) {
       curl_socket_t fd_read = conn->sock[FIRSTSOCKET];
       /* wait for the socket to become ready */
       (void)SOCKET_READABLE(fd_read,
@@ -2509,7 +2509,7 @@ static CURLcode myssh_block_statemach(struct Curl_easy *data,
     }
   }
 
-  return result;
+  trả_về result;
 }
 
 static void myssh_easy_dtor(const void *key, size_t klen, void *entry)
@@ -2540,20 +2540,20 @@ static CURLcode myssh_setup_connection(struct Curl_easy *data,
   struct ssh_conn *sshc;
 
   sshc = curlx_calloc(1, sizeof(*sshc));
-  if(!sshc)
-    return CURLE_OUT_OF_MEMORY;
+  nếu(!sshc)
+    trả_về CURLE_OUT_OF_MEMORY;
 
   curlx_dyn_init(&sshc->readdir_buf, CURL_PATH_MAX * 2);
   sshc->initialized = TRUE;
-  if(Curl_conn_meta_set(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  nếu(Curl_conn_meta_set(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
+    trả_về CURLE_OUT_OF_MEMORY;
 
   sshp = curlx_calloc(1, sizeof(*sshp));
-  if(!sshp ||
+  nếu(!sshp ||
      Curl_meta_set(data, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    trả_về CURLE_OUT_OF_MEMORY;
 
-  return Curl_ssh_setup_pkey(data, sshc);
+  trả_về Curl_ssh_setup_pkey(data, sshc);
 }
 
 static Curl_recv scp_recv, sftp_recv;
@@ -2570,25 +2570,25 @@ static CURLcode myssh_connect(struct Curl_easy *data, bool *done)
   struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   struct SSHPROTO *ssh = Curl_meta_get(data, CURL_META_SSH_EASY);
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int rc;
+  số_nguyên rc;
 
-  if(!sshc || !ssh)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc || !ssh)
+    trả_về CURLE_FAILED_INIT;
 
   CURL_TRC_SSH(data, "myssh_connect");
-  if(conn->scheme->protocol & CURLPROTO_SCP) {
+  nếu(conn->scheme->protocol & CURLPROTO_SCP) {
     conn->recv[FIRSTSOCKET] = scp_recv;
     conn->send[FIRSTSOCKET] = scp_send;
   }
-  else {
+  không_thì {
     conn->recv[FIRSTSOCKET] = sftp_recv;
     conn->send[FIRSTSOCKET] = sftp_send;
   }
 
   sshc->ssh_session = ssh_new();
-  if(!sshc->ssh_session) {
+  nếu(!sshc->ssh_session) {
     failf(data, "Failure initializing ssh session");
-    return CURLE_FAILED_INIT;
+    trả_về CURLE_FAILED_INIT;
   }
 
   /* For IPv6 origins, use the `user_hostname` that has the "[]" enclosure.
@@ -2597,76 +2597,76 @@ static CURLcode myssh_connect(struct Curl_easy *data, bool *done)
                        conn->origin->ipv6 ?
                        conn->origin->user_hostname : conn->origin->hostname);
 
-  if(rc != SSH_OK) {
+  nếu(rc != SSH_OK) {
     failf(data, "Could not set remote host");
-    return CURLE_FAILED_INIT;
+    trả_về CURLE_FAILED_INIT;
   }
 
   rc = ssh_options_parse_config(sshc->ssh_session, NULL);
-  if(rc != SSH_OK) {
+  nếu(rc != SSH_OK) {
     infof(data, "Could not parse SSH configuration files");
     /* ignore */
   }
 
   CURL_TRC_SSH(data, "myssh_connect, set socket=%" FMT_SOCKET_T, sock);
   rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_FD, &sock);
-  if(rc != SSH_OK) {
+  nếu(rc != SSH_OK) {
     failf(data, "Could not set socket");
-    return CURLE_FAILED_INIT;
+    trả_về CURLE_FAILED_INIT;
   }
 
-  if(Curl_creds_has_user(conn->creds)) {
+  nếu(Curl_creds_has_user(conn->creds)) {
     infof(data, "User: %s", conn->creds->user);
     rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_USER,
                          conn->creds->user);
-    if(rc != SSH_OK) {
+    nếu(rc != SSH_OK) {
       failf(data, "Could not set user");
-      return CURLE_FAILED_INIT;
+      trả_về CURLE_FAILED_INIT;
     }
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
+  nếu(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
     infof(data, "Known hosts: %s",
           CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
     rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_KNOWNHOSTS,
                          CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-    if(rc == SSH_OK)
+    nếu(rc == SSH_OK)
       /* libssh has two separate options for this. Set both to the same file
          to avoid surprises */
       rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS,
                            CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-    if(rc != SSH_OK) {
+    nếu(rc != SSH_OK) {
       failf(data, "Could not set known hosts file path");
-      return CURLE_FAILED_INIT;
+      trả_về CURLE_FAILED_INIT;
     }
   }
 
-  if(conn->origin->port) {
+  nếu(conn->origin->port) {
     rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_PORT,
                          &conn->origin->port);
-    if(rc != SSH_OK) {
+    nếu(rc != SSH_OK) {
       failf(data, "Could not set remote port");
-      return CURLE_FAILED_INIT;
+      trả_về CURLE_FAILED_INIT;
     }
   }
 
-  if(data->set.ssh_compression) {
+  nếu(data->set.ssh_compression) {
     rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_COMPRESSION,
                          "zlib,zlib@openssh.com,none");
-    if(rc != SSH_OK) {
+    nếu(rc != SSH_OK) {
       failf(data, "Could not set compression");
-      return CURLE_FAILED_INIT;
+      trả_về CURLE_FAILED_INIT;
     }
   }
 
   sshc->privkey = NULL;
   sshc->pubkey = NULL;
 
-  if(sshc->pub_key) {
+  nếu(sshc->pub_key) {
     rc = ssh_pki_import_pubkey_file(sshc->pub_key, &sshc->pubkey);
-    if(rc != SSH_OK) {
+    nếu(rc != SSH_OK) {
       failf(data, "Could not load public key file");
-      return CURLE_FAILED_INIT;
+      trả_về CURLE_FAILED_INIT;
     }
   }
 
@@ -2677,7 +2677,7 @@ static CURLcode myssh_connect(struct Curl_easy *data, bool *done)
 
   result = myssh_multi_statemach(data, done);
 
-  return result;
+  trả_về result;
 }
 
 /* called from multi.c while DOing */
@@ -2687,10 +2687,10 @@ static CURLcode scp_doing(struct Curl_easy *data, bool *dophase_done)
 
   result = myssh_multi_statemach(data, dophase_done);
 
-  if(*dophase_done) {
+  nếu(*dophase_done) {
     CURL_TRC_SSH(data, "DO phase is complete");
   }
-  return result;
+  trả_về result;
 }
 
 /*
@@ -2711,8 +2711,8 @@ static CURLcode scp_perform(struct Curl_easy *data,
   CURL_TRC_SSH(data, "DO phase starts");
 
   *dophase_done = FALSE;        /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
   myssh_to(data, sshc, SSH_SCP_TRANS_INIT);
@@ -2721,11 +2721,11 @@ static CURLcode scp_perform(struct Curl_easy *data,
 
   *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
+  nếu(*dophase_done) {
     CURL_TRC_SSH(data, "DO phase is complete");
   }
 
-  return result;
+  trả_về result;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
@@ -2740,13 +2740,13 @@ static CURLcode scp_disconnect(struct Curl_easy *data,
   struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
   (void)dead_connection;
 
-  if(sshc && sshc->ssh_session) {
+  nếu(sshc && sshc->ssh_session) {
     /* only if there is a session still around to use! */
     myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
     result = myssh_block_statemach(data, sshc, sshp, TRUE);
   }
 
-  return result;
+  trả_về result;
 }
 
 /* generic done function for both SCP and SFTP called from their specific
@@ -2758,18 +2758,18 @@ static CURLcode myssh_done(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
   struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
 
-  if(!status && sshp) {
+  nếu(!status && sshp) {
     /* run the state-machine */
     result = myssh_block_statemach(data, sshc, sshp, FALSE);
   }
-  else
+  không_thì
     result = status;
 
-  if(Curl_pgrsDone(data, Curl_pgrs_now(data)))
-    return CURLE_ABORTED_BY_CALLBACK;
+  nếu(Curl_pgrsDone(data, Curl_pgrs_now(data)))
+    trả_về CURLE_ABORTED_BY_CALLBACK;
 
   CURL_REQ_CLEAR_IO(data);
-  return result;
+  trả_về result;
 }
 
 static CURLcode scp_done(struct Curl_easy *data, CURLcode status,
@@ -2778,19 +2778,19 @@ static CURLcode scp_done(struct Curl_easy *data, CURLcode status,
   struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
   (void)premature;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
-  if(!status)
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
+  nếu(!status)
     myssh_to(data, sshc, SSH_SCP_DONE);
 
-  return myssh_done(data, sshc, status);
+  trả_về myssh_done(data, sshc, status);
 }
 
 static CURLcode scp_send(struct Curl_easy *data, int8_t sockindex,
                          const uint8_t *mem, size_t len, bool eos,
                          size_t *pnwritten)
 {
-  int rc;
+  số_nguyên rc;
   struct connectdata *conn = data->conn;
   struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
@@ -2798,26 +2798,26 @@ static CURLcode scp_send(struct Curl_easy *data, int8_t sockindex,
   (void)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
 
   rc = ssh_scp_write(sshc->scp_session, mem, len);
 
-#if 0
+#nếu 0
   /* The following code is misleading, mostly added as wishful thinking
    * that libssh at some point would implement non-blocking ssh_scp_write/read.
    * Currently rc can only be number of bytes read or SSH_ERROR. */
   myssh_block2waitfor(conn, sshc, (rc == SSH_AGAIN));
 
-  if(rc == SSH_AGAIN)
-    return CURLE_AGAIN;
-  else
+  nếu(rc == SSH_AGAIN)
+    trả_về CURLE_AGAIN;
+  không_thì
 #endif
-  if(rc != SSH_OK)
-    return CURLE_SSH;
+  nếu(rc != SSH_OK)
+    trả_về CURLE_SSH;
 
   *pnwritten = len;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
@@ -2825,29 +2825,29 @@ static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
 {
   struct connectdata *conn = data->conn;
   struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  int nread;
+  số_nguyên nread;
 
   (void)sockindex; /* we only support SCP on the fixed known primary socket */
   *pnread = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
 
   /* libssh returns int */
   nread = ssh_scp_read(sshc->scp_session, mem, len);
-  if(nread == SSH_ERROR)
-    return CURLE_SSH;
-#if 0
+  nếu(nread == SSH_ERROR)
+    trả_về CURLE_SSH;
+#nếu 0
   /* The following code is misleading, mostly added as wishful thinking
    * that libssh at some point would implement non-blocking ssh_scp_write/read.
    * Currently rc can only be SSH_OK or SSH_ERROR. */
 
   myssh_block2waitfor(conn, sshc, (nread == SSH_AGAIN));
-  if(nread == SSH_AGAIN)
-    return CURLE_AGAIN;
+  nếu(nread == SSH_AGAIN)
+    trả_về CURLE_AGAIN;
 #endif
   *pnread = (size_t)nread;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 /*
@@ -2873,8 +2873,8 @@ static CURLcode sftp_perform(struct Curl_easy *data,
   CURL_TRC_SSH(data, "DO phase starts");
 
   *dophase_done = FALSE; /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
   myssh_to(data, sshc, SSH_SFTP_QUOTE_INIT);
@@ -2884,11 +2884,11 @@ static CURLcode sftp_perform(struct Curl_easy *data,
 
   *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
+  nếu(*dophase_done) {
     CURL_TRC_SSH(data, "DO phase is complete");
   }
 
-  return result;
+  trả_về result;
 }
 
 /* called from multi.c while DOing */
@@ -2896,10 +2896,10 @@ static CURLcode sftp_doing(struct Curl_easy *data,
                            bool *dophase_done)
 {
   CURLcode result = myssh_multi_statemach(data, dophase_done);
-  if(*dophase_done) {
+  nếu(*dophase_done) {
     CURL_TRC_SSH(data, "DO phase is complete");
   }
-  return result;
+  trả_về result;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
@@ -2916,14 +2916,14 @@ static CURLcode sftp_disconnect(struct Curl_easy *data,
 
   CURL_TRC_SSH(data, "DISCONNECT starts now");
 
-  if(sshc && sshc->ssh_session) {
+  nếu(sshc && sshc->ssh_session) {
     /* only if there is a session still around to use! */
     myssh_to(data, sshc, SSH_SFTP_SHUTDOWN);
     result = myssh_block_statemach(data, sshc, sshp, TRUE);
   }
 
   CURL_TRC_SSH(data, "DISCONNECT is done");
-  return result;
+  trả_về result;
 }
 
 static CURLcode sftp_done(struct Curl_easy *data, CURLcode status,
@@ -2932,17 +2932,17 @@ static CURLcode sftp_done(struct Curl_easy *data, CURLcode status,
   struct connectdata *conn = data->conn;
   struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
-  if(!status) {
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
+  nếu(!status) {
     /* Post quote commands are executed after the SFTP_CLOSE state to avoid
        errors that could happen due to open file handles during POSTQUOTE
        operation */
-    if(!premature && data->set.postquote && !conn->bits.retry)
+    nếu(!premature && data->set.postquote && !conn->bits.retry)
       sshc->nextstate = SSH_SFTP_POSTQUOTE_INIT;
     myssh_to(data, sshc, SSH_SFTP_CLOSE);
   }
-  return myssh_done(data, sshc, status);
+  trả_về myssh_done(data, sshc, status);
 }
 
 /* return number of sent bytes */
@@ -2958,26 +2958,26 @@ static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
   (void)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
 
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+#nếu LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
   switch(sshc->sftp_send_state) {
   case 0:
     sftp_file_set_nonblocking(sshc->sftp_file);
-    if(sftp_aio_begin_write(sshc->sftp_file, mem, len,
+    nếu(sftp_aio_begin_write(sshc->sftp_file, mem, len,
                             &sshc->sftp_send_aio) == SSH_ERROR) {
-      return CURLE_SEND_ERROR;
+      trả_về CURLE_SEND_ERROR;
     }
     sshc->sftp_send_state = 1;
     FALLTHROUGH();
   case 1:
     nwrite = sftp_aio_wait_write(&sshc->sftp_send_aio);
     myssh_block2waitfor(conn, sshc, (nwrite == SSH_AGAIN) ? TRUE : FALSE);
-    if(nwrite == SSH_AGAIN)
-      return CURLE_AGAIN;
-    else if(nwrite < 0)
-      return CURLE_SEND_ERROR;
+    nếu(nwrite == SSH_AGAIN)
+      trả_về CURLE_AGAIN;
+    không_thì nếu(nwrite < 0)
+      trả_về CURLE_SEND_ERROR;
 
     /*
      * sftp_aio_wait_write() would free sftp_send_aio and
@@ -2987,12 +2987,12 @@ static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
 
     sshc->sftp_send_state = 0;
     *pnwritten = (size_t)nwrite;
-    return CURLE_OK;
+    trả_về CURLE_OK;
   default:
     /* we never reach here */
-    return CURLE_SEND_ERROR;
+    trả_về CURLE_SEND_ERROR;
   }
-#else
+#không_thì
   /*
    * limit the writes to the maximum specified in Section 3 of
    * https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02
@@ -3001,25 +3001,25 @@ static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
    * internally since version 0.11.0, hence such an operation is
    * not needed for versions after (and including) 0.11.0.
    */
-  if(len > 32768)
+  nếu(len > 32768)
     len = 32768;
 
   nwrite = sftp_write(sshc->sftp_file, mem, len);
 
   myssh_block2waitfor(conn, sshc, FALSE);
 
-#if 0 /* not returned by libssh on write */
-  if(nwrite == SSH_AGAIN) {
+#nếu 0 /* not returned by libssh on write */
+  nếu(nwrite == SSH_AGAIN) {
     *err = CURLE_AGAIN;
     nwrite = 0;
   }
-  else
+  không_thì
 #endif
-  if(nwrite < 0)
-    return CURLE_SSH;
+  nếu(nwrite < 0)
+    trả_về CURLE_SSH;
 
   *pnwritten = (size_t)nwrite;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 #endif
 }
 
@@ -3038,40 +3038,40 @@ static CURLcode sftp_recv(struct Curl_easy *data, int8_t sockindex,
   *pnread = 0;
 
   DEBUGASSERT(len < CURL_MAX_READ_SIZE);
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
 
   switch(sshc->sftp_recv_state) {
   case 0:
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
-    if(sftp_aio_begin_read(sshc->sftp_file, len,
+#nếu LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+    nếu(sftp_aio_begin_read(sshc->sftp_file, len,
                            &sshc->sftp_recv_aio) == SSH_ERROR) {
-      return CURLE_RECV_ERROR;
+      trả_về CURLE_RECV_ERROR;
     }
-#else
+#không_thì
     sshc->sftp_file_index =
       sftp_async_read_begin(sshc->sftp_file, (uint32_t)len);
-    if(sshc->sftp_file_index < 0)
-      return CURLE_RECV_ERROR;
+    nếu(sshc->sftp_file_index < 0)
+      trả_về CURLE_RECV_ERROR;
 #endif
 
     FALLTHROUGH();
   case 1:
     sshc->sftp_recv_state = 1;
 
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+#nếu LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
     nread = sftp_aio_wait_read(&sshc->sftp_recv_aio, mem, len);
-#else
+#không_thì
     nread = sftp_async_read(sshc->sftp_file, mem, (uint32_t)len,
                             (uint32_t)sshc->sftp_file_index);
 #endif
 
     myssh_block2waitfor(conn, sshc, (nread == SSH_AGAIN));
 
-    if(nread == SSH_AGAIN)
-      return CURLE_AGAIN;
-    else if(nread < 0)
-      return CURLE_RECV_ERROR;
+    nếu(nread == SSH_AGAIN)
+      trả_về CURLE_AGAIN;
+    không_thì nếu(nread < 0)
+      trả_về CURLE_RECV_ERROR;
 
     /*
      * sftp_aio_wait_read() would free sftp_recv_aio and
@@ -3081,11 +3081,11 @@ static CURLcode sftp_recv(struct Curl_easy *data, int8_t sockindex,
 
     sshc->sftp_recv_state = 0;
     *pnread = (size_t)nread;
-    return CURLE_OK;
+    trả_về CURLE_OK;
 
   default:
     /* we never reach here */
-    return CURLE_RECV_ERROR;
+    trả_về CURLE_RECV_ERROR;
   }
 }
 
@@ -3097,8 +3097,8 @@ static CURLcode myssh_do_it(struct Curl_easy *data, bool *done)
   struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
   *done = FALSE;                /* default to false */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  nếu(!sshc)
+    trả_về CURLE_FAILED_INIT;
 
   data->req.size = -1;          /* make sure this is unknown at this point */
 
@@ -3108,21 +3108,21 @@ static CURLcode myssh_do_it(struct Curl_easy *data, bool *done)
 
   Curl_pgrsReset(data);
 
-  if(conn->scheme->protocol & CURLPROTO_SCP)
+  nếu(conn->scheme->protocol & CURLPROTO_SCP)
     result = scp_perform(data, &connected, done);
-  else
+  không_thì
     result = sftp_perform(data, &connected, done);
 
-  return result;
+  trả_về result;
 }
 
 CURLcode Curl_ssh_init(void)
 {
-  if(ssh_init()) {
+  nếu(ssh_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: libssh_init failed\n"));
-    return CURLE_FAILED_INIT;
+    trả_về CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 void Curl_ssh_cleanup(void)

@@ -70,15 +70,15 @@ struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
 {
   struct addrinfo hints;
   struct Curl_addrinfo *res;
-  int error;
+  số_nguyên error;
   char sbuf[12];
   char *sbufptr = NULL;
 #ifndef USE_RESOLVE_ON_IPS
   char addrbuf[128];
 #endif
-  int pf = PF_INET;
+  số_nguyên pf = PF_INET;
 
-  if(dns_queries & CURL_DNSQ_AAAA)
+  nếu(dns_queries & CURL_DNSQ_AAAA)
     pf = PF_UNSPEC;
 
   memset(&hints, 0, sizeof(hints));
@@ -91,29 +91,29 @@ struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
    * The AI_NUMERICHOST must not be set to get synthesized IPv6 address from
    * an IPv4 address on iOS and macOS.
    */
-  if((curlx_inet_pton(AF_INET, hostname, addrbuf) == 1) ||
+  nếu((curlx_inet_pton(AF_INET, hostname, addrbuf) == 1) ||
      (curlx_inet_pton(AF_INET6, hostname, addrbuf) == 1)) {
     /* the given address is numerical only, prevent a reverse lookup */
     hints.ai_flags = AI_NUMERICHOST;
   }
 #endif
 
-  if(port) {
+  nếu(port) {
     curl_msnprintf(sbuf, sizeof(sbuf), "%d", port);
     sbufptr = sbuf;
   }
 
   error = Curl_getaddrinfo_ex(hostname, sbufptr, &hints, &res);
-  if(error) {
+  nếu(error) {
     infof(data, "getaddrinfo(3) failed for %s:%d", hostname, port);
-    return NULL;
+    trả_về NULL;
   }
 
-  if(port) {
+  nếu(port) {
     Curl_addrinfo_set_port(res, port);
   }
 
-  return res;
+  trả_về res;
 }
 #endif /* CURLRES_SYNCH */
 

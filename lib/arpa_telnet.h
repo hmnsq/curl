@@ -56,7 +56,7 @@ static const char * const telnetoptions[] = {
   "OLD-ENVIRON", "AUTHENTICATION", "ENCRYPT",       "NEW-ENVIRON"
 };
 #define CURL_TELOPT(x) telnetoptions[x]
-#else
+#không_thì
 #define CURL_TELOPT(x) ""
 #endif
 
@@ -102,12 +102,12 @@ static const char * const telnetcmds[] = {
 #define CURL_TELQUAL_NAME 3
 
 #define CURL_TELCMD_OK(x)                        \
-  (((unsigned int)(x) >= CURL_TELCMD_MINIMUM) && \
-   ((unsigned int)(x) <= CURL_TELCMD_MAXIMUM))
+  (((unsigned số_nguyên)(x) >= CURL_TELCMD_MINIMUM) && \
+   ((unsigned số_nguyên)(x) <= CURL_TELCMD_MAXIMUM))
 
 #ifdef CURLVERBOSE
 #define CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
-#else
+#không_thì
 #define CURL_TELCMD(x) ""
 #endif
 

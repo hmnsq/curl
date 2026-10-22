@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(HAVE_SIGACTION) && !defined(USE_SO_NOSIGPIPE)
+#nếu defined(HAVE_SIGACTION) && !defined(USE_SO_NOSIGPIPE)
 #include <signal.h>
 
 struct Curl_sigpipe_ctx {
@@ -50,7 +50,7 @@ static CURL_INLINE void sigpipe_ignore(struct Curl_easy *data,
   /* get a local copy of no_signal because the Curl_easy might not be
      around when we restore */
   ig->no_signal = data->set.no_signal;
-  if(!data->set.no_signal) {
+  nếu(!data->set.no_signal) {
     struct sigaction action;
     /* first, extract the existing situation */
     sigaction(SIGPIPE, NULL, &ig->old_pipe_act);
@@ -72,7 +72,7 @@ static CURL_INLINE void sigpipe_ignore(struct Curl_easy *data,
  */
 static CURL_INLINE void sigpipe_restore(struct Curl_sigpipe_ctx *ig)
 {
-  if(!ig->no_signal)
+  nếu(!ig->no_signal)
     /* restore the outside state */
     sigaction(SIGPIPE, &ig->old_pipe_act, NULL);
 }
@@ -80,18 +80,18 @@ static CURL_INLINE void sigpipe_restore(struct Curl_sigpipe_ctx *ig)
 static CURL_INLINE void sigpipe_apply(struct Curl_easy *data,
                                       struct Curl_sigpipe_ctx *ig)
 {
-  if(data && (data->set.no_signal != ig->no_signal)) {
+  nếu(data && (data->set.no_signal != ig->no_signal)) {
     sigpipe_restore(ig);
     sigpipe_ignore(data, ig);
   }
 }
 
-#else /* !HAVE_SIGACTION || USE_SO_NOSIGPIPE */
+#không_thì /* !HAVE_SIGACTION || USE_SO_NOSIGPIPE */
 /* for systems without sigaction or where SO_NOSIGPIPE is used. */
-#define sigpipe_ignore(x, y) do { (void)(x); (void)(y); } while(0)
-#define sigpipe_apply(x, y)  do { (void)(x); (void)(y); } while(0)
-#define sigpipe_init(x)      do { (void)(x); } while(0)
-#define sigpipe_restore(x)   do { (void)(x); } while(0)
+#define sigpipe_ignore(x, y) do { (void)(x); (void)(y); } trong_khi(0)
+#define sigpipe_apply(x, y)  do { (void)(x); (void)(y); } trong_khi(0)
+#define sigpipe_init(x)      do { (void)(x); } trong_khi(0)
+#define sigpipe_restore(x)   do { (void)(x); } trong_khi(0)
 
 struct Curl_sigpipe_ctx {
   bool dummy;

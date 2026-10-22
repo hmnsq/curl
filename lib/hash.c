@@ -64,23 +64,23 @@ CURLcode Curl_hash_global_init(void)
   size_t i;
   CURLcode result;
 
-  if(seeded)
-    return CURLE_OK;
+  nếu(seeded)
+    trả_về CURLE_OK;
 
   result = Curl_rand_bytes(NULL,
 #ifdef DEBUGBUILD
                            FALSE,
 #endif
                            buf, sizeof(buf));
-  if(result)
-    return result;
+  nếu(result)
+    trả_về result;
 
-  for(i = 0; i < sizeof(buf); i++)
+  cho(i = 0; i < sizeof(buf); i++)
     seed = (seed << 8) | buf[i];
 
   hash_seed = seed ? seed : 1;
   seeded = TRUE;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 /* @unittest 1603
@@ -94,13 +94,13 @@ UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
   const char *end = key_str + key_length;
   size_t h = 5381 ^ seed;
 
-  while(key_str < end) {
+  trong_khi(key_str < end) {
     size_t j = (size_t)*key_str++;
     h += h << 5;
     h ^= j;
   }
 
-  return (h % slots_num);
+  trả_về (h % slots_num);
 }
 
 /* @unittest 1603
@@ -108,13 +108,13 @@ UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
 UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num);
 UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num)
 {
-  return hash_str_seeded(key, key_length, slots_num, hash_seed);
+  trả_về hash_str_seeded(key, key_length, slots_num, hash_seed);
 }
 
 /* Avoid treating the variable-length key[1] as a one-byte object. */
 static char *hash_elem_key(struct Curl_hash_element *he)
 {
-  return (char *)he + offsetof(struct Curl_hash_element, key);
+  trả_về (char *)he + offsetof(struct Curl_hash_element, key);
 }
 
 static size_t hash_socket(const void *key, size_t key_length,
@@ -123,10 +123,10 @@ static size_t hash_socket(const void *key, size_t key_length,
   curl_socket_t socket;
 
   DEBUGASSERT(key_length == sizeof(socket));
-  if(key_length != sizeof(socket))
-    return 0;
+  nếu(key_length != sizeof(socket))
+    trả_về 0;
   memcpy(&socket, key, sizeof(socket));
-  return (size_t)(socket % (curl_socket_t)slots_num);
+  trả_về (size_t)(socket % (curl_socket_t)slots_num);
 }
 
 static size_t compare_socket(const void *key1, size_t key1_len,
@@ -135,17 +135,17 @@ static size_t compare_socket(const void *key1, size_t key1_len,
   curl_socket_t socket1;
   curl_socket_t socket2;
 
-  if((key1_len != sizeof(socket1)) || (key2_len != sizeof(socket2)))
-    return 0;
+  nếu((key1_len != sizeof(socket1)) || (key2_len != sizeof(socket2)))
+    trả_về 0;
   memcpy(&socket1, key1, sizeof(socket1));
   memcpy(&socket2, key2, sizeof(socket2));
-  return socket1 == socket2;
+  trả_về socket1 == socket2;
 }
 
 static size_t compare_bytes(const void *key1, size_t key1_len,
                             const void *key2, size_t key2_len)
 {
-  return (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
+  trả_về (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
 }
 
 static const struct hash_functions hash_functions[] = {
@@ -156,47 +156,47 @@ static const struct hash_functions hash_functions[] = {
 static const struct hash_functions *hash_get_functions(uint8_t type)
 {
   DEBUGASSERT(CURL_ARRAYSIZE(hash_functions) == CURL_HASH_TYPE_LAST);
-  if((unsigned int)type >= CURL_HASH_TYPE_LAST)
+  nếu((unsigned số_nguyên)type >= CURL_HASH_TYPE_LAST)
     type = CURL_HASH_TYPE_BYTES;
-  return &hash_functions[type];
+  trả_về &hash_functions[type];
 }
 
 static bool hash_key_is_valid(uint8_t type, size_t key_len)
 {
-  return (type == CURL_HASH_TYPE_BYTES) ||
+  trả_về (type == CURL_HASH_TYPE_BYTES) ||
     ((type == CURL_HASH_TYPE_SOCKET) &&
      (key_len == sizeof(curl_socket_t)));
 }
 
-#if 0 /* useful function for debugging hashes and their contents */
+#nếu 0 /* useful function for debugging hashes and their contents */
 void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
 {
   struct Curl_hash_iterator iter;
   struct Curl_hash_element *he;
   size_t last_index = UINT_MAX;
 
-  if(!h)
-    return;
+  nếu(!h)
+    trả_về;
 
   curl_mfprintf(stderr, "=Hash dump=\n");
 
   Curl_hash_start_iterate(h, &iter);
 
   he = Curl_hash_next_element(&iter);
-  while(he) {
-    if(iter.slot_index != last_index) {
-      curl_mfprintf(stderr, "index %d:", (int)iter.slot_index);
-      if(last_index != UINT_MAX) {
+  trong_khi(he) {
+    nếu(iter.slot_index != last_index) {
+      curl_mfprintf(stderr, "index %d:", (số_nguyên)iter.slot_index);
+      nếu(last_index != UINT_MAX) {
         curl_mfprintf(stderr, "\n");
       }
       last_index = iter.slot_index;
     }
 
-    if(func)
+    nếu(func)
       func(he->ptr);
-    else
+    không_thì
       curl_mfprintf(stderr, " [key=%.*s, he=%p, ptr=%p]",
-                    (int)he->key_len, hash_elem_key(he),
+                    (số_nguyên)he->key_len, hash_elem_key(he),
                     (void *)he, (void *)he->ptr);
 
     he = Curl_hash_next_element(&iter);
@@ -217,7 +217,7 @@ void Curl_hash_init(struct Curl_hash *h,
 {
   DEBUGASSERT(h);
   DEBUGASSERT(slots);
-  DEBUGASSERT((unsigned int)type < CURL_HASH_TYPE_LAST);
+  DEBUGASSERT((unsigned số_nguyên)type < CURL_HASH_TYPE_LAST);
   DEBUGASSERT(dtor);
 
   h->table = NULL;
@@ -239,7 +239,7 @@ static struct Curl_hash_element *hash_elem_create(const void *key,
 
   /* allocate the struct plus memory after it to store the key */
   he = curlx_malloc(sizeof(struct Curl_hash_element) + key_len);
-  if(he) {
+  nếu(he) {
     he->next = NULL;
     /* copy the key */
     memcpy(hash_elem_key(he), key, key_len);
@@ -247,7 +247,7 @@ static struct Curl_hash_element *hash_elem_create(const void *key,
     he->ptr = p;
     he->dtor = dtor;
   }
-  return he;
+  trả_về he;
 }
 
 static void hash_elem_clear_ptr(struct Curl_hash *h,
@@ -255,10 +255,10 @@ static void hash_elem_clear_ptr(struct Curl_hash *h,
 {
   DEBUGASSERT(h);
   DEBUGASSERT(he);
-  if(he->ptr) {
-    if(he->dtor)
+  nếu(he->ptr) {
+    nếu(he->dtor)
       he->dtor(hash_elem_key(he), he->key_len, he->ptr);
-    else
+    không_thì
       h->dtor(he->ptr);
     he->ptr = NULL;
   }
@@ -298,32 +298,32 @@ void *Curl_hash_add2(struct Curl_hash *h,
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(!h->table) {
+  nếu(!hash_key_is_valid(h->type, key_len))
+    trả_về NULL;
+  nếu(!h->table) {
     h->table = curlx_calloc(h->slots, sizeof(struct Curl_hash_element *));
-    if(!h->table)
-      return NULL; /* OOM */
+    nếu(!h->table)
+      trả_về NULL; /* OOM */
   }
 
   functions = hash_get_functions(h->type);
   slot = &h->table[functions->hash(key, key_len, h->slots)];
-  for(he = *slot; he; he = he->next) {
-    if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+  cho(he = *slot; he; he = he->next) {
+    nếu(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
       /* existing key entry, overwrite by clearing old pointer */
       hash_elem_clear_ptr(h, he);
       he->ptr = p;
       he->dtor = dtor;
-      return p;
+      trả_về p;
     }
   }
 
   he = hash_elem_create(key, key_len, p, dtor);
-  if(!he)
-    return NULL; /* OOM */
+  nếu(!he)
+    trả_về NULL; /* OOM */
 
   hash_elem_link(h, slot, he);
-  return p; /* return the new entry */
+  trả_về p; /* return the new entry */
 }
 
 /* Insert the data in the hash. If there already was a match in the hash, that
@@ -337,7 +337,7 @@ void *Curl_hash_add2(struct Curl_hash *h,
 void *Curl_hash_add(struct Curl_hash *h,
                     const void *key, size_t key_len, void *p)
 {
-  return Curl_hash_add2(h, key, key_len, p, NULL);
+  trả_về Curl_hash_add2(h, key, key_len, p, NULL);
 }
 
 /* Remove the identified hash entry.
@@ -345,31 +345,31 @@ void *Curl_hash_add(struct Curl_hash *h,
  *
  * @unittest: 1603
  */
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len)
+số_nguyên Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len)
 {
   const struct hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return 1;
-  if(h->table) {
+  nếu(!hash_key_is_valid(h->type, key_len))
+    trả_về 1;
+  nếu(h->table) {
     struct Curl_hash_element *he, **he_anchor;
 
     functions = hash_get_functions(h->type);
     he_anchor = &h->table[functions->hash(key, key_len, h->slots)];
-    while(*he_anchor) {
+    trong_khi(*he_anchor) {
       he = *he_anchor;
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+      nếu(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
-        return 0;
+        trả_về 0;
       }
       he_anchor = &he->next;
     }
   }
-  return 1;
+  trả_về 1;
 }
 
 /* Retrieves a hash element.
@@ -382,21 +382,21 @@ void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(h->table) {
+  nếu(!hash_key_is_valid(h->type, key_len))
+    trả_về NULL;
+  nếu(h->table) {
     struct Curl_hash_element *he;
     DEBUGASSERT(h->slots);
     functions = hash_get_functions(h->type);
     he = h->table[functions->hash(key, key_len, h->slots)];
-    while(he) {
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
-        return he->ptr;
+    trong_khi(he) {
+      nếu(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+        trả_về he->ptr;
       }
       he = he->next;
     }
   }
-  return NULL;
+  trả_về NULL;
 }
 
 /* Destroys all the entries in the given hash and resets its attributes,
@@ -409,7 +409,7 @@ void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
 void Curl_hash_destroy(struct Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  if(h->table) {
+  nếu(h->table) {
     Curl_hash_clean(h);
     curlx_safefree(h->table);
   }
@@ -423,13 +423,13 @@ void Curl_hash_destroy(struct Curl_hash *h)
  */
 void Curl_hash_clean(struct Curl_hash *h)
 {
-  if(h && h->table) {
+  nếu(h && h->table) {
     struct Curl_hash_element *he, **he_anchor;
     size_t i;
     DEBUGASSERT(h->init == HASHINIT);
-    for(i = 0; i < h->slots; ++i) {
+    cho(i = 0; i < h->slots; ++i) {
       he_anchor = &h->table[i];
-      while(*he_anchor) {
+      trong_khi(*he_anchor) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
@@ -441,29 +441,29 @@ void Curl_hash_clean(struct Curl_hash *h)
 size_t Curl_hash_count(struct Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  return h->size;
+  trả_về h->size;
 }
 
 /* Cleans all entries that pass the comp function criteria. */
 void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
-                                    int (*comp)(void *, void *))
+                                    số_nguyên (*comp)(void *, void *))
 {
   size_t i;
 
-  if(!h || !h->table)
-    return;
+  nếu(!h || !h->table)
+    trả_về;
 
   DEBUGASSERT(h->init == HASHINIT);
-  for(i = 0; i < h->slots; ++i) {
+  cho(i = 0; i < h->slots; ++i) {
     struct Curl_hash_element *he, **he_anchor = &h->table[i];
-    while(*he_anchor) {
+    trong_khi(*he_anchor) {
       /* ask the callback function if we shall remove this entry or not */
-      if(!comp || comp(user, (*he_anchor)->ptr)) {
+      nếu(!comp || comp(user, (*he_anchor)->ptr)) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
       }
-      else
+      không_thì
         he_anchor = &(*he_anchor)->next;
     }
   }
@@ -487,18 +487,18 @@ struct Curl_hash_element *Curl_hash_next_element(
   struct Curl_hash *h;
   DEBUGASSERT(iter->init == ITERINIT);
   h = iter->hash;
-  if(!h->table)
-    return NULL; /* empty hash, nothing to return */
+  nếu(!h->table)
+    trả_về NULL; /* empty hash, nothing to return */
 
   /* Get the next element in the current list, if any */
-  if(iter->current)
+  nếu(iter->current)
     iter->current = iter->current->next;
 
   /* If we have reached the end of the list, find the next one */
-  if(!iter->current) {
+  nếu(!iter->current) {
     size_t i;
-    for(i = iter->slot_index; i < h->slots; i++) {
-      if(h->table[i]) {
+    cho(i = iter->slot_index; i < h->slots; i++) {
+      nếu(h->table[i]) {
         iter->current = h->table[i];
         iter->slot_index = i + 1;
         break;
@@ -506,5 +506,5 @@ struct Curl_hash_element *Curl_hash_next_element(
     }
   }
 
-  return iter->current;
+  trả_về iter->current;
 }

@@ -25,6 +25,6 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-int curlx_wait_ms(timediff_t timeout_ms);
+số_nguyên curlx_wait_ms(timediff_t timeout_ms);
 
 #endif /* HEADER_CURL_WAIT_H */

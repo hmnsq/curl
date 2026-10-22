@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#nếu !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
 /* Please keep the SSL backend-specific #if branches in this order:
  *
@@ -50,26 +50,26 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
   EVP_PKEY *pkey;
   EVP_MD_CTX *mdctx;
   size_t slen;
-  int rc;
+  số_nguyên rc;
 
-  if(keylen != CURL_ED25519_KEYLEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(keylen != CURL_ED25519_KEYLEN)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
 
   pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, key, keylen);
-  if(!pkey)
-    return CURLE_AUTH_ERROR;
+  nếu(!pkey)
+    trả_về CURLE_AUTH_ERROR;
 
   mdctx = EVP_MD_CTX_new();
-  if(!mdctx) {
+  nếu(!mdctx) {
     EVP_PKEY_free(pkey);
-    return CURLE_OUT_OF_MEMORY;
+    trả_về CURLE_OUT_OF_MEMORY;
   }
 
   rc = EVP_DigestSignInit(mdctx, NULL, NULL, NULL, pkey);
-  if(rc != 1) {
+  nếu(rc != 1) {
     EVP_MD_CTX_free(mdctx);
     EVP_PKEY_free(pkey);
-    return CURLE_AUTH_ERROR;
+    trả_về CURLE_AUTH_ERROR;
   }
 
   slen = CURL_ED25519_SIGLEN;
@@ -78,11 +78,11 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
   EVP_MD_CTX_free(mdctx);
   EVP_PKEY_free(pkey);
 
-  if(rc != 1)
-    return CURLE_AUTH_ERROR;
+  nếu(rc != 1)
+    trả_về CURLE_AUTH_ERROR;
 
   *siglen = slen;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 #elif defined(USE_WOLFSSL) && \
@@ -96,43 +96,43 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
                            const unsigned char *msg, size_t msglen,
                            unsigned char *sig, size_t *siglen)
 {
-  int ret;
+  số_nguyên ret;
   ed25519_key edkey;
   word32 outlen;
   unsigned char pubkey[ED25519_PUB_KEY_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(keylen != ED25519_KEY_SIZE)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
 
   ret = wc_ed25519_init(&edkey);
-  if(ret)
-    return CURLE_AUTH_ERROR;
+  nếu(ret)
+    trả_về CURLE_AUTH_ERROR;
 
   ret = wc_ed25519_import_private_only(key, ED25519_KEY_SIZE, &edkey);
-  if(ret)
+  nếu(ret)
     goto fail;
 
   ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_KEY_SIZE);
-  if(ret)
+  nếu(ret)
     goto fail;
 
   ret = wc_ed25519_import_private_key(key, ED25519_KEY_SIZE,
                                       pubkey, ED25519_PUB_KEY_SIZE, &edkey);
-  if(ret)
+  nếu(ret)
     goto fail;
 
   outlen = ED25519_SIG_SIZE;
   ret = wc_ed25519_sign_msg(msg, (word32)msglen, sig, &outlen, &edkey);
-  if(ret)
+  nếu(ret)
     goto fail;
 
   *siglen = (size_t)outlen;
   wc_ed25519_free(&edkey);
-  return CURLE_OK;
+  trả_về CURLE_OK;
 
 fail:
   wc_ed25519_free(&edkey);
-  return CURLE_AUTH_ERROR;
+  trả_về CURLE_AUTH_ERROR;
 }
 
 #elif defined(USE_GNUTLS)
@@ -144,18 +144,18 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
 {
   uint8_t pubkey[ED25519_KEY_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(keylen != ED25519_KEY_SIZE)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
 
   nettle_ed25519_sha512_public_key(pubkey, key);
 
   nettle_ed25519_sha512_sign(pubkey, key, msglen, msg, sig);
   *siglen = CURL_ED25519_SIGLEN;
 
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
-#else /* no Ed25519-capable backend */
+#không_thì /* no Ed25519-capable backend */
 
 CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
                            const unsigned char *msg, size_t msglen,
@@ -167,7 +167,7 @@ CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
   (void)msglen;
   (void)sig;
   (void)siglen;
-  return CURLE_NOT_BUILT_IN;
+  trả_về CURLE_NOT_BUILT_IN;
 }
 
 #endif /* Ed25519 backends */

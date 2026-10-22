@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#nếu !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS)
 
 #include "urldata.h"
@@ -46,7 +46,7 @@
 #elif defined(MSDOS) || defined(OS2)
 #define PATHSEP   "\\"
 #define IS_SEP(x) ((x) == '\\')
-#else
+#không_thì
 #define PATHSEP   "/"
 #define IS_SEP(x) ((x) == '/')
 #endif
@@ -58,20 +58,20 @@ static char *dirslash(const char *path)
   DEBUGASSERT(path);
   curlx_dyn_init(&out, CURL_MAX_INPUT_LENGTH);
   n = strlen(path);
-  if(n) {
+  nếu(n) {
     /* find the rightmost path separator, if any */
-    while(n && !IS_SEP(path[n - 1]))
+    trong_khi(n && !IS_SEP(path[n - 1]))
       --n;
     /* skip over all the path separators, if any */
-    while(n && IS_SEP(path[n - 1]))
+    trong_khi(n && IS_SEP(path[n - 1]))
       --n;
   }
-  if(curlx_dyn_addn(&out, path, n))
-    return NULL;
+  nếu(curlx_dyn_addn(&out, path, n))
+    trả_về NULL;
   /* if there was a directory, append a single trailing slash */
-  if(n && curlx_dyn_addn(&out, PATHSEP, 1))
-    return NULL;
-  return curlx_dyn_ptr(&out);
+  nếu(n && curlx_dyn_addn(&out, PATHSEP, 1))
+    trả_về NULL;
+  trả_về curlx_dyn_ptr(&out);
 }
 
 /*
@@ -90,34 +90,34 @@ CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
 #ifndef _WIN32
   curlx_struct_stat sb;
 #endif
-  int fd = -1;
+  số_nguyên fd = -1;
   char *dir = NULL;
   *tempname = NULL;
 
 #ifndef _WIN32
   *fh = curlx_fopen(filename, FOPEN_WRITETEXT);
-  if(!*fh)
+  nếu(!*fh)
     goto fail;
-  if(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
-    return CURLE_OK;
+  nếu(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
+    trả_về CURLE_OK;
   }
   curlx_fclose(*fh);
 #endif /* !_WIN32 */
   *fh = NULL;
 
   result = Curl_rand_alnum(data, randbuf, sizeof(randbuf));
-  if(result)
+  nếu(result)
     goto fail;
 
   dir = dirslash(filename);
-  if(dir) {
+  nếu(dir) {
     /* The temp filename should not end up too long for the target file
        system */
     tempstore = curl_maprintf("%s%s.tmp", dir, randbuf);
     curlx_free(dir);
   }
 
-  if(!tempstore) {
+  nếu(!tempstore) {
     result = CURLE_OUT_OF_MEMORY;
     goto fail;
   }
@@ -126,40 +126,40 @@ CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
 #ifdef _WIN32
   fd = curlx_open(tempstore, _O_WRONLY | _O_CREAT | _O_EXCL,
                   _S_IREAD | _S_IWRITE);
-#else
+#không_thì
   fd = curlx_open(tempstore, O_WRONLY | O_CREAT | O_EXCL,
                   (mode_t)(S_IRUSR | S_IWUSR | 0600));
 #endif
-  if(fd == -1)
+  nếu(fd == -1)
     goto fail;
 
 #ifdef HAVE_FCHMOD
   {
     curlx_struct_stat nsb;
-    if((curlx_fstat(fd, &nsb) != -1) &&
+    nếu((curlx_fstat(fd, &nsb) != -1) &&
        (nsb.st_uid == sb.st_uid) && (nsb.st_gid == sb.st_gid)) {
       /* if the user and group are the same, clone the original mode */
-      if(fchmod(fd, (mode_t)sb.st_mode) == -1)
+      nếu(fchmod(fd, (mode_t)sb.st_mode) == -1)
         goto fail;
     }
   }
 #endif
 
   *fh = curlx_fdopen(fd, FOPEN_WRITETEXT);
-  if(!*fh)
+  nếu(!*fh)
     goto fail;
 
   *tempname = tempstore;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 
 fail:
-  if(fd != -1) {
+  nếu(fd != -1) {
     curlx_close(fd);
     unlink(tempstore);
   }
 
   curlx_free(tempstore);
-  return result;
+  trả_về result;
 }
 
 #endif /* !disabled */

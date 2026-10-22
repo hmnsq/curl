@@ -138,50 +138,50 @@ cbapi_fn_props[CURL_CBAPI_FN_LAST - CURL_CBAPI_FN_START] = {
 static bool eapi_in_readonly_cb(struct Curl_easy *data)
 {
   struct Curl_multi *multi = data->multi;
-  if(multi && multi->callstack.count) {
+  nếu(multi && multi->callstack.count) {
     size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] >= CURL_CBAPI_FN_START) {
+    cho(i = 0; i < multi->callstack.count; ++i) {
+      nếu(multi->callstack.calls[i] >= CURL_CBAPI_FN_START) {
         uint8_t fn = multi->callstack.calls[i];
-        if((fn < CURL_CBAPI_FN_LAST) &&
+        nếu((fn < CURL_CBAPI_FN_LAST) &&
            cbapi_fn_props[fn - CURL_CBAPI_FN_START].set_readonly)
-          return TRUE;
+          trả_về TRUE;
       }
     }
   }
-  return FALSE;
+  trả_về FALSE;
 }
 
 static bool mapi_in_ntfy_cb(struct Curl_multi *multi)
 {
-  if(multi && multi->callstack.count) {
+  nếu(multi && multi->callstack.count) {
     size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] == CURL_CBAPI_FN_multi_ntfy_cb)
-        return TRUE;
+    cho(i = 0; i < multi->callstack.count; ++i) {
+      nếu(multi->callstack.calls[i] == CURL_CBAPI_FN_multi_ntfy_cb)
+        trả_về TRUE;
     }
   }
-  return FALSE;
+  trả_về FALSE;
 }
 
 bool Curl_api_multi_is_in_callback(struct Curl_multi *multi)
 {
-  if(multi && multi->callstack.count) {
+  nếu(multi && multi->callstack.count) {
     size_t i;
-    for(i = 0; i < multi->callstack.count; ++i) {
-      if(multi->callstack.calls[i] >= CURL_CBAPI_FN_START)
-        return TRUE;
+    cho(i = 0; i < multi->callstack.count; ++i) {
+      nếu(multi->callstack.calls[i] >= CURL_CBAPI_FN_START)
+        trả_về TRUE;
     }
   }
-  return FALSE;
+  trả_về FALSE;
 }
 
 bool Curl_api_is_in_callback(struct Curl_easy *data)
 {
-  if(data && data->multi) {
-    return Curl_api_multi_is_in_callback(data->multi);
+  nếu(data && data->multi) {
+    trả_về Curl_api_multi_is_in_callback(data->multi);
   }
-  return FALSE;
+  trả_về FALSE;
 }
 
 bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
@@ -196,42 +196,42 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
   guard->depth = 0;
 
   /* Verify that we got an easy handle we can work with. */
-  if(!GOOD_EASY_HANDLE(data) || data->state.internal) {
+  nếu(!GOOD_EASY_HANDLE(data) || data->state.internal) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
   /* verify that is either not added to a multi handle OR has a
    * GOOD multi handle that knows `data` for `data->mid`. */
-  if(data->mid != UINT32_MAX) {
-    if(GOOD_MULTI_HANDLE(data->multi)) {
-      if(!Curl_multi_knows_easy(data->multi, data)) {
+  nếu(data->mid != UINT32_MAX) {
+    nếu(GOOD_MULTI_HANDLE(data->multi)) {
+      nếu(!Curl_multi_knows_easy(data->multi, data)) {
         /* But multi does not know it, something is fishy, better deny call */
         DEBUGASSERT(0);
         result = CURLE_BAD_FUNCTION_ARGUMENT;
         goto out;
       }
     }
-    else {
+    không_thì {
       DEBUGASSERT(0); /* data needs to have a GOOD multi handle */
       result = CURLE_BAD_FUNCTION_ARGUMENT;
       goto out;
     }
   }
-  else if(data->multi) {
+  không_thì nếu(data->multi) {
     DEBUGASSERT(0); /* data should not have a multi handle */
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
   /* verify that the call `fn` we're about to enter is known
    * and check call properties to be admitting. */
-  if(fn >= CURL_EAPI_FN_LAST) {
+  nếu(fn >= CURL_EAPI_FN_LAST) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
   fn_props = &eapi_fn_props[fn];
   DEBUGASSERT(fn_props->fn == fn);
-  if(!fn_props->recurse) {
-    if(data->callstack.count) {
+  nếu(!fn_props->recurse) {
+    nếu(data->callstack.count) {
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
         "EAPI guard: calling %hu with call to %u ongoing\n", (uint16_t)fn,
@@ -240,7 +240,7 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
       result = CURLE_RECURSIVE_API_CALL;
       goto out;
     }
-    if(data->multi && data->multi->callstack.count) {
+    nếu(data->multi && data->multi->callstack.count) {
 #ifdef CURLVERBOSE
 
       DEBUGF(curl_mfprintf(stderr,
@@ -253,7 +253,7 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
     }
   }
 
-  if(!fn_props->readonly && eapi_in_readonly_cb(data)) {
+  nếu(!fn_props->readonly && eapi_in_readonly_cb(data)) {
     /* Not allowed to be invoked while an event cb is ongoing */
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
@@ -264,8 +264,8 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
     goto out;
   }
 
-#if defined(USE_SSL) && defined(USE_MUTEX)
-  if(fn_props->no_scache_lock &&
+#nếu defined(USE_SSL) && defined(USE_MUTEX)
+  nếu(fn_props->no_scache_lock &&
      Curl_ssl_scache_is_locked_by_current_thread(data)) {
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
@@ -278,7 +278,7 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
 #endif
 
   /* all fine, add to data's callstack */
-  if(data->callstack.count >= CURL_EAPI_MAX_RECURSION) {
+  nếu(data->callstack.count >= CURL_EAPI_MAX_RECURSION) {
     result = CURLE_RECURSIVE_API_CALL;
     goto out;
   }
@@ -288,21 +288,21 @@ bool Curl_eapi_enter(struct Curl_eapi_guard *guard,
   guard->data = fn_props->data_is_killed ? NULL : data;
 
 out:
-  if(presult)
+  nếu(presult)
     *presult = result;
-  return guard->depth > 0;
+  trả_về guard->depth > 0;
 }
 
 void Curl_eapi_leave(struct Curl_eapi_guard *guard)
 {
-  if(guard->depth) {
+  nếu(guard->depth) {
     /* guard->data is set when handle is supposed to stay alive during call */
-    if(guard->data && GOOD_EASY_HANDLE(guard->data)) {
-      if(guard->depth > guard->data->callstack.count) {
+    nếu(guard->data && GOOD_EASY_HANDLE(guard->data)) {
+      nếu(guard->depth > guard->data->callstack.count) {
         DEBUGASSERT(0); /* something very wrong */
       }
-      else {
-        if(guard->depth < guard->data->callstack.count) {
+      không_thì {
+        nếu(guard->depth < guard->data->callstack.count) {
           DEBUGASSERT(0); /* someone forgot to clean up */
         }
         /* reset to depth the guard was entered in */
@@ -316,17 +316,17 @@ CURLHcode Curl_eapi_hcode(CURLcode result)
 {
   switch(result) {
   case CURLE_OK:
-    return CURLHE_OK;
+    trả_về CURLHE_OK;
   case CURLE_BAD_FUNCTION_ARGUMENT:
-    return CURLHE_BAD_ARGUMENT;
+    trả_về CURLHE_BAD_ARGUMENT;
   case CURLE_OUT_OF_MEMORY:
-    return CURLHE_OUT_OF_MEMORY;
+    trả_về CURLHE_OUT_OF_MEMORY;
   case CURLE_NOT_BUILT_IN:
-    return CURLHE_NOT_BUILT_IN;
+    trả_về CURLHE_NOT_BUILT_IN;
   default:
     /* Unfortunately, we cannot convert RECURSIVE_API_CALL,
      * but since the header API is reentrant, this should not happen. */
-    return CURLHE_BAD_ARGUMENT;
+    trả_về CURLHE_BAD_ARGUMENT;
   }
 }
 
@@ -342,20 +342,20 @@ bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
   guard->depth = 0;
 
   /* Verify that we got an easy handle we can work with. */
-  if(!GOOD_MULTI_HANDLE(multi)) {
+  nếu(!GOOD_MULTI_HANDLE(multi)) {
     mresult = CURLM_BAD_HANDLE;
     goto out;
   }
-  if(fn >= CURL_MAPI_FN_LAST) {
+  nếu(fn >= CURL_MAPI_FN_LAST) {
     mresult = CURLM_BAD_FUNCTION_ARGUMENT;
     goto out;
   }
   fn_props = &mapi_fn_props[fn];
   DEBUGASSERT(fn_props->fn == fn);
-  if(fn_props->allow_ntfy_cb && mapi_in_ntfy_cb(multi)) {
+  nếu(fn_props->allow_ntfy_cb && mapi_in_ntfy_cb(multi)) {
     /* explicitly allowed, even though normal recursion may not */
   }
-  else if(!fn_props->recurse && multi->callstack.count) {
+  không_thì nếu(!fn_props->recurse && multi->callstack.count) {
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
         "MAPI guard: calling %hu with call to %u ongoing\n", (uint16_t)fn,
@@ -365,8 +365,8 @@ bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
     goto out;
   }
 
-#if defined(USE_SSL) && defined(USE_MUTEX)
-  if(fn_props->no_scache_lock && multi->ssl_scache &&
+#nếu defined(USE_SSL) && defined(USE_MUTEX)
+  nếu(fn_props->no_scache_lock && multi->ssl_scache &&
      Curl_ssl_scache_is_locked_by_current_thread(multi->admin)) {
 #ifdef CURLVERBOSE
       DEBUGF(curl_mfprintf(stderr,
@@ -379,7 +379,7 @@ bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
 #endif
 
   /* all fine, add to data's callstack */
-  if(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
+  nếu(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
     mresult = CURLM_RECURSIVE_API_CALL;
     goto out;
   }
@@ -389,21 +389,21 @@ bool Curl_mapi_enter(struct Curl_mapi_guard *guard,
   guard->multi = fn_props->multi_is_killed ? NULL : multi;
 
 out:
-  if(pmresult)
+  nếu(pmresult)
     *pmresult = mresult;
-  return guard->depth > 0;
+  trả_về guard->depth > 0;
 }
 
 void Curl_mapi_leave(struct Curl_mapi_guard *guard)
 {
-  if(guard->depth) {
+  nếu(guard->depth) {
     /* guard->data is set when handle is supposed to stay alive during call */
-    if(guard->multi && GOOD_MULTI_HANDLE(guard->multi)) {
-      if(guard->depth > guard->multi->callstack.count) {
+    nếu(guard->multi && GOOD_MULTI_HANDLE(guard->multi)) {
+      nếu(guard->depth > guard->multi->callstack.count) {
         DEBUGASSERT(0); /* something very wrong */
       }
-      else {
-        if(guard->depth < guard->multi->callstack.count) {
+      không_thì {
+        nếu(guard->depth < guard->multi->callstack.count) {
           DEBUGASSERT(0); /* someone forgot to clean up */
         }
         /* reset to depth the guard was entered in */
@@ -420,22 +420,22 @@ void Curl_cbapi_enter(struct Curl_mapi_guard *guard,
 {
   guard->depth = 0;
 
-  if(!multi)
+  nếu(!multi)
     multi = data ? data->multi : NULL;
   /* if not multi is involved here, just leave */
-  if(!multi)
-    return;
+  nếu(!multi)
+    trả_về;
   /* invalid callback specifier? */
-  if((fn >= CURL_CBAPI_FN_LAST) || (fn < CURL_CBAPI_FN_START)) {
+  nếu((fn >= CURL_CBAPI_FN_LAST) || (fn < CURL_CBAPI_FN_START)) {
     DEBUGASSERT(0);
-    return;
+    trả_về;
   }
   DEBUGASSERT(cbapi_fn_props[fn - CURL_CBAPI_FN_START].fn == fn);
   /* all fine, add to data's callstack */
   /* if multi callstack already at max depth, leave */
-  if(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
+  nếu(multi->callstack.count >= CURL_MAPI_MAX_RECURSION) {
     DEBUGASSERT(0);
-    return;
+    trả_về;
   }
   multi->callstack.calls[multi->callstack.count] = (uint8_t)fn;
   ++multi->callstack.count;

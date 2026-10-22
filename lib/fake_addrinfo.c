@@ -34,7 +34,7 @@ void r_freeaddrinfo(struct addrinfo *cahead)
   struct addrinfo *canext;
   struct addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
+  cho(ca = cahead; ca; ca = canext) {
     canext = ca->ai_next;
     curlx_free(ca);
   }
@@ -42,16 +42,16 @@ void r_freeaddrinfo(struct addrinfo *cahead)
 
 struct context {
   struct ares_addrinfo *addr;
-  int status;
+  số_nguyên status;
 };
 
-static void async_addrinfo_cb(void *userp, int status, int timeouts,
+static void async_addrinfo_cb(void *userp, số_nguyên status, số_nguyên timeouts,
                               struct ares_addrinfo *addr)
 {
   struct context *ctx = (struct context *)userp;
   (void)timeouts;
   ctx->status = status;
-  if(ARES_SUCCESS == status) {
+  nếu(ARES_SUCCESS == status) {
     ctx->addr = addr;
   }
 }
@@ -66,30 +66,30 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
   const char *name = aihead->name;
 
   /* traverse the addrinfo list */
-  for(ai = aihead->nodes; ai; ai = ai->ai_next) {
+  cho(ai = aihead->nodes; ai; ai = ai->ai_next) {
     size_t ss_size;
     size_t namelen = name ? strlen(name) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
+    nếu(ai->ai_family == AF_INET)
       ss_size = sizeof(struct sockaddr_in);
-    else if(ai->ai_family == AF_INET6)
+    không_thì nếu(ai->ai_family == AF_INET6)
       ss_size = sizeof(struct sockaddr_in6);
-    else
+    không_thì
       continue;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
+    nếu(!ai->ai_addr || !(ai->ai_addrlen > 0))
       continue;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
+    nếu((size_t)ai->ai_addrlen < ss_size)
       continue;
 
     ca = curlx_malloc(sizeof(struct addrinfo) + ss_size + namelen);
-    if(!ca) {
+    nếu(!ca) {
       r_freeaddrinfo(cafirst);
-      return NULL;
+      trả_về NULL;
     }
 
     /* copy each structure member individually, member ordering,
@@ -107,7 +107,7 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     ca->ai_addr = (void *)((char *)ca + sizeof(struct addrinfo));
     memcpy(ca->ai_addr, ai->ai_addr, ss_size);
 
-    if(namelen) {
+    nếu(namelen) {
       ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
       memcpy(ca->ai_canonname, name, namelen);
 
@@ -117,34 +117,34 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    nếu(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
+    nếu(calast)
       calast->ai_next = ca;
     calast = ca;
   }
 
-  return cafirst;
+  trả_về cafirst;
 }
 
 /* RETURN VALUE
    getaddrinfo() returns 0 if it succeeds, or one of the following nonzero
    error codes:
    ... */
-int r_getaddrinfo(const char *node,
+số_nguyên r_getaddrinfo(const char *node,
                   const char *service,
                   const struct addrinfo *hints,
                   struct addrinfo **res)
 {
-  int status;
+  số_nguyên status;
   struct context ctx;
   struct ares_options options;
-  int optmask = 0;
+  số_nguyên optmask = 0;
   struct ares_addrinfo_hints ahints;
   ares_channel channel;
-  int rc = 0;
+  số_nguyên rc = 0;
 
   memset(&options, 0, sizeof(options));
   optmask      |= ARES_OPT_EVENT_THREAD;
@@ -153,7 +153,7 @@ int r_getaddrinfo(const char *node,
   memset(&ahints, 0, sizeof(ahints));
   memset(&ctx, 0, sizeof(ctx));
 
-  if(hints) {
+  nếu(hints) {
     ahints.ai_flags = hints->ai_flags;
     ahints.ai_family = hints->ai_family;
     ahints.ai_socktype = hints->ai_socktype;
@@ -161,18 +161,18 @@ int r_getaddrinfo(const char *node,
   }
 
   status = ares_init_options(&channel, &options, optmask);
-  if(status)
-    return EAI_MEMORY; /* major problem */
+  nếu(status)
+    trả_về EAI_MEMORY; /* major problem */
 
-  else {
+  không_thì {
     const char *env = getenv("CURL_DNS_SERVER");
-    if(env) {
+    nếu(env) {
       rc = ares_set_servers_ports_csv(channel, env);
-      if(rc) {
+      nếu(rc) {
         curl_mfprintf(stderr, "ares_set_servers_ports_csv failed: %d", rc);
         /* Cleanup */
         ares_destroy(channel);
-        return EAI_MEMORY; /* we cannot run */
+        trả_về EAI_MEMORY; /* we cannot run */
       }
     }
   }
@@ -182,21 +182,21 @@ int r_getaddrinfo(const char *node,
   /* Wait until no more requests are left to be processed */
   ares_queue_wait_empty(channel, -1);
 
-  if(ctx.addr) {
+  nếu(ctx.addr) {
     /* convert the c-ares version */
     *res = mk_getaddrinfo(ctx.addr);
     /* free the old */
     ares_freeaddrinfo(ctx.addr);
   }
-  else if((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
+  không_thì nếu((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
     rc = EAI_NONAME; /* no such name */
-  else
+  không_thì
     rc = EAI_AGAIN; /* failed without an authoritative answer */
 
   /* Cleanup */
   ares_destroy(channel);
 
-  return rc;
+  trả_về rc;
 }
 
 #endif /* USE_FAKE_GETADDRINFO */

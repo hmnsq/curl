@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#nếu !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 /* Insert a capsule protocol filter after `cf_at` in the filter chain.
  * The capsule filter encapsulates/decapsulates UDP datagrams using

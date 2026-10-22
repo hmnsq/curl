@@ -41,31 +41,31 @@ void Curl_ptrarray_clear(struct ptrarray *pa)
 
 uint32_t Curl_ptrarray_count(struct ptrarray *pa)
 {
-  return pa->n;
+  trả_về pa->n;
 }
 
 CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
 {
-  if(!ptr)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(pa->n >= pa->capacity) {
+  nếu(!ptr)
+    trả_về CURLE_BAD_FUNCTION_ARGUMENT;
+  nếu(pa->n >= pa->capacity) {
     uint32_t growth;
     void **ndata;
 
-    if(pa->capacity == UINT32_MAX)
-      return CURLE_OUT_OF_MEMORY;
-    if(!pa->capacity)
+    nếu(pa->capacity == UINT32_MAX)
+      trả_về CURLE_OUT_OF_MEMORY;
+    nếu(!pa->capacity)
       growth = 8;
-    else if((UINT32_MAX / 2) > pa->capacity)
+    không_thì nếu((UINT32_MAX / 2) > pa->capacity)
       growth = CURLMIN(2 * pa->capacity, CURL_PTRARRAY_MAX_GROW);
-    else
+    không_thì
       growth = ((UINT32_MAX - pa->capacity) > CURL_PTRARRAY_MAX_GROW) ?
                CURL_PTRARRAY_MAX_GROW : (UINT32_MAX - pa->capacity);
 
     ndata = curlx_calloc(1, (pa->capacity + growth) * sizeof(void *));
-    if(!ndata)
-      return CURLE_OUT_OF_MEMORY;
-    if(pa->n)
+    nếu(!ndata)
+      trả_về CURLE_OUT_OF_MEMORY;
+    nếu(pa->n)
       memcpy(ndata, pa->data, pa->n * sizeof(void *));
     curlx_free(pa->data);
     pa->data = ndata;
@@ -73,26 +73,26 @@ CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
   }
   DEBUGASSERT(pa->n < pa->capacity);
   pa->data[pa->n++] = ptr;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx)
 {
-  if(idx < pa->n) {
+  nếu(idx < pa->n) {
     uint32_t rem = pa->n - idx - 1;
     void *ptr = pa->data[idx];
     pa->data[idx] = NULL;
-    if(rem)
+    nếu(rem)
       memmove(pa->data + idx, pa->data + idx + 1, rem * sizeof(void *));
     pa->n--;
-    if(!pa->n)
+    nếu(!pa->n)
       Curl_ptrarray_clear(pa);
-    return ptr;
+    trả_về ptr;
   }
-  return NULL;
+  trả_về NULL;
 }
 
 void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx)
 {
-  return (idx < pa->n) ? pa->data[idx] : NULL;
+  trả_về (idx < pa->n) ? pa->data[idx] : NULL;
 }

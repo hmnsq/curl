@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
+#nếu !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
 #include "llist.h"
 
 struct Curl_peer;
@@ -68,9 +68,9 @@ bool Curl_altsvc_lookup(struct altsvcinfo *asi,
                         struct Curl_peer *origin,
                         enum alpnid origin_alpnid,
                         struct altsvc **dstentry,
-                        const int versions, /* CURLALTSVC_H* bits */
+                        const số_nguyên versions, /* CURLALTSVC_H* bits */
                         bool *psame_destination);
-#else
+#không_thì
 /* disabled */
 #define Curl_altsvc_save(a, b, c)
 #define Curl_altsvc_cleanup(x)

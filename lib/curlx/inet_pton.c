@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#nếu !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+static số_nguyên inet_pton4(const char *src, unsigned char *dst)
 {
-  int saw_digit, octets, ch;
+  số_nguyên saw_digit, octets, ch;
   unsigned char tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  trong_khi((ch = (unsigned char)*src++) != '\0') {
+    nếu(ISDIGIT(ch)) {
+      unsigned số_nguyên val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
+      nếu(saw_digit && *tp == 0)
+        trả_về 0;
+      nếu(val > 255)
+        trả_về 0;
       *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      nếu(!saw_digit) {
+        nếu(++octets > 4)
+          trả_về 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    không_thì nếu(ch == '.' && saw_digit) {
+      nếu(octets == 4)
+        trả_về 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    không_thì
+      trả_về 0;
   }
-  if(octets < 4)
-    return 0;
+  nếu(octets < 4)
+    trả_về 0;
   memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  trả_về 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,63 +110,63 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+static số_nguyên inet_pton6(const char *src, unsigned char *dst)
 {
   unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
   const char *curtok;
-  int ch, saw_xdigit;
+  số_nguyên ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
   colonp = NULL;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  nếu(*src == ':' && *++src != ':')
+    trả_về 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  trong_khi((ch = (unsigned char)*src++) != '\0') {
+    nếu(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
+      nếu(++saw_xdigit > 4)
+        trả_về 0;
       continue;
     }
-    if(ch == ':') {
+    nếu(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      nếu(!saw_xdigit) {
+        nếu(colonp)
+          trả_về 0;
         colonp = tp;
         continue;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
+      nếu(!*src)
+        trả_về 0;
+      nếu(tp + INT16SZ > endp)
+        trả_về 0;
       *tp++ = (unsigned char)((val >> 8) & 0xff);
       *tp++ = (unsigned char)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
       continue;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    nếu(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
       break;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    trả_về 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
+  nếu(saw_xdigit) {
+    nếu(tp + INT16SZ > endp)
+      trả_về 0;
     *tp++ = (unsigned char)((val >> 8) & 0xff);
     *tp++ = (unsigned char)(val & 0xff);
   }
-  if(colonp) {
+  nếu(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
@@ -174,18 +174,18 @@ static int inet_pton6(const char *src, unsigned char *dst)
     const ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    nếu(tp == endp)
+      trả_về 0;
+    cho(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
+  nếu(tp != endp)
+    trả_về 0;
   memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  trả_về 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+số_nguyên curlx_inet_pton(số_nguyên af, const char *src, void *dst)
 {
   switch(af) {
   case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
+    trả_về inet_pton4(src, (unsigned char *)dst);
   case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
+    trả_về inet_pton6(src, (unsigned char *)dst);
   default:
-    return -1;
+    trả_về -1;
   }
   /* NOTREACHED */
 }

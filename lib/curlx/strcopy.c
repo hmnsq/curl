@@ -41,10 +41,10 @@ void curlx_strcopy(char *dest,      /* destination buffer */
                    size_t slen)     /* length of source string to copy */
 {
   DEBUGASSERT(slen < dsize);
-  if(slen < dsize) {
+  nếu(slen < dsize) {
     memcpy(dest, src, slen);
     dest[slen] = 0;
   }
-  else if(dsize)
+  không_thì nếu(dsize)
     dest[0] = 0;
 }

@@ -34,9 +34,9 @@
 static struct Curl_llist_node *verifynode(struct Curl_llist_node *n)
 {
   DEBUGASSERT(!n || (n->_init == NODEINIT));
-  return n;
+  trả_về n;
 }
-#else
+#không_thì
 #define VERIFYNODE(x) x
 #endif
 /*
@@ -81,27 +81,27 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
 #endif
   ne->_ptr = CURL_UNCONST(p);
   ne->_list = list;
-  if(list->_size == 0) {
+  nếu(list->_size == 0) {
     list->_head = ne;
     list->_head->_prev = NULL;
     list->_head->_next = NULL;
     list->_tail = ne;
   }
-  else {
+  không_thì {
     /* if 'e' is NULL here, we insert the new element first in the list */
     ne->_next = e ? e->_next : list->_head;
     ne->_prev = e;
-    if(!e) {
+    nếu(!e) {
       list->_head->_prev = ne;
       list->_head = ne;
     }
-    else if(e->_next) {
+    không_thì nếu(e->_next) {
       e->_next->_prev = ne;
     }
-    else {
+    không_thì {
       list->_tail = ne;
     }
-    if(e)
+    nếu(e)
       e->_next = ne;
   }
 
@@ -130,30 +130,30 @@ void *Curl_node_take_elem(struct Curl_llist_node *e)
 {
   void *ptr;
   struct Curl_llist *list;
-  if(!e)
-    return NULL;
+  nếu(!e)
+    trả_về NULL;
 
   list = e->_list;
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(list->_size);
   DEBUGASSERT(e->_init == NODEINIT);
-  if(list) {
-    if(e == list->_head) {
+  nếu(list) {
+    nếu(e == list->_head) {
       list->_head = e->_next;
 
-      if(!list->_head)
+      nếu(!list->_head)
         list->_tail = NULL;
-      else
+      không_thì
         e->_next->_prev = NULL;
     }
-    else {
-      if(e->_prev)
+    không_thì {
+      nếu(e->_prev)
         e->_prev->_next = e->_next;
 
-      if(!e->_next)
+      nếu(!e->_next)
         list->_tail = e->_prev;
-      else
+      không_thì
         e->_next->_prev = e->_prev;
     }
     --list->_size;
@@ -168,21 +168,21 @@ void *Curl_node_take_elem(struct Curl_llist_node *e)
   e->_init = NODEREM; /* specific pattern on remove - not zero */
 #endif
 
-  return ptr;
+  trả_về ptr;
 }
 
 static void node_uremove(struct Curl_llist_node *e, void *user)
 {
   struct Curl_llist *list;
   void *ptr;
-  if(!e)
-    return;
+  nếu(!e)
+    trả_về;
 
   list = e->_list;
   DEBUGASSERT(list);
-  if(list) {
+  nếu(list) {
     ptr = Curl_node_take_elem(e);
-    if(list->_dtor)
+    nếu(list->_dtor)
       list->_dtor(user, ptr);
   }
 }
@@ -194,9 +194,9 @@ void Curl_node_remove(struct Curl_llist_node *e)
 
 void Curl_llist_destroy(struct Curl_llist *list, void *user)
 {
-  if(list) {
+  nếu(list) {
     DEBUGASSERT(list->_init == LLISTINIT);
-    while(list->_size > 0)
+    trong_khi(list->_size > 0)
       node_uremove(list->_tail, user);
   }
 }
@@ -207,7 +207,7 @@ struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_head);
+  trả_về VERIFYNODE(list->_head);
 }
 
 #ifdef UNITTESTS
@@ -220,7 +220,7 @@ UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_tail);
+  trả_về VERIFYNODE(list->_tail);
 }
 #endif
 
@@ -229,7 +229,7 @@ size_t Curl_llist_count(const struct Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return list->_size;
+  trả_về list->_size;
 }
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
@@ -237,7 +237,7 @@ void *Curl_node_elem(const struct Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return n->_ptr;
+  trả_về n->_ptr;
 }
 
 /* Curl_node_next() returns the next element in a list from a given
@@ -246,7 +246,7 @@ struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_next);
+  trả_về VERIFYNODE(n->_next);
 }
 
 #ifdef UNITTESTS
@@ -261,7 +261,7 @@ UNITTEST struct Curl_llist_node *llist_node_prev(
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_prev);
+  trả_về VERIFYNODE(n->_prev);
 }
 #endif
 
@@ -269,5 +269,5 @@ struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(!n->_list || n->_init == NODEINIT);
-  return n->_list;
+  trả_về n->_list;
 }

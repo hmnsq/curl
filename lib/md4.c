@@ -29,10 +29,10 @@
 
 #ifdef USE_OPENSSL
 #include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#nếu OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
 #define OPENSSL_NO_MD4
-#else
+#không_thì
 /* Cover also OPENSSL_NO_MD4 configured in OpenSSL */
 #include <openssl/opensslconf.h>
 #endif
@@ -42,26 +42,26 @@
 #include <wolfssl/options.h>
 #endif
 
-#if defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
+#nếu defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
 #include <openssl/evp.h>
 
 typedef EVP_MD_CTX *my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+static số_nguyên my_md4_init(my_md4_ctx *ctx)
 {
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return 0;
+  nếu(!*ctx)
+    trả_về 0;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
+  nếu(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
     EVP_MD_CTX_free(*ctx);
-    return 0;
+    trả_về 0;
   }
-  return 1;
+  trả_về 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+                          const unsigned char *input, unsigned số_nguyên len)
 {
   (void)EVP_DigestUpdate(*ctx, input, len);
 }
@@ -76,16 +76,16 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 #include <wolfssl/wolfcrypt/md4.h>
 #include <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX >= 0x05007006
+#nếu LIBWOLFSSL_VERSION_HEX >= 0x05007006
 typedef wc_Md4 my_md4_ctx;
-#else
+#không_thì
 typedef Md4 my_md4_ctx;
 #endif
 
-static int my_md4_init(my_md4_ctx *ctx)
+static số_nguyên my_md4_init(my_md4_ctx *ctx)
 {
   wc_InitMd4(ctx);
-  return 1;
+  trả_về 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
@@ -111,9 +111,9 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 
 typedef CC_MD4_CTX my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+static số_nguyên my_md4_init(my_md4_ctx *ctx)
 {
-  return CC_MD4_Init(ctx);  /* always returns 1 */
+  trả_về CC_MD4_Init(ctx);  /* always returns 1 */
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
@@ -136,28 +136,28 @@ struct md4_ctx {
 };
 typedef struct md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+static số_nguyên my_md4_init(my_md4_ctx *ctx)
 {
   ctx->hCryptProv = 0;
   ctx->hHash = 0;
 
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  nếu(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 0;
+    trả_về 0;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
+  nếu(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return 0;
+    trả_về 0;
   }
 
-  return 1;
+  trả_về 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
                           const void *input, unsigned long len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned số_nguyên)len, 0);
 }
 
 static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
@@ -165,13 +165,13 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
   unsigned long length = 0;
 
   CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD4_DIGEST_LENGTH)
+  nếu(length == MD4_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  nếu(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  nếu(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
@@ -181,10 +181,10 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 
 typedef struct md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+static số_nguyên my_md4_init(my_md4_ctx *ctx)
 {
   md4_init(ctx);
-  return 1;
+  trả_về 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
@@ -195,14 +195,14 @@ static void my_md4_update(my_md4_ctx *ctx,
 
 static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#nếu NETTLE_VERSION_MAJOR >= 4
   md4_digest(ctx, digest);
-#else
+#không_thì
   md4_digest(ctx, MD4_DIGEST_SIZE, digest);
 #endif
 }
 
-#else
+#không_thì
 /* When no other crypto library is available, or the crypto library does not
  * support MD4, we use this code segment this implementation of it
  *
@@ -262,10 +262,10 @@ typedef struct md4_ctx my_md4_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#nếu defined(__i386__) || defined(__x86_64__) || defined(__vax__)
 #define MD4_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
 #define MD4_GET(n) MD4_SET(n)
-#else
+#không_thì
 #define MD4_SET(n) (ctx->block[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
@@ -359,17 +359,17 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } trong_khi(size -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  trả_về ptr;
 }
 
-static int my_md4_init(my_md4_ctx *ctx)
+static số_nguyên my_md4_init(my_md4_ctx *ctx)
 {
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
@@ -379,7 +379,7 @@ static int my_md4_init(my_md4_ctx *ctx)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return 1;
+  trả_về 1;
 }
 
 static void my_md4_update(my_md4_ctx *ctx,
@@ -390,18 +390,18 @@ static void my_md4_update(my_md4_ctx *ctx,
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  nếu(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
   used = saved_lo & 0x3f;
 
-  if(used) {
+  nếu(used) {
     unsigned long available = 64 - used;
 
-    if(len < available) {
+    nếu(len < available) {
       memcpy(&ctx->buffer[used], input, len);
-      return;
+      trả_về;
     }
 
     memcpy(&ctx->buffer[used], input, available);
@@ -410,7 +410,7 @@ static void my_md4_update(my_md4_ctx *ctx,
     my_md4_body(ctx, ctx->buffer, 64);
   }
 
-  if(len >= 64) {
+  nếu(len >= 64) {
     input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
@@ -428,7 +428,7 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 
   available = 64 - used;
 
-  if(available < 8) {
+  nếu(available < 8) {
     memset(&ctx->buffer[used], 0, available);
     my_md4_body(ctx, ctx->buffer, 64);
     used = 0;
@@ -475,11 +475,11 @@ CURLcode Curl_md4it(unsigned char *output,
                     const unsigned char *input, const size_t len)
 {
   my_md4_ctx ctx;
-  if(!my_md4_init(&ctx))
-    return CURLE_FAILED_INIT;
+  nếu(!my_md4_init(&ctx))
+    trả_về CURLE_FAILED_INIT;
   my_md4_update(&ctx, input, curlx_uztoui(len));
   my_md4_final(output, &ctx);
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 #endif /* USE_CURL_NTLM_CORE */

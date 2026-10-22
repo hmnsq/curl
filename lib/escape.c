@@ -33,15 +33,15 @@ struct Curl_easy;
 #include "curl_printf.h"
 
 /* for ABI-compatibility with previous versions */
-char *curl_escape(const char *string, int length)
+char *curl_escape(const char *string, số_nguyên length)
 {
-  return curl_easy_escape(NULL, string, length);
+  trả_về curl_easy_escape(NULL, string, length);
 }
 
 /* for ABI-compatibility with previous versions */
-char *curl_unescape(const char *string, int length)
+char *curl_unescape(const char *string, số_nguyên length)
 {
-  return curl_easy_unescape(NULL, string, length, NULL);
+  trả_về curl_easy_unescape(NULL, string, length, NULL);
 }
 
 #define NOPE 0xff
@@ -153,7 +153,7 @@ static const char hexpairs[][2] = {
 /* Escapes for URL the given unescaped string of given length.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_escape(CURL *curl, const char *string, int length)
+char *curl_easy_escape(CURL *curl, const char *string, số_nguyên length)
 {
   size_t len;
   const char *f = string;
@@ -162,28 +162,28 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
   char *encoded;
   (void)curl;
 
-  if(!string || (length < 0))
-    return NULL;
+  nếu(!string || (length < 0))
+    trả_về NULL;
 
   len = (length ? (size_t)length : strlen(string));
-  if(!len)
-    return curlx_strdup("");
+  nếu(!len)
+    trả_về curlx_strdup("");
 
-  if(len > SIZE_MAX / 16)
-    return NULL;
+  nếu(len > SIZE_MAX / 16)
+    trả_về NULL;
 
   encoded = target = curlx_malloc((len * 3) + 1);
-  if(!target)
-    return NULL;
+  nếu(!target)
+    trả_về NULL;
 
-  while(len--) {
+  trong_khi(len--) {
     uint8_t in = (uint8_t)*string++;
 
-    if(!(hextable[in] & 0x80))
+    nếu(!(hextable[in] & 0x80))
       /* append this */
       nappend++;
-    else {
-      if(nappend) {
+    không_thì {
+      nếu(nappend) {
         memcpy(target, f, nappend);
         target += nappend;
         nappend = 0;
@@ -195,13 +195,13 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
       target += 3;
     }
   }
-  if(nappend) {
+  nếu(nappend) {
     memcpy(target, f, nappend);
     target += nappend;
   }
   *target = '\0'; /* null-terminate */
 
-  return encoded;
+  trả_về encoded;
 }
 
 /*
@@ -234,8 +234,8 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   alloc = (length ? length : strlen(string));
   ns = curlx_malloc(alloc + 1);
 
-  if(!ns)
-    return CURLE_OUT_OF_MEMORY;
+  nếu(!ns)
+    trả_về CURLE_OUT_OF_MEMORY;
 
   /* store output string */
   *ostring = ns;
@@ -243,18 +243,18 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   reject_limit = (ctrl == REJECT_CTRL) ? 0x20 :
     (ctrl == REJECT_ZERO) ? 1 : 0;
 
-  while(alloc) {
+  trong_khi(alloc) {
     uint8_t in;
 
-    if(*string == '%') {
-      if(alloc > 2) {
+    nếu(*string == '%') {
+      nếu(alloc > 2) {
         uint8_t h1 = hextable[(uint8_t)string[1]];
         uint8_t h2 = hextable[(uint8_t)string[2]];
-        if(!((h1 | h2) & 0xf0)) {
+        nếu(!((h1 | h2) & 0xf0)) {
           in = (uint8_t)((h1 << 4) | h2);
           string += 3;
           alloc -= 3;
-          if(in < reject_limit)
+          nếu(in < reject_limit)
             goto error;
           *ns++ = (char)in;
           continue;
@@ -266,19 +266,19 @@ CURLcode Curl_urldecode(const char *string, size_t length,
       *ns++ = (char)in;
       continue;
     }
-    else {
+    không_thì {
       const char *p = memchr(string + 1, '%', alloc - 1);
       size_t n = p ? (size_t)(p - string) : alloc;
 
-      if(reject_limit) {
-        if(reject_limit == 1) {
-          if(memchr(string, 0, n))
+      nếu(reject_limit) {
+        nếu(reject_limit == 1) {
+          nếu(memchr(string, 0, n))
             goto error;
         }
-        else {
+        không_thì {
           size_t i;
-          for(i = 0; i < n; i++) {
-            if((uint8_t)string[i] < 0x20)
+          cho(i = 0; i < n; i++) {
+            nếu((uint8_t)string[i] < 0x20)
               goto error;
           }
         }
@@ -292,14 +292,14 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   }
   *ns = 0; /* terminate it */
 
-  if(olen)
+  nếu(olen)
     /* store output size */
     *olen = (size_t)(ns - *ostring);
 
-  return CURLE_OK;
+  trả_về CURLE_OK;
 error:
   curlx_safefree(*ostring);
-  return CURLE_URL_MALFORMAT;
+  trả_về CURLE_URL_MALFORMAT;
 }
 
 /*
@@ -309,28 +309,28 @@ error:
  * If olen == NULL, no output length is stored.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_unescape(CURL *curl, const char *string, int inlength,
-                         int *outlength)
+char *curl_easy_unescape(CURL *curl, const char *string, số_nguyên inlength,
+                         số_nguyên *outlength)
 {
   char *str = NULL;
   (void)curl;
-  if(string && (inlength >= 0)) {
+  nếu(string && (inlength >= 0)) {
     size_t inputlen = (size_t)inlength;
     size_t outputlen;
     CURLcode res = Curl_urldecode(string, inputlen, &str, &outputlen,
                                   REJECT_NADA);
-    if(res)
-      return NULL;
+    nếu(res)
+      trả_về NULL;
 
-    if(outlength) {
-      if(outputlen <= (size_t)INT_MAX)
+    nếu(outlength) {
+      nếu(outputlen <= (size_t)INT_MAX)
         *outlength = curlx_uztosi(outputlen);
-      else
+      không_thì
         /* too large to return in an int, fail! */
         curlx_safefree(str);
     }
   }
-  return str;
+  trả_về str;
 }
 
 /* For operating systems/environments that use different malloc/free
@@ -351,8 +351,8 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
                     unsigned char *out, size_t olen) /* output buffer size */
 {
   DEBUGASSERT(src && len && (olen >= 3));
-  if(src && len && (olen >= 3)) {
-    while(len-- && (olen >= 3)) {
+  nếu(src && len && (olen >= 3)) {
+    trong_khi(len-- && (olen >= 3)) {
       out[0] = Curl_ldigits[*src >> 4];
       out[1] = Curl_ldigits[*src & 0x0F];
       ++src;
@@ -361,7 +361,7 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
     }
     *out = 0;
   }
-  else if(olen)
+  không_thì nếu(olen)
     *out = 0;
 }
 

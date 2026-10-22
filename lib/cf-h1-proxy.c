@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#nếu !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 
 #include <curl/curl.h>
@@ -60,7 +60,7 @@ struct h1_tunnel_state {
   size_t nsent;
   size_t headerlines;
   struct Curl_chunker ch;
-  int httpversion;
+  số_nguyên httpversion;
   enum keeponval {
     KEEPON_DONE,
     KEEPON_CONNECT,
@@ -83,18 +83,18 @@ struct cf_h1_proxy_ctx {
 
 static bool tunnel_is_established(struct h1_tunnel_state *ts)
 {
-  return ts && (ts->tunnel_state == H1_TUNNEL_ESTABLISHED);
+  trả_về ts && (ts->tunnel_state == H1_TUNNEL_ESTABLISHED);
 }
 
 static bool tunnel_is_failed(struct h1_tunnel_state *ts)
 {
-  return ts && (ts->tunnel_state == H1_TUNNEL_FAILED);
+  trả_về ts && (ts->tunnel_state == H1_TUNNEL_FAILED);
 }
 
 static bool h1_proxy_is_udp(struct Curl_cfilter *cf)
 {
   struct cf_h1_proxy_ctx *pctx = cf->ctx;
-  return (bool)(pctx->ts && pctx->ts->udp_tunnel);
+  trả_về (bool)(pctx->ts && pctx->ts->udp_tunnel);
 }
 
 static CURLcode tunnel_reinit(struct Curl_cfilter *cf,
@@ -115,7 +115,7 @@ static CURLcode tunnel_reinit(struct Curl_cfilter *cf,
   ts->chunked_encoding = FALSE;
   ts->nsent = 0;
   ts->headerlines = 0;
-  return CURLE_OK;
+  trả_về CURLE_OK;
 }
 
 static CURLcode tunnel_init(struct Curl_cfilter *cf,
@@ -124,14 +124,14 @@ static CURLcode tunnel_init(struct Curl_cfilter *cf,
 {
   struct h1_tunnel_state *ts;
 
-  if(cf->conn->scheme->flags & PROTOPT_NOTCPPROXY) {
+  nếu(cf->conn->scheme->flags & PROTOPT_NOTCPPROXY) {
     failf(data, "%s cannot be done over CONNECT", cf->conn->scheme->name);
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    trả_về CURLE_UNSUPPORTED_PROTOCOL;
   }
 
   ts = curlx_calloc(1, sizeof(*ts));
-  if(!ts)
-    return CURLE_OUT_OF_MEMORY;
+  nếu(!ts)
+    trả_về CURLE_OUT_OF_MEMORY;
 
   infof(data, "allocate connect buffer");
 
@@ -140,7 +140,7 @@ static CURLcode tunnel_init(struct Curl_cfilter *cf,
   Curl_httpchunk_init(data, &ts->ch, TRUE, TRUE);
 
   *pts = ts;
-  return tunnel_reinit(cf, data, ts);
+  trả_về tunnel_reinit(cf, data, ts);
 }
 
 static void h1_tunnel_go_state(struct Curl_cfilter *cf,
@@ -148,8 +148,8 @@ static void h1_tunnel_go_state(struct Curl_cfilter *cf,
                                h1_tunnel_state new_state,
                                struct Curl_easy *data)
 {
-  if(ts->tunnel_state == new_state)
-    return;
+  nếu(ts->tunnel_state == new_state)
+    trả_về;
   /* entering this one */
   switch(new_state) {
   case H1_TUNNEL_INIT:
@@ -183,7 +183,7 @@ static void h1_tunnel_go_state(struct Curl_cfilter *cf,
     data->state.authproxy.multipass = FALSE;
     FALLTHROUGH();
   case H1_TUNNEL_FAILED:
-    if(new_state == H1_TUNNEL_FAILED)
+    nếu(new_state == H1_TUNNEL_FAILED)
       CURL_TRC_CF(data, cf, "new tunnel state 'failed'");
     ts->tunnel_state = new_state;
     curlx_dyn_reset(&ts->rcvbuf);
@@ -202,7 +202,7 @@ static void h1_tunnel_go_state(struct Curl_cfilter *cf,
 static void tunnel_free(struct h1_tunnel_state *ts,
                         struct Curl_easy *data)
 {
-  if(ts) {
+  nếu(ts) {
     Curl_peer_unlink(&ts->dest);
     curlx_dyn_free(&ts->rcvbuf);
     curlx_dyn_free(&ts->request_data);
@@ -214,10 +214,10 @@ static void tunnel_free(struct h1_tunnel_state *ts,
 static void cf_tunnel_free(struct Curl_cfilter *cf,
                            struct Curl_easy *data)
 {
-  if(cf) {
+  nếu(cf) {
     struct cf_h1_proxy_ctx *pctx = cf->ctx;
     struct h1_tunnel_state *ts = pctx ? pctx->ts : NULL;
-    if(ts) {
+    nếu(ts) {
       h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
       tunnel_free(ts, data);
       pctx->ts = NULL;
@@ -227,7 +227,7 @@ static void cf_tunnel_free(struct Curl_cfilter *cf,
 
 static bool tunnel_want_send(struct h1_tunnel_state *ts)
 {
-  return ts->tunnel_state == H1_TUNNEL_CONNECT;
+  trả_về ts->tunnel_state == H1_TUNNEL_CONNECT;
 }
 
 static CURLcode start_CONNECT(struct Curl_cfilter *cf,
@@ -236,7 +236,7 @@ static CURLcode start_CONNECT(struct Curl_cfilter *cf,
 {
   struct cf_h1_proxy_ctx *pctx = cf->ctx;
   struct httpreq *req = NULL;
-  int http_minor;
+  số_nguyên http_minor;
   CURLcode result;
 
   DEBUGASSERT(data);
@@ -248,7 +248,7 @@ static CURLcode start_CONNECT(struct Curl_cfilter *cf,
                                                  pctx->peer, ts->dest,
                                                  PROXY_HTTP_V1,
                                                  h1_proxy_is_udp(cf));
-  if(result)
+  nếu(result)
     goto out;
 
   curlx_dyn_reset(&ts->request_data);
@@ -257,15 +257,15 @@ static CURLcode start_CONNECT(struct Curl_cfilter *cf,
   http_minor = ts->httpversion % 10;
 
   result = Curl_h1_req_write_head(req, http_minor, &ts->request_data);
-  if(!result)
+  nếu(!result)
     result = Curl_creader_set_null(data);
 
 out:
-  if(result)
+  nếu(result)
     failf(data, "Failed sending CONNECT to proxy");
-  if(req)
+  nếu(req)
     Curl_http_req_free(req);
-  return result;
+  trả_về result;
 }
 
 static CURLcode send_CONNECT(struct Curl_cfilter *cf,
@@ -279,15 +279,15 @@ static CURLcode send_CONNECT(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
   size_t nwritten;
 
-  if(blen <= ts->nsent)
+  nếu(blen <= ts->nsent)
     goto out;  /* we are done */
 
   blen -= ts->nsent;
   buf += ts->nsent;
 
   result = cf->next->cft->do_send(cf->next, data, buf, blen, FALSE, &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN)
+  nếu(result) {
+    nếu(result == CURLE_AGAIN)
       result = CURLE_OK;
     goto out;
   }
@@ -297,10 +297,10 @@ static CURLcode send_CONNECT(struct Curl_cfilter *cf,
   Curl_debug(data, CURLINFO_HEADER_OUT, (const char *)buf, nwritten);
 
 out:
-  if(result)
+  nếu(result)
     failf(data, "Failed sending CONNECT to proxy");
   *done = (!result && (ts->nsent >= request_len));
-  return result;
+  trả_về result;
 }
 
 static CURLcode on_resp_status(struct Curl_cfilter *cf,
@@ -311,7 +311,7 @@ static CURLcode on_resp_status(struct Curl_cfilter *cf,
   struct SingleRequest *k = &data->req;
 
   (void)ts;
-  if(!strncmp(header, "HTTP/1.", 7) &&
+  nếu(!strncmp(header, "HTTP/1.", 7) &&
           ((header[7] == '0') || (header[7] == '1')) &&
           (header[8] == ' ') &&
           ISDIGIT(header[9]) && ISDIGIT(header[10]) && ISDIGIT(header[11]) &&
@@ -321,10 +321,10 @@ static CURLcode on_resp_status(struct Curl_cfilter *cf,
       ((header[10] - '0') * 10) + (header[11] - '0');
     CURL_TRC_CF(data, cf, "CONNECT%s HTTP status %d",
                 h1_proxy_is_udp(cf) ? "-UDP" : "", k->httpcode);
-    return CURLE_OK;
+    trả_về CURLE_OK;
   }
   failf(data, "Invalid response header");
-  return CURLE_WEIRD_SERVER_REPLY;
+  trả_về CURLE_WEIRD_SERVER_REPLY;
 }
 
 static CURLcode on_resp_header(struct Curl_cfilter *cf,
@@ -336,12 +336,12 @@ static CURLcode on_resp_header(struct Curl_cfilter *cf,
   struct SingleRequest *k = &data->req;
   bool is_udp = h1_proxy_is_udp(cf);
 
-  if(checkprefix("Proxy-authenticate:", header) && (407 == k->httpcode)) {
+  nếu(checkprefix("Proxy-authenticate:", header) && (407 == k->httpcode)) {
 
     bool proxy = (k->httpcode == 407);
     char *auth = Curl_copy_header_value(header);
-    if(!auth)
-      return CURLE_OUT_OF_MEMORY;
+    nếu(!auth)
+      trả_về CURLE_OUT_OF_MEMORY;
 
     CURL_TRC_CF(data, cf, "CONNECT%s: fwd auth header '%s'",
                 is_udp ? "-UDP" : "", header);
@@ -349,15 +349,15 @@ static CURLcode on_resp_header(struct Curl_cfilter *cf,
 
     curlx_free(auth);
 
-    if(result)
-      return result;
+    nếu(result)
+      trả_về result;
   }
-  else if(checkprefix("Content-Length:", header)) {
-    if(k->httpcode < 300) {
-      if(k->httpcode < 200) {
+  không_thì nếu(checkprefix("Content-Length:", header)) {
+    nếu(k->httpcode < 300) {
+      nếu(k->httpcode < 200) {
         /* Informational 1xx responses cannot carry a body. RFC 9110 15.2 */
         failf(data, "Invalid Content-Length: in %03d response", k->httpcode);
-        return CURLE_WEIRD_SERVER_REPLY;
+        trả_về CURLE_WEIRD_SERVER_REPLY;
       }
       /* A client MUST ignore any Content-Length or Transfer-Encoding
          header fields received in a successful response to CONNECT.
@@ -365,26 +365,26 @@ static CURLcode on_resp_header(struct Curl_cfilter *cf,
       infof(data, "Ignoring Content-Length in CONNECT%s %03d response",
             is_udp ? "-UDP" : "", k->httpcode);
     }
-    else {
+    không_thì {
       const char *p = header + CURL_CSTRLEN("Content-Length:");
-      if(curlx_str_numblanks(&p, &ts->cl)) {
+      nếu(curlx_str_numblanks(&p, &ts->cl)) {
         failf(data, "Unsupported Content-Length value");
-        return CURLE_WEIRD_SERVER_REPLY;
+        trả_về CURLE_WEIRD_SERVER_REPLY;
       }
     }
   }
-  else if(Curl_compareheader(header,
+  không_thì nếu(Curl_compareheader(header,
                              STRCONST("Connection:"), STRCONST("close"))) {
     CURL_TRC_CF(data, cf, "CONNECT%s Connection: close", is_udp ? "-UDP" : "");
     ts->close_connection = TRUE;
   }
-  else if(checkprefix("Transfer-Encoding:", header)) {
-    if(k->httpcode < 300) {
-      if(k->httpcode < 200) {
+  không_thì nếu(checkprefix("Transfer-Encoding:", header)) {
+    nếu(k->httpcode < 300) {
+      nếu(k->httpcode < 200) {
         /* Informational 1xx responses cannot carry a body. RFC 9110 15.2 */
         failf(data, "Invalid Transfer-Encoding: in %03d response",
               k->httpcode);
-        return CURLE_WEIRD_SERVER_REPLY;
+        trả_về CURLE_WEIRD_SERVER_REPLY;
       }
       /* A client MUST ignore any Content-Length or Transfer-Encoding
          header fields received in a successful response to CONNECT.
@@ -392,7 +392,7 @@ static CURLcode on_resp_header(struct Curl_cfilter *cf,
       infof(data, "Ignoring Transfer-Encoding in "
             "CONNECT%s %03d response", is_udp ? "-UDP" : "", k->httpcode);
     }
-    else if(Curl_compareheader(header,
+    không_thì nếu(Curl_compareheader(header,
                                STRCONST("Transfer-Encoding:"),
                                STRCONST("chunked"))) {
       CURL_TRC_CF(data, cf, "CONNECT%s response chunked",
@@ -401,21 +401,21 @@ static CURLcode on_resp_header(struct Curl_cfilter *cf,
       Curl_httpchunk_reset(data, &ts->ch, TRUE);
     }
   }
-  else if(is_udp && checkprefix("Capsule-protocol:", header)) {
-    if(Curl_compareheader(header,
+  không_thì nếu(is_udp && checkprefix("Capsule-protocol:", header)) {
+    nếu(Curl_compareheader(header,
                            STRCONST("Capsule-protocol:"),
                            STRCONST("?1"))) {
       CURL_TRC_CF(data, cf, "CONNECT-UDP Response --> Capsule-protocol: ?1");
     }
   }
-  else if(Curl_compareheader(header,
+  không_thì nếu(Curl_compareheader(header,
                              STRCONST("Proxy-Connection:"),
                              STRCONST("close"))) {
     CURL_TRC_CF(data, cf, "CONNECT%s Proxy-Connection: close",
                 is_udp ? "-UDP" : "");
     ts->close_connection = TRUE;
   }
-  return result;
+  trả_về result;
 }
 
 static CURLcode single_header(struct Curl_cfilter *cf,
@@ -426,7 +426,7 @@ static CURLcode single_header(struct Curl_cfilter *cf,
   const char *linep = curlx_dyn_ptr(&ts->rcvbuf);
   size_t line_len = curlx_dyn_len(&ts->rcvbuf); /* bytes in this line */
   const struct SingleRequest *k = &data->req;
-  int writetype;
+  số_nguyên writetype;
   ts->headerlines++;
 
   /* output debug if that is requested */
@@ -435,43 +435,43 @@ static CURLcode single_header(struct Curl_cfilter *cf,
   /* a CONNECT response line is handed to the client as a header, so it must
      pass the same checks as a regular response header before delivery */
   result = Curl_verify_header(data, linep, line_len);
-  if(result)
-    return result;
+  nếu(result)
+    trả_về result;
 
   /* send the header to the callback */
   writetype = CLIENTWRITE_HEADER | CLIENTWRITE_CONNECT |
     (ts->headerlines == 1 ? CLIENTWRITE_STATUS : 0);
   result = Curl_client_write(data, writetype, linep, line_len);
-  if(result)
-    return result;
+  nếu(result)
+    trả_về result;
 
   result = Curl_bump_headersize(data, line_len, TRUE);
-  if(result)
-    return result;
+  nếu(result)
+    trả_về result;
 
   /* Newlines are CRLF, so the CR is ignored as the line is not
      really terminated until the LF comes. Treat a following CR
      as end-of-headers as well.*/
 
-  if(ISNEWLINE(linep[0])) {
+  nếu(ISNEWLINE(linep[0])) {
     /* end of response-headers from the proxy */
-    if(ts->headerlines == 1) {
+    nếu(ts->headerlines == 1) {
       ts->keepon = KEEPON_DONE;
       result = CURLE_WEIRD_SERVER_REPLY;
     }
-    else if((407 == k->httpcode) && !data->state.authproblem) {
+    không_thì nếu((407 == k->httpcode) && !data->state.authproblem) {
       /* If we get a 407 response code with content length
          when we have no auth problem, we must ignore the
          whole response-body */
       ts->keepon = KEEPON_IGNORE;
 
-      if(ts->cl) {
+      nếu(ts->cl) {
         infof(data, "Ignore %" FMT_OFF_T " bytes of response-body", ts->cl);
       }
-      else if(ts->chunked_encoding) {
+      không_thì nếu(ts->chunked_encoding) {
         infof(data, "Ignore chunked response-body");
       }
-      else {
+      không_thì {
         /* without content-length or chunked encoding, we
            cannot keep the connection alive since the close is
            the end signal so we bail out at once instead */
@@ -479,24 +479,24 @@ static CURLcode single_header(struct Curl_cfilter *cf,
         ts->keepon = KEEPON_DONE;
       }
     }
-    else {
+    không_thì {
       ts->keepon = KEEPON_DONE;
     }
 
     DEBUGASSERT(ts->keepon == KEEPON_IGNORE ||
                 ts->keepon == KEEPON_DONE);
-    return result;
+    trả_về result;
   }
 
-  if(ts->headerlines == 1)
+  nếu(ts->headerlines == 1)
     result = on_resp_status(cf, data, ts, linep);
-  else
+  không_thì
     result = on_resp_header(cf, data, ts, linep);
-  if(result)
-    return result;
+  nếu(result)
+    trả_về result;
 
   curlx_dyn_reset(&ts->rcvbuf);
-  return result;
+  trả_về result;
 }
 
 static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
@@ -505,7 +505,7 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
                                   bool *done)
 {
   CURLcode result = CURLE_OK;
-  int error;
+  số_nguyên error;
 
 #define SELECT_OK      0
 #define SELECT_ERROR   1
@@ -513,41 +513,41 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
   error = SELECT_OK;
   *done = FALSE;
 
-  while(ts->keepon) {
+  trong_khi(ts->keepon) {
     size_t nread;
     char byte;
 
     /* Read one byte at a time to avoid a race condition. Wait at most one
        second before looping to ensure continuous pgrsUpdates. */
     result = Curl_conn_recv(data, cf->sockindex, &byte, 1, &nread);
-    if(result == CURLE_AGAIN)
+    nếu(result == CURLE_AGAIN)
       /* socket buffer drained, return */
-      return CURLE_OK;
+      trả_về CURLE_OK;
 
-    if(!result)
+    nếu(!result)
       result = Curl_pgrsUpdate(data);
 
-    if(result) {
+    nếu(result) {
       ts->keepon = KEEPON_DONE;
       break;
     }
 
-    if(!nread) {
-      if(ts->maybe_folded) {
+    nếu(!nread) {
+      nếu(ts->maybe_folded) {
         /* EOF right after LF: finalize the pending header line. */
         result = single_header(cf, data, ts);
-        if(result)
-          return result;
+        nếu(result)
+          trả_về result;
         ts->maybe_folded = FALSE;
       }
-      if(data->set.proxyauth && data->state.authproxy.avail &&
+      nếu(data->set.proxyauth && data->state.authproxy.avail &&
          data->req.hd_proxy_auth) {
         /* proxy auth was requested and there was proxy auth available,
            then deem this as "mere" proxy disconnect */
         ts->close_connection = TRUE;
         infof(data, "Proxy CONNECT connection closed");
       }
-      else {
+      không_thì {
         error = SELECT_ERROR;
         failf(data, "Proxy CONNECT aborted");
       }
@@ -555,9 +555,9 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
       break;
     }
 
-    if(ts->keepon == KEEPON_IGNORE) {
+    nếu(ts->keepon == KEEPON_IGNORE) {
       /* This means we are currently ignoring a response-body */
-      if(ts->chunked_encoding) {
+      nếu(ts->chunked_encoding) {
         /* chunked-encoded body, so we need to do the chunked dance
            properly to know when the end of the body is reached */
         size_t consumed = 0;
@@ -565,19 +565,19 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
         /* now parse the chunked piece of data so that we can
            properly tell when the stream ends */
         result = Curl_httpchunk_read(data, &ts->ch, &byte, 1, &consumed);
-        if(result)
-          return result;
-        if(Curl_httpchunk_is_done(data, &ts->ch)) {
+        nếu(result)
+          trả_về result;
+        nếu(Curl_httpchunk_is_done(data, &ts->ch)) {
           /* we are done reading chunks! */
           infof(data, "chunk reading DONE");
           ts->keepon = KEEPON_DONE;
         }
       }
-      else if(ts->cl) {
+      không_thì nếu(ts->cl) {
         /* A Content-Length based body: count down the counter
            and make sure to break out of the loop when we are done! */
         ts->cl--;
-        if(ts->cl <= 0) {
+        nếu(ts->cl <= 0) {
           ts->keepon = KEEPON_DONE;
           break;
         }
@@ -585,67 +585,67 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
       continue;
     }
 
-    if(ts->maybe_folded) {
-      if(ISBLANK(byte)) {
+    nếu(ts->maybe_folded) {
+      nếu(ISBLANK(byte)) {
         Curl_http_to_fold(&ts->rcvbuf);
         ts->leading_unfold = TRUE;
       }
-      else {
+      không_thì {
         result = single_header(cf, data, ts);
-        if(result)
-          return result;
+        nếu(result)
+          trả_về result;
         /* now handle the new byte */
       }
       ts->maybe_folded = FALSE;
     }
 
-    if(ts->leading_unfold) {
-      if(ISBLANK(byte))
+    nếu(ts->leading_unfold) {
+      nếu(ISBLANK(byte))
         /* skip a bit brother */
         continue;
       /* non-blank, insert a space then continue the unfolding */
-      if(curlx_dyn_addn(&ts->rcvbuf, " ", 1)) {
+      nếu(curlx_dyn_addn(&ts->rcvbuf, " ", 1)) {
         failf(data, "CONNECT response too large");
-        return CURLE_RECV_ERROR;
+        trả_về CURLE_RECV_ERROR;
       }
       ts->leading_unfold = FALSE;
     }
-    if(curlx_dyn_addn(&ts->rcvbuf, &byte, 1)) {
+    nếu(curlx_dyn_addn(&ts->rcvbuf, &byte, 1)) {
       failf(data, "CONNECT response too large");
-      return CURLE_RECV_ERROR;
+      trả_về CURLE_RECV_ERROR;
     }
 
     /* if this is not the end of a header line then continue */
-    if(byte != 0x0a)
+    nếu(byte != 0x0a)
       continue;
-    else {
+    không_thì {
       const char *linep = curlx_dyn_ptr(&ts->rcvbuf);
       size_t hlen = curlx_dyn_len(&ts->rcvbuf);
-      if(hlen && ISNEWLINE(linep[0])) {
+      nếu(hlen && ISNEWLINE(linep[0])) {
         /* end of headers */
         result = single_header(cf, data, ts);
-        if(result)
-          return result;
+        nếu(result)
+          trả_về result;
       }
-      else
+      không_thì
         ts->maybe_folded = TRUE;
     }
 
-    if(result)
-      return result;
+    nếu(result)
+      trả_về result;
   } /* while there is buffer left and loop is requested */
 
-  if(error)
+  nếu(error)
     result = CURLE_RECV_ERROR;
   *done = (ts->keepon == KEEPON_DONE);
-  if(!result && *done &&
+  nếu(!result && *done &&
      data->info.httpproxycode / 100 != 2 &&
      !(h1_proxy_is_udp(cf) && data->info.httpproxycode == 101)) {
     /* Deal with the possibly already received authenticate
        headers. 'newurl' is set to a new URL if we must loop. */
     result = Curl_http_auth_act(data);
   }
-  return result;
+  trả_về result;
 }
 
 static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
@@ -656,14 +656,14 @@ static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
   CURLcode result;
   bool done;
 
-  if(tunnel_is_established(ts))
-    return CURLE_OK;
-  if(tunnel_is_failed(ts))
-    return CURLE_RECV_ERROR; /* Need a cfilter close and new bootstrap */
+  nếu(tunnel_is_established(ts))
+    trả_về CURLE_OK;
+  nếu(tunnel_is_failed(ts))
+    trả_về CURLE_RECV_ERROR; /* Need a cfilter close and new bootstrap */
 
   do {
 
-    if(Curl_timeleft_ms(data) < 0) {
+    nếu(Curl_timeleft_ms(data) < 0) {
       failf(data, "Proxy CONNECT aborted due to timeout");
       result = CURLE_OPERATION_TIMEDOUT;
       goto out;
@@ -674,7 +674,7 @@ static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
       /* Prepare the CONNECT request and make a first attempt to send. */
       CURL_TRC_CF(data, cf, "CONNECT start");
       result = start_CONNECT(cf, data, ts);
-      if(result)
+      nếu(result)
         goto out;
       h1_tunnel_go_state(cf, ts, H1_TUNNEL_CONNECT, data);
       FALLTHROUGH();
@@ -683,7 +683,7 @@ static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
       /* see that the request is completely sent */
       CURL_TRC_CF(data, cf, "CONNECT send");
       result = send_CONNECT(cf, data, ts, &done);
-      if(result || !done)
+      nếu(result || !done)
         goto out;
       h1_tunnel_go_state(cf, ts, H1_TUNNEL_RECEIVE, data);
       FALLTHROUGH();
@@ -692,13 +692,13 @@ static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
       /* read what is there */
       CURL_TRC_CF(data, cf, "CONNECT receive");
       result = recv_CONNECT_resp(cf, data, ts, &done);
-      if(result)
+      nếu(result)
         CURL_TRC_CF(data, cf, "error receiving CONNECT response: %d",
-                    (int)result);
-      if(!result)
+                    (số_nguyên)result);
+      nếu(!result)
         result = Curl_pgrsUpdate(data);
       /* error or not complete yet. return for more multi-multi */
-      if(result || !done)
+      nếu(result || !done)
         goto out;
       /* got it */
       h1_tunnel_go_state(cf, ts, H1_TUNNEL_RESPONSE, data);
@@ -706,13 +706,13 @@ static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
 
     case H1_TUNNEL_RESPONSE:
       CURL_TRC_CF(data, cf, "CONNECT response");
-      if(data->req.newurl) {
+      nếu(data->req.newurl) {
         /* not the "final" response, we need to do a follow up request.
          * If the other side indicated a connection close, or if someone
          * else told us to close this connection, do so now.
          */
         Curl_req_soft_reset(&data->req, data);
-        if(ts->close_connection || conn->bits.close) {
+        nếu(ts->close_connection || conn->bits.close) {
           /* Close this filter and the sub-chain, re-connect the
            * sub-chain and continue. Closing this filter will
            * reset our tunnel state. To avoid recursion, we return
@@ -720,9 +720,9 @@ static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
            */
           CURL_TRC_CF(data, cf, "CONNECT need to close+open");
           infof(data, "Connect me again please");
-          return CURLE_AGAIN;
+          trả_về CURLE_AGAIN;
         }
-        else {
+        không_thì {
           /* staying on this connection, reset state */
           h1_tunnel_go_state(cf, ts, H1_TUNNEL_INIT, data);
         }
@@ -733,28 +733,28 @@ static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
       break;
     }
 
-  } while(data->req.newurl);
+  } trong_khi(data->req.newurl);
 
   DEBUGASSERT(ts->tunnel_state == H1_TUNNEL_RESPONSE);
-  if(h1_proxy_is_udp(cf)) {
+  nếu(h1_proxy_is_udp(cf)) {
     /* RFC 9298: Accept 101 Upgrade for HTTP/1.1 and
      * 2xx responses for HTTP/2 and HTTP/3 proxies. */
-    if(data->info.httpproxycode / 100 != 2 &&
+    nếu(data->info.httpproxycode / 100 != 2 &&
        data->info.httpproxycode != 101) {
       curlx_safefree(data->req.newurl);
       h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
       failf(data, "CONNECT-UDP tunnel failed, response %d",
             data->req.httpcode);
-      return CURLE_COULDNT_CONNECT;
+      trả_về CURLE_COULDNT_CONNECT;
     }
   }
-  else {
-    if(data->info.httpproxycode / 100 != 2) {
+  không_thì {
+    nếu(data->info.httpproxycode / 100 != 2) {
       /* a non-2xx response and we have no next URL to try. */
       curlx_safefree(data->req.newurl);
       h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
       failf(data, "CONNECT tunnel failed, response %d", data->req.httpcode);
-      return CURLE_COULDNT_CONNECT;
+      trả_về CURLE_COULDNT_CONNECT;
     }
   }
   /* 2xx response, SUCCESS! */
@@ -765,9 +765,9 @@ static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
   result = CURLE_OK;
 
 out:
-  if(result)
+  nếu(result)
     h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
-  return result;
+  trả_về result;
 }
 
 static CURLcode cf_h1_proxy_connect(struct Curl_cfilter *cf,
@@ -778,34 +778,34 @@ static CURLcode cf_h1_proxy_connect(struct Curl_cfilter *cf,
   struct cf_h1_proxy_ctx *pctx = cf->ctx;
   struct h1_tunnel_state *ts = pctx->ts;
 
-  if(cf->connected) {
+  nếu(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    trả_về CURLE_OK;
   }
 
   CURL_TRC_CF(data, cf, "connect");
   result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  nếu(result || !*done)
+    trả_về result;
 
   *done = FALSE;
-  if(!ts) {
+  nếu(!ts) {
     result = tunnel_init(cf, data, &ts);
-    if(result)
-      return result;
+    nếu(result)
+      trả_về result;
     pctx->ts = ts;
   }
 
   /* We want "seamless" operations through HTTP proxy tunnel */
 
   result = H1_CONNECT(cf, data, ts);
-  if(result)
+  nếu(result)
     goto out;
   curlx_safefree(data->req.hd_proxy_auth);
 
 out:
   *done = (result == CURLE_OK) && tunnel_is_established(pctx->ts);
-  if(*done) {
+  nếu(*done) {
     cf->connected = TRUE;
     /* The real request will follow the CONNECT, reset request partially */
     Curl_req_soft_reset(&data->req, data);
@@ -813,7 +813,7 @@ out:
     Curl_pgrsReset(data);
     cf_tunnel_free(cf, data);
   }
-  return result;
+  trả_về result;
 }
 
 static CURLcode cf_h1_proxy_adjust_pollset(struct Curl_cfilter *cf,
@@ -824,34 +824,34 @@ static CURLcode cf_h1_proxy_adjust_pollset(struct Curl_cfilter *cf,
   struct h1_tunnel_state *ts = pctx->ts;
   CURLcode result = CURLE_OK;
 
-  if(!cf->connected) {
+  nếu(!cf->connected) {
     /* If we are not connected, but the filter "below" is
      * and not waiting on something, we are tunneling. */
     curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    if(ts) {
+    nếu(ts) {
       /* when we have sent a CONNECT to a proxy, we should rather either
          wait for the socket to become readable to be able to get the
          response headers or if we are still sending the request, wait
          for write. */
-      if(tunnel_want_send(ts))
+      nếu(tunnel_want_send(ts))
         result = Curl_pollset_set_out_only(data, ps, sock);
-      else
+      không_thì
         result = Curl_pollset_set_in_only(data, ps, sock);
     }
-    else
+    không_thì
       result = Curl_pollset_set_out_only(data, ps, sock);
   }
-  else {
-    if(cf->next)
+  không_thì {
+    nếu(cf->next)
       result = cf->next->cft->adjust_pollset(cf->next, data, ps);
   }
-  return result;
+  trả_về result;
 }
 
 static bool cf_h1_proxy_data_pending(struct Curl_cfilter *cf,
                                      const struct Curl_easy *data)
 {
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  trả_về cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
 static void cf_h1_proxy_destroy(struct Curl_cfilter *cf,
@@ -860,7 +860,7 @@ static void cf_h1_proxy_destroy(struct Curl_cfilter *cf,
   struct cf_h1_proxy_ctx *pctx = cf->ctx;
 
   CURL_TRC_CF(data, cf, "destroy");
-  if(pctx) {
+  nếu(pctx) {
     cf_tunnel_free(cf, data);
     Curl_peer_unlink(&pctx->peer);
     curlx_safefree(cf->ctx);
@@ -869,27 +869,27 @@ static void cf_h1_proxy_destroy(struct Curl_cfilter *cf,
 
 static CURLcode cf_h1_proxy_query(struct Curl_cfilter *cf,
                                   struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+                                  số_nguyên query, số_nguyên *pres1, void *pres2)
 {
   struct cf_h1_proxy_ctx *pctx = cf->ctx;
   struct h1_tunnel_state *ts = pctx ? pctx->ts : NULL;
   switch(query) {
   case CF_QUERY_HOST_PORT:
-    if(!ts || !ts->dest)
+    nếu(!ts || !ts->dest)
       break;
-    *pres1 = (int)ts->dest->port;
+    *pres1 = (số_nguyên)ts->dest->port;
     *((const char **)pres2) = ts->dest->hostname;
-    return CURLE_OK;
+    trả_về CURLE_OK;
   case CF_QUERY_ALPN_NEGOTIATED: {
     const char **palpn = pres2;
     DEBUGASSERT(palpn);
     *palpn = NULL;
-    return CURLE_OK;
+    trả_về CURLE_OK;
   }
   default:
     break;
   }
-  return cf->next ?
+  trả_về cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
@@ -915,7 +915,7 @@ CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
                                        struct Curl_easy *data,
                                        struct Curl_peer *peer,
                                        struct Curl_peer *dest,
-                                       int httpversion,
+                                       số_nguyên httpversion,
                                        bool udp_tunnel)
 {
   struct Curl_cfilter *cf;
@@ -924,13 +924,13 @@ CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
   CURLcode result;
 
   (void)data;
-  if(!dest)
-    return CURLE_FAILED_INIT;
-  if((httpversion < 10) || (httpversion >= 20))
-    return CURLE_FAILED_INIT;
+  nếu(!dest)
+    trả_về CURLE_FAILED_INIT;
+  nếu((httpversion < 10) || (httpversion >= 20))
+    trả_về CURLE_FAILED_INIT;
 
   ts = curlx_calloc(1, sizeof(*ts));
-  if(!ts) {
+  nếu(!ts) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -942,14 +942,14 @@ CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
   Curl_httpchunk_init(data, &ts->ch, TRUE, TRUE);
 
   pctx = curlx_calloc(1, sizeof(*pctx));
-  if(!pctx) {
+  nếu(!pctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
   Curl_peer_link(&pctx->peer, peer);
   pctx->ts = ts;
   result = Curl_cf_create(&cf, &Curl_cft_h1_proxy, pctx);
-  if(result) {
+  nếu(result) {
     Curl_peer_unlink(&pctx->peer);
     curlx_free(pctx);
     goto out;
@@ -959,7 +959,7 @@ CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
 
 out:
   tunnel_free(ts, data);
-  return result;
+  trả_về result;
 }
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
