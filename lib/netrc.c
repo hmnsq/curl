@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifndef CURL_DISABLE_NETRC
+#अगर_अघोषित CURL_DISABLE_NETRC
 
-#ifdef HAVE_PWD_H
-#ifdef __AMIGA__
-#undef __NO_NET_API /* required for AmigaOS to declare getpwuid() */
-#endif
-#include <pwd.h>
-#ifdef __AMIGA__
-#define __NO_NET_API
-#endif
-#endif
+#अगर_घोषित HAVE_PWD_H
+#अगर_घोषित __AMIGA__
+#अघोषित __NO_NET_API /* required for AmigaOS to declare getpwuid() */
+#पूर्ण_अगर
+#समावेश <pwd.h>
+#अगर_घोषित __AMIGA__
+#घोषणा __NO_NET_API
+#पूर्ण_अगर
+#पूर्ण_अगर
 
-#include "netrc.h"
-#include "urldata.h"
-#include "creds.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "curl_get_line.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/strparse.h"
+#समावेश "netrc.h"
+#समावेश "urldata.h"
+#समावेश "creds.h"
+#समावेश "curl_trc.h"
+#समावेश "strcase.h"
+#समावेश "curl_get_line.h"
+#समावेश "curlx/win32-fopen.h"
+#समावेश "curlx/strparse.h"
 
 
 /* .netrc is not really a standard. The GNU definition can be found here:
@@ -73,18 +73,18 @@
  * Parsing is not strict, unmatched LITERALs are ignored
  */
 
-#define MAX_NETRC_LINE  16384
-#define MAX_NETRC_FILE  (128 * 1024)
-#define MAX_NETRC_TOKEN 4096
+#घोषणा MAX_NETRC_पंक्ति  16384
+#घोषणा MAX_NETRC_FILE  (128 * 1024)
+#घोषणा MAX_NETRC_TOKEN 4096
 
-#define NETRC_DEBUG   0
+#घोषणा NETRC_DEBUG   0
 
 /* convert a dynbuf call CURLcode error to a NETRCcode error */
-#define curl2netrc(r)                                  \
+#घोषणा curl2netrc(r)                                  \
   ((!(r)) ? NETRC_OK : (((r) == CURLE_OUT_OF_MEMORY) ? \
    NETRC_OUT_OF_MEMORY : NETRC_SYNTAX_ERROR))
 
-typedef enum {
+प्रकार क्रमागत {
   NETRC_TOK_EOF,
   NETRC_TOK_LITERAL,
   NETRC_TOK_MACHINE,
@@ -96,89 +96,89 @@ typedef enum {
   NETRC_TOK_JUNK
 } curl_netrc_token;
 
-struct netrc_lexer {
-  struct Curl_easy *data;
-  const char *content;
-  const char *pos;
-  struct dynbuf literal;
+काष्ठा netrc_lexer {
+  काष्ठा Curl_easy *तथ्य;
+  स्थिर अक्षर *content;
+  स्थिर अक्षर *pos;
+  काष्ठा dynbuf literal;
   curl_netrc_token token;
   bool pushed;
 };
 
-#if NETRC_DEBUG
-static const char *netrc_tokenstr(curl_netrc_token token)
+#अगर NETRC_DEBUG
+अटल स्थिर अक्षर *netrc_tokenstr(curl_netrc_token token)
 {
-  switch(token) {
-  case NETRC_TOK_EOF:
-    return "[EOF]";
-  case NETRC_TOK_LITERAL:
-    return "[LITERAL]";
-  case NETRC_TOK_MACHINE:
-    return "[MACHINE]";
-  case NETRC_TOK_DEFAULT:
-    return "[DEFAULT]";
-  case NETRC_TOK_ACCOUNT:
-    return "[ACCOUNT]";
-  case NETRC_TOK_LOGIN:
-    return "[LOGIN]";
-  case NETRC_TOK_PASSWD:
-    return "[PASSWORD]";
-  case NETRC_TOK_MACDEF:
-    return "[MACDEF]";
-  case NETRC_TOK_JUNK:
-    return "[JUNK]";
-  default:
-    return "[???]";
+  चयन(token) {
+  हाल NETRC_TOK_EOF:
+    वापस "[EOF]";
+  हाल NETRC_TOK_LITERAL:
+    वापस "[LITERAL]";
+  हाल NETRC_TOK_MACHINE:
+    वापस "[MACHINE]";
+  हाल NETRC_TOK_DEFAULT:
+    वापस "[DEFAULT]";
+  हाल NETRC_TOK_ACCOUNT:
+    वापस "[ACCOUNT]";
+  हाल NETRC_TOK_LOGIN:
+    वापस "[LOGIN]";
+  हाल NETRC_TOK_PASSWD:
+    वापस "[PASSWORD]";
+  हाल NETRC_TOK_MACDEF:
+    वापस "[MACDEF]";
+  हाल NETRC_TOK_JUNK:
+    वापस "[JUNK]";
+  शेष:
+    वापस "[???]";
   }
 }
-#endif
+#पूर्ण_अगर
 
-static void netrc_lexer_init(struct netrc_lexer *lexer,
-                             struct Curl_easy *data,
-                             const char *content)
+अटल व्योम netrc_lexer_init(काष्ठा netrc_lexer *lexer,
+                             काष्ठा Curl_easy *तथ्य,
+                             स्थिर अक्षर *content)
 {
   curlx_dyn_init(&lexer->literal, MAX_NETRC_TOKEN);
-  lexer->data = data;
+  lexer->तथ्य = तथ्य;
   lexer->content = lexer->pos = content;
 }
 
-static void netrc_lexer_cleanup(struct netrc_lexer *lexer)
+अटल व्योम netrc_lexer_cleanup(काष्ठा netrc_lexer *lexer)
 {
-  lexer->content = lexer->pos = NULL;
-  lexer->data = NULL;
+  lexer->content = lexer->pos = शून्य;
+  lexer->तथ्य = शून्य;
   curlx_dyn_free(&lexer->literal);
 }
 
-static void netrc_skip_blanks(struct netrc_lexer *lexer)
+अटल व्योम netrc_skip_blanks(काष्ठा netrc_lexer *lexer)
 {
-  const char *s = lexer->pos;
-  while(*s) {
+  स्थिर अक्षर *s = lexer->pos;
+  जबतक(*s) {
     curlx_str_passblanks(&s);
-    while(*s == '\r')
+    जबतक(*s == '\r')
       ++s;
-    if(*s == '\n') {
+    अगर(*s == '\n') {
       ++s;
     }
-    else
-      break;
+    अन्यथा
+      अवरोध;
   }
   lexer->pos = s;
 }
 
-static void netrc_skip_to_empty_line(struct netrc_lexer *lexer)
+अटल व्योम netrc_skip_to_empty_पंक्ति(काष्ठा netrc_lexer *lexer)
 {
-  const char *s = lexer->pos;
-  while(*s) {
-    if(*s == '\r')
+  स्थिर अक्षर *s = lexer->pos;
+  जबतक(*s) {
+    अगर(*s == '\r')
       ++s;
-    else if(*s == '\n') {
+    अन्यथा अगर(*s == '\n') {
       ++s;
-      while(*s == '\r')
+      जबतक(*s == '\r')
         ++s;
-      if(*s == '\n')
-        goto out;
+      अगर(*s == '\n')
+        जाओ out;
     }
-    else
+    अन्यथा
       ++s;
   }
 out:
@@ -191,383 +191,383 @@ out:
  *
  * Returns NETRC_OK or error.
  */
-static NETRCcode netrc_lexer_quoted(struct netrc_lexer *lexer)
+अटल NETRCcode netrc_lexer_quoted(काष्ठा netrc_lexer *lexer)
 {
   NETRCcode rc = NETRC_SYNTAX_ERROR;
-  const char *s = lexer->pos;
+  स्थिर अक्षर *s = lexer->pos;
   bool escape = FALSE;
-  CURLcode result;
+  CURLcode परिणाम;
 
   DEBUGASSERT(*s == '\"');
   ++s; /* pass the leading quote */
-  while(*s) {
-    char c = *s;
-    if(escape) {
+  जबतक(*s) {
+    अक्षर c = *s;
+    अगर(escape) {
       escape = FALSE;
-      switch(c) {
-      case 'n':
+      चयन(c) {
+      हाल 'n':
         c = '\n';
-        break;
-      case 'r':
+        अवरोध;
+      हाल 'r':
         c = '\r';
-        break;
-      case 't':
+        अवरोध;
+      हाल 't':
         c = '\t';
-        break;
+        अवरोध;
       }
     }
-    else if(c == '\\') {
+    अन्यथा अगर(c == '\\') {
       escape = TRUE;
       ++s;
-      continue;
+      जारी;
     }
-    else if(c == '\"') {
+    अन्यथा अगर(c == '\"') {
       ++s; /* pass the ending quote */
       /* Ensure even an empty literal has a null-terminator. */
-      result = curlx_dyn_addn(&lexer->literal, "", 0);
-      rc = curl2netrc(result);
-      goto out;
+      परिणाम = curlx_dyn_addn(&lexer->literal, "", 0);
+      rc = curl2netrc(परिणाम);
+      जाओ out;
     }
-    result = curlx_dyn_addn(&lexer->literal, &c, 1);
-    if(result) {
-      rc = curl2netrc(result);
-      goto out;
+    परिणाम = curlx_dyn_addn(&lexer->literal, &c, 1);
+    अगर(परिणाम) {
+      rc = curl2netrc(परिणाम);
+      जाओ out;
     }
     ++s;
   }
 out:
   lexer->pos = s;
-  return rc;
+  वापस rc;
 }
 
-static void netrc_lexer_push(struct netrc_lexer *lexer)
+अटल व्योम netrc_lexer_धकेलो(काष्ठा netrc_lexer *lexer)
 {
   lexer->pushed = TRUE;
 }
 
-static NETRCcode netrc_lexer_next(struct netrc_lexer *lexer,
+अटल NETRCcode netrc_lexer_अग्र(काष्ठा netrc_lexer *lexer,
                                   bool want_literal)
 {
-  const char *s = lexer->pos, *start;
+  स्थिर अक्षर *s = lexer->pos, *start;
   NETRCcode rc = NETRC_OK;
-  size_t slen;
-  CURLcode result;
+  माप_प्रकार slen;
+  CURLcode परिणाम;
 
-  if(lexer->pushed) {
+  अगर(lexer->pushed) {
     lexer->pushed = FALSE;
-    goto out;
+    जाओ out;
   }
 
   curlx_dyn_reset(&lexer->literal);
   netrc_skip_blanks(lexer);
   s = lexer->pos;
 
-  switch(*s) {
-  case 0:
+  चयन(*s) {
+  हाल 0:
     lexer->token = NETRC_TOK_EOF;
-    break;
-  case '\"':
+    अवरोध;
+  हाल '\"':
     rc = netrc_lexer_quoted(lexer);
     lexer->token = NETRC_TOK_LITERAL;
     s = lexer->pos;
-    break;
-  default:
+    अवरोध;
+  शेष:
     /* unquoted token */
     start = s;
-    while(*s && !ISBLANK(*s) && !ISNEWLINE(*s))
+    जबतक(*s && !ISBLANK(*s) && !ISNEWLINE(*s))
       ++s;
     slen = s - start;
-    if(!slen) {
+    अगर(!slen) {
       rc = NETRC_SYNTAX_ERROR;
     }
-    if(want_literal) {
+    अगर(want_literal) {
       lexer->token = NETRC_TOK_LITERAL;
-      result = curlx_dyn_addn(&lexer->literal, start, slen);
-      rc = curl2netrc(result);
+      परिणाम = curlx_dyn_addn(&lexer->literal, start, slen);
+      rc = curl2netrc(परिणाम);
     }
-    else if((slen == 7) && curl_strnequal(start, "machine", slen)) {
+    अन्यथा अगर((slen == 7) && curl_strnequal(start, "machine", slen)) {
       lexer->token = NETRC_TOK_MACHINE;
     }
-    else if((slen == 7) && curl_strnequal(start, "default", slen)) {
+    अन्यथा अगर((slen == 7) && curl_strnequal(start, "default", slen)) {
       lexer->token = NETRC_TOK_DEFAULT;
     }
-    else if((slen == 7) && curl_strnequal(start, "account", slen)) {
+    अन्यथा अगर((slen == 7) && curl_strnequal(start, "account", slen)) {
       lexer->token = NETRC_TOK_ACCOUNT;
     }
-    else if((slen == 5) && curl_strnequal(start, "login", slen)) {
+    अन्यथा अगर((slen == 5) && curl_strnequal(start, "login", slen)) {
       lexer->token = NETRC_TOK_LOGIN;
     }
-    else if((slen == 8) && curl_strnequal(start, "password", slen)) {
+    अन्यथा अगर((slen == 8) && curl_strnequal(start, "password", slen)) {
       lexer->token = NETRC_TOK_PASSWD;
     }
-    else if((slen == 6) && curl_strnequal(start, "macdef", slen)) {
+    अन्यथा अगर((slen == 6) && curl_strnequal(start, "macdef", slen)) {
       lexer->token = NETRC_TOK_MACDEF;
     }
-    else {
+    अन्यथा {
       lexer->token = NETRC_TOK_JUNK;
     }
-    break;
+    अवरोध;
   }
 
 out:
-#if NETRC_DEBUG
-  CURL_TRC_M(lexer->data, "[NETRC] token %s '%s', rc=%d",
+#अगर NETRC_DEBUG
+  CURL_TRC_M(lexer->तथ्य, "[NETRC] token %s '%s', rc=%d",
              netrc_tokenstr(lexer->token),
              curlx_dyn_ptr(&lexer->literal), rc);
-#endif
+#पूर्ण_अगर
   lexer->pos = s;
-  return rc;
+  वापस rc;
 }
 
-struct netrc_scanner {
-  struct netrc_lexer lexer;
-  const char *hostname; /* non-NULL, machine to scan for */
-  const char *user; /* maybe NULL, login to scan for */
-  char *login;
-  char *passwd;
-  struct Curl_creds *creds;
+काष्ठा netrc_scanner {
+  काष्ठा netrc_lexer lexer;
+  स्थिर अक्षर *hostname; /* non-NULL, machine to scan for */
+  स्थिर अक्षर *user; /* maybe NULL, login to scan for */
+  अक्षर *login;
+  अक्षर *passwd;
+  काष्ठा Curl_creds *creds;
   bool matches_host;
   bool found;
 };
 
-static void netrc_scan_reset(struct netrc_scanner *sc)
+अटल व्योम netrc_scan_reset(काष्ठा netrc_scanner *sc)
 {
   curlx_safefree(sc->login);
   curlx_safefree(sc->passwd);
   sc->matches_host = FALSE;
 }
 
-static void netrc_scan_init(struct netrc_scanner *sc,
-                            struct Curl_easy *data,
-                            const char *content,
-                            const char *hostname,
-                            const char *user)
+अटल व्योम netrc_scan_init(काष्ठा netrc_scanner *sc,
+                            काष्ठा Curl_easy *तथ्य,
+                            स्थिर अक्षर *content,
+                            स्थिर अक्षर *hostname,
+                            स्थिर अक्षर *user)
 {
-  memset(sc, 0, sizeof(*sc));
-  netrc_lexer_init(&sc->lexer, data, content);
+  स_रखो(sc, 0, माप(*sc));
+  netrc_lexer_init(&sc->lexer, तथ्य, content);
   sc->hostname = hostname;
-  sc->user = (user && user[0]) ? user : NULL;
+  sc->user = (user && user[0]) ? user : शून्य;
   netrc_scan_reset(sc);
 }
 
-static void netrc_scan_cleanup(struct netrc_scanner *sc)
+अटल व्योम netrc_scan_cleanup(काष्ठा netrc_scanner *sc)
 {
   netrc_scan_reset(sc);
-  sc->hostname = NULL;
-  sc->user = NULL;
+  sc->hostname = शून्य;
+  sc->user = शून्य;
   Curl_creds_unlink(&sc->creds);
   netrc_lexer_cleanup(&sc->lexer);
 }
 
-static NETRCcode netrc_scan_literal(struct netrc_scanner *sc,
-                                    char **pdest)
+अटल NETRCcode netrc_scan_literal(काष्ठा netrc_scanner *sc,
+                                    अक्षर **pdest)
 {
-  NETRCcode rc = netrc_lexer_next(&sc->lexer, TRUE);
-  if(!rc) {
-    if(sc->lexer.token == NETRC_TOK_LITERAL) {
-      if(pdest && sc->matches_host) {
+  NETRCcode rc = netrc_lexer_अग्र(&sc->lexer, TRUE);
+  अगर(!rc) {
+    अगर(sc->lexer.token == NETRC_TOK_LITERAL) {
+      अगर(pdest && sc->matches_host) {
         curlx_free(*pdest);
         *pdest = curlx_strdup(curlx_dyn_ptr(&sc->lexer.literal));
-        if(!*pdest)
+        अगर(!*pdest)
           rc = NETRC_OUT_OF_MEMORY;
       }
     }
-    else
-      netrc_lexer_push(&sc->lexer);
+    अन्यथा
+      netrc_lexer_धकेलो(&sc->lexer);
   }
-  return rc;
+  वापस rc;
 }
 
-static NETRCcode netrc_scan_end_entry(struct netrc_scanner *sc)
+अटल NETRCcode netrc_scan_end_entry(काष्ठा netrc_scanner *sc)
 {
   NETRCcode rc = NETRC_OK;
-#if NETRC_DEBUG
-  CURL_TRC_M(sc->lexer.data,
+#अगर NETRC_DEBUG
+  CURL_TRC_M(sc->lexer.तथ्य,
              "[NETRC] entry matches_host=%d, login='%s', passwd='%s'",
              sc->matches_host, sc->login, sc->passwd);
-#endif
-  if(sc->matches_host) {
-    if(sc->login) {
-      if(sc->user) {
-        if(Curl_timestrcmp(sc->user, sc->login))
-          goto out;
+#पूर्ण_अगर
+  अगर(sc->matches_host) {
+    अगर(sc->login) {
+      अगर(sc->user) {
+        अगर(Curl_timestrcmp(sc->user, sc->login))
+          जाओ out;
         /* We look for a specific user,
          * entry is only interesting with password */
         sc->found = !!sc->passwd;
       }
-      else {
+      अन्यथा {
         sc->found = TRUE;
       }
     }
-    else if(sc->passwd) {
+    अन्यथा अगर(sc->passwd) {
       /* found a passwd that applies to any user */
       sc->found = TRUE;
     }
-    else {
+    अन्यथा {
       /* entry has nothing interesting */
     }
-    if(sc->found) {
-#if NETRC_DEBUG
-      CURL_TRC_M(sc->lexer.data, "[NETRC] entry match found");
-#endif
-      if(Curl_creds_create(sc->user ? sc->user : sc->login, sc->passwd,
-                           NULL, NULL, NULL, CREDS_NETRC, &sc->creds))
+    अगर(sc->found) {
+#अगर NETRC_DEBUG
+      CURL_TRC_M(sc->lexer.तथ्य, "[NETRC] entry match found");
+#पूर्ण_अगर
+      अगर(Curl_creds_create(sc->user ? sc->user : sc->login, sc->passwd,
+                           शून्य, शून्य, शून्य, CREDS_NETRC, &sc->creds))
         rc = NETRC_OUT_OF_MEMORY;
     }
   }
 out:
   netrc_scan_reset(sc);
-  return rc;
+  वापस rc;
 }
 
-static NETRCcode netrc_scan(struct Curl_easy *data,
-                            const char *content,
-                            const char *hostname,
-                            const char *user,
-                            struct Curl_creds **pcreds)
+अटल NETRCcode netrc_scan(काष्ठा Curl_easy *तथ्य,
+                            स्थिर अक्षर *content,
+                            स्थिर अक्षर *hostname,
+                            स्थिर अक्षर *user,
+                            काष्ठा Curl_creds **pcreds)
 {
-  struct netrc_scanner sc;
+  काष्ठा netrc_scanner sc;
   NETRCcode rc = NETRC_OK;
 
   Curl_creds_unlink(pcreds);
-  netrc_scan_init(&sc, data, content, hostname, user);
+  netrc_scan_init(&sc, तथ्य, content, hostname, user);
 
-  while(!rc && !sc.found) {
-    rc = netrc_lexer_next(&sc.lexer, FALSE);
-    if(!rc) {
+  जबतक(!rc && !sc.found) {
+    rc = netrc_lexer_अग्र(&sc.lexer, FALSE);
+    अगर(!rc) {
       /* Does this token end any previous entry? */
-      switch(sc.lexer.token) {
-      case NETRC_TOK_EOF:
-      case NETRC_TOK_MACHINE:
-      case NETRC_TOK_DEFAULT:
-      case NETRC_TOK_MACDEF:
+      चयन(sc.lexer.token) {
+      हाल NETRC_TOK_EOF:
+      हाल NETRC_TOK_MACHINE:
+      हाल NETRC_TOK_DEFAULT:
+      हाल NETRC_TOK_MACDEF:
         rc = netrc_scan_end_entry(&sc);
-        if(rc || sc.found)
-          goto out;
-        break;
-      default:
-        break;
+        अगर(rc || sc.found)
+          जाओ out;
+        अवरोध;
+      शेष:
+        अवरोध;
       }
 
-      switch(sc.lexer.token) {
-      case NETRC_TOK_EOF:
-        goto out;
-      case NETRC_TOK_MACHINE:
-        rc = netrc_lexer_next(&sc.lexer, TRUE);
-        if(!rc) {
-          if(sc.lexer.token == NETRC_TOK_LITERAL) {
+      चयन(sc.lexer.token) {
+      हाल NETRC_TOK_EOF:
+        जाओ out;
+      हाल NETRC_TOK_MACHINE:
+        rc = netrc_lexer_अग्र(&sc.lexer, TRUE);
+        अगर(!rc) {
+          अगर(sc.lexer.token == NETRC_TOK_LITERAL) {
             sc.matches_host = curl_strequal(
               sc.hostname, curlx_dyn_ptr(&sc.lexer.literal));
           }
-          else {
+          अन्यथा {
             sc.matches_host = FALSE;
-            netrc_lexer_push(&sc.lexer);
+            netrc_lexer_धकेलो(&sc.lexer);
           }
         }
-        break;
-      case NETRC_TOK_DEFAULT:
+        अवरोध;
+      हाल NETRC_TOK_DEFAULT:
         sc.matches_host = TRUE;
-        break;
-      case NETRC_TOK_ACCOUNT:
-        rc = netrc_scan_literal(&sc, NULL); /* ignore, not used */
-        break;
-      case NETRC_TOK_LOGIN:
+        अवरोध;
+      हाल NETRC_TOK_ACCOUNT:
+        rc = netrc_scan_literal(&sc, शून्य); /* ignore, not used */
+        अवरोध;
+      हाल NETRC_TOK_LOGIN:
         rc = netrc_scan_literal(&sc, &sc.login);
-        break;
-      case NETRC_TOK_PASSWD:
+        अवरोध;
+      हाल NETRC_TOK_PASSWD:
         rc = netrc_scan_literal(&sc, &sc.passwd);
-        break;
-      case NETRC_TOK_MACDEF:
-        netrc_skip_to_empty_line(&sc.lexer);
-        break;
-      case NETRC_TOK_LITERAL:
-      case NETRC_TOK_JUNK:
-      default:
+        अवरोध;
+      हाल NETRC_TOK_MACDEF:
+        netrc_skip_to_empty_पंक्ति(&sc.lexer);
+        अवरोध;
+      हाल NETRC_TOK_LITERAL:
+      हाल NETRC_TOK_JUNK:
+      शेष:
         /* skip this */
-        break;
+        अवरोध;
       }
     }
   }
 
 out:
-  if(!rc) {
-    if(sc.creds)
+  अगर(!rc) {
+    अगर(sc.creds)
       Curl_creds_link(pcreds, sc.creds);
-    else
+    अन्यथा
       rc = NETRC_NO_MATCH;
   }
   netrc_scan_cleanup(&sc);
-  return rc;
+  वापस rc;
 }
 
-static NETRCcode file2memory(const char *filename, struct dynbuf *filebuf)
+अटल NETRCcode file2memory(स्थिर अक्षर *filename, काष्ठा dynbuf *filebuf)
 {
   NETRCcode ret = NETRC_FILE_MISSING; /* if it cannot open the file */
-  FILE *file = curlx_fopen(filename, FOPEN_READTEXT);
+  खाता *file = curlx_fopen(filename, FOPEN_READTEXT);
 
   curlx_dyn_reset(filebuf);
-  if(file) {
+  अगर(file) {
     curlx_struct_stat stat;
-    if((curlx_fstat(fileno(file), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
-      CURLcode result = CURLE_OK;
+    अगर((curlx_fstat(fileno(file), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
+      CURLcode परिणाम = CURLE_OK;
       bool eof;
-      struct dynbuf linebuf;
-      curlx_dyn_init(&linebuf, MAX_NETRC_LINE);
+      काष्ठा dynbuf linebuf;
+      curlx_dyn_init(&linebuf, MAX_NETRC_पंक्ति);
       ret = NETRC_OK;
-      do {
-        const char *line;
+      करो {
+        स्थिर अक्षर *पंक्ति;
         /* Curl_get_line always returns lines ending with a newline */
-        result = Curl_get_line(&linebuf, file, &eof);
-        if(!result) {
-          line = curlx_dyn_ptr(&linebuf);
+        परिणाम = Curl_get_पंक्ति(&linebuf, file, &eof);
+        अगर(!परिणाम) {
+          पंक्ति = curlx_dyn_ptr(&linebuf);
           /* skip comments on load */
-          curlx_str_passblanks(&line);
-          if(*line == '#')
-            continue;
-          result = curlx_dyn_add(filebuf, line);
+          curlx_str_passblanks(&पंक्ति);
+          अगर(*पंक्ति == '#')
+            जारी;
+          परिणाम = curlx_dyn_add(filebuf, पंक्ति);
         }
-        if(result) {
+        अगर(परिणाम) {
           curlx_dyn_free(filebuf);
-          ret = curl2netrc(result);
-          break;
+          ret = curl2netrc(परिणाम);
+          अवरोध;
         }
-      } while(!eof);
+      } जबतक(!eof);
       curlx_dyn_free(&linebuf);
     }
     curlx_fclose(file);
   }
-  return ret;
+  वापस ret;
 }
 
-static NETRCcode netrc_scan_file(struct Curl_easy *data,
-                                 struct store_netrc *store,
-                                 const char *hostname,
-                                 const char *user,
-                                 const char *netrcfile,
-                                 struct Curl_creds **pcreds)
+अटल NETRCcode netrc_scan_file(काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा store_netrc *store,
+                                 स्थिर अक्षर *hostname,
+                                 स्थिर अक्षर *user,
+                                 स्थिर अक्षर *netrcfile,
+                                 काष्ठा Curl_creds **pcreds)
 {
-  struct dynbuf *filebuf = &store->filebuf;
+  काष्ठा dynbuf *filebuf = &store->filebuf;
 
-  if(!store->loaded || strcmp(netrcfile, store->filename)) {
+  अगर(!store->loaded || म_भेद(netrcfile, store->filename)) {
     NETRCcode ret;
     store->loaded = FALSE;
     ret = file2memory(netrcfile, filebuf);
-    if(ret) {
-      CURL_TRC_M(data, "[NETRC] could not load '%s'", netrcfile);
-      return ret;
+    अगर(ret) {
+      CURL_TRC_M(तथ्य, "[NETRC] could not load '%s'", netrcfile);
+      वापस ret;
     }
     curlx_free(store->filename);
     store->filename = curlx_strdup(netrcfile);
-    if(!store->filename) {
+    अगर(!store->filename) {
       curlx_dyn_reset(&store->filebuf);
-      return NETRC_OUT_OF_MEMORY;
+      वापस NETRC_OUT_OF_MEMORY;
     }
     store->loaded = TRUE;
   }
-  if(!curlx_dyn_len(filebuf))
-    return NETRC_NO_MATCH;
+  अगर(!curlx_dyn_len(filebuf))
+    वापस NETRC_NO_MATCH;
 
-  return netrc_scan(data, curlx_dyn_ptr(filebuf), hostname, user, pcreds);
+  वापस netrc_scan(तथ्य, curlx_dyn_ptr(filebuf), hostname, user, pcreds);
 }
 
 /*
@@ -576,123 +576,123 @@ static NETRCcode netrc_scan_file(struct Curl_easy *data,
  * *loginp and *passwordp MUST be allocated if they are not NULL when passed
  * in.
  */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds)
+NETRCcode Curl_netrc_scan(काष्ठा Curl_easy *तथ्य,
+                          काष्ठा store_netrc *store,
+                          स्थिर अक्षर *hostname,
+                          स्थिर अक्षर *user,
+                          स्थिर अक्षर *netrcfile,
+                          काष्ठा Curl_creds **pcreds)
 {
   NETRCcode retcode = NETRC_OK;
 
-  CURL_TRC_M(data, "[NETRC] scanning '%s' for host '%s' user '%s'",
+  CURL_TRC_M(तथ्य, "[NETRC] scanning '%s' for host '%s' user '%s'",
              netrcfile, hostname, user);
   Curl_creds_unlink(pcreds);
-  if(!netrcfile) {
-    char *home = NULL;
-    char *homea = NULL;
-    char *filealloc = NULL;
-#if defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
-    char pwbuf[1024];
-#endif
+  अगर(!netrcfile) {
+    अक्षर *home = शून्य;
+    अक्षर *homea = शून्य;
+    अक्षर *filealloc = शून्य;
+#अगर defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
+    अक्षर pwbuf[1024];
+#पूर्ण_अगर
     filealloc = curl_getenv("NETRC");
-    if(!filealloc) {
+    अगर(!filealloc) {
       homea = curl_getenv("HOME"); /* portable environment reader */
-      if(homea) {
+      अगर(homea) {
         home = homea;
-#if defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
+#अगर defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
       }
-      else {
-        struct passwd pw, *pw_res;
-        if(!getpwuid_r(geteuid(), &pw, pwbuf, sizeof(pwbuf), &pw_res) &&
+      अन्यथा {
+        काष्ठा passwd pw, *pw_res;
+        अगर(!getpwuid_r(geteuid(), &pw, pwbuf, माप(pwbuf), &pw_res) &&
            pw_res) {
           home = pw.pw_dir;
         }
-#elif defined(HAVE_GETPWUID) && defined(HAVE_GETEUID)
+#या_अगर defined(HAVE_GETPWUID) && defined(HAVE_GETEUID)
       }
-      else {
-        struct passwd *pw;
+      अन्यथा {
+        काष्ठा passwd *pw;
         pw = getpwuid(geteuid());
-        if(pw) {
+        अगर(pw) {
           home = pw->pw_dir;
         }
-#elif defined(_WIN32)
+#या_अगर defined(_WIN32)
       }
-      else {
+      अन्यथा {
         homea = curl_getenv("USERPROFILE");
-        if(homea) {
+        अगर(homea) {
           home = homea;
         }
-#endif
+#पूर्ण_अगर
       }
 
-      if(!home)
-        return NETRC_FILE_MISSING; /* no home directory found (or possibly out
+      अगर(!home)
+        वापस NETRC_FILE_MISSING; /* no home directory found (or possibly out
                                       of memory) */
 
       filealloc = curl_maprintf("%s%s.netrc", home, DIR_CHAR);
-      if(!filealloc) {
+      अगर(!filealloc) {
         curlx_free(homea);
         retcode = NETRC_OUT_OF_MEMORY;
-        goto out;
+        जाओ out;
       }
     }
     retcode = netrc_scan_file(
-      data, store, hostname, user, filealloc, pcreds);
+      तथ्य, store, hostname, user, filealloc, pcreds);
     curlx_free(filealloc);
-#ifdef _WIN32
-    if(retcode == NETRC_FILE_MISSING) {
+#अगर_घोषित _WIN32
+    अगर(retcode == NETRC_FILE_MISSING) {
       /* fallback to the old-style "_netrc" file */
       filealloc = curl_maprintf("%s%s_netrc", home, DIR_CHAR);
-      if(!filealloc) {
+      अगर(!filealloc) {
         curlx_free(homea);
-        return NETRC_OUT_OF_MEMORY;
+        वापस NETRC_OUT_OF_MEMORY;
       }
       retcode = netrc_scan_file(
-        data, store, hostname, user, filealloc, pcreds);
+        तथ्य, store, hostname, user, filealloc, pcreds);
       curlx_free(filealloc);
     }
-#endif
+#पूर्ण_अगर
     curlx_free(homea);
   }
-  else
+  अन्यथा
     retcode = netrc_scan_file(
-      data, store, hostname, user, netrcfile, pcreds);
+      तथ्य, store, hostname, user, netrcfile, pcreds);
 
 out:
-  if(retcode)
+  अगर(retcode)
     Curl_creds_unlink(pcreds);
-  return retcode;
+  वापस retcode;
 }
 
-void Curl_netrc_init(struct store_netrc *store)
+व्योम Curl_netrc_init(काष्ठा store_netrc *store)
 {
   curlx_dyn_init(&store->filebuf, MAX_NETRC_FILE);
   store->loaded = FALSE;
-  store->filename = NULL;
+  store->filename = शून्य;
 }
-void Curl_netrc_cleanup(struct store_netrc *store)
+व्योम Curl_netrc_cleanup(काष्ठा store_netrc *store)
 {
   curlx_dyn_free(&store->filebuf);
   curlx_safefree(store->filename);
   store->loaded = FALSE;
 }
 
-const char *Curl_netrc_strerror(NETRCcode ret)
+स्थिर अक्षर *Curl_netrc_strerror(NETRCcode ret)
 {
-  switch(ret) {
-  default:
-    return ""; /* not a legit error */
-  case NETRC_FILE_MISSING:
-    return "no such file";
-  case NETRC_NO_MATCH:
-    return "no matching entry";
-  case NETRC_OUT_OF_MEMORY:
-    return "out of memory";
-  case NETRC_SYNTAX_ERROR:
-    return "syntax error";
+  चयन(ret) {
+  शेष:
+    वापस ""; /* not a legit error */
+  हाल NETRC_FILE_MISSING:
+    वापस "no such file";
+  हाल NETRC_NO_MATCH:
+    वापस "no matching entry";
+  हाल NETRC_OUT_OF_MEMORY:
+    वापस "out of memory";
+  हाल NETRC_SYNTAX_ERROR:
+    वापस "syntax error";
   }
   /* never reached */
 }
 
-#endif /* !CURL_DISABLE_NETRC */
+#पूर्ण_अगर /* !CURL_DISABLE_NETRC */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETUP_WIN32_H
-#define HEADER_CURL_SETUP_WIN32_H
+#अगर_अघोषित HEADER_CURL_SETUP_WIN32_H
+#घोषणा HEADER_CURL_SETUP_WIN32_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,11 +24,11 @@
  *
  ***************************************************************************/
 
-#undef USE_WINSOCK
+#अघोषित USE_WINSOCK
 /* ---------------------------------------------------------------- */
 /*                     Watt-32 TCP/IP SPECIFIC                      */
 /* ---------------------------------------------------------------- */
-#ifdef USE_WATT32
+#अगर_घोषित USE_WATT32
 #  include <tcp.h>
 #  include <sys/socket.h>
 #  undef byte
@@ -37,11 +37,11 @@
 #  define HAVE_NETINET_IN_H
 #  define HAVE_NETDB_H
 #  define HAVE_ARPA_INET_H
-#  define SOCKET int
+#  define SOCKET पूर्णांक
 /* ---------------------------------------------------------------- */
 /*               BSD-style lwIP TCP/IP stack SPECIFIC               */
 /* ---------------------------------------------------------------- */
-#elif defined(USE_LWIPSOCK)
+#या_अगर defined(USE_LWIPSOCK)
   /* Define to use BSD-style lwIP TCP/IP stack. */
   /* #define USE_LWIPSOCK 1 */
 #  undef HAVE_GETHOSTNAME
@@ -50,18 +50,18 @@
 #  undef LWIP_POSIX_SOCKETS_IO_NAMES
 #  define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #  undef RECV_TYPE_ARG1
-#  define RECV_TYPE_ARG1 int
+#  define RECV_TYPE_ARG1 पूर्णांक
 #  undef RECV_TYPE_ARG3
-#  define RECV_TYPE_ARG3 size_t
+#  define RECV_TYPE_ARG3 माप_प्रकार
 #  undef SEND_TYPE_ARG1
-#  define SEND_TYPE_ARG1 int
+#  define SEND_TYPE_ARG1 पूर्णांक
 #  undef SEND_TYPE_ARG3
-#  define SEND_TYPE_ARG3 size_t
-#elif defined(_WIN32)
+#  define SEND_TYPE_ARG3 माप_प्रकार
+#या_अगर defined(_WIN32)
 #  define USE_WINSOCK 2
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
-#endif
+#पूर्ण_अगर
 
 /*
  * Include header files for Windows builds before redefining anything. Use
@@ -71,40 +71,40 @@
  * <sys/socket.h>) and the Winsock headers should never be included when
  * __CYGWIN__ is defined.
  */
-#ifdef _WIN32
-#  if defined(UNICODE) && !defined(_UNICODE)
+#अगर_घोषित _WIN32
+#  अगर defined(UNICODE) && !defined(_UNICODE)
 #    error "UNICODE is defined but _UNICODE is not defined"
 #  endif
-#  if defined(_UNICODE) && !defined(UNICODE)
+#  अगर defined(_UNICODE) && !defined(UNICODE)
 #    error "_UNICODE is defined but UNICODE is not defined"
 #  endif
 #  include <windows.h>
 #  include <winerror.h>
 #  include <tchar.h>
-#endif
+#पूर्ण_अगर
 
 /*
  * Define _WIN32_WINNT_[OS] symbols because not all Windows build systems have
  * those symbols to compare against, and even those that do may be missing
  * newer symbols.
  */
-#ifndef _WIN32_WINNT_VISTA
-#define _WIN32_WINNT_VISTA          0x0600   /* Windows Vista */
-#endif
-#ifndef _WIN32_WINNT_WS08
-#define _WIN32_WINNT_WS08           0x0600   /* Windows Server 2008 */
-#endif
-#ifndef _WIN32_WINNT_WIN7
-#define _WIN32_WINNT_WIN7           0x0601   /* Windows 7 */
-#endif
-#ifndef _WIN32_WINNT_WIN8
-#define _WIN32_WINNT_WIN8           0x0602   /* Windows 8 */
-#endif
-#ifndef _WIN32_WINNT_WINBLUE
-#define _WIN32_WINNT_WINBLUE        0x0603   /* Windows 8.1 */
-#endif
-#ifndef _WIN32_WINNT_WIN10
-#define _WIN32_WINNT_WIN10          0x0A00   /* Windows 10 */
-#endif
+#अगर_अघोषित _WIN32_WINNT_VISTA
+#घोषणा _WIN32_WINNT_VISTA          0x0600   /* Windows Vista */
+#पूर्ण_अगर
+#अगर_अघोषित _WIN32_WINNT_WS08
+#घोषणा _WIN32_WINNT_WS08           0x0600   /* Windows Server 2008 */
+#पूर्ण_अगर
+#अगर_अघोषित _WIN32_WINNT_WIN7
+#घोषणा _WIN32_WINNT_WIN7           0x0601   /* Windows 7 */
+#पूर्ण_अगर
+#अगर_अघोषित _WIN32_WINNT_WIN8
+#घोषणा _WIN32_WINNT_WIN8           0x0602   /* Windows 8 */
+#पूर्ण_अगर
+#अगर_अघोषित _WIN32_WINNT_WINBLUE
+#घोषणा _WIN32_WINNT_WINBLUE        0x0603   /* Windows 8.1 */
+#पूर्ण_अगर
+#अगर_अघोषित _WIN32_WINNT_WIN10
+#घोषणा _WIN32_WINNT_WIN10          0x0A00   /* Windows 10 */
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_SETUP_WIN32_H */
+#पूर्ण_अगर /* HEADER_CURL_SETUP_WIN32_H */

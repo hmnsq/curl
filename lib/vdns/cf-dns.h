@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_DNS_H
-#define HEADER_CURL_CF_DNS_H
+#अगर_अघोषित HEADER_CURL_CF_DNS_H
+#घोषणा HEADER_CURL_CF_DNS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,49 +23,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct Curl_dns_entry;
-struct Curl_addrinfo;
-struct Curl_peer;
+काष्ठा Curl_easy;
+काष्ठा connectdata;
+काष्ठा Curl_dns_entry;
+काष्ठा Curl_addrinfo;
+काष्ठा Curl_peer;
 
-CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
-                                        struct connectdata *conn,
+CURLcode Curl_conn_dns_add_addr_resolve(काष्ठा Curl_easy *तथ्य,
+                                        काष्ठा connectdata *conn,
                                         int8_t sockindex,
-                                        struct Curl_peer *peer,
+                                        काष्ठा Curl_peer *peer,
                                         uint8_t dns_queries,
                                         uint8_t transport);
 
-CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
+CURLcode Curl_conn_dns_addr_परिणाम(काष्ठा connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer);
+                                   काष्ठा Curl_peer *peer);
 
-const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
-                                                 struct Curl_peer *peer,
+स्थिर काष्ठा Curl_addrinfo *Curl_conn_dns_get_ai(काष्ठा Curl_easy *तथ्य,
+                                                 काष्ठा Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index);
+                                                 पूर्णांक ai_family,
+                                                 अचिन्हित पूर्णांक सूचकांक);
 
-#ifdef USE_HTTPSRR
-CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
-                                         struct connectdata *conn,
+#अगर_घोषित USE_HTTPSRR
+CURLcode Curl_conn_dns_add_https_resolve(काष्ठा Curl_easy *तथ्य,
+                                         काष्ठा connectdata *conn,
                                          int8_t sockindex,
-                                         struct Curl_peer *peer);
+                                         काष्ठा Curl_peer *peer);
 
-const struct Curl_https_rrinfo *
-Curl_conn_dns_get_https(struct Curl_easy *data,
+स्थिर काष्ठा Curl_https_rrinfo *
+Curl_conn_dns_get_https(काष्ठा Curl_easy *तथ्य,
                         int8_t sockindex,
-                        struct Curl_peer *peer);
-bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
+                        काष्ठा Curl_peer *peer);
+bool Curl_conn_dns_resolved_https(काष्ठा Curl_easy *तथ्य,
                                   int8_t sockindex,
-                                  struct Curl_peer *peer);
-#else
-#define Curl_conn_dns_get_https(a, b, c)        NULL
-#define Curl_conn_dns_resolved_https(a, b, c)   TRUE
-#endif
+                                  काष्ठा Curl_peer *peer);
+#अन्यथा
+#घोषणा Curl_conn_dns_get_https(a, b, c)        शून्य
+#घोषणा Curl_conn_dns_resolved_https(a, b, c)   TRUE
+#पूर्ण_अगर
 
-extern struct Curl_cftype Curl_cft_dns;
+बाह्य काष्ठा Curl_cftype Curl_cft_dns;
 
-#endif /* HEADER_CURL_CF_DNS_H */
+#पूर्ण_अगर /* HEADER_CURL_CF_DNS_H */

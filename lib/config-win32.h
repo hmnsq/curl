@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONFIG_WIN32_H
-#define HEADER_CURL_CONFIG_WIN32_H
+#अगर_अघोषित HEADER_CURL_CONFIG_WIN32_H
+#घोषणा HEADER_CURL_CONFIG_WIN32_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -26,98 +26,98 @@
 
 /* Handcrafted config file for building via Visual Studio IDE Project Files */
 
-#if !defined(_MSC_VER) || _MSC_VER > 1800
-#error This manual configuration requires MSVC 2010-2013 (IDE Project builds)
-#endif
+#अगर !defined(_MSC_VER) || _MSC_VER > 1800
+#त्रुटि This manual configuration requires MSVC 2010-2013 (IDE Project builds)
+#पूर्ण_अगर
 
 /*
  * Headers and functions
  */
 
-#define HAVE_FCNTL_H 1
-#define HAVE_IO_H 1
-#define HAVE_LOCALE_H 1
-#if _MSC_VER >= 1800
-#define HAVE_STDBOOL_H 1
-#define HAVE_BOOL_T 1
-#endif
-#define HAVE_SYS_TYPES_H 1
-#define HAVE_SYS_UTIME_H 1
+#घोषणा HAVE_FCNTL_H 1
+#घोषणा HAVE_IO_H 1
+#घोषणा HAVE_LOCALE_H 1
+#अगर _MSC_VER >= 1800
+#घोषणा HAVE_STDBOOL_H 1
+#घोषणा HAVE_BOOL_T 1
+#पूर्ण_अगर
+#घोषणा HAVE_SYS_TYPES_H 1
+#घोषणा HAVE_SYS_UTIME_H 1
 
-#define HAVE_CLOSESOCKET 1
-#define HAVE_FREEADDRINFO 1
-#define HAVE_GETADDRINFO 1
-#define HAVE_GETADDRINFO_THREADSAFE 1
-#define HAVE_GETHOSTNAME 1
-#define HAVE_GETPEERNAME 1
-#define HAVE_GETSOCKNAME 1
-#define HAVE_IOCTLSOCKET 1
-#define HAVE_IOCTLSOCKET_FIONBIO 1
-#define HAVE_SETLOCALE 1
-#define HAVE_SOCKET 1
-#define HAVE_UTIME 1
-#define HAVE_RECV 1
-#define RECV_TYPE_ARG1 SOCKET
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 int
-#define RECV_TYPE_ARG4 int
-#define RECV_TYPE_RETV int
-#define HAVE_SEND 1
-#define SEND_TYPE_ARG1 SOCKET
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_ARG4 int
-#define SEND_TYPE_RETV int
-#define HAVE_SIGNAL 1
+#घोषणा HAVE_CLOSESOCKET 1
+#घोषणा HAVE_FREEADDRINFO 1
+#घोषणा HAVE_GETADDRINFO 1
+#घोषणा HAVE_GETADDRINFO_THREADSAFE 1
+#घोषणा HAVE_GETHOSTNAME 1
+#घोषणा HAVE_GETPEERNAME 1
+#घोषणा HAVE_GETSOCKNAME 1
+#घोषणा HAVE_IOCTLSOCKET 1
+#घोषणा HAVE_IOCTLSOCKET_FIONBIO 1
+#घोषणा HAVE_SETLOCALE 1
+#घोषणा HAVE_SOCKET 1
+#घोषणा HAVE_UTIME 1
+#घोषणा HAVE_RECV 1
+#घोषणा RECV_TYPE_ARG1 SOCKET
+#घोषणा RECV_TYPE_ARG2 अक्षर *
+#घोषणा RECV_TYPE_ARG3 पूर्णांक
+#घोषणा RECV_TYPE_ARG4 पूर्णांक
+#घोषणा RECV_TYPE_RETV पूर्णांक
+#घोषणा HAVE_SEND 1
+#घोषणा SEND_TYPE_ARG1 SOCKET
+#घोषणा SEND_TYPE_ARG2 अक्षर *
+#घोषणा SEND_TYPE_ARG3 पूर्णांक
+#घोषणा SEND_TYPE_ARG4 पूर्णांक
+#घोषणा SEND_TYPE_RETV पूर्णांक
+#घोषणा HAVE_SIGNAL 1
 
 /*
  * Types and sizes
  */
 
-#define SIZEOF_INT 4
-#define SIZEOF_LONG 4
-#ifdef _WIN64
-#  define SIZEOF_SIZE_T 8
+#घोषणा SIZEOF_INT 4
+#घोषणा SIZEOF_LONG 4
+#अगर_घोषित _WIN64
+#  define SIZEOF_आकार_T 8
 #  define ssize_t __int64
-#else
-#  define SIZEOF_SIZE_T 4
-#  define ssize_t int
-#endif
-#define SIZEOF_CURL_OFF_T 8
+#अन्यथा
+#  define SIZEOF_आकार_T 4
+#  define ssize_t पूर्णांक
+#पूर्ण_अगर
+#घोषणा SIZEOF_CURL_OFF_T 8
 /* Default to 64-bit time_t unless _USE_32BIT_TIME_T is defined */
-#ifndef _USE_32BIT_TIME_T
+#अगर_अघोषित _USE_32BIT_TIME_T
 #  define SIZEOF_TIME_T 8
-#else
+#अन्यथा
 #  define SIZEOF_TIME_T 4
-#endif
-#define SIZEOF_OFF_T 4
+#पूर्ण_अगर
+#घोषणा SIZEOF_OFF_T 4
 
-#define HAVE_STRUCT_SOCKADDR_STORAGE 1
-#define HAVE_STRUCT_TIMEVAL 1
-#define HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1
+#घोषणा HAVE_STRUCT_SOCKADDR_STORAGE 1
+#घोषणा HAVE_STRUCT_TIMEVAL 1
+#घोषणा HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1
 
 /*
  * Additional definitions
  */
 
 /* Default define to enable threaded asynchronous DNS lookups. */
-#if !defined(USE_RESOLV_THREADED) && !defined(USE_SYNC_DNS)
+#अगर !defined(USE_RESOLV_THREADED) && !defined(USE_SYNC_DNS)
 #  define USE_RESOLV_THREADED 1
-#endif
+#पूर्ण_अगर
 
-#define HAVE_LDAP_SSL 1
-#define USE_WIN32_LDAP 1
-#define USE_WIN32_CRYPTO 1
-#define USE_UNIX_SOCKETS 1
+#घोषणा HAVE_LDAP_SSL 1
+#घोषणा USE_WIN32_LDAP 1
+#घोषणा USE_WIN32_CRYPTO 1
+#घोषणा USE_UNIX_SOCKETS 1
 
-#ifndef CURL_OS
+#अगर_अघोषित CURL_OS
 #  ifdef _M_IX86
 #  define CURL_OS "i386-pc-win32"
 #  elif defined(_M_X64)
 #  define CURL_OS "x86_64-pc-win32"
-#  else
+#  अन्यथा
 #  define CURL_OS "unknown-pc-win32"
 #  endif
-#endif
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_CONFIG_WIN32_H */
+#पूर्ण_अगर /* HEADER_CURL_CONFIG_WIN32_H */

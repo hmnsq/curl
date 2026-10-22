@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#समावेश "curl_gethostname.h"
+#समावेश "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,56 +41,56 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+पूर्णांक Curl_gethostname(अक्षर * स्थिर name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
-#ifndef HAVE_GETHOSTNAME
+#अगर_अघोषित HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (व्योम)name;
+  (व्योम)namelen;
+  वापस -1;
 
-#else
-  int err;
-  char *dot;
+#अन्यथा
+  पूर्णांक err;
+  अक्षर *dot;
 
-#ifdef DEBUGBUILD
+#अगर_घोषित DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
-      curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+  स्थिर अक्षर *force_hostname = दो_पर्या("CURL_GETHOSTNAME");
+  अगर(force_hostname) {
+    अगर(म_माप(force_hostname) < (माप_प्रकार)namelen)
+      curlx_strcopy(name, namelen, force_hostname, म_माप(force_hostname));
+    अन्यथा
+      वापस 1; /* cannot do it */
     err = 0;
   }
-  else {
+  अन्यथा {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#अन्यथा /* DEBUGBUILD */
 
   name[0] = '\0';
-#ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+#अगर_घोषित __AMIGA__
+  err = gethostname((अचिन्हित अक्षर *)name, namelen);
+#अन्यथा
   err = gethostname(name, namelen);
-#endif
+#पूर्ण_अगर
 
-#endif
+#पूर्ण_अगर
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  अगर(err)
+    वापस err;
 
   /* Truncate domain, leave only machine name */
-  dot = strchr(name, '.');
-  if(dot)
+  dot = म_अक्षर(name, '.');
+  अगर(dot)
     *dot = '\0';
 
-  return 0;
-#endif
+  वापस 0;
+#पूर्ण_अगर
 }

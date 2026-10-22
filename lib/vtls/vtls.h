@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_H
-#define HEADER_CURL_VTLS_H
+#अगर_अघोषित HEADER_CURL_VTLS_H
+#घोषणा HEADER_CURL_VTLS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,143 +23,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-struct connectdata;
-struct ssl_easy_config;
-struct ssl_filter_config;
-struct Curl_cfilter;
-struct Curl_easy;
-struct dynbuf;
+काष्ठा connectdata;
+काष्ठा ssl_easy_config;
+काष्ठा ssl_filter_config;
+काष्ठा Curl_cfilter;
+काष्ठा Curl_easy;
+काष्ठा dynbuf;
 
-#define SSLSUPP_CA_PATH      (1 << 0) /* supports CAPATH */
-#define SSLSUPP_CERTINFO     (1 << 1) /* supports CURLOPT_CERTINFO */
-#define SSLSUPP_PINNEDPUBKEY (1 << 2) /* supports CURLOPT_PINNEDPUBLICKEY */
-#define SSLSUPP_SSL_CTX      (1 << 3) /* supports CURLOPT_SSL_CTX */
-#define SSLSUPP_HTTPS_PROXY  (1 << 4) /* supports access via HTTPS proxies */
-#define SSLSUPP_TLS13_CIPHERSUITES (1 << 5) /* supports TLS 1.3 ciphersuites */
-#define SSLSUPP_CAINFO_BLOB  (1 << 6)
-#define SSLSUPP_ECH          (1 << 7)
-#define SSLSUPP_CA_CACHE     (1 << 8)
-#define SSLSUPP_CIPHER_LIST  (1 << 9) /* supports TLS 1.0-1.2 ciphersuites */
-#define SSLSUPP_SIGNATURE_ALGORITHMS (1 << 10) /* supports TLS sigalgs */
-#define SSLSUPP_ISSUERCERT   (1 << 11) /* supports CURLOPT_ISSUERCERT */
-#define SSLSUPP_SSL_EC_CURVES (1 << 12) /* supports CURLOPT_SSL_EC_CURVES */
-#define SSLSUPP_CRLFILE      (1 << 13) /* supports CURLOPT_CRLFILE */
-#define SSLSUPP_ISSUERCERT_BLOB (1 << 14) /* CURLOPT_ISSUERCERT_BLOB */
+#घोषणा SSLSUPP_CA_PATH      (1 << 0) /* supports CAPATH */
+#घोषणा SSLSUPP_CERTINFO     (1 << 1) /* supports CURLOPT_CERTINFO */
+#घोषणा SSLSUPP_PINNEDPUBKEY (1 << 2) /* supports CURLOPT_PINNEDPUBLICKEY */
+#घोषणा SSLSUPP_SSL_CTX      (1 << 3) /* supports CURLOPT_SSL_CTX */
+#घोषणा SSLSUPP_HTTPS_PROXY  (1 << 4) /* supports access via HTTPS proxies */
+#घोषणा SSLSUPP_TLS13_CIPHERSUITES (1 << 5) /* supports TLS 1.3 ciphersuites */
+#घोषणा SSLSUPP_CAINFO_BLOB  (1 << 6)
+#घोषणा SSLSUPP_ECH          (1 << 7)
+#घोषणा SSLSUPP_CA_CACHE     (1 << 8)
+#घोषणा SSLSUPP_CIPHER_LIST  (1 << 9) /* supports TLS 1.0-1.2 ciphersuites */
+#घोषणा SSLSUPP_SIGNATURE_ALGORITHMS (1 << 10) /* supports TLS sigalgs */
+#घोषणा SSLSUPP_ISSUERCERT   (1 << 11) /* supports CURLOPT_ISSUERCERT */
+#घोषणा SSLSUPP_SSL_EC_CURVES (1 << 12) /* supports CURLOPT_SSL_EC_CURVES */
+#घोषणा SSLSUPP_CRLFILE      (1 << 13) /* supports CURLOPT_CRLFILE */
+#घोषणा SSLSUPP_ISSUERCERT_BLOB (1 << 14) /* CURLOPT_ISSUERCERT_BLOB */
 
-#ifdef USE_ECH
+#अगर_घोषित USE_ECH
 /* CURLECH_ values for the ech option */
-#define CURLECH_DISABLE    0
-#define CURLECH_GREASE     1
-#define CURLECH_ENABLE     2
-#define CURLECH_HARD       3
+#घोषणा CURLECH_DISABLE    0
+#घोषणा CURLECH_GREASE     1
+#घोषणा CURLECH_ENABLE     2
+#घोषणा CURLECH_HARD       3
 
 /* TRUE if ECH is enabled (and supported) */
-bool Curl_ssl_ech_enabled(struct Curl_cfilter *cf);
+bool Curl_ssl_ech_enabled(काष्ठा Curl_cfilter *cf);
 /* TRUE if SSL ECH configuration requires DNS HTTPS-RR record */
-bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf);
-#else
-#define Curl_ssl_ech_enabled(c)      FALSE
-#define Curl_ssl_need_httpsrr(c)     FALSE
-#endif /* USE_ECH */
+bool Curl_ssl_need_httpsrr(काष्ठा Curl_cfilter *cf);
+#अन्यथा
+#घोषणा Curl_ssl_ech_enabled(c)      FALSE
+#घोषणा Curl_ssl_need_httpsrr(c)     FALSE
+#पूर्ण_अगर /* USE_ECH */
 
-#define ALPN_ACCEPTED "ALPN: server accepted "
+#घोषणा ALPN_ACCEPTED "ALPN: server accepted "
 
-#define VTLS_INFOF_NO_ALPN            \
+#घोषणा VTLS_INFOF_NO_ALPN            \
   "ALPN: server did not agree on a protocol. Uses default."
-#define VTLS_INFOF_ALPN_OFFER_1STR    \
+#घोषणा VTLS_INFOF_ALPN_OFFER_1STR    \
   "ALPN: curl offers %s"
-#define VTLS_INFOF_ALPN_ACCEPTED      \
+#घोषणा VTLS_INFOF_ALPN_ACCEPTED      \
   ALPN_ACCEPTED "%.*s"
 
-#define VTLS_INFOF_NO_ALPN_DEFERRED   \
+#घोषणा VTLS_INFOF_NO_ALPN_DEFERRED   \
   "ALPN: deferred handshake for early data without specific protocol."
-#define VTLS_INFOF_ALPN_DEFERRED      \
+#घोषणा VTLS_INFOF_ALPN_DEFERRED      \
   "ALPN: deferred handshake for early data using '%.*s'."
 
 /* IETF defined version numbers used in TLS protocol negotiation */
-#define CURL_IETF_PROTO_UNKNOWN       0x0
-#define CURL_IETF_PROTO_SSL3          0x0300
-#define CURL_IETF_PROTO_TLS1          0x0301
-#define CURL_IETF_PROTO_TLS1_1        0x0302
-#define CURL_IETF_PROTO_TLS1_2        0x0303
-#define CURL_IETF_PROTO_TLS1_3        0x0304
-#define CURL_IETF_PROTO_DTLS1         0xFEFF
-#define CURL_IETF_PROTO_DTLS1_2       0xFEFD
+#घोषणा CURL_IETF_PROTO_UNKNOWN       0x0
+#घोषणा CURL_IETF_PROTO_SSL3          0x0300
+#घोषणा CURL_IETF_PROTO_TLS1          0x0301
+#घोषणा CURL_IETF_PROTO_TLS1_1        0x0302
+#घोषणा CURL_IETF_PROTO_TLS1_2        0x0303
+#घोषणा CURL_IETF_PROTO_TLS1_3        0x0304
+#घोषणा CURL_IETF_PROTO_DTLS1         0xFEFF
+#घोषणा CURL_IETF_PROTO_DTLS1_2       0xFEFD
 
-typedef enum {
+प्रकार क्रमागत {
   CURL_SSL_PEER_DNS,
   CURL_SSL_PEER_IPV4,
   CURL_SSL_PEER_IPV6
 } ssl_peer_type;
 
-struct ssl_peer {
-  struct Curl_peer *origin; /* the authority we talk to */
-  struct Curl_peer *peer;   /* the machine we are connected to */
-  char *sni;             /* SNI version of hostname or NULL if not usable */
-  char *scache_key;      /* for lookups in session cache */
+काष्ठा ssl_peer {
+  काष्ठा Curl_peer *origin; /* the authority we talk to */
+  काष्ठा Curl_peer *peer;   /* the machine we are connected to */
+  अक्षर *sni;             /* SNI version of hostname or NULL if not usable */
+  अक्षर *scache_कुंजी;      /* for lookups in session cache */
   ssl_peer_type type;    /* type of the peer information */
   uint8_t transport;     /* one of TRNSPRT_* defines */
 };
 
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
-                                   const curl_ssl_backend ***avail);
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, स्थिर अक्षर *name,
+                                   स्थिर curl_ssl_backend ***avail);
 
-#define MAX_PINNED_PUBKEY_SIZE (1024 * 1024) /* 1 MiB */
+#घोषणा MAX_PINNED_PUBKEY_आकार (1024 * 1024) /* 1 MiB */
 
-curl_sslbackend Curl_ssl_backend(void);
+curl_sslbackend Curl_ssl_backend(व्योम);
 
 /**
  * Init SSL peer information for filter. Can be called repeatedly.
  */
-CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
-                            struct ssl_filter_config *sslc,
-                            const char *tls_id,
+CURLcode Curl_ssl_peer_init(काष्ठा ssl_peer *ssl_peer,
+                            काष्ठा Curl_peer *origin,
+                            काष्ठा Curl_peer *peer,
+                            काष्ठा ssl_filter_config *sslc,
+                            स्थिर अक्षर *tls_id,
                             uint8_t transport);
 /**
  * Free all allocated data and reset peer information.
  */
-void Curl_ssl_peer_cleanup(struct ssl_peer *peer);
+व्योम Curl_ssl_peer_cleanup(काष्ठा ssl_peer *peer);
 
-#ifdef USE_SSL
-int Curl_ssl_init(void);
-void Curl_ssl_cleanup(void);
+#अगर_घोषित USE_SSL
+पूर्णांक Curl_ssl_init(व्योम);
+व्योम Curl_ssl_cleanup(व्योम);
 /* tell the SSL stuff to close down all open information regarding
    connections (and thus session ID caching etc) */
-void Curl_ssl_close_all(struct Curl_easy *data);
-CURLcode Curl_ssl_set_engine(struct Curl_easy *data, const char *engine);
+व्योम Curl_ssl_close_all(काष्ठा Curl_easy *तथ्य);
+CURLcode Curl_ssl_set_engine(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *engine);
 /* Sets engine as default for all SSL operations */
-CURLcode Curl_ssl_set_engine_default(struct Curl_easy *data);
-struct curl_slist *Curl_ssl_engines_list(struct Curl_easy *data);
+CURLcode Curl_ssl_set_engine_default(काष्ठा Curl_easy *तथ्य);
+काष्ठा curl_slist *Curl_ssl_engines_list(काष्ठा Curl_easy *तथ्य);
 
-void Curl_ssl_version(char *buffer, size_t size);
+व्योम Curl_ssl_version(अक्षर *बफर, माप_प्रकार आकार);
 
 /* Certificate information list handling. */
-#define CURL_X509_STR_MAX  100000
-#define MAX_ALLOWED_CERT_AMOUNT 100
+#घोषणा CURL_X509_STR_MAX  100000
+#घोषणा MAX_ALLOWED_CERT_AMOUNT 100
 
-void Curl_ssl_free_certinfo(struct Curl_easy *data);
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num);
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data, int certnum,
-                                    const char *label, const char *value,
-                                    size_t valuelen);
-CURLcode Curl_ssl_push_certinfo(struct Curl_easy *data, int certnum,
-                                const char *label, const char *value);
+व्योम Curl_ssl_free_certinfo(काष्ठा Curl_easy *तथ्य);
+CURLcode Curl_ssl_init_certinfo(काष्ठा Curl_easy *तथ्य, पूर्णांक अंक);
+CURLcode Curl_ssl_धकेलो_certinfo_len(काष्ठा Curl_easy *तथ्य, पूर्णांक certnum,
+                                    स्थिर अक्षर *label, स्थिर अक्षर *मूल्य,
+                                    माप_प्रकार valuelen);
+CURLcode Curl_ssl_धकेलो_certinfo(काष्ठा Curl_easy *तथ्य, पूर्णांक certnum,
+                                स्थिर अक्षर *label, स्थिर अक्षर *मूल्य);
 
 /* Functions to be used by SSL library adaptation functions */
 
 /* get N random bytes into the buffer */
-CURLcode Curl_ssl_random(struct Curl_easy *data,
-                         unsigned char *buffer, size_t length);
+CURLcode Curl_ssl_random(काष्ठा Curl_easy *तथ्य,
+                         अचिन्हित अक्षर *बफर, माप_प्रकार लंबाई);
 /* Check pinned public key. */
-CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
-                              const char *pinnedpubkey,
-                              const unsigned char *pubkey, size_t pubkeylen);
+CURLcode Curl_pin_peer_pubkey(काष्ठा Curl_easy *तथ्य,
+                              स्थिर अक्षर *pinnedpubkey,
+                              स्थिर अचिन्हित अक्षर *pubkey, माप_प्रकार pubkeylen);
 
-bool Curl_ssl_cert_status_request(void);
+bool Curl_ssl_cert_status_request(व्योम);
 
 /* The maximum size of the SSL channel binding is 85 bytes, as defined in
  * RFC 5929, Section 4.1. The 'tls-server-end-point:' prefix is 21 bytes,
@@ -167,7 +167,7 @@ bool Curl_ssl_cert_status_request(void);
  * 64 bytes.
  * The maximum size of the channel binding is therefore 21 + 64 = 85 bytes.
  */
-#define SSL_CB_MAX_SIZE 85
+#घोषणा SSL_CB_MAX_आकार 85
 
 /* Return the tls-server-end-point channel binding, including the
  * 'tls-server-end-point:' prefix.
@@ -177,68 +177,68 @@ bool Curl_ssl_cert_status_request(void);
  * If channel binding is not supported, binding stays empty and CURLE_OK is
  * returned.
  */
-CURLcode Curl_ssl_get_channel_binding(struct Curl_easy *data, int8_t sockindex,
-                                      struct dynbuf *binding);
+CURLcode Curl_ssl_get_channel_binding(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                                      काष्ठा dynbuf *binding);
 
-#define SSL_SHUTDOWN_TIMEOUT 10000 /* ms */
+#घोषणा SSL_SHUTDOWN_TIMEOUT 10000 /* ms */
 
-CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
-                              struct Curl_peer *origin,
-                              struct connectdata *conn,
+CURLcode Curl_ssl_cfilter_add(काष्ठा Curl_easy *तथ्य,
+                              काष्ठा Curl_peer *origin,
+                              काष्ठा connectdata *conn,
                               int8_t sockindex);
 
-CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
-                                  struct Curl_easy *data,
-                                  struct Curl_peer *origin,
-                                  struct Curl_peer *peer);
+CURLcode Curl_cf_ssl_जोड़ो_after(काष्ठा Curl_cfilter *cf_at,
+                                  काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा Curl_peer *origin,
+                                  काष्ठा Curl_peer *peer);
 
-CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
+CURLcode Curl_ssl_cfilter_remove(काष्ठा Curl_easy *तथ्य,
                                  int8_t sockindex, bool send_shutdown);
 
-#ifndef CURL_DISABLE_PROXY
-CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                        struct Curl_easy *data,
-                                        struct Curl_peer *peer);
-#endif /* !CURL_DISABLE_PROXY */
+#अगर_अघोषित CURL_DISABLE_PROXY
+CURLcode Curl_cf_ssl_proxy_जोड़ो_after(काष्ठा Curl_cfilter *cf_at,
+                                        काष्ठा Curl_easy *तथ्य,
+                                        काष्ठा Curl_peer *peer);
+#पूर्ण_अगर /* !CURL_DISABLE_PROXY */
 
 /**
  * True iff the underlying SSL implementation supports the option.
  * Option is one of the defined SSLSUPP_* values.
  * `data` maybe NULL for the features of the default implementation.
  */
-bool Curl_ssl_supports(struct Curl_easy *data, unsigned int ssl_option);
+bool Curl_ssl_supports(काष्ठा Curl_easy *तथ्य, अचिन्हित पूर्णांक ssl_option);
 
 /* Get the ssl_easy_config from `data` relevant for cfilter `cf`. */
-struct ssl_easy_config *
-Curl_ssl_cf_get_easy_config(struct Curl_cfilter *cf,
-                            struct Curl_easy *data);
+काष्ठा ssl_easy_config *
+Curl_ssl_cf_get_easy_config(काष्ठा Curl_cfilter *cf,
+                            काष्ठा Curl_easy *तथ्य);
 
 /* Get the filter config relevant for cfilter `cf`. */
-struct ssl_filter_config *
-Curl_ssl_cf_get_filter_config(struct Curl_cfilter *cf);
+काष्ठा ssl_filter_config *
+Curl_ssl_cf_get_filter_config(काष्ठा Curl_cfilter *cf);
 
-extern struct Curl_cftype Curl_cft_ssl;
-#ifndef CURL_DISABLE_PROXY
-extern struct Curl_cftype Curl_cft_ssl_proxy;
-#endif
+बाह्य काष्ठा Curl_cftype Curl_cft_ssl;
+#अगर_अघोषित CURL_DISABLE_PROXY
+बाह्य काष्ठा Curl_cftype Curl_cft_ssl_proxy;
+#पूर्ण_अगर
 
-#else /* if not USE_SSL */
+#अन्यथा /* if not USE_SSL */
 
 /* When SSL support is not present, define away these function calls */
-#define Curl_ssl_init() 1
-#define Curl_ssl_cleanup() Curl_nop_stmt
-#define Curl_ssl_close_all(x) Curl_nop_stmt
-#define Curl_ssl_set_engine(x, y) CURLE_NOT_BUILT_IN
-#define Curl_ssl_set_engine_default(x) CURLE_NOT_BUILT_IN
-#define Curl_ssl_engines_list(x) NULL
-#define Curl_ssl_free_certinfo(x) Curl_nop_stmt
-#define Curl_ssl_random(x, y, z) ((void)(x), CURLE_NOT_BUILT_IN)
-#define Curl_ssl_cert_status_request() FALSE
-#define Curl_ssl_supports(a, b) FALSE
-#define Curl_ssl_cfilter_add(a, b, c, d) CURLE_NOT_BUILT_IN
-#define Curl_ssl_cfilter_remove(a, b, c) CURLE_OK
-#define Curl_ssl_cf_get_easy_config(a, b) NULL
-#define Curl_ssl_cf_get_filter_config(a) NULL
-#endif
+#घोषणा Curl_ssl_init() 1
+#घोषणा Curl_ssl_cleanup() Curl_nop_stmt
+#घोषणा Curl_ssl_close_all(x) Curl_nop_stmt
+#घोषणा Curl_ssl_set_engine(x, y) CURLE_NOT_BUILT_IN
+#घोषणा Curl_ssl_set_engine_default(x) CURLE_NOT_BUILT_IN
+#घोषणा Curl_ssl_engines_list(x) शून्य
+#घोषणा Curl_ssl_free_certinfo(x) Curl_nop_stmt
+#घोषणा Curl_ssl_random(x, y, z) ((व्योम)(x), CURLE_NOT_BUILT_IN)
+#घोषणा Curl_ssl_cert_status_request() FALSE
+#घोषणा Curl_ssl_supports(a, b) FALSE
+#घोषणा Curl_ssl_cfilter_add(a, b, c, d) CURLE_NOT_BUILT_IN
+#घोषणा Curl_ssl_cfilter_remove(a, b, c) CURLE_OK
+#घोषणा Curl_ssl_cf_get_easy_config(a, b) शून्य
+#घोषणा Curl_ssl_cf_get_filter_config(a) शून्य
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_VTLS_H */
+#पूर्ण_अगर /* HEADER_CURL_VTLS_H */

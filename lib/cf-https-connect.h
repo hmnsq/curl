@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_HTTP_H
-#define HEADER_CURL_CF_HTTP_H
+#अगर_अघोषित HEADER_CURL_CF_HTTP_H
+#घोषणा HEADER_CURL_CF_HTTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#अगर_अघोषित CURL_DISABLE_HTTP
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_cftype;
-struct Curl_peer;
+काष्ठा Curl_cfilter;
+काष्ठा Curl_easy;
+काष्ठा connectdata;
+काष्ठा Curl_cftype;
+काष्ठा Curl_peer;
 
-extern struct Curl_cftype Curl_cft_http_connect;
+बाह्य काष्ठा Curl_cftype Curl_cft_http_connect;
 
-CURLcode Curl_cf_https_setup(struct Curl_easy *data,
-                             struct Curl_peer *destination,
-                             struct connectdata *conn,
+CURLcode Curl_cf_https_setup(काष्ठा Curl_easy *तथ्य,
+                             काष्ठा Curl_peer *destination,
+                             काष्ठा connectdata *conn,
                              int8_t sockindex);
 
-#endif /* !CURL_DISABLE_HTTP */
-#endif /* HEADER_CURL_CF_HTTP_H */
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* HEADER_CURL_CF_HTTP_H */

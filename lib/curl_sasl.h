@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SASL_H
-#define HEADER_CURL_SASL_H
+#अगर_अघोषित HEADER_CURL_SASL_H
+#घोषणा HEADER_CURL_SASL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,47 +23,47 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "bufref.h"
+#समावेश "bufref.h"
 
-struct Curl_easy;
-struct connectdata;
+काष्ठा Curl_easy;
+काष्ठा connectdata;
 
 /* Authentication mechanism flags */
-#define SASL_MECH_LOGIN             (1 << 0)
-#define SASL_MECH_PLAIN             (1 << 1)
-#define SASL_MECH_CRAM_MD5          (1 << 2)
-#define SASL_MECH_DIGEST_MD5        (1 << 3)
-#define SASL_MECH_GSSAPI            (1 << 4)
-#define SASL_MECH_EXTERNAL          (1 << 5)
-#define SASL_MECH_NTLM              (1 << 6)
-#define SASL_MECH_XOAUTH2           (1 << 7)
-#define SASL_MECH_OAUTHBEARER       (1 << 8)
-#define SASL_MECH_SCRAM_SHA_1       (1 << 9)
-#define SASL_MECH_SCRAM_SHA_256     (1 << 10)
+#घोषणा SASL_MECH_LOGIN             (1 << 0)
+#घोषणा SASL_MECH_PLAIN             (1 << 1)
+#घोषणा SASL_MECH_CRAM_MD5          (1 << 2)
+#घोषणा SASL_MECH_DIGEST_MD5        (1 << 3)
+#घोषणा SASL_MECH_GSSAPI            (1 << 4)
+#घोषणा SASL_MECH_EXTERNAL          (1 << 5)
+#घोषणा SASL_MECH_NTLM              (1 << 6)
+#घोषणा SASL_MECH_XOAUTH2           (1 << 7)
+#घोषणा SASL_MECH_OAUTHBEARER       (1 << 8)
+#घोषणा SASL_MECH_SCRAM_SHA_1       (1 << 9)
+#घोषणा SASL_MECH_SCRAM_SHA_256     (1 << 10)
 
 /* Authentication mechanism values */
-#define SASL_AUTH_NONE          0
-#define SASL_AUTH_ANY           0xffff
-#define SASL_AUTH_DEFAULT       (SASL_AUTH_ANY & ~SASL_MECH_EXTERNAL)
+#घोषणा SASL_AUTH_NONE          0
+#घोषणा SASL_AUTH_ANY           0xffff
+#घोषणा SASL_AUTH_DEFAULT       (SASL_AUTH_ANY & ~SASL_MECH_EXTERNAL)
 
 /* Authentication mechanism strings */
-#define SASL_MECH_STRING_LOGIN          "LOGIN"
-#define SASL_MECH_STRING_PLAIN          "PLAIN"
-#define SASL_MECH_STRING_CRAM_MD5       "CRAM-MD5"
-#define SASL_MECH_STRING_DIGEST_MD5     "DIGEST-MD5"
-#define SASL_MECH_STRING_GSSAPI         "GSSAPI"
-#define SASL_MECH_STRING_EXTERNAL       "EXTERNAL"
-#define SASL_MECH_STRING_NTLM           "NTLM"
-#define SASL_MECH_STRING_XOAUTH2        "XOAUTH2"
-#define SASL_MECH_STRING_OAUTHBEARER    "OAUTHBEARER"
-#define SASL_MECH_STRING_SCRAM_SHA_1    "SCRAM-SHA-1"
-#define SASL_MECH_STRING_SCRAM_SHA_256  "SCRAM-SHA-256"
+#घोषणा SASL_MECH_STRING_LOGIN          "LOGIN"
+#घोषणा SASL_MECH_STRING_PLAIN          "PLAIN"
+#घोषणा SASL_MECH_STRING_CRAM_MD5       "CRAM-MD5"
+#घोषणा SASL_MECH_STRING_DIGEST_MD5     "DIGEST-MD5"
+#घोषणा SASL_MECH_STRING_GSSAPI         "GSSAPI"
+#घोषणा SASL_MECH_STRING_EXTERNAL       "EXTERNAL"
+#घोषणा SASL_MECH_STRING_NTLM           "NTLM"
+#घोषणा SASL_MECH_STRING_XOAUTH2        "XOAUTH2"
+#घोषणा SASL_MECH_STRING_OAUTHBEARER    "OAUTHBEARER"
+#घोषणा SASL_MECH_STRING_SCRAM_SHA_1    "SCRAM-SHA-1"
+#घोषणा SASL_MECH_STRING_SCRAM_SHA_256  "SCRAM-SHA-256"
 
 /* SASL flags */
-#define SASL_FLAG_BASE64        0x0001  /* Messages are base64-encoded */
+#घोषणा SASL_FLAG_BASE64        0x0001  /* Messages are base64-encoded */
 
 /* SASL machine states */
-typedef enum {
+प्रकार क्रमागत {
   SASL_STOP,
   SASL_PLAIN,
   SASL_LOGIN,
@@ -73,10 +73,10 @@ typedef enum {
   SASL_DIGESTMD5,
   SASL_DIGESTMD5_RESP,
   SASL_NTLM,
-  SASL_NTLM_TYPE2MSG,
+  SASL_NTLM_TYPE2_संदेश,
   SASL_GSSAPI,
   SASL_GSSAPI_TOKEN,
-  SASL_GSSAPI_NO_DATA,
+  SASL_GSSAPI_NO_तथ्य,
   SASL_OAUTH2,
   SASL_OAUTH2_RESP,
   SASL_GSASL,
@@ -85,76 +85,76 @@ typedef enum {
 } saslstate;
 
 /* Progress indicator */
-typedef enum {
+प्रकार क्रमागत {
   SASL_IDLE,
   SASL_INPROGRESS,
   SASL_DONE
 } saslprogress;
 
 /* Protocol dependent SASL parameters */
-struct SASLproto {
-  const char *service;     /* The service name */
-  CURLcode (*sendauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *ir);
+काष्ठा SASLproto {
+  स्थिर अक्षर *service;     /* The service name */
+  CURLcode (*sendauth)(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *mech,
+                       स्थिर काष्ठा bufref *ir);
                            /* Send authentication command */
-  CURLcode (*contauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *contauth);
+  CURLcode (*contauth)(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *mech,
+                       स्थिर काष्ठा bufref *contauth);
                            /* Send authentication continuation */
-  CURLcode (*cancelauth)(struct Curl_easy *data, const char *mech);
+  CURLcode (*cancelauth)(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *mech);
                            /* Cancel authentication. */
-  CURLcode (*getmessage)(struct Curl_easy *data, struct bufref *out);
+  CURLcode (*getmessage)(काष्ठा Curl_easy *तथ्य, काष्ठा bufref *out);
                            /* Get SASL response message */
-  size_t maxirlen;         /* Maximum initial response + mechanism length,
+  माप_प्रकार maxirlen;         /* Maximum initial response + mechanism length,
                               or zero if no max. This is normally the max
                               command length - other characters count.
                               This has to be zero for non-base64 protocols. */
-  int contcode;            /* Code to receive when continuation is expected */
-  int finalcode;           /* Code to receive upon authentication success */
-  unsigned short defmechs; /* Mechanisms enabled by default */
-  unsigned short flags;    /* Configuration flags. */
+  पूर्णांक contcode;            /* Code to receive when continuation is expected */
+  पूर्णांक finalcode;           /* Code to receive upon authentication success */
+  अचिन्हित लघु defmechs; /* Mechanisms enabled by default */
+  अचिन्हित लघु flags;    /* Configuration flags. */
 };
 
 /* Per-connection parameters */
-struct SASL {
-  const struct SASLproto *params; /* Protocol dependent parameters */
+काष्ठा SASL {
+  स्थिर काष्ठा SASLproto *params; /* Protocol dependent parameters */
   saslstate state;           /* Current machine state */
-  const char *curmech;       /* Current mechanism id. */
-  unsigned short authmechs;  /* Accepted authentication mechanisms */
-  unsigned short prefmech;   /* Preferred authentication mechanism */
-  unsigned short authused;   /* Auth mechanism used for the connection */
+  स्थिर अक्षर *curmech;       /* Current mechanism id. */
+  अचिन्हित लघु authmechs;  /* Accepted authentication mechanisms */
+  अचिन्हित लघु prefmech;   /* Preferred authentication mechanism */
+  अचिन्हित लघु authused;   /* Auth mechanism used for the connection */
   BIT(resetprefs);           /* For URL auth option parsing. */
   BIT(mutual_auth);          /* Mutual authentication enabled (GSSAPI only) */
   BIT(force_ir);             /* Protocol always supports initial response */
 };
 
 /* This is used to test whether the line starts with the given mechanism */
-#define sasl_mech_equal(line, wordlen, mech) \
-  ((wordlen) == (sizeof(mech) - 1) / sizeof(char) && \
-   !memcmp(line, mech, wordlen))
+#घोषणा sasl_mech_equal(पंक्ति, wordlen, mech) \
+  ((wordlen) == (माप(mech) - 1) / माप(अक्षर) && \
+   !स_भेद(पंक्ति, mech, wordlen))
 
 /* Convert a mechanism name to a token */
-unsigned short Curl_sasl_decode_mech(const char *ptr,
-                                     size_t maxlen, size_t *len);
+अचिन्हित लघु Curl_sasl_decode_mech(स्थिर अक्षर *ptr,
+                                     माप_प्रकार maxlen, माप_प्रकार *len);
 
 /* Parse the URL login options */
-CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len);
+CURLcode Curl_sasl_parse_url_auth_option(काष्ठा SASL *sasl,
+                                         स्थिर अक्षर *मूल्य, माप_प्रकार len);
 
 /* Initializes an SASL structure */
-void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
-                    const struct SASLproto *params);
+व्योम Curl_sasl_init(काष्ठा SASL *sasl, काष्ठा Curl_easy *तथ्य,
+                    स्थिर काष्ठा SASLproto *params);
 
 /* Check if we have enough auth data and capabilities to authenticate */
-bool Curl_sasl_can_authenticate(struct SASL *sasl, struct Curl_easy *data);
+bool Curl_sasl_can_authenticate(काष्ठा SASL *sasl, काष्ठा Curl_easy *तथ्य);
 
 /* Calculate the required login details for SASL authentication */
-CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
+CURLcode Curl_sasl_start(काष्ठा SASL *sasl, काष्ठा Curl_easy *तथ्य,
                          bool force_ir, saslprogress *progress);
 
 /* Continue an SASL authentication */
-CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
-                            int code, saslprogress *progress);
+CURLcode Curl_sasl_continue(काष्ठा SASL *sasl, काष्ठा Curl_easy *तथ्य,
+                            पूर्णांक code, saslprogress *progress);
 
-CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data);
+CURLcode Curl_sasl_is_blocked(काष्ठा SASL *sasl, काष्ठा Curl_easy *तथ्य);
 
-#endif /* HEADER_CURL_SASL_H */
+#पूर्ण_अगर /* HEADER_CURL_SASL_H */

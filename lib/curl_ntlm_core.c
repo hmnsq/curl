@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_CURL_NTLM_CORE
+#अगर_घोषित USE_CURL_NTLM_CORE
 
 /*
  * NTLM details:
@@ -49,56 +49,56 @@
      in NTLM type-3 messages.
  */
 
-#ifdef USE_GNUTLS
-#include <nettle/version.h>
-#if NETTLE_VERSION_MAJOR < 4
-#define USE_GNUTLS_DES
-#endif
-#endif
+#अगर_घोषित USE_GNUTLS
+#समावेश <nettle/version.h>
+#अगर NETTLE_VERSION_MAJOR < 4
+#घोषणा USE_GNUTLS_DES
+#पूर्ण_अगर
+#पूर्ण_अगर
 
-#if defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)
+#अगर defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)
 
 #  include <openssl/des.h>
 #  ifdef OPENSSL_IS_AWSLC  /* for versions 1.2.0 to 1.30.1 */
-#    define DES_set_key_unchecked (void)DES_set_key
+#    define DES_set_कुंजी_unchecked (व्योम)DES_set_कुंजी
 #  endif
 #  define USE_OPENSSL_DES
 
-#elif defined(USE_WOLFSSL) && defined(HAVE_WC_DES_ECBENCRYPT)
+#या_अगर defined(USE_WOLFSSL) && defined(HAVE_WC_DES_ECBENCRYPT)
 
 #  include <wolfssl/options.h>
 #  include <wolfssl/wolfcrypt/des3.h>
 #  define USE_WOLFSSL_DES
 
-#elif defined(USE_GNUTLS_DES)
+#या_अगर defined(USE_GNUTLS_DES)
 #  include <nettle/des.h>
 #  define USE_CURL_DES_SET_ODD_PARITY
-#elif defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)
+#या_अगर defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)
 #  include <mbedtls/version.h>
-#  if MBEDTLS_VERSION_NUMBER < 0x03020000
+#  अगर MBEDTLS_VERSION_संख्या < 0x03020000
 #  error "mbedTLS 3.2.0 or greater required"
 #  endif
 #  include <mbedtls/des.h>
 #  define USE_MBEDTLS_DES
-#elif defined(USE_OS400CRYPTO)
+#या_अगर defined(USE_OS400CRYPTO)
 #  include "cipher.mih"  /* mih/cipher */
 #  define USE_CURL_DES_SET_ODD_PARITY
-#elif defined(USE_WIN32_CRYPTO)
+#या_अगर defined(USE_WIN32_CRYPTO)
 #  include <wincrypt.h>
 #  define USE_CURL_DES_SET_ODD_PARITY
-#else
+#अन्यथा
 #  error "cannot compile NTLM support without a crypto library with DES."
-#endif
+#पूर्ण_अगर
 
-#include "urldata.h"
-#include "strcase.h"
-#include "curl_ntlm_core.h"
-#include "curl_md5.h"
-#include "curl_hmac.h"
-#include "curl_md4.h"
-#include "vauth/vauth.h"
+#समावेश "urldata.h"
+#समावेश "strcase.h"
+#समावेश "curl_ntlm_core.h"
+#समावेश "curl_md5.h"
+#समावेश "curl_hmac.h"
+#समावेश "curl_md4.h"
+#समावेश "vauth/vauth.h"
 
-#ifdef USE_CURL_DES_SET_ODD_PARITY
+#अगर_घोषित USE_CURL_DES_SET_ODD_PARITY
 /*
  * curl_des_set_odd_parity()
  *
@@ -117,288 +117,288 @@
  *                        odd parity.
  * len         [in]     - The length of the data.
  */
-static void curl_des_set_odd_parity(unsigned char *bytes, size_t len)
+अटल व्योम curl_des_set_odd_parity(अचिन्हित अक्षर *bytes, माप_प्रकार len)
 {
-  size_t i;
+  माप_प्रकार i;
 
-  for(i = 0; i < len; i++) {
-    unsigned char b = bytes[i];
+  क्रम(i = 0; i < len; i++) {
+    अचिन्हित अक्षर b = bytes[i];
 
     bool needs_parity = (((b >> 7) ^ (b >> 6) ^ (b >> 5) ^
                           (b >> 4) ^ (b >> 3) ^ (b >> 2) ^
                           (b >> 1)) & 0x01) == 0;
 
-    if(needs_parity)
+    अगर(needs_parity)
       bytes[i] |= 0x01;
-    else
+    अन्यथा
       bytes[i] &= 0xfe;
   }
 }
-#endif /* USE_CURL_DES_SET_ODD_PARITY */
+#पूर्ण_अगर /* USE_CURL_DES_SET_ODD_PARITY */
 
 /*
  * Turns a 56-bit key into being 64-bit wide.
  */
-static void extend_key_56_to_64(const unsigned char *key_56, char *key)
+अटल व्योम extend_कुंजी_56_to_64(स्थिर अचिन्हित अक्षर *कुंजी_56, अक्षर *कुंजी)
 {
-  key[0] = (char)key_56[0];
-  key[1] = (char)(((key_56[0] << 7) & 0xFF) | (key_56[1] >> 1));
-  key[2] = (char)(((key_56[1] << 6) & 0xFF) | (key_56[2] >> 2));
-  key[3] = (char)(((key_56[2] << 5) & 0xFF) | (key_56[3] >> 3));
-  key[4] = (char)(((key_56[3] << 4) & 0xFF) | (key_56[4] >> 4));
-  key[5] = (char)(((key_56[4] << 3) & 0xFF) | (key_56[5] >> 5));
-  key[6] = (char)(((key_56[5] << 2) & 0xFF) | (key_56[6] >> 6));
-  key[7] = (char)((key_56[6] << 1) & 0xFF);
+  कुंजी[0] = (अक्षर)कुंजी_56[0];
+  कुंजी[1] = (अक्षर)(((कुंजी_56[0] << 7) & 0xFF) | (कुंजी_56[1] >> 1));
+  कुंजी[2] = (अक्षर)(((कुंजी_56[1] << 6) & 0xFF) | (कुंजी_56[2] >> 2));
+  कुंजी[3] = (अक्षर)(((कुंजी_56[2] << 5) & 0xFF) | (कुंजी_56[3] >> 3));
+  कुंजी[4] = (अक्षर)(((कुंजी_56[3] << 4) & 0xFF) | (कुंजी_56[4] >> 4));
+  कुंजी[5] = (अक्षर)(((कुंजी_56[4] << 3) & 0xFF) | (कुंजी_56[5] >> 5));
+  कुंजी[6] = (अक्षर)(((कुंजी_56[5] << 2) & 0xFF) | (कुंजी_56[6] >> 6));
+  कुंजी[7] = (अक्षर)((कुंजी_56[6] << 1) & 0xFF);
 }
 
-#ifdef USE_OPENSSL_DES
+#अगर_घोषित USE_OPENSSL_DES
 /*
  * Turns a 56-bit key into a 64-bit, odd parity key and sets the key. The
  * key schedule ks is also set.
  */
-static void setup_des_key(const unsigned char *key_56, DES_key_schedule *ks)
+अटल व्योम setup_des_कुंजी(स्थिर अचिन्हित अक्षर *कुंजी_56, DES_कुंजी_schedule *ks)
 {
-  DES_cblock key;
+  DES_cblock कुंजी;
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, (char *)&key);
+  extend_कुंजी_56_to_64(कुंजी_56, (अक्षर *)&कुंजी);
 
   /* Set the key parity to odd */
-  DES_set_odd_parity(&key);
+  DES_set_odd_parity(&कुंजी);
 
   /* Set the key */
-  DES_set_key_unchecked(&key, ks);
+  DES_set_कुंजी_unchecked(&कुंजी, ks);
 }
 
-#elif defined(USE_WOLFSSL_DES)
-static void setup_des_key(const unsigned char *key_56, Des *des)
+#या_अगर defined(USE_WOLFSSL_DES)
+अटल व्योम setup_des_कुंजी(स्थिर अचिन्हित अक्षर *कुंजी_56, Des *des)
 {
-  byte key[8];
+  byte कुंजी[8];
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, (char *)key);
+  extend_कुंजी_56_to_64(कुंजी_56, (अक्षर *)कुंजी);
 
   /* Set the key */
-  wc_Des_SetKey(des, key, NULL, 0);
+  wc_Des_Set_कुंजी(des, कुंजी, शून्य, 0);
 }
 
-#elif defined(USE_GNUTLS_DES)
-static void setup_des_key(const unsigned char *key_56, struct des_ctx *des)
+#या_अगर defined(USE_GNUTLS_DES)
+अटल व्योम setup_des_कुंजी(स्थिर अचिन्हित अक्षर *कुंजी_56, काष्ठा des_ctx *des)
 {
-  char key[8];
+  अक्षर कुंजी[8];
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, key);
+  extend_कुंजी_56_to_64(कुंजी_56, कुंजी);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)key, sizeof(key));
+  curl_des_set_odd_parity((अचिन्हित अक्षर *)कुंजी, माप(कुंजी));
 
   /* Set the key */
-  des_set_key(des, (const uint8_t *)key);
+  des_set_कुंजी(des, (स्थिर uint8_t *)कुंजी);
 }
 
-#elif defined(USE_MBEDTLS_DES)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+#या_अगर defined(USE_MBEDTLS_DES)
+अटल bool encrypt_des(स्थिर अचिन्हित अक्षर *in, अचिन्हित अक्षर *out,
+                        स्थिर अचिन्हित अक्षर *कुंजी_56)
 {
   mbedtls_des_context ctx;
-  char key[8];
+  अक्षर कुंजी[8];
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, key);
+  extend_कुंजी_56_to_64(कुंजी_56, कुंजी);
 
   /* Set the key parity to odd */
-  mbedtls_des_key_set_parity((unsigned char *)key);
+  mbedtls_des_कुंजी_set_parity((अचिन्हित अक्षर *)कुंजी);
 
   /* Perform the encryption */
   mbedtls_des_init(&ctx);
-  mbedtls_des_setkey_enc(&ctx, (unsigned char *)key);
-  return mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
+  mbedtls_des_setkey_enc(&ctx, (अचिन्हित अक्षर *)कुंजी);
+  वापस mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
 }
 
-#elif defined(USE_OS400CRYPTO)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+#या_अगर defined(USE_OS400CRYPTO)
+अटल bool encrypt_des(स्थिर अचिन्हित अक्षर *in, अचिन्हित अक्षर *out,
+                        स्थिर अचिन्हित अक्षर *कुंजी_56)
 {
-  char key[8];
+  अक्षर कुंजी[8];
   _CIPHER_Control_T ctl;
 
   /* Setup the cipher control structure */
   ctl.Func_ID = ENCRYPT_ONLY;
-  ctl.Data_Len = sizeof(key);
+  ctl.तथ्य_Len = माप(कुंजी);
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, ctl.Crypto_Key);
+  extend_कुंजी_56_to_64(कुंजी_56, ctl.Crypto_कुंजी);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)ctl.Crypto_Key, ctl.Data_Len);
+  curl_des_set_odd_parity((अचिन्हित अक्षर *)ctl.Crypto_कुंजी, ctl.तथ्य_Len);
 
   /* Perform the encryption */
   _CIPHER((_SPCPTR *)&out, &ctl, (_SPCPTR *)&in);
 
-  return TRUE;
+  वापस TRUE;
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-static bool encrypt_des(const unsigned char *in, unsigned char *out,
-                        const unsigned char *key_56)
+#या_अगर defined(USE_WIN32_CRYPTO)
+अटल bool encrypt_des(स्थिर अचिन्हित अक्षर *in, अचिन्हित अक्षर *out,
+                        स्थिर अचिन्हित अक्षर *कुंजी_56)
 {
   HCRYPTPROV hprov;
   HCRYPTKEY hkey;
-  struct {
+  काष्ठा {
     BLOBHEADER hdr;
-    unsigned int len;
-    char key[8];
+    अचिन्हित पूर्णांक len;
+    अक्षर कुंजी[8];
   } blob;
   DWORD len = 8;
   BOOL res;
 
   /* Acquire the crypto provider */
-  if(!CryptAcquireContext(&hprov, NULL, NULL, PROV_RSA_FULL,
+  अगर(!CryptAcquireContext(&hprov, शून्य, शून्य, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return FALSE;
+    वापस FALSE;
 
   /* Setup the key blob structure */
-  memset(&blob, 0, sizeof(blob));
+  स_रखो(&blob, 0, माप(blob));
   blob.hdr.bType = PLAINTEXTKEYBLOB;
   blob.hdr.bVersion = 2;
-  blob.hdr.aiKeyAlg = CALG_DES;
-  blob.len = sizeof(blob.key);
+  blob.hdr.ai_कुंजी_Alg = CALG_DES;
+  blob.len = माप(blob.कुंजी);
 
   /* Expand the 56-bit key to 64 bits */
-  extend_key_56_to_64(key_56, blob.key);
+  extend_कुंजी_56_to_64(कुंजी_56, blob.कुंजी);
 
   /* Set the key parity to odd */
-  curl_des_set_odd_parity((unsigned char *)blob.key, sizeof(blob.key));
+  curl_des_set_odd_parity((अचिन्हित अक्षर *)blob.कुंजी, माप(blob.कुंजी));
 
   /* Import the key */
-  if(!CryptImportKey(hprov, (BYTE *)&blob, sizeof(blob), 0, 0, &hkey)) {
+  अगर(!Crypt_Import_कुंजी(hprov, (BYTE *)&blob, माप(blob), 0, 0, &hkey)) {
     CryptReleaseContext(hprov, 0);
 
-    return FALSE;
+    वापस FALSE;
   }
 
-  memcpy(out, in, 8);
+  स_नकल(out, in, 8);
 
   /* Perform the encryption */
   res = CryptEncrypt(hkey, 0, FALSE, 0, out, &len, len);
 
-  CryptDestroyKey(hkey);
+  Crypt_Destroy_कुंजी(hkey);
   CryptReleaseContext(hprov, 0);
 
-  return res;
+  वापस res;
 }
 
-#endif /* crypto backends */
+#पूर्ण_अगर /* crypto backends */
 
 /*
  * takes a 21-byte array and treats it as 3 56-bit DES keys. The
  * 8-byte plaintext is encrypted with each key and the resulting 24
  * bytes are stored in the results array.
  */
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results)
+व्योम Curl_ntlm_core_lm_resp(स्थिर अचिन्हित अक्षर *कुंजियाँ,
+                            स्थिर अचिन्हित अक्षर *plaintext,
+                            अचिन्हित अक्षर *results)
 {
-#ifdef USE_OPENSSL_DES
-  DES_key_schedule ks;
+#अगर_घोषित USE_OPENSSL_DES
+  DES_कुंजी_schedule ks;
 
-  setup_des_key(keys, &ks);
+  setup_des_कुंजी(कुंजियाँ, &ks);
   DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(plaintext),
                   (DES_cblock *)results, &ks, DES_ENCRYPT);
 
-  setup_des_key(keys + 7, &ks);
+  setup_des_कुंजी(कुंजियाँ + 7, &ks);
   DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(plaintext),
                   (DES_cblock *)(results + 8), &ks, DES_ENCRYPT);
 
-  setup_des_key(keys + 14, &ks);
+  setup_des_कुंजी(कुंजियाँ + 14, &ks);
   DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(plaintext),
                   (DES_cblock *)(results + 16), &ks, DES_ENCRYPT);
-#elif defined(USE_WOLFSSL_DES)
+#या_अगर defined(USE_WOLFSSL_DES)
   Des des;
-  setup_des_key(keys, &des);
-  wc_Des_EcbEncrypt(&des, results, plaintext, DES_KEY_SIZE);
-  setup_des_key(keys + 7, &des);
-  wc_Des_EcbEncrypt(&des, results + 8, plaintext, DES_KEY_SIZE);
-  setup_des_key(keys + 14, &des);
-  wc_Des_EcbEncrypt(&des, results + 16, plaintext, DES_KEY_SIZE);
-#elif defined(USE_GNUTLS_DES)
-  struct des_ctx des;
-  setup_des_key(keys, &des);
+  setup_des_कुंजी(कुंजियाँ, &des);
+  wc_Des_EcbEncrypt(&des, results, plaintext, DES_कुंजी_आकार);
+  setup_des_कुंजी(कुंजियाँ + 7, &des);
+  wc_Des_EcbEncrypt(&des, results + 8, plaintext, DES_कुंजी_आकार);
+  setup_des_कुंजी(कुंजियाँ + 14, &des);
+  wc_Des_EcbEncrypt(&des, results + 16, plaintext, DES_कुंजी_आकार);
+#या_अगर defined(USE_GNUTLS_DES)
+  काष्ठा des_ctx des;
+  setup_des_कुंजी(कुंजियाँ, &des);
   des_encrypt(&des, 8, results, plaintext);
-  setup_des_key(keys + 7, &des);
+  setup_des_कुंजी(कुंजियाँ + 7, &des);
   des_encrypt(&des, 8, results + 8, plaintext);
-  setup_des_key(keys + 14, &des);
+  setup_des_कुंजी(कुंजियाँ + 14, &des);
   des_encrypt(&des, 8, results + 16, plaintext);
-#elif defined(USE_MBEDTLS_DES) || defined(USE_OS400CRYPTO) || \
+#या_अगर defined(USE_MBEDTLS_DES) || defined(USE_OS400CRYPTO) || \
   defined(USE_WIN32_CRYPTO)
-  encrypt_des(plaintext, results, keys);
-  encrypt_des(plaintext, results + 8, keys + 7);
-  encrypt_des(plaintext, results + 16, keys + 14);
-#else
-  (void)keys;
-  (void)plaintext;
-  (void)results;
-#endif
+  encrypt_des(plaintext, results, कुंजियाँ);
+  encrypt_des(plaintext, results + 8, कुंजियाँ + 7);
+  encrypt_des(plaintext, results + 16, कुंजियाँ + 14);
+#अन्यथा
+  (व्योम)कुंजियाँ;
+  (व्योम)plaintext;
+  (व्योम)results;
+#पूर्ण_अगर
 }
 
 /*
  * Set up lanmanager hashed password
  */
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */)
+CURLcode Curl_ntlm_core_mk_lm_hash(स्थिर अक्षर *password,
+                                   अचिन्हित अक्षर *lmbuffer /* 21 bytes */)
 {
-  unsigned char pw[14];
-  static const unsigned char magic[] = {
+  अचिन्हित अक्षर pw[14];
+  अटल स्थिर अचिन्हित अक्षर magic[] = {
     0x4B, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25 /* i.e. KGS!@#$% */
   };
-  size_t len = CURLMIN(strlen(password), 14);
+  माप_प्रकार len = CURLMIN(म_माप(password), 14);
 
-  Curl_strntoupper((char *)pw, password, len);
-  memset(&pw[len], 0, 14 - len);
+  Curl_strntoupper((अक्षर *)pw, password, len);
+  स_रखो(&pw[len], 0, 14 - len);
 
   {
     /* Create LanManager hashed password. */
-#ifdef USE_OPENSSL_DES
-    DES_key_schedule ks;
+#अगर_घोषित USE_OPENSSL_DES
+    DES_कुंजी_schedule ks;
 
-    setup_des_key(pw, &ks);
+    setup_des_कुंजी(pw, &ks);
     DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(magic),
                     (DES_cblock *)lmbuffer, &ks, DES_ENCRYPT);
 
-    setup_des_key(pw + 7, &ks);
+    setup_des_कुंजी(pw + 7, &ks);
     DES_ecb_encrypt((DES_cblock *)CURL_UNCONST(magic),
                     (DES_cblock *)(lmbuffer + 8), &ks, DES_ENCRYPT);
-#elif defined(USE_WOLFSSL_DES)
+#या_अगर defined(USE_WOLFSSL_DES)
     Des des;
-    setup_des_key(pw, &des);
-    wc_Des_EcbEncrypt(&des, lmbuffer, magic, DES_KEY_SIZE);
-    setup_des_key(pw + 7, &des);
-    wc_Des_EcbEncrypt(&des, lmbuffer + 8, magic, DES_KEY_SIZE);
-#elif defined(USE_GNUTLS_DES)
-    struct des_ctx des;
-    setup_des_key(pw, &des);
+    setup_des_कुंजी(pw, &des);
+    wc_Des_EcbEncrypt(&des, lmbuffer, magic, DES_कुंजी_आकार);
+    setup_des_कुंजी(pw + 7, &des);
+    wc_Des_EcbEncrypt(&des, lmbuffer + 8, magic, DES_कुंजी_आकार);
+#या_अगर defined(USE_GNUTLS_DES)
+    काष्ठा des_ctx des;
+    setup_des_कुंजी(pw, &des);
     des_encrypt(&des, 8, lmbuffer, magic);
-    setup_des_key(pw + 7, &des);
+    setup_des_कुंजी(pw + 7, &des);
     des_encrypt(&des, 8, lmbuffer + 8, magic);
-#elif defined(USE_MBEDTLS_DES) || defined(USE_OS400CRYPTO) || \
+#या_अगर defined(USE_MBEDTLS_DES) || defined(USE_OS400CRYPTO) || \
   defined(USE_WIN32_CRYPTO)
     encrypt_des(magic, lmbuffer, pw);
     encrypt_des(magic, lmbuffer + 8, pw + 7);
-#endif
+#पूर्ण_अगर
 
-    memset(lmbuffer + 16, 0, 21 - 16);
+    स_रखो(lmbuffer + 16, 0, 21 - 16);
   }
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static void ascii_to_unicode_le(unsigned char *dest, const char *src,
-                                size_t srclen)
+अटल व्योम ascii_to_unicode_le(अचिन्हित अक्षर *dest, स्थिर अक्षर *src,
+                                माप_प्रकार srclen)
 {
-  size_t i;
-  for(i = 0; i < srclen; i++) {
-    dest[2 * i] = (unsigned char)src[i];
+  माप_प्रकार i;
+  क्रम(i = 0; i < srclen; i++) {
+    dest[2 * i] = (अचिन्हित अक्षर)src[i];
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -407,91 +407,91 @@ static void ascii_to_unicode_le(unsigned char *dest, const char *src,
  * Set up nt hashed passwords
  * @unittest: 1600
  */
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */)
+CURLcode Curl_ntlm_core_mk_nt_hash(स्थिर अक्षर *password,
+                                   अचिन्हित अक्षर *ntbuffer /* 21 bytes */)
 {
-  size_t len = strlen(password);
-  unsigned char *pw;
-  CURLcode result;
-  if(len > SIZE_MAX / 2) /* avoid integer overflow */
-    return CURLE_OUT_OF_MEMORY;
-  pw = len ? curlx_malloc(len * 2) : (unsigned char *)curlx_strdup("");
-  if(!pw)
-    return CURLE_OUT_OF_MEMORY;
+  माप_प्रकार len = म_माप(password);
+  अचिन्हित अक्षर *pw;
+  CURLcode परिणाम;
+  अगर(len > SIZE_MAX / 2) /* avoid integer overflow */
+    वापस CURLE_OUT_OF_MEMORY;
+  pw = len ? curlx_malloc(len * 2) : (अचिन्हित अक्षर *)curlx_strdup("");
+  अगर(!pw)
+    वापस CURLE_OUT_OF_MEMORY;
 
   ascii_to_unicode_le(pw, password, len);
 
   /* Create NT hashed password. */
-  result = Curl_md4it(ntbuffer, pw, 2 * len);
-  if(!result)
-    memset(ntbuffer + 16, 0, 21 - 16);
+  परिणाम = Curl_md4it(ntbuffer, pw, 2 * len);
+  अगर(!परिणाम)
+    स_रखो(ntbuffer + 16, 0, 21 - 16);
 
   curlx_free(pw);
 
-  return result;
+  वापस परिणाम;
 }
 
-#ifndef USE_WINDOWS_SSPI
+#अगर_अघोषित USE_WINDOWS_SSPI
 
-#define NTLMv2_BLOB_SIGNATURE "\x01\x01\x00\x00"
-#define NTLMv2_BLOB_LEN       (44 - 16 + ntlm->target_info_len + 4)
+#घोषणा NTLMv2_BLOB_SIGNATURE "\x01\x01\x00\x00"
+#घोषणा NTLMv2_BLOB_LEN       (44 - 16 + ntlm->target_info_len + 4)
 
 /* Timestamp in tenths of a microsecond since January 1, 1601 00:00:00 UTC. */
-struct ms_filetime {
-  unsigned int dwLowDateTime;
-  unsigned int dwHighDateTime;
+काष्ठा ms_filetime {
+  अचिन्हित पूर्णांक dw_निचला_Date_Time;
+  अचिन्हित पूर्णांक dw_ऊपरी_Date_Time;
 };
 
 /* Convert a time_t to an MS FILETIME (MS-DTYP section 2.3.3). */
-static void time2filetime(struct ms_filetime *ft, time_t t)
+अटल व्योम time2filetime(काष्ठा ms_filetime *ft, समय_प्रकार t)
 {
-#if SIZEOF_TIME_T > 4
+#अगर SIZEOF_TIME_T > 4
   t = (t + (curl_off_t)11644473600) * 10000000;
-  ft->dwLowDateTime = (unsigned int)(t & 0xFFFFFFFF);
-  ft->dwHighDateTime = (unsigned int)(t >> 32);
-#else
-  unsigned int r, s;
-  unsigned int i;
+  ft->dw_निचला_Date_Time = (अचिन्हित पूर्णांक)(t & 0xFFFFFFFF);
+  ft->dw_ऊपरी_Date_Time = (अचिन्हित पूर्णांक)(t >> 32);
+#अन्यथा
+  अचिन्हित पूर्णांक r, s;
+  अचिन्हित पूर्णांक i;
 
-  ft->dwLowDateTime = (unsigned int)(t & 0xFFFFFFFF);
-  ft->dwHighDateTime = 0;
+  ft->dw_निचला_Date_Time = (अचिन्हित पूर्णांक)(t & 0xFFFFFFFF);
+  ft->dw_ऊपरी_Date_Time = 0;
 
-#ifndef HAVE_TIME_T_UNSIGNED
+#अगर_अघोषित HAVE_TIME_T_UNSIGNED
   /* Extend sign if needed. */
-  if(ft->dwLowDateTime & 0x80000000)
-    ft->dwHighDateTime = ~(unsigned int)0;
-#endif
+  अगर(ft->dw_निचला_Date_Time & 0x80000000)
+    ft->dw_ऊपरी_Date_Time = ~(अचिन्हित पूर्णांक)0;
+#पूर्ण_अगर
 
   /* Bias seconds to Jan 1, 1601.
      134774 days = 11644473600 seconds = 0x2B6109100 */
-  r = ft->dwLowDateTime;
-  ft->dwLowDateTime = (ft->dwLowDateTime + 0xB6109100U) & 0xFFFFFFFF;
-  ft->dwHighDateTime += ft->dwLowDateTime < r ? 0x03 : 0x02;
+  r = ft->dw_निचला_Date_Time;
+  ft->dw_निचला_Date_Time = (ft->dw_निचला_Date_Time + 0xB6109100U) & 0xFFFFFFFF;
+  ft->dw_ऊपरी_Date_Time += ft->dw_निचला_Date_Time < r ? 0x03 : 0x02;
 
   /* Convert to tenths of microseconds. */
-  ft->dwHighDateTime *= 10000000;
+  ft->dw_ऊपरी_Date_Time *= 10000000;
   i = 32;
-  do {
+  करो {
     i -= 8;
-    s = ((ft->dwLowDateTime >> i) & 0xFF) * (10000000 - 1);
+    s = ((ft->dw_निचला_Date_Time >> i) & 0xFF) * (10000000 - 1);
     r = (s << i) & 0xFFFFFFFF;
     s >>= 1;   /* Split shift to avoid width overflow. */
     s >>= 31 - i;
-    ft->dwLowDateTime = (ft->dwLowDateTime + r) & 0xFFFFFFFF;
-    if(ft->dwLowDateTime < r)
+    ft->dw_निचला_Date_Time = (ft->dw_निचला_Date_Time + r) & 0xFFFFFFFF;
+    अगर(ft->dw_निचला_Date_Time < r)
       s++;
-    ft->dwHighDateTime += s;
-  } while(i);
-  ft->dwHighDateTime &= 0xFFFFFFFF;
-#endif
+    ft->dw_ऊपरी_Date_Time += s;
+  } जबतक(i);
+  ft->dw_ऊपरी_Date_Time &= 0xFFFFFFFF;
+#पूर्ण_अगर
 }
 
-static void ascii_uppercase_to_unicode_le(unsigned char *dest,
-                                          const char *src, size_t srclen)
+अटल व्योम ascii_uppercase_to_unicode_le(अचिन्हित अक्षर *dest,
+                                          स्थिर अक्षर *src, माप_प्रकार srclen)
 {
-  size_t i;
-  for(i = 0; i < srclen; i++) {
-    dest[2 * i] = (unsigned char)(Curl_raw_toupper(src[i]));
+  माप_प्रकार i;
+  क्रम(i = 0; i < srclen; i++) {
+    dest[2 * i] = (अचिन्हित अक्षर)(Curl_raw_toupper(src[i]));
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -499,33 +499,33 @@ static void ascii_uppercase_to_unicode_le(unsigned char *dest,
 /* This creates the NTLMv2 hash by using NTLM hash as the key and Unicode
  * (uppercase UserName + Domain) as the data
  */
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash)
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(स्थिर अक्षर *user, माप_प्रकार userlen,
+                                       स्थिर अक्षर *domain, माप_प्रकार domlen,
+                                       अचिन्हित अक्षर *ntlmhash,
+                                       अचिन्हित अक्षर *ntlmv2hash)
 {
   /* Unicode representation */
-  size_t identity_len;
-  unsigned char *identity;
-  CURLcode result = CURLE_OK;
+  माप_प्रकार identity_len;
+  अचिन्हित अक्षर *identity;
+  CURLcode परिणाम = CURLE_OK;
 
-  if((userlen > CURL_MAX_INPUT_LENGTH) || (domlen > CURL_MAX_INPUT_LENGTH))
-    return CURLE_OUT_OF_MEMORY;
+  अगर((userlen > CURL_MAX_निवेश_लंबाई) || (domlen > CURL_MAX_निवेश_लंबाई))
+    वापस CURLE_OUT_OF_MEMORY;
 
   identity_len = (userlen + domlen) * 2;
   identity = curlx_malloc(identity_len + 1);
 
-  if(!identity)
-    return CURLE_OUT_OF_MEMORY;
+  अगर(!identity)
+    वापस CURLE_OUT_OF_MEMORY;
 
   ascii_uppercase_to_unicode_le(identity, user, userlen);
   ascii_to_unicode_le(identity + (userlen << 1), domain, domlen);
 
-  result = Curl_hmacit(&Curl_HMAC_MD5, ntlmhash, 16, identity, identity_len,
+  परिणाम = Curl_hmacit(&Curl_HMAC_MD5, ntlmhash, 16, identity, identity_len,
                        ntlmv2hash);
   curlx_free(identity);
 
-  return result;
+  वापस परिणाम;
 }
 
 /*
@@ -545,11 +545,11 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len)
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(स्थिर अचिन्हित अक्षर *ntlmv2hash,
+                                       स्थिर अचिन्हित अक्षर *challenge_client,
+                                       स्थिर काष्ठा ntlmdata *ntlm,
+                                       अचिन्हित अक्षर **ntresp,
+                                       अचिन्हित पूर्णांक *ntresp_len)
 {
   /* NTLMv2 response structure:
   -----------------------------------------------------------------------------
@@ -566,62 +566,62 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
   -----------------------------------------------------------------------------
   */
 
-  unsigned int len = 0;
-  unsigned char *ptr = NULL;
-  unsigned char hmac_output[HMAC_MD5_LENGTH];
-  struct ms_filetime tw;
+  अचिन्हित पूर्णांक len = 0;
+  अचिन्हित अक्षर *ptr = शून्य;
+  अचिन्हित अक्षर hmac_output[HMAC_MD5_लंबाई];
+  काष्ठा ms_filetime tw;
 
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
   /* Calculate the timestamp */
-#ifdef DEBUGBUILD
-  char *force_timestamp = getenv("CURL_FORCETIME");
-  if(force_timestamp)
-    time2filetime(&tw, (time_t)0);
-  else
-#endif
-    time2filetime(&tw, time(NULL));
+#अगर_घोषित DEBUGBUILD
+  अक्षर *force_timestamp = दो_पर्या("CURL_FORCETIME");
+  अगर(force_timestamp)
+    time2filetime(&tw, (समय_प्रकार)0);
+  अन्यथा
+#पूर्ण_अगर
+    time2filetime(&tw, समय(शून्य));
 
   /* Calculate the response len */
-  len = HMAC_MD5_LENGTH + NTLMv2_BLOB_LEN;
+  len = HMAC_MD5_लंबाई + NTLMv2_BLOB_LEN;
 
   /* Allocate the response */
   ptr = curlx_calloc(1, len);
-  if(!ptr)
-    return CURLE_OUT_OF_MEMORY;
+  अगर(!ptr)
+    वापस CURLE_OUT_OF_MEMORY;
 
   /* Create the BLOB structure */
-  curl_msnprintf((char *)ptr + HMAC_MD5_LENGTH, NTLMv2_BLOB_LEN,
+  curl_msnprintf((अक्षर *)ptr + HMAC_MD5_लंबाई, NTLMv2_BLOB_LEN,
                  "%c%c%c%c"           /* NTLMv2_BLOB_SIGNATURE */
                  "%c%c%c%c"           /* Reserved = 0 */
                  "%c%c%c%c%c%c%c%c",  /* Timestamp */
                  NTLMv2_BLOB_SIGNATURE[0], NTLMv2_BLOB_SIGNATURE[1],
                  NTLMv2_BLOB_SIGNATURE[2], NTLMv2_BLOB_SIGNATURE[3],
                  0, 0, 0, 0,
-                 LONGQUARTET(tw.dwLowDateTime),
-                 LONGQUARTET(tw.dwHighDateTime));
+                 LONGQUARTET(tw.dw_निचला_Date_Time),
+                 LONGQUARTET(tw.dw_ऊपरी_Date_Time));
 
-  memcpy(ptr + 32, challenge_client, 8);
-  if(ntlm->target_info_len)
-    memcpy(ptr + 44, ntlm->target_info, ntlm->target_info_len);
+  स_नकल(ptr + 32, challenge_client, 8);
+  अगर(ntlm->target_info_len)
+    स_नकल(ptr + 44, ntlm->target_info, ntlm->target_info_len);
 
   /* Concatenate the Type 2 challenge with the BLOB and do HMAC MD5 */
-  memcpy(ptr + 8, &ntlm->nonce[0], 8);
-  result = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, HMAC_MD5_LENGTH, ptr + 8,
+  स_नकल(ptr + 8, &ntlm->nonce[0], 8);
+  परिणाम = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, HMAC_MD5_लंबाई, ptr + 8,
                        NTLMv2_BLOB_LEN + 8, hmac_output);
-  if(result) {
+  अगर(परिणाम) {
     curlx_free(ptr);
-    return result;
+    वापस परिणाम;
   }
 
   /* Concatenate the HMAC MD5 output  with the BLOB */
-  memcpy(ptr, hmac_output, HMAC_MD5_LENGTH);
+  स_नकल(ptr, hmac_output, HMAC_MD5_लंबाई);
 
   /* Return the response */
   *ntresp = ptr;
   *ntresp_len = len;
 
-  return result;
+  वापस परिणाम;
 }
 
 /*
@@ -638,30 +638,30 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp)
+CURLcode Curl_ntlm_core_mk_lmv2_resp(स्थिर अचिन्हित अक्षर *ntlmv2hash,
+                                     स्थिर अचिन्हित अक्षर *challenge_client,
+                                     स्थिर अचिन्हित अक्षर *challenge_server,
+                                     अचिन्हित अक्षर *lmresp)
 {
-  unsigned char data[16];
-  unsigned char hmac_output[16];
-  CURLcode result = CURLE_OK;
+  अचिन्हित अक्षर तथ्य[16];
+  अचिन्हित अक्षर hmac_output[16];
+  CURLcode परिणाम = CURLE_OK;
 
-  memcpy(&data[0], challenge_server, 8);
-  memcpy(&data[8], challenge_client, 8);
+  स_नकल(&तथ्य[0], challenge_server, 8);
+  स_नकल(&तथ्य[8], challenge_client, 8);
 
-  result = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, 16, &data[0], 16,
+  परिणाम = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, 16, &तथ्य[0], 16,
                        hmac_output);
-  if(result)
-    return result;
+  अगर(परिणाम)
+    वापस परिणाम;
 
   /* Concatenate the HMAC MD5 output with the client nonce */
-  memcpy(lmresp, hmac_output, 16);
-  memcpy(lmresp + 16, challenge_client, 8);
+  स_नकल(lmresp, hmac_output, 16);
+  स_नकल(lmresp + 16, challenge_client, 8);
 
-  return result;
+  वापस परिणाम;
 }
 
-#endif /* !USE_WINDOWS_SSPI */
+#पूर्ण_अगर /* !USE_WINDOWS_SSPI */
 
-#endif /* USE_CURL_NTLM_CORE */
+#पूर्ण_अगर /* USE_CURL_NTLM_CORE */

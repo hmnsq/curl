@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HEADER_H
-#define HEADER_CURL_HEADER_H
+#अगर_अघोषित HEADER_CURL_HEADER_H
+#घोषणा HEADER_CURL_HEADER_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,43 +23,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#अगर !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
-  size_t nh_amount; /* cached amount for curl_easy_nextheader() */
-  size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+काष्ठा Curl_header_store {
+  काष्ठा Curl_llist_गाँठ गाँठ;
+  अक्षर *name; /* points into 'buffer' */
+  अक्षर *मूल्य; /* points into 'buffer' */
+  माप_प्रकार nh_amount; /* cached amount for curl_easy_nextheader() */
+  माप_प्रकार nh_सूचकांक; /* cached index for curl_easy_nextheader() */
+  पूर्णांक request; /* 0 is the first request, then 1.. 2.. */
+  अचिन्हित अक्षर type; /* CURLH_* defines */
+  अक्षर बफर[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_headers_init(काष्ठा Curl_easy *तथ्य);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_headers_धकेलो(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *header,
+                           माप_प्रकार hlen, अचिन्हित अक्षर type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_headers_cleanup(काष्ठा Curl_easy *तथ्य);
 
-#else
-#define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
-#define Curl_headers_cleanup(x)       Curl_nop_stmt
-#endif
+#अन्यथा
+#घोषणा Curl_headers_init(x)          CURLE_OK
+#घोषणा Curl_headers_धकेलो(x, y, z, a) \
+  ((व्योम)(x), (व्योम)(y), (व्योम)(z), (व्योम)(a), CURLE_OK)
+#घोषणा Curl_headers_cleanup(x)       Curl_nop_stmt
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_HEADER_H */
+#पूर्ण_अगर /* HEADER_CURL_HEADER_H */

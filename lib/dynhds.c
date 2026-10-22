@@ -21,61 +21,61 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "dynhds.h"
-#include "strcase.h"
+#समावेश "dynhds.h"
+#समावेश "strcase.h"
 
-static struct dynhds_entry *entry_new(const char *name, size_t namelen,
-                                      const char *value, size_t valuelen,
-                                      int opts)
+अटल काष्ठा dynhds_entry *entry_new(स्थिर अक्षर *name, माप_प्रकार namelen,
+                                      स्थिर अक्षर *मूल्य, माप_प्रकार valuelen,
+                                      पूर्णांक opts)
 {
-  struct dynhds_entry *e;
-  char *p;
+  काष्ठा dynhds_entry *e;
+  अक्षर *p;
 
   /* namelen + valuelen <= SIZE_MAX has already been checked by caller */
-  if((SIZE_MAX - namelen - valuelen) < (sizeof(*e) + 2))
-    return NULL;
-  e = curlx_calloc(1, sizeof(*e) + namelen + valuelen + 2);
-  if(!e)
-    return NULL;
-  e->name = p = (char *)e + sizeof(*e);
-  memcpy(p, name, namelen);
+  अगर((SIZE_MAX - namelen - valuelen) < (माप(*e) + 2))
+    वापस शून्य;
+  e = curlx_calloc(1, माप(*e) + namelen + valuelen + 2);
+  अगर(!e)
+    वापस शून्य;
+  e->name = p = (अक्षर *)e + माप(*e);
+  स_नकल(p, name, namelen);
   e->namelen = namelen;
-  e->value = p += namelen + 1; /* leave a \0 at the end of name */
-  if(valuelen) {
-    memcpy(p, value, valuelen);
+  e->मूल्य = p += namelen + 1; /* leave a \0 at the end of name */
+  अगर(valuelen) {
+    स_नकल(p, मूल्य, valuelen);
     e->valuelen = valuelen;
   }
-  if(opts & DYNHDS_OPT_LOWERCASE)
+  अगर(opts & DYNHDS_OPT_LOWERCASE)
     Curl_strntolower(e->name, e->name, e->namelen);
-  return e;
+  वापस e;
 }
 
-static void entry_free(struct dynhds_entry *e)
+अटल व्योम entry_free(काष्ठा dynhds_entry *e)
 {
   curlx_free(e);
 }
 
-void Curl_dynhds_init(struct dynhds *dynhds, size_t max_entries,
-                      size_t max_strs_size)
+व्योम Curl_dynhds_init(काष्ठा dynhds *dynhds, माप_प्रकार max_entries,
+                      माप_प्रकार max_strs_आकार)
 {
   DEBUGASSERT(dynhds);
-  DEBUGASSERT(max_strs_size);
-  dynhds->hds = NULL;
+  DEBUGASSERT(max_strs_आकार);
+  dynhds->hds = शून्य;
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
   dynhds->max_entries = max_entries;
-  dynhds->max_strs_size = max_strs_size;
+  dynhds->max_strs_आकार = max_strs_आकार;
   dynhds->opts = 0;
 }
 
-void Curl_dynhds_free(struct dynhds *dynhds)
+व्योम Curl_dynhds_free(काष्ठा dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds && dynhds->hds_len) {
-    size_t i;
+  अगर(dynhds->hds && dynhds->hds_len) {
+    माप_प्रकार i;
     DEBUGASSERT(dynhds->hds);
-    for(i = 0; i < dynhds->hds_len; ++i) {
+    क्रम(i = 0; i < dynhds->hds_len; ++i) {
       entry_free(dynhds->hds[i]);
     }
   }
@@ -83,172 +83,172 @@ void Curl_dynhds_free(struct dynhds *dynhds)
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
 }
 
-void Curl_dynhds_reset(struct dynhds *dynhds)
+व्योम Curl_dynhds_reset(काष्ठा dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds_len) {
-    size_t i;
+  अगर(dynhds->hds_len) {
+    माप_प्रकार i;
     DEBUGASSERT(dynhds->hds);
-    for(i = 0; i < dynhds->hds_len; ++i) {
+    क्रम(i = 0; i < dynhds->hds_len; ++i) {
       entry_free(dynhds->hds[i]);
-      dynhds->hds[i] = NULL;
+      dynhds->hds[i] = शून्य;
     }
   }
   dynhds->hds_len = dynhds->strs_len = 0;
 }
 
-size_t Curl_dynhds_count(struct dynhds *dynhds)
+माप_प्रकार Curl_dynhds_गिनती(काष्ठा dynhds *dynhds)
 {
-  return dynhds->hds_len;
+  वापस dynhds->hds_len;
 }
 
-void Curl_dynhds_set_opts(struct dynhds *dynhds, int opts)
+व्योम Curl_dynhds_set_opts(काष्ठा dynhds *dynhds, पूर्णांक opts)
 {
   dynhds->opts = opts;
 }
 
-struct dynhds_entry *Curl_dynhds_getn(struct dynhds *dynhds, size_t n)
+काष्ठा dynhds_entry *Curl_dynhds_getn(काष्ठा dynhds *dynhds, माप_प्रकार n)
 {
   DEBUGASSERT(dynhds);
-  return (n < dynhds->hds_len) ? dynhds->hds[n] : NULL;
+  वापस (n < dynhds->hds_len) ? dynhds->hds[n] : शून्य;
 }
 
-struct dynhds_entry *Curl_dynhds_get(struct dynhds *dynhds, const char *name,
-                                     size_t namelen)
+काष्ठा dynhds_entry *Curl_dynhds_get(काष्ठा dynhds *dynhds, स्थिर अक्षर *name,
+                                     माप_प्रकार namelen)
 {
-  size_t i;
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    if(dynhds->hds[i]->namelen == namelen &&
+  माप_प्रकार i;
+  क्रम(i = 0; i < dynhds->hds_len; ++i) {
+    अगर(dynhds->hds[i]->namelen == namelen &&
        curl_strnequal(dynhds->hds[i]->name, name, namelen)) {
-      return dynhds->hds[i];
+      वापस dynhds->hds[i];
     }
   }
-  return NULL;
+  वापस शून्य;
 }
 
-struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name)
+काष्ठा dynhds_entry *Curl_dynhds_cget(काष्ठा dynhds *dynhds, स्थिर अक्षर *name)
 {
-  return Curl_dynhds_get(dynhds, name, strlen(name));
+  वापस Curl_dynhds_get(dynhds, name, म_माप(name));
 }
 
-CURLcode Curl_dynhds_add(struct dynhds *dynhds,
-                         const char *name, size_t namelen,
-                         const char *value, size_t valuelen)
+CURLcode Curl_dynhds_add(काष्ठा dynhds *dynhds,
+                         स्थिर अक्षर *name, माप_प्रकार namelen,
+                         स्थिर अक्षर *मूल्य, माप_प्रकार valuelen)
 {
-  struct dynhds_entry *entry = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  काष्ठा dynhds_entry *entry = शून्य;
+  CURLcode परिणाम = CURLE_OUT_OF_MEMORY;
 
   /* Accept NULL value with length 0, name must have length */
-  if(!dynhds || !name || !namelen || (!value && valuelen)) {
+  अगर(!dynhds || !name || !namelen || (!मूल्य && valuelen)) {
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
   }
   /* Does the new header fit into the limits? */
-  if((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
-     (dynhds->max_strs_size - dynhds->strs_len < namelen) ||
-     (dynhds->max_strs_size - dynhds->strs_len - namelen < valuelen))
-    return CURLE_OUT_OF_MEMORY;
+  अगर((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
+     (dynhds->max_strs_आकार - dynhds->strs_len < namelen) ||
+     (dynhds->max_strs_आकार - dynhds->strs_len - namelen < valuelen))
+    वापस CURLE_OUT_OF_MEMORY;
 
-  entry = entry_new(name, namelen, value, valuelen, dynhds->opts);
-  if(!entry)
-    goto out;
+  entry = entry_new(name, namelen, मूल्य, valuelen, dynhds->opts);
+  अगर(!entry)
+    जाओ out;
 
-  if(dynhds->hds_len + 1 >= dynhds->hds_allc) {
-    size_t nallc = dynhds->hds_allc ? dynhds->hds_allc * 2 : 16;
-    struct dynhds_entry **nhds;
+  अगर(dynhds->hds_len + 1 >= dynhds->hds_allc) {
+    माप_प्रकार nallc = dynhds->hds_allc ? dynhds->hds_allc * 2 : 16;
+    काष्ठा dynhds_entry **nhds;
 
-    if(dynhds->max_entries && nallc > dynhds->max_entries)
+    अगर(dynhds->max_entries && nallc > dynhds->max_entries)
       nallc = dynhds->max_entries;
 
-    nhds = curlx_calloc(nallc, sizeof(struct dynhds_entry *));
-    if(!nhds)
-      goto out;
-    if(dynhds->hds) {
-      memcpy(nhds, dynhds->hds,
-             dynhds->hds_len * sizeof(struct dynhds_entry *));
+    nhds = curlx_calloc(nallc, माप(काष्ठा dynhds_entry *));
+    अगर(!nhds)
+      जाओ out;
+    अगर(dynhds->hds) {
+      स_नकल(nhds, dynhds->hds,
+             dynhds->hds_len * माप(काष्ठा dynhds_entry *));
       curlx_safefree(dynhds->hds);
     }
     dynhds->hds = nhds;
     dynhds->hds_allc = nallc;
   }
   dynhds->hds[dynhds->hds_len++] = entry;
-  entry = NULL;
+  entry = शून्य;
   dynhds->strs_len += namelen + valuelen;
-  result = CURLE_OK;
+  परिणाम = CURLE_OK;
 
 out:
-  if(entry)
+  अगर(entry)
     entry_free(entry);
-  return result;
+  वापस परिणाम;
 }
 
-CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value)
+CURLcode Curl_dynhds_cadd(काष्ठा dynhds *dynhds,
+                          स्थिर अक्षर *name, स्थिर अक्षर *मूल्य)
 {
-  if(!name)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_dynhds_add(dynhds, name, strlen(name),
-                         value, value ? strlen(value) : 0);
+  अगर(!name)
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
+  वापस Curl_dynhds_add(dynhds, name, म_माप(name),
+                         मूल्य, मूल्य ? म_माप(मूल्य) : 0);
 }
 
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len)
+CURLcode Curl_dynhds_h1_add_पंक्ति(काष्ठा dynhds *dynhds,
+                                 स्थिर अक्षर *पंक्ति, माप_प्रकार पंक्ति_len)
 {
-  const char *p;
-  const char *name;
-  size_t namelen;
-  const char *value;
-  size_t valuelen, i;
+  स्थिर अक्षर *p;
+  स्थिर अक्षर *name;
+  माप_प्रकार namelen;
+  स्थिर अक्षर *मूल्य;
+  माप_प्रकार valuelen, i;
 
-  if(!line || !line_len)
-    return CURLE_OK;
+  अगर(!पंक्ति || !पंक्ति_len)
+    वापस CURLE_OK;
 
-  p = memchr(line, ':', line_len);
-  if(!p || p == line)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  name = line;
-  namelen = p - line;
+  p = स_प्रथम(पंक्ति, ':', पंक्ति_len);
+  अगर(!p || p == पंक्ति)
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
+  name = पंक्ति;
+  namelen = p - पंक्ति;
   p++; /* move past the colon */
-  for(i = namelen + 1; i < line_len; ++i, ++p) {
-    if(!ISBLANK(*p))
-      break;
+  क्रम(i = namelen + 1; i < पंक्ति_len; ++i, ++p) {
+    अगर(!ISBLANK(*p))
+      अवरोध;
   }
-  value = p;
-  valuelen = line_len - i;
+  मूल्य = p;
+  valuelen = पंक्ति_len - i;
 
-  p = memchr(value, '\r', valuelen);
-  if(!p)
-    p = memchr(value, '\n', valuelen);
-  if(p)
-    valuelen = (size_t)(p - value);
+  p = स_प्रथम(मूल्य, '\r', valuelen);
+  अगर(!p)
+    p = स_प्रथम(मूल्य, '\n', valuelen);
+  अगर(p)
+    valuelen = (माप_प्रकार)(p - मूल्य);
 
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  वापस Curl_dynhds_add(dynhds, name, namelen, मूल्य, valuelen);
 }
 
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line)
+CURLcode Curl_dynhds_h1_cadd_पंक्ति(काष्ठा dynhds *dynhds, स्थिर अक्षर *पंक्ति)
 {
-  return Curl_dynhds_h1_add_line(dynhds, line, line ? strlen(line) : 0);
+  वापस Curl_dynhds_h1_add_पंक्ति(dynhds, पंक्ति, पंक्ति ? म_माप(पंक्ति) : 0);
 }
 
-#ifdef UNITTESTS
+#अगर_घोषित UNITTESTS
 /* @unittest 2602 */
 
 /**
  * Return TRUE iff one or more headers with the given name exist.
  */
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST bool dynhds_contains(काष्ठा dynhds *dynhds,
+                              स्थिर अक्षर *name, माप_प्रकार namelen);
+UNITTEST bool dynhds_contains(काष्ठा dynhds *dynhds,
+                              स्थिर अक्षर *name, माप_प्रकार namelen)
 {
-  return !!Curl_dynhds_get(dynhds, name, namelen);
+  वापस !!Curl_dynhds_get(dynhds, name, namelen);
 }
 
 /* @unittest 2602 */
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name);
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
+UNITTEST bool dynhds_ccontains(काष्ठा dynhds *dynhds, स्थिर अक्षर *name);
+UNITTEST bool dynhds_ccontains(काष्ठा dynhds *dynhds, स्थिर अक्षर *name)
 {
-  return dynhds_contains(dynhds, name, strlen(name));
+  वापस dynhds_contains(dynhds, name, म_माप(name));
 }
 
 /**
@@ -257,21 +257,21 @@ UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen);
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen)
+UNITTEST माप_प्रकार dynhds_गिनती_name(काष्ठा dynhds *dynhds,
+                                  स्थिर अक्षर *name, माप_प्रकार namelen);
+UNITTEST माप_प्रकार dynhds_गिनती_name(काष्ठा dynhds *dynhds,
+                                  स्थिर अक्षर *name, माप_प्रकार namelen)
 {
-  size_t n = 0;
-  if(dynhds->hds_len) {
-    size_t i;
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+  माप_प्रकार n = 0;
+  अगर(dynhds->hds_len) {
+    माप_प्रकार i;
+    क्रम(i = 0; i < dynhds->hds_len; ++i) {
+      अगर((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen))
         ++n;
     }
   }
-  return n;
+  वापस n;
 }
 
 /**
@@ -280,12 +280,12 @@ UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name);
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name)
+UNITTEST माप_प्रकार dynhds_ccount_name(काष्ठा dynhds *dynhds,
+                                        स्थिर अक्षर *name);
+UNITTEST माप_प्रकार dynhds_ccount_name(काष्ठा dynhds *dynhds,
+                                        स्थिर अक्षर *name)
 {
-  return dynhds_count_name(dynhds, name, strlen(name));
+  वापस dynhds_गिनती_name(dynhds, name, म_माप(name));
 }
 
 /**
@@ -294,16 +294,16 @@ UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST माप_प्रकार dynhds_remove(काष्ठा dynhds *dynhds,
+                              स्थिर अक्षर *name, माप_प्रकार namelen);
+UNITTEST माप_प्रकार dynhds_remove(काष्ठा dynhds *dynhds,
+                              स्थिर अक्षर *name, माप_प्रकार namelen)
 {
-  size_t n = 0;
-  if(dynhds->hds_len) {
-    size_t i, len;
-    for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+  माप_प्रकार n = 0;
+  अगर(dynhds->hds_len) {
+    माप_प्रकार i, len;
+    क्रम(i = 0; i < dynhds->hds_len; ++i) {
+      अगर((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen)) {
         ++n;
         --dynhds->hds_len;
@@ -311,15 +311,15 @@ UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
                              dynhds->hds[i]->valuelen);
         entry_free(dynhds->hds[i]);
         len = dynhds->hds_len - i; /* remaining entries */
-        if(len) {
-          memmove(&dynhds->hds[i], &dynhds->hds[i + 1],
-                  len * sizeof(dynhds->hds[i]));
+        अगर(len) {
+          स_हटाओ(&dynhds->hds[i], &dynhds->hds[i + 1],
+                  len * माप(dynhds->hds[i]));
         }
         --i; /* do this index again */
       }
     }
   }
-  return n;
+  वापस n;
 }
 
 /**
@@ -329,73 +329,73 @@ UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen);
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen)
+UNITTEST CURLcode dynhds_set(काष्ठा dynhds *dynhds,
+                             स्थिर अक्षर *name, माप_प्रकार namelen,
+                             स्थिर अक्षर *मूल्य, माप_प्रकार valuelen);
+UNITTEST CURLcode dynhds_set(काष्ठा dynhds *dynhds,
+                             स्थिर अक्षर *name, माप_प्रकार namelen,
+                             स्थिर अक्षर *मूल्य, माप_प्रकार valuelen)
 {
   dynhds_remove(dynhds, name, namelen);
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  वापस Curl_dynhds_add(dynhds, name, namelen, मूल्य, valuelen);
 }
 
 /* @unittest 2602 */
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name);
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name)
+UNITTEST माप_प्रकार dynhds_cremove(काष्ठा dynhds *dynhds, स्थिर अक्षर *name);
+UNITTEST माप_प्रकार dynhds_cremove(काष्ठा dynhds *dynhds, स्थिर अक्षर *name)
 {
-  return dynhds_remove(dynhds, name, strlen(name));
+  वापस dynhds_remove(dynhds, name, म_माप(name));
 }
 
-#endif /* UNITTESTS */
+#पूर्ण_अगर /* UNITTESTS */
 
-CURLcode Curl_dynhds_h1_dprint(struct dynhds *dynhds, struct dynbuf *dbuf)
+CURLcode Curl_dynhds_h1_dprint(काष्ठा dynhds *dynhds, काष्ठा dynbuf *dbuf)
 {
-  CURLcode result = CURLE_OK;
-  size_t i;
+  CURLcode परिणाम = CURLE_OK;
+  माप_प्रकार i;
 
-  if(!dynhds->hds_len)
-    return result;
+  अगर(!dynhds->hds_len)
+    वापस परिणाम;
 
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    result = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
+  क्रम(i = 0; i < dynhds->hds_len; ++i) {
+    परिणाम = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
                             dynhds->hds[i]->namelen);
-    if(!result)
-      result = curlx_dyn_addn(dbuf, STRCONST(": "));
-    if(!result)
-      result = curlx_dyn_addn(dbuf, dynhds->hds[i]->value,
+    अगर(!परिणाम)
+      परिणाम = curlx_dyn_addn(dbuf, STRCONST(": "));
+    अगर(!परिणाम)
+      परिणाम = curlx_dyn_addn(dbuf, dynhds->hds[i]->मूल्य,
                               dynhds->hds[i]->valuelen);
-    if(!result)
-      result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
-    if(result)
-      break;
+    अगर(!परिणाम)
+      परिणाम = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
+    अगर(परिणाम)
+      अवरोध;
   }
 
-  return result;
+  वापस परिणाम;
 }
 
-#ifdef USE_NGHTTP2
+#अगर_घोषित USE_NGHTTP2
 
-nghttp2_nv *Curl_dynhds_to_nva(struct dynhds *dynhds, size_t *pcount)
+nghttp2_nv *Curl_dynhds_to_nva(काष्ठा dynhds *dynhds, माप_प्रकार *pcount)
 {
-  nghttp2_nv *nva = curlx_calloc(1, sizeof(nghttp2_nv) * dynhds->hds_len);
-  size_t i;
+  nghttp2_nv *nva = curlx_calloc(1, माप(nghttp2_nv) * dynhds->hds_len);
+  माप_प्रकार i;
 
   *pcount = 0;
-  if(!nva)
-    return NULL;
+  अगर(!nva)
+    वापस शून्य;
 
-  for(i = 0; i < dynhds->hds_len; ++i) {
-    struct dynhds_entry *e = dynhds->hds[i];
+  क्रम(i = 0; i < dynhds->hds_len; ++i) {
+    काष्ठा dynhds_entry *e = dynhds->hds[i];
     DEBUGASSERT(e);
-    nva[i].name = (unsigned char *)e->name;
+    nva[i].name = (अचिन्हित अक्षर *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].मूल्य = (अचिन्हित अक्षर *)e->मूल्य;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP2_NV_FLAG_NONE;
   }
   *pcount = dynhds->hds_len;
-  return nva;
+  वापस nva;
 }
 
-#endif /* USE_NGHTTP2 */
+#पूर्ण_अगर /* USE_NGHTTP2 */

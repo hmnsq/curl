@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_APPLE_H
-#define HEADER_CURL_VTLS_APPLE_H
+#अगर_अघोषित HEADER_CURL_VTLS_APPLE_H
+#घोषणा HEADER_CURL_VTLS_APPLE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,37 +23,37 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_APPLE_SECTRUST
-struct Curl_cfilter;
-struct Curl_easy;
-struct ssl_peer;
+#अगर_घोषित USE_APPLE_SECTRUST
+काष्ठा Curl_cfilter;
+काष्ठा Curl_easy;
+काष्ठा ssl_peer;
 
 /* Get the DER encoded i-th certificate in the server handshake */
-typedef CURLcode Curl_vtls_get_cert_der(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data,
-                                        size_t i,
-                                        unsigned char **pder,
-                                        size_t *pder_len);
+प्रकार CURLcode Curl_vtls_get_cert_der(काष्ठा Curl_cfilter *cf,
+                                        काष्ठा Curl_easy *तथ्य,
+                                        व्योम *user_तथ्य,
+                                        माप_प्रकार i,
+                                        अचिन्हित अक्षर **pder,
+                                        माप_प्रकार *pder_len);
 
 /* Ask Apple's Security framework to verify the certificate chain
  * send by the peer. On CURLE_OK it has been verified.
  */
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
-                                size_t num_certs,
+CURLcode Curl_vtls_apple_verify(काष्ठा Curl_cfilter *cf,
+                                काष्ठा Curl_easy *तथ्य,
+                                काष्ठा ssl_peer *peer,
+                                माप_प्रकार अंक_certs,
                                 Curl_vtls_get_cert_der *der_cb,
-                                void *cb_user_data,
-                                const unsigned char *ocsp_buf,
-                                size_t ocsp_len,
+                                व्योम *cb_user_तथ्य,
+                                स्थिर अचिन्हित अक्षर *ocsp_buf,
+                                माप_प्रकार ocsp_len,
                                 bool require_ocsp);
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+bool Curl_vtls_apple_verifies_ocsp(काष्ठा Curl_cfilter *cf,
+                                   काष्ठा Curl_easy *तथ्य);
 
-#endif /* USE_APPLE_SECTRUST */
+#पूर्ण_अगर /* USE_APPLE_SECTRUST */
 
-#endif /* HEADER_CURL_VTLS_APPLE_H */
+#पूर्ण_अगर /* HEADER_CURL_VTLS_APPLE_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SHA512_256_H
-#define HEADER_CURL_SHA512_256_H
+#अगर_अघोषित HEADER_CURL_SHA512_256_H
+#घोषणा HEADER_CURL_SHA512_256_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
+#अगर !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
 
-#include "curl_hmac.h"
+#समावेश "curl_hmac.h"
 
-#define CURL_HAVE_SHA512_256
+#घोषणा CURL_HAVE_SHA512_256
 
-extern const struct HMAC_params Curl_HMAC_SHA512_256[1];
+बाह्य स्थिर काष्ठा HMAC_params Curl_HMAC_SHA512_256[1];
 
-#define CURL_SHA512_256_DIGEST_LENGTH 32
+#घोषणा CURL_SHA512_256_DIGEST_लंबाई 32
 
-CURLcode Curl_sha512_256it(unsigned char *output, const unsigned char *input,
-                           size_t input_size);
+CURLcode Curl_sha512_256it(अचिन्हित अक्षर *output, स्थिर अचिन्हित अक्षर *निवेश,
+                           माप_प्रकार निवेश_आकार);
 
-#endif /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */
+#पूर्ण_अगर /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */
 
-#endif /* HEADER_CURL_SHA256_H */
+#पूर्ण_अगर /* HEADER_CURL_SHA256_H */

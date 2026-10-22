@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MBEDTLS_H
-#define HEADER_CURL_MBEDTLS_H
+#अगर_अघोषित HEADER_CURL_MBEDTLS_H
+#घोषणा HEADER_CURL_MBEDTLS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,11 +24,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_MBEDTLS
+#अगर_घोषित USE_MBEDTLS
 
-extern const struct Curl_ssl Curl_ssl_mbedtls;
+बाह्य स्थिर काष्ठा Curl_ssl Curl_ssl_mbedtls;
 
-#endif /* USE_MBEDTLS */
-#endif /* HEADER_CURL_MBEDTLS_H */
+#पूर्ण_अगर /* USE_MBEDTLS */
+#पूर्ण_अगर /* HEADER_CURL_MBEDTLS_H */

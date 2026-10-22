@@ -21,134 +21,134 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifndef CURL_DISABLE_FTP
+#अगर_अघोषित CURL_DISABLE_FTP
 
-#include "curl_fnmatch.h"
+#समावेश "curl_fnmatch.h"
 
-#ifndef HAVE_FNMATCH
+#अगर_अघोषित HAVE_FNMATCH
 
-#define CURLFNM_CHARSET_LEN (sizeof(char) * 256)
-#define CURLFNM_CHSET_SIZE (CURLFNM_CHARSET_LEN + 15)
+#घोषणा CURLFNM_CHARSET_LEN (माप(अक्षर) * 256)
+#घोषणा CURLFNM_CHSET_आकार (CURLFNM_CHARSET_LEN + 15)
 
-#define CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
+#घोषणा CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
 
-#define CURLFNM_ALNUM   (CURLFNM_CHARSET_LEN + 1)
-#define CURLFNM_DIGIT   (CURLFNM_CHARSET_LEN + 2)
-#define CURLFNM_XDIGIT  (CURLFNM_CHARSET_LEN + 3)
-#define CURLFNM_ALPHA   (CURLFNM_CHARSET_LEN + 4)
-#define CURLFNM_PRINT   (CURLFNM_CHARSET_LEN + 5)
-#define CURLFNM_BLANK   (CURLFNM_CHARSET_LEN + 6)
-#define CURLFNM_LOWER   (CURLFNM_CHARSET_LEN + 7)
-#define CURLFNM_GRAPH   (CURLFNM_CHARSET_LEN + 8)
-#define CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
-#define CURLFNM_UPPER   (CURLFNM_CHARSET_LEN + 10)
+#घोषणा CURLFNM_ALNUM   (CURLFNM_CHARSET_LEN + 1)
+#घोषणा CURLFNM_DIGIT   (CURLFNM_CHARSET_LEN + 2)
+#घोषणा CURLFNM_XDIGIT  (CURLFNM_CHARSET_LEN + 3)
+#घोषणा CURLFNM_ALPHA   (CURLFNM_CHARSET_LEN + 4)
+#घोषणा CURLFNM_PRINT   (CURLFNM_CHARSET_LEN + 5)
+#घोषणा CURLFNM_BLANK   (CURLFNM_CHARSET_LEN + 6)
+#घोषणा CURLFNM_LOWER   (CURLFNM_CHARSET_LEN + 7)
+#घोषणा CURLFNM_GRAPH   (CURLFNM_CHARSET_LEN + 8)
+#घोषणा CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
+#घोषणा CURLFNM_UPPER   (CURLFNM_CHARSET_LEN + 10)
 
-typedef enum {
+प्रकार क्रमागत {
   CURLFNM_SCHS_DEFAULT = 0,
   CURLFNM_SCHS_RIGHTBR,
   CURLFNM_SCHS_RIGHTBRLEFTBR
 } setcharset_state;
 
-typedef enum {
+प्रकार क्रमागत {
   CURLFNM_PKW_INIT = 0,
   CURLFNM_PKW_DDOT
 } parsekey_state;
 
-typedef enum {
+प्रकार क्रमागत {
   CCLASS_OTHER = 0,
   CCLASS_DIGIT,
   CCLASS_UPPER,
   CCLASS_LOWER
 } char_class;
 
-#define SETCHARSET_OK     1
-#define SETCHARSET_FAIL   0
+#घोषणा SETCHARSET_OK     1
+#घोषणा SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+अटल पूर्णांक parsekeyword(स्थिर अचिन्हित अक्षर **pattern, अचिन्हित अक्षर *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
-  char keyword[10] = { 0 };
-  size_t i;
-  const unsigned char *p = *pattern;
+  अक्षर keyword[10] = { 0 };
+  माप_प्रकार i;
+  स्थिर अचिन्हित अक्षर *p = *pattern;
   bool found = FALSE;
-  for(i = 0; !found; i++) {
-    char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
-    switch(state) {
-    case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+  क्रम(i = 0; !found; i++) {
+    अक्षर c = (अक्षर)*p++;
+    अगर(i >= माप(keyword))
+      वापस SETCHARSET_FAIL;
+    चयन(state) {
+    हाल CURLFNM_PKW_INIT:
+      अगर(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      अन्यथा अगर(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
-      break;
-    case CURLFNM_PKW_DDOT:
-      if(c == ']')
+      अन्यथा
+        वापस SETCHARSET_FAIL;
+      अवरोध;
+    हाल CURLFNM_PKW_DDOT:
+      अगर(c == ']')
         found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      अन्यथा
+        वापस SETCHARSET_FAIL;
     }
   }
-#undef KEYLEN
+#अघोषित KEYLEN
 
   *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  अगर(!म_भेद(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  अन्यथा अगर(!म_भेद(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  अन्यथा अगर(!म_भेद(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  अन्यथा अगर(!म_भेद(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  अन्यथा अगर(!म_भेद(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
+  अन्यथा अगर(!म_भेद(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  अन्यथा अगर(!म_भेद(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  अन्यथा अगर(!म_भेद(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
+  अन्यथा अगर(!म_भेद(keyword, "upper"))
     charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
+  अन्यथा अगर(!म_भेद(keyword, "lower"))
     charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  अन्यथा
+    वापस SETCHARSET_FAIL;
+  वापस SETCHARSET_OK;
 }
 
 /* Return the character class. */
-static char_class charclass(unsigned char c)
+अटल char_class charclass(अचिन्हित अक्षर c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  अगर(ISUPPER(c))
+    वापस CCLASS_UPPER;
+  अगर(ISLOWER(c))
+    वापस CCLASS_LOWER;
+  अगर(ISDIGIT(c))
+    वापस CCLASS_DIGIT;
+  वापस CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
-static void setcharorrange(const unsigned char **pp, unsigned char *charset)
+अटल व्योम setcharorrange(स्थिर अचिन्हित अक्षर **pp, अचिन्हित अक्षर *charset)
 {
-  const unsigned char *p = (*pp)++;
-  unsigned char c = *p++;
+  स्थिर अचिन्हित अक्षर *p = (*pp)++;
+  अचिन्हित अक्षर c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  अगर(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
-    unsigned char endrange = *p++;
+    अचिन्हित अक्षर endrange = *p++;
 
-    if(endrange == '\\')
+    अगर(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    अगर(endrange >= c && charclass(endrange) == cc) {
+      जबतक(c++ != endrange)
+        अगर(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,263 +156,263 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+अटल पूर्णांक setcharset(स्थिर अचिन्हित अक्षर **p, अचिन्हित अक्षर *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
   bool something_found = FALSE;
-  unsigned char c;
+  अचिन्हित अक्षर c;
 
-  memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  स_रखो(charset, 0, CURLFNM_CHSET_आकार);
+  क्रम(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    अगर(!c)
+      वापस SETCHARSET_FAIL;
 
-    switch(state) {
-    case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
+    चयन(state) {
+    हाल CURLFNM_SCHS_DEFAULT:
+      अगर(c == ']') {
+        अगर(something_found)
+          वापस SETCHARSET_OK;
         something_found = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
-        const unsigned char *pp = *p + 1;
+      अन्यथा अगर(c == '[') {
+        स्थिर अचिन्हित अक्षर *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        अगर(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        अन्यथा {
           charset[c] = 1;
           (*p)++;
         }
         something_found = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      अन्यथा अगर(c == '^' || c == '!') {
+        अगर(!something_found) {
+          अगर(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
             something_found = TRUE;
           }
-          else
+          अन्यथा
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        अन्यथा
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      अन्यथा अगर(c == '\\') {
         c = *(++(*p));
-        if(c)
+        अगर(c)
           setcharorrange(p, charset);
-        else
+        अन्यथा
           charset['\\'] = 1;
         something_found = TRUE;
       }
-      else {
+      अन्यथा {
         setcharorrange(p, charset);
         something_found = TRUE;
       }
-      break;
-    case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      अवरोध;
+    हाल CURLFNM_SCHS_RIGHTBR:
+      अगर(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      अन्यथा अगर(c == ']') {
+        वापस SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      अन्यथा अगर(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      अन्यथा
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
-        goto fail;
-      break;
-    case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+        जाओ fail;
+      अवरोध;
+    हाल CURLFNM_SCHS_RIGHTBRLEFTBR:
+      अगर(c == ']')
+        वापस SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
-      break;
+      अवरोध;
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  वापस SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+अटल पूर्णांक matchtoken(स्थिर अचिन्हित अक्षर **pp, स्थिर अचिन्हित अक्षर **sp)
 {
-  const unsigned char *p = *pp;
-  const unsigned char *s = *sp;
+  स्थिर अचिन्हित अक्षर *p = *pp;
+  स्थिर अचिन्हित अक्षर *s = *sp;
 
-  switch(*p) {
-  case '?':
-    break;
-  case '\\':
-    if(p[1])
+  चयन(*p) {
+  हाल '?':
+    अवरोध;
+  हाल '\\':
+    अगर(p[1])
       p++;
-    if(*s != *p)
-      return 0;
-    break;
-  case '[': {
-    unsigned char charset[CURLFNM_CHSET_SIZE];
-    const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
+    अगर(*s != *p)
+      वापस 0;
+    अवरोध;
+  हाल '[': {
+    अचिन्हित अक्षर charset[CURLFNM_CHSET_आकार];
+    स्थिर अचिन्हित अक्षर *pp2 = p + 1; /* Copy in case of syntax error. */
     bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
+    अगर(!setcharset(&pp2, charset))
+      वापस -1; /* Syntax error in set; mismatch! */
+    अगर(charset[(अचिन्हित पूर्णांक)*s])
       found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
+    अन्यथा अगर(charset[CURLFNM_ALNUM])
       found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
+    अन्यथा अगर(charset[CURLFNM_ALPHA])
       found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
+    अन्यथा अगर(charset[CURLFNM_DIGIT])
       found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
+    अन्यथा अगर(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    अन्यथा अगर(charset[CURLFNM_PRINT])
       found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
+    अन्यथा अगर(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
+    अन्यथा अगर(charset[CURLFNM_UPPER])
       found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
+    अन्यथा अगर(charset[CURLFNM_LOWER])
       found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
+    अन्यथा अगर(charset[CURLFNM_BLANK])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
+    अन्यथा अगर(charset[CURLFNM_GRAPH])
       found = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
+    अगर(charset[CURLFNM_NEGATE])
       found = !found;
 
-    if(!found)
-      return 0;
+    अगर(!found)
+      वापस 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    वापस 1;
   }
-  default:
-    if(*p != *s)
-      return 0;
-    break;
+  शेष:
+    अगर(*p != *s)
+      वापस 0;
+    अवरोध;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  वापस 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+अटल पूर्णांक loop(स्थिर अचिन्हित अक्षर *pattern, स्थिर अचिन्हित अक्षर *string)
 {
-  const unsigned char *p = pattern;
-  const unsigned char *s = string;
-  const unsigned char *star_p = NULL;
-  const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  स्थिर अचिन्हित अक्षर *p = pattern;
+  स्थिर अचिन्हित अक्षर *s = string;
+  स्थिर अचिन्हित अक्षर *star_p = शून्य;
+  स्थिर अचिन्हित अक्षर *star_s = शून्य;
+  पूर्णांक maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  जबतक(*s) {
+    अगर(*p == '*') {
+      अगर(!maxstars)
+        वापस CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      क्रम(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        अगर(!*p)
+          वापस CURL_FNMATCH_MATCH;
+        अगर(*p == '?') {
+          अगर(!*s)
+            वापस CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
-          break;
+        अन्यथा अगर(*p != '*')
+          अवरोध;
       }
       star_p = p;
       star_s = s;
     }
-    else if(*p) {
-      const unsigned char *np = p;
-      const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+    अन्यथा अगर(*p) {
+      स्थिर अचिन्हित अक्षर *np = p;
+      स्थिर अचिन्हित अक्षर *ns = s;
+      पूर्णांक r = matchtoken(&np, &ns);
+      अगर(r < 0)
+        वापस CURL_FNMATCH_NOMATCH;
+      अगर(r) {
         p = np;
         s = ns;
-        continue;
+        जारी;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
+      अगर(!star_p)
+        वापस CURL_FNMATCH_NOMATCH;
       p = star_p;
       s = ++star_s;
     }
-    else if(star_p) {
+    अन्यथा अगर(star_p) {
       p = star_p;
       s = ++star_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    अन्यथा
+      वापस CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  जबतक(*p == '*') {
+    अगर(!maxstars)
+      वापस CURL_FNMATCH_NOMATCH;
     maxstars--;
-    do {
+    करो {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      अगर(*p == '?')
+        वापस CURL_FNMATCH_NOMATCH;
+    } जबतक(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  वापस *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+पूर्णांक Curl_fnmatch(व्योम *ptr, स्थिर अक्षर *pattern, स्थिर अक्षर *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (व्योम)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  अगर(!pattern || !string) {
+    वापस CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
-              (const unsigned char *)string);
+  वापस loop((स्थिर अचिन्हित अक्षर *)pattern,
+              (स्थिर अचिन्हित अक्षर *)string);
 }
-#else /* HAVE_FNMATCH */
+#अन्यथा /* HAVE_FNMATCH */
 
-#include <fnmatch.h>
+#समावेश <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+पूर्णांक Curl_fnmatch(व्योम *ptr, स्थिर अक्षर *pattern, स्थिर अक्षर *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (व्योम)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  अगर(!pattern || !string) {
+    वापस CURL_FNMATCH_FAIL;
   }
 
-  switch(fnmatch(pattern, string, 0)) {
-  case 0:
-    return CURL_FNMATCH_MATCH;
-  case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
-  default:
-    return CURL_FNMATCH_FAIL;
+  चयन(fnmatch(pattern, string, 0)) {
+  हाल 0:
+    वापस CURL_FNMATCH_MATCH;
+  हाल FNM_NOMATCH:
+    वापस CURL_FNMATCH_NOMATCH;
+  शेष:
+    वापस CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }
-#endif /* !HAVE_FNMATCH */
+#पूर्ण_अगर /* !HAVE_FNMATCH */
 
-#endif /* !CURL_DISABLE_FTP */
+#पूर्ण_अगर /* !CURL_DISABLE_FTP */

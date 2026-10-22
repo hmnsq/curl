@@ -21,23 +21,23 @@
  * SPDX-License-Identifier: curl AND ISC
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "vssh/ssh.h"
+#समावेश "curl_setup.h"
+#समावेश "vssh/ssh.h"
 
-#ifdef USE_SSH
+#अगर_घोषित USE_SSH
 
-#include "vssh/vssh.h"
-#include "curlx/strparse.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "select.h"  /* for Curl_pollset_change() */
-#include "url.h"  /* for Curl_conn_meta_get() */
-#include "curlx/win32-fopen.h"
+#समावेश "vssh/vssh.h"
+#समावेश "curlx/strparse.h"
+#समावेश "curl_trc.h"
+#समावेश "escape.h"
+#समावेश "select.h"  /* for Curl_pollset_change() */
+#समावेश "url.h"  /* for Curl_conn_meta_get() */
+#समावेश "curlx/win32-fopen.h"
 
-#ifdef CURLVERBOSE
-const char *Curl_ssh_statename(sshstate state)
+#अगर_घोषित CURLVERBOSE
+स्थिर अक्षर *Curl_ssh_statename(sshstate state)
 {
-  static const char * const names[] = {
+  अटल स्थिर अक्षर * स्थिर names[] = {
     "SSH_STOP",
     "SSH_INIT",
     "SSH_S_STARTUP",
@@ -101,116 +101,116 @@ const char *Curl_ssh_statename(sshstate state)
   };
   /* a precaution to make sure the lists are in sync */
   DEBUGASSERT(CURL_ARRAYSIZE(names) == SSH_LAST);
-  return ((size_t)state < CURL_ARRAYSIZE(names)) ? names[state] : "";
+  वापस ((माप_प्रकार)state < CURL_ARRAYSIZE(names)) ? names[state] : "";
 }
-#endif /* CURLVERBOSE */
+#पूर्ण_अगर /* CURLVERBOSE */
 
 /*
  * SSH State machine related code
  */
 /* This is the ONLY way to change SSH state! */
-void Curl_ssh_set_state(struct Curl_easy *data,
-                        struct ssh_conn *sshc,
+व्योम Curl_ssh_set_state(काष्ठा Curl_easy *तथ्य,
+                        काष्ठा ssh_conn *sshc,
                         sshstate nowstate)
 {
-#ifdef CURLVERBOSE
-  if(sshc->state != nowstate) {
-    CURL_TRC_SSH(data, "[%s] -> [%s]",
+#अगर_घोषित CURLVERBOSE
+  अगर(sshc->state != nowstate) {
+    CURL_TRC_SSH(तथ्य, "[%s] -> [%s]",
                  Curl_ssh_statename(sshc->state),
                  Curl_ssh_statename(nowstate));
   }
-#else
-  (void)data;
-#endif
+#अन्यथा
+  (व्योम)तथ्य;
+#पूर्ण_अगर
   sshc->state = nowstate;
 }
 
-#define MAX_SSHPATH_LEN 100000 /* arbitrary */
+#घोषणा MAX_SSHPATH_LEN 100000 /* arbitrary */
 
 /* figure out the path to work with in this particular request */
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir, /* when SFTP is used */
-                             char **path) /* returns the  allocated
+CURLcode Curl_getworkingpath(काष्ठा Curl_easy *तथ्य,
+                             स्थिर अक्षर *homedir, /* when SFTP is used */
+                             अक्षर **path) /* returns the  allocated
                                              real path to work with */
 {
-  char *working_path;
-  size_t working_path_len;
-  struct dynbuf npath;
-  CURLcode result =
-    Curl_urldecode(data->state.up.path, 0, &working_path,
+  अक्षर *working_path;
+  माप_प्रकार working_path_len;
+  काष्ठा dynbuf npath;
+  CURLcode परिणाम =
+    Curl_urldecode(तथ्य->state.up.path, 0, &working_path,
                    &working_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  अगर(परिणाम)
+    वापस परिणाम;
 
   /* new path to switch to in case we need to */
   curlx_dyn_init(&npath, MAX_SSHPATH_LEN);
 
   /* Check for /~/, indicating relative to the user's home directory */
-  if((data->conn->scheme->protocol & CURLPROTO_SCP) &&
-     (working_path_len > 3) && (!memcmp(working_path, "/~/", 3))) {
+  अगर((तथ्य->conn->scheme->protocol & CURLPROTO_SCP) &&
+     (working_path_len > 3) && (!स_भेद(working_path, "/~/", 3))) {
     /* It is referenced to the home directory, so strip the leading '/~/' */
-    if(curlx_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
+    अगर(curlx_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
       curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+      वापस CURLE_OUT_OF_MEMORY;
     }
   }
-  else if((data->conn->scheme->protocol & CURLPROTO_SFTP) &&
-          (!strcmp("/~", working_path) ||
-           ((working_path_len > 2) && !memcmp(working_path, "/~/", 3)))) {
-    if(curlx_dyn_add(&npath, homedir)) {
+  अन्यथा अगर((तथ्य->conn->scheme->protocol & CURLPROTO_SFTP) &&
+          (!म_भेद("/~", working_path) ||
+           ((working_path_len > 2) && !स_भेद(working_path, "/~/", 3)))) {
+    अगर(curlx_dyn_add(&npath, homedir)) {
       curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+      वापस CURLE_OUT_OF_MEMORY;
     }
-    if(working_path_len > 2) {
-      size_t len;
-      const char *p;
-      int copyfrom = 3;
+    अगर(working_path_len > 2) {
+      माप_प्रकार len;
+      स्थिर अक्षर *p;
+      पूर्णांक copyfrom = 3;
       /* Copy a separating '/' if homedir does not end with one */
       len = curlx_dyn_len(&npath);
       p = curlx_dyn_ptr(&npath);
-      if(len && (p[len - 1] != '/'))
+      अगर(len && (p[len - 1] != '/'))
         copyfrom = 2;
 
-      if(curlx_dyn_addn(&npath, &working_path[copyfrom],
+      अगर(curlx_dyn_addn(&npath, &working_path[copyfrom],
                         working_path_len - copyfrom)) {
         curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+        वापस CURLE_OUT_OF_MEMORY;
       }
     }
-    else {
-      if(curlx_dyn_add(&npath, "/")) {
+    अन्यथा {
+      अगर(curlx_dyn_add(&npath, "/")) {
         curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+        वापस CURLE_OUT_OF_MEMORY;
       }
     }
   }
 
-  if(curlx_dyn_len(&npath)) {
+  अगर(curlx_dyn_len(&npath)) {
     curlx_free(working_path);
 
     /* store the pointer for the caller to receive */
     *path = curlx_dyn_ptr(&npath);
   }
-  else
+  अन्यथा
     *path = working_path;
   DEBUGASSERT(*path && (*path)[0]);
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-#define MAX_PATHLENGTH 65535 /* arbitrary long */
+#घोषणा MAX_PATHLENGTH 65535 /* arbitrary long */
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
+CURLcode Curl_get_pathname(स्थिर अक्षर **cpp, अक्षर **path, स्थिर अक्षर *homedir)
 {
-  const char *cp = *cpp;
-  struct dynbuf out;
-  CURLcode result;
+  स्थिर अक्षर *cp = *cpp;
+  काष्ठा dynbuf out;
+  CURLcode परिणाम;
 
   DEBUGASSERT(homedir);
-  *path = NULL;
-  *cpp = NULL;
-  if(!*cp || !homedir)
-    return CURLE_QUOTE_ERROR;
+  *path = शून्य;
+  *cpp = शून्य;
+  अगर(!*cp || !homedir)
+    वापस CURLE_QUOTE_ERROR;
 
   curlx_dyn_init(&out, MAX_PATHLENGTH);
 
@@ -218,59 +218,59 @@ CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
   curlx_str_passblanks(&cp);
 
   /* Check for quoted filenames */
-  if(*cp == '\"' || *cp == '\'') {
-    char quot = *cp++;
+  अगर(*cp == '\"' || *cp == '\'') {
+    अक्षर quot = *cp++;
 
     /* Search for terminating quote, unescape some chars */
-    while(*cp != quot) {
-      if(!*cp) /* End of string */
-        goto fail;
+    जबतक(*cp != quot) {
+      अगर(!*cp) /* End of string */
+        जाओ fail;
 
-      if(*cp == '\\') { /* Escaped characters */
+      अगर(*cp == '\\') { /* Escaped characters */
         cp++;
-        if(*cp != '\'' && *cp != '\"' && *cp != '\\')
-          goto fail;
+        अगर(*cp != '\'' && *cp != '\"' && *cp != '\\')
+          जाओ fail;
       }
-      result = curlx_dyn_addn(&out, cp, 1);
-      if(result)
-        return result;
+      परिणाम = curlx_dyn_addn(&out, cp, 1);
+      अगर(परिणाम)
+        वापस परिणाम;
       cp++;
     }
     cp++; /* pass the end quote */
 
-    if(!curlx_dyn_len(&out))
-      goto fail;
+    अगर(!curlx_dyn_len(&out))
+      जाओ fail;
   }
-  else {
-    struct Curl_str word;
+  अन्यथा {
+    काष्ठा Curl_str word;
     bool content = FALSE;
-    int rc;
+    पूर्णांक rc;
     /* Handling for relative path - prepend home directory */
-    if(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
-      result = curlx_dyn_add(&out, homedir);
-      if(!result)
-        result = curlx_dyn_addn(&out, "/", 1);
-      if(result)
-        return result;
+    अगर(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
+      परिणाम = curlx_dyn_add(&out, homedir);
+      अगर(!परिणाम)
+        परिणाम = curlx_dyn_addn(&out, "/", 1);
+      अगर(परिणाम)
+        वापस परिणाम;
       cp += 3;
       content = TRUE;
     }
     /* Read to end of filename - either to whitespace or terminator */
     rc = curlx_str_word(&cp, &word, MAX_PATHLENGTH);
-    if(rc) {
-      if(rc == STRE_BIG) {
+    अगर(rc) {
+      अगर(rc == STRE_BIG) {
         curlx_dyn_free(&out);
-        return CURLE_TOO_LARGE;
+        वापस CURLE_TOO_LARGE;
       }
-      else if(!content)
+      अन्यथा अगर(!content)
         /* no path, no word, this is incorrect */
-        goto fail;
+        जाओ fail;
     }
-    else {
+    अन्यथा {
       /* append the word */
-      result = curlx_dyn_addn(&out, curlx_str(&word), curlx_strlen(&word));
-      if(result)
-        return result;
+      परिणाम = curlx_dyn_addn(&out, curlx_str(&word), curlx_strlen(&word));
+      अगर(परिणाम)
+        वापस परिणाम;
     }
   }
   /* skip whitespace */
@@ -280,136 +280,136 @@ CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
   *cpp = cp;
 
   *path = curlx_dyn_ptr(&out);
-  return CURLE_OK;
+  वापस CURLE_OK;
 
 fail:
   curlx_dyn_free(&out);
-  return CURLE_QUOTE_ERROR;
+  वापस CURLE_QUOTE_ERROR;
 }
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(काष्ठा Curl_easy *तथ्य,
+                        स्थिर अक्षर *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep)
 {
   curl_off_t from, to;
-  int to_t;
-  int from_t = curlx_str_number(&range, &from, CURL_OFF_T_MAX);
-  if(from_t == STRE_OVERFLOW)
-    return CURLE_RANGE_ERROR;
+  पूर्णांक to_t;
+  पूर्णांक from_t = curlx_str_संख्या(&range, &from, CURL_OFF_T_MAX);
+  अगर(from_t == STRE_OVERFLOW)
+    वापस CURLE_RANGE_ERROR;
   curlx_str_passblanks(&range);
-  (void)curlx_str_single(&range, '-');
+  (व्योम)curlx_str_single(&range, '-');
 
   to_t = curlx_str_numblanks(&range, &to);
-  if((to_t == STRE_OVERFLOW) || (to_t && from_t) || *range)
-    return CURLE_RANGE_ERROR;
+  अगर((to_t == STRE_OVERFLOW) || (to_t && from_t) || *range)
+    वापस CURLE_RANGE_ERROR;
 
-  if(from_t) {
+  अगर(from_t) {
     /* no start point given, set from relative to end of file */
-    if(!to)
+    अगर(!to)
       /* "-0" is not a fine range */
-      return CURLE_RANGE_ERROR;
-    else if(to > filesize)
+      वापस CURLE_RANGE_ERROR;
+    अन्यथा अगर(to > filesize)
       to = filesize;
     from = filesize - to;
     to = filesize - 1;
   }
-  else if(from > filesize) {
-    failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
+  अन्यथा अगर(from > filesize) {
+    failf(तथ्य, "Offset (%" FMT_OFF_T ") was beyond file size (%"
           FMT_OFF_T ")", from, filesize);
-    return CURLE_RANGE_ERROR;
+    वापस CURLE_RANGE_ERROR;
   }
-  else if((to_t == STRE_NO_NUM) || (to >= filesize))
+  अन्यथा अगर((to_t == STRE_NO_अंक) || (to >= filesize))
     to = filesize - 1;
 
-  if(from > to) {
-    failf(data, "Bad range: start offset larger than end offset");
-    return CURLE_RANGE_ERROR;
+  अगर(from > to) {
+    failf(तथ्य, "Bad range: start offset larger than end offset");
+    वापस CURLE_RANGE_ERROR;
   }
-  if((to - from) == CURL_OFF_T_MAX)
-    return CURLE_RANGE_ERROR;
+  अगर((to - from) == CURL_OFF_T_MAX)
+    वापस CURLE_RANGE_ERROR;
 
   *startp = from;
   *sizep = to - from + 1;
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
 /* called by the multi interface to figure out what socket(s) to wait for and
    for what actions in the DO_DONE, PERFORM and WAITPERFORM states */
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps)
+CURLcode Curl_ssh_pollset(काष्ठा Curl_easy *तथ्य, काष्ठा easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int waitfor;
+  पूर्णांक waitfor;
 
-  if(!sshc || (sock == CURL_SOCKET_BAD))
-    return CURLE_FAILED_INIT;
+  अगर(!sshc || (sock == CURL_SOCKET_BAD))
+    वापस CURLE_FAILED_INIT;
 
-  waitfor = sshc->waitfor ? sshc->waitfor : data->req.io_flags;
-  if(waitfor) {
-    int flags = 0;
-    if(waitfor & REQ_IO_RECV)
+  waitfor = sshc->waitfor ? sshc->waitfor : तथ्य->req.io_flags;
+  अगर(waitfor) {
+    पूर्णांक flags = 0;
+    अगर(waitfor & REQ_IO_RECV)
       flags |= CURL_POLL_IN;
-    if(waitfor & REQ_IO_SEND)
+    अगर(waitfor & REQ_IO_SEND)
       flags |= CURL_POLL_OUT;
     DEBUGASSERT(flags);
-    CURL_TRC_SSH(data, "pollset, flags=%x", (unsigned int)flags);
-    return Curl_pollset_change(data, ps, sock, flags, 0);
+    CURL_TRC_SSH(तथ्य, "pollset, flags=%x", (अचिन्हित पूर्णांक)flags);
+    वापस Curl_pollset_change(तथ्य, ps, sock, flags, 0);
   }
   /* While we still have a session, we listen incoming data. */
-  if(sshc->ssh_session)
-    return Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0);
-  return CURLE_OK;
+  अगर(sshc->ssh_session)
+    वापस Curl_pollset_change(तथ्य, ps, sock, CURL_POLL_IN, 0);
+  वापस CURLE_OK;
 }
 
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
+CURLcode Curl_ssh_setup_pkey(काष्ठा Curl_easy *तथ्य, काष्ठा ssh_conn *sshc)
 {
-  char *home = NULL;
-  if(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
-    const char *str;
+  अक्षर *home = शून्य;
+  अगर(तथ्य->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
+    स्थिर अक्षर *str;
 
-    sshc->pub_key = sshc->priv_key = NULL;
+    sshc->pub_कुंजी = sshc->priv_कुंजी = शून्य;
 
-    if(CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY)) {
-      sshc->priv_key = curlx_strdup(
-        CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY));
-      if(!sshc->priv_key)
-        goto fail;
+    अगर(CURL_EASY_STR(तथ्य, STRING_SSH_PRIVATE_कुंजी)) {
+      sshc->priv_कुंजी = curlx_strdup(
+        CURL_EASY_STR(तथ्य, STRING_SSH_PRIVATE_कुंजी));
+      अगर(!sshc->priv_कुंजी)
+        जाओ fail;
     }
-    else {
+    अन्यथा {
       /* To ponder about: should really the lib be messing about with the HOME
          environment variable etc? */
       curlx_struct_stat sbuf;
       home = curl_getenv("HOME");
 
       /* If no private key file is specified, try some common paths. */
-      if(home) {
+      अगर(home) {
         /* Try ~/.ssh first. */
-        sshc->priv_key = curl_maprintf("%s/.ssh/id_rsa", home);
-        if(!sshc->priv_key)
-          goto fail;
-        else if(curlx_stat(sshc->priv_key, &sbuf)) {
-          curlx_free(sshc->priv_key);
-          sshc->priv_key = curl_maprintf("%s/.ssh/id_dsa", home);
-          if(!sshc->priv_key)
-            goto fail;
-          else if(curlx_stat(sshc->priv_key, &sbuf)) {
-            curlx_safefree(sshc->priv_key);
+        sshc->priv_कुंजी = curl_maprintf("%s/.ssh/id_rsa", home);
+        अगर(!sshc->priv_कुंजी)
+          जाओ fail;
+        अन्यथा अगर(curlx_stat(sshc->priv_कुंजी, &sbuf)) {
+          curlx_free(sshc->priv_कुंजी);
+          sshc->priv_कुंजी = curl_maprintf("%s/.ssh/id_dsa", home);
+          अगर(!sshc->priv_कुंजी)
+            जाओ fail;
+          अन्यथा अगर(curlx_stat(sshc->priv_कुंजी, &sbuf)) {
+            curlx_safefree(sshc->priv_कुंजी);
           }
         }
         curlx_safefree(home);
       }
-      if(!sshc->priv_key) {
+      अगर(!sshc->priv_कुंजी) {
         /* Nothing found; try the current dir. */
-        sshc->priv_key = curlx_strdup("id_rsa");
-        if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
-          curlx_free(sshc->priv_key);
-          sshc->priv_key = curlx_strdup("id_dsa");
-          if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
-            curlx_free(sshc->priv_key);
+        sshc->priv_कुंजी = curlx_strdup("id_rsa");
+        अगर(sshc->priv_कुंजी && curlx_stat(sshc->priv_कुंजी, &sbuf)) {
+          curlx_free(sshc->priv_कुंजी);
+          sshc->priv_कुंजी = curlx_strdup("id_dsa");
+          अगर(sshc->priv_कुंजी && curlx_stat(sshc->priv_कुंजी, &sbuf)) {
+            curlx_free(sshc->priv_कुंजी);
             /* Out of guesses. Set to the empty string to avoid
              * surprising info messages. */
-            sshc->priv_key = curlx_strdup("");
+            sshc->priv_कुंजी = curlx_strdup("");
           }
         }
       }
@@ -420,36 +420,36 @@ CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
      * library extract the public key from the private key file. This is done
      * by passing sshc->pub_key = NULL.
      */
-    str = CURL_EASY_STR(data, STRING_SSH_PUBLIC_KEY);
-    if(str && *str) {  /* treat empty string the same way as NULL */
-      sshc->pub_key = curlx_strdup(str);
-      if(!sshc->pub_key)
-        goto fail;
+    str = CURL_EASY_STR(तथ्य, STRING_SSH_PUBLIC_कुंजी);
+    अगर(str && *str) {  /* treat empty string the same way as NULL */
+      sshc->pub_कुंजी = curlx_strdup(str);
+      अगर(!sshc->pub_कुंजी)
+        जाओ fail;
     }
 
     {
-      const char *keypasswd = CURL_EASY_STR(data, STRING_KEY_PASSWD);
-      if(keypasswd) {
+      स्थिर अक्षर *keypasswd = CURL_EASY_STR(तथ्य, STRING_कुंजी_PASSWD);
+      अगर(keypasswd) {
         sshc->passphrase = curlx_strdup(keypasswd);
-        if(!sshc->passphrase)
-          goto fail;
+        अगर(!sshc->passphrase)
+          जाओ fail;
       }
     }
 
-    if(sshc->pub_key)
-      infof(data, "SSH: public key file '%s'", sshc->pub_key);
-    if(sshc->priv_key)
-      infof(data, "SSH: private key file '%s'", sshc->priv_key);
-    else
-      infof(data, "SSH: public key auth without private key set!");
+    अगर(sshc->pub_कुंजी)
+      infof(तथ्य, "SSH: public key file '%s'", sshc->pub_कुंजी);
+    अगर(sshc->priv_कुंजी)
+      infof(तथ्य, "SSH: private key file '%s'", sshc->priv_कुंजी);
+    अन्यथा
+      infof(तथ्य, "SSH: public key auth without private key set!");
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 
 fail:
   curlx_safefree(home);
-  curlx_safefree(sshc->priv_key);
-  curlx_safefree(sshc->pub_key);
-  return CURLE_OUT_OF_MEMORY;
+  curlx_safefree(sshc->priv_कुंजी);
+  curlx_safefree(sshc->pub_कुंजी);
+  वापस CURLE_OUT_OF_MEMORY;
 }
 
-#endif /* USE_SSH */
+#पूर्ण_अगर /* USE_SSH */

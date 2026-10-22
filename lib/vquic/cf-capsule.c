@@ -21,226 +21,226 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#अगर !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "select.h"
-#include "vquic/capsule.h"
-#include "vquic/cf-capsule.h"
+#समावेश "urldata.h"
+#समावेश "cfilters.h"
+#समावेश "curl_trc.h"
+#समावेश "bufq.h"
+#समावेश "select.h"
+#समावेश "vquic/capsule.h"
+#समावेश "vquic/cf-capsule.h"
 
 /* send/recv buffer: 4 chunks of 16KB = 64KB, enough for large datagrams */
-#define CAPSULE_RECV_CHUNKS    4
-#define CAPSULE_SEND_CHUNKS    4
-#define CAPSULE_CHUNK_SIZE     (16 * 1024)
+#घोषणा CAPSULE_RECV_CHUNKS    4
+#घोषणा CAPSULE_SEND_CHUNKS    4
+#घोषणा CAPSULE_CHUNK_आकार     (16 * 1024)
 
-struct cf_capsule_ctx {
-  struct bufq recvbuf;
-  struct bufq sendbuf;
+काष्ठा cf_capsule_ctx {
+  काष्ठा bufq recvbuf;
+  काष्ठा bufq sendbuf;
 };
 
-static void cf_capsule_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+अटल व्योम cf_capsule_destroy(काष्ठा Curl_cfilter *cf,
+                               काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  काष्ठा cf_capsule_ctx *ctx = cf->ctx;
+  (व्योम)तथ्य;
+  अगर(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_safefree(ctx);
   }
 }
 
-static CURLcode cf_capsule_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
+अटल CURLcode cf_capsule_connect(काष्ठा Curl_cfilter *cf,
+                                   काष्ठा Curl_easy *तथ्य,
                                    bool *done)
 {
-  if(cf->connected) {
+  अगर(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    वापस CURLE_OK;
   }
-  if(cf->next) {
-    CURLcode result = cf->next->cft->do_connect(cf->next, data, done);
-    if(!result && *done)
+  अगर(cf->अग्र) {
+    CURLcode परिणाम = cf->अग्र->cft->do_connect(cf->अग्र, तथ्य, done);
+    अगर(!परिणाम && *done)
       cf->connected = TRUE;
-    return result;
+    वापस परिणाम;
   }
   *done = FALSE;
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode cf_capsule_flush(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+अटल CURLcode cf_capsule_flush(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  size_t nwritten;
+  काष्ठा cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
+  माप_प्रकार nwritten;
 
-  if(Curl_bufq_is_empty(&ctx->sendbuf))
-    return CURLE_OK;
+  अगर(Curl_bufq_is_empty(&ctx->sendbuf))
+    वापस CURLE_OK;
 
-  result = Curl_cf_send_bufq(cf->next, data, &ctx->sendbuf, NULL, 0,
+  परिणाम = Curl_cf_send_bufq(cf->अग्र, तथ्य, &ctx->sendbuf, शून्य, 0,
                              &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      CURL_TRC_CF(data, cf, "flush send buffer(%zu) -> EAGAIN",
+  अगर(परिणाम) {
+    अगर(परिणाम == CURLE_AGAIN) {
+      CURL_TRC_CF(तथ्य, cf, "flush send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->sendbuf));
     }
-    return result;
+    वापस परिणाम;
   }
-  return Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
+  वापस Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static CURLcode cf_capsule_send(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const uint8_t *buf, size_t len,
-                                bool eos, size_t *pnwritten)
+अटल CURLcode cf_capsule_send(काष्ठा Curl_cfilter *cf,
+                                काष्ठा Curl_easy *तथ्य,
+                                स्थिर uint8_t *buf, माप_प्रकार len,
+                                bool eos, माप_प्रकार *pnwritten)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result;
+  काष्ठा cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode परिणाम;
 
-  (void)eos;
+  (व्योम)eos;
   *pnwritten = 0;
 
-  if(Curl_bufq_is_full(&ctx->sendbuf)) {
-    result = cf_capsule_flush(cf, data);
-    if(result)
-      return result;
+  अगर(Curl_bufq_is_full(&ctx->sendbuf)) {
+    परिणाम = cf_capsule_flush(cf, तथ्य);
+    अगर(परिणाम)
+      वापस परिणाम;
   }
 
   /* encapsulate new payload into a capsule */
-  result = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
-  if(result)
-    return result;
+  परिणाम = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
+  अगर(परिणाम)
+    वापस परिणाम;
 
-  result = cf_capsule_flush(cf, data);
-  if(result == CURLE_AGAIN) {
+  परिणाम = cf_capsule_flush(cf, तथ्य);
+  अगर(परिणाम == CURLE_AGAIN) {
     /* Could not send it (or all), report success nevertheless as we
      * have the payload buffered now and will flush it later. */
-    result = CURLE_OK;
+    परिणाम = CURLE_OK;
   }
 
-  if(!result)
+  अगर(!परिणाम)
     *pnwritten = len;
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode cf_capsule_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
-                                size_t *pnread)
+अटल CURLcode cf_capsule_recv(काष्ठा Curl_cfilter *cf,
+                                काष्ठा Curl_easy *तथ्य,
+                                अक्षर *buf, माप_प्रकार len,
+                                माप_प्रकार *pnread)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  CURLcode result;
-  size_t nread;
+  काष्ठा cf_capsule_ctx *ctx = cf->ctx;
+  CURLcode परिणाम;
+  माप_प्रकार nread;
 
   *pnread = 0;
 
   /* fill our receive buffer from the filter below */
-  while(!Curl_bufq_is_full(&ctx->recvbuf)) {
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->recvbuf, 0, &nread);
-    if(result == CURLE_AGAIN)
-      break;
-    if(result)
-      return result;
-    if(!nread)
-      break;
+  जबतक(!Curl_bufq_is_full(&ctx->recvbuf)) {
+    परिणाम = Curl_cf_recv_bufq(cf->अग्र, तथ्य, &ctx->recvbuf, 0, &nread);
+    अगर(परिणाम == CURLE_AGAIN)
+      अवरोध;
+    अगर(परिणाम)
+      वापस परिणाम;
+    अगर(!nread)
+      अवरोध;
   }
 
   /* try to extract a complete capsule datagram */
-  *pnread = Curl_capsule_process_udp_raw(cf, data, &ctx->recvbuf,
-                                         (unsigned char *)buf, len,
-                                         &result);
-  return result;
+  *pnread = Curl_capsule_process_udp_raw(cf, तथ्य, &ctx->recvbuf,
+                                         (अचिन्हित अक्षर *)buf, len,
+                                         &परिणाम);
+  वापस परिणाम;
 }
 
-static bool cf_capsule_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+अटल bool cf_capsule_तथ्य_pending(काष्ठा Curl_cfilter *cf,
+                                    स्थिर काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  काष्ठा cf_capsule_ctx *ctx = cf->ctx;
 
-  if(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  अगर(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
+    वापस TRUE;
+  वापस cf->अग्र ? cf->अग्र->cft->has_तथ्य_pending(cf->अग्र, तथ्य) : FALSE;
 }
 
-static CURLcode cf_capsule_cntrl(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int event, int arg1, void *arg2)
+अटल CURLcode cf_capsule_cntrl(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य,
+                                 पूर्णांक event, पूर्णांक arg1, व्योम *arg2)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_FLUSH:
-    result = cf_capsule_flush(cf, data);
-    break;
-  default:
-    break;
+  (व्योम)arg1;
+  (व्योम)arg2;
+  चयन(event) {
+  हाल CF_CTRL_FLUSH:
+    परिणाम = cf_capsule_flush(cf, तथ्य);
+    अवरोध;
+  शेष:
+    अवरोध;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode cf_capsule_query(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int query, int *pres1, void *pres2)
+अटल CURLcode cf_capsule_query(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य,
+                                 पूर्णांक query, पूर्णांक *pres1, व्योम *pres2)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  काष्ठा cf_capsule_ctx *ctx = cf->ctx;
 
-  (void)pres2;
-  switch(query) {
-  case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+  (व्योम)pres2;
+  चयन(query) {
+  हाल CF_QUERY_NEED_FLUSH: {
+    अगर(!Curl_bufq_is_empty(&ctx->sendbuf)) {
       *pres1 = TRUE;
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
-    break;
+    अवरोध;
   }
-  default:
-    break;
+  शेष:
+    अवरोध;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  वापस cf->अग्र ?
+    cf->अग्र->cft->query(cf->अग्र, तथ्य, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_capsule_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+अटल CURLcode cf_capsule_adjust_pollset(काष्ठा Curl_cfilter *cf,
+                                          काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा easy_pollset *ps)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  काष्ठा cf_capsule_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
-    curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    if(sock != CURL_SOCKET_BAD)
-      return Curl_pollset_add_out(data, ps, sock);
+  अगर(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+    curl_socket_t sock = Curl_conn_cf_get_socket(cf, तथ्य);
+    अगर(sock != CURL_SOCKET_BAD)
+      वापस Curl_pollset_add_out(तथ्य, ps, sock);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode cf_capsule_shutdown(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data, bool *done)
+अटल CURLcode cf_capsule_shutdown(काष्ठा Curl_cfilter *cf,
+                                    काष्ठा Curl_easy *तथ्य, bool *done)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(!cf->connected || cf->shutdown) {
+  अगर(!cf->connected || cf->shutdown) {
     *done = TRUE;
   }
-  else {
-    result = cf_capsule_flush(cf, data);
-    *done = !result;
-    if(result == CURLE_AGAIN)
-      result = CURLE_OK;
+  अन्यथा {
+    परिणाम = cf_capsule_flush(cf, तथ्य);
+    *done = !परिणाम;
+    अगर(परिणाम == CURLE_AGAIN)
+      परिणाम = CURLE_OK;
   }
-  return result;
+  वापस परिणाम;
 }
 
-struct Curl_cftype Curl_cft_capsule = {
+काष्ठा Curl_cftype Curl_cft_capsule = {
   "CAPSULE",
   0,
   0,
@@ -248,7 +248,7 @@ struct Curl_cftype Curl_cft_capsule = {
   cf_capsule_connect,
   cf_capsule_shutdown,
   cf_capsule_adjust_pollset,
-  cf_capsule_data_pending,
+  cf_capsule_तथ्य_pending,
   cf_capsule_send,
   cf_capsule_recv,
   cf_capsule_cntrl,
@@ -257,50 +257,50 @@ struct Curl_cftype Curl_cft_capsule = {
   cf_capsule_query,
 };
 
-static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn)
+अटल CURLcode cf_capsule_create(काष्ठा Curl_cfilter **pcf,
+                                  काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_capsule_ctx *ctx;
-  CURLcode result;
+  काष्ठा Curl_cfilter *cf = शून्य;
+  काष्ठा cf_capsule_ctx *ctx;
+  CURLcode परिणाम;
 
-  (void)data;
-  (void)conn;
-  *pcf = NULL;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (व्योम)तथ्य;
+  (व्योम)conn;
+  *pcf = शून्य;
+  ctx = curlx_calloc(1, माप(*ctx));
+  अगर(!ctx) {
+    परिणाम = CURLE_OUT_OF_MEMORY;
+    जाओ out;
   }
 
-  Curl_bufq_init2(&ctx->recvbuf, CAPSULE_CHUNK_SIZE, CAPSULE_RECV_CHUNKS,
+  Curl_bufq_init2(&ctx->recvbuf, CAPSULE_CHUNK_आकार, CAPSULE_RECV_CHUNKS,
                   BUFQ_OPT_SOFT_LIMIT);
-  Curl_bufq_init2(&ctx->sendbuf, CAPSULE_CHUNK_SIZE, CAPSULE_SEND_CHUNKS,
+  Curl_bufq_init2(&ctx->sendbuf, CAPSULE_CHUNK_आकार, CAPSULE_SEND_CHUNKS,
                   BUFQ_OPT_SOFT_LIMIT);
 
-  result = Curl_cf_create(&cf, &Curl_cft_capsule, ctx);
+  परिणाम = Curl_cf_create(&cf, &Curl_cft_capsule, ctx);
 
 out:
-  *pcf = (!result) ? cf : NULL;
-  if(result && ctx) {
+  *pcf = (!परिणाम) ? cf : शून्य;
+  अगर(परिणाम && ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_free(ctx);
   }
-  return result;
+  वापस परिणाम;
 }
 
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_capsule_जोड़ो_after(काष्ठा Curl_cfilter *cf_at,
+                                      काष्ठा Curl_easy *तथ्य)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  काष्ठा Curl_cfilter *cf;
+  CURLcode परिणाम;
 
-  result = cf_capsule_create(&cf, data, cf_at->conn);
-  if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
-  return result;
+  परिणाम = cf_capsule_create(&cf, तथ्य, cf_at->conn);
+  अगर(!परिणाम)
+    Curl_conn_cf_जोड़ो_after(cf_at, cf);
+  वापस परिणाम;
 }
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

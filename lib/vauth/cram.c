@@ -23,13 +23,13 @@
  * RFC2195 CRAM-MD5 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
+#अगर_अघोषित CURL_DISABLE_DIGEST_AUTH
 
-#include "vauth/vauth.h"
-#include "curl_hmac.h"
-#include "curl_md5.h"
+#समावेश "vauth/vauth.h"
+#समावेश "curl_hmac.h"
+#समावेश "curl_md5.h"
 
 /*
  * Curl_auth_create_cram_md5_message()
@@ -46,25 +46,25 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_cram_md5_message(const struct bufref *chlg,
-                                           struct Curl_creds *creds,
-                                           struct bufref *out)
+CURLcode Curl_auth_create_cram_md5_message(स्थिर काष्ठा bufref *chlg,
+                                           काष्ठा Curl_creds *creds,
+                                           काष्ठा bufref *out)
 {
-  struct HMAC_context *ctxt;
-  unsigned char digest[MD5_DIGEST_LEN];
-  char *response;
-  const char *user = Curl_creds_user(creds);
-  const char *passwd = Curl_creds_passwd(creds);
+  काष्ठा HMAC_context *ctxt;
+  अचिन्हित अक्षर digest[MD5_DIGEST_LEN];
+  अक्षर *response;
+  स्थिर अक्षर *user = Curl_creds_user(creds);
+  स्थिर अक्षर *passwd = Curl_creds_passwd(creds);
 
   /* Compute the digest using the password as the key */
   ctxt = Curl_HMAC_init(&Curl_HMAC_MD5,
-                        (const unsigned char *)passwd,
-                        curlx_uztoui(strlen(passwd)));
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+                        (स्थिर अचिन्हित अक्षर *)passwd,
+                        curlx_uztoui(म_माप(passwd)));
+  अगर(!ctxt)
+    वापस CURLE_OUT_OF_MEMORY;
 
   /* Update the digest with the given challenge */
-  if(Curl_bufref_len(chlg))
+  अगर(Curl_bufref_len(chlg))
     Curl_HMAC_update(ctxt, Curl_bufref_uptr(chlg),
                      curlx_uztoui(Curl_bufref_len(chlg)));
 
@@ -77,11 +77,11 @@ CURLcode Curl_auth_create_cram_md5_message(const struct bufref *chlg,
     user, digest[0], digest[1], digest[2], digest[3], digest[4],
     digest[5], digest[6], digest[7], digest[8], digest[9], digest[10],
     digest[11], digest[12], digest[13], digest[14], digest[15]);
-  if(!response)
-    return CURLE_OUT_OF_MEMORY;
+  अगर(!response)
+    वापस CURLE_OUT_OF_MEMORY;
 
-  Curl_bufref_set(out, response, strlen(response), curl_free);
-  return CURLE_OK;
+  Curl_bufref_set(out, response, म_माप(response), curl_free);
+  वापस CURLE_OK;
 }
 
-#endif /* !CURL_DISABLE_DIGEST_AUTH */
+#पूर्ण_अगर /* !CURL_DISABLE_DIGEST_AUTH */

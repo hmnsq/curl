@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_IMAP_H
-#define HEADER_CURL_IMAP_H
+#अगर_अघोषित HEADER_CURL_IMAP_H
+#घोषणा HEADER_CURL_IMAP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -25,15 +25,15 @@
  ***************************************************************************/
 
 /* Authentication type flags */
-#define IMAP_TYPE_CLEARTEXT (1 << 0)
-#define IMAP_TYPE_SASL      (1 << 1)
+#घोषणा IMAP_TYPE_CLEARTEXT (1 << 0)
+#घोषणा IMAP_TYPE_SASL      (1 << 1)
 
 /* Authentication type values */
-#define IMAP_TYPE_NONE      0
-#define IMAP_TYPE_ANY       (IMAP_TYPE_CLEARTEXT | IMAP_TYPE_SASL)
+#घोषणा IMAP_TYPE_NONE      0
+#घोषणा IMAP_TYPE_ANY       (IMAP_TYPE_CLEARTEXT | IMAP_TYPE_SASL)
 
-#ifndef CURL_DISABLE_IMAP
-extern const struct Curl_protocol Curl_protocol_imap;
-#endif
+#अगर_अघोषित CURL_DISABLE_IMAP
+बाह्य स्थिर काष्ठा Curl_protocol Curl_protocol_imap;
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_IMAP_H */
+#पूर्ण_अगर /* HEADER_CURL_IMAP_H */

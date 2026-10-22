@@ -21,58 +21,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if defined(_WIN32) && defined(UNICODE)
+#अगर defined(_WIN32) && defined(UNICODE)
 
-#include "curlx/multibyte.h"
+#समावेश "curlx/multibyte.h"
 
 /*
  * MultiByte conversions using Windows kernel32 library.
  */
 
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
+ब_अक्षर_प्रकार *curlx_convert_UTF8_to_wchar(स्थिर अक्षर *str_utf8)
 {
-  wchar_t *str_w = NULL;
+  ब_अक्षर_प्रकार *str_w = शून्य;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                        str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = curlx_malloc(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  अगर(str_utf8) {
+    पूर्णांक str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, शून्य, 0);
+    अगर(str_w_len > 0) {
+      str_w = curlx_malloc(str_w_len * माप(ब_अक्षर_प्रकार));
+      अगर(str_w) {
+        अगर(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           curlx_free(str_w);
-          return NULL;
+          वापस शून्य;
         }
       }
     }
   }
 
-  return str_w;
+  वापस str_w;
 }
 
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
+अक्षर *curlx_convert_wchar_to_UTF8(स्थिर ब_अक्षर_प्रकार *str_w)
 {
-  char *str_utf8 = NULL;
+  अक्षर *str_utf8 = शून्य;
 
-  if(str_w) {
-    int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
-                                    NULL, 0, NULL, NULL);
-    if(bytes > 0) {
+  अगर(str_w) {
+    पूर्णांक bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
+                                    शून्य, 0, शून्य, शून्य);
+    अगर(bytes > 0) {
       str_utf8 = curlx_malloc(bytes);
-      if(str_utf8) {
-        if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
-                               NULL, NULL) == 0) {
+      अगर(str_utf8) {
+        अगर(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
+                               शून्य, शून्य) == 0) {
           curlx_free(str_utf8);
-          return NULL;
+          वापस शून्य;
         }
       }
     }
   }
 
-  return str_utf8;
+  वापस str_utf8;
 }
 
-#endif /* _WIN32 && UNICODE */
+#पूर्ण_अगर /* _WIN32 && UNICODE */

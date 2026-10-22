@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SSPI_H
-#define HEADER_CURL_SSPI_H
+#अगर_अघोषित HEADER_CURL_SSPI_H
+#घोषणा HEADER_CURL_SSPI_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,81 +23,81 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_WINDOWS_SSPI
+#अगर_घोषित USE_WINDOWS_SSPI
 
-#include <sspi.h>
+#समावेश <sspi.h>
 
 /* Local helper macro */
-#ifdef UNICODE
-#define CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_UNICODE
-#else
-#define CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_ANSI
-#endif
+#अगर_घोषित UNICODE
+#घोषणा CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_UNICODE
+#अन्यथा
+#घोषणा CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_ANSI
+#पूर्ण_अगर
 
 /* Offered by mingw-w64 v9+, MS SDK 7.0A/VS2010+ */
-#ifndef SECPKG_ATTR_ENDPOINT_BINDINGS
-#define SECPKG_ATTR_ENDPOINT_BINDINGS 26
+#अगर_अघोषित SECPKG_ATTR_ENDPOINT_BINDINGS
+#घोषणा SECPKG_ATTR_ENDPOINT_BINDINGS 26
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct {
-  unsigned long BindingsLength;
+प्रकार काष्ठा {
+  अचिन्हित दीर्घ Bindings_लंबाई;
   SEC_CHANNEL_BINDINGS *Bindings;
 } SecPkgContext_Bindings;
-#endif
+#पूर्ण_अगर
 
-CURLcode Curl_sspi_global_init(void);
-void Curl_sspi_global_cleanup(void);
+CURLcode Curl_sspi_global_init(व्योम);
+व्योम Curl_sspi_global_cleanup(व्योम);
 
 /* This is used to populate the domain in an SSPI identity structure */
-CURLcode Curl_override_sspi_http_realm(const char *chlg,
+CURLcode Curl_override_sspi_http_realm(स्थिर अक्षर *chlg,
                                        SEC_WINNT_AUTH_IDENTITY_EX *identity);
 
 /* This is used to generate an SSPI identity structure */
-CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
+CURLcode Curl_create_sspi_identity(स्थिर अक्षर *userp, स्थिर अक्षर *passwdp,
                                    SEC_WINNT_AUTH_IDENTITY_EX *identity);
 
 /* This is used to free an SSPI identity structure */
-void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity);
+व्योम Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity);
 
 /* Forward-declaration of global variables defined in curl_sspi.c */
-extern PSecurityFunctionTable Curl_pSecFn;
+बाह्य PSecurityFunctionTable Curl_pSecFn;
 
 /* Provide Service Principal names as macros */
-#define SP_NAME_DIGEST              "WDigest"
-#define SP_NAME_NTLM                "NTLM"
-#define SP_NAME_NEGOTIATE           "Negotiate"
-#define SP_NAME_KERBEROS            "Kerberos"
+#घोषणा SP_NAME_DIGEST              "WDigest"
+#घोषणा SP_NAME_NTLM                "NTLM"
+#घोषणा SP_NAME_NEGOTIATE           "Negotiate"
+#घोषणा SP_NAME_KERBEROS            "Kerberos"
 
 /* Offered by mingw-w64 v9+, MS SDK 7.0A/VS2010+ */
-#ifndef ISC_REQ_USE_HTTP_STYLE
-#define ISC_REQ_USE_HTTP_STYLE                0x01000000
-#endif
+#अगर_अघोषित ISC_REQ_USE_HTTP_STYLE
+#घोषणा ISC_REQ_USE_HTTP_STYLE                0x01000000
+#पूर्ण_अगर
 
 /* Offered by mingw-w64 v8+, MS SDK 6.0A/VS2008+ */
-#ifndef SEC_E_INVALID_PARAMETER
-#define SEC_E_INVALID_PARAMETER               ((HRESULT)0x8009035DL)
-#endif
+#अगर_अघोषित SEC_E_INVALID_PARAMETER
+#घोषणा SEC_E_INVALID_PARAMETER               ((HRESULT)0x8009035DL)
+#पूर्ण_अगर
 /* Offered by mingw-w64 v8+, MS SDK 6.0A/VS2008+ */
-#ifndef SEC_E_DELEGATION_POLICY
-#define SEC_E_DELEGATION_POLICY               ((HRESULT)0x8009035EL)
-#endif
+#अगर_अघोषित SEC_E_DELEGATION_POLICY
+#घोषणा SEC_E_DELEGATION_POLICY               ((HRESULT)0x8009035EL)
+#पूर्ण_अगर
 /* Offered by mingw-w64 v8+, MS SDK 6.0A/VS2008+ */
-#ifndef SEC_E_POLICY_NLTM_ONLY
-#define SEC_E_POLICY_NLTM_ONLY                ((HRESULT)0x8009035FL)
-#endif
+#अगर_अघोषित SEC_E_POLICY_NLTM_ONLY
+#घोषणा SEC_E_POLICY_NLTM_ONLY                ((HRESULT)0x8009035FL)
+#पूर्ण_अगर
 
 /* Offered by mingw-w64 v8+, MS SDK 6.0A/VS2008+ */
-#ifndef SEC_I_SIGNATURE_NEEDED
-#define SEC_I_SIGNATURE_NEEDED                ((HRESULT)0x0009035CL)
-#endif
+#अगर_अघोषित SEC_I_SIGNATURE_NEEDED
+#घोषणा SEC_I_SIGNATURE_NEEDED                ((HRESULT)0x0009035CL)
+#पूर्ण_अगर
 
 /*
  * Definitions required from ntsecapi.h are directly provided below this point
  * to avoid including ntsecapi.h due to a conflict with OpenSSL's safestack.h
  */
-#define KERB_WRAP_NO_ENCRYPT 0x80000001
+#घोषणा KERB_WRAP_NO_ENCRYPT 0x80000001
 
-#endif /* USE_WINDOWS_SSPI */
+#पूर्ण_अगर /* USE_WINDOWS_SSPI */
 
-#endif /* HEADER_CURL_SSPI_H */
+#पूर्ण_अगर /* HEADER_CURL_SSPI_H */

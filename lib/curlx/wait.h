@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WAIT_H
-#define HEADER_CURL_WAIT_H
+#अगर_अघोषित HEADER_CURL_WAIT_H
+#घोषणा HEADER_CURL_WAIT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-int curlx_wait_ms(timediff_t timeout_ms);
+पूर्णांक curlx_wait_ms(timediff_t timeout_ms);
 
-#endif /* HEADER_CURL_WAIT_H */
+#पूर्ण_अगर /* HEADER_CURL_WAIT_H */

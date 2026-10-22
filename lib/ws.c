@@ -21,27 +21,27 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "ws.h"
+#समावेश "curl_setup.h"
+#समावेश "urldata.h"
+#समावेश "ws.h"
 
-#ifndef CURL_DISABLE_WEBSOCKETS
+#अगर_अघोषित CURL_DISABLE_WEBSOCKETS
 
-#include "url.h"
-#include "bufq.h"
-#include "curlx/dynbuf.h"
-#include "rand.h"
-#include "curlx/base64.h"
-#include "cf-recvbuf.h"
-#include "connect.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "easyif.h"
-#include "transfer.h"
-#include "select.h"
-#include "curlx/strparse.h"
-#include "curlx/strcopy.h"
+#समावेश "url.h"
+#समावेश "bufq.h"
+#समावेश "curlx/dynbuf.h"
+#समावेश "rand.h"
+#समावेश "curlx/base64.h"
+#समावेश "cf-recvbuf.h"
+#समावेश "connect.h"
+#समावेश "sendf.h"
+#समावेश "curl_trc.h"
+#समावेश "multiif.h"
+#समावेश "easyif.h"
+#समावेश "transfer.h"
+#समावेश "select.h"
+#समावेश "curlx/strparse.h"
+#समावेश "curlx/strcopy.h"
 
 /* RFC 6455 Section 5.2
 
@@ -52,531 +52,531 @@
    |N|V|V|V|       |
    | |1|2|3|       |
  */
-#define WSBIT_FIN          0x80
-#define WSBIT_RSV1         0x40
-#define WSBIT_RSV2         0x20
-#define WSBIT_RSV3         0x10
-#define WSBIT_RSV_MASK     (WSBIT_RSV1 | WSBIT_RSV2 | WSBIT_RSV3)
-#define WSBIT_OPCODE_CONT  0x0
-#define WSBIT_OPCODE_TEXT  0x1
-#define WSBIT_OPCODE_BIN   0x2
-#define WSBIT_OPCODE_CLOSE 0x8
-#define WSBIT_OPCODE_PING  0x9
-#define WSBIT_OPCODE_PONG  0xa
-#ifdef CURLVERBOSE
-#define WSBIT_OPCODE_MASK  0xf
-#endif
+#घोषणा WSBIT_FIN          0x80
+#घोषणा WSBIT_RSV1         0x40
+#घोषणा WSBIT_RSV2         0x20
+#घोषणा WSBIT_RSV3         0x10
+#घोषणा WSBIT_RSV_MASK     (WSBIT_RSV1 | WSBIT_RSV2 | WSBIT_RSV3)
+#घोषणा WSBIT_OPCODE_CONT  0x0
+#घोषणा WSBIT_OPCODE_TEXT  0x1
+#घोषणा WSBIT_OPCODE_BIN   0x2
+#घोषणा WSBIT_OPCODE_CLOSE 0x8
+#घोषणा WSBIT_OPCODE_PING  0x9
+#घोषणा WSBIT_OPCODE_PONG  0xa
+#अगर_घोषित CURLVERBOSE
+#घोषणा WSBIT_OPCODE_MASK  0xf
+#पूर्ण_अगर
 
-#define WSBIT_MASK 0x80
+#घोषणा WSBIT_MASK 0x80
 
 /* buffer dimensioning */
-#define WS_CHUNK_SIZE  65535
-#define WS_CHUNK_COUNT 2
+#घोषणा WS_CHUNK_आकार  65535
+#घोषणा WS_CHUNK_गिनती 2
 
 /* a client-side WS frame decoder, parsing frame headers and
  * payload, keeping track of current position and stats */
-enum ws_dec_state {
+क्रमागत ws_dec_state {
   WS_DEC_INIT,
-  WS_DEC_HEAD,
+  WS_DEC_शीर्ष,
   WS_DEC_PAYLOAD
 };
 
-struct ws_decoder {
-  int frame_age;        /* zero */
-  int frame_flags;      /* See the CURLWS_* defines */
+काष्ठा ws_decoder {
+  पूर्णांक frame_age;        /* zero */
+  पूर्णांक frame_flags;      /* See the CURLWS_* defines */
   curl_off_t payload_offset;   /* the offset parsing is at */
   curl_off_t payload_len;
-  uint8_t head[10];
-  int head_len, head_total;
-  enum ws_dec_state state;
-  int cont_flags;
+  uint8_t शीर्ष[10];
+  पूर्णांक शीर्ष_len, शीर्ष_योग;
+  क्रमागत ws_dec_state state;
+  पूर्णांक cont_flags;
 };
 
 /* a client-side WS frame encoder, generating frame headers and
  * converting payloads, tracking remaining data in current frame */
-struct ws_encoder {
+काष्ठा ws_encoder {
   curl_off_t payload_len;  /* payload length of current frame */
   curl_off_t payload_remain;  /* remaining payload of current */
-  unsigned int xori; /* xor index */
+  अचिन्हित पूर्णांक xori; /* xor index */
   uint8_t mask[4]; /* 32-bit mask for this connection */
   uint8_t firstbyte; /* first byte of frame we encode */
   BIT(contfragment); /* set TRUE if the previous fragment sent was not final */
 };
 
 /* Control frames are allowed up to 125 characters, rfc6455, ch. 5.5 */
-#define WS_MAX_CNTRL_LEN    125
+#घोषणा WS_MAX_CNTRL_LEN    125
 
-struct ws_cntrl_frame {
-  unsigned int type;
-  size_t payload_len;
+काष्ठा ws_cntrl_frame {
+  अचिन्हित पूर्णांक type;
+  माप_प्रकार payload_len;
   uint8_t payload[WS_MAX_CNTRL_LEN];
 };
 
 /* A websocket connection with en- and decoder that treat frames
  * and keep track of boundaries. */
-struct websocket {
-  struct Curl_easy *data; /* used for write callback handling */
-  struct ws_decoder dec;  /* decode of ws frames */
-  struct ws_encoder enc;  /* encode of ws frames */
-  struct bufq recvbuf;    /* raw data from the server */
-  struct bufq sendbuf;    /* raw data to be sent to the server */
-  struct curl_ws_frame recvframe;  /* the current WS FRAME received */
-  struct ws_cntrl_frame pending; /* a control frame pending to be sent */
-  size_t sendbuf_payload; /* number of payload bytes in sendbuf */
+काष्ठा websocket {
+  काष्ठा Curl_easy *तथ्य; /* used for write callback handling */
+  काष्ठा ws_decoder dec;  /* decode of ws frames */
+  काष्ठा ws_encoder enc;  /* encode of ws frames */
+  काष्ठा bufq recvbuf;    /* raw data from the server */
+  काष्ठा bufq sendbuf;    /* raw data to be sent to the server */
+  काष्ठा curl_ws_frame recvframe;  /* the current WS FRAME received */
+  काष्ठा ws_cntrl_frame pending; /* a control frame pending to be sent */
+  माप_प्रकार sendbuf_payload; /* number of payload bytes in sendbuf */
   BIT(using_reader);      /* sending WS data is handled via a client reader */
 };
 
-#ifdef CURLVERBOSE
-static const char *ws_frame_name_of_op(uint8_t firstbyte)
+#अगर_घोषित CURLVERBOSE
+अटल स्थिर अक्षर *ws_frame_name_of_op(uint8_t firstbyte)
 {
-  switch(firstbyte & WSBIT_OPCODE_MASK) {
-  case WSBIT_OPCODE_CONT:
-    return "CONT";
-  case WSBIT_OPCODE_TEXT:
-    return "TEXT";
-  case WSBIT_OPCODE_BIN:
-    return "BIN";
-  case WSBIT_OPCODE_CLOSE:
-    return "CLOSE";
-  case WSBIT_OPCODE_PING:
-    return "PING";
-  case WSBIT_OPCODE_PONG:
-    return "PONG";
-  default:
-    return "???";
+  चयन(firstbyte & WSBIT_OPCODE_MASK) {
+  हाल WSBIT_OPCODE_CONT:
+    वापस "CONT";
+  हाल WSBIT_OPCODE_TEXT:
+    वापस "TEXT";
+  हाल WSBIT_OPCODE_BIN:
+    वापस "BIN";
+  हाल WSBIT_OPCODE_CLOSE:
+    वापस "CLOSE";
+  हाल WSBIT_OPCODE_PING:
+    वापस "PING";
+  हाल WSBIT_OPCODE_PONG:
+    वापस "PONG";
+  शेष:
+    वापस "???";
   }
 }
-#endif
+#पूर्ण_अगर
 
-static int ws_frame_firstbyte2flags(struct Curl_easy *data,
-                                    uint8_t firstbyte, int cont_flags)
+अटल पूर्णांक ws_frame_firstbyte2flags(काष्ठा Curl_easy *तथ्य,
+                                    uint8_t firstbyte, पूर्णांक cont_flags)
 {
-  switch(firstbyte) {
+  चयन(firstbyte) {
   /* 0x00 - intermediate TEXT/BINARY fragment */
-  case WSBIT_OPCODE_CONT:
-    if(!(cont_flags & CURLWS_CONT)) {
-      failf(data, "[WS] no ongoing fragmented message to resume");
-      return 0;
+  हाल WSBIT_OPCODE_CONT:
+    अगर(!(cont_flags & CURLWS_CONT)) {
+      failf(तथ्य, "[WS] no ongoing fragmented message to resume");
+      वापस 0;
     }
-    return cont_flags | CURLWS_CONT;
+    वापस cont_flags | CURLWS_CONT;
   /* 0x80 - final TEXT/BIN fragment */
-  case (WSBIT_OPCODE_CONT | WSBIT_FIN):
-    if(!(cont_flags & CURLWS_CONT)) {
-      failf(data, "[WS] no ongoing fragmented message to resume");
-      return 0;
+  हाल (WSBIT_OPCODE_CONT | WSBIT_FIN):
+    अगर(!(cont_flags & CURLWS_CONT)) {
+      failf(तथ्य, "[WS] no ongoing fragmented message to resume");
+      वापस 0;
     }
-    return cont_flags & ~CURLWS_CONT;
+    वापस cont_flags & ~CURLWS_CONT;
   /* 0x01 - first TEXT fragment */
-  case WSBIT_OPCODE_TEXT:
-    if(cont_flags & CURLWS_CONT) {
-      failf(data, "[WS] fragmented message interrupted by new TEXT msg");
-      return 0;
+  हाल WSBIT_OPCODE_TEXT:
+    अगर(cont_flags & CURLWS_CONT) {
+      failf(तथ्य, "[WS] fragmented message interrupted by new TEXT msg");
+      वापस 0;
     }
-    return CURLWS_TEXT | CURLWS_CONT;
+    वापस CURLWS_TEXT | CURLWS_CONT;
   /* 0x81 - unfragmented TEXT msg */
-  case (WSBIT_OPCODE_TEXT | WSBIT_FIN):
-    if(cont_flags & CURLWS_CONT) {
-      failf(data, "[WS] fragmented message interrupted by new TEXT msg");
-      return 0;
+  हाल (WSBIT_OPCODE_TEXT | WSBIT_FIN):
+    अगर(cont_flags & CURLWS_CONT) {
+      failf(तथ्य, "[WS] fragmented message interrupted by new TEXT msg");
+      वापस 0;
     }
-    return CURLWS_TEXT;
+    वापस CURLWS_TEXT;
   /* 0x02 - first BINARY fragment */
-  case WSBIT_OPCODE_BIN:
-    if(cont_flags & CURLWS_CONT) {
-      failf(data, "[WS] fragmented message interrupted by new BINARY msg");
-      return 0;
+  हाल WSBIT_OPCODE_BIN:
+    अगर(cont_flags & CURLWS_CONT) {
+      failf(तथ्य, "[WS] fragmented message interrupted by new BINARY msg");
+      वापस 0;
     }
-    return CURLWS_BINARY | CURLWS_CONT;
+    वापस CURLWS_द्विआधारी | CURLWS_CONT;
   /* 0x82 - unfragmented BINARY msg */
-  case (WSBIT_OPCODE_BIN | WSBIT_FIN):
-    if(cont_flags & CURLWS_CONT) {
-      failf(data, "[WS] fragmented message interrupted by new BINARY msg");
-      return 0;
+  हाल (WSBIT_OPCODE_BIN | WSBIT_FIN):
+    अगर(cont_flags & CURLWS_CONT) {
+      failf(तथ्य, "[WS] fragmented message interrupted by new BINARY msg");
+      वापस 0;
     }
-    return CURLWS_BINARY;
+    वापस CURLWS_द्विआधारी;
   /* 0x08 - first CLOSE fragment */
-  case WSBIT_OPCODE_CLOSE:
-    failf(data, "[WS] invalid fragmented CLOSE frame");
-    return 0;
+  हाल WSBIT_OPCODE_CLOSE:
+    failf(तथ्य, "[WS] invalid fragmented CLOSE frame");
+    वापस 0;
   /* 0x88 - unfragmented CLOSE */
-  case (WSBIT_OPCODE_CLOSE | WSBIT_FIN):
-    return CURLWS_CLOSE;
+  हाल (WSBIT_OPCODE_CLOSE | WSBIT_FIN):
+    वापस CURLWS_CLOSE;
   /* 0x09 - first PING fragment */
-  case WSBIT_OPCODE_PING:
-    failf(data, "[WS] invalid fragmented PING frame");
-    return 0;
+  हाल WSBIT_OPCODE_PING:
+    failf(तथ्य, "[WS] invalid fragmented PING frame");
+    वापस 0;
   /* 0x89 - unfragmented PING */
-  case (WSBIT_OPCODE_PING | WSBIT_FIN):
-    return CURLWS_PING;
+  हाल (WSBIT_OPCODE_PING | WSBIT_FIN):
+    वापस CURLWS_PING;
   /* 0x0a - first PONG fragment */
-  case WSBIT_OPCODE_PONG:
-    failf(data, "[WS] invalid fragmented PONG frame");
-    return 0;
+  हाल WSBIT_OPCODE_PONG:
+    failf(तथ्य, "[WS] invalid fragmented PONG frame");
+    वापस 0;
   /* 0x8a - unfragmented PONG */
-  case (WSBIT_OPCODE_PONG | WSBIT_FIN):
-    return CURLWS_PONG;
+  हाल (WSBIT_OPCODE_PONG | WSBIT_FIN):
+    वापस CURLWS_PONG;
   /* invalid first byte */
-  default:
-    if(firstbyte & WSBIT_RSV_MASK)
+  शेष:
+    अगर(firstbyte & WSBIT_RSV_MASK)
       /* any of the reserved bits 0x40/0x20/0x10 are set */
-      failf(data, "[WS] invalid reserved bits: %02x", firstbyte);
-    else
+      failf(तथ्य, "[WS] invalid reserved bits: %02x", firstbyte);
+    अन्यथा
       /* any of the reserved opcodes 0x3-0x7 or 0xb-0xf is used */
-      failf(data, "[WS] invalid opcode: %02x", firstbyte);
-    return 0;
+      failf(तथ्य, "[WS] invalid opcode: %02x", firstbyte);
+    वापस 0;
   }
 }
 
-static CURLcode ws_frame_flags2firstbyte(struct Curl_easy *data,
-                                         unsigned int flags,
+अटल CURLcode ws_frame_flags2firstbyte(काष्ठा Curl_easy *तथ्य,
+                                         अचिन्हित पूर्णांक flags,
                                          bool contfragment,
                                          uint8_t *pfirstbyte)
 {
   *pfirstbyte = 0;
-  switch(flags & ~CURLWS_OFFSET) {
-  case 0:
-    if(contfragment) {
-      CURL_TRC_WS(data, "no flags given; interpreting as continuation "
+  चयन(flags & ~CURLWS_OFFSET) {
+  हाल 0:
+    अगर(contfragment) {
+      CURL_TRC_WS(तथ्य, "no flags given; interpreting as continuation "
                   "fragment for compatibility");
       *pfirstbyte = (WSBIT_OPCODE_CONT | WSBIT_FIN);
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
-    failf(data, "[WS] no flags given");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  case CURLWS_CONT:
-    if(contfragment) {
-      infof(data, "[WS] setting CURLWS_CONT flag without message type is "
+    failf(तथ्य, "[WS] no flags given");
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
+  हाल CURLWS_CONT:
+    अगर(contfragment) {
+      infof(तथ्य, "[WS] setting CURLWS_CONT flag without message type is "
                   "supported for compatibility but highly discouraged");
       *pfirstbyte = WSBIT_OPCODE_CONT;
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
-    failf(data, "[WS] No ongoing fragmented message to continue");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  case CURLWS_TEXT:
+    failf(तथ्य, "[WS] No ongoing fragmented message to continue");
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
+  हाल CURLWS_TEXT:
     *pfirstbyte = contfragment ? (WSBIT_OPCODE_CONT | WSBIT_FIN)
                                : (WSBIT_OPCODE_TEXT | WSBIT_FIN);
-    return CURLE_OK;
-  case (CURLWS_TEXT | CURLWS_CONT):
+    वापस CURLE_OK;
+  हाल (CURLWS_TEXT | CURLWS_CONT):
     *pfirstbyte = contfragment ? WSBIT_OPCODE_CONT : WSBIT_OPCODE_TEXT;
-    return CURLE_OK;
-  case CURLWS_BINARY:
+    वापस CURLE_OK;
+  हाल CURLWS_द्विआधारी:
     *pfirstbyte = contfragment ? (WSBIT_OPCODE_CONT | WSBIT_FIN)
                                : (WSBIT_OPCODE_BIN | WSBIT_FIN);
-    return CURLE_OK;
-  case (CURLWS_BINARY | CURLWS_CONT):
+    वापस CURLE_OK;
+  हाल (CURLWS_द्विआधारी | CURLWS_CONT):
     *pfirstbyte = contfragment ? WSBIT_OPCODE_CONT : WSBIT_OPCODE_BIN;
-    return CURLE_OK;
-  case CURLWS_CLOSE:
+    वापस CURLE_OK;
+  हाल CURLWS_CLOSE:
     *pfirstbyte = WSBIT_OPCODE_CLOSE | WSBIT_FIN;
-    return CURLE_OK;
-  case (CURLWS_CLOSE | CURLWS_CONT):
-    failf(data, "[WS] CLOSE frame must not be fragmented");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  case CURLWS_PING:
+    वापस CURLE_OK;
+  हाल (CURLWS_CLOSE | CURLWS_CONT):
+    failf(तथ्य, "[WS] CLOSE frame must not be fragmented");
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
+  हाल CURLWS_PING:
     *pfirstbyte = WSBIT_OPCODE_PING | WSBIT_FIN;
-    return CURLE_OK;
-  case (CURLWS_PING | CURLWS_CONT):
-    failf(data, "[WS] PING frame must not be fragmented");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  case CURLWS_PONG:
+    वापस CURLE_OK;
+  हाल (CURLWS_PING | CURLWS_CONT):
+    failf(तथ्य, "[WS] PING frame must not be fragmented");
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
+  हाल CURLWS_PONG:
     *pfirstbyte = WSBIT_OPCODE_PONG | WSBIT_FIN;
-    return CURLE_OK;
-  case (CURLWS_PONG | CURLWS_CONT):
-    failf(data, "[WS] PONG frame must not be fragmented");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  default:
-    failf(data, "[WS] unknown flags: %x", flags);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    वापस CURLE_OK;
+  हाल (CURLWS_PONG | CURLWS_CONT):
+    failf(तथ्य, "[WS] PONG frame must not be fragmented");
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
+  शेष:
+    failf(तथ्य, "[WS] unknown flags: %x", flags);
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
   }
 }
 
-static void ws_dec_info(struct ws_decoder *dec, struct Curl_easy *data,
-                        const char *msg)
+अटल व्योम ws_dec_info(काष्ठा ws_decoder *dec, काष्ठा Curl_easy *तथ्य,
+                        स्थिर अक्षर *संदेश)
 {
-  NOVERBOSE((void)msg);
-  switch(dec->head_len) {
-  case 0:
-    break;
-  case 1:
-    CURL_TRC_WS(data, "decoded %s [%s%s]", msg,
-                ws_frame_name_of_op(dec->head[0]),
-                (dec->head[0] & WSBIT_FIN) ? "" : " NON-FINAL");
-    break;
-  default:
-    if(dec->head_len < dec->head_total) {
-      CURL_TRC_WS(data, "decoded %s [%s%s](%d/%d)", msg,
-                  ws_frame_name_of_op(dec->head[0]),
-                  (dec->head[0] & WSBIT_FIN) ? "" : " NON-FINAL",
-                  dec->head_len, dec->head_total);
+  NOVERBOSE((व्योम)संदेश);
+  चयन(dec->शीर्ष_len) {
+  हाल 0:
+    अवरोध;
+  हाल 1:
+    CURL_TRC_WS(तथ्य, "decoded %s [%s%s]", संदेश,
+                ws_frame_name_of_op(dec->शीर्ष[0]),
+                (dec->शीर्ष[0] & WSBIT_FIN) ? "" : " NON-FINAL");
+    अवरोध;
+  शेष:
+    अगर(dec->शीर्ष_len < dec->शीर्ष_योग) {
+      CURL_TRC_WS(तथ्य, "decoded %s [%s%s](%d/%d)", संदेश,
+                  ws_frame_name_of_op(dec->शीर्ष[0]),
+                  (dec->शीर्ष[0] & WSBIT_FIN) ? "" : " NON-FINAL",
+                  dec->शीर्ष_len, dec->शीर्ष_योग);
     }
-    else {
-      CURL_TRC_WS(data, "decoded %s [%s%s payload=%"
+    अन्यथा {
+      CURL_TRC_WS(तथ्य, "decoded %s [%s%s payload=%"
                   FMT_OFF_T "/%" FMT_OFF_T "]",
-                  msg, ws_frame_name_of_op(dec->head[0]),
-                  (dec->head[0] & WSBIT_FIN) ? "" : " NON-FINAL",
+                  संदेश, ws_frame_name_of_op(dec->शीर्ष[0]),
+                  (dec->शीर्ष[0] & WSBIT_FIN) ? "" : " NON-FINAL",
                   dec->payload_offset, dec->payload_len);
     }
-    break;
+    अवरोध;
   }
 }
 
-static CURLcode ws_send_raw_blocking(struct Curl_easy *data,
-                                     struct websocket *ws,
-                                     const char *buffer, size_t buflen);
+अटल CURLcode ws_send_raw_blocking(काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा websocket *ws,
+                                     स्थिर अक्षर *बफर, माप_प्रकार buflen);
 
-typedef CURLcode ws_write_payload(const uint8_t *buf, size_t buflen,
-                                  int frame_age, int frame_flags,
+प्रकार CURLcode ws_write_payload(स्थिर uint8_t *buf, माप_प्रकार buflen,
+                                  पूर्णांक frame_age, पूर्णांक frame_flags,
                                   curl_off_t payload_offset,
                                   curl_off_t payload_len,
-                                  void *userp,
-                                  size_t *pnwritten);
+                                  व्योम *userp,
+                                  माप_प्रकार *pnwritten);
 
-static void ws_dec_next_frame(struct ws_decoder *dec)
+अटल व्योम ws_dec_अग्र_frame(काष्ठा ws_decoder *dec)
 {
   dec->frame_age = 0;
   dec->frame_flags = 0;
   dec->payload_offset = 0;
   dec->payload_len = 0;
-  dec->head_len = dec->head_total = 0;
+  dec->शीर्ष_len = dec->शीर्ष_योग = 0;
   dec->state = WS_DEC_INIT;
   /* dec->cont_flags must be carried over to next frame */
 }
 
-static void ws_dec_reset(struct ws_decoder *dec)
+अटल व्योम ws_dec_reset(काष्ठा ws_decoder *dec)
 {
   dec->frame_age = 0;
   dec->frame_flags = 0;
   dec->payload_offset = 0;
   dec->payload_len = 0;
-  dec->head_len = dec->head_total = 0;
+  dec->शीर्ष_len = dec->शीर्ष_योग = 0;
   dec->state = WS_DEC_INIT;
   dec->cont_flags = 0;
 }
 
-static void ws_dec_init(struct ws_decoder *dec)
+अटल व्योम ws_dec_init(काष्ठा ws_decoder *dec)
 {
   ws_dec_reset(dec);
 }
 
-static CURLcode ws_dec_read_head(struct ws_decoder *dec,
-                                 struct Curl_easy *data,
-                                 struct bufq *inraw)
+अटल CURLcode ws_dec_read_शीर्ष(काष्ठा ws_decoder *dec,
+                                 काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा bufq *inraw)
 {
-  const uint8_t *inbuf;
-  size_t inlen;
+  स्थिर uint8_t *inbuf;
+  माप_प्रकार inlen;
 
-  while(Curl_bufq_peek(inraw, &inbuf, &inlen)) {
-    if(dec->head_len == 0) {
-      dec->head[0] = *inbuf;
+  जबतक(Curl_bufq_peek(inraw, &inbuf, &inlen)) {
+    अगर(dec->शीर्ष_len == 0) {
+      dec->शीर्ष[0] = *inbuf;
       Curl_bufq_skip(inraw, 1);
 
-      dec->frame_flags = ws_frame_firstbyte2flags(data, dec->head[0],
+      dec->frame_flags = ws_frame_firstbyte2flags(तथ्य, dec->शीर्ष[0],
                                                   dec->cont_flags);
-      if(!dec->frame_flags) {
+      अगर(!dec->frame_flags) {
         ws_dec_reset(dec);
-        return CURLE_RECV_ERROR;
+        वापस CURLE_RECV_ERROR;
       }
 
       /* fragmentation only applies to data frames (text/binary);
        * control frames (close/ping/pong) do not affect the CONT status */
-      if(dec->frame_flags & (CURLWS_TEXT | CURLWS_BINARY)) {
+      अगर(dec->frame_flags & (CURLWS_TEXT | CURLWS_द्विआधारी)) {
         dec->cont_flags = dec->frame_flags;
       }
 
-      dec->head_len = 1;
-#if 0
-      ws_dec_info(dec, data, "seeing opcode");
-#endif
-      continue;
+      dec->शीर्ष_len = 1;
+#अगर 0
+      ws_dec_info(dec, तथ्य, "seeing opcode");
+#पूर्ण_अगर
+      जारी;
     }
-    else if(dec->head_len == 1) {
-      dec->head[1] = *inbuf;
+    अन्यथा अगर(dec->शीर्ष_len == 1) {
+      dec->शीर्ष[1] = *inbuf;
       Curl_bufq_skip(inraw, 1);
-      dec->head_len = 2;
+      dec->शीर्ष_len = 2;
 
-      if(dec->head[1] & WSBIT_MASK) {
+      अगर(dec->शीर्ष[1] & WSBIT_MASK) {
         /* A client MUST close a connection if it detects a masked frame. */
-        failf(data, "[WS] masked input frame");
+        failf(तथ्य, "[WS] masked input frame");
         ws_dec_reset(dec);
-        return CURLE_RECV_ERROR;
+        वापस CURLE_RECV_ERROR;
       }
-      if(dec->frame_flags & CURLWS_PING && dec->head[1] > WS_MAX_CNTRL_LEN) {
+      अगर(dec->frame_flags & CURLWS_PING && dec->शीर्ष[1] > WS_MAX_CNTRL_LEN) {
         /* The maximum valid size of PING frames is 125 bytes.
            Accepting overlong pings would mean sending equivalent pongs! */
-        failf(data, "[WS] received PING frame is too big");
+        failf(तथ्य, "[WS] received PING frame is too big");
         ws_dec_reset(dec);
-        return CURLE_RECV_ERROR;
+        वापस CURLE_RECV_ERROR;
       }
-      if(dec->frame_flags & CURLWS_PONG && dec->head[1] > WS_MAX_CNTRL_LEN) {
+      अगर(dec->frame_flags & CURLWS_PONG && dec->शीर्ष[1] > WS_MAX_CNTRL_LEN) {
         /* The maximum valid size of PONG frames is 125 bytes. */
-        failf(data, "[WS] received PONG frame is too big");
+        failf(तथ्य, "[WS] received PONG frame is too big");
         ws_dec_reset(dec);
-        return CURLE_RECV_ERROR;
+        वापस CURLE_RECV_ERROR;
       }
-      if(dec->frame_flags & CURLWS_CLOSE && dec->head[1] > WS_MAX_CNTRL_LEN) {
-        failf(data, "[WS] received CLOSE frame is too big");
+      अगर(dec->frame_flags & CURLWS_CLOSE && dec->शीर्ष[1] > WS_MAX_CNTRL_LEN) {
+        failf(तथ्य, "[WS] received CLOSE frame is too big");
         ws_dec_reset(dec);
-        return CURLE_RECV_ERROR;
+        वापस CURLE_RECV_ERROR;
       }
 
       /* How long is the frame head? */
-      if(dec->head[1] == 126) {
-        dec->head_total = 4;
-        continue;
+      अगर(dec->शीर्ष[1] == 126) {
+        dec->शीर्ष_योग = 4;
+        जारी;
       }
-      else if(dec->head[1] == 127) {
-        dec->head_total = 10;
-        continue;
+      अन्यथा अगर(dec->शीर्ष[1] == 127) {
+        dec->शीर्ष_योग = 10;
+        जारी;
       }
-      else {
-        dec->head_total = 2;
+      अन्यथा {
+        dec->शीर्ष_योग = 2;
       }
     }
 
-    if(dec->head_len < dec->head_total) {
-      dec->head[dec->head_len] = *inbuf;
+    अगर(dec->शीर्ष_len < dec->शीर्ष_योग) {
+      dec->शीर्ष[dec->शीर्ष_len] = *inbuf;
       Curl_bufq_skip(inraw, 1);
-      ++dec->head_len;
-      if(dec->head_len < dec->head_total) {
-#if 0
-        ws_dec_info(dec, data, "decoding head");
-#endif
-        continue;
+      ++dec->शीर्ष_len;
+      अगर(dec->शीर्ष_len < dec->शीर्ष_योग) {
+#अगर 0
+        ws_dec_info(dec, तथ्य, "decoding head");
+#पूर्ण_अगर
+        जारी;
       }
     }
     /* got the complete frame head */
-    DEBUGASSERT(dec->head_len == dec->head_total);
-    switch(dec->head_total) {
-    case 2:
-      dec->payload_len = dec->head[1];
-      break;
-    case 4:
-      dec->payload_len = (dec->head[2] << 8) | dec->head[3];
-      break;
-    case 10:
-      if(dec->head[2] > 127) {
-        failf(data, "[WS] frame length longer than 63 bits not supported");
-        return CURLE_RECV_ERROR;
+    DEBUGASSERT(dec->शीर्ष_len == dec->शीर्ष_योग);
+    चयन(dec->शीर्ष_योग) {
+    हाल 2:
+      dec->payload_len = dec->शीर्ष[1];
+      अवरोध;
+    हाल 4:
+      dec->payload_len = (dec->शीर्ष[2] << 8) | dec->शीर्ष[3];
+      अवरोध;
+    हाल 10:
+      अगर(dec->शीर्ष[2] > 127) {
+        failf(तथ्य, "[WS] frame length longer than 63 bits not supported");
+        वापस CURLE_RECV_ERROR;
       }
       dec->payload_len =
-        (curl_off_t)dec->head[2] << 56 |
-        (curl_off_t)dec->head[3] << 48 |
-        (curl_off_t)dec->head[4] << 40 |
-        (curl_off_t)dec->head[5] << 32 |
-        (curl_off_t)dec->head[6] << 24 |
-        (curl_off_t)dec->head[7] << 16 |
-        (curl_off_t)dec->head[8] <<  8 |
-        dec->head[9];
-      break;
-    default:
+        (curl_off_t)dec->शीर्ष[2] << 56 |
+        (curl_off_t)dec->शीर्ष[3] << 48 |
+        (curl_off_t)dec->शीर्ष[4] << 40 |
+        (curl_off_t)dec->शीर्ष[5] << 32 |
+        (curl_off_t)dec->शीर्ष[6] << 24 |
+        (curl_off_t)dec->शीर्ष[7] << 16 |
+        (curl_off_t)dec->शीर्ष[8] <<  8 |
+        dec->शीर्ष[9];
+      अवरोध;
+    शेष:
       /* this should never happen */
       DEBUGASSERT(0);
-      failf(data, "[WS] unexpected frame header length");
-      return CURLE_RECV_ERROR;
+      failf(तथ्य, "[WS] unexpected frame header length");
+      वापस CURLE_RECV_ERROR;
     }
 
     dec->frame_age = 0;
     dec->payload_offset = 0;
-    ws_dec_info(dec, data, "head");
-    return CURLE_OK;
+    ws_dec_info(dec, तथ्य, "head");
+    वापस CURLE_OK;
   }
-  return CURLE_AGAIN;
+  वापस CURLE_AGAIN;
 }
 
-static CURLcode ws_dec_pass_payload(struct ws_decoder *dec,
-                                    struct Curl_easy *data,
-                                    struct bufq *inraw,
+अटल CURLcode ws_dec_pass_payload(काष्ठा ws_decoder *dec,
+                                    काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा bufq *inraw,
                                     ws_write_payload *write_cb,
-                                    void *write_ctx)
+                                    व्योम *write_ctx)
 {
-  const uint8_t *inbuf;
-  size_t inlen;
-  size_t nwritten;
-  CURLcode result;
-  size_t remain = curlx_sotouz_range(dec->payload_len - dec->payload_offset,
+  स्थिर uint8_t *inbuf;
+  माप_प्रकार inlen;
+  माप_प्रकार nwritten;
+  CURLcode परिणाम;
+  माप_प्रकार remain = curlx_sotouz_range(dec->payload_len - dec->payload_offset,
                                      0, SIZE_MAX);
 
-  while(remain && Curl_bufq_peek(inraw, &inbuf, &inlen) &&
-        !Curl_cwriter_is_paused(data)) {
-    if(inlen > remain)
+  जबतक(remain && Curl_bufq_peek(inraw, &inbuf, &inlen) &&
+        !Curl_cwriter_is_paused(तथ्य)) {
+    अगर(inlen > remain)
       inlen = remain;
-    result = write_cb(inbuf, inlen, dec->frame_age, dec->frame_flags,
+    परिणाम = write_cb(inbuf, inlen, dec->frame_age, dec->frame_flags,
                       dec->payload_offset, dec->payload_len,
                       write_ctx, &nwritten);
-    if(result)
-      return result;
+    अगर(परिणाम)
+      वापस परिणाम;
     Curl_bufq_skip(inraw, nwritten);
     dec->payload_offset += nwritten;
     remain = curlx_sotouz_range(dec->payload_len - dec->payload_offset,
                                 0, SIZE_MAX);
-    CURL_TRC_WS(data, "passed %zu bytes payload, %zu remain",
+    CURL_TRC_WS(तथ्य, "passed %zu bytes payload, %zu remain",
                 nwritten, remain);
   }
 
-  return remain ? CURLE_AGAIN : CURLE_OK;
+  वापस remain ? CURLE_AGAIN : CURLE_OK;
 }
 
-static CURLcode ws_dec_pass(struct ws_decoder *dec,
-                            struct Curl_easy *data,
-                            struct bufq *inraw,
+अटल CURLcode ws_dec_pass(काष्ठा ws_decoder *dec,
+                            काष्ठा Curl_easy *तथ्य,
+                            काष्ठा bufq *inraw,
                             ws_write_payload *write_cb,
-                            void *write_ctx)
+                            व्योम *write_ctx)
 {
-  CURLcode result;
+  CURLcode परिणाम;
 
-  if(Curl_bufq_is_empty(inraw))
-    return CURLE_AGAIN;
+  अगर(Curl_bufq_is_empty(inraw))
+    वापस CURLE_AGAIN;
 
-  switch(dec->state) {
-  case WS_DEC_INIT:
-    ws_dec_next_frame(dec);
-    dec->state = WS_DEC_HEAD;
+  चयन(dec->state) {
+  हाल WS_DEC_INIT:
+    ws_dec_अग्र_frame(dec);
+    dec->state = WS_DEC_शीर्ष;
     FALLTHROUGH();
-  case WS_DEC_HEAD:
-    result = ws_dec_read_head(dec, data, inraw);
-    if(result) {
-      if(result != CURLE_AGAIN) {
-        failf(data, "[WS] decode frame error %d", (int)result);
-        break;  /* real error */
+  हाल WS_DEC_शीर्ष:
+    परिणाम = ws_dec_read_शीर्ष(dec, तथ्य, inraw);
+    अगर(परिणाम) {
+      अगर(परिणाम != CURLE_AGAIN) {
+        failf(तथ्य, "[WS] decode frame error %d", (पूर्णांक)परिणाम);
+        अवरोध;  /* real error */
       }
       /* incomplete ws frame head */
       DEBUGASSERT(Curl_bufq_is_empty(inraw));
-      break;
+      अवरोध;
     }
     /* head parsing done */
     dec->state = WS_DEC_PAYLOAD;
-    if(dec->payload_len == 0) {
-      size_t nwritten;
-      const uint8_t tmp = '\0';
+    अगर(dec->payload_len == 0) {
+      माप_प्रकार nwritten;
+      स्थिर uint8_t tmp = '\0';
       /* special case of a 0 length frame, need to write once */
-      result = write_cb(&tmp, 0, dec->frame_age, dec->frame_flags,
+      परिणाम = write_cb(&tmp, 0, dec->frame_age, dec->frame_flags,
                         0, 0, write_ctx, &nwritten);
-      if(result)
-        return result;
+      अगर(परिणाम)
+        वापस परिणाम;
       dec->state = WS_DEC_INIT;
-      break;
+      अवरोध;
     }
     FALLTHROUGH();
-  case WS_DEC_PAYLOAD:
-    result = ws_dec_pass_payload(dec, data, inraw, write_cb, write_ctx);
-    ws_dec_info(dec, data, "passing");
-    if(result)
-      return result;
+  हाल WS_DEC_PAYLOAD:
+    परिणाम = ws_dec_pass_payload(dec, तथ्य, inraw, write_cb, write_ctx);
+    ws_dec_info(dec, तथ्य, "passing");
+    अगर(परिणाम)
+      वापस परिणाम;
     /* payload parsing done */
     dec->state = WS_DEC_INIT;
-    break;
-  default:
+    अवरोध;
+  शेष:
     /* we covered all enums above, but some code analyzers are wimps */
-    result = CURLE_FAILED_INIT;
+    परिणाम = CURLE_FAILED_INIT;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static void update_meta(struct websocket *ws,
-                        int frame_age, int frame_flags,
+अटल व्योम update_meta(काष्ठा websocket *ws,
+                        पूर्णांक frame_age, पूर्णांक frame_flags,
                         curl_off_t payload_offset,
                         curl_off_t payload_len,
-                        size_t cur_len)
+                        माप_प्रकार cur_len)
 {
   curl_off_t bytesleft = (payload_len - payload_offset - cur_len);
 
@@ -588,269 +588,269 @@ static void update_meta(struct websocket *ws,
 }
 
 /* WebSocket decoding client writer */
-struct ws_cw_ctx {
-  struct Curl_cwriter super;
-  struct bufq buf;
+काष्ठा ws_cw_ctx {
+  काष्ठा Curl_cwriter super;
+  काष्ठा bufq buf;
 };
 
-static CURLcode ws_cw_init(struct Curl_easy *data,
-                           struct Curl_cwriter *writer)
+अटल CURLcode ws_cw_init(काष्ठा Curl_easy *तथ्य,
+                           काष्ठा Curl_cwriter *writer)
 {
-  struct ws_cw_ctx *ctx = writer->ctx;
-  (void)data;
-  Curl_bufq_init2(&ctx->buf, WS_CHUNK_SIZE, 1, BUFQ_OPT_SOFT_LIMIT);
-  return CURLE_OK;
+  काष्ठा ws_cw_ctx *ctx = writer->ctx;
+  (व्योम)तथ्य;
+  Curl_bufq_init2(&ctx->buf, WS_CHUNK_आकार, 1, BUFQ_OPT_SOFT_LIMIT);
+  वापस CURLE_OK;
 }
 
-static void ws_cw_close(struct Curl_easy *data, struct Curl_cwriter *writer)
+अटल व्योम ws_cw_close(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_cwriter *writer)
 {
-  struct ws_cw_ctx *ctx = writer->ctx;
-  (void)data;
+  काष्ठा ws_cw_ctx *ctx = writer->ctx;
+  (व्योम)तथ्य;
   Curl_bufq_free(&ctx->buf);
 }
 
-struct ws_cw_dec_ctx {
-  struct Curl_easy *data;
-  struct websocket *ws;
-  struct Curl_cwriter *next_writer;
-  int cw_type;
+काष्ठा ws_cw_dec_ctx {
+  काष्ठा Curl_easy *तथ्य;
+  काष्ठा websocket *ws;
+  काष्ठा Curl_cwriter *अग्र_writer;
+  पूर्णांक cw_type;
 };
 
-static CURLcode ws_flush(struct Curl_easy *data, struct websocket *ws,
+अटल CURLcode ws_flush(काष्ठा Curl_easy *तथ्य, काष्ठा websocket *ws,
                          bool blocking);
-static CURLcode ws_enc_add_pending(struct Curl_easy *data,
-                                   struct websocket *ws);
+अटल CURLcode ws_enc_add_pending(काष्ठा Curl_easy *तथ्य,
+                                   काष्ठा websocket *ws);
 
-static CURLcode ws_enc_add_cntrl(struct Curl_easy *data,
-                                 struct websocket *ws,
-                                 const uint8_t *payload,
-                                 size_t plen,
-                                 unsigned int frame_type)
+अटल CURLcode ws_enc_add_cntrl(काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा websocket *ws,
+                                 स्थिर uint8_t *payload,
+                                 माप_प्रकार plen,
+                                 अचिन्हित पूर्णांक frame_type)
 {
-  (void)data;
+  (व्योम)तथ्य;
   DEBUGASSERT(plen <= WS_MAX_CNTRL_LEN);
-  if(plen > WS_MAX_CNTRL_LEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  अगर(plen > WS_MAX_CNTRL_LEN)
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* Overwrite any pending frame with the new one, we keep
    * only one. */
   ws->pending.type = frame_type;
   ws->pending.payload_len = plen;
-  memcpy(ws->pending.payload, payload, plen);
-  return CURLE_OK;
+  स_नकल(ws->pending.payload, payload, plen);
+  वापस CURLE_OK;
 }
 
-static curl_off_t ws_payload_remain(curl_off_t payload_total,
+अटल curl_off_t ws_payload_remain(curl_off_t payload_योग,
                                     curl_off_t payload_offset,
-                                    size_t payload_buffered)
+                                    माप_प्रकार payload_buffered)
 {
-  curl_off_t buffered, remain = payload_total - payload_offset;
-  if((payload_total < 0) || (payload_offset < 0) || (remain < 0))
-    return -1;
+  curl_off_t buffered, remain = payload_योग - payload_offset;
+  अगर((payload_योग < 0) || (payload_offset < 0) || (remain < 0))
+    वापस -1;
   buffered = curlx_uztoso(payload_buffered);
-  if(remain < buffered)
-    return -1;
-  return remain - buffered;
+  अगर(remain < buffered)
+    वापस -1;
+  वापस remain - buffered;
 }
 
-static CURLcode ws_cw_dec_next(const uint8_t *buf, size_t buflen,
-                               int frame_age, int frame_flags,
+अटल CURLcode ws_cw_dec_अग्र(स्थिर uint8_t *buf, माप_प्रकार buflen,
+                               पूर्णांक frame_age, पूर्णांक frame_flags,
                                curl_off_t payload_offset,
                                curl_off_t payload_len,
-                               void *user_data,
-                               size_t *pnwritten)
+                               व्योम *user_तथ्य,
+                               माप_प्रकार *pnwritten)
 {
-  struct ws_cw_dec_ctx *ctx = user_data;
-  struct Curl_easy *data = ctx->data;
-  struct websocket *ws = ctx->ws;
-  bool auto_pong = !data->set.ws_raw_mode && !data->set.ws_no_auto_pong;
+  काष्ठा ws_cw_dec_ctx *ctx = user_तथ्य;
+  काष्ठा Curl_easy *तथ्य = ctx->तथ्य;
+  काष्ठा websocket *ws = ctx->ws;
+  bool auto_pong = !तथ्य->set.ws_raw_mode && !तथ्य->set.ws_no_auto_pong;
   curl_off_t remain;
-  CURLcode result;
+  CURLcode परिणाम;
 
-  (void)frame_age;
+  (व्योम)frame_age;
   *pnwritten = 0;
   remain = ws_payload_remain(payload_len, payload_offset, buflen);
-  if(remain < 0) {
+  अगर(remain < 0) {
     DEBUGASSERT(0); /* parameter mismatch */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(auto_pong && (frame_flags & CURLWS_PING) && !remain) {
+  अगर(auto_pong && (frame_flags & CURLWS_PING) && !remain) {
     /* auto-respond to PINGs, only works for single-frame payloads atm */
-    CURL_TRC_WS(data, "auto PONG to [PING payload=%" FMT_OFF_T
+    CURL_TRC_WS(तथ्य, "auto PONG to [PING payload=%" FMT_OFF_T
                 "/%" FMT_OFF_T "]", payload_offset, payload_len);
     /* send back the exact same content as a PONG */
-    result = ws_enc_add_cntrl(data, ws, buf, buflen, CURLWS_PONG);
-    if(result)
-      return result;
+    परिणाम = ws_enc_add_cntrl(तथ्य, ws, buf, buflen, CURLWS_PONG);
+    अगर(परिणाम)
+      वापस परिणाम;
   }
-  else if(buflen || !remain) {
+  अन्यथा अगर(buflen || !remain) {
     /* forward the decoded frame to the next client writer. */
     update_meta(ws, frame_age, frame_flags, payload_offset,
                 payload_len, buflen);
 
-    CURL_TRC_WRITE(data, "[WS] pass %zu decoded bytes", buflen);
-    result = Curl_cwriter_write(data, ctx->next_writer,
+    CURL_TRC_WRITE(तथ्य, "[WS] pass %zu decoded bytes", buflen);
+    परिणाम = Curl_cwriter_write(तथ्य, ctx->अग्र_writer,
                                 (ctx->cw_type | CLIENTWRITE_0LEN),
-                                (const char *)buf, buflen);
-    if(result)
-      return result;
+                                (स्थिर अक्षर *)buf, buflen);
+    अगर(परिणाम)
+      वापस परिणाम;
   }
   *pnwritten = buflen;
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ws_cw_write(struct Curl_easy *data,
-                            struct Curl_cwriter *writer, int type,
-                            const char *buf, size_t nbytes)
+अटल CURLcode ws_cw_write(काष्ठा Curl_easy *तथ्य,
+                            काष्ठा Curl_cwriter *writer, पूर्णांक type,
+                            स्थिर अक्षर *buf, माप_प्रकार nbytes)
 {
-  struct ws_cw_ctx *ctx = writer->ctx;
-  struct websocket *ws;
-  CURLcode result = CURLE_OK;
+  काष्ठा ws_cw_ctx *ctx = writer->ctx;
+  काष्ठा websocket *ws;
+  CURLcode परिणाम = CURLE_OK;
 
-  CURL_TRC_WRITE(data, "[WS] write(len=%zu, type=%d)", nbytes, type);
-  if(!(type & CLIENTWRITE_BODY) || data->set.ws_raw_mode)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  CURL_TRC_WRITE(तथ्य, "[WS] write(len=%zu, type=%d)", nbytes, type);
+  अगर(!(type & CLIENTWRITE_BODY) || तथ्य->set.ws_raw_mode)
+    वापस Curl_cwriter_write(तथ्य, writer->अग्र, type, buf, nbytes);
 
-  ws = Curl_conn_meta_get(data->conn, CURL_META_PROTO_WS_CONN);
-  if(!ws) {
-    failf(data, "[WS] not a websocket transfer");
-    return CURLE_FAILED_INIT;
+  ws = Curl_conn_meta_get(तथ्य->conn, CURL_META_PROTO_WS_CONN);
+  अगर(!ws) {
+    failf(तथ्य, "[WS] not a websocket transfer");
+    वापस CURLE_FAILED_INIT;
   }
 
-  if(nbytes) {
-    size_t nwritten;
-    result = Curl_bufq_write(&ctx->buf, (const uint8_t *)buf,
+  अगर(nbytes) {
+    माप_प्रकार nwritten;
+    परिणाम = Curl_bufq_write(&ctx->buf, (स्थिर uint8_t *)buf,
                              nbytes, &nwritten);
-    if(result) {
-      infof(data, "[WS] error adding data to buffer %d", (int)result);
-      return result;
+    अगर(परिणाम) {
+      infof(तथ्य, "[WS] error adding data to buffer %d", (पूर्णांक)परिणाम);
+      वापस परिणाम;
     }
   }
 
-  result = Curl_cwriter_flush(data, writer->next);
-  if(result)
-    goto out;
+  परिणाम = Curl_cwriter_flush(तथ्य, writer->अग्र);
+  अगर(परिणाम)
+    जाओ out;
 
-  while(!Curl_bufq_is_empty(&ctx->buf) && !Curl_cwriter_is_paused(data)) {
-    struct ws_cw_dec_ctx pass_ctx;
-    pass_ctx.data = data;
+  जबतक(!Curl_bufq_is_empty(&ctx->buf) && !Curl_cwriter_is_paused(तथ्य)) {
+    काष्ठा ws_cw_dec_ctx pass_ctx;
+    pass_ctx.तथ्य = तथ्य;
     pass_ctx.ws = ws;
-    pass_ctx.next_writer = writer->next;
+    pass_ctx.अग्र_writer = writer->अग्र;
     pass_ctx.cw_type = type;
-    result = ws_dec_pass(&ws->dec, data, &ctx->buf,
-                         ws_cw_dec_next, &pass_ctx);
-    if(result == CURLE_AGAIN) {
+    परिणाम = ws_dec_pass(&ws->dec, तथ्य, &ctx->buf,
+                         ws_cw_dec_अग्र, &pass_ctx);
+    अगर(परिणाम == CURLE_AGAIN) {
       /* insufficient amount of data, keep it for later.
        * we pretend to have written all since we have a copy */
-      result = CURLE_OK;
-      goto out;
+      परिणाम = CURLE_OK;
+      जाओ out;
     }
-    else if(result) {
-      failf(data, "[WS] decode payload error %d", (int)result);
+    अन्यथा अगर(परिणाम) {
+      failf(तथ्य, "[WS] decode payload error %d", (पूर्णांक)परिणाम);
       Curl_bufq_reset(&ctx->buf);
-      goto out;
+      जाओ out;
     }
   }
 
 out:
-  if(!result && !ws->using_reader) {
-    result = ws_flush(data, ws, Curl_api_is_in_callback(data));
-    if(result == CURLE_AGAIN)
-      result = CURLE_OK;
+  अगर(!परिणाम && !ws->using_reader) {
+    परिणाम = ws_flush(तथ्य, ws, Curl_api_is_in_callback(तथ्य));
+    अगर(परिणाम == CURLE_AGAIN)
+      परिणाम = CURLE_OK;
   }
 
-  if(!result && (type & CLIENTWRITE_EOS) &&
+  अगर(!परिणाम && (type & CLIENTWRITE_EOS) &&
      (!Curl_bufq_is_empty(&ctx->buf) || (ws->dec.state != WS_DEC_INIT))) {
-    failf(data, "[WS] decode ended with incomplete frame");
-    result = CURLE_RECV_ERROR;
+    failf(तथ्य, "[WS] decode ended with incomplete frame");
+    परिणाम = CURLE_RECV_ERROR;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ws_cw_flush(struct Curl_easy *data,
-                            struct Curl_cwriter *writer)
+अटल CURLcode ws_cw_flush(काष्ठा Curl_easy *तथ्य,
+                            काष्ठा Curl_cwriter *writer)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
-  CURL_TRC_WRITE(data, "[ws] flush");
-  if(!data->set.ws_raw_mode) {
-    struct ws_cw_ctx *ctx = writer->ctx;
-    struct websocket *ws;
+  CURL_TRC_WRITE(तथ्य, "[ws] flush");
+  अगर(!तथ्य->set.ws_raw_mode) {
+    काष्ठा ws_cw_ctx *ctx = writer->ctx;
+    काष्ठा websocket *ws;
 
     /* Frames should be written one by one, else the meta data does
      * not fit. Flush the next writer first, so it does not aggregate
      * our flushed data with anything it might have buffered. */
-    result = Curl_cwriter_flush(data, writer->next);
-    if(result)
-      goto out;
+    परिणाम = Curl_cwriter_flush(तथ्य, writer->अग्र);
+    अगर(परिणाम)
+      जाओ out;
 
-    ws = Curl_conn_meta_get(data->conn, CURL_META_PROTO_WS_CONN);
-    if(!ws) {
-      failf(data, "[WS] not a websocket transfer");
-      return CURLE_FAILED_INIT;
+    ws = Curl_conn_meta_get(तथ्य->conn, CURL_META_PROTO_WS_CONN);
+    अगर(!ws) {
+      failf(तथ्य, "[WS] not a websocket transfer");
+      वापस CURLE_FAILED_INIT;
     }
 
-    while(!Curl_bufq_is_empty(&ctx->buf) && !Curl_cwriter_is_paused(data)) {
-      struct ws_cw_dec_ctx pass_ctx;
-      pass_ctx.data = data;
+    जबतक(!Curl_bufq_is_empty(&ctx->buf) && !Curl_cwriter_is_paused(तथ्य)) {
+      काष्ठा ws_cw_dec_ctx pass_ctx;
+      pass_ctx.तथ्य = तथ्य;
       pass_ctx.ws = ws;
-      pass_ctx.next_writer = writer->next;
+      pass_ctx.अग्र_writer = writer->अग्र;
       pass_ctx.cw_type = CLIENTWRITE_BODY;
-      result = ws_dec_pass(&ws->dec, data, &ctx->buf,
-                           ws_cw_dec_next, &pass_ctx);
-      if(result == CURLE_AGAIN) {
+      परिणाम = ws_dec_pass(&ws->dec, तथ्य, &ctx->buf,
+                           ws_cw_dec_अग्र, &pass_ctx);
+      अगर(परिणाम == CURLE_AGAIN) {
         /* insufficient amount of data, keep it for later.
          * we pretend to have written all since we have a copy */
-        result = CURLE_OK;
-        goto out;
+        परिणाम = CURLE_OK;
+        जाओ out;
       }
-      else if(result) {
-        failf(data, "[WS] decode payload error %d", (int)result);
+      अन्यथा अगर(परिणाम) {
+        failf(तथ्य, "[WS] decode payload error %d", (पूर्णांक)परिणाम);
         Curl_bufq_reset(&ctx->buf);
-        goto out;
+        जाओ out;
       }
     }
   }
 
 out:
-  if(!result)
-    result = Curl_cwriter_flush(data, writer->next);
-  return result;
+  अगर(!परिणाम)
+    परिणाम = Curl_cwriter_flush(तथ्य, writer->अग्र);
+  वापस परिणाम;
 }
 
 /* WebSocket payload decoding client writer. */
-static const struct Curl_cwtype ws_cw_decode = {
+अटल स्थिर काष्ठा Curl_cwtype ws_cw_decode = {
   "ws-decode",
-  NULL,
+  शून्य,
   0,
   ws_cw_init,
   ws_cw_write,
   ws_cw_flush,
   ws_cw_close,
-  sizeof(struct ws_cw_ctx)
+  माप(काष्ठा ws_cw_ctx)
 };
 
-static void ws_enc_info(struct ws_encoder *enc, struct Curl_easy *data,
-                        const char *msg)
+अटल व्योम ws_enc_info(काष्ठा ws_encoder *enc, काष्ठा Curl_easy *तथ्य,
+                        स्थिर अक्षर *संदेश)
 {
-  NOVERBOSE((void)enc);
-  NOVERBOSE((void)msg);
-  CURL_TRC_WS(data, "WS-ENC: %s [%s%s payload=%"
+  NOVERBOSE((व्योम)enc);
+  NOVERBOSE((व्योम)संदेश);
+  CURL_TRC_WS(तथ्य, "WS-ENC: %s [%s%s payload=%"
               FMT_OFF_T "/%" FMT_OFF_T "]",
-              msg, ws_frame_name_of_op(enc->firstbyte),
+              संदेश, ws_frame_name_of_op(enc->firstbyte),
               (enc->firstbyte & WSBIT_FIN) ? "" : " NON-FIN",
               enc->payload_len - enc->payload_remain, enc->payload_len);
 }
 
-static void ws_enc_reset(struct ws_encoder *enc)
+अटल व्योम ws_enc_reset(काष्ठा ws_encoder *enc)
 {
   enc->payload_remain = 0;
   enc->xori = 0;
   enc->contfragment = FALSE;
 }
 
-static void ws_enc_init(struct ws_encoder *enc)
+अटल व्योम ws_enc_init(काष्ठा ws_encoder *enc)
 {
   ws_enc_reset(enc);
 }
@@ -877,445 +877,445 @@ static void ws_enc_init(struct ws_encoder *enc)
    +---------------------------------------------------------------+
  */
 
-static CURLcode ws_enc_add_frame(struct Curl_easy *data,
-                                 struct ws_encoder *enc,
-                                 unsigned int flags,
+अटल CURLcode ws_enc_add_frame(काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा ws_encoder *enc,
+                                 अचिन्हित पूर्णांक flags,
                                  curl_off_t payload_len,
-                                 struct bufq *out)
+                                 काष्ठा bufq *out)
 {
   uint8_t firstb = 0;
-  uint8_t head[14];
-  CURLcode result;
-  size_t hlen, nwritten;
+  uint8_t शीर्ष[14];
+  CURLcode परिणाम;
+  माप_प्रकार hlen, nwritten;
 
-  if(payload_len < 0) {
-    failf(data, "[WS] starting new frame with negative payload length %"
+  अगर(payload_len < 0) {
+    failf(तथ्य, "[WS] starting new frame with negative payload length %"
                 FMT_OFF_T, payload_len);
-    return CURLE_SEND_ERROR;
+    वापस CURLE_SEND_ERROR;
   }
 
-  if(enc->payload_remain > 0) {
+  अगर(enc->payload_remain > 0) {
     /* trying to write a new frame before the previous one is finished */
-    failf(data, "[WS] starting new frame with %" FMT_OFF_T " bytes "
+    failf(तथ्य, "[WS] starting new frame with %" FMT_OFF_T " bytes "
                 "from last one remaining to be sent", enc->payload_remain);
-    return CURLE_SEND_ERROR;
+    वापस CURLE_SEND_ERROR;
   }
 
-  result = ws_frame_flags2firstbyte(data, flags, (bool)enc->contfragment,
+  परिणाम = ws_frame_flags2firstbyte(तथ्य, flags, (bool)enc->contfragment,
                                     &firstb);
-  if(result)
-    return result;
+  अगर(परिणाम)
+    वापस परिणाम;
 
   /* fragmentation only applies to data frames (text/binary);
    * control frames (close/ping/pong) do not affect the CONT status */
-  if(flags & (CURLWS_TEXT | CURLWS_BINARY)) {
+  अगर(flags & (CURLWS_TEXT | CURLWS_द्विआधारी)) {
     enc->contfragment = (curl_bit)((flags & CURLWS_CONT) ? TRUE : FALSE);
   }
 
-  if(flags & CURLWS_PING && payload_len > WS_MAX_CNTRL_LEN) {
-    failf(data, "[WS] given PING frame is too big");
-    return CURLE_TOO_LARGE;
+  अगर(flags & CURLWS_PING && payload_len > WS_MAX_CNTRL_LEN) {
+    failf(तथ्य, "[WS] given PING frame is too big");
+    वापस CURLE_TOO_LARGE;
   }
-  if(flags & CURLWS_PONG && payload_len > WS_MAX_CNTRL_LEN) {
-    failf(data, "[WS] given PONG frame is too big");
-    return CURLE_TOO_LARGE;
+  अगर(flags & CURLWS_PONG && payload_len > WS_MAX_CNTRL_LEN) {
+    failf(तथ्य, "[WS] given PONG frame is too big");
+    वापस CURLE_TOO_LARGE;
   }
-  if(flags & CURLWS_CLOSE && payload_len > WS_MAX_CNTRL_LEN) {
-    failf(data, "[WS] given CLOSE frame is too big");
-    return CURLE_TOO_LARGE;
+  अगर(flags & CURLWS_CLOSE && payload_len > WS_MAX_CNTRL_LEN) {
+    failf(तथ्य, "[WS] given CLOSE frame is too big");
+    वापस CURLE_TOO_LARGE;
   }
 
-  head[0] = enc->firstbyte = firstb;
-  if(payload_len > 65535) {
-    head[1] = 127 | WSBIT_MASK;
-    head[2] = (uint8_t)((payload_len >> 56) & 0xff);
-    head[3] = (uint8_t)((payload_len >> 48) & 0xff);
-    head[4] = (uint8_t)((payload_len >> 40) & 0xff);
-    head[5] = (uint8_t)((payload_len >> 32) & 0xff);
-    head[6] = (uint8_t)((payload_len >> 24) & 0xff);
-    head[7] = (uint8_t)((payload_len >> 16) & 0xff);
-    head[8] = (uint8_t)((payload_len >> 8) & 0xff);
-    head[9] = (uint8_t)(payload_len & 0xff);
+  शीर्ष[0] = enc->firstbyte = firstb;
+  अगर(payload_len > 65535) {
+    शीर्ष[1] = 127 | WSBIT_MASK;
+    शीर्ष[2] = (uint8_t)((payload_len >> 56) & 0xff);
+    शीर्ष[3] = (uint8_t)((payload_len >> 48) & 0xff);
+    शीर्ष[4] = (uint8_t)((payload_len >> 40) & 0xff);
+    शीर्ष[5] = (uint8_t)((payload_len >> 32) & 0xff);
+    शीर्ष[6] = (uint8_t)((payload_len >> 24) & 0xff);
+    शीर्ष[7] = (uint8_t)((payload_len >> 16) & 0xff);
+    शीर्ष[8] = (uint8_t)((payload_len >> 8) & 0xff);
+    शीर्ष[9] = (uint8_t)(payload_len & 0xff);
     hlen = 10;
   }
-  else if(payload_len >= 126) {
-    head[1] = 126 | WSBIT_MASK;
-    head[2] = (uint8_t)((payload_len >> 8) & 0xff);
-    head[3] = (uint8_t)(payload_len & 0xff);
+  अन्यथा अगर(payload_len >= 126) {
+    शीर्ष[1] = 126 | WSBIT_MASK;
+    शीर्ष[2] = (uint8_t)((payload_len >> 8) & 0xff);
+    शीर्ष[3] = (uint8_t)(payload_len & 0xff);
     hlen = 4;
   }
-  else {
-    head[1] = (uint8_t)payload_len | WSBIT_MASK;
+  अन्यथा {
+    शीर्ष[1] = (uint8_t)payload_len | WSBIT_MASK;
     hlen = 2;
   }
 
   enc->payload_remain = enc->payload_len = payload_len;
-  ws_enc_info(enc, data, "sending");
+  ws_enc_info(enc, तथ्य, "sending");
 
   /* 4 bytes random */
 
-  result = Curl_rand(data, (uint8_t *)&enc->mask, sizeof(enc->mask));
-  if(result)
-    return result;
+  परिणाम = Curl_rand(तथ्य, (uint8_t *)&enc->mask, माप(enc->mask));
+  अगर(परिणाम)
+    वापस परिणाम;
 
-#ifdef DEBUGBUILD
-  if(getenv("CURL_WS_FORCE_ZERO_MASK"))
+#अगर_घोषित DEBUGBUILD
+  अगर(दो_पर्या("CURL_WS_FORCE_ZERO_MASK"))
     /* force the bit mask to 0x00000000, effectively disabling masking */
-    memset(&enc->mask, 0, sizeof(enc->mask));
-#endif
+    स_रखो(&enc->mask, 0, माप(enc->mask));
+#पूर्ण_अगर
 
   /* add 4 bytes mask */
-  memcpy(&head[hlen], &enc->mask, 4);
+  स_नकल(&शीर्ष[hlen], &enc->mask, 4);
   hlen += 4;
   /* reset for payload to come */
   enc->xori = 0;
 
-  result = Curl_bufq_write(out, head, hlen, &nwritten);
-  if(result)
-    return result;
-  if(nwritten != hlen) {
+  परिणाम = Curl_bufq_write(out, शीर्ष, hlen, &nwritten);
+  अगर(परिणाम)
+    वापस परिणाम;
+  अगर(nwritten != hlen) {
     /* We use a bufq with SOFT_LIMIT, writing should always succeed */
     DEBUGASSERT(0);
-    return CURLE_SEND_ERROR;
+    वापस CURLE_SEND_ERROR;
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ws_enc_write_head(struct Curl_easy *data,
-                                  struct websocket *ws,
-                                  struct ws_encoder *enc,
-                                  unsigned int flags,
+अटल CURLcode ws_enc_write_शीर्ष(काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा websocket *ws,
+                                  काष्ठा ws_encoder *enc,
+                                  अचिन्हित पूर्णांक flags,
                                   curl_off_t payload_len,
-                                  struct bufq *out)
+                                  काष्ठा bufq *out)
 {
   /* starting a new frame, we want a clean sendbuf.
    * Any pending control frame we can add now as part of the flush. */
-  if(ws->pending.type) {
-    CURLcode result = ws_enc_add_pending(data, ws);
-    if(result)
-      return result;
+  अगर(ws->pending.type) {
+    CURLcode परिणाम = ws_enc_add_pending(तथ्य, ws);
+    अगर(परिणाम)
+      वापस परिणाम;
   }
-  return ws_enc_add_frame(data, enc, flags, payload_len, out);
+  वापस ws_enc_add_frame(तथ्य, enc, flags, payload_len, out);
 }
 
-static CURLcode ws_enc_write_payload(struct ws_encoder *enc,
-                                     struct Curl_easy *data,
-                                     const uint8_t *buf, size_t buflen,
-                                     struct bufq *out, size_t *pnwritten)
+अटल CURLcode ws_enc_write_payload(काष्ठा ws_encoder *enc,
+                                     काष्ठा Curl_easy *तथ्य,
+                                     स्थिर uint8_t *buf, माप_प्रकार buflen,
+                                     काष्ठा bufq *out, माप_प्रकार *pnwritten)
 {
-  CURLcode result;
-  size_t i, len, n, remain;
+  CURLcode परिणाम;
+  माप_प्रकार i, len, n, remain;
 
   *pnwritten = 0;
-  if(Curl_bufq_is_full(out))
-    return CURLE_AGAIN;
+  अगर(Curl_bufq_is_full(out))
+    वापस CURLE_AGAIN;
 
   /* not the most performant way to do this */
   len = buflen;
   remain = curlx_sotouz_range(enc->payload_remain, 0, SIZE_MAX);
-  if(remain < len)
+  अगर(remain < len)
     len = remain;
 
-  for(i = 0; i < len; ++i) {
+  क्रम(i = 0; i < len; ++i) {
     uint8_t c = buf[i] ^ enc->mask[enc->xori];
-    result = Curl_bufq_write(out, &c, 1, &n);
-    if(result) {
-      if((result != CURLE_AGAIN) || !i)
-        return result;
-      break;
+    परिणाम = Curl_bufq_write(out, &c, 1, &n);
+    अगर(परिणाम) {
+      अगर((परिणाम != CURLE_AGAIN) || !i)
+        वापस परिणाम;
+      अवरोध;
     }
     enc->xori++;
     enc->xori &= 3;
   }
   *pnwritten = i;
   enc->payload_remain -= (curl_off_t)i;
-  ws_enc_info(enc, data, "buffered");
-  return CURLE_OK;
+  ws_enc_info(enc, तथ्य, "buffered");
+  वापस CURLE_OK;
 }
 
-static CURLcode ws_enc_add_pending(struct Curl_easy *data,
-                                   struct websocket *ws)
+अटल CURLcode ws_enc_add_pending(काष्ठा Curl_easy *तथ्य,
+                                   काष्ठा websocket *ws)
 {
-  CURLcode result;
-  size_t n;
+  CURLcode परिणाम;
+  माप_प्रकार n;
 
-  if(!ws->pending.type) /* no pending frame here */
-    return CURLE_OK;
-  if(ws->enc.payload_remain) /* in the middle of another frame */
-    return CURLE_AGAIN;
+  अगर(!ws->pending.type) /* no pending frame here */
+    वापस CURLE_OK;
+  अगर(ws->enc.payload_remain) /* in the middle of another frame */
+    वापस CURLE_AGAIN;
 
-  result = ws_enc_add_frame(data, &ws->enc, ws->pending.type,
+  परिणाम = ws_enc_add_frame(तथ्य, &ws->enc, ws->pending.type,
                             (curl_off_t)ws->pending.payload_len,
                             &ws->sendbuf);
-  if(result) {
-    CURL_TRC_WS(data, "ws_enc_cntrl(), error adding head: %d",
-                (int)result);
-    goto out;
+  अगर(परिणाम) {
+    CURL_TRC_WS(तथ्य, "ws_enc_cntrl(), error adding head: %d",
+                (पूर्णांक)परिणाम);
+    जाओ out;
   }
-  result = ws_enc_write_payload(&ws->enc, data, ws->pending.payload,
+  परिणाम = ws_enc_write_payload(&ws->enc, तथ्य, ws->pending.payload,
                                 ws->pending.payload_len,
                                 &ws->sendbuf, &n);
-  if(result) {
-    CURL_TRC_WS(data, "ws_enc_cntrl(), error adding payload: %d",
-                (int)result);
-    goto out;
+  अगर(परिणाम) {
+    CURL_TRC_WS(तथ्य, "ws_enc_cntrl(), error adding payload: %d",
+                (पूर्णांक)परिणाम);
+    जाओ out;
   }
-  if(n != ws->pending.payload_len) {
+  अगर(n != ws->pending.payload_len) {
     DEBUGASSERT(0); /* buffer should always be able to take all */
-    CURL_TRC_WS(data, "ws_enc_cntrl(), error added only %zu/%zu payload,",
+    CURL_TRC_WS(तथ्य, "ws_enc_cntrl(), error added only %zu/%zu payload,",
                 n, ws->pending.payload_len);
-    result = CURLE_SEND_ERROR;
-    goto out;
+    परिणाम = CURLE_SEND_ERROR;
+    जाओ out;
   }
   /* the frame should be complete now */
   DEBUGASSERT(!ws->enc.payload_remain);
-  memset(&ws->pending, 0, sizeof(ws->pending));
+  स_रखो(&ws->pending, 0, माप(ws->pending));
 
 out:
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ws_enc_send(struct Curl_easy *data,
-                            struct websocket *ws,
-                            const uint8_t *buffer,
-                            size_t buflen,
+अटल CURLcode ws_enc_send(काष्ठा Curl_easy *तथ्य,
+                            काष्ठा websocket *ws,
+                            स्थिर uint8_t *बफर,
+                            माप_प्रकार buflen,
                             curl_off_t fragsize,
-                            unsigned int flags,
-                            size_t *pnsent)
+                            अचिन्हित पूर्णांक flags,
+                            माप_प्रकार *pnsent)
 {
-  size_t n;
-  CURLcode result = CURLE_OK;
+  माप_प्रकार n;
+  CURLcode परिणाम = CURLE_OK;
 
-  DEBUGASSERT(!data->set.ws_raw_mode);
+  DEBUGASSERT(!तथ्य->set.ws_raw_mode);
   *pnsent = 0;
 
-  if(ws->enc.payload_remain || !Curl_bufq_is_empty(&ws->sendbuf)) {
+  अगर(ws->enc.payload_remain || !Curl_bufq_is_empty(&ws->sendbuf)) {
     /* a frame is ongoing with payload buffered or more payload
      * that needs to be encoded into the buffer */
-    if(buflen < ws->sendbuf_payload) {
+    अगर(buflen < ws->sendbuf_payload) {
       /* We have been called with LESS buffer data than before. This
        * is not how it is supposed too work. */
-      failf(data, "[WS] curl_ws_send() called with smaller 'buflen' than "
+      failf(तथ्य, "[WS] curl_ws_send() called with smaller 'buflen' than "
             "bytes already buffered in previous call, %zu vs %zu",
             buflen, ws->sendbuf_payload);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      वापस CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if((curl_off_t)buflen >
+    अगर((curl_off_t)buflen >
        (ws->enc.payload_remain + (curl_off_t)ws->sendbuf_payload)) {
       /* too large buflen beyond payload length of frame */
-      failf(data, "[WS] unaligned frame size (sending %zu instead of "
+      failf(तथ्य, "[WS] unaligned frame size (sending %zu instead of "
             "%" FMT_OFF_T ")", buflen,
             (curl_off_t)(ws->enc.payload_remain + ws->sendbuf_payload));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      वापस CURLE_BAD_FUNCTION_ARGUMENT;
     }
   }
-  else {
-    result = ws_flush(data, ws, Curl_api_is_in_callback(data));
-    if(result)
-      return result;
+  अन्यथा {
+    परिणाम = ws_flush(तथ्य, ws, Curl_api_is_in_callback(तथ्य));
+    अगर(परिणाम)
+      वापस परिणाम;
 
-    result = ws_enc_write_head(data, ws, &ws->enc, flags,
+    परिणाम = ws_enc_write_शीर्ष(तथ्य, ws, &ws->enc, flags,
                                (flags & CURLWS_OFFSET) ?
                                fragsize : (curl_off_t)buflen,
                                &ws->sendbuf);
-    if(result) {
-      CURL_TRC_WS(data, "curl_ws_send(), error writing frame head %d",
-                  (int)result);
-      return result;
+    अगर(परिणाम) {
+      CURL_TRC_WS(तथ्य, "curl_ws_send(), error writing frame head %d",
+                  (पूर्णांक)परिणाम);
+      वापस परिणाम;
     }
   }
 
   /* While there is either sendbuf to flush OR more payload to encode... */
-  while(!Curl_bufq_is_empty(&ws->sendbuf) || (buflen > ws->sendbuf_payload)) {
+  जबतक(!Curl_bufq_is_empty(&ws->sendbuf) || (buflen > ws->sendbuf_payload)) {
     /* Try to add more payload to sendbuf */
-    if(buflen > ws->sendbuf_payload) {
-      size_t prev_len = Curl_bufq_len(&ws->sendbuf);
-      result = ws_enc_write_payload(&ws->enc, data,
-                                    buffer + ws->sendbuf_payload,
+    अगर(buflen > ws->sendbuf_payload) {
+      माप_प्रकार पूर्व_len = Curl_bufq_len(&ws->sendbuf);
+      परिणाम = ws_enc_write_payload(&ws->enc, तथ्य,
+                                    बफर + ws->sendbuf_payload,
                                     buflen - ws->sendbuf_payload,
                                     &ws->sendbuf, &n);
-      if(result && (result != CURLE_AGAIN))
-        return result;
-      ws->sendbuf_payload += Curl_bufq_len(&ws->sendbuf) - prev_len;
-      if(!ws->sendbuf_payload) {
-        return CURLE_AGAIN;
+      अगर(परिणाम && (परिणाम != CURLE_AGAIN))
+        वापस परिणाम;
+      ws->sendbuf_payload += Curl_bufq_len(&ws->sendbuf) - पूर्व_len;
+      अगर(!ws->sendbuf_payload) {
+        वापस CURLE_AGAIN;
       }
     }
 
     /* flush, blocking when in callback */
-    result = ws_flush(data, ws, Curl_api_is_in_callback(data));
-    if(!result && ws->sendbuf_payload > 0) {
+    परिणाम = ws_flush(तथ्य, ws, Curl_api_is_in_callback(तथ्य));
+    अगर(!परिणाम && ws->sendbuf_payload > 0) {
       *pnsent += ws->sendbuf_payload;
-      buffer += ws->sendbuf_payload;
+      बफर += ws->sendbuf_payload;
       buflen -= ws->sendbuf_payload;
       ws->sendbuf_payload = 0;
     }
-    else if(result == CURLE_AGAIN) {
-      if(ws->sendbuf_payload > Curl_bufq_len(&ws->sendbuf)) {
+    अन्यथा अगर(परिणाम == CURLE_AGAIN) {
+      अगर(ws->sendbuf_payload > Curl_bufq_len(&ws->sendbuf)) {
         /* blocked, part of payload bytes remain, report length
          * that we managed to send. */
-        size_t flushed = (ws->sendbuf_payload - Curl_bufq_len(&ws->sendbuf));
+        माप_प्रकार flushed = (ws->sendbuf_payload - Curl_bufq_len(&ws->sendbuf));
         *pnsent += flushed;
         ws->sendbuf_payload -= flushed;
-        return CURLE_OK;
+        वापस CURLE_OK;
       }
-      else {
+      अन्यथा {
         /* blocked before sending headers or 1st payload byte. We cannot report
          * OK on 0-length send (caller counts only payload) and EAGAIN */
-        CURL_TRC_WS(data, "EAGAIN flushing sendbuf, payload_encoded: %zu/%zu",
+        CURL_TRC_WS(तथ्य, "EAGAIN flushing sendbuf, payload_encoded: %zu/%zu",
                     ws->sendbuf_payload, buflen);
         DEBUGASSERT(*pnsent == 0);
-        return CURLE_AGAIN;
+        वापस CURLE_AGAIN;
       }
     }
-    else
-      return result;  /* real error sending the data */
+    अन्यथा
+      वापस परिणाम;  /* real error sending the data */
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-struct cr_ws_ctx {
-  struct Curl_creader super;
+काष्ठा cr_ws_ctx {
+  काष्ठा Curl_creader super;
   BIT(read_eos);  /* we read an EOS from the next reader */
   BIT(eos);       /* we have returned an EOS */
 };
 
-static CURLcode cr_ws_init(struct Curl_easy *data, struct Curl_creader *reader)
+अटल CURLcode cr_ws_init(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
-  return CURLE_OK;
+  (व्योम)तथ्य;
+  (व्योम)reader;
+  वापस CURLE_OK;
 }
 
-static void cr_ws_close(struct Curl_easy *data, struct Curl_creader *reader)
+अटल व्योम cr_ws_close(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_creader *reader)
 {
-  (void)data;
-  (void)reader;
+  (व्योम)तथ्य;
+  (व्योम)reader;
 }
 
-static CURLcode cr_ws_read(struct Curl_easy *data,
-                           struct Curl_creader *reader,
-                           char *buf, size_t blen,
-                           size_t *pnread, bool *peos)
+अटल CURLcode cr_ws_read(काष्ठा Curl_easy *तथ्य,
+                           काष्ठा Curl_creader *reader,
+                           अक्षर *buf, माप_प्रकार blen,
+                           माप_प्रकार *pnread, bool *peos)
 {
-  struct cr_ws_ctx *ctx = reader->ctx;
-  CURLcode result = CURLE_OK;
-  size_t nread, n;
-  struct websocket *ws;
+  काष्ठा cr_ws_ctx *ctx = reader->ctx;
+  CURLcode परिणाम = CURLE_OK;
+  माप_प्रकार nread, n;
+  काष्ठा websocket *ws;
   bool eos;
 
   *pnread = 0;
-  if(ctx->eos) {
+  अगर(ctx->eos) {
     *peos = TRUE;
-    return CURLE_OK;
+    वापस CURLE_OK;
   }
 
-  ws = Curl_conn_meta_get(data->conn, CURL_META_PROTO_WS_CONN);
-  if(!ws) {
-    failf(data, "[WS] not a websocket transfer");
-    return CURLE_FAILED_INIT;
+  ws = Curl_conn_meta_get(तथ्य->conn, CURL_META_PROTO_WS_CONN);
+  अगर(!ws) {
+    failf(तथ्य, "[WS] not a websocket transfer");
+    वापस CURLE_FAILED_INIT;
   }
 
-  if(Curl_bufq_is_empty(&ws->sendbuf)) {
-    if(ctx->read_eos) {
+  अगर(Curl_bufq_is_empty(&ws->sendbuf)) {
+    अगर(ctx->read_eos) {
       ctx->eos = TRUE;
       *peos = TRUE;
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
 
-    if(ws->enc.payload_remain) {
-      CURL_TRC_WS(data, "current frame, %" FMT_OFF_T " remaining",
+    अगर(ws->enc.payload_remain) {
+      CURL_TRC_WS(तथ्य, "current frame, %" FMT_OFF_T " remaining",
                   ws->enc.payload_remain);
       blen = curlx_sotouz_range(ws->enc.payload_remain, 0, blen);
     }
 
-    result = Curl_creader_read(data, reader->next, buf, blen, &nread, &eos);
-    if(result)
-      return result;
+    परिणाम = Curl_creader_read(तथ्य, reader->अग्र, buf, blen, &nread, &eos);
+    अगर(परिणाम)
+      वापस परिणाम;
     ctx->read_eos = eos;
 
-    if(!Curl_bufq_is_empty(&ws->sendbuf)) {
+    अगर(!Curl_bufq_is_empty(&ws->sendbuf)) {
       /* client_read started a new frame, we disregard any eos reported */
       ctx->read_eos = FALSE;
-      Curl_creader_clear_eos(data, reader->next);
+      Curl_creader_clear_eos(तथ्य, reader->अग्र);
     }
-    else if(!nread) {
+    अन्यथा अगर(!nread) {
       /* nothing to convert, return this right away */
-      if(ctx->read_eos)
+      अगर(ctx->read_eos)
         ctx->eos = TRUE;
       *pnread = nread;
       *peos = (bool)ctx->eos;
-      goto out;
+      जाओ out;
     }
 
-    if(!ws->enc.payload_remain && Curl_bufq_is_empty(&ws->sendbuf)) {
+    अगर(!ws->enc.payload_remain && Curl_bufq_is_empty(&ws->sendbuf)) {
       /* encode the data as a new BINARY frame */
-      result = ws_enc_write_head(data, ws, &ws->enc, CURLWS_BINARY, nread,
+      परिणाम = ws_enc_write_शीर्ष(तथ्य, ws, &ws->enc, CURLWS_द्विआधारी, nread,
                                  &ws->sendbuf);
-      if(result)
-        goto out;
+      अगर(परिणाम)
+        जाओ out;
     }
 
-    result = ws_enc_write_payload(&ws->enc, data, (uint8_t *)buf,
+    परिणाम = ws_enc_write_payload(&ws->enc, तथ्य, (uint8_t *)buf,
                                   nread, &ws->sendbuf, &n);
-    if(result)
-      goto out;
-    CURL_TRC_READ(data, "cr_ws_read, added %zu payload, len=%zu", nread, n);
+    अगर(परिणाम)
+      जाओ out;
+    CURL_TRC_READ(तथ्य, "cr_ws_read, added %zu payload, len=%zu", nread, n);
   }
 
   DEBUGASSERT(!Curl_bufq_is_empty(&ws->sendbuf));
   *peos = FALSE;
-  result = Curl_bufq_cread(&ws->sendbuf, buf, blen, pnread);
-  if(!result && ctx->read_eos && Curl_bufq_is_empty(&ws->sendbuf)) {
+  परिणाम = Curl_bufq_cread(&ws->sendbuf, buf, blen, pnread);
+  अगर(!परिणाम && ctx->read_eos && Curl_bufq_is_empty(&ws->sendbuf)) {
     /* no more data, read all, done. */
     ctx->eos = TRUE;
     *peos = TRUE;
   }
 
 out:
-  CURL_TRC_READ(data, "cr_ws_read(len=%zu) -> %d, nread=%zu, eos=%d",
-                blen, (int)result, *pnread, *peos);
-  return result;
+  CURL_TRC_READ(तथ्य, "cr_ws_read(len=%zu) -> %d, nread=%zu, eos=%d",
+                blen, (पूर्णांक)परिणाम, *pnread, *peos);
+  वापस परिणाम;
 }
 
-static curl_off_t cr_ws_total_length(struct Curl_easy *data,
-                                     struct Curl_creader *reader)
+अटल curl_off_t cr_ws_योग_लंबाई(काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा Curl_creader *reader)
 {
   /* this reader changes length depending on input */
-  (void)data;
-  (void)reader;
-  return -1;
+  (व्योम)तथ्य;
+  (व्योम)reader;
+  वापस -1;
 }
 
-static const struct Curl_crtype ws_cr_encode = {
+अटल स्थिर काष्ठा Curl_crtype ws_cr_encode = {
   "ws-encode",
   cr_ws_init,
   cr_ws_read,
   cr_ws_close,
   Curl_creader_def_needs_rewind,
-  cr_ws_total_length,
+  cr_ws_योग_लंबाई,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
   Curl_creader_def_done,
-  sizeof(struct cr_ws_ctx)
+  माप(काष्ठा cr_ws_ctx)
 };
 
-struct wsfield {
-  const char *name;
-  const char *val;
+काष्ठा wsfield {
+  स्थिर अक्षर *name;
+  स्थिर अक्षर *val;
 };
 
-CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req)
+CURLcode Curl_ws_request(काष्ठा Curl_easy *तथ्य, काष्ठा dynbuf *req)
 {
-  unsigned int i;
-  CURLcode result = CURLE_OK;
-  uint8_t rand[16];
-  char *randstr;
-  size_t randlen;
-  char keyval[40];
-  struct SingleRequest *k = &data->req;
-  struct wsfield heads[] = {
+  अचिन्हित पूर्णांक i;
+  CURLcode परिणाम = CURLE_OK;
+  uint8_t अक्रम[16];
+  अक्षर *randstr;
+  माप_प्रकार randlen;
+  अक्षर keyval[40];
+  काष्ठा SingleRequest *k = &तथ्य->req;
+  काष्ठा wsfield heads[] = {
     {
       /* The request MUST contain an |Upgrade| header field whose value
          MUST include the "websocket" keyword. */
@@ -1333,41 +1333,41 @@ CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req)
          consisting of a randomly selected 16-byte value that has been
          base64-encoded (see Section 4 of [RFC4648]). The nonce MUST be
          selected randomly for each connection. */
-      "Sec-WebSocket-Key", NULL,
+      "Sec-WebSocket-Key", शून्य,
     }
   };
   heads[2].val = &keyval[0];
 
   /* 16 bytes random */
-  result = Curl_rand(data, rand, sizeof(rand));
-  if(result)
-    return result;
-  result = curlx_base64_encode(rand, sizeof(rand), &randstr, &randlen);
-  if(result)
-    return result;
-  DEBUGASSERT(randlen < sizeof(keyval));
-  if(randlen >= sizeof(keyval)) {
+  परिणाम = Curl_rand(तथ्य, अक्रम, माप(अक्रम));
+  अगर(परिणाम)
+    वापस परिणाम;
+  परिणाम = curlx_base64_encode(अक्रम, माप(अक्रम), &randstr, &randlen);
+  अगर(परिणाम)
+    वापस परिणाम;
+  DEBUGASSERT(randlen < माप(keyval));
+  अगर(randlen >= माप(keyval)) {
     curlx_free(randstr);
-    return CURLE_FAILED_INIT;
+    वापस CURLE_FAILED_INIT;
   }
-  curlx_strcopy(keyval, sizeof(keyval), randstr, randlen);
+  curlx_strcopy(keyval, माप(keyval), randstr, randlen);
   curlx_free(randstr);
-  for(i = 0; !result && (i < CURL_ARRAYSIZE(heads)); i++) {
-    if(!Curl_checkheaders(data, heads[i].name, strlen(heads[i].name))) {
-      result = curlx_dyn_addf(req, "%s: %s\r\n", heads[i].name, heads[i].val);
+  क्रम(i = 0; !परिणाम && (i < CURL_ARRAYSIZE(heads)); i++) {
+    अगर(!Curl_checkheaders(तथ्य, heads[i].name, म_माप(heads[i].name))) {
+      परिणाम = curlx_dyn_addf(req, "%s: %s\r\n", heads[i].name, heads[i].val);
     }
   }
-  data->state.http_hd_upgrade = TRUE;
+  तथ्य->state.http_hd_upgrade = TRUE;
   k->upgr101 = UPGR101_WS;
-  data->conn->bits.upgrade_in_progress = TRUE;
-  return result;
+  तथ्य->conn->bits.upgrade_in_progress = TRUE;
+  वापस परिणाम;
 }
 
-static void ws_conn_dtor(const void *key, size_t klen, void *entry)
+अटल व्योम ws_conn_dtor(स्थिर व्योम *कुंजी, माप_प्रकार klen, व्योम *entry)
 {
-  struct websocket *ws = entry;
-  (void)key;
-  (void)klen;
+  काष्ठा websocket *ws = entry;
+  (व्योम)कुंजी;
+  (व्योम)klen;
   Curl_bufq_free(&ws->recvbuf);
   Curl_bufq_free(&ws->sendbuf);
   curlx_free(ws);
@@ -1377,45 +1377,45 @@ static void ws_conn_dtor(const void *key, size_t klen, void *entry)
  * 'nread' is number of bytes of websocket data already in the buffer at
  * 'mem'.
  */
-CURLcode Curl_ws_accept(struct Curl_easy *data,
-                        const char *mem, size_t nread)
+CURLcode Curl_ws_accept(काष्ठा Curl_easy *तथ्य,
+                        स्थिर अक्षर *mem, माप_प्रकार nread)
 {
-  struct SingleRequest *k = &data->req;
-  struct websocket *ws;
-  struct Curl_cwriter *ws_dec_writer = NULL;
-  struct Curl_creader *ws_enc_reader = NULL;
-  CURLcode result;
+  काष्ठा SingleRequest *k = &तथ्य->req;
+  काष्ठा websocket *ws;
+  काष्ठा Curl_cwriter *ws_dec_writer = शून्य;
+  काष्ठा Curl_creader *ws_enc_reader = शून्य;
+  CURLcode परिणाम;
 
-  DEBUGASSERT(data->conn);
-  ws = Curl_conn_meta_get(data->conn, CURL_META_PROTO_WS_CONN);
-  if(!ws) {
-    size_t chunk_size = WS_CHUNK_SIZE;
-    ws = curlx_calloc(1, sizeof(*ws));
-    if(!ws)
-      return CURLE_OUT_OF_MEMORY;
-#ifdef DEBUGBUILD
+  DEBUGASSERT(तथ्य->conn);
+  ws = Curl_conn_meta_get(तथ्य->conn, CURL_META_PROTO_WS_CONN);
+  अगर(!ws) {
+    माप_प्रकार chunk_आकार = WS_CHUNK_आकार;
+    ws = curlx_calloc(1, माप(*ws));
+    अगर(!ws)
+      वापस CURLE_OUT_OF_MEMORY;
+#अगर_घोषित DEBUGBUILD
     {
-      const char *p = getenv("CURL_WS_CHUNK_SIZE");
-      if(p) {
+      स्थिर अक्षर *p = दो_पर्या("CURL_WS_CHUNK_SIZE");
+      अगर(p) {
         curl_off_t l;
-        if(!curlx_str_number(&p, &l, 1 * 1024 * 1024))
-          chunk_size = (size_t)l;
+        अगर(!curlx_str_संख्या(&p, &l, 1 * 1024 * 1024))
+          chunk_आकार = (माप_प्रकार)l;
       }
     }
-#endif
-    CURL_TRC_WS(data, "WS, using chunk size %zu", chunk_size);
-    Curl_bufq_init2(&ws->recvbuf, chunk_size, WS_CHUNK_COUNT,
+#पूर्ण_अगर
+    CURL_TRC_WS(तथ्य, "WS, using chunk size %zu", chunk_आकार);
+    Curl_bufq_init2(&ws->recvbuf, chunk_आकार, WS_CHUNK_गिनती,
                     BUFQ_OPT_SOFT_LIMIT);
-    Curl_bufq_init2(&ws->sendbuf, chunk_size, WS_CHUNK_COUNT,
+    Curl_bufq_init2(&ws->sendbuf, chunk_आकार, WS_CHUNK_गिनती,
                     BUFQ_OPT_SOFT_LIMIT);
     ws_dec_init(&ws->dec);
     ws_enc_init(&ws->enc);
-    result = Curl_conn_meta_set(data->conn, CURL_META_PROTO_WS_CONN,
+    परिणाम = Curl_conn_meta_set(तथ्य->conn, CURL_META_PROTO_WS_CONN,
                                 ws, ws_conn_dtor);
-    if(result)
-      return result;
+    अगर(परिणाम)
+      वापस परिणाम;
   }
-  else {
+  अन्यथा {
     Curl_bufq_reset(&ws->recvbuf);
     ws_dec_reset(&ws->dec);
     ws_enc_reset(&ws->enc);
@@ -1438,65 +1438,65 @@ CURLcode Curl_ws_accept(struct Curl_easy *data,
      subprotocol not requested by the client), the client MUST Fail
      the WebSocket Connection. */
 
-  infof(data, "[WS] Received 101, switch to WebSocket");
+  infof(तथ्य, "[WS] Received 101, switch to WebSocket");
 
   /* Install our client writer that decodes WS frames payload */
-  result = Curl_cwriter_create(&ws_dec_writer, data, &ws_cw_decode,
+  परिणाम = Curl_cwriter_create(&ws_dec_writer, तथ्य, &ws_cw_decode,
                                CURL_CW_CONTENT_DECODE);
-  if(result)
-    goto out;
-  result = Curl_cwriter_add(data, ws_dec_writer);
-  if(result)
-    goto out;
-  ws_dec_writer = NULL; /* owned by transfer now */
+  अगर(परिणाम)
+    जाओ out;
+  परिणाम = Curl_cwriter_add(तथ्य, ws_dec_writer);
+  अगर(परिणाम)
+    जाओ out;
+  ws_dec_writer = शून्य; /* owned by transfer now */
 
   k->header = FALSE; /* we will not get more response headers */
 
-  if(data->set.connect_only) {
+  अगर(तथ्य->set.connect_only) {
     /* In CONNECT_ONLY setup, the payloads from `mem` need to be received
      * when using `curl_ws_recv/curl_easy_recv` later on, after this transfer
      * is already marked as DONE.
      * Since `curl_easy_recv()` is also supposed to work, we need
      * to buffer the data at connection level. See #22107 */
-    if(nread) {
-      result = Curl_cf_recvbuf_add(data, data->conn, FIRSTSOCKET,
-                                   (const uint8_t *)mem, nread);
-      if(result)
-        goto out;
+    अगर(nread) {
+      परिणाम = Curl_cf_recvbuf_add(तथ्य, तथ्य->conn, FIRSTSOCKET,
+                                   (स्थिर uint8_t *)mem, nread);
+      अगर(परिणाम)
+        जाओ out;
     }
-    CURL_REQ_CLEAR_RECV(data); /* read no more content */
+    CURL_REQ_CLEAR_RECV(तथ्य); /* read no more content */
   }
-  else { /* !connect_only */
-    if(data->set.method == HTTPREQ_PUT) {
-      CURL_TRC_WS(data, "UPLOAD set, add ws-encode reader");
-      result = Curl_creader_set_fread(data, -1);
-      if(result)
-        goto out;
+  अन्यथा { /* !connect_only */
+    अगर(तथ्य->set.method == HTTPREQ_PUT) {
+      CURL_TRC_WS(तथ्य, "UPLOAD set, add ws-encode reader");
+      परिणाम = Curl_creader_set_fread(तथ्य, -1);
+      अगर(परिणाम)
+        जाओ out;
 
-      if(!data->set.ws_raw_mode) {
+      अगर(!तथ्य->set.ws_raw_mode) {
         /* Add our client reader encoding WS BINARY frames */
-        result = Curl_creader_create(&ws_enc_reader, data, &ws_cr_encode,
+        परिणाम = Curl_creader_create(&ws_enc_reader, तथ्य, &ws_cr_encode,
                                      CURL_CR_CONTENT_ENCODE);
-        if(result)
-          goto out;
-        result = Curl_creader_add(data, ws_enc_reader);
-        if(result)
-          goto out;
-        ws_enc_reader = NULL; /* owned by transfer now */
+        अगर(परिणाम)
+          जाओ out;
+        परिणाम = Curl_creader_add(तथ्य, ws_enc_reader);
+        अगर(परिणाम)
+          जाओ out;
+        ws_enc_reader = शून्य; /* owned by transfer now */
         ws->using_reader = TRUE;
       }
 
       /* start over with sending */
-      data->req.eos_read = FALSE;
-      data->req.upload_done = FALSE;
-      CURL_REQ_SET_SEND(data);
+      तथ्य->req.eos_read = FALSE;
+      तथ्य->req.upload_done = FALSE;
+      CURL_REQ_SET_SEND(तथ्य);
     }
 
     /* Then pass any additional data to the writers */
-    if(nread) {
-      result = Curl_client_write(data, CLIENTWRITE_BODY, mem, nread);
-      if(result)
-        goto out;
+    अगर(nread) {
+      परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, mem, nread);
+      अगर(परिणाम)
+        जाओ out;
     }
   }
 
@@ -1504,52 +1504,52 @@ CURLcode Curl_ws_accept(struct Curl_easy *data,
   k->header = FALSE; /* we will not get more responses */
 
 out:
-  if(ws_dec_writer)
-    Curl_cwriter_free(data, ws_dec_writer);
-  if(ws_enc_reader)
-    Curl_creader_free(data, ws_enc_reader);
-  if(result)
-    CURL_TRC_WS(data, "Curl_ws_accept() failed -> %d", (int)result);
-  else
-    CURL_TRC_WS(data, "websocket established, %s mode",
-                data->set.connect_only ? "connect-only" : "callback");
-  return result;
+  अगर(ws_dec_writer)
+    Curl_cwriter_free(तथ्य, ws_dec_writer);
+  अगर(ws_enc_reader)
+    Curl_creader_free(तथ्य, ws_enc_reader);
+  अगर(परिणाम)
+    CURL_TRC_WS(तथ्य, "Curl_ws_accept() failed -> %d", (पूर्णांक)परिणाम);
+  अन्यथा
+    CURL_TRC_WS(तथ्य, "websocket established, %s mode",
+                तथ्य->set.connect_only ? "connect-only" : "callback");
+  वापस परिणाम;
 }
 
-struct ws_collect {
-  struct Curl_easy *data;
-  struct websocket *ws;
-  uint8_t *buffer;
-  size_t buflen;
-  size_t bufidx;
-  int frame_age;
-  int frame_flags;
+काष्ठा ws_collect {
+  काष्ठा Curl_easy *तथ्य;
+  काष्ठा websocket *ws;
+  uint8_t *बफर;
+  माप_प्रकार buflen;
+  माप_प्रकार bufidx;
+  पूर्णांक frame_age;
+  पूर्णांक frame_flags;
   curl_off_t payload_offset;
   curl_off_t payload_len;
   bool written;
 };
 
-static CURLcode ws_client_collect(const uint8_t *buf, size_t buflen,
-                                  int frame_age, int frame_flags,
+अटल CURLcode ws_client_collect(स्थिर uint8_t *buf, माप_प्रकार buflen,
+                                  पूर्णांक frame_age, पूर्णांक frame_flags,
                                   curl_off_t payload_offset,
                                   curl_off_t payload_len,
-                                  void *userp,
-                                  size_t *pnwritten)
+                                  व्योम *userp,
+                                  माप_प्रकार *pnwritten)
 {
-  struct ws_collect *ctx = userp;
-  struct Curl_easy *data = ctx->data;
-  bool auto_pong = !data->set.ws_raw_mode && !data->set.ws_no_auto_pong;
+  काष्ठा ws_collect *ctx = userp;
+  काष्ठा Curl_easy *तथ्य = ctx->तथ्य;
+  bool auto_pong = !तथ्य->set.ws_raw_mode && !तथ्य->set.ws_no_auto_pong;
   curl_off_t remain;
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
   *pnwritten = 0;
   remain = ws_payload_remain(payload_len, payload_offset, buflen);
-  if(remain < 0) {
+  अगर(remain < 0) {
     DEBUGASSERT(0); /* parameter mismatch */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(!ctx->bufidx) {
+  अगर(!ctx->bufidx) {
     /* first write */
     ctx->frame_age = frame_age;
     ctx->frame_flags = frame_flags;
@@ -1557,126 +1557,126 @@ static CURLcode ws_client_collect(const uint8_t *buf, size_t buflen,
     ctx->payload_len = payload_len;
   }
 
-  if(auto_pong && (frame_flags & CURLWS_PING) && !remain) {
+  अगर(auto_pong && (frame_flags & CURLWS_PING) && !remain) {
     /* auto-respond to PINGs, only works for single-frame payloads atm */
-    CURL_TRC_WS(data, "auto PONG to [PING payload=%" FMT_OFF_T
+    CURL_TRC_WS(तथ्य, "auto PONG to [PING payload=%" FMT_OFF_T
                 "/%" FMT_OFF_T "]", payload_offset, payload_len);
     /* send back the exact same content as a PONG */
-    result = ws_enc_add_cntrl(ctx->data, ctx->ws, buf, buflen, CURLWS_PONG);
-    if(result)
-      return result;
+    परिणाम = ws_enc_add_cntrl(ctx->तथ्य, ctx->ws, buf, buflen, CURLWS_PONG);
+    अगर(परिणाम)
+      वापस परिणाम;
     *pnwritten = buflen;
   }
-  else {
-    size_t write_len;
+  अन्यथा {
+    माप_प्रकार write_len;
 
     ctx->written = TRUE;
     DEBUGASSERT(ctx->buflen >= ctx->bufidx);
     write_len = CURLMIN(buflen, ctx->buflen - ctx->bufidx);
-    if(!write_len) {
-      if(!buflen)  /* 0 length write, we accept that */
-        return CURLE_OK;
-      return CURLE_AGAIN;  /* no more space */
+    अगर(!write_len) {
+      अगर(!buflen)  /* 0 length write, we accept that */
+        वापस CURLE_OK;
+      वापस CURLE_AGAIN;  /* no more space */
     }
-    memcpy(ctx->buffer + ctx->bufidx, buf, write_len);
+    स_नकल(ctx->बफर + ctx->bufidx, buf, write_len);
     ctx->bufidx += write_len;
     *pnwritten = write_len;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode nw_in_recv(void *reader_ctx,
-                           uint8_t *buf, size_t buflen,
-                           size_t *pnread)
+अटल CURLcode nw_in_recv(व्योम *reader_ctx,
+                           uint8_t *buf, माप_प्रकार buflen,
+                           माप_प्रकार *pnread)
 {
-  struct Curl_easy *data = reader_ctx;
-  return Curl_easy_recv(data, buf, buflen, pnread);
+  काष्ठा Curl_easy *तथ्य = reader_ctx;
+  वापस Curl_easy_recv(तथ्य, buf, buflen, pnread);
 }
 
-CURLcode curl_ws_recv(CURL *curl, void *buffer,
-                      size_t buflen, size_t *recv,
-                      const struct curl_ws_frame **metap)
+CURLcode curl_ws_recv(CURL *curl, व्योम *बफर,
+                      माप_प्रकार buflen, माप_प्रकार *recv,
+                      स्थिर काष्ठा curl_ws_frame **metap)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result = CURLE_OK;
+  काष्ठा Curl_eapi_guard guard;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(CURL_EAPI_ENTER(&guard, curl, ws_recv, &result)) {
-    struct Curl_easy *data = curl;
-    struct connectdata *conn;
-    struct websocket *ws;
-    struct ws_collect ctx;
+  अगर(CURL_EAPI_ENTER(&guard, curl, ws_recv, &परिणाम)) {
+    काष्ठा Curl_easy *तथ्य = curl;
+    काष्ठा connectdata *conn;
+    काष्ठा websocket *ws;
+    काष्ठा ws_collect ctx;
 
-    if(!recv || !metap || (buflen && !buffer)) {
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+    अगर(!recv || !metap || (buflen && !बफर)) {
+      परिणाम = CURLE_BAD_FUNCTION_ARGUMENT;
+      जाओ out;
     }
 
     *recv = 0;
-    *metap = NULL;
+    *metap = शून्य;
 
-    conn = data->conn;
-    if(!conn) {
+    conn = तथ्य->conn;
+    अगर(!conn) {
       /* Unhappy hack with lifetimes of transfers and connection */
-      if(!data->set.connect_only) {
-        failf(data, "[WS] CONNECT_ONLY is required");
-        result = CURLE_UNSUPPORTED_PROTOCOL;
-        goto out;
+      अगर(!तथ्य->set.connect_only) {
+        failf(तथ्य, "[WS] CONNECT_ONLY is required");
+        परिणाम = CURLE_UNSUPPORTED_PROTOCOL;
+        जाओ out;
       }
 
-      Curl_getconnectinfo(data, &conn);
-      if(!conn) {
-        failf(data, "[WS] connection not found");
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto out;
+      Curl_getconnectinfo(तथ्य, &conn);
+      अगर(!conn) {
+        failf(तथ्य, "[WS] connection not found");
+        परिणाम = CURLE_BAD_FUNCTION_ARGUMENT;
+        जाओ out;
       }
     }
     ws = Curl_conn_meta_get(conn, CURL_META_PROTO_WS_CONN);
-    if(!ws) {
-      failf(data, "[WS] connection is not setup for websocket");
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+    अगर(!ws) {
+      failf(तथ्य, "[WS] connection is not setup for websocket");
+      परिणाम = CURLE_BAD_FUNCTION_ARGUMENT;
+      जाओ out;
     }
 
-    memset(&ctx, 0, sizeof(ctx));
-    ctx.data = data;
+    स_रखो(&ctx, 0, माप(ctx));
+    ctx.तथ्य = तथ्य;
     ctx.ws = ws;
-    ctx.buffer = buffer;
+    ctx.बफर = बफर;
     ctx.buflen = buflen;
 
-    while(1) {
+    जबतक(1) {
       /* receive more when our buffer is empty */
-      if(Curl_bufq_is_empty(&ws->recvbuf)) {
-        size_t n;
-        result = Curl_bufq_slurp(&ws->recvbuf, nw_in_recv, data, &n);
-        if(result)
-          goto out;
-        else if(n == 0) {
+      अगर(Curl_bufq_is_empty(&ws->recvbuf)) {
+        माप_प्रकार n;
+        परिणाम = Curl_bufq_slurp(&ws->recvbuf, nw_in_recv, तथ्य, &n);
+        अगर(परिणाम)
+          जाओ out;
+        अन्यथा अगर(n == 0) {
           /* connection closed */
-          infof(data, "[WS] connection expectedly closed?");
-          result = CURLE_GOT_NOTHING;
-          goto out;
+          infof(तथ्य, "[WS] connection expectedly closed?");
+          परिणाम = CURLE_GOT_NOTHING;
+          जाओ out;
         }
-        CURL_TRC_WS(data, "curl_ws_recv, added %zu bytes from network",
+        CURL_TRC_WS(तथ्य, "curl_ws_recv, added %zu bytes from network",
                     Curl_bufq_len(&ws->recvbuf));
       }
 
-      result = ws_dec_pass(&ws->dec, data, &ws->recvbuf,
+      परिणाम = ws_dec_pass(&ws->dec, तथ्य, &ws->recvbuf,
                            ws_client_collect, &ctx);
-      if(result == CURLE_AGAIN) {
-        if(!ctx.written) {
-          ws_dec_info(&ws->dec, data, "need more input");
-          continue;  /* nothing written, try more input */
+      अगर(परिणाम == CURLE_AGAIN) {
+        अगर(!ctx.written) {
+          ws_dec_info(&ws->dec, तथ्य, "need more input");
+          जारी;  /* nothing written, try more input */
         }
-        break;
+        अवरोध;
       }
-      else if(result) {
-        goto out;
+      अन्यथा अगर(परिणाम) {
+        जाओ out;
       }
-      else if(ctx.written) {
+      अन्यथा अगर(ctx.written) {
         /* The decoded frame is passed back to our caller.
          * There are frames like PING were we auto-respond to and
          * that we do not return. For these `ctx.written` is not set. */
-        break;
+        अवरोध;
       }
     }
 
@@ -1685,331 +1685,331 @@ CURLcode curl_ws_recv(CURL *curl, void *buffer,
                 ctx.payload_len, ctx.bufidx);
     *metap = &ws->recvframe;
     *recv = ws->recvframe.len;
-    CURL_TRC_WS(data, "curl_ws_recv(len=%zu) -> %zu bytes (frame at %"
+    CURL_TRC_WS(तथ्य, "curl_ws_recv(len=%zu) -> %zu bytes (frame at %"
                 FMT_OFF_T ", %" FMT_OFF_T " left)",
                 buflen, *recv, ws->recvframe.offset,
                 ws->recvframe.bytesleft);
     /* all's well, try to send any pending control. we do not know
      * when the application will call `curl_ws_send()` again. */
-    if(!data->set.ws_raw_mode && !ws->using_reader && ws->pending.type) {
-      CURLcode r2 = ws_enc_add_pending(data, ws);
-      if(!r2)
-        (void)ws_flush(data, ws, Curl_api_is_in_callback(data));
+    अगर(!तथ्य->set.ws_raw_mode && !ws->using_reader && ws->pending.type) {
+      CURLcode r2 = ws_enc_add_pending(तथ्य, ws);
+      अगर(!r2)
+        (व्योम)ws_flush(तथ्य, ws, Curl_api_is_in_callback(तथ्य));
     }
-    result = CURLE_OK;
+    परिणाम = CURLE_OK;
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ws_flush(struct Curl_easy *data, struct websocket *ws,
+अटल CURLcode ws_flush(काष्ठा Curl_easy *तथ्य, काष्ठा websocket *ws,
                          bool blocking)
 {
-  CURLcode result;
+  CURLcode परिणाम;
 
   /* If there is space, add any pending control frame */
-  if(Curl_bufq_len(&ws->sendbuf) < ws->sendbuf.chunk_size) {
-    result = ws_enc_add_pending(data, ws);
-    if(result && (result != CURLE_AGAIN))
-      return result;
+  अगर(Curl_bufq_len(&ws->sendbuf) < ws->sendbuf.chunk_आकार) {
+    परिणाम = ws_enc_add_pending(तथ्य, ws);
+    अगर(परिणाम && (परिणाम != CURLE_AGAIN))
+      वापस परिणाम;
   }
 
-  if(!Curl_bufq_is_empty(&ws->sendbuf)) {
-    const uint8_t *out;
-    size_t outlen, n;
-#ifdef DEBUGBUILD
+  अगर(!Curl_bufq_is_empty(&ws->sendbuf)) {
+    स्थिर uint8_t *out;
+    माप_प्रकार outlen, n;
+#अगर_घोषित DEBUGBUILD
     /* Simulate a blocking send after this chunk has been sent */
-    bool eagain_next = FALSE;
-    size_t chunk_egain = 0;
-    const char *p = getenv("CURL_WS_CHUNK_EAGAIN");
-    if(p) {
+    bool eagain_अग्र = FALSE;
+    माप_प्रकार chunk_egain = 0;
+    स्थिर अक्षर *p = दो_पर्या("CURL_WS_CHUNK_EAGAIN");
+    अगर(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, 1 * 1024 * 1024))
-        chunk_egain = (size_t)l;
+      अगर(!curlx_str_संख्या(&p, &l, 1 * 1024 * 1024))
+        chunk_egain = (माप_प्रकार)l;
     }
-#endif
+#पूर्ण_अगर
 
-    while(Curl_bufq_peek(&ws->sendbuf, &out, &outlen)) {
-#ifdef DEBUGBUILD
-      if(eagain_next)
-        return CURLE_AGAIN;
-      if(chunk_egain && (outlen > chunk_egain)) {
+    जबतक(Curl_bufq_peek(&ws->sendbuf, &out, &outlen)) {
+#अगर_घोषित DEBUGBUILD
+      अगर(eagain_अग्र)
+        वापस CURLE_AGAIN;
+      अगर(chunk_egain && (outlen > chunk_egain)) {
         outlen = chunk_egain;
-        eagain_next = TRUE;
+        eagain_अग्र = TRUE;
       }
-#endif
-      if(blocking) {
-        result = ws_send_raw_blocking(data, ws, (const char *)out, outlen);
-        n = result ? 0 : outlen;
+#पूर्ण_अगर
+      अगर(blocking) {
+        परिणाम = ws_send_raw_blocking(तथ्य, ws, (स्थिर अक्षर *)out, outlen);
+        n = परिणाम ? 0 : outlen;
       }
-      else if(data->set.connect_only || Curl_api_is_in_callback(data))
-        result = Curl_senddata(data, out, outlen, &n);
-      else {
-        result = Curl_xfer_send(data, out, outlen, FALSE, &n);
-        if(!result && !n && outlen)
-          result = CURLE_AGAIN;
+      अन्यथा अगर(तथ्य->set.connect_only || Curl_api_is_in_callback(तथ्य))
+        परिणाम = Curl_senddata(तथ्य, out, outlen, &n);
+      अन्यथा {
+        परिणाम = Curl_xfer_send(तथ्य, out, outlen, FALSE, &n);
+        अगर(!परिणाम && !n && outlen)
+          परिणाम = CURLE_AGAIN;
       }
 
-      if(result == CURLE_AGAIN) {
-        CURL_TRC_WS(data, "flush EAGAIN, %zu bytes remain in buffer",
+      अगर(परिणाम == CURLE_AGAIN) {
+        CURL_TRC_WS(तथ्य, "flush EAGAIN, %zu bytes remain in buffer",
                     Curl_bufq_len(&ws->sendbuf));
-        return result;
+        वापस परिणाम;
       }
-      else if(result) {
-        failf(data, "[WS] flush, write error %d", (int)result);
-        return result;
+      अन्यथा अगर(परिणाम) {
+        failf(तथ्य, "[WS] flush, write error %d", (पूर्णांक)परिणाम);
+        वापस परिणाम;
       }
-      else {
-        CURL_TRC_WS(data, "flushed %zu bytes", n);
+      अन्यथा {
+        CURL_TRC_WS(तथ्य, "flushed %zu bytes", n);
         Curl_bufq_skip(&ws->sendbuf, n);
       }
     }
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ws_send_raw_blocking(struct Curl_easy *data,
-                                     struct websocket *ws,
-                                     const char *buffer, size_t buflen)
+अटल CURLcode ws_send_raw_blocking(काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा websocket *ws,
+                                     स्थिर अक्षर *बफर, माप_प्रकार buflen)
 {
-  CURLcode result = CURLE_OK;
-  size_t nwritten;
+  CURLcode परिणाम = CURLE_OK;
+  माप_प्रकार nwritten;
 
-  if(!data)
-    return result;
+  अगर(!तथ्य)
+    वापस परिणाम;
 
-  (void)ws;
-  while(buflen) {
-    result = Curl_xfer_send(data, buffer, buflen, FALSE, &nwritten);
-    if(result)
-      return result;
+  (व्योम)ws;
+  जबतक(buflen) {
+    परिणाम = Curl_xfer_send(तथ्य, बफर, buflen, FALSE, &nwritten);
+    अगर(परिणाम)
+      वापस परिणाम;
     DEBUGASSERT(nwritten <= buflen);
-    buffer += nwritten;
+    बफर += nwritten;
     buflen -= nwritten;
-    if(buflen) {
-      curl_socket_t sock = data->conn->sock[FIRSTSOCKET];
-      timediff_t left_ms;
-      int ev;
+    अगर(buflen) {
+      curl_socket_t sock = तथ्य->conn->sock[FIRSTSOCKET];
+      timediff_t बायाँ_ms;
+      पूर्णांक ev;
 
-      CURL_TRC_WS(data, "ws_send_raw_blocking() partial, %zu left to send",
+      CURL_TRC_WS(तथ्य, "ws_send_raw_blocking() partial, %zu left to send",
                   buflen);
-      left_ms = Curl_timeleft_ms(data);
-      if(left_ms < 0) {
-        failf(data, "[WS] Timeout waiting for socket becoming writable");
-        return CURLE_SEND_ERROR;
+      बायाँ_ms = Curl_timeleft_ms(तथ्य);
+      अगर(बायाँ_ms < 0) {
+        failf(तथ्य, "[WS] Timeout waiting for socket becoming writable");
+        वापस CURLE_SEND_ERROR;
       }
 
       /* POLLOUT socket */
-      if(sock == CURL_SOCKET_BAD)
-        return CURLE_SEND_ERROR;
-      ev = SOCKET_WRITABLE(sock, left_ms ? left_ms : 500);
-      if(ev < 0) {
-        failf(data, "[WS] Error while waiting for socket becoming writable");
-        return CURLE_SEND_ERROR;
+      अगर(sock == CURL_SOCKET_BAD)
+        वापस CURLE_SEND_ERROR;
+      ev = SOCKET_WRITABLE(sock, बायाँ_ms ? बायाँ_ms : 500);
+      अगर(ev < 0) {
+        failf(तथ्य, "[WS] Error while waiting for socket becoming writable");
+        वापस CURLE_SEND_ERROR;
       }
     }
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ws_send_raw(struct Curl_easy *data, const void *buffer,
-                            size_t buflen, size_t *pnwritten)
+अटल CURLcode ws_send_raw(काष्ठा Curl_easy *तथ्य, स्थिर व्योम *बफर,
+                            माप_प्रकार buflen, माप_प्रकार *pnwritten)
 {
-  struct websocket *ws;
-  CURLcode result;
+  काष्ठा websocket *ws;
+  CURLcode परिणाम;
 
-  ws = Curl_conn_meta_get(data->conn, CURL_META_PROTO_WS_CONN);
-  if(!ws) {
-    failf(data, "[WS] Not a websocket transfer");
-    return CURLE_SEND_ERROR;
+  ws = Curl_conn_meta_get(तथ्य->conn, CURL_META_PROTO_WS_CONN);
+  अगर(!ws) {
+    failf(तथ्य, "[WS] Not a websocket transfer");
+    वापस CURLE_SEND_ERROR;
   }
-  if(!buflen)
-    return CURLE_OK;
+  अगर(!buflen)
+    वापस CURLE_OK;
 
-  if(Curl_api_is_in_callback(data)) {
+  अगर(Curl_api_is_in_callback(तथ्य)) {
     /* When invoked from inside callbacks, we do a blocking send as the
      * callback will probably not implement partial writes that may then
      * mess up the ws framing subsequently.
      * We need any pending data to be flushed before sending. */
-    result = ws_flush(data, ws, TRUE);
-    if(result)
-      return result;
-    result = ws_send_raw_blocking(data, ws, buffer, buflen);
-    if(!result)
+    परिणाम = ws_flush(तथ्य, ws, TRUE);
+    अगर(परिणाम)
+      वापस परिणाम;
+    परिणाम = ws_send_raw_blocking(तथ्य, ws, बफर, buflen);
+    अगर(!परिणाम)
       *pnwritten = buflen;
   }
-  else {
+  अन्यथा {
     /* We need any pending data to be sent or EAGAIN this call. */
-    result = ws_flush(data, ws, FALSE);
-    if(result)
-      return result;
-    result = Curl_senddata(data, buffer, buflen, pnwritten);
+    परिणाम = ws_flush(तथ्य, ws, FALSE);
+    अगर(परिणाम)
+      वापस परिणाम;
+    परिणाम = Curl_senddata(तथ्य, बफर, buflen, pnwritten);
   }
 
-  CURL_TRC_WS(data, "ws_send_raw(len=%zu) -> %d, %zu",
-              buflen, (int)result, *pnwritten);
-  return result;
+  CURL_TRC_WS(तथ्य, "ws_send_raw(len=%zu) -> %d, %zu",
+              buflen, (पूर्णांक)परिणाम, *pnwritten);
+  वापस परिणाम;
 }
 
-CURLcode curl_ws_send(CURL *curl, const void *buffer_arg,
-                      size_t buflen, size_t *sent,
+CURLcode curl_ws_send(CURL *curl, स्थिर व्योम *बफर_arg,
+                      माप_प्रकार buflen, माप_प्रकार *sent,
                       curl_off_t fragsize,
-                      unsigned int flags)
+                      अचिन्हित पूर्णांक flags)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result = CURLE_OK;
+  काष्ठा Curl_eapi_guard guard;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(CURL_EAPI_ENTER(&guard, curl, ws_send, &result)) {
-    struct websocket *ws;
-    const uint8_t *buffer = buffer_arg;
-    struct Curl_easy *data = curl;
-    size_t ndummy;
-    size_t *pnsent = sent ? sent : &ndummy;
+  अगर(CURL_EAPI_ENTER(&guard, curl, ws_send, &परिणाम)) {
+    काष्ठा websocket *ws;
+    स्थिर uint8_t *बफर = बफर_arg;
+    काष्ठा Curl_easy *तथ्य = curl;
+    माप_प्रकार ndummy;
+    माप_प्रकार *pnsent = sent ? sent : &ndummy;
 
-    CURL_TRC_WS(data, "curl_ws_send(len=%zu, fragsize=%" FMT_OFF_T
+    CURL_TRC_WS(तथ्य, "curl_ws_send(len=%zu, fragsize=%" FMT_OFF_T
                 ", flags=%x), raw=%d",
-                buflen, fragsize, flags, data->set.ws_raw_mode);
+                buflen, fragsize, flags, तथ्य->set.ws_raw_mode);
 
     *pnsent = 0;
 
-    if(!buffer && buflen) {
-      failf(data, "[WS] buffer is NULL when buflen is not");
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+    अगर(!बफर && buflen) {
+      failf(तथ्य, "[WS] buffer is NULL when buflen is not");
+      परिणाम = CURLE_BAD_FUNCTION_ARGUMENT;
+      जाओ out;
     }
 
-    if(!data->conn && data->set.connect_only) {
-      result = Curl_connect_only_attach(data);
-      if(result)
-        goto out;
+    अगर(!तथ्य->conn && तथ्य->set.connect_only) {
+      परिणाम = Curl_connect_only_attach(तथ्य);
+      अगर(परिणाम)
+        जाओ out;
     }
-    if(!data->conn) {
-      failf(data, "[WS] No associated connection");
-      result = CURLE_SEND_ERROR;
-      goto out;
+    अगर(!तथ्य->conn) {
+      failf(तथ्य, "[WS] No associated connection");
+      परिणाम = CURLE_SEND_ERROR;
+      जाओ out;
     }
-    ws = Curl_conn_meta_get(data->conn, CURL_META_PROTO_WS_CONN);
-    if(!ws) {
-      failf(data, "[WS] Not a websocket transfer");
-      result = CURLE_SEND_ERROR;
-      goto out;
+    ws = Curl_conn_meta_get(तथ्य->conn, CURL_META_PROTO_WS_CONN);
+    अगर(!ws) {
+      failf(तथ्य, "[WS] Not a websocket transfer");
+      परिणाम = CURLE_SEND_ERROR;
+      जाओ out;
     }
 
-    if(data->set.ws_raw_mode) {
+    अगर(तथ्य->set.ws_raw_mode) {
       /* In raw mode, we write directly to the connection */
       /* try flushing any content still waiting to be sent. */
-      result = ws_flush(data, ws, FALSE);
-      if(result)
-        goto out;
+      परिणाम = ws_flush(तथ्य, ws, FALSE);
+      अगर(परिणाम)
+        जाओ out;
 
-      if(!buffer) {
-        failf(data, "[WS] buffer is NULL in raw mode");
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto out;
+      अगर(!बफर) {
+        failf(तथ्य, "[WS] buffer is NULL in raw mode");
+        परिणाम = CURLE_BAD_FUNCTION_ARGUMENT;
+        जाओ out;
       }
-      if(!sent) {
-        failf(data, "[WS] sent is NULL in raw mode");
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto out;
+      अगर(!sent) {
+        failf(तथ्य, "[WS] sent is NULL in raw mode");
+        परिणाम = CURLE_BAD_FUNCTION_ARGUMENT;
+        जाओ out;
       }
-      if(fragsize || flags) {
-        failf(data, "[WS] fragsize and flags must be zero in raw mode");
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto out;
+      अगर(fragsize || flags) {
+        failf(तथ्य, "[WS] fragsize and flags must be zero in raw mode");
+        परिणाम = CURLE_BAD_FUNCTION_ARGUMENT;
+        जाओ out;
       }
-      result = ws_send_raw(data, buffer, buflen, pnsent);
-      goto out;
+      परिणाम = ws_send_raw(तथ्य, बफर, buflen, pnsent);
+      जाओ out;
     }
 
     /* Not RAW mode, we do the frame encoding */
-    result = ws_enc_send(data, ws, buffer, buflen, fragsize, flags, pnsent);
-    CURL_TRC_WS(data, "curl_ws_send(len=%zu, fragsize=%" FMT_OFF_T
+    परिणाम = ws_enc_send(तथ्य, ws, बफर, buflen, fragsize, flags, pnsent);
+    CURL_TRC_WS(तथ्य, "curl_ws_send(len=%zu, fragsize=%" FMT_OFF_T
                 ", flags=%x, raw=%d) -> %d, %zu",
-                buflen, fragsize, flags, data->set.ws_raw_mode, (int)result,
+                buflen, fragsize, flags, तथ्य->set.ws_raw_mode, (पूर्णांक)परिणाम,
                 *pnsent);
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ws_setup_conn(struct Curl_easy *data,
-                              struct connectdata *conn)
+अटल CURLcode ws_setup_conn(काष्ठा Curl_easy *तथ्य,
+                              काष्ठा connectdata *conn)
 {
   /* WebSocket is 1.1 only (for now) */
-  data->state.http_neg.accept_09 = FALSE;
-  data->state.http_neg.only_10 = FALSE;
-  data->state.http_neg.wanted = CURL_HTTP_V1x;
-  data->state.http_neg.allowed = CURL_HTTP_V1x;
-  return Curl_http_setup_conn(data, conn);
+  तथ्य->state.http_neg.accept_09 = FALSE;
+  तथ्य->state.http_neg.only_10 = FALSE;
+  तथ्य->state.http_neg.wanted = CURL_HTTP_V1x;
+  तथ्य->state.http_neg.allowed = CURL_HTTP_V1x;
+  वापस Curl_http_setup_conn(तथ्य, conn);
 }
 
-const struct curl_ws_frame *curl_ws_meta(CURL *curl)
+स्थिर काष्ठा curl_ws_frame *curl_ws_meta(CURL *curl)
 {
   /* we only return something for websocket, called from within the callback
      when not using raw mode */
-  struct Curl_easy *data = curl;
-  if(GOOD_EASY_HANDLE(data) && Curl_api_is_in_callback(data) &&
-     data->conn && !data->set.ws_raw_mode) {
-    struct websocket *ws;
-    ws = Curl_conn_meta_get(data->conn, CURL_META_PROTO_WS_CONN);
-    if(ws)
-      return &ws->recvframe;
+  काष्ठा Curl_easy *तथ्य = curl;
+  अगर(GOOD_EASY_HANDLE(तथ्य) && Curl_api_is_in_callback(तथ्य) &&
+     तथ्य->conn && !तथ्य->set.ws_raw_mode) {
+    काष्ठा websocket *ws;
+    ws = Curl_conn_meta_get(तथ्य->conn, CURL_META_PROTO_WS_CONN);
+    अगर(ws)
+      वापस &ws->recvframe;
   }
-  return NULL;
+  वापस शून्य;
 }
 
 CURL_EXTERN CURLcode curl_ws_start_frame(CURL *curl,
-                                         unsigned int flags,
+                                         अचिन्हित पूर्णांक flags,
                                          curl_off_t frame_len)
 {
-  struct Curl_eapi_guard guard;
-  CURLcode result = CURLE_OK;
+  काष्ठा Curl_eapi_guard guard;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(CURL_EAPI_ENTER(&guard, curl, ws_start_frame, &result)) {
-    struct Curl_easy *data = curl;
-    struct websocket *ws;
+  अगर(CURL_EAPI_ENTER(&guard, curl, ws_start_frame, &परिणाम)) {
+    काष्ठा Curl_easy *तथ्य = curl;
+    काष्ठा websocket *ws;
 
-    if(data->set.ws_raw_mode) {
-      failf(data, "cannot curl_ws_start_frame() with CURLWS_RAW_MODE enabled");
-      result = CURLE_FAILED_INIT;
-      goto out;
+    अगर(तथ्य->set.ws_raw_mode) {
+      failf(तथ्य, "cannot curl_ws_start_frame() with CURLWS_RAW_MODE enabled");
+      परिणाम = CURLE_FAILED_INIT;
+      जाओ out;
     }
 
-    CURL_TRC_WS(data, "curl_ws_start_frame(flags=%x, frame_len=%" FMT_OFF_T,
+    CURL_TRC_WS(तथ्य, "curl_ws_start_frame(flags=%x, frame_len=%" FMT_OFF_T,
                 flags, frame_len);
 
-    if(!data->conn) {
-      failf(data, "[WS] No associated connection");
-      result = CURLE_SEND_ERROR;
-      goto out;
+    अगर(!तथ्य->conn) {
+      failf(तथ्य, "[WS] No associated connection");
+      परिणाम = CURLE_SEND_ERROR;
+      जाओ out;
     }
-    ws = Curl_conn_meta_get(data->conn, CURL_META_PROTO_WS_CONN);
-    if(!ws) {
-      failf(data, "[WS] Not a websocket transfer");
-      result = CURLE_SEND_ERROR;
-      goto out;
-    }
-
-    if(ws->enc.payload_remain) {
-      failf(data, "[WS] previous frame not finished");
-      result = CURLE_SEND_ERROR;
-      goto out;
+    ws = Curl_conn_meta_get(तथ्य->conn, CURL_META_PROTO_WS_CONN);
+    अगर(!ws) {
+      failf(तथ्य, "[WS] Not a websocket transfer");
+      परिणाम = CURLE_SEND_ERROR;
+      जाओ out;
     }
 
-    result = ws_enc_write_head(data, ws, &ws->enc, flags, frame_len,
+    अगर(ws->enc.payload_remain) {
+      failf(तथ्य, "[WS] previous frame not finished");
+      परिणाम = CURLE_SEND_ERROR;
+      जाओ out;
+    }
+
+    परिणाम = ws_enc_write_शीर्ष(तथ्य, ws, &ws->enc, flags, frame_len,
                                &ws->sendbuf);
-    if(result)
-      CURL_TRC_WS(data, "curl_start_frame(), error adding frame head %d",
-                  (int)result);
+    अगर(परिणाम)
+      CURL_TRC_WS(तथ्य, "curl_start_frame(), error adding frame head %d",
+                  (पूर्णांक)परिणाम);
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  वापस परिणाम;
 }
 
-const struct Curl_protocol Curl_protocol_ws = {
+स्थिर काष्ठा Curl_protocol Curl_protocol_ws = {
   ws_setup_conn,                        /* setup_connection */
   Curl_http,                            /* do_it */
   Curl_http_done,                       /* done */
@@ -2029,48 +2029,48 @@ const struct Curl_protocol Curl_protocol_ws = {
   Curl_http_follow,                     /* follow */
 };
 
-#else
+#अन्यथा
 
-CURLcode curl_ws_recv(CURL *curl, void *buffer, size_t buflen,
-                      size_t *recv,
-                      const struct curl_ws_frame **metap)
+CURLcode curl_ws_recv(CURL *curl, व्योम *बफर, माप_प्रकार buflen,
+                      माप_प्रकार *recv,
+                      स्थिर काष्ठा curl_ws_frame **metap)
 {
-  (void)curl;
-  (void)buffer;
-  (void)buflen;
-  (void)recv;
-  (void)metap;
-  return CURLE_NOT_BUILT_IN;
+  (व्योम)curl;
+  (व्योम)बफर;
+  (व्योम)buflen;
+  (व्योम)recv;
+  (व्योम)metap;
+  वापस CURLE_NOT_BUILT_IN;
 }
 
-CURLcode curl_ws_send(CURL *curl, const void *buffer,
-                      size_t buflen, size_t *sent,
+CURLcode curl_ws_send(CURL *curl, स्थिर व्योम *बफर,
+                      माप_प्रकार buflen, माप_प्रकार *sent,
                       curl_off_t fragsize,
-                      unsigned int flags)
+                      अचिन्हित पूर्णांक flags)
 {
-  (void)curl;
-  (void)buffer;
-  (void)buflen;
-  (void)sent;
-  (void)fragsize;
-  (void)flags;
-  return CURLE_NOT_BUILT_IN;
+  (व्योम)curl;
+  (व्योम)बफर;
+  (व्योम)buflen;
+  (व्योम)sent;
+  (व्योम)fragsize;
+  (व्योम)flags;
+  वापस CURLE_NOT_BUILT_IN;
 }
 
-const struct curl_ws_frame *curl_ws_meta(CURL *data)
+स्थिर काष्ठा curl_ws_frame *curl_ws_meta(CURL *तथ्य)
 {
-  (void)data;
-  return NULL;
+  (व्योम)तथ्य;
+  वापस शून्य;
 }
 
 CURL_EXTERN CURLcode curl_ws_start_frame(CURL *curl,
-                                         unsigned int flags,
+                                         अचिन्हित पूर्णांक flags,
                                          curl_off_t frame_len)
 {
-  (void)curl;
-  (void)flags;
-  (void)frame_len;
-  return CURLE_NOT_BUILT_IN;
+  (व्योम)curl;
+  (व्योम)flags;
+  (व्योम)frame_len;
+  वापस CURLE_NOT_BUILT_IN;
 }
 
-#endif /* !CURL_DISABLE_WEBSOCKETS */
+#पूर्ण_अगर /* !CURL_DISABLE_WEBSOCKETS */

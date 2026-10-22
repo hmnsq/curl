@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRERROR_H
-#define HEADER_CURL_STRERROR_H
+#अगर_अघोषित HEADER_CURL_STRERROR_H
+#घोषणा HEADER_CURL_STRERROR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,10 +23,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_WINDOWS_SSPI
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen);
-#endif
+#अगर_घोषित USE_WINDOWS_SSPI
+स्थिर अक्षर *Curl_sspi_strerror(SECURITY_STATUS err, अक्षर *buf, माप_प्रकार buflen);
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_STRERROR_H */
+#पूर्ण_अगर /* HEADER_CURL_STRERROR_H */

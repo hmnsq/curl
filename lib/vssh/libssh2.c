@@ -21,352 +21,352 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_LIBSSH2
+#अगर_घोषित USE_LIBSSH2
 
 /* #define CURL_LIBSSH2_DEBUG */
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#अगर_घोषित HAVE_NETINET_IN_H
+#समावेश <netinet/in.h>
+#पूर्ण_अगर
+#अगर_घोषित HAVE_ARPA_INET_H
+#समावेश <arpa/inet.h>
+#पूर्ण_अगर
+#अगर_घोषित HAVE_NETDB_H
+#समावेश <netdb.h>
+#पूर्ण_अगर
+#अगर_घोषित __VMS
+#समावेश <in.h>
+#समावेश <inet.h>
+#पूर्ण_अगर
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "vssh/ssh.h"
-#include "url.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "parsedate.h" /* for the week day and month names */
-#include "multiif.h"
-#include "select.h"
-#include "curlx/win32-fopen.h"
-#include "vssh/vssh.h"
-#include "curlx/strparse.h"
-#include "curlx/base64.h" /* for curlx_base64_encode() */
+#समावेश "urldata.h"
+#समावेश "sendf.h"
+#समावेश "curl_trc.h"
+#समावेश "progress.h"
+#समावेश "transfer.h"
+#समावेश "vssh/ssh.h"
+#समावेश "url.h"
+#समावेश "cfilters.h"
+#समावेश "connect.h"
+#समावेश "parsedate.h" /* for the week day and month names */
+#समावेश "multiif.h"
+#समावेश "select.h"
+#समावेश "curlx/win32-fopen.h"
+#समावेश "vssh/vssh.h"
+#समावेश "curlx/strparse.h"
+#समावेश "curlx/base64.h" /* for curlx_base64_encode() */
 
-static const char *sftp_libssh2_strerror(unsigned long err)
+अटल स्थिर अक्षर *sftp_libssh2_strerror(अचिन्हित दीर्घ err)
 {
-  switch(err) {
-  case LIBSSH2_FX_NO_SUCH_FILE:
-    return "No such file or directory";
+  चयन(err) {
+  हाल LIBSSH2_FX_NO_SUCH_FILE:
+    वापस "No such file or directory";
 
-  case LIBSSH2_FX_PERMISSION_DENIED:
-    return "Permission denied";
+  हाल LIBSSH2_FX_PERMISSION_DENIED:
+    वापस "Permission denied";
 
-  case LIBSSH2_FX_FAILURE:
-    return "Operation failed";
+  हाल LIBSSH2_FX_FAILURE:
+    वापस "Operation failed";
 
-  case LIBSSH2_FX_BAD_MESSAGE:
-    return "Bad message from SFTP server";
+  हाल LIBSSH2_FX_BAD_MESSAGE:
+    वापस "Bad message from SFTP server";
 
-  case LIBSSH2_FX_NO_CONNECTION:
-    return "Not connected to SFTP server";
+  हाल LIBSSH2_FX_NO_CONNECTION:
+    वापस "Not connected to SFTP server";
 
-  case LIBSSH2_FX_CONNECTION_LOST:
-    return "Connection to SFTP server lost";
+  हाल LIBSSH2_FX_CONNECTION_LOST:
+    वापस "Connection to SFTP server lost";
 
-  case LIBSSH2_FX_OP_UNSUPPORTED:
-    return "Operation not supported by SFTP server";
+  हाल LIBSSH2_FX_OP_UNSUPPORTED:
+    वापस "Operation not supported by SFTP server";
 
-  case LIBSSH2_FX_INVALID_HANDLE:
-    return "Invalid handle";
+  हाल LIBSSH2_FX_INVALID_HANDLE:
+    वापस "Invalid handle";
 
-  case LIBSSH2_FX_NO_SUCH_PATH:
-    return "No such file or directory";
+  हाल LIBSSH2_FX_NO_SUCH_PATH:
+    वापस "No such file or directory";
 
-  case LIBSSH2_FX_FILE_ALREADY_EXISTS:
-    return "File already exists";
+  हाल LIBSSH2_FX_FILE_ALREADY_EXISTS:
+    वापस "File already exists";
 
-  case LIBSSH2_FX_WRITE_PROTECT:
-    return "File is write protected";
+  हाल LIBSSH2_FX_WRITE_PROTECT:
+    वापस "File is write protected";
 
-  case LIBSSH2_FX_NO_MEDIA:
-    return "No media";
+  हाल LIBSSH2_FX_NO_MEDIA:
+    वापस "No media";
 
-  case LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
-    return "Disk full";
+  हाल LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
+    वापस "Disk full";
 
-  case LIBSSH2_FX_QUOTA_EXCEEDED:
-    return "User quota exceeded";
+  हाल LIBSSH2_FX_QUOTA_EXCEEDED:
+    वापस "User quota exceeded";
 
-  case LIBSSH2_FX_UNKNOWN_PRINCIPAL:
-    return "Unknown principal";
+  हाल LIBSSH2_FX_UNKNOWN_PRINCIPAL:
+    वापस "Unknown principal";
 
-  case LIBSSH2_FX_LOCK_CONFLICT:
-    return "File lock conflict";
+  हाल LIBSSH2_FX_LOCK_CONFLICT:
+    वापस "File lock conflict";
 
-  case LIBSSH2_FX_DIR_NOT_EMPTY:
-    return "Directory not empty";
+  हाल LIBSSH2_FX_DIR_NOT_EMPTY:
+    वापस "Directory not empty";
 
-  case LIBSSH2_FX_NOT_A_DIRECTORY:
-    return "Not a directory";
+  हाल LIBSSH2_FX_NOT_A_DIRECTORY:
+    वापस "Not a directory";
 
-  case LIBSSH2_FX_INVALID_FILENAME:
-    return "Invalid filename";
+  हाल LIBSSH2_FX_INVALID_FILENAME:
+    वापस "Invalid filename";
 
-  case LIBSSH2_FX_LINK_LOOP:
-    return "Link points to itself";
+  हाल LIBSSH2_FX_LINK_LOOP:
+    वापस "Link points to itself";
   }
-  return "Unknown error in libssh2";
+  वापस "Unknown error in libssh2";
 }
 
-static void kbd_callback(const char *name, int name_len,
-                         const char *instruction, int instruction_len,
-                         int num_prompts,
-                         const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+अटल व्योम kbd_callback(स्थिर अक्षर *name, पूर्णांक name_len,
+                         स्थिर अक्षर *instruction, पूर्णांक instruction_len,
+                         पूर्णांक अंक_prompts,
+                         स्थिर LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
                          LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
-                         void **abstract)
+                         व्योम **abstract)
 {
-  struct Curl_easy *data = (struct Curl_easy *)*abstract;
+  काष्ठा Curl_easy *तथ्य = (काष्ठा Curl_easy *)*abstract;
 
-#ifdef CURL_LIBSSH2_DEBUG
-  curl_mfprintf(stderr, "name=%s\n", name);
-  curl_mfprintf(stderr, "name_len=%d\n", name_len);
-  curl_mfprintf(stderr, "instruction=%s\n", instruction);
-  curl_mfprintf(stderr, "instruction_len=%d\n", instruction_len);
-  curl_mfprintf(stderr, "num_prompts=%d\n", num_prompts);
-#else
-  (void)name;
-  (void)name_len;
-  (void)instruction;
-  (void)instruction_len;
-#endif /* CURL_LIBSSH2_DEBUG */
-  if(num_prompts == 1) {
-    struct connectdata *conn = data->conn;
-    const char *passwd = Curl_creds_passwd(conn->creds);
+#अगर_घोषित CURL_LIBSSH2_DEBUG
+  curl_mfprintf(मानक_त्रुटि, "name=%s\n", name);
+  curl_mfprintf(मानक_त्रुटि, "name_len=%d\n", name_len);
+  curl_mfprintf(मानक_त्रुटि, "instruction=%s\n", instruction);
+  curl_mfprintf(मानक_त्रुटि, "instruction_len=%d\n", instruction_len);
+  curl_mfprintf(मानक_त्रुटि, "num_prompts=%d\n", अंक_prompts);
+#अन्यथा
+  (व्योम)name;
+  (व्योम)name_len;
+  (व्योम)instruction;
+  (व्योम)instruction_len;
+#पूर्ण_अगर /* CURL_LIBSSH2_DEBUG */
+  अगर(अंक_prompts == 1) {
+    काष्ठा connectdata *conn = तथ्य->conn;
+    स्थिर अक्षर *passwd = Curl_creds_passwd(conn->creds);
     /* this function must allocate memory that can be freed by libssh2, which
        uses the LIBSSH2_FREE_FUNC callback */
     responses[0].text = Curl_cstrdup(passwd);
-    responses[0].length = responses[0].text ? curlx_uztoui(strlen(passwd)) : 0;
+    responses[0].लंबाई = responses[0].text ? curlx_uztoui(म_माप(passwd)) : 0;
   }
-  (void)prompts;
+  (व्योम)prompts;
 } /* kbd_callback */
 
-static CURLcode sftp_libssh2_error_to_CURLE(unsigned long err)
+अटल CURLcode sftp_libssh2_error_to_CURLE(अचिन्हित दीर्घ err)
 {
-  switch(err) {
-  case LIBSSH2_FX_OK:
-    return CURLE_OK;
+  चयन(err) {
+  हाल LIBSSH2_FX_OK:
+    वापस CURLE_OK;
 
-  case LIBSSH2_FX_NO_SUCH_FILE:
-  case LIBSSH2_FX_NO_SUCH_PATH:
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+  हाल LIBSSH2_FX_NO_SUCH_FILE:
+  हाल LIBSSH2_FX_NO_SUCH_PATH:
+    वापस CURLE_REMOTE_FILE_NOT_FOUND;
 
-  case LIBSSH2_FX_PERMISSION_DENIED:
-  case LIBSSH2_FX_WRITE_PROTECT:
-  case LIBSSH2_FX_LOCK_CONFLICT:
-    return CURLE_REMOTE_ACCESS_DENIED;
+  हाल LIBSSH2_FX_PERMISSION_DENIED:
+  हाल LIBSSH2_FX_WRITE_PROTECT:
+  हाल LIBSSH2_FX_LOCK_CONFLICT:
+    वापस CURLE_REMOTE_ACCESS_DENIED;
 
-  case LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
-  case LIBSSH2_FX_QUOTA_EXCEEDED:
-    return CURLE_REMOTE_DISK_FULL;
+  हाल LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
+  हाल LIBSSH2_FX_QUOTA_EXCEEDED:
+    वापस CURLE_REMOTE_DISK_FULL;
 
-  case LIBSSH2_FX_FILE_ALREADY_EXISTS:
-    return CURLE_REMOTE_FILE_EXISTS;
+  हाल LIBSSH2_FX_FILE_ALREADY_EXISTS:
+    वापस CURLE_REMOTE_FILE_EXISTS;
 
-  case LIBSSH2_FX_DIR_NOT_EMPTY:
-    return CURLE_QUOTE_ERROR;
+  हाल LIBSSH2_FX_DIR_NOT_EMPTY:
+    वापस CURLE_QUOTE_ERROR;
 
-  default:
-    break;
+  शेष:
+    अवरोध;
   }
 
-  return CURLE_SSH;
+  वापस CURLE_SSH;
 }
 
-static CURLcode libssh2_session_error_to_CURLE(int err)
+अटल CURLcode libssh2_session_error_to_CURLE(पूर्णांक err)
 {
-  switch(err) {
+  चयन(err) {
   /* Ordered by order of appearance in libssh2.h */
-  case LIBSSH2_ERROR_NONE:
-    return CURLE_OK;
+  हाल LIBSSH2_ERROR_NONE:
+    वापस CURLE_OK;
 
   /* This is the error returned by libssh2_scp_recv2
    * on unknown file */
-  case LIBSSH2_ERROR_SCP_PROTOCOL:
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+  हाल LIBSSH2_ERROR_SCP_PROTOCOL:
+    वापस CURLE_REMOTE_FILE_NOT_FOUND;
 
-  case LIBSSH2_ERROR_SOCKET_NONE:
-    return CURLE_COULDNT_CONNECT;
+  हाल LIBSSH2_ERROR_SOCKET_NONE:
+    वापस CURLE_COULDNT_CONNECT;
 
-  case LIBSSH2_ERROR_ALLOC:
-    return CURLE_OUT_OF_MEMORY;
+  हाल LIBSSH2_ERROR_ALLOC:
+    वापस CURLE_OUT_OF_MEMORY;
 
-  case LIBSSH2_ERROR_SOCKET_SEND:
-    return CURLE_SEND_ERROR;
+  हाल LIBSSH2_ERROR_SOCKET_SEND:
+    वापस CURLE_SEND_ERROR;
 
-  case LIBSSH2_ERROR_HOSTKEY_INIT:
-  case LIBSSH2_ERROR_HOSTKEY_SIGN:
-  case LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED:
-  case LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED:
-    return CURLE_PEER_FAILED_VERIFICATION;
+  हाल LIBSSH2_ERROR_HOSTKEY_INIT:
+  हाल LIBSSH2_ERROR_HOSTKEY_SIGN:
+  हाल LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED:
+  हाल LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED:
+    वापस CURLE_PEER_FAILED_VERIFICATION;
 
-  case LIBSSH2_ERROR_PASSWORD_EXPIRED:
-    return CURLE_LOGIN_DENIED;
+  हाल LIBSSH2_ERROR_PASSWORD_EXPIRED:
+    वापस CURLE_LOGIN_DENIED;
 
-  case LIBSSH2_ERROR_SOCKET_TIMEOUT:
-  case LIBSSH2_ERROR_TIMEOUT:
-    return CURLE_OPERATION_TIMEDOUT;
+  हाल LIBSSH2_ERROR_SOCKET_TIMEOUT:
+  हाल LIBSSH2_ERROR_TIMEOUT:
+    वापस CURLE_OPERATION_TIMEDOUT;
 
-  case LIBSSH2_ERROR_EAGAIN:
-    return CURLE_AGAIN;
+  हाल LIBSSH2_ERROR_EAGAIN:
+    वापस CURLE_AGAIN;
   }
 
-  return CURLE_SSH;
+  वापस CURLE_SSH;
 }
 
 /* These functions are made to use the libcurl memory functions - NOT the
    debugmem functions, as that leads us to trigger on libssh2 memory leaks
    that are not ours to care for */
 
-static LIBSSH2_ALLOC_FUNC(my_libssh2_malloc)
+अटल LIBSSH2_ALLOC_FUNC(my_libssh2_malloc)
 {
-  (void)abstract;
-  return Curl_cmalloc(count);
+  (व्योम)abstract;
+  वापस Curl_cmalloc(गिनती);
 }
 
-static LIBSSH2_REALLOC_FUNC(my_libssh2_realloc)
+अटल LIBSSH2_REALLOC_FUNC(my_libssh2_realloc)
 {
-  (void)abstract;
-  return Curl_crealloc(ptr, count);
+  (व्योम)abstract;
+  वापस Curl_crealloc(ptr, गिनती);
 }
 
-static LIBSSH2_FREE_FUNC(my_libssh2_free)
+अटल LIBSSH2_FREE_FUNC(my_libssh2_free)
 {
-  (void)abstract;
-  if(ptr) /* ssh2 agent sometimes call free with null ptr */
+  (व्योम)abstract;
+  अगर(ptr) /* ssh2 agent sometimes call free with null ptr */
     Curl_cfree(ptr);
 }
 
-static int sshkeycallback(CURL *easy,
-                          const struct curl_khkey *knownkey, /* known */
-                          const struct curl_khkey *foundkey, /* found */
-                          enum curl_khmatch match,
-                          void *clientp)
+अटल पूर्णांक sshkeycallback(CURL *easy,
+                          स्थिर काष्ठा curl_khkey *knownkey, /* known */
+                          स्थिर काष्ठा curl_khkey *foundkey, /* found */
+                          क्रमागत curl_khmatch match,
+                          व्योम *clientp)
 {
-  (void)easy;
-  (void)knownkey;
-  (void)foundkey;
-  (void)clientp;
+  (व्योम)easy;
+  (व्योम)knownkey;
+  (व्योम)foundkey;
+  (व्योम)clientp;
 
   /* we only allow perfect matches, and we reject everything else */
-  return (match != CURLKHMATCH_OK) ? CURLKHSTAT_REJECT : CURLKHSTAT_FINE;
+  वापस (match != CURLKHMATCH_OK) ? CURLKHSTAT_REJECT : CURLKHSTAT_FINE;
 }
 
-static enum curl_khtype convert_ssh2_keytype(int sshkeytype)
+अटल क्रमागत curl_khtype convert_ssh2_keytype(पूर्णांक sshkeytype)
 {
-  enum curl_khtype keytype = CURLKHTYPE_UNKNOWN;
-  switch(sshkeytype) {
-  case LIBSSH2_HOSTKEY_TYPE_RSA:
+  क्रमागत curl_khtype keytype = CURLKHTYPE_UNKNOWN;
+  चयन(sshkeytype) {
+  हाल LIBSSH2_HOSTKEY_TYPE_RSA:
     keytype = CURLKHTYPE_RSA;
-    break;
-#ifdef LIBSSH2_HOSTKEY_TYPE_DSS
-  case LIBSSH2_HOSTKEY_TYPE_DSS:  /* deprecated upstream */
+    अवरोध;
+#अगर_घोषित LIBSSH2_HOSTKEY_TYPE_DSS
+  हाल LIBSSH2_HOSTKEY_TYPE_DSS:  /* deprecated upstream */
     keytype = CURLKHTYPE_DSS;
-    break;
-#endif
-#ifdef LIBSSH2_HOSTKEY_TYPE_ECDSA_256
-  case LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
+    अवरोध;
+#पूर्ण_अगर
+#अगर_घोषित LIBSSH2_HOSTKEY_TYPE_ECDSA_256
+  हाल LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
     keytype = CURLKHTYPE_ECDSA;
-    break;
-#endif
-#ifdef LIBSSH2_HOSTKEY_TYPE_ECDSA_384
-  case LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
+    अवरोध;
+#पूर्ण_अगर
+#अगर_घोषित LIBSSH2_HOSTKEY_TYPE_ECDSA_384
+  हाल LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
     keytype = CURLKHTYPE_ECDSA;
-    break;
-#endif
-#ifdef LIBSSH2_HOSTKEY_TYPE_ECDSA_521
-  case LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
+    अवरोध;
+#पूर्ण_अगर
+#अगर_घोषित LIBSSH2_HOSTKEY_TYPE_ECDSA_521
+  हाल LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
     keytype = CURLKHTYPE_ECDSA;
-    break;
-#endif
-#ifdef LIBSSH2_HOSTKEY_TYPE_ED25519
-  case LIBSSH2_HOSTKEY_TYPE_ED25519:
+    अवरोध;
+#पूर्ण_अगर
+#अगर_घोषित LIBSSH2_HOSTKEY_TYPE_ED25519
+  हाल LIBSSH2_HOSTKEY_TYPE_ED25519:
     keytype = CURLKHTYPE_ED25519;
-    break;
-#endif
+    अवरोध;
+#पूर्ण_अगर
   }
-  return keytype;
+  वापस keytype;
 }
 
-static CURLcode ssh_knownhost(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+अटल CURLcode ssh_knownhost(काष्ठा Curl_easy *तथ्य,
+                              काष्ठा ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  struct libssh2_knownhost *host = NULL;
-  const char *remotekey = NULL;
-  int keycheck = LIBSSH2_KNOWNHOST_CHECK_FAILURE;
-  int keybit = 0;
-  int sshkeytype = 0;
-  size_t keylen = 0;
-  int rc = 0;
-  CURLcode result = CURLE_OK;
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा libssh2_knownhost *host = शून्य;
+  स्थिर अक्षर *remotekey = शून्य;
+  पूर्णांक keycheck = LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+  पूर्णांक keybit = 0;
+  पूर्णांक sshkeytype = 0;
+  माप_प्रकार keylen = 0;
+  पूर्णांक rc = 0;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(!CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
-    infof(data, "SSH: no knownhosts file configured");
-    return CURLE_OK;
+  अगर(!CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS)) {
+    infof(तथ्य, "SSH: no knownhosts file configured");
+    वापस CURLE_OK;
   }
 
   remotekey = libssh2_session_hostkey(sshc->ssh_session,
                                       &keylen, &sshkeytype);
-  if(remotekey) {
+  अगर(remotekey) {
     /*
      * A subject to figure out is what hostname we need to pass in here.
      * What hostname does OpenSSH store in its file if an IDN name is
      * used?
      */
-    struct Curl_mapi_guard guard;
-    enum curl_khmatch keymatch;
+    काष्ठा Curl_mapi_guard guard;
+    क्रमागत curl_khmatch keymatch;
     curl_sshkeycallback func =
-      data->set.ssh_keyfunc ? data->set.ssh_keyfunc : sshkeycallback;
-    struct curl_khkey knownkey;
-    struct curl_khkey *knownkeyp = NULL;
-    struct curl_khkey foundkey;
+      तथ्य->set.ssh_keyfunc ? तथ्य->set.ssh_keyfunc : sshkeycallback;
+    काष्ठा curl_khkey knownkey;
+    काष्ठा curl_khkey *knownkeyp = शून्य;
+    काष्ठा curl_khkey foundkey;
 
-    switch(sshkeytype) {
-    case LIBSSH2_HOSTKEY_TYPE_RSA:
-      keybit = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
-      break;
-#ifdef LIBSSH2_HOSTKEY_TYPE_DSS
-    case LIBSSH2_HOSTKEY_TYPE_DSS:  /* deprecated upstream */
-      keybit = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
-      break;
-#endif
-    case LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
-      keybit = LIBSSH2_KNOWNHOST_KEY_ECDSA_256;
-      break;
-    case LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
-      keybit = LIBSSH2_KNOWNHOST_KEY_ECDSA_384;
-      break;
-    case LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
-      keybit = LIBSSH2_KNOWNHOST_KEY_ECDSA_521;
-      break;
-    case LIBSSH2_HOSTKEY_TYPE_ED25519:
-      keybit = LIBSSH2_KNOWNHOST_KEY_ED25519;
-      break;
-    default:
-      infof(data, "SSH: unsupported host key type for knownhosts check");
+    चयन(sshkeytype) {
+    हाल LIBSSH2_HOSTKEY_TYPE_RSA:
+      keybit = LIBSSH2_KNOWNHOST_कुंजी_SSHRSA;
+      अवरोध;
+#अगर_घोषित LIBSSH2_HOSTKEY_TYPE_DSS
+    हाल LIBSSH2_HOSTKEY_TYPE_DSS:  /* deprecated upstream */
+      keybit = LIBSSH2_KNOWNHOST_कुंजी_SSHDSS;
+      अवरोध;
+#पूर्ण_अगर
+    हाल LIBSSH2_HOSTKEY_TYPE_ECDSA_256:
+      keybit = LIBSSH2_KNOWNHOST_कुंजी_ECDSA_256;
+      अवरोध;
+    हाल LIBSSH2_HOSTKEY_TYPE_ECDSA_384:
+      keybit = LIBSSH2_KNOWNHOST_कुंजी_ECDSA_384;
+      अवरोध;
+    हाल LIBSSH2_HOSTKEY_TYPE_ECDSA_521:
+      keybit = LIBSSH2_KNOWNHOST_कुंजी_ECDSA_521;
+      अवरोध;
+    हाल LIBSSH2_HOSTKEY_TYPE_ED25519:
+      keybit = LIBSSH2_KNOWNHOST_कुंजी_ED25519;
+      अवरोध;
+    शेष:
+      infof(तथ्य, "SSH: unsupported host key type for knownhosts check");
       keybit = 0;
-      break;
+      अवरोध;
     }
-    if(!keybit)
+    अगर(!keybit)
       /* no check means failure! */
       rc = CURLKHSTAT_REJECT;
-    else {
+    अन्यथा {
       keycheck = libssh2_knownhost_checkp(sshc->kh,
                                           conn->origin->hostname,
                                           (conn->origin->port != PORT_SSH) ?
@@ -377,20 +377,20 @@ static CURLcode ssh_knownhost(struct Curl_easy *data,
                                           keybit,
                                           &host);
 
-      infof(data, "SSH: host check %d, key: %s", keycheck,
+      infof(तथ्य, "SSH: host check %d, key: %s", keycheck,
             (keycheck <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) ?
-            host->key : "<none>");
+            host->कुंजी : "<none>");
 
       /* setup 'knownkey' */
-      if(keycheck <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) {
-        knownkey.key = host->key;
+      अगर(keycheck <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) {
+        knownkey.कुंजी = host->कुंजी;
         knownkey.len = 0;
         knownkey.keytype = convert_ssh2_keytype(sshkeytype);
         knownkeyp = &knownkey;
       }
 
       /* setup 'foundkey' */
-      foundkey.key = remotekey;
+      foundkey.कुंजी = remotekey;
       foundkey.len = keylen;
       foundkey.keytype = convert_ssh2_keytype(sshkeytype);
 
@@ -399,231 +399,231 @@ static CURLcode ssh_knownhost(struct Curl_easy *data,
        * curl_khmatch enum are ever modified, we need to introduce a
        * translation table here!
        */
-      keymatch = (enum curl_khmatch)keycheck;
+      keymatch = (क्रमागत curl_khmatch)keycheck;
 
       /* Ask the callback how to behave */
-      CURL_CBAPI_START(&guard, data, easy_ssh_keyfunc);
-      rc = func(data, knownkeyp, /* from the knownhosts file */
+      CURL_CBAPI_START(&guard, तथ्य, easy_ssh_keyfunc);
+      rc = func(तथ्य, knownkeyp, /* from the knownhosts file */
                 &foundkey, /* from the remote host */
-                keymatch, data->set.ssh_keyfunc_userp);
+                keymatch, तथ्य->set.ssh_keyfunc_userp);
       CURL_CBAPI_END(&guard);
     }
   }
-  else {
+  अन्यथा {
     /* no remotekey means failure! */
-    infof(data, "SSH: host offers no public key");
+    infof(तथ्य, "SSH: host offers no public key");
     rc = CURLKHSTAT_REJECT;
   }
 
-  switch(rc) {
-  default: /* unknown return codes is the same as reject */
-  case CURLKHSTAT_REJECT:
-    infof(data, "SSH: knownhost check failed");
-    myssh_to(data, sshc, SSH_SESSION_FREE);
+  चयन(rc) {
+  शेष: /* unknown return codes is the same as reject */
+  हाल CURLKHSTAT_REJECT:
+    infof(तथ्य, "SSH: knownhost check failed");
+    myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
     FALLTHROUGH();
-  case CURLKHSTAT_DEFER:
+  हाल CURLKHSTAT_DEFER:
     /* DEFER means bail out but keep the SSH_HOSTKEY state */
-    result = CURLE_PEER_FAILED_VERIFICATION;
-    break;
-  case CURLKHSTAT_FINE_REPLACE:
+    परिणाम = CURLE_PEER_FAILED_VERIFICATION;
+    अवरोध;
+  हाल CURLKHSTAT_FINE_REPLACE:
     /* remove old host+key that does not match */
-    if(host)
+    अगर(host)
       libssh2_knownhost_del(sshc->kh, host);
     FALLTHROUGH();
-  case CURLKHSTAT_FINE:
-  case CURLKHSTAT_FINE_ADD_TO_FILE:
+  हाल CURLKHSTAT_FINE:
+  हाल CURLKHSTAT_FINE_ADD_TO_FILE:
     /* proceed */
-    if(keycheck != LIBSSH2_KNOWNHOST_CHECK_MATCH) {
-      int addrc;
-      const char *hostbuf;
-      char *hostport = NULL;
-      if(conn->origin->port != PORT_SSH) {
+    अगर(keycheck != LIBSSH2_KNOWNHOST_CHECK_MATCH) {
+      पूर्णांक addrc;
+      स्थिर अक्षर *hostbuf;
+      अक्षर *hostport = शून्य;
+      अगर(conn->origin->port != PORT_SSH) {
         hostbuf = hostport = curl_maprintf("[%s]:%u", conn->origin->hostname,
                                            conn->origin->port);
-        if(!hostbuf)
-          infof(data, "WARNING: failed allocating buffer for [host]:port");
+        अगर(!hostbuf)
+          infof(तथ्य, "WARNING: failed allocating buffer for [host]:port");
       }
-      else
+      अन्यथा
         hostbuf = conn->origin->hostname;
-      if(hostbuf) {
+      अगर(hostbuf) {
         /* the found host+key did not match but has been told to be fine
            anyway so we add it in memory */
-        addrc = libssh2_knownhost_addc(sshc->kh, hostbuf, NULL,
-                                       remotekey, keylen, NULL, 0,
+        addrc = libssh2_knownhost_addc(sshc->kh, hostbuf, शून्य,
+                                       remotekey, keylen, शून्य, 0,
                                        LIBSSH2_KNOWNHOST_TYPE_PLAIN |
                                        LIBSSH2_KNOWNHOST_KEYENC_RAW |
-                                       keybit, NULL);
-        if(addrc)
-          infof(data, "WARNING: adding the known host %s failed", hostbuf);
-        else if(rc == CURLKHSTAT_FINE_ADD_TO_FILE ||
+                                       keybit, शून्य);
+        अगर(addrc)
+          infof(तथ्य, "WARNING: adding the known host %s failed", hostbuf);
+        अन्यथा अगर(rc == CURLKHSTAT_FINE_ADD_TO_FILE ||
                 rc == CURLKHSTAT_FINE_REPLACE) {
           /* now we write the entire in-memory list of known hosts to the
              known_hosts file */
-          int wrc =
+          पूर्णांक wrc =
             libssh2_knownhost_writefile(
-              sshc->kh, CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS),
+              sshc->kh, CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS),
               LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-          if(wrc) {
-            infof(data, "WARNING: writing %s failed",
-                  CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+          अगर(wrc) {
+            infof(तथ्य, "WARNING: writing %s failed",
+                  CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS));
           }
         }
       }
       curlx_free(hostport);
     }
-    else
-      infof(data, "SSH: knownhost entry matches host key");
-    break;
+    अन्यथा
+      infof(तथ्य, "SSH: knownhost entry matches host key");
+    अवरोध;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ssh_check_fingerprint(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+अटल CURLcode ssh_check_fingerprint(काष्ठा Curl_easy *तथ्य,
+                                      काष्ठा ssh_conn *sshc)
 {
-  const char *pubkey_md5 =
-    CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5);
-  const char *pubkey_sha256 =
-    CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256);
+  स्थिर अक्षर *pubkey_md5 =
+    CURL_EASY_STR(तथ्य, STRING_SSH_HOST_PUBLIC_कुंजी_MD5);
+  स्थिर अक्षर *pubkey_sha256 =
+    CURL_EASY_STR(तथ्य, STRING_SSH_HOST_PUBLIC_कुंजी_SHA256);
 
-  if(pubkey_sha256) {
-    const char *fingerprint = NULL;
-    char *fingerprint_b64 = NULL;
-    size_t fingerprint_b64_len;
-    size_t pub_pos = 0;
-    size_t b64_pos = 0;
+  अगर(pubkey_sha256) {
+    स्थिर अक्षर *fingerprint = शून्य;
+    अक्षर *fingerprint_b64 = शून्य;
+    माप_प्रकार fingerprint_b64_len;
+    माप_प्रकार pub_pos = 0;
+    माप_प्रकार b64_pos = 0;
 
-    infof(data, "SSH: SHA256 public key '%s'", pubkey_sha256);
+    infof(तथ्य, "SSH: SHA256 public key '%s'", pubkey_sha256);
     /* The fingerprint points to static storage (!), do not free() it. */
     fingerprint = libssh2_hostkey_hash(sshc->ssh_session,
                                        LIBSSH2_HOSTKEY_HASH_SHA256);
-    if(!fingerprint) {
-      failf(data,
+    अगर(!fingerprint) {
+      failf(तथ्य,
             "Denied establishing ssh session: SHA256 fingerprint "
             "not available");
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+      वापस CURLE_PEER_FAILED_VERIFICATION;
     }
 
     /* The length of fingerprint is 32 bytes for SHA256.
      * See libssh2_hostkey_hash documentation. */
-    if(curlx_base64_encode((const uint8_t *)fingerprint, 32, &fingerprint_b64,
+    अगर(curlx_base64_encode((स्थिर uint8_t *)fingerprint, 32, &fingerprint_b64,
                            &fingerprint_b64_len) != CURLE_OK) {
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+      वापस CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    if(!fingerprint_b64) {
-      failf(data, "SHA256 fingerprint could not be encoded");
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+    अगर(!fingerprint_b64) {
+      failf(तथ्य, "SHA256 fingerprint could not be encoded");
+      myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+      वापस CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    infof(data, "SSH: SHA256 fingerprint '%s'", fingerprint_b64);
+    infof(तथ्य, "SSH: SHA256 fingerprint '%s'", fingerprint_b64);
 
     /* Find the position of any = padding characters in the public key */
-    while((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
+    जबतक((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
       pub_pos++;
     }
 
     /* Find the position of any = padding characters in the base64 coded
      * hostkey fingerprint */
-    while((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
+    जबतक((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
       b64_pos++;
     }
 
     /* Before we authenticate we check the hostkey's SHA256 fingerprint
      * against a known fingerprint, if available.
      */
-    if((pub_pos != b64_pos) ||
-       strncmp(fingerprint_b64, pubkey_sha256, pub_pos)) {
-      failf(data,
+    अगर((pub_pos != b64_pos) ||
+       म_भेदन(fingerprint_b64, pubkey_sha256, pub_pos)) {
+      failf(तथ्य,
             "Denied establishing ssh session: mismatch SHA256 fingerprint. "
             "Remote %s is not equal to %s", fingerprint_b64, pubkey_sha256);
       curlx_free(fingerprint_b64);
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+      वापस CURLE_PEER_FAILED_VERIFICATION;
     }
 
     curlx_free(fingerprint_b64);
 
-    infof(data, "SSH: SHA256 checksum match");
+    infof(तथ्य, "SSH: SHA256 checksum match");
   }
 
-  if(pubkey_md5) {
-    char md5buffer[33];
-    const char *fingerprint;
+  अगर(pubkey_md5) {
+    अक्षर md5buffer[33];
+    स्थिर अक्षर *fingerprint;
 
-    infof(data, "SSH: MD5 public key '%s'", pubkey_md5);
+    infof(तथ्य, "SSH: MD5 public key '%s'", pubkey_md5);
     fingerprint = libssh2_hostkey_hash(sshc->ssh_session,
                                        LIBSSH2_HOSTKEY_HASH_MD5);
 
-    if(fingerprint) {
+    अगर(fingerprint) {
       /* The fingerprint points to static storage (!), do not free() it. */
-      int i;
-      for(i = 0; i < 16; i++) {
+      पूर्णांक i;
+      क्रम(i = 0; i < 16; i++) {
         curl_msnprintf(&md5buffer[i * 2], 3, "%02x",
-                       (unsigned char)fingerprint[i]);
+                       (अचिन्हित अक्षर)fingerprint[i]);
       }
 
-      infof(data, "SSH: MD5 fingerprint '%s'", md5buffer);
+      infof(तथ्य, "SSH: MD5 fingerprint '%s'", md5buffer);
     }
 
     /* This does NOT verify the length of 'pubkey_md5' separately, which
        makes the comparison below fail unless it is exactly 32 characters */
-    if(!fingerprint || !curl_strequal(md5buffer, pubkey_md5)) {
-      if(fingerprint) {
-        failf(data,
+    अगर(!fingerprint || !curl_strequal(md5buffer, pubkey_md5)) {
+      अगर(fingerprint) {
+        failf(तथ्य,
               "Denied establishing ssh session: mismatch MD5 fingerprint. "
               "Remote %s is not equal to %s", md5buffer, pubkey_md5);
       }
-      else {
-        failf(data,
+      अन्यथा {
+        failf(तथ्य,
               "Denied establishing ssh session: MD5 fingerprint "
               "not available");
       }
-      myssh_to(data, sshc, SSH_SESSION_FREE);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+      वापस CURLE_PEER_FAILED_VERIFICATION;
     }
-    infof(data, "SSH: MD5 checksum match");
+    infof(तथ्य, "SSH: MD5 checksum match");
   }
 
-  if(!pubkey_md5 && !pubkey_sha256) {
-    if(data->set.ssh_hostkeyfunc) {
-      size_t keylen = 0;
-      int sshkeytype = 0;
-      int rc = 0;
+  अगर(!pubkey_md5 && !pubkey_sha256) {
+    अगर(तथ्य->set.ssh_hostkeyfunc) {
+      माप_प्रकार keylen = 0;
+      पूर्णांक sshkeytype = 0;
+      पूर्णांक rc = 0;
       /* we handle the process to the callback */
-      const char *remotekey = libssh2_session_hostkey(sshc->ssh_session,
+      स्थिर अक्षर *remotekey = libssh2_session_hostkey(sshc->ssh_session,
                                                       &keylen, &sshkeytype);
-      if(remotekey) {
-        struct Curl_mapi_guard guard;
-        enum curl_khtype keytype = convert_ssh2_keytype(sshkeytype);
-        CURL_CBAPI_START(&guard, data, easy_ssh_hostkeyfunc);
-        rc = data->set.ssh_hostkeyfunc(data->set.ssh_hostkeyfunc_userp,
-                                       (int)keytype, remotekey, keylen);
+      अगर(remotekey) {
+        काष्ठा Curl_mapi_guard guard;
+        क्रमागत curl_khtype keytype = convert_ssh2_keytype(sshkeytype);
+        CURL_CBAPI_START(&guard, तथ्य, easy_ssh_hostkeyfunc);
+        rc = तथ्य->set.ssh_hostkeyfunc(तथ्य->set.ssh_hostkeyfunc_userp,
+                                       (पूर्णांक)keytype, remotekey, keylen);
         CURL_CBAPI_END(&guard);
-        if(rc != CURLKHMATCH_OK) {
-          myssh_to(data, sshc, SSH_SESSION_FREE);
-          failf(data, "SSH: callback failed host public key verification");
-          return CURLE_PEER_FAILED_VERIFICATION;
+        अगर(rc != CURLKHMATCH_OK) {
+          myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+          failf(तथ्य, "SSH: callback failed host public key verification");
+          वापस CURLE_PEER_FAILED_VERIFICATION;
         }
-        infof(data, "SSH: verified public key via callback");
+        infof(तथ्य, "SSH: verified public key via callback");
       }
-      else {
-        myssh_to(data, sshc, SSH_SESSION_FREE);
-        return CURLE_PEER_FAILED_VERIFICATION;
+      अन्यथा {
+        myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+        वापस CURLE_PEER_FAILED_VERIFICATION;
       }
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
-    else {
-      CURL_TRC_SSH(data, "no host key checksum given, checking knownhosts");
-      return ssh_knownhost(data, sshc);
+    अन्यथा {
+      CURL_TRC_SSH(तथ्य, "no host key checksum given, checking knownhosts");
+      वापस ssh_knownhost(तथ्य, sshc);
     }
   }
-  else {
+  अन्यथा {
     /* as we already matched, we skip the check for known hosts */
-    return CURLE_OK;
+    वापस CURLE_OK;
   }
 }
 
@@ -631,163 +631,163 @@ static CURLcode ssh_check_fingerprint(struct Curl_easy *data,
  * ssh_force_knownhost_key_type() checks the known hosts file and try to
  * force a specific public key type from the server if an entry is found.
  */
-static CURLcode ssh_force_knownhost_key_type(struct Curl_easy *data,
-                                             struct ssh_conn *sshc)
+अटल CURLcode ssh_force_knownhost_कुंजी_type(काष्ठा Curl_easy *तथ्य,
+                                             काष्ठा ssh_conn *sshc)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
-  static const char hostkey_method_ssh_ed25519[] = "ssh-ed25519";
-  static const char hostkey_method_ssh_ecdsa_521[] = "ecdsa-sha2-nistp521";
-  static const char hostkey_method_ssh_ecdsa_384[] = "ecdsa-sha2-nistp384";
-  static const char hostkey_method_ssh_ecdsa_256[] = "ecdsa-sha2-nistp256";
-  static const char hostkey_method_ssh_rsa_all[] =
+  अटल स्थिर अक्षर hostkey_method_ssh_ed25519[] = "ssh-ed25519";
+  अटल स्थिर अक्षर hostkey_method_ssh_ecdsa_521[] = "ecdsa-sha2-nistp521";
+  अटल स्थिर अक्षर hostkey_method_ssh_ecdsa_384[] = "ecdsa-sha2-nistp384";
+  अटल स्थिर अक्षर hostkey_method_ssh_ecdsa_256[] = "ecdsa-sha2-nistp256";
+  अटल स्थिर अक्षर hostkey_method_ssh_rsa_all[] =
     "rsa-sha2-256,rsa-sha2-512,ssh-rsa";
-#ifdef LIBSSH2_KNOWNHOST_KEY_SSHDSS
-  static const char hostkey_method_ssh_dss[] = "ssh-dss";
-#endif
+#अगर_घोषित LIBSSH2_KNOWNHOST_कुंजी_SSHDSS
+  अटल स्थिर अक्षर hostkey_method_ssh_dss[] = "ssh-dss";
+#पूर्ण_अगर
   bool found = FALSE;
 
-  if(sshc->kh &&
-     !CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5) &&
-     !CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256)) {
-    struct libssh2_knownhost *store = NULL;
-    struct connectdata *conn = data->conn;
+  अगर(sshc->kh &&
+     !CURL_EASY_STR(तथ्य, STRING_SSH_HOST_PUBLIC_कुंजी_MD5) &&
+     !CURL_EASY_STR(तथ्य, STRING_SSH_HOST_PUBLIC_कुंजी_SHA256)) {
+    काष्ठा libssh2_knownhost *store = शून्य;
+    काष्ठा connectdata *conn = तथ्य->conn;
     /* key types already confirmed absent for this host, so repeat hashed
        entries of the same type do not each force a fresh checkp() scan
        of the whole known_hosts set. one slot per possible key type (indexed
        by the type shifted down) so no entry ordering can overflow it */
-    bool absent_type[(LIBSSH2_KNOWNHOST_KEY_MASK >>
-                      LIBSSH2_KNOWNHOST_KEY_SHIFT) + 1] = { FALSE };
+    bool absent_type[(LIBSSH2_KNOWNHOST_कुंजी_MASK >>
+                      LIBSSH2_KNOWNHOST_कुंजी_SHIFT) + 1] = { FALSE };
     /* lets try to find our host in the known hosts file */
-    while(!libssh2_knownhost_get(sshc->kh, &store, store)) {
+    जबतक(!libssh2_knownhost_get(sshc->kh, &store, store)) {
       /* For non-standard ports, the name is enclosed in */
       /* square brackets, followed by a colon and the port */
-      if(store) {
-        if(store->name) {
-          if(store->name[0] == '[') {
+      अगर(store) {
+        अगर(store->name) {
+          अगर(store->name[0] == '[') {
             curl_off_t port;
-            size_t kh_name_size = 0;
-            const char *p;
-            const char *kh_name_end = strstr(store->name, "]:");
-            if(!kh_name_end) {
-              infof(data, "SSH: invalid host pattern %s in %s",
+            माप_प्रकार kh_name_आकार = 0;
+            स्थिर अक्षर *p;
+            स्थिर अक्षर *kh_name_end = म_माला(store->name, "]:");
+            अगर(!kh_name_end) {
+              infof(तथ्य, "SSH: invalid host pattern %s in %s",
                     store->name,
-                    CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-              continue;
+                    CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS));
+              जारी;
             }
             p = kh_name_end + 2; /* start of port number */
-            if(!curlx_str_number(&p, &port, 0xffff) &&
+            अगर(!curlx_str_संख्या(&p, &port, 0xffff) &&
                (kh_name_end && (port == conn->origin->port))) {
-              kh_name_size = strlen(store->name) - 1 - strlen(kh_name_end);
-              if((kh_name_size == strlen(conn->origin->hostname)) &&
-                 !strncmp(store->name + 1, conn->origin->hostname,
-                          kh_name_size)) {
+              kh_name_आकार = म_माप(store->name) - 1 - म_माप(kh_name_end);
+              अगर((kh_name_आकार == म_माप(conn->origin->hostname)) &&
+                 !म_भेदन(store->name + 1, conn->origin->hostname,
+                          kh_name_आकार)) {
                 found = TRUE;
-                break;
+                अवरोध;
               }
             }
           }
-          else if(!strcmp(store->name, conn->origin->hostname)) {
+          अन्यथा अगर(!म_भेद(store->name, conn->origin->hostname)) {
             found = TRUE;
-            break;
+            अवरोध;
           }
         }
-        else if(store->key) {
-          unsigned int type = (store->typemask & LIBSSH2_KNOWNHOST_KEY_MASK)
-                              >> LIBSSH2_KNOWNHOST_KEY_SHIFT;
-          if(!absent_type[type]) {
-            int keycheck = libssh2_knownhost_checkp(
+        अन्यथा अगर(store->कुंजी) {
+          अचिन्हित पूर्णांक type = (store->typemask & LIBSSH2_KNOWNHOST_कुंजी_MASK)
+                              >> LIBSSH2_KNOWNHOST_कुंजी_SHIFT;
+          अगर(!absent_type[type]) {
+            पूर्णांक keycheck = libssh2_knownhost_checkp(
               sshc->kh, conn->origin->hostname,
               (conn->origin->port != PORT_SSH) ? conn->origin->port : -1,
-              store->key, strlen(store->key),
+              store->कुंजी, म_माप(store->कुंजी),
               LIBSSH2_KNOWNHOST_TYPE_PLAIN |
                 LIBSSH2_KNOWNHOST_KEYENC_BASE64 |
-                (store->typemask & LIBSSH2_KNOWNHOST_KEY_MASK),
-              NULL);
-            if(keycheck == LIBSSH2_KNOWNHOST_CHECK_MATCH) {
+                (store->typemask & LIBSSH2_KNOWNHOST_कुंजी_MASK),
+              शून्य);
+            अगर(keycheck == LIBSSH2_KNOWNHOST_CHECK_MATCH) {
               found = TRUE;
-              break;
+              अवरोध;
             }
-            else if(keycheck == LIBSSH2_KNOWNHOST_CHECK_NOTFOUND)
+            अन्यथा अगर(keycheck == LIBSSH2_KNOWNHOST_CHECK_NOTFOUND)
               absent_type[type] = TRUE;
           }
         }
       }
     }
 
-    if(found) {
-      int rc;
-      const char *hostkey_method = NULL;
-      infof(data, "SSH: found host '%s' in '%s'",
+    अगर(found) {
+      पूर्णांक rc;
+      स्थिर अक्षर *hostkey_method = शून्य;
+      infof(तथ्य, "SSH: found host '%s' in '%s'",
             conn->origin->hostname,
-            CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+            CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS));
 
-      switch(store->typemask & LIBSSH2_KNOWNHOST_KEY_MASK) {
-      case LIBSSH2_KNOWNHOST_KEY_ED25519:
+      चयन(store->typemask & LIBSSH2_KNOWNHOST_कुंजी_MASK) {
+      हाल LIBSSH2_KNOWNHOST_कुंजी_ED25519:
         hostkey_method = hostkey_method_ssh_ed25519;
-        break;
-      case LIBSSH2_KNOWNHOST_KEY_ECDSA_521:
+        अवरोध;
+      हाल LIBSSH2_KNOWNHOST_कुंजी_ECDSA_521:
         hostkey_method = hostkey_method_ssh_ecdsa_521;
-        break;
-      case LIBSSH2_KNOWNHOST_KEY_ECDSA_384:
+        अवरोध;
+      हाल LIBSSH2_KNOWNHOST_कुंजी_ECDSA_384:
         hostkey_method = hostkey_method_ssh_ecdsa_384;
-        break;
-      case LIBSSH2_KNOWNHOST_KEY_ECDSA_256:
+        अवरोध;
+      हाल LIBSSH2_KNOWNHOST_कुंजी_ECDSA_256:
         hostkey_method = hostkey_method_ssh_ecdsa_256;
-        break;
-      case LIBSSH2_KNOWNHOST_KEY_SSHRSA:
+        अवरोध;
+      हाल LIBSSH2_KNOWNHOST_कुंजी_SSHRSA:
         hostkey_method = hostkey_method_ssh_rsa_all;
-        break;
-#ifdef LIBSSH2_KNOWNHOST_KEY_SSHDSS
-      case LIBSSH2_KNOWNHOST_KEY_SSHDSS:  /* deprecated upstream */
+        अवरोध;
+#अगर_घोषित LIBSSH2_KNOWNHOST_कुंजी_SSHDSS
+      हाल LIBSSH2_KNOWNHOST_कुंजी_SSHDSS:  /* deprecated upstream */
         hostkey_method = hostkey_method_ssh_dss;
-        break;
-#endif
-      case LIBSSH2_KNOWNHOST_KEY_RSA1:
-        failf(data, "Found host key type RSA1 which is not supported");
-        return CURLE_SSH;
-      default:
-        failf(data, "Unknown host key type: %d",
-              (store->typemask & LIBSSH2_KNOWNHOST_KEY_MASK));
-        return CURLE_SSH;
+        अवरोध;
+#पूर्ण_अगर
+      हाल LIBSSH2_KNOWNHOST_कुंजी_RSA1:
+        failf(तथ्य, "Found host key type RSA1 which is not supported");
+        वापस CURLE_SSH;
+      शेष:
+        failf(तथ्य, "Unknown host key type: %d",
+              (store->typemask & LIBSSH2_KNOWNHOST_कुंजी_MASK));
+        वापस CURLE_SSH;
       }
 
-      infof(data, "SSH: set '%s' as hostkey type", hostkey_method);
+      infof(तथ्य, "SSH: set '%s' as hostkey type", hostkey_method);
       rc = libssh2_session_method_pref(sshc->ssh_session,
                                        LIBSSH2_METHOD_HOSTKEY, hostkey_method);
-      if(rc) {
-        char *err_msg = NULL;
-        int errlen;
-        libssh2_session_last_error(sshc->ssh_session, &err_msg, &errlen, 0);
-        failf(data, "libssh2 method '%s' failed: %s", hostkey_method, err_msg);
-        result = libssh2_session_error_to_CURLE(rc);
+      अगर(rc) {
+        अक्षर *err_संदेश = शून्य;
+        पूर्णांक errlen;
+        libssh2_session_last_error(sshc->ssh_session, &err_संदेश, &errlen, 0);
+        failf(तथ्य, "libssh2 method '%s' failed: %s", hostkey_method, err_संदेश);
+        परिणाम = libssh2_session_error_to_CURLE(rc);
       }
     }
-    else {
-      infof(data, "SSH: did not find host '%s' in '%s'",
+    अन्यथा {
+      infof(तथ्य, "SSH: did not find host '%s' in '%s'",
             conn->origin->hostname,
-            CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+            CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS));
     }
   }
 
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode quote_error(struct Curl_easy *data,
-                            struct ssh_conn *sshc)
+अटल CURLcode quote_error(काष्ठा Curl_easy *तथ्य,
+                            काष्ठा ssh_conn *sshc)
 {
-  failf(data, "Suspicious data after the command line");
+  failf(तथ्य, "Suspicious data after the command line");
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  return CURLE_QUOTE_ERROR;
+  वापस CURLE_QUOTE_ERROR;
 }
 
-static CURLcode sftp_quote(struct Curl_easy *data,
-                           struct ssh_conn *sshc,
-                           struct SSHPROTO *sshp)
+अटल CURLcode sftp_quote(काष्ठा Curl_easy *तथ्य,
+                           काष्ठा ssh_conn *sshc,
+                           काष्ठा SSHPROTO *sshp)
 {
-  const char *cp;
-  CURLcode result = CURLE_OK;
+  स्थिर अक्षर *cp;
+  CURLcode परिणाम = CURLE_OK;
 
   /*
    * Support some of the "FTP" commands
@@ -795,7 +795,7 @@ static CURLcode sftp_quote(struct Curl_easy *data,
    * 'sshc->quote_item' is already verified to be non-NULL before it
    * switched to this state.
    */
-  const char *cmd = sshc->quote_item->data;
+  स्थिर अक्षर *cmd = sshc->quote_item->तथ्य;
   sshc->acceptfail = FALSE;
 
   /* if a command starts with an asterisk, which a legal SFTP command never
@@ -803,49 +803,49 @@ static CURLcode sftp_quote(struct Curl_easy *data,
      aborts or cancels etc. It causes libcurl to act as if the command
      is successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  अगर(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
 
-  if(curl_strequal("pwd", cmd)) {
+  अगर(curl_strequal("pwd", cmd)) {
     /* output debug output if that is requested */
-    char *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
+    अक्षर *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
                               sshp->path);
-    if(!tmp)
-      return CURLE_OUT_OF_MEMORY;
-    Curl_debug(data, CURLINFO_HEADER_OUT, "PWD\n", 4);
-    Curl_debug(data, CURLINFO_HEADER_IN, tmp, strlen(tmp));
+    अगर(!tmp)
+      वापस CURLE_OUT_OF_MEMORY;
+    Curl_debug(तथ्य, CURLINFO_HEADER_OUT, "PWD\n", 4);
+    Curl_debug(तथ्य, CURLINFO_HEADER_IN, tmp, म_माप(tmp));
 
     /* this sends an FTP-like "header" to the header callback so that
        the current directory can be read similar to how it is read when
        using ordinary FTP. */
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
+    परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_HEADER, tmp, म_माप(tmp));
     curlx_free(tmp);
-    if(!result)
-      myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-    return result;
+    अगर(!परिणाम)
+      myssh_to(तथ्य, sshc, SSH_SFTP_अग्र_QUOTE);
+    वापस परिणाम;
   }
 
   /*
    * the arguments following the command must be separated from the
    * command with a space so we can check for it unconditionally
    */
-  cp = strchr(cmd, ' ');
-  if(!cp) {
-    failf(data, "Syntax error command '%s', missing parameter", cmd);
-    return CURLE_QUOTE_ERROR;
+  cp = म_अक्षर(cmd, ' ');
+  अगर(!cp) {
+    failf(तथ्य, "Syntax error command '%s', missing parameter", cmd);
+    वापस CURLE_QUOTE_ERROR;
   }
 
   /*
    * also, every command takes at least one argument so we get that
    * first argument right now
    */
-  result = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
-  if(result) {
-    if(result != CURLE_OUT_OF_MEMORY)
-      failf(data, "Syntax error: Bad first parameter to '%s'", cmd);
-    return result;
+  परिणाम = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
+  अगर(परिणाम) {
+    अगर(परिणाम != CURLE_OUT_OF_MEMORY)
+      failf(तथ्य, "Syntax error: Bad first parameter to '%s'", cmd);
+    वापस परिणाम;
   }
 
   /*
@@ -853,101 +853,101 @@ static CURLcode sftp_quote(struct Curl_easy *data,
    * Instead, we scan for commands used by OpenSSH's sftp program and call the
    * appropriate libssh2 functions.
    */
-  if(!strncmp(cmd, "chgrp ", 6) ||
-     !strncmp(cmd, "chmod ", 6) ||
-     !strncmp(cmd, "chown ", 6) ||
-     !strncmp(cmd, "atime ", 6) ||
-     !strncmp(cmd, "mtime ", 6)) {
+  अगर(!म_भेदन(cmd, "chgrp ", 6) ||
+     !म_भेदन(cmd, "chmod ", 6) ||
+     !म_भेदन(cmd, "chown ", 6) ||
+     !म_भेदन(cmd, "atime ", 6) ||
+     !म_भेदन(cmd, "mtime ", 6)) {
     /* attribute change */
 
     /* sshc->quote_path1 contains the mode to set */
     /* get the destination */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result != CURLE_OUT_OF_MEMORY)
-        failf(data, "Syntax error in %s: Bad second parameter", cmd);
+    परिणाम = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    अगर(परिणाम) {
+      अगर(परिणाम != CURLE_OUT_OF_MEMORY)
+        failf(तथ्य, "Syntax error in %s: Bad second parameter", cmd);
       curlx_safefree(sshc->quote_path1);
-      return result;
+      वापस परिणाम;
     }
-    if(*cp)
-      return quote_error(data, sshc);
+    अगर(*cp)
+      वापस quote_error(तथ्य, sshc);
 
-    memset(&sshp->quote_attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_STAT);
-    return result;
+    स_रखो(&sshp->quote_attrs, 0, माप(LIBSSH2_SFTP_ATTRIBUTES));
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_STAT);
+    वापस परिणाम;
   }
-  if(!strncmp(cmd, "ln ", 3) ||
-     !strncmp(cmd, "symlink ", 8)) {
+  अगर(!म_भेदन(cmd, "ln ", 3) ||
+     !म_भेदन(cmd, "symlink ", 8)) {
     /* symbolic linking */
     /* sshc->quote_path1 is the source */
     /* get the destination */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result != CURLE_OUT_OF_MEMORY)
-        failf(data, "Syntax error in ln/symlink: Bad second parameter");
+    परिणाम = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    अगर(परिणाम) {
+      अगर(परिणाम != CURLE_OUT_OF_MEMORY)
+        failf(तथ्य, "Syntax error in ln/symlink: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      return result;
+      वापस परिणाम;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_SYMLINK);
-    return result;
+    अगर(*cp)
+      वापस quote_error(तथ्य, sshc);
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_SYMLINK);
+    वापस परिणाम;
   }
-  else if(!strncmp(cmd, "mkdir ", 6)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  अन्यथा अगर(!म_भेदन(cmd, "mkdir ", 6)) {
+    अगर(*cp)
+      वापस quote_error(तथ्य, sshc);
     /* create directory */
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_MKDIR);
-    return result;
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_MKDIR);
+    वापस परिणाम;
   }
-  else if(!strncmp(cmd, "rename ", 7)) {
+  अन्यथा अगर(!म_भेदन(cmd, "rename ", 7)) {
     /* rename file */
     /* first param is the source path */
     /* second param is the dest. path */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result != CURLE_OUT_OF_MEMORY)
-        failf(data, "Syntax error in rename: Bad second parameter");
+    परिणाम = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    अगर(परिणाम) {
+      अगर(परिणाम != CURLE_OUT_OF_MEMORY)
+        failf(तथ्य, "Syntax error in rename: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      return result;
+      वापस परिणाम;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_RENAME);
-    return result;
+    अगर(*cp)
+      वापस quote_error(तथ्य, sshc);
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_RENAME);
+    वापस परिणाम;
   }
-  else if(!strncmp(cmd, "rmdir ", 6)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  अन्यथा अगर(!म_भेदन(cmd, "rmdir ", 6)) {
+    अगर(*cp)
+      वापस quote_error(तथ्य, sshc);
     /* delete directory */
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_RMDIR);
-    return result;
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_RMDIR);
+    वापस परिणाम;
   }
-  else if(!strncmp(cmd, "rm ", 3)) {
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_UNLINK);
-    return result;
+  अन्यथा अगर(!म_भेदन(cmd, "rm ", 3)) {
+    अगर(*cp)
+      वापस quote_error(तथ्य, sshc);
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_UNLINK);
+    वापस परिणाम;
   }
-  else if(!strncmp(cmd, "statvfs ", 8)) {
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_STATVFS);
-    return result;
+  अन्यथा अगर(!म_भेदन(cmd, "statvfs ", 8)) {
+    अगर(*cp)
+      वापस quote_error(तथ्य, sshc);
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_STATVFS);
+    वापस परिणाम;
   }
 
-  failf(data, "Unknown SFTP command");
+  failf(तथ्य, "Unknown SFTP command");
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  return CURLE_QUOTE_ERROR;
+  वापस CURLE_QUOTE_ERROR;
 }
 
-static CURLcode sftp_upload_init(struct Curl_easy *data,
-                                 struct ssh_conn *sshc,
-                                 struct SSHPROTO *sshp,
+अटल CURLcode sftp_upload_init(काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा ssh_conn *sshc,
+                                 काष्ठा SSHPROTO *sshp,
                                  bool *blockp)
 {
-  unsigned long flags;
+  अचिन्हित दीर्घ flags;
 
   /*
    * NOTE!!!  libssh2 requires that the destination path is a full path
@@ -956,176 +956,176 @@ static CURLcode sftp_upload_init(struct Curl_easy *data,
    *          same name as the last directory in the path.
    */
 
-  if(data->state.resume_from) {
+  अगर(तथ्य->state.resume_from) {
     LIBSSH2_SFTP_ATTRIBUTES attrs;
-    if(data->state.resume_from < 0) {
-      int rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->path,
-                                    curlx_uztoui(strlen(sshp->path)),
+    अगर(तथ्य->state.resume_from < 0) {
+      पूर्णांक rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->path,
+                                    curlx_uztoui(म_माप(sshp->path)),
                                     LIBSSH2_SFTP_STAT, &attrs);
-      if(rc == LIBSSH2_ERROR_EAGAIN) {
+      अगर(rc == LIBSSH2_ERROR_EAGAIN) {
         *blockp = TRUE;
-        return CURLE_OK;
+        वापस CURLE_OK;
       }
-      if(rc) {
-        data->state.resume_from = 0;
+      अगर(rc) {
+        तथ्य->state.resume_from = 0;
       }
-      else {
-        curl_off_t size = attrs.filesize;
-        if(size < 0) {
-          failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-          return CURLE_BAD_DOWNLOAD_RESUME;
+      अन्यथा {
+        curl_off_t आकार = attrs.filesize;
+        अगर(आकार < 0) {
+          failf(तथ्य, "Bad file size (%" FMT_OFF_T ")", आकार);
+          वापस CURLE_BAD_DOWNLOAD_RESUME;
         }
-        data->state.resume_from = attrs.filesize;
+        तथ्य->state.resume_from = attrs.filesize;
       }
     }
   }
 
-  if(data->set.remote_append) {
+  अगर(तथ्य->set.remote_append) {
     /* True append mode: create if nonexisting */
     flags = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_APPEND;
   }
-  else if(data->state.resume_from > 0) {
+  अन्यथा अगर(तथ्य->state.resume_from > 0) {
     /*
      * Resume MUST NOT use APPEND; some servers force writes to EOF when
      * APPEND is set, ignoring a prior seek().
      */
     flags = LIBSSH2_FXF_WRITE;
   }
-  else {
+  अन्यथा {
     /* Clear file before writing (normal behavior) */
     flags = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC;
   }
 
   sshc->sftp_handle =
     libssh2_sftp_open_ex(sshc->sftp_session, sshp->path,
-                         curlx_uztoui(strlen(sshp->path)),
-                         flags, (long)data->set.new_file_perms,
+                         curlx_uztoui(म_माप(sshp->path)),
+                         flags, (दीर्घ)तथ्य->set.new_file_perms,
                          LIBSSH2_SFTP_OPENFILE);
 
-  if(!sshc->sftp_handle) {
-    CURLcode result;
-    unsigned long sftperr;
-    int rc = libssh2_session_last_errno(sshc->ssh_session);
+  अगर(!sshc->sftp_handle) {
+    CURLcode परिणाम;
+    अचिन्हित दीर्घ sftperr;
+    पूर्णांक rc = libssh2_session_last_errno(sshc->ssh_session);
 
-    if(LIBSSH2_ERROR_EAGAIN == rc) {
+    अगर(LIBSSH2_ERROR_EAGAIN == rc) {
       *blockp = TRUE;
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
 
-    if(LIBSSH2_ERROR_SFTP_PROTOCOL == rc)
+    अगर(LIBSSH2_ERROR_SFTP_PROTOCOL == rc)
       /* only when there was an SFTP protocol error can we extract
          the sftp error! */
       sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    else
+    अन्यथा
       sftperr = LIBSSH2_FX_OK; /* not an sftp error at all */
 
-    if(sshc->secondCreateDirs) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
-      failf(data, "Creating the dir/file failed: %s",
+    अगर(sshc->secondCreateDirs) {
+      myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
+      failf(तथ्य, "Creating the dir/file failed: %s",
             sftp_libssh2_strerror(sftperr));
-      return sftp_libssh2_error_to_CURLE(sftperr);
+      वापस sftp_libssh2_error_to_CURLE(sftperr);
     }
-    if((sftperr == LIBSSH2_FX_NO_SUCH_FILE ||
+    अगर((sftperr == LIBSSH2_FX_NO_SUCH_FILE ||
         sftperr == LIBSSH2_FX_FAILURE ||
         sftperr == LIBSSH2_FX_NO_SUCH_PATH) &&
-       data->set.ftp_create_missing_dirs &&
-       (strlen(sshp->path) > 1)) {
+       तथ्य->set.ftp_create_missing_dirs &&
+       (म_माप(sshp->path) > 1)) {
       /* try to create the path remotely */
       sshc->secondCreateDirs = 1;
-      myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_INIT);
-      return CURLE_OK;
+      myssh_to(तथ्य, sshc, SSH_SFTP_CREATE_DIRS_INIT);
+      वापस CURLE_OK;
     }
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-    result = sftp_libssh2_error_to_CURLE(sftperr);
-    if(!result) {
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
+    परिणाम = sftp_libssh2_error_to_CURLE(sftperr);
+    अगर(!परिणाम) {
       /* Sometimes, for some reason libssh2_sftp_last_error() returns zero
          even though libssh2_sftp_open() failed previously! We need to
          work around that! */
-      result = CURLE_SSH;
+      परिणाम = CURLE_SSH;
       sftperr = LIBSSH2_FX_OK;
     }
-    failf(data, "Upload failed: %s (%lu/%d)",
+    failf(तथ्य, "Upload failed: %s (%lu/%d)",
           sftperr != LIBSSH2_FX_OK ?
           sftp_libssh2_strerror(sftperr) : "ssh error",
           sftperr, rc);
-    return result;
+    वापस परिणाम;
   }
 
   /* If we have a restart point then we need to seek to the correct
      Skip if in explicit remote append mode. */
-  if(data->state.resume_from > 0 && !data->set.remote_append) {
-    int seekerr = CURL_SEEKFUNC_OK;
+  अगर(तथ्य->state.resume_from > 0 && !तथ्य->set.remote_append) {
+    पूर्णांक seekerr = CURL_SEEKFUNC_OK;
     /* Let's read off the proper amount of bytes from the input. */
-    if(data->set.seek_func) {
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_seek_func);
-      seekerr = data->set.seek_func(data->set.seek_client,
-                                    data->state.resume_from, SEEK_SET);
+    अगर(तथ्य->set.seek_func) {
+      काष्ठा Curl_mapi_guard guard;
+      CURL_CBAPI_START(&guard, तथ्य, easy_seek_func);
+      seekerr = तथ्य->set.seek_func(तथ्य->set.seek_client,
+                                    तथ्य->state.resume_from, शुरू_से);
       CURL_CBAPI_END(&guard);
     }
 
-    if(seekerr != CURL_SEEKFUNC_OK) {
+    अगर(seekerr != CURL_SEEKFUNC_OK) {
       curl_off_t passed = 0;
 
-      if(seekerr != CURL_SEEKFUNC_CANTSEEK) {
-        failf(data, "Could not seek stream");
-        return CURLE_FTP_COULDNT_USE_REST;
+      अगर(seekerr != CURL_SEEKFUNC_CANTSEEK) {
+        failf(तथ्य, "Could not seek stream");
+        वापस CURLE_FTP_COULDNT_USE_REST;
       }
       /* seekerr == CURL_SEEKFUNC_CANTSEEK (cannot seek to offset) */
-      do {
-        struct Curl_mapi_guard guard;
-        char scratch[4 * 1024];
-        size_t readthisamountnow =
-          (data->state.resume_from - passed >
-           (curl_off_t)sizeof(scratch)) ?
-          sizeof(scratch) : curlx_sotouz(data->state.resume_from - passed);
+      करो {
+        काष्ठा Curl_mapi_guard guard;
+        अक्षर scratch[4 * 1024];
+        माप_प्रकार readthisamountnow =
+          (तथ्य->state.resume_from - passed >
+           (curl_off_t)माप(scratch)) ?
+          माप(scratch) : curlx_sotouz(तथ्य->state.resume_from - passed);
 
-        size_t actuallyread;
-        CURL_CBAPI_START(&guard, data, easy_fread_func);
-        actuallyread = data->state.fread_func(scratch, 1,
+        माप_प्रकार actuallyread;
+        CURL_CBAPI_START(&guard, तथ्य, easy_fread_func);
+        actuallyread = तथ्य->state.fread_func(scratch, 1,
                                               readthisamountnow,
-                                              data->state.in);
+                                              तथ्य->state.in);
         CURL_CBAPI_END(&guard);
 
         passed += actuallyread;
-        if((actuallyread == 0) || (actuallyread > readthisamountnow)) {
+        अगर((actuallyread == 0) || (actuallyread > readthisamountnow)) {
           /* this checks for greater-than only to make sure that the
              CURL_READFUNC_ABORT return code still aborts */
-          failf(data, "Failed to read data");
-          return CURLE_FTP_COULDNT_USE_REST;
+          failf(तथ्य, "Failed to read data");
+          वापस CURLE_FTP_COULDNT_USE_REST;
         }
-      } while(passed < data->state.resume_from);
+      } जबतक(passed < तथ्य->state.resume_from);
     }
 
     /* now, decrease the size of the read */
-    if(data->state.infilesize > 0) {
-      data->state.infilesize -= data->state.resume_from;
-      data->req.size = data->state.infilesize;
-      Curl_pgrsSetUploadSize(data, data->state.infilesize);
+    अगर(तथ्य->state.infilesize > 0) {
+      तथ्य->state.infilesize -= तथ्य->state.resume_from;
+      तथ्य->req.आकार = तथ्य->state.infilesize;
+      Curl_pgrs_Set_Upload_आकार(तथ्य, तथ्य->state.infilesize);
     }
 
     libssh2_sftp_seek64(sshc->sftp_handle,
-                        (libssh2_uint64_t)data->state.resume_from);
+                        (libssh2_uint64_t)तथ्य->state.resume_from);
   }
-  if(data->state.infilesize > 0) {
-    data->req.size = data->state.infilesize;
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+  अगर(तथ्य->state.infilesize > 0) {
+    तथ्य->req.आकार = तथ्य->state.infilesize;
+    Curl_pgrs_Set_Upload_आकार(तथ्य, तथ्य->state.infilesize);
   }
   /* upload data */
-  Curl_xfer_setup_send(data, FIRSTSOCKET);
+  Curl_xfer_setup_send(तथ्य, FIRSTSOCKET);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->recv_idx = FIRSTSOCKET;
+  तथ्य->conn->recv_idx = FIRSTSOCKET;
 
   /* since we do not really wait for anything at this point, we want the
      state machine to move on as soon as possible so mark this as dirty */
-  Curl_multi_mark_dirty(data);
+  Curl_multi_mark_dirty(तथ्य);
 
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_STOP);
+  वापस CURLE_OK;
 }
 
-static void ssh_state_pkey_init(struct Curl_easy *data, struct ssh_conn *sshc)
+अटल व्योम ssh_state_pkey_init(काष्ठा Curl_easy *तथ्य, काष्ठा ssh_conn *sshc)
 {
   /*
    * Check the supported auth types in the order I feel is most secure
@@ -1133,23 +1133,23 @@ static void ssh_state_pkey_init(struct Curl_easy *data, struct ssh_conn *sshc)
    */
   sshc->authed = FALSE;
 
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) &&
-     strstr(sshc->authlist, "publickey")) {
-    if(sshc->pub_key)
-      infof(data, "SSH: trying public key file '%s'", sshc->pub_key);
-    infof(data, "SSH: trying private key file '%s'", sshc->priv_key);
-    myssh_to(data, sshc, SSH_AUTH_PKEY);
+  अगर((तथ्य->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) &&
+     म_माला(sshc->authlist, "publickey")) {
+    अगर(sshc->pub_कुंजी)
+      infof(तथ्य, "SSH: trying public key file '%s'", sshc->pub_कुंजी);
+    infof(तथ्य, "SSH: trying private key file '%s'", sshc->priv_कुंजी);
+    myssh_to(तथ्य, sshc, SSH_AUTH_PKEY);
   }
-  else
-    myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_AUTH_PASS_INIT);
 }
 
-static CURLcode sftp_quote_stat(struct Curl_easy *data,
-                                struct ssh_conn *sshc,
-                                struct SSHPROTO *sshp,
+अटल CURLcode sftp_quote_stat(काष्ठा Curl_easy *तथ्य,
+                                काष्ठा ssh_conn *sshc,
+                                काष्ठा SSHPROTO *sshp,
                                 bool *blockp)
 {
-  const char *cmd = sshc->quote_item->data;
+  स्थिर अक्षर *cmd = sshc->quote_item->तथ्य;
   sshc->acceptfail = FALSE;
 
   /* if a command starts with an asterisk, which a legal SFTP command never
@@ -1157,119 +1157,119 @@ static CURLcode sftp_quote_stat(struct Curl_easy *data,
      cancels etc. It causes libcurl to act as if the command is
      successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  अगर(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
 
-  if(strncmp(cmd, "chmod", 5)) {
+  अगर(म_भेदन(cmd, "chmod", 5)) {
     /* Since chown and chgrp only set owner OR group but libssh2 wants to set
      * them both at once, we need to obtain the current ownership first. This
      * takes an extra protocol round trip.
      */
-    int rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshc->quote_path2,
-                                  curlx_uztoui(strlen(sshc->quote_path2)),
+    पूर्णांक rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshc->quote_path2,
+                                  curlx_uztoui(म_माप(sshc->quote_path2)),
                                   LIBSSH2_SFTP_STAT,
                                   &sshp->quote_attrs);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    अगर(rc == LIBSSH2_ERROR_EAGAIN) {
       *blockp = TRUE;
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
-    if(rc && !sshc->acceptfail) { /* get those attributes */
-      unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-      failf(data, "Attempt to get SFTP stats failed: %s",
+    अगर(rc && !sshc->acceptfail) { /* get those attributes */
+      अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+      failf(तथ्य, "Attempt to get SFTP stats failed: %s",
             sftp_libssh2_strerror(sftperr));
-      goto fail;
+      जाओ fail;
     }
   }
 
   /* Now set the new attributes... */
-  if(!strncmp(cmd, "chgrp", 5)) {
-    const char *p = sshc->quote_path1;
+  अगर(!म_भेदन(cmd, "chgrp", 5)) {
+    स्थिर अक्षर *p = sshc->quote_path1;
     curl_off_t gid;
-    if(!curlx_str_number(&p, &gid, ULONG_MAX)) {
-      sshp->quote_attrs.gid = (unsigned long)gid;
+    अगर(!curlx_str_संख्या(&p, &gid, अच_दीर्घ_उच्च)) {
+      sshp->quote_attrs.gid = (अचिन्हित दीर्घ)gid;
       sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_UIDGID;
     }
-    else if(!sshc->acceptfail) {
-      failf(data, "Syntax error: chgrp gid not a number");
-      goto fail;
+    अन्यथा अगर(!sshc->acceptfail) {
+      failf(तथ्य, "Syntax error: chgrp gid not a number");
+      जाओ fail;
     }
   }
-  else if(!strncmp(cmd, "chmod", 5)) {
+  अन्यथा अगर(!म_भेदन(cmd, "chmod", 5)) {
     curl_off_t perms;
-    const char *p = sshc->quote_path1;
+    स्थिर अक्षर *p = sshc->quote_path1;
     /* permissions are octal */
-    if(curlx_str_octal(&p, &perms, 07777)) {
-      failf(data, "Syntax error: chmod permissions not a number");
-      goto fail;
+    अगर(curlx_str_octal(&p, &perms, 07777)) {
+      failf(तथ्य, "Syntax error: chmod permissions not a number");
+      जाओ fail;
     }
 
-    sshp->quote_attrs.permissions = (unsigned long)perms;
+    sshp->quote_attrs.permissions = (अचिन्हित दीर्घ)perms;
     sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_PERMISSIONS;
   }
-  else if(!strncmp(cmd, "chown", 5)) {
-    const char *p = sshc->quote_path1;
+  अन्यथा अगर(!म_भेदन(cmd, "chown", 5)) {
+    स्थिर अक्षर *p = sshc->quote_path1;
     curl_off_t uid;
-    if(!curlx_str_number(&p, &uid, ULONG_MAX)) {
-      sshp->quote_attrs.uid = (unsigned long)uid;
+    अगर(!curlx_str_संख्या(&p, &uid, अच_दीर्घ_उच्च)) {
+      sshp->quote_attrs.uid = (अचिन्हित दीर्घ)uid;
       sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_UIDGID;
     }
-    else if(!sshc->acceptfail) {
-      failf(data, "Syntax error: chown uid not a number");
-      goto fail;
+    अन्यथा अगर(!sshc->acceptfail) {
+      failf(तथ्य, "Syntax error: chown uid not a number");
+      जाओ fail;
     }
   }
-  else if(!strncmp(cmd, "atime", 5) ||
-          !strncmp(cmd, "mtime", 5)) {
-    time_t date;
+  अन्यथा अगर(!म_भेदन(cmd, "atime", 5) ||
+          !म_भेदन(cmd, "mtime", 5)) {
+    समय_प्रकार date;
     bool fail = FALSE;
 
-    if(Curl_getdate_capped(sshc->quote_path1, &date)) {
-      failf(data, "incorrect date format for %.*s", 5, cmd);
+    अगर(Curl_getdate_capped(sshc->quote_path1, &date)) {
+      failf(तथ्य, "incorrect date format for %.*s", 5, cmd);
       fail = TRUE;
     }
-#if SIZEOF_TIME_T > SIZEOF_LONG
-    if(date > 0xffffffff) {
+#अगर SIZEOF_TIME_T > SIZEOF_LONG
+    अगर(date > 0xffffffff) {
       /* if 'long' cannot hold >32-bit, this date cannot be sent */
-      failf(data, "date overflow");
+      failf(तथ्य, "date overflow");
       fail = TRUE;
     }
-#endif
-    if(fail)
-      goto fail;
-    if(!strncmp(cmd, "atime", 5))
-      sshp->quote_attrs.atime = (unsigned long)date;
-    else /* mtime */
-      sshp->quote_attrs.mtime = (unsigned long)date;
+#पूर्ण_अगर
+    अगर(fail)
+      जाओ fail;
+    अगर(!म_भेदन(cmd, "atime", 5))
+      sshp->quote_attrs.atime = (अचिन्हित दीर्घ)date;
+    अन्यथा /* mtime */
+      sshp->quote_attrs.mtime = (अचिन्हित दीर्घ)date;
 
     sshp->quote_attrs.flags = LIBSSH2_SFTP_ATTR_ACMODTIME;
   }
 
   /* Now send the completed structure... */
-  myssh_to(data, sshc, SSH_SFTP_QUOTE_SETSTAT);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_SETSTAT);
+  वापस CURLE_OK;
 fail:
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  return CURLE_QUOTE_ERROR;
+  वापस CURLE_QUOTE_ERROR;
 }
 
-static CURLcode sftp_download_stat(struct Curl_easy *data,
-                                   struct ssh_conn *sshc,
-                                   struct SSHPROTO *sshp,
+अटल CURLcode sftp_download_stat(काष्ठा Curl_easy *तथ्य,
+                                   काष्ठा ssh_conn *sshc,
+                                   काष्ठा SSHPROTO *sshp,
                                    bool *blockp)
 {
   LIBSSH2_SFTP_ATTRIBUTES attrs;
-  int rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->path,
-                                curlx_uztoui(strlen(sshp->path)),
+  पूर्णांक rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->path,
+                                curlx_uztoui(म_माप(sshp->path)),
                                 LIBSSH2_SFTP_STAT, &attrs);
-  if(rc == LIBSSH2_ERROR_EAGAIN) {
+  अगर(rc == LIBSSH2_ERROR_EAGAIN) {
     *blockp = TRUE;
-    return CURLE_OK;
+    वापस CURLE_OK;
   }
-  if(rc ||
-     !(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) ||
+  अगर(rc ||
+     !(attrs.flags & LIBSSH2_SFTP_ATTR_आकार) ||
      (attrs.filesize == 0)) {
     /*
      * libssh2_sftp_open() did not return an error, so maybe the server
@@ -1277,142 +1277,142 @@ static CURLcode sftp_download_stat(struct Curl_easy *data,
      * OR the server does not return a file size with a stat()
      * OR file size is 0
      */
-    data->req.size = -1;
-    data->req.maxdownload = -1;
-    Curl_pgrsSetDownloadSize(data, -1);
+    तथ्य->req.आकार = -1;
+    तथ्य->req.maxdownload = -1;
+    Curl_pgrs_Set_Download_आकार(तथ्य, -1);
     attrs.filesize = 0; /* might be uninitialized but is read below */
   }
-  else {
-    curl_off_t size = attrs.filesize;
+  अन्यथा {
+    curl_off_t आकार = attrs.filesize;
 
-    if(size < 0) {
-      failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    अगर(आकार < 0) {
+      failf(तथ्य, "Bad file size (%" FMT_OFF_T ")", आकार);
+      वापस CURLE_BAD_DOWNLOAD_RESUME;
     }
-    if(data->state.use_range) {
+    अगर(तथ्य->state.use_range) {
       curl_off_t from;
-      CURLcode result = Curl_ssh_range(data, data->state.range, size,
-                                       &from, &size);
-      if(result)
-        return result;
+      CURLcode परिणाम = Curl_ssh_range(तथ्य, तथ्य->state.range, आकार,
+                                       &from, &आकार);
+      अगर(परिणाम)
+        वापस परिणाम;
 
       libssh2_sftp_seek64(sshc->sftp_handle, (libssh2_uint64_t)from);
     }
-    data->req.size = size;
-    data->req.maxdownload = size;
-    Curl_pgrsSetDownloadSize(data, size);
+    तथ्य->req.आकार = आकार;
+    तथ्य->req.maxdownload = आकार;
+    Curl_pgrs_Set_Download_आकार(तथ्य, आकार);
   }
 
   /* We can resume if we can seek to the resume position */
-  if(data->state.resume_from) {
-    if(data->state.resume_from < 0) {
+  अगर(तथ्य->state.resume_from) {
+    अगर(तथ्य->state.resume_from < 0) {
       /* We are supposed to download the last abs(from) bytes */
-      if((curl_off_t)attrs.filesize < -data->state.resume_from) {
-        failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
+      अगर((curl_off_t)attrs.filesize < -तथ्य->state.resume_from) {
+        failf(तथ्य, "Offset (%" FMT_OFF_T ") was beyond file size (%"
               FMT_OFF_T ")",
-              data->state.resume_from, (curl_off_t)attrs.filesize);
-        return CURLE_BAD_DOWNLOAD_RESUME;
+              तथ्य->state.resume_from, (curl_off_t)attrs.filesize);
+        वापस CURLE_BAD_DOWNLOAD_RESUME;
       }
       /* download from where? */
-      data->state.resume_from += attrs.filesize;
+      तथ्य->state.resume_from += attrs.filesize;
     }
-    else {
-      if((curl_off_t)attrs.filesize < data->state.resume_from) {
-        failf(data, "Offset (%" FMT_OFF_T
+    अन्यथा {
+      अगर((curl_off_t)attrs.filesize < तथ्य->state.resume_from) {
+        failf(तथ्य, "Offset (%" FMT_OFF_T
               ") was beyond file size (%" FMT_OFF_T ")",
-              data->state.resume_from, (curl_off_t)attrs.filesize);
-        return CURLE_BAD_DOWNLOAD_RESUME;
+              तथ्य->state.resume_from, (curl_off_t)attrs.filesize);
+        वापस CURLE_BAD_DOWNLOAD_RESUME;
       }
     }
     /* Now store the number of bytes we are expected to download */
-    data->req.size = attrs.filesize - data->state.resume_from;
-    data->req.maxdownload = attrs.filesize - data->state.resume_from;
-    Curl_pgrsSetDownloadSize(data, attrs.filesize - data->state.resume_from);
+    तथ्य->req.आकार = attrs.filesize - तथ्य->state.resume_from;
+    तथ्य->req.maxdownload = attrs.filesize - तथ्य->state.resume_from;
+    Curl_pgrs_Set_Download_आकार(तथ्य, attrs.filesize - तथ्य->state.resume_from);
     libssh2_sftp_seek64(sshc->sftp_handle,
-                        (libssh2_uint64_t)data->state.resume_from);
+                        (libssh2_uint64_t)तथ्य->state.resume_from);
   }
 
   /* Setup the actual download */
-  if(data->req.size == 0) {
+  अगर(तथ्य->req.आकार == 0) {
     /* no data to transfer */
-    Curl_xfer_setup_nop(data);
-    infof(data, "SSH: file already completely downloaded");
-    myssh_to(data, sshc, SSH_STOP);
-    return CURLE_OK;
+    Curl_xfer_setup_nop(तथ्य);
+    infof(तथ्य, "SSH: file already completely downloaded");
+    myssh_to(तथ्य, sshc, SSH_STOP);
+    वापस CURLE_OK;
   }
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, data->req.size);
+  Curl_xfer_setup_recv(तथ्य, FIRSTSOCKET, तथ्य->req.आकार);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->send_idx = 0;
+  तथ्य->conn->send_idx = 0;
 
-  myssh_to(data, sshc, SSH_STOP);
+  myssh_to(तथ्य, sshc, SSH_STOP);
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode sftp_readdir(struct Curl_easy *data,
-                             struct ssh_conn *sshc,
-                             struct SSHPROTO *sshp,
+अटल CURLcode sftp_readdir(काष्ठा Curl_easy *तथ्य,
+                             काष्ठा ssh_conn *sshc,
+                             काष्ठा SSHPROTO *sshp,
                              bool *blockp)
 {
-  CURLcode result = CURLE_OK;
-  int rc = libssh2_sftp_readdir_ex(sshc->sftp_handle,
+  CURLcode परिणाम = CURLE_OK;
+  पूर्णांक rc = libssh2_sftp_readdir_ex(sshc->sftp_handle,
                                    sshp->readdir_filename, CURL_PATH_MAX,
                                    sshp->readdir_longentry, CURL_PATH_MAX,
                                    &sshp->readdir_attrs);
-  if(rc == LIBSSH2_ERROR_EAGAIN) {
+  अगर(rc == LIBSSH2_ERROR_EAGAIN) {
     *blockp = TRUE;
-    return result;
+    वापस परिणाम;
   }
-  if(rc > 0) {
-    size_t readdir_len = (size_t)rc;
+  अगर(rc > 0) {
+    माप_प्रकार readdir_len = (माप_प्रकार)rc;
     sshp->readdir_filename[readdir_len] = '\0';
 
-    if(data->set.list_only) {
-      result = Curl_client_write(data, CLIENTWRITE_BODY,
+    अगर(तथ्य->set.list_only) {
+      परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY,
                                  sshp->readdir_filename,
                                  readdir_len);
-      if(!result)
-        result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
-        return result;
+      अगर(!परिणाम)
+        परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, "\n", 1);
+      अगर(परिणाम)
+        वापस परिणाम;
     }
-    else {
-      result = curlx_dyn_add(&sshp->readdir, sshp->readdir_longentry);
+    अन्यथा {
+      परिणाम = curlx_dyn_add(&sshp->सूची_पढ़ो, sshp->readdir_longentry);
 
-      if(!result) {
-        if((sshp->readdir_attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) &&
+      अगर(!परिणाम) {
+        अगर((sshp->readdir_attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) &&
            ((sshp->readdir_attrs.permissions & LIBSSH2_SFTP_S_IFMT) ==
             LIBSSH2_SFTP_S_IFLNK)) {
-          result = curlx_dyn_addf(&sshp->readdir_link, "%s%s", sshp->path,
+          परिणाम = curlx_dyn_addf(&sshp->readdir_link, "%s%s", sshp->path,
                                   sshp->readdir_filename);
-          myssh_to(data, sshc, SSH_SFTP_READDIR_LINK);
+          myssh_to(तथ्य, sshc, SSH_SFTP_READDIR_LINK);
         }
-        else {
-          myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
+        अन्यथा {
+          myssh_to(तथ्य, sshc, SSH_SFTP_READDIR_BOTTOM);
         }
       }
-      return result;
+      वापस परिणाम;
     }
   }
-  else if(!rc) {
-    myssh_to(data, sshc, SSH_SFTP_READDIR_DONE);
+  अन्यथा अगर(!rc) {
+    myssh_to(तथ्य, sshc, SSH_SFTP_READDIR_DONE);
   }
-  else {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    result = sftperr ? sftp_libssh2_error_to_CURLE(sftperr) : CURLE_SSH;
-    failf(data, "Could not open remote file for reading: %s :: %d",
+  अन्यथा {
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    परिणाम = sftperr ? sftp_libssh2_error_to_CURLE(sftperr) : CURLE_SSH;
+    failf(तथ्य, "Could not open remote file for reading: %s :: %d",
           sftp_libssh2_strerror(sftperr),
           libssh2_session_last_errno(sshc->ssh_session));
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_init(struct Curl_easy *data,
-                               struct ssh_conn *sshc)
+अटल CURLcode ssh_state_init(काष्ठा Curl_easy *तथ्य,
+                               काष्ठा ssh_conn *sshc)
 {
-  CURLcode result;
+  CURLcode परिणाम;
   sshc->secondCreateDirs = 0;
   sshc->nextstate = SSH_NO_STATE;
 
@@ -1420,52 +1420,52 @@ static CURLcode ssh_state_init(struct Curl_easy *data,
      non-blocking */
   libssh2_session_set_blocking(sshc->ssh_session, 0);
 
-  result = ssh_force_knownhost_key_type(data, sshc);
-  if(result)
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-  else
-    myssh_to(data, sshc, SSH_S_STARTUP);
-  return result;
+  परिणाम = ssh_force_knownhost_कुंजी_type(तथ्य, sshc);
+  अगर(परिणाम)
+    myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_S_STARTUP);
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_startup(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+अटल CURLcode ssh_state_startup(काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  int rc = libssh2_session_handshake(sshc->ssh_session,
+  काष्ठा connectdata *conn = तथ्य->conn;
+  पूर्णांक rc = libssh2_session_handshake(sshc->ssh_session,
                                      conn->sock[FIRSTSOCKET]);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc) {
-    char *err_msg = NULL;
-    (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-    failf(data, "Failure establishing ssh session: %d, %s", rc, err_msg);
+  अगर(rc) {
+    अक्षर *err_संदेश = शून्य;
+    (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+    failf(तथ्य, "Failure establishing ssh session: %d, %s", rc, err_संदेश);
 
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-    return CURLE_FAILED_INIT;
+    myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+    वापस CURLE_FAILED_INIT;
   }
 
-  myssh_to(data, sshc, SSH_HOSTKEY);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_HOSTKEY);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_hostkey(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+अटल CURLcode ssh_state_hostkey(काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा ssh_conn *sshc)
 {
   /*
    * Before we authenticate we should check the hostkey's fingerprint
    * against our known hosts. How that is handled (reading from file,
    * whatever) is up to us.
    */
-  CURLcode result = ssh_check_fingerprint(data, sshc);
-  if(!result)
-    myssh_to(data, sshc, SSH_AUTHLIST);
-  return result;
+  CURLcode परिणाम = ssh_check_fingerprint(तथ्य, sshc);
+  अगर(!परिणाम)
+    myssh_to(तथ्य, sshc, SSH_AUTHLIST);
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_authlist(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+अटल CURLcode ssh_state_authlist(काष्ठा Curl_easy *तथ्य,
+                                   काष्ठा ssh_conn *sshc)
 {
   /*
    * Figure out authentication methods
@@ -1477,719 +1477,719 @@ static CURLcode ssh_state_authlist(struct Curl_easy *data,
    * experience.
    * Therefore always specify it here.
    */
-  struct connectdata *conn = data->conn;
-  const char *user = Curl_creds_user(conn->creds);
+  काष्ठा connectdata *conn = तथ्य->conn;
+  स्थिर अक्षर *user = Curl_creds_user(conn->creds);
   sshc->authlist = libssh2_userauth_list(sshc->ssh_session,
-                                         user, curlx_uztoui(strlen(user)));
+                                         user, curlx_uztoui(म_माप(user)));
 
-  if(!sshc->authlist) {
-    int rc;
-    if(libssh2_userauth_authenticated(sshc->ssh_session)) {
+  अगर(!sshc->authlist) {
+    पूर्णांक rc;
+    अगर(libssh2_userauth_authenticated(sshc->ssh_session)) {
       sshc->authed = TRUE;
-      infof(data, "SSH: user accepted with no authentication");
-      myssh_to(data, sshc, SSH_AUTH_DONE);
-      return CURLE_OK;
+      infof(तथ्य, "SSH: user accepted with no authentication");
+      myssh_to(तथ्य, sshc, SSH_AUTH_DONE);
+      वापस CURLE_OK;
     }
     rc = libssh2_session_last_errno(sshc->ssh_session);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
 
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-    return libssh2_session_error_to_CURLE(rc);
+    myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+    वापस libssh2_session_error_to_CURLE(rc);
   }
-  infof(data, "SSH: host offers authentication via: %s", sshc->authlist);
+  infof(तथ्य, "SSH: host offers authentication via: %s", sshc->authlist);
 
-  myssh_to(data, sshc, SSH_AUTH_PKEY_INIT);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_AUTH_PKEY_INIT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_pkey(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_pkey(काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा ssh_conn *sshc)
 {
   /* The function below checks if the files exists, no need to stat() here.
    */
-  struct connectdata *conn = data->conn;
-  const char *user = Curl_creds_user(conn->creds);
-  int rc = libssh2_userauth_publickey_fromfile_ex(
-    sshc->ssh_session, user, curlx_uztoui(strlen(user)),
-    sshc->pub_key, sshc->priv_key, sshc->passphrase ? sshc->passphrase : "");
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  काष्ठा connectdata *conn = तथ्य->conn;
+  स्थिर अक्षर *user = Curl_creds_user(conn->creds);
+  पूर्णांक rc = libssh2_userauth_publickey_fromfile_ex(
+    sshc->ssh_session, user, curlx_uztoui(म_माप(user)),
+    sshc->pub_कुंजी, sshc->priv_कुंजी, sshc->passphrase ? sshc->passphrase : "");
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc == 0) {
+  अगर(rc == 0) {
     sshc->authed = TRUE;
-    infof(data, "SSH: authenticated via publickey");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
+    infof(तथ्य, "SSH: authenticated via publickey");
+    myssh_to(तथ्य, sshc, SSH_AUTH_DONE);
   }
-  else {
-    char *err_msg = NULL;
-    char unknown[] = "Reason unknown (-1)";
-    if(rc == -1) {
+  अन्यथा {
+    अक्षर *err_संदेश = शून्य;
+    अक्षर unknown[] = "Reason unknown (-1)";
+    अगर(rc == -1) {
       /* No error message has been set and the last set error message, if
          any, is from a previous error so ignore it. #11837 */
-      err_msg = unknown;
+      err_संदेश = unknown;
     }
-    else {
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
+    अन्यथा {
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
     }
-    infof(data, "SSH: publickey authentication denied: %s", err_msg);
-    myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
+    infof(तथ्य, "SSH: publickey authentication denied: %s", err_संदेश);
+    myssh_to(तथ्य, sshc, SSH_AUTH_PASS_INIT);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_pass_init(struct Curl_easy *data,
-                                         struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_pass_init(काष्ठा Curl_easy *तथ्य,
+                                         काष्ठा ssh_conn *sshc)
 {
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD) &&
-     strstr(sshc->authlist, "password")) {
-    myssh_to(data, sshc, SSH_AUTH_PASS);
+  अगर((तथ्य->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD) &&
+     म_माला(sshc->authlist, "password")) {
+    myssh_to(तथ्य, sshc, SSH_AUTH_PASS);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_HOST_INIT);
+  अन्यथा {
+    myssh_to(तथ्य, sshc, SSH_AUTH_HOST_INIT);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_pass(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_pass(काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  const char *user = Curl_creds_user(conn->creds);
-  const char *passwd = Curl_creds_passwd(conn->creds);
-  int rc =
+  काष्ठा connectdata *conn = तथ्य->conn;
+  स्थिर अक्षर *user = Curl_creds_user(conn->creds);
+  स्थिर अक्षर *passwd = Curl_creds_passwd(conn->creds);
+  पूर्णांक rc =
     libssh2_userauth_password_ex(sshc->ssh_session, user,
-                                 curlx_uztoui(strlen(user)),
+                                 curlx_uztoui(म_माप(user)),
                                  passwd,
-                                 curlx_uztoui(strlen(passwd)),
-                                 NULL);
-  if(rc == LIBSSH2_ERROR_EAGAIN) {
-    return CURLE_AGAIN;
+                                 curlx_uztoui(म_माप(passwd)),
+                                 शून्य);
+  अगर(rc == LIBSSH2_ERROR_EAGAIN) {
+    वापस CURLE_AGAIN;
   }
-  if(rc == 0) {
+  अगर(rc == 0) {
     sshc->authed = TRUE;
-    infof(data, "SSH: initialized password authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
+    infof(तथ्य, "SSH: initialized password authentication");
+    myssh_to(तथ्य, sshc, SSH_AUTH_DONE);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_HOST_INIT);
+  अन्यथा {
+    myssh_to(तथ्य, sshc, SSH_AUTH_HOST_INIT);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_host_init(struct Curl_easy *data,
-                                         struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_host_init(काष्ठा Curl_easy *तथ्य,
+                                         काष्ठा ssh_conn *sshc)
 {
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_HOST) &&
-     strstr(sshc->authlist, "hostbased")) {
-    myssh_to(data, sshc, SSH_AUTH_HOST);
+  अगर((तथ्य->set.ssh_auth_types & CURLSSH_AUTH_HOST) &&
+     म_माला(sshc->authlist, "hostbased")) {
+    myssh_to(तथ्य, sshc, SSH_AUTH_HOST);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_AGENT_INIT);
+  अन्यथा {
+    myssh_to(तथ्य, sshc, SSH_AUTH_AGENT_INIT);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_agent_init(struct Curl_easy *data,
-                                          struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_agent_init(काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा ssh_conn *sshc)
 {
-  int rc = 0;
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_AGENT) &&
-     strstr(sshc->authlist, "publickey")) {
+  पूर्णांक rc = 0;
+  अगर((तथ्य->set.ssh_auth_types & CURLSSH_AUTH_AGENT) &&
+     म_माला(sshc->authlist, "publickey")) {
 
-    infof(data, "SSH: trying publickey authentication via agent");
+    infof(तथ्य, "SSH: trying publickey authentication via agent");
     /* Connect to the ssh-agent */
     /* The agent could be shared by a curl thread i believe
        but nothing obvious as keys can be added/removed at any time */
-    if(!sshc->ssh_agent) {
+    अगर(!sshc->ssh_agent) {
       sshc->ssh_agent = libssh2_agent_init(sshc->ssh_session);
-      if(!sshc->ssh_agent) {
-        infof(data, "SSH: could not create agent object");
+      अगर(!sshc->ssh_agent) {
+        infof(तथ्य, "SSH: could not create agent object");
 
-        myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
-        return CURLE_OK;
+        myssh_to(तथ्य, sshc, SSH_AUTH_कुंजी_INIT);
+        वापस CURLE_OK;
       }
     }
 
     rc = libssh2_agent_connect(sshc->ssh_agent);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc < 0) {
-      infof(data, "SSH: failure connecting to agent");
-      myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
+    अगर(rc < 0) {
+      infof(तथ्य, "SSH: failure connecting to agent");
+      myssh_to(तथ्य, sshc, SSH_AUTH_कुंजी_INIT);
     }
-    else {
-      myssh_to(data, sshc, SSH_AUTH_AGENT_LIST);
+    अन्यथा {
+      myssh_to(तथ्य, sshc, SSH_AUTH_AGENT_LIST);
     }
   }
-  else
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
-  return CURLE_OK;
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_AUTH_कुंजी_INIT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_agent_list(struct Curl_easy *data,
-                                          struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_agent_list(काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा ssh_conn *sshc)
 {
-  int rc = libssh2_agent_list_identities(sshc->ssh_agent);
+  पूर्णांक rc = libssh2_agent_list_identities(sshc->ssh_agent);
 
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
-  if(rc < 0) {
-    infof(data, "SSH: failure requesting identities to agent");
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
+  अगर(rc < 0) {
+    infof(तथ्य, "SSH: failure requesting identities to agent");
+    myssh_to(तथ्य, sshc, SSH_AUTH_कुंजी_INIT);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_AGENT);
-    sshc->sshagent_prev_identity = NULL;
+  अन्यथा {
+    myssh_to(तथ्य, sshc, SSH_AUTH_AGENT);
+    sshc->sshagent_पूर्व_identity = शून्य;
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_agent(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_agent(काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा ssh_conn *sshc)
 {
   /* as prev_identity evolves only after an identity user auth finished we
      can safely request it again as long as EAGAIN is returned here or by
      libssh2_agent_userauth */
-  int rc = libssh2_agent_get_identity(sshc->ssh_agent,
+  पूर्णांक rc = libssh2_agent_get_identity(sshc->ssh_agent,
                                       &sshc->sshagent_identity,
-                                      sshc->sshagent_prev_identity);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+                                      sshc->sshagent_पूर्व_identity);
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc == 0) {
-    CURL_TRC_SSH(data, "[SSH_AUTH_AGENT_LIST] auth user '%s' for key '%s'",
-                 Curl_creds_user(data->conn->creds),
+  अगर(rc == 0) {
+    CURL_TRC_SSH(तथ्य, "[SSH_AUTH_AGENT_LIST] auth user '%s' for key '%s'",
+                 Curl_creds_user(तथ्य->conn->creds),
                  sshc->sshagent_identity->comment);
     rc = libssh2_agent_userauth(sshc->ssh_agent,
-                                Curl_creds_user(data->conn->creds),
+                                Curl_creds_user(तथ्य->conn->creds),
                                 sshc->sshagent_identity);
 
-    if(rc < 0) {
-      if(rc != LIBSSH2_ERROR_EAGAIN) {
+    अगर(rc < 0) {
+      अगर(rc != LIBSSH2_ERROR_EAGAIN) {
         /* tried and failed? go to next identity */
-        sshc->sshagent_prev_identity = sshc->sshagent_identity;
-        return CURLE_OK;
+        sshc->sshagent_पूर्व_identity = sshc->sshagent_identity;
+        वापस CURLE_OK;
       }
-      return CURLE_AGAIN;
+      वापस CURLE_AGAIN;
     }
   }
 
-  if(rc < 0)
-    infof(data, "SSH: failure requesting identities to agent");
-  else if(rc == 1)
-    infof(data, "SSH: no agent identity would match");
+  अगर(rc < 0)
+    infof(तथ्य, "SSH: failure requesting identities to agent");
+  अन्यथा अगर(rc == 1)
+    infof(तथ्य, "SSH: no agent identity would match");
 
-  if(rc == LIBSSH2_ERROR_NONE) {
+  अगर(rc == LIBSSH2_ERROR_NONE) {
     sshc->authed = TRUE;
-    infof(data, "SSH: agent authenticated user '%s' with key '%s'",
-          Curl_creds_user(data->conn->creds),
+    infof(तथ्य, "SSH: agent authenticated user '%s' with key '%s'",
+          Curl_creds_user(तथ्य->conn->creds),
           sshc->sshagent_identity->comment);
-    myssh_to(data, sshc, SSH_AUTH_DONE);
+    myssh_to(तथ्य, sshc, SSH_AUTH_DONE);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+  अन्यथा {
+    myssh_to(तथ्य, sshc, SSH_AUTH_कुंजी_INIT);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_key_init(struct Curl_easy *data,
-                                        struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_कुंजी_init(काष्ठा Curl_easy *तथ्य,
+                                        काष्ठा ssh_conn *sshc)
 {
-  if((data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) &&
-     strstr(sshc->authlist, "keyboard-interactive")) {
-    myssh_to(data, sshc, SSH_AUTH_KEY);
+  अगर((तथ्य->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) &&
+     म_माला(sshc->authlist, "keyboard-interactive")) {
+    myssh_to(तथ्य, sshc, SSH_AUTH_कुंजी);
   }
-  else {
-    myssh_to(data, sshc, SSH_AUTH_DONE);
+  अन्यथा {
+    myssh_to(तथ्य, sshc, SSH_AUTH_DONE);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_auth_key(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_कुंजी(काष्ठा Curl_easy *तथ्य,
+                                   काष्ठा ssh_conn *sshc)
 {
   /* Authentication failed. Continue with keyboard-interactive now. */
-  struct connectdata *conn = data->conn;
-  const char *user = Curl_creds_user(conn->creds);
-  int rc =
+  काष्ठा connectdata *conn = तथ्य->conn;
+  स्थिर अक्षर *user = Curl_creds_user(conn->creds);
+  पूर्णांक rc =
     libssh2_userauth_keyboard_interactive_ex(sshc->ssh_session,
-                                             user, curlx_uztoui(strlen(user)),
+                                             user, curlx_uztoui(म_माप(user)),
                                              &kbd_callback);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc == 0) {
+  अगर(rc == 0) {
     sshc->authed = TRUE;
-    infof(data, "SSH: initialized keyboard interactive authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return CURLE_OK;
+    infof(तथ्य, "SSH: initialized keyboard interactive authentication");
+    myssh_to(तथ्य, sshc, SSH_AUTH_DONE);
+    वापस CURLE_OK;
   }
-  return CURLE_LOGIN_DENIED;
+  वापस CURLE_LOGIN_DENIED;
 }
 
-static CURLcode ssh_state_auth_done(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+अटल CURLcode ssh_state_auth_done(काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  if(!sshc->authed) {
-    failf(data, "Authentication failure");
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-    return CURLE_LOGIN_DENIED;
+  काष्ठा connectdata *conn = तथ्य->conn;
+  अगर(!sshc->authed) {
+    failf(तथ्य, "Authentication failure");
+    myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+    वापस CURLE_LOGIN_DENIED;
   }
 
   /*
    * At this point we have an authenticated ssh session.
    */
-  infof(data, "SSH: authentication complete");
+  infof(तथ्य, "SSH: authentication complete");
 
-  Curl_pgrsTime(data, TIMER_APPCONNECT); /* SSH is connected */
+  Curl_pgrsTime(तथ्य, TIMER_APPCONNECT); /* SSH is connected */
 
-  data->conn->recv_idx = FIRSTSOCKET;
+  तथ्य->conn->recv_idx = FIRSTSOCKET;
   conn->send_idx = -1;
 
-  if(conn->scheme->protocol == CURLPROTO_SFTP) {
-    myssh_to(data, sshc, SSH_SFTP_INIT);
-    return CURLE_OK;
+  अगर(conn->scheme->protocol == CURLPROTO_SFTP) {
+    myssh_to(तथ्य, sshc, SSH_SFTP_INIT);
+    वापस CURLE_OK;
   }
-  infof(data, "SSH: connection established");
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  infof(तथ्य, "SSH: connection established");
+  myssh_to(तथ्य, sshc, SSH_STOP);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_init(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_init(काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा ssh_conn *sshc)
 {
   /*
    * Start the libssh2 sftp session
    */
   sshc->sftp_session = libssh2_sftp_init(sshc->ssh_session);
-  if(!sshc->sftp_session) {
-    char *err_msg = NULL;
-    if(libssh2_session_last_errno(sshc->ssh_session) ==
+  अगर(!sshc->sftp_session) {
+    अक्षर *err_संदेश = शून्य;
+    अगर(libssh2_session_last_errno(sshc->ssh_session) ==
        LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+      वापस CURLE_AGAIN;
 
-    (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-    failf(data, "Failure initializing sftp session: %s", err_msg);
-    myssh_to(data, sshc, SSH_SESSION_FREE);
-    return CURLE_FAILED_INIT;
+    (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+    failf(तथ्य, "Failure initializing sftp session: %s", err_संदेश);
+    myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+    वापस CURLE_FAILED_INIT;
   }
-  myssh_to(data, sshc, SSH_SFTP_REALPATH);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_REALPATH);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_realpath(struct Curl_easy *data,
-                                        struct ssh_conn *sshc,
-                                        struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_realpath(काष्ठा Curl_easy *तथ्य,
+                                        काष्ठा ssh_conn *sshc,
+                                        काष्ठा SSHPROTO *sshp)
 {
   /*
    * Get the "home" directory
    */
-  int rc;
+  पूर्णांक rc;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
   rc = libssh2_sftp_symlink_ex(sshc->sftp_session, ".",
                                curlx_uztoui(CURL_CSTRLEN(".")),
                                sshp->readdir_filename, CURL_PATH_MAX,
                                LIBSSH2_SFTP_REALPATH);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  myssh_to(data, sshc, SSH_STOP);
-  if(rc > 0) {
+  myssh_to(तथ्य, sshc, SSH_STOP);
+  अगर(rc > 0) {
     curlx_free(sshc->homedir);
     sshc->homedir = curlx_strdup(sshp->readdir_filename);
-    if(!sshc->homedir)
-      return CURLE_OUT_OF_MEMORY;
-    curlx_free(data->state.most_recent_ftp_entrypath);
-    data->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
-    if(!data->state.most_recent_ftp_entrypath)
-      return CURLE_OUT_OF_MEMORY;
+    अगर(!sshc->homedir)
+      वापस CURLE_OUT_OF_MEMORY;
+    curlx_free(तथ्य->state.most_recent_ftp_entrypath);
+    तथ्य->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
+    अगर(!तथ्य->state.most_recent_ftp_entrypath)
+      वापस CURLE_OUT_OF_MEMORY;
   }
-  else {
+  अन्यथा {
     /* Return the error type */
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    CURLcode result;
-    if(sftperr)
-      result = sftp_libssh2_error_to_CURLE(sftperr);
-    else
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    CURLcode परिणाम;
+    अगर(sftperr)
+      परिणाम = sftp_libssh2_error_to_CURLE(sftperr);
+    अन्यथा
       /* in this case, the error was not in the SFTP level but for example a
          time-out or similar */
-      result = CURLE_SSH;
-    CURL_TRC_SSH(data, "error = %lu makes libcurl = %d", sftperr, (int)result);
-    return result;
+      परिणाम = CURLE_SSH;
+    CURL_TRC_SSH(तथ्य, "error = %lu makes libcurl = %d", sftperr, (पूर्णांक)परिणाम);
+    वापस परिणाम;
   }
 
   /* This is the last step in the SFTP connect phase. Do note that while we
      get the homedir here, we get the "workingpath" in the DO action since the
      homedir remains the same between request but the working path does not. */
-  CURL_TRC_SSH(data, "CONNECT phase done");
-  return CURLE_OK;
+  CURL_TRC_SSH(तथ्य, "CONNECT phase done");
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_init(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_quote_init(काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा ssh_conn *sshc,
+                                          काष्ठा SSHPROTO *sshp)
 {
-  CURLcode result;
+  CURLcode परिणाम;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
-  result = Curl_getworkingpath(data, sshc->homedir, &sshp->path);
-  if(result) {
-    myssh_to(data, sshc, SSH_STOP);
-    return result;
+  परिणाम = Curl_getworkingpath(तथ्य, sshc->homedir, &sshp->path);
+  अगर(परिणाम) {
+    myssh_to(तथ्य, sshc, SSH_STOP);
+    वापस परिणाम;
   }
 
-  if(data->set.quote) {
-    infof(data, "SSH: sending quote commands");
-    sshc->quote_item = data->set.quote;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  अगर(तथ्य->set.quote) {
+    infof(तथ्य, "SSH: sending quote commands");
+    sshc->quote_item = तथ्य->set.quote;
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    myssh_to(data, sshc, SSH_SFTP_GETINFO);
+  अन्यथा {
+    myssh_to(तथ्य, sshc, SSH_SFTP_GETINFO);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_postquote_init(struct Curl_easy *data,
-                                              struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_postquote_init(काष्ठा Curl_easy *तथ्य,
+                                              काष्ठा ssh_conn *sshc)
 {
-  if(data->set.postquote) {
-    infof(data, "SSH: sending quote commands");
-    sshc->quote_item = data->set.postquote;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  अगर(तथ्य->set.postquote) {
+    infof(तथ्य, "SSH: sending quote commands");
+    sshc->quote_item = तथ्य->set.postquote;
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    myssh_to(data, sshc, SSH_STOP);
+  अन्यथा {
+    myssh_to(तथ्य, sshc, SSH_STOP);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote(struct Curl_easy *data,
-                                     struct ssh_conn *sshc,
-                                     struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_quote(काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा ssh_conn *sshc,
+                                     काष्ठा SSHPROTO *sshp)
 {
   /* Send quote commands */
-  CURLcode result;
+  CURLcode परिणाम;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
-  result = sftp_quote(data, sshc, sshp);
-  if(result) {
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  परिणाम = sftp_quote(तथ्य, sshc, sshp);
+  अगर(परिणाम) {
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_sftp_next_quote(struct Curl_easy *data,
-                                          struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_अग्र_quote(काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा ssh_conn *sshc)
 {
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
 
-  sshc->quote_item = sshc->quote_item->next;
+  sshc->quote_item = sshc->quote_item->अग्र;
 
-  if(sshc->quote_item) {
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  अगर(sshc->quote_item) {
+    myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    if(sshc->nextstate != SSH_NO_STATE) {
-      myssh_to(data, sshc, sshc->nextstate);
+  अन्यथा {
+    अगर(sshc->nextstate != SSH_NO_STATE) {
+      myssh_to(तथ्य, sshc, sshc->nextstate);
       sshc->nextstate = SSH_NO_STATE;
     }
-    else {
-      myssh_to(data, sshc, SSH_SFTP_GETINFO);
+    अन्यथा {
+      myssh_to(तथ्य, sshc, SSH_SFTP_GETINFO);
     }
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_stat(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp,
+अटल CURLcode ssh_state_sftp_quote_stat(काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा ssh_conn *sshc,
+                                          काष्ठा SSHPROTO *sshp,
                                           bool *blockp)
 {
-  CURLcode result;
+  CURLcode परिणाम;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
-  result = sftp_quote_stat(data, sshc, sshp, blockp);
-  if(result) {
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  परिणाम = sftp_quote_stat(तथ्य, sshc, sshp, blockp);
+  अगर(परिणाम) {
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_sftp_quote_setstat(struct Curl_easy *data,
-                                             struct ssh_conn *sshc,
-                                             struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_quote_setstat(काष्ठा Curl_easy *तथ्य,
+                                             काष्ठा ssh_conn *sshc,
+                                             काष्ठा SSHPROTO *sshp)
 {
-  int rc;
+  पूर्णांक rc;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
   rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshc->quote_path2,
-                            curlx_uztoui(strlen(sshc->quote_path2)),
+                            curlx_uztoui(म_माप(sshc->quote_path2)),
                             LIBSSH2_SFTP_SETSTAT,
                             &sshp->quote_attrs);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "Attempt to set SFTP stats for \"%s\" failed: %s",
+  अगर(rc && !sshc->acceptfail) {
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    failf(तथ्य, "Attempt to set SFTP stats for \"%s\" failed: %s",
           sshc->quote_path2, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    वापस CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_अग्र_QUOTE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_symlink(struct Curl_easy *data,
-                                             struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_quote_symlink(काष्ठा Curl_easy *तथ्य,
+                                             काष्ठा ssh_conn *sshc)
 {
-  int rc =
+  पूर्णांक rc =
     libssh2_sftp_symlink_ex(sshc->sftp_session, sshc->quote_path1,
-                            curlx_uztoui(strlen(sshc->quote_path1)),
+                            curlx_uztoui(म_माप(sshc->quote_path1)),
                             sshc->quote_path2,
-                            curlx_uztoui(strlen(sshc->quote_path2)),
+                            curlx_uztoui(म_माप(sshc->quote_path2)),
                             LIBSSH2_SFTP_SYMLINK);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "symlink \"%s\" to \"%s\" failed: %s",
+  अगर(rc && !sshc->acceptfail) {
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    failf(तथ्य, "symlink \"%s\" to \"%s\" failed: %s",
           sshc->quote_path1, sshc->quote_path2,
           sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    वापस CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_अग्र_QUOTE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_mkdir(struct Curl_easy *data,
-                                           struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_quote_mkdir(काष्ठा Curl_easy *तथ्य,
+                                           काष्ठा ssh_conn *sshc)
 {
-  int rc = libssh2_sftp_mkdir_ex(sshc->sftp_session, sshc->quote_path1,
-                                 curlx_uztoui(strlen(sshc->quote_path1)),
-                                 (long)data->set.new_directory_perms);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  पूर्णांक rc = libssh2_sftp_mkdir_ex(sshc->sftp_session, sshc->quote_path1,
+                                 curlx_uztoui(म_माप(sshc->quote_path1)),
+                                 (दीर्घ)तथ्य->set.new_directory_perms);
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "mkdir \"%s\" failed: %s",
+  अगर(rc && !sshc->acceptfail) {
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    failf(तथ्य, "mkdir \"%s\" failed: %s",
           sshc->quote_path1, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    वापस CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_अग्र_QUOTE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_rename(struct Curl_easy *data,
-                                            struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_quote_rename(काष्ठा Curl_easy *तथ्य,
+                                            काष्ठा ssh_conn *sshc)
 {
-  int rc =
+  पूर्णांक rc =
     libssh2_sftp_rename_ex(sshc->sftp_session, sshc->quote_path1,
-                           curlx_uztoui(strlen(sshc->quote_path1)),
+                           curlx_uztoui(म_माप(sshc->quote_path1)),
                            sshc->quote_path2,
-                           curlx_uztoui(strlen(sshc->quote_path2)),
+                           curlx_uztoui(म_माप(sshc->quote_path2)),
                            LIBSSH2_SFTP_RENAME_OVERWRITE |
                            LIBSSH2_SFTP_RENAME_ATOMIC |
                            LIBSSH2_SFTP_RENAME_NATIVE);
 
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "rename \"%s\" to \"%s\" failed: %s",
+  अगर(rc && !sshc->acceptfail) {
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    failf(तथ्य, "rename \"%s\" to \"%s\" failed: %s",
           sshc->quote_path1, sshc->quote_path2,
           sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    वापस CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_अग्र_QUOTE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_rmdir(struct Curl_easy *data,
-                                           struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_quote_rmdir(काष्ठा Curl_easy *तथ्य,
+                                           काष्ठा ssh_conn *sshc)
 {
-  int rc = libssh2_sftp_rmdir_ex(sshc->sftp_session, sshc->quote_path1,
-                                 curlx_uztoui(strlen(sshc->quote_path1)));
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  पूर्णांक rc = libssh2_sftp_rmdir_ex(sshc->sftp_session, sshc->quote_path1,
+                                 curlx_uztoui(म_माप(sshc->quote_path1)));
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "rmdir \"%s\" failed: %s",
+  अगर(rc && !sshc->acceptfail) {
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    failf(तथ्य, "rmdir \"%s\" failed: %s",
           sshc->quote_path1, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    वापस CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_अग्र_QUOTE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_unlink(struct Curl_easy *data,
-                                            struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_quote_unlink(काष्ठा Curl_easy *तथ्य,
+                                            काष्ठा ssh_conn *sshc)
 {
-  int rc = libssh2_sftp_unlink_ex(sshc->sftp_session, sshc->quote_path1,
-                                  curlx_uztoui(strlen(sshc->quote_path1)));
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  पूर्णांक rc = libssh2_sftp_unlink_ex(sshc->sftp_session, sshc->quote_path1,
+                                  curlx_uztoui(म_माप(sshc->quote_path1)));
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "rm \"%s\" failed: %s",
+  अगर(rc && !sshc->acceptfail) {
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    failf(तथ्य, "rm \"%s\" failed: %s",
           sshc->quote_path1, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    वापस CURLE_QUOTE_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_अग्र_QUOTE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_quote_statvfs(struct Curl_easy *data,
-                                             struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_quote_statvfs(काष्ठा Curl_easy *तथ्य,
+                                             काष्ठा ssh_conn *sshc)
 {
   LIBSSH2_SFTP_STATVFS statvfs;
-  int rc = libssh2_sftp_statvfs(sshc->sftp_session, sshc->quote_path1,
-                                curlx_uztoui(strlen(sshc->quote_path1)),
+  पूर्णांक rc = libssh2_sftp_statvfs(sshc->sftp_session, sshc->quote_path1,
+                                curlx_uztoui(म_माप(sshc->quote_path1)),
                                 &statvfs);
 
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc && !sshc->acceptfail) {
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "statvfs \"%s\" failed: %s",
+  अगर(rc && !sshc->acceptfail) {
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    failf(तथ्य, "statvfs \"%s\" failed: %s",
           sshc->quote_path1, sftp_libssh2_strerror(sftperr));
     curlx_safefree(sshc->quote_path1);
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    return CURLE_QUOTE_ERROR;
+    वापस CURLE_QUOTE_ERROR;
   }
-  else if(rc == 0) {
-#ifdef _MSC_VER
-#define CURL_LIBSSH2_VFS_SIZE_MASK "I64u"
-#else
-#define CURL_LIBSSH2_VFS_SIZE_MASK "llu"
-#endif
-    CURLcode result;
-    char *tmp = curl_maprintf("statvfs:\n"
-                              "f_bsize: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_frsize: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_blocks: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_bfree: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_bavail: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_files: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_ffree: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_favail: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_fsid: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_flag: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n"
-                              "f_namemax: %" CURL_LIBSSH2_VFS_SIZE_MASK "\n",
+  अन्यथा अगर(rc == 0) {
+#अगर_घोषित _MSC_VER
+#घोषणा CURL_LIBSSH2_VFS_आकार_MASK "I64u"
+#अन्यथा
+#घोषणा CURL_LIBSSH2_VFS_आकार_MASK "llu"
+#पूर्ण_अगर
+    CURLcode परिणाम;
+    अक्षर *tmp = curl_maprintf("statvfs:\n"
+                              "f_bsize: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_frsize: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_blocks: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_bfree: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_bavail: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_files: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_ffree: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_favail: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_fsid: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_flag: %" CURL_LIBSSH2_VFS_आकार_MASK "\n"
+                              "f_namemax: %" CURL_LIBSSH2_VFS_आकार_MASK "\n",
                               statvfs.f_bsize, statvfs.f_frsize,
                               statvfs.f_blocks, statvfs.f_bfree,
                               statvfs.f_bavail, statvfs.f_files,
                               statvfs.f_ffree, statvfs.f_favail,
                               statvfs.f_fsid, statvfs.f_flag,
                               statvfs.f_namemax);
-    if(!tmp) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    अगर(!tmp) {
+      myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      return CURLE_OUT_OF_MEMORY;
+      वापस CURLE_OUT_OF_MEMORY;
     }
 
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
+    परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_HEADER, tmp, म_माप(tmp));
     curlx_free(tmp);
-    if(result) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    अगर(परिणाम) {
+      myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      return result;
+      वापस परिणाम;
     }
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_अग्र_QUOTE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_create_dirs_mkdir(struct Curl_easy *data,
-                                                 struct ssh_conn *sshc,
-                                                 struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_create_dirs_mkdir(काष्ठा Curl_easy *तथ्य,
+                                                 काष्ठा ssh_conn *sshc,
+                                                 काष्ठा SSHPROTO *sshp)
 {
   /* 'mode' - parameter is preliminary - default to 0644 */
-  int rc;
+  पूर्णांक rc;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
   rc = libssh2_sftp_mkdir_ex(sshc->sftp_session, sshp->path,
-                             curlx_uztoui(strlen(sshp->path)),
-                             (long)data->set.new_directory_perms);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+                             curlx_uztoui(म_माप(sshp->path)),
+                             (दीर्घ)तथ्य->set.new_directory_perms);
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
   *sshc->slash_pos = '/';
   ++sshc->slash_pos;
-  if(rc < 0) {
+  अगर(rc < 0) {
     /*
      * Abort if failure was not that the directory already exists or
      * the permission was denied (creation might succeed further down
      * the path) - retry on unspecific FAILURE also
      */
-    unsigned long sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    if((sftperr != LIBSSH2_FX_FILE_ALREADY_EXISTS) &&
+    अचिन्हित दीर्घ sftperr = libssh2_sftp_last_error(sshc->sftp_session);
+    अगर((sftperr != LIBSSH2_FX_FILE_ALREADY_EXISTS) &&
        (sftperr != LIBSSH2_FX_FAILURE) &&
        (sftperr != LIBSSH2_FX_PERMISSION_DENIED)) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
-      return sftp_libssh2_error_to_CURLE(sftperr);
+      myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
+      वापस sftp_libssh2_error_to_CURLE(sftperr);
     }
   }
-  myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_CREATE_DIRS);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_readdir_init(struct Curl_easy *data,
-                                            struct ssh_conn *sshc,
-                                            struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_readdir_init(काष्ठा Curl_easy *तथ्य,
+                                            काष्ठा ssh_conn *sshc,
+                                            काष्ठा SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
-  Curl_pgrsSetDownloadSize(data, -1);
-  if(data->req.no_body) {
-    myssh_to(data, sshc, SSH_STOP);
-    return CURLE_OK;
+  Curl_pgrs_Set_Download_आकार(तथ्य, -1);
+  अगर(तथ्य->req.no_body) {
+    myssh_to(तथ्य, sshc, SSH_STOP);
+    वापस CURLE_OK;
   }
 
   /*
@@ -2198,64 +2198,64 @@ static CURLcode ssh_state_sftp_readdir_init(struct Curl_easy *data,
    */
   sshc->sftp_handle =
     libssh2_sftp_open_ex(sshc->sftp_session, sshp->path,
-                         curlx_uztoui(strlen(sshp->path)),
+                         curlx_uztoui(म_माप(sshp->path)),
                          0, 0, LIBSSH2_SFTP_OPENDIR);
-  if(!sshc->sftp_handle) {
-    unsigned long sftperr;
-    if(libssh2_session_last_errno(sshc->ssh_session) == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+  अगर(!sshc->sftp_handle) {
+    अचिन्हित दीर्घ sftperr;
+    अगर(libssh2_session_last_errno(sshc->ssh_session) == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
 
     sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "Could not open directory for reading: %s",
+    failf(तथ्य, "Could not open directory for reading: %s",
           sftp_libssh2_strerror(sftperr));
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-    return sftp_libssh2_error_to_CURLE(sftperr);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
+    वापस sftp_libssh2_error_to_CURLE(sftperr);
   }
-  myssh_to(data, sshc, SSH_SFTP_READDIR);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_READDIR);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_readdir_link(struct Curl_easy *data,
-                                            struct ssh_conn *sshc,
-                                            struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_readdir_link(काष्ठा Curl_easy *तथ्य,
+                                            काष्ठा ssh_conn *sshc,
+                                            काष्ठा SSHPROTO *sshp)
 {
-  CURLcode result;
-  int rc;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  CURLcode परिणाम;
+  पूर्णांक rc;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
   rc = libssh2_sftp_symlink_ex(sshc->sftp_session,
                                curlx_dyn_ptr(&sshp->readdir_link),
-                               (unsigned int)
+                               (अचिन्हित पूर्णांक)
                                curlx_dyn_len(&sshp->readdir_link),
                                sshp->readdir_filename,
                                CURL_PATH_MAX, LIBSSH2_SFTP_READLINK);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
   curlx_dyn_free(&sshp->readdir_link);
 
-  if(rc < 0)
-    return CURLE_OUT_OF_MEMORY;
+  अगर(rc < 0)
+    वापस CURLE_OUT_OF_MEMORY;
 
   /* append filename and extra output */
-  result = curlx_dyn_addf(&sshp->readdir, " -> %s", sshp->readdir_filename);
-  if(result)
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-  else
-    myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
-  return result;
+  परिणाम = curlx_dyn_addf(&sshp->सूची_पढ़ो, " -> %s", sshp->readdir_filename);
+  अगर(परिणाम)
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_SFTP_READDIR_BOTTOM);
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_scp_download_init(struct Curl_easy *data,
-                                            struct ssh_conn *sshc,
-                                            struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_scp_download_init(काष्ठा Curl_easy *तथ्य,
+                                            काष्ठा ssh_conn *sshc,
+                                            काष्ठा SSHPROTO *sshp)
 {
   curl_off_t bytecount;
   libssh2_struct_stat sb;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
   /*
    * We must check the remote file; if it is a directory no values are
    * be set in sb
@@ -2266,144 +2266,144 @@ static CURLcode ssh_state_scp_download_init(struct Curl_easy *data,
    */
 
   /* get a fresh new channel from the ssh layer */
-  memset(&sb, 0, sizeof(libssh2_struct_stat));
+  स_रखो(&sb, 0, माप(libssh2_struct_stat));
   sshc->ssh_channel = libssh2_scp_recv2(sshc->ssh_session, sshp->path, &sb);
-  if(!sshc->ssh_channel) {
-    int ssh_err;
-    char *err_msg = NULL;
+  अगर(!sshc->ssh_channel) {
+    पूर्णांक ssh_err;
+    अक्षर *err_संदेश = शून्य;
 
-    if(libssh2_session_last_errno(sshc->ssh_session) ==
+    अगर(libssh2_session_last_errno(sshc->ssh_session) ==
        LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+      वापस CURLE_AGAIN;
 
-    ssh_err = libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-    failf(data, "%s", err_msg);
-    myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-    return libssh2_session_error_to_CURLE(ssh_err);
+    ssh_err = libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+    failf(तथ्य, "%s", err_संदेश);
+    myssh_to(तथ्य, sshc, SSH_SCP_CHANNEL_FREE);
+    वापस libssh2_session_error_to_CURLE(ssh_err);
   }
 
   /* download data */
-  bytecount = (curl_off_t)sb.st_size;
-  data->req.maxdownload = (curl_off_t)sb.st_size;
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, bytecount);
+  bytecount = (curl_off_t)sb.st_आकार;
+  तथ्य->req.maxdownload = (curl_off_t)sb.st_आकार;
+  Curl_xfer_setup_recv(तथ्य, FIRSTSOCKET, bytecount);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->send_idx = 0;
+  तथ्य->conn->send_idx = 0;
 
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_STOP);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_close(struct Curl_easy *data,
-                                     struct ssh_conn *sshc,
-                                     struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_close(काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा ssh_conn *sshc,
+                                     काष्ठा SSHPROTO *sshp)
 {
-  int rc = 0;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  if(sshc->sftp_handle) {
+  पूर्णांक rc = 0;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
+  अगर(sshc->sftp_handle) {
     rc = libssh2_sftp_close(sshc->sftp_handle);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
 
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to close libssh2 file: %d %s", rc, err_msg);
+    अगर(rc < 0) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to close libssh2 file: %d %s", rc, err_संदेश);
     }
-    sshc->sftp_handle = NULL;
+    sshc->sftp_handle = शून्य;
   }
 
   curlx_safefree(sshp->path);
 
-  CURL_TRC_SSH(data, "SFTP DONE done");
+  CURL_TRC_SSH(तथ्य, "SFTP DONE done");
 
   /* Check if nextstate is set and move .nextstate could be POSTQUOTE_INIT
      After nextstate is executed, the control should come back to
      SSH_SFTP_CLOSE to pass the correct result back */
-  if(sshc->nextstate != SSH_NO_STATE &&
+  अगर(sshc->nextstate != SSH_NO_STATE &&
      sshc->nextstate != SSH_SFTP_CLOSE) {
-    myssh_to(data, sshc, sshc->nextstate);
+    myssh_to(तथ्य, sshc, sshc->nextstate);
     sshc->nextstate = SSH_SFTP_CLOSE;
   }
-  else
-    myssh_to(data, sshc, SSH_STOP);
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_STOP);
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_shutdown(struct Curl_easy *data,
-                                        struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_shutdown(काष्ठा Curl_easy *तथ्य,
+                                        काष्ठा ssh_conn *sshc)
 {
   /* during times we get here due to a broken transfer and then the
      sftp_handle might not have been taken down so make sure that is done
      before we proceed */
-  int rc = 0;
-  if(sshc->sftp_handle) {
+  पूर्णांक rc = 0;
+  अगर(sshc->sftp_handle) {
     rc = libssh2_sftp_close(sshc->sftp_handle);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
 
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to close libssh2 file: %d %s", rc, err_msg);
+    अगर(rc < 0) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to close libssh2 file: %d %s", rc, err_संदेश);
     }
-    sshc->sftp_handle = NULL;
+    sshc->sftp_handle = शून्य;
   }
-  if(sshc->sftp_session) {
+  अगर(sshc->sftp_session) {
     rc = libssh2_sftp_shutdown(sshc->sftp_session);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
 
-    if(rc < 0) {
-      infof(data, "Failed to stop libssh2 sftp subsystem");
+    अगर(rc < 0) {
+      infof(तथ्य, "Failed to stop libssh2 sftp subsystem");
     }
-    sshc->sftp_session = NULL;
+    sshc->sftp_session = शून्य;
   }
 
   curlx_safefree(sshc->homedir);
 
-  myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SESSION_DISCONNECT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_download_init(struct Curl_easy *data,
-                                             struct ssh_conn *sshc,
-                                             struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_download_init(काष्ठा Curl_easy *तथ्य,
+                                             काष्ठा ssh_conn *sshc,
+                                             काष्ठा SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
   /*
    * Work on getting the specified file
    */
   sshc->sftp_handle =
     libssh2_sftp_open_ex(sshc->sftp_session, sshp->path,
-                         curlx_uztoui(strlen(sshp->path)),
-                         LIBSSH2_FXF_READ, (long)data->set.new_file_perms,
+                         curlx_uztoui(म_माप(sshp->path)),
+                         LIBSSH2_FXF_READ, (दीर्घ)तथ्य->set.new_file_perms,
                          LIBSSH2_SFTP_OPENFILE);
-  if(!sshc->sftp_handle) {
-    unsigned long sftperr;
-    if(libssh2_session_last_errno(sshc->ssh_session) ==
+  अगर(!sshc->sftp_handle) {
+    अचिन्हित दीर्घ sftperr;
+    अगर(libssh2_session_last_errno(sshc->ssh_session) ==
        LIBSSH2_ERROR_EAGAIN) {
-      return CURLE_AGAIN;
+      वापस CURLE_AGAIN;
     }
     sftperr = libssh2_sftp_last_error(sshc->sftp_session);
-    failf(data, "Could not open remote file for reading: %s",
+    failf(तथ्य, "Could not open remote file for reading: %s",
           sftp_libssh2_strerror(sftperr));
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-    return sftp_libssh2_error_to_CURLE(sftperr);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
+    वापस sftp_libssh2_error_to_CURLE(sftperr);
   }
-  myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_STAT);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_DOWNLOAD_STAT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_upload_init(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_scp_upload_init(काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा ssh_conn *sshc,
+                                          काष्ठा SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
   /*
    * libssh2 requires that the destination path is a full path that
    * includes the destination file and name OR ends in a "/" . If this is
@@ -2412,159 +2412,159 @@ static CURLcode ssh_state_scp_upload_init(struct Curl_easy *data,
    */
   sshc->ssh_channel =
     libssh2_scp_send64(sshc->ssh_session, sshp->path,
-                       (int)data->set.new_file_perms,
-                       (libssh2_int64_t)data->state.infilesize, 0, 0);
-  if(!sshc->ssh_channel) {
-    int ssh_err;
-    char *err_msg = NULL;
-    CURLcode result;
-    if(libssh2_session_last_errno(sshc->ssh_session) ==
+                       (पूर्णांक)तथ्य->set.new_file_perms,
+                       (libssh2_int64_t)तथ्य->state.infilesize, 0, 0);
+  अगर(!sshc->ssh_channel) {
+    पूर्णांक ssh_err;
+    अक्षर *err_संदेश = शून्य;
+    CURLcode परिणाम;
+    अगर(libssh2_session_last_errno(sshc->ssh_session) ==
        LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+      वापस CURLE_AGAIN;
 
-    ssh_err = libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-    failf(data, "%s", err_msg);
-    myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-    result = libssh2_session_error_to_CURLE(ssh_err);
+    ssh_err = libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+    failf(तथ्य, "%s", err_संदेश);
+    myssh_to(तथ्य, sshc, SSH_SCP_CHANNEL_FREE);
+    परिणाम = libssh2_session_error_to_CURLE(ssh_err);
 
     /* Map generic errors to upload failed */
-    if(result == CURLE_SSH ||
-       result == CURLE_REMOTE_FILE_NOT_FOUND)
-      result = CURLE_UPLOAD_FAILED;
-    return result;
+    अगर(परिणाम == CURLE_SSH ||
+       परिणाम == CURLE_REMOTE_FILE_NOT_FOUND)
+      परिणाम = CURLE_UPLOAD_FAILED;
+    वापस परिणाम;
   }
 
   /* upload data */
-  data->req.size = data->state.infilesize;
-  Curl_pgrsSetUploadSize(data, data->state.infilesize);
-  Curl_xfer_setup_send(data, FIRSTSOCKET);
+  तथ्य->req.आकार = तथ्य->state.infilesize;
+  Curl_pgrs_Set_Upload_आकार(तथ्य, तथ्य->state.infilesize);
+  Curl_xfer_setup_send(तथ्य, FIRSTSOCKET);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->recv_idx = FIRSTSOCKET;
+  तथ्य->conn->recv_idx = FIRSTSOCKET;
 
-  myssh_to(data, sshc, SSH_STOP);
+  myssh_to(तथ्य, sshc, SSH_STOP);
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_session_disconnect(struct Curl_easy *data,
-                                             struct ssh_conn *sshc)
+अटल CURLcode ssh_state_session_disconnect(काष्ठा Curl_easy *तथ्य,
+                                             काष्ठा ssh_conn *sshc)
 {
   /* during weird times when we have been prematurely aborted, the channel
      is still alive when we reach this state and we MUST kill the channel
      properly first */
-  int rc = 0;
-  if(sshc->ssh_channel) {
+  पूर्णांक rc = 0;
+  अगर(sshc->ssh_channel) {
     rc = libssh2_channel_free(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
 
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to free libssh2 scp subsystem: %d %s", rc, err_msg);
+    अगर(rc < 0) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to free libssh2 scp subsystem: %d %s", rc, err_संदेश);
     }
-    sshc->ssh_channel = NULL;
+    sshc->ssh_channel = शून्य;
   }
 
-  if(sshc->ssh_session) {
+  अगर(sshc->ssh_session) {
     rc = libssh2_session_disconnect(sshc->ssh_session, "Shutdown");
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
 
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to disconnect libssh2 session: %d %s", rc, err_msg);
+    अगर(rc < 0) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to disconnect libssh2 session: %d %s", rc, err_संदेश);
     }
   }
 
   curlx_safefree(sshc->homedir);
 
-  myssh_to(data, sshc, SSH_SESSION_FREE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SESSION_FREE);
+  वापस CURLE_OK;
 }
 
-static CURLcode sshc_cleanup(struct ssh_conn *sshc, struct Curl_easy *data,
+अटल CURLcode sshc_cleanup(काष्ठा ssh_conn *sshc, काष्ठा Curl_easy *तथ्य,
                              bool block)
 {
-  int rc;
+  पूर्णांक rc;
 
-  if(sshc->kh) {
+  अगर(sshc->kh) {
     libssh2_knownhost_free(sshc->kh);
-    sshc->kh = NULL;
+    sshc->kh = शून्य;
   }
 
-  if(sshc->ssh_agent) {
+  अगर(sshc->ssh_agent) {
     rc = libssh2_agent_disconnect(sshc->ssh_agent);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to disconnect from libssh2 agent: %d %s",
-            rc, err_msg);
+    अगर((rc < 0) && तथ्य) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to disconnect from libssh2 agent: %d %s",
+            rc, err_संदेश);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    अगर(!block && (rc == LIBSSH2_ERROR_EAGAIN))
+      वापस CURLE_AGAIN;
 
     libssh2_agent_free(sshc->ssh_agent);
-    sshc->ssh_agent = NULL;
+    sshc->ssh_agent = शून्य;
 
     /* NB: there is no need to free identities, they are part of internal
        agent stuff */
-    sshc->sshagent_identity = NULL;
-    sshc->sshagent_prev_identity = NULL;
+    sshc->sshagent_identity = शून्य;
+    sshc->sshagent_पूर्व_identity = शून्य;
   }
 
-  if(sshc->sftp_handle) {
+  अगर(sshc->sftp_handle) {
     rc = libssh2_sftp_close(sshc->sftp_handle);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to close libssh2 file: %d %s", rc, err_msg);
+    अगर((rc < 0) && तथ्य) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to close libssh2 file: %d %s", rc, err_संदेश);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    अगर(!block && (rc == LIBSSH2_ERROR_EAGAIN))
+      वापस CURLE_AGAIN;
 
-    sshc->sftp_handle = NULL;
+    sshc->sftp_handle = शून्य;
   }
 
-  if(sshc->ssh_channel) {
+  अगर(sshc->ssh_channel) {
     rc = libssh2_channel_free(sshc->ssh_channel);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to free libssh2 scp subsystem: %d %s", rc, err_msg);
+    अगर((rc < 0) && तथ्य) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to free libssh2 scp subsystem: %d %s", rc, err_संदेश);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    अगर(!block && (rc == LIBSSH2_ERROR_EAGAIN))
+      वापस CURLE_AGAIN;
 
-    sshc->ssh_channel = NULL;
+    sshc->ssh_channel = शून्य;
   }
 
-  if(sshc->sftp_session) {
+  अगर(sshc->sftp_session) {
     rc = libssh2_sftp_shutdown(sshc->sftp_session);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to stop libssh2 sftp subsystem: %d %s", rc, err_msg);
+    अगर((rc < 0) && तथ्य) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to stop libssh2 sftp subsystem: %d %s", rc, err_संदेश);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    अगर(!block && (rc == LIBSSH2_ERROR_EAGAIN))
+      वापस CURLE_AGAIN;
 
-    sshc->sftp_session = NULL;
+    sshc->sftp_session = शून्य;
   }
 
-  if(sshc->ssh_session) {
+  अगर(sshc->ssh_session) {
     rc = libssh2_session_free(sshc->ssh_session);
-    if((rc < 0) && data) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session, &err_msg, NULL, 0);
-      infof(data, "Failed to free libssh2 session: %d %s", rc, err_msg);
+    अगर((rc < 0) && तथ्य) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session, &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to free libssh2 session: %d %s", rc, err_संदेश);
     }
-    if(!block && (rc == LIBSSH2_ERROR_EAGAIN))
-      return CURLE_AGAIN;
+    अगर(!block && (rc == LIBSSH2_ERROR_EAGAIN))
+      वापस CURLE_AGAIN;
 
-    sshc->ssh_session = NULL;
+    sshc->ssh_session = शून्य;
   }
 
   /* worst-case scenario cleanup */
@@ -2576,309 +2576,309 @@ static CURLcode sshc_cleanup(struct ssh_conn *sshc, struct Curl_easy *data,
   DEBUGASSERT(!sshc->ssh_agent);
 
   curlx_safefree(sshc->passphrase);
-  curlx_safefree(sshc->pub_key);
-  curlx_safefree(sshc->priv_key);
+  curlx_safefree(sshc->pub_कुंजी);
+  curlx_safefree(sshc->priv_कुंजी);
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
   curlx_safefree(sshc->homedir);
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_getinfo(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_getinfo(काष्ठा Curl_easy *तथ्य,
+                                       काष्ठा ssh_conn *sshc)
 {
-  if(data->set.get_filetime)
-    myssh_to(data, sshc, SSH_SFTP_FILETIME);
-  else
-    myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return CURLE_OK;
+  अगर(तथ्य->set.get_filetime)
+    myssh_to(तथ्य, sshc, SSH_SFTP_FILETIME);
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_SFTP_TRANS_INIT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_filetime(struct Curl_easy *data,
-                                        struct ssh_conn *sshc,
-                                        struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_filetime(काष्ठा Curl_easy *तथ्य,
+                                        काष्ठा ssh_conn *sshc,
+                                        काष्ठा SSHPROTO *sshp)
 {
   LIBSSH2_SFTP_ATTRIBUTES attrs;
-  int rc;
+  पूर्णांक rc;
 
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
   rc = libssh2_sftp_stat_ex(sshc->sftp_session, sshp->path,
-                            curlx_uztoui(strlen(sshp->path)),
+                            curlx_uztoui(म_माप(sshp->path)),
                             LIBSSH2_SFTP_STAT, &attrs);
-  if(rc == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+  अगर(rc == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
 
-  if(rc == 0)
-    data->info.filetime = (time_t)attrs.mtime;
+  अगर(rc == 0)
+    तथ्य->info.filetime = (समय_प्रकार)attrs.mtime;
 
-  myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_TRANS_INIT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_trans_init(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_trans_init(काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा ssh_conn *sshc,
+                                          काष्ठा SSHPROTO *sshp)
 {
-  if(data->state.upload)
-    myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  else if(sshp) {
-    size_t plen = strlen(sshp->path);
-    if(plen && (sshp->path[plen - 1] == '/'))
-      myssh_to(data, sshc, SSH_SFTP_READDIR_INIT);
-    else
-      myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_INIT);
+  अगर(तथ्य->state.upload)
+    myssh_to(तथ्य, sshc, SSH_SFTP_UPLOAD_INIT);
+  अन्यथा अगर(sshp) {
+    माप_प्रकार plen = म_माप(sshp->path);
+    अगर(plen && (sshp->path[plen - 1] == '/'))
+      myssh_to(तथ्य, sshc, SSH_SFTP_READDIR_INIT);
+    अन्यथा
+      myssh_to(तथ्य, sshc, SSH_SFTP_DOWNLOAD_INIT);
   }
-  else
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  अन्यथा
+    वापस CURLE_FAILED_INIT;
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_upload_init(struct Curl_easy *data,
-                                           struct ssh_conn *sshc,
-                                           struct SSHPROTO *sshp,
+अटल CURLcode ssh_state_sftp_upload_init(काष्ठा Curl_easy *तथ्य,
+                                           काष्ठा ssh_conn *sshc,
+                                           काष्ठा SSHPROTO *sshp,
                                            bool *block)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  result = sftp_upload_init(data, sshc, sshp, block);
-  if(result) {
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  CURLcode परिणाम;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
+  परिणाम = sftp_upload_init(तथ्य, sshc, sshp, block);
+  अगर(परिणाम) {
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_sftp_create_dirs_init(struct Curl_easy *data,
-                                                struct ssh_conn *sshc,
-                                                struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_create_dirs_init(काष्ठा Curl_easy *तथ्य,
+                                                काष्ठा ssh_conn *sshc,
+                                                काष्ठा SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  if(strlen(sshp->path) > 1) {
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
+  अगर(म_माप(sshp->path) > 1) {
     sshc->slash_pos = sshp->path + 1; /* ignore the leading '/' */
-    myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CREATE_DIRS);
   }
-  else
-    myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  return CURLE_OK;
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_SFTP_UPLOAD_INIT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_create_dirs(struct Curl_easy *data,
-                                           struct ssh_conn *sshc,
-                                           struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_create_dirs(काष्ठा Curl_easy *तथ्य,
+                                           काष्ठा ssh_conn *sshc,
+                                           काष्ठा SSHPROTO *sshp)
 {
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  sshc->slash_pos = strchr(sshc->slash_pos, '/');
-  if(sshc->slash_pos) {
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
+  sshc->slash_pos = म_अक्षर(sshc->slash_pos, '/');
+  अगर(sshc->slash_pos) {
     *sshc->slash_pos = 0;
-    infof(data, "SFTP: creating directory '%s'", sshp->path);
-    myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
-    return CURLE_OK;
+    infof(तथ्य, "SFTP: creating directory '%s'", sshp->path);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
+    वापस CURLE_OK;
   }
-  myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SFTP_UPLOAD_INIT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_readdir(struct Curl_easy *data,
-                                       struct ssh_conn *sshc,
-                                       struct SSHPROTO *sshp,
+अटल CURLcode ssh_state_sftp_readdir(काष्ठा Curl_easy *तथ्य,
+                                       काष्ठा ssh_conn *sshc,
+                                       काष्ठा SSHPROTO *sshp,
                                        bool *block)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  result = sftp_readdir(data, sshc, sshp, block);
-  if(result)
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
-  return result;
+  CURLcode परिणाम;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
+  परिणाम = sftp_readdir(तथ्य, sshc, sshp, block);
+  अगर(परिणाम)
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_sftp_readdir_bottom(struct Curl_easy *data,
-                                              struct ssh_conn *sshc,
-                                              struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_sftp_readdir_bottom(काष्ठा Curl_easy *तथ्य,
+                                              काष्ठा ssh_conn *sshc,
+                                              काष्ठा SSHPROTO *sshp)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
+  CURLcode परिणाम;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
 
-  result = curlx_dyn_addn(&sshp->readdir, "\n", 1);
-  if(!result)
-    result = Curl_client_write(data, CLIENTWRITE_BODY,
-                               curlx_dyn_ptr(&sshp->readdir),
-                               curlx_dyn_len(&sshp->readdir));
-  if(result) {
-    curlx_dyn_free(&sshp->readdir);
-    myssh_to(data, sshc, SSH_STOP);
+  परिणाम = curlx_dyn_addn(&sshp->सूची_पढ़ो, "\n", 1);
+  अगर(!परिणाम)
+    परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY,
+                               curlx_dyn_ptr(&sshp->सूची_पढ़ो),
+                               curlx_dyn_len(&sshp->सूची_पढ़ो));
+  अगर(परिणाम) {
+    curlx_dyn_free(&sshp->सूची_पढ़ो);
+    myssh_to(तथ्य, sshc, SSH_STOP);
   }
-  else {
-    curlx_dyn_reset(&sshp->readdir);
-    myssh_to(data, sshc, SSH_SFTP_READDIR);
+  अन्यथा {
+    curlx_dyn_reset(&sshp->सूची_पढ़ो);
+    myssh_to(तथ्य, sshc, SSH_SFTP_READDIR);
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_sftp_readdir_done(struct Curl_easy *data,
-                                            struct ssh_conn *sshc)
+अटल CURLcode ssh_state_sftp_readdir_done(काष्ठा Curl_easy *तथ्य,
+                                            काष्ठा ssh_conn *sshc)
 {
-  if(libssh2_sftp_closedir(sshc->sftp_handle) ==
+  अगर(libssh2_sftp_closedir(sshc->sftp_handle) ==
      LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
+    वापस CURLE_AGAIN;
 
-  sshc->sftp_handle = NULL;
+  sshc->sftp_handle = शून्य;
 
   /* no data to transfer */
-  Curl_xfer_setup_nop(data);
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  Curl_xfer_setup_nop(तथ्य);
+  myssh_to(तथ्य, sshc, SSH_STOP);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_sftp_download_stat(struct Curl_easy *data,
-                                             struct ssh_conn *sshc,
-                                             struct SSHPROTO *sshp,
+अटल CURLcode ssh_state_sftp_download_stat(काष्ठा Curl_easy *तथ्य,
+                                             काष्ठा ssh_conn *sshc,
+                                             काष्ठा SSHPROTO *sshp,
                                              bool *block)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  result = sftp_download_stat(data, sshc, sshp, block);
-  if(result) {
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  CURLcode परिणाम;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
+  परिणाम = sftp_download_stat(तथ्य, sshc, sshp, block);
+  अगर(परिणाम) {
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ssh_state_scp_trans_init(struct Curl_easy *data,
-                                         struct ssh_conn *sshc,
-                                         struct SSHPROTO *sshp)
+अटल CURLcode ssh_state_scp_trans_init(काष्ठा Curl_easy *तथ्य,
+                                         काष्ठा ssh_conn *sshc,
+                                         काष्ठा SSHPROTO *sshp)
 {
-  CURLcode result;
-  if(!sshp)
-    return CURLE_FAILED_INIT;
-  result = Curl_getworkingpath(data, sshc->homedir,
+  CURLcode परिणाम;
+  अगर(!sshp)
+    वापस CURLE_FAILED_INIT;
+  परिणाम = Curl_getworkingpath(तथ्य, sshc->homedir,
                                &sshp->path);
-  if(result) {
-    myssh_to(data, sshc, SSH_STOP);
-    return result;
+  अगर(परिणाम) {
+    myssh_to(तथ्य, sshc, SSH_STOP);
+    वापस परिणाम;
   }
 
-  if(data->state.upload) {
-    if(data->state.infilesize < 0) {
-      failf(data, "SCP requires a known file size for upload");
-      myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-      return CURLE_UPLOAD_FAILED;
+  अगर(तथ्य->state.upload) {
+    अगर(तथ्य->state.infilesize < 0) {
+      failf(तथ्य, "SCP requires a known file size for upload");
+      myssh_to(तथ्य, sshc, SSH_SCP_CHANNEL_FREE);
+      वापस CURLE_UPLOAD_FAILED;
     }
-    myssh_to(data, sshc, SSH_SCP_UPLOAD_INIT);
+    myssh_to(तथ्य, sshc, SSH_SCP_UPLOAD_INIT);
   }
-  else
-    myssh_to(data, sshc, SSH_SCP_DOWNLOAD_INIT);
-  return CURLE_OK;
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_SCP_DOWNLOAD_INIT);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_done(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+अटल CURLcode ssh_state_scp_done(काष्ठा Curl_easy *तथ्य,
+                                   काष्ठा ssh_conn *sshc)
 {
-  if(data->state.upload)
-    myssh_to(data, sshc, SSH_SCP_SEND_EOF);
-  else
-    myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return CURLE_OK;
+  अगर(तथ्य->state.upload)
+    myssh_to(तथ्य, sshc, SSH_SCP_SEND_EOF);
+  अन्यथा
+    myssh_to(तथ्य, sshc, SSH_SCP_CHANNEL_FREE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_send_eof(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+अटल CURLcode ssh_state_scp_send_eof(काष्ठा Curl_easy *तथ्य,
+                                       काष्ठा ssh_conn *sshc)
 {
-  if(sshc->ssh_channel) {
-    int rc = libssh2_channel_send_eof(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session,
-                                       &err_msg, NULL, 0);
-      infof(data, "Failed to send libssh2 channel EOF: %d %s",
-            rc, err_msg);
-    }
-  }
-  myssh_to(data, sshc, SSH_SCP_WAIT_EOF);
-  return CURLE_OK;
-}
-
-static CURLcode ssh_state_scp_wait_eof(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
-{
-  if(sshc->ssh_channel) {
-    int rc = libssh2_channel_wait_eof(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session,
-                                       &err_msg, NULL, 0);
-      infof(data, "Failed to get channel EOF: %d %s", rc, err_msg);
+  अगर(sshc->ssh_channel) {
+    पूर्णांक rc = libssh2_channel_send_eof(sshc->ssh_channel);
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
+    अगर(rc) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session,
+                                       &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to send libssh2 channel EOF: %d %s",
+            rc, err_संदेश);
     }
   }
-  myssh_to(data, sshc, SSH_SCP_WAIT_CLOSE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SCP_WAIT_EOF);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_wait_close(struct Curl_easy *data,
-                                         struct ssh_conn *sshc)
+अटल CURLcode ssh_state_scp_wait_eof(काष्ठा Curl_easy *तथ्य,
+                                       काष्ठा ssh_conn *sshc)
 {
-  if(sshc->ssh_channel) {
-    int rc =
+  अगर(sshc->ssh_channel) {
+    पूर्णांक rc = libssh2_channel_wait_eof(sshc->ssh_channel);
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
+    अगर(rc) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session,
+                                       &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to get channel EOF: %d %s", rc, err_संदेश);
+    }
+  }
+  myssh_to(तथ्य, sshc, SSH_SCP_WAIT_CLOSE);
+  वापस CURLE_OK;
+}
+
+अटल CURLcode ssh_state_scp_wait_close(काष्ठा Curl_easy *तथ्य,
+                                         काष्ठा ssh_conn *sshc)
+{
+  अगर(sshc->ssh_channel) {
+    पूर्णांक rc =
       libssh2_channel_wait_closed(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session,
-                                       &err_msg, NULL, 0);
-      infof(data, "Channel failed to close: %d %s", rc, err_msg);
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
+    अगर(rc) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session,
+                                       &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Channel failed to close: %d %s", rc, err_संदेश);
     }
   }
-  myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_SCP_CHANNEL_FREE);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_scp_channel_free(
-  struct Curl_easy *data,
-  struct ssh_conn *sshc)
+अटल CURLcode ssh_state_scp_channel_free(
+  काष्ठा Curl_easy *तथ्य,
+  काष्ठा ssh_conn *sshc)
 {
-  if(sshc->ssh_channel) {
-    int rc = libssh2_channel_free(sshc->ssh_channel);
-    if(rc == LIBSSH2_ERROR_EAGAIN)
-      return CURLE_AGAIN;
-    if(rc < 0) {
-      char *err_msg = NULL;
-      (void)libssh2_session_last_error(sshc->ssh_session,
-                                       &err_msg, NULL, 0);
-      infof(data, "Failed to free libssh2 scp subsystem: %d %s", rc, err_msg);
+  अगर(sshc->ssh_channel) {
+    पूर्णांक rc = libssh2_channel_free(sshc->ssh_channel);
+    अगर(rc == LIBSSH2_ERROR_EAGAIN)
+      वापस CURLE_AGAIN;
+    अगर(rc < 0) {
+      अक्षर *err_संदेश = शून्य;
+      (व्योम)libssh2_session_last_error(sshc->ssh_session,
+                                       &err_संदेश, शून्य, 0);
+      infof(तथ्य, "Failed to free libssh2 scp subsystem: %d %s", rc, err_संदेश);
     }
-    sshc->ssh_channel = NULL;
+    sshc->ssh_channel = शून्य;
   }
-  CURL_TRC_SSH(data, "SCP DONE phase complete");
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  CURL_TRC_SSH(तथ्य, "SCP DONE phase complete");
+  myssh_to(तथ्य, sshc, SSH_STOP);
+  वापस CURLE_OK;
 }
 
-static CURLcode ssh_state_session_free(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+अटल CURLcode ssh_state_session_free(काष्ठा Curl_easy *तथ्य,
+                                       काष्ठा ssh_conn *sshc)
 {
-  CURLcode result = sshc_cleanup(sshc, data, FALSE);
-  struct connectdata *conn = data->conn;
-  if(result)
-    return result;
-  memset(sshc, 0, sizeof(struct ssh_conn));
+  CURLcode परिणाम = sshc_cleanup(sshc, तथ्य, FALSE);
+  काष्ठा connectdata *conn = तथ्य->conn;
+  अगर(परिणाम)
+    वापस परिणाम;
+  स_रखो(sshc, 0, माप(काष्ठा ssh_conn));
   connclose(conn);
   sshc->state = SSH_SESSION_FREE; /* current */
-  myssh_to(data, sshc, SSH_STOP);
-  return CURLE_OK;
+  myssh_to(तथ्य, sshc, SSH_STOP);
+  वापस CURLE_OK;
 }
 
 /*
@@ -2887,263 +2887,263 @@ static CURLcode ssh_state_session_free(struct Curl_easy *data,
  * to is set to TRUE if the libssh2 function returns LIBSSH2_ERROR_EAGAIN
  * meaning it wants to be called again when the socket is ready
  */
-static CURLcode ssh_statemachine(struct Curl_easy *data,
-                                 struct ssh_conn *sshc,
-                                 struct SSHPROTO *sshp,
+अटल CURLcode ssh_statemachine(काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा ssh_conn *sshc,
+                                 काष्ठा SSHPROTO *sshp,
                                  bool *block)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
   *block = 0; /* we are not blocking by default */
 
-  do {
-    switch(sshc->state) {
-    case SSH_INIT:
-      result = ssh_state_init(data, sshc);
-      if(result)
-        break;
+  करो {
+    चयन(sshc->state) {
+    हाल SSH_INIT:
+      परिणाम = ssh_state_init(तथ्य, sshc);
+      अगर(परिणाम)
+        अवरोध;
       FALLTHROUGH();
 
-    case SSH_S_STARTUP:
-      result = ssh_state_startup(data, sshc);
-      if(result)
-        break;
+    हाल SSH_S_STARTUP:
+      परिणाम = ssh_state_startup(तथ्य, sshc);
+      अगर(परिणाम)
+        अवरोध;
       FALLTHROUGH();
 
-    case SSH_HOSTKEY:
-      result = ssh_state_hostkey(data, sshc);
-      break;
+    हाल SSH_HOSTKEY:
+      परिणाम = ssh_state_hostkey(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTHLIST:
-      result = ssh_state_authlist(data, sshc);
-      break;
+    हाल SSH_AUTHLIST:
+      परिणाम = ssh_state_authlist(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_PKEY_INIT:
-      ssh_state_pkey_init(data, sshc);
-      break;
+    हाल SSH_AUTH_PKEY_INIT:
+      ssh_state_pkey_init(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_PKEY:
-      result = ssh_state_auth_pkey(data, sshc);
-      break;
+    हाल SSH_AUTH_PKEY:
+      परिणाम = ssh_state_auth_pkey(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_PASS_INIT:
-      result = ssh_state_auth_pass_init(data, sshc);
-      break;
+    हाल SSH_AUTH_PASS_INIT:
+      परिणाम = ssh_state_auth_pass_init(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_PASS:
-      result = ssh_state_auth_pass(data, sshc);
-      break;
+    हाल SSH_AUTH_PASS:
+      परिणाम = ssh_state_auth_pass(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_HOST_INIT:
-      result = ssh_state_auth_host_init(data, sshc);
-      break;
+    हाल SSH_AUTH_HOST_INIT:
+      परिणाम = ssh_state_auth_host_init(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_HOST:
-      myssh_to(data, sshc, SSH_AUTH_AGENT_INIT);
-      break;
+    हाल SSH_AUTH_HOST:
+      myssh_to(तथ्य, sshc, SSH_AUTH_AGENT_INIT);
+      अवरोध;
 
-    case SSH_AUTH_AGENT_INIT:
-      result = ssh_state_auth_agent_init(data, sshc);
-      break;
+    हाल SSH_AUTH_AGENT_INIT:
+      परिणाम = ssh_state_auth_agent_init(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_AGENT_LIST:
-      result = ssh_state_auth_agent_list(data, sshc);
-      break;
+    हाल SSH_AUTH_AGENT_LIST:
+      परिणाम = ssh_state_auth_agent_list(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_AGENT:
-      result = ssh_state_auth_agent(data, sshc);
-      break;
+    हाल SSH_AUTH_AGENT:
+      परिणाम = ssh_state_auth_agent(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_KEY_INIT:
-      result = ssh_state_auth_key_init(data, sshc);
-      break;
+    हाल SSH_AUTH_कुंजी_INIT:
+      परिणाम = ssh_state_auth_कुंजी_init(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_KEY:
-      result = ssh_state_auth_key(data, sshc);
-      break;
+    हाल SSH_AUTH_कुंजी:
+      परिणाम = ssh_state_auth_कुंजी(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_AUTH_DONE:
-      result = ssh_state_auth_done(data, sshc);
-      break;
+    हाल SSH_AUTH_DONE:
+      परिणाम = ssh_state_auth_done(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_INIT:
-      result = ssh_state_sftp_init(data, sshc);
-      break;
+    हाल SSH_SFTP_INIT:
+      परिणाम = ssh_state_sftp_init(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_REALPATH:
-      result = ssh_state_sftp_realpath(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_REALPATH:
+      परिणाम = ssh_state_sftp_realpath(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_INIT:
-      result = ssh_state_sftp_quote_init(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_QUOTE_INIT:
+      परिणाम = ssh_state_sftp_quote_init(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_POSTQUOTE_INIT:
-      result = ssh_state_sftp_postquote_init(data, sshc);
-      break;
+    हाल SSH_SFTP_POSTQUOTE_INIT:
+      परिणाम = ssh_state_sftp_postquote_init(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE:
-      result = ssh_state_sftp_quote(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_QUOTE:
+      परिणाम = ssh_state_sftp_quote(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_NEXT_QUOTE:
-      result = ssh_state_sftp_next_quote(data, sshc);
-      break;
+    हाल SSH_SFTP_अग्र_QUOTE:
+      परिणाम = ssh_state_sftp_अग्र_quote(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_STAT:
-      result = ssh_state_sftp_quote_stat(data, sshc, sshp, block);
-      break;
+    हाल SSH_SFTP_QUOTE_STAT:
+      परिणाम = ssh_state_sftp_quote_stat(तथ्य, sshc, sshp, block);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_SETSTAT:
-      result = ssh_state_sftp_quote_setstat(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_QUOTE_SETSTAT:
+      परिणाम = ssh_state_sftp_quote_setstat(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_SYMLINK:
-      result = ssh_state_sftp_quote_symlink(data, sshc);
-      break;
+    हाल SSH_SFTP_QUOTE_SYMLINK:
+      परिणाम = ssh_state_sftp_quote_symlink(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_MKDIR:
-      result = ssh_state_sftp_quote_mkdir(data, sshc);
-      break;
+    हाल SSH_SFTP_QUOTE_MKDIR:
+      परिणाम = ssh_state_sftp_quote_mkdir(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_RENAME:
-      result = ssh_state_sftp_quote_rename(data, sshc);
-      break;
+    हाल SSH_SFTP_QUOTE_RENAME:
+      परिणाम = ssh_state_sftp_quote_rename(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_RMDIR:
-      result = ssh_state_sftp_quote_rmdir(data, sshc);
-      break;
+    हाल SSH_SFTP_QUOTE_RMDIR:
+      परिणाम = ssh_state_sftp_quote_rmdir(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_UNLINK:
-      result = ssh_state_sftp_quote_unlink(data, sshc);
-      break;
+    हाल SSH_SFTP_QUOTE_UNLINK:
+      परिणाम = ssh_state_sftp_quote_unlink(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_QUOTE_STATVFS:
-      result = ssh_state_sftp_quote_statvfs(data, sshc);
-      break;
+    हाल SSH_SFTP_QUOTE_STATVFS:
+      परिणाम = ssh_state_sftp_quote_statvfs(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_GETINFO:
-      result = ssh_state_sftp_getinfo(data, sshc);
-      break;
+    हाल SSH_SFTP_GETINFO:
+      परिणाम = ssh_state_sftp_getinfo(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_FILETIME:
-      result = ssh_state_sftp_filetime(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_FILETIME:
+      परिणाम = ssh_state_sftp_filetime(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_TRANS_INIT:
-      result = ssh_state_sftp_trans_init(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_TRANS_INIT:
+      परिणाम = ssh_state_sftp_trans_init(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_UPLOAD_INIT:
-      result = ssh_state_sftp_upload_init(data, sshc, sshp, block);
-      break;
+    हाल SSH_SFTP_UPLOAD_INIT:
+      परिणाम = ssh_state_sftp_upload_init(तथ्य, sshc, sshp, block);
+      अवरोध;
 
-    case SSH_SFTP_CREATE_DIRS_INIT:
-      result = ssh_state_sftp_create_dirs_init(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_CREATE_DIRS_INIT:
+      परिणाम = ssh_state_sftp_create_dirs_init(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_CREATE_DIRS:
-      result = ssh_state_sftp_create_dirs(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_CREATE_DIRS:
+      परिणाम = ssh_state_sftp_create_dirs(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_CREATE_DIRS_MKDIR:
-      result = ssh_state_sftp_create_dirs_mkdir(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_CREATE_DIRS_MKDIR:
+      परिणाम = ssh_state_sftp_create_dirs_mkdir(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_READDIR_INIT:
-      result = ssh_state_sftp_readdir_init(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_READDIR_INIT:
+      परिणाम = ssh_state_sftp_readdir_init(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_READDIR:
-      result = ssh_state_sftp_readdir(data, sshc, sshp, block);
-      break;
+    हाल SSH_SFTP_READDIR:
+      परिणाम = ssh_state_sftp_readdir(तथ्य, sshc, sshp, block);
+      अवरोध;
 
-    case SSH_SFTP_READDIR_LINK:
-      result = ssh_state_sftp_readdir_link(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_READDIR_LINK:
+      परिणाम = ssh_state_sftp_readdir_link(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_READDIR_BOTTOM:
-      result = ssh_state_sftp_readdir_bottom(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_READDIR_BOTTOM:
+      परिणाम = ssh_state_sftp_readdir_bottom(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_READDIR_DONE:
-      result = ssh_state_sftp_readdir_done(data, sshc);
-      break;
+    हाल SSH_SFTP_READDIR_DONE:
+      परिणाम = ssh_state_sftp_readdir_done(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SFTP_DOWNLOAD_INIT:
-      result = ssh_state_sftp_download_init(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_DOWNLOAD_INIT:
+      परिणाम = ssh_state_sftp_download_init(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_DOWNLOAD_STAT:
-      result = ssh_state_sftp_download_stat(data, sshc, sshp, block);
-      break;
+    हाल SSH_SFTP_DOWNLOAD_STAT:
+      परिणाम = ssh_state_sftp_download_stat(तथ्य, sshc, sshp, block);
+      अवरोध;
 
-    case SSH_SFTP_CLOSE:
-      result = ssh_state_sftp_close(data, sshc, sshp);
-      break;
+    हाल SSH_SFTP_CLOSE:
+      परिणाम = ssh_state_sftp_close(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SFTP_SHUTDOWN:
-      result = ssh_state_sftp_shutdown(data, sshc);
-      break;
+    हाल SSH_SFTP_SHUTDOWN:
+      परिणाम = ssh_state_sftp_shutdown(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SCP_TRANS_INIT:
-      result = ssh_state_scp_trans_init(data, sshc, sshp);
-      break;
+    हाल SSH_SCP_TRANS_INIT:
+      परिणाम = ssh_state_scp_trans_init(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SCP_UPLOAD_INIT:
-      result = ssh_state_scp_upload_init(data, sshc, sshp);
-      break;
+    हाल SSH_SCP_UPLOAD_INIT:
+      परिणाम = ssh_state_scp_upload_init(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SCP_DOWNLOAD_INIT:
-      result = ssh_state_scp_download_init(data, sshc, sshp);
-      break;
+    हाल SSH_SCP_DOWNLOAD_INIT:
+      परिणाम = ssh_state_scp_download_init(तथ्य, sshc, sshp);
+      अवरोध;
 
-    case SSH_SCP_DONE:
-      result = ssh_state_scp_done(data, sshc);
-      break;
+    हाल SSH_SCP_DONE:
+      परिणाम = ssh_state_scp_done(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SCP_SEND_EOF:
-      result = ssh_state_scp_send_eof(data, sshc);
-      break;
+    हाल SSH_SCP_SEND_EOF:
+      परिणाम = ssh_state_scp_send_eof(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SCP_WAIT_EOF:
-      result = ssh_state_scp_wait_eof(data, sshc);
-      break;
+    हाल SSH_SCP_WAIT_EOF:
+      परिणाम = ssh_state_scp_wait_eof(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SCP_WAIT_CLOSE:
-      result = ssh_state_scp_wait_close(data, sshc);
-      break;
+    हाल SSH_SCP_WAIT_CLOSE:
+      परिणाम = ssh_state_scp_wait_close(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SCP_CHANNEL_FREE:
-      result = ssh_state_scp_channel_free(data, sshc);
-      break;
+    हाल SSH_SCP_CHANNEL_FREE:
+      परिणाम = ssh_state_scp_channel_free(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SESSION_DISCONNECT:
-      result = ssh_state_session_disconnect(data, sshc);
-      break;
+    हाल SSH_SESSION_DISCONNECT:
+      परिणाम = ssh_state_session_disconnect(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_SESSION_FREE:
-      result = ssh_state_session_free(data, sshc);
-      break;
+    हाल SSH_SESSION_FREE:
+      परिणाम = ssh_state_session_free(तथ्य, sshc);
+      अवरोध;
 
-    case SSH_QUIT:
-    default:
+    हाल SSH_QUIT:
+    शेष:
       /* internal error */
-      myssh_to(data, sshc, SSH_STOP);
-      break;
+      myssh_to(तथ्य, sshc, SSH_STOP);
+      अवरोध;
     }
 
-  } while(!result && (sshc->state != SSH_STOP) && !*block);
+  } जबतक(!परिणाम && (sshc->state != SSH_STOP) && !*block);
 
-  if(result == CURLE_AGAIN) {
+  अगर(परिणाम == CURLE_AGAIN) {
     /* we would block, we need to wait for the socket to be ready (in the
        right direction too)! */
     *block = TRUE;
-    result = CURLE_OK;
+    परिणाम = CURLE_OK;
   }
-  CURL_TRC_SSH(data, "[%s] statemachine() -> %d, block=%d",
-               Curl_ssh_statename(sshc->state), (int)result, *block);
+  CURL_TRC_SSH(तथ्य, "[%s] statemachine() -> %d, block=%d",
+               Curl_ssh_statename(sshc->state), (पूर्णांक)परिणाम, *block);
 
-  return result;
+  वापस परिणाम;
 }
 
 /*
@@ -3153,281 +3153,281 @@ static CURLcode ssh_statemachine(struct Curl_easy *data,
  * function in all cases so that when it _does not_ return EAGAIN we can
  * restore the default wait bits.
  */
-static void ssh_block2waitfor(struct Curl_easy *data,
-                              struct ssh_conn *sshc,
+अटल व्योम ssh_block2waitfor(काष्ठा Curl_easy *तथ्य,
+                              काष्ठा ssh_conn *sshc,
                               bool block)
 {
-  int dir = 0;
-  (void)data;
-  if(block) {
+  पूर्णांक dir = 0;
+  (व्योम)तथ्य;
+  अगर(block) {
     dir = libssh2_session_block_directions(sshc->ssh_session);
-    if(dir) {
+    अगर(dir) {
       /* translate the libssh2 define bits into our own bit defines */
       sshc->waitfor =
         ((dir & LIBSSH2_SESSION_BLOCK_INBOUND) ? REQ_IO_RECV : 0) |
         ((dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) ? REQ_IO_SEND : 0);
     }
   }
-  if(!dir)
+  अगर(!dir)
     sshc->waitfor = 0;
 }
 
 /* called repeatedly until done from multi.c */
-static CURLcode ssh_multi_statemach(struct Curl_easy *data, bool *done)
+अटल CURLcode ssh_multi_statemach(काष्ठा Curl_easy *तथ्य, bool *done)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  CURLcode result = CURLE_OK;
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  काष्ठा SSHPROTO *sshp = Curl_meta_get(तथ्य, CURL_META_SSH_EASY);
+  CURLcode परिणाम = CURLE_OK;
   bool block; /* we store the status and use that to provide
                  a Curl_ssh_pollset() implementation */
-  if(!sshc || !sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc || !sshp)
+    वापस CURLE_FAILED_INIT;
 
-  do {
-    result = ssh_statemachine(data, sshc, sshp, &block);
+  करो {
+    परिणाम = ssh_statemachine(तथ्य, sshc, sshp, &block);
     *done = (sshc->state == SSH_STOP);
     /* if there is no error, it is not done and it did not EWOULDBLOCK, then
        try again */
-  } while(!result && !*done && !block);
-  ssh_block2waitfor(data, sshc, block);
+  } जबतक(!परिणाम && !*done && !block);
+  ssh_block2waitfor(तथ्य, sshc, block);
 
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ssh_block_statemach(struct Curl_easy *data,
-                                    struct ssh_conn *sshc,
-                                    struct SSHPROTO *sshp,
+अटल CURLcode ssh_block_statemach(काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा ssh_conn *sshc,
+                                    काष्ठा SSHPROTO *sshp,
                                     bool disconnect)
 {
-  CURLcode result = CURLE_OK;
-  struct curltime start = *Curl_pgrs_now(data);
+  CURLcode परिणाम = CURLE_OK;
+  काष्ठा curltime start = *Curl_pgrs_now(तथ्य);
 
-  while((sshc->state != SSH_STOP) && !result) {
+  जबतक((sshc->state != SSH_STOP) && !परिणाम) {
     bool block;
-    timediff_t left_ms = 1000;
+    timediff_t बायाँ_ms = 1000;
 
-    result = ssh_statemachine(data, sshc, sshp, &block);
-    if(result)
-      break;
+    परिणाम = ssh_statemachine(तथ्य, sshc, sshp, &block);
+    अगर(परिणाम)
+      अवरोध;
 
-    if(!disconnect) {
-      result = Curl_pgrsCheck(data);
-      if(result)
-        break;
+    अगर(!disconnect) {
+      परिणाम = Curl_pgrsCheck(तथ्य);
+      अगर(परिणाम)
+        अवरोध;
 
-      left_ms = Curl_timeleft_ms(data);
-      if(left_ms < 0) {
-        failf(data, "Operation timed out");
-        return CURLE_OPERATION_TIMEDOUT;
+      बायाँ_ms = Curl_timeleft_ms(तथ्य);
+      अगर(बायाँ_ms < 0) {
+        failf(तथ्य, "Operation timed out");
+        वापस CURLE_OPERATION_TIMEDOUT;
       }
     }
-    else if(curlx_ptimediff_ms(Curl_pgrs_now(data), &start) > 1000) {
+    अन्यथा अगर(curlx_ptimediff_ms(Curl_pgrs_now(तथ्य), &start) > 1000) {
       /* disconnect timeout */
-      failf(data, "Disconnect timed out");
-      result = CURLE_OK;
-      break;
+      failf(तथ्य, "Disconnect timed out");
+      परिणाम = CURLE_OK;
+      अवरोध;
     }
 
-    if(block) {
-      int dir = libssh2_session_block_directions(sshc->ssh_session);
-      curl_socket_t sock = data->conn->sock[FIRSTSOCKET];
+    अगर(block) {
+      पूर्णांक dir = libssh2_session_block_directions(sshc->ssh_session);
+      curl_socket_t sock = तथ्य->conn->sock[FIRSTSOCKET];
       curl_socket_t fd_read = CURL_SOCKET_BAD;
       curl_socket_t fd_write = CURL_SOCKET_BAD;
-      if(LIBSSH2_SESSION_BLOCK_INBOUND & dir)
+      अगर(LIBSSH2_SESSION_BLOCK_INBOUND & dir)
         fd_read = sock;
-      if(LIBSSH2_SESSION_BLOCK_OUTBOUND & dir)
+      अगर(LIBSSH2_SESSION_BLOCK_OUTBOUND & dir)
         fd_write = sock;
       /* wait for the socket to become ready */
-      (void)Curl_socket_check(fd_read, CURL_SOCKET_BAD, fd_write,
-                              (!left_ms || left_ms > 1000) ? 1000 : left_ms);
+      (व्योम)Curl_socket_check(fd_read, CURL_SOCKET_BAD, fd_write,
+                              (!बायाँ_ms || बायाँ_ms > 1000) ? 1000 : बायाँ_ms);
     }
   }
 
-  return result;
+  वापस परिणाम;
 }
 
-static void myssh_easy_dtor(const void *key, size_t klen, void *entry)
+अटल व्योम myssh_easy_dtor(स्थिर व्योम *कुंजी, माप_प्रकार klen, व्योम *entry)
 {
-  struct SSHPROTO *sshp = entry;
-  (void)key;
-  (void)klen;
+  काष्ठा SSHPROTO *sshp = entry;
+  (व्योम)कुंजी;
+  (व्योम)klen;
   curlx_safefree(sshp->path);
-  curlx_dyn_free(&sshp->readdir);
+  curlx_dyn_free(&sshp->सूची_पढ़ो);
   curlx_dyn_free(&sshp->readdir_link);
   curlx_free(sshp);
 }
 
-static void myssh_conn_dtor(const void *key, size_t klen, void *entry)
+अटल व्योम myssh_conn_dtor(स्थिर व्योम *कुंजी, माप_प्रकार klen, व्योम *entry)
 {
-  struct ssh_conn *sshc = entry;
-  (void)key;
-  (void)klen;
-  sshc_cleanup(sshc, NULL, TRUE);
+  काष्ठा ssh_conn *sshc = entry;
+  (व्योम)कुंजी;
+  (व्योम)klen;
+  sshc_cleanup(sshc, शून्य, TRUE);
   curlx_free(sshc);
 }
 
 /*
  * SSH setup and connection
  */
-static CURLcode ssh_setup_connection(struct Curl_easy *data,
-                                     struct connectdata *conn)
+अटल CURLcode ssh_setup_connection(काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा connectdata *conn)
 {
-  struct ssh_conn *sshc;
-  struct SSHPROTO *sshp;
-  (void)conn;
+  काष्ठा ssh_conn *sshc;
+  काष्ठा SSHPROTO *sshp;
+  (व्योम)conn;
 
-  sshc = curlx_calloc(1, sizeof(*sshc));
-  if(!sshc)
-    return CURLE_OUT_OF_MEMORY;
+  sshc = curlx_calloc(1, माप(*sshc));
+  अगर(!sshc)
+    वापस CURLE_OUT_OF_MEMORY;
 
-  if(Curl_conn_meta_set(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  अगर(Curl_conn_meta_set(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
+    वापस CURLE_OUT_OF_MEMORY;
 
-  sshp = curlx_calloc(1, sizeof(*sshp));
-  if(!sshp)
-    return CURLE_OUT_OF_MEMORY;
+  sshp = curlx_calloc(1, माप(*sshp));
+  अगर(!sshp)
+    वापस CURLE_OUT_OF_MEMORY;
 
-  curlx_dyn_init(&sshp->readdir, CURL_PATH_MAX * 2);
+  curlx_dyn_init(&sshp->सूची_पढ़ो, CURL_PATH_MAX * 2);
   curlx_dyn_init(&sshp->readdir_link, CURL_PATH_MAX);
-  if(Curl_meta_set(data, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  अगर(Curl_meta_set(तथ्य, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
+    वापस CURLE_OUT_OF_MEMORY;
 
-  return Curl_ssh_setup_pkey(data, sshc);
+  वापस Curl_ssh_setup_pkey(तथ्य, sshc);
 }
 
-static Curl_recv scp_recv, sftp_recv;
-static Curl_send scp_send, sftp_send;
+अटल Curl_recv scp_recv, sftp_recv;
+अटल Curl_send scp_send, sftp_send;
 
-#ifndef CURL_DISABLE_PROXY
-static ssize_t ssh_tls_recv(libssh2_socket_t sock, void *buffer,
-                            size_t length, int flags, void **abstract)
+#अगर_अघोषित CURL_DISABLE_PROXY
+अटल ssize_t ssh_tls_recv(libssh2_socket_t sock, व्योम *बफर,
+                            माप_प्रकार लंबाई, पूर्णांक flags, व्योम **abstract)
 {
-  struct Curl_easy *data = (struct Curl_easy *)*abstract;
-  int8_t sockindex = Curl_conn_sockindex(data, sock);
-  size_t nread;
-  CURLcode result;
-  struct connectdata *conn = data->conn;
+  काष्ठा Curl_easy *तथ्य = (काष्ठा Curl_easy *)*abstract;
+  int8_t sockindex = Curl_conn_sockindex(तथ्य, sock);
+  माप_प्रकार nread;
+  CURLcode परिणाम;
+  काष्ठा connectdata *conn = तथ्य->conn;
   Curl_recv *backup = conn->recv[sockindex];
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  (void)flags;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  (व्योम)flags;
 
-  if(!sshc)
-    return -1;
+  अगर(!sshc)
+    वापस -1;
 
   /* swap in the TLS reader function for this call only, and then swap back
      the SSH one again */
   conn->recv[sockindex] = sshc->tls_recv;
-  result = Curl_conn_recv(data, sockindex, buffer, length, &nread);
+  परिणाम = Curl_conn_recv(तथ्य, sockindex, बफर, लंबाई, &nread);
   conn->recv[sockindex] = backup;
-  if(result == CURLE_AGAIN)
-    return -EAGAIN; /* magic return code for libssh2 */
-  else if(result)
-    return -1; /* generic error */
-  Curl_debug(data, CURLINFO_DATA_IN, (const char *)buffer, nread);
-  return (ssize_t)nread;
+  अगर(परिणाम == CURLE_AGAIN)
+    वापस -EAGAIN; /* magic return code for libssh2 */
+  अन्यथा अगर(परिणाम)
+    वापस -1; /* generic error */
+  Curl_debug(तथ्य, CURLINFO_तथ्य_IN, (स्थिर अक्षर *)बफर, nread);
+  वापस (ssize_t)nread;
 }
 
-static ssize_t ssh_tls_send(libssh2_socket_t sock, const void *buffer,
-                            size_t length, int flags, void **abstract)
+अटल ssize_t ssh_tls_send(libssh2_socket_t sock, स्थिर व्योम *बफर,
+                            माप_प्रकार लंबाई, पूर्णांक flags, व्योम **abstract)
 {
-  struct Curl_easy *data = (struct Curl_easy *)*abstract;
-  int8_t sockindex = Curl_conn_sockindex(data, sock);
-  size_t nwrite;
-  CURLcode result;
-  struct connectdata *conn = data->conn;
+  काष्ठा Curl_easy *तथ्य = (काष्ठा Curl_easy *)*abstract;
+  int8_t sockindex = Curl_conn_sockindex(तथ्य, sock);
+  माप_प्रकार nwrite;
+  CURLcode परिणाम;
+  काष्ठा connectdata *conn = तथ्य->conn;
   Curl_send *backup = conn->send[sockindex];
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  (void)flags;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  (व्योम)flags;
 
-  if(!sshc)
-    return -1;
+  अगर(!sshc)
+    वापस -1;
 
   /* swap in the TLS writer function for this call only, and then swap back
      the SSH one again */
   conn->send[sockindex] = sshc->tls_send;
-  result = Curl_conn_send(data, sockindex, buffer, length, FALSE, &nwrite);
+  परिणाम = Curl_conn_send(तथ्य, sockindex, बफर, लंबाई, FALSE, &nwrite);
   conn->send[sockindex] = backup;
-  if(result == CURLE_AGAIN)
-    return -EAGAIN; /* magic return code for libssh2 */
-  else if(result)
-    return -1; /* error */
-  Curl_debug(data, CURLINFO_DATA_OUT, (const char *)buffer, nwrite);
-  return (ssize_t)nwrite;
+  अगर(परिणाम == CURLE_AGAIN)
+    वापस -EAGAIN; /* magic return code for libssh2 */
+  अन्यथा अगर(परिणाम)
+    वापस -1; /* error */
+  Curl_debug(तथ्य, CURLINFO_तथ्य_OUT, (स्थिर अक्षर *)बफर, nwrite);
+  वापस (ssize_t)nwrite;
 }
-#endif
+#पूर्ण_अगर
 
 /*
  * Curl_ssh_connect() gets called from Curl_protocol_connect() to allow us to
  * do protocol-specific actions at connect-time.
  */
-static CURLcode ssh_connect(struct Curl_easy *data, bool *done)
+अटल CURLcode ssh_connect(काष्ठा Curl_easy *तथ्य, bool *done)
 {
-#ifdef CURL_LIBSSH2_DEBUG
+#अगर_घोषित CURL_LIBSSH2_DEBUG
   curl_socket_t sock;
-#endif
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  CURLcode result;
+#पूर्ण_अगर
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  CURLcode परिणाम;
 
-#if LIBSSH2_VERSION_NUM >= 0x010b00
+#अगर LIBSSH2_VERSION_अंक >= 0x010b00
   {
-    const char *crypto_str;
-    switch(libssh2_crypto_engine()) {
-    case libssh2_gcrypt:
+    स्थिर अक्षर *crypto_str;
+    चयन(libssh2_crypto_engine()) {
+    हाल libssh2_gcrypt:
       crypto_str = "libgcrypt";
-      break;
-    case libssh2_mbedtls:
+      अवरोध;
+    हाल libssh2_mbedtls:
       crypto_str = "mbedTLS";
-      break;
-    case libssh2_openssl:
+      अवरोध;
+    हाल libssh2_openssl:
       crypto_str = "openssl compatible";
-      break;
-    case libssh2_os400qc3:
+      अवरोध;
+    हाल libssh2_os400qc3:
       crypto_str = "OS400QC3";
-      break;
-    case libssh2_wincng:
+      अवरोध;
+    हाल libssh2_wincng:
       crypto_str = "WinCNG";
-      break;
-    default:
-      crypto_str = NULL;
-      break;
+      अवरोध;
+    शेष:
+      crypto_str = शून्य;
+      अवरोध;
     }
-    if(crypto_str)
-      infof(data, "SSH: libssh2 cryptography backend: %s", crypto_str);
+    अगर(crypto_str)
+      infof(तथ्य, "SSH: libssh2 cryptography backend: %s", crypto_str);
   }
-#endif
+#पूर्ण_अगर
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
-  infof(data, "SSH: user '%s'", Curl_creds_user(conn->creds));
-#ifdef CURL_LIBSSH2_DEBUG
-  infof(data, "SSH: password %s", Curl_creds_passwd(conn->creds));
+  infof(तथ्य, "SSH: user '%s'", Curl_creds_user(conn->creds));
+#अगर_घोषित CURL_LIBSSH2_DEBUG
+  infof(तथ्य, "SSH: password %s", Curl_creds_passwd(conn->creds));
   sock = conn->sock[FIRSTSOCKET];
-#endif /* CURL_LIBSSH2_DEBUG */
+#पूर्ण_अगर /* CURL_LIBSSH2_DEBUG */
 
   /* libcurl MUST set custom memory functions so that the kbd_callback
      function's memory allocations can be properly freed */
   sshc->ssh_session = libssh2_session_init_ex(my_libssh2_malloc,
                                               my_libssh2_free,
-                                              my_libssh2_realloc, data);
+                                              my_libssh2_realloc, तथ्य);
 
-  if(!sshc->ssh_session) {
-    failf(data, "Failure initializing ssh session");
-    return CURLE_FAILED_INIT;
+  अगर(!sshc->ssh_session) {
+    failf(तथ्य, "Failure initializing ssh session");
+    वापस CURLE_FAILED_INIT;
   }
 
   /* Set the packet read timeout if the libssh2 version supports it */
-#if LIBSSH2_VERSION_NUM >= 0x010B00
-  if(data->set.server_response_timeout > 0) {
+#अगर LIBSSH2_VERSION_अंक >= 0x010B00
+  अगर(तथ्य->set.server_response_timeout > 0) {
     libssh2_session_set_read_timeout(sshc->ssh_session,
-                             (long)(data->set.server_response_timeout / 1000));
+                             (दीर्घ)(तथ्य->set.server_response_timeout / 1000));
   }
-#endif
+#पूर्ण_अगर
 
-#ifndef CURL_DISABLE_PROXY
-  if(conn->http_proxy.proxytype == CURLPROXY_HTTPS) {
+#अगर_अघोषित CURL_DISABLE_PROXY
+  अगर(conn->http_proxy.proxytype == CURLPROXY_HTTPS) {
     /* Setup libssh2 callbacks to make it read/write TLS from the socket.
 
        ssize_t
@@ -3438,47 +3438,47 @@ static CURLcode ssh_connect(struct Curl_easy *data, bool *done)
        sendcb(libssh2_socket_t sock, const void *buffer, size_t length,
        int flags, void **abstract);
      */
-#if LIBSSH2_VERSION_NUM >= 0x010b01
-    infof(data, "SSH: using HTTPS proxy");
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
+#अगर LIBSSH2_VERSION_अंक >= 0x010b01
+    infof(तथ्य, "SSH: using HTTPS proxy");
+#अगर defined(__clang__) && __clang_major__ >= 16
+#आशय clang diagnostic धकेलो
+#आशय clang diagnostic ignored "-Wcast-function-type-strict"
+#पूर्ण_अगर
     libssh2_session_callback_set2(sshc->ssh_session,
                                   LIBSSH2_CALLBACK_RECV,
                                   (libssh2_cb_generic *)ssh_tls_recv);
     libssh2_session_callback_set2(sshc->ssh_session,
                                   LIBSSH2_CALLBACK_SEND,
                                   (libssh2_cb_generic *)ssh_tls_send);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
-#else
+#अगर defined(__clang__) && __clang_major__ >= 16
+#आशय clang diagnostic निकालो
+#पूर्ण_अगर
+#अन्यथा
     /*
      * This crazy union dance is here to avoid assigning a void pointer a
      * function pointer as it is invalid C. The problem is of course that
      * libssh2 has such an API...
      */
-    union receive {
-      void *recvp;
-      ssize_t (*recvptr)(libssh2_socket_t, void *, size_t, int, void **);
+    जोड़ receive {
+      व्योम *recvp;
+      ssize_t (*recvptr)(libssh2_socket_t, व्योम *, माप_प्रकार, पूर्णांक, व्योम **);
     };
-    union transfer {
-      void *sendp;
-      ssize_t (*sendptr)(libssh2_socket_t, const void *, size_t, int, void **);
+    जोड़ transfer {
+      व्योम *sendp;
+      ssize_t (*sendptr)(libssh2_socket_t, स्थिर व्योम *, माप_प्रकार, पूर्णांक, व्योम **);
     };
-    union receive sshrecv;
-    union transfer sshsend;
+    जोड़ receive sshrecv;
+    जोड़ transfer sshsend;
 
     sshrecv.recvptr = ssh_tls_recv;
     sshsend.sendptr = ssh_tls_send;
 
-    infof(data, "SSH: using HTTPS proxy");
+    infof(तथ्य, "SSH: using HTTPS proxy");
     libssh2_session_callback_set(sshc->ssh_session,
                                  LIBSSH2_CALLBACK_RECV, sshrecv.recvp);
     libssh2_session_callback_set(sshc->ssh_session,
                                  LIBSSH2_CALLBACK_SEND, sshsend.sendp);
-#endif
+#पूर्ण_अगर
 
     /* Store the underlying TLS recv/send function pointers to be used when
        reading from the proxy */
@@ -3486,49 +3486,49 @@ static CURLcode ssh_connect(struct Curl_easy *data, bool *done)
     sshc->tls_send = conn->send[FIRSTSOCKET];
   }
 
-#endif /* CURL_DISABLE_PROXY */
-  if(conn->scheme->protocol & CURLPROTO_SCP) {
+#पूर्ण_अगर /* CURL_DISABLE_PROXY */
+  अगर(conn->scheme->protocol & CURLPROTO_SCP) {
     conn->recv[FIRSTSOCKET] = scp_recv;
     conn->send[FIRSTSOCKET] = scp_send;
   }
-  else {
+  अन्यथा {
     conn->recv[FIRSTSOCKET] = sftp_recv;
     conn->send[FIRSTSOCKET] = sftp_send;
   }
 
-  if(data->set.ssh_compression &&
+  अगर(तथ्य->set.ssh_compression &&
      libssh2_session_flag(sshc->ssh_session, LIBSSH2_FLAG_COMPRESS, 1) < 0) {
-    infof(data, "SSH: failed to enable compression for session");
+    infof(तथ्य, "SSH: failed to enable compression for session");
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
-    int rc;
+  अगर(CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS)) {
+    पूर्णांक rc;
     sshc->kh = libssh2_knownhost_init(sshc->ssh_session);
-    if(!sshc->kh) {
+    अगर(!sshc->kh) {
       libssh2_session_free(sshc->ssh_session);
-      sshc->ssh_session = NULL;
-      return CURLE_FAILED_INIT;
+      sshc->ssh_session = शून्य;
+      वापस CURLE_FAILED_INIT;
     }
 
     /* read all known hosts from there */
     rc = libssh2_knownhost_readfile(
-      sshc->kh, CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS),
+      sshc->kh, CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS),
       LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-    if(rc < 0)
-      infof(data, "SSH: failed to read known hosts from %s",
-            CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+    अगर(rc < 0)
+      infof(तथ्य, "SSH: failed to read known hosts from %s",
+            CURL_EASY_STR(तथ्य, STRING_SSH_KNOWNHOSTS));
   }
 
-#ifdef CURL_LIBSSH2_DEBUG
+#अगर_घोषित CURL_LIBSSH2_DEBUG
   libssh2_trace(sshc->ssh_session, ~0);
-  infof(data, "SSH: socket %d", (int)sock);
-#endif
+  infof(तथ्य, "SSH: socket %d", (पूर्णांक)sock);
+#पूर्ण_अगर
 
-  myssh_to(data, sshc, SSH_INIT);
+  myssh_to(तथ्य, sshc, SSH_INIT);
 
-  result = ssh_multi_statemach(data, done);
+  परिणाम = ssh_multi_statemach(तथ्य, done);
 
-  return result;
+  वापस परिणाम;
 }
 
 /*
@@ -3540,164 +3540,164 @@ static CURLcode ssh_connect(struct Curl_easy *data, bool *done)
  * the options previously setup.
  */
 
-static CURLcode scp_perform(struct Curl_easy *data,
+अटल CURLcode scp_perform(काष्ठा Curl_easy *तथ्य,
                             bool *connected,
                             bool *dophase_done)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(तथ्य->conn, CURL_META_SSH_CONN);
+  CURLcode परिणाम = CURLE_OK;
 
-  CURL_TRC_SSH(data, "DO phase starts");
+  CURL_TRC_SSH(तथ्य, "DO phase starts");
 
   *dophase_done = FALSE; /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
-  myssh_to(data, sshc, SSH_SCP_TRANS_INIT);
+  myssh_to(तथ्य, sshc, SSH_SCP_TRANS_INIT);
 
   /* run the state-machine */
-  result = ssh_multi_statemach(data, dophase_done);
+  परिणाम = ssh_multi_statemach(तथ्य, dophase_done);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(तथ्य->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  अगर(*dophase_done) {
+    CURL_TRC_SSH(तथ्य, "DO phase is complete");
   }
 
-  return result;
+  वापस परिणाम;
 }
 
 /* called from multi.c while DOing */
-static CURLcode scp_doing(struct Curl_easy *data,
+अटल CURLcode scp_doing(काष्ठा Curl_easy *तथ्य,
                           bool *dophase_done)
 {
-  CURLcode result;
-  result = ssh_multi_statemach(data, dophase_done);
+  CURLcode परिणाम;
+  परिणाम = ssh_multi_statemach(तथ्य, dophase_done);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  अगर(*dophase_done) {
+    CURL_TRC_SSH(तथ्य, "DO phase is complete");
   }
-  return result;
+  वापस परिणाम;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
    this is still blocking is that the multi interface code has no support for
    disconnecting operations that takes a while */
-static CURLcode scp_disconnect(struct Curl_easy *data,
-                               struct connectdata *conn,
+अटल CURLcode scp_disconnect(काष्ठा Curl_easy *तथ्य,
+                               काष्ठा connectdata *conn,
                                bool dead_connection)
 {
-  CURLcode result = CURLE_OK;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  (void)dead_connection;
+  CURLcode परिणाम = CURLE_OK;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  काष्ठा SSHPROTO *sshp = Curl_meta_get(तथ्य, CURL_META_SSH_EASY);
+  (व्योम)dead_connection;
 
-  if(sshc && sshc->ssh_session) {
+  अगर(sshc && sshc->ssh_session) {
     /* only if there is a session still around to use! */
-    myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-    result = ssh_block_statemach(data, sshc, sshp, TRUE);
+    myssh_to(तथ्य, sshc, SSH_SESSION_DISCONNECT);
+    परिणाम = ssh_block_statemach(तथ्य, sshc, sshp, TRUE);
   }
 
-  if(sshc)
-    return sshc_cleanup(sshc, data, TRUE);
-  return result;
+  अगर(sshc)
+    वापस sshc_cleanup(sshc, तथ्य, TRUE);
+  वापस परिणाम;
 }
 
 /* generic done function for both SCP and SFTP called from their specific
    done functions */
-static CURLcode ssh_done(struct Curl_easy *data, CURLcode status)
+अटल CURLcode ssh_done(काष्ठा Curl_easy *तथ्य, CURLcode status)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  CURLcode result = CURLE_OK;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(तथ्य->conn, CURL_META_SSH_CONN);
+  काष्ठा SSHPROTO *sshp = Curl_meta_get(तथ्य, CURL_META_SSH_EASY);
+  CURLcode परिणाम = CURLE_OK;
 
-  if(!sshc || !sshp)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc || !sshp)
+    वापस CURLE_FAILED_INIT;
 
-  if(!status)
+  अगर(!status)
     /* run the state-machine */
-    result = ssh_block_statemach(data, sshc, sshp, FALSE);
-  else
-    result = status;
+    परिणाम = ssh_block_statemach(तथ्य, sshc, sshp, FALSE);
+  अन्यथा
+    परिणाम = status;
 
-  if(Curl_pgrsDone(data, Curl_pgrs_now(data)))
-    return CURLE_ABORTED_BY_CALLBACK;
+  अगर(Curl_pgrsDone(तथ्य, Curl_pgrs_now(तथ्य)))
+    वापस CURLE_ABORTED_BY_CALLBACK;
 
-  CURL_REQ_CLEAR_IO(data);
-  return result;
+  CURL_REQ_CLEAR_IO(तथ्य);
+  वापस परिणाम;
 }
 
-static CURLcode scp_done(struct Curl_easy *data, CURLcode status,
+अटल CURLcode scp_done(काष्ठा Curl_easy *तथ्य, CURLcode status,
                          bool premature)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  (void)premature;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(तथ्य->conn, CURL_META_SSH_CONN);
+  (व्योम)premature;
 
-  if(sshc && !status)
-    myssh_to(data, sshc, SSH_SCP_DONE);
+  अगर(sshc && !status)
+    myssh_to(तथ्य, sshc, SSH_SCP_DONE);
 
-  return ssh_done(data, status);
+  वापस ssh_done(तथ्य, status);
 }
 
-static CURLcode scp_send(struct Curl_easy *data, int8_t sockindex,
-                         const uint8_t *mem, size_t len, bool eos,
-                         size_t *pnwritten)
+अटल CURLcode scp_send(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                         स्थिर uint8_t *mem, माप_प्रकार len, bool eos,
+                         माप_प्रकार *pnwritten)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  CURLcode परिणाम = CURLE_OK;
   ssize_t nwritten;
 
-  (void)sockindex; /* we only support SCP on the fixed known primary socket */
-  (void)eos;
+  (व्योम)sockindex; /* we only support SCP on the fixed known primary socket */
+  (व्योम)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
   /* libssh2_channel_write() returns int! */
   nwritten = (ssize_t)libssh2_channel_write(sshc->ssh_channel,
-                                            (const char *)mem, len);
+                                            (स्थिर अक्षर *)mem, len);
 
-  ssh_block2waitfor(data, sshc, (nwritten == LIBSSH2_ERROR_EAGAIN));
+  ssh_block2waitfor(तथ्य, sshc, (nwritten == LIBSSH2_ERROR_EAGAIN));
 
-  if(nwritten == LIBSSH2_ERROR_EAGAIN)
-    result = CURLE_AGAIN;
-  else if(nwritten < LIBSSH2_ERROR_NONE)
-    result = libssh2_session_error_to_CURLE((int)nwritten);
-  else
-    *pnwritten = (size_t)nwritten;
+  अगर(nwritten == LIBSSH2_ERROR_EAGAIN)
+    परिणाम = CURLE_AGAIN;
+  अन्यथा अगर(nwritten < LIBSSH2_ERROR_NONE)
+    परिणाम = libssh2_session_error_to_CURLE((पूर्णांक)nwritten);
+  अन्यथा
+    *pnwritten = (माप_प्रकार)nwritten;
 
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
-                         char *mem, size_t len, size_t *pnread)
+अटल CURLcode scp_recv(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                         अक्षर *mem, माप_प्रकार len, माप_प्रकार *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  CURLcode परिणाम = CURLE_OK;
   ssize_t nread;
 
-  (void)sockindex; /* we only support SCP on the fixed known primary socket */
+  (व्योम)sockindex; /* we only support SCP on the fixed known primary socket */
   *pnread = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
   /* libssh2_channel_read() returns int */
   nread = (ssize_t)libssh2_channel_read(sshc->ssh_channel, mem, len);
 
-  ssh_block2waitfor(data, sshc, (nread == LIBSSH2_ERROR_EAGAIN));
-  if(nread == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
-  else if(nread < LIBSSH2_ERROR_NONE)
-    result = libssh2_session_error_to_CURLE((int)nread);
-  else
-    *pnread = (size_t)nread;
+  ssh_block2waitfor(तथ्य, sshc, (nread == LIBSSH2_ERROR_EAGAIN));
+  अगर(nread == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
+  अन्यथा अगर(nread < LIBSSH2_ERROR_NONE)
+    परिणाम = libssh2_session_error_to_CURLE((पूर्णांक)nread);
+  अन्यथा
+    *pnread = (माप_प्रकार)nread;
 
-  return result;
+  वापस परिणाम;
 }
 
 /*
@@ -3713,210 +3713,210 @@ static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
  * the options previously setup.
  */
 
-static CURLcode sftp_perform(struct Curl_easy *data,
+अटल CURLcode sftp_perform(काष्ठा Curl_easy *तथ्य,
                              bool *connected,
                              bool *dophase_done)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(तथ्य->conn, CURL_META_SSH_CONN);
+  CURLcode परिणाम = CURLE_OK;
 
-  CURL_TRC_SSH(data, "DO phase starts");
+  CURL_TRC_SSH(तथ्य, "DO phase starts");
 
   *dophase_done = FALSE; /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
-  myssh_to(data, sshc, SSH_SFTP_QUOTE_INIT);
+  myssh_to(तथ्य, sshc, SSH_SFTP_QUOTE_INIT);
 
   /* run the state-machine */
-  result = ssh_multi_statemach(data, dophase_done);
+  परिणाम = ssh_multi_statemach(तथ्य, dophase_done);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(तथ्य->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  अगर(*dophase_done) {
+    CURL_TRC_SSH(तथ्य, "DO phase is complete");
   }
 
-  return result;
+  वापस परिणाम;
 }
 
 /* called from multi.c while DOing */
-static CURLcode sftp_doing(struct Curl_easy *data,
+अटल CURLcode sftp_doing(काष्ठा Curl_easy *तथ्य,
                            bool *dophase_done)
 {
-  CURLcode result = ssh_multi_statemach(data, dophase_done);
+  CURLcode परिणाम = ssh_multi_statemach(तथ्य, dophase_done);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  अगर(*dophase_done) {
+    CURL_TRC_SSH(तथ्य, "DO phase is complete");
   }
-  return result;
+  वापस परिणाम;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
    this is still blocking is that the multi interface code has no support for
    disconnecting operations that takes a while */
-static CURLcode sftp_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn, bool dead_connection)
+अटल CURLcode sftp_disconnect(काष्ठा Curl_easy *तथ्य,
+                                काष्ठा connectdata *conn, bool dead_connection)
 {
-  CURLcode result = CURLE_OK;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  (void)dead_connection;
+  CURLcode परिणाम = CURLE_OK;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  काष्ठा SSHPROTO *sshp = Curl_meta_get(तथ्य, CURL_META_SSH_EASY);
+  (व्योम)dead_connection;
 
-  if(sshc) {
-    if(sshc->ssh_session) {
+  अगर(sshc) {
+    अगर(sshc->ssh_session) {
       /* only if there is a session still around to use! */
-      CURL_TRC_SSH(data, "DISCONNECT starts now");
-      myssh_to(data, sshc, SSH_SFTP_SHUTDOWN);
-      result = ssh_block_statemach(data, sshc, sshp, TRUE);
-      CURL_TRC_SSH(data, "DISCONNECT is done -> %d", (int)result);
+      CURL_TRC_SSH(तथ्य, "DISCONNECT starts now");
+      myssh_to(तथ्य, sshc, SSH_SFTP_SHUTDOWN);
+      परिणाम = ssh_block_statemach(तथ्य, sshc, sshp, TRUE);
+      CURL_TRC_SSH(तथ्य, "DISCONNECT is done -> %d", (पूर्णांक)परिणाम);
     }
-    sshc_cleanup(sshc, data, TRUE);
+    sshc_cleanup(sshc, तथ्य, TRUE);
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode sftp_done(struct Curl_easy *data, CURLcode status,
+अटल CURLcode sftp_done(काष्ठा Curl_easy *तथ्य, CURLcode status,
                           bool premature)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
-  if(!status) {
+  अगर(!status) {
     /* Post quote commands are executed after the SFTP_CLOSE state to avoid
        errors that could happen due to open file handles during POSTQUOTE
        operation */
-    if(!premature && data->set.postquote && !conn->bits.retry)
+    अगर(!premature && तथ्य->set.postquote && !conn->bits.retry)
       sshc->nextstate = SSH_SFTP_POSTQUOTE_INIT;
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(तथ्य, sshc, SSH_SFTP_CLOSE);
   }
-  return ssh_done(data, status);
+  वापस ssh_done(तथ्य, status);
 }
 
 /* return number of sent bytes */
-static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
-                          const uint8_t *mem, size_t len, bool eos,
-                          size_t *pnwritten)
+अटल CURLcode sftp_send(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                          स्थिर uint8_t *mem, माप_प्रकार len, bool eos,
+                          माप_प्रकार *pnwritten)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   ssize_t nwrite;
 
-  (void)sockindex;
-  (void)eos;
+  (व्योम)sockindex;
+  (व्योम)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
-  nwrite = libssh2_sftp_write(sshc->sftp_handle, (const char *)mem, len);
+  nwrite = libssh2_sftp_write(sshc->sftp_handle, (स्थिर अक्षर *)mem, len);
 
-  ssh_block2waitfor(data, sshc, (nwrite == LIBSSH2_ERROR_EAGAIN));
+  ssh_block2waitfor(तथ्य, sshc, (nwrite == LIBSSH2_ERROR_EAGAIN));
 
-  if(nwrite == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
-  else if(nwrite < LIBSSH2_ERROR_NONE)
-    return libssh2_session_error_to_CURLE((int)nwrite);
-  *pnwritten = (size_t)nwrite;
-  return CURLE_OK;
+  अगर(nwrite == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
+  अन्यथा अगर(nwrite < LIBSSH2_ERROR_NONE)
+    वापस libssh2_session_error_to_CURLE((पूर्णांक)nwrite);
+  *pnwritten = (माप_प्रकार)nwrite;
+  वापस CURLE_OK;
 }
 
 /*
  * Return number of received (decrypted) bytes
  * or <0 on error
  */
-static CURLcode sftp_recv(struct Curl_easy *data, int8_t sockindex,
-                          char *mem, size_t len, size_t *pnread)
+अटल CURLcode sftp_recv(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                          अक्षर *mem, माप_प्रकार len, माप_प्रकार *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   ssize_t nread;
 
-  (void)sockindex;
+  (व्योम)sockindex;
   *pnread = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
   nread = libssh2_sftp_read(sshc->sftp_handle, mem, len);
 
-  ssh_block2waitfor(data, sshc, (nread == LIBSSH2_ERROR_EAGAIN));
+  ssh_block2waitfor(तथ्य, sshc, (nread == LIBSSH2_ERROR_EAGAIN));
 
-  if(nread == LIBSSH2_ERROR_EAGAIN)
-    return CURLE_AGAIN;
-  else if(nread < 0)
-    return libssh2_session_error_to_CURLE((int)nread);
+  अगर(nread == LIBSSH2_ERROR_EAGAIN)
+    वापस CURLE_AGAIN;
+  अन्यथा अगर(nread < 0)
+    वापस libssh2_session_error_to_CURLE((पूर्णांक)nread);
 
-  *pnread = (size_t)nread;
-  return CURLE_OK;
+  *pnread = (माप_प्रकार)nread;
+  वापस CURLE_OK;
 }
 
 /*
  * The DO function is generic for both protocols. There was previously two
  * separate ones but this way means less duplicated code.
  */
-static CURLcode ssh_do(struct Curl_easy *data, bool *done)
+अटल CURLcode ssh_do(काष्ठा Curl_easy *तथ्य, bool *done)
 {
-  CURLcode result;
+  CURLcode परिणाम;
   bool connected = FALSE;
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  काष्ठा connectdata *conn = तथ्य->conn;
+  काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
   *done = FALSE; /* default to false */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  अगर(!sshc)
+    वापस CURLE_FAILED_INIT;
 
-  data->req.size = -1; /* make sure this is unknown at this point */
+  तथ्य->req.आकार = -1; /* make sure this is unknown at this point */
   sshc->secondCreateDirs = 0;   /* reset the create directory attempt state
                                    variable */
 
-  Curl_pgrsReset(data);
+  Curl_pgrsReset(तथ्य);
 
-  if(conn->scheme->protocol & CURLPROTO_SCP)
-    result = scp_perform(data, &connected, done);
-  else
-    result = sftp_perform(data, &connected, done);
+  अगर(conn->scheme->protocol & CURLPROTO_SCP)
+    परिणाम = scp_perform(तथ्य, &connected, done);
+  अन्यथा
+    परिणाम = sftp_perform(तथ्य, &connected, done);
 
-  return result;
+  वापस परिणाम;
 }
 
-CURLcode Curl_ssh_init(void)
+CURLcode Curl_ssh_init(व्योम)
 {
-  if(libssh2_init(0)) {
-    DEBUGF(curl_mfprintf(stderr, "Error: libssh2_init failed\n"));
-    return CURLE_FAILED_INIT;
+  अगर(libssh2_init(0)) {
+    DEBUGF(curl_mfprintf(मानक_त्रुटि, "Error: libssh2_init failed\n"));
+    वापस CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-void Curl_ssh_cleanup(void)
+व्योम Curl_ssh_cleanup(व्योम)
 {
   libssh2_exit();
 }
 
-void Curl_ssh_version(char *buffer, size_t buflen)
+व्योम Curl_ssh_version(अक्षर *बफर, माप_प्रकार buflen)
 {
-  (void)curl_msnprintf(buffer, buflen, "libssh2/%s", libssh2_version(0));
+  (व्योम)curl_msnprintf(बफर, buflen, "libssh2/%s", libssh2_version(0));
 }
 
 /* The SSH session is associated with the *CONNECTION* but the callback user
  * pointer is an easy handle pointer. This function allows us to reassign the
  * user pointer to the *CURRENT* (new) easy handle.
  */
-static void ssh_attach(struct Curl_easy *data, struct connectdata *conn)
+अटल व्योम ssh_attach(काष्ठा Curl_easy *तथ्य, काष्ठा connectdata *conn)
 {
-  DEBUGASSERT(data);
+  DEBUGASSERT(तथ्य);
   DEBUGASSERT(conn);
-  if(conn->scheme->protocol & PROTO_FAMILY_SSH) {
-    struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-    if(sshc && sshc->ssh_session) {
+  अगर(conn->scheme->protocol & PROTO_FAMILY_SSH) {
+    काष्ठा ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+    अगर(sshc && sshc->ssh_session) {
       /* only re-attach if the session already exists */
-      void **abstract = libssh2_session_abstract(sshc->ssh_session);
-      *abstract = data;
+      व्योम **abstract = libssh2_session_abstract(sshc->ssh_session);
+      *abstract = तथ्य;
     }
   }
 }
@@ -3924,7 +3924,7 @@ static void ssh_attach(struct Curl_easy *data, struct connectdata *conn)
 /*
  * SCP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_scp = {
+स्थिर काष्ठा Curl_protocol Curl_protocol_scp = {
   ssh_setup_connection,                 /* setup_connection */
   ssh_do,                               /* do_it */
   scp_done,                             /* done */
@@ -3947,7 +3947,7 @@ const struct Curl_protocol Curl_protocol_scp = {
 /*
  * SFTP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_sftp = {
+स्थिर काष्ठा Curl_protocol Curl_protocol_sftp = {
   ssh_setup_connection,                 /* setup_connection */
   ssh_do,                               /* do_it */
   sftp_done,                            /* done */
@@ -3967,4 +3967,4 @@ const struct Curl_protocol Curl_protocol_sftp = {
   ZERO_NULL,                            /* follow */
 };
 
-#endif /* USE_LIBSSH2 */
+#पूर्ण_अगर /* USE_LIBSSH2 */

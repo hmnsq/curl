@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SCHANNEL_INT_H
-#define HEADER_CURL_SCHANNEL_INT_H
+#अगर_अघोषित HEADER_CURL_SCHANNEL_INT_H
+#घोषणा HEADER_CURL_SCHANNEL_INT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,30 +24,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#अगर_घोषित USE_SCHANNEL
 
-#include "vtls/vtls.h"
-#include "curl_sha256.h"
+#समावेश "vtls/vtls.h"
+#समावेश "curl_sha256.h"
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1700)
+#अगर defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'LPCSTR' of greater size */
-#undef CERT_STORE_PROV_MEMORY
-#undef CERT_STORE_PROV_SYSTEM_A
-#undef CERT_STORE_PROV_SYSTEM_W
-#define CERT_STORE_PROV_MEMORY    ((LPCSTR)(size_t)2)
-#define CERT_STORE_PROV_SYSTEM_A  ((LPCSTR)(size_t)9)
-#define CERT_STORE_PROV_SYSTEM_W  ((LPCSTR)(size_t)10)
-#endif
+#अघोषित CERT_STORE_PROV_MEMORY
+#अघोषित CERT_STORE_PROV_SYSTEM_A
+#अघोषित CERT_STORE_PROV_SYSTEM_W
+#घोषणा CERT_STORE_PROV_MEMORY    ((LPCSTR)(माप_प्रकार)2)
+#घोषणा CERT_STORE_PROV_SYSTEM_A  ((LPCSTR)(माप_प्रकार)9)
+#घोषणा CERT_STORE_PROV_SYSTEM_W  ((LPCSTR)(माप_प्रकार)10)
+#पूर्ण_अगर
 
 /* Offered by mingw-w64 v8+, MS SDK 10.0.17763.0/VS2017 15.8+ */
-#ifndef SCH_CREDENTIALS_VERSION
-#define SCH_CREDENTIALS_VERSION  0x00000005
+#अगर_अघोषित SCH_CREDENTIALS_VERSION
+#घोषणा SCH_CREDENTIALS_VERSION  0x00000005
 
-typedef enum _eTlsAlgorithmUsage {
-  TlsParametersCngAlgUsageKeyExchange,
+प्रकार क्रमागत _eTlsAlgorithmUsage {
+  Tls_Parameters_Cng_Alg_Usage_कुंजी_Exchange,
   TlsParametersCngAlgUsageSignature,
   TlsParametersCngAlgUsageCipher,
   TlsParametersCngAlgUsageDigest,
@@ -55,17 +55,17 @@ typedef enum _eTlsAlgorithmUsage {
 } eTlsAlgorithmUsage;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _CRYPTO_SETTINGS {
+प्रकार काष्ठा _CRYPTO_SETTINGS {
   eTlsAlgorithmUsage eAlgorithmUsage;
   UNICODE_STRING strCngAlgId;
   DWORD cChainingModes;
   PUNICODE_STRING rgstrChainingModes; /* spellchecker:disable-line */
-  DWORD dwMinBitLength;
-  DWORD dwMaxBitLength;
+  DWORD dw_Min_Bit_लंबाई;
+  DWORD dw_Max_Bit_लंबाई;
 } CRYPTO_SETTINGS, *PCRYPTO_SETTINGS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _TLS_PARAMETERS {
+प्रकार काष्ठा _TLS_PARAMETERS {
   DWORD cAlpnIds;
   PUNICODE_STRING rgstrAlpnIds; /* spellchecker:disable-line */
   DWORD grbitDisabledProtocols;
@@ -75,15 +75,15 @@ typedef struct _TLS_PARAMETERS {
 } TLS_PARAMETERS, *PTLS_PARAMETERS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _SCH_CREDENTIALS {
+प्रकार काष्ठा _SCH_CREDENTIALS {
   DWORD dwVersion;
   DWORD dwCredFormat;
   DWORD cCreds;
   PCCERT_CONTEXT *paCred;
-  HCERTSTORE hRootStore;
+  HCERTSTORE h_मूल_Store;
 
   DWORD cMappers;
-  struct _HMAPPER **aphMappers;
+  काष्ठा _HMAPPER **aphMappers;
 
   DWORD dwSessionLifespan;
   DWORD dwFlags;
@@ -91,42 +91,42 @@ typedef struct _SCH_CREDENTIALS {
   PTLS_PARAMETERS pTlsParameters;
 } SCH_CREDENTIALS, *PSCH_CREDENTIALS;
 
-#endif /* !SCH_CREDENTIALS_VERSION */
+#पूर्ण_अगर /* !SCH_CREDENTIALS_VERSION */
 
-struct Curl_schannel_cred {
+काष्ठा Curl_schannel_cred {
   CredHandle cred_handle;
   TCHAR *sni_hostname;
   HCERTSTORE client_cert_store;
-  int refcount;
+  पूर्णांक refcount;
 };
 
-struct Curl_schannel_ctxt {
+काष्ठा Curl_schannel_ctxt {
   CtxtHandle ctxt_handle;
 };
 
 /* handle encoding/decoding buffers */
-struct sbuffer {
-  size_t length;
-  size_t offset;
-  unsigned char *buffer;
+काष्ठा sbuffer {
+  माप_प्रकार लंबाई;
+  माप_प्रकार offset;
+  अचिन्हित अक्षर *बफर;
 };
 
-struct schannel_ssl_backend_data {
-  unsigned char *send_buffer;
-  size_t send_buffer_len;
-  struct sbuffer encdata;
-  struct sbuffer decdata;
-  struct Curl_schannel_cred *cred;
-  struct Curl_schannel_ctxt *ctxt;
-  SecBuffer shutdown_token;
-  size_t shutdown_offset;
+काष्ठा schannel_ssl_backend_तथ्य {
+  अचिन्हित अक्षर *send_बफर;
+  माप_प्रकार send_बफर_len;
+  काष्ठा sbuffer encdata;
+  काष्ठा sbuffer decdata;
+  काष्ठा Curl_schannel_cred *cred;
+  काष्ठा Curl_schannel_ctxt *ctxt;
+  Sec_बफर shutdown_token;
+  माप_प्रकार shutdown_offset;
   SecPkgContext_StreamSizes stream_sizes;
-  unsigned long req_flags, ret_flags;
+  अचिन्हित दीर्घ req_flags, ret_flags;
   CURLcode recv_unrecoverable_err; /* schannel_recv had an unrecoverable err */
-  struct schannel_renegotiate_state {
+  काष्ठा schannel_renegotiate_state {
     bool started;
-    struct curltime start_time;
-    int io_need;
+    काष्ठा curltime start_time;
+    पूर्णांक io_need;
   } renegotiate_state;
   BIT(recv_sspi_close_notify); /* true if connection closed by close_notify */
   BIT(recv_connection_closed); /* true if connection closed, regardless how */
@@ -142,31 +142,31 @@ struct schannel_ssl_backend_data {
   BIT(encdata_is_incomplete);
 };
 
-struct schannel_cert_share {
-  unsigned char CAinfo_blob_digest[CURL_SHA256_DIGEST_LENGTH];
-  size_t CAinfo_blob_size;           /* CA info blob size */
-  char *CAfile;                      /* CAfile path used to generate
+काष्ठा schannel_cert_share {
+  अचिन्हित अक्षर CAinfo_blob_digest[CURL_SHA256_DIGEST_लंबाई];
+  माप_प्रकार CAinfo_blob_आकार;           /* CA info blob size */
+  अक्षर *CAfile;                      /* CAfile path used to generate
                                         certificate store */
   HCERTSTORE cert_store;             /* cached certificate store or
                                         NULL if none */
-  struct curltime time;              /* when the cached store was created */
+  काष्ठा curltime समय;              /* when the cached store was created */
 };
 
 /* size of the structure: 20 bytes */
-struct num_ip_data {
-  DWORD size; /* 04 bytes */
-  union {
-    struct in_addr  ia;  /* 04 bytes */
-    struct in6_addr ia6; /* 16 bytes */
-  } bData;
+काष्ठा अंक_ip_तथ्य {
+  DWORD आकार; /* 04 bytes */
+  जोड़ {
+    काष्ठा in_addr  ia;  /* 04 bytes */
+    काष्ठा in6_addr ia6; /* 16 bytes */
+  } b_तथ्य;
 };
 
-HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data);
+HCERTSTORE Curl_schannel_get_cached_cert_store(काष्ठा Curl_cfilter *cf,
+                                               काष्ठा Curl_easy *तथ्य);
 
-bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+bool Curl_schannel_set_cached_cert_store(काष्ठा Curl_cfilter *cf,
+                                         काष्ठा Curl_easy *तथ्य,
                                          HCERTSTORE cert_store);
 
-#endif /* USE_SCHANNEL */
-#endif /* HEADER_CURL_SCHANNEL_INT_H */
+#पूर्ण_अगर /* USE_SCHANNEL */
+#पूर्ण_अगर /* HEADER_CURL_SCHANNEL_INT_H */

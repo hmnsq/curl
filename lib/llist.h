@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_LLIST_H
-#define HEADER_CURL_LLIST_H
+#अगर_अघोषित HEADER_CURL_LLIST_H
+#घोषणा HEADER_CURL_LLIST_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,58 +23,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-typedef void (*Curl_llist_dtor)(void *user, void *elem);
+प्रकार व्योम (*Curl_llist_dtor)(व्योम *user, व्योम *elem);
 
 /* none of these struct members should be referenced directly, use the
    dedicated functions */
 
-struct Curl_llist {
-  struct Curl_llist_node *_head;
-  struct Curl_llist_node *_tail;
+काष्ठा Curl_llist {
+  काष्ठा Curl_llist_गाँठ *शीर्ष_3;
+  काष्ठा Curl_llist_गाँठ *पुच्छ_2;
   Curl_llist_dtor _dtor;
-  size_t _size;
-#ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
-#endif
+  माप_प्रकार आकार_2;
+#अगर_घोषित DEBUGBUILD
+  पूर्णांक _init;      /* detect API usage mistakes */
+#पूर्ण_अगर
 };
 
-struct Curl_llist_node {
-  struct Curl_llist *_list; /* the list where this belongs */
-  void *_ptr;
-  struct Curl_llist_node *_prev;
-  struct Curl_llist_node *_next;
-#ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
-#endif
+काष्ठा Curl_llist_गाँठ {
+  काष्ठा Curl_llist *_list; /* the list where this belongs */
+  व्योम *_ptr;
+  काष्ठा Curl_llist_गाँठ *पूर्व_2;
+  काष्ठा Curl_llist_गाँठ *अग्र_2;
+#अगर_घोषित DEBUGBUILD
+  पूर्णांक _init;      /* detect API usage mistakes */
+#पूर्ण_अगर
 };
 
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor);
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne);
-void Curl_node_remove(struct Curl_llist_node *e);
-void Curl_llist_destroy(struct Curl_llist *list, void *user);
+व्योम Curl_llist_init(काष्ठा Curl_llist *l, Curl_llist_dtor dtor);
+व्योम Curl_llist_append(काष्ठा Curl_llist *list, स्थिर व्योम *p,
+                       काष्ठा Curl_llist_गाँठ *ne);
+व्योम Curl_गाँठ_remove(काष्ठा Curl_llist_गाँठ *e);
+व्योम Curl_llist_destroy(काष्ठा Curl_llist *list, व्योम *user);
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list);
+काष्ठा Curl_llist_गाँठ *Curl_llist_शीर्ष(स्थिर काष्ठा Curl_llist *list);
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list);
+माप_प्रकार Curl_llist_गिनती(स्थिर काष्ठा Curl_llist *list);
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n);
+व्योम *Curl_गाँठ_elem(स्थिर काष्ठा Curl_llist_गाँठ *n);
 
 /* Remove the node from the list and return the custom data
  * from a Curl_llist_node. Does NOT invoke a registered `dtor`. */
-void *Curl_node_take_elem(struct Curl_llist_node *e);
+व्योम *Curl_गाँठ_take_elem(काष्ठा Curl_llist_गाँठ *e);
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n);
+काष्ठा Curl_llist_गाँठ *Curl_गाँठ_अग्र(स्थिर काष्ठा Curl_llist_गाँठ *n);
 
 /* Curl_node_llist() return the list the node is in or NULL. */
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n);
+काष्ठा Curl_llist *Curl_गाँठ_llist(स्थिर काष्ठा Curl_llist_गाँठ *n);
 
-#endif /* HEADER_CURL_LLIST_H */
+#पूर्ण_अगर /* HEADER_CURL_LLIST_H */

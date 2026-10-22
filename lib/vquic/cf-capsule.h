@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_CAPSULE_H
-#define HEADER_CURL_CF_CAPSULE_H
+#अगर_अघोषित HEADER_CURL_CF_CAPSULE_H
+#घोषणा HEADER_CURL_CF_CAPSULE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#अगर !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 /* Insert a capsule protocol filter after `cf_at` in the filter chain.
  * The capsule filter encapsulates/decapsulates UDP datagrams using
  * the HTTP Datagram capsule format (RFC 9297). */
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_capsule_जोड़ो_after(काष्ठा Curl_cfilter *cf_at,
+                                      काष्ठा Curl_easy *तथ्य);
 
-extern struct Curl_cftype Curl_cft_capsule;
+बाह्य काष्ठा Curl_cftype Curl_cft_capsule;
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_CF_CAPSULE_H */
+#पूर्ण_अगर /* HEADER_CURL_CF_CAPSULE_H */

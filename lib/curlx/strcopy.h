@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_STRCOPY_H
-#define HEADER_CURLX_STRCOPY_H
+#अगर_अघोषित HEADER_CURLX_STRCOPY_H
+#घोषणा HEADER_CURLX_STRCOPY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 
-void curlx_strcopy(char *dest,
-                   size_t dsize, /* size of target buffer */
-                   const char *src,
-                   size_t slen); /* length of string to copy */
+व्योम curlx_strcopy(अक्षर *dest,
+                   माप_प्रकार dsize, /* size of target buffer */
+                   स्थिर अक्षर *src,
+                   माप_प्रकार slen); /* length of string to copy */
 
-#endif /* HEADER_CURLX_STRCOPY_H */
+#पूर्ण_अगर /* HEADER_CURLX_STRCOPY_H */

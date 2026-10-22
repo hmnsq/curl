@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONFIG_MAC_H
-#define HEADER_CURL_CONFIG_MAC_H
+#अगर_अघोषित HEADER_CURL_CONFIG_MAC_H
+#घोषणा HEADER_CURL_CONFIG_MAC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -30,54 +30,54 @@
 /*   On macOS you must run configure to generate curl_config.h file    */
 /* =================================================================== */
 
-#ifndef CURL_OS
-#define CURL_OS "mac"
-#endif
+#अगर_अघोषित CURL_OS
+#घोषणा CURL_OS "mac"
+#पूर्ण_अगर
 
-#include <ConditionalMacros.h>
+#समावेश <ConditionalMacros.h>
 
 /* Define if you want the built-in manual */
-#define USE_MANUAL              1
+#घोषणा USE_MANUAL              1
 
-#define HAVE_NETINET_IN_H       1
-#define HAVE_NETDB_H            1
-#define HAVE_ARPA_INET_H        1
-#define HAVE_UNISTD_H           1
-#define HAVE_NET_IF_H           1
-#define HAVE_SYS_TYPES_H        1
-#define HAVE_GETTIMEOFDAY       1
-#define HAVE_FCNTL_H            1
-#define HAVE_UTIME_H            1
-#define HAVE_SYS_UTIME_H        1
-#define HAVE_SYS_IOCTL_H        1
-#define HAVE_ALARM              1
-#define HAVE_UTIME              1
-#define HAVE_SOCKET             1
-#define HAVE_STRUCT_TIMEVAL     1
+#घोषणा HAVE_NETINET_IN_H       1
+#घोषणा HAVE_NETDB_H            1
+#घोषणा HAVE_ARPA_INET_H        1
+#घोषणा HAVE_UNISTD_H           1
+#घोषणा HAVE_NET_IF_H           1
+#घोषणा HAVE_SYS_TYPES_H        1
+#घोषणा HAVE_GETTIMEOFDAY       1
+#घोषणा HAVE_FCNTL_H            1
+#घोषणा HAVE_UTIME_H            1
+#घोषणा HAVE_SYS_UTIME_H        1
+#घोषणा HAVE_SYS_IOCTL_H        1
+#घोषणा HAVE_ALARM              1
+#घोषणा HAVE_UTIME              1
+#घोषणा HAVE_SOCKET             1
+#घोषणा HAVE_STRUCT_TIMEVAL     1
 
-#define HAVE_SIGACTION          1
+#घोषणा HAVE_SIGACTION          1
 
-#define CURL_DISABLE_LDAP
+#घोषणा CURL_DISABLE_LDAP
 
-#define HAVE_IOCTL_FIONBIO      1
+#घोषणा HAVE_IOCTL_FIONBIO      1
 
-#define SIZEOF_INT              4
-#define SIZEOF_LONG             4
-#define SIZEOF_SIZE_T           4
-#define SIZEOF_CURL_OFF_T       8
+#घोषणा SIZEOF_INT              4
+#घोषणा SIZEOF_LONG             4
+#घोषणा SIZEOF_आकार_T           4
+#घोषणा SIZEOF_CURL_OFF_T       8
 
-#define HAVE_RECV 1
-#define RECV_TYPE_ARG1 int
-#define RECV_TYPE_ARG2 void *
-#define RECV_TYPE_ARG3 size_t
-#define RECV_TYPE_ARG4 int
-#define RECV_TYPE_RETV ssize_t
+#घोषणा HAVE_RECV 1
+#घोषणा RECV_TYPE_ARG1 पूर्णांक
+#घोषणा RECV_TYPE_ARG2 व्योम *
+#घोषणा RECV_TYPE_ARG3 माप_प्रकार
+#घोषणा RECV_TYPE_ARG4 पूर्णांक
+#घोषणा RECV_TYPE_RETV ssize_t
 
-#define HAVE_SEND 1
-#define SEND_TYPE_ARG1 int
-#define SEND_TYPE_ARG2 void *
-#define SEND_TYPE_ARG3 size_t
-#define SEND_TYPE_ARG4 int
-#define SEND_TYPE_RETV ssize_t
+#घोषणा HAVE_SEND 1
+#घोषणा SEND_TYPE_ARG1 पूर्णांक
+#घोषणा SEND_TYPE_ARG2 व्योम *
+#घोषणा SEND_TYPE_ARG3 माप_प्रकार
+#घोषणा SEND_TYPE_ARG4 पूर्णांक
+#घोषणा SEND_TYPE_RETV ssize_t
 
-#endif /* HEADER_CURL_CONFIG_MAC_H */
+#पूर्ण_अगर /* HEADER_CURL_CONFIG_MAC_H */

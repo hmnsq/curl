@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-struct Curl_easy;
+काष्ठा Curl_easy;
 
-#include "formdata.h"
+#समावेश "formdata.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
+#अगर !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
 
-#include "urldata.h" /* for struct Curl_easy */
-#include "mime.h"
-#include "curlx/strdup.h"
-#include "bufref.h"
-#include "curlx/win32-fopen.h"
+#समावेश "urldata.h" /* for struct Curl_easy */
+#समावेश "mime.h"
+#समावेश "curlx/strdup.h"
+#समावेश "bufref.h"
+#समावेश "curlx/win32-fopen.h"
 
 
-#define HTTPPOST_PTRNAME     CURL_HTTPPOST_PTRNAME
-#define HTTPPOST_FILENAME    CURL_HTTPPOST_FILENAME
-#define HTTPPOST_PTRCONTENTS CURL_HTTPPOST_PTRCONTENTS
-#define HTTPPOST_READFILE    CURL_HTTPPOST_READFILE
-#define HTTPPOST_PTRBUFFER   CURL_HTTPPOST_PTRBUFFER
-#define HTTPPOST_CALLBACK    CURL_HTTPPOST_CALLBACK
-#define HTTPPOST_BUFFER      CURL_HTTPPOST_BUFFER
+#घोषणा HTTPPOST_PTRNAME     CURL_HTTPPOST_PTRNAME
+#घोषणा HTTPPOST_FILENAME    CURL_HTTPPOST_FILENAME
+#घोषणा HTTPPOST_PTRCONTENTS CURL_HTTPPOST_PTRCONTENTS
+#घोषणा HTTPPOST_READFILE    CURL_HTTPPOST_READFILE
+#घोषणा HTTPPOST_PTRBUFFER   CURL_HTTPPOST_PTRBUFFER
+#घोषणा HTTPPOST_CALLBACK    CURL_HTTPPOST_CALLBACK
+#घोषणा HTTPPOST_बफर      CURL_HTTPPOST_बफर
 
 /***************************************************************************
  *
@@ -54,82 +54,82 @@ struct Curl_easy;
  * Returns newly allocated HttpPost on success and NULL if malloc failed.
  *
  ***************************************************************************/
-static struct curl_httppost *httppost_add(struct FormInfo *src,
-                                          struct curl_httppost *parent_post,
-                                          struct curl_httppost **httppost,
-                                          struct curl_httppost **last_post)
+अटल काष्ठा curl_httppost *httppost_add(काष्ठा FormInfo *src,
+                                          काष्ठा curl_httppost *parent_post,
+                                          काष्ठा curl_httppost **httppost,
+                                          काष्ठा curl_httppost **last_post)
 {
-  struct curl_httppost *post;
-  size_t namelength = src->namelength;
-  if(!namelength && Curl_bufref_ptr(&src->name))
-    namelength = strlen(Curl_bufref_ptr(&src->name));
-  if((src->bufferlength > LONG_MAX) || (namelength > LONG_MAX))
+  काष्ठा curl_httppost *post;
+  माप_प्रकार namelength = src->namelength;
+  अगर(!namelength && Curl_bufref_ptr(&src->name))
+    namelength = म_माप(Curl_bufref_ptr(&src->name));
+  अगर((src->bufferlength > दीर्घ_उच्च) || (namelength > दीर्घ_उच्च))
     /* avoid overflow in typecasts below */
-    return NULL;
-  post = curlx_calloc(1, sizeof(struct curl_httppost));
-  if(post) {
+    वापस शून्य;
+  post = curlx_calloc(1, माप(काष्ठा curl_httppost));
+  अगर(post) {
     post->name = CURL_UNCONST(Curl_bufref_ptr(&src->name));
-    post->namelength = (long)namelength;
-    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->value));
+    post->namelength = (दीर्घ)namelength;
+    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->मूल्य));
     post->contentlen = src->contentslength;
-    post->buffer = src->buffer;
-    post->bufferlength = (long)src->bufferlength;
+    post->बफर = src->बफर;
+    post->bufferlength = (दीर्घ)src->bufferlength;
     post->contenttype = CURL_UNCONST(Curl_bufref_ptr(&src->contenttype));
     post->flags = src->flags | CURL_HTTPPOST_LARGE;
     post->contentheader = src->contentheader;
     post->showfilename = CURL_UNCONST(Curl_bufref_ptr(&src->showfilename));
     post->userp = src->userp;
   }
-  else
-    return NULL;
+  अन्यथा
+    वापस शून्य;
 
-  if(parent_post) {
+  अगर(parent_post) {
     /* now, point our 'more' to the original 'more' */
     post->more = parent_post->more;
 
     /* then move the original 'more' to point to ourselves */
     parent_post->more = post;
   }
-  else {
+  अन्यथा {
     /* make the previous point to this */
-    if(*last_post)
-      (*last_post)->next = post;
-    else
+    अगर(*last_post)
+      (*last_post)->अग्र = post;
+    अन्यथा
       (*httppost) = post;
 
     (*last_post) = post;
   }
-  return post;
+  वापस post;
 }
 
 /* Allocate and initialize a new FormInfo structure. */
-static struct FormInfo *forminfo_new(void)
+अटल काष्ठा FormInfo *forminfo_new(व्योम)
 {
-  struct FormInfo *form_info = curlx_calloc(1, sizeof(struct FormInfo));
+  काष्ठा FormInfo *form_info = curlx_calloc(1, माप(काष्ठा FormInfo));
 
-  if(form_info) {
+  अगर(form_info) {
     Curl_bufref_init(&form_info->name);
-    Curl_bufref_init(&form_info->value);
+    Curl_bufref_init(&form_info->मूल्य);
     Curl_bufref_init(&form_info->contenttype);
     Curl_bufref_init(&form_info->showfilename);
   }
 
-  return form_info;
+  वापस form_info;
 }
 
 /* Replace the target field data by a dynamic copy of it. */
-static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
+अटल CURLcode forminfo_copyfield(काष्ठा bufref *field, माप_प्रकार len)
 {
-  const char *value = Curl_bufref_ptr(field);
-  CURLcode result = CURLE_OK;
+  स्थिर अक्षर *मूल्य = Curl_bufref_ptr(field);
+  CURLcode परिणाम = CURLE_OK;
 
-  if(value) {
-    if(!len)
-      len = strlen(value);
-    result = Curl_bufref_memdup0(field, value, len);
+  अगर(मूल्य) {
+    अगर(!len)
+      len = म_माप(मूल्य);
+    परिणाम = Curl_bufref_memdup0(field, मूल्य, len);
   }
 
-  return result;
+  वापस परिणाम;
 }
 
 /***************************************************************************
@@ -139,11 +139,11 @@ static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
  * Adds a FormInfo structure to the list presented by parent.
  *
  ***************************************************************************/
-static void forminfo_add(struct FormInfo *form_info, struct FormInfo *parent)
+अटल व्योम forminfo_add(काष्ठा FormInfo *form_info, काष्ठा FormInfo *parent)
 {
   form_info->flags |= HTTPPOST_FILENAME;
 
-  if(parent) {
+  अगर(parent) {
     /* now, point our 'more' to the original 'more' */
     form_info->more = parent->more;
 
@@ -152,11 +152,11 @@ static void forminfo_add(struct FormInfo *form_info, struct FormInfo *parent)
   }
 }
 
-static void free_formlist(struct FormInfo *ptr)
+अटल व्योम free_formlist(काष्ठा FormInfo *ptr)
 {
-  for(; ptr; ptr = ptr->more) {
+  क्रम(; ptr; ptr = ptr->more) {
     Curl_bufref_free(&ptr->name);
-    Curl_bufref_free(&ptr->value);
+    Curl_bufref_free(&ptr->मूल्य);
     Curl_bufref_free(&ptr->contenttype);
     Curl_bufref_free(&ptr->showfilename);
   }
@@ -212,372 +212,372 @@ static void free_formlist(struct FormInfo *ptr)
  *
  ***************************************************************************/
 
-static CURLFORMcode formadd_check(struct FormInfo *first_form,
-                                  struct curl_httppost **httppost,
-                                  struct curl_httppost **last_post)
+अटल CURLFORMcode formadd_check(काष्ठा FormInfo *first_form,
+                                  काष्ठा curl_httppost **httppost,
+                                  काष्ठा curl_httppost **last_post)
 {
-  const char *prevtype = NULL;
-  struct FormInfo *form = NULL;
-  struct curl_httppost *post = NULL;
+  स्थिर अक्षर *prevtype = शून्य;
+  काष्ठा FormInfo *form = शून्य;
+  काष्ठा curl_httppost *post = शून्य;
 
   /* go through the list, check for completeness and if everything is
    * alright add the HttpPost item otherwise set retval accordingly */
 
-  for(form = first_form; form; form = form->more) {
-    const char *name = Curl_bufref_ptr(&form->name);
+  क्रम(form = first_form; form; form = form->more) {
+    स्थिर अक्षर *name = Curl_bufref_ptr(&form->name);
 
-    if(((!name || !Curl_bufref_ptr(&form->value)) && !post) ||
+    अगर(((!name || !Curl_bufref_ptr(&form->मूल्य)) && !post) ||
        (form->contentslength &&
         (form->flags & HTTPPOST_FILENAME)) ||
        ((form->flags & HTTPPOST_FILENAME) &&
         (form->flags & HTTPPOST_PTRCONTENTS)) ||
 
-       (!form->buffer &&
-        (form->flags & HTTPPOST_BUFFER) &&
+       (!form->बफर &&
+        (form->flags & HTTPPOST_बफर) &&
         (form->flags & HTTPPOST_PTRBUFFER)) ||
 
        ((form->flags & HTTPPOST_READFILE) &&
         (form->flags & HTTPPOST_PTRCONTENTS))
       ) {
-      return CURL_FORMADD_INCOMPLETE;
+      वापस CURL_FORMADD_INCOMPLETE;
     }
-    if(((form->flags & HTTPPOST_FILENAME) ||
-        (form->flags & HTTPPOST_BUFFER)) &&
+    अगर(((form->flags & HTTPPOST_FILENAME) ||
+        (form->flags & HTTPPOST_बफर)) &&
        !Curl_bufref_ptr(&form->contenttype)) {
-      const char *f = Curl_bufref_ptr((form->flags & HTTPPOST_BUFFER) ?
-                                      &form->showfilename : &form->value);
-      const char *type = Curl_mime_contenttype(f);
-      if(!type)
+      स्थिर अक्षर *f = Curl_bufref_ptr((form->flags & HTTPPOST_बफर) ?
+                                      &form->showfilename : &form->मूल्य);
+      स्थिर अक्षर *type = Curl_mime_contenttype(f);
+      अगर(!type)
         type = prevtype;
-      if(!type)
+      अगर(!type)
         type = FILE_CONTENTTYPE_DEFAULT;
 
       /* our contenttype is missing */
-      if(Curl_bufref_memdup0(&form->contenttype, type, strlen(type)))
-        return CURL_FORMADD_MEMORY;
+      अगर(Curl_bufref_memdup0(&form->contenttype, type, म_माप(type)))
+        वापस CURL_FORMADD_MEMORY;
     }
-    if(name && form->namelength && memchr(name, 0, form->namelength))
-      return CURL_FORMADD_NULL;
-    if(!(form->flags & HTTPPOST_PTRNAME) &&
+    अगर(name && form->namelength && स_प्रथम(name, 0, form->namelength))
+      वापस CURL_FORMADD_NULL;
+    अगर(!(form->flags & HTTPPOST_PTRNAME) &&
        /* Note that there is small risk that form->name is NULL here if the app
           passed in a bad combo, so we check for that. */
        forminfo_copyfield(&form->name, form->namelength))
-      return CURL_FORMADD_MEMORY;
-    if(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
+      वापस CURL_FORMADD_MEMORY;
+    अगर(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
                         HTTPPOST_PTRCONTENTS | HTTPPOST_PTRBUFFER |
                         HTTPPOST_CALLBACK)) &&
-       forminfo_copyfield(&form->value, (size_t)form->contentslength))
-      return CURL_FORMADD_MEMORY;
+       forminfo_copyfield(&form->मूल्य, (माप_प्रकार)form->contentslength))
+      वापस CURL_FORMADD_MEMORY;
     post = httppost_add(form, post, httppost, last_post);
 
-    if(!post)
-      return CURL_FORMADD_MEMORY;
+    अगर(!post)
+      वापस CURL_FORMADD_MEMORY;
 
-    if(Curl_bufref_ptr(&form->contenttype))
+    अगर(Curl_bufref_ptr(&form->contenttype))
       prevtype = Curl_bufref_ptr(&form->contenttype);
   }
 
-  return CURL_FORMADD_OK;
+  वापस CURL_FORMADD_OK;
 }
 
 /* Shallow cleanup. Remove the newly created chain, the structs only and not
    the content they point to */
-static void free_chain(struct curl_httppost *c)
+अटल व्योम free_chain(काष्ठा curl_httppost *c)
 {
-  while(c) {
-    struct curl_httppost *next = c->next;
-    if(c->more)
+  जबतक(c) {
+    काष्ठा curl_httppost *अग्र = c->अग्र;
+    अगर(c->more)
       free_chain(c->more);
     curlx_free(c);
-    c = next;
+    c = अग्र;
   }
 }
 
-static CURLFORMcode formadd(struct curl_httppost **httppost,
-                            struct curl_httppost **last_post, va_list params)
+अटल CURLFORMcode formadd(काष्ठा curl_httppost **httppost,
+                            काष्ठा curl_httppost **last_post, बहु_सूची params)
 {
-  struct FormInfo *first_form, *curr, *form = NULL;
+  काष्ठा FormInfo *first_form, *curr, *form = शून्य;
   CURLFORMcode retval = CURL_FORMADD_OK;
   CURLformoption option;
-  const struct curl_forms *forms = NULL;
-  char *avalue = NULL;
-  struct curl_httppost *newchain = NULL;
-  struct curl_httppost *lastnode = NULL;
+  स्थिर काष्ठा curl_forms *forms = शून्य;
+  अक्षर *avalue = शून्य;
+  काष्ठा curl_httppost *newchain = शून्य;
+  काष्ठा curl_httppost *lastnode = शून्य;
 
-#define form_ptr_arg(t) (forms ? (t)(void *)avalue : va_arg(params, t))
-#ifdef HAVE_UINTPTR_T
-#define form_int_arg(t) (forms ? (t)(uintptr_t)avalue : va_arg(params, t))
-#else
-#define form_int_arg(t) (forms ? (t)(void *)avalue : va_arg(params, t))
-#endif
+#घोषणा form_ptr_arg(t) (forms ? (t)(व्योम *)avalue : बहु_तर्क(params, t))
+#अगर_घोषित HAVE_UINTPTR_T
+#घोषणा form_int_arg(t) (forms ? (t)(uintptr_t)avalue : बहु_तर्क(params, t))
+#अन्यथा
+#घोषणा form_int_arg(t) (forms ? (t)(व्योम *)avalue : बहु_तर्क(params, t))
+#पूर्ण_अगर
 
   /*
    * We need to allocate the first struct to fill in.
    */
   first_form = forminfo_new();
-  if(!first_form)
-    return CURL_FORMADD_MEMORY;
+  अगर(!first_form)
+    वापस CURL_FORMADD_MEMORY;
 
   curr = first_form;
 
   /*
    * Loop through all the options set. Break if we have an error to report.
    */
-  while(retval == CURL_FORMADD_OK) {
+  जबतक(retval == CURL_FORMADD_OK) {
 
     /* first see if we have more parts of the array param */
-    if(forms) {
+    अगर(forms) {
       /* get the upcoming option from the given array */
       option = forms->option;
-      avalue = (char *)CURL_UNCONST(forms->value);
+      avalue = (अक्षर *)CURL_UNCONST(forms->मूल्य);
 
       forms++; /* advance this to next entry */
-      if(CURLFORM_END == option) {
+      अगर(CURLFORM_END == option) {
         /* end of array state */
-        forms = NULL;
-        continue;
+        forms = शून्य;
+        जारी;
       }
     }
-    else {
+    अन्यथा {
       /* This is not array-state, get next option. This gets an 'int' with
          va_arg() because CURLformoption might be a smaller type than int and
          might cause compiler warnings and wrong behavior. */
-      option = (CURLformoption)va_arg(params, int);
-      if(CURLFORM_END == option)
-        break;
+      option = (CURLformoption)बहु_तर्क(params, पूर्णांक);
+      अगर(CURLFORM_END == option)
+        अवरोध;
     }
 
-    switch(option) {
-    case CURLFORM_ARRAY:
-      if(forms)
+    चयन(option) {
+    हाल CURLFORM_ARRAY:
+      अगर(forms)
         /* we do not support an array from within an array */
         retval = CURL_FORMADD_ILLEGAL_ARRAY;
-      else {
-        forms = va_arg(params, struct curl_forms *);
-        if(!forms)
+      अन्यथा {
+        forms = बहु_तर्क(params, काष्ठा curl_forms *);
+        अगर(!forms)
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      अवरोध;
 
       /*
        * Set the Name property.
        */
-    case CURLFORM_PTRNAME:
+    हाल CURLFORM_PTRNAME:
       curr->flags |= HTTPPOST_PTRNAME;
       FALLTHROUGH();
-    case CURLFORM_COPYNAME:
-      if(Curl_bufref_ptr(&curr->name))
+    हाल CURLFORM_COPYNAME:
+      अगर(Curl_bufref_ptr(&curr->name))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue)
-          Curl_bufref_set(&curr->name, avalue, 0, NULL); /* No copy yet. */
-        else
+      अन्यथा {
+        avalue = form_ptr_arg(अक्षर *);
+        अगर(avalue)
+          Curl_bufref_set(&curr->name, avalue, 0, शून्य); /* No copy yet. */
+        अन्यथा
           retval = CURL_FORMADD_NULL;
       }
-      break;
-    case CURLFORM_NAMELENGTH:
-      if(curr->namelength)
+      अवरोध;
+    हाल CURLFORM_NAMELENGTH:
+      अगर(curr->namelength)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
-        curr->namelength = (size_t)form_int_arg(long);
-      break;
+      अन्यथा
+        curr->namelength = (माप_प्रकार)form_int_arg(दीर्घ);
+      अवरोध;
 
       /*
        * Set the contents property.
        */
-    case CURLFORM_PTRCONTENTS:
+    हाल CURLFORM_PTRCONTENTS:
       curr->flags |= HTTPPOST_PTRCONTENTS;
       FALLTHROUGH();
-    case CURLFORM_COPYCONTENTS:
-      if(Curl_bufref_ptr(&curr->value))
+    हाल CURLFORM_COPYCONTENTS:
+      अगर(Curl_bufref_ptr(&curr->मूल्य))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue)
-          Curl_bufref_set(&curr->value, avalue, 0, NULL); /* No copy yet. */
-        else
+      अन्यथा {
+        avalue = form_ptr_arg(अक्षर *);
+        अगर(avalue)
+          Curl_bufref_set(&curr->मूल्य, avalue, 0, शून्य); /* No copy yet. */
+        अन्यथा
           retval = CURL_FORMADD_NULL;
       }
-      break;
-    case CURLFORM_CONTENTSLENGTH: {
-      long clen = form_int_arg(long);
-      if(clen < 0)
+      अवरोध;
+    हाल CURLFORM_CONTENTSLENGTH: {
+      दीर्घ clen = form_int_arg(दीर्घ);
+      अगर(clen < 0)
         retval = CURL_FORMADD_INCOMPLETE;
-      else
+      अन्यथा
         curr->contentslength = (curl_off_t)clen;
-      break;
+      अवरोध;
     }
 
-    case CURLFORM_CONTENTLEN: {
+    हाल CURLFORM_CONTENTLEN: {
       curl_off_t clen = form_int_arg(curl_off_t);
-      if(clen < 0)
+      अगर(clen < 0)
         retval = CURL_FORMADD_INCOMPLETE;
-      else {
+      अन्यथा {
         curr->flags |= CURL_HTTPPOST_LARGE;
         curr->contentslength = clen;
       }
-      break;
+      अवरोध;
     }
 
       /* Get contents from a given filename */
-    case CURLFORM_FILECONTENT:
-      if(curr->flags & (HTTPPOST_PTRCONTENTS | HTTPPOST_READFILE))
+    हाल CURLFORM_FILECONTENT:
+      अगर(curr->flags & (HTTPPOST_PTRCONTENTS | HTTPPOST_READFILE))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
+      अन्यथा {
+        avalue = form_ptr_arg(अक्षर *);
+        अगर(avalue) {
+          अगर(Curl_bufref_memdup0(&curr->मूल्य, avalue, म_माप(avalue)))
             retval = CURL_FORMADD_MEMORY;
-          else
+          अन्यथा
             curr->flags |= HTTPPOST_READFILE;
         }
-        else
+        अन्यथा
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      अवरोध;
 
       /* We upload a file */
-    case CURLFORM_FILE:
-      avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->value)) {
-        if(curr->flags & HTTPPOST_FILENAME) {
-          if(avalue) {
+    हाल CURLFORM_FILE:
+      avalue = form_ptr_arg(अक्षर *);
+      अगर(Curl_bufref_ptr(&curr->मूल्य)) {
+        अगर(curr->flags & HTTPPOST_FILENAME) {
+          अगर(avalue) {
             form = forminfo_new();
-            if(!form ||
-               Curl_bufref_memdup0(&form->value, avalue, strlen(avalue))) {
+            अगर(!form ||
+               Curl_bufref_memdup0(&form->मूल्य, avalue, म_माप(avalue))) {
               curlx_free(form);
               retval = CURL_FORMADD_MEMORY;
             }
-            else {
+            अन्यथा {
               forminfo_add(form, curr);
               curr = form;
-              form = NULL;
+              form = शून्य;
             }
           }
-          else
+          अन्यथा
             retval = CURL_FORMADD_NULL;
         }
-        else
+        अन्यथा
           retval = CURL_FORMADD_OPTION_TWICE;
       }
-      else {
-        if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
+      अन्यथा {
+        अगर(avalue) {
+          अगर(Curl_bufref_memdup0(&curr->मूल्य, avalue, म_माप(avalue)))
             retval = CURL_FORMADD_MEMORY;
-          else
+          अन्यथा
             curr->flags |= HTTPPOST_FILENAME;
         }
-        else
+        अन्यथा
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      अवरोध;
 
-    case CURLFORM_BUFFERPTR:
-      curr->flags |= HTTPPOST_PTRBUFFER | HTTPPOST_BUFFER;
-      if(curr->buffer)
+    हाल CURLFORM_BUFFERPTR:
+      curr->flags |= HTTPPOST_PTRBUFFER | HTTPPOST_बफर;
+      अगर(curr->बफर)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
-          curr->buffer = avalue; /* store for the moment */
+      अन्यथा {
+        avalue = form_ptr_arg(अक्षर *);
+        अगर(avalue) {
+          curr->बफर = avalue; /* store for the moment */
           /* Make value non-NULL to be accepted as fine */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_set(&curr->मूल्य, avalue, 0, शून्य);
         }
-        else
+        अन्यथा
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      अवरोध;
 
-    case CURLFORM_BUFFERLENGTH:
-      if(curr->bufferlength)
+    हाल CURLFORM_BUFFERLENGTH:
+      अगर(curr->bufferlength)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
-        curr->bufferlength = (size_t)form_int_arg(long);
-      break;
+      अन्यथा
+        curr->bufferlength = (माप_प्रकार)form_int_arg(दीर्घ);
+      अवरोध;
 
-    case CURLFORM_STREAM:
+    हाल CURLFORM_STREAM:
       curr->flags |= HTTPPOST_CALLBACK;
-      if(curr->userp)
+      अगर(curr->userp)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
+      अन्यथा {
+        avalue = form_ptr_arg(अक्षर *);
+        अगर(avalue) {
           curr->userp = avalue;
           /* The following line is not strictly true but we derive a value
              from this later on and we need this non-NULL to be accepted as
              a fine form part */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_set(&curr->मूल्य, avalue, 0, शून्य);
         }
-        else
+        अन्यथा
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      अवरोध;
 
-    case CURLFORM_CONTENTTYPE:
-      avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->contenttype)) {
-        if(curr->flags & HTTPPOST_FILENAME) {
-          if(avalue) {
+    हाल CURLFORM_CONTENTTYPE:
+      avalue = form_ptr_arg(अक्षर *);
+      अगर(Curl_bufref_ptr(&curr->contenttype)) {
+        अगर(curr->flags & HTTPPOST_FILENAME) {
+          अगर(avalue) {
             form = forminfo_new();
-            if(!form || Curl_bufref_memdup0(&form->contenttype, avalue,
-                                            strlen(avalue))) {
+            अगर(!form || Curl_bufref_memdup0(&form->contenttype, avalue,
+                                            म_माप(avalue))) {
               curlx_free(form);
               retval = CURL_FORMADD_MEMORY;
             }
-            else {
+            अन्यथा {
               forminfo_add(form, curr);
               curr = form;
-              form = NULL;
+              form = शून्य;
             }
           }
-          else
+          अन्यथा
             retval = CURL_FORMADD_NULL;
         }
-        else
+        अन्यथा
           retval = CURL_FORMADD_OPTION_TWICE;
       }
-      else if(avalue) {
-        if(Curl_bufref_memdup0(&curr->contenttype, avalue, strlen(avalue)))
+      अन्यथा अगर(avalue) {
+        अगर(Curl_bufref_memdup0(&curr->contenttype, avalue, म_माप(avalue)))
           retval = CURL_FORMADD_MEMORY;
       }
-      else
+      अन्यथा
         retval = CURL_FORMADD_NULL;
-      break;
+      अवरोध;
 
-    case CURLFORM_CONTENTHEADER: {
+    हाल CURLFORM_CONTENTHEADER: {
       /* this "cast increases required alignment of target type" but
          we consider it OK anyway */
-      struct curl_slist *list = form_ptr_arg(struct curl_slist *);
+      काष्ठा curl_slist *list = form_ptr_arg(काष्ठा curl_slist *);
 
-      if(curr->contentheader)
+      अगर(curr->contentheader)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
+      अन्यथा
         curr->contentheader = list;
 
-      break;
+      अवरोध;
     }
-    case CURLFORM_FILENAME:
-    case CURLFORM_BUFFER:
-      avalue = form_ptr_arg(char *);
-      if(!avalue)
+    हाल CURLFORM_FILENAME:
+    हाल CURLFORM_बफर:
+      avalue = form_ptr_arg(अक्षर *);
+      अगर(!avalue)
         retval = CURL_FORMADD_NULL;
-      else if(Curl_bufref_ptr(&curr->showfilename))
+      अन्यथा अगर(Curl_bufref_ptr(&curr->showfilename))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else if(Curl_bufref_memdup0(&curr->showfilename, avalue, strlen(avalue)))
+      अन्यथा अगर(Curl_bufref_memdup0(&curr->showfilename, avalue, म_माप(avalue)))
         retval = CURL_FORMADD_MEMORY;
-      break;
+      अवरोध;
 
-    default:
+    शेष:
       retval = CURL_FORMADD_UNKNOWN_OPTION;
-      break;
+      अवरोध;
     }
   }
 
-  if(!retval)
+  अगर(!retval)
     retval = formadd_check(first_form, &newchain, &lastnode);
 
-  if(retval)
+  अगर(retval)
     /* On error, free allocated fields for all nodes of the FormInfo linked
        list without deallocating nodes. List nodes are deallocated later on */
     free_formlist(first_form);
@@ -585,27 +585,27 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
   /* Always deallocate FormInfo linked list nodes without touching node
      fields given that these have either been deallocated or are owned
      now by the httppost linked list */
-  while(first_form) {
-    struct FormInfo *ptr = first_form->more;
+  जबतक(first_form) {
+    काष्ठा FormInfo *ptr = first_form->more;
     curlx_free(first_form);
     first_form = ptr;
   }
 
-  if(!retval) {
+  अगर(!retval) {
     /* Only if all is fine, link the new chain into the provided list */
-    if(*last_post)
-      (*last_post)->next = newchain;
-    else
+    अगर(*last_post)
+      (*last_post)->अग्र = newchain;
+    अन्यथा
       (*httppost) = newchain;
 
     (*last_post) = lastnode;
   }
-  else
+  अन्यथा
     free_chain(newchain);
 
-  return retval;
-#undef form_ptr_arg
-#undef form_int_arg
+  वापस retval;
+#अघोषित form_ptr_arg
+#अघोषित form_int_arg
 }
 
 /*
@@ -614,15 +614,15 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
  * @unittest: 1308
  */
 
-CURLFORMcode curl_formadd(struct curl_httppost **httppost,
-                          struct curl_httppost **last_post, ...)
+CURLFORMcode curl_formadd(काष्ठा curl_httppost **httppost,
+                          काष्ठा curl_httppost **last_post, ...)
 {
-  va_list arg;
+  बहु_सूची arg;
   CURLFORMcode form;
-  va_start(arg, last_post);
+  बहु_शुरू(arg, last_post);
   form = formadd(httppost, last_post, arg);
-  va_end(arg);
-  return form;
+  बहु_पूर्ण(arg);
+  वापस form;
 }
 
 /*
@@ -632,84 +632,84 @@ CURLFORMcode curl_formadd(struct curl_httppost **httppost,
  *
  * @unittest: 1308
  */
-int curl_formget(struct curl_httppost *form, void *arg,
+पूर्णांक curl_formget(काष्ठा curl_httppost *form, व्योम *arg,
                  curl_formget_callback append)
 {
-  CURLcode result;
+  CURLcode परिणाम;
   curl_mimepart toppart;
 
   /* Validate callback is provided */
-  if(!append)
-    return (int)CURLE_BAD_FUNCTION_ARGUMENT;
+  अगर(!append)
+    वापस (पूर्णांक)CURLE_BAD_FUNCTION_ARGUMENT;
 
   Curl_mime_initpart(&toppart); /* default form is empty */
-  result = Curl_getformdata(NULL, &toppart, form, NULL);
-  if(!result)
-    result = Curl_mime_prepare_headers(NULL, &toppart, "multipart/form-data",
-                                       NULL, MIMESTRATEGY_FORM);
+  परिणाम = Curl_getformdata(शून्य, &toppart, form, शून्य);
+  अगर(!परिणाम)
+    परिणाम = Curl_mime_prepare_headers(शून्य, &toppart, "multipart/form-data",
+                                       शून्य, MIMESTRATEGY_FORM);
 
-  while(!result) {
-    char buffer[8192];
-    size_t nread = Curl_mime_read(buffer, 1, sizeof(buffer), &toppart);
+  जबतक(!परिणाम) {
+    अक्षर बफर[8192];
+    माप_प्रकार nread = Curl_mime_read(बफर, 1, माप(बफर), &toppart);
 
-    if(!nread)
-      break;
+    अगर(!nread)
+      अवरोध;
 
-    if(nread > sizeof(buffer) || append(arg, buffer, nread) != nread) {
-      result = CURLE_READ_ERROR;
-      if(nread == CURL_READFUNC_ABORT)
-        result = CURLE_ABORTED_BY_CALLBACK;
+    अगर(nread > माप(बफर) || append(arg, बफर, nread) != nread) {
+      परिणाम = CURLE_READ_ERROR;
+      अगर(nread == CURL_READFUNC_ABORT)
+        परिणाम = CURLE_ABORTED_BY_CALLBACK;
     }
   }
 
   Curl_mime_cleanpart(&toppart);
-  return (int)result;
+  वापस (पूर्णांक)परिणाम;
 }
 
 /*
  * curl_formfree() is an external function to free up a whole form post
  * chain
  */
-void curl_formfree(struct curl_httppost *form)
+व्योम curl_formfree(काष्ठा curl_httppost *form)
 {
-  struct curl_httppost *next;
+  काष्ठा curl_httppost *अग्र;
 
-  if(!form)
+  अगर(!form)
     /* no form to free, get out of this */
-    return;
+    वापस;
 
-  do {
-    next = form->next;  /* the following form line */
+  करो {
+    अग्र = form->अग्र;  /* the following form line */
 
     /* recurse to sub-contents */
     curl_formfree(form->more);
 
-    if(!(form->flags & HTTPPOST_PTRNAME))
+    अगर(!(form->flags & HTTPPOST_PTRNAME))
       curlx_free(form->name); /* free the name */
-    if(!(form->flags &
-         (HTTPPOST_PTRCONTENTS | HTTPPOST_BUFFER | HTTPPOST_CALLBACK)))
+    अगर(!(form->flags &
+         (HTTPPOST_PTRCONTENTS | HTTPPOST_बफर | HTTPPOST_CALLBACK)))
       curlx_free(form->contents); /* free the contents */
     curlx_free(form->contenttype); /* free the content type */
     curlx_free(form->showfilename); /* free the faked filename */
     curlx_free(form);       /* free the struct */
-    form = next;
-  } while(form); /* continue */
+    form = अग्र;
+  } जबतक(form); /* continue */
 }
 
 /* Set mime part name, taking care of non null-terminated name string. */
-static CURLcode setname(curl_mimepart *part, const char *name, size_t len)
+अटल CURLcode setname(curl_mimepart *part, स्थिर अक्षर *name, माप_प्रकार len)
 {
-  char *zname;
-  CURLcode result;
+  अक्षर *zname;
+  CURLcode परिणाम;
 
-  if(!name || !len)
-    return curl_mime_name(part, name);
+  अगर(!name || !len)
+    वापस curl_mime_name(part, name);
   zname = curlx_memdup0(name, len);
-  if(!zname)
-    return CURLE_OUT_OF_MEMORY;
-  result = curl_mime_name(part, zname);
+  अगर(!zname)
+    वापस CURLE_OUT_OF_MEMORY;
+  परिणाम = curl_mime_name(part, zname);
   curlx_free(zname);
-  return result;
+  वापस परिणाम;
 }
 
 /*
@@ -722,154 +722,154 @@ static CURLcode setname(curl_mimepart *part, const char *name, size_t len)
  * NULL pointer in the 'data' argument.
  */
 
-CURLcode Curl_getformdata(CURL *data,
+CURLcode Curl_getformdata(CURL *तथ्य,
                           curl_mimepart *finalform,
-                          struct curl_httppost *post,
+                          काष्ठा curl_httppost *post,
                           curl_read_callback fread_func)
 {
-  CURLcode result = CURLE_OK;
-  curl_mime *form = NULL;
+  CURLcode परिणाम = CURLE_OK;
+  curl_mime *form = शून्य;
   curl_mimepart *part;
-  struct curl_httppost *file;
+  काष्ठा curl_httppost *file;
 
   Curl_mime_cleanpart(finalform); /* default form is empty */
 
-  if(!post)
-    return result; /* no input => no output! */
+  अगर(!post)
+    वापस परिणाम; /* no input => no output! */
 
-  form = curl_mime_init(data);
-  if(!form)
-    result = CURLE_OUT_OF_MEMORY;
+  form = curl_mime_init(तथ्य);
+  अगर(!form)
+    परिणाम = CURLE_OUT_OF_MEMORY;
 
-  if(!result)
-    result = curl_mime_subparts(finalform, form);
+  अगर(!परिणाम)
+    परिणाम = curl_mime_subparts(finalform, form);
 
   /* Process each top part. */
-  for(; !result && post; post = post->next) {
+  क्रम(; !परिणाम && post; post = post->अग्र) {
     /* If we have more than a file here, create a mime subpart and fill it. */
     curl_mime *multipart = form;
-    if(post->more) {
+    अगर(post->more) {
       part = curl_mime_addpart(form);
-      if(!part)
-        result = CURLE_OUT_OF_MEMORY;
-      if(!result)
-        result = setname(part, post->name, post->namelength);
-      if(!result) {
-        multipart = curl_mime_init(data);
-        if(!multipart)
-          result = CURLE_OUT_OF_MEMORY;
+      अगर(!part)
+        परिणाम = CURLE_OUT_OF_MEMORY;
+      अगर(!परिणाम)
+        परिणाम = setname(part, post->name, post->namelength);
+      अगर(!परिणाम) {
+        multipart = curl_mime_init(तथ्य);
+        अगर(!multipart)
+          परिणाम = CURLE_OUT_OF_MEMORY;
       }
-      if(!result)
-        result = curl_mime_subparts(part, multipart);
+      अगर(!परिणाम)
+        परिणाम = curl_mime_subparts(part, multipart);
     }
 
     /* Generate all the part contents. */
-    for(file = post; !result && file; file = file->more) {
+    क्रम(file = post; !परिणाम && file; file = file->more) {
       /* Create the part. */
       part = curl_mime_addpart(multipart);
-      if(!part)
-        result = CURLE_OUT_OF_MEMORY;
+      अगर(!part)
+        परिणाम = CURLE_OUT_OF_MEMORY;
 
       /* Set the headers. */
-      if(!result)
-        result = curl_mime_headers(part, file->contentheader, 0);
+      अगर(!परिणाम)
+        परिणाम = curl_mime_headers(part, file->contentheader, 0);
 
       /* Set the content type. */
-      if(!result && file->contenttype)
-        result = curl_mime_type(part, file->contenttype);
+      अगर(!परिणाम && file->contenttype)
+        परिणाम = curl_mime_type(part, file->contenttype);
 
       /* Set field name. */
-      if(!result && !post->more)
-        result = setname(part, post->name, post->namelength);
+      अगर(!परिणाम && !post->more)
+        परिणाम = setname(part, post->name, post->namelength);
 
       /* Process contents. */
-      if(!result) {
+      अगर(!परिणाम) {
         curl_off_t clen = post->contentslength;
 
-        if(post->flags & CURL_HTTPPOST_LARGE)
+        अगर(post->flags & CURL_HTTPPOST_LARGE)
           clen = post->contentlen;
 
-        if(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
-          if(!strcmp(file->contents, "-")) {
+        अगर(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
+          अगर(!म_भेद(file->contents, "-")) {
             /* There are a few cases where the code below will not work; in
                particular, freopen(stdin) by the caller is not guaranteed
                to result as expected. This feature has been kept for backward
                compatibility: use of "-" pseudo filename should be avoided. */
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-function-type-strict"
-#endif
-            result = curl_mime_data_cb(part, (curl_off_t)-1,
-                                       (curl_read_callback)fread,
+#अगर defined(__clang__) && __clang_major__ >= 16
+#आशय clang diagnostic धकेलो
+#आशय clang diagnostic ignored "-Wcast-function-type-strict"
+#पूर्ण_अगर
+            परिणाम = curl_mime_तथ्य_cb(part, (curl_off_t)-1,
+                                       (curl_read_callback)ख_पढ़ो,
                                        curlx_fseek,
-                                       NULL, (void *)stdin);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
-#endif
+                                       शून्य, (व्योम *)मानक_निवेश);
+#अगर defined(__clang__) && __clang_major__ >= 16
+#आशय clang diagnostic निकालो
+#पूर्ण_अगर
           }
-          else
-            result = curl_mime_filedata(part, file->contents);
-          if(!result && (post->flags & HTTPPOST_READFILE))
-            result = curl_mime_filename(part, NULL);
+          अन्यथा
+            परिणाम = curl_mime_filedata(part, file->contents);
+          अगर(!परिणाम && (post->flags & HTTPPOST_READFILE))
+            परिणाम = curl_mime_filename(part, शून्य);
         }
-        else if(post->flags & HTTPPOST_BUFFER)
-          result = curl_mime_data(part, post->buffer,
+        अन्यथा अगर(post->flags & HTTPPOST_बफर)
+          परिणाम = curl_mime_तथ्य(part, post->बफर,
                                   post->bufferlength ?
                                   post->bufferlength : -1);
-        else if(post->flags & HTTPPOST_CALLBACK) {
+        अन्यथा अगर(post->flags & HTTPPOST_CALLBACK) {
           /* the contents should be read with the callback and the size is set
              with the contentslength */
-          if(!clen)
+          अगर(!clen)
             clen = -1;
-          result = curl_mime_data_cb(part, clen,
-                                     fread_func, NULL, NULL, post->userp);
+          परिणाम = curl_mime_तथ्य_cb(part, clen,
+                                     fread_func, शून्य, शून्य, post->userp);
         }
-        else {
-          size_t uclen;
-          if(!clen)
+        अन्यथा {
+          माप_प्रकार uclen;
+          अगर(!clen)
             uclen = CURL_ZERO_TERMINATED;
-          else
-            uclen = (size_t)clen;
-          result = curl_mime_data(part, post->contents, uclen);
+          अन्यथा
+            uclen = (माप_प्रकार)clen;
+          परिणाम = curl_mime_तथ्य(part, post->contents, uclen);
         }
       }
 
       /* Set fake filename. */
-      if(!result && post->showfilename &&
-         (post->more || (post->flags & (HTTPPOST_FILENAME | HTTPPOST_BUFFER |
+      अगर(!परिणाम && post->showfilename &&
+         (post->more || (post->flags & (HTTPPOST_FILENAME | HTTPPOST_बफर |
                                         HTTPPOST_CALLBACK))))
-        result = curl_mime_filename(part, post->showfilename);
+        परिणाम = curl_mime_filename(part, post->showfilename);
     }
   }
 
-  if(result)
+  अगर(परिणाम)
     Curl_mime_cleanpart(finalform);
 
-  return result;
+  वापस परिणाम;
 }
 
-#else /* if disabled */
-CURLFORMcode curl_formadd(struct curl_httppost **httppost,
-                          struct curl_httppost **last_post, ...)
+#अन्यथा /* if disabled */
+CURLFORMcode curl_formadd(काष्ठा curl_httppost **httppost,
+                          काष्ठा curl_httppost **last_post, ...)
 {
-  (void)httppost;
-  (void)last_post;
-  return CURL_FORMADD_DISABLED;
+  (व्योम)httppost;
+  (व्योम)last_post;
+  वापस CURL_FORMADD_DISABLED;
 }
 
-int curl_formget(struct curl_httppost *form, void *arg,
+पूर्णांक curl_formget(काष्ठा curl_httppost *form, व्योम *arg,
                  curl_formget_callback append)
 {
-  (void)form;
-  (void)arg;
-  (void)append;
-  return CURL_FORMADD_DISABLED;
+  (व्योम)form;
+  (व्योम)arg;
+  (व्योम)append;
+  वापस CURL_FORMADD_DISABLED;
 }
 
-void curl_formfree(struct curl_httppost *form)
+व्योम curl_formfree(काष्ठा curl_httppost *form)
 {
-  (void)form;
+  (व्योम)form;
   /* Nothing to do. */
 }
 
-#endif /* if disabled */
+#पूर्ण_अगर /* if disabled */

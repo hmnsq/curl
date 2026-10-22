@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_ARPA_TELNET_H
-#define HEADER_CURL_ARPA_TELNET_H
+#अगर_अघोषित HEADER_CURL_ARPA_TELNET_H
+#घोषणा HEADER_CURL_ARPA_TELNET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,27 +23,27 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_TELNET
+#अगर_अघोषित CURL_DISABLE_TELNET
 /*
  * Telnet option defines. Add more here if in need.
  */
-#define CURL_TELOPT_BINARY      0   /* binary 8-bit data */
-#define CURL_TELOPT_ECHO        1   /* echo */
-#define CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
-#define CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
-#define CURL_TELOPT_TTYPE       24  /* Terminal TYPE */
-#define CURL_TELOPT_NAWS        31  /* Negotiate About Window Size */
-#define CURL_TELOPT_XDISPLOC    35  /* X DISPlay LOCation */
-#define CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
+#घोषणा CURL_TELOPT_द्विआधारी      0   /* binary 8-bit data */
+#घोषणा CURL_TELOPT_ECHO        1   /* echo */
+#घोषणा CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
+#घोषणा CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
+#घोषणा CURL_TELOPT_TTYPE       24  /* Terminal TYPE */
+#घोषणा CURL_TELOPT_NAWS        31  /* Negotiate About Window Size */
+#घोषणा CURL_TELOPT_XDISPLOC    35  /* X DISPlay LOCation */
+#घोषणा CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
 
-#define CURL_NEW_ENV_VAR   0
-#define CURL_NEW_ENV_VALUE 1
+#घोषणा CURL_NEW_ENV_VAR   0
+#घोषणा CURL_NEW_ENV_मूल्य 1
 
-#ifdef CURLVERBOSE
+#अगर_घोषित CURLVERBOSE
 /*
  * The telnet options represented as strings
  */
-static const char * const telnetoptions[] = {
+अटल स्थिर अक्षर * स्थिर telnetoptions[] = {
   "BINARY",      "ECHO",           "RCP",           "SUPPRESS GO AHEAD",
   "NAME",        "STATUS",         "TIMING MARK",   "RCTE",
   "NAOL",        "NAOP",           "NAOCRD",        "NAOHTS",
@@ -55,62 +55,62 @@ static const char * const telnetoptions[] = {
   "TERM SPEED",  "LFLOW",          "LINEMODE",      "XDISPLOC",
   "OLD-ENVIRON", "AUTHENTICATION", "ENCRYPT",       "NEW-ENVIRON"
 };
-#define CURL_TELOPT(x) telnetoptions[x]
-#else
-#define CURL_TELOPT(x) ""
-#endif
+#घोषणा CURL_TELOPT(x) telnetoptions[x]
+#अन्यथा
+#घोषणा CURL_TELOPT(x) ""
+#पूर्ण_अगर
 
-#define CURL_TELOPT_MAXIMUM CURL_TELOPT_NEW_ENVIRON
+#घोषणा CURL_TELOPT_MAXIMUM CURL_TELOPT_NEW_ENVIRON
 
-#define CURL_TELOPT_OK(x) ((x) <= CURL_TELOPT_MAXIMUM)
+#घोषणा CURL_TELOPT_OK(x) ((x) <= CURL_TELOPT_MAXIMUM)
 
-#define CURL_NTELOPTS 40
+#घोषणा CURL_NTELOPTS 40
 
 /*
  * First some defines
  */
-#define CURL_xEOF 236 /* End Of File */
-#define CURL_SE   240 /* Sub negotiation End */
-#define CURL_NOP  241 /* No OPeration */
-#define CURL_DM   242 /* Data Mark */
-#define CURL_GA   249 /* Go Ahead, reverse the line */
-#define CURL_SB   250 /* SuBnegotiation */
-#define CURL_WILL 251 /* Our side WILL use this option */
-#define CURL_WONT 252 /* Our side will not use this option */
-#define CURL_DO   253 /* DO use this option! */
-#define CURL_DONT 254 /* DO NOT use this option! */
-#define CURL_IAC  255 /* Interpret As Command */
+#घोषणा CURL_xEOF 236 /* End Of File */
+#घोषणा CURL_SE   240 /* Sub negotiation End */
+#घोषणा CURL_NOP  241 /* No OPeration */
+#घोषणा CURL_DM   242 /* Data Mark */
+#घोषणा CURL_GA   249 /* Go Ahead, reverse the line */
+#घोषणा CURL_SB   250 /* SuBnegotiation */
+#घोषणा CURL_WILL 251 /* Our side WILL use this option */
+#घोषणा CURL_WONT 252 /* Our side will not use this option */
+#घोषणा CURL_DO   253 /* DO use this option! */
+#घोषणा CURL_DONT 254 /* DO NOT use this option! */
+#घोषणा CURL_IAC  255 /* Interpret As Command */
 
-#ifdef CURLVERBOSE
+#अगर_घोषित CURLVERBOSE
 /*
  * Then those numbers represented as strings:
  */
-static const char * const telnetcmds[] = {
+अटल स्थिर अक्षर * स्थिर telnetcmds[] = {
   "EOF",  "SUSP",  "ABORT", "EOR",  "SE",
   "NOP",  "DMARK", "BRK",   "IP",   "AO",
   "AYT",  "EC",    "EL",    "GA",   "SB",
   "WILL", "WONT",  "DO",    "DONT", "IAC"
 };
-#endif
+#पूर्ण_अगर
 
-#define CURL_TELCMD_MINIMUM CURL_xEOF /* the first one */
-#define CURL_TELCMD_MAXIMUM CURL_IAC  /* surprise, 255 is the last one! ;-) */
+#घोषणा CURL_TELCMD_MINIMUM CURL_xEOF /* the first one */
+#घोषणा CURL_TELCMD_MAXIMUM CURL_IAC  /* surprise, 255 is the last one! ;-) */
 
-#define CURL_TELQUAL_IS   0
-#define CURL_TELQUAL_SEND 1
-#define CURL_TELQUAL_INFO 2
-#define CURL_TELQUAL_NAME 3
+#घोषणा CURL_TELQUAL_IS   0
+#घोषणा CURL_TELQUAL_SEND 1
+#घोषणा CURL_TELQUAL_INFO 2
+#घोषणा CURL_TELQUAL_NAME 3
 
-#define CURL_TELCMD_OK(x)                        \
-  (((unsigned int)(x) >= CURL_TELCMD_MINIMUM) && \
-   ((unsigned int)(x) <= CURL_TELCMD_MAXIMUM))
+#घोषणा CURL_TELCMD_OK(x)                        \
+  (((अचिन्हित पूर्णांक)(x) >= CURL_TELCMD_MINIMUM) && \
+   ((अचिन्हित पूर्णांक)(x) <= CURL_TELCMD_MAXIMUM))
 
-#ifdef CURLVERBOSE
-#define CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
-#else
-#define CURL_TELCMD(x) ""
-#endif
+#अगर_घोषित CURLVERBOSE
+#घोषणा CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
+#अन्यथा
+#घोषणा CURL_TELCMD(x) ""
+#पूर्ण_अगर
 
-#endif /* CURL_DISABLE_TELNET */
+#पूर्ण_अगर /* CURL_DISABLE_TELNET */
 
-#endif /* HEADER_CURL_ARPA_TELNET_H */
+#पूर्ण_अगर /* HEADER_CURL_ARPA_TELNET_H */

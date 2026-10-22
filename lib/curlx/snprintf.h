@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_SNPRINTF_H
-#define HEADER_CURLX_SNPRINTF_H
+#अगर_अघोषित HEADER_CURLX_SNPRINTF_H
+#घोषणा HEADER_CURLX_SNPRINTF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
 /* Raw snprintf() for curlx */
 
-#ifdef _WIN32
-void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
+#अगर_घोषित _WIN32
+व्योम curlx_win32_snprintf(अक्षर *buf, माप_प्रकार maxlen, स्थिर अक्षर *fmt, ...)
   CURL_PRINTF(3, 4);
-#endif
+#पूर्ण_अगर
 
-#ifdef WITHOUT_LIBCURL /* when built for the test servers */
-#ifdef _WIN32
-#define SNPRINTF curlx_win32_snprintf
-#else
-#define SNPRINTF snprintf
-#endif
-#else /* !WITHOUT_LIBCURL */
-#include <curl/mprintf.h>
-#define SNPRINTF curl_msnprintf
-#endif /* WITHOUT_LIBCURL */
-#endif /* HEADER_CURLX_SNPRINTF_H */
+#अगर_घोषित WITHOUT_LIBCURL /* when built for the test servers */
+#अगर_घोषित _WIN32
+#घोषणा SNPRINTF curlx_win32_snprintf
+#अन्यथा
+#घोषणा SNPRINTF snprintf
+#पूर्ण_अगर
+#अन्यथा /* !WITHOUT_LIBCURL */
+#समावेश <curl/mprintf.h>
+#घोषणा SNPRINTF curl_msnprintf
+#पूर्ण_अगर /* WITHOUT_LIBCURL */
+#पूर्ण_अगर /* HEADER_CURLX_SNPRINTF_H */

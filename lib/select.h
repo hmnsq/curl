@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SELECT_H
-#define HEADER_CURL_SELECT_H
+#अगर_अघोषित HEADER_CURL_SELECT_H
+#घोषणा HEADER_CURL_SELECT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,210 +23,210 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef HAVE_POLL_H
-#include <poll.h>
-#elif defined(HAVE_SYS_POLL_H)
-#include <sys/poll.h>
-#endif
+#अगर_घोषित HAVE_POLL_H
+#समावेश <poll.h>
+#या_अगर defined(HAVE_SYS_POLL_H)
+#समावेश <sys/poll.h>
+#पूर्ण_अगर
 
 /*
  * Definition of pollfd struct and constants for platforms lacking them.
  */
 
-#if !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
+#अगर !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
 
-#define POLLIN      0x01
-#define POLLPRI     0x02
-#define POLLOUT     0x04
-#define POLLERR     0x08
-#define POLLHUP     0x10
-#define POLLNVAL    0x20
+#घोषणा POLLIN      0x01
+#घोषणा POLLPRI     0x02
+#घोषणा POLLOUT     0x04
+#घोषणा POLLERR     0x08
+#घोषणा POLLHUP     0x10
+#घोषणा POLLNVAL    0x20
 
-struct pollfd {
+काष्ठा pollfd {
   curl_socket_t fd;
-  short events;
-  short revents;
+  लघु events;
+  लघु revents;
 };
 
-#endif
+#पूर्ण_अगर
 
-#ifndef POLLRDNORM
-#define POLLRDNORM POLLIN
-#endif
+#अगर_अघोषित POLLRDNORM
+#घोषणा POLLRDNORM POLLIN
+#पूर्ण_अगर
 
-#ifndef POLLWRNORM
-#define POLLWRNORM POLLOUT
-#endif
+#अगर_अघोषित POLLWRNORM
+#घोषणा POLLWRNORM POLLOUT
+#पूर्ण_अगर
 
-#ifndef POLLRDBAND
-#define POLLRDBAND POLLPRI
-#endif
+#अगर_अघोषित POLLRDBAND
+#घोषणा POLLRDBAND POLLPRI
+#पूर्ण_अगर
 
 /* there are three CSELECT defines that are defined in the public header that
    are exposed to users, but this *IN2 bit is only ever used internally and
    therefore defined here */
-#define CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
+#घोषणा CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
 
-int Curl_socket_check(curl_socket_t readfd0,
+पूर्णांक Curl_socket_check(curl_socket_t readfd0,
                       curl_socket_t readfd1,
                       curl_socket_t writefd,
                       timediff_t timeout_ms);
-#define SOCKET_READABLE(x, z)                               \
+#घोषणा SOCKET_READABLE(x, z)                               \
   Curl_socket_check(x, CURL_SOCKET_BAD, CURL_SOCKET_BAD, z)
-#define SOCKET_WRITABLE(x, z)                               \
+#घोषणा SOCKET_WRITABLE(x, z)                               \
   Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
 
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
+पूर्णांक Curl_poll(काष्ठा pollfd ufds[], अचिन्हित पूर्णांक nfds, timediff_t timeout_ms);
 
 /* With Winsock the valid range is [0..INVALID_SOCKET-1] according to
    https://learn.microsoft.com/windows/win32/winsock/socket-data-type-2 */
-#ifdef USE_WINSOCK
-#define VALID_SOCK(s) ((s) < INVALID_SOCKET)
-#define FDSET_SOCK(x) 1
-#define VERIFY_SOCK(x)           \
-  do {                           \
-    if(!VALID_SOCK(x)) {         \
+#अगर_घोषित USE_WINSOCK
+#घोषणा VALID_SOCK(s) ((s) < INVALID_SOCKET)
+#घोषणा FDSET_SOCK(x) 1
+#घोषणा VERIFY_SOCK(x)           \
+  करो {                           \
+    अगर(!VALID_SOCK(x)) {         \
       SET_SOCKERRNO(SOCKEINVAL); \
-      return -1;                 \
+      वापस -1;                 \
     }                            \
-  } while(0)
-#else
-#define VALID_SOCK(s) ((s) >= 0)
+  } जबतक(0)
+#अन्यथा
+#घोषणा VALID_SOCK(s) ((s) >= 0)
 
 /* If the socket is small enough to get set or read from an fdset */
-#define FDSET_SOCK(s) ((s) < FD_SETSIZE)
+#घोषणा FDSET_SOCK(s) ((s) < FD_SETSIZE)
 
-#define VERIFY_SOCK(x)                     \
-  do {                                     \
-    if(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
+#घोषणा VERIFY_SOCK(x)                     \
+  करो {                                     \
+    अगर(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
       SET_SOCKERRNO(SOCKEINVAL);           \
-      return -1;                           \
+      वापस -1;                           \
     }                                      \
-  } while(0)
-#endif
+  } जबतक(0)
+#पूर्ण_अगर
 
 /* Keep the sockets to poll for an easy handle.
  * `actions` are bitmaps of CURL_POLL_IN and CURL_POLL_OUT.
  * Starts with small capacity, grows on demand.
  */
-#define EZ_POLLSET_DEF_COUNT 2
+#घोषणा EZ_POLLSET_DEF_गिनती 2
 
-struct easy_pollset {
+काष्ठा easy_pollset {
   curl_socket_t *sockets;
-  unsigned char *actions;
-  unsigned int n;
-  unsigned int count;
-#ifdef DEBUGBUILD
-  int init;
-#endif
-  curl_socket_t def_sockets[EZ_POLLSET_DEF_COUNT];
-  unsigned char def_actions[EZ_POLLSET_DEF_COUNT];
+  अचिन्हित अक्षर *actions;
+  अचिन्हित पूर्णांक n;
+  अचिन्हित पूर्णांक गिनती;
+#अगर_घोषित DEBUGBUILD
+  पूर्णांक init;
+#पूर्ण_अगर
+  curl_socket_t def_sockets[EZ_POLLSET_DEF_गिनती];
+  अचिन्हित अक्षर def_actions[EZ_POLLSET_DEF_गिनती];
 };
 
-#ifdef DEBUGBUILD
-#define CURL_EASY_POLLSET_MAGIC  0x7a657370
-#endif
+#अगर_घोषित DEBUGBUILD
+#घोषणा CURL_EASY_POLLSET_MAGIC  0x7a657370
+#पूर्ण_अगर
 
 /* allocate and initialize */
-struct easy_pollset *Curl_pollset_create(void);
+काष्ठा easy_pollset *Curl_pollset_create(व्योम);
 
 /* Initialize before first use */
-void Curl_pollset_init(struct easy_pollset *ps);
+व्योम Curl_pollset_init(काष्ठा easy_pollset *ps);
 /* Free any allocated resources */
-void Curl_pollset_cleanup(struct easy_pollset *ps);
+व्योम Curl_pollset_cleanup(काष्ठा easy_pollset *ps);
 /* Reset to an empty pollset */
-void Curl_pollset_reset(struct easy_pollset *ps);
+व्योम Curl_pollset_reset(काष्ठा easy_pollset *ps);
 /* Move pollset from to pollset to, replacing all in to,
  * leaving from empty. */
-void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from);
+व्योम Curl_pollset_move(काष्ठा easy_pollset *to, काष्ठा easy_pollset *from);
 
 /* Change the poll flags (CURL_POLL_IN/CURL_POLL_OUT) to the poll set for
  * socket `sock`. If the socket is not already part of the poll set, it
  * will be added.
  * If the socket is present and all poll flags are cleared, it will be removed.
  */
-CURLcode Curl_pollset_change(struct Curl_easy *data,
-                             struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags,
-                             int remove_flags) WARN_UNUSED_RESULT;
+CURLcode Curl_pollset_change(काष्ठा Curl_easy *तथ्य,
+                             काष्ठा easy_pollset *ps, curl_socket_t sock,
+                             पूर्णांक add_flags,
+                             पूर्णांक remove_flags) WARN_UNUSED_परिणाम;
 
-CURLcode Curl_pollset_set(struct Curl_easy *data,
-                          struct easy_pollset *ps, curl_socket_t sock,
-                          bool do_in, bool do_out) WARN_UNUSED_RESULT;
+CURLcode Curl_pollset_set(काष्ठा Curl_easy *तथ्य,
+                          काष्ठा easy_pollset *ps, curl_socket_t sock,
+                          bool do_in, bool do_out) WARN_UNUSED_परिणाम;
 
-#define Curl_pollset_add_in(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0)
-#define Curl_pollset_remove_in(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, 0, CURL_POLL_IN)
-#define Curl_pollset_add_out(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_OUT, 0)
-#define Curl_pollset_remove_out(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, 0, CURL_POLL_OUT)
-#define Curl_pollset_add_inout(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN | CURL_POLL_OUT, 0)
-#define Curl_pollset_set_in_only(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_IN, CURL_POLL_OUT)
-#define Curl_pollset_set_out_only(data, ps, sock) \
-  Curl_pollset_change(data, ps, sock, CURL_POLL_OUT, CURL_POLL_IN)
+#घोषणा Curl_pollset_add_in(तथ्य, ps, sock) \
+  Curl_pollset_change(तथ्य, ps, sock, CURL_POLL_IN, 0)
+#घोषणा Curl_pollset_remove_in(तथ्य, ps, sock) \
+  Curl_pollset_change(तथ्य, ps, sock, 0, CURL_POLL_IN)
+#घोषणा Curl_pollset_add_out(तथ्य, ps, sock) \
+  Curl_pollset_change(तथ्य, ps, sock, CURL_POLL_OUT, 0)
+#घोषणा Curl_pollset_remove_out(तथ्य, ps, sock) \
+  Curl_pollset_change(तथ्य, ps, sock, 0, CURL_POLL_OUT)
+#घोषणा Curl_pollset_add_inout(तथ्य, ps, sock) \
+  Curl_pollset_change(तथ्य, ps, sock, CURL_POLL_IN | CURL_POLL_OUT, 0)
+#घोषणा Curl_pollset_set_in_only(तथ्य, ps, sock) \
+  Curl_pollset_change(तथ्य, ps, sock, CURL_POLL_IN, CURL_POLL_OUT)
+#घोषणा Curl_pollset_set_out_only(तथ्य, ps, sock) \
+  Curl_pollset_change(तथ्य, ps, sock, CURL_POLL_OUT, CURL_POLL_IN)
 
-void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock);
+व्योम Curl_pollset_remove(काष्ठा easy_pollset *ps, curl_socket_t sock);
 
 /* return < = on error, 0 on timeout or how many sockets are ready */
-int Curl_pollset_poll(struct Curl_easy *data,
-                      struct easy_pollset *ps,
+पूर्णांक Curl_pollset_poll(काष्ठा Curl_easy *तथ्य,
+                      काष्ठा easy_pollset *ps,
                       timediff_t timeout_ms);
 
 /**
  * Check if the pollset, as is, wants to read and/or write regarding
  * the given socket.
  */
-void Curl_pollset_check(struct Curl_easy *data,
-                        struct easy_pollset *ps, curl_socket_t sock,
+व्योम Curl_pollset_check(काष्ठा Curl_easy *तथ्य,
+                        काष्ठा easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write);
 
 /* TRUE if the pollset contains socket with CURL_POLL_IN. */
-bool Curl_pollset_want_recv(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_recv(काष्ठा Curl_easy *तथ्य,
+                            काष्ठा easy_pollset *ps,
                             curl_socket_t sock);
 /* TRUE if the pollset contains socket with CURL_POLL_OUT. */
-bool Curl_pollset_want_send(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_send(काष्ठा Curl_easy *तथ्य,
+                            काष्ठा easy_pollset *ps,
                             curl_socket_t sock);
 
-struct curl_pollfds {
-  struct pollfd *pfds;
-  unsigned int n;
-  unsigned int count;
+काष्ठा curl_pollfds {
+  काष्ठा pollfd *pfds;
+  अचिन्हित पूर्णांक n;
+  अचिन्हित पूर्णांक गिनती;
   BIT(allocated_pfds);
 };
 
-void Curl_pollfds_init(struct curl_pollfds *cpfds,
-                       struct pollfd *static_pfds,
-                       unsigned int static_count);
+व्योम Curl_pollfds_init(काष्ठा curl_pollfds *cpfds,
+                       काष्ठा pollfd *static_pfds,
+                       अचिन्हित पूर्णांक static_गिनती);
 
-void Curl_pollfds_reset(struct curl_pollfds *cpfds);
+व्योम Curl_pollfds_reset(काष्ठा curl_pollfds *cpfds);
 
-void Curl_pollfds_cleanup(struct curl_pollfds *cpfds);
+व्योम Curl_pollfds_cleanup(काष्ठा curl_pollfds *cpfds);
 
-CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
-                             struct easy_pollset *ps);
+CURLcode Curl_pollfds_add_ps(काष्ठा curl_pollfds *cpfds,
+                             काष्ठा easy_pollset *ps);
 
-CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events);
+CURLcode Curl_pollfds_add_sock(काष्ठा curl_pollfds *cpfds,
+                               curl_socket_t sock, लघु events);
 
-struct Curl_waitfds {
-  struct curl_waitfd *wfds;
-  unsigned int n;
-  unsigned int count;
+काष्ठा Curl_waitfds {
+  काष्ठा curl_waitfd *wfds;
+  अचिन्हित पूर्णांक n;
+  अचिन्हित पूर्णांक गिनती;
 };
 
-void Curl_waitfds_init(struct Curl_waitfds *cwfds,
-                       struct curl_waitfd *static_wfds,
-                       unsigned int static_count);
+व्योम Curl_waitfds_init(काष्ठा Curl_waitfds *cwfds,
+                       काष्ठा curl_waitfd *static_wfds,
+                       अचिन्हित पूर्णांक static_गिनती);
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
-                                 struct easy_pollset *ps);
+अचिन्हित पूर्णांक Curl_waitfds_add_ps(काष्ठा Curl_waitfds *cwfds,
+                                 काष्ठा easy_pollset *ps);
 
-#endif /* HEADER_CURL_SELECT_H */
+#पूर्ण_अगर /* HEADER_CURL_SELECT_H */

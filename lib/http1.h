@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP1_H
-#define HEADER_CURL_HTTP1_H
+#अगर_अघोषित HEADER_CURL_HTTP1_H
+#घोषणा HEADER_CURL_HTTP1_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,41 +23,41 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
-#include "bufq.h"
-#include "http.h"
+#अगर_अघोषित CURL_DISABLE_HTTP
+#समावेश "bufq.h"
+#समावेश "http.h"
 
-#define H1_PARSE_OPT_NONE       0
-#define H1_PARSE_OPT_STRICT     (1 << 0)
+#घोषणा H1_PARSE_OPT_NONE       0
+#घोषणा H1_PARSE_OPT_STRICT     (1 << 0)
 
-#define H1_PARSE_DEFAULT_MAX_LINE_LEN   DYN_HTTP_REQUEST
+#घोषणा H1_PARSE_DEFAULT_MAX_पंक्ति_LEN   DYN_HTTP_REQUEST
 
-struct h1_req_parser {
-  struct httpreq *req;
-  struct dynbuf scratch;
-  size_t scratch_skip;
-  const char *line;
-  size_t max_line_len;
-  size_t line_len;
+काष्ठा h1_req_parser {
+  काष्ठा httpreq *req;
+  काष्ठा dynbuf scratch;
+  माप_प्रकार scratch_skip;
+  स्थिर अक्षर *पंक्ति;
+  माप_प्रकार max_पंक्ति_len;
+  माप_प्रकार पंक्ति_len;
   BIT(done);
 };
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len);
-void Curl_h1_req_parse_free(struct h1_req_parser *parser);
+व्योम Curl_h1_req_parse_init(काष्ठा h1_req_parser *parser, माप_प्रकार max_पंक्ति_len);
+व्योम Curl_h1_req_parse_free(काष्ठा h1_req_parser *parser);
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread);
+CURLcode Curl_h1_req_parse_read(काष्ठा h1_req_parser *parser,
+                                स्थिर uint8_t *buf, माप_प्रकार buflen,
+                                स्थिर अक्षर *scheme_default,
+                                स्थिर अक्षर *custom_method,
+                                पूर्णांक options, माप_प्रकार *pnread);
 
-CURLcode Curl_h1_req_dprint(const struct httpreq *req,
-                            struct dynbuf *dbuf);
+CURLcode Curl_h1_req_dprint(स्थिर काष्ठा httpreq *req,
+                            काष्ठा dynbuf *dbuf);
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf);
+CURLcode Curl_h1_req_write_शीर्ष(काष्ठा httpreq *req, पूर्णांक http_minor,
+                                काष्ठा dynbuf *dbuf);
 
-#endif /* !CURL_DISABLE_HTTP */
-#endif /* HEADER_CURL_HTTP1_H */
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* HEADER_CURL_HTTP1_H */

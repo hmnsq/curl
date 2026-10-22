@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_NTLM_H
-#define HEADER_CURL_HTTP_NTLM_H
+#अगर_अघोषित HEADER_CURL_HTTP_NTLM_H
+#घोषणा HEADER_CURL_HTTP_NTLM_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
+#अगर !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
 
 /* this is for NTLM header input */
-CURLcode Curl_input_ntlm(struct Curl_easy *data, bool proxy,
-                         const char *header);
+CURLcode Curl_निवेश_ntlm(काष्ठा Curl_easy *तथ्य, bool proxy,
+                         स्थिर अक्षर *header);
 
 /* this is for creating NTLM header output */
-CURLcode Curl_output_ntlm(struct Curl_easy *data, bool proxy);
+CURLcode Curl_output_ntlm(काष्ठा Curl_easy *तथ्य, bool proxy);
 
-#endif
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_HTTP_NTLM_H */
+#पूर्ण_अगर /* HEADER_CURL_HTTP_NTLM_H */

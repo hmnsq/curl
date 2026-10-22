@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_CONFIG_H
-#define HEADER_CURL_VTLS_CONFIG_H
+#अगर_अघोषित HEADER_CURL_VTLS_CONFIG_H
+#घोषणा HEADER_CURL_VTLS_CONFIG_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,41 +23,41 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct Curl_peer;
+काष्ठा Curl_easy;
+काष्ठा connectdata;
+काष्ठा Curl_peer;
 
-struct ssl_filter_config {
-  char *CApath;          /* certificate directory (does not work on Windows) */
-  char *CAfile;          /* certificate to verify peer against */
-  char *issuercert;      /* optional issuer certificate filename */
-  char *clientcert;
-  char *cipher_list;     /* list of ciphers to use */
-  char *cipher_list13;   /* list of TLS 1.3 cipher suites to use */
-  char *signature_algorithms; /* list of signature algorithms to use */
-  char *pinned_key;
-  char *CRLfile;         /* CRL to check certificate revocation */
-  char *cert_type;       /* format for certificate (default: PEM) */
-  char *key;             /* private key filename */
-  char *key_type;        /* format for private key (default: PEM) */
-  char *key_passwd;      /* plain text private key password */
-#ifdef USE_ECH
-  char *ech_config;      /* TLS ECH configuration, base64 string */
-  char *ech_public;      /* TLS ECH public DNS (SNI in outer ClientHello) */
-#endif
-  struct curl_blob *cert_blob;
-  struct curl_blob *ca_info_blob;
-  struct curl_blob *issuercert_blob;
-  struct curl_blob *key_blob;
-  char *curves;          /* list of curves to use */
+काष्ठा ssl_filter_config {
+  अक्षर *CApath;          /* certificate directory (does not work on Windows) */
+  अक्षर *CAfile;          /* certificate to verify peer against */
+  अक्षर *issuercert;      /* optional issuer certificate filename */
+  अक्षर *clientcert;
+  अक्षर *cipher_list;     /* list of ciphers to use */
+  अक्षर *cipher_list13;   /* list of TLS 1.3 cipher suites to use */
+  अक्षर *signature_algorithms; /* list of signature algorithms to use */
+  अक्षर *pinned_कुंजी;
+  अक्षर *CRLfile;         /* CRL to check certificate revocation */
+  अक्षर *cert_type;       /* format for certificate (default: PEM) */
+  अक्षर *कुंजी;             /* private key filename */
+  अक्षर *कुंजी_type;        /* format for private key (default: PEM) */
+  अक्षर *कुंजी_passwd;      /* plain text private key password */
+#अगर_घोषित USE_ECH
+  अक्षर *ech_config;      /* TLS ECH configuration, base64 string */
+  अक्षर *ech_public;      /* TLS ECH public DNS (SNI in outer ClientHello) */
+#पूर्ण_अगर
+  काष्ठा curl_blob *cert_blob;
+  काष्ठा curl_blob *ca_info_blob;
+  काष्ठा curl_blob *issuercert_blob;
+  काष्ठा curl_blob *कुंजी_blob;
+  अक्षर *curves;          /* list of curves to use */
   uint32_t version_max; /* max supported version the client wants to use */
   uint8_t ssl_options;  /* the CURLOPT_SSL_OPTIONS bitmask */
   uint8_t version;    /* what version the client wants to use */
-#ifdef USE_ECH
+#अगर_घोषित USE_ECH
   uint8_t ech;           /* TLS ECH CURLECH_((DIS|EN)ABLE|GREASE) */
-#endif
+#पूर्ण_अगर
   BIT(verifypeer);       /* set TRUE if this is desired */
   BIT(verifyhost);       /* set TRUE if CN/SAN must match hostname */
   BIT(verifystatus);     /* set TRUE if certificate status must be checked */
@@ -74,14 +74,14 @@ struct ssl_filter_config {
                               list errors */
 };
 
-struct ssl_easy_config {
-  long certverifyresult; /* result from the certificate verification */
+काष्ठा ssl_easy_config {
+  दीर्घ certverifyresult; /* result from the certificate verification */
   uint32_t version_max; /* max supported version the client wants to use */
   uint8_t version;    /* what version the client wants to use */
   uint8_t ssl_options;  /* the CURLOPT_SSL_OPTIONS bitmask */
-#ifdef USE_ECH
+#अगर_घोषित USE_ECH
   uint8_t ech;           /* TLS ECH CURLECH_((DIS|EN)ABLE|GREASE) */
-#endif
+#पूर्ण_अगर
   BIT(verifypeer);       /* set TRUE if this is desired */
   BIT(verifyhost);       /* set TRUE if CN/SAN must match hostname */
   BIT(verifystatus);     /* set TRUE if certificate status must be checked */
@@ -92,40 +92,40 @@ struct ssl_easy_config {
   BIT(custom_cablob); /* application has set custom CA blob */
 };
 
-void Curl_ssl_config_init(struct ssl_easy_config *sslc);
-void Curl_ssl_config_cleanup(struct ssl_filter_config *sslc);
+व्योम Curl_ssl_config_init(काष्ठा ssl_easy_config *sslc);
+व्योम Curl_ssl_config_cleanup(काष्ठा ssl_filter_config *sslc);
 
 /* Init the SSL filter configs *shallow* for connection matching
  * with origin and data's configuration settings. */
 CURLcode Curl_ssl_filter_config_tmp_init(
-  struct Curl_easy *data, struct Curl_peer *origin,
-  struct ssl_filter_config *ssl_origin,
-  struct ssl_filter_config *ssl_proxy);
+  काष्ठा Curl_easy *तथ्य, काष्ठा Curl_peer *origin,
+  काष्ठा ssl_filter_config *ssl_origin,
+  काष्ठा ssl_filter_config *ssl_proxy);
 
 /* Clone the given filter configs into the connection. */
-CURLcode Curl_ssl_conn_config_clone(struct ssl_filter_config *ssl_config,
-                                    struct ssl_filter_config *proxy_ssl_config,
-                                    struct connectdata *conn);
+CURLcode Curl_ssl_conn_config_clone(काष्ठा ssl_filter_config *ssl_config,
+                                    काष्ठा ssl_filter_config *proxy_ssl_config,
+                                    काष्ठा connectdata *conn);
 
 /**
  * Free allocated resources in SSL configs (main + proxy) for
  * the given connection.
  */
-void Curl_ssl_conn_config_cleanup(struct connectdata *conn);
+व्योम Curl_ssl_conn_config_cleanup(काष्ठा connectdata *conn);
 
 /**
  * Return TRUE if `conn_config` is functionally the
  * same as the one on `candidate`.
  * @param proxy   match the proxy SSL config or the main one
  */
-bool Curl_ssl_conn_config_match(struct Curl_easy *data,
-                                struct ssl_filter_config *conn_config,
-                                struct connectdata *candidate,
+bool Curl_ssl_conn_config_match(काष्ठा Curl_easy *तथ्य,
+                                काष्ठा ssl_filter_config *conn_config,
+                                काष्ठा connectdata *candidate,
                                 bool proxy);
 
 /* Update certain connection SSL config flags after they have
  * been changed on the easy handle. Works for `verifypeer`,
  * `verifyhost` and `verifystatus`. */
-void Curl_ssl_conn_config_update(struct Curl_easy *data, bool for_proxy);
+व्योम Curl_ssl_conn_config_update(काष्ठा Curl_easy *तथ्य, bool for_proxy);
 
-#endif /* HEADER_CURL_VTLS_CONFIG_H */
+#पूर्ण_अगर /* HEADER_CURL_VTLS_CONFIG_H */

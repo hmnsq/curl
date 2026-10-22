@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_QUICHE_H
-#define HEADER_CURL_VQUIC_CF_QUICHE_H
+#अगर_अघोषित HEADER_CURL_VQUIC_CF_QUICHE_H
+#घोषणा HEADER_CURL_VQUIC_CF_QUICHE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,29 +23,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#अगर !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 
-#include <quiche.h>
-#include <openssl/ssl.h>
+#समावेश <quiche.h>
+#समावेश <openssl/ssl.h>
 
-struct Curl_cfilter;
-struct Curl_easy;
+काष्ठा Curl_cfilter;
+काष्ठा Curl_easy;
 
-void Curl_quiche_ver(char *p, size_t len);
+व्योम Curl_quiche_ver(अक्षर *p, माप_प्रकार len);
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_quiche_create(काष्ठा Curl_cfilter **pcf,
+                               काष्ठा Curl_easy *तथ्य,
+                               काष्ठा Curl_peer *origin,
+                               काष्ठा Curl_peer *peer,
+                               काष्ठा connectdata *conn,
+                               काष्ठा Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_quiche_जोड़ो_after(काष्ठा Curl_cfilter *cf_at,
+                                     काष्ठा Curl_peer *origin,
+                                     काष्ठा Curl_peer *peer,
+                                     काष्ठा Curl_cfilter **pcf);
 
-#endif
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_VQUIC_CF_QUICHE_H */
+#पूर्ण_अगर /* HEADER_CURL_VQUIC_CF_QUICHE_H */

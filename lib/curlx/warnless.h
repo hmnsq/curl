@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WARNLESS_H
-#define HEADER_CURL_WARNLESS_H
+#अगर_अघोषित HEADER_CURL_WARNLESS_H
+#घोषणा HEADER_CURL_WARNLESS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,51 +24,51 @@
  *
  ***************************************************************************/
 
-#define CURLX_FUNCTION_CAST(target_type, func) \
-  (target_type)(void (*)(void))(func)
+#घोषणा CURLX_FUNCTION_CAST(target_type, func) \
+  (target_type)(व्योम (*)(व्योम))(func)
 
-unsigned char curlx_ultouc(unsigned long ulnum);
+अचिन्हित अक्षर curlx_ultouc(अचिन्हित दीर्घ ulnum);
 
-int curlx_uztosi(size_t uznum);
+पूर्णांक curlx_uztosi(माप_प्रकार uznum);
 
-unsigned long curlx_uztoul(size_t uznum);
+अचिन्हित दीर्घ curlx_uztoul(माप_प्रकार uznum);
 
-unsigned int curlx_uztoui(size_t uznum);
+अचिन्हित पूर्णांक curlx_uztoui(माप_प्रकार uznum);
 
-int curlx_sltosi(long slnum);
+पूर्णांक curlx_sltosi(दीर्घ slnum);
 
-unsigned int curlx_sltoui(long slnum);
+अचिन्हित पूर्णांक curlx_sltoui(दीर्घ slnum);
 
-unsigned short curlx_sltous(long slnum);
+अचिन्हित लघु curlx_sltous(दीर्घ slnum);
 
-ssize_t curlx_uztosz(size_t uznum);
+ssize_t curlx_uztosz(माप_प्रकार uznum);
 
-size_t curlx_sotouz(curl_off_t sonum);
+माप_प्रकार curlx_sotouz(curl_off_t sonum);
 
-int curlx_sztosi(ssize_t sznum);
+पूर्णांक curlx_sztosi(ssize_t sznum);
 
-unsigned short curlx_uitous(unsigned int uinum);
+अचिन्हित लघु curlx_uitous(अचिन्हित पूर्णांक uinum);
 
-size_t curlx_sitouz(int sinum);
+माप_प्रकार curlx_sitouz(पूर्णांक sinum);
 
-size_t curlx_uitouz(unsigned int uinum);
+माप_प्रकार curlx_uitouz(अचिन्हित पूर्णांक uinum);
 
 /* Convert a curl_off_t to fit into size_t interval [uzmin, uzmax].
  * values outside this interval give the lower/upper bound. */
-size_t curlx_sotouz_range(curl_off_t sonum, size_t uzmin, size_t uzmax);
+माप_प्रकार curlx_sotouz_range(curl_off_t sonum, माप_प्रकार uzmin, माप_प्रकार uzmax);
 
 /* Convert a size_t to curl_off_t, return CURL_OFF_T_MAX if too large. */
-curl_off_t curlx_uztoso(size_t uznum);
+curl_off_t curlx_uztoso(माप_प्रकार uznum);
 
 /* Convert a ssize_t to size_t, return FALSE if negative and set 0 */
-bool curlx_sztouz(ssize_t sznum, size_t *puznum);
+bool curlx_sztouz(ssize_t sznum, माप_प्रकार *puznum);
 
 /* Convert a curl_off_t to size_t, return FALSE if negative or
  * too large and set 0 */
-bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum);
+bool curlx_sotouz_fits(curl_off_t sonum, माप_प्रकार *puznum);
 
 /* Convert a long to size_t, return FALSE if negative or too large
  * and set 0 */
-bool curlx_sltouz(long slnum, size_t *puznum);
+bool curlx_sltouz(दीर्घ slnum, माप_प्रकार *puznum);
 
-#endif /* HEADER_CURL_WARNLESS_H */
+#पूर्ण_अगर /* HEADER_CURL_WARNLESS_H */

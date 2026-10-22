@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TELNET_H
-#define HEADER_CURL_TELNET_H
+#अगर_अघोषित HEADER_CURL_TELNET_H
+#घोषणा HEADER_CURL_TELNET_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_TELNET
-extern const struct Curl_protocol Curl_protocol_telnet;
-#endif
+#अगर_अघोषित CURL_DISABLE_TELNET
+बाह्य स्थिर काष्ठा Curl_protocol Curl_protocol_telnet;
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_TELNET_H */
+#पूर्ण_अगर /* HEADER_CURL_TELNET_H */

@@ -24,13 +24,13 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#अगर !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-#include "vauth/vauth.h"
+#समावेश "vauth/vauth.h"
 
 /*
  * Curl_auth_create_plain_message()
@@ -46,19 +46,19 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
-                                        struct bufref *out)
+CURLcode Curl_auth_create_plain_message(काष्ठा Curl_creds *creds,
+                                        काष्ठा bufref *out)
 {
-  size_t len;
-  char *auth;
+  माप_प्रकार len;
+  अक्षर *auth;
 
-  size_t zlen = strlen(Curl_creds_sasl_authzid(creds));
-  size_t clen = strlen(Curl_creds_user(creds));
-  size_t plen = strlen(Curl_creds_passwd(creds));
+  माप_प्रकार zlen = म_माप(Curl_creds_sasl_authzid(creds));
+  माप_प्रकार clen = म_माप(Curl_creds_user(creds));
+  माप_प्रकार plen = म_माप(Curl_creds_passwd(creds));
 
-  if((zlen > CURL_MAX_INPUT_LENGTH) || (clen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH))
-    return CURLE_TOO_LARGE;
+  अगर((zlen > CURL_MAX_निवेश_लंबाई) || (clen > CURL_MAX_निवेश_लंबाई) ||
+     (plen > CURL_MAX_निवेश_लंबाई))
+    वापस CURLE_TOO_LARGE;
 
   len = zlen + clen + plen + 2;
 
@@ -66,10 +66,10 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
                        Curl_creds_sasl_authzid(creds), '\0',
                        Curl_creds_user(creds), '\0',
                        Curl_creds_passwd(creds));
-  if(!auth)
-    return CURLE_OUT_OF_MEMORY;
+  अगर(!auth)
+    वापस CURLE_OUT_OF_MEMORY;
   Curl_bufref_set(out, auth, len, curl_free);
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
 /*
@@ -85,9 +85,9 @@ CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
  *
  * Returns void.
  */
-void Curl_auth_create_login_message(const char *value, struct bufref *out)
+व्योम Curl_auth_create_login_message(स्थिर अक्षर *मूल्य, काष्ठा bufref *out)
 {
-  Curl_bufref_set(out, value, strlen(value), NULL);
+  Curl_bufref_set(out, मूल्य, म_माप(मूल्य), शून्य);
 }
 
 /*
@@ -103,10 +103,10 @@ void Curl_auth_create_login_message(const char *value, struct bufref *out)
  *
  * Returns void.
  */
-void Curl_auth_create_external_message(const char *user, struct bufref *out)
+व्योम Curl_auth_create_external_message(स्थिर अक्षर *user, काष्ठा bufref *out)
 {
   /* This is the same formatting as the login message */
   Curl_auth_create_login_message(user, out);
 }
 
-#endif /* if no users */
+#पूर्ण_अगर /* if no users */

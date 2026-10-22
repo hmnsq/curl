@@ -21,20 +21,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#endif
+#अगर_घोषित HAVE_SYS_SELECT_H
+#समावेश <sys/select.h>
+#या_अगर defined(HAVE_UNISTD_H)
+#समावेश <unistd.h>
+#पूर्ण_अगर
 
-#ifdef MSDOS
-#include <dos.h>  /* delay() */
-#endif
+#अगर_घोषित MSDOS
+#समावेश <dos.h>  /* delay() */
+#पूर्ण_अगर
 
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#समावेश "curlx/timediff.h"
+#समावेश "curlx/wait.h"
 
 /*
  * Internal function used for waiting a specific amount of ms in
@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+पूर्णांक curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  पूर्णांक r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
+  अगर(!timeout_ms)
+    वापस 0;
+  अगर(timeout_ms < 0) {
     SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+    वापस -1;
   }
-#ifdef MSDOS
-  delay((unsigned int)timeout_ms);
-#elif defined(_WIN32)
+#अगर_घोषित MSDOS
+  delay((अचिन्हित पूर्णांक)timeout_ms);
+#या_अगर defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
-    timeout_ms = ULONG_MAX - 1;
+#अगर TIMEDIFF_T_MAX >= अच_दीर्घ_उच्च
+  अगर(timeout_ms >= अच_दीर्घ_उच्च)
+    timeout_ms = अच_दीर्घ_उच्च - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
-#endif
+#पूर्ण_अगर
   Sleep((DWORD)timeout_ms);
-#else
+#अन्यथा
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
-    r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
+    काष्ठा timeval pending_tv;
+    r = select(0, शून्य, शून्य, शून्य, curlx_mstotv(&pending_tv, timeout_ms));
   }
-#endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+#पूर्ण_अगर /* _WIN32 */
+  अगर(r) {
+    अगर((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    अन्यथा
       r = -1;
   }
-  return r;
+  वापस r;
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONNECT_H
-#define HEADER_CURL_CONNECT_H
+#अगर_अघोषित HEADER_CURL_CONNECT_H
+#घोषणा HEADER_CURL_CONNECT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "vdns/hostip.h"
-#include "curlx/timeval.h"
+#समावेश "vdns/hostip.h"
+#समावेश "curlx/timeval.h"
 
-struct Curl_peer;
-struct Curl_str;
+काष्ठा Curl_peer;
+काष्ठा Curl_str;
 
-enum alpnid Curl_alpn2alpnid(const unsigned char *name, size_t len);
+क्रमागत alpnid Curl_alpn2alpnid(स्थिर अचिन्हित अक्षर *name, माप_प्रकार len);
 
 /* generic function that returns how much time there is left to run, according
    to the timeouts set */
-timediff_t Curl_timeleft_ms(struct Curl_easy *data);
-timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
-                                const struct curltime *pnow);
+timediff_t Curl_timeleft_ms(काष्ठा Curl_easy *तथ्य);
+timediff_t Curl_timeleft_now_ms(काष्ठा Curl_easy *तथ्य,
+                                स्थिर काष्ठा curltime *pnow);
 
-#define DEFAULT_CONNECT_TIMEOUT 300000 /* milliseconds == five minutes */
+#घोषणा DEFAULT_CONNECT_TIMEOUT 300000 /* milliseconds == five minutes */
 
 /*
  * Used to extract socket and connectdata struct for the most recent
@@ -47,8 +47,8 @@ timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
  *
  * The returned socket will be CURL_SOCKET_BAD in case of failure!
  */
-curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
-                                  struct connectdata **connp);
+curl_socket_t Curl_getconnectinfo(काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा connectdata **connp);
 
 /*
  * Curl_conncontrol() manipulates the `conn->bits.close` bit on
@@ -59,25 +59,25 @@ curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
  *                          multiplexed
  * The call does *NOT* cause any immediate connection close.
  */
-#define CONNCTRL_CONN_KEEP       0
-#define CONNCTRL_CONN_CLOSE      1
-#define CONNCTRL_STREAM_CLOSE    2
+#घोषणा CONNCTRL_CONN_KEEP       0
+#घोषणा CONNCTRL_CONN_CLOSE      1
+#घोषणा CONNCTRL_STREAM_CLOSE    2
 
-void Curl_conncontrol(struct connectdata *conn, int ctrl);
+व्योम Curl_conncontrol(काष्ठा connectdata *conn, पूर्णांक ctrl);
 
-#define streamclose(x) Curl_conncontrol((x), CONNCTRL_STREAM_CLOSE)
-#define connclose(x)   Curl_conncontrol((x), CONNCTRL_CONN_CLOSE)
-#define connkeep(x)    Curl_conncontrol((x), CONNCTRL_CONN_KEEP)
+#घोषणा streamclose(x) Curl_conncontrol((x), CONNCTRL_STREAM_CLOSE)
+#घोषणा connclose(x)   Curl_conncontrol((x), CONNCTRL_CONN_CLOSE)
+#घोषणा connkeep(x)    Curl_conncontrol((x), CONNCTRL_CONN_KEEP)
 
 /**
  * Setup the cfilters at `sockindex` in connection `conn`.
  * If no filter chain is installed yet, inspects the configuration
  * in `data` and `conn` to install a suitable filter chain.
  */
-CURLcode Curl_conn_setup(struct Curl_easy *data,
-                         struct connectdata *conn,
+CURLcode Curl_conn_setup(काष्ठा Curl_easy *तथ्य,
+                         काष्ठा connectdata *conn,
                          int8_t sockindex,
-                         int ssl_mode);
+                         पूर्णांक ssl_mode);
 
 /**
  * Bring the filter chain at `sockindex` for connection `data->conn` into
@@ -86,7 +86,7 @@ CURLcode Curl_conn_setup(struct Curl_easy *data,
  * When not `blocking`, calls may return without error and `*done != TRUE`,
  * while the individual filters negotiated the connection.
  */
-CURLcode Curl_conn_connect(struct Curl_easy *data, int8_t sockindex,
+CURLcode Curl_conn_connect(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
                            bool blocking, bool *done);
 
 /**
@@ -94,24 +94,24 @@ CURLcode Curl_conn_connect(struct Curl_easy *data, int8_t sockindex,
  * timed out. Let the filters that did connect, like the TCP socket, report
  * their IP information and stats to the transfer.
  */
-void Curl_conn_report_failed(struct Curl_easy *data, int8_t sockindex);
+व्योम Curl_conn_report_failed(काष्ठा Curl_easy *तथ्य, int8_t sockindex);
 
 /* Set conn to allow multiplexing. */
-void Curl_conn_set_multiplex(struct connectdata *conn);
+व्योम Curl_conn_set_multiplex(काष्ठा connectdata *conn);
 
 /* Get the origin peer at sockindex. */
-struct Curl_peer *Curl_conn_get_origin(struct connectdata *conn,
+काष्ठा Curl_peer *Curl_conn_get_origin(काष्ठा connectdata *conn,
                                        int8_t sockindex);
 
 /* Get the peer the connection actually connects to at sockindex.
  * Often the same as "origin", but can be redirected via "connect-to"
  * or "alt-svc". May tunnel through proxies. */
-struct Curl_peer *Curl_conn_get_destination(struct connectdata *conn,
+काष्ठा Curl_peer *Curl_conn_get_destination(काष्ठा connectdata *conn,
                                             int8_t sockindex);
 
 /* Get the peer curl connects its socket to.
  * Can be origin, "connect-to" or the first proxy. */
-struct Curl_peer *Curl_conn_get_first_peer(struct connectdata *conn,
+काष्ठा Curl_peer *Curl_conn_get_first_peer(काष्ठा connectdata *conn,
                                            int8_t sockindex);
 
-#endif /* HEADER_CURL_CONNECT_H */
+#पूर्ण_अगर /* HEADER_CURL_CONNECT_H */

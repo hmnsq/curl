@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H
-#define HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H
+#अगर_अघोषित HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H
+#घोषणा HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,29 +24,29 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#अगर !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 
-CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                           struct Curl_easy *data,
-                                           struct Curl_peer *origin,
-                                           struct Curl_peer *peer,
-                                           struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_ngtcp2_proxy_जोड़ो_after(काष्ठा Curl_cfilter *cf_at,
+                                           काष्ठा Curl_easy *तथ्य,
+                                           काष्ठा Curl_peer *origin,
+                                           काष्ठा Curl_peer *peer,
+                                           काष्ठा Curl_peer *tunnel_peer,
                                            uint8_t tunnel_transport);
 
-CURLcode Curl_cf_ngtcp2_proxy_create(struct Curl_cfilter **pcf,
-                                     struct Curl_easy *data,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
+CURLcode Curl_cf_ngtcp2_proxy_create(काष्ठा Curl_cfilter **pcf,
+                                     काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा Curl_peer *origin,
+                                     काष्ठा Curl_peer *peer,
                                      uint8_t transport_peer,
-                                     struct connectdata *conn,
-                                     struct Curl_sockaddr_ex *addr,
-                                     struct Curl_peer *tunnel_peer,
+                                     काष्ठा connectdata *conn,
+                                     काष्ठा Curl_sockaddr_ex *addr,
+                                     काष्ठा Curl_peer *tunnel_peer,
                                      uint8_t tunnel_transport);
 
-#endif
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H */
+#पूर्ण_अगर /* HEADER_CURL_VQUIC_CF_NGTCP2_PROXY_H */

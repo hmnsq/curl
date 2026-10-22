@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SSLUSE_H
-#define HEADER_CURL_SSLUSE_H
+#अगर_अघोषित HEADER_CURL_SSLUSE_H
+#घोषणा HEADER_CURL_SSLUSE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_OPENSSL
+#अगर_घोषित USE_OPENSSL
 
-#ifdef USE_WIN32_CRYPTO
-#include <wincrypt.h>
+#अगर_घोषित USE_WIN32_CRYPTO
+#समावेश <wincrypt.h>
 /* If <wincrypt.h> is included directly, or indirectly via <schannel.h>,
  * <winldap.h>, <iphlpapi.h>, or something else, <wincrypt.h> does this:
  *   #define X509_NAME  ((LPCSTR)7)
@@ -52,37 +52,37 @@
  *
  * LibreSSL automatically undefines these symbols before using them.
  */
-#undef X509_NAME
-#undef X509_EXTENSIONS
-#undef PKCS7_ISSUER_AND_SERIAL
-#undef PKCS7_SIGNER_INFO
-#undef OCSP_REQUEST
-#undef OCSP_RESPONSE
-#endif /* USE_WIN32_CRYPTO */
+#अघोषित X509_NAME
+#अघोषित X509_EXTENSIONS
+#अघोषित PKCS7_ISSUER_AND_SERIAL
+#अघोषित PKCS7_SIGNER_INFO
+#अघोषित OCSP_REQUEST
+#अघोषित OCSP_RESPONSE
+#पूर्ण_अगर /* USE_WIN32_CRYPTO */
 
 /*
  * This header should only be needed to get included by vtls.c, openssl.c
  * and ngtcp2.c
  */
-#include <openssl/opensslv.h>
-#include <openssl/ossl_typ.h>
-#include <openssl/ssl.h>
+#समावेश <openssl/opensslv.h>
+#समावेश <openssl/ossl_typ.h>
+#समावेश <openssl/ssl.h>
 
-#include "urldata.h"
+#समावेश "urldata.h"
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-#define HAVE_OPENSSL3  /* non-fork OpenSSL 3.x or later */
-#endif
+#अगर OPENSSL_VERSION_संख्या >= 0x30000000L
+#घोषणा HAVE_OPENSSL3  /* non-fork OpenSSL 3.x or later */
+#पूर्ण_अगर
 
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
-#define HAVE_BORINGSSL_LIKE
-#endif
+#अगर defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+#घोषणा HAVE_BORINGSSL_LIKE
+#पूर्ण_अगर
 
 /* OpenSSL 3.5.0+ has built-in 'SSLKEYLOGFILE' support if built with
    'enable-sslkeylog' */
-#if OPENSSL_VERSION_NUMBER >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
-#define HAVE_KEYLOG_UPSTREAM
-#endif
+#अगर OPENSSL_VERSION_संख्या >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
+#घोषणा HAVE_KEYLOG_UPSTREAM
+#पूर्ण_अगर
 
 /*
  * Whether SSL_CTX_set_keylog_callback is available.
@@ -90,133 +90,133 @@
  * LibreSSL: not supported. 3.5.0+ has a stub function that does nothing.
  * OpenSSL: supported since 1.1.1 https://github.com/openssl/openssl/pull/2287
  */
-#ifndef LIBRESSL_VERSION_NUMBER
-#define HAVE_KEYLOG_CALLBACK
-#endif
+#अगर_अघोषित LIBRESSL_VERSION_संख्या
+#घोषणा HAVE_KEYLOG_CALLBACK
+#पूर्ण_अगर
 
 /* Check for OpenSSL 1.1.1 which has early data support. */
-#undef HAVE_OPENSSL_EARLYDATA
-#if defined(TLS1_3_VERSION) && !defined(HAVE_BORINGSSL_LIKE)
-#define HAVE_OPENSSL_EARLYDATA
-#endif
+#अघोषित HAVE_OPENSSL_EARLYDATA
+#अगर defined(TLS1_3_VERSION) && !defined(HAVE_BORINGSSL_LIKE)
+#घोषणा HAVE_OPENSSL_EARLYDATA
+#पूर्ण_अगर
 
-#ifdef LIBRESSL_VERSION_NUMBER
-typedef long ctx_option_t;
-#elif defined(HAVE_BORINGSSL_LIKE)
-typedef uint32_t ctx_option_t;
-#else
-typedef uint64_t ctx_option_t;
-#endif
+#अगर_घोषित LIBRESSL_VERSION_संख्या
+प्रकार दीर्घ ctx_option_t;
+#या_अगर defined(HAVE_BORINGSSL_LIKE)
+प्रकार uint32_t ctx_option_t;
+#अन्यथा
+प्रकार uint64_t ctx_option_t;
+#पूर्ण_अगर
 
-struct alpn_spec;
-struct ssl_peer;
-struct Curl_ssl_session;
+काष्ठा alpn_spec;
+काष्ठा ssl_peer;
+काष्ठा Curl_ssl_session;
 
-struct provider {
+काष्ठा provider {
   /* void instead of ENGINE to avoid bleeding OpenSSL into this header */
-  void *engine;
+  व्योम *engine;
   /* void instead of OSSL_PROVIDER */
-  void *provider;
-  void *baseprov;
-  void *libctx;
-  char *propq; /* for a provider */
+  व्योम *provider;
+  व्योम *baseprov;
+  व्योम *libctx;
+  अक्षर *propq; /* for a provider */
   BIT(provider_loaded);
 };
 
 /* Struct to hold a curl OpenSSL instance */
-struct ossl_ctx {
+काष्ठा ossl_ctx {
   /* these ones requires specific SSL-types */
   SSL_CTX *ssl_ctx;
   SSL *ssl;
   BIO_METHOD *bio_method;
-  struct provider p;
-  CURLcode io_result;       /* result of last BIO cfilter operation */
+  काष्ठा provider p;
+  CURLcode io_परिणाम;       /* result of last BIO cfilter operation */
   /* blocked writes need to retry with same length, remember it */
-  int blocked_ssl_write_len;
-#if !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
+  पूर्णांक blocked_ssl_write_len;
+#अगर !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
   /* Set to true once a valid keylog entry has been created to avoid dupes.
      This is a bool and not a bitfield because it is passed by address. */
   bool keylog_done;
-#endif
+#पूर्ण_अगर
   BIT(x509_store_setup);            /* x509 store has been set up */
   BIT(store_is_empty);              /* no certs/paths/blobs in x509 store */
   BIT(reused_session);              /* session-ID was reused for this */
-#ifdef USE_APPLE_SECTRUST
+#अगर_घोषित USE_APPLE_SECTRUST
   BIT(sectrust_verified);           /* peer was verified by sectrust */
   BIT(sectrust_session);            /* session from sectrust verified peer */
-#endif
+#पूर्ण_अगर
 };
 
-size_t Curl_ossl_version(char *buffer, size_t size);
+माप_प्रकार Curl_ossl_version(अक्षर *बफर, माप_प्रकार आकार);
 
-typedef CURLcode Curl_ossl_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+प्रकार CURLcode Curl_ossl_ctx_setup_cb(काष्ठा Curl_cfilter *cf,
+                                        काष्ठा Curl_easy *तथ्य,
+                                        व्योम *user_तथ्य);
 
-typedef int Curl_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid);
-typedef CURLcode Curl_ossl_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
-                                                 bool *do_early_data);
+प्रकार पूर्णांक Curl_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid);
+प्रकार CURLcode Curl_ossl_init_session_reuse_cb(काष्ठा Curl_cfilter *cf,
+                                                 काष्ठा Curl_easy *तथ्य,
+                                                 काष्ठा alpn_spec *alpns,
+                                                 काष्ठा Curl_ssl_session *scs,
+                                                 bool *do_early_तथ्य);
 
-CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
+CURLcode Curl_ossl_ctx_init(काष्ठा ossl_ctx *octx,
+                            काष्ठा Curl_cfilter *cf,
+                            काष्ठा Curl_easy *तथ्य,
+                            काष्ठा ssl_peer *peer,
+                            स्थिर काष्ठा alpn_spec *alpns_requested,
                             Curl_ossl_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
+                            व्योम *cb_user_तथ्य,
                             Curl_ossl_new_session_cb *cb_new_session,
-                            void *ssl_user_data,
+                            व्योम *ssl_user_तथ्य,
                             Curl_ossl_init_session_reuse_cb *sess_reuse_cb);
 
-#ifndef HAVE_OPENSSL3
-#define SSL_get1_peer_certificate SSL_get_peer_certificate
-#endif
+#अगर_अघोषित HAVE_OPENSSL3
+#घोषणा SSL_get1_peer_certificate SSL_get_peer_certificate
+#पूर्ण_अगर
 
-extern const struct Curl_ssl Curl_ssl_openssl;
+बाह्य स्थिर काष्ठा Curl_ssl Curl_ssl_openssl;
 
 /**
  * Setup the OpenSSL X509_STORE in `ssl_ctx` for the cfilter `cf` and
  * easy handle `data`. Allows reuse of a shared cache if suitable
  * and configured.
  */
-CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct ossl_ctx *octx);
+CURLcode Curl_ssl_setup_x509_store(काष्ठा Curl_cfilter *cf,
+                                   काष्ठा Curl_easy *तथ्य,
+                                   काष्ठा ossl_ctx *octx);
 
-CURLcode Curl_ossl_ctx_configure(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
+CURLcode Curl_ossl_ctx_configure(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य,
                                  SSL_CTX *ssl_ctx);
 
 /*
  * Add a new session to the cache. Takes ownership of the session.
  */
-CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct ossl_ctx *octx,
-                               const char *ssl_peer_key,
+CURLcode Curl_ossl_add_session(काष्ठा Curl_cfilter *cf,
+                               काष्ठा Curl_easy *तथ्य,
+                               काष्ठा ossl_ctx *octx,
+                               स्थिर अक्षर *ssl_peer_कुंजी,
                                SSL_SESSION *session,
-                               const char *alpn,
-                               unsigned char *quic_tp,
-                               size_t quic_tp_len,
-                               struct Curl_ssl_session **psession);
+                               स्थिर अक्षर *alpn,
+                               अचिन्हित अक्षर *quic_tp,
+                               माप_प्रकार quic_tp_len,
+                               काष्ठा Curl_ssl_session **psession);
 
 /*
  * Get the server cert, verify it and show it, etc., only call failf() if
  * SSL config verifypeer or -host is set. Otherwise all this is for
  * informational purposes only!
  */
-CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct ossl_ctx *octx,
-                                   struct ssl_peer *peer);
+CURLcode Curl_ossl_check_peer_cert(काष्ठा Curl_cfilter *cf,
+                                   काष्ठा Curl_easy *तथ्य,
+                                   काष्ठा ossl_ctx *octx,
+                                   काष्ठा ssl_peer *peer);
 
 /* Report properties of a successful handshake */
-void Curl_ossl_report_handshake(struct Curl_easy *data, struct ossl_ctx *octx);
+व्योम Curl_ossl_report_handshake(काष्ठा Curl_easy *तथ्य, काष्ठा ossl_ctx *octx);
 
-void Curl_osslctx_cleanup(struct ossl_ctx *octx);
+व्योम Curl_osslctx_cleanup(काष्ठा ossl_ctx *octx);
 
-#endif /* USE_OPENSSL */
-#endif /* HEADER_CURL_SSLUSE_H */
+#पूर्ण_अगर /* USE_OPENSSL */
+#पूर्ण_अगर /* HEADER_CURL_SSLUSE_H */

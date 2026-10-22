@@ -21,150 +21,150 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "curl_trc.h"
-#include "urldata.h"
-#include "cfilters.h"
-#include "multiif.h"
+#समावेश "curl_trc.h"
+#समावेश "urldata.h"
+#समावेश "cfilters.h"
+#समावेश "multiif.h"
 
-#include "cf-recvbuf.h"
-#include "cf-socket.h"
-#include "cf-setup.h"
-#include "http2.h"
-#include "http_proxy.h"
-#include "cf-h1-proxy.h"
-#include "cf-h2-proxy.h"
-#include "cf-haproxy.h"
-#include "cf-https-connect.h"
-#include "cf-ip-happy.h"
-#include "progress.h"
-#include "socks.h"
-#include "curlx/strparse.h"
-#include "vdns/cf-dns.h"
-#include "vtls/vtls.h"
-#include "vquic/vquic.h"
-#include "curlx/strcopy.h"
+#समावेश "cf-recvbuf.h"
+#समावेश "cf-socket.h"
+#समावेश "cf-setup.h"
+#समावेश "http2.h"
+#समावेश "http_proxy.h"
+#समावेश "cf-h1-proxy.h"
+#समावेश "cf-h2-proxy.h"
+#समावेश "cf-haproxy.h"
+#समावेश "cf-https-connect.h"
+#समावेश "cf-ip-happy.h"
+#समावेश "progress.h"
+#समावेश "socks.h"
+#समावेश "curlx/strparse.h"
+#समावेश "vdns/cf-dns.h"
+#समावेश "vtls/vtls.h"
+#समावेश "vquic/vquic.h"
+#समावेश "curlx/strcopy.h"
 
-static void trc_write(struct Curl_easy *data, curl_infotype type,
-                      const char *ptr, size_t size)
+अटल व्योम trc_write(काष्ठा Curl_easy *तथ्य, curl_infotype type,
+                      स्थिर अक्षर *ptr, माप_प्रकार आकार)
 {
-  if(data->set.verbose) {
-    if(data->set.fdebug) {
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_fdebug);
-      (void)(*data->set.fdebug)(data, type, CURL_UNCONST(ptr), size,
-                                data->set.debugdata);
+  अगर(तथ्य->set.verbose) {
+    अगर(तथ्य->set.fdebug) {
+      काष्ठा Curl_mapi_guard guard;
+      CURL_CBAPI_START(&guard, तथ्य, easy_fdebug);
+      (व्योम)(*तथ्य->set.fdebug)(तथ्य, type, CURL_UNCONST(ptr), आकार,
+                                तथ्य->set.debugdata);
       CURL_CBAPI_END(&guard);
     }
-    else {
-      static const char s_infotype[CURLINFO_END][3] = {
+    अन्यथा {
+      अटल स्थिर अक्षर s_infotype[CURLINFO_END][3] = {
         "* ", "< ", "> ", "{ ", "} ", "{ ", "} " };
-      switch(type) {
-      case CURLINFO_TEXT:
-      case CURLINFO_HEADER_OUT:
-      case CURLINFO_HEADER_IN:
-        fwrite(s_infotype[type], 2, 1, data->set.err);
-        fwrite(ptr, size, 1, data->set.err);
-        break;
-      default: /* nada */
-        break;
+      चयन(type) {
+      हाल CURLINFO_TEXT:
+      हाल CURLINFO_HEADER_OUT:
+      हाल CURLINFO_HEADER_IN:
+        ख_डालो(s_infotype[type], 2, 1, तथ्य->set.err);
+        ख_डालो(ptr, आकार, 1, तथ्य->set.err);
+        अवरोध;
+      शेष: /* nada */
+        अवरोध;
       }
     }
   }
 }
 
 /* max length we trace before ending in '...' */
-#define TRC_LINE_MAX 2048
+#घोषणा TRC_पंक्ति_MAX 2048
 
-#define CURL_TRC_FMT_IDSC   "[x-%" CURL_FORMAT_CURL_OFF_T "] "
-#define CURL_TRC_FMT_IDSD   "[%" CURL_FORMAT_CURL_OFF_T "-x] "
-#define CURL_TRC_FMT_IDSDC  "[%" CURL_FORMAT_CURL_OFF_T "-%" \
+#घोषणा CURL_TRC_FMT_IDSC   "[x-%" CURL_FORMAT_CURL_OFF_T "] "
+#घोषणा CURL_TRC_FMT_IDSD   "[%" CURL_FORMAT_CURL_OFF_T "-x] "
+#घोषणा CURL_TRC_FMT_IDSDC  "[%" CURL_FORMAT_CURL_OFF_T "-%" \
                             CURL_FORMAT_CURL_OFF_T "] "
 
-static struct curl_trc_feat Curl_trc_feat_ids = {
+अटल काष्ठा curl_trc_feat Curl_trc_feat_ids = {
   "LIB-IDS",
   CURL_LOG_LVL_NONE,
 };
-#define CURL_TRC_IDS(data) \
-  (Curl_trc_is_verbose(data) && \
+#घोषणा CURL_TRC_IDS(तथ्य) \
+  (Curl_trc_is_verbose(तथ्य) && \
   Curl_trc_feat_ids.log_level >= CURL_LOG_LVL_INFO)
 
-static size_t trc_print_ids(struct Curl_easy *data, char *buf, size_t maxlen)
+अटल माप_प्रकार trc_print_ids(काष्ठा Curl_easy *तथ्य, अक्षर *buf, माप_प्रकार maxlen)
 {
-  curl_off_t cid = data->state.last_conn_id;
-  if(data->id >= 0) {
-    if(cid >= 0)
-      return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSDC, data->id, cid);
-    else
-      return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSD, data->id);
+  curl_off_t cid = तथ्य->state.last_conn_id;
+  अगर(तथ्य->id >= 0) {
+    अगर(cid >= 0)
+      वापस curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSDC, तथ्य->id, cid);
+    अन्यथा
+      वापस curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSD, तथ्य->id);
   }
-  else if(cid >= 0)
-    return curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSC, cid);
-  else {
-    return curl_msnprintf(buf, maxlen, "[x-x] ");
+  अन्यथा अगर(cid >= 0)
+    वापस curl_msnprintf(buf, maxlen, CURL_TRC_FMT_IDSC, cid);
+  अन्यथा {
+    वापस curl_msnprintf(buf, maxlen, "[x-x] ");
   }
 }
 
-static size_t trc_end_buf(char *buf, size_t len, size_t maxlen, bool addnl)
+अटल माप_प्रकार trc_end_buf(अक्षर *buf, माप_प्रकार len, माप_प्रकार maxlen, bool addnl)
 {
   /* make sure we end the trace line in `buf` properly. It needs
    * to end with a null-terminator '\0' or '\n\0' */
-  if(len >= (maxlen - (addnl ? 2 : 1))) {
+  अगर(len >= (maxlen - (addnl ? 2 : 1))) {
     len = maxlen - 5;
     buf[len++] = '.';
     buf[len++] = '.';
     buf[len++] = '.';
     buf[len++] = '\n';
   }
-  else if(addnl)
+  अन्यथा अगर(addnl)
     buf[len++] = '\n';
   buf[len] = '\0';
-  return len;
+  वापस len;
 }
 
-void Curl_debug(struct Curl_easy *data, curl_infotype type,
-                const char *ptr, size_t size)
+व्योम Curl_debug(काष्ठा Curl_easy *तथ्य, curl_infotype type,
+                स्थिर अक्षर *ptr, माप_प्रकार आकार)
 {
-  if(data->set.verbose) {
-    static const char s_infotype[CURLINFO_END][3] = {
+  अगर(तथ्य->set.verbose) {
+    अटल स्थिर अक्षर s_infotype[CURLINFO_END][3] = {
       "* ", "< ", "> ", "{ ", "} ", "{ ", "} " };
-    char buf[TRC_LINE_MAX];
-    size_t len;
-    if(data->set.fdebug) {
-      struct Curl_mapi_guard guard;
-      if(CURL_TRC_IDS(data) && (size < TRC_LINE_MAX)) {
-        len = trc_print_ids(data, buf, TRC_LINE_MAX);
-        len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "%.*s",
-                              (int)size, ptr);
-        len = trc_end_buf(buf, len, TRC_LINE_MAX, FALSE);
-        CURL_CBAPI_START(&guard, data, easy_fdebug);
-        (void)(*data->set.fdebug)(data, type, buf, len, data->set.debugdata);
+    अक्षर buf[TRC_पंक्ति_MAX];
+    माप_प्रकार len;
+    अगर(तथ्य->set.fdebug) {
+      काष्ठा Curl_mapi_guard guard;
+      अगर(CURL_TRC_IDS(तथ्य) && (आकार < TRC_पंक्ति_MAX)) {
+        len = trc_print_ids(तथ्य, buf, TRC_पंक्ति_MAX);
+        len += curl_msnprintf(buf + len, TRC_पंक्ति_MAX - len, "%.*s",
+                              (पूर्णांक)आकार, ptr);
+        len = trc_end_buf(buf, len, TRC_पंक्ति_MAX, FALSE);
+        CURL_CBAPI_START(&guard, तथ्य, easy_fdebug);
+        (व्योम)(*तथ्य->set.fdebug)(तथ्य, type, buf, len, तथ्य->set.debugdata);
         CURL_CBAPI_END(&guard);
       }
-      else {
-        CURL_CBAPI_START(&guard, data, easy_fdebug);
-        (void)(*data->set.fdebug)(data, type, CURL_UNCONST(ptr),
-                                  size, data->set.debugdata);
+      अन्यथा {
+        CURL_CBAPI_START(&guard, तथ्य, easy_fdebug);
+        (व्योम)(*तथ्य->set.fdebug)(तथ्य, type, CURL_UNCONST(ptr),
+                                  आकार, तथ्य->set.debugdata);
         CURL_CBAPI_END(&guard);
       }
     }
-    else {
-      switch(type) {
-      case CURLINFO_TEXT:
-      case CURLINFO_HEADER_OUT:
-      case CURLINFO_HEADER_IN:
-#ifndef CURL_DISABLE_VERBOSE_STRINGS
-        if(CURL_TRC_IDS(data)) {
-          len = trc_print_ids(data, buf, TRC_LINE_MAX);
-          fwrite(buf, len, 1, data->set.err);
+    अन्यथा {
+      चयन(type) {
+      हाल CURLINFO_TEXT:
+      हाल CURLINFO_HEADER_OUT:
+      हाल CURLINFO_HEADER_IN:
+#अगर_अघोषित CURL_DISABLE_VERBOSE_STRINGS
+        अगर(CURL_TRC_IDS(तथ्य)) {
+          len = trc_print_ids(तथ्य, buf, TRC_पंक्ति_MAX);
+          ख_डालो(buf, len, 1, तथ्य->set.err);
         }
-#endif
-        fwrite(s_infotype[type], 2, 1, data->set.err);
-        fwrite(ptr, size, 1, data->set.err);
-        break;
-      default: /* nada */
-        break;
+#पूर्ण_अगर
+        ख_डालो(s_infotype[type], 2, 1, तथ्य->set.err);
+        ख_डालो(ptr, आकार, 1, तथ्य->set.err);
+        अवरोध;
+      शेष: /* nada */
+        अवरोध;
       }
     }
   }
@@ -173,137 +173,137 @@ void Curl_debug(struct Curl_easy *data, curl_infotype type,
 /* Curl_failf() is for messages stating why we failed.
  * The message SHALL NOT include any LF or CR.
  */
-void Curl_failf(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_failf(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(data->set.verbose || data->set.errorbuffer) {
-    va_list ap;
-    size_t len;
-    char error[CURL_ERROR_SIZE + 2];
-    va_start(ap, fmt);
-    len = curl_mvsnprintf(error, CURL_ERROR_SIZE, fmt, ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(तथ्य->set.verbose || तथ्य->set.errorbuffer) {
+    बहु_सूची ap;
+    माप_प्रकार len;
+    अक्षर error[CURL_ERROR_आकार + 2];
+    बहु_शुरू(ap, fmt);
+    len = curl_mvsnprintf(error, CURL_ERROR_आकार, fmt, ap);
 
-    if(data->set.errorbuffer && !data->state.errorbuf) {
-      curlx_strcopy(data->set.errorbuffer, CURL_ERROR_SIZE, error, len);
-      data->state.errorbuf = TRUE; /* wrote error string */
+    अगर(तथ्य->set.errorbuffer && !तथ्य->state.errorbuf) {
+      curlx_strcopy(तथ्य->set.errorbuffer, CURL_ERROR_आकार, error, len);
+      तथ्य->state.errorbuf = TRUE; /* wrote error string */
     }
     error[len++] = '\n';
     error[len] = '\0';
-    trc_write(data, CURLINFO_TEXT, error, len);
-    va_end(ap);
+    trc_write(तथ्य, CURLINFO_TEXT, error, len);
+    बहु_पूर्ण(ap);
   }
 }
 
-void Curl_reset_fail(struct Curl_easy *data)
+व्योम Curl_reset_fail(काष्ठा Curl_easy *तथ्य)
 {
-  if(data->set.errorbuffer)
-    data->set.errorbuffer[0] = 0;
-  data->state.errorbuf = FALSE;
+  अगर(तथ्य->set.errorbuffer)
+    तथ्य->set.errorbuffer[0] = 0;
+  तथ्य->state.errorbuf = FALSE;
 }
 
-#ifdef CURLVERBOSE
-struct curl_trc_feat Curl_trc_feat_multi = {
+#अगर_घोषित CURLVERBOSE
+काष्ठा curl_trc_feat Curl_trc_feat_multi = {
   "MULTI",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_read = {
+काष्ठा curl_trc_feat Curl_trc_feat_read = {
   "READ",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_write = {
+काष्ठा curl_trc_feat Curl_trc_feat_write = {
   "WRITE",
   CURL_LOG_LVL_NONE,
 };
-struct curl_trc_feat Curl_trc_feat_dns = {
+काष्ठा curl_trc_feat Curl_trc_feat_dns = {
   "DNS",
   CURL_LOG_LVL_NONE,
 };
-#ifndef CURL_DISABLE_DOH
-struct curl_trc_feat Curl_trc_feat_doh = {
+#अगर_अघोषित CURL_DISABLE_DOH
+काष्ठा curl_trc_feat Curl_trc_feat_doh = {
   "DoH",
   CURL_LOG_LVL_NONE,
 };
-#endif
-struct curl_trc_feat Curl_trc_feat_timer = {
+#पूर्ण_अगर
+काष्ठा curl_trc_feat Curl_trc_feat_timer = {
   "TIMER",
   CURL_LOG_LVL_NONE,
 };
-#ifdef USE_THREADS
-struct curl_trc_feat Curl_trc_feat_threads = {
+#अगर_घोषित USE_THREADS
+काष्ठा curl_trc_feat Curl_trc_feat_threads = {
   "THREADS",
   CURL_LOG_LVL_NONE,
 };
-#endif
-#endif
+#पूर्ण_अगर
+#पूर्ण_अगर
 
-#ifndef CURL_DISABLE_VERBOSE_STRINGS
+#अगर_अघोषित CURL_DISABLE_VERBOSE_STRINGS
 
-static void trc_infof(struct Curl_easy *data,
-                      struct curl_trc_feat *feat,
-                      const char *opt_id, int opt_id_idx,
-                      const char * const fmt, va_list ap) CURL_PRINTF(5, 0);
+अटल व्योम trc_infof(काष्ठा Curl_easy *तथ्य,
+                      काष्ठा curl_trc_feat *feat,
+                      स्थिर अक्षर *opt_id, पूर्णांक opt_id_idx,
+                      स्थिर अक्षर * स्थिर fmt, बहु_सूची ap) CURL_PRINTF(5, 0);
 
-static void trc_infof(struct Curl_easy *data,
-                      struct curl_trc_feat *feat,
-                      const char *opt_id, int opt_id_idx,
-                      const char * const fmt, va_list ap)
+अटल व्योम trc_infof(काष्ठा Curl_easy *तथ्य,
+                      काष्ठा curl_trc_feat *feat,
+                      स्थिर अक्षर *opt_id, पूर्णांक opt_id_idx,
+                      स्थिर अक्षर * स्थिर fmt, बहु_सूची ap)
 {
-  size_t len = 0;
-  char buf[TRC_LINE_MAX];
+  माप_प्रकार len = 0;
+  अक्षर buf[TRC_पंक्ति_MAX];
 
-  if(CURL_TRC_IDS(data))
-    len += trc_print_ids(data, buf + len, TRC_LINE_MAX - len);
-  if(feat)
-    len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s] ", feat->name);
-  if(opt_id) {
-    if(opt_id_idx > 0)
-      len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s-%d] ",
+  अगर(CURL_TRC_IDS(तथ्य))
+    len += trc_print_ids(तथ्य, buf + len, TRC_पंक्ति_MAX - len);
+  अगर(feat)
+    len += curl_msnprintf(buf + len, TRC_पंक्ति_MAX - len, "[%s] ", feat->name);
+  अगर(opt_id) {
+    अगर(opt_id_idx > 0)
+      len += curl_msnprintf(buf + len, TRC_पंक्ति_MAX - len, "[%s-%d] ",
                             opt_id, opt_id_idx);
-    else
-      len += curl_msnprintf(buf + len, TRC_LINE_MAX - len, "[%s] ", opt_id);
+    अन्यथा
+      len += curl_msnprintf(buf + len, TRC_पंक्ति_MAX - len, "[%s] ", opt_id);
   }
-  len += curl_mvsnprintf(buf + len, TRC_LINE_MAX - len, fmt, ap);
-  len = trc_end_buf(buf, len, TRC_LINE_MAX, TRUE);
-  trc_write(data, CURLINFO_TEXT, buf, len);
+  len += curl_mvsnprintf(buf + len, TRC_पंक्ति_MAX - len, fmt, ap);
+  len = trc_end_buf(buf, len, TRC_पंक्ति_MAX, TRUE);
+  trc_write(तथ्य, CURLINFO_TEXT, buf, len);
 }
 
-void Curl_infof(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_infof(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_is_verbose(data)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, data->state.feat, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_is_verbose(तथ्य)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, तथ्य->state.feat, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
 
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...)
+व्योम Curl_trc_cf_infof(काष्ठा Curl_easy *तथ्य, स्थिर काष्ठा Curl_cfilter *cf,
+                       स्थिर अक्षर *fmt, ...)
 {
   DEBUGASSERT(cf);
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, data->state.feat, cf->cft->name, cf->sockindex, fmt, ap);
-    va_end(ap);
+  अगर(Curl_trc_cf_is_verbose(cf, तथ्य)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, तथ्य->state.feat, cf->cft->name, cf->sockindex, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
 
-void Curl_trc_feat_infof(struct Curl_easy *data,
-                         struct curl_trc_feat *feat,
-                         const char *fmt, ...)
+व्योम Curl_trc_feat_infof(काष्ठा Curl_easy *तथ्य,
+                         काष्ठा curl_trc_feat *feat,
+                         स्थिर अक्षर *fmt, ...)
 {
   DEBUGASSERT(feat);
-  if(Curl_trc_ft_is_verbose(data, feat)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, feat, NULL, 0, fmt, ap);
-    va_end(ap);
+  अगर(Curl_trc_ft_is_verbose(तथ्य, feat)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, feat, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
 
-static const char * const Curl_trc_timer_names[] = {
+अटल स्थिर अक्षर * स्थिर Curl_trc_timer_names[] = {
   "100_TIMEOUT",
   "ASYNC_NAME",
   "CONNECTTIMEOUT",
@@ -319,42 +319,42 @@ static const char * const Curl_trc_timer_names[] = {
   "SERVER_RESPONSE",
 };
 
-static const char *trc_timer_name(int tid)
+अटल स्थिर अक्षर *trc_timer_name(पूर्णांक tid)
 {
-  if((tid >= 0) && ((size_t)tid < CURL_ARRAYSIZE(Curl_trc_timer_names)))
-    return Curl_trc_timer_names[(size_t)tid];
-  return "TIMER-???";
+  अगर((tid >= 0) && ((माप_प्रकार)tid < CURL_ARRAYSIZE(Curl_trc_timer_names)))
+    वापस Curl_trc_timer_names[(माप_प्रकार)tid];
+  वापस "TIMER-???";
 }
 
-void Curl_trc_timer(struct Curl_easy *data, int tid, const char *fmt, ...)
+व्योम Curl_trc_timer(काष्ठा Curl_easy *तथ्य, पूर्णांक tid, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_timer)) {
-    const char *tname = trc_timer_name(tid);
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_timer, tname, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_timer)) {
+    स्थिर अक्षर *tname = trc_timer_name(tid);
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_timer, tname, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
 
-void Curl_trc_easy_timers(struct Curl_easy *data)
+व्योम Curl_trc_easy_timers(काष्ठा Curl_easy *तथ्य)
 {
-  if(CURL_TRC_TIMER_is_verbose(data) && data->multi) {
-    if(data->state.timeouts.first < EXPIRE_LAST) {
-      struct expire_timers *timeouts = &data->state.timeouts;
+  अगर(CURL_TRC_TIMER_is_verbose(तथ्य) && तथ्य->multi) {
+    अगर(तथ्य->state.timeouts.first < EXPIRE_LAST) {
+      काष्ठा expire_timers *timeouts = &तथ्य->state.timeouts;
       timediff_t base_us =
-        Curl_timeouts_offset_us(&data->multi->timeouts, Curl_pgrs_now(data));
-      uint8_t id = data->state.timeouts.first;
-      for(; id < EXPIRE_LAST; id = timeouts->next[id]) {
-        CURL_TRC_TIMER(data, id, "expires in %" FMT_TIMEDIFF_T "us",
+        Curl_timeouts_offset_us(&तथ्य->multi->timeouts, Curl_pgrs_now(तथ्य));
+      uint8_t id = तथ्य->state.timeouts.first;
+      क्रम(; id < EXPIRE_LAST; id = timeouts->अग्र[id]) {
+        CURL_TRC_TIMER(तथ्य, id, "expires in %" FMT_TIMEDIFF_T "us",
                        timeouts->offset_us[id] - base_us);
       }
     }
   }
 }
 
-static const char * const Curl_trc_mstate_names[] = {
+अटल स्थिर अक्षर * स्थिर Curl_trc_mstate_names[] = {
   "INIT",
   "PENDING",
   "SETUP",
@@ -373,409 +373,409 @@ static const char * const Curl_trc_mstate_names[] = {
   "MSGSENT",
 };
 
-const char *Curl_trc_mstate_name(int state)
+स्थिर अक्षर *Curl_trc_mstate_name(पूर्णांक state)
 {
-  if((state >= 0) && ((size_t)state < CURL_ARRAYSIZE(Curl_trc_mstate_names)))
-    return Curl_trc_mstate_names[(size_t)state];
-  return "?";
+  अगर((state >= 0) && ((माप_प्रकार)state < CURL_ARRAYSIZE(Curl_trc_mstate_names)))
+    वापस Curl_trc_mstate_names[(माप_प्रकार)state];
+  वापस "?";
 }
 
-void Curl_trc_multi(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_multi(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_multi)) {
-    const char *sname = (data->id >= 0) ?
-                        Curl_trc_mstate_name(data->mstate) : NULL;
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_multi, sname, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_multi)) {
+    स्थिर अक्षर *sname = (तथ्य->id >= 0) ?
+                        Curl_trc_mstate_name(तथ्य->mstate) : शून्य;
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_multi, sname, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
 
-void Curl_trc_read(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_read(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_read)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_read, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_read)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_read, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
 
-void Curl_trc_write(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_write(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_write)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_write, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_write)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_write, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
 
-void Curl_trc_dns(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_dns(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_dns)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_dns, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_dns)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_dns, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
 
-#ifndef CURL_DISABLE_FTP
-struct curl_trc_feat Curl_trc_feat_ftp = {
+#अगर_अघोषित CURL_DISABLE_FTP
+काष्ठा curl_trc_feat Curl_trc_feat_ftp = {
   "FTP",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ftp(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_ftp(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ftp)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ftp, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_ftp)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_ftp, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
-#endif /* !CURL_DISABLE_FTP */
+#पूर्ण_अगर /* !CURL_DISABLE_FTP */
 
-#ifndef CURL_DISABLE_SMTP
-struct curl_trc_feat Curl_trc_feat_smtp = {
+#अगर_अघोषित CURL_DISABLE_SMTP
+काष्ठा curl_trc_feat Curl_trc_feat_smtp = {
   "SMTP",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_smtp(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_smtp(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_smtp)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_smtp, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_smtp)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_smtp, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
-#endif /* !CURL_DISABLE_SMTP */
+#पूर्ण_अगर /* !CURL_DISABLE_SMTP */
 
-#ifdef USE_SSL
-struct curl_trc_feat Curl_trc_feat_ssls = {
+#अगर_घोषित USE_SSL
+काष्ठा curl_trc_feat Curl_trc_feat_ssls = {
   "SSLS",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ssls(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_ssls(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssls)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ssls, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_ssls)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_ssls, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
-#endif /* USE_SSL */
+#पूर्ण_अगर /* USE_SSL */
 
-#ifdef USE_SSH
-struct curl_trc_feat Curl_trc_feat_ssh = {
+#अगर_घोषित USE_SSH
+काष्ठा curl_trc_feat Curl_trc_feat_ssh = {
   "SSH",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ssh(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_ssh(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ssh)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ssh, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_ssh)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_ssh, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
-#endif /* USE_SSH */
+#पूर्ण_अगर /* USE_SSH */
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-struct curl_trc_feat Curl_trc_feat_ws = {
+#अगर !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+काष्ठा curl_trc_feat Curl_trc_feat_ws = {
   "WS",
   CURL_LOG_LVL_NONE,
 };
 
-void Curl_trc_ws(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_ws(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  DEBUGASSERT(!strchr(fmt, '\n'));
-  if(Curl_trc_ft_is_verbose(data, &Curl_trc_feat_ws)) {
-    va_list ap;
-    va_start(ap, fmt);
-    trc_infof(data, &Curl_trc_feat_ws, NULL, 0, fmt, ap);
-    va_end(ap);
+  DEBUGASSERT(!म_अक्षर(fmt, '\n'));
+  अगर(Curl_trc_ft_is_verbose(तथ्य, &Curl_trc_feat_ws)) {
+    बहु_सूची ap;
+    बहु_शुरू(ap, fmt);
+    trc_infof(तथ्य, &Curl_trc_feat_ws, शून्य, 0, fmt, ap);
+    बहु_पूर्ण(ap);
   }
 }
-#endif /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* !CURL_DISABLE_WEBSOCKETS && !CURL_DISABLE_HTTP */
 
-#define TRC_CT_NONE        0
-#define TRC_CT_PROTOCOL    (1 << 0)
-#define TRC_CT_NETWORK     (1 << 1)
-#define TRC_CT_PROXY       (1 << 2)
-#define TRC_CT_INTERNALS   (1 << 3)
+#घोषणा TRC_CT_NONE        0
+#घोषणा TRC_CT_PROTOCOL    (1 << 0)
+#घोषणा TRC_CT_NETWORK     (1 << 1)
+#घोषणा TRC_CT_PROXY       (1 << 2)
+#घोषणा TRC_CT_INTERNALS   (1 << 3)
 
-struct trc_feat_def {
-  struct curl_trc_feat *feat;
-  unsigned int category;
+काष्ठा trc_feat_def {
+  काष्ठा curl_trc_feat *feat;
+  अचिन्हित पूर्णांक category;
 };
 
-static struct trc_feat_def trc_feats[] = {
+अटल काष्ठा trc_feat_def trc_feats[] = {
   { &Curl_trc_feat_ids,       TRC_CT_INTERNALS },
   { &Curl_trc_feat_multi,     TRC_CT_NETWORK },
   { &Curl_trc_feat_read,      TRC_CT_NONE },
   { &Curl_trc_feat_write,     TRC_CT_NONE },
   { &Curl_trc_feat_dns,       TRC_CT_NETWORK },
-#ifndef CURL_DISABLE_DOH
+#अगर_अघोषित CURL_DISABLE_DOH
   { &Curl_trc_feat_doh,       TRC_CT_NETWORK },
-#endif
+#पूर्ण_अगर
   { &Curl_trc_feat_timer,     TRC_CT_NETWORK },
-#ifdef USE_THREADS
+#अगर_घोषित USE_THREADS
   { &Curl_trc_feat_threads,   TRC_CT_NONE },
-#endif
-#ifndef CURL_DISABLE_FTP
+#पूर्ण_अगर
+#अगर_अघोषित CURL_DISABLE_FTP
   { &Curl_trc_feat_ftp,       TRC_CT_PROTOCOL },
-#endif
-#ifndef CURL_DISABLE_SMTP
+#पूर्ण_अगर
+#अगर_अघोषित CURL_DISABLE_SMTP
   { &Curl_trc_feat_smtp,      TRC_CT_PROTOCOL },
-#endif
-#ifdef USE_SSL
+#पूर्ण_अगर
+#अगर_घोषित USE_SSL
   { &Curl_trc_feat_ssls,      TRC_CT_NETWORK },
-#endif
-#ifdef USE_SSH
+#पूर्ण_अगर
+#अगर_घोषित USE_SSH
   { &Curl_trc_feat_ssh,       TRC_CT_PROTOCOL },
-#endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#पूर्ण_अगर
+#अगर !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
   { &Curl_trc_feat_ws,        TRC_CT_PROTOCOL },
-#endif
+#पूर्ण_अगर
 };
 
-struct trc_cft_def {
-  struct Curl_cftype *cft;
-  unsigned int category;
+काष्ठा trc_cft_def {
+  काष्ठा Curl_cftype *cft;
+  अचिन्हित पूर्णांक category;
 };
 
-static struct trc_cft_def trc_cfts[] = {
+अटल काष्ठा trc_cft_def trc_cfts[] = {
   { &Curl_cft_dns,            TRC_CT_NETWORK },
   { &Curl_cft_tcp,            TRC_CT_NETWORK },
   { &Curl_cft_udp,            TRC_CT_NETWORK },
   { &Curl_cft_unix,           TRC_CT_NETWORK },
   { &Curl_cft_tcp_accept,     TRC_CT_NETWORK },
   { &Curl_cft_ip_happy,       TRC_CT_NETWORK },
-#ifndef CURL_DISABLE_WEBSOCKETS
+#अगर_अघोषित CURL_DISABLE_WEBSOCKETS
   { &Curl_cft_recvbuf,        TRC_CT_PROTOCOL },
-#endif
+#पूर्ण_अगर
   { &Curl_cft_setup,          TRC_CT_PROTOCOL },
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#अगर !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
   { &Curl_cft_nghttp2,        TRC_CT_PROTOCOL },
-#endif
-#ifdef USE_SSL
+#पूर्ण_अगर
+#अगर_घोषित USE_SSL
   { &Curl_cft_ssl,            TRC_CT_NETWORK },
-#ifndef CURL_DISABLE_PROXY
+#अगर_अघोषित CURL_DISABLE_PROXY
   { &Curl_cft_ssl_proxy,      TRC_CT_PROXY },
-#endif
-#endif
-#ifndef CURL_DISABLE_PROXY
-#ifndef CURL_DISABLE_HTTP
+#पूर्ण_अगर
+#पूर्ण_अगर
+#अगर_अघोषित CURL_DISABLE_PROXY
+#अगर_अघोषित CURL_DISABLE_HTTP
   { &Curl_cft_h1_proxy,       TRC_CT_PROXY },
-#ifdef USE_NGHTTP2
+#अगर_घोषित USE_NGHTTP2
   { &Curl_cft_h2_proxy,       TRC_CT_PROXY },
-#endif
-#if defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3)
+#पूर्ण_अगर
+#अगर defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3)
   { &Curl_cft_h3_proxy,       TRC_CT_PROXY },
-#endif
+#पूर्ण_अगर
   { &Curl_cft_http_proxy,     TRC_CT_PROXY },
-#endif /* !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP */
   { &Curl_cft_haproxy,        TRC_CT_PROXY },
   { &Curl_cft_socks_proxy,    TRC_CT_PROXY },
-#endif /* !CURL_DISABLE_PROXY */
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#पूर्ण_अगर /* !CURL_DISABLE_PROXY */
+#अगर !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   { &Curl_cft_http3,          TRC_CT_PROTOCOL },
-#endif
-#ifndef CURL_DISABLE_HTTP
+#पूर्ण_अगर
+#अगर_अघोषित CURL_DISABLE_HTTP
   { &Curl_cft_http_connect,   TRC_CT_PROTOCOL },
-#endif
+#पूर्ण_अगर
 };
 
-static void trc_apply_level_by_name(struct Curl_str *token, int lvl)
+अटल व्योम trc_apply_level_by_name(काष्ठा Curl_str *token, पूर्णांक lvl)
 {
-  size_t i;
+  माप_प्रकार i;
 
-  for(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
-    if(curlx_str_casecompare(token, trc_cfts[i].cft->name)) {
+  क्रम(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
+    अगर(curlx_str_casecompare(token, trc_cfts[i].cft->name)) {
       trc_cfts[i].cft->log_level = lvl;
-      break;
+      अवरोध;
     }
   }
-  for(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
-    if(curlx_str_casecompare(token, trc_feats[i].feat->name)) {
+  क्रम(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
+    अगर(curlx_str_casecompare(token, trc_feats[i].feat->name)) {
       trc_feats[i].feat->log_level = lvl;
-      break;
+      अवरोध;
     }
   }
 }
 
-static void trc_apply_level_by_category(unsigned int category, int lvl)
+अटल व्योम trc_apply_level_by_category(अचिन्हित पूर्णांक category, पूर्णांक lvl)
 {
-  size_t i;
+  माप_प्रकार i;
 
-  for(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
-    if(!category || (trc_cfts[i].category & category))
+  क्रम(i = 0; i < CURL_ARRAYSIZE(trc_cfts); ++i) {
+    अगर(!category || (trc_cfts[i].category & category))
       trc_cfts[i].cft->log_level = lvl;
   }
-  for(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
-    if(!category || (trc_feats[i].category & category))
+  क्रम(i = 0; i < CURL_ARRAYSIZE(trc_feats); ++i) {
+    अगर(!category || (trc_feats[i].category & category))
       trc_feats[i].feat->log_level = lvl;
   }
 }
 
-static CURLcode trc_opt(const char *config)
+अटल CURLcode trc_opt(स्थिर अक्षर *config)
 {
-  struct Curl_str out;
-  while(!curlx_str_until(&config, &out, 32, ',')) {
-    int lvl = CURL_LOG_LVL_INFO;
-    const char *token = curlx_str(&out);
+  काष्ठा Curl_str out;
+  जबतक(!curlx_str_until(&config, &out, 32, ',')) {
+    पूर्णांक lvl = CURL_LOG_LVL_INFO;
+    स्थिर अक्षर *token = curlx_str(&out);
 
-    if(*token == '-') {
+    अगर(*token == '-') {
       lvl = CURL_LOG_LVL_NONE;
       curlx_str_nudge(&out, 1);
     }
-    else if(*token == '+')
+    अन्यथा अगर(*token == '+')
       curlx_str_nudge(&out, 1);
 
-    if(curlx_str_casecompare(&out, "all"))
+    अगर(curlx_str_casecompare(&out, "all"))
       trc_apply_level_by_category(TRC_CT_NONE, lvl);
-    else if(curlx_str_casecompare(&out, "protocol"))
+    अन्यथा अगर(curlx_str_casecompare(&out, "protocol"))
       trc_apply_level_by_category(TRC_CT_PROTOCOL, lvl);
-    else if(curlx_str_casecompare(&out, "network"))
+    अन्यथा अगर(curlx_str_casecompare(&out, "network"))
       trc_apply_level_by_category(TRC_CT_NETWORK, lvl);
-    else if(curlx_str_casecompare(&out, "proxy"))
+    अन्यथा अगर(curlx_str_casecompare(&out, "proxy"))
       trc_apply_level_by_category(TRC_CT_PROXY, lvl);
-    else
+    अन्यथा
       trc_apply_level_by_name(&out, lvl);
 
-    if(curlx_str_single(&config, ','))
-      break;
+    अगर(curlx_str_single(&config, ','))
+      अवरोध;
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-CURLcode Curl_trc_opt(const char *config)
+CURLcode Curl_trc_opt(स्थिर अक्षर *config)
 {
-  CURLcode result = config ? trc_opt(config) : CURLE_OK;
-#ifdef DEBUGBUILD
+  CURLcode परिणाम = config ? trc_opt(config) : CURLE_OK;
+#अगर_घोषित DEBUGBUILD
   /* CURL_DEBUG can override anything */
-  if(!result) {
-    const char *dbg_config = getenv("CURL_DEBUG");
-    if(dbg_config)
-      result = trc_opt(dbg_config);
+  अगर(!परिणाम) {
+    स्थिर अक्षर *dbg_config = दो_पर्या("CURL_DEBUG");
+    अगर(dbg_config)
+      परिणाम = trc_opt(dbg_config);
   }
-#endif /* DEBUGBUILD */
-  return result;
+#पूर्ण_अगर /* DEBUGBUILD */
+  वापस परिणाम;
 }
 
-CURLcode Curl_trc_init(void)
+CURLcode Curl_trc_init(व्योम)
 {
-#ifdef DEBUGBUILD
-  return Curl_trc_opt(NULL);
-#else
-  return CURLE_OK;
-#endif
+#अगर_घोषित DEBUGBUILD
+  वापस Curl_trc_opt(शून्य);
+#अन्यथा
+  वापस CURLE_OK;
+#पूर्ण_अगर
 }
 
-#else /* CURL_DISABLE_VERBOSE_STRINGS */
+#अन्यथा /* CURL_DISABLE_VERBOSE_STRINGS */
 
-CURLcode Curl_trc_init(void)
+CURLcode Curl_trc_init(व्योम)
 {
-  return CURLE_OK;
-}
-
-void Curl_infof(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
+  वापस CURLE_OK;
 }
 
-void Curl_trc_cf_infof(struct Curl_easy *data, const struct Curl_cfilter *cf,
-                       const char *fmt, ...)
+व्योम Curl_infof(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  (void)data;
-  (void)cf;
-  (void)fmt;
+  (व्योम)तथ्य;
+  (व्योम)fmt;
 }
 
-void Curl_trc_multi(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_cf_infof(काष्ठा Curl_easy *तथ्य, स्थिर काष्ठा Curl_cfilter *cf,
+                       स्थिर अक्षर *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (व्योम)तथ्य;
+  (व्योम)cf;
+  (व्योम)fmt;
 }
 
-void Curl_trc_write(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_multi(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (व्योम)तथ्य;
+  (व्योम)fmt;
 }
 
-void Curl_trc_dns(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_write(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (व्योम)तथ्य;
+  (व्योम)fmt;
 }
 
-void Curl_trc_timer(struct Curl_easy *data, int tid, const char *fmt, ...)
+व्योम Curl_trc_dns(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  (void)data;
-  (void)tid;
-  (void)fmt;
+  (व्योम)तथ्य;
+  (व्योम)fmt;
 }
 
-void Curl_trc_read(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_timer(काष्ठा Curl_easy *तथ्य, पूर्णांक tid, स्थिर अक्षर *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (व्योम)तथ्य;
+  (व्योम)tid;
+  (व्योम)fmt;
 }
 
-#ifndef CURL_DISABLE_FTP
-void Curl_trc_ftp(struct Curl_easy *data, const char *fmt, ...)
+व्योम Curl_trc_read(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
 {
-  (void)data;
-  (void)fmt;
+  (व्योम)तथ्य;
+  (व्योम)fmt;
 }
-#endif
-#ifndef CURL_DISABLE_SMTP
-void Curl_trc_smtp(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
-}
-#endif
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
-void Curl_trc_ws(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
-}
-#endif
-#ifdef USE_SSH
-void Curl_trc_ssh(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
-}
-#endif
-#ifdef USE_SSL
-void Curl_trc_ssls(struct Curl_easy *data, const char *fmt, ...)
-{
-  (void)data;
-  (void)fmt;
-}
-#endif
 
-#endif /* !CURL_DISABLE_VERBOSE_STRINGS */
+#अगर_अघोषित CURL_DISABLE_FTP
+व्योम Curl_trc_ftp(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
+{
+  (व्योम)तथ्य;
+  (व्योम)fmt;
+}
+#पूर्ण_अगर
+#अगर_अघोषित CURL_DISABLE_SMTP
+व्योम Curl_trc_smtp(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
+{
+  (व्योम)तथ्य;
+  (व्योम)fmt;
+}
+#पूर्ण_अगर
+#अगर !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+व्योम Curl_trc_ws(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
+{
+  (व्योम)तथ्य;
+  (व्योम)fmt;
+}
+#पूर्ण_अगर
+#अगर_घोषित USE_SSH
+व्योम Curl_trc_ssh(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
+{
+  (व्योम)तथ्य;
+  (व्योम)fmt;
+}
+#पूर्ण_अगर
+#अगर_घोषित USE_SSL
+व्योम Curl_trc_ssls(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *fmt, ...)
+{
+  (व्योम)तथ्य;
+  (व्योम)fmt;
+}
+#पूर्ण_अगर
+
+#पूर्ण_अगर /* !CURL_DISABLE_VERBOSE_STRINGS */

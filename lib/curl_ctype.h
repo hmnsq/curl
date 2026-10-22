@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CTYPE_H
-#define HEADER_CURL_CTYPE_H
+#अगर_अघोषित HEADER_CURL_CTYPE_H
+#घोषणा HEADER_CURL_CTYPE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,27 +24,27 @@
  *
  ***************************************************************************/
 
-#define ISLOWHEXALPHA(x) (((x) >= 'a') && ((x) <= 'f'))
-#define ISUPHEXALPHA(x)  (((x) >= 'A') && ((x) <= 'F'))
+#घोषणा ISLOWHEXALPHA(x) (((x) >= 'a') && ((x) <= 'f'))
+#घोषणा ISUPHEXALPHA(x)  (((x) >= 'A') && ((x) <= 'F'))
 
-#define ISLOWCNTRL(x) ((unsigned char)(x) <= 0x1f)
-#define IS7F(x)       ((x) == 0x7f)
+#घोषणा ISLOWCNTRL(x) ((अचिन्हित अक्षर)(x) <= 0x1f)
+#घोषणा IS7F(x)       ((x) == 0x7f)
 
-#define ISPRINT(x)  (((x) >= ' ') && ((x) <= 0x7e))
-#define ISGRAPH(x)  (((x) > ' ') && ((x) <= 0x7e))
-#define ISCNTRL(x)  (ISLOWCNTRL(x) || IS7F(x))
-#define ISALPHA(x)  (ISLOWER(x) || ISUPPER(x))
-#define ISXDIGIT(x) (ISDIGIT(x) || ISLOWHEXALPHA(x) || ISUPHEXALPHA(x))
-#define ISODIGIT(x) (((x) >= '0') && ((x) <= '7'))
-#define ISALNUM(x)  (ISDIGIT(x) || ISLOWER(x) || ISUPPER(x))
-#define ISUPPER(x)  (((x) >= 'A') && ((x) <= 'Z'))
-#define ISLOWER(x)  (((x) >= 'a') && ((x) <= 'z'))
-#define ISDIGIT(x)  (((x) >= '0') && ((x) <= '9'))
-#define ISBLANK(x)  (((x) == ' ') || ((x) == '\t'))
-#define ISSPACE(x)  (ISBLANK(x) || (((x) >= 0xa) && ((x) <= 0x0d)))
-#define ISURLPUNTCS(x)                                           \
+#घोषणा ISPRINT(x)  (((x) >= ' ') && ((x) <= 0x7e))
+#घोषणा ISGRAPH(x)  (((x) > ' ') && ((x) <= 0x7e))
+#घोषणा ISCNTRL(x)  (ISLOWCNTRL(x) || IS7F(x))
+#घोषणा ISALPHA(x)  (ISLOWER(x) || ISUPPER(x))
+#घोषणा ISXDIGIT(x) (ISDIGIT(x) || ISLOWHEXALPHA(x) || ISUPHEXALPHA(x))
+#घोषणा ISODIGIT(x) (((x) >= '0') && ((x) <= '7'))
+#घोषणा ISALNUM(x)  (ISDIGIT(x) || ISLOWER(x) || ISUPPER(x))
+#घोषणा ISUPPER(x)  (((x) >= 'A') && ((x) <= 'Z'))
+#घोषणा ISLOWER(x)  (((x) >= 'a') && ((x) <= 'z'))
+#घोषणा ISDIGIT(x)  (((x) >= '0') && ((x) <= '9'))
+#घोषणा ISBLANK(x)  (((x) == ' ') || ((x) == '\t'))
+#घोषणा ISSPACE(x)  (ISBLANK(x) || (((x) >= 0xa) && ((x) <= 0x0d)))
+#घोषणा ISURLPUNTCS(x)                                           \
   (((x) == '-') || ((x) == '.') || ((x) == '_') || ((x) == '~'))
-#define ISUNRESERVED(x) (ISALNUM(x) || ISURLPUNTCS(x))
-#define ISNEWLINE(x)    (((x) == '\n') || (x) == '\r')
+#घोषणा ISUNRESERVED(x) (ISALNUM(x) || ISURLPUNTCS(x))
+#घोषणा ISNEWLINE(x)    (((x) == '\n') || (x) == '\r')
 
-#endif /* HEADER_CURL_CTYPE_H */
+#पूर्ण_अगर /* HEADER_CURL_CTYPE_H */

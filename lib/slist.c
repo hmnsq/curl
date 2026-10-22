@@ -21,25 +21,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "slist.h"
+#समावेश "slist.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist *list)
+अटल काष्ठा curl_slist *slist_get_last(काष्ठा curl_slist *list)
 {
-  struct curl_slist *item;
+  काष्ठा curl_slist *item;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  अगर(!list)
+    वापस शून्य;
 
   /* loop through to find the last item */
   item = list;
-  while(item->next) {
-    item = item->next;
+  जबतक(item->अग्र) {
+    item = item->अग्र;
   }
-  return item;
+  वापस item;
 }
 
 /*
@@ -51,28 +51,28 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
  * If an error occurs, NULL is returned and the string argument is NOT
  * released.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data)
+काष्ठा curl_slist *Curl_slist_append_nodup(काष्ठा curl_slist *list,
+                                           स्थिर अक्षर *तथ्य)
 {
-  struct curl_slist *last;
-  struct curl_slist *new_item;
+  काष्ठा curl_slist *last;
+  काष्ठा curl_slist *new_item;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(तथ्य);
 
-  new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  new_item = curlx_malloc(माप(काष्ठा curl_slist));
+  अगर(!new_item)
+    वापस शून्य;
 
-  new_item->next = NULL;
-  new_item->data = CURL_UNCONST(data);
+  new_item->अग्र = शून्य;
+  new_item->तथ्य = CURL_UNCONST(तथ्य);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  अगर(!list)
+    वापस new_item;
 
   last = slist_get_last(list);
-  last->next = new_item;
-  return list;
+  last->अग्र = new_item;
+  वापस list;
 }
 
 /*
@@ -82,18 +82,18 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
  * bothersome, then create a separate _init function and call it
  * appropriately from within the program.
  */
-struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
+काष्ठा curl_slist *curl_slist_append(काष्ठा curl_slist *list, स्थिर अक्षर *तथ्य)
 {
-  char *dupdata = curlx_strdup(data);
+  अक्षर *dupdata = curlx_strdup(तथ्य);
 
-  if(!dupdata)
-    return NULL;
+  अगर(!dupdata)
+    वापस शून्य;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  अगर(!list)
     curlx_free(dupdata);
 
-  return list;
+  वापस list;
 }
 
 /*
@@ -101,40 +101,40 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
+काष्ठा curl_slist *Curl_slist_duplicate(काष्ठा curl_slist *inlist)
 {
-  struct curl_slist *outlist = NULL;
-  struct curl_slist **tail = &outlist;
+  काष्ठा curl_slist *outlist = शून्य;
+  काष्ठा curl_slist **पुच्छ = &outlist;
 
-  while(inlist) {
-    struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
+  जबतक(inlist) {
+    काष्ठा curl_slist *tmp = curl_slist_append(शून्य, inlist->तथ्य);
 
-    if(!tmp) {
+    अगर(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      वापस शून्य;
     }
 
-    *tail = tmp;
-    tail = &tmp->next;
-    inlist = inlist->next;
+    *पुच्छ = tmp;
+    पुच्छ = &tmp->अग्र;
+    inlist = inlist->अग्र;
   }
-  return outlist;
+  वापस outlist;
 }
 
 /* be nice and clean up resources */
-void curl_slist_free_all(struct curl_slist *list)
+व्योम curl_slist_free_all(काष्ठा curl_slist *list)
 {
-  struct curl_slist *next;
-  struct curl_slist *item;
+  काष्ठा curl_slist *अग्र;
+  काष्ठा curl_slist *item;
 
-  if(!list)
-    return;
+  अगर(!list)
+    वापस;
 
   item = list;
-  do {
-    next = item->next;
-    curlx_safefree(item->data);
+  करो {
+    अग्र = item->अग्र;
+    curlx_safefree(item->तथ्य);
     curlx_free(item);
-    item = next;
-  } while(next);
+    item = अग्र;
+  } जबतक(अग्र);
 }

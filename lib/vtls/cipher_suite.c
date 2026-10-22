@@ -21,11 +21,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if defined(USE_MBEDTLS) || defined(USE_RUSTLS)
+#अगर defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
-#include "vtls/cipher_suite.h"
+#समावेश "vtls/cipher_suite.h"
 
 /*
  * To support the CURLOPT_SSL_CIPHER_LIST option on SSL backends
@@ -48,7 +48,7 @@
 
 /* Text for cipher suite parts (max 64 entries),
    keep indexes below in sync with this! */
-static const char cs_txt[] =
+अटल स्थिर अक्षर cs_txt[] =
   "\0"
   "TLS" "\0"
   "WITH" "\0"
@@ -79,17 +79,17 @@ static const char cs_txt[] =
   "SHA" "\0"
   "SHA256" "\0"
   "SHA384" "\0"
-#ifdef USE_MBEDTLS
+#अगर_घोषित USE_MBEDTLS
   "ARIA" "\0"
   "ARIA128" "\0"
   "ARIA256" "\0"
   "CAMELLIA" "\0"
   "CAMELLIA128" "\0"
   "CAMELLIA256" "\0"
-#endif
+#पूर्ण_अगर
 ;
 /* Indexes of above cs_txt */
-enum {
+क्रमागत {
   CS_TXT_IDX_,
   CS_TXT_IDX_TLS,
   CS_TXT_IDX_WITH,
@@ -120,18 +120,18 @@ enum {
   CS_TXT_IDX_SHA,
   CS_TXT_IDX_SHA256,
   CS_TXT_IDX_SHA384,
-#ifdef USE_MBEDTLS
+#अगर_घोषित USE_MBEDTLS
   CS_TXT_IDX_ARIA,
   CS_TXT_IDX_ARIA128,
   CS_TXT_IDX_ARIA256,
   CS_TXT_IDX_CAMELLIA,
   CS_TXT_IDX_CAMELLIA128,
   CS_TXT_IDX_CAMELLIA256,
-#endif
+#पूर्ण_अगर
   CS_TXT_LEN,
 };
 
-#define CS_ZIP_IDX(a, b, c, d, e, f, g, h)            \
+#घोषणा CS_ZIP_IDX(a, b, c, d, e, f, g, h)            \
 {                                                     \
   (uint8_t)((((a) << 2) & 0xFF) | ((b) & 0x3F) >> 4), \
   (uint8_t)((((b) << 4) & 0xFF) | ((c) & 0x3F) >> 2), \
@@ -140,7 +140,7 @@ enum {
   (uint8_t)((((f) << 4) & 0xFF) | ((g) & 0x3F) >> 2), \
   (uint8_t)((((g) << 6) & 0xFF) | ((h) & 0x3F))       \
 }
-#define CS_ENTRY(id, a, b, c, d, e, f, g, h) \
+#घोषणा CS_ENTRY(id, a, b, c, d, e, f, g, h) \
 {                                            \
   id,                                        \
   CS_ZIP_IDX(                                \
@@ -151,13 +151,13 @@ enum {
   )                                          \
 }
 
-struct cs_entry {
+काष्ठा cs_entry {
   uint16_t id;
   uint8_t zip[6];
 };
 
 /* !checksrc! disable COMMANOSPACE all */
-static const struct cs_entry cs_list[] = {
+अटल स्थिर काष्ठा cs_entry cs_list[] = {
   /* TLS 1.3 ciphers */
   CS_ENTRY(0x1301, TLS,AES,128,GCM,SHA256,,,),
   CS_ENTRY(0x1302, TLS,AES,256,GCM,SHA384,,,),
@@ -177,7 +177,7 @@ static const struct cs_entry cs_list[] = {
   CS_ENTRY(0xCCA8, ECDHE,RSA,CHACHA20,POLY1305,,,,),
   CS_ENTRY(0xCCA9, TLS,ECDHE,ECDSA,WITH,CHACHA20,POLY1305,SHA256,),
   CS_ENTRY(0xCCA9, ECDHE,ECDSA,CHACHA20,POLY1305,,,,),
-#ifdef USE_MBEDTLS
+#अगर_घोषित USE_MBEDTLS
   CS_ENTRY(0x002F, TLS,RSA,WITH,AES,128,CBC,SHA,),
   CS_ENTRY(0x002F, AES128,SHA,,,,,,),
   CS_ENTRY(0x0035, TLS,RSA,WITH,AES,256,CBC,SHA,),
@@ -230,22 +230,22 @@ static const struct cs_entry cs_list[] = {
   CS_ENTRY(0xC031, ECDH,RSA,AES128,GCM,SHA256,,,),
   CS_ENTRY(0xC032, TLS,ECDH,RSA,WITH,AES,256,GCM,SHA384),
   CS_ENTRY(0xC032, ECDH,RSA,AES256,GCM,SHA384,,,),
-  CS_ENTRY(0x0001, TLS,RSA,WITH,NULL,MD5,,,),
-  CS_ENTRY(0x0001, NULL,MD5,,,,,,),
-  CS_ENTRY(0x0002, TLS,RSA,WITH,NULL,SHA,,,),
-  CS_ENTRY(0x0002, NULL,SHA,,,,,,),
-  CS_ENTRY(0x002C, TLS,PSK,WITH,NULL,SHA,,,),
-  CS_ENTRY(0x002C, PSK,NULL,SHA,,,,,),
-  CS_ENTRY(0x002D, TLS,DHE,PSK,WITH,NULL,SHA,,),
-  CS_ENTRY(0x002D, DHE,PSK,NULL,SHA,,,,),
-  CS_ENTRY(0x002E, TLS,RSA,PSK,WITH,NULL,SHA,,),
-  CS_ENTRY(0x002E, RSA,PSK,NULL,SHA,,,,),
+  CS_ENTRY(0x0001, TLS,RSA,WITH,शून्य,MD5,,,),
+  CS_ENTRY(0x0001, शून्य,MD5,,,,,,),
+  CS_ENTRY(0x0002, TLS,RSA,WITH,शून्य,SHA,,,),
+  CS_ENTRY(0x0002, शून्य,SHA,,,,,,),
+  CS_ENTRY(0x002C, TLS,PSK,WITH,शून्य,SHA,,,),
+  CS_ENTRY(0x002C, PSK,शून्य,SHA,,,,,),
+  CS_ENTRY(0x002D, TLS,DHE,PSK,WITH,शून्य,SHA,,),
+  CS_ENTRY(0x002D, DHE,PSK,शून्य,SHA,,,,),
+  CS_ENTRY(0x002E, TLS,RSA,PSK,WITH,शून्य,SHA,,),
+  CS_ENTRY(0x002E, RSA,PSK,शून्य,SHA,,,,),
   CS_ENTRY(0x0033, TLS,DHE,RSA,WITH,AES,128,CBC,SHA),
   CS_ENTRY(0x0033, DHE,RSA,AES128,SHA,,,,),
   CS_ENTRY(0x0039, TLS,DHE,RSA,WITH,AES,256,CBC,SHA),
   CS_ENTRY(0x0039, DHE,RSA,AES256,SHA,,,,),
-  CS_ENTRY(0x003B, TLS,RSA,WITH,NULL,SHA256,,,),
-  CS_ENTRY(0x003B, NULL,SHA256,,,,,,),
+  CS_ENTRY(0x003B, TLS,RSA,WITH,शून्य,SHA256,,,),
+  CS_ENTRY(0x003B, शून्य,SHA256,,,,,,),
   CS_ENTRY(0x0067, TLS,DHE,RSA,WITH,AES,128,CBC,SHA256),
   CS_ENTRY(0x0067, DHE,RSA,AES128,SHA256,,,,),
   CS_ENTRY(0x006B, TLS,DHE,RSA,WITH,AES,256,CBC,SHA256),
@@ -282,34 +282,34 @@ static const struct cs_entry cs_list[] = {
   CS_ENTRY(0x00AE, PSK,AES128,CBC,SHA256,,,,),
   CS_ENTRY(0x00AF, TLS,PSK,WITH,AES,256,CBC,SHA384,),
   CS_ENTRY(0x00AF, PSK,AES256,CBC,SHA384,,,,),
-  CS_ENTRY(0x00B0, TLS,PSK,WITH,NULL,SHA256,,,),
-  CS_ENTRY(0x00B0, PSK,NULL,SHA256,,,,,),
-  CS_ENTRY(0x00B1, TLS,PSK,WITH,NULL,SHA384,,,),
-  CS_ENTRY(0x00B1, PSK,NULL,SHA384,,,,,),
+  CS_ENTRY(0x00B0, TLS,PSK,WITH,शून्य,SHA256,,,),
+  CS_ENTRY(0x00B0, PSK,शून्य,SHA256,,,,,),
+  CS_ENTRY(0x00B1, TLS,PSK,WITH,शून्य,SHA384,,,),
+  CS_ENTRY(0x00B1, PSK,शून्य,SHA384,,,,,),
   CS_ENTRY(0x00B2, TLS,DHE,PSK,WITH,AES,128,CBC,SHA256),
   CS_ENTRY(0x00B2, DHE,PSK,AES128,CBC,SHA256,,,),
   CS_ENTRY(0x00B3, TLS,DHE,PSK,WITH,AES,256,CBC,SHA384),
   CS_ENTRY(0x00B3, DHE,PSK,AES256,CBC,SHA384,,,),
-  CS_ENTRY(0x00B4, TLS,DHE,PSK,WITH,NULL,SHA256,,),
-  CS_ENTRY(0x00B4, DHE,PSK,NULL,SHA256,,,,),
-  CS_ENTRY(0x00B5, TLS,DHE,PSK,WITH,NULL,SHA384,,),
-  CS_ENTRY(0x00B5, DHE,PSK,NULL,SHA384,,,,),
+  CS_ENTRY(0x00B4, TLS,DHE,PSK,WITH,शून्य,SHA256,,),
+  CS_ENTRY(0x00B4, DHE,PSK,शून्य,SHA256,,,,),
+  CS_ENTRY(0x00B5, TLS,DHE,PSK,WITH,शून्य,SHA384,,),
+  CS_ENTRY(0x00B5, DHE,PSK,शून्य,SHA384,,,,),
   CS_ENTRY(0x00B6, TLS,RSA,PSK,WITH,AES,128,CBC,SHA256),
   CS_ENTRY(0x00B6, RSA,PSK,AES128,CBC,SHA256,,,),
   CS_ENTRY(0x00B7, TLS,RSA,PSK,WITH,AES,256,CBC,SHA384),
   CS_ENTRY(0x00B7, RSA,PSK,AES256,CBC,SHA384,,,),
-  CS_ENTRY(0x00B8, TLS,RSA,PSK,WITH,NULL,SHA256,,),
-  CS_ENTRY(0x00B8, RSA,PSK,NULL,SHA256,,,,),
-  CS_ENTRY(0x00B9, TLS,RSA,PSK,WITH,NULL,SHA384,,),
-  CS_ENTRY(0x00B9, RSA,PSK,NULL,SHA384,,,,),
-  CS_ENTRY(0xC001, TLS,ECDH,ECDSA,WITH,NULL,SHA,,),
-  CS_ENTRY(0xC001, ECDH,ECDSA,NULL,SHA,,,,),
-  CS_ENTRY(0xC006, TLS,ECDHE,ECDSA,WITH,NULL,SHA,,),
-  CS_ENTRY(0xC006, ECDHE,ECDSA,NULL,SHA,,,,),
-  CS_ENTRY(0xC00B, TLS,ECDH,RSA,WITH,NULL,SHA,,),
-  CS_ENTRY(0xC00B, ECDH,RSA,NULL,SHA,,,,),
-  CS_ENTRY(0xC010, TLS,ECDHE,RSA,WITH,NULL,SHA,,),
-  CS_ENTRY(0xC010, ECDHE,RSA,NULL,SHA,,,,),
+  CS_ENTRY(0x00B8, TLS,RSA,PSK,WITH,शून्य,SHA256,,),
+  CS_ENTRY(0x00B8, RSA,PSK,शून्य,SHA256,,,,),
+  CS_ENTRY(0x00B9, TLS,RSA,PSK,WITH,शून्य,SHA384,,),
+  CS_ENTRY(0x00B9, RSA,PSK,शून्य,SHA384,,,,),
+  CS_ENTRY(0xC001, TLS,ECDH,ECDSA,WITH,शून्य,SHA,,),
+  CS_ENTRY(0xC001, ECDH,ECDSA,शून्य,SHA,,,,),
+  CS_ENTRY(0xC006, TLS,ECDHE,ECDSA,WITH,शून्य,SHA,,),
+  CS_ENTRY(0xC006, ECDHE,ECDSA,शून्य,SHA,,,,),
+  CS_ENTRY(0xC00B, TLS,ECDH,RSA,WITH,शून्य,SHA,,),
+  CS_ENTRY(0xC00B, ECDH,RSA,शून्य,SHA,,,,),
+  CS_ENTRY(0xC010, TLS,ECDHE,RSA,WITH,शून्य,SHA,,),
+  CS_ENTRY(0xC010, ECDHE,RSA,शून्य,SHA,,,,),
   CS_ENTRY(0xC035, TLS,ECDHE,PSK,WITH,AES,128,CBC,SHA),
   CS_ENTRY(0xC035, ECDHE,PSK,AES128,CBC,SHA,,,),
   CS_ENTRY(0xC036, TLS,ECDHE,PSK,WITH,AES,256,CBC,SHA),
@@ -353,12 +353,12 @@ static const struct cs_entry cs_list[] = {
   CS_ENTRY(0xC037, ECDHE,PSK,AES128,CBC,SHA256,,,),
   CS_ENTRY(0xC038, TLS,ECDHE,PSK,WITH,AES,256,CBC,SHA384),
   CS_ENTRY(0xC038, ECDHE,PSK,AES256,CBC,SHA384,,,),
-  CS_ENTRY(0xC039, TLS,ECDHE,PSK,WITH,NULL,SHA,,),
-  CS_ENTRY(0xC039, ECDHE,PSK,NULL,SHA,,,,),
-  CS_ENTRY(0xC03A, TLS,ECDHE,PSK,WITH,NULL,SHA256,,),
-  CS_ENTRY(0xC03A, ECDHE,PSK,NULL,SHA256,,,,),
-  CS_ENTRY(0xC03B, TLS,ECDHE,PSK,WITH,NULL,SHA384,,),
-  CS_ENTRY(0xC03B, ECDHE,PSK,NULL,SHA384,,,,),
+  CS_ENTRY(0xC039, TLS,ECDHE,PSK,WITH,शून्य,SHA,,),
+  CS_ENTRY(0xC039, ECDHE,PSK,शून्य,SHA,,,,),
+  CS_ENTRY(0xC03A, TLS,ECDHE,PSK,WITH,शून्य,SHA256,,),
+  CS_ENTRY(0xC03A, ECDHE,PSK,शून्य,SHA256,,,,),
+  CS_ENTRY(0xC03B, TLS,ECDHE,PSK,WITH,शून्य,SHA384,,),
+  CS_ENTRY(0xC03B, ECDHE,PSK,शून्य,SHA384,,,,),
   CS_ENTRY(0xC03C, TLS,RSA,WITH,ARIA,128,CBC,SHA256,),
   CS_ENTRY(0xC03C, ARIA128,SHA256,,,,,,), /* ns */
   CS_ENTRY(0xC03D, TLS,RSA,WITH,ARIA,256,CBC,SHA384,),
@@ -535,46 +535,46 @@ static const struct cs_entry cs_list[] = {
   CS_ENTRY(0xCCAD, DHE,PSK,CHACHA20,POLY1305,,,,),
   CS_ENTRY(0xCCAE, TLS,RSA,PSK,WITH,CHACHA20,POLY1305,SHA256,),
   CS_ENTRY(0xCCAE, RSA,PSK,CHACHA20,POLY1305,,,,),
-#endif
+#पूर्ण_अगर
 };
-#define CS_LIST_LEN CURL_ARRAYSIZE(cs_list)
+#घोषणा CS_LIST_LEN CURL_ARRAYSIZE(cs_list)
 
-static int cs_str_to_zip(const char *cs_str, size_t cs_len, uint8_t zip[6])
+अटल पूर्णांक cs_str_to_zip(स्थिर अक्षर *cs_str, माप_प्रकार cs_len, uint8_t zip[6])
 {
   uint8_t indexes[8] = { 0 };
-  const char *entry, *cur;
-  const char *nxt = cs_str;
-  const char *end = cs_str + cs_len;
-  char separator = '-';
-  int idx, i = 0;
-  size_t len;
+  स्थिर अक्षर *entry, *cur;
+  स्थिर अक्षर *nxt = cs_str;
+  स्थिर अक्षर *end = cs_str + cs_len;
+  अक्षर separator = '-';
+  पूर्णांक idx, i = 0;
+  माप_प्रकार len;
 
   /* split the cipher string by '-' or '_' */
-  if(curl_strnequal(cs_str, "TLS", 3))
+  अगर(curl_strnequal(cs_str, "TLS", 3))
     separator = '_';
 
-  do {
-    if(i == 8)
-      return -1;
+  करो {
+    अगर(i == 8)
+      वापस -1;
 
     /* determine the length of the part */
     cur = nxt;
-    for(; nxt < end && *nxt != '\0' && *nxt != separator; nxt++)
+    क्रम(; nxt < end && *nxt != '\0' && *nxt != separator; nxt++)
       ;
     len = nxt - cur;
 
     /* lookup index for the part (skip empty string at 0) */
-    for(idx = 1, entry = cs_txt + 1; idx < CS_TXT_LEN; idx++) {
-      size_t elen = strlen(entry);
-      if(elen == len && curl_strnequal(entry, cur, len))
-        break;
+    क्रम(idx = 1, entry = cs_txt + 1; idx < CS_TXT_LEN; idx++) {
+      माप_प्रकार elen = म_माप(entry);
+      अगर(elen == len && curl_strnequal(entry, cur, len))
+        अवरोध;
       entry += elen + 1;
     }
-    if(idx == CS_TXT_LEN)
-      return -1;
+    अगर(idx == CS_TXT_LEN)
+      वापस -1;
 
     indexes[i++] = (uint8_t)idx;
-  } while(nxt < end && *(nxt++) != '\0');
+  } जबतक(nxt < end && *(nxt++) != '\0');
 
   /* zip the 8 indexes into 48 bits */
   zip[0] = (uint8_t)(indexes[0] << 2 | (indexes[1] & 0x3F) >> 4);
@@ -584,16 +584,16 @@ static int cs_str_to_zip(const char *cs_str, size_t cs_len, uint8_t zip[6])
   zip[4] = (uint8_t)(indexes[5] << 4 | (indexes[6] & 0x3F) >> 2);
   zip[5] = (uint8_t)(indexes[6] << 6 | (indexes[7] & 0x3F));
 
-  return 0;
+  वापस 0;
 }
 
-static int cs_zip_to_str(const uint8_t zip[6], char *buf, size_t buf_size)
+अटल पूर्णांक cs_zip_to_str(स्थिर uint8_t zip[6], अक्षर *buf, माप_प्रकार buf_आकार)
 {
   uint8_t indexes[8] = { 0 };
-  const char *entry;
-  char separator = '-';
-  int idx, i, r;
-  size_t len = 0;
+  स्थिर अक्षर *entry;
+  अक्षर separator = '-';
+  पूर्णांक idx, i, r;
+  माप_प्रकार len = 0;
 
   /* unzip the 8 indexes */
   indexes[0] = zip[0] >> 2;
@@ -605,98 +605,98 @@ static int cs_zip_to_str(const uint8_t zip[6], char *buf, size_t buf_size)
   indexes[6] = (uint8_t)(((zip[4] << 2) & 0x3F) | zip[5] >> 6);
   indexes[7] = ((zip[5] << 0) & 0x3F);
 
-  if(indexes[0] == CS_TXT_IDX_TLS)
+  अगर(indexes[0] == CS_TXT_IDX_TLS)
     separator = '_';
 
-  for(i = 0; i < 8 && indexes[i] != 0 && len < buf_size; i++) {
-    if(indexes[i] >= CS_TXT_LEN)
-      return -1;
+  क्रम(i = 0; i < 8 && indexes[i] != 0 && len < buf_आकार; i++) {
+    अगर(indexes[i] >= CS_TXT_LEN)
+      वापस -1;
 
     /* lookup the part string for the index (skip empty string at 0) */
-    for(idx = 1, entry = cs_txt + 1; idx < indexes[i]; idx++) {
-      size_t elen = strlen(entry);
+    क्रम(idx = 1, entry = cs_txt + 1; idx < indexes[i]; idx++) {
+      माप_प्रकार elen = म_माप(entry);
       entry += elen + 1;
     }
 
     /* append the part string to the buffer */
-    if(i > 0)
-      r = curl_msnprintf(&buf[len], buf_size - len, "%c%s", separator, entry);
-    else
-      r = curl_msnprintf(&buf[len], buf_size - len, "%s", entry);
+    अगर(i > 0)
+      r = curl_msnprintf(&buf[len], buf_आकार - len, "%c%s", separator, entry);
+    अन्यथा
+      r = curl_msnprintf(&buf[len], buf_आकार - len, "%s", entry);
 
-    if(r < 0)
-      return -1;
+    अगर(r < 0)
+      वापस -1;
     len += r;
   }
 
-  return 0;
+  वापस 0;
 }
 
-uint16_t Curl_cipher_suite_lookup_id(const char *cs_str, size_t cs_len)
+uint16_t Curl_cipher_suite_lookup_id(स्थिर अक्षर *cs_str, माप_प्रकार cs_len)
 {
-  size_t i;
+  माप_प्रकार i;
   uint8_t zip[6];
 
-  if(cs_len > 0 && cs_str_to_zip(cs_str, cs_len, zip) == 0) {
-    for(i = 0; i < CS_LIST_LEN; i++) {
-      if(!memcmp(cs_list[i].zip, zip, sizeof(zip)))
-        return cs_list[i].id;
+  अगर(cs_len > 0 && cs_str_to_zip(cs_str, cs_len, zip) == 0) {
+    क्रम(i = 0; i < CS_LIST_LEN; i++) {
+      अगर(!स_भेद(cs_list[i].zip, zip, माप(zip)))
+        वापस cs_list[i].id;
     }
   }
 
-  return 0;
+  वापस 0;
 }
 
-static bool cs_is_separator(char c)
+अटल bool cs_is_separator(अक्षर c)
 {
-  switch(c) {
-  case ' ':
-  case '\t':
-  case ':':
-  case ',':
-  case ';':
-    return TRUE;
+  चयन(c) {
+  हाल ' ':
+  हाल '\t':
+  हाल ':':
+  हाल ',':
+  हाल ';':
+    वापस TRUE;
   }
-  return FALSE;
+  वापस FALSE;
 }
 
-uint16_t Curl_cipher_suite_walk_str(const char **str, const char **end)
+uint16_t Curl_cipher_suite_walk_str(स्थिर अक्षर **str, स्थिर अक्षर **end)
 {
   /* move string pointer to first non-separator or end of string */
-  for(; cs_is_separator(*str[0]); (*str)++)
+  क्रम(; cs_is_separator(*str[0]); (*str)++)
     ;
 
   /* move end pointer to next separator or end of string */
-  for(*end = *str; *end[0] != '\0' && !cs_is_separator(*end[0]); (*end)++)
+  क्रम(*end = *str; *end[0] != '\0' && !cs_is_separator(*end[0]); (*end)++)
     ;
 
-  return Curl_cipher_suite_lookup_id(*str, *end - *str);
+  वापस Curl_cipher_suite_lookup_id(*str, *end - *str);
 }
 
-int Curl_cipher_suite_get_str(uint16_t id, char *buf, size_t buf_size,
+पूर्णांक Curl_cipher_suite_get_str(uint16_t id, अक्षर *buf, माप_प्रकार buf_आकार,
                               bool prefer_rfc)
 {
-  size_t i, j = CS_LIST_LEN;
-  int r = -1;
+  माप_प्रकार i, j = CS_LIST_LEN;
+  पूर्णांक r = -1;
 
-  for(i = 0; i < CS_LIST_LEN; i++) {
-    if(cs_list[i].id != id)
-      continue;
-    if((cs_list[i].zip[0] >> 2 != CS_TXT_IDX_TLS) == !prefer_rfc) {
+  क्रम(i = 0; i < CS_LIST_LEN; i++) {
+    अगर(cs_list[i].id != id)
+      जारी;
+    अगर((cs_list[i].zip[0] >> 2 != CS_TXT_IDX_TLS) == !prefer_rfc) {
       j = i;
-      break;
+      अवरोध;
     }
-    if(j == CS_LIST_LEN)
+    अगर(j == CS_LIST_LEN)
       j = i;
   }
 
-  if(j < CS_LIST_LEN)
-    r = cs_zip_to_str(cs_list[j].zip, buf, buf_size);
+  अगर(j < CS_LIST_LEN)
+    r = cs_zip_to_str(cs_list[j].zip, buf, buf_आकार);
 
-  if(r < 0)
-    curl_msnprintf(buf, buf_size, "TLS_UNKNOWN_0x%04x", id);
+  अगर(r < 0)
+    curl_msnprintf(buf, buf_आकार, "TLS_UNKNOWN_0x%04x", id);
 
-  return r;
+  वापस r;
 }
 
-#endif /* defined(USE_MBEDTLS) || defined(USE_RUSTLS) */
+#पूर्ण_अगर /* defined(USE_MBEDTLS) || defined(USE_RUSTLS) */

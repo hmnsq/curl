@@ -21,7 +21,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timediff.h"
+#समावेश "curlx/timediff.h"
 
 /*
  * Converts number of milliseconds into a timeval structure.
@@ -31,55 +31,55 @@
  *    tv with 0 in both fields IF ms == 0 (eg. 0ms timeout -> polling select)
  *    tv with converted fields IF ms > 0 (eg. >0ms timeout -> waiting select)
  */
-struct timeval *curlx_mstotv(struct timeval *tv, timediff_t ms)
+काष्ठा timeval *curlx_mstotv(काष्ठा timeval *tv, timediff_t ms)
 {
-  if(!tv)
-    return NULL;
+  अगर(!tv)
+    वापस शून्य;
 
-  if(ms < 0)
-    return NULL;
+  अगर(ms < 0)
+    वापस शून्य;
 
-  if(ms > 0) {
+  अगर(ms > 0) {
     timediff_t tv_sec = ms / 1000;
     timediff_t tv_usec = (ms % 1000) * 1000; /* max=999000 */
-#ifdef HAVE_SUSECONDS_T
-#if TIMEDIFF_T_MAX > TIME_T_MAX
+#अगर_घोषित HAVE_SUSECONDS_T
+#अगर TIMEDIFF_T_MAX > TIME_T_MAX
     /* tv_sec overflow check in case time_t is signed */
-    if(tv_sec > TIME_T_MAX)
+    अगर(tv_sec > TIME_T_MAX)
       tv_sec = TIME_T_MAX;
-#endif
-    tv->tv_sec = (time_t)tv_sec;
+#पूर्ण_अगर
+    tv->tv_sec = (समय_प्रकार)tv_sec;
     tv->tv_usec = (suseconds_t)tv_usec;
-#elif defined(_WIN32) /* maybe also others in the future */
-#if TIMEDIFF_T_MAX > LONG_MAX
+#या_अगर defined(_WIN32) /* maybe also others in the future */
+#अगर TIMEDIFF_T_MAX > दीर्घ_उच्च
     /* tv_sec overflow check on Windows there we know it is long */
-    if(tv_sec > LONG_MAX)
-      tv_sec = LONG_MAX;
-#endif
-    tv->tv_sec = (long)tv_sec;
-    tv->tv_usec = (long)tv_usec;
-#else
-#if TIMEDIFF_T_MAX > INT_MAX
+    अगर(tv_sec > दीर्घ_उच्च)
+      tv_sec = दीर्घ_उच्च;
+#पूर्ण_अगर
+    tv->tv_sec = (दीर्घ)tv_sec;
+    tv->tv_usec = (दीर्घ)tv_usec;
+#अन्यथा
+#अगर TIMEDIFF_T_MAX > पूर्णांक_उच्च
     /* tv_sec overflow check in case time_t is signed */
-    if(tv_sec > INT_MAX)
-      tv_sec = INT_MAX;
-#endif
-    tv->tv_sec = (int)tv_sec;
-    tv->tv_usec = (int)tv_usec;
-#endif
+    अगर(tv_sec > पूर्णांक_उच्च)
+      tv_sec = पूर्णांक_उच्च;
+#पूर्ण_अगर
+    tv->tv_sec = (पूर्णांक)tv_sec;
+    tv->tv_usec = (पूर्णांक)tv_usec;
+#पूर्ण_अगर
   }
-  else {
+  अन्यथा {
     tv->tv_sec = 0;
     tv->tv_usec = 0;
   }
 
-  return tv;
+  वापस tv;
 }
 
 /*
  * Converts a timeval structure into number of milliseconds.
  */
-timediff_t curlx_tvtoms(struct timeval *tv)
+timediff_t curlx_tvtoms(काष्ठा timeval *tv)
 {
-  return (tv->tv_sec * 1000) + (timediff_t)(tv->tv_usec / 1000);
+  वापस (tv->tv_sec * 1000) + (timediff_t)(tv->tv_usec / 1000);
 }

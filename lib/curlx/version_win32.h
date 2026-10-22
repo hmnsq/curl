@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VERSION_WIN32_H
-#define HEADER_CURL_VERSION_WIN32_H
+#अगर_अघोषित HEADER_CURL_VERSION_WIN32_H
+#घोषणा HEADER_CURL_VERSION_WIN32_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef _WIN32
+#अगर_घोषित _WIN32
 
 /* Version condition */
-typedef enum {
+प्रकार क्रमागत {
   VERSION_LESS_THAN,
   VERSION_LESS_THAN_EQUAL,
   VERSION_EQUAL,
@@ -37,24 +37,24 @@ typedef enum {
 } VersionCondition;
 
 /* Platform identifier */
-typedef enum {
+प्रकार क्रमागत {
   PLATFORM_DONT_CARE,
   PLATFORM_WINDOWS,
   PLATFORM_WINNT
 } PlatformIdentifier;
 
-#ifdef CURL_WINDOWS_UWP
-#define curlx_verify_windows_init() Curl_nop_stmt
-#else
-void curlx_verify_windows_init(void);
-#endif
+#अगर_घोषित CURL_WINDOWS_UWP
+#घोषणा curlx_verify_windows_init() Curl_nop_stmt
+#अन्यथा
+व्योम curlx_verify_windows_init(व्योम);
+#पूर्ण_अगर
 /* This is used to verify if we are running on a specific Windows version */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
-                                  const PlatformIdentifier platform,
-                                  const VersionCondition condition);
+bool curlx_verify_windows_version(स्थिर अचिन्हित पूर्णांक majorVersion,
+                                  स्थिर अचिन्हित पूर्णांक minorVersion,
+                                  स्थिर अचिन्हित पूर्णांक buildVersion,
+                                  स्थिर PlatformIdentifier platform,
+                                  स्थिर VersionCondition condition);
 
-#endif /* _WIN32 */
+#पूर्ण_अगर /* _WIN32 */
 
-#endif /* HEADER_CURL_VERSION_WIN32_H */
+#पूर्ण_अगर /* HEADER_CURL_VERSION_WIN32_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIBYTE_H
-#define HEADER_CURL_MULTIBYTE_H
+#अगर_अघोषित HEADER_CURL_MULTIBYTE_H
+#घोषणा HEADER_CURL_MULTIBYTE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef _WIN32
+#अगर_घोषित _WIN32
 
 /*
  * Macros curlx_convert_UTF8_to_tchar(), curlx_convert_tchar_to_UTF8()
@@ -39,35 +39,35 @@
  * significance of the conversion functions is primarily for Unicode builds.
  */
 
-#ifdef UNICODE
+#अगर_घोषित UNICODE
 
 /* MultiByte conversions using Windows kernel32 library. */
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8);
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w);
+ब_अक्षर_प्रकार *curlx_convert_UTF8_to_wchar(स्थिर अक्षर *str_utf8);
+अक्षर *curlx_convert_wchar_to_UTF8(स्थिर ब_अक्षर_प्रकार *str_w);
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_convert_UTF8_to_wchar(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_convert_wchar_to_UTF8(ptr)
+#घोषणा curlx_convert_UTF8_to_tchar(ptr) curlx_convert_UTF8_to_wchar(ptr)
+#घोषणा curlx_convert_tchar_to_UTF8(ptr) curlx_convert_wchar_to_UTF8(ptr)
 
-typedef union {
-  unsigned short       *tchar_ptr;
-  const unsigned short *const_tchar_ptr;
-  unsigned short       *tbyte_ptr;
-  const unsigned short *const_tbyte_ptr;
+प्रकार जोड़ {
+  अचिन्हित लघु       *tchar_ptr;
+  स्थिर अचिन्हित लघु *const_tchar_ptr;
+  अचिन्हित लघु       *tbyte_ptr;
+  स्थिर अचिन्हित लघु *const_tbyte_ptr;
 } xcharp_u;
 
-#else /* !UNICODE */
+#अन्यथा /* !UNICODE */
 
-#define curlx_convert_UTF8_to_tchar(ptr) curlx_strdup(ptr)
-#define curlx_convert_tchar_to_UTF8(ptr) curlx_strdup(ptr)
+#घोषणा curlx_convert_UTF8_to_tchar(ptr) curlx_strdup(ptr)
+#घोषणा curlx_convert_tchar_to_UTF8(ptr) curlx_strdup(ptr)
 
-typedef union {
-  char                *tchar_ptr;
-  const char          *const_tchar_ptr;
-  unsigned char       *tbyte_ptr;
-  const unsigned char *const_tbyte_ptr;
+प्रकार जोड़ {
+  अक्षर                *tchar_ptr;
+  स्थिर अक्षर          *const_tchar_ptr;
+  अचिन्हित अक्षर       *tbyte_ptr;
+  स्थिर अचिन्हित अक्षर *const_tbyte_ptr;
 } xcharp_u;
 
-#endif /* UNICODE */
-#endif /* _WIN32 */
+#पूर्ण_अगर /* UNICODE */
+#पूर्ण_अगर /* _WIN32 */
 
-#endif /* HEADER_CURL_MULTIBYTE_H */
+#पूर्ण_अगर /* HEADER_CURL_MULTIBYTE_H */

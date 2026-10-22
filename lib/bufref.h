@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BUFREF_H
-#define HEADER_CURL_BUFREF_H
+#अगर_अघोषित HEADER_CURL_BUFREF_H
+#घोषणा HEADER_CURL_BUFREF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -27,25 +27,25 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
-  size_t len;                   /* The data size in bytes. */
-#ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
-#endif
+काष्ठा bufref {
+  व्योम (*dtor)(व्योम *);         /* Associated destructor. */
+  स्थिर अचिन्हित अक्षर *ptr;     /* Referenced data buffer. */
+  माप_प्रकार len;                   /* The data size in bytes. */
+#अगर_घोषित DEBUGBUILD
+  पूर्णांक signature;                /* Detect API use mistakes. */
+#पूर्ण_अगर
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+व्योम Curl_bufref_init(काष्ठा bufref *br);
+व्योम Curl_bufref_set(काष्ठा bufref *br, स्थिर व्योम *ptr, माप_प्रकार len,
+                     व्योम (*dtor)(व्योम *));
+स्थिर अक्षर *Curl_bufref_ptr(स्थिर काष्ठा bufref *br);
+स्थिर अचिन्हित अक्षर *Curl_bufref_uptr(स्थिर काष्ठा bufref *br);
+माप_प्रकार Curl_bufref_len(स्थिर काष्ठा bufref *br);
+CURLcode Curl_bufref_memdup0(काष्ठा bufref *br, स्थिर व्योम *ptr, माप_प्रकार len);
+व्योम Curl_bufref_free(काष्ठा bufref *br);
 
 /* return a strdup() version of the buffer */
-#define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
+#घोषणा Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
 
-#endif
+#पूर्ण_अगर

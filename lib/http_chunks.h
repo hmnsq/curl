@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_CHUNKS_H
-#define HEADER_CURL_HTTP_CHUNKS_H
+#अगर_अघोषित HEADER_CURL_HTTP_CHUNKS_H
+#घोषणा HEADER_CURL_HTTP_CHUNKS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifndef CURL_DISABLE_HTTP
+#अगर_अघोषित CURL_DISABLE_HTTP
 
-#include "curlx/dynbuf.h"
+#समावेश "curlx/dynbuf.h"
 
-struct connectdata;
+काष्ठा connectdata;
 
 /*
  * The longest possible hexadecimal number we support in a chunked transfer.
@@ -37,9 +37,9 @@ struct connectdata;
  * the 64-bit curl_off_t we support 16 digits, excluding leading zeroes. But
  * why would a sane server prefix with zeroes? Let's accept one.
  */
-#define CHUNK_MAXNUM_LEN 17
+#घोषणा CHUNK_MAXNUM_LEN 17
 
-typedef enum {
+प्रकार क्रमागत {
   /* await and buffer all hexadecimal digits until we get one that is not a
      hexadecimal digit. When done, we go CHUNK_LF */
   CHUNK_HEX,
@@ -49,7 +49,7 @@ typedef enum {
 
   /* We eat the amount of data specified. When done, we move on to the
      POST_CR state. */
-  CHUNK_DATA,
+  CHUNK_तथ्य,
 
   /* POSTLF should get a CR and then an LF and nothing else, then move back to
      HEX as the CRLF combination marks the end of a chunk. A missing CR is no
@@ -82,7 +82,7 @@ typedef enum {
   CHUNK_FAILED
 } ChunkyState;
 
-typedef enum {
+प्रकार क्रमागत {
   CHUNKE_OK = 0,
   CHUNKE_TOO_LONG_HEX = 1,
   CHUNKE_ILLEGAL_HEX,
@@ -93,22 +93,22 @@ typedef enum {
   CHUNKE_TRAILER_LIMIT /* Max header limit exceeded by trailers */
 } CHUNKcode;
 
-struct Curl_chunker {
+काष्ठा Curl_chunker {
   curl_off_t datasize;
   ChunkyState state;
   CHUNKcode last_code;
-  struct dynbuf trailer; /* for chunked-encoded trailer */
-  unsigned char hexindex;
-  char hexbuffer[CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
+  काष्ठा dynbuf trailer; /* for chunked-encoded trailer */
+  अचिन्हित अक्षर hexindex;
+  अक्षर hexbuffer[CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
   BIT(ignore_body); /* never write response body data */
   BIT(in_connect); /* this is a CONNECT response body */
 };
 
 /* The following functions are defined in http_chunks.c */
-void Curl_httpchunk_init(struct Curl_easy *data, struct Curl_chunker *ch,
+व्योम Curl_httpchunk_init(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_chunker *ch,
                          bool ignore_body, bool in_connect);
-void Curl_httpchunk_free(struct Curl_easy *data, struct Curl_chunker *ch);
-void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
+व्योम Curl_httpchunk_free(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_chunker *ch);
+व्योम Curl_httpchunk_reset(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_chunker *ch,
                           bool ignore_body);
 
 /*
@@ -127,23 +127,23 @@ void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
  * This function always uses ASCII hex values to accommodate non-ASCII hosts.
  * For example, 0x0d and 0x0a are used instead of '\r' and '\n'.
  */
-CURLcode Curl_httpchunk_read(struct Curl_easy *data, struct Curl_chunker *ch,
-                             char *buf, size_t blen, size_t *pconsumed);
+CURLcode Curl_httpchunk_read(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_chunker *ch,
+                             अक्षर *buf, माप_प्रकार blen, माप_प्रकार *pconsumed);
 
 /**
  * @return TRUE iff chunked decoded has finished successfully.
  */
-bool Curl_httpchunk_is_done(struct Curl_easy *data, struct Curl_chunker *ch);
+bool Curl_httpchunk_is_done(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_chunker *ch);
 
-extern const struct Curl_cwtype Curl_httpchunk_unencoder;
+बाह्य स्थिर काष्ठा Curl_cwtype Curl_httpchunk_unencoder;
 
-extern const struct Curl_crtype Curl_httpchunk_encoder;
+बाह्य स्थिर काष्ठा Curl_crtype Curl_httpchunk_encoder;
 
 /**
  * Add a transfer-encoding "chunked" reader to the transfers reader stack
  */
-CURLcode Curl_httpchunk_add_reader(struct Curl_easy *data);
+CURLcode Curl_httpchunk_add_reader(काष्ठा Curl_easy *तथ्य);
 
-#endif /* !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_HTTP_CHUNKS_H */
+#पूर्ण_अगर /* HEADER_CURL_HTTP_CHUNKS_H */

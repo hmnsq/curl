@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#अगर !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
 /* Please keep the SSL backend-specific #if branches in this order:
  *
@@ -33,143 +33,143 @@
  * 4. USE_MBEDTLS
  */
 
-#include "curl_ed25519.h"
+#समावेश "curl_ed25519.h"
 
-#ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/settings.h>
-#endif
+#अगर_घोषित USE_WOLFSSL
+#समावेश <wolfssl/options.h>
+#समावेश <wolfssl/wolfcrypt/settings.h>
+#पूर्ण_अगर
 
-#ifdef USE_OPENSSL
-#include <openssl/evp.h>
+#अगर_घोषित USE_OPENSSL
+#समावेश <openssl/evp.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(स्थिर अचिन्हित अक्षर *कुंजी, माप_प्रकार keylen,
+                           स्थिर अचिन्हित अक्षर *संदेश, माप_प्रकार msglen,
+                           अचिन्हित अक्षर *sig, माप_प्रकार *siglen)
 {
   EVP_PKEY *pkey;
   EVP_MD_CTX *mdctx;
-  size_t slen;
-  int rc;
+  माप_प्रकार slen;
+  पूर्णांक rc;
 
-  if(keylen != CURL_ED25519_KEYLEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  अगर(keylen != CURL_ED25519_KEYLEN)
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
 
-  pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, key, keylen);
-  if(!pkey)
-    return CURLE_AUTH_ERROR;
+  pkey = EVP_PKEY_new_raw_private_कुंजी(EVP_PKEY_ED25519, शून्य, कुंजी, keylen);
+  अगर(!pkey)
+    वापस CURLE_AUTH_ERROR;
 
   mdctx = EVP_MD_CTX_new();
-  if(!mdctx) {
+  अगर(!mdctx) {
     EVP_PKEY_free(pkey);
-    return CURLE_OUT_OF_MEMORY;
+    वापस CURLE_OUT_OF_MEMORY;
   }
 
-  rc = EVP_DigestSignInit(mdctx, NULL, NULL, NULL, pkey);
-  if(rc != 1) {
+  rc = EVP_DigestSignInit(mdctx, शून्य, शून्य, शून्य, pkey);
+  अगर(rc != 1) {
     EVP_MD_CTX_free(mdctx);
     EVP_PKEY_free(pkey);
-    return CURLE_AUTH_ERROR;
+    वापस CURLE_AUTH_ERROR;
   }
 
   slen = CURL_ED25519_SIGLEN;
-  rc = EVP_DigestSign(mdctx, sig, &slen, msg, msglen);
+  rc = EVP_DigestSign(mdctx, sig, &slen, संदेश, msglen);
 
   EVP_MD_CTX_free(mdctx);
   EVP_PKEY_free(pkey);
 
-  if(rc != 1)
-    return CURLE_AUTH_ERROR;
+  अगर(rc != 1)
+    वापस CURLE_AUTH_ERROR;
 
   *siglen = slen;
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-#elif defined(USE_WOLFSSL) && \
+#या_अगर defined(USE_WOLFSSL) && \
   (defined(HAVE_ED25519) || defined(WOLFSSL_CURVE25519_USE_ED25519)) && \
-  defined(HAVE_ED25519_KEY_IMPORT) && defined(HAVE_ED25519_SIGN)
-#include <wolfssl/wolfcrypt/ed25519.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
-#include <wolfssl/wolfcrypt/random.h>
+  defined(HAVE_ED25519_कुंजी_IMPORT) && defined(HAVE_ED25519_SIGN)
+#समावेश <wolfssl/wolfcrypt/ed25519.h>
+#समावेश <wolfssl/wolfcrypt/error-crypt.h>
+#समावेश <wolfssl/wolfcrypt/random.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(स्थिर अचिन्हित अक्षर *कुंजी, माप_प्रकार keylen,
+                           स्थिर अचिन्हित अक्षर *संदेश, माप_प्रकार msglen,
+                           अचिन्हित अक्षर *sig, माप_प्रकार *siglen)
 {
-  int ret;
-  ed25519_key edkey;
+  पूर्णांक ret;
+  ed25519_कुंजी edkey;
   word32 outlen;
-  unsigned char pubkey[ED25519_PUB_KEY_SIZE];
+  अचिन्हित अक्षर pubkey[ED25519_PUB_कुंजी_आकार];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  अगर(keylen != ED25519_कुंजी_आकार)
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
 
   ret = wc_ed25519_init(&edkey);
-  if(ret)
-    return CURLE_AUTH_ERROR;
+  अगर(ret)
+    वापस CURLE_AUTH_ERROR;
 
-  ret = wc_ed25519_import_private_only(key, ED25519_KEY_SIZE, &edkey);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_import_private_only(कुंजी, ED25519_कुंजी_आकार, &edkey);
+  अगर(ret)
+    जाओ fail;
 
-  ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_KEY_SIZE);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_कुंजी_आकार);
+  अगर(ret)
+    जाओ fail;
 
-  ret = wc_ed25519_import_private_key(key, ED25519_KEY_SIZE,
-                                      pubkey, ED25519_PUB_KEY_SIZE, &edkey);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_import_private_कुंजी(कुंजी, ED25519_कुंजी_आकार,
+                                      pubkey, ED25519_PUB_कुंजी_आकार, &edkey);
+  अगर(ret)
+    जाओ fail;
 
-  outlen = ED25519_SIG_SIZE;
-  ret = wc_ed25519_sign_msg(msg, (word32)msglen, sig, &outlen, &edkey);
-  if(ret)
-    goto fail;
+  outlen = ED25519_SIG_आकार;
+  ret = wc_ed25519_sign_संदेश(संदेश, (word32)msglen, sig, &outlen, &edkey);
+  अगर(ret)
+    जाओ fail;
 
-  *siglen = (size_t)outlen;
+  *siglen = (माप_प्रकार)outlen;
   wc_ed25519_free(&edkey);
-  return CURLE_OK;
+  वापस CURLE_OK;
 
 fail:
   wc_ed25519_free(&edkey);
-  return CURLE_AUTH_ERROR;
+  वापस CURLE_AUTH_ERROR;
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/eddsa.h>
+#या_अगर defined(USE_GNUTLS)
+#समावेश <nettle/eddsa.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(स्थिर अचिन्हित अक्षर *कुंजी, माप_प्रकार keylen,
+                           स्थिर अचिन्हित अक्षर *संदेश, माप_प्रकार msglen,
+                           अचिन्हित अक्षर *sig, माप_प्रकार *siglen)
 {
-  uint8_t pubkey[ED25519_KEY_SIZE];
+  uint8_t pubkey[ED25519_कुंजी_आकार];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  अगर(keylen != ED25519_कुंजी_आकार)
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
 
-  nettle_ed25519_sha512_public_key(pubkey, key);
+  nettle_ed25519_sha512_public_कुंजी(pubkey, कुंजी);
 
-  nettle_ed25519_sha512_sign(pubkey, key, msglen, msg, sig);
+  nettle_ed25519_sha512_sign(pubkey, कुंजी, msglen, संदेश, sig);
   *siglen = CURL_ED25519_SIGLEN;
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-#else /* no Ed25519-capable backend */
+#अन्यथा /* no Ed25519-capable backend */
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(स्थिर अचिन्हित अक्षर *कुंजी, माप_प्रकार keylen,
+                           स्थिर अचिन्हित अक्षर *संदेश, माप_प्रकार msglen,
+                           अचिन्हित अक्षर *sig, माप_प्रकार *siglen)
 {
-  (void)key;
-  (void)keylen;
-  (void)msg;
-  (void)msglen;
-  (void)sig;
-  (void)siglen;
-  return CURLE_NOT_BUILT_IN;
+  (व्योम)कुंजी;
+  (व्योम)keylen;
+  (व्योम)संदेश;
+  (व्योम)msglen;
+  (व्योम)sig;
+  (व्योम)siglen;
+  वापस CURLE_NOT_BUILT_IN;
 }
 
-#endif /* Ed25519 backends */
+#पूर्ण_अगर /* Ed25519 backends */
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */

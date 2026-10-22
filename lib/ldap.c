@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "curl_ldap.h"
+#समावेश "curl_setup.h"
+#समावेश "urldata.h"
+#समावेश "curl_ldap.h"
 
-#if !defined(CURL_DISABLE_LDAP) && !defined(USE_OPENLDAP)
+#अगर !defined(CURL_DISABLE_LDAP) && !defined(USE_OPENLDAP)
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#अगर defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#आशय GCC diagnostic धकेलो
+#आशय GCC diagnostic ignored "-Wdeprecated-declarations"
+#पूर्ण_अगर
 
 /*
  * Notice that USE_OPENLDAP is only a source code selection switch. When
@@ -43,7 +43,7 @@
  * OpenLDAP library versions, USE_OPENLDAP shall not be defined.
  */
 
-#ifdef USE_WIN32_LDAP           /* Use Windows LDAP implementation. */
+#अगर_घोषित USE_WIN32_LDAP           /* Use Windows LDAP implementation. */
 #  include <winldap.h>
 /* Undefine indirect <wincrypt.h> symbols conflicting with AWS-LC/BoringSSL. */
 #  undef X509_NAME
@@ -53,165 +53,165 @@
 #  undef OCSP_REQUEST
 #  undef OCSP_RESPONSE
 #  include <winber.h>
-#else
+#अन्यथा
 #  define LDAP_DEPRECATED 1     /* Be sure ldap_init() is defined. */
 #  ifdef HAVE_LBER_H
 #    include <lber.h>
 #  endif
 #  include <ldap.h>
-#  if defined(HAVE_LDAP_SSL) && defined(HAVE_LDAP_SSL_H)
+#  अगर defined(HAVE_LDAP_SSL) && defined(HAVE_LDAP_SSL_H)
 #    include <ldap_ssl.h>
 #  endif /* HAVE_LDAP_SSL && HAVE_LDAP_SSL_H */
-#endif
+#पूर्ण_अगर
 
-#include "cfilters.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "progress.h"
-#include "transfer.h"
-#include "curlx/strparse.h"
-#include "bufref.h"
-#include "curlx/multibyte.h"
-#include "curlx/base64.h"
-#include "connect.h"
+#समावेश "cfilters.h"
+#समावेश "sendf.h"
+#समावेश "curl_trc.h"
+#समावेश "escape.h"
+#समावेश "progress.h"
+#समावेश "transfer.h"
+#समावेश "curlx/strparse.h"
+#समावेश "bufref.h"
+#समावेश "curlx/multibyte.h"
+#समावेश "curlx/base64.h"
+#समावेश "connect.h"
 
-#ifdef USE_WIN32_LDAP
-#define FREE_ON_WINLDAP(x) curlx_free(x)
-#define curl_ldap_num_t    ULONG
-#else
-#define FREE_ON_WINLDAP(x) do {} while(0)
-#define curl_ldap_num_t    int
-#endif
+#अगर_घोषित USE_WIN32_LDAP
+#घोषणा FREE_ON_WINLDAP(x) curlx_free(x)
+#घोषणा curl_ldap_अंक_t    ULONG
+#अन्यथा
+#घोषणा FREE_ON_WINLDAP(x) करो {} जबतक(0)
+#घोषणा curl_ldap_अंक_t    पूर्णांक
+#पूर्ण_अगर
 
-#ifndef HAVE_LDAP_URL_PARSE
+#अगर_अघोषित HAVE_LDAP_URL_PARSE
 
 /* Use our own implementation. */
 
-struct ldap_urldesc {
-  char   *lud_host;
-  int     lud_port;
-#ifdef USE_WIN32_LDAP
+काष्ठा ldap_urldesc {
+  अक्षर   *lud_host;
+  पूर्णांक     lud_port;
+#अगर_घोषित USE_WIN32_LDAP
   TCHAR  *lud_dn;
   TCHAR **lud_attrs;
-#else
-  char   *lud_dn;
-  char  **lud_attrs;
-#endif
-  int     lud_scope;
-#ifdef USE_WIN32_LDAP
+#अन्यथा
+  अक्षर   *lud_dn;
+  अक्षर  **lud_attrs;
+#पूर्ण_अगर
+  पूर्णांक     lud_scope;
+#अगर_घोषित USE_WIN32_LDAP
   TCHAR  *lud_filter;
-#else
-  char   *lud_filter;
-#endif
-  char  **lud_exts;
-  size_t  lud_attrs_dups; /* how many were dup'ed, this field is not in the
+#अन्यथा
+  अक्षर   *lud_filter;
+#पूर्ण_अगर
+  अक्षर  **lud_exts;
+  माप_प्रकार  lud_attrs_dups; /* how many were dup'ed, this field is not in the
                              "real" struct so can only be used in code
                              without HAVE_LDAP_URL_PARSE defined */
 };
 
-#undef LDAPURLDesc
-#define LDAPURLDesc struct ldap_urldesc
+#अघोषित LDAPURLDesc
+#घोषणा LDAPURLDesc काष्ठा ldap_urldesc
 
-static curl_ldap_num_t ldap_url_parse_low(struct Curl_easy *data,
-                                          const struct connectdata *conn,
+अटल curl_ldap_अंक_t ldap_url_parse_निचला(काष्ठा Curl_easy *तथ्य,
+                                          स्थिर काष्ठा connectdata *conn,
                                           LDAPURLDesc **ludpp);
-static void ldap_free_urldesc_low(LDAPURLDesc *ludp);
+अटल व्योम ldap_free_urldesc_निचला(LDAPURLDesc *ludp);
 
-#undef ldap_free_urldesc
-#define ldap_free_urldesc       ldap_free_urldesc_low
+#अघोषित ldap_free_urldesc
+#घोषणा ldap_free_urldesc       ldap_free_urldesc_निचला
 
-#endif /* !HAVE_LDAP_URL_PARSE */
+#पूर्ण_अगर /* !HAVE_LDAP_URL_PARSE */
 
-#ifdef DEBUG_LDAP
-#define LDAP_TRACE(x)                 \
-  do {                                \
-    ldap_trace_low("%u: ", __LINE__); \
-    ldap_trace_low x;                 \
-  } while(0)
+#अगर_घोषित DEBUG_LDAP
+#घोषणा LDAP_TRACE(x)                 \
+  करो {                                \
+    ldap_trace_निचला("%u: ", __LINE__); \
+    ldap_trace_निचला x;                 \
+  } जबतक(0)
 
-static void ldap_trace_low(const char *fmt, ...) CURL_PRINTF(1, 2);
-#else
-#define LDAP_TRACE(x) Curl_nop_stmt
-#endif
+अटल व्योम ldap_trace_निचला(स्थिर अक्षर *fmt, ...) CURL_PRINTF(1, 2);
+#अन्यथा
+#घोषणा LDAP_TRACE(x) Curl_nop_stmt
+#पूर्ण_अगर
 
-#if defined(USE_WIN32_LDAP) && defined(ldap_err2string)
+#अगर defined(USE_WIN32_LDAP) && defined(ldap_err2string)
 /* Use ANSI error strings in Unicode builds */
-#undef ldap_err2string
-#define ldap_err2string ldap_err2stringA
-#endif
+#अघोषित ldap_err2string
+#घोषणा ldap_err2string ldap_err2stringA
+#पूर्ण_अगर
 
-#if defined(USE_WIN32_LDAP) && defined(_MSC_VER) && (_MSC_VER <= 1700)
+#अगर defined(USE_WIN32_LDAP) && defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'void *' of greater size */
-#undef LDAP_OPT_ON
-#undef LDAP_OPT_OFF
-#define LDAP_OPT_ON   ((void *)(size_t)1)
-#define LDAP_OPT_OFF  ((void *)(size_t)0)
-#endif
+#अघोषित LDAP_OPT_ON
+#अघोषित LDAP_OPT_OFF
+#घोषणा LDAP_OPT_ON   ((व्योम *)(माप_प्रकार)1)
+#घोषणा LDAP_OPT_OFF  ((व्योम *)(माप_प्रकार)0)
+#पूर्ण_अगर
 
-#ifdef USE_WIN32_LDAP
+#अगर_घोषित USE_WIN32_LDAP
 
-#ifdef USE_WINDOWS_SSPI
-static ULONG ldap_win_bind_auth(LDAP *server, const char *user,
-                                const char *passwd, unsigned long authflags)
+#अगर_घोषित USE_WINDOWS_SSPI
+अटल ULONG ldap_win_bind_auth(LDAP *server, स्थिर अक्षर *user,
+                                स्थिर अक्षर *passwd, अचिन्हित दीर्घ authflags)
 {
   ULONG method = 0;
   SEC_WINNT_AUTH_IDENTITY_EX cred;
   ULONG rc = LDAP_AUTH_METHOD_NOT_SUPPORTED;
 
-  memset(&cred, 0, sizeof(cred));
+  स_रखो(&cred, 0, माप(cred));
 
-#ifdef USE_SPNEGO
-  if(authflags & CURLAUTH_NEGOTIATE) {
+#अगर_घोषित USE_SPNEGO
+  अगर(authflags & CURLAUTH_NEGOTIATE) {
     method = LDAP_AUTH_NEGOTIATE;
   }
-  else
-#endif
-#ifdef USE_NTLM
-  if(authflags & CURLAUTH_NTLM) {
+  अन्यथा
+#पूर्ण_अगर
+#अगर_घोषित USE_NTLM
+  अगर(authflags & CURLAUTH_NTLM) {
     method = LDAP_AUTH_NTLM;
   }
-  else
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  if(authflags & CURLAUTH_DIGEST) {
+  अन्यथा
+#पूर्ण_अगर
+#अगर_अघोषित CURL_DISABLE_DIGEST_AUTH
+  अगर(authflags & CURLAUTH_DIGEST) {
     method = LDAP_AUTH_DIGEST;
   }
-  else
-#endif
+  अन्यथा
+#पूर्ण_अगर
   {
     /* required anyway if one of upper preprocessor definitions enabled */
   }
 
-  if(method && user && passwd) {
-    CURLcode result = Curl_create_sspi_identity(user, passwd, &cred);
-    if(!result) {
-      rc = ldap_bind_s(server, NULL, (TCHAR *)&cred, method);
+  अगर(method && user && passwd) {
+    CURLcode परिणाम = Curl_create_sspi_identity(user, passwd, &cred);
+    अगर(!परिणाम) {
+      rc = ldap_bind_s(server, शून्य, (TCHAR *)&cred, method);
       Curl_sspi_free_identity(&cred);
     }
-    else {
+    अन्यथा {
       rc = LDAP_NO_MEMORY;
     }
   }
-  else {
+  अन्यथा {
     /* proceed with current user credentials */
     method = LDAP_AUTH_NEGOTIATE;
-    rc = ldap_bind_s(server, NULL, NULL, method);
+    rc = ldap_bind_s(server, शून्य, शून्य, method);
   }
-  return rc;
+  वापस rc;
 }
-#endif /* USE_WINDOWS_SSPI */
+#पूर्ण_अगर /* USE_WINDOWS_SSPI */
 
-static ULONG ldap_win_bind(struct Curl_easy *data, LDAP *server,
-                           const char *user, const char *passwd)
+अटल ULONG ldap_win_bind(काष्ठा Curl_easy *तथ्य, LDAP *server,
+                           स्थिर अक्षर *user, स्थिर अक्षर *passwd)
 {
   ULONG rc = LDAP_INVALID_CREDENTIALS;
 
-  PTCHAR inuser = NULL;
-  PTCHAR inpass = NULL;
+  PTCHAR inuser = शून्य;
+  PTCHAR inpass = शून्य;
 
-  if(user && passwd && (data->set.httpauth & CURLAUTH_BASIC)) {
+  अगर(user && passwd && (तथ्य->set.httpauth & CURLAUTH_BASIC)) {
     inuser = curlx_convert_UTF8_to_tchar(user);
     inpass = curlx_convert_UTF8_to_tchar(passwd);
 
@@ -220,468 +220,468 @@ static ULONG ldap_win_bind(struct Curl_easy *data, LDAP *server,
     curlx_free(inuser);
     curlx_free(inpass);
   }
-#ifdef USE_WINDOWS_SSPI
-  else {
-    rc = ldap_win_bind_auth(server, user, passwd, data->set.httpauth);
+#अगर_घोषित USE_WINDOWS_SSPI
+  अन्यथा {
+    rc = ldap_win_bind_auth(server, user, passwd, तथ्य->set.httpauth);
   }
-#endif
+#पूर्ण_अगर
 
-  return rc;
+  वापस rc;
 }
-#endif /* USE_WIN32_LDAP */
+#पूर्ण_अगर /* USE_WIN32_LDAP */
 
 /* RFC 2849: a string that is not a SAFE-STRING (leading ':' or '<', leading or
    trailing space, or any non-printable byte such as CR/LF) cannot go into LDIF
    as-is. DNs and values get base64-encoded instead; an attribute type has no
    base64 form in LDIF and is rejected by the caller. */
-static bool ldap_str_needs_base64(const char *s, size_t len)
+अटल bool ldap_str_needs_base64(स्थिर अक्षर *s, माप_प्रकार len)
 {
-  size_t i;
-  if(!len)
-    return FALSE;
-  if((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
-    return TRUE;
-  for(i = 0; i < len; i++)
-    if(!ISPRINT(s[i]))
-      return TRUE;
-  return FALSE;
+  माप_प्रकार i;
+  अगर(!len)
+    वापस FALSE;
+  अगर((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
+    वापस TRUE;
+  क्रम(i = 0; i < len; i++)
+    अगर(!ISPRINT(s[i]))
+      वापस TRUE;
+  वापस FALSE;
 }
 
-static bool ldap_value_needs_base64(const char *attr, size_t attr_len,
-                                    const BerValue *val)
+अटल bool ldap_मूल्य_needs_base64(स्थिर अक्षर *attr, माप_प्रकार attr_len,
+                                    स्थिर Ber_मूल्य *val)
 {
-  if((attr_len > 7) && curl_strequal(";binary", attr + attr_len - 7))
-    return TRUE;
+  अगर((attr_len > 7) && curl_strequal(";binary", attr + attr_len - 7))
+    वापस TRUE;
 
-  return ldap_str_needs_base64(val->bv_val, val->bv_len);
+  वापस ldap_str_needs_base64(val->bv_val, val->bv_len);
 }
 
-#ifdef USE_WIN32_LDAP
-static BOOLEAN bypass_cert_verify(PLDAP Connection,
+#अगर_घोषित USE_WIN32_LDAP
+अटल BOOLEAN bypass_cert_verify(PLDAP Connection,
                                   PCCERT_CONTEXT *ppServerCert)
 {
-  (void)Connection;
+  (व्योम)Connection;
   CertFreeCertificateContext(*ppServerCert);
   /* approve any certificate since the verification is set to bypass */
-  return TRUE;
+  वापस TRUE;
 }
-#endif
+#पूर्ण_अगर
 
-static CURLcode show_vals(struct Curl_easy *data, BerValue **vals,
-                          const char *attr)
+अटल CURLcode show_vals(काष्ठा Curl_easy *तथ्य, Ber_मूल्य **vals,
+                          स्थिर अक्षर *attr)
 {
-  CURLcode result = CURLE_OK;
-  int i;
-  size_t attr_len = strlen(attr);
+  CURLcode परिणाम = CURLE_OK;
+  पूर्णांक i;
+  माप_प्रकार attr_len = म_माप(attr);
 
   /* An attribute type has no base64 form in LDIF, so a type carrying control
      bytes (CR/LF etc.) would let a hostile server inject lines. A conformant
      type name never contains them, so reject it. */
-  if(ldap_str_needs_base64(attr, attr_len)) {
-    failf(data, "LDAP local: attribute type contains illegal bytes");
-    return CURLE_WEIRD_SERVER_REPLY;
+  अगर(ldap_str_needs_base64(attr, attr_len)) {
+    failf(तथ्य, "LDAP local: attribute type contains illegal bytes");
+    वापस CURLE_WEIRD_SERVER_REPLY;
   }
 
-  for(i = 0; vals[i] && !result; i++) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY, "\t", 1);
-    if(!result)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, attr, attr_len);
-    if(!result)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, ":", 1);
+  क्रम(i = 0; vals[i] && !परिणाम; i++) {
+    परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, "\t", 1);
+    अगर(!परिणाम)
+      परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, attr, attr_len);
+    अगर(!परिणाम)
+      परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, ":", 1);
 
-    if(result)
-      break;
+    अगर(परिणाम)
+      अवरोध;
 
-    if(ldap_value_needs_base64(attr, attr_len, vals[i])) {
-      char *val_b64 = NULL;
-      size_t val_b64_sz = 0;
+    अगर(ldap_मूल्य_needs_base64(attr, attr_len, vals[i])) {
+      अक्षर *val_b64 = शून्य;
+      माप_प्रकार val_b64_sz = 0;
 
       /* Binary attribute, encode to base64. */
-      if(vals[i]->bv_len)
-        result = curlx_base64_encode((uint8_t *)vals[i]->bv_val,
+      अगर(vals[i]->bv_len)
+        परिणाम = curlx_base64_encode((uint8_t *)vals[i]->bv_val,
                                      vals[i]->bv_len,
                                      &val_b64, &val_b64_sz);
-      if(!result)
-        result = Curl_client_write(data, CLIENTWRITE_BODY, ": ", 2);
-      if(!result && val_b64_sz)
-        result = Curl_client_write(data, CLIENTWRITE_BODY, val_b64,
+      अगर(!परिणाम)
+        परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, ": ", 2);
+      अगर(!परिणाम && val_b64_sz)
+        परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, val_b64,
                                    val_b64_sz);
       curlx_free(val_b64);
     }
-    else {
-      result = Curl_client_write(data, CLIENTWRITE_BODY, " ", 1);
-      if(!result)
-        result = Curl_client_write(data, CLIENTWRITE_BODY,
+    अन्यथा {
+      परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, " ", 1);
+      अगर(!परिणाम)
+        परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY,
                                    vals[i]->bv_val, vals[i]->bv_len);
     }
 
-    if(!result)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
+    अगर(!परिणाम)
+      परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, "\n", 1);
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode ldap_do(struct Curl_easy *data, bool *done)
+अटल CURLcode ldap_do(काष्ठा Curl_easy *तथ्य, bool *done)
 {
-  CURLcode result = CURLE_OK;
-  curl_ldap_num_t rc = LDAP_SUCCESS;
-  LDAP *server = NULL;
-  LDAPURLDesc *ludp = NULL;
-  LDAPMessage *ldapmsg = NULL;
+  CURLcode परिणाम = CURLE_OK;
+  curl_ldap_अंक_t rc = LDAP_SUCCESS;
+  LDAP *server = शून्य;
+  LDAPURLDesc *ludp = शून्य;
+  LDAPMessage *ldapmsg = शून्य;
   LDAPMessage *entryIterator;
-  int num = 0;
-  struct connectdata *conn = data->conn;
-  int ldap_proto = LDAP_VERSION3;
+  पूर्णांक अंक = 0;
+  काष्ठा connectdata *conn = तथ्य->conn;
+  पूर्णांक ldap_proto = LDAP_VERSION3;
   bool ldap_ssl = FALSE;
-#ifdef LDAP_OPT_NETWORK_TIMEOUT
-  struct timeval ldap_timeout = { 10, 0 }; /* 10s connection/search timeout */
-#endif
-#ifdef USE_WIN32_LDAP
-  TCHAR *host = NULL;
-#else
-  char *host = NULL;
-#endif
-  const char *user = data->state.creds ? data->state.creds->user : NULL;
-  const char *passwd = data->state.creds ? data->state.creds->passwd : NULL;
-  struct ip_quadruple ipquad;
+#अगर_घोषित LDAP_OPT_NETWORK_TIMEOUT
+  काष्ठा timeval ldap_timeout = { 10, 0 }; /* 10s connection/search timeout */
+#पूर्ण_अगर
+#अगर_घोषित USE_WIN32_LDAP
+  TCHAR *host = शून्य;
+#अन्यथा
+  अक्षर *host = शून्य;
+#पूर्ण_अगर
+  स्थिर अक्षर *user = तथ्य->state.creds ? तथ्य->state.creds->user : शून्य;
+  स्थिर अक्षर *passwd = तथ्य->state.creds ? तथ्य->state.creds->passwd : शून्य;
+  काष्ठा ip_quadruple ipquad;
   bool is_ipv6;
-  BerElement *ber = NULL;
+  BerElement *ber = शून्य;
 
   *done = TRUE; /* unconditionally */
-  infof(data, "LDAP local: LDAP Vendor = %s ; LDAP Version = %d",
+  infof(तथ्य, "LDAP local: LDAP Vendor = %s ; LDAP Version = %d",
         LDAP_VENDOR_NAME, LDAP_VENDOR_VERSION);
-  infof(data, "LDAP local: %s", Curl_bufref_ptr(&data->state.url));
+  infof(तथ्य, "LDAP local: %s", Curl_bufref_ptr(&तथ्य->state.url));
 
-#ifdef HAVE_LDAP_URL_PARSE
-  rc = ldap_url_parse(Curl_bufref_ptr(&data->state.url), &ludp);
-#else
-  rc = ldap_url_parse_low(data, conn, &ludp);
-#endif
-  if(rc) {
-    failf(data, "Bad LDAP URL: %s", ldap_err2string(rc));
-    result = CURLE_URL_MALFORMAT;
-    goto quit;
+#अगर_घोषित HAVE_LDAP_URL_PARSE
+  rc = ldap_url_parse(Curl_bufref_ptr(&तथ्य->state.url), &ludp);
+#अन्यथा
+  rc = ldap_url_parse_निचला(तथ्य, conn, &ludp);
+#पूर्ण_अगर
+  अगर(rc) {
+    failf(तथ्य, "Bad LDAP URL: %s", ldap_err2string(rc));
+    परिणाम = CURLE_URL_MALFORMAT;
+    जाओ quit;
   }
 
-  result = Curl_conn_get_ip_info(data, conn, FIRSTSOCKET, &is_ipv6, &ipquad);
-  if(result)
-    goto quit;
+  परिणाम = Curl_conn_get_ip_info(तथ्य, conn, FIRSTSOCKET, &is_ipv6, &ipquad);
+  अगर(परिणाम)
+    जाओ quit;
 
   /* Get the URL scheme (either ldap or ldaps) */
   ldap_ssl = Curl_conn_is_ssl(conn, FIRSTSOCKET);
-  infof(data, "LDAP local: trying to establish %s connection",
+  infof(तथ्य, "LDAP local: trying to establish %s connection",
         ldap_ssl ? "encrypted" : "cleartext");
 
-#ifdef USE_WIN32_LDAP
+#अगर_घोषित USE_WIN32_LDAP
   host = curlx_convert_UTF8_to_tchar(conn->origin->hostname);
-  if(!host) {
-    result = CURLE_OUT_OF_MEMORY;
+  अगर(!host) {
+    परिणाम = CURLE_OUT_OF_MEMORY;
 
-    goto quit;
+    जाओ quit;
   }
-#else
+#अन्यथा
   host = conn->origin->hostname;
-#endif
+#पूर्ण_अगर
 
-#ifdef USE_WIN32_LDAP
-  if(ldap_ssl)
-    server = ldap_sslinit(host, (curl_ldap_num_t)ipquad.remote_port, 1);
-  else
-#endif
-    server = ldap_init(host, (curl_ldap_num_t)ipquad.remote_port);
-  if(!server) {
-    failf(data, "LDAP: cannot setup connect to %s:%u",
+#अगर_घोषित USE_WIN32_LDAP
+  अगर(ldap_ssl)
+    server = ldap_sslinit(host, (curl_ldap_अंक_t)ipquad.remote_port, 1);
+  अन्यथा
+#पूर्ण_अगर
+    server = ldap_init(host, (curl_ldap_अंक_t)ipquad.remote_port);
+  अगर(!server) {
+    failf(तथ्य, "LDAP: cannot setup connect to %s:%u",
           conn->origin->user_hostname, ipquad.remote_port);
-    result = CURLE_COULDNT_CONNECT;
-    goto quit;
+    परिणाम = CURLE_COULDNT_CONNECT;
+    जाओ quit;
   }
 
-#ifdef LDAP_OPT_NETWORK_TIMEOUT
+#अगर_घोषित LDAP_OPT_NETWORK_TIMEOUT
   ldap_set_option(server, LDAP_OPT_NETWORK_TIMEOUT, &ldap_timeout);
-#endif
+#पूर्ण_अगर
   ldap_set_option(server, LDAP_OPT_PROTOCOL_VERSION, &ldap_proto);
 
   /* Do not chase referrals. */
   ldap_set_option(server, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
 
-  if(ldap_ssl) {
-#ifdef HAVE_LDAP_SSL
-#ifdef USE_WIN32_LDAP
+  अगर(ldap_ssl) {
+#अगर_घोषित HAVE_LDAP_SSL
+#अगर_घोषित USE_WIN32_LDAP
     /* Win32 LDAP uses the Windows CA store to verify certificates */
     ldap_set_option(server, LDAP_OPT_SSL, LDAP_OPT_ON);
-    if(!conn->ssl_config.verifypeer) {
-      if(conn->ssl_config.verifyhost) {
-        failf(data, "LDAP local: host verification cannot be enabled when "
+    अगर(!conn->ssl_config.verifypeer) {
+      अगर(conn->ssl_config.verifyhost) {
+        failf(तथ्य, "LDAP local: host verification cannot be enabled when "
               "peer verification is disabled for Windows native LDAP");
-        result = CURLE_NOT_BUILT_IN;
-        goto quit;
+        परिणाम = CURLE_NOT_BUILT_IN;
+        जाओ quit;
       }
       ldap_set_option(server, LDAP_OPT_SERVER_CERTIFICATE,
-                      (void *)(uintptr_t)bypass_cert_verify);
+                      (व्योम *)(uintptr_t)bypass_cert_verify);
     }
-#elif defined(LDAP_OPT_X_TLS) /* !USE_WIN32_LDAP */
-    int ldap_option;
-    const char *ldap_ca = conn->ssl_config.CAfile;
-    if(conn->ssl_config.verifypeer) {
+#या_अगर defined(LDAP_OPT_X_TLS) /* !USE_WIN32_LDAP */
+    पूर्णांक ldap_option;
+    स्थिर अक्षर *ldap_ca = conn->ssl_config.CAfile;
+    अगर(conn->ssl_config.verifypeer) {
       /* OpenLDAP SDK supports BASE64 files. */
-      if(conn->ssl_config.cert_type &&
+      अगर(conn->ssl_config.cert_type &&
          !curl_strequal(conn->ssl_config.cert_type, "PEM")) {
-        failf(data, "LDAP local: ERROR OpenLDAP only supports PEM cert-type");
-        result = CURLE_SSL_CERTPROBLEM;
-        goto quit;
+        failf(तथ्य, "LDAP local: ERROR OpenLDAP only supports PEM cert-type");
+        परिणाम = CURLE_SSL_CERTPROBLEM;
+        जाओ quit;
       }
-      if(!ldap_ca) {
-        failf(data, "LDAP local: ERROR PEM CA cert not set");
-        result = CURLE_SSL_CERTPROBLEM;
-        goto quit;
+      अगर(!ldap_ca) {
+        failf(तथ्य, "LDAP local: ERROR PEM CA cert not set");
+        परिणाम = CURLE_SSL_CERTPROBLEM;
+        जाओ quit;
       }
-      infof(data, "LDAP local: using PEM CA cert: %s", ldap_ca);
+      infof(तथ्य, "LDAP local: using PEM CA cert: %s", ldap_ca);
       rc = ldap_set_option(server, LDAP_OPT_X_TLS_CACERTFILE, ldap_ca);
-      if(rc != LDAP_SUCCESS) {
-        failf(data, "LDAP local: ERROR setting PEM CA cert: %s",
+      अगर(rc != LDAP_SUCCESS) {
+        failf(तथ्य, "LDAP local: ERROR setting PEM CA cert: %s",
               ldap_err2string(rc));
-        result = CURLE_SSL_CERTPROBLEM;
-        goto quit;
+        परिणाम = CURLE_SSL_CERTPROBLEM;
+        जाओ quit;
       }
       ldap_option = LDAP_OPT_X_TLS_DEMAND;
     }
-    else
+    अन्यथा
       ldap_option = LDAP_OPT_X_TLS_NEVER;
 
     rc = ldap_set_option(server, LDAP_OPT_X_TLS_REQUIRE_CERT, &ldap_option);
-    if(rc != LDAP_SUCCESS) {
-      failf(data, "LDAP local: ERROR setting cert verify mode: %s",
+    अगर(rc != LDAP_SUCCESS) {
+      failf(तथ्य, "LDAP local: ERROR setting cert verify mode: %s",
             ldap_err2string(rc));
-      result = CURLE_SSL_CERTPROBLEM;
-      goto quit;
+      परिणाम = CURLE_SSL_CERTPROBLEM;
+      जाओ quit;
     }
     ldap_option = LDAP_OPT_X_TLS_HARD;
     rc = ldap_set_option(server, LDAP_OPT_X_TLS, &ldap_option);
-    if(rc != LDAP_SUCCESS) {
-      failf(data, "LDAP local: ERROR setting SSL/TLS mode: %s",
+    अगर(rc != LDAP_SUCCESS) {
+      failf(तथ्य, "LDAP local: ERROR setting SSL/TLS mode: %s",
             ldap_err2string(rc));
-      result = CURLE_SSL_CERTPROBLEM;
-      goto quit;
+      परिणाम = CURLE_SSL_CERTPROBLEM;
+      जाओ quit;
     }
-#else /* !USE_WIN32_LDAP && !LDAP_OPT_X_TLS */
+#अन्यथा /* !USE_WIN32_LDAP && !LDAP_OPT_X_TLS */
     /* we should probably never come up to here since configure
        should check in first place if we can support LDAP SSL/TLS */
-    failf(data, "LDAP local: SSL/TLS not supported with this version "
+    failf(तथ्य, "LDAP local: SSL/TLS not supported with this version "
           "of the OpenLDAP toolkit");
-    result = CURLE_SSL_CERTPROBLEM;
-    goto quit;
-#endif
-#endif /* HAVE_LDAP_SSL */
+    परिणाम = CURLE_SSL_CERTPROBLEM;
+    जाओ quit;
+#पूर्ण_अगर
+#पूर्ण_अगर /* HAVE_LDAP_SSL */
   }
-  else if(data->set.use_ssl > CURLUSESSL_TRY) {
-    failf(data, "LDAP local: explicit TLS not supported");
-    result = CURLE_NOT_BUILT_IN;
-    goto quit;
+  अन्यथा अगर(तथ्य->set.use_ssl > CURLUSESSL_TRY) {
+    failf(तथ्य, "LDAP local: explicit TLS not supported");
+    परिणाम = CURLE_NOT_BUILT_IN;
+    जाओ quit;
   }
 
-#ifdef USE_WIN32_LDAP
-  rc = ldap_win_bind(data, server, user, passwd);
-#else
+#अगर_घोषित USE_WIN32_LDAP
+  rc = ldap_win_bind(तथ्य, server, user, passwd);
+#अन्यथा
   rc = ldap_simple_bind_s(server, user, passwd);
-#endif
-  if(!ldap_ssl && rc != LDAP_SUCCESS) {
+#पूर्ण_अगर
+  अगर(!ldap_ssl && rc != LDAP_SUCCESS) {
     ldap_proto = LDAP_VERSION2;
     ldap_set_option(server, LDAP_OPT_PROTOCOL_VERSION, &ldap_proto);
-#ifdef USE_WIN32_LDAP
-    rc = ldap_win_bind(data, server, user, passwd);
-#else
+#अगर_घोषित USE_WIN32_LDAP
+    rc = ldap_win_bind(तथ्य, server, user, passwd);
+#अन्यथा
     rc = ldap_simple_bind_s(server, user, passwd);
-#endif
+#पूर्ण_अगर
   }
-  if(rc != LDAP_SUCCESS) {
-#ifdef USE_WIN32_LDAP
-    failf(data, "LDAP local: bind via ldap_win_bind %s",
+  अगर(rc != LDAP_SUCCESS) {
+#अगर_घोषित USE_WIN32_LDAP
+    failf(तथ्य, "LDAP local: bind via ldap_win_bind %s",
           ldap_err2string(rc));
-#else
-    failf(data, "LDAP local: bind via ldap_simple_bind_s %s",
+#अन्यथा
+    failf(तथ्य, "LDAP local: bind via ldap_simple_bind_s %s",
           ldap_err2string(rc));
-#endif
-    result = CURLE_LDAP_CANNOT_BIND;
-    goto quit;
+#पूर्ण_अगर
+    परिणाम = CURLE_LDAP_CANNOT_BIND;
+    जाओ quit;
   }
 
-  Curl_pgrsReset(data);
-  rc = ldap_search_s(server, ludp->lud_dn,
+  Curl_pgrsReset(तथ्य);
+  rc = ldap_खोज_s(server, ludp->lud_dn,
                      ludp->lud_scope,
                      ludp->lud_filter, ludp->lud_attrs, 0, &ldapmsg);
 
-  if(rc != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
-    failf(data, "LDAP remote: %s", ldap_err2string(rc));
-    result = CURLE_LDAP_SEARCH_FAILED;
-    goto quit;
+  अगर(rc != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
+    failf(तथ्य, "LDAP remote: %s", ldap_err2string(rc));
+    परिणाम = CURLE_LDAP_खोज_FAILED;
+    जाओ quit;
   }
 
-  num = 0;
-  for(entryIterator = ldap_first_entry(server, ldapmsg);
+  अंक = 0;
+  क्रम(entryIterator = ldap_first_entry(server, ldapmsg);
       entryIterator;
-      entryIterator = ldap_next_entry(server, entryIterator), num++) {
-#ifdef USE_WIN32_LDAP
+      entryIterator = ldap_अग्र_entry(server, entryIterator), अंक++) {
+#अगर_घोषित USE_WIN32_LDAP
     TCHAR *attribute;
-#else
-    char *attribute;
-#endif
+#अन्यथा
+    अक्षर *attribute;
+#पूर्ण_अगर
 
     /* Get the DN and write it to the client */
     {
-      char *name = NULL;
-      size_t name_len = 0;
-#ifdef USE_WIN32_LDAP
+      अक्षर *name = शून्य;
+      माप_प्रकार name_len = 0;
+#अगर_घोषित USE_WIN32_LDAP
       TCHAR *dn = ldap_get_dn(server, entryIterator);
-      if(dn)
+      अगर(dn)
         name = curlx_convert_tchar_to_UTF8(dn);
-#else
-      char *dn = name = ldap_get_dn(server, entryIterator);
-#endif
-      if(!name)
-        result = dn ? CURLE_OUT_OF_MEMORY : CURLE_FAILED_INIT;
-      else {
-        name_len = strlen(name);
-        if(ldap_str_needs_base64(name, name_len)) {
-          char *dn_b64 = NULL;
-          size_t dn_b64_sz = 0;
+#अन्यथा
+      अक्षर *dn = name = ldap_get_dn(server, entryIterator);
+#पूर्ण_अगर
+      अगर(!name)
+        परिणाम = dn ? CURLE_OUT_OF_MEMORY : CURLE_FAILED_INIT;
+      अन्यथा {
+        name_len = म_माप(name);
+        अगर(ldap_str_needs_base64(name, name_len)) {
+          अक्षर *dn_b64 = शून्य;
+          माप_प्रकार dn_b64_sz = 0;
 
           /* A DN with e.g. CR/LF would inject LDIF lines, so encode it */
-          result = curlx_base64_encode((uint8_t *)name, name_len,
+          परिणाम = curlx_base64_encode((uint8_t *)name, name_len,
                                        &dn_b64, &dn_b64_sz);
-          if(!result)
-            result = Curl_client_write(data, CLIENTWRITE_BODY, "DN:: ", 5);
-          if(!result)
-            result = Curl_client_write(data, CLIENTWRITE_BODY, dn_b64,
+          अगर(!परिणाम)
+            परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, "DN:: ", 5);
+          अगर(!परिणाम)
+            परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, dn_b64,
                                        dn_b64_sz);
           curlx_free(dn_b64);
         }
-        else {
-          result = Curl_client_write(data, CLIENTWRITE_BODY, "DN: ", 4);
-          if(!result)
-            result = Curl_client_write(data, CLIENTWRITE_BODY, name, name_len);
+        अन्यथा {
+          परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, "DN: ", 4);
+          अगर(!परिणाम)
+            परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, name, name_len);
         }
-        if(!result)
-          result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
+        अगर(!परिणाम)
+          परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, "\n", 1);
       }
       FREE_ON_WINLDAP(name);
       ldap_memfree(dn);
-      if(result)
-        goto quit;
+      अगर(परिणाम)
+        जाओ quit;
     }
 
     /* Get the attributes and write them to the client */
-    for(attribute = ldap_first_attribute(server, entryIterator, &ber);
+    क्रम(attribute = ldap_first_attribute(server, entryIterator, &ber);
         attribute;
-        attribute = ldap_next_attribute(server, entryIterator, ber)) {
-      BerValue **vals;
-#ifdef USE_WIN32_LDAP
-      char *attr = curlx_convert_tchar_to_UTF8(attribute);
-      if(!attr) {
+        attribute = ldap_अग्र_attribute(server, entryIterator, ber)) {
+      Ber_मूल्य **vals;
+#अगर_घोषित USE_WIN32_LDAP
+      अक्षर *attr = curlx_convert_tchar_to_UTF8(attribute);
+      अगर(!attr) {
         ldap_memfree(attribute);
-        result = CURLE_OUT_OF_MEMORY;
-        goto quit;
+        परिणाम = CURLE_OUT_OF_MEMORY;
+        जाओ quit;
       }
-#else
-      char *attr = attribute;
-#endif
-      vals = ldap_get_values_len(server, entryIterator, attribute);
-      if(vals) {
-        result = show_vals(data, vals, attr);
+#अन्यथा
+      अक्षर *attr = attribute;
+#पूर्ण_अगर
+      vals = ldap_get_मूल्यावली_len(server, entryIterator, attribute);
+      अगर(vals) {
+        परिणाम = show_vals(तथ्य, vals, attr);
         /* Free memory used to store values */
-        ldap_value_free_len(vals);
+        ldap_मूल्य_free_len(vals);
       }
 
       /* Free the attribute as we are done with it */
       FREE_ON_WINLDAP(attr);
       ldap_memfree(attribute);
 
-      if(!result)
-        result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
-        goto quit;
+      अगर(!परिणाम)
+        परिणाम = Curl_client_write(तथ्य, CLIENTWRITE_BODY, "\n", 1);
+      अगर(परिणाम)
+        जाओ quit;
     }
 
-    if(ber) {
+    अगर(ber) {
       ber_free(ber, 0);
-      ber = NULL;
+      ber = शून्य;
     }
   }
 
 quit:
-  if(ber)
+  अगर(ber)
     ber_free(ber, 0);
-  if(ldapmsg) {
+  अगर(ldapmsg) {
     ldap_msgfree(ldapmsg);
-    LDAP_TRACE(("Received %d entries\n", num));
+    LDAP_TRACE(("Received %d entries\n", अंक));
   }
-  if(rc == LDAP_SIZELIMIT_EXCEEDED)
-    infof(data, "There are more than %d entries", num);
-  if(ludp)
+  अगर(rc == LDAP_SIZELIMIT_EXCEEDED)
+    infof(तथ्य, "There are more than %d entries", अंक);
+  अगर(ludp)
     ldap_free_urldesc(ludp);
-  if(server)
+  अगर(server)
     ldap_unbind_s(server);
 
   FREE_ON_WINLDAP(host);
 
   /* no data to transfer */
-  Curl_xfer_setup_nop(data);
+  Curl_xfer_setup_nop(तथ्य);
   connclose(conn);
 
-  return result;
+  वापस परिणाम;
 }
 
-#ifdef DEBUG_LDAP
-static void ldap_trace_low(const char *fmt, ...)
+#अगर_घोषित DEBUG_LDAP
+अटल व्योम ldap_trace_निचला(स्थिर अक्षर *fmt, ...)
 {
-  static int do_trace = -1;
-  va_list args;
+  अटल पूर्णांक do_trace = -1;
+  बहु_सूची args;
 
-  if(do_trace == -1) {
-    const char *env = getenv("CURL_TRACE");
+  अगर(do_trace == -1) {
+    स्थिर अक्षर *env = दो_पर्या("CURL_TRACE");
     curl_off_t e = 0;
-    if(!curlx_str_number(&env, &e, INT_MAX))
+    अगर(!curlx_str_संख्या(&env, &e, पूर्णांक_उच्च))
       do_trace = e > 0;
   }
-  if(!do_trace)
-    return;
+  अगर(!do_trace)
+    वापस;
 
-  va_start(args, fmt);
-  curl_mvfprintf(stderr, fmt, args);
-  va_end(args);
+  बहु_शुरू(args, fmt);
+  curl_mvfprintf(मानक_त्रुटि, fmt, args);
+  बहु_पूर्ण(args);
 }
-#endif /* DEBUG_LDAP */
+#पूर्ण_अगर /* DEBUG_LDAP */
 
-#ifndef HAVE_LDAP_URL_PARSE
+#अगर_अघोषित HAVE_LDAP_URL_PARSE
 
 /*
  * Return scope-value for a scope-string.
  */
-static int str2scope(const char *p)
+अटल पूर्णांक str2scope(स्थिर अक्षर *p)
 {
-  if(curl_strequal(p, "one"))
-    return LDAP_SCOPE_ONELEVEL;
-  if(curl_strequal(p, "onetree"))
-    return LDAP_SCOPE_ONELEVEL;
-  if(curl_strequal(p, "base"))
-    return LDAP_SCOPE_BASE;
-  if(curl_strequal(p, "sub"))
-    return LDAP_SCOPE_SUBTREE;
-  if(curl_strequal(p, "subtree"))
-    return LDAP_SCOPE_SUBTREE;
-  return -1;
+  अगर(curl_strequal(p, "one"))
+    वापस LDAP_SCOPE_ONELEVEL;
+  अगर(curl_strequal(p, "onetree"))
+    वापस LDAP_SCOPE_ONELEVEL;
+  अगर(curl_strequal(p, "base"))
+    वापस LDAP_SCOPE_BASE;
+  अगर(curl_strequal(p, "sub"))
+    वापस LDAP_SCOPE_SUBTREE;
+  अगर(curl_strequal(p, "subtree"))
+    वापस LDAP_SCOPE_SUBTREE;
+  वापस -1;
 }
 
 /* number of entries in the attributes list */
-static size_t num_entries(const char *s)
+अटल माप_प्रकार अंक_entries(स्थिर अक्षर *s)
 {
-  size_t items = 1;
+  माप_प्रकार वस्तुएँ = 1;
 
-  s = strchr(s, ',');
-  while(s) {
-    items++;
-    s = strchr(s + 1, ',');
+  s = म_अक्षर(s, ',');
+  जबतक(s) {
+    वस्तुएँ++;
+    s = म_अक्षर(s + 1, ',');
   }
-  return items;
+  वापस वस्तुएँ;
 }
 
 /*
@@ -698,242 +698,242 @@ static size_t num_entries(const char *s)
  *
  * Defined in RFC4516 section 2.
  */
-static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
-                                           const struct connectdata *conn,
+अटल curl_ldap_अंक_t ldap_url_parse2_निचला(काष्ठा Curl_easy *तथ्य,
+                                           स्थिर काष्ठा connectdata *conn,
                                            LDAPURLDesc *ludp)
 {
-  curl_ldap_num_t rc = LDAP_SUCCESS;
-  char *p;
-  char *path;
-  char *q = NULL;
-  char *query = NULL;
-  size_t i;
+  curl_ldap_अंक_t rc = LDAP_SUCCESS;
+  अक्षर *p;
+  अक्षर *path;
+  अक्षर *q = शून्य;
+  अक्षर *query = शून्य;
+  माप_प्रकार i;
 
-  if(!data ||
-     !data->state.up.path ||
-     data->state.up.path[0] != '/' ||
-     ((data->state.origin->scheme != &Curl_scheme_ldap) &&
-      (data->state.origin->scheme != &Curl_scheme_ldaps)))
-    return LDAP_INVALID_SYNTAX;
+  अगर(!तथ्य ||
+     !तथ्य->state.up.path ||
+     तथ्य->state.up.path[0] != '/' ||
+     ((तथ्य->state.origin->scheme != &Curl_scheme_ldap) &&
+      (तथ्य->state.origin->scheme != &Curl_scheme_ldaps)))
+    वापस LDAP_INVALID_SYNTAX;
 
   ludp->lud_scope = LDAP_SCOPE_BASE;
   ludp->lud_port  = conn->origin->port;
   ludp->lud_host  = conn->origin->hostname;
 
   /* Duplicate the path */
-  p = path = curlx_strdup(data->state.up.path + 1);
-  if(!path)
-    return LDAP_NO_MEMORY;
+  p = path = curlx_strdup(तथ्य->state.up.path + 1);
+  अगर(!path)
+    वापस LDAP_NO_MEMORY;
 
   /* Duplicate the query if present */
-  if(data->state.up.query) {
-    q = query = curlx_strdup(data->state.up.query);
-    if(!query) {
+  अगर(तथ्य->state.up.query) {
+    q = query = curlx_strdup(तथ्य->state.up.query);
+    अगर(!query) {
       curlx_free(path);
-      return LDAP_NO_MEMORY;
+      वापस LDAP_NO_MEMORY;
     }
   }
 
   /* Parse the DN (Distinguished Name) */
-  if(*p) {
-    char *dn = p;
-    char *unescaped;
-    CURLcode result;
+  अगर(*p) {
+    अक्षर *dn = p;
+    अक्षर *unescaped;
+    CURLcode परिणाम;
 
     LDAP_TRACE(("DN '%s'\n", dn));
 
     /* Unescape the DN */
-    result = Curl_urldecode(dn, 0, &unescaped, NULL, REJECT_ZERO);
-    if(result) {
+    परिणाम = Curl_urldecode(dn, 0, &unescaped, शून्य, REJECT_ZERO);
+    अगर(परिणाम) {
       rc = LDAP_NO_MEMORY;
 
-      goto quit;
+      जाओ quit;
     }
 
-#ifdef USE_WIN32_LDAP
+#अगर_घोषित USE_WIN32_LDAP
     /* Convert the unescaped string to a tchar */
     ludp->lud_dn = curlx_convert_UTF8_to_tchar(unescaped);
 
     /* Free the unescaped string as we are done with it */
     curlx_free(unescaped);
 
-    if(!ludp->lud_dn) {
+    अगर(!ludp->lud_dn) {
       rc = LDAP_NO_MEMORY;
 
-      goto quit;
+      जाओ quit;
     }
-#else
+#अन्यथा
     ludp->lud_dn = unescaped;
-#endif
+#पूर्ण_अगर
   }
 
   p = q;
-  if(!p)
-    goto quit;
+  अगर(!p)
+    जाओ quit;
 
   /* Parse the attributes. skip "??" */
-  q = strchr(p, '?');
-  if(q)
+  q = म_अक्षर(p, '?');
+  अगर(q)
     *q++ = '\0';
 
-  if(*p) {
-    size_t count = num_entries(p); /* at least one */
-    const char *atp = p;
+  अगर(*p) {
+    माप_प्रकार गिनती = अंक_entries(p); /* at least one */
+    स्थिर अक्षर *atp = p;
 
     /* Allocate our array (+1 for the NULL entry) */
-#ifdef USE_WIN32_LDAP
-    ludp->lud_attrs = curlx_calloc(count + 1, sizeof(TCHAR *));
-#else
-    ludp->lud_attrs = curlx_calloc(count + 1, sizeof(char *));
-#endif
-    if(!ludp->lud_attrs) {
+#अगर_घोषित USE_WIN32_LDAP
+    ludp->lud_attrs = curlx_calloc(गिनती + 1, माप(TCHAR *));
+#अन्यथा
+    ludp->lud_attrs = curlx_calloc(गिनती + 1, माप(अक्षर *));
+#पूर्ण_अगर
+    अगर(!ludp->lud_attrs) {
       rc = LDAP_NO_MEMORY;
-      goto quit;
+      जाओ quit;
     }
 
-    for(i = 0; i < count; i++) {
-      char *unescaped;
-      CURLcode result;
-      struct Curl_str out;
+    क्रम(i = 0; i < गिनती; i++) {
+      अक्षर *unescaped;
+      CURLcode परिणाम;
+      काष्ठा Curl_str out;
 
-      if(curlx_str_until(&atp, &out, 1024, ','))
-        break;
+      अगर(curlx_str_until(&atp, &out, 1024, ','))
+        अवरोध;
 
-      LDAP_TRACE(("attr[%zu] '%.*s'\n", i, (int)out.len, out.str));
+      LDAP_TRACE(("attr[%zu] '%.*s'\n", i, (पूर्णांक)out.len, out.str));
 
       /* Unescape the attribute */
-      result = Curl_urldecode(out.str, out.len, &unescaped, NULL, REJECT_ZERO);
-      if(result) {
+      परिणाम = Curl_urldecode(out.str, out.len, &unescaped, शून्य, REJECT_ZERO);
+      अगर(परिणाम) {
         rc = LDAP_NO_MEMORY;
-        goto quit;
+        जाओ quit;
       }
 
-#ifdef USE_WIN32_LDAP
+#अगर_घोषित USE_WIN32_LDAP
       /* Convert the unescaped string to a tchar */
       ludp->lud_attrs[i] = curlx_convert_UTF8_to_tchar(unescaped);
 
       /* Free the unescaped string as we are done with it */
       curlx_free(unescaped);
 
-      if(!ludp->lud_attrs[i]) {
+      अगर(!ludp->lud_attrs[i]) {
         rc = LDAP_NO_MEMORY;
-        goto quit;
+        जाओ quit;
       }
-#else
+#अन्यथा
       ludp->lud_attrs[i] = unescaped;
-#endif
+#पूर्ण_अगर
 
       ludp->lud_attrs_dups++;
-      if(curlx_str_single(&atp, ','))
-        break;
+      अगर(curlx_str_single(&atp, ','))
+        अवरोध;
     }
   }
 
   p = q;
-  if(!p)
-    goto quit;
+  अगर(!p)
+    जाओ quit;
 
   /* Parse the scope. skip "??" */
-  q = strchr(p, '?');
-  if(q)
+  q = म_अक्षर(p, '?');
+  अगर(q)
     *q++ = '\0';
 
-  if(*p) {
+  अगर(*p) {
     ludp->lud_scope = str2scope(p);
-    if(ludp->lud_scope == -1) {
+    अगर(ludp->lud_scope == -1) {
       rc = LDAP_INVALID_SYNTAX;
 
-      goto quit;
+      जाओ quit;
     }
     LDAP_TRACE(("scope %d\n", ludp->lud_scope));
   }
 
   p = q;
-  if(!p)
-    goto quit;
+  अगर(!p)
+    जाओ quit;
 
   /* Parse the filter */
-  q = strchr(p, '?');
-  if(q)
+  q = म_अक्षर(p, '?');
+  अगर(q)
     *q++ = '\0';
 
-  if(*p) {
-    char *filter = p;
-    char *unescaped;
-    CURLcode result;
+  अगर(*p) {
+    अक्षर *filter = p;
+    अक्षर *unescaped;
+    CURLcode परिणाम;
 
     LDAP_TRACE(("filter '%s'\n", filter));
 
     /* Unescape the filter */
-    result = Curl_urldecode(filter, 0, &unescaped, NULL, REJECT_CTRL);
-    if(result) {
+    परिणाम = Curl_urldecode(filter, 0, &unescaped, शून्य, REJECT_CTRL);
+    अगर(परिणाम) {
       rc = LDAP_NO_MEMORY;
 
-      goto quit;
+      जाओ quit;
     }
 
-#ifdef USE_WIN32_LDAP
+#अगर_घोषित USE_WIN32_LDAP
     /* Convert the unescaped string to a tchar */
     ludp->lud_filter = curlx_convert_UTF8_to_tchar(unescaped);
 
     /* Free the unescaped string as we are done with it */
     curlx_free(unescaped);
 
-    if(!ludp->lud_filter) {
+    अगर(!ludp->lud_filter) {
       rc = LDAP_NO_MEMORY;
 
-      goto quit;
+      जाओ quit;
     }
-#else
+#अन्यथा
     ludp->lud_filter = unescaped;
-#endif
+#पूर्ण_अगर
   }
 
   p = q;
-  if(p && !*p) {
+  अगर(p && !*p) {
     rc = LDAP_INVALID_SYNTAX;
 
-    goto quit;
+    जाओ quit;
   }
 
 quit:
   curlx_free(path);
   curlx_free(query);
 
-  return rc;
+  वापस rc;
 }
 
-static curl_ldap_num_t ldap_url_parse_low(struct Curl_easy *data,
-                                          const struct connectdata *conn,
+अटल curl_ldap_अंक_t ldap_url_parse_निचला(काष्ठा Curl_easy *तथ्य,
+                                          स्थिर काष्ठा connectdata *conn,
                                           LDAPURLDesc **ludpp)
 {
-  LDAPURLDesc *ludp = curlx_calloc(1, sizeof(*ludp));
-  curl_ldap_num_t rc;
+  LDAPURLDesc *ludp = curlx_calloc(1, माप(*ludp));
+  curl_ldap_अंक_t rc;
 
-  *ludpp = NULL;
-  if(!ludp)
-    return LDAP_NO_MEMORY;
+  *ludpp = शून्य;
+  अगर(!ludp)
+    वापस LDAP_NO_MEMORY;
 
-  rc = ldap_url_parse2_low(data, conn, ludp);
-  if(rc != LDAP_SUCCESS) {
-    ldap_free_urldesc_low(ludp);
-    ludp = NULL;
+  rc = ldap_url_parse2_निचला(तथ्य, conn, ludp);
+  अगर(rc != LDAP_SUCCESS) {
+    ldap_free_urldesc_निचला(ludp);
+    ludp = शून्य;
   }
   *ludpp = ludp;
-  return rc;
+  वापस rc;
 }
 
-static void ldap_free_urldesc_low(LDAPURLDesc *ludp)
+अटल व्योम ldap_free_urldesc_निचला(LDAPURLDesc *ludp)
 {
-  if(!ludp)
-    return;
+  अगर(!ludp)
+    वापस;
 
   curlx_free(ludp->lud_dn);
   curlx_free(ludp->lud_filter);
 
-  if(ludp->lud_attrs) {
-    size_t i;
-    for(i = 0; i < ludp->lud_attrs_dups; i++) {
+  अगर(ludp->lud_attrs) {
+    माप_प्रकार i;
+    क्रम(i = 0; i < ludp->lud_attrs_dups; i++) {
       curlx_free(ludp->lud_attrs[i]);
     }
     curlx_free(ludp->lud_attrs);
@@ -941,49 +941,49 @@ static void ldap_free_urldesc_low(LDAPURLDesc *ludp)
 
   curlx_free(ludp);
 }
-#endif /* !HAVE_LDAP_URL_PARSE */
+#पूर्ण_अगर /* !HAVE_LDAP_URL_PARSE */
 
-void Curl_ldap_version(char *buf, size_t bufsz)
+व्योम Curl_ldap_version(अक्षर *buf, माप_प्रकार bufsz)
 {
-#ifdef USE_WIN32_LDAP
+#अगर_घोषित USE_WIN32_LDAP
   curl_msnprintf(buf, bufsz, "WinLDAP");
-#else
-#ifdef LDAP_OPT_X_TLS_PASSPHRASE
-  static const char flavor[] = "/Apple";
-#else
-  static const char flavor[] = "";
-#endif
+#अन्यथा
+#अगर_घोषित LDAP_OPT_X_TLS_PASSPHRASE
+  अटल स्थिर अक्षर flavor[] = "/Apple";
+#अन्यथा
+  अटल स्थिर अक्षर flavor[] = "";
+#पूर्ण_अगर
   LDAPAPIInfo api;
   api.ldapai_info_version = LDAP_API_INFO_VERSION;
 
   /* Comparing against 0, as different platforms
      disagree on the success define name */
-  if(ldap_get_option(NULL, LDAP_OPT_API_INFO, &api) == 0) {
-    unsigned int patch = (unsigned int)(api.ldapai_vendor_version % 100);
-    unsigned int major = (unsigned int)(api.ldapai_vendor_version / 10000);
-    unsigned int minor =
-      (((unsigned int)api.ldapai_vendor_version - (major * 10000))
+  अगर(ldap_get_option(शून्य, LDAP_OPT_API_INFO, &api) == 0) {
+    अचिन्हित पूर्णांक patch = (अचिन्हित पूर्णांक)(api.ldapai_vendor_version % 100);
+    अचिन्हित पूर्णांक major = (अचिन्हित पूर्णांक)(api.ldapai_vendor_version / 10000);
+    अचिन्हित पूर्णांक minor =
+      (((अचिन्हित पूर्णांक)api.ldapai_vendor_version - (major * 10000))
        - patch) / 100;
-#ifdef __OS400__
+#अगर_घोषित __OS400__
     curl_msnprintf(buf, bufsz, "IBMLDAP/%u.%u.%u", major, minor, patch);
-    ldap_value_free(api.ldapai_extensions);
-    (void)flavor;
-#else
+    ldap_मूल्य_free(api.ldapai_extensions);
+    (व्योम)flavor;
+#अन्यथा
     curl_msnprintf(buf, bufsz, "%s/%u.%u.%u%s",
                    api.ldapai_vendor_name, major, minor, patch, flavor);
     ldap_memfree(api.ldapai_vendor_name);
-    ber_memvfree((void **)api.ldapai_extensions);
-#endif
+    ber_memvfree((व्योम **)api.ldapai_extensions);
+#पूर्ण_अगर
   }
-  else
+  अन्यथा
     curl_msnprintf(buf, bufsz, "LDAP/1");
-#endif /* USE_WIN32_LDAP */
+#पूर्ण_अगर /* USE_WIN32_LDAP */
 }
 
 /*
  * LDAP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_ldap = {
+स्थिर काष्ठा Curl_protocol Curl_protocol_ldap = {
   ZERO_NULL,                            /* setup_connection */
   ldap_do,                              /* do_it */
   ZERO_NULL,                            /* done */
@@ -1003,8 +1003,8 @@ const struct Curl_protocol Curl_protocol_ldap = {
   ZERO_NULL,                            /* follow */
 };
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
-#pragma GCC diagnostic pop
-#endif
+#अगर defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#आशय GCC diagnostic निकालो
+#पूर्ण_अगर
 
-#endif /* !CURL_DISABLE_LDAP && !USE_OPENLDAP */
+#पूर्ण_अगर /* !CURL_DISABLE_LDAP && !USE_OPENLDAP */

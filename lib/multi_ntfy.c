@@ -21,103 +21,103 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "multihandle.h"
-#include "multiif.h"
-#include "multi_ntfy.h"
+#समावेश "urldata.h"
+#समावेश "curl_trc.h"
+#समावेश "multihandle.h"
+#समावेश "multiif.h"
+#समावेश "multi_ntfy.h"
 
-#if CURLMNOTIFY_LAST > 31
-#error "notification types must fit below the curl_multi_ntfy high flag bit"
-#endif
+#अगर CURLMNOTIFY_LAST > 31
+#त्रुटि "notification types must fit below the curl_multi_ntfy high flag bit"
+#पूर्ण_अगर
 
-#define CURL_MNTFY_TYPE_FLAG(type)  ((uint32_t)1 << (type))
+#घोषणा CURL_MNTFY_TYPE_FLAG(type)  ((uint32_t)1 << (type))
 
-struct mntfy_entry {
+काष्ठा mntfy_entry {
   uint32_t mid;
   uint32_t type;
 };
 
-#define CURL_MNTFY_CHUNK_SIZE 128
+#घोषणा CURL_MNTFY_CHUNK_आकार 128
 
-struct mntfy_chunk {
-  struct mntfy_chunk *next;
-  size_t r_offset;
-  size_t w_offset;
-  struct mntfy_entry entries[CURL_MNTFY_CHUNK_SIZE];
+काष्ठा mntfy_chunk {
+  काष्ठा mntfy_chunk *अग्र;
+  माप_प्रकार r_offset;
+  माप_प्रकार w_offset;
+  काष्ठा mntfy_entry entries[CURL_MNTFY_CHUNK_आकार];
 };
 
-static struct mntfy_chunk *mnfty_chunk_create(void)
+अटल काष्ठा mntfy_chunk *mnfty_chunk_create(व्योम)
 {
-  return curlx_calloc(1, sizeof(struct mntfy_chunk));
+  वापस curlx_calloc(1, माप(काष्ठा mntfy_chunk));
 }
 
-static void mnfty_chunk_destroy(struct mntfy_chunk *chunk)
+अटल व्योम mnfty_chunk_destroy(काष्ठा mntfy_chunk *chunk)
 {
   curlx_free(chunk);
 }
 
-static void mnfty_chunk_reset(struct mntfy_chunk *chunk)
+अटल व्योम mnfty_chunk_reset(काष्ठा mntfy_chunk *chunk)
 {
   chunk->r_offset = chunk->w_offset = 0;
 }
 
-static bool mntfy_chunk_append(struct mntfy_chunk *chunk,
-                               struct Curl_easy *data,
+अटल bool mntfy_chunk_append(काष्ठा mntfy_chunk *chunk,
+                               काष्ठा Curl_easy *तथ्य,
                                uint32_t type)
 {
-  struct mntfy_entry *e;
+  काष्ठा mntfy_entry *e;
 
-  if(chunk->w_offset >= CURL_MNTFY_CHUNK_SIZE)
-    return FALSE;
+  अगर(chunk->w_offset >= CURL_MNTFY_CHUNK_आकार)
+    वापस FALSE;
   e = &chunk->entries[chunk->w_offset++];
-  e->mid = data->mid;
+  e->mid = तथ्य->mid;
   e->type = type;
-  return TRUE;
+  वापस TRUE;
 }
 
-static struct mntfy_chunk *mntfy_non_full_tail(struct curl_multi_ntfy *mntfy)
+अटल काष्ठा mntfy_chunk *mntfy_non_full_पुच्छ(काष्ठा curl_multi_ntfy *mntfy)
 {
-  struct mntfy_chunk *chunk;
-  if(!mntfy->tail) {
+  काष्ठा mntfy_chunk *chunk;
+  अगर(!mntfy->पुच्छ) {
     chunk = mnfty_chunk_create();
-    if(!chunk)
-      return NULL;
-    DEBUGASSERT(!mntfy->head);
-    mntfy->head = mntfy->tail = chunk;
-    return chunk;
+    अगर(!chunk)
+      वापस शून्य;
+    DEBUGASSERT(!mntfy->शीर्ष);
+    mntfy->शीर्ष = mntfy->पुच्छ = chunk;
+    वापस chunk;
   }
-  else if(mntfy->tail->w_offset < CURL_MNTFY_CHUNK_SIZE)
-    return mntfy->tail;
-  else { /* tail is full. */
+  अन्यथा अगर(mntfy->पुच्छ->w_offset < CURL_MNTFY_CHUNK_आकार)
+    वापस mntfy->पुच्छ;
+  अन्यथा { /* tail is full. */
     chunk = mnfty_chunk_create();
-    if(!chunk)
-      return NULL;
-    DEBUGASSERT(mntfy->head);
-    mntfy->tail->next = chunk;
-    mntfy->tail = chunk;
-    return chunk;
+    अगर(!chunk)
+      वापस शून्य;
+    DEBUGASSERT(mntfy->शीर्ष);
+    mntfy->पुच्छ->अग्र = chunk;
+    mntfy->पुच्छ = chunk;
+    वापस chunk;
   }
 }
 
-static void mntfy_chunk_dispatch_all(struct Curl_multi *multi,
-                                     struct mntfy_chunk *chunk)
+अटल व्योम mntfy_chunk_dispatch_all(काष्ठा Curl_multi *multi,
+                                     काष्ठा mntfy_chunk *chunk)
 {
-  struct mntfy_entry *e;
-  struct Curl_easy *data;
+  काष्ठा mntfy_entry *e;
+  काष्ठा Curl_easy *तथ्य;
 
-  while(multi->ntfy.ntfy_cb &&
+  जबतक(multi->ntfy.ntfy_cb &&
         (chunk->r_offset < chunk->w_offset) && !multi->ntfy.failure) {
     e = &chunk->entries[chunk->r_offset];
-    data = e->mid ? Curl_multi_get_easy(multi, e->mid) : multi->admin;
+    तथ्य = e->mid ? Curl_multi_get_easy(multi, e->mid) : multi->admin;
     /* only when notification has not been disabled in the meantime */
-    if(data && (multi->ntfy.flags & CURL_MNTFY_TYPE_FLAG(e->type))) {
+    अगर(तथ्य && (multi->ntfy.flags & CURL_MNTFY_TYPE_FLAG(e->type))) {
       /* this may cause new notifications to be added! */
       CURL_TRC_M(multi->admin, "[NTFY] dispatch %u to xfer %u",
                  e->type, e->mid);
-      multi->ntfy.ntfy_cb(multi, e->type, data, multi->ntfy.ntfy_cb_data);
+      multi->ntfy.ntfy_cb(multi, e->type, तथ्य, multi->ntfy.ntfy_cb_तथ्य);
     }
     /* once dispatched, safe to increment */
     chunk->r_offset++;
@@ -125,85 +125,85 @@ static void mntfy_chunk_dispatch_all(struct Curl_multi *multi,
   mnfty_chunk_reset(chunk);
 }
 
-void Curl_mntfy_init(struct Curl_multi *multi)
+व्योम Curl_mntfy_init(काष्ठा Curl_multi *multi)
 {
-  memset(&multi->ntfy, 0, sizeof(multi->ntfy));
+  स_रखो(&multi->ntfy, 0, माप(multi->ntfy));
 }
 
-void Curl_mntfy_cleanup(struct Curl_multi *multi)
+व्योम Curl_mntfy_cleanup(काष्ठा Curl_multi *multi)
 {
-  while(multi->ntfy.head) {
-    struct mntfy_chunk *chunk = multi->ntfy.head;
-    multi->ntfy.head = chunk->next;
+  जबतक(multi->ntfy.शीर्ष) {
+    काष्ठा mntfy_chunk *chunk = multi->ntfy.शीर्ष;
+    multi->ntfy.शीर्ष = chunk->अग्र;
     mnfty_chunk_destroy(chunk);
   }
-  multi->ntfy.tail = NULL;
+  multi->ntfy.पुच्छ = शून्य;
 }
 
-CURLMcode Curl_mntfy_enable(struct Curl_multi *multi, unsigned int type)
+CURLMcode Curl_mntfy_enable(काष्ठा Curl_multi *multi, अचिन्हित पूर्णांक type)
 {
-  if(type >= CURLMNOTIFY_LAST)
-    return CURLM_UNKNOWN_OPTION;
+  अगर(type >= CURLMNOTIFY_LAST)
+    वापस CURLM_UNKNOWN_OPTION;
   multi->ntfy.flags |= CURL_MNTFY_TYPE_FLAG(type);
-  return CURLM_OK;
+  वापस CURLM_OK;
 }
 
-CURLMcode Curl_mntfy_disable(struct Curl_multi *multi, unsigned int type)
+CURLMcode Curl_mntfy_disable(काष्ठा Curl_multi *multi, अचिन्हित पूर्णांक type)
 {
-  if(type >= CURLMNOTIFY_LAST)
-    return CURLM_UNKNOWN_OPTION;
+  अगर(type >= CURLMNOTIFY_LAST)
+    वापस CURLM_UNKNOWN_OPTION;
   multi->ntfy.flags &= ~CURL_MNTFY_TYPE_FLAG(type);
-  return CURLM_OK;
+  वापस CURLM_OK;
 }
 
-void Curl_mntfy_add(struct Curl_easy *data, unsigned int type)
+व्योम Curl_mntfy_add(काष्ठा Curl_easy *तथ्य, अचिन्हित पूर्णांक type)
 {
-  struct Curl_multi *multi = data ? data->multi : NULL;
-  if(multi && multi->ntfy.ntfy_cb && !multi->ntfy.failure &&
+  काष्ठा Curl_multi *multi = तथ्य ? तथ्य->multi : शून्य;
+  अगर(multi && multi->ntfy.ntfy_cb && !multi->ntfy.failure &&
      type < CURLMNOTIFY_LAST &&
      (multi->ntfy.flags & CURL_MNTFY_TYPE_FLAG(type))) {
     /* append to list of outstanding notifications */
-    struct mntfy_chunk *tail = mntfy_non_full_tail(&multi->ntfy);
-    CURL_TRC_M(data, "[NTFY] add %u for xfer %u", type, data->mid);
-    if(tail)
-      mntfy_chunk_append(tail, data, (uint32_t)type);
-    else
+    काष्ठा mntfy_chunk *पुच्छ = mntfy_non_full_पुच्छ(&multi->ntfy);
+    CURL_TRC_M(तथ्य, "[NTFY] add %u for xfer %u", type, तथ्य->mid);
+    अगर(पुच्छ)
+      mntfy_chunk_append(पुच्छ, तथ्य, (uint32_t)type);
+    अन्यथा
       multi->ntfy.failure = CURLM_OUT_OF_MEMORY;
     multi->ntfy.flags |= CURL_MNTFY_FLAG_HAS_ENTRIES;
   }
 }
 
-CURLMcode Curl_mntfy_dispatch_all(struct Curl_multi *multi)
+CURLMcode Curl_mntfy_dispatch_all(काष्ठा Curl_multi *multi)
 {
-  struct Curl_mapi_guard guard;
+  काष्ठा Curl_mapi_guard guard;
 
-  if(!multi)
-    return CURLM_BAD_FUNCTION_ARGUMENT;
+  अगर(!multi)
+    वापस CURLM_BAD_FUNCTION_ARGUMENT;
 
   CURL_CBAPI_MULTI_START(&guard, multi, multi_ntfy_cb);
 
-  while(multi->ntfy.head && !multi->ntfy.failure) {
-    struct mntfy_chunk *chunk = multi->ntfy.head;
+  जबतक(multi->ntfy.शीर्ष && !multi->ntfy.failure) {
+    काष्ठा mntfy_chunk *chunk = multi->ntfy.शीर्ष;
     /* this may cause new notifications to be added! */
     mntfy_chunk_dispatch_all(multi, chunk);
     DEBUGASSERT(chunk->r_offset == chunk->w_offset);
 
-    if(chunk == multi->ntfy.tail) /* last one, keep */
-      break;
-    DEBUGASSERT(chunk->next);
-    DEBUGASSERT(multi->ntfy.head != multi->ntfy.tail);
-    multi->ntfy.head = chunk->next;
+    अगर(chunk == multi->ntfy.पुच्छ) /* last one, keep */
+      अवरोध;
+    DEBUGASSERT(chunk->अग्र);
+    DEBUGASSERT(multi->ntfy.शीर्ष != multi->ntfy.पुच्छ);
+    multi->ntfy.शीर्ष = chunk->अग्र;
     mnfty_chunk_destroy(chunk);
   }
 
   CURL_CBAPI_MULTI_END(&guard);
 
-  if(multi->ntfy.failure) {
+  अगर(multi->ntfy.failure) {
     CURLMcode mresult = multi->ntfy.failure;
     multi->ntfy.failure = CURLM_OK; /* reset, once delivered */
-    return mresult;
+    वापस mresult;
   }
-  else
+  अन्यथा
     multi->ntfy.flags &= ~CURL_MNTFY_FLAG_HAS_ENTRIES;
-  return CURLM_OK;
+  वापस CURLM_OK;
 }

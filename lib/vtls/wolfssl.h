@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_WOLFSSL_H
-#define HEADER_CURL_WOLFSSL_H
+#अगर_अघोषित HEADER_CURL_WOLFSSL_H
+#घोषणा HEADER_CURL_WOLFSSL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,77 +23,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifdef USE_WOLFSSL
+#अगर_घोषित USE_WOLFSSL
 
-#include "urldata.h"
+#समावेश "urldata.h"
 
-#include <wolfssl/options.h>
+#समावेश <wolfssl/options.h>
 
-struct alpn_spec;
-struct ssl_peer;
-struct Curl_ssl_session;
+काष्ठा alpn_spec;
+काष्ठा ssl_peer;
+काष्ठा Curl_ssl_session;
 
-struct WOLFSSL;
-struct WOLFSSL_CTX;
-struct WOLFSSL_SESSION;
+काष्ठा WOLFSSL;
+काष्ठा WOLFSSL_CTX;
+काष्ठा WOLFSSL_SESSION;
 
-extern const struct Curl_ssl Curl_ssl_wolfssl;
+बाह्य स्थिर काष्ठा Curl_ssl Curl_ssl_wolfssl;
 
-struct wssl_ctx {
-  struct WOLFSSL_CTX *ssl_ctx;
-  struct WOLFSSL *ssl;
-  CURLcode io_result;      /* result of last BIO cfilter operation */
-  CURLcode hs_result;      /* result of handshake */
-  int io_send_blocked_len; /* length of last BIO write that EAGAIN-ed */
+काष्ठा wssl_ctx {
+  काष्ठा WOLFSSL_CTX *ssl_ctx;
+  काष्ठा WOLFSSL *ssl;
+  CURLcode io_परिणाम;      /* result of last BIO cfilter operation */
+  CURLcode hs_परिणाम;      /* result of handshake */
+  पूर्णांक io_send_blocked_len; /* length of last BIO write that EAGAIN-ed */
   BIT(x509_store_setup);   /* x509 store has been set up */
   BIT(shutting_down);      /* TLS is being shut down */
 };
 
-size_t Curl_wssl_version(char *buffer, size_t size);
+माप_प्रकार Curl_wssl_version(अक्षर *बफर, माप_प्रकार आकार);
 
-typedef CURLcode Curl_wssl_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+प्रकार CURLcode Curl_wssl_ctx_setup_cb(काष्ठा Curl_cfilter *cf,
+                                        काष्ठा Curl_easy *तथ्य,
+                                        व्योम *user_तथ्य);
 
-typedef CURLcode Curl_wssl_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
-                                                 bool *do_early_data);
+प्रकार CURLcode Curl_wssl_init_session_reuse_cb(काष्ठा Curl_cfilter *cf,
+                                                 काष्ठा Curl_easy *तथ्य,
+                                                 काष्ठा alpn_spec *alpns,
+                                                 काष्ठा Curl_ssl_session *scs,
+                                                 bool *do_early_तथ्य);
 
-CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
+CURLcode Curl_wssl_ctx_init(काष्ठा wssl_ctx *wctx,
+                            काष्ठा Curl_cfilter *cf,
+                            काष्ठा Curl_easy *तथ्य,
+                            काष्ठा ssl_peer *peer,
+                            स्थिर काष्ठा alpn_spec *alpns_requested,
                             Curl_wssl_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+                            व्योम *cb_user_तथ्य,
+                            व्योम *ssl_user_तथ्य,
                             Curl_wssl_init_session_reuse_cb *sess_reuse_cb);
 
-CURLcode Curl_wssl_setup_x509_store(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct wssl_ctx *wssl);
+CURLcode Curl_wssl_setup_x509_store(काष्ठा Curl_cfilter *cf,
+                                    काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा wssl_ctx *wssl);
 
-#ifdef HAVE_EX_DATA
-CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 struct WOLFSSL_SESSION *session,
-                                 int ietf_tls_id,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
-                                 size_t quic_tp_len,
-                                 struct Curl_ssl_session **pscs);
-#endif
+#अगर_घोषित HAVE_EX_तथ्य
+CURLcode Curl_wssl_cache_session(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य,
+                                 स्थिर अक्षर *ssl_peer_कुंजी,
+                                 काष्ठा WOLFSSL_SESSION *session,
+                                 पूर्णांक ietf_tls_id,
+                                 स्थिर अक्षर *alpn,
+                                 अचिन्हित अक्षर *quic_tp,
+                                 माप_प्रकार quic_tp_len,
+                                 काष्ठा Curl_ssl_session **pscs);
+#पूर्ण_अगर
 
-CURLcode Curl_wssl_verify_pinned(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct wssl_ctx *wssl);
+CURLcode Curl_wssl_verify_pinned(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा wssl_ctx *wssl);
 
-void Curl_wssl_report_handshake(struct Curl_easy *data, struct wssl_ctx *wssl);
+व्योम Curl_wssl_report_handshake(काष्ठा Curl_easy *तथ्य, काष्ठा wssl_ctx *wssl);
 
-#endif /* USE_WOLFSSL */
-#endif /* HEADER_CURL_WOLFSSL_H */
+#पूर्ण_अगर /* USE_WOLFSSL */
+#पूर्ण_अगर /* HEADER_CURL_WOLFSSL_H */

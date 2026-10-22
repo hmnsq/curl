@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_TIMEVAL_H
-#define HEADER_CURL_TIMEVAL_H
+#अगर_अघोषित HEADER_CURL_TIMEVAL_H
+#घोषणा HEADER_CURL_TIMEVAL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "curlx/timediff.h"
+#समावेश "curlx/timediff.h"
 
-struct curltime {
-  time_t tv_sec; /* seconds */
-  int tv_usec;   /* microseconds */
+काष्ठा curltime {
+  समय_प्रकार tv_sec; /* seconds */
+  पूर्णांक tv_usec;   /* microseconds */
 };
 
-#ifdef _WIN32
+#अगर_घोषित _WIN32
 /* For tool or tests, we must initialize before calling curlx_now() */
-void curlx_now_init(void);
-#endif
+व्योम curlx_now_init(व्योम);
+#पूर्ण_अगर
 
-struct curltime curlx_now(void);
-void curlx_pnow(struct curltime *pnow);
+काष्ठा curltime curlx_now(व्योम);
+व्योम curlx_pnow(काष्ठा curltime *pnow);
 
 /*
  * Make sure that the first argument (newer) is the more recent time and older
@@ -46,9 +46,9 @@ void curlx_pnow(struct curltime *pnow);
  *
  * Returns: the time difference in number of milliseconds.
  */
-timediff_t curlx_timediff_ms(struct curltime newer, struct curltime older);
-timediff_t curlx_ptimediff_ms(const struct curltime *newer,
-                              const struct curltime *older);
+timediff_t curlx_timediff_ms(काष्ठा curltime newer, काष्ठा curltime older);
+timediff_t curlx_ptimediff_ms(स्थिर काष्ठा curltime *newer,
+                              स्थिर काष्ठा curltime *older);
 
 /*
  * Make sure that the first argument (newer) is the more recent time and older
@@ -56,8 +56,8 @@ timediff_t curlx_ptimediff_ms(const struct curltime *newer,
  *
  * Returns: the time difference in number of milliseconds, rounded up.
  */
-timediff_t curlx_timediff_ceil_ms(struct curltime newer,
-                                  struct curltime older);
+timediff_t curlx_timediff_ceil_ms(काष्ठा curltime newer,
+                                  काष्ठा curltime older);
 
 /* Returns milliseconds from microseconds, rounded up. */
 timediff_t curlx_us_to_ceil_ms(timediff_t us);
@@ -68,10 +68,10 @@ timediff_t curlx_us_to_ceil_ms(timediff_t us);
  *
  * Returns: the time difference in number of microseconds.
  */
-timediff_t curlx_timediff_us(struct curltime newer, struct curltime older);
-timediff_t curlx_ptimediff_us(const struct curltime *newer,
-                              const struct curltime *older);
+timediff_t curlx_timediff_us(काष्ठा curltime newer, काष्ठा curltime older);
+timediff_t curlx_ptimediff_us(स्थिर काष्ठा curltime *newer,
+                              स्थिर काष्ठा curltime *older);
 
-CURLcode curlx_gmtime(time_t intime, struct tm *store);
+CURLcode curlx_gmtime(समय_प्रकार intime, काष्ठा पंचांग *store);
 
-#endif /* HEADER_CURL_TIMEVAL_H */
+#पूर्ण_अगर /* HEADER_CURL_TIMEVAL_H */

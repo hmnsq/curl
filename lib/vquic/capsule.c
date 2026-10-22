@@ -22,44 +22,44 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#अगर !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>  /* for htons() */
-#endif
+#अगर_घोषित HAVE_ARPA_INET_H
+#समावेश <arpa/inet.h>  /* for htons() */
+#पूर्ण_अगर
 
-#include <curl/curl.h>
-#include "urldata.h"
-#include "curlx/dynbuf.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "vquic/capsule.h"
+#समावेश <curl/curl.h>
+#समावेश "urldata.h"
+#समावेश "curlx/dynbuf.h"
+#समावेश "cfilters.h"
+#समावेश "curl_trc.h"
+#समावेश "bufq.h"
+#समावेश "vquic/capsule.h"
 
 
 /**
  * Convert 64-bit value from network byte order to host byte order
  */
-static uint64_t capsule_ntohll(uint64_t value)
+अटल uint64_t capsule_ntohll(uint64_t मूल्य)
 {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-  return value;
-#elif (defined(__GNUC__) || defined(__clang__)) && \
+#अगर defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+  वापस मूल्य;
+#या_अगर (defined(__GNUC__) || defined(__clang__)) && \
   defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-  return __builtin_bswap64(value);
-#else
-  union {
+  वापस __builtin_bswap64(मूल्य);
+#अन्यथा
+  जोड़ {
     uint64_t u64;
     uint32_t u32[2];
   } src, dst;
 
-  src.u64 = value;
+  src.u64 = मूल्य;
   dst.u32[0] = ntohl(src.u32[1]);
   dst.u32[1] = ntohl(src.u32[0]);
-  return dst.u64;
-#endif
+  वापस dst.u64;
+#पूर्ण_अगर
 }
 
 /**
@@ -68,75 +68,75 @@ static uint64_t capsule_ntohll(uint64_t value)
  * @param value Value to encode (must be <= 0x3FFFFFFFFFFFFFFF)
  * @return Number of bytes written
  */
-static size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t value)
+अटल माप_प्रकार capsule_encode_varint_buf(uint8_t *buf, uint64_t मूल्य)
 {
-  DEBUGASSERT(value <= 0x3FFFFFFFFFFFFFFF);
+  DEBUGASSERT(मूल्य <= 0x3FFFFFFFFFFFFFFF);
 
-  if(value <= 0x3F) {
-    buf[0] = (uint8_t)value;
-    return 1;
+  अगर(मूल्य <= 0x3F) {
+    buf[0] = (uint8_t)मूल्य;
+    वापस 1;
   }
-  else if(value <= 0x3FFF) {
-    uint16_t encoded = (uint16_t)value & 0x3FFF;
+  अन्यथा अगर(मूल्य <= 0x3FFF) {
+    uint16_t encoded = (uint16_t)मूल्य & 0x3FFF;
     encoded = ntohs(encoded | 0x4000);
-    memcpy(buf, &encoded, 2);
-    return 2;
+    स_नकल(buf, &encoded, 2);
+    वापस 2;
   }
-  else if(value <= 0x3FFFFFFF) {
-    uint32_t encoded = (uint32_t)value & 0x3FFFFFFF;
+  अन्यथा अगर(मूल्य <= 0x3FFFFFFF) {
+    uint32_t encoded = (uint32_t)मूल्य & 0x3FFFFFFF;
     encoded = ntohl(encoded | 0x80000000);
-    memcpy(buf, &encoded, 4);
-    return 4;
+    स_नकल(buf, &encoded, 4);
+    वापस 4;
   }
-  else {
-    uint64_t encoded = (uint64_t)value & 0x3FFFFFFFFFFFFFFF;
+  अन्यथा {
+    uint64_t encoded = (uint64_t)मूल्य & 0x3FFFFFFFFFFFFFFF;
     encoded = capsule_ntohll(encoded | 0xC000000000000000);
-    memcpy(buf, &encoded, 8);
-    return 8;
+    स_नकल(buf, &encoded, 8);
+    वापस 8;
   }
 }
 
-static CURLcode capsule_peek_u8(struct bufq *recvbufq,
-                                size_t offset,
+अटल CURLcode capsule_peek_u8(काष्ठा bufq *recvbufq,
+                                माप_प्रकार offset,
                                 uint8_t *pbyte)
 {
-  const unsigned char *peek = NULL;
-  size_t peeklen = 0;
+  स्थिर अचिन्हित अक्षर *peek = शून्य;
+  माप_प्रकार peeklen = 0;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
-    return CURLE_AGAIN;
+  अगर(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
+    वापस CURLE_AGAIN;
   *pbyte = peek[0];
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
-                                         size_t offset,
+अटल CURLcode capsule_decode_varint_at(काष्ठा bufq *recvbufq,
+                                         माप_प्रकार offset,
                                          uint64_t *pvalue,
-                                         size_t *pconsumed)
+                                         माप_प्रकार *pconsumed)
 {
   uint8_t first_byte, byte;
-  uint64_t value;
-  size_t nbytes;
-  size_t i;
-  CURLcode result;
+  uint64_t मूल्य;
+  माप_प्रकार nbytes;
+  माप_प्रकार i;
+  CURLcode परिणाम;
 
-  result = capsule_peek_u8(recvbufq, offset, &first_byte);
-  if(result)
-    return result;
+  परिणाम = capsule_peek_u8(recvbufq, offset, &first_byte);
+  अगर(परिणाम)
+    वापस परिणाम;
 
-  nbytes = (size_t)1 << (first_byte >> 6); /* 1, 2, 4 or 8 bytes */
-  value = first_byte & 0x3F;
+  nbytes = (माप_प्रकार)1 << (first_byte >> 6); /* 1, 2, 4 or 8 bytes */
+  मूल्य = first_byte & 0x3F;
 
-  for(i = 1; i < nbytes; ++i) {
-    result = capsule_peek_u8(recvbufq, offset + i, &byte);
-    if(result)
-      return result;
-    value = (value << 8) | byte;
+  क्रम(i = 1; i < nbytes; ++i) {
+    परिणाम = capsule_peek_u8(recvbufq, offset + i, &byte);
+    अगर(परिणाम)
+      वापस परिणाम;
+    मूल्य = (मूल्य << 8) | byte;
   }
 
-  *pvalue = value;
+  *pvalue = मूल्य;
   *pconsumed = nbytes;
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
 /**
@@ -148,160 +148,160 @@ static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
  *
  * @unittest 3400
  */
-UNITTEST size_t capsule_encap_udp_hdr(uint8_t *hdr, size_t hdrlen,
-                                      size_t payload_len);
-UNITTEST size_t capsule_encap_udp_hdr(uint8_t *hdr, size_t hdrlen,
-                                      size_t payload_len)
+UNITTEST माप_प्रकार capsule_encap_udp_hdr(uint8_t *hdr, माप_प्रकार hdrlen,
+                                      माप_प्रकार payload_len);
+UNITTEST माप_प्रकार capsule_encap_udp_hdr(uint8_t *hdr, माप_प्रकार hdrlen,
+                                      माप_प्रकार payload_len)
 {
-  size_t off = 0;
-  DEBUGASSERT(hdrlen >= HTTP_CAPSULE_HEADER_MAX_SIZE);
-  if(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
-    return 0;
+  माप_प्रकार off = 0;
+  DEBUGASSERT(hdrlen >= HTTP_CAPSULE_HEADER_MAX_आकार);
+  अगर(hdrlen < HTTP_CAPSULE_HEADER_MAX_आकार)
+    वापस 0;
   hdr[off++] = 0; /* capsule type: HTTP Datagram */
   off += capsule_encode_varint_buf(hdr + off, (uint64_t)payload_len + 1);
   hdr[off++] = 0; /* context ID */
-  return off;
+  वापस off;
 }
 
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen)
+CURLcode Curl_capsule_encap_udp_datagram(काष्ठा bufq *q,
+                                         स्थिर व्योम *buf, माप_प्रकार blen)
 {
-  CURLcode result;
-  uint8_t hdr[HTTP_CAPSULE_HEADER_MAX_SIZE];
-  size_t hdr_len, nwritten;
+  CURLcode परिणाम;
+  uint8_t hdr[HTTP_CAPSULE_HEADER_MAX_आकार];
+  माप_प्रकार hdr_len, nwritten;
 
-  hdr_len = capsule_encap_udp_hdr(hdr, sizeof(hdr), blen);
+  hdr_len = capsule_encap_udp_hdr(hdr, माप(hdr), blen);
   DEBUGASSERT(hdr_len);
-  if(!hdr_len)
-    return CURLE_FAILED_INIT;
+  अगर(!hdr_len)
+    वापस CURLE_FAILED_INIT;
 
-  result = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
-  if(!result && (nwritten != hdr_len))
-    return CURLE_WRITE_ERROR;
-  if(!result) {
-    result = Curl_bufq_write(q, buf, blen, &nwritten);
-    if(!result && (nwritten != blen))
-      return CURLE_WRITE_ERROR;
+  परिणाम = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
+  अगर(!परिणाम && (nwritten != hdr_len))
+    वापस CURLE_WRITE_ERROR;
+  अगर(!परिणाम) {
+    परिणाम = Curl_bufq_write(q, buf, blen, &nwritten);
+    अगर(!परिणाम && (nwritten != blen))
+      वापस CURLE_WRITE_ERROR;
   }
-  if(result == CURLE_AGAIN)
-    return CURLE_WRITE_ERROR;
-  return result;
+  अगर(परिणाम == CURLE_AGAIN)
+    वापस CURLE_WRITE_ERROR;
+  वापस परिणाम;
 }
 
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+माप_प्रकार Curl_capsule_process_udp_raw(काष्ठा Curl_cfilter *cf,
+                                    काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा bufq *recvbufq,
+                                    अचिन्हित अक्षर *buf, माप_प्रकार len,
                                     CURLcode *err)
 {
-  const unsigned char *context_id, *capsule_type;
-  size_t read_size, varint_len;
-  uint64_t capsule_length;
-  size_t offset, payload_len;
-  size_t bytes_read = 0;
-  CURLcode result = CURLE_OK;
+  स्थिर अचिन्हित अक्षर *context_id, *capsule_type;
+  माप_प्रकार read_आकार, varint_len;
+  uint64_t capsule_लंबाई;
+  माप_प्रकार offset, payload_len;
+  माप_प्रकार bytes_read = 0;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(!len) {
+  अगर(!len) {
     *err = CURLE_BAD_FUNCTION_ARGUMENT;
-    return 0;
+    वापस 0;
   }
 
-  if(Curl_bufq_is_empty(recvbufq)) {
+  अगर(Curl_bufq_is_empty(recvbufq)) {
     *err = CURLE_AGAIN;
-    return 0;
+    वापस 0;
   }
 
-  if(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
+  अगर(!Curl_bufq_peek(recvbufq, &capsule_type, &read_आकार) || !read_आकार) {
     *err = CURLE_AGAIN;
-    return 0;
+    वापस 0;
   }
 
-  if(capsule_type[0]) {
-    infof(data, "Error! Invalid capsule type: %d", capsule_type[0]);
+  अगर(capsule_type[0]) {
+    infof(तथ्य, "Error! Invalid capsule type: %d", capsule_type[0]);
     Curl_bufq_skip(recvbufq, 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    वापस 0;
   }
 
   offset = 1;
-  result = capsule_decode_varint_at(recvbufq, offset, &capsule_length,
+  परिणाम = capsule_decode_varint_at(recvbufq, offset, &capsule_लंबाई,
                                     &varint_len);
-  if(result == CURLE_AGAIN) {
+  अगर(परिणाम == CURLE_AGAIN) {
     *err = CURLE_AGAIN;
-    return 0;
+    वापस 0;
   }
-  else if(result) {
+  अन्यथा अगर(परिणाम) {
     *err = CURLE_RECV_ERROR;
-    return 0;
+    वापस 0;
   }
   offset += varint_len;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
-     !read_size) {
+  अगर(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_आकार) ||
+     !read_आकार) {
     *err = CURLE_AGAIN;
-    return 0;
+    वापस 0;
   }
 
-  if(*context_id) {
-    infof(data, "Error! Invalid context ID: %02x", *context_id);
+  अगर(*context_id) {
+    infof(तथ्य, "Error! Invalid context ID: %02x", *context_id);
     Curl_bufq_skip(recvbufq, offset + 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    वापस 0;
   }
   offset += 1;
 
-  if(!capsule_length) {
-    infof(data, "Error! Invalid capsule length: 0");
+  अगर(!capsule_लंबाई) {
+    infof(तथ्य, "Error! Invalid capsule length: 0");
     Curl_bufq_skip(recvbufq, offset);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    वापस 0;
   }
-  if(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
-    infof(data, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
-          (curl_off_t)capsule_length);
+  अगर(capsule_लंबाई - 1 > (uint64_t)(SIZE_MAX - offset)) {
+    infof(तथ्य, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
+          (curl_off_t)capsule_लंबाई);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    वापस 0;
   }
-  payload_len = (size_t)(capsule_length - 1);
+  payload_len = (माप_प्रकार)(capsule_लंबाई - 1);
 
-  if(payload_len > len) {
-    infof(data, "UDP payload does not fit destination buffer: %zu > %zu",
+  अगर(payload_len > len) {
+    infof(तथ्य, "UDP payload does not fit destination buffer: %zu > %zu",
           payload_len, len);
     Curl_bufq_skip(recvbufq, offset + payload_len);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    वापस 0;
   }
 
-  if(Curl_bufq_len(recvbufq) < offset + payload_len) {
-    if(Curl_bufq_is_full(recvbufq)) {
-      infof(data, "Error! Capsule does not fit the receive buffer: %zu",
+  अगर(Curl_bufq_len(recvbufq) < offset + payload_len) {
+    अगर(Curl_bufq_is_full(recvbufq)) {
+      infof(तथ्य, "Error! Capsule does not fit the receive buffer: %zu",
             payload_len);
       *err = CURLE_RECV_ERROR;
-      return 0;
+      वापस 0;
     }
     *err = CURLE_AGAIN;
-    return 0;
+    वापस 0;
   }
 
   Curl_bufq_skip(recvbufq, offset);
-  if(!payload_len) {
+  अगर(!payload_len) {
     *err = CURLE_OK;
-    return 0;
+    वापस 0;
   }
-  result = Curl_bufq_read(recvbufq, buf, payload_len, &bytes_read);
-  if(result || (bytes_read != payload_len)) {
-    infof(data, "Error! Read less than expected %zu %zu",
+  परिणाम = Curl_bufq_read(recvbufq, buf, payload_len, &bytes_read);
+  अगर(परिणाम || (bytes_read != payload_len)) {
+    infof(तथ्य, "Error! Read less than expected %zu %zu",
           payload_len, bytes_read);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    वापस 0;
   }
 
-  if(cf && data) {
-    CURL_TRC_CF(data, cf, "Processed UDP capsule raw: size=%zu "
+  अगर(cf && तथ्य) {
+    CURL_TRC_CF(तथ्य, cf, "Processed UDP capsule raw: size=%zu "
                 "length_left %zu", payload_len, Curl_bufq_len(recvbufq));
   }
   *err = CURLE_OK;
-  return bytes_read;
+  वापस bytes_read;
 }
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASYOPTIONS_H
-#define HEADER_CURL_EASYOPTIONS_H
+#अगर_अघोषित HEADER_CURL_EASYOPTIONS_H
+#घोषणा HEADER_CURL_EASYOPTIONS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -26,10 +26,10 @@
 /* should probably go into the public header */
 
 /* generated table with all easy options */
-extern const struct curl_easyoption Curl_easyopts[];
+बाह्य स्थिर काष्ठा curl_easyoption Curl_easyopts[];
 
-#ifdef DEBUGBUILD
-int Curl_easyopts_check(void);
-#endif
+#अगर_घोषित DEBUGBUILD
+पूर्णांक Curl_easyopts_check(व्योम);
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_EASYOPTIONS_H */
+#पूर्ण_अगर /* HEADER_CURL_EASYOPTIONS_H */

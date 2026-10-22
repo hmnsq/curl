@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_NETRC_H
-#define HEADER_CURL_NETRC_H
+#अगर_अघोषित HEADER_CURL_NETRC_H
+#घोषणा HEADER_CURL_NETRC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#ifndef CURL_DISABLE_NETRC
+#अगर_अघोषित CURL_DISABLE_NETRC
 
-#include "curlx/dynbuf.h"
+#समावेश "curlx/dynbuf.h"
 
-struct Curl_easy;
-struct Curl_creds;
+काष्ठा Curl_easy;
+काष्ठा Curl_creds;
 
-struct store_netrc {
-  struct dynbuf filebuf;
-  char *filename;
+काष्ठा store_netrc {
+  काष्ठा dynbuf filebuf;
+  अक्षर *filename;
   BIT(loaded);
 };
 
-typedef enum {
+प्रकार क्रमागत {
   NETRC_OK,
   NETRC_NO_MATCH,      /* no matching entry in the file */
   NETRC_SYNTAX_ERROR,  /* in the netrc file */
@@ -47,22 +47,22 @@ typedef enum {
   NETRC_LAST /* never used */
 } NETRCcode;
 
-const char *Curl_netrc_strerror(NETRCcode ret);
-void Curl_netrc_init(struct store_netrc *store);
-void Curl_netrc_cleanup(struct store_netrc *store);
+स्थिर अक्षर *Curl_netrc_strerror(NETRCcode ret);
+व्योम Curl_netrc_init(काष्ठा store_netrc *store);
+व्योम Curl_netrc_cleanup(काष्ठा store_netrc *store);
 
 /* Scan a netrc file for credentials matching hostname
  * and optional user. */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds);
-#else
+NETRCcode Curl_netrc_scan(काष्ठा Curl_easy *तथ्य,
+                          काष्ठा store_netrc *store,
+                          स्थिर अक्षर *hostname,
+                          स्थिर अक्षर *user,
+                          स्थिर अक्षर *netrcfile,
+                          काष्ठा Curl_creds **pcreds);
+#अन्यथा
 /* disabled */
-#define Curl_netrc_init(x)
-#define Curl_netrc_cleanup(x)
-#endif
+#घोषणा Curl_netrc_init(x)
+#घोषणा Curl_netrc_cleanup(x)
+#पूर्ण_अगर
 
-#endif /* HEADER_CURL_NETRC_H */
+#पूर्ण_अगर /* HEADER_CURL_NETRC_H */

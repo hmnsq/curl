@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CFILTERS_H
-#define HEADER_CURL_CFILTERS_H
+#अगर_अघोषित HEADER_CURL_CFILTERS_H
+#घोषणा HEADER_CURL_CFILTERS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,34 +23,34 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timediff.h"
+#समावेश "curlx/timediff.h"
 
-struct bufq;
-struct Curl_cfilter;
-struct Curl_easy;
-struct Curl_dns_entry;
-struct connectdata;
-struct ip_quadruple;
-struct curl_tlssessioninfo;
+काष्ठा bufq;
+काष्ठा Curl_cfilter;
+काष्ठा Curl_easy;
+काष्ठा Curl_dns_entry;
+काष्ठा connectdata;
+काष्ठा ip_quadruple;
+काष्ठा curl_tlssessioninfo;
 
 /* Callback to destroy resources held by this filter instance.
  * Implementations MUST NOT chain calls to cf->next.
  */
-typedef void     Curl_cft_destroy_this(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data);
+प्रकार व्योम     Curl_cft_destroy_this(काष्ठा Curl_cfilter *cf,
+                                       काष्ठा Curl_easy *तथ्य);
 
 /* Callback to close the connection filter gracefully, non-blocking.
  * Implementations MUST NOT chain calls to cf->next.
  */
-typedef CURLcode Curl_cft_shutdown(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
+प्रकार CURLcode Curl_cft_shutdown(काष्ठा Curl_cfilter *cf,
+                                   काष्ठा Curl_easy *तथ्य,
                                    bool *done);
 
-typedef CURLcode Curl_cft_connect(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+प्रकार CURLcode Curl_cft_connect(काष्ठा Curl_cfilter *cf,
+                                  काष्ठा Curl_easy *तथ्य,
                                   bool *done);
 
-struct easy_pollset;
+काष्ठा easy_pollset;
 
 /* Passing in an easy_pollset for monitoring of sockets, let
  * filters add or remove sockets actions (CURL_POLL_OUT, CURL_POLL_IN).
@@ -75,32 +75,32 @@ struct easy_pollset;
  * @param data   the easy handle the pollset is about
  * @param ps     the pollset (inout) for the easy handle
  */
-typedef CURLcode Curl_cft_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps);
+प्रकार CURLcode Curl_cft_adjust_pollset(काष्ठा Curl_cfilter *cf,
+                                         काष्ठा Curl_easy *तथ्य,
+                                         काष्ठा easy_pollset *ps);
 
-typedef bool     Curl_cft_data_pending(struct Curl_cfilter *cf,
-                                       const struct Curl_easy *data);
+प्रकार bool     Curl_cft_तथ्य_pending(काष्ठा Curl_cfilter *cf,
+                                       स्थिर काष्ठा Curl_easy *तथ्य);
 
-typedef CURLcode Curl_cft_send(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, /* transfer */
-                               const uint8_t *buf,     /* data to write */
-                               size_t len,             /* amount to write */
+प्रकार CURLcode Curl_cft_send(काष्ठा Curl_cfilter *cf,
+                               काष्ठा Curl_easy *तथ्य, /* transfer */
+                               स्थिर uint8_t *buf,     /* data to write */
+                               माप_प्रकार len,             /* amount to write */
                                bool eos,               /* last chunk */
-                               size_t *pnwritten);     /* how much sent */
+                               माप_प्रकार *pnwritten);     /* how much sent */
 
-typedef CURLcode Curl_cft_recv(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, /* transfer */
-                               char *buf,              /* store data here */
-                               size_t len,             /* amount to read */
-                               size_t *pnread);        /* how much received */
+प्रकार CURLcode Curl_cft_recv(काष्ठा Curl_cfilter *cf,
+                               काष्ठा Curl_easy *तथ्य, /* transfer */
+                               अक्षर *buf,              /* store data here */
+                               माप_प्रकार len,             /* amount to read */
+                               माप_प्रकार *pnread);        /* how much received */
 
-typedef bool     Curl_cft_conn_is_alive(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        bool *input_pending);
+प्रकार bool     Curl_cft_conn_is_alive(काष्ठा Curl_cfilter *cf,
+                                        काष्ठा Curl_easy *तथ्य,
+                                        bool *निवेश_pending);
 
-typedef CURLcode Curl_cft_conn_keep_alive(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data);
+प्रकार CURLcode Curl_cft_conn_keep_alive(काष्ठा Curl_cfilter *cf,
+                                          काष्ठा Curl_easy *तथ्य);
 
 /**
  * Events/controls for connection filters, their arguments and
@@ -112,24 +112,24 @@ typedef CURLcode Curl_cft_conn_keep_alive(struct Curl_cfilter *cf,
  *           to all filters in the chain. Overall result is always CURLE_OK.
  */
 /*      data event                            arg1       arg2     return */
-#define CF_CTRL_DATA_SETUP              4  /* 0          NULL     first fail */
+#घोषणा CF_CTRL_तथ्य_SETUP              4  /* 0          NULL     first fail */
 /* unused now                           5 */
-#define CF_CTRL_DATA_PAUSE              6  /* on/off     NULL     first fail */
-#define CF_CTRL_DATA_DONE               7  /* premature  NULL     ignored */
-#define CF_CTRL_DATA_DONE_SEND          8  /* 0          NULL     ignored */
+#घोषणा CF_CTRL_तथ्य_PAUSE              6  /* on/off     NULL     first fail */
+#घोषणा CF_CTRL_तथ्य_DONE               7  /* premature  NULL     ignored */
+#घोषणा CF_CTRL_तथ्य_DONE_SEND          8  /* 0          NULL     ignored */
 /* update conn info at connection and data */
-#define CF_CTRL_CONN_INFO_UPDATE (256 + 0) /* 0          NULL     ignored */
-#define CF_CTRL_FORGET_SOCKET    (256 + 1) /* 0          NULL     ignored */
-#define CF_CTRL_FLUSH            (256 + 2) /* 0          NULL     first fail */
-#define CF_CTRL_REPORT_STATS     (256 + 3) /* 0          NULL     ignored */
+#घोषणा CF_CTRL_CONN_INFO_UPDATE (256 + 0) /* 0          NULL     ignored */
+#घोषणा CF_CTRL_FORGET_SOCKET    (256 + 1) /* 0          NULL     ignored */
+#घोषणा CF_CTRL_FLUSH            (256 + 2) /* 0          NULL     first fail */
+#घोषणा CF_CTRL_REPORT_STATS     (256 + 3) /* 0          NULL     ignored */
 
 /**
  * Handle event/control for the filter.
  * Implementations MUST NOT chain calls to cf->next.
  */
-typedef CURLcode Curl_cft_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2);
+प्रकार CURLcode Curl_cft_cntrl(काष्ठा Curl_cfilter *cf,
+                                काष्ठा Curl_easy *तथ्य,
+                                पूर्णांक event, पूर्णांक arg1, व्योम *arg2);
 
 /**
  * Queries to ask via a `Curl_cft_query *query` method on a cfilter chain.
@@ -164,31 +164,31 @@ typedef CURLcode Curl_cft_cntrl(struct Curl_cfilter *cf,
  *                      first byte from the peer was received.
  */
 /*      query                             res1       res2     */
-#define CF_QUERY_MAX_CONCURRENT     1  /* number     -        */
-#define CF_QUERY_CONNECT_REPLY_MS   2  /* number     -        */
-#define CF_QUERY_SOCKET             3  /* -          curl_socket_t */
+#घोषणा CF_QUERY_MAX_CONCURRENT     1  /* number     -        */
+#घोषणा CF_QUERY_CONNECT_REPLY_MS   2  /* number     -        */
+#घोषणा CF_QUERY_SOCKET             3  /* -          curl_socket_t */
 /* unused 4 + 5 */
-#define CF_QUERY_STREAM_ERROR       6  /* error code - */
-#define CF_QUERY_NEED_FLUSH         7  /* TRUE/FALSE - */
-#define CF_QUERY_IP_INFO            8  /* TRUE/FALSE struct ip_quadruple */
-#define CF_QUERY_HTTP_VERSION       9  /* number (10/11/20/30)   - */
+#घोषणा CF_QUERY_STREAM_ERROR       6  /* error code - */
+#घोषणा CF_QUERY_NEED_FLUSH         7  /* TRUE/FALSE - */
+#घोषणा CF_QUERY_IP_INFO            8  /* TRUE/FALSE struct ip_quadruple */
+#घोषणा CF_QUERY_HTTP_VERSION       9  /* number (10/11/20/30)   - */
 /* pass in a `const struct Curl_sockaddr_ex **` as `pres2`. Gets set
  * to NULL when not connected. */
-#define CF_QUERY_REMOTE_ADDR       10  /* -          `Curl_sockaddr_ex *` */
-#define CF_QUERY_HOST_PORT         11  /* port       const char * */
-#define CF_QUERY_SSL_INFO          12  /* -    struct curl_tlssessioninfo * */
-#define CF_QUERY_SSL_CTX_INFO      13  /* -    struct curl_tlssessioninfo * */
-#define CF_QUERY_TRANSPORT         14  /* TRNSPRT_*  - * */
-#define CF_QUERY_ALPN_NEGOTIATED   15  /* -          const char * */
-#define CF_QUERY_REALLY_CONNECTED  16  /* TRUE/FALSE - */
+#घोषणा CF_QUERY_REMOTE_ADDR       10  /* -          `Curl_sockaddr_ex *` */
+#घोषणा CF_QUERY_HOST_PORT         11  /* port       const char * */
+#घोषणा CF_QUERY_SSL_INFO          12  /* -    struct curl_tlssessioninfo * */
+#घोषणा CF_QUERY_SSL_CTX_INFO      13  /* -    struct curl_tlssessioninfo * */
+#घोषणा CF_QUERY_TRANSPORT         14  /* TRNSPRT_*  - * */
+#घोषणा CF_QUERY_ALPN_NEGOTIATED   15  /* -          const char * */
+#घोषणा CF_QUERY_REALLY_CONNECTED  16  /* TRUE/FALSE - */
 
 /**
  * Query the cfilter for properties. Filters ignorant of a query will
  * pass it "down" the filter chain.
  */
-typedef CURLcode Curl_cft_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2);
+प्रकार CURLcode Curl_cft_query(काष्ठा Curl_cfilter *cf,
+                                काष्ठा Curl_easy *तथ्य,
+                                पूर्णांक query, पूर्णांक *pres1, व्योम *pres2);
 
 /**
  * Type flags for connection filters. A filter can have none, one or
@@ -205,24 +205,24 @@ typedef CURLcode Curl_cft_query(struct Curl_cfilter *cf,
  *                     can be removed once connected
  * CF_TYPE_DNS         filter managing DNS resolve operations
  */
-#define CF_TYPE_IP_CONNECT  (1 << 0)
-#define CF_TYPE_SSL         (1 << 1)
-#define CF_TYPE_MULTIPLEX   (1 << 2)
-#define CF_TYPE_PROXY       (1 << 3)
-#define CF_TYPE_HTTP        (1 << 4)
-#define CF_TYPE_SETUP       (1 << 5)
-#define CF_TYPE_DNS         (1 << 6)
+#घोषणा CF_TYPE_IP_CONNECT  (1 << 0)
+#घोषणा CF_TYPE_SSL         (1 << 1)
+#घोषणा CF_TYPE_MULTIPLEX   (1 << 2)
+#घोषणा CF_TYPE_PROXY       (1 << 3)
+#घोषणा CF_TYPE_HTTP        (1 << 4)
+#घोषणा CF_TYPE_SETUP       (1 << 5)
+#घोषणा CF_TYPE_DNS         (1 << 6)
 
 /* A connection filter type, e.g. specific implementation. */
-struct Curl_cftype {
-  const char *name;                        /* name of the filter type */
-  int flags;                               /* flags of filter type */
-  int log_level;                           /* log level for such filters */
+काष्ठा Curl_cftype {
+  स्थिर अक्षर *name;                        /* name of the filter type */
+  पूर्णांक flags;                               /* flags of filter type */
+  पूर्णांक log_level;                           /* log level for such filters */
   Curl_cft_destroy_this *destroy;          /* destroy resources of this cf */
   Curl_cft_connect *do_connect;            /* establish connection */
   Curl_cft_shutdown *do_shutdown;          /* shutdown conn */
   Curl_cft_adjust_pollset *adjust_pollset; /* adjust transfer poll set */
-  Curl_cft_data_pending *has_data_pending; /* conn has data pending */
+  Curl_cft_तथ्य_pending *has_तथ्य_pending; /* conn has data pending */
   Curl_cft_send *do_send;                  /* send data */
   Curl_cft_recv *do_recv;                  /* receive data */
   Curl_cft_cntrl *cntrl;                   /* events/control */
@@ -232,47 +232,47 @@ struct Curl_cftype {
 };
 
 /* A connection filter instance, e.g. registered at a connection */
-struct Curl_cfilter {
-  const struct Curl_cftype *cft; /* the type providing implementation */
-  struct Curl_cfilter *next;     /* next filter in chain */
-  void *ctx;                     /* filter type specific settings */
-  struct connectdata *conn;      /* the connection this filter belongs to */
+काष्ठा Curl_cfilter {
+  स्थिर काष्ठा Curl_cftype *cft; /* the type providing implementation */
+  काष्ठा Curl_cfilter *अग्र;     /* next filter in chain */
+  व्योम *ctx;                     /* filter type specific settings */
+  काष्ठा connectdata *conn;      /* the connection this filter belongs to */
   int8_t sockindex;                 /* the index the filter is installed at */
   BIT(connected);                /* != 0 iff this filter is connected */
   BIT(shutdown);                 /* != 0 iff this filter has shut down */
 };
 
 /* Default implementations for the type functions, implementing nop. */
-void Curl_cf_def_destroy_this(struct Curl_cfilter *cf,
-                              struct Curl_easy *data);
+व्योम Curl_cf_def_destroy_this(काष्ठा Curl_cfilter *cf,
+                              काष्ठा Curl_easy *तथ्य);
 
 /* Default implementations for the type functions, implementing pass-through
  * the filter chain. */
-CURLcode Curl_cf_def_adjust_pollset(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct easy_pollset *ps);
-bool     Curl_cf_def_data_pending(struct Curl_cfilter *cf,
-                                  const struct Curl_easy *data);
-CURLcode Curl_cf_def_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          const uint8_t *buf, size_t len, bool eos,
-                          size_t *pnwritten);
-CURLcode Curl_cf_def_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          char *buf, size_t len, size_t *pnread);
-CURLcode Curl_cf_def_cntrl(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int event, int arg1, void *arg2);
-bool     Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   bool *input_pending);
-CURLcode Curl_cf_def_conn_keep_alive(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data);
-CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           int query, int *pres1, void *pres2);
-CURLcode Curl_cf_def_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done);
-CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data, bool *done);
+CURLcode Curl_cf_def_adjust_pollset(काष्ठा Curl_cfilter *cf,
+                                    काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा easy_pollset *ps);
+bool     Curl_cf_def_तथ्य_pending(काष्ठा Curl_cfilter *cf,
+                                  स्थिर काष्ठा Curl_easy *तथ्य);
+CURLcode Curl_cf_def_send(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                          स्थिर uint8_t *buf, माप_प्रकार len, bool eos,
+                          माप_प्रकार *pnwritten);
+CURLcode Curl_cf_def_recv(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                          अक्षर *buf, माप_प्रकार len, माप_प्रकार *pnread);
+CURLcode Curl_cf_def_cntrl(काष्ठा Curl_cfilter *cf,
+                           काष्ठा Curl_easy *तथ्य,
+                           पूर्णांक event, पूर्णांक arg1, व्योम *arg2);
+bool     Curl_cf_def_conn_is_alive(काष्ठा Curl_cfilter *cf,
+                                   काष्ठा Curl_easy *तथ्य,
+                                   bool *निवेश_pending);
+CURLcode Curl_cf_def_conn_keep_alive(काष्ठा Curl_cfilter *cf,
+                                     काष्ठा Curl_easy *तथ्य);
+CURLcode Curl_cf_def_query(काष्ठा Curl_cfilter *cf,
+                           काष्ठा Curl_easy *तथ्य,
+                           पूर्णांक query, पूर्णांक *pres1, व्योम *pres2);
+CURLcode Curl_cf_def_shutdown(काष्ठा Curl_cfilter *cf,
+                              काष्ठा Curl_easy *तथ्य, bool *done);
+CURLcode Curl_cf_def_connect(काष्ठा Curl_cfilter *cf,
+                              काष्ठा Curl_easy *तथ्य, bool *done);
 
 /**
  * Create a new filter instance, unattached to the filter chain.
@@ -281,218 +281,218 @@ CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
  * @param cft   the filter type
  * @param ctx  the type specific context to use
  */
-CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
-                        const struct Curl_cftype *cft,
-                        void *ctx);
+CURLcode Curl_cf_create(काष्ठा Curl_cfilter **pcf,
+                        स्थिर काष्ठा Curl_cftype *cft,
+                        व्योम *ctx);
 
 /**
  * Add a filter instance to the `sockindex` filter chain at connection
  * `conn`. The filter must not already be attached. It is inserted at
  * the start of the chain (top).
  */
-void Curl_conn_cf_add(struct Curl_easy *data,
-                      struct connectdata *conn,
+व्योम Curl_conn_cf_add(काष्ठा Curl_easy *तथ्य,
+                      काष्ठा connectdata *conn,
                       int8_t sockindex,
-                      struct Curl_cfilter *cf);
+                      काष्ठा Curl_cfilter *cf);
 
 /**
  * Insert a filter (chain) after `cf_at`.
  * `cf_new` must not already be attached.
  */
-void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
-                               struct Curl_cfilter *cf_new);
+व्योम Curl_conn_cf_जोड़ो_after(काष्ठा Curl_cfilter *cf_at,
+                               काष्ठा Curl_cfilter *cf_new);
 
 /**
  * Extract filter `*pcf` from its connection filter chain.
  * Destroy `*pcf`, even if it was not part of the chain and NULL it.
  * Returns TRUE of cf has been part of chain.
  */
-bool Curl_conn_cf_discard(struct Curl_cfilter **pcf,
-                          struct Curl_easy *data);
+bool Curl_conn_cf_discard(काष्ठा Curl_cfilter **pcf,
+                          काष्ठा Curl_easy *तथ्य);
 
 /**
  * Discard all cfilters starting with `*pcf` and clearing it afterwards.
  */
-void Curl_conn_cf_discard_chain(struct Curl_cfilter **pcf,
-                                struct Curl_easy *data);
+व्योम Curl_conn_cf_discard_chain(काष्ठा Curl_cfilter **pcf,
+                                काष्ठा Curl_easy *तथ्य);
 
 /**
  * Remove and destroy all filters at chain `sockindex` on connection `conn`.
  */
-void Curl_conn_cf_discard_all(struct Curl_easy *data,
-                              struct connectdata *conn, int8_t sockindex);
+व्योम Curl_conn_cf_discard_all(काष्ठा Curl_easy *तथ्य,
+                              काष्ठा connectdata *conn, int8_t sockindex);
 
-CURLcode Curl_conn_cf_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+CURLcode Curl_conn_cf_connect(काष्ठा Curl_cfilter *cf,
+                              काष्ठा Curl_easy *तथ्य,
                               bool *done);
-CURLcode Curl_conn_cf_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           const uint8_t *buf, size_t len, bool eos,
-                           size_t *pnwritten);
-CURLcode Curl_conn_cf_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           char *buf, size_t len, size_t *pnread);
-CURLcode Curl_conn_cf_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            bool ignore_result,
-                            int event, int arg1, void *arg2);
+CURLcode Curl_conn_cf_send(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                           स्थिर uint8_t *buf, माप_प्रकार len, bool eos,
+                           माप_प्रकार *pnwritten);
+CURLcode Curl_conn_cf_recv(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                           अक्षर *buf, माप_प्रकार len, माप_प्रकार *pnread);
+CURLcode Curl_conn_cf_cntrl(काष्ठा Curl_cfilter *cf,
+                            काष्ठा Curl_easy *तथ्य,
+                            bool ignore_परिणाम,
+                            पूर्णांक event, पूर्णांक arg1, व्योम *arg2);
 
 /**
  * Get the socket used by the filter chain starting at `cf`.
  * Returns CURL_SOCKET_BAD if not available.
  */
-curl_socket_t Curl_conn_cf_get_socket(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data);
+curl_socket_t Curl_conn_cf_get_socket(काष्ठा Curl_cfilter *cf,
+                                      काष्ठा Curl_easy *तथ्य);
 
-CURLcode Curl_conn_cf_get_ip_info(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *is_ipv6, struct ip_quadruple *ipquad);
+CURLcode Curl_conn_cf_get_ip_info(काष्ठा Curl_cfilter *cf,
+                                  काष्ठा Curl_easy *तथ्य,
+                                  bool *is_ipv6, काष्ठा ip_quadruple *ipquad);
 
-bool Curl_conn_cf_needs_flush(struct Curl_cfilter *cf,
-                              struct Curl_easy *data);
+bool Curl_conn_cf_needs_flush(काष्ठा Curl_cfilter *cf,
+                              काष्ठा Curl_easy *तथ्य);
 
-bool Curl_conn_cf_is_ip_connected(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data);
+bool Curl_conn_cf_is_ip_connected(काष्ठा Curl_cfilter *cf,
+                                  काष्ठा Curl_easy *तथ्य);
 
-unsigned char Curl_conn_cf_get_transport(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data);
+अचिन्हित अक्षर Curl_conn_cf_get_transport(काष्ठा Curl_cfilter *cf,
+                                         काष्ठा Curl_easy *तथ्य);
 
-int Curl_socktype_for_transport(uint8_t transport);
-int Curl_protocol_for_transport(uint8_t transport);
+पूर्णांक Curl_socktype_for_transport(uint8_t transport);
+पूर्णांक Curl_protocol_for_transport(uint8_t transport);
 
-const char *Curl_conn_cf_get_alpn_negotiated(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data);
+स्थिर अक्षर *Curl_conn_cf_get_alpn_negotiated(काष्ठा Curl_cfilter *cf,
+                                             काष्ठा Curl_easy *तथ्य);
 
-#define CURL_CF_SSL_DEFAULT  (-1)
-#define CURL_CF_SSL_DISABLE  0
-#define CURL_CF_SSL_ENABLE   1
+#घोषणा CURL_CF_SSL_DEFAULT  (-1)
+#घोषणा CURL_CF_SSL_DISABLE  0
+#घोषणा CURL_CF_SSL_ENABLE   1
 
 /**
  * Check if a filter chain at `sockindex` for connection `conn` exists.
  */
-bool Curl_conn_is_setup(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_setup(काष्ठा connectdata *conn, int8_t sockindex);
 
 /**
  * Check if the filter chain at `sockindex` for connection `conn` is
  * completely connected.
  */
-bool Curl_conn_is_connected(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_connected(काष्ठा connectdata *conn, int8_t sockindex);
 
 /**
  * Determine if we have reached the remote host on IP level, e.g.
  * have a TCP connection. This turns TRUE before a possible SSL
  * handshake has been started/done.
  */
-bool Curl_conn_is_ip_connected(struct Curl_easy *data, int8_t sockindex);
+bool Curl_conn_is_ip_connected(काष्ठा Curl_easy *तथ्य, int8_t sockindex);
 
 /**
  * Determine if the connection is using SSL to the remote host
  * (or will be once connected). This will return FALSE, if SSL
  * is only used in proxying and not for the tunnel itself.
  */
-bool Curl_conn_is_ssl(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_ssl(काष्ठा connectdata *conn, int8_t sockindex);
 
 /* Determine if the connection has one or more proxy filters.
  * e.g. is tunneling. */
-bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_tunneling(काष्ठा connectdata *conn, int8_t sockindex);
 
 /*
  * Fill `info` with information about the TLS instance securing the connection
  * when available, otherwise e.g. when Curl_conn_is_ssl() is FALSE, return
  * FALSE. 'query' should be CF_QUERY_SSL_INFO or CF_QUERY_SSL_CTX_INFO.
  */
-bool Curl_conn_get_ssl_info(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            int query,
-                            struct curl_tlssessioninfo *info);
+bool Curl_conn_get_ssl_info(काष्ठा Curl_easy *तथ्य,
+                            काष्ठा connectdata *conn, int8_t sockindex,
+                            पूर्णांक query,
+                            काष्ठा curl_tlssessioninfo *info);
 
-CURLcode Curl_conn_get_ip_info(struct Curl_easy *data,
-                               struct connectdata *conn, int8_t sockindex,
-                               bool *is_ipv6, struct ip_quadruple *ipquad);
+CURLcode Curl_conn_get_ip_info(काष्ठा Curl_easy *तथ्य,
+                               काष्ठा connectdata *conn, int8_t sockindex,
+                               bool *is_ipv6, काष्ठा ip_quadruple *ipquad);
 
 /**
  * Connection provides multiplexing of easy handles at `socketindex`.
  */
-bool Curl_conn_is_multiplex(struct connectdata *conn, int8_t sockindex);
+bool Curl_conn_is_multiplex(काष्ठा connectdata *conn, int8_t sockindex);
 
 /**
  * Return the HTTP version used on the FIRSTSOCKET connection filters
  * or 0 if unknown. Value otherwise is 09, 10, 11, etc.
  */
-unsigned char Curl_conn_http_version(struct Curl_easy *data,
-                                     struct connectdata *conn);
+अचिन्हित अक्षर Curl_conn_http_version(काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा connectdata *conn);
 
 /* Get the TRNSPRT_* the connection is using */
-unsigned char Curl_conn_get_transport(struct Curl_easy *data,
-                                      struct connectdata *conn);
+अचिन्हित अक्षर Curl_conn_get_transport(काष्ठा Curl_easy *तथ्य,
+                                      काष्ठा connectdata *conn);
 
 /* Get the negotiated ALPN protocol or NULL if none in play */
-const char *Curl_conn_get_alpn_negotiated(struct Curl_easy *data,
-                                          struct connectdata *conn);
+स्थिर अक्षर *Curl_conn_get_alpn_negotiated(काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा connectdata *conn);
 
-void Curl_conn_cntrl_update_info(struct Curl_easy *data,
-                                 struct connectdata *conn);
+व्योम Curl_conn_cntrl_update_info(काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा connectdata *conn);
 
-void Curl_conn_cntrl_report_stats(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  int sockindex);
+व्योम Curl_conn_cntrl_report_stats(काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा connectdata *conn,
+                                  पूर्णांक sockindex);
 
-void Curl_conn_remove_setup_filters(struct Curl_easy *data,
+व्योम Curl_conn_remove_setup_filters(काष्ठा Curl_easy *तथ्य,
                                     int8_t sockindex);
 
 /**
  * Return if data is pending in some connection filter at chain
  * `sockindex` for connection `data->conn`.
  */
-bool Curl_conn_data_pending(struct Curl_easy *data,
+bool Curl_conn_तथ्य_pending(काष्ठा Curl_easy *तथ्य,
                             int8_t sockindex);
 
 /**
  * Return TRUE if any of the connection filters at chain `sockindex`
  * have data still to send.
  */
-bool Curl_conn_needs_flush(struct Curl_easy *data, int8_t sockindex);
+bool Curl_conn_needs_flush(काष्ठा Curl_easy *तथ्य, int8_t sockindex);
 
 /**
  * Flush any pending data on the connection filters at chain `sockindex`.
  */
-CURLcode Curl_conn_flush(struct Curl_easy *data, int8_t sockindex);
+CURLcode Curl_conn_flush(काष्ठा Curl_easy *तथ्य, int8_t sockindex);
 
 /**
  * Return the socket used on data's connection for FIRSTSOCKET,
  * querying filters if the whole chain has not connected yet.
  * Returns CURL_SOCKET_BAD if not available.
  */
-curl_socket_t Curl_conn_get_first_socket(struct Curl_easy *data);
+curl_socket_t Curl_conn_get_first_socket(काष्ठा Curl_easy *तथ्य);
 
 /* Return a pointer to the connected socket address or NULL. */
-const struct Curl_sockaddr_ex *
-Curl_conn_get_remote_addr(struct Curl_easy *data, int8_t sockindex);
+स्थिर काष्ठा Curl_sockaddr_ex *
+Curl_conn_get_remote_addr(काष्ठा Curl_easy *तथ्य, int8_t sockindex);
 
 /**
  * Tell filters to forget about the socket at sockindex.
  */
-void Curl_conn_forget_socket(struct Curl_easy *data, int8_t sockindex);
+व्योम Curl_conn_forget_socket(काष्ठा Curl_easy *तथ्य, int8_t sockindex);
 
 /**
  * Adjust the pollset for the filter chain starting at `cf`.
  */
-CURLcode Curl_conn_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps);
+CURLcode Curl_conn_cf_adjust_pollset(काष्ठा Curl_cfilter *cf,
+                                     काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा easy_pollset *ps);
 
 /**
  * Adjust pollset from filters installed at transfer's connection.
  */
-CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct easy_pollset *ps);
+CURLcode Curl_conn_adjust_pollset(काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा connectdata *conn,
+                                  काष्ठा easy_pollset *ps);
 
 /**
  * Curl_poll() the filter chain at `cf` with timeout `timeout_ms`.
  * Returns 0 on timeout, negative on error or number of sockets
  * with requested poll events.
  */
-int Curl_conn_cf_poll(struct Curl_cfilter *cf,
-                      struct Curl_easy *data,
+पूर्णांक Curl_conn_cf_poll(काष्ठा Curl_cfilter *cf,
+                      काष्ठा Curl_easy *तथ्य,
                       timediff_t timeout_ms);
 
 /**
@@ -500,74 +500,74 @@ int Curl_conn_cf_poll(struct Curl_cfilter *cf,
  * `data->conn`. Copy at most `len` bytes into `buf`. Return the
  * actual number of bytes copied in `*pnread`or an error.
  */
-CURLcode Curl_cf_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
-                      size_t len, size_t *pnread);
+CURLcode Curl_cf_recv(काष्ठा Curl_easy *तथ्य, int8_t sockindex, अक्षर *buf,
+                      माप_प्रकार len, माप_प्रकार *pnread);
 
 /**
  * Send `len` bytes of data from `buf` through the filter chain `sockindex`
  * at connection `data->conn`. Return the actual number of bytes written
  * in `*pnwritten` or on error.
  */
-CURLcode Curl_cf_send(struct Curl_easy *data, int8_t sockindex,
-                      const uint8_t *buf, size_t len, bool eos,
-                      size_t *pnwritten);
+CURLcode Curl_cf_send(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                      स्थिर uint8_t *buf, माप_प्रकार len, bool eos,
+                      माप_प्रकार *pnwritten);
 
 /**
  * Receive bytes from connection filter `cf` into `bufq`.
  * Convenience wrapper around `Curl_bufq_sipn()`,
  * so users do not have to implement a callback.
  */
-CURLcode Curl_cf_recv_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
-                           size_t maxlen,
-                           size_t *pnread);
+CURLcode Curl_cf_recv_bufq(काष्ठा Curl_cfilter *cf,
+                           काष्ठा Curl_easy *तथ्य,
+                           काष्ठा bufq *bufq,
+                           माप_प्रकार maxlen,
+                           माप_प्रकार *pnread);
 
 /**
  * Send bytes in `bufq` using connection filter `cf`.
  * A convenience wrapper around `Curl_bufq_write_pass()`,
  * so users do not have to implement a callback.
  */
-CURLcode Curl_cf_send_bufq(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct bufq *bufq,
-                           const unsigned char *buf, size_t blen,
-                           size_t *pnwritten);
+CURLcode Curl_cf_send_bufq(काष्ठा Curl_cfilter *cf,
+                           काष्ठा Curl_easy *तथ्य,
+                           काष्ठा bufq *bufq,
+                           स्थिर अचिन्हित अक्षर *buf, माप_प्रकार blen,
+                           माप_प्रकार *pnwritten);
 
 /**
  * Notify connection filters that they need to setup data for
  * a transfer.
  */
-CURLcode Curl_conn_ev_data_setup(struct Curl_easy *data);
+CURLcode Curl_conn_ev_तथ्य_setup(काष्ठा Curl_easy *तथ्य);
 
 /**
  * Notify connection filters that the transfer represented by `data`
  * is done with sending data (e.g. has uploaded everything).
  */
-void Curl_conn_ev_data_done_send(struct Curl_easy *data);
+व्योम Curl_conn_ev_तथ्य_done_send(काष्ठा Curl_easy *तथ्य);
 
 /**
  * Notify connection filters that the transfer represented by `data`
  * is finished - eventually premature, e.g. before being complete.
  */
-void Curl_conn_ev_data_done(struct Curl_easy *data, bool premature);
+व्योम Curl_conn_ev_तथ्य_done(काष्ठा Curl_easy *तथ्य, bool premature);
 
 /**
  * Notify connection filters that the transfer of data is paused/unpaused.
  */
-CURLcode Curl_conn_ev_data_pause(struct Curl_easy *data, bool do_pause);
+CURLcode Curl_conn_ev_तथ्य_pause(काष्ठा Curl_easy *तथ्य, bool do_pause);
 
 /**
  * Check if FIRSTSOCKET's cfilter chain deems connection alive.
  */
-bool Curl_conn_is_alive(struct Curl_easy *data, struct connectdata *conn,
-                        bool *input_pending);
+bool Curl_conn_is_alive(काष्ठा Curl_easy *तथ्य, काष्ठा connectdata *conn,
+                        bool *निवेश_pending);
 
 /**
  * Try to upkeep the connection filters.
  */
-CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
-                              struct connectdata *conn);
+CURLcode Curl_conn_keep_alive(काष्ठा Curl_easy *तथ्य,
+                              काष्ठा connectdata *conn);
 
 /**
  * Get the remote hostname and port that the connection is currently
@@ -577,50 +577,50 @@ CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
  * During connect, when tunneling proxies are involved (http or socks),
  * it will be the name and port the proxy currently negotiates with.
  */
-void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
-                                const char **phost, int *pport);
+व्योम Curl_conn_get_current_host(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                                स्थिर अक्षर **phost, पूर्णांक *pport);
 
 /**
  * Get the maximum number of parallel transfers the connection
  * expects to be able to handle at `sockindex`.
  */
-size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
-                                    struct connectdata *conn,
+माप_प्रकार Curl_conn_get_max_concurrent(काष्ठा Curl_easy *तथ्य,
+                                    काष्ठा connectdata *conn,
                                     int8_t sockindex);
 
 /**
  * Get the underlying error code for a transfer stream or 0 if not known.
  */
-int Curl_conn_get_stream_error(struct Curl_easy *data,
-                               struct connectdata *conn,
+पूर्णांक Curl_conn_get_stream_error(काष्ठा Curl_easy *तथ्य,
+                               काष्ठा connectdata *conn,
                                int8_t sockindex);
 
-#ifdef CURLVERBOSE
-void Curl_conn_trc_filters(struct Curl_easy *data,
-                           int8_t sockindex, const char *info);
-#endif
+#अगर_घोषित CURLVERBOSE
+व्योम Curl_conn_trc_filters(काष्ठा Curl_easy *तथ्य,
+                           int8_t sockindex, स्थिर अक्षर *info);
+#पूर्ण_अगर
 
 /**
  * Get the index of the given socket in the connection's sockets.
  * Useful in calling `Curl_conn_send()/Curl_conn_recv()` with the
  * correct socket index.
  */
-int8_t Curl_conn_sockindex(struct Curl_easy *data, curl_socket_t sockfd);
+int8_t Curl_conn_sockindex(काष्ठा Curl_easy *तथ्य, curl_socket_t sockfd);
 
 /*
  * Receive data on the connection, using FIRSTSOCKET/SECONDARYSOCKET.
  * Return CURLE_AGAIN iff blocked on receiving.
  */
-CURLcode Curl_conn_recv(struct Curl_easy *data, int8_t sockindex,
-                        char *buf, size_t len, size_t *pnread);
+CURLcode Curl_conn_recv(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                        अक्षर *buf, माप_प्रकार len, माप_प्रकार *pnread);
 
 /*
  * Send data on the connection, using FIRSTSOCKET/SECONDARYSOCKET.
  * Return CURLE_AGAIN iff blocked on sending.
  */
-CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
-                        const void *buf, size_t len, bool eos,
-                        size_t *pnwritten);
+CURLcode Curl_conn_send(काष्ठा Curl_easy *तथ्य, int8_t sockindex,
+                        स्थिर व्योम *buf, माप_प्रकार len, bool eos,
+                        माप_प्रकार *pnwritten);
 
 /**
  * Types and macros used to keep the current easy handle in filter calls,
@@ -641,11 +641,11 @@ CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
  * Finally, macro `CF_DATA_CURRENT` gives the easy handle of the current
  * invocation.
  */
-struct cf_call_data {
-  struct Curl_easy *data;
-#ifdef DEBUGBUILD
-  int depth;
-#endif
+काष्ठा cf_call_तथ्य {
+  काष्ठा Curl_easy *तथ्य;
+#अगर_घोषित DEBUGBUILD
+  पूर्णांक depth;
+#पूर्ण_अगर
 };
 
 /**
@@ -655,38 +655,38 @@ struct cf_call_data {
  * #define CF_CTX_CALL_DATA(cf)   -> struct cf_call_data instance
  */
 
-#ifdef DEBUGBUILD
+#अगर_घोषित DEBUGBUILD
 
-#define CF_DATA_SAVE(save, cf, data) \
-  do { \
-    (save) = CF_CTX_CALL_DATA(cf); \
-    DEBUGASSERT(!(save).data || (save).depth > 0); \
-    CF_CTX_CALL_DATA(cf).depth++;  \
-    CF_CTX_CALL_DATA(cf).data = (struct Curl_easy *)CURL_UNCONST(data); \
-  } while(0)
+#घोषणा CF_तथ्य_SAVE(save, cf, तथ्य) \
+  करो { \
+    (save) = CF_CTX_CALL_तथ्य(cf); \
+    DEBUGASSERT(!(save).तथ्य || (save).depth > 0); \
+    CF_CTX_CALL_तथ्य(cf).depth++;  \
+    CF_CTX_CALL_तथ्य(cf).तथ्य = (काष्ठा Curl_easy *)CURL_UNCONST(तथ्य); \
+  } जबतक(0)
 
-#define CF_DATA_RESTORE(cf, save) \
-  do { \
-    DEBUGASSERT(CF_CTX_CALL_DATA(cf).depth == (save).depth + 1); \
-    DEBUGASSERT(!(save).data || (save).depth > 0); \
-    CF_CTX_CALL_DATA(cf) = (save); \
-  } while(0)
+#घोषणा CF_तथ्य_RESTORE(cf, save) \
+  करो { \
+    DEBUGASSERT(CF_CTX_CALL_तथ्य(cf).depth == (save).depth + 1); \
+    DEBUGASSERT(!(save).तथ्य || (save).depth > 0); \
+    CF_CTX_CALL_तथ्य(cf) = (save); \
+  } जबतक(0)
 
-#else /* DEBUGBUILD */
+#अन्यथा /* DEBUGBUILD */
 
-#define CF_DATA_SAVE(save, cf, data) \
-  do { \
-    (save) = CF_CTX_CALL_DATA(cf); \
-    CF_CTX_CALL_DATA(cf).data = (struct Curl_easy *)CURL_UNCONST(data); \
-  } while(0)
+#घोषणा CF_तथ्य_SAVE(save, cf, तथ्य) \
+  करो { \
+    (save) = CF_CTX_CALL_तथ्य(cf); \
+    CF_CTX_CALL_तथ्य(cf).तथ्य = (काष्ठा Curl_easy *)CURL_UNCONST(तथ्य); \
+  } जबतक(0)
 
-#define CF_DATA_RESTORE(cf, save) \
-  do { \
-    CF_CTX_CALL_DATA(cf) = (save); \
-  } while(0)
+#घोषणा CF_तथ्य_RESTORE(cf, save) \
+  करो { \
+    CF_CTX_CALL_तथ्य(cf) = (save); \
+  } जबतक(0)
 
-#endif /* !DEBUGBUILD */
+#पूर्ण_अगर /* !DEBUGBUILD */
 
-#define CF_DATA_CURRENT(cf) ((cf) ? (CF_CTX_CALL_DATA(cf).data) : NULL)
+#घोषणा CF_तथ्य_CURRENT(cf) ((cf) ? (CF_CTX_CALL_तथ्य(cf).तथ्य) : शून्य)
 
-#endif /* HEADER_CURL_CFILTERS_H */
+#पूर्ण_अगर /* HEADER_CURL_CFILTERS_H */

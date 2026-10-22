@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RTSP_H
-#define HEADER_CURL_RTSP_H
+#अगर_अघोषित HEADER_CURL_RTSP_H
+#घोषणा HEADER_CURL_RTSP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,25 +23,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_RTSP
-CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header);
-extern const struct Curl_protocol Curl_protocol_rtsp;
-#else
-#define Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_IN
-#endif
+#अगर_अघोषित CURL_DISABLE_RTSP
+CURLcode Curl_rtsp_parseheader(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *header);
+बाह्य स्थिर काष्ठा Curl_protocol Curl_protocol_rtsp;
+#अन्यथा
+#घोषणा Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_IN
+#पूर्ण_अगर
 
-#define RTSPREQ_NONE CURL_RTSPREQ_NONE
-#define RTSPREQ_OPTIONS CURL_RTSPREQ_OPTIONS
-#define RTSPREQ_DESCRIBE CURL_RTSPREQ_DESCRIBE
-#define RTSPREQ_ANNOUNCE CURL_RTSPREQ_ANNOUNCE
-#define RTSPREQ_SETUP CURL_RTSPREQ_SETUP
-#define RTSPREQ_PLAY CURL_RTSPREQ_PLAY
-#define RTSPREQ_PAUSE CURL_RTSPREQ_PAUSE
-#define RTSPREQ_TEARDOWN CURL_RTSPREQ_TEARDOWN
-#define RTSPREQ_GET_PARAMETER CURL_RTSPREQ_GET_PARAMETER
-#define RTSPREQ_SET_PARAMETER CURL_RTSPREQ_SET_PARAMETER
-#define RTSPREQ_RECORD CURL_RTSPREQ_RECORD
-#define RTSPREQ_RECEIVE CURL_RTSPREQ_RECEIVE
-#define RTSPREQ_LAST CURL_RTSPREQ_LAST
+#घोषणा RTSPREQ_NONE CURL_RTSPREQ_NONE
+#घोषणा RTSPREQ_OPTIONS CURL_RTSPREQ_OPTIONS
+#घोषणा RTSPREQ_DESCRIBE CURL_RTSPREQ_DESCRIBE
+#घोषणा RTSPREQ_ANNOUNCE CURL_RTSPREQ_ANNOUNCE
+#घोषणा RTSPREQ_SETUP CURL_RTSPREQ_SETUP
+#घोषणा RTSPREQ_PLAY CURL_RTSPREQ_PLAY
+#घोषणा RTSPREQ_PAUSE CURL_RTSPREQ_PAUSE
+#घोषणा RTSPREQ_TEARDOWN CURL_RTSPREQ_TEARDOWN
+#घोषणा RTSPREQ_GET_PARAMETER CURL_RTSPREQ_GET_PARAMETER
+#घोषणा RTSPREQ_SET_PARAMETER CURL_RTSPREQ_SET_PARAMETER
+#घोषणा RTSPREQ_RECORD CURL_RTSPREQ_RECORD
+#घोषणा RTSPREQ_RECEIVE CURL_RTSPREQ_RECEIVE
+#घोषणा RTSPREQ_LAST CURL_RTSPREQ_LAST
 
-#endif /* HEADER_CURL_RTSP_H */
+#पूर्ण_अगर /* HEADER_CURL_RTSP_H */

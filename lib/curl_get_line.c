@@ -21,49 +21,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#अगर !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
-#include "curl_get_line.h"
+#समावेश "curl_get_line.h"
 
 /*
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_पंक्ति(काष्ठा dynbuf *buf, खाता *निवेश, bool *eof)
 {
-  CURLcode result;
-  char buffer[128];
+  CURLcode परिणाम;
+  अक्षर बफर[128];
   curlx_dyn_reset(buf);
-  while(1) {
-    size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+  जबतक(1) {
+    माप_प्रकार rlen;
+    स्थिर अक्षर *b = ख_माला_लो(बफर, माप(बफर), निवेश);
+    अगर(!b && ख_त्रुटि(निवेश))
+      वापस CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = ख_पूर्ण(निवेश);
 
-    rlen = b ? strlen(b) : 0;
-    if(rlen) {
-      result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+    rlen = b ? म_माप(b) : 0;
+    अगर(rlen) {
+      परिणाम = curlx_dyn_addn(buf, b, rlen);
+      अगर(परिणाम)
         /* too long line or out of memory */
-        return result;
+        वापस परिणाम;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    अगर(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      वापस CURLE_OK; /* all good */
+    अगर(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      वापस curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */
 }
 
-#endif /* if not disabled */
+#पूर्ण_अगर /* if not disabled */

@@ -23,13 +23,13 @@
  * RFC6749 OAuth 2.0 Authorization Framework
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#अगर !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-#include "vauth/vauth.h"
+#समावेश "vauth/vauth.h"
 
 /*
  * Curl_auth_create_oauth_bearer_message()
@@ -47,27 +47,27 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
-                                               const char *host,
-                                               const long port,
-                                               struct bufref *out)
+CURLcode Curl_auth_create_oauth_bearer_message(काष्ठा Curl_creds *creds,
+                                               स्थिर अक्षर *host,
+                                               स्थिर दीर्घ port,
+                                               काष्ठा bufref *out)
 {
-  char *oauth;
+  अक्षर *oauth;
 
   /* Generate the message */
-  if(port == 0 || port == 80)
+  अगर(port == 0 || port == 80)
     oauth = curl_maprintf("n,a=%s,\1host=%s\1auth=Bearer %s\1\1",
                           Curl_creds_user(creds), host,
                           Curl_creds_oauth_bearer(creds));
-  else
+  अन्यथा
     oauth = curl_maprintf("n,a=%s,\1host=%s\1port=%ld\1auth=Bearer %s\1\1",
                           Curl_creds_user(creds), host, port,
                           Curl_creds_oauth_bearer(creds));
-  if(!oauth)
-    return CURLE_OUT_OF_MEMORY;
+  अगर(!oauth)
+    वापस CURLE_OUT_OF_MEMORY;
 
-  Curl_bufref_set(out, oauth, strlen(oauth), curl_free);
-  return CURLE_OK;
+  Curl_bufref_set(out, oauth, म_माप(oauth), curl_free);
+  वापस CURLE_OK;
 }
 
 /*
@@ -84,17 +84,17 @@ CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_xoauth_bearer_message(struct Curl_creds *creds,
-                                                struct bufref *out)
+CURLcode Curl_auth_create_xoauth_bearer_message(काष्ठा Curl_creds *creds,
+                                                काष्ठा bufref *out)
 {
   /* Generate the message */
-  char *xoauth = curl_maprintf("user=%s\1auth=Bearer %s\1\1",
+  अक्षर *xoauth = curl_maprintf("user=%s\1auth=Bearer %s\1\1",
                                Curl_creds_user(creds),
                                Curl_creds_oauth_bearer(creds));
-  if(!xoauth)
-    return CURLE_OUT_OF_MEMORY;
+  अगर(!xoauth)
+    वापस CURLE_OUT_OF_MEMORY;
 
-  Curl_bufref_set(out, xoauth, strlen(xoauth), curl_free);
-  return CURLE_OK;
+  Curl_bufref_set(out, xoauth, म_माप(xoauth), curl_free);
+  वापस CURLE_OK;
 }
-#endif /* disabled, no users */
+#पूर्ण_अगर /* disabled, no users */

@@ -21,23 +21,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "cf-haproxy.h"
-#include "cf-ip-happy.h"
-#include "cf-setup.h"
-#include "curl_trc.h"
-#include "connect.h"
-#include "http_proxy.h"
-#include "socks.h"
-#include "vquic/cf-capsule.h"
-#include "vquic/vquic.h"
-#include "vtls/vtls.h"
+#समावेश "urldata.h"
+#समावेश "cfilters.h"
+#समावेश "cf-haproxy.h"
+#समावेश "cf-ip-happy.h"
+#समावेश "cf-setup.h"
+#समावेश "curl_trc.h"
+#समावेश "connect.h"
+#समावेश "http_proxy.h"
+#समावेश "socks.h"
+#समावेश "vquic/cf-capsule.h"
+#समावेश "vquic/vquic.h"
+#समावेश "vtls/vtls.h"
 
 
-typedef enum {
+प्रकार क्रमागत {
   CF_SETUP_INIT,
   CF_SETUP_CNNCT_EYEBALLS,
   CF_SETUP_CNNCT_SOCKS,
@@ -47,231 +47,231 @@ typedef enum {
   CF_SETUP_DONE
 } cf_setup_state;
 
-struct cf_setup_ctx {
+काष्ठा cf_setup_ctx {
   cf_setup_state state;
-  int ssl_mode;
+  पूर्णांक ssl_mode;
   uint8_t transport;
-  uint8_t retry_count;
+  uint8_t retry_गिनती;
 };
 
-#ifndef CURL_DISABLE_PROXY
+#अगर_अघोषित CURL_DISABLE_PROXY
 
-static CURLcode cf_setup_add_haproxy(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data)
+अटल CURLcode cf_setup_add_haproxy(काष्ठा Curl_cfilter *cf,
+                                     काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_setup_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  काष्ठा cf_setup_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(ctx->state < CF_SETUP_CNNCT_HAPROXY) {
-    if(data->set.haproxyprotocol) {
-      if(ctx->transport == TRNSPRT_QUIC) {
-        failf(data, "haproxy protocol does not support QUIC");
-        return CURLE_UNSUPPORTED_PROTOCOL;
+  अगर(ctx->state < CF_SETUP_CNNCT_HAPROXY) {
+    अगर(तथ्य->set.haproxyprotocol) {
+      अगर(ctx->transport == TRNSPRT_QUIC) {
+        failf(तथ्य, "haproxy protocol does not support QUIC");
+        वापस CURLE_UNSUPPORTED_PROTOCOL;
       }
-      result = Curl_cf_haproxy_insert_after(cf, data);
-      if(result) {
-        CURL_TRC_CF(data, cf, "adding HAPROXY filter failed -> %d",
-                    (int)result);
-        return result;
+      परिणाम = Curl_cf_haproxy_जोड़ो_after(cf, तथ्य);
+      अगर(परिणाम) {
+        CURL_TRC_CF(तथ्य, cf, "adding HAPROXY filter failed -> %d",
+                    (पूर्णांक)परिणाम);
+        वापस परिणाम;
       }
-      CURL_TRC_CF(data, cf, "added HAPROXY filter");
+      CURL_TRC_CF(तथ्य, cf, "added HAPROXY filter");
     }
     ctx->state = CF_SETUP_CNNCT_HAPROXY;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode cf_setup_add_socks(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+अटल CURLcode cf_setup_add_socks(काष्ठा Curl_cfilter *cf,
+                                   काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_setup_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  if(ctx->state < CF_SETUP_CNNCT_SOCKS && cf->conn->socks_proxy.peer) {
+  काष्ठा cf_setup_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
+  अगर(ctx->state < CF_SETUP_CNNCT_SOCKS && cf->conn->socks_proxy.peer) {
     /* Add a SOCKS proxy to go through `first_peer` to `second_peer`*/
-    struct Curl_peer *second_peer;
+    काष्ठा Curl_peer *second_peer;
 
-    if(cf->conn->http_proxy.peer)
+    अगर(cf->conn->http_proxy.peer)
       second_peer = cf->conn->http_proxy.peer;
-    else
+    अन्यथा
       second_peer = Curl_conn_get_destination(cf->conn, cf->sockindex);
-    if(!second_peer)
-      return CURLE_FAILED_INIT;
+    अगर(!second_peer)
+      वापस CURLE_FAILED_INIT;
 
-    result = Curl_cf_socks_proxy_insert_after(
-      cf, data, second_peer, cf->conn->ip_version,
+    परिणाम = Curl_cf_socks_proxy_जोड़ो_after(
+      cf, तथ्य, second_peer, cf->conn->ip_version,
       cf->conn->socks_proxy.proxytype,
       cf->conn->socks_proxy.creds);
-    if(result) {
-      CURL_TRC_CF(data, cf, "adding SOCKS filter failed -> %d", (int)result);
-      return result;
+    अगर(परिणाम) {
+      CURL_TRC_CF(तथ्य, cf, "adding SOCKS filter failed -> %d", (पूर्णांक)परिणाम);
+      वापस परिणाम;
     }
 
-    CURL_TRC_CF(data, cf, "added SOCKS filter to %s:%u",
+    CURL_TRC_CF(तथ्य, cf, "added SOCKS filter to %s:%u",
                 second_peer->hostname, second_peer->port);
     ctx->state = CF_SETUP_CNNCT_SOCKS;
   }
-  return result;
+  वापस परिणाम;
 }
 
-#ifndef CURL_DISABLE_HTTP
-static CURLcode cf_setup_add_http_proxy(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data)
+#अगर_अघोषित CURL_DISABLE_HTTP
+अटल CURLcode cf_setup_add_http_proxy(काष्ठा Curl_cfilter *cf,
+                                        काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_setup_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  काष्ठा cf_setup_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(ctx->state < CF_SETUP_CNNCT_HTTP_PROXY &&
+  अगर(ctx->state < CF_SETUP_CNNCT_HTTP_PROXY &&
      cf->conn->http_proxy.peer && !cf->conn->bits.origin_is_proxy) {
-    struct Curl_peer *peer = cf->conn->http_proxy.peer;
-    struct Curl_peer *tunnel_peer =
+    काष्ठा Curl_peer *peer = cf->conn->http_proxy.peer;
+    काष्ठा Curl_peer *tunnel_peer =
       Curl_conn_get_destination(cf->conn, cf->sockindex);
 
-#ifdef USE_SSL
-    if(CURL_PROXY_IS_HTTPS(cf->conn->http_proxy.proxytype) &&
+#अगर_घोषित USE_SSL
+    अगर(CURL_PROXY_IS_HTTPS(cf->conn->http_proxy.proxytype) &&
        !Curl_conn_is_ssl(cf->conn, cf->sockindex)) {
-      result = Curl_cf_ssl_proxy_insert_after(
-        cf, data, cf->conn->http_proxy.peer);
-      if(result) {
-        CURL_TRC_CF(data, cf, "adding SSL filter for HTTP proxy failed -> %d",
-                    (int)result);
-        return result;
+      परिणाम = Curl_cf_ssl_proxy_जोड़ो_after(
+        cf, तथ्य, cf->conn->http_proxy.peer);
+      अगर(परिणाम) {
+        CURL_TRC_CF(तथ्य, cf, "adding SSL filter for HTTP proxy failed -> %d",
+                    (पूर्णांक)परिणाम);
+        वापस परिणाम;
       }
-      CURL_TRC_CF(data, cf, "added SSL filter for HTTP proxy");
+      CURL_TRC_CF(तथ्य, cf, "added SSL filter for HTTP proxy");
     }
-#endif /* USE_SSL */
+#पूर्ण_अगर /* USE_SSL */
 
-    result = Curl_cf_http_proxy_insert_after(
-      cf, data, peer, tunnel_peer,
+    परिणाम = Curl_cf_http_proxy_जोड़ो_after(
+      cf, तथ्य, peer, tunnel_peer,
       ctx->transport, cf->conn->http_proxy.proxytype);
-    if(result) {
-      CURL_TRC_CF(data, cf, "adding HTTP proxy tunnel filter failed -> %d",
-                  (int)result);
-      return result;
+    अगर(परिणाम) {
+      CURL_TRC_CF(तथ्य, cf, "adding HTTP proxy tunnel filter failed -> %d",
+                  (पूर्णांक)परिणाम);
+      वापस परिणाम;
     }
-    CURL_TRC_CF(data, cf, "added HTTP proxy tunnel filter");
+    CURL_TRC_CF(तथ्य, cf, "added HTTP proxy tunnel filter");
     ctx->state = CF_SETUP_CNNCT_HTTP_PROXY;
   }
-  return result;
+  वापस परिणाम;
 }
-#endif /* !CURL_DISABLE_HTTP */
-#endif /* CURL_DISABLE_PROXY */
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* CURL_DISABLE_PROXY */
 
 /* Get the origin curl connects its socket to.
  * Can be origin or the first proxy. */
-static struct Curl_peer *conn_get_first_origin(struct connectdata *conn,
+अटल काष्ठा Curl_peer *conn_get_first_origin(काष्ठा connectdata *conn,
                                              int8_t sockindex)
 {
-#ifndef CURL_DISABLE_PROXY
-  if(conn->socks_proxy.peer)
-    return conn->socks_proxy.peer;
-  if(conn->http_proxy.peer)
-    return conn->http_proxy.peer;
-#endif
-  return (sockindex == SECONDARYSOCKET) ? conn->origin2 : conn->origin;
+#अगर_अघोषित CURL_DISABLE_PROXY
+  अगर(conn->socks_proxy.peer)
+    वापस conn->socks_proxy.peer;
+  अगर(conn->http_proxy.peer)
+    वापस conn->http_proxy.peer;
+#पूर्ण_अगर
+  वापस (sockindex == SECONDARYSOCKET) ? conn->origin2 : conn->origin;
 }
 
-static CURLcode cf_setup_add_ip_happy(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+अटल CURLcode cf_setup_add_ip_happy(काष्ठा Curl_cfilter *cf,
+                                      काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_setup_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  काष्ठा cf_setup_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(ctx->state < CF_SETUP_CNNCT_EYEBALLS) {
+  अगर(ctx->state < CF_SETUP_CNNCT_EYEBALLS) {
     /* What is the first hop we directly connect to and what transport
      * do we use for it? Only on the first hop we can do Happy Eyeballs.
      * first_origin and first_peer differ on --connect-to. */
-    struct Curl_peer *first_origin =
+    काष्ठा Curl_peer *first_origin =
       conn_get_first_origin(cf->conn, cf->sockindex);
-    struct Curl_peer *first_peer =
+    काष्ठा Curl_peer *first_peer =
       Curl_conn_get_first_peer(cf->conn, cf->sockindex);
-    struct Curl_peer *tunnel_peer = NULL;
+    काष्ठा Curl_peer *tunnel_peer = शून्य;
     uint8_t first_transport = ctx->transport;
 
-    if(!first_peer)
-      return CURLE_FAILED_INIT;
+    अगर(!first_peer)
+      वापस CURLE_FAILED_INIT;
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
-    if(cf->conn->http_proxy.peer && !cf->conn->bits.origin_is_proxy) {
+#अगर !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+    अगर(cf->conn->http_proxy.peer && !cf->conn->bits.origin_is_proxy) {
       first_transport =
         Curl_http_proxy_transport(cf->conn->http_proxy.proxytype);
       tunnel_peer = Curl_conn_get_destination(cf->conn, cf->sockindex);
-      if((first_transport == TRNSPRT_QUIC) && cf->conn->socks_proxy.peer) {
-        failf(data, "HTTP/3 proxy not possible via SOCKS");
-        return CURLE_UNSUPPORTED_PROTOCOL;
+      अगर((first_transport == TRNSPRT_QUIC) && cf->conn->socks_proxy.peer) {
+        failf(तथ्य, "HTTP/3 proxy not possible via SOCKS");
+        वापस CURLE_UNSUPPORTED_PROTOCOL;
       }
     }
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#पूर्ण_अगर /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-    result = Curl_cf_ip_happy_insert_after(cf, data, first_origin, first_peer,
+    परिणाम = Curl_cf_ip_happy_जोड़ो_after(cf, तथ्य, first_origin, first_peer,
                                            first_transport,
                                            tunnel_peer, ctx->transport);
-    if(result) {
-      CURL_TRC_CF(data, cf, "adding happy eyeballs failed -> %d", (int)result);
-      return result;
+    अगर(परिणाम) {
+      CURL_TRC_CF(तथ्य, cf, "adding happy eyeballs failed -> %d", (पूर्णांक)परिणाम);
+      वापस परिणाम;
     }
 
-    if(tunnel_peer && (first_transport == TRNSPRT_QUIC)) {
-      CURL_TRC_CF(data, cf, "happy eyeballing to HTTP/3 proxy %s:%u",
+    अगर(tunnel_peer && (first_transport == TRNSPRT_QUIC)) {
+      CURL_TRC_CF(तथ्य, cf, "happy eyeballing to HTTP/3 proxy %s:%u",
                   first_peer->hostname, first_peer->port);
       ctx->state = CF_SETUP_CNNCT_HTTP_PROXY;
     }
-    else {
-      CURL_TRC_CF(data, cf, "happy eyeballing to %s %s:%u",
+    अन्यथा {
+      CURL_TRC_CF(तथ्य, cf, "happy eyeballing to %s %s:%u",
                   tunnel_peer ? "proxy" : "origin",
                   first_peer->hostname, first_peer->port);
       ctx->state = CF_SETUP_CNNCT_EYEBALLS;
     }
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode cf_setup_add_origin_filters(struct Curl_cfilter *cf,
-                                            struct Curl_easy *data)
+अटल CURLcode cf_setup_add_origin_filters(काष्ठा Curl_cfilter *cf,
+                                            काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_setup_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  काष्ठा cf_setup_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
 
-  (void)data; /* not used in all builds */
-  if(ctx->state < CF_SETUP_CNNCT_SSL) {
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3) && \
+  (व्योम)तथ्य; /* not used in all builds */
+  अगर(ctx->state < CF_SETUP_CNNCT_SSL) {
+#अगर !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3) && \
     !defined(CURL_DISABLE_PROXY)
 
     /* Wanting QUIC with an HTTP tunneling filter, we now need to add
      * the QUIC filter on top. Without tunneling, this has already
      * happened in the Happy Eyeball filter. */
-    if(ctx->transport == TRNSPRT_QUIC &&
+    अगर(ctx->transport == TRNSPRT_QUIC &&
        cf->conn->http_proxy.peer && !cf->conn->bits.origin_is_proxy) {
-      struct Curl_peer *origin = Curl_conn_get_origin(cf->conn, cf->sockindex);
-      struct Curl_peer *peer =
+      काष्ठा Curl_peer *origin = Curl_conn_get_origin(cf->conn, cf->sockindex);
+      काष्ठा Curl_peer *peer =
         Curl_conn_get_destination(cf->conn, cf->sockindex);
 
-      result = Curl_cf_capsule_insert_after(cf, data);
-      if(result) {
-        CURL_TRC_CF(data, cf, "adding capsule filter failed -> %d",
-                    (int)result);
-        return result;
+      परिणाम = Curl_cf_capsule_जोड़ो_after(cf, तथ्य);
+      अगर(परिणाम) {
+        CURL_TRC_CF(तथ्य, cf, "adding capsule filter failed -> %d",
+                    (पूर्णांक)परिणाम);
+        वापस परिणाम;
       }
-      result = Curl_cf_quic_insert_after(cf, data, origin, peer);
-      if(result) {
-        CURL_TRC_CF(data, cf, "adding QUIC filter failed -> %d", (int)result);
-        return result;
+      परिणाम = Curl_cf_quic_जोड़ो_after(cf, तथ्य, origin, peer);
+      अगर(परिणाम) {
+        CURL_TRC_CF(तथ्य, cf, "adding QUIC filter failed -> %d", (पूर्णांक)परिणाम);
+        वापस परिणाम;
       }
-      CURL_TRC_CF(data, cf, "added QUIC filter for origin");
+      CURL_TRC_CF(तथ्य, cf, "added QUIC filter for origin");
     }
-    else
-#endif /* !CURL_DISABLE_HTTP && USE_HTTP3 && CURL_DISABLE_PROXY */
-#ifdef USE_SSL
-    if((ctx->ssl_mode == CURL_CF_SSL_ENABLE ||
+    अन्यथा
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP && USE_HTTP3 && CURL_DISABLE_PROXY */
+#अगर_घोषित USE_SSL
+    अगर((ctx->ssl_mode == CURL_CF_SSL_ENABLE ||
         (ctx->ssl_mode != CURL_CF_SSL_DISABLE &&
          cf->conn->scheme->flags & PROTOPT_SSL)) && /* we want SSL */
        !Curl_conn_is_ssl(cf->conn, cf->sockindex)) { /* it is missing */
 
-#ifndef CURL_DISABLE_PROXY
-      if(cf->conn->bits.origin_is_proxy) {
-        result = Curl_cf_ssl_proxy_insert_after(cf, data, cf->conn->origin);
+#अगर_अघोषित CURL_DISABLE_PROXY
+      अगर(cf->conn->bits.origin_is_proxy) {
+        परिणाम = Curl_cf_ssl_proxy_जोड़ो_after(cf, तथ्य, cf->conn->origin);
       }
-      else
-#endif
+      अन्यथा
+#पूर्ण_अगर
       {
         /* FTP is a bitch. Wherever we really connect to on the DATA
          * (secondary) connection, many servers require TLS sessions reuse
@@ -279,91 +279,91 @@ static CURLcode cf_setup_add_origin_filters(struct Curl_cfilter *cf,
          * For the TLS session lookup to work, we need to instantiate
          * the SSL filter with the same peers as FIRSTSOCKET. See #22225
          * Meaning: cf->sockindex does not matter here. */
-        result = Curl_cf_ssl_insert_after(cf, data,
+        परिणाम = Curl_cf_ssl_जोड़ो_after(cf, तथ्य,
           Curl_conn_get_origin(cf->conn, FIRSTSOCKET),
           Curl_conn_get_destination(cf->conn, FIRSTSOCKET));
       }
-      if(result) {
-        CURL_TRC_CF(data, cf, "adding SSL filter for origin failed -> %d",
-                    (int)result);
-        return result;
+      अगर(परिणाम) {
+        CURL_TRC_CF(तथ्य, cf, "adding SSL filter for origin failed -> %d",
+                    (पूर्णांक)परिणाम);
+        वापस परिणाम;
       }
-      CURL_TRC_CF(data, cf, "added SSL filter for origin");
+      CURL_TRC_CF(तथ्य, cf, "added SSL filter for origin");
     }
-#endif /* USE_SSL */
+#पूर्ण_अगर /* USE_SSL */
     ctx->state = CF_SETUP_CNNCT_SSL;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode cf_setup_connect_steps(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
+अटल CURLcode cf_setup_connect_steps(काष्ठा Curl_cfilter *cf,
+                                       काष्ठा Curl_easy *तथ्य,
                                        bool *done)
 {
-  struct cf_setup_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
+  काष्ठा cf_setup_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(cf->connected) {
+  अगर(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    वापस CURLE_OK;
   }
 
   /* connect current sub-chain */
 connect_sub_chain:
-  VERBOSE(Curl_conn_trc_filters(data, cf->sockindex, "cf_setup_connect"));
+  VERBOSE(Curl_conn_trc_filters(तथ्य, cf->sockindex, "cf_setup_connect"));
 
-  if(cf->next && !cf->next->connected) {
-    result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  अगर(cf->अग्र && !cf->अग्र->connected) {
+    परिणाम = Curl_conn_cf_connect(cf->अग्र, तथ्य, done);
+    अगर(परिणाम || !*done)
+      वापस परिणाम;
   }
 
-  result = cf_setup_add_ip_happy(cf, data);
-  if(result)
-    return result;
-  if(!cf->next || !cf->next->connected)
-    goto connect_sub_chain;
+  परिणाम = cf_setup_add_ip_happy(cf, तथ्य);
+  अगर(परिणाम)
+    वापस परिणाम;
+  अगर(!cf->अग्र || !cf->अग्र->connected)
+    जाओ connect_sub_chain;
 
-#ifndef CURL_DISABLE_PROXY
-  result = cf_setup_add_socks(cf, data);
-  if(result)
-    return result;
-  if(!cf->next || !cf->next->connected)
-    goto connect_sub_chain;
+#अगर_अघोषित CURL_DISABLE_PROXY
+  परिणाम = cf_setup_add_socks(cf, तथ्य);
+  अगर(परिणाम)
+    वापस परिणाम;
+  अगर(!cf->अग्र || !cf->अग्र->connected)
+    जाओ connect_sub_chain;
 
-#ifndef CURL_DISABLE_HTTP
-  result = cf_setup_add_http_proxy(cf, data);
-  if(result)
-    return result;
-  if(!cf->next || !cf->next->connected)
-    goto connect_sub_chain;
-#endif /* !CURL_DISABLE_HTTP */
+#अगर_अघोषित CURL_DISABLE_HTTP
+  परिणाम = cf_setup_add_http_proxy(cf, तथ्य);
+  अगर(परिणाम)
+    वापस परिणाम;
+  अगर(!cf->अग्र || !cf->अग्र->connected)
+    जाओ connect_sub_chain;
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP */
 
-  result = cf_setup_add_haproxy(cf, data);
-  if(result)
-    return result;
-  if(!cf->next || !cf->next->connected)
-    goto connect_sub_chain;
-#endif /* !CURL_DISABLE_PROXY */
+  परिणाम = cf_setup_add_haproxy(cf, तथ्य);
+  अगर(परिणाम)
+    वापस परिणाम;
+  अगर(!cf->अग्र || !cf->अग्र->connected)
+    जाओ connect_sub_chain;
+#पूर्ण_अगर /* !CURL_DISABLE_PROXY */
 
-  result = cf_setup_add_origin_filters(cf, data);
-  if(result)
-    return result;
-  if(!cf->next || !cf->next->connected)
-    goto connect_sub_chain;
+  परिणाम = cf_setup_add_origin_filters(cf, तथ्य);
+  अगर(परिणाम)
+    वापस परिणाम;
+  अगर(!cf->अग्र || !cf->अग्र->connected)
+    जाओ connect_sub_chain;
 
   ctx->state = CF_SETUP_DONE;
   cf->connected = TRUE;
   *done = TRUE;
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode cf_setup_connect(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
+अटल CURLcode cf_setup_connect(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य,
                                  bool *done)
 {
-  struct cf_setup_ctx *ctx = cf->ctx;
-  CURLcode result;
+  काष्ठा cf_setup_ctx *ctx = cf->ctx;
+  CURLcode परिणाम;
 
   /* In some situations, a server/proxy may close the connection and
    * we need to connect again (HTTP/1.x proxy auth, for example).
@@ -371,30 +371,30 @@ static CURLcode cf_setup_connect(struct Curl_cfilter *cf,
    * however that complicates filter code and it is simpler to tear them
    * all down and start over. */
 retry:
-  result = cf_setup_connect_steps(cf, data, done);
+  परिणाम = cf_setup_connect_steps(cf, तथ्य, done);
 
-  if(result == CURLE_AGAIN) {
-    ++ctx->retry_count;
-    if(ctx->retry_count > 5) /* arbitrary limit, better just timeout? */
-      return CURLE_COULDNT_CONNECT;
+  अगर(परिणाम == CURLE_AGAIN) {
+    ++ctx->retry_गिनती;
+    अगर(ctx->retry_गिनती > 5) /* arbitrary limit, better just timeout? */
+      वापस CURLE_COULDNT_CONNECT;
 
-    CURL_TRC_CF(data, cf, "retrying connect, %d. time", ctx->retry_count);
-    Curl_conn_cf_discard_chain(&cf->next, data);
+    CURL_TRC_CF(तथ्य, cf, "retrying connect, %d. time", ctx->retry_गिनती);
+    Curl_conn_cf_discard_chain(&cf->अग्र, तथ्य);
     ctx->state = CF_SETUP_INIT;
-    goto retry;
+    जाओ retry;
   }
-  return result;
+  वापस परिणाम;
 }
 
-static void cf_setup_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+अटल व्योम cf_setup_destroy(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_setup_ctx *ctx = cf->ctx;
+  काष्ठा cf_setup_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
+  CURL_TRC_CF(तथ्य, cf, "destroy");
   curlx_safefree(ctx);
 }
 
-struct Curl_cftype Curl_cft_setup = {
+काष्ठा Curl_cftype Curl_cft_setup = {
   "SETUP",
   CF_TYPE_SETUP,
   CURL_LOG_LVL_NONE,
@@ -402,7 +402,7 @@ struct Curl_cftype Curl_cft_setup = {
   cf_setup_connect,
   Curl_cf_def_shutdown,
   Curl_cf_def_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_तथ्य_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -411,69 +411,69 @@ struct Curl_cftype Curl_cft_setup = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_setup_create(struct Curl_cfilter **pcf,
-                                struct Curl_easy *data,
+अटल CURLcode cf_setup_create(काष्ठा Curl_cfilter **pcf,
+                                काष्ठा Curl_easy *तथ्य,
                                 uint8_t transport,
-                                int ssl_mode)
+                                पूर्णांक ssl_mode)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_setup_ctx *ctx;
-  CURLcode result = CURLE_OK;
+  काष्ठा Curl_cfilter *cf = शून्य;
+  काष्ठा cf_setup_ctx *ctx;
+  CURLcode परिणाम = CURLE_OK;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (व्योम)तथ्य;
+  ctx = curlx_calloc(1, माप(*ctx));
+  अगर(!ctx) {
+    परिणाम = CURLE_OUT_OF_MEMORY;
+    जाओ out;
   }
   ctx->state = CF_SETUP_INIT;
   ctx->ssl_mode = ssl_mode;
   ctx->transport = transport;
 
-  result = Curl_cf_create(&cf, &Curl_cft_setup, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  परिणाम = Curl_cf_create(&cf, &Curl_cft_setup, ctx);
+  अगर(परिणाम)
+    जाओ out;
+  ctx = शून्य;
 
 out:
-  *pcf = result ? NULL : cf;
-  if(ctx) {
+  *pcf = परिणाम ? शून्य : cf;
+  अगर(ctx) {
     curlx_free(ctx);
   }
-  return result;
+  वापस परिणाम;
 }
 
-CURLcode Curl_cf_setup_add(struct Curl_easy *data,
-                           struct connectdata *conn,
+CURLcode Curl_cf_setup_add(काष्ठा Curl_easy *तथ्य,
+                           काष्ठा connectdata *conn,
                            int8_t sockindex,
                            uint8_t transport,
-                           int ssl_mode)
+                           पूर्णांक ssl_mode)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  काष्ठा Curl_cfilter *cf;
+  CURLcode परिणाम = CURLE_OK;
 
-  DEBUGASSERT(data);
-  result = cf_setup_create(&cf, data, transport, ssl_mode);
-  if(result)
-    goto out;
-  Curl_conn_cf_add(data, conn, sockindex, cf);
+  DEBUGASSERT(तथ्य);
+  परिणाम = cf_setup_create(&cf, तथ्य, transport, ssl_mode);
+  अगर(परिणाम)
+    जाओ out;
+  Curl_conn_cf_add(तथ्य, conn, sockindex, cf);
 out:
-  return result;
+  वापस परिणाम;
 }
 
-CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter *cf_at,
-                                    struct Curl_easy *data,
+CURLcode Curl_cf_setup_जोड़ो_after(काष्ठा Curl_cfilter *cf_at,
+                                    काष्ठा Curl_easy *तथ्य,
                                     uint8_t transport,
-                                    int ssl_mode)
+                                    पूर्णांक ssl_mode)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  काष्ठा Curl_cfilter *cf;
+  CURLcode परिणाम;
 
-  DEBUGASSERT(data);
-  result = cf_setup_create(&cf, data, transport, ssl_mode);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  DEBUGASSERT(तथ्य);
+  परिणाम = cf_setup_create(&cf, तथ्य, transport, ssl_mode);
+  अगर(परिणाम)
+    जाओ out;
+  Curl_conn_cf_जोड़ो_after(cf_at, cf);
 out:
-  return result;
+  वापस परिणाम;
 }

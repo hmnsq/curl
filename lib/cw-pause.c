@@ -21,206 +21,206 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "cw-pause.h"
+#समावेश "urldata.h"
+#समावेश "bufq.h"
+#समावेश "cfilters.h"
+#समावेश "sendf.h"
+#समावेश "curl_trc.h"
+#समावेश "cw-pause.h"
 
 
 /* body dynbuf sizes */
-#define CW_PAUSE_BUF_CHUNK         (16 * 1024)
+#घोषणा CW_PAUSE_BUF_CHUNK         (16 * 1024)
 /* when content decoding, write data in chunks */
-#define CW_PAUSE_DEC_WRITE_CHUNK   4096
+#घोषणा CW_PAUSE_DEC_WRITE_CHUNK   4096
 
-struct cw_pause_buf {
-  struct cw_pause_buf *next;
-  struct bufq b;
-  int type;
+काष्ठा cw_pause_buf {
+  काष्ठा cw_pause_buf *अग्र;
+  काष्ठा bufq b;
+  पूर्णांक type;
 };
 
-static struct cw_pause_buf *cw_pause_buf_create(int type, size_t buflen)
+अटल काष्ठा cw_pause_buf *cw_pause_buf_create(पूर्णांक type, माप_प्रकार buflen)
 {
-  struct cw_pause_buf *cwbuf = curlx_calloc(1, sizeof(*cwbuf));
-  if(cwbuf) {
+  काष्ठा cw_pause_buf *cwbuf = curlx_calloc(1, माप(*cwbuf));
+  अगर(cwbuf) {
     cwbuf->type = type;
-    if(type & CLIENTWRITE_BODY)
+    अगर(type & CLIENTWRITE_BODY)
       Curl_bufq_init2(&cwbuf->b, CW_PAUSE_BUF_CHUNK, 1,
                       (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-    else
+    अन्यथा
       Curl_bufq_init(&cwbuf->b, buflen, 1);
   }
-  return cwbuf;
+  वापस cwbuf;
 }
 
-static void cw_pause_buf_free(struct cw_pause_buf *cwbuf)
+अटल व्योम cw_pause_buf_free(काष्ठा cw_pause_buf *cwbuf)
 {
-  if(cwbuf) {
+  अगर(cwbuf) {
     Curl_bufq_free(&cwbuf->b);
     curlx_free(cwbuf);
   }
 }
 
-struct cw_pause_ctx {
-  struct Curl_cwriter super;
-  struct cw_pause_buf *buf;
-  struct cw_pause_buf *tail;
-  size_t buf_total;
+काष्ठा cw_pause_ctx {
+  काष्ठा Curl_cwriter super;
+  काष्ठा cw_pause_buf *buf;
+  काष्ठा cw_pause_buf *पुच्छ;
+  माप_प्रकार buf_योग;
 };
 
-static CURLcode cw_pause_init(struct Curl_easy *data,
-                              struct Curl_cwriter *writer)
+अटल CURLcode cw_pause_init(काष्ठा Curl_easy *तथ्य,
+                              काष्ठा Curl_cwriter *writer)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
-  (void)data;
-  ctx->buf = NULL;
-  ctx->tail = NULL;
-  return CURLE_OK;
+  काष्ठा cw_pause_ctx *ctx = writer->ctx;
+  (व्योम)तथ्य;
+  ctx->buf = शून्य;
+  ctx->पुच्छ = शून्य;
+  वापस CURLE_OK;
 }
 
-static void cw_pause_bufs_free(struct cw_pause_ctx *ctx)
+अटल व्योम cw_pause_bufs_free(काष्ठा cw_pause_ctx *ctx)
 {
-  while(ctx->buf) {
-    struct cw_pause_buf *next = ctx->buf->next;
+  जबतक(ctx->buf) {
+    काष्ठा cw_pause_buf *अग्र = ctx->buf->अग्र;
     cw_pause_buf_free(ctx->buf);
-    ctx->buf = next;
+    ctx->buf = अग्र;
   }
-  ctx->tail = NULL;
+  ctx->पुच्छ = शून्य;
 }
 
-static void cw_pause_close(struct Curl_easy *data, struct Curl_cwriter *writer)
+अटल व्योम cw_pause_close(काष्ठा Curl_easy *तथ्य, काष्ठा Curl_cwriter *writer)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
+  काष्ठा cw_pause_ctx *ctx = writer->ctx;
 
-  (void)data;
+  (व्योम)तथ्य;
   cw_pause_bufs_free(ctx);
 }
 
-static CURLcode cw_pause_flush(struct Curl_easy *data,
-                               struct Curl_cwriter *cw_pause)
+अटल CURLcode cw_pause_flush(काष्ठा Curl_easy *तथ्य,
+                               काष्ठा Curl_cwriter *cw_pause)
 {
-  struct cw_pause_ctx *ctx = (struct cw_pause_ctx *)cw_pause;
-  CURLcode result = CURLE_OK;
+  काष्ठा cw_pause_ctx *ctx = (काष्ठा cw_pause_ctx *)cw_pause;
+  CURLcode परिणाम = CURLE_OK;
 
   /* write the front of the chain until it blocks or gets empty */
-  while(ctx->buf && !Curl_cwriter_is_paused(data)) {
-    struct cw_pause_buf *first = ctx->buf;
-    size_t blen, wlen = 0;
-    const unsigned char *buf = NULL;
+  जबतक(ctx->buf && !Curl_cwriter_is_paused(तथ्य)) {
+    काष्ठा cw_pause_buf *first = ctx->buf;
+    माप_प्रकार blen, wlen = 0;
+    स्थिर अचिन्हित अक्षर *buf = शून्य;
 
-    if(Curl_bufq_peek(&first->b, &buf, &blen)) {
-      int wtype = first->type;
+    अगर(Curl_bufq_peek(&first->b, &buf, &blen)) {
+      पूर्णांक wtype = first->type;
       wlen = (first->type & CLIENTWRITE_BODY) ?
              CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
       /* EOS only goes with the very last piece, same as in cw_pause_write */
-      if((wlen < Curl_bufq_len(&first->b)) || first->next)
+      अगर((wlen < Curl_bufq_len(&first->b)) || first->अग्र)
         wtype &= ~CLIENTWRITE_EOS;
-      result = Curl_cwriter_write(data, cw_pause->next, wtype,
-                                  (const char *)buf, wlen);
-      CURL_TRC_WRITE(data, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
-                     wlen, ctx->buf_total, (unsigned int)wtype,
-                     (int)result);
+      परिणाम = Curl_cwriter_write(तथ्य, cw_pause->अग्र, wtype,
+                                  (स्थिर अक्षर *)buf, wlen);
+      CURL_TRC_WRITE(तथ्य, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
+                     wlen, ctx->buf_योग, (अचिन्हित पूर्णांक)wtype,
+                     (पूर्णांक)परिणाम);
       Curl_bufq_skip(&first->b, wlen);
-      DEBUGASSERT(ctx->buf_total >= wlen);
-      ctx->buf_total -= wlen;
-      if(result)
-        return result;
+      DEBUGASSERT(ctx->buf_योग >= wlen);
+      ctx->buf_योग -= wlen;
+      अगर(परिणाम)
+        वापस परिणाम;
     }
-    else if(first->type & CLIENTWRITE_EOS) {
-      result = Curl_cwriter_write(data, cw_pause->next, first->type,
-                                  (const char *)buf, 0);
-      CURL_TRC_WRITE(data, "[PAUSE] flushed 0/%zu bytes, type=%x -> %d",
-                     ctx->buf_total, (unsigned int)first->type,
-                     (int)result);
+    अन्यथा अगर(first->type & CLIENTWRITE_EOS) {
+      परिणाम = Curl_cwriter_write(तथ्य, cw_pause->अग्र, first->type,
+                                  (स्थिर अक्षर *)buf, 0);
+      CURL_TRC_WRITE(तथ्य, "[PAUSE] flushed 0/%zu bytes, type=%x -> %d",
+                     ctx->buf_योग, (अचिन्हित पूर्णांक)first->type,
+                     (पूर्णांक)परिणाम);
     }
 
-    if(Curl_bufq_is_empty(&first->b)) {
-      ctx->buf = first->next;
-      if(!ctx->buf)
-        ctx->tail = NULL;
+    अगर(Curl_bufq_is_empty(&first->b)) {
+      ctx->buf = first->अग्र;
+      अगर(!ctx->buf)
+        ctx->पुच्छ = शून्य;
       cw_pause_buf_free(first);
     }
   }
 
-  if(!result)
-    result = Curl_cwriter_flush(data, cw_pause->next);
-  return result;
+  अगर(!परिणाम)
+    परिणाम = Curl_cwriter_flush(तथ्य, cw_pause->अग्र);
+  वापस परिणाम;
 }
 
-static CURLcode cw_pause_write(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
-                               const char *buf, size_t blen)
+अटल CURLcode cw_pause_write(काष्ठा Curl_easy *तथ्य,
+                               काष्ठा Curl_cwriter *writer, पूर्णांक type,
+                               स्थिर अक्षर *buf, माप_प्रकार blen)
 {
-  struct cw_pause_ctx *ctx = writer->ctx;
-  CURLcode result = CURLE_OK;
-  size_t wlen = 0;
+  काष्ठा cw_pause_ctx *ctx = writer->ctx;
+  CURLcode परिणाम = CURLE_OK;
+  माप_प्रकार wlen = 0;
 
-  if(ctx->buf && !Curl_cwriter_is_paused(data)) {
-    result = cw_pause_flush(data, writer);
-    if(result)
-      return result;
+  अगर(ctx->buf && !Curl_cwriter_is_paused(तथ्य)) {
+    परिणाम = cw_pause_flush(तथ्य, writer);
+    अगर(परिणाम)
+      वापस परिणाम;
   }
 
-  while(!ctx->buf && !Curl_cwriter_is_paused(data)) {
-    int wtype = type;
+  जबतक(!ctx->buf && !Curl_cwriter_is_paused(तथ्य)) {
+    पूर्णांक wtype = type;
     DEBUGASSERT(!ctx->buf);
     /* content decoding might blow up size considerably, write smaller
      * chunks to make pausing need buffer less. */
     wlen = (type & CLIENTWRITE_BODY) ?
            CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
-    if(wlen < blen)
+    अगर(wlen < blen)
       wtype &= ~CLIENTWRITE_EOS;
-    result = Curl_cwriter_write(data, writer->next, wtype, buf, wlen);
-    if(result)
-      return result;
+    परिणाम = Curl_cwriter_write(तथ्य, writer->अग्र, wtype, buf, wlen);
+    अगर(परिणाम)
+      वापस परिणाम;
     buf += wlen;
     blen -= wlen;
-    if(!blen)
-      return result;
+    अगर(!blen)
+      वापस परिणाम;
   }
 
-  do {
-    size_t nwritten = 0;
-    if(ctx->tail && (ctx->tail->type == type) && (type & CLIENTWRITE_BODY)) {
+  करो {
+    माप_प्रकार nwritten = 0;
+    अगर(ctx->पुच्छ && (ctx->पुच्छ->type == type) && (type & CLIENTWRITE_BODY)) {
       /* same type and body, append to tail buffer which has a soft
        * limit and should take everything up to OOM. */
-      result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
+      परिणाम = Curl_bufq_cwrite(&ctx->पुच्छ->b, buf, blen, &nwritten);
     }
-    else {
+    अन्यथा {
       /* Need a new buf, type changed */
-      struct cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
-      if(!cwbuf)
-        return CURLE_OUT_OF_MEMORY;
-      if(ctx->tail)
-        ctx->tail->next = cwbuf;
-      else
+      काष्ठा cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
+      अगर(!cwbuf)
+        वापस CURLE_OUT_OF_MEMORY;
+      अगर(ctx->पुच्छ)
+        ctx->पुच्छ->अग्र = cwbuf;
+      अन्यथा
         ctx->buf = cwbuf;
-      ctx->tail = cwbuf;
-      result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
+      ctx->पुच्छ = cwbuf;
+      परिणाम = Curl_bufq_cwrite(&ctx->पुच्छ->b, buf, blen, &nwritten);
     }
-    CURL_TRC_WRITE(data, "[PAUSE] buffer %zu more bytes of type %x, "
-                   "total=%zu -> %d", nwritten, (unsigned int)type,
-                   ctx->buf_total + wlen, (int)result);
-    if(result)
-      return result;
+    CURL_TRC_WRITE(तथ्य, "[PAUSE] buffer %zu more bytes of type %x, "
+                   "total=%zu -> %d", nwritten, (अचिन्हित पूर्णांक)type,
+                   ctx->buf_योग + wlen, (पूर्णांक)परिणाम);
+    अगर(परिणाम)
+      वापस परिणाम;
     buf += nwritten;
     blen -= nwritten;
-    ctx->buf_total += nwritten;
-  } while(blen);
+    ctx->buf_योग += nwritten;
+  } जबतक(blen);
 
-  return result;
+  वापस परिणाम;
 }
 
-const struct Curl_cwtype Curl_cwt_pause = {
+स्थिर काष्ठा Curl_cwtype Curl_cwt_pause = {
   "cw-pause",
-  NULL,
+  शून्य,
   0,
   cw_pause_init,
   cw_pause_write,
   cw_pause_flush,
   cw_pause_close,
-  sizeof(struct cw_pause_ctx)
+  माप(काष्ठा cw_pause_ctx)
 };

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FILEINFO_H
-#define HEADER_CURL_FILEINFO_H
+#अगर_अघोषित HEADER_CURL_FILEINFO_H
+#घोषणा HEADER_CURL_FILEINFO_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "llist.h"
-#include "curlx/dynbuf.h"
+#समावेश "llist.h"
+#समावेश "curlx/dynbuf.h"
 
-struct fileinfo {
-  struct curl_fileinfo info;
-  struct Curl_llist_node list;
-  struct dynbuf buf;
+काष्ठा fileinfo {
+  काष्ठा curl_fileinfo info;
+  काष्ठा Curl_llist_गाँठ list;
+  काष्ठा dynbuf buf;
 };
 
-struct fileinfo *Curl_fileinfo_alloc(void);
-void Curl_fileinfo_cleanup(struct fileinfo *finfo);
+काष्ठा fileinfo *Curl_fileinfo_alloc(व्योम);
+व्योम Curl_fileinfo_cleanup(काष्ठा fileinfo *finfo);
 
-#endif /* HEADER_CURL_FILEINFO_H */
+#पूर्ण_अगर /* HEADER_CURL_FILEINFO_H */

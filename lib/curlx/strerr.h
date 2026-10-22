@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_STRERR_H
-#define HEADER_CURL_STRERR_H
+#अगर_अघोषित HEADER_CURL_STRERR_H
+#घोषणा HEADER_CURL_STRERR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,6 +24,6 @@
  *
  ***************************************************************************/
 
-const char *curlx_strerror(int err, char *buf, size_t buflen);
+स्थिर अक्षर *curlx_strerror(पूर्णांक err, अक्षर *buf, माप_प्रकार buflen);
 
-#endif /* HEADER_CURL_STRERR_H */
+#पूर्ण_अगर /* HEADER_CURL_STRERR_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_X509ASN1_H
-#define HEADER_CURL_X509ASN1_H
+#अगर_अघोषित HEADER_CURL_X509ASN1_H
+#घोषणा HEADER_CURL_X509ASN1_H
 
 /***************************************************************************
  *                                  _   _ ____  _
@@ -24,16 +24,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
 /* forward-declare to make it visible in all builds */
-struct Curl_asn1Element;
+काष्ठा Curl_asn1Element;
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#अगर defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
-#include "cfilters.h"
-#include "urldata.h"
+#समावेश "cfilters.h"
+#समावेश "urldata.h"
 
 /* ASN.1 classes. */
 /* #define CURL_ASN1_UNIVERSAL             0 */
@@ -42,78 +42,78 @@ struct Curl_asn1Element;
 /* #define CURL_ASN1_PRIVATE               3 */
 
 /* ASN.1 types. */
-#define CURL_ASN1_BOOLEAN               1
-#define CURL_ASN1_INTEGER               2
-#define CURL_ASN1_BIT_STRING            3
-#define CURL_ASN1_OCTET_STRING          4
-#define CURL_ASN1_NULL                  5
-#define CURL_ASN1_OBJECT_IDENTIFIER     6
+#घोषणा CURL_ASN1_BOOLEAN               1
+#घोषणा CURL_ASN1_INTEGER               2
+#घोषणा CURL_ASN1_BIT_STRING            3
+#घोषणा CURL_ASN1_OCTET_STRING          4
+#घोषणा CURL_ASN1_NULL                  5
+#घोषणा CURL_ASN1_OBJECT_IDENTIFIER     6
 /* #define CURL_ASN1_OBJECT_DESCRIPTOR     7 */
 /* #define CURL_ASN1_INSTANCE_OF           8 */
 /* #define CURL_ASN1_REAL                  9 */
-#define CURL_ASN1_ENUMERATED            10
+#घोषणा CURL_ASN1_ENUMERATED            10
 /* #define CURL_ASN1_EMBEDDED              11 */
-#define CURL_ASN1_UTF8_STRING           12
+#घोषणा CURL_ASN1_UTF8_STRING           12
 /* #define CURL_ASN1_RELATIVE_OID          13 */
 /* #define CURL_ASN1_SEQUENCE              16 */
 /* #define CURL_ASN1_SET                   17 */
-#define CURL_ASN1_NUMERIC_STRING        18
-#define CURL_ASN1_PRINTABLE_STRING      19
-#define CURL_ASN1_TELETEX_STRING        20
+#घोषणा CURL_ASN1_NUMERIC_STRING        18
+#घोषणा CURL_ASN1_PRINTABLE_STRING      19
+#घोषणा CURL_ASN1_TELETEX_STRING        20
 /* #define CURL_ASN1_VIDEOTEX_STRING       21 */
-#define CURL_ASN1_IA5_STRING            22
-#define CURL_ASN1_UTC_TIME              23
-#define CURL_ASN1_GENERALIZED_TIME      24
+#घोषणा CURL_ASN1_IA5_STRING            22
+#घोषणा CURL_ASN1_UTC_TIME              23
+#घोषणा CURL_ASN1_GENERALIZED_TIME      24
 /* #define CURL_ASN1_GRAPHIC_STRING        25 */
-#define CURL_ASN1_VISIBLE_STRING        26
+#घोषणा CURL_ASN1_VISIBLE_STRING        26
 /* #define CURL_ASN1_GENERAL_STRING        27 */
-#define CURL_ASN1_UNIVERSAL_STRING      28
+#घोषणा CURL_ASN1_UNIVERSAL_STRING      28
 /* #define CURL_ASN1_CHARACTER_STRING      29 */
-#define CURL_ASN1_BMP_STRING            30
+#घोषणा CURL_ASN1_BMP_STRING            30
 
 /*
  * Types.
  */
 
 /* ASN.1 parsed element. */
-struct Curl_asn1Element {
-  const uint8_t *header;      /* Pointer to header byte. */
-  const uint8_t *beg;         /* Pointer to element data. */
-  const uint8_t *end;         /* Pointer to 1st byte after element. */
+काष्ठा Curl_asn1Element {
+  स्थिर uint8_t *header;      /* Pointer to header byte. */
+  स्थिर uint8_t *beg;         /* Pointer to element data. */
+  स्थिर uint8_t *end;         /* Pointer to 1st byte after element. */
   uint8_t eclass;             /* ASN.1 element class. */
   uint8_t tag;                /* ASN.1 element tag. */
   BIT(constructed);           /* Element is constructed. */
 };
 
 /* X509 certificate: RFC 5280. */
-struct Curl_X509certificate {
-  struct Curl_asn1Element certificate;
-  struct Curl_asn1Element version;
-  struct Curl_asn1Element serialNumber;
-  struct Curl_asn1Element signatureAlgorithm;
-  struct Curl_asn1Element signature;
-  struct Curl_asn1Element issuer;
-  struct Curl_asn1Element notBefore;
-  struct Curl_asn1Element notAfter;
-  struct Curl_asn1Element subject;
-  struct Curl_asn1Element subjectPublicKeyInfo;
-  struct Curl_asn1Element subjectPublicKeyAlgorithm;
-  struct Curl_asn1Element subjectPublicKey;
-  struct Curl_asn1Element issuerUniqueID;
-  struct Curl_asn1Element subjectUniqueID;
-  struct Curl_asn1Element extensions;
+काष्ठा Curl_X509certificate {
+  काष्ठा Curl_asn1Element certificate;
+  काष्ठा Curl_asn1Element version;
+  काष्ठा Curl_asn1Element serial_संख्या;
+  काष्ठा Curl_asn1Element signatureAlgorithm;
+  काष्ठा Curl_asn1Element signature;
+  काष्ठा Curl_asn1Element issuer;
+  काष्ठा Curl_asn1Element notBefore;
+  काष्ठा Curl_asn1Element notAfter;
+  काष्ठा Curl_asn1Element subject;
+  काष्ठा Curl_asn1Element subject_Public_कुंजी_Info;
+  काष्ठा Curl_asn1Element subject_Public_कुंजी_Algorithm;
+  काष्ठा Curl_asn1Element subject_Public_कुंजी;
+  काष्ठा Curl_asn1Element issuerUniqueID;
+  काष्ठा Curl_asn1Element subjectUniqueID;
+  काष्ठा Curl_asn1Element extensions;
 };
 
 /*
  * Prototypes.
  */
 
-int Curl_parseX509(struct Curl_X509certificate *cert,
-                   const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_extract_certinfo(struct Curl_easy *data, int certnum,
-                               const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_verifyhost(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         const uint8_t *beg, const uint8_t *end);
-#endif /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
+पूर्णांक Curl_parseX509(काष्ठा Curl_X509certificate *cert,
+                   स्थिर uint8_t *beg, स्थिर uint8_t *end);
+CURLcode Curl_extract_certinfo(काष्ठा Curl_easy *तथ्य, पूर्णांक certnum,
+                               स्थिर uint8_t *beg, स्थिर uint8_t *end);
+CURLcode Curl_verifyhost(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                         स्थिर uint8_t *beg, स्थिर uint8_t *end);
+#पूर्ण_अगर /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
           USE_RUSTLS */
-#endif /* HEADER_CURL_X509ASN1_H */
+#पूर्ण_अगर /* HEADER_CURL_X509ASN1_H */

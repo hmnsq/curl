@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GSSAPI_H
-#define HEADER_CURL_GSSAPI_H
+#अगर_अघोषित HEADER_CURL_GSSAPI_H
+#घोषणा HEADER_CURL_GSSAPI_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,30 +23,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#include "urldata.h"
+#समावेश "urldata.h"
 
-#ifdef HAVE_GSSAPI
-extern gss_OID_desc Curl_spnego_mech_oid;
-extern gss_OID_desc Curl_krb5_mech_oid;
+#अगर_घोषित HAVE_GSSAPI
+बाह्य gss_OID_desc Curl_spnego_mech_oid;
+बाह्य gss_OID_desc Curl_krb5_mech_oid;
 
 /* Common method for using GSS-API */
-OM_uint32 Curl_gss_init_sec_context(struct Curl_easy *data,
+OM_uint32 Curl_gss_init_sec_context(काष्ठा Curl_easy *तथ्य,
                                     OM_uint32 *minor_status,
                                     gss_ctx_id_t *context,
                                     gss_name_t target_name,
                                     gss_OID mech_type,
-                                    gss_channel_bindings_t input_chan_bindings,
-                                    gss_buffer_t input_token,
-                                    gss_buffer_t output_token,
-                                    const bool mutual_auth,
+                                    gss_channel_bindings_t निवेश_chan_bindings,
+                                    gss_बफर_t निवेश_token,
+                                    gss_बफर_t output_token,
+                                    स्थिर bool mutual_auth,
                                     OM_uint32 *ret_flags,
                                     gss_cred_id_t cred_handle);
 
 OM_uint32 Curl_gss_delete_sec_context(OM_uint32 *min,
                                       gss_ctx_id_t *context,
-                                      gss_buffer_t output_token);
+                                      gss_बफर_t output_token);
 
 OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_status,
                                     gss_ctx_id_t context,
@@ -64,33 +64,33 @@ OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_status,
 OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_status,
                                   gss_OID_set *mech_set);
 
-#ifdef HAVE_GSS_SET_NEG_MECHS
+#अगर_घोषित HAVE_GSS_SET_NEG_MECHS
 OM_uint32 Curl_gss_set_neg_mechs(OM_uint32 *minor_status,
                                  gss_cred_id_t cred_handle,
-                                 const gss_OID_set mech_set);
-#endif
+                                 स्थिर gss_OID_set mech_set);
+#पूर्ण_अगर
 
 OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_status,
                                 gss_cred_id_t *cred_handle);
 
-#ifdef CURLVERBOSE
+#अगर_घोषित CURLVERBOSE
 /* Helper to log a GSS-API error status */
-void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
+व्योम Curl_gss_log_error(काष्ठा Curl_easy *तथ्य, स्थिर अक्षर *prefix,
                         OM_uint32 major, OM_uint32 minor);
-#else
-#define Curl_gss_log_error(data, prefix, major, minor) \
-  do {                                                 \
-    (void)(data);                                      \
-    (void)(prefix);                                    \
-    (void)(major);                                     \
-    (void)(minor);                                     \
-  } while(0)
-#endif
+#अन्यथा
+#घोषणा Curl_gss_log_error(तथ्य, prefix, major, minor) \
+  करो {                                                 \
+    (व्योम)(तथ्य);                                      \
+    (व्योम)(prefix);                                    \
+    (व्योम)(major);                                     \
+    (व्योम)(minor);                                     \
+  } जबतक(0)
+#पूर्ण_अगर
 
 /* Define our privacy and integrity protection values */
-#define GSSAUTH_P_NONE      1
-#define GSSAUTH_P_INTEGRITY 2
-#define GSSAUTH_P_PRIVACY   4
+#घोषणा GSSAUTH_P_NONE      1
+#घोषणा GSSAUTH_P_INTEGRITY 2
+#घोषणा GSSAUTH_P_PRIVACY   4
 
-#endif /* HAVE_GSSAPI */
-#endif /* HEADER_CURL_GSSAPI_H */
+#पूर्ण_अगर /* HAVE_GSSAPI */
+#पूर्ण_अगर /* HEADER_CURL_GSSAPI_H */

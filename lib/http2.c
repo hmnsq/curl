@@ -21,86 +21,86 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-#include <nghttp2/nghttp2.h>
+#अगर !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#समावेश <nghttp2/nghttp2.h>
 
-#include "urldata.h"
-#include "bufq.h"
-#include "u32_ptrset.h"
-#include "http1.h"
-#include "http2.h"
-#include "http.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "select.h"
-#include "curlx/base64.h"
-#include "multiif.h"
-#include "ngh2_shim.h"
-#include "progress.h"
-#include "url.h"
-#include "urlapi-int.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "transfer.h"
-#include "bufref.h"
-#include "curlx/dynbuf.h"
-#include "headers.h"
-#include "curl_share.h"
+#समावेश "urldata.h"
+#समावेश "bufq.h"
+#समावेश "u32_ptrset.h"
+#समावेश "http1.h"
+#समावेश "http2.h"
+#समावेश "http.h"
+#समावेश "sendf.h"
+#समावेश "curl_trc.h"
+#समावेश "select.h"
+#समावेश "curlx/base64.h"
+#समावेश "multiif.h"
+#समावेश "ngh2_shim.h"
+#समावेश "progress.h"
+#समावेश "url.h"
+#समावेश "urlapi-int.h"
+#समावेश "cfilters.h"
+#समावेश "connect.h"
+#समावेश "transfer.h"
+#समावेश "bufref.h"
+#समावेश "curlx/dynbuf.h"
+#समावेश "headers.h"
+#समावेश "curl_share.h"
 
-#if NGHTTP2_VERSION_NUM < 0x010f00
-#error "nghttp2 1.15.0 or greater required"
-#endif
+#अगर NGHTTP2_VERSION_अंक < 0x010f00
+#त्रुटि "nghttp2 1.15.0 or greater required"
+#पूर्ण_अगर
 
-#define NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE 1
+#घोषणा NGHTTP2_HAS_SET_LOCAL_WINDOW_आकार 1
 
 /* buffer dimensioning:
  * use 16K as chunk size, as that fits H2 DATA frames well */
-#define H2_CHUNK_SIZE           (16 * 1024)
+#घोषणा H2_CHUNK_आकार           (16 * 1024)
 /* connection window size */
-#define H2_CONN_WINDOW_SIZE     (10 * 1024 * 1024)
+#घोषणा H2_CONN_WINDOW_आकार     (10 * 1024 * 1024)
 /* on receiving from TLS, we prep for holding a full stream window */
-#define H2_NW_RECV_CHUNKS       (H2_CONN_WINDOW_SIZE / H2_CHUNK_SIZE)
+#घोषणा H2_NW_RECV_CHUNKS       (H2_CONN_WINDOW_आकार / H2_CHUNK_आकार)
 /* on send into TLS, we want to accumulate small frames */
-#define H2_NW_SEND_CHUNKS       1
+#घोषणा H2_NW_SEND_CHUNKS       1
 /* this is how much we want "in flight" for a stream, unthrottled */
-#define H2_STREAM_WINDOW_SIZE_MAX   (10 * 1024 * 1024)
+#घोषणा H2_STREAM_WINDOW_आकार_MAX   (10 * 1024 * 1024)
 /* this is how much we want "in flight" for a stream, initially, IFF
  * nghttp2 allows us to tweak the local window size. */
-#if NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE
-#define H2_STREAM_WINDOW_SIZE_INITIAL  (64 * 1024)
-#else
-#define H2_STREAM_WINDOW_SIZE_INITIAL H2_STREAM_WINDOW_SIZE_MAX
-#endif
+#अगर NGHTTP2_HAS_SET_LOCAL_WINDOW_आकार
+#घोषणा H2_STREAM_WINDOW_आकार_INITIAL  (64 * 1024)
+#अन्यथा
+#घोषणा H2_STREAM_WINDOW_आकार_INITIAL H2_STREAM_WINDOW_आकार_MAX
+#पूर्ण_अगर
 /* keep smaller stream upload buffer (default h2 window size) to have
  * our progress bars and "upload done" reporting closer to reality */
-#define H2_STREAM_SEND_CHUNKS   ((64 * 1024) / H2_CHUNK_SIZE)
+#घोषणा H2_STREAM_SEND_CHUNKS   ((64 * 1024) / H2_CHUNK_आकार)
 /* spare chunks we keep for a full window */
-#define H2_STREAM_POOL_SPARES   (H2_CONN_WINDOW_SIZE / H2_CHUNK_SIZE)
+#घोषणा H2_STREAM_POOL_SPARES   (H2_CONN_WINDOW_आकार / H2_CHUNK_आकार)
 
 /* We need to accommodate the max number of streams with their window sizes on
  * the overall connection. Streams might become PAUSED which will block their
  * received QUOTA in the connection window. If we run out of space, the server
  * is blocked from sending us any data. See #10988 for an issue with this. */
-#define HTTP2_HUGE_WINDOW_SIZE (100 * H2_STREAM_WINDOW_SIZE_MAX)
+#घोषणा HTTP2_HUGE_WINDOW_आकार (100 * H2_STREAM_WINDOW_आकार_MAX)
 
-#define H2_SETTINGS_IV_LEN 3
-#define H2_BINSETTINGS_LEN 80
+#घोषणा H2_SETTINGS_IV_LEN 3
+#घोषणा H2_BINSETTINGS_LEN 80
 
-struct cf_h2_ctx {
-  struct curl_ngh2 ngh2;
+काष्ठा cf_h2_ctx {
+  काष्ठा curl_ngh2 ngh2;
   /* The easy handle used in the current filter call, cleared at return */
-  struct cf_call_data call_data;
+  काष्ठा cf_call_तथ्य call_तथ्य;
 
-  struct bufq inbufq;           /* network input */
-  struct bufq outbufq;          /* network output */
-  struct bufc_pool stream_bufcp; /* spares for stream buffers */
-  struct dynbuf scratch;        /* scratch buffer for temp use */
+  काष्ठा bufq inbufq;           /* network input */
+  काष्ठा bufq outbufq;          /* network output */
+  काष्ठा bufc_pool stream_bufcp; /* spares for stream buffers */
+  काष्ठा dynbuf scratch;        /* scratch buffer for temp use */
 
-  struct u32_ptrset streams; /* hash of `data->mid` to `h2_stream_ctx` */
-  size_t drain_total; /* sum of all stream's UrlState drain */
-  uint32_t initial_win_size; /* current initial window size (settings) */
+  काष्ठा u32_ptrset streams; /* hash of `data->mid` to `h2_stream_ctx` */
+  माप_प्रकार drain_योग; /* sum of all stream's UrlState drain */
+  uint32_t initial_win_आकार; /* current initial window size (settings) */
   uint32_t max_concurrent_streams;
   uint32_t goaway_error;        /* goaway error code from server */
   int32_t remote_max_sid;       /* max id processed by server */
@@ -110,34 +110,34 @@ struct cf_h2_ctx {
   BIT(conn_closed);
   BIT(rcvd_goaway);
   BIT(sent_goaway);
-  BIT(enable_push);
+  BIT(enable_धकेलो);
   BIT(nw_out_blocked);
 };
 
 /* How to access `call_data` from a cf_h2 filter */
-#undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct cf_h2_ctx *)(cf)->ctx)->call_data
+#अघोषित CF_CTX_CALL_तथ्य
+#घोषणा CF_CTX_CALL_तथ्य(cf) ((काष्ठा cf_h2_ctx *)(cf)->ctx)->call_तथ्य
 
 /**
  * All about the H2 internals of a stream
  */
-struct h2_stream_ctx {
-  struct bufq sendbuf; /* request buffer */
-  struct h1_req_parser h1; /* parsing the request */
-  struct dynhds resp_trailers; /* response trailer fields */
-  size_t resp_hds_len; /* amount of response header bytes in recvbuf */
+काष्ठा h2_stream_ctx {
+  काष्ठा bufq sendbuf; /* request buffer */
+  काष्ठा h1_req_parser h1; /* parsing the request */
+  काष्ठा dynhds resp_trailers; /* response trailer fields */
+  माप_प्रकार resp_hds_len; /* amount of response header bytes in recvbuf */
   curl_off_t xfer_id;  /* transfer `id` owning this stream */
-  curl_off_t nrcvd_data;  /* number of DATA bytes received */
+  curl_off_t nrcvd_तथ्य;  /* number of DATA bytes received */
 
-  char **push_headers;       /* allocated array */
-  size_t push_headers_used;  /* number of entries filled in */
-  size_t push_headers_alloc; /* number of entries allocated */
+  अक्षर **धकेलो_headers;       /* allocated array */
+  माप_प्रकार धकेलो_headers_used;  /* number of entries filled in */
+  माप_प्रकार धकेलो_headers_alloc; /* number of entries allocated */
 
   int32_t id; /* HTTP/2 protocol identifier for stream */
   uint32_t mid; /* transfer `mid` owning this stream */
   uint32_t error; /* stream error code */
-  CURLcode xfer_result; /* Result of writing out response */
-  int32_t local_window_size; /* the local recv window size */
+  CURLcode xfer_परिणाम; /* Result of writing out response */
+  int32_t local_window_आकार; /* the local recv window size */
   int32_t status_code; /* HTTP response status code */
   BIT(resp_hds_complete); /* we have a complete, final response */
   BIT(closed); /* TRUE on stream close */
@@ -150,34 +150,34 @@ struct h2_stream_ctx {
   BIT(write_paused);  /* stream write is paused */
 };
 
-static void free_push_headers(struct h2_stream_ctx *stream)
+अटल व्योम free_धकेलो_headers(काष्ठा h2_stream_ctx *stream)
 {
-  size_t i;
-  for(i = 0; i < stream->push_headers_used; i++)
-    curlx_free(stream->push_headers[i]);
-  curlx_safefree(stream->push_headers);
-  stream->push_headers_used = 0;
+  माप_प्रकार i;
+  क्रम(i = 0; i < stream->धकेलो_headers_used; i++)
+    curlx_free(stream->धकेलो_headers[i]);
+  curlx_safefree(stream->धकेलो_headers);
+  stream->धकेलो_headers_used = 0;
 }
 
-static void h2_stream_ctx_free(struct h2_stream_ctx *stream)
+अटल व्योम h2_stream_ctx_free(काष्ठा h2_stream_ctx *stream)
 {
   Curl_bufq_free(&stream->sendbuf);
   Curl_h1_req_parse_free(&stream->h1);
   Curl_dynhds_free(&stream->resp_trailers);
-  free_push_headers(stream);
+  free_धकेलो_headers(stream);
   curlx_free(stream);
 }
 
-static void h2_stream_hash_free(uint32_t id, void *stream)
+अटल व्योम h2_stream_hash_free(uint32_t id, व्योम *stream)
 {
-  (void)id;
+  (व्योम)id;
   DEBUGASSERT(stream);
-  h2_stream_ctx_free((struct h2_stream_ctx *)stream);
+  h2_stream_ctx_free((काष्ठा h2_stream_ctx *)stream);
 }
 
-static void cf_h2_ctx_init(struct cf_h2_ctx *ctx, bool via_h1_upgrade)
+अटल व्योम cf_h2_ctx_init(काष्ठा cf_h2_ctx *ctx, bool via_h1_upgrade)
 {
-  Curl_bufcp_init(&ctx->stream_bufcp, H2_CHUNK_SIZE, H2_STREAM_POOL_SPARES);
+  Curl_bufcp_init(&ctx->stream_bufcp, H2_CHUNK_आकार, H2_STREAM_POOL_SPARES);
   Curl_bufq_initp(&ctx->inbufq, &ctx->stream_bufcp, H2_NW_RECV_CHUNKS, 0);
   Curl_bufq_initp(&ctx->outbufq, &ctx->stream_bufcp, H2_NW_SEND_CHUNKS, 0);
   curlx_dyn_init(&ctx->scratch, CURL_MAX_HTTP_HEADER);
@@ -187,276 +187,276 @@ static void cf_h2_ctx_init(struct cf_h2_ctx *ctx, bool via_h1_upgrade)
   ctx->initialized = TRUE;
 }
 
-static void cf_h2_ctx_free(struct cf_h2_ctx *ctx)
+अटल व्योम cf_h2_ctx_free(काष्ठा cf_h2_ctx *ctx)
 {
-  if(ctx && ctx->initialized) {
+  अगर(ctx && ctx->initialized) {
     Curl_ngh2_del(&ctx->ngh2);
     Curl_bufq_free(&ctx->inbufq);
     Curl_bufq_free(&ctx->outbufq);
     Curl_bufcp_free(&ctx->stream_bufcp);
     curlx_dyn_free(&ctx->scratch);
     Curl_u32_ptrset_clear(&ctx->streams);
-    memset(ctx, 0, sizeof(*ctx));
+    स_रखो(ctx, 0, माप(*ctx));
   }
   curlx_free(ctx);
 }
 
-static uint32_t cf_h2_initial_win_size(struct Curl_easy *data)
+अटल uint32_t cf_h2_initial_win_आकार(काष्ठा Curl_easy *तथ्य)
 {
-#if NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE
+#अगर NGHTTP2_HAS_SET_LOCAL_WINDOW_आकार
   /* If the transfer has a rate-limit lower than the default initial
    * stream window size, use that. It needs to be at least 8k or servers
    * may be unhappy. */
-  curl_off_t rps = Curl_rlimit_per_step(&data->progress.dl.rlimit);
-  if((rps > 0) && (rps < H2_STREAM_WINDOW_SIZE_INITIAL))
-    return CURLMAX((uint32_t)rps, 8192);
-#endif
-  return H2_STREAM_WINDOW_SIZE_INITIAL;
+  curl_off_t rps = Curl_rlimit_per_step(&तथ्य->progress.dl.rlimit);
+  अगर((rps > 0) && (rps < H2_STREAM_WINDOW_आकार_INITIAL))
+    वापस CURLMAX((uint32_t)rps, 8192);
+#पूर्ण_अगर
+  वापस H2_STREAM_WINDOW_आकार_INITIAL;
 }
 
-static size_t populate_settings(nghttp2_settings_entry *iv,
-                                struct Curl_easy *data,
-                                struct cf_h2_ctx *ctx)
+अटल माप_प्रकार populate_settings(nghttp2_settings_entry *iv,
+                                काष्ठा Curl_easy *तथ्य,
+                                काष्ठा cf_h2_ctx *ctx)
 {
   iv[0].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
-  iv[0].value = Curl_multi_max_concurrent_streams(data->multi);
+  iv[0].मूल्य = Curl_multi_max_concurrent_streams(तथ्य->multi);
 
-  iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-  iv[1].value = cf_h2_initial_win_size(data);
-  if(ctx)
-    ctx->initial_win_size = iv[1].value;
-  iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_PUSH;
-  iv[2].value = !!data->multi->push_cb;
+  iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_आकार;
+  iv[1].मूल्य = cf_h2_initial_win_आकार(तथ्य);
+  अगर(ctx)
+    ctx->initial_win_आकार = iv[1].मूल्य;
+  iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_धकेलो;
+  iv[2].मूल्य = !!तथ्य->multi->धकेलो_cb;
 
-  return 3;
+  वापस 3;
 }
 
-static ssize_t populate_binsettings(uint8_t *binsettings,
-                                    struct Curl_easy *data)
+अटल ssize_t populate_binsettings(uint8_t *binsettings,
+                                    काष्ठा Curl_easy *तथ्य)
 {
   nghttp2_settings_entry iv[H2_SETTINGS_IV_LEN];
-  size_t ivlen;
+  माप_प्रकार ivlen;
 
-  ivlen = populate_settings(iv, data, NULL);
+  ivlen = populate_settings(iv, तथ्य, शून्य);
   /* this returns number of bytes it wrote or a negative number on error. */
-  return nghttp2_pack_settings_payload(binsettings, H2_BINSETTINGS_LEN,
+  वापस nghttp2_pack_settings_payload(binsettings, H2_BINSETTINGS_LEN,
                                        iv, ivlen);
 }
 
-static CURLcode cf_h2_update_settings(struct cf_h2_ctx *ctx,
-                                      uint32_t initial_win_size)
+अटल CURLcode cf_h2_update_settings(काष्ठा cf_h2_ctx *ctx,
+                                      uint32_t initial_win_आकार)
 {
   nghttp2_settings_entry entry;
-  entry.settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-  entry.value = initial_win_size;
-  if(Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, &entry, 1))
-    return CURLE_SEND_ERROR;
-  ctx->initial_win_size = initial_win_size;
-  return CURLE_OK;
+  entry.settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_आकार;
+  entry.मूल्य = initial_win_आकार;
+  अगर(Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, &entry, 1))
+    वापस CURLE_SEND_ERROR;
+  ctx->initial_win_आकार = initial_win_आकार;
+  वापस CURLE_OK;
 }
 
-#define H2_STREAM_CTX(ctx, data)                                         \
-  ((struct h2_stream_ctx *)(                                             \
-    (data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : NULL))
+#घोषणा H2_STREAM_CTX(ctx, तथ्य)                                         \
+  ((काष्ठा h2_stream_ctx *)(                                             \
+    (तथ्य) ? Curl_u32_ptrset_get(&(ctx)->streams, (तथ्य)->mid) : शून्य))
 
-static struct h2_stream_ctx *h2_stream_ctx_create(struct cf_h2_ctx *ctx,
-                                                  struct Curl_easy *data)
+अटल काष्ठा h2_stream_ctx *h2_stream_ctx_create(काष्ठा cf_h2_ctx *ctx,
+                                                  काष्ठा Curl_easy *तथ्य)
 {
-  struct h2_stream_ctx *stream;
+  काष्ठा h2_stream_ctx *stream;
 
-  stream = curlx_calloc(1, sizeof(*stream));
-  if(!stream)
-    return NULL;
+  stream = curlx_calloc(1, माप(*stream));
+  अगर(!stream)
+    वापस शून्य;
 
   stream->id = -1;
-  stream->xfer_id = data->id;
-  stream->mid = data->mid;
+  stream->xfer_id = तथ्य->id;
+  stream->mid = तथ्य->mid;
   Curl_bufq_initp(&stream->sendbuf, &ctx->stream_bufcp,
                   H2_STREAM_SEND_CHUNKS, BUFQ_OPT_NONE);
-  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
+  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_पंक्ति_LEN);
   Curl_dynhds_init(&stream->resp_trailers,
-                   MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
+                   MAX_HTTP_RESP_HEADER_गिनती, DYN_HTTP_REQUEST);
   stream->bodystarted = FALSE;
   stream->status_code = -1;
   stream->closed = FALSE;
   stream->close_handled = FALSE;
   stream->error = NGHTTP2_NO_ERROR;
-  stream->local_window_size = H2_STREAM_WINDOW_SIZE_INITIAL;
-  stream->nrcvd_data = 0;
-  return stream;
+  stream->local_window_आकार = H2_STREAM_WINDOW_आकार_INITIAL;
+  stream->nrcvd_तथ्य = 0;
+  वापस stream;
 }
 
-static struct Curl_easy *cf_h2_get_stream_xfer(struct Curl_cfilter *cf,
+अटल काष्ठा Curl_easy *cf_h2_get_stream_xfer(काष्ठा Curl_cfilter *cf,
                                                int32_t stream_id,
-                                               struct h2_stream_ctx **pstream)
+                                               काष्ठा h2_stream_ctx **pstream)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream =
-    Curl_ngh2_session_get_stream_user_data(&ctx->ngh2, stream_id);
-  if(pstream)
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream =
+    Curl_ngh2_session_get_stream_user_तथ्य(&ctx->ngh2, stream_id);
+  अगर(pstream)
     *pstream = stream;
-  if(stream && (stream->mid != UINT32_MAX)) {
-    struct Curl_easy *data, *call_data = CF_DATA_CURRENT(cf);
-    if(!call_data || !call_data->multi) {
+  अगर(stream && (stream->mid != UINT32_MAX)) {
+    काष्ठा Curl_easy *तथ्य, *call_तथ्य = CF_तथ्य_CURRENT(cf);
+    अगर(!call_तथ्य || !call_तथ्य->multi) {
       DEBUGASSERT(0);
-      return NULL;
+      वापस शून्य;
     }
-    data = Curl_multi_get_easy(call_data->multi, stream->mid);
-    if(data && (data->id == stream->xfer_id))
-      return data;
+    तथ्य = Curl_multi_get_easy(call_तथ्य->multi, stream->mid);
+    अगर(तथ्य && (तथ्य->id == stream->xfer_id))
+      वापस तथ्य;
   }
-  return NULL;
+  वापस शून्य;
 }
 
-#ifdef NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE
-static int32_t cf_h2_get_desired_local_win(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data)
+#अगर_घोषित NGHTTP2_HAS_SET_LOCAL_WINDOW_आकार
+अटल int32_t cf_h2_get_desired_local_win(काष्ठा Curl_cfilter *cf,
+                                           काष्ठा Curl_easy *तथ्य)
 {
-  curl_off_t avail = Curl_rlimit_avail(&data->progress.dl.rlimit, NULL);
+  curl_off_t avail = Curl_rlimit_avail(&तथ्य->progress.dl.rlimit, शून्य);
 
-  (void)cf;
-  if(avail < CURL_OFF_T_MAX) { /* limit in place */
-    if(avail <= 0)
-      return 0;
-    else if(avail < H2_STREAM_WINDOW_SIZE_MAX)
-      return (int32_t)avail;
+  (व्योम)cf;
+  अगर(avail < CURL_OFF_T_MAX) { /* limit in place */
+    अगर(avail <= 0)
+      वापस 0;
+    अन्यथा अगर(avail < H2_STREAM_WINDOW_आकार_MAX)
+      वापस (int32_t)avail;
   }
-  return H2_STREAM_WINDOW_SIZE_MAX;
+  वापस H2_STREAM_WINDOW_आकार_MAX;
 }
 
-static CURLcode cf_h2_update_local_win(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct h2_stream_ctx *stream)
+अटल CURLcode cf_h2_update_local_win(काष्ठा Curl_cfilter *cf,
+                                       काष्ठा Curl_easy *तथ्य,
+                                       काष्ठा h2_stream_ctx *stream)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
   int32_t dwsize;
-  int rv;
+  पूर्णांक rv;
 
-  dwsize = (stream->write_paused || stream->xfer_result) ?
-           0 : cf_h2_get_desired_local_win(cf, data);
-  if(dwsize != stream->local_window_size) {
-    int32_t wsize = Curl_ngh2_session_get_stream_effective_local_window_size(
+  dwsize = (stream->write_paused || stream->xfer_परिणाम) ?
+           0 : cf_h2_get_desired_local_win(cf, तथ्य);
+  अगर(dwsize != stream->local_window_आकार) {
+    int32_t wsize = Curl_ngh2_session_get_stream_effective_local_window_आकार(
       &ctx->ngh2, stream->id);
-    if(dwsize > wsize) {
-      rv = Curl_ngh2_session_set_local_window_size(
+    अगर(dwsize > wsize) {
+      rv = Curl_ngh2_session_set_local_window_आकार(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, dwsize);
-      if(rv) {
-        failf(data, "[%d] nghttp2 set_local_window_size(%d) failed: "
+      अगर(rv) {
+        failf(तथ्य, "[%d] nghttp2 set_local_window_size(%d) failed: "
               "%s(%d)", stream->id, dwsize, nghttp2_strerror(rv), rv);
-        return CURLE_HTTP2;
+        वापस CURLE_HTTP2;
       }
       rv = Curl_ngh2_submit_window_update(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, dwsize - wsize);
-      if(rv) {
-        failf(data, "[%d] nghttp2_submit_window_update() failed: "
+      अगर(rv) {
+        failf(तथ्य, "[%d] nghttp2_submit_window_update() failed: "
               "%s(%d)", stream->id, nghttp2_strerror(rv), rv);
-        return CURLE_HTTP2;
+        वापस CURLE_HTTP2;
       }
-      stream->local_window_size = dwsize;
-      CURL_TRC_CF(data, cf, "[%d] local window update by %d",
+      stream->local_window_आकार = dwsize;
+      CURL_TRC_CF(तथ्य, cf, "[%d] local window update by %d",
                   stream->id, dwsize - wsize);
     }
-    else {
-      rv = Curl_ngh2_session_set_local_window_size(
+    अन्यथा {
+      rv = Curl_ngh2_session_set_local_window_आकार(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, dwsize);
-      if(rv) {
-        failf(data, "[%d] nghttp2_session_set_local_window_size() failed: "
+      अगर(rv) {
+        failf(तथ्य, "[%d] nghttp2_session_set_local_window_size() failed: "
               "%s(%d)", stream->id, nghttp2_strerror(rv), rv);
-        return CURLE_HTTP2;
+        वापस CURLE_HTTP2;
       }
-      stream->local_window_size = dwsize;
-      CURL_TRC_CF(data, cf, "[%d] local window size now %d",
+      stream->local_window_आकार = dwsize;
+      CURL_TRC_CF(तथ्य, cf, "[%d] local window size now %d",
                   stream->id, dwsize);
     }
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-#else /* NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE */
+#अन्यथा /* NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE */
 
-static CURLcode cf_h2_update_local_win(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct h2_stream_ctx *stream)
+अटल CURLcode cf_h2_update_local_win(काष्ठा Curl_cfilter *cf,
+                                       काष्ठा Curl_easy *तथ्य,
+                                       काष्ठा h2_stream_ctx *stream)
 {
-  (void)cf;
-  (void)data;
-  (void)stream;
-  return CURLE_OK;
+  (व्योम)cf;
+  (व्योम)तथ्य;
+  (व्योम)stream;
+  वापस CURLE_OK;
 }
-#endif /* !NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE */
+#पूर्ण_अगर /* !NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE */
 
-static CURLcode http2_data_setup(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h2_stream_ctx **pstream)
+अटल CURLcode http2_तथ्य_setup(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य,
+                                 काष्ठा h2_stream_ctx **pstream)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream;
 
-  (void)cf;
-  DEBUGASSERT(data);
+  (व्योम)cf;
+  DEBUGASSERT(तथ्य);
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  अगर(!तथ्य)
+    वापस CURLE_BAD_FUNCTION_ARGUMENT;
 
-  stream = H2_STREAM_CTX(ctx, data);
-  if(stream) {
+  stream = H2_STREAM_CTX(ctx, तथ्य);
+  अगर(stream) {
     *pstream = stream;
-    return CURLE_OK;
+    वापस CURLE_OK;
   }
 
-  stream = h2_stream_ctx_create(ctx, data);
-  if(!stream)
-    return CURLE_OUT_OF_MEMORY;
+  stream = h2_stream_ctx_create(ctx, तथ्य);
+  अगर(!stream)
+    वापस CURLE_OUT_OF_MEMORY;
 
-  if(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
+  अगर(Curl_u32_ptrset_set(&ctx->streams, तथ्य->mid, stream)) {
     h2_stream_ctx_free(stream);
-    return CURLE_OUT_OF_MEMORY;
+    वापस CURLE_OUT_OF_MEMORY;
   }
 
   *pstream = stream;
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode nw_out_flush(struct Curl_cfilter *cf,
-                             struct Curl_easy *data)
+अटल CURLcode nw_out_flush(काष्ठा Curl_cfilter *cf,
+                             काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  size_t nwritten;
-  CURLcode result;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  माप_प्रकार nwritten;
+  CURLcode परिणाम;
 
-  if(Curl_bufq_is_empty(&ctx->outbufq))
-    return CURLE_OK;
+  अगर(Curl_bufq_is_empty(&ctx->outbufq))
+    वापस CURLE_OK;
 
-  result = Curl_cf_send_bufq(cf->next, data, &ctx->outbufq, NULL, 0,
+  परिणाम = Curl_cf_send_bufq(cf->अग्र, तथ्य, &ctx->outbufq, शून्य, 0,
                              &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
-      CURL_TRC_CF(data, cf, "flush nw send buffer(%zu) -> EAGAIN",
+  अगर(परिणाम) {
+    अगर(परिणाम == CURLE_AGAIN) {
+      CURL_TRC_CF(तथ्य, cf, "flush nw send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->outbufq));
       ctx->nw_out_blocked = 1;
     }
-    return result;
+    वापस परिणाम;
   }
-  return Curl_bufq_is_empty(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
+  वापस Curl_bufq_is_empty(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static void http2_data_done(struct Curl_cfilter *cf, struct Curl_easy *data)
+अटल व्योम http2_तथ्य_done(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
 
   DEBUGASSERT(ctx);
-  if(!stream || !ctx->initialized)
-    return;
+  अगर(!stream || !ctx->initialized)
+    वापस;
 
-  if(Curl_ngh2_valid(&ctx->ngh2)) {
+  अगर(Curl_ngh2_valid(&ctx->ngh2)) {
     bool flush_egress = FALSE;
     /* returns error if stream not known, which is fine here */
-    (void)Curl_ngh2_session_set_stream_user_data(&ctx->ngh2, stream->id, NULL);
+    (व्योम)Curl_ngh2_session_set_stream_user_तथ्य(&ctx->ngh2, stream->id, शून्य);
 
-    if(!stream->closed && stream->id > 0) {
+    अगर(!stream->closed && stream->id > 0) {
       /* RST_STREAM */
-      CURL_TRC_CF(data, cf, "[%d] premature DATA_DONE, RST stream",
+      CURL_TRC_CF(तथ्य, cf, "[%d] premature DATA_DONE, RST stream",
                   stream->id);
       stream->closed = TRUE;
       stream->reset = TRUE;
@@ -465,44 +465,44 @@ static void http2_data_done(struct Curl_cfilter *cf, struct Curl_easy *data)
       flush_egress = TRUE;
     }
 
-    if(flush_egress) {
-      (void)Curl_ngh2_session_send(&ctx->ngh2);
-      (void)nw_out_flush(cf, data);
+    अगर(flush_egress) {
+      (व्योम)Curl_ngh2_session_send(&ctx->ngh2);
+      (व्योम)nw_out_flush(cf, तथ्य);
     }
   }
 
-  Curl_u32_ptrset_unset(&ctx->streams, data->mid);
+  Curl_u32_ptrset_unset(&ctx->streams, तथ्य->mid);
 }
 
-static int h2_client_new(struct Curl_cfilter *cf,
+अटल पूर्णांक h2_client_new(काष्ठा Curl_cfilter *cf,
                          nghttp2_session_callbacks *cbs)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
   nghttp2_option *o;
-  nghttp2_mem mem = { NULL, Curl_nghttp2_malloc, Curl_nghttp2_free,
+  nghttp2_mem mem = { शून्य, Curl_nghttp2_malloc, Curl_nghttp2_free,
                       Curl_nghttp2_calloc, Curl_nghttp2_realloc };
 
-  int rc = nghttp2_option_new(&o);
-  if(rc)
-    return rc;
+  पूर्णांक rc = nghttp2_option_new(&o);
+  अगर(rc)
+    वापस rc;
   /* We handle window updates ourself to enforce buffer limits */
   nghttp2_option_set_no_auto_window_update(o, 1);
-#if NGHTTP2_VERSION_NUM >= 0x013200 /* with 1.50.0 */
+#अगर NGHTTP2_VERSION_अंक >= 0x013200 /* with 1.50.0 */
   /* turn off RFC 9113 leading and trailing white spaces validation against
      HTTP field value. */
   nghttp2_option_set_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
-#endif
+#पूर्ण_अगर
   rc = Curl_ngh2_session_client_new3(&ctx->ngh2, cbs, cf, o, &mem);
   nghttp2_option_del(o);
-  return rc;
+  वापस rc;
 }
 
 /*
  * Returns nonzero if current HTTP/2 session should be closed.
  */
-static int should_close_session(struct cf_h2_ctx *ctx)
+अटल पूर्णांक should_close_session(काष्ठा cf_h2_ctx *ctx)
 {
-  return ctx->drain_total == 0 && !Curl_ngh2_session_want_read(&ctx->ngh2) &&
+  वापस ctx->drain_योग == 0 && !Curl_ngh2_session_want_read(&ctx->ngh2) &&
     !Curl_ngh2_session_want_write(&ctx->ngh2);
 }
 
@@ -511,40 +511,40 @@ static int should_close_session(struct cf_h2_ctx *ctx)
  * This function returns 0 if it succeeds, or -1 and error code will
  * be assigned to *err.
  */
-static CURLcode h2_process_pending_input(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+अटल CURLcode h2_process_pending_निवेश(काष्ठा Curl_cfilter *cf,
+                                         काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  const unsigned char *buf;
-  size_t blen, nread;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  स्थिर अचिन्हित अक्षर *buf;
+  माप_प्रकार blen, nread;
   ssize_t rv;
 
-  while(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
-    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (const uint8_t *)buf, blen);
-    if(!curlx_sztouz(rv, &nread)) {
-      failf(data, "nghttp2 recv error %zd: %s", rv, nghttp2_strerror((int)rv));
-      return CURLE_RECV_ERROR;
+  जबतक(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
+    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (स्थिर uint8_t *)buf, blen);
+    अगर(!curlx_sztouz(rv, &nread)) {
+      failf(तथ्य, "nghttp2 recv error %zd: %s", rv, nghttp2_strerror((पूर्णांक)rv));
+      वापस CURLE_RECV_ERROR;
     }
     Curl_bufq_skip(&ctx->inbufq, nread);
-    if(Curl_bufq_is_empty(&ctx->inbufq)) {
-      break;
+    अगर(Curl_bufq_is_empty(&ctx->inbufq)) {
+      अवरोध;
     }
-    else {
-      CURL_TRC_CF(data, cf, "process_pending_input: %zu bytes left "
+    अन्यथा {
+      CURL_TRC_CF(तथ्य, cf, "process_pending_input: %zu bytes left "
                   "in connection buffer", Curl_bufq_len(&ctx->inbufq));
     }
   }
 
-  if(Curl_ngh2_session_check_request_allowed(&ctx->ngh2) == 0) {
+  अगर(Curl_ngh2_session_check_request_allowed(&ctx->ngh2) == 0) {
     /* No more requests are allowed in the current session, so
        the connection may not be reused. This is set when a
        GOAWAY frame has been received or when the limit of stream
        identifiers has been reached. */
-    CURL_TRC_M(data, "http/2: No new requests allowed");
+    CURL_TRC_M(तथ्य, "http/2: No new requests allowed");
     connclose(cf->conn);
   }
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
 /*
@@ -554,74 +554,74 @@ static CURLcode h2_process_pending_input(struct Curl_cfilter *cf,
  * Check the lower filters first and, if successful, peek at the socket
  * and distinguish between closed and data.
  */
-static bool http2_connisalive(struct Curl_cfilter *cf, struct Curl_easy *data,
-                              bool *input_pending)
+अटल bool http2_connisalive(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                              bool *निवेश_pending)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    return FALSE;
+  *निवेश_pending = FALSE;
+  अगर(!cf->अग्र || !cf->अग्र->cft->is_alive(cf->अग्र, तथ्य, निवेश_pending))
+    वापस FALSE;
 
-  if(*input_pending) {
+  अगर(*निवेश_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
-    CURLcode result;
-    size_t nread;
+    CURLcode परिणाम;
+    माप_प्रकार nread;
 
-    *input_pending = FALSE;
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
-    CURL_TRC_CF(data, cf, "connisalive, recv pending input -> %d, %zu",
-                (int)result, nread);
-    if(!result) {
-      result = h2_process_pending_input(cf, data);
-      if(result)
+    *निवेश_pending = FALSE;
+    परिणाम = Curl_cf_recv_bufq(cf->अग्र, तथ्य, &ctx->inbufq, 0, &nread);
+    CURL_TRC_CF(तथ्य, cf, "connisalive, recv pending input -> %d, %zu",
+                (पूर्णांक)परिणाम, nread);
+    अगर(!परिणाम) {
+      परिणाम = h2_process_pending_निवेश(cf, तथ्य);
+      अगर(परिणाम)
         /* immediate error, considered dead */
         alive = FALSE;
-      else {
+      अन्यथा {
         alive = !should_close_session(ctx);
       }
     }
-    else if(result != CURLE_AGAIN) {
+    अन्यथा अगर(परिणाम != CURLE_AGAIN) {
       /* the read failed so let's say this is dead anyway */
       alive = FALSE;
     }
   }
 
-  return alive;
+  वापस alive;
 }
 
-static CURLcode http2_send_ping(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+अटल CURLcode http2_send_ping(काष्ठा Curl_cfilter *cf,
+                                काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  int rc;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  पूर्णांक rc;
 
   rc = Curl_ngh2_submit_ping(&ctx->ngh2, 0, ZERO_NULL);
-  if(rc) {
-    failf(data, "nghttp2_submit_ping() failed: %s(%d)",
+  अगर(rc) {
+    failf(तथ्य, "nghttp2_submit_ping() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
-    return CURLE_HTTP2;
+    वापस CURLE_HTTP2;
   }
 
   rc = Curl_ngh2_session_send(&ctx->ngh2);
-  if(rc) {
-    failf(data, "nghttp2_session_send() failed: %s(%d)",
+  अगर(rc) {
+    failf(तथ्य, "nghttp2_session_send() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
-    return CURLE_SEND_ERROR;
+    वापस CURLE_SEND_ERROR;
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
 /*
  * Store nghttp2 version info in this buffer.
  */
-void Curl_http2_ver(char *p, size_t len)
+व्योम Curl_http2_ver(अक्षर *p, माप_प्रकार len)
 {
   nghttp2_info *h2 = nghttp2_version(0);
-  (void)curl_msnprintf(p, len, "nghttp2/%s", h2->version_str);
+  (व्योम)curl_msnprintf(p, len, "nghttp2/%s", h2->version_str);
 }
 
 /*
@@ -629,670 +629,670 @@ void Curl_http2_ver(char *p, size_t len)
  * size |length| to the network and return the number of bytes actually
  * written. See the documentation of nghttp2_send_callback for the details.
  */
-static ssize_t send_callback(nghttp2_session *h2,
-                             const uint8_t *buf, size_t blen, int flags,
-                             void *userp)
+अटल ssize_t send_callback(nghttp2_session *h2,
+                             स्थिर uint8_t *buf, माप_प्रकार blen, पूर्णांक flags,
+                             व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  size_t nwritten;
-  CURLcode result = CURLE_OK;
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा Curl_easy *तथ्य = CF_तथ्य_CURRENT(cf);
+  माप_प्रकार nwritten;
+  CURLcode परिणाम = CURLE_OK;
 
-  (void)h2;
-  (void)flags;
-  DEBUGASSERT(data);
+  (व्योम)h2;
+  (व्योम)flags;
+  DEBUGASSERT(तथ्य);
 
-  if(!cf->connected)
-    result = Curl_bufq_write(&ctx->outbufq, buf, blen, &nwritten);
-  else
-    result = Curl_cf_send_bufq(cf->next, data, &ctx->outbufq, buf, blen,
+  अगर(!cf->connected)
+    परिणाम = Curl_bufq_write(&ctx->outbufq, buf, blen, &nwritten);
+  अन्यथा
+    परिणाम = Curl_cf_send_bufq(cf->अग्र, तथ्य, &ctx->outbufq, buf, blen,
                                &nwritten);
 
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  अगर(परिणाम) {
+    अगर(परिणाम == CURLE_AGAIN) {
       ctx->nw_out_blocked = 1;
-      return NGHTTP2_ERR_WOULDBLOCK;
+      वापस NGHTTP2_ERR_WOULDBLOCK;
     }
-    failf(data, "Failed sending HTTP2 data");
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    failf(तथ्य, "Failed sending HTTP2 data");
+    वापस NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(!nwritten) {
+  अगर(!nwritten) {
     ctx->nw_out_blocked = 1;
-    return NGHTTP2_ERR_WOULDBLOCK;
+    वापस NGHTTP2_ERR_WOULDBLOCK;
   }
-  return (nwritten > SSIZE_MAX) ?
+  वापस (nwritten > SSIZE_MAX) ?
     NGHTTP2_ERR_CALLBACK_FAILURE : (ssize_t)nwritten;
 }
 
 /* We pass a pointer to this struct in the push callback, but the contents of
    the struct are hidden from the user. */
-struct curl_pushheaders {
-  struct Curl_easy *data;
-  struct h2_stream_ctx *stream;
-  const nghttp2_push_promise *frame;
+काष्ठा curl_pushheaders {
+  काष्ठा Curl_easy *तथ्य;
+  काष्ठा h2_stream_ctx *stream;
+  स्थिर nghttp2_धकेलो_promise *frame;
 };
 
 /*
  * push header access function. Only to be used from within the push callback
  */
-char *curl_pushheader_bynum(struct curl_pushheaders *h, size_t num)
+अक्षर *curl_pushheader_bynum(काष्ठा curl_pushheaders *h, माप_प्रकार अंक)
 {
   /* Verify that we got a good easy handle in the push header struct, mostly to
      detect rubbish input fast(er). */
-  if(!h || !GOOD_EASY_HANDLE(h->data))
-    return NULL;
-  else {
-    if(h->stream && num < h->stream->push_headers_used)
-      return h->stream->push_headers[num];
+  अगर(!h || !GOOD_EASY_HANDLE(h->तथ्य))
+    वापस शून्य;
+  अन्यथा {
+    अगर(h->stream && अंक < h->stream->धकेलो_headers_used)
+      वापस h->stream->धकेलो_headers[अंक];
   }
-  return NULL;
+  वापस शून्य;
 }
 
 /*
  * push header access function. Only to be used from within the push callback
  */
-char *curl_pushheader_byname(struct curl_pushheaders *h, const char *name)
+अक्षर *curl_pushheader_byname(काष्ठा curl_pushheaders *h, स्थिर अक्षर *name)
 {
-  struct h2_stream_ctx *stream;
-  size_t len;
-  size_t i;
+  काष्ठा h2_stream_ctx *stream;
+  माप_प्रकार len;
+  माप_प्रकार i;
   /* Verify that we got a good easy handle in the push header struct,
      mostly to detect rubbish input fast(er). Also empty header name
      is rubbish too. We have to allow ":" at the beginning of
      the header, but header == ":" must be rejected. If we have ':' in
      the middle of header, it could be matched in middle of the value,
      this is because we do prefix match.*/
-  if(!h || !GOOD_EASY_HANDLE(h->data) || !name || !name[0] ||
-     !strcmp(name, ":") || strchr(name + 1, ':'))
-    return NULL;
+  अगर(!h || !GOOD_EASY_HANDLE(h->तथ्य) || !name || !name[0] ||
+     !म_भेद(name, ":") || म_अक्षर(name + 1, ':'))
+    वापस शून्य;
 
   stream = h->stream;
-  if(!stream)
-    return NULL;
+  अगर(!stream)
+    वापस शून्य;
 
-  len = strlen(name);
-  for(i = 0; i < stream->push_headers_used; i++) {
-    if(!strncmp(name, stream->push_headers[i], len)) {
+  len = म_माप(name);
+  क्रम(i = 0; i < stream->धकेलो_headers_used; i++) {
+    अगर(!म_भेदन(name, stream->धकेलो_headers[i], len)) {
       /* sub-match, make sure that it is followed by a colon */
-      if(stream->push_headers[i][len] != ':')
-        continue;
-      return &stream->push_headers[i][len + 1];
+      अगर(stream->धकेलो_headers[i][len] != ':')
+        जारी;
+      वापस &stream->धकेलो_headers[i][len + 1];
     }
   }
-  return NULL;
+  वापस शून्य;
 }
 
-static struct Curl_easy *h2_duphandle(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+अटल काष्ठा Curl_easy *h2_duphandle(काष्ठा Curl_cfilter *cf,
+                                      काष्ठा Curl_easy *तथ्य)
 {
-  struct Curl_easy *second = curl_easy_init();
-  if(second) {
-    struct h2_stream_ctx *second_stream;
-    http2_data_setup(cf, second, &second_stream);
-    second->state.weight = data->state.weight;
-    if(data->share)
-      (void)Curl_share_easy_link(second, data->share);
+  काष्ठा Curl_easy *second = curl_easy_init();
+  अगर(second) {
+    काष्ठा h2_stream_ctx *second_stream;
+    http2_तथ्य_setup(cf, second, &second_stream);
+    second->state.weight = तथ्य->state.weight;
+    अगर(तथ्य->share)
+      (व्योम)Curl_share_easy_link(second, तथ्य->share);
     /* copy a range of options from the parent handle */
-    second->set.fwrite_func = data->set.fwrite_func;
-    second->set.out = data->set.out;
-    second->set.fwrite_header = data->set.fwrite_header;
-    second->set.writeheader = data->set.writeheader;
-    second->set.fdebug = data->set.fdebug;
-    second->set.debugdata = data->set.debugdata;
-    second->set.fxferinfo = data->set.fxferinfo;
-    second->set.fprogress = data->set.fprogress;
-    second->set.progress_client = data->set.progress_client;
-    second->progress.hide = data->progress.hide;
-    second->progress.callback = data->progress.callback;
+    second->set.fwrite_func = तथ्य->set.fwrite_func;
+    second->set.out = तथ्य->set.out;
+    second->set.fwrite_header = तथ्य->set.fwrite_header;
+    second->set.writeheader = तथ्य->set.writeheader;
+    second->set.fdebug = तथ्य->set.fdebug;
+    second->set.debugdata = तथ्य->set.debugdata;
+    second->set.fxferinfo = तथ्य->set.fxferinfo;
+    second->set.fprogress = तथ्य->set.fprogress;
+    second->set.progress_client = तथ्य->set.progress_client;
+    second->progress.hide = तथ्य->progress.hide;
+    second->progress.callback = तथ्य->progress.callback;
   }
-  return second;
+  वापस second;
 }
 
-static int set_transfer_url(struct Curl_easy *newhandle,
-                            struct curl_pushheaders *hp,
-                            struct Curl_easy *data)
+अटल पूर्णांक set_transfer_url(काष्ठा Curl_easy *newhandle,
+                            काष्ठा curl_pushheaders *hp,
+                            काष्ठा Curl_easy *तथ्य)
 {
-  const char *v;
+  स्थिर अक्षर *v;
   CURLUcode uc;
-  char *url = NULL;
-  int rc = 0;
+  अक्षर *url = शून्य;
+  पूर्णांक rc = 0;
   CURLU *u = curl_url();
 
-  if(!u)
-    return 5;
+  अगर(!u)
+    वापस 5;
 
   v = curl_pushheader_byname(hp, HTTP_PSEUDO_SCHEME);
-  if(v) {
+  अगर(v) {
     uc = curl_url_set(u, CURLUPART_SCHEME, v, 0);
-    if(uc) {
+    अगर(uc) {
       rc = 1;
-      goto fail;
+      जाओ fail;
     }
   }
 
   v = curl_pushheader_byname(hp, HTTP_PSEUDO_AUTHORITY);
-  if(v) {
+  अगर(v) {
     uc = Curl_url_set_authority(u, v);
-    if(uc) {
+    अगर(uc) {
       rc = 2;
-      goto fail;
+      जाओ fail;
     }
   }
 
   v = curl_pushheader_byname(hp, HTTP_PSEUDO_PATH);
-  if(v) {
+  अगर(v) {
     uc = curl_url_set(u, CURLUPART_PATH, v, 0);
-    if(uc) {
+    अगर(uc) {
       rc = 3;
-      goto fail;
+      जाओ fail;
     }
   }
 
   /* We can only allow PUSH of resource from the same origin, e.g.
    * scheme + hostname + port */
-  if(!Curl_url_same_origin(data->state.uh, u)) {
+  अगर(!Curl_url_same_origin(तथ्य->state.uh, u)) {
     rc = 1;
-    goto fail;
+    जाओ fail;
   }
 
   uc = curl_url_get(u, CURLUPART_URL, &url, 0);
-  if(uc)
+  अगर(uc)
     rc = 4;
 fail:
-  if(rc) {
+  अगर(rc) {
     curl_url_cleanup(u);
-    return rc;
+    वापस rc;
   }
 
   DEBUGASSERT(!newhandle->state.uh);
   newhandle->state.uh = u;
   Curl_bufref_set(&newhandle->state.url, url, 0, curl_free);
-  return 0;
+  वापस 0;
 }
 
-static void discard_newhandle(struct Curl_cfilter *cf,
-                              struct Curl_easy *newhandle)
+अटल व्योम discard_newhandle(काष्ठा Curl_cfilter *cf,
+                              काष्ठा Curl_easy *newhandle)
 {
-  http2_data_done(cf, newhandle);
-  (void)Curl_close(&newhandle);
+  http2_तथ्य_done(cf, newhandle);
+  (व्योम)Curl_close(&newhandle);
 }
 
-static int push_promise(struct Curl_cfilter *cf,
-                        struct Curl_easy *data,
-                        const nghttp2_push_promise *frame)
+अटल पूर्णांक धकेलो_promise(काष्ठा Curl_cfilter *cf,
+                        काष्ठा Curl_easy *तथ्य,
+                        स्थिर nghttp2_धकेलो_promise *frame)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  int rv; /* one of the CURL_PUSH_* defines */
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  पूर्णांक rv; /* one of the CURL_PUSH_* defines */
 
-  CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE received",
+  CURL_TRC_CF(तथ्य, cf, "[%d] PUSH_PROMISE received",
               frame->promised_stream_id);
-  if(data->multi->push_cb) {
-    struct h2_stream_ctx *stream;
-    struct h2_stream_ctx *newstream;
-    struct curl_pushheaders heads;
+  अगर(तथ्य->multi->धकेलो_cb) {
+    काष्ठा h2_stream_ctx *stream;
+    काष्ठा h2_stream_ctx *newstream;
+    काष्ठा curl_pushheaders heads;
     CURLMcode mresult;
-    CURLcode result;
+    CURLcode परिणाम;
     /* clone the parent */
-    struct Curl_easy *newhandle = h2_duphandle(cf, data);
-    if(!newhandle) {
-      infof(data, "failed to duplicate handle");
-      rv = CURL_PUSH_DENY; /* FAIL HARD */
-      goto fail;
+    काष्ठा Curl_easy *newhandle = h2_duphandle(cf, तथ्य);
+    अगर(!newhandle) {
+      infof(तथ्य, "failed to duplicate handle");
+      rv = CURL_धकेलो_DENY; /* FAIL HARD */
+      जाओ fail;
     }
 
-    stream = H2_STREAM_CTX(ctx, data);
-    if(!stream) {
-      failf(data, "Internal NULL stream");
+    stream = H2_STREAM_CTX(ctx, तथ्य);
+    अगर(!stream) {
+      failf(तथ्य, "Internal NULL stream");
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_धकेलो_DENY;
+      जाओ fail;
     }
 
-    heads.data = data;
+    heads.तथ्य = तथ्य;
     heads.stream = stream;
     heads.frame = frame;
 
-    rv = set_transfer_url(newhandle, &heads, data);
-    if(rv) {
-      CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE, failed to set URL -> %d",
+    rv = set_transfer_url(newhandle, &heads, तथ्य);
+    अगर(rv) {
+      CURL_TRC_CF(तथ्य, cf, "[%d] PUSH_PROMISE, failed to set URL -> %d",
                   frame->promised_stream_id, rv);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_धकेलो_DENY;
+      जाओ fail;
     }
 
     {
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, multi_push_cb);
-      rv = data->multi->push_cb(data, newhandle,
-                                stream->push_headers_used, &heads,
-                                data->multi->push_userp);
+      काष्ठा Curl_mapi_guard guard;
+      CURL_CBAPI_START(&guard, तथ्य, multi_धकेलो_cb);
+      rv = तथ्य->multi->धकेलो_cb(तथ्य, newhandle,
+                                stream->धकेलो_headers_used, &heads,
+                                तथ्य->multi->धकेलो_userp);
       CURL_CBAPI_END(&guard);
     }
 
     /* free the headers again */
-    free_push_headers(stream);
+    free_धकेलो_headers(stream);
 
-    if(rv) {
-      DEBUGASSERT((rv > CURL_PUSH_OK) && (rv <= CURL_PUSH_ERROROUT));
+    अगर(rv) {
+      DEBUGASSERT((rv > CURL_धकेलो_OK) && (rv <= CURL_धकेलो_ERROROUT));
       /* denied, kill off the new handle again */
-      CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE, denied by application -> %d",
+      CURL_TRC_CF(तथ्य, cf, "[%d] PUSH_PROMISE, denied by application -> %d",
                   frame->promised_stream_id, rv);
       discard_newhandle(cf, newhandle);
-      goto fail;
+      जाओ fail;
     }
 
     /* approved, add to the multi handle for processing. This
      * assigns newhandle->mid. For the new `mid` we assign the
      * h2_stream instance and remember the stream_id already known. */
-    mresult = Curl_multi_add_perform(data->multi, newhandle, cf->conn);
-    if(mresult) {
-      infof(data, "failed to add handle to multi");
+    mresult = Curl_multi_add_perform(तथ्य->multi, newhandle, cf->conn);
+    अगर(mresult) {
+      infof(तथ्य, "failed to add handle to multi");
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_धकेलो_DENY;
+      जाओ fail;
     }
 
-    result = http2_data_setup(cf, newhandle, &newstream);
-    if(result) {
-      failf(data, "error setting up stream: %d", (int)result);
+    परिणाम = http2_तथ्य_setup(cf, newhandle, &newstream);
+    अगर(परिणाम) {
+      failf(तथ्य, "error setting up stream: %d", (पूर्णांक)परिणाम);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_धकेलो_DENY;
+      जाओ fail;
     }
 
     DEBUGASSERT(newstream);
     newstream->id = frame->promised_stream_id;
     newhandle->req.maxdownload = -1;
-    newhandle->req.size = -1;
+    newhandle->req.आकार = -1;
 
-    CURL_TRC_CF(data, cf, "promise easy handle added to multi, mid=%u",
+    CURL_TRC_CF(तथ्य, cf, "promise easy handle added to multi, mid=%u",
                 newhandle->mid);
-    rv = Curl_ngh2_session_set_stream_user_data(
+    rv = Curl_ngh2_session_set_stream_user_तथ्य(
       &ctx->ngh2, newstream->id, newstream);
-    if(rv) {
-      infof(data, "failed to set user_data for stream %d",
+    अगर(rv) {
+      infof(तथ्य, "failed to set user_data for stream %d",
             newstream->id);
       DEBUGASSERT(0);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_धकेलो_DENY;
+      जाओ fail;
     }
 
     /* success, remember max stream id processed */
-    if(newstream->id > ctx->local_max_sid)
+    अगर(newstream->id > ctx->local_max_sid)
       ctx->local_max_sid = newstream->id;
   }
-  else {
-    CURL_TRC_CF(data, cf, "Got PUSH_PROMISE, ignore it");
-    rv = CURL_PUSH_DENY;
+  अन्यथा {
+    CURL_TRC_CF(तथ्य, cf, "Got PUSH_PROMISE, ignore it");
+    rv = CURL_धकेलो_DENY;
   }
 fail:
-  return rv;
+  वापस rv;
 }
 
-static void h2_xfer_write_resp_hd(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct h2_stream_ctx *stream,
-                                  const char *buf, size_t blen, bool eos)
+अटल व्योम h2_xfer_write_resp_hd(काष्ठा Curl_cfilter *cf,
+                                  काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा h2_stream_ctx *stream,
+                                  स्थिर अक्षर *buf, माप_प्रकार blen, bool eos)
 {
   /* If we already encountered an error, skip further writes */
-  if(!stream->xfer_result) {
-    stream->xfer_result = Curl_xfer_write_resp_hd(data, buf, blen, eos);
-    if(!stream->xfer_result && !eos)
-      stream->xfer_result = cf_h2_update_local_win(cf, data, stream);
-    if(stream->xfer_result)
-      CURL_TRC_CF(data, cf, "[%d] error %d writing %zu bytes of headers",
-                  stream->id, (int)stream->xfer_result, blen);
+  अगर(!stream->xfer_परिणाम) {
+    stream->xfer_परिणाम = Curl_xfer_write_resp_hd(तथ्य, buf, blen, eos);
+    अगर(!stream->xfer_परिणाम && !eos)
+      stream->xfer_परिणाम = cf_h2_update_local_win(cf, तथ्य, stream);
+    अगर(stream->xfer_परिणाम)
+      CURL_TRC_CF(तथ्य, cf, "[%d] error %d writing %zu bytes of headers",
+                  stream->id, (पूर्णांक)stream->xfer_परिणाम, blen);
   }
 }
 
-static void h2_xfer_write_resp(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h2_stream_ctx *stream,
-                               const char *buf, size_t blen, bool eos)
+अटल व्योम h2_xfer_write_resp(काष्ठा Curl_cfilter *cf,
+                               काष्ठा Curl_easy *तथ्य,
+                               काष्ठा h2_stream_ctx *stream,
+                               स्थिर अक्षर *buf, माप_प्रकार blen, bool eos)
 {
   /* If we already encountered an error, skip further writes */
-  if(!stream->xfer_result)
-    stream->xfer_result = Curl_xfer_write_resp(data, buf, blen, eos);
+  अगर(!stream->xfer_परिणाम)
+    stream->xfer_परिणाम = Curl_xfer_write_resp(तथ्य, buf, blen, eos);
   /* If the transfer write is errored, we do not want any more data */
-  if(stream->xfer_result) {
-    struct cf_h2_ctx *ctx = cf->ctx;
-    CURL_TRC_CF(data, cf, "[%d] error %d writing %zu bytes of data, "
+  अगर(stream->xfer_परिणाम) {
+    काष्ठा cf_h2_ctx *ctx = cf->ctx;
+    CURL_TRC_CF(तथ्य, cf, "[%d] error %d writing %zu bytes of data, "
                 "RST-ing stream",
-                stream->id, (int)stream->xfer_result, blen);
+                stream->id, (पूर्णांक)stream->xfer_परिणाम, blen);
     Curl_ngh2_submit_rst_stream(
       &ctx->ngh2, 0, stream->id, (uint32_t)NGHTTP2_ERR_CALLBACK_FAILURE);
   }
-  else if(!stream->write_paused && Curl_xfer_write_is_paused(data)) {
-    CURL_TRC_CF(data, cf, "[%d] stream output paused", stream->id);
+  अन्यथा अगर(!stream->write_paused && Curl_xfer_write_is_paused(तथ्य)) {
+    CURL_TRC_CF(तथ्य, cf, "[%d] stream output paused", stream->id);
     stream->write_paused = TRUE;
   }
-  else if(stream->write_paused && !Curl_xfer_write_is_paused(data)) {
-    CURL_TRC_CF(data, cf, "[%d] stream output unpaused", stream->id);
+  अन्यथा अगर(stream->write_paused && !Curl_xfer_write_is_paused(तथ्य)) {
+    CURL_TRC_CF(तथ्य, cf, "[%d] stream output unpaused", stream->id);
     stream->write_paused = FALSE;
   }
 
-  if(!stream->xfer_result && !eos)
-    stream->xfer_result = cf_h2_update_local_win(cf, data, stream);
+  अगर(!stream->xfer_परिणाम && !eos)
+    stream->xfer_परिणाम = cf_h2_update_local_win(cf, तथ्य, stream);
 }
 
-static CURLcode on_stream_frame(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct h2_stream_ctx *stream,
-                                const nghttp2_frame *frame)
+अटल CURLcode on_stream_frame(काष्ठा Curl_cfilter *cf,
+                                काष्ठा Curl_easy *तथ्य,
+                                काष्ठा h2_stream_ctx *stream,
+                                स्थिर nghttp2_frame *frame)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
   int32_t stream_id = frame->hd.stream_id;
-  int rv;
+  पूर्णांक rv;
 
-  if(!stream) {
-    CURL_TRC_CF(data, cf, "[%d] No stream_ctx set", stream_id);
-    return CURLE_FAILED_INIT;
+  अगर(!stream) {
+    CURL_TRC_CF(तथ्य, cf, "[%d] No stream_ctx set", stream_id);
+    वापस CURLE_FAILED_INIT;
   }
 
-  switch(frame->hd.type) {
-  case NGHTTP2_DATA:
-    CURL_TRC_CF(data, cf, "[%d] DATA, window=%d/%d",
+  चयन(frame->hd.type) {
+  हाल NGHTTP2_तथ्य:
+    CURL_TRC_CF(तथ्य, cf, "[%d] DATA, window=%d/%d",
                 stream_id,
-                Curl_ngh2_session_get_stream_effective_recv_data_length(
+                Curl_ngh2_session_get_stream_effective_recv_तथ्य_लंबाई(
                   &ctx->ngh2, stream->id),
-                Curl_ngh2_session_get_stream_effective_local_window_size(
+                Curl_ngh2_session_get_stream_effective_local_window_आकार(
                   &ctx->ngh2, stream->id));
     /* If !body started on this stream, then receiving DATA is illegal. */
-    if(!stream->bodystarted) {
-      if(Curl_ngh2_is_fatal(&ctx->ngh2,
+    अगर(!stream->bodystarted) {
+      अगर(Curl_ngh2_is_fatal(&ctx->ngh2,
            Curl_ngh2_submit_rst_stream(&ctx->ngh2, NGHTTP2_FLAG_NONE,
                                        stream_id, NGHTTP2_PROTOCOL_ERROR))) {
-        return CURLE_RECV_ERROR;
+        वापस CURLE_RECV_ERROR;
       }
     }
-    break;
-  case NGHTTP2_HEADERS:
-    if(stream->bodystarted) {
+    अवरोध;
+  हाल NGHTTP2_HEADERS:
+    अगर(stream->bodystarted) {
       /* Only valid HEADERS after body started is trailer HEADERS. We
          buffer them in on_header callback. */
-      break;
+      अवरोध;
     }
 
     /* nghttp2 guarantees that :status is received, and we store it to
        stream->status_code. Fuzzing has proven this can still be reached
        without status code having been set. */
-    if(stream->status_code == -1)
-      return CURLE_RECV_ERROR;
+    अगर(stream->status_code == -1)
+      वापस CURLE_RECV_ERROR;
 
     /* Only final status code signals the end of header */
-    if(stream->status_code / 100 != 1) {
+    अगर(stream->status_code / 100 != 1) {
       stream->resp_hds_complete = TRUE;
       stream->bodystarted = TRUE;
     }
-    else
+    अन्यथा
       stream->status_code = -1;
 
-    h2_xfer_write_resp_hd(cf, data, stream, STRCONST("\r\n"),
+    h2_xfer_write_resp_hd(cf, तथ्य, stream, STRCONST("\r\n"),
                           (bool)stream->closed);
 
-    Curl_multi_mark_dirty(data);
-    break;
-  case NGHTTP2_PUSH_PROMISE:
-    rv = push_promise(cf, data, &frame->push_promise);
-    if(rv) { /* deny! */
-      DEBUGASSERT((rv > CURL_PUSH_OK) && (rv <= CURL_PUSH_ERROROUT));
-      if(Curl_ngh2_is_fatal(&ctx->ngh2,
+    Curl_multi_mark_dirty(तथ्य);
+    अवरोध;
+  हाल NGHTTP2_धकेलो_PROMISE:
+    rv = धकेलो_promise(cf, तथ्य, &frame->धकेलो_promise);
+    अगर(rv) { /* deny! */
+      DEBUGASSERT((rv > CURL_धकेलो_OK) && (rv <= CURL_धकेलो_ERROROUT));
+      अगर(Curl_ngh2_is_fatal(&ctx->ngh2,
            Curl_ngh2_submit_rst_stream(&ctx->ngh2, NGHTTP2_FLAG_NONE,
-             frame->push_promise.promised_stream_id, NGHTTP2_CANCEL)))
-        return CURLE_SEND_ERROR;
-      else if(rv == CURL_PUSH_ERROROUT) {
+             frame->धकेलो_promise.promised_stream_id, NGHTTP2_CANCEL)))
+        वापस CURLE_SEND_ERROR;
+      अन्यथा अगर(rv == CURL_धकेलो_ERROROUT) {
         /* fail the parent transfer, not the whole session */
-        CURL_TRC_CF(data, cf, "[%d] fail in PUSH_PROMISE received",
+        CURL_TRC_CF(तथ्य, cf, "[%d] fail in PUSH_PROMISE received",
                     stream_id);
-        if(!stream->xfer_result)
-          stream->xfer_result = CURLE_RECV_ERROR;
-        Curl_multi_mark_dirty(data);
+        अगर(!stream->xfer_परिणाम)
+          stream->xfer_परिणाम = CURLE_RECV_ERROR;
+        Curl_multi_mark_dirty(तथ्य);
       }
     }
-    break;
-  case NGHTTP2_RST_STREAM:
-    if(frame->rst_stream.error_code)
+    अवरोध;
+  हाल NGHTTP2_RST_STREAM:
+    अगर(frame->rst_stream.error_code)
       stream->reset_by_server = TRUE;
-    Curl_multi_mark_dirty(data);
-    break;
-  case NGHTTP2_WINDOW_UPDATE:
-    if(CURL_REQ_WANT_SEND(data) && Curl_bufq_is_empty(&stream->sendbuf)) {
+    Curl_multi_mark_dirty(तथ्य);
+    अवरोध;
+  हाल NGHTTP2_WINDOW_UPDATE:
+    अगर(CURL_REQ_WANT_SEND(तथ्य) && Curl_bufq_is_empty(&stream->sendbuf)) {
       /* need more data, force processing of transfer */
-      Curl_multi_mark_dirty(data);
+      Curl_multi_mark_dirty(तथ्य);
     }
-    else if(!Curl_bufq_is_empty(&stream->sendbuf)) {
+    अन्यथा अगर(!Curl_bufq_is_empty(&stream->sendbuf)) {
       /* resume the potentially suspended stream */
-      if(Curl_ngh2_is_fatal(&ctx->ngh2,
-           Curl_ngh2_session_resume_data(&ctx->ngh2, stream->id)))
-        return CURLE_SEND_ERROR;
+      अगर(Curl_ngh2_is_fatal(&ctx->ngh2,
+           Curl_ngh2_session_resume_तथ्य(&ctx->ngh2, stream->id)))
+        वापस CURLE_SEND_ERROR;
     }
-    break;
-  default:
-    break;
+    अवरोध;
+  शेष:
+    अवरोध;
   }
 
-  if(frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
-    if(!stream->closed && !stream->body_eos &&
+  अगर(frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
+    अगर(!stream->closed && !stream->body_eos &&
        ((stream->status_code >= 400) || (stream->status_code < 200))) {
       /* The server did not give us a positive response and we are not
        * done uploading the request body. We need to stop doing that and
        * also inform the server that we aborted our side. */
-      CURL_TRC_CF(data, cf, "[%d] EOS frame with unfinished upload and "
+      CURL_TRC_CF(तथ्य, cf, "[%d] EOS frame with unfinished upload and "
                   "HTTP status %d, abort upload by RST",
                   stream_id, stream->status_code);
       Curl_ngh2_submit_rst_stream(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, NGHTTP2_STREAM_CLOSED);
       stream->closed = TRUE;
     }
-    Curl_multi_mark_dirty(data);
+    Curl_multi_mark_dirty(तथ्य);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-#ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
-                          size_t blen)
+#अगर_घोषित CURLVERBOSE
+पूर्णांक Curl_nghttp2_fr_print(स्थिर nghttp2_frame *frame, अक्षर *बफर,
+                          माप_प्रकार blen)
 {
-  switch(frame->hd.type) {
-  case NGHTTP2_DATA: {
-    return curl_msnprintf(buffer, blen,
+  चयन(frame->hd.type) {
+  हाल NGHTTP2_तथ्य: {
+    वापस curl_msnprintf(बफर, blen,
                           "FRAME[DATA, len=%d, eos=%d, padlen=%d]",
-                          (int)frame->hd.length,
+                          (पूर्णांक)frame->hd.लंबाई,
                           !!(frame->hd.flags & NGHTTP2_FLAG_END_STREAM),
-                          (int)frame->data.padlen);
+                          (पूर्णांक)frame->तथ्य.padlen);
   }
-  case NGHTTP2_HEADERS: {
-    return curl_msnprintf(buffer, blen,
+  हाल NGHTTP2_HEADERS: {
+    वापस curl_msnprintf(बफर, blen,
                           "FRAME[HEADERS, len=%d, hend=%d, eos=%d]",
-                          (int)frame->hd.length,
+                          (पूर्णांक)frame->hd.लंबाई,
                           !!(frame->hd.flags & NGHTTP2_FLAG_END_HEADERS),
                           !!(frame->hd.flags & NGHTTP2_FLAG_END_STREAM));
   }
-  case NGHTTP2_PRIORITY: {
-    return curl_msnprintf(buffer, blen,
+  हाल NGHTTP2_PRIORITY: {
+    वापस curl_msnprintf(बफर, blen,
                           "FRAME[PRIORITY, len=%d, flags=%d]",
-                          (int)frame->hd.length, frame->hd.flags);
+                          (पूर्णांक)frame->hd.लंबाई, frame->hd.flags);
   }
-  case NGHTTP2_RST_STREAM: {
-    return curl_msnprintf(buffer, blen,
+  हाल NGHTTP2_RST_STREAM: {
+    वापस curl_msnprintf(बफर, blen,
                           "FRAME[RST_STREAM, len=%d, flags=%d, error=%u]",
-                          (int)frame->hd.length, frame->hd.flags,
+                          (पूर्णांक)frame->hd.लंबाई, frame->hd.flags,
                           frame->rst_stream.error_code);
   }
-  case NGHTTP2_SETTINGS: {
-    if(frame->hd.flags & NGHTTP2_FLAG_ACK) {
-      return curl_msnprintf(buffer, blen, "FRAME[SETTINGS, ack=1]");
+  हाल NGHTTP2_SETTINGS: {
+    अगर(frame->hd.flags & NGHTTP2_FLAG_ACK) {
+      वापस curl_msnprintf(बफर, blen, "FRAME[SETTINGS, ack=1]");
     }
-    return curl_msnprintf(buffer, blen,
-                          "FRAME[SETTINGS, len=%d]", (int)frame->hd.length);
+    वापस curl_msnprintf(बफर, blen,
+                          "FRAME[SETTINGS, len=%d]", (पूर्णांक)frame->hd.लंबाई);
   }
-  case NGHTTP2_PUSH_PROMISE:
-    return curl_msnprintf(buffer, blen,
+  हाल NGHTTP2_धकेलो_PROMISE:
+    वापस curl_msnprintf(बफर, blen,
                           "FRAME[PUSH_PROMISE, len=%d, hend=%d]",
-                          (int)frame->hd.length,
+                          (पूर्णांक)frame->hd.लंबाई,
                           !!(frame->hd.flags & NGHTTP2_FLAG_END_HEADERS));
-  case NGHTTP2_PING:
-    return curl_msnprintf(buffer, blen,
+  हाल NGHTTP2_PING:
+    वापस curl_msnprintf(बफर, blen,
                           "FRAME[PING, len=%d, ack=%d]",
-                          (int)frame->hd.length,
+                          (पूर्णांक)frame->hd.लंबाई,
                           frame->hd.flags & NGHTTP2_FLAG_ACK);
-  case NGHTTP2_GOAWAY: {
-    char scratch[128];
-    size_t s_len = CURL_ARRAYSIZE(scratch);
-    size_t len = (frame->goaway.opaque_data_len < s_len) ?
-      frame->goaway.opaque_data_len : s_len - 1;
-    if(len)
-      memcpy(scratch, frame->goaway.opaque_data, len);
+  हाल NGHTTP2_GOAWAY: {
+    अक्षर scratch[128];
+    माप_प्रकार s_len = CURL_ARRAYSIZE(scratch);
+    माप_प्रकार len = (frame->goaway.opaque_तथ्य_len < s_len) ?
+      frame->goaway.opaque_तथ्य_len : s_len - 1;
+    अगर(len)
+      स_नकल(scratch, frame->goaway.opaque_तथ्य, len);
     scratch[len] = '\0';
-    return curl_msnprintf(buffer, blen,
+    वापस curl_msnprintf(बफर, blen,
                           "FRAME[GOAWAY, error=%u, reason='%s', "
                           "last_stream=%d]", frame->goaway.error_code,
                           scratch, frame->goaway.last_stream_id);
   }
-  case NGHTTP2_WINDOW_UPDATE: {
-    return curl_msnprintf(buffer, blen,
+  हाल NGHTTP2_WINDOW_UPDATE: {
+    वापस curl_msnprintf(बफर, blen,
                           "FRAME[WINDOW_UPDATE, incr=%d]",
-                          frame->window_update.window_size_increment);
+                          frame->window_update.window_आकार_increment);
   }
-  default:
-    return curl_msnprintf(buffer, blen, "FRAME[%d, len=%d, flags=%d]",
-                          frame->hd.type, (int)frame->hd.length,
+  शेष:
+    वापस curl_msnprintf(बफर, blen, "FRAME[%d, len=%d, flags=%d]",
+                          frame->hd.type, (पूर्णांक)frame->hd.लंबाई,
                           frame->hd.flags);
   }
 }
 
-static int on_frame_send(nghttp2_session *session, const nghttp2_frame *frame,
-                         void *userp)
+अटल पूर्णांक on_frame_send(nghttp2_session *session, स्थिर nghttp2_frame *frame,
+                         व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा Curl_easy *तथ्य = CF_तथ्य_CURRENT(cf);
 
-  (void)session;
-  DEBUGASSERT(data);
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
-    buffer[len] = 0;
-    CURL_TRC_CF(data, cf, "[%d] -> %s", frame->hd.stream_id, buffer);
+  (व्योम)session;
+  DEBUGASSERT(तथ्य);
+  अगर(Curl_trc_cf_is_verbose(cf, तथ्य)) {
+    अक्षर बफर[256];
+    पूर्णांक len;
+    len = Curl_nghttp2_fr_print(frame, बफर, माप(बफर) - 1);
+    बफर[len] = 0;
+    CURL_TRC_CF(तथ्य, cf, "[%d] -> %s", frame->hd.stream_id, बफर);
   }
-  if((frame->hd.type == NGHTTP2_GOAWAY) && !ctx->sent_goaway) {
+  अगर((frame->hd.type == NGHTTP2_GOAWAY) && !ctx->sent_goaway) {
     /* A GOAWAY not initiated by us, but by nghttp2 itself on detecting
      * a protocol error on the connection */
-    failf(data, "nghttp2 shuts down connection with error %u: %s",
+    failf(तथ्य, "nghttp2 shuts down connection with error %u: %s",
           frame->goaway.error_code,
           nghttp2_http2_strerror(frame->goaway.error_code));
   }
-  return 0;
+  वापस 0;
 }
-#endif /* CURLVERBOSE */
+#पूर्ण_अगर /* CURLVERBOSE */
 
-static int on_frame_recv(nghttp2_session *session, const nghttp2_frame *frame,
-                         void *userp)
+अटल पूर्णांक on_frame_recv(nghttp2_session *session, स्थिर nghttp2_frame *frame,
+                         व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf), *data_s;
-  struct h2_stream_ctx *stream;
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा Curl_easy *तथ्य = CF_तथ्य_CURRENT(cf), *तथ्य_s;
+  काष्ठा h2_stream_ctx *stream;
   int32_t stream_id = frame->hd.stream_id;
 
-  (void)session;
-  DEBUGASSERT(data);
-#ifdef CURLVERBOSE
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
-    buffer[len] = 0;
-    CURL_TRC_CF(data, cf, "[%d] <- %s", frame->hd.stream_id, buffer);
+  (व्योम)session;
+  DEBUGASSERT(तथ्य);
+#अगर_घोषित CURLVERBOSE
+  अगर(Curl_trc_cf_is_verbose(cf, तथ्य)) {
+    अक्षर बफर[256];
+    पूर्णांक len;
+    len = Curl_nghttp2_fr_print(frame, बफर, माप(बफर) - 1);
+    बफर[len] = 0;
+    CURL_TRC_CF(तथ्य, cf, "[%d] <- %s", frame->hd.stream_id, बफर);
   }
-#endif /* CURLVERBOSE */
+#पूर्ण_अगर /* CURLVERBOSE */
 
-  if(!stream_id) {
+  अगर(!stream_id) {
     /* stream ID zero is for connection-oriented stuff */
-    DEBUGASSERT(data);
-    switch(frame->hd.type) {
-    case NGHTTP2_SETTINGS: {
-      if(!(frame->hd.flags & NGHTTP2_FLAG_ACK)) {
+    DEBUGASSERT(तथ्य);
+    चयन(frame->hd.type) {
+    हाल NGHTTP2_SETTINGS: {
+      अगर(!(frame->hd.flags & NGHTTP2_FLAG_ACK)) {
         uint32_t max_conn = ctx->max_concurrent_streams;
         ctx->max_concurrent_streams =
           Curl_ngh2_session_get_remote_settings(
             &ctx->ngh2, NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS);
-        ctx->enable_push = Curl_ngh2_session_get_remote_settings(
-          &ctx->ngh2, NGHTTP2_SETTINGS_ENABLE_PUSH) != 0;
-        CURL_TRC_CF(data, cf, "[0] MAX_CONCURRENT_STREAMS: %u",
+        ctx->enable_धकेलो = Curl_ngh2_session_get_remote_settings(
+          &ctx->ngh2, NGHTTP2_SETTINGS_ENABLE_धकेलो) != 0;
+        CURL_TRC_CF(तथ्य, cf, "[0] MAX_CONCURRENT_STREAMS: %u",
                     ctx->max_concurrent_streams);
-        CURL_TRC_CF(data, cf, "[0] ENABLE_PUSH: %s",
-                    ctx->enable_push ? "TRUE" : "false");
-        if(data && max_conn != ctx->max_concurrent_streams) {
+        CURL_TRC_CF(तथ्य, cf, "[0] ENABLE_PUSH: %s",
+                    ctx->enable_धकेलो ? "TRUE" : "false");
+        अगर(तथ्य && max_conn != ctx->max_concurrent_streams) {
           /* only signal change if the value actually changed */
-          CURL_TRC_CF(data, cf, "[0] notify MAX_CONCURRENT_STREAMS: %u",
+          CURL_TRC_CF(तथ्य, cf, "[0] notify MAX_CONCURRENT_STREAMS: %u",
                       ctx->max_concurrent_streams);
-          Curl_multi_connchanged(data->multi);
+          Curl_multi_connchanged(तथ्य->multi);
         }
         /* Since the initial stream window is 64K, a request might be on HOLD,
          * due to exhaustion. The (initial) SETTINGS may announce a much larger
          * window and *assume* that we treat this like a WINDOW_UPDATE. Some
          * servers send an explicit WINDOW_UPDATE, but not all seem to do that.
          * To be safe, we UNHOLD a stream in order not to stall. */
-        if(CURL_REQ_WANT_SEND(data))
-          Curl_multi_mark_dirty(data);
+        अगर(CURL_REQ_WANT_SEND(तथ्य))
+          Curl_multi_mark_dirty(तथ्य);
       }
-      break;
+      अवरोध;
     }
-    case NGHTTP2_GOAWAY:
+    हाल NGHTTP2_GOAWAY:
       ctx->rcvd_goaway = TRUE;
       ctx->goaway_error = frame->goaway.error_code;
       ctx->remote_max_sid = frame->goaway.last_stream_id;
-      if(data) {
-        infof(data, "received GOAWAY, error=%u, last_stream=%d",
+      अगर(तथ्य) {
+        infof(तथ्य, "received GOAWAY, error=%u, last_stream=%d",
               ctx->goaway_error, ctx->remote_max_sid);
-        Curl_multi_connchanged(data->multi);
+        Curl_multi_connchanged(तथ्य->multi);
       }
-      break;
-    default:
-      break;
+      अवरोध;
+    शेष:
+      अवरोध;
     }
-    return 0;
+    वापस 0;
   }
 
-  data_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(!data_s) {
-    CURL_TRC_CF(data, cf, "[%d] No Curl_easy associated", stream_id);
-    return 0;
+  तथ्य_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
+  अगर(!तथ्य_s) {
+    CURL_TRC_CF(तथ्य, cf, "[%d] No Curl_easy associated", stream_id);
+    वापस 0;
   }
 
-  return on_stream_frame(cf, data_s, stream, frame) ?
+  वापस on_stream_frame(cf, तथ्य_s, stream, frame) ?
          NGHTTP2_ERR_CALLBACK_FAILURE : 0;
 }
 
-static int cf_h2_on_invalid_frame_recv(nghttp2_session *session,
-                                       const nghttp2_frame *frame,
-                                       int ngerr, void *userp)
+अटल पूर्णांक cf_h2_on_invalid_frame_recv(nghttp2_session *session,
+                                       स्थिर nghttp2_frame *frame,
+                                       पूर्णांक ngerr, व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data;
-  struct h2_stream_ctx *stream;
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा Curl_easy *तथ्य;
+  काष्ठा h2_stream_ctx *stream;
   int32_t stream_id = frame->hd.stream_id;
 
-  (void)session;
-  data = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(data) {
-#ifdef CURLVERBOSE
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
-    buffer[len] = 0;
-    failf(data, "[HTTP2] [%d] received invalid frame: %s, error %d: %s",
-          stream_id, buffer, ngerr, nghttp2_strerror(ngerr));
-#endif /* CURLVERBOSE */
-    if(stream) {
+  (व्योम)session;
+  तथ्य = cf_h2_get_stream_xfer(cf, stream_id, &stream);
+  अगर(तथ्य) {
+#अगर_घोषित CURLVERBOSE
+    अक्षर बफर[256];
+    पूर्णांक len;
+    len = Curl_nghttp2_fr_print(frame, बफर, माप(बफर) - 1);
+    बफर[len] = 0;
+    failf(तथ्य, "[HTTP2] [%d] received invalid frame: %s, error %d: %s",
+          stream_id, बफर, ngerr, nghttp2_strerror(ngerr));
+#पूर्ण_अगर /* CURLVERBOSE */
+    अगर(stream) {
       Curl_ngh2_submit_rst_stream(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, NGHTTP2_STREAM_CLOSED);
       stream->error = ngerr;
@@ -1301,85 +1301,85 @@ static int cf_h2_on_invalid_frame_recv(nghttp2_session *session,
     }
   }
   /* Return no error, nghttp2 will RST/GOAWAY by itself when needed */
-  return 0;
+  वापस 0;
 }
 
-static int on_data_chunk_recv(nghttp2_session *session, uint8_t flags,
+अटल पूर्णांक on_तथ्य_chunk_recv(nghttp2_session *session, uint8_t flags,
                               int32_t stream_id,
-                              const uint8_t *mem, size_t len, void *userp)
+                              स्थिर uint8_t *mem, माप_प्रकार len, व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
-  struct Curl_easy *data_s;
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream;
+  काष्ठा Curl_easy *तथ्य_s;
 
-  (void)session;
-  (void)flags;
+  (व्योम)session;
+  (व्योम)flags;
 
   DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
-  DEBUGASSERT(CF_DATA_CURRENT(cf));
+  DEBUGASSERT(CF_तथ्य_CURRENT(cf));
 
   /* get the stream from the hash based on Stream ID */
-  data_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(!data_s) {
+  तथ्य_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
+  अगर(!तथ्य_s) {
     /* Receiving a Stream ID not in the hash should not happen - unless
        we have aborted a transfer artificially and there were more data
        in the pipeline. Silently ignore. */
-    CURL_TRC_CF(CF_DATA_CURRENT(cf), cf, "[%d] Data for unknown", stream_id);
+    CURL_TRC_CF(CF_तथ्य_CURRENT(cf), cf, "[%d] Data for unknown", stream_id);
     /* consumed explicitly as no one will read it */
     Curl_ngh2_session_consume(&ctx->ngh2, stream_id, len);
-    return 0;
+    वापस 0;
   }
 
-  if(!stream)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  अगर(!stream)
+    वापस NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  h2_xfer_write_resp(cf, data_s, stream, (const char *)mem, len, FALSE);
+  h2_xfer_write_resp(cf, तथ्य_s, stream, (स्थिर अक्षर *)mem, len, FALSE);
 
   Curl_ngh2_session_consume(&ctx->ngh2, stream_id, len);
-  stream->nrcvd_data += (curl_off_t)len;
-  return 0;
+  stream->nrcvd_तथ्य += (curl_off_t)len;
+  वापस 0;
 }
 
-static int on_stream_close(nghttp2_session *session, int32_t stream_id,
-                           uint32_t error_code, void *userp)
+अटल पूर्णांक on_stream_close(nghttp2_session *session, int32_t stream_id,
+                           uint32_t error_code, व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data_s, *call_data = CF_DATA_CURRENT(cf);
-  struct h2_stream_ctx *stream = NULL;
-  int rv;
-  (void)session;
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा Curl_easy *तथ्य_s, *call_तथ्य = CF_तथ्य_CURRENT(cf);
+  काष्ठा h2_stream_ctx *stream = शून्य;
+  पूर्णांक rv;
+  (व्योम)session;
 
-  DEBUGASSERT(call_data);
+  DEBUGASSERT(call_तथ्य);
   /* stream id 0 is the connection, do not look there for streams. */
-  data_s = stream_id ? cf_h2_get_stream_xfer(cf, stream_id, &stream) : NULL;
-  if(!data_s) {
-    CURL_TRC_CF(call_data, cf,
+  तथ्य_s = stream_id ? cf_h2_get_stream_xfer(cf, stream_id, &stream) : शून्य;
+  अगर(!तथ्य_s) {
+    CURL_TRC_CF(call_तथ्य, cf,
                 "[%d] on_stream_close, no easy set on stream", stream_id);
-    return 0;
+    वापस 0;
   }
-  if(!GOOD_EASY_HANDLE(data_s)) {
+  अगर(!GOOD_EASY_HANDLE(तथ्य_s)) {
     /* nghttp2 still has an easy registered for the stream which has
      * been freed be libcurl. This points to a code path that does not
      * trigger DONE or DETACH events as it must. */
-    CURL_TRC_CF(call_data, cf,
+    CURL_TRC_CF(call_तथ्य, cf,
                 "[%d] on_stream_close, not a GOOD easy on stream", stream_id);
-    (void)Curl_ngh2_session_set_stream_user_data(
-      &ctx->ngh2, stream_id, NULL);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    (व्योम)Curl_ngh2_session_set_stream_user_तथ्य(
+      &ctx->ngh2, stream_id, शून्य);
+    वापस NGHTTP2_ERR_CALLBACK_FAILURE;
   }
-  if(!stream) {
-    CURL_TRC_CF(data_s, cf,
+  अगर(!stream) {
+    CURL_TRC_CF(तथ्य_s, cf,
                 "[%d] on_stream_close, GOOD easy but no stream", stream_id);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    वापस NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
   stream->closed = TRUE;
   stream->error = error_code;
-  if(stream->error) {
+  अगर(stream->error) {
     stream->reset = TRUE;
-    if((stream->error == NGHTTP2_REFUSED_STREAM) &&
+    अगर((stream->error == NGHTTP2_REFUSED_STREAM) &&
        ctx->rcvd_goaway && ctx->goaway_error)
     /* REFUSED_STREAM is used by nghttp2 on a GOAWAY from the
      * server where it indicated it will no longer process this stream.
@@ -1388,34 +1388,34 @@ static int on_stream_close(nghttp2_session *session, int32_t stream_id,
     stream->error = ctx->goaway_error;
   }
 
-  if(stream->error)
-    CURL_TRC_CF(data_s, cf, "[%d] RESET: %s (err %u)",
+  अगर(stream->error)
+    CURL_TRC_CF(तथ्य_s, cf, "[%d] RESET: %s (err %u)",
               stream_id, nghttp2_http2_strerror(error_code), error_code);
-  else
-    CURL_TRC_CF(data_s, cf, "[%d] CLOSED", stream_id);
-  Curl_multi_mark_dirty(data_s);
+  अन्यथा
+    CURL_TRC_CF(तथ्य_s, cf, "[%d] CLOSED", stream_id);
+  Curl_multi_mark_dirty(तथ्य_s);
 
   /* remove `stream_ctx` from the nghttp2 stream */
-  rv = Curl_ngh2_session_set_stream_user_data(
-    &ctx->ngh2, stream_id, NULL);
-  if(rv) {
-    infof(data_s, "http/2: failed to clear user_data for stream %d",
+  rv = Curl_ngh2_session_set_stream_user_तथ्य(
+    &ctx->ngh2, stream_id, शून्य);
+  अगर(rv) {
+    infof(तथ्य_s, "http/2: failed to clear user_data for stream %d",
           stream_id);
     DEBUGASSERT(0);
   }
-  return 0;
+  वापस 0;
 }
 
-static void cf_h2_header_error(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h2_stream_ctx *stream,
-                               CURLcode result)
+अटल व्योम cf_h2_header_error(काष्ठा Curl_cfilter *cf,
+                               काष्ठा Curl_easy *तथ्य,
+                               काष्ठा h2_stream_ctx *stream,
+                               CURLcode परिणाम)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
 
-  failf(data, "Error receiving HTTP2 header: %d(%s)", (int)result,
-        curl_easy_strerror(result));
-  if(stream) {
+  failf(तथ्य, "Error receiving HTTP2 header: %d(%s)", (पूर्णांक)परिणाम,
+        curl_easy_strerror(परिणाम));
+  अगर(stream) {
     Curl_ngh2_submit_rst_stream(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, NGHTTP2_STREAM_CLOSED);
     stream->closed = TRUE;
@@ -1424,375 +1424,375 @@ static void cf_h2_header_error(struct Curl_cfilter *cf,
 }
 
 /* frame->hd.type is either NGHTTP2_HEADERS or NGHTTP2_PUSH_PROMISE */
-static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
-                     const uint8_t *name, size_t namelen,
-                     const uint8_t *value, size_t valuelen,
+अटल पूर्णांक on_header(nghttp2_session *session, स्थिर nghttp2_frame *frame,
+                     स्थिर uint8_t *name, माप_प्रकार namelen,
+                     स्थिर uint8_t *मूल्य, माप_प्रकार valuelen,
                      uint8_t flags,
-                     void *userp)
+                     व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
-  struct Curl_easy *data;
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream;
+  काष्ठा Curl_easy *तथ्य;
   int32_t stream_id = frame->hd.stream_id;
-  CURLcode result;
+  CURLcode परिणाम;
 
-  (void)session;
-  (void)flags;
+  (व्योम)session;
+  (व्योम)flags;
 
   DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
 
   /* get the stream from the hash based on Stream ID */
-  data = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(!GOOD_EASY_HANDLE(data))
+  तथ्य = cf_h2_get_stream_xfer(cf, stream_id, &stream);
+  अगर(!GOOD_EASY_HANDLE(तथ्य))
     /* Receiving a Stream ID not in the hash should not happen, this is an
        internal error more than anything else! */
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    वापस NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  if(!stream) {
-    failf(data, "Internal NULL stream");
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  अगर(!stream) {
+    failf(तथ्य, "Internal NULL stream");
+    वापस NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
   /* Store received PUSH_PROMISE headers to be used when the subsequent
      PUSH_PROMISE callback comes */
-  if(frame->hd.type == NGHTTP2_PUSH_PROMISE) {
-    char *h;
+  अगर(frame->hd.type == NGHTTP2_धकेलो_PROMISE) {
+    अक्षर *h;
 
-    if((namelen == CURL_CSTRLEN(HTTP_PSEUDO_AUTHORITY)) &&
-       !strncmp(HTTP_PSEUDO_AUTHORITY, (const char *)name, namelen)) {
+    अगर((namelen == CURL_CSTRLEN(HTTP_PSEUDO_AUTHORITY)) &&
+       !म_भेदन(HTTP_PSEUDO_AUTHORITY, (स्थिर अक्षर *)name, namelen)) {
       /* pseudo headers are lower case */
-      int rc = 0;
-      char *check = curl_maprintf("%s:%d", data->state.origin->hostname,
-                                  data->state.origin->port);
-      if(!check)
+      पूर्णांक rc = 0;
+      अक्षर *check = curl_maprintf("%s:%d", तथ्य->state.origin->hostname,
+                                  तथ्य->state.origin->port);
+      अगर(!check)
         /* no memory */
-        return NGHTTP2_ERR_CALLBACK_FAILURE;
-      if(!curl_strequal(check, (const char *)value) &&
-         ((data->state.origin->port != data->state.origin->scheme->defport) ||
-          !curl_strequal(data->state.origin->hostname, (const char *)value))) {
+        वापस NGHTTP2_ERR_CALLBACK_FAILURE;
+      अगर(!curl_strequal(check, (स्थिर अक्षर *)मूल्य) &&
+         ((तथ्य->state.origin->port != तथ्य->state.origin->scheme->defport) ||
+          !curl_strequal(तथ्य->state.origin->hostname, (स्थिर अक्षर *)मूल्य))) {
         /* This is push is not for the same authority that was asked for in
          * the URL. RFC 7540 section 8.2 says: "A client MUST treat a
          * PUSH_PROMISE for which the server is not authoritative as a stream
          * error of type PROTOCOL_ERROR."
          */
-        (void)Curl_ngh2_submit_rst_stream(
+        (व्योम)Curl_ngh2_submit_rst_stream(
           &ctx->ngh2, NGHTTP2_FLAG_NONE, stream_id, NGHTTP2_PROTOCOL_ERROR);
         rc = NGHTTP2_ERR_CALLBACK_FAILURE;
       }
       curlx_free(check);
-      if(rc)
-        return rc;
+      अगर(rc)
+        वापस rc;
     }
 
-    if(!stream->push_headers) {
-      stream->push_headers_alloc = 10;
-      stream->push_headers = curlx_malloc(stream->push_headers_alloc *
-                                          sizeof(char *));
-      if(!stream->push_headers)
-        return NGHTTP2_ERR_CALLBACK_FAILURE;
-      stream->push_headers_used = 0;
+    अगर(!stream->धकेलो_headers) {
+      stream->धकेलो_headers_alloc = 10;
+      stream->धकेलो_headers = curlx_malloc(stream->धकेलो_headers_alloc *
+                                          माप(अक्षर *));
+      अगर(!stream->धकेलो_headers)
+        वापस NGHTTP2_ERR_CALLBACK_FAILURE;
+      stream->धकेलो_headers_used = 0;
     }
-    else if(stream->push_headers_used ==
-            stream->push_headers_alloc) {
-      char **headp;
-      if(stream->push_headers_alloc > 1000) {
+    अन्यथा अगर(stream->धकेलो_headers_used ==
+            stream->धकेलो_headers_alloc) {
+      अक्षर **headp;
+      अगर(stream->धकेलो_headers_alloc > 1000) {
         /* this is beyond crazy many headers, bail out */
-        failf(data, "Too many PUSH_PROMISE headers");
-        free_push_headers(stream);
-        return NGHTTP2_ERR_CALLBACK_FAILURE;
+        failf(तथ्य, "Too many PUSH_PROMISE headers");
+        free_धकेलो_headers(stream);
+        वापस NGHTTP2_ERR_CALLBACK_FAILURE;
       }
-      stream->push_headers_alloc *= 2;
-      headp = curlx_realloc(stream->push_headers,
-                            stream->push_headers_alloc * sizeof(char *));
-      if(!headp) {
-        free_push_headers(stream);
-        return NGHTTP2_ERR_CALLBACK_FAILURE;
+      stream->धकेलो_headers_alloc *= 2;
+      headp = curlx_realloc(stream->धकेलो_headers,
+                            stream->धकेलो_headers_alloc * माप(अक्षर *));
+      अगर(!headp) {
+        free_धकेलो_headers(stream);
+        वापस NGHTTP2_ERR_CALLBACK_FAILURE;
       }
-      stream->push_headers = headp;
+      stream->धकेलो_headers = headp;
     }
-    h = curl_maprintf("%s:%s", name, value);
-    if(!h) {
-      free_push_headers(stream);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    h = curl_maprintf("%s:%s", name, मूल्य);
+    अगर(!h) {
+      free_धकेलो_headers(stream);
+      वापस NGHTTP2_ERR_CALLBACK_FAILURE;
     }
-    stream->push_headers[stream->push_headers_used++] = h;
-    return 0;
+    stream->धकेलो_headers[stream->धकेलो_headers_used++] = h;
+    वापस 0;
   }
 
-  if(stream->bodystarted) {
+  अगर(stream->bodystarted) {
     /* This is a trailer */
-    CURL_TRC_CF(data, cf, "[%d] trailer: %.*s: %.*s",
-                stream->id, (int)namelen, name, (int)valuelen, value);
-    result = Curl_dynhds_add(&stream->resp_trailers,
-                             (const char *)name, namelen,
-                             (const char *)value, valuelen);
-    if(result) {
-      cf_h2_header_error(cf, data, stream, result);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    CURL_TRC_CF(तथ्य, cf, "[%d] trailer: %.*s: %.*s",
+                stream->id, (पूर्णांक)namelen, name, (पूर्णांक)valuelen, मूल्य);
+    परिणाम = Curl_dynhds_add(&stream->resp_trailers,
+                             (स्थिर अक्षर *)name, namelen,
+                             (स्थिर अक्षर *)मूल्य, valuelen);
+    अगर(परिणाम) {
+      cf_h2_header_error(cf, तथ्य, stream, परिणाम);
+      वापस NGHTTP2_ERR_CALLBACK_FAILURE;
     }
 
-    return 0;
+    वापस 0;
   }
 
-  if(namelen == CURL_CSTRLEN(HTTP_PSEUDO_STATUS) &&
-     !memcmp(HTTP_PSEUDO_STATUS, name, namelen)) {
+  अगर(namelen == CURL_CSTRLEN(HTTP_PSEUDO_STATUS) &&
+     !स_भेद(HTTP_PSEUDO_STATUS, name, namelen)) {
     /* nghttp2 guarantees :status is received first and only once. */
-    char buffer[32];
-    size_t hlen;
-    result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)value, valuelen);
-    if(result) {
-      cf_h2_header_error(cf, data, stream, result);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    अक्षर बफर[32];
+    माप_प्रकार hlen;
+    परिणाम = Curl_http_decode_status(&stream->status_code,
+                                     (स्थिर अक्षर *)मूल्य, valuelen);
+    अगर(परिणाम) {
+      cf_h2_header_error(cf, तथ्य, stream, परिणाम);
+      वापस NGHTTP2_ERR_CALLBACK_FAILURE;
     }
-    hlen = curl_msnprintf(buffer, sizeof(buffer), HTTP_PSEUDO_STATUS ":%d\r",
+    hlen = curl_msnprintf(बफर, माप(बफर), HTTP_PSEUDO_STATUS ":%d\r",
                           stream->status_code);
-    result = Curl_headers_push(data, buffer, hlen, CURLH_PSEUDO);
-    if(result) {
-      cf_h2_header_error(cf, data, stream, result);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    परिणाम = Curl_headers_धकेलो(तथ्य, बफर, hlen, CURLH_PSEUDO);
+    अगर(परिणाम) {
+      cf_h2_header_error(cf, तथ्य, stream, परिणाम);
+      वापस NGHTTP2_ERR_CALLBACK_FAILURE;
     }
     curlx_dyn_reset(&ctx->scratch);
-    result = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/2 "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, value, valuelen);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
-    if(!result)
-      h2_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
+    परिणाम = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/2 "));
+    अगर(!परिणाम)
+      परिणाम = curlx_dyn_addn(&ctx->scratch, मूल्य, valuelen);
+    अगर(!परिणाम)
+      परिणाम = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
+    अगर(!परिणाम)
+      h2_xfer_write_resp_hd(cf, तथ्य, stream, curlx_dyn_ptr(&ctx->scratch),
                             curlx_dyn_len(&ctx->scratch), FALSE);
-    if(result) {
-      cf_h2_header_error(cf, data, stream, result);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    अगर(परिणाम) {
+      cf_h2_header_error(cf, तथ्य, stream, परिणाम);
+      वापस NGHTTP2_ERR_CALLBACK_FAILURE;
     }
     /* if we receive data for another handle, wake that up */
-    if(CF_DATA_CURRENT(cf) != data)
-      Curl_multi_mark_dirty(data);
+    अगर(CF_तथ्य_CURRENT(cf) != तथ्य)
+      Curl_multi_mark_dirty(तथ्य);
 
-    CURL_TRC_CF(data, cf, "[%d] status: HTTP/2 %03d",
+    CURL_TRC_CF(तथ्य, cf, "[%d] status: HTTP/2 %03d",
                 stream->id, stream->status_code);
-    return 0;
+    वापस 0;
   }
 
   /* nghttp2 guarantees that namelen > 0, and :status was already
      received, and this is not pseudo-header field . */
   /* convert to an HTTP1-style header */
   curlx_dyn_reset(&ctx->scratch);
-  result = curlx_dyn_addn(&ctx->scratch, (const char *)name, namelen);
-  if(!result)
-    result = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
-  if(!result)
-    result = curlx_dyn_addn(&ctx->scratch, (const char *)value, valuelen);
-  if(!result)
-    result = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
-  if(!result)
-    h2_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
+  परिणाम = curlx_dyn_addn(&ctx->scratch, (स्थिर अक्षर *)name, namelen);
+  अगर(!परिणाम)
+    परिणाम = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
+  अगर(!परिणाम)
+    परिणाम = curlx_dyn_addn(&ctx->scratch, (स्थिर अक्षर *)मूल्य, valuelen);
+  अगर(!परिणाम)
+    परिणाम = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
+  अगर(!परिणाम)
+    h2_xfer_write_resp_hd(cf, तथ्य, stream, curlx_dyn_ptr(&ctx->scratch),
                           curlx_dyn_len(&ctx->scratch), FALSE);
-  if(result) {
-    cf_h2_header_error(cf, data, stream, result);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  अगर(परिणाम) {
+    cf_h2_header_error(cf, तथ्य, stream, परिणाम);
+    वापस NGHTTP2_ERR_CALLBACK_FAILURE;
   }
   /* if we receive data for another handle, wake that up */
-  if(CF_DATA_CURRENT(cf) != data)
-    Curl_multi_mark_dirty(data);
+  अगर(CF_तथ्य_CURRENT(cf) != तथ्य)
+    Curl_multi_mark_dirty(तथ्य);
 
-  CURL_TRC_CF(data, cf, "[%d] header: %.*s: %.*s",
-              stream->id, (int)namelen, name, (int)valuelen, value);
+  CURL_TRC_CF(तथ्य, cf, "[%d] header: %.*s: %.*s",
+              stream->id, (पूर्णांक)namelen, name, (पूर्णांक)valuelen, मूल्य);
 
-  return 0; /* 0 is successful */
+  वापस 0; /* 0 is successful */
 }
 
-static ssize_t req_body_read_callback(nghttp2_session *session,
+अटल ssize_t req_body_read_callback(nghttp2_session *session,
                                       int32_t stream_id,
-                                      uint8_t *buf, size_t length,
-                                      uint32_t *data_flags,
-                                      nghttp2_data_source *source,
-                                      void *userp)
+                                      uint8_t *buf, माप_प्रकार लंबाई,
+                                      uint32_t *तथ्य_flags,
+                                      nghttp2_तथ्य_source *source,
+                                      व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct Curl_easy *data_s;
-  struct h2_stream_ctx *stream = NULL;
-  CURLcode result;
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा Curl_easy *तथ्य_s;
+  काष्ठा h2_stream_ctx *stream = शून्य;
+  CURLcode परिणाम;
   ssize_t nread;
-  size_t n;
-  (void)source;
+  माप_प्रकार n;
+  (व्योम)source;
 
-  (void)session;
-  if(!stream_id)
-    return NGHTTP2_ERR_INVALID_ARGUMENT;
+  (व्योम)session;
+  अगर(!stream_id)
+    वापस NGHTTP2_ERR_INVALID_ARGUMENT;
 
   /* get the stream from the hash based on Stream ID, stream ID zero is for
      connection-oriented stuff */
-  data_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(!data_s || !stream)
+  तथ्य_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
+  अगर(!तथ्य_s || !stream)
     /* Receiving a Stream ID not in the hash should not happen, this is an
        internal error more than anything else! */
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    वापस NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  result = Curl_bufq_read(&stream->sendbuf, buf, length, &n);
-  if(result) {
-    if(result != CURLE_AGAIN)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+  परिणाम = Curl_bufq_read(&stream->sendbuf, buf, लंबाई, &n);
+  अगर(परिणाम) {
+    अगर(परिणाम != CURLE_AGAIN)
+      वापस NGHTTP2_ERR_CALLBACK_FAILURE;
     nread = 0;
   }
-  else
+  अन्यथा
     nread = (ssize_t)n;
 
-  CURL_TRC_CF(data_s, cf, "[%d] req_body_read(len=%zu) eos=%d -> %zd, %d",
-              stream_id, length, stream->body_eos, nread, (int)result);
+  CURL_TRC_CF(तथ्य_s, cf, "[%d] req_body_read(len=%zu) eos=%d -> %zd, %d",
+              stream_id, लंबाई, stream->body_eos, nread, (पूर्णांक)परिणाम);
 
-  if(stream->body_eos && Curl_bufq_is_empty(&stream->sendbuf)) {
-    *data_flags = NGHTTP2_DATA_FLAG_EOF;
-    return nread;
+  अगर(stream->body_eos && Curl_bufq_is_empty(&stream->sendbuf)) {
+    *तथ्य_flags = NGHTTP2_तथ्य_FLAG_EOF;
+    वापस nread;
   }
-  return (nread == 0) ? NGHTTP2_ERR_DEFERRED : nread;
+  वापस (nread == 0) ? NGHTTP2_ERR_DEFERRED : nread;
 }
 
-#ifdef CURLVERBOSE
-static int error_callback(nghttp2_session *session,
-                          const char *msg,
-                          size_t len,
-                          void *userp)
+#अगर_घोषित CURLVERBOSE
+अटल पूर्णांक error_callback(nghttp2_session *session,
+                          स्थिर अक्षर *संदेश,
+                          माप_प्रकार len,
+                          व्योम *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  (void)session;
-  failf(data, "%.*s", (int)len, msg);
-  return 0;
+  काष्ठा Curl_cfilter *cf = userp;
+  काष्ठा Curl_easy *तथ्य = CF_तथ्य_CURRENT(cf);
+  (व्योम)session;
+  failf(तथ्य, "%.*s", (पूर्णांक)len, संदेश);
+  वापस 0;
 }
-#endif
+#पूर्ण_अगर
 
 /*
  * Append headers to ask for an HTTP1.1 to HTTP2 upgrade.
  */
-CURLcode Curl_http2_request_upgrade(struct dynbuf *req,
-                                    struct Curl_easy *data)
+CURLcode Curl_http2_request_upgrade(काष्ठा dynbuf *req,
+                                    काष्ठा Curl_easy *तथ्य)
 {
-  CURLcode result;
-  char *base64;
-  size_t blen;
-  struct SingleRequest *k = &data->req;
+  CURLcode परिणाम;
+  अक्षर *base64;
+  माप_प्रकार blen;
+  काष्ठा SingleRequest *k = &तथ्य->req;
   uint8_t binsettings[H2_BINSETTINGS_LEN];
   ssize_t rc;
-  size_t binlen; /* length of the binsettings data */
+  माप_प्रकार binlen; /* length of the binsettings data */
 
-  rc = populate_binsettings(binsettings, data);
-  if(!curlx_sztouz(rc, &binlen) || !binlen) {
-    failf(data, "nghttp2 unexpectedly failed on pack_settings_payload");
+  rc = populate_binsettings(binsettings, तथ्य);
+  अगर(!curlx_sztouz(rc, &binlen) || !binlen) {
+    failf(तथ्य, "nghttp2 unexpectedly failed on pack_settings_payload");
     curlx_dyn_free(req);
-    return CURLE_FAILED_INIT;
+    वापस CURLE_FAILED_INIT;
   }
 
-  result = curlx_base64url_encode(binsettings, binlen, &base64, &blen);
-  if(result) {
+  परिणाम = curlx_base64url_encode(binsettings, binlen, &base64, &blen);
+  अगर(परिणाम) {
     curlx_dyn_free(req);
-    return result;
+    वापस परिणाम;
   }
 
-  data->state.http_hd_upgrade = TRUE;
-  data->state.http_hd_h2_settings = TRUE;
-  result = curlx_dyn_addf(req,
+  तथ्य->state.http_hd_upgrade = TRUE;
+  तथ्य->state.http_hd_h2_settings = TRUE;
+  परिणाम = curlx_dyn_addf(req,
                           "Upgrade: %s\r\n"
                           "HTTP2-Settings: %s\r\n",
                           NGHTTP2_CLEARTEXT_PROTO_VERSION_ID, base64);
   curlx_free(base64);
 
   k->upgr101 = UPGR101_H2;
-  data->conn->bits.upgrade_in_progress = TRUE;
+  तथ्य->conn->bits.upgrade_in_progress = TRUE;
 
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode http2_handle_stream_close(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct h2_stream_ctx *stream,
-                                          size_t *pnlen)
+अटल CURLcode http2_handle_stream_close(काष्ठा Curl_cfilter *cf,
+                                          काष्ठा Curl_easy *तथ्य,
+                                          काष्ठा h2_stream_ctx *stream,
+                                          माप_प्रकार *pnlen)
 {
-  CURLcode result;
+  CURLcode परिणाम;
 
   *pnlen = 0;
-  if(stream->reset) {
-    if(stream->error == NGHTTP2_REFUSED_STREAM) {
-      infof(data, "HTTP/2 stream %d refused by server, try again on a new "
+  अगर(stream->reset) {
+    अगर(stream->error == NGHTTP2_REFUSED_STREAM) {
+      infof(तथ्य, "HTTP/2 stream %d refused by server, try again on a new "
                   "connection", stream->id);
       connclose(cf->conn); /* do not use this anymore */
-      data->state.refused_stream = TRUE;
-      return CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
+      तथ्य->state.refused_stream = TRUE;
+      वापस CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
-      CURL_TRC_CF(data, cf, "[%d] error after response headers, but we did "
+    अन्यथा अगर(stream->resp_hds_complete && तथ्य->req.no_body) {
+      CURL_TRC_CF(तथ्य, cf, "[%d] error after response headers, but we did "
                   "not want a body anyway, ignore: %s (err %u)",
                   stream->id, nghttp2_http2_strerror(stream->error),
                   stream->error);
       stream->close_handled = TRUE;
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
-    failf(data, "HTTP/2 stream %d reset by %s (error 0x%x %s)",
+    failf(तथ्य, "HTTP/2 stream %d reset by %s (error 0x%x %s)",
           stream->id, stream->reset_by_server ? "server" : "curl",
           stream->error, nghttp2_http2_strerror(stream->error));
-    return stream->error ? CURLE_HTTP2_STREAM :
-           (data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP2);
+    वापस stream->error ? CURLE_HTTP2_STREAM :
+           (तथ्य->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP2);
   }
-  else if(!stream->bodystarted) {
-    failf(data, "HTTP/2 stream %d was closed cleanly, but before getting "
+  अन्यथा अगर(!stream->bodystarted) {
+    failf(तथ्य, "HTTP/2 stream %d was closed cleanly, but before getting "
           "all response header fields, treated as error", stream->id);
-    return CURLE_HTTP2_STREAM;
+    वापस CURLE_HTTP2_STREAM;
   }
 
-  if(Curl_dynhds_count(&stream->resp_trailers)) {
-    struct dynhds_entry *e;
-    struct dynbuf dbuf;
-    size_t i;
+  अगर(Curl_dynhds_गिनती(&stream->resp_trailers)) {
+    काष्ठा dynhds_entry *e;
+    काष्ठा dynbuf dbuf;
+    माप_प्रकार i;
 
-    result = CURLE_OK;
+    परिणाम = CURLE_OK;
     curlx_dyn_init(&dbuf, DYN_TRAILERS);
-    for(i = 0; i < Curl_dynhds_count(&stream->resp_trailers); ++i) {
+    क्रम(i = 0; i < Curl_dynhds_गिनती(&stream->resp_trailers); ++i) {
       e = Curl_dynhds_getn(&stream->resp_trailers, i);
-      if(!e)
-        break;
+      अगर(!e)
+        अवरोध;
       curlx_dyn_reset(&dbuf);
-      result = curlx_dyn_addf(&dbuf, "%.*s: %.*s\x0d\x0a",
-                              (int)e->namelen, e->name,
-                              (int)e->valuelen, e->value);
-      if(result)
-        break;
-      Curl_debug(data, CURLINFO_HEADER_IN, curlx_dyn_ptr(&dbuf),
+      परिणाम = curlx_dyn_addf(&dbuf, "%.*s: %.*s\x0d\x0a",
+                              (पूर्णांक)e->namelen, e->name,
+                              (पूर्णांक)e->valuelen, e->मूल्य);
+      अगर(परिणाम)
+        अवरोध;
+      Curl_debug(तथ्य, CURLINFO_HEADER_IN, curlx_dyn_ptr(&dbuf),
                  curlx_dyn_len(&dbuf));
-      result = Curl_client_write(data,
+      परिणाम = Curl_client_write(तथ्य,
                                  CLIENTWRITE_HEADER | CLIENTWRITE_TRAILER,
                                  curlx_dyn_ptr(&dbuf), curlx_dyn_len(&dbuf));
-      if(result)
-        break;
-      result = Curl_bump_headersize(data, curlx_dyn_len(&dbuf), FALSE);
-      if(result)
-        return result;
+      अगर(परिणाम)
+        अवरोध;
+      परिणाम = Curl_bump_headersize(तथ्य, curlx_dyn_len(&dbuf), FALSE);
+      अगर(परिणाम)
+        वापस परिणाम;
     }
     curlx_dyn_free(&dbuf);
-    if(result)
-      goto out;
+    अगर(परिणाम)
+      जाओ out;
   }
 
   stream->close_handled = TRUE;
-  result = CURLE_OK;
+  परिणाम = CURLE_OK;
 
 out:
-  CURL_TRC_CF(data, cf, "handle_stream_close -> %d, %zu", (int)result, *pnlen);
-  return result;
+  CURL_TRC_CF(तथ्य, cf, "handle_stream_close -> %d, %zu", (पूर्णांक)परिणाम, *pnlen);
+  वापस परिणाम;
 }
 
-static int sweight_wanted(const struct Curl_easy *data)
+अटल पूर्णांक sweight_wanted(स्थिर काष्ठा Curl_easy *तथ्य)
 {
   /* 0 weight is not set by user and we take the nghttp2 default one */
-  return data->set.weight ?
-    data->set.weight : NGHTTP2_DEFAULT_WEIGHT;
+  वापस तथ्य->set.weight ?
+    तथ्य->set.weight : NGHTTP2_DEFAULT_WEIGHT;
 }
 
-static int sweight_in_effect(const struct Curl_easy *data)
+अटल पूर्णांक sweight_in_effect(स्थिर काष्ठा Curl_easy *तथ्य)
 {
   /* 0 weight is not set by user and we take the nghttp2 default one */
-  return data->state.weight ?
-    data->state.weight : NGHTTP2_DEFAULT_WEIGHT;
+  वापस तथ्य->state.weight ?
+    तथ्य->state.weight : NGHTTP2_DEFAULT_WEIGHT;
 }
 
 /*
@@ -1801,12 +1801,12 @@ static int sweight_in_effect(const struct Curl_easy *data)
  * struct.
  */
 
-static void h2_pri_spec(struct Curl_easy *data,
+अटल व्योम h2_pri_spec(काष्ठा Curl_easy *तथ्य,
                         nghttp2_priority_spec *pri_spec)
 {
-  int prio = data->set.weight;
-  nghttp2_priority_spec_init(pri_spec, 0, sweight_wanted(data), FALSE);
-  data->state.weight = prio;
+  पूर्णांक prio = तथ्य->set.weight;
+  nghttp2_priority_spec_init(pri_spec, 0, sweight_wanted(तथ्य), FALSE);
+  तथ्य->state.weight = prio;
 }
 
 /*
@@ -1815,991 +1815,991 @@ static void h2_pri_spec(struct Curl_easy *data,
  * info.
  * Flush any out data pending in the network buffer.
  */
-static CURLcode h2_progress_egress(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+अटल CURLcode h2_progress_egress(काष्ठा Curl_cfilter *cf,
+                                   काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  int rv = 0;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  पूर्णांक rv = 0;
 
-  if(sweight_wanted(data) != sweight_in_effect(data)) {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-    if(stream && stream->id > 0 &&
-       (sweight_wanted(data) != sweight_in_effect(data))) {
+  अगर(sweight_wanted(तथ्य) != sweight_in_effect(तथ्य)) {
+    काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
+    अगर(stream && stream->id > 0 &&
+       (sweight_wanted(तथ्य) != sweight_in_effect(तथ्य))) {
       /* send new weight and/or dependency */
       nghttp2_priority_spec pri_spec;
 
-      h2_pri_spec(data, &pri_spec);
-      CURL_TRC_CF(data, cf, "[%d] Queuing PRIORITY", stream->id);
+      h2_pri_spec(तथ्य, &pri_spec);
+      CURL_TRC_CF(तथ्य, cf, "[%d] Queuing PRIORITY", stream->id);
       DEBUGASSERT(stream->id != -1);
       rv = Curl_ngh2_submit_priority(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, &pri_spec);
-      if(rv)
-        goto out;
+      अगर(rv)
+        जाओ out;
     }
   }
 
   ctx->nw_out_blocked = 0;
-  while(!rv && !ctx->nw_out_blocked &&
+  जबतक(!rv && !ctx->nw_out_blocked &&
         Curl_ngh2_session_want_write(&ctx->ngh2))
     rv = Curl_ngh2_session_send(&ctx->ngh2);
 
 out:
-  if(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
+  अगर(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
     VERBOSE(rv = Curl_ngh2_fatal(&ctx->ngh2));
-    CURL_TRC_CF(data, cf, "nghttp2_session_send error (%s)%d",
+    CURL_TRC_CF(तथ्य, cf, "nghttp2_session_send error (%s)%d",
                 nghttp2_strerror(rv), rv);
-    return CURLE_SEND_ERROR;
+    वापस CURLE_SEND_ERROR;
   }
   /* Defer flushing during the connect phase so that the SETTINGS and
    * other initial frames are sent together with the first request.
    * Unless we are 'connect_only' where the request will never come. */
-  if(!cf->connected && !cf->conn->bits.connect_only)
-    return CURLE_OK;
-  return nw_out_flush(cf, data);
+  अगर(!cf->connected && !cf->conn->bits.connect_only)
+    वापस CURLE_OK;
+  वापस nw_out_flush(cf, तथ्य);
 }
 
-static CURLcode stream_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            struct h2_stream_ctx *stream,
-                            char *buf, size_t len, size_t *pnread)
+अटल CURLcode stream_recv(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                            काष्ठा h2_stream_ctx *stream,
+                            अक्षर *buf, माप_प्रकार len, माप_प्रकार *pnread)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_AGAIN;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_AGAIN;
 
-  (void)buf;
-  (void)len;
+  (व्योम)buf;
+  (व्योम)len;
   *pnread = 0;
 
-  if(!stream->xfer_result)
-    stream->xfer_result = cf_h2_update_local_win(cf, data, stream);
+  अगर(!stream->xfer_परिणाम)
+    stream->xfer_परिणाम = cf_h2_update_local_win(cf, तथ्य, stream);
 
-  if(stream->xfer_result) {
-    CURL_TRC_CF(data, cf, "[%d] xfer write failed", stream->id);
-    result = stream->xfer_result;
+  अगर(stream->xfer_परिणाम) {
+    CURL_TRC_CF(तथ्य, cf, "[%d] xfer write failed", stream->id);
+    परिणाम = stream->xfer_परिणाम;
   }
-  else if(stream->closed) {
-    CURL_TRC_CF(data, cf, "[%d] returning CLOSE", stream->id);
-    result = http2_handle_stream_close(cf, data, stream, pnread);
+  अन्यथा अगर(stream->closed) {
+    CURL_TRC_CF(तथ्य, cf, "[%d] returning CLOSE", stream->id);
+    परिणाम = http2_handle_stream_close(cf, तथ्य, stream, pnread);
   }
-  else if(stream->reset ||
+  अन्यथा अगर(stream->reset ||
           (ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) ||
           (ctx->rcvd_goaway && ctx->remote_max_sid < stream->id)) {
-    CURL_TRC_CF(data, cf, "[%d] returning ERR", stream->id);
-    result = data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP2;
+    CURL_TRC_CF(तथ्य, cf, "[%d] returning ERR", stream->id);
+    परिणाम = तथ्य->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP2;
   }
 
-  if(result && (result != CURLE_AGAIN))
-    CURL_TRC_CF(data, cf, "[%d] stream_recv(len=%zu) -> %d, %zu",
-                stream->id, len, (int)result, *pnread);
-  return result;
+  अगर(परिणाम && (परिणाम != CURLE_AGAIN))
+    CURL_TRC_CF(तथ्य, cf, "[%d] stream_recv(len=%zu) -> %d, %zu",
+                stream->id, len, (पूर्णांक)परिणाम, *pnread);
+  वापस परिणाम;
 }
 
-static CURLcode h2_progress_ingress(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    size_t data_max_bytes)
+अटल CURLcode h2_progress_ingress(काष्ठा Curl_cfilter *cf,
+                                    काष्ठा Curl_easy *तथ्य,
+                                    माप_प्रकार तथ्य_max_bytes)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  size_t nread;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
+  माप_प्रकार nread;
 
-  if(should_close_session(ctx)) {
-    CURL_TRC_CF(data, cf, "[0] ingress: session is closed");
-    return CURLE_HTTP2;
+  अगर(should_close_session(ctx)) {
+    CURL_TRC_CF(तथ्य, cf, "[0] ingress: session is closed");
+    वापस CURLE_HTTP2;
   }
 
   /* Process network input buffer first */
-  if(!Curl_bufq_is_empty(&ctx->inbufq)) {
-    CURL_TRC_CF(data, cf, "Process %zu bytes in connection buffer",
+  अगर(!Curl_bufq_is_empty(&ctx->inbufq)) {
+    CURL_TRC_CF(तथ्य, cf, "Process %zu bytes in connection buffer",
                 Curl_bufq_len(&ctx->inbufq));
-    result = h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    परिणाम = h2_process_pending_निवेश(cf, तथ्य);
+    अगर(परिणाम)
+      वापस परिणाम;
   }
 
-  if(!data_max_bytes)
-    data_max_bytes = H2_CHUNK_SIZE;
+  अगर(!तथ्य_max_bytes)
+    तथ्य_max_bytes = H2_CHUNK_आकार;
 
   /* Receive data from the "lower" filters, e.g. network until
    * it is time to stop due to connection close or us not processing
    * all network input */
-  while(!ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-    if(stream && (stream->closed || !data_max_bytes)) {
+  जबतक(!ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) {
+    काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
+    अगर(stream && (stream->closed || !तथ्य_max_bytes)) {
       /* We would like to abort here and stop processing, so that the transfer
        * loop can handle the data/close here. This may leave data in
        * underlying buffers that will not be consumed. */
-      if(!cf->next || !cf->next->cft->has_data_pending(cf->next, data))
-        Curl_multi_mark_dirty(data);
-      break;
+      अगर(!cf->अग्र || !cf->अग्र->cft->has_तथ्य_pending(cf->अग्र, तथ्य))
+        Curl_multi_mark_dirty(तथ्य);
+      अवरोध;
     }
 
-    result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
-    if(result) {
-      if(result != CURLE_AGAIN) {
-        failf(data, "Failed receiving HTTP2 data: %d(%s)", (int)result,
-              curl_easy_strerror(result));
-        return result;
+    परिणाम = Curl_cf_recv_bufq(cf->अग्र, तथ्य, &ctx->inbufq, 0, &nread);
+    अगर(परिणाम) {
+      अगर(परिणाम != CURLE_AGAIN) {
+        failf(तथ्य, "Failed receiving HTTP2 data: %d(%s)", (पूर्णांक)परिणाम,
+              curl_easy_strerror(परिणाम));
+        वापस परिणाम;
       }
-      break;
+      अवरोध;
     }
-    else if(nread == 0) {
-      CURL_TRC_CF(data, cf, "[0] ingress: connection closed");
+    अन्यथा अगर(nread == 0) {
+      CURL_TRC_CF(तथ्य, cf, "[0] ingress: connection closed");
       ctx->conn_closed = TRUE;
-      break;
+      अवरोध;
     }
-    else {
-      CURL_TRC_CF(data, cf, "[0] ingress: read %zu bytes", nread);
-      data_max_bytes = (data_max_bytes > nread) ? (data_max_bytes - nread) : 0;
+    अन्यथा {
+      CURL_TRC_CF(तथ्य, cf, "[0] ingress: read %zu bytes", nread);
+      तथ्य_max_bytes = (तथ्य_max_bytes > nread) ? (तथ्य_max_bytes - nread) : 0;
     }
 
-    result = h2_process_pending_input(cf, data);
-    if(result)
-      return result;
-    CURL_TRC_CF(data, cf, "[0] ingress: nw-in buffered %zu",
+    परिणाम = h2_process_pending_निवेश(cf, तथ्य);
+    अगर(परिणाम)
+      वापस परिणाम;
+    CURL_TRC_CF(तथ्य, cf, "[0] ingress: nw-in buffered %zu",
                 Curl_bufq_len(&ctx->inbufq));
   }
 
-  if(ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) {
-    CURL_TRC_CF(data, cf, "server closed %s",
+  अगर(ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) {
+    CURL_TRC_CF(तथ्य, cf, "server closed %s",
                 ctx->rcvd_goaway ? "with GOAWAY" : "abruptly");
     connclose(cf->conn);
   }
 
-  CURL_TRC_CF(data, cf, "[0] ingress: done");
-  return CURLE_OK;
+  CURL_TRC_CF(तथ्य, cf, "[0] ingress: done");
+  वापस CURLE_OK;
 }
 
-static CURLcode cf_h2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           char *buf, size_t len, size_t *pnread)
+अटल CURLcode cf_h2_recv(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                           अक्षर *buf, माप_प्रकार len, माप_प्रकार *pnread)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
-  CURLcode result, r2;
-  struct cf_call_data save;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream;
+  CURLcode परिणाम, r2;
+  काष्ठा cf_call_तथ्य save;
 
-  if(!data)
-    return CURLE_HTTP2;
+  अगर(!तथ्य)
+    वापस CURLE_HTTP2;
 
-  stream = H2_STREAM_CTX(ctx, data);
+  stream = H2_STREAM_CTX(ctx, तथ्य);
 
   *pnread = 0;
-  if(!stream) {
+  अगर(!stream) {
     /* Abnormal call sequence: either this transfer has never opened a stream
      * (unlikely) or the transfer has been done, cleaned up its resources, but
      * a read() is called anyway. It is not clear what the calling sequence
      * is for such a case. */
-    failf(data, "http/2 recv on a transfer never opened "
-          "or already cleared, mid=%u", data->mid);
-    return CURLE_HTTP2;
+    failf(तथ्य, "http/2 recv on a transfer never opened "
+          "or already cleared, mid=%u", तथ्य->mid);
+    वापस CURLE_HTTP2;
   }
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_तथ्य_SAVE(save, cf, तथ्य);
 
-  result = stream_recv(cf, data, stream, buf, len, pnread);
-  if(result && (result != CURLE_AGAIN))
-    goto out;
+  परिणाम = stream_recv(cf, तथ्य, stream, buf, len, pnread);
+  अगर(परिणाम && (परिणाम != CURLE_AGAIN))
+    जाओ out;
 
-  if(result) {
-    result = h2_progress_ingress(cf, data, len);
-    if(result)
-      goto out;
+  अगर(परिणाम) {
+    परिणाम = h2_progress_ingress(cf, तथ्य, len);
+    अगर(परिणाम)
+      जाओ out;
 
-    result = stream_recv(cf, data, stream, buf, len, pnread);
+    परिणाम = stream_recv(cf, तथ्य, stream, buf, len, pnread);
   }
 
-  if(*pnread > 0) {
+  अगर(*pnread > 0) {
     /* Now that we transferred this to the upper layer, we report
      * the actual amount of DATA consumed to the H2 session, so
      * that it adjusts stream flow control */
     Curl_ngh2_session_consume(&ctx->ngh2, stream->id, *pnread);
-    if(stream->closed) {
-      CURL_TRC_CF(data, cf, "[%d] DRAIN closed stream", stream->id);
-      Curl_multi_mark_dirty(data);
+    अगर(stream->closed) {
+      CURL_TRC_CF(तथ्य, cf, "[%d] DRAIN closed stream", stream->id);
+      Curl_multi_mark_dirty(तथ्य);
     }
   }
 
 out:
-  r2 = h2_progress_egress(cf, data);
-  if(r2 == CURLE_AGAIN) {
+  r2 = h2_progress_egress(cf, तथ्य);
+  अगर(r2 == CURLE_AGAIN) {
     /* pending data to send, need to be called again. Ideally, we
      * monitor the socket for POLLOUT, but when not SENDING
      * any more, we force processing of the transfer. */
-    if(!CURL_REQ_WANT_SEND(data))
-      Curl_multi_mark_dirty(data);
+    अगर(!CURL_REQ_WANT_SEND(तथ्य))
+      Curl_multi_mark_dirty(तथ्य);
   }
-  else if(r2 && (result == CURLE_AGAIN)) {
+  अन्यथा अगर(r2 && (परिणाम == CURLE_AGAIN)) {
     /* Do not replace a previous error result NOR a successful result
      * with an egress error. Example: the server might close the
      * connection after sending the complete response with EOS
      * and everything. Further sending may fail, but that MUST
      * not change that we had a successful response. */
-    result = r2;
+    परिणाम = r2;
   }
 
-  CURL_TRC_CF(data, cf, "[%d] cf_recv(len=%zu) -> %d, %zu, "
+  CURL_TRC_CF(तथ्य, cf, "[%d] cf_recv(len=%zu) -> %d, %zu, "
               "window=%d/%d, connection %d/%d",
-              stream->id, len, (int)result, *pnread,
-              Curl_ngh2_session_get_stream_effective_recv_data_length(
+              stream->id, len, (पूर्णांक)परिणाम, *pnread,
+              Curl_ngh2_session_get_stream_effective_recv_तथ्य_लंबाई(
                 &ctx->ngh2, stream->id),
-              Curl_ngh2_session_get_stream_effective_local_window_size(
+              Curl_ngh2_session_get_stream_effective_local_window_आकार(
                 &ctx->ngh2, stream->id),
-              Curl_ngh2_session_get_local_window_size(&ctx->ngh2),
-              HTTP2_HUGE_WINDOW_SIZE);
+              Curl_ngh2_session_get_local_window_आकार(&ctx->ngh2),
+              HTTP2_HUGE_WINDOW_आकार);
 
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_तथ्य_RESTORE(cf, save);
+  वापस परिणाम;
 }
 
-static CURLcode cf_h2_body_send(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct h2_stream_ctx *stream,
-                                const void *buf, size_t blen, bool eos,
-                                size_t *pnwritten)
+अटल CURLcode cf_h2_body_send(काष्ठा Curl_cfilter *cf,
+                                काष्ठा Curl_easy *तथ्य,
+                                काष्ठा h2_stream_ctx *stream,
+                                स्थिर व्योम *buf, माप_प्रकार blen, bool eos,
+                                माप_प्रकार *pnwritten)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  CURLcode result;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  CURLcode परिणाम;
 
   *pnwritten = 0;
-  if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  अगर(stream->closed) {
+    अगर(stream->resp_hds_complete) {
       /* Server decided to close the stream after having sent us a final
        * response. This is valid if it is not interested in the request
        * body. This happens on 30x or 40x responses.
        * We silently discard the data sent, since this is not a transport
        * error situation. */
-      CURL_TRC_CF(data, cf, "[%d] discarding data"
+      CURL_TRC_CF(तथ्य, cf, "[%d] discarding data"
                   "on closed stream with response", stream->id);
-      if(eos)
+      अगर(eos)
         stream->body_eos = TRUE;
       *pnwritten = blen;
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
     /* Server closed before we got a response, this is an error */
-    infof(data, "stream %d closed", stream->id);
-    return CURLE_SEND_ERROR;
+    infof(तथ्य, "stream %d closed", stream->id);
+    वापस CURLE_SEND_ERROR;
   }
 
-  result = Curl_bufq_write(&stream->sendbuf, buf, blen, pnwritten);
-  if(result)
-    return result;
+  परिणाम = Curl_bufq_write(&stream->sendbuf, buf, blen, pnwritten);
+  अगर(परिणाम)
+    वापस परिणाम;
 
-  if(eos && (blen == *pnwritten))
+  अगर(eos && (blen == *pnwritten))
     stream->body_eos = TRUE;
 
-  if(eos || !Curl_bufq_is_empty(&stream->sendbuf)) {
+  अगर(eos || !Curl_bufq_is_empty(&stream->sendbuf)) {
     /* resume the potentially suspended stream */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
-         Curl_ngh2_session_resume_data(&ctx->ngh2, stream->id)))
-      return CURLE_SEND_ERROR;
+    अगर(Curl_ngh2_is_fatal(&ctx->ngh2,
+         Curl_ngh2_session_resume_तथ्य(&ctx->ngh2, stream->id)))
+      वापस CURLE_SEND_ERROR;
   }
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode h2_submit(struct h2_stream_ctx **pstream,
-                          struct Curl_cfilter *cf, struct Curl_easy *data,
-                          const uint8_t *buf, size_t len,
-                          bool eos, size_t *pnwritten)
+अटल CURLcode h2_submit(काष्ठा h2_stream_ctx **pstream,
+                          काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                          स्थिर uint8_t *buf, माप_प्रकार len,
+                          bool eos, माप_प्रकार *pnwritten)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = NULL;
-  struct dynhds h2_headers;
-  nghttp2_nv *nva = NULL;
-  const void *body = NULL;
-  size_t nheader, bodylen;
-  nghttp2_data_provider data_prd;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream = शून्य;
+  काष्ठा dynhds h2_headers;
+  nghttp2_nv *nva = शून्य;
+  स्थिर व्योम *body = शून्य;
+  माप_प्रकार nheader, bodylen;
+  nghttp2_तथ्य_provider तथ्य_prd;
   int32_t stream_id;
   nghttp2_priority_spec pri_spec;
-  size_t nwritten;
-  CURLcode result = CURLE_OK;
-  uint32_t initial_win_size;
+  माप_प्रकार nwritten;
+  CURLcode परिणाम = CURLE_OK;
+  uint32_t initial_win_आकार;
 
   *pnwritten = 0;
-  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_गिनती, DYN_HTTP_REQUEST);
 
-  result = http2_data_setup(cf, data, &stream);
-  if(result)
-    goto out;
+  परिणाम = http2_तथ्य_setup(cf, तथ्य, &stream);
+  अगर(परिणाम)
+    जाओ out;
 
-  result = Curl_h1_req_parse_read(
-    &stream->h1, buf, len, NULL,
-    !data->state.http_ignorecustom ?
-    CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : NULL,
+  परिणाम = Curl_h1_req_parse_read(
+    &stream->h1, buf, len, शून्य,
+    !तथ्य->state.http_ignorecustom ?
+    CURL_EASY_STR(तथ्य, STRING_CUSTOMREQUEST) : शून्य,
     0, &nwritten);
-  if(result)
-    goto out;
+  अगर(परिणाम)
+    जाओ out;
   *pnwritten = nwritten;
-  if(!stream->h1.done) {
+  अगर(!stream->h1.done) {
     /* need more data */
-    goto out;
+    जाओ out;
   }
   DEBUGASSERT(stream->h1.req);
 
-  result = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
-  if(result)
-    goto out;
+  परिणाम = Curl_http_req_to_h2(&h2_headers, stream->h1.req, तथ्य);
+  अगर(परिणाम)
+    जाओ out;
   /* no longer needed */
   Curl_h1_req_parse_free(&stream->h1);
 
   nva = Curl_dynhds_to_nva(&h2_headers, &nheader);
-  if(!nva) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  अगर(!nva) {
+    परिणाम = CURLE_OUT_OF_MEMORY;
+    जाओ out;
   }
 
-  h2_pri_spec(data, &pri_spec);
-  if(!Curl_ngh2_session_check_request_allowed(&ctx->ngh2))
-    CURL_TRC_CF(data, cf, "send request NOT allowed (via nghttp2)");
+  h2_pri_spec(तथ्य, &pri_spec);
+  अगर(!Curl_ngh2_session_check_request_allowed(&ctx->ngh2))
+    CURL_TRC_CF(तथ्य, cf, "send request NOT allowed (via nghttp2)");
 
   /* Check the initial windows size of the transfer (rate-limits?) and
    * send an updated settings on changes from previous value. */
-  initial_win_size = cf_h2_initial_win_size(data);
-  if(initial_win_size != ctx->initial_win_size) {
-    result = cf_h2_update_settings(ctx, initial_win_size);
-    if(result)
-      goto out;
+  initial_win_आकार = cf_h2_initial_win_आकार(तथ्य);
+  अगर(initial_win_आकार != ctx->initial_win_आकार) {
+    परिणाम = cf_h2_update_settings(ctx, initial_win_आकार);
+    अगर(परिणाम)
+      जाओ out;
   }
 
-  switch(data->state.httpreq) {
-  case HTTPREQ_POST:
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-  case HTTPREQ_PUT:
-    data_prd.read_callback = req_body_read_callback;
-    data_prd.source.ptr = NULL;
+  चयन(तथ्य->state.httpreq) {
+  हाल HTTPREQ_POST:
+  हाल HTTPREQ_POST_FORM:
+  हाल HTTPREQ_POST_MIME:
+  हाल HTTPREQ_PUT:
+    तथ्य_prd.read_callback = req_body_read_callback;
+    तथ्य_prd.source.ptr = शून्य;
     stream_id = Curl_ngh2_submit_request(
-      &ctx->ngh2, &pri_spec, nva, nheader, &data_prd, stream);
-    break;
-  default:
+      &ctx->ngh2, &pri_spec, nva, nheader, &तथ्य_prd, stream);
+    अवरोध;
+  शेष:
     stream_id = Curl_ngh2_submit_request(
-      &ctx->ngh2, &pri_spec, nva, nheader, NULL, stream);
+      &ctx->ngh2, &pri_spec, nva, nheader, शून्य, stream);
   }
 
-  if(stream_id < 0) {
-    CURL_TRC_CF(data, cf, "send: nghttp2_submit_request error (%s)%d",
+  अगर(stream_id < 0) {
+    CURL_TRC_CF(तथ्य, cf, "send: nghttp2_submit_request error (%s)%d",
                 nghttp2_strerror(stream_id), stream_id);
-    result = CURLE_SEND_ERROR;
-    goto out;
+    परिणाम = CURLE_SEND_ERROR;
+    जाओ out;
   }
 
-#ifdef CURLVERBOSE
-#define MAX_ACC 60000  /* <64KB to account for some overhead */
-  if(Curl_trc_is_verbose(data)) {
-    size_t acc = 0, i;
+#अगर_घोषित CURLVERBOSE
+#घोषणा MAX_ACC 60000  /* <64KB to account for some overhead */
+  अगर(Curl_trc_is_verbose(तथ्य)) {
+    माप_प्रकार acc = 0, i;
 
-    infof(data, "[HTTP/2] [%d] OPENED stream for %s",
-          stream_id, Curl_bufref_ptr(&data->state.url));
-    for(i = 0; i < nheader; ++i) {
+    infof(तथ्य, "[HTTP/2] [%d] OPENED stream for %s",
+          stream_id, Curl_bufref_ptr(&तथ्य->state.url));
+    क्रम(i = 0; i < nheader; ++i) {
       acc += nva[i].namelen + nva[i].valuelen;
 
-      infof(data, "[HTTP/2] [%d] [%.*s: %.*s]", stream_id,
-            (int)nva[i].namelen, nva[i].name,
-            (int)nva[i].valuelen, nva[i].value);
+      infof(तथ्य, "[HTTP/2] [%d] [%.*s: %.*s]", stream_id,
+            (पूर्णांक)nva[i].namelen, nva[i].name,
+            (पूर्णांक)nva[i].valuelen, nva[i].मूल्य);
     }
 
-    if(acc > MAX_ACC) {
-      infof(data, "[HTTP/2] Warning: The cumulative length of all "
+    अगर(acc > MAX_ACC) {
+      infof(तथ्य, "[HTTP/2] Warning: The cumulative length of all "
             "headers exceeds %d bytes and that could cause the "
             "stream to be rejected.", MAX_ACC);
     }
   }
-#endif
+#पूर्ण_अगर
 
   stream->id = stream_id;
 
-  body = (const char *)buf + *pnwritten;
+  body = (स्थिर अक्षर *)buf + *pnwritten;
   bodylen = len - *pnwritten;
 
-  if(bodylen || eos) {
-    size_t n;
-    result = cf_h2_body_send(cf, data, stream, body, bodylen, eos, &n);
-    if(!result)
+  अगर(bodylen || eos) {
+    माप_प्रकार n;
+    परिणाम = cf_h2_body_send(cf, तथ्य, stream, body, bodylen, eos, &n);
+    अगर(!परिणाम)
       *pnwritten += n;
-    else if(result == CURLE_AGAIN)
-      result = CURLE_OK;
-    else {
-      result = CURLE_SEND_ERROR;
+    अन्यथा अगर(परिणाम == CURLE_AGAIN)
+      परिणाम = CURLE_OK;
+    अन्यथा {
+      परिणाम = CURLE_SEND_ERROR;
     }
   }
 
 out:
-  CURL_TRC_CF(data, cf, "[%d] submit -> %d, %zu",
-              stream ? stream->id : -1, (int)result, *pnwritten);
+  CURL_TRC_CF(तथ्य, cf, "[%d] submit -> %d, %zu",
+              stream ? stream->id : -1, (पूर्णांक)परिणाम, *pnwritten);
   curlx_safefree(nva);
   *pstream = stream;
   Curl_dynhds_free(&h2_headers);
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode cf_h2_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           const uint8_t *buf, size_t len, bool eos,
-                           size_t *pnwritten)
+अटल CURLcode cf_h2_send(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य,
+                           स्थिर uint8_t *buf, माप_प्रकार len, bool eos,
+                           माप_प्रकार *pnwritten)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK, r2;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
+  काष्ठा cf_call_तथ्य save;
+  CURLcode परिणाम = CURLE_OK, r2;
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_तथ्य_SAVE(save, cf, तथ्य);
   *pnwritten = 0;
 
-  if(!stream || stream->id == -1) {
-    result = h2_submit(&stream, cf, data, buf, len, eos, pnwritten);
-    if(result)
-      goto out;
+  अगर(!stream || stream->id == -1) {
+    परिणाम = h2_submit(&stream, cf, तथ्य, buf, len, eos, pnwritten);
+    अगर(परिणाम)
+      जाओ out;
     DEBUGASSERT(stream);
   }
-  else if(stream->body_eos) {
+  अन्यथा अगर(stream->body_eos) {
     /* We already wrote this, but CURLE_AGAIN-ed the call due to not
      * being able to flush stream->sendbuf. Make a 0-length write
      * to trigger flushing again.
      * If this works, we report to have written `len` bytes. */
-    size_t n;
+    माप_प्रकार n;
     DEBUGASSERT(eos);
-    result = cf_h2_body_send(cf, data, stream, buf, 0, eos, &n);
-    CURL_TRC_CF(data, cf, "[%d] cf_body_send last CHUNK -> %d, %zu, eos=%d",
-                stream->id, (int)result, n, eos);
-    if(result)
-      goto out;
+    परिणाम = cf_h2_body_send(cf, तथ्य, stream, buf, 0, eos, &n);
+    CURL_TRC_CF(तथ्य, cf, "[%d] cf_body_send last CHUNK -> %d, %zu, eos=%d",
+                stream->id, (पूर्णांक)परिणाम, n, eos);
+    अगर(परिणाम)
+      जाओ out;
     *pnwritten = len;
   }
-  else {
-    result = cf_h2_body_send(cf, data, stream, buf, len, eos, pnwritten);
-    CURL_TRC_CF(data, cf, "[%d] cf_body_send(len=%zu) -> %d, %zu, eos=%d",
-                stream->id, len, (int)result, *pnwritten, eos);
+  अन्यथा {
+    परिणाम = cf_h2_body_send(cf, तथ्य, stream, buf, len, eos, pnwritten);
+    CURL_TRC_CF(तथ्य, cf, "[%d] cf_body_send(len=%zu) -> %d, %zu, eos=%d",
+                stream->id, len, (पूर्णांक)परिणाम, *pnwritten, eos);
   }
 
   /* Call the nghttp2 send loop and flush to write ALL buffered data,
    * headers and/or request body completely out to the network */
-  r2 = h2_progress_egress(cf, data);
+  r2 = h2_progress_egress(cf, तथ्य);
 
   /* if the stream has been closed in egress handling (nghttp2 does that
    * when it does not like the headers, for example */
-  if(stream && stream->closed && !stream->resp_hds_complete) {
-    infof(data, "stream %d closed", stream->id);
-    result = CURLE_SEND_ERROR;
-    goto out;
+  अगर(stream && stream->closed && !stream->resp_hds_complete) {
+    infof(तथ्य, "stream %d closed", stream->id);
+    परिणाम = CURLE_SEND_ERROR;
+    जाओ out;
   }
-  else if(r2 && (r2 != CURLE_AGAIN)) {
-    result = r2;
-    goto out;
+  अन्यथा अगर(r2 && (r2 != CURLE_AGAIN)) {
+    परिणाम = r2;
+    जाओ out;
   }
 
-  if(should_close_session(ctx)) {
+  अगर(should_close_session(ctx)) {
     /* nghttp2 thinks this session is done. If the stream has not been
      * closed, this is an error state for out transfer */
-    if(stream && stream->closed) {
-      result = http2_handle_stream_close(cf, data, stream, pnwritten);
+    अगर(stream && stream->closed) {
+      परिणाम = http2_handle_stream_close(cf, तथ्य, stream, pnwritten);
     }
-    else {
-      CURL_TRC_CF(data, cf, "send: nothing to do in this session");
-      result = CURLE_HTTP2;
+    अन्यथा {
+      CURL_TRC_CF(तथ्य, cf, "send: nothing to do in this session");
+      परिणाम = CURLE_HTTP2;
     }
   }
 
 out:
-  if(stream) {
-    CURL_TRC_CF(data, cf, "[%d] cf_send(len=%zu) -> %d, %zu, "
+  अगर(stream) {
+    CURL_TRC_CF(तथ्य, cf, "[%d] cf_send(len=%zu) -> %d, %zu, "
                 "eos=%d, h2 windows %d-%d (stream-conn), "
                 "buffers %zu-%zu (stream-conn)",
-                stream->id, len, (int)result, *pnwritten,
+                stream->id, len, (पूर्णांक)परिणाम, *pnwritten,
                 stream->body_eos,
-                Curl_ngh2_session_get_stream_remote_window_size(
+                Curl_ngh2_session_get_stream_remote_window_आकार(
                   &ctx->ngh2, stream->id),
-                Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
+                Curl_ngh2_session_get_remote_window_आकार(&ctx->ngh2),
                 Curl_bufq_len(&stream->sendbuf),
                 Curl_bufq_len(&ctx->outbufq));
   }
-  else {
-    CURL_TRC_CF(data, cf, "cf_send(len=%zu) -> %d, %zu, "
+  अन्यथा {
+    CURL_TRC_CF(तथ्य, cf, "cf_send(len=%zu) -> %d, %zu, "
                 "connection-window=%d, nw_send_buffer(%zu)",
-                len, (int)result, *pnwritten,
-                Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
+                len, (पूर्णांक)परिणाम, *pnwritten,
+                Curl_ngh2_session_get_remote_window_आकार(&ctx->ngh2),
                 Curl_bufq_len(&ctx->outbufq));
   }
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_तथ्य_RESTORE(cf, save);
+  वापस परिणाम;
 }
 
-static CURLcode cf_h2_flush(struct Curl_cfilter *cf,
-                            struct Curl_easy *data)
+अटल CURLcode cf_h2_flush(काष्ठा Curl_cfilter *cf,
+                            काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
-  CURLcode result = CURLE_OK;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
+  काष्ठा cf_call_तथ्य save;
+  CURLcode परिणाम = CURLE_OK;
 
-  CF_DATA_SAVE(save, cf, data);
-  if(stream && !Curl_bufq_is_empty(&stream->sendbuf)) {
+  CF_तथ्य_SAVE(save, cf, तथ्य);
+  अगर(stream && !Curl_bufq_is_empty(&stream->sendbuf)) {
     /* resume the potentially suspended stream */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
-         Curl_ngh2_session_resume_data(&ctx->ngh2, stream->id))) {
-      result = CURLE_SEND_ERROR;
-      goto out;
+    अगर(Curl_ngh2_is_fatal(&ctx->ngh2,
+         Curl_ngh2_session_resume_तथ्य(&ctx->ngh2, stream->id))) {
+      परिणाम = CURLE_SEND_ERROR;
+      जाओ out;
     }
   }
 
-  result = h2_progress_egress(cf, data);
+  परिणाम = h2_progress_egress(cf, तथ्य);
 
 out:
-  if(stream) {
-    CURL_TRC_CF(data, cf, "[%d] flush -> %d, "
+  अगर(stream) {
+    CURL_TRC_CF(तथ्य, cf, "[%d] flush -> %d, "
                 "h2 windows %d-%d (stream-conn), "
                 "buffers %zu-%zu (stream-conn)",
-                stream->id, (int)result,
-                Curl_ngh2_session_get_stream_remote_window_size(
+                stream->id, (पूर्णांक)परिणाम,
+                Curl_ngh2_session_get_stream_remote_window_आकार(
                   &ctx->ngh2, stream->id),
-                Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
+                Curl_ngh2_session_get_remote_window_आकार(&ctx->ngh2),
                 Curl_bufq_len(&stream->sendbuf),
                 Curl_bufq_len(&ctx->outbufq));
   }
-  else {
-    CURL_TRC_CF(data, cf, "flush -> %d, "
-                "connection-window=%d, nw_send_buffer(%zu)", (int)result,
-                Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
+  अन्यथा {
+    CURL_TRC_CF(तथ्य, cf, "flush -> %d, "
+                "connection-window=%d, nw_send_buffer(%zu)", (पूर्णांक)परिणाम,
+                Curl_ngh2_session_get_remote_window_आकार(&ctx->ngh2),
                 Curl_bufq_len(&ctx->outbufq));
   }
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_तथ्य_RESTORE(cf, save);
+  वापस परिणाम;
 }
 
-static CURLcode cf_h2_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+अटल CURLcode cf_h2_adjust_pollset(काष्ठा Curl_cfilter *cf,
+                                     काष्ठा Curl_easy *तथ्य,
+                                     काष्ठा easy_pollset *ps)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_call_तथ्य save;
   curl_socket_t sock;
   bool want_recv, want_send;
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(!Curl_ngh2_valid(&ctx->ngh2))
-    return CURLE_OK;
+  अगर(!Curl_ngh2_valid(&ctx->ngh2))
+    वापस CURLE_OK;
 
-  sock = Curl_conn_cf_get_socket(cf, data);
-  Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
-  if(want_recv || want_send) {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+  sock = Curl_conn_cf_get_socket(cf, तथ्य);
+  Curl_pollset_check(तथ्य, ps, sock, &want_recv, &want_send);
+  अगर(want_recv || want_send) {
+    काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
     bool c_exhaust, s_exhaust;
 
-    CF_DATA_SAVE(save, cf, data);
+    CF_तथ्य_SAVE(save, cf, तथ्य);
     c_exhaust = want_send &&
-                !Curl_ngh2_session_get_remote_window_size(&ctx->ngh2);
+                !Curl_ngh2_session_get_remote_window_आकार(&ctx->ngh2);
     s_exhaust = want_send && stream && stream->id >= 0 &&
-                !Curl_ngh2_session_get_stream_remote_window_size(
+                !Curl_ngh2_session_get_stream_remote_window_आकार(
                   &ctx->ngh2, stream->id);
     want_recv = (want_recv || c_exhaust || s_exhaust);
     want_send = (!s_exhaust && want_send) ||
                 (!c_exhaust && Curl_ngh2_session_want_write(&ctx->ngh2)) ||
                 !Curl_bufq_is_empty(&ctx->outbufq);
 
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CF_DATA_RESTORE(cf, save);
+    परिणाम = Curl_pollset_set(तथ्य, ps, sock, want_recv, want_send);
+    CF_तथ्य_RESTORE(cf, save);
   }
-  else if(ctx->sent_goaway && !cf->shutdown) {
+  अन्यथा अगर(ctx->sent_goaway && !cf->shutdown) {
     /* shutdown in progress */
-    CF_DATA_SAVE(save, cf, data);
+    CF_तथ्य_SAVE(save, cf, तथ्य);
     want_send = Curl_ngh2_session_want_write(&ctx->ngh2) ||
                 !Curl_bufq_is_empty(&ctx->outbufq);
     want_recv = Curl_ngh2_session_want_read(&ctx->ngh2);
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CF_DATA_RESTORE(cf, save);
+    परिणाम = Curl_pollset_set(तथ्य, ps, sock, want_recv, want_send);
+    CF_तथ्य_RESTORE(cf, save);
   }
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode cf_h2_ctx_open(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+अटल CURLcode cf_h2_ctx_open(काष्ठा Curl_cfilter *cf,
+                               काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  int rc;
-  nghttp2_session_callbacks *cbs = NULL;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream;
+  CURLcode परिणाम = CURLE_OUT_OF_MEMORY;
+  पूर्णांक rc;
+  nghttp2_session_callbacks *cbs = शून्य;
 
   DEBUGASSERT(!ctx->ngh2.s);
   DEBUGASSERT(!ctx->ngh2.fatal_rv);
   DEBUGASSERT(ctx->initialized);
 
   rc = nghttp2_session_callbacks_new(&cbs);
-  if(rc) {
-    failf(data, "Could not initialize nghttp2 callbacks");
-    goto out;
+  अगर(rc) {
+    failf(तथ्य, "Could not initialize nghttp2 callbacks");
+    जाओ out;
   }
 
   nghttp2_session_callbacks_set_send_callback(cbs, send_callback);
   nghttp2_session_callbacks_set_on_frame_recv_callback(cbs, on_frame_recv);
   nghttp2_session_callbacks_set_on_invalid_frame_recv_callback(cbs,
     cf_h2_on_invalid_frame_recv);
-#ifdef CURLVERBOSE
+#अगर_घोषित CURLVERBOSE
   nghttp2_session_callbacks_set_on_frame_send_callback(cbs, on_frame_send);
-#endif
-  nghttp2_session_callbacks_set_on_data_chunk_recv_callback(
-    cbs, on_data_chunk_recv);
+#पूर्ण_अगर
+  nghttp2_session_callbacks_set_on_तथ्य_chunk_recv_callback(
+    cbs, on_तथ्य_chunk_recv);
   nghttp2_session_callbacks_set_on_stream_close_callback(cbs, on_stream_close);
   nghttp2_session_callbacks_set_on_header_callback(cbs, on_header);
-#ifdef CURLVERBOSE
+#अगर_घोषित CURLVERBOSE
   nghttp2_session_callbacks_set_error_callback(cbs, error_callback);
-#endif
+#पूर्ण_अगर
 
   /* The nghttp2 session is not yet setup, do it */
   rc = h2_client_new(cf, cbs);
-  if(rc) {
-    failf(data, "Could not initialize nghttp2");
-    goto out;
+  अगर(rc) {
+    failf(तथ्य, "Could not initialize nghttp2");
+    जाओ out;
   }
-  ctx->max_concurrent_streams = data->multi ?
-    Curl_multi_max_concurrent_streams(data->multi) :
+  ctx->max_concurrent_streams = तथ्य->multi ?
+    Curl_multi_max_concurrent_streams(तथ्य->multi) :
     DEFAULT_MAX_CONCURRENT_STREAMS;
 
-  if(ctx->via_h1_upgrade) {
+  अगर(ctx->via_h1_upgrade) {
     /* HTTP/1.1 Upgrade issued. H2 Settings have already been submitted
      * in the H1 request and we upgrade from there. This stream
      * is opened implicitly as #1. */
     uint8_t binsettings[H2_BINSETTINGS_LEN];
     ssize_t rclen;
-    size_t binlen; /* length of the binsettings data */
+    माप_प्रकार binlen; /* length of the binsettings data */
 
-    rclen = populate_binsettings(binsettings, data);
+    rclen = populate_binsettings(binsettings, तथ्य);
 
-    if(!curlx_sztouz(rclen, &binlen) || !binlen) {
-      failf(data, "nghttp2 unexpectedly failed on pack_settings_payload");
-      result = CURLE_FAILED_INIT;
-      goto out;
+    अगर(!curlx_sztouz(rclen, &binlen) || !binlen) {
+      failf(तथ्य, "nghttp2 unexpectedly failed on pack_settings_payload");
+      परिणाम = CURLE_FAILED_INIT;
+      जाओ out;
     }
 
-    result = http2_data_setup(cf, data, &stream);
-    if(result)
-      goto out;
+    परिणाम = http2_तथ्य_setup(cf, तथ्य, &stream);
+    अगर(परिणाम)
+      जाओ out;
     DEBUGASSERT(stream);
     stream->id = 1;
     /* queue SETTINGS frame (again) */
     rc = Curl_ngh2_session_upgrade2(
-      &ctx->ngh2, binsettings, binlen, data->state.httpreq == HTTPREQ_HEAD,
-      NULL);
-    if(rc) {
-      failf(data, "nghttp2_session_upgrade2() failed: %s(%d)",
+      &ctx->ngh2, binsettings, binlen, तथ्य->state.httpreq == HTTPREQ_शीर्ष,
+      शून्य);
+    अगर(rc) {
+      failf(तथ्य, "nghttp2_session_upgrade2() failed: %s(%d)",
             nghttp2_strerror(rc), rc);
-      result = CURLE_HTTP2;
-      goto out;
+      परिणाम = CURLE_HTTP2;
+      जाओ out;
     }
 
-    rc = Curl_ngh2_session_set_stream_user_data(
+    rc = Curl_ngh2_session_set_stream_user_तथ्य(
       &ctx->ngh2, stream->id, stream);
-    if(rc) {
-      infof(data, "http/2: failed to set user_data for stream %d",
+    अगर(rc) {
+      infof(तथ्य, "http/2: failed to set user_data for stream %d",
             stream->id);
       DEBUGASSERT(0);
     }
-    CURL_TRC_CF(data, cf, "created session via Upgrade");
+    CURL_TRC_CF(तथ्य, cf, "created session via Upgrade");
   }
-  else {
+  अन्यथा {
     nghttp2_settings_entry iv[H2_SETTINGS_IV_LEN];
-    size_t ivlen;
+    माप_प्रकार ivlen;
 
-    ivlen = populate_settings(iv, data, ctx);
+    ivlen = populate_settings(iv, तथ्य, ctx);
     rc = Curl_ngh2_submit_settings(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, iv, ivlen);
-    if(rc) {
-      failf(data, "nghttp2_submit_settings() failed: %s(%d)",
+    अगर(rc) {
+      failf(तथ्य, "nghttp2_submit_settings() failed: %s(%d)",
             nghttp2_strerror(rc), rc);
-      result = CURLE_HTTP2;
-      goto out;
+      परिणाम = CURLE_HTTP2;
+      जाओ out;
     }
   }
 
-  rc = Curl_ngh2_session_set_local_window_size(
-    &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, HTTP2_HUGE_WINDOW_SIZE);
-  if(rc) {
-    failf(data, "nghttp2_session_set_local_window_size() failed: %s(%d)",
+  rc = Curl_ngh2_session_set_local_window_आकार(
+    &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, HTTP2_HUGE_WINDOW_आकार);
+  अगर(rc) {
+    failf(तथ्य, "nghttp2_session_set_local_window_size() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
-    result = CURLE_HTTP2;
-    goto out;
+    परिणाम = CURLE_HTTP2;
+    जाओ out;
   }
 
   /* all set, traffic will be send on connect */
-  result = CURLE_OK;
-  CURL_TRC_CF(data, cf, "[0] created h2 session%s",
+  परिणाम = CURLE_OK;
+  CURL_TRC_CF(तथ्य, cf, "[0] created h2 session%s",
               ctx->via_h1_upgrade ? " (via h1 upgrade)" : "");
 
 out:
-  if(cbs)
+  अगर(cbs)
     nghttp2_session_callbacks_del(cbs);
-  return result;
+  वापस परिणाम;
 }
 
-static CURLcode cf_h2_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+अटल CURLcode cf_h2_connect(काष्ठा Curl_cfilter *cf,
+                              काष्ठा Curl_easy *तथ्य,
                               bool *done)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
+  काष्ठा cf_call_तथ्य save;
   bool first_time = FALSE;
 
-  if(cf->connected) {
+  अगर(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    वापस CURLE_OK;
   }
 
   /* Connect the lower filters first */
-  if(!cf->next->connected) {
-    result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+  अगर(!cf->अग्र->connected) {
+    परिणाम = Curl_conn_cf_connect(cf->अग्र, तथ्य, done);
+    अगर(परिणाम || !*done)
+      वापस परिणाम;
   }
 
   *done = FALSE;
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_तथ्य_SAVE(save, cf, तथ्य);
   DEBUGASSERT(ctx->initialized);
-  if(!ctx->ngh2.s) {
-    result = cf_h2_ctx_open(cf, data);
-    if(result)
-      goto out;
+  अगर(!ctx->ngh2.s) {
+    परिणाम = cf_h2_ctx_open(cf, तथ्य);
+    अगर(परिणाम)
+      जाओ out;
     first_time = TRUE;
   }
 
-  if(!first_time) {
-    result = h2_progress_ingress(cf, data, 0);
-    if(result)
-      goto out;
+  अगर(!first_time) {
+    परिणाम = h2_progress_ingress(cf, तथ्य, 0);
+    अगर(परिणाम)
+      जाओ out;
   }
 
   /* Send out our SETTINGS and ACKs and such. If that blocks, we
    * have it buffered and can count this filter as being connected */
-  result = h2_progress_egress(cf, data);
-  if(result && (result != CURLE_AGAIN))
-    goto out;
+  परिणाम = h2_progress_egress(cf, तथ्य);
+  अगर(परिणाम && (परिणाम != CURLE_AGAIN))
+    जाओ out;
 
   *done = TRUE;
   cf->connected = TRUE;
-  result = CURLE_OK;
+  परिणाम = CURLE_OK;
 
 out:
-  CURL_TRC_CF(data, cf, "cf_connect() -> %d, %d, ", (int)result, *done);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(तथ्य, cf, "cf_connect() -> %d, %d, ", (पूर्णांक)परिणाम, *done);
+  CF_तथ्य_RESTORE(cf, save);
+  वापस परिणाम;
 }
 
-static void cf_h2_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+अटल व्योम cf_h2_destroy(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
 
-  (void)data;
-  if(ctx) {
+  (व्योम)तथ्य;
+  अगर(ctx) {
     cf_h2_ctx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = शून्य;
   }
 }
 
-static CURLcode cf_h2_shutdown(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, bool *done)
+अटल CURLcode cf_h2_shutdown(काष्ठा Curl_cfilter *cf,
+                               काष्ठा Curl_easy *तथ्य, bool *done)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  CURLcode result;
-  int rv;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_call_तथ्य save;
+  CURLcode परिणाम;
+  पूर्णांक rv;
 
-  if(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
+  अगर(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
      cf->shutdown || ctx->conn_closed) {
     *done = TRUE;
-    return CURLE_OK;
+    वापस CURLE_OK;
   }
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_तथ्य_SAVE(save, cf, तथ्य);
 
-  if(!ctx->sent_goaway) {
+  अगर(!ctx->sent_goaway) {
     ctx->sent_goaway = TRUE;
     rv = Curl_ngh2_submit_goaway(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, ctx->local_max_sid, 0,
-      (const uint8_t *)"shutdown", sizeof("shutdown"));
-    if(rv) {
-      failf(data, "nghttp2_submit_goaway() failed: %s(%d)",
+      (स्थिर uint8_t *)"shutdown", माप("shutdown"));
+    अगर(rv) {
+      failf(तथ्य, "nghttp2_submit_goaway() failed: %s(%d)",
             nghttp2_strerror(rv), rv);
-      result = CURLE_SEND_ERROR;
-      goto out;
+      परिणाम = CURLE_SEND_ERROR;
+      जाओ out;
     }
   }
   /* GOAWAY submitted, process egress and ingress until nghttp2 is done. */
-  result = CURLE_OK;
-  if(Curl_ngh2_session_want_write(&ctx->ngh2) ||
+  परिणाम = CURLE_OK;
+  अगर(Curl_ngh2_session_want_write(&ctx->ngh2) ||
      !Curl_bufq_is_empty(&ctx->outbufq))
-    result = h2_progress_egress(cf, data);
-  if(!result && Curl_ngh2_session_want_read(&ctx->ngh2))
-    result = h2_progress_ingress(cf, data, 0);
+    परिणाम = h2_progress_egress(cf, तथ्य);
+  अगर(!परिणाम && Curl_ngh2_session_want_read(&ctx->ngh2))
+    परिणाम = h2_progress_ingress(cf, तथ्य, 0);
 
-  if(result == CURLE_AGAIN)
-    result = CURLE_OK;
+  अगर(परिणाम == CURLE_AGAIN)
+    परिणाम = CURLE_OK;
 
   *done = (ctx->conn_closed ||
-           (!result && !Curl_ngh2_session_want_write(&ctx->ngh2) &&
+           (!परिणाम && !Curl_ngh2_session_want_write(&ctx->ngh2) &&
             !Curl_ngh2_session_want_read(&ctx->ngh2) &&
             Curl_bufq_is_empty(&ctx->outbufq)));
 
 out:
-  CF_DATA_RESTORE(cf, save);
-  cf->shutdown = (result || *done);
-  return result;
+  CF_तथ्य_RESTORE(cf, save);
+  cf->shutdown = (परिणाम || *done);
+  वापस परिणाम;
 }
 
-static CURLcode http2_data_pause(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool pause)
+अटल CURLcode http2_तथ्य_pause(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य,
+                                 bool छोड़ो)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
 
-  DEBUGASSERT(data);
-  if(ctx && Curl_ngh2_valid(&ctx->ngh2) && stream) {
-    CURLcode result;
+  DEBUGASSERT(तथ्य);
+  अगर(ctx && Curl_ngh2_valid(&ctx->ngh2) && stream) {
+    CURLcode परिणाम;
 
-    stream->write_paused = pause;
-    result = cf_h2_update_local_win(cf, data, stream);
-    if(result)
-      return result;
+    stream->write_paused = छोड़ो;
+    परिणाम = cf_h2_update_local_win(cf, तथ्य, stream);
+    अगर(परिणाम)
+      वापस परिणाम;
 
     /* attempt to send the window update */
-    (void)h2_progress_egress(cf, data);
+    (व्योम)h2_progress_egress(cf, तथ्य);
 
-    if(!pause) {
+    अगर(!छोड़ो) {
       /* Unpausing a h2 transfer, requires it to be run again. The server
        * may send new DATA on us increasing the flow window, and it may
        * not. We may have already buffered and exhausted the new window
        * by operating on things in flight during the handling of other
        * transfers. */
-      Curl_multi_mark_dirty(data);
+      Curl_multi_mark_dirty(तथ्य);
     }
-    CURL_TRC_CF(data, cf, "[%d] stream now %spaused", stream->id,
-                pause ? "" : "un");
+    CURL_TRC_CF(तथ्य, cf, "[%d] stream now %spaused", stream->id,
+                छोड़ो ? "" : "un");
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode cf_h2_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            int event, int arg1, void *arg2)
+अटल CURLcode cf_h2_cntrl(काष्ठा Curl_cfilter *cf,
+                            काष्ठा Curl_easy *तथ्य,
+                            पूर्णांक event, पूर्णांक arg1, व्योम *arg2)
 {
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  CURLcode परिणाम = CURLE_OK;
+  काष्ठा cf_call_तथ्य save;
 
-  (void)arg2;
+  (व्योम)arg2;
 
-  CF_DATA_SAVE(save, cf, data);
-  switch(event) {
-  case CF_CTRL_DATA_SETUP:
-    break;
-  case CF_CTRL_DATA_PAUSE:
-    result = http2_data_pause(cf, data, (arg1 != 0));
-    break;
-  case CF_CTRL_FLUSH:
-    result = cf_h2_flush(cf, data);
-    break;
-  case CF_CTRL_DATA_DONE:
-    http2_data_done(cf, data);
-    break;
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(!cf->sockindex && cf->connected) {
+  CF_तथ्य_SAVE(save, cf, तथ्य);
+  चयन(event) {
+  हाल CF_CTRL_तथ्य_SETUP:
+    अवरोध;
+  हाल CF_CTRL_तथ्य_PAUSE:
+    परिणाम = http2_तथ्य_pause(cf, तथ्य, (arg1 != 0));
+    अवरोध;
+  हाल CF_CTRL_FLUSH:
+    परिणाम = cf_h2_flush(cf, तथ्य);
+    अवरोध;
+  हाल CF_CTRL_तथ्य_DONE:
+    http2_तथ्य_done(cf, तथ्य);
+    अवरोध;
+  हाल CF_CTRL_CONN_INFO_UPDATE:
+    अगर(!cf->sockindex && cf->connected) {
       cf->conn->httpversion_seen = 20;
       Curl_conn_set_multiplex(cf->conn);
     }
-    break;
-  default:
-    break;
+    अवरोध;
+  शेष:
+    अवरोध;
   }
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_तथ्य_RESTORE(cf, save);
+  वापस परिणाम;
 }
 
-static bool cf_h2_data_pending(struct Curl_cfilter *cf,
-                               const struct Curl_easy *data)
+अटल bool cf_h2_तथ्य_pending(काष्ठा Curl_cfilter *cf,
+                               स्थिर काष्ठा Curl_easy *तथ्य)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
 
-  if(ctx && !Curl_bufq_is_empty(&ctx->inbufq))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  अगर(ctx && !Curl_bufq_is_empty(&ctx->inbufq))
+    वापस TRUE;
+  वापस cf->अग्र ? cf->अग्र->cft->has_तथ्य_pending(cf->अग्र, तथ्य) : FALSE;
 }
 
-static bool cf_h2_is_alive(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           bool *input_pending)
+अटल bool cf_h2_is_alive(काष्ठा Curl_cfilter *cf,
+                           काष्ठा Curl_easy *तथ्य,
+                           bool *निवेश_pending)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
   bool alive;
-  struct cf_call_data save;
+  काष्ठा cf_call_तथ्य save;
 
-  *input_pending = FALSE;
-  CF_DATA_SAVE(save, cf, data);
+  *निवेश_pending = FALSE;
+  CF_तथ्य_SAVE(save, cf, तथ्य);
   alive = (ctx && Curl_ngh2_valid(&ctx->ngh2) &&
-           http2_connisalive(cf, data, input_pending));
-  CURL_TRC_CF(data, cf, "conn alive -> %d, input_pending=%d",
-              alive, *input_pending);
-  CF_DATA_RESTORE(cf, save);
-  return alive;
+           http2_connisalive(cf, तथ्य, निवेश_pending));
+  CURL_TRC_CF(तथ्य, cf, "conn alive -> %d, input_pending=%d",
+              alive, *निवेश_pending);
+  CF_तथ्य_RESTORE(cf, save);
+  वापस alive;
 }
 
-static CURLcode cf_h2_keep_alive(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+अटल CURLcode cf_h2_keep_alive(काष्ठा Curl_cfilter *cf,
+                                 काष्ठा Curl_easy *तथ्य)
 {
-  CURLcode result;
-  struct cf_call_data save;
+  CURLcode परिणाम;
+  काष्ठा cf_call_तथ्य save;
 
-  CF_DATA_SAVE(save, cf, data);
-  result = http2_send_ping(cf, data);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_तथ्य_SAVE(save, cf, तथ्य);
+  परिणाम = http2_send_ping(cf, तथ्य);
+  CF_तथ्य_RESTORE(cf, save);
+  वापस परिणाम;
 }
 
-static CURLcode cf_h2_query(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            int query, int *pres1, void *pres2)
+अटल CURLcode cf_h2_query(काष्ठा Curl_cfilter *cf,
+                            काष्ठा Curl_easy *तथ्य,
+                            पूर्णांक query, पूर्णांक *pres1, व्योम *pres2)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
-  size_t effective_max;
+  काष्ठा cf_h2_ctx *ctx = cf->ctx;
+  काष्ठा cf_call_तथ्य save;
+  माप_प्रकार effective_max;
 
-  switch(query) {
-  case CF_QUERY_MAX_CONCURRENT:
+  चयन(query) {
+  हाल CF_QUERY_MAX_CONCURRENT:
     DEBUGASSERT(pres1);
 
-    CF_DATA_SAVE(save, cf, data);
-    if(!Curl_ngh2_valid(&ctx->ngh2) ||
+    CF_तथ्य_SAVE(save, cf, तथ्य);
+    अगर(!Curl_ngh2_valid(&ctx->ngh2) ||
        !Curl_ngh2_session_check_request_allowed(&ctx->ngh2)) {
       /* the limit is what we have in use right now */
       effective_max = cf->conn->attached_xfers;
     }
-    else {
+    अन्यथा {
       effective_max = ctx->max_concurrent_streams;
     }
-    *pres1 = (effective_max > INT_MAX) ? INT_MAX : (int)effective_max;
-    CF_DATA_RESTORE(cf, save);
-    return CURLE_OK;
-  case CF_QUERY_STREAM_ERROR: {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-    *pres1 = stream ? (int)stream->error : 0;
-    return CURLE_OK;
+    *pres1 = (effective_max > पूर्णांक_उच्च) ? पूर्णांक_उच्च : (पूर्णांक)effective_max;
+    CF_तथ्य_RESTORE(cf, save);
+    वापस CURLE_OK;
+  हाल CF_QUERY_STREAM_ERROR: {
+    काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
+    *pres1 = stream ? (पूर्णांक)stream->error : 0;
+    वापस CURLE_OK;
   }
-  case CF_QUERY_NEED_FLUSH: {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-    if(!Curl_bufq_is_empty(&ctx->outbufq) ||
+  हाल CF_QUERY_NEED_FLUSH: {
+    काष्ठा h2_stream_ctx *stream = H2_STREAM_CTX(ctx, तथ्य);
+    अगर(!Curl_bufq_is_empty(&ctx->outbufq) ||
        (stream && !Curl_bufq_is_empty(&stream->sendbuf))) {
       *pres1 = TRUE;
-      return CURLE_OK;
+      वापस CURLE_OK;
     }
-    break;
+    अवरोध;
   }
-  case CF_QUERY_HTTP_VERSION:
+  हाल CF_QUERY_HTTP_VERSION:
     *pres1 = 20;
-    return CURLE_OK;
-  default:
-    break;
+    वापस CURLE_OK;
+  शेष:
+    अवरोध;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  वापस cf->अग्र ?
+    cf->अग्र->cft->query(cf->अग्र, तथ्य, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-struct Curl_cftype Curl_cft_nghttp2 = {
+काष्ठा Curl_cftype Curl_cft_nghttp2 = {
   "HTTP/2",
   CF_TYPE_MULTIPLEX | CF_TYPE_HTTP,
   CURL_LOG_LVL_NONE,
@@ -2807,7 +2807,7 @@ struct Curl_cftype Curl_cft_nghttp2 = {
   cf_h2_connect,
   cf_h2_shutdown,
   cf_h2_adjust_pollset,
-  cf_h2_data_pending,
+  cf_h2_तथ्य_pending,
   cf_h2_send,
   cf_h2_recv,
   cf_h2_cntrl,
@@ -2816,222 +2816,222 @@ struct Curl_cftype Curl_cft_nghttp2 = {
   cf_h2_query,
 };
 
-static CURLcode http2_cfilter_add(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn,
+अटल CURLcode http2_cfilter_add(काष्ठा Curl_cfilter **pcf,
+                                  काष्ठा Curl_easy *तथ्य,
+                                  काष्ठा connectdata *conn,
                                   int8_t sockindex,
                                   bool via_h1_upgrade)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_h2_ctx *ctx;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  काष्ठा Curl_cfilter *cf = शून्य;
+  काष्ठा cf_h2_ctx *ctx;
+  CURLcode परिणाम = CURLE_OUT_OF_MEMORY;
 
-  DEBUGASSERT(data->conn);
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    goto out;
+  DEBUGASSERT(तथ्य->conn);
+  ctx = curlx_calloc(1, माप(*ctx));
+  अगर(!ctx)
+    जाओ out;
   cf_h2_ctx_init(ctx, via_h1_upgrade);
 
-  result = Curl_cf_create(&cf, &Curl_cft_nghttp2, ctx);
-  if(result)
-    goto out;
+  परिणाम = Curl_cf_create(&cf, &Curl_cft_nghttp2, ctx);
+  अगर(परिणाम)
+    जाओ out;
 
-  ctx = NULL;
-  Curl_conn_cf_add(data, conn, sockindex, cf);
+  ctx = शून्य;
+  Curl_conn_cf_add(तथ्य, conn, sockindex, cf);
 
 out:
-  if(result)
+  अगर(परिणाम)
     cf_h2_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = परिणाम ? शून्य : cf;
+  वापस परिणाम;
 }
 
-static CURLcode http2_cfilter_insert_after(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
+अटल CURLcode http2_cfilter_जोड़ो_after(काष्ठा Curl_cfilter *cf,
+                                           काष्ठा Curl_easy *तथ्य,
                                            bool via_h1_upgrade)
 {
-  struct Curl_cfilter *cf_h2 = NULL;
-  struct cf_h2_ctx *ctx;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  काष्ठा Curl_cfilter *cf_h2 = शून्य;
+  काष्ठा cf_h2_ctx *ctx;
+  CURLcode परिणाम = CURLE_OUT_OF_MEMORY;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    goto out;
+  (व्योम)तथ्य;
+  ctx = curlx_calloc(1, माप(*ctx));
+  अगर(!ctx)
+    जाओ out;
   cf_h2_ctx_init(ctx, via_h1_upgrade);
 
-  result = Curl_cf_create(&cf_h2, &Curl_cft_nghttp2, ctx);
-  if(result)
-    goto out;
+  परिणाम = Curl_cf_create(&cf_h2, &Curl_cft_nghttp2, ctx);
+  अगर(परिणाम)
+    जाओ out;
 
-  ctx = NULL;
-  Curl_conn_cf_insert_after(cf, cf_h2);
+  ctx = शून्य;
+  Curl_conn_cf_जोड़ो_after(cf, cf_h2);
 
 out:
-  if(result)
+  अगर(परिणाम)
     cf_h2_ctx_free(ctx);
-  return result;
+  वापस परिणाम;
 }
 
-bool Curl_http2_may_switch(struct Curl_easy *data)
+bool Curl_http2_may_switch(काष्ठा Curl_easy *तथ्य)
 {
-  if(Curl_conn_http_version(data, data->conn) < 20 &&
-     (data->state.http_neg.wanted & CURL_HTTP_V2x) &&
-     data->state.http_neg.h2_prior_knowledge) {
-#ifndef CURL_DISABLE_PROXY
-    if(data->conn->bits.origin_is_proxy) {
-      infof(data, "Ignoring HTTP/2 prior knowledge due to proxy");
-      return FALSE;
+  अगर(Curl_conn_http_version(तथ्य, तथ्य->conn) < 20 &&
+     (तथ्य->state.http_neg.wanted & CURL_HTTP_V2x) &&
+     तथ्य->state.http_neg.h2_prior_knowledge) {
+#अगर_अघोषित CURL_DISABLE_PROXY
+    अगर(तथ्य->conn->bits.origin_is_proxy) {
+      infof(तथ्य, "Ignoring HTTP/2 prior knowledge due to proxy");
+      वापस FALSE;
     }
-#endif
-    return TRUE;
+#पूर्ण_अगर
+    वापस TRUE;
   }
-  return FALSE;
+  वापस FALSE;
 }
 
-CURLcode Curl_http2_switch(struct Curl_easy *data)
+CURLcode Curl_http2_switch(काष्ठा Curl_easy *तथ्य)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  काष्ठा Curl_cfilter *cf;
+  CURLcode परिणाम;
 
-  DEBUGASSERT(Curl_conn_http_version(data, data->conn) < 20);
+  DEBUGASSERT(Curl_conn_http_version(तथ्य, तथ्य->conn) < 20);
 
-  result = http2_cfilter_add(&cf, data, data->conn, FIRSTSOCKET, FALSE);
-  if(result)
-    return result;
-  CURL_TRC_CF(data, cf, "switching connection to HTTP/2");
+  परिणाम = http2_cfilter_add(&cf, तथ्य, तथ्य->conn, FIRSTSOCKET, FALSE);
+  अगर(परिणाम)
+    वापस परिणाम;
+  CURL_TRC_CF(तथ्य, cf, "switching connection to HTTP/2");
 
-  if(cf->next) {
+  अगर(cf->अग्र) {
     bool done;
-    return Curl_conn_cf_connect(cf, data, &done);
+    वापस Curl_conn_cf_connect(cf, तथ्य, &done);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-CURLcode Curl_http2_switch_at(struct Curl_cfilter *cf, struct Curl_easy *data)
+CURLcode Curl_http2_switch_at(काष्ठा Curl_cfilter *cf, काष्ठा Curl_easy *तथ्य)
 {
-  struct Curl_cfilter *cf_h2;
-  CURLcode result;
+  काष्ठा Curl_cfilter *cf_h2;
+  CURLcode परिणाम;
 
-  DEBUGASSERT(Curl_conn_http_version(data, data->conn) < 20);
+  DEBUGASSERT(Curl_conn_http_version(तथ्य, तथ्य->conn) < 20);
 
-  result = http2_cfilter_insert_after(cf, data, FALSE);
-  if(result)
-    return result;
+  परिणाम = http2_cfilter_जोड़ो_after(cf, तथ्य, FALSE);
+  अगर(परिणाम)
+    वापस परिणाम;
 
-  cf_h2 = cf->next;
+  cf_h2 = cf->अग्र;
 
-  if(cf_h2->next) {
+  अगर(cf_h2->अग्र) {
     bool done;
-    return Curl_conn_cf_connect(cf_h2, data, &done);
+    वापस Curl_conn_cf_connect(cf_h2, तथ्य, &done);
   }
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-CURLcode Curl_http2_upgrade(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            const char *mem, size_t nread)
+CURLcode Curl_http2_upgrade(काष्ठा Curl_easy *तथ्य,
+                            काष्ठा connectdata *conn, int8_t sockindex,
+                            स्थिर अक्षर *mem, माप_प्रकार nread)
 {
-  struct Curl_cfilter *cf;
-  struct cf_h2_ctx *ctx;
-  CURLcode result;
+  काष्ठा Curl_cfilter *cf;
+  काष्ठा cf_h2_ctx *ctx;
+  CURLcode परिणाम;
 
-  DEBUGASSERT(Curl_conn_http_version(data, conn) < 20);
+  DEBUGASSERT(Curl_conn_http_version(तथ्य, conn) < 20);
 
-  result = http2_cfilter_add(&cf, data, conn, sockindex, TRUE);
-  if(result)
-    return result;
-  CURL_TRC_CF(data, cf, "upgrading connection to HTTP/2");
+  परिणाम = http2_cfilter_add(&cf, तथ्य, conn, sockindex, TRUE);
+  अगर(परिणाम)
+    वापस परिणाम;
+  CURL_TRC_CF(तथ्य, cf, "upgrading connection to HTTP/2");
 
   DEBUGASSERT(cf->cft == &Curl_cft_nghttp2);
   ctx = cf->ctx;
 
-  data->req.httpversion_sent = 20; /* it is an h2 request now */
-  data->req.header = TRUE; /* we expect the real response to come in h2 */
-  data->req.headerline = 0; /* restart the header line counter */
+  तथ्य->req.httpversion_sent = 20; /* it is an h2 request now */
+  तथ्य->req.header = TRUE; /* we expect the real response to come in h2 */
+  तथ्य->req.headerline = 0; /* restart the header line counter */
 
-  if(nread > 0) {
+  अगर(nread > 0) {
     /* Remaining data from the protocol switch reply is already using
      * the switched protocol, ie. HTTP/2. We add that to the network
      * inbufq. */
-    size_t copied;
+    माप_प्रकार copied;
 
-    result = Curl_bufq_write(&ctx->inbufq,
-                             (const unsigned char *)mem, nread, &copied);
-    if(result) {
-      failf(data, "error on copying HTTP Upgrade response: %d", (int)result);
-      return CURLE_RECV_ERROR;
+    परिणाम = Curl_bufq_write(&ctx->inbufq,
+                             (स्थिर अचिन्हित अक्षर *)mem, nread, &copied);
+    अगर(परिणाम) {
+      failf(तथ्य, "error on copying HTTP Upgrade response: %d", (पूर्णांक)परिणाम);
+      वापस CURLE_RECV_ERROR;
     }
-    if(copied < nread) {
-      failf(data, "connection buffer size could not take all data "
+    अगर(copied < nread) {
+      failf(तथ्य, "connection buffer size could not take all data "
             "from HTTP Upgrade response header: copied=%zu, datalen=%zu",
             copied, nread);
-      return CURLE_HTTP2;
+      वापस CURLE_HTTP2;
     }
-    infof(data, "Copied HTTP/2 data in stream buffer to connection buffer"
+    infof(तथ्य, "Copied HTTP/2 data in stream buffer to connection buffer"
           " after upgrade: len=%zu", nread);
   }
 
-  if(cf->next) {
+  अगर(cf->अग्र) {
     bool done;
-    result = Curl_conn_cf_connect(cf, data, &done);
-    if(!result)
-      cf->cft->cntrl(cf, data, CF_CTRL_CONN_INFO_UPDATE, 0, NULL);
+    परिणाम = Curl_conn_cf_connect(cf, तथ्य, &done);
+    अगर(!परिणाम)
+      cf->cft->cntrl(cf, तथ्य, CF_CTRL_CONN_INFO_UPDATE, 0, शून्य);
   }
-  return result;
+  वापस परिणाम;
 }
 
 /* Only call this function for a transfer that already got an HTTP/2
    CURLE_HTTP2_STREAM error! */
-bool Curl_h2_http_1_1_error(struct Curl_easy *data)
+bool Curl_h2_http_1_1_error(काष्ठा Curl_easy *तथ्य)
 {
-  if(Curl_conn_http_version(data, data->conn) == 20) {
-    int err = Curl_conn_get_stream_error(data, data->conn, FIRSTSOCKET);
-    return err == NGHTTP2_HTTP_1_1_REQUIRED;
+  अगर(Curl_conn_http_version(तथ्य, तथ्य->conn) == 20) {
+    पूर्णांक err = Curl_conn_get_stream_error(तथ्य, तथ्य->conn, FIRSTSOCKET);
+    वापस err == NGHTTP2_HTTP_1_1_REQUIRED;
   }
-  return FALSE;
+  वापस FALSE;
 }
 
-void *Curl_nghttp2_malloc(size_t size, void *user_data)
+व्योम *Curl_nghttp2_malloc(माप_प्रकार आकार, व्योम *user_तथ्य)
 {
-  (void)user_data;
-  return Curl_cmalloc(size);
+  (व्योम)user_तथ्य;
+  वापस Curl_cmalloc(आकार);
 }
 
-void Curl_nghttp2_free(void *ptr, void *user_data)
+व्योम Curl_nghttp2_free(व्योम *ptr, व्योम *user_तथ्य)
 {
-  (void)user_data;
+  (व्योम)user_तथ्य;
   Curl_cfree(ptr);
 }
 
-void *Curl_nghttp2_calloc(size_t nmemb, size_t size, void *user_data)
+व्योम *Curl_nghttp2_calloc(माप_प्रकार nmemb, माप_प्रकार आकार, व्योम *user_तथ्य)
 {
-  (void)user_data;
-  return Curl_ccalloc(nmemb, size);
+  (व्योम)user_तथ्य;
+  वापस Curl_ccalloc(nmemb, आकार);
 }
 
-void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data)
+व्योम *Curl_nghttp2_realloc(व्योम *ptr, माप_प्रकार आकार, व्योम *user_तथ्य)
 {
-  (void)user_data;
-  return Curl_crealloc(ptr, size);
+  (व्योम)user_तथ्य;
+  वापस Curl_crealloc(ptr, आकार);
 }
 
-#else /* CURL_DISABLE_HTTP || !USE_NGHTTP2 */
+#अन्यथा /* CURL_DISABLE_HTTP || !USE_NGHTTP2 */
 
 /* Satisfy external references even if http2 is not compiled in. */
 
-char *curl_pushheader_bynum(struct curl_pushheaders *h, size_t num)
+अक्षर *curl_pushheader_bynum(काष्ठा curl_pushheaders *h, माप_प्रकार अंक)
 {
-  (void)h;
-  (void)num;
-  return NULL;
+  (व्योम)h;
+  (व्योम)अंक;
+  वापस शून्य;
 }
 
-char *curl_pushheader_byname(struct curl_pushheaders *h, const char *name)
+अक्षर *curl_pushheader_byname(काष्ठा curl_pushheaders *h, स्थिर अक्षर *name)
 {
-  (void)h;
-  (void)name;
-  return NULL;
+  (व्योम)h;
+  (व्योम)name;
+  वापस शून्य;
 }
 
-#endif /* !CURL_DISABLE_HTTP && USE_NGHTTP2 */
+#पूर्ण_अगर /* !CURL_DISABLE_HTTP && USE_NGHTTP2 */

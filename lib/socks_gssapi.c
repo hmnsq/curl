@@ -22,139 +22,139 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#समावेश "curl_setup.h"
 
-#if defined(HAVE_GSSAPI) && !defined(CURL_DISABLE_PROXY)
+#अगर defined(HAVE_GSSAPI) && !defined(CURL_DISABLE_PROXY)
 
-#include "curl_gssapi.h"
-#include "urldata.h"
-#include "curl_trc.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curlx/nonblock.h"
-#include "socks.h"
-#include "curlx/strdup.h"
+#समावेश "curl_gssapi.h"
+#समावेश "urldata.h"
+#समावेश "curl_trc.h"
+#समावेश "cfilters.h"
+#समावेश "connect.h"
+#समावेश "curlx/nonblock.h"
+#समावेश "socks.h"
+#समावेश "curlx/strdup.h"
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#अगर defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#आशय GCC diagnostic धकेलो
+#आशय GCC diagnostic ignored "-Wdeprecated-declarations"
+#पूर्ण_अगर
 
-#define MAX_GSS_LEN 1024
+#घोषणा MAX_GSS_LEN 1024
 
 /*
  * Helper GSS-API error functions.
  */
-static int check_gss_err(struct Curl_easy *data,
+अटल पूर्णांक check_gss_err(काष्ठा Curl_easy *तथ्य,
                          OM_uint32 major_status,
                          OM_uint32 minor_status,
-                         const char *function)
+                         स्थिर अक्षर *function)
 {
-  if(GSS_ERROR(major_status)) {
+  अगर(GSS_ERROR(major_status)) {
     OM_uint32 maj_stat, min_stat;
-    OM_uint32 msg_ctx = 0;
-    gss_buffer_desc status_string = GSS_C_EMPTY_BUFFER;
-    struct dynbuf dbuf;
+    OM_uint32 संदेश_ctx = 0;
+    gss_बफर_desc status_string = GSS_C_EMPTY_बफर;
+    काष्ठा dynbuf dbuf;
 
     curlx_dyn_init(&dbuf, MAX_GSS_LEN);
-    msg_ctx = 0;
-    while(!msg_ctx) {
+    संदेश_ctx = 0;
+    जबतक(!संदेश_ctx) {
       /* convert major status code (GSS-API error) to text */
       maj_stat = gss_display_status(&min_stat, major_status,
                                     GSS_C_GSS_CODE,
                                     GSS_C_NULL_OID,
-                                    &msg_ctx, &status_string);
-      if(maj_stat == GSS_S_COMPLETE) {
-        if(curlx_dyn_addn(&dbuf, status_string.value, status_string.length))
-          return 1; /* error */
-        gss_release_buffer(&min_stat, &status_string);
-        break;
+                                    &संदेश_ctx, &status_string);
+      अगर(maj_stat == GSS_S_COMPLETE) {
+        अगर(curlx_dyn_addn(&dbuf, status_string.मूल्य, status_string.लंबाई))
+          वापस 1; /* error */
+        gss_release_बफर(&min_stat, &status_string);
+        अवरोध;
       }
-      gss_release_buffer(&min_stat, &status_string);
+      gss_release_बफर(&min_stat, &status_string);
     }
-    if(curlx_dyn_addn(&dbuf, ".\n", 2))
-      return 1; /* error */
-    msg_ctx = 0;
-    while(!msg_ctx) {
+    अगर(curlx_dyn_addn(&dbuf, ".\n", 2))
+      वापस 1; /* error */
+    संदेश_ctx = 0;
+    जबतक(!संदेश_ctx) {
       /* convert minor status code (underlying routine error) to text */
       maj_stat = gss_display_status(&min_stat, minor_status,
                                     GSS_C_MECH_CODE,
                                     GSS_C_NULL_OID,
-                                    &msg_ctx, &status_string);
-      if(maj_stat == GSS_S_COMPLETE) {
-        if(curlx_dyn_addn(&dbuf, status_string.value, status_string.length))
-          return 1; /* error */
-        gss_release_buffer(&min_stat, &status_string);
-        break;
+                                    &संदेश_ctx, &status_string);
+      अगर(maj_stat == GSS_S_COMPLETE) {
+        अगर(curlx_dyn_addn(&dbuf, status_string.मूल्य, status_string.लंबाई))
+          वापस 1; /* error */
+        gss_release_बफर(&min_stat, &status_string);
+        अवरोध;
       }
-      gss_release_buffer(&min_stat, &status_string);
+      gss_release_बफर(&min_stat, &status_string);
     }
-    failf(data, "GSS-API error: %s failed: %s", function,
+    failf(तथ्य, "GSS-API error: %s failed: %s", function,
           curlx_dyn_ptr(&dbuf));
     curlx_dyn_free(&dbuf);
-    return 1;
+    वापस 1;
   }
 
-  return 0;
+  वापस 0;
 }
 
-static CURLcode socks5_gss_create_service_name(struct Curl_easy *data,
-                                               struct connectdata *conn,
-                                               const char *serviceptr,
+अटल CURLcode socks5_gss_create_service_name(काष्ठा Curl_easy *तथ्य,
+                                               काष्ठा connectdata *conn,
+                                               स्थिर अक्षर *serviceptr,
                                                gss_name_t *server)
 {
   OM_uint32 gss_major_status, gss_minor_status, gss_status;
-  gss_buffer_desc service = GSS_C_EMPTY_BUFFER;
+  gss_बफर_desc service = GSS_C_EMPTY_बफर;
 
   /* prepare service name */
-  if(strchr(serviceptr, '/')) {
-    service.length = strlen(serviceptr);
-    service.value = curlx_memdup(serviceptr, service.length);
-    if(!service.value)
-      return CURLE_OUT_OF_MEMORY;
+  अगर(म_अक्षर(serviceptr, '/')) {
+    service.लंबाई = म_माप(serviceptr);
+    service.मूल्य = curlx_memdup(serviceptr, service.लंबाई);
+    अगर(!service.मूल्य)
+      वापस CURLE_OUT_OF_MEMORY;
 
     gss_major_status = gss_import_name(&gss_minor_status, &service,
                                        (gss_OID)GSS_C_NULL_OID, server);
   }
-  else {
-    service.value = curl_maprintf("%s@%s", serviceptr,
+  अन्यथा {
+    service.मूल्य = curl_maprintf("%s@%s", serviceptr,
                                   conn->socks_proxy.peer->hostname);
-    if(!service.value)
-      return CURLE_OUT_OF_MEMORY;
-    service.length = strlen(service.value);
+    अगर(!service.मूल्य)
+      वापस CURLE_OUT_OF_MEMORY;
+    service.लंबाई = म_माप(service.मूल्य);
 
     gss_major_status = gss_import_name(&gss_minor_status, &service,
                                        GSS_C_NT_HOSTBASED_SERVICE, server);
   }
 
-  curlx_safefree(service.value);
-  service.length = 0;
+  curlx_safefree(service.मूल्य);
+  service.लंबाई = 0;
 
-  if(check_gss_err(data, gss_major_status,
+  अगर(check_gss_err(तथ्य, gss_major_status,
                    gss_minor_status, "gss_import_name()")) {
-    failf(data, "Failed to create service name.");
+    failf(तथ्य, "Failed to create service name.");
     gss_release_name(&gss_status, server);
-    return CURLE_COULDNT_CONNECT;
+    वापस CURLE_COULDNT_CONNECT;
   }
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode socks5_gss_auth_loop(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
+अटल CURLcode socks5_gss_auth_loop(काष्ठा Curl_cfilter *cf,
+                                     काष्ठा Curl_easy *तथ्य,
                                      gss_name_t *server_ptr,
                                      gss_ctx_id_t *gss_context,
                                      OM_uint32 *gss_ret_flags)
 {
   OM_uint32 gss_major_status, gss_minor_status, gss_status;
-  gss_buffer_desc gss_send_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc gss_recv_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc *gss_token = GSS_C_NO_BUFFER;
-  unsigned short us_length;
-  unsigned char socksreq[4];
-  size_t actualread;
-  size_t nwritten;
-  CURLcode result;
+  gss_बफर_desc gss_send_token = GSS_C_EMPTY_बफर;
+  gss_बफर_desc gss_recv_token = GSS_C_EMPTY_बफर;
+  gss_बफर_desc *gss_token = GSS_C_NO_बफर;
+  अचिन्हित लघु us_लंबाई;
+  अचिन्हित अक्षर socksreq[4];
+  माप_प्रकार actualread;
+  माप_प्रकार nwritten;
+  CURLcode परिणाम;
 
   /*   GSS-API request looks like
    * +----+------+-----+----------------+
@@ -166,65 +166,65 @@ static CURLcode socks5_gss_auth_loop(struct Curl_cfilter *cf,
 
   /* As long as we need to keep sending some context info, and there is no
    * errors, keep sending it... */
-  for(;;) {
-    gss_major_status = Curl_gss_init_sec_context(data,
+  क्रम(;;) {
+    gss_major_status = Curl_gss_init_sec_context(तथ्य,
                                                  &gss_minor_status,
                                                  gss_context,
                                                  *server_ptr,
                                                  &Curl_krb5_mech_oid,
-                                                 NULL,
+                                                 शून्य,
                                                  gss_token,
                                                  &gss_send_token,
                                                  TRUE,
                                                  gss_ret_flags,
                                                  GSS_C_NO_CREDENTIAL);
 
-    if(gss_token != GSS_C_NO_BUFFER) {
-      curlx_safefree(gss_recv_token.value);
-      gss_recv_token.length = 0;
+    अगर(gss_token != GSS_C_NO_बफर) {
+      curlx_safefree(gss_recv_token.मूल्य);
+      gss_recv_token.लंबाई = 0;
     }
-    if(check_gss_err(data, gss_major_status,
+    अगर(check_gss_err(तथ्य, gss_major_status,
                      gss_minor_status, "gss_init_sec_context") ||
        /* the size needs to fit in a 16-bit field */
-       (gss_send_token.length > 0xffff)) {
+       (gss_send_token.लंबाई > 0xffff)) {
       gss_release_name(&gss_status, server_ptr);
-      gss_release_buffer(&gss_status, &gss_send_token);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      failf(data, "Failed to initialize GSS-API token.");
-      return CURLE_COULDNT_CONNECT;
+      gss_release_बफर(&gss_status, &gss_send_token);
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      failf(तथ्य, "Failed to initialize GSS-API token.");
+      वापस CURLE_COULDNT_CONNECT;
     }
 
-    if(gss_send_token.length) {
+    अगर(gss_send_token.लंबाई) {
       socksreq[0] = 1;    /* GSS-API subnegotiation version */
       socksreq[1] = 1;    /* authentication message type */
-      us_length = htons((unsigned short)gss_send_token.length);
-      memcpy(socksreq + 2, &us_length, sizeof(short));
+      us_लंबाई = htons((अचिन्हित लघु)gss_send_token.लंबाई);
+      स_नकल(socksreq + 2, &us_लंबाई, माप(लघु));
 
-      result = Curl_conn_cf_send(cf->next, data, socksreq, 4, FALSE,
+      परिणाम = Curl_conn_cf_send(cf->अग्र, तथ्य, socksreq, 4, FALSE,
                                  &nwritten);
-      if(result || (nwritten != 4)) {
-        failf(data, "Failed to send GSS-API authentication request.");
+      अगर(परिणाम || (nwritten != 4)) {
+        failf(तथ्य, "Failed to send GSS-API authentication request.");
         gss_release_name(&gss_status, server_ptr);
-        gss_release_buffer(&gss_status, &gss_send_token);
-        Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-        return CURLE_COULDNT_CONNECT;
+        gss_release_बफर(&gss_status, &gss_send_token);
+        Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+        वापस CURLE_COULDNT_CONNECT;
       }
 
-      result = Curl_conn_cf_send(cf->next, data,
-                                 gss_send_token.value,
-                                 gss_send_token.length, FALSE, &nwritten);
-      if(result || (gss_send_token.length != nwritten)) {
-        failf(data, "Failed to send GSS-API authentication token.");
+      परिणाम = Curl_conn_cf_send(cf->अग्र, तथ्य,
+                                 gss_send_token.मूल्य,
+                                 gss_send_token.लंबाई, FALSE, &nwritten);
+      अगर(परिणाम || (gss_send_token.लंबाई != nwritten)) {
+        failf(तथ्य, "Failed to send GSS-API authentication token.");
         gss_release_name(&gss_status, server_ptr);
-        gss_release_buffer(&gss_status, &gss_send_token);
-        Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-        return CURLE_COULDNT_CONNECT;
+        gss_release_बफर(&gss_status, &gss_send_token);
+        Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+        वापस CURLE_COULDNT_CONNECT;
       }
     }
 
-    gss_release_buffer(&gss_status, &gss_send_token);
-    if(gss_major_status != GSS_S_CONTINUE_NEEDED)
-      break;
+    gss_release_बफर(&gss_status, &gss_send_token);
+    अगर(gss_major_status != GSS_S_CONTINUE_NEEDED)
+      अवरोध;
 
     /* analyze response */
 
@@ -236,125 +236,125 @@ static CURLcode socks5_gss_auth_loop(struct Curl_cfilter *cf,
      * +----+------+-----+----------------+
      */
 
-    result = Curl_blockread_all(cf, data, (char *)socksreq, 4, &actualread);
-    if(result || (actualread != 4)) {
-      failf(data, "Failed to receive GSS-API authentication response.");
+    परिणाम = Curl_blockread_all(cf, तथ्य, (अक्षर *)socksreq, 4, &actualread);
+    अगर(परिणाम || (actualread != 4)) {
+      failf(तथ्य, "Failed to receive GSS-API authentication response.");
       gss_release_name(&gss_status, server_ptr);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
 
     /* ignore the first (VER) byte */
-    if(socksreq[1] == 255) { /* status / message type */
-      failf(data, "User was rejected by the SOCKS5 server (%d %d).",
+    अगर(socksreq[1] == 255) { /* status / message type */
+      failf(तथ्य, "User was rejected by the SOCKS5 server (%d %d).",
             socksreq[0], socksreq[1]);
       gss_release_name(&gss_status, server_ptr);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
 
-    if(socksreq[1] != 1) { /* status / message type */
-      failf(data, "Invalid GSS-API authentication response type (%d %d).",
+    अगर(socksreq[1] != 1) { /* status / message type */
+      failf(तथ्य, "Invalid GSS-API authentication response type (%d %d).",
             socksreq[0], socksreq[1]);
       gss_release_name(&gss_status, server_ptr);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
 
-    memcpy(&us_length, socksreq + 2, sizeof(short));
-    us_length = ntohs(us_length);
+    स_नकल(&us_लंबाई, socksreq + 2, माप(लघु));
+    us_लंबाई = ntohs(us_लंबाई);
 
-    if(!us_length) {
-      failf(data, "Invalid zero-length GSS-API authentication token.");
+    अगर(!us_लंबाई) {
+      failf(तथ्य, "Invalid zero-length GSS-API authentication token.");
       gss_release_name(&gss_status, server_ptr);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
 
-    gss_recv_token.length = us_length;
-    gss_recv_token.value = curlx_malloc(gss_recv_token.length);
-    if(!gss_recv_token.value) {
-      failf(data,
+    gss_recv_token.लंबाई = us_लंबाई;
+    gss_recv_token.मूल्य = curlx_malloc(gss_recv_token.लंबाई);
+    अगर(!gss_recv_token.मूल्य) {
+      failf(तथ्य,
             "Could not allocate memory for GSS-API authentication "
             "response token.");
       gss_release_name(&gss_status, server_ptr);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_OUT_OF_MEMORY;
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_OUT_OF_MEMORY;
     }
 
-    result = Curl_blockread_all(cf, data, (char *)gss_recv_token.value,
-                                gss_recv_token.length, &actualread);
+    परिणाम = Curl_blockread_all(cf, तथ्य, (अक्षर *)gss_recv_token.मूल्य,
+                                gss_recv_token.लंबाई, &actualread);
 
-    if(result || (actualread != us_length)) {
-      failf(data, "Failed to receive GSS-API authentication token.");
+    अगर(परिणाम || (actualread != us_लंबाई)) {
+      failf(तथ्य, "Failed to receive GSS-API authentication token.");
       gss_release_name(&gss_status, server_ptr);
-      curlx_safefree(gss_recv_token.value);
-      gss_recv_token.length = 0;
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+      curlx_safefree(gss_recv_token.मूल्य);
+      gss_recv_token.लंबाई = 0;
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
 
     gss_token = &gss_recv_token;
   }
 
   gss_release_name(&gss_status, server_ptr);
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode socks5_gss_auth_verify(struct Curl_easy *data,
+अटल CURLcode socks5_gss_auth_verify(काष्ठा Curl_easy *तथ्य,
                                        gss_ctx_id_t *gss_context)
 {
   OM_uint32 gss_major_status, gss_minor_status, gss_status;
   gss_name_t gss_client_name = GSS_C_NO_NAME;
-  gss_buffer_desc gss_send_token = GSS_C_EMPTY_BUFFER;
+  gss_बफर_desc gss_send_token = GSS_C_EMPTY_बफर;
 
   /* Everything is good so far, user was authenticated! */
   gss_major_status = gss_inquire_context(&gss_minor_status, *gss_context,
-                                         &gss_client_name, NULL, NULL, NULL,
-                                         NULL, NULL, NULL);
-  if(check_gss_err(data, gss_major_status,
+                                         &gss_client_name, शून्य, शून्य, शून्य,
+                                         शून्य, शून्य, शून्य);
+  अगर(check_gss_err(तथ्य, gss_major_status,
                    gss_minor_status, "gss_inquire_context")) {
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
     gss_release_name(&gss_status, &gss_client_name);
-    failf(data, "Failed to determine username.");
-    return CURLE_COULDNT_CONNECT;
+    failf(तथ्य, "Failed to determine username.");
+    वापस CURLE_COULDNT_CONNECT;
   }
   gss_major_status = gss_display_name(&gss_minor_status, gss_client_name,
-                                      &gss_send_token, NULL);
-  if(check_gss_err(data, gss_major_status,
+                                      &gss_send_token, शून्य);
+  अगर(check_gss_err(तथ्य, gss_major_status,
                    gss_minor_status, "gss_display_name")) {
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
     gss_release_name(&gss_status, &gss_client_name);
-    gss_release_buffer(&gss_status, &gss_send_token);
-    failf(data, "Failed to determine username.");
-    return CURLE_COULDNT_CONNECT;
+    gss_release_बफर(&gss_status, &gss_send_token);
+    failf(तथ्य, "Failed to determine username.");
+    वापस CURLE_COULDNT_CONNECT;
   }
 
-  infof(data, "SOCKS5 server authenticated user %.*s with GSS-API.",
-        (int)gss_send_token.length, (const char *)gss_send_token.value);
+  infof(तथ्य, "SOCKS5 server authenticated user %.*s with GSS-API.",
+        (पूर्णांक)gss_send_token.लंबाई, (स्थिर अक्षर *)gss_send_token.मूल्य);
 
   gss_release_name(&gss_status, &gss_client_name);
-  gss_release_buffer(&gss_status, &gss_send_token);
+  gss_release_बफर(&gss_status, &gss_send_token);
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-static CURLcode socks5_gss_negotiate_enc(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+अटल CURLcode socks5_gss_negotiate_enc(काष्ठा Curl_cfilter *cf,
+                                         काष्ठा Curl_easy *तथ्य,
                                          gss_ctx_id_t *gss_context,
                                          OM_uint32 gss_ret_flags)
 {
-  struct connectdata *conn = cf->conn;
+  काष्ठा connectdata *conn = cf->conn;
   OM_uint32 gss_major_status, gss_minor_status, gss_status;
-  gss_buffer_desc gss_send_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc gss_recv_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc gss_w_token = GSS_C_EMPTY_BUFFER;
-  unsigned short us_length;
-  unsigned char socksreq[4];
-  size_t actualread;
-  size_t nwritten;
-  CURLcode result;
-  int gss_enc;
+  gss_बफर_desc gss_send_token = GSS_C_EMPTY_बफर;
+  gss_बफर_desc gss_recv_token = GSS_C_EMPTY_बफर;
+  gss_बफर_desc gss_w_token = GSS_C_EMPTY_बफर;
+  अचिन्हित लघु us_लंबाई;
+  अचिन्हित अक्षर socksreq[4];
+  माप_प्रकार actualread;
+  माप_प्रकार nwritten;
+  CURLcode परिणाम;
+  पूर्णांक gss_enc;
 
   /* Do encryption */
   socksreq[0] = 1;    /* GSS-API subnegotiation version */
@@ -362,13 +362,13 @@ static CURLcode socks5_gss_negotiate_enc(struct Curl_cfilter *cf,
 
   gss_enc = 0; /* no data protection */
   /* do confidentiality protection if supported */
-  if(gss_ret_flags & GSS_C_CONF_FLAG)
+  अगर(gss_ret_flags & GSS_C_CONF_FLAG)
     gss_enc = 2;
   /* else do integrity protection */
-  else if(gss_ret_flags & GSS_C_INTEG_FLAG)
+  अन्यथा अगर(gss_ret_flags & GSS_C_INTEG_FLAG)
     gss_enc = 1;
 
-  infof(data, "SOCKS5 server supports GSS-API %s data protection.",
+  infof(तथ्य, "SOCKS5 server supports GSS-API %s data protection.",
         (gss_enc == 0) ? "no" :
         ((gss_enc == 1) ? "integrity" : "confidentiality"));
 
@@ -402,200 +402,200 @@ static CURLcode socks5_gss_negotiate_enc(struct Curl_cfilter *cf,
    * gss_unwrap().
    *
    */
-  if(data->set.socks5_gssapi_nec) {
-    us_length = htons((short)1);
-    memcpy(socksreq + 2, &us_length, sizeof(short));
+  अगर(तथ्य->set.socks5_gssapi_nec) {
+    us_लंबाई = htons((लघु)1);
+    स_नकल(socksreq + 2, &us_लंबाई, माप(लघु));
   }
-  else {
-    gss_send_token.length = 1;
-    gss_send_token.value = curlx_memdup(&gss_enc, gss_send_token.length);
-    if(!gss_send_token.value) {
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_OUT_OF_MEMORY;
+  अन्यथा {
+    gss_send_token.लंबाई = 1;
+    gss_send_token.मूल्य = curlx_memdup(&gss_enc, gss_send_token.लंबाई);
+    अगर(!gss_send_token.मूल्य) {
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_OUT_OF_MEMORY;
     }
 
     gss_major_status = gss_wrap(&gss_minor_status, *gss_context, 0,
                                 GSS_C_QOP_DEFAULT, &gss_send_token,
-                                NULL, &gss_w_token);
+                                शून्य, &gss_w_token);
 
-    if(check_gss_err(data, gss_major_status, gss_minor_status, "gss_wrap")) {
-      curlx_safefree(gss_send_token.value);
-      gss_send_token.length = 0;
-      gss_release_buffer(&gss_status, &gss_w_token);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      failf(data, "Failed to wrap GSS-API encryption value into token.");
-      return CURLE_COULDNT_CONNECT;
+    अगर(check_gss_err(तथ्य, gss_major_status, gss_minor_status, "gss_wrap")) {
+      curlx_safefree(gss_send_token.मूल्य);
+      gss_send_token.लंबाई = 0;
+      gss_release_बफर(&gss_status, &gss_w_token);
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      failf(तथ्य, "Failed to wrap GSS-API encryption value into token.");
+      वापस CURLE_COULDNT_CONNECT;
     }
-    curlx_safefree(gss_send_token.value);
-    gss_send_token.length = 0;
+    curlx_safefree(gss_send_token.मूल्य);
+    gss_send_token.लंबाई = 0;
 
-    us_length = htons((unsigned short)gss_w_token.length);
-    memcpy(socksreq + 2, &us_length, sizeof(short));
+    us_लंबाई = htons((अचिन्हित लघु)gss_w_token.लंबाई);
+    स_नकल(socksreq + 2, &us_लंबाई, माप(लघु));
   }
 
-  result = Curl_conn_cf_send(cf->next, data, socksreq, 4, FALSE, &nwritten);
-  if(result || (nwritten != 4)) {
-    failf(data, "Failed to send GSS-API encryption request.");
-    gss_release_buffer(&gss_status, &gss_w_token);
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-    return CURLE_COULDNT_CONNECT;
+  परिणाम = Curl_conn_cf_send(cf->अग्र, तथ्य, socksreq, 4, FALSE, &nwritten);
+  अगर(परिणाम || (nwritten != 4)) {
+    failf(तथ्य, "Failed to send GSS-API encryption request.");
+    gss_release_बफर(&gss_status, &gss_w_token);
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+    वापस CURLE_COULDNT_CONNECT;
   }
 
-  if(data->set.socks5_gssapi_nec) {
-    memcpy(socksreq, &gss_enc, 1);
-    result = Curl_conn_cf_send(cf->next, data, socksreq, 1, FALSE, &nwritten);
-    if(result || (nwritten != 1)) {
-      failf(data, "Failed to send GSS-API encryption type.");
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+  अगर(तथ्य->set.socks5_gssapi_nec) {
+    स_नकल(socksreq, &gss_enc, 1);
+    परिणाम = Curl_conn_cf_send(cf->अग्र, तथ्य, socksreq, 1, FALSE, &nwritten);
+    अगर(परिणाम || (nwritten != 1)) {
+      failf(तथ्य, "Failed to send GSS-API encryption type.");
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
   }
-  else {
-    result = Curl_conn_cf_send(cf->next, data, gss_w_token.value,
-                               gss_w_token.length, FALSE, &nwritten);
-    if(result || (gss_w_token.length != nwritten)) {
-      failf(data, "Failed to send GSS-API encryption type.");
-      gss_release_buffer(&gss_status, &gss_w_token);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+  अन्यथा {
+    परिणाम = Curl_conn_cf_send(cf->अग्र, तथ्य, gss_w_token.मूल्य,
+                               gss_w_token.लंबाई, FALSE, &nwritten);
+    अगर(परिणाम || (gss_w_token.लंबाई != nwritten)) {
+      failf(तथ्य, "Failed to send GSS-API encryption type.");
+      gss_release_बफर(&gss_status, &gss_w_token);
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
-    gss_release_buffer(&gss_status, &gss_w_token);
+    gss_release_बफर(&gss_status, &gss_w_token);
   }
 
-  result = Curl_blockread_all(cf, data, (char *)socksreq, 4, &actualread);
-  if(result || (actualread != 4)) {
-    failf(data, "Failed to receive GSS-API encryption response.");
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-    return CURLE_COULDNT_CONNECT;
+  परिणाम = Curl_blockread_all(cf, तथ्य, (अक्षर *)socksreq, 4, &actualread);
+  अगर(परिणाम || (actualread != 4)) {
+    failf(तथ्य, "Failed to receive GSS-API encryption response.");
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+    वापस CURLE_COULDNT_CONNECT;
   }
 
   /* ignore the first (VER) byte */
-  if(socksreq[1] == 255) { /* status / message type */
-    failf(data, "User was rejected by the SOCKS5 server (%d %d).",
+  अगर(socksreq[1] == 255) { /* status / message type */
+    failf(तथ्य, "User was rejected by the SOCKS5 server (%d %d).",
           socksreq[0], socksreq[1]);
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-    return CURLE_COULDNT_CONNECT;
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+    वापस CURLE_COULDNT_CONNECT;
   }
 
-  if(socksreq[1] != 2) { /* status / message type */
-    failf(data, "Invalid GSS-API encryption response type (%d %d).",
+  अगर(socksreq[1] != 2) { /* status / message type */
+    failf(तथ्य, "Invalid GSS-API encryption response type (%d %d).",
           socksreq[0], socksreq[1]);
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-    return CURLE_COULDNT_CONNECT;
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+    वापस CURLE_COULDNT_CONNECT;
   }
 
-  memcpy(&us_length, socksreq + 2, sizeof(short));
-  us_length = ntohs(us_length);
+  स_नकल(&us_लंबाई, socksreq + 2, माप(लघु));
+  us_लंबाई = ntohs(us_लंबाई);
 
-  if(!us_length) {
-    failf(data, "Invalid zero-length GSS-API encryption token.");
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-    return CURLE_COULDNT_CONNECT;
+  अगर(!us_लंबाई) {
+    failf(तथ्य, "Invalid zero-length GSS-API encryption token.");
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+    वापस CURLE_COULDNT_CONNECT;
   }
 
-  gss_recv_token.length = us_length;
-  gss_recv_token.value = curlx_malloc(gss_recv_token.length);
-  if(!gss_recv_token.value) {
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-    return CURLE_OUT_OF_MEMORY;
+  gss_recv_token.लंबाई = us_लंबाई;
+  gss_recv_token.मूल्य = curlx_malloc(gss_recv_token.लंबाई);
+  अगर(!gss_recv_token.मूल्य) {
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+    वापस CURLE_OUT_OF_MEMORY;
   }
-  result = Curl_blockread_all(cf, data, (char *)gss_recv_token.value,
-                              gss_recv_token.length, &actualread);
+  परिणाम = Curl_blockread_all(cf, तथ्य, (अक्षर *)gss_recv_token.मूल्य,
+                              gss_recv_token.लंबाई, &actualread);
 
-  if(result || (actualread != us_length)) {
-    failf(data, "Failed to receive GSS-API encryption type.");
-    curlx_safefree(gss_recv_token.value);
-    gss_recv_token.length = 0;
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-    return CURLE_COULDNT_CONNECT;
+  अगर(परिणाम || (actualread != us_लंबाई)) {
+    failf(तथ्य, "Failed to receive GSS-API encryption type.");
+    curlx_safefree(gss_recv_token.मूल्य);
+    gss_recv_token.लंबाई = 0;
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+    वापस CURLE_COULDNT_CONNECT;
   }
 
-  if(!data->set.socks5_gssapi_nec) {
+  अगर(!तथ्य->set.socks5_gssapi_nec) {
     gss_major_status = gss_unwrap(&gss_minor_status, *gss_context,
                                   &gss_recv_token, &gss_w_token,
-                                  NULL, NULL);
+                                  शून्य, शून्य);
 
-    if(check_gss_err(data, gss_major_status, gss_minor_status, "gss_unwrap")) {
-      curlx_safefree(gss_recv_token.value);
-      gss_recv_token.length = 0;
-      gss_release_buffer(&gss_status, &gss_w_token);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      failf(data, "Failed to unwrap GSS-API encryption value into token.");
-      return CURLE_COULDNT_CONNECT;
+    अगर(check_gss_err(तथ्य, gss_major_status, gss_minor_status, "gss_unwrap")) {
+      curlx_safefree(gss_recv_token.मूल्य);
+      gss_recv_token.लंबाई = 0;
+      gss_release_बफर(&gss_status, &gss_w_token);
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      failf(तथ्य, "Failed to unwrap GSS-API encryption value into token.");
+      वापस CURLE_COULDNT_CONNECT;
     }
-    curlx_safefree(gss_recv_token.value);
-    gss_recv_token.length = 0;
+    curlx_safefree(gss_recv_token.मूल्य);
+    gss_recv_token.लंबाई = 0;
 
-    if(gss_w_token.length != 1) {
-      failf(data, "Invalid GSS-API encryption response length (%zu).",
-            gss_w_token.length);
-      gss_release_buffer(&gss_status, &gss_w_token);
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+    अगर(gss_w_token.लंबाई != 1) {
+      failf(तथ्य, "Invalid GSS-API encryption response length (%zu).",
+            gss_w_token.लंबाई);
+      gss_release_बफर(&gss_status, &gss_w_token);
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
 
-    memcpy(socksreq, gss_w_token.value, gss_w_token.length);
-    gss_release_buffer(&gss_status, &gss_w_token);
+    स_नकल(socksreq, gss_w_token.मूल्य, gss_w_token.लंबाई);
+    gss_release_बफर(&gss_status, &gss_w_token);
   }
-  else {
-    if(gss_recv_token.length != 1) {
-      failf(data, "Invalid GSS-API encryption response length (%zu).",
-            gss_recv_token.length);
-      curlx_safefree(gss_recv_token.value);
-      gss_recv_token.length = 0;
-      Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
-      return CURLE_COULDNT_CONNECT;
+  अन्यथा {
+    अगर(gss_recv_token.लंबाई != 1) {
+      failf(तथ्य, "Invalid GSS-API encryption response length (%zu).",
+            gss_recv_token.लंबाई);
+      curlx_safefree(gss_recv_token.मूल्य);
+      gss_recv_token.लंबाई = 0;
+      Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
+      वापस CURLE_COULDNT_CONNECT;
     }
 
-    memcpy(socksreq, gss_recv_token.value, gss_recv_token.length);
-    curlx_safefree(gss_recv_token.value);
-    gss_recv_token.length = 0;
+    स_नकल(socksreq, gss_recv_token.मूल्य, gss_recv_token.लंबाई);
+    curlx_safefree(gss_recv_token.मूल्य);
+    gss_recv_token.लंबाई = 0;
   }
 
-  infof(data, "SOCKS5 access %s protection granted.",
+  infof(तथ्य, "SOCKS5 access %s protection granted.",
         (socksreq[0] == 0) ? "without GSS-API data" :
          ((socksreq[0] == 1) ? "with GSS-API integrity" :
           "with GSS-API confidentiality"));
 
   conn->socks5_gssapi_enctype = socksreq[0];
-  if(socksreq[0] == 0)
-    Curl_gss_delete_sec_context(&gss_status, gss_context, NULL);
+  अगर(socksreq[0] == 0)
+    Curl_gss_delete_sec_context(&gss_status, gss_context, शून्य);
 
-  return CURLE_OK;
+  वापस CURLE_OK;
 }
 
-CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct Curl_creds *creds)
+CURLcode Curl_SOCKS5_gssapi_negotiate(काष्ठा Curl_cfilter *cf,
+                                      काष्ठा Curl_easy *तथ्य,
+                                      काष्ठा Curl_creds *creds)
 {
-  struct connectdata *conn = cf->conn;
+  काष्ठा connectdata *conn = cf->conn;
   curl_socket_t sock = conn->sock[cf->sockindex];
-  CURLcode result;
+  CURLcode परिणाम;
   OM_uint32 gss_ret_flags = 0;
   gss_name_t server = GSS_C_NO_NAME;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  स्थिर अक्षर *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : "rcmd";
   gss_ctx_id_t gss_context = GSS_C_NO_CONTEXT;
 
-  result = socks5_gss_create_service_name(data, conn, service, &server);
-  if(!result) {
-    (void)curlx_nonblock(sock, FALSE);
-    result = socks5_gss_auth_loop(cf, data, &server, &gss_context,
+  परिणाम = socks5_gss_create_service_name(तथ्य, conn, service, &server);
+  अगर(!परिणाम) {
+    (व्योम)curlx_nonblock(sock, FALSE);
+    परिणाम = socks5_gss_auth_loop(cf, तथ्य, &server, &gss_context,
                                   &gss_ret_flags);
   }
-  if(!result)
-    result = socks5_gss_auth_verify(data, &gss_context);
-  if(!result)
-    result = socks5_gss_negotiate_enc(cf, data, &gss_context, gss_ret_flags);
+  अगर(!परिणाम)
+    परिणाम = socks5_gss_auth_verify(तथ्य, &gss_context);
+  अगर(!परिणाम)
+    परिणाम = socks5_gss_negotiate_enc(cf, तथ्य, &gss_context, gss_ret_flags);
 
   /* unconditionally put it back to non-blocking */
-  (void)curlx_nonblock(sock, TRUE);
+  (व्योम)curlx_nonblock(sock, TRUE);
 
-  return result;
+  वापस परिणाम;
 }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
-#endif
+#अगर defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#आशय GCC diagnostic निकालो
+#पूर्ण_अगर
 
-#endif /* HAVE_GSSAPI && !CURL_DISABLE_PROXY */
+#पूर्ण_अगर /* HAVE_GSSAPI && !CURL_DISABLE_PROXY */
