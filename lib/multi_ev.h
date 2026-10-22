@@ -23,58 +23,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "hash.h"
+#अन्तर्भाव "hash.h"
 
-struct Curl_easy;
-struct Curl_multi;
-struct easy_pollset;
-struct uint32_bset;
+संरचना Curl_easy;
+संरचना Curl_multi;
+संरचना easy_pollset;
+संरचना uint32_bset;
 
 /* meta key for event pollset at easy handle or connection */
 #define CURL_META_MEV_POLLSET   "meta:mev:ps"
 
-struct curl_multi_ev {
-  struct Curl_hash sh_entries;
+संरचना curl_multi_ev {
+  संरचना Curl_hash sh_entries;
 };
 
 /* Setup/teardown of multi event book-keeping. */
-void Curl_multi_ev_init(struct Curl_multi *multi, size_t hashsize);
-void Curl_multi_ev_cleanup(struct Curl_multi *multi);
+शून्य Curl_multi_ev_init(संरचना Curl_multi *multi, size_t hashsize);
+शून्य Curl_multi_ev_cleanup(संरचना Curl_multi *multi);
 
 /* Assign a 'user_data' to be passed to the socket callback when
  * invoked with the given socket. This will fail if this socket
  * is not active, e.g. the application has not been told to monitor it. */
-CURLMcode Curl_multi_ev_assign(struct Curl_multi *multi, curl_socket_t s,
-                               void *user_data);
+CURLMcode Curl_multi_ev_assign(संरचना Curl_multi *multi, curl_socket_t s,
+                               शून्य *user_data);
 
 /* Assess the transfer by getting its current pollset, compute
  * any changes to the last one and inform the application's socket
  * callback if things have changed. */
-CURLMcode Curl_multi_ev_assess_xfer(struct Curl_multi *multi,
-                                    struct Curl_easy *data);
+CURLMcode Curl_multi_ev_assess_xfer(संरचना Curl_multi *multi,
+                                    संरचना Curl_easy *data);
 /* Assess all easy handles on the list */
-CURLMcode Curl_multi_ev_assess_xfer_bset(struct Curl_multi *multi,
-                                         struct uint32_bset *set);
+CURLMcode Curl_multi_ev_assess_xfer_bset(संरचना Curl_multi *multi,
+                                         संरचना uint32_bset *set);
 /* Assess the connection by getting its current pollset */
-CURLMcode Curl_multi_ev_assess_conn(struct Curl_multi *multi,
-                                    struct Curl_easy *data,
-                                    struct connectdata *conn);
+CURLMcode Curl_multi_ev_assess_conn(संरचना Curl_multi *multi,
+                                    संरचना Curl_easy *data,
+                                    संरचना connectdata *conn);
 
 /* Mark all transfers tied to the given socket as dirty */
-void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
+शून्य Curl_multi_ev_dirty_xfers(संरचना Curl_multi *multi,
                                curl_socket_t s);
 
 /* Socket will be closed, forget anything we know about it. */
-void Curl_multi_ev_socket_done(struct Curl_multi *multi,
-                               struct Curl_easy *data, curl_socket_t s);
+शून्य Curl_multi_ev_socket_done(संरचना Curl_multi *multi,
+                               संरचना Curl_easy *data, curl_socket_t s);
 
 /* Transfer is removed from the multi */
-void Curl_multi_ev_xfer_done(struct Curl_multi *multi,
-                             struct Curl_easy *data);
+शून्य Curl_multi_ev_xfer_done(संरचना Curl_multi *multi,
+                             संरचना Curl_easy *data);
 
 /* Connection is being destroyed */
-void Curl_multi_ev_conn_done(struct Curl_multi *multi,
-                             struct Curl_easy *data,
-                             struct connectdata *conn);
+शून्य Curl_multi_ev_conn_done(संरचना Curl_multi *multi,
+                             संरचना Curl_easy *data,
+                             संरचना connectdata *conn);
 
 #endif /* HEADER_CURL_MULTI_EV_H */
