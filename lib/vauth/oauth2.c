@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#ᱡᱩᱫᱤ !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
@@ -47,27 +47,27 @@
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
-                                               const char *host,
+CURLcode Curl_auth_create_oauth_bearer_message(sa_nracanaa Curl_creds *creds,
+                                               const var_na *host,
                                                const long port,
-                                               struct bufref *out)
+                                               sa_nracanaa bufref *out)
 {
-  char *oauth;
+  var_na *oauth;
 
   /* Generate the message */
-  if(port == 0 || port == 80)
+  ᱡᱩᱫᱤ(port == 0 || port == 80)
     oauth = curl_maprintf("n,a=%s,\1host=%s\1auth=Bearer %s\1\1",
                           Curl_creds_user(creds), host,
                           Curl_creds_oauth_bearer(creds));
-  else
+  ᱵᱟᱝ
     oauth = curl_maprintf("n,a=%s,\1host=%s\1port=%ld\1auth=Bearer %s\1\1",
                           Curl_creds_user(creds), host, port,
                           Curl_creds_oauth_bearer(creds));
-  if(!oauth)
-    return CURLE_OUT_OF_MEMORY;
+  ᱡᱩᱫᱤ(!oauth)
+    ᱨᱩᱣᱟᱹᱲ CURLE_OUT_OF_MEMORY;
 
   Curl_bufref_set(out, oauth, strlen(oauth), curl_free);
-  return CURLE_OK;
+  ᱨᱩᱣᱟᱹᱲ CURLE_OK;
 }
 
 /*
@@ -84,17 +84,17 @@ CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_xoauth_bearer_message(struct Curl_creds *creds,
-                                                struct bufref *out)
+CURLcode Curl_auth_create_xoauth_bearer_message(sa_nracanaa Curl_creds *creds,
+                                                sa_nracanaa bufref *out)
 {
   /* Generate the message */
-  char *xoauth = curl_maprintf("user=%s\1auth=Bearer %s\1\1",
+  var_na *xoauth = curl_maprintf("user=%s\1auth=Bearer %s\1\1",
                                Curl_creds_user(creds),
                                Curl_creds_oauth_bearer(creds));
-  if(!xoauth)
-    return CURLE_OUT_OF_MEMORY;
+  ᱡᱩᱫᱤ(!xoauth)
+    ᱨᱩᱣᱟᱹᱲ CURLE_OUT_OF_MEMORY;
 
   Curl_bufref_set(out, xoauth, strlen(xoauth), curl_free);
-  return CURLE_OK;
+  ᱨᱩᱣᱟᱹᱲ CURLE_OK;
 }
 #endif /* disabled, no users */

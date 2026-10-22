@@ -58,17 +58,17 @@
 /* allow no more than 5 "chained" compression steps */
 #define MAX_ENCODE_STACK 5
 
-#if defined(HAVE_LIBZ) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
+#ᱡᱩᱫᱤ defined(HAVE_LIBZ) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
 #define DECOMPRESS_BUFFER_SIZE 16384 /* buffer size for decompressed data */
 #endif
 
 #ifdef HAVE_LIBZ
 
-#if !defined(ZLIB_VERNUM) || (ZLIB_VERNUM < 0x1252)
+#ᱡᱩᱫᱤ !defined(ZLIB_VERNUM) || (ZLIB_VERNUM < 0x1252)
 #error "zlib 1.2.5.2 or greater required"
 #endif
 
-typedef enum {
+typedef ga_nanaa {
   ZLIB_UNINIT,               /* uninitialized */
   ZLIB_INIT,                 /* initialized */
   ZLIB_INFLATING,            /* inflating started. */
@@ -77,19 +77,19 @@ typedef enum {
 } zlibInitState;
 
 /* Deflate and gzip writer. */
-struct zlib_writer {
-  struct Curl_cwriter super;
+sa_nracanaa zlib_writer {
+  sa_nracanaa Curl_cwriter super;
   zlibInitState zlib_init;   /* zlib init state */
-  char buffer[DECOMPRESS_BUFFER_SIZE]; /* Put the decompressed data here. */
+  var_na buffer[DECOMPRESS_BUFFER_SIZE]; /* Put the decompressed data here. */
   uInt trailerlen;           /* Remaining trailer byte count. */
   z_stream z;                /* State structure for zlib. */
 };
 
-static voidpf zalloc_cb(voidpf opaque, unsigned int items, unsigned int size)
+static voidpf zalloc_cb(voidpf opaque, unsigned puur_naa_nka items, unsigned puur_naa_nka size)
 {
   (void)opaque;
   /* not a typo, keep it curlx_calloc() */
-  return curlx_calloc(items, size);
+  ᱨᱩᱣᱟᱹᱲ curlx_calloc(items, size);
 }
 
 static void zfree_cb(voidpf opaque, voidpf ptr)
@@ -98,30 +98,30 @@ static void zfree_cb(voidpf opaque, voidpf ptr)
   curlx_free(ptr);
 }
 
-static CURLcode process_zlib_error(struct Curl_easy *data, z_stream *z)
+static CURLcode process_zlib_error(sa_nracanaa Curl_easy *data, z_stream *z)
 {
-  if(z->msg)
+  ᱡᱩᱫᱤ(z->msg)
     failf(data, "Error while processing content unencoding: %s", z->msg);
-  else
+  ᱵᱟᱝ
     failf(data, "Error while processing content unencoding: "
           "Unknown failure within decompression software.");
 
-  return CURLE_BAD_CONTENT_ENCODING;
+  ᱨᱩᱣᱟᱹᱲ CURLE_BAD_CONTENT_ENCODING;
 }
 
-static CURLcode exit_zlib(struct Curl_easy *data, z_stream *z,
+static CURLcode exit_zlib(sa_nracanaa Curl_easy *data, z_stream *z,
                           zlibInitState *zlib_init, CURLcode result)
 {
-  if(*zlib_init != ZLIB_UNINIT) {
-    if(inflateEnd(z) != Z_OK && result == CURLE_OK)
+  ᱡᱩᱫᱤ(*zlib_init != ZLIB_UNINIT) {
+    ᱡᱩᱫᱤ(inflateEnd(z) != Z_OK && result == CURLE_OK)
       result = process_zlib_error(data, z);
     *zlib_init = ZLIB_UNINIT;
   }
 
-  return result;
+  ᱨᱩᱣᱟᱹᱲ result;
 }
 
-static CURLcode process_trailer(struct Curl_easy *data, struct zlib_writer *zp)
+static CURLcode process_trailer(sa_nracanaa Curl_easy *data, sa_nracanaa zlib_writer *zp)
 {
   z_stream *z = &zp->z;
   CURLcode result = CURLE_OK;
@@ -133,47 +133,47 @@ static CURLcode process_trailer(struct Curl_easy *data, struct zlib_writer *zp)
   zp->trailerlen -= len;
   z->avail_in -= len;
   z->next_in += len;
-  if(z->avail_in)
+  ᱡᱩᱫᱤ(z->avail_in)
     result = CURLE_WRITE_ERROR;
-  if(result || !zp->trailerlen)
+  ᱡᱩᱫᱤ(result || !zp->trailerlen)
     result = exit_zlib(data, z, &zp->zlib_init, result);
-  else {
+  ᱵᱟᱝ {
     /* Only occurs for gzip with zlib < 1.2.0.4 or raw deflate. */
     zp->zlib_init = ZLIB_EXTERNAL_TRAILER;
   }
-  return result;
+  ᱨᱩᱣᱟᱹᱲ result;
 }
 
-static CURLcode inflate_stream(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
+static CURLcode inflate_stream(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_cwriter *writer, puur_naa_nka type,
                                zlibInitState started)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
+  sa_nracanaa zlib_writer *zp = (sa_nracanaa zlib_writer *)writer;
   z_stream *z = &zp->z;         /* zlib state structure */
   uInt nread = z->avail_in;
   z_const Bytef *orig_in = z->next_in;
   bool done = FALSE;
   CURLcode result = CURLE_OK;   /* Curl_client_write status */
-  int i = 0;
+  puur_naa_nka i = 0;
 
   /* Check state. */
-  if(zp->zlib_init != ZLIB_INIT &&
+  ᱡᱩᱫᱤ(zp->zlib_init != ZLIB_INIT &&
      zp->zlib_init != ZLIB_INFLATING &&
      zp->zlib_init != ZLIB_INIT_GZIP)
-    return exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
+    ᱨᱩᱣᱟᱹᱲ exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
 
   /* because the buffer size is fixed, iteratively decompress and transfer to
      the client via next_write function. */
-  while(!done) {
-    int status; /* zlib status */
+  ᱡᱚᱠᱷᱚᱱ(!done) {
+    puur_naa_nka status; /* zlib status */
     done = TRUE;
 
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+    ᱡᱩᱫᱤ(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
+      ᱡᱩᱫᱤ(Curl_timeleft_ms(data) < 0) {
         failf(data, "Operation timed out while decoding payload");
-        return exit_zlib(data, z, &zp->zlib_init, CURLE_OPERATION_TIMEDOUT);
+        ᱨᱩᱣᱟᱹᱲ exit_zlib(data, z, &zp->zlib_init, CURLE_OPERATION_TIMEDOUT);
       }
     }
 
@@ -184,117 +184,117 @@ static CURLcode inflate_stream(struct Curl_easy *data,
     status = inflate(z, Z_BLOCK);
 
     /* Flush output data if some. */
-    if(z->avail_out != DECOMPRESS_BUFFER_SIZE) {
-      if(status == Z_OK || status == Z_STREAM_END) {
+    ᱡᱩᱫᱤ(z->avail_out != DECOMPRESS_BUFFER_SIZE) {
+      ᱡᱩᱫᱤ(status == Z_OK || status == Z_STREAM_END) {
         zp->zlib_init = started; /* Data started. */
         result = Curl_cwriter_write(data, writer->next, type, zp->buffer,
                                     DECOMPRESS_BUFFER_SIZE - z->avail_out);
-        if(result) {
+        ᱡᱩᱫᱤ(result) {
           exit_zlib(data, z, &zp->zlib_init, result);
-          break;
+          bha_nga;
         }
       }
     }
 
     /* Dispatch by inflate() status. */
     switch(status) {
-    case Z_OK:
+    pak_sa Z_OK:
       /* Always loop: there may be unflushed latched data in zlib state. */
       done = FALSE;
-      break;
-    case Z_BUF_ERROR:
+      bha_nga;
+    pak_sa Z_BUF_ERROR:
       /* No more data to flush: exit loop. */
-      break;
-    case Z_STREAM_END:
-      if((started == ZLIB_INIT_GZIP) && (z->avail_in >= 2) &&
+      bha_nga;
+    pak_sa Z_STREAM_END:
+      ᱡᱩᱫᱤ((started == ZLIB_INIT_GZIP) && (z->avail_in >= 2) &&
          (z->next_in[0] == 0x1f) && (z->next_in[1] == 0x8b)) {
         /* a second gzip member follows; curl does not support
            multi-member gzip responses */
         failf(data, "Multi-member gzip response not supported");
         result = exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
-        break;
+        bha_nga;
       }
       result = process_trailer(data, zp);
-      break;
-    case Z_DATA_ERROR:
+      bha_nga;
+    pak_sa Z_DATA_ERROR:
       /* some servers seem to not generate zlib headers, so this is an attempt
          to fix and continue anyway */
-      if(zp->zlib_init == ZLIB_INIT) {
-        if(inflateReset2(z, -MAX_WBITS) == Z_OK) {
+      ᱡᱩᱫᱤ(zp->zlib_init == ZLIB_INIT) {
+        ᱡᱩᱫᱤ(inflateReset2(z, -MAX_WBITS) == Z_OK) {
           z->next_in = orig_in;
           z->avail_in = nread;
           zp->zlib_init = ZLIB_INFLATING;
           zp->trailerlen = 4; /* Tolerate up to 4 unknown trailer bytes. */
           done = FALSE;
-          break;
+          bha_nga;
         }
         zp->zlib_init = ZLIB_UNINIT; /* inflateEnd() already called. */
       }
       result = exit_zlib(data, z, &zp->zlib_init, process_zlib_error(data, z));
-      break;
+      bha_nga;
     default:
       result = exit_zlib(data, z, &zp->zlib_init, process_zlib_error(data, z));
-      break;
+      bha_nga;
     }
   }
 
   /* We are about to leave this call so the `nread' data bytes will not be seen
      again. If we are in a state that would wrongly allow restart in raw mode
      at the next call, assume output has already started. */
-  if(nread && zp->zlib_init == ZLIB_INIT)
+  ᱡᱩᱫᱤ(nread && zp->zlib_init == ZLIB_INIT)
     zp->zlib_init = started; /* Cannot restart anymore. */
 
-  return result;
+  ᱨᱩᱣᱟᱹᱲ result;
 }
 
 /* Deflate handler. */
-static CURLcode deflate_do_init(struct Curl_easy *data,
-                                struct Curl_cwriter *writer)
+static CURLcode deflate_do_init(sa_nracanaa Curl_easy *data,
+                                sa_nracanaa Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
+  sa_nracanaa zlib_writer *zp = (sa_nracanaa zlib_writer *)writer;
   z_stream *z = &zp->z; /* zlib state structure */
 
   /* Initialize zlib */
   z->zalloc = (alloc_func)zalloc_cb;
   z->zfree = (free_func)zfree_cb;
 
-  if(inflateInit(z) != Z_OK)
-    return process_zlib_error(data, z);
+  ᱡᱩᱫᱤ(inflateInit(z) != Z_OK)
+    ᱨᱩᱣᱟᱹᱲ process_zlib_error(data, z);
   zp->zlib_init = ZLIB_INIT;
-  return CURLE_OK;
+  ᱨᱩᱣᱟᱹᱲ CURLE_OK;
 }
 
-static CURLcode deflate_do_write(struct Curl_easy *data,
-                                 struct Curl_cwriter *writer, int type,
-                                 const char *buf, size_t nbytes)
+static CURLcode deflate_do_write(sa_nracanaa Curl_easy *data,
+                                 sa_nracanaa Curl_cwriter *writer, puur_naa_nka type,
+                                 const var_na *buf, size_t nbytes)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
+  sa_nracanaa zlib_writer *zp = (sa_nracanaa zlib_writer *)writer;
   z_stream *z = &zp->z; /* zlib state structure */
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ᱡᱩᱫᱤ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ᱨᱩᱣᱟᱹᱲ Curl_cwriter_write(data, writer->next, type, buf, nbytes);
 
   /* Set the compressed input when this function is called */
   z->next_in = (z_const Bytef *)buf;
   z->avail_in = (uInt)nbytes;
 
-  if(zp->zlib_init == ZLIB_EXTERNAL_TRAILER)
-    return process_trailer(data, zp);
+  ᱡᱩᱫᱤ(zp->zlib_init == ZLIB_EXTERNAL_TRAILER)
+    ᱨᱩᱣᱟᱹᱲ process_trailer(data, zp);
 
   /* Now uncompress the data */
-  return inflate_stream(data, writer, type, ZLIB_INFLATING);
+  ᱨᱩᱣᱟᱹᱲ inflate_stream(data, writer, type, ZLIB_INFLATING);
 }
 
-static void deflate_do_close(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+static void deflate_do_close(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
+  sa_nracanaa zlib_writer *zp = (sa_nracanaa zlib_writer *)writer;
   z_stream *z = &zp->z; /* zlib state structure */
 
   exit_zlib(data, z, &zp->zlib_init, CURLE_OK);
 }
 
-static const struct Curl_cwtype deflate_encoding = {
+static const sa_nracanaa Curl_cwtype deflate_encoding = {
   "deflate",
   NULL,
   CURL_CW_FLAG_BLOWUP,
@@ -302,62 +302,62 @@ static const struct Curl_cwtype deflate_encoding = {
   deflate_do_write,
   Curl_cwriter_def_flush,
   deflate_do_close,
-  sizeof(struct zlib_writer)
+  parimaa_na(sa_nracanaa zlib_writer)
 };
 
 /*
  * Gzip handler.
  */
 
-static CURLcode gzip_do_init(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+static CURLcode gzip_do_init(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
+  sa_nracanaa zlib_writer *zp = (sa_nracanaa zlib_writer *)writer;
   z_stream *z = &zp->z; /* zlib state structure */
 
   /* Initialize zlib */
   z->zalloc = (alloc_func)zalloc_cb;
   z->zfree = (free_func)zfree_cb;
 
-  if(inflateInit2(z, MAX_WBITS + 32) != Z_OK)
-    return process_zlib_error(data, z);
+  ᱡᱩᱫᱤ(inflateInit2(z, MAX_WBITS + 32) != Z_OK)
+    ᱨᱩᱣᱟᱹᱲ process_zlib_error(data, z);
 
   zp->zlib_init = ZLIB_INIT_GZIP; /* Transparent gzip decompress state */
-  return CURLE_OK;
+  ᱨᱩᱣᱟᱹᱲ CURLE_OK;
 }
 
-static CURLcode gzip_do_write(struct Curl_easy *data,
-                              struct Curl_cwriter *writer, int type,
-                              const char *buf, size_t nbytes)
+static CURLcode gzip_do_write(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_cwriter *writer, puur_naa_nka type,
+                              const var_na *buf, size_t nbytes)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
+  sa_nracanaa zlib_writer *zp = (sa_nracanaa zlib_writer *)writer;
   z_stream *z = &zp->z; /* zlib state structure */
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ᱡᱩᱫᱤ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ᱨᱩᱣᱟᱹᱲ Curl_cwriter_write(data, writer->next, type, buf, nbytes);
 
-  if(zp->zlib_init == ZLIB_INIT_GZIP) {
+  ᱡᱩᱫᱤ(zp->zlib_init == ZLIB_INIT_GZIP) {
     /* Let zlib handle the gzip decompression entirely */
     z->next_in = (z_const Bytef *)buf;
     z->avail_in = (uInt)nbytes;
     /* Now uncompress the data */
-    return inflate_stream(data, writer, type, ZLIB_INIT_GZIP);
+    ᱨᱩᱣᱟᱹᱲ inflate_stream(data, writer, type, ZLIB_INIT_GZIP);
   }
 
   /* We are running with an old version: return error. */
-  return exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
+  ᱨᱩᱣᱟᱹᱲ exit_zlib(data, z, &zp->zlib_init, CURLE_WRITE_ERROR);
 }
 
-static void gzip_do_close(struct Curl_easy *data,
-                          struct Curl_cwriter *writer)
+static void gzip_do_close(sa_nracanaa Curl_easy *data,
+                          sa_nracanaa Curl_cwriter *writer)
 {
-  struct zlib_writer *zp = (struct zlib_writer *)writer;
+  sa_nracanaa zlib_writer *zp = (sa_nracanaa zlib_writer *)writer;
   z_stream *z = &zp->z; /* zlib state structure */
 
   exit_zlib(data, z, &zp->zlib_init, CURLE_OK);
 }
 
-static const struct Curl_cwtype gzip_encoding = {
+static const sa_nracanaa Curl_cwtype gzip_encoding = {
   "gzip",
   "x-gzip",
   CURL_CW_FLAG_BLOWUP,
@@ -365,92 +365,92 @@ static const struct Curl_cwtype gzip_encoding = {
   gzip_do_write,
   Curl_cwriter_def_flush,
   gzip_do_close,
-  sizeof(struct zlib_writer)
+  parimaa_na(sa_nracanaa zlib_writer)
 };
 
 #endif /* HAVE_LIBZ */
 
 #ifdef HAVE_BROTLI
 /* Brotli writer. */
-struct brotli_writer {
-  struct Curl_cwriter super;
-  char buffer[DECOMPRESS_BUFFER_SIZE];
+sa_nracanaa brotli_writer {
+  sa_nracanaa Curl_cwriter super;
+  var_na buffer[DECOMPRESS_BUFFER_SIZE];
   BrotliDecoderState *br; /* State structure for brotli. */
 };
 
 static CURLcode brotli_map_error(BrotliDecoderErrorCode be)
 {
   switch(be) {
-  case BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE:
-  case BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE:
-  case BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET:
-  case BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME:
-  case BROTLI_DECODER_ERROR_FORMAT_CL_SPACE:
-  case BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE:
-  case BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT:
-  case BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1:
-  case BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2:
-  case BROTLI_DECODER_ERROR_FORMAT_TRANSFORM:
-  case BROTLI_DECODER_ERROR_FORMAT_DICTIONARY:
-  case BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS:
-  case BROTLI_DECODER_ERROR_FORMAT_PADDING_1:
-  case BROTLI_DECODER_ERROR_FORMAT_PADDING_2:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_NIBBLE:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_EXUBERANT_META_NIBBLE:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_ALPHABET:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_SIMPLE_HUFFMAN_SAME:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_CL_SPACE:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_HUFFMAN_SPACE:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_CONTEXT_MAP_REPEAT:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_1:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_BLOCK_LENGTH_2:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_TRANSFORM:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_DICTIONARY:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_WINDOW_BITS:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_PADDING_1:
+  pak_sa BROTLI_DECODER_ERROR_FORMAT_PADDING_2:
 #ifdef BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY  /* brotli v1.1.0+ */
-  case BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY:
+  pak_sa BROTLI_DECODER_ERROR_COMPOUND_DICTIONARY:
 #endif
-  case BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET:
-  case BROTLI_DECODER_ERROR_INVALID_ARGUMENTS:
-    return CURLE_BAD_CONTENT_ENCODING;
-  case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES:
-  case BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS:
-  case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP:
-  case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1:
-  case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2:
-  case BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES:
-    return CURLE_OUT_OF_MEMORY;
+  pak_sa BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET:
+  pak_sa BROTLI_DECODER_ERROR_INVALID_ARGUMENTS:
+    ᱨᱩᱣᱟᱹᱲ CURLE_BAD_CONTENT_ENCODING;
+  pak_sa BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES:
+  pak_sa BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS:
+  pak_sa BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP:
+  pak_sa BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1:
+  pak_sa BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2:
+  pak_sa BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES:
+    ᱨᱩᱣᱟᱹᱲ CURLE_OUT_OF_MEMORY;
   default:
-    break;
+    bha_nga;
   }
-  return CURLE_WRITE_ERROR;
+  ᱨᱩᱣᱟᱹᱲ CURLE_WRITE_ERROR;
 }
 
-static CURLcode brotli_do_init(struct Curl_easy *data,
-                               struct Curl_cwriter *writer)
+static CURLcode brotli_do_init(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_cwriter *writer)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
+  sa_nracanaa brotli_writer *bp = (sa_nracanaa brotli_writer *)writer;
   (void)data;
 
   bp->br = BrotliDecoderCreateInstance(NULL, NULL, NULL);
-  return bp->br ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  ᱨᱩᱣᱟᱹᱲ bp->br ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 
-static CURLcode brotli_do_write(struct Curl_easy *data,
-                                struct Curl_cwriter *writer, int type,
-                                const char *buf, size_t nbytes)
+static CURLcode brotli_do_write(sa_nracanaa Curl_easy *data,
+                                sa_nracanaa Curl_cwriter *writer, puur_naa_nka type,
+                                const var_na *buf, size_t nbytes)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
+  sa_nracanaa brotli_writer *bp = (sa_nracanaa brotli_writer *)writer;
   const uint8_t *src = (const uint8_t *)buf;
   uint8_t *dst;
   size_t dstleft;
   CURLcode result = CURLE_OK;
   BrotliDecoderResult r = BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT;
-  int i = 0;
+  puur_naa_nka i = 0;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ᱡᱩᱫᱤ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ᱨᱩᱣᱟᱹᱲ Curl_cwriter_write(data, writer->next, type, buf, nbytes);
 
-  if(!bp->br)
-    return CURLE_WRITE_ERROR; /* Stream already ended. */
+  ᱡᱩᱫᱤ(!bp->br)
+    ᱨᱩᱣᱟᱹᱲ CURLE_WRITE_ERROR; /* Stream already ended. */
 
-  while((nbytes || r == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) &&
+  ᱡᱚᱠᱷᱚᱱ((nbytes || r == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) &&
         result == CURLE_OK) {
 
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+    ᱡᱩᱫᱤ(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
+      ᱡᱩᱫᱤ(Curl_timeleft_ms(data) < 0) {
         failf(data, "Operation timed out while decoding payload");
-        return CURLE_OPERATION_TIMEDOUT;
+        ᱨᱩᱣᱟᱹᱲ CURLE_OPERATION_TIMEDOUT;
       }
     }
 
@@ -460,39 +460,39 @@ static CURLcode brotli_do_write(struct Curl_easy *data,
                                       &nbytes, &src, &dstleft, &dst, NULL);
     result = Curl_cwriter_write(data, writer->next, type,
                                 bp->buffer, DECOMPRESS_BUFFER_SIZE - dstleft);
-    if(result)
-      break;
+    ᱡᱩᱫᱤ(result)
+      bha_nga;
     switch(r) {
-    case BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT:
-    case BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT:
-      break;
-    case BROTLI_DECODER_RESULT_SUCCESS:
+    pak_sa BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT:
+    pak_sa BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT:
+      bha_nga;
+    pak_sa BROTLI_DECODER_RESULT_SUCCESS:
       BrotliDecoderDestroyInstance(bp->br);
       bp->br = NULL;
-      if(nbytes)
+      ᱡᱩᱫᱤ(nbytes)
         result = CURLE_WRITE_ERROR;
-      break;
+      bha_nga;
     default:
       result = brotli_map_error(BrotliDecoderGetErrorCode(bp->br));
-      break;
+      bha_nga;
     }
   }
-  return result;
+  ᱨᱩᱣᱟᱹᱲ result;
 }
 
-static void brotli_do_close(struct Curl_easy *data,
-                            struct Curl_cwriter *writer)
+static void brotli_do_close(sa_nracanaa Curl_easy *data,
+                            sa_nracanaa Curl_cwriter *writer)
 {
-  struct brotli_writer *bp = (struct brotli_writer *)writer;
+  sa_nracanaa brotli_writer *bp = (sa_nracanaa brotli_writer *)writer;
   (void)data;
 
-  if(bp->br) {
+  ᱡᱩᱫᱤ(bp->br) {
     BrotliDecoderDestroyInstance(bp->br);
     bp->br = NULL;
   }
 }
 
-static const struct Curl_cwtype brotli_encoding = {
+static const sa_nracanaa Curl_cwtype brotli_encoding = {
   "br",
   NULL,
   CURL_CW_FLAG_BLOWUP,
@@ -500,23 +500,23 @@ static const struct Curl_cwtype brotli_encoding = {
   brotli_do_write,
   Curl_cwriter_def_flush,
   brotli_do_close,
-  sizeof(struct brotli_writer)
+  parimaa_na(sa_nracanaa brotli_writer)
 };
 #endif
 
 #ifdef HAVE_ZSTD
 /* Zstd writer. */
-struct zstd_writer {
-  struct Curl_cwriter super;
+sa_nracanaa zstd_writer {
+  sa_nracanaa Curl_cwriter super;
   ZSTD_DStream *zds; /* State structure for zstd. */
-  char buffer[DECOMPRESS_BUFFER_SIZE];
+  var_na buffer[DECOMPRESS_BUFFER_SIZE];
 };
 
 #ifdef ZSTD_STATIC_LINKING_ONLY
 static void *Curl_zstd_alloc(void *opaque, size_t size)
 {
   (void)opaque;
-  return Curl_cmalloc(size);
+  ᱨᱩᱣᱟᱹᱲ Curl_cmalloc(size);
 }
 
 static void Curl_zstd_free(void *opaque, void *address)
@@ -526,10 +526,10 @@ static void Curl_zstd_free(void *opaque, void *address)
 }
 #endif
 
-static CURLcode zstd_do_init(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+static CURLcode zstd_do_init(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa Curl_cwriter *writer)
 {
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
+  sa_nracanaa zstd_writer *zp = (sa_nracanaa zstd_writer *)writer;
 
   (void)data;
 
@@ -539,38 +539,38 @@ static CURLcode zstd_do_init(struct Curl_easy *data,
     .customFree  = Curl_zstd_free,
     .opaque      = NULL
   });
-#else
+#ᱵᱟᱝ
   zp->zds = ZSTD_createDStream();
 #endif
 
-  return zp->zds ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  ᱨᱩᱣᱟᱹᱲ zp->zds ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 
-static CURLcode zstd_do_write(struct Curl_easy *data,
-                              struct Curl_cwriter *writer, int type,
-                              const char *buf, size_t nbytes)
+static CURLcode zstd_do_write(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_cwriter *writer, puur_naa_nka type,
+                              const var_na *buf, size_t nbytes)
 {
   CURLcode result = CURLE_OK;
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
+  sa_nracanaa zstd_writer *zp = (sa_nracanaa zstd_writer *)writer;
   ZSTD_inBuffer in;
   ZSTD_outBuffer out;
   size_t errorCode;
-  int i = 0;
+  puur_naa_nka i = 0;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ᱡᱩᱫᱤ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ᱨᱩᱣᱟᱹᱲ Curl_cwriter_write(data, writer->next, type, buf, nbytes);
 
   in.pos = 0;
   in.src = buf;
   in.size = nbytes;
 
   for(;;) {
-    if(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
+    ᱡᱩᱫᱤ(++i > (1024 * 1024 / DECOMPRESS_BUFFER_SIZE)) {
       /* check every MB of output if we are not exceeding time limit */
       i = 0;
-      if(Curl_timeleft_ms(data) < 0) {
+      ᱡᱩᱫᱤ(Curl_timeleft_ms(data) < 0) {
         failf(data, "Operation timed out while decoding payload");
-        return CURLE_OPERATION_TIMEDOUT;
+        ᱨᱩᱣᱟᱹᱲ CURLE_OPERATION_TIMEDOUT;
       }
     }
 
@@ -579,35 +579,35 @@ static CURLcode zstd_do_write(struct Curl_easy *data,
     out.size = DECOMPRESS_BUFFER_SIZE;
 
     errorCode = ZSTD_decompressStream(zp->zds, &out, &in);
-    if(ZSTD_isError(errorCode)) {
-      return CURLE_BAD_CONTENT_ENCODING;
+    ᱡᱩᱫᱤ(ZSTD_isError(errorCode)) {
+      ᱨᱩᱣᱟᱹᱲ CURLE_BAD_CONTENT_ENCODING;
     }
-    if(out.pos > 0) {
+    ᱡᱩᱫᱤ(out.pos > 0) {
       result = Curl_cwriter_write(data, writer->next, type,
                                   zp->buffer, out.pos);
-      if(result)
-        break;
+      ᱡᱩᱫᱤ(result)
+        bha_nga;
     }
-    if((in.pos == nbytes) && (out.pos < out.size))
-      break;
+    ᱡᱩᱫᱤ((in.pos == nbytes) && (out.pos < out.size))
+      bha_nga;
   }
 
-  return result;
+  ᱨᱩᱣᱟᱹᱲ result;
 }
 
-static void zstd_do_close(struct Curl_easy *data,
-                          struct Curl_cwriter *writer)
+static void zstd_do_close(sa_nracanaa Curl_easy *data,
+                          sa_nracanaa Curl_cwriter *writer)
 {
-  struct zstd_writer *zp = (struct zstd_writer *)writer;
+  sa_nracanaa zstd_writer *zp = (sa_nracanaa zstd_writer *)writer;
   (void)data;
 
-  if(zp->zds) {
+  ᱡᱩᱫᱤ(zp->zds) {
     ZSTD_freeDStream(zp->zds);
     zp->zds = NULL;
   }
 }
 
-static const struct Curl_cwtype zstd_encoding = {
+static const sa_nracanaa Curl_cwtype zstd_encoding = {
   "zstd",
   NULL,
   CURL_CW_FLAG_BLOWUP,
@@ -615,12 +615,12 @@ static const struct Curl_cwtype zstd_encoding = {
   zstd_do_write,
   Curl_cwriter_def_flush,
   zstd_do_close,
-  sizeof(struct zstd_writer)
+  parimaa_na(sa_nracanaa zstd_writer)
 };
 #endif
 
 /* Identity handler. */
-static const struct Curl_cwtype identity_encoding = {
+static const sa_nracanaa Curl_cwtype identity_encoding = {
   "identity",
   "none",
   0,
@@ -628,11 +628,11 @@ static const struct Curl_cwtype identity_encoding = {
   Curl_cwriter_def_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct Curl_cwriter)
+  parimaa_na(sa_nracanaa Curl_cwriter)
 };
 
 /* supported general content decoders. */
-static const struct Curl_cwtype * const general_unencoders[] = {
+static const sa_nracanaa Curl_cwtype * const general_unencoders[] = {
   &identity_encoding,
 #ifdef HAVE_LIBZ
   &deflate_encoding,
@@ -648,68 +648,68 @@ static const struct Curl_cwtype * const general_unencoders[] = {
 };
 
 /* supported content decoders only for transfer encodings */
-static const struct Curl_cwtype * const transfer_unencoders[] = {
+static const sa_nracanaa Curl_cwtype * const transfer_unencoders[] = {
   &Curl_httpchunk_unencoder,
   NULL
 };
 
 /* Return the list of comma-separated names of supported encodings.
  */
-char *Curl_get_content_encodings(void)
+var_na *Curl_get_content_encodings(void)
 {
-  struct dynbuf enc;
-  const struct Curl_cwtype * const *cep;
+  sa_nracanaa dynbuf enc;
+  const sa_nracanaa Curl_cwtype * const *cep;
   CURLcode result = CURLE_OK;
   curlx_dyn_init(&enc, 255);
 
   for(cep = general_unencoders; *cep && !result; cep++) {
-    const struct Curl_cwtype *ce = *cep;
-    if(!curl_strequal(ce->name, CONTENT_ENCODING_DEFAULT)) {
-      if(curlx_dyn_len(&enc))
+    const sa_nracanaa Curl_cwtype *ce = *cep;
+    ᱡᱩᱫᱤ(!curl_strequal(ce->name, CONTENT_ENCODING_DEFAULT)) {
+      ᱡᱩᱫᱤ(curlx_dyn_len(&enc))
         result = curlx_dyn_addn(&enc, ", ", 2);
-      if(!result)
+      ᱡᱩᱫᱤ(!result)
         result = curlx_dyn_add(&enc, ce->name);
     }
   }
-  if(!result && !curlx_dyn_len(&enc))
+  ᱡᱩᱫᱤ(!result && !curlx_dyn_len(&enc))
     result = curlx_dyn_add(&enc, CONTENT_ENCODING_DEFAULT);
 
-  if(!result)
-    return curlx_dyn_ptr(&enc);
-  return NULL;
+  ᱡᱩᱫᱤ(!result)
+    ᱨᱩᱣᱟᱹᱲ curlx_dyn_ptr(&enc);
+  ᱨᱩᱣᱟᱹᱲ NULL;
 }
 
 /* Deferred error dummy writer. */
-static CURLcode error_do_init(struct Curl_easy *data,
-                              struct Curl_cwriter *writer)
+static CURLcode error_do_init(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_cwriter *writer)
 {
   (void)data;
   (void)writer;
-  return CURLE_OK;
+  ᱨᱩᱣᱟᱹᱲ CURLE_OK;
 }
 
-static CURLcode error_do_write(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
-                               const char *buf, size_t nbytes)
+static CURLcode error_do_write(sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_cwriter *writer, puur_naa_nka type,
+                               const var_na *buf, size_t nbytes)
 {
   (void)writer;
   (void)buf;
   (void)nbytes;
 
-  if(!(type & CLIENTWRITE_BODY) || !nbytes)
-    return Curl_cwriter_write(data, writer->next, type, buf, nbytes);
+  ᱡᱩᱫᱤ(!(type & CLIENTWRITE_BODY) || !nbytes)
+    ᱨᱩᱣᱟᱹᱲ Curl_cwriter_write(data, writer->next, type, buf, nbytes);
   failf(data, "Unrecognized content encoding type");
-  return CURLE_BAD_CONTENT_ENCODING;
+  ᱨᱩᱣᱟᱹᱲ CURLE_BAD_CONTENT_ENCODING;
 }
 
-static void error_do_close(struct Curl_easy *data,
-                           struct Curl_cwriter *writer)
+static void error_do_close(sa_nracanaa Curl_easy *data,
+                           sa_nracanaa Curl_cwriter *writer)
 {
   (void)data;
   (void)writer;
 }
 
-static const struct Curl_cwtype error_writer = {
+static const sa_nracanaa Curl_cwtype error_writer = {
   "ce-error",
   NULL,
   0,
@@ -717,39 +717,39 @@ static const struct Curl_cwtype error_writer = {
   error_do_write,
   Curl_cwriter_def_flush,
   error_do_close,
-  sizeof(struct Curl_cwriter)
+  parimaa_na(sa_nracanaa Curl_cwriter)
 };
 
 /* Find the content encoding by name. */
-static const struct Curl_cwtype *find_unencode_writer(const char *name,
+static const sa_nracanaa Curl_cwtype *find_unencode_writer(const var_na *name,
                                                       size_t len,
                                                       Curl_cwriter_phase phase)
 {
-  const struct Curl_cwtype * const *cep;
+  const sa_nracanaa Curl_cwtype * const *cep;
 
-  if(phase == CURL_CW_TRANSFER_DECODE) {
+  ᱡᱩᱫᱤ(phase == CURL_CW_TRANSFER_DECODE) {
     for(cep = transfer_unencoders; *cep; cep++) {
-      const struct Curl_cwtype *ce = *cep;
-      if((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
+      const sa_nracanaa Curl_cwtype *ce = *cep;
+      ᱡᱩᱫᱤ((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
          (ce->alias && curl_strnequal(name, ce->alias, len) &&
           !ce->alias[len]))
-        return ce;
+        ᱨᱩᱣᱟᱹᱲ ce;
     }
   }
   /* look among the general decoders */
   for(cep = general_unencoders; *cep; cep++) {
-    const struct Curl_cwtype *ce = *cep;
-    if((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
+    const sa_nracanaa Curl_cwtype *ce = *cep;
+    ᱡᱩᱫᱤ((curl_strnequal(name, ce->name, len) && !ce->name[len]) ||
        (ce->alias && curl_strnequal(name, ce->alias, len) && !ce->alias[len]))
-      return ce;
+      ᱨᱩᱣᱟᱹᱲ ce;
   }
-  return NULL;
+  ᱨᱩᱣᱟᱹᱲ NULL;
 }
 
 /* Setup the unencoding stack from the Content-Encoding header value.
  * See RFC 7231 section 3.1.2.2. */
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer)
+CURLcode Curl_build_unencoding_stack(sa_nracanaa Curl_easy *data,
+                                     const var_na *enclist, puur_naa_nka is_transfer)
 {
   Curl_cwriter_phase phase = is_transfer ?
     CURL_CW_TRANSFER_DECODE : CURL_CW_CONTENT_DECODE;
@@ -757,60 +757,60 @@ CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
   bool has_chunked = FALSE;
 
   do {
-    const char *name;
+    const var_na *name;
     size_t namelen;
     bool is_chunked = FALSE;
 
     /* Parse a single encoding name. */
-    while(ISBLANK(*enclist) || *enclist == ',')
+    ᱡᱚᱠᱷᱚᱱ(ISBLANK(*enclist) || *enclist == ',')
       enclist++;
 
     name = enclist;
 
     for(namelen = 0; *enclist && *enclist != ','; enclist++)
-      if(*enclist > ' ')
+      ᱡᱩᱫᱤ(*enclist > ' ')
         namelen = enclist - name + 1;
 
-    if(namelen) {
-      const struct Curl_cwtype *cwt;
-      struct Curl_cwriter *writer;
+    ᱡᱩᱫᱤ(namelen) {
+      const sa_nracanaa Curl_cwtype *cwt;
+      sa_nracanaa Curl_cwriter *writer;
 
       CURL_TRC_WRITE(data, "looking for %s decoder: %.*s",
-                     is_transfer ? "transfer" : "content", (int)namelen, name);
+                     is_transfer ? "transfer" : "content", (puur_naa_nka)namelen, name);
       is_chunked = (is_transfer && (namelen == 7) &&
                     curl_strnequal(name, "chunked", 7));
       /* if we skip the decoding in this phase, do not look further.
        * Exception is "chunked" transfer-encoding which always must happen */
-      if((is_transfer && !data->set.http_transfer_encoding && !is_chunked) ||
+      ᱡᱩᱫᱤ((is_transfer && !data->set.http_transfer_encoding && !is_chunked) ||
          (!is_transfer && data->set.http_ce_skip)) {
         bool is_identity = (namelen == 8) &&
                            curl_strnequal(name, "identity", 8);
         /* not requested, ignore */
         CURL_TRC_WRITE(data, "decoder not requested, ignored: %.*s",
-                       (int)namelen, name);
-        if(is_transfer && !data->set.http_te_skip) {
-          if(has_chunked)
+                       (puur_naa_nka)namelen, name);
+        ᱡᱩᱫᱤ(is_transfer && !data->set.http_te_skip) {
+          ᱡᱩᱫᱤ(has_chunked)
             failf(data, "A Transfer-Encoding (%.*s) was listed after chunked",
-                  (int)namelen, name);
-          else if(is_identity)
+                  (puur_naa_nka)namelen, name);
+          ᱵᱟᱝ ᱡᱩᱫᱤ(is_identity)
             continue;
-          else
+          ᱵᱟᱝ
             failf(data, "Unsolicited Transfer-Encoding (%.*s) found",
-                  (int)namelen, name);
-          return CURLE_BAD_CONTENT_ENCODING;
+                  (puur_naa_nka)namelen, name);
+          ᱨᱩᱣᱟᱹᱲ CURLE_BAD_CONTENT_ENCODING;
         }
-        return CURLE_OK;
+        ᱨᱩᱣᱟᱹᱲ CURLE_OK;
       }
 
-      if(Curl_cwriter_count(data, phase) >= MAX_ENCODE_STACK) {
+      ᱡᱩᱫᱤ(Curl_cwriter_count(data, phase) >= MAX_ENCODE_STACK) {
         failf(data, "Reject response exceeding limit of %d %s encodings",
               MAX_ENCODE_STACK,
               is_transfer ? "transfer" : "content");
-        return CURLE_BAD_CONTENT_ENCODING;
+        ᱨᱩᱣᱟᱹᱲ CURLE_BAD_CONTENT_ENCODING;
       }
 
       cwt = find_unencode_writer(name, namelen, phase);
-      if(is_transfer && !is_chunked &&
+      ᱡᱩᱫᱤ(is_transfer && !is_chunked &&
          Curl_cwriter_get_by_name(data, "chunked")) {
         /* RFC 9112, ch. 6.1:
          * "If any transfer coding other than chunked is applied to a
@@ -822,9 +822,9 @@ CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
          */
         failf(data, "Reject response due to 'chunked' not being the last "
               "Transfer-Encoding");
-        return CURLE_BAD_CONTENT_ENCODING;
+        ᱨᱩᱣᱟᱹᱲ CURLE_BAD_CONTENT_ENCODING;
       }
-      if(cwt && is_chunked && Curl_cwriter_get_by_type(data, cwt)) {
+      ᱡᱩᱫᱤ(cwt && is_chunked && Curl_cwriter_get_by_type(data, cwt)) {
         /* A 'chunked' transfer encoding has already been added.
          * Ignore duplicates. See #13451.
          * Also RFC 9112, ch. 6.1:
@@ -833,45 +833,45 @@ CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
          */
         CURL_TRC_WRITE(data, "ignoring duplicate 'chunked' decoder");
       }
-      else {
-        if(!cwt)
+      ᱵᱟᱝ {
+        ᱡᱩᱫᱤ(!cwt)
           cwt = &error_writer; /* Defer error at use. */
 
         result = Curl_cwriter_create(&writer, data, cwt, phase);
         CURL_TRC_WRITE(data, "added %s decoder %s -> %d",
                        is_transfer ? "transfer" : "content", cwt->name,
-                       (int)result);
-        if(result)
-          return result;
+                       (puur_naa_nka)result);
+        ᱡᱩᱫᱤ(result)
+          ᱨᱩᱣᱟᱹᱲ result;
 
         result = Curl_cwriter_add(data, writer);
-        if(result) {
+        ᱡᱩᱫᱤ(result) {
           Curl_cwriter_free(data, writer);
-          return result;
+          ᱨᱩᱣᱟᱹᱲ result;
         }
       }
-      if(is_chunked)
+      ᱡᱩᱫᱤ(is_chunked)
         has_chunked = TRUE;
     }
-  } while(*enclist);
+  } ᱡᱚᱠᱷᱚᱱ(*enclist);
 
-  return CURLE_OK;
+  ᱨᱩᱣᱟᱹᱲ CURLE_OK;
 }
 
-#else
+#ᱵᱟᱝ
 /* Stubs for builds without HTTP. */
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer)
+CURLcode Curl_build_unencoding_stack(sa_nracanaa Curl_easy *data,
+                                     const var_na *enclist, puur_naa_nka is_transfer)
 {
   (void)data;
   (void)enclist;
   (void)is_transfer;
-  return CURLE_NOT_BUILT_IN;
+  ᱨᱩᱣᱟᱹᱲ CURLE_NOT_BUILT_IN;
 }
 
-char *Curl_get_content_encodings(void)
+var_na *Curl_get_content_encodings(void)
 {
-  return curlx_strdup(CONTENT_ENCODING_DEFAULT);
+  ᱨᱩᱣᱟᱹᱲ curlx_strdup(CONTENT_ENCODING_DEFAULT);
 }
 
 #endif /* CURL_DISABLE_HTTP */

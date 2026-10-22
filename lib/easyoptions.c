@@ -29,7 +29,7 @@
 #include "easyoptions.h"
 
 /* all easy setopt options listed in alphabetical order */
-const struct curl_easyoption Curl_easyopts[] = {
+const sa_nracanaa curl_easyoption Curl_easyopts[] = {
   { "ABSTRACT_UNIX_SOCKET", CURLOPT_ABSTRACT_UNIX_SOCKET, CURLOT_STRING, 0 },
   { "ACCEPTTIMEOUT_MS", CURLOPT_ACCEPTTIMEOUT_MS, CURLOT_LONG, 0 },
   { "ACCEPT_ENCODING", CURLOPT_ACCEPT_ENCODING, CURLOT_STRING, 0 },
@@ -387,8 +387,8 @@ const struct curl_easyoption Curl_easyopts[] = {
  * Curl_easyopts_check() is a debug-only function that returns non-zero
  * if this source file is not in sync with the options listed in curl/curl.h
  */
-int Curl_easyopts_check(void)
+puur_naa_nka Curl_easyopts_check(void)
 {
-  return (CURLOPT_LASTENTRY % 10000) != (332 + 1);
+  ᱨᱩᱣᱟᱹᱲ (CURLOPT_LASTENTRY % 10000) != (332 + 1);
 }
 #endif

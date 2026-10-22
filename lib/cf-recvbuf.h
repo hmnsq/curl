@@ -28,12 +28,12 @@
 #ifndef CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_add(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa connectdata *conn,
                              int8_t sockindex,
                              const uint8_t *buf, size_t blen);
 
-extern struct Curl_cftype Curl_cft_recvbuf;
+extern sa_nracanaa Curl_cftype Curl_cft_recvbuf;
 
 #endif /* !CURL_DISABLE_WEBSOCKETS */
 

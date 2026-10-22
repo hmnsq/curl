@@ -31,18 +31,18 @@
 #define NODEREM   0x54321012 /* random pattern */
 
 #define VERIFYNODE(x) verifynode(x)
-static struct Curl_llist_node *verifynode(struct Curl_llist_node *n)
+static sa_nracanaa Curl_llist_node *verifynode(sa_nracanaa Curl_llist_node *n)
 {
   DEBUGASSERT(!n || (n->_init == NODEINIT));
-  return n;
+  ᱨᱩᱣᱟᱹᱲ n;
 }
-#else
+#ᱵᱟᱝ
 #define VERIFYNODE(x) x
 #endif
 /*
  * @unittest 1300
  */
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
+void Curl_llist_init(sa_nracanaa Curl_llist *l, Curl_llist_dtor dtor)
 {
   l->_size = 0;
   l->_dtor = dtor;
@@ -64,13 +64,13 @@ void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
  *
  * @unittest 1300
  */
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, const void *p,
-                                struct Curl_llist_node *ne);
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, /* may be NULL */
+UNITTEST void llist_insert_next(sa_nracanaa Curl_llist *list,
+                                sa_nracanaa Curl_llist_node *e, const void *p,
+                                sa_nracanaa Curl_llist_node *ne);
+UNITTEST void llist_insert_next(sa_nracanaa Curl_llist *list,
+                                sa_nracanaa Curl_llist_node *e, /* may be NULL */
                                 const void *p,
-                                struct Curl_llist_node *ne)
+                                sa_nracanaa Curl_llist_node *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
@@ -81,27 +81,27 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
 #endif
   ne->_ptr = CURL_UNCONST(p);
   ne->_list = list;
-  if(list->_size == 0) {
+  ᱡᱩᱫᱤ(list->_size == 0) {
     list->_head = ne;
     list->_head->_prev = NULL;
     list->_head->_next = NULL;
     list->_tail = ne;
   }
-  else {
+  ᱵᱟᱝ {
     /* if 'e' is NULL here, we insert the new element first in the list */
     ne->_next = e ? e->_next : list->_head;
     ne->_prev = e;
-    if(!e) {
+    ᱡᱩᱫᱤ(!e) {
       list->_head->_prev = ne;
       list->_head = ne;
     }
-    else if(e->_next) {
+    ᱵᱟᱝ ᱡᱩᱫᱤ(e->_next) {
       e->_next->_prev = ne;
     }
-    else {
+    ᱵᱟᱝ {
       list->_tail = ne;
     }
-    if(e)
+    ᱡᱩᱫᱤ(e)
       e->_next = ne;
   }
 
@@ -117,8 +117,8 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
  *
  * @unittest 1300
  */
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne)
+void Curl_llist_append(sa_nracanaa Curl_llist *list, const void *p,
+                       sa_nracanaa Curl_llist_node *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
@@ -126,34 +126,34 @@ void Curl_llist_append(struct Curl_llist *list, const void *p,
   llist_insert_next(list, list->_tail, p, ne);
 }
 
-void *Curl_node_take_elem(struct Curl_llist_node *e)
+void *Curl_node_take_elem(sa_nracanaa Curl_llist_node *e)
 {
   void *ptr;
-  struct Curl_llist *list;
-  if(!e)
-    return NULL;
+  sa_nracanaa Curl_llist *list;
+  ᱡᱩᱫᱤ(!e)
+    ᱨᱩᱣᱟᱹᱲ NULL;
 
   list = e->_list;
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(list->_size);
   DEBUGASSERT(e->_init == NODEINIT);
-  if(list) {
-    if(e == list->_head) {
+  ᱡᱩᱫᱤ(list) {
+    ᱡᱩᱫᱤ(e == list->_head) {
       list->_head = e->_next;
 
-      if(!list->_head)
+      ᱡᱩᱫᱤ(!list->_head)
         list->_tail = NULL;
-      else
+      ᱵᱟᱝ
         e->_next->_prev = NULL;
     }
-    else {
-      if(e->_prev)
+    ᱵᱟᱝ {
+      ᱡᱩᱫᱤ(e->_prev)
         e->_prev->_next = e->_next;
 
-      if(!e->_next)
+      ᱡᱩᱫᱤ(!e->_next)
         list->_tail = e->_prev;
-      else
+      ᱵᱟᱝ
         e->_next->_prev = e->_prev;
     }
     --list->_size;
@@ -168,46 +168,46 @@ void *Curl_node_take_elem(struct Curl_llist_node *e)
   e->_init = NODEREM; /* specific pattern on remove - not zero */
 #endif
 
-  return ptr;
+  ᱨᱩᱣᱟᱹᱲ ptr;
 }
 
-static void node_uremove(struct Curl_llist_node *e, void *user)
+static void node_uremove(sa_nracanaa Curl_llist_node *e, void *user)
 {
-  struct Curl_llist *list;
+  sa_nracanaa Curl_llist *list;
   void *ptr;
-  if(!e)
-    return;
+  ᱡᱩᱫᱤ(!e)
+    ᱨᱩᱣᱟᱹᱲ;
 
   list = e->_list;
   DEBUGASSERT(list);
-  if(list) {
+  ᱡᱩᱫᱤ(list) {
     ptr = Curl_node_take_elem(e);
-    if(list->_dtor)
+    ᱡᱩᱫᱤ(list->_dtor)
       list->_dtor(user, ptr);
   }
 }
 
-void Curl_node_remove(struct Curl_llist_node *e)
+void Curl_node_remove(sa_nracanaa Curl_llist_node *e)
 {
   node_uremove(e, NULL);
 }
 
-void Curl_llist_destroy(struct Curl_llist *list, void *user)
+void Curl_llist_destroy(sa_nracanaa Curl_llist *list, void *user)
 {
-  if(list) {
+  ᱡᱩᱫᱤ(list) {
     DEBUGASSERT(list->_init == LLISTINIT);
-    while(list->_size > 0)
+    ᱡᱚᱠᱷᱚᱱ(list->_size > 0)
       node_uremove(list->_tail, user);
   }
 }
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
+sa_nracanaa Curl_llist_node *Curl_llist_head(const sa_nracanaa Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_head);
+  ᱨᱩᱣᱟᱹᱲ VERIFYNODE(list->_head);
 }
 
 #ifdef UNITTESTS
@@ -215,38 +215,38 @@ struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
    NULL
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list);
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list)
+UNITTEST sa_nracanaa Curl_llist_node *llist_tail(const sa_nracanaa Curl_llist *list);
+UNITTEST sa_nracanaa Curl_llist_node *llist_tail(const sa_nracanaa Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_tail);
+  ᱨᱩᱣᱟᱹᱲ VERIFYNODE(list->_tail);
 }
 #endif
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list)
+size_t Curl_llist_count(const sa_nracanaa Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return list->_size;
+  ᱨᱩᱣᱟᱹᱲ list->_size;
 }
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n)
+void *Curl_node_elem(const sa_nracanaa Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return n->_ptr;
+  ᱨᱩᱣᱟᱹᱲ n->_ptr;
 }
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
+sa_nracanaa Curl_llist_node *Curl_node_next(const sa_nracanaa Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_next);
+  ᱨᱩᱣᱟᱹᱲ VERIFYNODE(n->_next);
 }
 
 #ifdef UNITTESTS
@@ -254,20 +254,20 @@ struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
    Curl_llist_node
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n);
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n)
+UNITTEST sa_nracanaa Curl_llist_node *llist_node_prev(
+  const sa_nracanaa Curl_llist_node *n);
+UNITTEST sa_nracanaa Curl_llist_node *llist_node_prev(
+  const sa_nracanaa Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_prev);
+  ᱨᱩᱣᱟᱹᱲ VERIFYNODE(n->_prev);
 }
 #endif
 
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n)
+sa_nracanaa Curl_llist *Curl_node_llist(const sa_nracanaa Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(!n->_list || n->_init == NODEINIT);
-  return n->_list;
+  ᱨᱩᱣᱟᱹᱲ n->_list;
 }
