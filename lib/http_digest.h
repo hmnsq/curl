@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
 /* this is for digest header input */
-CURLcode Curl_input_digest(struct Curl_easy *data,
-                           bool proxy, const char *header);
+CURLcode Curl_निवेश_digest(संरचना Curl_easy *data,
+                           bool proxy, ध्रुव वर्ण *header);
 
 /* this is for creating digest header output */
-CURLcode Curl_output_digest(struct Curl_easy *data,
+CURLcode Curl_output_digest(संरचना Curl_easy *data,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath);
+                            ध्रुव अचिन्हित वर्ण *request,
+                            ध्रुव अचिन्हित वर्ण *uripath);
 
-void Curl_http_auth_cleanup_digest(struct Curl_easy *data);
+शून्य Curl_http_auth_cleanup_digest(संरचना Curl_easy *data);
 
 #endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_DIGEST_AUTH */
 

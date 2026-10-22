@@ -23,36 +23,36 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef USE_APPLE_SECTRUST
-struct Curl_cfilter;
-struct Curl_easy;
-struct ssl_peer;
+संरचना Curl_cfilter;
+संरचना Curl_easy;
+संरचना ssl_peer;
 
 /* Get the DER encoded i-th certificate in the server handshake */
-typedef CURLcode Curl_vtls_get_cert_der(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data,
-                                        size_t i,
-                                        unsigned char **pder,
-                                        size_t *pder_len);
+प्रकारनिर्देश CURLcode Curl_vtls_get_cert_der(संरचना Curl_cfilter *cf,
+                                        संरचना Curl_easy *data,
+                                        शून्य *user_data,
+                                        माप_प्रकार i,
+                                        अचिन्हित वर्ण **pder,
+                                        माप_प्रकार *pder_len);
 
 /* Ask Apple's Security framework to verify the certificate chain
  * send by the peer. On CURLE_OK it has been verified.
  */
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
-                                size_t num_certs,
+CURLcode Curl_vtls_apple_verify(संरचना Curl_cfilter *cf,
+                                संरचना Curl_easy *data,
+                                संरचना ssl_peer *peer,
+                                माप_प्रकार अंक_certs,
                                 Curl_vtls_get_cert_der *der_cb,
-                                void *cb_user_data,
-                                const unsigned char *ocsp_buf,
-                                size_t ocsp_len,
+                                शून्य *cb_user_data,
+                                ध्रुव अचिन्हित वर्ण *ocsp_buf,
+                                माप_प्रकार ocsp_len,
                                 bool require_ocsp);
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+bool Curl_vtls_apple_verifies_ocsp(संरचना Curl_cfilter *cf,
+                                   संरचना Curl_easy *data);
 
 #endif /* USE_APPLE_SECTRUST */
 
