@@ -40,68 +40,68 @@ const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen)
 {
   char *p;
 
-  if(!buflen)
-    return NULL;
+  если(!buflen)
+    вернуть NULL;
 
   /* We return the local codepage version of the error string because if it is
      output to the user's terminal, it is likely done with functions which
      expect the local codepage (eg fprintf, failf, infof). */
-  if(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
+  если(!FormatMessageA((FORMAT_MESSAGE_FROM_SYSTEM |
                       FORMAT_MESSAGE_IGNORE_INSERTS), NULL, err,
                      LANG_NEUTRAL, buf, (DWORD)buflen, NULL)) {
     *buf = '\0';
-    return NULL;
+    вернуть NULL;
   }
 
   /* Truncate multiple lines */
   p = strchr(buf, '\n');
-  if(p) {
-    if(p > buf && *(p - 1) == '\r')
+  если(p) {
+    если(p > buf && *(p - 1) == '\r')
       *(p - 1) = '\0';
-    else
+    иначе
       *p = '\0';
   }
 
-  return *buf ? buf : NULL;
+  вернуть *buf ? buf : NULL;
 }
 
 const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen)
 {
   DWORD old_win_err = GetLastError();
-  int old_errno = errno;
+  целое old_errno = errno;
 
-  if(!buflen)
-    return NULL;
+  если(!buflen)
+    вернуть NULL;
 
   *buf = '\0';
 
 #ifdef CURLVERBOSE
-  if(!curlx_get_winapi_error(err, buf, buflen)) {
-#if defined(__GNUC__) && __GNUC__ >= 7
+  если(!curlx_get_winapi_error(err, buf, buflen)) {
+#если defined(__GNUC__) && __GNUC__ >= 7
 #pragma GCC diagnostic push
 #pragma GCC diagnostic warning "-Wformat-truncation=1"
 #endif
     /* some GCC compilers cause false positive warnings if we allow this
        warning */
     SNPRINTF(buf, buflen, "Unknown error %lu (0x%08lx)", err, err);
-#if defined(__GNUC__) && __GNUC__ >= 7
+#если defined(__GNUC__) && __GNUC__ >= 7
 #pragma GCC diagnostic pop
 #endif
   }
-#else
+#иначе
   {
     const char *txt = (err == ERROR_SUCCESS) ? "No error" : "Error";
     curlx_strcopy(buf, buflen, txt, strlen(txt));
   }
 #endif
 
-  if(errno != old_errno)
+  если(errno != old_errno)
     errno = old_errno;
 
-  if(old_win_err != GetLastError())
+  если(old_win_err != GetLastError())
     SetLastError(old_win_err);
 
-  return buf;
+  вернуть buf;
 }
 
 #ifndef WITHOUT_LIBCURL
@@ -115,11 +115,11 @@ CURLcode curlx_win32_random(unsigned char *entropy, size_t length)
 {
   memset(entropy, 0, length);
 
-  if(BCryptGenRandom(NULL, entropy, (ULONG)length,
+  если(BCryptGenRandom(NULL, entropy, (ULONG)length,
                      BCRYPT_USE_SYSTEM_PREFERRED_RNG) != STATUS_SUCCESS)
-    return CURLE_FAILED_INIT;
+    вернуть CURLE_FAILED_INIT;
 
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 #endif /* WITHOUT_LIBCURL */
 

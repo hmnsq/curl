@@ -60,10 +60,10 @@ CURLcode Curl_socket_open(struct Curl_easy *data,
 
 #ifdef USE_SO_NOSIGPIPE
 /* Set SO_NOSIGPIPE on socket, return < 0 on error. */
-int Curl_sock_nosigpipe(curl_socket_t sockfd);
+целое Curl_sock_nosigpipe(curl_socket_t sockfd);
 #endif
 
-int Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
+целое Curl_socket_close(struct Curl_easy *data, struct connectdata *conn,
                       curl_socket_t sock);
 
 /**

@@ -31,15 +31,15 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
   struct curl_slist *item;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  если(!list)
+    вернуть NULL;
 
   /* loop through to find the last item */
   item = list;
-  while(item->next) {
+  пока(item->next) {
     item = item->next;
   }
-  return item;
+  вернуть item;
 }
 
 /*
@@ -60,19 +60,19 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
   DEBUGASSERT(data);
 
   new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  если(!new_item)
+    вернуть NULL;
 
   new_item->next = NULL;
   new_item->data = CURL_UNCONST(data);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  если(!list)
+    вернуть new_item;
 
   last = slist_get_last(list);
   last->next = new_item;
-  return list;
+  вернуть list;
 }
 
 /*
@@ -86,14 +86,14 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
 {
   char *dupdata = curlx_strdup(data);
 
-  if(!dupdata)
-    return NULL;
+  если(!dupdata)
+    вернуть NULL;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  если(!list)
     curlx_free(dupdata);
 
-  return list;
+  вернуть list;
 }
 
 /*
@@ -106,19 +106,19 @@ struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
   struct curl_slist *outlist = NULL;
   struct curl_slist **tail = &outlist;
 
-  while(inlist) {
+  пока(inlist) {
     struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
 
-    if(!tmp) {
+    если(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      вернуть NULL;
     }
 
     *tail = tmp;
     tail = &tmp->next;
     inlist = inlist->next;
   }
-  return outlist;
+  вернуть outlist;
 }
 
 /* be nice and clean up resources */
@@ -127,8 +127,8 @@ void curl_slist_free_all(struct curl_slist *list)
   struct curl_slist *next;
   struct curl_slist *item;
 
-  if(!list)
-    return;
+  если(!list)
+    вернуть;
 
   item = list;
   do {
@@ -136,5 +136,5 @@ void curl_slist_free_all(struct curl_slist *list)
     curlx_safefree(item->data);
     curlx_free(item);
     item = next;
-  } while(next);
+  } пока(next);
 }

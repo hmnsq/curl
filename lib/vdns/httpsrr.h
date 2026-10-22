@@ -92,7 +92,7 @@ CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
                             struct Curl_https_rrinfo *rr);
 void Curl_httpsrr_trace(struct Curl_easy *data,
                         struct Curl_https_rrinfo *rr);
-#else
+#иначе
 #define Curl_httpsrr_trace(a, b) Curl_nop_stmt
 #endif
 

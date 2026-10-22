@@ -105,30 +105,30 @@ struct netrc_lexer {
   bool pushed;
 };
 
-#if NETRC_DEBUG
+#если NETRC_DEBUG
 static const char *netrc_tokenstr(curl_netrc_token token)
 {
   switch(token) {
   case NETRC_TOK_EOF:
-    return "[EOF]";
+    вернуть "[EOF]";
   case NETRC_TOK_LITERAL:
-    return "[LITERAL]";
+    вернуть "[LITERAL]";
   case NETRC_TOK_MACHINE:
-    return "[MACHINE]";
+    вернуть "[MACHINE]";
   case NETRC_TOK_DEFAULT:
-    return "[DEFAULT]";
+    вернуть "[DEFAULT]";
   case NETRC_TOK_ACCOUNT:
-    return "[ACCOUNT]";
+    вернуть "[ACCOUNT]";
   case NETRC_TOK_LOGIN:
-    return "[LOGIN]";
+    вернуть "[LOGIN]";
   case NETRC_TOK_PASSWD:
-    return "[PASSWORD]";
+    вернуть "[PASSWORD]";
   case NETRC_TOK_MACDEF:
-    return "[MACDEF]";
+    вернуть "[MACDEF]";
   case NETRC_TOK_JUNK:
-    return "[JUNK]";
+    вернуть "[JUNK]";
   default:
-    return "[???]";
+    вернуть "[???]";
   }
 }
 #endif
@@ -152,14 +152,14 @@ static void netrc_lexer_cleanup(struct netrc_lexer *lexer)
 static void netrc_skip_blanks(struct netrc_lexer *lexer)
 {
   const char *s = lexer->pos;
-  while(*s) {
+  пока(*s) {
     curlx_str_passblanks(&s);
-    while(*s == '\r')
+    пока(*s == '\r')
       ++s;
-    if(*s == '\n') {
+    если(*s == '\n') {
       ++s;
     }
-    else
+    иначе
       break;
   }
   lexer->pos = s;
@@ -168,17 +168,17 @@ static void netrc_skip_blanks(struct netrc_lexer *lexer)
 static void netrc_skip_to_empty_line(struct netrc_lexer *lexer)
 {
   const char *s = lexer->pos;
-  while(*s) {
-    if(*s == '\r')
+  пока(*s) {
+    если(*s == '\r')
       ++s;
-    else if(*s == '\n') {
+    иначе если(*s == '\n') {
       ++s;
-      while(*s == '\r')
+      пока(*s == '\r')
         ++s;
-      if(*s == '\n')
+      если(*s == '\n')
         goto out;
     }
-    else
+    иначе
       ++s;
   }
 out:
@@ -200,9 +200,9 @@ static NETRCcode netrc_lexer_quoted(struct netrc_lexer *lexer)
 
   DEBUGASSERT(*s == '\"');
   ++s; /* pass the leading quote */
-  while(*s) {
+  пока(*s) {
     char c = *s;
-    if(escape) {
+    если(escape) {
       escape = FALSE;
       switch(c) {
       case 'n':
@@ -216,12 +216,12 @@ static NETRCcode netrc_lexer_quoted(struct netrc_lexer *lexer)
         break;
       }
     }
-    else if(c == '\\') {
+    иначе если(c == '\\') {
       escape = TRUE;
       ++s;
       continue;
     }
-    else if(c == '\"') {
+    иначе если(c == '\"') {
       ++s; /* pass the ending quote */
       /* Ensure even an empty literal has a null-terminator. */
       result = curlx_dyn_addn(&lexer->literal, "", 0);
@@ -229,7 +229,7 @@ static NETRCcode netrc_lexer_quoted(struct netrc_lexer *lexer)
       goto out;
     }
     result = curlx_dyn_addn(&lexer->literal, &c, 1);
-    if(result) {
+    если(result) {
       rc = curl2netrc(result);
       goto out;
     }
@@ -237,7 +237,7 @@ static NETRCcode netrc_lexer_quoted(struct netrc_lexer *lexer)
   }
 out:
   lexer->pos = s;
-  return rc;
+  вернуть rc;
 }
 
 static void netrc_lexer_push(struct netrc_lexer *lexer)
@@ -253,7 +253,7 @@ static NETRCcode netrc_lexer_next(struct netrc_lexer *lexer,
   size_t slen;
   CURLcode result;
 
-  if(lexer->pushed) {
+  если(lexer->pushed) {
     lexer->pushed = FALSE;
     goto out;
   }
@@ -274,49 +274,49 @@ static NETRCcode netrc_lexer_next(struct netrc_lexer *lexer,
   default:
     /* unquoted token */
     start = s;
-    while(*s && !ISBLANK(*s) && !ISNEWLINE(*s))
+    пока(*s && !ISBLANK(*s) && !ISNEWLINE(*s))
       ++s;
     slen = s - start;
-    if(!slen) {
+    если(!slen) {
       rc = NETRC_SYNTAX_ERROR;
     }
-    if(want_literal) {
+    если(want_literal) {
       lexer->token = NETRC_TOK_LITERAL;
       result = curlx_dyn_addn(&lexer->literal, start, slen);
       rc = curl2netrc(result);
     }
-    else if((slen == 7) && curl_strnequal(start, "machine", slen)) {
+    иначе если((slen == 7) && curl_strnequal(start, "machine", slen)) {
       lexer->token = NETRC_TOK_MACHINE;
     }
-    else if((slen == 7) && curl_strnequal(start, "default", slen)) {
+    иначе если((slen == 7) && curl_strnequal(start, "default", slen)) {
       lexer->token = NETRC_TOK_DEFAULT;
     }
-    else if((slen == 7) && curl_strnequal(start, "account", slen)) {
+    иначе если((slen == 7) && curl_strnequal(start, "account", slen)) {
       lexer->token = NETRC_TOK_ACCOUNT;
     }
-    else if((slen == 5) && curl_strnequal(start, "login", slen)) {
+    иначе если((slen == 5) && curl_strnequal(start, "login", slen)) {
       lexer->token = NETRC_TOK_LOGIN;
     }
-    else if((slen == 8) && curl_strnequal(start, "password", slen)) {
+    иначе если((slen == 8) && curl_strnequal(start, "password", slen)) {
       lexer->token = NETRC_TOK_PASSWD;
     }
-    else if((slen == 6) && curl_strnequal(start, "macdef", slen)) {
+    иначе если((slen == 6) && curl_strnequal(start, "macdef", slen)) {
       lexer->token = NETRC_TOK_MACDEF;
     }
-    else {
+    иначе {
       lexer->token = NETRC_TOK_JUNK;
     }
     break;
   }
 
 out:
-#if NETRC_DEBUG
+#если NETRC_DEBUG
   CURL_TRC_M(lexer->data, "[NETRC] token %s '%s', rc=%d",
              netrc_tokenstr(lexer->token),
              curlx_dyn_ptr(&lexer->literal), rc);
 #endif
   lexer->pos = s;
-  return rc;
+  вернуть rc;
 }
 
 struct netrc_scanner {
@@ -363,61 +363,61 @@ static NETRCcode netrc_scan_literal(struct netrc_scanner *sc,
                                     char **pdest)
 {
   NETRCcode rc = netrc_lexer_next(&sc->lexer, TRUE);
-  if(!rc) {
-    if(sc->lexer.token == NETRC_TOK_LITERAL) {
-      if(pdest && sc->matches_host) {
+  если(!rc) {
+    если(sc->lexer.token == NETRC_TOK_LITERAL) {
+      если(pdest && sc->matches_host) {
         curlx_free(*pdest);
         *pdest = curlx_strdup(curlx_dyn_ptr(&sc->lexer.literal));
-        if(!*pdest)
+        если(!*pdest)
           rc = NETRC_OUT_OF_MEMORY;
       }
     }
-    else
+    иначе
       netrc_lexer_push(&sc->lexer);
   }
-  return rc;
+  вернуть rc;
 }
 
 static NETRCcode netrc_scan_end_entry(struct netrc_scanner *sc)
 {
   NETRCcode rc = NETRC_OK;
-#if NETRC_DEBUG
+#если NETRC_DEBUG
   CURL_TRC_M(sc->lexer.data,
              "[NETRC] entry matches_host=%d, login='%s', passwd='%s'",
              sc->matches_host, sc->login, sc->passwd);
 #endif
-  if(sc->matches_host) {
-    if(sc->login) {
-      if(sc->user) {
-        if(Curl_timestrcmp(sc->user, sc->login))
+  если(sc->matches_host) {
+    если(sc->login) {
+      если(sc->user) {
+        если(Curl_timestrcmp(sc->user, sc->login))
           goto out;
         /* We look for a specific user,
          * entry is only interesting with password */
         sc->found = !!sc->passwd;
       }
-      else {
+      иначе {
         sc->found = TRUE;
       }
     }
-    else if(sc->passwd) {
+    иначе если(sc->passwd) {
       /* found a passwd that applies to any user */
       sc->found = TRUE;
     }
-    else {
+    иначе {
       /* entry has nothing interesting */
     }
-    if(sc->found) {
-#if NETRC_DEBUG
+    если(sc->found) {
+#если NETRC_DEBUG
       CURL_TRC_M(sc->lexer.data, "[NETRC] entry match found");
 #endif
-      if(Curl_creds_create(sc->user ? sc->user : sc->login, sc->passwd,
+      если(Curl_creds_create(sc->user ? sc->user : sc->login, sc->passwd,
                            NULL, NULL, NULL, CREDS_NETRC, &sc->creds))
         rc = NETRC_OUT_OF_MEMORY;
     }
   }
 out:
   netrc_scan_reset(sc);
-  return rc;
+  вернуть rc;
 }
 
 static NETRCcode netrc_scan(struct Curl_easy *data,
@@ -432,9 +432,9 @@ static NETRCcode netrc_scan(struct Curl_easy *data,
   Curl_creds_unlink(pcreds);
   netrc_scan_init(&sc, data, content, hostname, user);
 
-  while(!rc && !sc.found) {
+  пока(!rc && !sc.found) {
     rc = netrc_lexer_next(&sc.lexer, FALSE);
-    if(!rc) {
+    если(!rc) {
       /* Does this token end any previous entry? */
       switch(sc.lexer.token) {
       case NETRC_TOK_EOF:
@@ -442,7 +442,7 @@ static NETRCcode netrc_scan(struct Curl_easy *data,
       case NETRC_TOK_DEFAULT:
       case NETRC_TOK_MACDEF:
         rc = netrc_scan_end_entry(&sc);
-        if(rc || sc.found)
+        если(rc || sc.found)
           goto out;
         break;
       default:
@@ -454,12 +454,12 @@ static NETRCcode netrc_scan(struct Curl_easy *data,
         goto out;
       case NETRC_TOK_MACHINE:
         rc = netrc_lexer_next(&sc.lexer, TRUE);
-        if(!rc) {
-          if(sc.lexer.token == NETRC_TOK_LITERAL) {
+        если(!rc) {
+          если(sc.lexer.token == NETRC_TOK_LITERAL) {
             sc.matches_host = curl_strequal(
               sc.hostname, curlx_dyn_ptr(&sc.lexer.literal));
           }
-          else {
+          иначе {
             sc.matches_host = FALSE;
             netrc_lexer_push(&sc.lexer);
           }
@@ -490,14 +490,14 @@ static NETRCcode netrc_scan(struct Curl_easy *data,
   }
 
 out:
-  if(!rc) {
-    if(sc.creds)
+  если(!rc) {
+    если(sc.creds)
       Curl_creds_link(pcreds, sc.creds);
-    else
+    иначе
       rc = NETRC_NO_MATCH;
   }
   netrc_scan_cleanup(&sc);
-  return rc;
+  вернуть rc;
 }
 
 static NETRCcode file2memory(const char *filename, struct dynbuf *filebuf)
@@ -506,9 +506,9 @@ static NETRCcode file2memory(const char *filename, struct dynbuf *filebuf)
   FILE *file = curlx_fopen(filename, FOPEN_READTEXT);
 
   curlx_dyn_reset(filebuf);
-  if(file) {
+  если(file) {
     curlx_struct_stat stat;
-    if((curlx_fstat(fileno(file), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
+    если((curlx_fstat(fileno(file), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
       CURLcode result = CURLE_OK;
       bool eof;
       struct dynbuf linebuf;
@@ -518,25 +518,25 @@ static NETRCcode file2memory(const char *filename, struct dynbuf *filebuf)
         const char *line;
         /* Curl_get_line always returns lines ending with a newline */
         result = Curl_get_line(&linebuf, file, &eof);
-        if(!result) {
+        если(!result) {
           line = curlx_dyn_ptr(&linebuf);
           /* skip comments on load */
           curlx_str_passblanks(&line);
-          if(*line == '#')
+          если(*line == '#')
             continue;
           result = curlx_dyn_add(filebuf, line);
         }
-        if(result) {
+        если(result) {
           curlx_dyn_free(filebuf);
           ret = curl2netrc(result);
           break;
         }
-      } while(!eof);
+      } пока(!eof);
       curlx_dyn_free(&linebuf);
     }
     curlx_fclose(file);
   }
-  return ret;
+  вернуть ret;
 }
 
 static NETRCcode netrc_scan_file(struct Curl_easy *data,
@@ -548,26 +548,26 @@ static NETRCcode netrc_scan_file(struct Curl_easy *data,
 {
   struct dynbuf *filebuf = &store->filebuf;
 
-  if(!store->loaded || strcmp(netrcfile, store->filename)) {
+  если(!store->loaded || strcmp(netrcfile, store->filename)) {
     NETRCcode ret;
     store->loaded = FALSE;
     ret = file2memory(netrcfile, filebuf);
-    if(ret) {
+    если(ret) {
       CURL_TRC_M(data, "[NETRC] could not load '%s'", netrcfile);
-      return ret;
+      вернуть ret;
     }
     curlx_free(store->filename);
     store->filename = curlx_strdup(netrcfile);
-    if(!store->filename) {
+    если(!store->filename) {
       curlx_dyn_reset(&store->filebuf);
-      return NETRC_OUT_OF_MEMORY;
+      вернуть NETRC_OUT_OF_MEMORY;
     }
     store->loaded = TRUE;
   }
-  if(!curlx_dyn_len(filebuf))
-    return NETRC_NO_MATCH;
+  если(!curlx_dyn_len(filebuf))
+    вернуть NETRC_NO_MATCH;
 
-  return netrc_scan(data, curlx_dyn_ptr(filebuf), hostname, user, pcreds);
+  вернуть netrc_scan(data, curlx_dyn_ptr(filebuf), hostname, user, pcreds);
 }
 
 /*
@@ -588,50 +588,50 @@ NETRCcode Curl_netrc_scan(struct Curl_easy *data,
   CURL_TRC_M(data, "[NETRC] scanning '%s' for host '%s' user '%s'",
              netrcfile, hostname, user);
   Curl_creds_unlink(pcreds);
-  if(!netrcfile) {
+  если(!netrcfile) {
     char *home = NULL;
     char *homea = NULL;
     char *filealloc = NULL;
-#if defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
+#если defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
     char pwbuf[1024];
 #endif
     filealloc = curl_getenv("NETRC");
-    if(!filealloc) {
+    если(!filealloc) {
       homea = curl_getenv("HOME"); /* portable environment reader */
-      if(homea) {
+      если(homea) {
         home = homea;
-#if defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
+#если defined(HAVE_GETPWUID_R) && defined(HAVE_GETEUID)
       }
-      else {
+      иначе {
         struct passwd pw, *pw_res;
-        if(!getpwuid_r(geteuid(), &pw, pwbuf, sizeof(pwbuf), &pw_res) &&
+        если(!getpwuid_r(geteuid(), &pw, pwbuf, sizeof(pwbuf), &pw_res) &&
            pw_res) {
           home = pw.pw_dir;
         }
 #elif defined(HAVE_GETPWUID) && defined(HAVE_GETEUID)
       }
-      else {
+      иначе {
         struct passwd *pw;
         pw = getpwuid(geteuid());
-        if(pw) {
+        если(pw) {
           home = pw->pw_dir;
         }
 #elif defined(_WIN32)
       }
-      else {
+      иначе {
         homea = curl_getenv("USERPROFILE");
-        if(homea) {
+        если(homea) {
           home = homea;
         }
 #endif
       }
 
-      if(!home)
-        return NETRC_FILE_MISSING; /* no home directory found (or possibly out
+      если(!home)
+        вернуть NETRC_FILE_MISSING; /* no home directory found (or possibly out
                                       of memory) */
 
       filealloc = curl_maprintf("%s%s.netrc", home, DIR_CHAR);
-      if(!filealloc) {
+      если(!filealloc) {
         curlx_free(homea);
         retcode = NETRC_OUT_OF_MEMORY;
         goto out;
@@ -641,12 +641,12 @@ NETRCcode Curl_netrc_scan(struct Curl_easy *data,
       data, store, hostname, user, filealloc, pcreds);
     curlx_free(filealloc);
 #ifdef _WIN32
-    if(retcode == NETRC_FILE_MISSING) {
+    если(retcode == NETRC_FILE_MISSING) {
       /* fallback to the old-style "_netrc" file */
       filealloc = curl_maprintf("%s%s_netrc", home, DIR_CHAR);
-      if(!filealloc) {
+      если(!filealloc) {
         curlx_free(homea);
-        return NETRC_OUT_OF_MEMORY;
+        вернуть NETRC_OUT_OF_MEMORY;
       }
       retcode = netrc_scan_file(
         data, store, hostname, user, filealloc, pcreds);
@@ -655,14 +655,14 @@ NETRCcode Curl_netrc_scan(struct Curl_easy *data,
 #endif
     curlx_free(homea);
   }
-  else
+  иначе
     retcode = netrc_scan_file(
       data, store, hostname, user, netrcfile, pcreds);
 
 out:
-  if(retcode)
+  если(retcode)
     Curl_creds_unlink(pcreds);
-  return retcode;
+  вернуть retcode;
 }
 
 void Curl_netrc_init(struct store_netrc *store)
@@ -682,15 +682,15 @@ const char *Curl_netrc_strerror(NETRCcode ret)
 {
   switch(ret) {
   default:
-    return ""; /* not a legit error */
+    вернуть ""; /* not a legit error */
   case NETRC_FILE_MISSING:
-    return "no such file";
+    вернуть "no such file";
   case NETRC_NO_MATCH:
-    return "no matching entry";
+    вернуть "no matching entry";
   case NETRC_OUT_OF_MEMORY:
-    return "out of memory";
+    вернуть "out of memory";
   case NETRC_SYNTAX_ERROR:
-    return "syntax error";
+    вернуть "syntax error";
   }
   /* never reached */
 }

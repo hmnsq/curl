@@ -50,13 +50,13 @@ static RTLVERIFYVERSIONINFO_FN s_pRtlVerifyVersionInfo;
 
 void curlx_verify_windows_init(void)
 {
-#if defined(__clang__) && __clang_major__ >= 16
+#если defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   s_pRtlVerifyVersionInfo = CURLX_FUNCTION_CAST(RTLVERIFYVERSIONINFO_FN,
     GetProcAddress(GetModuleHandle(TEXT("ntdll")), "RtlVerifyVersionInfo"));
-#if defined(__clang__) && __clang_major__ >= 16
+#если defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic pop
 #endif
 }
@@ -81,9 +81,9 @@ void curlx_verify_windows_init(void)
  *
  * Returns TRUE if matched; otherwise FALSE.
  */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
+bool curlx_verify_windows_version(const unsigned целое majorVersion,
+                                  const unsigned целое minorVersion,
+                                  const unsigned целое buildVersion,
                                   const PlatformIdentifier platform,
                                   const VersionCondition condition)
 {
@@ -119,11 +119,11 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
     break;
   }
 
-  if(matched && (platform == PLATFORM_WINDOWS)) {
+  если(matched && (platform == PLATFORM_WINDOWS)) {
     /* we are always running on PLATFORM_WINNT */
     matched = FALSE;
   }
-#else
+#иначе
   ULONGLONG cm = 0;
   struct OUR_OSVERSIONINFOEXW osver;
   BYTE majorCondition;
@@ -176,7 +176,7 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
     break;
 
   default:
-    return FALSE;
+    вернуть FALSE;
   }
 
   memset(&osver, 0, sizeof(osver));
@@ -184,9 +184,9 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
   osver.dwMajorVersion = majorVersion;
   osver.dwMinorVersion = minorVersion;
   osver.dwBuildNumber = buildVersion;
-  if(platform == PLATFORM_WINDOWS)
+  если(platform == PLATFORM_WINDOWS)
     osver.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS;
-  else if(platform == PLATFORM_WINNT)
+  иначе если(platform == PLATFORM_WINNT)
     osver.dwPlatformId = VER_PLATFORM_WIN32_NT;
 
   cm = VerSetConditionMask(cm, VER_MAJORVERSION, majorCondition);
@@ -194,7 +194,7 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
   cm = VerSetConditionMask(cm, VER_SERVICEPACKMAJOR, spMajorCondition);
   cm = VerSetConditionMask(cm, VER_SERVICEPACKMINOR, spMinorCondition);
 
-  if(platform != PLATFORM_DONT_CARE) {
+  если(platform != PLATFORM_DONT_CARE) {
     cm = VerSetConditionMask(cm, VER_PLATFORMID, VER_EQUAL);
     dwTypeMask |= VER_PLATFORMID;
   }
@@ -204,9 +204,9 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
      the real version always, so we use the Rtl variant of the function when
      possible. Note though the function signatures have underlying fundamental
      types that are the same, the return values are different. */
-  if(s_pRtlVerifyVersionInfo)
+  если(s_pRtlVerifyVersionInfo)
     matched = !s_pRtlVerifyVersionInfo(&osver, dwTypeMask, cm);
-  else
+  иначе
     matched = !!VerifyVersionInfoW((OSVERSIONINFOEXW *)&osver, dwTypeMask, cm);
 
   /* Compare the build number separately. VerifyVersionInfo normally compares
@@ -214,7 +214,7 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
      do the same for build (eg 1.9 build 222 is not less than 2.0 build 111).
      Build comparison is only needed when build numbers are equal (eg 1.9 is
      always less than 2.0 so build comparison is not needed). */
-  if(matched && buildVersion &&
+  если(matched && buildVersion &&
      (condition == VERSION_EQUAL ||
       ((condition == VERSION_GREATER_THAN_EQUAL ||
         condition == VERSION_LESS_THAN_EQUAL) &&
@@ -223,16 +223,16 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
 
     cm = VerSetConditionMask(0, VER_BUILDNUMBER, buildCondition);
     dwTypeMask = VER_BUILDNUMBER;
-    if(s_pRtlVerifyVersionInfo)
+    если(s_pRtlVerifyVersionInfo)
       matched = !s_pRtlVerifyVersionInfo(&osver, dwTypeMask, cm);
-    else
+    иначе
       matched = !!VerifyVersionInfoW((OSVERSIONINFOEXW *)&osver,
                                      dwTypeMask, cm);
   }
 
 #endif
 
-  return matched;
+  вернуть matched;
 }
 
 #endif /* _WIN32 */

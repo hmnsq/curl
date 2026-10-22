@@ -31,7 +31,7 @@
 #include <fcntl.h>  /* for open() and attributes */
 #endif
 
-int curlx_fseek(void *stream, curl_off_t offset, int whence);
+целое curlx_fseek(void *stream, curl_off_t offset, целое whence);
 
 #ifdef _WIN32
 #include <sys/stat.h>  /* for _fstati64(), struct _stati64 */
@@ -50,10 +50,10 @@ HANDLE curlx_FindFirstFile(const char *filename,
 #define curlx_struct_stat       struct _stati64
 FILE *curlx_win32_fopen(const char *filename, const char *mode);
 FILE *curlx_win32_freopen(const char *filename, const char *mode, FILE *fp);
-int curlx_win32_stat(const char *path, curlx_struct_stat *buffer);
-int curlx_win32_open(const char *filename, int oflag, ...);
-int curlx_win32_rename(const char *oldpath, const char *newpath);
-int curlx_win32_mkdir(const char *path);
+целое curlx_win32_stat(const char *path, curlx_struct_stat *buffer);
+целое curlx_win32_open(const char *filename, целое oflag, ...);
+целое curlx_win32_rename(const char *oldpath, const char *newpath);
+целое curlx_win32_mkdir(const char *path);
 #define CURLX_FOPEN_LOW         curlx_win32_fopen
 #define CURLX_FREOPEN_LOW       curlx_win32_freopen
 #define CURLX_FDOPEN_LOW        _fdopen
@@ -62,7 +62,7 @@ int curlx_win32_mkdir(const char *path);
 #define curlx_close             _close
 #define curlx_rename            curlx_win32_rename
 #define curlx_mkdir(x, y)       curlx_win32_mkdir(x)
-#else
+#иначе
 #define curlx_fstat             fstat
 #define curlx_struct_stat       struct stat
 #define CURLX_FOPEN_LOW         fopen
@@ -72,9 +72,9 @@ int curlx_win32_mkdir(const char *path);
 #define curlx_open              open
 #define curlx_close             close
 #define curlx_rename            rename
-#if defined(MSDOS) && !defined(__DJGPP__)
+#если defined(MSDOS) && !defined(__DJGPP__)
 #define curlx_mkdir(x, y)       mkdir(x)
-#else
+#иначе
 #define curlx_mkdir             mkdir
 #endif
 #endif
@@ -86,7 +86,7 @@ int curlx_win32_mkdir(const char *path);
 #define curlx_fdopen(file, mode) \
   curl_dbg_fdopen(file, mode, __LINE__, __FILE__)
 #define curlx_fclose(file)      curl_dbg_fclose(file, __LINE__, __FILE__)
-#else
+#иначе
 #define curlx_fopen             CURLX_FOPEN_LOW
 #define curlx_freopen           CURLX_FREOPEN_LOW
 #define curlx_fdopen            CURLX_FDOPEN_LOW

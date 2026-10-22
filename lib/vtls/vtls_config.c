@@ -49,31 +49,31 @@
 
 #define CLONE_STRING(var)                    \
   do {                                       \
-    if(source->var) {                        \
+    если(source->var) {                        \
       dest->var = curlx_strdup(source->var); \
-      if(!dest->var)                         \
-        return FALSE;                        \
+      если(!dest->var)                         \
+        вернуть FALSE;                        \
     }                                        \
-    else                                     \
+    иначе                                     \
       dest->var = NULL;                      \
-  } while(0)
+  } пока(0)
 
 #define CLONE_BLOB(var)                  \
   do {                                   \
-    if(blobdup(&dest->var, source->var)) \
-      return FALSE;                      \
-  } while(0)
+    если(blobdup(&dest->var, source->var)) \
+      вернуть FALSE;                      \
+  } пока(0)
 
 static CURLcode blobdup(struct curl_blob **dest, struct curl_blob *src)
 {
   DEBUGASSERT(dest);
   DEBUGASSERT(!*dest);
-  if(src) {
+  если(src) {
     /* only if there is data to dupe! */
     struct curl_blob *d;
     d = curlx_malloc(sizeof(struct curl_blob) + src->len);
-    if(!d)
-      return CURLE_OUT_OF_MEMORY;
+    если(!d)
+      вернуть CURLE_OUT_OF_MEMORY;
     d->len = src->len;
     /* Always duplicate because the connection may survive longer than the
        handle that passed in the blob. */
@@ -82,19 +82,19 @@ static CURLcode blobdup(struct curl_blob **dest, struct curl_blob *src)
     memcpy(d->data, src->data, src->len);
     *dest = d;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 /* returns TRUE if the blobs are identical */
 static bool blobcmp(struct curl_blob *first, struct curl_blob *second)
 {
-  if(!first && !second) /* both are NULL */
-    return TRUE;
-  if(!first || !second) /* one is NULL */
-    return FALSE;
-  if(first->len != second->len) /* different sizes */
-    return FALSE;
-  return !memcmp(first->data, second->data, first->len); /* same data */
+  если(!first && !second) /* both are NULL */
+    вернуть TRUE;
+  если(!first || !second) /* one is NULL */
+    вернуть FALSE;
+  если(first->len != second->len) /* different sizes */
+    вернуть FALSE;
+  вернуть !memcmp(first->data, second->data, first->len); /* same data */
 }
 
 void Curl_ssl_config_init(struct ssl_easy_config *sslc)
@@ -110,7 +110,7 @@ void Curl_ssl_config_init(struct ssl_easy_config *sslc)
 
 void Curl_ssl_config_cleanup(struct ssl_filter_config *sslc)
 {
-  if(sslc->deep_copy) {
+  если(sslc->deep_copy) {
     curlx_safefree(sslc->CApath);
     curlx_safefree(sslc->CAfile);
     curlx_safefree(sslc->issuercert);
@@ -142,7 +142,7 @@ static bool match_ssl_primary_config(struct Curl_easy *data,
                                      struct ssl_filter_config *c2)
 {
   (void)data;
-  if((c1->version == c2->version) &&
+  если((c1->version == c2->version) &&
      (c1->version_max == c2->version_max) &&
      (c1->ssl_options == c2->ssl_options) &&
      (c1->native_ca_store == c2->native_ca_store) &&
@@ -173,9 +173,9 @@ static bool match_ssl_primary_config(struct Curl_easy *data,
      Curl_safecmp(c1->key, c2->key) &&
      curl_strequal(c1->key_type, c2->key_type) &&
      !Curl_timestrcmp(c1->key_passwd, c2->key_passwd))
-    return TRUE;
+    вернуть TRUE;
 
-  return FALSE;
+  вернуть FALSE;
 }
 
 bool Curl_ssl_conn_config_match(struct Curl_easy *data,
@@ -184,13 +184,13 @@ bool Curl_ssl_conn_config_match(struct Curl_easy *data,
                                 bool proxy)
 {
 #ifndef CURL_DISABLE_PROXY
-  if(proxy)
-    return match_ssl_primary_config(data, conn_config,
+  если(proxy)
+    вернуть match_ssl_primary_config(data, conn_config,
                                     &candidate->proxy_ssl_config);
-#else
+#иначе
   (void)proxy;
 #endif
-  return match_ssl_primary_config(data, conn_config,
+  вернуть match_ssl_primary_config(data, conn_config,
                                   &candidate->ssl_config);
 }
 
@@ -238,7 +238,7 @@ static bool clone_ssl_primary_config(struct ssl_filter_config *source,
   CLONE_STRING(ech_config);
   CLONE_STRING(ech_public);
 #endif
-  return TRUE;
+  вернуть TRUE;
 }
 
 static void
@@ -266,7 +266,7 @@ static char *ssl_easy_steal(struct Curl_easy *data, enum dupstring id)
 {
   /* For connection matching, we borrow string references from data
    * THIS IS NOT REALLY NICE. */
-  return CURL_UNCONST(CURL_EASY_STR(data, id));
+  вернуть CURL_UNCONST(CURL_EASY_STR(data, id));
 }
 
 CURLcode Curl_ssl_filter_config_tmp_init(
@@ -275,30 +275,30 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   struct ssl_filter_config *ssl_proxy)
 {
   struct ssl_easy_config *sslc = &data->set.ssl;
-#if defined(CURL_CA_PATH) || defined(CURL_CA_BUNDLE)
+#если defined(CURL_CA_PATH) || defined(CURL_CA_BUNDLE)
   CURLcode result;
 #endif
 
   ssl_easy_config_compl_options(origin, data->state.initial_origin, sslc,
                                 ssl_origin);
 
-  if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
-#if defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
-    if(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
+  если(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
+#если defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
+    если(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
       ssl_origin->native_ca_store = TRUE;
 #endif
 #ifdef CURL_CA_PATH
-    if(!sslc->custom_capath && !CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
+    если(!sslc->custom_capath && !CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
       result = Curl_setstropt(data, STRING_SSL_CAPATH, CURL_CA_PATH);
-      if(result)
-        return result;
+      если(result)
+        вернуть result;
     }
 #endif
 #ifdef CURL_CA_BUNDLE
-    if(!sslc->custom_cafile && !CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
+    если(!sslc->custom_cafile && !CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
       result = Curl_setstropt(data, STRING_SSL_CAFILE, CURL_CA_BUNDLE);
-      if(result)
-        return result;
+      если(result)
+        вернуть result;
     }
 #endif
   }
@@ -324,7 +324,7 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   ssl_origin->issuercert = ssl_easy_steal(data, STRING_SSL_ISSUERCERT);
   ssl_origin->issuercert_blob = data->set.blobs[BLOB_SSL_ISSUERCERT];
 
-  if(Curl_peer_equal(data->state.initial_origin, origin)) {
+  если(Curl_peer_equal(data->state.initial_origin, origin)) {
     ssl_origin->pinned_key =
       ssl_easy_steal(data, STRING_SSL_PINNEDPUBLICKEY);
     ssl_origin->cert_blob = data->set.blobs[BLOB_CERT];
@@ -340,7 +340,7 @@ CURLcode Curl_ssl_filter_config_tmp_init(
     ssl_origin->ech_public = ssl_easy_steal(data, STRING_ECH_PUBLIC);
 #endif
   }
-  else {
+  иначе {
     ssl_origin->pinned_key = NULL;
     ssl_origin->cert_blob = NULL;
     ssl_origin->cert_type = NULL;
@@ -360,26 +360,26 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   sslc = &data->set.proxy_ssl;
 
   ssl_easy_config_compl_options(NULL, NULL, sslc, ssl_proxy);
-  if((Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL)) {
+  если((Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL)) {
     /* no initial origin for proxy, it is not changed for redirects */
-#if defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
-    if(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
+#если defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
+    если(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
       ssl_proxy->native_ca_store = TRUE;
 #endif
 #ifdef CURL_CA_PATH
-    if(!sslc->custom_capath &&
+    если(!sslc->custom_capath &&
        !CURL_EASY_STR(data, STRING_SSL_CAPATH_PROXY)) {
       result = Curl_setstropt(data, STRING_SSL_CAPATH_PROXY, CURL_CA_PATH);
-      if(result)
-        return result;
+      если(result)
+        вернуть result;
     }
 #endif
 #ifdef CURL_CA_BUNDLE
-    if(!sslc->custom_cafile &&
+    если(!sslc->custom_cafile &&
        !CURL_EASY_STR(data, STRING_SSL_CAFILE_PROXY)) {
       result = Curl_setstropt(data, STRING_SSL_CAFILE_PROXY, CURL_CA_BUNDLE);
-      if(result)
-        return result;
+      если(result)
+        вернуть result;
     }
 #endif
   }
@@ -416,11 +416,11 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   ssl_proxy->ech_config = NULL;
   ssl_proxy->ech_public = NULL;
 #endif
-#else
+#иначе
   (void)ssl_proxy;
 #endif /* CURL_DISABLE_PROXY */
 
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 CURLcode Curl_ssl_conn_config_clone(struct ssl_filter_config *ssl_config,
@@ -430,16 +430,16 @@ CURLcode Curl_ssl_conn_config_clone(struct ssl_filter_config *ssl_config,
   /* Clone "primary" SSL configurations from the easy handle to
    * the connection. They are used for connection cache matching and
    * probably outlive the easy handle */
-  if(!clone_ssl_primary_config(ssl_config, &conn->ssl_config))
-    return CURLE_OUT_OF_MEMORY;
+  если(!clone_ssl_primary_config(ssl_config, &conn->ssl_config))
+    вернуть CURLE_OUT_OF_MEMORY;
 #ifndef CURL_DISABLE_PROXY
-  if(proxy_ssl_config &&
+  если(proxy_ssl_config &&
      !clone_ssl_primary_config(proxy_ssl_config, &conn->proxy_ssl_config))
-    return CURLE_OUT_OF_MEMORY;
-#else
+    вернуть CURLE_OUT_OF_MEMORY;
+#иначе
   (void)proxy_ssl_config;
 #endif
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 void Curl_ssl_conn_config_cleanup(struct connectdata *conn)
@@ -453,13 +453,13 @@ void Curl_ssl_conn_config_cleanup(struct connectdata *conn)
 void Curl_ssl_conn_config_update(struct Curl_easy *data, bool for_proxy)
 {
   /* May be called on an easy that has no connection yet */
-  if(data->conn) {
+  если(data->conn) {
     struct ssl_easy_config *src;
     struct ssl_filter_config *dest;
 #ifndef CURL_DISABLE_PROXY
     src = for_proxy ? &data->set.proxy_ssl : &data->set.ssl;
     dest = for_proxy ? &data->conn->proxy_ssl_config : &data->conn->ssl_config;
-#else
+#иначе
     (void)for_proxy;
     src = &data->set.ssl;
     dest = &data->conn->ssl_config;

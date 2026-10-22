@@ -52,7 +52,7 @@ struct Curl_hash {
   size_t size;
   uint8_t type; /* Curl_hash_type */
 #ifdef DEBUGBUILD
-  int init;
+  целое init;
 #endif
 };
 
@@ -61,7 +61,7 @@ struct Curl_hash_iterator {
   size_t slot_index;
   struct Curl_hash_element *current;
 #ifdef DEBUGBUILD
-  int init;
+  целое init;
 #endif
 };
 
@@ -77,14 +77,14 @@ void *Curl_hash_add(struct Curl_hash *h,
 void *Curl_hash_add2(struct Curl_hash *h,
                      const void *key, size_t key_len, void *p,
                      Curl_hash_elem_dtor dtor);
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len);
+целое Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len);
 void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len);
 
 void Curl_hash_destroy(struct Curl_hash *h);
 size_t Curl_hash_count(struct Curl_hash *h);
 void Curl_hash_clean(struct Curl_hash *h);
 void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
-                                    int (*comp)(void *, void *));
+                                    целое (*comp)(void *, void *));
 void Curl_hash_start_iterate(struct Curl_hash *hash,
                              struct Curl_hash_iterator *iter);
 struct Curl_hash_element *Curl_hash_next_element(

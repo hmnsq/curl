@@ -51,12 +51,12 @@
 
 #ifdef USE_GNUTLS
 #include <nettle/version.h>
-#if NETTLE_VERSION_MAJOR < 4
+#если NETTLE_VERSION_MAJOR < 4
 #define USE_GNUTLS_DES
 #endif
 #endif
 
-#if defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)
+#если defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)
 
 #  include <openssl/des.h>
 #  ifdef OPENSSL_IS_AWSLC  /* for versions 1.2.0 to 1.30.1 */
@@ -75,7 +75,7 @@
 #  define USE_CURL_DES_SET_ODD_PARITY
 #elif defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)
 #  include <mbedtls/version.h>
-#  if MBEDTLS_VERSION_NUMBER < 0x03020000
+#  если MBEDTLS_VERSION_NUMBER < 0x03020000
 #  error "mbedTLS 3.2.0 or greater required"
 #  endif
 #  include <mbedtls/des.h>
@@ -86,7 +86,7 @@
 #elif defined(USE_WIN32_CRYPTO)
 #  include <wincrypt.h>
 #  define USE_CURL_DES_SET_ODD_PARITY
-#else
+#иначе
 #  error "cannot compile NTLM support without a crypto library with DES."
 #endif
 
@@ -121,16 +121,16 @@ static void curl_des_set_odd_parity(unsigned char *bytes, size_t len)
 {
   size_t i;
 
-  for(i = 0; i < len; i++) {
+  для(i = 0; i < len; i++) {
     unsigned char b = bytes[i];
 
     bool needs_parity = (((b >> 7) ^ (b >> 6) ^ (b >> 5) ^
                           (b >> 4) ^ (b >> 3) ^ (b >> 2) ^
                           (b >> 1)) & 0x01) == 0;
 
-    if(needs_parity)
+    если(needs_parity)
       bytes[i] |= 0x01;
-    else
+    иначе
       bytes[i] &= 0xfe;
   }
 }
@@ -213,7 +213,7 @@ static bool encrypt_des(const unsigned char *in, unsigned char *out,
   /* Perform the encryption */
   mbedtls_des_init(&ctx);
   mbedtls_des_setkey_enc(&ctx, (unsigned char *)key);
-  return mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
+  вернуть mbedtls_des_crypt_ecb(&ctx, in, out) == 0;
 }
 
 #elif defined(USE_OS400CRYPTO)
@@ -236,7 +236,7 @@ static bool encrypt_des(const unsigned char *in, unsigned char *out,
   /* Perform the encryption */
   _CIPHER((_SPCPTR *)&out, &ctl, (_SPCPTR *)&in);
 
-  return TRUE;
+  вернуть TRUE;
 }
 
 #elif defined(USE_WIN32_CRYPTO)
@@ -247,16 +247,16 @@ static bool encrypt_des(const unsigned char *in, unsigned char *out,
   HCRYPTKEY hkey;
   struct {
     BLOBHEADER hdr;
-    unsigned int len;
+    unsigned целое len;
     char key[8];
   } blob;
   DWORD len = 8;
   BOOL res;
 
   /* Acquire the crypto provider */
-  if(!CryptAcquireContext(&hprov, NULL, NULL, PROV_RSA_FULL,
+  если(!CryptAcquireContext(&hprov, NULL, NULL, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return FALSE;
+    вернуть FALSE;
 
   /* Setup the key blob structure */
   memset(&blob, 0, sizeof(blob));
@@ -272,10 +272,10 @@ static bool encrypt_des(const unsigned char *in, unsigned char *out,
   curl_des_set_odd_parity((unsigned char *)blob.key, sizeof(blob.key));
 
   /* Import the key */
-  if(!CryptImportKey(hprov, (BYTE *)&blob, sizeof(blob), 0, 0, &hkey)) {
+  если(!CryptImportKey(hprov, (BYTE *)&blob, sizeof(blob), 0, 0, &hkey)) {
     CryptReleaseContext(hprov, 0);
 
-    return FALSE;
+    вернуть FALSE;
   }
 
   memcpy(out, in, 8);
@@ -286,7 +286,7 @@ static bool encrypt_des(const unsigned char *in, unsigned char *out,
   CryptDestroyKey(hkey);
   CryptReleaseContext(hprov, 0);
 
-  return res;
+  вернуть res;
 }
 
 #endif /* crypto backends */
@@ -335,7 +335,7 @@ void Curl_ntlm_core_lm_resp(const unsigned char *keys,
   encrypt_des(plaintext, results, keys);
   encrypt_des(plaintext, results + 8, keys + 7);
   encrypt_des(plaintext, results + 16, keys + 14);
-#else
+#иначе
   (void)keys;
   (void)plaintext;
   (void)results;
@@ -390,14 +390,14 @@ CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
     memset(lmbuffer + 16, 0, 21 - 16);
   }
 
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static void ascii_to_unicode_le(unsigned char *dest, const char *src,
                                 size_t srclen)
 {
   size_t i;
-  for(i = 0; i < srclen; i++) {
+  для(i = 0; i < srclen; i++) {
     dest[2 * i] = (unsigned char)src[i];
     dest[(2 * i) + 1] = '\0';
   }
@@ -413,22 +413,22 @@ CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
   size_t len = strlen(password);
   unsigned char *pw;
   CURLcode result;
-  if(len > SIZE_MAX / 2) /* avoid integer overflow */
-    return CURLE_OUT_OF_MEMORY;
+  если(len > SIZE_MAX / 2) /* avoid integer overflow */
+    вернуть CURLE_OUT_OF_MEMORY;
   pw = len ? curlx_malloc(len * 2) : (unsigned char *)curlx_strdup("");
-  if(!pw)
-    return CURLE_OUT_OF_MEMORY;
+  если(!pw)
+    вернуть CURLE_OUT_OF_MEMORY;
 
   ascii_to_unicode_le(pw, password, len);
 
   /* Create NT hashed password. */
   result = Curl_md4it(ntbuffer, pw, 2 * len);
-  if(!result)
+  если(!result)
     memset(ntbuffer + 16, 0, 21 - 16);
 
   curlx_free(pw);
 
-  return result;
+  вернуть result;
 }
 
 #ifndef USE_WINDOWS_SSPI
@@ -438,28 +438,28 @@ CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
 
 /* Timestamp in tenths of a microsecond since January 1, 1601 00:00:00 UTC. */
 struct ms_filetime {
-  unsigned int dwLowDateTime;
-  unsigned int dwHighDateTime;
+  unsigned целое dwLowDateTime;
+  unsigned целое dwHighDateTime;
 };
 
 /* Convert a time_t to an MS FILETIME (MS-DTYP section 2.3.3). */
 static void time2filetime(struct ms_filetime *ft, time_t t)
 {
-#if SIZEOF_TIME_T > 4
+#если SIZEOF_TIME_T > 4
   t = (t + (curl_off_t)11644473600) * 10000000;
-  ft->dwLowDateTime = (unsigned int)(t & 0xFFFFFFFF);
-  ft->dwHighDateTime = (unsigned int)(t >> 32);
-#else
-  unsigned int r, s;
-  unsigned int i;
+  ft->dwLowDateTime = (unsigned целое)(t & 0xFFFFFFFF);
+  ft->dwHighDateTime = (unsigned целое)(t >> 32);
+#иначе
+  unsigned целое r, s;
+  unsigned целое i;
 
-  ft->dwLowDateTime = (unsigned int)(t & 0xFFFFFFFF);
+  ft->dwLowDateTime = (unsigned целое)(t & 0xFFFFFFFF);
   ft->dwHighDateTime = 0;
 
 #ifndef HAVE_TIME_T_UNSIGNED
   /* Extend sign if needed. */
-  if(ft->dwLowDateTime & 0x80000000)
-    ft->dwHighDateTime = ~(unsigned int)0;
+  если(ft->dwLowDateTime & 0x80000000)
+    ft->dwHighDateTime = ~(unsigned целое)0;
 #endif
 
   /* Bias seconds to Jan 1, 1601.
@@ -478,10 +478,10 @@ static void time2filetime(struct ms_filetime *ft, time_t t)
     s >>= 1;   /* Split shift to avoid width overflow. */
     s >>= 31 - i;
     ft->dwLowDateTime = (ft->dwLowDateTime + r) & 0xFFFFFFFF;
-    if(ft->dwLowDateTime < r)
+    если(ft->dwLowDateTime < r)
       s++;
     ft->dwHighDateTime += s;
-  } while(i);
+  } пока(i);
   ft->dwHighDateTime &= 0xFFFFFFFF;
 #endif
 }
@@ -490,7 +490,7 @@ static void ascii_uppercase_to_unicode_le(unsigned char *dest,
                                           const char *src, size_t srclen)
 {
   size_t i;
-  for(i = 0; i < srclen; i++) {
+  для(i = 0; i < srclen; i++) {
     dest[2 * i] = (unsigned char)(Curl_raw_toupper(src[i]));
     dest[(2 * i) + 1] = '\0';
   }
@@ -509,14 +509,14 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
   unsigned char *identity;
   CURLcode result = CURLE_OK;
 
-  if((userlen > CURL_MAX_INPUT_LENGTH) || (domlen > CURL_MAX_INPUT_LENGTH))
-    return CURLE_OUT_OF_MEMORY;
+  если((userlen > CURL_MAX_INPUT_LENGTH) || (domlen > CURL_MAX_INPUT_LENGTH))
+    вернуть CURLE_OUT_OF_MEMORY;
 
   identity_len = (userlen + domlen) * 2;
   identity = curlx_malloc(identity_len + 1);
 
-  if(!identity)
-    return CURLE_OUT_OF_MEMORY;
+  если(!identity)
+    вернуть CURLE_OUT_OF_MEMORY;
 
   ascii_uppercase_to_unicode_le(identity, user, userlen);
   ascii_to_unicode_le(identity + (userlen << 1), domain, domlen);
@@ -525,7 +525,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
                        ntlmv2hash);
   curlx_free(identity);
 
-  return result;
+  вернуть result;
 }
 
 /*
@@ -549,7 +549,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
                                        const unsigned char *challenge_client,
                                        const struct ntlmdata *ntlm,
                                        unsigned char **ntresp,
-                                       unsigned int *ntresp_len)
+                                       unsigned целое *ntresp_len)
 {
   /* NTLMv2 response structure:
   -----------------------------------------------------------------------------
@@ -566,7 +566,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
   -----------------------------------------------------------------------------
   */
 
-  unsigned int len = 0;
+  unsigned целое len = 0;
   unsigned char *ptr = NULL;
   unsigned char hmac_output[HMAC_MD5_LENGTH];
   struct ms_filetime tw;
@@ -576,9 +576,9 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
   /* Calculate the timestamp */
 #ifdef DEBUGBUILD
   char *force_timestamp = getenv("CURL_FORCETIME");
-  if(force_timestamp)
+  если(force_timestamp)
     time2filetime(&tw, (time_t)0);
-  else
+  иначе
 #endif
     time2filetime(&tw, time(NULL));
 
@@ -587,8 +587,8 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
 
   /* Allocate the response */
   ptr = curlx_calloc(1, len);
-  if(!ptr)
-    return CURLE_OUT_OF_MEMORY;
+  если(!ptr)
+    вернуть CURLE_OUT_OF_MEMORY;
 
   /* Create the BLOB structure */
   curl_msnprintf((char *)ptr + HMAC_MD5_LENGTH, NTLMv2_BLOB_LEN,
@@ -602,16 +602,16 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
                  LONGQUARTET(tw.dwHighDateTime));
 
   memcpy(ptr + 32, challenge_client, 8);
-  if(ntlm->target_info_len)
+  если(ntlm->target_info_len)
     memcpy(ptr + 44, ntlm->target_info, ntlm->target_info_len);
 
   /* Concatenate the Type 2 challenge with the BLOB and do HMAC MD5 */
   memcpy(ptr + 8, &ntlm->nonce[0], 8);
   result = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, HMAC_MD5_LENGTH, ptr + 8,
                        NTLMv2_BLOB_LEN + 8, hmac_output);
-  if(result) {
+  если(result) {
     curlx_free(ptr);
-    return result;
+    вернуть result;
   }
 
   /* Concatenate the HMAC MD5 output  with the BLOB */
@@ -621,7 +621,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
   *ntresp = ptr;
   *ntresp_len = len;
 
-  return result;
+  вернуть result;
 }
 
 /*
@@ -652,14 +652,14 @@ CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
 
   result = Curl_hmacit(&Curl_HMAC_MD5, ntlmv2hash, 16, &data[0], 16,
                        hmac_output);
-  if(result)
-    return result;
+  если(result)
+    вернуть result;
 
   /* Concatenate the HMAC MD5 output with the client nonce */
   memcpy(lmresp, hmac_output, 16);
   memcpy(lmresp + 16, challenge_client, 8);
 
-  return result;
+  вернуть result;
 }
 
 #endif /* !USE_WINDOWS_SSPI */

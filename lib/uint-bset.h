@@ -42,7 +42,7 @@ struct uint32_bset {
   uint32_t nslots;
   uint32_t first_slot_used;
 #ifdef DEBUGBUILD
-  int init;
+  целое init;
 #endif
 };
 

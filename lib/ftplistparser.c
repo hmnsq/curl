@@ -149,19 +149,19 @@ struct ftp_parselist_data {
 
   union {
     struct {
-      pl_unix_mainstate main;
+      pl_unix_mainstate основной;
       pl_unix_substate sub;
     } UNIX;
 
     struct {
-      pl_winNT_mainstate main;
+      pl_winNT_mainstate основной;
       pl_winNT_substate sub;
     } NT;
   } state;
 
   CURLcode error;
   struct fileinfo *file_data;
-  unsigned int item_length;
+  unsigned целое item_length;
   size_t item_offset;
   struct {
     size_t filename;
@@ -188,10 +188,10 @@ void Curl_wildcard_init(struct WildcardData *wc)
 void Curl_wildcard_dtor(struct WildcardData **wcp)
 {
   struct WildcardData *wc = *wcp;
-  if(!wc)
-    return;
+  если(!wc)
+    вернуть;
 
-  if(wc->dtor) {
+  если(wc->dtor) {
     wc->dtor(wc->ftpwc);
     wc->dtor = ZERO_NULL;
     wc->ftpwc = NULL;
@@ -208,13 +208,13 @@ void Curl_wildcard_dtor(struct WildcardData **wcp)
 
 struct ftp_parselist_data *Curl_ftp_parselist_data_alloc(void)
 {
-  return curlx_calloc(1, sizeof(struct ftp_parselist_data));
+  вернуть curlx_calloc(1, sizeof(struct ftp_parselist_data));
 }
 
 void Curl_ftp_parselist_data_free(struct ftp_parselist_data **parserp)
 {
   struct ftp_parselist_data *parser = *parserp;
-  if(parser)
+  если(parser)
     Curl_fileinfo_cleanup(parser->file_data);
   curlx_free(parser);
   *parserp = NULL;
@@ -222,74 +222,74 @@ void Curl_ftp_parselist_data_free(struct ftp_parselist_data **parserp)
 
 CURLcode Curl_ftp_parselist_geterror(struct ftp_parselist_data *pl_data)
 {
-  return pl_data->error;
+  вернуть pl_data->error;
 }
 
 #define FTP_LP_MALFORMATED_PERM 0x01000000
 
-static unsigned int ftp_pl_get_permission(const char *str)
+static unsigned целое ftp_pl_get_permission(const char *str)
 {
-  unsigned int permissions = 0;
+  unsigned целое permissions = 0;
   /* USER */
-  if(str[0] == 'r')
+  если(str[0] == 'r')
     permissions |= 1 << 8;
-  else if(str[0] != '-')
+  иначе если(str[0] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[1] == 'w')
+  если(str[1] == 'w')
     permissions |= 1 << 7;
-  else if(str[1] != '-')
+  иначе если(str[1] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
 
-  if(str[2] == 'x')
+  если(str[2] == 'x')
     permissions |= 1 << 6;
-  else if(str[2] == 's') {
+  иначе если(str[2] == 's') {
     permissions |= 1 << 6;
     permissions |= 1 << 11;
   }
-  else if(str[2] == 'S')
+  иначе если(str[2] == 'S')
     permissions |= 1 << 11;
-  else if(str[2] != '-')
+  иначе если(str[2] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
   /* GROUP */
-  if(str[3] == 'r')
+  если(str[3] == 'r')
     permissions |= 1 << 5;
-  else if(str[3] != '-')
+  иначе если(str[3] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[4] == 'w')
+  если(str[4] == 'w')
     permissions |= 1 << 4;
-  else if(str[4] != '-')
+  иначе если(str[4] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[5] == 'x')
+  если(str[5] == 'x')
     permissions |= 1 << 3;
-  else if(str[5] == 's') {
+  иначе если(str[5] == 's') {
     permissions |= 1 << 3;
     permissions |= 1 << 10;
   }
-  else if(str[5] == 'S')
+  иначе если(str[5] == 'S')
     permissions |= 1 << 10;
-  else if(str[5] != '-')
+  иначе если(str[5] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
   /* others */
-  if(str[6] == 'r')
+  если(str[6] == 'r')
     permissions |= 1 << 2;
-  else if(str[6] != '-')
+  иначе если(str[6] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[7] == 'w')
+  если(str[7] == 'w')
     permissions |= 1 << 1;
-  else if(str[7] != '-')
+  иначе если(str[7] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
-  if(str[8] == 'x')
+  если(str[8] == 'x')
     permissions |= 1;
-  else if(str[8] == 't') {
+  иначе если(str[8] == 't') {
     permissions |= 1;
     permissions |= 1 << 9;
   }
-  else if(str[8] == 'T')
+  иначе если(str[8] == 'T')
     permissions |= 1 << 9;
-  else if(str[8] != '-')
+  иначе если(str[8] != '-')
     permissions |= FTP_LP_MALFORMATED_PERM;
 
-  return permissions;
+  вернуть permissions;
 }
 
 static CURLcode ftp_pl_insert_finfo(struct Curl_easy *data,
@@ -319,38 +319,38 @@ static CURLcode ftp_pl_insert_finfo(struct Curl_easy *data,
 
   /* get correct fnmatch callback */
   compare = data->set.fnmatch;
-  if(!compare)
+  если(!compare)
     compare = Curl_fnmatch;
 
   /* filter pattern-corresponding filenames */
-  if(strchr(finfo->filename, '/'))
+  если(strchr(finfo->filename, '/'))
     add = FALSE;
-  else {
+  иначе {
     /* a real file name cannot contain a slash */
     struct Curl_mapi_guard guard;
     CURL_CBAPI_START(&guard, data, easy_fnmatch_data);
-    if(compare(data->set.fnmatch_data, wc->pattern, finfo->filename) == 0) {
+    если(compare(data->set.fnmatch_data, wc->pattern, finfo->filename) == 0) {
       /* discard symlink which is containing multiple " -> " */
-      if((finfo->filetype == CURLFILETYPE_SYMLINK) && finfo->strings.target &&
+      если((finfo->filetype == CURLFILETYPE_SYMLINK) && finfo->strings.target &&
          strstr(finfo->strings.target, " -> ")) {
         add = FALSE;
       }
     }
-    else {
+    иначе {
       add = FALSE;
     }
     CURL_CBAPI_END(&guard);
   }
 
-  if(add) {
+  если(add) {
     Curl_llist_append(llist, finfo, &infop->list);
   }
-  else {
+  иначе {
     Curl_fileinfo_cleanup(infop);
   }
 
   ftpwc->parser->file_data = NULL;
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 #define MAX_FTPLIST_BUFFER 10000 /* arbitrarily set */
@@ -383,9 +383,9 @@ static CURLcode unix_filetype(const char c, curlfiletype *t)
     *t = CURLFILETYPE_DOOR;
     break;
   default:
-    return CURLE_FTP_BAD_FILE_LIST;
+    вернуть CURLE_FTP_BAD_FILE_LIST;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode parse_unix_totalsize(struct ftp_parselist_data *parser,
@@ -396,43 +396,43 @@ static CURLcode parse_unix_totalsize(struct ftp_parselist_data *parser,
   char *mem = curlx_dyn_ptr(&infop->buf);
   switch(parser->state.UNIX.sub.total_dirsize) {
   case PL_UNIX_TOTALSIZE_INIT:
-    if(c == 't') {
+    если(c == 't') {
       parser->state.UNIX.sub.total_dirsize = PL_UNIX_TOTALSIZE_READING;
       parser->item_length++;
     }
-    else {
-      parser->state.UNIX.main = PL_UNIX_FILETYPE;
+    иначе {
+      parser->state.UNIX.основной = PL_UNIX_FILETYPE;
       /* continue to fall through */
     }
     break;
   case PL_UNIX_TOTALSIZE_READING:
     parser->item_length++;
-    if(c == '\r') {
+    если(c == '\r') {
       parser->item_length--;
-      if(len)
+      если(len)
         curlx_dyn_setlen(&infop->buf, --len);
     }
-    else if(c == '\n') {
+    иначе если(c == '\n') {
       mem[parser->item_length - 1] = 0;
-      if(!strncmp("total ", mem, 6)) {
+      если(!strncmp("total ", mem, 6)) {
         const char *endptr = mem + 6;
         /* here we can deal with directory size, pass the leading
            whitespace and then the digits */
         curlx_str_passblanks(&endptr);
-        while(ISDIGIT(*endptr))
+        пока(ISDIGIT(*endptr))
           endptr++;
-        if(*endptr) {
-          return CURLE_FTP_BAD_FILE_LIST;
+        если(*endptr) {
+          вернуть CURLE_FTP_BAD_FILE_LIST;
         }
-        parser->state.UNIX.main = PL_UNIX_FILETYPE;
+        parser->state.UNIX.основной = PL_UNIX_FILETYPE;
         curlx_dyn_reset(&infop->buf);
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе
+        вернуть CURLE_FTP_BAD_FILE_LIST;
     }
     break;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode parse_unix_permission(struct ftp_parselist_data *parser,
@@ -441,28 +441,28 @@ static CURLcode parse_unix_permission(struct ftp_parselist_data *parser,
 {
   char *mem = curlx_dyn_ptr(&infop->buf);
   parser->item_length++;
-  if((parser->item_length <= 9) && !strchr("rwx-tTsS", c))
-    return CURLE_FTP_BAD_FILE_LIST;
+  если((parser->item_length <= 9) && !strchr("rwx-tTsS", c))
+    вернуть CURLE_FTP_BAD_FILE_LIST;
 
-  else if(parser->item_length == 10) {
-    unsigned int perm;
-    if(c != ' ')
-      return CURLE_FTP_BAD_FILE_LIST;
+  иначе если(parser->item_length == 10) {
+    unsigned целое perm;
+    если(c != ' ')
+      вернуть CURLE_FTP_BAD_FILE_LIST;
 
     mem[10] = 0; /* terminate permissions */
     perm = ftp_pl_get_permission(mem + parser->item_offset);
-    if(perm & FTP_LP_MALFORMATED_PERM)
-      return CURLE_FTP_BAD_FILE_LIST;
+    если(perm & FTP_LP_MALFORMATED_PERM)
+      вернуть CURLE_FTP_BAD_FILE_LIST;
 
     parser->file_data->info.flags |= CURLFINFOFLAG_KNOWN_PERM;
     parser->file_data->info.perm = perm;
     parser->offsets.perm = parser->item_offset;
 
     parser->item_length = 0;
-    parser->state.UNIX.main = PL_UNIX_HLINKS;
+    parser->state.UNIX.основной = PL_UNIX_HLINKS;
     parser->state.UNIX.sub.hlinks = PL_UNIX_HLINKS_PRESPACE;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode parse_unix_hlinks(struct ftp_parselist_data *parser,
@@ -474,38 +474,38 @@ static CURLcode parse_unix_hlinks(struct ftp_parselist_data *parser,
 
   switch(parser->state.UNIX.sub.hlinks) {
   case PL_UNIX_HLINKS_PRESPACE:
-    if(c != ' ') {
-      if(ISDIGIT(c) && len) {
+    если(c != ' ') {
+      если(ISDIGIT(c) && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
         parser->state.UNIX.sub.hlinks = PL_UNIX_HLINKS_NUMBER;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе
+        вернуть CURLE_FTP_BAD_FILE_LIST;
     }
     break;
   case PL_UNIX_HLINKS_NUMBER:
     parser->item_length++;
-    if(c == ' ') {
+    если(c == ' ') {
       const char *p = &mem[parser->item_offset];
       curl_off_t hlinks;
       mem[parser->item_offset + parser->item_length - 1] = 0;
 
-      if(!curlx_str_number(&p, &hlinks, LONG_MAX)) {
+      если(!curlx_str_number(&p, &hlinks, LONG_MAX)) {
         parser->file_data->info.flags |= CURLFINFOFLAG_KNOWN_HLINKCOUNT;
         parser->file_data->info.hardlinks = (long)hlinks;
       }
       parser->item_length = 0;
       parser->item_offset = 0;
-      parser->state.UNIX.main = PL_UNIX_USER;
+      parser->state.UNIX.основной = PL_UNIX_USER;
       parser->state.UNIX.sub.user = PL_UNIX_USER_PRESPACE;
     }
-    else if(!ISDIGIT(c))
-      return CURLE_FTP_BAD_FILE_LIST;
+    иначе если(!ISDIGIT(c))
+      вернуть CURLE_FTP_BAD_FILE_LIST;
 
     break;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode parse_unix_user(struct ftp_parselist_data *parser,
@@ -516,7 +516,7 @@ static CURLcode parse_unix_user(struct ftp_parselist_data *parser,
   char *mem = curlx_dyn_ptr(&infop->buf);
   switch(parser->state.UNIX.sub.user) {
   case PL_UNIX_USER_PRESPACE:
-    if(c != ' ' && len) {
+    если(c != ' ' && len) {
       parser->item_offset = len - 1;
       parser->item_length = 1;
       parser->state.UNIX.sub.user = PL_UNIX_USER_PARSING;
@@ -524,17 +524,17 @@ static CURLcode parse_unix_user(struct ftp_parselist_data *parser,
     break;
   case PL_UNIX_USER_PARSING:
     parser->item_length++;
-    if(c == ' ') {
+    если(c == ' ') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.user = parser->item_offset;
-      parser->state.UNIX.main = PL_UNIX_GROUP;
+      parser->state.UNIX.основной = PL_UNIX_GROUP;
       parser->state.UNIX.sub.group = PL_UNIX_GROUP_PRESPACE;
       parser->item_offset = 0;
       parser->item_length = 0;
     }
     break;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode parse_unix_group(struct ftp_parselist_data *parser,
@@ -545,7 +545,7 @@ static CURLcode parse_unix_group(struct ftp_parselist_data *parser,
   char *mem = curlx_dyn_ptr(&infop->buf);
   switch(parser->state.UNIX.sub.group) {
   case PL_UNIX_GROUP_PRESPACE:
-    if(c != ' ' && len) {
+    если(c != ' ' && len) {
       parser->item_offset = len - 1;
       parser->item_length = 1;
       parser->state.UNIX.sub.group = PL_UNIX_GROUP_NAME;
@@ -553,17 +553,17 @@ static CURLcode parse_unix_group(struct ftp_parselist_data *parser,
     break;
   case PL_UNIX_GROUP_NAME:
     parser->item_length++;
-    if(c == ' ') {
+    если(c == ' ') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.group = parser->item_offset;
-      parser->state.UNIX.main = PL_UNIX_SIZE;
+      parser->state.UNIX.основной = PL_UNIX_SIZE;
       parser->state.UNIX.sub.size = PL_UNIX_SIZE_PRESPACE;
       parser->item_offset = 0;
       parser->item_length = 0;
     }
     break;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode parse_unix_size(struct ftp_parselist_data *parser,
@@ -574,39 +574,39 @@ static CURLcode parse_unix_size(struct ftp_parselist_data *parser,
   char *mem = curlx_dyn_ptr(&infop->buf);
   switch(parser->state.UNIX.sub.size) {
   case PL_UNIX_SIZE_PRESPACE:
-    if(c != ' ') {
-      if(ISDIGIT(c) && len) {
+    если(c != ' ') {
+      если(ISDIGIT(c) && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
         parser->state.UNIX.sub.size = PL_UNIX_SIZE_NUMBER;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе
+        вернуть CURLE_FTP_BAD_FILE_LIST;
     }
     break;
   case PL_UNIX_SIZE_NUMBER:
     parser->item_length++;
-    if(c == ' ') {
+    если(c == ' ') {
       const char *p = mem + parser->item_offset;
       curl_off_t fsize;
       mem[parser->item_offset + parser->item_length - 1] = 0;
-      if(!curlx_str_numblanks(&p, &fsize)) {
-        if(p[0] == '\0' && fsize != CURL_OFF_T_MAX) {
+      если(!curlx_str_numblanks(&p, &fsize)) {
+        если(p[0] == '\0' && fsize != CURL_OFF_T_MAX) {
           parser->file_data->info.flags |= CURLFINFOFLAG_KNOWN_SIZE;
           parser->file_data->info.size = fsize;
         }
         parser->item_length = 0;
         parser->item_offset = 0;
-        parser->state.UNIX.main = PL_UNIX_TIME;
+        parser->state.UNIX.основной = PL_UNIX_TIME;
         parser->state.UNIX.sub.time = PL_UNIX_TIME_PREPART1;
       }
     }
-    else if(!ISDIGIT(c))
-      return CURLE_FTP_BAD_FILE_LIST;
+    иначе если(!ISDIGIT(c))
+      вернуть CURLE_FTP_BAD_FILE_LIST;
 
     break;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode parse_unix_time(struct ftp_parselist_data *parser,
@@ -619,69 +619,69 @@ static CURLcode parse_unix_time(struct ftp_parselist_data *parser,
 
   switch(parser->state.UNIX.sub.time) {
   case PL_UNIX_TIME_PREPART1:
-    if(c != ' ') {
-      if(ISALNUM(c) && len) {
+    если(c != ' ') {
+      если(ISALNUM(c) && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
         parser->state.UNIX.sub.time = PL_UNIX_TIME_PART1;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе
+        вернуть CURLE_FTP_BAD_FILE_LIST;
     }
     break;
   case PL_UNIX_TIME_PART1:
     parser->item_length++;
-    if(c == ' ')
+    если(c == ' ')
       parser->state.UNIX.sub.time = PL_UNIX_TIME_PREPART2;
 
-    else if(!ISALNUM(c) && c != '.')
-      return CURLE_FTP_BAD_FILE_LIST;
+    иначе если(!ISALNUM(c) && c != '.')
+      вернуть CURLE_FTP_BAD_FILE_LIST;
 
     break;
   case PL_UNIX_TIME_PREPART2:
     parser->item_length++;
-    if(c != ' ') {
-      if(ISALNUM(c))
+    если(c != ' ') {
+      если(ISALNUM(c))
         parser->state.UNIX.sub.time = PL_UNIX_TIME_PART2;
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе
+        вернуть CURLE_FTP_BAD_FILE_LIST;
     }
     break;
   case PL_UNIX_TIME_PART2:
     parser->item_length++;
-    if(c == ' ')
+    если(c == ' ')
       parser->state.UNIX.sub.time = PL_UNIX_TIME_PREPART3;
-    else if(!ISALNUM(c) && c != '.')
-      return CURLE_FTP_BAD_FILE_LIST;
+    иначе если(!ISALNUM(c) && c != '.')
+      вернуть CURLE_FTP_BAD_FILE_LIST;
     break;
   case PL_UNIX_TIME_PREPART3:
     parser->item_length++;
-    if(c != ' ') {
-      if(ISALNUM(c))
+    если(c != ' ') {
+      если(ISALNUM(c))
         parser->state.UNIX.sub.time = PL_UNIX_TIME_PART3;
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе
+        вернуть CURLE_FTP_BAD_FILE_LIST;
     }
     break;
   case PL_UNIX_TIME_PART3:
     parser->item_length++;
-    if(c == ' ') {
+    если(c == ' ') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.time = parser->item_offset;
-      if(finfo->filetype == CURLFILETYPE_SYMLINK) {
-        parser->state.UNIX.main = PL_UNIX_SYMLINK;
+      если(finfo->filetype == CURLFILETYPE_SYMLINK) {
+        parser->state.UNIX.основной = PL_UNIX_SYMLINK;
         parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRESPACE;
       }
-      else {
-        parser->state.UNIX.main = PL_UNIX_FILENAME;
+      иначе {
+        parser->state.UNIX.основной = PL_UNIX_FILENAME;
         parser->state.UNIX.sub.filename = PL_UNIX_FILENAME_PRESPACE;
       }
     }
-    else if(!ISALNUM(c) && c != '.' && c != ':')
-      return CURLE_FTP_BAD_FILE_LIST;
+    иначе если(!ISALNUM(c) && c != '.' && c != ':')
+      вернуть CURLE_FTP_BAD_FILE_LIST;
     break;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode parse_unix_filename(struct Curl_easy *data,
@@ -695,7 +695,7 @@ static CURLcode parse_unix_filename(struct Curl_easy *data,
 
   switch(parser->state.UNIX.sub.filename) {
   case PL_UNIX_FILENAME_PRESPACE:
-    if(c != ' ' && len) {
+    если(c != ' ' && len) {
       parser->item_offset = len - 1;
       parser->item_length = 1;
       parser->state.UNIX.sub.filename = PL_UNIX_FILENAME_NAME;
@@ -703,28 +703,28 @@ static CURLcode parse_unix_filename(struct Curl_easy *data,
     break;
   case PL_UNIX_FILENAME_NAME:
     parser->item_length++;
-    if(c == '\r')
+    если(c == '\r')
       parser->state.UNIX.sub.filename = PL_UNIX_FILENAME_WINDOWSEOL;
 
-    else if(c == '\n') {
+    иначе если(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.filename = parser->item_offset;
-      parser->state.UNIX.main = PL_UNIX_FILETYPE;
+      parser->state.UNIX.основной = PL_UNIX_FILETYPE;
       result = ftp_pl_insert_finfo(data, infop);
     }
     break;
   case PL_UNIX_FILENAME_WINDOWSEOL:
-    if(c == '\n') {
+    если(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.filename = parser->item_offset;
-      parser->state.UNIX.main = PL_UNIX_FILETYPE;
+      parser->state.UNIX.основной = PL_UNIX_FILETYPE;
       result = ftp_pl_insert_finfo(data, infop);
     }
-    else
+    иначе
       result = CURLE_FTP_BAD_FILE_LIST;
     break;
   }
-  return result;
+  вернуть result;
 }
 
 static CURLcode parse_unix_symlink(struct Curl_easy *data,
@@ -738,7 +738,7 @@ static CURLcode parse_unix_symlink(struct Curl_easy *data,
 
   switch(parser->state.UNIX.sub.symlink) {
   case PL_UNIX_SYMLINK_PRESPACE:
-    if(c != ' ' && len) {
+    если(c != ' ' && len) {
       parser->item_offset = len - 1;
       parser->item_length = 1;
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_NAME;
@@ -746,36 +746,36 @@ static CURLcode parse_unix_symlink(struct Curl_easy *data,
     break;
   case PL_UNIX_SYMLINK_NAME:
     parser->item_length++;
-    if(c == ' ')
+    если(c == ' ')
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRETARGET1;
 
-    else if(c == '\r' || c == '\n')
-      return CURLE_FTP_BAD_FILE_LIST;
+    иначе если(c == '\r' || c == '\n')
+      вернуть CURLE_FTP_BAD_FILE_LIST;
 
     break;
   case PL_UNIX_SYMLINK_PRETARGET1:
     parser->item_length++;
-    if(c == '-')
+    если(c == '-')
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRETARGET2;
 
-    else if(c == '\r' || c == '\n')
-      return CURLE_FTP_BAD_FILE_LIST;
-    else
+    иначе если(c == '\r' || c == '\n')
+      вернуть CURLE_FTP_BAD_FILE_LIST;
+    иначе
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_NAME;
     break;
   case PL_UNIX_SYMLINK_PRETARGET2:
     parser->item_length++;
-    if(c == '>')
+    если(c == '>')
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRETARGET3;
-    else if(c == '\r' || c == '\n')
-      return CURLE_FTP_BAD_FILE_LIST;
-    else
+    иначе если(c == '\r' || c == '\n')
+      вернуть CURLE_FTP_BAD_FILE_LIST;
+    иначе
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_NAME;
 
     break;
   case PL_UNIX_SYMLINK_PRETARGET3:
     parser->item_length++;
-    if(c == ' ') {
+    если(c == ' ') {
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_PRETARGET4;
       /* now place where is symlink following */
       mem[parser->item_offset + parser->item_length - 4] = 0;
@@ -783,52 +783,52 @@ static CURLcode parse_unix_symlink(struct Curl_easy *data,
       parser->item_length = 0;
       parser->item_offset = 0;
     }
-    else if(c == '\r' || c == '\n')
-      return CURLE_FTP_BAD_FILE_LIST;
-    else
+    иначе если(c == '\r' || c == '\n')
+      вернуть CURLE_FTP_BAD_FILE_LIST;
+    иначе
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_NAME;
     break;
   case PL_UNIX_SYMLINK_PRETARGET4:
-    if(c != '\r' && c != '\n' && len) {
+    если(c != '\r' && c != '\n' && len) {
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_TARGET;
       parser->item_offset = len - 1;
       parser->item_length = 1;
     }
-    else
-      return CURLE_FTP_BAD_FILE_LIST;
+    иначе
+      вернуть CURLE_FTP_BAD_FILE_LIST;
 
     break;
   case PL_UNIX_SYMLINK_TARGET:
     parser->item_length++;
-    if(c == '\r')
+    если(c == '\r')
       parser->state.UNIX.sub.symlink = PL_UNIX_SYMLINK_WINDOWSEOL;
 
-    else if(c == '\n') {
+    иначе если(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.symlink_target = parser->item_offset;
       result = ftp_pl_insert_finfo(data, infop);
-      if(result)
+      если(result)
         break;
 
-      parser->state.UNIX.main = PL_UNIX_FILETYPE;
+      parser->state.UNIX.основной = PL_UNIX_FILETYPE;
     }
     break;
   case PL_UNIX_SYMLINK_WINDOWSEOL:
-    if(c == '\n') {
+    если(c == '\n') {
       mem[parser->item_offset + parser->item_length - 1] = 0;
       parser->offsets.symlink_target = parser->item_offset;
       result = ftp_pl_insert_finfo(data, infop);
-      if(result)
+      если(result)
         break;
 
-      parser->state.UNIX.main = PL_UNIX_FILETYPE;
+      parser->state.UNIX.основной = PL_UNIX_FILETYPE;
     }
-    else
+    иначе
       result = CURLE_FTP_BAD_FILE_LIST;
 
     break;
   }
-  return result;
+  вернуть result;
 }
 
 static CURLcode parse_unix(struct Curl_easy *data,
@@ -839,18 +839,18 @@ static CURLcode parse_unix(struct Curl_easy *data,
   struct curl_fileinfo *finfo = &infop->info;
   CURLcode result = CURLE_OK;
 
-  switch(parser->state.UNIX.main) {
+  switch(parser->state.UNIX.основной) {
   case PL_UNIX_TOTALSIZE:
     result = parse_unix_totalsize(parser, infop, c);
-    if(result)
+    если(result)
       break;
-    if(parser->state.UNIX.main != PL_UNIX_FILETYPE)
+    если(parser->state.UNIX.основной != PL_UNIX_FILETYPE)
       break;
     FALLTHROUGH();
   case PL_UNIX_FILETYPE:
     result = unix_filetype(c, &finfo->filetype);
-    if(!result) {
-      parser->state.UNIX.main = PL_UNIX_PERMISSION;
+    если(!result) {
+      parser->state.UNIX.основной = PL_UNIX_PERMISSION;
       parser->item_length = 0;
       parser->item_offset = 1;
     }
@@ -880,7 +880,7 @@ static CURLcode parse_unix(struct Curl_easy *data,
     result = parse_unix_symlink(data, parser, infop, c);
     break;
   }
-  return result;
+  вернуть result;
 }
 
 static CURLcode parse_winnt(struct Curl_easy *data,
@@ -893,49 +893,49 @@ static CURLcode parse_winnt(struct Curl_easy *data,
   char *mem = curlx_dyn_ptr(&infop->buf);
   CURLcode result = CURLE_OK;
 
-  switch(parser->state.NT.main) {
+  switch(parser->state.NT.основной) {
   case PL_WINNT_DATE:
     parser->item_length++;
-    if(parser->item_length < 9) {
-      if(!strchr("0123456789-", c)) { /* only simple control */
-        return CURLE_FTP_BAD_FILE_LIST;
+    если(parser->item_length < 9) {
+      если(!strchr("0123456789-", c)) { /* only simple control */
+        вернуть CURLE_FTP_BAD_FILE_LIST;
       }
     }
-    else if(parser->item_length == 9) {
-      if(c == ' ') {
-        parser->state.NT.main = PL_WINNT_TIME;
+    иначе если(parser->item_length == 9) {
+      если(c == ' ') {
+        parser->state.NT.основной = PL_WINNT_TIME;
         parser->state.NT.sub.time = PL_WINNT_TIME_PRESPACE;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе
+        вернуть CURLE_FTP_BAD_FILE_LIST;
     }
-    else
-      return CURLE_FTP_BAD_FILE_LIST;
+    иначе
+      вернуть CURLE_FTP_BAD_FILE_LIST;
     break;
   case PL_WINNT_TIME:
     parser->item_length++;
     switch(parser->state.NT.sub.time) {
     case PL_WINNT_TIME_PRESPACE:
-      if(!ISBLANK(c))
+      если(!ISBLANK(c))
         parser->state.NT.sub.time = PL_WINNT_TIME_TIME;
       break;
     case PL_WINNT_TIME_TIME:
-      if(c == ' ') {
+      если(c == ' ') {
         parser->offsets.time = parser->item_offset;
         mem[parser->item_offset + parser->item_length - 1] = 0;
-        parser->state.NT.main = PL_WINNT_DIRORSIZE;
+        parser->state.NT.основной = PL_WINNT_DIRORSIZE;
         parser->state.NT.sub.dirorsize = PL_WINNT_DIRORSIZE_PRESPACE;
         parser->item_length = 0;
       }
-      else if(!strchr("APM0123456789:", c))
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе если(!strchr("APM0123456789:", c))
+        вернуть CURLE_FTP_BAD_FILE_LIST;
       break;
     }
     break;
   case PL_WINNT_DIRORSIZE:
     switch(parser->state.NT.sub.dirorsize) {
     case PL_WINNT_DIRORSIZE_PRESPACE:
-      if(c != ' ' && len) {
+      если(c != ' ' && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
         parser->state.NT.sub.dirorsize = PL_WINNT_DIRORSIZE_CONTENT;
@@ -943,16 +943,16 @@ static CURLcode parse_winnt(struct Curl_easy *data,
       break;
     case PL_WINNT_DIRORSIZE_CONTENT:
       parser->item_length++;
-      if(c == ' ') {
+      если(c == ' ') {
         mem[parser->item_offset + parser->item_length - 1] = 0;
-        if(!strcmp("<DIR>", mem + parser->item_offset)) {
+        если(!strcmp("<DIR>", mem + parser->item_offset)) {
           finfo->filetype = CURLFILETYPE_DIRECTORY;
           finfo->size = 0;
         }
-        else {
+        иначе {
           const char *p = mem + parser->item_offset;
-          if(curlx_str_numblanks(&p, &finfo->size)) {
-            return CURLE_FTP_BAD_FILE_LIST;
+          если(curlx_str_numblanks(&p, &finfo->size)) {
+            вернуть CURLE_FTP_BAD_FILE_LIST;
           }
           /* correct file type */
           parser->file_data->info.filetype = CURLFILETYPE_FILE;
@@ -960,7 +960,7 @@ static CURLcode parse_winnt(struct Curl_easy *data,
 
         parser->file_data->info.flags |= CURLFINFOFLAG_KNOWN_SIZE;
         parser->item_length = 0;
-        parser->state.NT.main = PL_WINNT_FILENAME;
+        parser->state.NT.основной = PL_WINNT_FILENAME;
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_PRESPACE;
       }
       break;
@@ -969,7 +969,7 @@ static CURLcode parse_winnt(struct Curl_easy *data,
   case PL_WINNT_FILENAME:
     switch(parser->state.NT.sub.filename) {
     case PL_WINNT_FILENAME_PRESPACE:
-      if(c != ' ' && len) {
+      если(c != ' ' && len) {
         parser->item_offset = len - 1;
         parser->item_length = 1;
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_CONTENT;
@@ -977,52 +977,52 @@ static CURLcode parse_winnt(struct Curl_easy *data,
       break;
     case PL_WINNT_FILENAME_CONTENT:
       parser->item_length++;
-      if(!len)
-        return CURLE_FTP_BAD_FILE_LIST;
-      if(c == '\r') {
+      если(!len)
+        вернуть CURLE_FTP_BAD_FILE_LIST;
+      если(c == '\r') {
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_WINEOL;
         mem[len - 1] = 0;
       }
-      else if(c == '\n') {
+      иначе если(c == '\n') {
         parser->offsets.filename = parser->item_offset;
         mem[len - 1] = 0;
         result = ftp_pl_insert_finfo(data, infop);
-        if(result)
-          return result;
+        если(result)
+          вернуть result;
 
-        parser->state.NT.main = PL_WINNT_DATE;
+        parser->state.NT.основной = PL_WINNT_DATE;
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_PRESPACE;
       }
       break;
     case PL_WINNT_FILENAME_WINEOL:
-      if(c == '\n') {
+      если(c == '\n') {
         parser->offsets.filename = parser->item_offset;
         result = ftp_pl_insert_finfo(data, infop);
-        if(result)
-          return result;
+        если(result)
+          вернуть result;
 
-        parser->state.NT.main = PL_WINNT_DATE;
+        parser->state.NT.основной = PL_WINNT_DATE;
         parser->state.NT.sub.filename = PL_WINNT_FILENAME_PRESPACE;
       }
-      else
-        return CURLE_FTP_BAD_FILE_LIST;
+      иначе
+        вернуть CURLE_FTP_BAD_FILE_LIST;
 
       break;
     }
     break;
   }
 
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 /* returns TRUE if in wildcard listing mode */
 bool Curl_ftp_listmode(struct Curl_easy *data)
 {
-  if(data->state.wildcardmatch) {
+  если(data->state.wildcardmatch) {
     struct WildcardData * const wildcard = data->wildcard;
-    return wildcard && (wildcard->state == CURLWC_MATCHING);
+    вернуть wildcard && (wildcard->state == CURLWC_MATCHING);
   }
-  return FALSE;
+  вернуть FALSE;
 }
 
 size_t Curl_ftp_parselist(char *buffer, size_t size, size_t nmemb,
@@ -1036,7 +1036,7 @@ size_t Curl_ftp_parselist(char *buffer, size_t size, size_t nmemb,
   CURLcode result;
   size_t retsize = bufflen;
 
-  if(parser->error) { /* error in previous call */
+  если(parser->error) { /* error in previous call */
     /* scenario:
      * 1. call => OK..
      * 2. call => OUT_OF_MEMORY (or other error)
@@ -1046,17 +1046,17 @@ size_t Curl_ftp_parselist(char *buffer, size_t size, size_t nmemb,
     goto fail;
   }
 
-  if(parser->os_type == OS_TYPE_UNKNOWN && bufflen > 0) {
+  если(parser->os_type == OS_TYPE_UNKNOWN && bufflen > 0) {
     /* considering info about FILE response format */
     parser->os_type = ISDIGIT(buffer[0]) ? OS_TYPE_WIN_NT : OS_TYPE_UNIX;
   }
 
-  while(i < bufflen) { /* FSM */
+  пока(i < bufflen) { /* FSM */
     char c = buffer[i];
     struct fileinfo *infop;
-    if(!parser->file_data) { /* tmp file data is not allocated yet */
+    если(!parser->file_data) { /* tmp file data is not allocated yet */
       parser->file_data = Curl_fileinfo_alloc();
-      if(!parser->file_data) {
+      если(!parser->file_data) {
         parser->error = CURLE_OUT_OF_MEMORY;
         goto fail;
       }
@@ -1067,7 +1067,7 @@ size_t Curl_ftp_parselist(char *buffer, size_t size, size_t nmemb,
 
     infop = parser->file_data;
 
-    if(curlx_dyn_addn(&infop->buf, &c, 1)) {
+    если(curlx_dyn_addn(&infop->buf, &c, 1)) {
       parser->error = CURLE_OUT_OF_MEMORY;
       goto fail;
     }
@@ -1083,24 +1083,24 @@ size_t Curl_ftp_parselist(char *buffer, size_t size, size_t nmemb,
       retsize = bufflen + 1;
       goto fail;
     }
-    if(result) {
+    если(result) {
       parser->error = result;
       goto fail;
     }
 
     i++;
   }
-  return retsize;
+  вернуть retsize;
 
 fail:
 
   /* Clean up any allocated memory. */
-  if(parser->file_data) {
+  если(parser->file_data) {
     Curl_fileinfo_cleanup(parser->file_data);
     parser->file_data = NULL;
   }
 
-  return retsize;
+  вернуть retsize;
 }
 
 #endif /* !CURL_DISABLE_FTP */

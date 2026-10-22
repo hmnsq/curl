@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#если !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
 #include "urldata.h"
 #include "http_httpsig.h"
@@ -57,26 +57,26 @@ static const char *alg_to_str(enum httpsig_alg alg)
 {
   switch(alg) {
   case HTTPSIG_ALG_ED25519:
-    return "ed25519";
+    вернуть "ed25519";
   case HTTPSIG_ALG_HMAC_SHA256:
-    return "hmac-sha256";
+    вернуть "hmac-sha256";
   default:
     break;
   }
-  return NULL;
+  вернуть NULL;
 }
 
 static enum httpsig_alg id_to_alg(uint8_t val)
 {
   switch(val) {
   case CURLHTTPSIG_ED25519:
-    return HTTPSIG_ALG_ED25519;
+    вернуть HTTPSIG_ALG_ED25519;
   case CURLHTTPSIG_HMAC_SHA256:
-    return HTTPSIG_ALG_HMAC_SHA256;
+    вернуть HTTPSIG_ALG_HMAC_SHA256;
   default:
     break;
   }
-  return HTTPSIG_ALG_UNKNOWN;
+  вернуть HTTPSIG_ALG_UNKNOWN;
 }
 
 static CURLcode decode_hex_key(struct Curl_easy *data,
@@ -91,29 +91,29 @@ static CURLcode decode_hex_key(struct Curl_easy *data,
   *keylen = 0;
 
   len = strlen(hexstr);
-  while(len > 0 && ISNEWLINE(hexstr[len - 1]))
+  пока(len > 0 && ISNEWLINE(hexstr[len - 1]))
     len--;
 
-  if(len == 0 || (len & 1) != 0) {
+  если(len == 0 || (len & 1) != 0) {
     failf(data, "httpsig: invalid hex key (length %zu)", len);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    вернуть CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(len > CURL_MAX_INPUT_LENGTH) {
+  если(len > CURL_MAX_INPUT_LENGTH) {
     failf(data, "httpsig: hex key too long");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    вернуть CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   keybuf = curlx_malloc(len / 2);
-  if(!keybuf)
-    return CURLE_OUT_OF_MEMORY;
+  если(!keybuf)
+    вернуть CURLE_OUT_OF_MEMORY;
 
-  for(i = 0; i < len; i += 2) {
-    if(!ISXDIGIT(hexstr[i]) || !ISXDIGIT(hexstr[i + 1])) {
+  для(i = 0; i < len; i += 2) {
+    если(!ISXDIGIT(hexstr[i]) || !ISXDIGIT(hexstr[i + 1])) {
       failf(data, "httpsig: invalid hex at position %zu ('%c%c')",
             i, hexstr[i], hexstr[i + 1]);
       curlx_free(keybuf);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      вернуть CURLE_BAD_FUNCTION_ARGUMENT;
     }
     keybuf[i / 2] = (unsigned char)((curlx_hexval(hexstr[i]) << 4) |
                                      curlx_hexval(hexstr[i + 1]));
@@ -121,7 +121,7 @@ static CURLcode decode_hex_key(struct Curl_easy *data,
 
   *keyout = keybuf;
   *keylen = len / 2;
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 /* @authority matches the Host header field-value when available (RFC 9421).
@@ -132,24 +132,24 @@ static CURLcode httpsig_authority(struct Curl_easy *data,
 {
   const char *h = data->state.http_host;
 
-  if(h && curl_strnequal(h, "host:", 5)) {
+  если(h && curl_strnequal(h, "host:", 5)) {
     const char *value = h + 5;
     const char *end;
 
-    while(ISBLANK(*value))
+    пока(ISBLANK(*value))
       value++;
-    if(*value) {
+    если(*value) {
       CURLcode result;
 
       end = value;
-      while(*end && !ISNEWLINE(*end))
+      пока(*end && !ISNEWLINE(*end))
         end++;
-      while(end > value && ISBLANK(end[-1]))
+      пока(end > value && ISBLANK(end[-1]))
         end--;
       result = curlx_dyn_addn(authority_buf, value, (size_t)(end - value));
-      if(result)
-        return result;
-      return CURLE_OK;
+      если(result)
+        вернуть result;
+      вернуть CURLE_OK;
     }
   }
 
@@ -157,31 +157,31 @@ static CURLcode httpsig_authority(struct Curl_easy *data,
     const char *hostname = conn->origin->hostname;
     uint16_t port = conn->origin->port;
 
-    if((conn->origin->scheme->defport != port) && port)
-      return curlx_dyn_addf(authority_buf, "%s:%u", hostname, port);
-    return curlx_dyn_add(authority_buf, hostname);
+    если((conn->origin->scheme->defport != port) && port)
+      вернуть curlx_dyn_addf(authority_buf, "%s:%u", hostname, port);
+    вернуть curlx_dyn_add(authority_buf, hostname);
   }
 }
 
 static CURLcode sf_append_quoted(struct dynbuf *buf, const char *str)
 {
   CURLcode result = curlx_dyn_addn(buf, "\"", 1);
-  if(result)
-    return result;
-  while(*str) {
-    if(ISCNTRL(*str))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(*str == '\\' || *str == '"') {
+  если(result)
+    вернуть result;
+  пока(*str) {
+    если(ISCNTRL(*str))
+      вернуть CURLE_BAD_FUNCTION_ARGUMENT;
+    если(*str == '\\' || *str == '"') {
       result = curlx_dyn_addn(buf, "\\", 1);
-      if(result)
-        return result;
+      если(result)
+        вернуть result;
     }
     result = curlx_dyn_addn(buf, str, 1);
-    if(result)
-      return result;
+    если(result)
+      вернуть result;
     str++;
   }
-  return curlx_dyn_addn(buf, "\"", 1);
+  вернуть curlx_dyn_addn(buf, "\"", 1);
 }
 
 /* base64-encode raw bytes into an RFC 8941 byte sequence (:base64:) */
@@ -193,17 +193,17 @@ static CURLcode sf_encode_byte_seq(const unsigned char *raw, size_t rawlen,
   char *b64;
 
   result = curlx_base64_encode(raw, rawlen, &b64, &b64len);
-  if(result)
-    return result;
+  если(result)
+    вернуть result;
 
   result = curlx_dyn_addn(out, ":", 1);
-  if(!result)
+  если(!result)
     result = curlx_dyn_addn(out, b64, b64len);
-  if(!result)
+  если(!result)
     result = curlx_dyn_addn(out, ":", 1);
 
   curlx_free(b64);
-  return result;
+  вернуть result;
 }
 
 static CURLcode build_sig_params(struct dynbuf *params,
@@ -215,39 +215,39 @@ static CURLcode build_sig_params(struct dynbuf *params,
   size_t i;
 
   result = curlx_dyn_addn(params, "(", 1);
-  if(result)
-    return result;
+  если(result)
+    вернуть result;
 
-  for(i = 0; i < count; i++) {
-    if(i > 0) {
+  для(i = 0; i < count; i++) {
+    если(i > 0) {
       result = curlx_dyn_addn(params, " ", 1);
-      if(result)
-        return result;
+      если(result)
+        вернуть result;
     }
     result = sf_append_quoted(params, components[i]);
-    if(result)
-      return result;
+    если(result)
+      вернуть result;
   }
 
   result = curlx_dyn_addn(params, ")", 1);
-  if(result)
-    return result;
+  если(result)
+    вернуть result;
 
   result = curlx_dyn_addf(params, ";created=%lld", (long long)created);
-  if(result)
-    return result;
+  если(result)
+    вернуть result;
 
-  if(keyid && *keyid) {
+  если(keyid && *keyid) {
     result = curlx_dyn_add(params, ";keyid=");
-    if(result)
-      return result;
+    если(result)
+      вернуть result;
     result = sf_append_quoted(params, keyid);
-    if(result)
-      return result;
+    если(result)
+      вернуть result;
   }
 
   result = curlx_dyn_addf(params, ";alg=\"%s\"", alg_to_str(alg));
-  return result;
+  вернуть result;
 }
 
 /* strings defined by RFC 9421 */
@@ -272,26 +272,26 @@ static CURLcode resolve_component(const char *name,
 {
   *out = NULL;
 
-  if(name[0] == '@') {
-    if(curl_strequal(name, SIG_METHOD))
+  если(name[0] == '@') {
+    если(curl_strequal(name, SIG_METHOD))
       *out = method;
-    else if(curl_strequal(name, SIG_AUTHORITY))
+    иначе если(curl_strequal(name, SIG_AUTHORITY))
       *out = authority;
-    else if(curl_strequal(name, SIG_PATH))
+    иначе если(curl_strequal(name, SIG_PATH))
       *out = path;
-    else if(curl_strequal(name, SIG_QUERY))
+    иначе если(curl_strequal(name, SIG_QUERY))
       *out = query;
-    else {
+    иначе {
       failf(data, "httpsig: unsupported derived component '%s'", name);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      вернуть CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if(!*out) {
+    если(!*out) {
       failf(data, "httpsig: derived component '%s' has no value", name);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      вернуть CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    return CURLE_OK;
+    вернуть CURLE_OK;
   }
-  else {
+  иначе {
     /* RFC 9421 Section 2.1: walk all user-supplied headers and combine
        duplicate field values with ", " per HTTP field combination rules. */
     struct curl_slist *head;
@@ -300,35 +300,35 @@ static CURLcode resolve_component(const char *name,
 
     curlx_dyn_reset(valbuf);
 
-    for(head = data->set.headers; head; head = head->next) {
-      if(curl_strnequal(head->data, name, namelen) &&
+    для(head = data->set.headers; head; head = head->next) {
+      если(curl_strnequal(head->data, name, namelen) &&
          Curl_headersep(head->data[namelen])) {
         const char *p = strchr(head->data, ':');
-        if(p) {
+        если(p) {
           CURLcode result;
           struct Curl_str content;
           curlx_str_assign(&content, p + 1, strlen(p + 1));
           curlx_str_trimblanks(&content);
-          if(found) {
+          если(found) {
             result = curlx_dyn_addn(valbuf, ", ", 2);
-            if(result)
-              return result;
+            если(result)
+              вернуть result;
           }
           result = curlx_dyn_addn(valbuf, curlx_str(&content),
                                   curlx_strlen(&content));
-          if(result)
-            return result;
+          если(result)
+            вернуть result;
           found = TRUE;
         }
       }
     }
 
-    if(found) {
+    если(found) {
       *out = curlx_dyn_ptr(valbuf);
-      return CURLE_OK;
+      вернуть CURLE_OK;
     }
     failf(data, "httpsig: header '%s' not found in request", name);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    вернуть CURLE_BAD_FUNCTION_ARGUMENT;
   }
 }
 
@@ -347,27 +347,27 @@ static CURLcode build_sig_base(struct dynbuf *base,
 
   curlx_dyn_init(&hdrvalbuf, CURL_MAX_HTTP_HEADER);
 
-  for(i = 0; i < count; i++) {
+  для(i = 0; i < count; i++) {
     const char *val = NULL;
     result = resolve_component(components[i], method,
                                authority, path, query, data,
                                &hdrvalbuf, &val);
-    if(result || !val) {
+    если(result || !val) {
       failf(data, "httpsig: cannot resolve component '%s'", components[i]);
       curlx_dyn_free(&hdrvalbuf);
-      return result ? result : CURLE_BAD_FUNCTION_ARGUMENT;
+      вернуть result ? result : CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
     result = curlx_dyn_addf(base, "\"%s\": %s\n", components[i], val);
-    if(result) {
+    если(result) {
       curlx_dyn_free(&hdrvalbuf);
-      return result;
+      вернуть result;
     }
   }
 
   curlx_dyn_free(&hdrvalbuf);
   result = curlx_dyn_addf(base, "\"@signature-params\": %s", sig_params);
-  return result;
+  вернуть result;
 }
 
 static CURLcode parse_components(struct Curl_easy *data,
@@ -380,113 +380,113 @@ static CURLcode parse_components(struct Curl_easy *data,
   size_t ncomp = 0;
 
   *hdrs_copy_out = NULL;
-  if(hdrs && *hdrs) {
+  если(hdrs && *hdrs) {
     char *p;
     char *hdrs_copy = curlx_strdup(hdrs);
-    if(!hdrs_copy)
-      return CURLE_OUT_OF_MEMORY;
+    если(!hdrs_copy)
+      вернуть CURLE_OUT_OF_MEMORY;
     *hdrs_copy_out = hdrs_copy;
     p = hdrs_copy;
-    while(*p && ncomp < HTTPSIG_MAX_COMPONENTS) {
+    пока(*p && ncomp < HTTPSIG_MAX_COMPONENTS) {
       char *start;
       size_t tlen = 0;
       const char *p2 = p;
 
       curlx_str_passblanks(&p2);
-      if(!*p2)
+      если(!*p2)
         break;
       p = start = CURL_UNCONST(p2);
-      while(*p && !ISBLANK(*p)) {
-        if((*p == '\"') || (*p == '\\'))
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+      пока(*p && !ISBLANK(*p)) {
+        если((*p == '\"') || (*p == '\\'))
+          вернуть CURLE_BAD_FUNCTION_ARGUMENT;
         p++;
         tlen++;
       }
-      if(*p)
+      если(*p)
         *p++ = '\0';
 
-      if(tlen && start[tlen - 1] == ':') {
+      если(tlen && start[tlen - 1] == ':') {
         /* Header field: drop the trailing ':' marker. RFC 9421 field
            names are canonically lowercase (Section 2.1). */
         start[--tlen] = '\0';
-        if(!tlen) {
+        если(!tlen) {
           failf(data, "httpsig: empty header component name");
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+          вернуть CURLE_BAD_FUNCTION_ARGUMENT;
         }
         Curl_strntolower(start, start, tlen);
         components[ncomp++] = start;
       }
-      else {
+      иначе {
         /* Derived component: map the bare name to its canonical RFC 9421
            '@'-prefixed identifier (Section 2.2). */
         Curl_strntolower(start, start, tlen);
-        if(!strcmp(start, "method"))
+        если(!strcmp(start, "method"))
           components[ncomp++] = SIG_METHOD;
-        else if(!strcmp(start, "authority"))
+        иначе если(!strcmp(start, "authority"))
           components[ncomp++] = SIG_AUTHORITY;
-        else if(!strcmp(start, "path"))
+        иначе если(!strcmp(start, "path"))
           components[ncomp++] = SIG_PATH;
-        else if(!strcmp(start, "query"))
+        иначе если(!strcmp(start, "query"))
           components[ncomp++] = SIG_QUERY;
-        else {
+        иначе {
           failf(data, "httpsig: unknown component '%s'", start);
-          return CURLE_BAD_FUNCTION_ARGUMENT;
+          вернуть CURLE_BAD_FUNCTION_ARGUMENT;
         }
       }
     }
-    if(!ncomp) {
+    если(!ncomp) {
       failf(data, "httpsig: no signature components specified");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      вернуть CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if(*p) {
+    если(*p) {
       failf(data, "httpsig: too many signature components (max %u)",
-            (unsigned int)HTTPSIG_MAX_COMPONENTS);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+            (unsigned целое)HTTPSIG_MAX_COMPONENTS);
+      вернуть CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
     /* RFC 9421 Section 2: each covered component MUST occur only once */
     {
       size_t i, j;
 
-      for(i = 0; i < ncomp; i++) {
-        for(j = i + 1; j < ncomp; j++) {
-          if(!strcmp(components[i], components[j])) {
+      для(i = 0; i < ncomp; i++) {
+        для(j = i + 1; j < ncomp; j++) {
+          если(!strcmp(components[i], components[j])) {
             failf(data, "httpsig: duplicate signature component '%s'",
                   components[i]);
-            return CURLE_BAD_FUNCTION_ARGUMENT;
+            вернуть CURLE_BAD_FUNCTION_ARGUMENT;
           }
         }
       }
     }
   }
-  else {
+  иначе {
     components[ncomp++] = SIG_METHOD;
     components[ncomp++] = SIG_AUTHORITY;
     components[ncomp++] = SIG_PATH;
-    if(query)
+    если(query)
       components[ncomp++] = SIG_QUERY;
   }
 
   *ncomp_out = ncomp;
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static time_t httpsig_get_created(void)
 {
 #ifdef DEBUGBUILD
   char *force = getenv("CURL_FORCETIME");
-  if(force && *force) {
+  если(force && *force) {
     char *sigts = getenv("CURL_HTTPSIG_CREATED");
-    if(sigts && *sigts) {
+    если(sigts && *sigts) {
       const char *p = sigts;
       curl_off_t num;
-      if(!curlx_str_number(&p, &num, CURL_OFF_T_MAX))
-        return (time_t)num;
+      если(!curlx_str_number(&p, &num, CURL_OFF_T_MAX))
+        вернуть (time_t)num;
     }
-    return 0;
+    вернуть 0;
   }
 #endif
-  return time(NULL);
+  вернуть time(NULL);
 }
 
 static CURLcode httpsig_sign_base(struct Curl_easy *data,
@@ -511,7 +511,7 @@ static CURLcode httpsig_sign_base(struct Curl_easy *data,
     result = Curl_hmacit(&Curl_HMAC_SHA256, keybuf, keylen,
                          (const unsigned char *)curlx_dyn_ptr(sig_base),
                          curlx_dyn_len(sig_base), raw_sig);
-    if(!result)
+    если(!result)
       *raw_sig_len = CURL_SHA256_DIGEST_LENGTH;
     break;
   default:
@@ -519,11 +519,11 @@ static CURLcode httpsig_sign_base(struct Curl_easy *data,
     break;
   }
 
-  if(result && result == CURLE_NOT_BUILT_IN) {
+  если(result && result == CURLE_NOT_BUILT_IN) {
     failf(data, "httpsig: algorithm '%s' not supported by TLS backend",
           alg_to_str(alg));
   }
-  return result;
+  вернуть result;
 }
 
 CURLcode Curl_output_httpsig(struct Curl_easy *data)
@@ -555,18 +555,18 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
   struct dynbuf query_dyn;
 
   alg = id_to_alg(data->set.httpsig_algorithm);
-  if(alg == HTTPSIG_ALG_UNKNOWN) {
+  если(alg == HTTPSIG_ALG_UNKNOWN) {
     failf(data, "httpsig: CURLOPT_HTTPSIG_ALGORITHM is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    вернуть CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(!hexkey || !*hexkey) {
+  если(!hexkey || !*hexkey) {
     failf(data, "httpsig: CURLOPT_HTTPSIG_KEY is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    вернуть CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  if(!keyid || !*keyid) {
+  если(!keyid || !*keyid) {
     failf(data, "httpsig: CURLOPT_HTTPSIG_KEYID is required");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    вернуть CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   curlx_dyn_init(&sig_params, CURL_MAX_HTTP_HEADER);
@@ -576,7 +576,7 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
   curlx_dyn_init(&authority_buf, CURL_MAX_HTTP_HEADER);
   curlx_dyn_init(&query_dyn, CURL_MAX_HTTP_HEADER);
 
-  if(Curl_checkheaders(data, STRCONST("Signature")) ||
+  если(Curl_checkheaders(data, STRCONST("Signature")) ||
      Curl_checkheaders(data, STRCONST("Signature-Input"))) {
     /* user provides their own Signature / Signature-Input headers, consider
        this done */
@@ -584,10 +584,10 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
   }
 
   result = decode_hex_key(data, hexkey, &keybuf, &keylen);
-  if(result)
+  если(result)
     goto fail;
 
-  if(alg == HTTPSIG_ALG_ED25519 && keylen != 32) {
+  если(alg == HTTPSIG_ALG_ED25519 && keylen != 32) {
     failf(data, "httpsig: ed25519 requires a 32-byte key (got %zu)", keylen);
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     goto fail;
@@ -596,33 +596,33 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
   Curl_http_method(data, &method, &httpreq);
 
   path = data->state.up.path;
-  if(!path || !*path)
+  если(!path || !*path)
     path = "/";
 
   query = data->state.up.query;
 
   result = httpsig_authority(data, conn, &authority_buf);
-  if(result)
+  если(result)
     goto fail;
   authority = curlx_dyn_ptr(&authority_buf);
 
   /* Build @query value: RFC 9421 Section 2.2.7 - always starts with "?" */
-  if(query && *query)
+  если(query && *query)
     result = curlx_dyn_addf(&query_dyn, "?%s", query);
-  else
+  иначе
     result = curlx_dyn_add(&query_dyn, "?");
-  if(result)
+  если(result)
     goto fail;
 
   result = parse_components(data, query, components, &ncomp, &hdrs_copy);
-  if(result)
+  если(result)
     goto fail;
 
   created = httpsig_get_created();
 
   result = build_sig_params(&sig_params, components, ncomp,
                             created, keyid, alg);
-  if(result)
+  если(result)
     goto fail;
 
   infof(data, "httpsig: Signature-Input params: %s",
@@ -632,7 +632,7 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
                           method, authority, path,
                           curlx_dyn_ptr(&query_dyn),
                           data, curlx_dyn_ptr(&sig_params));
-  if(result)
+  если(result)
     goto fail;
 
   infof(data, "httpsig: Signature base: [%s]",
@@ -640,26 +640,26 @@ CURLcode Curl_output_httpsig(struct Curl_easy *data)
 
   result = httpsig_sign_base(data, alg, keybuf, keylen, &sig_base,
                              raw_sig, &raw_sig_len);
-  if(result)
+  если(result)
     goto fail;
 
   result = curlx_dyn_add(&sig_hdr, HTTPSIG_DEFAULT_LABEL "=");
-  if(result)
+  если(result)
     goto fail;
   result = sf_encode_byte_seq(raw_sig, raw_sig_len, &sig_hdr);
-  if(result)
+  если(result)
     goto fail;
 
   result = curlx_dyn_addf(&input_hdr, "%s=%s", HTTPSIG_DEFAULT_LABEL,
                           curlx_dyn_ptr(&sig_params));
-  if(result)
+  если(result)
     goto fail;
 
   auth_headers = curl_maprintf("Signature-Input: %s\r\n"
                                "Signature: %s\r\n",
                                curlx_dyn_ptr(&input_hdr),
                                curlx_dyn_ptr(&sig_hdr));
-  if(!auth_headers)
+  если(!auth_headers)
     goto fail;
 
   infof(data, "httpsig: Signature-Input: %s", curlx_dyn_ptr(&input_hdr));
@@ -671,7 +671,7 @@ done:
   result = CURLE_OK;
 
 fail:
-  if(keybuf) {
+  если(keybuf) {
     memset(keybuf, 0, keylen);
     curlx_free(keybuf);
   }
@@ -683,7 +683,7 @@ fail:
   curlx_dyn_free(&input_hdr);
   curlx_dyn_free(&authority_buf);
   curlx_dyn_free(&query_dyn);
-  return result;
+  вернуть result;
 }
 
 #endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */

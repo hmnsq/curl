@@ -29,15 +29,15 @@
 
 unsigned char curlx_ultouc(unsigned long ulnum);
 
-int curlx_uztosi(size_t uznum);
+целое curlx_uztosi(size_t uznum);
 
 unsigned long curlx_uztoul(size_t uznum);
 
-unsigned int curlx_uztoui(size_t uznum);
+unsigned целое curlx_uztoui(size_t uznum);
 
-int curlx_sltosi(long slnum);
+целое curlx_sltosi(long slnum);
 
-unsigned int curlx_sltoui(long slnum);
+unsigned целое curlx_sltoui(long slnum);
 
 unsigned short curlx_sltous(long slnum);
 
@@ -45,13 +45,13 @@ ssize_t curlx_uztosz(size_t uznum);
 
 size_t curlx_sotouz(curl_off_t sonum);
 
-int curlx_sztosi(ssize_t sznum);
+целое curlx_sztosi(ssize_t sznum);
 
-unsigned short curlx_uitous(unsigned int uinum);
+unsigned short curlx_uitous(unsigned целое uinum);
 
-size_t curlx_sitouz(int sinum);
+size_t curlx_sitouz(целое sinum);
 
-size_t curlx_uitouz(unsigned int uinum);
+size_t curlx_uitouz(unsigned целое uinum);
 
 /* Convert a curl_off_t to fit into size_t interval [uzmin, uzmax].
  * values outside this interval give the lower/upper bound. */

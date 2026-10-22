@@ -45,8 +45,8 @@ CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
 const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
                                                  struct Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index);
+                                                 целое ai_family,
+                                                 unsigned целое index);
 
 #ifdef USE_HTTPSRR
 CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
@@ -61,7 +61,7 @@ Curl_conn_dns_get_https(struct Curl_easy *data,
 bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
                                   int8_t sockindex,
                                   struct Curl_peer *peer);
-#else
+#иначе
 #define Curl_conn_dns_get_https(a, b, c)        NULL
 #define Curl_conn_dns_resolved_https(a, b, c)   TRUE
 #endif

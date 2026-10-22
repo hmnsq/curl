@@ -66,71 +66,71 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+static целое parsekeyword(const unsigned char **pattern, unsigned char *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
   char keyword[10] = { 0 };
   size_t i;
   const unsigned char *p = *pattern;
   bool found = FALSE;
-  for(i = 0; !found; i++) {
+  для(i = 0; !found; i++) {
     char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
+    если(i >= sizeof(keyword))
+      вернуть SETCHARSET_FAIL;
     switch(state) {
     case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+      если(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      иначе если(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
+      иначе
+        вернуть SETCHARSET_FAIL;
       break;
     case CURLFNM_PKW_DDOT:
-      if(c == ']')
+      если(c == ']')
         found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      иначе
+        вернуть SETCHARSET_FAIL;
     }
   }
 #undef KEYLEN
 
   *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  если(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  иначе если(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  иначе если(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  иначе если(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  иначе если(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
+  иначе если(!strcmp(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  иначе если(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  иначе если(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
+  иначе если(!strcmp(keyword, "upper"))
     charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
+  иначе если(!strcmp(keyword, "lower"))
     charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  иначе
+    вернуть SETCHARSET_FAIL;
+  вернуть SETCHARSET_OK;
 }
 
 /* Return the character class. */
 static char_class charclass(unsigned char c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  если(ISUPPER(c))
+    вернуть CCLASS_UPPER;
+  если(ISLOWER(c))
+    вернуть CCLASS_LOWER;
+  если(ISDIGIT(c))
+    вернуть CCLASS_DIGIT;
+  вернуть CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
@@ -140,15 +140,15 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
   unsigned char c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  если(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
     unsigned char endrange = *p++;
 
-    if(endrange == '\\')
+    если(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    если(endrange >= c && charclass(endrange) == cc) {
+      пока(c++ != endrange)
+        если(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,88 +156,88 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+static целое setcharset(const unsigned char **p, unsigned char *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
   bool something_found = FALSE;
   unsigned char c;
 
   memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  для(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    если(!c)
+      вернуть SETCHARSET_FAIL;
 
     switch(state) {
     case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
+      если(c == ']') {
+        если(something_found)
+          вернуть SETCHARSET_OK;
         something_found = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
+      иначе если(c == '[') {
         const unsigned char *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        если(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        иначе {
           charset[c] = 1;
           (*p)++;
         }
         something_found = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      иначе если(c == '^' || c == '!') {
+        если(!something_found) {
+          если(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
             something_found = TRUE;
           }
-          else
+          иначе
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        иначе
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      иначе если(c == '\\') {
         c = *(++(*p));
-        if(c)
+        если(c)
           setcharorrange(p, charset);
-        else
+        иначе
           charset['\\'] = 1;
         something_found = TRUE;
       }
-      else {
+      иначе {
         setcharorrange(p, charset);
         something_found = TRUE;
       }
       break;
     case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      если(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      иначе если(c == ']') {
+        вернуть SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      иначе если(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      иначе
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
         goto fail;
       break;
     case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+      если(c == ']')
+        вернуть SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
@@ -245,11 +245,11 @@ static int setcharset(const unsigned char **p, unsigned char *charset)
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  вернуть SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+static целое matchtoken(const unsigned char **pp, const unsigned char **sp)
 {
   const unsigned char *p = *pp;
   const unsigned char *s = *sp;
@@ -258,158 +258,158 @@ static int matchtoken(const unsigned char **pp, const unsigned char **sp)
   case '?':
     break;
   case '\\':
-    if(p[1])
+    если(p[1])
       p++;
-    if(*s != *p)
-      return 0;
+    если(*s != *p)
+      вернуть 0;
     break;
   case '[': {
     unsigned char charset[CURLFNM_CHSET_SIZE];
     const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
     bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
+    если(!setcharset(&pp2, charset))
+      вернуть -1; /* Syntax error in set; mismatch! */
+    если(charset[(unsigned целое)*s])
       found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
+    иначе если(charset[CURLFNM_ALNUM])
       found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
+    иначе если(charset[CURLFNM_ALPHA])
       found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
+    иначе если(charset[CURLFNM_DIGIT])
       found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
+    иначе если(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    иначе если(charset[CURLFNM_PRINT])
       found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
+    иначе если(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
+    иначе если(charset[CURLFNM_UPPER])
       found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
+    иначе если(charset[CURLFNM_LOWER])
       found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
+    иначе если(charset[CURLFNM_BLANK])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
+    иначе если(charset[CURLFNM_GRAPH])
       found = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
+    если(charset[CURLFNM_NEGATE])
       found = !found;
 
-    if(!found)
-      return 0;
+    если(!found)
+      вернуть 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    вернуть 1;
   }
   default:
-    if(*p != *s)
-      return 0;
+    если(*p != *s)
+      вернуть 0;
     break;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  вернуть 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+static целое loop(const unsigned char *pattern, const unsigned char *string)
 {
   const unsigned char *p = pattern;
   const unsigned char *s = string;
   const unsigned char *star_p = NULL;
   const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  целое maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  пока(*s) {
+    если(*p == '*') {
+      если(!maxstars)
+        вернуть CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      для(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        если(!*p)
+          вернуть CURL_FNMATCH_MATCH;
+        если(*p == '?') {
+          если(!*s)
+            вернуть CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
+        иначе если(*p != '*')
           break;
       }
       star_p = p;
       star_s = s;
     }
-    else if(*p) {
+    иначе если(*p) {
       const unsigned char *np = p;
       const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+      целое r = matchtoken(&np, &ns);
+      если(r < 0)
+        вернуть CURL_FNMATCH_NOMATCH;
+      если(r) {
         p = np;
         s = ns;
         continue;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
+      если(!star_p)
+        вернуть CURL_FNMATCH_NOMATCH;
       p = star_p;
       s = ++star_s;
     }
-    else if(star_p) {
+    иначе если(star_p) {
       p = star_p;
       s = ++star_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    иначе
+      вернуть CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  пока(*p == '*') {
+    если(!maxstars)
+      вернуть CURL_FNMATCH_NOMATCH;
     maxstars--;
     do {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      если(*p == '?')
+        вернуть CURL_FNMATCH_NOMATCH;
+    } пока(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  вернуть *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+целое Curl_fnmatch(void *ptr, const char *pattern, const char *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  если(!pattern || !string) {
+    вернуть CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
+  вернуть loop((const unsigned char *)pattern,
               (const unsigned char *)string);
 }
-#else /* HAVE_FNMATCH */
+#иначе /* HAVE_FNMATCH */
 
 #include <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+целое Curl_fnmatch(void *ptr, const char *pattern, const char *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  если(!pattern || !string) {
+    вернуть CURL_FNMATCH_FAIL;
   }
 
   switch(fnmatch(pattern, string, 0)) {
   case 0:
-    return CURL_FNMATCH_MATCH;
+    вернуть CURL_FNMATCH_MATCH;
   case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
+    вернуть CURL_FNMATCH_NOMATCH;
   default:
-    return CURL_FNMATCH_FAIL;
+    вернуть CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }

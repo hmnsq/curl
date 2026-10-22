@@ -55,7 +55,7 @@ typedef union {
   const unsigned short *const_tbyte_ptr;
 } xcharp_u;
 
-#else /* !UNICODE */
+#иначе /* !UNICODE */
 
 #define curlx_convert_UTF8_to_tchar(ptr) curlx_strdup(ptr)
 #define curlx_convert_tchar_to_UTF8(ptr) curlx_strdup(ptr)

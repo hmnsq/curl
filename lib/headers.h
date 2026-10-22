@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#если !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
 struct Curl_header_store {
   struct Curl_llist_node node;
@@ -33,7 +33,7 @@ struct Curl_header_store {
   char *value; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
   size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
+  целое request; /* 0 is the first request, then 1.. 2.. */
   unsigned char type; /* CURLH_* defines */
   char buffer[1]; /* this is the raw header blob */
 };
@@ -55,7 +55,7 @@ CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
  */
 CURLcode Curl_headers_cleanup(struct Curl_easy *data);
 
-#else
+#иначе
 #define Curl_headers_init(x)          CURLE_OK
 #define Curl_headers_push(x, y, z, a) \
   ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)

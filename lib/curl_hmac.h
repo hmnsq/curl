@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#если (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   !defined(CURL_DISABLE_HTTPSIG) ||                                   \
   defined(USE_LIBSSH2) || defined(USE_SSL)
@@ -34,7 +34,7 @@
 typedef CURLcode (*HMAC_hinit)(void *context);
 typedef void (*HMAC_hupdate)(void *context,
                              const unsigned char *data,
-                             unsigned int len);
+                             unsigned целое len);
 typedef void (*HMAC_hfinal)(unsigned char *result, void *context);
 
 /* Per-hash function HMAC parameters. */
@@ -42,9 +42,9 @@ struct HMAC_params {
   HMAC_hinit  hinit;       /* Initialize context procedure. */
   HMAC_hupdate hupdate;    /* Update context with data. */
   HMAC_hfinal hfinal;      /* Get final result procedure. */
-  unsigned int ctxtsize;   /* Context structure size. */
-  unsigned int maxkeylen;  /* Maximum key length (bytes). */
-  unsigned int resultlen;  /* Result length (bytes). */
+  unsigned целое ctxtsize;   /* Context structure size. */
+  unsigned целое maxkeylen;  /* Maximum key length (bytes). */
+  unsigned целое resultlen;  /* Result length (bytes). */
 };
 
 /* HMAC computation context. */
@@ -57,11 +57,11 @@ struct HMAC_context {
 /* Prototypes. */
 struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
                                     const unsigned char *key,
-                                    unsigned int keylen);
+                                    unsigned целое keylen);
 void Curl_HMAC_update(struct HMAC_context *ctxt,
                       const unsigned char *data,
-                      unsigned int len);
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output);
+                      unsigned целое len);
+целое Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output);
 
 CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
                      const unsigned char *key, const size_t keylen,

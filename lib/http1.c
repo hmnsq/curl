@@ -42,7 +42,7 @@ void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len)
 
 void Curl_h1_req_parse_free(struct h1_req_parser *parser)
 {
-  if(parser) {
+  если(parser) {
     Curl_http_req_free(parser->req);
     curlx_dyn_free(&parser->scratch);
     parser->req = NULL;
@@ -50,28 +50,28 @@ void Curl_h1_req_parse_free(struct h1_req_parser *parser)
   }
 }
 
-static CURLcode trim_line(struct h1_req_parser *parser, int options)
+static CURLcode trim_line(struct h1_req_parser *parser, целое options)
 {
   DEBUGASSERT(parser->line);
-  if(parser->line_len) {
-    if(parser->line[parser->line_len - 1] == '\n')
+  если(parser->line_len) {
+    если(parser->line[parser->line_len - 1] == '\n')
       --parser->line_len;
-    if(parser->line_len) {
-      if(parser->line[parser->line_len - 1] == '\r')
+    если(parser->line_len) {
+      если(parser->line[parser->line_len - 1] == '\r')
         --parser->line_len;
-      else if(options & H1_PARSE_OPT_STRICT)
-        return CURLE_URL_MALFORMAT;
+      иначе если(options & H1_PARSE_OPT_STRICT)
+        вернуть CURLE_URL_MALFORMAT;
     }
-    else if(options & H1_PARSE_OPT_STRICT)
-      return CURLE_URL_MALFORMAT;
+    иначе если(options & H1_PARSE_OPT_STRICT)
+      вернуть CURLE_URL_MALFORMAT;
   }
-  else if(options & H1_PARSE_OPT_STRICT)
-    return CURLE_URL_MALFORMAT;
+  иначе если(options & H1_PARSE_OPT_STRICT)
+    вернуть CURLE_URL_MALFORMAT;
 
-  if(parser->line_len > parser->max_line_len) {
-    return CURLE_URL_MALFORMAT;
+  если(parser->line_len > parser->max_line_len) {
+    вернуть CURLE_URL_MALFORMAT;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode detect_line(struct h1_req_parser *parser,
@@ -83,55 +83,55 @@ static CURLcode detect_line(struct h1_req_parser *parser,
   DEBUGASSERT(!parser->line);
   *pnread = 0;
   line_end = memchr(buf, '\n', buflen);
-  if(!line_end)
-    return CURLE_AGAIN;
+  если(!line_end)
+    вернуть CURLE_AGAIN;
   parser->line = (const char *)buf;
   parser->line_len = line_end - parser->line + 1;
   *pnread = parser->line_len;
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 static CURLcode next_line(struct h1_req_parser *parser,
-                          const uint8_t *buf, const size_t buflen, int options,
+                          const uint8_t *buf, const size_t buflen, целое options,
                           size_t *pnread)
 {
   CURLcode result;
 
   *pnread = 0;
-  if(parser->line) {
+  если(parser->line) {
     parser->line = NULL;
     parser->line_len = 0;
     curlx_dyn_reset(&parser->scratch);
   }
 
   result = detect_line(parser, buf, buflen, pnread);
-  if(!result) {
-    if(curlx_dyn_len(&parser->scratch)) {
+  если(!result) {
+    если(curlx_dyn_len(&parser->scratch)) {
       /* append detected line to scratch to have the complete line */
       result = curlx_dyn_addn(&parser->scratch, parser->line,
                               parser->line_len);
-      if(result)
-        return result;
+      если(result)
+        вернуть result;
       parser->line = curlx_dyn_ptr(&parser->scratch);
       parser->line_len = curlx_dyn_len(&parser->scratch);
     }
     result = trim_line(parser, options);
-    if(result)
-      return result;
+    если(result)
+      вернуть result;
   }
-  else if(result == CURLE_AGAIN) {
+  иначе если(result == CURLE_AGAIN) {
     /* no line end in `buf`, add it to our scratch */
     result = curlx_dyn_addn(&parser->scratch, (const unsigned char *)buf,
                             buflen);
     *pnread = buflen;
   }
-  return result;
+  вернуть result;
 }
 
 static CURLcode start_req(struct h1_req_parser *parser,
                           const char *scheme_default,
                           const char *custom_method,
-                          int options)
+                          целое options)
 {
   const char *p, *m, *target, *hv, *scheme, *authority, *path;
   size_t m_len, target_len, hv_len, scheme_len, authority_len, path_len;
@@ -141,13 +141,13 @@ static CURLcode start_req(struct h1_req_parser *parser,
 
   DEBUGASSERT(!parser->req);
   /* line must match: "METHOD TARGET HTTP_VERSION" */
-  if(custom_method && custom_method[0] &&
+  если(custom_method && custom_method[0] &&
      !strncmp(custom_method, parser->line, strlen(custom_method))) {
     p = parser->line + strlen(custom_method);
   }
-  else {
+  иначе {
     p = memchr(parser->line, ' ', parser->line_len);
-    if(!p || p == parser->line)
+    если(!p || p == parser->line)
       goto out;
   }
 
@@ -158,8 +158,8 @@ static CURLcode start_req(struct h1_req_parser *parser,
   hv = NULL;
 
   /* URL may contain spaces so scan backwards */
-  for(i = parser->line_len; i > m_len; --i) {
-    if(parser->line[i] == ' ') {
+  для(i = parser->line_len; i > m_len; --i) {
+    если(parser->line[i] == ' ') {
       hv = &parser->line[i + 1];
       hv_len = parser->line_len - i;
       target_len = (hv - target) - 1;
@@ -167,7 +167,7 @@ static CURLcode start_req(struct h1_req_parser *parser,
     }
   }
   /* no SPACE found or empty TARGET or empty HTTP_VERSION */
-  if(!target_len || !hv_len)
+  если(!target_len || !hv_len)
     goto out;
 
   (void)hv;
@@ -187,22 +187,22 @@ static CURLcode start_req(struct h1_req_parser *parser,
   scheme = authority = path = NULL;
   scheme_len = authority_len = path_len = 0;
 
-  if(target_len == 1 && target[0] == '*') {
+  если(target_len == 1 && target[0] == '*') {
     /* asterisk-form */
     path = target;
     path_len = target_len;
   }
-  else if(!strncmp("CONNECT", m, m_len)) {
+  иначе если(!strncmp("CONNECT", m, m_len)) {
     /* authority-form */
     authority = target;
     authority_len = target_len;
   }
-  else if(target[0] == '/') {
+  иначе если(target[0] == '/') {
     /* origin-form */
     path = target;
     path_len = target_len;
   }
-  else {
+  иначе {
     /* origin-form OR absolute-form */
     CURLUcode uc;
     char tmp[H1_MAX_URL_LEN];
@@ -212,41 +212,41 @@ static CURLcode start_req(struct h1_req_parser *parser,
     path_len = target_len;
 
     /* URL parser wants null-termination */
-    if(target_len >= sizeof(tmp))
+    если(target_len >= sizeof(tmp))
       goto out;
     memcpy(tmp, target, target_len);
     tmp[target_len] = '\0';
     /* See if treating TARGET as an absolute URL makes sense */
-    if(Curl_is_absolute_url(tmp, NULL, 0, FALSE)) {
-      unsigned int url_options;
+    если(Curl_is_absolute_url(tmp, NULL, 0, FALSE)) {
+      unsigned целое url_options;
 
       url = curl_url();
-      if(!url) {
+      если(!url) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
       url_options = (CURLU_NON_SUPPORT_SCHEME |
                      CURLU_PATH_AS_IS |
                      CURLU_NO_DEFAULT_PORT);
-      if(!(options & H1_PARSE_OPT_STRICT))
+      если(!(options & H1_PARSE_OPT_STRICT))
         url_options |= CURLU_ALLOW_SPACE;
       uc = curl_url_set(url, CURLUPART_URL, tmp, url_options);
-      if(uc) {
+      если(uc) {
         goto out;
       }
     }
 
-    if(!url && (options & H1_PARSE_OPT_STRICT)) {
+    если(!url && (options & H1_PARSE_OPT_STRICT)) {
       /* we should have an absolute URL or have seen `/` earlier */
       goto out;
     }
   }
 
-  if(url) {
+  если(url) {
     result = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
   }
-  else {
-    if(!scheme && scheme_default) {
+  иначе {
+    если(!scheme && scheme_default) {
       scheme = scheme_default;
       scheme_len = strlen(scheme_default);
     }
@@ -256,14 +256,14 @@ static CURLcode start_req(struct h1_req_parser *parser,
 
 out:
   curl_url_cleanup(url);
-  return result;
+  вернуть result;
 }
 
 CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
                                 const uint8_t *buf, size_t buflen,
                                 const char *scheme_default,
                                 const char *custom_method,
-                                int options, size_t *pnread)
+                                целое options, size_t *pnread)
 {
   CURLcode result = CURLE_OK;
   size_t nread;
@@ -271,13 +271,13 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
   *pnread = 0;
 
   DEBUGASSERT(buf);
-  if(!buf)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  если(!buf)
+    вернуть CURLE_BAD_FUNCTION_ARGUMENT;
 
-  while(!parser->done) {
+  пока(!parser->done) {
     result = next_line(parser, buf, buflen, options, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN)
+    если(result) {
+      если(result == CURLE_AGAIN)
         result = CURLE_OK;
       goto out;
     }
@@ -287,19 +287,19 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
     buf += nread;
     buflen -= nread;
 
-    if(!parser->line) {
+    если(!parser->line) {
       /* consumed bytes, but line not complete */
-      if(!buflen)
+      если(!buflen)
         goto out;
     }
-    else if(!parser->req) {
+    иначе если(!parser->req) {
       result = start_req(parser, scheme_default, custom_method, options);
-      if(result)
+      если(result)
         goto out;
     }
-    else if(parser->line_len == 0) {
+    иначе если(parser->line_len == 0) {
       /* last, empty line, we are finished */
-      if(!parser->req) {
+      если(!parser->req) {
         result = CURLE_URL_MALFORMAT;
         goto out;
       }
@@ -307,19 +307,19 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
       curlx_dyn_reset(&parser->scratch);
       /* last chance adjustments */
     }
-    else {
+    иначе {
       result = Curl_dynhds_h1_add_line(&parser->req->headers,
                                        parser->line, parser->line_len);
-      if(result)
+      если(result)
         goto out;
     }
   }
 
 out:
-  return result;
+  вернуть result;
 }
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
+CURLcode Curl_h1_req_write_head(struct httpreq *req, целое http_minor,
                                 struct dynbuf *dbuf)
 {
   CURLcode result;
@@ -331,17 +331,17 @@ CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
                           req->authority ? req->authority : "",
                           req->path ? req->path : "",
                           http_minor);
-  if(result)
+  если(result)
     goto out;
 
   result = Curl_dynhds_h1_dprint(&req->headers, dbuf);
-  if(result)
+  если(result)
     goto out;
 
   result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
 
 out:
-  return result;
+  вернуть result;
 }
 
 #endif /* !CURL_DISABLE_HTTP */

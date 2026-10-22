@@ -26,14 +26,14 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(HAVE_GSSAPI) && defined(USE_KERBEROS5)
+#если defined(HAVE_GSSAPI) && defined(USE_KERBEROS5)
 
 #include "vauth/vauth.h"
 #include "curl_sasl.h"
 #include "curl_gssapi.h"
 #include "curl_trc.h"
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#если defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -49,7 +49,7 @@
  */
 bool Curl_auth_is_gssapi_supported(void)
 {
-  return TRUE;
+  вернуть TRUE;
 }
 
 /*
@@ -91,13 +91,13 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
   const char *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
-  if(!krb5->spn) {
+  если(!krb5->spn) {
     gss_buffer_desc spn_token = GSS_C_EMPTY_BUFFER;
 
     /* Generate our SPN */
     char *spn = Curl_auth_build_spn(service, NULL, host);
-    if(!spn)
-      return CURLE_OUT_OF_MEMORY;
+    если(!spn)
+      вернуть CURLE_OUT_OF_MEMORY;
 
     /* Populate the SPN structure */
     spn_token.value = spn;
@@ -106,22 +106,22 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
     /* Import the SPN */
     major_status = gss_import_name(&minor_status, &spn_token,
                                    GSS_C_NT_HOSTBASED_SERVICE, &krb5->spn);
-    if(GSS_ERROR(major_status)) {
+    если(GSS_ERROR(major_status)) {
       Curl_gss_log_error(data, "gss_import_name() failed: ",
                          major_status, minor_status);
 
       curlx_free(spn);
 
-      return CURLE_AUTH_ERROR;
+      вернуть CURLE_AUTH_ERROR;
     }
 
     curlx_free(spn);
   }
 
-  if(chlg) {
-    if(!Curl_bufref_len(chlg)) {
+  если(chlg) {
+    если(!Curl_bufref_len(chlg)) {
       infof(data, "GSSAPI handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+      вернуть CURLE_BAD_CONTENT_ENCODING;
     }
     input_token.value = CURL_UNCONST(Curl_bufref_ptr(chlg));
     input_token.length = Curl_bufref_len(chlg);
@@ -139,24 +139,24 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
                                            NULL,
                                            GSS_C_NO_CREDENTIAL);
 
-  if(GSS_ERROR(major_status)) {
-    if(output_token.value)
+  если(GSS_ERROR(major_status)) {
+    если(output_token.value)
       gss_release_buffer(&unused_status, &output_token);
 
     Curl_gss_log_error(data, "gss_init_sec_context() failed: ",
                        major_status, minor_status);
 
-    return CURLE_AUTH_ERROR;
+    вернуть CURLE_AUTH_ERROR;
   }
 
-  if(output_token.value && output_token.length) {
+  если(output_token.value && output_token.length) {
     result = Curl_bufref_memdup0(out, output_token.value, output_token.length);
     gss_release_buffer(&unused_status, &output_token);
   }
-  else
+  иначе
     Curl_bufref_set(out, mutual_auth ? "" : NULL, 0, NULL);
 
-  return result;
+  вернуть result;
 }
 
 /*
@@ -191,13 +191,13 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
   unsigned char *indata;
   gss_qop_t qop = GSS_C_QOP_DEFAULT;
-  unsigned int sec_layer = 0;
-  unsigned int max_size = 0;
+  unsigned целое sec_layer = 0;
+  unsigned целое max_size = 0;
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlg)) {
+  если(!Curl_bufref_len(chlg)) {
     infof(data, "GSSAPI handshake failure (empty security message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    вернуть CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Setup the challenge "input" security buffer */
@@ -207,38 +207,38 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   /* Decrypt the inbound challenge and obtain the qop */
   major_status = gss_unwrap(&minor_status, krb5->context, &input_token,
                             &output_token, NULL, &qop);
-  if(GSS_ERROR(major_status)) {
+  если(GSS_ERROR(major_status)) {
     Curl_gss_log_error(data, "gss_unwrap() failed: ",
                        major_status, minor_status);
-    return CURLE_BAD_CONTENT_ENCODING;
+    вернуть CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Not 4 octets long so fail as per RFC4752 Section 3.1 */
-  if(output_token.length != 4) {
+  если(output_token.length != 4) {
     infof(data, "GSSAPI handshake failure (invalid security data)");
     gss_release_buffer(&unused_status, &output_token);
-    return CURLE_BAD_CONTENT_ENCODING;
+    вернуть CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Extract the security layer and the maximum message size */
   indata = output_token.value;
   sec_layer = indata[0];
-  max_size = ((unsigned int)indata[1] << 16) |
-             ((unsigned int)indata[2] << 8) | indata[3];
+  max_size = ((unsigned целое)indata[1] << 16) |
+             ((unsigned целое)indata[2] << 8) | indata[3];
 
   /* Free the challenge as it is not required anymore */
   gss_release_buffer(&unused_status, &output_token);
 
   /* Process the security layer */
-  if(!(sec_layer & GSSAUTH_P_NONE)) {
+  если(!(sec_layer & GSSAUTH_P_NONE)) {
     infof(data, "GSSAPI handshake failure (invalid security layer)");
 
-    return CURLE_BAD_CONTENT_ENCODING;
+    вернуть CURLE_BAD_CONTENT_ENCODING;
   }
   sec_layer &= GSSAUTH_P_NONE;  /* We do not support a security layer */
 
   /* Process the maximum message size the server can receive */
-  if(max_size > 0) {
+  если(max_size > 0) {
     /* The server has told us it supports a maximum receive buffer, but as we
        do not require one unless we are encrypting data, we tell the server
        our receive buffer is zero. */
@@ -247,11 +247,11 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
 
   /* Allocate our message */
   messagelen = 4;
-  if(authzid)
+  если(authzid)
     messagelen += strlen(authzid);
   message = curlx_malloc(messagelen);
-  if(!message)
-    return CURLE_OUT_OF_MEMORY;
+  если(!message)
+    вернуть CURLE_OUT_OF_MEMORY;
 
   /* Populate the message with the security layer and client supported receive
      message size. */
@@ -262,7 +262,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
 
   /* If given, append the authorization identity. */
 
-  if(authzid && *authzid)
+  если(authzid && *authzid)
     memcpy(message + 4, authzid, messagelen - 4);
 
   /* Setup the "authentication data" security buffer */
@@ -273,11 +273,11 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   major_status = gss_wrap(&minor_status, krb5->context, 0,
                           GSS_C_QOP_DEFAULT, &input_token, NULL,
                           &output_token);
-  if(GSS_ERROR(major_status)) {
+  если(GSS_ERROR(major_status)) {
     Curl_gss_log_error(data, "gss_wrap() failed: ",
                        major_status, minor_status);
     curlx_free(message);
-    return CURLE_AUTH_ERROR;
+    вернуть CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
@@ -288,7 +288,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
   /* Free the message buffer */
   curlx_free(message);
 
-  return result;
+  вернуть result;
 }
 
 /*
@@ -306,20 +306,20 @@ void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
   OM_uint32 minor_status;
 
   /* Free our security context */
-  if(krb5->context != GSS_C_NO_CONTEXT) {
+  если(krb5->context != GSS_C_NO_CONTEXT) {
     Curl_gss_delete_sec_context(&minor_status, &krb5->context,
                                 GSS_C_NO_BUFFER);
     krb5->context = GSS_C_NO_CONTEXT;
   }
 
   /* Free the SPN */
-  if(krb5->spn != GSS_C_NO_NAME) {
+  если(krb5->spn != GSS_C_NO_NAME) {
     gss_release_name(&minor_status, &krb5->spn);
     krb5->spn = GSS_C_NO_NAME;
   }
 }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#если defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
 #pragma GCC diagnostic pop
 #endif
 

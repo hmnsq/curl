@@ -32,66 +32,66 @@ static const struct curl_easyoption *lookup(const char *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
+  если(name || id) {
     const struct curl_easyoption *o = &Curl_easyopts[0];
     do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+      если(name) {
+        если(curl_strequal(o->name, name))
+          вернуть o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      иначе {
+        если((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          вернуть o;
       }
       o++;
-    } while(o->name);
+    } пока(o->name);
   }
-  return NULL;
+  вернуть NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_by_name(const char *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  вернуть lookup(name, CURLOPT_LASTENTRY);
 }
 
 const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  вернуть lookup(NULL, id);
 }
 
 /* Iterates over available options */
 const struct curl_easyoption *curl_easy_option_next(
   const struct curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  если(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    если(prev->name)
+      вернуть prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  иначе если(!prev)
+    вернуть &Curl_easyopts[0];
+  вернуть NULL;
 }
 
-#else
+#иначе
 const struct curl_easyoption *curl_easy_option_by_name(const char *name)
 {
   (void)name;
-  return NULL;
+  вернуть NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
   (void)id;
-  return NULL;
+  вернуть NULL;
 }
 
 const struct curl_easyoption *curl_easy_option_next(
   const struct curl_easyoption *prev)
 {
   (void)prev;
-  return NULL;
+  вернуть NULL;
 }
 #endif

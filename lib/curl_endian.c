@@ -40,7 +40,7 @@
  */
 unsigned short Curl_read16_le(const unsigned char *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0]) |
+  вернуть (unsigned short)(((unsigned short)buf[0]) |
                           ((unsigned short)buf[1] << 8));
 }
 
@@ -57,10 +57,10 @@ unsigned short Curl_read16_le(const unsigned char *buf)
  *
  * Returns the integer.
  */
-unsigned int Curl_read32_le(const unsigned char *buf)
+unsigned целое Curl_read32_le(const unsigned char *buf)
 {
-  return ((unsigned int)buf[0]) | ((unsigned int)buf[1] << 8) |
-         ((unsigned int)buf[2] << 16) | ((unsigned int)buf[3] << 24);
+  вернуть ((unsigned целое)buf[0]) | ((unsigned целое)buf[1] << 8) |
+         ((unsigned целое)buf[2] << 16) | ((unsigned целое)buf[3] << 24);
 }
 
 /*
@@ -78,6 +78,6 @@ unsigned int Curl_read32_le(const unsigned char *buf)
  */
 unsigned short Curl_read16_be(const unsigned char *buf)
 {
-  return (unsigned short)(((unsigned short)buf[0] << 8) |
+  вернуть (unsigned short)(((unsigned short)buf[0] << 8) |
                           ((unsigned short)buf[1]));
 }

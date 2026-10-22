@@ -30,9 +30,9 @@
 struct ntlmdata;
 
 /* Helpers to generate function byte arguments in little endian order */
-#define SHORTPAIR(x)   ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff))
-#define LONGQUARTET(x) ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff)), \
-  ((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
+#define SHORTPAIR(x)   ((целое)((x) & 0xff)), ((целое)(((x) >> 8) & 0xff))
+#define LONGQUARTET(x) ((целое)((x) & 0xff)), ((целое)(((x) >> 8) & 0xff)), \
+  ((целое)(((x) >> 16) & 0xff)), ((целое)(((x) >> 24) & 0xff))
 
 void Curl_ntlm_core_lm_resp(const unsigned char *keys,
                             const unsigned char *plaintext,
@@ -46,8 +46,8 @@ CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
 
 #ifndef USE_WINDOWS_SSPI
 
-CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
-                       const unsigned char *data, unsigned int datalen,
+CURLcode Curl_hmac_md5(const unsigned char *key, unsigned целое keylen,
+                       const unsigned char *data, unsigned целое datalen,
                        unsigned char *output);
 
 CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
@@ -59,7 +59,7 @@ CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
                                        const unsigned char *challenge_client,
                                        const struct ntlmdata *ntlm,
                                        unsigned char **ntresp,
-                                       unsigned int *ntresp_len);
+                                       unsigned целое *ntresp_len);
 
 CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
                                      const unsigned char *challenge_client,

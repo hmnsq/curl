@@ -79,7 +79,7 @@
    20040911 +0200
  */
 
-#if !defined(CURL_DISABLE_PARSEDATE) || !defined(CURL_DISABLE_FTP) || \
+#если !defined(CURL_DISABLE_PARSEDATE) || !defined(CURL_DISABLE_FTP) || \
   !defined(CURL_DISABLE_FILE) || defined(USE_GNUTLS)
 /* These names are also used by FTP and FILE code */
 const char * const Curl_wkday[] = {
@@ -96,10 +96,10 @@ const char * const Curl_month[] = {
 
 #ifndef CURL_DISABLE_PARSEDATE
 
-#if SIZEOF_TIME_T < 5
+#если SIZEOF_TIME_T < 5
 #define PARSEDATE_LATER  1
 #endif
-#if SIZEOF_TIME_T < 5 || defined(HAVE_TIME_T_UNSIGNED)
+#если SIZEOF_TIME_T < 5 || defined(HAVE_TIME_T_UNSIGNED)
 #define PARSEDATE_SOONER 2
 #endif
 
@@ -208,42 +208,42 @@ static const struct tzinfo tzfoura[] = {
 
    @unittest 4781
 */
-UNITTEST int checkday(const char *check, size_t len);
-UNITTEST int checkday(const char *check, size_t len)
+UNITTEST целое checkday(const char *check, size_t len);
+UNITTEST целое checkday(const char *check, size_t len)
 {
-  int day = -1;
-  if(len < 3)
-    return -1; /* too short */
+  целое day = -1;
+  если(len < 3)
+    вернуть -1; /* too short */
 
   switch(LOWERCASE(check[1])) {
   case 'o': /* monday */
-    if((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[2]) == 'n')
+    если((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[2]) == 'n')
       day = 0;
     break;
   case 'u': /* tuesday or sunday */
-    if((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'e')
+    если((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'e')
       day = 1;
-    else if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 'n')
+    иначе если((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 'n')
       day = 6;
     break;
   case 'e': /* wednesday */
-    if((LOWERCASE(check[0]) == 'w') && LOWERCASE(check[2]) == 'd')
+    если((LOWERCASE(check[0]) == 'w') && LOWERCASE(check[2]) == 'd')
       day = 2;
     break;
   case 'h': /* thursday */
-    if((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'u')
+    если((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'u')
       day = 3;
     break;
   case 'r': /* friday */
-    if((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[2]) == 'i')
+    если((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[2]) == 'i')
       day = 4;
     break;
   case 'a': /* saturday */
-    if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 't')
+    если((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 't')
       day = 5;
     break;
   }
-  if((len > 3) && (day != -1)) {
+  если((len > 3) && (day != -1)) {
     /* when more than three letters are provided, verify the tail name case
        insensitively */
     static const char * const daysuffix[] = {
@@ -252,80 +252,80 @@ UNITTEST int checkday(const char *check, size_t len)
     };
 
     size_t wlen = strlen(daysuffix[day]);
-    if(((len - 3) != wlen) ||
+    если(((len - 3) != wlen) ||
        !curl_strnequal(&check[3], daysuffix[day], wlen))
-      return -1;
+      вернуть -1;
   }
-  return day;
+  вернуть day;
 }
 
 /* @unittest 4781 */
 
-UNITTEST int checkmonth(const char *check, size_t len);
-UNITTEST int checkmonth(const char *check, size_t len)
+UNITTEST целое checkmonth(const char *check, size_t len);
+UNITTEST целое checkmonth(const char *check, size_t len)
 {
-  if(len != 3)
-    return -1; /* not a month */
+  если(len != 3)
+    вернуть -1; /* not a month */
 
   switch(LOWERCASE(check[2])) {
   case 'n': /* jan, jun */
-    if(LOWERCASE(check[0]) == 'j') {
+    если(LOWERCASE(check[0]) == 'j') {
       uint8_t c2 = LOWERCASE(check[1]);
-      if(c2 == 'a')
-        return 0;
-      else if(c2 == 'u')
-        return 5;
+      если(c2 == 'a')
+        вернуть 0;
+      иначе если(c2 == 'u')
+        вернуть 5;
     }
     break;
   case 'b': /* feb */
-    if((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[1]) == 'e')
-      return 1;
+    если((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[1]) == 'e')
+      вернуть 1;
     break;
   case 'r': /* mar, apr */
-    if(LOWERCASE(check[0]) == 'm') {
-      if(LOWERCASE(check[1]) == 'a')
-        return 2;
+    если(LOWERCASE(check[0]) == 'm') {
+      если(LOWERCASE(check[1]) == 'a')
+        вернуть 2;
     }
-    else if((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'p')
-      return 3;
+    иначе если((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'p')
+      вернуть 3;
     break;
   case 'y': /* may */
-    if((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[1]) == 'a')
-      return 4;
+    если((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[1]) == 'a')
+      вернуть 4;
     break;
   case 'l': /* jul */
-    if((LOWERCASE(check[0]) == 'j') && LOWERCASE(check[1]) == 'u')
-      return 6;
+    если((LOWERCASE(check[0]) == 'j') && LOWERCASE(check[1]) == 'u')
+      вернуть 6;
     break;
   case 'g': /* aug */
-    if((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'u')
-      return 7;
+    если((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'u')
+      вернуть 7;
     break;
   case 'p': /* sep */
-    if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[1]) == 'e')
-      return 8;
+    если((LOWERCASE(check[0]) == 's') && LOWERCASE(check[1]) == 'e')
+      вернуть 8;
     break;
   case 't': /* oct */
-    if((LOWERCASE(check[0]) == 'o') && LOWERCASE(check[1]) == 'c')
-      return 9;
+    если((LOWERCASE(check[0]) == 'o') && LOWERCASE(check[1]) == 'c')
+      вернуть 9;
     break;
   case 'v': /* nov */
-    if((LOWERCASE(check[0]) == 'n') && LOWERCASE(check[1]) == 'o')
-      return 10;
+    если((LOWERCASE(check[0]) == 'n') && LOWERCASE(check[1]) == 'o')
+      вернуть 10;
     break;
   case 'c': /* dec */
-    if((LOWERCASE(check[0]) == 'd') && LOWERCASE(check[1]) == 'e')
-      return 11;
+    если((LOWERCASE(check[0]) == 'd') && LOWERCASE(check[1]) == 'e')
+      вернуть 11;
     break;
   }
-  return -1; /* return the offset or -1, no real offset is -1 */
+  вернуть -1; /* return the offset or -1, no real offset is -1 */
 }
 
-static int tzcompare(const void *m1, const void *m2)
+static целое tzcompare(const void *m1, const void *m2)
 {
   const struct tzinfo *tz1 = m1;
   const struct tzinfo *tz2 = m2;
-  return tz1->tz - tz2->tz;
+  вернуть tz1->tz - tz2->tz;
 }
 
 /* return the time zone offset between GMT and the input one, in number of
@@ -333,73 +333,73 @@ static int tzcompare(const void *m1, const void *m2)
 
    @unittest 4781
 */
-UNITTEST int checktz(const char *check, size_t len);
-UNITTEST int checktz(const char *check, size_t len)
+UNITTEST целое checktz(const char *check, size_t len);
+UNITTEST целое checktz(const char *check, size_t len)
 {
   char first;
-  if(len > 4)
-    return -1;
+  если(len > 4)
+    вернуть -1;
   first = check[0];
-  if(first < 'A')
-    return -1;
-  if(len == 1) {
+  если(first < 'A')
+    вернуть -1;
+  если(len == 1) {
     /* short-cut single letter names */
-    if((first > 'Z') || (first == 'J'))
-      return -1; /* no such tz */
-    return tzone[first - 'A'] * 60;
+    если((first > 'Z') || (first == 'J'))
+      вернуть -1; /* no such tz */
+    вернуть tzone[first - 'A'] * 60;
   }
-  else if(len == 2) {
+  иначе если(len == 2) {
     /* two-letter names */
-    if(check[1] == 'T') {
-      if(first == 'N')
-        return 11 * 60 * 60;
-      else if(first == 'U')
-        return 0;
+    если(check[1] == 'T') {
+      если(first == 'N')
+        вернуть 11 * 60 * 60;
+      иначе если(first == 'U')
+        вернуть 0;
     }
-    return -1; /* nope */
+    вернуть -1; /* nope */
   }
-  else if(len == 3) {
+  иначе если(len == 3) {
     /* three-letter name */
     const struct tzinfo *what;
     struct tzinfo find;
-    if(first > 'Y')
-      return -1;
+    если(first > 'Y')
+      вернуть -1;
     find.tz = MKTZ(first, check[1], check[2], 0);
     what = bsearch(&find, tzthree, CURL_ARRAYSIZE(tzthree),
                    sizeof(tzthree[0]), tzcompare);
-    if(what)
-      return what->offset * 60;
+    если(what)
+      вернуть what->offset * 60;
   }
-  else {
+  иначе {
     /* four-letter name */
     const struct tzinfo *what;
     struct tzinfo find;
-    if(first > 'W')
-      return -1;
+    если(first > 'W')
+      вернуть -1;
     find.tz = MKTZ(first, check[1], check[2], check[3]);
     what = bsearch(&find, tzfoura, CURL_ARRAYSIZE(tzfoura),
                    sizeof(tzfoura[0]), tzcompare);
-    if(what)
-      return what->offset * 60;
+    если(what)
+      вернуть what->offset * 60;
   }
-  return -1;
+  вернуть -1;
 }
 
 static void skip(const char **date)
 {
   /* skip everything that are not letters or digits */
-  while(**date && !ISALNUM(**date))
+  пока(**date && !ISALNUM(**date))
     (*date)++;
 }
 
 /* each field is exactly -1 when unknown */
 struct when {
-  int wday;  /* day of the week, 0-6 (mon-sun) */
-  int mon;   /* month of the year, 0-11 */
-  int mday;  /* day of month, 1 - 31 */
-  int dsecs; /* number of seconds into the day */
-  int year;  /* year, >= 1583 */
-  int tzoff; /* time zone offset in seconds */
+  целое wday;  /* day of the week, 0-6 (mon-sun) */
+  целое mon;   /* month of the year, 0-11 */
+  целое mday;  /* day of month, 1 - 31 */
+  целое dsecs; /* number of seconds into the day */
+  целое year;  /* year, >= 1583 */
+  целое tzoff; /* time zone offset in seconds */
 };
 
 /* (1969 / 4) - (1969 / 100) + (1969 / 400) = 492 - 19 + 4 = 477 */
@@ -412,58 +412,58 @@ struct when {
  */
 static curl_off_t time2epoch(struct when *w)
 {
-  static const int cumulative_days[12] = {
+  static const целое cumulative_days[12] = {
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
   };
-  int y = w->year - (w->mon <= 1);
-  int leap_days = (y / 4) - (y / 100) + (y / 400) - LEAP_DAYS_BEFORE_1969;
+  целое y = w->year - (w->mon <= 1);
+  целое leap_days = (y / 4) - (y / 100) + (y / 400) - LEAP_DAYS_BEFORE_1969;
   curl_off_t days = (curl_off_t)(w->year - 1970) * 365 + leap_days +
     cumulative_days[w->mon] + w->mday - 1;
 
-  return (days * SECONDS_PER_DAY) + w->dsecs;
+  вернуть (days * SECONDS_PER_DAY) + w->dsecs;
 }
 
 /* Returns the value of a single-digit or two-digit decimal number, return
    then pointer to after the number. The 'date' pointer is known to point to a
    digit. */
-static int oneortwodigit(const char *date, const char **endp)
+static целое oneortwodigit(const char *date, const char **endp)
 {
-  int num = date[0] - '0';
-  if(ISDIGIT(date[1])) {
+  целое num = date[0] - '0';
+  если(ISDIGIT(date[1])) {
     *endp = &date[2];
-    return (num * 10) + (date[1] - '0');
+    вернуть (num * 10) + (date[1] - '0');
   }
   *endp = &date[1];
-  return num;
+  вернуть num;
 }
 
 /* HH:MM:SS or HH:MM and accept single-digits too */
 static bool match_time(const char *date, struct when *w, char **endp)
 {
   const char *p;
-  int hh, mm, ss = 0;
+  целое hh, mm, ss = 0;
   hh = oneortwodigit(date, &p);
-  if((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
+  если((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
     mm = oneortwodigit(&p[1], &p);
-    if(mm < 60) {
-      if((*p == ':') && ISDIGIT(p[1])) {
+    если(mm < 60) {
+      если((*p == ':') && ISDIGIT(p[1])) {
         ss = oneortwodigit(&p[1], &p);
-        if(ss <= 60) {
+        если(ss <= 60) {
           /* valid HH:MM:SS */
           goto match;
         }
       }
-      else {
+      иначе {
         /* valid HH:MM */
         goto match;
       }
     }
   }
-  return FALSE; /* not a time string */
+  вернуть FALSE; /* not a time string */
 match:
   w->dsecs = (hh * 3600) + (mm * 60) + ss;
   *endp = (char *)CURL_UNCONST(p);
-  return TRUE;
+  вернуть TRUE;
 }
 
 /*
@@ -485,62 +485,62 @@ static void initwhen(struct when *w)
   w->wday = w->mon = w->mday = w->dsecs = w->year = w->tzoff = -1;
 }
 
-static int datestring(const char **datep, struct when *w)
+static целое datestring(const char **datep, struct when *w)
 {
   /* a name coming up */
   size_t len = 0;
   const char *p = *datep;
-  while(ISALPHA(p[len]) && (len < NAME_LEN))
+  пока(ISALPHA(p[len]) && (len < NAME_LEN))
     len++;
 
-  if(len != NAME_LEN) {
-    if(w->wday == -1) {
+  если(len != NAME_LEN) {
+    если(w->wday == -1) {
       w->wday = checkday(p, len);
-      if(w->wday != -1)
+      если(w->wday != -1)
         goto found;
     }
-    if(w->mon == -1) {
+    если(w->mon == -1) {
       w->mon = checkmonth(p, len);
-      if(w->mon != -1)
+      если(w->mon != -1)
         goto found;
     }
-    if(w->tzoff == -1) {
+    если(w->tzoff == -1) {
       /* this must be a time zone string */
       w->tzoff = checktz(p, len);
-      if(w->tzoff != -1)
+      если(w->tzoff != -1)
         goto found;
     }
   }
-  return PARSEDATE_FAIL; /* bad string */
+  вернуть PARSEDATE_FAIL; /* bad string */
 found:
   *datep += len;
-  return PARSEDATE_OK;
+  вернуть PARSEDATE_OK;
 }
 
-static int datenum(const char *indate, const char **datep, struct when *w)
+static целое datenum(const char *indate, const char **datep, struct when *w)
 {
   /* a digit */
-  unsigned int val;
+  unsigned целое val;
   char *end;
   const char *date = *datep;
 
-  if((w->dsecs == -1) && match_time(date, w, &end)) {
+  если((w->dsecs == -1) && match_time(date, w, &end)) {
     /* time stamp */
     date = end;
   }
-  else {
+  иначе {
     bool found = FALSE;
     curl_off_t lval;
-    int num_digits = 0;
+    целое num_digits = 0;
     const char *p = *datep;
-    if(curlx_str_number(&p, &lval, 99999999))
-      return PARSEDATE_FAIL;
+    если(curlx_str_number(&p, &lval, 99999999))
+      вернуть PARSEDATE_FAIL;
 
     /* we know num_digits cannot be larger than 8 */
-    num_digits = (int)(p - *datep);
-    val = (unsigned int)lval;
+    num_digits = (целое)(p - *datep);
+    val = (unsigned целое)lval;
 
-    if((w->tzoff == -1) &&
+    если((w->tzoff == -1) &&
        (num_digits == 4) &&
        (val <= 1400) &&
        (indate < date) &&
@@ -561,160 +561,160 @@ static int datenum(const char *indate, const char **datep, struct when *w)
       w->tzoff = date[-1] == '+' ? -w->tzoff : w->tzoff;
     }
 
-    else if((num_digits == 8) && (w->year == -1) &&
+    иначе если((num_digits == 8) && (w->year == -1) &&
             (w->mon == -1) && (w->mday == -1)) {
       /* 8 digits, no year, month or day yet. This is YYYYMMDD */
       found = TRUE;
       w->year = val / 10000;
       w->mon = ((val % 10000) / 100) - 1; /* month is 0 - 11 */
-      if(w->mon > 11)
-        return PARSEDATE_FAIL;
+      если(w->mon > 11)
+        вернуть PARSEDATE_FAIL;
       w->mday = val % 100;
     }
 
-    if(!found && (w->mday == -1)) {
-      if((val > 0) && (val < 32)) {
+    если(!found && (w->mday == -1)) {
+      если((val > 0) && (val < 32)) {
         w->mday = val;
         found = TRUE;
       }
     }
 
-    if(!found && (w->year == -1)) {
+    если(!found && (w->year == -1)) {
       w->year = val;
       found = TRUE;
-      if(w->year < 100) {
-        if(w->year > 70)
+      если(w->year < 100) {
+        если(w->year > 70)
           w->year += 1900;
-        else
+        иначе
           w->year += 2000;
       }
     }
 
-    if(!found)
-      return PARSEDATE_FAIL;
+    если(!found)
+      вернуть PARSEDATE_FAIL;
 
     date = p;
   }
   *datep = date;
-  return PARSEDATE_OK;
+  вернуть PARSEDATE_OK;
 }
 
 static bool datecheck(struct when *w)
 {
-  if(w->dsecs == -1)
+  если(w->dsecs == -1)
     w->dsecs = 0; /* no time available, make it zero */
 
-  if((w->mday == -1) || (w->mon == -1) || (w->year == -1) ||
+  если((w->mday == -1) || (w->mon == -1) || (w->year == -1) ||
     /* lacks vital info, fail */
      (w->year < 1583) ||
      /* The Gregorian calendar was introduced 1582 */
      (w->mday > 31) /* too long month */ )
-    return TRUE;
+    вернуть TRUE;
 
-  return FALSE;
+  вернуть FALSE;
 }
 
 static void tzadjust(curl_off_t *tp, struct when *w)
 {
-  if(w->tzoff == -1) /* unknown tz means no offset */
+  если(w->tzoff == -1) /* unknown tz means no offset */
     w->tzoff = 0;
 
   /* Add the time zone diff between local time zone and GMT. */
-  if((w->tzoff > 0) && (*tp > (curl_off_t)(CURL_OFF_T_MAX - w->tzoff)))
+  если((w->tzoff > 0) && (*tp > (curl_off_t)(CURL_OFF_T_MAX - w->tzoff)))
     *tp = CURL_OFF_T_MAX;
-  else
+  иначе
     *tp += w->tzoff;
   /* this needs no minimum check since we require a year > 1582 */
 }
 
-static int mktimet(curl_off_t seconds, time_t *output)
+static целое mktimet(curl_off_t seconds, time_t *output)
 {
-#if SIZEOF_TIME_T < 5
-  if(seconds > TIME_T_MAX) {
+#если SIZEOF_TIME_T < 5
+  если(seconds > TIME_T_MAX) {
     *output = TIME_T_MAX;
-    return PARSEDATE_LATER;
+    вернуть PARSEDATE_LATER;
   }
-  else if(seconds < TIME_T_MIN) {
+  иначе если(seconds < TIME_T_MIN) {
     *output = TIME_T_MIN;
-    return PARSEDATE_SOONER;
+    вернуть PARSEDATE_SOONER;
   }
 #elif defined(HAVE_TIME_T_UNSIGNED)
-  if(seconds < 0) {
+  если(seconds < 0) {
     *output = 0;
-    return PARSEDATE_SOONER;
+    вернуть PARSEDATE_SOONER;
   }
 #endif
   *output = (time_t)seconds;
-  return PARSEDATE_OK;
+  вернуть PARSEDATE_OK;
 }
 
-static int parsedate(const char *date, time_t *output)
+static целое parsedate(const char *date, time_t *output)
 {
   curl_off_t seconds = 0;
   const char *indate = date; /* save the original pointer */
-  int part = 0; /* max 6 parts */
-  int rc = 0;
+  целое part = 0; /* max 6 parts */
+  целое rc = 0;
   struct when w;
   initwhen(&w);
 
-  while(*date && (part < 6)) {
+  пока(*date && (part < 6)) {
     skip(&date);
 
-    if(ISALPHA(*date))
+    если(ISALPHA(*date))
       rc = datestring(&date, &w);
-    else if(ISDIGIT(*date))
+    иначе если(ISDIGIT(*date))
       rc = datenum(indate, &date, &w);
-    if(rc)
-      return rc;
+    если(rc)
+      вернуть rc;
 
     part++;
   }
 
-  if(datecheck(&w))
-    return PARSEDATE_FAIL;
+  если(datecheck(&w))
+    вернуть PARSEDATE_FAIL;
 
   seconds = time2epoch(&w); /* get number of seconds */
   tzadjust(&seconds, &w); /* handle the time zone offset */
   rc = mktimet(seconds, output); /* squeeze seconds into a time_t */
 
-  return rc;
+  вернуть rc;
 }
-#else
+#иначе
 /* disabled */
-static int parsedate(const char *date, time_t *output)
+static целое parsedate(const char *date, time_t *output)
 {
   (void)date;
   *output = 0;
-  return PARSEDATE_OK; /* a lie */
+  вернуть PARSEDATE_OK; /* a lie */
 }
 #endif
 
 time_t curl_getdate(const char *p, const time_t *unused)
 {
   time_t parsed = -1;
-  int rc;
+  целое rc;
   (void)unused; /* legacy argument from the past that we ignore */
 
-  if(!p)
-    return -1;
+  если(!p)
+    вернуть -1;
 
   rc = parsedate(p, &parsed);
-  if(rc == PARSEDATE_OK) {
-    if(parsed == (time_t)-1)
+  если(rc == PARSEDATE_OK) {
+    если(parsed == (time_t)-1)
       /* avoid returning -1 for a working scenario */
       parsed++;
-    return parsed;
+    вернуть parsed;
   }
   /* everything else is fail */
-  return -1;
+  вернуть -1;
 }
 
 /* Curl_getdate_capped() differs from curl_getdate() in that this will return
    TIME_T_MAX in case the parsed time value was too big, instead of an
    error. Returns non-zero on error. */
 
-int Curl_getdate_capped(const char *p, time_t *tp)
+целое Curl_getdate_capped(const char *p, time_t *tp)
 {
-  int rc = parsedate(p, tp);
-  return (rc == PARSEDATE_FAIL);
+  целое rc = parsedate(p, tp);
+  вернуть (rc == PARSEDATE_FAIL);
 }

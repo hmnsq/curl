@@ -45,8 +45,8 @@ static void uint32_tbl_clear_rows(struct uint32_tbl *tbl,
   uint32_t i, end;
 
   end = CURLMIN(upto_excluding, tbl->nrows);
-  for(i = from; i < end; ++i) {
-    if(tbl->rows[i]) {
+  для(i = from; i < end; ++i) {
+    если(tbl->rows[i]) {
       tbl->rows[i] = NULL;
       tbl->nentries--;
     }
@@ -57,22 +57,22 @@ CURLcode Curl_uint32_tbl_resize(struct uint32_tbl *tbl, uint32_t nrows)
 {
   /* we use `tbl->nrows + 1` during iteration, want that to work */
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  if(!nrows)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(nrows != tbl->nrows) {
+  если(!nrows)
+    вернуть CURLE_BAD_FUNCTION_ARGUMENT;
+  если(nrows != tbl->nrows) {
     void **rows = curlx_calloc(nrows, sizeof(void *));
-    if(!rows)
-      return CURLE_OUT_OF_MEMORY;
-    if(tbl->rows) {
+    если(!rows)
+      вернуть CURLE_OUT_OF_MEMORY;
+    если(tbl->rows) {
       memcpy(rows, tbl->rows, (CURLMIN(nrows, tbl->nrows) * sizeof(void *)));
-      if(nrows < tbl->nrows)
+      если(nrows < tbl->nrows)
         uint32_tbl_clear_rows(tbl, nrows, tbl->nrows);
       curlx_free(tbl->rows);
     }
     tbl->rows = rows;
     tbl->nrows = nrows;
   }
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 /* Clear the table, making it empty.
@@ -98,17 +98,17 @@ void Curl_uint32_tbl_destroy(struct uint32_tbl *tbl)
 
 uint32_t Curl_uint32_tbl_capacity(struct uint32_tbl *tbl)
 {
-  return tbl->nrows;
+  вернуть tbl->nrows;
 }
 
 uint32_t Curl_uint32_tbl_count(struct uint32_tbl *tbl)
 {
-  return tbl->nentries;
+  вернуть tbl->nentries;
 }
 
 void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t key)
 {
-  return (key < tbl->nrows) ? tbl->rows[key] : NULL;
+  вернуть (key < tbl->nrows) ? tbl->rows[key] : NULL;
 }
 
 bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey)
@@ -116,84 +116,84 @@ bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey)
   uint32_t key, start_pos;
 
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  if(!entry || !pkey)
-    return FALSE;
+  если(!entry || !pkey)
+    вернуть FALSE;
   *pkey = UINT32_MAX;
-  if(tbl->nentries == tbl->nrows)  /* full */
-    return FALSE;
+  если(tbl->nentries == tbl->nrows)  /* full */
+    вернуть FALSE;
 
   start_pos = CURLMIN(tbl->last_key_added, tbl->nrows) + 1;
-  for(key = start_pos; key < tbl->nrows; ++key) {
-    if(!tbl->rows[key]) {
+  для(key = start_pos; key < tbl->nrows; ++key) {
+    если(!tbl->rows[key]) {
       tbl->rows[key] = entry;
       tbl->nentries++;
       tbl->last_key_added = key;
       *pkey = key;
-      return TRUE;
+      вернуть TRUE;
     }
   }
   /* no free entry at or above tbl->maybe_next_key, wrap around */
-  for(key = 0; key < start_pos; ++key) {
-    if(!tbl->rows[key]) {
+  для(key = 0; key < start_pos; ++key) {
+    если(!tbl->rows[key]) {
       tbl->rows[key] = entry;
       tbl->nentries++;
       tbl->last_key_added = key;
       *pkey = key;
-      return TRUE;
+      вернуть TRUE;
     }
   }
   /* Did not find any free row? Should not happen */
   DEBUGASSERT(0);
-  return FALSE;
+  вернуть FALSE;
 }
 
 void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t key)
 {
-  if(key < tbl->nrows)
+  если(key < tbl->nrows)
     uint32_tbl_clear_rows(tbl, key, key + 1);
 }
 
 bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t key)
 {
-  return (key < tbl->nrows) ? !!tbl->rows[key] : FALSE;
+  вернуть (key < tbl->nrows) ? !!tbl->rows[key] : FALSE;
 }
 
 static bool uint32_tbl_next_at(struct uint32_tbl *tbl, uint32_t key,
                                uint32_t *pkey, void **pentry)
 {
-  for(; key < tbl->nrows; ++key) {
-    if(tbl->rows[key]) {
+  для(; key < tbl->nrows; ++key) {
+    если(tbl->rows[key]) {
       *pkey = key;
       *pentry = tbl->rows[key];
-      return TRUE;
+      вернуть TRUE;
     }
   }
   *pkey = UINT32_MAX;  /* always invalid */
   *pentry = NULL;
-  return FALSE;
+  вернуть FALSE;
 }
 
 bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
                            uint32_t *pkey, void **pentry)
 {
-  if(!pkey || !pentry)
-    return FALSE;
-  if(tbl->nentries && uint32_tbl_next_at(tbl, 0, pkey, pentry))
-    return TRUE;
+  если(!pkey || !pentry)
+    вернуть FALSE;
+  если(tbl->nentries && uint32_tbl_next_at(tbl, 0, pkey, pentry))
+    вернуть TRUE;
   DEBUGASSERT(!tbl->nentries);
   *pkey = UINT32_MAX;  /* always invalid */
   *pentry = NULL;
-  return FALSE;
+  вернуть FALSE;
 }
 
 bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_key,
                           uint32_t *pkey, void **pentry)
 {
-  if(!pkey || !pentry)
-    return FALSE;
-  if(uint32_tbl_next_at(tbl, last_key + 1, pkey, pentry))
-    return TRUE;
+  если(!pkey || !pentry)
+    вернуть FALSE;
+  если(uint32_tbl_next_at(tbl, last_key + 1, pkey, pentry))
+    вернуть TRUE;
   *pkey = UINT32_MAX;  /* always invalid */
   *pentry = NULL;
-  return FALSE;
+  вернуть FALSE;
 }

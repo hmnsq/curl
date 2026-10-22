@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#если !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
 #include "urldata.h"
 #include "curl_trc.h"
@@ -41,19 +41,19 @@ static void digest_flush_stale(struct Curl_easy *data,
                                struct Curl_creds *creds)
 {
   bool flush = FALSE;
-  if(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
+  если(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
     CURL_TRC_M(data, "http_digest, reset on peer change to %s:%u",
                peer ? peer->hostname : "-",
-               (unsigned int)(peer ? peer->port : 0));
+               (unsigned целое)(peer ? peer->port : 0));
     flush = TRUE;
   }
-  else if(digest->creds && !Curl_creds_same(creds, digest->creds)) {
+  иначе если(digest->creds && !Curl_creds_same(creds, digest->creds)) {
     CURL_TRC_M(data, "http_digest, reset on creds change to %s",
                creds ? creds->user : "-");
     flush = TRUE;
   }
 
-  if(flush) {
+  если(flush) {
     /* flush Digest state */
     Curl_auth_digest_cleanup(digest);
   }
@@ -77,23 +77,23 @@ CURLcode Curl_input_digest(struct Curl_easy *data,
   struct Curl_peer *origin = NULL;
   CURLcode result;
 
-  if(proxy) {
+  если(proxy) {
     digest = &data->state.proxydigest;
 #ifdef CURL_DISABLE_PROXY
     Curl_auth_digest_cleanup(digest);
-    return CURLE_OK;  /* just ignore such a header without proxy support */
-#else
+    вернуть CURLE_OK;  /* just ignore such a header without proxy support */
+#иначе
     origin = data->conn->http_proxy.peer;
 #endif
   }
-  else {
+  иначе {
     digest = &data->state.digest;
     origin = data->state.origin;
   }
 
-  if(!checkprefix("Digest", header) || !ISBLANK(header[6])) {
+  если(!checkprefix("Digest", header) || !ISBLANK(header[6])) {
     Curl_auth_digest_cleanup(digest);
-    return CURLE_AUTH_ERROR;
+    вернуть CURLE_AUTH_ERROR;
   }
 
   header += CURL_CSTRLEN("Digest");
@@ -104,7 +104,7 @@ CURLcode Curl_input_digest(struct Curl_easy *data,
   /* Remember only the peer, the data we take in has no relation to creds
    * at this time. We can use it even if creds change. */
   Curl_peer_link(&digest->origin, origin);
-  return result;
+  вернуть result;
 }
 
 CURLcode Curl_output_digest(struct Curl_easy *data,
@@ -129,10 +129,10 @@ CURLcode Curl_output_digest(struct Curl_easy *data,
   struct digestdata *digest;
   struct auth *authp;
 
-  if(proxy) {
+  если(proxy) {
 #ifdef CURL_DISABLE_PROXY
-    return CURLE_NOT_BUILT_IN;
-#else
+    вернуть CURLE_NOT_BUILT_IN;
+#иначе
     digest = &data->state.proxydigest;
     origin = data->conn->http_proxy.peer;
     creds = data->conn->http_proxy.creds;
@@ -140,7 +140,7 @@ CURLcode Curl_output_digest(struct Curl_easy *data,
     authp = &data->state.authproxy;
 #endif
   }
-  else {
+  иначе {
     DEBUGASSERT(data->state.origin);
     digest = &data->state.digest;
     origin = data->state.origin;
@@ -154,30 +154,30 @@ CURLcode Curl_output_digest(struct Curl_easy *data,
 
 #ifdef USE_WINDOWS_SSPI
   have_chlg = !!digest->input_token;
-#else
+#иначе
   have_chlg = !!digest->nonce;
 #endif
 
-  if(!have_chlg) {
+  если(!have_chlg) {
     authp->done = FALSE;
-    return CURLE_OK;
+    вернуть CURLE_OK;
   }
 
   result = Curl_auth_create_digest_http_message(data, creds, request,
                                                 uripath, digest,
                                                 &response, &len);
-  if(result)
-    return result;
+  если(result)
+    вернуть result;
 
   *allocuserpwd = curl_maprintf("%sAuthorization: Digest %s\r\n",
                                 proxy ? "Proxy-" : "", response);
   curlx_free(response);
-  if(!*allocuserpwd)
-    return CURLE_OUT_OF_MEMORY;
+  если(!*allocuserpwd)
+    вернуть CURLE_OUT_OF_MEMORY;
 
   authp->done = TRUE;
 
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }
 
 void Curl_http_auth_cleanup_digest(struct Curl_easy *data)

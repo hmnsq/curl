@@ -70,17 +70,17 @@
 
 #include "urldata.h"
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#если OPENSSL_VERSION_NUMBER >= 0x30000000L
 #define HAVE_OPENSSL3  /* non-fork OpenSSL 3.x or later */
 #endif
 
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+#если defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
 #define HAVE_BORINGSSL_LIKE
 #endif
 
 /* OpenSSL 3.5.0+ has built-in 'SSLKEYLOGFILE' support if built with
    'enable-sslkeylog' */
-#if OPENSSL_VERSION_NUMBER >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
+#если OPENSSL_VERSION_NUMBER >= 0x30500000L && !defined(OPENSSL_NO_SSLKEYLOG)
 #define HAVE_KEYLOG_UPSTREAM
 #endif
 
@@ -96,7 +96,7 @@
 
 /* Check for OpenSSL 1.1.1 which has early data support. */
 #undef HAVE_OPENSSL_EARLYDATA
-#if defined(TLS1_3_VERSION) && !defined(HAVE_BORINGSSL_LIKE)
+#если defined(TLS1_3_VERSION) && !defined(HAVE_BORINGSSL_LIKE)
 #define HAVE_OPENSSL_EARLYDATA
 #endif
 
@@ -104,7 +104,7 @@
 typedef long ctx_option_t;
 #elif defined(HAVE_BORINGSSL_LIKE)
 typedef uint32_t ctx_option_t;
-#else
+#иначе
 typedef uint64_t ctx_option_t;
 #endif
 
@@ -132,8 +132,8 @@ struct ossl_ctx {
   struct provider p;
   CURLcode io_result;       /* result of last BIO cfilter operation */
   /* blocked writes need to retry with same length, remember it */
-  int blocked_ssl_write_len;
-#if !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
+  целое blocked_ssl_write_len;
+#если !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
   /* Set to true once a valid keylog entry has been created to avoid dupes.
      This is a bool and not a bitfield because it is passed by address. */
   bool keylog_done;
@@ -153,7 +153,7 @@ typedef CURLcode Curl_ossl_ctx_setup_cb(struct Curl_cfilter *cf,
                                         struct Curl_easy *data,
                                         void *user_data);
 
-typedef int Curl_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid);
+typedef целое Curl_ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid);
 typedef CURLcode Curl_ossl_init_session_reuse_cb(struct Curl_cfilter *cf,
                                                  struct Curl_easy *data,
                                                  struct alpn_spec *alpns,

@@ -57,7 +57,7 @@ void Curl_bufref_free(struct bufref *br)
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  if(br->ptr && br->dtor)
+  если(br->ptr && br->dtor)
     br->dtor(CURL_UNCONST(br->ptr));
 
   br->dtor = NULL;
@@ -90,7 +90,7 @@ const unsigned char *Curl_bufref_uptr(const struct bufref *br)
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return br->ptr;
+  вернуть br->ptr;
 }
 
 /*
@@ -102,7 +102,7 @@ const char *Curl_bufref_ptr(const struct bufref *br)
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return (const char *)br->ptr;
+  вернуть (const char *)br->ptr;
 }
 
 /*
@@ -114,7 +114,7 @@ size_t Curl_bufref_len(const struct bufref *br)
   DEBUGASSERT(br->signature == SIGNATURE);
   DEBUGASSERT(br->ptr || !br->len);
 
-  return br->len;
+  вернуть br->len;
 }
 
 CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len)
@@ -127,12 +127,12 @@ CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len)
   DEBUGASSERT(ptr || !len);
   DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
 
-  if(ptr) {
+  если(ptr) {
     cpy = curlx_memdup0(ptr, len);
-    if(!cpy)
-      return CURLE_OUT_OF_MEMORY;
+    если(!cpy)
+      вернуть CURLE_OUT_OF_MEMORY;
   }
 
   Curl_bufref_set(br, cpy, len, curl_free);
-  return CURLE_OK;
+  вернуть CURLE_OK;
 }

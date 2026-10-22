@@ -33,7 +33,7 @@ static struct Curl_tree *splay(timediff_t key,
 uint32_t Curl_splayget(struct Curl_tree *node)
 {
   DEBUGASSERT(node);
-  return node->id;
+  вернуть node->id;
 }
 
 #endif
@@ -49,7 +49,7 @@ void Curl_timeouts_init(struct Curl_timeouts *timeouts,
 bool Curl_timeouts_has(struct Curl_easy *data)
 {
   struct Curl_tree *node = data ? &data->state.timeouts.splaynode : NULL;
-  return node && node->registered;
+  вернуть node && node->registered;
 }
 
 timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
@@ -58,37 +58,37 @@ timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
   struct curltime time_base;
   time_base.tv_sec = timeouts->time_base_sec;
   time_base.tv_usec = 0;
-  return curlx_ptimediff_us(pts, &time_base);
+  вернуть curlx_ptimediff_us(pts, &time_base);
 }
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
+целое Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
                           const struct curltime *pnow,
                           timediff_t *pexpire_offset_us,
                           uint32_t *pmid)
 {
-  if(timeouts->tree) { /* splay the lowest key to the root */
+  если(timeouts->tree) { /* splay the lowest key to the root */
     timeouts->tree = splay(TIMEDIFF_T_MIN, timeouts->tree);
   }
 
-  if(timeouts->tree) {
+  если(timeouts->tree) {
     timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, pnow);
     timediff_t delta_us = timeouts->tree->key - elapsed_us;
-    if(pmid)
+    если(pmid)
       *pmid = timeouts->tree->id;
-    if(pexpire_offset_us)
+    если(pexpire_offset_us)
       *pexpire_offset_us = timeouts->tree->key;
-    if(delta_us > 0) { /* expires in the future */
+    если(delta_us > 0) { /* expires in the future */
       timediff_t ms = curlx_us_to_ceil_ms(delta_us);
-      return (ms > INT_MAX) ? INT_MAX : (int)ms;
+      вернуть (ms > INT_MAX) ? INT_MAX : (целое)ms;
     }
-    else /* has expired */
-      return 0;
+    иначе /* has expired */
+      вернуть 0;
   }
-  if(pmid)
+  если(pmid)
     *pmid = UINT32_MAX;
-  if(pexpire_offset_us)
+  если(pexpire_offset_us)
     *pexpire_offset_us = 0;
-  return -1;
+  вернуть -1;
 }
 
 /*
@@ -104,23 +104,23 @@ struct Curl_tree *splay(timediff_t key,
 {
   struct Curl_tree N, *l, *r, *y;
 
-  if(!root)
-    return NULL;
+  если(!root)
+    вернуть NULL;
   N.smaller = N.larger = NULL;
   l = r = &N;
 
-  for(;;) {
-    if(key < root->key) {
+  для(;;) {
+    если(key < root->key) {
       /* key is somewhere in root->smaller branch */
-      if(!root->smaller)  /* which is empty, done */
+      если(!root->smaller)  /* which is empty, done */
         break;
-      if(key < root->smaller->key) {
+      если(key < root->smaller->key) {
         /* key is somewhere in root->smaller->smaller, make a "Zig step" */
         y = root->smaller;
         root->smaller = y->larger;
         y->larger = root;
         root = y;
-        if(!root->smaller)
+        если(!root->smaller)
           break;
       }
       /* Making root->smaller the new root, the old root is no longer
@@ -131,17 +131,17 @@ struct Curl_tree *splay(timediff_t key,
       r = root;
       root = root->smaller;
     }
-    else if(key > root->key) {
+    иначе если(key > root->key) {
       /* key is somewhere in root->larger branch */
-      if(!root->larger)  /* which is empty, done */
+      если(!root->larger)  /* which is empty, done */
         break;
-      if(key > root->larger->key) {
+      если(key > root->larger->key) {
         /* key is somewhere in root->larger->larger, make a "Zig step" */
         y = root->larger;
         root->larger = y->smaller;
         y->smaller = root;
         root = y;
-        if(!root->larger)
+        если(!root->larger)
           break;
       }
       /* Making root->larger the new root, the old root is no longer
@@ -152,7 +152,7 @@ struct Curl_tree *splay(timediff_t key,
       l = root;
       root = root->larger;
     }
-    else  /* exact match, root is key, done */
+    иначе  /* exact match, root is key, done */
       break;
   }
 
@@ -164,7 +164,7 @@ struct Curl_tree *splay(timediff_t key,
   root->smaller = N.larger;
   root->larger = N.smaller;
 
-  return root;
+  вернуть root;
 }
 
 /* Insert key i into the tree t. Return a pointer to the resulting tree or
@@ -187,36 +187,36 @@ UNITTEST struct Curl_tree *splayinsert(timediff_t key,
   node->id = id;
   node->same = NULL;
   node->registered = TRUE;
-  if(root) {
+  если(root) {
     root = splay(key, root);
     DEBUGASSERT(root);
-    if(key == root->key) {
+    если(key == root->key) {
       /* There already exists a node in the tree with the same key.
          Append the new node to the `same` list. */
       struct Curl_tree **panchor = &root->same;
-      while(*panchor)
+      пока(*panchor)
         panchor = &(*panchor)->same;
       *panchor = node;
-      return root; /* the root node always stays the same */
+      вернуть root; /* the root node always stays the same */
     }
   }
 
   /* node becomes the new root. Insert old root as sub-branch. */
-  if(!root) {
+  если(!root) {
     node->smaller = node->larger = NULL;
   }
-  else if(key < root->key) {
+  иначе если(key < root->key) {
     node->smaller = root->smaller;
     node->larger = root;
     root->smaller = NULL;
   }
-  else {
+  иначе {
     node->larger = root->larger;
     node->smaller = root;
     root->larger = NULL;
   }
 
-  return node;
+  вернуть node;
 }
 
 void Curl_timeouts_add(struct Curl_timeouts *timeouts,
@@ -244,22 +244,22 @@ UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
 {
   struct Curl_tree *x;
 
-  if(!root) {
+  если(!root) {
     *removed = NULL; /* none removed since there was no root */
-    return NULL;
+    вернуть NULL;
   }
 
   /* find smallest */
   root = splay(TIMEDIFF_T_MIN, root);
   DEBUGASSERT(root);
-  if(key < root->key) {
+  если(key < root->key) {
     /* even the smallest is too big */
     *removed = NULL;
-    return root;
+    вернуть root;
   }
 
   /* FIRST! Check if there is a list with identical keys */
-  if(root->same) {
+  если(root->same) {
     x = root->same;
     DEBUGASSERT(x->key == root->key);
     /* 'x' becomes the new root node */
@@ -268,7 +268,7 @@ UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
     root->same = NULL;
     root->registered = FALSE;
     *removed = root;
-    return x; /* new root */
+    вернуть x; /* new root */
   }
 
   /* we splayed the tree to the smallest element, there is no smaller */
@@ -276,24 +276,24 @@ UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
   root->registered = FALSE;
   *removed = root;
 
-  return x;
+  вернуть x;
 }
 
 bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
                                   const struct curltime *ts,
                                   uint32_t *pmid)
 {
-  if(timeouts->tree) {
+  если(timeouts->tree) {
     struct Curl_tree *t = NULL;
     timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, ts);
     timeouts->tree = splaygetbest(elapsed_us, timeouts->tree, &t);
-    if(t) {
+    если(t) {
       *pmid = t->id;
-      return TRUE;
+      вернуть TRUE;
     }
   }
   *pmid = UINT32_MAX;
-  return FALSE;
+  вернуть FALSE;
 }
 
 /* Deletes the node we point out from the tree if it is there. Stores a
@@ -307,21 +307,21 @@ bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
  *
  * @unittest 1309
  */
-UNITTEST int splayremove(struct Curl_tree *root,
+UNITTEST целое splayremove(struct Curl_tree *root,
                          struct Curl_tree *removenode,
                          struct Curl_tree **newroot);
-UNITTEST int splayremove(struct Curl_tree *root,
+UNITTEST целое splayremove(struct Curl_tree *root,
                          struct Curl_tree *removenode,
                          struct Curl_tree **newroot)
 {
   struct Curl_tree *x;
 
-  if(!root)
-    return 1;
+  если(!root)
+    вернуть 1;
 
   DEBUGASSERT(removenode);
-  if(!removenode->registered)
-    return 2;
+  если(!removenode->registered)
+    вернуть 2;
 
   root = splay(removenode->key, root);
   DEBUGASSERT(root);
@@ -329,29 +329,29 @@ UNITTEST int splayremove(struct Curl_tree *root,
   /* First make sure that we got the same root key as the one we want
      to remove, as otherwise we might be trying to remove a node that
      is not actually in the tree. */
-  if(root->key != removenode->key) {
+  если(root->key != removenode->key) {
     DEBUGASSERT(0);
-    return 2;
+    вернуть 2;
   }
 
-  if(root != removenode) {
+  если(root != removenode) {
     /* Should be in the root->same list then */
     struct Curl_tree **panchor;
-    for(panchor = &root->same; *panchor; panchor = &(*panchor)->same) {
-      if(*panchor == removenode) {
+    для(panchor = &root->same; *panchor; panchor = &(*panchor)->same) {
+      если(*panchor == removenode) {
         *panchor = removenode->same;
         removenode->same = NULL;
         removenode->registered = FALSE;
         *newroot = root;
-        return 0;
+        вернуть 0;
       }
     }
     /* not found in same list, error */
     DEBUGASSERT(0);
-    return 2;
+    вернуть 2;
   }
   /* removing the root node */
-  if(root->same) {
+  если(root->same) {
     /* 'x' is the new root node, we make it use the root node's
        smaller/larger links */
     x = root->same;
@@ -359,11 +359,11 @@ UNITTEST int splayremove(struct Curl_tree *root,
     x->smaller = root->smaller;
     root->same = NULL;
   }
-  else {
+  иначе {
     /* Remove the root node */
-    if(!root->smaller)
+    если(!root->smaller)
       x = root->larger;
-    else {
+    иначе {
       x = splay(removenode->key, root->smaller);
       DEBUGASSERT(x);
       x->larger = root->larger;
@@ -371,22 +371,22 @@ UNITTEST int splayremove(struct Curl_tree *root,
   }
   removenode->registered = FALSE;
   *newroot = x; /* return new root */
-  return 0;
+  вернуть 0;
 }
 
 bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
                           struct Curl_easy *data)
 {
   struct Curl_tree *node = &data->state.timeouts.splaynode;
-  if(node->registered) {
-    int rc = splayremove(timeouts->tree, node, &timeouts->tree);
+  если(node->registered) {
+    целое rc = splayremove(timeouts->tree, node, &timeouts->tree);
 #ifdef DEBUGBUILD
-    if(rc)
+    если(rc)
       curl_mfprintf(stderr, "Internal error removing splay node = %d\n", rc);
-#else
+#иначе
     (void)rc;
 #endif
-    return TRUE;
+    вернуть TRUE;
   }
-  return FALSE;
+  вернуть FALSE;
 }
