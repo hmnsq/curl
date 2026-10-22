@@ -23,58 +23,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-typedef void (*Curl_llist_dtor)(void *user, void *elem);
+تعريفنوع فراغ (*Curl_llist_dtor)(فراغ *user, فراغ *elem);
 
 /* none of these struct members should be referenced directly, use the
    dedicated functions */
 
-struct Curl_llist {
-  struct Curl_llist_node *_head;
-  struct Curl_llist_node *_tail;
+بنية Curl_llist {
+  بنية Curl_llist_عقدة *_head;
+  بنية Curl_llist_عقدة *_tail;
   Curl_llist_dtor _dtor;
   size_t _size;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  صحيح _init;      /* detect API usage mistakes */
 #endif
 };
 
-struct Curl_llist_node {
-  struct Curl_llist *_list; /* the list where this belongs */
-  void *_ptr;
-  struct Curl_llist_node *_prev;
-  struct Curl_llist_node *_next;
+بنية Curl_llist_عقدة {
+  بنية Curl_llist *_list; /* the list where this belongs */
+  فراغ *_ptr;
+  بنية Curl_llist_عقدة *_prev;
+  بنية Curl_llist_عقدة *_next;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  صحيح _init;      /* detect API usage mistakes */
 #endif
 };
 
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor);
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne);
-void Curl_node_remove(struct Curl_llist_node *e);
-void Curl_llist_destroy(struct Curl_llist *list, void *user);
+فراغ Curl_llist_init(بنية Curl_llist *l, Curl_llist_dtor dtor);
+فراغ Curl_llist_append(بنية Curl_llist *list, ثابت فراغ *p,
+                       بنية Curl_llist_عقدة *ne);
+فراغ Curl_عقدة_remove(بنية Curl_llist_عقدة *e);
+فراغ Curl_llist_destroy(بنية Curl_llist *list, فراغ *user);
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list);
+بنية Curl_llist_عقدة *Curl_llist_head(ثابت بنية Curl_llist *list);
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list);
+size_t Curl_llist_تعداد(ثابت بنية Curl_llist *list);
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n);
+فراغ *Curl_عقدة_elem(ثابت بنية Curl_llist_عقدة *n);
 
 /* Remove the node from the list and return the custom data
  * from a Curl_llist_node. Does NOT invoke a registered `dtor`. */
-void *Curl_node_take_elem(struct Curl_llist_node *e);
+فراغ *Curl_عقدة_take_elem(بنية Curl_llist_عقدة *e);
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n);
+بنية Curl_llist_عقدة *Curl_عقدة_next(ثابت بنية Curl_llist_عقدة *n);
 
 /* Curl_node_llist() return the list the node is in or NULL. */
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n);
+بنية Curl_llist *Curl_عقدة_llist(ثابت بنية Curl_llist_عقدة *n);
 
 #endif /* HEADER_CURL_LLIST_H */

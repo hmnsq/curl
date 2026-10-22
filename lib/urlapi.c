@@ -21,19 +21,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "urlapi-int.h"
-#include "strcase.h"
-#include "url.h"
-#include "escape.h"
-#include "curlx/inet_pton.h"
-#include "curlx/inet_ntop.h"
-#include "curlx/strdup.h"
-#include "idn.h"
-#include "curlx/strparse.h"
-#include "curl_memrchr.h"
+#ضمن "urldata.h"
+#ضمن "urlapi-int.h"
+#ضمن "strcase.h"
+#ضمن "url.h"
+#ضمن "escape.h"
+#ضمن "curlx/inet_pton.h"
+#ضمن "curlx/inet_ntop.h"
+#ضمن "curlx/strdup.h"
+#ضمن "idn.h"
+#ضمن "curlx/strparse.h"
+#ضمن "curl_memrchr.h"
 
 #ifdef _WIN32
 /* MS-DOS/Windows style drive prefix, eg c: in c:foo */
@@ -60,13 +60,13 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#إذا !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
 #define DEFAULT_SCHEME "https"
 
-static void free_urlhandle(struct Curl_URL *u)
+ساكن فراغ free_urlhandle(بنية Curl_URL *u)
 {
   curlx_free(u->scheme);
   curlx_free(u->user);
@@ -84,20 +84,20 @@ static void free_urlhandle(struct Curl_URL *u)
  * Find the separator at the end of the hostname, or the '?' in cases like
  * http://www.example.com?id=2380
  */
-static const char *find_host_sep(const char *url)
+ساكن ثابت حرف *find_host_sep(ثابت حرف *url)
 {
   /* Find the start of the hostname */
-  const char *sep = strstr(url, "//");
-  if(!sep)
+  ثابت حرف *sep = strstr(url, "//");
+  إذا(!sep)
     sep = url;
-  else
+  وإلا
     sep += 2;
 
   /* Find first / or ? */
-  while(*sep && *sep != '/' && *sep != '?')
+  بينما(*sep && *sep != '/' && *sep != '?')
     sep++;
 
-  return sep;
+  إرجاع sep;
 }
 
 /* convert CURLcode to CURLUcode */
@@ -121,85 +121,85 @@ static const char *find_host_sep(const char *url)
  *
  * @unittest 1675
  */
-UNITTEST CURLUcode urlencode_str(struct dynbuf *o, const char *url,
+UNITTEST CURLUcode urlencode_str(بنية dynbuf *o, ثابت حرف *url,
                                  size_t len, bool relative,
-                                 unsigned int query);
-UNITTEST CURLUcode urlencode_str(struct dynbuf *o, const char *url,
+                                 unsigned صحيح query);
+UNITTEST CURLUcode urlencode_str(بنية dynbuf *o, ثابت حرف *url,
                                  size_t len, bool relative,
-                                 unsigned int query)
+                                 unsigned صحيح query)
 {
   /* we must add this with whitespace-replacing */
-  const unsigned char *iptr;
-  const unsigned char *host_sep = (const unsigned char *)url;
+  ثابت unsigned حرف *iptr;
+  ثابت unsigned حرف *host_sep = (ثابت unsigned حرف *)url;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT((query >= QUERY_NO) && (query <= QUERY_YES));
 
-  if(!relative) {
+  إذا(!relative) {
     size_t n;
-    host_sep = (const unsigned char *)find_host_sep(url);
+    host_sep = (ثابت unsigned حرف *)find_host_sep(url);
 
     /* output the first piece as-is */
-    n = (const char *)host_sep - url;
+    n = (ثابت حرف *)host_sep - url;
     result = curlx_dyn_addn(o, url, n);
     len -= n;
   }
 
-  for(iptr = host_sep; len && !result;) {
-    if(*iptr == ' ') {
-      if(query != QUERY_YES)
+  لكل(iptr = host_sep; len && !result;) {
+    إذا(*iptr == ' ') {
+      إذا(query != QUERY_YES)
         result = curlx_dyn_addn(o, "%20", 3);
-      else
+      وإلا
         result = curlx_dyn_addn(o, "+", 1);
       iptr++;
       len--;
     }
-    else if((*iptr < ' ') || (*iptr >= 0x7f)) {
-      unsigned char out[3] = { '%' };
+    وإلا إذا((*iptr < ' ') || (*iptr >= 0x7f)) {
+      unsigned حرف out[3] = { '%' };
       Curl_hexbyte(&out[1], *iptr);
       result = curlx_dyn_addn(o, out, 3);
       iptr++;
       len--;
     }
-    else if(*iptr == '%' && (len >= 3) &&
+    وإلا إذا(*iptr == '%' && (len >= 3) &&
             ISXDIGIT(iptr[1]) && ISXDIGIT(iptr[2]) &&
             (ISLOWER(iptr[1]) || ISLOWER(iptr[2]))) {
       /* uppercase it */
-      unsigned char hex = (unsigned char)((curlx_hexval(iptr[1]) << 4) |
+      unsigned حرف hex = (unsigned حرف)((curlx_hexval(iptr[1]) << 4) |
                                           curlx_hexval(iptr[2]));
-      unsigned char out[3] = { '%' };
+      unsigned حرف out[3] = { '%' };
       Curl_hexbyte(&out[1], hex);
       result = curlx_dyn_addn(o, out, 3);
       iptr += 3;
       len -= 3;
     }
-    else {
-      const unsigned char *start = iptr;
-      while(len) {
-        if(*iptr == ' ' || *iptr < ' ' || *iptr >= 0x7f)
-          break;
-        if(*iptr == '%' && (len >= 3) &&
+    وإلا {
+      ثابت unsigned حرف *start = iptr;
+      بينما(len) {
+        إذا(*iptr == ' ' || *iptr < ' ' || *iptr >= 0x7f)
+          اكسر;
+        إذا(*iptr == '%' && (len >= 3) &&
            ISXDIGIT(iptr[1]) && ISXDIGIT(iptr[2]) &&
            (ISLOWER(iptr[1]) || ISLOWER(iptr[2])))
-          break;
-        if(*iptr == '?') {
-          if(query == QUERY_NOT_YET) {
+          اكسر;
+        إذا(*iptr == '?') {
+          إذا(query == QUERY_NOT_YET) {
             iptr++;
             len--;
             query = QUERY_YES;
-            break;
+            اكسر;
           }
         }
         iptr++;
         len--;
       }
-      result = curlx_dyn_addn(o, (const char *)start, (size_t)(iptr - start));
+      result = curlx_dyn_addn(o, (ثابت حرف *)start, (size_t)(iptr - start));
     }
   }
 
-  if(result)
-    return cc2cu(result);
-  return CURLUE_OK;
+  إذا(result)
+    إرجاع cc2cu(result);
+  إرجاع CURLUE_OK;
 }
 
 /*
@@ -210,59 +210,59 @@ UNITTEST CURLUcode urlencode_str(struct dynbuf *o, const char *url,
  * If 'guess_scheme' is TRUE, it means the URL might be provided without
  * scheme.
  */
-size_t Curl_is_absolute_url(const char *url, char *buf, size_t buflen,
+size_t Curl_is_absolute_url(ثابت حرف *url, حرف *buf, size_t buflen,
                             bool guess_scheme)
 {
   size_t i = 0;
   DEBUGASSERT(!buf || (buflen > MAX_SCHEME_LEN));
-  (void)buflen; /* only used in debug-builds */
-  if(buf)
+  (فراغ)buflen; /* only used in debug-builds */
+  إذا(buf)
     buf[0] = 0; /* always leave a defined value in buf */
 #ifdef _WIN32
-  if(guess_scheme && STARTS_WITH_DRIVE_PREFIX(url))
-    return 0;
+  إذا(guess_scheme && STARTS_WITH_DRIVE_PREFIX(url))
+    إرجاع 0;
 #endif
-  if(ISALPHA(url[0])) {
-    if(buf)
+  إذا(ISALPHA(url[0])) {
+    إذا(buf)
       buf[0] = Curl_raw_tolower(url[0]);
-    for(i = 1; i < MAX_SCHEME_LEN; ++i) {
-      char s = url[i];
-      if(s && (ISALNUM(s) || (s == '+') || (s == '-') || (s == '.'))) {
-        if(buf)
+    لكل(i = 1; i < MAX_SCHEME_LEN; ++i) {
+      حرف s = url[i];
+      إذا(s && (ISALNUM(s) || (s == '+') || (s == '-') || (s == '.'))) {
+        إذا(buf)
           buf[i] = Curl_raw_tolower(s);
       }
-      else {
-        break;
+      وإلا {
+        اكسر;
       }
     }
   }
-  if(i && (url[i] == ':') && ((url[i + 1] == '/') || !guess_scheme)) {
+  إذا(i && (url[i] == ':') && ((url[i + 1] == '/') || !guess_scheme)) {
     /* If this does not guess scheme, the scheme always ends with the colon so
        that this also detects data: URLs etc. In guessing mode, data: could
        be the hostname "data" with a specified port number. */
 
     /* the length of the scheme is the name part only */
     size_t len = i;
-    if(buf)
+    إذا(buf)
       buf[i] = 0;
-    return len;
+    إرجاع len;
   }
-  if(buf)
+  إذا(buf)
     buf[0] = 0;
-  return 0;
+  إرجاع 0;
 }
 
 /* scan for byte values <= 31, 127 and maybe space */
-static bool badoctets(const char *input, size_t n, int flags)
+ساكن bool badoctets(ثابت حرف *إدخال, size_t n, صحيح flags)
 {
-  const uint8_t *p = (const unsigned char *)input;
-  const uint8_t control = flags & CURLU_ALLOW_SPACE ? 0x1f : 0x20;
-  while(n--) {
-    if(*p <= control || *p == 127)
-      return TRUE;
+  ثابت uint8_t *p = (ثابت unsigned حرف *)إدخال;
+  ثابت uint8_t control = flags & CURLU_ALLOW_SPACE ? 0x1f : 0x20;
+  بينما(n--) {
+    إذا(*p <= control || *p == 127)
+      إرجاع TRUE;
     p++;
   }
-  return FALSE;
+  إرجاع FALSE;
 }
 
 /*
@@ -273,23 +273,23 @@ static bool badoctets(const char *input, size_t n, int flags)
  *
  * @unittest 1675
  */
-UNITTEST CURLUcode parse_hostname_login(struct Curl_URL *u,
-                                        const char *login,
+UNITTEST CURLUcode parse_hostname_login(بنية Curl_URL *u,
+                                        ثابت حرف *login,
                                         size_t len,
-                                        unsigned int flags,
+                                        unsigned صحيح flags,
                                         size_t *hostname_offset);
-UNITTEST CURLUcode parse_hostname_login(struct Curl_URL *u,
-                                        const char *login,
+UNITTEST CURLUcode parse_hostname_login(بنية Curl_URL *u,
+                                        ثابت حرف *login,
                                         size_t len,
-                                        unsigned int flags,
+                                        unsigned صحيح flags,
                                         size_t *hostname_offset)
 {
   CURLUcode ures = CURLUE_OK;
   CURLcode result;
-  char *userp = NULL;
-  char *passwdp = NULL;
-  char *optionsp = NULL;
-  const struct Curl_scheme *h = NULL;
+  حرف *userp = عدم;
+  حرف *passwdp = عدم;
+  حرف *optionsp = عدم;
+  ثابت بنية Curl_scheme *h = عدم;
 
   /* At this point, we assume all the other special cases have been taken
    * care of, so the host is at most
@@ -298,14 +298,14 @@ UNITTEST CURLUcode parse_hostname_login(struct Curl_URL *u,
    *
    * We need somewhere to put the embedded details, so do that first.
    */
-  const char *ptr;
+  ثابت حرف *ptr;
 
   DEBUGASSERT(login);
 
   *hostname_offset = 0;
   ptr = memchr(login, '@', len);
-  if(!ptr)
-    goto out;
+  إذا(!ptr)
+    اذهب out;
 
   /* We will now try to extract the
    * possible login information in a string like:
@@ -313,7 +313,7 @@ UNITTEST CURLUcode parse_hostname_login(struct Curl_URL *u,
   ptr++;
 
   /* if this is a known scheme, get some details */
-  if(u->scheme)
+  إذا(u->scheme)
     h = Curl_get_scheme(u->scheme);
 
   /* We could use the login information in the URL so extract it. Only parse
@@ -321,48 +321,48 @@ UNITTEST CURLUcode parse_hostname_login(struct Curl_URL *u,
   result = Curl_parse_login_details(login, ptr - login - 1,
                                     &userp, &passwdp,
                                     (h && (h->flags & PROTOPT_URLOPTIONS)) ?
-                                    &optionsp : NULL);
-  if(result) {
+                                    &optionsp : عدم);
+  إذا(result) {
     /* the only possible error from Curl_parse_login_details is out of
        memory: */
     ures = CURLUE_OUT_OF_MEMORY;
-    goto out;
+    اذهب out;
   }
 
-  if(userp) {
-    if(flags & CURLU_DISALLOW_USER) {
+  إذا(userp) {
+    إذا(flags & CURLU_DISALLOW_USER) {
       /* Option DISALLOW_USER is set and URL contains username. */
       ures = CURLUE_USER_NOT_ALLOWED;
-      goto out;
+      اذهب out;
     }
     curlx_free(u->user);
     u->user = userp;
   }
 
-  if(passwdp) {
+  إذا(passwdp) {
     curlx_strzero(u->password);
     curlx_free(u->password);
     u->password = passwdp;
   }
 
-  if(optionsp) {
+  إذا(optionsp) {
     curlx_free(u->options);
     u->options = optionsp;
   }
 
-  if(userp && badoctets(userp, strlen(userp), flags))
+  إذا(userp && badoctets(userp, strlen(userp), flags))
     ures = CURLUE_BAD_USER;
-  else if(passwdp && badoctets(passwdp, strlen(passwdp), flags))
+  وإلا إذا(passwdp && badoctets(passwdp, strlen(passwdp), flags))
     ures = CURLUE_BAD_PASSWORD;
-  else if(optionsp && badoctets(optionsp, strlen(optionsp), flags))
-    ures = CURLUE_MALFORMED_INPUT;
+  وإلا إذا(optionsp && badoctets(optionsp, strlen(optionsp), flags))
+    ures = CURLUE_MALFORMED_إدخال;
 
-  userp = passwdp = optionsp = NULL;
+  userp = passwdp = optionsp = عدم;
 
-  if(!ures) {
+  إذا(!ures) {
     /* the hostname starts at this offset */
     *hostname_offset = ptr - login;
-    return CURLUE_OK;
+    إرجاع CURLUE_OK;
   }
 
 out:
@@ -376,42 +376,42 @@ out:
   curlx_safefree(u->password);
   curlx_safefree(u->options);
 
-  return ures;
+  إرجاع ures;
 }
 
 /* @unittest 1653 */
-UNITTEST CURLUcode parse_port(struct Curl_URL *u, struct dynbuf *host,
+UNITTEST CURLUcode parse_port(بنية Curl_URL *u, بنية dynbuf *host,
                               bool has_scheme);
-UNITTEST CURLUcode parse_port(struct Curl_URL *u, struct dynbuf *host,
+UNITTEST CURLUcode parse_port(بنية Curl_URL *u, بنية dynbuf *host,
                               bool has_scheme)
 {
-  const char *portptr;
-  const char *hostname = curlx_dyn_ptr(host);
+  ثابت حرف *portptr;
+  ثابت حرف *hostname = curlx_dyn_ptr(host);
   /*
    * Find the end of an IPv6 address on the ']' ending bracket.
    */
   u->portnum = 0;
   u->port_present = FALSE;
-  if(hostname[0] == '[') {
+  إذا(hostname[0] == '[') {
     portptr = memchr(hostname + 1, ']', curlx_dyn_len(host) - 1);
-    if(!portptr)
-      return CURLUE_BAD_IPV6;
+    إذا(!portptr)
+      إرجاع CURLUE_BAD_IPV6;
     portptr++;
     /* this is a RFC2732-style specified IP-address */
-    if(*portptr) {
-      if(*portptr != ':')
-        return CURLUE_BAD_PORT_NUMBER;
+    إذا(*portptr) {
+      إذا(*portptr != ':')
+        إرجاع CURLUE_BAD_PORT_العدد;
     }
-    else
-      portptr = NULL;
+    وإلا
+      portptr = عدم;
   }
-  else
+  وإلا
     portptr = memchr(hostname, ':', curlx_dyn_len(host));
 
-  if(portptr) {
+  إذا(portptr) {
     curl_off_t port;
     size_t keep = portptr - hostname;
-    int rc;
+    صحيح rc;
 
     /* Browser behavior adaptation. If there is a colon with no digits after,
        cut off the name there which makes us ignore the colon and use the
@@ -421,29 +421,29 @@ UNITTEST CURLUcode parse_port(struct Curl_URL *u, struct dynbuf *host,
        a scheme not work! */
     curlx_dyn_setlen(host, keep);
     portptr++;
-    if(!*portptr)
-      return has_scheme ? CURLUE_OK : CURLUE_BAD_PORT_NUMBER;
-    if(*portptr == '\\')
-      return CURLUE_BACKSLASH;
-    rc = curlx_str_number(&portptr, &port, 0xffff);
-    if(rc)
-      return CURLUE_BAD_PORT_NUMBER;
-    else if(*portptr == '\\')
-      return CURLUE_BACKSLASH;
-    else if(*portptr)
-      return CURLUE_BAD_PORT_NUMBER;
+    إذا(!*portptr)
+      إرجاع has_scheme ? CURLUE_OK : CURLUE_BAD_PORT_العدد;
+    إذا(*portptr == '\\')
+      إرجاع CURLUE_BACKSLASH;
+    rc = curlx_str_العدد(&portptr, &port, 0xffff);
+    إذا(rc)
+      إرجاع CURLUE_BAD_PORT_العدد;
+    وإلا إذا(*portptr == '\\')
+      إرجاع CURLUE_BACKSLASH;
+    وإلا إذا(*portptr)
+      إرجاع CURLUE_BAD_PORT_العدد;
 
     u->portnum = (uint16_t)port;
     u->port_present = TRUE;
   }
 
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
 /* characters not allowed in hostnames:
    " \r\n\t/:#?!@{}[]\\$\'\"^`*<>=;,+&()%|" */
 
-static const bool invalid_host_char[256] = {
+ساكن ثابت bool invalid_host_char[256] = {
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x00-0x0F */
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x10-0x1F */
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, /* 0x20-0x2F */
@@ -459,93 +459,93 @@ static const bool invalid_host_char[256] = {
  *
  * @unittest 1675
  */
-UNITTEST CURLUcode ipv6_parse(struct Curl_URL *u, char *hostname,
+UNITTEST CURLUcode ipv6_parse(بنية Curl_URL *u, حرف *hostname,
                               size_t hlen);
-UNITTEST CURLUcode ipv6_parse(struct Curl_URL *u, char *hostname,
+UNITTEST CURLUcode ipv6_parse(بنية Curl_URL *u, حرف *hostname,
                               size_t hlen) /* length of hostname */
 {
   size_t len;
   DEBUGASSERT(*hostname == '[');
-  if(hlen < 4) /* '[::]' is the shortest possible valid string */
-    return CURLUE_BAD_IPV6;
+  إذا(hlen < 4) /* '[::]' is the shortest possible valid string */
+    إرجاع CURLUE_BAD_IPV6;
   hostname++;
   hlen -= 2;
 
   /* only valid IPv6 letters are ok */
   len = strspn(hostname, "0123456789abcdefABCDEF:.");
 
-  if(hlen != len) {
+  إذا(hlen != len) {
     hlen = len;
-    if(hostname[len] == '%') {
+    إذا(hostname[len] == '%') {
       /* this could now be '%[zone id]' */
-      char zoneid[MAX_ZONEID_LEN];
-      int i = 0;
-      char *h = &hostname[len + 1];
+      حرف zoneid[MAX_ZONEID_LEN];
+      صحيح i = 0;
+      حرف *h = &hostname[len + 1];
       /* pass '25' if present and is a URL encoded percent sign */
-      if(!strncmp(h, "25", 2) && h[2] && (h[2] != ']'))
+      إذا(!strncmp(h, "25", 2) && h[2] && (h[2] != ']'))
         h += 2;
-      while(!invalid_host_char[(unsigned char)*h] && (*h != ']') &&
+      بينما(!invalid_host_char[(unsigned حرف)*h] && (*h != ']') &&
             (i < (MAX_ZONEID_LEN - 1)))
         zoneid[i++] = *h++;
-      if(!i || (']' != *h))
-        return CURLUE_BAD_IPV6;
+      إذا(!i || (']' != *h))
+        إرجاع CURLUE_BAD_IPV6;
       zoneid[i] = 0;
       u->zoneid = curlx_strdup(zoneid);
-      if(!u->zoneid)
-        return CURLUE_OUT_OF_MEMORY;
+      إذا(!u->zoneid)
+        إرجاع CURLUE_OUT_OF_MEMORY;
       hostname[len] = ']'; /* insert end bracket */
       hostname[len + 1] = 0; /* terminate the hostname */
     }
-    else
-      return CURLUE_BAD_IPV6;
+    وإلا
+      إرجاع CURLUE_BAD_IPV6;
     /* hostname is fine */
   }
 
   /* Normalize the IPv6 address */
   {
-    char dest[16]; /* fits a binary IPv6 address */
+    حرف dest[16]; /* fits a binary IPv6 address */
     hostname[hlen] = 0; /* end the address there */
-    if(curlx_inet_pton(AF_INET6, hostname, dest) != 1)
-      return CURLUE_BAD_IPV6;
-    if(!curlx_inet_ntop(AF_INET6, dest, hostname, hlen + 1)) {
+    إذا(curlx_inet_pton(AF_INET6, hostname, dest) != 1)
+      إرجاع CURLUE_BAD_IPV6;
+    إذا(!curlx_inet_ntop(AF_INET6, dest, hostname, hlen + 1)) {
       hlen = strlen(hostname); /* might be shorter now */
       hostname[hlen + 1] = 0;
     }
     hostname[hlen] = ']'; /* restore ending bracket */
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
 /* the input is a confirmed hostname, never an IPv6 address */
-static CURLUcode hostname_check(char *hostname, size_t hlen)
+ساكن CURLUcode hostname_check(حرف *hostname, size_t hlen)
 {
   size_t i;
-  for(i = 0; i < hlen; i++) {
-    if(invalid_host_char[(unsigned char)hostname[i]])
-      return CURLUE_BAD_HOSTNAME;
+  لكل(i = 0; i < hlen; i++) {
+    إذا(invalid_host_char[(unsigned حرف)hostname[i]])
+      إرجاع CURLUE_BAD_HOSTNAME;
   }
-  if((hlen >= 2) &&
+  إذا((hlen >= 2) &&
      (hostname[hlen - 1] == '.') && (hostname[hlen - 2] == '.'))
     /* more than one trailing dot is not allowed */
-    return CURLUE_BAD_HOSTNAME;
-  else if((hlen == 1) && (hostname[0] == '.'))
+    إرجاع CURLUE_BAD_HOSTNAME;
+  وإلا إذا((hlen == 1) && (hostname[0] == '.'))
     /* a single dot alone is not allowed */
-    return CURLUE_BAD_HOSTNAME;
-  return CURLUE_OK;
+    إرجاع CURLUE_BAD_HOSTNAME;
+  إرجاع CURLUE_OK;
 }
 
 /* the input is a hostname or perhaps an IPv6 address */
-static CURLUcode hostname_check6(struct Curl_URL *u, char *hostname,
+ساكن CURLUcode hostname_check6(بنية Curl_URL *u, حرف *hostname,
                                  size_t hlen) /* length of hostname */
 {
   DEBUGASSERT(hostname);
 
-  if(!hlen)
-    return CURLUE_NO_HOST;
-  else if(hostname[0] == '[')
-    return ipv6_parse(u, hostname, hlen);
+  إذا(!hlen)
+    إرجاع CURLUE_NO_HOST;
+  وإلا إذا(hostname[0] == '[')
+    إرجاع ipv6_parse(u, hostname, hlen);
 
-  return hostname_check(hostname, hlen);
+  إرجاع hostname_check(hostname, hlen);
 }
 
 /*
@@ -565,67 +565,67 @@ static CURLUcode hostname_check6(struct Curl_URL *u, char *hostname,
  *
  * @unittest 1675
  */
-UNITTEST int ipv4_normalize(struct dynbuf *host);
-UNITTEST int ipv4_normalize(struct dynbuf *host)
+UNITTEST صحيح ipv4_normalize(بنية dynbuf *host);
+UNITTEST صحيح ipv4_normalize(بنية dynbuf *host)
 {
   bool done = FALSE;
-  int n = 0;
-  const char *c = curlx_dyn_ptr(host);
-  unsigned int parts[4] = { 0, 0, 0, 0 };
+  صحيح n = 0;
+  ثابت حرف *c = curlx_dyn_ptr(host);
+  unsigned صحيح parts[4] = { 0, 0, 0, 0 };
   CURLcode result = CURLE_OK;
 
-  if(!ISDIGIT(*c))
-    return HOST_NAME;
+  إذا(!ISDIGIT(*c))
+    إرجاع HOST_NAME;
 
-  while(!done) {
-    int rc;
+  بينما(!done) {
+    صحيح rc;
     curl_off_t l;
-    if(*c == '0') {
-      if((c[1] | 0x20) == 'x') {
+    إذا(*c == '0') {
+      إذا((c[1] | 0x20) == 'x') {
         c += 2; /* skip the prefix */
         rc = curlx_str_hex(&c, &l, UINT_MAX);
-        if(rc)
-          return HOST_NAME;
+        إذا(rc)
+          إرجاع HOST_NAME;
       }
-      else
+      وإلا
         rc = curlx_str_octal(&c, &l, UINT_MAX);
     }
-    else
-      rc = curlx_str_number(&c, &l, UINT_MAX);
+    وإلا
+      rc = curlx_str_العدد(&c, &l, UINT_MAX);
 
-    if(rc) {
-      if(!n || (rc != STRE_NO_NUM) || *c)
-        return HOST_NAME;
+    إذا(rc) {
+      إذا(!n || (rc != STRE_NO_رقم) || *c)
+        إرجاع HOST_NAME;
       n--;
     }
-    else
-      parts[n] = (unsigned int)l;
+    وإلا
+      parts[n] = (unsigned صحيح)l;
 
-    switch(*c) {
-    case '.':
-      if(n == 3) {
-        if(c[1])
+    بدل(*c) {
+    حالة '.':
+      إذا(n == 3) {
+        إذا(c[1])
           /* something follows this dot */
-          return HOST_NAME;
+          إرجاع HOST_NAME;
         done = TRUE;
       }
-      else {
+      وإلا {
         n++;
         c++;
       }
-      break;
+      اكسر;
 
-    case '\0':
+    حالة '\0':
       done = TRUE;
-      break;
+      اكسر;
 
-    default:
-      return HOST_NAME;
+    افتراضي:
+      إرجاع HOST_NAME;
     }
   }
 
-  switch(n) {
-  case 0: /* a -- 32 bits */
+  بدل(n) {
+  حالة 0: /* a -- 32 bits */
     curlx_dyn_reset(host);
 
     result = curlx_dyn_addf(host, "%u.%u.%u.%u",
@@ -633,75 +633,75 @@ UNITTEST int ipv4_normalize(struct dynbuf *host)
                             ((parts[0] >> 16) & 0xff),
                             ((parts[0] >> 8) & 0xff),
                             (parts[0] & 0xff));
-    break;
-  case 1: /* a.b -- 8.24 bits */
-    if((parts[0] > 0xff) || (parts[1] > 0xffffff))
-      return HOST_NAME;
+    اكسر;
+  حالة 1: /* a.b -- 8.24 bits */
+    إذا((parts[0] > 0xff) || (parts[1] > 0xffffff))
+      إرجاع HOST_NAME;
     curlx_dyn_reset(host);
     result = curlx_dyn_addf(host, "%u.%u.%u.%u",
                             parts[0],
                             ((parts[1] >> 16) & 0xff),
                             ((parts[1] >> 8) & 0xff),
                             (parts[1] & 0xff));
-    break;
-  case 2: /* a.b.c -- 8.8.16 bits */
-    if((parts[0] > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xffff))
-      return HOST_NAME;
+    اكسر;
+  حالة 2: /* a.b.c -- 8.8.16 bits */
+    إذا((parts[0] > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xffff))
+      إرجاع HOST_NAME;
     curlx_dyn_reset(host);
     result = curlx_dyn_addf(host, "%u.%u.%u.%u",
                             parts[0],
                             parts[1],
                             ((parts[2] >> 8) & 0xff),
                             (parts[2] & 0xff));
-    break;
-  case 3: /* a.b.c.d -- 8.8.8.8 bits */
-    if((parts[0] > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xff) ||
+    اكسر;
+  حالة 3: /* a.b.c.d -- 8.8.8.8 bits */
+    إذا((parts[0] > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xff) ||
        (parts[3] > 0xff))
-      return HOST_NAME;
+      إرجاع HOST_NAME;
     curlx_dyn_reset(host);
     result = curlx_dyn_addf(host, "%u.%u.%u.%u",
                             parts[0],
                             parts[1],
                             parts[2],
                             parts[3]);
-    break;
+    اكسر;
   }
-  if(result)
-    return HOST_ERROR;
-  return HOST_IPV4;
+  إذا(result)
+    إرجاع HOST_ERROR;
+  إرجاع HOST_IPV4;
 }
 
 /* if necessary, replace the host content with a URL decoded version */
-static CURLUcode urldecode_host(struct dynbuf *host)
+ساكن CURLUcode urldecode_host(بنية dynbuf *host)
 {
-  const char *per;
-  const char *hostname = curlx_dyn_ptr(host);
+  ثابت حرف *per;
+  ثابت حرف *hostname = curlx_dyn_ptr(host);
   per = memchr(hostname, '%', curlx_dyn_len(host));
-  if(!per)
+  إذا(!per)
     /* nothing to decode */
-    return CURLUE_OK;
-  else {
+    إرجاع CURLUE_OK;
+  وإلا {
     /* encoded */
     size_t dlen;
-    char *decoded;
+    حرف *decoded;
     CURLcode result = Curl_urldecode(hostname, 0, &decoded, &dlen,
                                      REJECT_CTRL);
-    if(result)
-      return CURLUE_BAD_HOSTNAME;
+    إذا(result)
+      إرجاع CURLUE_BAD_HOSTNAME;
     curlx_dyn_reset(host);
     result = curlx_dyn_addn(host, decoded, dlen);
     curlx_free(decoded);
-    if(result)
-      return cc2cu(result);
+    إذا(result)
+      إرجاع cc2cu(result);
   }
 
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode parse_authority(struct Curl_URL *u,
-                                 const char *auth, size_t authlen,
-                                 unsigned int flags,
-                                 struct dynbuf *host,
+ساكن CURLUcode parse_authority(بنية Curl_URL *u,
+                                 ثابت حرف *auth, size_t authlen,
+                                 unsigned صحيح flags,
+                                 بنية dynbuf *host,
                                  bool has_scheme)
 {
   size_t offset;
@@ -712,58 +712,58 @@ static CURLUcode parse_authority(struct Curl_URL *u,
    * Parse the login details and strip them out of the hostname.
    */
   uc = parse_hostname_login(u, auth, authlen, flags, &offset);
-  if(uc)
-    return uc;
+  إذا(uc)
+    إرجاع uc;
 
   result = curlx_dyn_addn(host, auth + offset, authlen - offset);
-  if(result) {
+  إذا(result) {
     uc = cc2cu(result);
-    return uc;
+    إرجاع uc;
   }
 
   /* parse_port() also sets the hostname length correctly */
   uc = parse_port(u, host, has_scheme);
 
-  if(!curlx_dyn_len(host))
+  إذا(!curlx_dyn_len(host))
     /* this makes no-host errors override port number problems */
     uc = CURLUE_NO_HOST;
-  if(!uc)
+  إذا(!uc)
     uc = urldecode_host(host);
-  if(uc)
+  إذا(uc)
     ;
-  else if(auth[offset] == '[')
+  وإلا إذا(auth[offset] == '[')
     uc = ipv6_parse(u, curlx_dyn_ptr(host), curlx_dyn_len(host));
-  else {
+  وإلا {
     /* ipv4_normalize() returns *NAME, *IPV4 or *ERROR */
-    int type = ipv4_normalize(host);
+    صحيح type = ipv4_normalize(host);
 
-    if(type == HOST_NAME)
+    إذا(type == HOST_NAME)
       uc = hostname_check(curlx_dyn_ptr(host), curlx_dyn_len(host));
-    else if(type == HOST_ERROR)
+    وإلا إذا(type == HOST_ERROR)
       uc = CURLUE_OUT_OF_MEMORY;
   }
 
-  return uc;
+  إرجاع uc;
 }
 
 /* used for HTTP/2 server push */
-CURLUcode Curl_url_set_authority(CURLU *u, const char *authority)
+CURLUcode Curl_url_set_authority(CURLU *u, ثابت حرف *authority)
 {
   CURLUcode ures;
-  struct dynbuf host;
+  بنية dynbuf host;
 
   DEBUGASSERT(authority);
-  curlx_dyn_init(&host, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&host, CURL_MAX_إدخال_LENGTH);
 
   ures = parse_authority(u, authority, strlen(authority),
                          CURLU_DISALLOW_USER, &host, !!u->scheme);
-  if(ures)
+  إذا(ures)
     curlx_dyn_free(&host);
-  else {
+  وإلا {
     curlx_free(u->host);
     u->host = curlx_dyn_ptr(&host);
   }
-  return ures;
+  إرجاع ures;
 }
 
 /*
@@ -771,48 +771,48 @@ CURLUcode Curl_url_set_authority(CURLU *u, const char *authority)
  * https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.4
  */
 
-static bool is_dot(const char **str, size_t *clen)
+ساكن bool is_dot(ثابت حرف **str, size_t *clen)
 {
-  const char *p = *str;
-  if(*p == '.') {
+  ثابت حرف *p = *str;
+  إذا(*p == '.') {
     (*str)++;
     (*clen)--;
-    return TRUE;
+    إرجاع TRUE;
   }
-  else if((*clen >= 3) &&
+  وإلا إذا((*clen >= 3) &&
           (p[0] == '%') && (p[1] == '2') && ((p[2] | 0x20) == 'e')) {
     *str += 3;
     *clen -= 3;
-    return TRUE;
+    إرجاع TRUE;
   }
-  return FALSE;
+  إرجاع FALSE;
 }
 
 #define ISSLASH(x) ((x) == '/')
 
 /* prescan the string to see if it needs work */
-static bool needs_dedotdot(const char *p, size_t pn)
+ساكن bool needs_dedotdot(ثابت حرف *p, size_t pn)
 {
   /* a single byte path cannot be cleaned up */
-  if(pn < 2)
-    return FALSE;
-  if(!memchr(p, '.', pn) && !memchr(p, '%', pn))
-    return FALSE;
-  while(pn) {
-    if(is_dot(&p, &pn)) {
+  إذا(pn < 2)
+    إرجاع FALSE;
+  إذا(!memchr(p, '.', pn) && !memchr(p, '%', pn))
+    إرجاع FALSE;
+  بينما(pn) {
+    إذا(is_dot(&p, &pn)) {
       /* "./" or dot before end of string */
-      if(!pn || ISSLASH(*p))
-        return TRUE;
+      إذا(!pn || ISSLASH(*p))
+        إرجاع TRUE;
       /* "../" or ".." before end of string */
-      else if(is_dot(&p, &pn) && (!pn || ISSLASH(*p)))
-        return TRUE;
+      وإلا إذا(is_dot(&p, &pn) && (!pn || ISSLASH(*p)))
+        إرجاع TRUE;
     }
-    else {
+    وإلا {
       p++;
       pn--;
     }
   }
-  return FALSE;
+  إرجاع FALSE;
 }
 
 /*
@@ -831,85 +831,85 @@ static bool needs_dedotdot(const char *p, size_t pn)
  *
  * @unittest 1395
  */
-UNITTEST int dedotdotify(const char *input, size_t clen, char **outp);
-UNITTEST int dedotdotify(const char *input, size_t clen, char **outp)
+UNITTEST صحيح dedotdotify(ثابت حرف *إدخال, size_t clen, حرف **outp);
+UNITTEST صحيح dedotdotify(ثابت حرف *إدخال, size_t clen, حرف **outp)
 {
-  struct dynbuf out;
+  بنية dynbuf out;
   CURLcode result = CURLE_OK;
 
   /* variables for leading dot checks */
-  const char *dinput = input;
+  ثابت حرف *dinput = إدخال;
   size_t dlen = clen;
 
-  *outp = NULL;
-  if(!needs_dedotdot(input, clen))
-    return 0;
+  *outp = عدم;
+  إذا(!needs_dedotdot(إدخال, clen))
+    إرجاع 0;
 
   curlx_dyn_init(&out, clen + 1);
 
   /* if the input buffer begins with a prefix of "../" or "./", then remove
      that prefix from the input buffer; otherwise, */
-  if(is_dot(&dinput, &dlen)) {
-    if(ISSLASH(*dinput)) {
+  إذا(is_dot(&dinput, &dlen)) {
+    إذا(ISSLASH(*dinput)) {
       /* one dot followed by a slash */
-      input = dinput + 1;
+      إدخال = dinput + 1;
       clen = dlen - 1;
     }
 
     /* if the input buffer consists only of "." or "..", then remove
        that from the input buffer; otherwise, */
-    else if(is_dot(&dinput, &dlen)) {
-      if(!dlen)
+    وإلا إذا(is_dot(&dinput, &dlen)) {
+      إذا(!dlen)
         /* .. [end] */
-        goto end;
-      else if(ISSLASH(*dinput)) {
+        اذهب end;
+      وإلا إذا(ISSLASH(*dinput)) {
         /* ../ */
-        input = dinput + 1;
+        إدخال = dinput + 1;
         clen = dlen - 1;
       }
     }
   }
 
-  while(clen && !result) { /* until end of path content */
-    if(ISSLASH(*input)) {
-      const char *p = &input[1];
+  بينما(clen && !result) { /* until end of path content */
+    إذا(ISSLASH(*إدخال)) {
+      ثابت حرف *p = &إدخال[1];
       size_t blen = clen - 1;
       /* if the input buffer begins with a prefix of "/./" or "/.", where "."
          is a complete path segment, then replace that prefix with "/" in the
          input buffer; otherwise, */
-      if(is_dot(&p, &blen)) {
-        if(!blen) { /* /. */
+      إذا(is_dot(&p, &blen)) {
+        إذا(!blen) { /* /. */
           result = curlx_dyn_addn(&out, "/", 1);
-          break;
+          اكسر;
         }
-        else if(ISSLASH(*p)) { /* /./ */
-          input = p;
+        وإلا إذا(ISSLASH(*p)) { /* /./ */
+          إدخال = p;
           clen = blen;
-          continue;
+          استمر;
         }
 
         /* if the input buffer begins with a prefix of "/../" or "/..", where
            ".." is a complete path segment, then replace that prefix with "/"
            in the input buffer and remove the last segment and its preceding
            "/" (if any) from the output buffer; otherwise, */
-        else if(is_dot(&p, &blen) && (ISSLASH(*p) || !blen)) {
+        وإلا إذا(is_dot(&p, &blen) && (ISSLASH(*p) || !blen)) {
           /* remove the last segment from the output buffer */
           size_t len = curlx_dyn_len(&out);
-          if(len) {
-            const char *ptr = curlx_dyn_ptr(&out);
-            const char *last = memrchr(ptr, '/', len);
-            if(last)
+          إذا(len) {
+            ثابت حرف *ptr = curlx_dyn_ptr(&out);
+            ثابت حرف *last = memrchr(ptr, '/', len);
+            إذا(last)
               /* trim the output at the slash */
               curlx_dyn_setlen(&out, last - ptr);
           }
 
-          if(blen) { /* /../ */
-            input = p;
+          إذا(blen) { /* /../ */
+            إدخال = p;
             clen = blen;
-            continue;
+            استمر;
           }
           result = curlx_dyn_addn(&out, "/", 1);
-          break;
+          اكسر;
         }
       }
     }
@@ -919,39 +919,39 @@ UNITTEST int dedotdotify(const char *input, size_t clen, char **outp)
        subsequent characters up to, but not including, the next "/" character
        or the end of the input buffer. */
 
-    result = curlx_dyn_addn(&out, input, 1);
-    input++;
+    result = curlx_dyn_addn(&out, إدخال, 1);
+    إدخال++;
     clen--;
   }
 end:
-  if(!result) {
-    if(curlx_dyn_len(&out))
+  إذا(!result) {
+    إذا(curlx_dyn_len(&out))
       *outp = curlx_dyn_ptr(&out);
-    else {
+    وإلا {
       *outp = curlx_strdup("");
-      if(!*outp)
-        return 1;
+      إذا(!*outp)
+        إرجاع 1;
     }
   }
-  return result ? 1 : 0; /* success */
+  إرجاع result ? 1 : 0; /* success */
 }
 
 /*
  * @unittest 1675
  */
-UNITTEST CURLUcode parse_file(const char *url, size_t urllen, CURLU *u,
-                              const char **pathp, size_t *pathlenp);
-UNITTEST CURLUcode parse_file(const char *url, size_t urllen, CURLU *u,
-                              const char **pathp, size_t *pathlenp)
+UNITTEST CURLUcode parse_file(ثابت حرف *url, size_t urllen, CURLU *u,
+                              ثابت حرف **pathp, size_t *pathlenp);
+UNITTEST CURLUcode parse_file(ثابت حرف *url, size_t urllen, CURLU *u,
+                              ثابت حرف **pathp, size_t *pathlenp)
 {
-  const char *path;
+  ثابت حرف *path;
   size_t pathlen;
 
-  *pathp = NULL;
+  *pathp = عدم;
   *pathlenp = 0;
-  if(urllen <= 6)
+  إذا(urllen <= 6)
     /* file:/ is not enough to actually be a complete file: URL */
-    return CURLUE_BAD_FILE_URL;
+    إرجاع CURLUE_BAD_FILE_URL;
 
   /* path has been allocated large enough to hold this */
   path = &url[5];
@@ -960,8 +960,8 @@ UNITTEST CURLUcode parse_file(const char *url, size_t urllen, CURLU *u,
   /* RFC 8089: file-hier-part = ( "//" auth-path ) / local-path, where
      local-path also starts with a "/". So reject anything that does not
      start with at least one "/" */
-  if(path[0] != '/')
-    return CURLUE_BAD_FILE_URL;
+  إذا(path[0] != '/')
+    إرجاع CURLUE_BAD_FILE_URL;
 
   /* Extra handling URLs with an authority component (i.e. that start with
    * "file://")
@@ -969,9 +969,9 @@ UNITTEST CURLUcode parse_file(const char *url, size_t urllen, CURLU *u,
    * We allow omitted hostname (e.g. file:/<path>) -- valid according to
    * RFC 8089, but not the (current) WHAT-WG URL spec.
    */
-  if(path[1] == '/') {
+  إذا(path[1] == '/') {
     /* swallow the two slashes */
-    const char *ptr = &path[2];
+    ثابت حرف *ptr = &path[2];
 
     /*
      * According to RFC 8089, a file: URL can be reliably dereferenced if:
@@ -989,90 +989,90 @@ UNITTEST CURLUcode parse_file(const char *url, size_t urllen, CURLU *u,
      * letter in the authority (which was accidentally omitted from RFC 8089
      * Appendix E, but believe me, it was meant to be there. --MK)
      */
-    if(ptr[0] != '/' && !STARTS_WITH_URL_DRIVE_PREFIX(ptr)) {
+    إذا(ptr[0] != '/' && !STARTS_WITH_URL_DRIVE_PREFIX(ptr)) {
       /* the URL includes a hostname, it must match "localhost" or
          "127.0.0.1" to be valid */
-      if(checkprefix("localhost/", ptr) ||
+      إذا(checkprefix("localhost/", ptr) ||
          checkprefix("127.0.0.1/", ptr)) {
         ptr += 9; /* now points to the slash after the host */
       }
-      else
+      وإلا
         /* Invalid file://hostname/, expected localhost or 127.0.0.1 or
            none */
-        return CURLUE_BAD_FILE_URL;
+        إرجاع CURLUE_BAD_FILE_URL;
     }
 
     path = ptr;
     pathlen = urllen - (ptr - url);
   }
 
-#if !defined(_WIN32) && !defined(MSDOS) && !defined(__CYGWIN__)
+#إذا !defined(_WIN32) && !defined(MSDOS) && !defined(__CYGWIN__)
   /* Do not allow Windows drive letters when not in Windows.
    * This catches both "file:/c:" and "file:c:" */
-  if(('/' == path[0] && STARTS_WITH_URL_DRIVE_PREFIX(&path[1])) ||
+  إذا(('/' == path[0] && STARTS_WITH_URL_DRIVE_PREFIX(&path[1])) ||
      STARTS_WITH_URL_DRIVE_PREFIX(path)) {
     /* File drive letters are only accepted in MS-DOS/Windows */
-    return CURLUE_BAD_FILE_URL;
+    إرجاع CURLUE_BAD_FILE_URL;
   }
-#else
+#وإلا
   /* If the path starts with a slash and a drive letter, ditch the slash */
-  if('/' == path[0] && STARTS_WITH_URL_DRIVE_PREFIX(&path[1])) {
+  إذا('/' == path[0] && STARTS_WITH_URL_DRIVE_PREFIX(&path[1])) {
     /* This cannot be done with strcpy, as the memory chunks overlap! */
     path++;
     pathlen--;
   }
 #endif
   u->scheme = curlx_strdup("file");
-  if(!u->scheme)
-    return CURLUE_OUT_OF_MEMORY;
+  إذا(!u->scheme)
+    إرجاع CURLUE_OUT_OF_MEMORY;
 
   *pathp = path;
   *pathlenp = pathlen;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode parse_scheme(const char *url, CURLU *u, char *schemebuf,
-                              size_t schemelen, unsigned int flags,
-                              const char **hostpp)
+ساكن CURLUcode parse_scheme(ثابت حرف *url, CURLU *u, حرف *schemebuf,
+                              size_t schemelen, unsigned صحيح flags,
+                              ثابت حرف **hostpp)
 {
   /* clear path */
-  const char *schemep = NULL;
+  ثابت حرف *schemep = عدم;
 
-  if(schemelen) {
-    int num_slashes = 0;
-    const char *p = &url[schemelen + 1];
-    if(!Curl_getn_scheme(schemebuf, schemelen) &&
+  إذا(schemelen) {
+    صحيح رقم_slashes = 0;
+    ثابت حرف *p = &url[schemelen + 1];
+    إذا(!Curl_getn_scheme(schemebuf, schemelen) &&
        !(flags & CURLU_NON_SUPPORT_SCHEME))
-      return CURLUE_UNSUPPORTED_SCHEME;
+      إرجاع CURLUE_UNSUPPORTED_SCHEME;
 
-    if(!ISSLASH(*p))
+    إذا(!ISSLASH(*p))
       /* less than one */
-      return CURLUE_BAD_SLASHES;
-    if((flags & CURLU_NO_AUTHORITY)) {
-      while(ISSLASH(*p) && (num_slashes < 2)) {
+      إرجاع CURLUE_BAD_SLASHES;
+    إذا((flags & CURLU_NO_AUTHORITY)) {
+      بينما(ISSLASH(*p) && (رقم_slashes < 2)) {
         p++;
-        num_slashes++;
+        رقم_slashes++;
       }
     }
-    else {
-      while(ISSLASH(*p) && (num_slashes < 4)) {
+    وإلا {
+      بينما(ISSLASH(*p) && (رقم_slashes < 4)) {
         p++;
-        num_slashes++;
+        رقم_slashes++;
       }
-      if(num_slashes > 3)
-        return CURLUE_BAD_SLASHES;
+      إذا(رقم_slashes > 3)
+        إرجاع CURLUE_BAD_SLASHES;
     }
 
     schemep = schemebuf;
     *hostpp = p; /* hostname starts here */
   }
-  else {
+  وإلا {
     /* no scheme! */
 
-    if(!(flags & (CURLU_DEFAULT_SCHEME | CURLU_GUESS_SCHEME)))
-      return CURLUE_BAD_SCHEME;
+    إذا(!(flags & (CURLU_DEFAULT_SCHEME | CURLU_GUESS_SCHEME)))
+      إرجاع CURLUE_BAD_SCHEME;
 
-    if(flags & CURLU_DEFAULT_SCHEME)
+    إذا(flags & CURLU_DEFAULT_SCHEME)
       schemep = DEFAULT_SCHEME;
 
     /*
@@ -1081,365 +1081,365 @@ static CURLUcode parse_scheme(const char *url, CURLU *u, char *schemebuf,
     *hostpp = url;
   }
 
-  if(schemep) {
+  إذا(schemep) {
     u->scheme = curlx_strdup(schemep);
-    if(!u->scheme)
-      return CURLUE_OUT_OF_MEMORY;
+    إذا(!u->scheme)
+      إرجاع CURLUE_OUT_OF_MEMORY;
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode guess_scheme(CURLU *u, struct dynbuf *host)
+ساكن CURLUcode guess_scheme(CURLU *u, بنية dynbuf *host)
 {
-  const char *hostname = curlx_dyn_ptr(host);
-  const char *schemep = NULL;
+  ثابت حرف *hostname = curlx_dyn_ptr(host);
+  ثابت حرف *schemep = عدم;
   /* legacy curl-style guess based on hostname */
-  if(checkprefix("ftp.", hostname))
+  إذا(checkprefix("ftp.", hostname))
     schemep = "ftp";
-  else if(checkprefix("dict.", hostname))
+  وإلا إذا(checkprefix("dict.", hostname))
     schemep = "dict";
-  else if(checkprefix("ldap.", hostname))
+  وإلا إذا(checkprefix("ldap.", hostname))
     schemep = "ldap";
-  else if(checkprefix("imap.", hostname))
+  وإلا إذا(checkprefix("imap.", hostname))
     schemep = "imap";
-  else if(checkprefix("smtp.", hostname))
+  وإلا إذا(checkprefix("smtp.", hostname))
     schemep = "smtp";
-  else if(checkprefix("pop3.", hostname))
+  وإلا إذا(checkprefix("pop3.", hostname))
     schemep = "pop3";
-  else
+  وإلا
     schemep = "http";
 
   u->scheme = curlx_strdup(schemep);
-  if(!u->scheme)
-    return CURLUE_OUT_OF_MEMORY;
+  إذا(!u->scheme)
+    إرجاع CURLUE_OUT_OF_MEMORY;
 
   u->guessed_scheme = TRUE;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode handle_fragment(CURLU *u, const char *fragment,
-                                 size_t fraglen, unsigned int flags)
+ساكن CURLUcode handle_fragment(CURLU *u, ثابت حرف *fragment,
+                                 size_t fraglen, unsigned صحيح flags)
 {
   CURLUcode ures;
   u->fragment_present = TRUE;
-  if(fraglen > 1) {
+  إذا(fraglen > 1) {
     /* skip the leading '#' in the copy but include the null-terminator */
-    if(flags & CURLU_URLENCODE) {
-      struct dynbuf enc;
-      curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+    إذا(flags & CURLU_URLENCODE) {
+      بنية dynbuf enc;
+      curlx_dyn_init(&enc, CURL_MAX_إدخال_LENGTH);
       ures = urlencode_str(&enc, fragment + 1, fraglen - 1, TRUE, QUERY_NO);
-      if(ures)
-        return ures;
+      إذا(ures)
+        إرجاع ures;
       u->fragment = curlx_dyn_ptr(&enc);
     }
-    else {
-      if(badoctets(fragment, fraglen, flags))
-        return CURLUE_BAD_FRAGMENT;
+    وإلا {
+      إذا(badoctets(fragment, fraglen, flags))
+        إرجاع CURLUE_BAD_FRAGMENT;
       u->fragment = curlx_memdup0(fragment + 1, fraglen - 1);
-      if(!u->fragment)
-        return CURLUE_OUT_OF_MEMORY;
+      إذا(!u->fragment)
+        إرجاع CURLUE_OUT_OF_MEMORY;
     }
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode handle_query(CURLU *u, const char *query,
-                              size_t qlen, unsigned int flags)
+ساكن CURLUcode handle_query(CURLU *u, ثابت حرف *query,
+                              size_t qlen, unsigned صحيح flags)
 {
   u->query_present = TRUE;
-  if(qlen > 1) {
-    if(flags & CURLU_URLENCODE) {
-      struct dynbuf enc;
+  إذا(qlen > 1) {
+    إذا(flags & CURLU_URLENCODE) {
+      بنية dynbuf enc;
       CURLUcode ures;
-      curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+      curlx_dyn_init(&enc, CURL_MAX_إدخال_LENGTH);
       /* skip the leading question mark */
       ures = urlencode_str(&enc, query + 1, qlen - 1, TRUE, QUERY_YES);
-      if(ures)
-        return ures;
+      إذا(ures)
+        إرجاع ures;
       u->query = curlx_dyn_ptr(&enc);
     }
-    else {
-      if(badoctets(query, qlen, flags))
-        return CURLUE_BAD_QUERY;
+    وإلا {
+      إذا(badoctets(query, qlen, flags))
+        إرجاع CURLUE_BAD_QUERY;
 
       u->query = curlx_memdup0(query + 1, qlen - 1);
-      if(!u->query)
-        return CURLUE_OUT_OF_MEMORY;
+      إذا(!u->query)
+        إرجاع CURLUE_OUT_OF_MEMORY;
     }
   }
-  else {
+  وإلا {
     /* single byte query */
     u->query = curlx_strdup("");
-    if(!u->query)
-      return CURLUE_OUT_OF_MEMORY;
+    إذا(!u->query)
+      إرجاع CURLUE_OUT_OF_MEMORY;
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode handle_path(CURLU *u, const char *path,
-                             size_t pathlen, unsigned int flags,
+ساكن CURLUcode handle_path(CURLU *u, ثابت حرف *path,
+                             size_t pathlen, unsigned صحيح flags,
                              bool is_file)
 {
   CURLUcode ures;
-  if(pathlen && (flags & CURLU_URLENCODE)) {
-    struct dynbuf enc;
-    curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+  إذا(pathlen && (flags & CURLU_URLENCODE)) {
+    بنية dynbuf enc;
+    curlx_dyn_init(&enc, CURL_MAX_إدخال_LENGTH);
     ures = urlencode_str(&enc, path, pathlen, TRUE, QUERY_NO);
-    if(ures)
-      return ures;
+    إذا(ures)
+      إرجاع ures;
     pathlen = curlx_dyn_len(&enc);
     path = u->path = curlx_dyn_ptr(&enc);
   }
 
-  if(pathlen >= (size_t)(1 + !is_file)) {
-    if(badoctets(path, pathlen, flags))
-      return CURLUE_BAD_PATH;
+  إذا(pathlen >= (size_t)(1 + !is_file)) {
+    إذا(badoctets(path, pathlen, flags))
+      إرجاع CURLUE_BAD_PATH;
 
     /* paths for file:// scheme can be one byte, others need to be two */
-    if(!u->path) {
+    إذا(!u->path) {
       u->path = curlx_memdup0(path, pathlen);
-      if(!u->path)
-        return CURLUE_OUT_OF_MEMORY;
+      إذا(!u->path)
+        إرجاع CURLUE_OUT_OF_MEMORY;
       path = u->path;
     }
-    else if(flags & CURLU_URLENCODE)
+    وإلا إذا(flags & CURLU_URLENCODE)
       /* it might have encoded more than the path so cut it */
       u->path[pathlen] = 0;
 
-    if(!(flags & CURLU_PATH_AS_IS)) {
+    إذا(!(flags & CURLU_PATH_AS_IS)) {
       /* remove ../ and ./ sequences according to RFC3986 */
-      char *dedot;
-      int err = dedotdotify(path, pathlen, &dedot);
-      if(err)
-        return CURLUE_OUT_OF_MEMORY;
-      if(dedot) {
+      حرف *dedot;
+      صحيح err = dedotdotify(path, pathlen, &dedot);
+      إذا(err)
+        إرجاع CURLUE_OUT_OF_MEMORY;
+      إذا(dedot) {
         curlx_free(u->path);
         u->path = dedot;
       }
     }
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode parseurl(const char *url, CURLU *u, unsigned int flags)
+ساكن CURLUcode parseurl(ثابت حرف *url, CURLU *u, unsigned صحيح flags)
 {
-  const char *path;
+  ثابت حرف *path;
   size_t pathlen;
-  char schemebuf[MAX_SCHEME_LEN + 1];
+  حرف schemebuf[MAX_SCHEME_LEN + 1];
   size_t schemelen = 0;
   size_t urllen;
   CURLUcode ures = CURLUE_OK;
-  struct dynbuf host;
+  بنية dynbuf host;
   bool is_file = FALSE;
 
   DEBUGASSERT(url);
 
   urllen = strlen(url);
-  if(urllen > CURL_MAX_INPUT_LENGTH)
-    return CURLUE_MALFORMED_INPUT;
+  إذا(urllen > CURL_MAX_إدخال_LENGTH)
+    إرجاع CURLUE_MALFORMED_إدخال;
 
-  curlx_dyn_init(&host, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&host, CURL_MAX_إدخال_LENGTH);
 
-  schemelen = Curl_is_absolute_url(url, schemebuf, sizeof(schemebuf),
+  schemelen = Curl_is_absolute_url(url, schemebuf, حجم(schemebuf),
                                    flags & (CURLU_GUESS_SCHEME |
                                             CURLU_DEFAULT_SCHEME));
 
   /* handle the file: scheme */
-  if(schemelen == 4 && !memcmp(schemebuf, "file", 4)) {
+  إذا(schemelen == 4 && !memcmp(schemebuf, "file", 4)) {
     is_file = TRUE;
     ures = parse_file(url, urllen, u, &path, &pathlen);
   }
-  else {
-    const char *hostp = NULL;
-    const char *p;
+  وإلا {
+    ثابت حرف *hostp = عدم;
+    ثابت حرف *p;
     size_t hostlen;
     ures = parse_scheme(url, u, schemebuf, schemelen, flags, &hostp);
-    if(ures)
-      goto fail;
+    إذا(ures)
+      اذهب fail;
 
     /* find the end of the hostname + port number */
     p = hostp;
-    while(*p && *p != '/' && *p != '?' && *p != '#')
+    بينما(*p && *p != '/' && *p != '?' && *p != '#')
       p++;
     hostlen = p - hostp;
     path = p;
 
     /* this pathlen also contains the query and the fragment */
     pathlen = urllen - (path - url);
-    if(hostlen) {
+    إذا(hostlen) {
       ures = parse_authority(u, hostp, hostlen, flags, &host, !!u->scheme);
-      if(!ures && (flags & CURLU_GUESS_SCHEME) && !u->scheme)
+      إذا(!ures && (flags & CURLU_GUESS_SCHEME) && !u->scheme)
         ures = guess_scheme(u, &host);
     }
-    else if(flags & CURLU_NO_AUTHORITY) {
+    وإلا إذا(flags & CURLU_NO_AUTHORITY) {
       /* allowed to be empty. */
-      if(curlx_dyn_add(&host, ""))
+      إذا(curlx_dyn_add(&host, ""))
         ures = CURLUE_OUT_OF_MEMORY;
     }
-    else
+    وإلا
       ures = CURLUE_NO_HOST;
   }
-  if(!ures) {
+  إذا(!ures) {
     /* The path might at this point contain a fragment and/or a query to
        handle */
-    const char *fragment = memchr(path, '#', pathlen);
-    if(fragment) {
+    ثابت حرف *fragment = memchr(path, '#', pathlen);
+    إذا(fragment) {
       size_t fraglen = pathlen - (fragment - path);
       ures = handle_fragment(u, fragment, fraglen, flags);
       /* after this, pathlen still contains the query */
       pathlen -= fraglen;
     }
   }
-  if(!ures) {
-    const char *query = memchr(path, '?', pathlen);
-    if(query) {
+  إذا(!ures) {
+    ثابت حرف *query = memchr(path, '?', pathlen);
+    إذا(query) {
       size_t qlen = pathlen - (query - path);
       ures = handle_query(u, query, qlen, flags);
       pathlen -= qlen;
     }
   }
-  if(!ures)
+  إذا(!ures)
     /* the fragment and query parts are trimmed off from the path */
     ures = handle_path(u, path, pathlen, flags, is_file);
-  if(!ures) {
+  إذا(!ures) {
     u->host = curlx_dyn_ptr(&host);
-    return CURLUE_OK;
+    إرجاع CURLUE_OK;
   }
 fail:
   curlx_dyn_free(&host);
   free_urlhandle(u);
-  return ures;
+  إرجاع ures;
 }
 
 /*
  * Parse the URL and, if successful, replace everything in the Curl_URL struct.
  */
-static CURLUcode parseurl_and_replace(const char *url, CURLU *u,
-                                      unsigned int flags)
+ساكن CURLUcode parseurl_and_replace(ثابت حرف *url, CURLU *u,
+                                      unsigned صحيح flags)
 {
   CURLUcode ures;
   CURLU tmpurl;
-  memset(&tmpurl, 0, sizeof(tmpurl));
+  memset(&tmpurl, 0, حجم(tmpurl));
   ures = parseurl(url, &tmpurl, flags);
-  if(!ures) {
+  إذا(!ures) {
     free_urlhandle(u);
     *u = tmpurl;
   }
-  return ures;
+  إرجاع ures;
 }
 
 /*
  * Concatenate a relative URL onto a base URL making it absolute.
  */
-static CURLUcode redirect_url(const char *base, const char *relurl,
-                              CURLU *u, unsigned int flags)
+ساكن CURLUcode redirect_url(ثابت حرف *base, ثابت حرف *relurl,
+                              CURLU *u, unsigned صحيح flags)
 {
-  struct dynbuf urlbuf;
+  بنية dynbuf urlbuf;
   bool host_changed = FALSE;
-  const char *useurl = relurl;
-  const char *cutoff = NULL;
+  ثابت حرف *useurl = relurl;
+  ثابت حرف *cutoff = عدم;
   size_t prelen;
   CURLUcode uc;
   /* this can get here with a NULL u->scheme only if asked to use the default
      scheme, so allow fallback to that */
-  const char *scheme = u->scheme ? u->scheme : DEFAULT_SCHEME;
+  ثابت حرف *scheme = u->scheme ? u->scheme : DEFAULT_SCHEME;
 
   /* protsep points to the start of the hostname, after [scheme]:// */
-  const char *protsep = base + strlen(scheme) + 3;
+  ثابت حرف *protsep = base + strlen(scheme) + 3;
   DEBUGASSERT(base && relurl && u); /* all set here */
-  if(!base)
-    return CURLUE_MALFORMED_INPUT; /* should never happen */
+  إذا(!base)
+    إرجاع CURLUE_MALFORMED_إدخال; /* should never happen */
 
   /* handle different relative URL types */
-  switch(relurl[0]) {
-  case '/':
-    if(relurl[1] == '/') {
+  بدل(relurl[0]) {
+  حالة '/':
+    إذا(relurl[1] == '/') {
       /* protocol-relative URL: //example.com/path */
       cutoff = protsep;
       useurl = &relurl[2];
       host_changed = TRUE;
     }
-    else
+    وإلا
       /* absolute /path */
       cutoff = strchr(protsep, '/');
-    break;
+    اكسر;
 
-  case '#':
+  حالة '#':
     /* fragment-only change */
-    if(u->fragment_present)
+    إذا(u->fragment_present)
       cutoff = strchr(protsep, '#');
-    break;
+    اكسر;
 
-  default:
+  افتراضي:
     /* path or query-only change */
-    if(u->query_present)
+    إذا(u->query_present)
       /* remove existing query */
       cutoff = strchr(protsep, '?');
-    else if(u->fragment_present)
+    وإلا إذا(u->fragment_present)
       /* Remove existing fragment */
       cutoff = strchr(protsep, '#');
 
-    if(relurl[0] != '?') {
+    إذا(relurl[0] != '?') {
       /* append a relative path after the last slash */
       cutoff = memrchr(protsep, '/',
                        cutoff ? (size_t)(cutoff - protsep) : strlen(protsep));
-      if(cutoff)
+      إذا(cutoff)
         cutoff++; /* truncate after last slash */
     }
-    break;
+    اكسر;
   }
 
   prelen = cutoff ? (size_t)(cutoff - base) : strlen(base);
 
   /* build new URL */
-  curlx_dyn_init(&urlbuf, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&urlbuf, CURL_MAX_إدخال_LENGTH);
 
-  if(!curlx_dyn_addn(&urlbuf, base, prelen) &&
+  إذا(!curlx_dyn_addn(&urlbuf, base, prelen) &&
      !urlencode_str(&urlbuf, useurl, strlen(useurl), !host_changed,
                     QUERY_NOT_YET)) {
     uc = parseurl_and_replace(curlx_dyn_ptr(&urlbuf), u,
                               flags & ~U_CURLU_PATH_AS_IS);
   }
-  else
+  وإلا
     uc = CURLUE_OUT_OF_MEMORY;
 
   curlx_dyn_free(&urlbuf);
-  return uc;
+  إرجاع uc;
 }
 
 /*
  */
-CURLU *curl_url(void)
+CURLU *curl_url(فراغ)
 {
-  return curlx_calloc(1, sizeof(struct Curl_URL));
+  إرجاع curlx_calloc(1, حجم(بنية Curl_URL));
 }
 
-void curl_url_cleanup(CURLU *u)
+فراغ curl_url_cleanup(CURLU *u)
 {
-  if(u) {
+  إذا(u) {
     free_urlhandle(u);
     curlx_free(u);
   }
 }
 
 #define DUP(dest, src, name)                    \
-  do {                                          \
-    if((src)->name) {                           \
+  افعل {                                          \
+    إذا((src)->name) {                           \
       (dest)->name = curlx_strdup((src)->name); \
-      if(!(dest)->name)                         \
-        goto fail;                              \
+      إذا(!(dest)->name)                         \
+        اذهب fail;                              \
     }                                           \
-  } while(0)
+  } بينما(0)
 
-CURLU *curl_url_dup(const CURLU *in)
+CURLU *curl_url_dup(ثابت CURLU *in)
 {
-  struct Curl_URL *u;
+  بنية Curl_URL *u;
 
-  if(!in)
-    return NULL;
+  إذا(!in)
+    إرجاع عدم;
 
-  u = curlx_calloc(1, sizeof(struct Curl_URL));
-  if(u) {
+  u = curlx_calloc(1, حجم(بنية Curl_URL));
+  إذا(u) {
     DUP(u, in, scheme);
     DUP(u, in, user);
     DUP(u, in, password);
@@ -1455,38 +1455,38 @@ CURLU *curl_url_dup(const CURLU *in)
     u->query_present = in->query_present;
     u->guessed_scheme = in->guessed_scheme;
   }
-  return u;
+  إرجاع u;
 fail:
   curl_url_cleanup(u);
-  return NULL;
+  إرجاع عدم;
 }
 
 #ifndef USE_IDN
 #define host_decode(x, y) CURLUE_LACKS_IDN
 #define host_encode(x, y) CURLUE_LACKS_IDN
-#else
-static CURLUcode host_decode(const char *host, char **allochost)
+#وإلا
+ساكن CURLUcode host_decode(ثابت حرف *host, حرف **allochost)
 {
   CURLcode result = Curl_idn_decode(host, allochost);
-  if(result)
-    return (result == CURLE_OUT_OF_MEMORY) ?
+  إذا(result)
+    إرجاع (result == CURLE_OUT_OF_MEMORY) ?
       CURLUE_OUT_OF_MEMORY : CURLUE_BAD_HOSTNAME;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode host_encode(const char *host, char **allochost)
+ساكن CURLUcode host_encode(ثابت حرف *host, حرف **allochost)
 {
   CURLcode result = Curl_idn_encode(host, allochost);
-  if(result)
-    return (result == CURLE_OUT_OF_MEMORY) ?
+  إذا(result)
+    إرجاع (result == CURLE_OUT_OF_MEMORY) ?
       CURLUE_OUT_OF_MEMORY : CURLUE_BAD_HOSTNAME;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 #endif
 
-static CURLUcode urlget_format(const CURLU *u, CURLUPart what,
-                               const char *ptr, char **partp,
-                               bool plusdecode, unsigned int flags)
+ساكن CURLUcode urlget_format(ثابت CURLU *u, CURLUPart what,
+                               ثابت حرف *ptr, حرف **partp,
+                               bool plusdecode, unsigned صحيح flags)
 {
   CURLUcode uc = CURLUE_OK;
   size_t partlen = strlen(ptr);
@@ -1494,174 +1494,174 @@ static CURLUcode urlget_format(const CURLU *u, CURLUPart what,
   bool urlencode = (flags & CURLU_URLENCODE) ? 1 : 0;
   bool punycode = (flags & CURLU_PUNYCODE) && (what == CURLUPART_HOST);
   bool depunyfy = (flags & CURLU_PUNY2IDN) && (what == CURLUPART_HOST);
-  char *part = curlx_memdup0(ptr, partlen);
-  *partp = NULL;
-  if(!part)
-    return CURLUE_OUT_OF_MEMORY;
-  if(plusdecode) {
+  حرف *part = curlx_memdup0(ptr, partlen);
+  *partp = عدم;
+  إذا(!part)
+    إرجاع CURLUE_OUT_OF_MEMORY;
+  إذا(plusdecode) {
     /* convert + to space */
-    char *plus = part;
+    حرف *plus = part;
     size_t i = 0;
-    for(i = 0; i < partlen; ++plus, i++) {
-      if(*plus == '+')
+    لكل(i = 0; i < partlen; ++plus, i++) {
+      إذا(*plus == '+')
         *plus = ' ';
     }
   }
-  if(urldecode) {
-    char *decoded;
+  إذا(urldecode) {
+    حرف *decoded;
     size_t dlen;
     /* this unconditional rejection of control bytes is documented API
        behavior */
     CURLcode result = Curl_urldecode(part, partlen, &decoded, &dlen,
                                      REJECT_CTRL);
     curlx_free(part);
-    if(result)
-      return CURLUE_URLDECODE;
+    إذا(result)
+      إرجاع CURLUE_URLDECODE;
     part = decoded;
     partlen = dlen;
   }
-  if(urlencode) {
-    struct dynbuf enc;
-    curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
+  إذا(urlencode) {
+    بنية dynbuf enc;
+    curlx_dyn_init(&enc, CURL_MAX_إدخال_LENGTH);
     uc = urlencode_str(&enc, part, partlen, TRUE, what == CURLUPART_QUERY ?
                        QUERY_YES : QUERY_NO);
     curlx_free(part);
-    if(uc)
-      return uc;
+    إذا(uc)
+      إرجاع uc;
     part = curlx_dyn_ptr(&enc);
   }
-  else if(punycode) {
-    if(!Curl_is_ASCII_name(u->host)) {
-      char *punyversion = NULL;
+  وإلا إذا(punycode) {
+    إذا(!Curl_is_ASCII_name(u->host)) {
+      حرف *punyversion = عدم;
       uc = host_decode(part, &punyversion);
       curlx_free(part);
-      if(uc)
-        return uc;
+      إذا(uc)
+        إرجاع uc;
       uc = hostname_check(punyversion, strlen(punyversion));
-      if(uc) {
+      إذا(uc) {
         curlx_free(punyversion);
-        return uc;
+        إرجاع uc;
       }
       part = punyversion;
     }
   }
-  else if(depunyfy && Curl_is_ASCII_name(u->host)) {
-    char *unpunified = NULL;
+  وإلا إذا(depunyfy && Curl_is_ASCII_name(u->host)) {
+    حرف *unpunified = عدم;
     uc = host_encode(part, &unpunified);
     curlx_free(part);
-    if(uc)
-      return uc;
+    إذا(uc)
+      إرجاع uc;
     part = unpunified;
   }
   *partp = part;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode file_url(const CURLU *u, char **part,
-                          const char *fragmentsep,
-                          const char *querysep)
+ساكن CURLUcode file_url(ثابت CURLU *u, حرف **part,
+                          ثابت حرف *fragmentsep,
+                          ثابت حرف *querysep)
 {
-  char *url = curl_maprintf("file://%s%s%s%s%s",
+  حرف *url = curl_maprintf("file://%s%s%s%s%s",
                             u->path, querysep, u->query ? u->query : "",
                             fragmentsep, u->fragment ? u->fragment : "");
-  if(!url)
-    return CURLUE_OUT_OF_MEMORY;
+  إذا(!url)
+    إرجاع CURLUE_OUT_OF_MEMORY;
 
   *part = url;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode urlget_url(const CURLU *u, char **part, unsigned int flags)
+ساكن CURLUcode urlget_url(ثابت CURLU *u, حرف **part, unsigned صحيح flags)
 {
-  char *url;
-  char *allochost = NULL;
-  const char *fragmentsep =
+  حرف *url;
+  حرف *allochost = عدم;
+  ثابت حرف *fragmentsep =
     (u->fragment || (u->fragment_present && flags & CURLU_GET_EMPTY)) ?
     "#" : "";
-  const char *querysep = ((u->query && u->query[0]) ||
+  ثابت حرف *querysep = ((u->query && u->query[0]) ||
                           (u->query_present && flags & CURLU_GET_EMPTY)) ?
     "?" : "";
-  char portbuf[7];
-  if(curl_strequal("file", u->scheme))
-    return file_url(u, part, fragmentsep, querysep);
-  else if(!u->host)
-    return CURLUE_NO_HOST;
-  else {
-    const char *scheme;
-    char *options = u->options;
-    char *port = NULL;
-    const struct Curl_scheme *h = NULL;
-    char schemebuf[MAX_SCHEME_LEN + 5];
-    if(u->scheme)
+  حرف portbuf[7];
+  إذا(curl_strequal("file", u->scheme))
+    إرجاع file_url(u, part, fragmentsep, querysep);
+  وإلا إذا(!u->host)
+    إرجاع CURLUE_NO_HOST;
+  وإلا {
+    ثابت حرف *scheme;
+    حرف *options = u->options;
+    حرف *port = عدم;
+    ثابت بنية Curl_scheme *h = عدم;
+    حرف schemebuf[MAX_SCHEME_LEN + 5];
+    إذا(u->scheme)
       scheme = u->scheme;
-    else if(flags & CURLU_DEFAULT_SCHEME)
+    وإلا إذا(flags & CURLU_DEFAULT_SCHEME)
       scheme = DEFAULT_SCHEME;
-    else
-      return CURLUE_NO_SCHEME;
+    وإلا
+      إرجاع CURLUE_NO_SCHEME;
 
-    if(u->port_present) {
-      curl_msnprintf(portbuf, sizeof(portbuf), "%u", u->portnum);
+    إذا(u->port_present) {
+      curl_msnprintf(portbuf, حجم(portbuf), "%u", u->portnum);
       port = portbuf;
     }
 
     h = Curl_get_scheme(scheme);
-    if(h) {
-      if(!u->port_present && (flags & CURLU_DEFAULT_PORT)) {
+    إذا(h) {
+      إذا(!u->port_present && (flags & CURLU_DEFAULT_PORT)) {
         /* there is no stored port number, but asked to deliver a default one
            for the scheme */
-        curl_msnprintf(portbuf, sizeof(portbuf), "%u", h->defport);
+        curl_msnprintf(portbuf, حجم(portbuf), "%u", h->defport);
         port = portbuf;
       }
-      else if(u->port_present && (h->defport == u->portnum) &&
+      وإلا إذا(u->port_present && (h->defport == u->portnum) &&
               (flags & CURLU_NO_DEFAULT_PORT)) {
         /* there is a stored port number, but asked to inhibit if it matches
            the default port for the scheme */
-        port = NULL;
+        port = عدم;
       }
 
-      if(!(h->flags & PROTOPT_URLOPTIONS))
-        options = NULL;
+      إذا(!(h->flags & PROTOPT_URLOPTIONS))
+        options = عدم;
     }
 
-    if(u->host[0] == '[') {
-      if(u->zoneid) {
+    إذا(u->host[0] == '[') {
+      إذا(u->zoneid) {
         /* make it '[ host %25 zoneid ]' */
-        struct dynbuf enc;
+        بنية dynbuf enc;
         size_t hostlen = strlen(u->host);
-        curlx_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
-        if(curlx_dyn_addf(&enc, "%.*s%%25%s]", (int)hostlen - 1, u->host,
+        curlx_dyn_init(&enc, CURL_MAX_إدخال_LENGTH);
+        إذا(curlx_dyn_addf(&enc, "%.*s%%25%s]", (صحيح)hostlen - 1, u->host,
                           u->zoneid))
-          return CURLUE_OUT_OF_MEMORY;
+          إرجاع CURLUE_OUT_OF_MEMORY;
         allochost = curlx_dyn_ptr(&enc);
       }
     }
-    else if(flags & CURLU_URLENCODE) {
-      allochost = curl_easy_escape(NULL, u->host, 0);
-      if(!allochost)
-        return CURLUE_OUT_OF_MEMORY;
+    وإلا إذا(flags & CURLU_URLENCODE) {
+      allochost = curl_easy_escape(عدم, u->host, 0);
+      إذا(!allochost)
+        إرجاع CURLUE_OUT_OF_MEMORY;
     }
-    else if(flags & CURLU_PUNYCODE) {
-      if(!Curl_is_ASCII_name(u->host)) {
+    وإلا إذا(flags & CURLU_PUNYCODE) {
+      إذا(!Curl_is_ASCII_name(u->host)) {
         CURLUcode ret = host_decode(u->host, &allochost);
-        if(!ret)
+        إذا(!ret)
           ret = hostname_check(allochost, strlen(allochost));
-        if(ret) {
+        إذا(ret) {
           curlx_safefree(allochost);
-          return ret;
+          إرجاع ret;
         }
       }
     }
-    else if(flags & CURLU_PUNY2IDN) {
-      if(Curl_is_ASCII_name(u->host)) {
+    وإلا إذا(flags & CURLU_PUNY2IDN) {
+      إذا(Curl_is_ASCII_name(u->host)) {
         CURLUcode ret = host_encode(u->host, &allochost);
-        if(ret)
-          return ret;
+        إذا(ret)
+          إرجاع ret;
       }
     }
 
-    if(!(flags & CURLU_NO_GUESS_SCHEME) || !u->guessed_scheme)
-      curl_msnprintf(schemebuf, sizeof(schemebuf), "%s://", scheme);
-    else
+    إذا(!(flags & CURLU_NO_GUESS_SCHEME) || !u->guessed_scheme)
+      curl_msnprintf(schemebuf, حجم(schemebuf), "%s://", scheme);
+    وإلا
       schemebuf[0] = 0;
 
     url = curl_maprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
@@ -1682,160 +1682,160 @@ static CURLUcode urlget_url(const CURLU *u, char **part, unsigned int flags)
                         u->fragment ? u->fragment : "");
     curlx_free(allochost);
   }
-  if(!url)
-    return CURLUE_OUT_OF_MEMORY;
+  إذا(!url)
+    إرجاع CURLUE_OUT_OF_MEMORY;
   *part = url;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-CURLUcode curl_url_get(const CURLU *u, CURLUPart what,
-                       char **part, unsigned int flags)
+CURLUcode curl_url_get(ثابت CURLU *u, CURLUPart what,
+                       حرف **part, unsigned صحيح flags)
 {
-  const char *ptr;
+  ثابت حرف *ptr;
   CURLUcode ifmissing = CURLUE_UNKNOWN_PART;
-  char portbuf[7];
+  حرف portbuf[7];
   bool plusdecode = FALSE;
-  if(!u)
-    return CURLUE_BAD_HANDLE;
-  if(!part)
-    return CURLUE_BAD_PARTPOINTER;
-  *part = NULL;
+  إذا(!u)
+    إرجاع CURLUE_BAD_HANDLE;
+  إذا(!part)
+    إرجاع CURLUE_BAD_PARTPOINTER;
+  *part = عدم;
 
-  switch(what) {
-  case CURLUPART_SCHEME:
+  بدل(what) {
+  حالة CURLUPART_SCHEME:
     ptr = u->scheme;
     ifmissing = CURLUE_NO_SCHEME;
     flags &= ~U_CURLU_URLDECODE; /* never for schemes */
-    if((flags & CURLU_NO_GUESS_SCHEME) && u->guessed_scheme)
-      return CURLUE_NO_SCHEME;
-    break;
-  case CURLUPART_USER:
+    إذا((flags & CURLU_NO_GUESS_SCHEME) && u->guessed_scheme)
+      إرجاع CURLUE_NO_SCHEME;
+    اكسر;
+  حالة CURLUPART_USER:
     ptr = u->user;
     ifmissing = CURLUE_NO_USER;
-    break;
-  case CURLUPART_PASSWORD:
+    اكسر;
+  حالة CURLUPART_PASSWORD:
     ptr = u->password;
     ifmissing = CURLUE_NO_PASSWORD;
-    break;
-  case CURLUPART_OPTIONS:
+    اكسر;
+  حالة CURLUPART_OPTIONS:
     ptr = u->options;
     ifmissing = CURLUE_NO_OPTIONS;
-    break;
-  case CURLUPART_HOST:
+    اكسر;
+  حالة CURLUPART_HOST:
     ptr = u->host;
     ifmissing = CURLUE_NO_HOST;
-    break;
-  case CURLUPART_ZONEID:
+    اكسر;
+  حالة CURLUPART_ZONEID:
     ptr = u->zoneid;
     ifmissing = CURLUE_NO_ZONEID;
-    break;
-  case CURLUPART_PORT:
-    ptr = NULL;
+    اكسر;
+  حالة CURLUPART_PORT:
+    ptr = عدم;
     ifmissing = CURLUE_NO_PORT;
     flags &= ~U_CURLU_URLDECODE; /* never for port */
-    if(u->port_present) {
-      const struct Curl_scheme *h = u->scheme ?
-                                    Curl_get_scheme(u->scheme) : NULL;
+    إذا(u->port_present) {
+      ثابت بنية Curl_scheme *h = u->scheme ?
+                                    Curl_get_scheme(u->scheme) : عدم;
       /* there is a stored port number, but ask to inhibit if
          it matches the default one for the scheme */
-      if(h && (h->defport == u->portnum) &&
+      إذا(h && (h->defport == u->portnum) &&
          (flags & CURLU_NO_DEFAULT_PORT)) {
-        ptr = NULL;
+        ptr = عدم;
       }
-      else {
-        curl_msnprintf(portbuf, sizeof(portbuf), "%u", u->portnum);
+      وإلا {
+        curl_msnprintf(portbuf, حجم(portbuf), "%u", u->portnum);
         ptr = portbuf;
       }
     }
-    else if((flags & CURLU_DEFAULT_PORT) && u->scheme) {
+    وإلا إذا((flags & CURLU_DEFAULT_PORT) && u->scheme) {
       /* there is no stored port number, but asked to deliver
          a default one for the scheme */
-      const struct Curl_scheme *h = Curl_get_scheme(u->scheme);
-      if(h) {
-        curl_msnprintf(portbuf, sizeof(portbuf), "%u", h->defport);
+      ثابت بنية Curl_scheme *h = Curl_get_scheme(u->scheme);
+      إذا(h) {
+        curl_msnprintf(portbuf, حجم(portbuf), "%u", h->defport);
         ptr = portbuf;
       }
     }
-    break;
-  case CURLUPART_PATH:
+    اكسر;
+  حالة CURLUPART_PATH:
     ptr = u->path;
-    if(!ptr)
+    إذا(!ptr)
       ptr = "/";
-    break;
-  case CURLUPART_QUERY:
+    اكسر;
+  حالة CURLUPART_QUERY:
     ptr = u->query;
     ifmissing = CURLUE_NO_QUERY;
     plusdecode = flags & CURLU_URLDECODE;
-    if(ptr && !ptr[0] && !(flags & CURLU_GET_EMPTY))
+    إذا(ptr && !ptr[0] && !(flags & CURLU_GET_EMPTY))
       /* there was a blank query and the user does not ask for it */
-      ptr = NULL;
-    break;
-  case CURLUPART_FRAGMENT:
+      ptr = عدم;
+    اكسر;
+  حالة CURLUPART_FRAGMENT:
     ptr = u->fragment;
     ifmissing = CURLUE_NO_FRAGMENT;
-    if(!ptr && u->fragment_present && flags & CURLU_GET_EMPTY)
+    إذا(!ptr && u->fragment_present && flags & CURLU_GET_EMPTY)
       /* there was a blank fragment and the user asks for it */
       ptr = "";
-    break;
-  case CURLUPART_URL:
-    return urlget_url(u, part, flags);
-  default:
-    ptr = NULL;
-    break;
+    اكسر;
+  حالة CURLUPART_URL:
+    إرجاع urlget_url(u, part, flags);
+  افتراضي:
+    ptr = عدم;
+    اكسر;
   }
-  if(ptr)
-    return urlget_format(u, what, ptr, part, plusdecode, flags);
+  إذا(ptr)
+    إرجاع urlget_format(u, what, ptr, part, plusdecode, flags);
 
-  return ifmissing;
+  إرجاع ifmissing;
 }
 
-static CURLUcode set_url_scheme(CURLU *u, const char *scheme,
-                                unsigned int flags)
+ساكن CURLUcode set_url_scheme(CURLU *u, ثابت حرف *scheme,
+                                unsigned صحيح flags)
 {
   size_t plen = strlen(scheme);
-  const struct Curl_scheme *h = NULL;
-  if((plen > MAX_SCHEME_LEN) || (plen < 1))
+  ثابت بنية Curl_scheme *h = عدم;
+  إذا((plen > MAX_SCHEME_LEN) || (plen < 1))
     /* too long or too short */
-    return CURLUE_BAD_SCHEME;
+    إرجاع CURLUE_BAD_SCHEME;
   /* verify that it is a fine scheme */
   h = Curl_get_scheme(scheme);
-  if(!(flags & CURLU_NON_SUPPORT_SCHEME) && (!h || !h->run))
-    return CURLUE_UNSUPPORTED_SCHEME;
-  if(!h) {
-    const char *s = scheme;
-    if(ISALPHA(*s)) {
+  إذا(!(flags & CURLU_NON_SUPPORT_SCHEME) && (!h || !h->run))
+    إرجاع CURLUE_UNSUPPORTED_SCHEME;
+  إذا(!h) {
+    ثابت حرف *s = scheme;
+    إذا(ISALPHA(*s)) {
       /* ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ) */
       s++;
-      while(--plen) {
-        if(ISALNUM(*s) || (*s == '+') || (*s == '-') || (*s == '.'))
+      بينما(--plen) {
+        إذا(ISALNUM(*s) || (*s == '+') || (*s == '-') || (*s == '.'))
           s++; /* fine */
-        else
-          return CURLUE_BAD_SCHEME;
+        وإلا
+          إرجاع CURLUE_BAD_SCHEME;
       }
     }
-    else
-      return CURLUE_BAD_SCHEME;
+    وإلا
+      إرجاع CURLUE_BAD_SCHEME;
   }
   u->guessed_scheme = FALSE;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode set_url_port(CURLU *u, const char *provided_port)
+ساكن CURLUcode set_url_port(CURLU *u, ثابت حرف *provided_port)
 {
   curl_off_t port;
-  if(!ISDIGIT(provided_port[0]))
+  إذا(!ISDIGIT(provided_port[0]))
     /* not a number */
-    return CURLUE_BAD_PORT_NUMBER;
-  if(curlx_str_number(&provided_port, &port, 0xffff) || *provided_port)
+    إرجاع CURLUE_BAD_PORT_العدد;
+  إذا(curlx_str_العدد(&provided_port, &port, 0xffff) || *provided_port)
     /* weirdly provided number, not good! */
-    return CURLUE_BAD_PORT_NUMBER;
+    إرجاع CURLUE_BAD_PORT_العدد;
   u->portnum = (uint16_t)port;
   u->port_present = TRUE;
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode set_url(CURLU *u, const char *url, size_t part_size,
-                         unsigned int flags)
+ساكن CURLUcode set_url(CURLU *u, ثابت حرف *url, size_t part_size,
+                         unsigned صحيح flags)
 {
   /*
    * Allow a new URL to replace the existing (if any) contents.
@@ -1844,30 +1844,30 @@ static CURLUcode set_url(CURLU *u, const char *url, size_t part_size,
    * replace it.
    */
   CURLUcode uc;
-  char *oldurl = NULL;
+  حرف *oldurl = عدم;
 
-  if(!part_size) {
+  إذا(!part_size) {
     /* a blank URL is not a valid URL unless we already have a complete one
        and this is a redirect */
     uc = curl_url_get(u, CURLUPART_URL, &oldurl, flags);
-    if(!uc) {
+    إذا(!uc) {
       /* success, meaning the "" is a fine relative URL, and the new URL
          inherits scheme/authority/path/query, but not fragment, from the
          existing URL (RFC 3986 section 5.2.2) */
       curlx_safefree(u->fragment);
       u->fragment_present = FALSE;
       curlx_free(oldurl);
-      return CURLUE_OK;
+      إرجاع CURLUE_OK;
     }
-    if(uc == CURLUE_OUT_OF_MEMORY)
-      return uc;
-    return CURLUE_MALFORMED_INPUT;
+    إذا(uc == CURLUE_OUT_OF_MEMORY)
+      إرجاع uc;
+    إرجاع CURLUE_MALFORMED_إدخال;
   }
 
   /* if the new URL is absolute replace the existing with the new. */
-  if(Curl_is_absolute_url(url, NULL, 0,
+  إذا(Curl_is_absolute_url(url, عدم, 0,
                           flags & (CURLU_GUESS_SCHEME | CURLU_DEFAULT_SCHEME)))
-    return parseurl_and_replace(url, u, flags);
+    إرجاع parseurl_and_replace(url, u, flags);
 
   /* if the old URL is incomplete (we cannot get an absolute URL in
      'oldurl'), replace the existing with the new.
@@ -1876,230 +1876,230 @@ static CURLUcode set_url(CURLU *u, const char *url, size_t part_size,
      references splice into the base URL. */
   uc = curl_url_get(u, CURLUPART_URL, &oldurl,
                     (flags & ~CURLU_NO_GUESS_SCHEME) | CURLU_GET_EMPTY);
-  if(uc == CURLUE_OUT_OF_MEMORY)
-    return uc;
-  else if(uc)
-    return parseurl_and_replace(url, u, flags);
+  إذا(uc == CURLUE_OUT_OF_MEMORY)
+    إرجاع uc;
+  وإلا إذا(uc)
+    إرجاع parseurl_and_replace(url, u, flags);
 
   DEBUGASSERT(oldurl); /* it is set here */
   /* apply the relative part to create a new URL */
   uc = redirect_url(oldurl, url, u, flags);
   curlx_free(oldurl);
-  return uc;
+  إرجاع uc;
 }
 
-static CURLUcode urlset_clear(CURLU *u, CURLUPart what)
+ساكن CURLUcode urlset_clear(CURLU *u, CURLUPart what)
 {
-  switch(what) {
-  case CURLUPART_URL:
+  بدل(what) {
+  حالة CURLUPART_URL:
     free_urlhandle(u);
-    memset(u, 0, sizeof(struct Curl_URL));
-    break;
-  case CURLUPART_SCHEME:
+    memset(u, 0, حجم(بنية Curl_URL));
+    اكسر;
+  حالة CURLUPART_SCHEME:
     curlx_safefree(u->scheme);
     u->guessed_scheme = FALSE;
-    break;
-  case CURLUPART_USER:
+    اكسر;
+  حالة CURLUPART_USER:
     curlx_safefree(u->user);
-    break;
-  case CURLUPART_PASSWORD:
+    اكسر;
+  حالة CURLUPART_PASSWORD:
     curlx_strzero(u->password);
     curlx_safefree(u->password);
-    break;
-  case CURLUPART_OPTIONS:
+    اكسر;
+  حالة CURLUPART_OPTIONS:
     curlx_safefree(u->options);
-    break;
-  case CURLUPART_HOST:
+    اكسر;
+  حالة CURLUPART_HOST:
     curlx_safefree(u->host);
-    break;
-  case CURLUPART_ZONEID:
+    اكسر;
+  حالة CURLUPART_ZONEID:
     curlx_safefree(u->zoneid);
-    break;
-  case CURLUPART_PORT:
+    اكسر;
+  حالة CURLUPART_PORT:
     u->portnum = 0;
     u->port_present = FALSE;
-    break;
-  case CURLUPART_PATH:
+    اكسر;
+  حالة CURLUPART_PATH:
     curlx_safefree(u->path);
-    break;
-  case CURLUPART_QUERY:
+    اكسر;
+  حالة CURLUPART_QUERY:
     curlx_safefree(u->query);
     u->query_present = FALSE;
-    break;
-  case CURLUPART_FRAGMENT:
+    اكسر;
+  حالة CURLUPART_FRAGMENT:
     curlx_safefree(u->fragment);
     u->fragment_present = FALSE;
-    break;
-  default:
-    return CURLUE_UNKNOWN_PART;
+    اكسر;
+  افتراضي:
+    إرجاع CURLUE_UNKNOWN_PART;
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static bool allowed_in_path(unsigned char x)
+ساكن bool allowed_in_path(unsigned حرف x)
 {
-  switch(x) {
-  case '!':
-  case '$':
-  case '&':
-  case '\'':
-  case '(':
-  case ')':
-  case '{':
-  case '}':
-  case '[':
-  case ']':
-  case '*':
-  case '+':
-  case ',':
-  case ';':
-  case '=':
-  case ':':
-  case '@':
-  case '/':
-    return TRUE;
+  بدل(x) {
+  حالة '!':
+  حالة '$':
+  حالة '&':
+  حالة '\'':
+  حالة '(':
+  حالة ')':
+  حالة '{':
+  حالة '}':
+  حالة '[':
+  حالة ']':
+  حالة '*':
+  حالة '+':
+  حالة ',':
+  حالة ';':
+  حالة '=':
+  حالة ':':
+  حالة '@':
+  حالة '/':
+    إرجاع TRUE;
   }
-  return FALSE;
+  إرجاع FALSE;
 }
 
-static CURLUcode url_encode_part(struct dynbuf *encp,
-                                 const char *part,
+ساكن CURLUcode url_encode_part(بنية dynbuf *encp,
+                                 ثابت حرف *part,
                                  bool plusencode,
                                  bool pathmode,
                                  bool equalsencode)
 {
-  const unsigned char *i;
+  ثابت unsigned حرف *i;
 
-  for(i = (const unsigned char *)part; *i; i++) {
+  لكل(i = (ثابت unsigned حرف *)part; *i; i++) {
     CURLcode result;
-    if((*i == ' ') && plusencode)
+    إذا((*i == ' ') && plusencode)
       result = curlx_dyn_addn(encp, "+", 1);
-    else if(ISUNRESERVED(*i) ||
+    وإلا إذا(ISUNRESERVED(*i) ||
             (pathmode && allowed_in_path(*i)) ||
             ((*i == '=') && equalsencode)) {
-      if((*i == '=') && equalsencode)
+      إذا((*i == '=') && equalsencode)
         /* only skip the first equals sign */
         equalsencode = FALSE;
       result = curlx_dyn_addn(encp, i, 1);
     }
-    else {
-      unsigned char out[3] = { '%' };
+    وإلا {
+      unsigned حرف out[3] = { '%' };
       Curl_hexbyte(&out[1], *i);
       result = curlx_dyn_addn(encp, out, 3);
     }
-    if(result)
-      return cc2cu(result);
+    إذا(result)
+      إرجاع cc2cu(result);
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode url_uppercasehex_part(struct dynbuf *encp,
-                                       const char *part)
+ساكن CURLUcode url_uppercasehex_part(بنية dynbuf *encp,
+                                       ثابت حرف *part)
 {
-  char *p;
+  حرف *p;
   CURLcode result = curlx_dyn_add(encp, part);
-  if(result)
-    return cc2cu(result);
+  إذا(result)
+    إرجاع cc2cu(result);
   p = curlx_dyn_ptr(encp);
-  while(*p) {
+  بينما(*p) {
     /* make sure percent encoded are upper case */
-    if((*p == '%') && ISXDIGIT(p[1]) && ISXDIGIT(p[2]) &&
+    إذا((*p == '%') && ISXDIGIT(p[1]) && ISXDIGIT(p[2]) &&
        (ISLOWER(p[1]) || ISLOWER(p[2]))) {
       p[1] = Curl_raw_toupper(p[1]);
       p[2] = Curl_raw_toupper(p[2]);
       p += 3;
     }
-    else
+    وإلا
       p++;
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode url_append_query(CURLU *u, struct dynbuf *encp)
+ساكن CURLUcode url_append_query(CURLU *u, بنية dynbuf *encp)
 {
   /* Append the 'encp' string onto the old query. Add a '&' separator if none
      is already present at the end of the existing query */
 
   size_t querylen = u->query ? strlen(u->query) : 0;
   bool addamperand = querylen && (u->query[querylen - 1] != '&');
-  if(querylen) {
-    struct dynbuf qbuf;
+  إذا(querylen) {
+    بنية dynbuf qbuf;
     CURLcode result;
-    const char *newp = curlx_dyn_ptr(encp);
-    curlx_dyn_init(&qbuf, CURL_MAX_INPUT_LENGTH);
+    ثابت حرف *newp = curlx_dyn_ptr(encp);
+    curlx_dyn_init(&qbuf, CURL_MAX_إدخال_LENGTH);
 
     /* add original query */
     result = curlx_dyn_addn(&qbuf, u->query, querylen);
-    if(!result && addamperand)
+    إذا(!result && addamperand)
       /* add ampersand */
       result = curlx_dyn_addn(&qbuf, "&", 1);
-    if(!result)
+    إذا(!result)
       /* add new query part */
       result = curlx_dyn_add(&qbuf, newp);
-    if(result)
-      goto nomem;
+    إذا(result)
+      اذهب nomem;
     curlx_dyn_free(encp);
     curlx_free(u->query);
     u->query = curlx_dyn_ptr(&qbuf);
-    return CURLUE_OK;
+    إرجاع CURLUE_OK;
 nomem:
     curlx_dyn_free(encp);
-    return cc2cu(result);
+    إرجاع cc2cu(result);
   }
-  else {
+  وإلا {
     curlx_free(u->query);
     u->query = curlx_dyn_ptr(encp);
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
-static CURLUcode url_sethost(CURLU *u, struct dynbuf *encp,
+ساكن CURLUcode url_sethost(CURLU *u, بنية dynbuf *encp,
                              bool urlencode,
-                             unsigned int flags)
+                             unsigned صحيح flags)
 {
   size_t n = curlx_dyn_len(encp);
   bool bad = FALSE;
-  char *newp = curlx_dyn_ptr(encp);
-  if(!n)
+  حرف *newp = curlx_dyn_ptr(encp);
+  إذا(!n)
     /* an empty hostname is okay if told so */
     bad = (flags & CURLU_NO_AUTHORITY) ? FALSE : TRUE;
-  else if(!urlencode) {
+  وإلا إذا(!urlencode) {
     /* if the hostname part was not URL encoded here, it was set already URL
        encoded so we need to decode it to check */
     size_t dlen;
-    char *decoded = NULL;
+    حرف *decoded = عدم;
     CURLcode result = Curl_urldecode(newp, n, &decoded, &dlen, REJECT_CTRL);
-    if(result || hostname_check6(u, decoded, dlen))
+    إذا(result || hostname_check6(u, decoded, dlen))
       bad = TRUE;
-    else {
-      struct dynbuf dbuf;
-      curlx_dyn_init(&dbuf, CURL_MAX_INPUT_LENGTH);
-      if(curlx_dyn_addn(&dbuf, decoded, dlen))
+    وإلا {
+      بنية dynbuf dbuf;
+      curlx_dyn_init(&dbuf, CURL_MAX_إدخال_LENGTH);
+      إذا(curlx_dyn_addn(&dbuf, decoded, dlen))
         bad = TRUE;
-      else if(ipv4_normalize(&dbuf) == HOST_IPV4) {
+      وإلا إذا(ipv4_normalize(&dbuf) == HOST_IPV4) {
         curlx_dyn_reset(encp);
-        if(curlx_dyn_addn(encp, curlx_dyn_ptr(&dbuf), curlx_dyn_len(&dbuf)))
+        إذا(curlx_dyn_addn(encp, curlx_dyn_ptr(&dbuf), curlx_dyn_len(&dbuf)))
           bad = TRUE;
       }
       curlx_dyn_free(&dbuf);
     }
     curlx_free(decoded);
   }
-  else if(hostname_check6(u, newp, n))
+  وإلا إذا(hostname_check6(u, newp, n))
     bad = TRUE;
-  else if(ipv4_normalize(encp) == HOST_ERROR)
+  وإلا إذا(ipv4_normalize(encp) == HOST_ERROR)
     bad = TRUE;
-  if(bad) {
+  إذا(bad) {
     curlx_dyn_free(encp);
-    return CURLUE_BAD_HOSTNAME;
+    إرجاع CURLUE_BAD_HOSTNAME;
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
 CURLUcode curl_url_set(CURLU *u, CURLUPart what,
-                       const char *part, unsigned int flags)
+                       ثابت حرف *part, unsigned صحيح flags)
 {
-  char **storep = NULL;
+  حرف **storep = عدم;
   bool urlencode = (flags & CURLU_URLENCODE) ? 1 : 0;
   bool plusencode = FALSE;
   bool pathmode = FALSE;
@@ -2108,150 +2108,150 @@ CURLUcode curl_url_set(CURLU *u, CURLUPart what,
   bool equalsencode = FALSE;
   size_t nalloc;
 
-  if(!u)
-    return CURLUE_BAD_HANDLE;
-  if(!part)
+  إذا(!u)
+    إرجاع CURLUE_BAD_HANDLE;
+  إذا(!part)
     /* setting a part to NULL clears it */
-    return urlset_clear(u, what);
+    إرجاع urlset_clear(u, what);
 
   nalloc = strlen(part);
-  if(nalloc > CURL_MAX_INPUT_LENGTH)
+  إذا(nalloc > CURL_MAX_إدخال_LENGTH)
     /* excessive input length */
-    return CURLUE_MALFORMED_INPUT;
+    إرجاع CURLUE_MALFORMED_إدخال;
 
-  switch(what) {
-  case CURLUPART_SCHEME: {
+  بدل(what) {
+  حالة CURLUPART_SCHEME: {
     CURLUcode status = set_url_scheme(u, part, flags);
-    if(status)
-      return status;
+    إذا(status)
+      إرجاع status;
     storep = &u->scheme;
     urlencode = FALSE; /* never */
-    break;
+    اكسر;
   }
-  case CURLUPART_USER:
+  حالة CURLUPART_USER:
     storep = &u->user;
-    break;
-  case CURLUPART_PASSWORD:
+    اكسر;
+  حالة CURLUPART_PASSWORD:
     storep = &u->password;
-    break;
-  case CURLUPART_OPTIONS:
+    اكسر;
+  حالة CURLUPART_OPTIONS:
     storep = &u->options;
-    break;
-  case CURLUPART_HOST:
+    اكسر;
+  حالة CURLUPART_HOST:
     storep = &u->host;
     curlx_safefree(u->zoneid);
-    break;
-  case CURLUPART_ZONEID:
+    اكسر;
+  حالة CURLUPART_ZONEID:
     storep = &u->zoneid;
-    break;
-  case CURLUPART_PORT:
-    return set_url_port(u, part);
-  case CURLUPART_PATH:
+    اكسر;
+  حالة CURLUPART_PORT:
+    إرجاع set_url_port(u, part);
+  حالة CURLUPART_PATH:
     pathmode = TRUE;
     leadingslash = TRUE; /* enforce */
     storep = &u->path;
-    break;
-  case CURLUPART_QUERY:
+    اكسر;
+  حالة CURLUPART_QUERY:
     plusencode = urlencode;
     appendquery = (flags & CURLU_APPENDQUERY) ? 1 : 0;
     equalsencode = appendquery;
     storep = &u->query;
     u->query_present = TRUE;
-    break;
-  case CURLUPART_FRAGMENT:
+    اكسر;
+  حالة CURLUPART_FRAGMENT:
     storep = &u->fragment;
     u->fragment_present = TRUE;
-    break;
-  case CURLUPART_URL:
-    return set_url(u, part, nalloc, flags);
-  default:
-    return CURLUE_UNKNOWN_PART;
+    اكسر;
+  حالة CURLUPART_URL:
+    إرجاع set_url(u, part, nalloc, flags);
+  افتراضي:
+    إرجاع CURLUE_UNKNOWN_PART;
   }
   DEBUGASSERT(storep);
   {
-    const char *newp = NULL;
-    struct dynbuf enc;
+    ثابت حرف *newp = عدم;
+    بنية dynbuf enc;
     CURLUcode status;
     curlx_dyn_init(&enc, (what == CURLUPART_HOST) ?
                    CURLMAX((nalloc * 3) + 1 + leadingslash, 16) :
                    (nalloc * 3) + 1 + leadingslash);
 
-    if(leadingslash && (part[0] != '/')) {
+    إذا(leadingslash && (part[0] != '/')) {
       CURLcode result = curlx_dyn_addn(&enc, "/", 1);
-      if(result)
-        return cc2cu(result);
+      إذا(result)
+        إرجاع cc2cu(result);
     }
-    if(urlencode)
+    إذا(urlencode)
       status = url_encode_part(&enc, part, plusencode, pathmode, equalsencode);
-    else
+    وإلا
       status = url_uppercasehex_part(&enc, part);
-    if(!status) {
+    إذا(!status) {
       newp = curlx_dyn_ptr(&enc);
 
-      if(appendquery && newp)
-        return url_append_query(u, &enc);
-      else if(what == CURLUPART_HOST)
+      إذا(appendquery && newp)
+        إرجاع url_append_query(u, &enc);
+      وإلا إذا(what == CURLUPART_HOST)
         status = url_sethost(u, &enc, urlencode, flags);
     }
-    if(status)
-      return status;
+    إذا(status)
+      إرجاع status;
 
-    if(what == CURLUPART_PASSWORD)
+    إذا(what == CURLUPART_PASSWORD)
       curlx_strzero(*storep);
     curlx_free(*storep);
-    *storep = (char *)CURL_UNCONST(newp);
+    *storep = (حرف *)CURL_UNCONST(newp);
   }
-  return CURLUE_OK;
+  إرجاع CURLUE_OK;
 }
 
 bool Curl_url_same_origin(CURLU *base, CURLU *href)
 {
-  const struct Curl_scheme *s = NULL;
+  ثابت بنية Curl_scheme *s = عدم;
 
   /* base must be an absolute URL */
-  if(!base->scheme || !base->host)
-    return FALSE;
-  if(href->scheme && !curl_strequal(base->scheme, href->scheme))
-    return FALSE;
-  if(href->host) {
-    if(!curl_strequal(base->host, href->host))
-      return FALSE;
+  إذا(!base->scheme || !base->host)
+    إرجاع FALSE;
+  إذا(href->scheme && !curl_strequal(base->scheme, href->scheme))
+    إرجاع FALSE;
+  إذا(href->host) {
+    إذا(!curl_strequal(base->host, href->host))
+      إرجاع FALSE;
 
-    if(base->port_present != href->port_present) {
+    إذا(base->port_present != href->port_present) {
       /* one is present, one is not */
       s = Curl_get_scheme(base->scheme);
-      if(!s) /* Cannot match default port for unknown scheme */
-        return FALSE;
+      إذا(!s) /* Cannot match default port for unknown scheme */
+        إرجاع FALSE;
       /* to match, the present one must be the default port */
-      if((base->port_present && (base->portnum != s->defport)) ||
+      إذا((base->port_present && (base->portnum != s->defport)) ||
          (href->port_present && (href->portnum != s->defport)))
-        return FALSE;
+        إرجاع FALSE;
     }
-    else if(base->portnum != href->portnum) /* both present or missing */
-      return FALSE;
+    وإلا إذا(base->portnum != href->portnum) /* both present or missing */
+      إرجاع FALSE;
 
-    if(!curl_strequal(base->zoneid ? base->zoneid : "",
+    إذا(!curl_strequal(base->zoneid ? base->zoneid : "",
                       href->zoneid ? href->zoneid : ""))
-      return FALSE;
+      إرجاع FALSE;
   }
-  else if(href->port_present) /* no host in href, then there must be no port */
-    return FALSE;
-  return TRUE;
+  وإلا إذا(href->port_present) /* no host in href, then there must be no port */
+    إرجاع FALSE;
+  إرجاع TRUE;
 }
 
 CURLUcode Curl_url_get_port(CURLU *u, uint16_t *pport)
 {
-  if(u->port_present) {
+  إذا(u->port_present) {
     *pport = u->portnum;
-    return CURLUE_OK;
+    إرجاع CURLUE_OK;
   }
-  else if(u->scheme) {
-    const struct Curl_scheme *s = Curl_get_scheme(u->scheme);
-    if(s && s->defport) {
+  وإلا إذا(u->scheme) {
+    ثابت بنية Curl_scheme *s = Curl_get_scheme(u->scheme);
+    إذا(s && s->defport) {
       *pport = s->defport;
-      return CURLUE_OK;
+      إرجاع CURLUE_OK;
     }
   }
   *pport = 0;
-  return CURLUE_NO_PORT;
+  إرجاع CURLUE_NO_PORT;
 }

@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-extern const struct Curl_protocol Curl_protocol_ldap;
+خارجي ثابت بنية Curl_protocol Curl_protocol_ldap;
 
-void Curl_ldap_version(char *buf, size_t bufsz);
+فراغ Curl_ldap_version(حرف *buf, size_t bufsz);
 
 #endif /* HEADER_CURL_LDAP_H */

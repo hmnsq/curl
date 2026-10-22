@@ -21,7 +21,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 /***********************************************************************
  * Only for IPv6-enabled builds
@@ -29,27 +29,27 @@
 #ifdef CURLRES_IPV6
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#ضمن <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#ضمن <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#ضمن <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#ضمن <in.h>
+#ضمن <inet.h>
 #endif
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "vdns/hostip.h"
-#include "curlx/inet_pton.h"
-#include "connect.h"
+#ضمن "urldata.h"
+#ضمن "cfilters.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "curl_trc.h"
+#ضمن "url.h"
+#ضمن "vdns/hostip.h"
+#ضمن "curlx/inet_pton.h"
+#ضمن "connect.h"
 
 #ifdef CURLRES_SYNCH
 
@@ -62,26 +62,26 @@
  * to memory we need to free after use. That memory *MUST* be freed with
  * Curl_freeaddrinfo(), nothing else.
  */
-struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
+بنية Curl_addrinfo *Curl_sync_getaddrinfo(بنية Curl_easy *data,
                                             uint8_t dns_queries,
-                                            const char *hostname,
+                                            ثابت حرف *hostname,
                                             uint16_t port,
                                             uint8_t transport)
 {
-  struct addrinfo hints;
-  struct Curl_addrinfo *res;
-  int error;
-  char sbuf[12];
-  char *sbufptr = NULL;
+  بنية addrinfo hints;
+  بنية Curl_addrinfo *res;
+  صحيح error;
+  حرف sbuf[12];
+  حرف *sbufptr = عدم;
 #ifndef USE_RESOLVE_ON_IPS
-  char addrbuf[128];
+  حرف addrbuf[128];
 #endif
-  int pf = PF_INET;
+  صحيح pf = PF_INET;
 
-  if(dns_queries & CURL_DNSQ_AAAA)
+  إذا(dns_queries & CURL_DNSQ_AAAA)
     pf = PF_UNSPEC;
 
-  memset(&hints, 0, sizeof(hints));
+  memset(&hints, 0, حجم(hints));
   hints.ai_family = pf;
   hints.ai_socktype = (transport == TRNSPRT_TCP) ?
     SOCK_STREAM : SOCK_DGRAM;
@@ -91,29 +91,29 @@ struct Curl_addrinfo *Curl_sync_getaddrinfo(struct Curl_easy *data,
    * The AI_NUMERICHOST must not be set to get synthesized IPv6 address from
    * an IPv4 address on iOS and macOS.
    */
-  if((curlx_inet_pton(AF_INET, hostname, addrbuf) == 1) ||
+  إذا((curlx_inet_pton(AF_INET, hostname, addrbuf) == 1) ||
      (curlx_inet_pton(AF_INET6, hostname, addrbuf) == 1)) {
     /* the given address is numerical only, prevent a reverse lookup */
     hints.ai_flags = AI_NUMERICHOST;
   }
 #endif
 
-  if(port) {
-    curl_msnprintf(sbuf, sizeof(sbuf), "%d", port);
+  إذا(port) {
+    curl_msnprintf(sbuf, حجم(sbuf), "%d", port);
     sbufptr = sbuf;
   }
 
   error = Curl_getaddrinfo_ex(hostname, sbufptr, &hints, &res);
-  if(error) {
+  إذا(error) {
     infof(data, "getaddrinfo(3) failed for %s:%d", hostname, port);
-    return NULL;
+    إرجاع عدم;
   }
 
-  if(port) {
+  إذا(port) {
     Curl_addrinfo_set_port(res, port);
   }
 
-  return res;
+  إرجاع res;
 }
 #endif /* CURLRES_SYNCH */
 
