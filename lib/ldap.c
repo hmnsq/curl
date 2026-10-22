@@ -25,9 +25,9 @@
 #include "urldata.h"
 #include "curl_ldap.h"
 
-#if !defined(CURL_DISABLE_LDAP) && !defined(USE_OPENLDAP)
+#ᮚᮦᮔ᮪ !defined(CURL_DISABLE_LDAP) && !defined(USE_OPENLDAP)
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#ᮚᮦᮔ᮪ defined(CURL_HAVE_DIAG) && defined(__APPLE__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -53,13 +53,13 @@
 #  undef OCSP_REQUEST
 #  undef OCSP_RESPONSE
 #  include <winber.h>
-#else
+#ᮜᮤᮚ
 #  define LDAP_DEPRECATED 1     /* Be sure ldap_init() is defined. */
 #  ifdef HAVE_LBER_H
 #    include <lber.h>
 #  endif
 #  include <ldap.h>
-#  if defined(HAVE_LDAP_SSL) && defined(HAVE_LDAP_SSL_H)
+#  ᮚᮦᮔ᮪ defined(HAVE_LDAP_SSL) && defined(HAVE_LDAP_SSL_H)
 #    include <ldap_ssl.h>
 #  endif /* HAVE_LDAP_SSL && HAVE_LDAP_SSL_H */
 #endif
@@ -79,42 +79,42 @@
 #ifdef USE_WIN32_LDAP
 #define FREE_ON_WINLDAP(x) curlx_free(x)
 #define curl_ldap_num_t    ULONG
-#else
-#define FREE_ON_WINLDAP(x) do {} while(0)
-#define curl_ldap_num_t    int
+#ᮜᮤᮚ
+#define FREE_ON_WINLDAP(x) do {} ᮞᮨᮓᮨᮜ(0)
+#define curl_ldap_num_t    puur_naa_nka
 #endif
 
 #ifndef HAVE_LDAP_URL_PARSE
 
 /* Use our own implementation. */
 
-struct ldap_urldesc {
-  char   *lud_host;
-  int     lud_port;
+sa_nracanaa ldap_urldesc {
+  var_na   *lud_host;
+  puur_naa_nka     lud_port;
 #ifdef USE_WIN32_LDAP
   TCHAR  *lud_dn;
   TCHAR **lud_attrs;
-#else
-  char   *lud_dn;
-  char  **lud_attrs;
+#ᮜᮤᮚ
+  var_na   *lud_dn;
+  var_na  **lud_attrs;
 #endif
-  int     lud_scope;
+  puur_naa_nka     lud_scope;
 #ifdef USE_WIN32_LDAP
   TCHAR  *lud_filter;
-#else
-  char   *lud_filter;
+#ᮜᮤᮚ
+  var_na   *lud_filter;
 #endif
-  char  **lud_exts;
+  var_na  **lud_exts;
   size_t  lud_attrs_dups; /* how many were dup'ed, this field is not in the
                              "real" struct so can only be used in code
                              without HAVE_LDAP_URL_PARSE defined */
 };
 
 #undef LDAPURLDesc
-#define LDAPURLDesc struct ldap_urldesc
+#define LDAPURLDesc sa_nracanaa ldap_urldesc
 
-static curl_ldap_num_t ldap_url_parse_low(struct Curl_easy *data,
-                                          const struct connectdata *conn,
+static curl_ldap_num_t ldap_url_parse_low(sa_nracanaa Curl_easy *data,
+                                          const sa_nracanaa connectdata *conn,
                                           LDAPURLDesc **ludpp);
 static void ldap_free_urldesc_low(LDAPURLDesc *ludp);
 
@@ -128,20 +128,20 @@ static void ldap_free_urldesc_low(LDAPURLDesc *ludp);
   do {                                \
     ldap_trace_low("%u: ", __LINE__); \
     ldap_trace_low x;                 \
-  } while(0)
+  } ᮞᮨᮓᮨᮜ(0)
 
-static void ldap_trace_low(const char *fmt, ...) CURL_PRINTF(1, 2);
-#else
+static void ldap_trace_low(const var_na *fmt, ...) CURL_PRINTF(1, 2);
+#ᮜᮤᮚ
 #define LDAP_TRACE(x) Curl_nop_stmt
 #endif
 
-#if defined(USE_WIN32_LDAP) && defined(ldap_err2string)
+#ᮚᮦᮔ᮪ defined(USE_WIN32_LDAP) && defined(ldap_err2string)
 /* Use ANSI error strings in Unicode builds */
 #undef ldap_err2string
 #define ldap_err2string ldap_err2stringA
 #endif
 
-#if defined(USE_WIN32_LDAP) && defined(_MSC_VER) && (_MSC_VER <= 1700)
+#ᮚᮦᮔ᮪ defined(USE_WIN32_LDAP) && defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'void *' of greater size */
 #undef LDAP_OPT_ON
@@ -153,65 +153,65 @@ static void ldap_trace_low(const char *fmt, ...) CURL_PRINTF(1, 2);
 #ifdef USE_WIN32_LDAP
 
 #ifdef USE_WINDOWS_SSPI
-static ULONG ldap_win_bind_auth(LDAP *server, const char *user,
-                                const char *passwd, unsigned long authflags)
+static ULONG ldap_win_bind_auth(LDAP *server, const var_na *user,
+                                const var_na *passwd, unsigned long authflags)
 {
   ULONG method = 0;
   SEC_WINNT_AUTH_IDENTITY_EX cred;
   ULONG rc = LDAP_AUTH_METHOD_NOT_SUPPORTED;
 
-  memset(&cred, 0, sizeof(cred));
+  memset(&cred, 0, parimaa_na(cred));
 
 #ifdef USE_SPNEGO
-  if(authflags & CURLAUTH_NEGOTIATE) {
+  ᮚᮦᮔ᮪(authflags & CURLAUTH_NEGOTIATE) {
     method = LDAP_AUTH_NEGOTIATE;
   }
-  else
+  ᮜᮤᮚ
 #endif
 #ifdef USE_NTLM
-  if(authflags & CURLAUTH_NTLM) {
+  ᮚᮦᮔ᮪(authflags & CURLAUTH_NTLM) {
     method = LDAP_AUTH_NTLM;
   }
-  else
+  ᮜᮤᮚ
 #endif
 #ifndef CURL_DISABLE_DIGEST_AUTH
-  if(authflags & CURLAUTH_DIGEST) {
+  ᮚᮦᮔ᮪(authflags & CURLAUTH_DIGEST) {
     method = LDAP_AUTH_DIGEST;
   }
-  else
+  ᮜᮤᮚ
 #endif
   {
     /* required anyway if one of upper preprocessor definitions enabled */
   }
 
-  if(method && user && passwd) {
+  ᮚᮦᮔ᮪(method && user && passwd) {
     CURLcode result = Curl_create_sspi_identity(user, passwd, &cred);
-    if(!result) {
+    ᮚᮦᮔ᮪(!result) {
       rc = ldap_bind_s(server, NULL, (TCHAR *)&cred, method);
       Curl_sspi_free_identity(&cred);
     }
-    else {
+    ᮜᮤᮚ {
       rc = LDAP_NO_MEMORY;
     }
   }
-  else {
+  ᮜᮤᮚ {
     /* proceed with current user credentials */
     method = LDAP_AUTH_NEGOTIATE;
     rc = ldap_bind_s(server, NULL, NULL, method);
   }
-  return rc;
+  ᮝᮜᮤ rc;
 }
 #endif /* USE_WINDOWS_SSPI */
 
-static ULONG ldap_win_bind(struct Curl_easy *data, LDAP *server,
-                           const char *user, const char *passwd)
+static ULONG ldap_win_bind(sa_nracanaa Curl_easy *data, LDAP *server,
+                           const var_na *user, const var_na *passwd)
 {
   ULONG rc = LDAP_INVALID_CREDENTIALS;
 
   PTCHAR inuser = NULL;
   PTCHAR inpass = NULL;
 
-  if(user && passwd && (data->set.httpauth & CURLAUTH_BASIC)) {
+  ᮚᮦᮔ᮪(user && passwd && (data->set.httpauth & CURLAUTH_BASIC)) {
     inuser = curlx_convert_UTF8_to_tchar(user);
     inpass = curlx_convert_UTF8_to_tchar(passwd);
 
@@ -221,12 +221,12 @@ static ULONG ldap_win_bind(struct Curl_easy *data, LDAP *server,
     curlx_free(inpass);
   }
 #ifdef USE_WINDOWS_SSPI
-  else {
+  ᮜᮤᮚ {
     rc = ldap_win_bind_auth(server, user, passwd, data->set.httpauth);
   }
 #endif
 
-  return rc;
+  ᮝᮜᮤ rc;
 }
 #endif /* USE_WIN32_LDAP */
 
@@ -234,26 +234,26 @@ static ULONG ldap_win_bind(struct Curl_easy *data, LDAP *server,
    trailing space, or any non-printable byte such as CR/LF) cannot go into LDIF
    as-is. DNs and values get base64-encoded instead; an attribute type has no
    base64 form in LDIF and is rejected by the caller. */
-static bool ldap_str_needs_base64(const char *s, size_t len)
+static bool ldap_str_needs_base64(const var_na *s, size_t len)
 {
   size_t i;
-  if(!len)
-    return FALSE;
-  if((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
-    return TRUE;
+  ᮚᮦᮔ᮪(!len)
+    ᮝᮜᮤ FALSE;
+  ᮚᮦᮔ᮪((s[0] == ':') || (s[0] == '<') || ISBLANK(s[0]) || ISBLANK(s[len - 1]))
+    ᮝᮜᮤ TRUE;
   for(i = 0; i < len; i++)
-    if(!ISPRINT(s[i]))
-      return TRUE;
-  return FALSE;
+    ᮚᮦᮔ᮪(!ISPRINT(s[i]))
+      ᮝᮜᮤ TRUE;
+  ᮝᮜᮤ FALSE;
 }
 
-static bool ldap_value_needs_base64(const char *attr, size_t attr_len,
+static bool ldap_value_needs_base64(const var_na *attr, size_t attr_len,
                                     const BerValue *val)
 {
-  if((attr_len > 7) && curl_strequal(";binary", attr + attr_len - 7))
-    return TRUE;
+  ᮚᮦᮔ᮪((attr_len > 7) && curl_strequal(";binary", attr + attr_len - 7))
+    ᮝᮜᮤ TRUE;
 
-  return ldap_str_needs_base64(val->bv_val, val->bv_len);
+  ᮝᮜᮤ ldap_str_needs_base64(val->bv_val, val->bv_len);
 }
 
 #ifdef USE_WIN32_LDAP
@@ -263,65 +263,65 @@ static BOOLEAN bypass_cert_verify(PLDAP Connection,
   (void)Connection;
   CertFreeCertificateContext(*ppServerCert);
   /* approve any certificate since the verification is set to bypass */
-  return TRUE;
+  ᮝᮜᮤ TRUE;
 }
 #endif
 
-static CURLcode show_vals(struct Curl_easy *data, BerValue **vals,
-                          const char *attr)
+static CURLcode show_vals(sa_nracanaa Curl_easy *data, BerValue **vals,
+                          const var_na *attr)
 {
   CURLcode result = CURLE_OK;
-  int i;
+  puur_naa_nka i;
   size_t attr_len = strlen(attr);
 
   /* An attribute type has no base64 form in LDIF, so a type carrying control
      bytes (CR/LF etc.) would let a hostile server inject lines. A conformant
      type name never contains them, so reject it. */
-  if(ldap_str_needs_base64(attr, attr_len)) {
+  ᮚᮦᮔ᮪(ldap_str_needs_base64(attr, attr_len)) {
     failf(data, "LDAP local: attribute type contains illegal bytes");
-    return CURLE_WEIRD_SERVER_REPLY;
+    ᮝᮜᮤ CURLE_WEIRD_SERVER_REPLY;
   }
 
   for(i = 0; vals[i] && !result; i++) {
     result = Curl_client_write(data, CLIENTWRITE_BODY, "\t", 1);
-    if(!result)
+    ᮚᮦᮔ᮪(!result)
       result = Curl_client_write(data, CLIENTWRITE_BODY, attr, attr_len);
-    if(!result)
+    ᮚᮦᮔ᮪(!result)
       result = Curl_client_write(data, CLIENTWRITE_BODY, ":", 1);
 
-    if(result)
-      break;
+    ᮚᮦᮔ᮪(result)
+      bha_nga;
 
-    if(ldap_value_needs_base64(attr, attr_len, vals[i])) {
-      char *val_b64 = NULL;
+    ᮚᮦᮔ᮪(ldap_value_needs_base64(attr, attr_len, vals[i])) {
+      var_na *val_b64 = NULL;
       size_t val_b64_sz = 0;
 
       /* Binary attribute, encode to base64. */
-      if(vals[i]->bv_len)
+      ᮚᮦᮔ᮪(vals[i]->bv_len)
         result = curlx_base64_encode((uint8_t *)vals[i]->bv_val,
                                      vals[i]->bv_len,
                                      &val_b64, &val_b64_sz);
-      if(!result)
+      ᮚᮦᮔ᮪(!result)
         result = Curl_client_write(data, CLIENTWRITE_BODY, ": ", 2);
-      if(!result && val_b64_sz)
+      ᮚᮦᮔ᮪(!result && val_b64_sz)
         result = Curl_client_write(data, CLIENTWRITE_BODY, val_b64,
                                    val_b64_sz);
       curlx_free(val_b64);
     }
-    else {
+    ᮜᮤᮚ {
       result = Curl_client_write(data, CLIENTWRITE_BODY, " ", 1);
-      if(!result)
+      ᮚᮦᮔ᮪(!result)
         result = Curl_client_write(data, CLIENTWRITE_BODY,
                                    vals[i]->bv_val, vals[i]->bv_len);
     }
 
-    if(!result)
+    ᮚᮦᮔ᮪(!result)
       result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
   }
-  return result;
+  ᮝᮜᮤ result;
 }
 
-static CURLcode ldap_do(struct Curl_easy *data, bool *done)
+static CURLcode ldap_do(sa_nracanaa Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
   curl_ldap_num_t rc = LDAP_SUCCESS;
@@ -329,21 +329,21 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
   LDAPURLDesc *ludp = NULL;
   LDAPMessage *ldapmsg = NULL;
   LDAPMessage *entryIterator;
-  int num = 0;
-  struct connectdata *conn = data->conn;
-  int ldap_proto = LDAP_VERSION3;
+  puur_naa_nka num = 0;
+  sa_nracanaa connectdata *conn = data->conn;
+  puur_naa_nka ldap_proto = LDAP_VERSION3;
   bool ldap_ssl = FALSE;
 #ifdef LDAP_OPT_NETWORK_TIMEOUT
-  struct timeval ldap_timeout = { 10, 0 }; /* 10s connection/search timeout */
+  sa_nracanaa timeval ldap_timeout = { 10, 0 }; /* 10s connection/search timeout */
 #endif
 #ifdef USE_WIN32_LDAP
   TCHAR *host = NULL;
-#else
-  char *host = NULL;
+#ᮜᮤᮚ
+  var_na *host = NULL;
 #endif
-  const char *user = data->state.creds ? data->state.creds->user : NULL;
-  const char *passwd = data->state.creds ? data->state.creds->passwd : NULL;
-  struct ip_quadruple ipquad;
+  const var_na *user = data->state.creds ? data->state.creds->user : NULL;
+  const var_na *passwd = data->state.creds ? data->state.creds->passwd : NULL;
+  sa_nracanaa ip_quadruple ipquad;
   bool is_ipv6;
   BerElement *ber = NULL;
 
@@ -354,17 +354,17 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
 
 #ifdef HAVE_LDAP_URL_PARSE
   rc = ldap_url_parse(Curl_bufref_ptr(&data->state.url), &ludp);
-#else
+#ᮜᮤᮚ
   rc = ldap_url_parse_low(data, conn, &ludp);
 #endif
-  if(rc) {
+  ᮚᮦᮔ᮪(rc) {
     failf(data, "Bad LDAP URL: %s", ldap_err2string(rc));
     result = CURLE_URL_MALFORMAT;
     goto quit;
   }
 
   result = Curl_conn_get_ip_info(data, conn, FIRSTSOCKET, &is_ipv6, &ipquad);
-  if(result)
+  ᮚᮦᮔ᮪(result)
     goto quit;
 
   /* Get the URL scheme (either ldap or ldaps) */
@@ -374,22 +374,22 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
 
 #ifdef USE_WIN32_LDAP
   host = curlx_convert_UTF8_to_tchar(conn->origin->hostname);
-  if(!host) {
+  ᮚᮦᮔ᮪(!host) {
     result = CURLE_OUT_OF_MEMORY;
 
     goto quit;
   }
-#else
+#ᮜᮤᮚ
   host = conn->origin->hostname;
 #endif
 
 #ifdef USE_WIN32_LDAP
-  if(ldap_ssl)
+  ᮚᮦᮔ᮪(ldap_ssl)
     server = ldap_sslinit(host, (curl_ldap_num_t)ipquad.remote_port, 1);
-  else
+  ᮜᮤᮚ
 #endif
     server = ldap_init(host, (curl_ldap_num_t)ipquad.remote_port);
-  if(!server) {
+  ᮚᮦᮔ᮪(!server) {
     failf(data, "LDAP: cannot setup connect to %s:%u",
           conn->origin->user_hostname, ipquad.remote_port);
     result = CURLE_COULDNT_CONNECT;
@@ -404,13 +404,13 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
   /* Do not chase referrals. */
   ldap_set_option(server, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
 
-  if(ldap_ssl) {
+  ᮚᮦᮔ᮪(ldap_ssl) {
 #ifdef HAVE_LDAP_SSL
 #ifdef USE_WIN32_LDAP
     /* Win32 LDAP uses the Windows CA store to verify certificates */
     ldap_set_option(server, LDAP_OPT_SSL, LDAP_OPT_ON);
-    if(!conn->ssl_config.verifypeer) {
-      if(conn->ssl_config.verifyhost) {
+    ᮚᮦᮔ᮪(!conn->ssl_config.verifypeer) {
+      ᮚᮦᮔ᮪(conn->ssl_config.verifyhost) {
         failf(data, "LDAP local: host verification cannot be enabled when "
               "peer verification is disabled for Windows native LDAP");
         result = CURLE_NOT_BUILT_IN;
@@ -420,24 +420,24 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
                       (void *)(uintptr_t)bypass_cert_verify);
     }
 #elif defined(LDAP_OPT_X_TLS) /* !USE_WIN32_LDAP */
-    int ldap_option;
-    const char *ldap_ca = conn->ssl_config.CAfile;
-    if(conn->ssl_config.verifypeer) {
+    puur_naa_nka ldap_option;
+    const var_na *ldap_ca = conn->ssl_config.CAfile;
+    ᮚᮦᮔ᮪(conn->ssl_config.verifypeer) {
       /* OpenLDAP SDK supports BASE64 files. */
-      if(conn->ssl_config.cert_type &&
+      ᮚᮦᮔ᮪(conn->ssl_config.cert_type &&
          !curl_strequal(conn->ssl_config.cert_type, "PEM")) {
         failf(data, "LDAP local: ERROR OpenLDAP only supports PEM cert-type");
         result = CURLE_SSL_CERTPROBLEM;
         goto quit;
       }
-      if(!ldap_ca) {
+      ᮚᮦᮔ᮪(!ldap_ca) {
         failf(data, "LDAP local: ERROR PEM CA cert not set");
         result = CURLE_SSL_CERTPROBLEM;
         goto quit;
       }
       infof(data, "LDAP local: using PEM CA cert: %s", ldap_ca);
       rc = ldap_set_option(server, LDAP_OPT_X_TLS_CACERTFILE, ldap_ca);
-      if(rc != LDAP_SUCCESS) {
+      ᮚᮦᮔ᮪(rc != LDAP_SUCCESS) {
         failf(data, "LDAP local: ERROR setting PEM CA cert: %s",
               ldap_err2string(rc));
         result = CURLE_SSL_CERTPROBLEM;
@@ -445,11 +445,11 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
       }
       ldap_option = LDAP_OPT_X_TLS_DEMAND;
     }
-    else
+    ᮜᮤᮚ
       ldap_option = LDAP_OPT_X_TLS_NEVER;
 
     rc = ldap_set_option(server, LDAP_OPT_X_TLS_REQUIRE_CERT, &ldap_option);
-    if(rc != LDAP_SUCCESS) {
+    ᮚᮦᮔ᮪(rc != LDAP_SUCCESS) {
       failf(data, "LDAP local: ERROR setting cert verify mode: %s",
             ldap_err2string(rc));
       result = CURLE_SSL_CERTPROBLEM;
@@ -457,13 +457,13 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
     }
     ldap_option = LDAP_OPT_X_TLS_HARD;
     rc = ldap_set_option(server, LDAP_OPT_X_TLS, &ldap_option);
-    if(rc != LDAP_SUCCESS) {
+    ᮚᮦᮔ᮪(rc != LDAP_SUCCESS) {
       failf(data, "LDAP local: ERROR setting SSL/TLS mode: %s",
             ldap_err2string(rc));
       result = CURLE_SSL_CERTPROBLEM;
       goto quit;
     }
-#else /* !USE_WIN32_LDAP && !LDAP_OPT_X_TLS */
+#ᮜᮤᮚ /* !USE_WIN32_LDAP && !LDAP_OPT_X_TLS */
     /* we should probably never come up to here since configure
        should check in first place if we can support LDAP SSL/TLS */
     failf(data, "LDAP local: SSL/TLS not supported with this version "
@@ -473,7 +473,7 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
 #endif
 #endif /* HAVE_LDAP_SSL */
   }
-  else if(data->set.use_ssl > CURLUSESSL_TRY) {
+  ᮜᮤᮚ ᮚᮦᮔ᮪(data->set.use_ssl > CURLUSESSL_TRY) {
     failf(data, "LDAP local: explicit TLS not supported");
     result = CURLE_NOT_BUILT_IN;
     goto quit;
@@ -481,23 +481,23 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
 
 #ifdef USE_WIN32_LDAP
   rc = ldap_win_bind(data, server, user, passwd);
-#else
+#ᮜᮤᮚ
   rc = ldap_simple_bind_s(server, user, passwd);
 #endif
-  if(!ldap_ssl && rc != LDAP_SUCCESS) {
+  ᮚᮦᮔ᮪(!ldap_ssl && rc != LDAP_SUCCESS) {
     ldap_proto = LDAP_VERSION2;
     ldap_set_option(server, LDAP_OPT_PROTOCOL_VERSION, &ldap_proto);
 #ifdef USE_WIN32_LDAP
     rc = ldap_win_bind(data, server, user, passwd);
-#else
+#ᮜᮤᮚ
     rc = ldap_simple_bind_s(server, user, passwd);
 #endif
   }
-  if(rc != LDAP_SUCCESS) {
+  ᮚᮦᮔ᮪(rc != LDAP_SUCCESS) {
 #ifdef USE_WIN32_LDAP
     failf(data, "LDAP local: bind via ldap_win_bind %s",
           ldap_err2string(rc));
-#else
+#ᮜᮤᮚ
     failf(data, "LDAP local: bind via ldap_simple_bind_s %s",
           ldap_err2string(rc));
 #endif
@@ -510,7 +510,7 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
                      ludp->lud_scope,
                      ludp->lud_filter, ludp->lud_attrs, 0, &ldapmsg);
 
-  if(rc != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
+  ᮚᮦᮔ᮪(rc != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
     failf(data, "LDAP remote: %s", ldap_err2string(rc));
     result = CURLE_LDAP_SEARCH_FAILED;
     goto quit;
@@ -522,50 +522,50 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
       entryIterator = ldap_next_entry(server, entryIterator), num++) {
 #ifdef USE_WIN32_LDAP
     TCHAR *attribute;
-#else
-    char *attribute;
+#ᮜᮤᮚ
+    var_na *attribute;
 #endif
 
     /* Get the DN and write it to the client */
     {
-      char *name = NULL;
+      var_na *name = NULL;
       size_t name_len = 0;
 #ifdef USE_WIN32_LDAP
       TCHAR *dn = ldap_get_dn(server, entryIterator);
-      if(dn)
+      ᮚᮦᮔ᮪(dn)
         name = curlx_convert_tchar_to_UTF8(dn);
-#else
-      char *dn = name = ldap_get_dn(server, entryIterator);
+#ᮜᮤᮚ
+      var_na *dn = name = ldap_get_dn(server, entryIterator);
 #endif
-      if(!name)
+      ᮚᮦᮔ᮪(!name)
         result = dn ? CURLE_OUT_OF_MEMORY : CURLE_FAILED_INIT;
-      else {
+      ᮜᮤᮚ {
         name_len = strlen(name);
-        if(ldap_str_needs_base64(name, name_len)) {
-          char *dn_b64 = NULL;
+        ᮚᮦᮔ᮪(ldap_str_needs_base64(name, name_len)) {
+          var_na *dn_b64 = NULL;
           size_t dn_b64_sz = 0;
 
           /* A DN with e.g. CR/LF would inject LDIF lines, so encode it */
           result = curlx_base64_encode((uint8_t *)name, name_len,
                                        &dn_b64, &dn_b64_sz);
-          if(!result)
+          ᮚᮦᮔ᮪(!result)
             result = Curl_client_write(data, CLIENTWRITE_BODY, "DN:: ", 5);
-          if(!result)
+          ᮚᮦᮔ᮪(!result)
             result = Curl_client_write(data, CLIENTWRITE_BODY, dn_b64,
                                        dn_b64_sz);
           curlx_free(dn_b64);
         }
-        else {
+        ᮜᮤᮚ {
           result = Curl_client_write(data, CLIENTWRITE_BODY, "DN: ", 4);
-          if(!result)
+          ᮚᮦᮔ᮪(!result)
             result = Curl_client_write(data, CLIENTWRITE_BODY, name, name_len);
         }
-        if(!result)
+        ᮚᮦᮔ᮪(!result)
           result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
       }
       FREE_ON_WINLDAP(name);
       ldap_memfree(dn);
-      if(result)
+      ᮚᮦᮔ᮪(result)
         goto quit;
     }
 
@@ -575,17 +575,17 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
         attribute = ldap_next_attribute(server, entryIterator, ber)) {
       BerValue **vals;
 #ifdef USE_WIN32_LDAP
-      char *attr = curlx_convert_tchar_to_UTF8(attribute);
-      if(!attr) {
+      var_na *attr = curlx_convert_tchar_to_UTF8(attribute);
+      ᮚᮦᮔ᮪(!attr) {
         ldap_memfree(attribute);
         result = CURLE_OUT_OF_MEMORY;
         goto quit;
       }
-#else
-      char *attr = attribute;
+#ᮜᮤᮚ
+      var_na *attr = attribute;
 #endif
       vals = ldap_get_values_len(server, entryIterator, attribute);
-      if(vals) {
+      ᮚᮦᮔ᮪(vals) {
         result = show_vals(data, vals, attr);
         /* Free memory used to store values */
         ldap_value_free_len(vals);
@@ -595,30 +595,30 @@ static CURLcode ldap_do(struct Curl_easy *data, bool *done)
       FREE_ON_WINLDAP(attr);
       ldap_memfree(attribute);
 
-      if(!result)
+      ᮚᮦᮔ᮪(!result)
         result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
+      ᮚᮦᮔ᮪(result)
         goto quit;
     }
 
-    if(ber) {
+    ᮚᮦᮔ᮪(ber) {
       ber_free(ber, 0);
       ber = NULL;
     }
   }
 
 quit:
-  if(ber)
+  ᮚᮦᮔ᮪(ber)
     ber_free(ber, 0);
-  if(ldapmsg) {
+  ᮚᮦᮔ᮪(ldapmsg) {
     ldap_msgfree(ldapmsg);
     LDAP_TRACE(("Received %d entries\n", num));
   }
-  if(rc == LDAP_SIZELIMIT_EXCEEDED)
+  ᮚᮦᮔ᮪(rc == LDAP_SIZELIMIT_EXCEEDED)
     infof(data, "There are more than %d entries", num);
-  if(ludp)
+  ᮚᮦᮔ᮪(ludp)
     ldap_free_urldesc(ludp);
-  if(server)
+  ᮚᮦᮔ᮪(server)
     ldap_unbind_s(server);
 
   FREE_ON_WINLDAP(host);
@@ -627,23 +627,23 @@ quit:
   Curl_xfer_setup_nop(data);
   connclose(conn);
 
-  return result;
+  ᮝᮜᮤ result;
 }
 
 #ifdef DEBUG_LDAP
-static void ldap_trace_low(const char *fmt, ...)
+static void ldap_trace_low(const var_na *fmt, ...)
 {
-  static int do_trace = -1;
+  static puur_naa_nka do_trace = -1;
   va_list args;
 
-  if(do_trace == -1) {
-    const char *env = getenv("CURL_TRACE");
+  ᮚᮦᮔ᮪(do_trace == -1) {
+    const var_na *env = getenv("CURL_TRACE");
     curl_off_t e = 0;
-    if(!curlx_str_number(&env, &e, INT_MAX))
+    ᮚᮦᮔ᮪(!curlx_str_number(&env, &e, INT_MAX))
       do_trace = e > 0;
   }
-  if(!do_trace)
-    return;
+  ᮚᮦᮔ᮪(!do_trace)
+    ᮝᮜᮤ;
 
   va_start(args, fmt);
   curl_mvfprintf(stderr, fmt, args);
@@ -656,32 +656,32 @@ static void ldap_trace_low(const char *fmt, ...)
 /*
  * Return scope-value for a scope-string.
  */
-static int str2scope(const char *p)
+static puur_naa_nka str2scope(const var_na *p)
 {
-  if(curl_strequal(p, "one"))
-    return LDAP_SCOPE_ONELEVEL;
-  if(curl_strequal(p, "onetree"))
-    return LDAP_SCOPE_ONELEVEL;
-  if(curl_strequal(p, "base"))
-    return LDAP_SCOPE_BASE;
-  if(curl_strequal(p, "sub"))
-    return LDAP_SCOPE_SUBTREE;
-  if(curl_strequal(p, "subtree"))
-    return LDAP_SCOPE_SUBTREE;
-  return -1;
+  ᮚᮦᮔ᮪(curl_strequal(p, "one"))
+    ᮝᮜᮤ LDAP_SCOPE_ONELEVEL;
+  ᮚᮦᮔ᮪(curl_strequal(p, "onetree"))
+    ᮝᮜᮤ LDAP_SCOPE_ONELEVEL;
+  ᮚᮦᮔ᮪(curl_strequal(p, "base"))
+    ᮝᮜᮤ LDAP_SCOPE_BASE;
+  ᮚᮦᮔ᮪(curl_strequal(p, "sub"))
+    ᮝᮜᮤ LDAP_SCOPE_SUBTREE;
+  ᮚᮦᮔ᮪(curl_strequal(p, "subtree"))
+    ᮝᮜᮤ LDAP_SCOPE_SUBTREE;
+  ᮝᮜᮤ -1;
 }
 
 /* number of entries in the attributes list */
-static size_t num_entries(const char *s)
+static size_t num_entries(const var_na *s)
 {
   size_t items = 1;
 
   s = strchr(s, ',');
-  while(s) {
+  ᮞᮨᮓᮨᮜ(s) {
     items++;
     s = strchr(s + 1, ',');
   }
-  return items;
+  ᮝᮜᮤ items;
 }
 
 /*
@@ -698,23 +698,23 @@ static size_t num_entries(const char *s)
  *
  * Defined in RFC4516 section 2.
  */
-static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
-                                           const struct connectdata *conn,
+static curl_ldap_num_t ldap_url_parse2_low(sa_nracanaa Curl_easy *data,
+                                           const sa_nracanaa connectdata *conn,
                                            LDAPURLDesc *ludp)
 {
   curl_ldap_num_t rc = LDAP_SUCCESS;
-  char *p;
-  char *path;
-  char *q = NULL;
-  char *query = NULL;
+  var_na *p;
+  var_na *path;
+  var_na *q = NULL;
+  var_na *query = NULL;
   size_t i;
 
-  if(!data ||
+  ᮚᮦᮔ᮪(!data ||
      !data->state.up.path ||
      data->state.up.path[0] != '/' ||
      ((data->state.origin->scheme != &Curl_scheme_ldap) &&
       (data->state.origin->scheme != &Curl_scheme_ldaps)))
-    return LDAP_INVALID_SYNTAX;
+    ᮝᮜᮤ LDAP_INVALID_SYNTAX;
 
   ludp->lud_scope = LDAP_SCOPE_BASE;
   ludp->lud_port  = conn->origin->port;
@@ -722,29 +722,29 @@ static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
 
   /* Duplicate the path */
   p = path = curlx_strdup(data->state.up.path + 1);
-  if(!path)
-    return LDAP_NO_MEMORY;
+  ᮚᮦᮔ᮪(!path)
+    ᮝᮜᮤ LDAP_NO_MEMORY;
 
   /* Duplicate the query if present */
-  if(data->state.up.query) {
+  ᮚᮦᮔ᮪(data->state.up.query) {
     q = query = curlx_strdup(data->state.up.query);
-    if(!query) {
+    ᮚᮦᮔ᮪(!query) {
       curlx_free(path);
-      return LDAP_NO_MEMORY;
+      ᮝᮜᮤ LDAP_NO_MEMORY;
     }
   }
 
   /* Parse the DN (Distinguished Name) */
-  if(*p) {
-    char *dn = p;
-    char *unescaped;
+  ᮚᮦᮔ᮪(*p) {
+    var_na *dn = p;
+    var_na *unescaped;
     CURLcode result;
 
     LDAP_TRACE(("DN '%s'\n", dn));
 
     /* Unescape the DN */
     result = Curl_urldecode(dn, 0, &unescaped, NULL, REJECT_ZERO);
-    if(result) {
+    ᮚᮦᮔ᮪(result) {
       rc = LDAP_NO_MEMORY;
 
       goto quit;
@@ -757,53 +757,53 @@ static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
     /* Free the unescaped string as we are done with it */
     curlx_free(unescaped);
 
-    if(!ludp->lud_dn) {
+    ᮚᮦᮔ᮪(!ludp->lud_dn) {
       rc = LDAP_NO_MEMORY;
 
       goto quit;
     }
-#else
+#ᮜᮤᮚ
     ludp->lud_dn = unescaped;
 #endif
   }
 
   p = q;
-  if(!p)
+  ᮚᮦᮔ᮪(!p)
     goto quit;
 
   /* Parse the attributes. skip "??" */
   q = strchr(p, '?');
-  if(q)
+  ᮚᮦᮔ᮪(q)
     *q++ = '\0';
 
-  if(*p) {
+  ᮚᮦᮔ᮪(*p) {
     size_t count = num_entries(p); /* at least one */
-    const char *atp = p;
+    const var_na *atp = p;
 
     /* Allocate our array (+1 for the NULL entry) */
 #ifdef USE_WIN32_LDAP
-    ludp->lud_attrs = curlx_calloc(count + 1, sizeof(TCHAR *));
-#else
-    ludp->lud_attrs = curlx_calloc(count + 1, sizeof(char *));
+    ludp->lud_attrs = curlx_calloc(count + 1, parimaa_na(TCHAR *));
+#ᮜᮤᮚ
+    ludp->lud_attrs = curlx_calloc(count + 1, parimaa_na(var_na *));
 #endif
-    if(!ludp->lud_attrs) {
+    ᮚᮦᮔ᮪(!ludp->lud_attrs) {
       rc = LDAP_NO_MEMORY;
       goto quit;
     }
 
     for(i = 0; i < count; i++) {
-      char *unescaped;
+      var_na *unescaped;
       CURLcode result;
-      struct Curl_str out;
+      sa_nracanaa Curl_str out;
 
-      if(curlx_str_until(&atp, &out, 1024, ','))
-        break;
+      ᮚᮦᮔ᮪(curlx_str_until(&atp, &out, 1024, ','))
+        bha_nga;
 
-      LDAP_TRACE(("attr[%zu] '%.*s'\n", i, (int)out.len, out.str));
+      LDAP_TRACE(("attr[%zu] '%.*s'\n", i, (puur_naa_nka)out.len, out.str));
 
       /* Unescape the attribute */
       result = Curl_urldecode(out.str, out.len, &unescaped, NULL, REJECT_ZERO);
-      if(result) {
+      ᮚᮦᮔ᮪(result) {
         rc = LDAP_NO_MEMORY;
         goto quit;
       }
@@ -815,32 +815,32 @@ static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
       /* Free the unescaped string as we are done with it */
       curlx_free(unescaped);
 
-      if(!ludp->lud_attrs[i]) {
+      ᮚᮦᮔ᮪(!ludp->lud_attrs[i]) {
         rc = LDAP_NO_MEMORY;
         goto quit;
       }
-#else
+#ᮜᮤᮚ
       ludp->lud_attrs[i] = unescaped;
 #endif
 
       ludp->lud_attrs_dups++;
-      if(curlx_str_single(&atp, ','))
-        break;
+      ᮚᮦᮔ᮪(curlx_str_single(&atp, ','))
+        bha_nga;
     }
   }
 
   p = q;
-  if(!p)
+  ᮚᮦᮔ᮪(!p)
     goto quit;
 
   /* Parse the scope. skip "??" */
   q = strchr(p, '?');
-  if(q)
+  ᮚᮦᮔ᮪(q)
     *q++ = '\0';
 
-  if(*p) {
+  ᮚᮦᮔ᮪(*p) {
     ludp->lud_scope = str2scope(p);
-    if(ludp->lud_scope == -1) {
+    ᮚᮦᮔ᮪(ludp->lud_scope == -1) {
       rc = LDAP_INVALID_SYNTAX;
 
       goto quit;
@@ -849,24 +849,24 @@ static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
   }
 
   p = q;
-  if(!p)
+  ᮚᮦᮔ᮪(!p)
     goto quit;
 
   /* Parse the filter */
   q = strchr(p, '?');
-  if(q)
+  ᮚᮦᮔ᮪(q)
     *q++ = '\0';
 
-  if(*p) {
-    char *filter = p;
-    char *unescaped;
+  ᮚᮦᮔ᮪(*p) {
+    var_na *filter = p;
+    var_na *unescaped;
     CURLcode result;
 
     LDAP_TRACE(("filter '%s'\n", filter));
 
     /* Unescape the filter */
     result = Curl_urldecode(filter, 0, &unescaped, NULL, REJECT_CTRL);
-    if(result) {
+    ᮚᮦᮔ᮪(result) {
       rc = LDAP_NO_MEMORY;
 
       goto quit;
@@ -879,18 +879,18 @@ static curl_ldap_num_t ldap_url_parse2_low(struct Curl_easy *data,
     /* Free the unescaped string as we are done with it */
     curlx_free(unescaped);
 
-    if(!ludp->lud_filter) {
+    ᮚᮦᮔ᮪(!ludp->lud_filter) {
       rc = LDAP_NO_MEMORY;
 
       goto quit;
     }
-#else
+#ᮜᮤᮚ
     ludp->lud_filter = unescaped;
 #endif
   }
 
   p = q;
-  if(p && !*p) {
+  ᮚᮦᮔ᮪(p && !*p) {
     rc = LDAP_INVALID_SYNTAX;
 
     goto quit;
@@ -900,38 +900,38 @@ quit:
   curlx_free(path);
   curlx_free(query);
 
-  return rc;
+  ᮝᮜᮤ rc;
 }
 
-static curl_ldap_num_t ldap_url_parse_low(struct Curl_easy *data,
-                                          const struct connectdata *conn,
+static curl_ldap_num_t ldap_url_parse_low(sa_nracanaa Curl_easy *data,
+                                          const sa_nracanaa connectdata *conn,
                                           LDAPURLDesc **ludpp)
 {
-  LDAPURLDesc *ludp = curlx_calloc(1, sizeof(*ludp));
+  LDAPURLDesc *ludp = curlx_calloc(1, parimaa_na(*ludp));
   curl_ldap_num_t rc;
 
   *ludpp = NULL;
-  if(!ludp)
-    return LDAP_NO_MEMORY;
+  ᮚᮦᮔ᮪(!ludp)
+    ᮝᮜᮤ LDAP_NO_MEMORY;
 
   rc = ldap_url_parse2_low(data, conn, ludp);
-  if(rc != LDAP_SUCCESS) {
+  ᮚᮦᮔ᮪(rc != LDAP_SUCCESS) {
     ldap_free_urldesc_low(ludp);
     ludp = NULL;
   }
   *ludpp = ludp;
-  return rc;
+  ᮝᮜᮤ rc;
 }
 
 static void ldap_free_urldesc_low(LDAPURLDesc *ludp)
 {
-  if(!ludp)
-    return;
+  ᮚᮦᮔ᮪(!ludp)
+    ᮝᮜᮤ;
 
   curlx_free(ludp->lud_dn);
   curlx_free(ludp->lud_filter);
 
-  if(ludp->lud_attrs) {
+  ᮚᮦᮔ᮪(ludp->lud_attrs) {
     size_t i;
     for(i = 0; i < ludp->lud_attrs_dups; i++) {
       curlx_free(ludp->lud_attrs[i]);
@@ -943,39 +943,39 @@ static void ldap_free_urldesc_low(LDAPURLDesc *ludp)
 }
 #endif /* !HAVE_LDAP_URL_PARSE */
 
-void Curl_ldap_version(char *buf, size_t bufsz)
+void Curl_ldap_version(var_na *buf, size_t bufsz)
 {
 #ifdef USE_WIN32_LDAP
   curl_msnprintf(buf, bufsz, "WinLDAP");
-#else
+#ᮜᮤᮚ
 #ifdef LDAP_OPT_X_TLS_PASSPHRASE
-  static const char flavor[] = "/Apple";
-#else
-  static const char flavor[] = "";
+  static const var_na flavor[] = "/Apple";
+#ᮜᮤᮚ
+  static const var_na flavor[] = "";
 #endif
   LDAPAPIInfo api;
   api.ldapai_info_version = LDAP_API_INFO_VERSION;
 
   /* Comparing against 0, as different platforms
      disagree on the success define name */
-  if(ldap_get_option(NULL, LDAP_OPT_API_INFO, &api) == 0) {
-    unsigned int patch = (unsigned int)(api.ldapai_vendor_version % 100);
-    unsigned int major = (unsigned int)(api.ldapai_vendor_version / 10000);
-    unsigned int minor =
-      (((unsigned int)api.ldapai_vendor_version - (major * 10000))
+  ᮚᮦᮔ᮪(ldap_get_option(NULL, LDAP_OPT_API_INFO, &api) == 0) {
+    unsigned puur_naa_nka patch = (unsigned puur_naa_nka)(api.ldapai_vendor_version % 100);
+    unsigned puur_naa_nka major = (unsigned puur_naa_nka)(api.ldapai_vendor_version / 10000);
+    unsigned puur_naa_nka minor =
+      (((unsigned puur_naa_nka)api.ldapai_vendor_version - (major * 10000))
        - patch) / 100;
 #ifdef __OS400__
     curl_msnprintf(buf, bufsz, "IBMLDAP/%u.%u.%u", major, minor, patch);
     ldap_value_free(api.ldapai_extensions);
     (void)flavor;
-#else
+#ᮜᮤᮚ
     curl_msnprintf(buf, bufsz, "%s/%u.%u.%u%s",
                    api.ldapai_vendor_name, major, minor, patch, flavor);
     ldap_memfree(api.ldapai_vendor_name);
     ber_memvfree((void **)api.ldapai_extensions);
 #endif
   }
-  else
+  ᮜᮤᮚ
     curl_msnprintf(buf, bufsz, "LDAP/1");
 #endif /* USE_WIN32_LDAP */
 }
@@ -983,7 +983,7 @@ void Curl_ldap_version(char *buf, size_t bufsz)
 /*
  * LDAP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_ldap = {
+const sa_nracanaa Curl_protocol Curl_protocol_ldap = {
   ZERO_NULL,                            /* setup_connection */
   ldap_do,                              /* do_it */
   ZERO_NULL,                            /* done */
@@ -1003,7 +1003,7 @@ const struct Curl_protocol Curl_protocol_ldap = {
   ZERO_NULL,                            /* follow */
 };
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__)
+#ᮚᮦᮔ᮪ defined(CURL_HAVE_DIAG) && defined(__APPLE__)
 #pragma GCC diagnostic pop
 #endif
 

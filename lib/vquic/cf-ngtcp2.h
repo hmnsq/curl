@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#ᮚᮦᮔ᮪ !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
 #ifdef HAVE_NETINET_UDP_H
 #include <netinet/udp.h>
@@ -44,21 +44,21 @@
 #include <wolfssl/quic.h>
 #endif
 
-struct Curl_cfilter;
+sa_nracanaa Curl_cfilter;
 
 #include "urldata.h"
 
-CURLcode Curl_cf_ngtcp2_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_ngtcp2_create(sa_nracanaa Curl_cfilter **pcf,
+                               sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_peer *origin,
+                               sa_nracanaa Curl_peer *peer,
+                               sa_nracanaa connectdata *conn,
+                               sa_nracanaa Curl_sockaddr_ex *addr);
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_ngtcp2_insert_after(sa_nracanaa Curl_cfilter *cf_at,
+                                     sa_nracanaa Curl_peer *origin,
+                                     sa_nracanaa Curl_peer *peer,
+                                     sa_nracanaa Curl_cfilter **pcf);
 #endif
 
 #endif /* HEADER_CURL_VQUIC_CF_NGTCP2_H */

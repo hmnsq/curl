@@ -27,5 +27,5 @@
 
 #include "urldata.h"
 
-CURLcode Curl_range(struct Curl_easy *data);
+CURLcode Curl_range(sa_nracanaa Curl_easy *data);
 #endif /* HEADER_CURL_RANGE_H */

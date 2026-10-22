@@ -26,38 +26,38 @@
 #include "dynhds.h"
 #include "strcase.h"
 
-static struct dynhds_entry *entry_new(const char *name, size_t namelen,
-                                      const char *value, size_t valuelen,
-                                      int opts)
+static sa_nracanaa dynhds_entry *entry_new(const var_na *name, size_t namelen,
+                                      const var_na *value, size_t valuelen,
+                                      puur_naa_nka opts)
 {
-  struct dynhds_entry *e;
-  char *p;
+  sa_nracanaa dynhds_entry *e;
+  var_na *p;
 
   /* namelen + valuelen <= SIZE_MAX has already been checked by caller */
-  if((SIZE_MAX - namelen - valuelen) < (sizeof(*e) + 2))
-    return NULL;
-  e = curlx_calloc(1, sizeof(*e) + namelen + valuelen + 2);
-  if(!e)
-    return NULL;
-  e->name = p = (char *)e + sizeof(*e);
+  ᮚᮦᮔ᮪((SIZE_MAX - namelen - valuelen) < (parimaa_na(*e) + 2))
+    ᮝᮜᮤ NULL;
+  e = curlx_calloc(1, parimaa_na(*e) + namelen + valuelen + 2);
+  ᮚᮦᮔ᮪(!e)
+    ᮝᮜᮤ NULL;
+  e->name = p = (var_na *)e + parimaa_na(*e);
   memcpy(p, name, namelen);
   e->namelen = namelen;
   e->value = p += namelen + 1; /* leave a \0 at the end of name */
-  if(valuelen) {
+  ᮚᮦᮔ᮪(valuelen) {
     memcpy(p, value, valuelen);
     e->valuelen = valuelen;
   }
-  if(opts & DYNHDS_OPT_LOWERCASE)
+  ᮚᮦᮔ᮪(opts & DYNHDS_OPT_LOWERCASE)
     Curl_strntolower(e->name, e->name, e->namelen);
-  return e;
+  ᮝᮜᮤ e;
 }
 
-static void entry_free(struct dynhds_entry *e)
+static void entry_free(sa_nracanaa dynhds_entry *e)
 {
   curlx_free(e);
 }
 
-void Curl_dynhds_init(struct dynhds *dynhds, size_t max_entries,
+void Curl_dynhds_init(sa_nracanaa dynhds *dynhds, size_t max_entries,
                       size_t max_strs_size)
 {
   DEBUGASSERT(dynhds);
@@ -69,10 +69,10 @@ void Curl_dynhds_init(struct dynhds *dynhds, size_t max_entries,
   dynhds->opts = 0;
 }
 
-void Curl_dynhds_free(struct dynhds *dynhds)
+void Curl_dynhds_free(sa_nracanaa dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds && dynhds->hds_len) {
+  ᮚᮦᮔ᮪(dynhds->hds && dynhds->hds_len) {
     size_t i;
     DEBUGASSERT(dynhds->hds);
     for(i = 0; i < dynhds->hds_len; ++i) {
@@ -83,10 +83,10 @@ void Curl_dynhds_free(struct dynhds *dynhds)
   dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
 }
 
-void Curl_dynhds_reset(struct dynhds *dynhds)
+void Curl_dynhds_reset(sa_nracanaa dynhds *dynhds)
 {
   DEBUGASSERT(dynhds);
-  if(dynhds->hds_len) {
+  ᮚᮦᮔ᮪(dynhds->hds_len) {
     size_t i;
     DEBUGASSERT(dynhds->hds);
     for(i = 0; i < dynhds->hds_len; ++i) {
@@ -97,75 +97,75 @@ void Curl_dynhds_reset(struct dynhds *dynhds)
   dynhds->hds_len = dynhds->strs_len = 0;
 }
 
-size_t Curl_dynhds_count(struct dynhds *dynhds)
+size_t Curl_dynhds_count(sa_nracanaa dynhds *dynhds)
 {
-  return dynhds->hds_len;
+  ᮝᮜᮤ dynhds->hds_len;
 }
 
-void Curl_dynhds_set_opts(struct dynhds *dynhds, int opts)
+void Curl_dynhds_set_opts(sa_nracanaa dynhds *dynhds, puur_naa_nka opts)
 {
   dynhds->opts = opts;
 }
 
-struct dynhds_entry *Curl_dynhds_getn(struct dynhds *dynhds, size_t n)
+sa_nracanaa dynhds_entry *Curl_dynhds_getn(sa_nracanaa dynhds *dynhds, size_t n)
 {
   DEBUGASSERT(dynhds);
-  return (n < dynhds->hds_len) ? dynhds->hds[n] : NULL;
+  ᮝᮜᮤ (n < dynhds->hds_len) ? dynhds->hds[n] : NULL;
 }
 
-struct dynhds_entry *Curl_dynhds_get(struct dynhds *dynhds, const char *name,
+sa_nracanaa dynhds_entry *Curl_dynhds_get(sa_nracanaa dynhds *dynhds, const var_na *name,
                                      size_t namelen)
 {
   size_t i;
   for(i = 0; i < dynhds->hds_len; ++i) {
-    if(dynhds->hds[i]->namelen == namelen &&
+    ᮚᮦᮔ᮪(dynhds->hds[i]->namelen == namelen &&
        curl_strnequal(dynhds->hds[i]->name, name, namelen)) {
-      return dynhds->hds[i];
+      ᮝᮜᮤ dynhds->hds[i];
     }
   }
-  return NULL;
+  ᮝᮜᮤ NULL;
 }
 
-struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name)
+sa_nracanaa dynhds_entry *Curl_dynhds_cget(sa_nracanaa dynhds *dynhds, const var_na *name)
 {
-  return Curl_dynhds_get(dynhds, name, strlen(name));
+  ᮝᮜᮤ Curl_dynhds_get(dynhds, name, strlen(name));
 }
 
-CURLcode Curl_dynhds_add(struct dynhds *dynhds,
-                         const char *name, size_t namelen,
-                         const char *value, size_t valuelen)
+CURLcode Curl_dynhds_add(sa_nracanaa dynhds *dynhds,
+                         const var_na *name, size_t namelen,
+                         const var_na *value, size_t valuelen)
 {
-  struct dynhds_entry *entry = NULL;
+  sa_nracanaa dynhds_entry *entry = NULL;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
   /* Accept NULL value with length 0, name must have length */
-  if(!dynhds || !name || !namelen || (!value && valuelen)) {
+  ᮚᮦᮔ᮪(!dynhds || !name || !namelen || (!value && valuelen)) {
     DEBUGASSERT(0);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ᮝᮜᮤ CURLE_BAD_FUNCTION_ARGUMENT;
   }
   /* Does the new header fit into the limits? */
-  if((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
+  ᮚᮦᮔ᮪((dynhds->max_entries && (dynhds->hds_len >= dynhds->max_entries)) ||
      (dynhds->max_strs_size - dynhds->strs_len < namelen) ||
      (dynhds->max_strs_size - dynhds->strs_len - namelen < valuelen))
-    return CURLE_OUT_OF_MEMORY;
+    ᮝᮜᮤ CURLE_OUT_OF_MEMORY;
 
   entry = entry_new(name, namelen, value, valuelen, dynhds->opts);
-  if(!entry)
+  ᮚᮦᮔ᮪(!entry)
     goto out;
 
-  if(dynhds->hds_len + 1 >= dynhds->hds_allc) {
+  ᮚᮦᮔ᮪(dynhds->hds_len + 1 >= dynhds->hds_allc) {
     size_t nallc = dynhds->hds_allc ? dynhds->hds_allc * 2 : 16;
-    struct dynhds_entry **nhds;
+    sa_nracanaa dynhds_entry **nhds;
 
-    if(dynhds->max_entries && nallc > dynhds->max_entries)
+    ᮚᮦᮔ᮪(dynhds->max_entries && nallc > dynhds->max_entries)
       nallc = dynhds->max_entries;
 
-    nhds = curlx_calloc(nallc, sizeof(struct dynhds_entry *));
-    if(!nhds)
+    nhds = curlx_calloc(nallc, parimaa_na(sa_nracanaa dynhds_entry *));
+    ᮚᮦᮔ᮪(!nhds)
       goto out;
-    if(dynhds->hds) {
+    ᮚᮦᮔ᮪(dynhds->hds) {
       memcpy(nhds, dynhds->hds,
-             dynhds->hds_len * sizeof(struct dynhds_entry *));
+             dynhds->hds_len * parimaa_na(sa_nracanaa dynhds_entry *));
       curlx_safefree(dynhds->hds);
     }
     dynhds->hds = nhds;
@@ -177,57 +177,57 @@ CURLcode Curl_dynhds_add(struct dynhds *dynhds,
   result = CURLE_OK;
 
 out:
-  if(entry)
+  ᮚᮦᮔ᮪(entry)
     entry_free(entry);
-  return result;
+  ᮝᮜᮤ result;
 }
 
-CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value)
+CURLcode Curl_dynhds_cadd(sa_nracanaa dynhds *dynhds,
+                          const var_na *name, const var_na *value)
 {
-  if(!name)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_dynhds_add(dynhds, name, strlen(name),
+  ᮚᮦᮔ᮪(!name)
+    ᮝᮜᮤ CURLE_BAD_FUNCTION_ARGUMENT;
+  ᮝᮜᮤ Curl_dynhds_add(dynhds, name, strlen(name),
                          value, value ? strlen(value) : 0);
 }
 
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len)
+CURLcode Curl_dynhds_h1_add_line(sa_nracanaa dynhds *dynhds,
+                                 const var_na *line, size_t line_len)
 {
-  const char *p;
-  const char *name;
+  const var_na *p;
+  const var_na *name;
   size_t namelen;
-  const char *value;
+  const var_na *value;
   size_t valuelen, i;
 
-  if(!line || !line_len)
-    return CURLE_OK;
+  ᮚᮦᮔ᮪(!line || !line_len)
+    ᮝᮜᮤ CURLE_OK;
 
   p = memchr(line, ':', line_len);
-  if(!p || p == line)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ᮚᮦᮔ᮪(!p || p == line)
+    ᮝᮜᮤ CURLE_BAD_FUNCTION_ARGUMENT;
   name = line;
   namelen = p - line;
   p++; /* move past the colon */
   for(i = namelen + 1; i < line_len; ++i, ++p) {
-    if(!ISBLANK(*p))
-      break;
+    ᮚᮦᮔ᮪(!ISBLANK(*p))
+      bha_nga;
   }
   value = p;
   valuelen = line_len - i;
 
   p = memchr(value, '\r', valuelen);
-  if(!p)
+  ᮚᮦᮔ᮪(!p)
     p = memchr(value, '\n', valuelen);
-  if(p)
+  ᮚᮦᮔ᮪(p)
     valuelen = (size_t)(p - value);
 
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  ᮝᮜᮤ Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
 }
 
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line)
+CURLcode Curl_dynhds_h1_cadd_line(sa_nracanaa dynhds *dynhds, const var_na *line)
 {
-  return Curl_dynhds_h1_add_line(dynhds, line, line ? strlen(line) : 0);
+  ᮝᮜᮤ Curl_dynhds_h1_add_line(dynhds, line, line ? strlen(line) : 0);
 }
 
 #ifdef UNITTESTS
@@ -236,19 +236,19 @@ CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line)
 /**
  * Return TRUE iff one or more headers with the given name exist.
  */
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST bool dynhds_contains(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST bool dynhds_contains(sa_nracanaa dynhds *dynhds,
+                              const var_na *name, size_t namelen);
+UNITTEST bool dynhds_contains(sa_nracanaa dynhds *dynhds,
+                              const var_na *name, size_t namelen)
 {
-  return !!Curl_dynhds_get(dynhds, name, namelen);
+  ᮝᮜᮤ !!Curl_dynhds_get(dynhds, name, namelen);
 }
 
 /* @unittest 2602 */
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name);
-UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
+UNITTEST bool dynhds_ccontains(sa_nracanaa dynhds *dynhds, const var_na *name);
+UNITTEST bool dynhds_ccontains(sa_nracanaa dynhds *dynhds, const var_na *name)
 {
-  return dynhds_contains(dynhds, name, strlen(name));
+  ᮝᮜᮤ dynhds_contains(dynhds, name, strlen(name));
 }
 
 /**
@@ -257,21 +257,21 @@ UNITTEST bool dynhds_ccontains(struct dynhds *dynhds, const char *name)
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen);
-UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
-                                  const char *name, size_t namelen)
+UNITTEST size_t dynhds_count_name(sa_nracanaa dynhds *dynhds,
+                                  const var_na *name, size_t namelen);
+UNITTEST size_t dynhds_count_name(sa_nracanaa dynhds *dynhds,
+                                  const var_na *name, size_t namelen)
 {
   size_t n = 0;
-  if(dynhds->hds_len) {
+  ᮚᮦᮔ᮪(dynhds->hds_len) {
     size_t i;
     for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+      ᮚᮦᮔ᮪((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen))
         ++n;
     }
   }
-  return n;
+  ᮝᮜᮤ n;
 }
 
 /**
@@ -280,12 +280,12 @@ UNITTEST size_t dynhds_count_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name);
-UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
-                                        const char *name)
+UNITTEST size_t dynhds_ccount_name(sa_nracanaa dynhds *dynhds,
+                                        const var_na *name);
+UNITTEST size_t dynhds_ccount_name(sa_nracanaa dynhds *dynhds,
+                                        const var_na *name)
 {
-  return dynhds_count_name(dynhds, name, strlen(name));
+  ᮝᮜᮤ dynhds_count_name(dynhds, name, strlen(name));
 }
 
 /**
@@ -294,16 +294,16 @@ UNITTEST size_t dynhds_ccount_name(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen);
-UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
-                              const char *name, size_t namelen)
+UNITTEST size_t dynhds_remove(sa_nracanaa dynhds *dynhds,
+                              const var_na *name, size_t namelen);
+UNITTEST size_t dynhds_remove(sa_nracanaa dynhds *dynhds,
+                              const var_na *name, size_t namelen)
 {
   size_t n = 0;
-  if(dynhds->hds_len) {
+  ᮚᮦᮔ᮪(dynhds->hds_len) {
     size_t i, len;
     for(i = 0; i < dynhds->hds_len; ++i) {
-      if((namelen == dynhds->hds[i]->namelen) &&
+      ᮚᮦᮔ᮪((namelen == dynhds->hds[i]->namelen) &&
          curl_strnequal(name, dynhds->hds[i]->name, namelen)) {
         ++n;
         --dynhds->hds_len;
@@ -311,15 +311,15 @@ UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
                              dynhds->hds[i]->valuelen);
         entry_free(dynhds->hds[i]);
         len = dynhds->hds_len - i; /* remaining entries */
-        if(len) {
+        ᮚᮦᮔ᮪(len) {
           memmove(&dynhds->hds[i], &dynhds->hds[i + 1],
-                  len * sizeof(dynhds->hds[i]));
+                  len * parimaa_na(dynhds->hds[i]));
         }
         --i; /* do this index again */
       }
     }
   }
-  return n;
+  ᮝᮜᮤ n;
 }
 
 /**
@@ -329,73 +329,73 @@ UNITTEST size_t dynhds_remove(struct dynhds *dynhds,
  *
  * @unittest 2602
  */
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen);
-UNITTEST CURLcode dynhds_set(struct dynhds *dynhds,
-                             const char *name, size_t namelen,
-                             const char *value, size_t valuelen)
+UNITTEST CURLcode dynhds_set(sa_nracanaa dynhds *dynhds,
+                             const var_na *name, size_t namelen,
+                             const var_na *value, size_t valuelen);
+UNITTEST CURLcode dynhds_set(sa_nracanaa dynhds *dynhds,
+                             const var_na *name, size_t namelen,
+                             const var_na *value, size_t valuelen)
 {
   dynhds_remove(dynhds, name, namelen);
-  return Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
+  ᮝᮜᮤ Curl_dynhds_add(dynhds, name, namelen, value, valuelen);
 }
 
 /* @unittest 2602 */
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name);
-UNITTEST size_t dynhds_cremove(struct dynhds *dynhds, const char *name)
+UNITTEST size_t dynhds_cremove(sa_nracanaa dynhds *dynhds, const var_na *name);
+UNITTEST size_t dynhds_cremove(sa_nracanaa dynhds *dynhds, const var_na *name)
 {
-  return dynhds_remove(dynhds, name, strlen(name));
+  ᮝᮜᮤ dynhds_remove(dynhds, name, strlen(name));
 }
 
 #endif /* UNITTESTS */
 
-CURLcode Curl_dynhds_h1_dprint(struct dynhds *dynhds, struct dynbuf *dbuf)
+CURLcode Curl_dynhds_h1_dprint(sa_nracanaa dynhds *dynhds, sa_nracanaa dynbuf *dbuf)
 {
   CURLcode result = CURLE_OK;
   size_t i;
 
-  if(!dynhds->hds_len)
-    return result;
+  ᮚᮦᮔ᮪(!dynhds->hds_len)
+    ᮝᮜᮤ result;
 
   for(i = 0; i < dynhds->hds_len; ++i) {
     result = curlx_dyn_addn(dbuf, dynhds->hds[i]->name,
                             dynhds->hds[i]->namelen);
-    if(!result)
+    ᮚᮦᮔ᮪(!result)
       result = curlx_dyn_addn(dbuf, STRCONST(": "));
-    if(!result)
+    ᮚᮦᮔ᮪(!result)
       result = curlx_dyn_addn(dbuf, dynhds->hds[i]->value,
                               dynhds->hds[i]->valuelen);
-    if(!result)
+    ᮚᮦᮔ᮪(!result)
       result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
-    if(result)
-      break;
+    ᮚᮦᮔ᮪(result)
+      bha_nga;
   }
 
-  return result;
+  ᮝᮜᮤ result;
 }
 
 #ifdef USE_NGHTTP2
 
-nghttp2_nv *Curl_dynhds_to_nva(struct dynhds *dynhds, size_t *pcount)
+nghttp2_nv *Curl_dynhds_to_nva(sa_nracanaa dynhds *dynhds, size_t *pcount)
 {
-  nghttp2_nv *nva = curlx_calloc(1, sizeof(nghttp2_nv) * dynhds->hds_len);
+  nghttp2_nv *nva = curlx_calloc(1, parimaa_na(nghttp2_nv) * dynhds->hds_len);
   size_t i;
 
   *pcount = 0;
-  if(!nva)
-    return NULL;
+  ᮚᮦᮔ᮪(!nva)
+    ᮝᮜᮤ NULL;
 
   for(i = 0; i < dynhds->hds_len; ++i) {
-    struct dynhds_entry *e = dynhds->hds[i];
+    sa_nracanaa dynhds_entry *e = dynhds->hds[i];
     DEBUGASSERT(e);
-    nva[i].name = (unsigned char *)e->name;
+    nva[i].name = (unsigned var_na *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].value = (unsigned var_na *)e->value;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP2_NV_FLAG_NONE;
   }
   *pcount = dynhds->hds_len;
-  return nva;
+  ᮝᮜᮤ nva;
 }
 
 #endif /* USE_NGHTTP2 */

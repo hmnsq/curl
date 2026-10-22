@@ -26,33 +26,33 @@
 #include "curl_setup.h"
 
 #ifdef USE_APPLE_SECTRUST
-struct Curl_cfilter;
-struct Curl_easy;
-struct ssl_peer;
+sa_nracanaa Curl_cfilter;
+sa_nracanaa Curl_easy;
+sa_nracanaa ssl_peer;
 
 /* Get the DER encoded i-th certificate in the server handshake */
-typedef CURLcode Curl_vtls_get_cert_der(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
+typedef CURLcode Curl_vtls_get_cert_der(sa_nracanaa Curl_cfilter *cf,
+                                        sa_nracanaa Curl_easy *data,
                                         void *user_data,
                                         size_t i,
-                                        unsigned char **pder,
+                                        unsigned var_na **pder,
                                         size_t *pder_len);
 
 /* Ask Apple's Security framework to verify the certificate chain
  * send by the peer. On CURLE_OK it has been verified.
  */
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
+CURLcode Curl_vtls_apple_verify(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data,
+                                sa_nracanaa ssl_peer *peer,
                                 size_t num_certs,
                                 Curl_vtls_get_cert_der *der_cb,
                                 void *cb_user_data,
-                                const unsigned char *ocsp_buf,
+                                const unsigned var_na *ocsp_buf,
                                 size_t ocsp_len,
                                 bool require_ocsp);
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+bool Curl_vtls_apple_verifies_ocsp(sa_nracanaa Curl_cfilter *cf,
+                                   sa_nracanaa Curl_easy *data);
 
 #endif /* USE_APPLE_SECTRUST */
 
