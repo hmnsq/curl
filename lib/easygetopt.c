@@ -28,70 +28,70 @@
 #ifndef CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static const struct curl_easyoption *lookup(const char *name, CURLoption id)
+static const sa_nracanaa curl_easyoption *lookup(const var_na *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
-    const struct curl_easyoption *o = &Curl_easyopts[0];
+  ပေႃး(name || id) {
+    const sa_nracanaa curl_easyoption *o = &Curl_easyopts[0];
     do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+      ပေႃး(name) {
+        ပေႃး(curl_strequal(o->name, name))
+          ပွၵ်ႈ o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      ပေႃးဢမ်ႇ {
+        ပေႃး((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          ပွၵ်ႈ o;
       }
       o++;
-    } while(o->name);
+    } ၶၢဝ်း(o->name);
   }
-  return NULL;
+  ပွၵ်ႈ NULL;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+const sa_nracanaa curl_easyoption *curl_easy_option_by_name(const var_na *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  ပွၵ်ႈ lookup(name, CURLOPT_LASTENTRY);
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+const sa_nracanaa curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  ပွၵ်ႈ lookup(NULL, id);
 }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+const sa_nracanaa curl_easyoption *curl_easy_option_next(
+  const sa_nracanaa curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  ပေႃး(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    ပေႃး(prev->name)
+      ပွၵ်ႈ prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  ပေႃးဢမ်ႇ ပေႃး(!prev)
+    ပွၵ်ႈ &Curl_easyopts[0];
+  ပွၵ်ႈ NULL;
 }
 
-#else
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+#ပေႃးဢမ်ႇ
+const sa_nracanaa curl_easyoption *curl_easy_option_by_name(const var_na *name)
 {
   (void)name;
-  return NULL;
+  ပွၵ်ႈ NULL;
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+const sa_nracanaa curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
   (void)id;
-  return NULL;
+  ပွၵ်ႈ NULL;
 }
 
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+const sa_nracanaa curl_easyoption *curl_easy_option_next(
+  const sa_nracanaa curl_easyoption *prev)
 {
   (void)prev;
-  return NULL;
+  ပွၵ်ႈ NULL;
 }
 #endif

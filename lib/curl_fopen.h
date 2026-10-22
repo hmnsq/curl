@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curlx/win32-fopen.h"
 
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname);
+CURLcode Curl_fopen(sa_nracanaa Curl_easy *data, const var_na *filename,
+                    FILE **fh, var_na **tempname);
 
 #endif

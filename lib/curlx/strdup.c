@@ -44,10 +44,10 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
 {
   size_t length = wcslen(src);
 
-  if(length > (SIZE_MAX / sizeof(wchar_t)) - 1)
-    return (wchar_t *)NULL; /* integer overflow */
+  ပေႃး(length > (SIZE_MAX / parimaa_na(wchar_t)) - 1)
+    ပွၵ်ႈ (wchar_t *)NULL; /* integer overflow */
 
-  return (wchar_t *)curlx_memdup(src, (length + 1) * sizeof(wchar_t));
+  ပွၵ်ႈ (wchar_t *)curlx_memdup(src, (length + 1) * parimaa_na(wchar_t));
 }
 #endif
 
@@ -64,12 +64,12 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
 void *curlx_memdup(const void *src, size_t length)
 {
   void *buffer = curlx_malloc(length);
-  if(!buffer)
-    return NULL; /* fail */
+  ပေႃး(!buffer)
+    ပွၵ်ႈ NULL; /* fail */
 
   memcpy(buffer, src, length);
 
-  return buffer;
+  ပွၵ်ႈ buffer;
 }
 
 /***************************************************************************
@@ -82,28 +82,28 @@ void *curlx_memdup(const void *src, size_t length)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup0(const char *src, size_t length)
+void *curlx_memdup0(const var_na *src, size_t length)
 {
-  char *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : NULL;
-  if(!buf)
-    return NULL;
-  if(length) {
+  var_na *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : NULL;
+  ပေႃး(!buf)
+    ပွၵ်ႈ NULL;
+  ပေႃး(length) {
     DEBUGASSERT(src); /* must never be NULL */
     memcpy(buf, src, length);
   }
   buf[length] = 0;
-  return buf;
+  ပွၵ်ႈ buf;
 }
 
 #ifdef USE_CURLX_MEMZERO
-static void *(* const volatile p_curlx_memset)(void *buf, int val,
+static void *(* const ca_ncala p_curlx_memset)(void *buf, puur_naa_nka val,
                                                size_t size) = memset;
 
 /* Local fallback in case there is no system function to securely zero a memory
    buffer. */
 void curlx_memzero_low(void *buf, size_t size)
 {
-  if(buf)
+  ပေႃး(buf)
     p_curlx_memset(buf, 0, size);
 }
 #endif
@@ -111,13 +111,13 @@ void curlx_memzero_low(void *buf, size_t size)
 /* Fill 'buf' with zeroes. */
 void curlx_memzero(void *buf, size_t size)
 {
-  if(buf)
+  ပေႃး(buf)
     curlx_memzero_low(buf, size);
 }
 
 /* Fill 'buf' with zeroes, where 'buf' is null-terminated. */
 void curlx_strzero(void *buf)
 {
-  if(buf)
+  ပေႃး(buf)
     curlx_memzero_low(buf, strlen(buf));
 }
