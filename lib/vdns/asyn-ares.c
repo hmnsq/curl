@@ -60,12 +60,12 @@
 #include "vdns/httpsrr.h"
 #include <ares.h>
 
-#if ARES_VERSION < 0x011000
+#如果 ARES_VERSION < 0x011000
 #error "c-ares 1.16.0 or greater required"
 #endif
 
 #ifdef USE_HTTPSRR
-#if ARES_VERSION < 0x011c00
+#如果 ARES_VERSION < 0x011c00
 #error "c-ares 1.28.0 or greater required for HTTPSRR"
 #endif
 #define HTTPSRR_WORKS
@@ -73,7 +73,7 @@
 
 #define CARES_TIMEOUT_PER_ATTEMPT 2000
 
-static int ares_ver = 0;
+static 整数 ares_ver = 0;
 
 static CURLcode async_ares_set_dns_servers(struct Curl_easy *data,
                                            struct Curl_resolv_async *async);
@@ -89,15 +89,15 @@ static CURLcode async_ares_set_dns_local_ip6(struct Curl_easy *data,
  * resolve API. Called from curl_global_init() to initialize global resolver
  * environment. Initializes ares library.
  */
-int Curl_async_global_init(void)
+整数 Curl_async_global_init(void)
 {
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
-  if(ares_library_init(ARES_LIB_INIT_ALL)) {
-    return CURLE_FAILED_INIT;
+  如果(ares_library_init(ARES_LIB_INIT_ALL)) {
+    返回 CURLE_FAILED_INIT;
   }
 #endif
   ares_version(&ares_ver);
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /*
@@ -114,10 +114,10 @@ void Curl_async_global_cleanup(void)
 }
 
 static void sock_state_cb(void *data, ares_socket_t socket_fd,
-                          int readable, int writable)
+                          整数 readable, 整数 writable)
 {
   struct Curl_easy *easy = data;
-  if(!readable && !writable) {
+  如果(!readable && !writable) {
     DEBUGASSERT(easy);
     Curl_multi_will_close(easy, socket_fd);
   }
@@ -127,9 +127,9 @@ static CURLcode async_ares_init(struct Curl_easy *data,
                                 struct Curl_resolv_async *async)
 {
   struct async_ares_ctx *ares = &async->ares;
-  int status;
+  整数 status;
   struct ares_options options;
-  int optmask = ARES_OPT_SOCK_STATE_CB;
+  整数 optmask = ARES_OPT_SOCK_STATE_CB;
   CURLcode result = CURLE_OK;
 
   /* initial status - failed */
@@ -150,42 +150,42 @@ static CURLcode async_ares_init(struct Curl_easy *data,
      overwrite c-ares' timeout.
    */
   DEBUGASSERT(ares_ver);
-  if(ares_ver < 0x011400) {
+  如果(ares_ver < 0x011400) {
     options.timeout = CARES_TIMEOUT_PER_ATTEMPT;
     optmask |= ARES_OPT_TIMEOUTMS;
   }
 
   status = ares_init_options(&ares->channel, &options, optmask);
-  if(status != ARES_SUCCESS) {
+  如果(status != ARES_SUCCESS) {
     ares->channel = NULL;
     result = (status == ARES_ENOMEM) ? CURLE_OUT_OF_MEMORY : CURLE_FAILED_INIT;
     goto out;
   }
 
   result = async_ares_set_dns_servers(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
+  如果(result && result != CURLE_NOT_BUILT_IN)
     goto out;
 
   result = async_ares_set_dns_interface(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
+  如果(result && result != CURLE_NOT_BUILT_IN)
     goto out;
 
   result = async_ares_set_dns_local_ip4(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
+  如果(result && result != CURLE_NOT_BUILT_IN)
     goto out;
 
   result = async_ares_set_dns_local_ip6(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
+  如果(result && result != CURLE_NOT_BUILT_IN)
     goto out;
 
   result = CURLE_OK;
 
 out:
-  if(result && ares->channel) {
+  如果(result && ares->channel) {
     ares_destroy(ares->channel);
     ares->channel = NULL;
   }
-  return result;
+  返回 result;
 }
 
 void Curl_async_ares_shutdown(struct Curl_easy *data,
@@ -204,7 +204,7 @@ void Curl_async_ares_destroy(struct Curl_easy *data,
 {
   struct async_ares_ctx *ares = &async->ares;
   (void)data;
-  if(ares->channel) {
+  如果(ares->channel) {
     ares_destroy(ares->channel);
     ares->channel = NULL;
   }
@@ -217,14 +217,14 @@ CURLcode Curl_async_pollset(struct Curl_easy *data,
   struct async_ares_ctx *ares = &async->ares;
   CURLcode result = CURLE_OK;
 
-  if(ares->channel) {
+  如果(ares->channel) {
     result = Curl_ares_pollset(data, ares->channel, ps);
-    if(!result) {
+    如果(!result) {
       timediff_t ms = Curl_ares_timeout_ms(data, async, ares->channel);
       Curl_expire(data, ms, EXPIRE_ASYNC_NAME);
     }
   }
-  return result;
+  返回 result;
 }
 
 /*
@@ -244,37 +244,37 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
 
   DEBUGASSERT(pdns);
   *pdns = NULL;
-  if(!ares)
-    return CURLE_FAILED_INIT;
+  如果(!ares)
+    返回 CURLE_FAILED_INIT;
 
-  if(Curl_ares_perform(ares->channel, 0) < 0) {
+  如果(Curl_ares_perform(ares->channel, 0) < 0) {
     result = CURLE_UNRECOVERABLE_POLL;
     goto out;
   }
 
-  if(async->queries_ongoing) {
+  如果(async->queries_ongoing) {
     result = CURLE_AGAIN;
     goto out;
   }
 
   /* all c-ares operations done, what is the result to report? */
   result = ares->result;
-  if(ares->ares_status == ARES_SUCCESS && !result) {
+  如果(ares->ares_status == ARES_SUCCESS && !result) {
 
-    if(CURL_DNSQ_IS_ADDR(async->dns_queries)) {
+    如果(CURL_DNSQ_IS_ADDR(async->dns_queries)) {
       dns = Curl_dnsc_mk_addr2(data, async->dns_queries,
                                &async->ai_AAAA, &async->ai_A,
                                async->peer);
-      if(!dns) {
+      如果(!dns) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
     }
 
 #ifdef HTTPSRR_WORKS
-    if(!dns && (async->dns_queries & CURL_DNSQ_HTTPS)) {
+    如果(!dns && (async->dns_queries & CURL_DNSQ_HTTPS)) {
       dns = Curl_dnsc_mk_https(data, &async->httpsrr, async->peer);
-      if(!dns) {
+      如果(!dns) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
@@ -283,7 +283,7 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
   }
   /* if we have not found anything, report the proper
    * CURLE_COULDNT_RESOLVE_* code */
-  if(!result && !dns) {
+  如果(!result && !dns) {
     const char *msg = NULL;
     /* only an authoritative "does not exist" answer from every query
        may be cached as a negative entry, not transient failures like
@@ -291,7 +291,7 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
     async->negative_answer = !ares->transient_err &&
       ((ares->ares_status == ARES_ENOTFOUND) ||
        (ares->ares_status == ARES_ENODATA));
-    if(ares->ares_status != ARES_SUCCESS)
+    如果(ares->ares_status != ARES_SUCCESS)
       msg = ares_strerror(ares->ares_status);
     result = Curl_async_failed(data, async, msg);
   }
@@ -299,27 +299,27 @@ CURLcode Curl_async_take_result(struct Curl_easy *data,
   CURL_TRC_DNS(data, "[%s] ares_take_result, result=%d, ares_result=%d, "
                "ares_status=%d, dns=%sfound",
                Curl_resolv_query_str(async->dns_queries),
-               (int)result, (int)ares->result, ares->ares_status,
+               (整数)result, (整数)ares->result, ares->ares_status,
                dns ? "" : "not ");
 
 out:
-  if(result != CURLE_AGAIN)
+  如果(result != CURLE_AGAIN)
     ares->result = result;
   *pdns = result ? NULL : dns;
-  return result;
+  返回 result;
 }
 
 static timediff_t async_ares_poll_timeout(struct async_ares_ctx *ares,
                                           timediff_t timeout_ms)
 {
   struct timeval *ares_calced, time_buf, max_timeout;
-  int itimeout_ms;
+  整数 itimeout_ms;
 
-#if TIMEDIFF_T_MAX > INT_MAX
+#如果 TIMEDIFF_T_MAX > INT_MAX
   itimeout_ms = (timeout_ms > INT_MAX) ? INT_MAX :
-                 ((timeout_ms < 0) ? -1 : (int)timeout_ms);
-#else
-  itimeout_ms = (int)timeout_ms;
+                 ((timeout_ms < 0) ? -1 : (整数)timeout_ms);
+#否则
+  itimeout_ms = (整数)timeout_ms;
 #endif
   max_timeout.tv_sec = itimeout_ms / 1000;
   max_timeout.tv_usec = (itimeout_ms % 1000) * 1000;
@@ -329,10 +329,10 @@ static timediff_t async_ares_poll_timeout(struct async_ares_ctx *ares,
   /* use the timeout period ares returned to us above if less than one
      second is left, otherwise use 1000ms to make sure the progress callback
      gets called frequent enough */
-  if(!ares_calced->tv_sec)
-    return (timediff_t)(ares_calced->tv_usec / 1000);
-  else
-    return 1000;
+  如果(!ares_calced->tv_sec)
+    返回 (timediff_t)(ares_calced->tv_usec / 1000);
+  否则
+    返回 1000;
 }
 
 /*
@@ -357,64 +357,64 @@ CURLcode Curl_async_await(struct Curl_easy *data, uint32_t resolv_id,
   DEBUGASSERT(pdns);
   *pdns = NULL; /* clear on entry */
 
-  if(!ares)
-    return CURLE_FAILED_INIT;
+  如果(!ares)
+    返回 CURLE_FAILED_INIT;
 
   /* Wait for the name resolve query to complete or time out. */
-  while(!result) {
+  当(!result) {
     timediff_t timeout_ms;
 
     timeout_ms = Curl_timeleft_ms(data);
-    if(!timeout_ms) { /* no applicable timeout from `data`*/
+    如果(!timeout_ms) { /* no applicable timeout from `data`*/
       timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &start);
-      if(elapsed_ms < CURL_TIMEOUT_RESOLVE_MS)
+      如果(elapsed_ms < CURL_TIMEOUT_RESOLVE_MS)
         timeout_ms = CURL_TIMEOUT_RESOLVE_MS - elapsed_ms;
-      else
+      否则
         timeout_ms = -1;
     }
 
-    if(timeout_ms < 0) {
+    如果(timeout_ms < 0) {
       result = CURLE_OPERATION_TIMEDOUT;
       break;
     }
 
-    if(Curl_ares_perform(ares->channel,
+    如果(Curl_ares_perform(ares->channel,
                          async_ares_poll_timeout(ares, timeout_ms)) < 0) {
       result = CURLE_UNRECOVERABLE_POLL;
       break;
     }
 
     result = Curl_async_take_result(data, async, pdns);
-    if(result == CURLE_AGAIN)
+    如果(result == CURLE_AGAIN)
       result = CURLE_OK;
-    else if(result || *pdns)
+    否则 如果(result || *pdns)
       break;
 
-    if(Curl_pgrsUpdate(data)) {
+    如果(Curl_pgrsUpdate(data)) {
       result = CURLE_ABORTED_BY_CALLBACK;
       break;
     }
   }
 
-  if(result)
+  如果(result)
     ares_cancel(ares->channel);
-  return result;
+  返回 result;
 }
 
 #define CARES_MAX_ADDRS 256
 
 static bool async_ares_addr_seen(const struct Curl_addrinfo *cafirst,
-                                 int family, size_t ss_size,
+                                 整数 family, size_t ss_size,
                                  const void *addr)
 {
   const struct Curl_addrinfo *ca;
-  for(ca = cafirst; ca; ca = ca->ai_next) {
-    if((ca->ai_family == family) &&
+  为(ca = cafirst; ca; ca = ca->ai_next) {
+    如果((ca->ai_family == family) &&
        ((size_t)ca->ai_addrlen == ss_size) &&
        !memcmp(ca->ai_addr, addr, ss_size))
-      return TRUE;
+      返回 TRUE;
   }
-  return FALSE;
+  返回 FALSE;
 }
 
 /*
@@ -428,37 +428,37 @@ static struct Curl_addrinfo *async_ares_node2addr(
   struct ares_addrinfo_node *ai;
   struct Curl_addrinfo *cafirst = NULL;
   struct Curl_addrinfo *calast = NULL;
-  int error = 0;
-  unsigned int naddrs = 0;
+  整数 error = 0;
+  unsigned 整数 naddrs = 0;
 
-  for(ai = node; ai && (naddrs < CARES_MAX_ADDRS); ai = ai->ai_next) {
+  为(ai = node; ai && (naddrs < CARES_MAX_ADDRS); ai = ai->ai_next) {
     size_t ss_size;
     struct Curl_addrinfo *ca;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
+    如果(ai->ai_family == AF_INET)
       ss_size = sizeof(struct sockaddr_in);
 #ifdef USE_IPV6
-    else if(ai->ai_family == AF_INET6)
+    否则 如果(ai->ai_family == AF_INET6)
       ss_size = sizeof(struct sockaddr_in6);
 #endif
-    else
+    否则
       continue;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
+    如果(!ai->ai_addr || !(ai->ai_addrlen > 0))
       continue;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
+    如果((size_t)ai->ai_addrlen < ss_size)
       continue;
 
     /* ignore duplicate addresses already collected */
-    if(async_ares_addr_seen(cafirst, ai->ai_family, ss_size, ai->ai_addr))
+    如果(async_ares_addr_seen(cafirst, ai->ai_family, ss_size, ai->ai_addr))
       continue;
 
     ca = curlx_malloc(sizeof(struct Curl_addrinfo) + ss_size);
-    if(!ca) {
+    如果(!ca) {
       error = EAI_MEMORY;
       break;
     }
@@ -479,74 +479,74 @@ static struct Curl_addrinfo *async_ares_node2addr(
     memcpy(ca->ai_addr, ai->ai_addr, ss_size);
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    如果(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
+    如果(calast)
       calast->ai_next = ca;
     calast = ca;
     ++naddrs;
   }
 
   /* if we failed, destroy the Curl_addrinfo list */
-  if(error) {
+  如果(error) {
     Curl_freeaddrinfo(cafirst);
     cafirst = NULL;
   }
 
-  return cafirst;
+  返回 cafirst;
 }
 
-static void async_ares_A_cb(void *user_data, int status, int timeouts,
+static void async_ares_A_cb(void *user_data, 整数 status, 整数 timeouts,
                             struct ares_addrinfo *ares_ai)
 {
   struct Curl_resolv_async *async = user_data;
   struct async_ares_ctx *ares = async ? &async->ares : NULL;
 
   (void)timeouts;
-  if(!async)
-    return;
+  如果(!async)
+    返回;
 
   async->dns_responses |= CURL_DNSQ_A;
   async->queries_ongoing--;
   async->done = !async->queries_ongoing;
-  if(status == ARES_SUCCESS) {
+  如果(status == ARES_SUCCESS) {
     ares->ares_status = ARES_SUCCESS;
     async->ai_A = async_ares_node2addr(ares_ai->nodes);
     ares_freeaddrinfo(ares_ai);
   }
-  else {
-    if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  否则 {
+    如果((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
       ares->transient_err = TRUE;
-    if(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
+    如果(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
       ares->ares_status = status;
   }
 }
 
 #ifdef CURLRES_IPV6
-static void async_ares_AAAA_cb(void *user_data, int status, int timeouts,
+static void async_ares_AAAA_cb(void *user_data, 整数 status, 整数 timeouts,
                                struct ares_addrinfo *ares_ai)
 {
   struct Curl_resolv_async *async = user_data;
   struct async_ares_ctx *ares = async ? &async->ares : NULL;
 
   (void)timeouts;
-  if(!async)
-    return;
+  如果(!async)
+    返回;
 
   async->dns_responses |= CURL_DNSQ_AAAA;
   async->queries_ongoing--;
   async->done = !async->queries_ongoing;
-  if(status == ARES_SUCCESS) {
+  如果(status == ARES_SUCCESS) {
     ares->ares_status = ARES_SUCCESS;
     async->ai_AAAA = async_ares_node2addr(ares_ai->nodes);
     ares_freeaddrinfo(ares_ai);
   }
-  else {
-    if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  否则 {
+    如果((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
       ares->transient_err = TRUE;
-    if(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
+    如果(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
       ares->ares_status = status;
   }
 }
@@ -560,18 +560,18 @@ static void async_ares_rr_done(void *user_data, ares_status_t status,
   struct Curl_resolv_async *async = user_data;
   struct async_ares_ctx *ares = async ? &async->ares : NULL;
 
-  if(!async)
-    return;
+  如果(!async)
+    返回;
 
   (void)timeouts;
   async->dns_responses |= CURL_DNSQ_HTTPS;
   async->queries_ongoing--;
   async->done = !async->queries_ongoing;
   ares->ares_status = status;
-  if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  如果((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
     ares->transient_err = TRUE;
-  if((ARES_SUCCESS != status) || !dnsrec)
-    return;
+  如果((ARES_SUCCESS != status) || !dnsrec)
+    返回;
   ares->result = Curl_httpsrr_from_ares(dnsrec, &async->httpsrr);
 }
 #endif /* USE_HTTPSRR */
@@ -586,25 +586,25 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
 {
   struct async_ares_ctx *ares = &async->ares;
   char service[12];
-  int socktype;
+  整数 socktype;
   CURLcode result = CURLE_OK;
 
-  if(ares->channel) {
+  如果(ares->channel) {
     DEBUGASSERT(0);
     result = CURLE_FAILED_INIT;
     goto out;
   }
 
   result = async_ares_init(data, async);
-  if(result)
+  如果(result)
     goto out;
 
   result = Curl_resolv_announce_start(data, ares->channel);
-  if(result)
+  如果(result)
     goto out;
 
-#if defined(CURLVERBOSE) && ARES_VERSION >= 0x011800 /* >= v1.24.0 */
-  if(CURL_TRC_DNS_is_verbose(data)) {
+#如果 defined(CURLVERBOSE) && ARES_VERSION >= 0x011800 /* >= v1.24.0 */
+  如果(CURL_TRC_DNS_is_verbose(data)) {
     char *csv = ares_get_servers_csv(ares->channel);
     CURL_TRC_DNS(data, "ares: servers=%s", csv);
     ares_free_string(csv);
@@ -617,7 +617,7 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
     SOCK_STREAM : SOCK_DGRAM;
 
 #ifdef CURLRES_IPV6
-  if(async->dns_queries & CURL_DNSQ_AAAA) {
+  如果(async->dns_queries & CURL_DNSQ_AAAA) {
     struct ares_addrinfo_hints hints;
 
     memset(&hints, 0, sizeof(hints));
@@ -632,7 +632,7 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
   }
 #endif /* CURLRES_IPV6 */
 
-  if(async->dns_queries & CURL_DNSQ_A) {
+  如果(async->dns_queries & CURL_DNSQ_A) {
     struct ares_addrinfo_hints hints;
 
     memset(&hints, 0, sizeof(hints));
@@ -647,13 +647,13 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
   }
 
 #ifdef USE_HTTPSRR
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
+  如果(async->dns_queries & CURL_DNSQ_HTTPS) {
     char *https_name = NULL;
-    if(async->peer->port != 443) {
+    如果(async->peer->port != 443) {
       https_name = curl_maprintf("_%u._https.%s",
                                  async->peer->port, async->peer->hostname);
-      if(!https_name)
-        return CURLE_OUT_OF_MEMORY;
+      如果(!https_name)
+        返回 CURLE_OUT_OF_MEMORY;
     }
     CURL_TRC_DNS(data, "[HTTPS] ares: query records for %s",
                  https_name ? https_name : async->peer->hostname);
@@ -668,7 +668,7 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
 
 out:
   ares->result = result;
-  return result ? result : (async->queries_ongoing ? CURLE_AGAIN : CURLE_OK);
+  返回 result ? result : (async->queries_ongoing ? CURLE_AGAIN : CURLE_OK);
 }
 
 /* Set what DNS server are is to use. This is called in 2 situations:
@@ -683,18 +683,18 @@ static CURLcode async_ares_set_dns_servers(struct Curl_easy *data,
   struct async_ares_ctx *ares = async ? &async->ares : NULL;
   CURLcode result = CURLE_NOT_BUILT_IN;
   const char *servers = CURL_EASY_STR(data, STRING_DNS_SERVERS);
-  int ares_result = ARES_SUCCESS;
+  整数 ares_result = ARES_SUCCESS;
 
 #ifdef DEBUGBUILD
-  if(getenv("CURL_DNS_SERVER"))
+  如果(getenv("CURL_DNS_SERVER"))
     servers = getenv("CURL_DNS_SERVER");
 #endif
 
-  if(!servers)
-    return CURLE_OK;
+  如果(!servers)
+    返回 CURLE_OK;
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
+  如果(ares && ares->channel)
     ares_result = ares_set_servers_ports_csv(ares->channel, servers);
   switch(ares_result) {
   case ARES_SUCCESS:
@@ -711,7 +711,7 @@ static CURLcode async_ares_set_dns_servers(struct Curl_easy *data,
     result = CURLE_BAD_FUNCTION_ARGUMENT;
     break;
   }
-  return result;
+  返回 result;
 }
 
 static CURLcode async_ares_set_dns_interface(struct Curl_easy *data,
@@ -720,14 +720,14 @@ static CURLcode async_ares_set_dns_interface(struct Curl_easy *data,
   struct async_ares_ctx *ares = async ? &async->ares : NULL;
   const char *interf = CURL_EASY_STR(data, STRING_DNS_INTERFACE);
 
-  if(!interf)
+  如果(!interf)
     interf = "";
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
+  如果(ares && ares->channel)
     ares_set_local_dev(ares->channel, interf);
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode async_ares_set_dns_local_ip4(struct Curl_easy *data,
@@ -737,21 +737,21 @@ static CURLcode async_ares_set_dns_local_ip4(struct Curl_easy *data,
   struct in_addr a4;
   const char *local_ip4 = CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4);
 
-  if(!local_ip4 || (local_ip4[0] == 0)) {
+  如果(!local_ip4 || (local_ip4[0] == 0)) {
     a4.s_addr = 0; /* disabled: do not bind to a specific address */
   }
-  else {
-    if(curlx_inet_pton(AF_INET, local_ip4, &a4) != 1) {
+  否则 {
+    如果(curlx_inet_pton(AF_INET, local_ip4, &a4) != 1) {
       DEBUGF(infof(data, "bad DNS IPv4 address"));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      返回 CURLE_BAD_FUNCTION_ARGUMENT;
     }
   }
 
   /* if channel is not there yet, this is a parameter check */
-  if(ares && ares->channel)
+  如果(ares && ares->channel)
     ares_set_local_ip4(ares->channel, ntohl(a4.s_addr));
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode async_ares_set_dns_local_ip6(struct Curl_easy *data,
@@ -762,26 +762,26 @@ static CURLcode async_ares_set_dns_local_ip6(struct Curl_easy *data,
   unsigned char a6[INET6_ADDRSTRLEN];
   const char *local_ip6 = CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6);
 
-  if(!local_ip6 || (local_ip6[0] == 0)) {
+  如果(!local_ip6 || (local_ip6[0] == 0)) {
     /* disabled: do not bind to a specific address */
     memset(a6, 0, sizeof(a6));
   }
-  else {
-    if(curlx_inet_pton(AF_INET6, local_ip6, a6) != 1) {
+  否则 {
+    如果(curlx_inet_pton(AF_INET6, local_ip6, a6) != 1) {
       DEBUGF(infof(data, "bad DNS IPv6 address"));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      返回 CURLE_BAD_FUNCTION_ARGUMENT;
     }
   }
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
+  如果(ares && ares->channel)
     ares_set_local_ip6(ares->channel, a6);
 
-  return CURLE_OK;
-#else /* no IPv6 support */
+  返回 CURLE_OK;
+#否则 /* no IPv6 support */
   (void)data;
   (void)async;
-  return CURLE_NOT_BUILT_IN;
+  返回 CURLE_NOT_BUILT_IN;
 #endif
 }
 

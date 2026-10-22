@@ -34,7 +34,7 @@ void r_freeaddrinfo(struct addrinfo *cahead)
   struct addrinfo *canext;
   struct addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
+  为(ca = cahead; ca; ca = canext) {
     canext = ca->ai_next;
     curlx_free(ca);
   }
@@ -42,16 +42,16 @@ void r_freeaddrinfo(struct addrinfo *cahead)
 
 struct context {
   struct ares_addrinfo *addr;
-  int status;
+  整数 status;
 };
 
-static void async_addrinfo_cb(void *userp, int status, int timeouts,
+static void async_addrinfo_cb(void *userp, 整数 status, 整数 timeouts,
                               struct ares_addrinfo *addr)
 {
   struct context *ctx = (struct context *)userp;
   (void)timeouts;
   ctx->status = status;
-  if(ARES_SUCCESS == status) {
+  如果(ARES_SUCCESS == status) {
     ctx->addr = addr;
   }
 }
@@ -66,30 +66,30 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
   const char *name = aihead->name;
 
   /* traverse the addrinfo list */
-  for(ai = aihead->nodes; ai; ai = ai->ai_next) {
+  为(ai = aihead->nodes; ai; ai = ai->ai_next) {
     size_t ss_size;
     size_t namelen = name ? strlen(name) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
+    如果(ai->ai_family == AF_INET)
       ss_size = sizeof(struct sockaddr_in);
-    else if(ai->ai_family == AF_INET6)
+    否则 如果(ai->ai_family == AF_INET6)
       ss_size = sizeof(struct sockaddr_in6);
-    else
+    否则
       continue;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
+    如果(!ai->ai_addr || !(ai->ai_addrlen > 0))
       continue;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
+    如果((size_t)ai->ai_addrlen < ss_size)
       continue;
 
     ca = curlx_malloc(sizeof(struct addrinfo) + ss_size + namelen);
-    if(!ca) {
+    如果(!ca) {
       r_freeaddrinfo(cafirst);
-      return NULL;
+      返回 NULL;
     }
 
     /* copy each structure member individually, member ordering,
@@ -107,7 +107,7 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     ca->ai_addr = (void *)((char *)ca + sizeof(struct addrinfo));
     memcpy(ca->ai_addr, ai->ai_addr, ss_size);
 
-    if(namelen) {
+    如果(namelen) {
       ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
       memcpy(ca->ai_canonname, name, namelen);
 
@@ -117,34 +117,34 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    如果(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
+    如果(calast)
       calast->ai_next = ca;
     calast = ca;
   }
 
-  return cafirst;
+  返回 cafirst;
 }
 
 /* RETURN VALUE
    getaddrinfo() returns 0 if it succeeds, or one of the following nonzero
    error codes:
    ... */
-int r_getaddrinfo(const char *node,
+整数 r_getaddrinfo(const char *node,
                   const char *service,
                   const struct addrinfo *hints,
                   struct addrinfo **res)
 {
-  int status;
+  整数 status;
   struct context ctx;
   struct ares_options options;
-  int optmask = 0;
+  整数 optmask = 0;
   struct ares_addrinfo_hints ahints;
   ares_channel channel;
-  int rc = 0;
+  整数 rc = 0;
 
   memset(&options, 0, sizeof(options));
   optmask      |= ARES_OPT_EVENT_THREAD;
@@ -153,7 +153,7 @@ int r_getaddrinfo(const char *node,
   memset(&ahints, 0, sizeof(ahints));
   memset(&ctx, 0, sizeof(ctx));
 
-  if(hints) {
+  如果(hints) {
     ahints.ai_flags = hints->ai_flags;
     ahints.ai_family = hints->ai_family;
     ahints.ai_socktype = hints->ai_socktype;
@@ -161,18 +161,18 @@ int r_getaddrinfo(const char *node,
   }
 
   status = ares_init_options(&channel, &options, optmask);
-  if(status)
-    return EAI_MEMORY; /* major problem */
+  如果(status)
+    返回 EAI_MEMORY; /* major problem */
 
-  else {
+  否则 {
     const char *env = getenv("CURL_DNS_SERVER");
-    if(env) {
+    如果(env) {
       rc = ares_set_servers_ports_csv(channel, env);
-      if(rc) {
+      如果(rc) {
         curl_mfprintf(stderr, "ares_set_servers_ports_csv failed: %d", rc);
         /* Cleanup */
         ares_destroy(channel);
-        return EAI_MEMORY; /* we cannot run */
+        返回 EAI_MEMORY; /* we cannot run */
       }
     }
   }
@@ -182,21 +182,21 @@ int r_getaddrinfo(const char *node,
   /* Wait until no more requests are left to be processed */
   ares_queue_wait_empty(channel, -1);
 
-  if(ctx.addr) {
+  如果(ctx.addr) {
     /* convert the c-ares version */
     *res = mk_getaddrinfo(ctx.addr);
     /* free the old */
     ares_freeaddrinfo(ctx.addr);
   }
-  else if((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
+  否则 如果((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
     rc = EAI_NONAME; /* no such name */
-  else
+  否则
     rc = EAI_AGAIN; /* failed without an authoritative answer */
 
   /* Cleanup */
   ares_destroy(channel);
 
-  return rc;
+  返回 rc;
 }
 
 #endif /* USE_FAKE_GETADDRINFO */

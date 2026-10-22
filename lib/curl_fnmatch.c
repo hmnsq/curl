@@ -66,71 +66,71 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+static 整数 parsekeyword(const unsigned char **pattern, unsigned char *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
   char keyword[10] = { 0 };
   size_t i;
   const unsigned char *p = *pattern;
   bool found = FALSE;
-  for(i = 0; !found; i++) {
+  为(i = 0; !found; i++) {
     char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
+    如果(i >= sizeof(keyword))
+      返回 SETCHARSET_FAIL;
     switch(state) {
     case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+      如果(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      否则 如果(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
+      否则
+        返回 SETCHARSET_FAIL;
       break;
     case CURLFNM_PKW_DDOT:
-      if(c == ']')
+      如果(c == ']')
         found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      否则
+        返回 SETCHARSET_FAIL;
     }
   }
 #undef KEYLEN
 
   *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  如果(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  否则 如果(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  否则 如果(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  否则 如果(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  否则 如果(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
+  否则 如果(!strcmp(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  否则 如果(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  否则 如果(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
+  否则 如果(!strcmp(keyword, "upper"))
     charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
+  否则 如果(!strcmp(keyword, "lower"))
     charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  否则
+    返回 SETCHARSET_FAIL;
+  返回 SETCHARSET_OK;
 }
 
 /* Return the character class. */
 static char_class charclass(unsigned char c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  如果(ISUPPER(c))
+    返回 CCLASS_UPPER;
+  如果(ISLOWER(c))
+    返回 CCLASS_LOWER;
+  如果(ISDIGIT(c))
+    返回 CCLASS_DIGIT;
+  返回 CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
@@ -140,15 +140,15 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
   unsigned char c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  如果(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
     unsigned char endrange = *p++;
 
-    if(endrange == '\\')
+    如果(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    如果(endrange >= c && charclass(endrange) == cc) {
+      当(c++ != endrange)
+        如果(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,88 +156,88 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+static 整数 setcharset(const unsigned char **p, unsigned char *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
   bool something_found = FALSE;
   unsigned char c;
 
   memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  为(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    如果(!c)
+      返回 SETCHARSET_FAIL;
 
     switch(state) {
     case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
+      如果(c == ']') {
+        如果(something_found)
+          返回 SETCHARSET_OK;
         something_found = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
+      否则 如果(c == '[') {
         const unsigned char *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        如果(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        否则 {
           charset[c] = 1;
           (*p)++;
         }
         something_found = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      否则 如果(c == '^' || c == '!') {
+        如果(!something_found) {
+          如果(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
             something_found = TRUE;
           }
-          else
+          否则
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        否则
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      否则 如果(c == '\\') {
         c = *(++(*p));
-        if(c)
+        如果(c)
           setcharorrange(p, charset);
-        else
+        否则
           charset['\\'] = 1;
         something_found = TRUE;
       }
-      else {
+      否则 {
         setcharorrange(p, charset);
         something_found = TRUE;
       }
       break;
     case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      如果(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      否则 如果(c == ']') {
+        返回 SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      否则 如果(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      否则
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
         goto fail;
       break;
     case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+      如果(c == ']')
+        返回 SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
@@ -245,11 +245,11 @@ static int setcharset(const unsigned char **p, unsigned char *charset)
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  返回 SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+static 整数 matchtoken(const unsigned char **pp, const unsigned char **sp)
 {
   const unsigned char *p = *pp;
   const unsigned char *s = *sp;
@@ -258,158 +258,158 @@ static int matchtoken(const unsigned char **pp, const unsigned char **sp)
   case '?':
     break;
   case '\\':
-    if(p[1])
+    如果(p[1])
       p++;
-    if(*s != *p)
-      return 0;
+    如果(*s != *p)
+      返回 0;
     break;
   case '[': {
     unsigned char charset[CURLFNM_CHSET_SIZE];
     const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
     bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
+    如果(!setcharset(&pp2, charset))
+      返回 -1; /* Syntax error in set; mismatch! */
+    如果(charset[(unsigned 整数)*s])
       found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
+    否则 如果(charset[CURLFNM_ALNUM])
       found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
+    否则 如果(charset[CURLFNM_ALPHA])
       found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
+    否则 如果(charset[CURLFNM_DIGIT])
       found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
+    否则 如果(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    否则 如果(charset[CURLFNM_PRINT])
       found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
+    否则 如果(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
+    否则 如果(charset[CURLFNM_UPPER])
       found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
+    否则 如果(charset[CURLFNM_LOWER])
       found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
+    否则 如果(charset[CURLFNM_BLANK])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
+    否则 如果(charset[CURLFNM_GRAPH])
       found = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
+    如果(charset[CURLFNM_NEGATE])
       found = !found;
 
-    if(!found)
-      return 0;
+    如果(!found)
+      返回 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    返回 1;
   }
   default:
-    if(*p != *s)
-      return 0;
+    如果(*p != *s)
+      返回 0;
     break;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  返回 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+static 整数 loop(const unsigned char *pattern, const unsigned char *string)
 {
   const unsigned char *p = pattern;
   const unsigned char *s = string;
   const unsigned char *star_p = NULL;
   const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  整数 maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  当(*s) {
+    如果(*p == '*') {
+      如果(!maxstars)
+        返回 CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      为(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        如果(!*p)
+          返回 CURL_FNMATCH_MATCH;
+        如果(*p == '?') {
+          如果(!*s)
+            返回 CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
+        否则 如果(*p != '*')
           break;
       }
       star_p = p;
       star_s = s;
     }
-    else if(*p) {
+    否则 如果(*p) {
       const unsigned char *np = p;
       const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+      整数 r = matchtoken(&np, &ns);
+      如果(r < 0)
+        返回 CURL_FNMATCH_NOMATCH;
+      如果(r) {
         p = np;
         s = ns;
         continue;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
+      如果(!star_p)
+        返回 CURL_FNMATCH_NOMATCH;
       p = star_p;
       s = ++star_s;
     }
-    else if(star_p) {
+    否则 如果(star_p) {
       p = star_p;
       s = ++star_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    否则
+      返回 CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  当(*p == '*') {
+    如果(!maxstars)
+      返回 CURL_FNMATCH_NOMATCH;
     maxstars--;
     do {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      如果(*p == '?')
+        返回 CURL_FNMATCH_NOMATCH;
+    } 当(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  返回 *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+整数 Curl_fnmatch(void *ptr, const char *pattern, const char *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  如果(!pattern || !string) {
+    返回 CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
+  返回 loop((const unsigned char *)pattern,
               (const unsigned char *)string);
 }
-#else /* HAVE_FNMATCH */
+#否则 /* HAVE_FNMATCH */
 
 #include <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+整数 Curl_fnmatch(void *ptr, const char *pattern, const char *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  如果(!pattern || !string) {
+    返回 CURL_FNMATCH_FAIL;
   }
 
   switch(fnmatch(pattern, string, 0)) {
   case 0:
-    return CURL_FNMATCH_MATCH;
+    返回 CURL_FNMATCH_MATCH;
   case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
+    返回 CURL_FNMATCH_NOMATCH;
   default:
-    return CURL_FNMATCH_FAIL;
+    返回 CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }

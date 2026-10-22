@@ -62,7 +62,7 @@
 #include "curlx/win32-fopen.h"
 #include "curl_range.h"
 
-#if defined(_WIN32) || defined(MSDOS)
+#如果 defined(_WIN32) || defined(MSDOS)
 #define DOS_FILESYSTEM 1
 #elif defined(__amigaos4__)
 #define AMIGA_FILESYSTEM 1
@@ -75,7 +75,7 @@ struct FILEPROTO {
   char *path; /* the path we operate on */
   char *freepath; /* pointer to the allocated block we must free, this might
                      differ from the 'path' pointer */
-  int fd;     /* open file descriptor to read from! */
+  整数 fd;     /* open file descriptor to read from! */
   bool is_dir;
 };
 
@@ -84,7 +84,7 @@ static void file_cleanup(struct FILEPROTO *file)
   curlx_safefree(file->freepath);
   file->path = NULL;
   file->is_dir = FALSE;
-  if(file->fd != -1) {
+  如果(file->fd != -1) {
     curlx_close(file->fd);
     file->fd = -1;
   }
@@ -106,13 +106,13 @@ static CURLcode file_setup_connection(struct Curl_easy *data,
   (void)conn;
   /* allocate the FILE specific struct */
   filep = curlx_calloc(1, sizeof(*filep));
-  if(filep)
+  如果(filep)
     filep->fd = -1;
-  if(!filep ||
+  如果(!filep ||
      Curl_meta_set(data, CURL_META_FILE_EASY, filep, file_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode file_done(struct Curl_easy *data,
@@ -122,29 +122,29 @@ static CURLcode file_done(struct Curl_easy *data,
   (void)status;
   (void)premature;
 
-  if(file)
+  如果(file)
     file_cleanup(file);
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
-static int file_stat(const char *path, curlx_struct_stat *statbuf)
+static 整数 file_stat(const char *path, curlx_struct_stat *statbuf)
 {
 #ifdef _WIN32
-  int result = curlx_stat(path, statbuf);
+  整数 result = curlx_stat(path, statbuf);
 
-  if(result) {
+  如果(result) {
     size_t pathlen = strlen(path);
 
     /* MSVCRT's narrow stat() rejects trailing directory separators. */
-    if((pathlen > 3) &&
+    如果((pathlen > 3) &&
        ((path[pathlen - 1] == '\\') || (path[pathlen - 1] == '/'))) {
       char *trimmed = curlx_strdup(path);
 
-      if(trimmed) {
+      如果(trimmed) {
         do {
           trimmed[--pathlen] = '\0';
-        } while((pathlen > 3) &&
+        } 当((pathlen > 3) &&
                 ((trimmed[pathlen - 1] == '\\') ||
                  (trimmed[pathlen - 1] == '/')));
 
@@ -154,9 +154,9 @@ static int file_stat(const char *path, curlx_struct_stat *statbuf)
     }
   }
 
-  return result;
-#else
-  return curlx_stat(path, statbuf);
+  返回 result;
+#否则
+  返回 curlx_stat(path, statbuf);
 #endif
 }
 
@@ -172,7 +172,7 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
 #ifdef _WIN32
   curlx_struct_stat statbuf;
 #endif
-  int fd;
+  整数 fd;
 #ifdef DOS_FILESYSTEM
   size_t i;
   char *actual_path;
@@ -180,22 +180,22 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
   size_t real_path_len;
   CURLcode result;
 
-  if(!file)
-    return CURLE_FAILED_INIT;
+  如果(!file)
+    返回 CURLE_FAILED_INIT;
 
-  if(file->path) {
+  如果(file->path) {
     /* already connected.
      * the handler->connect_it() is normally only called once, but
      * FILE does a special check on setting up the connection which
      * calls this explicitly. */
     *done = TRUE;
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 
   result = Curl_urldecode(data->state.up.path, 0, &real_path,
                           &real_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
 #ifdef DOS_FILESYSTEM
   /* If the first character is a slash, and there is
@@ -212,7 +212,7 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
      absolute pathname. On Windows, absolute paths start
      with a drive letter. */
   actual_path = real_path;
-  if((actual_path[0] == '/') &&
+  如果((actual_path[0] == '/') &&
       actual_path[1] &&
      (actual_path[2] == ':' || actual_path[2] == '|')) {
     actual_path[2] = ':';
@@ -221,21 +221,21 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
   }
 
   /* change path separators from '/' to '\\' for DOS, Windows and OS/2 */
-  for(i = 0; i < real_path_len; ++i)
-    if(actual_path[i] == '/')
+  为(i = 0; i < real_path_len; ++i)
+    如果(actual_path[i] == '/')
       actual_path[i] = '\\';
-    else if(!actual_path[i]) { /* binary zero */
+    否则 如果(!actual_path[i]) { /* binary zero */
       curlx_safefree(real_path);
-      return CURLE_URL_MALFORMAT;
+      返回 CURLE_URL_MALFORMAT;
     }
 
   fd = curlx_open(actual_path, O_RDONLY | CURL_O_BINARY);
   file->path = actual_path;
-#else
-  if(memchr(real_path, 0, real_path_len)) {
+#否则
+  如果(memchr(real_path, 0, real_path_len)) {
     /* binary zeroes indicate foul play */
     curlx_safefree(real_path);
-    return CURLE_URL_MALFORMAT;
+    返回 CURLE_URL_MALFORMAT;
   }
 
 #ifdef AMIGA_FILESYSTEM
@@ -249,19 +249,19 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
   fd = -1;
   file->path = real_path;
 
-  if(real_path[0] == '/') {
-    extern int __unix_path_semantics;
-    if(strchr(real_path + 1, ':')) {
+  如果(real_path[0] == '/') {
+    extern 整数 __unix_path_semantics;
+    如果(strchr(real_path + 1, ':')) {
       /* Amiga absolute path */
       fd = curlx_open(real_path + 1, O_RDONLY);
       file->path++;
     }
-    else if(__unix_path_semantics) {
+    否则 如果(__unix_path_semantics) {
       /* -lunix fallback */
       fd = curlx_open(real_path, O_RDONLY);
     }
   }
-#else
+#否则
   fd = curlx_open(real_path, O_RDONLY);
   file->path = real_path;
 #endif
@@ -271,19 +271,19 @@ static CURLcode file_connect(struct Curl_easy *data, bool *done)
 
   file->fd = fd;
 #ifdef _WIN32
-  if(!data->state.upload && (fd == -1) &&
+  如果(!data->state.upload && (fd == -1) &&
      !file_stat(file->path, &statbuf) && S_ISDIR(statbuf.st_mode))
     file->is_dir = TRUE;
 #endif
 
-  if(!data->state.upload && (fd == -1) && !file->is_dir) {
+  如果(!data->state.upload && (fd == -1) && !file->is_dir) {
     failf(data, "Could not open file %s", data->state.up.path);
     file_done(data, CURLE_FILE_COULDNT_READ_FILE, FALSE);
-    return CURLE_FILE_COULDNT_READ_FILE;
+    返回 CURLE_FILE_COULDNT_READ_FILE;
   }
   *done = TRUE;
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode file_disconnect(struct Curl_easy *data,
@@ -292,12 +292,12 @@ static CURLcode file_disconnect(struct Curl_easy *data,
 {
   (void)dead_connection;
   (void)conn;
-  return file_done(data, CURLE_OK, FALSE);
+  返回 file_done(data, CURLE_OK, FALSE);
 }
 
 #ifdef DOS_FILESYSTEM
 #define DIRSEP '\\'
-#else
+#否则
 #define DIRSEP '/'
 #endif
 
@@ -305,8 +305,8 @@ static CURLcode file_upload(struct Curl_easy *data,
                             struct FILEPROTO *file)
 {
   const char *dir = strchr(file->path, DIRSEP);
-  int fd;
-  int mode;
+  整数 fd;
+  整数 mode;
   CURLcode result = CURLE_OK;
   char *xfer_ulbuf;
   size_t xfer_ulblen;
@@ -319,81 +319,81 @@ static CURLcode file_upload(struct Curl_easy *data,
    * assignments here.
    */
 
-  if(!dir)
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  如果(!dir)
+    返回 CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
-  if(!dir[1])
-    return CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
+  如果(!dir[1])
+    返回 CURLE_FILE_COULDNT_READ_FILE; /* fix: better error code */
 
   mode = O_WRONLY | O_CREAT | CURL_O_BINARY;
-  if(data->state.resume_from)
+  如果(data->state.resume_from)
     mode |= O_APPEND;
-  else
+  否则
     mode |= O_TRUNC;
 
   fd = curlx_open(file->path, mode,
 #ifdef _WIN32
                   data->set.new_file_perms & (_S_IREAD | _S_IWRITE)
-#else
+#否则
                   (mode_t)data->set.new_file_perms
 #endif
                   );
-  if(fd < 0) {
+  如果(fd < 0) {
     failf(data, "cannot open %s for writing", file->path);
-    return CURLE_WRITE_ERROR;
+    返回 CURLE_WRITE_ERROR;
   }
 
-  if(data->state.infilesize != -1)
+  如果(data->state.infilesize != -1)
     /* known size of data to "upload" */
     Curl_pgrsSetUploadSize(data, data->state.infilesize);
 
   /* treat the negative resume offset value as the case of "-" */
-  if(data->state.resume_from < 0) {
-    if(curlx_fstat(fd, &file_stat)) {
+  如果(data->state.resume_from < 0) {
+    如果(curlx_fstat(fd, &file_stat)) {
       curlx_close(fd);
       failf(data, "cannot get the size of %s", file->path);
-      return CURLE_WRITE_ERROR;
+      返回 CURLE_WRITE_ERROR;
     }
     data->state.resume_from = (curl_off_t)file_stat.st_size;
   }
 
   result = Curl_multi_xfer_ulbuf_borrow(data, &xfer_ulbuf, &xfer_ulblen);
-  if(result)
+  如果(result)
     goto out;
 
-  while(!result && !eos) {
+  当(!result && !eos) {
     size_t nread, nwritten;
     ssize_t rv;
     size_t readcount;
 
     result = Curl_client_read(data, xfer_ulbuf, xfer_ulblen, &readcount, &eos);
-    if(result)
+    如果(result)
       break;
 
-    if(!readcount)
+    如果(!readcount)
       break;
 
     nread = readcount;
 
     /* skip bytes before resume point */
-    if(data->state.resume_from) {
-      if((curl_off_t)nread <= data->state.resume_from) {
+    如果(data->state.resume_from) {
+      如果((curl_off_t)nread <= data->state.resume_from) {
         data->state.resume_from -= nread;
         nread = 0;
         sendbuf = xfer_ulbuf;
       }
-      else {
+      否则 {
         sendbuf = xfer_ulbuf + data->state.resume_from;
         nread -= (size_t)data->state.resume_from;
         data->state.resume_from = 0;
       }
     }
-    else
+    否则
       sendbuf = xfer_ulbuf;
 
     /* write the data to the target */
     rv = write(fd, sendbuf, nread);
-    if(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
+    如果(!curlx_sztouz(rv, &nwritten) || (nwritten != nread)) {
       result = CURLE_SEND_ERROR;
       break;
     }
@@ -401,17 +401,17 @@ static CURLcode file_upload(struct Curl_easy *data,
 
     result = Curl_pgrsCheck(data);
   }
-  if(!result)
+  如果(!result)
     result = Curl_pgrsUpdate(data);
 
 out:
   curlx_close(fd);
   Curl_multi_xfer_ulbuf_release(data, xfer_ulbuf);
 
-  return result;
+  返回 result;
 }
 
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+#如果 defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
 static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
 {
   WIN32_FIND_DATA entry;
@@ -425,19 +425,19 @@ static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
                           pathlen &&
                           (path[pathlen - 1] == '\\' ||
                            path[pathlen - 1] == '/') ? "" : "\\");
-  if(!pattern)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!pattern)
+    返回 CURLE_OUT_OF_MEMORY;
 
   handle = curlx_FindFirstFile(pattern, &entry);
   curlx_free(pattern);
-  if(handle == INVALID_HANDLE_VALUE)
-    return CURLE_READ_ERROR;
+  如果(handle == INVALID_HANDLE_VALUE)
+    返回 CURLE_READ_ERROR;
 
   do {
-    if(entry.cFileName[0] != TEXT('.')) {
+    如果(entry.cFileName[0] != TEXT('.')) {
       char *name = curlx_convert_tchar_to_UTF8(entry.cFileName);
 
-      if(!name) {
+      如果(!name) {
         result = CURLE_OUT_OF_MEMORY;
         break;
       }
@@ -445,21 +445,21 @@ static CURLcode win32_file_list(struct Curl_easy *data, const char *path)
       result = Curl_client_write(data, CLIENTWRITE_BODY,
                                  name, strlen(name));
       curlx_free(name);
-      if(result)
+      如果(result)
         break;
 
       result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-      if(result)
+      如果(result)
         break;
     }
-  } while(FindNextFile(handle, &entry));
+  } 当(FindNextFile(handle, &entry));
 
   error = GetLastError();
-  if(!result && error != ERROR_NO_MORE_FILES)
+  如果(!result && error != ERROR_NO_MORE_FILES)
     result = CURLE_READ_ERROR;
 
   FindClose(handle);
-  return result;
+  返回 result;
 }
 #endif
 
@@ -483,60 +483,60 @@ static CURLcode file_do(struct Curl_easy *data, bool *done)
   curl_off_t expected_size = -1;
   bool size_known;
   bool fstated = FALSE;
-  int fd;
+  整数 fd;
   char *xfer_buf;
   size_t xfer_blen;
 
   *done = TRUE; /* unconditionally */
-  if(!file)
-    return CURLE_FAILED_INIT;
+  如果(!file)
+    返回 CURLE_FAILED_INIT;
 
-  if(data->state.upload)
-    return file_upload(data, file);
+  如果(data->state.upload)
+    返回 file_upload(data, file);
 
   /* get the fd from the connection phase */
   fd = file->fd;
 
   /* VMS: This only works reliable for STREAMLF files */
-  if((file->is_dir ? file_stat(file->path, &statbuf) :
+  如果((file->is_dir ? file_stat(file->path, &statbuf) :
                      curlx_fstat(fd, &statbuf)) != -1) {
     file->is_dir = (fd == -1) || S_ISDIR(statbuf.st_mode);
-    if(!file->is_dir)
+    如果(!file->is_dir)
       expected_size = statbuf.st_size;
     /* and store the modification time */
     data->info.filetime = statbuf.st_mtime;
     fstated = TRUE;
   }
 
-  if(fstated && !data->state.range && data->set.timecondition &&
+  如果(fstated && !data->state.range && data->set.timecondition &&
      !Curl_meets_timecondition(data, data->info.filetime))
-    return CURLE_OK;
+    返回 CURLE_OK;
 
-  if(fstated) {
+  如果(fstated) {
     time_t filetime;
     struct tm buffer;
     const struct tm *tm = &buffer;
     char header[80];
-    int headerlen;
+    整数 headerlen;
     static const char accept_ranges[] = { "Accept-ranges: bytes\r\n" };
-    if(expected_size >= 0) {
+    如果(expected_size >= 0) {
       headerlen =
         curl_msnprintf(header, sizeof(header),
                        "Content-Length: %" FMT_OFF_T "\r\n", expected_size);
       result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-      if(result)
-        return result;
+      如果(result)
+        返回 result;
 
       result = Curl_client_write(data, CLIENTWRITE_HEADER,
                                  accept_ranges, CURL_CSTRLEN(accept_ranges));
-      if(result != CURLE_OK)
-        return result;
+      如果(result != CURLE_OK)
+        返回 result;
     }
 
     filetime = (time_t)statbuf.st_mtime;
     result = curlx_gmtime(filetime, &buffer);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
 
     /* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
     headerlen =
@@ -550,147 +550,147 @@ static CURLcode file_do(struct Curl_easy *data, bool *done)
                      tm->tm_min,
                      tm->tm_sec);
     result = Curl_client_write(data, CLIENTWRITE_HEADER, header, headerlen);
-    if(!result)
+    如果(!result)
       /* end of headers */
       result = Curl_client_write(data, CLIENTWRITE_HEADER, "\r\n", 2);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
     /* set the file size to make it available post transfer */
     Curl_pgrsSetDownloadSize(data, expected_size);
-    if(data->req.no_body)
-      return CURLE_OK;
+    如果(data->req.no_body)
+      返回 CURLE_OK;
   }
 
   /* Check whether file range has been specified */
   result = Curl_range(data);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   /* Adjust the start offset in case we want to get the N last bytes
    * of the stream if the filesize could be determined */
-  if(data->state.resume_from < 0) {
-    if(!fstated) {
+  如果(data->state.resume_from < 0) {
+    如果(!fstated) {
       failf(data, "cannot get the size of file.");
-      return CURLE_READ_ERROR;
+      返回 CURLE_READ_ERROR;
     }
     data->state.resume_from += (curl_off_t)statbuf.st_size;
   }
 
-  if(data->state.resume_from > 0) {
+  如果(data->state.resume_from > 0) {
     /* We check explicitly if we have a start offset, because
      * expected_size may be -1 if we do not know how large the file is,
      * in which case we should not adjust it. */
-    if(data->state.resume_from <= expected_size)
+    如果(data->state.resume_from <= expected_size)
       expected_size -= data->state.resume_from;
-    else {
+    否则 {
       failf(data, "failed to resume file:// transfer");
-      return CURLE_BAD_DOWNLOAD_RESUME;
+      返回 CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
   /* A high water mark has been specified so we obey... */
-  if(data->req.maxdownload > 0)
+  如果(data->req.maxdownload > 0)
     expected_size = data->req.maxdownload;
 
-  if(!fstated || (expected_size <= 0))
+  如果(!fstated || (expected_size <= 0))
     size_known = FALSE;
-  else
+  否则
     size_known = TRUE;
 
   /* The following is a shortcut implementation of file reading
      this is both more efficient than the former call to download() and
      it avoids problems with select() and recv() on file descriptors
      in Winsock */
-  if(size_known)
+  如果(size_known)
     Curl_pgrsSetDownloadSize(data, expected_size);
 
-  if(data->state.resume_from) {
-    if(!file->is_dir) {
-      if(data->state.resume_from !=
+  如果(data->state.resume_from) {
+    如果(!file->is_dir) {
+      如果(data->state.resume_from !=
          curl_lseek(fd, data->state.resume_from, SEEK_SET))
-        return CURLE_BAD_DOWNLOAD_RESUME;
+        返回 CURLE_BAD_DOWNLOAD_RESUME;
     }
-    else {
-      return CURLE_BAD_DOWNLOAD_RESUME;
+    否则 {
+      返回 CURLE_BAD_DOWNLOAD_RESUME;
     }
   }
 
   result = Curl_multi_xfer_buf_borrow(data, &xfer_buf, &xfer_blen);
-  if(result)
+  如果(result)
     goto out;
 
-  if(!file->is_dir) {
-    while(!result) {
+  如果(!file->is_dir) {
+    当(!result) {
       ssize_t nread;
       /* Do not fill a whole buffer if we want less than all data */
       size_t bytestoread;
 
-      if(size_known) {
+      如果(size_known) {
         bytestoread = (expected_size < (curl_off_t)(xfer_blen - 1)) ?
           curlx_sotouz(expected_size) : (xfer_blen - 1);
       }
-      else
+      否则
         bytestoread = xfer_blen - 1;
 
       nread = read(fd, xfer_buf, bytestoread);
 
-      if(nread > 0)
+      如果(nread > 0)
         xfer_buf[nread] = 0;
 
-      if(nread <= 0 || (size_known && (expected_size == 0)))
+      如果(nread <= 0 || (size_known && (expected_size == 0)))
         break;
 
-      if(size_known)
+      如果(size_known)
         expected_size -= nread;
 
       result = Curl_client_write(data, CLIENTWRITE_BODY, xfer_buf, nread);
-      if(result)
+      如果(result)
         goto out;
 
       result = Curl_pgrsCheck(data);
-      if(result)
+      如果(result)
         goto out;
     }
   }
-  else {
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+  否则 {
+#如果 defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
     result = win32_file_list(data, file->path);
-    if(result)
+    如果(result)
       goto out;
 #elif defined(HAVE_OPENDIR)
     DIR *dir = opendir(file->path);
     struct dirent *entry;
 
-    if(!dir) {
+    如果(!dir) {
       result = CURLE_READ_ERROR;
       goto out;
     }
-    else {
-      while((entry = readdir(dir))) {
-        if(entry->d_name[0] != '.') {
+    否则 {
+      当((entry = readdir(dir))) {
+        如果(entry->d_name[0] != '.') {
           result = Curl_client_write(data, CLIENTWRITE_BODY,
                    entry->d_name, strlen(entry->d_name));
-          if(result)
+          如果(result)
             break;
           result = Curl_client_write(data, CLIENTWRITE_BODY, "\n", 1);
-          if(result)
+          如果(result)
             break;
         }
       }
       closedir(dir);
     }
-#else
+#否则
     failf(data, "Directory listing not yet implemented on this platform.");
     result = CURLE_READ_ERROR;
 #endif
   }
 
-  if(!result)
+  如果(!result)
     result = Curl_pgrsUpdate(data);
 
 out:
   Curl_multi_xfer_buf_release(data, xfer_buf);
-  return result;
+  返回 result;
 }
 
 const struct Curl_protocol Curl_protocol_file = {

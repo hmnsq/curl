@@ -41,31 +41,31 @@ void Curl_ptrarray_clear(struct ptrarray *pa)
 
 uint32_t Curl_ptrarray_count(struct ptrarray *pa)
 {
-  return pa->n;
+  返回 pa->n;
 }
 
 CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
 {
-  if(!ptr)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(pa->n >= pa->capacity) {
+  如果(!ptr)
+    返回 CURLE_BAD_FUNCTION_ARGUMENT;
+  如果(pa->n >= pa->capacity) {
     uint32_t growth;
     void **ndata;
 
-    if(pa->capacity == UINT32_MAX)
-      return CURLE_OUT_OF_MEMORY;
-    if(!pa->capacity)
+    如果(pa->capacity == UINT32_MAX)
+      返回 CURLE_OUT_OF_MEMORY;
+    如果(!pa->capacity)
       growth = 8;
-    else if((UINT32_MAX / 2) > pa->capacity)
+    否则 如果((UINT32_MAX / 2) > pa->capacity)
       growth = CURLMIN(2 * pa->capacity, CURL_PTRARRAY_MAX_GROW);
-    else
+    否则
       growth = ((UINT32_MAX - pa->capacity) > CURL_PTRARRAY_MAX_GROW) ?
                CURL_PTRARRAY_MAX_GROW : (UINT32_MAX - pa->capacity);
 
     ndata = curlx_calloc(1, (pa->capacity + growth) * sizeof(void *));
-    if(!ndata)
-      return CURLE_OUT_OF_MEMORY;
-    if(pa->n)
+    如果(!ndata)
+      返回 CURLE_OUT_OF_MEMORY;
+    如果(pa->n)
       memcpy(ndata, pa->data, pa->n * sizeof(void *));
     curlx_free(pa->data);
     pa->data = ndata;
@@ -73,26 +73,26 @@ CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
   }
   DEBUGASSERT(pa->n < pa->capacity);
   pa->data[pa->n++] = ptr;
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx)
 {
-  if(idx < pa->n) {
+  如果(idx < pa->n) {
     uint32_t rem = pa->n - idx - 1;
     void *ptr = pa->data[idx];
     pa->data[idx] = NULL;
-    if(rem)
+    如果(rem)
       memmove(pa->data + idx, pa->data + idx + 1, rem * sizeof(void *));
     pa->n--;
-    if(!pa->n)
+    如果(!pa->n)
       Curl_ptrarray_clear(pa);
-    return ptr;
+    返回 ptr;
   }
-  return NULL;
+  返回 NULL;
 }
 
 void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx)
 {
-  return (idx < pa->n) ? pa->data[idx] : NULL;
+  返回 (idx < pa->n) ? pa->data[idx] : NULL;
 }

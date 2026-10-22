@@ -79,7 +79,7 @@
    20040911 +0200
  */
 
-#if !defined(CURL_DISABLE_PARSEDATE) || !defined(CURL_DISABLE_FTP) || \
+#如果 !defined(CURL_DISABLE_PARSEDATE) || !defined(CURL_DISABLE_FTP) || \
   !defined(CURL_DISABLE_FILE) || defined(USE_GNUTLS)
 /* These names are also used by FTP and FILE code */
 const char * const Curl_wkday[] = {
@@ -96,10 +96,10 @@ const char * const Curl_month[] = {
 
 #ifndef CURL_DISABLE_PARSEDATE
 
-#if SIZEOF_TIME_T < 5
+#如果 SIZEOF_TIME_T < 5
 #define PARSEDATE_LATER  1
 #endif
-#if SIZEOF_TIME_T < 5 || defined(HAVE_TIME_T_UNSIGNED)
+#如果 SIZEOF_TIME_T < 5 || defined(HAVE_TIME_T_UNSIGNED)
 #define PARSEDATE_SOONER 2
 #endif
 
@@ -208,42 +208,42 @@ static const struct tzinfo tzfoura[] = {
 
    @unittest 4781
 */
-UNITTEST int checkday(const char *check, size_t len);
-UNITTEST int checkday(const char *check, size_t len)
+UNITTEST 整数 checkday(const char *check, size_t len);
+UNITTEST 整数 checkday(const char *check, size_t len)
 {
-  int day = -1;
-  if(len < 3)
-    return -1; /* too short */
+  整数 day = -1;
+  如果(len < 3)
+    返回 -1; /* too short */
 
   switch(LOWERCASE(check[1])) {
   case 'o': /* monday */
-    if((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[2]) == 'n')
+    如果((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[2]) == 'n')
       day = 0;
     break;
   case 'u': /* tuesday or sunday */
-    if((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'e')
+    如果((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'e')
       day = 1;
-    else if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 'n')
+    否则 如果((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 'n')
       day = 6;
     break;
   case 'e': /* wednesday */
-    if((LOWERCASE(check[0]) == 'w') && LOWERCASE(check[2]) == 'd')
+    如果((LOWERCASE(check[0]) == 'w') && LOWERCASE(check[2]) == 'd')
       day = 2;
     break;
   case 'h': /* thursday */
-    if((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'u')
+    如果((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'u')
       day = 3;
     break;
   case 'r': /* friday */
-    if((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[2]) == 'i')
+    如果((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[2]) == 'i')
       day = 4;
     break;
   case 'a': /* saturday */
-    if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 't')
+    如果((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 't')
       day = 5;
     break;
   }
-  if((len > 3) && (day != -1)) {
+  如果((len > 3) && (day != -1)) {
     /* when more than three letters are provided, verify the tail name case
        insensitively */
     static const char * const daysuffix[] = {
@@ -252,80 +252,80 @@ UNITTEST int checkday(const char *check, size_t len)
     };
 
     size_t wlen = strlen(daysuffix[day]);
-    if(((len - 3) != wlen) ||
+    如果(((len - 3) != wlen) ||
        !curl_strnequal(&check[3], daysuffix[day], wlen))
-      return -1;
+      返回 -1;
   }
-  return day;
+  返回 day;
 }
 
 /* @unittest 4781 */
 
-UNITTEST int checkmonth(const char *check, size_t len);
-UNITTEST int checkmonth(const char *check, size_t len)
+UNITTEST 整数 checkmonth(const char *check, size_t len);
+UNITTEST 整数 checkmonth(const char *check, size_t len)
 {
-  if(len != 3)
-    return -1; /* not a month */
+  如果(len != 3)
+    返回 -1; /* not a month */
 
   switch(LOWERCASE(check[2])) {
   case 'n': /* jan, jun */
-    if(LOWERCASE(check[0]) == 'j') {
+    如果(LOWERCASE(check[0]) == 'j') {
       uint8_t c2 = LOWERCASE(check[1]);
-      if(c2 == 'a')
-        return 0;
-      else if(c2 == 'u')
-        return 5;
+      如果(c2 == 'a')
+        返回 0;
+      否则 如果(c2 == 'u')
+        返回 5;
     }
     break;
   case 'b': /* feb */
-    if((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[1]) == 'e')
-      return 1;
+    如果((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[1]) == 'e')
+      返回 1;
     break;
   case 'r': /* mar, apr */
-    if(LOWERCASE(check[0]) == 'm') {
-      if(LOWERCASE(check[1]) == 'a')
-        return 2;
+    如果(LOWERCASE(check[0]) == 'm') {
+      如果(LOWERCASE(check[1]) == 'a')
+        返回 2;
     }
-    else if((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'p')
-      return 3;
+    否则 如果((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'p')
+      返回 3;
     break;
   case 'y': /* may */
-    if((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[1]) == 'a')
-      return 4;
+    如果((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[1]) == 'a')
+      返回 4;
     break;
   case 'l': /* jul */
-    if((LOWERCASE(check[0]) == 'j') && LOWERCASE(check[1]) == 'u')
-      return 6;
+    如果((LOWERCASE(check[0]) == 'j') && LOWERCASE(check[1]) == 'u')
+      返回 6;
     break;
   case 'g': /* aug */
-    if((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'u')
-      return 7;
+    如果((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'u')
+      返回 7;
     break;
   case 'p': /* sep */
-    if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[1]) == 'e')
-      return 8;
+    如果((LOWERCASE(check[0]) == 's') && LOWERCASE(check[1]) == 'e')
+      返回 8;
     break;
   case 't': /* oct */
-    if((LOWERCASE(check[0]) == 'o') && LOWERCASE(check[1]) == 'c')
-      return 9;
+    如果((LOWERCASE(check[0]) == 'o') && LOWERCASE(check[1]) == 'c')
+      返回 9;
     break;
   case 'v': /* nov */
-    if((LOWERCASE(check[0]) == 'n') && LOWERCASE(check[1]) == 'o')
-      return 10;
+    如果((LOWERCASE(check[0]) == 'n') && LOWERCASE(check[1]) == 'o')
+      返回 10;
     break;
   case 'c': /* dec */
-    if((LOWERCASE(check[0]) == 'd') && LOWERCASE(check[1]) == 'e')
-      return 11;
+    如果((LOWERCASE(check[0]) == 'd') && LOWERCASE(check[1]) == 'e')
+      返回 11;
     break;
   }
-  return -1; /* return the offset or -1, no real offset is -1 */
+  返回 -1; /* return the offset or -1, no real offset is -1 */
 }
 
-static int tzcompare(const void *m1, const void *m2)
+static 整数 tzcompare(const void *m1, const void *m2)
 {
   const struct tzinfo *tz1 = m1;
   const struct tzinfo *tz2 = m2;
-  return tz1->tz - tz2->tz;
+  返回 tz1->tz - tz2->tz;
 }
 
 /* return the time zone offset between GMT and the input one, in number of
@@ -333,73 +333,73 @@ static int tzcompare(const void *m1, const void *m2)
 
    @unittest 4781
 */
-UNITTEST int checktz(const char *check, size_t len);
-UNITTEST int checktz(const char *check, size_t len)
+UNITTEST 整数 checktz(const char *check, size_t len);
+UNITTEST 整数 checktz(const char *check, size_t len)
 {
   char first;
-  if(len > 4)
-    return -1;
+  如果(len > 4)
+    返回 -1;
   first = check[0];
-  if(first < 'A')
-    return -1;
-  if(len == 1) {
+  如果(first < 'A')
+    返回 -1;
+  如果(len == 1) {
     /* short-cut single letter names */
-    if((first > 'Z') || (first == 'J'))
-      return -1; /* no such tz */
-    return tzone[first - 'A'] * 60;
+    如果((first > 'Z') || (first == 'J'))
+      返回 -1; /* no such tz */
+    返回 tzone[first - 'A'] * 60;
   }
-  else if(len == 2) {
+  否则 如果(len == 2) {
     /* two-letter names */
-    if(check[1] == 'T') {
-      if(first == 'N')
-        return 11 * 60 * 60;
-      else if(first == 'U')
-        return 0;
+    如果(check[1] == 'T') {
+      如果(first == 'N')
+        返回 11 * 60 * 60;
+      否则 如果(first == 'U')
+        返回 0;
     }
-    return -1; /* nope */
+    返回 -1; /* nope */
   }
-  else if(len == 3) {
+  否则 如果(len == 3) {
     /* three-letter name */
     const struct tzinfo *what;
     struct tzinfo find;
-    if(first > 'Y')
-      return -1;
+    如果(first > 'Y')
+      返回 -1;
     find.tz = MKTZ(first, check[1], check[2], 0);
     what = bsearch(&find, tzthree, CURL_ARRAYSIZE(tzthree),
                    sizeof(tzthree[0]), tzcompare);
-    if(what)
-      return what->offset * 60;
+    如果(what)
+      返回 what->offset * 60;
   }
-  else {
+  否则 {
     /* four-letter name */
     const struct tzinfo *what;
     struct tzinfo find;
-    if(first > 'W')
-      return -1;
+    如果(first > 'W')
+      返回 -1;
     find.tz = MKTZ(first, check[1], check[2], check[3]);
     what = bsearch(&find, tzfoura, CURL_ARRAYSIZE(tzfoura),
                    sizeof(tzfoura[0]), tzcompare);
-    if(what)
-      return what->offset * 60;
+    如果(what)
+      返回 what->offset * 60;
   }
-  return -1;
+  返回 -1;
 }
 
 static void skip(const char **date)
 {
   /* skip everything that are not letters or digits */
-  while(**date && !ISALNUM(**date))
+  当(**date && !ISALNUM(**date))
     (*date)++;
 }
 
 /* each field is exactly -1 when unknown */
 struct when {
-  int wday;  /* day of the week, 0-6 (mon-sun) */
-  int mon;   /* month of the year, 0-11 */
-  int mday;  /* day of month, 1 - 31 */
-  int dsecs; /* number of seconds into the day */
-  int year;  /* year, >= 1583 */
-  int tzoff; /* time zone offset in seconds */
+  整数 wday;  /* day of the week, 0-6 (mon-sun) */
+  整数 mon;   /* month of the year, 0-11 */
+  整数 mday;  /* day of month, 1 - 31 */
+  整数 dsecs; /* number of seconds into the day */
+  整数 year;  /* year, >= 1583 */
+  整数 tzoff; /* time zone offset in seconds */
 };
 
 /* (1969 / 4) - (1969 / 100) + (1969 / 400) = 492 - 19 + 4 = 477 */
@@ -412,58 +412,58 @@ struct when {
  */
 static curl_off_t time2epoch(struct when *w)
 {
-  static const int cumulative_days[12] = {
+  static const 整数 cumulative_days[12] = {
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
   };
-  int y = w->year - (w->mon <= 1);
-  int leap_days = (y / 4) - (y / 100) + (y / 400) - LEAP_DAYS_BEFORE_1969;
+  整数 y = w->year - (w->mon <= 1);
+  整数 leap_days = (y / 4) - (y / 100) + (y / 400) - LEAP_DAYS_BEFORE_1969;
   curl_off_t days = (curl_off_t)(w->year - 1970) * 365 + leap_days +
     cumulative_days[w->mon] + w->mday - 1;
 
-  return (days * SECONDS_PER_DAY) + w->dsecs;
+  返回 (days * SECONDS_PER_DAY) + w->dsecs;
 }
 
 /* Returns the value of a single-digit or two-digit decimal number, return
    then pointer to after the number. The 'date' pointer is known to point to a
    digit. */
-static int oneortwodigit(const char *date, const char **endp)
+static 整数 oneortwodigit(const char *date, const char **endp)
 {
-  int num = date[0] - '0';
-  if(ISDIGIT(date[1])) {
+  整数 num = date[0] - '0';
+  如果(ISDIGIT(date[1])) {
     *endp = &date[2];
-    return (num * 10) + (date[1] - '0');
+    返回 (num * 10) + (date[1] - '0');
   }
   *endp = &date[1];
-  return num;
+  返回 num;
 }
 
 /* HH:MM:SS or HH:MM and accept single-digits too */
 static bool match_time(const char *date, struct when *w, char **endp)
 {
   const char *p;
-  int hh, mm, ss = 0;
+  整数 hh, mm, ss = 0;
   hh = oneortwodigit(date, &p);
-  if((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
+  如果((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
     mm = oneortwodigit(&p[1], &p);
-    if(mm < 60) {
-      if((*p == ':') && ISDIGIT(p[1])) {
+    如果(mm < 60) {
+      如果((*p == ':') && ISDIGIT(p[1])) {
         ss = oneortwodigit(&p[1], &p);
-        if(ss <= 60) {
+        如果(ss <= 60) {
           /* valid HH:MM:SS */
           goto match;
         }
       }
-      else {
+      否则 {
         /* valid HH:MM */
         goto match;
       }
     }
   }
-  return FALSE; /* not a time string */
+  返回 FALSE; /* not a time string */
 match:
   w->dsecs = (hh * 3600) + (mm * 60) + ss;
   *endp = (char *)CURL_UNCONST(p);
-  return TRUE;
+  返回 TRUE;
 }
 
 /*
@@ -485,62 +485,62 @@ static void initwhen(struct when *w)
   w->wday = w->mon = w->mday = w->dsecs = w->year = w->tzoff = -1;
 }
 
-static int datestring(const char **datep, struct when *w)
+static 整数 datestring(const char **datep, struct when *w)
 {
   /* a name coming up */
   size_t len = 0;
   const char *p = *datep;
-  while(ISALPHA(p[len]) && (len < NAME_LEN))
+  当(ISALPHA(p[len]) && (len < NAME_LEN))
     len++;
 
-  if(len != NAME_LEN) {
-    if(w->wday == -1) {
+  如果(len != NAME_LEN) {
+    如果(w->wday == -1) {
       w->wday = checkday(p, len);
-      if(w->wday != -1)
+      如果(w->wday != -1)
         goto found;
     }
-    if(w->mon == -1) {
+    如果(w->mon == -1) {
       w->mon = checkmonth(p, len);
-      if(w->mon != -1)
+      如果(w->mon != -1)
         goto found;
     }
-    if(w->tzoff == -1) {
+    如果(w->tzoff == -1) {
       /* this must be a time zone string */
       w->tzoff = checktz(p, len);
-      if(w->tzoff != -1)
+      如果(w->tzoff != -1)
         goto found;
     }
   }
-  return PARSEDATE_FAIL; /* bad string */
+  返回 PARSEDATE_FAIL; /* bad string */
 found:
   *datep += len;
-  return PARSEDATE_OK;
+  返回 PARSEDATE_OK;
 }
 
-static int datenum(const char *indate, const char **datep, struct when *w)
+static 整数 datenum(const char *indate, const char **datep, struct when *w)
 {
   /* a digit */
-  unsigned int val;
+  unsigned 整数 val;
   char *end;
   const char *date = *datep;
 
-  if((w->dsecs == -1) && match_time(date, w, &end)) {
+  如果((w->dsecs == -1) && match_time(date, w, &end)) {
     /* time stamp */
     date = end;
   }
-  else {
+  否则 {
     bool found = FALSE;
     curl_off_t lval;
-    int num_digits = 0;
+    整数 num_digits = 0;
     const char *p = *datep;
-    if(curlx_str_number(&p, &lval, 99999999))
-      return PARSEDATE_FAIL;
+    如果(curlx_str_number(&p, &lval, 99999999))
+      返回 PARSEDATE_FAIL;
 
     /* we know num_digits cannot be larger than 8 */
-    num_digits = (int)(p - *datep);
-    val = (unsigned int)lval;
+    num_digits = (整数)(p - *datep);
+    val = (unsigned 整数)lval;
 
-    if((w->tzoff == -1) &&
+    如果((w->tzoff == -1) &&
        (num_digits == 4) &&
        (val <= 1400) &&
        (indate < date) &&
@@ -561,160 +561,160 @@ static int datenum(const char *indate, const char **datep, struct when *w)
       w->tzoff = date[-1] == '+' ? -w->tzoff : w->tzoff;
     }
 
-    else if((num_digits == 8) && (w->year == -1) &&
+    否则 如果((num_digits == 8) && (w->year == -1) &&
             (w->mon == -1) && (w->mday == -1)) {
       /* 8 digits, no year, month or day yet. This is YYYYMMDD */
       found = TRUE;
       w->year = val / 10000;
       w->mon = ((val % 10000) / 100) - 1; /* month is 0 - 11 */
-      if(w->mon > 11)
-        return PARSEDATE_FAIL;
+      如果(w->mon > 11)
+        返回 PARSEDATE_FAIL;
       w->mday = val % 100;
     }
 
-    if(!found && (w->mday == -1)) {
-      if((val > 0) && (val < 32)) {
+    如果(!found && (w->mday == -1)) {
+      如果((val > 0) && (val < 32)) {
         w->mday = val;
         found = TRUE;
       }
     }
 
-    if(!found && (w->year == -1)) {
+    如果(!found && (w->year == -1)) {
       w->year = val;
       found = TRUE;
-      if(w->year < 100) {
-        if(w->year > 70)
+      如果(w->year < 100) {
+        如果(w->year > 70)
           w->year += 1900;
-        else
+        否则
           w->year += 2000;
       }
     }
 
-    if(!found)
-      return PARSEDATE_FAIL;
+    如果(!found)
+      返回 PARSEDATE_FAIL;
 
     date = p;
   }
   *datep = date;
-  return PARSEDATE_OK;
+  返回 PARSEDATE_OK;
 }
 
 static bool datecheck(struct when *w)
 {
-  if(w->dsecs == -1)
+  如果(w->dsecs == -1)
     w->dsecs = 0; /* no time available, make it zero */
 
-  if((w->mday == -1) || (w->mon == -1) || (w->year == -1) ||
+  如果((w->mday == -1) || (w->mon == -1) || (w->year == -1) ||
     /* lacks vital info, fail */
      (w->year < 1583) ||
      /* The Gregorian calendar was introduced 1582 */
      (w->mday > 31) /* too long month */ )
-    return TRUE;
+    返回 TRUE;
 
-  return FALSE;
+  返回 FALSE;
 }
 
 static void tzadjust(curl_off_t *tp, struct when *w)
 {
-  if(w->tzoff == -1) /* unknown tz means no offset */
+  如果(w->tzoff == -1) /* unknown tz means no offset */
     w->tzoff = 0;
 
   /* Add the time zone diff between local time zone and GMT. */
-  if((w->tzoff > 0) && (*tp > (curl_off_t)(CURL_OFF_T_MAX - w->tzoff)))
+  如果((w->tzoff > 0) && (*tp > (curl_off_t)(CURL_OFF_T_MAX - w->tzoff)))
     *tp = CURL_OFF_T_MAX;
-  else
+  否则
     *tp += w->tzoff;
   /* this needs no minimum check since we require a year > 1582 */
 }
 
-static int mktimet(curl_off_t seconds, time_t *output)
+static 整数 mktimet(curl_off_t seconds, time_t *output)
 {
-#if SIZEOF_TIME_T < 5
-  if(seconds > TIME_T_MAX) {
+#如果 SIZEOF_TIME_T < 5
+  如果(seconds > TIME_T_MAX) {
     *output = TIME_T_MAX;
-    return PARSEDATE_LATER;
+    返回 PARSEDATE_LATER;
   }
-  else if(seconds < TIME_T_MIN) {
+  否则 如果(seconds < TIME_T_MIN) {
     *output = TIME_T_MIN;
-    return PARSEDATE_SOONER;
+    返回 PARSEDATE_SOONER;
   }
 #elif defined(HAVE_TIME_T_UNSIGNED)
-  if(seconds < 0) {
+  如果(seconds < 0) {
     *output = 0;
-    return PARSEDATE_SOONER;
+    返回 PARSEDATE_SOONER;
   }
 #endif
   *output = (time_t)seconds;
-  return PARSEDATE_OK;
+  返回 PARSEDATE_OK;
 }
 
-static int parsedate(const char *date, time_t *output)
+static 整数 parsedate(const char *date, time_t *output)
 {
   curl_off_t seconds = 0;
   const char *indate = date; /* save the original pointer */
-  int part = 0; /* max 6 parts */
-  int rc = 0;
+  整数 part = 0; /* max 6 parts */
+  整数 rc = 0;
   struct when w;
   initwhen(&w);
 
-  while(*date && (part < 6)) {
+  当(*date && (part < 6)) {
     skip(&date);
 
-    if(ISALPHA(*date))
+    如果(ISALPHA(*date))
       rc = datestring(&date, &w);
-    else if(ISDIGIT(*date))
+    否则 如果(ISDIGIT(*date))
       rc = datenum(indate, &date, &w);
-    if(rc)
-      return rc;
+    如果(rc)
+      返回 rc;
 
     part++;
   }
 
-  if(datecheck(&w))
-    return PARSEDATE_FAIL;
+  如果(datecheck(&w))
+    返回 PARSEDATE_FAIL;
 
   seconds = time2epoch(&w); /* get number of seconds */
   tzadjust(&seconds, &w); /* handle the time zone offset */
   rc = mktimet(seconds, output); /* squeeze seconds into a time_t */
 
-  return rc;
+  返回 rc;
 }
-#else
+#否则
 /* disabled */
-static int parsedate(const char *date, time_t *output)
+static 整数 parsedate(const char *date, time_t *output)
 {
   (void)date;
   *output = 0;
-  return PARSEDATE_OK; /* a lie */
+  返回 PARSEDATE_OK; /* a lie */
 }
 #endif
 
 time_t curl_getdate(const char *p, const time_t *unused)
 {
   time_t parsed = -1;
-  int rc;
+  整数 rc;
   (void)unused; /* legacy argument from the past that we ignore */
 
-  if(!p)
-    return -1;
+  如果(!p)
+    返回 -1;
 
   rc = parsedate(p, &parsed);
-  if(rc == PARSEDATE_OK) {
-    if(parsed == (time_t)-1)
+  如果(rc == PARSEDATE_OK) {
+    如果(parsed == (time_t)-1)
       /* avoid returning -1 for a working scenario */
       parsed++;
-    return parsed;
+    返回 parsed;
   }
   /* everything else is fail */
-  return -1;
+  返回 -1;
 }
 
 /* Curl_getdate_capped() differs from curl_getdate() in that this will return
    TIME_T_MAX in case the parsed time value was too big, instead of an
    error. Returns non-zero on error. */
 
-int Curl_getdate_capped(const char *p, time_t *tp)
+整数 Curl_getdate_capped(const char *p, time_t *tp)
 {
-  int rc = parsedate(p, tp);
-  return (rc == PARSEDATE_FAIL);
+  整数 rc = parsedate(p, tp);
+  返回 (rc == PARSEDATE_FAIL);
 }

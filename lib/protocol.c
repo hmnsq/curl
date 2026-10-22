@@ -49,7 +49,7 @@ const struct Curl_scheme Curl_scheme_dict = {
   "dict",                               /* scheme */
 #ifdef CURL_DISABLE_DICT
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_dict,
 #endif
   CURLPROTO_DICT,                       /* protocol */
@@ -62,7 +62,7 @@ const struct Curl_scheme Curl_scheme_file = {
   "file",                               /* scheme */
 #ifdef CURL_DISABLE_FILE
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_file,
 #endif
   CURLPROTO_FILE,                       /* protocol */
@@ -75,7 +75,7 @@ const struct Curl_scheme Curl_scheme_ftp = {
   "ftp",                           /* scheme */
 #ifdef CURL_DISABLE_FTP
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_ftp,
 #endif
   CURLPROTO_FTP,                   /* protocol */
@@ -89,9 +89,9 @@ const struct Curl_scheme Curl_scheme_ftp = {
 
 const struct Curl_scheme Curl_scheme_ftps = {
   "ftps",                          /* scheme */
-#if defined(CURL_DISABLE_FTP) || !defined(USE_SSL)
+#如果 defined(CURL_DISABLE_FTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_ftp,
 #endif
   CURLPROTO_FTPS,                  /* protocol */
@@ -106,7 +106,7 @@ const struct Curl_scheme Curl_scheme_gopher = {
   "gopher",                             /* scheme */
 #ifdef CURL_DISABLE_GOPHER
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_gopher,
 #endif
   CURLPROTO_GOPHER,                     /* protocol */
@@ -117,9 +117,9 @@ const struct Curl_scheme Curl_scheme_gopher = {
 
 const struct Curl_scheme Curl_scheme_gophers = {
   "gophers",                            /* scheme */
-#if defined(CURL_DISABLE_GOPHER) || !defined(USE_SSL)
+#如果 defined(CURL_DISABLE_GOPHER) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_gophers,
 #endif
   CURLPROTO_GOPHERS,                    /* protocol */
@@ -132,7 +132,7 @@ const struct Curl_scheme Curl_scheme_http = {
   "http",                               /* scheme */
 #ifdef CURL_DISABLE_HTTP
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_http,
 #endif
   CURLPROTO_HTTP,                       /* protocol */
@@ -144,9 +144,9 @@ const struct Curl_scheme Curl_scheme_http = {
 
 const struct Curl_scheme Curl_scheme_https = {
   "https",                              /* scheme */
-#if defined(CURL_DISABLE_HTTP) || !defined(USE_SSL)
+#如果 defined(CURL_DISABLE_HTTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_http,
 #endif
   CURLPROTO_HTTPS,                      /* protocol */
@@ -161,7 +161,7 @@ const struct Curl_scheme Curl_scheme_imap = {
   "imap",                           /* scheme */
 #ifdef CURL_DISABLE_IMAP
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_imap,
 #endif
   CURLPROTO_IMAP,                   /* protocol */
@@ -174,9 +174,9 @@ const struct Curl_scheme Curl_scheme_imap = {
 
 const struct Curl_scheme Curl_scheme_imaps = {
   "imaps",                          /* scheme */
-#if defined(CURL_DISABLE_IMAP) || !defined(USE_SSL)
+#如果 defined(CURL_DISABLE_IMAP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_imap,
 #endif
   CURLPROTO_IMAPS,                  /* protocol */
@@ -190,7 +190,7 @@ const struct Curl_scheme Curl_scheme_ldap = {
   "ldap",                               /* scheme */
 #ifdef CURL_DISABLE_LDAP
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_ldap,
 #endif
   CURLPROTO_LDAP,                       /* protocol */
@@ -201,9 +201,9 @@ const struct Curl_scheme Curl_scheme_ldap = {
 
 const struct Curl_scheme Curl_scheme_ldaps = {
   "ldaps",                              /* scheme */
-#if defined(CURL_DISABLE_LDAP) || !defined(HAVE_LDAP_SSL)
+#如果 defined(CURL_DISABLE_LDAP) || !defined(HAVE_LDAP_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_ldap,
 #endif
   CURLPROTO_LDAPS,                      /* protocol */
@@ -216,7 +216,7 @@ const struct Curl_scheme Curl_scheme_mqtt = {
   "mqtt",                             /* scheme */
 #ifdef CURL_DISABLE_MQTT
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_mqtt,
 #endif
   CURLPROTO_MQTT,                     /* protocol */
@@ -227,9 +227,9 @@ const struct Curl_scheme Curl_scheme_mqtt = {
 
 const struct Curl_scheme Curl_scheme_mqtts = {
   "mqtts",                            /* scheme */
-#if defined(CURL_DISABLE_MQTT) || !defined(USE_SSL)
+#如果 defined(CURL_DISABLE_MQTT) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_mqtts,
 #endif
   CURLPROTO_MQTTS,                    /* protocol */
@@ -242,7 +242,7 @@ const struct Curl_scheme Curl_scheme_pop3 = {
   "pop3",                           /* scheme */
 #ifdef CURL_DISABLE_POP3
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_pop3,
 #endif
   CURLPROTO_POP3,                   /* protocol */
@@ -254,9 +254,9 @@ const struct Curl_scheme Curl_scheme_pop3 = {
 
 const struct Curl_scheme Curl_scheme_pop3s = {
   "pop3s",                          /* scheme */
-#if defined(CURL_DISABLE_POP3) || !defined(USE_SSL)
+#如果 defined(CURL_DISABLE_POP3) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_pop3,
 #endif
   CURLPROTO_POP3S,                  /* protocol */
@@ -270,7 +270,7 @@ const struct Curl_scheme Curl_scheme_rtsp = {
   "rtsp",                               /* scheme */
 #ifdef CURL_DISABLE_RTSP
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_rtsp,
 #endif
   CURLPROTO_RTSP,                       /* protocol */
@@ -283,7 +283,7 @@ const struct Curl_scheme Curl_scheme_sftp = {
   "sftp",                               /* scheme */
 #ifndef USE_SSH
   NULL,
-#else
+#否则
   &Curl_protocol_sftp,
 #endif
   CURLPROTO_SFTP,                       /* protocol */
@@ -297,7 +297,7 @@ const struct Curl_scheme Curl_scheme_scp = {
   "scp",                                /* scheme */
 #ifndef USE_SSH
   NULL,
-#else
+#否则
   &Curl_protocol_scp,
 #endif
   CURLPROTO_SCP,                        /* protocol */
@@ -311,7 +311,7 @@ const struct Curl_scheme Curl_scheme_smtp = {
   "smtp",                           /* scheme */
 #ifdef CURL_DISABLE_SMTP
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_smtp,
 #endif
   CURLPROTO_SMTP,                   /* protocol */
@@ -323,9 +323,9 @@ const struct Curl_scheme Curl_scheme_smtp = {
 
 const struct Curl_scheme Curl_scheme_smtps = {
   "smtps",                          /* scheme */
-#if defined(CURL_DISABLE_SMTP) || !defined(USE_SSL)
+#如果 defined(CURL_DISABLE_SMTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_smtp,
 #endif
   CURLPROTO_SMTPS,                  /* protocol */
@@ -384,7 +384,7 @@ const struct Curl_scheme Curl_scheme_telnet = {
   "telnet",                             /* scheme */
 #ifdef CURL_DISABLE_TELNET
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_telnet,
 #endif
   CURLPROTO_TELNET,                     /* protocol */
@@ -397,7 +397,7 @@ const struct Curl_scheme Curl_scheme_tftp = {
   "tftp",                               /* scheme */
 #ifdef CURL_DISABLE_TFTP
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_tftp,
 #endif
   CURLPROTO_TFTP,                       /* protocol */
@@ -408,9 +408,9 @@ const struct Curl_scheme Curl_scheme_tftp = {
 
 const struct Curl_scheme Curl_scheme_ws = {
   "ws",                                 /* scheme */
-#if defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP)
+#如果 defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_ws,
 #endif
   CURLPROTO_WS,                         /* protocol */
@@ -422,10 +422,10 @@ const struct Curl_scheme Curl_scheme_ws = {
 
 const struct Curl_scheme Curl_scheme_wss = {
   "wss",                                /* scheme */
-#if defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP) || \
+#如果 defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP) || \
   !defined(USE_SSL)
   ZERO_NULL,
-#else
+#否则
   &Curl_protocol_ws,
 #endif
   CURLPROTO_WSS,                        /* protocol */
@@ -437,10 +437,10 @@ const struct Curl_scheme Curl_scheme_wss = {
 
 static const struct Curl_scheme *two_letter_scheme(const char *scheme)
 {
-  if((Curl_raw_tolower(scheme[0]) == 'w') &&
+  如果((Curl_raw_tolower(scheme[0]) == 'w') &&
      (Curl_raw_tolower(scheme[1]) == 's'))
-    return &Curl_scheme_ws;
-  return NULL;
+    返回 &Curl_scheme_ws;
+  返回 NULL;
 }
 
 static const struct Curl_scheme *three_letter_scheme(const char *scheme)
@@ -448,19 +448,19 @@ static const struct Curl_scheme *three_letter_scheme(const char *scheme)
   char s0 = Curl_raw_tolower(scheme[0]);
   char s1 = Curl_raw_tolower(scheme[1]);
   char s2 = Curl_raw_tolower(scheme[2]);
-  if(s0 == 'f') {
-    if(s1 == 't' && s2 == 'p')
-      return &Curl_scheme_ftp;
+  如果(s0 == 'f') {
+    如果(s1 == 't' && s2 == 'p')
+      返回 &Curl_scheme_ftp;
   }
-  else if(s0 == 'w') {
-    if(s1 == 's' && s2 == 's')
-      return &Curl_scheme_wss;
+  否则 如果(s0 == 'w') {
+    如果(s1 == 's' && s2 == 's')
+      返回 &Curl_scheme_wss;
   }
-  else if(s0 == 's') {
-    if(s1 == 'c' && s2 == 'p')
-      return &Curl_scheme_scp;
+  否则 如果(s0 == 's') {
+    如果(s1 == 'c' && s2 == 'p')
+      返回 &Curl_scheme_scp;
   }
-  return NULL;
+  返回 NULL;
 }
 
 static const struct Curl_scheme *four_letter_scheme(const char *scheme)
@@ -469,99 +469,99 @@ static const struct Curl_scheme *four_letter_scheme(const char *scheme)
   char s1 = Curl_raw_tolower(scheme[1]);
   char s2 = Curl_raw_tolower(scheme[2]);
   char s3 = Curl_raw_tolower(scheme[3]);
-  if(s3 == 'p') {
-    if(s0 == 'h') {
-      if(s1 == 't' && s2 == 't')
-        return &Curl_scheme_http;
+  如果(s3 == 'p') {
+    如果(s0 == 'h') {
+      如果(s1 == 't' && s2 == 't')
+        返回 &Curl_scheme_http;
     }
-    else if(s0 == 'i') {
-      if(s1 == 'm' && s2 == 'a')
-        return &Curl_scheme_imap;
+    否则 如果(s0 == 'i') {
+      如果(s1 == 'm' && s2 == 'a')
+        返回 &Curl_scheme_imap;
     }
-    else if(s0 == 'l') {
-      if(s1 == 'd' && s2 == 'a')
-        return &Curl_scheme_ldap;
+    否则 如果(s0 == 'l') {
+      如果(s1 == 'd' && s2 == 'a')
+        返回 &Curl_scheme_ldap;
     }
-    else if(s0 == 'r') {
-      if(s1 == 't' && s2 == 's')
-        return &Curl_scheme_rtsp;
+    否则 如果(s0 == 'r') {
+      如果(s1 == 't' && s2 == 's')
+        返回 &Curl_scheme_rtsp;
     }
-    else if(s0 == 't') {
-      if(s1 == 'f' && s2 == 't')
-        return &Curl_scheme_tftp;
+    否则 如果(s0 == 't') {
+      如果(s1 == 'f' && s2 == 't')
+        返回 &Curl_scheme_tftp;
     }
-    else if(s0 == 's') {
-      if(s1 == 'f' && s2 == 't')
-        return &Curl_scheme_sftp;
-      if(s1 == 'm' && s2 == 't')
-        return &Curl_scheme_smtp;
+    否则 如果(s0 == 's') {
+      如果(s1 == 'f' && s2 == 't')
+        返回 &Curl_scheme_sftp;
+      如果(s1 == 'm' && s2 == 't')
+        返回 &Curl_scheme_smtp;
     }
   }
-  else if(s0 == 'f') {
-    if(s1 == 't' && s2 == 'p' && s3 == 's')
-      return &Curl_scheme_ftps;
-    if(s1 == 'i' && s2 == 'l' && s3 == 'e')
-      return &Curl_scheme_file;
+  否则 如果(s0 == 'f') {
+    如果(s1 == 't' && s2 == 'p' && s3 == 's')
+      返回 &Curl_scheme_ftps;
+    如果(s1 == 'i' && s2 == 'l' && s3 == 'e')
+      返回 &Curl_scheme_file;
   }
-  else if(s0 == 'm') {
-    if(s1 == 'q' && s2 == 't' && s3 == 't')
-      return &Curl_scheme_mqtt;
+  否则 如果(s0 == 'm') {
+    如果(s1 == 'q' && s2 == 't' && s3 == 't')
+      返回 &Curl_scheme_mqtt;
   }
-  else if(s0 == 'p') {
-    if(s1 == 'o' && s2 == 'p' && s3 == '3')
-      return &Curl_scheme_pop3;
+  否则 如果(s0 == 'p') {
+    如果(s1 == 'o' && s2 == 'p' && s3 == '3')
+      返回 &Curl_scheme_pop3;
   }
-  else if(s0 == 'd') {
-    if(s1 == 'i' && s2 == 'c' && s3 == 't')
-      return &Curl_scheme_dict;
+  否则 如果(s0 == 'd') {
+    如果(s1 == 'i' && s2 == 'c' && s3 == 't')
+      返回 &Curl_scheme_dict;
   }
-  return NULL;
+  返回 NULL;
 }
 
 static const struct Curl_scheme *five_letter_scheme(const char *scheme)
 {
   char s4 = Curl_raw_tolower(scheme[4]);
-  if(s4 == 's') {
+  如果(s4 == 's') {
     char s0 = Curl_raw_tolower(scheme[0]);
     char s1 = Curl_raw_tolower(scheme[1]);
     char s2 = Curl_raw_tolower(scheme[2]);
     char s3 = Curl_raw_tolower(scheme[3]);
-    if(s3 == 'p') {
+    如果(s3 == 'p') {
       switch(s0) {
       case 'h':
-        if(s1 == 't' && s2 == 't')
-          return &Curl_scheme_https;
+        如果(s1 == 't' && s2 == 't')
+          返回 &Curl_scheme_https;
         break;
       case 'l':
-        if(s1 == 'd' && s2 == 'a')
-          return &Curl_scheme_ldaps;
+        如果(s1 == 'd' && s2 == 'a')
+          返回 &Curl_scheme_ldaps;
         break;
       case 'i':
-        if(s1 == 'm' && s2 == 'a')
-          return &Curl_scheme_imaps;
+        如果(s1 == 'm' && s2 == 'a')
+          返回 &Curl_scheme_imaps;
         break;
       case 's':
-        if(s1 == 'm' && s2 == 't')
-          return &Curl_scheme_smtps;
+        如果(s1 == 'm' && s2 == 't')
+          返回 &Curl_scheme_smtps;
         break;
       default:
         break;
       }
     }
-    else if(s0 == 'p') {
-      if(s1 == 'o' && s2 == 'p' && s3 == '3')
-        return &Curl_scheme_pop3s;
+    否则 如果(s0 == 'p') {
+      如果(s1 == 'o' && s2 == 'p' && s3 == '3')
+        返回 &Curl_scheme_pop3s;
     }
-    else if(s0 == 'm') {
-      if(s1 == 'q' && s2 == 't' && s3 == 't')
-        return &Curl_scheme_mqtts;
+    否则 如果(s0 == 'm') {
+      如果(s1 == 'q' && s2 == 't' && s3 == 't')
+        返回 &Curl_scheme_mqtts;
     }
-    else if(s0 == 's') {
-      if(s1 == 'o' && s2 == 'c' && s3 == 'k')
-        return &Curl_scheme_socks;
+    否则 如果(s0 == 's') {
+      如果(s1 == 'o' && s2 == 'c' && s3 == 'k')
+        返回 &Curl_scheme_socks;
     }
   }
-  return NULL;
+  返回 NULL;
 }
 
 static const struct Curl_scheme *six_letter_scheme(const char *scheme)
@@ -569,37 +569,37 @@ static const struct Curl_scheme *six_letter_scheme(const char *scheme)
   char s0 = Curl_raw_tolower(scheme[0]);
   switch(s0) {
   case 's':
-    if(curl_strnequal("ocks4", &scheme[1], 5))
-      return &Curl_scheme_socks4;
-    if(curl_strnequal("ocks5", &scheme[1], 5))
-      return &Curl_scheme_socks5;
+    如果(curl_strnequal("ocks4", &scheme[1], 5))
+      返回 &Curl_scheme_socks4;
+    如果(curl_strnequal("ocks5", &scheme[1], 5))
+      返回 &Curl_scheme_socks5;
     break;
   case 'g':
-    if(curl_strnequal("opher", &scheme[1], 5))
-      return &Curl_scheme_gopher;
+    如果(curl_strnequal("opher", &scheme[1], 5))
+      返回 &Curl_scheme_gopher;
     break;
   case 't':
-    if(curl_strnequal("elnet", &scheme[1], 5))
-      return &Curl_scheme_telnet;
+    如果(curl_strnequal("elnet", &scheme[1], 5))
+      返回 &Curl_scheme_telnet;
     break;
   }
-  return NULL;
+  返回 NULL;
 }
 
 static const struct Curl_scheme *seven_letter_scheme(const char *scheme)
 {
   char s0 = Curl_raw_tolower(scheme[0]);
-  if(s0 == 's') {
-    if(curl_strnequal("ocks4a", &scheme[1], 6))
-      return &Curl_scheme_socks4a;
-    if(curl_strnequal("ocks5h", &scheme[1], 6))
-      return &Curl_scheme_socks5h;
+  如果(s0 == 's') {
+    如果(curl_strnequal("ocks4a", &scheme[1], 6))
+      返回 &Curl_scheme_socks4a;
+    如果(curl_strnequal("ocks5h", &scheme[1], 6))
+      返回 &Curl_scheme_socks5h;
   }
-  else if(s0 == 'g') {
-    if(curl_strnequal("ophers", &scheme[1], 6))
-      return &Curl_scheme_gophers;
+  否则 如果(s0 == 'g') {
+    如果(curl_strnequal("ophers", &scheme[1], 6))
+      返回 &Curl_scheme_gophers;
   }
-  return NULL;
+  返回 NULL;
 }
 
 /* Returns a struct scheme pointer if the name is a known scheme. Check the
@@ -617,13 +617,13 @@ const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len)
     seven_letter_scheme
   };
 
-  if(len < 2 || len > 7)
-    return NULL;
+  如果(len < 2 || len > 7)
+    返回 NULL;
 
-  return parse[len - 2](scheme);
+  返回 parse[len - 2](scheme);
 }
 
 const struct Curl_scheme *Curl_get_scheme(const char *scheme)
 {
-  return Curl_getn_scheme(scheme, strlen(scheme));
+  返回 Curl_getn_scheme(scheme, strlen(scheme));
 }

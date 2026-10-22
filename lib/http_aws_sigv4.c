@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
+#如果 !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
 
 #include "urldata.h"
 #include "strcase.h"
@@ -45,10 +45,10 @@
                          kl,                         \
                          (const unsigned char *)(d), \
                          dl, o);                     \
-    if(result) {                                     \
+    如果(result) {                                     \
       goto fail;                                     \
     }                                                \
-  } while(0)
+  } 当(0)
 
 #define TIMESTAMP_SIZE 17
 
@@ -72,23 +72,23 @@ static char *find_date_hdr(struct Curl_easy *data, const char *sig_hdr)
 {
   char *tmp = Curl_checkheaders(data, sig_hdr, strlen(sig_hdr));
 
-  if(tmp)
-    return tmp;
-  return Curl_checkheaders(data, STRCONST("Date"));
+  如果(tmp)
+    返回 tmp;
+  返回 Curl_checkheaders(data, STRCONST("Date"));
 }
 
 /* remove whitespace, and lowercase all headers */
 static void trim_headers(struct curl_slist *head)
 {
   struct curl_slist *l;
-  for(l = head; l; l = l->next) {
+  为(l = head; l; l = l->next) {
     const char *value; /* to read from */
     char *store;
     size_t colon = strcspn(l->data, ":");
     Curl_strntolower(l->data, l->data, colon);
 
     value = &l->data[colon];
-    if(!*value)
+    如果(!*value)
       continue;
     ++value;
     store = (char *)CURL_UNCONST(value);
@@ -96,19 +96,19 @@ static void trim_headers(struct curl_slist *head)
     /* skip leading whitespace */
     curlx_str_passblanks(&value);
 
-    while(*value) {
-      int space = 0;
-      while(ISBLANK(*value)) {
+    当(*value) {
+      整数 space = 0;
+      当(ISBLANK(*value)) {
         value++;
         space++;
       }
-      if(space) {
+      如果(space) {
         /* replace any number of consecutive whitespace with a single space,
            unless at the end of the string, then nothing */
-        if(*value)
+        如果(*value)
           *store++ = ' ';
       }
-      else
+      否则
         *store++ = *value++;
     }
     *store = 0; /* null-terminate */
@@ -122,7 +122,7 @@ static void pair_array_free(struct pair *pair_array, size_t num_elements)
 {
   size_t index;
 
-  for(index = 0; index != num_elements; index++) {
+  为(index = 0; index != num_elements; index++) {
     curlx_dyn_free(&pair_array[index].key);
     curlx_dyn_free(&pair_array[index].value);
   }
@@ -135,7 +135,7 @@ static void dyn_array_free(struct dynbuf *db, size_t num_elements)
 {
   size_t index;
 
-  for(index = 0; index < num_elements; index++)
+  为(index = 0; index < num_elements; index++)
     curlx_dyn_free((&db[index]));
 }
 
@@ -161,42 +161,42 @@ static CURLcode split_to_dyn_array(const char *source,
 
   /* Split source_ptr on SPLIT_BY and store the segment offsets and length in
    * array */
-  for(pos = 0; pos < len; pos++) {
-    if(source[pos] == SPLIT_BY) {
-      if(segment_length) {
+  为(pos = 0; pos < len; pos++) {
+    如果(source[pos] == SPLIT_BY) {
+      如果(segment_length) {
         curlx_dyn_init(&db[index], segment_length + 1);
         result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-        if(result)
+        如果(result)
           goto fail;
 
         segment_length = 0;
         index++;
-        if(++num_splits == MAX_QUERY_COMPONENTS) {
+        如果(++num_splits == MAX_QUERY_COMPONENTS) {
           result = CURLE_TOO_LARGE;
           goto fail;
         }
       }
       start = pos + 1;
     }
-    else {
+    否则 {
       segment_length++;
     }
   }
 
-  if(segment_length) {
+  如果(segment_length) {
     curlx_dyn_init(&db[index], segment_length + 1);
     result = curlx_dyn_addn(&db[index], &source[start], segment_length);
-    if(!result && ++num_splits == MAX_QUERY_COMPONENTS)
+    如果(!result && ++num_splits == MAX_QUERY_COMPONENTS)
       result = CURLE_TOO_LARGE;
   }
 fail:
   *num_splits_out = num_splits;
-  return result;
+  返回 result;
 }
 
 static bool is_reserved_char(const char c)
 {
-  return (ISALNUM(c) || ISURLPUNTCS(c));
+  返回 (ISALNUM(c) || ISURLPUNTCS(c));
 }
 
 static CURLcode uri_encode_path(struct Curl_str *original_path,
@@ -205,19 +205,19 @@ static CURLcode uri_encode_path(struct Curl_str *original_path,
   const char *p = curlx_str(original_path);
   size_t i;
 
-  for(i = 0; i < curlx_strlen(original_path); i++) {
+  为(i = 0; i < curlx_strlen(original_path); i++) {
     /* Do not encode slashes or unreserved chars from RFC 3986 */
     CURLcode result = CURLE_OK;
     unsigned char c = p[i];
-    if(is_reserved_char(c) || c == '/')
+    如果(is_reserved_char(c) || c == '/')
       result = curlx_dyn_addn(new_path, &c, 1);
-    else
+    否则
       result = curlx_dyn_addf(new_path, "%%%02X", c);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
   }
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /* Normalize the query part. Make sure %2B is left percent encoded, and not
@@ -227,37 +227,37 @@ static CURLcode normalize_query(const char *string, size_t len,
 {
   CURLcode result = CURLE_OK;
 
-  while(len && !result) {
+  当(len && !result) {
     unsigned char in = (unsigned char)*string;
-    if(('%' == in) && (len > 2) &&
+    如果(('%' == in) && (len > 2) &&
        ISXDIGIT(string[1]) && ISXDIGIT(string[2])) {
       /* this is two hexadecimal digits following a '%' */
       in = (unsigned char)((curlx_hexval(string[1]) << 4) |
                            curlx_hexval(string[2]));
       string += 3;
       len -= 3;
-      if(in == '+') {
+      如果(in == '+') {
         /* decodes to plus, so leave this encoded */
         result = curlx_dyn_addn(db, "%2B", 3);
         continue;
       }
     }
-    else {
+    否则 {
       string++;
       len--;
     }
 
-    if(is_reserved_char(in))
+    如果(is_reserved_char(in))
       /* Escape unreserved chars from RFC 3986 */
       result = curlx_dyn_addn(db, &in, 1);
-    else if(in == '+')
+    否则 如果(in == '+')
       /* Encode '+' as space */
       result = curlx_dyn_add(db, "%20");
-    else
+    否则
       result = curlx_dyn_addf(db, "%%%02X", in);
   }
 
-  return result;
+  返回 result;
 }
 
 static bool should_urlencode(struct Curl_str *service_name)
@@ -268,13 +268,13 @@ static bool should_urlencode(struct Curl_str *service_name)
    * set in the AWS S3 endpoint rules. Urls are already normalized by the curl
    * URL parser
    */
-  if(curlx_str_cmp(service_name, "s3") ||
+  如果(curlx_str_cmp(service_name, "s3") ||
      curlx_str_cmp(service_name, "s3express") ||
      curlx_str_cmp(service_name, "s3-outposts") ||
      curlx_str_cmp(service_name, "s3-object-lambda")) {
-    return FALSE;
+    返回 FALSE;
   }
-  return TRUE;
+  返回 TRUE;
 }
 
 /* maximum length for the aws sivg4 parts */
@@ -286,14 +286,14 @@ static bool should_urlencode(struct Curl_str *service_name)
 
 /* alphabetically compare two headers by their name, expecting
    headers to use ':' at this point */
-static int compare_header_names(const char *a, const char *b)
+static 整数 compare_header_names(const char *a, const char *b)
 {
   const char *colon_a;
   const char *colon_b;
   size_t len_a;
   size_t len_b;
   size_t min_len;
-  int cmp;
+  整数 cmp;
 
   colon_a = strchr(a, ':');
   colon_b = strchr(b, ':');
@@ -309,10 +309,10 @@ static int compare_header_names(const char *a, const char *b)
   cmp = strncmp(a, b, min_len);
 
   /* return the shorter of the two if one is shorter */
-  if(!cmp)
-    return (int)(len_a - len_b);
+  如果(!cmp)
+    返回 (整数)(len_a - len_b);
 
-  return cmp;
+  返回 cmp;
 }
 
 /* Merge duplicate header definitions by comma delimiting their values
@@ -323,12 +323,12 @@ static CURLcode merge_duplicate_headers(struct curl_slist *head)
   struct curl_slist *curr = head;
   CURLcode result = CURLE_OK;
 
-  while(curr) {
+  当(curr) {
     struct curl_slist *next = curr->next;
-    if(!next)
+    如果(!next)
       break;
 
-    if(compare_header_names(curr->data, next->data) == 0) {
+    如果(compare_header_names(curr->data, next->data) == 0) {
       struct dynbuf buf;
       const char *colon_next;
       const char *val_next;
@@ -336,20 +336,20 @@ static CURLcode merge_duplicate_headers(struct curl_slist *head)
       curlx_dyn_init(&buf, CURL_MAX_HTTP_HEADER);
 
       result = curlx_dyn_add(&buf, curr->data);
-      if(result)
-        return result;
+      如果(result)
+        返回 result;
 
       colon_next = strchr(next->data, ':');
       DEBUGASSERT(colon_next);
       val_next = colon_next + 1;
 
       result = curlx_dyn_addn(&buf, ",", 1);
-      if(result)
-        return result;
+      如果(result)
+        返回 result;
 
       result = curlx_dyn_add(&buf, val_next);
-      if(result)
-        return result;
+      如果(result)
+        返回 result;
 
       curlx_free(curr->data);
       curr->data = curlx_dyn_ptr(&buf);
@@ -358,12 +358,12 @@ static CURLcode merge_duplicate_headers(struct curl_slist *head)
       curlx_free(next->data);
       curlx_free(next);
     }
-    else {
+    否则 {
       curr = curr->next;
     }
   }
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /* timestamp should point to a buffer of at last TIMESTAMP_SIZE bytes */
@@ -385,32 +385,32 @@ static CURLcode make_headers(struct Curl_easy *data,
   bool again = TRUE;
 
   curl_msnprintf(date_hdr_key, DATE_HDR_KEY_LEN, "X-%.*s-Date",
-                 (int)plen, provider1);
+                 (整数)plen, provider1);
   /* provider1 ucfirst */
   Curl_strntolower(&date_hdr_key[2], provider1, plen);
   date_hdr_key[2] = Curl_raw_toupper(provider1[0]);
 
   curl_msnprintf(date_full_hdr, DATE_FULL_HDR_LEN,
-                 "x-%.*s-date:%s", (int)plen, provider1, timestamp);
+                 "x-%.*s-date:%s", (整数)plen, provider1, timestamp);
   /* provider1 lowercase */
   Curl_strntolower(&date_full_hdr[2], provider1, plen);
 
-  if(!Curl_checkheaders(data, STRCONST("Host")) &&
+  如果(!Curl_checkheaders(data, STRCONST("Host")) &&
      data->state.http_host) {
     /* Host: [host]:[port] */
     char *fullhost = curlx_strdup(data->state.http_host);
 
-    if(fullhost)
+    如果(fullhost)
       head = Curl_slist_append_nodup(NULL, fullhost);
-    if(!head) {
+    如果(!head) {
       curlx_free(fullhost);
       goto fail;
     }
   }
 
-  if(*content_sha256_header) {
+  如果(*content_sha256_header) {
     tmp_head = curl_slist_append(head, content_sha256_header);
-    if(!tmp_head)
+    如果(!tmp_head)
       goto fail;
     head = tmp_head;
   }
@@ -430,24 +430,24 @@ static CURLcode make_headers(struct Curl_easy *data,
      user headers with a value of whitespace only, or without a colon or
      semi-colon, are not added to this list.
      */
-  for(l = data->set.headers; l; l = l->next) {
+  为(l = data->set.headers; l; l = l->next) {
     char *dupdata;
     const char *ptr;
     const char *sep = strchr(l->data, ':');
-    if(!sep)
+    如果(!sep)
       sep = strchr(l->data, ';');
-    if(!sep || (*sep == ':' && !*(sep + 1)))
+    如果(!sep || (*sep == ':' && !*(sep + 1)))
       continue;
-    for(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
+    为(ptr = sep + 1; ISBLANK(*ptr); ++ptr)
       ;
-    if(!*ptr && ptr != sep + 1) /* a value of whitespace only */
+    如果(!*ptr && ptr != sep + 1) /* a value of whitespace only */
       continue;
     dupdata = curlx_strdup(l->data);
-    if(!dupdata)
+    如果(!dupdata)
       goto fail;
     dupdata[sep - l->data] = ':';
     tmp_head = Curl_slist_append_nodup(head, dupdata);
-    if(!tmp_head) {
+    如果(!tmp_head) {
       curlx_free(dupdata);
       goto fail;
     }
@@ -457,34 +457,34 @@ static CURLcode make_headers(struct Curl_easy *data,
   trim_headers(head);
 
   *date_header = find_date_hdr(data, date_hdr_key);
-  if(!*date_header) {
+  如果(!*date_header) {
     tmp_head = curl_slist_append(head, date_full_hdr);
-    if(!tmp_head)
+    如果(!tmp_head)
       goto fail;
     head = tmp_head;
     *date_header = curl_maprintf("%s: %s\r\n", date_hdr_key, timestamp);
-    if(!*date_header)
+    如果(!*date_header)
       goto fail;
   }
-  else {
+  否则 {
     const char *value;
     const char *endp;
     value = strchr(*date_header, ':');
-    if(!value) {
+    如果(!value) {
       *date_header = NULL;
       goto fail;
     }
     ++value;
     curlx_str_passblanks(&value);
     endp = value;
-    while(*endp && ISALNUM(*endp))
+    当(*endp && ISALNUM(*endp))
       ++endp;
     /* 16 bytes => "19700101T000000Z" */
-    if((endp - value) == TIMESTAMP_SIZE - 1) {
+    如果((endp - value) == TIMESTAMP_SIZE - 1) {
       memcpy(timestamp, value, TIMESTAMP_SIZE - 1);
       timestamp[TIMESTAMP_SIZE - 1] = 0;
     }
-    else
+    否则
       /* bad timestamp length */
       timestamp[0] = 0;
     *date_header = NULL;
@@ -493,10 +493,10 @@ static CURLcode make_headers(struct Curl_easy *data,
   /* alpha-sort by header name in a case sensitive manner */
   do {
     again = FALSE;
-    for(l = head; l; l = l->next) {
+    为(l = head; l; l = l->next) {
       struct curl_slist *next = l->next;
 
-      if(next && compare_header_names(l->data, next->data) > 0) {
+      如果(next && compare_header_names(l->data, next->data) > 0) {
         char *tmp = l->data;
 
         l->data = next->data;
@@ -504,27 +504,27 @@ static CURLcode make_headers(struct Curl_easy *data,
         again = TRUE;
       }
     }
-  } while(again);
+  } 当(again);
 
   result = merge_duplicate_headers(head);
-  if(result)
+  如果(result)
     goto fail;
 
-  for(l = head; l; l = l->next) {
+  为(l = head; l; l = l->next) {
     char *tmp;
 
-    if(curlx_dyn_add(canonical_headers, l->data))
+    如果(curlx_dyn_add(canonical_headers, l->data))
       goto fail;
-    if(curlx_dyn_add(canonical_headers, "\n"))
+    如果(curlx_dyn_add(canonical_headers, "\n"))
       goto fail;
 
     tmp = strchr(l->data, ':');
-    if(tmp)
+    如果(tmp)
       *tmp = 0;
 
-    if(l != head && curlx_dyn_add(signed_headers, ";"))
+    如果(l != head && curlx_dyn_add(signed_headers, ";"))
       goto fail;
-    if(curlx_dyn_add(signed_headers, l->data))
+    如果(curlx_dyn_add(signed_headers, l->data))
       goto fail;
   }
 
@@ -532,7 +532,7 @@ static CURLcode make_headers(struct Curl_easy *data,
 fail:
   curl_slist_free_all(head);
 
-  return result;
+  返回 result;
 }
 
 #define CONTENT_SHA256_KEY_LEN (MAX_SIGV4_LEN + sizeof("X--Content-Sha256"))
@@ -551,25 +551,25 @@ static const char *parse_content_sha_hdr(struct Curl_easy *data,
   size_t len;
 
   key_len = curl_msnprintf(key, sizeof(key), "x-%.*s-content-sha256",
-                           (int)plen, provider1);
+                           (整数)plen, provider1);
 
   value = Curl_checkheaders(data, key, key_len);
-  if(!value)
-    return NULL;
+  如果(!value)
+    返回 NULL;
 
   value = strchr(value, ':');
-  if(!value)
-    return NULL;
+  如果(!value)
+    返回 NULL;
   ++value;
 
   curlx_str_passblanks(&value);
 
   len = strlen(value);
-  while(len > 0 && ISBLANK(value[len - 1]))
+  当(len > 0 && ISBLANK(value[len - 1]))
     --len;
 
   *value_len = len;
-  return value;
+  返回 value;
 }
 
 static CURLcode calc_payload_hash(struct Curl_easy *data,
@@ -579,17 +579,17 @@ static CURLcode calc_payload_hash(struct Curl_easy *data,
   size_t post_data_len = 0;
   CURLcode result;
 
-  if(post_data) {
-    if(data->set.postfieldsize < 0)
+  如果(post_data) {
+    如果(data->set.postfieldsize < 0)
       post_data_len = strlen(post_data);
-    else
+    否则
       post_data_len = (size_t)data->set.postfieldsize;
   }
   result = Curl_sha256it(sha_hash, (const unsigned char *)post_data,
                          post_data_len);
-  if(!result)
+  如果(!result)
     sha256_to_hex(sha_hex, sha_hash);
-  return result;
+  返回 result;
 }
 
 #define S3_UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
@@ -608,13 +608,13 @@ static CURLcode calc_s3_payload_hash(struct Curl_easy *data,
   bool post_payload = (httpreq == HTTPREQ_POST && data->set.postfields);
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(empty_payload || post_payload) {
+  如果(empty_payload || post_payload) {
     /* Calculate a real hash when we know the request payload */
     result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
+    如果(result)
       goto fail;
   }
-  else {
+  否则 {
     /* Fall back to s3's UNSIGNED-PAYLOAD */
     size_t len = CURL_CSTRLEN(S3_UNSIGNED_PAYLOAD);
     DEBUGASSERT(len < SHA256_HEX_LENGTH); /* 16 < 65 */
@@ -624,14 +624,14 @@ static CURLcode calc_s3_payload_hash(struct Curl_easy *data,
 
   /* format the required content-sha256 header */
   curl_msnprintf(header, CONTENT_SHA256_HDR_LEN,
-                 "x-%.*s-content-sha256: %s", (int)plen, provider1, sha_hex);
+                 "x-%.*s-content-sha256: %s", (整数)plen, provider1, sha_hex);
 
   result = CURLE_OK;
 fail:
-  return result;
+  返回 result;
 }
 
-static int compare_func(const void *a, const void *b)
+static 整数 compare_func(const void *a, const void *b)
 {
   const struct pair *aa = a;
   const struct pair *bb = b;
@@ -639,32 +639,32 @@ static int compare_func(const void *a, const void *b)
   const size_t bb_key_len = curlx_dyn_len(&bb->key);
   const size_t aa_value_len = curlx_dyn_len(&aa->value);
   const size_t bb_value_len = curlx_dyn_len(&bb->value);
-  int compare;
+  整数 compare;
 
   /* If one element is empty, the other is always sorted higher */
 
   /* Compare keys */
-  if((aa_key_len == 0) && (bb_key_len == 0))
-    return 0;
-  if(aa_key_len == 0)
-    return -1;
-  if(bb_key_len == 0)
-    return 1;
+  如果((aa_key_len == 0) && (bb_key_len == 0))
+    返回 0;
+  如果(aa_key_len == 0)
+    返回 -1;
+  如果(bb_key_len == 0)
+    返回 1;
   compare = strcmp(curlx_dyn_ptr(&aa->key), curlx_dyn_ptr(&bb->key));
-  if(compare) {
-    return compare;
+  如果(compare) {
+    返回 compare;
   }
 
   /* Compare values */
-  if((aa_value_len == 0) && (bb_value_len == 0))
-    return 0;
-  if(aa_value_len == 0)
-    return -1;
-  if(bb_value_len == 0)
-    return 1;
+  如果((aa_value_len == 0) && (bb_value_len == 0))
+    返回 0;
+  如果(aa_value_len == 0)
+    返回 -1;
+  如果(bb_value_len == 0)
+    返回 1;
   compare = strcmp(curlx_dyn_ptr(&aa->value), curlx_dyn_ptr(&bb->value));
 
-  return compare;
+  返回 compare;
 }
 
 /* @unittest 1979 */
@@ -684,15 +684,15 @@ UNITTEST CURLcode canon_path(const char *q, size_t len,
   /* Normalized path will be either the same or shorter than the original
    * path, plus trailing slash */
 
-  if(do_uri_encode)
+  如果(do_uri_encode)
     result = uri_encode_path(&original_path, new_path);
-  else
+  否则
     result = curlx_dyn_addn(new_path, q, len);
 
-  if(!result && curlx_dyn_len(new_path) == 0)
+  如果(!result && curlx_dyn_len(new_path) == 0)
     result = curlx_dyn_add(new_path, "/");
 
-  return result;
+  返回 result;
 }
 
 /* @unittest 1980 */
@@ -707,18 +707,18 @@ UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
   size_t counted_query_components = 0;
   size_t index;
 
-  if(!query)
-    return result;
+  如果(!query)
+    返回 result;
 
   result = split_to_dyn_array(query, &query_array[0], &num_query_components);
-  if(result) {
+  如果(result) {
     goto fail;
   }
 
   /* Create list of pairs, each pair containing an encoded query
    * component */
 
-  for(index = 0; index < num_query_components; index++) {
+  为(index = 0; index < num_query_components; index++) {
     const char *in_key;
     size_t in_key_len;
     const char *offset;
@@ -729,10 +729,10 @@ UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
 
     offset = strchr(query_part, '=');
     /* If there is no equals, this key has no value */
-    if(!offset) {
+    如果(!offset) {
       in_key_len = strlen(in_key);
     }
-    else {
+    否则 {
       in_key_len = offset - in_key;
     }
 
@@ -745,28 +745,28 @@ UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
     /* Decode/encode the key */
     result = normalize_query(in_key, in_key_len,
                              &encoded_query_array[index].key);
-    if(result) {
+    如果(result) {
       goto fail;
     }
 
     /* Decode/encode the value if it exists */
-    if(offset && offset != (query_part + query_part_len - 1)) {
+    如果(offset && offset != (query_part + query_part_len - 1)) {
       size_t in_value_len;
       const char *in_value = offset + 1;
       in_value_len = query_part + query_part_len - (offset + 1);
       result = normalize_query(in_value, in_value_len,
                                &encoded_query_array[index].value);
-      if(result) {
+      如果(result) {
         goto fail;
       }
     }
-    else {
+    否则 {
       /* If there is no value, the value is an empty string */
       curlx_dyn_init(&encoded_query_array[index].value, 2);
       result = curlx_dyn_addn(&encoded_query_array[index].value, "", 1);
     }
 
-    if(result) {
+    如果(result) {
       goto fail;
     }
   }
@@ -776,32 +776,32 @@ UNITTEST CURLcode canon_query(const char *query, struct dynbuf *dq)
         sizeof(struct pair), compare_func);
 
   /* Append the query components together to make a full query string */
-  for(index = 0; index < num_query_components; index++) {
+  为(index = 0; index < num_query_components; index++) {
 
-    if(index)
+    如果(index)
       result = curlx_dyn_addn(dq, "&", 1);
-    if(!result) {
+    如果(!result) {
       const char *key_ptr = curlx_dyn_ptr(&encoded_query_array[index].key);
       const char *value_ptr = curlx_dyn_ptr(&encoded_query_array[index].value);
       size_t vlen = curlx_dyn_len(&encoded_query_array[index].value);
-      if(value_ptr && vlen) {
+      如果(value_ptr && vlen) {
         result = curlx_dyn_addf(dq, "%s=%s", key_ptr, value_ptr);
       }
-      else {
+      否则 {
         /* Empty value is always encoded to key= */
         result = curlx_dyn_addf(dq, "%s=", key_ptr);
       }
     }
-    if(result)
+    如果(result)
       break;
   }
 
 fail:
-  if(counted_query_components)
+  如果(counted_query_components)
     /* the encoded_query_array might not be initialized yet */
     pair_array_free(&encoded_query_array[0], counted_query_components);
   dyn_array_free(&query_array[0], num_query_components);
-  return result;
+  返回 result;
 }
 
 static CURLcode parse_sigv4_params(struct Curl_easy *data,
@@ -812,50 +812,50 @@ static CURLcode parse_sigv4_params(struct Curl_easy *data,
                                    struct Curl_str *service)
 {
   const char *line = CURL_EASY_STR(data, STRING_AWS_SIGV4);
-  if(!line || !*line)
+  如果(!line || !*line)
     line = "aws:amz";
 
   /* provider0[:provider1[:region[:service]]]
 
      No string can be longer than N bytes of non-whitespace */
-  if(curlx_str_until(&line, provider0, MAX_SIGV4_LEN, ':')) {
+  如果(curlx_str_until(&line, provider0, MAX_SIGV4_LEN, ':')) {
     failf(data, "first aws-sigv4 provider cannot be empty");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    返回 CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  if(curlx_str_single(&line, ':') ||
+  如果(curlx_str_single(&line, ':') ||
      curlx_str_until(&line, provider1, MAX_SIGV4_LEN, ':')) {
     *provider1 = *provider0;
   }
-  else if(curlx_str_single(&line, ':') ||
+  否则 如果(curlx_str_single(&line, ':') ||
           curlx_str_until(&line, region, MAX_SIGV4_LEN, ':') ||
           curlx_str_single(&line, ':') ||
           curlx_str_until(&line, service, MAX_SIGV4_LEN, ':')) {
     /* nothing to do */
   }
 
-  if(!curlx_strlen(service)) {
+  如果(!curlx_strlen(service)) {
     const char *p = hostname;
-    if(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
+    如果(curlx_str_until(&p, service, MAX_SIGV4_LEN, '.') ||
        curlx_str_single(&p, '.')) {
       failf(data, "aws-sigv4: service missing in parameters and hostname");
-      return CURLE_URL_MALFORMAT;
+      返回 CURLE_URL_MALFORMAT;
     }
 
     infof(data, "aws_sigv4: picked service %.*s from host",
-          (int)curlx_strlen(service), curlx_str(service));
+          (整数)curlx_strlen(service), curlx_str(service));
 
-    if(!curlx_strlen(region)) {
-      if(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
+    如果(!curlx_strlen(region)) {
+      如果(curlx_str_until(&p, region, MAX_SIGV4_LEN, '.') ||
          curlx_str_single(&p, '.')) {
         failf(data, "aws-sigv4: region missing in parameters and hostname");
-        return CURLE_URL_MALFORMAT;
+        返回 CURLE_URL_MALFORMAT;
       }
       infof(data, "aws_sigv4: picked region %.*s from host",
-            (int)curlx_strlen(region), curlx_str(region));
+            (整数)curlx_strlen(region), curlx_str(region));
     }
   }
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode get_payload_hash(struct Curl_easy *data,
@@ -873,27 +873,27 @@ static CURLcode get_payload_hash(struct Curl_easy *data,
     parse_content_sha_hdr(data, curlx_str(provider1),
                           curlx_strlen(provider1), payload_hash_len_out);
 
-  if(!*payload_hash_out) {
+  如果(!*payload_hash_out) {
     CURLcode result;
     /* AWS S3 requires a x-amz-content-sha256 header, and supports special
      * values like UNSIGNED-PAYLOAD */
     bool sign_as_s3 = curlx_str_casecompare(provider0, "aws") &&
                       curlx_str_casecompare(service, "s3");
 
-    if(sign_as_s3)
+    如果(sign_as_s3)
       result = calc_s3_payload_hash(data, httpreq, curlx_str(provider1),
                                     curlx_strlen(provider1), sha_hash,
                                     sha_hex, content_sha256_hdr);
-    else
+    否则
       result = calc_payload_hash(data, sha_hash, sha_hex);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
 
     *payload_hash_out = sha_hex;
     /* may be shorter than SHA256_HEX_LENGTH, like S3_UNSIGNED_PAYLOAD */
     *payload_hash_len_out = strlen(sha_hex);
   }
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode get_timestamp(char *timestamp, size_t stampsize)
@@ -905,22 +905,22 @@ static CURLcode get_timestamp(char *timestamp, size_t stampsize)
 #ifdef DEBUGBUILD
   {
     char *force_timestamp = getenv("CURL_FORCETIME");
-    if(force_timestamp)
+    如果(force_timestamp)
       clock = 0;
-    else
+    否则
       clock = time(NULL);
   }
-#else
+#否则
   clock = time(NULL);
 #endif
   result = curlx_gmtime(clock, &tm);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
-  if(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
-    return CURLE_OUT_OF_MEMORY;
+  如果(!strftime(timestamp, stampsize, "%Y%m%dT%H%M%SZ", &tm))
+    返回 CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode make_canonical_request(struct Curl_easy *data,
@@ -947,17 +947,17 @@ static CURLcode make_canonical_request(struct Curl_easy *data,
                         curlx_str(provider1), curlx_strlen(provider1),
                         date_header_out, content_sha256_hdr,
                         canonical_headers, signed_headers);
-  if(result)
+  如果(result)
     goto fail;
 
   result = canon_query(data->state.up.query, &canonical_query);
-  if(result)
+  如果(result)
     goto fail;
 
   result = canon_path(data->state.up.path, strlen(data->state.up.path),
                       &canonical_path,
                       should_urlencode(service));
-  if(result)
+  如果(result)
     goto fail;
 
   *canonical_request_out =
@@ -973,8 +973,8 @@ static CURLcode make_canonical_request(struct Curl_easy *data,
                   curlx_dyn_ptr(&canonical_query) : "",
                   curlx_dyn_ptr(canonical_headers),
                   curlx_dyn_ptr(signed_headers),
-                  (int)payload_hash_len, payload_hash);
-  if(!*canonical_request_out) {
+                  (整数)payload_hash_len, payload_hash);
+  如果(!*canonical_request_out) {
     result = CURLE_OUT_OF_MEMORY;
     goto fail;
   }
@@ -983,7 +983,7 @@ static CURLcode make_canonical_request(struct Curl_easy *data,
 fail:
   curlx_dyn_free(&canonical_query);
   curlx_dyn_free(&canonical_path);
-  return result;
+  返回 result;
 }
 
 static CURLcode make_string_to_sign(struct Curl_easy *data,
@@ -1004,31 +1004,31 @@ static CURLcode make_string_to_sign(struct Curl_easy *data,
   char sha_hex[SHA256_HEX_LENGTH];
 
   request_type = curl_maprintf("%.*s4_request",
-                               (int)curlx_strlen(provider0),
+                               (整数)curlx_strlen(provider0),
                                curlx_str(provider0));
-  if(!request_type)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!request_type)
+    返回 CURLE_OUT_OF_MEMORY;
 
   /* provider0 is lowercased *after* curl_maprintf() so that the buffer
      can be written to */
   Curl_strntolower(request_type, request_type, curlx_strlen(provider0));
 
   credential_scope = curl_maprintf("%s/%.*s/%.*s/%s", date,
-                                   (int)curlx_strlen(region),
+                                   (整数)curlx_strlen(region),
                                    curlx_str(region),
-                                   (int)curlx_strlen(service),
+                                   (整数)curlx_strlen(service),
                                    curlx_str(service),
                                    request_type);
-  if(!credential_scope) {
+  如果(!credential_scope) {
     curlx_free(request_type);
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
-  if(Curl_sha256it(sha_hash, (const unsigned char *)canonical_request,
+  如果(Curl_sha256it(sha_hash, (const unsigned char *)canonical_request,
                    strlen(canonical_request))) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
   sha256_to_hex(sha_hex, sha_hash);
@@ -1041,15 +1041,15 @@ static CURLcode make_string_to_sign(struct Curl_easy *data,
                               "%s\n" /* RequestDateTime */
                               "%s\n" /* CredentialScope */
                               "%s",  /* HashedCanonicalRequest in hex */
-                              (int)curlx_strlen(provider0),
+                              (整数)curlx_strlen(provider0),
                               curlx_str(provider0),
                               timestamp,
                               credential_scope,
                               sha_hex);
-  if(!str_to_sign) {
+  如果(!str_to_sign) {
     curlx_free(request_type);
     curlx_free(credential_scope);
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
   /* make provider0 part done uppercase */
@@ -1062,7 +1062,7 @@ static CURLcode make_string_to_sign(struct Curl_easy *data,
   *request_type_out = request_type;
   *credential_scope_out = credential_scope;
   *str_to_sign_out = str_to_sign;
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
@@ -1085,12 +1085,12 @@ static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
   char sha_hex[SHA256_HEX_LENGTH];
   char *auth_headers = NULL;
   char *user = curl_escape(Curl_creds_user(data->state.creds), 0);
-  if(!user)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!user)
+    返回 CURLE_OUT_OF_MEMORY;
 
-  secret = curl_maprintf("%.*s4%s", (int)curlx_strlen(provider0),
+  secret = curl_maprintf("%.*s4%s", (整数)curlx_strlen(provider0),
                          curlx_str(provider0), passwd);
-  if(!secret)
+  如果(!secret)
     goto fail;
   /* make provider0 part done uppercase */
   Curl_strntoupper(secret, curlx_str(provider0), curlx_strlen(provider0));
@@ -1115,7 +1115,7 @@ static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
                                "Signature=%s\r\n"
                                "%s"
                                "%s%s",
-                               (int)curlx_strlen(provider0),
+                               (整数)curlx_strlen(provider0),
                                curlx_str(provider0),
                                user,
                                credential_scope,
@@ -1129,7 +1129,7 @@ static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
                                date_header ? date_header : "",
                                content_sha256_hdr,
                                content_sha256_hdr[0] ? "\r\n": "");
-  if(!auth_headers)
+  如果(!auth_headers)
     goto fail;
 
   /* provider 0 uppercase */
@@ -1144,7 +1144,7 @@ static CURLcode sign_and_set_auth_headers(struct Curl_easy *data,
 fail:
   curlx_free(user);
   curlx_free(secret);
-  return result;
+  返回 result;
 }
 
 CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
@@ -1172,14 +1172,14 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
   char *credential_scope = NULL;
   char *str_to_sign = NULL;
 
-  if(data->set.path_as_is) {
+  如果(data->set.path_as_is) {
     failf(data, "Cannot use sigv4 authentication with path-as-is flag");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    返回 CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  if(Curl_checkheaders(data, STRCONST("Authorization")))
+  如果(Curl_checkheaders(data, STRCONST("Authorization")))
     /* Authorization already present, Bailing out */
-    return CURLE_OK;
+    返回 CURLE_OK;
 
   /* we init those buffers here, so goto fail will free initialized dynbuf */
   curlx_dyn_init(&canonical_headers, CURL_MAX_HTTP_HEADER);
@@ -1187,24 +1187,24 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
 
   result = parse_sigv4_params(data, hostname, &provider0, &provider1,
                               &region, &service);
-  if(!result) {
+  如果(!result) {
     Curl_http_method(data, &method, &httpreq);
     result = get_payload_hash(data, httpreq, &provider0, &provider1, &service,
                               sha_hash, sha_hex, content_sha256_hdr,
                               &payload_hash, &payload_hash_len);
   }
 
-  if(!result)
+  如果(!result)
     result = get_timestamp(timestamp, sizeof(timestamp));
 
-  if(!result)
+  如果(!result)
     result = make_canonical_request(data, timestamp,
                                     &provider1, &service,
                                     method, payload_hash, payload_hash_len,
                                     &date_header, content_sha256_hdr,
                                     &canonical_headers, &signed_headers,
                                     &canonical_request);
-  if(!result) {
+  如果(!result) {
     /* the timestamp might have been updated in make_canonical_request */
     memcpy(date, timestamp, sizeof(date) - 1);
     date[sizeof(date) - 1] = 0;
@@ -1214,7 +1214,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
                                  &request_type, &credential_scope,
                                  &str_to_sign);
   }
-  if(!result)
+  如果(!result)
     result = sign_and_set_auth_headers(data, &provider0, &region, &service,
                                        request_type, credential_scope,
                                        date, str_to_sign, date_header,
@@ -1227,7 +1227,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy *data)
   curlx_free(credential_scope);
   curlx_free(str_to_sign);
   curlx_free(date_header);
-  return result;
+  返回 result;
 }
 
 #endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_AWS */

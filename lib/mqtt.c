@@ -77,7 +77,7 @@ struct mqtt_conn {
   enum mqttstate state;
   enum mqttstate nextstate; /* switch to this after remaining length is
                                done */
-  unsigned int packetid;
+  unsigned 整数 packetid;
 };
 
 /* protocol-specific transfer-related data */
@@ -118,18 +118,18 @@ static CURLcode mqtt_setup_conn(struct Curl_easy *data,
   struct MQTT *mq;
 
   mqtt = curlx_calloc(1, sizeof(*mqtt));
-  if(!mqtt ||
+  如果(!mqtt ||
      Curl_conn_meta_set(conn, CURL_META_MQTT_CONN, mqtt, mqtt_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
 
   mq = curlx_calloc(1, sizeof(struct MQTT));
-  if(!mq)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!mq)
+    返回 CURLE_OUT_OF_MEMORY;
   curlx_dyn_init(&mq->recvbuf, DYN_MQTT_RECV);
   curlx_dyn_init(&mq->sendbuf, DYN_MQTT_SEND);
-  if(Curl_meta_set(data, CURL_META_MQTT_EASY, mq, mqtt_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  如果(Curl_meta_set(data, CURL_META_MQTT_EASY, mq, mqtt_easy_dtor))
+    返回 CURLE_OUT_OF_MEMORY;
+  返回 CURLE_OK;
 }
 
 static CURLcode mqtt_send(struct Curl_easy *data,
@@ -139,19 +139,19 @@ static CURLcode mqtt_send(struct Curl_easy *data,
   CURLcode result;
   struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  如果(!mq)
+    返回 CURLE_FAILED_INIT;
 
   /* A new packet must not replace a previously queued packet tail. */
   DEBUGASSERT(!curlx_dyn_len(&mq->sendbuf));
   result = Curl_xfer_send(data, buf, len, FALSE, &n);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
   mq->lastTime = *Curl_pgrs_now(data);
   Curl_debug(data, CURLINFO_HEADER_OUT, buf, n);
-  if(len != n)
+  如果(len != n)
     result = curlx_dyn_addn(&mq->sendbuf, &buf[n], len - n);
-  return result;
+  返回 result;
 }
 
 /* Send the queued tail, preserving any bytes that still cannot be sent. */
@@ -161,18 +161,18 @@ static CURLcode mqtt_flush(struct Curl_easy *data)
   size_t len, n;
   CURLcode result;
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  如果(!mq)
+    返回 CURLE_FAILED_INIT;
   len = curlx_dyn_len(&mq->sendbuf);
-  if(!len)
-    return CURLE_OK;
+  如果(!len)
+    返回 CURLE_OK;
 
   result = Curl_xfer_send(data, curlx_dyn_ptr(&mq->sendbuf), len, FALSE, &n);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
   mq->lastTime = *Curl_pgrs_now(data);
   Curl_debug(data, CURLINFO_HEADER_OUT, curlx_dyn_ptr(&mq->sendbuf), n);
-  return curlx_dyn_tail(&mq->sendbuf, len - n);
+  返回 curlx_dyn_tail(&mq->sendbuf, len - n);
 }
 
 /* Generic function called by the multi interface to figure out what socket(s)
@@ -182,35 +182,35 @@ static CURLcode mqtt_pollset(struct Curl_easy *data,
                              struct easy_pollset *ps)
 {
   struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
-  if(mq && curlx_dyn_len(&mq->sendbuf))
-    return Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
-  return Curl_pollset_add_in(data, ps, data->conn->sock[FIRSTSOCKET]);
+  如果(mq && curlx_dyn_len(&mq->sendbuf))
+    返回 Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
+  返回 Curl_pollset_add_in(data, ps, data->conn->sock[FIRSTSOCKET]);
 }
 
-static int mqtt_encode_len(char *buf, size_t len)
+static 整数 mqtt_encode_len(char *buf, size_t len)
 {
-  int i;
+  整数 i;
 
-  for(i = 0; (len > 0) && (i < 4); i++) {
+  为(i = 0; (len > 0) && (i < 4); i++) {
     unsigned char encoded;
     encoded = len % 0x80;
     len /= 0x80;
-    if(len)
+    如果(len)
       encoded |= 0x80;
     buf[i] = (char)encoded;
   }
 
-  return i;
+  返回 i;
 }
 
 /* add the passwd to the CONNECT packet */
-static int add_passwd(const char *passwd, const size_t plen,
-                      char *pkt, const size_t start, int remain_pos)
+static 整数 add_passwd(const char *passwd, const size_t plen,
+                      char *pkt, const size_t start, 整数 remain_pos)
 {
   /* magic number that need to be set properly */
   const size_t conn_flags_pos = remain_pos + 8;
-  if(plen > 0xffff)
-    return 1;
+  如果(plen > 0xffff)
+    返回 1;
 
   /* set password flag */
   pkt[conn_flags_pos] |= 0x40;
@@ -219,17 +219,17 @@ static int add_passwd(const char *passwd, const size_t plen,
   pkt[start] = (char)((plen >> 8) & 0xFF);
   pkt[start + 1] = (char)(plen & 0xFF);
   memcpy(&pkt[start + 2], passwd, plen);
-  return 0;
+  返回 0;
 }
 
 /* add user to the CONNECT packet */
-static int add_user(const char *username, const size_t ulen,
-                    unsigned char *pkt, const size_t start, int remain_pos)
+static 整数 add_user(const char *username, const size_t ulen,
+                    unsigned char *pkt, const size_t start, 整数 remain_pos)
 {
   /* magic number that need to be set properly */
   const size_t conn_flags_pos = remain_pos + 8;
-  if(ulen > 0xffff)
-    return 1;
+  如果(ulen > 0xffff)
+    返回 1;
 
   /* set username flag */
   pkt[conn_flags_pos] |= 0x80;
@@ -237,23 +237,23 @@ static int add_user(const char *username, const size_t ulen,
   pkt[start] = (unsigned char)((ulen >> 8) & 0xFF);
   pkt[start + 1] = (unsigned char)(ulen & 0xFF);
   memcpy(&pkt[start + 2], username, ulen);
-  return 0;
+  返回 0;
 }
 
 /* add client ID to the CONNECT packet */
-static int add_client_id(const char *client_id, const size_t client_id_len,
+static 整数 add_client_id(const char *client_id, const size_t client_id_len,
                          char *pkt, const size_t start)
 {
-  if(client_id_len != MQTT_CLIENTID_LEN)
-    return 1;
+  如果(client_id_len != MQTT_CLIENTID_LEN)
+    返回 1;
   pkt[start] = 0x00;
   pkt[start + 1] = MQTT_CLIENTID_LEN;
   memcpy(&pkt[start + 2], client_id, MQTT_CLIENTID_LEN);
-  return 0;
+  返回 0;
 }
 
 /* Set initial values of CONNECT packet */
-static int init_connpack(char *packet, char *remain, int remain_pos)
+static 整数 init_connpack(char *packet, char *remain, 整数 remain_pos)
 {
   /* Fixed header starts */
   /* packet type */
@@ -279,16 +279,16 @@ static int init_connpack(char *packet, char *remain, int remain_pos)
   packet[remain_pos + 9] = 0x00;
   packet[remain_pos + 10] = 0x3c;
   /* end of variable header */
-  return remain_pos + 10;
+  返回 remain_pos + 10;
 }
 
 static CURLcode mqtt_connect(struct Curl_easy *data)
 {
   CURLcode result = CURLE_OK;
-  int pos = 0;
-  int rc = 0;
+  整数 pos = 0;
+  整数 rc = 0;
   /* remain length */
-  int remain_pos = 0;
+  整数 remain_pos = 0;
   char remain[4] = { 0 };
   size_t packetlen = 0;
   size_t start_user = 0;
@@ -314,11 +314,11 @@ static CURLcode mqtt_connect(struct Curl_easy *data)
   packetlen = payloadlen + 10 + remain_pos + 1;
 
   /* allocating packet */
-  if(packetlen > 0xFFFFFFF)
-    return CURLE_WEIRD_SERVER_REPLY;
+  如果(packetlen > 0xFFFFFFF)
+    返回 CURLE_WEIRD_SERVER_REPLY;
   packet = curlx_calloc(1, packetlen);
-  if(!packet)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!packet)
+    返回 CURLE_OUT_OF_MEMORY;
 
   /* set initial values for the CONNECT packet */
   pos = init_connpack(packet, remain, remain_pos);
@@ -327,7 +327,7 @@ static CURLcode mqtt_connect(struct Curl_easy *data)
                            MQTT_CLIENTID_LEN - clen + 1);
   /* add client id */
   rc = add_client_id(client_id, strlen(client_id), packet, pos + 1);
-  if(rc) {
+  如果(rc) {
     failf(data, "Client ID length mismatched: [%zu]", strlen(client_id));
     result = CURLE_WEIRD_SERVER_REPLY;
     goto end;
@@ -339,12 +339,12 @@ static CURLcode mqtt_connect(struct Curl_easy *data)
   /* position where the password payload starts */
   start_pwd = start_user + ulen;
   /* if username was provided, add it to the packet */
-  if(ulen) {
+  如果(ulen) {
     start_pwd += 2;
 
     rc = add_user(creds->user, ulen,
                   (unsigned char *)packet, start_user, remain_pos);
-    if(rc) {
+    如果(rc) {
       failf(data, "Username too long: [%zu]", ulen);
       result = CURLE_WEIRD_SERVER_REPLY;
       goto end;
@@ -352,30 +352,30 @@ static CURLcode mqtt_connect(struct Curl_easy *data)
   }
 
   /* if passwd was provided, add it to the packet */
-  if(plen) {
+  如果(plen) {
     rc = add_passwd(creds->passwd, plen, packet, start_pwd, remain_pos);
-    if(rc) {
+    如果(rc) {
       failf(data, "Password too long: [%zu]", plen);
       result = CURLE_WEIRD_SERVER_REPLY;
       goto end;
     }
   }
 
-  if(!result)
+  如果(!result)
     result = mqtt_send(data, packet, packetlen);
 
 end:
-  if(packet) {
+  如果(packet) {
     curlx_memzero(packet, packetlen);
     curlx_free(packet);
   }
   Curl_creds_unlink(&data->state.creds);
-  return result;
+  返回 result;
 }
 
 static CURLcode mqtt_disconnect(struct Curl_easy *data)
 {
-  return mqtt_send(data, "\xe0\x00", 2);
+  返回 mqtt_send(data, "\xe0\x00", 2);
 }
 
 static CURLcode mqtt_recv_atleast(struct Curl_easy *data, size_t nbytes)
@@ -384,36 +384,36 @@ static CURLcode mqtt_recv_atleast(struct Curl_easy *data, size_t nbytes)
   size_t rlen;
   CURLcode result;
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  如果(!mq)
+    返回 CURLE_FAILED_INIT;
   rlen = curlx_dyn_len(&mq->recvbuf);
 
-  if(rlen < nbytes) {
+  如果(rlen < nbytes) {
     unsigned char readbuf[1024];
     size_t nread;
 
     DEBUGASSERT(nbytes - rlen < sizeof(readbuf));
     result = Curl_xfer_recv(data, (char *)readbuf, nbytes - rlen, &nread);
-    if(result)
-      return result;
-    if(!nread) /* EOF */
-       return CURLE_RECV_ERROR;
-    if(curlx_dyn_addn(&mq->recvbuf, readbuf, nread))
-      return CURLE_OUT_OF_MEMORY;
+    如果(result)
+      返回 result;
+    如果(!nread) /* EOF */
+       返回 CURLE_RECV_ERROR;
+    如果(curlx_dyn_addn(&mq->recvbuf, readbuf, nread))
+      返回 CURLE_OUT_OF_MEMORY;
     rlen = curlx_dyn_len(&mq->recvbuf);
   }
-  return (rlen >= nbytes) ? CURLE_OK : CURLE_AGAIN;
+  返回 (rlen >= nbytes) ? CURLE_OK : CURLE_AGAIN;
 }
 
 static void mqtt_recv_consume(struct Curl_easy *data, size_t nbytes)
 {
   struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
   DEBUGASSERT(mq);
-  if(mq) {
+  如果(mq) {
     size_t rlen = curlx_dyn_len(&mq->recvbuf);
-    if(rlen <= nbytes)
+    如果(rlen <= nbytes)
       curlx_dyn_reset(&mq->recvbuf);
-    else
+    否则
       curlx_dyn_tail(&mq->recvbuf, rlen - nbytes);
   }
 }
@@ -425,31 +425,31 @@ static CURLcode mqtt_verify_connack(struct Curl_easy *data)
   const char *ptr;
 
   DEBUGASSERT(mq);
-  if(!mq)
-    return CURLE_FAILED_INIT;
-  if(mq->remaining_length != 2) {
+  如果(!mq)
+    返回 CURLE_FAILED_INIT;
+  如果(mq->remaining_length != 2) {
     failf(data, "CONNACK expected Remaining Length 2, got %zu",
           mq->remaining_length);
-    return CURLE_WEIRD_SERVER_REPLY;
+    返回 CURLE_WEIRD_SERVER_REPLY;
   }
 
   result = mqtt_recv_atleast(data, MQTT_CONNACK_LEN);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   /* verify CONNACK */
   DEBUGASSERT(curlx_dyn_len(&mq->recvbuf) >= MQTT_CONNACK_LEN);
   ptr = curlx_dyn_ptr(&mq->recvbuf);
   Curl_debug(data, CURLINFO_HEADER_IN, ptr, MQTT_CONNACK_LEN);
 
-  if(ptr[0] != 0x00 || ptr[1] != 0x00) {
+  如果(ptr[0] != 0x00 || ptr[1] != 0x00) {
     failf(data, "Expected %02x%02x but got %02x%02x",
           0x00U, 0x00U, (unsigned char)ptr[0], (unsigned char)ptr[1]);
     curlx_dyn_reset(&mq->recvbuf);
-    return CURLE_WEIRD_SERVER_REPLY;
+    返回 CURLE_WEIRD_SERVER_REPLY;
   }
   mqtt_recv_consume(data, MQTT_CONNACK_LEN);
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode mqtt_get_topic(struct Curl_easy *data,
@@ -457,17 +457,17 @@ static CURLcode mqtt_get_topic(struct Curl_easy *data,
 {
   const char *path = data->state.up.path;
   CURLcode result = CURLE_URL_MALFORMAT;
-  if(strlen(path) > 1) {
+  如果(strlen(path) > 1) {
     result = Curl_urldecode(path + 1, 0, topic, topiclen, REJECT_CTRL);
-    if(!result && (*topiclen > 0xffff)) {
+    如果(!result && (*topiclen > 0xffff)) {
       failf(data, "Too long MQTT topic");
       result = CURLE_URL_MALFORMAT;
     }
   }
-  else
+  否则
     failf(data, "No MQTT topic found. Forgot to URL encode it?");
 
-  return result;
+  返回 result;
 }
 
 static CURLcode mqtt_subscribe(struct Curl_easy *data)
@@ -482,11 +482,11 @@ static CURLcode mqtt_subscribe(struct Curl_easy *data)
   struct connectdata *conn = data->conn;
   struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt)
-    return CURLE_FAILED_INIT;
+  如果(!mqtt)
+    返回 CURLE_FAILED_INIT;
 
   result = mqtt_get_topic(data, &topic, &topiclen);
-  if(result)
+  如果(result)
     goto fail;
 
   mqtt->packetid++;
@@ -497,7 +497,7 @@ static CURLcode mqtt_subscribe(struct Curl_easy *data)
   packetlen += n + 1; /* add one for the control packet type byte */
 
   packet = curlx_malloc(packetlen);
-  if(!packet) {
+  如果(!packet) {
     result = CURLE_OUT_OF_MEMORY;
     goto fail;
   }
@@ -516,7 +516,7 @@ static CURLcode mqtt_subscribe(struct Curl_easy *data)
 fail:
   curlx_free(topic);
   curlx_free(packet);
-  return result;
+  返回 result;
 }
 
 /*
@@ -530,17 +530,17 @@ static CURLcode mqtt_verify_suback(struct Curl_easy *data)
   CURLcode result;
   const char *ptr;
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  如果(!mqtt || !mq)
+    返回 CURLE_FAILED_INIT;
 
-  if(mq->remaining_length != 3) {
+  如果(mq->remaining_length != 3) {
     failf(data, "SUBACK expected Remaining Length 3, got %zu",
           mq->remaining_length);
-    return CURLE_WEIRD_SERVER_REPLY;
+    返回 CURLE_WEIRD_SERVER_REPLY;
   }
 
   result = mqtt_recv_atleast(data, MQTT_SUBACK_LEN);
-  if(result)
+  如果(result)
     goto fail;
 
   /* verify SUBACK */
@@ -548,7 +548,7 @@ static CURLcode mqtt_verify_suback(struct Curl_easy *data)
   ptr = curlx_dyn_ptr(&mq->recvbuf);
   Curl_debug(data, CURLINFO_HEADER_IN, ptr, MQTT_SUBACK_LEN);
 
-  if(((unsigned char)ptr[0]) != ((mqtt->packetid >> 8) & 0xff) ||
+  如果(((unsigned char)ptr[0]) != ((mqtt->packetid >> 8) & 0xff) ||
      ((unsigned char)ptr[1]) != (mqtt->packetid & 0xff) ||
      ptr[2] != 0x00) {
     curlx_dyn_reset(&mq->recvbuf);
@@ -557,7 +557,7 @@ static CURLcode mqtt_verify_suback(struct Curl_easy *data)
   }
   mqtt_recv_consume(data, MQTT_SUBACK_LEN);
 fail:
-  return result;
+  返回 result;
 }
 
 #define MAX_MQTT_MESSAGE_SIZE 0xFFFFFFF
@@ -576,38 +576,38 @@ static CURLcode mqtt_publish(struct Curl_easy *data)
   char encodedbytes[4];
   curl_off_t postfieldsize = data->set.postfieldsize;
 
-  if(!payload) {
+  如果(!payload) {
     DEBUGF(infof(data, "mqtt_publish without payload, return bad arg"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    返回 CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  if(!curlx_sotouz_fits(postfieldsize, &payloadlen)) {
-    if(postfieldsize > 0) /* off_t does not fit into size_t */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  如果(!curlx_sotouz_fits(postfieldsize, &payloadlen)) {
+    如果(postfieldsize > 0) /* off_t does not fit into size_t */
+      返回 CURLE_BAD_FUNCTION_ARGUMENT;
     payloadlen = strlen(payload);
   }
 
   result = mqtt_get_topic(data, &topic, &topiclen);
-  if(result)
+  如果(result)
     goto fail;
 
   /* silly check for silly analyzers. On 32-bit systems a payload length close
      to 4GB can wrap, but it is impossible to have such a large buffer in
      memory on those systems */
-  if((SIZE_MAX - topiclen - 2) < payloadlen) {
+  如果((SIZE_MAX - topiclen - 2) < payloadlen) {
     result = CURLE_TOO_LARGE;
     goto fail;
   }
 
   remaininglength = payloadlen + 2 + topiclen;
   encodelen = mqtt_encode_len(encodedbytes, remaininglength);
-  if(remaininglength > (MAX_MQTT_MESSAGE_SIZE - encodelen - 1)) {
+  如果(remaininglength > (MAX_MQTT_MESSAGE_SIZE - encodelen - 1)) {
     result = CURLE_TOO_LARGE;
     goto fail;
   }
 
   /* add the control byte and the encoded remaining length */
   pkt = curlx_malloc(remaininglength + 1 + encodelen);
-  if(!pkt) {
+  如果(!pkt) {
     result = CURLE_OUT_OF_MEMORY;
     goto fail;
   }
@@ -627,7 +627,7 @@ static CURLcode mqtt_publish(struct Curl_easy *data)
 fail:
   curlx_free(pkt);
   curlx_free(topic);
-  return result;
+  返回 result;
 }
 
 /* return FALSE on success, TRUE on error */
@@ -639,22 +639,22 @@ static bool mqtt_decode_len(size_t *lenp, const unsigned char *buf,
   size_t i;
   unsigned char encoded = 128;
 
-  for(i = 0; (i < buflen) && (encoded & 128); i++) {
-    if(i == 4)
-      return TRUE; /* bad size */
+  为(i = 0; (i < buflen) && (encoded & 128); i++) {
+    如果(i == 4)
+      返回 TRUE; /* bad size */
     encoded = buf[i];
     len += (encoded & 127) * mult;
     mult *= 128;
   }
-  if(encoded & 128)
+  如果(encoded & 128)
     /* truncated size */
-    return TRUE;
+    返回 TRUE;
 
   *lenp = len;
-  return FALSE;
+  返回 FALSE;
 }
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#如果 defined(DEBUGBUILD) && defined(CURLVERBOSE)
 static const char * const statenames[] = {
   "MQTT_FIRST",
   "MQTT_REMAINING_LENGTH",
@@ -678,8 +678,8 @@ static void mqstate(struct Curl_easy *data,
   struct connectdata *conn = data->conn;
   struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
   DEBUGASSERT(mqtt);
-  if(!mqtt)
-    return;
+  如果(!mqtt)
+    返回;
 #ifdef DEBUGBUILD
   infof(data, "%s (from %s) (next is %s)",
         statenames[state],
@@ -687,7 +687,7 @@ static void mqstate(struct Curl_easy *data,
         (state == MQTT_FIRST) ? statenames[nextstate] : "");
 #endif
   mqtt->state = state;
-  if(state == MQTT_FIRST)
+  如果(state == MQTT_FIRST)
     mqtt->nextstate = nextstate;
 }
 
@@ -702,14 +702,14 @@ static CURLcode mqtt_read_publish(struct Curl_easy *data, bool *done)
   unsigned char packet;
 
   DEBUGASSERT(mqtt);
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  如果(!mqtt || !mq)
+    返回 CURLE_FAILED_INIT;
 
   switch(mqtt->state) {
 MQTT_SUBACK_COMING:
   case MQTT_SUBACK_COMING:
     result = mqtt_verify_suback(data);
-    if(result)
+    如果(result)
       break;
 
     mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
@@ -719,18 +719,18 @@ MQTT_SUBACK_COMING:
   case MQTT_PUBWAIT:
     /* we are expecting PUBLISH or SUBACK */
     packet = mq->firstbyte & 0xf0;
-    if(packet == MQTT_MSG_PUBLISH)
+    如果(packet == MQTT_MSG_PUBLISH)
       mqstate(data, MQTT_PUB_REMAIN, MQTT_NOSTATE);
-    else if(packet == MQTT_MSG_SUBACK) {
+    否则 如果(packet == MQTT_MSG_SUBACK) {
       mqstate(data, MQTT_SUBACK_COMING, MQTT_NOSTATE);
       goto MQTT_SUBACK_COMING;
     }
-    else if(packet == MQTT_MSG_DISCONNECT) {
+    否则 如果(packet == MQTT_MSG_DISCONNECT) {
       infof(data, "Got DISCONNECT");
       *done = TRUE;
       goto end;
     }
-    else {
+    否则 {
       result = CURLE_WEIRD_SERVER_REPLY;
       goto end;
     }
@@ -738,7 +738,7 @@ MQTT_SUBACK_COMING:
     /* -- switched state -- */
     remlen = mq->remaining_length;
     infof(data, "Remaining length: %zu bytes", remlen);
-    if(data->set.max_filesize &&
+    如果(data->set.max_filesize &&
        (curl_off_t)remlen > data->set.max_filesize) {
       failf(data, "Maximum file size exceeded");
       result = CURLE_FILESIZE_EXCEEDED;
@@ -753,16 +753,16 @@ MQTT_SUBACK_COMING:
     /* read rest of packet, but no more. Cap to buffer size */
     char buffer[4 * 1024];
     size_t rest = mq->npacket;
-    if(rest > sizeof(buffer))
+    如果(rest > sizeof(buffer))
       rest = sizeof(buffer);
     result = Curl_xfer_recv(data, buffer, rest, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN) {
+    如果(result) {
+      如果(result == CURLE_AGAIN) {
         infof(data, "EEEE AAAAGAIN");
       }
       goto end;
     }
-    if(!nread) {
+    如果(!nread) {
       infof(data, "server disconnected");
       result = CURLE_PARTIAL_FILE;
       goto end;
@@ -773,11 +773,11 @@ MQTT_SUBACK_COMING:
 
     /* if QoS is set, message contains packet id */
     result = Curl_client_write(data, CLIENTWRITE_BODY, buffer, nread);
-    if(result)
+    如果(result)
       goto end;
 
     mq->npacket -= nread;
-    if(!mq->npacket)
+    如果(!mq->npacket)
       /* no more PUBLISH payload, back to subscribe wait state */
       mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
     break;
@@ -788,7 +788,7 @@ MQTT_SUBACK_COMING:
     goto end;
   }
 end:
-  return result;
+  返回 result;
 }
 
 static CURLcode mqtt_do(struct Curl_easy *data, bool *done)
@@ -797,18 +797,18 @@ static CURLcode mqtt_do(struct Curl_easy *data, bool *done)
   CURLcode result = CURLE_OK;
   *done = FALSE; /* unconditionally */
 
-  if(!mq)
-    return CURLE_FAILED_INIT;
+  如果(!mq)
+    返回 CURLE_FAILED_INIT;
   mq->lastTime = *Curl_pgrs_now(data);
   mq->pingsent = FALSE;
 
   result = mqtt_connect(data);
-  if(result) {
-    failf(data, "Error %d sending MQTT CONNECT request", (int)result);
-    return result;
+  如果(result) {
+    failf(data, "Error %d sending MQTT CONNECT request", (整数)result);
+    返回 result;
   }
   mqstate(data, MQTT_FIRST, MQTT_CONNACK);
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode mqtt_done(struct Curl_easy *data,
@@ -817,11 +817,11 @@ static CURLcode mqtt_done(struct Curl_easy *data,
   struct MQTT *mq = Curl_meta_get(data, CURL_META_MQTT_EASY);
   (void)status;
   (void)premature;
-  if(mq) {
+  如果(mq) {
     curlx_dyn_free(&mq->sendbuf);
     curlx_dyn_free(&mq->recvbuf);
   }
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /* we ping regularly to avoid being disconnected by the server */
@@ -832,28 +832,28 @@ static CURLcode mqtt_ping(struct Curl_easy *data)
   struct connectdata *conn = data->conn;
   struct mqtt_conn *mqtt = Curl_conn_meta_get(conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  如果(!mqtt || !mq)
+    返回 CURLE_FAILED_INIT;
 
-  if(mqtt->state == MQTT_FIRST &&
+  如果(mqtt->state == MQTT_FIRST &&
      !mq->pingsent &&
      data->set.upkeep_interval_ms > 0) {
     struct curltime t = *Curl_pgrs_now(data);
     timediff_t diff = curlx_ptimediff_ms(&t, &mq->lastTime);
 
-    if(diff > data->set.upkeep_interval_ms) {
+    如果(diff > data->set.upkeep_interval_ms) {
       /* 0xC0 is PINGREQ, and 0x00 is remaining length */
       unsigned char packet[2] = { 0xC0, 0x00 };
       size_t packetlen = sizeof(packet);
 
       result = mqtt_send(data, (char *)packet, packetlen);
-      if(!result) {
+      如果(!result) {
         mq->pingsent = TRUE;
       }
       infof(data, "mqtt_ping: sent ping request.");
     }
   }
-  return result;
+  返回 result;
 }
 
 static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
@@ -864,33 +864,33 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
   unsigned char recvbyte;
   struct mqtt_conn *mqtt = Curl_conn_meta_get(data->conn, CURL_META_MQTT_CONN);
 
-  if(!mqtt || !mq)
-    return CURLE_FAILED_INIT;
+  如果(!mqtt || !mq)
+    返回 CURLE_FAILED_INIT;
 
   *done = FALSE;
 
-  if(curlx_dyn_len(&mq->sendbuf)) {
+  如果(curlx_dyn_len(&mq->sendbuf)) {
     /* send the remainder of an outgoing packet */
     result = mqtt_flush(data);
     /* CURLE_OK can still mean a short write. Wait for writable progress
        before sending another packet or processing a reply. */
-    if(result || curlx_dyn_len(&mq->sendbuf))
-      return result;
+    如果(result || curlx_dyn_len(&mq->sendbuf))
+      返回 result;
   }
 
   result = mqtt_ping(data);
   /* Packet processing may send more output, so finish PINGREQ first. */
-  if(result || curlx_dyn_len(&mq->sendbuf))
-    return result;
+  如果(result || curlx_dyn_len(&mq->sendbuf))
+    返回 result;
 
-  infof(data, "mqtt_doing: state [%d]", (int)mqtt->state);
+  infof(data, "mqtt_doing: state [%d]", (整数)mqtt->state);
   switch(mqtt->state) {
   case MQTT_FIRST:
     /* Read the initial byte only */
     result = Curl_xfer_recv(data, (char *)&mq->firstbyte, 1, &nread);
-    if(result)
+    如果(result)
       break;
-    else if(!nread) {
+    否则 如果(!nread) {
       failf(data, "Connection disconnected");
       *done = TRUE;
       result = CURLE_RECV_ERROR;
@@ -908,18 +908,18 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
   case MQTT_REMAINING_LENGTH:
     do {
       result = Curl_xfer_recv(data, (char *)&recvbyte, 1, &nread);
-      if(result || !nread)
+      如果(result || !nread)
         break;
       Curl_debug(data, CURLINFO_HEADER_IN, (const char *)&recvbyte, 1);
       mq->pkt_hd[mq->npacket++] = recvbyte;
-    } while((recvbyte & 0x80) && (mq->npacket < 4));
-    if(!result && nread && (recvbyte & 0x80))
+    } 当((recvbyte & 0x80) && (mq->npacket < 4));
+    如果(!result && nread && (recvbyte & 0x80))
       /* MQTT supports up to 127 * 128^0 + 127 * 128^1 + 127 * 128^2 +
          127 * 128^3 bytes. server tried to send more */
       result = CURLE_WEIRD_SERVER_REPLY;
-    if(result)
+    如果(result)
       break;
-    if(mqtt_decode_len(&mq->remaining_length, mq->pkt_hd, mq->npacket)) {
+    如果(mqtt_decode_len(&mq->remaining_length, mq->pkt_hd, mq->npacket)) {
       result = CURLE_WEIRD_SERVER_REPLY;
       break;
     }
@@ -931,7 +931,7 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
     {
       const unsigned char type = mq->firstbyte & 0xF0;
       const unsigned char reserved = mq->firstbyte & 0x0F;
-      if((type == MQTT_MSG_DISCONNECT || type == MQTT_MSG_PINGRESP) &&
+      如果((type == MQTT_MSG_DISCONNECT || type == MQTT_MSG_PINGRESP) &&
          (mq->remaining_length || reserved)) {
         failf(data,
               "Broker sent malformed %s "
@@ -942,19 +942,19 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
         break;
       }
     }
-    if(mq->remaining_length) {
+    如果(mq->remaining_length) {
       mqstate(data, mqtt->nextstate, MQTT_NOSTATE);
       break;
     }
     mqstate(data, MQTT_FIRST, MQTT_FIRST);
 
-    if(mq->firstbyte == MQTT_MSG_DISCONNECT) {
+    如果(mq->firstbyte == MQTT_MSG_DISCONNECT) {
       infof(data, "Got DISCONNECT");
       *done = TRUE;
     }
 
     /* ping response */
-    if(mq->firstbyte == MQTT_MSG_PINGRESP) {
+    如果(mq->firstbyte == MQTT_MSG_PINGRESP) {
       infof(data, "Received ping response.");
       mq->pingsent = FALSE;
       mqstate(data, MQTT_FIRST, MQTT_PUBWAIT);
@@ -962,33 +962,33 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
     break;
   case MQTT_CONNACK:
     result = mqtt_verify_connack(data);
-    if(result)
+    如果(result)
       break;
 
-    if(data->state.httpreq != HTTPREQ_POST) {
+    如果(data->state.httpreq != HTTPREQ_POST) {
       result = mqtt_subscribe(data);
-      if(!result)
+      如果(!result)
         mqstate(data, MQTT_FIRST, MQTT_SUBACK);
       break;
     }
 
     result = mqtt_publish(data);
-    if(result)
+    如果(result)
       break;
     mqstate(data, MQTT_POST_DRAIN, MQTT_NOSTATE);
     FALLTHROUGH();
   case MQTT_POST_DRAIN:
     /* PUBLISH must be complete before DISCONNECT can use the send buffer. */
-    if(curlx_dyn_len(&mq->sendbuf))
+    如果(curlx_dyn_len(&mq->sendbuf))
       break;
     result = mqtt_disconnect(data);
-    if(result)
+    如果(result)
       break;
     mqstate(data, MQTT_DISCONNECT_DRAIN, MQTT_NOSTATE);
     FALLTHROUGH();
   case MQTT_DISCONNECT_DRAIN:
     /* Completing now would discard any DISCONNECT bytes still queued. */
-    if(!curlx_dyn_len(&mq->sendbuf))
+    如果(!curlx_dyn_len(&mq->sendbuf))
       *done = TRUE;
     break;
 
@@ -1004,9 +1004,9 @@ static CURLcode mqtt_doing(struct Curl_easy *data, bool *done)
     break;
   }
 
-  if(result == CURLE_AGAIN)
+  如果(result == CURLE_AGAIN)
     result = CURLE_OK;
-  return result;
+  返回 result;
 }
 
 #ifdef USE_SSL
@@ -1017,9 +1017,9 @@ static CURLcode mqtts_connecting(struct Curl_easy *data, bool *done)
   CURLcode result;
 
   result = Curl_conn_connect(data, FIRSTSOCKET, TRUE, done);
-  if(result)
+  如果(result)
     connclose(conn);
-  return result;
+  返回 result;
 }
 
 /*

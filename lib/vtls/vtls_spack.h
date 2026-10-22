@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#如果 defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
 struct dynbuf;
 struct Curl_ssl_session;

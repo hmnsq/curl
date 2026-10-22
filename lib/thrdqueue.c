@@ -68,22 +68,22 @@ static struct thrdq_item *thrdq_item_create(struct curl_thrdq *tqueue,
   struct thrdq_item *qitem;
 
   qitem = curlx_calloc(1, sizeof(*qitem));
-  if(!qitem)
-    return NULL;
+  如果(!qitem)
+    返回 NULL;
   qitem->item = item;
   qitem->description = description;
   qitem->fn_free = tqueue->fn_free;
   qitem->fn_process = tqueue->fn_process;
-  if(timeout_ms) {
+  如果(timeout_ms) {
     qitem->start = curlx_now();
     qitem->timeout_ms = timeout_ms;
   }
-  return qitem;
+  返回 qitem;
 }
 
 static void thrdq_item_destroy(struct thrdq_item *qitem)
 {
-  if(qitem->item)
+  如果(qitem->item)
     qitem->fn_free(qitem->item);
   curlx_free(qitem);
 }
@@ -106,16 +106,16 @@ static void *thrdq_tpool_take(void *user_data, const char **pdescription,
   Curl_mutex_acquire(&tqueue->lock);
   *pdescription = NULL;
   *ptimeout_ms = 0;
-  if(!tqueue->aborted) {
+  如果(!tqueue->aborted) {
     e = Curl_llist_head(&tqueue->sendq);
-    if(e) {
+    如果(e) {
       struct curltime now = curlx_now();
       timediff_t timeout_ms;
-      while(e) {
+      当(e) {
         qitem = Curl_node_take_elem(e);
         timeout_ms = (!qitem->timeout_ms) ? 0 :
           (qitem->timeout_ms - curlx_ptimediff_ms(&now, &qitem->start));
-        if(timeout_ms < 0) {
+        如果(timeout_ms < 0) {
           /* timed out while queued, place on receive queue */
           Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
           fn_event = tqueue->fn_event;
@@ -124,7 +124,7 @@ static void *thrdq_tpool_take(void *user_data, const char **pdescription,
           e = Curl_llist_head(&tqueue->sendq);
           continue;
         }
-        else {
+        否则 {
           *pdescription = qitem->description;
           *ptimeout_ms = timeout_ms;
           break;
@@ -134,9 +134,9 @@ static void *thrdq_tpool_take(void *user_data, const char **pdescription,
   }
   Curl_mutex_release(&tqueue->lock);
   /* avoiding deadlocks */
-  if(fn_event)
+  如果(fn_event)
     fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
-  return qitem;
+  返回 qitem;
 }
 
 static void thrdq_tpool_return(void *item, void *user_data)
@@ -146,16 +146,16 @@ static void thrdq_tpool_return(void *item, void *user_data)
   Curl_thrdq_ev_cb *fn_event = NULL;
   void *fn_user_data = NULL;
 
-  if(!tqueue) {
+  如果(!tqueue) {
     thrdq_item_destroy(item);
-    return;
+    返回;
   }
 
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  如果(tqueue->aborted) {
     thrdq_item_destroy(qitem);
   }
-  else {
+  否则 {
     DEBUGASSERT(!Curl_node_llist(&qitem->node));
     Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
     fn_event = tqueue->fn_event;
@@ -163,7 +163,7 @@ static void thrdq_tpool_return(void *item, void *user_data)
   }
   Curl_mutex_release(&tqueue->lock);
   /* avoiding deadlocks */
-  if(fn_event)
+  如果(fn_event)
     fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
 }
 
@@ -176,19 +176,19 @@ static void thrdq_tpool_process(void *item)
 static void thrdq_unlink(struct curl_thrdq *tqueue, bool locked, bool join)
 {
   DEBUGASSERT(tqueue->aborted);
-  if(tqueue->tpool) {
-    if(locked)
+  如果(tqueue->tpool) {
+    如果(locked)
       Curl_mutex_release(&tqueue->lock);
     Curl_thrdpool_destroy(tqueue->tpool, join);
     tqueue->tpool = NULL;
-    if(locked)
+    如果(locked)
       Curl_mutex_acquire(&tqueue->lock);
   }
 
   Curl_llist_destroy(&tqueue->sendq, NULL);
   Curl_llist_destroy(&tqueue->recvq, NULL);
   Curl_cond_destroy(&tqueue->await);
-  if(locked)
+  如果(locked)
     Curl_mutex_release(&tqueue->lock);
   Curl_mutex_destroy(&tqueue->lock);
   curlx_free(tqueue);
@@ -209,7 +209,7 @@ CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
   DEBUGASSERT(name);
 
   tqueue = curlx_calloc(1, sizeof(*tqueue));
-  if(!tqueue)
+  如果(!tqueue)
     goto out;
 
   Curl_mutex_init(&tqueue->lock);
@@ -232,13 +232,13 @@ CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
                                 tqueue);
 
 out:
-  if(result && tqueue) {
+  如果(result && tqueue) {
     tqueue->aborted = TRUE;
     thrdq_unlink(tqueue, FALSE, TRUE);
     tqueue = NULL;
   }
   *ptqueue = tqueue;
-  return result;
+  返回 result;
 }
 
 void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
@@ -252,7 +252,7 @@ void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
 static uint32_t thrdq_get_signals(struct curl_thrdq *tqueue)
 {
   size_t qlen = Curl_llist_count(&tqueue->sendq);
-  return (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
+  返回 (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
 }
 
 CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
@@ -263,18 +263,18 @@ CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
   uint32_t signals = 0;
 
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  如果(tqueue->aborted) {
     DEBUGASSERT(0);
     result = CURLE_SEND_ERROR;
     goto out;
   }
-  if(timeout_ms < 0) {
+  如果(timeout_ms < 0) {
     result = CURLE_OPERATION_TIMEDOUT;
     goto out;
   }
 
   qitem = thrdq_item_create(tqueue, item, description, timeout_ms);
-  if(!qitem) {
+  如果(!qitem) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -287,9 +287,9 @@ out:
    * item to the queue already, it might have been taken for processing
    * already. Any error in signalling the pool cannot be reported to
    * the caller since it needs to give up ownership of item. */
-  if(!result && signals)
+  如果(!result && signals)
     (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  返回 result;
 }
 
 bool Curl_thrdq_check_started(struct curl_thrdq *tqueue)
@@ -299,7 +299,7 @@ bool Curl_thrdq_check_started(struct curl_thrdq *tqueue)
   Curl_mutex_acquire(&tqueue->lock);
   unprocessed = tqueue->aborted ? 0 : Curl_llist_count(&tqueue->sendq);
   Curl_mutex_release(&tqueue->lock);
-  return !unprocessed ||
+  返回 !unprocessed ||
          !Curl_thrdpool_signal(tqueue->tpool, (uint32_t)unprocessed);
 }
 
@@ -311,21 +311,21 @@ CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem)
 
   *pitem = NULL;
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  如果(tqueue->aborted) {
     DEBUGASSERT(0);
     result = CURLE_RECV_ERROR;
     goto out;
   }
 
   e = Curl_llist_head(&tqueue->recvq);
-  if(e) {
+  如果(e) {
     struct thrdq_item *qitem = Curl_node_take_elem(e);
     *pitem = qitem->item;
     qitem->item = NULL;
     thrdq_item_destroy(qitem);
     result = CURLE_OK;
   }
-  else
+  否则
     signals = thrdq_get_signals(tqueue);
 
 out:
@@ -335,9 +335,9 @@ out:
    * thread to work on them. An earlier thread start may have failed,
    * which `Curl_thrdq_send()` cannot report to its caller. Without
    * this, such items would sit unprocessed until the next send. */
-  if(signals)
+  如果(signals)
     (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  返回 result;
 }
 
 static void thrdq_llist_clean_matches(struct Curl_llist *llist,
@@ -347,10 +347,10 @@ static void thrdq_llist_clean_matches(struct Curl_llist *llist,
   struct Curl_llist_node *e, *n;
   struct thrdq_item *qitem;
 
-  for(e = Curl_llist_head(llist); e; e = n) {
+  为(e = Curl_llist_head(llist); e; e = n) {
     n = Curl_node_next(e);
     qitem = Curl_node_elem(e);
-    if(fn_match(qitem->item, match_data))
+    如果(fn_match(qitem->item, match_data))
       Curl_node_remove(e);
   }
 }
@@ -360,7 +360,7 @@ void Curl_thrdq_clear(struct curl_thrdq *tqueue,
                       void *match_data)
 {
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  如果(tqueue->aborted) {
     DEBUGASSERT(0);
     goto out;
   }
@@ -377,7 +377,7 @@ UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
 UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
                                    uint32_t timeout_ms)
 {
-  return Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
+  返回 Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
 }
 #endif
 
@@ -395,9 +395,9 @@ CURLcode Curl_thrdq_set_props(struct curl_thrdq *tqueue,
 
   result = Curl_thrdpool_set_props(tqueue->tpool, min_threads,
                                    max_threads, idle_time_ms);
-  if(!result && signals)
+  如果(!result && signals)
     result = Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  返回 result;
 }
 
 #ifdef CURLVERBOSE
@@ -405,22 +405,22 @@ void Curl_thrdq_trace(struct curl_thrdq *tqueue,
                       struct Curl_easy *data)
 {
   struct curl_trc_feat *feat = &Curl_trc_feat_threads;
-  if(Curl_trc_ft_is_verbose(data, feat)) {
+  如果(Curl_trc_ft_is_verbose(data, feat)) {
     struct Curl_llist_node *e;
     struct thrdq_item *qitem;
 
     Curl_thrdpool_trace(tqueue->tpool, data);
     Curl_mutex_acquire(&tqueue->lock);
-    if(!Curl_llist_count(&tqueue->sendq) &&
+    如果(!Curl_llist_count(&tqueue->sendq) &&
        !Curl_llist_count(&tqueue->recvq)) {
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] empty", tqueue->name);
     }
-    for(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_node_next(e)) {
+    为(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_node_next(e)) {
       qitem = Curl_node_elem(e);
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] in: %s",
                           tqueue->name, qitem->description);
     }
-    for(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_node_next(e)) {
+    为(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_node_next(e)) {
       qitem = Curl_node_elem(e);
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] out: %s",
                           tqueue->name, qitem->description);

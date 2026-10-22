@@ -25,7 +25,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_FTP) || \
+#如果 !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_FTP) || \
   !defined(CURL_DISABLE_POP3) || !defined(CURL_DISABLE_SMTP)
 #define USE_PINGPONG
 #endif
@@ -63,7 +63,7 @@ struct pingpong {
 
   CURLcode (*statemachine)(struct Curl_easy *data, struct connectdata *conn);
   bool (*endofresp)(struct Curl_easy *data, struct connectdata *conn,
-                    const char *ptr, size_t len, int *code);
+                    const char *ptr, size_t len, 整数 *code);
   BIT(initialized);
   BIT(pending_resp);  /* set TRUE when a server response is pending or in
                          progress, and is cleared once the last response is
@@ -78,7 +78,7 @@ struct pingpong {
   do {                           \
     (pp)->statemachine = s;      \
     (pp)->endofresp = e;         \
-  } while(0)
+  } 当(0)
 
 /*
  * Curl_pp_statemach()
@@ -136,7 +136,7 @@ CURLcode Curl_pp_vsendf(struct Curl_easy *data,
 CURLcode Curl_pp_readresp(struct Curl_easy *data,
                           int8_t sockindex,
                           struct pingpong *pp,
-                          int *code, /* return the server code if done */
+                          整数 *code, /* return the server code if done */
                           size_t *size); /* size of the response */
 
 bool Curl_pp_needs_flush(struct Curl_easy *data,

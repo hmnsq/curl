@@ -32,7 +32,7 @@ struct bufref {
   const unsigned char *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
 #ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
+  整数 signature;                /* Detect API use mistakes. */
 #endif
 };
 

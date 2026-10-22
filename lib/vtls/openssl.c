@@ -71,7 +71,7 @@
 #include <openssl/tls1.h>
 #include <openssl/evp.h>
 
-#if defined(HAVE_SSL_SET1_ECH_CONFIG_LIST) && !defined(HAVE_BORINGSSL_LIKE)
+#如果 defined(HAVE_SSL_SET1_ECH_CONFIG_LIST) && !defined(HAVE_BORINGSSL_LIKE)
 #include <openssl/ech.h>
 #endif
 
@@ -79,14 +79,14 @@
 #include <openssl/ocsp.h>
 #endif
 
-#if !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_UI_CONSOLE)
+#如果 !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_UI_CONSOLE)
 #define USE_OPENSSL_ENGINE
 #include <openssl/engine.h>
 #endif
 
 #ifdef LIBRESSL_VERSION_NUMBER
 /* As of LibreSSL 2.0.0-4.0.0: OPENSSL_VERSION_NUMBER == 0x20000000L */
-#  if LIBRESSL_VERSION_NUMBER < 0x3040100fL /* 2021-10-14 */
+#  如果 LIBRESSL_VERSION_NUMBER < 0x3040100fL /* 2021-10-14 */
 #    error "LibreSSL 3.4.1 or greater required"
 #  endif
 #elif !defined(HAVE_BORINGSSL_LIKE)
@@ -95,7 +95,7 @@
 #  endif
 #endif
 
-#if defined(HAVE_OPENSSL3) && !defined(OPENSSL_NO_UI_CONSOLE)
+#如果 defined(HAVE_OPENSSL3) && !defined(OPENSSL_NO_UI_CONSOLE)
 #include <openssl/provider.h>
 #include <openssl/store.h>
 /* this is used in the following conditions to make them easier to read */
@@ -104,12 +104,12 @@
 
 /* AWS-LC fixed a bug with large buffers in v1.61.0 which also introduced
  * X509_V_ERR_EC_KEY_EXPLICIT_PARAMS. */
-#if !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL) && \
+#如果 !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL) && \
   (!defined(OPENSSL_IS_AWSLC) || defined(X509_V_ERR_EC_KEY_EXPLICIT_PARAMS))
 #define HAVE_SSL_CTX_SET_DEFAULT_READ_BUFFER_LEN 1
 #endif
 
-#if defined(USE_OPENSSL_ENGINE) || defined(OPENSSL_HAS_PROVIDERS)
+#如果 defined(USE_OPENSSL_ENGINE) || defined(OPENSSL_HAS_PROVIDERS)
 #include <openssl/ui.h>
 #endif
 
@@ -121,7 +121,7 @@
 #include <openssl/core_names.h>
 #define DECLARE_PKEY_PARAM_BIGNUM(name) BIGNUM *name = NULL
 #define FREE_PKEY_PARAM_BIGNUM(name) BN_clear_free(name)
-#else
+#否则
 #define DECLARE_PKEY_PARAM_BIGNUM(name) const BIGNUM *name
 #define FREE_PKEY_PARAM_BIGNUM(name)
 #endif
@@ -156,53 +156,53 @@
 #elif defined(USE_NGTCP2) && defined(USE_NGHTTP3) && \
   !defined(OPENSSL_QUIC_API2)
 #define OSSL_PACKAGE "quictls"
-#else
+#否则
 #define OSSL_PACKAGE "OpenSSL"
 #endif
 
 #ifdef HAVE_BORINGSSL_LIKE
 typedef size_t numcert_t;
 typedef uint32_t sslerr_t;
-#else
-typedef int numcert_t;
+#否则
+typedef 整数 numcert_t;
 typedef unsigned long sslerr_t;
 #endif
 #define ossl_valsize_t numcert_t
 
-#if OPENSSL_VERSION_NUMBER >= 0x40100000L
+#如果 OPENSSL_VERSION_NUMBER >= 0x40100000L
 #define ossl_ASN1_STRING_get_length ASN1_STRING_get_length
-#else
+#否则
 static size_t ossl_ASN1_STRING_get_length(const ASN1_STRING *str)
 {
-   const int length = ASN1_STRING_length(str);
-   return length >= 0 ? (size_t)length : 0;
+   const 整数 length = ASN1_STRING_length(str);
+   返回 length >= 0 ? (size_t)length : 0;
 }
 #endif
 
 static CURLcode push_certinfo(struct Curl_easy *data,
-                              BIO *mem, const char *label, int num)
+                              BIO *mem, const char *label, 整数 num)
   WARN_UNUSED_RESULT;
 
 static CURLcode push_certinfo(struct Curl_easy *data,
-                              BIO *mem, const char *label, int num)
+                              BIO *mem, const char *label, 整数 num)
 {
   char *ptr;
   long len = BIO_get_mem_data(mem, &ptr);
   CURLcode result = Curl_ssl_push_certinfo_len(data, num, label, ptr, len);
   (void)BIO_reset(mem);
-  return result;
+  返回 result;
 }
 
 static CURLcode pubkey_show(struct Curl_easy *data,
                             BIO *mem,
-                            int num,
+                            整数 num,
                             const char *type,
                             const char *name,
                             const BIGNUM *bn) WARN_UNUSED_RESULT;
 
 static CURLcode pubkey_show(struct Curl_easy *data,
                             BIO *mem,
-                            int num,
+                            整数 num,
                             const char *type,
                             const char *name,
                             const BIGNUM *bn)
@@ -211,53 +211,53 @@ static CURLcode pubkey_show(struct Curl_easy *data,
 
   curl_msnprintf(namebuf, sizeof(namebuf), "%s(%s)", type, name);
 
-  if(bn)
+  如果(bn)
     BN_print(mem, bn);
-  return push_certinfo(data, mem, namebuf, num);
+  返回 push_certinfo(data, mem, namebuf, num);
 }
 
 #define print_pubkey_BN(_type, _name, _num)           \
   pubkey_show(data, mem, _num, #_type, #_name, _name)
 
-static int asn1_object_dump(const ASN1_OBJECT *a, char *buf, size_t len)
+static 整数 asn1_object_dump(const ASN1_OBJECT *a, char *buf, size_t len)
 {
-  int i = i2t_ASN1_OBJECT(buf, (int)len, a);
-  return (i >= (int)len);  /* buffer too small */
+  整数 i = i2t_ASN1_OBJECT(buf, (整数)len, a);
+  返回 (i >= (整数)len);  /* buffer too small */
 }
 
 static CURLcode X509V3_ext(struct Curl_easy *data,
-                           int certnum,
+                           整数 certnum,
                            const STACK_OF(X509_EXTENSION) *extsarg)
 {
-  int i;
+  整数 i;
   CURLcode result = CURLE_OK;
 #ifdef LIBRESSL_VERSION_NUMBER
   STACK_OF(X509_EXTENSION) *exts = CURL_UNCONST(extsarg);
-#else
+#否则
   const STACK_OF(X509_EXTENSION) *exts = extsarg;
 #endif
 
-  if((int)sk_X509_EXTENSION_num(exts) <= 0)
+  如果((整数)sk_X509_EXTENSION_num(exts) <= 0)
     /* no extensions, bail out */
-    return result;
+    返回 result;
 
-  for(i = 0; i < (int)sk_X509_EXTENSION_num(exts); i++) {
+  为(i = 0; i < (整数)sk_X509_EXTENSION_num(exts); i++) {
     const ASN1_OBJECT *obj;
     X509_EXTENSION *ext = sk_X509_EXTENSION_value(exts, (ossl_valsize_t)i);
     BUF_MEM *biomem;
     char namebuf[128];
     BIO *bio_out = BIO_new(BIO_s_mem());
 
-    if(!bio_out)
-      return result;
+    如果(!bio_out)
+      返回 result;
 
     obj = X509_EXTENSION_get_object(ext);
 
-    if(asn1_object_dump(obj, namebuf, sizeof(namebuf)))
+    如果(asn1_object_dump(obj, namebuf, sizeof(namebuf)))
       /* make sure the name is null-terminated */
       namebuf[CURL_CSTRLEN(namebuf)] = 0;
 
-    if(!X509V3_EXT_print(bio_out, ext, 0, 0))
+    如果(!X509V3_EXT_print(bio_out, ext, 0, 0))
       ASN1_STRING_print(bio_out,
                         (const ASN1_STRING *)X509_EXTENSION_get_data(ext));
 
@@ -265,14 +265,14 @@ static CURLcode X509V3_ext(struct Curl_easy *data,
     result = Curl_ssl_push_certinfo_len(data, certnum, namebuf, biomem->data,
                                         biomem->length);
     BIO_free(bio_out);
-    if(result)
+    如果(result)
       break;
   }
-  return result;
+  返回 result;
 }
 
 static CURLcode get_pkey_rsa(struct Curl_easy *data,
-                             EVP_PKEY *pubkey, BIO *mem, int i)
+                             EVP_PKEY *pubkey, BIO *mem, 整数 i)
 {
   CURLcode result = CURLE_OK;
 #ifndef HAVE_EVP_PKEY_GET_PARAMS
@@ -283,24 +283,24 @@ static CURLcode get_pkey_rsa(struct Curl_easy *data,
 #ifdef HAVE_EVP_PKEY_GET_PARAMS
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_N, &n);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_E, &e);
-#else
+#否则
   RSA_get0_key(rsa, &n, &e, NULL);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
-  BIO_printf(mem, "%d", (int)(n ? BN_num_bits(n) : 0));
+  BIO_printf(mem, "%d", (整数)(n ? BN_num_bits(n) : 0));
   result = push_certinfo(data, mem, "RSA Public Key", i);
-  if(!result) {
+  如果(!result) {
     result = print_pubkey_BN(rsa, n, i);
-    if(!result)
+    如果(!result)
       result = print_pubkey_BN(rsa, e, i);
   }
   FREE_PKEY_PARAM_BIGNUM(n);
   FREE_PKEY_PARAM_BIGNUM(e);
-  return result;
+  返回 result;
 }
 
 #ifndef OPENSSL_NO_DSA
 static CURLcode get_pkey_dsa(struct Curl_easy *data,
-                             EVP_PKEY *pubkey, BIO *mem, int i)
+                             EVP_PKEY *pubkey, BIO *mem, 整数 i)
 {
   CURLcode result = CURLE_OK;
 #ifndef HAVE_EVP_PKEY_GET_PARAMS
@@ -315,27 +315,27 @@ static CURLcode get_pkey_dsa(struct Curl_easy *data,
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_Q, &q);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_G, &g);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_KEY, &pub_key);
-#else
+#否则
   DSA_get0_pqg(dsa, &p, &q, &g);
   DSA_get0_key(dsa, &pub_key, NULL);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
   result = print_pubkey_BN(dsa, p, i);
-  if(!result)
+  如果(!result)
     result = print_pubkey_BN(dsa, q, i);
-  if(!result)
+  如果(!result)
     result = print_pubkey_BN(dsa, g, i);
-  if(!result)
+  如果(!result)
     result = print_pubkey_BN(dsa, pub_key, i);
   FREE_PKEY_PARAM_BIGNUM(p);
   FREE_PKEY_PARAM_BIGNUM(q);
   FREE_PKEY_PARAM_BIGNUM(g);
   FREE_PKEY_PARAM_BIGNUM(pub_key);
-  return result;
+  返回 result;
 }
 #endif /* !OPENSSL_NO_DSA */
 
 static CURLcode get_pkey_dh(struct Curl_easy *data,
-                            EVP_PKEY *pubkey, BIO *mem, int i)
+                            EVP_PKEY *pubkey, BIO *mem, 整数 i)
 {
   CURLcode result;
 #ifndef HAVE_EVP_PKEY_GET_PARAMS
@@ -350,28 +350,28 @@ static CURLcode get_pkey_dh(struct Curl_easy *data,
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_Q, &q);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_G, &g);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_KEY, &pub_key);
-#else
+#否则
   DH_get0_pqg(dh, &p, &q, &g);
   DH_get0_key(dh, &pub_key, NULL);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
   result = print_pubkey_BN(dh, p, i);
-  if(!result)
+  如果(!result)
     result = print_pubkey_BN(dh, q, i);
-  if(!result)
+  如果(!result)
     result = print_pubkey_BN(dh, g, i);
-  if(!result)
+  如果(!result)
     result = print_pubkey_BN(dh, pub_key, i);
   FREE_PKEY_PARAM_BIGNUM(p);
   FREE_PKEY_PARAM_BIGNUM(q);
   FREE_PKEY_PARAM_BIGNUM(g);
   FREE_PKEY_PARAM_BIGNUM(pub_key);
-  return result;
+  返回 result;
 }
 
 #ifdef HAVE_OPENSSL3
 /* from OpenSSL commit fc756e594ed5a27af378 */
 typedef const X509_PUBKEY pubkeytype_t;
-#else
+#否则
 typedef X509_PUBKEY pubkeytype_t;
 #endif
 
@@ -379,32 +379,32 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
 {
   CURLcode result;
   STACK_OF(X509) *sk;
-  int i;
+  整数 i;
   numcert_t numcerts;
   BIO *mem;
 
   DEBUGASSERT(ssl);
 
   sk = SSL_get_peer_cert_chain(ssl);
-  if(!sk)
-    return CURLE_SSL_CONNECT_ERROR;
+  如果(!sk)
+    返回 CURLE_SSL_CONNECT_ERROR;
 
   numcerts = sk_X509_num(sk);
-  if(numcerts > MAX_ALLOWED_CERT_AMOUNT) {
-    failf(data, "%d certificates is more than allowed (%d)", (int)numcerts,
+  如果(numcerts > MAX_ALLOWED_CERT_AMOUNT) {
+    failf(data, "%d certificates is more than allowed (%d)", (整数)numcerts,
           MAX_ALLOWED_CERT_AMOUNT);
-    return CURLE_SSL_CONNECT_ERROR;
+    返回 CURLE_SSL_CONNECT_ERROR;
   }
 
-  result = Curl_ssl_init_certinfo(data, (int)numcerts);
-  if(result)
-    return result;
+  result = Curl_ssl_init_certinfo(data, (整数)numcerts);
+  如果(result)
+    返回 result;
 
   mem = BIO_new(BIO_s_mem());
-  if(!mem)
+  如果(!mem)
     result = CURLE_OUT_OF_MEMORY;
 
-  for(i = 0; !result && (i < (int)numcerts); i++) {
+  为(i = 0; !result && (i < (整数)numcerts); i++) {
     X509 *x = sk_X509_value(sk, (ossl_valsize_t)i);
     EVP_PKEY *pubkey = NULL;
     size_t j;
@@ -412,30 +412,30 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
 
     X509_NAME_print_ex(mem, X509_get_subject_name(x), 0, XN_FLAG_ONELINE);
     result = push_certinfo(data, mem, "Subject", i);
-    if(result)
+    如果(result)
       break;
 
     X509_NAME_print_ex(mem, X509_get_issuer_name(x), 0, XN_FLAG_ONELINE);
     result = push_certinfo(data, mem, "Issuer", i);
-    if(result)
+    如果(result)
       break;
 
     BIO_printf(mem, "%lx", (unsigned long)X509_get_version(x));
     result = push_certinfo(data, mem, "Version", i);
-    if(result)
+    如果(result)
       break;
 
     {
       ASN1_INTEGER *num = X509_get_serialNumber(x);
       const unsigned char *numdata = ASN1_STRING_get0_data(num);
       const size_t numlen = ossl_ASN1_STRING_get_length(num);
-      if(ASN1_STRING_type(num) == V_ASN1_NEG_INTEGER)
+      如果(ASN1_STRING_type(num) == V_ASN1_NEG_INTEGER)
         BIO_puts(mem, "-");
-      for(j = 0; j < numlen; j++)
+      为(j = 0; j < numlen; j++)
         BIO_printf(mem, "%02x", numdata[j]);
     }
     result = push_certinfo(data, mem, "Serial Number", i);
-    if(result)
+    如果(result)
       break;
 
     {
@@ -444,45 +444,45 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
       ASN1_OBJECT *pubkeyoid = NULL;
 
       X509_get0_signature(&psig, &sigalg, x);
-      if(sigalg) {
+      如果(sigalg) {
         const ASN1_OBJECT *sigalgoid = NULL;
         X509_ALGOR_get0(&sigalgoid, NULL, NULL, sigalg);
         i2a_ASN1_OBJECT(mem, sigalgoid);
         result = push_certinfo(data, mem, "Signature Algorithm", i);
-        if(result)
+        如果(result)
           break;
       }
 
       xpubkey = X509_get_X509_PUBKEY(x);
-      if(xpubkey) {
+      如果(xpubkey) {
         X509_PUBKEY_get0_param(&pubkeyoid, NULL, NULL, NULL, xpubkey);
-        if(pubkeyoid) {
+        如果(pubkeyoid) {
           i2a_ASN1_OBJECT(mem, pubkeyoid);
           result = push_certinfo(data, mem, "Public Key Algorithm", i);
-          if(result)
+          如果(result)
             break;
         }
       }
 
       result = X509V3_ext(data, i, X509_get0_extensions(x));
-      if(result)
+      如果(result)
         break;
     }
 
     ASN1_TIME_print(mem, X509_get0_notBefore(x));
     result = push_certinfo(data, mem, "Start date", i);
-    if(result)
+    如果(result)
       break;
 
     ASN1_TIME_print(mem, X509_get0_notAfter(x));
     result = push_certinfo(data, mem, "Expire date", i);
-    if(result)
+    如果(result)
       break;
 
     pubkey = X509_get_pubkey(x);
-    if(!pubkey)
+    如果(!pubkey)
       infof(data, "   Unable to load public key");
-    else {
+    否则 {
       switch(EVP_PKEY_id(pubkey)) {
       case EVP_PKEY_RSA:
         result = get_pkey_rsa(data, pubkey, mem, i);
@@ -501,15 +501,15 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
       EVP_PKEY_free(pubkey);
     }
 
-    if(!result && psig) {
+    如果(!result && psig) {
       const unsigned char *psigdata = ASN1_STRING_get0_data(psig);
       const size_t psiglen = ossl_ASN1_STRING_get_length(psig);
-      for(j = 0; j < psiglen; j++)
+      为(j = 0; j < psiglen; j++)
         BIO_printf(mem, "%02x:", psigdata[j]);
       result = push_certinfo(data, mem, "Signature", i);
     }
 
-    if(!result) {
+    如果(!result) {
       PEM_write_bio_X509(mem, x);
       result = push_certinfo(data, mem, "Cert", i);
     }
@@ -517,29 +517,29 @@ static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
 
   BIO_free(mem);
 
-  if(result)
+  如果(result)
     /* cleanup all leftovers */
     Curl_ssl_free_certinfo(data);
 
-  return result;
+  返回 result;
 }
 
-static int ossl_bio_cf_create(BIO *bio)
+static 整数 ossl_bio_cf_create(BIO *bio)
 {
   BIO_set_shutdown(bio, 1);
   BIO_set_init(bio, 1);
   BIO_set_data(bio, NULL);
-  return 1;
+  返回 1;
 }
 
-static int ossl_bio_cf_destroy(BIO *bio)
+static 整数 ossl_bio_cf_destroy(BIO *bio)
 {
-  if(!bio)
-    return 0;
-  return 1;
+  如果(!bio)
+    返回 0;
+  返回 1;
 }
 
-static long ossl_bio_cf_ctrl(BIO *bio, int cmd, long num, void *ptr)
+static long ossl_bio_cf_ctrl(BIO *bio, 整数 cmd, long num, void *ptr)
 {
   struct Curl_cfilter *cf = BIO_get_data(bio);
   long ret = 1;
@@ -551,7 +551,7 @@ static long ossl_bio_cf_ctrl(BIO *bio, int cmd, long num, void *ptr)
     ret = (long)BIO_get_shutdown(bio);
     break;
   case BIO_CTRL_SET_CLOSE:
-    BIO_set_shutdown(bio, (int)num);
+    BIO_set_shutdown(bio, (整数)num);
     break;
   case BIO_CTRL_FLUSH:
     /* we do no delayed writes, but if we ever would, this
@@ -564,16 +564,16 @@ static long ossl_bio_cf_ctrl(BIO *bio, int cmd, long num, void *ptr)
   case BIO_CTRL_EOF: {
     /* EOF has been reached on input? */
     struct ssl_connect_data *connssl = cf->ctx;
-    return connssl->peer_closed;
+    返回 connssl->peer_closed;
   }
   default:
     ret = 0;
     break;
   }
-  return ret;
+  返回 ret;
 }
 
-static int ossl_bio_cf_out_write(BIO *bio, const char *buf, int blen)
+static 整数 ossl_bio_cf_out_write(BIO *bio, const char *buf, 整数 blen)
 {
   struct Curl_cfilter *cf = BIO_get_data(bio);
   struct ssl_connect_data *connssl = cf->ctx;
@@ -583,25 +583,25 @@ static int ossl_bio_cf_out_write(BIO *bio, const char *buf, int blen)
   CURLcode result;
 
   DEBUGASSERT(data);
-  if(blen < 0)
-    return 0;
+  如果(blen < 0)
+    返回 0;
 
   result = Curl_conn_cf_send(cf->next, data,
                              (const uint8_t *)buf, (size_t)blen, FALSE,
                              &nwritten);
   CURL_TRC_CF(data, cf, "ossl_bio_cf_out_write(len=%d) -> %d, %zu",
-              blen, (int)result, nwritten);
+              blen, (整数)result, nwritten);
   BIO_clear_retry_flags(bio);
   octx->io_result = result;
-  if(result) {
-    if(result == CURLE_AGAIN)
+  如果(result) {
+    如果(result == CURLE_AGAIN)
       BIO_set_retry_write(bio);
-    return -1;
+    返回 -1;
   }
-  return (int)nwritten;
+  返回 (整数)nwritten;
 }
 
-static int ossl_bio_cf_in_read(BIO *bio, char *buf, int blen)
+static 整数 ossl_bio_cf_in_read(BIO *bio, char *buf, 整数 blen)
 {
   struct Curl_cfilter *cf = BIO_get_data(bio);
   struct ssl_connect_data *connssl = cf->ctx;
@@ -612,57 +612,57 @@ static int ossl_bio_cf_in_read(BIO *bio, char *buf, int blen)
 
   DEBUGASSERT(data);
   /* OpenSSL catches this case, so should we. */
-  if(!buf)
-    return 0;
-  if(blen < 0)
-    return 0;
+  如果(!buf)
+    返回 0;
+  如果(blen < 0)
+    返回 0;
 
   result = Curl_conn_cf_recv(cf->next, data, buf, (size_t)blen, &nread);
   CURL_TRC_CF(data, cf, "ossl_bio_cf_in_read(len=%d) -> %d, %zu",
-              blen, (int)result, nread);
+              blen, (整数)result, nread);
   BIO_clear_retry_flags(bio);
   octx->io_result = result;
-  if(result) {
-    if(result == CURLE_AGAIN)
+  如果(result) {
+    如果(result == CURLE_AGAIN)
       BIO_set_retry_read(bio);
   }
-  else {
+  否则 {
     /* feeding data to OpenSSL means SSL_read() might succeed */
     connssl->input_pending = TRUE;
-    if(nread == 0)
+    如果(nread == 0)
       connssl->peer_closed = TRUE;
   }
 
   /* Before returning server replies to the SSL instance, we need
    * to have setup the x509 store or verification fails. */
-  if(!octx->x509_store_setup) {
+  如果(!octx->x509_store_setup) {
     r2 = Curl_ssl_setup_x509_store(cf, data, octx);
-    if(r2) {
+    如果(r2) {
       BIO_clear_retry_flags(bio);
       octx->io_result = r2;
-      return -1;
+      返回 -1;
     }
     octx->x509_store_setup = TRUE;
   }
-  return result ? -1 : (int)nread;
+  返回 result ? -1 : (整数)nread;
 }
 
 static BIO_METHOD *ossl_bio_cf_method_create(void)
 {
   BIO_METHOD *m = BIO_meth_new(BIO_TYPE_MEM, "OpenSSL CF BIO");
-  if(m) {
+  如果(m) {
     BIO_meth_set_write(m, &ossl_bio_cf_out_write);
     BIO_meth_set_read(m, &ossl_bio_cf_in_read);
     BIO_meth_set_ctrl(m, &ossl_bio_cf_ctrl);
     BIO_meth_set_create(m, &ossl_bio_cf_create);
     BIO_meth_set_destroy(m, &ossl_bio_cf_destroy);
   }
-  return m;
+  返回 m;
 }
 
 static void ossl_bio_cf_method_free(BIO_METHOD *m)
 {
-  if(m)
+  如果(m)
     BIO_meth_free(m);
 }
 
@@ -674,7 +674,7 @@ static void ossl_keylog_callback(const SSL *ssl, const char *line)
 
   Curl_tls_keylog_write_line(line);
 }
-#else
+#否则
 /*
  * ossl_log_tls12_secret is called by libcurl to make the CLIENT_RANDOMs if the
  * OpenSSL being used does not have native support for doing that.
@@ -684,19 +684,19 @@ static void ossl_log_tls12_secret(const SSL *ssl, bool *keylog_done)
   const SSL_SESSION *session;
   unsigned char client_random[SSL3_RANDOM_SIZE];
   unsigned char master_key[SSL_MAX_MASTER_KEY_LENGTH];
-  int master_key_length = 0;
+  整数 master_key_length = 0;
 
   ERR_set_mark();
 
   session = SSL_get_session(ssl);
 
-  if(!session || *keylog_done) {
+  如果(!session || *keylog_done) {
     ERR_pop_to_mark();
-    return;
+    返回;
   }
 
   SSL_get_client_random(ssl, client_random, SSL3_RANDOM_SIZE);
-  master_key_length = (int)
+  master_key_length = (整数)
     SSL_SESSION_get_master_key(session, master_key, SSL_MAX_MASTER_KEY_LENGTH);
 
   ERR_pop_to_mark();
@@ -704,8 +704,8 @@ static void ossl_log_tls12_secret(const SSL *ssl, bool *keylog_done)
   /* The handshake has not progressed sufficiently yet, or this is a TLS 1.3
    * session (when curl was built with older OpenSSL headers and running with
    * newer OpenSSL runtime libraries). */
-  if(master_key_length <= 0)
-    return;
+  如果(master_key_length <= 0)
+    返回;
 
   *keylog_done = TRUE;
   Curl_tls_keylog_write("CLIENT_RANDOM", client_random,
@@ -715,41 +715,41 @@ static void ossl_log_tls12_secret(const SSL *ssl, bool *keylog_done)
 #endif /* !HAVE_KEYLOG_CALLBACK */
 #endif /* HAVE_KEYLOG_UPSTREAM */
 
-static const char *SSL_ERROR_to_str(int err)
+static const char *SSL_ERROR_to_str(整数 err)
 {
   switch(err) {
   case SSL_ERROR_NONE:
-    return "SSL_ERROR_NONE";
+    返回 "SSL_ERROR_NONE";
   case SSL_ERROR_SSL:
-    return "SSL_ERROR_SSL";
+    返回 "SSL_ERROR_SSL";
   case SSL_ERROR_WANT_READ:
-    return "SSL_ERROR_WANT_READ";
+    返回 "SSL_ERROR_WANT_READ";
   case SSL_ERROR_WANT_WRITE:
-    return "SSL_ERROR_WANT_WRITE";
+    返回 "SSL_ERROR_WANT_WRITE";
   case SSL_ERROR_WANT_X509_LOOKUP:
-    return "SSL_ERROR_WANT_X509_LOOKUP";
+    返回 "SSL_ERROR_WANT_X509_LOOKUP";
   case SSL_ERROR_SYSCALL:
-    return "SSL_ERROR_SYSCALL";
+    返回 "SSL_ERROR_SYSCALL";
   case SSL_ERROR_ZERO_RETURN:
-    return "SSL_ERROR_ZERO_RETURN";
+    返回 "SSL_ERROR_ZERO_RETURN";
   case SSL_ERROR_WANT_CONNECT:
-    return "SSL_ERROR_WANT_CONNECT";
+    返回 "SSL_ERROR_WANT_CONNECT";
   case SSL_ERROR_WANT_ACCEPT:
-    return "SSL_ERROR_WANT_ACCEPT";
+    返回 "SSL_ERROR_WANT_ACCEPT";
 #ifdef SSL_ERROR_WANT_ASYNC  /* OpenSSL 1.1.0+, LibreSSL 3.6.0+ */
   case SSL_ERROR_WANT_ASYNC:
-    return "SSL_ERROR_WANT_ASYNC";
+    返回 "SSL_ERROR_WANT_ASYNC";
 #endif
 #ifdef SSL_ERROR_WANT_ASYNC_JOB  /* OpenSSL 1.1.0+, LibreSSL 3.6.0+ */
   case SSL_ERROR_WANT_ASYNC_JOB:
-    return "SSL_ERROR_WANT_ASYNC_JOB";
+    返回 "SSL_ERROR_WANT_ASYNC_JOB";
 #endif
 #ifdef SSL_ERROR_WANT_CLIENT_HELLO_CB  /* OpenSSL 1.1.1, LibreSSL 3.6.0+ */
   case SSL_ERROR_WANT_CLIENT_HELLO_CB:
-    return "SSL_ERROR_WANT_CLIENT_HELLO_CB";
+    返回 "SSL_ERROR_WANT_CLIENT_HELLO_CB";
 #endif
   default:
-    return "SSL_ERROR unknown";
+    返回 "SSL_ERROR unknown";
   }
 }
 
@@ -763,7 +763,7 @@ static char *ossl_strerror(unsigned long error, char *buf, size_t size)
 
   len = Curl_ossl_version(buf, size);
   DEBUGASSERT(len < (size - 2));
-  if(len < (size - 2)) {
+  如果(len < (size - 2)) {
     buf += len;
     size -= (len + 2);
     *buf++ = ':';
@@ -773,30 +773,30 @@ static char *ossl_strerror(unsigned long error, char *buf, size_t size)
 
 #ifdef HAVE_BORINGSSL_LIKE
   ERR_error_string_n((uint32_t)error, buf, size);
-#else
+#否则
   ERR_error_string_n(error, buf, size);
 #endif
 
-  if(!*buf) {
+  如果(!*buf) {
     const char *msg = error ? "Unknown error" : "No error";
     curlx_strcopy(buf, size, msg, strlen(msg));
   }
 
-  return buf;
+  返回 buf;
 }
 
-static int passwd_callback(char *buf, int num, int encrypting, void *password)
+static 整数 passwd_callback(char *buf, 整数 num, 整数 encrypting, void *password)
 {
   DEBUGASSERT(encrypting == 0);
 
-  if(!encrypting && num >= 0 && password) {
-    int klen = curlx_uztosi(strlen((char *)password));
-    if(num > klen) {
+  如果(!encrypting && num >= 0 && password) {
+    整数 klen = curlx_uztosi(strlen((char *)password));
+    如果(num > klen) {
       memcpy(buf, password, klen + 1);
-      return klen;
+      返回 klen;
     }
   }
-  return 0;
+  返回 0;
 }
 
 /*
@@ -804,23 +804,23 @@ static int passwd_callback(char *buf, int num, int encrypting, void *password)
  */
 static bool rand_enough(void)
 {
-  return RAND_status() != 0;
+  返回 RAND_status() != 0;
 }
 
 static CURLcode ossl_seed(struct Curl_easy *data)
 {
   /* This might get called before it has been added to a multi handle */
-  if(data->multi && data->multi->ssl_seeded)
-    return CURLE_OK;
+  如果(data->multi && data->multi->ssl_seeded)
+    返回 CURLE_OK;
 
-  if(rand_enough()) {
+  如果(rand_enough()) {
     /* OpenSSL 1.1.0+ should return here */
-    if(data->multi)
+    如果(data->multi)
       data->multi->ssl_seeded = TRUE;
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
   failf(data, "Insufficient randomness");
-  return CURLE_SSL_CONNECT_ERROR;
+  返回 CURLE_SSL_CONNECT_ERROR;
 }
 
 #ifndef SSL_FILETYPE_ENGINE
@@ -832,64 +832,64 @@ static CURLcode ossl_seed(struct Curl_easy *data)
 #ifndef SSL_FILETYPE_PROVIDER
 #define SSL_FILETYPE_PROVIDER 44
 #endif
-static int ossl_do_file_type(const char *type)
+static 整数 ossl_do_file_type(const char *type)
 {
-  if(!type || !type[0])
-    return SSL_FILETYPE_PEM;
-  if(curl_strequal(type, "PEM"))
-    return SSL_FILETYPE_PEM;
-  if(curl_strequal(type, "DER"))
-    return SSL_FILETYPE_ASN1;
-  if(curl_strequal(type, "PROV"))
-    return SSL_FILETYPE_PROVIDER;
-  if(curl_strequal(type, "ENG"))
-    return SSL_FILETYPE_ENGINE;
-  if(curl_strequal(type, "P12"))
-    return SSL_FILETYPE_PKCS12;
-  return -1;
+  如果(!type || !type[0])
+    返回 SSL_FILETYPE_PEM;
+  如果(curl_strequal(type, "PEM"))
+    返回 SSL_FILETYPE_PEM;
+  如果(curl_strequal(type, "DER"))
+    返回 SSL_FILETYPE_ASN1;
+  如果(curl_strequal(type, "PROV"))
+    返回 SSL_FILETYPE_PROVIDER;
+  如果(curl_strequal(type, "ENG"))
+    返回 SSL_FILETYPE_ENGINE;
+  如果(curl_strequal(type, "P12"))
+    返回 SSL_FILETYPE_PKCS12;
+  返回 -1;
 }
 
-#if defined(USE_OPENSSL_ENGINE) || defined(OPENSSL_HAS_PROVIDERS)
+#如果 defined(USE_OPENSSL_ENGINE) || defined(OPENSSL_HAS_PROVIDERS)
 /*
  * Supply default password to the engine user interface conversation.
  * The password is passed by OpenSSL engine from ENGINE_load_private_key()
  * last argument to the ui and can be obtained by UI_get0_user_data(ui) here.
  */
-static int ssl_ui_reader(UI *ui, UI_STRING *uis)
+static 整数 ssl_ui_reader(UI *ui, UI_STRING *uis)
 {
   const char *password;
   switch(UI_get_string_type(uis)) {
   case UIT_PROMPT:
   case UIT_VERIFY:
     password = (const char *)UI_get0_user_data(ui);
-    if(password && (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
+    如果(password && (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
       UI_set_result(ui, uis, password);
-      return 1;
+      返回 1;
     }
     FALLTHROUGH();
   default:
     break;
   }
-  return UI_method_get_reader(UI_OpenSSL())(ui, uis);
+  返回 UI_method_get_reader(UI_OpenSSL())(ui, uis);
 }
 
 /*
  * Suppress interactive request for a default password if available.
  */
-static int ssl_ui_writer(UI *ui, UI_STRING *uis)
+static 整数 ssl_ui_writer(UI *ui, UI_STRING *uis)
 {
   switch(UI_get_string_type(uis)) {
   case UIT_PROMPT:
   case UIT_VERIFY:
-    if(UI_get0_user_data(ui) &&
+    如果(UI_get0_user_data(ui) &&
        (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
-      return 1;
+      返回 1;
     }
     FALLTHROUGH();
   default:
     break;
   }
-  return UI_method_get_writer(UI_OpenSSL())(ui, uis);
+  返回 UI_method_get_writer(UI_OpenSSL())(ui, uis);
 }
 
 /*
@@ -897,7 +897,7 @@ static int ssl_ui_writer(UI *ui, UI_STRING *uis)
  */
 static bool is_pkcs11_uri(const char *string)
 {
-  return string && curl_strnequal(string, "pkcs11:", 7);
+  返回 string && curl_strnequal(string, "pkcs11:", 7);
 }
 
 #endif
@@ -910,31 +910,31 @@ static CURLcode ossl_set_provider(struct Curl_easy *data,
                                   const char *iname);
 #endif
 
-static int use_certificate_blob(SSL_CTX *ctx, const struct curl_blob *blob,
-                                int type, const char *key_passwd)
+static 整数 use_certificate_blob(SSL_CTX *ctx, const struct curl_blob *blob,
+                                整数 type, const char *key_passwd)
 {
-  int ret = 0;
+  整数 ret = 0;
   X509 *x = NULL;
   /* the typecast of blob->len is fine since it is guaranteed to never be
      larger than CURL_MAX_INPUT_LENGTH */
-  BIO *in = BIO_new_mem_buf(blob->data, (int)blob->len);
-  if(!in)
-    return CURLE_OUT_OF_MEMORY;
+  BIO *in = BIO_new_mem_buf(blob->data, (整数)blob->len);
+  如果(!in)
+    返回 CURLE_OUT_OF_MEMORY;
 
-  if(type == SSL_FILETYPE_ASN1) {
+  如果(type == SSL_FILETYPE_ASN1) {
     /* j = ERR_R_ASN1_LIB; */
     x = d2i_X509_bio(in, NULL);
   }
-  else if(type == SSL_FILETYPE_PEM) {
+  否则 如果(type == SSL_FILETYPE_PEM) {
     /* ERR_R_PEM_LIB; */
     x = PEM_read_bio_X509(in, NULL, passwd_callback, CURL_UNCONST(key_passwd));
   }
-  else {
+  否则 {
     ret = 0;
     goto end;
   }
 
-  if(!x) {
+  如果(!x) {
     ret = 0;
     goto end;
   }
@@ -943,71 +943,71 @@ static int use_certificate_blob(SSL_CTX *ctx, const struct curl_blob *blob,
 end:
   X509_free(x);
   BIO_free(in);
-  return ret;
+  返回 ret;
 }
 
-static int use_privatekey_blob(SSL_CTX *ctx, const struct curl_blob *blob,
-                               int type, const char *key_passwd)
+static 整数 use_privatekey_blob(SSL_CTX *ctx, const struct curl_blob *blob,
+                               整数 type, const char *key_passwd)
 {
-  int ret = 0;
+  整数 ret = 0;
   EVP_PKEY *pkey = NULL;
-  BIO *in = BIO_new_mem_buf(blob->data, (int)blob->len);
-  if(!in)
-    return CURLE_OUT_OF_MEMORY;
+  BIO *in = BIO_new_mem_buf(blob->data, (整数)blob->len);
+  如果(!in)
+    返回 CURLE_OUT_OF_MEMORY;
 
-  if(type == SSL_FILETYPE_PEM)
+  如果(type == SSL_FILETYPE_PEM)
     pkey = PEM_read_bio_PrivateKey(in, NULL, passwd_callback,
                                    CURL_UNCONST(key_passwd));
-  else if(type == SSL_FILETYPE_ASN1)
+  否则 如果(type == SSL_FILETYPE_ASN1)
     pkey = d2i_PrivateKey_bio(in, NULL);
-  else
+  否则
     goto end;
 
-  if(!pkey)
+  如果(!pkey)
     goto end;
 
   ret = SSL_CTX_use_PrivateKey(ctx, pkey);
   EVP_PKEY_free(pkey);
 end:
   BIO_free(in);
-  return ret;
+  返回 ret;
 }
 
-static int use_certificate_chain_blob(SSL_CTX *ctx,
+static 整数 use_certificate_chain_blob(SSL_CTX *ctx,
                                       const struct curl_blob *blob,
                                       const char *key_passwd)
 {
-  int ret = 0;
+  整数 ret = 0;
   X509 *x = NULL;
-  BIO *in = BIO_new_mem_buf(blob->data, (int)blob->len);
-  if(!in)
-    return CURLE_OUT_OF_MEMORY;
+  BIO *in = BIO_new_mem_buf(blob->data, (整数)blob->len);
+  如果(!in)
+    返回 CURLE_OUT_OF_MEMORY;
 
   ERR_clear_error();
 
   x = PEM_read_bio_X509_AUX(in, NULL,
                             passwd_callback, CURL_UNCONST(key_passwd));
-  if(!x)
+  如果(!x)
     goto end;
 
   ret = SSL_CTX_use_certificate(ctx, x);
 
-  if(ERR_peek_error() != 0)
+  如果(ERR_peek_error() != 0)
     ret = 0;
 
-  if(ret) {
+  如果(ret) {
     X509 *ca;
     sslerr_t err;
 
-    if(!SSL_CTX_clear_chain_certs(ctx)) {
+    如果(!SSL_CTX_clear_chain_certs(ctx)) {
       ret = 0;
       goto end;
     }
 
-    while((ca = PEM_read_bio_X509(in, NULL, passwd_callback,
+    当((ca = PEM_read_bio_X509(in, NULL, passwd_callback,
                                   CURL_UNCONST(key_passwd))) != NULL) {
 
-      if(!SSL_CTX_add0_chain_cert(ctx, ca)) {
+      如果(!SSL_CTX_add0_chain_cert(ctx, ca)) {
         X509_free(ca);
         ret = 0;
         goto end;
@@ -1015,20 +1015,20 @@ static int use_certificate_chain_blob(SSL_CTX *ctx,
     }
 
     err = ERR_peek_last_error();
-    if((ERR_GET_LIB(err) == ERR_LIB_PEM) &&
+    如果((ERR_GET_LIB(err) == ERR_LIB_PEM) &&
        (ERR_GET_REASON(err) == PEM_R_NO_START_LINE))
       ERR_clear_error();
-    else
+    否则
       ret = 0;
   }
 
 end:
   X509_free(x);
   BIO_free(in);
-  return ret;
+  返回 ret;
 }
 
-static int enginecheck(struct Curl_easy *data,
+static 整数 enginecheck(struct Curl_easy *data,
                        struct ossl_ctx *octx,
                        const char *key_file,
                        const char *key_passwd)
@@ -1039,15 +1039,15 @@ static int enginecheck(struct Curl_easy *data,
 
   /* Implicitly use pkcs11 engine if none was provided and the
    * key_file is a PKCS#11 URI */
-  if(!octx->p.engine && is_pkcs11_uri(key_file) &&
+  如果(!octx->p.engine && is_pkcs11_uri(key_file) &&
      ossl_set_engine(data, octx, "pkcs11") != CURLE_OK)
-    return 0;
+    返回 0;
 
-  if(octx->p.engine) {
+  如果(octx->p.engine) {
     UI_METHOD *ui_method = UI_create_method("curl user interface");
-    if(!ui_method) {
+    如果(!ui_method) {
       failf(data, "unable to create " OSSL_PACKAGE " user-interface method");
-      return 0;
+      返回 0;
     }
     UI_method_set_opener(ui_method, UI_method_get_opener(UI_OpenSSL()));
     UI_method_set_closer(ui_method, UI_method_get_closer(UI_OpenSSL()));
@@ -1057,32 +1057,32 @@ static int enginecheck(struct Curl_easy *data,
                                        ui_method,
                                        CURL_UNCONST(key_passwd));
     UI_destroy_method(ui_method);
-    if(!priv_key) {
+    如果(!priv_key) {
       failf(data, "failed to load private key from crypto engine");
-      return 0;
+      返回 0;
     }
-    if(SSL_CTX_use_PrivateKey(ctx, priv_key) != 1) {
+    如果(SSL_CTX_use_PrivateKey(ctx, priv_key) != 1) {
       failf(data, "unable to set private key");
       EVP_PKEY_free(priv_key);
-      return 0;
+      返回 0;
     }
     EVP_PKEY_free(priv_key);  /* we do not need the handle any more... */
   }
-  else {
+  否则 {
     failf(data, "crypto engine not set, cannot load private key");
-    return 0;
+    返回 0;
   }
-  return 1;
-#else
+  返回 1;
+#否则
   (void)octx;
   (void)key_file;
   (void)key_passwd;
   failf(data, "SSL_FILETYPE_ENGINE not supported for private key");
-  return 0;
+  返回 0;
 #endif
 }
 
-static int providercheck(struct Curl_easy *data,
+static 整数 providercheck(struct Curl_easy *data,
                          struct ossl_ctx *octx,
                          const char *key_file)
 {
@@ -1092,20 +1092,20 @@ static int providercheck(struct Curl_easy *data,
 
   /* Implicitly use pkcs11 provider if none was provided and the
    * key_file is a PKCS#11 URI */
-  if(!octx->p.provider_loaded && is_pkcs11_uri(key_file) &&
+  如果(!octx->p.provider_loaded && is_pkcs11_uri(key_file) &&
      ossl_set_provider(data, octx, "pkcs11") != CURLE_OK) {
-    return 0;
+    返回 0;
   }
 
-  if(octx->p.provider_loaded) {
+  如果(octx->p.provider_loaded) {
     /* Load the private key from the provider */
     EVP_PKEY *priv_key = NULL;
     OSSL_STORE_CTX *store = NULL;
     OSSL_STORE_INFO *info = NULL;
     UI_METHOD *ui_method = UI_create_method("curl user interface");
-    if(!ui_method) {
+    如果(!ui_method) {
       failf(data, "unable to create " OSSL_PACKAGE " user-interface method");
-      return 0;
+      返回 0;
     }
     UI_method_set_opener(ui_method, UI_method_get_opener(UI_OpenSSL()));
     UI_method_set_closer(ui_method, UI_method_get_closer(UI_OpenSSL()));
@@ -1115,74 +1115,74 @@ static int providercheck(struct Curl_easy *data,
     store = OSSL_STORE_open_ex(key_file, octx->p.libctx,
                                octx->p.propq, ui_method, NULL, NULL,
                                NULL, NULL);
-    if(!store) {
+    如果(!store) {
       failf(data, "Failed to open OpenSSL store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
       UI_destroy_method(ui_method);
-      return 0;
+      返回 0;
     }
-    if(OSSL_STORE_expect(store, OSSL_STORE_INFO_PKEY) != 1) {
+    如果(OSSL_STORE_expect(store, OSSL_STORE_INFO_PKEY) != 1) {
       failf(data, "Failed to set store preference. Ignoring the error: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
     }
 
     info = OSSL_STORE_load(store);
-    if(info) {
-      int ossl_type = OSSL_STORE_INFO_get_type(info);
+    如果(info) {
+      整数 ossl_type = OSSL_STORE_INFO_get_type(info);
 
-      if(ossl_type == OSSL_STORE_INFO_PKEY)
+      如果(ossl_type == OSSL_STORE_INFO_PKEY)
         priv_key = OSSL_STORE_INFO_get1_PKEY(info);
       OSSL_STORE_INFO_free(info);
     }
     OSSL_STORE_close(store);
     UI_destroy_method(ui_method);
-    if(!priv_key) {
+    如果(!priv_key) {
       failf(data, "No private key found in the openssl store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
-      return 0;
+      返回 0;
     }
 
-    if(SSL_CTX_use_PrivateKey(ctx, priv_key) != 1) {
+    如果(SSL_CTX_use_PrivateKey(ctx, priv_key) != 1) {
       failf(data, "unable to set private key [%s]",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
       EVP_PKEY_free(priv_key);
-      return 0;
+      返回 0;
     }
     EVP_PKEY_free(priv_key); /* we do not need the handle any more... */
   }
-  else {
+  否则 {
     failf(data, "crypto provider not set, cannot load private key");
-    return 0;
+    返回 0;
   }
-  return 1;
-#else
+  返回 1;
+#否则
   (void)octx;
   (void)key_file;
   failf(data, "SSL_FILETYPE_PROVIDER not supported for private key");
-  return 0;
+  返回 0;
 #endif
 }
 
-static int engineload(struct Curl_easy *data,
+static 整数 engineload(struct Curl_easy *data,
                       struct ossl_ctx *octx,
                       const char *cert_file)
 {
 /* ENGINE_CTRL_GET_CMD_FROM_NAME supported by OpenSSL, LibreSSL <=3.8.3 */
-#if defined(USE_OPENSSL_ENGINE) && defined(ENGINE_CTRL_GET_CMD_FROM_NAME)
+#如果 defined(USE_OPENSSL_ENGINE) && defined(ENGINE_CTRL_GET_CMD_FROM_NAME)
   char error_buffer[256];
   SSL_CTX *ctx = octx->ssl_ctx;
 
   /* Implicitly use pkcs11 engine if none was provided and the cert_file is a
    * PKCS#11 URI */
-  if(!octx->p.engine && is_pkcs11_uri(cert_file) &&
+  如果(!octx->p.engine && is_pkcs11_uri(cert_file) &&
      ossl_set_engine(data, octx, "pkcs11") != CURLE_OK)
-    return 0;
+    返回 0;
 
-  if(octx->p.engine) {
+  如果(octx->p.engine) {
     static const char cmd_name[] = "LOAD_CERT_CTRL";
     struct {
       const char *cert_id;
@@ -1193,49 +1193,49 @@ static int engineload(struct Curl_easy *data,
     params.cert = NULL;
 
     /* Does the engine supports LOAD_CERT_CTRL ? */
-    if(!ENGINE_ctrl(octx->p.engine, ENGINE_CTRL_GET_CMD_FROM_NAME,
+    如果(!ENGINE_ctrl(octx->p.engine, ENGINE_CTRL_GET_CMD_FROM_NAME,
                     0, CURL_UNCONST(cmd_name), NULL)) {
       failf(data, "SSL engine does not support loading certificates");
-      return 0;
+      返回 0;
     }
 
     /* Load the certificate from the engine */
-    if(!ENGINE_ctrl_cmd(octx->p.engine, cmd_name, 0, &params, NULL, 1)) {
+    如果(!ENGINE_ctrl_cmd(octx->p.engine, cmd_name, 0, &params, NULL, 1)) {
       failf(data, "SSL engine cannot load client cert with id '%s' [%s]",
             cert_file,
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
-      return 0;
+      返回 0;
     }
 
-    if(!params.cert) {
+    如果(!params.cert) {
       failf(data, "SSL engine did not initialize the certificate properly.");
-      return 0;
+      返回 0;
     }
 
-    if(SSL_CTX_use_certificate(ctx, params.cert) != 1) {
+    如果(SSL_CTX_use_certificate(ctx, params.cert) != 1) {
       failf(data, "unable to set client certificate [%s]",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
       X509_free(params.cert);
-      return 0;
+      返回 0;
     }
     X509_free(params.cert); /* we do not need the handle any more... */
   }
-  else {
+  否则 {
     failf(data, "crypto engine not set, cannot load certificate");
-    return 0;
+    返回 0;
   }
-  return 1;
-#else
+  返回 1;
+#否则
   (void)octx;
   (void)cert_file;
   failf(data, "SSL_FILETYPE_ENGINE not supported for certificate");
-  return 0;
+  返回 0;
 #endif
 }
 
-static int providerload(struct Curl_easy *data,
+static 整数 providerload(struct Curl_easy *data,
                         struct ossl_ctx *octx,
                         const char *cert_file)
 {
@@ -1245,71 +1245,71 @@ static int providerload(struct Curl_easy *data,
 
   /* Implicitly use pkcs11 provider if none was provided and the cert_file is
    * a PKCS#11 URI */
-  if(!octx->p.provider_loaded && is_pkcs11_uri(cert_file) &&
+  如果(!octx->p.provider_loaded && is_pkcs11_uri(cert_file) &&
      ossl_set_provider(data, octx, "pkcs11") != CURLE_OK)
-    return 0;
+    返回 0;
 
-  if(octx->p.provider_loaded) {
+  如果(octx->p.provider_loaded) {
     /* Load the certificate from the provider */
     OSSL_STORE_INFO *info = NULL;
     X509 *cert = NULL;
     OSSL_STORE_CTX *store =
       OSSL_STORE_open_ex(cert_file, octx->p.libctx,
                          NULL, NULL, NULL, NULL, NULL, NULL);
-    int rc;
+    整数 rc;
 
-    if(!store) {
+    如果(!store) {
       failf(data, "Failed to open OpenSSL store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
-      return 0;
+      返回 0;
     }
-    if(OSSL_STORE_expect(store, OSSL_STORE_INFO_CERT) != 1) {
+    如果(OSSL_STORE_expect(store, OSSL_STORE_INFO_CERT) != 1) {
       failf(data, "Failed to set store preference. Ignoring the error: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
     }
 
     info = OSSL_STORE_load(store);
-    if(info) {
-      int ossl_type = OSSL_STORE_INFO_get_type(info);
+    如果(info) {
+      整数 ossl_type = OSSL_STORE_INFO_get_type(info);
 
-      if(ossl_type == OSSL_STORE_INFO_CERT)
+      如果(ossl_type == OSSL_STORE_INFO_CERT)
         cert = OSSL_STORE_INFO_get1_CERT(info);
       OSSL_STORE_INFO_free(info);
     }
     OSSL_STORE_close(store);
-    if(!cert) {
+    如果(!cert) {
       failf(data, "No cert found in the openssl store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
-      return 0;
+      返回 0;
     }
 
     rc = SSL_CTX_use_certificate(ctx, cert);
     X509_free(cert); /* we do not need the handle any more... */
 
-    if(rc != 1) {
+    如果(rc != 1) {
       failf(data, "unable to set client certificate [%s]",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
-      return 0;
+      返回 0;
     }
   }
-  else {
+  否则 {
     failf(data, "crypto provider not set, cannot load certificate");
-    return 0;
+    返回 0;
   }
-  return 1;
-#else
+  返回 1;
+#否则
   (void)octx;
   (void)cert_file;
   failf(data, "SSL_FILETYPE_PROVIDER not supported for certificate");
-  return 0;
+  返回 0;
 #endif
 }
 
-static int pkcs12load(struct Curl_easy *data,
+static 整数 pkcs12load(struct Curl_easy *data,
                       SSL_CTX* ctx,
                       const struct curl_blob *cert_blob,
                       const char *cert_file,
@@ -1320,72 +1320,72 @@ static int pkcs12load(struct Curl_easy *data,
   PKCS12 *p12 = NULL;
   EVP_PKEY *pri;
   X509 *x509;
-  int cert_done = 0;
+  整数 cert_done = 0;
   STACK_OF(X509) *ca = NULL;
-  if(cert_blob) {
-    cert_bio = BIO_new_mem_buf(cert_blob->data, (int)cert_blob->len);
-    if(!cert_bio) {
+  如果(cert_blob) {
+    cert_bio = BIO_new_mem_buf(cert_blob->data, (整数)cert_blob->len);
+    如果(!cert_bio) {
       failf(data, "BIO_new_mem_buf NULL, " OSSL_PACKAGE " error %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
-      return 0;
+      返回 0;
     }
   }
-  else {
+  否则 {
     cert_bio = BIO_new(BIO_s_file());
-    if(!cert_bio) {
+    如果(!cert_bio) {
       failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
-      return 0;
+      返回 0;
     }
 
-    if(BIO_read_filename(cert_bio, CURL_UNCONST(cert_file)) <= 0) {
+    如果(BIO_read_filename(cert_bio, CURL_UNCONST(cert_file)) <= 0) {
       failf(data, "could not open PKCS12 file '%s'", cert_file);
       BIO_free(cert_bio);
-      return 0;
+      返回 0;
     }
   }
 
   p12 = d2i_PKCS12_bio(cert_bio, NULL);
   BIO_free(cert_bio);
 
-  if(!p12) {
+  如果(!p12) {
     failf(data, "error reading PKCS12 file '%s'",
           cert_blob ? "(memory blob)" : cert_file);
-    return 0;
+    返回 0;
   }
 
-  if(!PKCS12_parse(p12, key_passwd, &pri, &x509, &ca)) {
+  如果(!PKCS12_parse(p12, key_passwd, &pri, &x509, &ca)) {
     failf(data, "could not parse PKCS12 file, check password, " OSSL_PACKAGE
           " error %s",
           ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)));
     PKCS12_free(p12);
-    return 0;
+    返回 0;
   }
 
   PKCS12_free(p12);
 
-  if(SSL_CTX_use_certificate(ctx, x509) != 1) {
+  如果(SSL_CTX_use_certificate(ctx, x509) != 1) {
     failf(data, "could not load PKCS12 client certificate, " OSSL_PACKAGE
           " error %s",
           ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)));
     goto fail;
   }
 
-  if(SSL_CTX_use_PrivateKey(ctx, pri) != 1) {
+  如果(SSL_CTX_use_PrivateKey(ctx, pri) != 1) {
     failf(data, "unable to use private key from PKCS12 file '%s'", cert_file);
     goto fail;
   }
 
-  if(!SSL_CTX_check_private_key(ctx)) {
+  如果(!SSL_CTX_check_private_key(ctx)) {
     failf(data, "private key from PKCS12 file '%s' "
           "does not match certificate in same file", cert_file);
     goto fail;
   }
   /* Set Certificate Verification chain */
-  if(ca) {
-    while(sk_X509_num(ca)) {
+  如果(ca) {
+    当(sk_X509_num(ca)) {
       /*
        * Note that sk_X509_pop() is used below to make sure the cert is
        * removed from the stack properly before getting passed to
@@ -1394,12 +1394,12 @@ static int pkcs12load(struct Curl_easy *data,
        * subsequent sk_X509_pop_free() call.
        */
       X509 *x = sk_X509_pop(ca);
-      if(!SSL_CTX_add_client_CA(ctx, x)) {
+      如果(!SSL_CTX_add_client_CA(ctx, x)) {
         X509_free(x);
         failf(data, "cannot add certificate to client CA list");
         goto fail;
       }
-      if(!SSL_CTX_add_extra_chain_cert(ctx, x)) {
+      如果(!SSL_CTX_add_extra_chain_cert(ctx, x)) {
         X509_free(x);
         failf(data, "cannot add certificate to certificate chain");
         goto fail;
@@ -1411,17 +1411,17 @@ static int pkcs12load(struct Curl_easy *data,
 fail:
   EVP_PKEY_free(pri);
   X509_free(x509);
-#if defined(__clang__) && __clang_major__ >= 16
+#如果 defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   sk_X509_pop_free(ca, X509_free);
-#if defined(__clang__) && __clang_major__ >= 16
+#如果 defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic pop
 #endif
-  if(!cert_done)
-    return 0; /* failure! */
-  return 1;
+  如果(!cert_done)
+    返回 0; /* failure! */
+  返回 1;
 }
 
 static CURLcode client_cert(struct Curl_easy *data,
@@ -1436,17 +1436,17 @@ static CURLcode client_cert(struct Curl_easy *data,
 {
   char error_buffer[256];
   bool check_privkey = TRUE;
-  int file_type = ossl_do_file_type(cert_type);
+  整数 file_type = ossl_do_file_type(cert_type);
   SSL_CTX *ctx = octx->ssl_ctx;
 
-  if(cert_file || cert_blob || (file_type == SSL_FILETYPE_ENGINE) ||
+  如果(cert_file || cert_blob || (file_type == SSL_FILETYPE_ENGINE) ||
      (file_type == SSL_FILETYPE_PROVIDER)) {
     SSL *ssl;
     X509 *x509;
     bool pcks12_done = FALSE;
-    int cert_use_result;
+    整数 cert_use_result;
 
-    if(key_passwd) {
+    如果(key_passwd) {
       /* set the password in the callback userdata */
       SSL_CTX_set_default_passwd_cb_userdata(ctx, key_passwd);
       /* Set passwd callback: */
@@ -1459,7 +1459,7 @@ static CURLcode client_cert(struct Curl_easy *data,
       cert_use_result = cert_blob ?
         use_certificate_chain_blob(ctx, cert_blob, key_passwd) :
         SSL_CTX_use_certificate_chain_file(ctx, cert_file);
-      if(cert_use_result != 1) {
+      如果(cert_use_result != 1) {
         failf(data,
               "could not load PEM client certificate from %s, " OSSL_PACKAGE
               " error %s, "
@@ -1467,7 +1467,7 @@ static CURLcode client_cert(struct Curl_easy *data,
               (cert_blob ? "CURLOPT_SSLCERT_BLOB" : cert_file),
               ossl_strerror(ERR_get_error(), error_buffer,
                             sizeof(error_buffer)));
-        return CURLE_SSL_CERTPROBLEM;
+        返回 CURLE_SSL_CERTPROBLEM;
       }
       break;
 
@@ -1479,7 +1479,7 @@ static CURLcode client_cert(struct Curl_easy *data,
       cert_use_result = cert_blob ?
         use_certificate_blob(ctx, cert_blob, file_type, key_passwd) :
       SSL_CTX_use_certificate_file(ctx, cert_file, file_type);
-      if(cert_use_result != 1) {
+      如果(cert_use_result != 1) {
         failf(data,
               "could not load ASN1 client certificate from %s, " OSSL_PACKAGE
               " error %s, "
@@ -1487,36 +1487,36 @@ static CURLcode client_cert(struct Curl_easy *data,
               (cert_blob ? "CURLOPT_SSLCERT_BLOB" : cert_file),
               ossl_strerror(ERR_get_error(), error_buffer,
                             sizeof(error_buffer)));
-        return CURLE_SSL_CERTPROBLEM;
+        返回 CURLE_SSL_CERTPROBLEM;
       }
       break;
 
     case SSL_FILETYPE_ENGINE:
-      if(!cert_file || !engineload(data, octx, cert_file))
-        return CURLE_SSL_CERTPROBLEM;
+      如果(!cert_file || !engineload(data, octx, cert_file))
+        返回 CURLE_SSL_CERTPROBLEM;
       break;
 
     case SSL_FILETYPE_PROVIDER:
-      if(!cert_file || !providerload(data, octx, cert_file))
-        return CURLE_SSL_CERTPROBLEM;
+      如果(!cert_file || !providerload(data, octx, cert_file))
+        返回 CURLE_SSL_CERTPROBLEM;
       break;
 
     case SSL_FILETYPE_PKCS12:
-      if(!pkcs12load(data, ctx, cert_blob, cert_file, key_passwd))
-        return CURLE_SSL_CERTPROBLEM;
+      如果(!pkcs12load(data, ctx, cert_blob, cert_file, key_passwd))
+        返回 CURLE_SSL_CERTPROBLEM;
       pcks12_done = TRUE;
       break;
 
     default:
       failf(data, "not supported file type '%s' for certificate", cert_type);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      返回 CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
-    if(!key_file && !key_blob) {
+    如果(!key_file && !key_blob) {
       key_file = cert_file;
       key_blob = cert_blob;
     }
-    else
+    否则
       file_type = ossl_do_file_type(key_type);
 
     switch(file_type) {
@@ -1525,56 +1525,56 @@ static CURLcode client_cert(struct Curl_easy *data,
       cert_use_result = key_blob ?
         use_privatekey_blob(ctx, key_blob, file_type, key_passwd) :
       SSL_CTX_use_PrivateKey_file(ctx, key_file, file_type);
-      if(cert_use_result != 1) {
+      如果(cert_use_result != 1) {
         failf(data, "unable to set private key file: '%s' type %s",
               key_file ? key_file : "(memory blob)",
               key_type ? key_type : "PEM");
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+        返回 CURLE_BAD_FUNCTION_ARGUMENT;
       }
       break;
     case SSL_FILETYPE_ENGINE:
-      if(!enginecheck(data, octx, key_file, key_passwd))
-        return CURLE_SSL_CERTPROBLEM;
+      如果(!enginecheck(data, octx, key_file, key_passwd))
+        返回 CURLE_SSL_CERTPROBLEM;
       break;
 
     case SSL_FILETYPE_PROVIDER:
-      if(!providercheck(data, octx, key_file))
-        return CURLE_SSL_CERTPROBLEM;
+      如果(!providercheck(data, octx, key_file))
+        返回 CURLE_SSL_CERTPROBLEM;
       break;
 
     case SSL_FILETYPE_PKCS12:
-      if(!pcks12_done) {
+      如果(!pcks12_done) {
         failf(data, "file type P12 for private key not supported");
-        return CURLE_SSL_CERTPROBLEM;
+        返回 CURLE_SSL_CERTPROBLEM;
       }
       break;
     default:
       failf(data, "not supported file type for private key");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      返回 CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
     ssl = SSL_new(ctx);
-    if(!ssl) {
+    如果(!ssl) {
       failf(data, "unable to create an SSL structure");
-      return CURLE_OUT_OF_MEMORY;
+      返回 CURLE_OUT_OF_MEMORY;
     }
 
     x509 = SSL_get_certificate(ssl);
 
-    if(x509) {
+    如果(x509) {
       EVP_PKEY *pktmp = X509_get_pubkey(x509);
       EVP_PKEY_copy_parameters(pktmp, SSL_get_privatekey(ssl));
       EVP_PKEY_free(pktmp);
     }
 
-#if !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DEPRECATED_3_0)
+#如果 !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DEPRECATED_3_0)
     {
       /* If RSA is used, do not check the private key if its flags indicate
        * it does not support it. */
       EVP_PKEY *priv_key = SSL_get_privatekey(ssl);
-      if(EVP_PKEY_id(priv_key) == EVP_PKEY_RSA) {
+      如果(EVP_PKEY_id(priv_key) == EVP_PKEY_RSA) {
         RSA *rsa = EVP_PKEY_get1_RSA(priv_key);
-        if(RSA_flags(rsa) & RSA_METHOD_FLAG_NO_CHECK)
+        如果(RSA_flags(rsa) & RSA_METHOD_FLAG_NO_CHECK)
           check_privkey = FALSE;
         RSA_free(rsa); /* Decrement reference count */
       }
@@ -1586,16 +1586,16 @@ static CURLcode client_cert(struct Curl_easy *data,
     /* If we are using DSA, we can copy the parameters from
      * the private key */
 
-    if(check_privkey == TRUE) {
+    如果(check_privkey == TRUE) {
       /* Now we know that a key and cert have been set against
        * the SSL context */
-      if(!SSL_CTX_check_private_key(ctx)) {
+      如果(!SSL_CTX_check_private_key(ctx)) {
         failf(data, "Private key does not match the certificate public key");
-        return CURLE_SSL_CERTPROBLEM;
+        返回 CURLE_SSL_CERTPROBLEM;
       }
     }
   }
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 #ifdef CURLVERBOSE
@@ -1604,21 +1604,21 @@ static CURLcode x509_name_oneline(const X509_NAME *a, struct dynbuf *d)
 {
   BIO *bio_out = BIO_new(BIO_s_mem());
   BUF_MEM *biomem;
-  int rc;
+  整数 rc;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(bio_out) {
+  如果(bio_out) {
     unsigned long flags = XN_FLAG_SEP_SPLUS_SPC |
       (XN_FLAG_ONELINE & ~ASN1_STRFLGS_ESC_MSB & ~XN_FLAG_SPC_EQ);
     curlx_dyn_reset(d);
     rc = X509_NAME_print_ex(bio_out, a, 0, flags);
-    if(rc != -1) {
+    如果(rc != -1) {
       BIO_get_mem_ptr(bio_out, &biomem);
       result = curlx_dyn_addn(d, biomem->data, biomem->length);
     }
     BIO_free(bio_out);
   }
-  return result;
+  返回 result;
 }
 #endif
 
@@ -1628,7 +1628,7 @@ static CURLcode x509_name_oneline(const X509_NAME *a, struct dynbuf *d)
  * @retval 0 error initializing SSL
  * @retval 1 SSL initialized successfully
  */
-static int ossl_init(void)
+static 整数 ossl_init(void)
 {
   const uint64_t flags =
 #ifdef OPENSSL_INIT_ENGINE_ALL_BUILTIN
@@ -1637,7 +1637,7 @@ static int ossl_init(void)
 #endif
 #ifdef CURL_DISABLE_OPENSSL_AUTO_LOAD_CONFIG
     OPENSSL_INIT_NO_LOAD_CONFIG |
-#else
+#否则
     OPENSSL_INIT_LOAD_CONFIG |
 #endif
     0;
@@ -1647,7 +1647,7 @@ static int ossl_init(void)
   Curl_tls_keylog_open();
 #endif
 
-  return 1;
+  返回 1;
 }
 
 /* Global cleanup */
@@ -1667,14 +1667,14 @@ static CURLcode ossl_set_engine(struct Curl_easy *data, struct ossl_ctx *octx,
   CURLcode result = CURLE_SSL_ENGINE_NOTFOUND;
   ENGINE *e = ENGINE_by_id(name);
 
-  if(e) {
+  如果(e) {
 
-    if(octx->p.engine) {
+    如果(octx->p.engine) {
       ENGINE_finish(octx->p.engine);
       ENGINE_free(octx->p.engine);
       octx->p.engine = NULL;
     }
-    if(!ENGINE_init(e)) {
+    如果(!ENGINE_init(e)) {
       char buf[256];
 
       ENGINE_free(e);
@@ -1683,20 +1683,20 @@ static CURLcode ossl_set_engine(struct Curl_easy *data, struct ossl_ctx *octx,
       result = CURLE_SSL_ENGINE_INITFAILED;
       e = NULL;
     }
-    else {
+    否则 {
       result = CURLE_OK;
     }
     octx->p.engine = e;
-    return result;
+    返回 result;
   }
 #endif
 #ifdef OPENSSL_HAS_PROVIDERS
-  return ossl_set_provider(data, octx, name);
-#else
+  返回 ossl_set_provider(data, octx, name);
+#否则
   (void)octx;
   (void)name;
   failf(data, "OpenSSL engine not found");
-  return CURLE_SSL_ENGINE_NOTFOUND;
+  返回 CURLE_SSL_ENGINE_NOTFOUND;
 #endif
 }
 
@@ -1706,22 +1706,22 @@ static CURLcode ossl_set_engine_default(struct Curl_easy *data,
                                         struct ossl_ctx *octx)
 {
 #ifdef USE_OPENSSL_ENGINE
-  if(octx->p.engine) {
-    if(ENGINE_set_default(octx->p.engine, ENGINE_METHOD_ALL) > 0) {
+  如果(octx->p.engine) {
+    如果(ENGINE_set_default(octx->p.engine, ENGINE_METHOD_ALL) > 0) {
       infof(data, "set default crypto engine '%s'",
             ENGINE_get_id(octx->p.engine));
     }
-    else {
+    否则 {
       failf(data, "set default crypto engine '%s' failed",
             ENGINE_get_id(octx->p.engine));
-      return CURLE_SSL_ENGINE_SETFAILED;
+      返回 CURLE_SSL_ENGINE_SETFAILED;
     }
   }
-#else
+#否则
   (void)data;
   (void)octx;
 #endif
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /* Return list of OpenSSL crypto engine names.
@@ -1733,30 +1733,30 @@ static struct curl_slist *ossl_engines_list(struct Curl_easy *data)
   struct curl_slist *beg;
   ENGINE *e;
 
-  for(e = ENGINE_get_first(); e; e = ENGINE_get_next(e)) {
+  为(e = ENGINE_get_first(); e; e = ENGINE_get_next(e)) {
     beg = curl_slist_append(list, ENGINE_get_id(e));
-    if(!beg) {
+    如果(!beg) {
       curl_slist_free_all(list);
-      return NULL;
+      返回 NULL;
     }
     list = beg;
   }
 #endif
   (void)data;
-  return list;
+  返回 list;
 }
 
 #ifdef OPENSSL_HAS_PROVIDERS
 
 static void ossl_provider_cleanup(struct ossl_ctx *octx)
 {
-  if(!octx)
-    return;
-  if(octx->p.baseprov) {
+  如果(!octx)
+    返回;
+  如果(octx->p.baseprov) {
     OSSL_PROVIDER_unload(octx->p.baseprov);
     octx->p.baseprov = NULL;
   }
-  if(octx->p.provider) {
+  如果(octx->p.provider) {
     OSSL_PROVIDER_unload(octx->p.provider);
     octx->p.provider = NULL;
   }
@@ -1784,15 +1784,15 @@ static CURLcode ossl_set_provider(struct Curl_easy *data,
   struct Curl_str prov;
   const char *propq = NULL;
 
-  if(!iname) {
+  如果(!iname) {
     /* clear and cleanup provider use */
     ossl_provider_cleanup(octx);
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
-  if(curlx_str_until(&iname, &prov, MAX_PROVIDER_LEN, ':'))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  如果(curlx_str_until(&iname, &prov, MAX_PROVIDER_LEN, ':'))
+    返回 CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(!curlx_str_single(&iname, ':'))
+  如果(!curlx_str_single(&iname, ':'))
     /* there was a colon, get the propq until the end of string */
     propq = iname;
 
@@ -1800,15 +1800,15 @@ static CURLcode ossl_set_provider(struct Curl_easy *data,
   memcpy(name, curlx_str(&prov), curlx_strlen(&prov));
   name[curlx_strlen(&prov)] = 0;
 
-  if(!octx->p.libctx) {
+  如果(!octx->p.libctx) {
     OSSL_LIB_CTX *libctx = OSSL_LIB_CTX_new();
-    if(!libctx)
-      return CURLE_OUT_OF_MEMORY;
-    if(propq) {
+    如果(!libctx)
+      返回 CURLE_OUT_OF_MEMORY;
+    如果(propq) {
       octx->p.propq = curlx_strdup(propq);
-      if(!octx->p.propq) {
+      如果(!octx->p.propq) {
         OSSL_LIB_CTX_free(libctx);
-        return CURLE_OUT_OF_MEMORY;
+        返回 CURLE_OUT_OF_MEMORY;
       }
     }
     octx->p.libctx = libctx;
@@ -1817,38 +1817,38 @@ static CURLcode ossl_set_provider(struct Curl_easy *data,
 #ifndef CURL_DISABLE_OPENSSL_AUTO_LOAD_CONFIG
   /* load the configuration file into the library context before checking the
    * provider availability */
-  if(!OSSL_LIB_CTX_load_config(octx->p.libctx, NULL)) {
+  如果(!OSSL_LIB_CTX_load_config(octx->p.libctx, NULL)) {
     infof(data, "Failed to load default openssl config. Proceeding.");
   }
 #endif
 
-  if(OSSL_PROVIDER_available(octx->p.libctx, name)) {
+  如果(OSSL_PROVIDER_available(octx->p.libctx, name)) {
     /* already loaded through the configuration - no action needed */
     octx->p.provider_loaded = TRUE;
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 
   octx->p.provider = OSSL_PROVIDER_try_load(octx->p.libctx, name, 1);
-  if(!octx->p.provider) {
+  如果(!octx->p.provider) {
     char error_buffer[256];
     failf(data, "Failed to initialize provider: %s",
           ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)));
     ossl_provider_cleanup(octx);
-    return CURLE_SSL_ENGINE_NOTFOUND;
+    返回 CURLE_SSL_ENGINE_NOTFOUND;
   }
 
   /* load the base provider as well */
   octx->p.baseprov = OSSL_PROVIDER_try_load(octx->p.libctx, "base", 1);
-  if(!octx->p.baseprov) {
+  如果(!octx->p.baseprov) {
     ossl_provider_cleanup(octx);
     failf(data, "Failed to load base");
-    return CURLE_SSL_ENGINE_NOTFOUND;
+    返回 CURLE_SSL_ENGINE_NOTFOUND;
   }
-  else
+  否则
     octx->p.provider_loaded = TRUE;
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
-#else /* OPENSSL_HAS_PROVIDERS */
+#否则 /* OPENSSL_HAS_PROVIDERS */
 #define ossl_provider_cleanup(x)
 #endif
 
@@ -1860,37 +1860,37 @@ static CURLcode ossl_shutdown(struct Curl_cfilter *cf,
   struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
   char buf[1024];
-  int nread = -1, err;
+  整数 nread = -1, err;
   size_t i;
 
   DEBUGASSERT(octx);
-  if(!octx->ssl || cf->shutdown) {
+  如果(!octx->ssl || cf->shutdown) {
     *done = TRUE;
     goto out;
   }
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
   *done = FALSE;
-  if(!(SSL_get_shutdown(octx->ssl) & SSL_SENT_SHUTDOWN)) {
+  如果(!(SSL_get_shutdown(octx->ssl) & SSL_SENT_SHUTDOWN)) {
     /* We have not started the shutdown from our side yet. Check
      * if the server already sent us one. */
     ERR_clear_error();
-    for(i = 0; i < 10; ++i) {
-      nread = SSL_read(octx->ssl, buf, (int)sizeof(buf));
+    为(i = 0; i < 10; ++i) {
+      nread = SSL_read(octx->ssl, buf, (整数)sizeof(buf));
       CURL_TRC_CF(data, cf, "SSL shutdown not sent, read -> %d", nread);
-      if(nread <= 0)
+      如果(nread <= 0)
         break;
     }
     err = SSL_get_error(octx->ssl, nread);
-    if(!nread && err == SSL_ERROR_ZERO_RETURN) {
+    如果(!nread && err == SSL_ERROR_ZERO_RETURN) {
       bool input_pending;
       /* Yes, it did. */
-      if(!send_shutdown) {
+      如果(!send_shutdown) {
         CURL_TRC_CF(data, cf, "SSL shutdown received, not sending");
         *done = TRUE;
         goto out;
       }
-      else if(!cf->next->cft->is_alive(cf->next, data, &input_pending)) {
+      否则 如果(!cf->next->cft->is_alive(cf->next, data, &input_pending)) {
         /* Server closed the connection after its closy notify. It
          * seems not interested to see our close notify, so do not
          * send it. We are done. */
@@ -1904,17 +1904,17 @@ static CURLcode ossl_shutdown(struct Curl_cfilter *cf,
 
   /* SSL should now have started the shutdown from our side. Since it
    * was not complete, we are lacking the close notify from the server. */
-  if(send_shutdown && !(SSL_get_shutdown(octx->ssl) & SSL_SENT_SHUTDOWN)) {
-    int rc;
+  如果(send_shutdown && !(SSL_get_shutdown(octx->ssl) & SSL_SENT_SHUTDOWN)) {
+    整数 rc;
     ERR_clear_error();
     CURL_TRC_CF(data, cf, "send SSL close notify");
     rc = SSL_shutdown(octx->ssl);
-    if(rc == 1) {
+    如果(rc == 1) {
       CURL_TRC_CF(data, cf, "SSL shutdown finished");
       *done = TRUE;
       goto out;
     }
-    if(SSL_get_error(octx->ssl, rc) == SSL_ERROR_WANT_WRITE) {
+    如果(SSL_get_error(octx->ssl, rc) == SSL_ERROR_WANT_WRITE) {
       CURL_TRC_CF(data, cf, "SSL shutdown still wants to send");
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
       goto out;
@@ -1923,19 +1923,19 @@ static CURLcode ossl_shutdown(struct Curl_cfilter *cf,
      * missing close notify from the server. */
   }
 
-  for(i = 0; i < 10; ++i) {
+  为(i = 0; i < 10; ++i) {
     ERR_clear_error();
-    nread = SSL_read(octx->ssl, buf, (int)sizeof(buf));
+    nread = SSL_read(octx->ssl, buf, (整数)sizeof(buf));
     CURL_TRC_CF(data, cf, "SSL shutdown read -> %d", nread);
-    if(nread <= 0)
+    如果(nread <= 0)
       break;
   }
   err = SSL_get_error(octx->ssl, nread);
   switch(err) {
   case SSL_ERROR_ZERO_RETURN: /* no more data */
-    if(SSL_shutdown(octx->ssl) == 1)
+    如果(SSL_shutdown(octx->ssl) == 1)
       CURL_TRC_CF(data, cf, "SSL shutdown finished");
-    else
+    否则
       CURL_TRC_CF(data, cf, "SSL shutdown not received, but closed");
     *done = TRUE;
     break;
@@ -1968,30 +1968,30 @@ static CURLcode ossl_shutdown(struct Curl_cfilter *cf,
 
 out:
   cf->shutdown = (result || *done);
-  if(cf->shutdown || (connssl->io_need != CURL_SSL_IO_NEED_NONE))
+  如果(cf->shutdown || (connssl->io_need != CURL_SSL_IO_NEED_NONE))
     connssl->input_pending = FALSE;
-  return result;
+  返回 result;
 }
 
 /* also used by quic-tls */
 void Curl_osslctx_cleanup(struct ossl_ctx *octx)
 {
   DEBUGASSERT(octx);
-  if(octx->ssl) {
+  如果(octx->ssl) {
     SSL_free(octx->ssl);
     octx->ssl = NULL;
   }
-  if(octx->ssl_ctx) {
+  如果(octx->ssl_ctx) {
     SSL_CTX_free(octx->ssl_ctx);
     octx->ssl_ctx = NULL;
     octx->x509_store_setup = FALSE;
   }
-  if(octx->bio_method) {
+  如果(octx->bio_method) {
     ossl_bio_cf_method_free(octx->bio_method);
     octx->bio_method = NULL;
   }
 #ifdef USE_OPENSSL_ENGINE
-  if(octx->p.engine) {
+  如果(octx->p.engine) {
     ENGINE_finish(octx->p.engine);
     ENGINE_free(octx->p.engine);
     octx->p.engine = NULL;
@@ -2047,12 +2047,12 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
                                 X509 *server_cert)
 {
   bool matched = FALSE;
-  int target; /* target type, GEN_DNS or GEN_IPADD */
+  整数 target; /* target type, GEN_DNS or GEN_IPADD */
   size_t addrlen = 0;
   STACK_OF(GENERAL_NAME) *altnames;
 #ifdef USE_IPV6
   struct in6_addr addr;
-#else
+#否则
   struct in_addr addr;
 #endif
   CURLcode result = CURLE_OK;
@@ -2063,15 +2063,15 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
   (void)conn;
   switch(peer->type) {
   case CURL_SSL_PEER_IPV4:
-    if(!curlx_inet_pton(AF_INET, peer->origin->hostname, &addr))
-      return CURLE_PEER_FAILED_VERIFICATION;
+    如果(!curlx_inet_pton(AF_INET, peer->origin->hostname, &addr))
+      返回 CURLE_PEER_FAILED_VERIFICATION;
     target = GEN_IPADD;
     addrlen = sizeof(struct in_addr);
     break;
 #ifdef USE_IPV6
   case CURL_SSL_PEER_IPV6:
-    if(!curlx_inet_pton(AF_INET6, peer->origin->hostname, &addr))
-      return CURLE_PEER_FAILED_VERIFICATION;
+    如果(!curlx_inet_pton(AF_INET6, peer->origin->hostname, &addr))
+      返回 CURLE_PEER_FAILED_VERIFICATION;
     target = GEN_IPADD;
     addrlen = sizeof(struct in6_addr);
     break;
@@ -2081,20 +2081,20 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
     break;
   default:
     DEBUGASSERT(0);
-    failf(data, "unexpected SSL peer type: %d", (int)peer->type);
-    return CURLE_PEER_FAILED_VERIFICATION;
+    failf(data, "unexpected SSL peer type: %d", (整数)peer->type);
+    返回 CURLE_PEER_FAILED_VERIFICATION;
   }
 
   /* get a "list" of alternative names */
   altnames = X509_get_ext_d2i(server_cert, NID_subject_alt_name, NULL, NULL);
 
-  if(altnames) {
+  如果(altnames) {
 #ifdef HAVE_BORINGSSL_LIKE
     size_t numalts;
     size_t i;
-#else
-    int numalts;
-    int i;
+#否则
+    整数 numalts;
+    整数 i;
 #endif
 
     /* get amount of alternatives, RFC2459 claims there MUST be at least
@@ -2102,36 +2102,36 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
     numalts = sk_GENERAL_NAME_num(altnames);
 
     /* loop through all alternatives - until a dnsmatch */
-    for(i = 0; (i < numalts) && !matched; i++) {
+    为(i = 0; (i < numalts) && !matched; i++) {
       /* get a handle to alternative name number i */
       const GENERAL_NAME *check = sk_GENERAL_NAME_value(altnames, i);
 
-      if(check->type == GEN_DNS)
+      如果(check->type == GEN_DNS)
         dNSName = TRUE;
-      else if(check->type == GEN_IPADD)
+      否则 如果(check->type == GEN_IPADD)
         iPAddress = TRUE;
 
       /* only check alternatives of the same type the target is */
-      if(check->type == target) {
+      如果(check->type == target) {
         /* get data and length */
         const char *altptr = (const char *)ASN1_STRING_get0_data(check->d.ia5);
         size_t altlen = ossl_ASN1_STRING_get_length(check->d.ia5);
 
         switch(target) {
         case GEN_DNS: /* name/pattern comparison */
-          if(!memchr(altptr, '\0', altlen) &&
+          如果(!memchr(altptr, '\0', altlen) &&
              Curl_cert_hostcheck(altptr, altlen,
                                  peer->origin->hostname, hostlen)) {
             matched = TRUE;
             infof(data, "  subjectAltName: \"%s\" matches cert's \"%.*s\"",
-                  peer->origin->user_hostname, (int)altlen, altptr);
+                  peer->origin->user_hostname, (整数)altlen, altptr);
           }
           break;
 
         case GEN_IPADD: /* IP address comparison */
           /* compare alternative IP address if the data chunk is the same size
              our server IP address is */
-          if((altlen == addrlen) && !memcmp(altptr, &addr, altlen)) {
+          如果((altlen == addrlen) && !memcmp(altptr, &addr, altlen)) {
             matched = TRUE;
             infof(data, "  subjectAltName: \"%s\" matches cert's IP address!",
                   peer->origin->user_hostname);
@@ -2143,10 +2143,10 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
     GENERAL_NAMES_free(altnames);
   }
 
-  if(matched)
+  如果(matched)
     /* an alternative name matched */
     ;
-  else if(dNSName || iPAddress) {
+  否则 如果(dNSName || iPAddress) {
     const char *tname = (peer->type == CURL_SSL_PEER_DNS) ? "hostname" :
                         (peer->type == CURL_SSL_PEER_IPV4) ?
                         "IPv4 address" : "IPv6 address";
@@ -2156,19 +2156,19 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
           "target %s '%s'", tname, peer->origin->user_hostname);
     result = CURLE_PEER_FAILED_VERIFICATION;
   }
-  else {
+  否则 {
     /* we have to look to the last occurrence of a commonName in the
        distinguished one to get the most significant one. */
-    int i = -1;
+    整数 i = -1;
     unsigned char *cn = NULL;
     size_t cnlen = 0;
     bool free_cn = FALSE;
 
     /* The following is done because of a bug in 0.9.6b */
     const X509_NAME *name = X509_get_subject_name(server_cert);
-    if(name) {
-      int j;
-      while((j = X509_NAME_get_index_by_NID(name, NID_commonName, i)) >= 0)
+    如果(name) {
+      整数 j;
+      当((j = X509_NAME_get_index_by_NID(name, NID_commonName, i)) >= 0)
         i = j;
     }
 
@@ -2176,7 +2176,7 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
        that we can use for comparison. Doing this we support BMPstring,
        UTF8, etc. */
 
-    if(i >= 0) {
+    如果(i >= 0) {
       const ASN1_STRING *tmp =
         X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));
 
@@ -2184,23 +2184,23 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
          is already UTF-8 encoded. We check for this case and copy the raw
          string manually to avoid the problem. This code can be made
          conditional in the future when OpenSSL has been fixed. */
-      if(tmp) {
-        if(ASN1_STRING_type(tmp) == V_ASN1_UTF8STRING) {
+      如果(tmp) {
+        如果(ASN1_STRING_type(tmp) == V_ASN1_UTF8STRING) {
           cnlen = ossl_ASN1_STRING_get_length(tmp);
           cn = (unsigned char *)CURL_UNCONST(ASN1_STRING_get0_data(tmp));
         }
-        else { /* not a UTF8 name */
-          const int utf8len = ASN1_STRING_to_UTF8(&cn, tmp);
-          if(utf8len < 0)
+        否则 { /* not a UTF8 name */
+          const 整数 utf8len = ASN1_STRING_to_UTF8(&cn, tmp);
+          如果(utf8len < 0)
             cnlen = 0;
-          else
+          否则
             cnlen = (size_t)utf8len;
           free_cn = TRUE;
         }
 
-        if((cnlen == 0) || !cn)
+        如果((cnlen == 0) || !cn)
           result = CURLE_OUT_OF_MEMORY;
-        else if(memchr(cn, '\0', cnlen)) {
+        否则 如果(memchr(cn, '\0', cnlen)) {
           /* there was a null-terminator before the end of string, this
              cannot match and we return failure! */
           failf(data, "SSL: illegal cert name field");
@@ -2209,28 +2209,28 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
       }
     }
 
-    if(result)
+    如果(result)
       /* error already detected, pass through */
       ;
-    else if(!cn) {
+    否则 如果(!cn) {
       failf(data, "SSL: unable to obtain common name from peer certificate");
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if(!Curl_cert_hostcheck((const char *)cn, cnlen,
+    否则 如果(!Curl_cert_hostcheck((const char *)cn, cnlen,
                                  peer->origin->hostname, hostlen)) {
       failf(data, "SSL: certificate subject name '%.*s' does not match "
-            "target hostname '%s'", (int)cnlen, cn,
+            "target hostname '%s'", (整数)cnlen, cn,
             peer->origin->user_hostname);
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else {
-      infof(data, " common name: %.*s (matched)", (int)cnlen, cn);
+    否则 {
+      infof(data, " common name: %.*s (matched)", (整数)cnlen, cn);
     }
-    if(free_cn)
+    如果(free_cn)
       OPENSSL_free(cn);
   }
 
-  return result;
+  返回 result;
 }
 
 #ifndef OPENSSL_NO_OCSP
@@ -2238,10 +2238,10 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
                              struct Curl_easy *data,
                              struct ossl_ctx *octx)
 {
-  int i, ocsp_status;
+  整数 i, ocsp_status;
 #ifdef HAVE_BORINGSSL_LIKE
   const uint8_t *status;
-#else
+#否则
   unsigned char *status;
 #endif
   const unsigned char *p;
@@ -2252,9 +2252,9 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
   STACK_OF(X509) *ch = NULL;
   X509 *cert;
   OCSP_CERTID *id = NULL;
-  int cert_status, crl_reason;
+  整数 cert_status, crl_reason;
   ASN1_GENERALIZEDTIME *rev, *thisupd, *nextupd;
-  int ret;
+  整数 ret;
   long len;
 
   (void)cf;
@@ -2262,21 +2262,21 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
 
   len = (long)SSL_get_tlsext_status_ocsp_resp(octx->ssl, &status);
 
-  if(!status) {
+  如果(!status) {
     failf(data, "No OCSP response received");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
   }
   p = status;
   rsp = d2i_OCSP_RESPONSE(NULL, &p, len);
-  if(!rsp) {
+  如果(!rsp) {
     failf(data, "Invalid OCSP response");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
   }
 
   ocsp_status = OCSP_response_status(rsp);
-  if(ocsp_status != OCSP_RESPONSE_STATUS_SUCCESSFUL) {
+  如果(ocsp_status != OCSP_RESPONSE_STATUS_SUCCESSFUL) {
     failf(data, "Invalid OCSP response status: %s (%d)",
           OCSP_response_status_str(ocsp_status), ocsp_status);
     result = CURLE_SSL_INVALIDCERTSTATUS;
@@ -2284,26 +2284,26 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
   }
 
   br = OCSP_response_get1_basic(rsp);
-  if(!br) {
+  如果(!br) {
     failf(data, "Invalid OCSP response");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
   }
 
-#if !defined(HAVE_BORINGSSL_LIKE) && \
+#如果 !defined(HAVE_BORINGSSL_LIKE) && \
   !(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x3060000fL)
   ch = SSL_get0_verified_chain(octx->ssl);
-#else
+#否则
   ch = SSL_get_peer_cert_chain(octx->ssl);
 #endif
-  if(!ch) {
+  如果(!ch) {
     failf(data, "Could not get peer certificate chain");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
   }
   st = SSL_CTX_get_cert_store(octx->ssl_ctx);
 
-  if(OCSP_basic_verify(br, ch, st, 0) <= 0) {
+  如果(OCSP_basic_verify(br, ch, st, 0) <= 0) {
     failf(data, "OCSP response verification failed");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
@@ -2311,15 +2311,15 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
 
   /* Compute the certificate's ID */
   cert = SSL_get1_peer_certificate(octx->ssl);
-  if(!cert) {
+  如果(!cert) {
     failf(data, "Error getting peer certificate");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
   }
 
-  for(i = 0; i < (int)sk_X509_num(ch); i++) {
+  为(i = 0; i < (整数)sk_X509_num(ch); i++) {
     X509 *issuer = sk_X509_value(ch, (ossl_valsize_t)i);
-    if(X509_check_issued(issuer, cert) == X509_V_OK) {
+    如果(X509_check_issued(issuer, cert) == X509_V_OK) {
       /* Note to analysis tools: using SHA1 here is fine. The `id`
        * generated is used as a hash lookup key, not as a verifier
        * of the OCSP data itself. This all according to RFC 5019. */
@@ -2329,7 +2329,7 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
   }
   X509_free(cert);
 
-  if(!id) {
+  如果(!id) {
     failf(data, "Error computing OCSP ID");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
@@ -2339,7 +2339,7 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
   ret = OCSP_resp_find_status(br, id, &cert_status, &crl_reason, &rev,
                               &thisupd, &nextupd);
   OCSP_CERTID_free(id);
-  if(ret != 1) {
+  如果(ret != 1) {
     failf(data, "Could not find certificate ID in OCSP response");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
@@ -2353,7 +2353,7 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
    *   our clock and the instance that issued the OCSP response
    * - 4th param: how many seconds in the past `thisupd` may be, with
    *   -1 meaning there is no limit. */
-  if(!OCSP_check_validity(thisupd, nextupd, 300L, -1L)) {
+  如果(!OCSP_check_validity(thisupd, nextupd, 300L, -1L)) {
     failf(data, "OCSP response has expired");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto end;
@@ -2379,99 +2379,99 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
   }
 
 end:
-  if(br)
+  如果(br)
     OCSP_BASICRESP_free(br);
   OCSP_RESPONSE_free(rsp);
 
-  return result;
+  返回 result;
 }
 #endif
 
-static const char *ssl_msg_type(int ssl_ver, int msg)
+static const char *ssl_msg_type(整数 ssl_ver, 整数 msg)
 {
-  if(ssl_ver == SSL3_VERSION_MAJOR) {
+  如果(ssl_ver == SSL3_VERSION_MAJOR) {
     switch(msg) {
     case SSL3_MT_HELLO_REQUEST:
-      return "Hello request";
+      返回 "Hello request";
     case SSL3_MT_CLIENT_HELLO:
-      return "Client hello";
+      返回 "Client hello";
     case SSL3_MT_SERVER_HELLO:
-      return "Server hello";
+      返回 "Server hello";
 #ifdef SSL3_MT_NEWSESSION_TICKET
     case SSL3_MT_NEWSESSION_TICKET:
-      return "Newsession Ticket";
+      返回 "Newsession Ticket";
 #endif
     case SSL3_MT_CERTIFICATE:
-      return "Certificate";
+      返回 "Certificate";
     case SSL3_MT_SERVER_KEY_EXCHANGE:
-      return "Server key exchange";
+      返回 "Server key exchange";
     case SSL3_MT_CLIENT_KEY_EXCHANGE:
-      return "Client key exchange";
+      返回 "Client key exchange";
     case SSL3_MT_CERTIFICATE_REQUEST:
-      return "Request CERT";
+      返回 "Request CERT";
     case SSL3_MT_SERVER_DONE:
-      return "Server finished";
+      返回 "Server finished";
     case SSL3_MT_CERTIFICATE_VERIFY:
-      return "CERT verify";
+      返回 "CERT verify";
     case SSL3_MT_FINISHED:
-      return "Finished";
+      返回 "Finished";
 #ifdef SSL3_MT_CERTIFICATE_STATUS
     case SSL3_MT_CERTIFICATE_STATUS:
-      return "Certificate Status";
+      返回 "Certificate Status";
 #endif
 #ifdef SSL3_MT_ENCRYPTED_EXTENSIONS
     case SSL3_MT_ENCRYPTED_EXTENSIONS:
-      return "Encrypted Extensions";
+      返回 "Encrypted Extensions";
 #endif
 #ifdef SSL3_MT_SUPPLEMENTAL_DATA
     case SSL3_MT_SUPPLEMENTAL_DATA:
-      return "Supplemental data";
+      返回 "Supplemental data";
 #endif
 #ifdef SSL3_MT_END_OF_EARLY_DATA
     case SSL3_MT_END_OF_EARLY_DATA:
-      return "End of early data";
+      返回 "End of early data";
 #endif
 #ifdef SSL3_MT_KEY_UPDATE
     case SSL3_MT_KEY_UPDATE:
-      return "Key update";
+      返回 "Key update";
 #endif
 #ifdef SSL3_MT_NEXT_PROTO
     case SSL3_MT_NEXT_PROTO:
-      return "Next protocol";
+      返回 "Next protocol";
 #endif
 #ifdef SSL3_MT_MESSAGE_HASH
     case SSL3_MT_MESSAGE_HASH:
-      return "Message hash";
+      返回 "Message hash";
 #endif
     }
   }
-  return "Unknown";
+  返回 "Unknown";
 }
 
-static const char *tls_rt_type(int type)
+static const char *tls_rt_type(整数 type)
 {
   switch(type) {
 #ifdef SSL3_RT_HEADER
   case SSL3_RT_HEADER:
-    return "TLS header";
+    返回 "TLS header";
 #endif
   case SSL3_RT_CHANGE_CIPHER_SPEC:
-    return "TLS change cipher";
+    返回 "TLS change cipher";
   case SSL3_RT_ALERT:
-    return "TLS alert";
+    返回 "TLS alert";
   case SSL3_RT_HANDSHAKE:
-    return "TLS handshake";
+    返回 "TLS handshake";
   case SSL3_RT_APPLICATION_DATA:
-    return "TLS app data";
+    返回 "TLS app data";
   default:
-    return "TLS Unknown";
+    返回 "TLS Unknown";
   }
 }
 
 /*
  * Our callback from the SSL/TLS layers.
  */
-static void ossl_trace(int direction, int ssl_ver, int content_type,
+static void ossl_trace(整数 direction, 整数 ssl_ver, 整数 content_type,
                        const void *buf, size_t len, SSL *ssl,
                        void *userp)
 {
@@ -2480,11 +2480,11 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
   struct Curl_easy *data = NULL;
   char unknown[32];
 
-  if(!cf)
-    return;
+  如果(!cf)
+    返回;
   data = CF_DATA_CURRENT(cf);
-  if(!data || !data->set.fdebug || (direction && direction != 1))
-    return;
+  如果(!data || !data->set.fdebug || (direction && direction != 1))
+    返回;
 
   switch(ssl_ver) {
 #ifdef SSL3_VERSION
@@ -2509,7 +2509,7 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
     verstr = "TLSv1.3";
     break;
   default:
-    curl_msnprintf(unknown, sizeof(unknown), "(%x)", (unsigned int)ssl_ver);
+    curl_msnprintf(unknown, sizeof(unknown), "(%x)", (unsigned 整数)ssl_ver);
     verstr = unknown;
     break;
   }
@@ -2518,7 +2518,7 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
    * all raw record headers (content_type == SSL3_RT_HEADER or ssl_ver == 0).
    * For TLS 1.3, skip notification of the decrypted inner Content-Type.
    */
-  if(ssl_ver
+  如果(ssl_ver
 #ifdef SSL3_RT_HEADER
      && content_type != SSL3_RT_HEADER
 #endif
@@ -2529,8 +2529,8 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
     const char *msg_name = "Truncated message";
     const char *tls_rt_name;
     char ssl_buf[1024];
-    int msg_type = 0;
-    int txt_len;
+    整数 msg_type = 0;
+    整数 txt_len;
 
     /* the info given when the version is zero is not that useful for us */
 
@@ -2540,26 +2540,26 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
      * always pass-up content-type as 0, but the interesting message-type
      * is at 'buf[0]'.
      */
-    if(ssl_ver == SSL3_VERSION_MAJOR && content_type)
+    如果(ssl_ver == SSL3_VERSION_MAJOR && content_type)
       tls_rt_name = tls_rt_type(content_type);
-    else
+    否则
       tls_rt_name = "";
 
-    if(content_type == SSL3_RT_CHANGE_CIPHER_SPEC) {
-      if(len) {
+    如果(content_type == SSL3_RT_CHANGE_CIPHER_SPEC) {
+      如果(len) {
         msg_type = *(const unsigned char *)buf;
         msg_name = "Change cipher spec";
       }
     }
-    else if(content_type == SSL3_RT_ALERT) {
-      if(len >= 2) {
+    否则 如果(content_type == SSL3_RT_ALERT) {
+      如果(len >= 2) {
         msg_type =
           (((const unsigned char *)buf)[0] << 8) +
            ((const unsigned char *)buf)[1];
         msg_name = SSL_alert_desc_string_long(msg_type);
       }
     }
-    else if(len) {
+    否则 如果(len) {
       msg_type = *(const unsigned char *)buf;
       msg_name = ssl_msg_type(ssl_ver, msg_type);
     }
@@ -2578,7 +2578,7 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
 
 static CURLcode ossl_set_ssl_version_min_max(struct Curl_cfilter *cf,
                                              SSL_CTX *ctx,
-                                             unsigned int ssl_version_min)
+                                             unsigned 整数 ssl_version_min)
 {
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   /* first, TLS min version... */
@@ -2586,10 +2586,10 @@ static CURLcode ossl_set_ssl_version_min_max(struct Curl_cfilter *cf,
   long curl_ssl_version_max;
 
   /* convert curl min SSL version option to OpenSSL constant */
-#if defined(HAVE_BORINGSSL_LIKE) || defined(LIBRESSL_VERSION_NUMBER)
+#如果 defined(HAVE_BORINGSSL_LIKE) || defined(LIBRESSL_VERSION_NUMBER)
   uint16_t ossl_ssl_version_min = 0;
   uint16_t ossl_ssl_version_max = 0;
-#else
+#否则
   long ossl_ssl_version_min = 0;
   long ossl_ssl_version_max = 0;
 #endif
@@ -2638,11 +2638,11 @@ static CURLcode ossl_set_ssl_version_min_max(struct Curl_cfilter *cf,
     break;
   }
 
-  if(!SSL_CTX_set_min_proto_version(ctx, ossl_ssl_version_min) ||
+  如果(!SSL_CTX_set_min_proto_version(ctx, ossl_ssl_version_min) ||
      !SSL_CTX_set_max_proto_version(ctx, ossl_ssl_version_max))
-    return CURLE_SSL_CONNECT_ERROR;
+    返回 CURLE_SSL_CONNECT_ERROR;
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
@@ -2660,31 +2660,31 @@ CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
   unsigned char *qtp_clone = NULL;
   CURLcode result = CURLE_OK;
 
-  if(psession)
+  如果(psession)
     *psession = NULL;
-  if(!cf || !data)
+  如果(!cf || !data)
     goto out;
 
-  if(Curl_ssl_scache_use(cf, data)) {
+  如果(Curl_ssl_scache_use(cf, data)) {
     size_t der_session_size;
     unsigned char *der_session_ptr;
     size_t earlydata_max = 0;
-    int ietf_tls_id = SSL_version(octx->ssl);
+    整数 ietf_tls_id = SSL_version(octx->ssl);
 
     der_session_size = i2d_SSL_SESSION(session, NULL);
-    if(der_session_size == 0) {
+    如果(der_session_size == 0) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
 
     der_session_buf = der_session_ptr = curlx_malloc(der_session_size);
-    if(!der_session_buf) {
+    如果(!der_session_buf) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
 
     der_session_size = i2d_SSL_SESSION(session, &der_session_ptr);
-    if(der_session_size == 0) {
+    如果(der_session_size == 0) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
@@ -2692,9 +2692,9 @@ CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
 #ifdef HAVE_OPENSSL_EARLYDATA
     earlydata_max = SSL_SESSION_get_max_early_data(session);
 #endif
-    if(quic_tp && quic_tp_len) {
+    如果(quic_tp && quic_tp_len) {
       qtp_clone = curlx_memdup0((const char *)quic_tp, quic_tp_len);
-      if(!qtp_clone) {
+      如果(!qtp_clone) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
@@ -2708,14 +2708,14 @@ CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
                                       &sc_session);
     der_session_buf = NULL;  /* took ownership of sdata */
 #ifdef USE_APPLE_SECTRUST
-    if(!result)
+    如果(!result)
       sc_session->sectrust_verified = octx->sectrust_verified;
 #endif
-    if(!result && psession &&  /* return a duplicate if asked for and FTP */
+    如果(!result && psession &&  /* return a duplicate if asked for and FTP */
        (cf->conn->scheme->family == CURLPROTO_FTP)) {
         result = Curl_ssl_session_dup(sc_session, &sc_dup);
     }
-    if(!result) {
+    如果(!result) {
       result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
       /* took ownership of `sc_session` */
       sc_session = NULL;
@@ -2724,22 +2724,22 @@ CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
 
 out:
   curlx_free(der_session_buf);
-  if(!result && psession) {
+  如果(!result && psession) {
     *psession = sc_dup;
     sc_dup = NULL;
   }
   Curl_ssl_session_destroy(sc_session);
   Curl_ssl_session_destroy(sc_dup);
-  return result;
+  返回 result;
 }
 
 /* The "new session" callback must return zero if the session can be removed
  * or non-zero if the session has been put into the session cache.
  */
-static int ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
+static 整数 ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
 {
   struct Curl_cfilter *cf = (struct Curl_cfilter *)SSL_get_app_data(ssl);
-  if(cf) {
+  如果(cf) {
     struct Curl_easy *data = CF_DATA_CURRENT(cf);
     struct ssl_connect_data *connssl = cf->ctx;
     struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
@@ -2747,12 +2747,12 @@ static int ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
     Curl_ossl_add_session(cf, data, octx, connssl->peer.scache_key,
                           ssl_sessionid, connssl->negotiated.alpn, NULL,
                           0, &session);
-    if(session) { /* remember current TLS session */
+    如果(session) { /* remember current TLS session */
       Curl_ssl_session_destroy(connssl->session);
       connssl->session = session;
     }
   }
-  return 0;
+  返回 0;
 }
 
 static CURLcode load_cacert_from_memory(X509_STORE *store,
@@ -2763,40 +2763,40 @@ static CURLcode load_cacert_from_memory(X509_STORE *store,
   STACK_OF(X509_INFO) *inf = NULL;
 
   /* everything else is a reference */
-  int i, count = 0;
+  整数 i, count = 0;
   X509_INFO *itmp = NULL;
 
-  if(ca_info_blob->len > (size_t)INT_MAX)
-    return CURLE_SSL_CACERT_BADFILE;
+  如果(ca_info_blob->len > (size_t)INT_MAX)
+    返回 CURLE_SSL_CACERT_BADFILE;
 
-  cbio = BIO_new_mem_buf(ca_info_blob->data, (int)ca_info_blob->len);
-  if(!cbio)
-    return CURLE_OUT_OF_MEMORY;
+  cbio = BIO_new_mem_buf(ca_info_blob->data, (整数)ca_info_blob->len);
+  如果(!cbio)
+    返回 CURLE_OUT_OF_MEMORY;
 
   inf = PEM_X509_INFO_read_bio(cbio, NULL, NULL, NULL);
-  if(!inf) {
+  如果(!inf) {
     BIO_free(cbio);
-    return CURLE_SSL_CACERT_BADFILE;
+    返回 CURLE_SSL_CACERT_BADFILE;
   }
 
   /* add each entry from PEM file to x509_store */
-  for(i = 0; i < (int)sk_X509_INFO_num(inf); ++i) {
+  为(i = 0; i < (整数)sk_X509_INFO_num(inf); ++i) {
     itmp = sk_X509_INFO_value(inf, (ossl_valsize_t)i);
-    if(itmp->x509) {
-      if(X509_STORE_add_cert(store, itmp->x509)) {
+    如果(itmp->x509) {
+      如果(X509_STORE_add_cert(store, itmp->x509)) {
         ++count;
       }
-      else {
+      否则 {
         /* set count to 0 to return an error */
         count = 0;
         break;
       }
     }
-    if(itmp->crl) {
-      if(X509_STORE_add_crl(store, itmp->crl)) {
+    如果(itmp->crl) {
+      如果(X509_STORE_add_crl(store, itmp->crl)) {
         ++count;
       }
-      else {
+      否则 {
         /* set count to 0 to return an error */
         count = 0;
         break;
@@ -2804,18 +2804,18 @@ static CURLcode load_cacert_from_memory(X509_STORE *store,
     }
   }
 
-#if defined(__clang__) && __clang_major__ >= 16
+#如果 defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   sk_X509_INFO_pop_free(inf, X509_INFO_free);
-#if defined(__clang__) && __clang_major__ >= 16
+#如果 defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic pop
 #endif
   BIO_free(cbio);
 
   /* if we did not end up importing anything, treat that as an error */
-  return (count > 0) ? CURLE_OK : CURLE_SSL_CACERT_BADFILE;
+  返回 (count > 0) ? CURLE_OK : CURLE_SSL_CACERT_BADFILE;
 }
 
 #ifdef USE_WIN32_CRYPTO
@@ -2831,7 +2831,7 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
   *padded = FALSE;
 
   hStore = CertOpenSystemStoreA(0, win_store);
-  if(hStore) {
+  如果(hStore) {
     PCCERT_CONTEXT pContext = NULL;
     /* The array of enhanced key usage OIDs varies per certificate and
        is declared outside of the loop so that rather than malloc/free each
@@ -2846,45 +2846,45 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
        skipped. 'result' is used to store only hard-fail conditions (such
        as out of memory) that cause an early break. */
     result = CURLE_OK;
-    for(;;) {
+    为(;;) {
       X509 *x509;
       FILETIME now;
       BYTE key_usage[2];
       DWORD req_size;
       const unsigned char *encoded_cert;
       pContext = CertEnumCertificatesInStore(hStore, pContext);
-      if(!pContext)
+      如果(!pContext)
         break;
 
       VERBOSE(++total);
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#如果 defined(DEBUGBUILD) && defined(CURLVERBOSE)
       {
         char cert_name[256];
-        if(!CertGetNameStringA(pContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0,
+        如果(!CertGetNameStringA(pContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0,
                                NULL, cert_name, sizeof(cert_name)))
           infof(data, "SSL: unknown cert name");
-        else
+        否则
           infof(data, "SSL: Checking cert \"%s\"", cert_name);
       }
 #endif
       encoded_cert = (const unsigned char *)pContext->pbCertEncoded;
-      if(!encoded_cert)
+      如果(!encoded_cert)
         continue;
 
       GetSystemTimeAsFileTime(&now);
-      if(CompareFileTime(&pContext->pCertInfo->NotBefore, &now) > 0 ||
+      如果(CompareFileTime(&pContext->pCertInfo->NotBefore, &now) > 0 ||
          CompareFileTime(&now, &pContext->pCertInfo->NotAfter) > 0)
         continue;
 
       /* If key usage exists check for signing attribute */
-      if(CertGetIntendedKeyUsage(pContext->dwCertEncodingType,
+      如果(CertGetIntendedKeyUsage(pContext->dwCertEncodingType,
                                  pContext->pCertInfo,
                                  key_usage, sizeof(key_usage))) {
-        if(!(key_usage[0] & CERT_KEY_CERT_SIGN_KEY_USAGE))
+        如果(!(key_usage[0] & CERT_KEY_CERT_SIGN_KEY_USAGE))
           continue;
       }
-      else if(GetLastError())
+      否则 如果(GetLastError())
         continue;
 
       /* If enhanced key usage exists check for server auth attribute.
@@ -2895,11 +2895,11 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
        * depending on what is found. For more details see
        * CertGetEnhancedKeyUsage doc.
        */
-      if(CertGetEnhancedKeyUsage(pContext, 0, NULL, &req_size) && req_size) {
-        if(req_size > enhkey_usage_size) {
+      如果(CertGetEnhancedKeyUsage(pContext, 0, NULL, &req_size) && req_size) {
+        如果(req_size > enhkey_usage_size) {
           void *tmp = curlx_realloc(enhkey_usage, req_size);
 
-          if(!tmp) {
+          如果(!tmp) {
             failf(data, "SSL: Out of memory allocating for OID list");
             result = CURLE_OUT_OF_MEMORY;
             break;
@@ -2909,44 +2909,44 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
           enhkey_usage_size = req_size;
         }
 
-        if(CertGetEnhancedKeyUsage(pContext, 0, enhkey_usage, &req_size)) {
-          if(!enhkey_usage->cUsageIdentifier) {
+        如果(CertGetEnhancedKeyUsage(pContext, 0, enhkey_usage, &req_size)) {
+          如果(!enhkey_usage->cUsageIdentifier) {
             /* "If GetLastError returns CRYPT_E_NOT_FOUND, the certificate
                is good for all uses. If it returns zero, the certificate
                has no valid uses." */
-            if((HRESULT)GetLastError() != CRYPT_E_NOT_FOUND)
+            如果((HRESULT)GetLastError() != CRYPT_E_NOT_FOUND)
               continue;
           }
-          else {
+          否则 {
             DWORD i;
             bool found = FALSE;
 
-            for(i = 0; i < enhkey_usage->cUsageIdentifier; ++i) {
-              if(!strcmp("1.3.6.1.5.5.7.3.1" /* OID server auth */,
+            为(i = 0; i < enhkey_usage->cUsageIdentifier; ++i) {
+              如果(!strcmp("1.3.6.1.5.5.7.3.1" /* OID server auth */,
                          enhkey_usage->rgpszUsageIdentifier[i])) {
                 found = TRUE;
                 break;
               }
             }
 
-            if(!found)
+            如果(!found)
               continue;
           }
         }
-        else
+        否则
           continue;
       }
-      else
+      否则
         continue;
 
       x509 = d2i_X509(NULL, &encoded_cert, (long)pContext->cbCertEncoded);
-      if(!x509)
+      如果(!x509)
         continue;
 
       /* Try to import the certificate. This may fail for legitimate reasons
          such as duplicate certificate, which is allowed by MS but not
          OpenSSL. */
-      if(X509_STORE_add_cert(store, x509) == 1) {
+      如果(X509_STORE_add_cert(store, x509) == 1) {
         VERBOSE(++imported);
 #ifdef DEBUGBUILD
         infof(data, "SSL: Imported cert");
@@ -2964,11 +2964,11 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
                 "ossl_win_load_store() found: %zu imported: %zu certs in %s.",
                 total, imported, win_store);
 
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
   }
 
-  return result;
+  返回 result;
 }
 
 static CURLcode ossl_windows_load_anchors(struct Curl_cfilter *cf,
@@ -2989,21 +2989,21 @@ static CURLcode ossl_windows_load_anchors(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
 
   *padded = FALSE;
-  for(i = 0; i < CURL_ARRAYSIZE(win_stores); ++i) {
+  为(i = 0; i < CURL_ARRAYSIZE(win_stores); ++i) {
     bool store_added = FALSE;
     result = ossl_win_load_store(data, cf, win_stores[i], store, &store_added);
-    if(result)
-      return result;
-    if(store_added) {
+    如果(result)
+      返回 result;
+    如果(store_added) {
       CURL_TRC_CF(data, cf, "added trust anchors from Windows %s store",
                   win_stores[i]);
       *padded = TRUE;
     }
-    else
+    否则
       infof(data, "error importing Windows %s store, continuing anyway",
             win_stores[i]);
   }
-  return result;
+  返回 result;
 }
 
 #endif /* USE_WIN32_CRYPTO */
@@ -3022,13 +3022,13 @@ static CURLcode ossl_load_trust_anchors(struct Curl_cfilter *cf,
   bool have_native_check = FALSE;
 
   octx->store_is_empty = TRUE;
-  if(conn_config->native_ca_store) {
+  如果(conn_config->native_ca_store) {
 #ifdef USE_WIN32_CRYPTO
     bool added = FALSE;
     result = ossl_windows_load_anchors(cf, data, store, &added);
-    if(result)
-      return result;
-    if(added) {
+    如果(result)
+      返回 result;
+    如果(added) {
       infof(data, "  Native: Windows System Stores ROOT+CA");
       octx->store_is_empty = FALSE;
     }
@@ -3038,73 +3038,73 @@ static CURLcode ossl_load_trust_anchors(struct Curl_cfilter *cf,
 #endif
   }
 
-  if(conn_config->ca_info_blob) {
+  如果(conn_config->ca_info_blob) {
     result = load_cacert_from_memory(store, conn_config->ca_info_blob);
-    if(result) {
+    如果(result) {
       failf(data, "error adding trust anchors from certificate blob: %d",
-            (int)result);
-      return result;
+            (整数)result);
+      返回 result;
     }
     infof(data, "  CA Blob from configuration");
     octx->store_is_empty = FALSE;
   }
 
-  if(ssl_cafile || ssl_capath) {
+  如果(ssl_cafile || ssl_capath) {
 #ifdef HAVE_OPENSSL3
     /* OpenSSL 3.0.0 has deprecated SSL_CTX_load_verify_locations */
-    if(ssl_cafile) {
-      if(!X509_STORE_load_file(store, ssl_cafile)) {
-        if(octx->store_is_empty && !have_native_check) {
+    如果(ssl_cafile) {
+      如果(!X509_STORE_load_file(store, ssl_cafile)) {
+        如果(octx->store_is_empty && !have_native_check) {
           /* Fail if we insist on successfully verifying the server. */
           failf(data, "error adding trust anchors from file: %s", ssl_cafile);
-          return CURLE_SSL_CACERT_BADFILE;
+          返回 CURLE_SSL_CACERT_BADFILE;
         }
-        else
+        否则
           infof(data, "error setting certificate file, continuing anyway");
       }
       infof(data, "  CAfile: %s", ssl_cafile);
       octx->store_is_empty = FALSE;
     }
-    if(ssl_capath) {
-      if(!X509_STORE_load_path(store, ssl_capath)) {
-        if(octx->store_is_empty && !have_native_check) {
+    如果(ssl_capath) {
+      如果(!X509_STORE_load_path(store, ssl_capath)) {
+        如果(octx->store_is_empty && !have_native_check) {
           /* Fail if we insist on successfully verifying the server. */
           failf(data, "error adding trust anchors from path: %s", ssl_capath);
-          return CURLE_SSL_CACERT_BADFILE;
+          返回 CURLE_SSL_CACERT_BADFILE;
         }
-        else
+        否则
           infof(data, "error setting certificate path, continuing anyway");
       }
       infof(data, "  CApath: %s", ssl_capath);
       octx->store_is_empty = FALSE;
     }
-#else
+#否则
     /* tell OpenSSL where to find CA certificates that are used to verify the
        server's certificate. */
-    if(!X509_STORE_load_locations(store, ssl_cafile, ssl_capath)) {
-      if(octx->store_is_empty && !have_native_check) {
+    如果(!X509_STORE_load_locations(store, ssl_cafile, ssl_capath)) {
+      如果(octx->store_is_empty && !have_native_check) {
         /* Fail if we insist on successfully verifying the server. */
         failf(data, "error adding trust anchors from locations:"
               "  CAfile: %s CApath: %s",
               ssl_cafile ? ssl_cafile : "none",
               ssl_capath ? ssl_capath : "none");
-        return CURLE_SSL_CACERT_BADFILE;
+        返回 CURLE_SSL_CACERT_BADFILE;
       }
-      else {
+      否则 {
         infof(data, "error setting certificate verify locations,"
               " continuing anyway");
       }
     }
-    if(ssl_cafile)
+    如果(ssl_cafile)
       infof(data, "  CAfile: %s", ssl_cafile);
-    if(ssl_capath)
+    如果(ssl_capath)
       infof(data, "  CApath: %s", ssl_capath);
     octx->store_is_empty = FALSE;
 #endif
   }
 
 #ifdef CURL_CA_FALLBACK
-  if(octx->store_is_empty) {
+  如果(octx->store_is_empty) {
     /* verifying the peer without any CA certificates does not
        work so use OpenSSL's built-in default as fallback */
     X509_STORE_set_default_paths(store);
@@ -3112,10 +3112,10 @@ static CURLcode ossl_load_trust_anchors(struct Curl_cfilter *cf,
     octx->store_is_empty = FALSE;
   }
 #endif
-  if(octx->store_is_empty && !have_native_check)
+  如果(octx->store_is_empty && !have_native_check)
     infof(data, "  no trust anchors configured");
 
-  return result;
+  返回 result;
 }
 
 static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
@@ -3130,35 +3130,35 @@ static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
   unsigned long x509flags = 0;
 
   CURL_TRC_CF(data, cf, "configuring OpenSSL's x509 trust store");
-  if(!store)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!store)
+    返回 CURLE_OUT_OF_MEMORY;
 
-  if(!conn_config->verifypeer) {
+  如果(!conn_config->verifypeer) {
     infof(data, "SSL Trust: peer verification disabled");
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 
   infof(data, "SSL Trust Anchors:");
   result = ossl_load_trust_anchors(cf, data, octx, store);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   /* Does not make sense to load a CRL file without peer verification */
 #ifdef USE_APPLE_SECTRUST
-  if(ssl_crlfile && conn_config->native_ca_store) {
+  如果(ssl_crlfile && conn_config->native_ca_store) {
     failf(data, "openssl: CRL file not supported with native CA store; "
           "the platform verifier has no CRL attachment API");
-    return CURLE_NOT_BUILT_IN;
+    返回 CURLE_NOT_BUILT_IN;
   }
 #endif
-  if(ssl_crlfile) {
+  如果(ssl_crlfile) {
     /* tell OpenSSL where to find CRL file that is used to check certificate
      * revocation */
     lookup = X509_STORE_add_lookup(store, X509_LOOKUP_file());
-    if(!lookup ||
+    如果(!lookup ||
        (!X509_load_crl_file(lookup, ssl_crlfile, X509_FILETYPE_PEM))) {
       failf(data, "error loading CRL file: %s", ssl_crlfile);
-      return CURLE_SSL_CRL_BADFILE;
+      返回 CURLE_SSL_CRL_BADFILE;
     }
     x509flags = X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL;
     infof(data, " CRLfile: %s", ssl_crlfile);
@@ -3172,7 +3172,7 @@ static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
    */
   x509flags |= X509_V_FLAG_TRUSTED_FIRST;
 
-  if(!conn_config->no_partialchain && !ssl_crlfile) {
+  如果(!conn_config->no_partialchain && !ssl_crlfile) {
     /* Have intermediate certificates in the trust store be treated as
        trust-anchors, in the same way as self-signed root CA certificates are.
        This allows users to verify servers using the intermediate cert only,
@@ -3184,7 +3184,7 @@ static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
   }
   (void)X509_STORE_set_flags(store, x509flags);
 
-  return result;
+  返回 result;
 }
 
 /* key to use at `multi->proto_hash` */
@@ -3206,7 +3206,7 @@ static void oss_x509_share_free(const void *key, size_t key_len, void *p)
   DEBUGASSERT(!memcmp(MPROTO_OSSL_X509_KEY, key, key_len));
   (void)key;
   (void)key_len;
-  if(share->store) {
+  如果(share->store) {
     X509_STORE_free(share->store);
   }
   curlx_free(share->CAfile);
@@ -3217,13 +3217,13 @@ static void oss_x509_share_free(const void *key, size_t key_len, void *p)
 static bool ossl_cached_x509_store_expired(struct Curl_easy *data,
                                            const struct ossl_x509_share *mb)
 {
-  if(data->set.ssl_ca_cache_timeout < 0)
-    return FALSE;
-  else {
+  如果(data->set.ssl_ca_cache_timeout < 0)
+    返回 FALSE;
+  否则 {
     timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &mb->time);
     timediff_t timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
 
-    return elapsed_ms >= timeout_ms;
+    返回 elapsed_ms >= timeout_ms;
   }
 }
 
@@ -3233,23 +3233,23 @@ static bool ossl_cached_x509_store_different(struct Curl_cfilter *cf,
 {
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   (void)data;
-  if(mb->no_partialchain != conn_config->no_partialchain)
-    return TRUE;
-  if(!mb->CAfile || !conn_config->CAfile) {
-    if(mb->CAfile != conn_config->CAfile)
-      return TRUE;
+  如果(mb->no_partialchain != conn_config->no_partialchain)
+    返回 TRUE;
+  如果(!mb->CAfile || !conn_config->CAfile) {
+    如果(mb->CAfile != conn_config->CAfile)
+      返回 TRUE;
   }
-  else if(strcmp(mb->CAfile, conn_config->CAfile))
-    return TRUE;
+  否则 如果(strcmp(mb->CAfile, conn_config->CAfile))
+    返回 TRUE;
 
-  if(!mb->CApath || !conn_config->CApath) {
-    if(mb->CApath != conn_config->CApath)
-      return TRUE;
+  如果(!mb->CApath || !conn_config->CApath) {
+    如果(mb->CApath != conn_config->CApath)
+      返回 TRUE;
   }
-  else if(strcmp(mb->CApath, conn_config->CApath))
-    return TRUE;
+  否则 如果(strcmp(mb->CApath, conn_config->CApath))
+    返回 TRUE;
 
-  return FALSE;
+  返回 FALSE;
 }
 
 static X509_STORE *ossl_get_cached_x509_store(struct Curl_cfilter *cf,
@@ -3265,14 +3265,14 @@ static X509_STORE *ossl_get_cached_x509_store(struct Curl_cfilter *cf,
   share = multi ? Curl_hash_pick(&multi->proto_hash,
                                  MPROTO_OSSL_X509_KEY,
                                  CURL_CSTRLEN(MPROTO_OSSL_X509_KEY)) : NULL;
-  if(share && share->store &&
+  如果(share && share->store &&
      !ossl_cached_x509_store_expired(data, share) &&
      !ossl_cached_x509_store_different(cf, data, share)) {
     store = share->store;
     *pempty = (bool)share->store_is_empty;
   }
 
-  return store;
+  返回 store;
 }
 
 static void ossl_set_cached_x509_store(struct Curl_cfilter *cf,
@@ -3285,47 +3285,47 @@ static void ossl_set_cached_x509_store(struct Curl_cfilter *cf,
   struct ossl_x509_share *share;
 
   DEBUGASSERT(multi);
-  if(!multi)
-    return;
+  如果(!multi)
+    返回;
   share = Curl_hash_pick(&multi->proto_hash,
                          MPROTO_OSSL_X509_KEY,
                          CURL_CSTRLEN(MPROTO_OSSL_X509_KEY));
 
-  if(!share) {
+  如果(!share) {
     share = curlx_calloc(1, sizeof(*share));
-    if(!share)
-      return;
-    if(!Curl_hash_add2(&multi->proto_hash,
+    如果(!share)
+      返回;
+    如果(!Curl_hash_add2(&multi->proto_hash,
                        MPROTO_OSSL_X509_KEY,
                        CURL_CSTRLEN(MPROTO_OSSL_X509_KEY),
                        share, oss_x509_share_free)) {
       curlx_free(share);
-      return;
+      返回;
     }
   }
 
-  if(X509_STORE_up_ref(store)) {
+  如果(X509_STORE_up_ref(store)) {
     char *CAfile = NULL;
     char *CApath = NULL;
 
-    if(conn_config->CAfile) {
+    如果(conn_config->CAfile) {
       CAfile = curlx_strdup(conn_config->CAfile);
-      if(!CAfile) {
+      如果(!CAfile) {
         X509_STORE_free(store);
-        return;
+        返回;
       }
     }
 
-    if(conn_config->CApath) {
+    如果(conn_config->CApath) {
       CApath = curlx_strdup(conn_config->CApath);
-      if(!CApath) {
+      如果(!CApath) {
         curlx_free(CAfile);
         X509_STORE_free(store);
-        return;
+        返回;
       }
     }
 
-    if(share->store) {
+    如果(share->store) {
       X509_STORE_free(share->store);
       curlx_free(share->CAfile);
       curlx_free(share->CApath);
@@ -3344,7 +3344,7 @@ static void ossl_set_cached_x509_store(struct Curl_cfilter *cf,
 /* CApath certificates loaded under a provider libctx can outlive that libctx
    when the store is shared with the multi handle. */
 #define USING_PROVIDER(octx) octx->p.libctx
-#else
+#否则
 #define USING_PROVIDER(x) 0
 #endif
 
@@ -3370,22 +3370,22 @@ CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
   ERR_set_mark();
 
   cached_store = ossl_get_cached_x509_store(cf, data, &is_empty);
-  if(cached_store && cache_criteria_met && X509_STORE_up_ref(cached_store)) {
+  如果(cached_store && cache_criteria_met && X509_STORE_up_ref(cached_store)) {
     SSL_CTX_set_cert_store(octx->ssl_ctx, cached_store);
     octx->store_is_empty = is_empty;
   }
-  else {
+  否则 {
     X509_STORE *store = SSL_CTX_get_cert_store(octx->ssl_ctx);
 
     result = ossl_populate_x509_store(cf, data, octx, store);
-    if(result == CURLE_OK && cache_criteria_met) {
+    如果(result == CURLE_OK && cache_criteria_met) {
       ossl_set_cached_x509_store(cf, data, store, (bool)octx->store_is_empty);
     }
   }
 
   ERR_pop_to_mark();
 
-  return result;
+  返回 result;
 }
 
 static bool ossl_apply_session(
@@ -3405,16 +3405,16 @@ static bool ossl_apply_session(
    * is not an error. We continue without it. */
   ssl_session = d2i_SSL_SESSION(NULL, &der_sessionid,
                                 (long)der_sessionid_size);
-  if(ssl_session) {
-    if(!SSL_set_session(octx->ssl, ssl_session)) {
+  如果(ssl_session) {
+    如果(!SSL_set_session(octx->ssl, ssl_session)) {
       VERBOSE(char error_buffer[256]);
       infof(data, "SSL: SSL_set_session not accepted, "
             "continuing without: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
                           sizeof(error_buffer)));
     }
-    else {
-      if(conn_cfg->verifypeer &&
+    否则 {
+      如果(conn_cfg->verifypeer &&
          (SSL_get_verify_result(octx->ssl) != X509_V_OK)
 #ifdef USE_APPLE_SECTRUST
          /* if sectrust is used and verified the session before */
@@ -3425,7 +3425,7 @@ static bool ossl_apply_session(
         SSL_set_session(octx->ssl, NULL);
         infof(data, "SSL session not peer verified, not reusing");
       }
-      else {
+      否则 {
         infof(data, "SSL reusing session with ALPN '%s'",
               scs->alpn ? scs->alpn : "-");
         octx->reused_session = TRUE;
@@ -3435,20 +3435,20 @@ static bool ossl_apply_session(
         infof(data, "SSL verify result: %lx",
               (unsigned long)SSL_get_verify_result(octx->ssl));
 #ifdef HAVE_OPENSSL_EARLYDATA
-        if(conn_cfg->earlydata && scs->alpn &&
+        如果(conn_cfg->earlydata && scs->alpn &&
            SSL_SESSION_get_max_early_data(ssl_session) &&
            !cf->conn->bits.connect_only &&
            (SSL_version(octx->ssl) == TLS1_3_VERSION)) {
           bool do_early_data = FALSE;
-          if(sess_reuse_cb)
+          如果(sess_reuse_cb)
             (void)sess_reuse_cb(cf, data, alpns, scs, &do_early_data);
-          if(do_early_data) {
+          如果(do_early_data) {
             /* We only try the ALPN protocol the session used before,
              * otherwise we might send early data for the wrong protocol */
             Curl_alpn_restrict_to(alpns, scs->alpn);
           }
         }
-#else
+#否则
         (void)alpns;
         (void)conn_cfg;
         (void)sess_reuse_cb;
@@ -3457,10 +3457,10 @@ static bool ossl_apply_session(
     }
     SSL_SESSION_free(ssl_session);
   }
-  else {
+  否则 {
     infof(data, "SSL session not accepted by OpenSSL, continuing without");
   }
-  return (bool)octx->reused_session;
+  返回 (bool)octx->reused_session;
 }
 
 static CURLcode ossl_init_session_and_alpns(
@@ -3479,44 +3479,44 @@ static CURLcode ossl_init_session_and_alpns(
 
   octx->reused_session = FALSE;
 
-  if((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
+  如果((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
     /* FTP is a bitch. On TLS secured transfers, it is a common server
      * option to require the client to use the SAME TLS session as on
      * the control connection or it fails the request. See #22225. */
     struct Curl_ssl_session *scs =
       Curl_ssl_get_cf_session(data, cf->cft, FIRSTSOCKET);
-    if(scs) {
-      if(ossl_apply_session(octx, cf, data, &alpns, sess_reuse_cb, scs))
+    如果(scs) {
+      如果(ossl_apply_session(octx, cf, data, &alpns, sess_reuse_cb, scs))
         CURL_TRC_CF(data, cf, "applied SSL session from control connection");
     }
   }
 
-  if(!octx->reused_session &&
+  如果(!octx->reused_session &&
      Curl_ssl_scache_use(cf, data) && !conn_cfg->verifystatus) {
     struct Curl_ssl_session *scs = NULL;
 
     result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
-    if(!result && scs && scs->sdata && scs->sdata_len) {
+    如果(!result && scs && scs->sdata && scs->sdata_len) {
       (void)ossl_apply_session(octx, cf, data, &alpns, sess_reuse_cb, scs);
     }
     Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
   }
 
-  if(alpns.count) {
+  如果(alpns.count) {
     struct alpn_proto_buf proto;
     memset(&proto, 0, sizeof(proto));
     result = Curl_alpn_to_proto_buf(&proto, &alpns);
-    if(result) {
+    如果(result) {
       failf(data, "Error determining ALPN");
-      return CURLE_SSL_CONNECT_ERROR;
+      返回 CURLE_SSL_CONNECT_ERROR;
     }
-    if(SSL_set_alpn_protos(octx->ssl, proto.data, proto.len)) {
+    如果(SSL_set_alpn_protos(octx->ssl, proto.data, proto.len)) {
       failf(data, "Error setting ALPN");
-      return CURLE_SSL_CONNECT_ERROR;
+      返回 CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 #ifdef HAVE_SSL_SET1_ECH_CONFIG_LIST
@@ -3526,99 +3526,99 @@ static CURLcode ossl_init_ech(struct ossl_ctx *octx,
                               struct ssl_peer *peer)
 {
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int trying_ech_now = 0;
+  整数 trying_ech_now = 0;
 
-  if(!Curl_ssl_ech_enabled(cf))
-    return CURLE_OK;
+  如果(!Curl_ssl_ech_enabled(cf))
+    返回 CURLE_OK;
 
-  if(conn_config->ech == CURLECH_GREASE) {
+  如果(conn_config->ech == CURLECH_GREASE) {
     infof(data, "ECH: will GREASE ClientHello");
 #ifdef HAVE_BORINGSSL_LIKE
     SSL_set_enable_ech_grease(octx->ssl, 1);
-#else
+#否则
     SSL_set_options(octx->ssl, SSL_OP_ECH_GREASE);
 #endif
   }
-  else if(conn_config->ech && conn_config->ech_config) {
+  否则 如果(conn_config->ech && conn_config->ech_config) {
 #ifdef HAVE_BORINGSSL_LIKE
     uint8_t *ech_config;
     size_t ech_config_len = 0;
     CURLcode result;
 
-    if(!conn_config->ech_config[0]) {
+    如果(!conn_config->ech_config[0]) {
       infof(data, "ECH: ECHConfig from command line empty");
-      return CURLE_SSL_CONNECT_ERROR;
+      返回 CURLE_SSL_CONNECT_ERROR;
     }
     ech_config_len = 2 * strlen(conn_config->ech_config);
     result = curlx_base64_decode(conn_config->ech_config,
                                  &ech_config, &ech_config_len);
-    if(result || !ech_config) {
+    如果(result || !ech_config) {
       infof(data, "ECH: cannot base64 decode ECHConfig from command line");
-      if(conn_config->ech == CURLECH_HARD)
-        return result;
+      如果(conn_config->ech == CURLECH_HARD)
+        返回 result;
     }
-    if(SSL_set1_ech_config_list(octx->ssl, ech_config, ech_config_len) != 1) {
+    如果(SSL_set1_ech_config_list(octx->ssl, ech_config, ech_config_len) != 1) {
       infof(data, "ECH: SSL_ECH_set1_ech_config_list failed");
-      if(conn_config->ech == CURLECH_HARD) {
+      如果(conn_config->ech == CURLECH_HARD) {
         curlx_free(ech_config);
-        return CURLE_SSL_CONNECT_ERROR;
+        返回 CURLE_SSL_CONNECT_ERROR;
       }
     }
     curlx_free(ech_config);
     trying_ech_now = 1;
-#else
+#否则
     size_t ech_config_len = 0;
-    if(!conn_config->ech_config[0]) {
+    如果(!conn_config->ech_config[0]) {
       infof(data, "ECH: ECHConfig from command line empty");
-      return CURLE_SSL_CONNECT_ERROR;
+      返回 CURLE_SSL_CONNECT_ERROR;
     }
     ech_config_len = strlen(conn_config->ech_config);
-    if(SSL_set1_ech_config_list(octx->ssl,
+    如果(SSL_set1_ech_config_list(octx->ssl,
                                 (const uint8_t *)conn_config->ech_config,
                                 ech_config_len) != 1) {
       infof(data, "ECH: SSL_ECH_set1_ech_config_list failed");
-      if(conn_config->ech == CURLECH_HARD)
-        return CURLE_SSL_CONNECT_ERROR;
+      如果(conn_config->ech == CURLECH_HARD)
+        返回 CURLE_SSL_CONNECT_ERROR;
     }
-    else
+    否则
       trying_ech_now = 1;
 #endif /* HAVE_BORINGSSL_LIKE */
     infof(data, "ECH: ECHConfig from command line");
   }
-  else {
+  否则 {
     const struct Curl_https_rrinfo *rinfo =
       Curl_conn_dns_get_https(data, cf->sockindex, peer->origin);
 
-    if(Curl_httpsrr_is_for_peer(peer->origin, rinfo) && rinfo->echconfiglist) {
+    如果(Curl_httpsrr_is_for_peer(peer->origin, rinfo) && rinfo->echconfiglist) {
       const unsigned char *ecl = rinfo->echconfiglist;
       size_t elen = rinfo->echconfiglist_len;
 
       infof(data, "ECH: ECHConfig from HTTPS RR");
-      if(SSL_set1_ech_config_list(octx->ssl, ecl, elen) != 1) {
+      如果(SSL_set1_ech_config_list(octx->ssl, ecl, elen) != 1) {
         infof(data, "ECH: SSL_set1_ech_config_list failed");
-        if(conn_config->ech == CURLECH_HARD)
-          return CURLE_SSL_CONNECT_ERROR;
+        如果(conn_config->ech == CURLECH_HARD)
+          返回 CURLE_SSL_CONNECT_ERROR;
       }
-      else {
+      否则 {
         trying_ech_now = 1;
         infof(data, "ECH: imported ECHConfigList of length %zu", elen);
       }
     }
-    else {
+    否则 {
       infof(data, "ECH: requested but no ECHConfig available");
-      if(conn_config->ech == CURLECH_HARD)
-        return CURLE_SSL_CONNECT_ERROR;
+      如果(conn_config->ech == CURLECH_HARD)
+        返回 CURLE_SSL_CONNECT_ERROR;
     }
   }
 #ifdef HAVE_BORINGSSL_LIKE
   (void)peer;
-  if(trying_ech_now && conn_config->ech_public) {
+  如果(trying_ech_now && conn_config->ech_public) {
     infof(data, "ECH: setting public_name not supported with BoringSSL");
-    return CURLE_SSL_CONNECT_ERROR;
+    返回 CURLE_SSL_CONNECT_ERROR;
   }
-#else
-  if(trying_ech_now && conn_config->ech_public) {
-    int ret;
+#否则
+  如果(trying_ech_now && conn_config->ech_public) {
+    整数 ret;
     infof(data, "ECH: inner: '%s', outer: '%s'",
           peer->origin->hostname ? peer->origin->hostname : "NULL",
           conn_config->ech_public);
@@ -3626,19 +3626,19 @@ static CURLcode ossl_init_ech(struct ossl_ctx *octx,
                                     peer->origin->hostname,
                                     conn_config->ech_public,
                                     0 /* do send outer */);
-    if(ret != 1) {
+    如果(ret != 1) {
       infof(data, "ECH: rv failed to set server name(s) %d [ERROR]", ret);
-      return CURLE_SSL_CONNECT_ERROR;
+      返回 CURLE_SSL_CONNECT_ERROR;
     }
   }
 #endif /* HAVE_BORINGSSL_LIKE */
-  if(trying_ech_now &&
+  如果(trying_ech_now &&
      SSL_set_min_proto_version(octx->ssl, TLS1_3_VERSION) != 1) {
     infof(data, "ECH: cannot force TLSv1.3 [ERROR]");
-    return CURLE_SSL_CONNECT_ERROR;
+    返回 CURLE_SSL_CONNECT_ERROR;
   }
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 #endif /* else HAVE_SSL_SET1_ECH_CONFIG_LIST */
 
@@ -3651,39 +3651,39 @@ static CURLcode ossl_init_ssl(struct ossl_ctx *octx,
                               Curl_ossl_init_session_reuse_cb *sess_reuse_cb)
 {
   /* Let's make an SSL structure */
-  if(octx->ssl)
+  如果(octx->ssl)
     SSL_free(octx->ssl);
   octx->ssl = SSL_new(octx->ssl_ctx);
-  if(!octx->ssl) {
+  如果(!octx->ssl) {
     failf(data, "SSL: could not create a context (handle)");
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
   SSL_set_app_data(octx->ssl, ssl_user_data);
 
 #ifndef OPENSSL_NO_OCSP
-  if(Curl_ssl_cf_get_filter_config(cf)->verifystatus)
+  如果(Curl_ssl_cf_get_filter_config(cf)->verifystatus)
     SSL_set_tlsext_status_type(octx->ssl, TLSEXT_STATUSTYPE_ocsp);
 #endif
 
   SSL_set_connect_state(octx->ssl);
 
-  if(peer->sni) {
-    if(!SSL_set_tlsext_host_name(octx->ssl, peer->sni)) {
+  如果(peer->sni) {
+    如果(!SSL_set_tlsext_host_name(octx->ssl, peer->sni)) {
       failf(data, "Failed set SNI");
-      return CURLE_SSL_CONNECT_ERROR;
+      返回 CURLE_SSL_CONNECT_ERROR;
     }
   }
 
 #ifdef HAVE_SSL_SET1_ECH_CONFIG_LIST
   {
     CURLcode result = ossl_init_ech(octx, cf, data, peer);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
   }
 #endif /* HAVE_SSL_SET1_ECH_CONFIG_LIST */
 
-  return ossl_init_session_and_alpns(octx, cf, data, peer,
+  返回 ossl_init_session_and_alpns(octx, cf, data, peer,
                                      alpns_requested, sess_reuse_cb);
 }
 
@@ -3691,7 +3691,7 @@ static CURLcode ossl_init_method(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
                                  struct ssl_peer *peer,
                                  const SSL_METHOD **pmethod,
-                                 unsigned int *pssl_version_min)
+                                 unsigned 整数 *pssl_version_min)
 {
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
 
@@ -3712,32 +3712,32 @@ static CURLcode ossl_init_method(struct Curl_cfilter *cf,
       break;
     case CURL_SSLVERSION_SSLv2:
       failf(data, "No SSLv2 support");
-      return CURLE_NOT_BUILT_IN;
+      返回 CURLE_NOT_BUILT_IN;
     case CURL_SSLVERSION_SSLv3:
       failf(data, "No SSLv3 support");
-      return CURLE_NOT_BUILT_IN;
+      返回 CURLE_NOT_BUILT_IN;
     default:
       failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
-      return CURLE_SSL_CONNECT_ERROR;
+      返回 CURLE_SSL_CONNECT_ERROR;
     }
     break;
   case TRNSPRT_QUIC:
     *pssl_version_min = CURL_SSLVERSION_TLSv1_3;
-    if(conn_config->version_max &&
+    如果(conn_config->version_max &&
        (conn_config->version_max != CURL_SSLVERSION_MAX_DEFAULT) &&
        (conn_config->version_max != CURL_SSLVERSION_MAX_TLSv1_3)) {
       failf(data, "QUIC needs at least TLS version 1.3");
-      return CURLE_SSL_CONNECT_ERROR;
+      返回 CURLE_SSL_CONNECT_ERROR;
     }
 
     *pmethod = TLS_method();
     break;
   default:
     failf(data, "unsupported transport %d in SSL init", peer->transport);
-    return CURLE_SSL_CONNECT_ERROR;
+    返回 CURLE_SSL_CONNECT_ERROR;
   }
 
-  return *pmethod ? CURLE_OK : CURLE_SSL_CONNECT_ERROR;
+  返回 *pmethod ? CURLE_OK : CURLE_SSL_CONNECT_ERROR;
 }
 
 CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
@@ -3760,25 +3760,25 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
   char * const ssl_cert = conn_config->clientcert;
   const struct curl_blob *ssl_cert_blob = conn_config->cert_blob;
   const char * const ssl_cert_type = conn_config->cert_type;
-  unsigned int ssl_version_min = CURL_SSLVERSION_DEFAULT;
+  unsigned 整数 ssl_version_min = CURL_SSLVERSION_DEFAULT;
   char error_buffer[256];
 
   /* Make funny stuff to get random input */
   result = ossl_seed(data);
-  if(!result) {
-    if(CURL_EASY_STR(data, STRING_SSL_ENGINE))
+  如果(!result) {
+    如果(CURL_EASY_STR(data, STRING_SSL_ENGINE))
       result = ossl_set_engine(data, octx,
                                CURL_EASY_STR(data, STRING_SSL_ENGINE));
-    if(!result && data->set.engine_default)
+    如果(!result && data->set.engine_default)
       result = ossl_set_engine_default(data, octx);
   }
 
-  if(!result) {
+  如果(!result) {
     ssl_config->certverifyresult = !X509_V_OK;
     result = ossl_init_method(cf, data, peer, &req_method, &ssl_version_min);
   }
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
   DEBUGASSERT(req_method);
 
   DEBUGASSERT(!octx->ssl_ctx);
@@ -3789,19 +3789,19 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 #endif
     SSL_CTX_new(req_method);
 
-  if(!octx->ssl_ctx) {
+  如果(!octx->ssl_ctx) {
     failf(data, "SSL: could not create a context: %s",
           ossl_strerror(ERR_peek_error(), error_buffer, sizeof(error_buffer)));
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
-  if(cb_setup) {
+  如果(cb_setup) {
     result = cb_setup(cf, data, cb_user_data);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
   }
 
-  if(data->set.fdebug && data->set.verbose &&
+  如果(data->set.fdebug && data->set.verbose &&
      (peer->transport != TRNSPRT_QUIC)) {
     /* the SSL trace callback is only used for verbose logging;
      * QUIC connections use a different TLS record format that
@@ -3852,14 +3852,14 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 
   /* unless the user explicitly asks to allow the protocol vulnerability we
      use the workaround */
-  if(!conn_config->enable_beast)
+  如果(!conn_config->enable_beast)
     ctx_options &= ~(ctx_option_t)SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
 
   DEBUGASSERT(ssl_version_min != CURL_SSLVERSION_DEFAULT);
   switch(ssl_version_min) {
   case CURL_SSLVERSION_SSLv2:
   case CURL_SSLVERSION_SSLv3:
-    return CURLE_NOT_BUILT_IN;
+    返回 CURLE_NOT_BUILT_IN;
 
     /* "--tlsv<x.y>" options mean TLS >= version <x.y> */
   case CURL_SSLVERSION_TLSv1:   /* TLS >= version 1.0 */
@@ -3873,13 +3873,13 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
     ctx_options |= SSL_OP_NO_SSLv3;
 
     result = ossl_set_ssl_version_min_max(cf, octx->ssl_ctx, ssl_version_min);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
     break;
 
   default:
     failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
-    return CURLE_SSL_CONNECT_ERROR;
+    返回 CURLE_SSL_CONNECT_ERROR;
   }
 
   SSL_CTX_set_options(octx->ssl_ctx, ctx_options);
@@ -3902,12 +3902,12 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
   SSL_CTX_set_mode(octx->ssl_ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
   ciphers = conn_config->cipher_list;
-  if(!ciphers && (peer->transport != TRNSPRT_QUIC))
+  如果(!ciphers && (peer->transport != TRNSPRT_QUIC))
     ciphers = NULL;
-  if(ciphers && (ssl_version_min < CURL_SSLVERSION_TLSv1_3)) {
-    if(!SSL_CTX_set_cipher_list(octx->ssl_ctx, ciphers)) {
+  如果(ciphers && (ssl_version_min < CURL_SSLVERSION_TLSv1_3)) {
+    如果(!SSL_CTX_set_cipher_list(octx->ssl_ctx, ciphers)) {
       failf(data, "failed setting cipher list: %s", ciphers);
-      return CURLE_SSL_CIPHER;
+      返回 CURLE_SSL_CIPHER;
     }
     infof(data, "Cipher selection: %s", ciphers);
   }
@@ -3915,28 +3915,28 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 #ifdef HAVE_SSL_CTX_SET_CIPHERSUITES
   {
     const char *ciphers13 = conn_config->cipher_list13;
-    if(ciphers13 &&
+    如果(ciphers13 &&
        (!conn_config->version_max ||
         (conn_config->version_max == CURL_SSLVERSION_MAX_DEFAULT) ||
         (conn_config->version_max >= CURL_SSLVERSION_MAX_TLSv1_3))) {
-      if(!SSL_CTX_set_ciphersuites(octx->ssl_ctx, ciphers13)) {
+      如果(!SSL_CTX_set_ciphersuites(octx->ssl_ctx, ciphers13)) {
         failf(data, "failed setting TLS 1.3 cipher suite: %s", ciphers13);
-        return CURLE_SSL_CIPHER;
+        返回 CURLE_SSL_CIPHER;
       }
       infof(data, "TLS 1.3 cipher selection: %s", ciphers13);
     }
   }
 #endif
 
-  if(ssl_cert || ssl_cert_blob || ssl_cert_type) {
+  如果(ssl_cert || ssl_cert_blob || ssl_cert_type) {
     result = client_cert(data, octx,
                          ssl_cert, ssl_cert_blob, ssl_cert_type,
                          conn_config->key, conn_config->key_blob,
                          conn_config->key_type,
                          conn_config->key_passwd);
-    if(result)
+    如果(result)
       /* failf() is already done in client_cert() */
-      return result;
+      返回 result;
   }
 
 #ifdef HAVE_SSL_CTX_SET_POST_HANDSHAKE_AUTH
@@ -3946,15 +3946,15 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 
   {
     const char *curves = conn_config->curves;
-    if(curves) {
+    如果(curves) {
 #ifdef HAVE_BORINGSSL_LIKE
 #define OSSL_CURVE_CAST(x) (x)
-#else
+#否则
 #define OSSL_CURVE_CAST(x) (char *)CURL_UNCONST(x)
 #endif
-      if(!SSL_CTX_set1_curves_list(octx->ssl_ctx, OSSL_CURVE_CAST(curves))) {
+      如果(!SSL_CTX_set1_curves_list(octx->ssl_ctx, OSSL_CURVE_CAST(curves))) {
         failf(data, "failed setting curves list: '%s'", curves);
-        return CURLE_SSL_CIPHER;
+        返回 CURLE_SSL_CIPHER;
       }
     }
   }
@@ -3963,12 +3963,12 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 #define OSSL_SIGALG_CAST(x) OSSL_CURVE_CAST(x)
   {
     const char *signature_algorithms = conn_config->signature_algorithms;
-    if(signature_algorithms) {
-      if(!SSL_CTX_set1_sigalgs_list(octx->ssl_ctx,
+    如果(signature_algorithms) {
+      如果(!SSL_CTX_set1_sigalgs_list(octx->ssl_ctx,
                                     OSSL_SIGALG_CAST(signature_algorithms))) {
         failf(data, "failed setting signature algorithms: '%s'",
               signature_algorithms);
-        return CURLE_SSL_CIPHER;
+        返回 CURLE_SSL_CIPHER;
       }
     }
   }
@@ -3981,13 +3981,13 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
   SSL_CTX_set_verify(octx->ssl_ctx, SSL_VERIFY_NONE, NULL);
 
   /* Enable logging of secrets to the file specified in env SSLKEYLOGFILE. */
-#if !defined(HAVE_KEYLOG_UPSTREAM) && defined(HAVE_KEYLOG_CALLBACK)
-  if(Curl_tls_keylog_enabled()) {
+#如果 !defined(HAVE_KEYLOG_UPSTREAM) && defined(HAVE_KEYLOG_CALLBACK)
+  如果(Curl_tls_keylog_enabled()) {
     SSL_CTX_set_keylog_callback(octx->ssl_ctx, ossl_keylog_callback);
   }
 #endif
 
-  if(cb_new_session) {
+  如果(cb_new_session) {
     /* Enable the session cache because it is a prerequisite for the
      * "new session" callback. Use the "external storage" mode to prevent
      * OpenSSL from creating an internal session cache.
@@ -3999,28 +3999,28 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
   }
 
   /* give application a chance to interfere with SSL set up. */
-  if(data->set.ssl_fsslctx) {
+  如果(data->set.ssl_fsslctx) {
     struct Curl_mapi_guard guard;
     /* When a user callback is installed to modify the SSL_CTX,
      * we need to do the full initialization before calling it.
      * See: #11800 */
-    if(!octx->x509_store_setup) {
+    如果(!octx->x509_store_setup) {
       result = Curl_ssl_setup_x509_store(cf, data, octx);
-      if(result)
-        return result;
+      如果(result)
+        返回 result;
       octx->x509_store_setup = TRUE;
     }
     CURL_CBAPI_START(&guard, data, easy_fsslctx);
     result = (*data->set.ssl_fsslctx)(data, octx->ssl_ctx,
                                       data->set.ssl_fsslctxp);
     CURL_CBAPI_END(&guard);
-    if(result) {
+    如果(result) {
       failf(data, "error signaled by SSL ctx callback");
-      return result;
+      返回 result;
     }
   }
 
-  return ossl_init_ssl(octx, cf, data, peer, alpns_requested,
+  返回 ossl_init_ssl(octx, cf, data, peer, alpns_requested,
                        ssl_user_data, sess_reuse_cb);
 }
 
@@ -4034,22 +4034,22 @@ static CURLcode ossl_on_session_reuse(struct Curl_cfilter *cf,
 
   connssl->earlydata_max = scs->earlydata_max;
 
-  return Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
+  返回 Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
                                connssl->earlydata_max);
 }
 
 void Curl_ossl_report_handshake(struct Curl_easy *data, struct ossl_ctx *octx)
 {
 #ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
-    int psigtype_nid = NID_undef;
+  如果(Curl_trc_is_verbose(data)) {
+    整数 psigtype_nid = NID_undef;
     const char *negotiated_group_name = NULL;
 
 #ifdef HAVE_OPENSSL3
     SSL_get_peer_signature_type_nid(octx->ssl, &psigtype_nid);
-#if OPENSSL_VERSION_NUMBER >= 0x30200000L
+#如果 OPENSSL_VERSION_NUMBER >= 0x30200000L
     negotiated_group_name = SSL_get0_group_name(octx->ssl);
-#else
+#否则
     negotiated_group_name =
       OBJ_nid2sn(SSL_get_negotiated_group(octx->ssl) & 0x0000FFFF);
 #endif
@@ -4062,7 +4062,7 @@ void Curl_ossl_report_handshake(struct Curl_easy *data, struct ossl_ctx *octx)
           negotiated_group_name ? negotiated_group_name : "[blank]",
           OBJ_nid2sn(psigtype_nid));
   }
-#else
+#否则
   (void)data;
   (void)octx;
 #endif /* CURLVERBOSE */
@@ -4084,15 +4084,15 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
                               connssl->alpn, NULL, NULL,
                               ossl_new_session_cb, cf,
                               ossl_on_session_reuse);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   octx->bio_method = ossl_bio_cf_method_create();
-  if(!octx->bio_method)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!octx->bio_method)
+    返回 CURLE_OUT_OF_MEMORY;
   bio = BIO_new(octx->bio_method);
-  if(!bio)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!bio)
+    返回 CURLE_OUT_OF_MEMORY;
 
   BIO_set_data(bio, cf);
 #ifdef HAVE_SSL_SET0_WBIO
@@ -4104,11 +4104,11 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
   BIO_up_ref(bio);
   SSL_set0_rbio(octx->ssl, bio);
   SSL_set0_wbio(octx->ssl, bio);
-#else
+#否则
   SSL_set_bio(octx->ssl, bio, bio);
 #endif
 
-  if(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
+  如果(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
     struct alpn_proto_buf proto;
     memset(&proto, 0, sizeof(proto));
     Curl_alpn_to_proto_str(&proto, connssl->alpn);
@@ -4116,54 +4116,54 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
   }
 
   connssl->connecting_state = ssl_connect_2;
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 #ifdef HAVE_SSL_SET1_ECH_CONFIG_LIST
 /* If we have retry configs, then trace those out */
-static int ossl_trace_ech_retry_configs(struct Curl_cfilter *cf,
+static 整数 ossl_trace_ech_retry_configs(struct Curl_cfilter *cf,
                                         struct Curl_easy *data, SSL *ssl,
-                                        int reason)
+                                        整数 reason)
 {
   CURLcode result = CURLE_OK;
   size_t rcl = 0;
-  int rv = 1;
+  整数 rv = 1;
 #ifndef HAVE_BORINGSSL_LIKE
   char *inner = NULL;
   uint8_t *rcs = NULL;
   char *outer = NULL;
-#else
+#否则
   const char *inner = NULL;
   const uint8_t *rcs = NULL;
   const char *outer = NULL;
   size_t out_name_len = 0;
-  int servername_type = 0;
+  整数 servername_type = 0;
 #endif
   NOVERBOSE((void)reason);
 
   /* nothing to trace if not doing ECH */
-  if(!Curl_ssl_ech_enabled(cf))
-    return rv;
+  如果(!Curl_ssl_ech_enabled(cf))
+    返回 rv;
 #ifndef HAVE_BORINGSSL_LIKE
   rv = SSL_ech_get1_retry_config(ssl, &rcs, &rcl);
-#else
+#否则
   SSL_get0_ech_retry_configs(ssl, &rcs, &rcl);
-  rv = (int)rcl;
+  rv = (整数)rcl;
 #endif
 
-  if(rv && rcs) {
+  如果(rv && rcs) {
     char *b64str = NULL;
     size_t blen = 0;
 
     result = curlx_base64_encode(rcs, rcl, &b64str, &blen);
-    if(!result && b64str) {
+    如果(!result && b64str) {
       infof(data, "ECH: retry_configs %s", b64str);
       curlx_free(b64str);
 #ifndef HAVE_BORINGSSL_LIKE
       rv = SSL_ech_get1_status(ssl, &inner, &outer);
       infof(data, "ECH: retry_configs for %s from %s, %d %d",
             inner ? inner : "NULL", outer ? outer : "NULL", reason, rv);
-#else
+#否则
       rv = SSL_ech_accepted(ssl);
       servername_type = SSL_get_servername_type(ssl);
       inner = SSL_get_servername(ssl, servername_type);
@@ -4173,14 +4173,14 @@ static int ossl_trace_ech_retry_configs(struct Curl_cfilter *cf,
 #endif
     }
   }
-  else
+  否则
     infof(data, "ECH: no retry_configs (rv = %d)", rv);
 #ifndef HAVE_BORINGSSL_LIKE
   OPENSSL_free(inner);
   OPENSSL_free(rcs);
   OPENSSL_free(outer);
 #endif
-  return rv;
+  返回 rv;
 }
 
 #endif
@@ -4191,7 +4191,7 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
   struct ssl_connect_data *connssl = cf->ctx;
   struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
   struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  int err;
+  整数 err;
 
   DEBUGASSERT(connssl->connecting_state == ssl_connect_2);
   DEBUGASSERT(octx);
@@ -4200,62 +4200,62 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
 
   err = SSL_connect(octx->ssl);
 
-  if(!octx->x509_store_setup) {
+  如果(!octx->x509_store_setup) {
     /* After having send off the ClientHello, we prepare the x509
      * store to verify the coming certificate from the server */
     CURLcode result = Curl_ssl_setup_x509_store(cf, data, octx);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
     octx->x509_store_setup = TRUE;
   }
 
-#if !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
+#如果 !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
   /* If key logging is enabled, wait for the handshake to complete and then
    * proceed with logging secrets (for TLS 1.2 or older).
    */
-  if(Curl_tls_keylog_enabled() && !octx->keylog_done)
+  如果(Curl_tls_keylog_enabled() && !octx->keylog_done)
     ossl_log_tls12_secret(octx->ssl, &octx->keylog_done);
 #endif
 
   /* 1  is fine
      0  is "not successful but was shut down controlled"
      <0 is "handshake was not successful, because a fatal error occurred" */
-  if(err != 1) {
-    int detail = SSL_get_error(octx->ssl, err);
+  如果(err != 1) {
+    整数 detail = SSL_get_error(octx->ssl, err);
     CURL_TRC_CF(data, cf, "SSL_connect() -> err=%d, detail=%d", err, detail);
 
-    if(detail == SSL_ERROR_WANT_READ) {
+    如果(detail == SSL_ERROR_WANT_READ) {
       CURL_TRC_CF(data, cf, "SSL_connect() -> want recv");
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      return CURLE_AGAIN;
+      返回 CURLE_AGAIN;
     }
-    if(detail == SSL_ERROR_WANT_WRITE) {
+    如果(detail == SSL_ERROR_WANT_WRITE) {
       CURL_TRC_CF(data, cf, "SSL_connect() -> want send");
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      return CURLE_AGAIN;
+      返回 CURLE_AGAIN;
     }
 #ifdef SSL_ERROR_WANT_ASYNC
-    if(detail == SSL_ERROR_WANT_ASYNC) {
+    如果(detail == SSL_ERROR_WANT_ASYNC) {
       CURL_TRC_CF(data, cf, "SSL_connect() -> want async");
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      return CURLE_AGAIN;
+      返回 CURLE_AGAIN;
     }
 #endif
 #ifdef SSL_ERROR_WANT_RETRY_VERIFY
-    if(detail == SSL_ERROR_WANT_RETRY_VERIFY) {
+    如果(detail == SSL_ERROR_WANT_RETRY_VERIFY) {
       CURL_TRC_CF(data, cf, "SSL_connect() -> want retry_verify");
       Curl_xfer_pause_recv(data, TRUE);
-      return CURLE_AGAIN;
+      返回 CURLE_AGAIN;
     }
 #endif
-    else {
+    否则 {
       /* untreated error */
       sslerr_t errdetail;
       char error_buffer[256] = "";
       CURLcode result;
       long lerr;
-      int lib;
-      int reason;
+      整数 lib;
+      整数 reason;
 
       /* the connection failed, we are not waiting for anything else. */
       connssl->connecting_state = ssl_connect_2;
@@ -4268,7 +4268,7 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
       lib = ERR_GET_LIB(errdetail);
       reason = ERR_GET_REASON(errdetail);
 
-      if((lib == ERR_LIB_SSL) &&
+      如果((lib == ERR_LIB_SSL) &&
          ((reason == SSL_R_CERTIFICATE_VERIFY_FAILED)
 /* Missing from OpenSSL 4+ OPENSSL_NO_DEPRECATED_3_0 builds */
 #ifdef SSL_R_SSLV3_ALERT_CERTIFICATE_EXPIRED
@@ -4278,18 +4278,18 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
         result = CURLE_PEER_FAILED_VERIFICATION;
 
         lerr = SSL_get_verify_result(octx->ssl);
-        if(lerr != X509_V_OK) {
+        如果(lerr != X509_V_OK) {
           ssl_config->certverifyresult = lerr;
           failf(data, "SSL certificate problem: %s",
                 X509_verify_cert_error_string(lerr));
         }
-        else
+        否则
           failf(data, "%s", "SSL certificate verification failed");
       }
 #ifdef SSL_R_TLSV13_ALERT_CERTIFICATE_REQUIRED
       /* SSL_R_TLSV13_ALERT_CERTIFICATE_REQUIRED is only available on
          OpenSSL version above v1.1.1, not AWS-LC, BoringSSL, or LibreSSL */
-      else if((lib == ERR_LIB_SSL) &&
+      否则 如果((lib == ERR_LIB_SSL) &&
               (reason == SSL_R_TLSV13_ALERT_CERTIFICATE_REQUIRED)) {
         /* If client certificate is required, communicate the
            error to client */
@@ -4299,10 +4299,10 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
       }
 #endif
 #ifdef HAVE_SSL_SET1_ECH_CONFIG_LIST
-      else if((lib == ERR_LIB_SSL) &&
+      否则 如果((lib == ERR_LIB_SSL) &&
 #ifndef HAVE_BORINGSSL_LIKE
               (reason == SSL_R_ECH_REQUIRED)) {
-#else
+#否则
               (reason == SSL_R_ECH_REJECTED)) {
 #endif /* HAVE_BORINGSSL_LIKE */
 
@@ -4314,7 +4314,7 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
               ossl_strerror(errdetail, error_buffer, sizeof(error_buffer)));
       }
 #endif
-      else {
+      否则 {
         result = CURLE_SSL_CONNECT_ERROR;
         failf(data, "TLS connect error: %s",
               ossl_strerror(errdetail, error_buffer, sizeof(error_buffer)));
@@ -4326,31 +4326,31 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
        * (RST connection, etc.), OpenSSL gives no explanation whatsoever and
        * the SO_ERROR is also lost.
        */
-      if(result == CURLE_SSL_CONNECT_ERROR && errdetail == 0) {
+      如果(result == CURLE_SSL_CONNECT_ERROR && errdetail == 0) {
         char extramsg[80] = "";
-        int sockerr = SOCKERRNO;
+        整数 sockerr = SOCKERRNO;
 
-        if(sockerr && detail == SSL_ERROR_SYSCALL)
+        如果(sockerr && detail == SSL_ERROR_SYSCALL)
           curlx_strerror(sockerr, extramsg, sizeof(extramsg));
         failf(data, OSSL_PACKAGE " SSL_connect: %s in connection to %s:%d ",
               extramsg[0] ? extramsg : SSL_ERROR_to_str(detail),
               connssl->peer.origin->hostname, connssl->peer.origin->port);
       }
 
-      return result;
+      返回 result;
     }
   }
-  else {
+  否则 {
     /* we connected fine, we are not waiting for anything else. */
     connssl->connecting_state = ssl_connect_3;
     Curl_ossl_report_handshake(data, octx);
 
-#if defined(HAVE_SSL_SET1_ECH_CONFIG_LIST) && !defined(HAVE_BORINGSSL_LIKE)
-    if(Curl_ssl_ech_enabled(cf)) {
+#如果 defined(HAVE_SSL_SET1_ECH_CONFIG_LIST) && !defined(HAVE_BORINGSSL_LIKE)
+    如果(Curl_ssl_ech_enabled(cf)) {
       struct ssl_filter_config *conn_config =
         Curl_ssl_cf_get_filter_config(cf);
       char *inner = NULL, *outer = NULL;
-      int rv;
+      整数 rv;
       VERBOSE(const char *status);
 
       rv = SSL_ech_get1_status(octx->ssl, &inner, &outer);
@@ -4380,12 +4380,12 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
         VERBOSE(status = "bad call (unexpected)");
         break;
       case SSL_ECH_STATUS_BAD_NAME: {
-        if(!conn_config->verifypeer && !conn_config->verifyhost &&
+        如果(!conn_config->verifypeer && !conn_config->verifyhost &&
            inner && !strcmp(inner, connssl->peer.origin->hostname)) {
           VERBOSE(status = "bad name (tolerated without peer verification)");
           rv = SSL_ECH_STATUS_SUCCESS;
         }
-        else {
+        否则 {
           VERBOSE(status = "bad name (unexpected)");
         }
         break;
@@ -4400,16 +4400,16 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
             (outer ? outer : "NULL"));
       OPENSSL_free(inner);
       OPENSSL_free(outer);
-      if(rv == SSL_ECH_STATUS_GREASE_ECH) {
+      如果(rv == SSL_ECH_STATUS_GREASE_ECH) {
         /* trace retry_configs if we got some */
         ossl_trace_ech_retry_configs(cf, data, octx->ssl, 0);
       }
-      if(rv != SSL_ECH_STATUS_SUCCESS && (conn_config->ech == CURLECH_HARD)) {
+      如果(rv != SSL_ECH_STATUS_SUCCESS && (conn_config->ech == CURLECH_HARD)) {
         infof(data, "ECH: ech-hard failed");
-        return CURLE_SSL_CONNECT_ERROR;
+        返回 CURLE_SSL_CONNECT_ERROR;
       }
     }
-    else {
+    否则 {
       infof(data, "ECH: result: status is not attempted");
     }
 #endif /* HAVE_SSL_SET1_ECH_CONFIG_LIST && !HAVE_BORINGSSL_LIKE */
@@ -4417,15 +4417,15 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
     /* Sets data and len to negotiated protocol, len is 0 if no protocol was
      * negotiated
      */
-    if(connssl->alpn) {
+    如果(connssl->alpn) {
       const unsigned char *neg_protocol;
-      unsigned int len;
+      unsigned 整数 len;
       SSL_get0_alpn_selected(octx->ssl, &neg_protocol, &len);
 
-      return Curl_alpn_set_negotiated(cf, data, connssl, neg_protocol, len);
+      返回 Curl_alpn_set_negotiated(cf, data, connssl, neg_protocol, len);
     }
 
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 }
 
@@ -4437,28 +4437,28 @@ static CURLcode ossl_pkp_pin_peer_pubkey(struct Curl_easy *data, X509 *cert,
                                          const char *pinnedpubkey)
 {
   /* Scratch */
-  int len1 = 0, len2 = 0;
+  整数 len1 = 0, len2 = 0;
   unsigned char *buff1 = NULL, *temp = NULL;
 
   /* Result is returned to caller */
   CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
+  如果(!pinnedpubkey)
+    返回 CURLE_OK;
 
-  if(!cert)
-    return result;
+  如果(!cert)
+    返回 result;
 
   do {
     /* Get the subjectPublicKeyInfo */
     /* https://groups.google.com/group/mailing.openssl.users/browse_thread/thread/d61858dae102c6c7 */
     len1 = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), NULL);
-    if(len1 < 1)
+    如果(len1 < 1)
       break; /* failed */
 
     buff1 = temp = curlx_malloc(len1);
-    if(!buff1)
+    如果(!buff1)
       break; /* failed */
 
     /* https://docs.openssl.org/master/man3/d2i_X509/ */
@@ -4469,61 +4469,61 @@ static CURLcode ossl_pkp_pin_peer_pubkey(struct Curl_easy *data, X509 *cert,
      * sized the buffer. it is pretty weak since they should always be the
      * same, but it gives us something to test.
      */
-    if((len1 != len2) || !temp || ((temp - buff1) != len1))
+    如果((len1 != len2) || !temp || ((temp - buff1) != len1))
       break; /* failed */
 
     /* End Gyrations */
 
     /* The one good exit point */
     result = Curl_pin_peer_pubkey(data, pinnedpubkey, buff1, len1);
-  } while(0);
+  } 当(0);
 
-  if(buff1)
+  如果(buff1)
     curlx_free(buff1);
 
-  return result;
+  返回 result;
 }
 
 #ifdef CURLVERBOSE
-#if !defined(HAVE_BORINGSSL_LIKE) && \
+#如果 !defined(HAVE_BORINGSSL_LIKE) && \
   !(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x3060000fL)
 static void infof_certstack(struct Curl_easy *data, const SSL *ssl)
 {
   STACK_OF(X509) *certstack;
   long verify_result;
-  int num_cert_levels;
-  int cert_level;
+  整数 num_cert_levels;
+  整数 cert_level;
 
-  if(!Curl_trc_is_verbose(data))
-    return;
+  如果(!Curl_trc_is_verbose(data))
+    返回;
 
   verify_result = SSL_get_verify_result(ssl);
-  if(verify_result != X509_V_OK)
+  如果(verify_result != X509_V_OK)
     certstack = SSL_get_peer_cert_chain(ssl);
-  else
+  否则
     certstack = SSL_get0_verified_chain(ssl);
-  if(!certstack)
-    return;
+  如果(!certstack)
+    返回;
   num_cert_levels = sk_X509_num(certstack);
 
-  for(cert_level = 0; cert_level < num_cert_levels; cert_level++) {
+  为(cert_level = 0; cert_level < num_cert_levels; cert_level++) {
     char cert_algorithm[80] = "";
     char group_name_final[80] = "";
     const X509_ALGOR *palg_cert = NULL;
     const ASN1_OBJECT *paobj_cert = NULL;
     X509 *current_cert;
     EVP_PKEY *current_pkey;
-    int key_bits;
-    int key_sec_bits;
-    int get_group_name;
+    整数 key_bits;
+    整数 key_sec_bits;
+    整数 get_group_name;
     const char *type_name;
 
     current_cert = sk_X509_value(certstack, cert_level);
-    if(!current_cert)
+    如果(!current_cert)
       continue;
 
     current_pkey = X509_get0_pubkey(current_cert);
-    if(!current_pkey)
+    如果(!current_pkey)
       continue;
 
     X509_get0_signature(NULL, &palg_cert, current_cert);
@@ -4544,7 +4544,7 @@ static void infof_certstack(struct Curl_easy *data, const SSL *ssl)
                      group_name);
     }
     type_name = EVP_PKEY_get0_type_name(current_pkey);
-#else
+#否则
     get_group_name = 0;
     type_name = NULL;
 #endif
@@ -4556,7 +4556,7 @@ static void infof_certstack(struct Curl_easy *data, const SSL *ssl)
           key_bits, key_sec_bits, cert_algorithm);
   }
 }
-#else
+#否则
 #define infof_certstack(data, ssl)
 #endif
 #endif /* CURLVERBOSE */
@@ -4573,27 +4573,27 @@ static CURLcode ossl_check_issuer(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
 
   /* e.g. match issuer name with provided issuer certificate */
-  if(conn_config->issuercert_blob) {
+  如果(conn_config->issuercert_blob) {
     fp = BIO_new_mem_buf(conn_config->issuercert_blob->data,
-                         (int)conn_config->issuercert_blob->len);
-    if(!fp) {
+                         (整数)conn_config->issuercert_blob->len);
+    如果(!fp) {
       failf(data, "BIO_new_mem_buf NULL, " OSSL_PACKAGE " error %s",
             ossl_strerror(ERR_get_error(), err_buf, sizeof(err_buf)));
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
   }
-  else if(conn_config->issuercert) {
+  否则 如果(conn_config->issuercert) {
     fp = BIO_new(BIO_s_file());
-    if(!fp) {
+    如果(!fp) {
       failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
             ossl_strerror(ERR_get_error(), err_buf, sizeof(err_buf)));
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
 
-    if(BIO_read_filename(fp, conn_config->issuercert) <= 0) {
-      if(verify_enabled)
+    如果(BIO_read_filename(fp, conn_config->issuercert) <= 0) {
+      如果(verify_enabled)
         failf(data, "SSL: Unable to open issuer cert (%s)",
               conn_config->issuercert);
       result = CURLE_SSL_ISSUER_ERROR;
@@ -4601,18 +4601,18 @@ static CURLcode ossl_check_issuer(struct Curl_cfilter *cf,
     }
   }
 
-  if(fp) {
+  如果(fp) {
     issuer = PEM_read_bio_X509(fp, NULL, ZERO_NULL, NULL);
-    if(!issuer) {
-      if(verify_enabled)
+    如果(!issuer) {
+      如果(verify_enabled)
         failf(data, "SSL: Unable to read issuer cert (%s)",
               conn_config->issuercert);
       result = CURLE_SSL_ISSUER_ERROR;
       goto out;
     }
 
-    if(X509_check_issued(issuer, server_cert) != X509_V_OK) {
-      if(verify_enabled)
+    如果(X509_check_issued(issuer, server_cert) != X509_V_OK) {
+      如果(verify_enabled)
         failf(data, "SSL: Certificate issuer check failed (%s)",
               conn_config->issuercert);
       result = CURLE_SSL_ISSUER_ERROR;
@@ -4624,18 +4624,18 @@ static CURLcode ossl_check_issuer(struct Curl_cfilter *cf,
   }
 
 out:
-  if(fp)
+  如果(fp)
     BIO_free(fp);
-  if(issuer)
+  如果(issuer)
     X509_free(issuer);
-  return result;
+  返回 result;
 }
 
 static const char *pinned(struct Curl_cfilter *cf,
                           struct Curl_easy *data)
 {
   (void)cf;
-  return
+  返回
 #ifndef CURL_DISABLE_PROXY
     Curl_ssl_cf_is_proxy(cf) ?
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
@@ -4649,12 +4649,12 @@ static CURLcode ossl_check_pinned_key(struct Curl_cfilter *cf,
 {
   CURLcode result = CURLE_OK;
   const char *ptr = pinned(cf, data);
-  if(ptr) {
+  如果(ptr) {
     result = ossl_pkp_pin_peer_pubkey(data, server_cert, ptr);
-    if(result)
+    如果(result)
       failf(data, "SSL: public key does not match pinned public key");
   }
-  return result;
+  返回 result;
 }
 
 #ifdef CURLVERBOSE
@@ -4670,12 +4670,12 @@ static CURLcode ossl_infof_cert(struct Curl_cfilter *cf,
   long len;
   CURLcode result = CURLE_OK;
 
-  if(!Curl_trc_is_verbose(data))
-    return CURLE_OK;
+  如果(!Curl_trc_is_verbose(data))
+    返回 CURLE_OK;
 
   curlx_dyn_init(&dname, MAX_CERT_NAME_LENGTH);
   mem = BIO_new(BIO_s_mem());
-  if(!mem) {
+  如果(!mem) {
     failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
           ossl_strerror(ERR_get_error(), err_buf, sizeof(err_buf)));
     result = CURLE_OUT_OF_MEMORY;
@@ -4690,23 +4690,23 @@ static CURLcode ossl_infof_cert(struct Curl_cfilter *cf,
 
   ASN1_TIME_print(mem, X509_get0_notBefore(server_cert));
   len = BIO_get_mem_data(mem, (char **)&buf);
-  infof(data, "  start date: %.*s", (int)len, buf);
+  infof(data, "  start date: %.*s", (整数)len, buf);
   (void)BIO_reset(mem);
 
   ASN1_TIME_print(mem, X509_get0_notAfter(server_cert));
   len = BIO_get_mem_data(mem, (char **)&buf);
-  infof(data, "  expire date: %.*s", (int)len, buf);
+  infof(data, "  expire date: %.*s", (整数)len, buf);
   (void)BIO_reset(mem);
 
   result = x509_name_oneline(X509_get_issuer_name(server_cert), &dname);
-  if(result) /* should be only fatal stuff like OOM */
+  如果(result) /* should be only fatal stuff like OOM */
     goto out;
   infof(data, "  issuer: %s", curlx_dyn_ptr(&dname));
 
 out:
   BIO_free(mem);
   curlx_dyn_free(&dname);
-  return result;
+  返回 result;
 }
 #endif /* CURLVERBOSE */
 
@@ -4726,7 +4726,7 @@ static CURLcode ossl_chain_get_der(struct Curl_cfilter *cf,
 {
   struct ossl_certs_ctx *chain = user_data;
   X509 *cert;
-  int der_len;
+  整数 der_len;
 
   OPENSSL_free(chain->last_der);
   chain->last_der = NULL;
@@ -4736,17 +4736,17 @@ static CURLcode ossl_chain_get_der(struct Curl_cfilter *cf,
   *pder_len = 0;
   *pder = NULL;
 
-  if(i >= chain->num_certs)
-    return CURLE_TOO_LARGE;
-  cert = sk_X509_value(chain->sk, (int)i);
-  if(!cert)
-    return CURLE_FAILED_INIT;
+  如果(i >= chain->num_certs)
+    返回 CURLE_TOO_LARGE;
+  cert = sk_X509_value(chain->sk, (整数)i);
+  如果(!cert)
+    返回 CURLE_FAILED_INIT;
   der_len = i2d_X509(cert, pder);
-  if(der_len < 0)
-    return CURLE_FAILED_INIT;
+  如果(der_len < 0)
+    返回 CURLE_FAILED_INIT;
   chain->last_der = *pder;
   *pder_len = (size_t)der_len;
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode ossl_apple_verify(struct Curl_cfilter *cf,
@@ -4763,35 +4763,35 @@ static CURLcode ossl_apple_verify(struct Curl_cfilter *cf,
   chain.sk = SSL_get_peer_cert_chain(octx->ssl);
   chain.num_certs = chain.sk ? sk_X509_num(chain.sk) : 0;
 
-  if(!chain.num_certs &&
+  如果(!chain.num_certs &&
      (conn_config->verifypeer || conn_config->verifyhost)) {
-    if(!octx->reused_session) {
+    如果(!octx->reused_session) {
       failf(data, "SSL: could not get peer certificate chain");
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else {
+    否则 {
       /* When session was reused, there is no peer cert chain.
        * We trust it if it came from a SecTrust verified TLS. */
       CURL_TRC_CF(data, cf, "session reused, sectrust_session=%d",
                   octx->sectrust_session);
       octx->sectrust_verified = (bool)octx->sectrust_session;
-      return CURLE_OK;
+      返回 CURLE_OK;
     }
   }
-  else {
+  否则 {
 #ifdef HAVE_BORINGSSL_LIKE
     const uint8_t *ocsp_data = NULL;
-#else
+#否则
     unsigned char *ocsp_data = NULL;
 #endif
     long ocsp_len = 0;
     bool ocsp_required = (!octx->reused_session && conn_config->verifystatus);
-    if(!octx->reused_session)
+    如果(!octx->reused_session)
       ocsp_len = (long)SSL_get_tlsext_status_ocsp_resp(octx->ssl, &ocsp_data);
     /* SSL_get_tlsext_status_ocsp_resp() returns the length of the OCSP
        response data or -1 if there is no OCSP response data.
        AWS-LC breaks the API and returns 0 when there is no data. */
-    if(ocsp_len <= 0) {
+    如果(ocsp_len <= 0) {
       ocsp_len = 0; /* no data available */
       ocsp_data = NULL;
     }
@@ -4804,7 +4804,7 @@ static CURLcode ossl_apple_verify(struct Curl_cfilter *cf,
     chain.last_der = NULL;
   }
   octx->sectrust_verified = !result;
-  return result;
+  返回 result;
 }
 #endif /* USE_APPLE_SECTRUST */
 
@@ -4821,18 +4821,18 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
   X509 *server_cert;
   bool verified = FALSE;
 
-  if(data->set.ssl.certinfo && !octx->reused_session) {
+  如果(data->set.ssl.certinfo && !octx->reused_session) {
     /* asked to gather certificate info. Reused sessions do not have cert
        chains */
     result = ossl_certchain(data, octx->ssl);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
   }
 
   server_cert = SSL_get1_peer_certificate(octx->ssl);
-  if(!server_cert) {
+  如果(!server_cert) {
     /* no verification at all, this maybe acceptable */
-    if(!(conn_config->verifypeer || conn_config->verifyhost) &&
+    如果(!(conn_config->verifypeer || conn_config->verifyhost) &&
        !pinned(cf, data))
       goto out;
 
@@ -4843,14 +4843,14 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
 
 #ifdef CURLVERBOSE
   result = ossl_infof_cert(cf, data, server_cert);
-  if(result)
+  如果(result)
     goto out;
   infof_certstack(data, octx->ssl);
 #endif
 
-  if(conn_config->verifyhost) {
+  如果(conn_config->verifyhost) {
     result = ossl_verifyhost(data, conn, peer, server_cert);
-    if(result)
+    如果(result)
       goto out;
   }
   /* `verifyhost` is either OK or not requested from here on */
@@ -4860,18 +4860,18 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
   infof(data, "OpenSSL verify result: %lx", (unsigned long)ossl_verify);
 
   verified = (ossl_verify == X509_V_OK);
-  if(verified)
+  如果(verified)
     infof(data, "SSL certificate verified via OpenSSL.");
 
 #ifdef USE_APPLE_SECTRUST
-  if(!verified && conn_config->verifypeer && conn_config->native_ca_store) {
+  如果(!verified && conn_config->verifypeer && conn_config->native_ca_store) {
     /* we verify using Apple SecTrust *unless* OpenSSL already verified.
      * This may happen if the application intercepted the OpenSSL callback
      * and installed its own. */
     result = ossl_apple_verify(cf, data, octx, peer);
-    if(result && (result != CURLE_PEER_FAILED_VERIFICATION))
+    如果(result && (result != CURLE_PEER_FAILED_VERIFICATION))
       goto out; /* unexpected error */
-    if(octx->sectrust_verified) {
+    如果(octx->sectrust_verified) {
       infof(data, "SSL certificate verified via Apple SecTrust.");
       ssl_config->certverifyresult = X509_V_OK;
       verified = TRUE;
@@ -4879,9 +4879,9 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
   }
 #endif
 
-  if(!verified) {
+  如果(!verified) {
     /* no trust established, report the OpenSSL status */
-    if(conn_config->verifypeer) {
+    如果(conn_config->verifypeer) {
       failf(data, "SSL certificate OpenSSL verify result: %s (%ld)",
             X509_verify_cert_error_string(ossl_verify), ossl_verify);
       result = CURLE_PEER_FAILED_VERIFICATION;
@@ -4891,27 +4891,27 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
   }
 
 #ifndef OPENSSL_NO_OCSP
-  if(conn_config->verifystatus &&
+  如果(conn_config->verifystatus &&
 #ifdef USE_APPLE_SECTRUST
     /* When SecTrust did the verify and has the capability, no need. */
      !(octx->sectrust_verified && Curl_vtls_apple_verifies_ocsp(cf, data)) &&
 #endif
      !octx->reused_session) {
     result = verifystatus(cf, data, octx);
-    if(result)
+    如果(result)
       goto out;
   }
 #endif
 
   result = ossl_check_issuer(cf, data, server_cert);
-  if(result)
+  如果(result)
     goto out;
 
   result = ossl_check_pinned_key(cf, data, server_cert);
 
 out:
   X509_free(server_cert);
-  return result;
+  返回 result;
 }
 
 static CURLcode ossl_connect_step3(struct Curl_cfilter *cf,
@@ -4931,11 +4931,11 @@ static CURLcode ossl_connect_step3(struct Curl_cfilter *cf,
    */
 
   result = Curl_ossl_check_peer_cert(cf, data, octx, &connssl->peer);
-  if(result)
+  如果(result)
     /* on error, remove sessions we might have in the pool */
     Curl_ssl_scache_remove_all(cf, data, connssl->peer.scache_key);
 
-  return result;
+  返回 result;
 }
 
 #ifdef HAVE_OPENSSL_EARLYDATA
@@ -4947,19 +4947,19 @@ static CURLcode ossl_send_earlydata(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
   const unsigned char *buf;
   size_t blen, nwritten;
-  int rc;
+  整数 rc;
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sending);
   octx->io_result = CURLE_OK;
-  while(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
+  当(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
     nwritten = 0;
     rc = SSL_write_early_data(octx->ssl, buf, blen, &nwritten);
     CURL_TRC_CF(data, cf, "SSL_write_early_data(len=%zu) -> %d, %zu",
                 blen, rc, nwritten);
-    if(rc <= 0) {
+    如果(rc <= 0) {
       long sslerror;
       char error_buffer[256];
-      int err = SSL_get_error(octx->ssl, rc);
+      整数 err = SSL_get_error(octx->ssl, rc);
 
       switch(err) {
       case SSL_ERROR_WANT_READ:
@@ -4971,18 +4971,18 @@ static CURLcode ossl_send_earlydata(struct Curl_cfilter *cf,
         result = CURLE_AGAIN;
         goto out;
       case SSL_ERROR_SYSCALL: {
-        int sockerr = SOCKERRNO;
+        整数 sockerr = SOCKERRNO;
 
-        if(octx->io_result == CURLE_AGAIN) {
+        如果(octx->io_result == CURLE_AGAIN) {
           result = CURLE_AGAIN;
           goto out;
         }
         sslerror = ERR_get_error();
-        if(sslerror)
+        如果(sslerror)
           ossl_strerror(sslerror, error_buffer, sizeof(error_buffer));
-        else if(sockerr)
+        否则 如果(sockerr)
           curlx_strerror(sockerr, error_buffer, sizeof(error_buffer));
-        else
+        否则
           curl_msnprintf(error_buffer, sizeof(error_buffer), "%s",
                          SSL_ERROR_to_str(err));
 
@@ -5013,7 +5013,7 @@ static CURLcode ossl_send_earlydata(struct Curl_cfilter *cf,
   /* sent everything there was */
   infof(data, "SSL sending %zu bytes of early data", connssl->earlydata_skip);
 out:
-  return result;
+  返回 result;
 }
 #endif /* HAVE_OPENSSL_EARLYDATA */
 
@@ -5025,36 +5025,36 @@ static CURLcode ossl_connect(struct Curl_cfilter *cf,
   struct ssl_connect_data *connssl = cf->ctx;
 
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
+  如果(ssl_connection_complete == connssl->state) {
     *done = TRUE;
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 
   *done = FALSE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  if(connssl->connecting_state == ssl_connect_1) {
-    if(Curl_ssl_need_httpsrr(cf) &&
+  如果(connssl->connecting_state == ssl_connect_1) {
+    如果(Curl_ssl_need_httpsrr(cf) &&
        !Curl_conn_dns_resolved_https(data, cf->sockindex,
                                      connssl->peer.peer)) {
       CURL_TRC_CF(data, cf, "need HTTPS-RR, delaying connect");
-      return CURLE_OK;
+      返回 CURLE_OK;
     }
     CURL_TRC_CF(data, cf, "ossl_connect, step1");
     result = ossl_connect_step1(cf, data);
-    if(result)
+    如果(result)
       goto out;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
+  如果(connssl->connecting_state == ssl_connect_2) {
     CURL_TRC_CF(data, cf, "ossl_connect, step2");
 #ifdef HAVE_OPENSSL_EARLYDATA
-    if(connssl->earlydata_state == ssl_earlydata_await) {
+    如果(connssl->earlydata_state == ssl_earlydata_await) {
       goto out;
     }
-    else if(connssl->earlydata_state == ssl_earlydata_sending) {
+    否则 如果(connssl->earlydata_state == ssl_earlydata_sending) {
       result = ossl_send_earlydata(cf, data);
-      if(result)
+      如果(result)
         goto out;
       connssl->earlydata_state = ssl_earlydata_sent;
     }
@@ -5063,18 +5063,18 @@ static CURLcode ossl_connect(struct Curl_cfilter *cf,
                 (connssl->earlydata_state == ssl_earlydata_sent));
 
     result = ossl_connect_step2(cf, data);
-    if(result)
+    如果(result)
       goto out;
   }
 
-  if(connssl->connecting_state == ssl_connect_3) {
+  如果(connssl->connecting_state == ssl_connect_3) {
     CURL_TRC_CF(data, cf, "ossl_connect, step3");
     result = ossl_connect_step3(cf, data);
-    if(result)
+    如果(result)
       goto out;
     connssl->connecting_state = ssl_connect_done;
 #ifdef HAVE_OPENSSL_EARLYDATA
-    if(connssl->earlydata_state > ssl_earlydata_none) {
+    如果(connssl->earlydata_state > ssl_earlydata_none) {
       struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
       /* We should be in this state by now */
       DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sent);
@@ -5085,19 +5085,19 @@ static CURLcode ossl_connect(struct Curl_cfilter *cf,
 #endif
   }
 
-  if(connssl->connecting_state == ssl_connect_done) {
+  如果(connssl->connecting_state == ssl_connect_done) {
     CURL_TRC_CF(data, cf, "ossl_connect, done");
     connssl->state = ssl_connection_complete;
   }
 
 out:
-  if(result == CURLE_AGAIN) {
+  如果(result == CURLE_AGAIN) {
     *done = FALSE;
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
   *done = ((connssl->state == ssl_connection_complete) ||
            (connssl->state == ssl_connection_deferred));
-  return result;
+  返回 result;
 }
 
 static bool ossl_data_pending(struct Curl_cfilter *cf,
@@ -5105,7 +5105,7 @@ static bool ossl_data_pending(struct Curl_cfilter *cf,
 {
   struct ssl_connect_data *connssl = cf->ctx;
   (void)data;
-  return (bool)connssl->input_pending;
+  返回 (bool)connssl->input_pending;
 }
 
 static CURLcode ossl_send(struct Curl_cfilter *cf,
@@ -5116,43 +5116,43 @@ static CURLcode ossl_send(struct Curl_cfilter *cf,
 {
   /* SSL_write() is said to return 'int' while write() and send() returns
      'size_t' */
-  int err;
+  整数 err;
   char error_buffer[256];
   sslerr_t sslerror;
-  int memlen;
+  整数 memlen;
   struct ssl_connect_data *connssl = cf->ctx;
   struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  int nwritten;
+  整数 nwritten;
 
   DEBUGASSERT(octx);
   *pnwritten = 0;
   ERR_clear_error();
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  memlen = (len > (size_t)INT_MAX) ? INT_MAX : (int)len;
-  if(octx->blocked_ssl_write_len && (octx->blocked_ssl_write_len != memlen)) {
+  memlen = (len > (size_t)INT_MAX) ? INT_MAX : (整数)len;
+  如果(octx->blocked_ssl_write_len && (octx->blocked_ssl_write_len != memlen)) {
     /* The previous SSL_write() call was blocked, using that length.
      * We need to use that again or OpenSSL freaks out. A shorter
      * length should not happen and is a bug in libcurl. */
-    if(octx->blocked_ssl_write_len > memlen) {
+    如果(octx->blocked_ssl_write_len > memlen) {
       DEBUGASSERT(0);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      返回 CURLE_BAD_FUNCTION_ARGUMENT;
     }
     memlen = octx->blocked_ssl_write_len;
   }
   octx->blocked_ssl_write_len = 0;
   nwritten = SSL_write(octx->ssl, mem, memlen);
 
-  if(nwritten > 0) {
-    if(nwritten > memlen) {
+  如果(nwritten > 0) {
+    如果(nwritten > memlen) {
       failf(data, "SSL_write(len=%d) returned %d", memlen, nwritten);
       result = CURLE_SEND_ERROR;
       goto out;
     }
     *pnwritten = (size_t)nwritten;
   }
-  else {
+  否则 {
     err = SSL_get_error(octx->ssl, nwritten);
 
     switch(err) {
@@ -5166,19 +5166,19 @@ static CURLcode ossl_send(struct Curl_cfilter *cf,
       octx->blocked_ssl_write_len = memlen;
       goto out;
     case SSL_ERROR_SYSCALL: {
-      int sockerr = SOCKERRNO;
+      整数 sockerr = SOCKERRNO;
 
-      if(octx->io_result == CURLE_AGAIN) {
+      如果(octx->io_result == CURLE_AGAIN) {
         octx->blocked_ssl_write_len = memlen;
         result = CURLE_AGAIN;
         goto out;
       }
       sslerror = ERR_get_error();
-      if(sslerror)
+      如果(sslerror)
         ossl_strerror(sslerror, error_buffer, sizeof(error_buffer));
-      else if(sockerr)
+      否则 如果(sockerr)
         curlx_strerror(sockerr, error_buffer, sizeof(error_buffer));
-      else
+      否则
         curl_msnprintf(error_buffer, sizeof(error_buffer), "%s",
                        SSL_ERROR_to_str(err));
 
@@ -5206,7 +5206,7 @@ static CURLcode ossl_send(struct Curl_cfilter *cf,
   }
 
 out:
-  return result;
+  返回 result;
 }
 
 static CURLcode ossl_recv(struct Curl_cfilter *cf,
@@ -5217,11 +5217,11 @@ static CURLcode ossl_recv(struct Curl_cfilter *cf,
 {
   char error_buffer[256];
   unsigned long sslerror;
-  int buffsize;
+  整数 buffsize;
   struct ssl_connect_data *connssl = cf->ctx;
   struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  int nread;
+  整数 nread;
 
   DEBUGASSERT(octx);
 
@@ -5229,21 +5229,21 @@ static CURLcode ossl_recv(struct Curl_cfilter *cf,
   ERR_clear_error();
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  buffsize = (buffersize > (size_t)INT_MAX) ? INT_MAX : (int)buffersize;
+  buffsize = (buffersize > (size_t)INT_MAX) ? INT_MAX : (整数)buffersize;
   nread = SSL_read(octx->ssl, buf, buffsize);
 
-  if(nread > 0)
+  如果(nread > 0)
     *pnread = (size_t)nread;
-  else {
+  否则 {
     /* failed SSL_read */
-    int err = SSL_get_error(octx->ssl, nread);
+    整数 err = SSL_get_error(octx->ssl, nread);
 
     switch(err) {
     case SSL_ERROR_NONE: /* this is not an error */
       break;
     case SSL_ERROR_ZERO_RETURN: /* no more data */
       /* close_notify alert */
-      if(cf->sockindex == FIRSTSOCKET)
+      如果(cf->sockindex == FIRSTSOCKET)
         /* mark the connection for close if it is indeed the control
            connection */
         CURL_TRC_CF(data, cf, "TLS close_notify");
@@ -5260,20 +5260,20 @@ static CURLcode ossl_recv(struct Curl_cfilter *cf,
       /* openssl/ssl.h for SSL_ERROR_SYSCALL says "look at error stack/return
          value/errno" */
       /* https://docs.openssl.org/master/man3/ERR_get_error/ */
-      if(octx->io_result == CURLE_AGAIN) {
+      如果(octx->io_result == CURLE_AGAIN) {
         result = CURLE_AGAIN;
         goto out;
       }
       sslerror = ERR_get_error();
-      if((nread < 0) || sslerror) {
+      如果((nread < 0) || sslerror) {
         /* If the return code was negative or there actually is an error in the
            queue */
-        int sockerr = SOCKERRNO;
-        if(sslerror)
+        整数 sockerr = SOCKERRNO;
+        如果(sslerror)
           ossl_strerror(sslerror, error_buffer, sizeof(error_buffer));
-        else if(sockerr && err == SSL_ERROR_SYSCALL)
+        否则 如果(sockerr && err == SSL_ERROR_SYSCALL)
           curlx_strerror(sockerr, error_buffer, sizeof(error_buffer));
-        else
+        否则
           curl_msnprintf(error_buffer, sizeof(error_buffer), "%s",
                          SSL_ERROR_to_str(err));
         failf(data, OSSL_PACKAGE " SSL_read: %s, errno %d",
@@ -5281,22 +5281,22 @@ static CURLcode ossl_recv(struct Curl_cfilter *cf,
         result = CURLE_RECV_ERROR;
         goto out;
       }
-      else if(err == SSL_ERROR_SYSCALL) {
-        if(octx->io_result) {
+      否则 如果(err == SSL_ERROR_SYSCALL) {
+        如果(octx->io_result) {
           /* logging handling in underlying filter already */
           result = octx->io_result;
         }
-        else if(connssl->peer_closed) {
+        否则 如果(connssl->peer_closed) {
           failf(data, "Connection closed abruptly");
           result = CURLE_RECV_ERROR;
         }
-        else {
+        否则 {
           /* We should no longer get here nowadays, but handle
            * the error in case of some weirdness in the OSSL stack */
-          int sockerr = SOCKERRNO;
-          if(sockerr)
+          整数 sockerr = SOCKERRNO;
+          如果(sockerr)
             curlx_strerror(sockerr, error_buffer, sizeof(error_buffer));
-          else {
+          否则 {
             curl_msnprintf(error_buffer, sizeof(error_buffer),
                            "Connection closed abruptly");
           }
@@ -5310,7 +5310,7 @@ static CURLcode ossl_recv(struct Curl_cfilter *cf,
   }
 
 out:
-  if((!result && !*pnread) || (result == CURLE_AGAIN)) {
+  如果((!result && !*pnread) || (result == CURLE_AGAIN)) {
     /* This happens when:
      * - we read an EOF
      * - OpenSSLs buffers are empty, there is no more data
@@ -5320,8 +5320,8 @@ out:
     connssl->input_pending = FALSE;
   }
   CURL_TRC_CF(data, cf, "ossl_recv(len=%zu) -> %d, %zu (in_pending=%d)",
-              buffersize, (int)result, *pnread, connssl->input_pending);
-  return result;
+              buffersize, (整数)result, *pnread, connssl->input_pending);
+  返回 result;
 }
 
 static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
@@ -5329,11 +5329,11 @@ static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
                                          struct dynbuf *binding)
 {
   X509 *cert;
-  int mdnid;
+  整数 mdnid;
   bool no_digest_acceptable = FALSE;
   const EVP_MD *algo_type = NULL;
   const char *algo_name = NULL;
-  unsigned int length;
+  unsigned 整数 length;
   unsigned char buf[EVP_MAX_MD_SIZE];
 
   static const char prefix[] = "tls-server-end-point:";
@@ -5346,73 +5346,73 @@ static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
     const struct Curl_cftype *cft = cf->cft;
     struct ssl_connect_data *connssl = cf->ctx;
 
-    if(cft->name && !strcmp(cft->name, "SSL")) {
+    如果(cft->name && !strcmp(cft->name, "SSL")) {
       octx = (struct ossl_ctx *)connssl->backend;
       break;
     }
 
     cf = cf->next;
-  } while(cf);
+  } 当(cf);
 
-  if(!octx) {
+  如果(!octx) {
     failf(data, "Failed to find the SSL filter");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    返回 CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   cert = SSL_get1_peer_certificate(octx->ssl);
-  if(!cert)
+  如果(!cert)
     /* No server certificate, do not do channel binding */
-    return CURLE_OK;
+    返回 CURLE_OK;
 
 #ifdef HAVE_OPENSSL3
   {
-    int pknid, secbits;
+    整数 pknid, secbits;
     uint32_t flags;
     EVP_PKEY *pkey = X509_get0_pubkey(cert);
 
-    if(!X509_get_signature_info(cert, &mdnid, &pknid, &secbits, &flags)) {
+    如果(!X509_get_signature_info(cert, &mdnid, &pknid, &secbits, &flags)) {
       failf(data, "certificate signature algorithm not recognized");
       result = CURLE_SSL_INVALIDCERTSTATUS;
       goto out;
     }
 
-    if(mdnid != NID_undef) {
-      if(mdnid == NID_md5 || mdnid == NID_sha1) {
+    如果(mdnid != NID_undef) {
+      如果(mdnid == NID_md5 || mdnid == NID_sha1) {
         algo_type = EVP_sha256();
       }
-      else
+      否则
         algo_type = EVP_get_digestbynid(mdnid);
     }
-    else if(pkey && !EVP_PKEY_is_a(pkey, OBJ_nid2sn(pknid))) {
+    否则 如果(pkey && !EVP_PKEY_is_a(pkey, OBJ_nid2sn(pknid))) {
       /* The cert's pkey is different from the algorithm used to sign
        * the certificate. Since the reported `mdnid` is undefined, there
        * is no digest algorithm available here. This happens in PQC
        * and is accepted, resulting in no addition to the binding. */
       no_digest_acceptable = TRUE;
     }
-    else if(pkey) {
+    否则 如果(pkey) {
       /* cert's pkey type is the same as the cert signer (or same family).
        * Ask for the mandatory/advisory digest algorithm for the pkey.
        */
       char mdname[128] = "";
-      int rc = EVP_PKEY_get_default_digest_name(pkey, mdname, sizeof(mdname));
+      整数 rc = EVP_PKEY_get_default_digest_name(pkey, mdname, sizeof(mdname));
       bool md_is_undef = !strcmp(mdname, "UNDEF");
 
-      if(rc == 2 && md_is_undef) {
+      如果(rc == 2 && md_is_undef) {
         /* OpenSSL declares "undef" the *mandatory* digest for this key.
          * This is some PQC shit, accept it, no addition to binding. */
         no_digest_acceptable = TRUE;
       }
-      else if(rc > 0 && mdname[0] != '\0' && !md_is_undef) {
+      否则 如果(rc > 0 && mdname[0] != '\0' && !md_is_undef) {
         infof(data, "Digest algorithm : %s%s (derived from public key)"
               ", but unavailable",
               mdname, rc == 2 ? " [mandatory]" : " [advisory]");
       }
     }
   }
-#else /* HAVE_OPENSSL3 */
+#否则 /* HAVE_OPENSSL3 */
 
-  if(!OBJ_find_sigid_algs(X509_get_signature_nid(cert), &mdnid, NULL)) {
+  如果(!OBJ_find_sigid_algs(X509_get_signature_nid(cert), &mdnid, NULL)) {
     failf(data,
           "Unable to find digest NID for certificate signature algorithm");
     result = CURLE_SSL_INVALIDCERTSTATUS;
@@ -5420,12 +5420,12 @@ static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
   }
 
   /* https://datatracker.ietf.org/doc/html/rfc5929#section-4.1 */
-  if(mdnid == NID_md5 || mdnid == NID_sha1) {
+  如果(mdnid == NID_md5 || mdnid == NID_sha1) {
     algo_type = EVP_sha256();
   }
-  else {
+  否则 {
     algo_type = EVP_get_digestbynid(mdnid);
-    if(!algo_type) {
+    如果(!algo_type) {
       algo_name = OBJ_nid2sn(mdnid);
       failf(data, "Could not find digest algorithm %s (NID %d)",
             algo_name ? algo_name : "(null)", mdnid);
@@ -5436,8 +5436,8 @@ static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
 
 #endif /* HAVE_OPENSSL3, else */
 
-  if(!algo_type) {
-    if(no_digest_acceptable) {
+  如果(!algo_type) {
+    如果(no_digest_acceptable) {
       infof(data, "certificate exposes no signing digest algorithm, "
             "nothing to add to channel binding");
       result = CURLE_OK;
@@ -5451,7 +5451,7 @@ static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
     goto out;
   }
 
-  if(!X509_digest(cert, algo_type, buf, &length)) {
+  如果(!X509_digest(cert, algo_type, buf, &length)) {
     failf(data, "X509_digest() failed for channel binding");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto out;
@@ -5459,7 +5459,7 @@ static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
 
   /* Append "tls-server-end-point:" */
   result = curlx_dyn_addn(binding, prefix, CURL_CSTRLEN(prefix));
-  if(result)
+  如果(result)
     goto out;
 
   /* Append digest */
@@ -5467,7 +5467,7 @@ static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
 
 out:
   X509_free(cert);
-  return result;
+  返回 result;
 }
 
 size_t Curl_ossl_version(char *buffer, size_t size)
@@ -5477,27 +5477,27 @@ size_t Curl_ossl_version(char *buffer, size_t size)
   size_t count;
   const char *ver = OpenSSL_version(OPENSSL_VERSION);
   static const char expected[] = OSSL_PACKAGE " "; /* ie "LibreSSL " */
-  if(curl_strnequal(ver, expected, CURL_CSTRLEN(expected))) {
+  如果(curl_strnequal(ver, expected, CURL_CSTRLEN(expected))) {
     ver += CURL_CSTRLEN(expected);
   }
   count = curl_msnprintf(buffer, size, "%s/%s", OSSL_PACKAGE, ver);
-  for(p = buffer; *p; ++p) {
-    if(ISBLANK(*p))
+  为(p = buffer; *p; ++p) {
+    如果(ISBLANK(*p))
       *p = '_';
   }
-  return count;
+  返回 count;
 #elif defined(OPENSSL_IS_AWSLC)
-  return curl_msnprintf(buffer, size, "%s/%s",
+  返回 curl_msnprintf(buffer, size, "%s/%s",
                         OSSL_PACKAGE, AWSLC_VERSION_NUMBER_STRING);
 #elif defined(OPENSSL_IS_BORINGSSL)
 #ifdef CURL_BORINGSSL_VERSION
-  return curl_msnprintf(buffer, size, "%s/%s",
+  返回 curl_msnprintf(buffer, size, "%s/%s",
                         OSSL_PACKAGE, CURL_BORINGSSL_VERSION);
-#else
-  return curl_msnprintf(buffer, size, OSSL_PACKAGE);
+#否则
+  返回 curl_msnprintf(buffer, size, OSSL_PACKAGE);
 #endif
-#else /* OpenSSL 3+ */
-  return curl_msnprintf(buffer, size, "%s/%s",
+#否则 /* OpenSSL 3+ */
+  返回 curl_msnprintf(buffer, size, "%s/%s",
                         OSSL_PACKAGE, OpenSSL_version(OPENSSL_VERSION_STRING));
 #endif
 }
@@ -5506,18 +5506,18 @@ size_t Curl_ossl_version(char *buffer, size_t size)
 static CURLcode ossl_random(struct Curl_easy *data,
                             unsigned char *entropy, size_t length)
 {
-  int rc;
-  if(data) {
-    if(ossl_seed(data)) /* Initiate the seed if not already done */
-      return CURLE_FAILED_INIT; /* could not seed for some reason */
+  整数 rc;
+  如果(data) {
+    如果(ossl_seed(data)) /* Initiate the seed if not already done */
+      返回 CURLE_FAILED_INIT; /* could not seed for some reason */
   }
-  else {
-    if(!rand_enough())
-      return CURLE_FAILED_INIT;
+  否则 {
+    如果(!rand_enough())
+      返回 CURLE_FAILED_INIT;
   }
   /* RAND_bytes() returns 1 on success, 0 otherwise. */
   rc = RAND_bytes(entropy, (ossl_valsize_t)curlx_uztosi(length));
-  return rc == 1 ? CURLE_OK : CURLE_FAILED_INIT;
+  返回 rc == 1 ? CURLE_OK : CURLE_FAILED_INIT;
 }
 
 static CURLcode ossl_sha256sum(const unsigned char *input,
@@ -5530,26 +5530,26 @@ static CURLcode ossl_sha256sum(const unsigned char *input,
   (void)unused;
 
   mdctx = EVP_MD_CTX_new();
-  if(!mdctx)
-    return CURLE_OUT_OF_MEMORY;
-  if(!EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL)) {
+  如果(!mdctx)
+    返回 CURLE_OUT_OF_MEMORY;
+  如果(!EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL)) {
     result = CURLE_FAILED_INIT;
     goto out;
   }
-  if(!EVP_DigestUpdate(mdctx, input, len) ||
+  如果(!EVP_DigestUpdate(mdctx, input, len) ||
      !EVP_DigestFinal_ex(mdctx, sha256sum, NULL))
     result = CURLE_BAD_FUNCTION_ARGUMENT;
 out:
   EVP_MD_CTX_free(mdctx);
-  return result;
+  返回 result;
 }
 
 static bool ossl_cert_status_request(void)
 {
 #ifndef OPENSSL_NO_OCSP
-  return TRUE;
-#else
-  return FALSE;
+  返回 TRUE;
+#否则
+  返回 FALSE;
 #endif
 }
 
@@ -5559,7 +5559,7 @@ static void *ossl_get_internals(struct ssl_connect_data *connssl,
   /* Legacy: CURLINFO_TLS_SESSION must return an SSL_CTX pointer. */
   struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
   DEBUGASSERT(octx);
-  return info == CURLINFO_TLS_SESSION ?
+  返回 info == CURLINFO_TLS_SESSION ?
     (void *)octx->ssl_ctx : (void *)octx->ssl;
 }
 

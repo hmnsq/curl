@@ -45,13 +45,13 @@ typedef enum {
 
 #ifdef CURL_WINDOWS_UWP
 #define curlx_verify_windows_init() Curl_nop_stmt
-#else
+#否则
 void curlx_verify_windows_init(void);
 #endif
 /* This is used to verify if we are running on a specific Windows version */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
+bool curlx_verify_windows_version(const unsigned 整数 majorVersion,
+                                  const unsigned 整数 minorVersion,
+                                  const unsigned 整数 buildVersion,
                                   const PlatformIdentifier platform,
                                   const VersionCondition condition);
 

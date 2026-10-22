@@ -60,27 +60,27 @@
 bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
                                char *content, const char **endptr)
 {
-  int c;
+  整数 c;
   size_t content_length = 0;
   bool starts_with_quote = FALSE;
   bool escape = FALSE;
 
-  if(curlx_str_until(&str, value, DIGEST_MAX_VALUE_LENGTH, '=') ||
+  如果(curlx_str_until(&str, value, DIGEST_MAX_VALUE_LENGTH, '=') ||
      curlx_str_single(&str, '='))
     /* eek, no match */
-    return FALSE;
+    返回 FALSE;
 
-  if('\"' == *str) {
+  如果('\"' == *str) {
     /* This starts with a quote so it must end with one as well! */
     str++;
     starts_with_quote = TRUE;
   }
 
-  for(c = DIGEST_MAX_CONTENT_LENGTH; *str && c--; str++) {
-    if(!escape) {
+  为(c = DIGEST_MAX_CONTENT_LENGTH; *str && c--; str++) {
+    如果(!escape) {
       switch(*str) {
       case '\\':
-        if(starts_with_quote) {
+        如果(starts_with_quote) {
           /* the start of an escaped quote */
           escape = TRUE;
           continue;
@@ -88,7 +88,7 @@ bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
         break;
 
       case ',':
-        if(!starts_with_quote) {
+        如果(!starts_with_quote) {
           /* This signals the end of the content if we did not get a starting
              quote and then we do "sloppy" parsing */
           c = 0; /* the end */
@@ -99,25 +99,25 @@ bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
       case '\r':
       case '\n':
         /* end of string */
-        if(starts_with_quote)
-          return FALSE; /* No closing quote */
+        如果(starts_with_quote)
+          返回 FALSE; /* No closing quote */
         c = 0;
         continue;
 
       case '\"':
-        if(starts_with_quote) {
+        如果(starts_with_quote) {
           /* end of string */
           c = 0;
           continue;
         }
-        else
-          return FALSE;
+        否则
+          返回 FALSE;
       }
     }
 
-    if(content_length >= DIGEST_MAX_CONTENT_LENGTH - 1) {
+    如果(content_length >= DIGEST_MAX_CONTENT_LENGTH - 1) {
       /* no room for this byte plus the terminator */
-      return FALSE;
+      返回 FALSE;
     }
 
     escape = FALSE;
@@ -125,13 +125,13 @@ bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
     content_length++;
   }
 
-  if(escape)
-    return FALSE; /* No character after backslash */
+  如果(escape)
+    返回 FALSE; /* No character after backslash */
 
   *content = 0;
   *endptr = str;
 
-  return TRUE;
+  返回 TRUE;
 }
 
 #ifndef USE_WINDOWS_SSPI
@@ -140,8 +140,8 @@ static void auth_digest_md5_to_ascii(
   const unsigned char *source, /* 16 bytes */
   unsigned char *dest)         /* 33 bytes */
 {
-  int i;
-  for(i = 0; i < 16; i++)
+  整数 i;
+  为(i = 0; i < 16; i++)
     curl_msnprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
 }
 
@@ -150,8 +150,8 @@ static void auth_digest_sha256_to_ascii(
   const unsigned char *source, /* 32 bytes */
   unsigned char *dest)         /* 65 bytes */
 {
-  int i;
-  for(i = 0; i < 32; i++)
+  整数 i;
+  为(i = 0; i < 32; i++)
     curl_msnprintf((char *)&dest[i * 2], 3, "%02x", source[i]);
 }
 
@@ -160,27 +160,27 @@ static char *auth_digest_string_quoted(const char *s)
 {
   struct dynbuf out;
   curlx_dyn_init(&out, 2048);
-  if(!*s) /* for zero length input, make sure we return an empty string */
-    return curlx_strdup("");
-  while(*s) {
+  如果(!*s) /* for zero length input, make sure we return an empty string */
+    返回 curlx_strdup("");
+  当(*s) {
     CURLcode result;
-    if(*s == '"' || *s == '\\') {
+    如果(*s == '"' || *s == '\\') {
       result = curlx_dyn_addn(&out, "\\", 1);
-      if(!result)
+      如果(!result)
         result = curlx_dyn_addn(&out, s, 1);
     }
-    else if((*s < ' ') || (*s > 0x7e)) {
+    否则 如果((*s < ' ') || (*s > 0x7e)) {
       unsigned char buf[3] = { '%' };
       Curl_hexbyte(&buf[1], (unsigned char)*s);
       result = curlx_dyn_addn(&out, buf, 3);
     }
-    else
+    否则
       result = curlx_dyn_addn(&out, s, 1);
-    if(result)
-      return NULL;
+    如果(result)
+      返回 NULL;
     s++;
   }
-  return curlx_dyn_ptr(&out);
+  返回 curlx_dyn_ptr(&out);
 }
 
 /* Retrieves the value for a corresponding key from the challenge string
@@ -199,60 +199,60 @@ static bool auth_digest_get_key_value(const char *chlg, const char *key,
 
     curlx_str_passblanks(&chlg);
 
-    if(!curlx_str_until(&chlg, &name, 64, '=') &&
+    如果(!curlx_str_until(&chlg, &name, 64, '=') &&
        !curlx_str_single(&chlg, '=')) {
       /* this is the key, get the value, possibly quoted */
-      int rc = curlx_str_quotedword(&chlg, &data, 256);
-      if(rc == STRE_BEGQUOTE)
+      整数 rc = curlx_str_quotedword(&chlg, &data, 256);
+      如果(rc == STRE_BEGQUOTE)
         /* try unquoted until comma */
         rc = curlx_str_until(&chlg, &data, 256, ',');
-      if(rc)
-        return FALSE; /* weird */
+      如果(rc)
+        返回 FALSE; /* weird */
 
-      if(curlx_str_cmp(&name, key)) {
+      如果(curlx_str_cmp(&name, key)) {
         /* if this is our key, return the value */
         size_t len = curlx_strlen(&data);
         const char *src = curlx_str(&data);
         size_t i;
         size_t outlen = 0;
 
-        if(len >= buflen)
+        如果(len >= buflen)
           /* does not fit */
-          return FALSE;
+          返回 FALSE;
 
-        for(i = 0; i < len; i++) {
-          if(src[i] == '\\' && i + 1 < len) {
+        为(i = 0; i < len; i++) {
+          如果(src[i] == '\\' && i + 1 < len) {
             i++; /* skip backslash */
           }
           buf[outlen++] = src[i];
         }
         buf[outlen] = 0;
-        return TRUE;
+        返回 TRUE;
       }
-      if(curlx_str_single(&chlg, ','))
-        return FALSE;
+      如果(curlx_str_single(&chlg, ','))
+        返回 FALSE;
     }
-    else /* odd syntax */
+    否则 /* odd syntax */
       break;
-  } while(1);
+  } 当(1);
 
-  return FALSE;
+  返回 FALSE;
 }
 
-static void auth_digest_get_qop_values(const char *options, int *value)
+static void auth_digest_get_qop_values(const char *options, 整数 *value)
 {
   struct Curl_str out;
   /* Initialize the output */
   *value = 0;
 
-  while(!curlx_str_until(&options, &out, 32, ',')) {
-    if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
+  当(!curlx_str_until(&options, &out, 32, ',')) {
+    如果(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
       *value |= DIGEST_QOP_VALUE_AUTH;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_INT))
+    否则 如果(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_INT))
       *value |= DIGEST_QOP_VALUE_AUTH_INT;
-    else if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
+    否则 如果(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
       *value |= DIGEST_QOP_VALUE_AUTH_CONF;
-    if(curlx_str_single(&options, ','))
+    如果(curlx_str_single(&options, ','))
       break;
   }
 }
@@ -286,28 +286,28 @@ static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
   const char *chlg = Curl_bufref_ptr(chlgref);
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlgref))
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(!Curl_bufref_len(chlgref))
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve nonce string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "nonce", nonce, nlen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(!auth_digest_get_key_value(chlg, "nonce", nonce, nlen))
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve realm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "realm", realm, rlen)) {
+  如果(!auth_digest_get_key_value(chlg, "realm", realm, rlen)) {
     /* Challenge does not have a realm, set empty string [RFC2831] page 6 */
     *realm = '\0';
   }
 
   /* Retrieve algorithm string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "algorithm", alg, alen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(!auth_digest_get_key_value(chlg, "algorithm", alg, alen))
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
   /* Retrieve qop-options string from the challenge */
-  if(!auth_digest_get_key_value(chlg, "qop", qop, qlen))
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(!auth_digest_get_key_value(chlg, "qop", qop, qlen))
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /*
@@ -321,7 +321,7 @@ static CURLcode auth_decode_digest_md5_message(const struct bufref *chlgref,
  */
 bool Curl_auth_is_digest_supported(void)
 {
-  return TRUE;
+  返回 TRUE;
 }
 
 /*
@@ -362,7 +362,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   char realm[128];
   char algorithm[64];
   char qop_options[64];
-  int qop_values;
+  整数 qop_values;
   char cnonce[33];
   char nonceCount[] = "00000001";
   char method[]     = "AUTHENTICATE";
@@ -381,29 +381,29 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
                                                    sizeof(algorithm),
                                                    qop_options,
                                                    sizeof(qop_options));
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   /* We only support md5 sessions */
-  if(strcmp(algorithm, "md5-sess"))
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(strcmp(algorithm, "md5-sess"))
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
   /* Get the qop-values from the qop-options */
   auth_digest_get_qop_values(qop_options, &qop_values);
 
   /* We only support auth quality-of-protection */
-  if(!(qop_values & DIGEST_QOP_VALUE_AUTH))
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(!(qop_values & DIGEST_QOP_VALUE_AUTH))
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
   /* Generate 32 random hex chars, 32 bytes + 1 null-termination */
   result = Curl_rand_hex(data, (unsigned char *)cnonce, sizeof(cnonce));
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   /* Good so far, now calculate A1 and H(A1) according to RFC 2831 */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!ctxt)
+    返回 CURLE_OUT_OF_MEMORY;
 
   Curl_MD5_update(ctxt, (const unsigned char *)userp,
                   curlx_uztoui(strlen(userp)));
@@ -416,8 +416,8 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   Curl_MD5_final(ctxt, digest);
 
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!ctxt)
+    返回 CURLE_OUT_OF_MEMORY;
 
   Curl_MD5_update(ctxt, (const unsigned char *)digest, MD5_DIGEST_LEN);
   Curl_MD5_update(ctxt, (const unsigned char *)":", 1);
@@ -429,20 +429,20 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   Curl_MD5_final(ctxt, digest);
 
   /* Convert calculated 16 octet hex into 32 bytes string */
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  为(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&HA1_hex[2 * i], 3, "%02x", digest[i]);
 
   /* Generate our SPN */
   spn = Curl_auth_build_spn(service, data->state.origin->hostname, NULL);
-  if(!spn)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!spn)
+    返回 CURLE_OUT_OF_MEMORY;
 
   /* Calculate H(A2) */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt) {
+  如果(!ctxt) {
     curlx_free(spn);
 
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
   Curl_MD5_update(ctxt, (const unsigned char *)method,
@@ -452,15 +452,15 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
                   curlx_uztoui(strlen(spn)));
   Curl_MD5_final(ctxt, digest);
 
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  为(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&HA2_hex[2 * i], 3, "%02x", digest[i]);
 
   /* Now calculate the response hash */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt) {
+  如果(!ctxt) {
     curlx_free(spn);
 
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
   Curl_MD5_update(ctxt, (const unsigned char *)HA1_hex, 2 * MD5_DIGEST_LEN);
@@ -482,7 +482,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   Curl_MD5_update(ctxt, (const unsigned char *)HA2_hex, 2 * MD5_DIGEST_LEN);
   Curl_MD5_final(ctxt, digest);
 
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  为(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&resp_hash_hex[2 * i], 3, "%02x", digest[i]);
 
   /* escape double quotes and backslashes in the username, realm, nonce and
@@ -491,7 +491,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   qnonce = auth_digest_string_quoted(nonce);
   quserp = auth_digest_string_quoted(userp);
   qspn = auth_digest_string_quoted(spn);
-  if(qrealm && qnonce && quserp && qspn)
+  如果(qrealm && qnonce && quserp && qspn)
     /* Generate the response */
     response = curl_maprintf("username=\"%s\",realm=\"%s\",nonce=\"%s\","
                              "cnonce=\"%s\",nc=\"%s\",digest-uri=\"%s\","
@@ -504,12 +504,12 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   curlx_free(quserp);
   curlx_free(spn);
   curlx_free(qspn);
-  if(!response)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!response)
+    返回 CURLE_OUT_OF_MEMORY;
 
   /* Return the response. */
   Curl_bufref_set(out, response, strlen(response), curl_free);
-  return result;
+  返回 result;
 }
 
 /*
@@ -531,13 +531,13 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
   bool before = FALSE; /* got a nonce before */
 
   /* If we already have received a nonce, keep that in mind */
-  if(digest->nonce)
+  如果(digest->nonce)
     before = TRUE;
 
   /* Clean up any former leftovers and initialize to defaults */
   Curl_auth_digest_cleanup(digest);
 
-  for(;;) {
+  为(;;) {
     struct Curl_str value;
     char content[DIGEST_MAX_CONTENT_LENGTH];
 
@@ -545,32 +545,32 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
     curlx_str_passblanks(&chlg);
 
     /* Extract a value=content pair */
-    if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-      if(curlx_str_casecompare(&value, "nonce")) {
+    如果(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
+      如果(curlx_str_casecompare(&value, "nonce")) {
         curlx_free(digest->nonce);
         digest->nonce = curlx_strdup(content);
-        if(!digest->nonce)
-          return CURLE_OUT_OF_MEMORY;
+        如果(!digest->nonce)
+          返回 CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "stale")) {
-        if(curl_strequal(content, "true")) {
+      否则 如果(curlx_str_casecompare(&value, "stale")) {
+        如果(curl_strequal(content, "true")) {
           digest->stale = TRUE;
           digest->nc = 1; /* we make a new nonce now */
         }
       }
-      else if(curlx_str_casecompare(&value, "realm")) {
+      否则 如果(curlx_str_casecompare(&value, "realm")) {
         curlx_free(digest->realm);
         digest->realm = curlx_strdup(content);
-        if(!digest->realm)
-          return CURLE_OUT_OF_MEMORY;
+        如果(!digest->realm)
+          返回 CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "opaque")) {
+      否则 如果(curlx_str_casecompare(&value, "opaque")) {
         curlx_free(digest->opaque);
         digest->opaque = curlx_strdup(content);
-        if(!digest->opaque)
-          return CURLE_OUT_OF_MEMORY;
+        如果(!digest->opaque)
+          返回 CURLE_OUT_OF_MEMORY;
       }
-      else if(curlx_str_casecompare(&value, "qop")) {
+      否则 如果(curlx_str_casecompare(&value, "qop")) {
         const char *token = content;
         struct Curl_str out;
         bool foundAuth = FALSE;
@@ -578,72 +578,72 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
         /* Pass leading spaces */
         curlx_str_passblanks(&token);
 
-        while(!curlx_str_until(&token, &out, 32, ',')) {
-          if(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
+        当(!curlx_str_until(&token, &out, 32, ',')) {
+          如果(curlx_str_casecompare(&out, DIGEST_QOP_VALUE_STRING_AUTH))
             foundAuth = TRUE;
-          else if(curlx_str_casecompare(&out,
+          否则 如果(curlx_str_casecompare(&out,
                                         DIGEST_QOP_VALUE_STRING_AUTH_INT))
             foundAuthInt = TRUE;
-          if(curlx_str_single(&token, ','))
+          如果(curlx_str_single(&token, ','))
             break;
           curlx_str_passblanks(&token);
         }
 
         /* Select only auth or auth-int. Otherwise, ignore */
-        if(foundAuth) {
+        如果(foundAuth) {
           curlx_free(digest->qop);
           digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH);
-          if(!digest->qop)
-            return CURLE_OUT_OF_MEMORY;
+          如果(!digest->qop)
+            返回 CURLE_OUT_OF_MEMORY;
         }
-        else if(foundAuthInt) {
+        否则 如果(foundAuthInt) {
           curlx_free(digest->qop);
           digest->qop = curlx_strdup(DIGEST_QOP_VALUE_STRING_AUTH_INT);
-          if(!digest->qop)
-            return CURLE_OUT_OF_MEMORY;
+          如果(!digest->qop)
+            返回 CURLE_OUT_OF_MEMORY;
         }
       }
-      else if(curlx_str_casecompare(&value, "algorithm")) {
+      否则 如果(curlx_str_casecompare(&value, "algorithm")) {
         curlx_free(digest->algorithm);
         digest->algorithm = curlx_strdup(content);
-        if(!digest->algorithm)
-          return CURLE_OUT_OF_MEMORY;
+        如果(!digest->algorithm)
+          返回 CURLE_OUT_OF_MEMORY;
 
-        if(curl_strequal(content, "MD5-sess"))
+        如果(curl_strequal(content, "MD5-sess"))
           digest->algo = ALGO_MD5SESS;
-        else if(curl_strequal(content, "MD5"))
+        否则 如果(curl_strequal(content, "MD5"))
           digest->algo = ALGO_MD5;
-        else if(curl_strequal(content, "SHA-256"))
+        否则 如果(curl_strequal(content, "SHA-256"))
           digest->algo = ALGO_SHA256;
-        else if(curl_strequal(content, "SHA-256-SESS"))
+        否则 如果(curl_strequal(content, "SHA-256-SESS"))
           digest->algo = ALGO_SHA256SESS;
-        else if(curl_strequal(content, "SHA-512-256")) {
+        否则 如果(curl_strequal(content, "SHA-512-256")) {
 #ifdef CURL_HAVE_SHA512_256
           digest->algo = ALGO_SHA512_256;
-#else /* !CURL_HAVE_SHA512_256 */
-          return CURLE_NOT_BUILT_IN;
+#否则 /* !CURL_HAVE_SHA512_256 */
+          返回 CURLE_NOT_BUILT_IN;
 #endif /* CURL_HAVE_SHA512_256 */
         }
-        else if(curl_strequal(content, "SHA-512-256-SESS")) {
+        否则 如果(curl_strequal(content, "SHA-512-256-SESS")) {
 #ifdef CURL_HAVE_SHA512_256
           digest->algo = ALGO_SHA512_256SESS;
-#else /* !CURL_HAVE_SHA512_256 */
-          return CURLE_NOT_BUILT_IN;
+#否则 /* !CURL_HAVE_SHA512_256 */
+          返回 CURLE_NOT_BUILT_IN;
 #endif /* CURL_HAVE_SHA512_256 */
         }
-        else
-          return CURLE_BAD_CONTENT_ENCODING;
+        否则
+          返回 CURLE_BAD_CONTENT_ENCODING;
       }
-      else if(curlx_str_casecompare(&value, "userhash")) {
-        if(curl_strequal(content, "true")) {
+      否则 如果(curlx_str_casecompare(&value, "userhash")) {
+        如果(curl_strequal(content, "true")) {
           digest->userhash = TRUE;
         }
       }
-      else {
+      否则 {
         /* Unknown specifier, ignore it! */
       }
     }
-    else
+    否则
       break; /* We are done here */
 
     /* Pass all additional spaces here */
@@ -656,18 +656,18 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
   /* We had a nonce since before, and we got another one now without
      'stale=true'. This means we provided bad credentials in the previous
      request */
-  if(before && !digest->stale)
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(before && !digest->stale)
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
   /* We got this header without a nonce, that is a bad Digest line! */
-  if(!digest->nonce)
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(!digest->nonce)
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
   /* "<algo>-sess" protocol versions require "auth" or "auth-int" qop */
-  if(!digest->qop && (digest->algo & SESSION_ALGO))
-    return CURLE_BAD_CONTENT_ENCODING;
+  如果(!digest->qop && (digest->algo & SESSION_ALGO))
+    返回 CURLE_BAD_CONTENT_ENCODING;
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /*
@@ -720,10 +720,10 @@ static CURLcode auth_create_digest_http_message(
   curlx_dyn_init(&response, 4096); /* arbitrary max */
 
   memset(hashbuf, 0, sizeof(hashbuf));
-  if(!digest->nc)
+  如果(!digest->nc)
     digest->nc = 1;
 
-  if(!digest->cnonce) {
+  如果(!digest->cnonce) {
     char cnoncebuf[12];
     result = Curl_rand_bytes(data,
 #ifdef DEBUGBUILD
@@ -731,26 +731,26 @@ static CURLcode auth_create_digest_http_message(
 #endif
                              (unsigned char *)cnoncebuf,
                              sizeof(cnoncebuf));
-    if(!result)
+    如果(!result)
       result = curlx_base64_encode((uint8_t *)cnoncebuf, sizeof(cnoncebuf),
                                    &cnonce, &cnonce_sz);
-    if(result)
+    如果(result)
       goto oom;
 
     digest->cnonce = cnonce;
   }
 
-  if(digest->userhash) {
+  如果(digest->userhash) {
     char *hasht = curl_maprintf("%s:%s", userp,
                                 digest->realm ? digest->realm : "");
-    if(!hasht) {
+    如果(!hasht) {
       result = CURLE_OUT_OF_MEMORY;
       goto oom;
     }
 
     result = hash(hashbuf, (unsigned char *)hasht, strlen(hasht));
     curlx_free(hasht);
-    if(result)
+    如果(result)
       goto oom;
     convert_to_ascii(hashbuf, (unsigned char *)userh);
   }
@@ -767,28 +767,28 @@ static CURLcode auth_create_digest_http_message(
 
   hashthis = curl_maprintf("%s:%s:%s", userp, digest->realm ?
                            digest->realm : "", passwdp);
-  if(!hashthis) {
+  如果(!hashthis) {
     result = CURLE_OUT_OF_MEMORY;
     goto oom;
   }
 
   result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
   curlx_free(hashthis);
-  if(result)
+  如果(result)
     goto oom;
   convert_to_ascii(hashbuf, ha1);
 
-  if(digest->algo & SESSION_ALGO) {
+  如果(digest->algo & SESSION_ALGO) {
     /* nonce and cnonce are OUTSIDE the hash */
     char *tmp = curl_maprintf("%s:%s:%s", ha1, digest->nonce, digest->cnonce);
-    if(!tmp) {
+    如果(!tmp) {
       result = CURLE_OUT_OF_MEMORY;
       goto oom;
     }
 
     result = hash(hashbuf, (unsigned char *)tmp, strlen(tmp));
     curlx_free(tmp);
-    if(result)
+    如果(result)
       goto oom;
     convert_to_ascii(hashbuf, ha1);
   }
@@ -806,24 +806,24 @@ static CURLcode auth_create_digest_http_message(
    */
 
   uri_quoted = auth_digest_string_quoted((const char *)uripath);
-  if(!uri_quoted) {
+  如果(!uri_quoted) {
     result = CURLE_OUT_OF_MEMORY;
     goto oom;
   }
 
   hashthis = curl_maprintf("%s:%s", request, uripath);
-  if(!hashthis) {
+  如果(!hashthis) {
     result = CURLE_OUT_OF_MEMORY;
     goto oom;
   }
 
-  if(digest->qop && curl_strequal(digest->qop, "auth-int")) {
+  如果(digest->qop && curl_strequal(digest->qop, "auth-int")) {
     /* We do not support auth-int for PUT or POST */
     char hashed[65];
     char *hashthis2;
 
     result = hash(hashbuf, (const unsigned char *)"", 0);
-    if(result) {
+    如果(result) {
       curlx_free(hashthis);
       goto oom;
     }
@@ -832,7 +832,7 @@ static CURLcode auth_create_digest_http_message(
     hashthis2 = curl_maprintf("%s:%s", hashthis, hashed);
     curlx_free(hashthis);
     hashthis = hashthis2;
-    if(!hashthis) {
+    如果(!hashthis) {
       result = CURLE_OUT_OF_MEMORY;
       goto oom;
     }
@@ -840,25 +840,25 @@ static CURLcode auth_create_digest_http_message(
 
   result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
   curlx_free(hashthis);
-  if(result)
+  如果(result)
     goto oom;
   convert_to_ascii(hashbuf, ha2);
 
-  if(digest->qop)
+  如果(digest->qop)
     hashthis = curl_maprintf("%s:%s:%08x:%s:%s:%s", ha1, digest->nonce,
-                             (unsigned int)digest->nc, digest->cnonce,
+                             (unsigned 整数)digest->nc, digest->cnonce,
                              digest->qop, ha2);
-  else
+  否则
     hashthis = curl_maprintf("%s:%s:%s", ha1, digest->nonce, ha2);
 
-  if(!hashthis) {
+  如果(!hashthis) {
     result = CURLE_OUT_OF_MEMORY;
     goto oom;
   }
 
   result = hash(hashbuf, (unsigned char *)hashthis, strlen(hashthis));
   curlx_free(hashthis);
-  if(result)
+  如果(result)
     goto oom;
   convert_to_ascii(hashbuf, request_digest);
 
@@ -876,29 +876,29 @@ static CURLcode auth_create_digest_http_message(
      characters.
    */
   userp_quoted = auth_digest_string_quoted(digest->userhash ? userh : userp);
-  if(!userp_quoted) {
+  如果(!userp_quoted) {
     result = CURLE_OUT_OF_MEMORY;
     goto oom;
   }
-  if(digest->realm)
+  如果(digest->realm)
     realm_quoted = auth_digest_string_quoted(digest->realm);
-  else {
+  否则 {
     realm_quoted = curlx_malloc(1);
-    if(realm_quoted)
+    如果(realm_quoted)
       realm_quoted[0] = 0;
   }
-  if(!realm_quoted) {
+  如果(!realm_quoted) {
     result = CURLE_OUT_OF_MEMORY;
     goto oom;
   }
 
   nonce_quoted = auth_digest_string_quoted(digest->nonce);
-  if(!nonce_quoted) {
+  如果(!nonce_quoted) {
     result = CURLE_OUT_OF_MEMORY;
     goto oom;
   }
 
-  if(digest->qop) {
+  如果(digest->qop) {
     result = curlx_dyn_addf(&response, "username=\"%s\", "
                             "realm=\"%s\", "
                             "nonce=\"%s\", "
@@ -912,14 +912,14 @@ static CURLcode auth_create_digest_http_message(
                             nonce_quoted,
                             uri_quoted,
                             digest->cnonce,
-                            (unsigned int)digest->nc,
+                            (unsigned 整数)digest->nc,
                             digest->qop,
                             request_digest);
 
     /* Increment nonce-count to use another nc value for the next request */
     digest->nc++;
   }
-  else {
+  否则 {
     result = curlx_dyn_addf(&response, "username=\"%s\", "
                             "realm=\"%s\", "
                             "nonce=\"%s\", "
@@ -931,34 +931,34 @@ static CURLcode auth_create_digest_http_message(
                             uri_quoted,
                             request_digest);
   }
-  if(result)
+  如果(result)
     goto oom;
 
   /* Add the optional fields */
-  if(digest->opaque) {
+  如果(digest->opaque) {
     /* Append the opaque */
     char *opaque_quoted = auth_digest_string_quoted(digest->opaque);
-    if(!opaque_quoted) {
+    如果(!opaque_quoted) {
       result = CURLE_OUT_OF_MEMORY;
       goto oom;
     }
     result = curlx_dyn_addf(&response, ", opaque=\"%s\"", opaque_quoted);
     curlx_free(opaque_quoted);
-    if(result)
+    如果(result)
       goto oom;
   }
 
-  if(digest->algorithm) {
+  如果(digest->algorithm) {
     /* Append the algorithm */
     result = curlx_dyn_addf(&response, ", algorithm=%s", digest->algorithm);
-    if(result)
+    如果(result)
       goto oom;
   }
 
-  if(digest->userhash) {
+  如果(digest->userhash) {
     /* Append the userhash */
     result = curlx_dyn_add(&response, ", userhash=true");
-    if(result)
+    如果(result)
       goto oom;
   }
 
@@ -972,9 +972,9 @@ oom:
   curlx_free(realm_quoted);
   curlx_free(uri_quoted);
   curlx_free(userp_quoted);
-  if(result)
+  如果(result)
     curlx_dyn_free(&response);
-  return result;
+  返回 result;
 }
 
 /*
@@ -1004,22 +1004,22 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
                                               struct digestdata *digest,
                                               char **outptr, size_t *outlen)
 {
-  if(digest->algo <= ALGO_MD5SESS)
-    return auth_create_digest_http_message(data, creds,
+  如果(digest->algo <= ALGO_MD5SESS)
+    返回 auth_create_digest_http_message(data, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
                                            auth_digest_md5_to_ascii,
                                            Curl_md5it);
 
-  if(digest->algo <= ALGO_SHA256SESS)
-    return auth_create_digest_http_message(data, creds,
+  如果(digest->algo <= ALGO_SHA256SESS)
+    返回 auth_create_digest_http_message(data, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
                                            auth_digest_sha256_to_ascii,
                                            Curl_sha256it);
 #ifdef CURL_HAVE_SHA512_256
-  if(digest->algo <= ALGO_SHA512_256SESS)
-    return auth_create_digest_http_message(data, creds,
+  如果(digest->algo <= ALGO_SHA512_256SESS)
+    返回 auth_create_digest_http_message(data, creds,
                                            request, uripath, digest,
                                            outptr, outlen,
                                            auth_digest_sha256_to_ascii,
@@ -1027,7 +1027,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
 #endif /* CURL_HAVE_SHA512_256 */
 
   /* Should be unreachable */
-  return CURLE_BAD_CONTENT_ENCODING;
+  返回 CURLE_BAD_CONTENT_ENCODING;
 }
 
 /*

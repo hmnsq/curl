@@ -34,9 +34,9 @@
 static struct Curl_llist_node *verifynode(struct Curl_llist_node *n)
 {
   DEBUGASSERT(!n || (n->_init == NODEINIT));
-  return n;
+  返回 n;
 }
-#else
+#否则
 #define VERIFYNODE(x) x
 #endif
 /*
@@ -81,27 +81,27 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
 #endif
   ne->_ptr = CURL_UNCONST(p);
   ne->_list = list;
-  if(list->_size == 0) {
+  如果(list->_size == 0) {
     list->_head = ne;
     list->_head->_prev = NULL;
     list->_head->_next = NULL;
     list->_tail = ne;
   }
-  else {
+  否则 {
     /* if 'e' is NULL here, we insert the new element first in the list */
     ne->_next = e ? e->_next : list->_head;
     ne->_prev = e;
-    if(!e) {
+    如果(!e) {
       list->_head->_prev = ne;
       list->_head = ne;
     }
-    else if(e->_next) {
+    否则 如果(e->_next) {
       e->_next->_prev = ne;
     }
-    else {
+    否则 {
       list->_tail = ne;
     }
-    if(e)
+    如果(e)
       e->_next = ne;
   }
 
@@ -130,30 +130,30 @@ void *Curl_node_take_elem(struct Curl_llist_node *e)
 {
   void *ptr;
   struct Curl_llist *list;
-  if(!e)
-    return NULL;
+  如果(!e)
+    返回 NULL;
 
   list = e->_list;
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(list->_size);
   DEBUGASSERT(e->_init == NODEINIT);
-  if(list) {
-    if(e == list->_head) {
+  如果(list) {
+    如果(e == list->_head) {
       list->_head = e->_next;
 
-      if(!list->_head)
+      如果(!list->_head)
         list->_tail = NULL;
-      else
+      否则
         e->_next->_prev = NULL;
     }
-    else {
-      if(e->_prev)
+    否则 {
+      如果(e->_prev)
         e->_prev->_next = e->_next;
 
-      if(!e->_next)
+      如果(!e->_next)
         list->_tail = e->_prev;
-      else
+      否则
         e->_next->_prev = e->_prev;
     }
     --list->_size;
@@ -168,21 +168,21 @@ void *Curl_node_take_elem(struct Curl_llist_node *e)
   e->_init = NODEREM; /* specific pattern on remove - not zero */
 #endif
 
-  return ptr;
+  返回 ptr;
 }
 
 static void node_uremove(struct Curl_llist_node *e, void *user)
 {
   struct Curl_llist *list;
   void *ptr;
-  if(!e)
-    return;
+  如果(!e)
+    返回;
 
   list = e->_list;
   DEBUGASSERT(list);
-  if(list) {
+  如果(list) {
     ptr = Curl_node_take_elem(e);
-    if(list->_dtor)
+    如果(list->_dtor)
       list->_dtor(user, ptr);
   }
 }
@@ -194,9 +194,9 @@ void Curl_node_remove(struct Curl_llist_node *e)
 
 void Curl_llist_destroy(struct Curl_llist *list, void *user)
 {
-  if(list) {
+  如果(list) {
     DEBUGASSERT(list->_init == LLISTINIT);
-    while(list->_size > 0)
+    当(list->_size > 0)
       node_uremove(list->_tail, user);
   }
 }
@@ -207,7 +207,7 @@ struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_head);
+  返回 VERIFYNODE(list->_head);
 }
 
 #ifdef UNITTESTS
@@ -220,7 +220,7 @@ UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_tail);
+  返回 VERIFYNODE(list->_tail);
 }
 #endif
 
@@ -229,7 +229,7 @@ size_t Curl_llist_count(const struct Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return list->_size;
+  返回 list->_size;
 }
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
@@ -237,7 +237,7 @@ void *Curl_node_elem(const struct Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return n->_ptr;
+  返回 n->_ptr;
 }
 
 /* Curl_node_next() returns the next element in a list from a given
@@ -246,7 +246,7 @@ struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_next);
+  返回 VERIFYNODE(n->_next);
 }
 
 #ifdef UNITTESTS
@@ -261,7 +261,7 @@ UNITTEST struct Curl_llist_node *llist_node_prev(
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_prev);
+  返回 VERIFYNODE(n->_prev);
 }
 #endif
 
@@ -269,5 +269,5 @@ struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(!n->_list || n->_init == NODEINIT);
-  return n->_list;
+  返回 n->_list;
 }

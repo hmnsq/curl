@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#如果 !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 #include <quiche.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -99,7 +99,7 @@ struct cf_quiche_ctx {
 
 #ifdef DEBUG_QUICHE
 /* initialize debug log callback only once */
-static int debug_log_init = 0;
+static 整数 debug_log_init = 0;
 static void quiche_debug_log(const char *line, void *argp)
 {
   (void)argp;
@@ -116,7 +116,7 @@ static CURLcode cf_quiche_ctx_init(struct cf_quiche_ctx *ctx,
 {
   DEBUGASSERT(!ctx->initialized);
 #ifdef DEBUG_QUICHE
-  if(!debug_log_init) {
+  如果(!debug_log_init) {
     quiche_enable_debug_logging(quiche_debug_log, NULL);
     debug_log_init = 1;
   }
@@ -127,12 +127,12 @@ static CURLcode cf_quiche_ctx_init(struct cf_quiche_ctx *ctx,
                   BUFQ_OPT_SOFT_LIMIT);
   ctx->data_recvd = 0;
   ctx->initialized = TRUE;
-  return Curl_vquic_tls_peer_init(origin, peer, sslc, &ctx->ssl_peer);
+  返回 Curl_vquic_tls_peer_init(origin, peer, sslc, &ctx->ssl_peer);
 }
 
 static void cf_quiche_ctx_free(struct cf_quiche_ctx *ctx)
 {
-  if(ctx && ctx->initialized) {
+  如果(ctx && ctx->initialized) {
     /* quiche freed it */
     ctx->tls.ossl.ssl = NULL;
     Curl_vquic_tls_cleanup(&ctx->tls);
@@ -147,19 +147,19 @@ static void cf_quiche_ctx_free(struct cf_quiche_ctx *ctx)
 
 static void cf_quiche_ctx_close(struct cf_quiche_ctx *ctx)
 {
-  if(ctx->h3c) {
+  如果(ctx->h3c) {
     quiche_h3_conn_free(ctx->h3c);
     ctx->h3c = NULL;
   }
-  if(ctx->h3config) {
+  如果(ctx->h3config) {
     quiche_h3_config_free(ctx->h3config);
     ctx->h3config = NULL;
   }
-  if(ctx->qconn) {
+  如果(ctx->qconn) {
     quiche_conn_free(ctx->qconn);
     ctx->qconn = NULL;
   }
-  if(ctx->cfg) {
+  如果(ctx->cfg) {
     quiche_config_free(ctx->cfg);
     ctx->cfg = NULL;
   }
@@ -217,9 +217,9 @@ static bool cf_quiche_stream_do(uint32_t mid, void *val, void *user_data)
   struct cf_quiche_visit_ctx *vctx = user_data;
   struct h3_stream_ctx *stream = val;
   struct Curl_easy *sdata = Curl_multi_get_easy(vctx->multi, mid);
-  if(sdata)
-    return vctx->cb(vctx->cf, sdata, stream, vctx->user_data);
-  return TRUE;
+  如果(sdata)
+    返回 vctx->cb(vctx->cf, sdata, stream, vctx->user_data);
+  返回 TRUE;
 }
 
 static void cf_quiche_for_all_streams(struct Curl_cfilter *cf,
@@ -242,12 +242,12 @@ static bool cf_quiche_do_resume(struct Curl_cfilter *cf,
                                 void *user_data)
 {
   (void)user_data;
-  if(stream->quic_flow_blocked) {
+  如果(stream->quic_flow_blocked) {
     stream->quic_flow_blocked = FALSE;
     Curl_multi_mark_dirty(sdata);
     CURL_TRC_CF(sdata, cf, "[%" PRIu64 "] unblock", stream->id);
   }
-  return TRUE;
+  返回 TRUE;
 }
 
 static bool cf_quiche_do_expire(struct Curl_cfilter *cf,
@@ -259,7 +259,7 @@ static bool cf_quiche_do_expire(struct Curl_cfilter *cf,
   CURL_TRC_CF(sdata, cf, "conn closed, mark as dirty");
   stream->xfer_result = CURLE_SEND_ERROR;
   Curl_multi_mark_dirty(sdata);
-  return TRUE;
+  返回 TRUE;
 }
 
 static CURLcode h3_data_setup(struct Curl_cfilter *cf,
@@ -268,22 +268,22 @@ static CURLcode h3_data_setup(struct Curl_cfilter *cf,
   struct cf_quiche_ctx *ctx = cf->ctx;
   struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
 
-  if(stream)
-    return CURLE_OK;
+  如果(stream)
+    返回 CURLE_OK;
 
   stream = curlx_calloc(1, sizeof(*stream));
-  if(!stream)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!stream)
+    返回 CURLE_OUT_OF_MEMORY;
 
   stream->id = -1;
   Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
 
-  if(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
+  如果(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
     h3_stream_ctx_free(stream);
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static void cf_quiche_stream_close(struct Curl_cfilter *cf,
@@ -293,19 +293,19 @@ static void cf_quiche_stream_close(struct Curl_cfilter *cf,
   struct cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result;
 
-  if(ctx->qconn && !stream->closed) {
+  如果(ctx->qconn && !stream->closed) {
     quiche_conn_stream_shutdown(ctx->qconn, stream->id,
                                 QUICHE_SHUTDOWN_READ, CURL_H3_NO_ERROR);
-    if(!stream->send_closed) {
+    如果(!stream->send_closed) {
       quiche_conn_stream_shutdown(ctx->qconn, stream->id,
                                   QUICHE_SHUTDOWN_WRITE, CURL_H3_NO_ERROR);
       stream->send_closed = TRUE;
     }
     stream->closed = TRUE;
     result = cf_flush_egress(cf, data);
-    if(result)
+    如果(result)
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] stream close, flush egress -> %d",
-                  stream->id, (int)result);
+                  stream->id, (整数)result);
   }
 }
 
@@ -315,7 +315,7 @@ static void h3_data_done(struct Curl_cfilter *cf, struct Curl_easy *data)
   struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
 
   (void)cf;
-  if(stream) {
+  如果(stream) {
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] easy handle is done", stream->id);
     cf_quiche_stream_close(cf, data, stream);
     Curl_u32_ptrset_unset(&ctx->streams, data->mid);
@@ -341,11 +341,11 @@ static void cf_quiche_write_hd(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
+  如果(!stream->xfer_result) {
     stream->xfer_result = Curl_xfer_write_resp_hd(data, buf, blen, eos);
-    if(stream->xfer_result)
+    如果(stream->xfer_result)
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] error %d writing %zu "
-                  "bytes of headers", stream->id, (int)stream->xfer_result,
+                  "bytes of headers", stream->id, (整数)stream->xfer_result,
                   blen);
   }
 }
@@ -358,18 +358,18 @@ struct cb_ctx {
 
 static bool is_valid_h3_header(const uint8_t *hdr, size_t hlen)
 {
-  while(hlen--) {
+  当(hlen--) {
     switch(*hdr++) {
     case '\n':
     case '\r':
     case '\0':
-      return FALSE;
+      返回 FALSE;
     }
   }
-  return TRUE;
+  返回 TRUE;
 }
 
-static int cb_each_header(uint8_t *name, size_t name_len,
+static 整数 cb_each_header(uint8_t *name, size_t name_len,
                           uint8_t *value, size_t value_len,
                           void *argp)
 {
@@ -380,57 +380,57 @@ static int cb_each_header(uint8_t *name, size_t name_len,
   struct cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  if(!stream || stream->xfer_result)
-    return 1; /* abort iteration */
+  如果(!stream || stream->xfer_result)
+    返回 1; /* abort iteration */
 
-  if((name_len == 7) && !strncmp(HTTP_PSEUDO_STATUS, (char *)name, 7) &&
+  如果((name_len == 7) && !strncmp(HTTP_PSEUDO_STATUS, (char *)name, 7) &&
      is_valid_h3_header(value, value_len)) {
     curlx_dyn_reset(&ctx->h1hdr);
     result = Curl_http_decode_status(&stream->status_code,
                                      (const char *)value, value_len);
-    if(!result)
+    如果(!result)
       result = curlx_dyn_addn(&ctx->h1hdr, STRCONST("HTTP/3 "));
-    if(!result)
+    如果(!result)
       result = curlx_dyn_addn(&ctx->h1hdr, (const char *)value, value_len);
-    if(!result)
+    如果(!result)
       result = curlx_dyn_addn(&ctx->h1hdr, STRCONST(" \r\n"));
-    if(!result)
+    如果(!result)
       cf_quiche_write_hd(cf, data, stream, curlx_dyn_ptr(&ctx->h1hdr),
                          curlx_dyn_len(&ctx->h1hdr), FALSE);
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] status: %s",
                 stream->id, curlx_dyn_ptr(&ctx->h1hdr));
   }
-  else {
-    if(is_valid_h3_header(value, value_len) &&
+  否则 {
+    如果(is_valid_h3_header(value, value_len) &&
        is_valid_h3_header(name, name_len)) {
       /* store as an HTTP1-style header */
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] header: %.*s: %.*s",
-                  stream->id, (int)name_len, name,
-                  (int)value_len, value);
+                  stream->id, (整数)name_len, name,
+                  (整数)value_len, value);
       curlx_dyn_reset(&ctx->h1hdr);
       result = curlx_dyn_addn(&ctx->h1hdr, (const char *)name, name_len);
-      if(!result)
+      如果(!result)
         result = curlx_dyn_addn(&ctx->h1hdr, STRCONST(": "));
-      if(!result)
+      如果(!result)
         result = curlx_dyn_addn(&ctx->h1hdr, (const char *)value, value_len);
-      if(!result)
+      如果(!result)
         result = curlx_dyn_addn(&ctx->h1hdr, STRCONST("\r\n"));
-      if(!result)
+      如果(!result)
         cf_quiche_write_hd(cf, data, stream, curlx_dyn_ptr(&ctx->h1hdr),
                            curlx_dyn_len(&ctx->h1hdr), FALSE);
     }
-    else
+    否则
       CURL_TRC_CF(x->data, x->cf, "[%" PRIu64 "] ignore %zu bytes bad header",
                   stream->id, value_len + name_len);
   }
 
-  if(result) {
+  如果(result) {
     CURL_TRC_CF(x->data, x->cf, "[%" PRIu64 "] on header error %d",
-                stream->id, (int)result);
-    if(!stream->xfer_result)
+                stream->id, (整数)result);
+    如果(!stream->xfer_result)
       stream->xfer_result = result;
   }
-  return stream->xfer_result ? 1 : 0;
+  返回 stream->xfer_result ? 1 : 0;
 }
 
 static CURLcode stream_resp_read(void *reader_ctx,
@@ -443,13 +443,13 @@ static CURLcode stream_resp_read(void *reader_ctx,
   ssize_t nread;
 
   *pnread = 0;
-  if(!stream)
-    return CURLE_RECV_ERROR;
+  如果(!stream)
+    返回 CURLE_RECV_ERROR;
 
   nread = quiche_h3_recv_body(ctx->h3c, ctx->qconn, stream->id, buf, len);
-  if(!curlx_sztouz(nread, pnread))
-    return CURLE_AGAIN;
-  return CURLE_OK;
+  如果(!curlx_sztouz(nread, pnread))
+    返回 CURLE_AGAIN;
+  返回 CURLE_OK;
 }
 
 static void cf_quiche_flush_body(struct Curl_cfilter *cf,
@@ -460,17 +460,17 @@ static void cf_quiche_flush_body(struct Curl_cfilter *cf,
   const uint8_t *buf;
   size_t blen;
 
-  while(stream && !stream->xfer_result) {
-    if(Curl_bufq_peek(&ctx->writebuf, &buf, &blen)) {
+  当(stream && !stream->xfer_result) {
+    如果(Curl_bufq_peek(&ctx->writebuf, &buf, &blen)) {
       stream->xfer_result = Curl_xfer_write_resp(
         data, (const char *)buf, blen, FALSE);
       Curl_bufq_skip(&ctx->writebuf, blen);
-      if(stream->xfer_result) {
+      如果(stream->xfer_result) {
         CURL_TRC_CF(data, cf, "[%" PRIu64 "] error %d writing %zu bytes"
-                    " of data", stream->id, (int)stream->xfer_result, blen);
+                    " of data", stream->id, (整数)stream->xfer_result, blen);
       }
     }
-    else
+    否则
       break;
   }
   Curl_bufq_reset(&ctx->writebuf);
@@ -485,8 +485,8 @@ static void cf_quiche_recv_body(struct Curl_cfilter *cf,
   struct cb_ctx cb_ctx;
   CURLcode result = CURLE_OK;
 
-  if(!stream)
-    return;
+  如果(!stream)
+    返回;
 
   /* Even when the transfer has already errored, we need to receive
    * the data from quiche, as quiche otherwise gets stuck and
@@ -495,22 +495,22 @@ static void cf_quiche_recv_body(struct Curl_cfilter *cf,
   cb_ctx.data = data;
   cb_ctx.stream = stream;
   Curl_bufq_reset(&ctx->writebuf);
-  while(!result) {
+  当(!result) {
     result = Curl_bufq_slurp(&ctx->writebuf,
                              stream_resp_read, &cb_ctx, &nread);
-    if(!result)
+    如果(!result)
       cf_quiche_flush_body(cf, data, stream);
-    else if(result == CURLE_AGAIN)
+    否则 如果(result == CURLE_AGAIN)
       break;
-    else if(result) {
+    否则 如果(result) {
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] recv_body error %d",
-                  stream->id, (int)result);
+                  stream->id, (整数)result);
       failf(data, "[%" PRIu64 "] Error %d in HTTP/3 response body for stream",
-            stream->id, (int)result);
+            stream->id, (整数)result);
       stream->closed = TRUE;
       stream->reset = TRUE;
       stream->send_closed = TRUE;
-      if(!stream->xfer_result)
+      如果(!stream->xfer_result)
         stream->xfer_result = result;
     }
   }
@@ -524,8 +524,8 @@ static void cf_quiche_process_ev(struct Curl_cfilter *cf,
 {
   enum quiche_h3_event_type type;
 
-  if(!stream)
-    return;
+  如果(!stream)
+    返回;
 
   type = quiche_h3_event_type(ev);
 
@@ -542,7 +542,7 @@ static void cf_quiche_process_ev(struct Curl_cfilter *cf,
     break;
   }
   case QUICHE_H3_EVENT_DATA:
-    if(!stream->resp_hds_complete) {
+    如果(!stream->resp_hds_complete) {
       stream->resp_hds_complete = TRUE;
       cf_quiche_write_hd(cf, data, stream, "\r\n", 2, FALSE);
     }
@@ -561,7 +561,7 @@ static void cf_quiche_process_ev(struct Curl_cfilter *cf,
 
   case QUICHE_H3_EVENT_FINISHED:
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] CLOSED", stream->id);
-    if(!stream->resp_hds_complete) {
+    如果(!stream->resp_hds_complete) {
       stream->resp_hds_complete = TRUE;
       cf_quiche_write_hd(cf, data, stream, "\r\n", 2, TRUE);
     }
@@ -575,7 +575,7 @@ static void cf_quiche_process_ev(struct Curl_cfilter *cf,
 
   default:
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] recv, unhandled event %d",
-                stream->id, (int)type);
+                stream->id, (整数)type);
     break;
   }
 }
@@ -592,13 +592,13 @@ static bool cf_quiche_disp_event(uint32_t mid, void *val, void *user_data)
   struct cf_quiche_disp_ctx *dctx = user_data;
   struct h3_stream_ctx *stream = val;
 
-  if(stream->id == dctx->stream_id) {
+  如果(stream->id == dctx->stream_id) {
     struct Curl_easy *sdata = Curl_multi_get_easy(dctx->multi, mid);
-    if(sdata)
+    如果(sdata)
       cf_quiche_process_ev(dctx->cf, sdata, stream, dctx->ev);
-    return FALSE; /* stop iterating */
+    返回 FALSE; /* stop iterating */
   }
-  return TRUE;
+  返回 TRUE;
 }
 
 static CURLcode cf_poll_events(struct Curl_cfilter *cf,
@@ -609,25 +609,25 @@ static CURLcode cf_poll_events(struct Curl_cfilter *cf,
   quiche_h3_event *ev;
 
   /* Take in the events and distribute them to the transfers. */
-  while(ctx->h3c) {
+  当(ctx->h3c) {
     int64_t rv = quiche_h3_conn_poll(ctx->h3c, ctx->qconn, &ev);
-    if(rv == QUICHE_H3_ERR_DONE) {
+    如果(rv == QUICHE_H3_ERR_DONE) {
       break;
     }
-    else if(rv < 0) {
+    否则 如果(rv < 0) {
       CURL_TRC_CF(data, cf, "error poll: %" PRId64, rv);
-      return CURLE_HTTP3;
+      返回 CURLE_HTTP3;
     }
-    else {
+    否则 {
       stream = H3_STREAM_CTX(ctx, data);
-      if(stream && stream->id == (uint64_t)rv) {
+      如果(stream && stream->id == (uint64_t)rv) {
         /* event for calling transfer */
         cf_quiche_process_ev(cf, data, stream, ev);
         quiche_h3_event_free(ev);
-        if(stream->xfer_result)
-          return stream->xfer_result;
+        如果(stream->xfer_result)
+          返回 stream->xfer_result;
       }
-      else {
+      否则 {
         /* another transfer, do not return errors, as they are not for
          * the calling transfer */
         struct cf_quiche_disp_ctx dctx;
@@ -640,13 +640,13 @@ static CURLcode cf_poll_events(struct Curl_cfilter *cf,
       }
     }
   }
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 struct recv_ctx {
   struct Curl_cfilter *cf;
   struct Curl_easy *data;
-  int pkts;
+  整数 pkts;
 };
 
 static CURLcode cf_quiche_recv_pkts(const unsigned char *buf, size_t buflen,
@@ -668,47 +668,47 @@ static CURLcode cf_quiche_recv_pkts(const unsigned char *buf, size_t buflen,
   recv_info.from = (struct sockaddr *)remote_addr;
   recv_info.from_len = remote_addrlen;
 
-  for(offset = 0; offset < buflen; offset += gso_size) {
+  为(offset = 0; offset < buflen; offset += gso_size) {
     pktlen = ((offset + gso_size) <= buflen) ? gso_size : (buflen - offset);
     rv = quiche_conn_recv(ctx->qconn,
                           (unsigned char *)CURL_UNCONST(buf + offset),
                           pktlen, &recv_info);
-    if(!curlx_sztouz(rv, &nread)) {
-      if(QUICHE_ERR_DONE == rv) {
-        if(quiche_conn_is_draining(ctx->qconn)) {
+    如果(!curlx_sztouz(rv, &nread)) {
+      如果(QUICHE_ERR_DONE == rv) {
+        如果(quiche_conn_is_draining(ctx->qconn)) {
           CURL_TRC_CF(r->data, r->cf, "ingress, connection is draining");
-          return CURLE_RECV_ERROR;
+          返回 CURLE_RECV_ERROR;
         }
-        if(quiche_conn_is_closed(ctx->qconn)) {
+        如果(quiche_conn_is_closed(ctx->qconn)) {
           CURL_TRC_CF(r->data, r->cf, "ingress, connection is closed");
-          return CURLE_RECV_ERROR;
+          返回 CURLE_RECV_ERROR;
         }
         CURL_TRC_CF(r->data, r->cf, "ingress, quiche is DONE");
-        return CURLE_OK;
+        返回 CURLE_OK;
       }
-      else if(QUICHE_ERR_TLS_FAIL == rv) {
+      否则 如果(QUICHE_ERR_TLS_FAIL == rv) {
         long verify_ok = SSL_get_verify_result(ctx->tls.ossl.ssl);
-        if(verify_ok != X509_V_OK) {
+        如果(verify_ok != X509_V_OK) {
           failf(r->data, "SSL certificate problem: %s",
                 X509_verify_cert_error_string(verify_ok));
-          return CURLE_PEER_FAILED_VERIFICATION;
+          返回 CURLE_PEER_FAILED_VERIFICATION;
         }
         failf(r->data, "ingress, quiche reports TLS fail");
-        return CURLE_RECV_ERROR;
+        返回 CURLE_RECV_ERROR;
       }
-      else {
+      否则 {
         failf(r->data, "quiche reports error %zd on receive", rv);
-        return CURLE_RECV_ERROR;
+        返回 CURLE_RECV_ERROR;
       }
     }
-    else if(nread < pktlen) {
+    否则 如果(nread < pktlen) {
       CURL_TRC_CF(r->data, r->cf, "ingress, quiche only read %zu/%zu bytes",
                   nread, pktlen);
     }
     ++r->pkts;
   }
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode cf_process_ingress(struct Curl_cfilter *cf,
@@ -720,8 +720,8 @@ static CURLcode cf_process_ingress(struct Curl_cfilter *cf,
 
   DEBUGASSERT(ctx->qconn);
   result = Curl_vquic_tls_before_recv(&ctx->tls, cf, data);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   rctx.cf = cf;
   rctx.data = data;
@@ -729,16 +729,16 @@ static CURLcode cf_process_ingress(struct Curl_cfilter *cf,
 
   result = Curl_vquic_recv_packets(cf, data, &ctx->q, 1000,
                                    cf_quiche_recv_pkts, &rctx);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
-  if(rctx.pkts > 0) {
+  如果(rctx.pkts > 0) {
     /* quiche digested ingress packets. It might have opened flow control
      * windows again. */
     DEBUGASSERT(data->multi);
     cf_quiche_for_all_streams(cf, data->multi, cf_quiche_do_resume, NULL);
   }
-  return cf_poll_events(cf, data);
+  返回 cf_poll_events(cf, data);
 }
 
 struct read_ctx {
@@ -757,14 +757,14 @@ static CURLcode read_pkt_to_send(void *userp,
 
   *pnread = 0;
   rv = quiche_conn_send(ctx->qconn, buf, buflen, &x->send_info);
-  if(rv == QUICHE_ERR_DONE)
-    return CURLE_AGAIN;
+  如果(rv == QUICHE_ERR_DONE)
+    返回 CURLE_AGAIN;
 
-  if(!curlx_sztouz(rv, pnread)) {
+  如果(!curlx_sztouz(rv, pnread)) {
     failf(x->data, "quiche_conn_send returned %zd", rv);
-    return CURLE_SEND_ERROR;
+    返回 CURLE_SEND_ERROR;
   }
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /*
@@ -783,27 +783,27 @@ static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
   size_t pkt_count, gsolen;
 
   expiry_ns = quiche_conn_timeout_as_nanos(ctx->qconn);
-  if(!expiry_ns) {
+  如果(!expiry_ns) {
     quiche_conn_on_timeout(ctx->qconn);
-    if(quiche_conn_is_closed(ctx->qconn)) {
-      if(quiche_conn_is_timed_out(ctx->qconn))
+    如果(quiche_conn_is_closed(ctx->qconn)) {
+      如果(quiche_conn_is_timed_out(ctx->qconn))
         failf(data, "connection closed by idle timeout");
-      else
+      否则
         failf(data, "connection closed by server");
       /* Connection timed out, expire all transfers belonging to it
        * as it does not get any more POLL events here. */
       cf_quiche_expire_conn_closed(cf, data);
-      return CURLE_SEND_ERROR;
+      返回 CURLE_SEND_ERROR;
     }
   }
 
   result = Curl_vquic_flush(cf, data, &ctx->q);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  如果(result) {
+    如果(result == CURLE_AGAIN) {
       Curl_expire(data, 1, EXPIRE_QUIC);
-      return CURLE_OK;
+      返回 CURLE_OK;
     }
-    return result;
+    返回 result;
   }
 
   readx.cf = cf;
@@ -811,32 +811,32 @@ static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
   memset(&readx.send_info, 0, sizeof(readx.send_info));
   pkt_count = 0;
   gsolen = quiche_conn_max_send_udp_payload_size(ctx->qconn);
-  for(;;) {
+  为(;;) {
     /* add the next packet to send, if any, to our buffer */
     result = Curl_bufq_sipn(&ctx->q.sendbuf, 0,
                             read_pkt_to_send, &readx, &nread);
-    if(result) {
-      if(result != CURLE_AGAIN)
-        return result;
+    如果(result) {
+      如果(result != CURLE_AGAIN)
+        返回 result;
       /* Nothing more to add, flush and leave */
       result = Curl_vquic_send(cf, data, &ctx->q, gsolen);
-      if(result) {
-        if(result == CURLE_AGAIN) {
+      如果(result) {
+        如果(result == CURLE_AGAIN) {
           Curl_expire(data, 1, EXPIRE_QUIC);
-          return CURLE_OK;
+          返回 CURLE_OK;
         }
-        return result;
+        返回 result;
       }
       goto out;
     }
 
     ++pkt_count;
-    if(nread < gsolen || pkt_count >= MAX_PKT_BURST) {
+    如果(nread < gsolen || pkt_count >= MAX_PKT_BURST) {
       result = Curl_vquic_send(cf, data, &ctx->q, gsolen);
-      if(result) {
-        if(result == CURLE_AGAIN) {
+      如果(result) {
+        如果(result == CURLE_AGAIN) {
           Curl_expire(data, 1, EXPIRE_QUIC);
-          return CURLE_OK;
+          返回 CURLE_OK;
         }
         goto out;
       }
@@ -846,11 +846,11 @@ static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
 
 out:
   timeout_ns = quiche_conn_timeout_as_nanos(ctx->qconn);
-  if(timeout_ns % 1000000)
+  如果(timeout_ns % 1000000)
     timeout_ns += 1000000;
   /* expire resolution is milliseconds */
   Curl_expire(data, (timeout_ns / 1000000), EXPIRE_QUIC);
-  return result;
+  返回 result;
 }
 
 static CURLcode recv_closed_stream(struct Curl_cfilter *cf,
@@ -863,35 +863,35 @@ static CURLcode recv_closed_stream(struct Curl_cfilter *cf,
 
   DEBUGASSERT(stream);
   *pnread = 0;
-  if(stream->reset) {
-    if(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
+  如果(stream->reset) {
+    如果(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
       infof(data, "HTTP/3 stream %" PRIu64 " refused by server, try again "
             "on a new connection", stream->id);
       connclose(cf->conn); /* do not use this anymore */
       data->state.refused_stream = TRUE;
-      return CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
+      返回 CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
+    否则 如果(stream->resp_hds_complete && data->req.no_body) {
         CURL_TRC_CF(data, cf, "[%" PRIu64 "] error after response headers, "
                     "but we did not want a body anyway, ignore error 0x%"
                     PRIx64 " %s", stream->id, stream->error3,
                     Curl_vquic_h3_err_str(stream->error3));
-        return CURLE_OK;
+        返回 CURLE_OK;
     }
     failf(data, "HTTP/3 stream %" PRIu64 " reset by server (error 0x%" PRIx64
           " %s)", stream->id, stream->error3,
           Curl_vquic_h3_err_str(stream->error3));
     result = data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_recv, was reset -> %d",
-                stream->id, (int)result);
+                stream->id, (整数)result);
   }
-  else if(!stream->resp_got_header) {
+  否则 如果(!stream->resp_got_header) {
     failf(data, "HTTP/3 stream %" PRIu64 " was closed cleanly, but before "
           "getting all response header fields, treated as error",
           stream->id);
     result = CURLE_HTTP3;
   }
-  return result;
+  返回 result;
 }
 
 static CURLcode cf_quiche_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
@@ -906,37 +906,37 @@ static CURLcode cf_quiche_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
   (void)blen;
   Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
 
-  if(!stream)
-    return CURLE_RECV_ERROR;
+  如果(!stream)
+    返回 CURLE_RECV_ERROR;
 
   result = cf_process_ingress(cf, data);
-  if(result) {
+  如果(result) {
     CURL_TRC_CF(data, cf, "cf_recv, error on ingress");
     goto out;
   }
 
-  if(stream->xfer_result) {
+  如果(stream->xfer_result) {
     cf_quiche_stream_close(cf, data, stream);
     result = stream->xfer_result;
     goto out;
   }
-  else if(stream->closed)
+  否则 如果(stream->closed)
     result = recv_closed_stream(cf, data, pnread);
-  else if(quiche_conn_is_draining(ctx->qconn)) {
+  否则 如果(quiche_conn_is_draining(ctx->qconn)) {
     failf(data, "QUIC connection is draining");
     result = CURLE_HTTP3;
   }
-  else
+  否则
     result = CURLE_AGAIN;
 
 out:
   result = Curl_1st_fatal(result, cf_flush_egress(cf, data));
-  if(*pnread > 0)
+  如果(*pnread > 0)
     ctx->data_recvd += *pnread;
   CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_recv(len=%zu) -> %d, %zu, total=%"
-              FMT_OFF_T, stream->id, blen, (int)result, *pnread,
+              FMT_OFF_T, stream->id, blen, (整数)result, *pnread,
               ctx->data_recvd);
-  return result;
+  返回 result;
 }
 
 static CURLcode cf_quiche_send_body(struct Curl_cfilter *cf,
@@ -951,37 +951,37 @@ static CURLcode cf_quiche_send_body(struct Curl_cfilter *cf,
   *pnwritten = 0;
   rv = quiche_h3_send_body(ctx->h3c, ctx->qconn, stream->id,
                            (uint8_t *)CURL_UNCONST(buf), len, eos);
-  if(rv == QUICHE_H3_ERR_DONE || (rv == 0 && len > 0)) {
+  如果(rv == QUICHE_H3_ERR_DONE || (rv == 0 && len > 0)) {
     /* Blocked on flow control and should HOLD sending.
        When do we open again? */
-    if(!quiche_conn_stream_writable(ctx->qconn, stream->id, len)) {
+    如果(!quiche_conn_stream_writable(ctx->qconn, stream->id, len)) {
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) "
                   "-> window exhausted", stream->id, len);
       stream->quic_flow_blocked = TRUE;
     }
-    return CURLE_AGAIN;
+    返回 CURLE_AGAIN;
   }
-  else if(rv == QUICHE_H3_TRANSPORT_ERR_INVALID_STREAM_STATE) {
+  否则 如果(rv == QUICHE_H3_TRANSPORT_ERR_INVALID_STREAM_STATE) {
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) "
                 "-> invalid stream state", stream->id, len);
-    return CURLE_HTTP3;
+    返回 CURLE_HTTP3;
   }
-  else if(rv == QUICHE_H3_TRANSPORT_ERR_FINAL_SIZE) {
+  否则 如果(rv == QUICHE_H3_TRANSPORT_ERR_FINAL_SIZE) {
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) -> exceeds size",
                 stream->id, len);
-    return CURLE_SEND_ERROR;
+    返回 CURLE_SEND_ERROR;
   }
-  else if(!curlx_sztouz(rv, pnwritten)) {
+  否则 如果(!curlx_sztouz(rv, pnwritten)) {
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) -> quiche err %zd",
                 stream->id, len, rv);
-    return CURLE_SEND_ERROR;
+    返回 CURLE_SEND_ERROR;
   }
-  else {
-    if(eos && (len == *pnwritten))
+  否则 {
+    如果(eos && (len == *pnwritten))
       stream->send_closed = TRUE;
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] send body(len=%zu, eos=%d) -> %zu",
                 stream->id, len, stream->send_closed, *pnwritten);
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 }
 
@@ -999,10 +999,10 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
 
   *pnwritten = 0;
-  if(!stream) {
+  如果(!stream) {
     result = h3_data_setup(cf, data);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
     stream = H3_STREAM_CTX(ctx, data);
     DEBUGASSERT(stream);
   }
@@ -1015,16 +1015,16 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
     !data->state.http_ignorecustom ?
     CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : NULL,
     0, pnwritten);
-  if(result)
+  如果(result)
     goto out;
-  if(!stream->h1.done) {
+  如果(!stream->h1.done) {
     /* need more data */
     goto out;
   }
   DEBUGASSERT(stream->h1.req);
 
   result = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
-  if(result)
+  如果(result)
     goto out;
 
   /* no longer needed */
@@ -1032,12 +1032,12 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
 
   nheader = Curl_dynhds_count(&h2_headers);
   nva = curlx_malloc(sizeof(quiche_h3_header) * nheader);
-  if(!nva) {
+  如果(!nva) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
-  for(i = 0; i < nheader; ++i) {
+  为(i = 0; i < nheader; ++i) {
     struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
     nva[i].name = (unsigned char *)e->name;
     nva[i].name_len = e->namelen;
@@ -1048,14 +1048,14 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
   buf += *pnwritten;
   blen -= *pnwritten;
 
-  if(eos && !blen)
+  如果(eos && !blen)
     stream->send_closed = TRUE;
 
   rv = quiche_h3_send_request(ctx->h3c, ctx->qconn, nva, nheader,
                               stream->send_closed);
   CURL_TRC_CF(data, cf, "quiche_send_request() -> %" PRId64, rv);
-  if(rv < 0) {
-    if(QUICHE_H3_ERR_STREAM_BLOCKED == rv) {
+  如果(rv < 0) {
+    如果(QUICHE_H3_ERR_STREAM_BLOCKED == rv) {
       /* quiche seems to report this error if the connection window is
        * exhausted. Which happens frequently and intermittent. */
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] blocked", stream->id);
@@ -1063,7 +1063,7 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
       result = CURLE_AGAIN;
       goto out;
     }
-    else {
+    否则 {
       CURL_TRC_CF(data, cf, "send_request(%s) -> %" PRId64,
                   Curl_bufref_ptr(&data->state.url), rv);
     }
@@ -1077,25 +1077,25 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
   stream->closed = FALSE;
   stream->reset = FALSE;
 
-  if(Curl_trc_is_verbose(data)) {
+  如果(Curl_trc_is_verbose(data)) {
     infof(data, "[HTTP/3] [%" PRIu64 "] OPENED stream for %s",
           stream->id, Curl_bufref_ptr(&data->state.url));
-    for(i = 0; i < nheader; ++i) {
+    为(i = 0; i < nheader; ++i) {
       infof(data, "[HTTP/3] [%" PRIu64 "] [%.*s: %.*s]", stream->id,
-            (int)nva[i].name_len, nva[i].name,
-            (int)nva[i].value_len, nva[i].value);
+            (整数)nva[i].name_len, nva[i].name,
+            (整数)nva[i].value_len, nva[i].value);
     }
   }
 
-  if(blen) {  /* after the headers, there was request BODY data */
+  如果(blen) {  /* after the headers, there was request BODY data */
     size_t nwritten;
     CURLcode r2 = CURLE_OK;
 
     r2 = cf_quiche_send_body(cf, data, stream, buf, blen, eos, &nwritten);
-    if(r2 && (r2 != CURLE_AGAIN)) {  /* real error, fail */
+    如果(r2 && (r2 != CURLE_AGAIN)) {  /* real error, fail */
       result = r2;
     }
-    else if(nwritten > 0) {
+    否则 如果(nwritten > 0) {
       *pnwritten += nwritten;
     }
   }
@@ -1103,7 +1103,7 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
 out:
   curlx_free(nva);
   Curl_dynhds_free(&h2_headers);
-  return result;
+  返回 result;
 }
 
 static CURLcode cf_quiche_send(struct Curl_cfilter *cf, struct Curl_easy *data,
@@ -1118,21 +1118,21 @@ static CURLcode cf_quiche_send(struct Curl_cfilter *cf, struct Curl_easy *data,
   Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
 
   result = cf_process_ingress(cf, data);
-  if(result)
+  如果(result)
     goto out;
 
-  if(!stream || !stream->opened) {
+  如果(!stream || !stream->opened) {
     result = h3_open_stream(cf, data, buf, len, eos, pnwritten);
-    if(result)
+    如果(result)
       goto out;
     stream = H3_STREAM_CTX(ctx, data);
   }
-  else if(stream->xfer_result) {
+  否则 如果(stream->xfer_result) {
     cf_quiche_stream_close(cf, data, stream);
     result = stream->xfer_result;
   }
-  else if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  否则 如果(stream->closed) {
+    如果(stream->resp_hds_complete) {
       /* sending request body on a stream that has been closed by the
        * server. If the server has send us a final response, we should
        * silently discard the send data.
@@ -1152,7 +1152,7 @@ static CURLcode cf_quiche_send(struct Curl_cfilter *cf, struct Curl_easy *data,
     result = CURLE_HTTP3;
     goto out;
   }
-  else {
+  否则 {
     result = cf_quiche_send_body(cf, data, stream, buf, len, eos, pnwritten);
   }
 
@@ -1161,8 +1161,8 @@ out:
 
   CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_send(len=%zu) -> %d, %zu",
               stream ? stream->id : (uint64_t)~0, len,
-              (int)result, *pnwritten);
-  return result;
+              (整数)result, *pnwritten);
+  返回 result;
 }
 
 static bool stream_is_writable(struct Curl_cfilter *cf,
@@ -1171,7 +1171,7 @@ static bool stream_is_writable(struct Curl_cfilter *cf,
   struct cf_quiche_ctx *ctx = cf->ctx;
   struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
 
-  return stream && (quiche_conn_stream_writable(
+  返回 stream && (quiche_conn_stream_writable(
     ctx->qconn, stream->id, 1) > 0);
 }
 
@@ -1183,11 +1183,11 @@ static CURLcode cf_quiche_adjust_pollset(struct Curl_cfilter *cf,
   bool want_recv, want_send;
   CURLcode result = CURLE_OK;
 
-  if(!ctx->qconn)
-    return CURLE_OK;
+  如果(!ctx->qconn)
+    返回 CURLE_OK;
 
   Curl_pollset_check(data, ps, ctx->q.sockfd, &want_recv, &want_send);
-  if(want_recv || want_send) {
+  如果(want_recv || want_send) {
     struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
     bool c_exhaust, s_exhaust;
 
@@ -1201,7 +1201,7 @@ static CURLcode cf_quiche_adjust_pollset(struct Curl_cfilter *cf,
 
     result = Curl_pollset_set(data, ps, ctx->q.sockfd, want_recv, want_send);
   }
-  return result;
+  返回 result;
 }
 
 static CURLcode h3_data_pause(struct Curl_cfilter *cf,
@@ -1211,15 +1211,15 @@ static CURLcode h3_data_pause(struct Curl_cfilter *cf,
   /* There seems to exist no API in quiche to shrink/enlarge the streams
    * windows. As we do in HTTP/2. */
   (void)cf;
-  if(!pause) {
+  如果(!pause) {
     Curl_multi_mark_dirty(data);
   }
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode cf_quiche_cntrl(struct Curl_cfilter *cf,
                                 struct Curl_easy *data,
-                                int event, int arg1, void *arg2)
+                                整数 event, 整数 arg1, void *arg2)
 {
   struct cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
@@ -1237,7 +1237,7 @@ static CURLcode cf_quiche_cntrl(struct Curl_cfilter *cf,
     break;
   case CF_CTRL_DATA_DONE_SEND: {
     struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    if(stream && !stream->send_closed) {
+    如果(stream && !stream->send_closed) {
       unsigned char body[1];
       size_t sent;
 
@@ -1245,18 +1245,18 @@ static CURLcode cf_quiche_cntrl(struct Curl_cfilter *cf,
       body[0] = 'X';
       result = cf_quiche_send(cf, data, body, 0, TRUE, &sent);
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] DONE_SEND -> %d, %zu",
-                  stream->id, (int)result, sent);
+                  stream->id, (整数)result, sent);
     }
     break;
   }
   case CF_CTRL_CONN_INFO_UPDATE:
-    if(!cf->sockindex && cf->connected) {
+    如果(!cf->sockindex && cf->connected) {
       cf->conn->httpversion_seen = 30;
       Curl_conn_set_multiplex(cf->conn);
     }
     break;
   case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !ctx->stats_reported &&
+    如果(cf->connected && !ctx->stats_reported &&
        (ctx->handshake_at.tv_sec || ctx->handshake_at.tv_usec)) {
       Curl_pgrsTimeWas(data, TIMER_CONNECT, ctx->q.first_byte_at);
       Curl_pgrsTimeWas(data, TIMER_APPCONNECT, ctx->handshake_at);
@@ -1266,14 +1266,14 @@ static CURLcode cf_quiche_cntrl(struct Curl_cfilter *cf,
   default:
     break;
   }
-  return result;
+  返回 result;
 }
 
 static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
                                    struct Curl_easy *data)
 {
   struct cf_quiche_ctx *ctx = cf->ctx;
-  int rv;
+  整数 rv;
   CURLcode result;
   const struct Curl_sockaddr_ex *sockaddr;
   static const struct alpn_spec ALPN_SPEC_H3 = { { "h3" }, 1 };
@@ -1282,13 +1282,13 @@ static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
   DEBUGASSERT(ctx->initialized);
 
   result = Curl_vquic_ctx_init(data, &ctx->q);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   ctx->cfg = quiche_config_new(QUICHE_PROTOCOL_VERSION);
-  if(!ctx->cfg) {
+  如果(!ctx->cfg) {
     failf(data, "cannot create quiche config");
-    return CURLE_FAILED_INIT;
+    返回 CURLE_FAILED_INIT;
   }
   quiche_config_enable_pacing(ctx->cfg, FALSE);
   quiche_config_set_initial_max_data(ctx->cfg, (1 * 1024 * 1024)
@@ -1312,21 +1312,21 @@ static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
 
   result = Curl_vquic_tls_init(&ctx->tls, cf, data, &ctx->ssl_peer,
                                &ALPN_SPEC_H3, NULL, NULL, cf, NULL);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   result = Curl_rand(data, ctx->scid, sizeof(ctx->scid));
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
-  if(Curl_cf_socket_peek(cf->next, data, &ctx->q.sockfd, &sockaddr, NULL))
-    return CURLE_QUIC_CONNECT_ERROR;
+  如果(Curl_cf_socket_peek(cf->next, data, &ctx->q.sockfd, &sockaddr, NULL))
+    返回 CURLE_QUIC_CONNECT_ERROR;
 
   ctx->q.local_addrlen = sizeof(ctx->q.local_addr);
   rv = getsockname(ctx->q.sockfd, (struct sockaddr *)&ctx->q.local_addr,
                    &ctx->q.local_addrlen);
-  if(rv == -1)
-    return CURLE_QUIC_CONNECT_ERROR;
+  如果(rv == -1)
+    返回 CURLE_QUIC_CONNECT_ERROR;
 
   ctx->qconn = quiche_conn_new_with_tls((const uint8_t *)ctx->scid,
                                         sizeof(ctx->scid), NULL, 0,
@@ -1335,31 +1335,31 @@ static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
                                         &sockaddr->curl_sa_addr,
                                         sockaddr->addrlen,
                                         ctx->cfg, ctx->tls.ossl.ssl, FALSE);
-  if(!ctx->qconn) {
+  如果(!ctx->qconn) {
     failf(data, "cannot create quiche connection");
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
   }
 
   /* Known to not work on Windows */
-#if !defined(_WIN32) && defined(HAVE_QUICHE_CONN_SET_QLOG_FD)
+#如果 !defined(_WIN32) && defined(HAVE_QUICHE_CONN_SET_QLOG_FD)
   {
-    int qfd;
+    整数 qfd;
     (void)Curl_qlogdir(data, ctx->scid, sizeof(ctx->scid), &qfd);
-    if(qfd != -1)
+    如果(qfd != -1)
       quiche_conn_set_qlog_fd(ctx->qconn, qfd, "qlog title", "curl qlog");
   }
 #endif
 
   result = cf_flush_egress(cf, data);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   {
     unsigned char alpn_protocols[] = QUICHE_H3_APPLICATION_PROTOCOL;
     unsigned alpn_len, offset = 0;
 
     /* Replace each ALPN length prefix by a comma. */
-    while(offset < CURL_CSTRLEN(alpn_protocols)) {
+    当(offset < CURL_CSTRLEN(alpn_protocols)) {
       alpn_len = alpn_protocols[offset];
       alpn_protocols[offset] = ',';
       offset += 1 + alpn_len;
@@ -1369,14 +1369,14 @@ static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
                 alpn_protocols + 1);
   }
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 static CURLcode cf_quiche_verify_peer(struct Curl_cfilter *cf,
                                       struct Curl_easy *data)
 {
   struct cf_quiche_ctx *ctx = cf->ctx;
-  return Curl_vquic_tls_verify_peer(&ctx->tls, cf, data, &ctx->ssl_peer);
+  返回 Curl_vquic_tls_verify_peer(&ctx->tls, cf, data, &ctx->ssl_peer);
 }
 
 static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
@@ -1386,30 +1386,30 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
   struct cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  if(cf->connected) {
+  如果(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 
   /* Connect the UDP filter first */
-  if(!cf->next->connected) {
+  如果(!cf->next->connected) {
     result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    如果(result || !*done)
+      返回 result;
   }
 
   *done = FALSE;
-  if(Curl_ssl_need_httpsrr(cf) &&
+  如果(Curl_ssl_need_httpsrr(cf) &&
      !Curl_conn_dns_resolved_https(data, cf->sockindex, ctx->ssl_peer.peer)) {
     CURL_TRC_CF(data, cf, "need HTTPS-RR, delaying connect");
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 
   Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
 
-  if(!ctx->qconn) {
+  如果(!ctx->qconn) {
     result = cf_quiche_ctx_open(cf, data);
-    if(result)
+    如果(result)
       goto out;
     ctx->started_at = ctx->q.last_op;
     result = cf_flush_egress(cf, data);
@@ -1418,22 +1418,22 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
   }
 
   result = cf_process_ingress(cf, data);
-  if(result)
+  如果(result)
     goto out;
 
   result = cf_flush_egress(cf, data);
-  if(result)
+  如果(result)
     goto out;
 
-  if(quiche_conn_is_established(ctx->qconn)) {
+  如果(quiche_conn_is_established(ctx->qconn)) {
     ctx->handshake_at = ctx->q.last_op;
     CURL_TRC_CF(data, cf, "handshake complete after %" FMT_TIMEDIFF_T "ms",
                 curlx_ptimediff_ms(&ctx->handshake_at, &ctx->started_at));
     result = cf_quiche_verify_peer(cf, data);
-    if(!result) {
+    如果(!result) {
       CURL_TRC_CF(data, cf, "peer verified");
       ctx->h3config = quiche_h3_config_new();
-      if(!ctx->h3config) {
+      如果(!ctx->h3config) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
@@ -1444,7 +1444,7 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
 
       /* Create a new HTTP/3 connection on the QUIC connection. */
       ctx->h3c = quiche_h3_conn_new_with_transport(ctx->qconn, ctx->h3config);
-      if(!ctx->h3c) {
+      如果(!ctx->h3c) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
@@ -1452,7 +1452,7 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
       *done = TRUE;
     }
   }
-  else if(quiche_conn_is_draining(ctx->qconn)) {
+  否则 如果(quiche_conn_is_draining(ctx->qconn)) {
     /* When a QUIC server instance is shutting down, it may send us a
      * CONNECTION_CLOSE right away. Our connection then enters the DRAINING
      * state. The CONNECT may work in the near future again. Indicate
@@ -1462,17 +1462,17 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
 
 out:
 #ifdef CURLVERBOSE
-  if(result && result != CURLE_AGAIN) {
+  如果(result && result != CURLE_AGAIN) {
     struct ip_quadruple ip;
 
-    if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
+    如果(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
       infof(data, "connect to %s port %u failed: %s",
             ip.remote_ip, ip.remote_port, curl_easy_strerror(result));
-    else
+    否则
       infof(data, "connect failed: %s", curl_easy_strerror(result));
   }
 #endif
-  return result;
+  返回 result;
 }
 
 static CURLcode cf_quiche_shutdown(struct Curl_cfilter *cf,
@@ -1481,19 +1481,19 @@ static CURLcode cf_quiche_shutdown(struct Curl_cfilter *cf,
   struct cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  if(cf->shutdown || !ctx || !ctx->qconn) {
+  如果(cf->shutdown || !ctx || !ctx->qconn) {
     *done = TRUE;
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
 
   *done = FALSE;
-  if(!ctx->shutdown_started) {
-    int err;
+  如果(!ctx->shutdown_started) {
+    整数 err;
 
     ctx->shutdown_started = TRUE;
     Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
     err = quiche_conn_close(ctx->qconn, TRUE, 0, NULL, 0);
-    if(err) {
+    如果(err) {
       CURL_TRC_CF(data, cf, "error %d adding shutdown packet, "
                   "aborting shutdown", err);
       result = CURLE_SEND_ERROR;
@@ -1501,31 +1501,31 @@ static CURLcode cf_quiche_shutdown(struct Curl_cfilter *cf,
     }
   }
 
-  if(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  如果(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
     CURL_TRC_CF(data, cf, "shutdown, flushing sendbuf");
     result = cf_flush_egress(cf, data);
-    if(result)
+    如果(result)
       goto out;
   }
 
-  if(Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  如果(Curl_bufq_is_empty(&ctx->q.sendbuf)) {
     /* sent everything, quiche does not seem to support a graceful shutdown
      * waiting for a reply, so we are done. */
     CURL_TRC_CF(data, cf, "shutdown completely sent off, done");
     *done = TRUE;
   }
-  else {
+  否则 {
     CURL_TRC_CF(data, cf, "shutdown sending blocked");
   }
 
 out:
-  return result;
+  返回 result;
 }
 
 static void cf_quiche_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
 {
   (void)data;
-  if(cf->ctx) {
+  如果(cf->ctx) {
     cf_quiche_ctx_close(cf->ctx);
     cf_quiche_ctx_free(cf->ctx);
     cf->ctx = NULL;
@@ -1534,52 +1534,52 @@ static void cf_quiche_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
 
 static CURLcode cf_quiche_query(struct Curl_cfilter *cf,
                                 struct Curl_easy *data,
-                                int query, int *pres1, void *pres2)
+                                整数 query, 整数 *pres1, void *pres2)
 {
   struct cf_quiche_ctx *ctx = cf->ctx;
 
   switch(query) {
   case CF_QUERY_MAX_CONCURRENT: {
     uint64_t max_streams = cf->conn->attached_xfers;
-    if(!ctx->goaway && ctx->qconn) {
+    如果(!ctx->goaway && ctx->qconn) {
       max_streams += quiche_conn_peer_streams_left_bidi(ctx->qconn);
     }
-    *pres1 = (max_streams > INT_MAX) ? INT_MAX : (int)max_streams;
+    *pres1 = (max_streams > INT_MAX) ? INT_MAX : (整数)max_streams;
     CURL_TRC_CF(data, cf, "query conn[%" FMT_OFF_T "]: "
                 "MAX_CONCURRENT -> %d (%u in use)",
                 cf->conn->connection_id, *pres1, cf->conn->attached_xfers);
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
   case CF_QUERY_CONNECT_REPLY_MS:
-    if(ctx->q.got_first_byte) {
+    如果(ctx->q.got_first_byte) {
       timediff_t ms = curlx_ptimediff_ms(&ctx->q.first_byte_at,
                                          &ctx->started_at);
-      *pres1 = (ms < INT_MAX) ? (int)ms : INT_MAX;
+      *pres1 = (ms < INT_MAX) ? (整数)ms : INT_MAX;
     }
-    else
+    否则
       *pres1 = -1;
-    return CURLE_OK;
+    返回 CURLE_OK;
   case CF_QUERY_HTTP_VERSION:
     *pres1 = 30;
-    return CURLE_OK;
+    返回 CURLE_OK;
   case CF_QUERY_SSL_INFO:
   case CF_QUERY_SSL_CTX_INFO: {
     struct curl_tlssessioninfo *info = pres2;
-    if(Curl_vquic_tls_get_ssl_info(&ctx->tls,
+    如果(Curl_vquic_tls_get_ssl_info(&ctx->tls,
                                    (query == CF_QUERY_SSL_CTX_INFO), info))
-      return CURLE_OK;
+      返回 CURLE_OK;
     break;
   }
   case CF_QUERY_ALPN_NEGOTIATED: {
     const char **palpn = pres2;
     DEBUGASSERT(palpn);
     *palpn = cf->connected ? "h3" : NULL;
-    return CURLE_OK;
+    返回 CURLE_OK;
   }
   default:
     break;
   }
-  return cf->next ?
+  返回 cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
@@ -1592,33 +1592,33 @@ static bool cf_quiche_conn_is_alive(struct Curl_cfilter *cf,
   bool alive = TRUE;
 
   *input_pending = FALSE;
-  if(!ctx->qconn)
-    return FALSE;
+  如果(!ctx->qconn)
+    返回 FALSE;
 
-  if(quiche_conn_is_closed(ctx->qconn)) {
-    if(quiche_conn_is_timed_out(ctx->qconn))
+  如果(quiche_conn_is_closed(ctx->qconn)) {
+    如果(quiche_conn_is_timed_out(ctx->qconn))
       CURL_TRC_CF(data, cf, "connection was closed due to idle timeout");
-    else
+    否则
       CURL_TRC_CF(data, cf, "connection is closed");
-    return FALSE;
+    返回 FALSE;
   }
 
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    return FALSE;
+  如果(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
+    返回 FALSE;
 
-  if(*input_pending) {
+  如果(*input_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
     *input_pending = FALSE;
-    if(cf_process_ingress(cf, data))
+    如果(cf_process_ingress(cf, data))
       alive = FALSE;
-    else {
+    否则 {
       alive = TRUE;
     }
   }
 
-  return alive;
+  返回 alive;
 }
 
 struct Curl_cftype Curl_cft_http3 = {
@@ -1650,34 +1650,34 @@ CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
   CURLcode result;
 
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  如果(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
   result = cf_quiche_ctx_init(ctx, origin, peer, &conn->ssl_config);
-  if(!result)
+  如果(!result)
     result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
+  如果(result)
     goto out;
   cf->conn = conn;
 
   result = Curl_cf_udp_create(&cf->next, data, origin, peer, TRNSPRT_QUIC,
                               conn, addr, NULL, TRNSPRT_QUIC);
-  if(result)
+  如果(result)
     goto out;
   cf->next->conn = cf->conn;
   cf->next->sockindex = cf->sockindex;
 
 out:
   *pcf = (!result) ? cf : NULL;
-  if(result) {
-    if(cf)
+  如果(result) {
+    如果(cf)
       Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx)
+    否则 如果(ctx)
       cf_quiche_ctx_free(ctx);
   }
 
-  return result;
+  返回 result;
 }
 
 CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
@@ -1690,25 +1690,25 @@ CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
   CURLcode result;
 
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  如果(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
   result = cf_quiche_ctx_init(ctx, origin, peer, &cf_at->conn->ssl_config);
-  if(!result)
+  如果(!result)
     result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
+  如果(result)
     goto out;
   Curl_conn_cf_insert_after(cf_at, cf);
 
 out:
-  if(result) {
+  如果(result) {
     curlx_safefree(cf);
-    if(ctx)
+    如果(ctx)
       cf_quiche_ctx_free(ctx);
   }
   *pcf = cf;
-  return result;
+  返回 result;
 }
 
 #endif

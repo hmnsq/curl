@@ -54,42 +54,42 @@
  */
 UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
                           const char *network, /* 1.2.3.4 address */
-                          int bits);
+                          整数 bits);
 UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
                           const char *network, /* 1.2.3.4 address */
-                          int bits)
+                          整数 bits)
 {
-  unsigned int address = 0;
-  unsigned int check = 0;
+  unsigned 整数 address = 0;
+  unsigned 整数 check = 0;
 
-  if(bits > 32)
+  如果(bits > 32)
     /* strange input */
-    return FALSE;
+    返回 FALSE;
 
-  if(curlx_inet_pton(AF_INET, ipv4, &address) != 1)
-    return FALSE;
-  if(curlx_inet_pton(AF_INET, network, &check) != 1)
-    return FALSE;
+  如果(curlx_inet_pton(AF_INET, ipv4, &address) != 1)
+    返回 FALSE;
+  如果(curlx_inet_pton(AF_INET, network, &check) != 1)
+    返回 FALSE;
 
-  if((bits > 0) && (bits != 32)) {
-    unsigned int mask = 0xffffffff << (32 - bits);
-    unsigned int haddr = htonl(address);
-    unsigned int hcheck = htonl(check);
-#if 0
+  如果((bits > 0) && (bits != 32)) {
+    unsigned 整数 mask = 0xffffffff << (32 - bits);
+    unsigned 整数 haddr = htonl(address);
+    unsigned 整数 hcheck = htonl(check);
+#如果 0
     curl_mfprintf(stderr, "Host %s (%x) network %s (%x) "
                   "bits %u mask %x => %x\n",
                   ipv4, haddr, network, hcheck, bits, mask,
                   (haddr ^ hcheck) & mask);
 #endif
-    if((haddr ^ hcheck) & mask)
-      return FALSE;
-    return TRUE;
+    如果((haddr ^ hcheck) & mask)
+      返回 FALSE;
+    返回 TRUE;
   }
-  else if(!bits && !check)
+  否则 如果(!bits && !check)
     /* 0.0.0.0/0 matches everything */
-    return TRUE;
+    返回 TRUE;
 
-  return address == check;
+  返回 address == check;
 }
 
 /*
@@ -101,42 +101,42 @@ UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
  * @unittest 1614
  */
 UNITTEST bool cidr6_match(const char *ipv6, const char *network,
-                          int bits);
+                          整数 bits);
 UNITTEST bool cidr6_match(const char *ipv6, const char *network,
-                          int bits)
+                          整数 bits)
 {
 #ifdef USE_IPV6
   static const char null6[16]= { 0 };
-  unsigned int bytes;
-  unsigned int rest;
+  unsigned 整数 bytes;
+  unsigned 整数 rest;
   unsigned char address[16];
   unsigned char check[16];
 
-  if(bits == -1)
+  如果(bits == -1)
     bits = 128;
 
   bytes = bits / 8;
   rest = bits & 0x07;
-  if((bytes > 16) || ((bytes == 16) && rest))
-    return FALSE;
-  if(curlx_inet_pton(AF_INET6, ipv6, address) != 1)
-    return FALSE;
-  if(curlx_inet_pton(AF_INET6, network, check) != 1)
-    return FALSE;
-  if((bytes == 16) && !bits && !memcmp(null6, check, 16))
+  如果((bytes > 16) || ((bytes == 16) && rest))
+    返回 FALSE;
+  如果(curlx_inet_pton(AF_INET6, ipv6, address) != 1)
+    返回 FALSE;
+  如果(curlx_inet_pton(AF_INET6, network, check) != 1)
+    返回 FALSE;
+  如果((bytes == 16) && !bits && !memcmp(null6, check, 16))
     /* ::/0 matches everything */
-    return TRUE;
-  if(bytes && memcmp(address, check, bytes))
-    return FALSE;
-  if(rest && ((address[bytes] ^ check[bytes]) & (0xff << (8 - rest))))
-    return FALSE;
+    返回 TRUE;
+  如果(bytes && memcmp(address, check, bytes))
+    返回 FALSE;
+  如果(rest && ((address[bytes] ^ check[bytes]) & (0xff << (8 - rest))))
+    返回 FALSE;
 
-  return TRUE;
-#else
+  返回 TRUE;
+#否则
   (void)ipv6;
   (void)network;
   (void)bits;
-  return FALSE;
+  返回 FALSE;
 #endif
 }
 
@@ -152,10 +152,10 @@ static bool match_host(const char *token, size_t tokenlen,
   bool match = FALSE;
 
   /* ignore trailing dots in the token to check */
-  if(token[tokenlen - 1] == '.')
+  如果(token[tokenlen - 1] == '.')
     tokenlen--;
 
-  if(tokenlen && (*token == '.')) {
+  如果(tokenlen && (*token == '.')) {
     /* ignore leading token dot as well */
     token++;
     tokenlen--;
@@ -164,46 +164,46 @@ static bool match_host(const char *token, size_t tokenlen,
      B: www.example.com matches 'example.com'
      C: nonexample.com DOES NOT match 'example.com'
    */
-  if(tokenlen == namelen)
+  如果(tokenlen == namelen)
     /* case A, exact match */
     match = curl_strnequal(token, name, namelen);
-  else if(tokenlen < namelen) {
+  否则 如果(tokenlen < namelen) {
     /* case B, tailmatch domain */
     match = (name[namelen - tokenlen - 1] == '.') &&
             curl_strnequal(token, name + (namelen - tokenlen), tokenlen);
   }
   /* case C passes through, not a match */
-  return match;
+  返回 match;
 }
 
-static bool match_ip(int type, const char *token, size_t tokenlen,
+static bool match_ip(整数 type, const char *token, size_t tokenlen,
                      const char *name)
 {
   char *slash;
-  int bits = -1; /* negative means not provided */
+  整数 bits = -1; /* negative means not provided */
   char checkip[128];
-  if(tokenlen >= sizeof(checkip))
+  如果(tokenlen >= sizeof(checkip))
     /* this cannot match */
-    return FALSE;
+    返回 FALSE;
   /* copy the check name to a temp buffer */
   memcpy(checkip, token, tokenlen);
   checkip[tokenlen] = 0;
 
   slash = strchr(checkip, '/');
   /* if the slash is part of this token, use it */
-  if(slash) {
+  如果(slash) {
     curl_off_t value;
     const char *p = &slash[1];
-    if(curlx_str_number(&p, &value, 128) || *p)
-      return FALSE;
+    如果(curlx_str_number(&p, &value, 128) || *p)
+      返回 FALSE;
     /* a too large value is rejected in the cidr function below */
-    bits = (int)value;
+    bits = (整数)value;
     *slash = 0; /* null-terminate there */
   }
-  if(type == TYPE_IPV6)
-    return cidr6_match(name, checkip, bits);
-  else
-    return cidr4_match(name, checkip, bits);
+  如果(type == TYPE_IPV6)
+    返回 cidr6_match(name, checkip, bits);
+  否则
+    返回 cidr4_match(name, checkip, bits);
 }
 
 /****************************************************************
@@ -218,39 +218,39 @@ UNITTEST bool proxy_check_noproxy(const char *name, const char *no_proxy)
    * If we do not have a hostname at all, like for example with a FILE
    * transfer, we have nothing to interrogate the noproxy list with.
    */
-  if(!name || name[0] == '\0')
-    return FALSE;
+  如果(!name || name[0] == '\0')
+    返回 FALSE;
 
   /* no_proxy=domain1.dom,host.domain2.dom
    *   (a comma-separated list of hosts which should
    *   not be proxied, or an asterisk to override
    *   all proxy variables)
    */
-  if(no_proxy && no_proxy[0]) {
+  如果(no_proxy && no_proxy[0]) {
     const char *p = no_proxy;
     size_t namelen;
     char address[16];
     enum nametype type = TYPE_HOST;
-    if(!strcmp("*", no_proxy))
-      return TRUE;
+    如果(!strcmp("*", no_proxy))
+      返回 TRUE;
 
     /* NO_PROXY was specified and it was not only an asterisk */
 
     /* Check if name is an IP address; if not, assume it being a hostname. */
     namelen = strlen(name);
-    if(curlx_inet_pton(AF_INET, name, &address) == 1)
+    如果(curlx_inet_pton(AF_INET, name, &address) == 1)
       type = TYPE_IPV4;
 #ifdef USE_IPV6
-    else if(curlx_inet_pton(AF_INET6, name, &address) == 1)
+    否则 如果(curlx_inet_pton(AF_INET6, name, &address) == 1)
       type = TYPE_IPV6;
 #endif
-    else {
+    否则 {
       /* ignore trailing dots in the hostname */
-      if(name[namelen - 1] == '.')
+      如果(name[namelen - 1] == '.')
         namelen--;
     }
 
-    while(*p) {
+    当(*p) {
       const char *token;
       size_t tokenlen = 0;
 
@@ -259,34 +259,34 @@ UNITTEST bool proxy_check_noproxy(const char *name, const char *no_proxy)
 
       token = p;
       /* pass over the pattern */
-      while(*p && !ISBLANK(*p) && (*p != ',')) {
+      当(*p && !ISBLANK(*p) && (*p != ',')) {
         p++;
         tokenlen++;
       }
 
-      if(tokenlen) {
+      如果(tokenlen) {
         bool match = FALSE;
-        if(type == TYPE_HOST)
+        如果(type == TYPE_HOST)
           match = match_host(token, tokenlen, name, namelen);
-        else
+        否则
           match = match_ip(type, token, tokenlen, name);
 
-        if(match)
-          return TRUE;
+        如果(match)
+          返回 TRUE;
       }
 
       /* pass blanks after pattern */
       curlx_str_passblanks(&p);
       /* if not a comma, this ends the loop */
-      if(*p != ',')
+      如果(*p != ',')
         break;
       /* pass any number of commas */
-      while(*p == ',')
+      当(*p == ',')
         p++;
     } /* while(*p) */
   } /* NO_PROXY was specified and it was not only an asterisk */
 
-  return FALSE;
+  返回 FALSE;
 }
 
 #ifndef CURL_DISABLE_HTTP
@@ -322,28 +322,28 @@ static char *proxy_detect_proxy(struct Curl_easy *data,
 
   /* Try scheme specific env var first, unless http(s).
    * lowercase first, then uppercase. */
-  if((scheme != &Curl_scheme_https) && (scheme != &Curl_scheme_http)) {
+  如果((scheme != &Curl_scheme_https) && (scheme != &Curl_scheme_http)) {
     curl_msnprintf(name_buf, sizeof(name_buf), "%s_proxy", scheme->name);
     env_name = name_buf;
     proxy = curl_getenv(env_name);
-    if(!proxy) {
+    如果(!proxy) {
       Curl_strntoupper(name_buf, name_buf, sizeof(name_buf));
       proxy = curl_getenv(env_name);
     }
   }
 
-  if(!proxy &&
+  如果(!proxy &&
      ((scheme == &Curl_scheme_https) || (scheme == &Curl_scheme_wss))) {
     /* Not found, check 'https' env vars, also for 'wss'.
      * Again, first lowercase then uppercase. */
     env_name = "https_proxy";
     proxy = curl_getenv(env_name);
-    if(!proxy) {
+    如果(!proxy) {
       env_name = "HTTPS_PROXY";
       proxy = curl_getenv(env_name);
     }
   }
-  else if(!proxy &&
+  否则 如果(!proxy &&
           ((scheme == &Curl_scheme_http) || (scheme == &Curl_scheme_ws))) {
     /* Not found, check 'http' env vars, also for 'ws'.
      * We do NOT try the uppercase version 'HTTP_PROXY' because of
@@ -361,20 +361,20 @@ static char *proxy_detect_proxy(struct Curl_easy *data,
     proxy = curl_getenv(env_name);
   }
 
-  if(!proxy) {
+  如果(!proxy) {
     /* still not found, last resort checks. */
     env_name = "all_proxy";
     proxy = curl_getenv(env_name);
-    if(!proxy) {
+    如果(!proxy) {
       env_name = "ALL_PROXY";
       proxy = curl_getenv(env_name);
     }
   }
 
-  if(proxy)
+  如果(proxy)
     infof(data, "Uses proxy env variable %s == '%s'", env_name, proxy);
 
-  return proxy;
+  返回 proxy;
 }
 #endif /* CURL_DISABLE_HTTP */
 
@@ -397,7 +397,7 @@ static CURLcode parse_proxy(struct Curl_easy *data,
   CURLU *uhp = curl_url();
   CURLUcode uc;
 
-  if(!uhp) {
+  如果(!uhp) {
     result = CURLE_OUT_OF_MEMORY;
     goto error;
   }
@@ -405,21 +405,21 @@ static CURLcode parse_proxy(struct Curl_easy *data,
      these made up ones for proxies. Guess scheme for URLs without it. */
   uc = curl_url_set(uhp, CURLUPART_URL, proxy,
                     CURLU_NON_SUPPORT_SCHEME | CURLU_GUESS_SCHEME);
-  if(!uc) {
+  如果(!uc) {
     /* parsed okay as a URL - only update proxytype when scheme was explicit */
     uc = curl_url_get(uhp, CURLUPART_SCHEME, &scheme, CURLU_NO_GUESS_SCHEME);
-    if(!uc) {
+    如果(!uc) {
       result = Curl_scheme_to_proxytype(data, scheme, &proxytype, proxy);
-      if(result)
+      如果(result)
         goto error;
     }
-    else if(uc != CURLUE_NO_SCHEME) {
+    否则 如果(uc != CURLUE_NO_SCHEME) {
       result = CURLE_OUT_OF_MEMORY;
       goto error;
     }
     /* else: no explicit scheme, keep the configured proxytype */
   }
-  else {
+  否则 {
     failf(data, "Unsupported proxy syntax in \'%s\': %s", proxy,
           curl_url_strerror(uc));
     result = CURLE_COULDNT_RESOLVE_PROXY;
@@ -428,7 +428,7 @@ static CURLcode parse_proxy(struct Curl_easy *data,
 
   result = Curl_peer_from_proxy_url(uhp, data, proxy, proxytype,
                                     &proxyinfo->peer, &proxytype);
-  if(result)
+  如果(result)
     goto error;
 
   switch(proxytype) {
@@ -437,7 +437,7 @@ static CURLcode parse_proxy(struct Curl_easy *data,
     case CURLPROXY_HTTPS:
     case CURLPROXY_HTTPS2:
     case CURLPROXY_HTTPS3:
-      if(for_pre_proxy) {
+      如果(for_pre_proxy) {
         failf(data, "Unsupported pre-proxy type for \'%s\'", proxy);
         result = CURLE_COULDNT_RESOLVE_PROXY;
         goto error;
@@ -456,24 +456,24 @@ static CURLcode parse_proxy(struct Curl_easy *data,
 
   /* Is there a username and password given in this proxy URL? */
   uc = curl_url_get(uhp, CURLUPART_USER, &proxyuser, CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_USER)) {
+  如果(uc && (uc != CURLUE_NO_USER)) {
     result = Curl_uc_to_curlcode(uc);
     goto error;
   }
   uc = curl_url_get(uhp, CURLUPART_PASSWORD, &proxypasswd, CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_PASSWORD)) {
+  如果(uc && (uc != CURLUE_NO_PASSWORD)) {
     result = Curl_uc_to_curlcode(uc);
     goto error;
   }
 
-  if(proxyuser || proxypasswd) {
+  如果(proxyuser || proxypasswd) {
     result = Curl_creds_create(proxyuser, proxypasswd, NULL, NULL,
                                CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME),
                                CREDS_URL, &proxyinfo->creds);
-    if(result)
+    如果(result)
       goto error;
   }
-  else if(!for_pre_proxy &&
+  否则 如果(!for_pre_proxy &&
           (CURL_EASY_STR(data, STRING_PROXYUSERNAME) ||
            CURL_EASY_STR(data, STRING_PROXYPASSWORD) ||
            CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME))) {
@@ -485,7 +485,7 @@ static CURLcode parse_proxy(struct Curl_easy *data,
                                CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME),
                                CREDS_OPTION, &proxyinfo->creds);
   }
-  else
+  否则
     Curl_creds_unlink(&proxyinfo->creds);
 
   proxyinfo->proxytype = proxytype;
@@ -496,12 +496,12 @@ error:
   curlx_free(proxypasswd);
   curl_url_cleanup(uhp);
 #ifdef DEBUGBUILD
-  if(!result) {
+  如果(!result) {
     DEBUGASSERT(proxyinfo);
     DEBUGASSERT(proxyinfo->peer);
   }
 #endif
-  return result;
+  返回 result;
 }
 
 /* Is transfer's origin exempted from proxy use? */
@@ -512,25 +512,25 @@ static bool proxy_do_not_proxy(struct Curl_easy *data)
   bool do_not_proxy;
 
   /* no proxying if the transfer does not use the network */
-  if(data->state.origin->scheme->flags & PROTOPT_NONETWORK)
-    return TRUE;
+  如果(data->state.origin->scheme->flags & PROTOPT_NONETWORK)
+    返回 TRUE;
 
   no_proxy = CURL_EASY_STR(data, STRING_NOPROXY);
-  if(!no_proxy) {
+  如果(!no_proxy) {
     const char *p = "no_proxy";
     env_no_proxy = curl_getenv(p);
-    if(!env_no_proxy) {
+    如果(!env_no_proxy) {
       p = "NO_PROXY";
       env_no_proxy = curl_getenv(p);
     }
-    if(env_no_proxy)
+    如果(env_no_proxy)
       infof(data, "Uses proxy env variable %s == '%s'", p, env_no_proxy);
     no_proxy = env_no_proxy;
   }
 
   do_not_proxy = proxy_check_noproxy(data->state.origin->hostname, no_proxy);
   curlx_safefree(env_no_proxy);
-  return do_not_proxy;
+  返回 do_not_proxy;
 }
 
 CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
@@ -547,7 +547,7 @@ CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
   DEBUGASSERT(!conn->socks_proxy.peer);
   DEBUGASSERT(!conn->http_proxy.peer);
 
-  if(proxy_do_not_proxy(data))
+  如果(proxy_do_not_proxy(data))
     goto out;
 
   /*************************************************************
@@ -555,55 +555,55 @@ CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
    *************************************************************/
   /* the empty config strings disable proxy use and env detects */
   str = CURL_EASY_STR(data, STRING_PROXY);
-  if(str) {
-    if(*str) {
+  如果(str) {
+    如果(*str) {
       proxy = curlx_strdup(str);
       /* if global proxy is set, this is it */
-      if(!proxy) {
+      如果(!proxy) {
         failf(data, "memory shortage");
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
     }
-    else
+    否则
       do_env_detect = FALSE;
   }
 
   str = CURL_EASY_STR(data, STRING_PRE_PROXY);
-  if(str) {
-    if(*str) {
+  如果(str) {
+    如果(*str) {
       pre_proxy = curlx_strdup(str);
       /* if global socks proxy is set, this is it */
-      if(!pre_proxy) {
+      如果(!pre_proxy) {
         failf(data, "memory shortage");
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
     }
-    else
+    否则
       do_env_detect = FALSE;
   }
 
 #ifndef CURL_DISABLE_HTTP
   /* None configured, detect possible proxy from environment. */
-  if(!proxy && !pre_proxy && do_env_detect)
+  如果(!proxy && !pre_proxy && do_env_detect)
     proxy = proxy_detect_proxy(data, conn->scheme);
-#else
+#否则
   (void)do_env_detect;
 #endif /* CURL_DISABLE_HTTP */
 
-  if(!proxy && !pre_proxy)
+  如果(!proxy && !pre_proxy)
     goto out;
 
-  if(pre_proxy) {
+  如果(pre_proxy) {
     result = parse_proxy(data, pre_proxy, TRUE, &conn->socks_proxy);
-    if(result)
+    如果(result)
       goto out;
   }
 
-  if(proxy) {
+  如果(proxy) {
     result = parse_proxy(data, proxy, FALSE, &conn->http_proxy);
-    if(result)
+    如果(result)
       goto out;
 
     switch(conn->http_proxy.proxytype) {
@@ -612,7 +612,7 @@ CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
     case CURLPROXY_SOCKS5:
     case CURLPROXY_SOCKS5_HOSTNAME:
       /* Whoops, it is not an HTTP proxy */
-      if(pre_proxy) {
+      如果(pre_proxy) {
         /* and we already have a SOCKS pre-proxy. Cannot have both */
         failf(data, "Having a SOCKS pre-proxy and proxy is not "
               "supported with \'%s\'", proxy);
@@ -629,45 +629,45 @@ CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
     }
   }
 
-  if(conn->socks_proxy.peer) {
+  如果(conn->socks_proxy.peer) {
     DEBUGASSERT(!CURL_PROXY_IS_ANY_HTTP(conn->socks_proxy.proxytype));
   }
 
 #ifdef CURL_DISABLE_HTTP
-  if(conn->http_proxy.peer) {
+  如果(conn->http_proxy.peer) {
     /* asking for an HTTP proxy is a bit funny when HTTP is disabled... */
     result = CURLE_UNSUPPORTED_PROTOCOL;
     goto out;
   }
 
-#else /* CURL_DISABLE_HTTP */
-  if(conn->http_proxy.peer) {
+#否则 /* CURL_DISABLE_HTTP */
+  如果(conn->http_proxy.peer) {
     const struct Curl_scheme *scheme = data->state.origin->scheme;
     bool tunnel_proxy = (bool)data->set.tunnel_thru_httpproxy;
     DEBUGASSERT(CURL_PROXY_IS_ANY_HTTP(conn->http_proxy.proxytype));
 
-    if(!tunnel_proxy) {
+    如果(!tunnel_proxy) {
       /* Decide if we tunnel through proxy automatically */
-      if(conn->via_peer) {
+      如果(conn->via_peer) {
         /* With connect-to, we always tunnel */
         tunnel_proxy = TRUE;
       }
-      else if(scheme->flags & PROTOPT_SSL) {
+      否则 如果(scheme->flags & PROTOPT_SSL) {
         /* If the transfer is supposed to be secure, we tunnel */
         tunnel_proxy = TRUE;
       }
-      else if(scheme->flags & PROTOPT_HTTP_PROXY_TUNNEL) {
+      否则 如果(scheme->flags & PROTOPT_HTTP_PROXY_TUNNEL) {
         /* transfer scheme required tunneling */
         tunnel_proxy = TRUE;
       }
-      else if(!(scheme->protocol & PROTO_FAMILY_HTTP) &&
+      否则 如果(!(scheme->protocol & PROTO_FAMILY_HTTP) &&
               !(scheme->flags & PROTOPT_PROXY_AS_HTTP)) {
         /* Cannot delegate transfer URL to HTTP proxy */
         tunnel_proxy = TRUE;
       }
     }
 
-    if(!tunnel_proxy) {
+    如果(!tunnel_proxy) {
       /* HTTP proxy used in forwarding mode. This means the connection
        * is really to the proxy and NOT the origin of the transfer. */
       DEBUGASSERT(!conn->via_peer);
@@ -677,7 +677,7 @@ CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
     }
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
-    if(!Curl_safecmp(data->state.envproxy, proxy)) {
+    如果(!Curl_safecmp(data->state.envproxy, proxy)) {
       /* proxy changed */
       Curl_auth_digest_cleanup(&data->state.proxydigest);
       curlx_free(data->state.envproxy);
@@ -690,7 +690,7 @@ CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
 out:
   curlx_free(pre_proxy);
   curlx_free(proxy);
-  return result;
+  返回 result;
 }
 
 #endif /* CURL_DISABLE_PROXY */

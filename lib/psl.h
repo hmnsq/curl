@@ -41,7 +41,7 @@ const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy);
 void Curl_psl_release(struct Curl_easy *easy);
 void Curl_psl_destroy(struct PslCache *pslcache);
 
-#else
+#否则
 
 #define Curl_psl_use(easy) NULL
 #define Curl_psl_release(easy)

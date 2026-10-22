@@ -37,7 +37,7 @@
 void Curl_http2_ver(char *p, size_t len);
 
 #ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
+整数 Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
                           size_t blen);
 #endif
 
@@ -64,7 +64,7 @@ void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data);
 
 extern struct Curl_cftype Curl_cft_nghttp2;
 
-#else /* USE_NGHTTP2 */
+#否则 /* USE_NGHTTP2 */
 
 #define Curl_http2_may_switch(a) FALSE
 

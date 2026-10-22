@@ -52,17 +52,17 @@ char *Curl_auth_build_spn(const char *service, const char *host,
   char *spn = NULL;
 
   /* Generate our SPN */
-  if(host && realm)
+  如果(host && realm)
     spn = curl_maprintf("%s/%s@%s", service, host, realm);
-  else if(host)
+  否则 如果(host)
     spn = curl_maprintf("%s/%s", service, host);
-  else if(realm)
+  否则 如果(realm)
     spn = curl_maprintf("%s@%s", service, realm);
 
   /* Return our newly allocated SPN */
-  return spn;
+  返回 spn;
 }
-#else
+#否则
 TCHAR *Curl_auth_build_spn(const char *service, const char *host,
                            const char *realm)
 {
@@ -80,14 +80,14 @@ TCHAR *Curl_auth_build_spn(const char *service, const char *host,
 
   /* Generate our UTF8 based SPN */
   utf8_spn = curl_maprintf("%s/%s", service, host);
-  if(!utf8_spn)
-    return NULL;
+  如果(!utf8_spn)
+    返回 NULL;
 
   /* Allocate and return a TCHAR based SPN. */
   tchar_spn = curlx_convert_UTF8_to_tchar(utf8_spn);
   curlx_free(utf8_spn);
 
-  return tchar_spn;
+  返回 tchar_spn;
 }
 #endif /* USE_WINDOWS_SSPI */
 
@@ -116,21 +116,21 @@ bool Curl_auth_user_contains_domain(struct Curl_creds *creds)
 {
   bool valid = FALSE;
 
-  if(Curl_creds_has_user(creds)) {
+  如果(Curl_creds_has_user(creds)) {
     /* Check we have a domain name or UPN present */
     const char *p = strpbrk(creds->user, "\\/@");
 
     valid = p && (p > creds->user) &&
             (p < (creds->user + strlen(creds->user) - 1));
   }
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  else
+#如果 defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  否则
     /* User and domain are obtained from the GSS-API credentials cache or the
        currently logged in user from Windows */
     valid = TRUE;
 #endif
 
-  return valid;
+  返回 valid;
 }
 
 /*
@@ -139,13 +139,13 @@ bool Curl_auth_user_contains_domain(struct Curl_creds *creds)
  */
 bool Curl_auth_allowed_to_host(struct Curl_easy *data)
 {
-  return Curl_auth_allowed_to_origin(data, data->state.origin);
+  返回 Curl_auth_allowed_to_origin(data, data->state.origin);
 }
 
 bool Curl_auth_allowed_to_origin(struct Curl_easy *data,
                                  struct Curl_peer *origin)
 {
-  return data->set.allow_auth_to_other_hosts ||
+  返回 data->set.allow_auth_to_other_hosts ||
          Curl_peer_equal(data->state.initial_origin, origin);
 }
 
@@ -164,12 +164,12 @@ struct ntlmdata *Curl_auth_ntlm_get(struct connectdata *conn, bool proxy)
 {
   const char *key = proxy ? CURL_META_NTLM_PROXY_CONN : CURL_META_NTLM_CONN;
   struct ntlmdata *ntlm = Curl_conn_meta_get(conn, key);
-  if(!ntlm) {
+  如果(!ntlm) {
     ntlm = curlx_calloc(1, sizeof(*ntlm));
-    if(!ntlm || Curl_conn_meta_set(conn, key, ntlm, ntlm_conn_dtor))
-      return NULL;
+    如果(!ntlm || Curl_conn_meta_set(conn, key, ntlm, ntlm_conn_dtor))
+      返回 NULL;
   }
-  return ntlm;
+  返回 ntlm;
 }
 
 void Curl_auth_ntlm_remove(struct connectdata *conn, bool proxy)
@@ -193,13 +193,13 @@ static void krb5_conn_dtor(const void *key, size_t klen, void *entry)
 struct kerberos5data *Curl_auth_krb5_get(struct connectdata *conn)
 {
   struct kerberos5data *krb5 = Curl_conn_meta_get(conn, CURL_META_KRB5_CONN);
-  if(!krb5) {
+  如果(!krb5) {
     krb5 = curlx_calloc(1, sizeof(*krb5));
-    if(!krb5 ||
+    如果(!krb5 ||
        Curl_conn_meta_set(conn, CURL_META_KRB5_CONN, krb5, krb5_conn_dtor))
-      return NULL;
+      返回 NULL;
   }
-  return krb5;
+  返回 krb5;
 }
 #endif /* USE_KERBEROS5 */
 
@@ -217,13 +217,13 @@ static void gsasl_conn_dtor(const void *key, size_t klen, void *entry)
 struct gsasldata *Curl_auth_gsasl_get(struct connectdata *conn)
 {
   struct gsasldata *gsasl = Curl_conn_meta_get(conn, CURL_META_GSASL_CONN);
-  if(!gsasl) {
+  如果(!gsasl) {
     gsasl = curlx_calloc(1, sizeof(*gsasl));
-    if(!gsasl ||
+    如果(!gsasl ||
        Curl_conn_meta_set(conn, CURL_META_GSASL_CONN, gsasl, gsasl_conn_dtor))
-      return NULL;
+      返回 NULL;
   }
-  return gsasl;
+  返回 gsasl;
 }
 #endif /* USE_GSASL */
 
@@ -242,11 +242,11 @@ struct negotiatedata *Curl_auth_nego_get(struct connectdata *conn, bool proxy)
 {
   const char *key = proxy ? CURL_META_NEGO_PROXY_CONN : CURL_META_NEGO_CONN;
   struct negotiatedata *nego = Curl_conn_meta_get(conn, key);
-  if(!nego) {
+  如果(!nego) {
     nego = curlx_calloc(1, sizeof(*nego));
-    if(!nego || Curl_conn_meta_set(conn, key, nego, nego_conn_dtor))
-      return NULL;
+    如果(!nego || Curl_conn_meta_set(conn, key, nego, nego_conn_dtor))
+      返回 NULL;
   }
-  return nego;
+  返回 nego;
 }
 #endif /* USE_SPNEGO */

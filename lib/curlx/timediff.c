@@ -33,47 +33,47 @@
  */
 struct timeval *curlx_mstotv(struct timeval *tv, timediff_t ms)
 {
-  if(!tv)
-    return NULL;
+  如果(!tv)
+    返回 NULL;
 
-  if(ms < 0)
-    return NULL;
+  如果(ms < 0)
+    返回 NULL;
 
-  if(ms > 0) {
+  如果(ms > 0) {
     timediff_t tv_sec = ms / 1000;
     timediff_t tv_usec = (ms % 1000) * 1000; /* max=999000 */
 #ifdef HAVE_SUSECONDS_T
-#if TIMEDIFF_T_MAX > TIME_T_MAX
+#如果 TIMEDIFF_T_MAX > TIME_T_MAX
     /* tv_sec overflow check in case time_t is signed */
-    if(tv_sec > TIME_T_MAX)
+    如果(tv_sec > TIME_T_MAX)
       tv_sec = TIME_T_MAX;
 #endif
     tv->tv_sec = (time_t)tv_sec;
     tv->tv_usec = (suseconds_t)tv_usec;
 #elif defined(_WIN32) /* maybe also others in the future */
-#if TIMEDIFF_T_MAX > LONG_MAX
+#如果 TIMEDIFF_T_MAX > LONG_MAX
     /* tv_sec overflow check on Windows there we know it is long */
-    if(tv_sec > LONG_MAX)
+    如果(tv_sec > LONG_MAX)
       tv_sec = LONG_MAX;
 #endif
     tv->tv_sec = (long)tv_sec;
     tv->tv_usec = (long)tv_usec;
-#else
-#if TIMEDIFF_T_MAX > INT_MAX
+#否则
+#如果 TIMEDIFF_T_MAX > INT_MAX
     /* tv_sec overflow check in case time_t is signed */
-    if(tv_sec > INT_MAX)
+    如果(tv_sec > INT_MAX)
       tv_sec = INT_MAX;
 #endif
-    tv->tv_sec = (int)tv_sec;
-    tv->tv_usec = (int)tv_usec;
+    tv->tv_sec = (整数)tv_sec;
+    tv->tv_usec = (整数)tv_usec;
 #endif
   }
-  else {
+  否则 {
     tv->tv_sec = 0;
     tv->tv_usec = 0;
   }
 
-  return tv;
+  返回 tv;
 }
 
 /*
@@ -81,5 +81,5 @@ struct timeval *curlx_mstotv(struct timeval *tv, timediff_t ms)
  */
 timediff_t curlx_tvtoms(struct timeval *tv)
 {
-  return (tv->tv_sec * 1000) + (timediff_t)(tv->tv_usec / 1000);
+  返回 (tv->tv_sec * 1000) + (timediff_t)(tv->tv_usec / 1000);
 }

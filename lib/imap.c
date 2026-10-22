@@ -105,7 +105,7 @@ struct imap_conn {
   struct SASL sasl;           /* SASL-related parameters */
   char *mailbox;              /* The last selected mailbox */
   imapstate state;            /* Always use imap.c:state() to change state! */
-  unsigned int mb_uidvalidity; /* UIDVALIDITY parsed from select response */
+  unsigned 整数 mb_uidvalidity; /* UIDVALIDITY parsed from select response */
   char resptag[5];            /* Response tag to wait for */
   unsigned char preftype;     /* Preferred authentication type */
   unsigned char cmdid;        /* Last used command ID */
@@ -131,7 +131,7 @@ struct IMAP {
   char *query;            /* Query to search for */
   char *custom;           /* Custom request */
   char *custom_params;    /* Parameters for the custom request */
-  unsigned int uidvalidity; /* UIDVALIDITY to check in select */
+  unsigned 整数 uidvalidity; /* UIDVALIDITY to check in select */
   BIT(uidvalidity_set);
 };
 
@@ -140,7 +140,7 @@ struct IMAP {
 #define IMAP_RESP_PREAUTH  3
 
 struct ulbits {
-  int bit;
+  整数 bit;
   const char *flag;
 };
 
@@ -172,7 +172,7 @@ static CURLcode imap_sendf(struct Curl_easy *data,
   va_start(ap, fmt);
   result = Curl_pp_vsendf(data, &imapc->pp, imapc->resptag, fmt, ap);
   va_end(ap);
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -191,33 +191,33 @@ static char *imap_atom(const char *str, bool escape_only)
   size_t nclean;
   size_t len;
 
-  if(!str)
-    return NULL;
+  如果(!str)
+    返回 NULL;
 
   len = strlen(str);
   nclean = strcspn(str, "() {%*]\\\"");
-  if(len == nclean)
+  如果(len == nclean)
     /* nothing to escape, return a strdup */
-    return curlx_strdup(str);
+    返回 curlx_strdup(str);
 
   curlx_dyn_init(&line, 2000);
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
-    return NULL;
+  如果(!escape_only && curlx_dyn_addn(&line, "\"", 1))
+    返回 NULL;
 
-  while(*str) {
-    if((*str == '\\' || *str == '"') &&
+  当(*str) {
+    如果((*str == '\\' || *str == '"') &&
        curlx_dyn_addn(&line, "\\", 1))
-      return NULL;
-    if(curlx_dyn_addn(&line, str, 1))
-      return NULL;
+      返回 NULL;
+    如果(curlx_dyn_addn(&line, str, 1))
+      返回 NULL;
     str++;
   }
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
-    return NULL;
+  如果(!escape_only && curlx_dyn_addn(&line, "\"", 1))
+    返回 NULL;
 
-  return curlx_dyn_ptr(&line);
+  返回 curlx_dyn_ptr(&line);
 }
 
 /*
@@ -228,24 +228,24 @@ static const char *imap_find_literal(const char *line, size_t len)
   const char *end = line + len;
   bool in_quote = FALSE;
 
-  while(line < end) {
-    if(in_quote) {
-      if(*line == '\\' && (line + 1) < end) {
+  当(line < end) {
+    如果(in_quote) {
+      如果(*line == '\\' && (line + 1) < end) {
         line += 2;
         continue;
       }
-      if(*line == '"')
+      如果(*line == '"')
         in_quote = FALSE;
     }
-    else {
-      if(*line == '"')
+    否则 {
+      如果(*line == '"')
         in_quote = TRUE;
-      else if(*line == '{')
-        return line;
+      否则 如果(*line == '{')
+        返回 line;
     }
     line++;
   }
-  return NULL;
+  返回 NULL;
 }
 
 /***********************************************************************
@@ -267,26 +267,26 @@ static bool imap_matchresp(const char *line, size_t len, const char *cmd)
   line += 2;
 
   /* Do we have a number after the marker? */
-  if(line < end && ISDIGIT(*line)) {
+  如果(line < end && ISDIGIT(*line)) {
     /* Skip the number */
     do
       line++;
-    while(line < end && ISDIGIT(*line));
+    当(line < end && ISDIGIT(*line));
 
     /* Do we have the space character? */
-    if(line == end || *line != ' ')
-      return FALSE;
+    如果(line == end || *line != ' ')
+      返回 FALSE;
 
     line++;
   }
 
   /* Does the command name match and is it followed by a space character or at
      the end of line? */
-  if(line + cmd_len <= end && curl_strnequal(line, cmd, cmd_len) &&
+  如果(line + cmd_len <= end && curl_strnequal(line, cmd, cmd_len) &&
      (line[cmd_len] == ' ' || line + cmd_len + 2 == end))
-    return TRUE;
+    返回 TRUE;
 
-  return FALSE;
+  返回 FALSE;
 }
 
 /***********************************************************************
@@ -297,7 +297,7 @@ static bool imap_matchresp(const char *line, size_t len, const char *cmd)
  * response which can be processed by the response handler.
  */
 static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+                           const char *line, size_t len, 整数 *resp)
 {
   struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
   struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
@@ -306,37 +306,37 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
 
   DEBUGASSERT(imapc);
   DEBUGASSERT(imap);
-  if(!imapc || !imap)
-    return FALSE;
+  如果(!imapc || !imap)
+    返回 FALSE;
 
   /* Do we have a tagged command response? */
   id = imapc->resptag;
   id_len = strlen(id);
-  if(len >= id_len + 1 && !memcmp(id, line, id_len) && line[id_len] == ' ') {
+  如果(len >= id_len + 1 && !memcmp(id, line, id_len) && line[id_len] == ' ') {
     line += id_len + 1;
     len -= id_len + 1;
 
-    if(len >= 2 && !memcmp(line, "OK", 2))
+    如果(len >= 2 && !memcmp(line, "OK", 2))
       *resp = IMAP_RESP_OK;
-    else if(len >= 7 && !memcmp(line, "PREAUTH", 7))
+    否则 如果(len >= 7 && !memcmp(line, "PREAUTH", 7))
       *resp = IMAP_RESP_PREAUTH;
-    else
+    否则
       *resp = IMAP_RESP_NOT_OK;
 
-    return TRUE;
+    返回 TRUE;
   }
 
   /* Do we have an untagged command response? */
-  if(len >= 2 && !memcmp("* ", line, 2)) {
+  如果(len >= 2 && !memcmp("* ", line, 2)) {
     switch(imapc->state) {
     /* States which are interested in untagged responses */
     case IMAP_CAPABILITY:
-      if(!imap_matchresp(line, len, "CAPABILITY"))
-        return FALSE;
+      如果(!imap_matchresp(line, len, "CAPABILITY"))
+        返回 FALSE;
       break;
 
     case IMAP_LIST:
-      if((!imap->custom && !imap_matchresp(line, len, "LIST")) ||
+      如果((!imap->custom && !imap_matchresp(line, len, "LIST")) ||
          (imap->custom && !imap_matchresp(line, len, imap->custom) &&
           (!curl_strequal(imap->custom, "STORE") ||
            !imap_matchresp(line, len, "FETCH")) &&
@@ -348,7 +348,7 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
           !curl_strequal(imap->custom, "UID") &&
           !curl_strequal(imap->custom, "GETQUOTAROOT") &&
           !curl_strequal(imap->custom, "NOOP")))
-        return FALSE;
+        返回 FALSE;
       break;
 
     case IMAP_SELECT:
@@ -357,29 +357,29 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
       break;
 
     case IMAP_FETCH:
-      if(!imap_matchresp(line, len, "FETCH"))
-        return FALSE;
+      如果(!imap_matchresp(line, len, "FETCH"))
+        返回 FALSE;
       break;
 
     case IMAP_SEARCH:
-      if(!imap_matchresp(line, len, "SEARCH"))
-        return FALSE;
+      如果(!imap_matchresp(line, len, "SEARCH"))
+        返回 FALSE;
       break;
 
     /* Ignore other untagged responses */
     default:
-      return FALSE;
+      返回 FALSE;
     }
 
     *resp = '*';
-    return TRUE;
+    返回 TRUE;
   }
 
   /* Do we have a continuation response? This should be a + symbol followed by
      a space and optionally some text as per RFC-3501 for the AUTHENTICATE and
      APPEND commands and as outlined in Section 4. Examples of RFC-4959 but
      some email servers ignore this and only send a single + instead. */
-  if(!imap->custom && ((len == 3 && line[0] == '+') ||
+  如果(!imap->custom && ((len == 3 && line[0] == '+') ||
                        (len >= 2 && !memcmp("+ ", line, 2)))) {
     switch(imapc->state) {
     /* States which are interested in continuation responses */
@@ -394,10 +394,10 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
       break;
     }
 
-    return TRUE;
+    返回 TRUE;
   }
 
-  return FALSE; /* Nothing for us */
+  返回 FALSE; /* Nothing for us */
 }
 
 /***********************************************************************
@@ -413,31 +413,31 @@ static CURLcode imap_get_message(struct Curl_easy *data, struct bufref *out)
   char *message;
   size_t len;
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  如果(!imapc)
+    返回 CURLE_FAILED_INIT;
 
   message = curlx_dyn_ptr(&imapc->pp.recvbuf);
   len = imapc->pp.nfinal;
-  if(len > 2) {
+  如果(len > 2) {
     /* Find the start of the message */
     len -= 2;
-    for(message += 2; ISBLANK(*message); message++, len--)
+    为(message += 2; ISBLANK(*message); message++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
+    当(len--)
+      如果(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
         break;
 
     /* Terminate the message */
     message[++len] = '\0';
     Curl_bufref_set(out, message, len, NULL);
   }
-  else
+  否则
     /* junk input => zero length output */
     Curl_bufref_set(out, "", 0, NULL);
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /***********************************************************************
@@ -450,7 +450,7 @@ static void imap_state(struct Curl_easy *data,
                        struct imap_conn *imapc,
                        imapstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#如果 defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
   static const char * const names[] = {
     "STOP",
@@ -471,10 +471,10 @@ static void imap_state(struct Curl_easy *data,
     /* LAST */
   };
 
-  if(imapc->state != newstate)
+  如果(imapc->state != newstate)
     infof(data, "IMAP %p state change from %s to %s",
           (void *)imapc, names[imapc->state], names[newstate]);
-#else
+#否则
   (void)data;
 #endif
   imapc->state = newstate;
@@ -499,10 +499,10 @@ static CURLcode imap_perform_capability(struct Curl_easy *data,
   /* Send the CAPABILITY command */
   result = imap_sendf(data, imapc, "CAPABILITY");
 
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_CAPABILITY);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -517,10 +517,10 @@ static CURLcode imap_perform_starttls(struct Curl_easy *data,
   /* Send the STARTTLS command */
   CURLcode result = imap_sendf(data, imapc, "STARTTLS");
 
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_STARTTLS);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -538,10 +538,10 @@ static CURLcode imap_perform_upgrade_tls(struct Curl_easy *data,
   CURLcode result;
   bool ssldone = FALSE;
 
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  如果(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     result = Curl_ssl_cfilter_add(
       data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
+    如果(result)
       goto out;
     /* Change the connection handler */
     conn->scheme = &Curl_scheme_imaps;
@@ -550,19 +550,19 @@ static CURLcode imap_perform_upgrade_tls(struct Curl_easy *data,
   DEBUGASSERT(!imapc->ssldone);
   result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
   DEBUGF(infof(data, "imap_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+               (整数)result, ssldone));
+  如果(!result && ssldone) {
     imapc->ssldone = ssldone;
     /* perform CAPA now, changes imapc->state out of IMAP_UPGRADETLS */
     result = imap_perform_capability(data, imapc);
   }
 out:
-  return result;
-#else
+  返回 result;
+#否则
   (void)data;
   (void)imapc;
   (void)conn;
-  return CURLE_NOT_BUILT_IN;
+  返回 CURLE_NOT_BUILT_IN;
 #endif
 }
 
@@ -582,10 +582,10 @@ static CURLcode imap_perform_login(struct Curl_easy *data,
 
   /* Check we have a username and password to authenticate with and end the
      connect phase if we do not */
-  if(!conn->creds) {
+  如果(!conn->creds) {
     imap_state(data, imapc, IMAP_STOP);
 
-    return result;
+    返回 result;
   }
 
   /* Make sure the username and password are in the correct atom format */
@@ -600,10 +600,10 @@ static CURLcode imap_perform_login(struct Curl_easy *data,
   curlx_strzero(passwd);
   curlx_free(passwd);
 
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_LOGIN);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -622,19 +622,19 @@ static CURLcode imap_perform_authenticate(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
   const char *ir = Curl_bufref_ptr(initresp);
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  if(ir) {
+  如果(!imapc)
+    返回 CURLE_FAILED_INIT;
+  如果(ir) {
     /* Send the AUTHENTICATE command with the initial response */
     result = imap_sendf(data, imapc, "AUTHENTICATE %s %s",
                         mech, *ir ? ir : "=");
   }
-  else {
+  否则 {
     /* Send the AUTHENTICATE command */
     result = imap_sendf(data, imapc, "AUTHENTICATE %s", mech);
   }
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -651,9 +651,9 @@ static CURLcode imap_continue_authenticate(struct Curl_easy *data,
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
   (void)mech;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &imapc->pp, "%s", Curl_bufref_ptr(resp));
+  如果(!imapc)
+    返回 CURLE_FAILED_INIT;
+  返回 Curl_pp_sendf(data, &imapc->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -669,9 +669,9 @@ static CURLcode imap_cancel_authenticate(struct Curl_easy *data,
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
   (void)mech;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &imapc->pp, "*");
+  如果(!imapc)
+    返回 CURLE_FAILED_INIT;
+  返回 Curl_pp_sendf(data, &imapc->pp, "*");
 }
 
 /***********************************************************************
@@ -690,26 +690,26 @@ static CURLcode imap_perform_authentication(struct Curl_easy *data,
 
   /* Check if already authenticated OR if there is enough data to authenticate
      with and end the connect phase if we do not */
-  if(imapc->preauth ||
+  如果(imapc->preauth ||
      !Curl_sasl_can_authenticate(&imapc->sasl, data)) {
     imap_state(data, imapc, IMAP_STOP);
-    return result;
+    返回 result;
   }
 
   /* Calculate the SASL login details */
   result = Curl_sasl_start(&imapc->sasl, data, (bool)imapc->ir_supported,
                            &progress);
-  if(!result) {
-    if(progress == SASL_INPROGRESS)
+  如果(!result) {
+    如果(progress == SASL_INPROGRESS)
       imap_state(data, imapc, IMAP_AUTHENTICATE);
-    else if(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
+    否则 如果(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
       /* Perform clear text authentication */
       result = imap_perform_login(data, imapc, data->conn);
-    else
+    否则
       result = Curl_sasl_is_blocked(&imapc->sasl, data);
   }
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -724,16 +724,16 @@ static CURLcode imap_perform_list(struct Curl_easy *data,
 {
   CURLcode result = CURLE_OK;
 
-  if(imap->custom)
+  如果(imap->custom)
     /* Send the custom request */
     result = imap_sendf(data, imapc, "%s%s", imap->custom,
                         imap->custom_params ? imap->custom_params : "");
-  else {
+  否则 {
     /* Make sure the mailbox is in the correct atom format if necessary */
     char *mailbox = imap->mailbox ? imap_atom(imap->mailbox, TRUE)
                                   : curlx_strdup("");
-    if(!mailbox)
-      return CURLE_OUT_OF_MEMORY;
+    如果(!mailbox)
+      返回 CURLE_OUT_OF_MEMORY;
 
     /* Send the LIST command */
     result = imap_sendf(data, imapc, "LIST \"%s\" *", mailbox);
@@ -741,10 +741,10 @@ static CURLcode imap_perform_list(struct Curl_easy *data,
     curlx_free(mailbox);
   }
 
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_LIST);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -765,25 +765,25 @@ static CURLcode imap_perform_select(struct Curl_easy *data,
   imapc->mb_uidvalidity_set = FALSE;
 
   /* Check we have a mailbox */
-  if(!imap->mailbox) {
+  如果(!imap->mailbox) {
     failf(data, "Cannot SELECT without a mailbox.");
-    return CURLE_URL_MALFORMAT;
+    返回 CURLE_URL_MALFORMAT;
   }
 
   /* Make sure the mailbox is in the correct atom format */
   mailbox = imap_atom(imap->mailbox, FALSE);
-  if(!mailbox)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!mailbox)
+    返回 CURLE_OUT_OF_MEMORY;
 
   /* Send the SELECT command */
   result = imap_sendf(data, imapc, "SELECT %s", mailbox);
 
   curlx_free(mailbox);
 
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_SELECT);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -798,35 +798,35 @@ static CURLcode imap_perform_fetch(struct Curl_easy *data,
 {
   CURLcode result = CURLE_OK;
   /* Check we have a UID */
-  if(imap->uid) {
+  如果(imap->uid) {
 
     /* Send the FETCH command */
-    if(imap->partial)
+    如果(imap->partial)
       result = imap_sendf(data, imapc, "UID FETCH %s BODY[%s]<%s>",
                           imap->uid, imap->section ? imap->section : "",
                           imap->partial);
-    else
+    否则
       result = imap_sendf(data, imapc, "UID FETCH %s BODY[%s]",
                           imap->uid, imap->section ? imap->section : "");
   }
-  else if(imap->mindex) {
+  否则 如果(imap->mindex) {
     /* Send the FETCH command */
-    if(imap->partial)
+    如果(imap->partial)
       result = imap_sendf(data, imapc, "FETCH %s BODY[%s]<%s>",
                           imap->mindex, imap->section ? imap->section : "",
                           imap->partial);
-    else
+    否则
       result = imap_sendf(data, imapc, "FETCH %s BODY[%s]",
                           imap->mindex, imap->section ? imap->section : "");
   }
-  else {
+  否则 {
     failf(data, "Cannot FETCH without a UID.");
-    return CURLE_URL_MALFORMAT;
+    返回 CURLE_URL_MALFORMAT;
   }
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_FETCH);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -844,60 +844,60 @@ static CURLcode imap_perform_append(struct Curl_easy *data,
   struct dynbuf flags;
 
   /* Check we have a mailbox */
-  if(!imap->mailbox) {
+  如果(!imap->mailbox) {
     failf(data, "Cannot APPEND without a mailbox.");
-    return CURLE_URL_MALFORMAT;
+    返回 CURLE_URL_MALFORMAT;
   }
 
 #ifndef CURL_DISABLE_MIME
   /* Prepare the mime data if some. */
-  if(IS_MIME_POST(data)) {
+  如果(IS_MIME_POST(data)) {
     curl_mimepart *postp = data->set.mimepostp;
 
     /* Use the whole structure as data. */
-    postp->flags &= ~(unsigned int)MIME_BODY_ONLY;
+    postp->flags &= ~(unsigned 整数)MIME_BODY_ONLY;
 
     /* Add external headers and mime version. */
     curl_mime_headers(postp, data->set.headers, 0);
     result = Curl_mime_prepare_headers(data, postp, NULL,
                                        NULL, MIMESTRATEGY_MAIL);
 
-    if(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
+    如果(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
       result = Curl_mime_add_header(&postp->curlheaders, "Mime-Version: 1.0");
-    if(!result)
+    如果(!result)
       result = Curl_creader_set_mime(data, postp);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
   }
-  else
+  否则
 #endif
   {
     result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
   }
 
   /* Check we know the size of the upload. This takes all readers
    * into account. Especially crlf conversions which make the size
    * unpredictable, e.g. -1. */
   data->state.infilesize = Curl_creader_total_length(data);
-  if(data->state.infilesize < 0) {
-    if(data->set.crlf)
+  如果(data->state.infilesize < 0) {
+    如果(data->set.crlf)
       failf(data, "Cannot APPEND with CRLF conversion making size unknown");
-    else
+    否则
       failf(data, "Cannot APPEND with unknown input file size");
-    return CURLE_UPLOAD_FAILED;
+    返回 CURLE_UPLOAD_FAILED;
   }
 
   /* Make sure the mailbox is in the correct atom format */
   mailbox = imap_atom(imap->mailbox, FALSE);
-  if(!mailbox)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!mailbox)
+    返回 CURLE_OUT_OF_MEMORY;
 
   /* Generate flags string and send the APPEND command */
   curlx_dyn_init(&flags, 100);
-  if(data->set.upload_flags) {
-    int i;
+  如果(data->set.upload_flags) {
+    整数 i;
     struct ulbits ulflag[] = {
       { CURLULFLAG_ANSWERED, "Answered" },
       { CURLULFLAG_DELETED, "Deleted" },
@@ -908,22 +908,22 @@ static CURLcode imap_perform_append(struct Curl_easy *data,
     };
 
     result = CURLE_OUT_OF_MEMORY;
-    if(curlx_dyn_add(&flags, " (")) {
+    如果(curlx_dyn_add(&flags, " (")) {
       goto cleanup;
     }
 
-    for(i = 0; ulflag[i].bit; i++) {
-      if(data->set.upload_flags & ulflag[i].bit &&
+    为(i = 0; ulflag[i].bit; i++) {
+      如果(data->set.upload_flags & ulflag[i].bit &&
          ((curlx_dyn_len(&flags) > 2 && curlx_dyn_add(&flags, " ")) ||
           curlx_dyn_add(&flags, "\\") ||
           curlx_dyn_add(&flags, ulflag[i].flag)))
         goto cleanup;
     }
 
-    if(curlx_dyn_add(&flags, ")"))
+    如果(curlx_dyn_add(&flags, ")"))
       goto cleanup;
   }
-  else if(curlx_dyn_add(&flags, ""))
+  否则 如果(curlx_dyn_add(&flags, ""))
     goto cleanup;
 
   result = imap_sendf(data, imapc, "APPEND %s%s {%" FMT_OFF_T "}",
@@ -933,10 +933,10 @@ cleanup:
   curlx_dyn_free(&flags);
   curlx_free(mailbox);
 
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_APPEND);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -952,18 +952,18 @@ static CURLcode imap_perform_search(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   /* Check we have a query string */
-  if(!imap->query) {
+  如果(!imap->query) {
     failf(data, "Cannot SEARCH without a query string.");
-    return CURLE_URL_MALFORMAT;
+    返回 CURLE_URL_MALFORMAT;
   }
 
   /* Send the SEARCH command */
   result = imap_sendf(data, imapc, "SEARCH %s", imap->query);
 
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_SEARCH);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -978,37 +978,37 @@ static CURLcode imap_perform_logout(struct Curl_easy *data,
   /* Send the LOGOUT command */
   CURLcode result = imap_sendf(data, imapc, "LOGOUT");
 
-  if(!result)
+  如果(!result)
     imap_state(data, imapc, IMAP_LOGOUT);
 
-  return result;
+  返回 result;
 }
 
 /* For the initial server greeting */
 static CURLcode imap_state_servergreet_resp(struct Curl_easy *data,
                                             struct imap_conn *imapc,
-                                            int imapcode,
+                                            整数 imapcode,
                                             imapstate instate)
 {
   (void)instate;
 
-  if(imapcode == IMAP_RESP_PREAUTH) {
+  如果(imapcode == IMAP_RESP_PREAUTH) {
     /* PREAUTH */
     imapc->preauth = TRUE;
     infof(data, "PREAUTH connection, already authenticated");
   }
-  else if(imapcode != IMAP_RESP_OK) {
+  否则 如果(imapcode != IMAP_RESP_OK) {
     failf(data, "Got unexpected imap-server response");
-    return CURLE_WEIRD_SERVER_REPLY;
+    返回 CURLE_WEIRD_SERVER_REPLY;
   }
 
-  return imap_perform_capability(data, imapc);
+  返回 imap_perform_capability(data, imapc);
 }
 
 /* For CAPABILITY responses */
 static CURLcode imap_state_capability_resp(struct Curl_easy *data,
                                            struct imap_conn *imapc,
-                                           int imapcode,
+                                           整数 imapcode,
                                            imapstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1017,37 +1017,37 @@ static CURLcode imap_state_capability_resp(struct Curl_easy *data,
   (void)instate;
 
   /* Do we have an untagged response? */
-  if(imapcode == '*') {
+  如果(imapcode == '*') {
     line += 2;
 
     /* Loop through the data line */
-    for(;;) {
+    为(;;) {
       size_t wordlen;
-      while(*line && (ISBLANK(*line) || ISNEWLINE(*line)))
+      当(*line && (ISBLANK(*line) || ISNEWLINE(*line)))
         line++;
 
-      if(!*line)
+      如果(!*line)
         break;
 
       /* Extract the word */
-      for(wordlen = 0; line[wordlen] && !ISBLANK(line[wordlen]) &&
+      为(wordlen = 0; line[wordlen] && !ISBLANK(line[wordlen]) &&
                        !ISNEWLINE(line[wordlen]);)
         wordlen++;
 
       /* Does the server support the STARTTLS capability? */
-      if(wordlen == 8 && curl_strnequal(line, "STARTTLS", 8))
+      如果(wordlen == 8 && curl_strnequal(line, "STARTTLS", 8))
         imapc->tls_supported = TRUE;
 
       /* Has the server explicitly disabled clear text authentication? */
-      else if(wordlen == 13 && curl_strnequal(line, "LOGINDISABLED", 13))
+      否则 如果(wordlen == 13 && curl_strnequal(line, "LOGINDISABLED", 13))
         imapc->login_disabled = TRUE;
 
       /* Does the server support the SASL-IR capability? */
-      else if(wordlen == 7 && curl_strnequal(line, "SASL-IR", 7))
+      否则 如果(wordlen == 7 && curl_strnequal(line, "SASL-IR", 7))
         imapc->ir_supported = TRUE;
 
       /* Do we have a SASL based authentication mechanism? */
-      else if(wordlen > 5 && curl_strnequal(line, "AUTH=", 5)) {
+      否则 如果(wordlen > 5 && curl_strnequal(line, "AUTH=", 5)) {
         size_t llen;
         unsigned short mechbit;
 
@@ -1056,36 +1056,36 @@ static CURLcode imap_state_capability_resp(struct Curl_easy *data,
 
         /* Test the word for a matching authentication mechanism */
         mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        如果(mechbit && llen == wordlen)
           imapc->sasl.authmechs |= mechbit;
       }
 
       line += wordlen;
     }
   }
-  else if(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+  否则 如果(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
     /* PREAUTH is not compatible with STARTTLS. */
-    if(imapcode == IMAP_RESP_OK && imapc->tls_supported && !imapc->preauth) {
+    如果(imapcode == IMAP_RESP_OK && imapc->tls_supported && !imapc->preauth) {
       /* Switch to TLS connection now */
       result = imap_perform_starttls(data, imapc);
     }
-    else if(data->set.use_ssl <= CURLUSESSL_TRY)
+    否则 如果(data->set.use_ssl <= CURLUSESSL_TRY)
       result = imap_perform_authentication(data, imapc);
-    else {
+    否则 {
       failf(data, "STARTTLS not available.");
       result = CURLE_USE_SSL_FAILED;
     }
   }
-  else
+  否则
     result = imap_perform_authentication(data, imapc);
 
-  return result;
+  返回 result;
 }
 
 /* For STARTTLS responses */
 static CURLcode imap_state_starttls_resp(struct Curl_easy *data,
                                          struct imap_conn *imapc,
-                                         int imapcode,
+                                         整数 imapcode,
                                          imapstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1093,27 +1093,27 @@ static CURLcode imap_state_starttls_resp(struct Curl_easy *data,
   (void)instate;
 
   /* Pipelining in response is forbidden. */
-  if(imapc->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  如果(imapc->pp.overflow)
+    返回 CURLE_WEIRD_SERVER_REPLY;
 
-  if(imapcode != IMAP_RESP_OK) {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
+  如果(imapcode != IMAP_RESP_OK) {
+    如果(data->set.use_ssl != CURLUSESSL_TRY) {
       failf(data, "STARTTLS denied");
       result = CURLE_USE_SSL_FAILED;
     }
-    else
+    否则
       result = imap_perform_authentication(data, imapc);
   }
-  else
+  否则
     imap_state(data, imapc, IMAP_UPGRADETLS);
 
-  return result;
+  返回 result;
 }
 
 /* For SASL authentication responses */
 static CURLcode imap_state_auth_resp(struct Curl_easy *data,
                                      struct imap_conn *imapc,
-                                     int imapcode,
+                                     整数 imapcode,
                                      imapstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1122,16 +1122,16 @@ static CURLcode imap_state_auth_resp(struct Curl_easy *data,
   (void)instate;
 
   result = Curl_sasl_continue(&imapc->sasl, data, imapcode, &progress);
-  if(!result)
+  如果(!result)
     switch(progress) {
     case SASL_DONE:
       imap_state(data, imapc, IMAP_STOP);  /* Authenticated */
       break;
     case SASL_IDLE:            /* No mechanism left after cancellation */
-      if(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
+      如果(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
         /* Perform clear text authentication */
         result = imap_perform_login(data, imapc, data->conn);
-      else {
+      否则 {
         failf(data, "Authentication cancelled");
         result = CURLE_LOGIN_DENIED;
       }
@@ -1140,69 +1140,69 @@ static CURLcode imap_state_auth_resp(struct Curl_easy *data,
       break;
     }
 
-  return result;
+  返回 result;
 }
 
 /* For LOGIN responses */
 static CURLcode imap_state_login_resp(struct Curl_easy *data,
                                       struct imap_conn *imapc,
-                                      int imapcode,
+                                      整数 imapcode,
                                       imapstate instate)
 {
   CURLcode result = CURLE_OK;
   (void)instate;
 
-  if(imapcode != IMAP_RESP_OK) {
+  如果(imapcode != IMAP_RESP_OK) {
     failf(data, "Access denied. %c", imapcode);
     result = CURLE_LOGIN_DENIED;
   }
-  else
+  否则
     /* End of connect phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  返回 result;
 }
 
 /* Detect IMAP listings vs. downloading a single email */
 static bool is_custom_fetch_listing_match(const char *params)
 {
   /* match " 1:* (FLAGS ..." or " 1,2,3 (FLAGS ..." */
-  if(*params++ != ' ')
-    return FALSE;
+  如果(*params++ != ' ')
+    返回 FALSE;
 
-  while(ISDIGIT(*params)) {
+  当(ISDIGIT(*params)) {
     params++;
-    if(*params == 0)
-      return FALSE;
+    如果(*params == 0)
+      返回 FALSE;
   }
-  if(*params == ':')
-    return TRUE;
-  if(*params == ',')
-    return TRUE;
-  return FALSE;
+  如果(*params == ':')
+    返回 TRUE;
+  如果(*params == ',')
+    返回 TRUE;
+  返回 FALSE;
 }
 
 static bool is_custom_fetch_listing(struct IMAP *imap)
 {
   /* filter out "UID FETCH 1:* (FLAGS ..." queries to list emails */
-  if(!imap->custom)
-    return FALSE;
-  else if(curl_strequal(imap->custom, "FETCH") && imap->custom_params) {
+  如果(!imap->custom)
+    返回 FALSE;
+  否则 如果(curl_strequal(imap->custom, "FETCH") && imap->custom_params) {
     const char *p = imap->custom_params;
-    return is_custom_fetch_listing_match(p);
+    返回 is_custom_fetch_listing_match(p);
   }
-  else if(curl_strequal(imap->custom, "UID") && imap->custom_params &&
+  否则 如果(curl_strequal(imap->custom, "UID") && imap->custom_params &&
           curl_strnequal(imap->custom_params, " FETCH ", 7)) {
     const char *p = imap->custom_params + 6;
-    return is_custom_fetch_listing_match(p);
+    返回 is_custom_fetch_listing_match(p);
   }
-  return FALSE;
+  返回 FALSE;
 }
 
 /* For LIST and SEARCH responses */
 static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
                                            struct imap_conn *imapc,
-                                           int imapcode,
+                                           整数 imapcode,
                                            imapstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1211,28 +1211,28 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
   struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
 
   DEBUGASSERT(imap);
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  如果(!imap)
+    返回 CURLE_FAILED_INIT;
   (void)instate;
 
-  if(imapcode == '*' && is_custom_fetch_listing(imap)) {
+  如果(imapcode == '*' && is_custom_fetch_listing(imap)) {
     /* custom FETCH or UID FETCH for listing is not handled here */
   }
-  else if(imapcode == '*') {
+  否则 如果(imapcode == '*') {
     /* Check if this response contains a literal (e.g. FETCH responses with
        body data). Literal syntax is {size}\r\n */
     const char *cr = memchr(line, '\r', len);
     size_t line_len = cr ? (size_t)(cr - line) : len;
     const char *ptr = imap_find_literal(line, line_len);
-    if(ptr) {
+    如果(ptr) {
       curl_off_t size = 0;
       bool parsed = FALSE;
       ptr++;
-      if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+      如果(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
          !curlx_str_single(&ptr, '}'))
         parsed = TRUE;
 
-      if(parsed) {
+      如果(parsed) {
         struct pingpong *pp = &imapc->pp;
         size_t buffer_len = curlx_dyn_len(&pp->recvbuf);
         size_t after_header = buffer_len - pp->nfinal;
@@ -1242,11 +1242,11 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
 
         /* First write the header line */
         result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
-        if(result)
-          return result;
+        如果(result)
+          返回 result;
 
         /* Handle data already in buffer after the header line */
-        if(after_header > 0) {
+        如果(after_header > 0) {
           /* There is already data in the buffer that is part of the literal
              body or subsequent responses */
           size_t chunk = after_header;
@@ -1256,48 +1256,48 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
           pp->nfinal = 0; /* done */
 
           /* Limit chunk to the literal size */
-          if((curl_off_t)chunk > size)
+          如果((curl_off_t)chunk > size)
             chunk = (size_t)size;
 
-          if(chunk) {
+          如果(chunk) {
             /* Write the literal body data */
             result = Curl_client_write(data, CLIENTWRITE_BODY,
                                        curlx_dyn_ptr(&pp->recvbuf), chunk);
-            if(result)
-              return result;
+            如果(result)
+              返回 result;
           }
 
           /* Handle remaining data in buffer (either more literal data or
              subsequent responses) */
-          if(after_header > chunk) {
+          如果(after_header > chunk) {
             /* Keep the data after the literal body */
             pp->overflow = after_header - chunk;
             curlx_dyn_tail(&pp->recvbuf, pp->overflow);
           }
-          else {
+          否则 {
             pp->overflow = 0;
             curlx_dyn_reset(&pp->recvbuf);
           }
         }
-        else {
+        否则 {
           /* No data in buffer yet, reset overflow */
           pp->overflow = 0;
         }
 
-        if((CURL_OFF_T_MAX - size) < (curl_off_t)len)
+        如果((CURL_OFF_T_MAX - size) < (curl_off_t)len)
           /* unlikely to actually be a transfer this big, but avoid integer
              overflow */
           size = CURL_OFF_T_MAX;
-        else
+        否则
           size += len;
 
         /* Progress size includes both header line and literal body */
         Curl_pgrsSetDownloadSize(data, size);
 
-        if(data->req.bytecount == size)
+        如果(data->req.bytecount == size)
           /* All data already transferred (header + literal body) */
           Curl_xfer_setup_nop(data);
-        else {
+        否则 {
           /* Setup to receive the literal body data.
              maxdownload and transfer size include both header line and
              literal body */
@@ -1307,82 +1307,82 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
         /* End of DO phase */
         imap_state(data, imapc, IMAP_STOP);
       }
-      else {
+      否则 {
         /* Failed to parse literal, write the line */
         result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
       }
     }
-    else {
+    否则 {
       /* No literal, write the line as-is */
       result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
     }
   }
-  else if(imapcode != IMAP_RESP_OK)
+  否则 如果(imapcode != IMAP_RESP_OK)
     result = CURLE_QUOTE_ERROR;
-  else
+  否则
     /* End of DO phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  返回 result;
 }
 
 /* For SELECT responses */
 static CURLcode imap_state_select_resp(struct Curl_easy *data,
                                        struct imap_conn *imapc,
                                        struct IMAP *imap,
-                                       int imapcode,
+                                       整数 imapcode,
                                        imapstate instate)
 {
   CURLcode result = CURLE_OK;
   (void)instate;
 
-  if(imapcode == '*') {
+  如果(imapcode == '*') {
     /* See if this is an UIDVALIDITY response */
     const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
     size_t len = curlx_dyn_len(&imapc->pp.recvbuf);
-    if((len >= 18) && checkprefix("OK [UIDVALIDITY ", &line[2])) {
+    如果((len >= 18) && checkprefix("OK [UIDVALIDITY ", &line[2])) {
       curl_off_t value;
       const char *p = &line[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
-      if(!curlx_str_number(&p, &value, UINT_MAX)) {
-        imapc->mb_uidvalidity = (unsigned int)value;
+      如果(!curlx_str_number(&p, &value, UINT_MAX)) {
+        imapc->mb_uidvalidity = (unsigned 整数)value;
         imapc->mb_uidvalidity_set = TRUE;
       }
     }
   }
-  else if(imapcode == IMAP_RESP_OK) {
+  否则 如果(imapcode == IMAP_RESP_OK) {
     /* Check if the UIDVALIDITY has been specified and matches */
-    if(imap->uidvalidity_set && imapc->mb_uidvalidity_set &&
+    如果(imap->uidvalidity_set && imapc->mb_uidvalidity_set &&
        (imap->uidvalidity != imapc->mb_uidvalidity)) {
       failf(data, "Mailbox UIDVALIDITY has changed");
       result = CURLE_REMOTE_FILE_NOT_FOUND;
     }
-    else {
+    否则 {
       /* Note the currently opened mailbox on this connection */
       DEBUGASSERT(!imapc->mailbox);
       imapc->mailbox = curlx_strdup(imap->mailbox);
-      if(!imapc->mailbox)
-        return CURLE_OUT_OF_MEMORY;
+      如果(!imapc->mailbox)
+        返回 CURLE_OUT_OF_MEMORY;
 
-      if(imap->custom)
+      如果(imap->custom)
         result = imap_perform_list(data, imapc, imap);
-      else if(imap->query)
+      否则 如果(imap->query)
         result = imap_perform_search(data, imapc, imap);
-      else
+      否则
         result = imap_perform_fetch(data, imapc, imap);
     }
   }
-  else {
+  否则 {
     failf(data, "Select failed");
     result = CURLE_LOGIN_DENIED;
   }
 
-  return result;
+  返回 result;
 }
 
 /* For the (first line of the) FETCH responses */
 static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
                                       struct imap_conn *imapc,
-                                      int imapcode,
+                                      整数 imapcode,
                                       imapstate instate)
 {
   CURLcode result = CURLE_OK;
@@ -1394,27 +1394,27 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
 
   (void)instate;
 
-  if(imapcode != '*') {
+  如果(imapcode != '*') {
     Curl_pgrsSetDownloadSize(data, -1);
     imap_state(data, imapc, IMAP_STOP);
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+    返回 CURLE_REMOTE_FILE_NOT_FOUND;
   }
 
   /* Something like this is received "* 1 FETCH (BODY[TEXT] {2021}\r" so parse
      the continuation data contained within the curly brackets */
   ptr = imap_find_literal(ptr, len);
-  if(ptr) {
+  如果(ptr) {
     ptr++;
-    if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+    如果(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
        !curlx_str_single(&ptr, '}'))
       parsed = TRUE;
   }
 
-  if(parsed) {
+  如果(parsed) {
     infof(data, "Found %" FMT_OFF_T " bytes to download", size);
     Curl_pgrsSetDownloadSize(data, size);
 
-    if(pp->overflow) {
+    如果(pp->overflow) {
       /* At this point there is a data in the receive buffer that is body
          content, send it as body and then skip it. Do note that there may
          even be additional "headers" after the body. */
@@ -1424,46 +1424,46 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
       curlx_dyn_tail(&pp->recvbuf, chunk);
       pp->nfinal = 0; /* done */
 
-      if((curl_off_t)chunk > size)
+      如果((curl_off_t)chunk > size)
         /* The conversion from curl_off_t to size_t is always fine here */
         chunk = (size_t)size;
 
-      if(!chunk) {
+      如果(!chunk) {
         /* no size, we are done with the data */
         imap_state(data, imapc, IMAP_STOP);
-        return CURLE_OK;
+        返回 CURLE_OK;
       }
       result = Curl_client_write(data, CLIENTWRITE_BODY,
                                  curlx_dyn_ptr(&pp->recvbuf), chunk);
-      if(result)
-        return result;
+      如果(result)
+        返回 result;
 
       infof(data, "Written %zu bytes, %" FMT_OFF_T
             " bytes are left for transfer", chunk, (curl_off_t)(size - chunk));
 
       /* Have we used the entire overflow or part of it?*/
-      if(pp->overflow > chunk) {
+      如果(pp->overflow > chunk) {
         /* remember the remaining trailing overflow data */
         pp->overflow -= chunk;
         curlx_dyn_tail(&pp->recvbuf, pp->overflow);
       }
-      else {
+      否则 {
         pp->overflow = 0; /* handled */
         /* Free the cache */
         curlx_dyn_reset(&pp->recvbuf);
       }
     }
 
-    if(data->req.bytecount == size)
+    如果(data->req.bytecount == size)
       /* The entire data is already transferred! */
       Curl_xfer_setup_nop(data);
-    else {
+    否则 {
       /* IMAP download */
       data->req.maxdownload = size;
       Curl_xfer_setup_recv(data, FIRSTSOCKET, size);
     }
   }
-  else {
+  否则 {
     /* We do not know how to parse this line */
     failf(data, "Failed to parse FETCH response.");
     result = CURLE_WEIRD_SERVER_REPLY;
@@ -1472,41 +1472,41 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
   /* End of DO phase */
   imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  返回 result;
 }
 
 /* For final FETCH responses performed after the download */
 static CURLcode imap_state_fetch_final_resp(struct Curl_easy *data,
                                             struct imap_conn *imapc,
-                                            int imapcode,
+                                            整数 imapcode,
                                             imapstate instate)
 {
   CURLcode result = CURLE_OK;
 
   (void)instate;
 
-  if(imapcode != IMAP_RESP_OK)
+  如果(imapcode != IMAP_RESP_OK)
     result = CURLE_WEIRD_SERVER_REPLY;
-  else
+  否则
     /* End of DONE phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  返回 result;
 }
 
 /* For APPEND responses */
 static CURLcode imap_state_append_resp(struct Curl_easy *data,
                                        struct imap_conn *imapc,
-                                       int imapcode,
+                                       整数 imapcode,
                                        imapstate instate)
 {
   CURLcode result = CURLE_OK;
   (void)instate;
 
-  if(imapcode != '+') {
+  如果(imapcode != '+') {
     result = CURLE_UPLOAD_FAILED;
   }
-  else {
+  否则 {
     /* Set the progress upload size */
     Curl_pgrsSetUploadSize(data, data->state.infilesize);
 
@@ -1517,64 +1517,64 @@ static CURLcode imap_state_append_resp(struct Curl_easy *data,
     imap_state(data, imapc, IMAP_STOP);
   }
 
-  return result;
+  返回 result;
 }
 
 /* For final APPEND responses performed after the upload */
 static CURLcode imap_state_append_final_resp(struct Curl_easy *data,
                                              struct imap_conn *imapc,
-                                             int imapcode,
+                                             整数 imapcode,
                                              imapstate instate)
 {
   CURLcode result = CURLE_OK;
 
   (void)instate;
 
-  if(imapcode != IMAP_RESP_OK)
+  如果(imapcode != IMAP_RESP_OK)
     result = CURLE_UPLOAD_FAILED;
-  else
+  否则
     /* End of DONE phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  返回 result;
 }
 
 static CURLcode imap_pp_statemachine(struct Curl_easy *data,
                                      struct connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  int imapcode;
+  整数 imapcode;
   struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
   struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
   struct pingpong *pp;
   size_t nread = 0;
 
-  if(!imapc || !imap)
-    return CURLE_FAILED_INIT;
+  如果(!imapc || !imap)
+    返回 CURLE_FAILED_INIT;
   pp = &imapc->pp;
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not IMAP */
 upgrade_tls:
-  if(imapc->state == IMAP_UPGRADETLS) {
+  如果(imapc->state == IMAP_UPGRADETLS) {
     result = imap_perform_upgrade_tls(data, imapc, conn);
-    if(result || (imapc->state == IMAP_UPGRADETLS))
-      return result;
+    如果(result || (imapc->state == IMAP_UPGRADETLS))
+      返回 result;
   }
 
   /* Flush any data that needs to be sent */
-  if(pp->sendleft)
-    return Curl_pp_flushsend(data, pp);
+  如果(pp->sendleft)
+    返回 Curl_pp_flushsend(data, pp);
 
   do {
     /* Read the response from the server */
     result = Curl_pp_readresp(data, FIRSTSOCKET, pp, &imapcode, &nread);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
 
     /* Was there an error parsing the response line? */
-    if(imapcode == -1)
-      return CURLE_WEIRD_SERVER_REPLY;
+    如果(imapcode == -1)
+      返回 CURLE_WEIRD_SERVER_REPLY;
 
-    if(!imapcode)
+    如果(!imapcode)
       break;
 
     /* We have now received a full IMAP server response */
@@ -1592,7 +1592,7 @@ upgrade_tls:
       result = imap_state_starttls_resp(data, imapc, imapcode, imapc->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (imapc->state == IMAP_UPGRADETLS))
+      如果(!result && (imapc->state == IMAP_UPGRADETLS))
         goto upgrade_tls;
       break;
 
@@ -1638,9 +1638,9 @@ upgrade_tls:
       imap_state(data, imapc, IMAP_STOP);
       break;
     }
-  } while(!result && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
+  } 当(!result && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
 
-  return result;
+  返回 result;
 }
 
 /* Called repeatedly until done from multi.c */
@@ -1651,12 +1651,12 @@ static CURLcode imap_multi_statemach(struct Curl_easy *data, bool *done)
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
   *done = FALSE;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  如果(!imapc)
+    返回 CURLE_FAILED_INIT;
   result = Curl_pp_statemach(data, &imapc->pp, FALSE, FALSE);
   *done = (imapc->state == IMAP_STOP);
 
-  return result;
+  返回 result;
 }
 
 static CURLcode imap_block_statemach(struct Curl_easy *data,
@@ -1665,10 +1665,10 @@ static CURLcode imap_block_statemach(struct Curl_easy *data,
 {
   CURLcode result = CURLE_OK;
 
-  while(imapc->state != IMAP_STOP && !result)
+  当(imapc->state != IMAP_STOP && !result)
     result = Curl_pp_statemach(data, &imapc->pp, TRUE, disconnecting);
 
-  return result;
+  返回 result;
 }
 
 /* For the IMAP "protocol connect" and "doing" phases only */
@@ -1677,7 +1677,7 @@ static CURLcode imap_pollset(struct Curl_easy *data,
 {
   struct imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  return imapc ? Curl_pp_pollset(data, &imapc->pp, ps) : CURLE_OK;
+  返回 imapc ? Curl_pp_pollset(data, &imapc->pp, ps) : CURLE_OK;
 }
 
 static void imap_easy_reset(struct IMAP *imap)
@@ -1706,7 +1706,7 @@ static bool imap_is_bchar(char ch)
 {
   /* Performing the alnum check first with macro is faster because of ASCII
      arithmetic */
-  return ch && (ISALNUM(ch) || strchr(":@/&=-._~!$\'()*+,%", ch));
+  返回 ch && (ISALNUM(ch) || strchr(":@/&=-._~!$\'()*+,%", ch));
 }
 
 /***********************************************************************
@@ -1722,40 +1722,40 @@ static CURLcode imap_parse_url_options(struct connectdata *conn,
   const char *ptr = conn->options;
   bool prefer_login = FALSE;
 
-  while(!result && ptr && *ptr) {
+  当(!result && ptr && *ptr) {
     const char *key = ptr;
     const char *value;
 
-    while(*ptr && *ptr != '=')
+    当(*ptr && *ptr != '=')
       ptr++;
 
     value = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    当(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=+LOGIN", 11)) {
+    如果(curl_strnequal(key, "AUTH=+LOGIN", 11)) {
       /* User prefers plaintext LOGIN over any SASL, including SASL LOGIN */
       prefer_login = TRUE;
       imapc->sasl.prefmech = SASL_AUTH_NONE;
     }
-    else if(curl_strnequal(key, "AUTH=", 5)) {
+    否则 如果(curl_strnequal(key, "AUTH=", 5)) {
       prefer_login = FALSE;
       result = Curl_sasl_parse_url_auth_option(&imapc->sasl,
                                                value, ptr - value);
     }
-    else {
+    否则 {
       prefer_login = FALSE;
       result = CURLE_URL_MALFORMAT;
     }
 
-    if(*ptr == ';')
+    如果(*ptr == ';')
       ptr++;
   }
 
-  if(prefer_login)
+  如果(prefer_login)
     imapc->preftype = IMAP_TYPE_CLEARTEXT;
-  else {
+  否则 {
     switch(imapc->sasl.prefmech) {
     case SASL_AUTH_NONE:
       imapc->preftype = IMAP_TYPE_NONE;
@@ -1769,7 +1769,7 @@ static CURLcode imap_parse_url_options(struct connectdata *conn,
     }
   }
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -1788,54 +1788,54 @@ static CURLcode imap_parse_url_path(struct Curl_easy *data,
   const char *ptr = begin;
 
   /* See how much of the URL is a valid path and decode it */
-  while(imap_is_bchar(*ptr))
+  当(imap_is_bchar(*ptr))
     ptr++;
 
-  if(ptr != begin) {
+  如果(ptr != begin) {
     /* Remove the trailing slash if present */
     const char *end = ptr;
-    if(end > begin && end[-1] == '/')
+    如果(end > begin && end[-1] == '/')
       end--;
 
     result = Curl_urldecode(begin, end - begin, &imap->mailbox, NULL,
                             REJECT_CTRL);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
   }
-  else
+  否则
     imap->mailbox = NULL;
 
   /* There can be any number of parameters in the form ";NAME=VALUE" */
-  while(*ptr == ';') {
+  当(*ptr == ';') {
     char *name;
     char *value;
     size_t valuelen;
 
     /* Find the length of the name parameter */
     begin = ++ptr;
-    while(*ptr && *ptr != '=')
+    当(*ptr && *ptr != '=')
       ptr++;
 
-    if(!*ptr)
-      return CURLE_URL_MALFORMAT;
+    如果(!*ptr)
+      返回 CURLE_URL_MALFORMAT;
 
     /* Decode the name parameter */
     result = Curl_urldecode(begin, ptr - begin, &name, NULL,
                             REJECT_CTRL);
-    if(result)
-      return result;
+    如果(result)
+      返回 result;
 
     /* Find the length of the value parameter */
     begin = ++ptr;
-    while(imap_is_bchar(*ptr))
+    当(imap_is_bchar(*ptr))
       ptr++;
 
     /* Decode the value parameter */
     result = Curl_urldecode(begin, ptr - begin, &value, &valuelen,
                             REJECT_CTRL);
-    if(result) {
+    如果(result) {
       curlx_free(name);
-      return result;
+      返回 result;
     }
 
     DEBUGF(infof(data, "IMAP URL parameter '%s' = '%s'", name, value));
@@ -1845,37 +1845,37 @@ static CURLcode imap_parse_url_path(struct Curl_easy *data,
        present.
 
        Note: Unknown parameters trigger a URL_MALFORMAT error. */
-    if(valuelen > 0 && value[valuelen - 1] == '/')
+    如果(valuelen > 0 && value[valuelen - 1] == '/')
       value[valuelen - 1] = '\0';
-    if(valuelen) {
-      if(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_set) {
+    如果(valuelen) {
+      如果(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_set) {
         curl_off_t num;
         const char *p = (const char *)value;
-        if(!curlx_str_number(&p, &num, UINT_MAX)) {
-          imap->uidvalidity = (unsigned int)num;
+        如果(!curlx_str_number(&p, &num, UINT_MAX)) {
+          imap->uidvalidity = (unsigned 整数)num;
           imap->uidvalidity_set = TRUE;
         }
         curlx_free(value);
       }
-      else if(curl_strequal(name, "UID") && !imap->uid) {
+      否则 如果(curl_strequal(name, "UID") && !imap->uid) {
         imap->uid = value;
       }
-      else if(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
+      否则 如果(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
         imap->mindex = value;
       }
-      else if(curl_strequal(name, "SECTION") && !imap->section) {
+      否则 如果(curl_strequal(name, "SECTION") && !imap->section) {
         imap->section = value;
       }
-      else if(curl_strequal(name, "PARTIAL") && !imap->partial) {
+      否则 如果(curl_strequal(name, "PARTIAL") && !imap->partial) {
         imap->partial = value;
       }
-      else {
+      否则 {
         curlx_free(name);
         curlx_free(value);
-        return CURLE_URL_MALFORMAT;
+        返回 CURLE_URL_MALFORMAT;
       }
     }
-    else
+    否则
       /* blank? */
       curlx_free(value);
     curlx_free(name);
@@ -1883,19 +1883,19 @@ static CURLcode imap_parse_url_path(struct Curl_easy *data,
 
   /* Does the URL contain a query parameter? Only valid when we have a mailbox
      and no UID as per RFC-5092 */
-  if(imap->mailbox && !imap->uid && !imap->mindex) {
+  如果(imap->mailbox && !imap->uid && !imap->mindex) {
     /* Get the query parameter, URL decoded */
     CURLUcode uc = curl_url_get(data->state.uh, CURLUPART_QUERY, &imap->query,
                                 CURLU_URLDECODE);
-    if(uc == CURLUE_OUT_OF_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    如果(uc == CURLUE_OUT_OF_MEMORY)
+      返回 CURLE_OUT_OF_MEMORY;
   }
 
   /* Any extra stuff at the end of the URL is an error */
-  if(*ptr)
-    return CURLE_URL_MALFORMAT;
+  如果(*ptr)
+    返回 CURLE_URL_MALFORMAT;
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /***********************************************************************
@@ -1910,28 +1910,28 @@ static CURLcode imap_parse_custom_request(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
   const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
 
-  if(custom) {
+  如果(custom) {
     /* URL decode the custom request */
     result = Curl_urldecode(custom, 0, &imap->custom, NULL, REJECT_CTRL);
 
     /* Extract the parameters if specified */
-    if(!result) {
+    如果(!result) {
       const char *params = imap->custom;
 
-      while(*params && *params != ' ')
+      当(*params && *params != ' ')
         params++;
 
-      if(*params) {
+      如果(*params) {
         imap->custom_params = curlx_strdup(params);
         imap->custom[params - imap->custom] = '\0';
 
-        if(!imap->custom_params)
+        如果(!imap->custom_params)
           result = CURLE_OUT_OF_MEMORY;
       }
     }
   }
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -1951,13 +1951,13 @@ static CURLcode imap_connect(struct Curl_easy *data, bool *done)
   CURLcode result = CURLE_OK;
 
   *done = FALSE; /* default to not done yet */
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  如果(!imapc)
+    返回 CURLE_FAILED_INIT;
 
   /* Parse the URL options */
   result = imap_parse_url_options(data->conn, imapc);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   /* Start off waiting for the server greeting response */
   imap_state(data, imapc, IMAP_SERVERGREET);
@@ -1967,7 +1967,7 @@ static CURLcode imap_connect(struct Curl_easy *data, bool *done)
 
   result = imap_multi_statemach(data, done);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -1987,17 +1987,17 @@ static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
   struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
   struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  if(!imap)
-    return CURLE_OK;
+  如果(!imapc)
+    返回 CURLE_FAILED_INIT;
+  如果(!imap)
+    返回 CURLE_OK;
 
-  if(status || premature) {
+  如果(status || premature) {
     CURL_TRC_M(data, "IMAP done, not finalizing transfer");
     connclose(conn); /* marked for closure */
     result = status;         /* use the already set error code */
   }
-  else if(!data->set.connect_only &&
+  否则 如果(!data->set.connect_only &&
           ((!imap->custom && (imap->uid || imap->mindex)) ||
            (imap->custom && data->req.maxdownload > 0) ||
            data->state.upload || IS_MIME_POST(data))) {
@@ -2005,22 +2005,22 @@ static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
        For custom commands, check if we set up a download which indicates
        a FETCH-like command with literal data. */
 
-    if(!data->state.upload && !IS_MIME_POST(data))
+    如果(!data->state.upload && !IS_MIME_POST(data))
       imap_state(data, imapc, IMAP_FETCH_FINAL);
-    else {
+    否则 {
       /* End the APPEND command first by sending an empty line */
       result = Curl_pp_sendf(data, &imapc->pp, "%s", "");
-      if(!result)
+      如果(!result)
         imap_state(data, imapc, IMAP_APPEND_FINAL);
     }
 
     /* Run the state-machine */
-    if(!result)
+    如果(!result)
       result = imap_block_statemach(data, imapc, FALSE);
   }
 
   imap_easy_reset(imap);
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -2041,10 +2041,10 @@ static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
   bool selected = FALSE;
 
   DEBUGF(infof(data, "DO phase starts"));
-  if(!imapc || !imap)
-    return CURLE_FAILED_INIT;
+  如果(!imapc || !imap)
+    返回 CURLE_FAILED_INIT;
 
-  if(data->req.no_body) {
+  如果(data->req.no_body) {
     /* Requested no body means no transfer */
     imap->transfer = PPTRANSFER_INFO;
   }
@@ -2053,7 +2053,7 @@ static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
 
   /* Determine if the requested mailbox (with the same UIDVALIDITY if set)
      has already been selected on this connection */
-  if(imap->mailbox && imapc->mailbox &&
+  如果(imap->mailbox && imapc->mailbox &&
      (!strcmp(imap->mailbox, imapc->mailbox) ||
       (curl_strequal(imap->mailbox, "INBOX") &&
        curl_strequal(imapc->mailbox, "INBOX"))) &&
@@ -2062,38 +2062,38 @@ static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
     selected = TRUE;
 
   /* Start the first command in the DO phase */
-  if(data->state.upload || IS_MIME_POST(data))
+  如果(data->state.upload || IS_MIME_POST(data))
     /* APPEND can be executed directly */
     result = imap_perform_append(data, imapc, imap);
-  else if(imap->custom && (selected || !imap->mailbox))
+  否则 如果(imap->custom && (selected || !imap->mailbox))
     /* Custom command using the same mailbox or no mailbox */
     result = imap_perform_list(data, imapc, imap);
-  else if(!imap->custom && selected && (imap->uid || imap->mindex))
+  否则 如果(!imap->custom && selected && (imap->uid || imap->mindex))
     /* FETCH from the same mailbox */
     result = imap_perform_fetch(data, imapc, imap);
-  else if(!imap->custom && selected && imap->query)
+  否则 如果(!imap->custom && selected && imap->query)
     /* SEARCH the current mailbox */
     result = imap_perform_search(data, imapc, imap);
-  else if(imap->mailbox && !selected &&
+  否则 如果(imap->mailbox && !selected &&
           (imap->custom || imap->uid || imap->mindex || imap->query))
     /* SELECT the mailbox */
     result = imap_perform_select(data, imapc, imap);
-  else
+  否则
     /* LIST */
     result = imap_perform_list(data, imapc, imap);
 
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   /* Run the state-machine */
   result = imap_multi_statemach(data, dophase_done);
 
   *connected = Curl_conn_is_connected(conn, FIRSTSOCKET);
 
-  if(*dophase_done)
+  如果(*dophase_done)
     DEBUGF(infof(data, "DO phase is complete"));
 
-  return result;
+  返回 result;
 }
 
 /* Call this when the DO phase has completed */
@@ -2103,11 +2103,11 @@ static CURLcode imap_dophase_done(struct Curl_easy *data,
 {
   (void)connected;
 
-  if(imap->transfer != PPTRANSFER_BODY)
+  如果(imap->transfer != PPTRANSFER_BODY)
     /* no data to transfer */
     Curl_xfer_setup_nop(data);
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /***********************************************************************
@@ -2136,10 +2136,10 @@ static CURLcode imap_regular_transfer(struct Curl_easy *data,
   result = imap_perform(data, &connected, dophase_done);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
+  如果(!result && *dophase_done)
     result = imap_dophase_done(data, imap, connected);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -2157,21 +2157,21 @@ static CURLcode imap_do(struct Curl_easy *data, bool *done)
   CURLcode result = CURLE_OK;
   *done = FALSE; /* default to false */
 
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  如果(!imap)
+    返回 CURLE_FAILED_INIT;
   /* Parse the URL path */
   result = imap_parse_url_path(data, imap);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   /* Parse the custom request */
   result = imap_parse_custom_request(data, imap);
-  if(result)
-    return result;
+  如果(result)
+    返回 result;
 
   result = imap_regular_transfer(data, imap, done);
 
-  return result;
+  返回 result;
 }
 
 /***********************************************************************
@@ -2186,7 +2186,7 @@ static CURLcode imap_disconnect(struct Curl_easy *data,
 {
   struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
 
-  if(imapc &&
+  如果(imapc &&
      /* We cannot send quit unconditionally. If this connection is stale or
         bad in any way (pingpong has pending data to send),
         sending quit and waiting around here will make the
@@ -2196,7 +2196,7 @@ static CURLcode imap_disconnect(struct Curl_easy *data,
      !imap_perform_logout(data, imapc))
     (void)imap_block_statemach(data, imapc, TRUE); /* ignore errors */
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
@@ -2205,19 +2205,19 @@ static CURLcode imap_doing(struct Curl_easy *data, bool *dophase_done)
   struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
   CURLcode result;
 
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  如果(!imap)
+    返回 CURLE_FAILED_INIT;
 
   result = imap_multi_statemach(data, dophase_done);
-  if(result)
+  如果(result)
     DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
+  否则 如果(*dophase_done) {
     result = imap_dophase_done(data, imap, FALSE /* not connected */);
 
     DEBUGF(infof(data, "DO phase is complete"));
   }
 
-  return result;
+  返回 result;
 }
 
 static void imap_easy_dtor(const void *key, size_t klen, void *entry)
@@ -2261,8 +2261,8 @@ static CURLcode imap_setup_connection(struct Curl_easy *data,
   struct IMAP *imap;
 
   imapc = curlx_calloc(1, sizeof(*imapc));
-  if(!imapc)
-    return CURLE_OUT_OF_MEMORY;
+  如果(!imapc)
+    返回 CURLE_OUT_OF_MEMORY;
 
   pp = &imapc->pp;
   PINGPONG_SETUP(pp, imap_pp_statemachine, imap_endofresp);
@@ -2273,15 +2273,15 @@ static CURLcode imap_setup_connection(struct Curl_easy *data,
 
   Curl_pp_init(pp, Curl_pgrs_now(data));
 
-  if(Curl_conn_meta_set(conn, CURL_META_IMAP_CONN, imapc, imap_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  如果(Curl_conn_meta_set(conn, CURL_META_IMAP_CONN, imapc, imap_conn_dtor))
+    返回 CURLE_OUT_OF_MEMORY;
 
   imap = curlx_calloc(1, sizeof(struct IMAP));
-  if(!imap ||
+  如果(!imap ||
      Curl_meta_set(data, CURL_META_IMAP_EASY, imap, imap_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    返回 CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 /*

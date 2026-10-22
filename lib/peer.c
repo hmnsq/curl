@@ -57,8 +57,8 @@
 #include <sys/un.h>
 #endif
 
-#if defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
+#如果 defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
+#如果 defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
 #include <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
 #endif
 #include <iphlpapi.h>
@@ -107,12 +107,12 @@ static CURLcode peer_create(struct peer_parse *pp,
   CURLcode result = CURLE_OK;
   size_t zone_alen = 0, host_alen = 0;
 
-  if(!pp || !pp->scheme)
-    return CURLE_FAILED_INIT;
-  if(!pp->host.len && !(pp->scheme->flags & PROTOPT_NONETWORK))
-    return CURLE_FAILED_INIT;
+  如果(!pp || !pp->scheme)
+    返回 CURLE_FAILED_INIT;
+  如果(!pp->host.len && !(pp->scheme->flags & PROTOPT_NONETWORK))
+    返回 CURLE_FAILED_INIT;
 
-  if((pp->host.str != pp->host_user.str) ||
+  如果((pp->host.str != pp->host_user.str) ||
      (pp->host.len != pp->host_user.len)) {
     host_alen = pp->host.len + 1;
   }
@@ -121,7 +121,7 @@ static CURLcode peer_create(struct peer_parse *pp,
   /* null-terminator already part of struct */
   peer = curlx_calloc(1, sizeof(*peer) +
                          pp->host_user.len + host_alen + zone_alen);
-  if(!peer) {
+  如果(!peer) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -135,35 +135,35 @@ static CURLcode peer_create(struct peer_parse *pp,
   peer->unix_socket = pp->unix_socket;
   peer->abstract_uds = pp->abstract_uds;
 
-  if(pp->host_user.len)
+  如果(pp->host_user.len)
     memcpy(peer->user_hostname, pp->host_user.str, pp->host_user.len);
 
-  if(host_alen) {
+  如果(host_alen) {
     peer->hostname = peer->user_hostname + pp->host_user.len + 1;
     memcpy(peer->hostname, pp->host.str, pp->host.len);
   }
 
-  if(zone_alen) {
+  如果(zone_alen) {
     peer->zoneid = peer->user_hostname + pp->host_user.len + 1 + host_alen;
     memcpy(peer->zoneid, pp->zoneid.str, pp->zoneid.len);
 #ifdef USE_IPV6
     /* Determine scope_id if not already provided */
-    if(!peer->scopeid) {
+    如果(!peer->scopeid) {
       const char *p = peer->zoneid;
       curl_off_t scope;
-      if(!curlx_str_number(&p, &scope, UINT_MAX) && !*p) {
+      如果(!curlx_str_number(&p, &scope, UINT_MAX) && !*p) {
         /* A plain number, use it directly as a scope id. */
         peer->scopeid = (uint32_t)scope;
       }
 #ifdef HAVE_IF_NAMETOINDEX
-      else {
+      否则 {
         /* Zone identifier is not fully numeric */
-        unsigned int idx = 0;
+        unsigned 整数 idx = 0;
         idx = if_nametoindex(peer->zoneid);
-        if(idx) {
+        如果(idx) {
           peer->scopeid = (uint32_t)idx;
         }
-        else {
+        否则 {
           /* Do we want to return an error here? */
         }
       }
@@ -173,69 +173,69 @@ static CURLcode peer_create(struct peer_parse *pp,
   }
 
 out:
-  if(!result)
+  如果(!result)
     *ppeer = peer;
-  else
+  否则
     Curl_peer_unlink(&peer);
-  return result;
+  返回 result;
 }
 
 static CURLcode peer_parse_host(struct Curl_easy *data,
                                 struct peer_parse *pp,
                                 bool scan_for_ipv6)
 {
-  if(!pp || !pp->host_user.str || !pp->host_user.len)
-    return CURLE_FAILED_INIT;
+  如果(!pp || !pp->host_user.str || !pp->host_user.len)
+    返回 CURLE_FAILED_INIT;
 
-  if(pp->host_user.str[0] == '[') {
+  如果(pp->host_user.str[0] == '[') {
     const char *s = pp->host_user.str + 1;
     struct Curl_str tmp;
-    if(curlx_str_until(&s, &tmp, pp->host_user.len - 1, ']'))
-      return CURLE_URL_MALFORMAT;
+    如果(curlx_str_until(&s, &tmp, pp->host_user.len - 1, ']'))
+      返回 CURLE_URL_MALFORMAT;
 
-    if(!Curl_looks_like_ipv6(tmp.str, tmp.len, TRUE,
+    如果(!Curl_looks_like_ipv6(tmp.str, tmp.len, TRUE,
                              &pp->host, &pp->zoneid)) {
       failf(data, "Invalid IPv6 address format in '%.*s'",
-            (int)pp->host_user.len, pp->host_user.str);
-      return CURLE_URL_MALFORMAT;
+            (整数)pp->host_user.len, pp->host_user.str);
+      返回 CURLE_URL_MALFORMAT;
     }
     pp->ipv6 = TRUE;
   }
-  else {
+  否则 {
 #ifdef USE_IDN
-    if(!Curl_is_ASCII_str(&pp->host_user)) {
+    如果(!Curl_is_ASCII_str(&pp->host_user)) {
       CURLcode result;
-      if(!pp->tmp_host_user) {
+      如果(!pp->tmp_host_user) {
         /* need a null-terminated string for IDN */
         pp->tmp_host_user = curlx_memdup0(pp->host_user.str,
                                           pp->host_user.len);
-        if(!pp->tmp_host_user)
-          return CURLE_OUT_OF_MEMORY;
+        如果(!pp->tmp_host_user)
+          返回 CURLE_OUT_OF_MEMORY;
       }
       result = Curl_idn_decode(pp->tmp_host_user, &pp->tmp_host);
-      if(result)
-        return result;
+      如果(result)
+        返回 result;
       pp->host.str = pp->tmp_host;
       pp->host.len = strlen(pp->host.str);
     }
-    else
+    否则
 #endif
-    if(scan_for_ipv6 &&
+    如果(scan_for_ipv6 &&
        Curl_looks_like_ipv6(pp->host_user.str, pp->host_user.len, TRUE,
                             &pp->host, &pp->zoneid)) {
-      if(pp->host_user.len < MAX_IPADR_LEN) {
+      如果(pp->host_user.len < MAX_IPADR_LEN) {
         char tmp[MAX_IPADR_LEN];
         memcpy(tmp, pp->host_user.str, pp->host_user.len);
         tmp[pp->host_user.len] = 0;
         pp->ipv6 = !Curl_is_ipv4addr(tmp);
       }
-      else
+      否则
         pp->ipv6 = TRUE;
     }
-    else
+    否则
       pp->host = pp->host_user;
   }
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 CURLcode Curl_peer_create(struct Curl_easy *data,
@@ -255,11 +255,11 @@ CURLcode Curl_peer_create(struct Curl_easy *data,
   pp.port = port;
 
   result = peer_parse_host(data, &pp, TRUE);
-  if(!result)
+  如果(!result)
     result = peer_create(&pp, ppeer);
 
   peer_parse_clear(&pp);
-  return result;
+  返回 result;
 }
 
 #ifdef USE_UNIX_SOCKETS
@@ -274,10 +274,10 @@ CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
 
   Curl_peer_unlink(ppeer);
   memset(&pp, 0, sizeof(pp));
-  if(!scheme)
-    return CURLE_FAILED_INIT;
-  if(!pathlen)
-    return CURLE_FAILED_INIT;
+  如果(!scheme)
+    返回 CURLE_FAILED_INIT;
+  如果(!pathlen)
+    返回 CURLE_FAILED_INIT;
 
   pp.scheme = scheme;
   pp.host_user.str = pp.host.str = path;
@@ -287,16 +287,16 @@ CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
 
   result = peer_create(&pp, ppeer);
   peer_parse_clear(&pp);
-  return result;
+  返回 result;
 }
 #endif /* USE_UNIX_SOCKETS */
 
 void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src)
 {
-  if(*pdest != src) {
+  如果(*pdest != src) {
     Curl_peer_unlink(pdest);
     *pdest = src;
-    if(src) {
+    如果(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
@@ -305,14 +305,14 @@ void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src)
 
 void Curl_peer_unlink(struct Curl_peer **ppeer)
 {
-  if(*ppeer) {
+  如果(*ppeer) {
     struct Curl_peer *peer = *ppeer;
 
     DEBUGASSERT(peer->refcount);
     *ppeer = NULL;
-    if(peer->refcount)
+    如果(peer->refcount)
       peer->refcount--;
-    if(!peer->refcount) {
+    如果(!peer->refcount) {
       curlx_free(peer);
     }
   }
@@ -320,7 +320,7 @@ void Curl_peer_unlink(struct Curl_peer **ppeer)
 
 bool Curl_peer_equal(struct Curl_peer *p1, struct Curl_peer *p2)
 {
-  return (p1 == p2) ||
+  返回 (p1 == p2) ||
          (p1 && p2 &&
           (p1->scheme == p2->scheme) &&
           Curl_peer_same_destination(p1, p2));
@@ -330,7 +330,7 @@ static bool peer_same_hostname(struct Curl_peer *p1, struct Curl_peer *p2)
 {
   /* UNIX domain socket paths must be compared case-sensitive,
    * as many filesystem are like that. */
-  return (p1->unix_socket == p2->unix_socket) &&
+  返回 (p1->unix_socket == p2->unix_socket) &&
          (p1->abstract_uds == p2->abstract_uds) &&
          (p1->ipv6 == p2->ipv6) &&
          /* unix_socket paths are case-sensitive, hostnames are not.
@@ -343,13 +343,13 @@ static bool peer_same_hostname(struct Curl_peer *p1, struct Curl_peer *p2)
 
 static bool peer_same_zoneid(const char *z1, const char *z2)
 {
-  return (z1 == z2) ||
+  返回 (z1 == z2) ||
          (z1 && z2 && !strcmp(z1, z2));
 }
 
 bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2)
 {
-  return (p1 == p2) ||
+  返回 (p1 == p2) ||
          (p1 && p2 &&
           (p1->port == p2->port) &&
           peer_same_hostname(p1, p2) &&
@@ -371,10 +371,10 @@ CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
   memset(&pp, 0, sizeof(pp));
 
   uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme, 0);
-  if(uc)
-    return Curl_uc_to_curlcode(uc);
+  如果(uc)
+    返回 Curl_uc_to_curlcode(uc);
   pp.scheme = Curl_get_scheme(scheme);
-  if(!pp.scheme) {
+  如果(!pp.scheme) {
     failf(data, "Protocol \"%s\" not supported%s", scheme,
           data->state.this_is_a_follow ? " (in redirect)" : "");
     result = CURLE_UNSUPPORTED_PROTOCOL;
@@ -382,15 +382,15 @@ CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
   }
 
   uc = curl_url_get(uh, CURLUPART_HOST, &hostname, 0);
-  if(uc) {
-    if((uc == CURLUE_NO_HOST) && (pp.scheme->flags & PROTOPT_NONETWORK))
+  如果(uc) {
+    如果((uc == CURLUE_NO_HOST) && (pp.scheme->flags & PROTOPT_NONETWORK))
       ; /* acceptable */
-    else {
+    否则 {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
   }
-  else if(strlen(hostname) > MAX_URL_LEN) {
+  否则 如果(strlen(hostname) > MAX_URL_LEN) {
     failf(data, "Too long hostname (maximum is %d)", MAX_URL_LEN);
     result = CURLE_URL_MALFORMAT;
     goto out;
@@ -398,34 +398,34 @@ CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
 
   pp.host_user.str = hostname ? hostname : "";
   pp.host_user.len = strlen(pp.host_user.str);
-  if(pp.host_user.len) {
+  如果(pp.host_user.len) {
     result = peer_parse_host(data, &pp, FALSE);
-    if(result)
+    如果(result)
       goto out;
   }
-  else
+  否则
     pp.host = pp.host_user;
 
-  if(port_override) {
+  如果(port_override) {
     /* if set, we use this instead of the port possibly given in the URL */
     char portbuf[16];
     curl_msnprintf(portbuf, sizeof(portbuf), "%d", port_override);
     uc = curl_url_set(uh, CURLUPART_PORT, portbuf, 0);
-    if(uc) {
+    如果(uc) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
-    else
+    否则
       pp.port = port_override;
   }
-  else {
+  否则 {
     uc = Curl_url_get_port(uh, &pp.port);
-    if(uc) {
-      if(uc == CURLUE_OUT_OF_MEMORY) {
+    如果(uc) {
+      如果(uc == CURLUE_OUT_OF_MEMORY) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
-      else if(!(pp.scheme->flags & PROTOPT_NONETWORK)) {
+      否则 如果(!(pp.scheme->flags & PROTOPT_NONETWORK)) {
         result = CURLE_URL_MALFORMAT;
         goto out;
       }
@@ -433,32 +433,32 @@ CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
     }
   }
 
-  if(scopeid_override)
+  如果(scopeid_override)
     /* Override any scope id from an URL zone. */
     pp.scopeid = scopeid_override;
-  else {
-    if(curl_url_get(uh, CURLUPART_ZONEID, &zoneid, 0) ==
+  否则 {
+    如果(curl_url_get(uh, CURLUPART_ZONEID, &zoneid, 0) ==
        CURLUE_OUT_OF_MEMORY) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
-    if(zoneid) {
+    如果(zoneid) {
       pp.zoneid.str = zoneid;
       pp.zoneid.len = strlen(zoneid);
     }
   }
 
   result = peer_create(&pp, ppeer);
-  if(result)
+  如果(result)
     failf(data, "Error %d creating peer for %s:%u",
-          (int)result, pp.host_user.str, pp.port);
+          (整数)result, pp.host_user.str, pp.port);
 
 out:
   peer_parse_clear(&pp);
   curlx_free(scheme);
   curlx_free(hostname);
   curlx_free(zoneid);
-  return result;
+  返回 result;
 }
 
 /* Parse a "host:port" string to connect to into a peer.
@@ -475,15 +475,15 @@ CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
 
   Curl_peer_unlink(ppeer);
   memset(&pp, 0, sizeof(pp));
-  if(!connect_to || !*connect_to)
-    return CURLE_FAILED_INIT;
+  如果(!connect_to || !*connect_to)
+    返回 CURLE_FAILED_INIT;
 
   pp.scheme = dest->scheme;
 
   /* detect and extract RFC6874-style IPv6-addresses */
-  if(connect_to[0] == '[') {
+  如果(connect_to[0] == '[') {
     const char *s = strchr(connect_to + 1, ']');
-    if(!s) {
+    如果(!s) {
       failf(data, "Invalid IPv6 address format in '%s'", connect_to);
       result = CURLE_SETOPT_OPTION_SYNTAX;
       goto out;
@@ -493,47 +493,47 @@ CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
     pp.host_user.len = s - pp.host_user.str + 1;
     pp.ipv6 = TRUE;
   }
-  else {
+  否则 {
     portstr = strchr(connect_to, ':');
     pp.host_user.str = connect_to;
     pp.host_user.len = portstr ?
       (size_t)(portstr - connect_to) : strlen(connect_to);
   }
 
-  if(!pp.host_user.len) { /* no hostname found, only port switch */
+  如果(!pp.host_user.len) { /* no hostname found, only port switch */
     port_switch = TRUE;
     pp.host_user.str = dest->user_hostname;
     pp.host_user.len = strlen(dest->user_hostname);
   }
 
   result = peer_parse_host(data, &pp, FALSE);
-  if(result)
+  如果(result)
     goto out;
   /* On a port switch, ipv6 must stay the same */
   DEBUGASSERT(!port_switch || ((bool)pp.ipv6 == (bool)dest->ipv6));
 
-  if(portstr && portstr[1]) {
+  如果(portstr && portstr[1]) {
     const char *p = portstr + 1;
     curl_off_t portparse;
-    if(curlx_str_number(&p, &portparse, 0xffff)) {
+    如果(curlx_str_number(&p, &portparse, 0xffff)) {
       failf(data, "No valid port number in '%s'", connect_to);
       result = CURLE_SETOPT_OPTION_SYNTAX;
       goto out;
     }
     pp.port = (uint16_t)portparse; /* we know it will fit */
   }
-  else
+  否则
     pp.port = dest->port;
 
 #ifndef USE_IPV6
-  if(pp.ipv6) {
+  如果(pp.ipv6) {
     failf(data, "Use of IPv6 in *_CONNECT_TO without IPv6 support built-in");
     result = CURLE_NOT_BUILT_IN;
     goto out;
   }
 #endif
-  if(pp.ipv6 && port_switch) {
-    if(dest->zoneid) {
+  如果(pp.ipv6 && port_switch) {
+    如果(dest->zoneid) {
       pp.zoneid.str = dest->zoneid;
       pp.zoneid.len = strlen(dest->zoneid);
     }
@@ -541,12 +541,12 @@ CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
   }
 
   result = peer_create(&pp, ppeer);
-  CURL_TRC_M(data, "connect-to peer_create2 -> %d", (int)result);
+  CURL_TRC_M(data, "connect-to peer_create2 -> %d", (整数)result);
 
 out:
-  CURL_TRC_M(data, "parse connect_to peer: %s -> %d", connect_to, (int)result);
+  CURL_TRC_M(data, "parse connect_to peer: %s -> %d", connect_to, (整数)result);
   peer_parse_clear(&pp);
-  return result;
+  返回 result;
 }
 
 #ifndef CURL_DISABLE_PROXY
@@ -559,31 +559,31 @@ CURLcode Curl_scheme_to_proxytype(struct Curl_easy *data,
                                   const char *scheme,
                                   uint8_t *proxytype, const char *url)
 {
-  if(!scheme)
-    return CURLE_OK;
+  如果(!scheme)
+    返回 CURLE_OK;
 
-  if(curl_strequal("https", scheme)) {
-    if(*proxytype != CURLPROXY_HTTPS2 && *proxytype != CURLPROXY_HTTPS3)
+  如果(curl_strequal("https", scheme)) {
+    如果(*proxytype != CURLPROXY_HTTPS2 && *proxytype != CURLPROXY_HTTPS3)
       *proxytype = CURLPROXY_HTTPS;
   }
-  else if(curl_strequal("socks5h", scheme))
+  否则 如果(curl_strequal("socks5h", scheme))
     *proxytype = CURLPROXY_SOCKS5_HOSTNAME;
-  else if(curl_strequal("socks5", scheme))
+  否则 如果(curl_strequal("socks5", scheme))
     *proxytype = CURLPROXY_SOCKS5;
-  else if(curl_strequal("socks4a", scheme))
+  否则 如果(curl_strequal("socks4a", scheme))
     *proxytype = CURLPROXY_SOCKS4A;
-  else if(curl_strequal("socks4", scheme) || curl_strequal("socks", scheme))
+  否则 如果(curl_strequal("socks4", scheme) || curl_strequal("socks", scheme))
     *proxytype = CURLPROXY_SOCKS4;
-  else if(curl_strequal("http", scheme)) {
-    if(*proxytype != CURLPROXY_HTTP_1_0)
+  否则 如果(curl_strequal("http", scheme)) {
+    如果(*proxytype != CURLPROXY_HTTP_1_0)
       *proxytype = CURLPROXY_HTTP;
   }
-  else {
+  否则 {
     /* Any other xxx:// reject! */
     failf(data, "Unsupported proxy scheme for \'%s\'", url);
-    return CURLE_COULDNT_CONNECT;
+    返回 CURLE_COULDNT_CONNECT;
   }
-  return CURLE_OK;
+  返回 CURLE_OK;
 }
 
 CURLcode Curl_peer_from_proxy_url(CURLU *uh,
@@ -607,8 +607,8 @@ CURLcode Curl_peer_from_proxy_url(CURLU *uh,
   pp.port = CURL_DEFAULT_PROXY_PORT;
   uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme,
                     CURLU_NON_SUPPORT_SCHEME | CURLU_NO_GUESS_SCHEME);
-  if(uc) {
-    if(uc == CURLUE_OUT_OF_MEMORY) {
+  如果(uc) {
+    如果(uc == CURLUE_OUT_OF_MEMORY) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
@@ -641,15 +641,15 @@ CURLcode Curl_peer_from_proxy_url(CURLU *uh,
       goto out;
     }
   }
-  else {
+  否则 {
     pp.scheme = Curl_get_scheme(scheme);
     result = Curl_scheme_to_proxytype(data, scheme, &proxytype, url);
-    if(result)
+    如果(result)
       goto out;
   }
   DEBUGASSERT(pp.scheme);
 
-  if(CURL_PROXY_IS_HTTPS(proxytype) &&
+  如果(CURL_PROXY_IS_HTTPS(proxytype) &&
      !Curl_ssl_supports(data, SSLSUPP_HTTPS_PROXY)) {
     failf(data, "Unsupported proxy \'%s\', libcurl is built without the "
           "HTTPS-proxy support.", url);
@@ -672,29 +672,29 @@ CURLcode Curl_peer_from_proxy_url(CURLU *uh,
   }
 
   uc = curl_url_get(uh, CURLUPART_PORT, &portptr, CURLU_NO_DEFAULT_PORT);
-  if(uc == CURLUE_OUT_OF_MEMORY) {
+  如果(uc == CURLUE_OUT_OF_MEMORY) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
-  if(portptr) {
+  如果(portptr) {
     curl_off_t num;
     const char *p = portptr;
-    if(!curlx_str_number(&p, &num, UINT16_MAX))
+    如果(!curlx_str_number(&p, &num, UINT16_MAX))
       pp.port = (uint16_t)num;
     /* Should we not error out when the port number is invalid? */
     curlx_free(portptr);
   }
-  else {
+  否则 {
     /* No port in URL, take the set one or the scheme's default */
-    if(data->set.proxyport)
+    如果(data->set.proxyport)
       pp.port = data->set.proxyport;
-    else
+    否则
       pp.port = pp.scheme->defport;
   }
 
   /* now, clone the proxy hostname */
   uc = curl_url_get(uh, CURLUPART_HOST, &pp.tmp_host_user, CURLU_URLDECODE);
-  if(uc) {
+  如果(uc) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -702,36 +702,36 @@ CURLcode Curl_peer_from_proxy_url(CURLU *uh,
   pp.host_user.len = strlen(pp.tmp_host_user);
 
 #ifdef USE_UNIX_SOCKETS
-  if(is_socks && curl_strequal(UNIX_SOCKET_PREFIX, pp.tmp_host_user)) {
+  如果(is_socks && curl_strequal(UNIX_SOCKET_PREFIX, pp.tmp_host_user)) {
     uc = curl_url_get(uh, CURLUPART_PATH, &pp.tmp_host, CURLU_URLDECODE);
-    if(uc) {
+    如果(uc) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
     /* path will be "/", if no path was found */
-    if(strcmp("/", pp.tmp_host)) {
+    如果(strcmp("/", pp.tmp_host)) {
       pp.host.str = pp.tmp_host;
       pp.host.len = strlen(pp.tmp_host);
       pp.unix_socket = TRUE;
     }
-    else {
+    否则 {
       pp.host = pp.host_user;
     }
   }
 #endif /* USE_UNIX_SOCKETS */
 
-  if(!pp.host.len) {
+  如果(!pp.host.len) {
     result = peer_parse_host(data, &pp, FALSE);
-    if(result)
+    如果(result)
       goto out;
   }
 
   uc = curl_url_get(uh, CURLUPART_ZONEID, &pp.tmp_zoneid, 0);
-  if(uc == CURLUE_OUT_OF_MEMORY) {
+  如果(uc == CURLUE_OUT_OF_MEMORY) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
-  if(pp.tmp_zoneid) {
+  如果(pp.tmp_zoneid) {
     pp.zoneid.str = pp.tmp_zoneid;
     pp.zoneid.len = strlen(pp.tmp_zoneid);
   }
@@ -743,10 +743,10 @@ out:
   peer_parse_clear(&pp);
   curlx_free(scheme);
 #ifdef DEBUGBUILD
-  if(!result)
+  如果(!result)
     DEBUGASSERT(*ppeer);
 #endif
-  return result;
+  返回 result;
 }
 
 #endif /* !CURL_DISABLE_PROXY */

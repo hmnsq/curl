@@ -31,15 +31,15 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
   struct curl_slist *item;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  如果(!list)
+    返回 NULL;
 
   /* loop through to find the last item */
   item = list;
-  while(item->next) {
+  当(item->next) {
     item = item->next;
   }
-  return item;
+  返回 item;
 }
 
 /*
@@ -60,19 +60,19 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
   DEBUGASSERT(data);
 
   new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  如果(!new_item)
+    返回 NULL;
 
   new_item->next = NULL;
   new_item->data = CURL_UNCONST(data);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  如果(!list)
+    返回 new_item;
 
   last = slist_get_last(list);
   last->next = new_item;
-  return list;
+  返回 list;
 }
 
 /*
@@ -86,14 +86,14 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
 {
   char *dupdata = curlx_strdup(data);
 
-  if(!dupdata)
-    return NULL;
+  如果(!dupdata)
+    返回 NULL;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  如果(!list)
     curlx_free(dupdata);
 
-  return list;
+  返回 list;
 }
 
 /*
@@ -106,19 +106,19 @@ struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
   struct curl_slist *outlist = NULL;
   struct curl_slist **tail = &outlist;
 
-  while(inlist) {
+  当(inlist) {
     struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
 
-    if(!tmp) {
+    如果(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      返回 NULL;
     }
 
     *tail = tmp;
     tail = &tmp->next;
     inlist = inlist->next;
   }
-  return outlist;
+  返回 outlist;
 }
 
 /* be nice and clean up resources */
@@ -127,8 +127,8 @@ void curl_slist_free_all(struct curl_slist *list)
   struct curl_slist *next;
   struct curl_slist *item;
 
-  if(!list)
-    return;
+  如果(!list)
+    返回;
 
   item = list;
   do {
@@ -136,5 +136,5 @@ void curl_slist_free_all(struct curl_slist *list)
     curlx_safefree(item->data);
     curlx_free(item);
     item = next;
-  } while(next);
+  } 当(next);
 }
