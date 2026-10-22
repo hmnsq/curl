@@ -24,12 +24,12 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#𐤀𐤌 !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "curlx/dynbuf.h"
-#include "bufq.h"
+#ضمن "curlx/dynbuf.h"
+#ضمن "bufq.h"
 
 /* HTTP Capsule constants */
 #define HTTP_CAPSULE_HEADER_MAX_SIZE    10
@@ -43,11 +43,11 @@
  * @param blen  Payload buffer length
  * @return CURLE_OK on success, error code on failure
  */
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen);
+CURLcode Curl_capsule_encap_udp_datagram(بنية bufq *q,
+                                         ثابت فراغ *buf, size_t blen);
 
-struct Curl_easy;
-struct Curl_cfilter;
+بنية Curl_easy;
+بنية Curl_cfilter;
 
 /**
  * Process one UDP capsule from buffer into raw datagram payload bytes.
@@ -59,10 +59,10 @@ struct Curl_cfilter;
  * @param err       Error code output
  * @return Number of payload bytes written. Check `err` for status.
  */
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *data,
+                                    بنية bufq *recvbufq,
+                                    unsigned حرف *buf, size_t len,
                                     CURLcode *err);
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

@@ -21,35 +21,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "protocol.h"
-#include "strcase.h"
+#ضمن "protocol.h"
+#ضمن "strcase.h"
 
-#include "dict.h"
-#include "file.h"
-#include "ftp.h"
-#include "gopher.h"
-#include "http.h"
-#include "imap.h"
-#include "curl_ldap.h"
-#include "mqtt.h"
-#include "pop3.h"
-#include "rtsp.h"
-#include "smtp.h"
-#include "telnet.h"
-#include "tftp.h"
-#include "ws.h"
-#include "vssh/ssh.h"
+#ضمن "dict.h"
+#ضمن "file.h"
+#ضمن "ftp.h"
+#ضمن "gopher.h"
+#ضمن "http.h"
+#ضمن "imap.h"
+#ضمن "curl_ldap.h"
+#ضمن "mqtt.h"
+#ضمن "pop3.h"
+#ضمن "rtsp.h"
+#ضمن "smtp.h"
+#ضمن "telnet.h"
+#ضمن "tftp.h"
+#ضمن "ws.h"
+#ضمن "vssh/ssh.h"
 
 
 /* All URI schemes known to libcurl, but not necessarily implemented
  * by protocol handlers. */
-const struct Curl_scheme Curl_scheme_dict = {
+ثابت بنية Curl_scheme Curl_scheme_dict = {
   "dict",                               /* scheme */
 #ifdef CURL_DISABLE_DICT
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_dict,
 #endif
   CURLPROTO_DICT,                       /* protocol */
@@ -58,11 +58,11 @@ const struct Curl_scheme Curl_scheme_dict = {
   PORT_DICT,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_file = {
+ثابت بنية Curl_scheme Curl_scheme_file = {
   "file",                               /* scheme */
 #ifdef CURL_DISABLE_FILE
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_file,
 #endif
   CURLPROTO_FILE,                       /* protocol */
@@ -71,11 +71,11 @@ const struct Curl_scheme Curl_scheme_file = {
   0                                     /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ftp = {
+ثابت بنية Curl_scheme Curl_scheme_ftp = {
   "ftp",                           /* scheme */
 #ifdef CURL_DISABLE_FTP
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_ftp,
 #endif
   CURLPROTO_FTP,                   /* protocol */
@@ -87,11 +87,11 @@ const struct Curl_scheme Curl_scheme_ftp = {
   PORT_FTP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ftps = {
+ثابت بنية Curl_scheme Curl_scheme_ftps = {
   "ftps",                          /* scheme */
-#if defined(CURL_DISABLE_FTP) || !defined(USE_SSL)
+#𐤀𐤌 defined(CURL_DISABLE_FTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_ftp,
 #endif
   CURLPROTO_FTPS,                  /* protocol */
@@ -102,11 +102,11 @@ const struct Curl_scheme Curl_scheme_ftps = {
   PORT_FTPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_gopher = {
+ثابت بنية Curl_scheme Curl_scheme_gopher = {
   "gopher",                             /* scheme */
 #ifdef CURL_DISABLE_GOPHER
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_gopher,
 #endif
   CURLPROTO_GOPHER,                     /* protocol */
@@ -115,11 +115,11 @@ const struct Curl_scheme Curl_scheme_gopher = {
   PORT_GOPHER,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_gophers = {
+ثابت بنية Curl_scheme Curl_scheme_gophers = {
   "gophers",                            /* scheme */
-#if defined(CURL_DISABLE_GOPHER) || !defined(USE_SSL)
+#𐤀𐤌 defined(CURL_DISABLE_GOPHER) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_gophers,
 #endif
   CURLPROTO_GOPHERS,                    /* protocol */
@@ -128,11 +128,11 @@ const struct Curl_scheme Curl_scheme_gophers = {
   PORT_GOPHER,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_http = {
+ثابت بنية Curl_scheme Curl_scheme_http = {
   "http",                               /* scheme */
 #ifdef CURL_DISABLE_HTTP
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_http,
 #endif
   CURLPROTO_HTTP,                       /* protocol */
@@ -142,11 +142,11 @@ const struct Curl_scheme Curl_scheme_http = {
   PORT_HTTP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_https = {
+ثابت بنية Curl_scheme Curl_scheme_https = {
   "https",                              /* scheme */
-#if defined(CURL_DISABLE_HTTP) || !defined(USE_SSL)
+#𐤀𐤌 defined(CURL_DISABLE_HTTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_http,
 #endif
   CURLPROTO_HTTPS,                      /* protocol */
@@ -157,11 +157,11 @@ const struct Curl_scheme Curl_scheme_https = {
   PORT_HTTPS,                           /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_imap = {
+ثابت بنية Curl_scheme Curl_scheme_imap = {
   "imap",                           /* scheme */
 #ifdef CURL_DISABLE_IMAP
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_imap,
 #endif
   CURLPROTO_IMAP,                   /* protocol */
@@ -172,11 +172,11 @@ const struct Curl_scheme Curl_scheme_imap = {
   PORT_IMAP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_imaps = {
+ثابت بنية Curl_scheme Curl_scheme_imaps = {
   "imaps",                          /* scheme */
-#if defined(CURL_DISABLE_IMAP) || !defined(USE_SSL)
+#𐤀𐤌 defined(CURL_DISABLE_IMAP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_imap,
 #endif
   CURLPROTO_IMAPS,                  /* protocol */
@@ -186,11 +186,11 @@ const struct Curl_scheme Curl_scheme_imaps = {
   PORT_IMAPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ldap = {
+ثابت بنية Curl_scheme Curl_scheme_ldap = {
   "ldap",                               /* scheme */
 #ifdef CURL_DISABLE_LDAP
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_ldap,
 #endif
   CURLPROTO_LDAP,                       /* protocol */
@@ -199,11 +199,11 @@ const struct Curl_scheme Curl_scheme_ldap = {
   PORT_LDAP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ldaps = {
+ثابت بنية Curl_scheme Curl_scheme_ldaps = {
   "ldaps",                              /* scheme */
-#if defined(CURL_DISABLE_LDAP) || !defined(HAVE_LDAP_SSL)
+#𐤀𐤌 defined(CURL_DISABLE_LDAP) || !defined(HAVE_LDAP_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_ldap,
 #endif
   CURLPROTO_LDAPS,                      /* protocol */
@@ -212,11 +212,11 @@ const struct Curl_scheme Curl_scheme_ldaps = {
   PORT_LDAPS,                           /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_mqtt = {
+ثابت بنية Curl_scheme Curl_scheme_mqtt = {
   "mqtt",                             /* scheme */
 #ifdef CURL_DISABLE_MQTT
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_mqtt,
 #endif
   CURLPROTO_MQTT,                     /* protocol */
@@ -225,11 +225,11 @@ const struct Curl_scheme Curl_scheme_mqtt = {
   PORT_MQTT,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_mqtts = {
+ثابت بنية Curl_scheme Curl_scheme_mqtts = {
   "mqtts",                            /* scheme */
-#if defined(CURL_DISABLE_MQTT) || !defined(USE_SSL)
+#𐤀𐤌 defined(CURL_DISABLE_MQTT) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_mqtts,
 #endif
   CURLPROTO_MQTTS,                    /* protocol */
@@ -238,11 +238,11 @@ const struct Curl_scheme Curl_scheme_mqtts = {
   PORT_MQTTS,                         /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_pop3 = {
+ثابت بنية Curl_scheme Curl_scheme_pop3 = {
   "pop3",                           /* scheme */
 #ifdef CURL_DISABLE_POP3
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_pop3,
 #endif
   CURLPROTO_POP3,                   /* protocol */
@@ -252,11 +252,11 @@ const struct Curl_scheme Curl_scheme_pop3 = {
   PORT_POP3,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_pop3s = {
+ثابت بنية Curl_scheme Curl_scheme_pop3s = {
   "pop3s",                          /* scheme */
-#if defined(CURL_DISABLE_POP3) || !defined(USE_SSL)
+#𐤀𐤌 defined(CURL_DISABLE_POP3) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_pop3,
 #endif
   CURLPROTO_POP3S,                  /* protocol */
@@ -266,11 +266,11 @@ const struct Curl_scheme Curl_scheme_pop3s = {
   PORT_POP3S,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_rtsp = {
+ثابت بنية Curl_scheme Curl_scheme_rtsp = {
   "rtsp",                               /* scheme */
 #ifdef CURL_DISABLE_RTSP
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_rtsp,
 #endif
   CURLPROTO_RTSP,                       /* protocol */
@@ -279,11 +279,11 @@ const struct Curl_scheme Curl_scheme_rtsp = {
   PORT_RTSP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_sftp = {
+ثابت بنية Curl_scheme Curl_scheme_sftp = {
   "sftp",                               /* scheme */
 #ifndef USE_SSH
-  NULL,
-#else
+  عدم,
+#وإلا
   &Curl_protocol_sftp,
 #endif
   CURLPROTO_SFTP,                       /* protocol */
@@ -293,11 +293,11 @@ const struct Curl_scheme Curl_scheme_sftp = {
   PORT_SSH                              /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_scp = {
+ثابت بنية Curl_scheme Curl_scheme_scp = {
   "scp",                                /* scheme */
 #ifndef USE_SSH
-  NULL,
-#else
+  عدم,
+#وإلا
   &Curl_protocol_scp,
 #endif
   CURLPROTO_SCP,                        /* protocol */
@@ -307,11 +307,11 @@ const struct Curl_scheme Curl_scheme_scp = {
   PORT_SSH,                             /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_smtp = {
+ثابت بنية Curl_scheme Curl_scheme_smtp = {
   "smtp",                           /* scheme */
 #ifdef CURL_DISABLE_SMTP
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_smtp,
 #endif
   CURLPROTO_SMTP,                   /* protocol */
@@ -321,11 +321,11 @@ const struct Curl_scheme Curl_scheme_smtp = {
   PORT_SMTP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_smtps = {
+ثابت بنية Curl_scheme Curl_scheme_smtps = {
   "smtps",                          /* scheme */
-#if defined(CURL_DISABLE_SMTP) || !defined(USE_SSL)
+#𐤀𐤌 defined(CURL_DISABLE_SMTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_smtp,
 #endif
   CURLPROTO_SMTPS,                  /* protocol */
@@ -335,7 +335,7 @@ const struct Curl_scheme Curl_scheme_smtps = {
   PORT_SMTPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks = {
+ثابت بنية Curl_scheme Curl_scheme_socks = {
   "socks",                          /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
@@ -344,7 +344,7 @@ const struct Curl_scheme Curl_scheme_socks = {
   PORT_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks4 = {
+ثابت بنية Curl_scheme Curl_scheme_socks4 = {
   "socks4",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
@@ -353,7 +353,7 @@ const struct Curl_scheme Curl_scheme_socks4 = {
   PORT_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks4a = {
+ثابت بنية Curl_scheme Curl_scheme_socks4a = {
   "socks4a",                        /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
@@ -362,7 +362,7 @@ const struct Curl_scheme Curl_scheme_socks4a = {
   PORT_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks5 = {
+ثابت بنية Curl_scheme Curl_scheme_socks5 = {
   "socks5",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
@@ -371,7 +371,7 @@ const struct Curl_scheme Curl_scheme_socks5 = {
   PORT_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks5h = {
+ثابت بنية Curl_scheme Curl_scheme_socks5h = {
   "socks5h",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
@@ -380,11 +380,11 @@ const struct Curl_scheme Curl_scheme_socks5h = {
   PORT_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_telnet = {
+ثابت بنية Curl_scheme Curl_scheme_telnet = {
   "telnet",                             /* scheme */
 #ifdef CURL_DISABLE_TELNET
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_telnet,
 #endif
   CURLPROTO_TELNET,                     /* protocol */
@@ -393,11 +393,11 @@ const struct Curl_scheme Curl_scheme_telnet = {
   PORT_TELNET,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_tftp = {
+ثابت بنية Curl_scheme Curl_scheme_tftp = {
   "tftp",                               /* scheme */
 #ifdef CURL_DISABLE_TFTP
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_tftp,
 #endif
   CURLPROTO_TFTP,                       /* protocol */
@@ -406,11 +406,11 @@ const struct Curl_scheme Curl_scheme_tftp = {
   PORT_TFTP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ws = {
+ثابت بنية Curl_scheme Curl_scheme_ws = {
   "ws",                                 /* scheme */
-#if defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP)
+#𐤀𐤌 defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_ws,
 #endif
   CURLPROTO_WS,                         /* protocol */
@@ -420,12 +420,12 @@ const struct Curl_scheme Curl_scheme_ws = {
   PORT_HTTP                             /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_wss = {
+ثابت بنية Curl_scheme Curl_scheme_wss = {
   "wss",                                /* scheme */
-#if defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP) || \
+#𐤀𐤌 defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP) || \
   !defined(USE_SSL)
   ZERO_NULL,
-#else
+#وإلا
   &Curl_protocol_ws,
 #endif
   CURLPROTO_WSS,                        /* protocol */
@@ -435,180 +435,180 @@ const struct Curl_scheme Curl_scheme_wss = {
   PORT_HTTPS                            /* defport */
 };
 
-static const struct Curl_scheme *two_letter_scheme(const char *scheme)
+ساكن ثابت بنية Curl_scheme *two_letter_scheme(ثابت حرف *scheme)
 {
-  if((Curl_raw_tolower(scheme[0]) == 'w') &&
+  𐤀𐤌((Curl_raw_tolower(scheme[0]) == 'w') &&
      (Curl_raw_tolower(scheme[1]) == 's'))
-    return &Curl_scheme_ws;
-  return NULL;
+    أرجع &Curl_scheme_ws;
+  أرجع عدم;
 }
 
-static const struct Curl_scheme *three_letter_scheme(const char *scheme)
+ساكن ثابت بنية Curl_scheme *three_letter_scheme(ثابت حرف *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  char s1 = Curl_raw_tolower(scheme[1]);
-  char s2 = Curl_raw_tolower(scheme[2]);
-  if(s0 == 'f') {
-    if(s1 == 't' && s2 == 'p')
-      return &Curl_scheme_ftp;
+  حرف s0 = Curl_raw_tolower(scheme[0]);
+  حرف s1 = Curl_raw_tolower(scheme[1]);
+  حرف s2 = Curl_raw_tolower(scheme[2]);
+  𐤀𐤌(s0 == 'f') {
+    𐤀𐤌(s1 == 't' && s2 == 'p')
+      أرجع &Curl_scheme_ftp;
   }
-  else if(s0 == 'w') {
-    if(s1 == 's' && s2 == 's')
-      return &Curl_scheme_wss;
+  وإلا 𐤀𐤌(s0 == 'w') {
+    𐤀𐤌(s1 == 's' && s2 == 's')
+      أرجع &Curl_scheme_wss;
   }
-  else if(s0 == 's') {
-    if(s1 == 'c' && s2 == 'p')
-      return &Curl_scheme_scp;
+  وإلا 𐤀𐤌(s0 == 's') {
+    𐤀𐤌(s1 == 'c' && s2 == 'p')
+      أرجع &Curl_scheme_scp;
   }
-  return NULL;
+  أرجع عدم;
 }
 
-static const struct Curl_scheme *four_letter_scheme(const char *scheme)
+ساكن ثابت بنية Curl_scheme *four_letter_scheme(ثابت حرف *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  char s1 = Curl_raw_tolower(scheme[1]);
-  char s2 = Curl_raw_tolower(scheme[2]);
-  char s3 = Curl_raw_tolower(scheme[3]);
-  if(s3 == 'p') {
-    if(s0 == 'h') {
-      if(s1 == 't' && s2 == 't')
-        return &Curl_scheme_http;
+  حرف s0 = Curl_raw_tolower(scheme[0]);
+  حرف s1 = Curl_raw_tolower(scheme[1]);
+  حرف s2 = Curl_raw_tolower(scheme[2]);
+  حرف s3 = Curl_raw_tolower(scheme[3]);
+  𐤀𐤌(s3 == 'p') {
+    𐤀𐤌(s0 == 'h') {
+      𐤀𐤌(s1 == 't' && s2 == 't')
+        أرجع &Curl_scheme_http;
     }
-    else if(s0 == 'i') {
-      if(s1 == 'm' && s2 == 'a')
-        return &Curl_scheme_imap;
+    وإلا 𐤀𐤌(s0 == 'i') {
+      𐤀𐤌(s1 == 'm' && s2 == 'a')
+        أرجع &Curl_scheme_imap;
     }
-    else if(s0 == 'l') {
-      if(s1 == 'd' && s2 == 'a')
-        return &Curl_scheme_ldap;
+    وإلا 𐤀𐤌(s0 == 'l') {
+      𐤀𐤌(s1 == 'd' && s2 == 'a')
+        أرجع &Curl_scheme_ldap;
     }
-    else if(s0 == 'r') {
-      if(s1 == 't' && s2 == 's')
-        return &Curl_scheme_rtsp;
+    وإلا 𐤀𐤌(s0 == 'r') {
+      𐤀𐤌(s1 == 't' && s2 == 's')
+        أرجع &Curl_scheme_rtsp;
     }
-    else if(s0 == 't') {
-      if(s1 == 'f' && s2 == 't')
-        return &Curl_scheme_tftp;
+    وإلا 𐤀𐤌(s0 == 't') {
+      𐤀𐤌(s1 == 'f' && s2 == 't')
+        أرجع &Curl_scheme_tftp;
     }
-    else if(s0 == 's') {
-      if(s1 == 'f' && s2 == 't')
-        return &Curl_scheme_sftp;
-      if(s1 == 'm' && s2 == 't')
-        return &Curl_scheme_smtp;
+    وإلا 𐤀𐤌(s0 == 's') {
+      𐤀𐤌(s1 == 'f' && s2 == 't')
+        أرجع &Curl_scheme_sftp;
+      𐤀𐤌(s1 == 'm' && s2 == 't')
+        أرجع &Curl_scheme_smtp;
     }
   }
-  else if(s0 == 'f') {
-    if(s1 == 't' && s2 == 'p' && s3 == 's')
-      return &Curl_scheme_ftps;
-    if(s1 == 'i' && s2 == 'l' && s3 == 'e')
-      return &Curl_scheme_file;
+  وإلا 𐤀𐤌(s0 == 'f') {
+    𐤀𐤌(s1 == 't' && s2 == 'p' && s3 == 's')
+      أرجع &Curl_scheme_ftps;
+    𐤀𐤌(s1 == 'i' && s2 == 'l' && s3 == 'e')
+      أرجع &Curl_scheme_file;
   }
-  else if(s0 == 'm') {
-    if(s1 == 'q' && s2 == 't' && s3 == 't')
-      return &Curl_scheme_mqtt;
+  وإلا 𐤀𐤌(s0 == 'm') {
+    𐤀𐤌(s1 == 'q' && s2 == 't' && s3 == 't')
+      أرجع &Curl_scheme_mqtt;
   }
-  else if(s0 == 'p') {
-    if(s1 == 'o' && s2 == 'p' && s3 == '3')
-      return &Curl_scheme_pop3;
+  وإلا 𐤀𐤌(s0 == 'p') {
+    𐤀𐤌(s1 == 'o' && s2 == 'p' && s3 == '3')
+      أرجع &Curl_scheme_pop3;
   }
-  else if(s0 == 'd') {
-    if(s1 == 'i' && s2 == 'c' && s3 == 't')
-      return &Curl_scheme_dict;
+  وإلا 𐤀𐤌(s0 == 'd') {
+    𐤀𐤌(s1 == 'i' && s2 == 'c' && s3 == 't')
+      أرجع &Curl_scheme_dict;
   }
-  return NULL;
+  أرجع عدم;
 }
 
-static const struct Curl_scheme *five_letter_scheme(const char *scheme)
+ساكن ثابت بنية Curl_scheme *five_letter_scheme(ثابت حرف *scheme)
 {
-  char s4 = Curl_raw_tolower(scheme[4]);
-  if(s4 == 's') {
-    char s0 = Curl_raw_tolower(scheme[0]);
-    char s1 = Curl_raw_tolower(scheme[1]);
-    char s2 = Curl_raw_tolower(scheme[2]);
-    char s3 = Curl_raw_tolower(scheme[3]);
-    if(s3 == 'p') {
-      switch(s0) {
-      case 'h':
-        if(s1 == 't' && s2 == 't')
-          return &Curl_scheme_https;
-        break;
-      case 'l':
-        if(s1 == 'd' && s2 == 'a')
-          return &Curl_scheme_ldaps;
-        break;
-      case 'i':
-        if(s1 == 'm' && s2 == 'a')
-          return &Curl_scheme_imaps;
-        break;
-      case 's':
-        if(s1 == 'm' && s2 == 't')
-          return &Curl_scheme_smtps;
-        break;
-      default:
-        break;
+  حرف s4 = Curl_raw_tolower(scheme[4]);
+  𐤀𐤌(s4 == 's') {
+    حرف s0 = Curl_raw_tolower(scheme[0]);
+    حرف s1 = Curl_raw_tolower(scheme[1]);
+    حرف s2 = Curl_raw_tolower(scheme[2]);
+    حرف s3 = Curl_raw_tolower(scheme[3]);
+    𐤀𐤌(s3 == 'p') {
+      بدل(s0) {
+      حالة 'h':
+        𐤀𐤌(s1 == 't' && s2 == 't')
+          أرجع &Curl_scheme_https;
+        اكسر;
+      حالة 'l':
+        𐤀𐤌(s1 == 'd' && s2 == 'a')
+          أرجع &Curl_scheme_ldaps;
+        اكسر;
+      حالة 'i':
+        𐤀𐤌(s1 == 'm' && s2 == 'a')
+          أرجع &Curl_scheme_imaps;
+        اكسر;
+      حالة 's':
+        𐤀𐤌(s1 == 'm' && s2 == 't')
+          أرجع &Curl_scheme_smtps;
+        اكسر;
+      افتراضي:
+        اكسر;
       }
     }
-    else if(s0 == 'p') {
-      if(s1 == 'o' && s2 == 'p' && s3 == '3')
-        return &Curl_scheme_pop3s;
+    وإلا 𐤀𐤌(s0 == 'p') {
+      𐤀𐤌(s1 == 'o' && s2 == 'p' && s3 == '3')
+        أرجع &Curl_scheme_pop3s;
     }
-    else if(s0 == 'm') {
-      if(s1 == 'q' && s2 == 't' && s3 == 't')
-        return &Curl_scheme_mqtts;
+    وإلا 𐤀𐤌(s0 == 'm') {
+      𐤀𐤌(s1 == 'q' && s2 == 't' && s3 == 't')
+        أرجع &Curl_scheme_mqtts;
     }
-    else if(s0 == 's') {
-      if(s1 == 'o' && s2 == 'c' && s3 == 'k')
-        return &Curl_scheme_socks;
+    وإلا 𐤀𐤌(s0 == 's') {
+      𐤀𐤌(s1 == 'o' && s2 == 'c' && s3 == 'k')
+        أرجع &Curl_scheme_socks;
     }
   }
-  return NULL;
+  أرجع عدم;
 }
 
-static const struct Curl_scheme *six_letter_scheme(const char *scheme)
+ساكن ثابت بنية Curl_scheme *six_letter_scheme(ثابت حرف *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  switch(s0) {
-  case 's':
-    if(curl_strnequal("ocks4", &scheme[1], 5))
-      return &Curl_scheme_socks4;
-    if(curl_strnequal("ocks5", &scheme[1], 5))
-      return &Curl_scheme_socks5;
-    break;
-  case 'g':
-    if(curl_strnequal("opher", &scheme[1], 5))
-      return &Curl_scheme_gopher;
-    break;
-  case 't':
-    if(curl_strnequal("elnet", &scheme[1], 5))
-      return &Curl_scheme_telnet;
-    break;
+  حرف s0 = Curl_raw_tolower(scheme[0]);
+  بدل(s0) {
+  حالة 's':
+    𐤀𐤌(curl_strnequal("ocks4", &scheme[1], 5))
+      أرجع &Curl_scheme_socks4;
+    𐤀𐤌(curl_strnequal("ocks5", &scheme[1], 5))
+      أرجع &Curl_scheme_socks5;
+    اكسر;
+  حالة 'g':
+    𐤀𐤌(curl_strnequal("opher", &scheme[1], 5))
+      أرجع &Curl_scheme_gopher;
+    اكسر;
+  حالة 't':
+    𐤀𐤌(curl_strnequal("elnet", &scheme[1], 5))
+      أرجع &Curl_scheme_telnet;
+    اكسر;
   }
-  return NULL;
+  أرجع عدم;
 }
 
-static const struct Curl_scheme *seven_letter_scheme(const char *scheme)
+ساكن ثابت بنية Curl_scheme *seven_letter_scheme(ثابت حرف *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  if(s0 == 's') {
-    if(curl_strnequal("ocks4a", &scheme[1], 6))
-      return &Curl_scheme_socks4a;
-    if(curl_strnequal("ocks5h", &scheme[1], 6))
-      return &Curl_scheme_socks5h;
+  حرف s0 = Curl_raw_tolower(scheme[0]);
+  𐤀𐤌(s0 == 's') {
+    𐤀𐤌(curl_strnequal("ocks4a", &scheme[1], 6))
+      أرجع &Curl_scheme_socks4a;
+    𐤀𐤌(curl_strnequal("ocks5h", &scheme[1], 6))
+      أرجع &Curl_scheme_socks5h;
   }
-  else if(s0 == 'g') {
-    if(curl_strnequal("ophers", &scheme[1], 6))
-      return &Curl_scheme_gophers;
+  وإلا 𐤀𐤌(s0 == 'g') {
+    𐤀𐤌(curl_strnequal("ophers", &scheme[1], 6))
+      أرجع &Curl_scheme_gophers;
   }
-  return NULL;
+  أرجع عدم;
 }
 
 /* Returns a struct scheme pointer if the name is a known scheme. Check the
    ->run struct field for non-NULL to figure out if an implementation is
    present. */
-const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len)
+ثابت بنية Curl_scheme *Curl_getn_scheme(ثابت حرف *scheme, size_t len)
 {
-  typedef const struct Curl_scheme *(*letterfunc)(const char *ptr);
-  static const letterfunc parse[] = {
+  تعريفنوع ثابت بنية Curl_scheme *(*letterfunc)(ثابت حرف *ptr);
+  ساكن ثابت letterfunc parse[] = {
     two_letter_scheme,
     three_letter_scheme,
     four_letter_scheme,
@@ -617,13 +617,13 @@ const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len)
     seven_letter_scheme
   };
 
-  if(len < 2 || len > 7)
-    return NULL;
+  𐤀𐤌(len < 2 || len > 7)
+    أرجع عدم;
 
-  return parse[len - 2](scheme);
+  أرجع parse[len - 2](scheme);
 }
 
-const struct Curl_scheme *Curl_get_scheme(const char *scheme)
+ثابت بنية Curl_scheme *Curl_get_scheme(ثابت حرف *scheme)
 {
-  return Curl_getn_scheme(scheme, strlen(scheme));
+  أرجع Curl_getn_scheme(scheme, strlen(scheme));
 }

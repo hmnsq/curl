@@ -21,58 +21,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if defined(_WIN32) && defined(UNICODE)
+#𐤀𐤌 defined(_WIN32) && defined(UNICODE)
 
-#include "curlx/multibyte.h"
+#ضمن "curlx/multibyte.h"
 
 /*
  * MultiByte conversions using Windows kernel32 library.
  */
 
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
+wchar_t *curlx_convert_UTF8_to_wchar(ثابت حرف *str_utf8)
 {
-  wchar_t *str_w = NULL;
+  wchar_t *str_w = عدم;
 
-  if(str_utf8) {
-    int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                        str_utf8, -1, NULL, 0);
-    if(str_w_len > 0) {
-      str_w = curlx_malloc(str_w_len * sizeof(wchar_t));
-      if(str_w) {
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+  𐤀𐤌(str_utf8) {
+    صحيح str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, عدم, 0);
+    𐤀𐤌(str_w_len > 0) {
+      str_w = curlx_malloc(str_w_len * حجم(wchar_t));
+      𐤀𐤌(str_w) {
+        𐤀𐤌(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                str_utf8, -1, str_w, str_w_len) == 0) {
           curlx_free(str_w);
-          return NULL;
+          أرجع عدم;
         }
       }
     }
   }
 
-  return str_w;
+  أرجع str_w;
 }
 
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
+حرف *curlx_convert_wchar_to_UTF8(ثابت wchar_t *str_w)
 {
-  char *str_utf8 = NULL;
+  حرف *str_utf8 = عدم;
 
-  if(str_w) {
-    int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
-                                    NULL, 0, NULL, NULL);
-    if(bytes > 0) {
+  𐤀𐤌(str_w) {
+    صحيح bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
+                                    عدم, 0, عدم, عدم);
+    𐤀𐤌(bytes > 0) {
       str_utf8 = curlx_malloc(bytes);
-      if(str_utf8) {
-        if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
-                               NULL, NULL) == 0) {
+      𐤀𐤌(str_utf8) {
+        𐤀𐤌(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
+                               عدم, عدم) == 0) {
           curlx_free(str_utf8);
-          return NULL;
+          أرجع عدم;
         }
       }
     }
   }
 
-  return str_utf8;
+  أرجع str_utf8;
 }
 
 #endif /* _WIN32 && UNICODE */
