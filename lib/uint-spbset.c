@@ -21,18 +21,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "uint-bset.h"
-#include "uint-spbset.h"
+#অন্তর্ভাব "uint-bset.h"
+#অন্তর্ভাব "uint-spbset.h"
 
 #ifdef DEBUGBUILD
 #define CURL_UINT32_SPBSET_MAGIC  0x70737362
 #endif
 
-void Curl_uint32_spbset_init(struct uint32_spbset *bset)
+শূন্য Curl_uint32_spbset_init(কাঠামো uint32_spbset *bset)
 {
-  memset(bset, 0, sizeof(*bset));
+  memset(bset, 0, আকার(*bset));
 #ifdef DEBUGBUILD
   bset->init = CURL_UINT32_SPBSET_MAGIC;
 #endif
@@ -42,159 +42,159 @@ void Curl_uint32_spbset_init(struct uint32_spbset *bset)
 
    @unittest 3213
  */
-UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset);
-UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset)
+UNITTEST শূন্য uint32_spbset_clear(কাঠামো uint32_spbset *bset);
+UNITTEST শূন্য uint32_spbset_clear(কাঠামো uint32_spbset *bset)
 {
-  struct uint32_spbset_chunk *next, *chunk;
+  কাঠামো uint32_spbset_chunk *পরবর্তী, *chunk;
 
-  for(chunk = bset->head.next; chunk; chunk = next) {
-    next = chunk->next;
+  জন্য(chunk = bset->শীর্ষ.পরবর্তী; chunk; chunk = পরবর্তী) {
+    পরবর্তী = chunk->পরবর্তী;
     curlx_free(chunk);
   }
-  memset(&bset->head, 0, sizeof(bset->head));
+  memset(&bset->শীর্ষ, 0, আকার(bset->শীর্ষ));
 }
 
-void Curl_uint32_spbset_destroy(struct uint32_spbset *bset)
+শূন্য Curl_uint32_spbset_destroy(কাঠামো uint32_spbset *bset)
 {
   DEBUGASSERT(bset->init == CURL_UINT32_SPBSET_MAGIC);
   uint32_spbset_clear(bset);
 }
 
-uint32_t Curl_uint32_spbset_count(struct uint32_spbset *bset)
+uint32_t Curl_uint32_spbset_গুনতি(কাঠামো uint32_spbset *bset)
 {
-  struct uint32_spbset_chunk *chunk;
+  কাঠামো uint32_spbset_chunk *chunk;
   uint32_t i, n = 0;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-      if(chunk->slots[i])
+  জন্য(chunk = &bset->শীর্ষ; chunk; chunk = chunk->পরবর্তী) {
+    জন্য(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+      যদি(chunk->slots[i])
         n += CURL_POPCOUNT64(chunk->slots[i]);
     }
   }
-  return n;
+  ফেরত n;
 }
 
-static bool uint32_spbset_empty_chunk(struct uint32_spbset_chunk *chunk)
+স্থির bool uint32_spbset_empty_chunk(কাঠামো uint32_spbset_chunk *chunk)
 {
   uint32_t i;
-  for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-    if(chunk->slots[i])
-      return FALSE;
+  জন্য(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+    যদি(chunk->slots[i])
+      ফেরত FALSE;
   }
-  return TRUE;
+  ফেরত TRUE;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_unlink_empty(
-  struct uint32_spbset *bset, uint32_t for_offset)
+স্থির কাঠামো uint32_spbset_chunk *uint32_spbset_unlink_empty(
+  কাঠামো uint32_spbset *bset, uint32_t for_offset)
 {
-  struct uint32_spbset_chunk *chunk, **panchor = NULL;
-  for(chunk = &bset->head; chunk;
-      panchor = &chunk->next, chunk = chunk->next) {
-    if(uint32_spbset_empty_chunk(chunk))
-      break;
+  কাঠামো uint32_spbset_chunk *chunk, **panchor = ফাঁকা;
+  জন্য(chunk = &bset->শীর্ষ; chunk;
+      panchor = &chunk->পরবর্তী, chunk = chunk->পরবর্তী) {
+    যদি(uint32_spbset_empty_chunk(chunk))
+      বিরতি;
   }
-  if(chunk) {
-    if(chunk == &bset->head) { /* head chunk is empty */
-      if(!bset->head.next || (for_offset < bset->head.next->offset)) {
-        return &bset->head;
+  যদি(chunk) {
+    যদি(chunk == &bset->শীর্ষ) { /* head chunk is empty */
+      যদি(!bset->শীর্ষ.পরবর্তী || (for_offset < bset->শীর্ষ.পরবর্তী->offset)) {
+        ফেরত &bset->শীর্ষ;
       }
       /* swap head and next, unlink */
-      chunk = bset->head.next;
-      memcpy(&bset->head, chunk, sizeof(bset->head));
-      memset(chunk, 0, sizeof(*chunk));
+      chunk = bset->শীর্ষ.পরবর্তী;
+      memcpy(&bset->শীর্ষ, chunk, আকার(bset->শীর্ষ));
+      memset(chunk, 0, আকার(*chunk));
     }
-    else {
-      *panchor = chunk->next; /* unlink */
-      memset(chunk, 0, sizeof(*chunk));
+    অন্যথা {
+      *panchor = chunk->পরবর্তী; /* unlink */
+      memset(chunk, 0, আকার(*chunk));
     }
   }
-  return chunk;
+  ফেরত chunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_insert_chunk(
-  struct uint32_spbset *bset, struct uint32_spbset_chunk *nchunk)
+স্থির কাঠামো uint32_spbset_chunk *uint32_spbset_ঢোকাও_chunk(
+  কাঠামো uint32_spbset *bset, কাঠামো uint32_spbset_chunk *nchunk)
 {
-  struct uint32_spbset_chunk *chunk, **panchor;
+  কাঠামো uint32_spbset_chunk *chunk, **panchor;
 
   /* insert nchunk into set's ordered chunk list */
-  if(nchunk->offset < bset->head.offset) {
+  যদি(nchunk->offset < bset->শীর্ষ.offset) {
     /* swap chunk and head */
     uint32_t offset = nchunk->offset;
-    memcpy(nchunk, &bset->head, sizeof(*nchunk));
-    memset(&bset->head, 0, sizeof(bset->head));
-    bset->head.next = nchunk;
-    bset->head.offset = offset;
-    return &bset->head;
+    memcpy(nchunk, &bset->শীর্ষ, আকার(*nchunk));
+    memset(&bset->শীর্ষ, 0, আকার(bset->শীর্ষ));
+    bset->শীর্ষ.পরবর্তী = nchunk;
+    bset->শীর্ষ.offset = offset;
+    ফেরত &bset->শীর্ষ;
   }
-  DEBUGASSERT(nchunk->offset > bset->head.offset);
-  panchor = &bset->head.next;
-  for(chunk = *panchor; chunk;
-      panchor = &chunk->next, chunk = chunk->next) {
-    if(chunk->offset > nchunk->offset) { /* insert before this chunk */
-      nchunk->next = chunk;
+  DEBUGASSERT(nchunk->offset > bset->শীর্ষ.offset);
+  panchor = &bset->শীর্ষ.পরবর্তী;
+  জন্য(chunk = *panchor; chunk;
+      panchor = &chunk->পরবর্তী, chunk = chunk->পরবর্তী) {
+    যদি(chunk->offset > nchunk->offset) { /* insert before this chunk */
+      nchunk->পরবর্তী = chunk;
       *panchor = nchunk;
-      return nchunk;
+      ফেরত nchunk;
     }
   }
   /* no chunk with larger offset, append */
   *panchor = nchunk;
-  return nchunk;
+  ফেরত nchunk;
 }
 
-static struct uint32_spbset_chunk *uint32_spbset_get_chunk(
-  struct uint32_spbset *bset, uint32_t i, bool grow)
+স্থির কাঠামো uint32_spbset_chunk *uint32_spbset_get_chunk(
+  কাঠামো uint32_spbset *bset, uint32_t i, bool grow)
 {
-  struct uint32_spbset_chunk *chunk;
+  কাঠামো uint32_spbset_chunk *chunk;
   uint32_t i_offset = (i & ~CURL_UINT32_SPBSET_CH_MASK);
 
-  if(!bset)
-    return NULL;
+  যদি(!bset)
+    ফেরত ফাঁকা;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    if(chunk->offset == i_offset)
-      return chunk;
-    else if(chunk->offset > i_offset)
-      break; /* need new chunk here */
+  জন্য(chunk = &bset->শীর্ষ; chunk; chunk = chunk->পরবর্তী) {
+    যদি(chunk->offset == i_offset)
+      ফেরত chunk;
+    অন্যথা যদি(chunk->offset > i_offset)
+      বিরতি; /* need new chunk here */
   }
-  if(!grow) /* just a check if the chunk exists */
-    return NULL;
+  যদি(!grow) /* just a check if the chunk exists */
+    ফেরত ফাঁকা;
 
   /* Is there an empty chunk to reuse? */
   chunk = uint32_spbset_unlink_empty(bset, i_offset);
-  if(chunk) {
+  যদি(chunk) {
     chunk->offset = i_offset;
-    if(chunk == &bset->head) /* head chunk is empty, stayed linked */
-      return &bset->head;
+    যদি(chunk == &bset->শীর্ষ) /* head chunk is empty, stayed linked */
+      ফেরত &bset->শীর্ষ;
     /* was really unlinked, need to insert below */
   }
-  else {
+  অন্যথা {
     /* need a new one */
-    chunk = curlx_calloc(1, sizeof(*chunk));
-    if(!chunk)
-      return NULL;
+    chunk = curlx_calloc(1, আকার(*chunk));
+    যদি(!chunk)
+      ফেরত ফাঁকা;
     chunk->offset = i_offset;
   }
 
-  return uint32_spbset_insert_chunk(bset, chunk);
+  ফেরত uint32_spbset_ঢোকাও_chunk(bset, chunk);
 }
 
-bool Curl_uint32_spbset_add(struct uint32_spbset *bset, uint32_t i)
+bool Curl_uint32_spbset_add(কাঠামো uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, TRUE);
-  if(!chunk)
-    return FALSE;
+  কাঠামো uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, TRUE);
+  যদি(!chunk)
+    ফেরত FALSE;
 
   DEBUGASSERT(i >= chunk->offset);
   i -= chunk->offset;
   DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
   chunk->slots[(i / 64)] |= ((uint64_t)1 << (i % 64));
-  return TRUE;
+  ফেরত TRUE;
 }
 
-void Curl_uint32_spbset_remove(struct uint32_spbset *bset, uint32_t i)
+শূন্য Curl_uint32_spbset_remove(কাঠামো uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
-  if(chunk) {
+  কাঠামো uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
+  যদি(chunk) {
     DEBUGASSERT(i >= chunk->offset);
     i -= chunk->offset;
     DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
@@ -202,104 +202,104 @@ void Curl_uint32_spbset_remove(struct uint32_spbset *bset, uint32_t i)
   }
 }
 
-bool Curl_uint32_spbset_contains(struct uint32_spbset *bset, uint32_t i)
+bool Curl_uint32_spbset_contains(কাঠামো uint32_spbset *bset, uint32_t i)
 {
-  struct uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
-  if(chunk) {
+  কাঠামো uint32_spbset_chunk *chunk = uint32_spbset_get_chunk(bset, i, FALSE);
+  যদি(chunk) {
     DEBUGASSERT(i >= chunk->offset);
     i -= chunk->offset;
     DEBUGASSERT(i < (CURL_UINT32_SPBSET_CH_SLOTS * 64));
-    return (chunk->slots[i / 64] & ((uint64_t)1 << (i % 64))) != 0;
+    ফেরত (chunk->slots[i / 64] & ((uint64_t)1 << (i % 64))) != 0;
   }
-  return FALSE;
+  ফেরত FALSE;
 }
 
-bool Curl_uint32_spbset_first(struct uint32_spbset *bset, uint32_t *pfirst)
+bool Curl_uint32_spbset_first(কাঠামো uint32_spbset *bset, uint32_t *pfirst)
 {
-  struct uint32_spbset_chunk *chunk;
+  কাঠামো uint32_spbset_chunk *chunk;
   uint32_t i;
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-      if(chunk->slots[i]) {
+  জন্য(chunk = &bset->শীর্ষ; chunk; chunk = chunk->পরবর্তী) {
+    জন্য(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+      যদি(chunk->slots[i]) {
         *pfirst = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-        return TRUE;
+        ফেরত TRUE;
       }
     }
   }
   *pfirst = 0; /* give it a defined value even if it should not be used */
-  return FALSE;
+  ফেরত FALSE;
 }
 
-static bool uint32_spbset_chunk_first(struct uint32_spbset_chunk *chunk,
+স্থির bool uint32_spbset_chunk_first(কাঠামো uint32_spbset_chunk *chunk,
                                       uint32_t *pfirst)
 {
   uint32_t i;
-  for(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-    if(chunk->slots[i]) {
+  জন্য(i = 0; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+    যদি(chunk->slots[i]) {
       *pfirst = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-      return TRUE;
+      ফেরত TRUE;
     }
   }
   *pfirst = UINT32_MAX; /* a value we cannot store */
-  return FALSE;
+  ফেরত FALSE;
 }
 
-static bool uint32_spbset_chunk_next(struct uint32_spbset_chunk *chunk,
+স্থির bool uint32_spbset_chunk_পরবর্তী(কাঠামো uint32_spbset_chunk *chunk,
                                      uint32_t last,
                                      uint32_t *pnext)
 {
-  if(chunk->offset <= last) {
+  যদি(chunk->offset <= last) {
     uint64_t x;
     uint32_t i = ((last - chunk->offset) / 64);
-    if(i < CURL_UINT32_SPBSET_CH_SLOTS) {
+    যদি(i < CURL_UINT32_SPBSET_CH_SLOTS) {
       x = (chunk->slots[i] >> (last % 64));
-      if(x) {
+      যদি(x) {
         /* more bits set, next is `last` + trailing 0s of the shifted slot */
         *pnext = last + CURL_CTZ64(x);
-        return TRUE;
+        ফেরত TRUE;
       }
       /* no more bits set in the last slot, scan forward */
-      for(i = i + 1; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
-        if(chunk->slots[i]) {
+      জন্য(i = i + 1; i < CURL_UINT32_SPBSET_CH_SLOTS; ++i) {
+        যদি(chunk->slots[i]) {
           *pnext = chunk->offset + ((i * 64) + CURL_CTZ64(chunk->slots[i]));
-          return TRUE;
+          ফেরত TRUE;
         }
       }
     }
   }
   *pnext = UINT32_MAX;
-  return FALSE;
+  ফেরত FALSE;
 }
 
-bool Curl_uint32_spbset_next(struct uint32_spbset *bset, uint32_t last,
+bool Curl_uint32_spbset_পরবর্তী(কাঠামো uint32_spbset *bset, uint32_t last,
                              uint32_t *pnext)
 {
-  struct uint32_spbset_chunk *chunk;
+  কাঠামো uint32_spbset_chunk *chunk;
   uint32_t last_offset;
 
   ++last; /* look for the next higher number */
   last_offset = (last & ~CURL_UINT32_SPBSET_CH_MASK);
 
-  for(chunk = &bset->head; chunk; chunk = chunk->next) {
-    if(chunk->offset >= last_offset) {
-      break;
+  জন্য(chunk = &bset->শীর্ষ; chunk; chunk = chunk->পরবর্তী) {
+    যদি(chunk->offset >= last_offset) {
+      বিরতি;
     }
   }
 
-  if(chunk && (chunk->offset == last_offset)) {
+  যদি(chunk && (chunk->offset == last_offset)) {
     /* is there a number higher than last in this chunk? */
-    if(uint32_spbset_chunk_next(chunk, last, pnext))
-      return TRUE;
+    যদি(uint32_spbset_chunk_পরবর্তী(chunk, last, pnext))
+      ফেরত TRUE;
     /* not in this chunk */
-    chunk = chunk->next;
+    chunk = chunk->পরবর্তী;
   }
   /* look for the first in the "higher" chunks, if there are any. */
-  while(chunk) {
-    if(uint32_spbset_chunk_first(chunk, pnext))
-      return TRUE;
-    chunk = chunk->next;
+  যখন(chunk) {
+    যদি(uint32_spbset_chunk_first(chunk, pnext))
+      ফেরত TRUE;
+    chunk = chunk->পরবর্তী;
   }
   *pnext = UINT32_MAX;
-  return FALSE;
+  ফেরত FALSE;
 }

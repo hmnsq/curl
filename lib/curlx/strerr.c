@@ -21,207 +21,207 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef HAVE_STRERROR_R
-#  if (!defined(HAVE_POSIX_STRERROR_R) && \
+#  যদি (!defined(HAVE_POSIX_STRERROR_R) && \
        !defined(HAVE_GLIBC_STRERROR_R)) || \
       (defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R))
 #    error "strerror_r MUST be either POSIX, glibc style"
 #  endif
 #endif
 
-#include "curlx/winapi.h"
-#include "curlx/snprintf.h"
-#include "curlx/strerr.h"
-#include "curlx/strcopy.h"
+#অন্তর্ভাব "curlx/winapi.h"
+#অন্তর্ভাব "curlx/snprintf.h"
+#অন্তর্ভাব "curlx/strerr.h"
+#অন্তর্ভাব "curlx/strcopy.h"
 
 #ifdef USE_WINSOCK
 /* This is a helper function for curlx_strerror that converts Winsock error
  * codes (WSAGetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-static const char *get_winsock_error(int err, char *buf, size_t len)
+স্থির ধ্রুবক অক্ষর *get_winsock_error(পূর্ণসংখ্যা err, অক্ষর *buf, size_t len)
 {
-  VERBOSE(const char *p);
+  VERBOSE(ধ্রুবক অক্ষর *p);
 
-  if(!len)
-    return NULL;
+  যদি(!len)
+    ফেরত ফাঁকা;
 
   *buf = '\0';
 
 #ifndef CURLVERBOSE
-  (void)err;
-  return NULL;
-#else
-  switch(err) {
-  case WSAEINTR:
+  (শূন্য)err;
+  ফেরত ফাঁকা;
+#অন্যথা
+  নির্বাচন(err) {
+  ক্ষেত্র WSAEINTR:
     p = "Call interrupted";
-    break;
-  case WSAEBADF:
+    বিরতি;
+  ক্ষেত্র WSAEBADF:
     p = "Bad file";
-    break;
-  case WSAEACCES:
+    বিরতি;
+  ক্ষেত্র WSAEACCES:
     p = "Bad access";
-    break;
-  case WSAEFAULT:
+    বিরতি;
+  ক্ষেত্র WSAEFAULT:
     p = "Bad argument";
-    break;
-  case WSAEINVAL:
+    বিরতি;
+  ক্ষেত্র WSAEINVAL:
     p = "Invalid arguments";
-    break;
-  case WSAEMFILE:
+    বিরতি;
+  ক্ষেত্র WSAEMFILE:
     p = "Out of file descriptors";
-    break;
-  case WSAEWOULDBLOCK:
+    বিরতি;
+  ক্ষেত্র WSAEWOULDBLOCK:
     p = "Call would block";
-    break;
-  case WSAEINPROGRESS:
-  case WSAEALREADY:
+    বিরতি;
+  ক্ষেত্র WSAEINPROGRESS:
+  ক্ষেত্র WSAEALREADY:
     p = "Blocking call in progress";
-    break;
-  case WSAENOTSOCK:
+    বিরতি;
+  ক্ষেত্র WSAENOTSOCK:
     p = "Descriptor is not a socket";
-    break;
-  case WSAEDESTADDRREQ:
+    বিরতি;
+  ক্ষেত্র WSAEDESTADDRREQ:
     p = "Need destination address";
-    break;
-  case WSAEMSGSIZE:
+    বিরতি;
+  ক্ষেত্র WSAEMSGSIZE:
     p = "Bad message size";
-    break;
-  case WSAEPROTOTYPE:
+    বিরতি;
+  ক্ষেত্র WSAEPROTOTYPE:
     p = "Bad protocol";
-    break;
-  case WSAENOPROTOOPT:
+    বিরতি;
+  ক্ষেত্র WSAENOPROTOOPT:
     p = "Protocol option is unsupported";
-    break;
-  case WSAEPROTONOSUPPORT:
+    বিরতি;
+  ক্ষেত্র WSAEPROTONOSUPPORT:
     p = "Protocol is unsupported";
-    break;
-  case WSAESOCKTNOSUPPORT:
+    বিরতি;
+  ক্ষেত্র WSAESOCKTNOSUPPORT:
     p = "Socket is unsupported";
-    break;
-  case WSAEOPNOTSUPP:
+    বিরতি;
+  ক্ষেত্র WSAEOPNOTSUPP:
     p = "Operation not supported";
-    break;
-  case WSAEAFNOSUPPORT:
+    বিরতি;
+  ক্ষেত্র WSAEAFNOSUPPORT:
     p = "Address family not supported";
-    break;
-  case WSAEPFNOSUPPORT:
+    বিরতি;
+  ক্ষেত্র WSAEPFNOSUPPORT:
     p = "Protocol family not supported";
-    break;
-  case WSAEADDRINUSE:
+    বিরতি;
+  ক্ষেত্র WSAEADDRINUSE:
     p = "Address already in use";
-    break;
-  case WSAEADDRNOTAVAIL:
+    বিরতি;
+  ক্ষেত্র WSAEADDRNOTAVAIL:
     p = "Address not available";
-    break;
-  case WSAENETDOWN:
+    বিরতি;
+  ক্ষেত্র WSAENETDOWN:
     p = "Network down";
-    break;
-  case WSAENETUNREACH:
+    বিরতি;
+  ক্ষেত্র WSAENETUNREACH:
     p = "Network unreachable";
-    break;
-  case WSAENETRESET:
+    বিরতি;
+  ক্ষেত্র WSAENETRESET:
     p = "Network has been reset";
-    break;
-  case WSAECONNABORTED:
+    বিরতি;
+  ক্ষেত্র WSAECONNABORTED:
     p = "Connection was aborted";
-    break;
-  case WSAECONNRESET:
+    বিরতি;
+  ক্ষেত্র WSAECONNRESET:
     p = "Connection was reset";
-    break;
-  case WSAENOBUFS:
+    বিরতি;
+  ক্ষেত্র WSAENOBUFS:
     p = "No buffer space";
-    break;
-  case WSAEISCONN:
+    বিরতি;
+  ক্ষেত্র WSAEISCONN:
     p = "Socket is already connected";
-    break;
-  case WSAENOTCONN:
+    বিরতি;
+  ক্ষেত্র WSAENOTCONN:
     p = "Socket is not connected";
-    break;
-  case WSAESHUTDOWN:
+    বিরতি;
+  ক্ষেত্র WSAESHUTDOWN:
     p = "Socket has been shut down";
-    break;
-  case WSAETOOMANYREFS:
+    বিরতি;
+  ক্ষেত্র WSAETOOMANYREFS:
     p = "Too many references";
-    break;
-  case WSAETIMEDOUT:
+    বিরতি;
+  ক্ষেত্র WSAETIMEDOUT:
     p = "Timed out";
-    break;
-  case WSAECONNREFUSED:
+    বিরতি;
+  ক্ষেত্র WSAECONNREFUSED:
     p = "Connection refused";
-    break;
-  case WSAELOOP:
+    বিরতি;
+  ক্ষেত্র WSAELOOP:
     p = "Loop??";
-    break;
-  case WSAENAMETOOLONG:
+    বিরতি;
+  ক্ষেত্র WSAENAMETOOLONG:
     p = "Name too long";
-    break;
-  case WSAEHOSTDOWN:
+    বিরতি;
+  ক্ষেত্র WSAEHOSTDOWN:
     p = "Host down";
-    break;
-  case WSAEHOSTUNREACH:
+    বিরতি;
+  ক্ষেত্র WSAEHOSTUNREACH:
     p = "Host unreachable";
-    break;
-  case WSAENOTEMPTY:
+    বিরতি;
+  ক্ষেত্র WSAENOTEMPTY:
     p = "Not empty";
-    break;
-  case WSAEPROCLIM:
+    বিরতি;
+  ক্ষেত্র WSAEPROCLIM:
     p = "Process limit reached";
-    break;
-  case WSAEUSERS:
+    বিরতি;
+  ক্ষেত্র WSAEUSERS:
     p = "Too many users";
-    break;
-  case WSAEDQUOT:
+    বিরতি;
+  ক্ষেত্র WSAEDQUOT:
     p = "Bad quota";
-    break;
-  case WSAESTALE:
+    বিরতি;
+  ক্ষেত্র WSAESTALE:
     p = "Something is stale";
-    break;
-  case WSAEREMOTE:
+    বিরতি;
+  ক্ষেত্র WSAEREMOTE:
     p = "Remote error";
-    break;
-  case WSAEDISCON:
+    বিরতি;
+  ক্ষেত্র WSAEDISCON:
     p = "Disconnected";
-    break;
+    বিরতি;
     /* Extended Winsock errors */
-  case WSASYSNOTREADY:
+  ক্ষেত্র WSASYSNOTREADY:
     p = "Winsock library is not ready";
-    break;
-  case WSANOTINITIALISED:
+    বিরতি;
+  ক্ষেত্র WSANOTINITIALISED:
     p = "Winsock library not initialized";
-    break;
-  case WSAVERNOTSUPPORTED:
+    বিরতি;
+  ক্ষেত্র WSAVERNOTSUPPORTED:
     p = "Winsock version not supported";
-    break;
+    বিরতি;
 
     /* getXbyY() errors (already handled in herrmsg):
      * Authoritative Answer: Host not found */
-  case WSAHOST_NOT_FOUND:
+  ক্ষেত্র WSAHOST_NOT_FOUND:
     p = "Host not found";
-    break;
+    বিরতি;
 
     /* Non-Authoritative: Host not found, or SERVERFAIL */
-  case WSATRY_AGAIN:
+  ক্ষেত্র WSATRY_AGAIN:
     p = "Host not found, try again";
-    break;
+    বিরতি;
 
     /* Non recoverable errors, FORMERR, REFUSED, NOTIMP */
-  case WSANO_RECOVERY:
+  ক্ষেত্র WSANO_RECOVERY:
     p = "Unrecoverable error in call to nameserver";
-    break;
+    বিরতি;
 
     /* Valid name, no data record of requested type */
-  case WSANO_DATA:
+  ক্ষেত্র WSANO_তথ্য:
     p = "No data record of requested type";
-    break;
+    বিরতি;
 
-  default:
-    return NULL;
+  পূর্বনির্ধারিত:
+    ফেরত ফাঁকা;
   }
   curlx_strcopy(buf, len, p, strlen(p));
-  return buf;
+  ফেরত buf;
 #endif
 }
 #endif /* USE_WINSOCK */
@@ -245,16 +245,16 @@ static const char *get_winsock_error(int err, char *buf, size_t len)
  * Call Curl_sspi_strerror if the error code is definitely Windows SSPI.
  * Call curlx_winapi_strerror if the error code is definitely Windows API.
  */
-const char *curlx_strerror(int err, char *buf, size_t buflen)
+ধ্রুবক অক্ষর *curlx_strerror(পূর্ণসংখ্যা err, অক্ষর *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
-  char *p;
+  পূর্ণসংখ্যা old_errno = errno;
+  অক্ষর *p;
 
-  if(!buflen)
-    return NULL;
+  যদি(!buflen)
+    ফেরত ফাঁকা;
 
 #ifndef _WIN32
   DEBUGASSERT(err >= 0);
@@ -263,46 +263,46 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
   *buf = '\0';
 
 #ifdef _WIN32
-  if((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
+  যদি((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
 #ifdef USE_WINSOCK
      !get_winsock_error(err, buf, buflen) &&
 #endif
      !curlx_get_winapi_error((DWORD)err, buf, buflen))
-    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned int)err);
-#else /* !_WIN32 */
+    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned পূর্ণসংখ্যা)err);
+#অন্যথা /* !_WIN32 */
 
-#if defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
+#যদি defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
   /*
    * The POSIX-style strerror_r() may set errno to ERANGE if insufficient
    * storage is supplied via 'strerrbuf' and 'buflen' to hold the generated
    * message string, or EINVAL if 'errnum' is not a valid error number.
    */
-  if(strerror_r(err, buf, buflen) &&
-     buflen > sizeof("Unknown error ") + 20) {
-    if(buf[0] == '\0')
+  যদি(strerror_r(err, buf, buflen) &&
+     buflen > আকার("Unknown error ") + 20) {
+    যদি(buf[0] == '\0')
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#elif defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
+#নতুবা_যদি defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
   /*
    * The glibc-style strerror_r() only *might* use the buffer we pass to
    * the function, but it always returns the error message as a pointer,
    * so we must copy that string unconditionally (if non-NULL).
    */
   {
-    char buffer[256];
-    const char *msg = strerror_r(err, buffer, sizeof(buffer));
-    if(msg && buflen > 1)
-      SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    অক্ষর বাফার[256];
+    ধ্রুবক অক্ষর *বার্তা = strerror_r(err, বাফার, আকার(বাফার));
+    যদি(বার্তা && buflen > 1)
+      SNPRINTF(buf, buflen, "%s", বার্তা);
+    অন্যথা যদি(buflen > আকার("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#else
+#অন্যথা
   {
     /* !checksrc! disable BANNEDFUNC 1 */
-    const char *msg = strerror(err);
-    if(msg && buflen > 1)
-      SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    ধ্রুবক অক্ষর *বার্তা = strerror(err);
+    যদি(বার্তা && buflen > 1)
+      SNPRINTF(buf, buflen, "%s", বার্তা);
+    অন্যথা যদি(buflen > আকার("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
 #endif
@@ -311,19 +311,19 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
 
   /* strip trailing '\r\n' or '\n'. */
   p = strrchr(buf, '\n');
-  if(p && (p - buf) >= 2)
+  যদি(p && (p - buf) >= 2)
     *p = '\0';
   p = strrchr(buf, '\r');
-  if(p && (p - buf) >= 1)
+  যদি(p && (p - buf) >= 1)
     *p = '\0';
 
-  if(errno != old_errno)
+  যদি(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  যদি(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  ফেরত buf;
 }

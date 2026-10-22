@@ -26,9 +26,9 @@
 
 #ifdef _WIN32
 #define WINAPI_ERROR_LEN 100
-const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen);
-const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen);
-CURLcode curlx_win32_random(unsigned char *entropy, size_t length);
+ধ্রুবক অক্ষর *curlx_get_winapi_error(DWORD err, অক্ষর *buf, size_t buflen);
+ধ্রুবক অক্ষর *curlx_winapi_strerror(DWORD err, অক্ষর *buf, size_t buflen);
+CURLcode curlx_win32_random(unsigned অক্ষর *entropy, size_t দৈর্ঘ্য);
 #endif
 
 #endif /* HEADER_CURLX_WINAPI_H */

@@ -23,32 +23,32 @@
  ***************************************************************************/
 /* Escape and unescape URL encoding in strings. The functions return a new
  * allocated string or NULL if an error occurred. */
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-struct Curl_easy;
+কাঠামো Curl_easy;
 
-#include "urldata.h"
-#include "escape.h"
-#include "curlx/strparse.h"
-#include "curl_printf.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "escape.h"
+#অন্তর্ভাব "curlx/strparse.h"
+#অন্তর্ভাব "curl_printf.h"
 
 /* for ABI-compatibility with previous versions */
-char *curl_escape(const char *string, int length)
+অক্ষর *curl_escape(ধ্রুবক অক্ষর *string, পূর্ণসংখ্যা দৈর্ঘ্য)
 {
-  return curl_easy_escape(NULL, string, length);
+  ফেরত curl_easy_escape(ফাঁকা, string, দৈর্ঘ্য);
 }
 
 /* for ABI-compatibility with previous versions */
-char *curl_unescape(const char *string, int length)
+অক্ষর *curl_unescape(ধ্রুবক অক্ষর *string, পূর্ণসংখ্যা দৈর্ঘ্য)
 {
-  return curl_easy_unescape(NULL, string, length, NULL);
+  ফেরত curl_easy_unescape(ফাঁকা, string, দৈর্ঘ্য, ফাঁকা);
 }
 
 #define NOPE 0xff
 #define _OK_ 0x1f /* octet not needing encoding but not a hexadecimal
                      character */
 
-static const unsigned char hextable[256] = {
+স্থির ধ্রুবক unsigned অক্ষর hextable[256] = {
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 00 */
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 08 */
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, /* 10 */
@@ -83,7 +83,7 @@ static const unsigned char hextable[256] = {
   NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE, NOPE
 };
 
-static const char hexpairs[][2] = {
+স্থির ধ্রুবক অক্ষর hexpairs[][2] = {
   {'0', '0'}, {'0', '1'}, {'0', '2'}, {'0', '3'},
   {'0', '4'}, {'0', '5'}, {'0', '6'}, {'0', '7'},
   {'0', '8'}, {'0', '9'}, {'0', 'A'}, {'0', 'B'},
@@ -153,37 +153,37 @@ static const char hexpairs[][2] = {
 /* Escapes for URL the given unescaped string of given length.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_escape(CURL *curl, const char *string, int length)
+অক্ষর *curl_easy_escape(CURL *curl, ধ্রুবক অক্ষর *string, পূর্ণসংখ্যা দৈর্ঘ্য)
 {
   size_t len;
-  const char *f = string;
+  ধ্রুবক অক্ষর *f = string;
   size_t nappend = 0;
-  char *target;
-  char *encoded;
-  (void)curl;
+  অক্ষর *target;
+  অক্ষর *encoded;
+  (শূন্য)curl;
 
-  if(!string || (length < 0))
-    return NULL;
+  যদি(!string || (দৈর্ঘ্য < 0))
+    ফেরত ফাঁকা;
 
-  len = (length ? (size_t)length : strlen(string));
-  if(!len)
-    return curlx_strdup("");
+  len = (দৈর্ঘ্য ? (size_t)দৈর্ঘ্য : strlen(string));
+  যদি(!len)
+    ফেরত curlx_strdup("");
 
-  if(len > SIZE_MAX / 16)
-    return NULL;
+  যদি(len > SIZE_MAX / 16)
+    ফেরত ফাঁকা;
 
   encoded = target = curlx_malloc((len * 3) + 1);
-  if(!target)
-    return NULL;
+  যদি(!target)
+    ফেরত ফাঁকা;
 
-  while(len--) {
+  যখন(len--) {
     uint8_t in = (uint8_t)*string++;
 
-    if(!(hextable[in] & 0x80))
+    যদি(!(hextable[in] & 0x80))
       /* append this */
       nappend++;
-    else {
-      if(nappend) {
+    অন্যথা {
+      যদি(nappend) {
         memcpy(target, f, nappend);
         target += nappend;
         nappend = 0;
@@ -195,13 +195,13 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
       target += 3;
     }
   }
-  if(nappend) {
+  যদি(nappend) {
     memcpy(target, f, nappend);
     target += nappend;
   }
   *target = '\0'; /* null-terminate */
 
-  return encoded;
+  ফেরত encoded;
 }
 
 /*
@@ -220,22 +220,22 @@ char *curl_easy_escape(CURL *curl, const char *string, int length)
  * invokes that used TRUE/FALSE (0 and 1).
  */
 
-CURLcode Curl_urldecode(const char *string, size_t length,
-                        char **ostring, size_t *olen,
-                        enum urlreject ctrl)
+CURLcode Curl_urldecode(ধ্রুবক অক্ষর *string, size_t দৈর্ঘ্য,
+                        অক্ষর **ostring, size_t *olen,
+                        গণনা urlreject ctrl)
 {
   size_t alloc;
-  char *ns;
+  অক্ষর *ns;
   uint8_t reject_limit;
 
   DEBUGASSERT(string);
   DEBUGASSERT(ctrl >= REJECT_NADA); /* crash on TRUE/FALSE */
 
-  alloc = (length ? length : strlen(string));
+  alloc = (দৈর্ঘ্য ? দৈর্ঘ্য : strlen(string));
   ns = curlx_malloc(alloc + 1);
 
-  if(!ns)
-    return CURLE_OUT_OF_MEMORY;
+  যদি(!ns)
+    ফেরত CURLE_OUT_OF_MEMORY;
 
   /* store output string */
   *ostring = ns;
@@ -243,43 +243,43 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   reject_limit = (ctrl == REJECT_CTRL) ? 0x20 :
     (ctrl == REJECT_ZERO) ? 1 : 0;
 
-  while(alloc) {
+  যখন(alloc) {
     uint8_t in;
 
-    if(*string == '%') {
-      if(alloc > 2) {
+    যদি(*string == '%') {
+      যদি(alloc > 2) {
         uint8_t h1 = hextable[(uint8_t)string[1]];
         uint8_t h2 = hextable[(uint8_t)string[2]];
-        if(!((h1 | h2) & 0xf0)) {
+        যদি(!((h1 | h2) & 0xf0)) {
           in = (uint8_t)((h1 << 4) | h2);
           string += 3;
           alloc -= 3;
-          if(in < reject_limit)
-            goto error;
-          *ns++ = (char)in;
-          continue;
+          যদি(in < reject_limit)
+            যাও error;
+          *ns++ = (অক্ষর)in;
+          চালু;
         }
       }
       in = '%';
       string++;
       alloc--;
-      *ns++ = (char)in;
-      continue;
+      *ns++ = (অক্ষর)in;
+      চালু;
     }
-    else {
-      const char *p = memchr(string + 1, '%', alloc - 1);
+    অন্যথা {
+      ধ্রুবক অক্ষর *p = memchr(string + 1, '%', alloc - 1);
       size_t n = p ? (size_t)(p - string) : alloc;
 
-      if(reject_limit) {
-        if(reject_limit == 1) {
-          if(memchr(string, 0, n))
-            goto error;
+      যদি(reject_limit) {
+        যদি(reject_limit == 1) {
+          যদি(memchr(string, 0, n))
+            যাও error;
         }
-        else {
+        অন্যথা {
           size_t i;
-          for(i = 0; i < n; i++) {
-            if((uint8_t)string[i] < 0x20)
-              goto error;
+          জন্য(i = 0; i < n; i++) {
+            যদি((uint8_t)string[i] < 0x20)
+              যাও error;
           }
         }
       }
@@ -292,14 +292,14 @@ CURLcode Curl_urldecode(const char *string, size_t length,
   }
   *ns = 0; /* terminate it */
 
-  if(olen)
+  যদি(olen)
     /* store output size */
     *olen = (size_t)(ns - *ostring);
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 error:
   curlx_safefree(*ostring);
-  return CURLE_URL_MALFORMAT;
+  ফেরত CURLE_URL_MALFORMAT;
 }
 
 /*
@@ -309,34 +309,34 @@ error:
  * If olen == NULL, no output length is stored.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_unescape(CURL *curl, const char *string, int inlength,
-                         int *outlength)
+অক্ষর *curl_easy_unescape(CURL *curl, ধ্রুবক অক্ষর *string, পূর্ণসংখ্যা inlength,
+                         পূর্ণসংখ্যা *outlength)
 {
-  char *str = NULL;
-  (void)curl;
-  if(string && (inlength >= 0)) {
+  অক্ষর *str = ফাঁকা;
+  (শূন্য)curl;
+  যদি(string && (inlength >= 0)) {
     size_t inputlen = (size_t)inlength;
     size_t outputlen;
     CURLcode res = Curl_urldecode(string, inputlen, &str, &outputlen,
                                   REJECT_NADA);
-    if(res)
-      return NULL;
+    যদি(res)
+      ফেরত ফাঁকা;
 
-    if(outlength) {
-      if(outputlen <= (size_t)INT_MAX)
+    যদি(outlength) {
+      যদি(outputlen <= (size_t)INT_MAX)
         *outlength = curlx_uztosi(outputlen);
-      else
+      অন্যথা
         /* too large to return in an int, fail! */
         curlx_safefree(str);
     }
   }
-  return str;
+  ফেরত str;
 }
 
 /* For operating systems/environments that use different malloc/free
    systems for the app and for this library, we provide a free that uses
    the library's memory system */
-void curl_free(void *p)
+শূন্য curl_free(শূন্য *p)
 {
   curlx_free(p);
 }
@@ -347,12 +347,12 @@ void curl_free(void *p)
  * Converts binary input to lowercase hex-encoded ASCII output.
  * null-terminated.
  */
-void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
-                    unsigned char *out, size_t olen) /* output buffer size */
+শূন্য Curl_hexencode(ধ্রুবক unsigned অক্ষর *src, size_t len, /* input length */
+                    unsigned অক্ষর *out, size_t olen) /* output buffer size */
 {
   DEBUGASSERT(src && len && (olen >= 3));
-  if(src && len && (olen >= 3)) {
-    while(len-- && (olen >= 3)) {
+  যদি(src && len && (olen >= 3)) {
+    যখন(len-- && (olen >= 3)) {
       out[0] = Curl_ldigits[*src >> 4];
       out[1] = Curl_ldigits[*src & 0x0F];
       ++src;
@@ -361,7 +361,7 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
     }
     *out = 0;
   }
-  else if(olen)
+  অন্যথা যদি(olen)
     *out = 0;
 }
 
@@ -369,8 +369,8 @@ void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
  *
  * Output a single unsigned char as a two-digit UPPERCASE hex number.
  */
-void Curl_hexbyte(unsigned char *dest, /* must fit two bytes */
-                  unsigned char val)
+শূন্য Curl_hexbyte(unsigned অক্ষর *dest, /* must fit two bytes */
+                  unsigned অক্ষর val)
 {
   dest[0] = Curl_udigits[val >> 4];
   dest[1] = Curl_udigits[val & 0x0F];

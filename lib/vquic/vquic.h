@@ -23,69 +23,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_addrinfo;
+#যদি !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+কাঠামো Curl_cfilter;
+কাঠামো Curl_easy;
+কাঠামো connectdata;
+কাঠামো Curl_addrinfo;
 
-void Curl_quic_ver(char *p, size_t len);
-int Curl_vquic_init(void);
-void Curl_vquic_cleanup(void);
+শূন্য Curl_quic_ver(অক্ষর *p, size_t len);
+পূর্ণসংখ্যা Curl_vquic_init(শূন্য);
+শূন্য Curl_vquic_cleanup(শূন্য);
 
-CURLcode Curl_qlogdir(struct Curl_easy *data,
-                      unsigned char *scid,
+CURLcode Curl_qlogdir(কাঠামো Curl_easy *তথ্য,
+                      unsigned অক্ষর *scid,
                       size_t scidlen,
-                      int *qlogfdp);
+                      পূর্ণসংখ্যা *qlogfdp);
 
-CURLcode Curl_cf_quic_insert_after(struct Curl_cfilter *cf_at,
-                                   struct Curl_easy *data,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer);
+CURLcode Curl_cf_quic_ঢোকাও_after(কাঠামো Curl_cfilter *cf_at,
+                                   কাঠামো Curl_easy *তথ্য,
+                                   কাঠামো Curl_peer *origin,
+                                   কাঠামো Curl_peer *peer);
 
-CURLcode Curl_cf_quic_create(struct Curl_cfilter **pcf,
-                             struct Curl_easy *data,
-                             struct Curl_peer *origin,
-                             struct Curl_peer *peer,
+CURLcode Curl_cf_quic_create(কাঠামো Curl_cfilter **pcf,
+                             কাঠামো Curl_easy *তথ্য,
+                             কাঠামো Curl_peer *origin,
+                             কাঠামো Curl_peer *peer,
                              uint8_t transport_peer,
-                             struct connectdata *conn,
-                             struct Curl_sockaddr_ex *addr,
-                             struct Curl_peer *tunnel_peer,
+                             কাঠামো connectdata *conn,
+                             কাঠামো Curl_sockaddr_ex *addr,
+                             কাঠামো Curl_peer *tunnel_peer,
                              uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_http3;
+বাহ্যিক কাঠামো Curl_cftype Curl_cft_http3;
 
-#if !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
+#যদি !defined(CURL_DISABLE_PROXY) && defined(USE_PROXY_HTTP3)
 
-CURLcode Curl_cf_h3_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_h3_proxy_ঢোকাও_after(কাঠামো Curl_cfilter *cf_at,
+                                       কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো Curl_peer *origin,
+                                       কাঠামো Curl_peer *peer,
+                                       কাঠামো Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport);
 
-CURLcode Curl_cf_h3_proxy_create(struct Curl_cfilter **pcf,
-                                 struct Curl_easy *data,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
+CURLcode Curl_cf_h3_proxy_create(কাঠামো Curl_cfilter **pcf,
+                                 কাঠামো Curl_easy *তথ্য,
+                                 কাঠামো Curl_peer *origin,
+                                 কাঠামো Curl_peer *peer,
                                  uint8_t transport_peer,
-                                 struct connectdata *conn,
-                                 struct Curl_sockaddr_ex *addr,
-                                 struct Curl_peer *tunnel_peer,
+                                 কাঠামো connectdata *conn,
+                                 কাঠামো Curl_sockaddr_ex *addr,
+                                 কাঠামো Curl_peer *tunnel_peer,
                                  uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_h3_proxy;
+বাহ্যিক কাঠামো Curl_cftype Curl_cft_h3_proxy;
 
 #endif /* !CURL_DISABLE_PROXY && USE_PROXY_HTTP3 */
 
-#else
+#অন্যথা
 #define Curl_vquic_init() 1
 #define Curl_vquic_cleanup()
 #endif /* !CURL_DISABLE_HTTP && USE_HTTP3 */
 
-CURLcode Curl_conn_may_http3(struct Curl_easy *data,
-                             struct connectdata *conn);
+CURLcode Curl_conn_may_http3(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো connectdata *conn);
 
 #endif /* HEADER_CURL_VQUIC_QUIC_H */

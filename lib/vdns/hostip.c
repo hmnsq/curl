@@ -21,47 +21,47 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#অন্তর্ভাব <netinet/in.h>
 #endif
 #ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
+#অন্তর্ভাব <netinet/in6.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#অন্তর্ভাব <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#অন্তর্ভাব <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#অন্তর্ভাব <in.h>
+#অন্তর্ভাব <inet.h>
 #endif
 
-#include <setjmp.h>  /* for sigjmp_buf, sigsetjmp() */
-#include <signal.h>
+#অন্তর্ভাব <setjmp.h>  /* for sigjmp_buf, sigsetjmp() */
+#অন্তর্ভাব <signal.h>
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "multiif.h"
-#include "progress.h"
-#include "select.h"
-#include "strcase.h"
-#include "easy_lock.h"
-#include "vdns/dnscache.h"
-#include "vdns/doh.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include "curlx/inet_ntop.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strcopy.h"
-#include "curlx/strparse.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "curl_addrinfo.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "multiif.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "select.h"
+#অন্তর্ভাব "strcase.h"
+#অন্তর্ভাব "easy_lock.h"
+#অন্তর্ভাব "vdns/dnscache.h"
+#অন্তর্ভাব "vdns/doh.h"
+#অন্তর্ভাব "vdns/hostip.h"
+#অন্তর্ভাব "vdns/httpsrr.h"
+#অন্তর্ভাব "curlx/inet_ntop.h"
+#অন্তর্ভাব "curlx/inet_pton.h"
+#অন্তর্ভাব "curlx/strcopy.h"
+#অন্তর্ভাব "curlx/strparse.h"
 
-#if defined(CURLRES_SYNCH) &&                   \
+#যদি defined(CURLRES_SYNCH) &&                   \
   defined(HAVE_ALARM) &&                        \
   defined(SIGALRM) &&                           \
   defined(HAVE_SIGSETJMP) &&                    \
@@ -73,15 +73,15 @@
 #define RESOLV_FAIL(for_proxy) \
   ((for_proxy) ? CURLE_COULDNT_RESOLVE_PROXY : CURLE_COULDNT_RESOLVE_HOST)
 
-#define IS_RESOLV_FAIL(result) \
-  (((result) == CURLE_COULDNT_RESOLVE_HOST) || \
-   ((result) == CURLE_COULDNT_RESOLVE_PROXY))
+#define IS_RESOLV_FAIL(ফলাফল) \
+  (((ফলাফল) == CURLE_COULDNT_RESOLVE_HOST) || \
+   ((ফলাফল) == CURLE_COULDNT_RESOLVE_PROXY))
 /*
  * ipv6works() returns TRUE if IPv6 seems to work.
  */
 #ifdef USE_IPV6
-static bool ipv6works(struct Curl_easy *data);
-#else
+স্থির bool ipv6works(কাঠামো Curl_easy *তথ্য);
+#অন্যথা
 #define ipv6works(x) FALSE
 #endif
 
@@ -122,45 +122,45 @@ static bool ipv6works(struct Curl_easy *data);
  * CURLRES_* defines based on the config*.h and curl_setup.h defines.
  */
 
-uint8_t Curl_resolv_dns_queries(struct Curl_easy *data, uint8_t ip_version)
+uint8_t Curl_resolv_dns_queries(কাঠামো Curl_easy *তথ্য, uint8_t ip_version)
 {
-  (void)data;
-  switch(ip_version) {
-  case CURL_IPRESOLVE_V6:
-    return CURL_DNSQ_AAAA;
-  case CURL_IPRESOLVE_V4:
-    return CURL_DNSQ_A;
-  default:
-    if(ipv6works(data))
-      return (CURL_DNSQ_A | CURL_DNSQ_AAAA);
-    else
-      return CURL_DNSQ_A;
+  (শূন্য)তথ্য;
+  নির্বাচন(ip_version) {
+  ক্ষেত্র CURL_IPRESOLVE_V6:
+    ফেরত CURL_DNSQ_AAAA;
+  ক্ষেত্র CURL_IPRESOLVE_V4:
+    ফেরত CURL_DNSQ_A;
+  পূর্বনির্ধারিত:
+    যদি(ipv6works(তথ্য))
+      ফেরত (CURL_DNSQ_A | CURL_DNSQ_AAAA);
+    অন্যথা
+      ফেরত CURL_DNSQ_A;
   }
 }
 
 #ifdef CURLVERBOSE
-const char *Curl_resolv_query_str(uint8_t dns_queries)
+ধ্রুবক অক্ষর *Curl_resolv_query_str(uint8_t dns_queries)
 {
-  switch(dns_queries) {
-  case (CURL_DNSQ_A | CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
-    return "A+AAAA+HTTPS";
-  case (CURL_DNSQ_A | CURL_DNSQ_AAAA):
-    return "A+AAAA";
-  case (CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
-    return "AAAA+HTTPS";
-  case (CURL_DNSQ_AAAA):
-    return "AAAA";
-  case (CURL_DNSQ_A | CURL_DNSQ_HTTPS):
-    return "A+HTTPS";
-  case (CURL_DNSQ_A):
-    return "A";
-  case (CURL_DNSQ_HTTPS):
-    return "HTTPS";
-  case 0:
-    return "-";
-  default:
+  নির্বাচন(dns_queries) {
+  ক্ষেত্র (CURL_DNSQ_A | CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
+    ফেরত "A+AAAA+HTTPS";
+  ক্ষেত্র (CURL_DNSQ_A | CURL_DNSQ_AAAA):
+    ফেরত "A+AAAA";
+  ক্ষেত্র (CURL_DNSQ_AAAA | CURL_DNSQ_HTTPS):
+    ফেরত "AAAA+HTTPS";
+  ক্ষেত্র (CURL_DNSQ_AAAA):
+    ফেরত "AAAA";
+  ক্ষেত্র (CURL_DNSQ_A | CURL_DNSQ_HTTPS):
+    ফেরত "A+HTTPS";
+  ক্ষেত্র (CURL_DNSQ_A):
+    ফেরত "A";
+  ক্ষেত্র (CURL_DNSQ_HTTPS):
+    ফেরত "HTTPS";
+  ক্ষেত্র 0:
+    ফেরত "-";
+  পূর্বনির্ধারিত:
     DEBUGASSERT(0);
-    return "???";
+    ফেরত "???";
   }
 }
 #endif
@@ -172,29 +172,29 @@ const char *Curl_resolv_query_str(uint8_t dns_queries)
  *
  * If the conversion fails, the target buffer is empty.
  */
-void Curl_printable_address(const struct Curl_addrinfo *ai, char *buf,
+শূন্য Curl_printable_address(ধ্রুবক কাঠামো Curl_addrinfo *ai, অক্ষর *buf,
                             size_t bufsize)
 {
   DEBUGASSERT(bufsize);
   buf[0] = 0;
 
-  switch(ai->ai_family) {
-  case AF_INET: {
-    const struct sockaddr_in *sa4 = (const void *)ai->ai_addr;
-    const struct in_addr *ipaddr4 = &sa4->sin_addr;
-    (void)curlx_inet_ntop(ai->ai_family, (const void *)ipaddr4, buf, bufsize);
-    break;
+  নির্বাচন(ai->ai_family) {
+  ক্ষেত্র AF_INET: {
+    ধ্রুবক কাঠামো sockaddr_in *sa4 = (ধ্রুবক শূন্য *)ai->ai_addr;
+    ধ্রুবক কাঠামো in_addr *ipaddr4 = &sa4->sin_addr;
+    (শূন্য)curlx_inet_ntop(ai->ai_family, (ধ্রুবক শূন্য *)ipaddr4, buf, bufsize);
+    বিরতি;
   }
 #ifdef USE_IPV6
-  case AF_INET6: {
-    const struct sockaddr_in6 *sa6 = (const void *)ai->ai_addr;
-    const struct in6_addr *ipaddr6 = &sa6->sin6_addr;
-    (void)curlx_inet_ntop(ai->ai_family, (const void *)ipaddr6, buf, bufsize);
-    break;
+  ক্ষেত্র AF_INET6: {
+    ধ্রুবক কাঠামো sockaddr_in6 *sa6 = (ধ্রুবক শূন্য *)ai->ai_addr;
+    ধ্রুবক কাঠামো in6_addr *ipaddr6 = &sa6->sin6_addr;
+    (শূন্য)curlx_inet_ntop(ai->ai_family, (ধ্রুবক শূন্য *)ipaddr6, buf, bufsize);
+    বিরতি;
   }
 #endif
-  default:
-    break;
+  পূর্বনির্ধারিত:
+    বিরতি;
   }
 }
 
@@ -202,114 +202,114 @@ void Curl_printable_address(const struct Curl_addrinfo *ai, char *buf,
 /* Beware this is a global and unique instance. This is used to store the
    return address that we can jump back to from inside a signal handler. This
    is not thread-safe stuff. */
-static sigjmp_buf curl_jmpenv;
-static curl_simple_lock curl_jmpenv_lock = CURL_SIMPLE_LOCK_INIT;
+স্থির sigjmp_buf curl_jmpenv;
+স্থির curl_simple_lock curl_jmpenv_lock = CURL_SIMPLE_LOCK_INIT;
 #endif
 
 #ifdef USE_IPV6
 /* return a static IPv6 ::1 for the name */
-static struct Curl_addrinfo *get_localhost6(uint16_t port, const char *name)
+স্থির কাঠামো Curl_addrinfo *get_localhost6(uint16_t port, ধ্রুবক অক্ষর *name)
 {
-  struct Curl_addrinfo *ca;
-  const size_t ss_size = sizeof(struct sockaddr_in6);
-  const size_t hostlen = strlen(name);
-  struct sockaddr_in6 sa6;
-  unsigned char ipv6[16];
+  কাঠামো Curl_addrinfo *ca;
+  ধ্রুবক size_t ss_আকার = আকার(কাঠামো sockaddr_in6);
+  ধ্রুবক size_t hostlen = strlen(name);
+  কাঠামো sockaddr_in6 sa6;
+  unsigned অক্ষর ipv6[16];
   unsigned short port16 = (unsigned short)(port & 0xffff);
-  ca = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1);
-  if(!ca)
-    return NULL;
+  ca = curlx_calloc(1, আকার(কাঠামো Curl_addrinfo) + ss_আকার + hostlen + 1);
+  যদি(!ca)
+    ফেরত ফাঁকা;
 
-  memset(&sa6, 0, sizeof(sa6));
+  memset(&sa6, 0, আকার(sa6));
   sa6.sin6_family = AF_INET6;
   sa6.sin6_port = htons(port16);
 
-  (void)curlx_inet_pton(AF_INET6, "::1", ipv6);
-  memcpy(&sa6.sin6_addr, ipv6, sizeof(ipv6));
+  (শূন্য)curlx_inet_pton(AF_INET6, "::1", ipv6);
+  memcpy(&sa6.sin6_addr, ipv6, আকার(ipv6));
 
   ca->ai_flags     = 0;
   ca->ai_family    = AF_INET6;
   ca->ai_socktype  = SOCK_STREAM;
   ca->ai_protocol  = IPPROTO_TCP;
-  ca->ai_addrlen   = (curl_socklen_t)ss_size;
-  ca->ai_next      = NULL;
-  ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-  memcpy(ca->ai_addr, &sa6, ss_size);
-  ca->ai_canonname = (char *)ca->ai_addr + ss_size;
+  ca->ai_addrlen   = (curl_socklen_t)ss_আকার;
+  ca->ai_পরবর্তী      = ফাঁকা;
+  ca->ai_addr = (শূন্য *)((অক্ষর *)ca + আকার(কাঠামো Curl_addrinfo));
+  memcpy(ca->ai_addr, &sa6, ss_আকার);
+  ca->ai_canonname = (অক্ষর *)ca->ai_addr + ss_আকার;
   curlx_strcopy(ca->ai_canonname, hostlen + 1, name, hostlen);
-  return ca;
+  ফেরত ca;
 }
-#else
-#define get_localhost6(x, y) NULL
+#অন্যথা
+#define get_localhost6(x, y) ফাঁকা
 #endif
 
 /* return a static IPv4 127.0.0.1 for the given name */
-static struct Curl_addrinfo *get_localhost(uint16_t port, const char *name)
+স্থির কাঠামো Curl_addrinfo *get_localhost(uint16_t port, ধ্রুবক অক্ষর *name)
 {
-  struct Curl_addrinfo *ca;
-  struct Curl_addrinfo *ca6;
-  const size_t ss_size = sizeof(struct sockaddr_in);
-  const size_t hostlen = strlen(name);
-  struct sockaddr_in sa;
-  unsigned int ipv4;
+  কাঠামো Curl_addrinfo *ca;
+  কাঠামো Curl_addrinfo *ca6;
+  ধ্রুবক size_t ss_আকার = আকার(কাঠামো sockaddr_in);
+  ধ্রুবক size_t hostlen = strlen(name);
+  কাঠামো sockaddr_in sa;
+  unsigned পূর্ণসংখ্যা ipv4;
   unsigned short port16 = (unsigned short)(port & 0xffff);
 
   /* memset to clear the sa.sin_zero field */
-  memset(&sa, 0, sizeof(sa));
+  memset(&sa, 0, আকার(sa));
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port16);
-  if(curlx_inet_pton(AF_INET, "127.0.0.1", (char *)&ipv4) < 1)
-    return NULL;
-  memcpy(&sa.sin_addr, &ipv4, sizeof(ipv4));
+  যদি(curlx_inet_pton(AF_INET, "127.0.0.1", (অক্ষর *)&ipv4) < 1)
+    ফেরত ফাঁকা;
+  memcpy(&sa.sin_addr, &ipv4, আকার(ipv4));
 
-  ca = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + hostlen + 1);
-  if(!ca)
-    return NULL;
+  ca = curlx_calloc(1, আকার(কাঠামো Curl_addrinfo) + ss_আকার + hostlen + 1);
+  যদি(!ca)
+    ফেরত ফাঁকা;
   ca->ai_flags     = 0;
   ca->ai_family    = AF_INET;
   ca->ai_socktype  = SOCK_STREAM;
   ca->ai_protocol  = IPPROTO_TCP;
-  ca->ai_addrlen   = (curl_socklen_t)ss_size;
-  ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-  memcpy(ca->ai_addr, &sa, ss_size);
-  ca->ai_canonname = (char *)ca->ai_addr + ss_size;
+  ca->ai_addrlen   = (curl_socklen_t)ss_আকার;
+  ca->ai_addr = (শূন্য *)((অক্ষর *)ca + আকার(কাঠামো Curl_addrinfo));
+  memcpy(ca->ai_addr, &sa, ss_আকার);
+  ca->ai_canonname = (অক্ষর *)ca->ai_addr + ss_আকার;
   curlx_strcopy(ca->ai_canonname, hostlen + 1, name, hostlen);
 
   ca6 = get_localhost6(port, name);
-  if(!ca6)
-    return ca;
-  ca6->ai_next = ca;
-  return ca6;
+  যদি(!ca6)
+    ফেরত ca;
+  ca6->ai_পরবর্তী = ca;
+  ফেরত ca6;
 }
 
 #ifdef USE_IPV6
 /* the nature of most systems is that IPv6 status does not come and go during a
    program's lifetime so we only probe the first time and then we have the
    info kept for fast reuse */
-CURLcode Curl_probeipv6(struct Curl_multi *multi)
+CURLcode Curl_probeipv6(কাঠামো Curl_multi *multi)
 {
   /* probe to see if we have a working IPv6 stack */
   curl_socket_t s = CURL_SOCKET(PF_INET6, SOCK_DGRAM, 0);
   multi->ipv6_works = FALSE;
-  if(s == CURL_SOCKET_BAD) {
-    if(SOCKERRNO == SOCKENOMEM)
-      return CURLE_OUT_OF_MEMORY;
+  যদি(s == CURL_SOCKET_BAD) {
+    যদি(SOCKERRNO == SOCKENOMEM)
+      ফেরত CURLE_OUT_OF_MEMORY;
   }
-  else {
+  অন্যথা {
     multi->ipv6_works = TRUE;
     sclose(s);
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /*
  * ipv6works() returns TRUE if IPv6 seems to work.
  */
-static bool ipv6works(struct Curl_easy *data)
+স্থির bool ipv6works(কাঠামো Curl_easy *তথ্য)
 {
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->multi);
-  return data ? data->multi->ipv6_works : FALSE;
+  DEBUGASSERT(তথ্য);
+  DEBUGASSERT(তথ্য->multi);
+  ফেরত তথ্য ? তথ্য->multi->ipv6_works : FALSE;
 }
 #endif /* USE_IPV6 */
 
@@ -317,234 +317,234 @@ static bool ipv6works(struct Curl_easy *data)
  * Curl_host_is_ipnum() returns TRUE if the given string is a numerical IPv4
  * (or IPv6 if supported) address.
  */
-bool Curl_host_is_ipnum(const char *hostname)
+bool Curl_host_is_ipnum(ধ্রুবক অক্ষর *hostname)
 {
-  struct in_addr in;
+  কাঠামো in_addr in;
 #ifdef USE_IPV6
-  struct in6_addr in6;
+  কাঠামো in6_addr in6;
 #endif
-  if(curlx_inet_pton(AF_INET, hostname, &in) > 0
+  যদি(curlx_inet_pton(AF_INET, hostname, &in) > 0
 #ifdef USE_IPV6
      || curlx_inet_pton(AF_INET6, hostname, &in6) > 0
 #endif
     )
-    return TRUE;
-  return FALSE;
+    ফেরত TRUE;
+  ফেরত FALSE;
 }
 
 /* return TRUE if 'part' is a case insensitive tail of 'full' */
-static bool tailmatch(const char *full, size_t flen,
-                      const char *part, size_t plen)
+স্থির bool tailmatch(ধ্রুবক অক্ষর *full, size_t flen,
+                      ধ্রুবক অক্ষর *part, size_t plen)
 {
-  if(plen > flen)
-    return FALSE;
-  return curl_strnequal(part, &full[flen - plen], plen);
+  যদি(plen > flen)
+    ফেরত FALSE;
+  ফেরত curl_strnequal(part, &full[flen - plen], plen);
 }
 
-static CURLcode hostip_resolv_failed(struct Curl_easy *data,
-                                     struct Curl_peer *peer,
+স্থির CURLcode hostip_resolv_failed(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো Curl_peer *peer,
                                      bool for_proxy)
 {
-  failf(data, "Could not resolve %s: %s",
+  failf(তথ্য, "Could not resolve %s: %s",
         for_proxy ? "proxy" : "host", peer->hostname);
-  return RESOLV_FAIL(for_proxy);
+  ফেরত RESOLV_FAIL(for_proxy);
 }
 
-static bool can_resolve_dns_queries(struct Curl_easy *data,
+স্থির bool can_resolve_dns_queries(কাঠামো Curl_easy *তথ্য,
                                     uint8_t dns_queries)
 {
-  (void)data;
-  if((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) && !ipv6works(data))
-    return FALSE;
-  return TRUE;
+  (শূন্য)তথ্য;
+  যদি((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) && !ipv6works(তথ্য))
+    ফেরত FALSE;
+  ফেরত TRUE;
 }
 
-CURLcode Curl_resolv_announce_start(struct Curl_easy *data,
-                                    void *resolver)
+CURLcode Curl_resolv_announce_start(কাঠামো Curl_easy *তথ্য,
+                                    শূন্য *resolver)
 {
-  if(data->set.resolver_start) {
-    struct Curl_mapi_guard guard;
-    int rc;
+  যদি(তথ্য->set.resolver_start) {
+    কাঠামো Curl_mapi_guard guard;
+    পূর্ণসংখ্যা rc;
 
-    CURL_TRC_DNS(data, "announcing resolve to application");
-    CURL_CBAPI_START(&guard, data, easy_resolver_start);
-    rc = data->set.resolver_start(resolver, NULL,
-                                  data->set.resolver_start_client);
+    CURL_TRC_DNS(তথ্য, "announcing resolve to application");
+    CURL_CBAPI_START(&guard, তথ্য, easy_resolver_start);
+    rc = তথ্য->set.resolver_start(resolver, ফাঁকা,
+                                  তথ্য->set.resolver_start_client);
     CURL_CBAPI_END(&guard);
-    if(rc) {
-      CURL_TRC_DNS(data, "application aborted resolve");
-      return CURLE_ABORTED_BY_CALLBACK;
+    যদি(rc) {
+      CURL_TRC_DNS(তথ্য, "application aborted resolve");
+      ফেরত CURLE_ABORTED_BY_CALLBACK;
     }
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 #ifdef USE_CURL_ASYNC
 
-static struct Curl_resolv_async *hostip_async_new(struct Curl_easy *data,
+স্থির কাঠামো Curl_resolv_async *hostip_async_new(কাঠামো Curl_easy *তথ্য,
                                                   uint8_t dns_queries,
-                                                  struct Curl_peer *peer,
+                                                  কাঠামো Curl_peer *peer,
                                                   uint8_t transport,
                                                   bool for_proxy,
                                                   timediff_t timeout_ms)
 {
-  struct Curl_resolv_async *async;
+  কাঠামো Curl_resolv_async *async;
 
-  if(!data->multi) {
+  যদি(!তথ্য->multi) {
     DEBUGASSERT(0);
-    return NULL;
+    ফেরত ফাঁকা;
   }
 
   /* struct size already includes the null-terminator for hostname */
-  async = curlx_calloc(1, sizeof(*async));
-  if(!async)
-    return NULL;
+  async = curlx_calloc(1, আকার(*async));
+  যদি(!async)
+    ফেরত ফাঁকা;
 
   /* Give every async resolve operation a "unique" id. This may
    * wrap around after a long time, making collisions highly unlikely.
    * As we keep the async structs at the easy handle, chances of
    * easy `mid plus resolv->id` colliding should be astronomical.
    * `resolv_id == 0` is never used. */
-  if(data->multi->last_resolv_id == UINT32_MAX)
-    data->multi->last_resolv_id = 1; /* wrap around */
-  else
-    data->multi->last_resolv_id++;
-  async->id = data->multi->last_resolv_id;
+  যদি(তথ্য->multi->last_resolv_id == UINT32_MAX)
+    তথ্য->multi->last_resolv_id = 1; /* wrap around */
+  অন্যথা
+    তথ্য->multi->last_resolv_id++;
+  async->id = তথ্য->multi->last_resolv_id;
   Curl_peer_link(&async->peer, peer);
   async->dns_queries = dns_queries;
   async->transport = transport;
   async->for_proxy = for_proxy;
-  async->start = *Curl_pgrs_now(data);
+  async->start = *Curl_pgrs_now(তথ্য);
   async->timeout_ms = timeout_ms;
   async->is_ipaddr = Curl_is_ipaddr(peer->hostname);
-  if(async->is_ipaddr)
+  যদি(async->is_ipaddr)
     async->is_ipv4addr = Curl_is_ipv4addr(peer->hostname);
 
-  return async;
+  ফেরত async;
 }
 
-static CURLcode hostip_resolv_take_result(struct Curl_easy *data,
-                                          struct Curl_resolv_async *async,
-                                          struct Curl_dns_entry **pdns)
+স্থির CURLcode hostip_resolv_take_ফলাফল(কাঠামো Curl_easy *তথ্য,
+                                          কাঠামো Curl_resolv_async *async,
+                                          কাঠামো Curl_dns_entry **pdns)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
 
   /* If async resolving is ongoing, this must be set */
-  if(!async)
-    return CURLE_FAILED_INIT;
+  যদি(!async)
+    ফেরত CURLE_FAILED_INIT;
 
 #ifndef CURL_DISABLE_DOH
-  if(async->doh)
-    result = Curl_doh_take_result(data, async, pdns);
-  else
+  যদি(async->doh)
+    ফলাফল = Curl_doh_take_ফলাফল(তথ্য, async, pdns);
+  অন্যথা
 #endif
-  result = Curl_async_take_result(data, async, pdns);
+  ফলাফল = Curl_async_take_ফলাফল(তথ্য, async, pdns);
 
-  if(result == CURLE_AGAIN) {
-    CURL_TRC_DNS(data, "[%s] resolve incomplete, responses=%s, "
+  যদি(ফলাফল == CURLE_AGAIN) {
+    CURL_TRC_DNS(তথ্য, "[%s] resolve incomplete, responses=%s, "
                  "ongoing=%d for %s:%d",
                  Curl_resolv_query_str(async->dns_queries),
                  Curl_resolv_query_str(async->dns_responses),
                  async->queries_ongoing,
                  async->peer->hostname, async->peer->port);
-    result = CURLE_OK;
+    ফলাফল = CURLE_OK;
   }
-  else if(IS_RESOLV_FAIL(result)) {
-    result = Curl_async_failed(data, async, NULL);
+  অন্যথা যদি(IS_RESOLV_FAIL(ফলাফল)) {
+    ফলাফল = Curl_async_failed(তথ্য, async, ফাঁকা);
   }
-  else if(result) {
+  অন্যথা যদি(ফলাফল) {
     /* a local failure, not a resolve answer. Keep the error as it
        is so it does not get treated as one. */
-    CURL_TRC_DNS(data, "[%s] resolve error %d for %s:%u",
+    CURL_TRC_DNS(তথ্য, "[%s] resolve error %d for %s:%u",
                  Curl_resolv_query_str(async->dns_queries),
-                 (int)result, async->peer->hostname, async->peer->port);
+                 (পূর্ণসংখ্যা)ফলাফল, async->peer->hostname, async->peer->port);
   }
-  else {
-    CURL_TRC_DNS(data, "[%s] resolve complete for %s:%u",
+  অন্যথা {
+    CURL_TRC_DNS(তথ্য, "[%s] resolve complete for %s:%u",
                  Curl_resolv_query_str(async->dns_queries),
                  async->peer->hostname, async->peer->port);
     DEBUGASSERT(*pdns);
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-timediff_t Curl_resolv_elapsed_ms(struct Curl_easy *data,
+timediff_t Curl_resolv_elapsed_ms(কাঠামো Curl_easy *তথ্য,
                                   uint32_t resolv_id,
-                                  const struct curltime *pnow)
+                                  ধ্রুবক কাঠামো curltime *pnow)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(!async)
-    return CURL_TIMEOUT_RESOLVE_MS;
-  return curlx_ptimediff_ms(pnow, &async->start);
+  কাঠামো Curl_resolv_async *async = Curl_async_get(তথ্য, resolv_id);
+  যদি(!async)
+    ফেরত CURL_TIMEOUT_RESOLVE_MS;
+  ফেরত curlx_ptimediff_ms(pnow, &async->start);
 }
 
-bool Curl_resolv_has_answers(struct Curl_easy *data,
+bool Curl_resolv_has_answers(কাঠামো Curl_easy *তথ্য,
                              uint32_t resolv_id, uint8_t dns_queries)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
+  কাঠামো Curl_resolv_async *async = Curl_async_get(তথ্য, resolv_id);
   uint8_t check_queries;
   /* a no longer existing/running resolve has all answers. */
-  if(!async || async->done)
-    return TRUE;
+  যদি(!async || async->done)
+    ফেরত TRUE;
   /* Relevant are only queries undertaken. Others are considered answered. */
   check_queries = (dns_queries & async->dns_queries);
-  if((check_queries & async->dns_responses) != check_queries) {
-    return FALSE;
+  যদি((check_queries & async->dns_responses) != check_queries) {
+    ফেরত FALSE;
   }
-  return TRUE;
+  ফেরত TRUE;
 }
 
-const struct Curl_addrinfo *Curl_resolv_get_ai(struct Curl_easy *data,
+ধ্রুবক কাঠামো Curl_addrinfo *Curl_resolv_get_ai(কাঠামো Curl_easy *তথ্য,
                                                uint32_t resolv_id,
-                                               int ai_family,
-                                               unsigned int index)
+                                               পূর্ণসংখ্যা ai_family,
+                                               unsigned পূর্ণসংখ্যা সূচক)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(!async || !CURL_DNSQ_IS_ADDR(async->dns_queries))
-    return NULL;
-  switch(ai_family) {
-  case AF_INET:
-    return Curl_addrinfo_get(async->ai_A, ai_family, index);
+  কাঠামো Curl_resolv_async *async = Curl_async_get(তথ্য, resolv_id);
+  যদি(!async || !CURL_DNSQ_IS_ADDR(async->dns_queries))
+    ফেরত ফাঁকা;
+  নির্বাচন(ai_family) {
+  ক্ষেত্র AF_INET:
+    ফেরত Curl_addrinfo_get(async->ai_A, ai_family, সূচক);
 #ifdef USE_IPV6
-  case AF_INET6:
-    return Curl_addrinfo_get(async->ai_AAAA, ai_family, index);
+  ক্ষেত্র AF_INET6:
+    ফেরত Curl_addrinfo_get(async->ai_AAAA, ai_family, সূচক);
 #endif
-  default:
-    return NULL;
+  পূর্বনির্ধারিত:
+    ফেরত ফাঁকা;
   }
 }
 
 #ifdef USE_HTTPSRR
 
-CURLcode Curl_resolv_https(struct Curl_easy *data,
-                           struct Curl_peer *peer,
+CURLcode Curl_resolv_https(কাঠামো Curl_easy *তথ্য,
+                           কাঠামো Curl_peer *peer,
                            bool for_proxy,
                            timediff_t timeout_ms,
                            uint32_t *presolv_id,
-                           struct Curl_dns_entry **pdns)
+                           কাঠামো Curl_dns_entry **pdns)
 {
-  return Curl_resolv(data, peer, CURL_DNSQ_HTTPS, TRNSPRT_TCP,
+  ফেরত Curl_resolv(তথ্য, peer, CURL_DNSQ_HTTPS, TRNSPRT_TCP,
                      for_proxy, timeout_ms, presolv_id, pdns);
 }
 
-const struct Curl_https_rrinfo *
-Curl_resolv_get_https(struct Curl_easy *data, uint32_t resolv_id)
+ধ্রুবক কাঠামো Curl_https_rrinfo *
+Curl_resolv_get_https(কাঠামো Curl_easy *তথ্য, uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async;
-  if(!Curl_resolv_knows_https(data, resolv_id))
-    return NULL;
-  async = Curl_async_get(data, resolv_id);
-  return async ? async->httpsrr : NULL;
+  কাঠামো Curl_resolv_async *async;
+  যদি(!Curl_resolv_knows_https(তথ্য, resolv_id))
+    ফেরত ফাঁকা;
+  async = Curl_async_get(তথ্য, resolv_id);
+  ফেরত async ? async->httpsrr : ফাঁকা;
 }
 
-bool Curl_resolv_knows_https(struct Curl_easy *data, uint32_t resolv_id)
+bool Curl_resolv_knows_https(কাঠামো Curl_easy *তথ্য, uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  if(async && (async->dns_queries & CURL_DNSQ_HTTPS))
-    return ((async->dns_responses & CURL_DNSQ_HTTPS) ||
+  কাঠামো Curl_resolv_async *async = Curl_async_get(তথ্য, resolv_id);
+  যদি(async && (async->dns_queries & CURL_DNSQ_HTTPS))
+    ফেরত ((async->dns_responses & CURL_DNSQ_HTTPS) ||
             !async->queries_ongoing);
-  return TRUE; /* we know it will never come */
+  ফেরত TRUE; /* we know it will never come */
 }
 
 #endif /* USE_HTTPSRR */
@@ -555,113 +555,113 @@ bool Curl_resolv_knows_https(struct Curl_easy *data, uint32_t resolv_id)
    a CURLE_COULDNT_RESOLVE_* failure: TRUE when the resolver answered
    that the name does not exist, FALSE on transient or local failures
    that must not be cached as negative entries. */
-static CURLcode hostip_resolv_start(struct Curl_easy *data,
+স্থির CURLcode hostip_resolv_start(কাঠামো Curl_easy *তথ্য,
                                     uint8_t dns_queries,
-                                    struct Curl_peer *peer,
+                                    কাঠামো Curl_peer *peer,
                                     uint8_t transport,
                                     bool for_proxy,
                                     timediff_t timeout_ms,
                                     bool allowDOH,
                                     uint32_t *presolv_id,
-                                    struct Curl_dns_entry **pdns,
+                                    কাঠামো Curl_dns_entry **pdns,
                                     bool *pnegative)
 {
 #ifdef USE_CURL_ASYNC
-  struct Curl_resolv_async *async = NULL;
+  কাঠামো Curl_resolv_async *async = ফাঁকা;
 #endif
-  struct Curl_addrinfo *addr = NULL;
+  কাঠামো Curl_addrinfo *addr = ফাঁকা;
   size_t hostname_len;
   bool addr_queries = (dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA));
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
   *pnegative = FALSE;
 
-  (void)timeout_ms; /* not in all ifdefs */
+  (শূন্য)timeout_ms; /* not in all ifdefs */
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = ফাঁকা;
 
   /* Check for "known" things to resolve ourselves. */
-  if(addr_queries) {
+  যদি(addr_queries) {
 #ifndef USE_RESOLVE_ON_IPS
-    if(Curl_is_ipaddr(peer->hostname)) {
+    যদি(Curl_is_ipaddr(peer->hostname)) {
       /* test655 verifies that the announce is done, even though there
        * is no real resolving. So, keep doing this. */
-      result = Curl_resolv_announce_start(data, NULL);
-      if(result)
-        goto out;
+      ফলাফল = Curl_resolv_announce_start(তথ্য, ফাঁকা);
+      যদি(ফলাফল)
+        যাও out;
       /* shortcut literal IP addresses, if we are not told to resolve them. */
-      result = Curl_str2addr(peer->hostname, peer->port, &addr);
-      goto out;
+      ফলাফল = Curl_str2addr(peer->hostname, peer->port, &addr);
+      যাও out;
     }
 #endif
 
     hostname_len = strlen(peer->hostname);
-    if(curl_strequal(peer->hostname, "localhost") ||
+    যদি(curl_strequal(peer->hostname, "localhost") ||
        curl_strequal(peer->hostname, "localhost.") ||
        tailmatch(peer->hostname, hostname_len, STRCONST(".localhost")) ||
        tailmatch(peer->hostname, hostname_len, STRCONST(".localhost."))) {
-      result = Curl_resolv_announce_start(data, NULL);
-      if(result)
-        goto out;
+      ফলাফল = Curl_resolv_announce_start(তথ্য, ফাঁকা);
+      যদি(ফলাফল)
+        যাও out;
       addr = get_localhost(peer->port, peer->hostname);
-      if(!addr)
-        result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      যদি(!addr)
+        ফলাফল = CURLE_OUT_OF_MEMORY;
+      যাও out;
     }
   }
 #ifndef CURL_DISABLE_DOH
-  if(!Curl_is_ipaddr(peer->hostname) && allowDOH && data->set.doh) {
-    result = Curl_resolv_announce_start(data, NULL);
-    if(result)
-      goto out;
-    if(!async) {
-      async = hostip_async_new(data, dns_queries, peer, transport,
+  যদি(!Curl_is_ipaddr(peer->hostname) && allowDOH && তথ্য->set.doh) {
+    ফলাফল = Curl_resolv_announce_start(তথ্য, ফাঁকা);
+    যদি(ফলাফল)
+      যাও out;
+    যদি(!async) {
+      async = hostip_async_new(তথ্য, dns_queries, peer, transport,
                                for_proxy, timeout_ms);
-      if(!async) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      যদি(!async) {
+        ফলাফল = CURLE_OUT_OF_MEMORY;
+        যাও out;
       }
     }
-    result = Curl_doh(data, async);
-    goto out;
+    ফলাফল = Curl_doh(তথ্য, async);
+    যাও out;
   }
-#else
-  (void)allowDOH;
+#অন্যথা
+  (শূন্য)allowDOH;
 #endif
 
   /* Can we provide the requested IP specifics in resolving? */
-  if(!can_resolve_dns_queries(data, dns_queries)) {
-    result = RESOLV_FAIL(for_proxy);
-    goto out;
+  যদি(!can_resolve_dns_queries(তথ্য, dns_queries)) {
+    ফলাফল = RESOLV_FAIL(for_proxy);
+    যাও out;
   }
 
 #ifdef CURLRES_ASYNCH
-  (void)addr;
-  if(!async) {
-    async = hostip_async_new(data, dns_queries, peer, transport,
+  (শূন্য)addr;
+  যদি(!async) {
+    async = hostip_async_new(তথ্য, dns_queries, peer, transport,
                              for_proxy, timeout_ms);
-    if(!async) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    যদি(!async) {
+      ফলাফল = CURLE_OUT_OF_MEMORY;
+      যাও out;
     }
   }
-  result = Curl_async_getaddrinfo(data, async);
-  if(result == CURLE_AGAIN) {
+  ফলাফল = Curl_async_getaddrinfo(তথ্য, async);
+  যদি(ফলাফল == CURLE_AGAIN) {
     /* the answer might be there already. Check. */
-    CURLcode r2 = hostip_resolv_take_result(data, async, pdns);
-    if(r2)
-      result = r2;
-    else if(*pdns)
-      result = CURLE_OK;
+    CURLcode r2 = hostip_resolv_take_ফলাফল(তথ্য, async, pdns);
+    যদি(r2)
+      ফলাফল = r2;
+    অন্যথা যদি(*pdns)
+      ফলাফল = CURLE_OK;
   }
-#else
-  result = Curl_resolv_announce_start(data, NULL);
-  if(result)
-    goto out;
-  addr = Curl_sync_getaddrinfo(data, dns_queries, peer->hostname, peer->port,
+#অন্যথা
+  ফলাফল = Curl_resolv_announce_start(তথ্য, ফাঁকা);
+  যদি(ফলাফল)
+    যাও out;
+  addr = Curl_sync_getaddrinfo(তথ্য, dns_queries, peer->hostname, peer->port,
                                transport);
-  if(!addr) {
-    result = RESOLV_FAIL(for_proxy);
+  যদি(!addr) {
+    ফলাফল = RESOLV_FAIL(for_proxy);
     /* the synchronous resolvers do not tell a transient failure from
        an authoritative negative answer, treat it as before */
     *pnegative = TRUE;
@@ -669,163 +669,163 @@ static CURLcode hostip_resolv_start(struct Curl_easy *data,
 #endif
 
 out:
-  if(!result) {
-    if(addr) {
+  যদি(!ফলাফল) {
+    যদি(addr) {
       /* we got a response, create a dns entry, add to cache, return */
       DEBUGASSERT(!*pdns);
-      *pdns = Curl_dnsc_mk_addr(data, dns_queries, &addr, peer);
-      if(!*pdns)
-        result = CURLE_OUT_OF_MEMORY;
+      *pdns = Curl_dnsc_mk_addr(তথ্য, dns_queries, &addr, peer);
+      যদি(!*pdns)
+        ফলাফল = CURLE_OUT_OF_MEMORY;
     }
-    else if(!*pdns)
-      result = CURLE_AGAIN;
+    অন্যথা যদি(!*pdns)
+      ফলাফল = CURLE_AGAIN;
   }
-  else if(*pdns)
-    Curl_dns_entry_unlink(data, pdns);
-  else if(addr)
+  অন্যথা যদি(*pdns)
+    Curl_dns_entry_unlink(তথ্য, pdns);
+  অন্যথা যদি(addr)
     Curl_freeaddrinfo(addr);
 
 #ifdef USE_CURL_ASYNC
-  if(async) {
-    if(result == CURLE_AGAIN) { /* still need it, link, return id. */
+  যদি(async) {
+    যদি(ফলাফল == CURLE_AGAIN) { /* still need it, link, return id. */
       *presolv_id = async->id;
-      async->next = data->state.async;
-      data->state.async = async;
+      async->পরবর্তী = তথ্য->state.async;
+      তথ্য->state.async = async;
     }
-    else {
+    অন্যথা {
       *pnegative = !!async->negative_answer;
-      Curl_async_destroy(data, async);
+      Curl_async_destroy(তথ্য, async);
     }
   }
 #endif
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode hostip_resolv(struct Curl_easy *data,
+স্থির CURLcode hostip_resolv(কাঠামো Curl_easy *তথ্য,
                               uint8_t dns_queries,
-                              struct Curl_peer *peer,
+                              কাঠামো Curl_peer *peer,
                               uint8_t transport,
                               bool for_proxy,
                               timediff_t timeout_ms,
                               bool allowDOH,
                               uint32_t *presolv_id,
-                              struct Curl_dns_entry **pdns)
+                              কাঠামো Curl_dns_entry **pdns)
 {
   size_t hostname_len;
-  CURLcode result = RESOLV_FAIL(for_proxy);
+  CURLcode ফলাফল = RESOLV_FAIL(for_proxy);
   bool cache_dns = FALSE;
   bool negative = FALSE;
 
-  (void)timeout_ms; /* not used in all ifdefs */
+  (শূন্য)timeout_ms; /* not used in all ifdefs */
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = ফাঁকা;
 
 #ifdef CURL_DISABLE_DOH
-  (void)allowDOH;
+  (শূন্য)allowDOH;
 #endif
 
   /* We should intentionally error and not resolve .onion TLDs */
   hostname_len = strlen(peer->hostname);
   DEBUGASSERT(hostname_len);
-  if(hostname_len >= 7 &&
+  যদি(hostname_len >= 7 &&
      (curl_strequal(&peer->hostname[hostname_len - 6], ".onion") ||
       curl_strequal(&peer->hostname[hostname_len - 7], ".onion."))) {
-    failf(data, "Not resolving .onion address (RFC 7686)");
-    goto out;
+    failf(তথ্য, "Not resolving .onion address (RFC 7686)");
+    যাও out;
   }
 
 #ifdef DEBUGBUILD
-  CURL_TRC_DNS(data, "[%s] hostip_resolv(%s:%u)",
+  CURL_TRC_DNS(তথ্য, "[%s] hostip_resolv(%s:%u)",
                Curl_resolv_query_str(dns_queries), peer->hostname, peer->port);
-  if((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) &&
+  যদি((CURL_DNSQ_IS_ADDR(dns_queries) == CURL_DNSQ_AAAA) &&
      getenv("CURL_DBG_RESOLV_FAIL_IPV6")) {
-    infof(data, "DEBUG fail ipv6 resolve");
-    result = hostip_resolv_failed(data, peer, for_proxy);
-    goto out;
+    infof(তথ্য, "DEBUG fail ipv6 resolve");
+    ফলাফল = hostip_resolv_failed(তথ্য, peer, for_proxy);
+    যাও out;
   }
 #endif
   /* Let's check our DNS cache first */
-  result = Curl_dnscache_get(data, dns_queries, peer, pdns);
-  if(*pdns) {
-    infof(data, "Hostname %s was found in DNS cache", peer->hostname);
-    result = CURLE_OK;
+  ফলাফল = Curl_dnscache_get(তথ্য, dns_queries, peer, pdns);
+  যদি(*pdns) {
+    infof(তথ্য, "Hostname %s was found in DNS cache", peer->hostname);
+    ফলাফল = CURLE_OK;
   }
-  else if(result) {
-    infof(data, "Negative DNS entry");
-    result = hostip_resolv_failed(data, peer, for_proxy);
+  অন্যথা যদি(ফলাফল) {
+    infof(তথ্য, "Negative DNS entry");
+    ফলাফল = hostip_resolv_failed(তথ্য, peer, for_proxy);
   }
-  else {
+  অন্যথা {
     /* No luck, we need to start resolving. */
     cache_dns = TRUE;
-    result = hostip_resolv_start(data, dns_queries, peer, transport,
+    ফলাফল = hostip_resolv_start(তথ্য, dns_queries, peer, transport,
                                  for_proxy, timeout_ms, allowDOH,
                                  presolv_id, pdns, &negative);
-    CURL_TRC_DNS(data, "[%s] hostip_resolv started -> %d",
-                 Curl_resolv_query_str(dns_queries), (int)result);
+    CURL_TRC_DNS(তথ্য, "[%s] hostip_resolv started -> %d",
+                 Curl_resolv_query_str(dns_queries), (পূর্ণসংখ্যা)ফলাফল);
   }
 
 out:
-  if(result && (result != CURLE_AGAIN)) {
-    Curl_dns_entry_unlink(data, pdns);
-    if(IS_RESOLV_FAIL(result)) {
-      if(cache_dns && negative)
-        Curl_dnscache_add_negative(data, dns_queries, peer);
-      if(dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
-        failf(data, "Could not resolve: %s:%u", peer->hostname, peer->port);
+  যদি(ফলাফল && (ফলাফল != CURLE_AGAIN)) {
+    Curl_dns_entry_unlink(তথ্য, pdns);
+    যদি(IS_RESOLV_FAIL(ফলাফল)) {
+      যদি(cache_dns && negative)
+        Curl_dnscache_add_negative(তথ্য, dns_queries, peer);
+      যদি(dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+        failf(তথ্য, "Could not resolve: %s:%u", peer->hostname, peer->port);
     }
-    else {
-      failf(data, "Error %d resolving %s:%u",
-            (int)result, peer->hostname, peer->port);
+    অন্যথা {
+      failf(তথ্য, "Error %d resolving %s:%u",
+            (পূর্ণসংখ্যা)ফলাফল, peer->hostname, peer->port);
     }
   }
-  else if(cache_dns && *pdns) {
-    result = Curl_dnscache_add(data, *pdns);
-    if(result)
-      Curl_dns_entry_unlink(data, pdns);
+  অন্যথা যদি(cache_dns && *pdns) {
+    ফলাফল = Curl_dnscache_add(তথ্য, *pdns);
+    যদি(ফলাফল)
+      Curl_dns_entry_unlink(তথ্য, pdns);
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-CURLcode Curl_resolv_blocking(struct Curl_easy *data,
+CURLcode Curl_resolv_blocking(কাঠামো Curl_easy *তথ্য,
                               uint8_t dns_queries,
-                              const char *hostname,
+                              ধ্রুবক অক্ষর *hostname,
                               uint16_t port,
                               uint8_t transport,
-                              struct Curl_dns_entry **pdns)
+                              কাঠামো Curl_dns_entry **pdns)
 {
-  struct Curl_peer *peer = NULL;
-  CURLcode result;
+  কাঠামো Curl_peer *peer = ফাঁকা;
+  CURLcode ফলাফল;
   uint32_t resolv_id;
 
   DEBUGASSERT(hostname && *hostname);
-  *pdns = NULL;
+  *pdns = ফাঁকা;
 
-  result = Curl_peer_create(data, data->conn->scheme, hostname, port, &peer);
-  if(result)
-    goto out;
+  ফলাফল = Curl_peer_create(তথ্য, তথ্য->conn->scheme, hostname, port, &peer);
+  যদি(ফলাফল)
+    যাও out;
 
   /* We cannot do a blocking resolve using DoH currently */
-  result = hostip_resolv(data, dns_queries, peer, transport, FALSE, 0, FALSE,
+  ফলাফল = hostip_resolv(তথ্য, dns_queries, peer, transport, FALSE, 0, FALSE,
                          &resolv_id, pdns);
-  switch(result) {
-  case CURLE_OK:
+  নির্বাচন(ফলাফল) {
+  ক্ষেত্র CURLE_OK:
     DEBUGASSERT(*pdns);
-    break;
+    বিরতি;
 #ifdef USE_CURL_ASYNC
-  case CURLE_AGAIN:
+  ক্ষেত্র CURLE_AGAIN:
     DEBUGASSERT(!*pdns);
-    result = Curl_async_await(data, resolv_id, pdns);
-    Curl_resolv_destroy(data, resolv_id);
-    break;
+    ফলাফল = Curl_async_await(তথ্য, resolv_id, pdns);
+    Curl_resolv_destroy(তথ্য, resolv_id);
+    বিরতি;
 #endif
-  default:
-    break;
+  পূর্বনির্ধারিত:
+    বিরতি;
   }
 
 out:
   Curl_peer_unlink(&peer);
-  return result;
+  ফেরত ফলাফল;
 }
 
 #ifdef USE_ALARM_TIMEOUT
@@ -834,50 +834,50 @@ out:
  * execution. This effectively causes the remainder of the application to run
  * within a signal handler which is nonportable and could lead to problems.
  */
-CURL_NORETURN static void alarmfunc(int sig)
+CURL_NORETURN স্থির শূন্য alarmfunc(পূর্ণসংখ্যা sig)
 {
-  (void)sig;
+  (শূন্য)sig;
   siglongjmp(curl_jmpenv, 1);
 }
 
-static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
+স্থির CURLcode resolv_alarm_timeout(কাঠামো Curl_easy *তথ্য,
                                      uint8_t dns_queries,
-                                     struct Curl_peer *peer,
+                                     কাঠামো Curl_peer *peer,
                                      uint8_t transport,
                                      bool for_proxy,
                                      timediff_t timeout_ms,
                                      uint32_t *presolv_id,
-                                     struct Curl_dns_entry **entry)
+                                     কাঠামো Curl_dns_entry **entry)
 {
 #ifdef HAVE_SIGACTION
-  struct sigaction keep_sigact; /* store the old struct here */
-  volatile bool keep_copysig = FALSE; /* whether old sigact has been saved */
-  struct sigaction sigact;
-#else
+  কাঠামো sigaction keep_sigact; /* store the old struct here */
+  অস্থির bool keep_copysig = FALSE; /* whether old sigact has been saved */
+  কাঠামো sigaction sigact;
+#অন্যথা
 #ifdef HAVE_SIGNAL
-  void (*keep_sigact)(int);       /* store the old handler here */
+  শূন্য (*keep_sigact)(পূর্ণসংখ্যা);       /* store the old handler here */
 #endif /* HAVE_SIGNAL */
 #endif /* HAVE_SIGACTION */
-  volatile long timeout;
-  volatile unsigned int prev_alarm = 0;
-  CURLcode result;
+  অস্থির long timeout;
+  অস্থির unsigned পূর্ণসংখ্যা পূর্ব_alarm = 0;
+  CURLcode ফলাফল;
 
   DEBUGASSERT(peer->hostname && *peer->hostname);
   DEBUGASSERT(timeout_ms > 0);
-  DEBUGASSERT(!data->set.no_signal);
+  DEBUGASSERT(!তথ্য->set.no_signal);
 #ifndef CURL_DISABLE_DOH
-  DEBUGASSERT(!data->set.doh);
+  DEBUGASSERT(!তথ্য->set.doh);
 #endif
 
-  *entry = NULL;
+  *entry = ফাঁকা;
   timeout = (timeout_ms > LONG_MAX) ? LONG_MAX : (long)timeout_ms;
-  if(timeout < 1000) {
+  যদি(timeout < 1000) {
     /* The alarm() function only provides integer second resolution, so if
        we want to wait less than one second we must bail out already now. */
-    failf(data,
+    failf(তথ্য,
           "remaining timeout of %ld too small to resolve via SIGALRM method",
           timeout);
-    return CURLE_OPERATION_TIMEDOUT;
+    ফেরত CURLE_OPERATION_TIMEDOUT;
   }
   /* This allows us to time-out from the name resolver, as the timeout
      will generate a signal and we will siglongjmp() from that here.
@@ -887,19 +887,19 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
      before we invoke Curl_resolv() (and thus use "volatile"). */
   curl_simple_lock_lock(&curl_jmpenv_lock);
 
-  if(sigsetjmp(curl_jmpenv, 1)) {
+  যদি(sigsetjmp(curl_jmpenv, 1)) {
     /* this is coming from a siglongjmp() after an alarm signal */
-    failf(data, "name lookup timed out");
-    result = CURLE_OPERATION_TIMEDOUT;
-    goto clean_up;
+    failf(তথ্য, "name lookup timed out");
+    ফলাফল = CURLE_OPERATION_TIMEDOUT;
+    যাও clean_up;
   }
-  else {
+  অন্যথা {
     /*************************************************************
      * Set signal handler to catch SIGALRM
      * Store the old value to be able to set it back later!
      *************************************************************/
 #ifdef HAVE_SIGACTION
-    sigaction(SIGALRM, NULL, &sigact);
+    sigaction(SIGALRM, ফাঁকা, &sigact);
     keep_sigact = sigact;
     keep_copysig = TRUE; /* yes, we have a copy */
     sigact.sa_handler = alarmfunc;
@@ -908,39 +908,39 @@ static CURLcode resolv_alarm_timeout(struct Curl_easy *data,
     sigact.sa_flags &= ~SA_RESTART;
 #endif
     /* now set the new struct */
-    sigaction(SIGALRM, &sigact, NULL);
-#else /* HAVE_SIGACTION */
+    sigaction(SIGALRM, &sigact, ফাঁকা);
+#অন্যথা /* HAVE_SIGACTION */
     /* no sigaction(), revert to the much lamer signal() */
 #ifdef HAVE_SIGNAL
-    keep_sigact = signal(SIGALRM, alarmfunc);
+    keep_sigact = সংকেত(SIGALRM, alarmfunc);
 #endif
 #endif /* HAVE_SIGACTION */
 
     /* alarm() makes a signal get sent when the timeout fires off, and that
        will abort system calls */
-    prev_alarm = alarm(curlx_sltoui(timeout / 1000L));
+    পূর্ব_alarm = alarm(curlx_sltoui(timeout / 1000L));
   }
 
   /* Perform the actual name resolution. This might be interrupted by an
    * alarm if it takes too long. */
-  result = hostip_resolv(data, dns_queries, peer, transport,
+  ফলাফল = hostip_resolv(তথ্য, dns_queries, peer, transport,
                          for_proxy, timeout_ms, FALSE, presolv_id, entry);
 
 clean_up:
-  if(!prev_alarm)
+  যদি(!পূর্ব_alarm)
     /* deactivate a possibly active alarm before uninstalling the handler */
     alarm(0);
 
 #ifdef HAVE_SIGACTION
-  if(keep_copysig) {
+  যদি(keep_copysig) {
     /* we got a struct as it looked before, now put that one back nice
        and clean */
-    sigaction(SIGALRM, &keep_sigact, NULL); /* put it back */
+    sigaction(SIGALRM, &keep_sigact, ফাঁকা); /* put it back */
   }
-#else
+#অন্যথা
 #ifdef HAVE_SIGNAL
   /* restore the previous SIGALRM handler */
-  signal(SIGALRM, keep_sigact);
+  সংকেত(SIGALRM, keep_sigact);
 #endif
 #endif /* HAVE_SIGACTION */
 
@@ -948,56 +948,56 @@ clean_up:
 
   /* switch back the alarm() to either zero or to what it was before minus
      the time we spent until now! */
-  if(prev_alarm) {
+  যদি(পূর্ব_alarm) {
     /* there was an alarm() set before us, now put it back */
     timediff_t elapsed_secs =
-      Curl_cpool_conn_age_ms(data, data->conn, Curl_pgrs_now(data)) / 1000;
+      Curl_cpool_conn_age_ms(তথ্য, তথ্য->conn, Curl_pgrs_now(তথ্য)) / 1000;
 
     /* the alarm period is counted in even number of seconds */
-    unsigned long alarm_set = (unsigned long)(prev_alarm - elapsed_secs);
+    unsigned long alarm_set = (unsigned long)(পূর্ব_alarm - elapsed_secs);
 
-    if(!alarm_set ||
-       ((alarm_set >= 0x80000000) && (prev_alarm < 0x80000000))) {
+    যদি(!alarm_set ||
+       ((alarm_set >= 0x80000000) && (পূর্ব_alarm < 0x80000000))) {
       /* if the alarm time-left reached zero or turned "negative" (counted
          with unsigned values), we should fire off a SIGALRM here, but we
          will not, and zero would be to switch it off so we never set it to
          less than 1! */
       alarm(1);
-      result = CURLE_OPERATION_TIMEDOUT;
-      failf(data, "Previous alarm fired off");
+      ফলাফল = CURLE_OPERATION_TIMEDOUT;
+      failf(তথ্য, "Previous alarm fired off");
     }
-    else
-      alarm((unsigned int)alarm_set);
+    অন্যথা
+      alarm((unsigned পূর্ণসংখ্যা)alarm_set);
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 #endif /* USE_ALARM_TIMEOUT */
 
 #ifdef USE_UNIX_SOCKETS
-static CURLcode resolv_unix(struct Curl_easy *data,
-                            struct Curl_peer *peer,
-                            struct Curl_dns_entry **pdns)
+স্থির CURLcode resolv_unix(কাঠামো Curl_easy *তথ্য,
+                            কাঠামো Curl_peer *peer,
+                            কাঠামো Curl_dns_entry **pdns)
 {
-  struct Curl_addrinfo *addr;
-  CURLcode result;
+  কাঠামো Curl_addrinfo *addr;
+  CURLcode ফলাফল;
 
   DEBUGASSERT(peer->unix_socket);
-  *pdns = NULL;
+  *pdns = ফাঁকা;
 
-  result = Curl_unix2addr(peer->hostname, (bool)peer->abstract_uds, &addr);
-  if(result) {
-    if(result == CURLE_TOO_LARGE) {
+  ফলাফল = Curl_unix2addr(peer->hostname, (bool)peer->abstract_uds, &addr);
+  যদি(ফলাফল) {
+    যদি(ফলাফল == CURLE_TOO_LARGE) {
       /* Long paths are not supported for now */
-      failf(data, "Unix socket path too long: '%s'", peer->hostname);
-      result = CURLE_COULDNT_RESOLVE_HOST;
+      failf(তথ্য, "Unix socket path too long: '%s'", peer->hostname);
+      ফলাফল = CURLE_COULDNT_RESOLVE_HOST;
     }
-    return result;
+    ফেরত ফলাফল;
   }
 
-  *pdns = Curl_dnsc_mk_addr(data, 0, &addr, peer);
-  return *pdns ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  *pdns = Curl_dnsc_mk_addr(তথ্য, 0, &addr, peer);
+  ফেরত *pdns ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 #endif /* USE_UNIX_SOCKETS */
 
@@ -1021,162 +1021,162 @@ static CURLcode resolv_unix(struct Curl_easy *data,
  * CURLE_AGAIN = resolving in progress, *pdns == NULL
  * any other CURLcode error, *pdns == NULL
  */
-CURLcode Curl_resolv(struct Curl_easy *data,
-                     struct Curl_peer *peer,
+CURLcode Curl_resolv(কাঠামো Curl_easy *তথ্য,
+                     কাঠামো Curl_peer *peer,
                      uint8_t dns_queries,
                      uint8_t transport,
                      bool for_proxy,
                      timediff_t timeout_ms,
                      uint32_t *presolv_id,
-                     struct Curl_dns_entry **pdns)
+                     কাঠামো Curl_dns_entry **pdns)
 {
   *presolv_id = 0;
-  *pdns = NULL;
+  *pdns = ফাঁকা;
 
-  if(timeout_ms < 0)
+  যদি(timeout_ms < 0)
     /* got an already expired timeout */
-    return CURLE_OPERATION_TIMEDOUT;
-  else if(!timeout_ms)
+    ফেরত CURLE_OPERATION_TIMEDOUT;
+  অন্যথা যদি(!timeout_ms)
     timeout_ms = CURL_TIMEOUT_RESOLVE_MS;
 
 #ifdef USE_UNIX_SOCKETS
-  if((dns_queries & CURL_DNSQ_ADDR) && peer->unix_socket)
-    return resolv_unix(data, peer, pdns);
-#else
-  if(peer->unix_socket)
-    return hostip_resolv_failed(data, peer, for_proxy);
+  যদি((dns_queries & CURL_DNSQ_ADDR) && peer->unix_socket)
+    ফেরত resolv_unix(তথ্য, peer, pdns);
+#অন্যথা
+  যদি(peer->unix_socket)
+    ফেরত hostip_resolv_failed(তথ্য, peer, for_proxy);
 #endif
 
 #ifdef USE_ALARM_TIMEOUT
-  if(dns_queries & CURL_DNSQ_ADDR) {
-    if(timeout_ms && data->set.no_signal) {
+  যদি(dns_queries & CURL_DNSQ_ADDR) {
+    যদি(timeout_ms && তথ্য->set.no_signal) {
       /* Cannot use ALARM when signals are disabled */
       timeout_ms = 0;
     }
-    if(timeout_ms && !Curl_doh_wanted(data)) {
-      return resolv_alarm_timeout(data, dns_queries, peer, transport,
+    যদি(timeout_ms && !Curl_doh_wanted(তথ্য)) {
+      ফেরত resolv_alarm_timeout(তথ্য, dns_queries, peer, transport,
                                   for_proxy, timeout_ms, presolv_id, pdns);
     }
   }
 #endif /* !USE_ALARM_TIMEOUT */
 
 #ifndef CURLRES_ASYNCH
-  if(timeout_ms)
-    infof(data, "timeout on name lookup is not supported");
+  যদি(timeout_ms)
+    infof(তথ্য, "timeout on name lookup is not supported");
 #endif
 
-  return hostip_resolv(data, dns_queries, peer, transport,
+  ফেরত hostip_resolv(তথ্য, dns_queries, peer, transport,
                        for_proxy, timeout_ms, TRUE, presolv_id, pdns);
 }
 
 #ifdef USE_CURL_ASYNC
 
-struct Curl_resolv_async *Curl_async_get(struct Curl_easy *data,
+কাঠামো Curl_resolv_async *Curl_async_get(কাঠামো Curl_easy *তথ্য,
                                          uint32_t resolv_id)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  for(; async; async = async->next) {
-    if(async->id == resolv_id)
-      return async;
+  কাঠামো Curl_resolv_async *async = তথ্য->state.async;
+  জন্য(; async; async = async->পরবর্তী) {
+    যদি(async->id == resolv_id)
+      ফেরত async;
   }
-  return NULL;
+  ফেরত ফাঁকা;
 }
 
-CURLcode Curl_resolv_take_result(struct Curl_easy *data, uint32_t resolv_id,
-                                 struct Curl_dns_entry **pdns)
+CURLcode Curl_resolv_take_ফলাফল(কাঠামো Curl_easy *তথ্য, uint32_t resolv_id,
+                                 কাঠামো Curl_dns_entry **pdns)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  CURLcode result;
+  কাঠামো Curl_resolv_async *async = Curl_async_get(তথ্য, resolv_id);
+  CURLcode ফলাফল;
 
   /* If async resolving is ongoing, this must be set */
-  if(!async)
-    return CURLE_FAILED_INIT;
+  যদি(!async)
+    ফেরত CURLE_FAILED_INIT;
 
   /* check if we have the name resolved by now (from someone else) */
-  result = Curl_dnscache_get(data, async->dns_queries, async->peer, pdns);
-  if(*pdns) {
+  ফলাফল = Curl_dnscache_get(তথ্য, async->dns_queries, async->peer, pdns);
+  যদি(*pdns) {
     /* Tell a possibly async resolver we no longer need the results. */
-    infof(data, "Hostname '%s' was found in DNS cache", async->peer->hostname);
-    Curl_async_shutdown(data, async);
-    return CURLE_OK;
+    infof(তথ্য, "Hostname '%s' was found in DNS cache", async->peer->hostname);
+    Curl_async_shutdown(তথ্য, async);
+    ফেরত CURLE_OK;
   }
-  else if(result) {
-    Curl_async_shutdown(data, async);
-    return Curl_async_failed(data, async, NULL);
+  অন্যথা যদি(ফলাফল) {
+    Curl_async_shutdown(তথ্য, async);
+    ফেরত Curl_async_failed(তথ্য, async, ফাঁকা);
   }
 
-  result = hostip_resolv_take_result(data, async, pdns);
+  ফলাফল = hostip_resolv_take_ফলাফল(তথ্য, async, pdns);
 
-  if(*pdns) {
+  যদি(*pdns) {
     /* Add to cache */
-    result = Curl_dnscache_add(data, *pdns);
-    if(result)
-      Curl_dns_entry_unlink(data, pdns);
+    ফলাফল = Curl_dnscache_add(তথ্য, *pdns);
+    যদি(ফলাফল)
+      Curl_dns_entry_unlink(তথ্য, pdns);
   }
-  else if(IS_RESOLV_FAIL(result)) {
+  অন্যথা যদি(IS_RESOLV_FAIL(ফলাফল)) {
     /* Only cache the failure when the resolver answered that the
        name does not exist. Transient failures, e.g. an unreachable
        or overloaded DNS server or local resource shortages, say
        nothing about the name and would poison the cache for every
        transfer using it. */
-    if(async->negative_answer)
-      Curl_dnscache_add_negative(data, async->dns_queries, async->peer);
-    if(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
-      failf(data, "Could not resolve: %s:%u",
+    যদি(async->negative_answer)
+      Curl_dnscache_add_negative(তথ্য, async->dns_queries, async->peer);
+    যদি(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+      failf(তথ্য, "Could not resolve: %s:%u",
             async->peer->hostname, async->peer->port);
   }
-  else if(result) {
-    failf(data, "Error %d resolving %s:%u",
-          (int)result, async->peer->hostname, async->peer->port);
+  অন্যথা যদি(ফলাফল) {
+    failf(তথ্য, "Error %d resolving %s:%u",
+          (পূর্ণসংখ্যা)ফলাফল, async->peer->hostname, async->peer->port);
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-CURLcode Curl_resolv_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+CURLcode Curl_resolv_pollset(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো easy_pollset *ps)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  CURLcode result = CURLE_OK;
+  কাঠামো Curl_resolv_async *async = তথ্য->state.async;
+  CURLcode ফলাফল = CURLE_OK;
 
-  (void)ps;
-  for(; async && !result; async = async->next) {
+  (শূন্য)ps;
+  জন্য(; async && !ফলাফল; async = async->পরবর্তী) {
 #ifndef CURL_DISABLE_DOH
-    if(async->doh) /* DoH has nothing for the pollset */
-      continue;
+    যদি(async->doh) /* DoH has nothing for the pollset */
+      চালু;
 #endif
-    result = Curl_async_pollset(data, async, ps);
+    ফলাফল = Curl_async_pollset(তথ্য, async, ps);
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-void Curl_resolv_destroy(struct Curl_easy *data, uint32_t resolv_id)
+শূন্য Curl_resolv_destroy(কাঠামো Curl_easy *তথ্য, uint32_t resolv_id)
 {
-  struct Curl_resolv_async **panchor = &data->state.async;
+  কাঠামো Curl_resolv_async **panchor = &তথ্য->state.async;
 
-  for(; *panchor; panchor = &(*panchor)->next) {
-    struct Curl_resolv_async *async = *panchor;
-    if(async->id == resolv_id) {
-      *panchor = async->next;
-      Curl_async_destroy(data, async);
-      break;
+  জন্য(; *panchor; panchor = &(*panchor)->পরবর্তী) {
+    কাঠামো Curl_resolv_async *async = *panchor;
+    যদি(async->id == resolv_id) {
+      *panchor = async->পরবর্তী;
+      Curl_async_destroy(তথ্য, async);
+      বিরতি;
     }
   }
 }
 
-void Curl_resolv_shutdown_all(struct Curl_easy *data)
+শূন্য Curl_resolv_shutdown_all(কাঠামো Curl_easy *তথ্য)
 {
-  struct Curl_resolv_async *async = data->state.async;
-  for(; async; async = async->next) {
-    Curl_async_shutdown(data, async);
+  কাঠামো Curl_resolv_async *async = তথ্য->state.async;
+  জন্য(; async; async = async->পরবর্তী) {
+    Curl_async_shutdown(তথ্য, async);
   }
 }
 
-void Curl_resolv_destroy_all(struct Curl_easy *data)
+শূন্য Curl_resolv_destroy_all(কাঠামো Curl_easy *তথ্য)
 {
-  while(data->state.async) {
-    struct Curl_resolv_async *async = data->state.async;
-    data->state.async = async->next;
-    Curl_async_destroy(data, async);
+  যখন(তথ্য->state.async) {
+    কাঠামো Curl_resolv_async *async = তথ্য->state.async;
+    তথ্য->state.async = async->পরবর্তী;
+    Curl_async_destroy(তথ্য, async);
   }
 }
 

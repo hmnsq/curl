@@ -24,56 +24,56 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_LIBSSH
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#অন্তর্ভাব <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#অন্তর্ভাব <arpa/inet.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#অন্তর্ভাব <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#অন্তর্ভাব <in.h>
+#অন্তর্ভাব <inet.h>
 #endif
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "vssh/ssh.h"
-#include "url.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "parsedate.h"          /* for the week day and month names */
-#include "curlx/strparse.h"
-#include "multiif.h"
-#include "select.h"
-#include "vssh/vssh.h"
-#include "curlx/base64.h" /* for curlx_base64_encode() */
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "sendf.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "transfer.h"
+#অন্তর্ভাব "vssh/ssh.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "cfilters.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "parsedate.h"          /* for the week day and month names */
+#অন্তর্ভাব "curlx/strparse.h"
+#অন্তর্ভাব "multiif.h"
+#অন্তর্ভাব "select.h"
+#অন্তর্ভাব "vssh/vssh.h"
+#অন্তর্ভাব "curlx/base64.h" /* for curlx_base64_encode() */
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#অন্তর্ভাব <unistd.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+#অন্তর্ভাব <fcntl.h>
 #endif
 
 /* A recent macro provided by libssh. Or make our own. */
 #ifndef SSH_STRING_FREE_CHAR
 #define SSH_STRING_FREE_CHAR(x) \
-  do {                          \
-    if(x) {                     \
+  করো {                          \
+    যদি(x) {                     \
       ssh_string_free_char(x);  \
-      x = NULL;                 \
+      x = ফাঁকা;                 \
     }                           \
-  } while(0)
+  } যখন(0)
 #endif
 
 /* These stat values may not be the same as the user's S_IFMT / S_IFLNK */
@@ -84,28 +84,28 @@
 #define SSH_S_IFLNK  0120000
 #endif
 
-static CURLcode sftp_error_to_CURLE(int err)
+স্থির CURLcode sftp_error_to_CURLE(পূর্ণসংখ্যা err)
 {
-  switch(err) {
-  case SSH_FX_OK:
-    return CURLE_OK;
+  নির্বাচন(err) {
+  ক্ষেত্র SSH_FX_OK:
+    ফেরত CURLE_OK;
 
-  case SSH_FX_NO_SUCH_FILE:
-  case SSH_FX_NO_SUCH_PATH:
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+  ক্ষেত্র SSH_FX_NO_SUCH_FILE:
+  ক্ষেত্র SSH_FX_NO_SUCH_PATH:
+    ফেরত CURLE_REMOTE_FILE_NOT_FOUND;
 
-  case SSH_FX_PERMISSION_DENIED:
-  case SSH_FX_WRITE_PROTECT:
-    return CURLE_REMOTE_ACCESS_DENIED;
+  ক্ষেত্র SSH_FX_PERMISSION_DENIED:
+  ক্ষেত্র SSH_FX_WRITE_PROTECT:
+    ফেরত CURLE_REMOTE_ACCESS_DENIED;
 
-  case SSH_FX_FILE_ALREADY_EXISTS:
-    return CURLE_REMOTE_FILE_EXISTS;
+  ক্ষেত্র SSH_FX_FILE_ALREADY_EXISTS:
+    ফেরত CURLE_REMOTE_FILE_EXISTS;
 
-  default:
-    break;
+  পূর্বনির্ধারিত:
+    বিরতি;
   }
 
-  return CURLE_SSH;
+  ফেরত CURLE_SSH;
 }
 
 /* Multiple options:
@@ -120,315 +120,315 @@ static CURLcode sftp_error_to_CURLE(int err)
  *
  * Returns SSH_OK or SSH_ERROR.
  */
-static int myssh_is_known(struct Curl_easy *data, struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_is_known(কাঠামো Curl_easy *তথ্য, কাঠামো ssh_conn *sshc)
 {
-  int rc;
-  ssh_key pubkey;
-  unsigned char *hash_sha256 = NULL;
+  পূর্ণসংখ্যা rc;
+  ssh_চাবি pubkey;
+  unsigned অক্ষর *hash_sha256 = ফাঁকা;
   size_t hlen_sha256;
-  unsigned char *hash_md5 = NULL;
+  unsigned অক্ষর *hash_md5 = ফাঁকা;
   size_t hlen_md5;
-  char *found_base64 = NULL;
-  char *known_base64 = NULL;
-  int vstate;
-  enum curl_khmatch keymatch;
-  struct curl_khkey foundkey;
-  struct curl_khkey *knownkeyp = NULL;
-  curl_sshkeycallback func = data->set.ssh_keyfunc;
-  struct ssh_knownhosts_entry *knownhostsentry = NULL;
-  struct curl_khkey knownkey;
+  অক্ষর *found_base64 = ফাঁকা;
+  অক্ষর *known_base64 = ফাঁকা;
+  পূর্ণসংখ্যা vstate;
+  গণনা curl_khmatch keymatch;
+  কাঠামো curl_khkey foundkey;
+  কাঠামো curl_khkey *knownkeyp = ফাঁকা;
+  curl_sshkeycallback func = তথ্য->set.ssh_keyfunc;
+  কাঠামো ssh_knownhosts_entry *knownhostsentry = ফাঁকা;
+  কাঠামো curl_khkey knownkey;
 
   rc = ssh_get_server_publickey(sshc->ssh_session, &pubkey);
 
-  if(rc != SSH_OK)
-    return rc;
+  যদি(rc != SSH_OK)
+    ফেরত rc;
 
-  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256)) {
-    const char *pubkey_sha256 =
-      CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256);
-    char *fingerprint_b64 = NULL;
+  যদি(CURL_EASY_STR(তথ্য, STRING_SSH_HOST_PUBLIC_চাবি_SHA256)) {
+    ধ্রুবক অক্ষর *pubkey_sha256 =
+      CURL_EASY_STR(তথ্য, STRING_SSH_HOST_PUBLIC_চাবি_SHA256);
+    অক্ষর *fingerprint_b64 = ফাঁকা;
     size_t fingerprint_b64_len;
     size_t pub_pos = 0;
     size_t b64_pos = 0;
 
     rc = ssh_get_publickey_hash(pubkey, SSH_PUBLICKEY_HASH_SHA256,
                                 &hash_sha256, &hlen_sha256);
-    if(rc != SSH_OK || hlen_sha256 != 32) {
-      failf(data, "Denied establishing ssh session: "
+    যদি(rc != SSH_OK || hlen_sha256 != 32) {
+      failf(তথ্য, "Denied establishing ssh session: "
             "SHA256 fingerprint not available");
-      goto cleanup;
+      যাও cleanup;
     }
 
-    if(curlx_base64_encode((const uint8_t *)hash_sha256, 32, &fingerprint_b64,
+    যদি(curlx_base64_encode((ধ্রুবক uint8_t *)hash_sha256, 32, &fingerprint_b64,
                            &fingerprint_b64_len) != CURLE_OK) {
       rc = SSH_ERROR;
-      goto cleanup;
+      যাও cleanup;
     }
 
-    infof(data, "SSH SHA256 fingerprint: %s", fingerprint_b64);
+    infof(তথ্য, "SSH SHA256 fingerprint: %s", fingerprint_b64);
 
     /* Find the position of any = padding characters in the public key */
-    while((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
+    যখন((pubkey_sha256[pub_pos] != '=') && pubkey_sha256[pub_pos]) {
       pub_pos++;
     }
 
     /* Find the position of any = padding characters in the base64 coded
      * hostkey fingerprint */
-    while((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
+    যখন((fingerprint_b64[b64_pos] != '=') && fingerprint_b64[b64_pos]) {
       b64_pos++;
     }
 
     /* Before we authenticate we check the hostkey's SHA256 fingerprint
      * against a known fingerprint, if available.
      */
-    if((pub_pos != b64_pos) ||
+    যদি((pub_pos != b64_pos) ||
        strncmp(fingerprint_b64, pubkey_sha256, pub_pos)) {
-      failf(data,
+      failf(তথ্য,
             "Denied establishing ssh session: mismatch SHA256 fingerprint. "
             "Remote %s is not equal to %s", fingerprint_b64, pubkey_sha256);
       curlx_free(fingerprint_b64);
       rc = SSH_ERROR;
-      goto cleanup;
+      যাও cleanup;
     }
 
     curlx_free(fingerprint_b64);
 
     rc = SSH_OK;
-    goto cleanup;
+    যাও cleanup;
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5)) {
-    const char *pubkey_md5 =
-      CURL_EASY_STR(data, STRING_SSH_HOST_PUBLIC_KEY_MD5);
-    char md5buffer[33];
-    int i;
+  যদি(CURL_EASY_STR(তথ্য, STRING_SSH_HOST_PUBLIC_চাবি_MD5)) {
+    ধ্রুবক অক্ষর *pubkey_md5 =
+      CURL_EASY_STR(তথ্য, STRING_SSH_HOST_PUBLIC_চাবি_MD5);
+    অক্ষর md5buffer[33];
+    পূর্ণসংখ্যা i;
 
     rc = ssh_get_publickey_hash(pubkey, SSH_PUBLICKEY_HASH_MD5,
                                 &hash_md5, &hlen_md5);
-    if(rc != SSH_OK || hlen_md5 != 16) {
-      failf(data,
+    যদি(rc != SSH_OK || hlen_md5 != 16) {
+      failf(তথ্য,
             "Denied establishing ssh session: MD5 fingerprint not available");
-      goto cleanup;
+      যাও cleanup;
     }
 
-    for(i = 0; i < 16; i++)
+    জন্য(i = 0; i < 16; i++)
       curl_msnprintf(&md5buffer[i * 2], 3, "%02x", hash_md5[i]);
 
-    infof(data, "SSH MD5 fingerprint: %s", md5buffer);
+    infof(তথ্য, "SSH MD5 fingerprint: %s", md5buffer);
 
-    if(!curl_strequal(md5buffer, pubkey_md5)) {
-      failf(data,
+    যদি(!curl_strequal(md5buffer, pubkey_md5)) {
+      failf(তথ্য,
             "Denied establishing ssh session: mismatch MD5 fingerprint. "
             "Remote %s is not equal to %s", md5buffer, pubkey_md5);
       rc = SSH_ERROR;
-      goto cleanup;
+      যাও cleanup;
     }
 
     rc = SSH_OK;
-    goto cleanup;
+    যাও cleanup;
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
+  যদি(CURL_EASY_STR(তথ্য, STRING_SSH_KNOWNHOSTS)) {
 
     /* Get the known_key from the known hosts file */
     vstate = ssh_session_get_known_hosts_entry(sshc->ssh_session,
                                                &knownhostsentry);
 
     /* Case an entry was found in a known hosts file */
-    if(knownhostsentry) {
-      if(knownhostsentry->publickey) {
+    যদি(knownhostsentry) {
+      যদি(knownhostsentry->publickey) {
         rc = ssh_pki_export_pubkey_base64(knownhostsentry->publickey,
                                           &known_base64);
-        if(rc != SSH_OK) {
-          goto cleanup;
+        যদি(rc != SSH_OK) {
+          যাও cleanup;
         }
-        knownkey.key = known_base64;
+        knownkey.চাবি = known_base64;
         knownkey.len = strlen(known_base64);
 
-        switch(ssh_key_type(knownhostsentry->publickey)) {
-        case SSH_KEYTYPE_RSA:
+        নির্বাচন(ssh_চাবি_type(knownhostsentry->publickey)) {
+        ক্ষেত্র SSH_KEYTYPE_RSA:
           knownkey.keytype = CURLKHTYPE_RSA;
-          break;
-        case SSH_KEYTYPE_RSA1:
+          বিরতি;
+        ক্ষেত্র SSH_KEYTYPE_RSA1:
           knownkey.keytype = CURLKHTYPE_RSA1;
-          break;
-        case SSH_KEYTYPE_ECDSA:
-        case SSH_KEYTYPE_ECDSA_P256:
-        case SSH_KEYTYPE_ECDSA_P384:
-        case SSH_KEYTYPE_ECDSA_P521:
+          বিরতি;
+        ক্ষেত্র SSH_KEYTYPE_ECDSA:
+        ক্ষেত্র SSH_KEYTYPE_ECDSA_P256:
+        ক্ষেত্র SSH_KEYTYPE_ECDSA_P384:
+        ক্ষেত্র SSH_KEYTYPE_ECDSA_P521:
           knownkey.keytype = CURLKHTYPE_ECDSA;
-          break;
-        case SSH_KEYTYPE_ED25519:
+          বিরতি;
+        ক্ষেত্র SSH_KEYTYPE_ED25519:
           knownkey.keytype = CURLKHTYPE_ED25519;
-          break;
-        case SSH_KEYTYPE_DSS:
+          বিরতি;
+        ক্ষেত্র SSH_KEYTYPE_DSS:
           knownkey.keytype = CURLKHTYPE_DSS;
-          break;
-        default:
+          বিরতি;
+        পূর্বনির্ধারিত:
           rc = SSH_ERROR;
-          goto cleanup;
+          যাও cleanup;
         }
         knownkeyp = &knownkey;
       }
     }
 
-    switch(vstate) {
-    case SSH_KNOWN_HOSTS_OK:
+    নির্বাচন(vstate) {
+    ক্ষেত্র SSH_KNOWN_HOSTS_OK:
       keymatch = CURLKHMATCH_OK;
-      break;
-    case SSH_KNOWN_HOSTS_OTHER:
+      বিরতি;
+    ক্ষেত্র SSH_KNOWN_HOSTS_OTHER:
       keymatch = CURLKHMATCH_MISMATCH;
-      break;
-    case SSH_KNOWN_HOSTS_NOT_FOUND:
-    case SSH_KNOWN_HOSTS_UNKNOWN:
-    case SSH_KNOWN_HOSTS_ERROR:
+      বিরতি;
+    ক্ষেত্র SSH_KNOWN_HOSTS_NOT_FOUND:
+    ক্ষেত্র SSH_KNOWN_HOSTS_UNKNOWN:
+    ক্ষেত্র SSH_KNOWN_HOSTS_ERROR:
       keymatch = CURLKHMATCH_MISSING;
-      break;
-    default:
+      বিরতি;
+    পূর্বনির্ধারিত:
       keymatch = CURLKHMATCH_MISMATCH;
-      break;
+      বিরতি;
     }
 
-    if(func) { /* use callback to determine action */
-      struct Curl_mapi_guard guard;
+    যদি(func) { /* use callback to determine action */
+      কাঠামো Curl_mapi_guard guard;
 
       rc = ssh_pki_export_pubkey_base64(pubkey, &found_base64);
-      if(rc != SSH_OK)
-        goto cleanup;
+      যদি(rc != SSH_OK)
+        যাও cleanup;
 
-      foundkey.key = found_base64;
+      foundkey.চাবি = found_base64;
       foundkey.len = strlen(found_base64);
 
-      switch(ssh_key_type(pubkey)) {
-      case SSH_KEYTYPE_RSA:
+      নির্বাচন(ssh_চাবি_type(pubkey)) {
+      ক্ষেত্র SSH_KEYTYPE_RSA:
         foundkey.keytype = CURLKHTYPE_RSA;
-        break;
-      case SSH_KEYTYPE_RSA1:
+        বিরতি;
+      ক্ষেত্র SSH_KEYTYPE_RSA1:
         foundkey.keytype = CURLKHTYPE_RSA1;
-        break;
-      case SSH_KEYTYPE_ECDSA:
-      case SSH_KEYTYPE_ECDSA_P256:
-      case SSH_KEYTYPE_ECDSA_P384:
-      case SSH_KEYTYPE_ECDSA_P521:
+        বিরতি;
+      ক্ষেত্র SSH_KEYTYPE_ECDSA:
+      ক্ষেত্র SSH_KEYTYPE_ECDSA_P256:
+      ক্ষেত্র SSH_KEYTYPE_ECDSA_P384:
+      ক্ষেত্র SSH_KEYTYPE_ECDSA_P521:
         foundkey.keytype = CURLKHTYPE_ECDSA;
-        break;
-      case SSH_KEYTYPE_ED25519:
+        বিরতি;
+      ক্ষেত্র SSH_KEYTYPE_ED25519:
         foundkey.keytype = CURLKHTYPE_ED25519;
-        break;
-      case SSH_KEYTYPE_DSS:
+        বিরতি;
+      ক্ষেত্র SSH_KEYTYPE_DSS:
         foundkey.keytype = CURLKHTYPE_DSS;
-        break;
-      default:
+        বিরতি;
+      পূর্বনির্ধারিত:
         rc = SSH_ERROR;
-        goto cleanup;
+        যাও cleanup;
       }
 
-      CURL_CBAPI_START(&guard, data, easy_ssh_keyfunc);
-      rc = func(data, knownkeyp, /* from the knownhosts file */
+      CURL_CBAPI_START(&guard, তথ্য, easy_ssh_keyfunc);
+      rc = func(তথ্য, knownkeyp, /* from the knownhosts file */
                 &foundkey,       /* from the remote host */
-                keymatch, data->set.ssh_keyfunc_userp);
+                keymatch, তথ্য->set.ssh_keyfunc_userp);
       CURL_CBAPI_END(&guard);
 
-      switch(rc) {
-      case CURLKHSTAT_FINE_ADD_TO_FILE:
+      নির্বাচন(rc) {
+      ক্ষেত্র CURLKHSTAT_FINE_ADD_TO_FILE:
         rc = ssh_session_update_known_hosts(sshc->ssh_session);
-        if(rc != SSH_OK) {
-          goto cleanup;
+        যদি(rc != SSH_OK) {
+          যাও cleanup;
         }
-        break;
-      case CURLKHSTAT_FINE:
-        break;
-      default: /* REJECT/DEFER */
+        বিরতি;
+      ক্ষেত্র CURLKHSTAT_FINE:
+        বিরতি;
+      পূর্বনির্ধারিত: /* REJECT/DEFER */
         rc = SSH_ERROR;
-        goto cleanup;
+        যাও cleanup;
       }
     }
-    else {
-      if(keymatch != CURLKHMATCH_OK) {
+    অন্যথা {
+      যদি(keymatch != CURLKHMATCH_OK) {
         rc = SSH_ERROR;
-        goto cleanup;
+        যাও cleanup;
       }
     }
   }
   rc = SSH_OK;
 
 cleanup:
-  if(found_base64) {
+  যদি(found_base64) {
     /* !checksrc! disable BANNEDFUNC 1 */
-    free(found_base64); /* allocated by libssh, deallocate with system free */
+    মুক্ত(found_base64); /* allocated by libssh, deallocate with system free */
   }
-  if(known_base64) {
+  যদি(known_base64) {
     /* !checksrc! disable BANNEDFUNC 1 */
-    free(known_base64); /* allocated by libssh, deallocate with system free */
+    মুক্ত(known_base64); /* allocated by libssh, deallocate with system free */
   }
-  if(hash_sha256)
+  যদি(hash_sha256)
     ssh_clean_pubkey_hash(&hash_sha256);
-  if(hash_md5)
+  যদি(hash_md5)
     ssh_clean_pubkey_hash(&hash_md5);
-  ssh_key_free(pubkey);
-  if(knownhostsentry) {
+  ssh_চাবি_free(pubkey);
+  যদি(knownhostsentry) {
     ssh_knownhosts_entry_free(knownhostsentry);
   }
-  return rc;
+  ফেরত rc;
 }
 
-static int myssh_to_ERROR(struct Curl_easy *data,
-                          struct ssh_conn *sshc,
-                          CURLcode result)
+স্থির পূর্ণসংখ্যা myssh_to_ERROR(কাঠামো Curl_easy *তথ্য,
+                          কাঠামো ssh_conn *sshc,
+                          CURLcode ফলাফল)
 {
-  myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  sshc->actualcode = result;
-  return SSH_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SESSION_DISCONNECT);
+  sshc->actualcode = ফলাফল;
+  ফেরত SSH_ERROR;
 }
 
-static int myssh_to_SFTP_CLOSE(struct Curl_easy *data,
-                               struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_to_SFTP_CLOSE(কাঠামো Curl_easy *তথ্য,
+                               কাঠামো ssh_conn *sshc)
 {
-  myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
   sshc->actualcode = sftp_error_to_CURLE(sftp_get_error(sshc->sftp_session));
-  return SSH_ERROR;
+  ফেরত SSH_ERROR;
 }
 
-static int myssh_to_PASSWD_AUTH(struct Curl_easy *data,
-                                struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_to_PASSWD_AUTH(কাঠামো Curl_easy *তথ্য,
+                                কাঠামো ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
-    myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
-    return SSH_OK;
+  যদি(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
+    myssh_to(তথ্য, sshc, SSH_AUTH_PASS_INIT);
+    ফেরত SSH_OK;
   }
-  return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_LOGIN_DENIED);
 }
 
-static int myssh_to_KEY_AUTH(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_to_চাবি_AUTH(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
-    return SSH_OK;
+  যদি(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
+    myssh_to(তথ্য, sshc, SSH_AUTH_চাবি_INIT);
+    ফেরত SSH_OK;
   }
-  return myssh_to_PASSWD_AUTH(data, sshc);
+  ফেরত myssh_to_PASSWD_AUTH(তথ্য, sshc);
 }
 
-static int myssh_to_GSSAPI_AUTH(struct Curl_easy *data,
-                                struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_to_GSSAPI_AUTH(কাঠামো Curl_easy *তথ্য,
+                                কাঠামো ssh_conn *sshc)
 {
-  if(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
-    myssh_to(data, sshc, SSH_AUTH_GSSAPI);
-    return SSH_OK;
+  যদি(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
+    myssh_to(তথ্য, sshc, SSH_AUTH_GSSAPI);
+    ফেরত SSH_OK;
   }
-  return myssh_to_KEY_AUTH(data, sshc);
+  ফেরত myssh_to_চাবি_AUTH(তথ্য, sshc);
 }
 
-static int myssh_in_SFTP_READDIR_INIT(struct Curl_easy *data,
-                                      struct ssh_conn *sshc,
-                                      struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_READDIR_INIT(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো ssh_conn *sshc,
+                                      কাঠামো SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
-  Curl_pgrsSetDownloadSize(data, -1);
-  if(data->req.no_body) {
-    myssh_to(data, sshc, SSH_STOP);
-    return SSH_NO_ERROR;
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
+  Curl_pgrs_Set_Download_আকার(তথ্য, -1);
+  যদি(তথ্য->req.no_body) {
+    myssh_to(তথ্য, sshc, SSH_STOP);
+    ফেরত SSH_NO_ERROR;
   }
 
   /*
@@ -437,114 +437,114 @@ static int myssh_in_SFTP_READDIR_INIT(struct Curl_easy *data,
    */
   sshc->sftp_dir = sftp_opendir(sshc->sftp_session,
                                 sshp->path);
-  if(!sshc->sftp_dir) {
-    failf(data, "Could not open directory for reading: %s",
+  যদি(!sshc->sftp_dir) {
+    failf(তথ্য, "Could not open directory for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    ফেরত myssh_to_SFTP_CLOSE(তথ্য, sshc);
   }
-  myssh_to(data, sshc, SSH_SFTP_READDIR);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_READDIR);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR(struct Curl_easy *data,
-                                 struct ssh_conn *sshc,
-                                 struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_READDIR(কাঠামো Curl_easy *তথ্য,
+                                 কাঠামো ssh_conn *sshc,
+                                 কাঠামো SSHPROTO *sshp)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
   curlx_dyn_reset(&sshc->readdir_buf);
-  if(sshc->readdir_attrs)
+  যদি(sshc->readdir_attrs)
     sftp_attributes_free(sshc->readdir_attrs);
 
   sshc->readdir_attrs = sftp_readdir(sshc->sftp_session, sshc->sftp_dir);
-  if(sshc->readdir_attrs) {
+  যদি(sshc->readdir_attrs) {
     sshc->readdir_filename = sshc->readdir_attrs->name;
     sshc->readdir_longentry = sshc->readdir_attrs->longname;
     sshc->readdir_len = strlen(sshc->readdir_filename);
 
-    if(data->set.list_only) {
-      char *tmpLine;
+    যদি(তথ্য->set.list_only) {
+      অক্ষর *tmp_সারি;
 
-      tmpLine = curl_maprintf("%s\n", sshc->readdir_filename);
-      if(!tmpLine) {
-        myssh_to(data, sshc, SSH_SFTP_CLOSE);
+      tmp_সারি = curl_maprintf("%s\n", sshc->readdir_filename);
+      যদি(!tmp_সারি) {
+        myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
         sshc->actualcode = CURLE_OUT_OF_MEMORY;
-        return SSH_ERROR;
+        ফেরত SSH_ERROR;
       }
-      result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                 tmpLine, sshc->readdir_len + 1);
-      curlx_free(tmpLine);
+      ফলাফল = Curl_client_write(তথ্য, CLIENTWRITE_BODY,
+                                 tmp_সারি, sshc->readdir_len + 1);
+      curlx_free(tmp_সারি);
 
-      if(result) {
-        myssh_to(data, sshc, SSH_STOP);
-        sshc->actualcode = result;
-        return SSH_NO_ERROR;
+      যদি(ফলাফল) {
+        myssh_to(তথ্য, sshc, SSH_STOP);
+        sshc->actualcode = ফলাফল;
+        ফেরত SSH_NO_ERROR;
       }
     }
-    else {
-      if(curlx_dyn_add(&sshc->readdir_buf, sshc->readdir_longentry)) {
+    অন্যথা {
+      যদি(curlx_dyn_add(&sshc->readdir_buf, sshc->readdir_longentry)) {
         sshc->actualcode = CURLE_OUT_OF_MEMORY;
-        myssh_to(data, sshc, SSH_STOP);
-        return SSH_ERROR;
+        myssh_to(তথ্য, sshc, SSH_STOP);
+        ফেরত SSH_ERROR;
       }
 
-      if((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) &&
+      যদি((sshc->readdir_attrs->flags & SSH_FILEXFER_ATTR_PERMISSIONS) &&
          ((sshc->readdir_attrs->permissions & SSH_S_IFMT) ==
           SSH_S_IFLNK)) {
         sshc->readdir_linkPath = curl_maprintf("%s%s", sshp->path,
                                                sshc->readdir_filename);
 
-        if(!sshc->readdir_linkPath) {
-          myssh_to(data, sshc, SSH_SFTP_CLOSE);
+        যদি(!sshc->readdir_linkPath) {
+          myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
           sshc->actualcode = CURLE_OUT_OF_MEMORY;
-          return SSH_ERROR;
+          ফেরত SSH_ERROR;
         }
 
-        myssh_to(data, sshc, SSH_SFTP_READDIR_LINK);
-        return SSH_NO_ERROR;
+        myssh_to(তথ্য, sshc, SSH_SFTP_READDIR_LINK);
+        ফেরত SSH_NO_ERROR;
       }
-      myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
-      return SSH_NO_ERROR;
+      myssh_to(তথ্য, sshc, SSH_SFTP_READDIR_BOTTOM);
+      ফেরত SSH_NO_ERROR;
     }
   }
-  else if(sftp_dir_eof(sshc->sftp_dir)) {
-    myssh_to(data, sshc, SSH_SFTP_READDIR_DONE);
+  অন্যথা যদি(sftp_dir_eof(sshc->sftp_dir)) {
+    myssh_to(তথ্য, sshc, SSH_SFTP_READDIR_DONE);
   }
-  else {
-    failf(data, "Could not open remote directory for reading: %s",
+  অন্যথা {
+    failf(তথ্য, "Could not open remote directory for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    ফেরত myssh_to_SFTP_CLOSE(তথ্য, sshc);
   }
-  return SSH_NO_ERROR;
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_READDIR_LINK(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো ssh_conn *sshc)
 {
-  if(sshc->readdir_link_attrs)
+  যদি(sshc->readdir_link_attrs)
     sftp_attributes_free(sshc->readdir_link_attrs);
 
   sshc->readdir_link_attrs = sftp_lstat(sshc->sftp_session,
                                         sshc->readdir_linkPath);
-  if(!sshc->readdir_link_attrs) {
-    failf(data, "Could not read symlink for reading: %s",
+  যদি(!sshc->readdir_link_attrs) {
+    failf(তথ্য, "Could not read symlink for reading: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    ফেরত myssh_to_SFTP_CLOSE(তথ্য, sshc);
   }
 
-  if(!sshc->readdir_link_attrs->name) {
+  যদি(!sshc->readdir_link_attrs->name) {
     sshc->readdir_tmp = sftp_readlink(sshc->sftp_session,
                                       sshc->readdir_linkPath);
-    if(!sshc->readdir_tmp)
+    যদি(!sshc->readdir_tmp)
       sshc->readdir_len = 0;
-    else
+    অন্যথা
       sshc->readdir_len = strlen(sshc->readdir_tmp);
-    sshc->readdir_longentry = NULL;
+    sshc->readdir_longentry = ফাঁকা;
     sshc->readdir_filename = sshc->readdir_tmp;
   }
-  else {
+  অন্যথা {
     sshc->readdir_len = strlen(sshc->readdir_link_attrs->name);
     sshc->readdir_filename = sshc->readdir_link_attrs->name;
     sshc->readdir_longentry = sshc->readdir_link_attrs->longname;
@@ -552,7 +552,7 @@ static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
 
   curlx_safefree(sshc->readdir_linkPath);
 
-  if(curlx_dyn_addf(&sshc->readdir_buf, " -> %s", sshc->readdir_filename)) {
+  যদি(curlx_dyn_addf(&sshc->readdir_buf, " -> %s", sshc->readdir_filename)) {
     /* Not using:
      * return myssh_to_SFTP_CLOSE(data, sshc);
      *
@@ -560,100 +560,100 @@ static int myssh_in_SFTP_READDIR_LINK(struct Curl_easy *data,
      * assigning sshc->actualcode whereas the current
      * error is curlx_dyn_addf() related.
      */
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
     sshc->actualcode = CURLE_OUT_OF_MEMORY;
-    return SSH_ERROR;
+    ফেরত SSH_ERROR;
   }
 
   sftp_attributes_free(sshc->readdir_link_attrs);
-  sshc->readdir_link_attrs = NULL;
-  sshc->readdir_filename = NULL;
-  sshc->readdir_longentry = NULL;
+  sshc->readdir_link_attrs = ফাঁকা;
+  sshc->readdir_filename = ফাঁকা;
+  sshc->readdir_longentry = ফাঁকা;
 
-  myssh_to(data, sshc, SSH_SFTP_READDIR_BOTTOM);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_READDIR_BOTTOM);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_BOTTOM(struct Curl_easy *data,
-                                        struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_READDIR_BOTTOM(কাঠামো Curl_easy *তথ্য,
+                                        কাঠামো ssh_conn *sshc)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
 
-  if(curlx_dyn_addn(&sshc->readdir_buf, "\n", 1))
-    result = CURLE_OUT_OF_MEMORY;
-  else
-    result = Curl_client_write(data, CLIENTWRITE_BODY,
+  যদি(curlx_dyn_addn(&sshc->readdir_buf, "\n", 1))
+    ফলাফল = CURLE_OUT_OF_MEMORY;
+  অন্যথা
+    ফলাফল = Curl_client_write(তথ্য, CLIENTWRITE_BODY,
                                curlx_dyn_ptr(&sshc->readdir_buf),
                                curlx_dyn_len(&sshc->readdir_buf));
 
   ssh_string_free_char(sshc->readdir_tmp);
-  sshc->readdir_tmp = NULL;
+  sshc->readdir_tmp = ফাঁকা;
 
-  if(result) {
-    myssh_to(data, sshc, SSH_STOP);
-    sshc->actualcode = result;
+  যদি(ফলাফল) {
+    myssh_to(তথ্য, sshc, SSH_STOP);
+    sshc->actualcode = ফলাফল;
   }
-  else
-    myssh_to(data, sshc, SSH_SFTP_READDIR);
-  return SSH_NO_ERROR;
+  অন্যথা
+    myssh_to(তথ্য, sshc, SSH_SFTP_READDIR);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_READDIR_DONE(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_READDIR_DONE(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো ssh_conn *sshc)
 {
   sftp_closedir(sshc->sftp_dir);
-  sshc->sftp_dir = NULL;
+  sshc->sftp_dir = ফাঁকা;
 
   /* no data to transfer */
-  Curl_xfer_setup_nop(data);
-  myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  Curl_xfer_setup_nop(তথ্য);
+  myssh_to(তথ্য, sshc, SSH_STOP);
+  ফেরত SSH_NO_ERROR;
 }
 
-static void myssh_quote_error(struct Curl_easy *data, struct ssh_conn *sshc,
-                              const char *cmd)
+স্থির শূন্য myssh_quote_error(কাঠামো Curl_easy *তথ্য, কাঠামো ssh_conn *sshc,
+                              ধ্রুবক অক্ষর *cmd)
 {
-  if(cmd)
-    failf(data, "%s command failed: %s", cmd,
+  যদি(cmd)
+    failf(তথ্য, "%s command failed: %s", cmd,
           ssh_get_error(sshc->ssh_session));
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_QUOTE_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_STATVFS(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_STATVFS(কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো ssh_conn *sshc)
 {
   sftp_statvfs_t statvfs;
 
   statvfs = sftp_statvfs(sshc->sftp_session, sshc->quote_path1);
-  if(!statvfs && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "statvfs");
-    return SSH_OK;
+  যদি(!statvfs && !sshc->acceptfail) {
+    myssh_quote_error(তথ্য, sshc, "statvfs");
+    ফেরত SSH_OK;
   }
-  else if(statvfs) {
+  অন্যথা যদি(statvfs) {
 #ifdef _MSC_VER
-#define CURL_LIBSSH_VFS_SIZE_MASK "I64u"
-#elif defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 6)
-#define CURL_LIBSSH_VFS_SIZE_MASK "llu"
-#else
-#define CURL_LIBSSH_VFS_SIZE_MASK PRIu64
+#define CURL_LIBSSH_VFS_আকার_MASK "I64u"
+#নতুবা_যদি defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 6)
+#define CURL_LIBSSH_VFS_আকার_MASK "llu"
+#অন্যথা
+#define CURL_LIBSSH_VFS_আকার_MASK PRIu64
 #endif
-    CURLcode result = CURLE_OK;
-    char *tmp = curl_maprintf("statvfs:\n"
-                              "f_bsize: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_frsize: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_blocks: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_bfree: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_bavail: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_files: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_ffree: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_favail: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_fsid: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_flag: %" CURL_LIBSSH_VFS_SIZE_MASK "\n"
-                              "f_namemax: %" CURL_LIBSSH_VFS_SIZE_MASK "\n",
+    CURLcode ফলাফল = CURLE_OK;
+    অক্ষর *tmp = curl_maprintf("statvfs:\n"
+                              "f_bsize: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_frsize: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_blocks: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_bfree: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_bavail: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_files: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_ffree: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_favail: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_fsid: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_flag: %" CURL_LIBSSH_VFS_আকার_MASK "\n"
+                              "f_namemax: %" CURL_LIBSSH_VFS_আকার_MASK "\n",
                               statvfs->f_bsize, statvfs->f_frsize,
                               statvfs->f_blocks, statvfs->f_bfree,
                               statvfs->f_bavail, statvfs->f_files,
@@ -662,96 +662,96 @@ static int myssh_in_SFTP_QUOTE_STATVFS(struct Curl_easy *data,
                               statvfs->f_namemax);
     sftp_statvfs_free(statvfs);
 
-    if(!tmp)
-      result = CURLE_OUT_OF_MEMORY;
+    যদি(!tmp)
+      ফলাফল = CURLE_OUT_OF_MEMORY;
 
-    if(!result) {
-      result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
+    যদি(!ফলাফল) {
+      ফলাফল = Curl_client_write(তথ্য, CLIENTWRITE_HEADER, tmp, strlen(tmp));
       curlx_free(tmp);
     }
-    if(result) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    যদি(ফলাফল) {
+      myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
+      sshc->actualcode = ফলাফল;
     }
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_OK;
+  myssh_to(তথ্য, sshc, SSH_SFTP_পরবর্তী_QUOTE);
+  ফেরত SSH_OK;
 }
 
-static int myssh_auth_interactive(struct connectdata *conn,
-                                  struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_auth_interactive(কাঠামো connectdata *conn,
+                                  কাঠামো ssh_conn *sshc)
 {
-  int rc;
-  int nprompts;
+  পূর্ণসংখ্যা rc;
+  পূর্ণসংখ্যা nprompts;
 
 restart:
-  switch(sshc->kbd_state) {
-  case 0:
-    rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
+  নির্বাচন(sshc->kbd_state) {
+  ক্ষেত্র 0:
+    rc = ssh_userauth_kbdint(sshc->ssh_session, ফাঁকা, ফাঁকা);
+    যদি(rc == SSH_AUTH_AGAIN)
+      ফেরত SSH_AGAIN;
 
-    if(rc != SSH_AUTH_INFO)
-      return SSH_ERROR;
+    যদি(rc != SSH_AUTH_INFO)
+      ফেরত SSH_ERROR;
 
     nprompts = ssh_userauth_kbdint_getnprompts(sshc->ssh_session);
-    if(nprompts != 1)
-      return SSH_ERROR;
+    যদি(nprompts != 1)
+      ফেরত SSH_ERROR;
 
     rc = ssh_userauth_kbdint_setanswer(sshc->ssh_session, 0,
                                        Curl_creds_passwd(conn->creds));
-    if(rc < 0)
-      return SSH_ERROR;
+    যদি(rc < 0)
+      ফেরত SSH_ERROR;
 
     FALLTHROUGH();
-  case 1:
+  ক্ষেত্র 1:
     sshc->kbd_state = 1;
 
-    rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
-    else if(rc == SSH_AUTH_SUCCESS)
+    rc = ssh_userauth_kbdint(sshc->ssh_session, ফাঁকা, ফাঁকা);
+    যদি(rc == SSH_AUTH_AGAIN)
+      ফেরত SSH_AGAIN;
+    অন্যথা যদি(rc == SSH_AUTH_SUCCESS)
       rc = SSH_OK;
-    else if(rc == SSH_AUTH_INFO) {
+    অন্যথা যদি(rc == SSH_AUTH_INFO) {
       nprompts = ssh_userauth_kbdint_getnprompts(sshc->ssh_session);
-      if(nprompts)
-        return SSH_ERROR;
+      যদি(nprompts)
+        ফেরত SSH_ERROR;
 
       sshc->kbd_state = 2;
-      goto restart;
+      যাও restart;
     }
-    else
+    অন্যথা
       rc = SSH_ERROR;
-    break;
-  case 2:
+    বিরতি;
+  ক্ষেত্র 2:
     sshc->kbd_state = 2;
 
-    rc = ssh_userauth_kbdint(sshc->ssh_session, NULL, NULL);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
-    else if(rc == SSH_AUTH_SUCCESS)
+    rc = ssh_userauth_kbdint(sshc->ssh_session, ফাঁকা, ফাঁকা);
+    যদি(rc == SSH_AUTH_AGAIN)
+      ফেরত SSH_AGAIN;
+    অন্যথা যদি(rc == SSH_AUTH_SUCCESS)
       rc = SSH_OK;
-    else
+    অন্যথা
       rc = SSH_ERROR;
 
-    break;
-  default:
-    return SSH_ERROR;
+    বিরতি;
+  পূর্বনির্ধারিত:
+    ফেরত SSH_ERROR;
   }
 
   sshc->kbd_state = 0;
-  return rc;
+  ফেরত rc;
 }
 
-static void myssh_state_init(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+স্থির শূন্য myssh_state_init(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো ssh_conn *sshc)
 {
   sshc->secondCreateDirs = 0;
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_OK;
 
-#if 0
+#যদি 0
   ssh_set_log_level(SSH_LOG_PROTOCOL);
 #endif
 
@@ -759,70 +759,70 @@ static void myssh_state_init(struct Curl_easy *data,
      non-blocking */
   ssh_set_blocking(sshc->ssh_session, 0);
 
-  myssh_to(data, sshc, SSH_S_STARTUP);
+  myssh_to(তথ্য, sshc, SSH_S_STARTUP);
 }
 
-static void myssh_block2waitfor(struct connectdata *conn,
-                                struct ssh_conn *sshc,
+স্থির শূন্য myssh_block2waitfor(কাঠামো connectdata *conn,
+                                কাঠামো ssh_conn *sshc,
                                 bool block)
 {
-  (void)conn;
-  if(block) {
-    int dir = ssh_get_poll_flags(sshc->ssh_session);
+  (শূন্য)conn;
+  যদি(block) {
+    পূর্ণসংখ্যা dir = ssh_get_poll_flags(sshc->ssh_session);
     /* translate the libssh define bits into our own bit defines */
     sshc->waitfor =
       ((dir & SSH_READ_PENDING) ? REQ_IO_RECV : 0) |
       ((dir & SSH_WRITE_PENDING) ? REQ_IO_SEND : 0);
   }
-  else
+  অন্যথা
     sshc->waitfor = 0;
 }
 
-static int myssh_in_S_STARTUP(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_S_STARTUP(কাঠামো Curl_easy *তথ্য,
+                              কাঠামো ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  int rc = ssh_connect(sshc->ssh_session);
+  কাঠামো connectdata *conn = তথ্য->conn;
+  পূর্ণসংখ্যা rc = ssh_connect(sshc->ssh_session);
 
   myssh_block2waitfor(conn, sshc, (rc == SSH_AGAIN));
-  if(rc == SSH_AGAIN) {
-    CURL_TRC_SSH(data, "connect -> EAGAIN");
+  যদি(rc == SSH_AGAIN) {
+    CURL_TRC_SSH(তথ্য, "connect -> EAGAIN");
   }
-  else if(rc != SSH_OK) {
-    failf(data, "Failure establishing ssh session");
-    rc = myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  অন্যথা যদি(rc != SSH_OK) {
+    failf(তথ্য, "Failure establishing ssh session");
+    rc = myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
   }
-  else
-    myssh_to(data, sshc, SSH_HOSTKEY);
+  অন্যথা
+    myssh_to(তথ্য, sshc, SSH_HOSTKEY);
 
-  return rc;
+  ফেরত rc;
 }
 
-static int myssh_in_AUTHLIST(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTHLIST(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো ssh_conn *sshc)
 {
-  int rc;
+  পূর্ণসংখ্যা rc;
   sshc->authed = FALSE;
 
-  rc = ssh_userauth_none(sshc->ssh_session, NULL);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
+  rc = ssh_userauth_none(sshc->ssh_session, ফাঁকা);
+  যদি(rc == SSH_AUTH_AGAIN)
+    ফেরত SSH_AGAIN;
 
-  if(rc == SSH_AUTH_SUCCESS) {
+  যদি(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
-    infof(data, "Authenticated with none");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return rc;
+    infof(তথ্য, "Authenticated with none");
+    myssh_to(তথ্য, sshc, SSH_AUTH_DONE);
+    ফেরত rc;
   }
-  else if(rc == SSH_AUTH_ERROR) {
-    rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
-    return rc;
+  অন্যথা যদি(rc == SSH_AUTH_ERROR) {
+    rc = myssh_to_ERROR(তথ্য, sshc, CURLE_LOGIN_DENIED);
+    ফেরত rc;
   }
 
   sshc->auth_methods =
-    (unsigned int)ssh_userauth_list(sshc->ssh_session, NULL);
-  if(sshc->auth_methods)
-    infof(data, "SSH authentication methods available: %s%s%s%s",
+    (unsigned পূর্ণসংখ্যা)ssh_userauth_list(sshc->ssh_session, ফাঁকা);
+  যদি(sshc->auth_methods)
+    infof(তথ্য, "SSH authentication methods available: %s%s%s%s",
           sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY ?
           "public key, " : "",
           sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC ?
@@ -833,231 +833,231 @@ static int myssh_in_AUTHLIST(struct Curl_easy *data,
           "password" : "");
   /* For public key auth we need either the private key or
      CURLSSH_AUTH_AGENT. */
-  if((sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY) &&
-     ((sshc->priv_key && sshc->priv_key[0]) ||
-      (data->set.ssh_auth_types & CURLSSH_AUTH_AGENT))) {
-    myssh_to(data, sshc, SSH_AUTH_PKEY_INIT);
-    infof(data, "Authentication using SSH public key file");
+  যদি((sshc->auth_methods & SSH_AUTH_METHOD_PUBLICKEY) &&
+     ((sshc->priv_চাবি && sshc->priv_চাবি[0]) ||
+      (তথ্য->set.ssh_auth_types & CURLSSH_AUTH_AGENT))) {
+    myssh_to(তথ্য, sshc, SSH_AUTH_PKEY_INIT);
+    infof(তথ্য, "Authentication using SSH public key file");
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
-    myssh_to(data, sshc, SSH_AUTH_GSSAPI);
+  অন্যথা যদি(sshc->auth_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
+    myssh_to(তথ্য, sshc, SSH_AUTH_GSSAPI);
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
-    myssh_to(data, sshc, SSH_AUTH_KEY_INIT);
+  অন্যথা যদি(sshc->auth_methods & SSH_AUTH_METHOD_INTERACTIVE) {
+    myssh_to(তথ্য, sshc, SSH_AUTH_চাবি_INIT);
   }
-  else if(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
-    myssh_to(data, sshc, SSH_AUTH_PASS_INIT);
+  অন্যথা যদি(sshc->auth_methods & SSH_AUTH_METHOD_PASSWORD) {
+    myssh_to(তথ্য, sshc, SSH_AUTH_PASS_INIT);
   }
-  else {                  /* unsupported authentication method */
-    rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  অন্যথা {                  /* unsupported authentication method */
+    rc = myssh_to_ERROR(তথ্য, sshc, CURLE_LOGIN_DENIED);
   }
-  return rc;
+  ফেরত rc;
 }
 
-static int myssh_in_AUTH_PKEY_INIT(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTH_PKEY_INIT(কাঠামো Curl_easy *তথ্য,
+                                   কাঠামো ssh_conn *sshc)
 {
-  int rc;
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY)) {
-    rc = myssh_to_GSSAPI_AUTH(data, sshc);
-    return rc;
+  পূর্ণসংখ্যা rc;
+  যদি(!(তথ্য->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY)) {
+    rc = myssh_to_GSSAPI_AUTH(তথ্য, sshc);
+    ফেরত rc;
   }
 
   /* Two choices, (1) private key was given on CMD,
    * (2) use the "default" keys. */
-  if(sshc->priv_key && sshc->priv_key[0]) {
-    if(sshc->pubkey && !sshc->passphrase) {
-      rc = ssh_userauth_try_publickey(sshc->ssh_session, NULL, sshc->pubkey);
-      if(rc == SSH_AUTH_AGAIN)
-        return SSH_AGAIN;
+  যদি(sshc->priv_চাবি && sshc->priv_চাবি[0]) {
+    যদি(sshc->pubkey && !sshc->passphrase) {
+      rc = ssh_userauth_try_publickey(sshc->ssh_session, ফাঁকা, sshc->pubkey);
+      যদি(rc == SSH_AUTH_AGAIN)
+        ফেরত SSH_AGAIN;
 
-      if(rc != SSH_OK) {
-        rc = myssh_to_GSSAPI_AUTH(data, sshc);
-        return rc;
+      যদি(rc != SSH_OK) {
+        rc = myssh_to_GSSAPI_AUTH(তথ্য, sshc);
+        ফেরত rc;
       }
     }
 
-    rc = ssh_pki_import_privkey_file(sshc->priv_key,
-                                     sshc->passphrase, NULL,
-                                     NULL, &sshc->privkey);
-    if(rc != SSH_OK) {
-      failf(data, "Could not load private key file %s", sshc->priv_key);
-      rc = myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
-      return rc;
+    rc = ssh_pki_import_privkey_file(sshc->priv_চাবি,
+                                     sshc->passphrase, ফাঁকা,
+                                     ফাঁকা, &sshc->privkey);
+    যদি(rc != SSH_OK) {
+      failf(তথ্য, "Could not load private key file %s", sshc->priv_চাবি);
+      rc = myssh_to_ERROR(তথ্য, sshc, CURLE_LOGIN_DENIED);
+      ফেরত rc;
     }
 
-    myssh_to(data, sshc, SSH_AUTH_PKEY);
+    myssh_to(তথ্য, sshc, SSH_AUTH_PKEY);
   }
-  else {
-    rc = ssh_userauth_publickey_auto(sshc->ssh_session, NULL,
+  অন্যথা {
+    rc = ssh_userauth_publickey_auto(sshc->ssh_session, ফাঁকা,
                                      sshc->passphrase);
-    if(rc == SSH_AUTH_AGAIN)
-      return SSH_AGAIN;
+    যদি(rc == SSH_AUTH_AGAIN)
+      ফেরত SSH_AGAIN;
 
-    if(rc == SSH_AUTH_SUCCESS) {
+    যদি(rc == SSH_AUTH_SUCCESS) {
       rc = SSH_OK;
       sshc->authed = TRUE;
-      infof(data, "Completed public key authentication");
-      myssh_to(data, sshc, SSH_AUTH_DONE);
-      return rc;
+      infof(তথ্য, "Completed public key authentication");
+      myssh_to(তথ্য, sshc, SSH_AUTH_DONE);
+      ফেরত rc;
     }
 
-    rc = myssh_to_GSSAPI_AUTH(data, sshc);
+    rc = myssh_to_GSSAPI_AUTH(তথ্য, sshc);
   }
-  return rc;
+  ফেরত rc;
 }
 
-static int myssh_in_AUTH_PKEY(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTH_PKEY(কাঠামো Curl_easy *তথ্য,
+                              কাঠামো ssh_conn *sshc)
 {
-  int rc = ssh_userauth_publickey(sshc->ssh_session, NULL, sshc->privkey);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
-  else if(rc == SSH_AUTH_SUCCESS) {
+  পূর্ণসংখ্যা rc = ssh_userauth_publickey(sshc->ssh_session, ফাঁকা, sshc->privkey);
+  যদি(rc == SSH_AUTH_AGAIN)
+    ফেরত SSH_AGAIN;
+  অন্যথা যদি(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
-    infof(data, "Completed public key authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_OK;
+    infof(তথ্য, "Completed public key authentication");
+    myssh_to(তথ্য, sshc, SSH_AUTH_DONE);
+    ফেরত SSH_OK;
   }
-  else {
-    infof(data, "Failed public key authentication (rc: %d)", rc);
-    return myssh_to_GSSAPI_AUTH(data, sshc);
+  অন্যথা {
+    infof(তথ্য, "Failed public key authentication (rc: %d)", rc);
+    ফেরত myssh_to_GSSAPI_AUTH(তথ্য, sshc);
   }
 }
 
-static int myssh_in_AUTH_GSSAPI(struct Curl_easy *data,
-                                struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTH_GSSAPI(কাঠামো Curl_easy *তথ্য,
+                                কাঠামো ssh_conn *sshc)
 {
-  int rc;
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_GSSAPI))
-    return myssh_to_KEY_AUTH(data, sshc);
+  পূর্ণসংখ্যা rc;
+  যদি(!(তথ্য->set.ssh_auth_types & CURLSSH_AUTH_GSSAPI))
+    ফেরত myssh_to_চাবি_AUTH(তথ্য, sshc);
 
   rc = ssh_userauth_gssapi(sshc->ssh_session);
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
+  যদি(rc == SSH_AUTH_AGAIN)
+    ফেরত SSH_AGAIN;
 
-  if(rc == SSH_AUTH_SUCCESS) {
+  যদি(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
-    infof(data, "Completed gssapi authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_OK;
+    infof(তথ্য, "Completed gssapi authentication");
+    myssh_to(তথ্য, sshc, SSH_AUTH_DONE);
+    ফেরত SSH_OK;
   }
 
-  return myssh_to_KEY_AUTH(data, sshc);
+  ফেরত myssh_to_চাবি_AUTH(তথ্য, sshc);
 }
 
-static int myssh_in_AUTH_KEY_INIT(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTH_চাবি_INIT(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো ssh_conn *sshc)
 {
-  if(data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) {
-    myssh_to(data, sshc, SSH_AUTH_KEY);
-    return SSH_NO_ERROR;
+  যদি(তথ্য->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) {
+    myssh_to(তথ্য, sshc, SSH_AUTH_চাবি);
+    ফেরত SSH_NO_ERROR;
   }
-  return myssh_to_PASSWD_AUTH(data, sshc);
+  ফেরত myssh_to_PASSWD_AUTH(তথ্য, sshc);
 }
 
-static int myssh_in_AUTH_KEY(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTH_চাবি(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো ssh_conn *sshc)
 {
   /* keyboard-interactive authentication */
-  int rc = myssh_auth_interactive(data->conn, sshc);
-  if(rc == SSH_AGAIN)
-    return rc;
-  else if(rc == SSH_OK) {
+  পূর্ণসংখ্যা rc = myssh_auth_interactive(তথ্য->conn, sshc);
+  যদি(rc == SSH_AGAIN)
+    ফেরত rc;
+  অন্যথা যদি(rc == SSH_OK) {
     sshc->authed = TRUE;
-    infof(data, "completed keyboard interactive authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_NO_ERROR;
+    infof(তথ্য, "completed keyboard interactive authentication");
+    myssh_to(তথ্য, sshc, SSH_AUTH_DONE);
+    ফেরত SSH_NO_ERROR;
   }
-  else
-    return myssh_to_PASSWD_AUTH(data, sshc);
+  অন্যথা
+    ফেরত myssh_to_PASSWD_AUTH(তথ্য, sshc);
 }
 
-static int myssh_in_AUTH_PASS_INIT(struct Curl_easy *data,
-                                   struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTH_PASS_INIT(কাঠামো Curl_easy *তথ্য,
+                                   কাঠামো ssh_conn *sshc)
 {
-  if(!(data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD))
-    return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
-  myssh_to(data, sshc, SSH_AUTH_PASS);
-  return SSH_NO_ERROR;
+  যদি(!(তথ্য->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD))
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_LOGIN_DENIED);
+  myssh_to(তথ্য, sshc, SSH_AUTH_PASS);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_AUTH_PASS(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTH_PASS(কাঠামো Curl_easy *তথ্য,
+                              কাঠামো ssh_conn *sshc)
 {
-  int rc = ssh_userauth_password(sshc->ssh_session, NULL,
-                                 Curl_creds_passwd(data->conn->creds));
-  if(rc == SSH_AUTH_AGAIN)
-    return SSH_AGAIN;
-  else if(rc == SSH_AUTH_SUCCESS) {
+  পূর্ণসংখ্যা rc = ssh_userauth_password(sshc->ssh_session, ফাঁকা,
+                                 Curl_creds_passwd(তথ্য->conn->creds));
+  যদি(rc == SSH_AUTH_AGAIN)
+    ফেরত SSH_AGAIN;
+  অন্যথা যদি(rc == SSH_AUTH_SUCCESS) {
     sshc->authed = TRUE;
-    infof(data, "Completed password authentication");
-    myssh_to(data, sshc, SSH_AUTH_DONE);
-    return SSH_NO_ERROR;
+    infof(তথ্য, "Completed password authentication");
+    myssh_to(তথ্য, sshc, SSH_AUTH_DONE);
+    ফেরত SSH_NO_ERROR;
   }
-  return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_LOGIN_DENIED);
 }
 
-static int myssh_in_AUTH_DONE(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_AUTH_DONE(কাঠামো Curl_easy *তথ্য,
+                              কাঠামো ssh_conn *sshc)
 {
-  struct connectdata *conn = data->conn;
-  if(!sshc->authed) {
-    failf(data, "Authentication failure");
-    return myssh_to_ERROR(data, sshc, CURLE_LOGIN_DENIED);
+  কাঠামো connectdata *conn = তথ্য->conn;
+  যদি(!sshc->authed) {
+    failf(তথ্য, "Authentication failure");
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_LOGIN_DENIED);
   }
 
   /* At this point we have an authenticated ssh session. */
-  infof(data, "Authentication complete");
-  Curl_pgrsTime(data, TIMER_APPCONNECT);      /* SSH is connected */
+  infof(তথ্য, "Authentication complete");
+  Curl_pgrsTime(তথ্য, TIMER_APPCONNECT);      /* SSH is connected */
   conn->recv_idx = FIRSTSOCKET;
   conn->send_idx = -1;
 
-  if(conn->scheme->protocol == CURLPROTO_SFTP) {
-    myssh_to(data, sshc, SSH_SFTP_INIT);
-    return SSH_NO_ERROR;
+  যদি(conn->scheme->protocol == CURLPROTO_SFTP) {
+    myssh_to(তথ্য, sshc, SSH_SFTP_INIT);
+    ফেরত SSH_NO_ERROR;
   }
-  infof(data, "SSH CONNECT phase done");
-  myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  infof(তথ্য, "SSH CONNECT phase done");
+  myssh_to(তথ্য, sshc, SSH_STOP);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
-                                struct ssh_conn *sshc,
-                                struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_UPLOAD_INIT(কাঠামো Curl_easy *তথ্য,
+                                কাঠামো ssh_conn *sshc,
+                                কাঠামো SSHPROTO *sshp)
 {
-  int flags;
-  int rc = 0;
+  পূর্ণসংখ্যা flags;
+  পূর্ণসংখ্যা rc = 0;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
-  if(data->state.resume_from) {
+  যদি(তথ্য->state.resume_from) {
     sftp_attributes attrs;
 
-    if(data->state.resume_from < 0) {
+    যদি(তথ্য->state.resume_from < 0) {
       attrs = sftp_stat(sshc->sftp_session, sshp->path);
-      if(attrs) {
-        curl_off_t size = attrs->size;
+      যদি(attrs) {
+        curl_off_t আকার_2 = attrs->আকার_2;
         sftp_attributes_free(attrs);
-        if(size < 0) {
-          failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-          rc = myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
-          return rc;
+        যদি(আকার_2 < 0) {
+          failf(তথ্য, "Bad file size (%" FMT_OFF_T ")", আকার_2);
+          rc = myssh_to_ERROR(তথ্য, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+          ফেরত rc;
         }
-        data->state.resume_from = size;
+        তথ্য->state.resume_from = আকার_2;
       }
-      else {
-        data->state.resume_from = 0;
+      অন্যথা {
+        তথ্য->state.resume_from = 0;
       }
     }
   }
 
-  if(data->set.remote_append) {
+  যদি(তথ্য->set.remote_append) {
     /* True append mode: create if nonexisting */
     flags = O_WRONLY | O_CREAT | O_APPEND;
   }
-  else if(data->state.resume_from > 0) {
+  অন্যথা যদি(তথ্য->state.resume_from > 0) {
     /*
      * Resume MUST NOT use O_APPEND. Many SFTP servers/impls force all
      * writes to EOF when O_APPEND is set, ignoring a prior seek().
@@ -1065,438 +1065,438 @@ static int myssh_in_UPLOAD_INIT(struct Curl_easy *data,
      */
     flags = O_WRONLY;
   }
-  else
+  অন্যথা
     /* Clear file before writing (normal behavior) */
     flags = O_WRONLY | O_CREAT | O_TRUNC;
 
-  if(sshc->sftp_file)
+  যদি(sshc->sftp_file)
     sftp_close(sshc->sftp_file);
   sshc->sftp_file =
     sftp_open(sshc->sftp_session, sshp->path,
-              flags, (mode_t)data->set.new_file_perms);
-  if(!sshc->sftp_file) {
-    int err = sftp_get_error(sshc->sftp_session);
+              flags, (mode_t)তথ্য->set.new_file_perms);
+  যদি(!sshc->sftp_file) {
+    পূর্ণসংখ্যা err = sftp_get_error(sshc->sftp_session);
 
-    if((err == SSH_FX_NO_SUCH_FILE ||
+    যদি((err == SSH_FX_NO_SUCH_FILE ||
         err == SSH_FX_FAILURE ||
         err == SSH_FX_NO_SUCH_PATH) &&
-       data->set.ftp_create_missing_dirs &&
+       তথ্য->set.ftp_create_missing_dirs &&
        (strlen(sshp->path) > 1)) {
       /* try to create the path remotely */
       rc = 0;
       sshc->secondCreateDirs = 1;
-      myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_INIT);
-      return rc;
+      myssh_to(তথ্য, sshc, SSH_SFTP_CREATE_DIRS_INIT);
+      ফেরত rc;
     }
-    else {
-      rc = myssh_to_SFTP_CLOSE(data, sshc);
-      return rc;
+    অন্যথা {
+      rc = myssh_to_SFTP_CLOSE(তথ্য, sshc);
+      ফেরত rc;
     }
   }
 
   /* If we have a restart point then we need to seek to the correct
      position. Skip if in explicit remote append mode. */
-  if(data->state.resume_from > 0 && !data->set.remote_append) {
-    int seekerr = CURL_SEEKFUNC_OK;
+  যদি(তথ্য->state.resume_from > 0 && !তথ্য->set.remote_append) {
+    পূর্ণসংখ্যা seekerr = CURL_SEEKFUNC_OK;
     /* Let's read off the proper amount of bytes from the input. */
-    if(data->set.seek_func) {
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_seek_func);
-      seekerr = data->set.seek_func(data->set.seek_client,
-                                    data->state.resume_from, SEEK_SET);
+    যদি(তথ্য->set.seek_func) {
+      কাঠামো Curl_mapi_guard guard;
+      CURL_CBAPI_START(&guard, তথ্য, easy_seek_func);
+      seekerr = তথ্য->set.seek_func(তথ্য->set.seek_client,
+                                    তথ্য->state.resume_from, SEEK_SET);
       CURL_CBAPI_END(&guard);
     }
 
-    if(seekerr != CURL_SEEKFUNC_OK) {
+    যদি(seekerr != CURL_SEEKFUNC_OK) {
       curl_off_t passed = 0;
 
-      if(seekerr != CURL_SEEKFUNC_CANTSEEK) {
-        failf(data, "Could not seek stream");
-        rc = myssh_to_ERROR(data, sshc, CURLE_FTP_COULDNT_USE_REST);
-        return rc;
+      যদি(seekerr != CURL_SEEKFUNC_CANTSEEK) {
+        failf(তথ্য, "Could not seek stream");
+        rc = myssh_to_ERROR(তথ্য, sshc, CURLE_FTP_COULDNT_USE_REST);
+        ফেরত rc;
       }
       /* seekerr == CURL_SEEKFUNC_CANTSEEK (cannot seek to offset) */
-      do {
-        char scratch[4 * 1024];
+      করো {
+        অক্ষর scratch[4 * 1024];
         size_t readthisamountnow =
-          (data->state.resume_from - passed >
-           (curl_off_t)sizeof(scratch)) ?
-          sizeof(scratch) : curlx_sotouz(data->state.resume_from - passed);
+          (তথ্য->state.resume_from - passed >
+           (curl_off_t)আকার(scratch)) ?
+          আকার(scratch) : curlx_sotouz(তথ্য->state.resume_from - passed);
 
         size_t actuallyread =
-          data->state.fread_func(scratch, 1,
-                                 readthisamountnow, data->state.in);
+          তথ্য->state.fread_func(scratch, 1,
+                                 readthisamountnow, তথ্য->state.in);
 
         passed += actuallyread;
-        if((actuallyread == 0) || (actuallyread > readthisamountnow)) {
+        যদি((actuallyread == 0) || (actuallyread > readthisamountnow)) {
           /* this checks for greater-than only to make sure that the
              CURL_READFUNC_ABORT return code still aborts */
-          failf(data, "Failed to read data");
-          rc = myssh_to_ERROR(data, sshc, CURLE_FTP_COULDNT_USE_REST);
-          return rc;
+          failf(তথ্য, "Failed to read data");
+          rc = myssh_to_ERROR(তথ্য, sshc, CURLE_FTP_COULDNT_USE_REST);
+          ফেরত rc;
         }
-      } while(passed < data->state.resume_from);
+      } যখন(passed < তথ্য->state.resume_from);
     }
 
     /* now, decrease the size of the read */
-    if(data->state.infilesize > 0) {
-      if(data->state.resume_from > data->state.infilesize) {
-        failf(data, "Resume point beyond size");
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_FUNCTION_ARGUMENT);
+    যদি(তথ্য->state.infilesize > 0) {
+      যদি(তথ্য->state.resume_from > তথ্য->state.infilesize) {
+        failf(তথ্য, "Resume point beyond size");
+        ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_BAD_FUNCTION_ARGUMENT);
       }
-      data->state.infilesize -= data->state.resume_from;
-      data->req.size = data->state.infilesize;
-      Curl_pgrsSetUploadSize(data, data->state.infilesize);
+      তথ্য->state.infilesize -= তথ্য->state.resume_from;
+      তথ্য->req.আকার_2 = তথ্য->state.infilesize;
+      Curl_pgrs_Set_Upload_আকার(তথ্য, তথ্য->state.infilesize);
     }
 
-    rc = sftp_seek64(sshc->sftp_file, data->state.resume_from);
-    if(rc) {
-      rc = myssh_to_SFTP_CLOSE(data, sshc);
-      return rc;
+    rc = sftp_seek64(sshc->sftp_file, তথ্য->state.resume_from);
+    যদি(rc) {
+      rc = myssh_to_SFTP_CLOSE(তথ্য, sshc);
+      ফেরত rc;
     }
   }
-  if(data->state.infilesize > 0) {
-    data->req.size = data->state.infilesize;
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+  যদি(তথ্য->state.infilesize > 0) {
+    তথ্য->req.আকার_2 = তথ্য->state.infilesize;
+    Curl_pgrs_Set_Upload_আকার(তথ্য, তথ্য->state.infilesize);
   }
   /* upload data */
-  Curl_xfer_setup_send(data, FIRSTSOCKET);
+  Curl_xfer_setup_send(তথ্য, FIRSTSOCKET);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->recv_idx = FIRSTSOCKET;
+  তথ্য->conn->recv_idx = FIRSTSOCKET;
 
   /* since we do not really wait for anything at this point, we want the
      state machine to move on as soon as possible so we mark this as dirty */
-  Curl_multi_mark_dirty(data);
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+  Curl_multi_mark_dirty(তথ্য);
+#যদি LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
   sshc->sftp_send_state = 0;
 #endif
-  myssh_to(data, sshc, SSH_STOP);
-  return rc;
+  myssh_to(তথ্য, sshc, SSH_STOP);
+  ফেরত rc;
 }
 
-static int myssh_in_SFTP_DOWNLOAD_INIT(struct Curl_easy *data,
-                                       struct ssh_conn *sshc,
-                                       struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_DOWNLOAD_INIT(কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো ssh_conn *sshc,
+                                       কাঠামো SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
   /* Work on getting the specified file */
-  if(sshc->sftp_file)
+  যদি(sshc->sftp_file)
     sftp_close(sshc->sftp_file);
 
   sshc->sftp_file = sftp_open(sshc->sftp_session, sshp->path,
-                              O_RDONLY, (mode_t)data->set.new_file_perms);
-  if(!sshc->sftp_file) {
-    failf(data, "Could not open remote file for reading: %s",
+                              O_RDONLY, (mode_t)তথ্য->set.new_file_perms);
+  যদি(!sshc->sftp_file) {
+    failf(তথ্য, "Could not open remote file for reading: %s",
           ssh_get_error(sshc->ssh_session));
 
-    return myssh_to_SFTP_CLOSE(data, sshc);
+    ফেরত myssh_to_SFTP_CLOSE(তথ্য, sshc);
   }
   sftp_file_set_nonblocking(sshc->sftp_file);
-  myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_STAT);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_DOWNLOAD_STAT);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_DOWNLOAD_STAT(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_DOWNLOAD_STAT(কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো ssh_conn *sshc)
 {
-  curl_off_t size;
-  int rc = 0;
+  curl_off_t আকার_2;
+  পূর্ণসংখ্যা rc = 0;
   sftp_attributes attrs = sftp_fstat(sshc->sftp_file);
-  if(!attrs ||
-     !(attrs->flags & SSH_FILEXFER_ATTR_SIZE) ||
-     (attrs->size == 0)) {
+  যদি(!attrs ||
+     !(attrs->flags & SSH_FILEXFER_ATTR_আকার) ||
+     (attrs->আকার_2 == 0)) {
     /*
      * sftp_fstat did not return an error, so maybe the server
      * does not support stat()
      * OR the server does not return a file size with a stat()
      * OR file size is 0
      */
-    data->req.size = -1;
-    data->req.maxdownload = -1;
-    Curl_pgrsSetDownloadSize(data, -1);
-    size = 0;
-    if(attrs)
+    তথ্য->req.আকার_2 = -1;
+    তথ্য->req.maxdownload = -1;
+    Curl_pgrs_Set_Download_আকার(তথ্য, -1);
+    আকার_2 = 0;
+    যদি(attrs)
       sftp_attributes_free(attrs);
   }
-  else {
-    size = attrs->size;
+  অন্যথা {
+    আকার_2 = attrs->আকার_2;
 
     sftp_attributes_free(attrs);
 
-    if(size < 0) {
-      failf(data, "Bad file size (%" FMT_OFF_T ")", size);
-      return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+    যদি(আকার_2 < 0) {
+      failf(তথ্য, "Bad file size (%" FMT_OFF_T ")", আকার_2);
+      ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_BAD_DOWNLOAD_RESUME);
     }
-    if(data->state.use_range) {
+    যদি(তথ্য->state.use_range) {
       curl_off_t from;
-      CURLcode result = Curl_ssh_range(data, data->state.range, size,
-                                       &from, &size);
-      if(result)
-        return myssh_to_ERROR(data, sshc, result);
+      CURLcode ফলাফল = Curl_ssh_range(তথ্য, তথ্য->state.range, আকার_2,
+                                       &from, &আকার_2);
+      যদি(ফলাফল)
+        ফেরত myssh_to_ERROR(তথ্য, sshc, ফলাফল);
 
       rc = sftp_seek64(sshc->sftp_file, from);
-      if(rc)
-        return myssh_to_SFTP_CLOSE(data, sshc);
+      যদি(rc)
+        ফেরত myssh_to_SFTP_CLOSE(তথ্য, sshc);
     }
-    data->req.size = size;
-    data->req.maxdownload = size;
-    Curl_pgrsSetDownloadSize(data, size);
+    তথ্য->req.আকার_2 = আকার_2;
+    তথ্য->req.maxdownload = আকার_2;
+    Curl_pgrs_Set_Download_আকার(তথ্য, আকার_2);
   }
 
   /* We can resume if we can seek to the resume position */
-  if(data->state.resume_from) {
-    if(data->state.resume_from < 0) {
+  যদি(তথ্য->state.resume_from) {
+    যদি(তথ্য->state.resume_from < 0) {
       /* We are supposed to download the last abs(from) bytes */
-      if(size < -data->state.resume_from) {
-        failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
-              FMT_OFF_T ")", data->state.resume_from, size);
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+      যদি(আকার_2 < -তথ্য->state.resume_from) {
+        failf(তথ্য, "Offset (%" FMT_OFF_T ") was beyond file size (%"
+              FMT_OFF_T ")", তথ্য->state.resume_from, আকার_2);
+        ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_BAD_DOWNLOAD_RESUME);
       }
       /* download from where? */
-      data->state.resume_from += size;
+      তথ্য->state.resume_from += আকার_2;
     }
-    else {
-      if(size < data->state.resume_from) {
-        failf(data, "Offset (%" FMT_OFF_T
+    অন্যথা {
+      যদি(আকার_2 < তথ্য->state.resume_from) {
+        failf(তথ্য, "Offset (%" FMT_OFF_T
               ") was beyond file size (%" FMT_OFF_T ")",
-              data->state.resume_from, size);
-        return myssh_to_ERROR(data, sshc, CURLE_BAD_DOWNLOAD_RESUME);
+              তথ্য->state.resume_from, আকার_2);
+        ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_BAD_DOWNLOAD_RESUME);
       }
     }
     /* Now store the number of bytes we are expected to download */
-    data->req.size = size - data->state.resume_from;
-    data->req.maxdownload = size - data->state.resume_from;
-    Curl_pgrsSetDownloadSize(data, size - data->state.resume_from);
+    তথ্য->req.আকার_2 = আকার_2 - তথ্য->state.resume_from;
+    তথ্য->req.maxdownload = আকার_2 - তথ্য->state.resume_from;
+    Curl_pgrs_Set_Download_আকার(তথ্য, আকার_2 - তথ্য->state.resume_from);
 
-    rc = sftp_seek64(sshc->sftp_file, data->state.resume_from);
-    if(rc)
-      return myssh_to_SFTP_CLOSE(data, sshc);
+    rc = sftp_seek64(sshc->sftp_file, তথ্য->state.resume_from);
+    যদি(rc)
+      ফেরত myssh_to_SFTP_CLOSE(তথ্য, sshc);
   }
 
   /* Setup the actual download */
-  if(data->req.size == 0) {
+  যদি(তথ্য->req.আকার_2 == 0) {
     /* no data to transfer */
-    Curl_xfer_setup_nop(data);
-    infof(data, "File already completely downloaded");
-    myssh_to(data, sshc, SSH_STOP);
-    return rc;
+    Curl_xfer_setup_nop(তথ্য);
+    infof(তথ্য, "File already completely downloaded");
+    myssh_to(তথ্য, sshc, SSH_STOP);
+    ফেরত rc;
   }
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, data->req.size);
+  Curl_xfer_setup_recv(তথ্য, FIRSTSOCKET, তথ্য->req.আকার_2);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->send_idx = 0;
+  তথ্য->conn->send_idx = 0;
 
   sshc->sftp_recv_state = 0;
-  myssh_to(data, sshc, SSH_STOP);
+  myssh_to(তথ্য, sshc, SSH_STOP);
 
-  return rc;
+  ফেরত rc;
 }
 
-static int myssh_in_SFTP_CLOSE(struct Curl_easy *data,
-                               struct ssh_conn *sshc,
-                               struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_CLOSE(কাঠামো Curl_easy *তথ্য,
+                               কাঠামো ssh_conn *sshc,
+                               কাঠামো SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
-  if(sshc->sftp_file) {
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
+  যদি(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
-    sshc->sftp_file = NULL;
+    sshc->sftp_file = ফাঁকা;
   }
   curlx_safefree(sshp->path);
 
-  CURL_TRC_SSH(data, "SFTP DONE done");
+  CURL_TRC_SSH(তথ্য, "SFTP DONE done");
 
   /* Check if nextstate is set and move .nextstate could be POSTQUOTE_INIT
      After nextstate is executed, the control should come back to
      SSH_SFTP_CLOSE to pass the correct result back */
-  if(sshc->nextstate != SSH_NO_STATE &&
+  যদি(sshc->nextstate != SSH_NO_STATE &&
      sshc->nextstate != SSH_SFTP_CLOSE) {
-    myssh_to(data, sshc, sshc->nextstate);
+    myssh_to(তথ্য, sshc, sshc->nextstate);
     sshc->nextstate = SSH_SFTP_CLOSE;
   }
-  else {
-    myssh_to(data, sshc, SSH_STOP);
+  অন্যথা {
+    myssh_to(তথ্য, sshc, SSH_STOP);
   }
-  return SSH_NO_ERROR;
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_SHUTDOWN(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_SHUTDOWN(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো ssh_conn *sshc)
 {
   /* during times we get here due to a broken transfer and then the
      sftp_handle might not have been taken down so make sure that is done
      before we proceed */
   ssh_set_blocking(sshc->ssh_session, 0);
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+#যদি LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
   SFTP_AIO_FREE(sshc->sftp_send_aio);
   SFTP_AIO_FREE(sshc->sftp_recv_aio);
 #endif
 
-  if(sshc->sftp_file) {
+  যদি(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
-    sshc->sftp_file = NULL;
+    sshc->sftp_file = ফাঁকা;
   }
 
-  if(sshc->sftp_session) {
+  যদি(sshc->sftp_session) {
     sftp_free(sshc->sftp_session);
-    sshc->sftp_session = NULL;
+    sshc->sftp_session = ফাঁকা;
   }
 
   SSH_STRING_FREE_CHAR(sshc->homedir);
 
-  myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SESSION_DISCONNECT);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_INIT(struct Curl_easy *data,
-                              struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_INIT(কাঠামো Curl_easy *তথ্য,
+                              কাঠামো ssh_conn *sshc)
 {
-  int rc;
+  পূর্ণসংখ্যা rc;
   ssh_set_blocking(sshc->ssh_session, 1);
 
   sshc->sftp_session = sftp_new(sshc->ssh_session);
-  if(!sshc->sftp_session) {
-    failf(data, "Failure initializing sftp session: %s",
+  যদি(!sshc->sftp_session) {
+    failf(তথ্য, "Failure initializing sftp session: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_ERROR(data, sshc, CURLE_COULDNT_CONNECT);
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_COULDNT_CONNECT);
   }
 
   rc = sftp_init(sshc->sftp_session);
-  if(rc != SSH_OK) {
-    failf(data, "Failure initializing sftp session: %s",
+  যদি(rc != SSH_OK) {
+    failf(তথ্য, "Failure initializing sftp session: %s",
           ssh_get_error(sshc->ssh_session));
-    return myssh_to_ERROR(data, sshc, sftp_error_to_CURLE(SSH_FX_FAILURE));
+    ফেরত myssh_to_ERROR(তথ্য, sshc, sftp_error_to_CURLE(SSH_FX_FAILURE));
   }
-  myssh_to(data, sshc, SSH_SFTP_REALPATH);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_REALPATH);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_REALPATH(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_REALPATH(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো ssh_conn *sshc)
 {
   /* Get the "home" directory */
   sshc->homedir = sftp_canonicalize_path(sshc->sftp_session, ".");
-  if(!sshc->homedir)
-    return myssh_to_ERROR(data, sshc, CURLE_COULDNT_CONNECT);
+  যদি(!sshc->homedir)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_COULDNT_CONNECT);
 
-  curlx_free(data->state.most_recent_ftp_entrypath);
-  data->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
-  if(!data->state.most_recent_ftp_entrypath)
-    return myssh_to_ERROR(data, sshc, CURLE_OUT_OF_MEMORY);
+  curlx_free(তথ্য->state.most_recent_ftp_entrypath);
+  তথ্য->state.most_recent_ftp_entrypath = curlx_strdup(sshc->homedir);
+  যদি(!তথ্য->state.most_recent_ftp_entrypath)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_OUT_OF_MEMORY);
 
   /* This is the last step in the SFTP connect phase. Do note that while
      we get the homedir here, we get the "workingpath" in the DO action
      since the homedir remains the same between request but the
      working path does not. */
-  CURL_TRC_SSH(data, "CONNECT phase done");
-  myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  CURL_TRC_SSH(তথ্য, "CONNECT phase done");
+  myssh_to(তথ্য, sshc, SSH_STOP);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_INIT(struct Curl_easy *data,
-                                    struct ssh_conn *sshc,
-                                    struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_INIT(কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো ssh_conn *sshc,
+                                    কাঠামো SSHPROTO *sshp)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
-  result = Curl_getworkingpath(data, sshc->homedir, &sshp->path);
-  if(result) {
-    sshc->actualcode = result;
-    myssh_to(data, sshc, SSH_STOP);
+  ফলাফল = Curl_getworkingpath(তথ্য, sshc->homedir, &sshp->path);
+  যদি(ফলাফল) {
+    sshc->actualcode = ফলাফল;
+    myssh_to(তথ্য, sshc, SSH_STOP);
   }
-  else if(data->set.quote) {
-    infof(data, "Sending quote commands");
-    sshc->quote_item = data->set.quote;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  অন্যথা যদি(তথ্য->set.quote) {
+    infof(তথ্য, "Sending quote commands");
+    sshc->quote_item = তথ্য->set.quote;
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE);
   }
-  else
-    myssh_to(data, sshc, SSH_SFTP_GETINFO);
-  return SSH_NO_ERROR;
+  অন্যথা
+    myssh_to(তথ্য, sshc, SSH_SFTP_GETINFO);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_POSTQUOTE_INIT(struct Curl_easy *data,
-                                        struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_POSTQUOTE_INIT(কাঠামো Curl_easy *তথ্য,
+                                        কাঠামো ssh_conn *sshc)
 {
-  if(data->set.postquote) {
-    infof(data, "Sending quote commands");
-    sshc->quote_item = data->set.postquote;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  যদি(তথ্য->set.postquote) {
+    infof(তথ্য, "Sending quote commands");
+    sshc->quote_item = তথ্য->set.postquote;
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    myssh_to(data, sshc, SSH_STOP);
+  অন্যথা {
+    myssh_to(তথ্য, sshc, SSH_STOP);
   }
-  return SSH_NO_ERROR;
+  ফেরত SSH_NO_ERROR;
 }
 
-static int quote_error(struct Curl_easy *data,
-                       struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা quote_error(কাঠামো Curl_easy *তথ্য,
+                       কাঠামো ssh_conn *sshc)
 {
-  failf(data, "Suspicious data after the command line");
+  failf(তথ্য, "Suspicious data after the command line");
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_QUOTE_ERROR;
-  return SSH_NO_ERROR;
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
-                               struct ssh_conn *sshc,
-                               struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE(কাঠামো Curl_easy *তথ্য,
+                               কাঠামো ssh_conn *sshc,
+                               কাঠামো SSHPROTO *sshp)
 {
-  const char *cp;
-  CURLcode result;
+  ধ্রুবক অক্ষর *cp;
+  CURLcode ফলাফল;
 
   /*
    * Support some of the "FTP" commands
    */
-  const char *cmd = sshc->quote_item->data;
+  ধ্রুবক অক্ষর *cmd = sshc->quote_item->তথ্য;
   sshc->acceptfail = FALSE;
 
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
   /* if a command starts with an asterisk, which a legal SFTP command never
      can, the command is allowed to fail without it causing any
      aborts or cancels etc. It causes libcurl to act as if the command
      is successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  যদি(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
 
-  if(curl_strequal("pwd", cmd)) {
+  যদি(curl_strequal("pwd", cmd)) {
     /* output debug output if that is requested */
-    char *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
+    অক্ষর *tmp = curl_maprintf("257 \"%s\" is current directory.\n",
                               sshp->path);
-    if(!tmp) {
+    যদি(!tmp) {
       sshc->actualcode = CURLE_OUT_OF_MEMORY;
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+      myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      return SSH_NO_ERROR;
+      ফেরত SSH_NO_ERROR;
     }
-    Curl_debug(data, CURLINFO_HEADER_OUT, "PWD\n", 4);
-    Curl_debug(data, CURLINFO_HEADER_IN, tmp, strlen(tmp));
+    Curl_debug(তথ্য, CURLINFO_HEADER_OUT, "PWD\n", 4);
+    Curl_debug(তথ্য, CURLINFO_HEADER_IN, tmp, strlen(tmp));
 
     /* this sends an FTP-like "header" to the header callback so that
        the current directory can be read similar to how it is read when
        using ordinary FTP. */
-    result = Curl_client_write(data, CLIENTWRITE_HEADER, tmp, strlen(tmp));
+    ফলাফল = Curl_client_write(তথ্য, CLIENTWRITE_HEADER, tmp, strlen(tmp));
     curlx_free(tmp);
-    if(result) {
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    যদি(ফলাফল) {
+      myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
+      sshc->actualcode = ফলাফল;
     }
-    else
-      myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-    return SSH_NO_ERROR;
+    অন্যথা
+      myssh_to(তথ্য, sshc, SSH_SFTP_পরবর্তী_QUOTE);
+    ফেরত SSH_NO_ERROR;
   }
 
   /*
@@ -1504,28 +1504,28 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
    * command with a space so we can check for it unconditionally
    */
   cp = strchr(cmd, ' ');
-  if(!cp) {
-    failf(data, "Syntax error in SFTP command. Supply parameter(s)");
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  যদি(!cp) {
+    failf(তথ্য, "Syntax error in SFTP command. Supply parameter(s)");
+    myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
     sshc->actualcode = CURLE_QUOTE_ERROR;
-    return SSH_NO_ERROR;
+    ফেরত SSH_NO_ERROR;
   }
 
   /*
    * also, every command takes at least one argument so we get that
    * first argument right now
    */
-  result = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
-  if(result) {
-    if(result == CURLE_OUT_OF_MEMORY)
-      failf(data, "Out of memory");
-    else
-      failf(data, "Syntax error: Bad first parameter");
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  ফলাফল = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
+  যদি(ফলাফল) {
+    যদি(ফলাফল == CURLE_OUT_OF_MEMORY)
+      failf(তথ্য, "Out of memory");
+    অন্যথা
+      failf(তথ্য, "Syntax error: Bad first parameter");
+    myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
     sshc->nextstate = SSH_NO_STATE;
-    sshc->actualcode = result;
-    return SSH_NO_ERROR;
+    sshc->actualcode = ফলাফল;
+    ফেরত SSH_NO_ERROR;
   }
 
   /*
@@ -1534,7 +1534,7 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
    * OpenSSH's sftp program and call the appropriate libssh
    * functions.
    */
-  if(!strncmp(cmd, "chgrp ", 6) ||
+  যদি(!strncmp(cmd, "chgrp ", 6) ||
      !strncmp(cmd, "chmod ", 6) ||
      !strncmp(cmd, "chown ", 6) ||
      !strncmp(cmd, "atime ", 6) ||
@@ -1543,133 +1543,133 @@ static int myssh_in_SFTP_QUOTE(struct Curl_easy *data,
 
     /* sshc->quote_path1 contains the mode to set */
     /* get the destination */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        failf(data, "Out of memory");
-      else
-        failf(data, "Syntax error in chgrp/chmod/chown/atime/mtime: "
+    ফলাফল = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    যদি(ফলাফল) {
+      যদি(ফলাফল == CURLE_OUT_OF_MEMORY)
+        failf(তথ্য, "Out of memory");
+      অন্যথা
+        failf(তথ্য, "Syntax error in chgrp/chmod/chown/atime/mtime: "
               "Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+      myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      sshc->actualcode = ফলাফল;
+      ফেরত SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    sshc->quote_attrs = NULL;
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_STAT);
-    return SSH_NO_ERROR;
+    যদি(*cp)
+      ফেরত quote_error(তথ্য, sshc);
+    sshc->quote_attrs = ফাঁকা;
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_STAT);
+    ফেরত SSH_NO_ERROR;
   }
-  if(!strncmp(cmd, "ln ", 3) ||
+  যদি(!strncmp(cmd, "ln ", 3) ||
      !strncmp(cmd, "symlink ", 8)) {
     /* symbolic linking */
     /* sshc->quote_path1 is the source */
     /* get the destination */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        failf(data, "Out of memory");
-      else
-        failf(data, "Syntax error in ln/symlink: Bad second parameter");
+    ফলাফল = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    যদি(ফলাফল) {
+      যদি(ফলাফল == CURLE_OUT_OF_MEMORY)
+        failf(তথ্য, "Out of memory");
+      অন্যথা
+        failf(তথ্য, "Syntax error in ln/symlink: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+      myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      sshc->actualcode = ফলাফল;
+      ফেরত SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_SYMLINK);
-    return SSH_NO_ERROR;
+    যদি(*cp)
+      ফেরত quote_error(তথ্য, sshc);
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_SYMLINK);
+    ফেরত SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "mkdir ", 6)) {
-    if(*cp)
-      return quote_error(data, sshc);
+  অন্যথা যদি(!strncmp(cmd, "mkdir ", 6)) {
+    যদি(*cp)
+      ফেরত quote_error(তথ্য, sshc);
     /* create directory */
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_MKDIR);
-    return SSH_NO_ERROR;
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_MKDIR);
+    ফেরত SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rename ", 7)) {
+  অন্যথা যদি(!strncmp(cmd, "rename ", 7)) {
     /* rename file */
     /* first param is the source path */
     /* second param is the dest. path */
-    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        failf(data, "Out of memory");
-      else
-        failf(data, "Syntax error in rename: Bad second parameter");
+    ফলাফল = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
+    যদি(ফলাফল) {
+      যদি(ফলাফল == CURLE_OUT_OF_MEMORY)
+        failf(তথ্য, "Out of memory");
+      অন্যথা
+        failf(তথ্য, "Syntax error in rename: Bad second parameter");
       curlx_safefree(sshc->quote_path1);
-      myssh_to(data, sshc, SSH_SFTP_CLOSE);
+      myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
       sshc->nextstate = SSH_NO_STATE;
-      sshc->actualcode = result;
-      return SSH_NO_ERROR;
+      sshc->actualcode = ফলাফল;
+      ফেরত SSH_NO_ERROR;
     }
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_RENAME);
-    return SSH_NO_ERROR;
+    যদি(*cp)
+      ফেরত quote_error(তথ্য, sshc);
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_RENAME);
+    ফেরত SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rmdir ", 6)) {
+  অন্যথা যদি(!strncmp(cmd, "rmdir ", 6)) {
     /* delete directory */
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_RMDIR);
-    return SSH_NO_ERROR;
+    যদি(*cp)
+      ফেরত quote_error(তথ্য, sshc);
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_RMDIR);
+    ফেরত SSH_NO_ERROR;
   }
-  else if(!strncmp(cmd, "rm ", 3)) {
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_UNLINK);
-    return SSH_NO_ERROR;
+  অন্যথা যদি(!strncmp(cmd, "rm ", 3)) {
+    যদি(*cp)
+      ফেরত quote_error(তথ্য, sshc);
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_UNLINK);
+    ফেরত SSH_NO_ERROR;
   }
 #ifdef HAS_STATVFS_SUPPORT
-  else if(!strncmp(cmd, "statvfs ", 8)) {
-    if(*cp)
-      return quote_error(data, sshc);
-    myssh_to(data, sshc, SSH_SFTP_QUOTE_STATVFS);
-    return SSH_NO_ERROR;
+  অন্যথা যদি(!strncmp(cmd, "statvfs ", 8)) {
+    যদি(*cp)
+      ফেরত quote_error(তথ্য, sshc);
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_STATVFS);
+    ফেরত SSH_NO_ERROR;
   }
 #endif
 
-  failf(data, "Unknown SFTP command");
+  failf(তথ্য, "Unknown SFTP command");
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
-  myssh_to(data, sshc, SSH_SFTP_CLOSE);
+  myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
   sshc->nextstate = SSH_NO_STATE;
   sshc->actualcode = CURLE_QUOTE_ERROR;
-  return SSH_NO_ERROR;
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_NEXT_QUOTE(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_পরবর্তী_QUOTE(কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো ssh_conn *sshc)
 {
   curlx_safefree(sshc->quote_path1);
   curlx_safefree(sshc->quote_path2);
 
-  sshc->quote_item = sshc->quote_item->next;
+  sshc->quote_item = sshc->quote_item->পরবর্তী;
 
-  if(sshc->quote_item) {
-    myssh_to(data, sshc, SSH_SFTP_QUOTE);
+  যদি(sshc->quote_item) {
+    myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE);
   }
-  else {
-    if(sshc->nextstate != SSH_NO_STATE) {
-      myssh_to(data, sshc, sshc->nextstate);
+  অন্যথা {
+    যদি(sshc->nextstate != SSH_NO_STATE) {
+      myssh_to(তথ্য, sshc, sshc->nextstate);
       sshc->nextstate = SSH_NO_STATE;
     }
-    else {
-      myssh_to(data, sshc, SSH_SFTP_GETINFO);
+    অন্যথা {
+      myssh_to(তথ্য, sshc, SSH_SFTP_GETINFO);
     }
   }
-  return SSH_NO_ERROR;
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
-                                    struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_STAT(কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো ssh_conn *sshc)
 {
-  const char *cmd = sshc->quote_item->data;
+  ধ্রুবক অক্ষর *cmd = sshc->quote_item->তথ্য;
   sshc->acceptfail = FALSE;
 
   /* if a command starts with an asterisk, which a legal SFTP command never
@@ -1677,7 +1677,7 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
      aborts or cancels etc. It causes libcurl to act as if the command
      is successful, whatever the server responds. */
 
-  if(cmd[0] == '*') {
+  যদি(cmd[0] == '*') {
     cmd++;
     sshc->acceptfail = TRUE;
   }
@@ -1687,242 +1687,242 @@ static int myssh_in_SFTP_QUOTE_STAT(struct Curl_easy *data,
    * QUOTE_SETSTAT state to write new ones.
    */
 
-  if(sshc->quote_attrs)
+  যদি(sshc->quote_attrs)
     sftp_attributes_free(sshc->quote_attrs);
   sshc->quote_attrs = sftp_stat(sshc->sftp_session, sshc->quote_path2);
-  if(!sshc->quote_attrs) {
-    failf(data, "Attempt to get SFTP stats failed: %d",
+  যদি(!sshc->quote_attrs) {
+    failf(তথ্য, "Attempt to get SFTP stats failed: %d",
           sftp_get_error(sshc->sftp_session));
-    myssh_quote_error(data, sshc, NULL);
-    return SSH_NO_ERROR;
+    myssh_quote_error(তথ্য, sshc, ফাঁকা);
+    ফেরত SSH_NO_ERROR;
   }
 
   /* Now set the new attributes... */
-  if(!strncmp(cmd, "chgrp", 5)) {
-    const char *p = sshc->quote_path1;
+  যদি(!strncmp(cmd, "chgrp", 5)) {
+    ধ্রুবক অক্ষর *p = sshc->quote_path1;
     curl_off_t gid;
-    if(curlx_str_number(&p, &gid, UINT_MAX)) {
-      failf(data, "Syntax error: chgrp gid not a number");
-      myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+    যদি(curlx_str_সংখ্যা(&p, &gid, UINT_MAX)) {
+      failf(তথ্য, "Syntax error: chgrp gid not a number");
+      myssh_quote_error(তথ্য, sshc, ফাঁকা);
+      ফেরত SSH_NO_ERROR;
     }
     sshc->quote_attrs->gid = (uint32_t)gid;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_UIDGID;
   }
-  else if(!strncmp(cmd, "chmod", 5)) {
+  অন্যথা যদি(!strncmp(cmd, "chmod", 5)) {
     curl_off_t perms;
-    const char *p = sshc->quote_path1;
-    if(curlx_str_octal(&p, &perms, 07777)) {
-      failf(data, "Syntax error: chmod permissions not a number");
-      myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+    ধ্রুবক অক্ষর *p = sshc->quote_path1;
+    যদি(curlx_str_octal(&p, &perms, 07777)) {
+      failf(তথ্য, "Syntax error: chmod permissions not a number");
+      myssh_quote_error(তথ্য, sshc, ফাঁকা);
+      ফেরত SSH_NO_ERROR;
     }
     sshc->quote_attrs->permissions = (mode_t)perms;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_PERMISSIONS;
   }
-  else if(!strncmp(cmd, "chown", 5)) {
-    const char *p = sshc->quote_path1;
+  অন্যথা যদি(!strncmp(cmd, "chown", 5)) {
+    ধ্রুবক অক্ষর *p = sshc->quote_path1;
     curl_off_t uid;
-    if(curlx_str_number(&p, &uid, UINT_MAX)) {
-      failf(data, "Syntax error: chown uid not a number");
-      myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+    যদি(curlx_str_সংখ্যা(&p, &uid, UINT_MAX)) {
+      failf(তথ্য, "Syntax error: chown uid not a number");
+      myssh_quote_error(তথ্য, sshc, ফাঁকা);
+      ফেরত SSH_NO_ERROR;
     }
     sshc->quote_attrs->uid = (uint32_t)uid;
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_UIDGID;
   }
-  else if(!strncmp(cmd, "atime", 5) ||
+  অন্যথা যদি(!strncmp(cmd, "atime", 5) ||
           !strncmp(cmd, "mtime", 5)) {
     time_t date;
     bool fail = FALSE;
-    if(Curl_getdate_capped(sshc->quote_path1, &date)) {
-      failf(data, "incorrect date format for %.*s", 5, cmd);
+    যদি(Curl_getdate_capped(sshc->quote_path1, &date)) {
+      failf(তথ্য, "incorrect date format for %.*s", 5, cmd);
       fail = TRUE;
     }
-#if SIZEOF_TIME_T > 4
-    else if(date > 0xffffffff) {
-      failf(data, "date overflow");
+#যদি SIZEOF_TIME_T > 4
+    অন্যথা যদি(date > 0xffffffff) {
+      failf(তথ্য, "date overflow");
       fail = TRUE; /* avoid setting a capped time */
     }
 #endif
-    if(fail) {
-      myssh_quote_error(data, sshc, NULL);
-      return SSH_NO_ERROR;
+    যদি(fail) {
+      myssh_quote_error(তথ্য, sshc, ফাঁকা);
+      ফেরত SSH_NO_ERROR;
     }
-    if(!strncmp(cmd, "atime", 5))
+    যদি(!strncmp(cmd, "atime", 5))
       sshc->quote_attrs->atime = (uint32_t)date;
-    else /* mtime */
+    অন্যথা /* mtime */
       sshc->quote_attrs->mtime = (uint32_t)date;
 
     sshc->quote_attrs->flags |= SSH_FILEXFER_ATTR_ACMODTIME;
   }
 
   /* Now send the completed structure... */
-  myssh_to(data, sshc, SSH_SFTP_QUOTE_SETSTAT);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_SETSTAT);
+  ফেরত SSH_NO_ERROR;
 }
 
-static void conn_forget_socket(struct Curl_easy *data, int8_t sockindex)
+স্থির শূন্য conn_forget_socket(কাঠামো Curl_easy *তথ্য, int8_t sockindex)
 {
-  struct connectdata *conn = data->conn;
-  if(conn && CONN_SOCK_IDX_VALID(sockindex)) {
-    struct Curl_cfilter *cf = conn->cfilter[sockindex];
-    if(cf)
-      (void)Curl_conn_cf_cntrl(cf, data, TRUE, CF_CTRL_FORGET_SOCKET, 0, NULL);
+  কাঠামো connectdata *conn = তথ্য->conn;
+  যদি(conn && CONN_SOCK_IDX_VALID(sockindex)) {
+    কাঠামো Curl_cfilter *cf = conn->cfilter[sockindex];
+    যদি(cf)
+      (শূন্য)Curl_conn_cf_cntrl(cf, তথ্য, TRUE, CF_CTRL_FORGET_SOCKET, 0, ফাঁকা);
     fake_sclose(conn->sock[sockindex]);
     conn->sock[sockindex] = CURL_SOCKET_BAD;
   }
 }
 
-static void myssh_SESSION_DISCONNECT(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+স্থির শূন্য myssh_SESSION_DISCONNECT(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো ssh_conn *sshc)
 {
   /* during weird times when we have been prematurely aborted, the channel
      is still alive when we reach this state and we MUST kill the channel
      properly first */
-  if(sshc->scp_session) {
+  যদি(sshc->scp_session) {
     ssh_scp_free(sshc->scp_session);
-    sshc->scp_session = NULL;
+    sshc->scp_session = ফাঁকা;
   }
 
-  if(sshc->sftp_file) {
+  যদি(sshc->sftp_file) {
     sftp_close(sshc->sftp_file);
-    sshc->sftp_file = NULL;
+    sshc->sftp_file = ফাঁকা;
   }
-  if(sshc->sftp_session) {
+  যদি(sshc->sftp_session) {
     sftp_free(sshc->sftp_session);
-    sshc->sftp_session = NULL;
+    sshc->sftp_session = ফাঁকা;
   }
 
   ssh_disconnect(sshc->ssh_session);
-  if(!ssh_version(SSH_VERSION_INT(0, 10, 0))) {
+  যদি(!ssh_version(SSH_VERSION_INT(0, 10, 0))) {
     /* conn->sock[FIRSTSOCKET] is closed by ssh_disconnect behind our back,
        tell the connection to forget about it. This libssh
        bug is fixed in 0.10.0. */
-    conn_forget_socket(data, FIRSTSOCKET);
+    conn_forget_socket(তথ্য, FIRSTSOCKET);
   }
 
   SSH_STRING_FREE_CHAR(sshc->homedir);
 
-  myssh_to(data, sshc, SSH_SESSION_FREE);
+  myssh_to(তথ্য, sshc, SSH_SESSION_FREE);
 }
 
-static int myssh_SSH_SCP_DOWNLOAD(struct Curl_easy *data,
-                                  struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_SSH_SCP_DOWNLOAD(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো ssh_conn *sshc)
 {
   uint64_t bytecount;
-  int rc = ssh_scp_pull_request(sshc->scp_session);
-  if(rc != SSH_SCP_REQUEST_NEWFILE) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_REMOTE_FILE_NOT_FOUND);
+  পূর্ণসংখ্যা rc = ssh_scp_pull_request(sshc->scp_session);
+  যদি(rc != SSH_SCP_REQUEST_NEWFILE) {
+    ধ্রুবক অক্ষর *err_বার্তা = ssh_get_error(sshc->ssh_session);
+    failf(তথ্য, "%s", err_বার্তা);
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_REMOTE_FILE_NOT_FOUND);
   }
 
   /* download data */
   bytecount = ssh_scp_request_get_size64(sshc->scp_session);
-  if(bytecount > CURL_OFF_T_MAX)
+  যদি(bytecount > CURL_OFF_T_MAX)
     /* unlikely to be a real file */
-    return myssh_to_ERROR(data, sshc, CURLE_TOO_LARGE);
-  data->req.maxdownload = (curl_off_t)bytecount;
-  Curl_xfer_setup_recv(data, FIRSTSOCKET, data->req.maxdownload);
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_TOO_LARGE);
+  তথ্য->req.maxdownload = (curl_off_t)bytecount;
+  Curl_xfer_setup_recv(তথ্য, FIRSTSOCKET, তথ্য->req.maxdownload);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->send_idx = 0;
+  তথ্য->conn->send_idx = 0;
 
-  myssh_to(data, sshc, SSH_STOP);
-  return 0;
+  myssh_to(তথ্য, sshc, SSH_STOP);
+  ফেরত 0;
 }
 
-static int myssh_in_TRANS_INIT(struct Curl_easy *data, struct ssh_conn *sshc,
-                               struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_TRANS_INIT(কাঠামো Curl_easy *তথ্য, কাঠামো ssh_conn *sshc,
+                               কাঠামো SSHPROTO *sshp)
 {
-  CURLcode result;
-  int rc = 0;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  CURLcode ফলাফল;
+  পূর্ণসংখ্যা rc = 0;
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
-  result = Curl_getworkingpath(data, sshc->homedir, &sshp->path);
-  if(result) {
-    sshc->actualcode = result;
-    myssh_to(data, sshc, SSH_STOP);
-    return 0;
+  ফলাফল = Curl_getworkingpath(তথ্য, sshc->homedir, &sshp->path);
+  যদি(ফলাফল) {
+    sshc->actualcode = ফলাফল;
+    myssh_to(তথ্য, sshc, SSH_STOP);
+    ফেরত 0;
   }
 
   /* Functions from the SCP subsystem cannot handle/return SSH_AGAIN */
   ssh_set_blocking(sshc->ssh_session, 1);
 
-  if(data->state.upload) {
-    if(data->state.infilesize < 0) {
-      failf(data, "SCP requires a known file size for upload");
-      return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+  যদি(তথ্য->state.upload) {
+    যদি(তথ্য->state.infilesize < 0) {
+      failf(তথ্য, "SCP requires a known file size for upload");
+      ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_UPLOAD_FAILED);
     }
 
     sshc->scp_session =
       ssh_scp_new(sshc->ssh_session, SSH_SCP_WRITE, sshp->path);
-    myssh_to(data, sshc, SSH_SCP_UPLOAD_INIT);
+    myssh_to(তথ্য, sshc, SSH_SCP_UPLOAD_INIT);
   }
-  else {
+  অন্যথা {
     sshc->scp_session =
       ssh_scp_new(sshc->ssh_session, SSH_SCP_READ, sshp->path);
-    myssh_to(data, sshc, SSH_SCP_DOWNLOAD_INIT);
+    myssh_to(তথ্য, sshc, SSH_SCP_DOWNLOAD_INIT);
   }
 
-  if(!sshc->scp_session) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    rc = myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+  যদি(!sshc->scp_session) {
+    ধ্রুবক অক্ষর *err_বার্তা = ssh_get_error(sshc->ssh_session);
+    failf(তথ্য, "%s", err_বার্তা);
+    rc = myssh_to_ERROR(তথ্য, sshc, CURLE_UPLOAD_FAILED);
   }
-  return rc;
+  ফেরত rc;
 }
 
-static void sshc_cleanup(struct ssh_conn *sshc)
+স্থির শূন্য sshc_cleanup(কাঠামো ssh_conn *sshc)
 {
-  if(sshc->initialized) {
-    if(sshc->sftp_file) {
+  যদি(sshc->initialized) {
+    যদি(sshc->sftp_file) {
       sftp_close(sshc->sftp_file);
-      sshc->sftp_file = NULL;
+      sshc->sftp_file = ফাঁকা;
     }
-    if(sshc->sftp_session) {
+    যদি(sshc->sftp_session) {
       sftp_free(sshc->sftp_session);
-      sshc->sftp_session = NULL;
+      sshc->sftp_session = ফাঁকা;
     }
-    if(sshc->ssh_session) {
+    যদি(sshc->ssh_session) {
       ssh_free(sshc->ssh_session);
-      sshc->ssh_session = NULL;
+      sshc->ssh_session = ফাঁকা;
     }
 
     /* worst-case scenario cleanup */
     DEBUGASSERT(!sshc->ssh_session);
     DEBUGASSERT(!sshc->scp_session);
 
-    if(sshc->readdir_tmp) {
+    যদি(sshc->readdir_tmp) {
       ssh_string_free_char(sshc->readdir_tmp);
-      sshc->readdir_tmp = NULL;
+      sshc->readdir_tmp = ফাঁকা;
     }
-    if(sshc->quote_attrs) {
+    যদি(sshc->quote_attrs) {
       sftp_attributes_free(sshc->quote_attrs);
-      sshc->quote_attrs = NULL;
+      sshc->quote_attrs = ফাঁকা;
     }
-    if(sshc->readdir_attrs) {
+    যদি(sshc->readdir_attrs) {
       sftp_attributes_free(sshc->readdir_attrs);
-      sshc->readdir_attrs = NULL;
+      sshc->readdir_attrs = ফাঁকা;
     }
-    if(sshc->readdir_link_attrs) {
+    যদি(sshc->readdir_link_attrs) {
       sftp_attributes_free(sshc->readdir_link_attrs);
-      sshc->readdir_link_attrs = NULL;
+      sshc->readdir_link_attrs = ফাঁকা;
     }
-    if(sshc->privkey) {
-      ssh_key_free(sshc->privkey);
-      sshc->privkey = NULL;
+    যদি(sshc->privkey) {
+      ssh_চাবি_free(sshc->privkey);
+      sshc->privkey = ফাঁকা;
     }
-    if(sshc->pubkey) {
-      ssh_key_free(sshc->pubkey);
-      sshc->pubkey = NULL;
+    যদি(sshc->pubkey) {
+      ssh_চাবি_free(sshc->pubkey);
+      sshc->pubkey = ফাঁকা;
     }
 
     curlx_safefree(sshc->passphrase);
-    curlx_safefree(sshc->pub_key);
-    curlx_safefree(sshc->priv_key);
+    curlx_safefree(sshc->pub_চাবি);
+    curlx_safefree(sshc->priv_চাবি);
     curlx_safefree(sshc->quote_path1);
     curlx_safefree(sshc->quote_path2);
     curlx_dyn_free(&sshc->readdir_buf);
@@ -1932,195 +1932,195 @@ static void sshc_cleanup(struct ssh_conn *sshc)
   }
 }
 
-static int myssh_in_SFTP_QUOTE_SETSTAT(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_SETSTAT(কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো ssh_conn *sshc)
 {
-  int rc = sftp_setstat(sshc->sftp_session, sshc->quote_path2,
+  পূর্ণসংখ্যা rc = sftp_setstat(sshc->sftp_session, sshc->quote_path2,
                         sshc->quote_attrs);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "setstat");
-    return rc;
+  যদি(rc == SSH_AGAIN)
+    ফেরত rc;
+  যদি(rc && !sshc->acceptfail) {
+    myssh_quote_error(তথ্য, sshc, "setstat");
+    ফেরত rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_পরবর্তী_QUOTE);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_SYMLINK(struct Curl_easy *data,
-                                       struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_SYMLINK(কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো ssh_conn *sshc)
 {
-  int rc = sftp_symlink(sshc->sftp_session, sshc->quote_path2,
+  পূর্ণসংখ্যা rc = sftp_symlink(sshc->sftp_session, sshc->quote_path2,
                         sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "symlink");
-    return rc;
+  যদি(rc == SSH_AGAIN)
+    ফেরত rc;
+  যদি(rc && !sshc->acceptfail) {
+    myssh_quote_error(তথ্য, sshc, "symlink");
+    ফেরত rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_পরবর্তী_QUOTE);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_MKDIR(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_MKDIR(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো ssh_conn *sshc)
 {
-  int rc = sftp_mkdir(sshc->sftp_session, sshc->quote_path1,
-                      (mode_t)data->set.new_directory_perms);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "mkdir");
-    return rc;
+  পূর্ণসংখ্যা rc = sftp_mkdir(sshc->sftp_session, sshc->quote_path1,
+                      (mode_t)তথ্য->set.new_directory_perms);
+  যদি(rc == SSH_AGAIN)
+    ফেরত rc;
+  যদি(rc && !sshc->acceptfail) {
+    myssh_quote_error(তথ্য, sshc, "mkdir");
+    ফেরত rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_পরবর্তী_QUOTE);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_RENAME(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_RENAME(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো ssh_conn *sshc)
 {
-  int rc = sftp_rename(sshc->sftp_session, sshc->quote_path1,
+  পূর্ণসংখ্যা rc = sftp_rename(sshc->sftp_session, sshc->quote_path1,
                        sshc->quote_path2);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "rename");
-    return rc;
+  যদি(rc == SSH_AGAIN)
+    ফেরত rc;
+  যদি(rc && !sshc->acceptfail) {
+    myssh_quote_error(তথ্য, sshc, "rename");
+    ফেরত rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_পরবর্তী_QUOTE);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_RMDIR(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_RMDIR(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো ssh_conn *sshc)
 {
-  int rc = sftp_rmdir(sshc->sftp_session, sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "rmdir");
-    return rc;
+  পূর্ণসংখ্যা rc = sftp_rmdir(sshc->sftp_session, sshc->quote_path1);
+  যদি(rc == SSH_AGAIN)
+    ফেরত rc;
+  যদি(rc && !sshc->acceptfail) {
+    myssh_quote_error(তথ্য, sshc, "rmdir");
+    ফেরত rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_পরবর্তী_QUOTE);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_QUOTE_UNLINK(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_QUOTE_UNLINK(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো ssh_conn *sshc)
 {
-  int rc = sftp_unlink(sshc->sftp_session, sshc->quote_path1);
-  if(rc == SSH_AGAIN)
-    return rc;
-  if(rc && !sshc->acceptfail) {
-    myssh_quote_error(data, sshc, "rm");
-    return rc;
+  পূর্ণসংখ্যা rc = sftp_unlink(sshc->sftp_session, sshc->quote_path1);
+  যদি(rc == SSH_AGAIN)
+    ফেরত rc;
+  যদি(rc && !sshc->acceptfail) {
+    myssh_quote_error(তথ্য, sshc, "rm");
+    ফেরত rc;
   }
-  myssh_to(data, sshc, SSH_SFTP_NEXT_QUOTE);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_পরবর্তী_QUOTE);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_GETINFO(struct Curl_easy *data,
-                                 struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_GETINFO(কাঠামো Curl_easy *তথ্য,
+                                 কাঠামো ssh_conn *sshc)
 {
-  if(data->set.get_filetime)
-    myssh_to(data, sshc, SSH_SFTP_FILETIME);
-  else
-    myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return SSH_NO_ERROR;
+  যদি(তথ্য->set.get_filetime)
+    myssh_to(তথ্য, sshc, SSH_SFTP_FILETIME);
+  অন্যথা
+    myssh_to(তথ্য, sshc, SSH_SFTP_TRANS_INIT);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_FILETIME(struct Curl_easy *data,
-                                  struct ssh_conn *sshc,
-                                  struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_FILETIME(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো ssh_conn *sshc,
+                                  কাঠামো SSHPROTO *sshp)
 {
   sftp_attributes attrs;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
   attrs = sftp_stat(sshc->sftp_session, sshp->path);
-  if(attrs) {
-    data->info.filetime = attrs->mtime;
+  যদি(attrs) {
+    তথ্য->info.filetime = attrs->mtime;
     sftp_attributes_free(attrs);
   }
 
-  myssh_to(data, sshc, SSH_SFTP_TRANS_INIT);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_TRANS_INIT);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_TRANS_INIT(struct Curl_easy *data,
-                                    struct ssh_conn *sshc,
-                                    struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_TRANS_INIT(কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো ssh_conn *sshc,
+                                    কাঠামো SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
-  if(data->state.upload)
-    myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  else {
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
+  যদি(তথ্য->state.upload)
+    myssh_to(তথ্য, sshc, SSH_SFTP_UPLOAD_INIT);
+  অন্যথা {
     size_t path_len = strlen(sshp->path);
 
-    if(path_len && sshp->path[path_len - 1] == '/')
-      myssh_to(data, sshc, SSH_SFTP_READDIR_INIT);
-    else
-      myssh_to(data, sshc, SSH_SFTP_DOWNLOAD_INIT);
+    যদি(path_len && sshp->path[path_len - 1] == '/')
+      myssh_to(তথ্য, sshc, SSH_SFTP_READDIR_INIT);
+    অন্যথা
+      myssh_to(তথ্য, sshc, SSH_SFTP_DOWNLOAD_INIT);
   }
 
-  return SSH_NO_ERROR;
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS_INIT(struct Curl_easy *data,
-                                          struct ssh_conn *sshc,
-                                          struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_CREATE_DIRS_INIT(কাঠামো Curl_easy *তথ্য,
+                                          কাঠামো ssh_conn *sshc,
+                                          কাঠামো SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
-  if(strlen(sshp->path) > 1) {
+  যদি(strlen(sshp->path) > 1) {
     sshc->slash_pos = sshp->path + 1; /* ignore the leading '/' */
-    myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
+    myssh_to(তথ্য, sshc, SSH_SFTP_CREATE_DIRS);
   }
-  else {
-    myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
+  অন্যথা {
+    myssh_to(তথ্য, sshc, SSH_SFTP_UPLOAD_INIT);
   }
-  return SSH_NO_ERROR;
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS(struct Curl_easy *data,
-                                     struct ssh_conn *sshc,
-                                     struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_CREATE_DIRS(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো ssh_conn *sshc,
+                                     কাঠামো SSHPROTO *sshp)
 {
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
   sshc->slash_pos = strchr(sshc->slash_pos, '/');
-  if(sshc->slash_pos) {
+  যদি(sshc->slash_pos) {
     *sshc->slash_pos = 0;
 
-    infof(data, "Creating directory '%s'", sshp->path);
-    myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
-    return SSH_NO_ERROR;
+    infof(তথ্য, "Creating directory '%s'", sshp->path);
+    myssh_to(তথ্য, sshc, SSH_SFTP_CREATE_DIRS_MKDIR);
+    ফেরত SSH_NO_ERROR;
   }
-  myssh_to(data, sshc, SSH_SFTP_UPLOAD_INIT);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SFTP_UPLOAD_INIT);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SFTP_CREATE_DIRS_MKDIR(struct Curl_easy *data,
-                                           struct ssh_conn *sshc,
-                                           struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SFTP_CREATE_DIRS_MKDIR(কাঠামো Curl_easy *তথ্য,
+                                           কাঠামো ssh_conn *sshc,
+                                           কাঠামো SSHPROTO *sshp)
 {
-  int rc;
-  int err;
+  পূর্ণসংখ্যা rc;
+  পূর্ণসংখ্যা err;
   /* 'mode' - parameter is preliminary - default to 0644 */
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
   rc = sftp_mkdir(sshc->sftp_session, sshp->path,
-                  (mode_t)data->set.new_directory_perms);
-  if(rc == SSH_AGAIN)
-    return rc;
+                  (mode_t)তথ্য->set.new_directory_perms);
+  যদি(rc == SSH_AGAIN)
+    ফেরত rc;
   *sshc->slash_pos = '/';
   ++sshc->slash_pos;
-  if(rc < 0) {
+  যদি(rc < 0) {
     /*
      * Abort if failure was not that the directory already
      * exists or the permission was denied (creation might
@@ -2128,126 +2128,126 @@ static int myssh_in_SFTP_CREATE_DIRS_MKDIR(struct Curl_easy *data,
      * FAILURE also
      */
     err = sftp_get_error(sshc->sftp_session);
-    if((err != SSH_FX_FILE_ALREADY_EXISTS) &&
+    যদি((err != SSH_FX_FILE_ALREADY_EXISTS) &&
        (err != SSH_FX_FAILURE) &&
        (err != SSH_FX_PERMISSION_DENIED)) {
-      return myssh_to_SFTP_CLOSE(data, sshc);
+      ফেরত myssh_to_SFTP_CLOSE(তথ্য, sshc);
     }
     rc = 0; /* clear rc and continue */
   }
-  myssh_to(data, sshc, SSH_SFTP_CREATE_DIRS);
-  return rc;
+  myssh_to(তথ্য, sshc, SSH_SFTP_CREATE_DIRS);
+  ফেরত rc;
 }
 
-static int myssh_in_SCP_UPLOAD_INIT(struct Curl_easy *data,
-                                    struct ssh_conn *sshc,
-                                    struct SSHPROTO *sshp)
+স্থির পূর্ণসংখ্যা myssh_in_SCP_UPLOAD_INIT(কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো ssh_conn *sshc,
+                                    কাঠামো SSHPROTO *sshp)
 {
-  int rc;
-  if(!sshp)
-    return myssh_to_ERROR(data, sshc, CURLE_FAILED_INIT);
+  পূর্ণসংখ্যা rc;
+  যদি(!sshp)
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_FAILED_INIT);
 
   rc = ssh_scp_init(sshc->scp_session);
-  if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+  যদি(rc != SSH_OK) {
+    ধ্রুবক অক্ষর *err_বার্তা = ssh_get_error(sshc->ssh_session);
+    failf(তথ্য, "%s", err_বার্তা);
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_UPLOAD_FAILED);
   }
 
-  rc = ssh_scp_push_file64(sshc->scp_session, sshp->path,
-                           (uint64_t)data->state.infilesize,
-                           (int)data->set.new_file_perms);
+  rc = ssh_scp_ঠেলো_file64(sshc->scp_session, sshp->path,
+                           (uint64_t)তথ্য->state.infilesize,
+                           (পূর্ণসংখ্যা)তথ্য->set.new_file_perms);
 
-  if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc, CURLE_UPLOAD_FAILED);
+  যদি(rc != SSH_OK) {
+    ধ্রুবক অক্ষর *err_বার্তা = ssh_get_error(sshc->ssh_session);
+    failf(তথ্য, "%s", err_বার্তা);
+    ফেরত myssh_to_ERROR(তথ্য, sshc, CURLE_UPLOAD_FAILED);
   }
 
   /* upload data */
-  Curl_xfer_setup_send(data, FIRSTSOCKET);
+  Curl_xfer_setup_send(তথ্য, FIRSTSOCKET);
 
   /* not set by Curl_xfer_setup to preserve io_flags */
-  data->conn->recv_idx = FIRSTSOCKET;
+  তথ্য->conn->recv_idx = FIRSTSOCKET;
 
-  myssh_to(data, sshc, SSH_STOP);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_STOP);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_DOWNLOAD_INIT(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SCP_DOWNLOAD_INIT(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো ssh_conn *sshc)
 {
-  int rc = ssh_scp_init(sshc->scp_session);
-  if(rc != SSH_OK) {
-    const char *err_msg = ssh_get_error(sshc->ssh_session);
-    failf(data, "%s", err_msg);
-    return myssh_to_ERROR(data, sshc,
+  পূর্ণসংখ্যা rc = ssh_scp_init(sshc->scp_session);
+  যদি(rc != SSH_OK) {
+    ধ্রুবক অক্ষর *err_বার্তা = ssh_get_error(sshc->ssh_session);
+    failf(তথ্য, "%s", err_বার্তা);
+    ফেরত myssh_to_ERROR(তথ্য, sshc,
                           CURLE_COULDNT_CONNECT);
   }
-  myssh_to(data, sshc, SSH_SCP_DOWNLOAD);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SCP_DOWNLOAD);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_DONE(struct Curl_easy *data,
-                             struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SCP_DONE(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো ssh_conn *sshc)
 {
-  if(data->state.upload)
-    myssh_to(data, sshc, SSH_SCP_SEND_EOF);
-  else
-    myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return SSH_NO_ERROR;
+  যদি(তথ্য->state.upload)
+    myssh_to(তথ্য, sshc, SSH_SCP_SEND_EOF);
+  অন্যথা
+    myssh_to(তথ্য, sshc, SSH_SCP_CHANNEL_FREE);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_SEND_EOF(struct Curl_easy *data,
-                                 struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SCP_SEND_EOF(কাঠামো Curl_easy *তথ্য,
+                                 কাঠামো ssh_conn *sshc)
 {
-  if(sshc->scp_session) {
-    int rc = ssh_scp_close(sshc->scp_session);
-    if(rc == SSH_AGAIN) {
+  যদি(sshc->scp_session) {
+    পূর্ণসংখ্যা rc = ssh_scp_close(sshc->scp_session);
+    যদি(rc == SSH_AGAIN) {
       /* Currently the ssh_scp_close handles waiting for
        * EOF in blocking way.
        */
-      return SSH_AGAIN;
+      ফেরত SSH_AGAIN;
     }
-    if(rc != SSH_OK) {
-      infof(data,
+    যদি(rc != SSH_OK) {
+      infof(তথ্য,
             "Failed to close libssh scp channel: %s",
             ssh_get_error(sshc->ssh_session));
     }
   }
 
-  myssh_to(data, sshc, SSH_SCP_CHANNEL_FREE);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SCP_CHANNEL_FREE);
+  ফেরত SSH_NO_ERROR;
 }
 
-static int myssh_in_SCP_CHANNEL_FREE(struct Curl_easy *data,
-                                     struct ssh_conn *sshc)
+স্থির পূর্ণসংখ্যা myssh_in_SCP_CHANNEL_FREE(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো ssh_conn *sshc)
 {
-  if(sshc->scp_session) {
+  যদি(sshc->scp_session) {
     ssh_scp_free(sshc->scp_session);
-    sshc->scp_session = NULL;
+    sshc->scp_session = ফাঁকা;
   }
-  CURL_TRC_SSH(data, "SCP DONE phase complete");
+  CURL_TRC_SSH(তথ্য, "SCP DONE phase complete");
 
   ssh_set_blocking(sshc->ssh_session, 0);
 
-  myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-  return SSH_NO_ERROR;
+  myssh_to(তথ্য, sshc, SSH_SESSION_DISCONNECT);
+  ফেরত SSH_NO_ERROR;
 }
 
-static CURLcode myssh_in_SESSION_FREE(struct Curl_easy *data,
-                                      struct ssh_conn *sshc)
+স্থির CURLcode myssh_in_SESSION_FREE(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো ssh_conn *sshc)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
   sshc_cleanup(sshc);
   /* the code we are about to return */
-  result = sshc->actualcode;
-  memset(sshc, 0, sizeof(struct ssh_conn));
-  connclose(data->conn);
+  ফলাফল = sshc->actualcode;
+  memset(sshc, 0, আকার(কাঠামো ssh_conn));
+  connclose(তথ্য->conn);
   sshc->state = SSH_SESSION_FREE;   /* current */
   sshc->nextstate = SSH_NO_STATE;
-  myssh_to(data, sshc, SSH_STOP);
-  return result;
+  myssh_to(তথ্য, sshc, SSH_STOP);
+  ফেরত ফলাফল;
 }
 
 /*
@@ -2256,276 +2256,276 @@ static CURLcode myssh_in_SESSION_FREE(struct Curl_easy *data,
  * to is set to TRUE if the libssh function returns SSH_AGAIN
  * meaning it wants to be called again when the socket is ready
  */
-static CURLcode myssh_statemachine(struct Curl_easy *data,
-                                   struct ssh_conn *sshc,
-                                   struct SSHPROTO *sshp,
+স্থির CURLcode myssh_statemachine(কাঠামো Curl_easy *তথ্য,
+                                   কাঠামো ssh_conn *sshc,
+                                   কাঠামো SSHPROTO *sshp,
                                    bool *block)
 {
-  CURLcode result = CURLE_OK;
-  int rc = SSH_NO_ERROR;
+  CURLcode ফলাফল = CURLE_OK;
+  পূর্ণসংখ্যা rc = SSH_NO_ERROR;
 
   *block = FALSE;                   /* we are not blocking by default */
-  do {
+  করো {
 
-    switch(sshc->state) {
-    case SSH_INIT:
-      myssh_state_init(data, sshc);
+    নির্বাচন(sshc->state) {
+    ক্ষেত্র SSH_INIT:
+      myssh_state_init(তথ্য, sshc);
       FALLTHROUGH();
-    case SSH_S_STARTUP:
-      rc = myssh_in_S_STARTUP(data, sshc);
-      if(rc)
-        break;
+    ক্ষেত্র SSH_S_STARTUP:
+      rc = myssh_in_S_STARTUP(তথ্য, sshc);
+      যদি(rc)
+        বিরতি;
       FALLTHROUGH();
-    case SSH_HOSTKEY:
-      rc = myssh_is_known(data, sshc);
-      if(rc != SSH_OK) {
-        rc = myssh_to_ERROR(data, sshc, CURLE_PEER_FAILED_VERIFICATION);
-        break;
+    ক্ষেত্র SSH_HOSTKEY:
+      rc = myssh_is_known(তথ্য, sshc);
+      যদি(rc != SSH_OK) {
+        rc = myssh_to_ERROR(তথ্য, sshc, CURLE_PEER_FAILED_VERIFICATION);
+        বিরতি;
       }
-      myssh_to(data, sshc, SSH_AUTHLIST);
+      myssh_to(তথ্য, sshc, SSH_AUTHLIST);
       FALLTHROUGH();
-    case SSH_AUTHLIST:
-      rc = myssh_in_AUTHLIST(data, sshc);
-      break;
-    case SSH_AUTH_PKEY_INIT:
-      rc = myssh_in_AUTH_PKEY_INIT(data, sshc);
-      break;
-    case SSH_AUTH_PKEY:
-      rc = myssh_in_AUTH_PKEY(data, sshc);
-      break;
-    case SSH_AUTH_GSSAPI:
-      rc = myssh_in_AUTH_GSSAPI(data, sshc);
-      break;
-    case SSH_AUTH_KEY_INIT:
-      rc = myssh_in_AUTH_KEY_INIT(data, sshc);
-      break;
-    case SSH_AUTH_KEY:
-      rc = myssh_in_AUTH_KEY(data, sshc);
-      break;
-    case SSH_AUTH_PASS_INIT:
-      rc = myssh_in_AUTH_PASS_INIT(data, sshc);
-      break;
-    case SSH_AUTH_PASS:
-      rc = myssh_in_AUTH_PASS(data, sshc);
-      break;
-    case SSH_AUTH_DONE:
-      rc = myssh_in_AUTH_DONE(data, sshc);
-      break;
-    case SSH_SFTP_INIT:
-      rc = myssh_in_SFTP_INIT(data, sshc);
-      break;
-    case SSH_SFTP_REALPATH:
-      rc = myssh_in_SFTP_REALPATH(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_INIT:
-      rc = myssh_in_SFTP_QUOTE_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_POSTQUOTE_INIT:
-      rc = myssh_in_SFTP_POSTQUOTE_INIT(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE:
-      rc = myssh_in_SFTP_QUOTE(data, sshc, sshp);
-      break;
-    case SSH_SFTP_NEXT_QUOTE:
-      rc = myssh_in_SFTP_NEXT_QUOTE(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_STAT:
-      rc = myssh_in_SFTP_QUOTE_STAT(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_SETSTAT:
-      rc = myssh_in_SFTP_QUOTE_SETSTAT(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_SYMLINK:
-      rc = myssh_in_SFTP_QUOTE_SYMLINK(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_MKDIR:
-      rc = myssh_in_SFTP_QUOTE_MKDIR(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_RENAME:
-      rc = myssh_in_SFTP_QUOTE_RENAME(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_RMDIR:
-      rc = myssh_in_SFTP_QUOTE_RMDIR(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_UNLINK:
-      rc = myssh_in_SFTP_QUOTE_UNLINK(data, sshc);
-      break;
-    case SSH_SFTP_QUOTE_STATVFS:
-      rc = myssh_in_SFTP_QUOTE_STATVFS(data, sshc);
-      break;
-    case SSH_SFTP_GETINFO:
-      rc = myssh_in_SFTP_GETINFO(data, sshc);
-      break;
-    case SSH_SFTP_FILETIME:
-      rc = myssh_in_SFTP_FILETIME(data, sshc, sshp);
-      break;
-    case SSH_SFTP_TRANS_INIT:
-      rc = myssh_in_SFTP_TRANS_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_UPLOAD_INIT:
-      rc = myssh_in_UPLOAD_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_CREATE_DIRS_INIT:
-      rc = myssh_in_SFTP_CREATE_DIRS_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_CREATE_DIRS:
-      rc = myssh_in_SFTP_CREATE_DIRS(data, sshc, sshp);
-      break;
-    case SSH_SFTP_CREATE_DIRS_MKDIR:
-      rc = myssh_in_SFTP_CREATE_DIRS_MKDIR(data, sshc, sshp);
-      break;
-    case SSH_SFTP_READDIR_INIT:
-      rc = myssh_in_SFTP_READDIR_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_READDIR:
-      rc = myssh_in_SFTP_READDIR(data, sshc, sshp);
-      break;
-    case SSH_SFTP_READDIR_LINK:
-      rc = myssh_in_SFTP_READDIR_LINK(data, sshc);
-      break;
-    case SSH_SFTP_READDIR_BOTTOM:
-      rc = myssh_in_SFTP_READDIR_BOTTOM(data, sshc);
-      break;
-    case SSH_SFTP_READDIR_DONE:
-      rc = myssh_in_SFTP_READDIR_DONE(data, sshc);
-      break;
-    case SSH_SFTP_DOWNLOAD_INIT:
-      rc = myssh_in_SFTP_DOWNLOAD_INIT(data, sshc, sshp);
-      break;
-    case SSH_SFTP_DOWNLOAD_STAT:
-      rc = myssh_in_SFTP_DOWNLOAD_STAT(data, sshc);
-      break;
-    case SSH_SFTP_CLOSE:
-      rc = myssh_in_SFTP_CLOSE(data, sshc, sshp);
-      break;
-    case SSH_SFTP_SHUTDOWN:
-      rc = myssh_in_SFTP_SHUTDOWN(data, sshc);
-      break;
-    case SSH_SCP_TRANS_INIT:
-      rc = myssh_in_TRANS_INIT(data, sshc, sshp);
-      break;
-    case SSH_SCP_UPLOAD_INIT:
-      rc = myssh_in_SCP_UPLOAD_INIT(data, sshc, sshp);
-      break;
-    case SSH_SCP_DOWNLOAD_INIT:
-      rc = myssh_in_SCP_DOWNLOAD_INIT(data, sshc);
-      if(rc)
-        break;
+    ক্ষেত্র SSH_AUTHLIST:
+      rc = myssh_in_AUTHLIST(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_AUTH_PKEY_INIT:
+      rc = myssh_in_AUTH_PKEY_INIT(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_AUTH_PKEY:
+      rc = myssh_in_AUTH_PKEY(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_AUTH_GSSAPI:
+      rc = myssh_in_AUTH_GSSAPI(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_AUTH_চাবি_INIT:
+      rc = myssh_in_AUTH_চাবি_INIT(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_AUTH_চাবি:
+      rc = myssh_in_AUTH_চাবি(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_AUTH_PASS_INIT:
+      rc = myssh_in_AUTH_PASS_INIT(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_AUTH_PASS:
+      rc = myssh_in_AUTH_PASS(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_AUTH_DONE:
+      rc = myssh_in_AUTH_DONE(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_INIT:
+      rc = myssh_in_SFTP_INIT(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_REALPATH:
+      rc = myssh_in_SFTP_REALPATH(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_INIT:
+      rc = myssh_in_SFTP_QUOTE_INIT(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_POSTQUOTE_INIT:
+      rc = myssh_in_SFTP_POSTQUOTE_INIT(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE:
+      rc = myssh_in_SFTP_QUOTE(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_পরবর্তী_QUOTE:
+      rc = myssh_in_SFTP_পরবর্তী_QUOTE(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_STAT:
+      rc = myssh_in_SFTP_QUOTE_STAT(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_SETSTAT:
+      rc = myssh_in_SFTP_QUOTE_SETSTAT(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_SYMLINK:
+      rc = myssh_in_SFTP_QUOTE_SYMLINK(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_MKDIR:
+      rc = myssh_in_SFTP_QUOTE_MKDIR(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_RENAME:
+      rc = myssh_in_SFTP_QUOTE_RENAME(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_RMDIR:
+      rc = myssh_in_SFTP_QUOTE_RMDIR(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_UNLINK:
+      rc = myssh_in_SFTP_QUOTE_UNLINK(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_QUOTE_STATVFS:
+      rc = myssh_in_SFTP_QUOTE_STATVFS(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_GETINFO:
+      rc = myssh_in_SFTP_GETINFO(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_FILETIME:
+      rc = myssh_in_SFTP_FILETIME(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_TRANS_INIT:
+      rc = myssh_in_SFTP_TRANS_INIT(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_UPLOAD_INIT:
+      rc = myssh_in_UPLOAD_INIT(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_CREATE_DIRS_INIT:
+      rc = myssh_in_SFTP_CREATE_DIRS_INIT(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_CREATE_DIRS:
+      rc = myssh_in_SFTP_CREATE_DIRS(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_CREATE_DIRS_MKDIR:
+      rc = myssh_in_SFTP_CREATE_DIRS_MKDIR(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_READDIR_INIT:
+      rc = myssh_in_SFTP_READDIR_INIT(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_READDIR:
+      rc = myssh_in_SFTP_READDIR(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_READDIR_LINK:
+      rc = myssh_in_SFTP_READDIR_LINK(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_READDIR_BOTTOM:
+      rc = myssh_in_SFTP_READDIR_BOTTOM(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_READDIR_DONE:
+      rc = myssh_in_SFTP_READDIR_DONE(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_DOWNLOAD_INIT:
+      rc = myssh_in_SFTP_DOWNLOAD_INIT(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_DOWNLOAD_STAT:
+      rc = myssh_in_SFTP_DOWNLOAD_STAT(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_CLOSE:
+      rc = myssh_in_SFTP_CLOSE(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SFTP_SHUTDOWN:
+      rc = myssh_in_SFTP_SHUTDOWN(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SCP_TRANS_INIT:
+      rc = myssh_in_TRANS_INIT(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SCP_UPLOAD_INIT:
+      rc = myssh_in_SCP_UPLOAD_INIT(তথ্য, sshc, sshp);
+      বিরতি;
+    ক্ষেত্র SSH_SCP_DOWNLOAD_INIT:
+      rc = myssh_in_SCP_DOWNLOAD_INIT(তথ্য, sshc);
+      যদি(rc)
+        বিরতি;
       FALLTHROUGH();
-    case SSH_SCP_DOWNLOAD:
-      rc = myssh_SSH_SCP_DOWNLOAD(data, sshc);
-      break;
-    case SSH_SCP_DONE:
-      rc = myssh_in_SCP_DONE(data, sshc);
-      break;
-    case SSH_SCP_SEND_EOF:
-      rc = myssh_in_SCP_SEND_EOF(data, sshc);
-      break;
-    case SSH_SCP_CHANNEL_FREE:
-      myssh_in_SCP_CHANNEL_FREE(data, sshc);
+    ক্ষেত্র SSH_SCP_DOWNLOAD:
+      rc = myssh_SSH_SCP_DOWNLOAD(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SCP_DONE:
+      rc = myssh_in_SCP_DONE(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SCP_SEND_EOF:
+      rc = myssh_in_SCP_SEND_EOF(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_SCP_CHANNEL_FREE:
+      myssh_in_SCP_CHANNEL_FREE(তথ্য, sshc);
       FALLTHROUGH();
-    case SSH_SESSION_DISCONNECT:
-      myssh_SESSION_DISCONNECT(data, sshc);
+    ক্ষেত্র SSH_SESSION_DISCONNECT:
+      myssh_SESSION_DISCONNECT(তথ্য, sshc);
       FALLTHROUGH();
-    case SSH_SESSION_FREE:
-      result = myssh_in_SESSION_FREE(data, sshc);
-      break;
-    case SSH_QUIT:
-    default:
+    ক্ষেত্র SSH_SESSION_FREE:
+      ফলাফল = myssh_in_SESSION_FREE(তথ্য, sshc);
+      বিরতি;
+    ক্ষেত্র SSH_QUIT:
+    পূর্বনির্ধারিত:
       /* internal error */
       sshc->nextstate = SSH_NO_STATE;
-      myssh_to(data, sshc, SSH_STOP);
-      break;
+      myssh_to(তথ্য, sshc, SSH_STOP);
+      বিরতি;
     }
     /* break the loop only on STOP or SSH_AGAIN. If `rc` is some
      * other error code, we will have progressed the state accordingly. */
-  } while((rc != SSH_AGAIN) && (sshc->state != SSH_STOP));
+  } যখন((rc != SSH_AGAIN) && (sshc->state != SSH_STOP));
 
-  if(rc == SSH_AGAIN) {
+  যদি(rc == SSH_AGAIN) {
     /* we would block, we need to wait for the socket to be ready (in the
        right direction too)! */
     *block = TRUE;
   }
-  if(!result && (sshc->state == SSH_STOP))
-    result = sshc->actualcode;
-  CURL_TRC_SSH(data, "[%s] statemachine() -> %d, block=%d",
-               Curl_ssh_statename(sshc->state), (int)result, *block);
-  return result;
+  যদি(!ফলাফল && (sshc->state == SSH_STOP))
+    ফলাফল = sshc->actualcode;
+  CURL_TRC_SSH(তথ্য, "[%s] statemachine() -> %d, block=%d",
+               Curl_ssh_statename(sshc->state), (পূর্ণসংখ্যা)ফলাফল, *block);
+  ফেরত ফলাফল;
 }
 
 /* called repeatedly until done from multi.c */
-static CURLcode myssh_multi_statemach(struct Curl_easy *data,
+স্থির CURLcode myssh_multi_statemach(কাঠামো Curl_easy *তথ্য,
                                       bool *done)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  কাঠামো SSHPROTO *sshp = Curl_meta_get(তথ্য, CURL_META_SSH_EASY);
   bool block;    /* we store the status and use that to provide
                     a Curl_ssh_pollset() implementation */
-  CURLcode result;
+  CURLcode ফলাফল;
 
-  if(!sshc || !sshp)
-    return CURLE_FAILED_INIT;
-  result = myssh_statemachine(data, sshc, sshp, &block);
+  যদি(!sshc || !sshp)
+    ফেরত CURLE_FAILED_INIT;
+  ফলাফল = myssh_statemachine(তথ্য, sshc, sshp, &block);
   *done = (sshc->state == SSH_STOP);
   myssh_block2waitfor(conn, sshc, block);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode myssh_block_statemach(struct Curl_easy *data,
-                                      struct ssh_conn *sshc,
-                                      struct SSHPROTO *sshp,
+স্থির CURLcode myssh_block_statemach(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো ssh_conn *sshc,
+                                      কাঠামো SSHPROTO *sshp,
                                       bool disconnect)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
+  কাঠামো connectdata *conn = তথ্য->conn;
+  CURLcode ফলাফল = CURLE_OK;
 
-  while((sshc->state != SSH_STOP) && !result) {
+  যখন((sshc->state != SSH_STOP) && !ফলাফল) {
     bool block;
-    timediff_t left_ms = 1000;
+    timediff_t বাম_ms = 1000;
 
-    result = myssh_statemachine(data, sshc, sshp, &block);
-    if(result)
-      break;
+    ফলাফল = myssh_statemachine(তথ্য, sshc, sshp, &block);
+    যদি(ফলাফল)
+      বিরতি;
 
-    if(!disconnect) {
-      result = Curl_pgrsCheck(data);
-      if(result)
-        break;
+    যদি(!disconnect) {
+      ফলাফল = Curl_pgrsCheck(তথ্য);
+      যদি(ফলাফল)
+        বিরতি;
 
-      left_ms = Curl_timeleft_ms(data);
-      if(left_ms < 0) {
-        failf(data, "Operation timed out");
-        return CURLE_OPERATION_TIMEDOUT;
+      বাম_ms = Curl_timeleft_ms(তথ্য);
+      যদি(বাম_ms < 0) {
+        failf(তথ্য, "Operation timed out");
+        ফেরত CURLE_OPERATION_TIMEDOUT;
       }
     }
 
-    if(block) {
+    যদি(block) {
       curl_socket_t fd_read = conn->sock[FIRSTSOCKET];
       /* wait for the socket to become ready */
-      (void)SOCKET_READABLE(fd_read,
-                            (!left_ms || left_ms > 1000) ? 1000 : left_ms);
+      (শূন্য)SOCKET_READABLE(fd_read,
+                            (!বাম_ms || বাম_ms > 1000) ? 1000 : বাম_ms);
     }
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static void myssh_easy_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য myssh_easy_dtor(ধ্রুবক শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct SSHPROTO *sshp = entry;
-  (void)key;
-  (void)klen;
+  কাঠামো SSHPROTO *sshp = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
   curlx_safefree(sshp->path);
   curlx_free(sshp);
 }
 
-static void myssh_conn_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য myssh_conn_dtor(ধ্রুবক শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct ssh_conn *sshc = entry;
-  (void)key;
-  (void)klen;
+  কাঠামো ssh_conn *sshc = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
   sshc_cleanup(sshc);
   curlx_free(sshc);
 }
@@ -2533,62 +2533,62 @@ static void myssh_conn_dtor(const void *key, size_t klen, void *entry)
 /*
  * SSH setup connection
  */
-static CURLcode myssh_setup_connection(struct Curl_easy *data,
-                                       struct connectdata *conn)
+স্থির CURLcode myssh_setup_connection(কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো connectdata *conn)
 {
-  struct SSHPROTO *sshp;
-  struct ssh_conn *sshc;
+  কাঠামো SSHPROTO *sshp;
+  কাঠামো ssh_conn *sshc;
 
-  sshc = curlx_calloc(1, sizeof(*sshc));
-  if(!sshc)
-    return CURLE_OUT_OF_MEMORY;
+  sshc = curlx_calloc(1, আকার(*sshc));
+  যদি(!sshc)
+    ফেরত CURLE_OUT_OF_MEMORY;
 
   curlx_dyn_init(&sshc->readdir_buf, CURL_PATH_MAX * 2);
   sshc->initialized = TRUE;
-  if(Curl_conn_meta_set(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  যদি(Curl_conn_meta_set(conn, CURL_META_SSH_CONN, sshc, myssh_conn_dtor))
+    ফেরত CURLE_OUT_OF_MEMORY;
 
-  sshp = curlx_calloc(1, sizeof(*sshp));
-  if(!sshp ||
-     Curl_meta_set(data, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  sshp = curlx_calloc(1, আকার(*sshp));
+  যদি(!sshp ||
+     Curl_meta_set(তথ্য, CURL_META_SSH_EASY, sshp, myssh_easy_dtor))
+    ফেরত CURLE_OUT_OF_MEMORY;
 
-  return Curl_ssh_setup_pkey(data, sshc);
+  ফেরত Curl_ssh_setup_pkey(তথ্য, sshc);
 }
 
-static Curl_recv scp_recv, sftp_recv;
-static Curl_send scp_send, sftp_send;
+স্থির Curl_recv scp_recv, sftp_recv;
+স্থির Curl_send scp_send, sftp_send;
 
 /*
  * Curl_ssh_connect() gets called from Curl_protocol_connect() to allow us to
  * do protocol-specific actions at connect-time.
  */
-static CURLcode myssh_connect(struct Curl_easy *data, bool *done)
+স্থির CURLcode myssh_connect(কাঠামো Curl_easy *তথ্য, bool *done)
 {
-  CURLcode result;
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *ssh = Curl_meta_get(data, CURL_META_SSH_EASY);
+  CURLcode ফলাফল;
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  কাঠামো SSHPROTO *ssh = Curl_meta_get(তথ্য, CURL_META_SSH_EASY);
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int rc;
+  পূর্ণসংখ্যা rc;
 
-  if(!sshc || !ssh)
-    return CURLE_FAILED_INIT;
+  যদি(!sshc || !ssh)
+    ফেরত CURLE_FAILED_INIT;
 
-  CURL_TRC_SSH(data, "myssh_connect");
-  if(conn->scheme->protocol & CURLPROTO_SCP) {
+  CURL_TRC_SSH(তথ্য, "myssh_connect");
+  যদি(conn->scheme->protocol & CURLPROTO_SCP) {
     conn->recv[FIRSTSOCKET] = scp_recv;
     conn->send[FIRSTSOCKET] = scp_send;
   }
-  else {
+  অন্যথা {
     conn->recv[FIRSTSOCKET] = sftp_recv;
     conn->send[FIRSTSOCKET] = sftp_send;
   }
 
   sshc->ssh_session = ssh_new();
-  if(!sshc->ssh_session) {
-    failf(data, "Failure initializing ssh session");
-    return CURLE_FAILED_INIT;
+  যদি(!sshc->ssh_session) {
+    failf(তথ্য, "Failure initializing ssh session");
+    ফেরত CURLE_FAILED_INIT;
   }
 
   /* For IPv6 origins, use the `user_hostname` that has the "[]" enclosure.
@@ -2597,100 +2597,100 @@ static CURLcode myssh_connect(struct Curl_easy *data, bool *done)
                        conn->origin->ipv6 ?
                        conn->origin->user_hostname : conn->origin->hostname);
 
-  if(rc != SSH_OK) {
-    failf(data, "Could not set remote host");
-    return CURLE_FAILED_INIT;
+  যদি(rc != SSH_OK) {
+    failf(তথ্য, "Could not set remote host");
+    ফেরত CURLE_FAILED_INIT;
   }
 
-  rc = ssh_options_parse_config(sshc->ssh_session, NULL);
-  if(rc != SSH_OK) {
-    infof(data, "Could not parse SSH configuration files");
+  rc = ssh_options_parse_config(sshc->ssh_session, ফাঁকা);
+  যদি(rc != SSH_OK) {
+    infof(তথ্য, "Could not parse SSH configuration files");
     /* ignore */
   }
 
-  CURL_TRC_SSH(data, "myssh_connect, set socket=%" FMT_SOCKET_T, sock);
+  CURL_TRC_SSH(তথ্য, "myssh_connect, set socket=%" FMT_SOCKET_T, sock);
   rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_FD, &sock);
-  if(rc != SSH_OK) {
-    failf(data, "Could not set socket");
-    return CURLE_FAILED_INIT;
+  যদি(rc != SSH_OK) {
+    failf(তথ্য, "Could not set socket");
+    ফেরত CURLE_FAILED_INIT;
   }
 
-  if(Curl_creds_has_user(conn->creds)) {
-    infof(data, "User: %s", conn->creds->user);
+  যদি(Curl_creds_has_user(conn->creds)) {
+    infof(তথ্য, "User: %s", conn->creds->user);
     rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_USER,
                          conn->creds->user);
-    if(rc != SSH_OK) {
-      failf(data, "Could not set user");
-      return CURLE_FAILED_INIT;
+    যদি(rc != SSH_OK) {
+      failf(তথ্য, "Could not set user");
+      ফেরত CURLE_FAILED_INIT;
     }
   }
 
-  if(CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS)) {
-    infof(data, "Known hosts: %s",
-          CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
+  যদি(CURL_EASY_STR(তথ্য, STRING_SSH_KNOWNHOSTS)) {
+    infof(তথ্য, "Known hosts: %s",
+          CURL_EASY_STR(তথ্য, STRING_SSH_KNOWNHOSTS));
     rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_KNOWNHOSTS,
-                         CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-    if(rc == SSH_OK)
+                         CURL_EASY_STR(তথ্য, STRING_SSH_KNOWNHOSTS));
+    যদি(rc == SSH_OK)
       /* libssh has two separate options for this. Set both to the same file
          to avoid surprises */
       rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS,
-                           CURL_EASY_STR(data, STRING_SSH_KNOWNHOSTS));
-    if(rc != SSH_OK) {
-      failf(data, "Could not set known hosts file path");
-      return CURLE_FAILED_INIT;
+                           CURL_EASY_STR(তথ্য, STRING_SSH_KNOWNHOSTS));
+    যদি(rc != SSH_OK) {
+      failf(তথ্য, "Could not set known hosts file path");
+      ফেরত CURLE_FAILED_INIT;
     }
   }
 
-  if(conn->origin->port) {
+  যদি(conn->origin->port) {
     rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_PORT,
                          &conn->origin->port);
-    if(rc != SSH_OK) {
-      failf(data, "Could not set remote port");
-      return CURLE_FAILED_INIT;
+    যদি(rc != SSH_OK) {
+      failf(তথ্য, "Could not set remote port");
+      ফেরত CURLE_FAILED_INIT;
     }
   }
 
-  if(data->set.ssh_compression) {
+  যদি(তথ্য->set.ssh_compression) {
     rc = ssh_options_set(sshc->ssh_session, SSH_OPTIONS_COMPRESSION,
                          "zlib,zlib@openssh.com,none");
-    if(rc != SSH_OK) {
-      failf(data, "Could not set compression");
-      return CURLE_FAILED_INIT;
+    যদি(rc != SSH_OK) {
+      failf(তথ্য, "Could not set compression");
+      ফেরত CURLE_FAILED_INIT;
     }
   }
 
-  sshc->privkey = NULL;
-  sshc->pubkey = NULL;
+  sshc->privkey = ফাঁকা;
+  sshc->pubkey = ফাঁকা;
 
-  if(sshc->pub_key) {
-    rc = ssh_pki_import_pubkey_file(sshc->pub_key, &sshc->pubkey);
-    if(rc != SSH_OK) {
-      failf(data, "Could not load public key file");
-      return CURLE_FAILED_INIT;
+  যদি(sshc->pub_চাবি) {
+    rc = ssh_pki_import_pubkey_file(sshc->pub_চাবি, &sshc->pubkey);
+    যদি(rc != SSH_OK) {
+      failf(তথ্য, "Could not load public key file");
+      ফেরত CURLE_FAILED_INIT;
     }
   }
 
   /* we do not verify here, we do it at the state machine,
    * after connection */
 
-  myssh_to(data, sshc, SSH_INIT);
+  myssh_to(তথ্য, sshc, SSH_INIT);
 
-  result = myssh_multi_statemach(data, done);
+  ফলাফল = myssh_multi_statemach(তথ্য, done);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* called from multi.c while DOing */
-static CURLcode scp_doing(struct Curl_easy *data, bool *dophase_done)
+স্থির CURLcode scp_doing(কাঠামো Curl_easy *তথ্য, bool *dophase_done)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
 
-  result = myssh_multi_statemach(data, dophase_done);
+  ফলাফল = myssh_multi_statemach(তথ্য, dophase_done);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  যদি(*dophase_done) {
+    CURL_TRC_SSH(তথ্য, "DO phase is complete");
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
@@ -2702,152 +2702,152 @@ static CURLcode scp_doing(struct Curl_easy *data, bool *dophase_done)
  * the options previously setup.
  */
 
-static CURLcode scp_perform(struct Curl_easy *data,
+স্থির CURLcode scp_perform(কাঠামো Curl_easy *তথ্য,
                             bool *connected, bool *dophase_done)
 {
-  CURLcode result = CURLE_OK;
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(তথ্য->conn, CURL_META_SSH_CONN);
 
-  CURL_TRC_SSH(data, "DO phase starts");
+  CURL_TRC_SSH(তথ্য, "DO phase starts");
 
   *dophase_done = FALSE;        /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
-  myssh_to(data, sshc, SSH_SCP_TRANS_INIT);
+  myssh_to(তথ্য, sshc, SSH_SCP_TRANS_INIT);
 
-  result = myssh_multi_statemach(data, dophase_done);
+  ফলাফল = myssh_multi_statemach(তথ্য, dophase_done);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(তথ্য->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  যদি(*dophase_done) {
+    CURL_TRC_SSH(তথ্য, "DO phase is complete");
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
    this is still blocking is that the multi interface code has no support for
    disconnecting operations that takes a while */
-static CURLcode scp_disconnect(struct Curl_easy *data,
-                               struct connectdata *conn,
+স্থির CURLcode scp_disconnect(কাঠামো Curl_easy *তথ্য,
+                               কাঠামো connectdata *conn,
                                bool dead_connection)
 {
-  CURLcode result = CURLE_OK;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  (void)dead_connection;
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  কাঠামো SSHPROTO *sshp = Curl_meta_get(তথ্য, CURL_META_SSH_EASY);
+  (শূন্য)dead_connection;
 
-  if(sshc && sshc->ssh_session) {
+  যদি(sshc && sshc->ssh_session) {
     /* only if there is a session still around to use! */
-    myssh_to(data, sshc, SSH_SESSION_DISCONNECT);
-    result = myssh_block_statemach(data, sshc, sshp, TRUE);
+    myssh_to(তথ্য, sshc, SSH_SESSION_DISCONNECT);
+    ফলাফল = myssh_block_statemach(তথ্য, sshc, sshp, TRUE);
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* generic done function for both SCP and SFTP called from their specific
    done functions */
-static CURLcode myssh_done(struct Curl_easy *data,
-                           struct ssh_conn *sshc,
+স্থির CURLcode myssh_done(কাঠামো Curl_easy *তথ্য,
+                           কাঠামো ssh_conn *sshc,
                            CURLcode status)
 {
-  CURLcode result = CURLE_OK;
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো SSHPROTO *sshp = Curl_meta_get(তথ্য, CURL_META_SSH_EASY);
 
-  if(!status && sshp) {
+  যদি(!status && sshp) {
     /* run the state-machine */
-    result = myssh_block_statemach(data, sshc, sshp, FALSE);
+    ফলাফল = myssh_block_statemach(তথ্য, sshc, sshp, FALSE);
   }
-  else
-    result = status;
+  অন্যথা
+    ফলাফল = status;
 
-  if(Curl_pgrsDone(data, Curl_pgrs_now(data)))
-    return CURLE_ABORTED_BY_CALLBACK;
+  যদি(Curl_pgrsDone(তথ্য, Curl_pgrs_now(তথ্য)))
+    ফেরত CURLE_ABORTED_BY_CALLBACK;
 
-  CURL_REQ_CLEAR_IO(data);
-  return result;
+  CURL_REQ_CLEAR_IO(তথ্য);
+  ফেরত ফলাফল;
 }
 
-static CURLcode scp_done(struct Curl_easy *data, CURLcode status,
+স্থির CURLcode scp_done(কাঠামো Curl_easy *তথ্য, CURLcode status,
                          bool premature)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  (void)premature;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(তথ্য->conn, CURL_META_SSH_CONN);
+  (শূন্য)premature;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
-  if(!status)
-    myssh_to(data, sshc, SSH_SCP_DONE);
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
+  যদি(!status)
+    myssh_to(তথ্য, sshc, SSH_SCP_DONE);
 
-  return myssh_done(data, sshc, status);
+  ফেরত myssh_done(তথ্য, sshc, status);
 }
 
-static CURLcode scp_send(struct Curl_easy *data, int8_t sockindex,
-                         const uint8_t *mem, size_t len, bool eos,
+স্থির CURLcode scp_send(কাঠামো Curl_easy *তথ্য, int8_t sockindex,
+                         ধ্রুবক uint8_t *mem, size_t len, bool eos,
                          size_t *pnwritten)
 {
-  int rc;
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  পূর্ণসংখ্যা rc;
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  (void)sockindex; /* we only support SCP on the fixed known primary socket */
-  (void)eos;
+  (শূন্য)sockindex; /* we only support SCP on the fixed known primary socket */
+  (শূন্য)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
 
   rc = ssh_scp_write(sshc->scp_session, mem, len);
 
-#if 0
+#যদি 0
   /* The following code is misleading, mostly added as wishful thinking
    * that libssh at some point would implement non-blocking ssh_scp_write/read.
    * Currently rc can only be number of bytes read or SSH_ERROR. */
   myssh_block2waitfor(conn, sshc, (rc == SSH_AGAIN));
 
-  if(rc == SSH_AGAIN)
-    return CURLE_AGAIN;
-  else
+  যদি(rc == SSH_AGAIN)
+    ফেরত CURLE_AGAIN;
+  অন্যথা
 #endif
-  if(rc != SSH_OK)
-    return CURLE_SSH;
+  যদি(rc != SSH_OK)
+    ফেরত CURLE_SSH;
 
   *pnwritten = len;
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
-                         char *mem, size_t len, size_t *pnread)
+স্থির CURLcode scp_recv(কাঠামো Curl_easy *তথ্য, int8_t sockindex,
+                         অক্ষর *mem, size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  int nread;
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  পূর্ণসংখ্যা nread;
 
-  (void)sockindex; /* we only support SCP on the fixed known primary socket */
+  (শূন্য)sockindex; /* we only support SCP on the fixed known primary socket */
   *pnread = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
 
   /* libssh returns int */
   nread = ssh_scp_read(sshc->scp_session, mem, len);
-  if(nread == SSH_ERROR)
-    return CURLE_SSH;
-#if 0
+  যদি(nread == SSH_ERROR)
+    ফেরত CURLE_SSH;
+#যদি 0
   /* The following code is misleading, mostly added as wishful thinking
    * that libssh at some point would implement non-blocking ssh_scp_write/read.
    * Currently rc can only be SSH_OK or SSH_ERROR. */
 
   myssh_block2waitfor(conn, sshc, (nread == SSH_AGAIN));
-  if(nread == SSH_AGAIN)
-    return CURLE_AGAIN;
+  যদি(nread == SSH_AGAIN)
+    ফেরত CURLE_AGAIN;
 #endif
   *pnread = (size_t)nread;
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /*
@@ -2863,121 +2863,121 @@ static CURLcode scp_recv(struct Curl_easy *data, int8_t sockindex,
  * the options previously setup.
  */
 
-static CURLcode sftp_perform(struct Curl_easy *data,
+স্থির CURLcode sftp_perform(কাঠামো Curl_easy *তথ্য,
                              bool *connected,
                              bool *dophase_done)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(data->conn, CURL_META_SSH_CONN);
-  CURLcode result = CURLE_OK;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(তথ্য->conn, CURL_META_SSH_CONN);
+  CURLcode ফলাফল = CURLE_OK;
 
-  CURL_TRC_SSH(data, "DO phase starts");
+  CURL_TRC_SSH(তথ্য, "DO phase starts");
 
   *dophase_done = FALSE; /* not done yet */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
 
   /* start the first command in the DO phase */
-  myssh_to(data, sshc, SSH_SFTP_QUOTE_INIT);
+  myssh_to(তথ্য, sshc, SSH_SFTP_QUOTE_INIT);
 
   /* run the state-machine */
-  result = myssh_multi_statemach(data, dophase_done);
+  ফলাফল = myssh_multi_statemach(তথ্য, dophase_done);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(তথ্য->conn, FIRSTSOCKET);
 
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  যদি(*dophase_done) {
+    CURL_TRC_SSH(তথ্য, "DO phase is complete");
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* called from multi.c while DOing */
-static CURLcode sftp_doing(struct Curl_easy *data,
+স্থির CURLcode sftp_doing(কাঠামো Curl_easy *তথ্য,
                            bool *dophase_done)
 {
-  CURLcode result = myssh_multi_statemach(data, dophase_done);
-  if(*dophase_done) {
-    CURL_TRC_SSH(data, "DO phase is complete");
+  CURLcode ফলাফল = myssh_multi_statemach(তথ্য, dophase_done);
+  যদি(*dophase_done) {
+    CURL_TRC_SSH(তথ্য, "DO phase is complete");
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* BLOCKING, but the function is using the state machine so the only reason
    this is still blocking is that the multi interface code has no support for
    disconnecting operations that takes a while */
-static CURLcode sftp_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn,
+স্থির CURLcode sftp_disconnect(কাঠামো Curl_easy *তথ্য,
+                                কাঠামো connectdata *conn,
                                 bool dead_connection)
 {
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
-  struct SSHPROTO *sshp = Curl_meta_get(data, CURL_META_SSH_EASY);
-  CURLcode result = CURLE_OK;
-  (void)dead_connection;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  কাঠামো SSHPROTO *sshp = Curl_meta_get(তথ্য, CURL_META_SSH_EASY);
+  CURLcode ফলাফল = CURLE_OK;
+  (শূন্য)dead_connection;
 
-  CURL_TRC_SSH(data, "DISCONNECT starts now");
+  CURL_TRC_SSH(তথ্য, "DISCONNECT starts now");
 
-  if(sshc && sshc->ssh_session) {
+  যদি(sshc && sshc->ssh_session) {
     /* only if there is a session still around to use! */
-    myssh_to(data, sshc, SSH_SFTP_SHUTDOWN);
-    result = myssh_block_statemach(data, sshc, sshp, TRUE);
+    myssh_to(তথ্য, sshc, SSH_SFTP_SHUTDOWN);
+    ফলাফল = myssh_block_statemach(তথ্য, sshc, sshp, TRUE);
   }
 
-  CURL_TRC_SSH(data, "DISCONNECT is done");
-  return result;
+  CURL_TRC_SSH(তথ্য, "DISCONNECT is done");
+  ফেরত ফলাফল;
 }
 
-static CURLcode sftp_done(struct Curl_easy *data, CURLcode status,
+স্থির CURLcode sftp_done(কাঠামো Curl_easy *তথ্য, CURLcode status,
                           bool premature)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
-  if(!status) {
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
+  যদি(!status) {
     /* Post quote commands are executed after the SFTP_CLOSE state to avoid
        errors that could happen due to open file handles during POSTQUOTE
        operation */
-    if(!premature && data->set.postquote && !conn->bits.retry)
+    যদি(!premature && তথ্য->set.postquote && !conn->bits.retry)
       sshc->nextstate = SSH_SFTP_POSTQUOTE_INIT;
-    myssh_to(data, sshc, SSH_SFTP_CLOSE);
+    myssh_to(তথ্য, sshc, SSH_SFTP_CLOSE);
   }
-  return myssh_done(data, sshc, status);
+  ফেরত myssh_done(তথ্য, sshc, status);
 }
 
 /* return number of sent bytes */
-static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
-                          const uint8_t *mem, size_t len, bool eos,
+স্থির CURLcode sftp_send(কাঠামো Curl_easy *তথ্য, int8_t sockindex,
+                          ধ্রুবক uint8_t *mem, size_t len, bool eos,
                           size_t *pnwritten)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   ssize_t nwrite;
 
-  (void)sockindex;
-  (void)eos;
+  (শূন্য)sockindex;
+  (শূন্য)eos;
   *pnwritten = 0;
 
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
 
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
-  switch(sshc->sftp_send_state) {
-  case 0:
+#যদি LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+  নির্বাচন(sshc->sftp_send_state) {
+  ক্ষেত্র 0:
     sftp_file_set_nonblocking(sshc->sftp_file);
-    if(sftp_aio_begin_write(sshc->sftp_file, mem, len,
+    যদি(sftp_aio_begin_write(sshc->sftp_file, mem, len,
                             &sshc->sftp_send_aio) == SSH_ERROR) {
-      return CURLE_SEND_ERROR;
+      ফেরত CURLE_SEND_ERROR;
     }
     sshc->sftp_send_state = 1;
     FALLTHROUGH();
-  case 1:
+  ক্ষেত্র 1:
     nwrite = sftp_aio_wait_write(&sshc->sftp_send_aio);
     myssh_block2waitfor(conn, sshc, (nwrite == SSH_AGAIN) ? TRUE : FALSE);
-    if(nwrite == SSH_AGAIN)
-      return CURLE_AGAIN;
-    else if(nwrite < 0)
-      return CURLE_SEND_ERROR;
+    যদি(nwrite == SSH_AGAIN)
+      ফেরত CURLE_AGAIN;
+    অন্যথা যদি(nwrite < 0)
+      ফেরত CURLE_SEND_ERROR;
 
     /*
      * sftp_aio_wait_write() would free sftp_send_aio and
@@ -2987,12 +2987,12 @@ static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
 
     sshc->sftp_send_state = 0;
     *pnwritten = (size_t)nwrite;
-    return CURLE_OK;
-  default:
+    ফেরত CURLE_OK;
+  পূর্বনির্ধারিত:
     /* we never reach here */
-    return CURLE_SEND_ERROR;
+    ফেরত CURLE_SEND_ERROR;
   }
-#else
+#অন্যথা
   /*
    * limit the writes to the maximum specified in Section 3 of
    * https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02
@@ -3001,25 +3001,25 @@ static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
    * internally since version 0.11.0, hence such an operation is
    * not needed for versions after (and including) 0.11.0.
    */
-  if(len > 32768)
+  যদি(len > 32768)
     len = 32768;
 
   nwrite = sftp_write(sshc->sftp_file, mem, len);
 
   myssh_block2waitfor(conn, sshc, FALSE);
 
-#if 0 /* not returned by libssh on write */
-  if(nwrite == SSH_AGAIN) {
+#যদি 0 /* not returned by libssh on write */
+  যদি(nwrite == SSH_AGAIN) {
     *err = CURLE_AGAIN;
     nwrite = 0;
   }
-  else
+  অন্যথা
 #endif
-  if(nwrite < 0)
-    return CURLE_SSH;
+  যদি(nwrite < 0)
+    ফেরত CURLE_SSH;
 
   *pnwritten = (size_t)nwrite;
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 #endif
 }
 
@@ -3027,51 +3027,51 @@ static CURLcode sftp_send(struct Curl_easy *data, int8_t sockindex,
  * Return number of received (decrypted) bytes
  * or <0 on error
  */
-static CURLcode sftp_recv(struct Curl_easy *data, int8_t sockindex,
-                          char *mem, size_t len, size_t *pnread)
+স্থির CURLcode sftp_recv(কাঠামো Curl_easy *তথ্য, int8_t sockindex,
+                          অক্ষর *mem, size_t len, size_t *pnread)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   ssize_t nread;
 
-  (void)sockindex;
+  (শূন্য)sockindex;
   *pnread = 0;
 
-  DEBUGASSERT(len < CURL_MAX_READ_SIZE);
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  DEBUGASSERT(len < CURL_MAX_READ_আকার);
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
 
-  switch(sshc->sftp_recv_state) {
-  case 0:
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
-    if(sftp_aio_begin_read(sshc->sftp_file, len,
+  নির্বাচন(sshc->sftp_recv_state) {
+  ক্ষেত্র 0:
+#যদি LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+    যদি(sftp_aio_begin_read(sshc->sftp_file, len,
                            &sshc->sftp_recv_aio) == SSH_ERROR) {
-      return CURLE_RECV_ERROR;
+      ফেরত CURLE_RECV_ERROR;
     }
-#else
-    sshc->sftp_file_index =
+#অন্যথা
+    sshc->sftp_file_সূচক =
       sftp_async_read_begin(sshc->sftp_file, (uint32_t)len);
-    if(sshc->sftp_file_index < 0)
-      return CURLE_RECV_ERROR;
+    যদি(sshc->sftp_file_সূচক < 0)
+      ফেরত CURLE_RECV_ERROR;
 #endif
 
     FALLTHROUGH();
-  case 1:
+  ক্ষেত্র 1:
     sshc->sftp_recv_state = 1;
 
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+#যদি LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
     nread = sftp_aio_wait_read(&sshc->sftp_recv_aio, mem, len);
-#else
+#অন্যথা
     nread = sftp_async_read(sshc->sftp_file, mem, (uint32_t)len,
-                            (uint32_t)sshc->sftp_file_index);
+                            (uint32_t)sshc->sftp_file_সূচক);
 #endif
 
     myssh_block2waitfor(conn, sshc, (nread == SSH_AGAIN));
 
-    if(nread == SSH_AGAIN)
-      return CURLE_AGAIN;
-    else if(nread < 0)
-      return CURLE_RECV_ERROR;
+    যদি(nread == SSH_AGAIN)
+      ফেরত CURLE_AGAIN;
+    অন্যথা যদি(nread < 0)
+      ফেরত CURLE_RECV_ERROR;
 
     /*
      * sftp_aio_wait_read() would free sftp_recv_aio and
@@ -3081,64 +3081,64 @@ static CURLcode sftp_recv(struct Curl_easy *data, int8_t sockindex,
 
     sshc->sftp_recv_state = 0;
     *pnread = (size_t)nread;
-    return CURLE_OK;
+    ফেরত CURLE_OK;
 
-  default:
+  পূর্বনির্ধারিত:
     /* we never reach here */
-    return CURLE_RECV_ERROR;
+    ফেরত CURLE_RECV_ERROR;
   }
 }
 
-static CURLcode myssh_do_it(struct Curl_easy *data, bool *done)
+স্থির CURLcode myssh_do_it(কাঠামো Curl_easy *তথ্য, bool *done)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
   bool connected = FALSE;
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
 
   *done = FALSE;                /* default to false */
-  if(!sshc)
-    return CURLE_FAILED_INIT;
+  যদি(!sshc)
+    ফেরত CURLE_FAILED_INIT;
 
-  data->req.size = -1;          /* make sure this is unknown at this point */
+  তথ্য->req.আকার_2 = -1;          /* make sure this is unknown at this point */
 
   sshc->actualcode = CURLE_OK;  /* reset error code */
   sshc->secondCreateDirs = 0;   /* reset the create directory attempt state
                                    variable */
 
-  Curl_pgrsReset(data);
+  Curl_pgrsReset(তথ্য);
 
-  if(conn->scheme->protocol & CURLPROTO_SCP)
-    result = scp_perform(data, &connected, done);
-  else
-    result = sftp_perform(data, &connected, done);
+  যদি(conn->scheme->protocol & CURLPROTO_SCP)
+    ফলাফল = scp_perform(তথ্য, &connected, done);
+  অন্যথা
+    ফলাফল = sftp_perform(তথ্য, &connected, done);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-CURLcode Curl_ssh_init(void)
+CURLcode Curl_ssh_init(শূন্য)
 {
-  if(ssh_init()) {
+  যদি(ssh_init()) {
     DEBUGF(curl_mfprintf(stderr, "Error: libssh_init failed\n"));
-    return CURLE_FAILED_INIT;
+    ফেরত CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-void Curl_ssh_cleanup(void)
+শূন্য Curl_ssh_cleanup(শূন্য)
 {
-  (void)ssh_finalize();
+  (শূন্য)ssh_finalize();
 }
 
-void Curl_ssh_version(char *buffer, size_t buflen)
+শূন্য Curl_ssh_version(অক্ষর *বাফার, size_t buflen)
 {
-  (void)curl_msnprintf(buffer, buflen, "libssh/%s", ssh_version(0));
+  (শূন্য)curl_msnprintf(বাফার, buflen, "libssh/%s", ssh_version(0));
 }
 
 /*
  * SCP.
  */
-const struct Curl_protocol Curl_protocol_scp = {
+ধ্রুবক কাঠামো Curl_protocol Curl_protocol_scp = {
   myssh_setup_connection,               /* setup_connection */
   myssh_do_it,                          /* do_it */
   scp_done,                             /* done */
@@ -3161,7 +3161,7 @@ const struct Curl_protocol Curl_protocol_scp = {
 /*
  * SFTP.
  */
-const struct Curl_protocol Curl_protocol_sftp = {
+ধ্রুবক কাঠামো Curl_protocol Curl_protocol_sftp = {
   myssh_setup_connection,               /* setup_connection */
   myssh_do_it,                          /* do_it */
   sftp_done,                            /* done */

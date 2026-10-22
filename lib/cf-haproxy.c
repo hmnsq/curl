@@ -21,40 +21,40 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifndef CURL_DISABLE_PROXY
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "cf-haproxy.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "select.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "cfilters.h"
+#অন্তর্ভাব "cf-haproxy.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "curl_addrinfo.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "select.h"
 
 
-typedef enum {
+প্রকারলেখ গণনা {
   HAPROXY_INIT,     /* init/default/no tunnel state */
   HAPROXY_SEND,     /* data_out being sent */
   HAPROXY_DONE      /* all work done */
 } haproxy_state;
 
-struct cf_haproxy_ctx {
-  int state;
-  struct dynbuf data_out;
+কাঠামো cf_haproxy_ctx {
+  পূর্ণসংখ্যা state;
+  কাঠামো dynbuf তথ্য_out;
 };
 
-static void cf_haproxy_ctx_free(struct cf_haproxy_ctx *ctx)
+স্থির শূন্য cf_haproxy_ctx_free(কাঠামো cf_haproxy_ctx *ctx)
 {
-  if(ctx) {
-    curlx_dyn_free(&ctx->data_out);
+  যদি(ctx) {
+    curlx_dyn_free(&ctx->তথ্য_out);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data)
+স্থির CURLcode cf_haproxy_date_out_set(কাঠামো Curl_cfilter *cf,
+                                        কাঠামো Curl_easy *তথ্য)
 {
   /* We fake a client connection report to the upstream server
    * with the HAProxy protocol, reporting the client's source
@@ -62,36 +62,36 @@ static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
    * addresses: either the ones used to talk to the upstream
    *            OR the value supplied by the user
    * ports: the ports used in the upstream connection */
-  const char *client_source_ip;
-  const char *client_dest_ip;
-  struct cf_haproxy_ctx *ctx = cf->ctx;
-  CURLcode result;
-  struct ip_quadruple ipquad;
+  ধ্রুবক অক্ষর *client_source_ip;
+  ধ্রুবক অক্ষর *client_dest_ip;
+  কাঠামো cf_haproxy_ctx *ctx = cf->ctx;
+  CURLcode ফলাফল;
+  কাঠামো ip_quadruple ipquad;
   bool is_ipv6;
 
   DEBUGASSERT(ctx);
   DEBUGASSERT(ctx->state == HAPROXY_INIT);
 #ifdef USE_UNIX_SOCKETS
-  if(Curl_conn_get_first_peer(cf->conn, cf->sockindex)->unix_socket)
+  যদি(Curl_conn_get_first_peer(cf->conn, cf->sockindex)->unix_socket)
     /* the buffer is large enough to hold this! */
-    result = curlx_dyn_addn(&ctx->data_out, STRCONST("PROXY UNKNOWN\r\n"));
-  else {
+    ফলাফল = curlx_dyn_addn(&ctx->তথ্য_out, STRCONST("PROXY UNKNOWN\r\n"));
+  অন্যথা {
 #endif /* USE_UNIX_SOCKETS */
-  result = Curl_conn_cf_get_ip_info(cf->next, data, &is_ipv6, &ipquad);
-  if(result)
-    return result;
+  ফলাফল = Curl_conn_cf_get_ip_info(cf->পরবর্তী, তথ্য, &is_ipv6, &ipquad);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
-  client_source_ip = CURL_EASY_STR(data, STRING_HAPROXY_CLIENT_IP);
-  if(client_source_ip) {
+  client_source_ip = CURL_EASY_STR(তথ্য, STRING_HAPROXY_CLIENT_IP);
+  যদি(client_source_ip) {
     client_dest_ip = client_source_ip;
     is_ipv6 = !Curl_is_ipv4addr(client_source_ip);
   }
-  else {
+  অন্যথা {
     client_source_ip = ipquad.local_ip;
     client_dest_ip = ipquad.remote_ip;
   }
 
-  result = curlx_dyn_addf(&ctx->data_out, "PROXY %s %s %s %d %d\r\n",
+  ফলাফল = curlx_dyn_addf(&ctx->তথ্য_out, "PROXY %s %s %s %d %d\r\n",
                           is_ipv6 ? "TCP6" : "TCP4",
                           client_source_ip, client_dest_ip,
                           ipquad.local_port, ipquad.remote_port);
@@ -99,87 +99,87 @@ static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter *cf,
 #ifdef USE_UNIX_SOCKETS
   }
 #endif /* USE_UNIX_SOCKETS */
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode cf_haproxy_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
+স্থির CURLcode cf_haproxy_connect(কাঠামো Curl_cfilter *cf,
+                                   কাঠামো Curl_easy *তথ্য,
                                    bool *done)
 {
-  struct cf_haproxy_ctx *ctx = cf->ctx;
-  CURLcode result;
+  কাঠামো cf_haproxy_ctx *ctx = cf->ctx;
+  CURLcode ফলাফল;
   size_t len;
 
   DEBUGASSERT(ctx);
-  if(cf->connected) {
+  যদি(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    ফেরত CURLE_OK;
   }
 
-  result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  ফলাফল = cf->পরবর্তী->cft->do_connect(cf->পরবর্তী, তথ্য, done);
+  যদি(ফলাফল || !*done)
+    ফেরত ফলাফল;
 
-  switch(ctx->state) {
-  case HAPROXY_INIT:
-    result = cf_haproxy_date_out_set(cf, data);
-    if(result)
-      goto out;
+  নির্বাচন(ctx->state) {
+  ক্ষেত্র HAPROXY_INIT:
+    ফলাফল = cf_haproxy_date_out_set(cf, তথ্য);
+    যদি(ফলাফল)
+      যাও out;
     ctx->state = HAPROXY_SEND;
     FALLTHROUGH();
-  case HAPROXY_SEND:
-    len = curlx_dyn_len(&ctx->data_out);
-    if(len > 0) {
+  ক্ষেত্র HAPROXY_SEND:
+    len = curlx_dyn_len(&ctx->তথ্য_out);
+    যদি(len > 0) {
       size_t nwritten;
-      result = Curl_conn_cf_send(cf->next, data,
-                                 curlx_dyn_uptr(&ctx->data_out), len, FALSE,
+      ফলাফল = Curl_conn_cf_send(cf->পরবর্তী, তথ্য,
+                                 curlx_dyn_uptr(&ctx->তথ্য_out), len, FALSE,
                                  &nwritten);
-      if(result) {
-        if(result != CURLE_AGAIN)
-          goto out;
-        result = CURLE_OK;
+      যদি(ফলাফল) {
+        যদি(ফলাফল != CURLE_AGAIN)
+          যাও out;
+        ফলাফল = CURLE_OK;
         nwritten = 0;
       }
-      curlx_dyn_tail(&ctx->data_out, len - nwritten);
-      if(curlx_dyn_len(&ctx->data_out) > 0) {
-        result = CURLE_OK;
-        goto out;
+      curlx_dyn_লেজ(&ctx->তথ্য_out, len - nwritten);
+      যদি(curlx_dyn_len(&ctx->তথ্য_out) > 0) {
+        ফলাফল = CURLE_OK;
+        যাও out;
       }
     }
     ctx->state = HAPROXY_DONE;
     FALLTHROUGH();
-  default:
-    curlx_dyn_free(&ctx->data_out);
-    break;
+  পূর্বনির্ধারিত:
+    curlx_dyn_free(&ctx->তথ্য_out);
+    বিরতি;
   }
 
 out:
-  *done = (!result) && (ctx->state == HAPROXY_DONE);
+  *done = (!ফলাফল) && (ctx->state == HAPROXY_DONE);
   cf->connected = *done;
-  return result;
+  ফেরত ফলাফল;
 }
 
-static void cf_haproxy_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+স্থির শূন্য cf_haproxy_destroy(কাঠামো Curl_cfilter *cf,
+                               কাঠামো Curl_easy *তথ্য)
 {
-  CURL_TRC_CF(data, cf, "destroy");
+  CURL_TRC_CF(তথ্য, cf, "destroy");
   cf_haproxy_ctx_free(cf->ctx);
 }
 
-static CURLcode cf_haproxy_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+স্থির CURLcode cf_haproxy_adjust_pollset(কাঠামো Curl_cfilter *cf,
+                                          কাঠামো Curl_easy *তথ্য,
+                                          কাঠামো easy_pollset *ps)
 {
-  if(cf->next->connected && !cf->connected) {
+  যদি(cf->পরবর্তী->connected && !cf->connected) {
     /* If we are not connected, but the filter "below" is
      * and not waiting on something, we are sending. */
-    return Curl_pollset_set_out_only(
-      data, ps, Curl_conn_cf_get_socket(cf, data));
+    ফেরত Curl_pollset_set_out_only(
+      তথ্য, ps, Curl_conn_cf_get_socket(cf, তথ্য));
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-struct Curl_cftype Curl_cft_haproxy = {
+কাঠামো Curl_cftype Curl_cft_haproxy = {
   "HAPROXY",
   CF_TYPE_PROXY | CF_TYPE_SETUP,
   0,
@@ -187,7 +187,7 @@ struct Curl_cftype Curl_cft_haproxy = {
   cf_haproxy_connect,
   Curl_cf_def_shutdown,
   cf_haproxy_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_তথ্য_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -196,46 +196,46 @@ struct Curl_cftype Curl_cft_haproxy = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_haproxy_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data)
+স্থির CURLcode cf_haproxy_create(কাঠামো Curl_cfilter **pcf,
+                                  কাঠামো Curl_easy *তথ্য)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_haproxy_ctx *ctx;
-  CURLcode result;
+  কাঠামো Curl_cfilter *cf = ফাঁকা;
+  কাঠামো cf_haproxy_ctx *ctx;
+  CURLcode ফলাফল;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (শূন্য)তথ্য;
+  ctx = curlx_calloc(1, আকার(*ctx));
+  যদি(!ctx) {
+    ফলাফল = CURLE_OUT_OF_MEMORY;
+    যাও out;
   }
   ctx->state = HAPROXY_INIT;
-  curlx_dyn_init(&ctx->data_out, DYN_HAXPROXY);
+  curlx_dyn_init(&ctx->তথ্য_out, DYN_HAXPROXY);
 
-  result = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  ফলাফল = Curl_cf_create(&cf, &Curl_cft_haproxy, ctx);
+  যদি(ফলাফল)
+    যাও out;
+  ctx = ফাঁকা;
 
 out:
   cf_haproxy_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = ফলাফল ? ফাঁকা : cf;
+  ফেরত ফলাফল;
 }
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_haproxy_ঢোকাও_after(কাঠামো Curl_cfilter *cf_at,
+                                      কাঠামো Curl_easy *তথ্য)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result;
+  কাঠামো Curl_cfilter *cf;
+  CURLcode ফলাফল;
 
-  result = cf_haproxy_create(&cf, data);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  ফলাফল = cf_haproxy_create(&cf, তথ্য);
+  যদি(ফলাফল)
+    যাও out;
+  Curl_conn_cf_ঢোকাও_after(cf_at, cf);
 
 out:
-  return result;
+  ফেরত ফলাফল;
 }
 
 #endif /* !CURL_DISABLE_PROXY */

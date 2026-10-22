@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if defined(USE_NTLM) && !defined(USE_WINDOWS_SSPI)
+#যদি defined(USE_NTLM) && !defined(USE_WINDOWS_SSPI)
 
 /*
  * NTLM details:
@@ -34,12 +34,12 @@
 
 #define DEBUG_ME 0
 
-#include "vauth/vauth.h"
-#include "curl_trc.h"
-#include "curl_ntlm_core.h"
-#include "rand.h"
-#include "curlx/strdup.h"
-#include "curl_endian.h"
+#অন্তর্ভাব "vauth/vauth.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "curl_ntlm_core.h"
+#অন্তর্ভাব "rand.h"
+#অন্তর্ভাব "curlx/strdup.h"
+#অন্তর্ভাব "curl_endian.h"
 
 /* "NTLMSSP" signature is always in ASCII regardless of the platform */
 #define NTLMSSP_SIGNATURE "\x4e\x54\x4c\x4d\x53\x53\x50"
@@ -61,7 +61,7 @@
 /* Requests that the server's authentication realm be included in the Type 2
    message. */
 
-#if DEBUG_ME
+#যদি DEBUG_ME
 /* unknown (1 << 3) */
 #define NTLMFLAG_NEGOTIATE_SIGN                  (1 << 4)
 /* Specifies that authenticated communication between the client and server
@@ -74,15 +74,15 @@
 #define NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE        (1 << 6)
 /* Indicates that datagram authentication is being used. */
 
-#define NTLMFLAG_NEGOTIATE_LM_KEY                (1 << 7)
+#define NTLMFLAG_NEGOTIATE_LM_চাবি                (1 << 7)
 /* Indicates that the LAN Manager session key should be used for signing and
    sealing authenticated communications. */
 #endif
 
-#define NTLMFLAG_NEGOTIATE_NTLM_KEY              (1 << 9)
+#define NTLMFLAG_NEGOTIATE_NTLM_চাবি              (1 << 9)
 /* Indicates that NTLM authentication is being used. */
 
-#if DEBUG_ME
+#যদি DEBUG_ME
 /* unknown (1 << 10) */
 
 #define NTLMFLAG_NEGOTIATE_ANONYMOUS             (1 << 11)
@@ -107,7 +107,7 @@
 /* Indicates that authenticated communication between the client and server
    should be signed with a "dummy" signature. */
 
-#if DEBUG_ME
+#যদি DEBUG_ME
 #define NTLMFLAG_TARGET_TYPE_DOMAIN              (1 << 16)
 /* Sent by the server in the Type 2 message to indicate that the target
    authentication realm is a domain. */
@@ -122,18 +122,18 @@
    authentication. Usage is unclear. */
 #endif
 
-#define NTLMFLAG_NEGOTIATE_NTLM2_KEY             (1 << 19)
+#define NTLMFLAG_NEGOTIATE_NTLM2_চাবি             (1 << 19)
 /* Indicates that the NTLM2 signing and sealing scheme should be used for
    protecting authenticated communications. */
 
-#if DEBUG_ME
+#যদি DEBUG_ME
 #define NTLMFLAG_REQUEST_INIT_RESPONSE           (1 << 20)
 /* unknown purpose */
 
 #define NTLMFLAG_REQUEST_ACCEPT_RESPONSE         (1 << 21)
 /* unknown purpose */
 
-#define NTLMFLAG_REQUEST_NONNT_SESSION_KEY       (1 << 22)
+#define NTLMFLAG_REQUEST_NONNT_SESSION_চাবি       (1 << 22)
 /* unknown purpose */
 #endif
 
@@ -141,7 +141,7 @@
 /* Sent by the server in the Type 2 message to indicate that it is including a
    Target Information block in the message. */
 
-#if DEBUG_ME
+#যদি DEBUG_ME
 /* unknown (1<24) */
 /* unknown (1<25) */
 /* unknown (1<26) */
@@ -151,7 +151,7 @@
 #define NTLMFLAG_NEGOTIATE_128                   (1 << 29)
 /* Indicates that 128-bit encryption is supported. */
 
-#define NTLMFLAG_NEGOTIATE_KEY_EXCHANGE          (1 << 30)
+#define NTLMFLAG_NEGOTIATE_চাবি_EXCHANGE          (1 << 30)
 /* Indicates that the client provides an encrypted master key in
    the "Session Key" field of the Type 3 message. */
 
@@ -159,83 +159,83 @@
 /* Indicates that 56-bit encryption is supported. */
 
 #define DEBUG_OUT(x) x
-static void ntlm_print_flags(FILE *handle, unsigned long flags)
+স্থির শূন্য ntlm_print_flags(FILE *handle, unsigned long flags)
 {
-  if(flags & NTLMFLAG_NEGOTIATE_UNICODE)
+  যদি(flags & NTLMFLAG_NEGOTIATE_UNICODE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_UNICODE ");
-  if(flags & NTLMFLAG_NEGOTIATE_OEM)
+  যদি(flags & NTLMFLAG_NEGOTIATE_OEM)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_OEM ");
-  if(flags & NTLMFLAG_REQUEST_TARGET)
+  যদি(flags & NTLMFLAG_REQUEST_TARGET)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_TARGET ");
-  if(flags & (1 << 3))
+  যদি(flags & (1 << 3))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_3 ");
-  if(flags & NTLMFLAG_NEGOTIATE_SIGN)
+  যদি(flags & NTLMFLAG_NEGOTIATE_SIGN)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SIGN ");
-  if(flags & NTLMFLAG_NEGOTIATE_SEAL)
+  যদি(flags & NTLMFLAG_NEGOTIATE_SEAL)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SEAL ");
-  if(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
+  যদি(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE ");
-  if(flags & NTLMFLAG_NEGOTIATE_LM_KEY)
+  যদি(flags & NTLMFLAG_NEGOTIATE_LM_চাবি)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LM_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM_KEY)
+  যদি(flags & NTLMFLAG_NEGOTIATE_NTLM_চাবি)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM_KEY ");
-  if(flags & (1 << 10))
+  যদি(flags & (1 << 10))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_10 ");
-  if(flags & NTLMFLAG_NEGOTIATE_ANONYMOUS)
+  যদি(flags & NTLMFLAG_NEGOTIATE_ANONYMOUS)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_ANONYMOUS ");
-  if(flags & NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED)
+  যদি(flags & NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED ");
-  if(flags & NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED)
+  যদি(flags & NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED ");
-  if(flags & NTLMFLAG_NEGOTIATE_LOCAL_CALL)
+  যদি(flags & NTLMFLAG_NEGOTIATE_LOCAL_CALL)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LOCAL_CALL ");
-  if(flags & NTLMFLAG_NEGOTIATE_ALWAYS_SIGN)
+  যদি(flags & NTLMFLAG_NEGOTIATE_ALWAYS_SIGN)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_ALWAYS_SIGN ");
-  if(flags & NTLMFLAG_TARGET_TYPE_DOMAIN)
+  যদি(flags & NTLMFLAG_TARGET_TYPE_DOMAIN)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_DOMAIN ");
-  if(flags & NTLMFLAG_TARGET_TYPE_SERVER)
+  যদি(flags & NTLMFLAG_TARGET_TYPE_SERVER)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SERVER ");
-  if(flags & NTLMFLAG_TARGET_TYPE_SHARE)
+  যদি(flags & NTLMFLAG_TARGET_TYPE_SHARE)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SHARE ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY)
+  যদি(flags & NTLMFLAG_NEGOTIATE_NTLM2_চাবি)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM2_KEY ");
-  if(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
+  যদি(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_INIT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
+  যদি(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_ACCEPT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_NONNT_SESSION_KEY)
+  যদি(flags & NTLMFLAG_REQUEST_NONNT_SESSION_চাবি)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_NONNT_SESSION_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
+  যদি(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_TARGET_INFO ");
-  if(flags & (1 << 24))
+  যদি(flags & (1 << 24))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_24 ");
-  if(flags & (1 << 25))
+  যদি(flags & (1 << 25))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_25 ");
-  if(flags & (1 << 26))
+  যদি(flags & (1 << 26))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_26 ");
-  if(flags & (1 << 27))
+  যদি(flags & (1 << 27))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_27 ");
-  if(flags & (1 << 28))
+  যদি(flags & (1 << 28))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_28 ");
-  if(flags & NTLMFLAG_NEGOTIATE_128)
+  যদি(flags & NTLMFLAG_NEGOTIATE_128)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_128 ");
-  if(flags & NTLMFLAG_NEGOTIATE_KEY_EXCHANGE)
+  যদি(flags & NTLMFLAG_NEGOTIATE_চাবি_EXCHANGE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_KEY_EXCHANGE ");
-  if(flags & NTLMFLAG_NEGOTIATE_56)
+  যদি(flags & NTLMFLAG_NEGOTIATE_56)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_56 ");
 }
 
-static void ntlm_print_hex(FILE *handle, const char *buf, size_t len)
+স্থির শূন্য ntlm_print_hex(FILE *handle, ধ্রুবক অক্ষর *buf, size_t len)
 {
-  const char *p = buf;
+  ধ্রুবক অক্ষর *p = buf;
 
-  (void)handle;
+  (শূন্য)handle;
 
   curl_mfprintf(stderr, "0x");
-  while(len-- > 0)
-    curl_mfprintf(stderr, "%02.2x", (unsigned int)*p++);
+  যখন(len-- > 0)
+    curl_mfprintf(stderr, "%02.2x", (unsigned পূর্ণসংখ্যা)*p++);
 }
-#else
+#অন্যথা
 #define DEBUG_OUT(x) Curl_nop_stmt
 #endif
 
@@ -253,38 +253,38 @@ static void ntlm_print_hex(FILE *handle, const char *buf, size_t len)
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
-                                         const struct bufref *type2ref,
-                                         struct ntlmdata *ntlm)
+স্থির CURLcode ntlm_decode_type2_target(কাঠামো Curl_easy *তথ্য,
+                                         ধ্রুবক কাঠামো bufref *type2ref,
+                                         কাঠামো ntlmdata *ntlm)
 {
   unsigned short target_info_len = 0;
-  unsigned int target_info_offset = 0;
-  const unsigned char *type2 = Curl_bufref_uptr(type2ref);
+  unsigned পূর্ণসংখ্যা target_info_offset = 0;
+  ধ্রুবক unsigned অক্ষর *type2 = Curl_bufref_uptr(type2ref);
   size_t type2len = Curl_bufref_len(type2ref);
 
-  if(type2len >= 48) {
+  যদি(type2len >= 48) {
     target_info_len = Curl_read16_le(&type2[40]);
     target_info_offset = Curl_read32_le(&type2[44]);
-    if(target_info_len > 0) {
-      if((target_info_offset > type2len) ||
+    যদি(target_info_len > 0) {
+      যদি((target_info_offset > type2len) ||
          (target_info_offset + target_info_len) > type2len ||
          target_info_offset < 48) {
-        infof(data, "NTLM handshake failure (bad type-2 message). "
+        infof(তথ্য, "NTLM handshake failure (bad type-2 message). "
               "Target Info Offset Len is set incorrect by the peer");
-        return CURLE_BAD_CONTENT_ENCODING;
+        ফেরত CURLE_BAD_CONTENT_ENCODING;
       }
 
       curlx_free(ntlm->target_info); /* replace any previous data */
       ntlm->target_info = curlx_memdup(&type2[target_info_offset],
                                        target_info_len);
-      if(!ntlm->target_info)
-        return CURLE_OUT_OF_MEMORY;
+      যদি(!ntlm->target_info)
+        ফেরত CURLE_OUT_OF_MEMORY;
     }
   }
 
   ntlm->target_info_len = target_info_len;
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /*
@@ -312,9 +312,9 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
  *
  * Returns TRUE as NTLM as handled by libcurl.
  */
-bool Curl_auth_is_ntlm_supported(void)
+bool Curl_auth_is_ntlm_supported(শূন্য)
 {
-  return TRUE;
+  ফেরত TRUE;
 }
 
 /*
@@ -332,11 +332,11 @@ bool Curl_auth_is_ntlm_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
-                                             const struct bufref *type2ref,
-                                             struct ntlmdata *ntlm)
+CURLcode Curl_auth_decode_ntlm_type2_message(কাঠামো Curl_easy *তথ্য,
+                                             ধ্রুবক কাঠামো bufref *type2ref,
+                                             কাঠামো ntlmdata *ntlm)
 {
-  static const char type2_marker[] = { 0x02, 0x00, 0x00, 0x00 };
+  স্থির ধ্রুবক অক্ষর type2_marker[] = { 0x02, 0x00, 0x00, 0x00 };
 
   /* NTLM type-2 message structure:
 
@@ -354,28 +354,28 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
                                         (*) -> Optional
   */
 
-  CURLcode result = CURLE_OK;
-  const unsigned char *type2 = Curl_bufref_uptr(type2ref);
+  CURLcode ফলাফল = CURLE_OK;
+  ধ্রুবক unsigned অক্ষর *type2 = Curl_bufref_uptr(type2ref);
   size_t type2len = Curl_bufref_len(type2ref);
 
   ntlm->flags = 0;
 
-  if((type2len < 32) ||
+  যদি((type2len < 32) ||
      memcmp(type2, NTLMSSP_SIGNATURE, 8) ||
-     memcmp(type2 + 8, type2_marker, sizeof(type2_marker))) {
+     memcmp(type2 + 8, type2_marker, আকার(type2_marker))) {
     /* This was not a good enough type-2 message */
-    infof(data, "NTLM handshake failure (bad type-2 message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    infof(তথ্য, "NTLM handshake failure (bad type-2 message)");
+    ফেরত CURLE_BAD_CONTENT_ENCODING;
   }
 
   ntlm->flags = Curl_read32_le(&type2[20]);
   memcpy(ntlm->nonce, &type2[24], 8);
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
-    result = ntlm_decode_type2_target(data, type2ref, ntlm);
-    if(result) {
-      infof(data, "NTLM handshake failure (bad type-2 message)");
-      return result;
+  যদি(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
+    ফলাফল = ntlm_decode_type2_target(তথ্য, type2ref, ntlm);
+    যদি(ফলাফল) {
+      infof(তথ্য, "NTLM handshake failure (bad type-2 message)");
+      ফেরত ফলাফল;
     }
   }
 
@@ -383,21 +383,21 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
     curl_mfprintf(stderr, "**** TYPE2 header flags=0x%08.8lx ", ntlm->flags);
     ntlm_print_flags(stderr, ntlm->flags);
     curl_mfprintf(stderr, "\n                  nonce=");
-    ntlm_print_hex(stderr, (char *)ntlm->nonce, 8);
+    ntlm_print_hex(stderr, (অক্ষর *)ntlm->nonce, 8);
     curl_mfprintf(stderr, "\n****\n");
     curl_mfprintf(stderr, "**** Header %s\n ", header);
   });
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* copy the source to the destination and fill in zeroes in every
    other destination byte! */
-static void unicodecpy(unsigned char *dest, const char *src, size_t length)
+স্থির শূন্য unicodecpy(unsigned অক্ষর *dest, ধ্রুবক অক্ষর *src, size_t দৈর্ঘ্য)
 {
   size_t i;
-  for(i = 0; i < length; i++) {
-    dest[2 * i] = (unsigned char)src[i];
+  জন্য(i = 0; i < দৈর্ঘ্য; i++) {
+    dest[2 * i] = (unsigned অক্ষর)src[i];
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -420,12 +420,12 @@ static void unicodecpy(unsigned char *dest, const char *src, size_t length)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             const char *host,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_ntlm_type1_message(কাঠামো Curl_easy *তথ্য,
+                                             কাঠামো Curl_creds *creds,
+                                             ধ্রুবক অক্ষর *default_service,
+                                             ধ্রুবক অক্ষর *host,
+                                             কাঠামো ntlmdata *ntlm,
+                                             কাঠামো bufref *out)
 {
   /* NTLM type-1 message structure:
 
@@ -441,22 +441,22 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                                      (*) -> Optional
   */
 
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  ধ্রুবক অক্ষর *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
-  size_t size;
+  size_t আকার_2;
 
-  char *ntlmbuf;
-  const char *hostname = "";          /* empty */
-  const char *domain = "";            /* empty */
+  অক্ষর *ntlmbuf;
+  ধ্রুবক অক্ষর *hostname = "";          /* empty */
+  ধ্রুবক অক্ষর *domain = "";            /* empty */
   size_t hostlen = 0;
   size_t domlen = 0;
   size_t hostoff = 0;
   size_t domoff = hostoff + hostlen;  /* This is 0: remember that host and
                                          domain are empty */
-  (void)data;
-  (void)creds;
-  (void)service;
-  (void)host;
+  (শূন্য)তথ্য;
+  (শূন্য)creds;
+  (শূন্য)service;
+  (শূন্য)host;
 
   /* Clean up any former leftovers and initialize to defaults */
   Curl_auth_cleanup_ntlm(ntlm);
@@ -479,8 +479,8 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
 
                           LONGQUARTET(NTLMFLAG_NEGOTIATE_OEM |
                                       NTLMFLAG_REQUEST_TARGET |
-                                      NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                                      NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                                      NTLMFLAG_NEGOTIATE_NTLM_চাবি |
+                                      NTLMFLAG_NEGOTIATE_NTLM2_চাবি |
                                       NTLMFLAG_NEGOTIATE_ALWAYS_SIGN),
                           SHORTPAIR(domlen),
                           SHORTPAIR(domlen),
@@ -493,36 +493,36 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                           hostname, /* this is empty */
                           domain /* this is empty */);
 
-  if(!ntlmbuf)
-    return CURLE_OUT_OF_MEMORY;
+  যদি(!ntlmbuf)
+    ফেরত CURLE_OUT_OF_MEMORY;
 
   /* Initial packet length */
-  size = 32 + hostlen + domlen;
+  আকার_2 = 32 + hostlen + domlen;
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "* TYPE1 header flags=0x%02.2x%02.2x%02.2x%02.2x "
                   "0x%08.8x ",
                   LONGQUARTET(NTLMFLAG_NEGOTIATE_OEM |
                               NTLMFLAG_REQUEST_TARGET |
-                              NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                              NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                              NTLMFLAG_NEGOTIATE_NTLM_চাবি |
+                              NTLMFLAG_NEGOTIATE_NTLM2_চাবি |
                               NTLMFLAG_NEGOTIATE_ALWAYS_SIGN),
                   NTLMFLAG_NEGOTIATE_OEM |
                   NTLMFLAG_REQUEST_TARGET |
-                  NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                  NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                  NTLMFLAG_NEGOTIATE_NTLM_চাবি |
+                  NTLMFLAG_NEGOTIATE_NTLM2_চাবি |
                   NTLMFLAG_NEGOTIATE_ALWAYS_SIGN);
     ntlm_print_flags(stderr,
                      NTLMFLAG_NEGOTIATE_OEM |
                      NTLMFLAG_REQUEST_TARGET |
-                     NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                     NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                     NTLMFLAG_NEGOTIATE_NTLM_চাবি |
+                     NTLMFLAG_NEGOTIATE_NTLM2_চাবি |
                      NTLMFLAG_NEGOTIATE_ALWAYS_SIGN);
     curl_mfprintf(stderr, "\n****\n");
   });
 
-  Curl_bufref_set(out, ntlmbuf, size, curl_free);
-  return CURLE_OK;
+  Curl_bufref_set(out, ntlmbuf, আকার_2, curl_free);
+  ফেরত CURLE_OK;
 }
 
 /*
@@ -541,10 +541,10 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_ntlm_type3_message(কাঠামো Curl_easy *তথ্য,
+                                             কাঠামো Curl_creds *creds,
+                                             কাঠামো ntlmdata *ntlm,
+                                             কাঠামো bufref *out)
 {
   /* NTLM type-3 message structure:
 
@@ -564,24 +564,24 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
                                           (*) -> Optional
   */
 
-  CURLcode result = CURLE_OK;
-  size_t size;
-  unsigned char ntlmbuf[NTLM_BUFSIZE];
-  unsigned int lmrespoff;
-  unsigned char lmresp[24]; /* fixed-size */
-  unsigned int ntrespoff;
-  unsigned int ntresplen = 24;
-  unsigned char ntresp[24]; /* fixed-size */
-  const unsigned char *ptr_ntresp = &ntresp[0];
-  unsigned char *ntlmv2resp = NULL;
+  CURLcode ফলাফল = CURLE_OK;
+  size_t আকার_2;
+  unsigned অক্ষর ntlmbuf[NTLM_BUFSIZE];
+  unsigned পূর্ণসংখ্যা lmrespoff;
+  unsigned অক্ষর lmresp[24]; /* fixed-size */
+  unsigned পূর্ণসংখ্যা ntrespoff;
+  unsigned পূর্ণসংখ্যা ntresplen = 24;
+  unsigned অক্ষর ntresp[24]; /* fixed-size */
+  ধ্রুবক unsigned অক্ষর *ptr_ntresp = &ntresp[0];
+  unsigned অক্ষর *ntlmv2resp = ফাঁকা;
   bool unicode = (ntlm->flags & NTLMFLAG_NEGOTIATE_UNICODE);
   /* The fixed hostname we provide, in order to not leak our real local host
      name. Copy the name used by Firefox. */
-  static const char host[] = "WORKSTATION";
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  const char *user;
-  const char *domain = "";
+  স্থির ধ্রুবক অক্ষর host[] = "WORKSTATION";
+  ধ্রুবক অক্ষর *userp = Curl_creds_user(creds);
+  ধ্রুবক অক্ষর *passwdp = Curl_creds_passwd(creds);
+  ধ্রুবক অক্ষর *user;
+  ধ্রুবক অক্ষর *domain = "";
   size_t hostoff = 0;
   size_t useroff = 0;
   size_t domoff = 0;
@@ -589,85 +589,85 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   size_t userlen = 0;
   size_t domlen = 0;
 
-  memset(lmresp, 0, sizeof(lmresp));
-  memset(ntresp, 0, sizeof(ntresp));
+  memset(lmresp, 0, আকার(lmresp));
+  memset(ntresp, 0, আকার(ntresp));
   user = strchr(userp, '\\');
-  if(!user)
+  যদি(!user)
     user = strchr(userp, '/');
 
-  if(user) {
+  যদি(user) {
     domain = userp;
     domlen = (user - domain);
     user++;
   }
-  else
+  অন্যথা
     user = userp;
 
   userlen = strlen(user);
-  hostlen = sizeof(host) - 1;
+  hostlen = আকার(host) - 1;
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
-    unsigned char ntbuffer[0x18];
-    unsigned char entropy[8];
-    unsigned char ntlmv2hash[0x18];
+  যদি(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_চাবি) {
+    unsigned অক্ষর ntbuffer[0x18];
+    unsigned অক্ষর entropy[8];
+    unsigned অক্ষর ntlmv2hash[0x18];
 
     /* Full NTLM version 2
        Although this cannot be negotiated, it is used here if available, as
        servers featuring extended security are likely supporting also
        NTLMv2. */
-    result = Curl_rand(data, entropy, 8);
-    if(result)
-      return result;
+    ফলাফল = Curl_rand(তথ্য, entropy, 8);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
-    result = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
-    if(result)
-      return result;
+    ফলাফল = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
-    result = Curl_ntlm_core_mk_ntlmv2_hash(user, userlen, domain, domlen,
+    ফলাফল = Curl_ntlm_core_mk_ntlmv2_hash(user, userlen, domain, domlen,
                                            ntbuffer, ntlmv2hash);
-    if(result)
-      return result;
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
     /* LMv2 response */
-    result = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash, entropy,
+    ফলাফল = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash, entropy,
                                          &ntlm->nonce[0], lmresp);
-    if(result)
-      return result;
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
     /* NTLMv2 response */
-    result = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash, entropy,
+    ফলাফল = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash, entropy,
                                            ntlm, &ntlmv2resp, &ntresplen);
-    if(result)
-      return result;
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
     ptr_ntresp = ntlmv2resp;
   }
-  else {
+  অন্যথা {
 
-    unsigned char ntbuffer[0x18];
-    unsigned char lmbuffer[0x18];
+    unsigned অক্ষর ntbuffer[0x18];
+    unsigned অক্ষর lmbuffer[0x18];
 
     /* NTLM version 1 */
 
-    result = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
-    if(result)
-      return result;
+    ফলাফল = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
     Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], ntresp);
 
-    result = Curl_ntlm_core_mk_lm_hash(passwdp, lmbuffer);
-    if(result)
-      return result;
+    ফলাফল = Curl_ntlm_core_mk_lm_hash(passwdp, lmbuffer);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
     Curl_ntlm_core_lm_resp(lmbuffer, &ntlm->nonce[0], lmresp);
-    ntlm->flags &= ~(unsigned int)NTLMFLAG_NEGOTIATE_NTLM2_KEY;
+    ntlm->flags &= ~(unsigned পূর্ণসংখ্যা)NTLMFLAG_NEGOTIATE_NTLM2_চাবি;
 
     /* A safer but less compatible alternative is:
      *   Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], lmresp);
      * See https://davenport.sourceforge.net/ntlm.html#ntlmVersion2 */
   }
 
-  if(unicode) {
+  যদি(unicode) {
     domlen = domlen * 2;
     userlen = userlen * 2;
     hostlen = hostlen * 2;
@@ -680,7 +680,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   hostoff = useroff + userlen;
 
   /* Create the big type-3 message binary blob */
-  size = curl_msnprintf((char *)ntlmbuf, NTLM_BUFSIZE,
+  আকার_2 = curl_msnprintf((অক্ষর *)ntlmbuf, NTLM_BUFSIZE,
                          NTLMSSP_SIGNATURE "%c"
                          "\x03%c%c%c"  /* 32-bit type = 3 */
 
@@ -759,33 +759,33 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
                          LONGQUARTET(ntlm->flags));
 
-  DEBUGASSERT(size == 64);
-  DEBUGASSERT(size == (size_t)lmrespoff);
+  DEBUGASSERT(আকার_2 == 64);
+  DEBUGASSERT(আকার_2 == (size_t)lmrespoff);
 
   /* We append the binary hashes */
-  if(size < (NTLM_BUFSIZE - 0x18)) {
-    memcpy(&ntlmbuf[size], lmresp, 0x18);
-    size += 0x18;
+  যদি(আকার_2 < (NTLM_BUFSIZE - 0x18)) {
+    memcpy(&ntlmbuf[আকার_2], lmresp, 0x18);
+    আকার_2 += 0x18;
   }
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "**** TYPE3 header lmresp=");
-    ntlm_print_hex(stderr, (char *)&ntlmbuf[lmrespoff], 0x18);
+    ntlm_print_hex(stderr, (অক্ষর *)&ntlmbuf[lmrespoff], 0x18);
   });
 
   /* ntresplen + size should not be risking an integer overflow here */
-  if(ntresplen + size > sizeof(ntlmbuf)) {
-    failf(data, "incoming NTLM message too big");
-    result = CURLE_TOO_LARGE;
-    goto error;
+  যদি(ntresplen + আকার_2 > আকার(ntlmbuf)) {
+    failf(তথ্য, "incoming NTLM message too big");
+    ফলাফল = CURLE_TOO_LARGE;
+    যাও error;
   }
-  DEBUGASSERT(size == (size_t)ntrespoff);
-  memcpy(&ntlmbuf[size], ptr_ntresp, ntresplen);
-  size += ntresplen;
+  DEBUGASSERT(আকার_2 == (size_t)ntrespoff);
+  memcpy(&ntlmbuf[আকার_2], ptr_ntresp, ntresplen);
+  আকার_2 += ntresplen;
 
   DEBUG_OUT({
     curl_mfprintf(stderr, "\n   ntresp=");
-    ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
+    ntlm_print_hex(stderr, (অক্ষর *)&ntlmbuf[ntrespoff], ntresplen);
   });
 
   DEBUG_OUT({
@@ -797,45 +797,45 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
   /* Make sure that the domain, user and host strings fit in the
      buffer before we copy them there. */
-  if(size + userlen + domlen + hostlen >= NTLM_BUFSIZE) {
-    failf(data, "user + domain + hostname too big for NTLM");
-    result = CURLE_TOO_LARGE;
-    goto error;
+  যদি(আকার_2 + userlen + domlen + hostlen >= NTLM_BUFSIZE) {
+    failf(তথ্য, "user + domain + hostname too big for NTLM");
+    ফলাফল = CURLE_TOO_LARGE;
+    যাও error;
   }
 
-  DEBUGASSERT(size == domoff);
-  if(unicode)
-    unicodecpy(&ntlmbuf[size], domain, domlen / 2);
-  else
-    memcpy(&ntlmbuf[size], domain, domlen);
+  DEBUGASSERT(আকার_2 == domoff);
+  যদি(unicode)
+    unicodecpy(&ntlmbuf[আকার_2], domain, domlen / 2);
+  অন্যথা
+    memcpy(&ntlmbuf[আকার_2], domain, domlen);
 
-  size += domlen;
+  আকার_2 += domlen;
 
-  DEBUGASSERT(size == useroff);
-  if(unicode)
-    unicodecpy(&ntlmbuf[size], user, userlen / 2);
-  else
-    memcpy(&ntlmbuf[size], user, userlen);
+  DEBUGASSERT(আকার_2 == useroff);
+  যদি(unicode)
+    unicodecpy(&ntlmbuf[আকার_2], user, userlen / 2);
+  অন্যথা
+    memcpy(&ntlmbuf[আকার_2], user, userlen);
 
-  size += userlen;
+  আকার_2 += userlen;
 
-  DEBUGASSERT(size == hostoff);
-  if(unicode)
-    unicodecpy(&ntlmbuf[size], host, hostlen / 2);
-  else
-    memcpy(&ntlmbuf[size], host, hostlen);
+  DEBUGASSERT(আকার_2 == hostoff);
+  যদি(unicode)
+    unicodecpy(&ntlmbuf[আকার_2], host, hostlen / 2);
+  অন্যথা
+    memcpy(&ntlmbuf[আকার_2], host, hostlen);
 
-  size += hostlen;
+  আকার_2 += hostlen;
 
   /* Return the binary blob. */
-  result = Curl_bufref_memdup0(out, ntlmbuf, size);
+  ফলাফল = Curl_bufref_memdup0(out, ntlmbuf, আকার_2);
 
 error:
   curlx_free(ntlmv2resp);  /* Free the dynamic buffer allocated for NTLMv2 */
 
   Curl_auth_cleanup_ntlm(ntlm);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
@@ -848,7 +848,7 @@ error:
  * ntlm    [in/out] - The NTLM data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_ntlm(struct ntlmdata *ntlm)
+শূন্য Curl_auth_cleanup_ntlm(কাঠামো ntlmdata *ntlm)
 {
   /* Free the target info */
   curlx_safefree(ntlm->target_info);

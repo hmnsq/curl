@@ -21,29 +21,29 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#যদি !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 
-#include <curl/curl.h>
-#include "urldata.h"
-#include "curlx/dynbuf.h"
-#include "sendf.h"
-#include "http.h"
-#include "http1.h"
-#include "http_proxy.h"
-#include "select.h"
-#include "progress.h"
-#include "multiif.h"
-#include "cfilters.h"
-#include "cf-h1-proxy.h"
-#include "connect.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "curlx/strparse.h"
+#অন্তর্ভাব <curl/curl.h>
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "curlx/dynbuf.h"
+#অন্তর্ভাব "sendf.h"
+#অন্তর্ভাব "http.h"
+#অন্তর্ভাব "http1.h"
+#অন্তর্ভাব "http_proxy.h"
+#অন্তর্ভাব "select.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "multiif.h"
+#অন্তর্ভাব "cfilters.h"
+#অন্তর্ভাব "cf-h1-proxy.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "strcase.h"
+#অন্তর্ভাব "curlx/strparse.h"
 
-typedef enum {
+প্রকারলেখ গণনা {
   H1_TUNNEL_INIT,     /* init/default/no tunnel state */
   H1_TUNNEL_CONNECT,  /* CONNECT request is being send */
   H1_TUNNEL_RECEIVE,  /* CONNECT answer is being received */
@@ -53,15 +53,15 @@ typedef enum {
 } h1_tunnel_state;
 
 /* struct for HTTP CONNECT tunneling */
-struct h1_tunnel_state {
-  struct Curl_peer *dest;
-  struct dynbuf rcvbuf;
-  struct dynbuf request_data;
+কাঠামো h1_tunnel_state {
+  কাঠামো Curl_peer *dest;
+  কাঠামো dynbuf rcvbuf;
+  কাঠামো dynbuf request_তথ্য;
   size_t nsent;
   size_t headerlines;
-  struct Curl_chunker ch;
-  int httpversion;
-  enum keeponval {
+  কাঠামো Curl_chunker ch;
+  পূর্ণসংখ্যা httpversion;
+  গণনা keeponval {
     KEEPON_DONE,
     KEEPON_CONNECT,
     KEEPON_IGNORE
@@ -76,36 +76,36 @@ struct h1_tunnel_state {
 };
 
 /* Persistent context for the H1-PROXY filter */
-struct cf_h1_proxy_ctx {
-  struct Curl_peer *peer;
-  struct h1_tunnel_state *ts;
+কাঠামো cf_h1_proxy_ctx {
+  কাঠামো Curl_peer *peer;
+  কাঠামো h1_tunnel_state *ts;
 };
 
-static bool tunnel_is_established(struct h1_tunnel_state *ts)
+স্থির bool tunnel_is_established(কাঠামো h1_tunnel_state *ts)
 {
-  return ts && (ts->tunnel_state == H1_TUNNEL_ESTABLISHED);
+  ফেরত ts && (ts->tunnel_state == H1_TUNNEL_ESTABLISHED);
 }
 
-static bool tunnel_is_failed(struct h1_tunnel_state *ts)
+স্থির bool tunnel_is_failed(কাঠামো h1_tunnel_state *ts)
 {
-  return ts && (ts->tunnel_state == H1_TUNNEL_FAILED);
+  ফেরত ts && (ts->tunnel_state == H1_TUNNEL_FAILED);
 }
 
-static bool h1_proxy_is_udp(struct Curl_cfilter *cf)
+স্থির bool h1_proxy_is_udp(কাঠামো Curl_cfilter *cf)
 {
-  struct cf_h1_proxy_ctx *pctx = cf->ctx;
-  return (bool)(pctx->ts && pctx->ts->udp_tunnel);
+  কাঠামো cf_h1_proxy_ctx *pctx = cf->ctx;
+  ফেরত (bool)(pctx->ts && pctx->ts->udp_tunnel);
 }
 
-static CURLcode tunnel_reinit(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              struct h1_tunnel_state *ts)
+স্থির CURLcode tunnel_reinit(কাঠামো Curl_cfilter *cf,
+                              কাঠামো Curl_easy *তথ্য,
+                              কাঠামো h1_tunnel_state *ts)
 {
-  (void)data;
-  (void)cf;
+  (শূন্য)তথ্য;
+  (শূন্য)cf;
   DEBUGASSERT(ts);
   curlx_dyn_reset(&ts->rcvbuf);
-  curlx_dyn_reset(&ts->request_data);
+  curlx_dyn_reset(&ts->request_তথ্য);
   ts->tunnel_state = H1_TUNNEL_INIT;
   ts->keepon = KEEPON_CONNECT;
   ts->cl = 0;
@@ -115,397 +115,397 @@ static CURLcode tunnel_reinit(struct Curl_cfilter *cf,
   ts->chunked_encoding = FALSE;
   ts->nsent = 0;
   ts->headerlines = 0;
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode tunnel_init(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct h1_tunnel_state **pts)
+স্থির CURLcode tunnel_init(কাঠামো Curl_cfilter *cf,
+                            কাঠামো Curl_easy *তথ্য,
+                            কাঠামো h1_tunnel_state **pts)
 {
-  struct h1_tunnel_state *ts;
+  কাঠামো h1_tunnel_state *ts;
 
-  if(cf->conn->scheme->flags & PROTOPT_NOTCPPROXY) {
-    failf(data, "%s cannot be done over CONNECT", cf->conn->scheme->name);
-    return CURLE_UNSUPPORTED_PROTOCOL;
+  যদি(cf->conn->scheme->flags & PROTOPT_NOTCPPROXY) {
+    failf(তথ্য, "%s cannot be done over CONNECT", cf->conn->scheme->name);
+    ফেরত CURLE_UNSUPPORTED_PROTOCOL;
   }
 
-  ts = curlx_calloc(1, sizeof(*ts));
-  if(!ts)
-    return CURLE_OUT_OF_MEMORY;
+  ts = curlx_calloc(1, আকার(*ts));
+  যদি(!ts)
+    ফেরত CURLE_OUT_OF_MEMORY;
 
-  infof(data, "allocate connect buffer");
+  infof(তথ্য, "allocate connect buffer");
 
   curlx_dyn_init(&ts->rcvbuf, DYN_PROXY_CONNECT_HEADERS);
-  curlx_dyn_init(&ts->request_data, DYN_HTTP_REQUEST);
-  Curl_httpchunk_init(data, &ts->ch, TRUE, TRUE);
+  curlx_dyn_init(&ts->request_তথ্য, DYN_HTTP_REQUEST);
+  Curl_httpchunk_init(তথ্য, &ts->ch, TRUE, TRUE);
 
   *pts = ts;
-  return tunnel_reinit(cf, data, ts);
+  ফেরত tunnel_reinit(cf, তথ্য, ts);
 }
 
-static void h1_tunnel_go_state(struct Curl_cfilter *cf,
-                               struct h1_tunnel_state *ts,
+স্থির শূন্য h1_tunnel_go_state(কাঠামো Curl_cfilter *cf,
+                               কাঠামো h1_tunnel_state *ts,
                                h1_tunnel_state new_state,
-                               struct Curl_easy *data)
+                               কাঠামো Curl_easy *তথ্য)
 {
-  if(ts->tunnel_state == new_state)
-    return;
+  যদি(ts->tunnel_state == new_state)
+    ফেরত;
   /* entering this one */
-  switch(new_state) {
-  case H1_TUNNEL_INIT:
-    CURL_TRC_CF(data, cf, "new tunnel state 'init'");
-    tunnel_reinit(cf, data, ts);
-    break;
+  নির্বাচন(new_state) {
+  ক্ষেত্র H1_TUNNEL_INIT:
+    CURL_TRC_CF(তথ্য, cf, "new tunnel state 'init'");
+    tunnel_reinit(cf, তথ্য, ts);
+    বিরতি;
 
-  case H1_TUNNEL_CONNECT:
-    CURL_TRC_CF(data, cf, "new tunnel state 'connect'");
+  ক্ষেত্র H1_TUNNEL_CONNECT:
+    CURL_TRC_CF(তথ্য, cf, "new tunnel state 'connect'");
     ts->tunnel_state = H1_TUNNEL_CONNECT;
     ts->keepon = KEEPON_CONNECT;
     curlx_dyn_reset(&ts->rcvbuf);
-    break;
+    বিরতি;
 
-  case H1_TUNNEL_RECEIVE:
-    CURL_TRC_CF(data, cf, "new tunnel state 'receive'");
+  ক্ষেত্র H1_TUNNEL_RECEIVE:
+    CURL_TRC_CF(তথ্য, cf, "new tunnel state 'receive'");
     ts->tunnel_state = H1_TUNNEL_RECEIVE;
-    break;
+    বিরতি;
 
-  case H1_TUNNEL_RESPONSE:
-    CURL_TRC_CF(data, cf, "new tunnel state 'response'");
+  ক্ষেত্র H1_TUNNEL_RESPONSE:
+    CURL_TRC_CF(তথ্য, cf, "new tunnel state 'response'");
     ts->tunnel_state = H1_TUNNEL_RESPONSE;
-    break;
+    বিরতি;
 
-  case H1_TUNNEL_ESTABLISHED:
-    CURL_TRC_CF(data, cf, "new tunnel state 'established'");
-    infof(data, "CONNECT%s phase completed for HTTP proxy",
+  ক্ষেত্র H1_TUNNEL_ESTABLISHED:
+    CURL_TRC_CF(তথ্য, cf, "new tunnel state 'established'");
+    infof(তথ্য, "CONNECT%s phase completed for HTTP proxy",
           h1_proxy_is_udp(cf) ? "-UDP" : "");
 
-    data->state.authproxy.done = TRUE;
-    data->state.authproxy.multipass = FALSE;
+    তথ্য->state.authproxy.done = TRUE;
+    তথ্য->state.authproxy.multipass = FALSE;
     FALLTHROUGH();
-  case H1_TUNNEL_FAILED:
-    if(new_state == H1_TUNNEL_FAILED)
-      CURL_TRC_CF(data, cf, "new tunnel state 'failed'");
+  ক্ষেত্র H1_TUNNEL_FAILED:
+    যদি(new_state == H1_TUNNEL_FAILED)
+      CURL_TRC_CF(তথ্য, cf, "new tunnel state 'failed'");
     ts->tunnel_state = new_state;
     curlx_dyn_reset(&ts->rcvbuf);
-    curlx_dyn_reset(&ts->request_data);
+    curlx_dyn_reset(&ts->request_তথ্য);
     /* restore the protocol pointer */
-    data->info.httpcode = 0; /* clear it as it might have been used for the
+    তথ্য->info.httpcode = 0; /* clear it as it might have been used for the
                                 proxy */
     /* If a proxy-authorization header was used for the proxy, then we should
        make sure that it is not accidentally used for the document request
        after we have connected. Let's thus free and clear it here. */
-    curlx_safefree(data->req.hd_proxy_auth);
-    break;
+    curlx_safefree(তথ্য->req.hd_proxy_auth);
+    বিরতি;
   }
 }
 
-static void tunnel_free(struct h1_tunnel_state *ts,
-                        struct Curl_easy *data)
+স্থির শূন্য tunnel_free(কাঠামো h1_tunnel_state *ts,
+                        কাঠামো Curl_easy *তথ্য)
 {
-  if(ts) {
+  যদি(ts) {
     Curl_peer_unlink(&ts->dest);
     curlx_dyn_free(&ts->rcvbuf);
-    curlx_dyn_free(&ts->request_data);
-    Curl_httpchunk_free(data, &ts->ch);
+    curlx_dyn_free(&ts->request_তথ্য);
+    Curl_httpchunk_free(তথ্য, &ts->ch);
     curlx_free(ts);
   }
 }
 
-static void cf_tunnel_free(struct Curl_cfilter *cf,
-                           struct Curl_easy *data)
+স্থির শূন্য cf_tunnel_free(কাঠামো Curl_cfilter *cf,
+                           কাঠামো Curl_easy *তথ্য)
 {
-  if(cf) {
-    struct cf_h1_proxy_ctx *pctx = cf->ctx;
-    struct h1_tunnel_state *ts = pctx ? pctx->ts : NULL;
-    if(ts) {
-      h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
-      tunnel_free(ts, data);
-      pctx->ts = NULL;
+  যদি(cf) {
+    কাঠামো cf_h1_proxy_ctx *pctx = cf->ctx;
+    কাঠামো h1_tunnel_state *ts = pctx ? pctx->ts : ফাঁকা;
+    যদি(ts) {
+      h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, তথ্য);
+      tunnel_free(ts, তথ্য);
+      pctx->ts = ফাঁকা;
     }
   }
 }
 
-static bool tunnel_want_send(struct h1_tunnel_state *ts)
+স্থির bool tunnel_want_send(কাঠামো h1_tunnel_state *ts)
 {
-  return ts->tunnel_state == H1_TUNNEL_CONNECT;
+  ফেরত ts->tunnel_state == H1_TUNNEL_CONNECT;
 }
 
-static CURLcode start_CONNECT(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              struct h1_tunnel_state *ts)
+স্থির CURLcode start_CONNECT(কাঠামো Curl_cfilter *cf,
+                              কাঠামো Curl_easy *তথ্য,
+                              কাঠামো h1_tunnel_state *ts)
 {
-  struct cf_h1_proxy_ctx *pctx = cf->ctx;
-  struct httpreq *req = NULL;
-  int http_minor;
-  CURLcode result;
+  কাঠামো cf_h1_proxy_ctx *pctx = cf->ctx;
+  কাঠামো httpreq *req = ফাঁকা;
+  পূর্ণসংখ্যা http_minor;
+  CURLcode ফলাফল;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(তথ্য);
   /* This only happens if we have looped here due to authentication reasons,
      and we do not really use the newly cloned URL here then. Free it. */
-  curlx_safefree(data->req.newurl);
+  curlx_safefree(তথ্য->req.newurl);
 
-  result = Curl_http_proxy_create_tunnel_request(&req, cf, data,
+  ফলাফল = Curl_http_proxy_create_tunnel_request(&req, cf, তথ্য,
                                                  pctx->peer, ts->dest,
                                                  PROXY_HTTP_V1,
                                                  h1_proxy_is_udp(cf));
-  if(result)
-    goto out;
+  যদি(ফলাফল)
+    যাও out;
 
-  curlx_dyn_reset(&ts->request_data);
+  curlx_dyn_reset(&ts->request_তথ্য);
   ts->nsent = 0;
   ts->headerlines = 0;
   http_minor = ts->httpversion % 10;
 
-  result = Curl_h1_req_write_head(req, http_minor, &ts->request_data);
-  if(!result)
-    result = Curl_creader_set_null(data);
+  ফলাফল = Curl_h1_req_write_শীর্ষ(req, http_minor, &ts->request_তথ্য);
+  যদি(!ফলাফল)
+    ফলাফল = Curl_creader_set_null(তথ্য);
 
 out:
-  if(result)
-    failf(data, "Failed sending CONNECT to proxy");
-  if(req)
+  যদি(ফলাফল)
+    failf(তথ্য, "Failed sending CONNECT to proxy");
+  যদি(req)
     Curl_http_req_free(req);
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode send_CONNECT(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct h1_tunnel_state *ts,
+স্থির CURLcode send_CONNECT(কাঠামো Curl_cfilter *cf,
+                             কাঠামো Curl_easy *তথ্য,
+                             কাঠামো h1_tunnel_state *ts,
                              bool *done)
 {
-  const uint8_t *buf = curlx_dyn_uptr(&ts->request_data);
-  size_t request_len = curlx_dyn_len(&ts->request_data);
+  ধ্রুবক uint8_t *buf = curlx_dyn_uptr(&ts->request_তথ্য);
+  size_t request_len = curlx_dyn_len(&ts->request_তথ্য);
   size_t blen = request_len;
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   size_t nwritten;
 
-  if(blen <= ts->nsent)
-    goto out;  /* we are done */
+  যদি(blen <= ts->nsent)
+    যাও out;  /* we are done */
 
   blen -= ts->nsent;
   buf += ts->nsent;
 
-  result = cf->next->cft->do_send(cf->next, data, buf, blen, FALSE, &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN)
-      result = CURLE_OK;
-    goto out;
+  ফলাফল = cf->পরবর্তী->cft->do_send(cf->পরবর্তী, তথ্য, buf, blen, FALSE, &nwritten);
+  যদি(ফলাফল) {
+    যদি(ফলাফল == CURLE_AGAIN)
+      ফলাফল = CURLE_OK;
+    যাও out;
   }
 
   DEBUGASSERT(blen >= nwritten);
   ts->nsent += nwritten;
-  Curl_debug(data, CURLINFO_HEADER_OUT, (const char *)buf, nwritten);
+  Curl_debug(তথ্য, CURLINFO_HEADER_OUT, (ধ্রুবক অক্ষর *)buf, nwritten);
 
 out:
-  if(result)
-    failf(data, "Failed sending CONNECT to proxy");
-  *done = (!result && (ts->nsent >= request_len));
-  return result;
+  যদি(ফলাফল)
+    failf(তথ্য, "Failed sending CONNECT to proxy");
+  *done = (!ফলাফল && (ts->nsent >= request_len));
+  ফেরত ফলাফল;
 }
 
-static CURLcode on_resp_status(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h1_tunnel_state *ts,
-                               const char *header)
+স্থির CURLcode on_resp_status(কাঠামো Curl_cfilter *cf,
+                               কাঠামো Curl_easy *তথ্য,
+                               কাঠামো h1_tunnel_state *ts,
+                               ধ্রুবক অক্ষর *header)
 {
-  struct SingleRequest *k = &data->req;
+  কাঠামো SingleRequest *k = &তথ্য->req;
 
-  (void)ts;
-  if(!strncmp(header, "HTTP/1.", 7) &&
+  (শূন্য)ts;
+  যদি(!strncmp(header, "HTTP/1.", 7) &&
           ((header[7] == '0') || (header[7] == '1')) &&
           (header[8] == ' ') &&
           ISDIGIT(header[9]) && ISDIGIT(header[10]) && ISDIGIT(header[11]) &&
           !ISDIGIT(header[12])) {
     /* store the HTTP code from the proxy */
-    data->info.httpproxycode = k->httpcode = ((header[9] - '0') * 100) +
+    তথ্য->info.httpproxycode = k->httpcode = ((header[9] - '0') * 100) +
       ((header[10] - '0') * 10) + (header[11] - '0');
-    CURL_TRC_CF(data, cf, "CONNECT%s HTTP status %d",
+    CURL_TRC_CF(তথ্য, cf, "CONNECT%s HTTP status %d",
                 h1_proxy_is_udp(cf) ? "-UDP" : "", k->httpcode);
-    return CURLE_OK;
+    ফেরত CURLE_OK;
   }
-  failf(data, "Invalid response header");
-  return CURLE_WEIRD_SERVER_REPLY;
+  failf(তথ্য, "Invalid response header");
+  ফেরত CURLE_WEIRD_SERVER_REPLY;
 }
 
-static CURLcode on_resp_header(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h1_tunnel_state *ts,
-                               const char *header)
+স্থির CURLcode on_resp_header(কাঠামো Curl_cfilter *cf,
+                               কাঠামো Curl_easy *তথ্য,
+                               কাঠামো h1_tunnel_state *ts,
+                               ধ্রুবক অক্ষর *header)
 {
-  CURLcode result = CURLE_OK;
-  struct SingleRequest *k = &data->req;
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো SingleRequest *k = &তথ্য->req;
   bool is_udp = h1_proxy_is_udp(cf);
 
-  if(checkprefix("Proxy-authenticate:", header) && (407 == k->httpcode)) {
+  যদি(checkprefix("Proxy-authenticate:", header) && (407 == k->httpcode)) {
 
     bool proxy = (k->httpcode == 407);
-    char *auth = Curl_copy_header_value(header);
-    if(!auth)
-      return CURLE_OUT_OF_MEMORY;
+    অক্ষর *auth = Curl_copy_header_মান(header);
+    যদি(!auth)
+      ফেরত CURLE_OUT_OF_MEMORY;
 
-    CURL_TRC_CF(data, cf, "CONNECT%s: fwd auth header '%s'",
+    CURL_TRC_CF(তথ্য, cf, "CONNECT%s: fwd auth header '%s'",
                 is_udp ? "-UDP" : "", header);
-    result = Curl_http_input_auth(data, proxy, auth);
+    ফলাফল = Curl_http_প্রবেশ_auth(তথ্য, proxy, auth);
 
     curlx_free(auth);
 
-    if(result)
-      return result;
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
-  else if(checkprefix("Content-Length:", header)) {
-    if(k->httpcode < 300) {
-      if(k->httpcode < 200) {
+  অন্যথা যদি(checkprefix("Content-Length:", header)) {
+    যদি(k->httpcode < 300) {
+      যদি(k->httpcode < 200) {
         /* Informational 1xx responses cannot carry a body. RFC 9110 15.2 */
-        failf(data, "Invalid Content-Length: in %03d response", k->httpcode);
-        return CURLE_WEIRD_SERVER_REPLY;
+        failf(তথ্য, "Invalid Content-Length: in %03d response", k->httpcode);
+        ফেরত CURLE_WEIRD_SERVER_REPLY;
       }
       /* A client MUST ignore any Content-Length or Transfer-Encoding
          header fields received in a successful response to CONNECT.
          "Successful" described as: 2xx (Successful). RFC 7231 4.3.6 */
-      infof(data, "Ignoring Content-Length in CONNECT%s %03d response",
+      infof(তথ্য, "Ignoring Content-Length in CONNECT%s %03d response",
             is_udp ? "-UDP" : "", k->httpcode);
     }
-    else {
-      const char *p = header + CURL_CSTRLEN("Content-Length:");
-      if(curlx_str_numblanks(&p, &ts->cl)) {
-        failf(data, "Unsupported Content-Length value");
-        return CURLE_WEIRD_SERVER_REPLY;
+    অন্যথা {
+      ধ্রুবক অক্ষর *p = header + CURL_CSTRLEN("Content-Length:");
+      যদি(curlx_str_numblanks(&p, &ts->cl)) {
+        failf(তথ্য, "Unsupported Content-Length value");
+        ফেরত CURLE_WEIRD_SERVER_REPLY;
       }
     }
   }
-  else if(Curl_compareheader(header,
+  অন্যথা যদি(Curl_compareheader(header,
                              STRCONST("Connection:"), STRCONST("close"))) {
-    CURL_TRC_CF(data, cf, "CONNECT%s Connection: close", is_udp ? "-UDP" : "");
+    CURL_TRC_CF(তথ্য, cf, "CONNECT%s Connection: close", is_udp ? "-UDP" : "");
     ts->close_connection = TRUE;
   }
-  else if(checkprefix("Transfer-Encoding:", header)) {
-    if(k->httpcode < 300) {
-      if(k->httpcode < 200) {
+  অন্যথা যদি(checkprefix("Transfer-Encoding:", header)) {
+    যদি(k->httpcode < 300) {
+      যদি(k->httpcode < 200) {
         /* Informational 1xx responses cannot carry a body. RFC 9110 15.2 */
-        failf(data, "Invalid Transfer-Encoding: in %03d response",
+        failf(তথ্য, "Invalid Transfer-Encoding: in %03d response",
               k->httpcode);
-        return CURLE_WEIRD_SERVER_REPLY;
+        ফেরত CURLE_WEIRD_SERVER_REPLY;
       }
       /* A client MUST ignore any Content-Length or Transfer-Encoding
          header fields received in a successful response to CONNECT.
          "Successful" described as: 2xx (Successful). RFC 7231 4.3.6 */
-      infof(data, "Ignoring Transfer-Encoding in "
+      infof(তথ্য, "Ignoring Transfer-Encoding in "
             "CONNECT%s %03d response", is_udp ? "-UDP" : "", k->httpcode);
     }
-    else if(Curl_compareheader(header,
+    অন্যথা যদি(Curl_compareheader(header,
                                STRCONST("Transfer-Encoding:"),
                                STRCONST("chunked"))) {
-      CURL_TRC_CF(data, cf, "CONNECT%s response chunked",
+      CURL_TRC_CF(তথ্য, cf, "CONNECT%s response chunked",
                   is_udp ? "-UDP" : "");
       ts->chunked_encoding = TRUE;
-      Curl_httpchunk_reset(data, &ts->ch, TRUE);
+      Curl_httpchunk_reset(তথ্য, &ts->ch, TRUE);
     }
   }
-  else if(is_udp && checkprefix("Capsule-protocol:", header)) {
-    if(Curl_compareheader(header,
+  অন্যথা যদি(is_udp && checkprefix("Capsule-protocol:", header)) {
+    যদি(Curl_compareheader(header,
                            STRCONST("Capsule-protocol:"),
                            STRCONST("?1"))) {
-      CURL_TRC_CF(data, cf, "CONNECT-UDP Response --> Capsule-protocol: ?1");
+      CURL_TRC_CF(তথ্য, cf, "CONNECT-UDP Response --> Capsule-protocol: ?1");
     }
   }
-  else if(Curl_compareheader(header,
+  অন্যথা যদি(Curl_compareheader(header,
                              STRCONST("Proxy-Connection:"),
                              STRCONST("close"))) {
-    CURL_TRC_CF(data, cf, "CONNECT%s Proxy-Connection: close",
+    CURL_TRC_CF(তথ্য, cf, "CONNECT%s Proxy-Connection: close",
                 is_udp ? "-UDP" : "");
     ts->close_connection = TRUE;
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode single_header(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              struct h1_tunnel_state *ts)
+স্থির CURLcode single_header(কাঠামো Curl_cfilter *cf,
+                              কাঠামো Curl_easy *তথ্য,
+                              কাঠামো h1_tunnel_state *ts)
 {
-  CURLcode result = CURLE_OK;
-  const char *linep = curlx_dyn_ptr(&ts->rcvbuf);
-  size_t line_len = curlx_dyn_len(&ts->rcvbuf); /* bytes in this line */
-  const struct SingleRequest *k = &data->req;
-  int writetype;
+  CURLcode ফলাফল = CURLE_OK;
+  ধ্রুবক অক্ষর *linep = curlx_dyn_ptr(&ts->rcvbuf);
+  size_t সারি_len = curlx_dyn_len(&ts->rcvbuf); /* bytes in this line */
+  ধ্রুবক কাঠামো SingleRequest *k = &তথ্য->req;
+  পূর্ণসংখ্যা writetype;
   ts->headerlines++;
 
   /* output debug if that is requested */
-  Curl_debug(data, CURLINFO_HEADER_IN, linep, line_len);
+  Curl_debug(তথ্য, CURLINFO_HEADER_IN, linep, সারি_len);
 
   /* a CONNECT response line is handed to the client as a header, so it must
      pass the same checks as a regular response header before delivery */
-  result = Curl_verify_header(data, linep, line_len);
-  if(result)
-    return result;
+  ফলাফল = Curl_verify_header(তথ্য, linep, সারি_len);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
   /* send the header to the callback */
   writetype = CLIENTWRITE_HEADER | CLIENTWRITE_CONNECT |
     (ts->headerlines == 1 ? CLIENTWRITE_STATUS : 0);
-  result = Curl_client_write(data, writetype, linep, line_len);
-  if(result)
-    return result;
+  ফলাফল = Curl_client_write(তথ্য, writetype, linep, সারি_len);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
-  result = Curl_bump_headersize(data, line_len, TRUE);
-  if(result)
-    return result;
+  ফলাফল = Curl_bump_headersize(তথ্য, সারি_len, TRUE);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
   /* Newlines are CRLF, so the CR is ignored as the line is not
      really terminated until the LF comes. Treat a following CR
      as end-of-headers as well.*/
 
-  if(ISNEWLINE(linep[0])) {
+  যদি(ISNEWLINE(linep[0])) {
     /* end of response-headers from the proxy */
-    if(ts->headerlines == 1) {
+    যদি(ts->headerlines == 1) {
       ts->keepon = KEEPON_DONE;
-      result = CURLE_WEIRD_SERVER_REPLY;
+      ফলাফল = CURLE_WEIRD_SERVER_REPLY;
     }
-    else if((407 == k->httpcode) && !data->state.authproblem) {
+    অন্যথা যদি((407 == k->httpcode) && !তথ্য->state.authproblem) {
       /* If we get a 407 response code with content length
          when we have no auth problem, we must ignore the
          whole response-body */
       ts->keepon = KEEPON_IGNORE;
 
-      if(ts->cl) {
-        infof(data, "Ignore %" FMT_OFF_T " bytes of response-body", ts->cl);
+      যদি(ts->cl) {
+        infof(তথ্য, "Ignore %" FMT_OFF_T " bytes of response-body", ts->cl);
       }
-      else if(ts->chunked_encoding) {
-        infof(data, "Ignore chunked response-body");
+      অন্যথা যদি(ts->chunked_encoding) {
+        infof(তথ্য, "Ignore chunked response-body");
       }
-      else {
+      অন্যথা {
         /* without content-length or chunked encoding, we
            cannot keep the connection alive since the close is
            the end signal so we bail out at once instead */
-        CURL_TRC_CF(data, cf, "CONNECT: no content-length or chunked");
+        CURL_TRC_CF(তথ্য, cf, "CONNECT: no content-length or chunked");
         ts->keepon = KEEPON_DONE;
       }
     }
-    else {
+    অন্যথা {
       ts->keepon = KEEPON_DONE;
     }
 
     DEBUGASSERT(ts->keepon == KEEPON_IGNORE ||
                 ts->keepon == KEEPON_DONE);
-    return result;
+    ফেরত ফলাফল;
   }
 
-  if(ts->headerlines == 1)
-    result = on_resp_status(cf, data, ts, linep);
-  else
-    result = on_resp_header(cf, data, ts, linep);
-  if(result)
-    return result;
+  যদি(ts->headerlines == 1)
+    ফলাফল = on_resp_status(cf, তথ্য, ts, linep);
+  অন্যথা
+    ফলাফল = on_resp_header(cf, তথ্য, ts, linep);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
   curlx_dyn_reset(&ts->rcvbuf);
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct h1_tunnel_state *ts,
+স্থির CURLcode recv_CONNECT_resp(কাঠামো Curl_cfilter *cf,
+                                  কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো h1_tunnel_state *ts,
                                   bool *done)
 {
-  CURLcode result = CURLE_OK;
-  int error;
+  CURLcode ফলাফল = CURLE_OK;
+  পূর্ণসংখ্যা error;
 
 #define SELECT_OK      0
 #define SELECT_ERROR   1
@@ -513,388 +513,388 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
   error = SELECT_OK;
   *done = FALSE;
 
-  while(ts->keepon) {
+  যখন(ts->keepon) {
     size_t nread;
-    char byte;
+    অক্ষর byte;
 
     /* Read one byte at a time to avoid a race condition. Wait at most one
        second before looping to ensure continuous pgrsUpdates. */
-    result = Curl_conn_recv(data, cf->sockindex, &byte, 1, &nread);
-    if(result == CURLE_AGAIN)
+    ফলাফল = Curl_conn_recv(তথ্য, cf->sockindex, &byte, 1, &nread);
+    যদি(ফলাফল == CURLE_AGAIN)
       /* socket buffer drained, return */
-      return CURLE_OK;
+      ফেরত CURLE_OK;
 
-    if(!result)
-      result = Curl_pgrsUpdate(data);
+    যদি(!ফলাফল)
+      ফলাফল = Curl_pgrsUpdate(তথ্য);
 
-    if(result) {
+    যদি(ফলাফল) {
       ts->keepon = KEEPON_DONE;
-      break;
+      বিরতি;
     }
 
-    if(!nread) {
-      if(ts->maybe_folded) {
+    যদি(!nread) {
+      যদি(ts->maybe_folded) {
         /* EOF right after LF: finalize the pending header line. */
-        result = single_header(cf, data, ts);
-        if(result)
-          return result;
+        ফলাফল = single_header(cf, তথ্য, ts);
+        যদি(ফলাফল)
+          ফেরত ফলাফল;
         ts->maybe_folded = FALSE;
       }
-      if(data->set.proxyauth && data->state.authproxy.avail &&
-         data->req.hd_proxy_auth) {
+      যদি(তথ্য->set.proxyauth && তথ্য->state.authproxy.avail &&
+         তথ্য->req.hd_proxy_auth) {
         /* proxy auth was requested and there was proxy auth available,
            then deem this as "mere" proxy disconnect */
         ts->close_connection = TRUE;
-        infof(data, "Proxy CONNECT connection closed");
+        infof(তথ্য, "Proxy CONNECT connection closed");
       }
-      else {
+      অন্যথা {
         error = SELECT_ERROR;
-        failf(data, "Proxy CONNECT aborted");
+        failf(তথ্য, "Proxy CONNECT aborted");
       }
       ts->keepon = KEEPON_DONE;
-      break;
+      বিরতি;
     }
 
-    if(ts->keepon == KEEPON_IGNORE) {
+    যদি(ts->keepon == KEEPON_IGNORE) {
       /* This means we are currently ignoring a response-body */
-      if(ts->chunked_encoding) {
+      যদি(ts->chunked_encoding) {
         /* chunked-encoded body, so we need to do the chunked dance
            properly to know when the end of the body is reached */
         size_t consumed = 0;
 
         /* now parse the chunked piece of data so that we can
            properly tell when the stream ends */
-        result = Curl_httpchunk_read(data, &ts->ch, &byte, 1, &consumed);
-        if(result)
-          return result;
-        if(Curl_httpchunk_is_done(data, &ts->ch)) {
+        ফলাফল = Curl_httpchunk_read(তথ্য, &ts->ch, &byte, 1, &consumed);
+        যদি(ফলাফল)
+          ফেরত ফলাফল;
+        যদি(Curl_httpchunk_is_done(তথ্য, &ts->ch)) {
           /* we are done reading chunks! */
-          infof(data, "chunk reading DONE");
+          infof(তথ্য, "chunk reading DONE");
           ts->keepon = KEEPON_DONE;
         }
       }
-      else if(ts->cl) {
+      অন্যথা যদি(ts->cl) {
         /* A Content-Length based body: count down the counter
            and make sure to break out of the loop when we are done! */
         ts->cl--;
-        if(ts->cl <= 0) {
+        যদি(ts->cl <= 0) {
           ts->keepon = KEEPON_DONE;
-          break;
+          বিরতি;
         }
       }
-      continue;
+      চালু;
     }
 
-    if(ts->maybe_folded) {
-      if(ISBLANK(byte)) {
+    যদি(ts->maybe_folded) {
+      যদি(ISBLANK(byte)) {
         Curl_http_to_fold(&ts->rcvbuf);
         ts->leading_unfold = TRUE;
       }
-      else {
-        result = single_header(cf, data, ts);
-        if(result)
-          return result;
+      অন্যথা {
+        ফলাফল = single_header(cf, তথ্য, ts);
+        যদি(ফলাফল)
+          ফেরত ফলাফল;
         /* now handle the new byte */
       }
       ts->maybe_folded = FALSE;
     }
 
-    if(ts->leading_unfold) {
-      if(ISBLANK(byte))
+    যদি(ts->leading_unfold) {
+      যদি(ISBLANK(byte))
         /* skip a bit brother */
-        continue;
+        চালু;
       /* non-blank, insert a space then continue the unfolding */
-      if(curlx_dyn_addn(&ts->rcvbuf, " ", 1)) {
-        failf(data, "CONNECT response too large");
-        return CURLE_RECV_ERROR;
+      যদি(curlx_dyn_addn(&ts->rcvbuf, " ", 1)) {
+        failf(তথ্য, "CONNECT response too large");
+        ফেরত CURLE_RECV_ERROR;
       }
       ts->leading_unfold = FALSE;
     }
-    if(curlx_dyn_addn(&ts->rcvbuf, &byte, 1)) {
-      failf(data, "CONNECT response too large");
-      return CURLE_RECV_ERROR;
+    যদি(curlx_dyn_addn(&ts->rcvbuf, &byte, 1)) {
+      failf(তথ্য, "CONNECT response too large");
+      ফেরত CURLE_RECV_ERROR;
     }
 
     /* if this is not the end of a header line then continue */
-    if(byte != 0x0a)
-      continue;
-    else {
-      const char *linep = curlx_dyn_ptr(&ts->rcvbuf);
+    যদি(byte != 0x0a)
+      চালু;
+    অন্যথা {
+      ধ্রুবক অক্ষর *linep = curlx_dyn_ptr(&ts->rcvbuf);
       size_t hlen = curlx_dyn_len(&ts->rcvbuf);
-      if(hlen && ISNEWLINE(linep[0])) {
+      যদি(hlen && ISNEWLINE(linep[0])) {
         /* end of headers */
-        result = single_header(cf, data, ts);
-        if(result)
-          return result;
+        ফলাফল = single_header(cf, তথ্য, ts);
+        যদি(ফলাফল)
+          ফেরত ফলাফল;
       }
-      else
+      অন্যথা
         ts->maybe_folded = TRUE;
     }
 
-    if(result)
-      return result;
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   } /* while there is buffer left and loop is requested */
 
-  if(error)
-    result = CURLE_RECV_ERROR;
+  যদি(error)
+    ফলাফল = CURLE_RECV_ERROR;
   *done = (ts->keepon == KEEPON_DONE);
-  if(!result && *done &&
-     data->info.httpproxycode / 100 != 2 &&
-     !(h1_proxy_is_udp(cf) && data->info.httpproxycode == 101)) {
+  যদি(!ফলাফল && *done &&
+     তথ্য->info.httpproxycode / 100 != 2 &&
+     !(h1_proxy_is_udp(cf) && তথ্য->info.httpproxycode == 101)) {
     /* Deal with the possibly already received authenticate
        headers. 'newurl' is set to a new URL if we must loop. */
-    result = Curl_http_auth_act(data);
+    ফলাফল = Curl_http_auth_act(তথ্য);
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode H1_CONNECT(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct h1_tunnel_state *ts)
+স্থির CURLcode H1_CONNECT(কাঠামো Curl_cfilter *cf,
+                           কাঠামো Curl_easy *তথ্য,
+                           কাঠামো h1_tunnel_state *ts)
 {
-  struct connectdata *conn = cf->conn;
-  CURLcode result;
+  কাঠামো connectdata *conn = cf->conn;
+  CURLcode ফলাফল;
   bool done;
 
-  if(tunnel_is_established(ts))
-    return CURLE_OK;
-  if(tunnel_is_failed(ts))
-    return CURLE_RECV_ERROR; /* Need a cfilter close and new bootstrap */
+  যদি(tunnel_is_established(ts))
+    ফেরত CURLE_OK;
+  যদি(tunnel_is_failed(ts))
+    ফেরত CURLE_RECV_ERROR; /* Need a cfilter close and new bootstrap */
 
-  do {
+  করো {
 
-    if(Curl_timeleft_ms(data) < 0) {
-      failf(data, "Proxy CONNECT aborted due to timeout");
-      result = CURLE_OPERATION_TIMEDOUT;
-      goto out;
+    যদি(Curl_timeleft_ms(তথ্য) < 0) {
+      failf(তথ্য, "Proxy CONNECT aborted due to timeout");
+      ফলাফল = CURLE_OPERATION_TIMEDOUT;
+      যাও out;
     }
 
-    switch(ts->tunnel_state) {
-    case H1_TUNNEL_INIT:
+    নির্বাচন(ts->tunnel_state) {
+    ক্ষেত্র H1_TUNNEL_INIT:
       /* Prepare the CONNECT request and make a first attempt to send. */
-      CURL_TRC_CF(data, cf, "CONNECT start");
-      result = start_CONNECT(cf, data, ts);
-      if(result)
-        goto out;
-      h1_tunnel_go_state(cf, ts, H1_TUNNEL_CONNECT, data);
+      CURL_TRC_CF(তথ্য, cf, "CONNECT start");
+      ফলাফল = start_CONNECT(cf, তথ্য, ts);
+      যদি(ফলাফল)
+        যাও out;
+      h1_tunnel_go_state(cf, ts, H1_TUNNEL_CONNECT, তথ্য);
       FALLTHROUGH();
 
-    case H1_TUNNEL_CONNECT:
+    ক্ষেত্র H1_TUNNEL_CONNECT:
       /* see that the request is completely sent */
-      CURL_TRC_CF(data, cf, "CONNECT send");
-      result = send_CONNECT(cf, data, ts, &done);
-      if(result || !done)
-        goto out;
-      h1_tunnel_go_state(cf, ts, H1_TUNNEL_RECEIVE, data);
+      CURL_TRC_CF(তথ্য, cf, "CONNECT send");
+      ফলাফল = send_CONNECT(cf, তথ্য, ts, &done);
+      যদি(ফলাফল || !done)
+        যাও out;
+      h1_tunnel_go_state(cf, ts, H1_TUNNEL_RECEIVE, তথ্য);
       FALLTHROUGH();
 
-    case H1_TUNNEL_RECEIVE:
+    ক্ষেত্র H1_TUNNEL_RECEIVE:
       /* read what is there */
-      CURL_TRC_CF(data, cf, "CONNECT receive");
-      result = recv_CONNECT_resp(cf, data, ts, &done);
-      if(result)
-        CURL_TRC_CF(data, cf, "error receiving CONNECT response: %d",
-                    (int)result);
-      if(!result)
-        result = Curl_pgrsUpdate(data);
+      CURL_TRC_CF(তথ্য, cf, "CONNECT receive");
+      ফলাফল = recv_CONNECT_resp(cf, তথ্য, ts, &done);
+      যদি(ফলাফল)
+        CURL_TRC_CF(তথ্য, cf, "error receiving CONNECT response: %d",
+                    (পূর্ণসংখ্যা)ফলাফল);
+      যদি(!ফলাফল)
+        ফলাফল = Curl_pgrsUpdate(তথ্য);
       /* error or not complete yet. return for more multi-multi */
-      if(result || !done)
-        goto out;
+      যদি(ফলাফল || !done)
+        যাও out;
       /* got it */
-      h1_tunnel_go_state(cf, ts, H1_TUNNEL_RESPONSE, data);
+      h1_tunnel_go_state(cf, ts, H1_TUNNEL_RESPONSE, তথ্য);
       FALLTHROUGH();
 
-    case H1_TUNNEL_RESPONSE:
-      CURL_TRC_CF(data, cf, "CONNECT response");
-      if(data->req.newurl) {
+    ক্ষেত্র H1_TUNNEL_RESPONSE:
+      CURL_TRC_CF(তথ্য, cf, "CONNECT response");
+      যদি(তথ্য->req.newurl) {
         /* not the "final" response, we need to do a follow up request.
          * If the other side indicated a connection close, or if someone
          * else told us to close this connection, do so now.
          */
-        Curl_req_soft_reset(&data->req, data);
-        if(ts->close_connection || conn->bits.close) {
+        Curl_req_soft_reset(&তথ্য->req, তথ্য);
+        যদি(ts->close_connection || conn->bits.close) {
           /* Close this filter and the sub-chain, re-connect the
            * sub-chain and continue. Closing this filter will
            * reset our tunnel state. To avoid recursion, we return
            * and expect to be called again.
            */
-          CURL_TRC_CF(data, cf, "CONNECT need to close+open");
-          infof(data, "Connect me again please");
-          return CURLE_AGAIN;
+          CURL_TRC_CF(তথ্য, cf, "CONNECT need to close+open");
+          infof(তথ্য, "Connect me again please");
+          ফেরত CURLE_AGAIN;
         }
-        else {
+        অন্যথা {
           /* staying on this connection, reset state */
-          h1_tunnel_go_state(cf, ts, H1_TUNNEL_INIT, data);
+          h1_tunnel_go_state(cf, ts, H1_TUNNEL_INIT, তথ্য);
         }
       }
-      break;
+      বিরতি;
 
-    default:
-      break;
+    পূর্বনির্ধারিত:
+      বিরতি;
     }
 
-  } while(data->req.newurl);
+  } যখন(তথ্য->req.newurl);
 
   DEBUGASSERT(ts->tunnel_state == H1_TUNNEL_RESPONSE);
-  if(h1_proxy_is_udp(cf)) {
+  যদি(h1_proxy_is_udp(cf)) {
     /* RFC 9298: Accept 101 Upgrade for HTTP/1.1 and
      * 2xx responses for HTTP/2 and HTTP/3 proxies. */
-    if(data->info.httpproxycode / 100 != 2 &&
-       data->info.httpproxycode != 101) {
-      curlx_safefree(data->req.newurl);
-      h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
-      failf(data, "CONNECT-UDP tunnel failed, response %d",
-            data->req.httpcode);
-      return CURLE_COULDNT_CONNECT;
+    যদি(তথ্য->info.httpproxycode / 100 != 2 &&
+       তথ্য->info.httpproxycode != 101) {
+      curlx_safefree(তথ্য->req.newurl);
+      h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, তথ্য);
+      failf(তথ্য, "CONNECT-UDP tunnel failed, response %d",
+            তথ্য->req.httpcode);
+      ফেরত CURLE_COULDNT_CONNECT;
     }
   }
-  else {
-    if(data->info.httpproxycode / 100 != 2) {
+  অন্যথা {
+    যদি(তথ্য->info.httpproxycode / 100 != 2) {
       /* a non-2xx response and we have no next URL to try. */
-      curlx_safefree(data->req.newurl);
-      h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
-      failf(data, "CONNECT tunnel failed, response %d", data->req.httpcode);
-      return CURLE_COULDNT_CONNECT;
+      curlx_safefree(তথ্য->req.newurl);
+      h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, তথ্য);
+      failf(তথ্য, "CONNECT tunnel failed, response %d", তথ্য->req.httpcode);
+      ফেরত CURLE_COULDNT_CONNECT;
     }
   }
   /* 2xx response, SUCCESS! */
   /* 101 Switching Protocol for CONNECT-UDP */
-  h1_tunnel_go_state(cf, ts, H1_TUNNEL_ESTABLISHED, data);
-  infof(data, "CONNECT%s tunnel established, response %d",
-        h1_proxy_is_udp(cf) ? "-UDP" : "", data->info.httpproxycode);
-  result = CURLE_OK;
+  h1_tunnel_go_state(cf, ts, H1_TUNNEL_ESTABLISHED, তথ্য);
+  infof(তথ্য, "CONNECT%s tunnel established, response %d",
+        h1_proxy_is_udp(cf) ? "-UDP" : "", তথ্য->info.httpproxycode);
+  ফলাফল = CURLE_OK;
 
 out:
-  if(result)
-    h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, data);
-  return result;
+  যদি(ফলাফল)
+    h1_tunnel_go_state(cf, ts, H1_TUNNEL_FAILED, তথ্য);
+  ফেরত ফলাফল;
 }
 
-static CURLcode cf_h1_proxy_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+স্থির CURLcode cf_h1_proxy_connect(কাঠামো Curl_cfilter *cf,
+                                    কাঠামো Curl_easy *তথ্য,
                                     bool *done)
 {
-  CURLcode result;
-  struct cf_h1_proxy_ctx *pctx = cf->ctx;
-  struct h1_tunnel_state *ts = pctx->ts;
+  CURLcode ফলাফল;
+  কাঠামো cf_h1_proxy_ctx *pctx = cf->ctx;
+  কাঠামো h1_tunnel_state *ts = pctx->ts;
 
-  if(cf->connected) {
+  যদি(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    ফেরত CURLE_OK;
   }
 
-  CURL_TRC_CF(data, cf, "connect");
-  result = cf->next->cft->do_connect(cf->next, data, done);
-  if(result || !*done)
-    return result;
+  CURL_TRC_CF(তথ্য, cf, "connect");
+  ফলাফল = cf->পরবর্তী->cft->do_connect(cf->পরবর্তী, তথ্য, done);
+  যদি(ফলাফল || !*done)
+    ফেরত ফলাফল;
 
   *done = FALSE;
-  if(!ts) {
-    result = tunnel_init(cf, data, &ts);
-    if(result)
-      return result;
+  যদি(!ts) {
+    ফলাফল = tunnel_init(cf, তথ্য, &ts);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
     pctx->ts = ts;
   }
 
   /* We want "seamless" operations through HTTP proxy tunnel */
 
-  result = H1_CONNECT(cf, data, ts);
-  if(result)
-    goto out;
-  curlx_safefree(data->req.hd_proxy_auth);
+  ফলাফল = H1_CONNECT(cf, তথ্য, ts);
+  যদি(ফলাফল)
+    যাও out;
+  curlx_safefree(তথ্য->req.hd_proxy_auth);
 
 out:
-  *done = (result == CURLE_OK) && tunnel_is_established(pctx->ts);
-  if(*done) {
+  *done = (ফলাফল == CURLE_OK) && tunnel_is_established(pctx->ts);
+  যদি(*done) {
     cf->connected = TRUE;
     /* The real request will follow the CONNECT, reset request partially */
-    Curl_req_soft_reset(&data->req, data);
-    Curl_client_reset(data);
-    Curl_pgrsReset(data);
-    cf_tunnel_free(cf, data);
+    Curl_req_soft_reset(&তথ্য->req, তথ্য);
+    Curl_client_reset(তথ্য);
+    Curl_pgrsReset(তথ্য);
+    cf_tunnel_free(cf, তথ্য);
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode cf_h1_proxy_adjust_pollset(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct easy_pollset *ps)
+স্থির CURLcode cf_h1_proxy_adjust_pollset(কাঠামো Curl_cfilter *cf,
+                                           কাঠামো Curl_easy *তথ্য,
+                                           কাঠামো easy_pollset *ps)
 {
-  struct cf_h1_proxy_ctx *pctx = cf->ctx;
-  struct h1_tunnel_state *ts = pctx->ts;
-  CURLcode result = CURLE_OK;
+  কাঠামো cf_h1_proxy_ctx *pctx = cf->ctx;
+  কাঠামো h1_tunnel_state *ts = pctx->ts;
+  CURLcode ফলাফল = CURLE_OK;
 
-  if(!cf->connected) {
+  যদি(!cf->connected) {
     /* If we are not connected, but the filter "below" is
      * and not waiting on something, we are tunneling. */
-    curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    if(ts) {
+    curl_socket_t sock = Curl_conn_cf_get_socket(cf, তথ্য);
+    যদি(ts) {
       /* when we have sent a CONNECT to a proxy, we should rather either
          wait for the socket to become readable to be able to get the
          response headers or if we are still sending the request, wait
          for write. */
-      if(tunnel_want_send(ts))
-        result = Curl_pollset_set_out_only(data, ps, sock);
-      else
-        result = Curl_pollset_set_in_only(data, ps, sock);
+      যদি(tunnel_want_send(ts))
+        ফলাফল = Curl_pollset_set_out_only(তথ্য, ps, sock);
+      অন্যথা
+        ফলাফল = Curl_pollset_set_in_only(তথ্য, ps, sock);
     }
-    else
-      result = Curl_pollset_set_out_only(data, ps, sock);
+    অন্যথা
+      ফলাফল = Curl_pollset_set_out_only(তথ্য, ps, sock);
   }
-  else {
-    if(cf->next)
-      result = cf->next->cft->adjust_pollset(cf->next, data, ps);
+  অন্যথা {
+    যদি(cf->পরবর্তী)
+      ফলাফল = cf->পরবর্তী->cft->adjust_pollset(cf->পরবর্তী, তথ্য, ps);
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-static bool cf_h1_proxy_data_pending(struct Curl_cfilter *cf,
-                                     const struct Curl_easy *data)
+স্থির bool cf_h1_proxy_তথ্য_pending(কাঠামো Curl_cfilter *cf,
+                                     ধ্রুবক কাঠামো Curl_easy *তথ্য)
 {
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  ফেরত cf->পরবর্তী ? cf->পরবর্তী->cft->has_তথ্য_pending(cf->পরবর্তী, তথ্য) : FALSE;
 }
 
-static void cf_h1_proxy_destroy(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+স্থির শূন্য cf_h1_proxy_destroy(কাঠামো Curl_cfilter *cf,
+                                কাঠামো Curl_easy *তথ্য)
 {
-  struct cf_h1_proxy_ctx *pctx = cf->ctx;
+  কাঠামো cf_h1_proxy_ctx *pctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  if(pctx) {
-    cf_tunnel_free(cf, data);
+  CURL_TRC_CF(তথ্য, cf, "destroy");
+  যদি(pctx) {
+    cf_tunnel_free(cf, তথ্য);
     Curl_peer_unlink(&pctx->peer);
     curlx_safefree(cf->ctx);
   }
 }
 
-static CURLcode cf_h1_proxy_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+স্থির CURLcode cf_h1_proxy_query(কাঠামো Curl_cfilter *cf,
+                                  কাঠামো Curl_easy *তথ্য,
+                                  পূর্ণসংখ্যা query, পূর্ণসংখ্যা *pres1, শূন্য *pres2)
 {
-  struct cf_h1_proxy_ctx *pctx = cf->ctx;
-  struct h1_tunnel_state *ts = pctx ? pctx->ts : NULL;
-  switch(query) {
-  case CF_QUERY_HOST_PORT:
-    if(!ts || !ts->dest)
-      break;
-    *pres1 = (int)ts->dest->port;
-    *((const char **)pres2) = ts->dest->hostname;
-    return CURLE_OK;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  কাঠামো cf_h1_proxy_ctx *pctx = cf->ctx;
+  কাঠামো h1_tunnel_state *ts = pctx ? pctx->ts : ফাঁকা;
+  নির্বাচন(query) {
+  ক্ষেত্র CF_QUERY_HOST_PORT:
+    যদি(!ts || !ts->dest)
+      বিরতি;
+    *pres1 = (পূর্ণসংখ্যা)ts->dest->port;
+    *((ধ্রুবক অক্ষর **)pres2) = ts->dest->hostname;
+    ফেরত CURLE_OK;
+  ক্ষেত্র CF_QUERY_ALPN_NEGOTIATED: {
+    ধ্রুবক অক্ষর **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = NULL;
-    return CURLE_OK;
+    *palpn = ফাঁকা;
+    ফেরত CURLE_OK;
   }
-  default:
-    break;
+  পূর্বনির্ধারিত:
+    বিরতি;
   }
-  return cf->next ?
-    cf->next->cft->query(cf->next, data, query, pres1, pres2) :
+  ফেরত cf->পরবর্তী ?
+    cf->পরবর্তী->cft->query(cf->পরবর্তী, তথ্য, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-struct Curl_cftype Curl_cft_h1_proxy = {
+কাঠামো Curl_cftype Curl_cft_h1_proxy = {
   "H1-PROXY",
   CF_TYPE_IP_CONNECT | CF_TYPE_PROXY,
   0,
@@ -902,7 +902,7 @@ struct Curl_cftype Curl_cft_h1_proxy = {
   cf_h1_proxy_connect,
   Curl_cf_def_shutdown,
   cf_h1_proxy_adjust_pollset,
-  cf_h1_proxy_data_pending,
+  cf_h1_proxy_তথ্য_pending,
   Curl_cf_def_send,
   Curl_cf_def_recv,
   Curl_cf_def_cntrl,
@@ -911,55 +911,55 @@ struct Curl_cftype Curl_cft_h1_proxy = {
   cf_h1_proxy_query,
 };
 
-CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
-                                       int httpversion,
+CURLcode Curl_cf_h1_proxy_ঢোকাও_after(কাঠামো Curl_cfilter *cf_at,
+                                       কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো Curl_peer *peer,
+                                       কাঠামো Curl_peer *dest,
+                                       পূর্ণসংখ্যা httpversion,
                                        bool udp_tunnel)
 {
-  struct Curl_cfilter *cf;
-  struct cf_h1_proxy_ctx *pctx;
-  struct h1_tunnel_state *ts;
-  CURLcode result;
+  কাঠামো Curl_cfilter *cf;
+  কাঠামো cf_h1_proxy_ctx *pctx;
+  কাঠামো h1_tunnel_state *ts;
+  CURLcode ফলাফল;
 
-  (void)data;
-  if(!dest)
-    return CURLE_FAILED_INIT;
-  if((httpversion < 10) || (httpversion >= 20))
-    return CURLE_FAILED_INIT;
+  (শূন্য)তথ্য;
+  যদি(!dest)
+    ফেরত CURLE_FAILED_INIT;
+  যদি((httpversion < 10) || (httpversion >= 20))
+    ফেরত CURLE_FAILED_INIT;
 
-  ts = curlx_calloc(1, sizeof(*ts));
-  if(!ts) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ts = curlx_calloc(1, আকার(*ts));
+  যদি(!ts) {
+    ফলাফল = CURLE_OUT_OF_MEMORY;
+    যাও out;
   }
   Curl_peer_link(&ts->dest, dest);
   ts->udp_tunnel = udp_tunnel;
   ts->httpversion = httpversion;
   curlx_dyn_init(&ts->rcvbuf, DYN_PROXY_CONNECT_HEADERS);
-  curlx_dyn_init(&ts->request_data, DYN_HTTP_REQUEST);
-  Curl_httpchunk_init(data, &ts->ch, TRUE, TRUE);
+  curlx_dyn_init(&ts->request_তথ্য, DYN_HTTP_REQUEST);
+  Curl_httpchunk_init(তথ্য, &ts->ch, TRUE, TRUE);
 
-  pctx = curlx_calloc(1, sizeof(*pctx));
-  if(!pctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  pctx = curlx_calloc(1, আকার(*pctx));
+  যদি(!pctx) {
+    ফলাফল = CURLE_OUT_OF_MEMORY;
+    যাও out;
   }
   Curl_peer_link(&pctx->peer, peer);
   pctx->ts = ts;
-  result = Curl_cf_create(&cf, &Curl_cft_h1_proxy, pctx);
-  if(result) {
+  ফলাফল = Curl_cf_create(&cf, &Curl_cft_h1_proxy, pctx);
+  যদি(ফলাফল) {
     Curl_peer_unlink(&pctx->peer);
     curlx_free(pctx);
-    goto out;
+    যাও out;
   }
-  ts = NULL;
-  Curl_conn_cf_insert_after(cf_at, cf);
+  ts = ফাঁকা;
+  Curl_conn_cf_ঢোকাও_after(cf_at, cf);
 
 out:
-  tunnel_free(ts, data);
-  return result;
+  tunnel_free(ts, তথ্য);
+  ফেরত ফলাফল;
 }
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

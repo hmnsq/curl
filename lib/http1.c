@@ -21,156 +21,156 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifndef CURL_DISABLE_HTTP
 
-#include "urldata.h"
-#include "http.h"
-#include "http1.h"
-#include "urlapi-int.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "http.h"
+#অন্তর্ভাব "http1.h"
+#অন্তর্ভাব "urlapi-int.h"
 
 
 #define H1_MAX_URL_LEN (8 * 1024)
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len)
+শূন্য Curl_h1_req_parse_init(কাঠামো h1_req_parser *parser, size_t max_সারি_len)
 {
-  memset(parser, 0, sizeof(*parser));
-  parser->max_line_len = max_line_len;
-  curlx_dyn_init(&parser->scratch, max_line_len);
+  memset(parser, 0, আকার(*parser));
+  parser->max_সারি_len = max_সারি_len;
+  curlx_dyn_init(&parser->scratch, max_সারি_len);
 }
 
-void Curl_h1_req_parse_free(struct h1_req_parser *parser)
+শূন্য Curl_h1_req_parse_free(কাঠামো h1_req_parser *parser)
 {
-  if(parser) {
+  যদি(parser) {
     Curl_http_req_free(parser->req);
     curlx_dyn_free(&parser->scratch);
-    parser->req = NULL;
+    parser->req = ফাঁকা;
     parser->done = FALSE;
   }
 }
 
-static CURLcode trim_line(struct h1_req_parser *parser, int options)
+স্থির CURLcode trim_সারি(কাঠামো h1_req_parser *parser, পূর্ণসংখ্যা options)
 {
-  DEBUGASSERT(parser->line);
-  if(parser->line_len) {
-    if(parser->line[parser->line_len - 1] == '\n')
-      --parser->line_len;
-    if(parser->line_len) {
-      if(parser->line[parser->line_len - 1] == '\r')
-        --parser->line_len;
-      else if(options & H1_PARSE_OPT_STRICT)
-        return CURLE_URL_MALFORMAT;
+  DEBUGASSERT(parser->সারি);
+  যদি(parser->সারি_len) {
+    যদি(parser->সারি[parser->সারি_len - 1] == '\n')
+      --parser->সারি_len;
+    যদি(parser->সারি_len) {
+      যদি(parser->সারি[parser->সারি_len - 1] == '\r')
+        --parser->সারি_len;
+      অন্যথা যদি(options & H1_PARSE_OPT_STRICT)
+        ফেরত CURLE_URL_MALFORMAT;
     }
-    else if(options & H1_PARSE_OPT_STRICT)
-      return CURLE_URL_MALFORMAT;
+    অন্যথা যদি(options & H1_PARSE_OPT_STRICT)
+      ফেরত CURLE_URL_MALFORMAT;
   }
-  else if(options & H1_PARSE_OPT_STRICT)
-    return CURLE_URL_MALFORMAT;
+  অন্যথা যদি(options & H1_PARSE_OPT_STRICT)
+    ফেরত CURLE_URL_MALFORMAT;
 
-  if(parser->line_len > parser->max_line_len) {
-    return CURLE_URL_MALFORMAT;
+  যদি(parser->সারি_len > parser->max_সারি_len) {
+    ফেরত CURLE_URL_MALFORMAT;
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode detect_line(struct h1_req_parser *parser,
-                            const uint8_t *buf, const size_t buflen,
+স্থির CURLcode detect_সারি(কাঠামো h1_req_parser *parser,
+                            ধ্রুবক uint8_t *buf, ধ্রুবক size_t buflen,
                             size_t *pnread)
 {
-  const char *line_end;
+  ধ্রুবক অক্ষর *সারি_end;
 
-  DEBUGASSERT(!parser->line);
+  DEBUGASSERT(!parser->সারি);
   *pnread = 0;
-  line_end = memchr(buf, '\n', buflen);
-  if(!line_end)
-    return CURLE_AGAIN;
-  parser->line = (const char *)buf;
-  parser->line_len = line_end - parser->line + 1;
-  *pnread = parser->line_len;
-  return CURLE_OK;
+  সারি_end = memchr(buf, '\n', buflen);
+  যদি(!সারি_end)
+    ফেরত CURLE_AGAIN;
+  parser->সারি = (ধ্রুবক অক্ষর *)buf;
+  parser->সারি_len = সারি_end - parser->সারি + 1;
+  *pnread = parser->সারি_len;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode next_line(struct h1_req_parser *parser,
-                          const uint8_t *buf, const size_t buflen, int options,
+স্থির CURLcode পরবর্তী_সারি(কাঠামো h1_req_parser *parser,
+                          ধ্রুবক uint8_t *buf, ধ্রুবক size_t buflen, পূর্ণসংখ্যা options,
                           size_t *pnread)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
 
   *pnread = 0;
-  if(parser->line) {
-    parser->line = NULL;
-    parser->line_len = 0;
+  যদি(parser->সারি) {
+    parser->সারি = ফাঁকা;
+    parser->সারি_len = 0;
     curlx_dyn_reset(&parser->scratch);
   }
 
-  result = detect_line(parser, buf, buflen, pnread);
-  if(!result) {
-    if(curlx_dyn_len(&parser->scratch)) {
+  ফলাফল = detect_সারি(parser, buf, buflen, pnread);
+  যদি(!ফলাফল) {
+    যদি(curlx_dyn_len(&parser->scratch)) {
       /* append detected line to scratch to have the complete line */
-      result = curlx_dyn_addn(&parser->scratch, parser->line,
-                              parser->line_len);
-      if(result)
-        return result;
-      parser->line = curlx_dyn_ptr(&parser->scratch);
-      parser->line_len = curlx_dyn_len(&parser->scratch);
+      ফলাফল = curlx_dyn_addn(&parser->scratch, parser->সারি,
+                              parser->সারি_len);
+      যদি(ফলাফল)
+        ফেরত ফলাফল;
+      parser->সারি = curlx_dyn_ptr(&parser->scratch);
+      parser->সারি_len = curlx_dyn_len(&parser->scratch);
     }
-    result = trim_line(parser, options);
-    if(result)
-      return result;
+    ফলাফল = trim_সারি(parser, options);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
-  else if(result == CURLE_AGAIN) {
+  অন্যথা যদি(ফলাফল == CURLE_AGAIN) {
     /* no line end in `buf`, add it to our scratch */
-    result = curlx_dyn_addn(&parser->scratch, (const unsigned char *)buf,
+    ফলাফল = curlx_dyn_addn(&parser->scratch, (ধ্রুবক unsigned অক্ষর *)buf,
                             buflen);
     *pnread = buflen;
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode start_req(struct h1_req_parser *parser,
-                          const char *scheme_default,
-                          const char *custom_method,
-                          int options)
+স্থির CURLcode start_req(কাঠামো h1_req_parser *parser,
+                          ধ্রুবক অক্ষর *scheme_default,
+                          ধ্রুবক অক্ষর *custom_method,
+                          পূর্ণসংখ্যা options)
 {
-  const char *p, *m, *target, *hv, *scheme, *authority, *path;
+  ধ্রুবক অক্ষর *p, *m, *target, *hv, *scheme, *authority, *path;
   size_t m_len, target_len, hv_len, scheme_len, authority_len, path_len;
   size_t i;
-  CURLU *url = NULL;
-  CURLcode result = CURLE_URL_MALFORMAT; /* Use this as default fail */
+  CURLU *url = ফাঁকা;
+  CURLcode ফলাফল = CURLE_URL_MALFORMAT; /* Use this as default fail */
 
   DEBUGASSERT(!parser->req);
   /* line must match: "METHOD TARGET HTTP_VERSION" */
-  if(custom_method && custom_method[0] &&
-     !strncmp(custom_method, parser->line, strlen(custom_method))) {
-    p = parser->line + strlen(custom_method);
+  যদি(custom_method && custom_method[0] &&
+     !strncmp(custom_method, parser->সারি, strlen(custom_method))) {
+    p = parser->সারি + strlen(custom_method);
   }
-  else {
-    p = memchr(parser->line, ' ', parser->line_len);
-    if(!p || p == parser->line)
-      goto out;
+  অন্যথা {
+    p = memchr(parser->সারি, ' ', parser->সারি_len);
+    যদি(!p || p == parser->সারি)
+      যাও out;
   }
 
-  m = parser->line;
-  m_len = p - parser->line;
+  m = parser->সারি;
+  m_len = p - parser->সারি;
   target = p + 1;
   target_len = hv_len = 0;
-  hv = NULL;
+  hv = ফাঁকা;
 
   /* URL may contain spaces so scan backwards */
-  for(i = parser->line_len; i > m_len; --i) {
-    if(parser->line[i] == ' ') {
-      hv = &parser->line[i + 1];
-      hv_len = parser->line_len - i;
+  জন্য(i = parser->সারি_len; i > m_len; --i) {
+    যদি(parser->সারি[i] == ' ') {
+      hv = &parser->সারি[i + 1];
+      hv_len = parser->সারি_len - i;
       target_len = (hv - target) - 1;
-      break;
+      বিরতি;
     }
   }
   /* no SPACE found or empty TARGET or empty HTTP_VERSION */
-  if(!target_len || !hv_len)
-    goto out;
+  যদি(!target_len || !hv_len)
+    যাও out;
 
-  (void)hv;
+  (শূন্য)hv;
 
   /* The TARGET can be (rfc 9112, ch. 3.2):
    * origin-form:     path + optional query
@@ -184,102 +184,102 @@ static CURLcode start_req(struct h1_req_parser *parser,
    * authority-form         --        TARGET      --
    * asterisk-form          --        --          TARGET
    */
-  scheme = authority = path = NULL;
+  scheme = authority = path = ফাঁকা;
   scheme_len = authority_len = path_len = 0;
 
-  if(target_len == 1 && target[0] == '*') {
+  যদি(target_len == 1 && target[0] == '*') {
     /* asterisk-form */
     path = target;
     path_len = target_len;
   }
-  else if(!strncmp("CONNECT", m, m_len)) {
+  অন্যথা যদি(!strncmp("CONNECT", m, m_len)) {
     /* authority-form */
     authority = target;
     authority_len = target_len;
   }
-  else if(target[0] == '/') {
+  অন্যথা যদি(target[0] == '/') {
     /* origin-form */
     path = target;
     path_len = target_len;
   }
-  else {
+  অন্যথা {
     /* origin-form OR absolute-form */
     CURLUcode uc;
-    char tmp[H1_MAX_URL_LEN];
+    অক্ষর tmp[H1_MAX_URL_LEN];
 
     /* default, unless we see an absolute URL */
     path = target;
     path_len = target_len;
 
     /* URL parser wants null-termination */
-    if(target_len >= sizeof(tmp))
-      goto out;
+    যদি(target_len >= আকার(tmp))
+      যাও out;
     memcpy(tmp, target, target_len);
     tmp[target_len] = '\0';
     /* See if treating TARGET as an absolute URL makes sense */
-    if(Curl_is_absolute_url(tmp, NULL, 0, FALSE)) {
-      unsigned int url_options;
+    যদি(Curl_is_absolute_url(tmp, ফাঁকা, 0, FALSE)) {
+      unsigned পূর্ণসংখ্যা url_options;
 
       url = curl_url();
-      if(!url) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      যদি(!url) {
+        ফলাফল = CURLE_OUT_OF_MEMORY;
+        যাও out;
       }
       url_options = (CURLU_NON_SUPPORT_SCHEME |
                      CURLU_PATH_AS_IS |
                      CURLU_NO_DEFAULT_PORT);
-      if(!(options & H1_PARSE_OPT_STRICT))
+      যদি(!(options & H1_PARSE_OPT_STRICT))
         url_options |= CURLU_ALLOW_SPACE;
       uc = curl_url_set(url, CURLUPART_URL, tmp, url_options);
-      if(uc) {
-        goto out;
+      যদি(uc) {
+        যাও out;
       }
     }
 
-    if(!url && (options & H1_PARSE_OPT_STRICT)) {
+    যদি(!url && (options & H1_PARSE_OPT_STRICT)) {
       /* we should have an absolute URL or have seen `/` earlier */
-      goto out;
+      যাও out;
     }
   }
 
-  if(url) {
-    result = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
+  যদি(url) {
+    ফলাফল = Curl_http_req_make2(&parser->req, m, m_len, url, scheme_default);
   }
-  else {
-    if(!scheme && scheme_default) {
+  অন্যথা {
+    যদি(!scheme && scheme_default) {
       scheme = scheme_default;
       scheme_len = strlen(scheme_default);
     }
-    result = Curl_http_req_make(&parser->req, m, m_len, scheme, scheme_len,
+    ফলাফল = Curl_http_req_make(&parser->req, m, m_len, scheme, scheme_len,
                                 authority, authority_len, path, path_len);
   }
 
 out:
   curl_url_cleanup(url);
-  return result;
+  ফেরত ফলাফল;
 }
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread)
+CURLcode Curl_h1_req_parse_read(কাঠামো h1_req_parser *parser,
+                                ধ্রুবক uint8_t *buf, size_t buflen,
+                                ধ্রুবক অক্ষর *scheme_default,
+                                ধ্রুবক অক্ষর *custom_method,
+                                পূর্ণসংখ্যা options, size_t *pnread)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   size_t nread;
 
   *pnread = 0;
 
   DEBUGASSERT(buf);
-  if(!buf)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(!buf)
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
 
-  while(!parser->done) {
-    result = next_line(parser, buf, buflen, options, &nread);
-    if(result) {
-      if(result == CURLE_AGAIN)
-        result = CURLE_OK;
-      goto out;
+  যখন(!parser->done) {
+    ফলাফল = পরবর্তী_সারি(parser, buf, buflen, options, &nread);
+    যদি(ফলাফল) {
+      যদি(ফলাফল == CURLE_AGAIN)
+        ফলাফল = CURLE_OK;
+      যাও out;
     }
 
     /* Consume this line */
@@ -287,61 +287,61 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
     buf += nread;
     buflen -= nread;
 
-    if(!parser->line) {
+    যদি(!parser->সারি) {
       /* consumed bytes, but line not complete */
-      if(!buflen)
-        goto out;
+      যদি(!buflen)
+        যাও out;
     }
-    else if(!parser->req) {
-      result = start_req(parser, scheme_default, custom_method, options);
-      if(result)
-        goto out;
+    অন্যথা যদি(!parser->req) {
+      ফলাফল = start_req(parser, scheme_default, custom_method, options);
+      যদি(ফলাফল)
+        যাও out;
     }
-    else if(parser->line_len == 0) {
+    অন্যথা যদি(parser->সারি_len == 0) {
       /* last, empty line, we are finished */
-      if(!parser->req) {
-        result = CURLE_URL_MALFORMAT;
-        goto out;
+      যদি(!parser->req) {
+        ফলাফল = CURLE_URL_MALFORMAT;
+        যাও out;
       }
       parser->done = TRUE;
       curlx_dyn_reset(&parser->scratch);
       /* last chance adjustments */
     }
-    else {
-      result = Curl_dynhds_h1_add_line(&parser->req->headers,
-                                       parser->line, parser->line_len);
-      if(result)
-        goto out;
+    অন্যথা {
+      ফলাফল = Curl_dynhds_h1_add_সারি(&parser->req->headers,
+                                       parser->সারি, parser->সারি_len);
+      যদি(ফলাফল)
+        যাও out;
     }
   }
 
 out:
-  return result;
+  ফেরত ফলাফল;
 }
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf)
+CURLcode Curl_h1_req_write_শীর্ষ(কাঠামো httpreq *req, পূর্ণসংখ্যা http_minor,
+                                কাঠামো dynbuf *dbuf)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
 
-  result = curlx_dyn_addf(dbuf, "%s %s%s%s%s HTTP/1.%d\r\n",
+  ফলাফল = curlx_dyn_addf(dbuf, "%s %s%s%s%s HTTP/1.%d\r\n",
                           req->method,
                           req->scheme ? req->scheme : "",
                           req->scheme ? "://" : "",
                           req->authority ? req->authority : "",
                           req->path ? req->path : "",
                           http_minor);
-  if(result)
-    goto out;
+  যদি(ফলাফল)
+    যাও out;
 
-  result = Curl_dynhds_h1_dprint(&req->headers, dbuf);
-  if(result)
-    goto out;
+  ফলাফল = Curl_dynhds_h1_dprint(&req->headers, dbuf);
+  যদি(ফলাফল)
+    যাও out;
 
-  result = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
+  ফলাফল = curlx_dyn_addn(dbuf, STRCONST("\r\n"));
 
 out:
-  return result;
+  ফেরত ফলাফল;
 }
 
 #endif /* !CURL_DISABLE_HTTP */

@@ -23,27 +23,27 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifndef CURL_DISABLE_FTP
 
 /* returns TRUE if in wildcard listing mode */
-bool Curl_ftp_listmode(struct Curl_easy *data);
+bool Curl_ftp_listmode(কাঠামো Curl_easy *তথ্য);
 
 /* WRITEFUNCTION callback for parsing LIST responses */
-size_t Curl_ftp_parselist(char *buffer, size_t size, size_t nmemb,
-                          void *connptr);
+size_t Curl_ftp_parselist(অক্ষর *বাফার, size_t আকার_2, size_t nmemb,
+                          শূন্য *connptr);
 
-struct ftp_parselist_data; /* defined inside ftplibparser.c */
+কাঠামো ftp_parselist_তথ্য; /* defined inside ftplibparser.c */
 
-CURLcode Curl_ftp_parselist_geterror(struct ftp_parselist_data *pl_data);
+CURLcode Curl_ftp_parselist_geterror(কাঠামো ftp_parselist_তথ্য *pl_তথ্য);
 
-struct ftp_parselist_data *Curl_ftp_parselist_data_alloc(void);
+কাঠামো ftp_parselist_তথ্য *Curl_ftp_parselist_তথ্য_alloc(শূন্য);
 
-void Curl_ftp_parselist_data_free(struct ftp_parselist_data **parserp);
+শূন্য Curl_ftp_parselist_তথ্য_free(কাঠামো ftp_parselist_তথ্য **parserp);
 
 /* list of wildcard process states */
-typedef enum {
+প্রকারলেখ গণনা {
   CURLWC_CLEAR = 0,
   CURLWC_INIT = 1,
   CURLWC_MATCHING, /* library is trying to get list of addresses for
@@ -56,24 +56,24 @@ typedef enum {
                    will end */
 } wildcard_states;
 
-typedef void (*wildcard_dtor)(void *ptr);
+প্রকারলেখ শূন্য (*wildcard_dtor)(শূন্য *ptr);
 
 /* struct keeping information about wildcard download process */
-struct WildcardData {
-  char *path; /* path to the directory, where we trying wildcard-match */
-  char *pattern; /* wildcard pattern */
-  struct Curl_llist filelist; /* llist with struct Curl_fileinfo */
-  struct ftp_wc *ftpwc; /* pointer to FTP wildcard data */
+কাঠামো Wildcard_তথ্য {
+  অক্ষর *path; /* path to the directory, where we trying wildcard-match */
+  অক্ষর *pattern; /* wildcard pattern */
+  কাঠামো Curl_llist filelist; /* llist with struct Curl_fileinfo */
+  কাঠামো ftp_wc *ftpwc; /* pointer to FTP wildcard data */
   wildcard_dtor dtor;
-  unsigned char state; /* wildcard_states */
+  unsigned অক্ষর state; /* wildcard_states */
 };
 
-void Curl_wildcard_init(struct WildcardData *wc);
-void Curl_wildcard_dtor(struct WildcardData **wcp);
+শূন্য Curl_wildcard_init(কাঠামো Wildcard_তথ্য *wc);
+শূন্য Curl_wildcard_dtor(কাঠামো Wildcard_তথ্য **wcp);
 
-struct Curl_easy;
+কাঠামো Curl_easy;
 
-#else /* CURL_DISABLE_FTP */
+#অন্যথা /* CURL_DISABLE_FTP */
 #define Curl_ftp_listmode(x) FALSE
 #define Curl_ftp_parselist ZERO_NULL
 #define Curl_wildcard_dtor(x)

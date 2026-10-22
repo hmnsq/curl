@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifndef CURL_DISABLE_HTTP
 
-#include "curlx/dynbuf.h"
+#অন্তর্ভাব "curlx/dynbuf.h"
 
-struct connectdata;
+কাঠামো connectdata;
 
 /*
  * The longest possible hexadecimal number we support in a chunked transfer.
@@ -39,7 +39,7 @@ struct connectdata;
  */
 #define CHUNK_MAXNUM_LEN 17
 
-typedef enum {
+প্রকারলেখ গণনা {
   /* await and buffer all hexadecimal digits until we get one that is not a
      hexadecimal digit. When done, we go CHUNK_LF */
   CHUNK_HEX,
@@ -49,7 +49,7 @@ typedef enum {
 
   /* We eat the amount of data specified. When done, we move on to the
      POST_CR state. */
-  CHUNK_DATA,
+  CHUNK_তথ্য,
 
   /* POSTLF should get a CR and then an LF and nothing else, then move back to
      HEX as the CRLF combination marks the end of a chunk. A missing CR is no
@@ -82,7 +82,7 @@ typedef enum {
   CHUNK_FAILED
 } ChunkyState;
 
-typedef enum {
+প্রকারলেখ গণনা {
   CHUNKE_OK = 0,
   CHUNKE_TOO_LONG_HEX = 1,
   CHUNKE_ILLEGAL_HEX,
@@ -93,22 +93,22 @@ typedef enum {
   CHUNKE_TRAILER_LIMIT /* Max header limit exceeded by trailers */
 } CHUNKcode;
 
-struct Curl_chunker {
+কাঠামো Curl_chunker {
   curl_off_t datasize;
   ChunkyState state;
   CHUNKcode last_code;
-  struct dynbuf trailer; /* for chunked-encoded trailer */
-  unsigned char hexindex;
-  char hexbuffer[CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
+  কাঠামো dynbuf trailer; /* for chunked-encoded trailer */
+  unsigned অক্ষর hexindex;
+  অক্ষর hexbuffer[CHUNK_MAXNUM_LEN + 1]; /* +1 for null-terminator */
   BIT(ignore_body); /* never write response body data */
   BIT(in_connect); /* this is a CONNECT response body */
 };
 
 /* The following functions are defined in http_chunks.c */
-void Curl_httpchunk_init(struct Curl_easy *data, struct Curl_chunker *ch,
+শূন্য Curl_httpchunk_init(কাঠামো Curl_easy *তথ্য, কাঠামো Curl_chunker *ch,
                          bool ignore_body, bool in_connect);
-void Curl_httpchunk_free(struct Curl_easy *data, struct Curl_chunker *ch);
-void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
+শূন্য Curl_httpchunk_free(কাঠামো Curl_easy *তথ্য, কাঠামো Curl_chunker *ch);
+শূন্য Curl_httpchunk_reset(কাঠামো Curl_easy *তথ্য, কাঠামো Curl_chunker *ch,
                           bool ignore_body);
 
 /*
@@ -127,22 +127,22 @@ void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
  * This function always uses ASCII hex values to accommodate non-ASCII hosts.
  * For example, 0x0d and 0x0a are used instead of '\r' and '\n'.
  */
-CURLcode Curl_httpchunk_read(struct Curl_easy *data, struct Curl_chunker *ch,
-                             char *buf, size_t blen, size_t *pconsumed);
+CURLcode Curl_httpchunk_read(কাঠামো Curl_easy *তথ্য, কাঠামো Curl_chunker *ch,
+                             অক্ষর *buf, size_t blen, size_t *pconsumed);
 
 /**
  * @return TRUE iff chunked decoded has finished successfully.
  */
-bool Curl_httpchunk_is_done(struct Curl_easy *data, struct Curl_chunker *ch);
+bool Curl_httpchunk_is_done(কাঠামো Curl_easy *তথ্য, কাঠামো Curl_chunker *ch);
 
-extern const struct Curl_cwtype Curl_httpchunk_unencoder;
+বাহ্যিক ধ্রুবক কাঠামো Curl_cwtype Curl_httpchunk_unencoder;
 
-extern const struct Curl_crtype Curl_httpchunk_encoder;
+বাহ্যিক ধ্রুবক কাঠামো Curl_crtype Curl_httpchunk_encoder;
 
 /**
  * Add a transfer-encoding "chunked" reader to the transfers reader stack
  */
-CURLcode Curl_httpchunk_add_reader(struct Curl_easy *data);
+CURLcode Curl_httpchunk_add_reader(কাঠামো Curl_easy *তথ্য);
 
 #endif /* !CURL_DISABLE_HTTP */
 

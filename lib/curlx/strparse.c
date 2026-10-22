@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/strparse.h"
+#অন্তর্ভাব "curlx/strparse.h"
 
-void curlx_str_init(struct Curl_str *out)
+শূন্য curlx_str_init(কাঠামো Curl_str *out)
 {
-  out->str = NULL;
+  out->str = ফাঁকা;
   out->len = 0;
 }
 
-void curlx_str_assign(struct Curl_str *out, const char *str, size_t len)
+শূন্য curlx_str_assign(কাঠামো Curl_str *out, ধ্রুবক অক্ষর *str, size_t len)
 {
   out->str = str;
   out->len = len;
@@ -37,7 +37,7 @@ void curlx_str_assign(struct Curl_str *out, const char *str, size_t len)
 
 /* remove bytes from the end of the string, never remove more bytes than what
    the string holds! */
-void curlx_str_trim(struct Curl_str *out, size_t len)
+শূন্য curlx_str_trim(কাঠামো Curl_str *out, size_t len)
 {
   DEBUGASSERT(out);
   DEBUGASSERT(out->len >= len);
@@ -46,10 +46,10 @@ void curlx_str_trim(struct Curl_str *out, size_t len)
 
 /* Get a word until the first DELIM or end of string. At least one byte long.
    return non-zero on error. If 'max' is zero, it will always return error. */
-int curlx_str_until(const char **linep, struct Curl_str *out,
-                    const size_t max, char delim)
+পূর্ণসংখ্যা curlx_str_until(ধ্রুবক অক্ষর **linep, কাঠামো Curl_str *out,
+                    ধ্রুবক size_t max, অক্ষর delim)
 {
-  const char *s;
+  ধ্রুবক অক্ষর *s;
   size_t len = 0;
   DEBUGASSERT(linep);
   DEBUGASSERT(*linep);
@@ -58,97 +58,97 @@ int curlx_str_until(const char **linep, struct Curl_str *out,
   s = *linep;
 
   curlx_str_init(out);
-  while(*s && (*s != delim)) {
+  যখন(*s && (*s != delim)) {
     s++;
-    if(++len > max) {
-      return STRE_BIG;
+    যদি(++len > max) {
+      ফেরত STRE_BIG;
     }
   }
-  if(!len)
-    return STRE_SHORT;
+  যদি(!len)
+    ফেরত STRE_SHORT;
   out->str = *linep;
   out->len = len;
   *linep = s; /* point to the first byte after the word */
-  return STRE_OK;
+  ফেরত STRE_OK;
 }
 
 /* Get a word until the first space or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_word(const char **linep, struct Curl_str *out, const size_t max)
+পূর্ণসংখ্যা curlx_str_word(ধ্রুবক অক্ষর **linep, কাঠামো Curl_str *out, ধ্রুবক size_t max)
 {
-  return curlx_str_until(linep, out, max, ' ');
+  ফেরত curlx_str_until(linep, out, max, ' ');
 }
 
 /* Get a word until a newline byte or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_untilnl(const char **linep, struct Curl_str *out,
-                      const size_t max)
+পূর্ণসংখ্যা curlx_str_untilnl(ধ্রুবক অক্ষর **linep, কাঠামো Curl_str *out,
+                      ধ্রুবক size_t max)
 {
-  const char *s = *linep;
+  ধ্রুবক অক্ষর *s = *linep;
   size_t len = 0;
   DEBUGASSERT(linep && *linep && out && max);
 
   curlx_str_init(out);
-  while(*s && !ISNEWLINE(*s)) {
+  যখন(*s && !ISNEWLINE(*s)) {
     s++;
-    if(++len > max)
-      return STRE_BIG;
+    যদি(++len > max)
+      ফেরত STRE_BIG;
   }
-  if(!len)
-    return STRE_SHORT;
+  যদি(!len)
+    ফেরত STRE_SHORT;
   out->str = *linep;
   out->len = len;
   *linep = s; /* point to the first byte after the word */
-  return STRE_OK;
+  ফেরত STRE_OK;
 }
 
 /* Get a "quoted" word. Escaped quotes are supported.
    return non-zero on error */
-int curlx_str_quotedword(const char **linep, struct Curl_str *out,
-                         const size_t max)
+পূর্ণসংখ্যা curlx_str_quotedword(ধ্রুবক অক্ষর **linep, কাঠামো Curl_str *out,
+                         ধ্রুবক size_t max)
 {
-  const char *s = *linep;
+  ধ্রুবক অক্ষর *s = *linep;
   size_t len = 0;
   DEBUGASSERT(linep && *linep && out && max);
 
   curlx_str_init(out);
-  if(*s != '\"')
-    return STRE_BEGQUOTE;
+  যদি(*s != '\"')
+    ফেরত STRE_BEGQUOTE;
   s++;
-  while(*s && (*s != '\"')) {
-    if(*s == '\\' && s[1]) {
+  যখন(*s && (*s != '\"')) {
+    যদি(*s == '\\' && s[1]) {
       s++;
-      if(++len > max)
-        return STRE_BIG;
+      যদি(++len > max)
+        ফেরত STRE_BIG;
     }
     s++;
-    if(++len > max)
-      return STRE_BIG;
+    যদি(++len > max)
+      ফেরত STRE_BIG;
   }
-  if(*s != '\"')
-    return STRE_ENDQUOTE;
+  যদি(*s != '\"')
+    ফেরত STRE_ENDQUOTE;
   out->str = (*linep) + 1;
   out->len = len;
   *linep = s + 1;
-  return STRE_OK;
+  ফেরত STRE_OK;
 }
 
 /* Advance over a single character.
    return non-zero on error */
-int curlx_str_single(const char **linep, char byte)
+পূর্ণসংখ্যা curlx_str_single(ধ্রুবক অক্ষর **linep, অক্ষর byte)
 {
   DEBUGASSERT(linep && *linep);
-  if(**linep != byte)
-    return STRE_BYTE;
+  যদি(**linep != byte)
+    ফেরত STRE_BYTE;
   (*linep)++; /* move over it */
-  return STRE_OK;
+  ফেরত STRE_OK;
 }
 
 /* Advance over a single space.
    return non-zero on error */
-int curlx_str_singlespace(const char **linep)
+পূর্ণসংখ্যা curlx_str_singlespace(ধ্রুবক অক্ষর **linep)
 {
-  return curlx_str_single(linep, ' ');
+  ফেরত curlx_str_single(linep, ' ');
 }
 
 /* given an ASCII character and max ascii, return TRUE if valid */
@@ -158,7 +158,7 @@ int curlx_str_singlespace(const char **linep)
 /* We use 16 for the zero index (and the necessary bitwise AND in the loop)
    to be able to have a non-zero value there to make valid_digit() able to
    use the info */
-const unsigned char curlx_hexasciitable[] = {
+ধ্রুবক unsigned অক্ষর curlx_hexasciitable[] = {
   16, 1, 2, 3, 4, 5, 6, 7, 8, 9, /* 0x30: 0 - 9 */
   0, 0, 0, 0, 0, 0, 0,
   10, 11, 12, 13, 14, 15,        /* 0x41: A - F */
@@ -167,156 +167,156 @@ const unsigned char curlx_hexasciitable[] = {
 };
 
 /* no support for 0x prefix nor leading spaces */
-static int str_num_base(const char **linep, curl_off_t *nump, curl_off_t max,
-                        int base) /* 8, 10 or 16, nothing else */
+স্থির পূর্ণসংখ্যা str_অঙ্ক_base(ধ্রুবক অক্ষর **linep, curl_off_t *nump, curl_off_t max,
+                        পূর্ণসংখ্যা base) /* 8, 10 or 16, nothing else */
 {
-  curl_off_t num = 0;
-  const char *p;
-  int m = (base == 10) ? '9' :   /* the largest digit possible */
+  curl_off_t অঙ্ক = 0;
+  ধ্রুবক অক্ষর *p;
+  পূর্ণসংখ্যা m = (base == 10) ? '9' :   /* the largest digit possible */
     (base == 16) ? 'f' : '7';
   DEBUGASSERT(linep && *linep && nump);
   DEBUGASSERT((base == 8) || (base == 10) || (base == 16));
   DEBUGASSERT(max >= 0); /* mostly to catch SIZE_MAX, which is too large */
   *nump = 0;
   p = *linep;
-  if(!valid_digit(*p, m))
-    return STRE_NO_NUM;
-  if(max < base) {
+  যদি(!valid_digit(*p, m))
+    ফেরত STRE_NO_অঙ্ক;
+  যদি(max < base) {
     /* special-case low max scenario because check needs to be different */
-    do {
-      int n = curlx_hexval(*p++);
-      num = (num * base) + n;
-      if(num > max)
-        return STRE_OVERFLOW;
-    } while(valid_digit(*p, m));
+    করো {
+      পূর্ণসংখ্যা n = curlx_hexval(*p++);
+      অঙ্ক = (অঙ্ক * base) + n;
+      যদি(অঙ্ক > max)
+        ফেরত STRE_OVERFLOW;
+    } যখন(valid_digit(*p, m));
   }
-  else {
+  অন্যথা {
     curl_off_t cutoff = (max - (base - 1)) / base;
-    while(valid_digit(*p, m)) {
-      if(num <= cutoff)
-        num = (num * base) + curlx_hexval(*p++);
-      else {
-        int n = curlx_hexval(*p++);
-        if(num > ((max - n) / base))
-          return STRE_OVERFLOW;
-        num = (num * base) + n;
+    যখন(valid_digit(*p, m)) {
+      যদি(অঙ্ক <= cutoff)
+        অঙ্ক = (অঙ্ক * base) + curlx_hexval(*p++);
+      অন্যথা {
+        পূর্ণসংখ্যা n = curlx_hexval(*p++);
+        যদি(অঙ্ক > ((max - n) / base))
+          ফেরত STRE_OVERFLOW;
+        অঙ্ক = (অঙ্ক * base) + n;
       }
     }
   }
-  *nump = num;
+  *nump = অঙ্ক;
   *linep = p;
-  return STRE_OK;
+  ফেরত STRE_OK;
 }
 
 /* Get an unsigned decimal number with no leading space or minus. Leading
    zeroes are accepted. return non-zero on error */
-int curlx_str_number(const char **linep, curl_off_t *nump, curl_off_t max)
+পূর্ণসংখ্যা curlx_str_সংখ্যা(ধ্রুবক অক্ষর **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 10);
+  ফেরত str_অঙ্ক_base(linep, nump, max, 10);
 }
 
 /* Get an unsigned hexadecimal number with no leading space or minus and no
    "0x" support. Leading zeroes are accepted. return non-zero on error */
-int curlx_str_hex(const char **linep, curl_off_t *nump, curl_off_t max)
+পূর্ণসংখ্যা curlx_str_hex(ধ্রুবক অক্ষর **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 16);
+  ফেরত str_অঙ্ক_base(linep, nump, max, 16);
 }
 
 /* Get an unsigned octal number with no leading space or minus and no "0"
    prefix support. Leading zeroes are accepted. return non-zero on error */
-int curlx_str_octal(const char **linep, curl_off_t *nump, curl_off_t max)
+পূর্ণসংখ্যা curlx_str_octal(ধ্রুবক অক্ষর **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 8);
+  ফেরত str_অঙ্ক_base(linep, nump, max, 8);
 }
 
 /*
  * Parse a positive number up to 63-bit number written in ASCII. Skip leading
  * blanks. No support for prefixes.
  */
-int curlx_str_numblanks(const char **str, curl_off_t *num)
+পূর্ণসংখ্যা curlx_str_numblanks(ধ্রুবক অক্ষর **str, curl_off_t *অঙ্ক)
 {
   curlx_str_passblanks(str);
-  return curlx_str_number(str, num, CURL_OFF_T_MAX);
+  ফেরত curlx_str_সংখ্যা(str, অঙ্ক, CURL_OFF_T_MAX);
 }
 
 /* CR or LF
    return non-zero on error */
-int curlx_str_newline(const char **linep)
+পূর্ণসংখ্যা curlx_str_newline(ধ্রুবক অক্ষর **linep)
 {
   DEBUGASSERT(linep && *linep);
-  if(ISNEWLINE(**linep)) {
+  যদি(ISNEWLINE(**linep)) {
     (*linep)++;
-    return STRE_OK; /* yessir */
+    ফেরত STRE_OK; /* yessir */
   }
-  return STRE_NEWLINE;
+  ফেরত STRE_NEWLINE;
 }
 
 #ifndef WITHOUT_LIBCURL
 /* case insensitive compare that the parsed string matches the given string.
    Returns non-zero on match. */
-int curlx_str_casecompare(struct Curl_str *str, const char *check)
+পূর্ণসংখ্যা curlx_str_casecompare(কাঠামো Curl_str *str, ধ্রুবক অক্ষর *check)
 {
   size_t clen = check ? strlen(check) : 0;
-  return ((str->len == clen) && curl_strnequal(str->str, check, clen));
+  ফেরত ((str->len == clen) && curl_strnequal(str->str, check, clen));
 }
 #endif
 
 /* case sensitive string compare. Returns non-zero on match. */
-int curlx_str_cmp(struct Curl_str *str, const char *check)
+পূর্ণসংখ্যা curlx_str_cmp(কাঠামো Curl_str *str, ধ্রুবক অক্ষর *check)
 {
-  if(check) {
+  যদি(check) {
     size_t clen = strlen(check);
-    return ((str->len == clen) && !strncmp(str->str, check, clen));
+    ফেরত ((str->len == clen) && !strncmp(str->str, check, clen));
   }
-  return !!str->len;
+  ফেরত !!str->len;
 }
 
 /* Trim off 'num' number of bytes from the beginning (left side) of the
    string. If 'num' is larger than the string, return error. */
-int curlx_str_nudge(struct Curl_str *str, size_t num)
+পূর্ণসংখ্যা curlx_str_nudge(কাঠামো Curl_str *str, size_t অঙ্ক)
 {
-  if(num <= str->len) {
-    str->str += num;
-    str->len -= num;
-    return STRE_OK;
+  যদি(অঙ্ক <= str->len) {
+    str->str += অঙ্ক;
+    str->len -= অঙ্ক;
+    ফেরত STRE_OK;
   }
-  return STRE_OVERFLOW;
+  ফেরত STRE_OVERFLOW;
 }
 
 /* Get the following character sequence that consists only of bytes not
    present in the 'reject' string. Like strcspn(). */
-int curlx_str_cspn(const char **linep, struct Curl_str *out,
-                   const char *reject)
+পূর্ণসংখ্যা curlx_str_cspn(ধ্রুবক অক্ষর **linep, কাঠামো Curl_str *out,
+                   ধ্রুবক অক্ষর *reject)
 {
-  const char *s = *linep;
+  ধ্রুবক অক্ষর *s = *linep;
   size_t len;
   DEBUGASSERT(linep && *linep);
 
   len = strcspn(s, reject);
-  if(len) {
+  যদি(len) {
     out->str = s;
     out->len = len;
     *linep = &s[len];
-    return STRE_OK;
+    ফেরত STRE_OK;
   }
   curlx_str_init(out);
-  return STRE_SHORT;
+  ফেরত STRE_SHORT;
 }
 
 /* remove ISBLANK()s from both ends of the string */
-void curlx_str_trimblanks(struct Curl_str *out)
+শূন্য curlx_str_trimblanks(কাঠামো Curl_str *out)
 {
-  while(out->len && ISBLANK(*out->str))
+  যখন(out->len && ISBLANK(*out->str))
     curlx_str_nudge(out, 1);
 
   /* trim trailing spaces and tabs */
-  while(out->len && ISBLANK(out->str[out->len - 1]))
+  যখন(out->len && ISBLANK(out->str[out->len - 1]))
     out->len--;
 }
 
 /* increase the pointer until it has moved over all blanks */
-void curlx_str_passblanks(const char **linep)
+শূন্য curlx_str_passblanks(ধ্রুবক অক্ষর **linep)
 {
-  while(ISBLANK(**linep))
+  যখন(ISBLANK(**linep))
     (*linep)++; /* move over it */
 }

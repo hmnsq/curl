@@ -24,16 +24,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "uint-bset.h"
-#include "uint-table.h"
-#include "curlx/timeval.h"
+#অন্তর্ভাব "uint-bset.h"
+#অন্তর্ভাব "uint-table.h"
+#অন্তর্ভাব "curlx/timeval.h"
 
-struct connectdata;
-struct Curl_easy;
-struct curl_pollfds;
-struct Curl_waitfds;
-struct Curl_multi;
-struct Curl_share;
+কাঠামো connectdata;
+কাঠামো Curl_easy;
+কাঠামো curl_pollfds;
+কাঠামো Curl_waitfds;
+কাঠামো Curl_multi;
+কাঠামো Curl_share;
 
 /**
  * Close and destroy the connection.
@@ -44,75 +44,75 @@ struct Curl_share;
  * Takes ownership of `conn`.
  * `data` should not be attached to a connection.
  */
-void Curl_conn_close(struct Curl_easy *data,
-                     struct connectdata *conn,
+শূন্য Curl_conn_close(কাঠামো Curl_easy *তথ্য,
+                     কাঠামো connectdata *conn,
                      bool aborted);
 
-struct cpool {
-  struct uint32_tbl conns; /* connections added to this pool */
-  struct uint32_bset idles; /* pool_ids of conns being idle */
-  struct Curl_hash dest2bundle; /* conn destination sets */
-  curl_off_t next_connection_id;
-  curl_off_t next_easy_id;
-  struct curltime last_cleanup;
-  struct Curl_share *share; /* != NULL if pool belongs to share */
+কাঠামো cpool {
+  কাঠামো uint32_tbl conns; /* connections added to this pool */
+  কাঠামো uint32_bset idles; /* pool_ids of conns being idle */
+  কাঠামো Curl_hash dest2bundle; /* conn destination sets */
+  curl_off_t পরবর্তী_connection_id;
+  curl_off_t পরবর্তী_easy_id;
+  কাঠামো curltime last_cleanup;
+  কাঠামো Curl_share *share; /* != NULL if pool belongs to share */
   BIT(locked);
   BIT(initialized);
   BIT(in_shutdown);
 };
 
 /* Get connection pool instance for data or NULL if none exists */
-struct cpool *Curl_cpool_get_instance(struct Curl_easy *data);
+কাঠামো cpool *Curl_cpool_get_instance(কাঠামো Curl_easy *তথ্য);
 
 /* Init the pool, pass multi only if pool is owned by it.
  * Cannot fail.
  */
-void Curl_cpool_init(struct cpool *cpool,
-                     struct Curl_share *share,
-                     size_t size);
+শূন্য Curl_cpool_init(কাঠামো cpool *cpool,
+                     কাঠামো Curl_share *share,
+                     size_t আকার_2);
 
 /* Destroy all connections and free all members */
-void Curl_cpool_destroy(struct cpool *cpool,
-                        struct Curl_easy *admin);
+শূন্য Curl_cpool_destroy(কাঠামো cpool *cpool,
+                        কাঠামো Curl_easy *admin);
 
 /* Init the transfer to be used within its connection pool.
  * Assigns `data->id`. */
-void Curl_cpool_xfer_init(struct Curl_easy *data);
+শূন্য Curl_cpool_xfer_init(কাঠামো Curl_easy *তথ্য);
 
 /* Get the connection last used by data,
  * if there was one and it still exists. */
-struct connectdata *Curl_cpool_get_last_conn(struct Curl_easy *data);
+কাঠামো connectdata *Curl_cpool_get_last_conn(কাঠামো Curl_easy *তথ্য);
 
 /* Add the connection to the pool. */
-CURLcode Curl_cpool_add(struct Curl_easy *data,
-                        struct connectdata *conn,
-                        uint32_t max_total,
+CURLcode Curl_cpool_add(কাঠামো Curl_easy *তথ্য,
+                        কাঠামো connectdata *conn,
+                        uint32_t max_যোগ,
                         uint32_t max_host,
-                        const struct curltime *pnow) WARN_UNUSED_RESULT;
+                        ধ্রুবক কাঠামো curltime *pnow) WARN_UNUSED_ফলাফল;
 
 /* Connection was used at the given time. */
-void Curl_cpool_conn_was_used(struct Curl_easy *data,
-                              struct connectdata *conn,
-                              const struct curltime *pnow);
+শূন্য Curl_cpool_conn_was_used(কাঠামো Curl_easy *তথ্য,
+                              কাঠামো connectdata *conn,
+                              ধ্রুবক কাঠামো curltime *pnow);
 
 /* Return connection age in milliseconds since its creation. */
-timediff_t Curl_cpool_conn_age_ms(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  const struct curltime *pnow);
+timediff_t Curl_cpool_conn_age_ms(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো connectdata *conn,
+                                  ধ্রুবক কাঠামো curltime *pnow);
 
-typedef enum {
+প্রকারলেখ গণনা {
   CPOOL_MATCH_FOUND, /* The passed `conn` matches, stop looking further */
   CPOOL_MATCH_CONT,  /* No match, continue looking */
   CPOOL_MATCH_CLOSE, /* No match, close `conn`, continue looking */
   CPOOL_MATCH_TOO_OLD /* No match, `conn` is too old, close when idle */
-} cpool_match_result;
+} cpool_match_ফলাফল;
 
 /* Return of conn is suitable. If so, stops iteration. */
-typedef cpool_match_result
- Curl_cpool_conn_match_cb(struct connectdata *conn, void *userdata);
+প্রকারলেখ cpool_match_ফলাফল
+ Curl_cpool_conn_match_cb(কাঠামো connectdata *conn, শূন্য *userdata);
 
 /* Act on the result of the find, may override it. */
-typedef bool Curl_cpool_done_match_cb(void *userdata);
+প্রকারলেখ bool Curl_cpool_done_match_cb(শূন্য *userdata);
 
 /**
  * Find a connection in the pool matching `destination`.
@@ -126,30 +126,30 @@ typedef bool Curl_cpool_done_match_cb(void *userdata);
  * @return combined result of last conn_db and result_cb or FALSE if no
                       connections were present.
  */
-bool Curl_cpool_find(struct Curl_easy *data,
-                     const char *destination,
+bool Curl_cpool_find(কাঠামো Curl_easy *তথ্য,
+                     ধ্রুবক অক্ষর *destination,
                      bool prune_dead,
-                     const struct curltime *pnow,
+                     ধ্রুবক কাঠামো curltime *pnow,
                      Curl_cpool_conn_match_cb *conn_cb,
                      Curl_cpool_done_match_cb *done_cb,
-                     void *userdata);
+                     শূন্য *userdata);
 
 /**
  * Perform upkeep actions on connections in the transfer's pool.
  */
-CURLcode Curl_cpool_upkeep(struct Curl_easy *data);
+CURLcode Curl_cpool_upkeep(কাঠামো Curl_easy *তথ্য);
 
-typedef enum {
+প্রকারলেখ গণনা {
   CPOOL_DO_KEEP, /* Keep the connection, still in use */
   CPOOL_DO_IDLE, /* Connection is idle, may get closed now */
   CPOOL_DO_CLOSE, /* Close the connection (clean) */
   CPOOL_DO_TERMINATE /* Terminate the connection (unclean) */
-} cpool_do_result;
+} cpool_do_ফলাফল;
 
-typedef cpool_do_result Curl_cpool_return_cb(struct Curl_easy *data,
-                                             struct connectdata *conn,
-                                             void *cbdata,
-                                             const struct curltime *pnow);
+প্রকারলেখ cpool_do_ফলাফল Curl_cpool_return_cb(কাঠামো Curl_easy *তথ্য,
+                                             কাঠামো connectdata *conn,
+                                             শূন্য *cbdata,
+                                             ধ্রুবক কাঠামো curltime *pnow);
 
 /**
  * Invoked the callback for the given data + connection under the
@@ -157,18 +157,18 @@ typedef cpool_do_result Curl_cpool_return_cb(struct Curl_easy *data,
  * The callback is always invoked, even if the transfer has no connection
  * pool associated.
  */
-void Curl_cpool_return(struct Curl_easy *data,
-                       struct connectdata *conn,
-                       Curl_cpool_return_cb *cb, void *cbdata,
-                       const struct curltime *pnow);
+শূন্য Curl_cpool_return(কাঠামো Curl_easy *তথ্য,
+                       কাঠামো connectdata *conn,
+                       Curl_cpool_return_cb *cb, শূন্য *cbdata,
+                       ধ্রুবক কাঠামো curltime *pnow);
 
 /* Close all unused connections, prevent reuse of existing ones. */
-void Curl_cpool_nw_changed(struct cpool *cpool, struct Curl_easy *admin);
+শূন্য Curl_cpool_nw_changed(কাঠামো cpool *cpool, কাঠামো Curl_easy *admin);
 
 /* Return TRUE iff the given connection is considered healthy, e.g.
  * usable for more transfers. */
-bool Curl_cpool_conn_seems_healthy(struct connectdata *conn,
-                                   struct Curl_easy *data,
-                                   const struct curltime *pnow);
+bool Curl_cpool_conn_seems_healthy(কাঠামো connectdata *conn,
+                                   কাঠামো Curl_easy *তথ্য,
+                                   ধ্রুবক কাঠামো curltime *pnow);
 
 #endif /* HEADER_CURL_CONNCACHE_H */

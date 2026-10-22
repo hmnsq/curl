@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if defined(USE_NGHTTP2) && !defined(CURL_DISABLE_PROXY)
+#যদি defined(USE_NGHTTP2) && !defined(CURL_DISABLE_PROXY)
 
-CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
+CURLcode Curl_cf_h2_proxy_ঢোকাও_after(কাঠামো Curl_cfilter *cf,
+                                       কাঠামো Curl_easy *তথ্য,
+                                       কাঠামো Curl_peer *peer,
+                                       কাঠামো Curl_peer *dest,
                                        bool udp_tunnel);
 
-extern struct Curl_cftype Curl_cft_h2_proxy;
+বাহ্যিক কাঠামো Curl_cftype Curl_cft_h2_proxy;
 
 #endif /* USE_NGHTTP2 && !CURL_DISABLE_PROXY */
 

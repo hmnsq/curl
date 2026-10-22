@@ -21,46 +21,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#যদি !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
-#include "curl_get_line.h"
+#অন্তর্ভাব "curl_get_line.h"
 
 /*
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_সারি(কাঠামো dynbuf *buf, FILE *প্রবেশ, bool *eof)
 {
-  CURLcode result;
-  char buffer[128];
+  CURLcode ফলাফল;
+  অক্ষর বাফার[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  যখন(1) {
     size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    ধ্রুবক অক্ষর *b = fgets(বাফার, আকার(বাফার), প্রবেশ);
+    যদি(!b && ferror(প্রবেশ))
+      ফেরত CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = feof(প্রবেশ);
 
     rlen = b ? strlen(b) : 0;
-    if(rlen) {
-      result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+    যদি(rlen) {
+      ফলাফল = curlx_dyn_addn(buf, b, rlen);
+      যদি(ফলাফল)
         /* too long line or out of memory */
-        return result;
+        ফেরত ফলাফল;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    যদি(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      ফেরত CURLE_OK; /* all good */
+    যদি(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      ফেরত curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */

@@ -21,64 +21,64 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifndef CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "cf-recvbuf.h"
-#include "curl_trc.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "bufq.h"
+#অন্তর্ভাব "cfilters.h"
+#অন্তর্ভাব "cf-recvbuf.h"
+#অন্তর্ভাব "curl_trc.h"
 
 #define CURL_CF_RECVBUF_CHUNK     (16 * 1024)
 
-struct cf_recvbuf_ctx {
-  struct bufq recvbuf;
+কাঠামো cf_recvbuf_ctx {
+  কাঠামো bufq recvbuf;
 };
 
-static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+স্থির শূন্য cf_recvbuf_destroy(কাঠামো Curl_cfilter *cf,
+                               কাঠামো Curl_easy *তথ্য)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  কাঠামো cf_recvbuf_ctx *ctx = cf->ctx;
+  (শূন্য)তথ্য;
+  যদি(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+স্থির CURLcode cf_recvbuf_recv(কাঠামো Curl_cfilter *cf,
+                                কাঠামো Curl_easy *তথ্য,
+                                অক্ষর *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  কাঠামো cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  যদি(!Curl_bufq_is_empty(&ctx->recvbuf)) {
+    ফেরত Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  যদি(cf->পরবর্তী)
+    ফেরত cf->পরবর্তী->cft->do_recv(cf->পরবর্তী, তথ্য, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  ফেরত CURLE_RECV_ERROR;
 }
 
-static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+স্থির bool cf_recvbuf_তথ্য_pending(কাঠামো Curl_cfilter *cf,
+                                    ধ্রুবক কাঠামো Curl_easy *তথ্য)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  কাঠামো cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  যদি(!Curl_bufq_is_empty(&ctx->recvbuf))
+    ফেরত TRUE;
 
-  return cf->next ?
-    cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  ফেরত cf->পরবর্তী ?
+    cf->পরবর্তী->cft->has_তথ্য_pending(cf->পরবর্তী, তথ্য) : FALSE;
 }
 
-struct Curl_cftype Curl_cft_recvbuf = {
+কাঠামো Curl_cftype Curl_cft_recvbuf = {
   "RECVBUF",
   0,
   CURL_LOG_LVL_NONE,
@@ -86,7 +86,7 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_connect,
   Curl_cf_def_shutdown,
   Curl_cf_def_adjust_pollset,
-  cf_recvbuf_data_pending,
+  cf_recvbuf_তথ্য_pending,
   Curl_cf_def_send,
   cf_recvbuf_recv,
   Curl_cf_def_cntrl,
@@ -95,63 +95,63 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  const uint8_t *buf, size_t blen)
+স্থির CURLcode cf_recvbuf_create(কাঠামো Curl_cfilter **pcf,
+                                  কাঠামো Curl_easy *তথ্য,
+                                  ধ্রুবক uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_recvbuf_ctx *ctx;
-  CURLcode result = CURLE_OK;
+  কাঠামো Curl_cfilter *cf = ফাঁকা;
+  কাঠামো cf_recvbuf_ctx *ctx;
+  CURLcode ফলাফল = CURLE_OK;
   size_t nwritten = 0;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (শূন্য)তথ্য;
+  ctx = curlx_calloc(1, আকার(*ctx));
+  যদি(!ctx) {
+    ফলাফল = CURLE_OUT_OF_MEMORY;
+    যাও out;
   }
   Curl_bufq_init2(&ctx->recvbuf, CURL_CF_RECVBUF_CHUNK,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
                   (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-  result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
-    goto out;
-  if(nwritten != blen) {
-    result = CURLE_FAILED_INIT;
-    goto out;
+  ফলাফল = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
+  যদি(ফলাফল)
+    যাও out;
+  যদি(nwritten != blen) {
+    ফলাফল = CURLE_FAILED_INIT;
+    যাও out;
   }
 
-  result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  ফলাফল = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
+  যদি(ফলাফল)
+    যাও out;
+  ctx = ফাঁকা;
 
 out:
-  *pcf = result ? NULL : cf;
-  if(ctx) {
+  *pcf = ফলাফল ? ফাঁকা : cf;
+  যদি(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_add(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen)
+                             ধ্রুবক uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  কাঠামো Curl_cfilter *cf;
+  CURLcode ফলাফল = CURLE_OK;
 
-  DEBUGASSERT(data);
-  result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
-    goto out;
+  DEBUGASSERT(তথ্য);
+  ফলাফল = cf_recvbuf_create(&cf, তথ্য, buf, blen);
+  যদি(ফলাফল)
+    যাও out;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
-  Curl_conn_cf_add(data, conn, sockindex, cf);
+  Curl_conn_cf_add(তথ্য, conn, sockindex, cf);
 out:
-  return result;
+  ফেরত ফলাফল;
 }
 
 #endif /* !CURL_DISABLE_WEBSOCKETS */

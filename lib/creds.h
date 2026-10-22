@@ -24,52 +24,52 @@
  *
  ***************************************************************************/
 
-struct Curl_easy;
+কাঠামো Curl_easy;
 
 #define CREDS_NONE   0 /* used for default username/passwd */
 #define CREDS_URL    1 /* username/passwd from URL */
 #define CREDS_OPTION 2 /* username/passwd set with a CURLOPT_ */
 #define CREDS_NETRC  3 /* username/passwd found in netrc */
 
-struct Curl_creds {
-  const char *user; /* non-NULL, maybe empty string */
-  const char *passwd; /* non-NULL, maybe empty string */
-  const char *oauth_bearer; /* non-NULL, maybe empty string */
-  const char *sasl_authzid; /* non-NULL, maybe empty string */
-  const char *sasl_service; /* non-NULL, maybe empty string */
+কাঠামো Curl_creds {
+  ধ্রুবক অক্ষর *user; /* non-NULL, maybe empty string */
+  ধ্রুবক অক্ষর *passwd; /* non-NULL, maybe empty string */
+  ধ্রুবক অক্ষর *oauth_bearer; /* non-NULL, maybe empty string */
+  ধ্রুবক অক্ষর *sasl_authzid; /* non-NULL, maybe empty string */
+  ধ্রুবক অক্ষর *sasl_service; /* non-NULL, maybe empty string */
   uint32_t refcount;
   uint8_t source; /* CREDS_* value */
   size_t bufsize; /* extra bytes added to sizeof(struct Curl_creds) */
-  char buf[1];
+  অক্ষর buf[1];
 };
 
-CURLcode Curl_creds_create(const char *user,
-                           const char *passwd,
-                           const char *oauth_bearer,
-                           const char *sasl_authzid,
-                           const char *sasl_service,
+CURLcode Curl_creds_create(ধ্রুবক অক্ষর *user,
+                           ধ্রুবক অক্ষর *passwd,
+                           ধ্রুবক অক্ষর *oauth_bearer,
+                           ধ্রুবক অক্ষর *sasl_authzid,
+                           ধ্রুবক অক্ষর *sasl_service,
                            uint8_t source,
-                           struct Curl_creds **pcreds);
+                           কাঠামো Curl_creds **pcreds);
 
 /* Create credentials by overriding `user` and/or `passwd` in `creds_in` */
-CURLcode Curl_creds_merge(const char *user,
-                          const char *passwd,
-                          struct Curl_creds *creds_in,
+CURLcode Curl_creds_merge(ধ্রুবক অক্ষর *user,
+                          ধ্রুবক অক্ষর *passwd,
+                          কাঠামো Curl_creds *creds_in,
                           uint8_t source,
-                          struct Curl_creds **pcreds_out);
+                          কাঠামো Curl_creds **pcreds_out);
 
 /* Unlink any creds in `*pdest`, assign src, increase src
  * refcount when not NULL. */
-void Curl_creds_link(struct Curl_creds **pdest, struct Curl_creds *src);
+শূন্য Curl_creds_link(কাঠামো Curl_creds **pdest, কাঠামো Curl_creds *src);
 
 /* Drop a reference, creds may be passed as NULL */
-void Curl_creds_unlink(struct Curl_creds **pcreds);
+শূন্য Curl_creds_unlink(কাঠামো Curl_creds **pcreds);
 
 /* TRUE if both creds are NULL or have same values, except source. */
-bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2);
+bool Curl_creds_same(কাঠামো Curl_creds *c1, কাঠামো Curl_creds *c2);
 
 /* TRUE if both creds are NULL or have all values equal. */
-bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2);
+bool Curl_creds_equal(কাঠামো Curl_creds *c1, কাঠামো Curl_creds *c2);
 
 /* Provides properties for creds or, if creds is NULL, the empty string */
 #define Curl_creds_has_user(c)           ((c) && (c)->user[0])
@@ -85,8 +85,8 @@ bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2);
 #define Curl_creds_sasl_service(c)       ((c) ? (c)->sasl_service : "")
 
 #ifdef CURLVERBOSE
-void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
-                      const char *msg);
+শূন্য Curl_creds_trace(কাঠামো Curl_easy *তথ্য, কাঠামো Curl_creds *creds,
+                      ধ্রুবক অক্ষর *বার্তা);
 #endif
 
 #endif /* HEADER_CURL_CREDS_H */

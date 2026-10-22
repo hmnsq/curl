@@ -21,84 +21,84 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_LIBPSL
 
-#include "psl.h"
-#include "progress.h"
-#include "curl_share.h"
+#অন্তর্ভাব "psl.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "curl_share.h"
 
-#if !defined(PSL_VERSION_NUMBER) || PSL_VERSION_NUMBER < 0x001000
+#যদি !defined(PSL_VERSION_সংখ্যা) || PSL_VERSION_সংখ্যা < 0x001000
 #error "libpsl 0.16.0 or greater required"
 #endif
 
-void Curl_psl_destroy(struct PslCache *pslcache)
+শূন্য Curl_psl_destroy(কাঠামো PslCache *pslcache)
 {
-  if(pslcache->psl) {
-    if(pslcache->dynamic)
+  যদি(pslcache->psl) {
+    যদি(pslcache->dynamic)
       psl_free((psl_ctx_t *)CURL_UNCONST(pslcache->psl));
-    pslcache->psl = NULL;
+    pslcache->psl = ফাঁকা;
     pslcache->dynamic = FALSE;
   }
 }
 
-const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy)
+ধ্রুবক psl_ctx_t *Curl_psl_use(কাঠামো Curl_easy *easy)
 {
-  struct PslCache *pslcache = easy->psl;
-  const psl_ctx_t *psl;
+  কাঠামো PslCache *pslcache = easy->psl;
+  ধ্রুবক psl_ctx_t *psl;
   time_t now_sec;
 
-  if(!pslcache)
-    return NULL;
+  যদি(!pslcache)
+    ফেরত ফাঁকা;
 
-  Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SHARED);
+  Curl_share_lock(easy, CURL_LOCK_তথ্য_PSL, CURL_LOCK_ACCESS_SHARED);
   now_sec = Curl_pgrs_now(easy)->tv_sec;
-  if(!pslcache->psl || pslcache->expires <= now_sec) {
+  যদি(!pslcache->psl || pslcache->expires <= now_sec) {
     /* Release the shared lock so another thread can refresh the cache and
        avoid deadlock. */
-    Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
+    Curl_share_unlock(easy, CURL_LOCK_তথ্য_PSL);
 
     /* Update cache: this needs an exclusive lock. */
-    Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SINGLE);
+    Curl_share_lock(easy, CURL_LOCK_তথ্য_PSL, CURL_LOCK_ACCESS_SINGLE);
 
     /* Recheck in case another thread did the job. */
-    if(pslcache->expires <= now_sec) {
+    যদি(pslcache->expires <= now_sec) {
       now_sec = Curl_pgrs_now(easy)->tv_sec;
     }
-    if(!pslcache->psl || pslcache->expires <= now_sec) {
+    যদি(!pslcache->psl || pslcache->expires <= now_sec) {
       bool dynamic = FALSE;
       time_t expires = TIME_T_MAX;
 
-      psl = psl_latest(NULL);
+      psl = psl_latest(ফাঁকা);
       dynamic = !!psl;
       /* Take care of possible time computation overflow. */
       expires = (now_sec < TIME_T_MAX - PSL_TTL) ?
                 (now_sec + PSL_TTL) : TIME_T_MAX;
 
       /* Only get the built-in PSL if we do not already have the "latest". */
-      if(!psl && !pslcache->dynamic)
+      যদি(!psl && !pslcache->dynamic)
         psl = psl_builtin();
 
-      if(psl) {
+      যদি(psl) {
         Curl_psl_destroy(pslcache);
         pslcache->psl = psl;
         pslcache->dynamic = dynamic;
         pslcache->expires = expires;
       }
     }
-    Curl_share_unlock(easy, CURL_LOCK_DATA_PSL); /* Release exclusive lock. */
-    Curl_share_lock(easy, CURL_LOCK_DATA_PSL, CURL_LOCK_ACCESS_SHARED);
+    Curl_share_unlock(easy, CURL_LOCK_তথ্য_PSL); /* Release exclusive lock. */
+    Curl_share_lock(easy, CURL_LOCK_তথ্য_PSL, CURL_LOCK_ACCESS_SHARED);
   }
   psl = pslcache->psl;
-  if(!psl)
-    Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
-  return psl;
+  যদি(!psl)
+    Curl_share_unlock(easy, CURL_LOCK_তথ্য_PSL);
+  ফেরত psl;
 }
 
-void Curl_psl_release(struct Curl_easy *easy)
+শূন্য Curl_psl_release(কাঠামো Curl_easy *easy)
 {
-  Curl_share_unlock(easy, CURL_LOCK_DATA_PSL);
+  Curl_share_unlock(easy, CURL_LOCK_তথ্য_PSL);
 }
 
 #endif /* USE_LIBPSL */

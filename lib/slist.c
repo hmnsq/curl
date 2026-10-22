@@ -21,25 +21,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "slist.h"
+#অন্তর্ভাব "slist.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist *list)
+স্থির কাঠামো curl_slist *slist_get_last(কাঠামো curl_slist *list)
 {
-  struct curl_slist *item;
+  কাঠামো curl_slist *item;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  যদি(!list)
+    ফেরত ফাঁকা;
 
   /* loop through to find the last item */
   item = list;
-  while(item->next) {
-    item = item->next;
+  যখন(item->পরবর্তী) {
+    item = item->পরবর্তী;
   }
-  return item;
+  ফেরত item;
 }
 
 /*
@@ -51,28 +51,28 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
  * If an error occurs, NULL is returned and the string argument is NOT
  * released.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data)
+কাঠামো curl_slist *Curl_slist_append_nodup(কাঠামো curl_slist *list,
+                                           ধ্রুবক অক্ষর *তথ্য)
 {
-  struct curl_slist *last;
-  struct curl_slist *new_item;
+  কাঠামো curl_slist *last;
+  কাঠামো curl_slist *new_item;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(তথ্য);
 
-  new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  new_item = curlx_malloc(আকার(কাঠামো curl_slist));
+  যদি(!new_item)
+    ফেরত ফাঁকা;
 
-  new_item->next = NULL;
-  new_item->data = CURL_UNCONST(data);
+  new_item->পরবর্তী = ফাঁকা;
+  new_item->তথ্য = CURL_UNCONST(তথ্য);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  যদি(!list)
+    ফেরত new_item;
 
   last = slist_get_last(list);
-  last->next = new_item;
-  return list;
+  last->পরবর্তী = new_item;
+  ফেরত list;
 }
 
 /*
@@ -82,18 +82,18 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
  * bothersome, then create a separate _init function and call it
  * appropriately from within the program.
  */
-struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
+কাঠামো curl_slist *curl_slist_append(কাঠামো curl_slist *list, ধ্রুবক অক্ষর *তথ্য)
 {
-  char *dupdata = curlx_strdup(data);
+  অক্ষর *dupdata = curlx_strdup(তথ্য);
 
-  if(!dupdata)
-    return NULL;
+  যদি(!dupdata)
+    ফেরত ফাঁকা;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  যদি(!list)
     curlx_free(dupdata);
 
-  return list;
+  ফেরত list;
 }
 
 /*
@@ -101,40 +101,40 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
+কাঠামো curl_slist *Curl_slist_duplicate(কাঠামো curl_slist *inlist)
 {
-  struct curl_slist *outlist = NULL;
-  struct curl_slist **tail = &outlist;
+  কাঠামো curl_slist *outlist = ফাঁকা;
+  কাঠামো curl_slist **লেজ = &outlist;
 
-  while(inlist) {
-    struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
+  যখন(inlist) {
+    কাঠামো curl_slist *tmp = curl_slist_append(ফাঁকা, inlist->তথ্য);
 
-    if(!tmp) {
+    যদি(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      ফেরত ফাঁকা;
     }
 
-    *tail = tmp;
-    tail = &tmp->next;
-    inlist = inlist->next;
+    *লেজ = tmp;
+    লেজ = &tmp->পরবর্তী;
+    inlist = inlist->পরবর্তী;
   }
-  return outlist;
+  ফেরত outlist;
 }
 
 /* be nice and clean up resources */
-void curl_slist_free_all(struct curl_slist *list)
+শূন্য curl_slist_free_all(কাঠামো curl_slist *list)
 {
-  struct curl_slist *next;
-  struct curl_slist *item;
+  কাঠামো curl_slist *পরবর্তী;
+  কাঠামো curl_slist *item;
 
-  if(!list)
-    return;
+  যদি(!list)
+    ফেরত;
 
   item = list;
-  do {
-    next = item->next;
-    curlx_safefree(item->data);
+  করো {
+    পরবর্তী = item->পরবর্তী;
+    curlx_safefree(item->তথ্য);
     curlx_free(item);
-    item = next;
-  } while(next);
+    item = পরবর্তী;
+  } যখন(পরবর্তী);
 }

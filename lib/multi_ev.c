@@ -21,18 +21,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "select.h"
-#include "uint-bset.h"
-#include "uint-spbset.h"
-#include "multihandle.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "cfilters.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "multiif.h"
+#অন্তর্ভাব "multi_ev.h"
+#অন্তর্ভাব "select.h"
+#অন্তর্ভাব "uint-bset.h"
+#অন্তর্ভাব "uint-spbset.h"
+#অন্তর্ভাব "multihandle.h"
 
 #ifdef DEBUGBUILD
 #define SH_ENTRY_MAGIC 0x570091d
@@ -41,25 +41,25 @@
 /* Information about a socket for which we inform the libcurl application
  * what to supervise (CURL_POLL_IN/CURL_POLL_OUT/CURL_POLL_REMOVE)
  */
-struct mev_sh_entry {
-  struct uint32_spbset xfers; /* bitset of transfers `mid`s on this socket */
-  struct connectdata *conn; /* connection using this socket or NULL */
-  void *user_data;      /* libcurl app data via curl_multi_assign() */
-  unsigned int action;  /* CURL_POLL_IN/CURL_POLL_OUT we last told the
+কাঠামো mev_sh_entry {
+  কাঠামো uint32_spbset xfers; /* bitset of transfers `mid`s on this socket */
+  কাঠামো connectdata *conn; /* connection using this socket or NULL */
+  শূন্য *user_তথ্য;      /* libcurl app data via curl_multi_assign() */
+  unsigned পূর্ণসংখ্যা action;  /* CURL_POLL_IN/CURL_POLL_OUT we last told the
                          * libcurl application to watch out for */
-  unsigned int readers; /* this many transfers want to read */
-  unsigned int writers; /* this many transfers want to write */
+  unsigned পূর্ণসংখ্যা readers; /* this many transfers want to read */
+  unsigned পূর্ণসংখ্যা writers; /* this many transfers want to write */
 #ifdef DEBUGBUILD
-  unsigned int magic;
+  unsigned পূর্ণসংখ্যা magic;
 #endif
   BIT(announced);       /* this socket has been passed to the socket
                            callback at least once */
 };
 
 /* sockhash entry destructor callback */
-static void mev_sh_entry_dtor(void *freethis)
+স্থির শূন্য mev_sh_entry_dtor(শূন্য *freethis)
 {
-  struct mev_sh_entry *entry = (struct mev_sh_entry *)freethis;
+  কাঠামো mev_sh_entry *entry = (কাঠামো mev_sh_entry *)freethis;
   Curl_uint32_spbset_destroy(&entry->xfers);
 #ifdef DEBUGBUILD
   entry->magic = 0;
@@ -68,252 +68,252 @@ static void mev_sh_entry_dtor(void *freethis)
 }
 
 /* look up a given socket in the socket hash, skip invalid sockets */
-static struct mev_sh_entry *mev_sh_entry_get(struct Curl_hash *sh,
+স্থির কাঠামো mev_sh_entry *mev_sh_entry_get(কাঠামো Curl_hash *sh,
                                              curl_socket_t s)
 {
-  if(s != CURL_SOCKET_BAD) {
+  যদি(s != CURL_SOCKET_BAD) {
     /* only look for proper sockets */
-    return Curl_hash_pick(sh, (const char *)&s, sizeof(curl_socket_t));
+    ফেরত Curl_hash_pick(sh, (ধ্রুবক অক্ষর *)&s, আকার(curl_socket_t));
   }
-  return NULL;
+  ফেরত ফাঁকা;
 }
 
 /* make sure this socket is present in the hash for this handle */
-static struct mev_sh_entry *mev_sh_entry_add(struct Curl_hash *sh,
+স্থির কাঠামো mev_sh_entry *mev_sh_entry_add(কাঠামো Curl_hash *sh,
                                              curl_socket_t s)
 {
-  struct mev_sh_entry *there = mev_sh_entry_get(sh, s);
-  struct mev_sh_entry *check;
+  কাঠামো mev_sh_entry *there = mev_sh_entry_get(sh, s);
+  কাঠামো mev_sh_entry *check;
 
-  if(there) {
+  যদি(there) {
     /* it is present, return fine */
-    return there;
+    ফেরত there;
   }
 
   /* not present, add it */
-  check = curlx_calloc(1, sizeof(struct mev_sh_entry));
-  if(!check)
-    return NULL; /* major failure */
+  check = curlx_calloc(1, আকার(কাঠামো mev_sh_entry));
+  যদি(!check)
+    ফেরত ফাঁকা; /* major failure */
 
   Curl_uint32_spbset_init(&check->xfers);
 
   /* make/add new hash entry */
-  if(!Curl_hash_add(sh, (char *)&s, sizeof(curl_socket_t), check)) {
+  যদি(!Curl_hash_add(sh, (অক্ষর *)&s, আকার(curl_socket_t), check)) {
     mev_sh_entry_dtor(check);
-    return NULL; /* major failure */
+    ফেরত ফাঁকা; /* major failure */
   }
 #ifdef DEBUGBUILD
   check->magic = SH_ENTRY_MAGIC;
 #endif
-  return check; /* things are good in sockhash land */
+  ফেরত check; /* things are good in sockhash land */
 }
 
 /* delete the given socket entry from the hash */
-static void mev_sh_entry_kill(struct Curl_multi *multi, curl_socket_t s)
+স্থির শূন্য mev_sh_entry_kill(কাঠামো Curl_multi *multi, curl_socket_t s)
 {
-  Curl_hash_delete(&multi->ev.sh_entries, (char *)&s, sizeof(curl_socket_t));
+  Curl_hash_delete(&multi->ev.sh_entries, (অক্ষর *)&s, আকার(curl_socket_t));
 }
 
-static size_t mev_sh_entry_user_count(struct mev_sh_entry *e)
+স্থির size_t mev_sh_entry_user_গুনতি(কাঠামো mev_sh_entry *e)
 {
-  return Curl_uint32_spbset_count(&e->xfers) + (e->conn ? 1 : 0);
+  ফেরত Curl_uint32_spbset_গুনতি(&e->xfers) + (e->conn ? 1 : 0);
 }
 
-static bool mev_sh_entry_xfer_known(struct mev_sh_entry *e,
-                                    struct Curl_easy *data)
+স্থির bool mev_sh_entry_xfer_known(কাঠামো mev_sh_entry *e,
+                                    কাঠামো Curl_easy *তথ্য)
 {
-  return Curl_uint32_spbset_contains(&e->xfers, data->mid);
+  ফেরত Curl_uint32_spbset_contains(&e->xfers, তথ্য->mid);
 }
 
-static bool mev_sh_entry_conn_known(struct mev_sh_entry *e,
-                                    struct connectdata *conn)
+স্থির bool mev_sh_entry_conn_known(কাঠামো mev_sh_entry *e,
+                                    কাঠামো connectdata *conn)
 {
-  return (e->conn == conn);
+  ফেরত (e->conn == conn);
 }
 
-static void mev_pollset_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য mev_pollset_dtor(ধ্রুবক শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct easy_pollset *ps = entry;
-  (void)key;
-  (void)klen;
-  if(ps) {
+  কাঠামো easy_pollset *ps = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
+  যদি(ps) {
     Curl_pollset_cleanup(ps);
     curlx_free(ps);
   }
 }
 
-static struct easy_pollset *mev_add_new_conn_pollset(struct connectdata *conn)
+স্থির কাঠামো easy_pollset *mev_add_new_conn_pollset(কাঠামো connectdata *conn)
 {
-  struct easy_pollset *ps;
+  কাঠামো easy_pollset *ps;
 
   ps = Curl_pollset_create();
-  if(!ps)
-    return NULL;
-  if(Curl_conn_meta_set(conn, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
-    return NULL;
-  return ps;
+  যদি(!ps)
+    ফেরত ফাঁকা;
+  যদি(Curl_conn_meta_set(conn, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
+    ফেরত ফাঁকা;
+  ফেরত ps;
 }
 
-static struct easy_pollset *mev_add_new_xfer_pollset(struct Curl_easy *data)
+স্থির কাঠামো easy_pollset *mev_add_new_xfer_pollset(কাঠামো Curl_easy *তথ্য)
 {
-  struct easy_pollset *ps;
+  কাঠামো easy_pollset *ps;
 
   ps = Curl_pollset_create();
-  if(!ps)
-    return NULL;
-  if(Curl_meta_set(data, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
-    return NULL;
-  return ps;
+  যদি(!ps)
+    ফেরত ফাঁকা;
+  যদি(Curl_meta_set(তথ্য, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
+    ফেরত ফাঁকা;
+  ফেরত ps;
 }
 
-static struct easy_pollset *mev_get_last_pollset(struct Curl_easy *data,
-                                                 struct connectdata *conn)
+স্থির কাঠামো easy_pollset *mev_get_last_pollset(কাঠামো Curl_easy *তথ্য,
+                                                 কাঠামো connectdata *conn)
 {
-  if(data) {
-    if(conn)
-      return Curl_conn_meta_get(conn, CURL_META_MEV_POLLSET);
-    return Curl_meta_get(data, CURL_META_MEV_POLLSET);
+  যদি(তথ্য) {
+    যদি(conn)
+      ফেরত Curl_conn_meta_get(conn, CURL_META_MEV_POLLSET);
+    ফেরত Curl_meta_get(তথ্য, CURL_META_MEV_POLLSET);
   }
-  return NULL;
+  ফেরত ফাঁকা;
 }
 
-static bool mev_sh_entry_xfer_add(struct mev_sh_entry *e,
-                                  struct Curl_easy *data)
+স্থির bool mev_sh_entry_xfer_add(কাঠামো mev_sh_entry *e,
+                                  কাঠামো Curl_easy *তথ্য)
 {
    /* detect weird values */
-  DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
-  return Curl_uint32_spbset_add(&e->xfers, data->mid);
+  DEBUGASSERT(mev_sh_entry_user_গুনতি(e) < 100000);
+  ফেরত Curl_uint32_spbset_add(&e->xfers, তথ্য->mid);
 }
 
-static bool mev_sh_entry_conn_add(struct mev_sh_entry *e,
-                                  struct connectdata *conn)
+স্থির bool mev_sh_entry_conn_add(কাঠামো mev_sh_entry *e,
+                                  কাঠামো connectdata *conn)
 {
    /* detect weird values */
-  DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
+  DEBUGASSERT(mev_sh_entry_user_গুনতি(e) < 100000);
   DEBUGASSERT(!e->conn);
-  if(e->conn)
-    return FALSE;
+  যদি(e->conn)
+    ফেরত FALSE;
   e->conn = conn;
-  return TRUE;
+  ফেরত TRUE;
 }
 
-static bool mev_sh_entry_xfer_remove(struct mev_sh_entry *e,
-                                     struct Curl_easy *data)
+স্থির bool mev_sh_entry_xfer_remove(কাঠামো mev_sh_entry *e,
+                                     কাঠামো Curl_easy *তথ্য)
 {
-  bool present = Curl_uint32_spbset_contains(&e->xfers, data->mid);
-  if(present)
-    Curl_uint32_spbset_remove(&e->xfers, data->mid);
-  return present;
+  bool present = Curl_uint32_spbset_contains(&e->xfers, তথ্য->mid);
+  যদি(present)
+    Curl_uint32_spbset_remove(&e->xfers, তথ্য->mid);
+  ফেরত present;
 }
 
-static bool mev_sh_entry_conn_remove(struct mev_sh_entry *e,
-                                     struct connectdata *conn)
+স্থির bool mev_sh_entry_conn_remove(কাঠামো mev_sh_entry *e,
+                                     কাঠামো connectdata *conn)
 {
   DEBUGASSERT(e->conn == conn);
-  if(e->conn == conn) {
-    e->conn = NULL;
-    return TRUE;
+  যদি(e->conn == conn) {
+    e->conn = ফাঁকা;
+    ফেরত TRUE;
   }
-  return FALSE;
+  ফেরত FALSE;
 }
 
 /* Purge any information about socket `s`.
  * Let the socket callback know as well when necessary */
-static CURLMcode mev_forget_socket(struct Curl_multi *multi,
-                                   struct Curl_easy *data,
+স্থির CURLMcode mev_forget_socket(কাঠামো Curl_multi *multi,
+                                   কাঠামো Curl_easy *তথ্য,
                                    curl_socket_t s,
-                                   const char *cause)
+                                   ধ্রুবক অক্ষর *cause)
 {
-  struct mev_sh_entry *entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
+  কাঠামো mev_sh_entry *entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
   uint32_t mid;
-  int rc = 0;
+  পূর্ণসংখ্যা rc = 0;
 
-  if(!entry) /* we never knew or already forgot about this socket */
-    return CURLM_OK;
+  যদি(!entry) /* we never knew or already forgot about this socket */
+    ফেরত CURLM_OK;
 
   /* Remove the socket from any pollset that is still registered. */
-  if(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
-    do {
-      struct Curl_easy *sdata = Curl_multi_get_easy(multi, mid);
-      if(sdata) {
-        struct easy_pollset *ps = mev_get_last_pollset(sdata, NULL);
-        if(ps)
+  যদি(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
+    করো {
+      কাঠামো Curl_easy *sdata = Curl_multi_get_easy(multi, mid);
+      যদি(sdata) {
+        কাঠামো easy_pollset *ps = mev_get_last_pollset(sdata, ফাঁকা);
+        যদি(ps)
           Curl_pollset_remove(ps, s);
       }
-    } while(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
+    } যখন(Curl_uint32_spbset_পরবর্তী(&entry->xfers, mid, &mid));
   }
 
-  if(entry->conn) {
-    struct easy_pollset *ps = mev_get_last_pollset(data, entry->conn);
-    if(ps)
+  যদি(entry->conn) {
+    কাঠামো easy_pollset *ps = mev_get_last_pollset(তথ্য, entry->conn);
+    যদি(ps)
       Curl_pollset_remove(ps, s);
   }
 
   /* We managed this socket before, tell the socket callback to forget it. */
-  if(entry->announced && multi->socket_cb) {
-    struct Curl_mapi_guard guard;
+  যদি(entry->announced && multi->socket_cb) {
+    কাঠামো Curl_mapi_guard guard;
 
-    NOVERBOSE((void)cause);
-    CURL_TRC_M(data, "ev %s, call(fd=%" FMT_SOCKET_T ", ev=REMOVE)", cause, s);
+    NOVERBOSE((শূন্য)cause);
+    CURL_TRC_M(তথ্য, "ev %s, call(fd=%" FMT_SOCKET_T ", ev=REMOVE)", cause, s);
     CURL_CBAPI_MULTI_START(&guard, multi, multi_socket_cb);
-    rc = multi->socket_cb(data, s, CURL_POLL_REMOVE,
-                          multi->socket_userp, entry->user_data);
+    rc = multi->socket_cb(তথ্য, s, CURL_POLL_REMOVE,
+                          multi->socket_userp, entry->user_তথ্য);
     CURL_CBAPI_END(&guard);
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-    if(entry)
+    যদি(entry)
       entry->announced = FALSE;
   }
 
   mev_sh_entry_kill(multi, s);
-  if(rc == -1) {
+  যদি(rc == -1) {
     multi->dead = TRUE;
-    return CURLM_ABORTED_BY_CALLBACK;
+    ফেরত CURLM_ABORTED_BY_CALLBACK;
   }
-  return CURLM_OK;
+  ফেরত CURLM_OK;
 }
 
-static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
-                                     struct Curl_easy *data,
-                                     struct mev_sh_entry *entry,
+স্থির CURLMcode mev_sh_entry_update(কাঠামো Curl_multi *multi,
+                                     কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো mev_sh_entry *entry,
                                      curl_socket_t s,
-                                     unsigned char last_action,
-                                     unsigned char cur_action)
+                                     unsigned অক্ষর last_action,
+                                     unsigned অক্ষর cur_action)
 {
-  int rc, comboaction;
+  পূর্ণসংখ্যা rc, comboaction;
 
   /* we should only be called when the callback exists */
   DEBUGASSERT(multi->socket_cb);
   DEBUGASSERT(entry->magic == SH_ENTRY_MAGIC);
-  if(!multi->socket_cb)
-    return CURLM_OK;
+  যদি(!multi->socket_cb)
+    ফেরত CURLM_OK;
 
   /* Transfer `data` goes from `last_action` to `cur_action` on socket `s`
    * with `multi->ev.sh_entries` entry `entry`. Update `entry` and trigger
    * `multi->socket_cb` on change, if the callback is set. */
-  if(last_action == cur_action)  /* nothing from `data` changed */
-    return CURLM_OK;
+  যদি(last_action == cur_action)  /* nothing from `data` changed */
+    ফেরত CURLM_OK;
 
-  if(last_action & CURL_POLL_IN) {
+  যদি(last_action & CURL_POLL_IN) {
     DEBUGASSERT(entry->readers);
-    if(!(cur_action & CURL_POLL_IN))
+    যদি(!(cur_action & CURL_POLL_IN))
       entry->readers--;
   }
-  else if(cur_action & CURL_POLL_IN)
+  অন্যথা যদি(cur_action & CURL_POLL_IN)
     entry->readers++;
 
-  if(last_action & CURL_POLL_OUT) {
+  যদি(last_action & CURL_POLL_OUT) {
     DEBUGASSERT(entry->writers);
-    if(!(cur_action & CURL_POLL_OUT))
+    যদি(!(cur_action & CURL_POLL_OUT))
       entry->writers--;
   }
-  else if(cur_action & CURL_POLL_OUT)
+  অন্যথা যদি(cur_action & CURL_POLL_OUT)
     entry->writers++;
 
-  DEBUGASSERT(entry->readers <= mev_sh_entry_user_count(entry));
-  DEBUGASSERT(entry->writers <= mev_sh_entry_user_count(entry));
+  DEBUGASSERT(entry->readers <= mev_sh_entry_user_গুনতি(entry));
+  DEBUGASSERT(entry->writers <= mev_sh_entry_user_গুনতি(entry));
   DEBUGASSERT(entry->writers + entry->readers);
 
-  CURL_TRC_M(data, "ev update fd=%" FMT_SOCKET_T ", action '%s%s' -> '%s%s'"
+  CURL_TRC_M(তথ্য, "ev update fd=%" FMT_SOCKET_T ", action '%s%s' -> '%s%s'"
              " (%u/%u r/w)", s,
              (last_action & CURL_POLL_IN) ? "IN" : "",
              (last_action & CURL_POLL_OUT) ? "OUT" : "",
@@ -323,43 +323,43 @@ static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
 
   comboaction = (entry->writers ? CURL_POLL_OUT : 0) |
                 (entry->readers ? CURL_POLL_IN : 0);
-  if(((int)entry->action == comboaction)) /* nothing for socket changed */
-    return CURLM_OK;
+  যদি(((পূর্ণসংখ্যা)entry->action == comboaction)) /* nothing for socket changed */
+    ফেরত CURLM_OK;
 
-  CURL_TRC_M(data, "ev update call(fd=%" FMT_SOCKET_T ", ev=%s%s)",
+  CURL_TRC_M(তথ্য, "ev update call(fd=%" FMT_SOCKET_T ", ev=%s%s)",
              s, (comboaction & CURL_POLL_IN) ? "IN" : "",
              (comboaction & CURL_POLL_OUT) ? "OUT" : "");
   {
-    struct Curl_mapi_guard guard;
+    কাঠামো Curl_mapi_guard guard;
     CURL_CBAPI_MULTI_START(&guard, multi, multi_socket_cb);
-    rc = multi->socket_cb(data, s, comboaction, multi->socket_userp,
-                          entry->user_data);
+    rc = multi->socket_cb(তথ্য, s, comboaction, multi->socket_userp,
+                          entry->user_তথ্য);
     CURL_CBAPI_MULTI_END(&guard);
   }
-  if(rc == -1) {
+  যদি(rc == -1) {
     multi->dead = TRUE;
-    return CURLM_ABORTED_BY_CALLBACK;
+    ফেরত CURLM_ABORTED_BY_CALLBACK;
   }
   /* curl_easy_pause() is documented as callable from any callback; it
    * re-enters mev_assess() which may free this 'entry'. Re-fetch. */
   entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-  if(entry) {
+  যদি(entry) {
     DEBUGASSERT(entry->magic == SH_ENTRY_MAGIC);
     entry->announced = TRUE;
-    entry->action = (unsigned int)comboaction;
+    entry->action = (unsigned পূর্ণসংখ্যা)comboaction;
   }
-  return CURLM_OK;
+  ফেরত CURLM_OK;
 }
 
-static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct easy_pollset *ps,
-                                  struct easy_pollset *prev_ps)
+স্থির CURLMcode mev_pollset_diff(কাঠামো Curl_multi *multi,
+                                  কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো connectdata *conn,
+                                  কাঠামো easy_pollset *ps,
+                                  কাঠামো easy_pollset *পূর্ব_ps)
 {
-  struct mev_sh_entry *entry;
+  কাঠামো mev_sh_entry *entry;
   curl_socket_t s;
-  unsigned int i, j;
+  unsigned পূর্ণসংখ্যা i, j;
   CURLMcode mresult;
 
   /* The transfer `data` reports in `ps` the sockets it is interested
@@ -371,29 +371,29 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
    * the 1st call it will be empty.
    */
   DEBUGASSERT(ps);
-  DEBUGASSERT(prev_ps);
+  DEBUGASSERT(পূর্ব_ps);
 
   /* Handle changes to sockets the transfer is interested in. */
-  for(i = 0; i < ps->n; i++) {
-    unsigned char last_action;
+  জন্য(i = 0; i < ps->n; i++) {
+    unsigned অক্ষর last_action;
     bool first_time = FALSE; /* data/conn appears first time on socket */
 
     s = ps->sockets[i];
     /* Have we handled this socket before? */
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-    if(!entry) {
+    যদি(!entry) {
       /* new socket, add new entry */
       first_time = TRUE;
       entry = mev_sh_entry_add(&multi->ev.sh_entries, s);
-      if(!entry) /* fatal */
-        return CURLM_OUT_OF_MEMORY;
-      CURL_TRC_M(data, "ev new entry fd=%" FMT_SOCKET_T, s);
+      যদি(!entry) /* fatal */
+        ফেরত CURLM_OUT_OF_MEMORY;
+      CURL_TRC_M(তথ্য, "ev new entry fd=%" FMT_SOCKET_T, s);
     }
-    else if(conn) {
+    অন্যথা যদি(conn) {
       first_time = !mev_sh_entry_conn_known(entry, conn);
     }
-    else {
-      first_time = !mev_sh_entry_xfer_known(entry, data);
+    অন্যথা {
+      first_time = !mev_sh_entry_xfer_known(entry, তথ্য);
     }
 
     /* What was the previous action the transfer had regarding this socket?
@@ -402,190 +402,190 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
      * reopened. We would have cleared the sh_entry for that, but the socket
      * might still be mentioned in the hashed pollsets. */
     last_action = 0;
-    if(first_time) {
-      if(conn) {
-        if(!mev_sh_entry_conn_add(entry, conn))
-          return CURLM_OUT_OF_MEMORY;
+    যদি(first_time) {
+      যদি(conn) {
+        যদি(!mev_sh_entry_conn_add(entry, conn))
+          ফেরত CURLM_OUT_OF_MEMORY;
       }
-      else {
-        if(!mev_sh_entry_xfer_add(entry, data))
-          return CURLM_OUT_OF_MEMORY;
+      অন্যথা {
+        যদি(!mev_sh_entry_xfer_add(entry, তথ্য))
+          ফেরত CURLM_OUT_OF_MEMORY;
       }
-      CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", added %s #%" FMT_OFF_T
+      CURL_TRC_M(তথ্য, "ev entry fd=%" FMT_SOCKET_T ", added %s #%" FMT_OFF_T
                  ", total=%u/%d (xfer/conn)", s,
                  conn ? "connection" : "transfer",
-                 conn ? conn->connection_id : data->mid,
-                 Curl_uint32_spbset_count(&entry->xfers),
+                 conn ? conn->connection_id : তথ্য->mid,
+                 Curl_uint32_spbset_গুনতি(&entry->xfers),
                  entry->conn ? 1 : 0);
     }
-    else {
-      for(j = 0; j < prev_ps->n; j++) {
-        if(s == prev_ps->sockets[j]) {
-          last_action = prev_ps->actions[j];
-          break;
+    অন্যথা {
+      জন্য(j = 0; j < পূর্ব_ps->n; j++) {
+        যদি(s == পূর্ব_ps->sockets[j]) {
+          last_action = পূর্ব_ps->actions[j];
+          বিরতি;
         }
       }
     }
     /* track readers/writers changes and report to socket callback */
-    mresult = mev_sh_entry_update(multi, data, entry, s,
+    mresult = mev_sh_entry_update(multi, তথ্য, entry, s,
                                   last_action, ps->actions[i]);
-    if(mresult)
-      return mresult;
+    যদি(mresult)
+      ফেরত mresult;
   }
 
   /* Handle changes to sockets the transfer is NO LONGER interested in. */
-  for(i = 0; i < prev_ps->n; i++) {
+  জন্য(i = 0; i < পূর্ব_ps->n; i++) {
     bool stillused = FALSE;
 
-    s = prev_ps->sockets[i];
-    for(j = 0; j < ps->n; j++) {
-      if(s == ps->sockets[j]) {
+    s = পূর্ব_ps->sockets[i];
+    জন্য(j = 0; j < ps->n; j++) {
+      যদি(s == ps->sockets[j]) {
         /* socket is still supervised */
         stillused = TRUE;
-        break;
+        বিরতি;
       }
     }
-    if(stillused)
-      continue;
+    যদি(stillused)
+      চালু;
 
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
     /* if entry does not exist, we were either never told about it or
      * have already cleaned up this socket via Curl_multi_ev_socket_done().
      * In other words: this is perfectly normal */
-    if(!entry)
-      continue;
+    যদি(!entry)
+      চালু;
 
-    if(conn && !mev_sh_entry_conn_remove(entry, conn)) {
+    যদি(conn && !mev_sh_entry_conn_remove(entry, conn)) {
       /* `conn` says in `prev_ps` that it had been using a socket,
        * but `conn` has not been registered for it.
        * This should not happen if our book-keeping is correct? */
-      CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", conn lost "
+      CURL_TRC_M(তথ্য, "ev entry fd=%" FMT_SOCKET_T ", conn lost "
                  "interest but is not registered", s);
-      DEBUGASSERT(NULL);
-      continue;
+      DEBUGASSERT(ফাঁকা);
+      চালু;
     }
 
-    if(!conn && !mev_sh_entry_xfer_remove(entry, data)) {
+    যদি(!conn && !mev_sh_entry_xfer_remove(entry, তথ্য)) {
       /* `data` says in `prev_ps` that it had been using a socket,
        * but `data` has not been registered for it.
        * This should not happen if our book-keeping is correct? */
-      CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", transfer lost "
+      CURL_TRC_M(তথ্য, "ev entry fd=%" FMT_SOCKET_T ", transfer lost "
                  "interest but is not registered", s);
-      DEBUGASSERT(NULL);
-      continue;
+      DEBUGASSERT(ফাঁকা);
+      চালু;
     }
 
-    if(mev_sh_entry_user_count(entry)) {
+    যদি(mev_sh_entry_user_গুনতি(entry)) {
       /* track readers/writers changes and report to socket callback */
-      mresult = mev_sh_entry_update(multi, data, entry, s,
-                                    prev_ps->actions[i], 0);
-      if(mresult)
-        return mresult;
-      CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", removed transfer, "
+      mresult = mev_sh_entry_update(multi, তথ্য, entry, s,
+                                    পূর্ব_ps->actions[i], 0);
+      যদি(mresult)
+        ফেরত mresult;
+      CURL_TRC_M(তথ্য, "ev entry fd=%" FMT_SOCKET_T ", removed transfer, "
                  "total=%u/%d (xfer/conn)", s,
-                 Curl_uint32_spbset_count(&entry->xfers),
+                 Curl_uint32_spbset_গুনতি(&entry->xfers),
                  entry->conn ? 1 : 0);
     }
-    else {
-      mresult = mev_forget_socket(multi, data, s, "last user gone");
-      if(mresult)
-        return mresult;
+    অন্যথা {
+      mresult = mev_forget_socket(multi, তথ্য, s, "last user gone");
+      যদি(mresult)
+        ফেরত mresult;
     }
   } /* for loop over num */
 
   /* Remember for next time */
-  Curl_pollset_move(prev_ps, ps);
-  return CURLM_OK;
+  Curl_pollset_move(পূর্ব_ps, ps);
+  ফেরত CURLM_OK;
 }
 
-static CURLMcode mev_assess(struct Curl_multi *multi,
-                            struct Curl_easy *data,
-                            struct connectdata *conn)
+স্থির CURLMcode mev_assess(কাঠামো Curl_multi *multi,
+                            কাঠামো Curl_easy *তথ্য,
+                            কাঠামো connectdata *conn)
 {
-  struct easy_pollset ps, *last_ps;
+  কাঠামো easy_pollset ps, *last_ps;
   CURLMcode mresult = CURLM_OK;
 
-  if(!multi || !multi->socket_cb)
-    return CURLM_OK;
+  যদি(!multi || !multi->socket_cb)
+    ফেরত CURLM_OK;
 
   Curl_pollset_init(&ps);
-  if(conn) {
-    CURLcode result = Curl_conn_adjust_pollset(data, conn, &ps);
-    if(result) {
-      mresult = (result == CURLE_OUT_OF_MEMORY) ?
+  যদি(conn) {
+    CURLcode ফলাফল = Curl_conn_adjust_pollset(তথ্য, conn, &ps);
+    যদি(ফলাফল) {
+      mresult = (ফলাফল == CURLE_OUT_OF_MEMORY) ?
         CURLM_OUT_OF_MEMORY : CURLM_INTERNAL_ERROR;
-      goto out;
+      যাও out;
     }
   }
-  else
-    Curl_multi_pollset(data, &ps);
-  last_ps = mev_get_last_pollset(data, conn);
+  অন্যথা
+    Curl_multi_pollset(তথ্য, &ps);
+  last_ps = mev_get_last_pollset(তথ্য, conn);
 
-  if(!last_ps && ps.n) {
-    if(conn)
+  যদি(!last_ps && ps.n) {
+    যদি(conn)
       last_ps = mev_add_new_conn_pollset(conn);
-    else
-      last_ps = mev_add_new_xfer_pollset(data);
-    if(!last_ps) {
+    অন্যথা
+      last_ps = mev_add_new_xfer_pollset(তথ্য);
+    যদি(!last_ps) {
       mresult = CURLM_OUT_OF_MEMORY;
-      goto out;
+      যাও out;
     }
   }
 
-  if(last_ps)
-    mresult = mev_pollset_diff(multi, data, conn, &ps, last_ps);
-  else
+  যদি(last_ps)
+    mresult = mev_pollset_diff(multi, তথ্য, conn, &ps, last_ps);
+  অন্যথা
     DEBUGASSERT(!ps.n);
 out:
   Curl_pollset_cleanup(&ps);
-  return mresult;
+  ফেরত mresult;
 }
 
-CURLMcode Curl_multi_ev_assess_xfer(struct Curl_multi *multi,
-                                    struct Curl_easy *data)
+CURLMcode Curl_multi_ev_assess_xfer(কাঠামো Curl_multi *multi,
+                                    কাঠামো Curl_easy *তথ্য)
 {
-  return mev_assess(multi, data, NULL);
+  ফেরত mev_assess(multi, তথ্য, ফাঁকা);
 }
 
-CURLMcode Curl_multi_ev_assess_conn(struct Curl_multi *multi,
-                                    struct Curl_easy *data,
-                                    struct connectdata *conn)
+CURLMcode Curl_multi_ev_assess_conn(কাঠামো Curl_multi *multi,
+                                    কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো connectdata *conn)
 {
-  return mev_assess(multi, data, conn);
+  ফেরত mev_assess(multi, তথ্য, conn);
 }
 
-CURLMcode Curl_multi_ev_assess_xfer_bset(struct Curl_multi *multi,
-                                         struct uint32_bset *set)
+CURLMcode Curl_multi_ev_assess_xfer_bset(কাঠামো Curl_multi *multi,
+                                         কাঠামো uint32_bset *set)
 {
   uint32_t mid;
   CURLMcode mresult = CURLM_OK;
 
-  if(multi && multi->socket_cb && Curl_uint32_bset_first(set, &mid)) {
-    do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
-        mresult = Curl_multi_ev_assess_xfer(multi, data);
+  যদি(multi && multi->socket_cb && Curl_uint32_bset_first(set, &mid)) {
+    করো {
+      কাঠামো Curl_easy *তথ্য = Curl_multi_get_easy(multi, mid);
+      যদি(তথ্য) {
+        mresult = Curl_multi_ev_assess_xfer(multi, তথ্য);
       }
-    } while(!mresult && Curl_uint32_bset_next(set, mid, &mid));
+    } যখন(!mresult && Curl_uint32_bset_পরবর্তী(set, mid, &mid));
   }
-  return mresult;
+  ফেরত mresult;
 }
 
-CURLMcode Curl_multi_ev_assign(struct Curl_multi *multi,
+CURLMcode Curl_multi_ev_assign(কাঠামো Curl_multi *multi,
                                curl_socket_t s,
-                               void *user_data)
+                               শূন্য *user_তথ্য)
 {
-  struct mev_sh_entry *e = mev_sh_entry_get(&multi->ev.sh_entries, s);
-  if(!e)
-    return CURLM_BAD_SOCKET;
-  e->user_data = user_data;
-  return CURLM_OK;
+  কাঠামো mev_sh_entry *e = mev_sh_entry_get(&multi->ev.sh_entries, s);
+  যদি(!e)
+    ফেরত CURLM_BAD_SOCKET;
+  e->user_তথ্য = user_তথ্য;
+  ফেরত CURLM_OK;
 }
 
-void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
+শূন্য Curl_multi_ev_dirty_xfers(কাঠামো Curl_multi *multi,
                                curl_socket_t s)
 {
-  struct mev_sh_entry *entry;
+  কাঠামো mev_sh_entry *entry;
 
   DEBUGASSERT(s != CURL_SOCKET_TIMEOUT);
   entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
@@ -595,57 +595,57 @@ void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
      the application actions even though the socket was previously
      asked to get removed, so thus we better survive stray socket actions
      and move on. */
-  if(entry) {
-    struct Curl_easy *data;
+  যদি(entry) {
+    কাঠামো Curl_easy *তথ্য;
     uint32_t mid;
 
-    if(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
-      do {
-        data = Curl_multi_get_easy(multi, mid);
-        if(data) {
-          Curl_multi_mark_dirty(data);
+    যদি(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
+      করো {
+        তথ্য = Curl_multi_get_easy(multi, mid);
+        যদি(তথ্য) {
+          Curl_multi_mark_dirty(তথ্য);
         }
-        else {
+        অন্যথা {
           CURL_TRC_M(multi->admin, "socket transfer %u no longer found", mid);
           Curl_uint32_spbset_remove(&entry->xfers, mid);
         }
-      } while(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
+      } যখন(Curl_uint32_spbset_পরবর্তী(&entry->xfers, mid, &mid));
     }
 
-    if(entry->conn)
+    যদি(entry->conn)
       Curl_multi_mark_dirty(multi->admin);
   }
 }
 
-void Curl_multi_ev_socket_done(struct Curl_multi *multi,
-                               struct Curl_easy *data, curl_socket_t s)
+শূন্য Curl_multi_ev_socket_done(কাঠামো Curl_multi *multi,
+                               কাঠামো Curl_easy *তথ্য, curl_socket_t s)
 {
-  mev_forget_socket(multi, data, s, "socket done");
+  mev_forget_socket(multi, তথ্য, s, "socket done");
 }
 
-void Curl_multi_ev_xfer_done(struct Curl_multi *multi,
-                             struct Curl_easy *data)
+শূন্য Curl_multi_ev_xfer_done(কাঠামো Curl_multi *multi,
+                             কাঠামো Curl_easy *তথ্য)
 {
-  DEBUGASSERT(!data->conn); /* transfer should have been detached */
-  (void)mev_assess(multi, data, NULL);
-  Curl_meta_remove(data, CURL_META_MEV_POLLSET);
+  DEBUGASSERT(!তথ্য->conn); /* transfer should have been detached */
+  (শূন্য)mev_assess(multi, তথ্য, ফাঁকা);
+  Curl_meta_remove(তথ্য, CURL_META_MEV_POLLSET);
 }
 
-void Curl_multi_ev_conn_done(struct Curl_multi *multi,
-                             struct Curl_easy *data,
-                             struct connectdata *conn)
+শূন্য Curl_multi_ev_conn_done(কাঠামো Curl_multi *multi,
+                             কাঠামো Curl_easy *তথ্য,
+                             কাঠামো connectdata *conn)
 {
-  (void)mev_assess(multi, data, conn);
+  (শূন্য)mev_assess(multi, তথ্য, conn);
   Curl_conn_meta_remove(conn, CURL_META_MEV_POLLSET);
 }
 
-void Curl_multi_ev_init(struct Curl_multi *multi, size_t hashsize)
+শূন্য Curl_multi_ev_init(কাঠামো Curl_multi *multi, size_t hashsize)
 {
   Curl_hash_init(&multi->ev.sh_entries, hashsize, CURL_HASH_TYPE_SOCKET,
                  mev_sh_entry_dtor);
 }
 
-void Curl_multi_ev_cleanup(struct Curl_multi *multi)
+শূন্য Curl_multi_ev_cleanup(কাঠামো Curl_multi *multi)
 {
   Curl_hash_destroy(&multi->ev.sh_entries);
 }

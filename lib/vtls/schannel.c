@@ -27,7 +27,7 @@
  * Source file for all Schannel-specific code for the TLS/SSL layer. No code
  * but vtls.c should ever call or use these functions.
  */
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_SCHANNEL
 
@@ -35,24 +35,24 @@
 #error "cannot compile Schannel support without SSPI."
 #endif
 
-#include "vtls/schannel.h"
-#include "vtls/schannel_int.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "curl_trc.h"
-#include "connect.h" /* for the connect timeout */
-#include "curlx/strdup.h"
-#include "strerror.h"
-#include "select.h" /* for the socket readiness */
-#include "curlx/win32-fopen.h"
-#include "curlx/multibyte.h"
-#include "vtls/x509asn1.h"
-#include "curlx/version_win32.h"
-#include "curlx/winapi.h"
-#include "curlx/strparse.h"
-#include "progress.h"
-#include "curl_sha256.h"
+#অন্তর্ভাব "vtls/schannel.h"
+#অন্তর্ভাব "vtls/schannel_int.h"
+#অন্তর্ভাব "vtls/vtls.h"
+#অন্তর্ভাব "vtls/vtls_int.h"
+#অন্তর্ভাব "vtls/vtls_scache.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "connect.h" /* for the connect timeout */
+#অন্তর্ভাব "curlx/strdup.h"
+#অন্তর্ভাব "strerror.h"
+#অন্তর্ভাব "select.h" /* for the socket readiness */
+#অন্তর্ভাব "curlx/win32-fopen.h"
+#অন্তর্ভাব "curlx/multibyte.h"
+#অন্তর্ভাব "vtls/x509asn1.h"
+#অন্তর্ভাব "curlx/version_win32.h"
+#অন্তর্ভাব "curlx/winapi.h"
+#অন্তর্ভাব "curlx/strparse.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "curl_sha256.h"
 
 /* Some verbose debug messages are wrapped by SCH_DEV() instead of DEBUGF()
  * and only shown if CURL_SCHANNEL_DEV_DEBUG was defined at build time. These
@@ -62,12 +62,12 @@
 #ifdef CURL_SCHANNEL_DEV_DEBUG
 #define SCH_DEV(x) x
 #define SCH_DEV_SHOWBOOL(x)                                     \
-  do {                                                          \
-    infof(data, "schannel: " #x " %s", (x) ? "TRUE" : "FALSE"); \
-  } while(0)
-#else
-#define SCH_DEV(x) do {} while(0)
-#define SCH_DEV_SHOWBOOL(x) do {} while(0)
+  করো {                                                          \
+    infof(তথ্য, "schannel: " #x " %s", (x) ? "TRUE" : "FALSE"); \
+  } যখন(0)
+#অন্যথা
+#define SCH_DEV(x) করো {} যখন(0)
+#define SCH_DEV_SHOWBOOL(x) করো {} যখন(0)
 #endif
 
 /* Offered by mingw-w64 v8+, MS SDK 7.0A/VS2010+ */
@@ -96,11 +96,11 @@
 #endif
 
 /* Both schannel buffer sizes must be > 0 */
-#define CURL_SCHANNEL_BUFFER_INIT_SIZE   4096
-#define CURL_SCHANNEL_BUFFER_FREE_SIZE   1024
+#define CURL_SCHANNEL_বাফার_INIT_আকার   4096
+#define CURL_SCHANNEL_বাফার_FREE_আকার   1024
 
 #define CERT_THUMBPRINT_STR_LEN 40
-#define CERT_THUMBPRINT_DATA_LEN 20
+#define CERT_THUMBPRINT_তথ্য_LEN 20
 
 /* Uncomment to force verbose output
  * #define infof(x, y, ...) curl_mprintf(y, __VA_ARGS__)
@@ -108,124 +108,124 @@
  */
 
 /* Offered by mingw-w64 v4+, MS SDK 6.0A/VS2008+ */
-#ifndef PKCS12_NO_PERSIST_KEY
-#define PKCS12_NO_PERSIST_KEY 0x00008000
+#ifndef PKCS12_NO_PERSIST_চাবি
+#define PKCS12_NO_PERSIST_চাবি 0x00008000
 #endif
 
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_FIND_HAS_PRIVATE_KEY
-#define CERT_FIND_HAS_PRIVATE_KEY (21 << CERT_COMPARE_SHIFT)
+#ifndef CERT_FIND_HAS_PRIVATE_চাবি
+#define CERT_FIND_HAS_PRIVATE_চাবি (21 << CERT_COMPARE_SHIFT)
 #endif
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_SCHANNEL_CERT_SHARE_KEY   "tls:schannel:cert:share"
+#define MPROTO_SCHANNEL_CERT_SHARE_চাবি   "tls:schannel:cert:share"
 
-static bool s_win_has_alpn;
+স্থির bool s_win_has_alpn;
 
 /* Offered by mingw-w64 v9+, MS SDK 8.1/VS2013+ */
 #ifndef SECBUFFER_APPLICATION_PROTOCOLS
 #define SECBUFFER_APPLICATION_PROTOCOLS 18
 #define SECPKG_ATTR_APPLICATION_PROTOCOL 35
 
-typedef enum {
+প্রকারলেখ গণনা {
   SecApplicationProtocolNegotiationExt_None,
   SecApplicationProtocolNegotiationExt_NPN,
   SecApplicationProtocolNegotiationExt_ALPN
 } SEC_APPLICATION_PROTOCOL_NEGOTIATION_EXT;
 
-typedef enum {
+প্রকারলেখ গণনা {
   SecApplicationProtocolNegotiationStatus_None,
   SecApplicationProtocolNegotiationStatus_Success,
   SecApplicationProtocolNegotiationStatus_SelectedClientOnly
 } SEC_APPLICATION_PROTOCOL_NEGOTIATION_STATUS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct {
+প্রকারলেখ কাঠামো {
   SEC_APPLICATION_PROTOCOL_NEGOTIATION_STATUS ProtoNegoStatus;
   SEC_APPLICATION_PROTOCOL_NEGOTIATION_EXT ProtoNegoExt;
-  unsigned char ProtocolIdSize;
-  unsigned char ProtocolId[0xff];
+  unsigned অক্ষর Protocol_Id_আকার;
+  unsigned অক্ষর ProtocolId[0xff];
 } SecPkgContext_ApplicationProtocol;
 #endif
 
-static void InitSecBuffer(SecBuffer *buffer, unsigned long BufType,
-                          void *BufDataPtr, unsigned long BufByteSize)
+স্থির শূন্য Init_Sec_বাফার(Sec_বাফার *বাফার, unsigned long BufType,
+                          শূন্য *Buf_তথ্য_Ptr, unsigned long Buf_Byte_আকার)
 {
-  buffer->cbBuffer = BufByteSize;
-  buffer->BufferType = BufType;
-  buffer->pvBuffer = BufDataPtr;
+  বাফার->cb_বাফার = Buf_Byte_আকার;
+  বাফার->বাফার_Type = BufType;
+  বাফার->pv_বাফার = Buf_তথ্য_Ptr;
 }
 
-static void InitSecBufferDesc(SecBufferDesc *desc, SecBuffer *BufArr,
-                              unsigned long NumArrElem)
+স্থির শূন্য Init_Sec_বাফার_Desc(Sec_বাফার_Desc *desc, Sec_বাফার *BufArr,
+                              unsigned long অঙ্ক_Arr_Elem)
 {
   desc->ulVersion = SECBUFFER_VERSION;
   desc->pBuffers = BufArr;
-  desc->cBuffers = NumArrElem;
+  desc->cBuffers = অঙ্ক_Arr_Elem;
 }
 
-static CURLcode schannel_set_ssl_version_min_max(DWORD *enabled_protocols,
-                                                 struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data)
+স্থির CURLcode schannel_set_ssl_version_min_max(DWORD *enabled_protocols,
+                                                 কাঠামো Curl_cfilter *cf,
+                                                 কাঠামো Curl_easy *তথ্য)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  কাঠামো ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   long ssl_version = conn_config->version;
   long ssl_version_max = (long)conn_config->version_max;
   long i = ssl_version;
 
-  switch(ssl_version_max) {
-  case CURL_SSLVERSION_MAX_NONE:
-  case CURL_SSLVERSION_MAX_DEFAULT:
+  নির্বাচন(ssl_version_max) {
+  ক্ষেত্র CURL_SSLVERSION_MAX_NONE:
+  ক্ষেত্র CURL_SSLVERSION_MAX_DEFAULT:
 
     /* Windows Server 2022 and newer (including Windows 11) support TLS 1.3
        built-in. Previous builds of Windows 10 had broken TLS 1.3
        implementations that could be enabled via registry. */
-    if(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
+    যদি(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
                                     VERSION_GREATER_THAN_EQUAL)) {
       ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_3;
     }
-    else /* Windows 10 or older */
+    অন্যথা /* Windows 10 or older */
       ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_2;
 
-    break;
+    বিরতি;
   }
 
-  for(; i <= (ssl_version_max >> 16); ++i) {
-    switch(i) {
-    case CURL_SSLVERSION_TLSv1_0:
+  জন্য(; i <= (ssl_version_max >> 16); ++i) {
+    নির্বাচন(i) {
+    ক্ষেত্র CURL_SSLVERSION_TLSv1_0:
       *enabled_protocols |= SP_PROT_TLS1_0_CLIENT;
-      break;
-    case CURL_SSLVERSION_TLSv1_1:
+      বিরতি;
+    ক্ষেত্র CURL_SSLVERSION_TLSv1_1:
       *enabled_protocols |= SP_PROT_TLS1_1_CLIENT;
-      break;
-    case CURL_SSLVERSION_TLSv1_2:
+      বিরতি;
+    ক্ষেত্র CURL_SSLVERSION_TLSv1_2:
       *enabled_protocols |= SP_PROT_TLS1_2_CLIENT;
-      break;
-    case CURL_SSLVERSION_TLSv1_3:
+      বিরতি;
+    ক্ষেত্র CURL_SSLVERSION_TLSv1_3:
 
       /* Windows Server 2022 or newer */
-      if(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
+      যদি(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
                                       VERSION_GREATER_THAN_EQUAL)) {
         *enabled_protocols |= SP_PROT_TLS1_3_CLIENT;
-        break;
+        বিরতি;
       }
-      else { /* Windows 10 or older */
-        failf(data, "schannel: TLS 1.3 not supported on Windows 10 or older");
-        return CURLE_SSL_CONNECT_ERROR;
+      অন্যথা { /* Windows 10 or older */
+        failf(তথ্য, "schannel: TLS 1.3 not supported on Windows 10 or older");
+        ফেরত CURLE_SSL_CONNECT_ERROR;
       }
     }
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 #define CIPHEROPTION(x) { #x, x }
 
-struct algo {
-  const char *name;
-  int id;
+কাঠামো algo {
+  ধ্রুবক অক্ষর *name;
+  পূর্ণসংখ্যা id;
 };
 
-static const struct algo algs[] = {
+স্থির ধ্রুবক কাঠামো algo algs[] = {
   CIPHEROPTION(CALG_MD2),
   CIPHEROPTION(CALG_MD4),
   CIPHEROPTION(CALG_MD5),
@@ -253,8 +253,8 @@ static const struct algo algs[] = {
   CIPHEROPTION(CALG_SSL3_SHAMD5),
   CIPHEROPTION(CALG_SSL3_MASTER),
   CIPHEROPTION(CALG_SCHANNEL_MASTER_HASH),
-  CIPHEROPTION(CALG_SCHANNEL_MAC_KEY),
-  CIPHEROPTION(CALG_SCHANNEL_ENC_KEY),
+  CIPHEROPTION(CALG_SCHANNEL_MAC_চাবি),
+  CIPHEROPTION(CALG_SCHANNEL_ENC_চাবি),
   CIPHEROPTION(CALG_PCT1_MASTER),
   CIPHEROPTION(CALG_SSL2_MASTER),
   CIPHEROPTION(CALG_TLS1_MASTER),
@@ -279,54 +279,54 @@ static const struct algo algs[] = {
 #ifdef CALG_ECDH_EPHEM
   CIPHEROPTION(CALG_ECDH_EPHEM),
 #endif
-  { NULL, 0 },
+  { ফাঁকা, 0 },
 };
 
-static int get_alg_id_by_name(const char *name)
+স্থির পূর্ণসংখ্যা get_alg_id_by_name(ধ্রুবক অক্ষর *name)
 {
-  const char *nameEnd = strchr(name, ':');
+  ধ্রুবক অক্ষর *nameEnd = strchr(name, ':');
   size_t n = nameEnd ? (size_t)(nameEnd - name) : strlen(name);
-  int i;
+  পূর্ণসংখ্যা i;
 
-  for(i = 0; algs[i].name; i++) {
-    if((n == strlen(algs[i].name) && !strncmp(algs[i].name, name, n)))
-      return algs[i].id;
+  জন্য(i = 0; algs[i].name; i++) {
+    যদি((n == strlen(algs[i].name) && !strncmp(algs[i].name, name, n)))
+      ফেরত algs[i].id;
   }
-  return 0; /* not found */
+  ফেরত 0; /* not found */
 }
 
-#define NUM_CIPHERS 47 /* There are a maximum of 47 options listed above */
+#define অঙ্ক_CIPHERS 47 /* There are a maximum of 47 options listed above */
 
-static CURLcode set_ssl_ciphers(SCHANNEL_CRED *schannel_cred, char *ciphers,
+স্থির CURLcode set_ssl_ciphers(SCHANNEL_CRED *schannel_cred, অক্ষর *ciphers,
                                 ALG_ID *algIds)
 {
-  const char *startCur = ciphers;
-  int algCount = 0;
-  while(startCur && *startCur && (algCount < NUM_CIPHERS)) {
+  ধ্রুবক অক্ষর *startCur = ciphers;
+  পূর্ণসংখ্যা alg_গুনতি = 0;
+  যখন(startCur && *startCur && (alg_গুনতি < অঙ্ক_CIPHERS)) {
     curl_off_t alg;
-    if(curlx_str_number(&startCur, &alg, INT_MAX) || !alg)
+    যদি(curlx_str_সংখ্যা(&startCur, &alg, INT_MAX) || !alg)
       alg = get_alg_id_by_name(startCur);
 
-    if(alg)
-      algIds[algCount++] = (ALG_ID)alg;
-    else if(!strncmp(startCur, "USE_STRONG_CRYPTO",
+    যদি(alg)
+      algIds[alg_গুনতি++] = (ALG_ID)alg;
+    অন্যথা যদি(!strncmp(startCur, "USE_STRONG_CRYPTO",
                      CURL_CSTRLEN("USE_STRONG_CRYPTO")) ||
             !strncmp(startCur, "SCH_USE_STRONG_CRYPTO",
                      CURL_CSTRLEN("SCH_USE_STRONG_CRYPTO")))
       schannel_cred->dwFlags |= SCH_USE_STRONG_CRYPTO;
-    else
-      return CURLE_SSL_CIPHER;
+    অন্যথা
+      ফেরত CURLE_SSL_CIPHER;
     startCur = strchr(startCur, ':');
-    if(startCur)
+    যদি(startCur)
       startCur++;
   }
   schannel_cred->palgSupportedAlgs = algIds;
-  schannel_cred->cSupportedAlgs = (DWORD)algCount;
-  return CURLE_OK;
+  schannel_cred->cSupportedAlgs = (DWORD)alg_গুনতি;
+  ফেরত CURLE_OK;
 }
 
 /* Function allocates memory for store_path only if CURLE_OK is returned */
-static CURLcode get_cert_location(TCHAR *path, DWORD *store_name,
+স্থির CURLcode get_cert_location(TCHAR *path, DWORD *store_name,
                                   TCHAR **store_path, TCHAR **thumbprint)
 {
   TCHAR *sep;
@@ -334,261 +334,261 @@ static CURLcode get_cert_location(TCHAR *path, DWORD *store_name,
   size_t store_name_len;
 
   sep = _tcschr(path, _TEXT('\\'));
-  if(!sep)
-    return CURLE_SSL_CERTPROBLEM;
+  যদি(!sep)
+    ফেরত CURLE_SSL_CERTPROBLEM;
 
   store_name_len = sep - path;
 
-  if(_tcsncmp(path, _TEXT("CurrentUser"), store_name_len) == 0)
+  যদি(_tcsncmp(path, _TEXT("CurrentUser"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_CURRENT_USER;
-  else if(_tcsncmp(path, _TEXT("LocalMachine"), store_name_len) == 0)
+  অন্যথা যদি(_tcsncmp(path, _TEXT("LocalMachine"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE;
-  else if(_tcsncmp(path, _TEXT("CurrentService"), store_name_len) == 0)
+  অন্যথা যদি(_tcsncmp(path, _TEXT("CurrentService"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_CURRENT_SERVICE;
-  else if(_tcsncmp(path, _TEXT("Services"), store_name_len) == 0)
+  অন্যথা যদি(_tcsncmp(path, _TEXT("Services"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_SERVICES;
-  else if(_tcsncmp(path, _TEXT("Users"), store_name_len) == 0)
+  অন্যথা যদি(_tcsncmp(path, _TEXT("Users"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_USERS;
-  else if(_tcsncmp(path, _TEXT("CurrentUserGroupPolicy"), store_name_len) == 0)
+  অন্যথা যদি(_tcsncmp(path, _TEXT("CurrentUserGroupPolicy"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_CURRENT_USER_GROUP_POLICY;
-  else if(_tcsncmp(path, _TEXT("LocalMachineGroupPolicy"), store_name_len) ==
+  অন্যথা যদি(_tcsncmp(path, _TEXT("LocalMachineGroupPolicy"), store_name_len) ==
           0)
     *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE_GROUP_POLICY;
-  else if(_tcsncmp(path, _TEXT("LocalMachineEnterprise"), store_name_len) == 0)
+  অন্যথা যদি(_tcsncmp(path, _TEXT("LocalMachineEnterprise"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE;
-  else
-    return CURLE_SSL_CERTPROBLEM;
+  অন্যথা
+    ফেরত CURLE_SSL_CERTPROBLEM;
 
   store_path_start = sep + 1;
 
   sep = _tcschr(store_path_start, _TEXT('\\'));
-  if(!sep)
-    return CURLE_SSL_CERTPROBLEM;
+  যদি(!sep)
+    ফেরত CURLE_SSL_CERTPROBLEM;
 
   *thumbprint = sep + 1;
-  if(_tcslen(*thumbprint) != CERT_THUMBPRINT_STR_LEN)
-    return CURLE_SSL_CERTPROBLEM;
+  যদি(_tcslen(*thumbprint) != CERT_THUMBPRINT_STR_LEN)
+    ফেরত CURLE_SSL_CERTPROBLEM;
 
   *sep = _TEXT('\0');
   *store_path = curlx_tcsdup(store_path_start);
   *sep = _TEXT('\\');
-  if(!*store_path)
-    return CURLE_OUT_OF_MEMORY;
+  যদি(!*store_path)
+    ফেরত CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode get_client_cert(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+স্থির CURLcode get_client_cert(কাঠামো Curl_cfilter *cf,
+                                কাঠামো Curl_easy *তথ্য,
                                 HCERTSTORE *out_cert_store,
                                 PCCERT_CONTEXT *out_cert_context)
 {
-  struct ssl_filter_config *sslc = Curl_ssl_cf_get_filter_config(cf);
-  PCCERT_CONTEXT client_cert = NULL;
-  HCERTSTORE client_cert_store = NULL;
-  CURLcode result = CURLE_OK;
+  কাঠামো ssl_filter_config *sslc = Curl_ssl_cf_get_filter_config(cf);
+  PCCERT_CONTEXT client_cert = ফাঁকা;
+  HCERTSTORE client_cert_store = ফাঁকা;
+  CURLcode ফলাফল = CURLE_OK;
 
-  if(sslc->clientcert || sslc->cert_blob) {
+  যদি(sslc->clientcert || sslc->cert_blob) {
     DWORD cert_store_name = 0;
-    TCHAR *cert_store_path = NULL;
-    TCHAR *cert_thumbprint_str = NULL;
+    TCHAR *cert_store_path = ফাঁকা;
+    TCHAR *cert_thumbprint_str = ফাঁকা;
     TCHAR cert_thumbprint_buf[CERT_THUMBPRINT_STR_LEN + 1];
     CRYPT_HASH_BLOB cert_thumbprint;
-    BYTE cert_thumbprint_data[CERT_THUMBPRINT_DATA_LEN];
-    HCERTSTORE cert_store = NULL;
-    FILE *fInCert = NULL;
-    void *certdata = NULL;
+    BYTE cert_thumbprint_তথ্য[CERT_THUMBPRINT_তথ্য_LEN];
+    HCERTSTORE cert_store = ফাঁকা;
+    FILE *fInCert = ফাঁকা;
+    শূন্য *certdata = ফাঁকা;
     size_t certsize = 0;
     bool blob = !!sslc->cert_blob;
 
-    if(blob) {
-      certdata = sslc->cert_blob->data;
+    যদি(blob) {
+      certdata = sslc->cert_blob->তথ্য;
       certsize = sslc->cert_blob->len;
     }
-    else {
+    অন্যথা {
       TCHAR *cert_path =
         curlx_convert_UTF8_to_tchar(sslc->clientcert);
-      if(!cert_path)
-        return CURLE_OUT_OF_MEMORY;
+      যদি(!cert_path)
+        ফেরত CURLE_OUT_OF_MEMORY;
 
-      result = get_cert_location(cert_path, &cert_store_name,
+      ফলাফল = get_cert_location(cert_path, &cert_store_name,
                                  &cert_store_path, &cert_thumbprint_str);
 
       /* 'cert_thumbprint_str' points in to the allocated 'cert_path', copy
          the data. The string is verified to be CERT_THUMBPRINT_STR_LEN bytes
          long within the get_cert_location() function. */
-      if(!result && cert_thumbprint_str) {
+      যদি(!ফলাফল && cert_thumbprint_str) {
         memcpy(cert_thumbprint_buf, cert_thumbprint_str,
-               sizeof(cert_thumbprint_buf));
+               আকার(cert_thumbprint_buf));
         cert_thumbprint_str = cert_thumbprint_buf;
       }
 
       curlx_free(cert_path);
-      if(result && (sslc->clientcert[0] != '\0'))
+      যদি(ফলাফল && (sslc->clientcert[0] != '\0'))
         fInCert = curlx_fopen(sslc->clientcert, "rb");
 
-      if(result && !fInCert) {
-        failf(data, "schannel: Failed to get certificate location"
+      যদি(ফলাফল && !fInCert) {
+        failf(তথ্য, "schannel: Failed to get certificate location"
               " or file for %s",
               sslc->clientcert);
-        return result;
+        ফেরত ফলাফল;
       }
     }
 
-    if((fInCert || blob) && sslc->cert_type &&
+    যদি((fInCert || blob) && sslc->cert_type &&
        !curl_strequal(sslc->cert_type, "P12")) {
-      failf(data, "schannel: certificate format compatibility error "
+      failf(তথ্য, "schannel: certificate format compatibility error "
             "for %s",
             blob ? "(memory blob)" : sslc->clientcert);
       curlx_free(cert_store_path);
-      if(fInCert)
+      যদি(fInCert)
         curlx_fclose(fInCert);
-      return CURLE_SSL_CERTPROBLEM;
+      ফেরত CURLE_SSL_CERTPROBLEM;
     }
 
-    if(fInCert || blob) {
+    যদি(fInCert || blob) {
       /* Reading a .p12 or .pfx file, like the example at bottom of
          https://learn.microsoft.com/archive/msdn-technet-forums/3e7bc95f-b21a-4bcd-bd2c-7f996718cae5
        */
-      CRYPT_DATA_BLOB datablob;
+      CRYPT_তথ্য_BLOB datablob;
       WCHAR *pszPassword;
       size_t pwd_len = 0;
-      int cert_find_flags;
-      const char *cert_showfilename_error = blob ?
+      পূর্ণসংখ্যা cert_find_flags;
+      ধ্রুবক অক্ষর *cert_showfilename_error = blob ?
         "(memory blob)" : sslc->clientcert;
       curlx_free(cert_store_path);
-      if(fInCert) {
+      যদি(fInCert) {
         long cert_tell = 0;
         bool continue_reading = fseek(fInCert, 0, SEEK_END) == 0;
-        if(continue_reading) {
+        যদি(continue_reading) {
           cert_tell = ftell(fInCert);
-          if(cert_tell < 0)
+          যদি(cert_tell < 0)
             continue_reading = FALSE;
-          else
+          অন্যথা
             certsize = (size_t)cert_tell;
         }
-        if(continue_reading)
+        যদি(continue_reading)
           continue_reading = fseek(fInCert, 0, SEEK_SET) == 0;
-        if(continue_reading && (certsize < CURL_MAX_INPUT_LENGTH))
+        যদি(continue_reading && (certsize < CURL_MAX_প্রবেশ_দৈর্ঘ্য))
           certdata = curlx_malloc(certsize + 1);
-        if(!certdata || ((int)fread(certdata, certsize, 1, fInCert) != 1))
+        যদি(!certdata || ((পূর্ণসংখ্যা)fread(certdata, certsize, 1, fInCert) != 1))
           continue_reading = FALSE;
         curlx_fclose(fInCert);
-        if(!continue_reading) {
-          failf(data, "schannel: Failed to read cert file %s",
+        যদি(!continue_reading) {
+          failf(তথ্য, "schannel: Failed to read cert file %s",
                 sslc->clientcert);
           curlx_free(certdata);
-          return CURLE_SSL_CERTPROBLEM;
+          ফেরত CURLE_SSL_CERTPROBLEM;
         }
       }
 
       /* Convert key-pair data to the in-memory certificate store */
-      datablob.pbData = (BYTE *)certdata;
-      datablob.cbData = (DWORD)certsize;
+      datablob.pb_তথ্য = (BYTE *)certdata;
+      datablob.cb_তথ্য = (DWORD)certsize;
 
-      if(sslc->key_passwd)
-        pwd_len = strlen(sslc->key_passwd);
-      pszPassword = curlx_malloc(sizeof(WCHAR) * (pwd_len + 1));
-      if(pszPassword) {
-        int str_w_len = 0;
-        if(pwd_len > 0)
+      যদি(sslc->চাবি_passwd)
+        pwd_len = strlen(sslc->চাবি_passwd);
+      pszPassword = curlx_malloc(আকার(WCHAR) * (pwd_len + 1));
+      যদি(pszPassword) {
+        পূর্ণসংখ্যা str_w_len = 0;
+        যদি(pwd_len > 0)
           str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                          sslc->key_passwd, (int)pwd_len,
-                                          pszPassword, (int)(pwd_len + 1));
+                                          sslc->চাবি_passwd, (পূর্ণসংখ্যা)pwd_len,
+                                          pszPassword, (পূর্ণসংখ্যা)(pwd_len + 1));
 
-        if((str_w_len >= 0) && (str_w_len <= (int)pwd_len))
+        যদি((str_w_len >= 0) && (str_w_len <= (পূর্ণসংখ্যা)pwd_len))
           pszPassword[str_w_len] = 0;
-        else
+        অন্যথা
           pszPassword[0] = 0;
 
         cert_store = PFXImportCertStore(&datablob, pszPassword,
-                                        PKCS12_NO_PERSIST_KEY);
-        curlx_memzero(pszPassword, sizeof(WCHAR) * (pwd_len + 1));
+                                        PKCS12_NO_PERSIST_চাবি);
+        curlx_memzero(pszPassword, আকার(WCHAR) * (pwd_len + 1));
         curlx_free(pszPassword);
       }
-      if(!blob)
+      যদি(!blob)
         curlx_free(certdata);
-      if(!cert_store) {
+      যদি(!cert_store) {
         DWORD errorcode = GetLastError();
-        if(errorcode == ERROR_INVALID_PASSWORD)
-          failf(data, "schannel: Failed to import cert file %s, "
+        যদি(errorcode == ERROR_INVALID_PASSWORD)
+          failf(তথ্য, "schannel: Failed to import cert file %s, "
                 "password is bad",
                 cert_showfilename_error);
-        else
-          failf(data, "schannel: Failed to import cert file %s, "
+        অন্যথা
+          failf(তথ্য, "schannel: Failed to import cert file %s, "
                 "last error is 0x%08lx",
                 cert_showfilename_error, errorcode);
-        return CURLE_SSL_CERTPROBLEM;
+        ফেরত CURLE_SSL_CERTPROBLEM;
       }
 
       /* CERT_FIND_HAS_PRIVATE_KEY is only available in Windows 8 / Server
          2012, (NT 6.2). For older versions we use CURL_FIND_ANY. */
-      if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
+      যদি(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
                                       VERSION_GREATER_THAN_EQUAL))
-        cert_find_flags = CERT_FIND_HAS_PRIVATE_KEY;
-      else
+        cert_find_flags = CERT_FIND_HAS_PRIVATE_চাবি;
+      অন্যথা
         cert_find_flags = CERT_FIND_ANY;
 
       client_cert =
         CertFindCertificateInStore(cert_store,
                                    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
-                                   cert_find_flags, NULL, NULL);
+                                   cert_find_flags, ফাঁকা, ফাঁকা);
 
-      if(!client_cert) {
-        failf(data, "schannel: Failed to get certificate from file %s"
+      যদি(!client_cert) {
+        failf(তথ্য, "schannel: Failed to get certificate from file %s"
               ", last error is 0x%08lx",
               cert_showfilename_error, GetLastError());
         CertCloseStore(cert_store, 0);
-        return CURLE_SSL_CERTPROBLEM;
+        ফেরত CURLE_SSL_CERTPROBLEM;
       }
     }
-    else {
+    অন্যথা {
       cert_store =
         CertOpenStore(
 #ifdef UNICODE
                       CERT_STORE_PROV_SYSTEM_W,
-#else
+#অন্যথা
                       CERT_STORE_PROV_SYSTEM_A,
 #endif
                       0,
-                      (HCRYPTPROV)NULL,
+                      (HCRYPTPROV)ফাঁকা,
                       CERT_STORE_OPEN_EXISTING_FLAG | cert_store_name,
                       cert_store_path);
-      if(!cert_store) {
-        char *path_utf8 =
+      যদি(!cert_store) {
+        অক্ষর *path_utf8 =
           curlx_convert_tchar_to_UTF8(cert_store_path);
-        failf(data, "schannel: Failed to open cert store %lx %s, "
+        failf(তথ্য, "schannel: Failed to open cert store %lx %s, "
               "last error is 0x%08lx",
               cert_store_name, (path_utf8 ? path_utf8 : "(unknown)"),
               GetLastError());
         curlx_free(cert_store_path);
         curlx_free(path_utf8);
-        return CURLE_SSL_CERTPROBLEM;
+        ফেরত CURLE_SSL_CERTPROBLEM;
       }
       curlx_free(cert_store_path);
 
-      cert_thumbprint.pbData = cert_thumbprint_data;
-      cert_thumbprint.cbData = CERT_THUMBPRINT_DATA_LEN;
+      cert_thumbprint.pb_তথ্য = cert_thumbprint_তথ্য;
+      cert_thumbprint.cb_তথ্য = CERT_THUMBPRINT_তথ্য_LEN;
 
-      if(!CryptStringToBinary(cert_thumbprint_str,
+      যদি(!Crypt_String_To_দ্বিমিক(cert_thumbprint_str,
                               CERT_THUMBPRINT_STR_LEN,
                               CRYPT_STRING_HEX,
-                              cert_thumbprint_data,
-                              &cert_thumbprint.cbData,
-                              NULL, NULL)) {
+                              cert_thumbprint_তথ্য,
+                              &cert_thumbprint.cb_তথ্য,
+                              ফাঁকা, ফাঁকা)) {
         CertCloseStore(cert_store, 0);
-        return CURLE_SSL_CERTPROBLEM;
+        ফেরত CURLE_SSL_CERTPROBLEM;
       }
 
       client_cert =
         CertFindCertificateInStore(cert_store,
                                    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
-                                   CERT_FIND_HASH, &cert_thumbprint, NULL);
-      if(!client_cert) {
+                                   CERT_FIND_HASH, &cert_thumbprint, ফাঁকা);
+      যদি(!client_cert) {
         /* CRYPT_E_NOT_FOUND / E_INVALIDARG */
         CertCloseStore(cert_store, 0);
-        failf(data, "schannel: client cert not found in cert store");
-        return CURLE_SSL_CERTPROBLEM;
+        failf(তথ্য, "schannel: client cert not found in cert store");
+        ফেরত CURLE_SSL_CERTPROBLEM;
       }
     }
     client_cert_store = cert_store;
@@ -597,23 +597,23 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
   *out_cert_store = client_cert_store;
   *out_cert_context = client_cert;
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct schannel_ssl_backend_data *backend,
+স্থির CURLcode acquire_sspi_handle(কাঠামো Curl_cfilter *cf,
+                                    কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো schannel_ssl_backend_তথ্য *backend,
                                     PCCERT_CONTEXT client_cert,
                                     DWORD flags,
                                     DWORD enabled_protocols)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  কাঠামো ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   SECURITY_STATUS sspi_status = SEC_E_OK;
-  CURLcode result;
+  CURLcode ফলাফল;
 
   /* We support TLS 1.3 starting in Windows Server 2022 or later
    * (OS build 20348) */
-  if(!conn_config->cipher_list &&
+  যদি(!conn_config->cipher_list &&
      curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
                                   VERSION_GREATER_THAN_EQUAL)) {
 
@@ -622,12 +622,12 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
     CRYPTO_SETTINGS crypto_settings[1];
     PCCERT_CONTEXT client_certs[1];
 
-    if(client_cert)
+    যদি(client_cert)
       client_certs[0] = client_cert;
-    else
-      client_certs[0] = NULL;
+    অন্যথা
+      client_certs[0] = ফাঁকা;
 
-    memset(crypto_settings, 0, sizeof(crypto_settings));
+    memset(crypto_settings, 0, আকার(crypto_settings));
 
     tls_parameters.pDisabledCrypto = crypto_settings;
 
@@ -641,191 +641,191 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
 
     credentials.pTlsParameters->grbitDisabledProtocols = ~enabled_protocols;
 
-    if(client_certs[0]) {
+    যদি(client_certs[0]) {
       credentials.cCreds = 1;
       credentials.paCred = client_certs;
     }
 
     sspi_status =
-      Curl_pSecFn->AcquireCredentialsHandle(NULL, CURL_UNCONST(UNISP_NAME),
-                                            SECPKG_CRED_OUTBOUND, NULL,
-                                            &credentials, NULL, NULL,
-                                            &backend->cred->cred_handle, NULL);
+      Curl_pSecFn->AcquireCredentialsHandle(ফাঁকা, CURL_UNCONST(UNISP_NAME),
+                                            SECPKG_CRED_OUTBOUND, ফাঁকা,
+                                            &credentials, ফাঁকা, ফাঁকা,
+                                            &backend->cred->cred_handle, ফাঁকা);
   }
-  else {
+  অন্যথা {
     /* Pre-Windows 10 1809 or the user set a legacy algorithm list.
        Schannel does not negotiate TLS 1.3 when SCHANNEL_CRED is used. */
-    ALG_ID algIds[NUM_CIPHERS];
-    char *ciphers = conn_config->cipher_list;
+    ALG_ID algIds[অঙ্ক_CIPHERS];
+    অক্ষর *ciphers = conn_config->cipher_list;
     SCHANNEL_CRED schannel_cred = { 0 };
     PCCERT_CONTEXT client_certs[1];
 
-    if(client_cert)
+    যদি(client_cert)
       client_certs[0] = client_cert;
-    else
-      client_certs[0] = NULL;
+    অন্যথা
+      client_certs[0] = ফাঁকা;
 
     schannel_cred.dwVersion = SCHANNEL_CRED_VERSION;
     schannel_cred.dwFlags = flags;
     schannel_cred.grbitEnabledProtocols = enabled_protocols;
 
-    if(ciphers) {
-      if((enabled_protocols & SP_PROT_TLS1_3_CLIENT)) {
-        if(!(enabled_protocols & ~SP_PROT_TLS1_3_CLIENT)) {
-          failf(data, "schannel: TLS 1.3 is not supported with a cipher list; "
+    যদি(ciphers) {
+      যদি((enabled_protocols & SP_PROT_TLS1_3_CLIENT)) {
+        যদি(!(enabled_protocols & ~SP_PROT_TLS1_3_CLIENT)) {
+          failf(তথ্য, "schannel: TLS 1.3 is not supported with a cipher list; "
                 "remove the cipher list or allow a lower TLS version");
-          return CURLE_SSL_CONNECT_ERROR;
+          ফেরত CURLE_SSL_CONNECT_ERROR;
         }
-        infof(data, "schannel: WARNING: This version of Schannel "
+        infof(তথ্য, "schannel: WARNING: This version of Schannel "
               "negotiates a less-secure TLS version than TLS 1.3 because the "
               "user set an algorithm cipher list.");
       }
-      result = set_ssl_ciphers(&schannel_cred, ciphers, algIds);
-      if(result) {
-        failf(data, "schannel: Failed setting algorithm cipher list");
-        return result;
+      ফলাফল = set_ssl_ciphers(&schannel_cred, ciphers, algIds);
+      যদি(ফলাফল) {
+        failf(তথ্য, "schannel: Failed setting algorithm cipher list");
+        ফেরত ফলাফল;
       }
     }
-    else {
+    অন্যথা {
       schannel_cred.dwFlags = flags | SCH_USE_STRONG_CRYPTO;
     }
 
-    if(client_certs[0]) {
+    যদি(client_certs[0]) {
       schannel_cred.cCreds = 1;
       schannel_cred.paCred = client_certs;
     }
 
     sspi_status =
-      Curl_pSecFn->AcquireCredentialsHandle(NULL, CURL_UNCONST(UNISP_NAME),
-                                            SECPKG_CRED_OUTBOUND, NULL,
-                                            &schannel_cred, NULL, NULL,
-                                            &backend->cred->cred_handle, NULL);
+      Curl_pSecFn->AcquireCredentialsHandle(ফাঁকা, CURL_UNCONST(UNISP_NAME),
+                                            SECPKG_CRED_OUTBOUND, ফাঁকা,
+                                            &schannel_cred, ফাঁকা, ফাঁকা,
+                                            &backend->cred->cred_handle, ফাঁকা);
   }
 
-  if(sspi_status != SEC_E_OK) {
-    char buffer[STRERROR_LEN];
-    failf(data, "schannel: AcquireCredentialsHandle failed: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    switch(sspi_status) {
-    case SEC_E_INSUFFICIENT_MEMORY:
-      return CURLE_OUT_OF_MEMORY;
-    case SEC_E_NO_CREDENTIALS:
-    case SEC_E_SECPKG_NOT_FOUND:
-    case SEC_E_NOT_OWNER:
-    case SEC_E_UNKNOWN_CREDENTIALS:
-    case SEC_E_INTERNAL_ERROR:
-    default:
-      return CURLE_SSL_CONNECT_ERROR;
+  যদি(sspi_status != SEC_E_OK) {
+    অক্ষর বাফার[STRERROR_LEN];
+    failf(তথ্য, "schannel: AcquireCredentialsHandle failed: %s",
+          Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+    নির্বাচন(sspi_status) {
+    ক্ষেত্র SEC_E_INSUFFICIENT_MEMORY:
+      ফেরত CURLE_OUT_OF_MEMORY;
+    ক্ষেত্র SEC_E_NO_CREDENTIALS:
+    ক্ষেত্র SEC_E_SECPKG_NOT_FOUND:
+    ক্ষেত্র SEC_E_NOT_OWNER:
+    ক্ষেত্র SEC_E_UNKNOWN_CREDENTIALS:
+    ক্ষেত্র SEC_E_INTERNAL_ERROR:
+    পূর্বনির্ধারিত:
+      ফেরত CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter *cf,
-                                                   struct Curl_easy *data)
+স্থির CURLcode schannel_acquire_credential_handle(কাঠামো Curl_cfilter *cf,
+                                                   কাঠামো Curl_easy *তথ্য)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
 
-  PCCERT_CONTEXT client_cert = NULL;
-  HCERTSTORE client_cert_store = NULL;
-  CURLcode result;
+  PCCERT_CONTEXT client_cert = ফাঁকা;
+  HCERTSTORE client_cert_store = ফাঁকা;
+  CURLcode ফলাফল;
 
   /* setup Schannel API options */
   DWORD flags = 0;
   DWORD enabled_protocols = 0;
 
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
 
   DEBUGASSERT(backend);
 
-  if(conn_config->verifypeer) {
-    if(backend->use_manual_cred_validation)
+  যদি(conn_config->verifypeer) {
+    যদি(backend->use_manual_cred_validation)
       flags = SCH_CRED_MANUAL_CRED_VALIDATION;
-    else
+    অন্যথা
       flags = SCH_CRED_AUTO_CRED_VALIDATION;
 
-    if(conn_config->no_revoke) {
+    যদি(conn_config->no_revoke) {
       flags |= SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
                SCH_CRED_IGNORE_REVOCATION_OFFLINE;
 
-      DEBUGF(infof(data, "schannel: disabled server certificate revocation "
+      DEBUGF(infof(তথ্য, "schannel: disabled server certificate revocation "
                          "checks"));
     }
-    else if(conn_config->revoke_best_effort) {
+    অন্যথা যদি(conn_config->revoke_best_effort) {
       flags |= SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
                SCH_CRED_IGNORE_REVOCATION_OFFLINE |
                SCH_CRED_REVOCATION_CHECK_CHAIN;
 
-      DEBUGF(infof(data, "schannel: ignore revocation offline errors"));
+      DEBUGF(infof(তথ্য, "schannel: ignore revocation offline errors"));
     }
-    else {
+    অন্যথা {
       flags |= SCH_CRED_REVOCATION_CHECK_CHAIN;
 
-      DEBUGF(infof(data, "schannel: checking server certificate revocation"));
+      DEBUGF(infof(তথ্য, "schannel: checking server certificate revocation"));
     }
   }
-  else {
+  অন্যথা {
     flags = SCH_CRED_MANUAL_CRED_VALIDATION |
             SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
             SCH_CRED_IGNORE_REVOCATION_OFFLINE;
-    DEBUGF(infof(data, "schannel: disabled server cert revocation checks"));
+    DEBUGF(infof(তথ্য, "schannel: disabled server cert revocation checks"));
   }
 
-  if(!conn_config->verifyhost) {
+  যদি(!conn_config->verifyhost) {
     flags |= SCH_CRED_NO_SERVERNAME_CHECK;
-    DEBUGF(infof(data, "schannel: verifyhost setting prevents Schannel from "
+    DEBUGF(infof(তথ্য, "schannel: verifyhost setting prevents Schannel from "
                        "comparing the supplied target name with the subject "
                        "names in server certificates."));
   }
 
-  if(!conn_config->auto_client_cert) {
+  যদি(!conn_config->auto_client_cert) {
     flags &= ~(DWORD)SCH_CRED_USE_DEFAULT_CREDS;
     flags |= SCH_CRED_NO_DEFAULT_CREDS;
-    infof(data, "schannel: disabled automatic use of client certificate");
+    infof(তথ্য, "schannel: disabled automatic use of client certificate");
   }
-  else
-    infof(data, "schannel: enabled automatic use of client certificate");
+  অন্যথা
+    infof(তথ্য, "schannel: enabled automatic use of client certificate");
 
   DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
-  switch(conn_config->version) {
-  case CURL_SSLVERSION_TLSv1:
-  case CURL_SSLVERSION_TLSv1_0:
-  case CURL_SSLVERSION_TLSv1_1:
-  case CURL_SSLVERSION_TLSv1_2:
-  case CURL_SSLVERSION_TLSv1_3: {
-    result = schannel_set_ssl_version_min_max(&enabled_protocols, cf, data);
-    if(result)
-      return result;
-    break;
+  নির্বাচন(conn_config->version) {
+  ক্ষেত্র CURL_SSLVERSION_TLSv1:
+  ক্ষেত্র CURL_SSLVERSION_TLSv1_0:
+  ক্ষেত্র CURL_SSLVERSION_TLSv1_1:
+  ক্ষেত্র CURL_SSLVERSION_TLSv1_2:
+  ক্ষেত্র CURL_SSLVERSION_TLSv1_3: {
+    ফলাফল = schannel_set_ssl_version_min_max(&enabled_protocols, cf, তথ্য);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
+    বিরতি;
   }
-  case CURL_SSLVERSION_SSLv3:
-  case CURL_SSLVERSION_SSLv2:
-    failf(data, "SSL versions not supported");
-    return CURLE_NOT_BUILT_IN;
-  default:
-    failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
-    return CURLE_SSL_CONNECT_ERROR;
+  ক্ষেত্র CURL_SSLVERSION_SSLv3:
+  ক্ষেত্র CURL_SSLVERSION_SSLv2:
+    failf(তথ্য, "SSL versions not supported");
+    ফেরত CURLE_NOT_BUILT_IN;
+  পূর্বনির্ধারিত:
+    failf(তথ্য, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
+    ফেরত CURLE_SSL_CONNECT_ERROR;
   }
 
-  result = get_client_cert(cf, data, &client_cert_store, &client_cert);
-  if(result)
-    return result;
+  ফলাফল = get_client_cert(cf, তথ্য, &client_cert_store, &client_cert);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
   /* allocate memory for the reusable credential handle */
-  backend->cred = (struct Curl_schannel_cred *)
-    curlx_calloc(1, sizeof(struct Curl_schannel_cred));
-  if(!backend->cred) {
-    failf(data, "schannel: unable to allocate memory");
+  backend->cred = (কাঠামো Curl_schannel_cred *)
+    curlx_calloc(1, আকার(কাঠামো Curl_schannel_cred));
+  যদি(!backend->cred) {
+    failf(তথ্য, "schannel: unable to allocate memory");
 
-    if(client_cert)
+    যদি(client_cert)
       CertFreeCertificateContext(client_cert);
-    if(client_cert_store)
+    যদি(client_cert_store)
       CertCloseStore(client_cert_store, 0);
 
-    return CURLE_OUT_OF_MEMORY;
+    ফেরত CURLE_OUT_OF_MEMORY;
   }
   backend->cred->refcount = 1;
 
@@ -834,76 +834,76 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter *cf,
    */
   backend->cred->client_cert_store = client_cert_store;
 
-  result = acquire_sspi_handle(cf, data, backend, client_cert,
+  ফলাফল = acquire_sspi_handle(cf, তথ্য, backend, client_cert,
                                flags, enabled_protocols);
 
-  if(client_cert)
+  যদি(client_cert)
     CertFreeCertificateContext(client_cert);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data)
+স্থির CURLcode schannel_connect_step1(কাঠামো Curl_cfilter *cf,
+                                       কাঠামো Curl_easy *তথ্য)
 {
   size_t written = 0;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  SecBuffer outbuf;
-  SecBufferDesc outbuf_desc;
-  SecBuffer inbuf;
-  SecBufferDesc inbuf_desc;
-  unsigned char alpn_buffer[128];
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
+  কাঠামো ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  Sec_বাফার outbuf;
+  Sec_বাফার_Desc outbuf_desc;
+  Sec_বাফার inbuf;
+  Sec_বাফার_Desc inbuf_desc;
+  unsigned অক্ষর alpn_বাফার[128];
   SECURITY_STATUS sspi_status = SEC_E_OK;
-  CURLcode result;
+  CURLcode ফলাফল;
 
   DEBUGASSERT(backend);
-  DEBUGF(infof(data, "schannel: SSL/TLS connection with %s port %d (step 1/3)",
+  DEBUGF(infof(তথ্য, "schannel: SSL/TLS connection with %s port %d (step 1/3)",
                connssl->peer.origin->hostname, connssl->peer.origin->port));
 
   backend->use_alpn = connssl->alpn && s_win_has_alpn;
 
-  if(conn_config->CAfile || conn_config->ca_info_blob) {
-    if(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
+  যদি(conn_config->CAfile || conn_config->ca_info_blob) {
+    যদি(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
                                     VERSION_GREATER_THAN_EQUAL)) {
       backend->use_manual_cred_validation = TRUE;
     }
-    else {
-      failf(data, "schannel: this version of Windows is too old to support "
+    অন্যথা {
+      failf(তথ্য, "schannel: this version of Windows is too old to support "
                   "certificate verification via CA bundle file.");
-      return CURLE_SSL_CACERT_BADFILE;
+      ফেরত CURLE_SSL_CACERT_BADFILE;
     }
   }
-  else
+  অন্যথা
     backend->use_manual_cred_validation = FALSE;
 
-  backend->cred = NULL;
+  backend->cred = ফাঁকা;
 
   /* check for an existing reusable credential handle */
-  if(Curl_ssl_scache_use(cf, data)) {
-    struct Curl_schannel_cred *old_cred;
-    Curl_ssl_scache_lock(data);
-    old_cred = Curl_ssl_scache_get_obj(cf, data, connssl->peer.scache_key);
-    if(old_cred) {
+  যদি(Curl_ssl_scache_use(cf, তথ্য)) {
+    কাঠামো Curl_schannel_cred *old_cred;
+    Curl_ssl_scache_lock(তথ্য);
+    old_cred = Curl_ssl_scache_get_obj(cf, তথ্য, connssl->peer.scache_চাবি);
+    যদি(old_cred) {
       backend->cred = old_cred;
-      DEBUGF(infof(data, "schannel: reusing existing credential handle"));
+      DEBUGF(infof(তথ্য, "schannel: reusing existing credential handle"));
 
       /* increment the reference counter of the credential/session handle */
       backend->cred->refcount++;
-      DEBUGF(infof(data,
+      DEBUGF(infof(তথ্য,
                    "schannel: incremented credential handle refcount = %d",
                    backend->cred->refcount));
     }
-    Curl_ssl_scache_unlock(data);
+    Curl_ssl_scache_unlock(তথ্য);
   }
 
-  if(!backend->cred) {
-    char *snihost;
-    result = schannel_acquire_credential_handle(cf, data);
-    if(result || !backend->cred)
-      return result;
+  যদি(!backend->cred) {
+    অক্ষর *snihost;
+    ফলাফল = schannel_acquire_credential_handle(cf, তথ্য);
+    যদি(ফলাফল || !backend->cred)
+      ফেরত ফলাফল;
     /* schannel_acquire_credential_handle() sets backend->cred accordingly or
        it returns error otherwise. */
 
@@ -912,66 +912,66 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
     snihost = connssl->peer.sni ?
       connssl->peer.sni : connssl->peer.origin->hostname;
     backend->cred->sni_hostname = curlx_convert_UTF8_to_tchar(snihost);
-    if(!backend->cred->sni_hostname)
-      return CURLE_OUT_OF_MEMORY;
+    যদি(!backend->cred->sni_hostname)
+      ফেরত CURLE_OUT_OF_MEMORY;
   }
 
   /* Warn if SNI is disabled due to use of an IP address */
-  if(connssl->peer.type != CURL_SSL_PEER_DNS) {
-    infof(data, "schannel: using IP address, SNI is not supported by OS.");
+  যদি(connssl->peer.type != CURL_SSL_PEER_DNS) {
+    infof(তথ্য, "schannel: using IP address, SNI is not supported by OS.");
   }
 
-  if(backend->use_alpn) {
-    int cur = 0;
-    int list_start_index = 0;
-    unsigned int *extension_len = NULL;
-    unsigned short *list_len = NULL;
-    const unsigned int uiALPN = SecApplicationProtocolNegotiationExt_ALPN;
-    struct alpn_proto_buf proto;
+  যদি(backend->use_alpn) {
+    পূর্ণসংখ্যা cur = 0;
+    পূর্ণসংখ্যা list_start_সূচক = 0;
+    unsigned পূর্ণসংখ্যা *extension_len = ফাঁকা;
+    unsigned short *list_len = ফাঁকা;
+    ধ্রুবক unsigned পূর্ণসংখ্যা uiALPN = SecApplicationProtocolNegotiationExt_ALPN;
+    কাঠামো alpn_proto_buf proto;
 
     /* The first four bytes is an unsigned int indicating number
        of bytes of data in the rest of the buffer. */
-    extension_len = (unsigned int *)(void *)&alpn_buffer[cur];
-    cur += (int)sizeof(unsigned int);
+    extension_len = (unsigned পূর্ণসংখ্যা *)(শূন্য *)&alpn_বাফার[cur];
+    cur += (পূর্ণসংখ্যা)আকার(unsigned পূর্ণসংখ্যা);
 
     /* The next four bytes are an indicator that this buffer contains
        ALPN data, as opposed to NPN, for example. */
-    memcpy(&alpn_buffer[cur], &uiALPN, sizeof(uiALPN));
-    cur += (int)sizeof(unsigned int);
+    memcpy(&alpn_বাফার[cur], &uiALPN, আকার(uiALPN));
+    cur += (পূর্ণসংখ্যা)আকার(unsigned পূর্ণসংখ্যা);
 
     /* The next two bytes is an unsigned short indicating the number
        of bytes used to list the preferred protocols. */
-    list_len = (unsigned short *)(void *)&alpn_buffer[cur];
-    cur += (int)sizeof(unsigned short);
+    list_len = (unsigned short *)(শূন্য *)&alpn_বাফার[cur];
+    cur += (পূর্ণসংখ্যা)আকার(unsigned short);
 
-    list_start_index = cur;
+    list_start_সূচক = cur;
 
-    result = Curl_alpn_to_proto_buf(&proto, connssl->alpn);
-    if(result) {
-      failf(data, "Error setting ALPN");
-      return CURLE_SSL_CONNECT_ERROR;
+    ফলাফল = Curl_alpn_to_proto_buf(&proto, connssl->alpn);
+    যদি(ফলাফল) {
+      failf(তথ্য, "Error setting ALPN");
+      ফেরত CURLE_SSL_CONNECT_ERROR;
     }
-    memcpy(&alpn_buffer[cur], proto.data, proto.len);
+    memcpy(&alpn_বাফার[cur], proto.তথ্য, proto.len);
     cur += proto.len;
 
-    *list_len = curlx_uitous(cur - list_start_index);
-    *extension_len = (unsigned int)(*list_len +
-      sizeof(unsigned int) + sizeof(unsigned short));
+    *list_len = curlx_uitous(cur - list_start_সূচক);
+    *extension_len = (unsigned পূর্ণসংখ্যা)(*list_len +
+      আকার(unsigned পূর্ণসংখ্যা) + আকার(unsigned short));
 
-    InitSecBuffer(&inbuf, SECBUFFER_APPLICATION_PROTOCOLS, alpn_buffer, cur);
-    InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
+    Init_Sec_বাফার(&inbuf, SECBUFFER_APPLICATION_PROTOCOLS, alpn_বাফার, cur);
+    Init_Sec_বাফার_Desc(&inbuf_desc, &inbuf, 1);
 
     Curl_alpn_to_proto_str(&proto, connssl->alpn);
-    infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
+    infof(তথ্য, VTLS_INFOF_ALPN_OFFER_1STR, proto.তথ্য);
   }
-  else {
-    InitSecBuffer(&inbuf, SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
+  অন্যথা {
+    Init_Sec_বাফার(&inbuf, SECBUFFER_EMPTY, ফাঁকা, 0);
+    Init_Sec_বাফার_Desc(&inbuf_desc, &inbuf, 1);
   }
 
   /* setup output buffer */
-  InitSecBuffer(&outbuf, SECBUFFER_EMPTY, NULL, 0);
-  InitSecBufferDesc(&outbuf_desc, &outbuf, 1);
+  Init_Sec_বাফার(&outbuf, SECBUFFER_EMPTY, ফাঁকা, 0);
+  Init_Sec_বাফার_Desc(&outbuf_desc, &outbuf, 1);
 
   /* security request flags */
   backend->req_flags =
@@ -981,11 +981,11 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
     (!conn_config->auto_client_cert ? ISC_REQ_USE_SUPPLIED_CREDS : 0);
 
   /* allocate memory for the security context handle */
-  backend->ctxt = (struct Curl_schannel_ctxt *)
-    curlx_calloc(1, sizeof(struct Curl_schannel_ctxt));
-  if(!backend->ctxt) {
-    failf(data, "schannel: unable to allocate memory");
-    return CURLE_OUT_OF_MEMORY;
+  backend->ctxt = (কাঠামো Curl_schannel_ctxt *)
+    curlx_calloc(1, আকার(কাঠামো Curl_schannel_ctxt));
+  যদি(!backend->ctxt) {
+    failf(তথ্য, "schannel: unable to allocate memory");
+    ফেরত CURLE_OUT_OF_MEMORY;
   }
 
   /* Schannel InitializeSecurityContext:
@@ -996,58 +996,58 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
      us problems with inbuf regardless. https://github.com/curl/curl/issues/983
    */
   sspi_status = Curl_pSecFn->InitializeSecurityContext(
-    &backend->cred->cred_handle, NULL, backend->cred->sni_hostname,
+    &backend->cred->cred_handle, ফাঁকা, backend->cred->sni_hostname,
     backend->req_flags, 0, 0,
-    (backend->use_alpn ? &inbuf_desc : NULL),
+    (backend->use_alpn ? &inbuf_desc : ফাঁকা),
     0, &backend->ctxt->ctxt_handle,
-    &outbuf_desc, &backend->ret_flags, NULL);
+    &outbuf_desc, &backend->ret_flags, ফাঁকা);
 
-  if(sspi_status != SEC_I_CONTINUE_NEEDED) {
-    char buffer[STRERROR_LEN];
+  যদি(sspi_status != SEC_I_CONTINUE_NEEDED) {
+    অক্ষর বাফার[STRERROR_LEN];
     curlx_safefree(backend->ctxt);
-    switch(sspi_status) {
-    case SEC_E_INSUFFICIENT_MEMORY:
-      failf(data, "schannel: initial InitializeSecurityContext failed: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_OUT_OF_MEMORY;
-    case SEC_E_WRONG_PRINCIPAL:
-      failf(data, "schannel: SNI or certificate check failed: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_PEER_FAILED_VERIFICATION;
-#if 0
-    case SEC_E_INVALID_HANDLE:
-    case SEC_E_INVALID_TOKEN:
-    case SEC_E_LOGON_DENIED:
-    case SEC_E_TARGET_UNKNOWN:
-    case SEC_E_NO_AUTHENTICATING_AUTHORITY:
-    case SEC_E_INTERNAL_ERROR:
-    case SEC_E_NO_CREDENTIALS:
-    case SEC_E_UNSUPPORTED_FUNCTION:
-    case SEC_E_APPLICATION_PROTOCOL_MISMATCH:
+    নির্বাচন(sspi_status) {
+    ক্ষেত্র SEC_E_INSUFFICIENT_MEMORY:
+      failf(তথ্য, "schannel: initial InitializeSecurityContext failed: %s",
+            Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+      ফেরত CURLE_OUT_OF_MEMORY;
+    ক্ষেত্র SEC_E_WRONG_PRINCIPAL:
+      failf(তথ্য, "schannel: SNI or certificate check failed: %s",
+            Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+      ফেরত CURLE_PEER_FAILED_VERIFICATION;
+#যদি 0
+    ক্ষেত্র SEC_E_INVALID_HANDLE:
+    ক্ষেত্র SEC_E_INVALID_TOKEN:
+    ক্ষেত্র SEC_E_LOGON_DENIED:
+    ক্ষেত্র SEC_E_TARGET_UNKNOWN:
+    ক্ষেত্র SEC_E_NO_AUTHENTICATING_AUTHORITY:
+    ক্ষেত্র SEC_E_INTERNAL_ERROR:
+    ক্ষেত্র SEC_E_NO_CREDENTIALS:
+    ক্ষেত্র SEC_E_UNSUPPORTED_FUNCTION:
+    ক্ষেত্র SEC_E_APPLICATION_PROTOCOL_MISMATCH:
 #endif
-    default:
-      failf(data, "schannel: initial InitializeSecurityContext failed: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_SSL_CONNECT_ERROR;
+    পূর্বনির্ধারিত:
+      failf(তথ্য, "schannel: initial InitializeSecurityContext failed: %s",
+            Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+      ফেরত CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  DEBUGF(infof(data, "schannel: sending initial handshake data: "
-               "sending %lu bytes.", outbuf.cbBuffer));
+  DEBUGF(infof(তথ্য, "schannel: sending initial handshake data: "
+               "sending %lu bytes.", outbuf.cb_বাফার));
 
   /* send initial handshake data which is now stored in output buffer */
-  result = Curl_conn_cf_send(cf->next, data,
-                             (const uint8_t *)outbuf.pvBuffer,
-                             outbuf.cbBuffer, FALSE,
+  ফলাফল = Curl_conn_cf_send(cf->পরবর্তী, তথ্য,
+                             (ধ্রুবক uint8_t *)outbuf.pv_বাফার,
+                             outbuf.cb_বাফার, FALSE,
                              &written);
-  Curl_pSecFn->FreeContextBuffer(outbuf.pvBuffer);
-  if(result || (outbuf.cbBuffer != written)) {
-    failf(data, "schannel: failed to send initial handshake data: "
-          "sent %zu of %lu bytes", written, outbuf.cbBuffer);
-    return CURLE_SSL_CONNECT_ERROR;
+  Curl_pSecFn->Free_Context_বাফার(outbuf.pv_বাফার);
+  যদি(ফলাফল || (outbuf.cb_বাফার != written)) {
+    failf(তথ্য, "schannel: failed to send initial handshake data: "
+          "sent %zu of %lu bytes", written, outbuf.cb_বাফার);
+    ফেরত CURLE_SSL_CONNECT_ERROR;
   }
 
-  DEBUGF(infof(data, "schannel: sent initial handshake data: "
+  DEBUGF(infof(তথ্য, "schannel: sent initial handshake data: "
                "sent %zu bytes", written));
 
   backend->recv_unrecoverable_err = CURLE_OK;
@@ -1058,371 +1058,371 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
   backend->encdata_is_incomplete = FALSE;
   backend->shutdown_generated = FALSE;
   backend->shutdown_offset = 0;
-  memset(&backend->shutdown_token, 0, sizeof(backend->shutdown_token));
+  memset(&backend->shutdown_token, 0, আকার(backend->shutdown_token));
 
   /* continue to second handshake step */
   connssl->connecting_state = ssl_connect_2;
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode schannel_error(struct Curl_easy *data,
+স্থির CURLcode schannel_error(কাঠামো Curl_easy *তথ্য,
                                SECURITY_STATUS sspi_status)
 {
-  char buffer[STRERROR_LEN];
-  switch(sspi_status) {
-  case SEC_E_INSUFFICIENT_MEMORY:
-    failf(data, "schannel: next InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_OUT_OF_MEMORY;
-  case SEC_E_WRONG_PRINCIPAL:
-    failf(data, "schannel: SNI or certificate check failed: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_PEER_FAILED_VERIFICATION;
-  case SEC_E_UNTRUSTED_ROOT:
-    failf(data, "schannel: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_PEER_FAILED_VERIFICATION;
-#if 0
-  case SEC_E_INVALID_HANDLE:
-  case SEC_E_INVALID_TOKEN:
-  case SEC_E_LOGON_DENIED:
-  case SEC_E_TARGET_UNKNOWN:
-  case SEC_E_NO_AUTHENTICATING_AUTHORITY:
-  case SEC_E_INTERNAL_ERROR:
-  case SEC_E_NO_CREDENTIALS:
-  case SEC_E_UNSUPPORTED_FUNCTION:
-  case SEC_E_APPLICATION_PROTOCOL_MISMATCH:
+  অক্ষর বাফার[STRERROR_LEN];
+  নির্বাচন(sspi_status) {
+  ক্ষেত্র SEC_E_INSUFFICIENT_MEMORY:
+    failf(তথ্য, "schannel: next InitializeSecurityContext failed: %s",
+          Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+    ফেরত CURLE_OUT_OF_MEMORY;
+  ক্ষেত্র SEC_E_WRONG_PRINCIPAL:
+    failf(তথ্য, "schannel: SNI or certificate check failed: %s",
+          Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+    ফেরত CURLE_PEER_FAILED_VERIFICATION;
+  ক্ষেত্র SEC_E_UNTRUSTED_মূল:
+    failf(তথ্য, "schannel: %s",
+          Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+    ফেরত CURLE_PEER_FAILED_VERIFICATION;
+#যদি 0
+  ক্ষেত্র SEC_E_INVALID_HANDLE:
+  ক্ষেত্র SEC_E_INVALID_TOKEN:
+  ক্ষেত্র SEC_E_LOGON_DENIED:
+  ক্ষেত্র SEC_E_TARGET_UNKNOWN:
+  ক্ষেত্র SEC_E_NO_AUTHENTICATING_AUTHORITY:
+  ক্ষেত্র SEC_E_INTERNAL_ERROR:
+  ক্ষেত্র SEC_E_NO_CREDENTIALS:
+  ক্ষেত্র SEC_E_UNSUPPORTED_FUNCTION:
+  ক্ষেত্র SEC_E_APPLICATION_PROTOCOL_MISMATCH:
 #endif
-  default:
-    failf(data, "schannel: next InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_SSL_CONNECT_ERROR;
+  পূর্বনির্ধারিত:
+    failf(তথ্য, "schannel: next InitializeSecurityContext failed: %s",
+          Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+    ফেরত CURLE_SSL_CONNECT_ERROR;
   }
 }
 
-static CURLcode schannel_pkp_pin_peer_pubkey(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             const char *pinnedpubkey)
+স্থির CURLcode schannel_pkp_pin_peer_pubkey(কাঠামো Curl_cfilter *cf,
+                                             কাঠামো Curl_easy *তথ্য,
+                                             ধ্রুবক অক্ষর *pinnedpubkey)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  CERT_CONTEXT *pCertContextServer = NULL;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
+  CERT_CONTEXT *pCertContextServer = ফাঁকা;
 
   /* Result is returned to caller */
-  CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
+  CURLcode ফলাফল = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   DEBUGASSERT(backend);
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
+  যদি(!pinnedpubkey)
+    ফেরত CURLE_OK;
 
-  do {
+  করো {
     SECURITY_STATUS sspi_status;
     uint8_t *x509_der;
     DWORD x509_der_len;
-    struct Curl_X509certificate x509_parsed;
-    struct Curl_asn1Element *pubkey;
+    কাঠামো Curl_X509certificate x509_parsed;
+    কাঠামো Curl_asn1Element *pubkey;
 
     sspi_status =
       Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                           &pCertContextServer);
 
-    if((sspi_status != SEC_E_OK) || !pCertContextServer) {
-      char buffer[STRERROR_LEN];
-      failf(data, "schannel: Failed to read remote certificate context: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      break; /* failed */
+    যদি((sspi_status != SEC_E_OK) || !pCertContextServer) {
+      অক্ষর বাফার[STRERROR_LEN];
+      failf(তথ্য, "schannel: Failed to read remote certificate context: %s",
+            Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+      বিরতি; /* failed */
     }
 
-    if(!(((pCertContextServer->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
+    যদি(!(((pCertContextServer->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
          (pCertContextServer->cbCertEncoded > 0)))
-      break;
+      বিরতি;
 
     x509_der = (uint8_t *)pCertContextServer->pbCertEncoded;
     x509_der_len = pCertContextServer->cbCertEncoded;
-    memset(&x509_parsed, 0, sizeof(x509_parsed));
-    if(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
-      break;
+    memset(&x509_parsed, 0, আকার(x509_parsed));
+    যদি(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
+      বিরতি;
 
-    pubkey = &x509_parsed.subjectPublicKeyInfo;
-    if(!pubkey->header || pubkey->end <= pubkey->header) {
-      failf(data, "SSL: failed retrieving public key from server certificate");
-      break;
+    pubkey = &x509_parsed.subject_Public_চাবি_Info;
+    যদি(!pubkey->header || pubkey->end <= pubkey->header) {
+      failf(তথ্য, "SSL: failed retrieving public key from server certificate");
+      বিরতি;
     }
 
-    result = Curl_pin_peer_pubkey(data,
+    ফলাফল = Curl_pin_peer_pubkey(তথ্য,
                                   pinnedpubkey,
-                                  (const unsigned char *)pubkey->header,
+                                  (ধ্রুবক unsigned অক্ষর *)pubkey->header,
                                   (size_t)(pubkey->end - pubkey->header));
-    if(result) {
-      failf(data, "SSL: public key does not match pinned public key");
+    যদি(ফলাফল) {
+      failf(তথ্য, "SSL: public key does not match pinned public key");
     }
-  } while(0);
+  } যখন(0);
 
-  if(pCertContextServer)
+  যদি(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode ensure_encoding_size(struct Curl_easy *data,
-                                     struct sbuffer *encdata,
-                                     size_t min_length)
+স্থির CURLcode ensure_encoding_আকার(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো sbuffer *encdata,
+                                     size_t min_দৈর্ঘ্য)
 {
-  size_t size;
-  DEBUGASSERT(encdata->length >= encdata->offset);
-  if(encdata->length < encdata->offset)
-    return CURLE_FAILED_INIT;
-  size = encdata->length - encdata->offset;
-  if(size < CURL_SCHANNEL_BUFFER_FREE_SIZE || encdata->length < min_length) {
-    unsigned char *buffer;
-    size_t length = encdata->offset + CURL_SCHANNEL_BUFFER_FREE_SIZE;
-    if(length < min_length)
-      length = min_length;
-    buffer = curlx_realloc(encdata->buffer, length);
-    if(!buffer) {
-      failf(data, "schannel: unable to re-allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+  size_t আকার_2;
+  DEBUGASSERT(encdata->দৈর্ঘ্য >= encdata->offset);
+  যদি(encdata->দৈর্ঘ্য < encdata->offset)
+    ফেরত CURLE_FAILED_INIT;
+  আকার_2 = encdata->দৈর্ঘ্য - encdata->offset;
+  যদি(আকার_2 < CURL_SCHANNEL_বাফার_FREE_আকার || encdata->দৈর্ঘ্য < min_দৈর্ঘ্য) {
+    unsigned অক্ষর *বাফার;
+    size_t দৈর্ঘ্য = encdata->offset + CURL_SCHANNEL_বাফার_FREE_আকার;
+    যদি(দৈর্ঘ্য < min_দৈর্ঘ্য)
+      দৈর্ঘ্য = min_দৈর্ঘ্য;
+    বাফার = curlx_realloc(encdata->বাফার, দৈর্ঘ্য);
+    যদি(!বাফার) {
+      failf(তথ্য, "schannel: unable to re-allocate memory");
+      ফেরত CURLE_OUT_OF_MEMORY;
     }
 
-    encdata->buffer = buffer;
-    encdata->length = length;
-    SCH_DEV(infof(data, "schannel: encdata.buffer resized %zu",
-                  encdata->length));
+    encdata->বাফার = বাফার;
+    encdata->দৈর্ঘ্য = দৈর্ঘ্য;
+    SCH_DEV(infof(তথ্য, "schannel: encdata.buffer resized %zu",
+                  encdata->দৈর্ঘ্য));
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode ensure_decoding_size(struct Curl_easy *data,
-                                     struct sbuffer *decdata,
+স্থির CURLcode ensure_decoding_আকার(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো sbuffer *decdata,
                                      size_t nowsize,
                                      size_t len)
 {
-  size_t size = nowsize > CURL_SCHANNEL_BUFFER_FREE_SIZE ?
-    nowsize : CURL_SCHANNEL_BUFFER_FREE_SIZE;
-  DEBUGASSERT(decdata->length >= decdata->offset);
-  if(decdata->length < decdata->offset)
-    return CURLE_FAILED_INIT;
-  else if(decdata->length - decdata->offset < size ||
-          decdata->length < len) {
+  size_t আকার_2 = nowsize > CURL_SCHANNEL_বাফার_FREE_আকার ?
+    nowsize : CURL_SCHANNEL_বাফার_FREE_আকার;
+  DEBUGASSERT(decdata->দৈর্ঘ্য >= decdata->offset);
+  যদি(decdata->দৈর্ঘ্য < decdata->offset)
+    ফেরত CURLE_FAILED_INIT;
+  অন্যথা যদি(decdata->দৈর্ঘ্য - decdata->offset < আকার_2 ||
+          decdata->দৈর্ঘ্য < len) {
     /* increase internal decrypted data buffer */
-    size_t length = decdata->offset + size;
-    unsigned char *buffer;
+    size_t দৈর্ঘ্য = decdata->offset + আকার_2;
+    unsigned অক্ষর *বাফার;
     /* make sure that the requested amount of data fits */
-    if(length < len)
-      length = len;
+    যদি(দৈর্ঘ্য < len)
+      দৈর্ঘ্য = len;
 
-    buffer = curlx_realloc(decdata->buffer, length);
-    if(!buffer) {
-      failf(data, "schannel: unable to re-allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+    বাফার = curlx_realloc(decdata->বাফার, দৈর্ঘ্য);
+    যদি(!বাফার) {
+      failf(তথ্য, "schannel: unable to re-allocate memory");
+      ফেরত CURLE_OUT_OF_MEMORY;
     }
-    decdata->buffer = buffer;
-    decdata->length = length;
+    decdata->বাফার = বাফার;
+    decdata->দৈর্ঘ্য = দৈর্ঘ্য;
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data)
+স্থির CURLcode schannel_connect_step2(কাঠামো Curl_cfilter *cf,
+                                       কাঠামো Curl_easy *তথ্য)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int i;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
+  কাঠামো ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  পূর্ণসংখ্যা i;
   size_t nread = 0;
-  SecBuffer outbuf[3];
-  SecBufferDesc outbuf_desc;
-  SecBuffer inbuf[2];
-  SecBufferDesc inbuf_desc;
+  Sec_বাফার outbuf[3];
+  Sec_বাফার_Desc outbuf_desc;
+  Sec_বাফার inbuf[2];
+  Sec_বাফার_Desc inbuf_desc;
   SECURITY_STATUS sspi_status = SEC_E_OK;
-  CURLcode result;
+  CURLcode ফলাফল;
   bool doread;
-  const char *pubkey_ptr;
+  ধ্রুবক অক্ষর *pubkey_ptr;
 
   DEBUGASSERT(backend);
 
   doread = (connssl->io_need & CURL_SSL_IO_NEED_SEND) ? FALSE : TRUE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  DEBUGF(infof(data, "schannel: SSL/TLS connection with %s port %d (step 2/3)",
+  DEBUGF(infof(তথ্য, "schannel: SSL/TLS connection with %s port %d (step 2/3)",
                connssl->peer.origin->hostname, connssl->peer.origin->port));
 
-  if(!backend->cred || !backend->ctxt)
-    return CURLE_SSL_CONNECT_ERROR;
+  যদি(!backend->cred || !backend->ctxt)
+    ফেরত CURLE_SSL_CONNECT_ERROR;
 
   /* buffer to store previously received and decrypted data */
-  if(!backend->decdata.buffer) {
+  যদি(!backend->decdata.বাফার) {
     backend->decdata.offset = 0;
-    backend->decdata.length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
-    backend->decdata.buffer = curlx_malloc(backend->decdata.length);
-    if(!backend->decdata.buffer) {
-      failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+    backend->decdata.দৈর্ঘ্য = CURL_SCHANNEL_বাফার_INIT_আকার;
+    backend->decdata.বাফার = curlx_malloc(backend->decdata.দৈর্ঘ্য);
+    যদি(!backend->decdata.বাফার) {
+      failf(তথ্য, "schannel: unable to allocate memory");
+      ফেরত CURLE_OUT_OF_MEMORY;
     }
   }
 
   /* buffer to store previously received and encrypted data */
-  if(!backend->encdata.buffer) {
+  যদি(!backend->encdata.বাফার) {
     backend->encdata_is_incomplete = FALSE;
     backend->encdata.offset = 0;
-    backend->encdata.length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
-    backend->encdata.buffer = curlx_malloc(backend->encdata.length);
-    if(!backend->encdata.buffer) {
-      failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+    backend->encdata.দৈর্ঘ্য = CURL_SCHANNEL_বাফার_INIT_আকার;
+    backend->encdata.বাফার = curlx_malloc(backend->encdata.দৈর্ঘ্য);
+    যদি(!backend->encdata.বাফার) {
+      failf(তথ্য, "schannel: unable to allocate memory");
+      ফেরত CURLE_OUT_OF_MEMORY;
     }
   }
 
-  result = ensure_encoding_size(data, &backend->encdata, 0);
-  if(result)
-    return result;
+  ফলাফল = ensure_encoding_আকার(তথ্য, &backend->encdata, 0);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
-  for(;;) {
-    if(doread) {
+  জন্য(;;) {
+    যদি(doread) {
       /* read encrypted handshake data from socket */
-      result = Curl_conn_cf_recv(cf->next, data,
-                                 (char *)(backend->encdata.buffer +
+      ফলাফল = Curl_conn_cf_recv(cf->পরবর্তী, তথ্য,
+                                 (অক্ষর *)(backend->encdata.বাফার +
                                           backend->encdata.offset),
-                                 backend->encdata.length -
+                                 backend->encdata.দৈর্ঘ্য -
                                  backend->encdata.offset,
                                  &nread);
-      if(result == CURLE_AGAIN) {
-        if(!backend->encdata.offset || backend->encdata_is_incomplete) {
+      যদি(ফলাফল == CURLE_AGAIN) {
+        যদি(!backend->encdata.offset || backend->encdata_is_incomplete) {
           connssl->io_need = CURL_SSL_IO_NEED_RECV;
-          DEBUGF(infof(data, "schannel: failed to receive handshake, "
+          DEBUGF(infof(তথ্য, "schannel: failed to receive handshake, "
                        "need more data"));
-          return CURLE_OK;
+          ফেরত CURLE_OK;
         }
-        else {
-          DEBUGF(infof(data, "schannel: no new handshake data received, "
+        অন্যথা {
+          DEBUGF(infof(তথ্য, "schannel: no new handshake data received, "
                        "continuing to process existing handshake data"));
         }
       }
-      else if(result || (nread == 0)) {
-        failf(data, "schannel: failed to receive handshake, "
+      অন্যথা যদি(ফলাফল || (nread == 0)) {
+        failf(তথ্য, "schannel: failed to receive handshake, "
               "SSL/TLS connection failed");
-        return CURLE_SSL_CONNECT_ERROR;
+        ফেরত CURLE_SSL_CONNECT_ERROR;
       }
-      else {
+      অন্যথা {
         /* increase encrypted data buffer offset */
         backend->encdata.offset += nread;
         backend->encdata_is_incomplete = FALSE;
-        SCH_DEV(infof(data, "schannel: encrypted data got %zu", nread));
+        SCH_DEV(infof(তথ্য, "schannel: encrypted data got %zu", nread));
       }
     }
 
-    SCH_DEV(infof(data,
+    SCH_DEV(infof(তথ্য,
                   "schannel: encrypted data buffer: offset %zu length %zu",
-                  backend->encdata.offset, backend->encdata.length));
+                  backend->encdata.offset, backend->encdata.দৈর্ঘ্য));
 
     /* setup input buffers */
-    InitSecBuffer(&inbuf[0], SECBUFFER_TOKEN,
-                  curlx_memdup0((const char *)backend->encdata.buffer,
+    Init_Sec_বাফার(&inbuf[0], SECBUFFER_TOKEN,
+                  curlx_memdup0((ধ্রুবক অক্ষর *)backend->encdata.বাফার,
                                 backend->encdata.offset),
                   curlx_uztoul(backend->encdata.offset));
-    InitSecBuffer(&inbuf[1], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&inbuf_desc, inbuf, 2);
+    Init_Sec_বাফার(&inbuf[1], SECBUFFER_EMPTY, ফাঁকা, 0);
+    Init_Sec_বাফার_Desc(&inbuf_desc, inbuf, 2);
 
     /* setup output buffers */
-    InitSecBuffer(&outbuf[0], SECBUFFER_TOKEN, NULL, 0);
-    InitSecBuffer(&outbuf[1], SECBUFFER_ALERT, NULL, 0);
-    InitSecBuffer(&outbuf[2], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&outbuf_desc, outbuf, 3);
+    Init_Sec_বাফার(&outbuf[0], SECBUFFER_TOKEN, ফাঁকা, 0);
+    Init_Sec_বাফার(&outbuf[1], SECBUFFER_ALERT, ফাঁকা, 0);
+    Init_Sec_বাফার(&outbuf[2], SECBUFFER_EMPTY, ফাঁকা, 0);
+    Init_Sec_বাফার_Desc(&outbuf_desc, outbuf, 3);
 
-    if(!inbuf[0].pvBuffer) {
-      failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+    যদি(!inbuf[0].pv_বাফার) {
+      failf(তথ্য, "schannel: unable to allocate memory");
+      ফেরত CURLE_OUT_OF_MEMORY;
     }
 
     /* The socket must be writable (or a poll error occurred) before we call
        InitializeSecurityContext to continue processing the received TLS
        records. This is because that function is not idempotent and we do not
        support partial save/resume sending replies of handshake tokens. */
-    if(!SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, data), 0)) {
-      SCH_DEV(infof(data, "schannel: handshake waiting for writable socket"));
+    যদি(!SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, তথ্য), 0)) {
+      SCH_DEV(infof(তথ্য, "schannel: handshake waiting for writable socket"));
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      curlx_free(inbuf[0].pvBuffer);
-      return CURLE_OK;
+      curlx_free(inbuf[0].pv_বাফার);
+      ফেরত CURLE_OK;
     }
 
     sspi_status = Curl_pSecFn->InitializeSecurityContext(
       &backend->cred->cred_handle, &backend->ctxt->ctxt_handle,
       backend->cred->sni_hostname, backend->req_flags,
-      0, 0, &inbuf_desc, 0, NULL,
-      &outbuf_desc, &backend->ret_flags, NULL);
+      0, 0, &inbuf_desc, 0, ফাঁকা,
+      &outbuf_desc, &backend->ret_flags, ফাঁকা);
 
     /* free buffer for received handshake data */
-    curlx_safefree(inbuf[0].pvBuffer);
+    curlx_safefree(inbuf[0].pv_বাফার);
 
     /* check if the handshake was incomplete */
-    switch(sspi_status) {
-    case SEC_E_INCOMPLETE_MESSAGE:
+    নির্বাচন(sspi_status) {
+    ক্ষেত্র SEC_E_INCOMPLETE_MESSAGE:
       backend->encdata_is_incomplete = TRUE;
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      DEBUGF(infof(data,
+      DEBUGF(infof(তথ্য,
                    "schannel: received incomplete message, need more data"));
-      return CURLE_OK;
+      ফেরত CURLE_OK;
 
-    case SEC_I_CONTINUE_NEEDED:
-    case SEC_E_OK:
+    ক্ষেত্র SEC_I_CONTINUE_NEEDED:
+    ক্ষেত্র SEC_E_OK:
       /* check if the handshake needs to be continued */
-      result = CURLE_OK;
-      for(i = 0; i < 3; i++) {
+      ফলাফল = CURLE_OK;
+      জন্য(i = 0; i < 3; i++) {
         /* search for handshake tokens that need to be sent */
-        if(outbuf[i].BufferType == SECBUFFER_TOKEN && outbuf[i].cbBuffer > 0) {
+        যদি(outbuf[i].বাফার_Type == SECBUFFER_TOKEN && outbuf[i].cb_বাফার > 0) {
           size_t written = 0;
-          DEBUGF(infof(data, "schannel: sending next handshake data: "
-                       "sending %lu bytes.", outbuf[i].cbBuffer));
+          DEBUGF(infof(তথ্য, "schannel: sending next handshake data: "
+                       "sending %lu bytes.", outbuf[i].cb_বাফার));
 
           /* send handshake token to server */
-          result = Curl_conn_cf_send(cf->next, data,
-                                     (const uint8_t *)outbuf[i].pvBuffer,
-                                     outbuf[i].cbBuffer,
+          ফলাফল = Curl_conn_cf_send(cf->পরবর্তী, তথ্য,
+                                     (ধ্রুবক uint8_t *)outbuf[i].pv_বাফার,
+                                     outbuf[i].cb_বাফার,
                                      FALSE, &written);
-          if(result || (outbuf[i].cbBuffer != written)) {
-            failf(data, "schannel: failed to send next handshake data: "
-                  "sent %zu of %lu bytes", written, outbuf[i].cbBuffer);
-            result = CURLE_SSL_CONNECT_ERROR;
+          যদি(ফলাফল || (outbuf[i].cb_বাফার != written)) {
+            failf(তথ্য, "schannel: failed to send next handshake data: "
+                  "sent %zu of %lu bytes", written, outbuf[i].cb_বাফার);
+            ফলাফল = CURLE_SSL_CONNECT_ERROR;
           }
         }
       }
-      for(i = 0; i < 3; i++) {
+      জন্য(i = 0; i < 3; i++) {
         /* free obsolete buffer */
-        if(outbuf[i].pvBuffer)
-          Curl_pSecFn->FreeContextBuffer(outbuf[i].pvBuffer);
+        যদি(outbuf[i].pv_বাফার)
+          Curl_pSecFn->Free_Context_বাফার(outbuf[i].pv_বাফার);
       }
-      if(result)
-        return result;
-      break;
+      যদি(ফলাফল)
+        ফেরত ফলাফল;
+      বিরতি;
 
-    case SEC_I_INCOMPLETE_CREDENTIALS:
-      if(!(backend->req_flags & ISC_REQ_USE_SUPPLIED_CREDS)) {
+    ক্ষেত্র SEC_I_INCOMPLETE_CREDENTIALS:
+      যদি(!(backend->req_flags & ISC_REQ_USE_SUPPLIED_CREDS)) {
         /* If the server has requested a client certificate, attempt to
            continue the handshake without one. This allows connections to
            servers which request a client certificate but do not require
            it. */
         backend->req_flags |= ISC_REQ_USE_SUPPLIED_CREDS;
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        DEBUGF(infof(data,
+        DEBUGF(infof(তথ্য,
                      "schannel: a client certificate has been requested"));
-        return CURLE_OK;
+        ফেরত CURLE_OK;
       }
       FALLTHROUGH();
 
-    default:
-      return schannel_error(data, sspi_status);
+    পূর্বনির্ধারিত:
+      ফেরত schannel_error(তথ্য, sspi_status);
     }
 
     /* check if there was additional remaining encrypted data */
-    if(inbuf[1].BufferType == SECBUFFER_EXTRA && inbuf[1].cbBuffer > 0) {
-      SCH_DEV(infof(data, "schannel: encrypted data length: %lu",
-                    inbuf[1].cbBuffer));
+    যদি(inbuf[1].বাফার_Type == SECBUFFER_EXTRA && inbuf[1].cb_বাফার > 0) {
+      SCH_DEV(infof(তথ্য, "schannel: encrypted data length: %lu",
+                    inbuf[1].cb_বাফার));
       /* There are two cases where we could be getting extra data here:
          1. If we are renegotiating a connection and the handshake is already
             complete (from the server perspective), it can encrypt app data
@@ -1434,318 +1434,318 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
        */
       /* check if the remaining data is less than the total amount
          and therefore begins after the already processed data */
-      if(backend->encdata.offset > inbuf[1].cbBuffer) {
-        memmove(backend->encdata.buffer,
-                (backend->encdata.buffer + backend->encdata.offset) -
-                inbuf[1].cbBuffer, inbuf[1].cbBuffer);
-        backend->encdata.offset = inbuf[1].cbBuffer;
-        if(sspi_status == SEC_I_CONTINUE_NEEDED) {
+      যদি(backend->encdata.offset > inbuf[1].cb_বাফার) {
+        memmove(backend->encdata.বাফার,
+                (backend->encdata.বাফার + backend->encdata.offset) -
+                inbuf[1].cb_বাফার, inbuf[1].cb_বাফার);
+        backend->encdata.offset = inbuf[1].cb_বাফার;
+        যদি(sspi_status == SEC_I_CONTINUE_NEEDED) {
           doread = FALSE;
-          continue;
+          চালু;
         }
       }
     }
-    else {
+    অন্যথা {
       backend->encdata.offset = 0;
     }
-    break;
+    বিরতি;
   }
 
   /* check if the handshake needs to be continued */
-  if(sspi_status == SEC_I_CONTINUE_NEEDED) {
+  যদি(sspi_status == SEC_I_CONTINUE_NEEDED) {
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
-    return CURLE_OK;
+    ফেরত CURLE_OK;
   }
 
   /* check if the handshake is complete */
-  if(sspi_status == SEC_E_OK) {
+  যদি(sspi_status == SEC_E_OK) {
     connssl->connecting_state = ssl_connect_3;
-    DEBUGF(infof(data, "schannel: SSL/TLS handshake complete"));
+    DEBUGF(infof(তথ্য, "schannel: SSL/TLS handshake complete"));
   }
 
 #ifndef CURL_DISABLE_PROXY
   pubkey_ptr = Curl_ssl_cf_is_proxy(cf) ?
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
-    CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#else
-  pubkey_ptr = CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
+    CURL_EASY_STR(তথ্য, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
+    CURL_EASY_STR(তথ্য, STRING_SSL_PINNEDPUBLICKEY);
+#অন্যথা
+  pubkey_ptr = CURL_EASY_STR(তথ্য, STRING_SSL_PINNEDPUBLICKEY);
 #endif
-  if(pubkey_ptr) {
-    result = schannel_pkp_pin_peer_pubkey(cf, data, pubkey_ptr);
-    if(result) {
-      failf(data, "SSL: public key does not match pinned public key");
-      return result;
+  যদি(pubkey_ptr) {
+    ফলাফল = schannel_pkp_pin_peer_pubkey(cf, তথ্য, pubkey_ptr);
+    যদি(ফলাফল) {
+      failf(তথ্য, "SSL: public key does not match pinned public key");
+      ফেরত ফলাফল;
     }
   }
 
-  if(conn_config->verifypeer && backend->use_manual_cred_validation) {
+  যদি(conn_config->verifypeer && backend->use_manual_cred_validation) {
     /* Certificate verification also verifies the hostname if verifyhost */
-    return Curl_verify_certificate(cf, data);
+    ফেরত Curl_verify_certificate(cf, তথ্য);
   }
 
   /* Verify the hostname manually when certificate verification is disabled,
      because in that case Schannel does not verify it. */
-  if(!conn_config->verifypeer && conn_config->verifyhost)
-    return Curl_verify_host(cf, data);
+  যদি(!conn_config->verifypeer && conn_config->verifyhost)
+    ফেরত Curl_verify_host(cf, তথ্য);
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static bool valid_cert_encoding(const CERT_CONTEXT *cert_context)
+স্থির bool valid_cert_encoding(ধ্রুবক CERT_CONTEXT *cert_context)
 {
-  return cert_context &&
+  ফেরত cert_context &&
     ((cert_context->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
     cert_context->pbCertEncoded &&
     (cert_context->cbCertEncoded > 0);
 }
 
-typedef bool (*Read_crt_func)(const CERT_CONTEXT *ccert_context,
-                              bool reverse_order, void *arg);
+প্রকারলেখ bool (*Read_crt_func)(ধ্রুবক CERT_CONTEXT *ccert_context,
+                              bool reverse_order, শূন্য *arg);
 
-static void traverse_cert_store(const CERT_CONTEXT *context,
-                                Read_crt_func func, void *arg)
+স্থির শূন্য traverse_cert_store(ধ্রুবক CERT_CONTEXT *context,
+                                Read_crt_func func, শূন্য *arg)
 {
-  const CERT_CONTEXT *current_context = NULL;
+  ধ্রুবক CERT_CONTEXT *current_context = ফাঁকা;
   bool should_continue = TRUE;
   bool first = TRUE;
   bool reverse_order = FALSE;
-  while(should_continue &&
+  যখন(should_continue &&
         (current_context = CertEnumCertificatesInStore(
           context->hCertStore,
-          current_context)) != NULL) {
+          current_context)) != ফাঁকা) {
     /* Windows 11 22H2 OS Build 22621.674 or higher enumerates certificates in
        leaf-to-root order while all previous versions of Windows enumerate
        certificates in root-to-leaf order. Determine the order of enumeration
        by comparing SECPKG_ATTR_REMOTE_CERT_CONTEXT's pbCertContext with the
        first certificate's pbCertContext. */
-    if(first && context->pbCertEncoded != current_context->pbCertEncoded)
+    যদি(first && context->pbCertEncoded != current_context->pbCertEncoded)
       reverse_order = TRUE;
     should_continue = func(current_context, reverse_order, arg);
     first = FALSE;
   }
 
-  if(current_context)
+  যদি(current_context)
     CertFreeCertificateContext(current_context);
 }
 
-static bool cert_counter_callback(const CERT_CONTEXT *ccert_context,
-                                  bool reverse_order, void *certs_count)
+স্থির bool cert_গণক_callback(ধ্রুবক CERT_CONTEXT *ccert_context,
+                                  bool reverse_order, শূন্য *certs_গুনতি)
 {
-  (void)reverse_order;
-  if(valid_cert_encoding(ccert_context))
-    (*(int *)certs_count)++;
-  if(*(int *)certs_count > MAX_ALLOWED_CERT_AMOUNT)
-    return FALSE;
-  return TRUE;
+  (শূন্য)reverse_order;
+  যদি(valid_cert_encoding(ccert_context))
+    (*(পূর্ণসংখ্যা *)certs_গুনতি)++;
+  যদি(*(পূর্ণসংখ্যা *)certs_গুনতি > MAX_ALLOWED_CERT_AMOUNT)
+    ফেরত FALSE;
+  ফেরত TRUE;
 }
 
-struct Adder_args {
-  struct Curl_easy *data;
-  CURLcode result;
-  int idx;
-  int certs_count;
+কাঠামো Adder_args {
+  কাঠামো Curl_easy *তথ্য;
+  CURLcode ফলাফল;
+  পূর্ণসংখ্যা idx;
+  পূর্ণসংখ্যা certs_গুনতি;
 };
 
-static bool add_cert_to_certinfo(const CERT_CONTEXT *ccert_context,
-                                 bool reverse_order, void *raw_arg)
+স্থির bool add_cert_to_certinfo(ধ্রুবক CERT_CONTEXT *ccert_context,
+                                 bool reverse_order, শূন্য *raw_arg)
 {
-  struct Adder_args *args = (struct Adder_args *)raw_arg;
-  args->result = CURLE_OK;
-  if(valid_cert_encoding(ccert_context)) {
-    int insert_index = reverse_order ? (args->certs_count - 1) - args->idx :
+  কাঠামো Adder_args *args = (কাঠামো Adder_args *)raw_arg;
+  args->ফলাফল = CURLE_OK;
+  যদি(valid_cert_encoding(ccert_context)) {
+    পূর্ণসংখ্যা ঢোকাও_সূচক = reverse_order ? (args->certs_গুনতি - 1) - args->idx :
                        args->idx;
-    args->result = Curl_extract_certinfo(args->data, insert_index,
+    args->ফলাফল = Curl_extract_certinfo(args->তথ্য, ঢোকাও_সূচক,
                                          ccert_context->pbCertEncoded,
                                          ccert_context->pbCertEncoded +
                                          ccert_context->cbCertEncoded);
     args->idx++;
   }
-  return args->result == CURLE_OK;
+  ফেরত args->ফলাফল == CURLE_OK;
 }
 
-static void schannel_session_free(void *sessionid)
+স্থির শূন্য schannel_session_free(শূন্য *sessionid)
 {
   /* this is expected to be called under sessionid lock */
-  struct Curl_schannel_cred *cred = sessionid;
+  কাঠামো Curl_schannel_cred *cred = sessionid;
 
-  if(cred) {
+  যদি(cred) {
     cred->refcount--;
-    if(cred->refcount == 0) {
+    যদি(cred->refcount == 0) {
       Curl_pSecFn->FreeCredentialsHandle(&cred->cred_handle);
       curlx_free(cred->sni_hostname);
-      if(cred->client_cert_store) {
+      যদি(cred->client_cert_store) {
         CertCloseStore(cred->client_cert_store, 0);
-        cred->client_cert_store = NULL;
+        cred->client_cert_store = ফাঁকা;
       }
       curlx_safefree(cred);
     }
   }
 }
 
-static CURLcode schannel_connect_step3(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data)
+স্থির CURLcode schannel_connect_step3(কাঠামো Curl_cfilter *cf,
+                                       কাঠামো Curl_easy *তথ্য)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  CURLcode result = CURLE_OK;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
+  কাঠামো ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, তথ্য);
+  CURLcode ফলাফল = CURLE_OK;
   SECURITY_STATUS sspi_status = SEC_E_OK;
-  CERT_CONTEXT *ccert_context = NULL;
-  SecPkgContext_ApplicationProtocol alpn_result;
+  CERT_CONTEXT *ccert_context = ফাঁকা;
+  SecPkgContext_ApplicationProtocol alpn_ফলাফল;
 
   DEBUGASSERT(connssl->connecting_state == ssl_connect_3);
   DEBUGASSERT(backend);
 
-  DEBUGF(infof(data, "schannel: SSL/TLS connection with %s port %d (step 3/3)",
+  DEBUGF(infof(তথ্য, "schannel: SSL/TLS connection with %s port %d (step 3/3)",
                connssl->peer.origin->hostname, connssl->peer.origin->port));
 
-  if(!backend->cred)
-    return CURLE_SSL_CONNECT_ERROR;
+  যদি(!backend->cred)
+    ফেরত CURLE_SSL_CONNECT_ERROR;
 
   /* check if the required context attributes are met */
-  if(backend->ret_flags != backend->req_flags) {
-    if(!(backend->ret_flags & ISC_RET_SEQUENCE_DETECT))
-      failf(data, "schannel: failed to setup sequence detection");
-    if(!(backend->ret_flags & ISC_RET_REPLAY_DETECT))
-      failf(data, "schannel: failed to setup replay detection");
-    if(!(backend->ret_flags & ISC_RET_CONFIDENTIALITY))
-      failf(data, "schannel: failed to setup confidentiality");
-    if(!(backend->ret_flags & ISC_RET_ALLOCATED_MEMORY))
-      failf(data, "schannel: failed to setup memory allocation");
-    if(!(backend->ret_flags & ISC_RET_STREAM))
-      failf(data, "schannel: failed to setup stream orientation");
-    return CURLE_SSL_CONNECT_ERROR;
+  যদি(backend->ret_flags != backend->req_flags) {
+    যদি(!(backend->ret_flags & ISC_RET_SEQUENCE_DETECT))
+      failf(তথ্য, "schannel: failed to setup sequence detection");
+    যদি(!(backend->ret_flags & ISC_RET_REPLAY_DETECT))
+      failf(তথ্য, "schannel: failed to setup replay detection");
+    যদি(!(backend->ret_flags & ISC_RET_CONFIDENTIALITY))
+      failf(তথ্য, "schannel: failed to setup confidentiality");
+    যদি(!(backend->ret_flags & ISC_RET_ALLOCATED_MEMORY))
+      failf(তথ্য, "schannel: failed to setup memory allocation");
+    যদি(!(backend->ret_flags & ISC_RET_STREAM))
+      failf(তথ্য, "schannel: failed to setup stream orientation");
+    ফেরত CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(backend->use_alpn) {
+  যদি(backend->use_alpn) {
     sspi_status =
       Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_APPLICATION_PROTOCOL,
-                                          &alpn_result);
+                                          &alpn_ফলাফল);
 
-    if(sspi_status != SEC_E_OK) {
-      failf(data, "schannel: failed to retrieve ALPN result");
-      return CURLE_SSL_CONNECT_ERROR;
+    যদি(sspi_status != SEC_E_OK) {
+      failf(তথ্য, "schannel: failed to retrieve ALPN result");
+      ফেরত CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(alpn_result.ProtoNegoStatus ==
+    যদি(alpn_ফলাফল.ProtoNegoStatus ==
        SecApplicationProtocolNegotiationStatus_Success) {
-      if(backend->recv_renegotiating &&
+      যদি(backend->recv_renegotiating &&
          connssl->negotiated.alpn &&
          strncmp(connssl->negotiated.alpn,
-                 (const char *)alpn_result.ProtocolId,
-                 alpn_result.ProtocolIdSize)) {
+                 (ধ্রুবক অক্ষর *)alpn_ফলাফল.ProtocolId,
+                 alpn_ফলাফল.Protocol_Id_আকার)) {
         /* Renegotiation selected a different protocol now, we cannot
          * deal with this */
-        failf(data, "schannel: server selected an ALPN protocol too late");
-        return CURLE_SSL_CONNECT_ERROR;
+        failf(তথ্য, "schannel: server selected an ALPN protocol too late");
+        ফেরত CURLE_SSL_CONNECT_ERROR;
       }
-      Curl_alpn_set_negotiated(cf, data, connssl, alpn_result.ProtocolId,
-                               alpn_result.ProtocolIdSize);
+      Curl_alpn_set_negotiated(cf, তথ্য, connssl, alpn_ফলাফল.ProtocolId,
+                               alpn_ফলাফল.Protocol_Id_আকার);
     }
-    else {
-      if(!backend->recv_renegotiating)
-        Curl_alpn_set_negotiated(cf, data, connssl, NULL, 0);
+    অন্যথা {
+      যদি(!backend->recv_renegotiating)
+        Curl_alpn_set_negotiated(cf, তথ্য, connssl, ফাঁকা, 0);
     }
   }
 
   /* save the current session data for possible reuse */
-  if(Curl_ssl_scache_use(cf, data)) {
-    Curl_ssl_scache_lock(data);
+  যদি(Curl_ssl_scache_use(cf, তথ্য)) {
+    Curl_ssl_scache_lock(তথ্য);
     /* Up ref count since call takes ownership */
     backend->cred->refcount++;
-    result = Curl_ssl_scache_add_obj(cf, data, connssl->peer.scache_key,
+    ফলাফল = Curl_ssl_scache_add_obj(cf, তথ্য, connssl->peer.scache_চাবি,
                                      backend->cred, schannel_session_free);
-    Curl_ssl_scache_unlock(data);
-    if(result)
-      return result;
+    Curl_ssl_scache_unlock(তথ্য);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
 
-  if(ssl_config->certinfo) {
-    int certs_count = 0;
+  যদি(ssl_config->certinfo) {
+    পূর্ণসংখ্যা certs_গুনতি = 0;
     sspi_status =
       Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                           &ccert_context);
 
-    if((sspi_status != SEC_E_OK) || !ccert_context) {
-      failf(data, "schannel: failed to retrieve remote cert context");
-      return CURLE_PEER_FAILED_VERIFICATION;
+    যদি((sspi_status != SEC_E_OK) || !ccert_context) {
+      failf(তথ্য, "schannel: failed to retrieve remote cert context");
+      ফেরত CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    traverse_cert_store(ccert_context, cert_counter_callback, &certs_count);
-    if(certs_count > MAX_ALLOWED_CERT_AMOUNT) {
-      failf(data, "%d certificates is more than allowed (%d)",
-            certs_count, MAX_ALLOWED_CERT_AMOUNT);
+    traverse_cert_store(ccert_context, cert_গণক_callback, &certs_গুনতি);
+    যদি(certs_গুনতি > MAX_ALLOWED_CERT_AMOUNT) {
+      failf(তথ্য, "%d certificates is more than allowed (%d)",
+            certs_গুনতি, MAX_ALLOWED_CERT_AMOUNT);
       CertFreeCertificateContext(ccert_context);
-      return CURLE_SSL_CONNECT_ERROR;
+      ফেরত CURLE_SSL_CONNECT_ERROR;
     }
 
-    result = Curl_ssl_init_certinfo(data, certs_count);
-    if(!result) {
-      struct Adder_args args;
-      args.data = data;
+    ফলাফল = Curl_ssl_init_certinfo(তথ্য, certs_গুনতি);
+    যদি(!ফলাফল) {
+      কাঠামো Adder_args args;
+      args.তথ্য = তথ্য;
       args.idx = 0;
-      args.certs_count = certs_count;
-      args.result = CURLE_OK;
+      args.certs_গুনতি = certs_গুনতি;
+      args.ফলাফল = CURLE_OK;
       traverse_cert_store(ccert_context, add_cert_to_certinfo, &args);
-      result = args.result;
+      ফলাফল = args.ফলাফল;
     }
     CertFreeCertificateContext(ccert_context);
-    if(result)
-      return result;
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
 
   connssl->connecting_state = ssl_connect_done;
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode schannel_connect(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
+স্থির CURLcode schannel_connect(কাঠামো Curl_cfilter *cf,
+                                 কাঠামো Curl_easy *তথ্য,
                                  bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  CURLcode result;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  CURLcode ফলাফল;
 
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
+  যদি(ssl_connection_complete == connssl->state) {
     *done = TRUE;
-    return CURLE_OK;
+    ফেরত CURLE_OK;
   }
 
   *done = FALSE;
 
-  if(connssl->connecting_state == ssl_connect_1) {
-    result = schannel_connect_step1(cf, data);
-    if(result)
-      return result;
+  যদি(connssl->connecting_state == ssl_connect_1) {
+    ফলাফল = schannel_connect_step1(cf, তথ্য);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
-    result = schannel_connect_step2(cf, data);
-    if(result)
-      return result;
+  যদি(connssl->connecting_state == ssl_connect_2) {
+    ফলাফল = schannel_connect_step2(cf, তথ্য);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
 
-  if(connssl->connecting_state == ssl_connect_3) {
-    result = schannel_connect_step3(cf, data);
-    if(result)
-      return result;
+  যদি(connssl->connecting_state == ssl_connect_3) {
+    ফলাফল = schannel_connect_step3(cf, তথ্য);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
 
-  if(connssl->connecting_state == ssl_connect_done) {
-    struct schannel_ssl_backend_data *backend =
-      (struct schannel_ssl_backend_data *)connssl->backend;
+  যদি(connssl->connecting_state == ssl_connect_done) {
+    কাঠামো schannel_ssl_backend_তথ্য *backend =
+      (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
     DEBUGASSERT(backend);
 
-    if(Curl_pSecFn->QueryContextAttributes(
+    যদি(Curl_pSecFn->QueryContextAttributes(
          &backend->ctxt->ctxt_handle,
          SECPKG_ATTR_STREAM_SIZES,
          &backend->stream_sizes)) {
-      failf(data, "schannel: failed getting stream sizes");
-      return CURLE_SSL_CONNECT_ERROR;
+      failf(তথ্য, "schannel: failed getting stream sizes");
+      ফেরত CURLE_SSL_CONNECT_ERROR;
     }
 
     connssl->state = ssl_connection_complete;
@@ -1760,10 +1760,10 @@ static CURLcode schannel_connect(struct Curl_cfilter *cf,
     *done = TRUE;
   }
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-enum schannel_renegotiate_caller_t {
+গণনা schannel_renegotiate_caller_t {
   SCH_RENEG_CALLER_IS_RECV,
   SCH_RENEG_CALLER_IS_SEND
 };
@@ -1781,56 +1781,56 @@ enum schannel_renegotiate_caller_t {
    incomplete. In that case, we remain in the renegotiation (connecting) stage
    and future calls to schannel_recv and schannel_send must call this function
    first to complete the renegotiation. */
-static CURLcode schannel_recv_renegotiate(
-  struct Curl_cfilter *cf, struct Curl_easy *data,
-  enum schannel_renegotiate_caller_t caller)
+স্থির CURLcode schannel_recv_renegotiate(
+  কাঠামো Curl_cfilter *cf, কাঠামো Curl_easy *তথ্য,
+  গণনা schannel_renegotiate_caller_t caller)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
   curl_socket_t sockfd;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  struct schannel_renegotiate_state *rs = &backend->renegotiate_state;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
+  কাঠামো schannel_renegotiate_state *rs = &backend->renegotiate_state;
 
-  if(!backend || !backend->recv_renegotiating) {
-    failf(data, "schannel: unexpected call to schannel_recv_renegotiate");
-    return CURLE_SSL_CONNECT_ERROR;
+  যদি(!backend || !backend->recv_renegotiating) {
+    failf(তথ্য, "schannel: unexpected call to schannel_recv_renegotiate");
+    ফেরত CURLE_SSL_CONNECT_ERROR;
   }
   DEBUGASSERT(caller <= SCH_RENEG_CALLER_IS_SEND);
-  if(caller == SCH_RENEG_CALLER_IS_RECV)
-    SCH_DEV(infof(data, "schannel: renegotiation caller is schannel_recv"));
-  else
-    SCH_DEV(infof(data, "schannel: renegotiation caller is schannel_send"));
+  যদি(caller == SCH_RENEG_CALLER_IS_RECV)
+    SCH_DEV(infof(তথ্য, "schannel: renegotiation caller is schannel_recv"));
+  অন্যথা
+    SCH_DEV(infof(তথ্য, "schannel: renegotiation caller is schannel_send"));
 
-  sockfd = Curl_conn_cf_get_socket(cf, data);
+  sockfd = Curl_conn_cf_get_socket(cf, তথ্য);
 
-  if(sockfd == CURL_SOCKET_BAD) {
-    failf(data, "schannel: renegotiation missing socket");
-    return CURLE_SSL_CONNECT_ERROR;
+  যদি(sockfd == CURL_SOCKET_BAD) {
+    failf(তথ্য, "schannel: renegotiation missing socket");
+    ফেরত CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(!rs->started) { /* new renegotiation */
-    infof(data, "schannel: renegotiating SSL/TLS connection");
+  যদি(!rs->started) { /* new renegotiation */
+    infof(তথ্য, "schannel: renegotiating SSL/TLS connection");
     DEBUGASSERT(connssl->state == ssl_connection_complete);
     DEBUGASSERT(connssl->connecting_state == ssl_connect_done);
     connssl->state = ssl_connection_negotiating;
     connssl->connecting_state = ssl_connect_2;
-    memset(rs, 0, sizeof(*rs));
+    memset(rs, 0, আকার(*rs));
     rs->io_need = CURL_SSL_IO_NEED_SEND;
-    rs->start_time = *Curl_pgrs_now(data);
+    rs->start_time = *Curl_pgrs_now(তথ্য);
     rs->started = TRUE;
   }
 
-  for(;;) {
+  জন্য(;;) {
     bool block_read, block_write, blocking, done;
     curl_socket_t readfd, writefd;
     timediff_t elapsed;
 
-    elapsed = curlx_ptimediff_ms(Curl_pgrs_now(data), &rs->start_time);
-    if(elapsed >= MAX_RENEG_BLOCK_TIME) {
-      failf(data, "schannel: renegotiation timeout");
-      result = CURLE_SSL_CONNECT_ERROR;
-      break;
+    elapsed = curlx_ptimediff_ms(Curl_pgrs_now(তথ্য), &rs->start_time);
+    যদি(elapsed >= MAX_RENEG_BLOCK_TIME) {
+      failf(তথ্য, "schannel: renegotiation timeout");
+      ফলাফল = CURLE_SSL_CONNECT_ERROR;
+      বিরতি;
     }
 
     /* the current io_need state may have been overwritten since the last time
@@ -1839,21 +1839,21 @@ static CURLcode schannel_recv_renegotiate(
 
     connssl->io_need = rs->io_need;
 
-    result = schannel_connect(cf, data, &done);
+    ফলাফল = schannel_connect(cf, তথ্য, &done);
 
     rs->io_need = connssl->io_need;
 
-    if(!result && !done)
-      result = CURLE_AGAIN;
+    যদি(!ফলাফল && !done)
+      ফলাফল = CURLE_AGAIN;
 
-    if(result != CURLE_AGAIN)
-      break;
+    যদি(ফলাফল != CURLE_AGAIN)
+      বিরতি;
 
     readfd = (rs->io_need & CURL_SSL_IO_NEED_RECV) ? sockfd : CURL_SOCKET_BAD;
     writefd = (rs->io_need & CURL_SSL_IO_NEED_SEND) ? sockfd : CURL_SOCKET_BAD;
 
-    if(readfd == CURL_SOCKET_BAD && writefd == CURL_SOCKET_BAD)
-      continue;
+    যদি(readfd == CURL_SOCKET_BAD && writefd == CURL_SOCKET_BAD)
+      চালু;
 
     /* connect should not have requested io read and write together */
     DEBUGASSERT(readfd == CURL_SOCKET_BAD || writefd == CURL_SOCKET_BAD);
@@ -1884,42 +1884,42 @@ static CURLcode schannel_recv_renegotiate(
     SCH_DEV_SHOWBOOL(block_write);
     SCH_DEV_SHOWBOOL(blocking);
 
-    for(;;) {
-      int what;
+    জন্য(;;) {
+      পূর্ণসংখ্যা what;
       timediff_t timeout_ms, remaining;
 
-      result = Curl_pgrsUpdate(data);
-      if(result)
-        break;
+      ফলাফল = Curl_pgrsUpdate(তথ্য);
+      যদি(ফলাফল)
+        বিরতি;
 
-      elapsed = curlx_ptimediff_ms(Curl_pgrs_now(data), &rs->start_time);
-      if(elapsed >= MAX_RENEG_BLOCK_TIME) {
-        failf(data, "schannel: renegotiation timeout");
-        result = CURLE_SSL_CONNECT_ERROR;
-        break;
+      elapsed = curlx_ptimediff_ms(Curl_pgrs_now(তথ্য), &rs->start_time);
+      যদি(elapsed >= MAX_RENEG_BLOCK_TIME) {
+        failf(তথ্য, "schannel: renegotiation timeout");
+        ফলাফল = CURLE_SSL_CONNECT_ERROR;
+        বিরতি;
       }
       remaining = MAX_RENEG_BLOCK_TIME - elapsed;
 
-      if(blocking) {
-        timeout_ms = Curl_timeleft_ms(data);
+      যদি(blocking) {
+        timeout_ms = Curl_timeleft_ms(তথ্য);
 
-        if(timeout_ms < 0) {
-          result = CURLE_OPERATION_TIMEDOUT;
-          break;
+        যদি(timeout_ms < 0) {
+          ফলাফল = CURLE_OPERATION_TIMEDOUT;
+          বিরতি;
         }
 
         /* the blocking is in intervals so that the progress function can be
            called every second */
-        if(!timeout_ms || timeout_ms > 1000)
+        যদি(!timeout_ms || timeout_ms > 1000)
           timeout_ms = 1000;
 
-        if(timeout_ms > remaining)
+        যদি(timeout_ms > remaining)
           timeout_ms = remaining;
       }
-      else
+      অন্যথা
         timeout_ms = 0;
 
-      SCH_DEV(infof(data, "schannel: renegotiation wait until socket is"
+      SCH_DEV(infof(তথ্য, "schannel: renegotiation wait until socket is"
                     "%s%s for up to %" FMT_TIMEDIFF_T " ms",
                     ((readfd != CURL_SOCKET_BAD) ? " readable" : ""),
                     ((writefd != CURL_SOCKET_BAD) ? " writable" : ""),
@@ -1927,106 +1927,106 @@ static CURLcode schannel_recv_renegotiate(
 
       what = Curl_socket_check(readfd, CURL_SOCKET_BAD, writefd, timeout_ms);
 
-      if(what > 0 && (what & (CURL_CSELECT_IN | CURL_CSELECT_OUT))) {
-        SCH_DEV(infof(data, "schannel: renegotiation socket %s%s",
+      যদি(what > 0 && (what & (CURL_CSELECT_IN | CURL_CSELECT_OUT))) {
+        SCH_DEV(infof(তথ্য, "schannel: renegotiation socket %s%s",
                       ((what & CURL_CSELECT_IN) ? "CURL_CSELECT_IN " : ""),
                       ((what & CURL_CSELECT_OUT) ? "CURL_CSELECT_OUT " : "")));
-        result = CURLE_AGAIN;
-        break;
+        ফলাফল = CURLE_AGAIN;
+        বিরতি;
       }
-      else if(!what) {
-        SCH_DEV(infof(data, "schannel: renegotiation socket timeout"));
-        if(blocking)
-          continue;
-        else
-          return CURLE_AGAIN;
+      অন্যথা যদি(!what) {
+        SCH_DEV(infof(তথ্য, "schannel: renegotiation socket timeout"));
+        যদি(blocking)
+          চালু;
+        অন্যথা
+          ফেরত CURLE_AGAIN;
       }
 
-      failf(data, "schannel: socket error during renegotiation");
-      result = CURLE_SSL_CONNECT_ERROR;
-      break;
+      failf(তথ্য, "schannel: socket error during renegotiation");
+      ফলাফল = CURLE_SSL_CONNECT_ERROR;
+      বিরতি;
     }
-    if(result != CURLE_AGAIN)
-      break;
+    যদি(ফলাফল != CURLE_AGAIN)
+      বিরতি;
   }
 
-  DEBUGASSERT(result != CURLE_AGAIN);
+  DEBUGASSERT(ফলাফল != CURLE_AGAIN);
 
   rs->started = FALSE;
   backend->recv_renegotiating = FALSE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  if(result)
-    failf(data, "schannel: renegotiation failed");
-  else
-    infof(data, "schannel: SSL/TLS connection renegotiated");
+  যদি(ফলাফল)
+    failf(তথ্য, "schannel: renegotiation failed");
+  অন্যথা
+    infof(তথ্য, "schannel: SSL/TLS connection renegotiated");
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                              const void *buf, size_t len, size_t *pnwritten)
+স্থির CURLcode schannel_send(কাঠামো Curl_cfilter *cf, কাঠামো Curl_easy *তথ্য,
+                              ধ্রুবক শূন্য *buf, size_t len, size_t *pnwritten)
 {
-  size_t data_len = 0;
-  unsigned char *ptr = NULL;
-  struct ssl_connect_data *connssl = cf->ctx;
-  SecBuffer outbuf[4];
-  SecBufferDesc outbuf_desc;
+  size_t তথ্য_len = 0;
+  unsigned অক্ষর *ptr = ফাঁকা;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  Sec_বাফার outbuf[4];
+  Sec_বাফার_Desc outbuf_desc;
   SECURITY_STATUS sspi_status = SEC_E_OK;
-  CURLcode result = CURLE_OK;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
 
   DEBUGASSERT(backend);
   *pnwritten = 0;
 
-  if(backend->recv_renegotiating) {
-    result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_SEND);
-    if(result)
-      return result;
+  যদি(backend->recv_renegotiating) {
+    ফলাফল = schannel_recv_renegotiate(cf, তথ্য, SCH_RENEG_CALLER_IS_SEND);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
 
   /* check if the buffer is longer than the maximum message length */
-  if(len > backend->stream_sizes.cbMaximumMessage) {
+  যদি(len > backend->stream_sizes.cbMaximumMessage) {
     len = backend->stream_sizes.cbMaximumMessage;
   }
 
   /* calculate the complete message length and prepare the send buffer */
-  data_len = backend->stream_sizes.cbHeader + len +
+  তথ্য_len = backend->stream_sizes.cbHeader + len +
     backend->stream_sizes.cbTrailer;
-  if(data_len > backend->send_buffer_len) {
-    ptr = curlx_realloc(backend->send_buffer, data_len);
-    if(!ptr)
-      return CURLE_OUT_OF_MEMORY;
-    backend->send_buffer = ptr;
-    backend->send_buffer_len = data_len;
+  যদি(তথ্য_len > backend->send_বাফার_len) {
+    ptr = curlx_realloc(backend->send_বাফার, তথ্য_len);
+    যদি(!ptr)
+      ফেরত CURLE_OUT_OF_MEMORY;
+    backend->send_বাফার = ptr;
+    backend->send_বাফার_len = তথ্য_len;
   }
-  else
-    ptr = backend->send_buffer;
+  অন্যথা
+    ptr = backend->send_বাফার;
 
   /* setup output buffers (header, data, trailer, empty) */
-  InitSecBuffer(&outbuf[0], SECBUFFER_STREAM_HEADER,
+  Init_Sec_বাফার(&outbuf[0], SECBUFFER_STREAM_HEADER,
                 ptr, backend->stream_sizes.cbHeader);
-  InitSecBuffer(&outbuf[1], SECBUFFER_DATA,
+  Init_Sec_বাফার(&outbuf[1], SECBUFFER_তথ্য,
                 ptr + backend->stream_sizes.cbHeader, curlx_uztoul(len));
-  InitSecBuffer(&outbuf[2], SECBUFFER_STREAM_TRAILER,
+  Init_Sec_বাফার(&outbuf[2], SECBUFFER_STREAM_TRAILER,
                 ptr + backend->stream_sizes.cbHeader + len,
                 backend->stream_sizes.cbTrailer);
-  InitSecBuffer(&outbuf[3], SECBUFFER_EMPTY, NULL, 0);
-  InitSecBufferDesc(&outbuf_desc, outbuf, 4);
+  Init_Sec_বাফার(&outbuf[3], SECBUFFER_EMPTY, ফাঁকা, 0);
+  Init_Sec_বাফার_Desc(&outbuf_desc, outbuf, 4);
 
   /* copy data into output buffer */
-  memcpy(outbuf[1].pvBuffer, buf, len);
+  memcpy(outbuf[1].pv_বাফার, buf, len);
 
   /* https://learn.microsoft.com/windows/win32/api/sspi/nf-sspi-encryptmessage */
   sspi_status = Curl_pSecFn->EncryptMessage(&backend->ctxt->ctxt_handle, 0,
                                             &outbuf_desc, 0);
 
   /* check if the message was encrypted */
-  if(sspi_status == SEC_E_OK) {
+  যদি(sspi_status == SEC_E_OK) {
 
     /* send the encrypted message including header, data and trailer */
-    len = outbuf[0].cbBuffer + outbuf[1].cbBuffer + outbuf[2].cbBuffer;
+    len = outbuf[0].cb_বাফার + outbuf[1].cb_বাফার + outbuf[2].cb_বাফার;
 
     /* it is important to send the full message which includes the header,
        encrypted payload, and trailer. Until the client receives all the
@@ -2043,82 +2043,82 @@ static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
        seems the answer is NO. */
 
     /* send entire message or fail */
-    while(len > *pnwritten) {
+    যখন(len > *pnwritten) {
       size_t this_write = 0;
-      int what;
-      timediff_t timeout_ms = Curl_timeleft_ms(data);
-      if(timeout_ms < 0) {
+      পূর্ণসংখ্যা what;
+      timediff_t timeout_ms = Curl_timeleft_ms(তথ্য);
+      যদি(timeout_ms < 0) {
         /* we already got the timeout */
-        failf(data, "schannel: timed out sending data (bytes sent: %zu)",
+        failf(তথ্য, "schannel: timed out sending data (bytes sent: %zu)",
               *pnwritten);
-        result = CURLE_OPERATION_TIMEDOUT;
-        break;
+        ফলাফল = CURLE_OPERATION_TIMEDOUT;
+        বিরতি;
       }
-      else if(!timeout_ms)
+      অন্যথা যদি(!timeout_ms)
         timeout_ms = TIMEDIFF_T_MAX;
-      what = SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, data), timeout_ms);
-      if(what < 0) {
+      what = SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, তথ্য), timeout_ms);
+      যদি(what < 0) {
         /* fatal error */
-        failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);
-        result = CURLE_SEND_ERROR;
-        break;
+        failf(তথ্য, "select/poll on SSL socket, errno: %d", SOCKERRNO);
+        ফলাফল = CURLE_SEND_ERROR;
+        বিরতি;
       }
-      else if(what == 0) {
-        failf(data, "schannel: timed out sending data (bytes sent: %zu)",
+      অন্যথা যদি(what == 0) {
+        failf(তথ্য, "schannel: timed out sending data (bytes sent: %zu)",
               *pnwritten);
-        result = CURLE_OPERATION_TIMEDOUT;
-        break;
+        ফলাফল = CURLE_OPERATION_TIMEDOUT;
+        বিরতি;
       }
       /* socket is writable */
 
-       result = Curl_conn_cf_send(cf->next, data,
-                                  (const uint8_t *)ptr + *pnwritten,
+       ফলাফল = Curl_conn_cf_send(cf->পরবর্তী, তথ্য,
+                                  (ধ্রুবক uint8_t *)ptr + *pnwritten,
                                   len - *pnwritten,
                                   FALSE, &this_write);
-      if(result == CURLE_AGAIN)
-        continue;
-      else if(result) {
-        break;
+      যদি(ফলাফল == CURLE_AGAIN)
+        চালু;
+      অন্যথা যদি(ফলাফল) {
+        বিরতি;
       }
 
       *pnwritten += this_write;
     }
   }
-  else if(sspi_status == SEC_E_INSUFFICIENT_MEMORY) {
-    result = CURLE_OUT_OF_MEMORY;
+  অন্যথা যদি(sspi_status == SEC_E_INSUFFICIENT_MEMORY) {
+    ফলাফল = CURLE_OUT_OF_MEMORY;
   }
-  else {
-    result = CURLE_SEND_ERROR;
+  অন্যথা {
+    ফলাফল = CURLE_SEND_ERROR;
   }
 
-  if(len == *pnwritten)
+  যদি(len == *pnwritten)
     /* Encrypted message including header, data and trailer entirely sent.
        The return value is the number of unencrypted bytes that were sent. */
-    *pnwritten = outbuf[1].cbBuffer;
+    *pnwritten = outbuf[1].cb_বাফার;
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                              char *buf, size_t len, size_t *pnread)
+স্থির CURLcode schannel_recv(কাঠামো Curl_cfilter *cf, কাঠামো Curl_easy *তথ্য,
+                              অক্ষর *buf, size_t len, size_t *pnread)
 {
-  size_t size = 0;
+  size_t আকার_2 = 0;
   size_t nread = 0;
-  struct ssl_connect_data *connssl = cf->ctx;
-  SecBuffer inbuf[4];
-  SecBufferDesc inbuf_desc;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  Sec_বাফার inbuf[4];
+  Sec_বাফার_Desc inbuf_desc;
   SECURITY_STATUS sspi_status = SEC_E_OK;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
+  CURLcode ফলাফল = CURLE_OK;
 
   DEBUGASSERT(backend);
   *pnread = 0;
 
-  if(backend->recv_renegotiating) {
-    result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_RECV);
-    if(result)
-      return result;
+  যদি(backend->recv_renegotiating) {
+    ফলাফল = schannel_recv_renegotiate(cf, তথ্য, SCH_RENEG_CALLER_IS_RECV);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
 
   /****************************************************************************
@@ -2137,329 +2137,329 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
    * handled in the cleanup.
    */
 
-  SCH_DEV(infof(data, "schannel: client wants to read %zu bytes", len));
+  SCH_DEV(infof(তথ্য, "schannel: client wants to read %zu bytes", len));
 
-  if(len && len <= backend->decdata.offset) {
-    SCH_DEV(infof(data,
+  যদি(len && len <= backend->decdata.offset) {
+    SCH_DEV(infof(তথ্য,
                   "schannel: enough decrypted data is already available"));
-    goto cleanup;
+    যাও cleanup;
   }
-  else if(backend->recv_unrecoverable_err) {
-    result = backend->recv_unrecoverable_err;
-    infof(data, "schannel: an unrecoverable error occurred in a prior call");
-    goto cleanup;
+  অন্যথা যদি(backend->recv_unrecoverable_err) {
+    ফলাফল = backend->recv_unrecoverable_err;
+    infof(তথ্য, "schannel: an unrecoverable error occurred in a prior call");
+    যাও cleanup;
   }
-  else if(backend->recv_sspi_close_notify) {
+  অন্যথা যদি(backend->recv_sspi_close_notify) {
     /* once a server has indicated shutdown there is no more encrypted data */
-    infof(data, "schannel: server indicated shutdown in a prior call");
-    goto cleanup;
+    infof(তথ্য, "schannel: server indicated shutdown in a prior call");
+    যাও cleanup;
   }
   /* it is debatable what to return when !len. Regardless we cannot return
      immediately because there may be data to decrypt (in the case we want to
      decrypt all encrypted cached data) so handle !len later in cleanup. */
-  else if(len && !backend->recv_connection_closed) {
+  অন্যথা যদি(len && !backend->recv_connection_closed) {
     /* the encrypted buffer must be large enough to hold all the bytes
        requested and some TLS record overhead. 'len' is a buffer size, so this
        integer math cannot overflow. */
-    const size_t min_encdata_length = len + CURL_SCHANNEL_BUFFER_FREE_SIZE;
+    ধ্রুবক size_t min_encdata_দৈর্ঘ্য = len + CURL_SCHANNEL_বাফার_FREE_আকার;
 
     /* make sure encrypt buffer fits the requested amount of data */
-    result = ensure_encoding_size(data, &backend->encdata, min_encdata_length);
-    if(result)
-      goto cleanup;
+    ফলাফল = ensure_encoding_আকার(তথ্য, &backend->encdata, min_encdata_দৈর্ঘ্য);
+    যদি(ফলাফল)
+      যাও cleanup;
 
-    SCH_DEV(infof(data,
+    SCH_DEV(infof(তথ্য,
                   "schannel: encrypted data buffer: offset %zu length %zu",
-                  backend->encdata.offset, backend->encdata.length));
+                  backend->encdata.offset, backend->encdata.দৈর্ঘ্য));
 
     /* read encrypted data from socket */
-    result = Curl_conn_cf_recv(cf->next, data,
-                               (char *)(backend->encdata.buffer +
+    ফলাফল = Curl_conn_cf_recv(cf->পরবর্তী, তথ্য,
+                               (অক্ষর *)(backend->encdata.বাফার +
                                         backend->encdata.offset),
-                               backend->encdata.length -
+                               backend->encdata.দৈর্ঘ্য -
                                backend->encdata.offset,
                                &nread);
-    if(result) {
-      if(result == CURLE_AGAIN)
-        SCH_DEV(infof(data, "schannel: recv returned CURLE_AGAIN"));
-      else {
-        infof(data, "schannel: recv returned error %d", (int)result);
-        backend->recv_unrecoverable_err = result;
+    যদি(ফলাফল) {
+      যদি(ফলাফল == CURLE_AGAIN)
+        SCH_DEV(infof(তথ্য, "schannel: recv returned CURLE_AGAIN"));
+      অন্যথা {
+        infof(তথ্য, "schannel: recv returned error %d", (পূর্ণসংখ্যা)ফলাফল);
+        backend->recv_unrecoverable_err = ফলাফল;
       }
     }
-    else if(nread == 0) {
+    অন্যথা যদি(nread == 0) {
       backend->recv_connection_closed = TRUE;
-      DEBUGF(infof(data, "schannel: server closed the connection"));
+      DEBUGF(infof(তথ্য, "schannel: server closed the connection"));
     }
-    else {
+    অন্যথা {
       backend->encdata.offset += nread;
       backend->encdata_is_incomplete = FALSE;
-      SCH_DEV(infof(data, "schannel: encrypted data got %zu", nread));
+      SCH_DEV(infof(তথ্য, "schannel: encrypted data got %zu", nread));
     }
   }
 
-  SCH_DEV(infof(data, "schannel: encrypted data buffer: offset %zu length %zu",
-                backend->encdata.offset, backend->encdata.length));
+  SCH_DEV(infof(তথ্য, "schannel: encrypted data buffer: offset %zu length %zu",
+                backend->encdata.offset, backend->encdata.দৈর্ঘ্য));
 
   /* decrypt loop */
-  while(backend->encdata.offset > 0 && sspi_status == SEC_E_OK &&
+  যখন(backend->encdata.offset > 0 && sspi_status == SEC_E_OK &&
         (!len || backend->decdata.offset < len ||
          backend->recv_connection_closed)) {
     /* prepare data buffer for DecryptMessage call */
-    InitSecBuffer(&inbuf[0], SECBUFFER_DATA, backend->encdata.buffer,
+    Init_Sec_বাফার(&inbuf[0], SECBUFFER_তথ্য, backend->encdata.বাফার,
                   curlx_uztoul(backend->encdata.offset));
 
     /* we need 3 more empty input buffers for possible output */
-    InitSecBuffer(&inbuf[1], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBuffer(&inbuf[2], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBuffer(&inbuf[3], SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&inbuf_desc, inbuf, 4);
+    Init_Sec_বাফার(&inbuf[1], SECBUFFER_EMPTY, ফাঁকা, 0);
+    Init_Sec_বাফার(&inbuf[2], SECBUFFER_EMPTY, ফাঁকা, 0);
+    Init_Sec_বাফার(&inbuf[3], SECBUFFER_EMPTY, ফাঁকা, 0);
+    Init_Sec_বাফার_Desc(&inbuf_desc, inbuf, 4);
 
     /* https://learn.microsoft.com/windows/win32/api/sspi/nf-sspi-decryptmessage
      */
     sspi_status = Curl_pSecFn->DecryptMessage(&backend->ctxt->ctxt_handle,
-                                              &inbuf_desc, 0, NULL);
+                                              &inbuf_desc, 0, ফাঁকা);
 
     /* check if everything went fine (server may want to renegotiate
        or shutdown the connection context) */
-    if(sspi_status == SEC_E_OK || sspi_status == SEC_I_RENEGOTIATE ||
+    যদি(sspi_status == SEC_E_OK || sspi_status == SEC_I_RENEGOTIATE ||
        sspi_status == SEC_I_CONTEXT_EXPIRED) {
       /* check for successfully decrypted data, even before actual
          renegotiation or shutdown of the connection context */
-      if(inbuf[1].BufferType == SECBUFFER_DATA) {
-        SCH_DEV(infof(data, "schannel: decrypted data length: %lu",
-                      inbuf[1].cbBuffer));
+      যদি(inbuf[1].বাফার_Type == SECBUFFER_তথ্য) {
+        SCH_DEV(infof(তথ্য, "schannel: decrypted data length: %lu",
+                      inbuf[1].cb_বাফার));
 
         /* ensure the decode buffer fits the received amount of data */
-        result = ensure_decoding_size(data, &backend->decdata,
-                                      inbuf[1].cbBuffer, len);
-        if(result)
-          goto cleanup;
+        ফলাফল = ensure_decoding_আকার(তথ্য, &backend->decdata,
+                                      inbuf[1].cb_বাফার, len);
+        যদি(ফলাফল)
+          যাও cleanup;
 
         /* copy decrypted data to internal buffer */
-        size = inbuf[1].cbBuffer;
-        if(size) {
-          memcpy(backend->decdata.buffer + backend->decdata.offset,
-                 inbuf[1].pvBuffer, size);
-          backend->decdata.offset += size;
+        আকার_2 = inbuf[1].cb_বাফার;
+        যদি(আকার_2) {
+          memcpy(backend->decdata.বাফার + backend->decdata.offset,
+                 inbuf[1].pv_বাফার, আকার_2);
+          backend->decdata.offset += আকার_2;
         }
 
-        SCH_DEV(infof(data, "schannel: decrypted data added: %zu", size));
-        SCH_DEV(infof(data,
+        SCH_DEV(infof(তথ্য, "schannel: decrypted data added: %zu", আকার_2));
+        SCH_DEV(infof(তথ্য,
                       "schannel: decrypted cached: offset %zu length %zu",
-                      backend->decdata.offset, backend->decdata.length));
+                      backend->decdata.offset, backend->decdata.দৈর্ঘ্য));
       }
 
       /* check for remaining encrypted data */
-      if(inbuf[3].BufferType == SECBUFFER_EXTRA && inbuf[3].cbBuffer > 0) {
-        SCH_DEV(infof(data, "schannel: encrypted data length: %lu",
-                      inbuf[3].cbBuffer));
+      যদি(inbuf[3].বাফার_Type == SECBUFFER_EXTRA && inbuf[3].cb_বাফার > 0) {
+        SCH_DEV(infof(তথ্য, "schannel: encrypted data length: %lu",
+                      inbuf[3].cb_বাফার));
 
         /* check if the remaining data is less than the total amount
          * and therefore begins after the already processed data
          */
-        if(backend->encdata.offset > inbuf[3].cbBuffer) {
+        যদি(backend->encdata.offset > inbuf[3].cb_বাফার) {
           /* move remaining encrypted data forward to the beginning of
-             buffer */
-          memmove(backend->encdata.buffer,
-                  (backend->encdata.buffer + backend->encdata.offset) -
-                  inbuf[3].cbBuffer, inbuf[3].cbBuffer);
-          backend->encdata.offset = inbuf[3].cbBuffer;
+বাফার*/
+          memmove(backend->encdata.বাফার,
+                  (backend->encdata.বাফার + backend->encdata.offset) -
+                  inbuf[3].cb_বাফার, inbuf[3].cb_বাফার);
+          backend->encdata.offset = inbuf[3].cb_বাফার;
         }
 
-        SCH_DEV(infof(data,
+        SCH_DEV(infof(তথ্য,
                       "schannel: encrypted cached: offset %zu length %zu",
-                      backend->encdata.offset, backend->encdata.length));
+                      backend->encdata.offset, backend->encdata.দৈর্ঘ্য));
       }
-      else {
+      অন্যথা {
         /* reset encrypted buffer offset, because there is no data remaining */
         backend->encdata.offset = 0;
       }
 
       /* check if server wants to renegotiate the connection context */
-      if(sspi_status == SEC_I_RENEGOTIATE) {
-        infof(data, "schannel: remote party requests renegotiation");
-        if(result && result != CURLE_AGAIN) {
-          infof(data, "schannel: cannot renegotiate, an error is pending");
-          goto cleanup;
+      যদি(sspi_status == SEC_I_RENEGOTIATE) {
+        infof(তথ্য, "schannel: remote party requests renegotiation");
+        যদি(ফলাফল && ফলাফল != CURLE_AGAIN) {
+          infof(তথ্য, "schannel: cannot renegotiate, an error is pending");
+          যাও cleanup;
         }
 
         backend->recv_renegotiating = TRUE;
-        result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_RECV);
-        if(result)
-          goto cleanup;
+        ফলাফল = schannel_recv_renegotiate(cf, তথ্য, SCH_RENEG_CALLER_IS_RECV);
+        যদি(ফলাফল)
+          যাও cleanup;
 
         /* now retry receiving data */
         sspi_status = SEC_E_OK;
-        continue;
+        চালু;
       }
       /* check if the server closed the connection */
-      else if(sspi_status == SEC_I_CONTEXT_EXPIRED) {
+      অন্যথা যদি(sspi_status == SEC_I_CONTEXT_EXPIRED) {
         /* In Windows 2000 SEC_I_CONTEXT_EXPIRED (close_notify) is not
            returned so we have to work around that in cleanup. */
         backend->recv_sspi_close_notify = TRUE;
-        if(!backend->recv_connection_closed)
+        যদি(!backend->recv_connection_closed)
           backend->recv_connection_closed = TRUE;
         /* We received the close notify fine, any error we got
          * from the lower filters afterwards (e.g. the socket), is not
          * an error on the TLS data stream. That one ended here. */
-        if(result == CURLE_RECV_ERROR)
-          result = CURLE_OK;
-        infof(data,
+        যদি(ফলাফল == CURLE_RECV_ERROR)
+          ফলাফল = CURLE_OK;
+        infof(তথ্য,
               "schannel: server close notification received (close_notify)");
-        goto cleanup;
+        যাও cleanup;
       }
     }
-    else if(sspi_status == SEC_E_INCOMPLETE_MESSAGE) {
+    অন্যথা যদি(sspi_status == SEC_E_INCOMPLETE_MESSAGE) {
       backend->encdata_is_incomplete = TRUE;
-      if(!result)
-        result = CURLE_AGAIN;
-      SCH_DEV(infof(data, "schannel: failed to decrypt data, need more data"));
-      goto cleanup;
+      যদি(!ফলাফল)
+        ফলাফল = CURLE_AGAIN;
+      SCH_DEV(infof(তথ্য, "schannel: failed to decrypt data, need more data"));
+      যাও cleanup;
     }
-    else {
-      char buffer[STRERROR_LEN];
-      failf(data, "schannel: failed to read data from server: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      result = CURLE_RECV_ERROR;
-      goto cleanup;
+    অন্যথা {
+      অক্ষর বাফার[STRERROR_LEN];
+      failf(তথ্য, "schannel: failed to read data from server: %s",
+            Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+      ফলাফল = CURLE_RECV_ERROR;
+      যাও cleanup;
     }
   }
 
-  SCH_DEV(infof(data, "schannel: encrypted data buffer: offset %zu length %zu",
-                backend->encdata.offset, backend->encdata.length));
+  SCH_DEV(infof(তথ্য, "schannel: encrypted data buffer: offset %zu length %zu",
+                backend->encdata.offset, backend->encdata.দৈর্ঘ্য));
 
-  SCH_DEV(infof(data, "schannel: decrypted data buffer: offset %zu length %zu",
-                backend->decdata.offset, backend->decdata.length));
+  SCH_DEV(infof(তথ্য, "schannel: decrypted data buffer: offset %zu length %zu",
+                backend->decdata.offset, backend->decdata.দৈর্ঘ্য));
 
 cleanup:
   /* Warning- there is no guarantee the encdata state is valid at this point */
-  SCH_DEV(infof(data, "schannel: schannel_recv cleanup"));
+  SCH_DEV(infof(তথ্য, "schannel: schannel_recv cleanup"));
 
   /* Error if the connection has closed without a close_notify.
 
      The behavior here is a matter of debate. We do not want to be vulnerable
      to a truncation attack however there is some browser precedent for
      ignoring the close_notify for compatibility reasons. */
-  if(len && !backend->decdata.offset && backend->recv_connection_closed &&
+  যদি(len && !backend->decdata.offset && backend->recv_connection_closed &&
      !backend->recv_sspi_close_notify) {
-    result = CURLE_RECV_ERROR;
-    failf(data, "schannel: server closed abruptly (missing close_notify)");
+    ফলাফল = CURLE_RECV_ERROR;
+    failf(তথ্য, "schannel: server closed abruptly (missing close_notify)");
   }
 
   /* Any error other than CURLE_AGAIN is an unrecoverable error. */
-  if(result && result != CURLE_AGAIN)
-    backend->recv_unrecoverable_err = result;
+  যদি(ফলাফল && ফলাফল != CURLE_AGAIN)
+    backend->recv_unrecoverable_err = ফলাফল;
 
-  size = len < backend->decdata.offset ? len : backend->decdata.offset;
-  if(size) {
-    memcpy(buf, backend->decdata.buffer, size);
-    memmove(backend->decdata.buffer, backend->decdata.buffer + size,
-            backend->decdata.offset - size);
-    backend->decdata.offset -= size;
-    SCH_DEV(infof(data, "schannel: decrypted data returned %zu", size));
-    SCH_DEV(infof(data,
+  আকার_2 = len < backend->decdata.offset ? len : backend->decdata.offset;
+  যদি(আকার_2) {
+    memcpy(buf, backend->decdata.বাফার, আকার_2);
+    memmove(backend->decdata.বাফার, backend->decdata.বাফার + আকার_2,
+            backend->decdata.offset - আকার_2);
+    backend->decdata.offset -= আকার_2;
+    SCH_DEV(infof(তথ্য, "schannel: decrypted data returned %zu", আকার_2));
+    SCH_DEV(infof(তথ্য,
                   "schannel: decrypted data buffer: offset %zu length %zu",
-                  backend->decdata.offset, backend->decdata.length));
-    *pnread = size;
-    return CURLE_OK;
+                  backend->decdata.offset, backend->decdata.দৈর্ঘ্য));
+    *pnread = আকার_2;
+    ফেরত CURLE_OK;
   }
 
-  if(!result && !backend->recv_connection_closed)
-    result = CURLE_AGAIN;
+  যদি(!ফলাফল && !backend->recv_connection_closed)
+    ফলাফল = CURLE_AGAIN;
 
   /* it is debatable what to return when !len. We could return whatever error
      we got from decryption but instead we override here so the return is
      consistent. */
-  if(!len)
-    return CURLE_OK;
+  যদি(!len)
+    ফেরত CURLE_OK;
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static bool schannel_data_pending(struct Curl_cfilter *cf,
-                                  const struct Curl_easy *data)
+স্থির bool schannel_তথ্য_pending(কাঠামো Curl_cfilter *cf,
+                                  ধ্রুবক কাঠামো Curl_easy *তথ্য)
 {
-  const struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
+  ধ্রুবক কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
 
-  (void)data;
+  (শূন্য)তথ্য;
   DEBUGASSERT(backend);
 
-  if(backend->ctxt) /* SSL/TLS is in use */
-    return backend->decdata.offset > 0 ||
+  যদি(backend->ctxt) /* SSL/TLS is in use */
+    ফেরত backend->decdata.offset > 0 ||
            (backend->encdata.offset > 0 && !backend->encdata_is_incomplete) ||
            backend->recv_connection_closed ||
            backend->recv_sspi_close_notify ||
            backend->recv_unrecoverable_err;
-  else
-    return FALSE;
+  অন্যথা
+    ফেরত FALSE;
 }
 
 /* shut down the SSL connection and clean up related memory.
    this function can be called multiple times on the same connection including
    if the SSL connection failed (eg connection made but failed handshake). */
-static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+স্থির CURLcode schannel_shutdown(কাঠামো Curl_cfilter *cf,
+                                  কাঠামো Curl_easy *তথ্য,
                                   bool send_shutdown, bool *done)
 {
   /* See https://learn.microsoft.com/windows/win32/secauthn/shutting-down-an-schannel-connection
    * Shutting Down an Schannel Connection
    */
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  CURLcode result = CURLE_OK;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
+  CURLcode ফলাফল = CURLE_OK;
 
-  if(cf->shutdown) {
+  যদি(cf->shutdown) {
     *done = TRUE;
-    return CURLE_OK;
+    ফেরত CURLE_OK;
   }
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(তথ্য);
   DEBUGASSERT(backend);
 
   /* Not supported in schannel */
-  (void)send_shutdown;
+  (শূন্য)send_shutdown;
 
   *done = FALSE;
-  if(backend->ctxt) {
-    infof(data, "schannel: shutting down SSL/TLS connection with %s port %d",
+  যদি(backend->ctxt) {
+    infof(তথ্য, "schannel: shutting down SSL/TLS connection with %s port %d",
           connssl->peer.origin->hostname, connssl->peer.origin->port);
   }
 
-  if(!backend->ctxt || cf->shutdown) {
+  যদি(!backend->ctxt || cf->shutdown) {
     *done = TRUE;
-    goto out;
+    যাও out;
   }
 
-  if(backend->cred && backend->ctxt && !backend->sent_shutdown &&
+  যদি(backend->cred && backend->ctxt && !backend->sent_shutdown &&
      !backend->shutdown_generated) {
-    SecBufferDesc BuffDesc;
-    SecBuffer Buffer;
+    Sec_বাফার_Desc BuffDesc;
+    Sec_বাফার বাফার_2;
     SECURITY_STATUS sspi_status;
-    SecBuffer outbuf;
-    SecBufferDesc outbuf_desc;
+    Sec_বাফার outbuf;
+    Sec_বাফার_Desc outbuf_desc;
     DWORD dwshut = SCHANNEL_SHUTDOWN;
 
-    InitSecBuffer(&Buffer, SECBUFFER_TOKEN, &dwshut, sizeof(dwshut));
-    InitSecBufferDesc(&BuffDesc, &Buffer, 1);
+    Init_Sec_বাফার(&বাফার_2, SECBUFFER_TOKEN, &dwshut, আকার(dwshut));
+    Init_Sec_বাফার_Desc(&BuffDesc, &বাফার_2, 1);
 
     sspi_status = Curl_pSecFn->ApplyControlToken(&backend->ctxt->ctxt_handle,
                                                  &BuffDesc);
 
-    if(sspi_status != SEC_E_OK) {
-      char buffer[STRERROR_LEN];
-      failf(data, "schannel: ApplyControlToken failure: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      result = CURLE_SEND_ERROR;
-      goto out;
+    যদি(sspi_status != SEC_E_OK) {
+      অক্ষর বাফার[STRERROR_LEN];
+      failf(তথ্য, "schannel: ApplyControlToken failure: %s",
+            Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+      ফলাফল = CURLE_SEND_ERROR;
+      যাও out;
     }
 
     /* setup output buffer */
-    InitSecBuffer(&outbuf, SECBUFFER_EMPTY, NULL, 0);
-    InitSecBufferDesc(&outbuf_desc, &outbuf, 1);
+    Init_Sec_বাফার(&outbuf, SECBUFFER_EMPTY, ফাঁকা, 0);
+    Init_Sec_বাফার_Desc(&outbuf_desc, &outbuf, 1);
 
     sspi_status = Curl_pSecFn->InitializeSecurityContext(
       &backend->cred->cred_handle,
@@ -2468,64 +2468,64 @@ static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
       backend->req_flags,
       0,
       0,
-      NULL,
+      ফাঁকা,
       0,
       &backend->ctxt->ctxt_handle,
       &outbuf_desc,
-      &backend->ret_flags, NULL);
+      &backend->ret_flags, ফাঁকা);
 
-    if((sspi_status == SEC_E_OK) || (sspi_status == SEC_I_CONTEXT_EXPIRED)) {
+    যদি((sspi_status == SEC_E_OK) || (sspi_status == SEC_I_CONTEXT_EXPIRED)) {
       backend->shutdown_token = outbuf;
       backend->shutdown_generated = TRUE;
     }
-    else {
-      char buffer[STRERROR_LEN];
-      if(outbuf.pvBuffer)
-        Curl_pSecFn->FreeContextBuffer(outbuf.pvBuffer);
-      failf(data, "schannel: generating close msg failed: %s",
-            Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      result = CURLE_SEND_ERROR;
-      goto out;
+    অন্যথা {
+      অক্ষর বাফার[STRERROR_LEN];
+      যদি(outbuf.pv_বাফার)
+        Curl_pSecFn->Free_Context_বাফার(outbuf.pv_বাফার);
+      failf(তথ্য, "schannel: generating close msg failed: %s",
+            Curl_sspi_strerror(sspi_status, বাফার, আকার(বাফার)));
+      ফলাফল = CURLE_SEND_ERROR;
+      যাও out;
     }
   }
 
-  if(backend->shutdown_generated && !backend->sent_shutdown) {
+  যদি(backend->shutdown_generated && !backend->sent_shutdown) {
     size_t written = 0;
     size_t remaining;
 
-    DEBUGASSERT(backend->shutdown_offset <= backend->shutdown_token.cbBuffer);
-    remaining = backend->shutdown_token.cbBuffer - backend->shutdown_offset;
+    DEBUGASSERT(backend->shutdown_offset <= backend->shutdown_token.cb_বাফার);
+    remaining = backend->shutdown_token.cb_বাফার - backend->shutdown_offset;
 
-    if(remaining) {
-      result = Curl_conn_cf_send(cf->next, data,
-                                 ((uint8_t *)backend->shutdown_token.pvBuffer +
+    যদি(remaining) {
+      ফলাফল = Curl_conn_cf_send(cf->পরবর্তী, তথ্য,
+                                 ((uint8_t *)backend->shutdown_token.pv_বাফার +
                                   backend->shutdown_offset),
                                  remaining, FALSE, &written);
-      if(!result)
+      যদি(!ফলাফল)
         backend->shutdown_offset += written;
-      if(result == CURLE_AGAIN || (!result && written < remaining)) {
+      যদি(ফলাফল == CURLE_AGAIN || (!ফলাফল && written < remaining)) {
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        result = CURLE_OK;
-        goto out;
+        ফলাফল = CURLE_OK;
+        যাও out;
       }
     }
-    else /* no shutdown message to send? */
-      result = CURLE_OK;
-    if(result) {
-      if(backend->recv_connection_closed) {
+    অন্যথা /* no shutdown message to send? */
+      ফলাফল = CURLE_OK;
+    যদি(ফলাফল) {
+      যদি(backend->recv_connection_closed) {
         /* The server already closed, so sending close_notify is optional. */
         *done = TRUE;
-        result = CURLE_OK;
+        ফলাফল = CURLE_OK;
       }
-      else {
-        failf(data, "schannel: error sending close msg: %d", (int)result);
-        result = CURLE_SEND_ERROR;
+      অন্যথা {
+        failf(তথ্য, "schannel: error sending close msg: %d", (পূর্ণসংখ্যা)ফলাফল);
+        ফলাফল = CURLE_SEND_ERROR;
       }
-      goto out;
+      যাও out;
     }
-    if(backend->shutdown_token.pvBuffer)
-      Curl_pSecFn->FreeContextBuffer(backend->shutdown_token.pvBuffer);
-    memset(&backend->shutdown_token, 0, sizeof(backend->shutdown_token));
+    যদি(backend->shutdown_token.pv_বাফার)
+      Curl_pSecFn->Free_Context_বাফার(backend->shutdown_token.pv_বাফার);
+    memset(&backend->shutdown_token, 0, আকার(backend->shutdown_token));
     backend->shutdown_offset = 0;
     backend->sent_shutdown = TRUE;
     *done = TRUE;
@@ -2533,150 +2533,150 @@ static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
 
   /* If the connection seems open and we have not seen the close notify
    * from the server yet, try to receive it. */
-  if(backend->cred && backend->ctxt &&
+  যদি(backend->cred && backend->ctxt &&
      !backend->recv_sspi_close_notify && !backend->recv_connection_closed) {
-    char buffer[1024];
+    অক্ষর বাফার[1024];
     size_t nread;
 
-    result = schannel_recv(cf, data, buffer, sizeof(buffer), &nread);
-    if(result == CURLE_AGAIN) {
+    ফলাফল = schannel_recv(cf, তথ্য, বাফার, আকার(বাফার), &nread);
+    যদি(ফলাফল == CURLE_AGAIN) {
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
     }
-    else if(result) {
-      CURL_TRC_CF(data, cf, "SSL shutdown, error %d", (int)result);
-      result = CURLE_RECV_ERROR;
+    অন্যথা যদি(ফলাফল) {
+      CURL_TRC_CF(তথ্য, cf, "SSL shutdown, error %d", (পূর্ণসংখ্যা)ফলাফল);
+      ফলাফল = CURLE_RECV_ERROR;
     }
-    else if(nread == 0) {
+    অন্যথা যদি(nread == 0) {
       /* We got the close notify alert and are done. */
       backend->recv_connection_closed = TRUE;
       *done = TRUE;
     }
-    else {
+    অন্যথা {
       /* still data coming in? */
     }
   }
 
 out:
-  cf->shutdown = (result || *done);
-  return result;
+  cf->shutdown = (ফলাফল || *done);
+  ফেরত ফলাফল;
 }
 
-static void schannel_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+স্থির শূন্য schannel_close(কাঠামো Curl_cfilter *cf, কাঠামো Curl_easy *তথ্য)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
+  কাঠামো ssl_connect_তথ্য *connssl = cf->ctx;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
 
-  DEBUGASSERT(data);
+  DEBUGASSERT(তথ্য);
   DEBUGASSERT(backend);
 
-  if(backend->shutdown_token.pvBuffer)
-    Curl_pSecFn->FreeContextBuffer(backend->shutdown_token.pvBuffer);
-  memset(&backend->shutdown_token, 0, sizeof(backend->shutdown_token));
+  যদি(backend->shutdown_token.pv_বাফার)
+    Curl_pSecFn->Free_Context_বাফার(backend->shutdown_token.pv_বাফার);
+  memset(&backend->shutdown_token, 0, আকার(backend->shutdown_token));
   backend->shutdown_offset = 0;
 
   /* free SSPI Schannel API security context handle */
-  if(backend->ctxt) {
-    if(cf->conn->sslContext == &backend->ctxt->ctxt_handle)
-      cf->conn->sslContext = NULL;
+  যদি(backend->ctxt) {
+    যদি(cf->conn->sslContext == &backend->ctxt->ctxt_handle)
+      cf->conn->sslContext = ফাঁকা;
 
-    DEBUGF(infof(data, "schannel: clear security context handle"));
+    DEBUGF(infof(তথ্য, "schannel: clear security context handle"));
     Curl_pSecFn->DeleteSecurityContext(&backend->ctxt->ctxt_handle);
     curlx_safefree(backend->ctxt);
   }
 
   /* free SSPI Schannel API credential handle */
-  if(backend->cred) {
-    Curl_ssl_scache_lock(data);
+  যদি(backend->cred) {
+    Curl_ssl_scache_lock(তথ্য);
     schannel_session_free(backend->cred);
-    Curl_ssl_scache_unlock(data);
-    backend->cred = NULL;
+    Curl_ssl_scache_unlock(তথ্য);
+    backend->cred = ফাঁকা;
   }
 
   /* free the buffer used to encrypt outgoing data */
-  curlx_safefree(backend->send_buffer);
-  backend->send_buffer_len = 0;
+  curlx_safefree(backend->send_বাফার);
+  backend->send_বাফার_len = 0;
 
   /* free internal buffer for received encrypted data */
-  if(backend->encdata.buffer) {
-    curlx_safefree(backend->encdata.buffer);
-    backend->encdata.length = 0;
+  যদি(backend->encdata.বাফার) {
+    curlx_safefree(backend->encdata.বাফার);
+    backend->encdata.দৈর্ঘ্য = 0;
     backend->encdata.offset = 0;
     backend->encdata_is_incomplete = FALSE;
   }
 
   /* free internal buffer for received decrypted data */
-  if(backend->decdata.buffer) {
-    curlx_safefree(backend->decdata.buffer);
-    backend->decdata.length = 0;
+  যদি(backend->decdata.বাফার) {
+    curlx_safefree(backend->decdata.বাফার);
+    backend->decdata.দৈর্ঘ্য = 0;
     backend->decdata.offset = 0;
   }
 }
 
-static int schannel_init(void)
+স্থির পূর্ণসংখ্যা schannel_init(শূন্য)
 {
-  typedef const char *(APIENTRY *WINE_GET_VERSION_FN)(void);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+  প্রকারলেখ ধ্রুবক অক্ষর *(APIENTRY *WINE_GET_VERSION_FN)(শূন্য);
+#যদি defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic ঠেলো
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   WINE_GET_VERSION_FN p_wine_get_version =
     CURLX_FUNCTION_CAST(WINE_GET_VERSION_FN,
       GetProcAddress(GetModuleHandle(TEXT("ntdll")), "wine_get_version"));
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#যদি defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic বের_করো
 #endif
-  if(p_wine_get_version) {  /* WINE detected */
+  যদি(p_wine_get_version) {  /* WINE detected */
     curl_off_t ver = 0;
-    const char *wine_version = p_wine_get_version();  /* e.g. "6.0.2" */
+    ধ্রুবক অক্ষর *wine_version = p_wine_get_version();  /* e.g. "6.0.2" */
     /* Assume ALPN support with WINE 6.0 or greater */
-    if(wine_version)
-      curlx_str_number(&wine_version, &ver, 20);
+    যদি(wine_version)
+      curlx_str_সংখ্যা(&wine_version, &ver, 20);
     s_win_has_alpn = (ver >= 6);
   }
-  else {
+  অন্যথা {
     /* ALPN is supported on Windows 8.1 / Server 2012 R2 or newer. */
     s_win_has_alpn = curlx_verify_windows_version(6, 3, 0, PLATFORM_WINNT,
                                                   VERSION_GREATER_THAN_EQUAL);
   }
 
-  return Curl_sspi_global_init() == CURLE_OK ? 1 : 0;
+  ফেরত Curl_sspi_global_init() == CURLE_OK ? 1 : 0;
 }
 
-static void schannel_cleanup(void)
+স্থির শূন্য schannel_cleanup(শূন্য)
 {
   Curl_sspi_global_cleanup();
 }
 
-static size_t schannel_version(char *buffer, size_t size)
+স্থির size_t schannel_version(অক্ষর *বাফার, size_t আকার_2)
 {
-  return curl_msnprintf(buffer, size, "Schannel");
+  ফেরত curl_msnprintf(বাফার, আকার_2, "Schannel");
 }
 
-static CURLcode schannel_random(struct Curl_easy *data,
-                                unsigned char *entropy, size_t length)
+স্থির CURLcode schannel_random(কাঠামো Curl_easy *তথ্য,
+                                unsigned অক্ষর *entropy, size_t দৈর্ঘ্য)
 {
-  (void)data;
+  (শূন্য)তথ্য;
 
-  return curlx_win32_random(entropy, length);
+  ফেরত curlx_win32_random(entropy, দৈর্ঘ্য);
 }
 
-static CURLcode schannel_checksum(const unsigned char *input,
+স্থির CURLcode schannel_checksum(ধ্রুবক unsigned অক্ষর *প্রবেশ,
                                   size_t inputlen,
-                                  unsigned char *checksum,
+                                  unsigned অক্ষর *checksum,
                                   size_t checksumlen,
                                   DWORD provType,
-                                  const unsigned int algId)
+                                  ধ্রুবক unsigned পূর্ণসংখ্যা algId)
 {
-  CURLcode result = CURLE_FAILED_INIT;
+  CURLcode ফলাফল = CURLE_FAILED_INIT;
 
   HCRYPTPROV hProv = 0;
   HCRYPTHASH hHash = 0;
 
   size_t off;
 
-  DWORD cbHashSize;
-  DWORD dwHashSizeLen;
+  DWORD cb_Hash_আকার;
+  DWORD dw_Hash_আকার_Len;
   DWORD dwChecksumLen;
 
   /* since this can fail in multiple ways, zero memory first so we never
@@ -2684,215 +2684,215 @@ static CURLcode schannel_checksum(const unsigned char *input,
    */
   memset(checksum, 0, checksumlen);
 
-  if(!CryptAcquireContext(&hProv, NULL, NULL, provType,
+  যদি(!CryptAcquireContext(&hProv, ফাঁকা, ফাঁকা, provType,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    goto out;
+    যাও out;
 
-  if(!CryptCreateHash(hProv, algId, 0, 0, &hHash))
-    goto out;
+  যদি(!CryptCreateHash(hProv, algId, 0, 0, &hHash))
+    যাও out;
 
-  result = CURLE_BAD_FUNCTION_ARGUMENT;
+  ফলাফল = CURLE_BAD_FUNCTION_ARGUMENT;
 
   off = 0;
-  while(off < inputlen) {
+  যখন(off < inputlen) {
     DWORD chunk = (DWORD)CURLMIN(inputlen - off, 0xffffffffUL);
-    if(!CryptHashData(hHash, input + off, chunk, 0))
-      goto out;
+    যদি(!Crypt_Hash_তথ্য(hHash, প্রবেশ + off, chunk, 0))
+      যাও out;
     off += chunk;
   }
 
   /* get hash size */
-  cbHashSize = 0;
-  dwHashSizeLen = (DWORD)sizeof(cbHashSize);
-  if(!CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE *)&cbHashSize,
-                        &dwHashSizeLen, 0))
-    goto out;
+  cb_Hash_আকার = 0;
+  dw_Hash_আকার_Len = (DWORD)আকার(cb_Hash_আকার);
+  যদি(!CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE *)&cb_Hash_আকার,
+                        &dw_Hash_আকার_Len, 0))
+    যাও out;
 
   /* check if hash fits into the return buffer */
-  if(checksumlen < cbHashSize)
-    goto out;
+  যদি(checksumlen < cb_Hash_আকার)
+    যাও out;
 
   dwChecksumLen = (DWORD)checksumlen;
-  if(CryptGetHashParam(hHash, HP_HASHVAL, checksum, &dwChecksumLen, 0) &&
-     dwChecksumLen == cbHashSize)
-    result = CURLE_OK;
+  যদি(CryptGetHashParam(hHash, HP_HASHVAL, checksum, &dwChecksumLen, 0) &&
+     dwChecksumLen == cb_Hash_আকার)
+    ফলাফল = CURLE_OK;
 
 out:
-  if(hHash)
+  যদি(hHash)
     CryptDestroyHash(hHash);
 
-  if(hProv)
+  যদি(hProv)
     CryptReleaseContext(hProv, 0);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode schannel_sha256sum(const unsigned char *input,
+স্থির CURLcode schannel_sha256sum(ধ্রুবক unsigned অক্ষর *প্রবেশ,
                                    size_t inputlen,
-                                   unsigned char *sha256sum,
+                                   unsigned অক্ষর *sha256sum,
                                    size_t sha256len)
 {
-  return schannel_checksum(input, inputlen, sha256sum, sha256len,
+  ফেরত schannel_checksum(প্রবেশ, inputlen, sha256sum, sha256len,
                            PROV_RSA_AES, CALG_SHA_256);
 }
 
-static void *schannel_get_internals(struct ssl_connect_data *connssl,
+স্থির শূন্য *schannel_get_internals(কাঠামো ssl_connect_তথ্য *connssl,
                                     CURLINFO info)
 {
-  struct schannel_ssl_backend_data *backend =
-    (struct schannel_ssl_backend_data *)connssl->backend;
-  (void)info;
+  কাঠামো schannel_ssl_backend_তথ্য *backend =
+    (কাঠামো schannel_ssl_backend_তথ্য *)connssl->backend;
+  (শূন্য)info;
   DEBUGASSERT(backend);
-  return &backend->ctxt->ctxt_handle;
+  ফেরত &backend->ctxt->ctxt_handle;
 }
 
-HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data)
+HCERTSTORE Curl_schannel_get_cached_cert_store(কাঠামো Curl_cfilter *cf,
+                                               কাঠামো Curl_easy *তথ্য)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_multi *multi = data->multi;
-  const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
-  struct schannel_cert_share *share;
+  কাঠামো ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  কাঠামো Curl_multi *multi = তথ্য->multi;
+  ধ্রুবক কাঠামো curl_blob *ca_info_blob = conn_config->ca_info_blob;
+  কাঠামো schannel_cert_share *share;
   timediff_t timeout_ms;
-  unsigned char info_blob_digest[CURL_SHA256_DIGEST_LENGTH];
+  unsigned অক্ষর info_blob_digest[CURL_SHA256_DIGEST_দৈর্ঘ্য];
 
   DEBUGASSERT(multi);
 
-  if(!multi) {
-    return NULL;
+  যদি(!multi) {
+    ফেরত ফাঁকা;
   }
 
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  if(!share || !share->cert_store) {
-    return NULL;
+                         MPROTO_SCHANNEL_CERT_SHARE_চাবি,
+                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_চাবি));
+  যদি(!share || !share->cert_store) {
+    ফেরত ফাঁকা;
   }
 
   /* zero ca_cache_timeout completely disables caching */
-  if(!data->set.ssl_ca_cache_timeout) {
-    return NULL;
+  যদি(!তথ্য->set.ssl_ca_cache_timeout) {
+    ফেরত ফাঁকা;
   }
 
   /* check for cache timeout by using the cached_x509_store_expired timediff
      calculation pattern from openssl.c.
      negative timeout means retain forever. */
-  timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
-  if(timeout_ms >= 0) {
+  timeout_ms = তথ্য->set.ssl_ca_cache_timeout * (timediff_t)1000;
+  যদি(timeout_ms >= 0) {
     timediff_t elapsed_ms =
-      curlx_ptimediff_ms(Curl_pgrs_now(data), &share->time);
-    if(elapsed_ms >= timeout_ms) {
-      return NULL;
+      curlx_ptimediff_ms(Curl_pgrs_now(তথ্য), &share->time);
+    যদি(elapsed_ms >= timeout_ms) {
+      ফেরত ফাঁকা;
     }
   }
 
-  if(ca_info_blob) {
-    if(share->CAinfo_blob_size != ca_info_blob->len) {
-      return NULL;
+  যদি(ca_info_blob) {
+    যদি(share->CAinfo_blob_আকার != ca_info_blob->len) {
+      ফেরত ফাঁকা;
     }
-    if(schannel_sha256sum((const unsigned char *)ca_info_blob->data,
+    যদি(schannel_sha256sum((ধ্রুবক unsigned অক্ষর *)ca_info_blob->তথ্য,
                           ca_info_blob->len,
                           info_blob_digest,
-                          CURL_SHA256_DIGEST_LENGTH))
-      return NULL;
-    if(memcmp(share->CAinfo_blob_digest, info_blob_digest,
-              CURL_SHA256_DIGEST_LENGTH)) {
-      return NULL;
+                          CURL_SHA256_DIGEST_দৈর্ঘ্য))
+      ফেরত ফাঁকা;
+    যদি(memcmp(share->CAinfo_blob_digest, info_blob_digest,
+              CURL_SHA256_DIGEST_দৈর্ঘ্য)) {
+      ফেরত ফাঁকা;
     }
   }
-  else {
-    if(!conn_config->CAfile || !share->CAfile ||
+  অন্যথা {
+    যদি(!conn_config->CAfile || !share->CAfile ||
        strcmp(share->CAfile, conn_config->CAfile)) {
-      return NULL;
+      ফেরত ফাঁকা;
     }
   }
 
-  return share->cert_store;
+  ফেরত share->cert_store;
 }
 
-static void schannel_cert_share_free(const void *key, size_t key_len, void *p)
+স্থির শূন্য schannel_cert_share_free(ধ্রুবক শূন্য *চাবি, size_t চাবি_len, শূন্য *p)
 {
-  struct schannel_cert_share *share = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_SCHANNEL_CERT_SHARE_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
-  if(share->cert_store) {
+  কাঠামো schannel_cert_share *share = p;
+  DEBUGASSERT(চাবি_len == CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_চাবি));
+  DEBUGASSERT(!memcmp(MPROTO_SCHANNEL_CERT_SHARE_চাবি, চাবি, চাবি_len));
+  (শূন্য)চাবি;
+  (শূন্য)চাবি_len;
+  যদি(share->cert_store) {
     CertCloseStore(share->cert_store, 0);
   }
   curlx_free(share->CAfile);
   curlx_free(share);
 }
 
-bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+bool Curl_schannel_set_cached_cert_store(কাঠামো Curl_cfilter *cf,
+                                         কাঠামো Curl_easy *তথ্য,
                                          HCERTSTORE cert_store)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_multi *multi = data->multi;
-  const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
-  struct schannel_cert_share *share;
-  unsigned char digest[CURL_SHA256_DIGEST_LENGTH];
-  char *CAfile = NULL;
+  কাঠামো ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  কাঠামো Curl_multi *multi = তথ্য->multi;
+  ধ্রুবক কাঠামো curl_blob *ca_info_blob = conn_config->ca_info_blob;
+  কাঠামো schannel_cert_share *share;
+  unsigned অক্ষর digest[CURL_SHA256_DIGEST_দৈর্ঘ্য];
+  অক্ষর *CAfile = ফাঁকা;
 
   DEBUGASSERT(multi);
 
-  if(!multi) {
-    return FALSE;
+  যদি(!multi) {
+    ফেরত FALSE;
   }
 
-  if(ca_info_blob) {
-    if(schannel_sha256sum((const unsigned char *)ca_info_blob->data,
-                          ca_info_blob->len, digest, sizeof(digest))) {
-      return FALSE;
+  যদি(ca_info_blob) {
+    যদি(schannel_sha256sum((ধ্রুবক unsigned অক্ষর *)ca_info_blob->তথ্য,
+                          ca_info_blob->len, digest, আকার(digest))) {
+      ফেরত FALSE;
     }
   }
-  else if(conn_config->CAfile) {
+  অন্যথা যদি(conn_config->CAfile) {
     CAfile = curlx_strdup(conn_config->CAfile);
-    if(!CAfile) {
-      return FALSE;
+    যদি(!CAfile) {
+      ফেরত FALSE;
     }
   }
 
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  if(!share) {
-    share = curlx_calloc(1, sizeof(*share));
-    if(!share) {
+                         MPROTO_SCHANNEL_CERT_SHARE_চাবি,
+                         CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_চাবি));
+  যদি(!share) {
+    share = curlx_calloc(1, আকার(*share));
+    যদি(!share) {
       curlx_free(CAfile);
-      return FALSE;
+      ফেরত FALSE;
     }
-    if(!Curl_hash_add2(&multi->proto_hash,
-                       MPROTO_SCHANNEL_CERT_SHARE_KEY,
-                       CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY),
+    যদি(!Curl_hash_add2(&multi->proto_hash,
+                       MPROTO_SCHANNEL_CERT_SHARE_চাবি,
+                       CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_চাবি),
                        share, schannel_cert_share_free)) {
       curlx_free(share);
       curlx_free(CAfile);
-      return FALSE;
+      ফেরত FALSE;
     }
   }
 
   /* free old cache data */
-  if(share->cert_store) {
+  যদি(share->cert_store) {
     CertCloseStore(share->cert_store, 0);
   }
   curlx_free(share->CAfile);
 
-  if(ca_info_blob) {
-    memcpy(share->CAinfo_blob_digest, digest, sizeof(digest));
-    share->CAinfo_blob_size = ca_info_blob->len;
+  যদি(ca_info_blob) {
+    memcpy(share->CAinfo_blob_digest, digest, আকার(digest));
+    share->CAinfo_blob_আকার = ca_info_blob->len;
   }
-  else
-    share->CAinfo_blob_size = 0;
+  অন্যথা
+    share->CAinfo_blob_আকার = 0;
 
   share->time = curlx_now();
   share->cert_store = cert_store;
   share->CAfile = CAfile;
-  return TRUE;
+  ফেরত TRUE;
 }
 
-const struct Curl_ssl Curl_ssl_schannel = {
+ধ্রুবক কাঠামো Curl_ssl Curl_ssl_schannel = {
   { CURLSSLBACKEND_SCHANNEL, "schannel" }, /* info */
 
   SSLSUPP_CERTINFO |
@@ -2902,25 +2902,25 @@ const struct Curl_ssl Curl_ssl_schannel = {
   SSLSUPP_HTTPS_PROXY |
   SSLSUPP_CIPHER_LIST,
 
-  sizeof(struct schannel_ssl_backend_data),
+  আকার(কাঠামো schannel_ssl_backend_তথ্য),
 
   schannel_init,                     /* init */
   schannel_cleanup,                  /* cleanup */
   schannel_version,                  /* version */
   schannel_shutdown,                 /* shutdown */
-  schannel_data_pending,             /* data_pending */
+  schannel_তথ্য_pending,             /* data_pending */
   schannel_random,                   /* random */
-  NULL,                              /* cert_status_request */
+  ফাঁকা,                              /* cert_status_request */
   schannel_connect,                  /* connect */
   Curl_ssl_adjust_pollset,           /* adjust_pollset */
   schannel_get_internals,            /* get_internals */
   schannel_close,                    /* close_one */
-  NULL,                              /* close_all */
-  NULL,                              /* engines_list */
+  ফাঁকা,                              /* close_all */
+  ফাঁকা,                              /* engines_list */
   schannel_sha256sum,                /* sha256sum */
   schannel_recv,                     /* recv decrypted data */
   schannel_send,                     /* send data to encrypt */
-  NULL,                              /* get_channel_binding */
+  ফাঁকা,                              /* get_channel_binding */
 };
 
 #endif /* USE_SCHANNEL */

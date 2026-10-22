@@ -21,240 +21,240 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#অন্তর্ভাব <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#অন্তর্ভাব <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+#অন্তর্ভাব <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#অন্তর্ভাব <sys/ioctl.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#অন্তর্ভাব <netdb.h>
 #endif
 #ifdef HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
+#অন্তর্ভাব <sys/sockio.h>
 #endif
 #ifdef HAVE_IFADDRS_H
-#include <ifaddrs.h>
+#অন্তর্ভাব <ifaddrs.h>
 #endif
 #ifdef HAVE_STROPTS_H
-#include <stropts.h>
+#অন্তর্ভাব <stropts.h>
 #endif
 #ifdef __VMS
-#include <inet.h>
+#অন্তর্ভাব <inet.h>
 #endif
 
-#include "curlx/inet_ntop.h"
-#include "if2ip.h"
+#অন্তর্ভাব "curlx/inet_ntop.h"
+#অন্তর্ভাব "if2ip.h"
 
 /* ------------------------------------------------------------------ */
 
 #ifdef USE_IPV6
 /* Return the scope of the given address. */
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa)
+unsigned পূর্ণসংখ্যা Curl_ipv6_scope(ধ্রুবক কাঠামো sockaddr *sa)
 {
-  if(sa->sa_family == AF_INET6) {
-    const struct sockaddr_in6 *sa6 =
-      (const struct sockaddr_in6 *)(const void *)sa;
-    const unsigned char *b = sa6->sin6_addr.s6_addr;
+  যদি(sa->sa_family == AF_INET6) {
+    ধ্রুবক কাঠামো sockaddr_in6 *sa6 =
+      (ধ্রুবক কাঠামো sockaddr_in6 *)(ধ্রুবক শূন্য *)sa;
+    ধ্রুবক unsigned অক্ষর *b = sa6->sin6_addr.s6_addr;
     unsigned short w = (unsigned short)((b[0] << 8) | b[1]);
 
-    if((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
-      return IPV6_SCOPE_UNIQUELOCAL;
-    switch(w & 0xFFC0) {
-    case 0xFE80:
-      return IPV6_SCOPE_LINKLOCAL;
-    case 0xFEC0:
-      return IPV6_SCOPE_SITELOCAL;
-    case 0x0000:
+    যদি((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
+      ফেরত IPV6_SCOPE_UNIQUELOCAL;
+    নির্বাচন(w & 0xFFC0) {
+    ক্ষেত্র 0xFE80:
+      ফেরত IPV6_SCOPE_LINKLOCAL;
+    ক্ষেত্র 0xFEC0:
+      ফেরত IPV6_SCOPE_SITELOCAL;
+    ক্ষেত্র 0x0000:
       w = b[1] | b[2] | b[3] | b[4] | b[5] | b[6] | b[7] | b[8] | b[9] |
           b[10] | b[11] | b[12] | b[13] | b[14];
-      if(w || b[15] != 0x01)
-        break;
-      return IPV6_SCOPE_NODELOCAL;
-    default:
-      break;
+      যদি(w || b[15] != 0x01)
+        বিরতি;
+      ফেরত IPV6_SCOPE_NODELOCAL;
+    পূর্বনির্ধারিত:
+      বিরতি;
     }
   }
-  return IPV6_SCOPE_GLOBAL;
+  ফেরত IPV6_SCOPE_GLOBAL;
 }
 #endif
 
-#if !defined(CURL_DISABLE_BINDLOCAL) || !defined(CURL_DISABLE_FTP)
+#যদি !defined(CURL_DISABLE_BINDLOCAL) || !defined(CURL_DISABLE_FTP)
 
 #ifdef HAVE_GETIFADDRS
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_ফলাফল_t Curl_if2ip(পূর্ণসংখ্যা af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned পূর্ণসংখ্যা remote_scope,
+                          unsigned পূর্ণসংখ্যা local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          ধ্রুবক অক্ষর *interf,
+                          অক্ষর *buf, size_t buf_আকার)
 {
-  struct ifaddrs *iface, *head;
-  if2ip_result_t res = IF2IP_NOT_FOUND;
+  কাঠামো ifaddrs *iface, *শীর্ষ;
+  if2ip_ফলাফল_t res = IF2IP_NOT_FOUND;
 
-#if defined(USE_IPV6) && !defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
-  (void)local_scope_id;
+#যদি defined(USE_IPV6) && !defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+  (শূন্য)local_scope_id;
 #endif
 
-  if(getifaddrs(&head) >= 0) {
-    for(iface = head; iface; iface = iface->ifa_next) {
-      if(iface->ifa_addr) {
-        if(iface->ifa_addr->sa_family == af) {
-          if(!strcmp(iface->ifa_name, interf)) {
-            void *addr;
-            char scope[12] = "";
-            char ipstr[64];
-            CURLcode result;
+  যদি(getifaddrs(&শীর্ষ) >= 0) {
+    জন্য(iface = শীর্ষ; iface; iface = iface->ifa_পরবর্তী) {
+      যদি(iface->ifa_addr) {
+        যদি(iface->ifa_addr->sa_family == af) {
+          যদি(!strcmp(iface->ifa_name, interf)) {
+            শূন্য *addr;
+            অক্ষর scope[12] = "";
+            অক্ষর ipstr[64];
+            CURLcode ফলাফল;
 #ifdef USE_IPV6
-            if(af == AF_INET6) {
+            যদি(af == AF_INET6) {
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-              unsigned int scopeid = 0;
+              unsigned পূর্ণসংখ্যা scopeid = 0;
 #endif
-              unsigned int ifscope = Curl_ipv6_scope(iface->ifa_addr);
+              unsigned পূর্ণসংখ্যা ifscope = Curl_ipv6_scope(iface->ifa_addr);
 
-              if(ifscope != remote_scope) {
+              যদি(ifscope != remote_scope) {
                 /* We are interested only in interface addresses whose scope
                    matches the remote address we want to connect to: global
                    for global, link-local for link-local, etc... */
-                if(res == IF2IP_NOT_FOUND)
+                যদি(res == IF2IP_NOT_FOUND)
                   res = IF2IP_AF_NOT_SUPPORTED;
-                continue;
+                চালু;
               }
 
               addr =
-                &((struct sockaddr_in6 *)(void *)iface->ifa_addr)->sin6_addr;
+                &((কাঠামো sockaddr_in6 *)(শূন্য *)iface->ifa_addr)->sin6_addr;
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
               /* Include the scope of this interface as part of the address */
-              scopeid = ((struct sockaddr_in6 *)(void *)iface->ifa_addr)
+              scopeid = ((কাঠামো sockaddr_in6 *)(শূন্য *)iface->ifa_addr)
                           ->sin6_scope_id;
 
               /* If given, scope id should match. */
-              if(local_scope_id && scopeid != local_scope_id) {
-                if(res == IF2IP_NOT_FOUND)
+              যদি(local_scope_id && scopeid != local_scope_id) {
+                যদি(res == IF2IP_NOT_FOUND)
                   res = IF2IP_AF_NOT_SUPPORTED;
 
-                continue;
+                চালু;
               }
 
-              if(scopeid)
-                curl_msnprintf(scope, sizeof(scope), "%%%u", scopeid);
+              যদি(scopeid)
+                curl_msnprintf(scope, আকার(scope), "%%%u", scopeid);
 #endif
             }
-            else
+            অন্যথা
 #endif
               addr =
-                &((struct sockaddr_in *)(void *)iface->ifa_addr)->sin_addr;
+                &((কাঠামো sockaddr_in *)(শূন্য *)iface->ifa_addr)->sin_addr;
             res = IF2IP_FOUND;
-            result = curlx_inet_ntop(af, addr, ipstr, sizeof(ipstr));
-            curl_msnprintf(buf, buf_size, "%s%s", result ? "" : ipstr, scope);
-            break;
+            ফলাফল = curlx_inet_ntop(af, addr, ipstr, আকার(ipstr));
+            curl_msnprintf(buf, buf_আকার, "%s%s", ফলাফল ? "" : ipstr, scope);
+            বিরতি;
           }
         }
-        else if((res == IF2IP_NOT_FOUND) &&
+        অন্যথা যদি((res == IF2IP_NOT_FOUND) &&
                 !strcmp(iface->ifa_name, interf)) {
           res = IF2IP_AF_NOT_SUPPORTED;
         }
       }
     }
 
-    freeifaddrs(head);
+    freeifaddrs(শীর্ষ);
   }
 
-  return res;
+  ফেরত res;
 }
 
-#elif defined(HAVE_IOCTL_SIOCGIFADDR)
+#নতুবা_যদি defined(HAVE_IOCTL_SIOCGIFADDR)
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_ফলাফল_t Curl_if2ip(পূর্ণসংখ্যা af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned পূর্ণসংখ্যা remote_scope,
+                          unsigned পূর্ণসংখ্যা local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          ধ্রুবক অক্ষর *interf,
+                          অক্ষর *buf, size_t buf_আকার)
 {
-  struct ifreq req;
-  struct in_addr in;
-  struct sockaddr_in *s;
+  কাঠামো ifreq req;
+  কাঠামো in_addr in;
+  কাঠামো sockaddr_in *s;
   curl_socket_t dummy;
   size_t len;
-  CURLcode result;
+  CURLcode ফলাফল;
 
 #ifdef USE_IPV6
-  (void)remote_scope;
-  (void)local_scope_id;
+  (শূন্য)remote_scope;
+  (শূন্য)local_scope_id;
 #endif
 
-  if(!interf || (af != AF_INET))
-    return IF2IP_NOT_FOUND;
+  যদি(!interf || (af != AF_INET))
+    ফেরত IF2IP_NOT_FOUND;
 
   len = strlen(interf);
-  if(len >= sizeof(req.ifr_name))
-    return IF2IP_NOT_FOUND;
+  যদি(len >= আকার(req.ifr_name))
+    ফেরত IF2IP_NOT_FOUND;
 
   dummy = CURL_SOCKET(AF_INET, SOCK_STREAM, 0);
-  if(dummy == CURL_SOCKET_BAD)
-    return IF2IP_NOT_FOUND;
+  যদি(dummy == CURL_SOCKET_BAD)
+    ফেরত IF2IP_NOT_FOUND;
 
-  memset(&req, 0, sizeof(req));
+  memset(&req, 0, আকার(req));
   memcpy(req.ifr_name, interf, len + 1);
   req.ifr_addr.sa_family = AF_INET;
 
-#if defined(CURL_HAVE_DIAG) && defined(_AIX)
+#যদি defined(CURL_HAVE_DIAG) && defined(_AIX)
 /* Suppress warning inside system headers */
-#pragma GCC diagnostic push
+#pragma GCC diagnostic ঠেলো
 #pragma GCC diagnostic ignored "-Wshift-sign-overflow"
 #endif
-  if(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
-#if defined(CURL_HAVE_DIAG) && defined(_AIX)
-#pragma GCC diagnostic pop
+  যদি(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
+#যদি defined(CURL_HAVE_DIAG) && defined(_AIX)
+#pragma GCC diagnostic বের_করো
 #endif
     sclose(dummy);
     /* With SIOCGIFADDR, we cannot tell the difference between an interface
        that does not exist and an interface that has no address of the
        correct family. Assume the interface does not exist */
-    return IF2IP_NOT_FOUND;
+    ফেরত IF2IP_NOT_FOUND;
   }
 
-  s = (struct sockaddr_in *)(void *)&req.ifr_addr;
-  memcpy(&in, &s->sin_addr, sizeof(in));
-  result = curlx_inet_ntop(s->sin_family, &in, buf, buf_size);
+  s = (কাঠামো sockaddr_in *)(শূন্য *)&req.ifr_addr;
+  memcpy(&in, &s->sin_addr, আকার(in));
+  ফলাফল = curlx_inet_ntop(s->sin_family, &in, buf, buf_আকার);
 
   sclose(dummy);
-  if(result)
-    return IF2IP_NOT_FOUND;
-  return IF2IP_FOUND;
+  যদি(ফলাফল)
+    ফেরত IF2IP_NOT_FOUND;
+  ফেরত IF2IP_FOUND;
 }
 
-#else
+#অন্যথা
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_ফলাফল_t Curl_if2ip(পূর্ণসংখ্যা af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned পূর্ণসংখ্যা remote_scope,
+                          unsigned পূর্ণসংখ্যা local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          ধ্রুবক অক্ষর *interf,
+                          অক্ষর *buf, size_t buf_আকার)
 {
-  (void)af;
+  (শূন্য)af;
 #ifdef USE_IPV6
-  (void)remote_scope;
-  (void)local_scope_id;
+  (শূন্য)remote_scope;
+  (শূন্য)local_scope_id;
 #endif
-  (void)interf;
-  (void)buf;
-  (void)buf_size;
-  return IF2IP_NOT_FOUND;
+  (শূন্য)interf;
+  (শূন্য)buf;
+  (শূন্য)buf_আকার;
+  ফেরত IF2IP_NOT_FOUND;
 }
 
 #endif

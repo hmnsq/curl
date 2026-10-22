@@ -23,28 +23,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "api.h"
-#include "llist.h"
-#include "hash.h"
-#include "conncache.h"
-#include "cshutdn.h"
-#include "multi_ev.h"
-#include "multi_ntfy.h"
-#include "psl.h"
-#include "socketpair.h"
-#include "splay.h"
-#include "uint-bset.h"
-#include "uint-spbset.h"
-#include "uint-table.h"
-#include "vdns/dnscache.h"
+#অন্তর্ভাব "api.h"
+#অন্তর্ভাব "llist.h"
+#অন্তর্ভাব "hash.h"
+#অন্তর্ভাব "conncache.h"
+#অন্তর্ভাব "cshutdn.h"
+#অন্তর্ভাব "multi_ev.h"
+#অন্তর্ভাব "multi_ntfy.h"
+#অন্তর্ভাব "psl.h"
+#অন্তর্ভাব "socketpair.h"
+#অন্তর্ভাব "splay.h"
+#অন্তর্ভাব "uint-bset.h"
+#অন্তর্ভাব "uint-spbset.h"
+#অন্তর্ভাব "uint-table.h"
+#অন্তর্ভাব "vdns/dnscache.h"
 
-struct connectdata;
-struct Curl_easy;
+কাঠামো connectdata;
+কাঠামো Curl_easy;
 
 /* NOTE: if you add a state here, add the name to the statenames[] array
  * in curl_trc.c as well!
  */
-typedef enum {
+প্রকারলেখ গণনা {
   MSTATE_INIT,         /* 0 - start in this state */
   MSTATE_PENDING,      /* no connections, waiting for one */
   MSTATE_SETUP,        /* start a new transfer */
@@ -66,10 +66,10 @@ typedef enum {
 
 #define CURLPIPE_ANY (CURLPIPE_MULTIPLEX)
 
-#if !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
+#যদি !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
 #define ENABLE_WAKEUP
 #endif
-#if !defined(CURL_DISABLE_SOCKETPAIR) && \
+#যদি !defined(CURL_DISABLE_SOCKETPAIR) && \
     defined(USE_RESOLV_THREADED) && \
     !defined(USE_WINSOCK)
 #define ENABLE_INTERNAL_WAKEUP
@@ -78,13 +78,13 @@ typedef enum {
 /* value for MAXIMUM CONCURRENT STREAMS upper limit */
 #define INITIAL_MAX_CONCURRENT_STREAMS ((1U << 31) - 1)
 
-struct Curl_fixed_buf {
+কাঠামো Curl_fixed_buf {
   size_t len;      /* the allocated data length */
-  char data[1];   /* the actual buffer */
+  অক্ষর তথ্য[1];   /* the actual buffer */
 };
 
 /* This is the struct known as CURLM on the outside */
-struct Curl_multi {
+কাঠামো Curl_multi {
   /* First a simple identifier to more easily detect if a user mixes up
      this multi handle with an easy handle.
      Set this to CURLMULTI_MAGIC_NUMBER. */
@@ -94,51 +94,51 @@ struct Curl_multi {
   uint32_t xfers_really_alive; /* amount of added transfers that have
                                   passed INIT state but are not COMPLETE yet */
   uint32_t max_concurrent_streams;
-  curl_off_t xfers_total_ever; /* total of added transfers, ever. */
+  curl_off_t xfers_যোগ_ever; /* total of added transfers, ever. */
 
-  struct uint32_tbl xfers; /* transfers added to this multi */
+  কাঠামো uint32_tbl xfers; /* transfers added to this multi */
   /* A transfer's mid may be present in at most one of
    * process/pending/msgsent. The dirty set may overlap with process. */
-  struct uint32_bset process; /* transfer being processed */
-  struct uint32_bset dirty; /* transfer to be run NOW, e.g. ASAP. */
-  struct uint32_bset pending; /* transfers in waiting (conn limit etc.) */
-  struct uint32_bset msgsent; /* transfers with unread application messages */
+  কাঠামো uint32_bset process; /* transfer being processed */
+  কাঠামো uint32_bset dirty; /* transfer to be run NOW, e.g. ASAP. */
+  কাঠামো uint32_bset pending; /* transfers in waiting (conn limit etc.) */
+  কাঠামো uint32_bset msgsent; /* transfers with unread application messages */
 
-  struct Curl_mapi_stack callstack; /* multi api calls ongoing */
+  কাঠামো Curl_mapi_স্তূপ callstack; /* multi api calls ongoing */
 
   /* expiration times for all attached easy handles */
-  struct Curl_timeouts timeouts;
+  কাঠামো Curl_timeouts timeouts;
 
-  struct Curl_easy *admin; /* internal easy handle for admin operations.
+  কাঠামো Curl_easy *admin; /* internal easy handle for admin operations.
                               gets assigned `mid` 0 on multi init */
 
   /* callback function and user data pointer for the *socket() API */
   curl_socket_callback socket_cb;
-  void *socket_userp;
+  শূন্য *socket_userp;
 
   /* callback function and user data pointer for server push */
-  curl_push_callback push_cb;
-  void *push_userp;
+  curl_ঠেলো_callback ঠেলো_cb;
+  শূন্য *ঠেলো_userp;
 
-  struct Curl_dnscache dnscache; /* DNS cache */
-  struct Curl_ssl_scache *ssl_scache; /* TLS session pool */
+  কাঠামো Curl_dnscache dnscache; /* DNS cache */
+  কাঠামো Curl_ssl_scache *ssl_scache; /* TLS session pool */
 #ifdef USE_RESOLV_THREADED
-  struct curl_thrdq *resolv_thrdq;
+  কাঠামো curl_thrdq *resolv_thrdq;
 #endif
 
 #ifdef USE_LIBPSL
   /* PSL cache. */
-  struct PslCache psl;
+  কাঠামো PslCache psl;
 #endif
 
-  struct Curl_fixed_buf *xfer_buf; /* transfer downloads, lazy */
-  struct Curl_fixed_buf *xfer_ulbuf; /* transfer uploads, lazy */
-  struct Curl_fixed_buf *xfer_sockbuf; /* transfer socket I/O, lazy */
+  কাঠামো Curl_fixed_buf *xfer_buf; /* transfer downloads, lazy */
+  কাঠামো Curl_fixed_buf *xfer_ulbuf; /* transfer uploads, lazy */
+  কাঠামো Curl_fixed_buf *xfer_sockbuf; /* transfer socket I/O, lazy */
 
   /* multi event related things */
-  struct curl_multi_ev ev;
+  কাঠামো curl_multi_ev ev;
   /* multi notification related things */
-  struct curl_multi_ntfy ntfy;
+  কাঠামো curl_multi_ntfy ntfy;
 
   /* `proto_hash` is a general key-value store for protocol implementations
    * with the lifetime of the multi handle. The number of elements kept here
@@ -146,16 +146,16 @@ struct Curl_multi {
    * TLS), *not* in the order of connections or current transfers!
    * Elements need to be added with their own destructor to be invoked when
    * the multi handle is cleaned up (see Curl_hash_add2()).*/
-  struct Curl_hash proto_hash;
+  কাঠামো Curl_hash proto_hash;
 
-  struct cshutdn cshutdn; /* connection shutdown handling */
-  struct cpool cpool;     /* connection pool (bundles) */
+  কাঠামো cshutdn cshutdn; /* connection shutdown handling */
+  কাঠামো cpool cpool;     /* connection pool (bundles) */
 
   timediff_t last_expire_offset_us; /* times offset of last expiry */
 
   /* timer callback and user data pointer for the *socket() API */
   curl_multi_timer_callback timer_cb;
-  void *timer_userp;
+  শূন্য *timer_userp;
 
 #ifdef USE_WINSOCK
   WSAEVENT wsa_event; /* Winsock event used for waits */
@@ -173,7 +173,7 @@ struct Curl_multi {
 #endif
   uint32_t max_host_connections; /* if >0, a fixed limit of the maximum number
                                   of connections per host */
-  uint32_t max_total_connections; /* if >0, a fixed limit of the maximum number
+  uint32_t max_যোগ_connections; /* if >0, a fixed limit of the maximum number
                                    of connections in total */
   uint32_t maxconnects; /* if >0, a fixed limit of the maximum number of
                                entries we are allowed to grow the connection

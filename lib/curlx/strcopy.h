@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 
-void curlx_strcopy(char *dest,
+শূন্য curlx_strcopy(অক্ষর *dest,
                    size_t dsize, /* size of target buffer */
-                   const char *src,
+                   ধ্রুবক অক্ষর *src,
                    size_t slen); /* length of string to copy */
 
 #endif /* HEADER_CURLX_STRCOPY_H */

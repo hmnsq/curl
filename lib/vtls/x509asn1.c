@@ -21,27 +21,27 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#যদি defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
-#if defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
+#যদি defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
   defined(USE_WOLFSSL) || defined(USE_RUSTLS)
 #define WANT_PARSEX509 /* uses Curl_parseX509() */
 #endif
 
-#if defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
+#যদি defined(USE_GNUTLS) || defined(USE_SCHANNEL) || defined(USE_MBEDTLS) || \
   defined(USE_RUSTLS)
 #define WANT_EXTRACT_CERTINFO /* uses Curl_extract_certinfo() */
 #endif
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "curlx/base64.h"
-#include "vtls/x509asn1.h"
-#include "curlx/dynbuf.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "vtls/vtls.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "curlx/base64.h"
+#অন্তর্ভাব "vtls/x509asn1.h"
+#অন্তর্ভাব "curlx/dynbuf.h"
 
 /*
  * Constants.
@@ -53,13 +53,13 @@
 #ifdef WANT_EXTRACT_CERTINFO
 
 /* ASN.1 OID table entry. */
-struct Curl_OID {
-  const char *numoid;  /* Dotted-numeric OID. */
-  const char *textoid; /* OID name. */
+কাঠামো Curl_OID {
+  ধ্রুবক অক্ষর *numoid;  /* Dotted-numeric OID. */
+  ধ্রুবক অক্ষর *textoid; /* OID name. */
 };
 
 /* ASN.1 OIDs. */
-static const struct Curl_OID OIDtable[] = {
+স্থির ধ্রুবক কাঠামো Curl_OID OIDtable[] = {
   { "1.2.840.10040.4.1",        "dsa" },
   { "1.2.840.10040.4.3",        "dsa-with-sha1" },
   { "1.2.840.10045.2.1",        "ecPublicKey" },
@@ -111,7 +111,7 @@ static const struct Curl_OID OIDtable[] = {
   { "2.16.840.1.101.3.4.2.2",   "sha384" },
   { "2.16.840.1.101.3.4.2.3",   "sha512" },
   { "1.2.840.113549.1.9.2",     "unstructuredName" },
-  { NULL,                       NULL }
+  { ফাঁকা,                       ফাঁকা }
 };
 
 #endif /* WANT_EXTRACT_CERTINFO */
@@ -127,22 +127,22 @@ static const struct Curl_OID OIDtable[] = {
 
 #define CURL_ASN1_MAX_RECURSIONS    16
 
-static const uint8_t *getASN1Element_(struct Curl_asn1Element *elem,
-                                      const uint8_t *beg, const uint8_t *end,
+স্থির ধ্রুবক uint8_t *getASN1Element_(কাঠামো Curl_asn1Element *elem,
+                                      ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end,
                                       size_t lvl)
 {
   uint8_t b;
   size_t len;
-  struct Curl_asn1Element lelem;
+  কাঠামো Curl_asn1Element lelem;
 
   /* Get a single ASN.1 element into `elem', parse ASN.1 string at `beg'
      ending at `end'.
      Returns a pointer in source string after the parsed element, or NULL
      if an error occurs. */
-  if(!beg || !end || beg >= end || !*beg ||
+  যদি(!beg || !end || beg >= end || !*beg ||
      ((size_t)(end - beg) > CURL_ASN1_MAX) ||
      lvl++ >= CURL_ASN1_MAX_RECURSIONS)
-    return NULL;
+    ফেরত ফাঁকা;
 
   /* Process header byte. */
   elem->header = beg;
@@ -150,62 +150,62 @@ static const uint8_t *getASN1Element_(struct Curl_asn1Element *elem,
   elem->constructed = (b & 0x20) != 0;
   elem->eclass = (b >> 6) & 3;
   b &= 0x1F;
-  if(b == 0x1F)
-    return NULL; /* Long tag values not supported here. */
+  যদি(b == 0x1F)
+    ফেরত ফাঁকা; /* Long tag values not supported here. */
   elem->tag = b;
 
   /* Process length. */
-  if(beg >= end)
-    return NULL;
+  যদি(beg >= end)
+    ফেরত ফাঁকা;
   b = *beg++;
-  if(!(b & 0x80))
+  যদি(!(b & 0x80))
     len = b;
-  else {
+  অন্যথা {
     b &= 0x7F;
-    if(!b) {
+    যদি(!b) {
       /* Unspecified length. Since we have all the data, we can determine the
          effective length by skipping element until an EOC element is found. */
-      if(!elem->constructed)
-        return NULL;
+      যদি(!elem->constructed)
+        ফেরত ফাঁকা;
       elem->beg = beg;
-      while(beg < end && *beg) {
+      যখন(beg < end && *beg) {
         beg = getASN1Element_(&lelem, beg, end, lvl);
-        if(!beg)
-          return NULL;
+        যদি(!beg)
+          ফেরত ফাঁকা;
       }
-      if(end - beg < 2 || beg[1])       /* EOC must have a zero length. */
-        return NULL;
+      যদি(end - beg < 2 || beg[1])       /* EOC must have a zero length. */
+        ফেরত ফাঁকা;
       elem->end = beg;                  /* Do not include EOC as content. */
-      return beg + 2;                   /* After EOC element. */
+      ফেরত beg + 2;                   /* After EOC element. */
     }
-    else if(b > (size_t)(end - beg))
-      return NULL; /* Does not fit in source. */
-    else {
+    অন্যথা যদি(b > (size_t)(end - beg))
+      ফেরত ফাঁকা; /* Does not fit in source. */
+    অন্যথা {
       /* Get long length. */
       len = 0;
-      do {
-        if(len & 0xFF000000L)
-          return NULL;  /* Lengths > 32 bits are not supported. */
+      করো {
+        যদি(len & 0xFF000000L)
+          ফেরত ফাঁকা;  /* Lengths > 32 bits are not supported. */
         len = (len << 8) | *beg++;
-      } while(--b);
+      } যখন(--b);
     }
   }
-  if(len > (size_t)(end - beg))
-    return NULL;  /* Element data does not fit in source. */
+  যদি(len > (size_t)(end - beg))
+    ফেরত ফাঁকা;  /* Element data does not fit in source. */
   elem->beg = beg;
   elem->end = beg + len;
-  return elem->end;
+  ফেরত elem->end;
 }
 
 /*
  * @unittest 1657
  */
-UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
-                                       const uint8_t *beg, const uint8_t *end);
-UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
-                                       const uint8_t *beg, const uint8_t *end)
+UNITTEST ধ্রুবক uint8_t *getASN1Element(কাঠামো Curl_asn1Element *elem,
+                                       ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end);
+UNITTEST ধ্রুবক uint8_t *getASN1Element(কাঠামো Curl_asn1Element *elem,
+                                       ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
-  return getASN1Element_(elem, beg, end, 0);
+  ফেরত getASN1Element_(elem, beg, end, 0);
 }
 
 #ifdef WANT_EXTRACT_CERTINFO
@@ -214,14 +214,14 @@ UNITTEST const uint8_t *getASN1Element(struct Curl_asn1Element *elem,
  * Search the null-terminated OID or OID identifier in local table.
  * Return the table entry pointer or NULL if not found.
  */
-static const struct Curl_OID *searchOID(const char *oid)
+স্থির ধ্রুবক কাঠামো Curl_OID *অনুসন্ধান_OID(ধ্রুবক অক্ষর *oid)
 {
-  const struct Curl_OID *op;
-  for(op = OIDtable; op->numoid; op++)
-    if(!strcmp(op->numoid, oid) || curl_strequal(op->textoid, oid))
-      return op;
+  ধ্রুবক কাঠামো Curl_OID *op;
+  জন্য(op = OIDtable; op->numoid; op++)
+    যদি(!strcmp(op->numoid, oid) || curl_strequal(op->textoid, oid))
+      ফেরত op;
 
-  return NULL;
+  ফেরত ফাঁকা;
 }
 
 /*
@@ -230,16 +230,16 @@ static const struct Curl_OID *searchOID(const char *oid)
  * Return error code.
  */
 
-static CURLcode bool2str(struct dynbuf *store,
-                         const uint8_t *beg, const uint8_t *end)
+স্থির CURLcode bool2str(কাঠামো dynbuf *store,
+                         ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
   uint8_t val;
-  if(end - beg != 1)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(end - beg != 1)
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
   val = *beg;
-  if((val != 0xff) && (val != 0x00))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return curlx_dyn_add(store, val ? "TRUE" : "FALSE");
+  যদি((val != 0xff) && (val != 0x00))
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+  ফেরত curlx_dyn_add(store, val ? "TRUE" : "FALSE");
 }
 
 /*
@@ -247,30 +247,30 @@ static CURLcode bool2str(struct dynbuf *store,
  *
  * Return error code.
  */
-static CURLcode octet2str(struct dynbuf *store,
-                          const uint8_t *beg, const uint8_t *end)
+স্থির CURLcode octet2str(কাঠামো dynbuf *store,
+                          ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
-  while(!result && beg < end)
-    result = curlx_dyn_addf(store, "%02x:", *beg++);
+  যখন(!ফলাফল && beg < end)
+    ফলাফল = curlx_dyn_addf(store, "%02x:", *beg++);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode bit2str(struct dynbuf *store,
-                        const uint8_t *beg, const uint8_t *end)
+স্থির CURLcode bit2str(কাঠামো dynbuf *store,
+                        ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
   /* Convert an ASN.1 bit string to a printable string. */
 
-  if(beg < end) {
+  যদি(beg < end) {
     uint8_t unused_bits = *beg++;
-    if(unused_bits > 7)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    যদি(unused_bits > 7)
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return octet2str(store, beg, end);
+  অন্যথা
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+  ফেরত octet2str(store, beg, end);
 }
 
 /*
@@ -278,35 +278,35 @@ static CURLcode bit2str(struct dynbuf *store,
  *
  * Returns error.
  */
-static CURLcode int2str(struct dynbuf *store,
-                        const uint8_t *beg, const uint8_t *end)
+স্থির CURLcode int2str(কাঠামো dynbuf *store,
+                        ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
   uint32_t uval = 0;
   int32_t sval = 0;
   size_t n = end - beg;
   size_t i;
-  const uint8_t *p = beg;
+  ধ্রুবক uint8_t *p = beg;
 
-  if(!n)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(!n)
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(n > 4)
-    return octet2str(store, beg, end);
+  যদি(n > 4)
+    ফেরত octet2str(store, beg, end);
 
-  if(p[0] & 0x80)
+  যদি(p[0] & 0x80)
     uval = ~0U;
 
-  for(i = 0; i < n; i++)
+  জন্য(i = 0; i < n; i++)
     uval = (uval << 8) | p[i];
 
   sval = (int32_t)uval;
 
   /* small values are easier to read as decimals */
-  if(sval > -10000 && sval < 10000)
-    return curlx_dyn_addf(store, "%d", sval);
+  যদি(sval > -10000 && sval < 10000)
+    ফেরত curlx_dyn_addf(store, "%d", sval);
 
   /* represent larger values as hex */
-  return curlx_dyn_addf(store, "0x%x", uval);
+  ফেরত curlx_dyn_addf(store, "0x%x", uval);
 }
 
 /*
@@ -317,81 +317,81 @@ static CURLcode int2str(struct dynbuf *store,
  *
  * Returns error.
  */
-static CURLcode utf8asn1str(struct dynbuf *to, int type,
-                            const uint8_t *from, const uint8_t *end)
+স্থির CURLcode utf8asn1str(কাঠামো dynbuf *to, পূর্ণসংখ্যা type,
+                            ধ্রুবক uint8_t *from, ধ্রুবক uint8_t *end)
 {
   size_t inlength = end - from;
-  int size = 1;
-  CURLcode result = CURLE_OK;
+  পূর্ণসংখ্যা আকার_2 = 1;
+  CURLcode ফলাফল = CURLE_OK;
 
-  switch(type) {
-  case CURL_ASN1_BMP_STRING:
-    size = 2;
-    break;
-  case CURL_ASN1_UNIVERSAL_STRING:
-    size = 4;
-    break;
-  case CURL_ASN1_NUMERIC_STRING:
-  case CURL_ASN1_PRINTABLE_STRING:
-  case CURL_ASN1_TELETEX_STRING:
-  case CURL_ASN1_IA5_STRING:
-  case CURL_ASN1_VISIBLE_STRING:
-  case CURL_ASN1_UTF8_STRING:
-    break;
-  default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;  /* Conversion not supported. */
+  নির্বাচন(type) {
+  ক্ষেত্র CURL_ASN1_BMP_STRING:
+    আকার_2 = 2;
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_UNIVERSAL_STRING:
+    আকার_2 = 4;
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_NUMERIC_STRING:
+  ক্ষেত্র CURL_ASN1_PRINTABLE_STRING:
+  ক্ষেত্র CURL_ASN1_TELETEX_STRING:
+  ক্ষেত্র CURL_ASN1_IA5_STRING:
+  ক্ষেত্র CURL_ASN1_VISIBLE_STRING:
+  ক্ষেত্র CURL_ASN1_UTF8_STRING:
+    বিরতি;
+  পূর্বনির্ধারিত:
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;  /* Conversion not supported. */
   }
 
-  if(inlength % size)
+  যদি(inlength % আকার_2)
     /* Length inconsistent with character size. */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(type == CURL_ASN1_UTF8_STRING) {
+  যদি(type == CURL_ASN1_UTF8_STRING) {
     /* copy. */
-    if(inlength)
-      result = curlx_dyn_addn(to, from, inlength);
+    যদি(inlength)
+      ফলাফল = curlx_dyn_addn(to, from, inlength);
   }
-  else {
-    while(!result && (from < end)) {
-      char buf[4]; /* decode buffer */
+  অন্যথা {
+    যখন(!ফলাফল && (from < end)) {
+      অক্ষর buf[4]; /* decode buffer */
       size_t charsize = 1;
-      unsigned int wc = 0;
+      unsigned পূর্ণসংখ্যা wc = 0;
 
-      switch(size) {
-      case 4:
+      নির্বাচন(আকার_2) {
+      ক্ষেত্র 4:
         wc = (wc << 8) | *from++;
         wc = (wc << 8) | *from++;
         FALLTHROUGH();
-      case 2:
+      ক্ষেত্র 2:
         wc = (wc << 8) | *from++;
         FALLTHROUGH();
-      default: /* case 1: */
+      পূর্বনির্ধারিত: /* case 1: */
         wc = (wc << 8) | *from++;
       }
-      if(wc >= 0x00000080) {
-        if(wc >= 0x00000800) {
-          if(wc >= 0x00010000) {
-            if(wc >= 0x00200000) {
+      যদি(wc >= 0x00000080) {
+        যদি(wc >= 0x00000800) {
+          যদি(wc >= 0x00010000) {
+            যদি(wc >= 0x00200000) {
               /* Invalid char. size for target encoding. */
-              return CURLE_WEIRD_SERVER_REPLY;
+              ফেরত CURLE_WEIRD_SERVER_REPLY;
             }
-            buf[3] = (char)(0x80 | (wc & 0x3F));
+            buf[3] = (অক্ষর)(0x80 | (wc & 0x3F));
             wc = (wc >> 6) | 0x00010000;
             charsize++;
           }
-          buf[2] = (char)(0x80 | (wc & 0x3F));
+          buf[2] = (অক্ষর)(0x80 | (wc & 0x3F));
           wc = (wc >> 6) | 0x00000800;
           charsize++;
         }
-        buf[1] = (char)(0x80 | (wc & 0x3F));
+        buf[1] = (অক্ষর)(0x80 | (wc & 0x3F));
         wc = (wc >> 6) | 0x000000C0;
         charsize++;
       }
-      buf[0] = (char)wc;
-      result = curlx_dyn_addn(to, buf, charsize);
+      buf[0] = (অক্ষর)wc;
+      ফলাফল = curlx_dyn_addn(to, buf, charsize);
     }
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
@@ -405,63 +405,63 @@ static CURLcode utf8asn1str(struct dynbuf *to, int type,
  *
  * @unittest 1666
  */
-UNITTEST CURLcode encodeOID(struct dynbuf *store,
-                            const uint8_t *beg, const uint8_t *end);
-UNITTEST CURLcode encodeOID(struct dynbuf *store,
-                            const uint8_t *beg, const uint8_t *end)
+UNITTEST CURLcode encodeOID(কাঠামো dynbuf *store,
+                            ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end);
+UNITTEST CURLcode encodeOID(কাঠামো dynbuf *store,
+                            ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
   uint32_t x;
   uint32_t y;
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
-  if(end <= beg)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(end <= beg)
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* Process the first two numbers. The initial digit cannot be larger than
      2 */
   y = *beg++;
-  if(y <= 80)
+  যদি(y <= 80)
     x = y / 40;
-  else
+  অন্যথা
     x = 2;
-  result = curlx_dyn_addf(store, "%u", x);
-  if(result)
-    return result;
+  ফলাফল = curlx_dyn_addf(store, "%u", x);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
-  if(y & 0x80) {
+  যদি(y & 0x80) {
     uint32_t t = (y & 0x7f); /* the second number */
-    if(!t)
+    যদি(!t)
       /* reject leading 0x80 padding */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    do {
-      if((t & 0xFE000000) || (beg >= end))
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+    করো {
+      যদি((t & 0xFE000000) || (beg >= end))
+        ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
       y = *beg++;
       t = (t << 7) | (y & 0x7F);
-    } while(y & 0x80);
+    } যখন(y & 0x80);
     y = t;
   }
 
-  result = curlx_dyn_addf(store, ".%u", y - (x * 40));
-  if(result)
-    return result;
+  ফলাফল = curlx_dyn_addf(store, ".%u", y - (x * 40));
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
   /* Process the trailing numbers. */
-  while((beg < end) && !result) {
+  যখন((beg < end) && !ফলাফল) {
     x = 0;
     y = 0;
-    do {
+    করো {
       /* 0x80 as the first value is invalid since it only adds padding */
-      if((y & 0x80) && !x)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
-      else if((x & 0xFE000000) || (beg == end))
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+      যদি((y & 0x80) && !x)
+        ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+      অন্যথা যদি((x & 0xFE000000) || (beg == end))
+        ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
       y = *beg++;
       x = (x << 7) | (y & 0x7F);
-    } while(y & 0x80);
-    result = curlx_dyn_addf(store, ".%u", x);
+    } যখন(y & 0x80);
+    ফলাফল = curlx_dyn_addf(store, ".%u", x);
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
@@ -470,108 +470,108 @@ UNITTEST CURLcode encodeOID(struct dynbuf *store,
  * Return error code.
  */
 
-static CURLcode OID2str(struct dynbuf *store,
-                        const uint8_t *beg, const uint8_t *end)
+স্থির CURLcode OID2str(কাঠামো dynbuf *store,
+                        ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
-  CURLcode result = CURLE_OK;
-  if(beg < end) {
-    struct dynbuf buf;
+  CURLcode ফলাফল = CURLE_OK;
+  যদি(beg < end) {
+    কাঠামো dynbuf buf;
     curlx_dyn_init(&buf, CURL_X509_STR_MAX);
-    result = encodeOID(&buf, beg, end);
+    ফলাফল = encodeOID(&buf, beg, end);
 
-    if(!result) {
-      const struct Curl_OID *op = searchOID(curlx_dyn_ptr(&buf));
-      if(op)
-        result = curlx_dyn_add(store, op->textoid);
-      else
-        result = curlx_dyn_add(store, curlx_dyn_ptr(&buf));
+    যদি(!ফলাফল) {
+      ধ্রুবক কাঠামো Curl_OID *op = অনুসন্ধান_OID(curlx_dyn_ptr(&buf));
+      যদি(op)
+        ফলাফল = curlx_dyn_add(store, op->textoid);
+      অন্যথা
+        ফলাফল = curlx_dyn_add(store, curlx_dyn_ptr(&buf));
     }
     curlx_dyn_free(&buf);
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
  * @unittest 1656
  */
-UNITTEST CURLcode GTime2str(struct dynbuf *store,
-                            const char *beg, const char *end);
-UNITTEST CURLcode GTime2str(struct dynbuf *store,
-                            const char *beg, const char *end)
+UNITTEST CURLcode GTime2str(কাঠামো dynbuf *store,
+                            ধ্রুবক অক্ষর *beg, ধ্রুবক অক্ষর *end);
+UNITTEST CURLcode GTime2str(কাঠামো dynbuf *store,
+                            ধ্রুবক অক্ষর *beg, ধ্রুবক অক্ষর *end)
 {
-  const char *tzp;
-  const char *fracp;
-  char sec1, sec2;
+  ধ্রুবক অক্ষর *tzp;
+  ধ্রুবক অক্ষর *fracp;
+  অক্ষর sec1, sec2;
   size_t fracl;
   size_t tzl;
-  const char *sep = "";
+  ধ্রুবক অক্ষর *sep = "";
 
   /* Convert an ASN.1 Generalized time to a printable string.
      Return the dynamically allocated string, or NULL if an error occurs. */
 
-  for(fracp = beg; fracp < end && ISDIGIT(*fracp); fracp++)
+  জন্য(fracp = beg; fracp < end && ISDIGIT(*fracp); fracp++)
     ;
 
   /* Get seconds digits. */
   sec1 = '0';
-  switch(fracp - beg - 12) {
-  case 0:
+  নির্বাচন(fracp - beg - 12) {
+  ক্ষেত্র 0:
     sec2 = '0';
-    break;
-  case 2:
+    বিরতি;
+  ক্ষেত্র 2:
     sec1 = fracp[-2];
     FALLTHROUGH();
-  case 1:
+  ক্ষেত্র 1:
     sec2 = fracp[-1];
-    break;
-  default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    বিরতি;
+  পূর্বনির্ধারিত:
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   /* timezone follows optional fractional seconds. */
   tzp = fracp;
   fracl = 0; /* no fractional seconds detected so far */
-  if(fracp < end && (*fracp == '.' || *fracp == ',')) {
+  যদি(fracp < end && (*fracp == '.' || *fracp == ',')) {
     /* Have fractional seconds, e.g. "[.,]\d+". How many? */
     fracp++; /* should be a digit char or BAD ARGUMENT */
     tzp = fracp;
-    while(tzp < end && ISDIGIT(*tzp))
+    যখন(tzp < end && ISDIGIT(*tzp))
       tzp++;
-    if(tzp == fracp) /* never looped, no digit after [.,] */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    যদি(tzp == fracp) /* never looped, no digit after [.,] */
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
     fracl = tzp - fracp; /* number of fractional sec digits */
     DEBUGASSERT(fracl > 0);
     /* Strip trailing zeroes in fractional seconds.
      * May reduce fracl to 0 if only '0's are present. */
-    while(fracl && fracp[fracl - 1] == '0')
+    যখন(fracl && fracp[fracl - 1] == '0')
       fracl--;
   }
 
   /* Process timezone. */
-  if(tzp >= end) {
+  যদি(tzp >= end) {
     tzp = "";
     tzl = 0;
   }
-  else if(*tzp == 'Z') {
+  অন্যথা যদি(*tzp == 'Z') {
     sep = " ";
     tzp = "GMT";
     tzl = 3;
   }
-  else if((*tzp == '+') || (*tzp == '-')) {
+  অন্যথা যদি((*tzp == '+') || (*tzp == '-')) {
     sep = " UTC";
     tzl = end - tzp;
   }
-  else {
+  অন্যথা {
     sep = " ";
     tzl = end - tzp;
   }
 
-  return curlx_dyn_addf(store,
+  ফেরত curlx_dyn_addf(store,
                         "%.4s-%.2s-%.2s %.2s:%.2s:%c%c%s%.*s%s%.*s",
                         beg, beg + 4, beg + 6,
                         beg + 8, beg + 10, sec1, sec2,
-                        fracl ? "." : "", (int)fracl, fracp,
-                        sep, (int)tzl, tzp);
+                        fracl ? "." : "", (পূর্ণসংখ্যা)fracl, fracp,
+                        sep, (পূর্ণসংখ্যা)tzl, tzp);
 }
 
 /*
@@ -579,40 +579,40 @@ UNITTEST CURLcode GTime2str(struct dynbuf *store,
  *
  * Return error code.
  */
-static CURLcode UTime2str(struct dynbuf *store,
-                          const char *beg, const char *end)
+স্থির CURLcode UTime2str(কাঠামো dynbuf *store,
+                          ধ্রুবক অক্ষর *beg, ধ্রুবক অক্ষর *end)
 {
-  const char *tzp;
+  ধ্রুবক অক্ষর *tzp;
   size_t tzl;
-  const char *sec;
+  ধ্রুবক অক্ষর *sec;
 
-  for(tzp = beg; tzp < end && *tzp >= '0' && *tzp <= '9'; tzp++)
+  জন্য(tzp = beg; tzp < end && *tzp >= '0' && *tzp <= '9'; tzp++)
     ;
   /* Get the seconds. */
   sec = beg + 10;
-  switch(tzp - sec) {
-  case 0:
+  নির্বাচন(tzp - sec) {
+  ক্ষেত্র 0:
     sec = "00";
     FALLTHROUGH();
-  case 2:
-    break;
-  default:
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ক্ষেত্র 2:
+    বিরতি;
+  পূর্বনির্ধারিত:
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   /* Process timezone. */
-  if(tzp >= end)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(*tzp == 'Z') {
+  যদি(tzp >= end)
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(*tzp == 'Z') {
     tzp = "GMT";
     end = tzp + 3;
   }
 
   tzl = end - tzp;
-  return curlx_dyn_addf(store, "%d%.2s-%.2s-%.2s %.2s:%.2s:%.2s %.*s",
+  ফেরত curlx_dyn_addf(store, "%d%.2s-%.2s-%.2s %.2s:%.2s:%.2s %.*s",
                         20 - (*beg >= '5'), beg, beg + 2, beg + 4,
                         beg + 6, beg + 8, sec,
-                        (int)tzl, tzp);
+                        (পূর্ণসংখ্যা)tzl, tzp);
 }
 
 /*
@@ -622,57 +622,57 @@ static CURLcode UTime2str(struct dynbuf *store,
  *
  * @unittest 1667
  */
-UNITTEST CURLcode ASN1tostr(struct dynbuf *store,
-                            struct Curl_asn1Element *elem);
-UNITTEST CURLcode ASN1tostr(struct dynbuf *store,
-                            struct Curl_asn1Element *elem)
+UNITTEST CURLcode ASN1tostr(কাঠামো dynbuf *store,
+                            কাঠামো Curl_asn1Element *elem);
+UNITTEST CURLcode ASN1tostr(কাঠামো dynbuf *store,
+                            কাঠামো Curl_asn1Element *elem)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  int type = elem->tag;
-  if(elem->constructed)
-    return result; /* No conversion of structured elements. */
+  CURLcode ফলাফল = CURLE_BAD_FUNCTION_ARGUMENT;
+  পূর্ণসংখ্যা type = elem->tag;
+  যদি(elem->constructed)
+    ফেরত ফলাফল; /* No conversion of structured elements. */
 
-  switch(type) {
-  case CURL_ASN1_BOOLEAN:
-    result = bool2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_INTEGER:
-  case CURL_ASN1_ENUMERATED:
-    result = int2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_BIT_STRING:
-    result = bit2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_OCTET_STRING:
-    result = octet2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_NULL:
-    result = curlx_dyn_addn(store, "", 1);
-    break;
-  case CURL_ASN1_OBJECT_IDENTIFIER:
-    result = OID2str(store, elem->beg, elem->end);
-    break;
-  case CURL_ASN1_UTC_TIME:
-    result = UTime2str(store, (const char *)elem->beg,
-                       (const char *)elem->end);
-    break;
-  case CURL_ASN1_GENERALIZED_TIME:
-    result = GTime2str(store, (const char *)elem->beg,
-                       (const char *)elem->end);
-    break;
-  case CURL_ASN1_UTF8_STRING:
-  case CURL_ASN1_NUMERIC_STRING:
-  case CURL_ASN1_PRINTABLE_STRING:
-  case CURL_ASN1_TELETEX_STRING:
-  case CURL_ASN1_IA5_STRING:
-  case CURL_ASN1_VISIBLE_STRING:
-  case CURL_ASN1_UNIVERSAL_STRING:
-  case CURL_ASN1_BMP_STRING:
-    result = utf8asn1str(store, type, elem->beg, elem->end);
-    break;
+  নির্বাচন(type) {
+  ক্ষেত্র CURL_ASN1_BOOLEAN:
+    ফলাফল = bool2str(store, elem->beg, elem->end);
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_INTEGER:
+  ক্ষেত্র CURL_ASN1_ENUMERATED:
+    ফলাফল = int2str(store, elem->beg, elem->end);
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_BIT_STRING:
+    ফলাফল = bit2str(store, elem->beg, elem->end);
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_OCTET_STRING:
+    ফলাফল = octet2str(store, elem->beg, elem->end);
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_NULL:
+    ফলাফল = curlx_dyn_addn(store, "", 1);
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_OBJECT_IDENTIFIER:
+    ফলাফল = OID2str(store, elem->beg, elem->end);
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_UTC_TIME:
+    ফলাফল = UTime2str(store, (ধ্রুবক অক্ষর *)elem->beg,
+                       (ধ্রুবক অক্ষর *)elem->end);
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_GENERALIZED_TIME:
+    ফলাফল = GTime2str(store, (ধ্রুবক অক্ষর *)elem->beg,
+                       (ধ্রুবক অক্ষর *)elem->end);
+    বিরতি;
+  ক্ষেত্র CURL_ASN1_UTF8_STRING:
+  ক্ষেত্র CURL_ASN1_NUMERIC_STRING:
+  ক্ষেত্র CURL_ASN1_PRINTABLE_STRING:
+  ক্ষেত্র CURL_ASN1_TELETEX_STRING:
+  ক্ষেত্র CURL_ASN1_IA5_STRING:
+  ক্ষেত্র CURL_ASN1_VISIBLE_STRING:
+  ক্ষেত্র CURL_ASN1_UNIVERSAL_STRING:
+  ক্ষেত্র CURL_ASN1_BMP_STRING:
+    ফলাফল = utf8asn1str(store, type, elem->beg, elem->end);
+    বিরতি;
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
@@ -680,89 +680,89 @@ UNITTEST CURLcode ASN1tostr(struct dynbuf *store,
  *
  * Returns error.
  */
-static CURLcode encodeDN(struct dynbuf *store, struct Curl_asn1Element *dn)
+স্থির CURLcode encodeDN(কাঠামো dynbuf *store, কাঠামো Curl_asn1Element *dn)
 {
-  struct Curl_asn1Element rdn;
-  struct Curl_asn1Element atv;
-  struct Curl_asn1Element oid;
-  struct Curl_asn1Element value;
-  const uint8_t *p1;
-  const uint8_t *p2;
-  const uint8_t *p3;
-  const uint8_t *str;
-  CURLcode result = CURLE_OK;
+  কাঠামো Curl_asn1Element rdn;
+  কাঠামো Curl_asn1Element atv;
+  কাঠামো Curl_asn1Element oid;
+  কাঠামো Curl_asn1Element মান;
+  ধ্রুবক uint8_t *p1;
+  ধ্রুবক uint8_t *p2;
+  ধ্রুবক uint8_t *p3;
+  ধ্রুবক uint8_t *str;
+  CURLcode ফলাফল = CURLE_OK;
   bool added = FALSE;
-  struct dynbuf temp;
-  curlx_dyn_init(&temp, CURL_X509_STR_MAX);
+  কাঠামো dynbuf অস্থায়ী;
+  curlx_dyn_init(&অস্থায়ী, CURL_X509_STR_MAX);
 
-  for(p1 = dn->beg; p1 < dn->end;) {
+  জন্য(p1 = dn->beg; p1 < dn->end;) {
     p1 = getASN1Element(&rdn, p1, dn->end);
-    if(!p1) {
-      result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto error;
+    যদি(!p1) {
+      ফলাফল = CURLE_BAD_FUNCTION_ARGUMENT;
+      যাও error;
     }
-    for(p2 = rdn.beg; p2 < rdn.end;) {
+    জন্য(p2 = rdn.beg; p2 < rdn.end;) {
       p2 = getASN1Element(&atv, p2, rdn.end);
-      if(!p2) {
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto error;
+      যদি(!p2) {
+        ফলাফল = CURLE_BAD_FUNCTION_ARGUMENT;
+        যাও error;
       }
       p3 = getASN1Element(&oid, atv.beg, atv.end);
-      if(!p3) {
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto error;
+      যদি(!p3) {
+        ফলাফল = CURLE_BAD_FUNCTION_ARGUMENT;
+        যাও error;
       }
-      if(!getASN1Element(&value, p3, atv.end)) {
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto error;
+      যদি(!getASN1Element(&মান, p3, atv.end)) {
+        ফলাফল = CURLE_BAD_FUNCTION_ARGUMENT;
+        যাও error;
       }
-      curlx_dyn_reset(&temp);
-      result = ASN1tostr(&temp, &oid);
-      if(result)
-        goto error;
+      curlx_dyn_reset(&অস্থায়ী);
+      ফলাফল = ASN1tostr(&অস্থায়ী, &oid);
+      যদি(ফলাফল)
+        যাও error;
 
-      str = curlx_dyn_uptr(&temp);
+      str = curlx_dyn_uptr(&অস্থায়ী);
 
-      if(!str) {
-        result = CURLE_BAD_FUNCTION_ARGUMENT;
-        goto error;
+      যদি(!str) {
+        ফলাফল = CURLE_BAD_FUNCTION_ARGUMENT;
+        যাও error;
       }
 
       /* Encode delimiter.
          If attribute has a short uppercase name, delimiter is ", ". */
-      for(p3 = str; ISUPPER(*p3); p3++)
+      জন্য(p3 = str; ISUPPER(*p3); p3++)
         ;
-      if(added) {
-        if(p3 - str > 2)
-          result = curlx_dyn_addn(store, "/", 1);
-        else
-          result = curlx_dyn_addn(store, ", ", 2);
-        if(result)
-          goto error;
+      যদি(added) {
+        যদি(p3 - str > 2)
+          ফলাফল = curlx_dyn_addn(store, "/", 1);
+        অন্যথা
+          ফলাফল = curlx_dyn_addn(store, ", ", 2);
+        যদি(ফলাফল)
+          যাও error;
       }
 
       /* Encode attribute name. */
-      result = curlx_dyn_add(store, (const char *)str);
-      if(result)
-        goto error;
+      ফলাফল = curlx_dyn_add(store, (ধ্রুবক অক্ষর *)str);
+      যদি(ফলাফল)
+        যাও error;
 
       /* Generate equal sign. */
-      result = curlx_dyn_addn(store, "=", 1);
-      if(result)
-        goto error;
+      ফলাফল = curlx_dyn_addn(store, "=", 1);
+      যদি(ফলাফল)
+        যাও error;
 
       /* Generate value. */
-      result = ASN1tostr(store, &value);
-      if(result)
-        goto error;
-      curlx_dyn_reset(&temp);
+      ফলাফল = ASN1tostr(store, &মান);
+      যদি(ফলাফল)
+        যাও error;
+      curlx_dyn_reset(&অস্থায়ী);
       added = TRUE; /* use separator for next */
     }
   }
 error:
-  curlx_dyn_free(&temp);
+  curlx_dyn_free(&অস্থায়ী);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 #endif /* WANT_EXTRACT_CERTINFO */
@@ -773,162 +773,162 @@ error:
  * Syntax is assumed to have already been checked by the SSL backend.
  * See RFC 5280.
  */
-int Curl_parseX509(struct Curl_X509certificate *cert,
-                   const uint8_t *beg, const uint8_t *end)
+পূর্ণসংখ্যা Curl_parseX509(কাঠামো Curl_X509certificate *cert,
+                   ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
-  struct Curl_asn1Element elem;
-  struct Curl_asn1Element tbsCertificate;
-  const uint8_t *ccp;
-  static const uint8_t defaultVersion = 0;  /* v1. */
+  কাঠামো Curl_asn1Element elem;
+  কাঠামো Curl_asn1Element tbsCertificate;
+  ধ্রুবক uint8_t *ccp;
+  স্থির ধ্রুবক uint8_t defaultVersion = 0;  /* v1. */
 
-  memset(cert, 0, sizeof(*cert));
-  cert->certificate.header = NULL;
+  memset(cert, 0, আকার(*cert));
+  cert->certificate.header = ফাঁকা;
   cert->certificate.beg = beg;
   cert->certificate.end = end;
 
   /* Get the sequence content. */
-  if(!getASN1Element(&elem, beg, end))
-    return -1;  /* Invalid bounds/size. */
+  যদি(!getASN1Element(&elem, beg, end))
+    ফেরত -1;  /* Invalid bounds/size. */
   beg = elem.beg;
   end = elem.end;
 
   /* Get tbsCertificate. */
   beg = getASN1Element(&tbsCertificate, beg, end);
-  if(!beg)
-    return -1;
+  যদি(!beg)
+    ফেরত -1;
   /* Skip the signatureAlgorithm. */
   beg = getASN1Element(&cert->signatureAlgorithm, beg, end);
-  if(!beg)
-    return -1;
+  যদি(!beg)
+    ফেরত -1;
   /* Get the signatureValue. */
-  if(!getASN1Element(&cert->signature, beg, end))
-    return -1;
+  যদি(!getASN1Element(&cert->signature, beg, end))
+    ফেরত -1;
 
   /* Parse TBSCertificate. */
   beg = tbsCertificate.beg;
   end = tbsCertificate.end;
   /* Get optional version, get serialNumber. */
-  cert->version.header = NULL;
+  cert->version.header = ফাঁকা;
   cert->version.beg = &defaultVersion;
-  cert->version.end = &defaultVersion + sizeof(defaultVersion);
+  cert->version.end = &defaultVersion + আকার(defaultVersion);
   beg = getASN1Element(&elem, beg, end);
-  if(!beg)
-    return -1;
-  if(elem.tag == 0) {
-    if(!getASN1Element(&cert->version, elem.beg, elem.end))
-      return -1;
+  যদি(!beg)
+    ফেরত -1;
+  যদি(elem.tag == 0) {
+    যদি(!getASN1Element(&cert->version, elem.beg, elem.end))
+      ফেরত -1;
     beg = getASN1Element(&elem, beg, end);
-    if(!beg)
-      return -1;
+    যদি(!beg)
+      ফেরত -1;
   }
-  cert->serialNumber = elem;
+  cert->serial_সংখ্যা = elem;
   /* Get signature algorithm. */
   beg = getASN1Element(&cert->signatureAlgorithm, beg, end);
   /* Get issuer. */
   beg = getASN1Element(&cert->issuer, beg, end);
-  if(!beg)
-    return -1;
+  যদি(!beg)
+    ফেরত -1;
   /* Get notBefore and notAfter. */
   beg = getASN1Element(&elem, beg, end);
-  if(!beg)
-    return -1;
+  যদি(!beg)
+    ফেরত -1;
   ccp = getASN1Element(&cert->notBefore, elem.beg, elem.end);
-  if(!ccp)
-    return -1;
-  if(!getASN1Element(&cert->notAfter, ccp, elem.end))
-    return -1;
+  যদি(!ccp)
+    ফেরত -1;
+  যদি(!getASN1Element(&cert->notAfter, ccp, elem.end))
+    ফেরত -1;
   /* These two fields MUST consume all of the validity elem */
-  if(elem.end != cert->notAfter.end)
-    return -1;
+  যদি(elem.end != cert->notAfter.end)
+    ফেরত -1;
   /* Get subject. */
   beg = getASN1Element(&cert->subject, beg, end);
-  if(!beg)
-    return -1;
+  যদি(!beg)
+    ফেরত -1;
   /* Get subjectPublicKeyAlgorithm and subjectPublicKey. */
-  beg = getASN1Element(&cert->subjectPublicKeyInfo, beg, end);
-  if(!beg)
-    return -1;
-  ccp = getASN1Element(&cert->subjectPublicKeyAlgorithm,
-                       cert->subjectPublicKeyInfo.beg,
-                       cert->subjectPublicKeyInfo.end);
-  if(!ccp)
-    return -1;
-  if(!getASN1Element(&cert->subjectPublicKey, ccp,
-                     cert->subjectPublicKeyInfo.end))
-    return -1;
+  beg = getASN1Element(&cert->subject_Public_চাবি_Info, beg, end);
+  যদি(!beg)
+    ফেরত -1;
+  ccp = getASN1Element(&cert->subject_Public_চাবি_Algorithm,
+                       cert->subject_Public_চাবি_Info.beg,
+                       cert->subject_Public_চাবি_Info.end);
+  যদি(!ccp)
+    ফেরত -1;
+  যদি(!getASN1Element(&cert->subject_Public_চাবি, ccp,
+                     cert->subject_Public_চাবি_Info.end))
+    ফেরত -1;
   /* Get optional issuerUniqueID, subjectUniqueID and extensions. */
   cert->issuerUniqueID.tag = cert->subjectUniqueID.tag = 0;
   cert->extensions.tag = elem.tag = 0;
-  cert->issuerUniqueID.header = cert->subjectUniqueID.header = NULL;
+  cert->issuerUniqueID.header = cert->subjectUniqueID.header = ফাঁকা;
   cert->issuerUniqueID.beg = cert->issuerUniqueID.end = beg;
   cert->subjectUniqueID.beg = cert->subjectUniqueID.end = beg;
-  cert->extensions.header = NULL;
+  cert->extensions.header = ফাঁকা;
   cert->extensions.beg = cert->extensions.end = beg;
-  if(beg < end) {
+  যদি(beg < end) {
     beg = getASN1Element(&elem, beg, end);
-    if(!beg)
-      return -1;
+    যদি(!beg)
+      ফেরত -1;
   }
-  if(elem.tag == 1) {
+  যদি(elem.tag == 1) {
     cert->issuerUniqueID = elem;
-    if(beg < end) {
+    যদি(beg < end) {
       beg = getASN1Element(&elem, beg, end);
-      if(!beg)
-        return -1;
+      যদি(!beg)
+        ফেরত -1;
     }
   }
-  if(elem.tag == 2) {
+  যদি(elem.tag == 2) {
     cert->subjectUniqueID = elem;
-    if(beg < end) {
+    যদি(beg < end) {
       beg = getASN1Element(&elem, beg, end);
-      if(!beg)
-        return -1;
+      যদি(!beg)
+        ফেরত -1;
     }
   }
-  if(elem.tag == 3)
-    if(!getASN1Element(&cert->extensions, elem.beg, elem.end))
-      return -1;
-  return 0;
+  যদি(elem.tag == 3)
+    যদি(!getASN1Element(&cert->extensions, elem.beg, elem.end))
+      ফেরত -1;
+  ফেরত 0;
 }
 
 #endif /* WANT_PARSEX509 */
 
 #ifdef WANT_EXTRACT_CERTINFO
 
-static CURLcode dumpAlgo(struct dynbuf *store,
-                         struct Curl_asn1Element *param,
-                         const uint8_t *beg, const uint8_t *end)
+স্থির CURLcode dumpAlgo(কাঠামো dynbuf *store,
+                         কাঠামো Curl_asn1Element *param,
+                         ধ্রুবক uint8_t *beg, ধ্রুবক uint8_t *end)
 {
-  struct Curl_asn1Element oid;
+  কাঠামো Curl_asn1Element oid;
 
   /* Get algorithm parameters and return algorithm name. */
 
   beg = getASN1Element(&oid, beg, end);
-  if(!beg)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  param->header = NULL;
+  যদি(!beg)
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+  param->header = ফাঁকা;
   param->tag = 0;
   param->beg = param->end = end;
-  if(beg < end) {
-    const uint8_t *p = getASN1Element(param, beg, end);
-    if(!p)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(beg < end) {
+    ধ্রুবক uint8_t *p = getASN1Element(param, beg, end);
+    যদি(!p)
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  return OID2str(store, oid.beg, oid.end);
+  ফেরত OID2str(store, oid.beg, oid.end);
 }
 
 /*
  * This is a convenience function for push_certinfo_len that takes a zero
  * terminated value.
  */
-static CURLcode ssl_push_certinfo(struct Curl_easy *data,
-                                  int certnum,
-                                  const char *label,
-                                  const char *value)
+স্থির CURLcode ssl_ঠেলো_certinfo(কাঠামো Curl_easy *তথ্য,
+                                  পূর্ণসংখ্যা certnum,
+                                  ধ্রুবক অক্ষর *label,
+                                  ধ্রুবক অক্ষর *মান)
 {
-  size_t valuelen = strlen(value);
+  size_t valuelen = strlen(মান);
 
-  return Curl_ssl_push_certinfo_len(data, certnum, label, value, valuelen);
+  ফেরত Curl_ssl_ঠেলো_certinfo_len(তথ্য, certnum, label, মান, valuelen);
 }
 
 /*
@@ -937,301 +937,301 @@ static CURLcode ssl_push_certinfo(struct Curl_easy *data,
  *
  * It also does the verbose output if !certnum.
  */
-static CURLcode ssl_push_certinfo_dyn(struct Curl_easy *data,
-                                      int certnum,
-                                      const char *label,
-                                      struct dynbuf *ptr)
+স্থির CURLcode ssl_ঠেলো_certinfo_dyn(কাঠামো Curl_easy *তথ্য,
+                                      পূর্ণসংখ্যা certnum,
+                                      ধ্রুবক অক্ষর *label,
+                                      কাঠামো dynbuf *ptr)
 {
   size_t valuelen = curlx_dyn_len(ptr);
-  const char *value = curlx_dyn_ptr(ptr);
+  ধ্রুবক অক্ষর *মান = curlx_dyn_ptr(ptr);
 
-  CURLcode result = Curl_ssl_push_certinfo_len(data, certnum, label,
-                                               value, valuelen);
+  CURLcode ফলাফল = Curl_ssl_ঠেলো_certinfo_len(তথ্য, certnum, label,
+                                               মান, valuelen);
 
-  if(!certnum && !result)
-    infof(data, "   %s: %s", label, value);
+  যদি(!certnum && !ফলাফল)
+    infof(তথ্য, "   %s: %s", label, মান);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode do_pubkey_field(struct Curl_easy *data, int certnum,
-                                const char *label,
-                                struct Curl_asn1Element *elem)
+স্থির CURLcode do_pubkey_field(কাঠামো Curl_easy *তথ্য, পূর্ণসংখ্যা certnum,
+                                ধ্রুবক অক্ষর *label,
+                                কাঠামো Curl_asn1Element *elem)
 {
-  CURLcode result;
-  struct dynbuf out;
+  CURLcode ফলাফল;
+  কাঠামো dynbuf out;
 
   curlx_dyn_init(&out, CURL_X509_STR_MAX);
 
   /* Generate a certificate information record for the public key. */
 
-  result = ASN1tostr(&out, elem);
-  if(!result && data->set.ssl.certinfo)
-    result = ssl_push_certinfo_dyn(data, certnum, label, &out);
+  ফলাফল = ASN1tostr(&out, elem);
+  যদি(!ফলাফল && তথ্য->set.ssl.certinfo)
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, label, &out);
   curlx_dyn_free(&out);
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* return 0 on success, 1 on error */
-static int do_pubkey(struct Curl_easy *data, int certnum, const char *algo,
-                     struct Curl_asn1Element *param,
-                     struct Curl_asn1Element *pubkey)
+স্থির পূর্ণসংখ্যা do_pubkey(কাঠামো Curl_easy *তথ্য, পূর্ণসংখ্যা certnum, ধ্রুবক অক্ষর *algo,
+                     কাঠামো Curl_asn1Element *param,
+                     কাঠামো Curl_asn1Element *pubkey)
 {
-  struct Curl_asn1Element elem;
-  struct Curl_asn1Element pk;
-  const uint8_t *p;
+  কাঠামো Curl_asn1Element elem;
+  কাঠামো Curl_asn1Element pk;
+  ধ্রুবক uint8_t *p;
 
   /* Generate all information records for the public key. */
 
-  if(curl_strequal(algo, "ecPublicKey")) {
+  যদি(curl_strequal(algo, "ecPublicKey")) {
     /*
      * ECC public key is all the data, a value of type BIT STRING mapped to
      * OCTET STRING and should not be parsed as an ASN.1 value.
      */
-    const size_t dlen = pubkey->end - pubkey->beg;
+    ধ্রুবক size_t dlen = pubkey->end - pubkey->beg;
     size_t len;
-    if(dlen < 2)
+    যদি(dlen < 2)
       /* too small */
-      return 1;
+      ফেরত 1;
     len = (dlen - 2) * 4;
-    if(!certnum)
-      infof(data, "   ECC Public Key (%zu bits)", len);
-    if(data->set.ssl.certinfo) {
-      char q[(sizeof(len) * 8 / 3) + 1];
-      (void)curl_msnprintf(q, sizeof(q), "%zu", len);
-      if(ssl_push_certinfo(data, certnum, "ECC Public Key", q))
-        return 1;
+    যদি(!certnum)
+      infof(তথ্য, "   ECC Public Key (%zu bits)", len);
+    যদি(তথ্য->set.ssl.certinfo) {
+      অক্ষর q[(আকার(len) * 8 / 3) + 1];
+      (শূন্য)curl_msnprintf(q, আকার(q), "%zu", len);
+      যদি(ssl_ঠেলো_certinfo(তথ্য, certnum, "ECC Public Key", q))
+        ফেরত 1;
     }
-    return do_pubkey_field(data, certnum, "ecPublicKey", pubkey) == CURLE_OK
+    ফেরত do_pubkey_field(তথ্য, certnum, "ecPublicKey", pubkey) == CURLE_OK
       ? 0 : 1;
   }
 
   /* Get the public key (single element). */
-  if(!getASN1Element(&pk, pubkey->beg + 1, pubkey->end))
-    return 1;
+  যদি(!getASN1Element(&pk, pubkey->beg + 1, pubkey->end))
+    ফেরত 1;
 
-  if(curl_strequal(algo, "rsaEncryption")) {
-    const uint8_t *q;
+  যদি(curl_strequal(algo, "rsaEncryption")) {
+    ধ্রুবক uint8_t *q;
     size_t len;
 
     p = getASN1Element(&elem, pk.beg, pk.end);
-    if(!p)
-      return 1;
+    যদি(!p)
+      ফেরত 1;
 
     /* Compute key length. */
-    for(q = elem.beg; q < elem.end && !*q; q++)
+    জন্য(q = elem.beg; q < elem.end && !*q; q++)
       ;
     len = ((elem.end - q) * 8);
-    if(len) {
-      unsigned int i;
-      for(i = *q; !(i & 0x80); i <<= 1)
+    যদি(len) {
+      unsigned পূর্ণসংখ্যা i;
+      জন্য(i = *q; !(i & 0x80); i <<= 1)
         len--;
     }
-    if(len > 32)
+    যদি(len > 32)
       elem.beg = q;     /* Strip leading zero bytes. */
-    if(!certnum)
-      infof(data, "   RSA Public Key (%zu bits)", len);
-    if(data->set.ssl.certinfo) {
-      char r[(sizeof(len) * 8 / 3) + 1];
-      curl_msnprintf(r, sizeof(r), "%zu", len);
-      if(ssl_push_certinfo(data, certnum, "RSA Public Key", r))
-        return 1;
+    যদি(!certnum)
+      infof(তথ্য, "   RSA Public Key (%zu bits)", len);
+    যদি(তথ্য->set.ssl.certinfo) {
+      অক্ষর r[(আকার(len) * 8 / 3) + 1];
+      curl_msnprintf(r, আকার(r), "%zu", len);
+      যদি(ssl_ঠেলো_certinfo(তথ্য, certnum, "RSA Public Key", r))
+        ফেরত 1;
     }
     /* Generate coefficients. */
-    if(do_pubkey_field(data, certnum, "rsa(n)", &elem))
-      return 1;
-    if(!getASN1Element(&elem, p, pk.end))
-      return 1;
-    if(do_pubkey_field(data, certnum, "rsa(e)", &elem))
-      return 1;
+    যদি(do_pubkey_field(তথ্য, certnum, "rsa(n)", &elem))
+      ফেরত 1;
+    যদি(!getASN1Element(&elem, p, pk.end))
+      ফেরত 1;
+    যদি(do_pubkey_field(তথ্য, certnum, "rsa(e)", &elem))
+      ফেরত 1;
   }
-  else if(curl_strequal(algo, "dsa")) {
+  অন্যথা যদি(curl_strequal(algo, "dsa")) {
     p = getASN1Element(&elem, param->beg, param->end);
-    if(p) {
-      if(do_pubkey_field(data, certnum, "dsa(p)", &elem))
-        return 1;
+    যদি(p) {
+      যদি(do_pubkey_field(তথ্য, certnum, "dsa(p)", &elem))
+        ফেরত 1;
       p = getASN1Element(&elem, p, param->end);
-      if(p) {
-        if(do_pubkey_field(data, certnum, "dsa(q)", &elem))
-          return 1;
-        if(getASN1Element(&elem, p, param->end)) {
-          if(do_pubkey_field(data, certnum, "dsa(g)", &elem))
-            return 1;
-          if(do_pubkey_field(data, certnum, "dsa(pub_key)", &pk))
-            return 1;
+      যদি(p) {
+        যদি(do_pubkey_field(তথ্য, certnum, "dsa(q)", &elem))
+          ফেরত 1;
+        যদি(getASN1Element(&elem, p, param->end)) {
+          যদি(do_pubkey_field(তথ্য, certnum, "dsa(g)", &elem))
+            ফেরত 1;
+          যদি(do_pubkey_field(তথ্য, certnum, "dsa(pub_key)", &pk))
+            ফেরত 1;
         }
       }
     }
   }
-  else if(curl_strequal(algo, "dhpublicnumber")) {
+  অন্যথা যদি(curl_strequal(algo, "dhpublicnumber")) {
     p = getASN1Element(&elem, param->beg, param->end);
-    if(p) {
-      if(do_pubkey_field(data, certnum, "dh(p)", &elem))
-        return 1;
-      if(getASN1Element(&elem, p, param->end)) {
-        if(do_pubkey_field(data, certnum, "dh(g)", &elem))
-          return 1;
-        if(do_pubkey_field(data, certnum, "dh(pub_key)", &pk))
-          return 1;
+    যদি(p) {
+      যদি(do_pubkey_field(তথ্য, certnum, "dh(p)", &elem))
+        ফেরত 1;
+      যদি(getASN1Element(&elem, p, param->end)) {
+        যদি(do_pubkey_field(তথ্য, certnum, "dh(g)", &elem))
+          ফেরত 1;
+        যদি(do_pubkey_field(তথ্য, certnum, "dh(pub_key)", &pk))
+          ফেরত 1;
       }
     }
   }
-  return 0;
+  ফেরত 0;
 }
 
 /*
  * Convert an ASN.1 distinguished name into a printable string.
  * Return error.
  */
-static CURLcode DNtostr(struct dynbuf *store, struct Curl_asn1Element *dn)
+স্থির CURLcode DNtostr(কাঠামো dynbuf *store, কাঠামো Curl_asn1Element *dn)
 {
-  return encodeDN(store, dn);
+  ফেরত encodeDN(store, dn);
 }
 
-CURLcode Curl_extract_certinfo(struct Curl_easy *data,
-                               int certnum,
-                               const uint8_t *beg,
-                               const uint8_t *end)
+CURLcode Curl_extract_certinfo(কাঠামো Curl_easy *তথ্য,
+                               পূর্ণসংখ্যা certnum,
+                               ধ্রুবক uint8_t *beg,
+                               ধ্রুবক uint8_t *end)
 {
-  struct Curl_X509certificate cert;
-  struct Curl_asn1Element param;
-  char *certptr;
+  কাঠামো Curl_X509certificate cert;
+  কাঠামো Curl_asn1Element param;
+  অক্ষর *certptr;
   size_t clen;
-  struct dynbuf out;
-  CURLcode result = CURLE_OK;
-  unsigned int version;
-  const uint8_t *ptr;
-  int rc;
+  কাঠামো dynbuf out;
+  CURLcode ফলাফল = CURLE_OK;
+  unsigned পূর্ণসংখ্যা version;
+  ধ্রুবক uint8_t *ptr;
+  পূর্ণসংখ্যা rc;
 
-  if(!data->set.ssl.certinfo)
-    if(certnum)
-      return CURLE_OK;
+  যদি(!তথ্য->set.ssl.certinfo)
+    যদি(certnum)
+      ফেরত CURLE_OK;
 
   curlx_dyn_init(&out, CURL_X509_STR_MAX);
   /* Prepare the certificate information for curl_easy_getinfo(). */
 
   /* Extract the certificate ASN.1 elements. */
-  if(Curl_parseX509(&cert, beg, end))
-    return CURLE_PEER_FAILED_VERIFICATION;
+  যদি(Curl_parseX509(&cert, beg, end))
+    ফেরত CURLE_PEER_FAILED_VERIFICATION;
 
   /* Subject. */
-  result = DNtostr(&out, &cert.subject);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Subject", &out);
-    if(result)
-      goto done;
+  ফলাফল = DNtostr(&out, &cert.subject);
+  যদি(ফলাফল)
+    যাও done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Subject", &out);
+    যদি(ফলাফল)
+      যাও done;
   }
   curlx_dyn_reset(&out);
 
   /* Issuer. */
-  result = DNtostr(&out, &cert.issuer);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Issuer", &out);
-    if(result)
-      goto done;
+  ফলাফল = DNtostr(&out, &cert.issuer);
+  যদি(ফলাফল)
+    যাও done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Issuer", &out);
+    যদি(ফলাফল)
+      যাও done;
   }
   curlx_dyn_reset(&out);
 
   /* Version (always fits in less than 32 bits). */
   version = 0;
-  for(ptr = cert.version.beg; ptr < cert.version.end; ptr++)
+  জন্য(ptr = cert.version.beg; ptr < cert.version.end; ptr++)
     version = (version << 8) | *ptr;
-  if(data->set.ssl.certinfo) {
-    result = curlx_dyn_addf(&out, "%x", version);
-    if(result)
-      goto done;
-    result = ssl_push_certinfo_dyn(data, certnum, "Version", &out);
-    if(result)
-      goto done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = curlx_dyn_addf(&out, "%x", version);
+    যদি(ফলাফল)
+      যাও done;
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Version", &out);
+    যদি(ফলাফল)
+      যাও done;
     curlx_dyn_reset(&out);
   }
 
   /* Serial number. */
-  result = ASN1tostr(&out, &cert.serialNumber);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Serial Number", &out);
-    if(result)
-      goto done;
+  ফলাফল = ASN1tostr(&out, &cert.serial_সংখ্যা);
+  যদি(ফলাফল)
+    যাও done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Serial Number", &out);
+    যদি(ফলাফল)
+      যাও done;
   }
   curlx_dyn_reset(&out);
 
   /* Signature algorithm .*/
-  result = dumpAlgo(&out, &param, cert.signatureAlgorithm.beg,
+  ফলাফল = dumpAlgo(&out, &param, cert.signatureAlgorithm.beg,
                     cert.signatureAlgorithm.end);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Signature Algorithm", &out);
-    if(result)
-      goto done;
+  যদি(ফলাফল)
+    যাও done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Signature Algorithm", &out);
+    যদি(ফলাফল)
+      যাও done;
   }
   curlx_dyn_reset(&out);
 
   /* Start Date. */
-  result = ASN1tostr(&out, &cert.notBefore);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Start Date", &out);
-    if(result)
-      goto done;
+  ফলাফল = ASN1tostr(&out, &cert.notBefore);
+  যদি(ফলাফল)
+    যাও done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Start Date", &out);
+    যদি(ফলাফল)
+      যাও done;
   }
   curlx_dyn_reset(&out);
 
   /* Expire Date. */
-  result = ASN1tostr(&out, &cert.notAfter);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Expire Date", &out);
-    if(result)
-      goto done;
+  ফলাফল = ASN1tostr(&out, &cert.notAfter);
+  যদি(ফলাফল)
+    যাও done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Expire Date", &out);
+    যদি(ফলাফল)
+      যাও done;
   }
   curlx_dyn_reset(&out);
 
   /* Public Key Algorithm. */
-  result = dumpAlgo(&out, &param, cert.subjectPublicKeyAlgorithm.beg,
-                    cert.subjectPublicKeyAlgorithm.end);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Public Key Algorithm",
+  ফলাফল = dumpAlgo(&out, &param, cert.subject_Public_চাবি_Algorithm.beg,
+                    cert.subject_Public_চাবি_Algorithm.end);
+  যদি(ফলাফল)
+    যাও done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Public Key Algorithm",
                                    &out);
-    if(result)
-      goto done;
+    যদি(ফলাফল)
+      যাও done;
   }
 
-  rc = do_pubkey(data, certnum, curlx_dyn_ptr(&out),
-                 &param, &cert.subjectPublicKey);
-  if(rc) {
-    result = CURLE_OUT_OF_MEMORY; /* the most likely error */
-    goto done;
+  rc = do_pubkey(তথ্য, certnum, curlx_dyn_ptr(&out),
+                 &param, &cert.subject_Public_চাবি);
+  যদি(rc) {
+    ফলাফল = CURLE_OUT_OF_MEMORY; /* the most likely error */
+    যাও done;
   }
   curlx_dyn_reset(&out);
 
   /* Signature. */
-  result = ASN1tostr(&out, &cert.signature);
-  if(result)
-    goto done;
-  if(data->set.ssl.certinfo) {
-    result = ssl_push_certinfo_dyn(data, certnum, "Signature", &out);
-    if(result)
-      goto done;
+  ফলাফল = ASN1tostr(&out, &cert.signature);
+  যদি(ফলাফল)
+    যাও done;
+  যদি(তথ্য->set.ssl.certinfo) {
+    ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Signature", &out);
+    যদি(ফলাফল)
+      যাও done;
   }
   curlx_dyn_reset(&out);
 
   /* Generate PEM certificate. */
-  result = curlx_base64_encode((const uint8_t *)cert.certificate.beg,
+  ফলাফল = curlx_base64_encode((ধ্রুবক uint8_t *)cert.certificate.beg,
                                cert.certificate.end - cert.certificate.beg,
                                &certptr, &clen);
-  if(result)
-    goto done;
+  যদি(ফলাফল)
+    যাও done;
 
   /* Generate the final output certificate string. Format is:
      -----BEGIN CERTIFICATE-----\n
@@ -1245,30 +1245,30 @@ CURLcode Curl_extract_certinfo(struct Curl_easy *data,
   curlx_dyn_reset(&out);
 
   /* Build the certificate string. */
-  result = curlx_dyn_add(&out, "-----BEGIN CERTIFICATE-----\n");
-  if(!result) {
+  ফলাফল = curlx_dyn_add(&out, "-----BEGIN CERTIFICATE-----\n");
+  যদি(!ফলাফল) {
     size_t j = 0;
 
-    while(!result && (j < clen)) {
+    যখন(!ফলাফল && (j < clen)) {
       size_t chunksize = (clen - j) > 64 ? 64 : (clen - j);
-      result = curlx_dyn_addn(&out, &certptr[j], chunksize);
-      if(!result)
-        result = curlx_dyn_addn(&out, "\n", 1);
+      ফলাফল = curlx_dyn_addn(&out, &certptr[j], chunksize);
+      যদি(!ফলাফল)
+        ফলাফল = curlx_dyn_addn(&out, "\n", 1);
       j += chunksize;
     }
-    if(!result)
-      result = curlx_dyn_add(&out, "-----END CERTIFICATE-----\n");
+    যদি(!ফলাফল)
+      ফলাফল = curlx_dyn_add(&out, "-----END CERTIFICATE-----\n");
   }
   curlx_free(certptr);
-  if(!result)
-    if(data->set.ssl.certinfo)
-      result = ssl_push_certinfo_dyn(data, certnum, "Cert", &out);
+  যদি(!ফলাফল)
+    যদি(তথ্য->set.ssl.certinfo)
+      ফলাফল = ssl_ঠেলো_certinfo_dyn(তথ্য, certnum, "Cert", &out);
 
 done:
-  if(result)
-    failf(data, "Failed extracting certificate chain");
+  যদি(ফলাফল)
+    failf(তথ্য, "Failed extracting certificate chain");
   curlx_dyn_free(&out);
-  return result;
+  ফেরত ফলাফল;
 }
 
 #endif /* WANT_EXTRACT_CERTINFO */

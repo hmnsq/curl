@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_MQTT
-extern const struct Curl_protocol Curl_protocol_mqtt;
+বাহ্যিক ধ্রুবক কাঠামো Curl_protocol Curl_protocol_mqtt;
 #ifdef USE_SSL
-extern const struct Curl_protocol Curl_protocol_mqtts;
+বাহ্যিক ধ্রুবক কাঠামো Curl_protocol Curl_protocol_mqtts;
 #endif
 #endif
 

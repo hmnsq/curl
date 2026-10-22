@@ -23,99 +23,99 @@
  * RFC5802 SCRAM-SHA-1 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_GSASL
 
-#include "vauth/vauth.h"
-#include "curl_trc.h"
+#অন্তর্ভাব "vauth/vauth.h"
+#অন্তর্ভাব "curl_trc.h"
 
-#include <gsasl.h>
+#অন্তর্ভাব <gsasl.h>
 
-#if GSASL_VERSION_NUMBER < 0x010600
+#যদি GSASL_VERSION_সংখ্যা < 0x010600
 #error "libgsasl 1.6.0 or greater required"
 #endif
 
-bool Curl_auth_gsasl_is_supported(struct Curl_easy *data,
-                                  const char *mech,
-                                  struct gsasldata *gsasl)
+bool Curl_auth_gsasl_is_supported(কাঠামো Curl_easy *তথ্য,
+                                  ধ্রুবক অক্ষর *mech,
+                                  কাঠামো gsasldata *gsasl)
 {
-  int res;
+  পূর্ণসংখ্যা res;
 
   res = gsasl_init(&gsasl->ctx);
-  if(res != GSASL_OK) {
-    failf(data, "gsasl init: %s", gsasl_strerror(res));
-    return FALSE;
+  যদি(res != GSASL_OK) {
+    failf(তথ্য, "gsasl init: %s", gsasl_strerror(res));
+    ফেরত FALSE;
   }
 
   res = gsasl_client_start(gsasl->ctx, mech, &gsasl->client);
-  if(res != GSASL_OK) {
+  যদি(res != GSASL_OK) {
     gsasl_done(gsasl->ctx);
-    gsasl->ctx = NULL;
-    return FALSE;
+    gsasl->ctx = ফাঁকা;
+    ফেরত FALSE;
   }
 
-  return TRUE;
+  ফেরত TRUE;
 }
 
-CURLcode Curl_auth_gsasl_start(struct Curl_easy *data,
-                               struct Curl_creds *creds,
-                               struct gsasldata *gsasl)
+CURLcode Curl_auth_gsasl_start(কাঠামো Curl_easy *তথ্য,
+                               কাঠামো Curl_creds *creds,
+                               কাঠামো gsasldata *gsasl)
 {
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  int res;
+#যদি GSASL_VERSION_সংখ্যা >= 0x010b00
+  পূর্ণসংখ্যা res;
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_AUTHID, creds->user);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
-    failf(data, "setting AUTHID failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+#যদি GSASL_VERSION_সংখ্যা >= 0x010b00
+  যদি(res != GSASL_OK) {
+    failf(তথ্য, "setting AUTHID failed: %s", gsasl_strerror(res));
+    ফেরত CURLE_OUT_OF_MEMORY;
   }
 #endif
 
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#যদি GSASL_VERSION_সংখ্যা >= 0x010b00
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_PASSWORD, creds->passwd);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
-    failf(data, "setting PASSWORD failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+#যদি GSASL_VERSION_সংখ্যা >= 0x010b00
+  যদি(res != GSASL_OK) {
+    failf(তথ্য, "setting PASSWORD failed: %s", gsasl_strerror(res));
+    ফেরত CURLE_OUT_OF_MEMORY;
   }
 #endif
 
-  (void)data;
+  (শূন্য)তথ্য;
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-CURLcode Curl_auth_gsasl_token(struct Curl_easy *data,
-                               const struct bufref *chlg,
-                               struct gsasldata *gsasl,
-                               struct bufref *out)
+CURLcode Curl_auth_gsasl_token(কাঠামো Curl_easy *তথ্য,
+                               ধ্রুবক কাঠামো bufref *chlg,
+                               কাঠামো gsasldata *gsasl,
+                               কাঠামো bufref *out)
 {
-  int res;
-  char *response;
+  পূর্ণসংখ্যা res;
+  অক্ষর *response;
   size_t outlen;
 
   res = gsasl_step(gsasl->client, Curl_bufref_ptr(chlg), Curl_bufref_len(chlg),
                    &response, &outlen);
-  if(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
-    failf(data, "GSASL step: %s", gsasl_strerror(res));
-    return CURLE_BAD_CONTENT_ENCODING;
+  যদি(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
+    failf(তথ্য, "GSASL step: %s", gsasl_strerror(res));
+    ফেরত CURLE_BAD_CONTENT_ENCODING;
   }
 
   Curl_bufref_set(out, response, outlen, gsasl_free);
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-void Curl_auth_gsasl_cleanup(struct gsasldata *gsasl)
+শূন্য Curl_auth_gsasl_cleanup(কাঠামো gsasldata *gsasl)
 {
   gsasl_finish(gsasl->client);
-  gsasl->client = NULL;
+  gsasl->client = ফাঁকা;
 
   gsasl_done(gsasl->ctx);
-  gsasl->ctx = NULL;
+  gsasl->ctx = ফাঁকা;
 }
 #endif

@@ -24,17 +24,17 @@
  * RFC4752 The Kerberos V5 ("GSSAPI") SASL Mechanism
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if defined(HAVE_GSSAPI) && defined(USE_KERBEROS5)
+#যদি defined(HAVE_GSSAPI) && defined(USE_KERBEROS5)
 
-#include "vauth/vauth.h"
-#include "curl_sasl.h"
-#include "curl_gssapi.h"
-#include "curl_trc.h"
+#অন্তর্ভাব "vauth/vauth.h"
+#অন্তর্ভাব "curl_sasl.h"
+#অন্তর্ভাব "curl_gssapi.h"
+#অন্তর্ভাব "curl_trc.h"
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
+#যদি defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#pragma GCC diagnostic ঠেলো
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -47,9 +47,9 @@
  *
  * Returns TRUE if Kerberos V5 is supported by the GSS-API library.
  */
-bool Curl_auth_is_gssapi_supported(void)
+bool Curl_auth_is_gssapi_supported(শূন্য)
 {
-  return TRUE;
+  ফেরত TRUE;
 }
 
 /*
@@ -73,90 +73,90 @@ bool Curl_auth_is_gssapi_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const char *default_service,
-                                              const char *host,
-                                              const bool mutual_auth,
-                                              const struct bufref *chlg,
-                                              struct kerberos5data *krb5,
-                                              struct bufref *out)
+CURLcode Curl_auth_create_gssapi_user_message(কাঠামো Curl_easy *তথ্য,
+                                              কাঠামো Curl_creds *creds,
+                                              ধ্রুবক অক্ষর *default_service,
+                                              ধ্রুবক অক্ষর *host,
+                                              ধ্রুবক bool mutual_auth,
+                                              ধ্রুবক কাঠামো bufref *chlg,
+                                              কাঠামো kerberos5data *krb5,
+                                              কাঠামো bufref *out)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   OM_uint32 major_status;
   OM_uint32 minor_status;
   OM_uint32 unused_status;
-  gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  gss_বাফার_desc প্রবেশ_token = GSS_C_EMPTY_বাফার;
+  gss_বাফার_desc output_token = GSS_C_EMPTY_বাফার;
+  ধ্রুবক অক্ষর *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
-  if(!krb5->spn) {
-    gss_buffer_desc spn_token = GSS_C_EMPTY_BUFFER;
+  যদি(!krb5->spn) {
+    gss_বাফার_desc spn_token = GSS_C_EMPTY_বাফার;
 
     /* Generate our SPN */
-    char *spn = Curl_auth_build_spn(service, NULL, host);
-    if(!spn)
-      return CURLE_OUT_OF_MEMORY;
+    অক্ষর *spn = Curl_auth_build_spn(service, ফাঁকা, host);
+    যদি(!spn)
+      ফেরত CURLE_OUT_OF_MEMORY;
 
     /* Populate the SPN structure */
-    spn_token.value = spn;
-    spn_token.length = strlen(spn);
+    spn_token.মান = spn;
+    spn_token.দৈর্ঘ্য = strlen(spn);
 
     /* Import the SPN */
     major_status = gss_import_name(&minor_status, &spn_token,
                                    GSS_C_NT_HOSTBASED_SERVICE, &krb5->spn);
-    if(GSS_ERROR(major_status)) {
-      Curl_gss_log_error(data, "gss_import_name() failed: ",
+    যদি(GSS_ERROR(major_status)) {
+      Curl_gss_log_error(তথ্য, "gss_import_name() failed: ",
                          major_status, minor_status);
 
       curlx_free(spn);
 
-      return CURLE_AUTH_ERROR;
+      ফেরত CURLE_AUTH_ERROR;
     }
 
     curlx_free(spn);
   }
 
-  if(chlg) {
-    if(!Curl_bufref_len(chlg)) {
-      infof(data, "GSSAPI handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+  যদি(chlg) {
+    যদি(!Curl_bufref_len(chlg)) {
+      infof(তথ্য, "GSSAPI handshake failure (empty challenge message)");
+      ফেরত CURLE_BAD_CONTENT_ENCODING;
     }
-    input_token.value = CURL_UNCONST(Curl_bufref_ptr(chlg));
-    input_token.length = Curl_bufref_len(chlg);
+    প্রবেশ_token.মান = CURL_UNCONST(Curl_bufref_ptr(chlg));
+    প্রবেশ_token.দৈর্ঘ্য = Curl_bufref_len(chlg);
   }
 
-  major_status = Curl_gss_init_sec_context(data,
+  major_status = Curl_gss_init_sec_context(তথ্য,
                                            &minor_status,
                                            &krb5->context,
                                            krb5->spn,
                                            &Curl_krb5_mech_oid,
                                            GSS_C_NO_CHANNEL_BINDINGS,
-                                           &input_token,
+                                           &প্রবেশ_token,
                                            &output_token,
                                            mutual_auth,
-                                           NULL,
+                                           ফাঁকা,
                                            GSS_C_NO_CREDENTIAL);
 
-  if(GSS_ERROR(major_status)) {
-    if(output_token.value)
-      gss_release_buffer(&unused_status, &output_token);
+  যদি(GSS_ERROR(major_status)) {
+    যদি(output_token.মান)
+      gss_release_বাফার(&unused_status, &output_token);
 
-    Curl_gss_log_error(data, "gss_init_sec_context() failed: ",
+    Curl_gss_log_error(তথ্য, "gss_init_sec_context() failed: ",
                        major_status, minor_status);
 
-    return CURLE_AUTH_ERROR;
+    ফেরত CURLE_AUTH_ERROR;
   }
 
-  if(output_token.value && output_token.length) {
-    result = Curl_bufref_memdup0(out, output_token.value, output_token.length);
-    gss_release_buffer(&unused_status, &output_token);
+  যদি(output_token.মান && output_token.দৈর্ঘ্য) {
+    ফলাফল = Curl_bufref_memdup0(out, output_token.মান, output_token.দৈর্ঘ্য);
+    gss_release_বাফার(&unused_status, &output_token);
   }
-  else
-    Curl_bufref_set(out, mutual_auth ? "" : NULL, 0, NULL);
+  অন্যথা
+    Curl_bufref_set(out, mutual_auth ? "" : ফাঁকা, 0, ফাঁকা);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
@@ -175,120 +175,120 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
-                                                  const char *authzid,
-                                                  const struct bufref *chlg,
-                                                  struct kerberos5data *krb5,
-                                                  struct bufref *out)
+CURLcode Curl_auth_create_gssapi_security_message(কাঠামো Curl_easy *তথ্য,
+                                                  ধ্রুবক অক্ষর *authzid,
+                                                  ধ্রুবক কাঠামো bufref *chlg,
+                                                  কাঠামো kerberos5data *krb5,
+                                                  কাঠামো bufref *out)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   size_t messagelen = 0;
-  unsigned char *message = NULL;
+  unsigned অক্ষর *message = ফাঁকা;
   OM_uint32 major_status;
   OM_uint32 minor_status;
   OM_uint32 unused_status;
-  gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
-  unsigned char *indata;
+  gss_বাফার_desc প্রবেশ_token = GSS_C_EMPTY_বাফার;
+  gss_বাফার_desc output_token = GSS_C_EMPTY_বাফার;
+  unsigned অক্ষর *indata;
   gss_qop_t qop = GSS_C_QOP_DEFAULT;
-  unsigned int sec_layer = 0;
-  unsigned int max_size = 0;
+  unsigned পূর্ণসংখ্যা sec_layer = 0;
+  unsigned পূর্ণসংখ্যা max_আকার = 0;
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlg)) {
-    infof(data, "GSSAPI handshake failure (empty security message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+  যদি(!Curl_bufref_len(chlg)) {
+    infof(তথ্য, "GSSAPI handshake failure (empty security message)");
+    ফেরত CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Setup the challenge "input" security buffer */
-  input_token.value = CURL_UNCONST(Curl_bufref_ptr(chlg));
-  input_token.length = Curl_bufref_len(chlg);
+  প্রবেশ_token.মান = CURL_UNCONST(Curl_bufref_ptr(chlg));
+  প্রবেশ_token.দৈর্ঘ্য = Curl_bufref_len(chlg);
 
   /* Decrypt the inbound challenge and obtain the qop */
-  major_status = gss_unwrap(&minor_status, krb5->context, &input_token,
-                            &output_token, NULL, &qop);
-  if(GSS_ERROR(major_status)) {
-    Curl_gss_log_error(data, "gss_unwrap() failed: ",
+  major_status = gss_unwrap(&minor_status, krb5->context, &প্রবেশ_token,
+                            &output_token, ফাঁকা, &qop);
+  যদি(GSS_ERROR(major_status)) {
+    Curl_gss_log_error(তথ্য, "gss_unwrap() failed: ",
                        major_status, minor_status);
-    return CURLE_BAD_CONTENT_ENCODING;
+    ফেরত CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Not 4 octets long so fail as per RFC4752 Section 3.1 */
-  if(output_token.length != 4) {
-    infof(data, "GSSAPI handshake failure (invalid security data)");
-    gss_release_buffer(&unused_status, &output_token);
-    return CURLE_BAD_CONTENT_ENCODING;
+  যদি(output_token.দৈর্ঘ্য != 4) {
+    infof(তথ্য, "GSSAPI handshake failure (invalid security data)");
+    gss_release_বাফার(&unused_status, &output_token);
+    ফেরত CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Extract the security layer and the maximum message size */
-  indata = output_token.value;
+  indata = output_token.মান;
   sec_layer = indata[0];
-  max_size = ((unsigned int)indata[1] << 16) |
-             ((unsigned int)indata[2] << 8) | indata[3];
+  max_আকার = ((unsigned পূর্ণসংখ্যা)indata[1] << 16) |
+             ((unsigned পূর্ণসংখ্যা)indata[2] << 8) | indata[3];
 
   /* Free the challenge as it is not required anymore */
-  gss_release_buffer(&unused_status, &output_token);
+  gss_release_বাফার(&unused_status, &output_token);
 
   /* Process the security layer */
-  if(!(sec_layer & GSSAUTH_P_NONE)) {
-    infof(data, "GSSAPI handshake failure (invalid security layer)");
+  যদি(!(sec_layer & GSSAUTH_P_NONE)) {
+    infof(তথ্য, "GSSAPI handshake failure (invalid security layer)");
 
-    return CURLE_BAD_CONTENT_ENCODING;
+    ফেরত CURLE_BAD_CONTENT_ENCODING;
   }
   sec_layer &= GSSAUTH_P_NONE;  /* We do not support a security layer */
 
   /* Process the maximum message size the server can receive */
-  if(max_size > 0) {
+  যদি(max_আকার > 0) {
     /* The server has told us it supports a maximum receive buffer, but as we
        do not require one unless we are encrypting data, we tell the server
        our receive buffer is zero. */
-    max_size = 0;
+    max_আকার = 0;
   }
 
   /* Allocate our message */
   messagelen = 4;
-  if(authzid)
+  যদি(authzid)
     messagelen += strlen(authzid);
   message = curlx_malloc(messagelen);
-  if(!message)
-    return CURLE_OUT_OF_MEMORY;
+  যদি(!message)
+    ফেরত CURLE_OUT_OF_MEMORY;
 
   /* Populate the message with the security layer and client supported receive
      message size. */
   message[0] = sec_layer & 0xFF;
-  message[1] = (max_size >> 16) & 0xFF;
-  message[2] = (max_size >> 8) & 0xFF;
-  message[3] = max_size & 0xFF;
+  message[1] = (max_আকার >> 16) & 0xFF;
+  message[2] = (max_আকার >> 8) & 0xFF;
+  message[3] = max_আকার & 0xFF;
 
   /* If given, append the authorization identity. */
 
-  if(authzid && *authzid)
+  যদি(authzid && *authzid)
     memcpy(message + 4, authzid, messagelen - 4);
 
   /* Setup the "authentication data" security buffer */
-  input_token.value = message;
-  input_token.length = messagelen;
+  প্রবেশ_token.মান = message;
+  প্রবেশ_token.দৈর্ঘ্য = messagelen;
 
   /* Encrypt the data */
   major_status = gss_wrap(&minor_status, krb5->context, 0,
-                          GSS_C_QOP_DEFAULT, &input_token, NULL,
+                          GSS_C_QOP_DEFAULT, &প্রবেশ_token, ফাঁকা,
                           &output_token);
-  if(GSS_ERROR(major_status)) {
-    Curl_gss_log_error(data, "gss_wrap() failed: ",
+  যদি(GSS_ERROR(major_status)) {
+    Curl_gss_log_error(তথ্য, "gss_wrap() failed: ",
                        major_status, minor_status);
     curlx_free(message);
-    return CURLE_AUTH_ERROR;
+    ফেরত CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
-  result = Curl_bufref_memdup0(out, output_token.value, output_token.length);
+  ফলাফল = Curl_bufref_memdup0(out, output_token.মান, output_token.দৈর্ঘ্য);
   /* Free the output buffer */
-  gss_release_buffer(&unused_status, &output_token);
+  gss_release_বাফার(&unused_status, &output_token);
 
   /* Free the message buffer */
   curlx_free(message);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
@@ -301,26 +301,26 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
  * krb5     [in/out] - The Kerberos 5 data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5)
+শূন্য Curl_auth_cleanup_gssapi(কাঠামো kerberos5data *krb5)
 {
   OM_uint32 minor_status;
 
   /* Free our security context */
-  if(krb5->context != GSS_C_NO_CONTEXT) {
+  যদি(krb5->context != GSS_C_NO_CONTEXT) {
     Curl_gss_delete_sec_context(&minor_status, &krb5->context,
-                                GSS_C_NO_BUFFER);
+                                GSS_C_NO_বাফার);
     krb5->context = GSS_C_NO_CONTEXT;
   }
 
   /* Free the SPN */
-  if(krb5->spn != GSS_C_NO_NAME) {
+  যদি(krb5->spn != GSS_C_NO_NAME) {
     gss_release_name(&minor_status, &krb5->spn);
     krb5->spn = GSS_C_NO_NAME;
   }
 }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
+#যদি defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#pragma GCC diagnostic বের_করো
 #endif
 
 #endif /* HAVE_GSSAPI && USE_KERBEROS5 */

@@ -21,19 +21,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_HTTPSRR
 
-#include "urldata.h"
-#include "connect.h"
-#include "curl_trc.h"
-#include "vdns/httpsrr.h"
-#include "curlx/strdup.h"
-#include "curlx/inet_ntop.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "vdns/httpsrr.h"
+#অন্তর্ভাব "curlx/strdup.h"
+#অন্তর্ভাব "curlx/inet_ntop.h"
 
-static CURLcode httpsrr_decode_alpn(const uint8_t *cp, size_t len,
-                                    unsigned char *alpns)
+স্থির CURLcode httpsrr_decode_alpn(ধ্রুবক uint8_t *cp, size_t len,
+                                    unsigned অক্ষর *alpns)
 {
   /*
    * The wire-format value for "alpn" consists of at least one alpn-id
@@ -41,193 +41,193 @@ static CURLcode httpsrr_decode_alpn(const uint8_t *cp, size_t len,
    * are concatenated to form the SvcParamValue. These pairs MUST exactly fill
    * the SvcParamValue; otherwise, the SvcParamValue is malformed.
    */
-  int idnum = 0;
+  পূর্ণসংখ্যা idnum = 0;
 
-  while(len > 0) {
+  যখন(len > 0) {
     size_t tlen = *cp++;
-    enum alpnid id;
+    গণনা alpnid id;
     len--;
-    if(tlen > len)
-      return CURLE_BAD_CONTENT_ENCODING;
+    যদি(tlen > len)
+      ফেরত CURLE_BAD_CONTENT_ENCODING;
 
     /* we only store ALPN ids we know about */
     id = Curl_alpn2alpnid(cp, tlen);
-    if(id != ALPN_none) {
-      if(idnum == MAX_HTTPSRR_ALPNS)
-        break;
-      if(idnum && memchr(alpns, id, idnum))
+    যদি(id != ALPN_none) {
+      যদি(idnum == MAX_HTTPSRR_ALPNS)
+        বিরতি;
+      যদি(idnum && memchr(alpns, id, idnum))
         /* this ALPN id is already stored */
         ;
-      else
-        alpns[idnum++] = (unsigned char)id;
+      অন্যথা
+        alpns[idnum++] = (unsigned অক্ষর)id;
     }
     cp += tlen;
     len -= tlen;
   }
-  if(idnum < MAX_HTTPSRR_ALPNS)
+  যদি(idnum < MAX_HTTPSRR_ALPNS)
     alpns[idnum] = ALPN_none; /* terminate the list */
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 #ifdef CURLVERBOSE
 
-static CURLcode httpsrr_print_addr(struct dynbuf *dyn,
-                                   int ai_family,
-                                   const uint8_t *addr,
-                                   size_t total_len)
+স্থির CURLcode httpsrr_print_addr(কাঠামো dynbuf *dyn,
+                                   পূর্ণসংখ্যা ai_family,
+                                   ধ্রুবক uint8_t *addr,
+                                   size_t যোগ_len)
 {
-  char buf[MAX_IPADR_LEN];
+  অক্ষর buf[MAX_IPADR_LEN];
   size_t i, alen = (ai_family == AF_INET6) ? 16 : 4;
-  const char *sep = "";
-  CURLcode result = CURLE_OK;
+  ধ্রুবক অক্ষর *sep = "";
+  CURLcode ফলাফল = CURLE_OK;
 
-  for(i = 0; (i < (total_len / alen)) && !result; ++i) {
-    if(curlx_inet_ntop(ai_family, addr + (i * alen), buf, sizeof(buf)))
-      result = curlx_dyn_add(dyn, "<error parsing address>");
-    else
-      result = curlx_dyn_addf(dyn, "%s%s", sep, buf);
+  জন্য(i = 0; (i < (যোগ_len / alen)) && !ফলাফল; ++i) {
+    যদি(curlx_inet_ntop(ai_family, addr + (i * alen), buf, আকার(buf)))
+      ফলাফল = curlx_dyn_add(dyn, "<error parsing address>");
+    অন্যথা
+      ফলাফল = curlx_dyn_addf(dyn, "%s%s", sep, buf);
     sep = ",";
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-void Curl_httpsrr_trace(struct Curl_easy *data,
-                        struct Curl_https_rrinfo *rr)
+শূন্য Curl_httpsrr_trace(কাঠামো Curl_easy *তথ্য,
+                        কাঠামো Curl_https_rrinfo *rr)
 {
-  struct dynbuf tmp;
-  CURLcode result;
+  কাঠামো dynbuf tmp;
+  CURLcode ফলাফল;
 
-  if(!rr) {
-    CURL_TRC_DNS(data, "[HTTPS] no record available");
-    return;
+  যদি(!rr) {
+    CURL_TRC_DNS(তথ্য, "[HTTPS] no record available");
+    ফেরত;
   }
   curlx_dyn_init(&tmp, 1024);
-  result = Curl_httpsrr_print(&tmp, rr);
-  if(!result)
-    CURL_TRC_DNS(data, "[HTTPS] record: %s", curlx_dyn_ptr(&tmp));
-  else
-    CURL_TRC_DNS(data, "[HTTPS] error printing information");
+  ফলাফল = Curl_httpsrr_print(&tmp, rr);
+  যদি(!ফলাফল)
+    CURL_TRC_DNS(তথ্য, "[HTTPS] record: %s", curlx_dyn_ptr(&tmp));
+  অন্যথা
+    CURL_TRC_DNS(তথ্য, "[HTTPS] error printing information");
   curlx_dyn_free(&tmp);
 }
 
-CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
-                            struct Curl_https_rrinfo *rr)
+CURLcode Curl_httpsrr_print(কাঠামো dynbuf *tmp,
+                            কাঠামো Curl_https_rrinfo *rr)
 {
-  CURLcode result;
-  int i;
+  CURLcode ফলাফল;
+  পূর্ণসংখ্যা i;
 
   curlx_dyn_reset(tmp);
-  result = curlx_dyn_addf(tmp, "%u %s", rr->priority,
+  ফলাফল = curlx_dyn_addf(tmp, "%u %s", rr->priority,
                           rr->target ? rr->target : ".");
-  if(!result && rr->mandatory)
-    result = curlx_dyn_add(tmp, " mandatory-keys(ignored)");
-  if(!result && rr->alpns[0]) {
-    const char *sep = "", *name;
-    result = curlx_dyn_add(tmp, " alpn=");
-    for(i = 0; !result && (i < 4); ++i) {
-      switch(rr->alpns[i]) {
-      case ALPN_h1:
+  যদি(!ফলাফল && rr->mandatory)
+    ফলাফল = curlx_dyn_add(tmp, " mandatory-keys(ignored)");
+  যদি(!ফলাফল && rr->alpns[0]) {
+    ধ্রুবক অক্ষর *sep = "", *name;
+    ফলাফল = curlx_dyn_add(tmp, " alpn=");
+    জন্য(i = 0; !ফলাফল && (i < 4); ++i) {
+      নির্বাচন(rr->alpns[i]) {
+      ক্ষেত্র ALPN_h1:
         name = "http/1.1";
-        break;
-      case ALPN_h2:
+        বিরতি;
+      ক্ষেত্র ALPN_h2:
         name = "h2";
-        break;
-      case ALPN_h3:
+        বিরতি;
+      ক্ষেত্র ALPN_h3:
         name = "h3";
-        break;
-      default:
-        name = NULL;
+        বিরতি;
+      পূর্বনির্ধারিত:
+        name = ফাঁকা;
       }
-      if(name) {
-        result = curlx_dyn_addf(tmp, "%s%s", sep, name);
+      যদি(name) {
+        ফলাফল = curlx_dyn_addf(tmp, "%s%s", sep, name);
         sep = ",";
       }
     }
   }
-  if(!result && rr->port_set) {
-    result = curlx_dyn_addf(tmp, " port=%u", rr->port);
+  যদি(!ফলাফল && rr->port_set) {
+    ফলাফল = curlx_dyn_addf(tmp, " port=%u", rr->port);
   }
-  if(!result && rr->no_def_alpn)
-    result = curlx_dyn_add(tmp, " no-default-alpn");
-  if(!result && rr->ipv6hints_len) {
-    result = curlx_dyn_add(tmp, " ipv6hint=");
-    if(!result)
-      result = httpsrr_print_addr(
+  যদি(!ফলাফল && rr->no_def_alpn)
+    ফলাফল = curlx_dyn_add(tmp, " no-default-alpn");
+  যদি(!ফলাফল && rr->ipv6hints_len) {
+    ফলাফল = curlx_dyn_add(tmp, " ipv6hint=");
+    যদি(!ফলাফল)
+      ফলাফল = httpsrr_print_addr(
         tmp, AF_INET6, rr->ipv6hints, rr->ipv6hints_len);
   }
-  if(!result && rr->ipv4hints_len) {
-    result = curlx_dyn_add(tmp, " ipv4hint=");
-    if(!result)
-      result = httpsrr_print_addr(
+  যদি(!ফলাফল && rr->ipv4hints_len) {
+    ফলাফল = curlx_dyn_add(tmp, " ipv4hint=");
+    যদি(!ফলাফল)
+      ফলাফল = httpsrr_print_addr(
         tmp, AF_INET, rr->ipv4hints, rr->ipv4hints_len);
   }
-  if(!result && rr->echconfiglist_len)
-    result = curlx_dyn_addf(tmp, " ech=<%zu bytes>", rr->echconfiglist_len);
+  যদি(!ফলাফল && rr->echconfiglist_len)
+    ফলাফল = curlx_dyn_addf(tmp, " ech=<%zu bytes>", rr->echconfiglist_len);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 #endif /* CURLVERBOSE */
 
-CURLcode Curl_httpsrr_set(struct Curl_https_rrinfo *rr,
-                          uint16_t rrkey, const uint8_t *val, size_t vlen)
+CURLcode Curl_httpsrr_set(কাঠামো Curl_https_rrinfo *rr,
+                          uint16_t rrkey, ধ্রুবক uint8_t *val, size_t vlen)
 {
-  CURLcode result = CURLE_OK;
-  switch(rrkey) {
-  case HTTPS_RR_CODE_MANDATORY:
+  CURLcode ফলাফল = CURLE_OK;
+  নির্বাচন(rrkey) {
+  ক্ষেত্র HTTPS_RR_CODE_MANDATORY:
     rr->mandatory = TRUE;
-    break;
-  case HTTPS_RR_CODE_ALPN: /* str_list */
-    result = httpsrr_decode_alpn(val, vlen, rr->alpns);
-    break;
-  case HTTPS_RR_CODE_NO_DEF_ALPN:
-    if(vlen) /* no data */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    বিরতি;
+  ক্ষেত্র HTTPS_RR_CODE_ALPN: /* str_list */
+    ফলাফল = httpsrr_decode_alpn(val, vlen, rr->alpns);
+    বিরতি;
+  ক্ষেত্র HTTPS_RR_CODE_NO_DEF_ALPN:
+    যদি(vlen) /* no data */
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
     rr->no_def_alpn = TRUE;
-    break;
-  case HTTPS_RR_CODE_IPV4: /* addr4 list */
-    if(!vlen || (vlen & 3)) /* the size must be 4-byte aligned */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    বিরতি;
+  ক্ষেত্র HTTPS_RR_CODE_IPV4: /* addr4 list */
+    যদি(!vlen || (vlen & 3)) /* the size must be 4-byte aligned */
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
     curlx_free(rr->ipv4hints);
     rr->ipv4hints = curlx_memdup(val, vlen);
-    if(!rr->ipv4hints)
-      return CURLE_OUT_OF_MEMORY;
+    যদি(!rr->ipv4hints)
+      ফেরত CURLE_OUT_OF_MEMORY;
     rr->ipv4hints_len = vlen;
-    break;
-  case HTTPS_RR_CODE_ECH:
-    if(!vlen)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    বিরতি;
+  ক্ষেত্র HTTPS_RR_CODE_ECH:
+    যদি(!vlen)
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
     curlx_free(rr->echconfiglist);
     rr->echconfiglist = curlx_memdup(val, vlen);
-    if(!rr->echconfiglist)
-      return CURLE_OUT_OF_MEMORY;
+    যদি(!rr->echconfiglist)
+      ফেরত CURLE_OUT_OF_MEMORY;
     rr->echconfiglist_len = vlen;
-    break;
-  case HTTPS_RR_CODE_IPV6: /* addr6 list */
-    if(!vlen || (vlen & 15)) /* the size must be 16-byte aligned */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    বিরতি;
+  ক্ষেত্র HTTPS_RR_CODE_IPV6: /* addr6 list */
+    যদি(!vlen || (vlen & 15)) /* the size must be 16-byte aligned */
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
     curlx_free(rr->ipv6hints);
     rr->ipv6hints = curlx_memdup(val, vlen);
-    if(!rr->ipv6hints)
-      return CURLE_OUT_OF_MEMORY;
+    যদি(!rr->ipv6hints)
+      ফেরত CURLE_OUT_OF_MEMORY;
     rr->ipv6hints_len = vlen;
-    break;
-  case HTTPS_RR_CODE_PORT:
-    if(vlen != 2)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    বিরতি;
+  ক্ষেত্র HTTPS_RR_CODE_PORT:
+    যদি(vlen != 2)
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
     rr->port = (uint16_t)((val[0] << 8) | val[1]);
     rr->port_set = TRUE;
-    break;
-  default:
+    বিরতি;
+  পূর্বনির্ধারিত:
     /* unknown code */
-    break;
+    বিরতি;
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-void Curl_httpsrr_destroy(struct Curl_https_rrinfo *rrinfo)
+শূন্য Curl_httpsrr_destroy(কাঠামো Curl_https_rrinfo *rrinfo)
 {
-  if(rrinfo) {
+  যদি(rrinfo) {
     curlx_free(rrinfo->target);
     curlx_free(rrinfo->echconfiglist);
     curlx_free(rrinfo->ipv4hints);
@@ -236,87 +236,87 @@ void Curl_httpsrr_destroy(struct Curl_https_rrinfo *rrinfo)
   }
 }
 
-bool Curl_httpsrr_applicable(struct Curl_easy *data,
-                             const struct Curl_https_rrinfo *rr)
+bool Curl_httpsrr_applicable(কাঠামো Curl_easy *তথ্য,
+                             ধ্রুবক কাঠামো Curl_https_rrinfo *rr)
 {
-  if(!data->conn)
-    return FALSE;
-  return Curl_httpsrr_is_for_peer(data->conn->origin, rr);
+  যদি(!তথ্য->conn)
+    ফেরত FALSE;
+  ফেরত Curl_httpsrr_is_for_peer(তথ্য->conn->origin, rr);
 }
 
-bool Curl_httpsrr_is_for_peer(struct Curl_peer *peer,
-                              const struct Curl_https_rrinfo *rr)
+bool Curl_httpsrr_is_for_peer(কাঠামো Curl_peer *peer,
+                              ধ্রুবক কাঠামো Curl_https_rrinfo *rr)
 {
-  if(!peer || !rr)
-    return FALSE;
-  return (!rr->target || !rr->target[0] ||
+  যদি(!peer || !rr)
+    ফেরত FALSE;
+  ফেরত (!rr->target || !rr->target[0] ||
           (rr->target[0] == '.' && !rr->target[1])) &&
          (!rr->port_set || rr->port == peer->port);
 }
 
 #ifdef USE_ARES
 
-static CURLcode httpsrr_opt(const ares_dns_rr_t *rr,
-                            ares_dns_rr_key_t key, size_t idx,
-                            struct Curl_https_rrinfo *hinfo)
+স্থির CURLcode httpsrr_opt(ধ্রুবক ares_dns_rr_t *rr,
+                            ares_dns_rr_চাবি_t চাবি, size_t idx,
+                            কাঠামো Curl_https_rrinfo *hinfo)
 {
-  const unsigned char *val = NULL;
+  ধ্রুবক unsigned অক্ষর *val = ফাঁকা;
   unsigned short code;
   size_t len = 0;
 
-  code = ares_dns_rr_get_opt(rr, key, idx, &val, &len);
-  return Curl_httpsrr_set(hinfo, code, val, len);
+  code = ares_dns_rr_get_opt(rr, চাবি, idx, &val, &len);
+  ফেরত Curl_httpsrr_set(hinfo, code, val, len);
 }
 
-CURLcode Curl_httpsrr_from_ares(const ares_dns_record_t *dnsrec,
-                                struct Curl_https_rrinfo **phinfo)
+CURLcode Curl_httpsrr_from_ares(ধ্রুবক ares_dns_record_t *dnsrec,
+                                কাঠামো Curl_https_rrinfo **phinfo)
 {
-  struct Curl_https_rrinfo *hinfo = NULL;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  কাঠামো Curl_https_rrinfo *hinfo = ফাঁকা;
+  CURLcode ফলাফল = CURLE_OUT_OF_MEMORY;
   size_t i;
 
-  hinfo = curlx_calloc(1, sizeof(*hinfo));
-  if(!hinfo)
-    goto out;
+  hinfo = curlx_calloc(1, আকার(*hinfo));
+  যদি(!hinfo)
+    যাও out;
 
-  for(i = 0; i < ares_dns_record_rr_cnt(dnsrec, ARES_SECTION_ANSWER); i++) {
-    const char *target;
+  জন্য(i = 0; i < ares_dns_record_rr_cnt(dnsrec, ARES_SECTION_ANSWER); i++) {
+    ধ্রুবক অক্ষর *target;
     size_t opt;
-    const ares_dns_rr_t *rr =
+    ধ্রুবক ares_dns_rr_t *rr =
       ares_dns_record_rr_get_const(dnsrec, ARES_SECTION_ANSWER, i);
-    if(ares_dns_rr_get_type(rr) != ARES_REC_TYPE_HTTPS)
-      continue;
+    যদি(ares_dns_rr_get_type(rr) != ARES_REC_TYPE_HTTPS)
+      চালু;
     /* When SvcPriority is 0, the SVCB record is in AliasMode. Otherwise, it
        is in ServiceMode */
     target = ares_dns_rr_get_str(rr, ARES_RR_HTTPS_TARGET);
-    if(target && target[0]) {
+    যদি(target && target[0]) {
       curlx_free(hinfo->target);
       hinfo->target = curlx_strdup(target);
-      if(!hinfo->target) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      যদি(!hinfo->target) {
+        ফলাফল = CURLE_OUT_OF_MEMORY;
+        যাও out;
       }
     }
     hinfo->priority = ares_dns_rr_get_u16(rr, ARES_RR_HTTPS_PRIORITY);
-    for(opt = 0; opt < ares_dns_rr_get_opt_cnt(rr, ARES_RR_HTTPS_PARAMS);
+    জন্য(opt = 0; opt < ares_dns_rr_get_opt_cnt(rr, ARES_RR_HTTPS_PARAMS);
         opt++) {
-      result = httpsrr_opt(rr, ARES_RR_HTTPS_PARAMS, opt, hinfo);
-      if(result)
-        goto out;
+      ফলাফল = httpsrr_opt(rr, ARES_RR_HTTPS_PARAMS, opt, hinfo);
+      যদি(ফলাফল)
+        যাও out;
     }
   }
-  result = CURLE_OK;
+  ফলাফল = CURLE_OK;
 
 out:
-  if(result) {
-    *phinfo = NULL;
+  যদি(ফলাফল) {
+    *phinfo = ফাঁকা;
     Curl_httpsrr_destroy(hinfo);
   }
-  else {
+  অন্যথা {
     DEBUGASSERT(hinfo);
     *phinfo = hinfo;
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
 #endif /* USE_ARES */

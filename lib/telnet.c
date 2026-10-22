@@ -21,55 +21,55 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "telnet.h"
+#অন্তর্ভাব "curl_setup.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "telnet.h"
 
 #ifndef CURL_DISABLE_TELNET
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#অন্তর্ভাব <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#অন্তর্ভাব <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#অন্তর্ভাব <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+#অন্তর্ভাব <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#অন্তর্ভাব <sys/ioctl.h>
 #endif
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#অন্তর্ভাব <sys/param.h>
 #endif
 
-#include "url.h"
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "arpa_telnet.h"
-#include "connect.h"
-#include "select.h"
-#include "curlx/strparse.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "transfer.h"
+#অন্তর্ভাব "sendf.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "arpa_telnet.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "select.h"
+#অন্তর্ভাব "curlx/strparse.h"
 
 #define SUBBUFSIZE 512
 
 #define CURL_SB_CLEAR(x) (x)->subpointer = (x)->subbuffer
 #define CURL_SB_TERM(x)            \
-  do {                             \
+  করো {                             \
     (x)->subend = (x)->subpointer; \
     CURL_SB_CLEAR(x);              \
-  } while(0)
+  } যখন(0)
 #define CURL_SB_ACCUM(x, c)                                         \
-  do {                                                              \
-    if((x)->subpointer < ((x)->subbuffer + sizeof((x)->subbuffer))) \
+  করো {                                                              \
+    যদি((x)->subpointer < ((x)->subbuffer + আকার((x)->subbuffer))) \
       *(x)->subpointer++ = (c);                                     \
-  } while(0)
+  } যখন(0)
 
 #define CURL_SB_GET(x) ((*(x)->subpointer++) & 0xff)
 #define CURL_SB_LEN(x) ((x)->subend - (x)->subpointer)
@@ -93,8 +93,8 @@
 /*
  * Telnet receiver states for fsm
  */
-typedef enum {
-  CURL_TS_DATA = 0,
+প্রকারলেখ গণনা {
+  CURL_TS_তথ্য = 0,
   CURL_TS_IAC,
   CURL_TS_WILL,
   CURL_TS_WONT,
@@ -105,89 +105,89 @@ typedef enum {
   CURL_TS_SE    /* looking for sub-option end */
 } TelnetReceive;
 
-struct TELNET {
-  int please_negotiate;
-  int already_negotiated;
-  int us[256];
-  int usq[256];
-  int us_preferred[256];
-  int him[256];
-  int himq[256];
-  int him_preferred[256];
-  int subnegotiation[256];
-  const char *subopt_ttype;          /* Set with suboption TTYPE */
-  const char *subopt_xdisploc;       /* Set with suboption XDISPLOC */
+কাঠামো TELNET {
+  পূর্ণসংখ্যা please_negotiate;
+  পূর্ণসংখ্যা already_negotiated;
+  পূর্ণসংখ্যা us[256];
+  পূর্ণসংখ্যা usq[256];
+  পূর্ণসংখ্যা us_preferred[256];
+  পূর্ণসংখ্যা him[256];
+  পূর্ণসংখ্যা himq[256];
+  পূর্ণসংখ্যা him_preferred[256];
+  পূর্ণসংখ্যা subnegotiation[256];
+  ধ্রুবক অক্ষর *subopt_ttype;          /* Set with suboption TTYPE */
+  ধ্রুবক অক্ষর *subopt_xdisploc;       /* Set with suboption XDISPLOC */
   unsigned short subopt_wsx;         /* Set with suboption NAWS */
   unsigned short subopt_wsy;         /* Set with suboption NAWS */
   TelnetReceive telrcv_state;
-  struct curl_slist *telnet_vars;    /* Environment variables */
-  struct dynbuf out;                 /* output buffer */
+  কাঠামো curl_slist *telnet_vars;    /* Environment variables */
+  কাঠামো dynbuf out;                 /* output buffer */
 
   /* suboptions */
-  unsigned char subbuffer[SUBBUFSIZE];
-  unsigned char *subpointer, *subend;      /* buffer for sub-options */
+  unsigned অক্ষর subbuffer[SUBBUFSIZE];
+  unsigned অক্ষর *subpointer, *subend;      /* buffer for sub-options */
 };
 
 #ifndef CURLVERBOSE
 #define printoption(a, b, c, d) Curl_nop_stmt
-#else
-static void printoption(struct Curl_easy *data,
-                        const char *direction, int cmd, int option)
+#অন্যথা
+স্থির শূন্য printoption(কাঠামো Curl_easy *তথ্য,
+                        ধ্রুবক অক্ষর *direction, পূর্ণসংখ্যা cmd, পূর্ণসংখ্যা option)
 {
-  if(data->set.verbose) {
-    if(cmd == CURL_IAC) {
-      if(CURL_TELCMD_OK(option))
-        infof(data, "%s IAC %s", direction, CURL_TELCMD(option));
-      else
-        infof(data, "%s IAC %d", direction, option);
+  যদি(তথ্য->set.verbose) {
+    যদি(cmd == CURL_IAC) {
+      যদি(CURL_TELCMD_OK(option))
+        infof(তথ্য, "%s IAC %s", direction, CURL_TELCMD(option));
+      অন্যথা
+        infof(তথ্য, "%s IAC %d", direction, option);
     }
-    else {
-      const char *fmt = (cmd == CURL_WILL) ? "WILL" :
+    অন্যথা {
+      ধ্রুবক অক্ষর *fmt = (cmd == CURL_WILL) ? "WILL" :
                         (cmd == CURL_WONT) ? "WONT" :
                         (cmd == CURL_DO) ? "DO" :
                         (cmd == CURL_DONT) ? "DONT" : 0;
-      if(fmt) {
-        const char *opt;
-        if(CURL_TELOPT_OK(option))
+      যদি(fmt) {
+        ধ্রুবক অক্ষর *opt;
+        যদি(CURL_TELOPT_OK(option))
           opt = CURL_TELOPT(option);
-        else if(option == CURL_TELOPT_EXOPL)
+        অন্যথা যদি(option == CURL_TELOPT_EXOPL)
           opt = "EXOPL";
-        else
-          opt = NULL;
+        অন্যথা
+          opt = ফাঁকা;
 
-        if(opt)
-          infof(data, "%s %s %s", direction, fmt, opt);
-        else
-          infof(data, "%s %s %d", direction, fmt, option);
+        যদি(opt)
+          infof(তথ্য, "%s %s %s", direction, fmt, opt);
+        অন্যথা
+          infof(তথ্য, "%s %s %d", direction, fmt, option);
       }
-      else
-        infof(data, "%s %d %d", direction, cmd, option);
+      অন্যথা
+        infof(তথ্য, "%s %d %d", direction, cmd, option);
     }
   }
 }
 #endif /* !CURLVERBOSE */
 
-static void telnet_easy_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য telnet_easy_dtor(ধ্রুবক শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct TELNET *tn = entry;
-  (void)key;
-  (void)klen;
+  কাঠামো TELNET *tn = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
   curl_slist_free_all(tn->telnet_vars);
   curlx_dyn_free(&tn->out);
   curlx_free(tn);
 }
 
-static CURLcode init_telnet(struct Curl_easy *data)
+স্থির CURLcode init_telnet(কাঠামো Curl_easy *তথ্য)
 {
-  struct TELNET *tn;
+  কাঠামো TELNET *tn;
 
-  tn = curlx_calloc(1, sizeof(struct TELNET));
-  if(!tn)
-    return CURLE_OUT_OF_MEMORY;
+  tn = curlx_calloc(1, আকার(কাঠামো TELNET));
+  যদি(!tn)
+    ফেরত CURLE_OUT_OF_MEMORY;
 
   curlx_dyn_init(&tn->out, 0xffff);
 
-  tn->telrcv_state = CURL_TS_DATA;
+  tn->telrcv_state = CURL_TS_তথ্য;
 
   /* Init suboptions */
   CURL_SB_CLEAR(tn);
@@ -199,8 +199,8 @@ static CURLcode init_telnet(struct Curl_easy *data)
   /* To be compliant with previous releases of libcurl we enable this option
      by default. This behavior can be changed with the "BINARY" option in
      CURLOPT_TELNETOPTIONS */
-  tn->us_preferred[CURL_TELOPT_BINARY] = CURL_YES;
-  tn->him_preferred[CURL_TELOPT_BINARY] = CURL_YES;
+  tn->us_preferred[CURL_TELOPT_দ্বিমিক] = CURL_YES;
+  tn->him_preferred[CURL_TELOPT_দ্বিমিক] = CURL_YES;
 
   /* We must allow the server to echo what we sent but it is not necessary
      to request the server to do so (it might force the server to close
@@ -219,448 +219,448 @@ static CURLcode init_telnet(struct Curl_easy *data)
      that may have been sent using the TERMINAL TYPE Telnet option). */
   tn->subnegotiation[CURL_TELOPT_NAWS] = CURL_YES;
 
-  return Curl_meta_set(data, CURL_META_TELNET_EASY, tn, telnet_easy_dtor);
+  ফেরত Curl_meta_set(তথ্য, CURL_META_TELNET_EASY, tn, telnet_easy_dtor);
 }
 
-static void send_negotiation(struct Curl_easy *data, int cmd, int option)
+স্থির শূন্য send_negotiation(কাঠামো Curl_easy *তথ্য, পূর্ণসংখ্যা cmd, পূর্ণসংখ্যা option)
 {
-  unsigned char buf[3];
+  unsigned অক্ষর buf[3];
   size_t nwritten;
-  CURLcode result;
+  CURLcode ফলাফল;
 
   buf[0] = CURL_IAC;
-  buf[1] = (unsigned char)cmd;
-  buf[2] = (unsigned char)option;
+  buf[1] = (unsigned অক্ষর)cmd;
+  buf[2] = (unsigned অক্ষর)option;
 
-  result = Curl_xfer_send(data, buf, 3, FALSE, &nwritten);
-  if(result)
-    failf(data, "Sending data failed: %s", curl_easy_strerror(result));
+  ফলাফল = Curl_xfer_send(তথ্য, buf, 3, FALSE, &nwritten);
+  যদি(ফলাফল)
+    failf(তথ্য, "Sending data failed: %s", curl_easy_strerror(ফলাফল));
 
-  printoption(data, "SENT", cmd, option);
+  printoption(তথ্য, "SENT", cmd, option);
 }
 
-static void set_remote_option(struct Curl_easy *data, struct TELNET *tn,
-                              int option, int newstate)
+স্থির শূন্য set_remote_option(কাঠামো Curl_easy *তথ্য, কাঠামো TELNET *tn,
+                              পূর্ণসংখ্যা option, পূর্ণসংখ্যা newstate)
 {
-  if(newstate == CURL_YES) {
-    switch(tn->him[option]) {
-    case CURL_NO:
+  যদি(newstate == CURL_YES) {
+    নির্বাচন(tn->him[option]) {
+    ক্ষেত্র CURL_NO:
       tn->him[option] = CURL_WANTYES;
-      send_negotiation(data, CURL_DO, option);
-      break;
+      send_negotiation(তথ্য, CURL_DO, option);
+      বিরতি;
 
-    case CURL_YES:
+    ক্ষেত্র CURL_YES:
       /* Already enabled */
-      break;
+      বিরতি;
 
-    case CURL_WANTNO:
-      switch(tn->himq[option]) {
-      case CURL_EMPTY:
+    ক্ষেত্র CURL_WANTNO:
+      নির্বাচন(tn->himq[option]) {
+      ক্ষেত্র CURL_EMPTY:
         /* Already negotiating for CURL_YES, queue the request */
         tn->himq[option] = CURL_OPPOSITE;
-        break;
-      case CURL_OPPOSITE:
+        বিরতি;
+      ক্ষেত্র CURL_OPPOSITE:
         /* Error: already queued an enable request */
-        break;
+        বিরতি;
       }
-      break;
+      বিরতি;
 
-    case CURL_WANTYES:
-      switch(tn->himq[option]) {
-      case CURL_EMPTY:
+    ক্ষেত্র CURL_WANTYES:
+      নির্বাচন(tn->himq[option]) {
+      ক্ষেত্র CURL_EMPTY:
         /* Error: already negotiating for enable */
-        break;
-      case CURL_OPPOSITE:
+        বিরতি;
+      ক্ষেত্র CURL_OPPOSITE:
         tn->himq[option] = CURL_EMPTY;
-        break;
+        বিরতি;
       }
-      break;
+      বিরতি;
     }
   }
-  else { /* NO */
-    switch(tn->him[option]) {
-    case CURL_NO:
+  অন্যথা { /* NO */
+    নির্বাচন(tn->him[option]) {
+    ক্ষেত্র CURL_NO:
       /* Already disabled */
-      break;
+      বিরতি;
 
-    case CURL_YES:
+    ক্ষেত্র CURL_YES:
       tn->him[option] = CURL_WANTNO;
-      send_negotiation(data, CURL_DONT, option);
-      break;
+      send_negotiation(তথ্য, CURL_DONT, option);
+      বিরতি;
 
-    case CURL_WANTNO:
-      switch(tn->himq[option]) {
-      case CURL_EMPTY:
+    ক্ষেত্র CURL_WANTNO:
+      নির্বাচন(tn->himq[option]) {
+      ক্ষেত্র CURL_EMPTY:
         /* Already negotiating for NO */
-        break;
-      case CURL_OPPOSITE:
+        বিরতি;
+      ক্ষেত্র CURL_OPPOSITE:
         tn->himq[option] = CURL_EMPTY;
-        break;
+        বিরতি;
       }
-      break;
+      বিরতি;
 
-    case CURL_WANTYES:
-      switch(tn->himq[option]) {
-      case CURL_EMPTY:
+    ক্ষেত্র CURL_WANTYES:
+      নির্বাচন(tn->himq[option]) {
+      ক্ষেত্র CURL_EMPTY:
         tn->himq[option] = CURL_OPPOSITE;
-        break;
-      case CURL_OPPOSITE:
-        break;
+        বিরতি;
+      ক্ষেত্র CURL_OPPOSITE:
+        বিরতি;
       }
-      break;
+      বিরতি;
     }
   }
 }
 
-static void set_local_option(struct Curl_easy *data, struct TELNET *tn,
-                             int option, int newstate)
+স্থির শূন্য set_local_option(কাঠামো Curl_easy *তথ্য, কাঠামো TELNET *tn,
+                             পূর্ণসংখ্যা option, পূর্ণসংখ্যা newstate)
 {
-  if(newstate == CURL_YES) {
-    switch(tn->us[option]) {
-    case CURL_NO:
+  যদি(newstate == CURL_YES) {
+    নির্বাচন(tn->us[option]) {
+    ক্ষেত্র CURL_NO:
       tn->us[option] = CURL_WANTYES;
-      send_negotiation(data, CURL_WILL, option);
-      break;
+      send_negotiation(তথ্য, CURL_WILL, option);
+      বিরতি;
 
-    case CURL_YES:
+    ক্ষেত্র CURL_YES:
       /* Already enabled */
-      break;
+      বিরতি;
 
-    case CURL_WANTNO:
-      switch(tn->usq[option]) {
-      case CURL_EMPTY:
+    ক্ষেত্র CURL_WANTNO:
+      নির্বাচন(tn->usq[option]) {
+      ক্ষেত্র CURL_EMPTY:
         /* Already negotiating for CURL_YES, queue the request */
         tn->usq[option] = CURL_OPPOSITE;
-        break;
-      case CURL_OPPOSITE:
+        বিরতি;
+      ক্ষেত্র CURL_OPPOSITE:
         /* Error: already queued an enable request */
-        break;
+        বিরতি;
       }
-      break;
+      বিরতি;
 
-    case CURL_WANTYES:
-      switch(tn->usq[option]) {
-      case CURL_EMPTY:
+    ক্ষেত্র CURL_WANTYES:
+      নির্বাচন(tn->usq[option]) {
+      ক্ষেত্র CURL_EMPTY:
         /* Error: already negotiating for enable */
-        break;
-      case CURL_OPPOSITE:
+        বিরতি;
+      ক্ষেত্র CURL_OPPOSITE:
         tn->usq[option] = CURL_EMPTY;
-        break;
+        বিরতি;
       }
-      break;
+      বিরতি;
     }
   }
-  else { /* NO */
-    switch(tn->us[option]) {
-    case CURL_NO:
+  অন্যথা { /* NO */
+    নির্বাচন(tn->us[option]) {
+    ক্ষেত্র CURL_NO:
       /* Already disabled */
-      break;
+      বিরতি;
 
-    case CURL_YES:
+    ক্ষেত্র CURL_YES:
       tn->us[option] = CURL_WANTNO;
-      send_negotiation(data, CURL_WONT, option);
-      break;
+      send_negotiation(তথ্য, CURL_WONT, option);
+      বিরতি;
 
-    case CURL_WANTNO:
-      switch(tn->usq[option]) {
-      case CURL_EMPTY:
+    ক্ষেত্র CURL_WANTNO:
+      নির্বাচন(tn->usq[option]) {
+      ক্ষেত্র CURL_EMPTY:
         /* Already negotiating for NO */
-        break;
-      case CURL_OPPOSITE:
+        বিরতি;
+      ক্ষেত্র CURL_OPPOSITE:
         tn->usq[option] = CURL_EMPTY;
-        break;
+        বিরতি;
       }
-      break;
+      বিরতি;
 
-    case CURL_WANTYES:
-      switch(tn->usq[option]) {
-      case CURL_EMPTY:
+    ক্ষেত্র CURL_WANTYES:
+      নির্বাচন(tn->usq[option]) {
+      ক্ষেত্র CURL_EMPTY:
         tn->usq[option] = CURL_OPPOSITE;
-        break;
-      case CURL_OPPOSITE:
-        break;
+        বিরতি;
+      ক্ষেত্র CURL_OPPOSITE:
+        বিরতি;
       }
-      break;
+      বিরতি;
     }
   }
 }
 
-static void telnet_negotiate(struct Curl_easy *data, struct TELNET *tn)
+স্থির শূন্য telnet_negotiate(কাঠামো Curl_easy *তথ্য, কাঠামো TELNET *tn)
 {
-  int i;
+  পূর্ণসংখ্যা i;
 
-  for(i = 0; i < CURL_NTELOPTS; i++) {
-    if(i == CURL_TELOPT_ECHO)
-      continue;
+  জন্য(i = 0; i < CURL_NTELOPTS; i++) {
+    যদি(i == CURL_TELOPT_ECHO)
+      চালু;
 
-    if(tn->us_preferred[i] == CURL_YES)
-      set_local_option(data, tn, i, CURL_YES);
+    যদি(tn->us_preferred[i] == CURL_YES)
+      set_local_option(তথ্য, tn, i, CURL_YES);
 
-    if(tn->him_preferred[i] == CURL_YES)
-      set_remote_option(data, tn, i, CURL_YES);
+    যদি(tn->him_preferred[i] == CURL_YES)
+      set_remote_option(তথ্য, tn, i, CURL_YES);
   }
 }
 
-static void rec_will(struct Curl_easy *data, struct TELNET *tn, int option)
+স্থির শূন্য rec_will(কাঠামো Curl_easy *তথ্য, কাঠামো TELNET *tn, পূর্ণসংখ্যা option)
 {
-  switch(tn->him[option]) {
-  case CURL_NO:
-    if(tn->him_preferred[option] == CURL_YES) {
+  নির্বাচন(tn->him[option]) {
+  ক্ষেত্র CURL_NO:
+    যদি(tn->him_preferred[option] == CURL_YES) {
       tn->him[option] = CURL_YES;
-      send_negotiation(data, CURL_DO, option);
+      send_negotiation(তথ্য, CURL_DO, option);
     }
-    else
-      send_negotiation(data, CURL_DONT, option);
+    অন্যথা
+      send_negotiation(তথ্য, CURL_DONT, option);
 
-    break;
+    বিরতি;
 
-  case CURL_YES:
+  ক্ষেত্র CURL_YES:
     /* Already enabled */
-    break;
+    বিরতি;
 
-  case CURL_WANTNO:
-    switch(tn->himq[option]) {
-    case CURL_EMPTY:
+  ক্ষেত্র CURL_WANTNO:
+    নির্বাচন(tn->himq[option]) {
+    ক্ষেত্র CURL_EMPTY:
       /* Error: DONT answered by WILL */
       tn->him[option] = CURL_NO;
-      break;
-    case CURL_OPPOSITE:
+      বিরতি;
+    ক্ষেত্র CURL_OPPOSITE:
       /* Error: DONT answered by WILL */
       tn->him[option] = CURL_YES;
       tn->himq[option] = CURL_EMPTY;
-      break;
+      বিরতি;
     }
-    break;
+    বিরতি;
 
-  case CURL_WANTYES:
-    switch(tn->himq[option]) {
-    case CURL_EMPTY:
+  ক্ষেত্র CURL_WANTYES:
+    নির্বাচন(tn->himq[option]) {
+    ক্ষেত্র CURL_EMPTY:
       tn->him[option] = CURL_YES;
-      break;
-    case CURL_OPPOSITE:
+      বিরতি;
+    ক্ষেত্র CURL_OPPOSITE:
       tn->him[option] = CURL_WANTNO;
       tn->himq[option] = CURL_EMPTY;
-      send_negotiation(data, CURL_DONT, option);
-      break;
+      send_negotiation(তথ্য, CURL_DONT, option);
+      বিরতি;
     }
-    break;
+    বিরতি;
   }
 }
 
-static void rec_wont(struct Curl_easy *data, struct TELNET *tn, int option)
+স্থির শূন্য rec_wont(কাঠামো Curl_easy *তথ্য, কাঠামো TELNET *tn, পূর্ণসংখ্যা option)
 {
-  switch(tn->him[option]) {
-  case CURL_NO:
+  নির্বাচন(tn->him[option]) {
+  ক্ষেত্র CURL_NO:
     /* Already disabled */
-    break;
+    বিরতি;
 
-  case CURL_YES:
+  ক্ষেত্র CURL_YES:
     tn->him[option] = CURL_NO;
-    send_negotiation(data, CURL_DONT, option);
-    break;
+    send_negotiation(তথ্য, CURL_DONT, option);
+    বিরতি;
 
-  case CURL_WANTNO:
-    switch(tn->himq[option]) {
-    case CURL_EMPTY:
+  ক্ষেত্র CURL_WANTNO:
+    নির্বাচন(tn->himq[option]) {
+    ক্ষেত্র CURL_EMPTY:
       tn->him[option] = CURL_NO;
-      break;
+      বিরতি;
 
-    case CURL_OPPOSITE:
+    ক্ষেত্র CURL_OPPOSITE:
       tn->him[option] = CURL_WANTYES;
       tn->himq[option] = CURL_EMPTY;
-      send_negotiation(data, CURL_DO, option);
-      break;
+      send_negotiation(তথ্য, CURL_DO, option);
+      বিরতি;
     }
-    break;
+    বিরতি;
 
-  case CURL_WANTYES:
-    switch(tn->himq[option]) {
-    case CURL_EMPTY:
+  ক্ষেত্র CURL_WANTYES:
+    নির্বাচন(tn->himq[option]) {
+    ক্ষেত্র CURL_EMPTY:
       tn->him[option] = CURL_NO;
-      break;
-    case CURL_OPPOSITE:
+      বিরতি;
+    ক্ষেত্র CURL_OPPOSITE:
       tn->him[option] = CURL_NO;
       tn->himq[option] = CURL_EMPTY;
-      break;
+      বিরতি;
     }
-    break;
+    বিরতি;
   }
 }
 
-static void printsub(struct Curl_easy *data,
-                     int direction,                /* '<' or '>' */
-                     const unsigned char *pointer, /* ptr to suboption data */
-                     size_t length)                /* suboption data length */
+স্থির শূন্য printsub(কাঠামো Curl_easy *তথ্য,
+                     পূর্ণসংখ্যা direction,                /* '<' or '>' */
+                     ধ্রুবক unsigned অক্ষর *pointer, /* ptr to suboption data */
+                     size_t দৈর্ঘ্য)                /* suboption data length */
 {
-  if(data->set.verbose) {
-    unsigned int i = 0;
-    if(direction) {
-      infof(data, "%s IAC SB ", (direction == '<') ? "RCVD" : "SENT");
-      if(length >= 3) {
-        int j;
+  যদি(তথ্য->set.verbose) {
+    unsigned পূর্ণসংখ্যা i = 0;
+    যদি(direction) {
+      infof(তথ্য, "%s IAC SB ", (direction == '<') ? "RCVD" : "SENT");
+      যদি(দৈর্ঘ্য >= 3) {
+        পূর্ণসংখ্যা j;
 
-        i = pointer[length - 2];
-        j = pointer[length - 1];
+        i = pointer[দৈর্ঘ্য - 2];
+        j = pointer[দৈর্ঘ্য - 1];
 
-        if(i != CURL_IAC || j != CURL_SE) {
-          infof(data, "(terminated by ");
-          if(CURL_TELOPT_OK(i))
-            infof(data, "%s ", CURL_TELOPT(i));
-          else if(CURL_TELCMD_OK(i))
-            infof(data, "%s ", CURL_TELCMD(i));
-          else
-            infof(data, "%u ", i);
-          if(CURL_TELOPT_OK(j))
-            infof(data, "%s", CURL_TELOPT(j));
-          else if(CURL_TELCMD_OK(j))
-            infof(data, "%s", CURL_TELCMD(j));
-          else
-            infof(data, "%d", j);
-          infof(data, ", not IAC SE) ");
+        যদি(i != CURL_IAC || j != CURL_SE) {
+          infof(তথ্য, "(terminated by ");
+          যদি(CURL_TELOPT_OK(i))
+            infof(তথ্য, "%s ", CURL_TELOPT(i));
+          অন্যথা যদি(CURL_TELCMD_OK(i))
+            infof(তথ্য, "%s ", CURL_TELCMD(i));
+          অন্যথা
+            infof(তথ্য, "%u ", i);
+          যদি(CURL_TELOPT_OK(j))
+            infof(তথ্য, "%s", CURL_TELOPT(j));
+          অন্যথা যদি(CURL_TELCMD_OK(j))
+            infof(তথ্য, "%s", CURL_TELCMD(j));
+          অন্যথা
+            infof(তথ্য, "%d", j);
+          infof(তথ্য, ", not IAC SE) ");
         }
       }
-      if(length >= 2)
-        length -= 2;
-      else /* bad input */
-        return;
+      যদি(দৈর্ঘ্য >= 2)
+        দৈর্ঘ্য -= 2;
+      অন্যথা /* bad input */
+        ফেরত;
     }
-    if(length <= 1) {
-      infof(data, "(Empty suboption?)");
-      return;
+    যদি(দৈর্ঘ্য <= 1) {
+      infof(তথ্য, "(Empty suboption?)");
+      ফেরত;
     }
 
-    if(CURL_TELOPT_OK(pointer[0])) {
-      switch(pointer[0]) {
-      case CURL_TELOPT_TTYPE:
-      case CURL_TELOPT_XDISPLOC:
-      case CURL_TELOPT_NEW_ENVIRON:
-      case CURL_TELOPT_NAWS:
-        infof(data, "%s", CURL_TELOPT(pointer[0]));
-        break;
-      default:
-        infof(data, "%s (unsupported)", CURL_TELOPT(pointer[0]));
-        break;
+    যদি(CURL_TELOPT_OK(pointer[0])) {
+      নির্বাচন(pointer[0]) {
+      ক্ষেত্র CURL_TELOPT_TTYPE:
+      ক্ষেত্র CURL_TELOPT_XDISPLOC:
+      ক্ষেত্র CURL_TELOPT_NEW_ENVIRON:
+      ক্ষেত্র CURL_TELOPT_NAWS:
+        infof(তথ্য, "%s", CURL_TELOPT(pointer[0]));
+        বিরতি;
+      পূর্বনির্ধারিত:
+        infof(তথ্য, "%s (unsupported)", CURL_TELOPT(pointer[0]));
+        বিরতি;
       }
     }
-    else
-      infof(data, "%d (unknown)", pointer[0]);
+    অন্যথা
+      infof(তথ্য, "%d (unknown)", pointer[0]);
 
-    switch(pointer[0]) {
-    case CURL_TELOPT_NAWS:
-      if(length > 4)
-        infof(data, "Width: %d ; Height: %d", (pointer[1] << 8) | pointer[2],
+    নির্বাচন(pointer[0]) {
+    ক্ষেত্র CURL_TELOPT_NAWS:
+      যদি(দৈর্ঘ্য > 4)
+        infof(তথ্য, "Width: %d ; Height: %d", (pointer[1] << 8) | pointer[2],
               (pointer[3] << 8) | pointer[4]);
-      break;
-    default:
-      switch(pointer[1]) {
-      case CURL_TELQUAL_IS:
-        infof(data, " IS");
-        break;
-      case CURL_TELQUAL_SEND:
-        infof(data, " SEND");
-        break;
-      case CURL_TELQUAL_INFO:
-        infof(data, " INFO/REPLY");
-        break;
-      case CURL_TELQUAL_NAME:
-        infof(data, " NAME");
-        break;
+      বিরতি;
+    পূর্বনির্ধারিত:
+      নির্বাচন(pointer[1]) {
+      ক্ষেত্র CURL_TELQUAL_IS:
+        infof(তথ্য, " IS");
+        বিরতি;
+      ক্ষেত্র CURL_TELQUAL_SEND:
+        infof(তথ্য, " SEND");
+        বিরতি;
+      ক্ষেত্র CURL_TELQUAL_INFO:
+        infof(তথ্য, " INFO/REPLY");
+        বিরতি;
+      ক্ষেত্র CURL_TELQUAL_NAME:
+        infof(তথ্য, " NAME");
+        বিরতি;
       }
 
-      switch(pointer[0]) {
-      case CURL_TELOPT_TTYPE:
-      case CURL_TELOPT_XDISPLOC:
-        infof(data, " \"%.*s\"",
-              (int)((length > 2) ? (length - 2) : 0), &pointer[2]);
-        break;
-      case CURL_TELOPT_NEW_ENVIRON:
-        if(pointer[1] == CURL_TELQUAL_IS) {
-          infof(data, " ");
-          for(i = 3; i < length; i++) {
-            switch(pointer[i]) {
-            case CURL_NEW_ENV_VAR:
-              infof(data, ", ");
-              break;
-            case CURL_NEW_ENV_VALUE:
-              infof(data, " = ");
-              break;
-            default:
-              infof(data, "%c", pointer[i]);
-              break;
+      নির্বাচন(pointer[0]) {
+      ক্ষেত্র CURL_TELOPT_TTYPE:
+      ক্ষেত্র CURL_TELOPT_XDISPLOC:
+        infof(তথ্য, " \"%.*s\"",
+              (পূর্ণসংখ্যা)((দৈর্ঘ্য > 2) ? (দৈর্ঘ্য - 2) : 0), &pointer[2]);
+        বিরতি;
+      ক্ষেত্র CURL_TELOPT_NEW_ENVIRON:
+        যদি(pointer[1] == CURL_TELQUAL_IS) {
+          infof(তথ্য, " ");
+          জন্য(i = 3; i < দৈর্ঘ্য; i++) {
+            নির্বাচন(pointer[i]) {
+            ক্ষেত্র CURL_NEW_ENV_VAR:
+              infof(তথ্য, ", ");
+              বিরতি;
+            ক্ষেত্র CURL_NEW_ENV_মান:
+              infof(তথ্য, " = ");
+              বিরতি;
+            পূর্বনির্ধারিত:
+              infof(তথ্য, "%c", pointer[i]);
+              বিরতি;
             }
           }
         }
-        break;
-      default:
-        for(i = 2; i < length; i++)
-          infof(data, " %.2x", pointer[i]);
-        break;
+        বিরতি;
+      পূর্বনির্ধারিত:
+        জন্য(i = 2; i < দৈর্ঘ্য; i++)
+          infof(তথ্য, " %.2x", pointer[i]);
+        বিরতি;
       }
     }
   }
 }
 
 /* Escape and send a telnet data block */
-static CURLcode send_telnet_data(struct Curl_easy *data,
-                                 struct TELNET *tn,
-                                 const char *buffer, ssize_t nread)
+স্থির CURLcode send_telnet_তথ্য(কাঠামো Curl_easy *তথ্য,
+                                 কাঠামো TELNET *tn,
+                                 ধ্রুবক অক্ষর *বাফার, ssize_t nread)
 {
   size_t i, outlen;
-  const unsigned char *outbuf;
-  CURLcode result = CURLE_OK;
+  ধ্রুবক unsigned অক্ষর *outbuf;
+  CURLcode ফলাফল = CURLE_OK;
   size_t bytes_written;
-  size_t total_written = 0;
-  struct connectdata *conn = data->conn;
+  size_t যোগ_written = 0;
+  কাঠামো connectdata *conn = তথ্য->conn;
 
   DEBUGASSERT(tn);
   DEBUGASSERT(nread > 0);
-  if(nread < 0)
-    return CURLE_TOO_LARGE;
+  যদি(nread < 0)
+    ফেরত CURLE_TOO_LARGE;
 
-  if(memchr(buffer, CURL_IAC, nread)) {
+  যদি(memchr(বাফার, CURL_IAC, nread)) {
     /* only use the escape buffer when necessary */
     curlx_dyn_reset(&tn->out);
 
-    for(i = 0; i < (size_t)nread && !result; i++) {
-      result = curlx_dyn_addn(&tn->out, &buffer[i], 1);
-      if(!result && ((unsigned char)buffer[i] == CURL_IAC))
+    জন্য(i = 0; i < (size_t)nread && !ফলাফল; i++) {
+      ফলাফল = curlx_dyn_addn(&tn->out, &বাফার[i], 1);
+      যদি(!ফলাফল && ((unsigned অক্ষর)বাফার[i] == CURL_IAC))
         /* IAC is FF in hex */
-        result = curlx_dyn_addn(&tn->out, "\xff", 1);
+        ফলাফল = curlx_dyn_addn(&tn->out, "\xff", 1);
     }
 
     outlen = curlx_dyn_len(&tn->out);
     outbuf = curlx_dyn_uptr(&tn->out);
   }
-  else {
+  অন্যথা {
     outlen = (size_t)nread;
-    outbuf = (const unsigned char *)buffer;
+    outbuf = (ধ্রুবক unsigned অক্ষর *)বাফার;
   }
-  while(!result && total_written < outlen) {
+  যখন(!ফলাফল && যোগ_written < outlen) {
     /* Make sure socket is writable to avoid EWOULDBLOCK condition */
-    struct pollfd pfd[1];
-    timediff_t timeout_ms = Curl_timeleft_ms(data);
+    কাঠামো pollfd pfd[1];
+    timediff_t timeout_ms = Curl_timeleft_ms(তথ্য);
     pfd[0].fd = conn->sock[FIRSTSOCKET];
     pfd[0].events = POLLOUT;
-    if(timeout_ms < 0)
-      return CURLE_OPERATION_TIMEDOUT;
+    যদি(timeout_ms < 0)
+      ফেরত CURLE_OPERATION_TIMEDOUT;
     /* 0 means no timeout configured; pass -1 to poll for infinite wait */
-    switch(Curl_poll(pfd, 1, timeout_ms ? timeout_ms : -1)) {
-    case -1:                    /* error, abort writing */
-      result = CURLE_SEND_ERROR;
-      break;
-    case 0:                     /* timeout */
-      result = CURLE_OPERATION_TIMEDOUT;
-      break;
-    default:                    /* write! */
+    নির্বাচন(Curl_poll(pfd, 1, timeout_ms ? timeout_ms : -1)) {
+    ক্ষেত্র -1:                    /* error, abort writing */
+      ফলাফল = CURLE_SEND_ERROR;
+      বিরতি;
+    ক্ষেত্র 0:                     /* timeout */
+      ফলাফল = CURLE_OPERATION_TIMEDOUT;
+      বিরতি;
+    পূর্বনির্ধারিত:                    /* write! */
       bytes_written = 0;
-      result = Curl_xfer_send(data, outbuf + total_written,
-                              outlen - total_written, FALSE, &bytes_written);
-      total_written += bytes_written;
-      break;
+      ফলাফল = Curl_xfer_send(তথ্য, outbuf + যোগ_written,
+                              outlen - যোগ_written, FALSE, &bytes_written);
+      যোগ_written += bytes_written;
+      বিরতি;
     }
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
@@ -668,16 +668,16 @@ static CURLcode send_telnet_data(struct Curl_easy *data,
  *
  * Send suboption information to the server side.
  */
-static void sendsuboption(struct Curl_easy *data,
-                          struct TELNET *tn, int option)
+স্থির শূন্য sendsuboption(কাঠামো Curl_easy *তথ্য,
+                          কাঠামো TELNET *tn, পূর্ণসংখ্যা option)
 {
   size_t nwritten;
   unsigned short x, y;
-  const unsigned char *uc1, *uc2;
-  CURLcode result;
+  ধ্রুবক unsigned অক্ষর *uc1, *uc2;
+  CURLcode ফলাফল;
 
-  switch(option) {
-  case CURL_TELOPT_NAWS:
+  নির্বাচন(option) {
+  ক্ষেত্র CURL_TELOPT_NAWS:
     /* We prepare data to be sent */
     CURL_SB_CLEAR(tn);
     CURL_SB_ACCUM(tn, CURL_IAC);
@@ -687,8 +687,8 @@ static void sendsuboption(struct Curl_easy *data,
     /* Window size must be sent according to the 'network order' */
     x = htons(tn->subopt_wsx);
     y = htons(tn->subopt_wsy);
-    uc1 = (const unsigned char *)&x;
-    uc2 = (const unsigned char *)&y;
+    uc1 = (ধ্রুবক unsigned অক্ষর *)&x;
+    uc2 = (ধ্রুবক unsigned অক্ষর *)&y;
     CURL_SB_ACCUM(tn, uc1[0]);
     CURL_SB_ACCUM(tn, uc1[1]);
     CURL_SB_ACCUM(tn, uc2[0]);
@@ -699,267 +699,267 @@ static void sendsuboption(struct Curl_easy *data,
     CURL_SB_TERM(tn);
     /* data suboption is now ready */
 
-    printsub(data, '>', (const unsigned char *)tn->subbuffer + 2,
+    printsub(তথ্য, '>', (ধ্রুবক unsigned অক্ষর *)tn->subbuffer + 2,
              CURL_SB_LEN(tn) - 2);
 
     /* we send the header of the suboption... */
-    result = Curl_xfer_send(data, tn->subbuffer, 3, FALSE, &nwritten);
-    if(result)
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
+    ফলাফল = Curl_xfer_send(তথ্য, tn->subbuffer, 3, FALSE, &nwritten);
+    যদি(ফলাফল)
+      failf(তথ্য, "Sending data failed: %s", curl_easy_strerror(ফলাফল));
     /* ... then the window size with the send_telnet_data() function
        to deal with 0xFF cases ... */
-    send_telnet_data(data, tn, (const char *)tn->subbuffer + 3, 4);
+    send_telnet_তথ্য(তথ্য, tn, (ধ্রুবক অক্ষর *)tn->subbuffer + 3, 4);
     /* ... and the footer */
-    result = Curl_xfer_send(data, tn->subbuffer + 7, 2, FALSE, &nwritten);
-    if(result)
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
-    break;
+    ফলাফল = Curl_xfer_send(তথ্য, tn->subbuffer + 7, 2, FALSE, &nwritten);
+    যদি(ফলাফল)
+      failf(তথ্য, "Sending data failed: %s", curl_easy_strerror(ফলাফল));
+    বিরতি;
   }
 }
 
-static void rec_do(struct Curl_easy *data, struct TELNET *tn, int option)
+স্থির শূন্য rec_do(কাঠামো Curl_easy *তথ্য, কাঠামো TELNET *tn, পূর্ণসংখ্যা option)
 {
-  switch(tn->us[option]) {
-  case CURL_NO:
-    if(tn->us_preferred[option] == CURL_YES) {
+  নির্বাচন(tn->us[option]) {
+  ক্ষেত্র CURL_NO:
+    যদি(tn->us_preferred[option] == CURL_YES) {
       tn->us[option] = CURL_YES;
-      send_negotiation(data, CURL_WILL, option);
-      if(tn->subnegotiation[option] == CURL_YES)
+      send_negotiation(তথ্য, CURL_WILL, option);
+      যদি(tn->subnegotiation[option] == CURL_YES)
         /* transmission of data option */
-        sendsuboption(data, tn, option);
+        sendsuboption(তথ্য, tn, option);
     }
-    else if(tn->subnegotiation[option] == CURL_YES) {
+    অন্যথা যদি(tn->subnegotiation[option] == CURL_YES) {
       /* send information to achieve this option */
       tn->us[option] = CURL_YES;
-      send_negotiation(data, CURL_WILL, option);
-      sendsuboption(data, tn, option);
+      send_negotiation(তথ্য, CURL_WILL, option);
+      sendsuboption(তথ্য, tn, option);
     }
-    else
-      send_negotiation(data, CURL_WONT, option);
-    break;
+    অন্যথা
+      send_negotiation(তথ্য, CURL_WONT, option);
+    বিরতি;
 
-  case CURL_YES:
+  ক্ষেত্র CURL_YES:
     /* Already enabled */
-    break;
+    বিরতি;
 
-  case CURL_WANTNO:
-    switch(tn->usq[option]) {
-    case CURL_EMPTY:
+  ক্ষেত্র CURL_WANTNO:
+    নির্বাচন(tn->usq[option]) {
+    ক্ষেত্র CURL_EMPTY:
       /* Error: DONT answered by WILL */
       tn->us[option] = CURL_NO;
-      break;
-    case CURL_OPPOSITE:
+      বিরতি;
+    ক্ষেত্র CURL_OPPOSITE:
       /* Error: DONT answered by WILL */
       tn->us[option] = CURL_YES;
       tn->usq[option] = CURL_EMPTY;
-      break;
+      বিরতি;
     }
-    break;
+    বিরতি;
 
-  case CURL_WANTYES:
-    switch(tn->usq[option]) {
-    case CURL_EMPTY:
+  ক্ষেত্র CURL_WANTYES:
+    নির্বাচন(tn->usq[option]) {
+    ক্ষেত্র CURL_EMPTY:
       tn->us[option] = CURL_YES;
-      if(tn->subnegotiation[option] == CURL_YES) {
+      যদি(tn->subnegotiation[option] == CURL_YES) {
         /* transmission of data option */
-        sendsuboption(data, tn, option);
+        sendsuboption(তথ্য, tn, option);
       }
-      break;
-    case CURL_OPPOSITE:
+      বিরতি;
+    ক্ষেত্র CURL_OPPOSITE:
       tn->us[option] = CURL_WANTNO;
       tn->usq[option] = CURL_EMPTY;
-      send_negotiation(data, CURL_WONT, option);
-      break;
+      send_negotiation(তথ্য, CURL_WONT, option);
+      বিরতি;
     }
-    break;
+    বিরতি;
   }
 }
 
-static void rec_dont(struct Curl_easy *data, struct TELNET *tn, int option)
+স্থির শূন্য rec_dont(কাঠামো Curl_easy *তথ্য, কাঠামো TELNET *tn, পূর্ণসংখ্যা option)
 {
-  switch(tn->us[option]) {
-  case CURL_NO:
+  নির্বাচন(tn->us[option]) {
+  ক্ষেত্র CURL_NO:
     /* Already disabled */
-    break;
+    বিরতি;
 
-  case CURL_YES:
+  ক্ষেত্র CURL_YES:
     tn->us[option] = CURL_NO;
-    send_negotiation(data, CURL_WONT, option);
-    break;
+    send_negotiation(তথ্য, CURL_WONT, option);
+    বিরতি;
 
-  case CURL_WANTNO:
-    switch(tn->usq[option]) {
-    case CURL_EMPTY:
+  ক্ষেত্র CURL_WANTNO:
+    নির্বাচন(tn->usq[option]) {
+    ক্ষেত্র CURL_EMPTY:
       tn->us[option] = CURL_NO;
-      break;
+      বিরতি;
 
-    case CURL_OPPOSITE:
+    ক্ষেত্র CURL_OPPOSITE:
       tn->us[option] = CURL_WANTYES;
       tn->usq[option] = CURL_EMPTY;
-      send_negotiation(data, CURL_WILL, option);
-      break;
+      send_negotiation(তথ্য, CURL_WILL, option);
+      বিরতি;
     }
-    break;
+    বিরতি;
 
-  case CURL_WANTYES:
-    switch(tn->usq[option]) {
-    case CURL_EMPTY:
+  ক্ষেত্র CURL_WANTYES:
+    নির্বাচন(tn->usq[option]) {
+    ক্ষেত্র CURL_EMPTY:
       tn->us[option] = CURL_NO;
-      break;
-    case CURL_OPPOSITE:
+      বিরতি;
+    ক্ষেত্র CURL_OPPOSITE:
       tn->us[option] = CURL_NO;
       tn->usq[option] = CURL_EMPTY;
-      break;
+      বিরতি;
     }
-    break;
+    বিরতি;
   }
 }
 
-static bool str_is_nonascii(const char *str)
+স্থির bool str_is_nonascii(ধ্রুবক অক্ষর *str)
 {
-  char c;
-  while((c = *str++) != 0)
-    if(c & 0x80)
-      return TRUE;
+  অক্ষর c;
+  যখন((c = *str++) != 0)
+    যদি(c & 0x80)
+      ফেরত TRUE;
 
-  return FALSE;
+  ফেরত FALSE;
 }
 
-static CURLcode check_telnet_options(struct Curl_easy *data,
-                                     struct TELNET *tn)
+স্থির CURLcode check_telnet_options(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো TELNET *tn)
 {
-  struct curl_slist *head;
-  struct curl_slist *beg;
-  CURLcode result = CURLE_OK;
+  কাঠামো curl_slist *শীর্ষ;
+  কাঠামো curl_slist *beg;
+  CURLcode ফলাফল = CURLE_OK;
 
   /* Add the username as an environment variable if it
      was given on the command line */
-  if(data->state.creds) {
-    char buffer[256];
-    if(str_is_nonascii(Curl_creds_user(data->conn->creds))) {
-      DEBUGF(infof(data, "set a non ASCII username in telnet"));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(তথ্য->state.creds) {
+    অক্ষর বাফার[256];
+    যদি(str_is_nonascii(Curl_creds_user(তথ্য->conn->creds))) {
+      DEBUGF(infof(তথ্য, "set a non ASCII username in telnet"));
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    curl_msnprintf(buffer, sizeof(buffer), "USER,%s",
-                   Curl_creds_user(data->conn->creds));
-    beg = curl_slist_append(tn->telnet_vars, buffer);
-    if(!beg) {
+    curl_msnprintf(বাফার, আকার(বাফার), "USER,%s",
+                   Curl_creds_user(তথ্য->conn->creds));
+    beg = curl_slist_append(tn->telnet_vars, বাফার);
+    যদি(!beg) {
       curl_slist_free_all(tn->telnet_vars);
-      tn->telnet_vars = NULL;
-      return CURLE_OUT_OF_MEMORY;
+      tn->telnet_vars = ফাঁকা;
+      ফেরত CURLE_OUT_OF_MEMORY;
     }
     tn->telnet_vars = beg;
     tn->us_preferred[CURL_TELOPT_NEW_ENVIRON] = CURL_YES;
   }
 
-  for(head = data->set.telnet_options; head && !result; head = head->next) {
+  জন্য(শীর্ষ = তথ্য->set.telnet_options; শীর্ষ && !ফলাফল; শীর্ষ = শীর্ষ->পরবর্তী) {
     size_t olen;
-    const char *option = head->data;
-    const char *arg;
-    const char *sep = strchr(option, '=');
-    if(sep) {
+    ধ্রুবক অক্ষর *option = শীর্ষ->তথ্য;
+    ধ্রুবক অক্ষর *arg;
+    ধ্রুবক অক্ষর *sep = strchr(option, '=');
+    যদি(sep) {
       olen = sep - option;
       arg = ++sep;
-      if(str_is_nonascii(arg))
-        continue;
-      switch(olen) {
-      case 5:
+      যদি(str_is_nonascii(arg))
+        চালু;
+      নির্বাচন(olen) {
+      ক্ষেত্র 5:
         /* Terminal type */
-        if(curl_strnequal(option, "TTYPE", 5)) {
+        যদি(curl_strnequal(option, "TTYPE", 5)) {
           tn->subopt_ttype = arg;
           tn->us_preferred[CURL_TELOPT_TTYPE] = CURL_YES;
-          break;
+          বিরতি;
         }
-        result = CURLE_UNKNOWN_OPTION;
-        break;
+        ফলাফল = CURLE_UNKNOWN_OPTION;
+        বিরতি;
 
-      case 8:
+      ক্ষেত্র 8:
         /* Display variable */
-        if(curl_strnequal(option, "XDISPLOC", 8)) {
+        যদি(curl_strnequal(option, "XDISPLOC", 8)) {
           tn->subopt_xdisploc = arg;
           tn->us_preferred[CURL_TELOPT_XDISPLOC] = CURL_YES;
-          break;
+          বিরতি;
         }
-        result = CURLE_UNKNOWN_OPTION;
-        break;
+        ফলাফল = CURLE_UNKNOWN_OPTION;
+        বিরতি;
 
-      case 7:
+      ক্ষেত্র 7:
         /* Environment variable */
-        if(curl_strnequal(option, "NEW_ENV", 7)) {
+        যদি(curl_strnequal(option, "NEW_ENV", 7)) {
           beg = curl_slist_append(tn->telnet_vars, arg);
-          if(!beg) {
-            result = CURLE_OUT_OF_MEMORY;
-            break;
+          যদি(!beg) {
+            ফলাফল = CURLE_OUT_OF_MEMORY;
+            বিরতি;
           }
           tn->telnet_vars = beg;
           tn->us_preferred[CURL_TELOPT_NEW_ENVIRON] = CURL_YES;
         }
-        else
-          result = CURLE_UNKNOWN_OPTION;
-        break;
+        অন্যথা
+          ফলাফল = CURLE_UNKNOWN_OPTION;
+        বিরতি;
 
-      case 2:
+      ক্ষেত্র 2:
         /* Window Size */
-        if(curl_strnequal(option, "WS", 2)) {
-          const char *p = arg;
+        যদি(curl_strnequal(option, "WS", 2)) {
+          ধ্রুবক অক্ষর *p = arg;
           curl_off_t x = 0;
           curl_off_t y = 0;
-          if(curlx_str_number(&p, &x, 0xffff) ||
+          যদি(curlx_str_সংখ্যা(&p, &x, 0xffff) ||
              curlx_str_single(&p, 'x') ||
-             curlx_str_number(&p, &y, 0xffff)) {
-            failf(data, "Syntax error in telnet option: %s", head->data);
-            result = CURLE_SETOPT_OPTION_SYNTAX;
+             curlx_str_সংখ্যা(&p, &y, 0xffff)) {
+            failf(তথ্য, "Syntax error in telnet option: %s", শীর্ষ->তথ্য);
+            ফলাফল = CURLE_SETOPT_OPTION_SYNTAX;
           }
-          else {
+          অন্যথা {
             tn->subopt_wsx = (unsigned short)x;
             tn->subopt_wsy = (unsigned short)y;
             tn->us_preferred[CURL_TELOPT_NAWS] = CURL_YES;
           }
         }
-        else
-          result = CURLE_UNKNOWN_OPTION;
-        break;
+        অন্যথা
+          ফলাফল = CURLE_UNKNOWN_OPTION;
+        বিরতি;
 
-      case 6:
+      ক্ষেত্র 6:
         /* To take care or not of the 8th bit in data exchange */
-        if(curl_strnequal(option, "BINARY", 6)) {
-          const char *p = arg;
-          curl_off_t binary_option;
-          if(!curlx_str_number(&p, &binary_option, 1) &&
-             (binary_option != 1)) {
-            tn->us_preferred[CURL_TELOPT_BINARY] = CURL_NO;
-            tn->him_preferred[CURL_TELOPT_BINARY] = CURL_NO;
+        যদি(curl_strnequal(option, "BINARY", 6)) {
+          ধ্রুবক অক্ষর *p = arg;
+          curl_off_t দ্বিমিক_option;
+          যদি(!curlx_str_সংখ্যা(&p, &দ্বিমিক_option, 1) &&
+             (দ্বিমিক_option != 1)) {
+            tn->us_preferred[CURL_TELOPT_দ্বিমিক] = CURL_NO;
+            tn->him_preferred[CURL_TELOPT_দ্বিমিক] = CURL_NO;
           }
         }
-        else
-          result = CURLE_UNKNOWN_OPTION;
-        break;
-      default:
-        failf(data, "Unknown telnet option %s", head->data);
-        result = CURLE_UNKNOWN_OPTION;
-        break;
+        অন্যথা
+          ফলাফল = CURLE_UNKNOWN_OPTION;
+        বিরতি;
+      পূর্বনির্ধারিত:
+        failf(তথ্য, "Unknown telnet option %s", শীর্ষ->তথ্য);
+        ফলাফল = CURLE_UNKNOWN_OPTION;
+        বিরতি;
       }
     }
-    else {
-      failf(data, "Syntax error in telnet option: %s", head->data);
-      result = CURLE_SETOPT_OPTION_SYNTAX;
+    অন্যথা {
+      failf(তথ্য, "Syntax error in telnet option: %s", শীর্ষ->তথ্য);
+      ফলাফল = CURLE_SETOPT_OPTION_SYNTAX;
     }
   }
 
-  if(result) {
+  যদি(ফলাফল) {
     curl_slist_free_all(tn->telnet_vars);
-    tn->telnet_vars = NULL;
+    tn->telnet_vars = ফাঁকা;
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* if the option contains an IAC code, it should be escaped in the output, but
    as we cannot think of any legit way to send that as part of the content we
    rather ban its use instead */
-static bool bad_option(const char *data)
+স্থির bool bad_option(ধ্রুবক অক্ষর *তথ্য)
 {
-  return !data || !!strchr(data, CURL_IAC);
+  ফেরত !তথ্য || !!strchr(তথ্য, CURL_IAC);
 }
 
 /*
@@ -968,291 +968,291 @@ static bool bad_option(const char *data)
  * Look at the sub-option buffer, and try to be helpful to the other
  * side.
  */
-static CURLcode suboption(struct Curl_easy *data, struct TELNET *tn)
+স্থির CURLcode suboption(কাঠামো Curl_easy *তথ্য, কাঠামো TELNET *tn)
 {
-  struct curl_slist *v;
-  unsigned char temp[2048];
+  কাঠামো curl_slist *v;
+  unsigned অক্ষর অস্থায়ী[2048];
   size_t nwritten;
   size_t len;
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
-  if(!CURL_SB_LEN(tn)) /* ignore empty suboption */
-    return CURLE_OK;
+  যদি(!CURL_SB_LEN(tn)) /* ignore empty suboption */
+    ফেরত CURLE_OK;
 
-  printsub(data, '<', (const unsigned char *)tn->subbuffer,
+  printsub(তথ্য, '<', (ধ্রুবক unsigned অক্ষর *)tn->subbuffer,
            CURL_SB_LEN(tn) + 2);
-  switch(CURL_SB_GET(tn)) {
-  case CURL_TELOPT_TTYPE:
-    if(bad_option(tn->subopt_ttype))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(strlen(tn->subopt_ttype) > 1000) {
-      failf(data, "Too long telnet TTYPE");
-      return CURLE_SEND_ERROR;
+  নির্বাচন(CURL_SB_GET(tn)) {
+  ক্ষেত্র CURL_TELOPT_TTYPE:
+    যদি(bad_option(tn->subopt_ttype))
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+    যদি(strlen(tn->subopt_ttype) > 1000) {
+      failf(তথ্য, "Too long telnet TTYPE");
+      ফেরত CURLE_SEND_ERROR;
     }
-    len = curl_msnprintf((char *)temp, sizeof(temp), "%c%c%c%c%s%c%c",
+    len = curl_msnprintf((অক্ষর *)অস্থায়ী, আকার(অস্থায়ী), "%c%c%c%c%s%c%c",
                          CURL_IAC, CURL_SB, CURL_TELOPT_TTYPE,
                          CURL_TELQUAL_IS, tn->subopt_ttype, CURL_IAC,
                          CURL_SE);
-    result = Curl_xfer_send(data, temp, len, FALSE, &nwritten);
-    if(result) {
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
-      return result;
+    ফলাফল = Curl_xfer_send(তথ্য, অস্থায়ী, len, FALSE, &nwritten);
+    যদি(ফলাফল) {
+      failf(তথ্য, "Sending data failed: %s", curl_easy_strerror(ফলাফল));
+      ফেরত ফলাফল;
     }
-    printsub(data, '>', &temp[2], len-2);
-    break;
-  case CURL_TELOPT_XDISPLOC:
-    if(bad_option(tn->subopt_xdisploc))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(strlen(tn->subopt_xdisploc) > 1000) {
-      failf(data, "Too long telnet XDISPLOC");
-      return CURLE_SEND_ERROR;
+    printsub(তথ্য, '>', &অস্থায়ী[2], len-2);
+    বিরতি;
+  ক্ষেত্র CURL_TELOPT_XDISPLOC:
+    যদি(bad_option(tn->subopt_xdisploc))
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+    যদি(strlen(tn->subopt_xdisploc) > 1000) {
+      failf(তথ্য, "Too long telnet XDISPLOC");
+      ফেরত CURLE_SEND_ERROR;
     }
-    len = curl_msnprintf((char *)temp, sizeof(temp), "%c%c%c%c%s%c%c",
+    len = curl_msnprintf((অক্ষর *)অস্থায়ী, আকার(অস্থায়ী), "%c%c%c%c%s%c%c",
                          CURL_IAC, CURL_SB, CURL_TELOPT_XDISPLOC,
                          CURL_TELQUAL_IS, tn->subopt_xdisploc, CURL_IAC,
                          CURL_SE);
-    result = Curl_xfer_send(data, temp, len, FALSE, &nwritten);
-    if(result) {
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
-      return result;
+    ফলাফল = Curl_xfer_send(তথ্য, অস্থায়ী, len, FALSE, &nwritten);
+    যদি(ফলাফল) {
+      failf(তথ্য, "Sending data failed: %s", curl_easy_strerror(ফলাফল));
+      ফেরত ফলাফল;
     }
-    printsub(data, '>', &temp[2], len - 2);
-    break;
-  case CURL_TELOPT_NEW_ENVIRON:
-    len = curl_msnprintf((char *)temp, sizeof(temp), "%c%c%c%c",
+    printsub(তথ্য, '>', &অস্থায়ী[2], len - 2);
+    বিরতি;
+  ক্ষেত্র CURL_TELOPT_NEW_ENVIRON:
+    len = curl_msnprintf((অক্ষর *)অস্থায়ী, আকার(অস্থায়ী), "%c%c%c%c",
                          CURL_IAC, CURL_SB, CURL_TELOPT_NEW_ENVIRON,
                          CURL_TELQUAL_IS);
-    for(v = tn->telnet_vars; v; v = v->next) {
-      size_t tmplen = (strlen(v->data) + 1);
-      if(bad_option(v->data))
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+    জন্য(v = tn->telnet_vars; v; v = v->পরবর্তী) {
+      size_t tmplen = (strlen(v->তথ্য) + 1);
+      যদি(bad_option(v->তথ্য))
+        ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
       /* Add the variable if it fits */
-      if(len + tmplen < sizeof(temp) - 6) {
-        const char *s = strchr(v->data, ',');
-        if(!s)
-          len += curl_msnprintf((char *)&temp[len], sizeof(temp) - len,
-                                "%c%s", CURL_NEW_ENV_VAR, v->data);
-        else {
-          size_t vlen = s - v->data;
-          len += curl_msnprintf((char *)&temp[len], sizeof(temp) - len,
+      যদি(len + tmplen < আকার(অস্থায়ী) - 6) {
+        ধ্রুবক অক্ষর *s = strchr(v->তথ্য, ',');
+        যদি(!s)
+          len += curl_msnprintf((অক্ষর *)&অস্থায়ী[len], আকার(অস্থায়ী) - len,
+                                "%c%s", CURL_NEW_ENV_VAR, v->তথ্য);
+        অন্যথা {
+          size_t vlen = s - v->তথ্য;
+          len += curl_msnprintf((অক্ষর *)&অস্থায়ী[len], আকার(অস্থায়ী) - len,
                                 "%c%.*s%c%s", CURL_NEW_ENV_VAR,
-                                (int)vlen, v->data, CURL_NEW_ENV_VALUE, ++s);
+                                (পূর্ণসংখ্যা)vlen, v->তথ্য, CURL_NEW_ENV_মান, ++s);
         }
       }
     }
-    curl_msnprintf((char *)&temp[len], sizeof(temp) - len,
+    curl_msnprintf((অক্ষর *)&অস্থায়ী[len], আকার(অস্থায়ী) - len,
                    "%c%c", CURL_IAC, CURL_SE);
     len += 2;
-    result = Curl_xfer_send(data, temp, len, FALSE, &nwritten);
-    if(result) {
-      failf(data, "Sending data failed: %s", curl_easy_strerror(result));
-      return result;
+    ফলাফল = Curl_xfer_send(তথ্য, অস্থায়ী, len, FALSE, &nwritten);
+    যদি(ফলাফল) {
+      failf(তথ্য, "Sending data failed: %s", curl_easy_strerror(ফলাফল));
+      ফেরত ফলাফল;
     }
-    printsub(data, '>', &temp[2], len - 2);
-    break;
+    printsub(তথ্য, '>', &অস্থায়ী[2], len - 2);
+    বিরতি;
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode telrcv(struct Curl_easy *data,
-                       struct TELNET *tn,
-                       const unsigned char *inbuf, /* Data received from
+স্থির CURLcode telrcv(কাঠামো Curl_easy *তথ্য,
+                       কাঠামো TELNET *tn,
+                       ধ্রুবক unsigned অক্ষর *inbuf, /* Data received from
                                                       socket */
-                       ssize_t count)              /* Number of bytes
+                       ssize_t গুনতি)              /* Number of bytes
                                                       received */
 {
-  unsigned char c;
-  CURLcode result;
-  int in = 0;
-  int startwrite = -1;
+  unsigned অক্ষর c;
+  CURLcode ফলাফল;
+  পূর্ণসংখ্যা in = 0;
+  পূর্ণসংখ্যা startwrite = -1;
 
 #define startskipping()                                          \
-  if(startwrite >= 0) {                                          \
-    result = Curl_client_write(data,                             \
+  যদি(startwrite >= 0) {                                          \
+    ফলাফল = Curl_client_write(তথ্য,                             \
                                CLIENTWRITE_BODY,                 \
-                               (const char *)&inbuf[startwrite], \
+                               (ধ্রুবক অক্ষর *)&inbuf[startwrite], \
                                in-startwrite);                   \
-    if(result)                                                   \
-      return result;                                             \
+    যদি(ফলাফল)                                                   \
+      ফেরত ফলাফল;                                             \
   }                                                              \
   startwrite = -1
 
 #define writebyte()  \
-  if(startwrite < 0) \
+  যদি(startwrite < 0) \
     startwrite = in
 
 #define bufferflush() startskipping()
 
-  while(count--) {
+  যখন(গুনতি--) {
     c = inbuf[in];
 
-    switch(tn->telrcv_state) {
-    case CURL_TS_CR:
-      tn->telrcv_state = CURL_TS_DATA;
-      if(c == '\0') {
+    নির্বাচন(tn->telrcv_state) {
+    ক্ষেত্র CURL_TS_CR:
+      tn->telrcv_state = CURL_TS_তথ্য;
+      যদি(c == '\0') {
         startskipping();
-        break;   /* Ignore \0 after CR */
+        বিরতি;   /* Ignore \0 after CR */
       }
       writebyte();
-      break;
+      বিরতি;
 
-    case CURL_TS_DATA:
-      if(c == CURL_IAC) {
+    ক্ষেত্র CURL_TS_তথ্য:
+      যদি(c == CURL_IAC) {
         tn->telrcv_state = CURL_TS_IAC;
         startskipping();
-        break;
+        বিরতি;
       }
-      else if(c == '\r')
+      অন্যথা যদি(c == '\r')
         tn->telrcv_state = CURL_TS_CR;
       writebyte();
-      break;
+      বিরতি;
 
-    case CURL_TS_IAC:
+    ক্ষেত্র CURL_TS_IAC:
       DEBUGASSERT(startwrite < 0);
-      switch(c) {
-      case CURL_WILL:
+      নির্বাচন(c) {
+      ক্ষেত্র CURL_WILL:
         tn->telrcv_state = CURL_TS_WILL;
-        break;
-      case CURL_WONT:
+        বিরতি;
+      ক্ষেত্র CURL_WONT:
         tn->telrcv_state = CURL_TS_WONT;
-        break;
-      case CURL_DO:
+        বিরতি;
+      ক্ষেত্র CURL_DO:
         tn->telrcv_state = CURL_TS_DO;
-        break;
-      case CURL_DONT:
+        বিরতি;
+      ক্ষেত্র CURL_DONT:
         tn->telrcv_state = CURL_TS_DONT;
-        break;
-      case CURL_SB:
+        বিরতি;
+      ক্ষেত্র CURL_SB:
         CURL_SB_CLEAR(tn);
         tn->telrcv_state = CURL_TS_SB;
-        break;
-      case CURL_IAC:
-        tn->telrcv_state = CURL_TS_DATA;
+        বিরতি;
+      ক্ষেত্র CURL_IAC:
+        tn->telrcv_state = CURL_TS_তথ্য;
         writebyte();
-        break;
-      case CURL_DM:
-      case CURL_NOP:
-      case CURL_GA:
-      default:
-        tn->telrcv_state = CURL_TS_DATA;
-        printoption(data, "RCVD", CURL_IAC, c);
-        break;
+        বিরতি;
+      ক্ষেত্র CURL_DM:
+      ক্ষেত্র CURL_NOP:
+      ক্ষেত্র CURL_GA:
+      পূর্বনির্ধারিত:
+        tn->telrcv_state = CURL_TS_তথ্য;
+        printoption(তথ্য, "RCVD", CURL_IAC, c);
+        বিরতি;
       }
-      break;
+      বিরতি;
 
-    case CURL_TS_WILL:
-      printoption(data, "RCVD", CURL_WILL, c);
+    ক্ষেত্র CURL_TS_WILL:
+      printoption(তথ্য, "RCVD", CURL_WILL, c);
       tn->please_negotiate = 1;
-      rec_will(data, tn, c);
-      tn->telrcv_state = CURL_TS_DATA;
-      break;
+      rec_will(তথ্য, tn, c);
+      tn->telrcv_state = CURL_TS_তথ্য;
+      বিরতি;
 
-    case CURL_TS_WONT:
-      printoption(data, "RCVD", CURL_WONT, c);
+    ক্ষেত্র CURL_TS_WONT:
+      printoption(তথ্য, "RCVD", CURL_WONT, c);
       tn->please_negotiate = 1;
-      rec_wont(data, tn, c);
-      tn->telrcv_state = CURL_TS_DATA;
-      break;
+      rec_wont(তথ্য, tn, c);
+      tn->telrcv_state = CURL_TS_তথ্য;
+      বিরতি;
 
-    case CURL_TS_DO:
-      printoption(data, "RCVD", CURL_DO, c);
+    ক্ষেত্র CURL_TS_DO:
+      printoption(তথ্য, "RCVD", CURL_DO, c);
       tn->please_negotiate = 1;
-      rec_do(data, tn, c);
-      tn->telrcv_state = CURL_TS_DATA;
-      break;
+      rec_do(তথ্য, tn, c);
+      tn->telrcv_state = CURL_TS_তথ্য;
+      বিরতি;
 
-    case CURL_TS_DONT:
-      printoption(data, "RCVD", CURL_DONT, c);
+    ক্ষেত্র CURL_TS_DONT:
+      printoption(তথ্য, "RCVD", CURL_DONT, c);
       tn->please_negotiate = 1;
-      rec_dont(data, tn, c);
-      tn->telrcv_state = CURL_TS_DATA;
-      break;
+      rec_dont(তথ্য, tn, c);
+      tn->telrcv_state = CURL_TS_তথ্য;
+      বিরতি;
 
-    case CURL_TS_SB:
-      if(c == CURL_IAC)
+    ক্ষেত্র CURL_TS_SB:
+      যদি(c == CURL_IAC)
         tn->telrcv_state = CURL_TS_SE;
-      else
+      অন্যথা
         CURL_SB_ACCUM(tn, c);
-      break;
+      বিরতি;
 
-    case CURL_TS_SE:
-      if(c != CURL_SE) {
-        if(c != CURL_IAC) {
+    ক্ষেত্র CURL_TS_SE:
+      যদি(c != CURL_SE) {
+        যদি(c != CURL_IAC) {
           /*
            * This is an error. We only expect to get "IAC IAC" or "IAC SE".
            * Several things may have happened. An IAC was not doubled, the IAC
            * SE was left off, or another option got inserted into the
            * suboption are all possibilities.
            */
-          failf(data, "telnet: suboption error");
-          return CURLE_RECV_ERROR;
+          failf(তথ্য, "telnet: suboption error");
+          ফেরত CURLE_RECV_ERROR;
         }
         CURL_SB_ACCUM(tn, c);
         tn->telrcv_state = CURL_TS_SB;
       }
-      else {
+      অন্যথা {
         CURL_SB_ACCUM(tn, CURL_IAC);
         CURL_SB_ACCUM(tn, CURL_SE);
         tn->subpointer -= 2;
         CURL_SB_TERM(tn);
-        result = suboption(data, tn);   /* handle sub-option */
-        if(result)
-          return result;
-        tn->telrcv_state = CURL_TS_DATA;
+        ফলাফল = suboption(তথ্য, tn);   /* handle sub-option */
+        যদি(ফলাফল)
+          ফেরত ফলাফল;
+        tn->telrcv_state = CURL_TS_তথ্য;
       }
-      break;
+      বিরতি;
     }
     ++in;
   }
   bufferflush();
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode telnet_done(struct Curl_easy *data,
+স্থির CURLcode telnet_done(কাঠামো Curl_easy *তথ্য,
                             CURLcode status, bool premature)
 {
-  (void)status;
-  (void)premature;
-  Curl_meta_remove(data, CURL_META_TELNET_EASY);
-  return CURLE_OK;
+  (শূন্য)status;
+  (শূন্য)premature;
+  Curl_meta_remove(তথ্য, CURL_META_TELNET_EASY);
+  ফেরত CURLE_OK;
 }
 
-static CURLcode telnet_do(struct Curl_easy *data, bool *done)
+স্থির CURLcode telnet_do(কাঠামো Curl_easy *তথ্য, bool *done)
 {
-  CURLcode result;
-  struct connectdata *conn = data->conn;
+  CURLcode ফলাফল;
+  কাঠামো connectdata *conn = তথ্য->conn;
   curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
 #ifdef USE_WINSOCK
   WSAEVENT event_handle;
   WSANETWORKEVENTS events;
   HANDLE stdin_handle;
   HANDLE objs[2];
-  DWORD obj_count;
+  DWORD obj_গুনতি;
   DWORD wait_timeout;
   DWORD readfile_read;
-#else
+#অন্যথা
   timediff_t interval_ms;
-  struct pollfd pfd[2];
-  int poll_cnt;
+  কাঠামো pollfd pfd[2];
+  পূর্ণসংখ্যা poll_cnt;
   ssize_t snread;
 #endif
   bool keepon = TRUE;
-  char buffer[4 * 1024];
-  struct TELNET *tn;
+  অক্ষর বাফার[4 * 1024];
+  কাঠামো TELNET *tn;
 
   *done = TRUE; /* unconditionally */
 
-  result = init_telnet(data);
-  if(result)
-    return result;
+  ফলাফল = init_telnet(তথ্য);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
-  tn = Curl_meta_get(data, CURL_META_TELNET_EASY);
-  if(!tn)
-    return CURLE_FAILED_INIT;
+  tn = Curl_meta_get(তথ্য, CURL_META_TELNET_EASY);
+  যদি(!tn)
+    ফেরত CURLE_FAILED_INIT;
 
-  result = check_telnet_options(data, tn);
-  if(result)
-    return result;
+  ফলাফল = check_telnet_options(তথ্য, tn);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
 #ifdef USE_WINSOCK
   /* We want to wait for both stdin and the socket. Since
@@ -1262,19 +1262,19 @@ static CURLcode telnet_do(struct Curl_easy *data, bool *done)
 
   /* First, create a sockets event object */
   event_handle = WSACreateEvent();
-  if(event_handle == WSA_INVALID_EVENT) {
-    failf(data, "WSACreateEvent failed (%d)", SOCKERRNO);
-    return CURLE_FAILED_INIT;
+  যদি(event_handle == WSA_INVALID_EVENT) {
+    failf(তথ্য, "WSACreateEvent failed (%d)", SOCKERRNO);
+    ফেরত CURLE_FAILED_INIT;
   }
 
   /* Tell Winsock what events we want to listen to */
-  if(WSAEventSelect(sockfd, event_handle, FD_READ | FD_CLOSE)) {
+  যদি(WSAEventSelect(sockfd, event_handle, FD_READ | FD_CLOSE)) {
     WSACloseEvent(event_handle);
-    return CURLE_RECV_ERROR;
+    ফেরত CURLE_RECV_ERROR;
   }
 
   /* Then get the Windows file handle for stdin */
-  stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+  stdin_handle = GetStdHandle(STD_প্রবেশ_HANDLE);
 
   /* Create the list of objects to wait for */
   objs[0] = event_handle;
@@ -1282,285 +1282,285 @@ static CURLcode telnet_do(struct Curl_easy *data, bool *done)
 
   /* If stdin_handle is a pipe, use PeekNamedPipe() method to check it,
      else use the old WaitForMultipleObjects() way */
-  if(GetFileType(stdin_handle) == FILE_TYPE_PIPE || data->set.is_fread_set) {
+  যদি(GetFileType(stdin_handle) == FILE_TYPE_PIPE || তথ্য->set.is_fread_set) {
     /* Do not wait for stdin_handle, wait for event_handle */
-    obj_count = 1;
+    obj_গুনতি = 1;
     /* Check stdin_handle per 100 milliseconds */
     wait_timeout = 100;
   }
-  else {
-    obj_count = 2;
+  অন্যথা {
+    obj_গুনতি = 2;
     wait_timeout = 1000;
   }
 
   /* Keep on listening and act on events */
-  while(keepon) {
-    const DWORD buf_size = (DWORD)sizeof(buffer);
-    DWORD waitret = WaitForMultipleObjects(obj_count, objs,
+  যখন(keepon) {
+    ধ্রুবক DWORD buf_আকার = (DWORD)আকার(বাফার);
+    DWORD waitret = WaitForMultipleObjects(obj_গুনতি, objs,
                                            FALSE, wait_timeout);
-    switch(waitret) {
+    নির্বাচন(waitret) {
 
-    case WAIT_TIMEOUT: {
-      for(;;) {
-        if(data->set.is_fread_set) {
+    ক্ষেত্র WAIT_TIMEOUT: {
+      জন্য(;;) {
+        যদি(তথ্য->set.is_fread_set) {
           size_t n;
           /* read from user-supplied method */
-          n = data->state.fread_func(buffer, 1, buf_size, data->state.in);
-          if(n == CURL_READFUNC_ABORT) {
-            failf(data, "operation aborted by callback");
+          n = তথ্য->state.fread_func(বাফার, 1, buf_আকার, তথ্য->state.in);
+          যদি(n == CURL_READFUNC_ABORT) {
+            failf(তথ্য, "operation aborted by callback");
             keepon = FALSE;
-            result = CURLE_ABORTED_BY_CALLBACK;
-            break;
+            ফলাফল = CURLE_ABORTED_BY_CALLBACK;
+            বিরতি;
           }
 
-          if(n == CURL_READFUNC_PAUSE)
-            break;
+          যদি(n == CURL_READFUNC_PAUSE)
+            বিরতি;
 
-          if(n == 0)                        /* no bytes */
-            break;
+          যদি(n == 0)                        /* no bytes */
+            বিরতি;
 
           /* fall through with number of bytes read */
           readfile_read = (DWORD)n;
         }
-        else {
+        অন্যথা {
           /* read from stdin */
-          if(!PeekNamedPipe(stdin_handle, NULL, 0, NULL,
-                            &readfile_read, NULL)) {
+          যদি(!PeekNamedPipe(stdin_handle, ফাঁকা, 0, ফাঁকা,
+                            &readfile_read, ফাঁকা)) {
             keepon = FALSE;
-            result = CURLE_READ_ERROR;
-            break;
+            ফলাফল = CURLE_READ_ERROR;
+            বিরতি;
           }
 
-          if(!readfile_read)
-            break;
+          যদি(!readfile_read)
+            বিরতি;
 
-          if(!ReadFile(stdin_handle, buffer, buf_size, &readfile_read, NULL)) {
+          যদি(!ReadFile(stdin_handle, বাফার, buf_আকার, &readfile_read, ফাঁকা)) {
             keepon = FALSE;
-            result = CURLE_READ_ERROR;
-            break;
+            ফলাফল = CURLE_READ_ERROR;
+            বিরতি;
           }
         }
 
-        result = send_telnet_data(data, tn, buffer, readfile_read);
-        if(result) {
+        ফলাফল = send_telnet_তথ্য(তথ্য, tn, বাফার, readfile_read);
+        যদি(ফলাফল) {
           keepon = FALSE;
-          break;
+          বিরতি;
         }
       }
     }
-    break;
+    বিরতি;
 
-    case WAIT_OBJECT_0 + 1: {
-      if(!ReadFile(stdin_handle, buffer, buf_size, &readfile_read, NULL)) {
+    ক্ষেত্র WAIT_OBJECT_0 + 1: {
+      যদি(!ReadFile(stdin_handle, বাফার, buf_আকার, &readfile_read, ফাঁকা)) {
         keepon = FALSE;
-        result = CURLE_READ_ERROR;
-        break;
+        ফলাফল = CURLE_READ_ERROR;
+        বিরতি;
       }
 
-      result = send_telnet_data(data, tn, buffer, readfile_read);
-      if(result) {
+      ফলাফল = send_telnet_তথ্য(তথ্য, tn, বাফার, readfile_read);
+      যদি(ফলাফল) {
         keepon = FALSE;
-        break;
+        বিরতি;
       }
     }
-    break;
+    বিরতি;
 
-    case WAIT_OBJECT_0: {
+    ক্ষেত্র WAIT_OBJECT_0: {
       events.lNetworkEvents = 0;
-      if(WSAEnumNetworkEvents(sockfd, event_handle, &events) != 0) {
-        int sockerr = SOCKERRNO;
-        if(sockerr != SOCKEINPROGRESS) {
-          infof(data, "WSAEnumNetworkEvents failed (%d)", sockerr);
+      যদি(WSAEnumNetworkEvents(sockfd, event_handle, &events) != 0) {
+        পূর্ণসংখ্যা sockerr = SOCKERRNO;
+        যদি(sockerr != SOCKEINPROGRESS) {
+          infof(তথ্য, "WSAEnumNetworkEvents failed (%d)", sockerr);
           keepon = FALSE;
-          result = CURLE_READ_ERROR;
+          ফলাফল = CURLE_READ_ERROR;
         }
-        break;
+        বিরতি;
       }
-      if(events.lNetworkEvents & FD_READ) {
+      যদি(events.lNetworkEvents & FD_READ) {
         /* read data from network */
         size_t nread;
-        result = Curl_xfer_recv(data, buffer, sizeof(buffer), &nread);
+        ফলাফল = Curl_xfer_recv(তথ্য, বাফার, আকার(বাফার), &nread);
         /* read would have blocked. Loop again */
-        if(result == CURLE_AGAIN)
-          break;
+        যদি(ফলাফল == CURLE_AGAIN)
+          বিরতি;
         /* returned not-zero, this an error */
-        else if(result) {
+        অন্যথা যদি(ফলাফল) {
           keepon = FALSE;
-          break;
+          বিরতি;
         }
         /* returned zero but actually received 0 or less here,
            the server closed the connection and we bail out */
-        else if(!nread) {
+        অন্যথা যদি(!nread) {
           keepon = FALSE;
-          break;
+          বিরতি;
         }
 
-        result = telrcv(data, tn, (unsigned char *)buffer, nread);
-        if(result) {
+        ফলাফল = telrcv(তথ্য, tn, (unsigned অক্ষর *)বাফার, nread);
+        যদি(ফলাফল) {
           keepon = FALSE;
-          break;
+          বিরতি;
         }
 
         /* Negotiate if the peer has started negotiating,
            otherwise do not. We do not want to speak telnet with
            non-telnet servers, like POP or SMTP. */
-        if(tn->please_negotiate && !tn->already_negotiated) {
-          telnet_negotiate(data, tn);
+        যদি(tn->please_negotiate && !tn->already_negotiated) {
+          telnet_negotiate(তথ্য, tn);
           tn->already_negotiated = 1;
         }
       }
-      if(events.lNetworkEvents & FD_CLOSE) {
+      যদি(events.lNetworkEvents & FD_CLOSE) {
         keepon = FALSE;
       }
-      break;
+      বিরতি;
     }
     } /* switch */
 
-    if(Curl_timeleft_ms(data) < 0) {
-      failf(data, "Time-out");
-      result = CURLE_OPERATION_TIMEDOUT;
+    যদি(Curl_timeleft_ms(তথ্য) < 0) {
+      failf(তথ্য, "Time-out");
+      ফলাফল = CURLE_OPERATION_TIMEDOUT;
       keepon = FALSE;
     }
   }
 
   /* We called WSACreateEvent, so call WSACloseEvent */
-  if(!WSACloseEvent(event_handle)) {
-    infof(data, "WSACloseEvent failed (%d)", SOCKERRNO);
+  যদি(!WSACloseEvent(event_handle)) {
+    infof(তথ্য, "WSACloseEvent failed (%d)", SOCKERRNO);
   }
-#else
+#অন্যথা
   pfd[0].fd = sockfd;
   pfd[0].events = POLLIN;
 
-  if(data->set.is_fread_set) {
+  যদি(তথ্য->set.is_fread_set) {
     poll_cnt = 1;
     interval_ms = 100; /* poll user-supplied read function */
   }
-  else {
+  অন্যথা {
     /* really using fread, so infile is a FILE* */
-    pfd[1].fd = fileno((FILE *)data->state.in);
+    pfd[1].fd = fileno((FILE *)তথ্য->state.in);
     pfd[1].events = POLLIN;
     poll_cnt = 2;
     interval_ms = 1 * 1000;
-    if(pfd[1].fd < 0) {
-      failf(data, "cannot read input");
-      result = CURLE_RECV_ERROR;
+    যদি(pfd[1].fd < 0) {
+      failf(তথ্য, "cannot read input");
+      ফলাফল = CURLE_RECV_ERROR;
       keepon = FALSE;
     }
   }
 
-  while(keepon) {
-    DEBUGF(infof(data, "telnet_do, poll %d fds", poll_cnt));
-    switch(Curl_poll(pfd, (unsigned int)poll_cnt, interval_ms)) {
-    case -1:                    /* error, stop reading */
-      result = CURLE_RECV_ERROR;
+  যখন(keepon) {
+    DEBUGF(infof(তথ্য, "telnet_do, poll %d fds", poll_cnt));
+    নির্বাচন(Curl_poll(pfd, (unsigned পূর্ণসংখ্যা)poll_cnt, interval_ms)) {
+    ক্ষেত্র -1:                    /* error, stop reading */
+      ফলাফল = CURLE_RECV_ERROR;
       keepon = FALSE;
-      continue;
-    case 0:                     /* timeout */
+      চালু;
+    ক্ষেত্র 0:                     /* timeout */
       pfd[0].revents = 0;
       pfd[1].revents = 0;
       FALLTHROUGH();
-    default:                    /* read! */
-      if(pfd[0].revents & POLLIN) {
+    পূর্বনির্ধারিত:                    /* read! */
+      যদি(pfd[0].revents & POLLIN) {
         /* read data from network */
         size_t nread;
-        result = Curl_xfer_recv(data, buffer, sizeof(buffer), &nread);
+        ফলাফল = Curl_xfer_recv(তথ্য, বাফার, আকার(বাফার), &nread);
         /* read would have blocked. Loop again */
-        if(result == CURLE_AGAIN)
-          break;
+        যদি(ফলাফল == CURLE_AGAIN)
+          বিরতি;
         /* returned not-zero, this an error */
-        if(result) {
+        যদি(ফলাফল) {
           keepon = FALSE;
           /* In test 1452, macOS sees a ECONNRESET sometimes? Is this the
            * telnet test server not shutting down the socket in a clean way?
            * Seems to be timing related, happens more on slow debug build */
-          if(data->state.os_errno == SOCKECONNRESET) {
-            DEBUGF(infof(data, "telnet_do, unexpected ECONNRESET on recv"));
+          যদি(তথ্য->state.os_errno == SOCKECONNRESET) {
+            DEBUGF(infof(তথ্য, "telnet_do, unexpected ECONNRESET on recv"));
           }
-          break;
+          বিরতি;
         }
         /* returned zero but actually received 0 or less here,
            the server closed the connection and we bail out */
-        else if(!nread) {
+        অন্যথা যদি(!nread) {
           keepon = FALSE;
-          break;
+          বিরতি;
         }
 
-        Curl_pgrs_download_inc(data, nread);
-        result = telrcv(data, tn, (unsigned char *)buffer, nread);
-        if(result) {
+        Curl_pgrs_download_inc(তথ্য, nread);
+        ফলাফল = telrcv(তথ্য, tn, (unsigned অক্ষর *)বাফার, nread);
+        যদি(ফলাফল) {
           keepon = FALSE;
-          break;
+          বিরতি;
         }
 
         /* Negotiate if the peer has started negotiating,
            otherwise do not. We do not want to speak telnet with
            non-telnet servers, like POP or SMTP. */
-        if(tn->please_negotiate && !tn->already_negotiated) {
-          telnet_negotiate(data, tn);
+        যদি(tn->please_negotiate && !tn->already_negotiated) {
+          telnet_negotiate(তথ্য, tn);
           tn->already_negotiated = 1;
         }
       }
 
       snread = 0;
-      if(poll_cnt == 2) {
-        if(pfd[1].revents & POLLIN) { /* read from in file */
-          snread = read(pfd[1].fd, buffer, sizeof(buffer));
+      যদি(poll_cnt == 2) {
+        যদি(pfd[1].revents & POLLIN) { /* read from in file */
+          snread = পঠ(pfd[1].fd, বাফার, আকার(বাফার));
         }
       }
-      else {
+      অন্যথা {
         /* read from user-supplied method */
-        snread = (int)data->state.fread_func(buffer, 1, sizeof(buffer),
-                                             data->state.in);
-        if(snread == CURL_READFUNC_ABORT) {
-          failf(data, "operation aborted by callback");
-          result = CURLE_ABORTED_BY_CALLBACK;
+        snread = (পূর্ণসংখ্যা)তথ্য->state.fread_func(বাফার, 1, আকার(বাফার),
+                                             তথ্য->state.in);
+        যদি(snread == CURL_READFUNC_ABORT) {
+          failf(তথ্য, "operation aborted by callback");
+          ফলাফল = CURLE_ABORTED_BY_CALLBACK;
           keepon = FALSE;
-          break;
+          বিরতি;
         }
-        if(snread == CURL_READFUNC_PAUSE)
-          break;
+        যদি(snread == CURL_READFUNC_PAUSE)
+          বিরতি;
       }
 
-      if(snread > 0) {
-        result = send_telnet_data(data, tn, buffer, snread);
-        if(result) {
+      যদি(snread > 0) {
+        ফলাফল = send_telnet_তথ্য(তথ্য, tn, বাফার, snread);
+        যদি(ফলাফল) {
           keepon = FALSE;
-          break;
+          বিরতি;
         }
-        Curl_pgrs_upload_inc(data, (size_t)snread);
+        Curl_pgrs_upload_inc(তথ্য, (size_t)snread);
       }
-      else if(snread < 0) {
-        failf(data, "Failed to read input");
-        result = CURLE_READ_ERROR;
+      অন্যথা যদি(snread < 0) {
+        failf(তথ্য, "Failed to read input");
+        ফলাফল = CURLE_READ_ERROR;
         keepon = FALSE;
       }
 
-      break;
+      বিরতি;
     } /* poll switch statement */
 
-    if(Curl_timeleft_ms(data) < 0) {
-      failf(data, "Time-out");
-      result = CURLE_OPERATION_TIMEDOUT;
+    যদি(Curl_timeleft_ms(তথ্য) < 0) {
+      failf(তথ্য, "Time-out");
+      ফলাফল = CURLE_OPERATION_TIMEDOUT;
       keepon = FALSE;
     }
 
-    if(!result) {
-      result = Curl_pgrsUpdate(data);
-      if(result)
+    যদি(!ফলাফল) {
+      ফলাফল = Curl_pgrsUpdate(তথ্য);
+      যদি(ফলাফল)
         keepon = FALSE;
     }
   }
 #endif
   /* mark this as "no further transfer wanted" */
-  Curl_xfer_setup_nop(data);
+  Curl_xfer_setup_nop(তথ্য);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
  * TELNET protocol handler.
  */
-const struct Curl_protocol Curl_protocol_telnet = {
+ধ্রুবক কাঠামো Curl_protocol Curl_protocol_telnet = {
   ZERO_NULL,                            /* setup_connection */
   telnet_do,                            /* do_it */
   telnet_done,                          /* done */

@@ -23,28 +23,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#যদি !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 
-#include <quiche.h>
-#include <openssl/ssl.h>
+#অন্তর্ভাব <quiche.h>
+#অন্তর্ভাব <openssl/ssl.h>
 
-struct Curl_cfilter;
-struct Curl_easy;
+কাঠামো Curl_cfilter;
+কাঠামো Curl_easy;
 
-void Curl_quiche_ver(char *p, size_t len);
+শূন্য Curl_quiche_ver(অক্ষর *p, size_t len);
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_quiche_create(কাঠামো Curl_cfilter **pcf,
+                               কাঠামো Curl_easy *তথ্য,
+                               কাঠামো Curl_peer *origin,
+                               কাঠামো Curl_peer *peer,
+                               কাঠামো connectdata *conn,
+                               কাঠামো Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_quiche_ঢোকাও_after(কাঠামো Curl_cfilter *cf_at,
+                                     কাঠামো Curl_peer *origin,
+                                     কাঠামো Curl_peer *peer,
+                                     কাঠামো Curl_cfilter **pcf);
 
 #endif
 

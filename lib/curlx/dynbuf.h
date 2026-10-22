@@ -24,47 +24,47 @@
  *
  ***************************************************************************/
 
-struct dynbuf {
-  char *bufr;    /* point to a null-terminated allocated buffer */
+কাঠামো dynbuf {
+  অক্ষর *bufr;    /* point to a null-terminated allocated buffer */
   size_t leng;   /* number of bytes *EXCLUDING* the null-terminator */
   size_t allc;   /* size of the current allocation */
   size_t toobig; /* size limit for the buffer */
 #ifdef DEBUGBUILD
-  int init;      /* detect API usage mistakes */
+  পূর্ণসংখ্যা init;      /* detect API usage mistakes */
 #endif
 };
 
-void curlx_dyn_init(struct dynbuf *s, size_t toobig);
-void curlx_dyn_free(struct dynbuf *s);
-CURLcode curlx_dyn_addn(struct dynbuf *s, const void *mem, size_t len)
-  WARN_UNUSED_RESULT;
-CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
-  WARN_UNUSED_RESULT;
-CURLcode curlx_dyn_addf(struct dynbuf *s, const char *fmt, ...)
-  WARN_UNUSED_RESULT CURL_PRINTF(2, 3);
-CURLcode curlx_dyn_vaddf(struct dynbuf *s, const char *fmt, va_list ap)
-  WARN_UNUSED_RESULT CURL_PRINTF(2, 0);
-void curlx_dyn_reset(struct dynbuf *s);
-CURLcode curlx_dyn_tail(struct dynbuf *s, size_t trail);
-CURLcode curlx_dyn_setlen(struct dynbuf *s, size_t set);
-char *curlx_dyn_ptr(const struct dynbuf *s);
-unsigned char *curlx_dyn_uptr(const struct dynbuf *s);
-size_t curlx_dyn_len(const struct dynbuf *s);
+শূন্য curlx_dyn_init(কাঠামো dynbuf *s, size_t toobig);
+শূন্য curlx_dyn_free(কাঠামো dynbuf *s);
+CURLcode curlx_dyn_addn(কাঠামো dynbuf *s, ধ্রুবক শূন্য *mem, size_t len)
+  WARN_UNUSED_ফলাফল;
+CURLcode curlx_dyn_add(কাঠামো dynbuf *s, ধ্রুবক অক্ষর *str)
+  WARN_UNUSED_ফলাফল;
+CURLcode curlx_dyn_addf(কাঠামো dynbuf *s, ধ্রুবক অক্ষর *fmt, ...)
+  WARN_UNUSED_ফলাফল CURL_PRINTF(2, 3);
+CURLcode curlx_dyn_vaddf(কাঠামো dynbuf *s, ধ্রুবক অক্ষর *fmt, va_list ap)
+  WARN_UNUSED_ফলাফল CURL_PRINTF(2, 0);
+শূন্য curlx_dyn_reset(কাঠামো dynbuf *s);
+CURLcode curlx_dyn_লেজ(কাঠামো dynbuf *s, size_t trail);
+CURLcode curlx_dyn_setlen(কাঠামো dynbuf *s, size_t set);
+অক্ষর *curlx_dyn_ptr(ধ্রুবক কাঠামো dynbuf *s);
+unsigned অক্ষর *curlx_dyn_uptr(ধ্রুবক কাঠামো dynbuf *s);
+size_t curlx_dyn_len(ধ্রুবক কাঠামো dynbuf *s);
 
 /* returns 0 on success, -1 on error */
 /* The implementation of this function exists in mprintf.c */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args);
+পূর্ণসংখ্যা curlx_dyn_vprintf(কাঠামো dynbuf *dyn, ধ্রুবক অক্ষর *format, va_list args);
 
 /* Take the buffer out of the dynbuf. Caller has ownership and
  * dynbuf resets to initial state. */
-char *curlx_dyn_take(struct dynbuf *s, size_t *plen);
+অক্ষর *curlx_dyn_take(কাঠামো dynbuf *s, size_t *plen);
 
 /* Dynamic buffer max sizes */
-#define MAX_DYNBUF_SIZE (SIZE_MAX / 2)
+#define MAX_DYNBUF_আকার (SIZE_MAX / 2)
 
 #define DYN_DOH_RESPONSE    3000
 #define DYN_DOH_CNAME       256
-#define DYN_PAUSE_BUFFER    (64 * 1024 * 1024)
+#define DYN_PAUSE_বাফার    (64 * 1024 * 1024)
 #define DYN_HAXPROXY        2048
 #define DYN_HTTP_REQUEST    (1024 * 1024)
 #define DYN_APRINTF         8000000
@@ -77,7 +77,7 @@ char *curlx_dyn_take(struct dynbuf *s, size_t *plen);
 #define DYN_IMAP_CMD        (64 * 1024)
 #define DYN_MQTT_RECV       (64 * 1024)
 #define DYN_MQTT_SEND       0xFFFFFFF
-#define DYN_CRLFILE_SIZE    (400 * 1024 * 1024) /* 400MiB */
-#define DYN_CERTFILE_SIZE   (100 * 1024) /* 100KiB */
-#define DYN_KEYFILE_SIZE    (100 * 1024) /* 100KiB */
+#define DYN_CRLFILE_আকার    (400 * 1024 * 1024) /* 400MiB */
+#define DYN_CERTFILE_আকার   (100 * 1024) /* 100KiB */
+#define DYN_KEYFILE_আকার    (100 * 1024) /* 100KiB */
 #endif

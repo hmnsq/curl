@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "curl_printf.h"
+#অন্তর্ভাব "curlx/dynbuf.h"
+#অন্তর্ভাব "curl_printf.h"
 
 #define MIN_FIRST_ALLOC 32
 
@@ -35,12 +35,12 @@
 /*
  * Init a dynbuf struct.
  */
-void curlx_dyn_init(struct dynbuf *s, size_t toobig)
+শূন্য curlx_dyn_init(কাঠামো dynbuf *s, size_t toobig)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(toobig);
-  DEBUGASSERT(toobig <= MAX_DYNBUF_SIZE); /* catch crazy mistakes */
-  s->bufr = NULL;
+  DEBUGASSERT(toobig <= MAX_DYNBUF_আকার); /* catch crazy mistakes */
+  s->bufr = ফাঁকা;
   s->leng = 0;
   s->allc = 0;
   s->toobig = toobig;
@@ -53,7 +53,7 @@ void curlx_dyn_init(struct dynbuf *s, size_t toobig)
  * free the buffer and re-init the necessary fields. It does not touch the
  * 'init' field and thus this buffer can be reused to add data to again.
  */
-void curlx_dyn_free(struct dynbuf *s)
+শূন্য curlx_dyn_free(কাঠামো dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
@@ -64,8 +64,8 @@ void curlx_dyn_free(struct dynbuf *s)
 /*
  * Store/append an chunk of memory to the dynbuf.
  */
-static CURLcode dyn_nappend(struct dynbuf *s,
-                            const unsigned char *mem, size_t len)
+স্থির CURLcode dyn_nappend(কাঠামো dynbuf *s,
+                            ধ্রুবক unsigned অক্ষর *mem, size_t len)
 {
   size_t idx = s->leng;
   size_t a = s->allc;
@@ -79,55 +79,55 @@ static CURLcode dyn_nappend(struct dynbuf *s,
   DEBUGASSERT(a <= s->toobig);
   DEBUGASSERT(!len || mem);
 
-  if(fit > s->toobig) {
+  যদি(fit > s->toobig) {
     curlx_dyn_free(s);
-    return CURLE_TOO_LARGE;
+    ফেরত CURLE_TOO_LARGE;
   }
-  else if(!a) {
+  অন্যথা যদি(!a) {
     DEBUGASSERT(!idx);
     /* first invoke */
-    if(MIN_FIRST_ALLOC > s->toobig)
+    যদি(MIN_FIRST_ALLOC > s->toobig)
       a = s->toobig;
-    else if(fit < MIN_FIRST_ALLOC)
+    অন্যথা যদি(fit < MIN_FIRST_ALLOC)
       a = MIN_FIRST_ALLOC;
-    else
+    অন্যথা
       a = fit;
   }
-  else {
-    while(a < fit)
+  অন্যথা {
+    যখন(a < fit)
       a *= 2;
-    if(a > s->toobig)
+    যদি(a > s->toobig)
       /* no point in allocating a larger buffer than this is allowed to use */
       a = s->toobig;
   }
 
-  if(a != s->allc) {
-    void *p = curlx_realloc(s->bufr, a);
-    if(!p) {
+  যদি(a != s->allc) {
+    শূন্য *p = curlx_realloc(s->bufr, a);
+    যদি(!p) {
       curlx_dyn_free(s);
-      return CURLE_OUT_OF_MEMORY;
+      ফেরত CURLE_OUT_OF_MEMORY;
     }
     s->bufr = p;
     s->allc = a;
   }
 
-  if(len)
+  যদি(len)
     memcpy(&s->bufr[idx], mem, len);
   s->leng = idx + len;
   s->bufr[s->leng] = 0;
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /*
  * Clears the string, keeps the allocation. This can also be called on a
  * buffer that already was freed.
  */
-void curlx_dyn_reset(struct dynbuf *s)
+শূন্য curlx_dyn_reset(কাঠামো dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(s->leng)
+  যদি(s->leng)
     s->bufr[0] = 0;
   s->leng = 0;
 }
@@ -136,41 +136,41 @@ void curlx_dyn_reset(struct dynbuf *s)
  * Specify the size of the tail to keep (number of bytes from the end of the
  * buffer). The rest is dropped.
  */
-CURLcode curlx_dyn_tail(struct dynbuf *s, size_t trail)
+CURLcode curlx_dyn_লেজ(কাঠামো dynbuf *s, size_t trail)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(trail > s->leng)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  else if(trail == s->leng)
-    return CURLE_OK;
-  else if(!trail) {
+  যদি(trail > s->leng)
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
+  অন্যথা যদি(trail == s->leng)
+    ফেরত CURLE_OK;
+  অন্যথা যদি(!trail) {
     curlx_dyn_reset(s);
   }
-  else {
+  অন্যথা {
     memmove(&s->bufr[0], &s->bufr[s->leng - trail], trail);
     s->leng = trail;
     s->bufr[s->leng] = 0;
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /*
  * Appends a buffer with length.
  */
-CURLcode curlx_dyn_addn(struct dynbuf *s, const void *mem, size_t len)
+CURLcode curlx_dyn_addn(কাঠামো dynbuf *s, ধ্রুবক শূন্য *mem, size_t len)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return dyn_nappend(s, mem, len);
+  ফেরত dyn_nappend(s, mem, len);
 }
 
 /*
  * Append a null-terminated string at the end.
  */
-CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
+CURLcode curlx_dyn_add(কাঠামো dynbuf *s, ধ্রুবক অক্ষর *str)
 {
   size_t n;
   DEBUGASSERT(str);
@@ -178,115 +178,115 @@ CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
   n = strlen(str);
-  return dyn_nappend(s, (const unsigned char *)str, n);
+  ফেরত dyn_nappend(s, (ধ্রুবক unsigned অক্ষর *)str, n);
 }
 
 /*
  * Append a string vprintf()-style
  */
-CURLcode curlx_dyn_vaddf(struct dynbuf *s, const char *fmt, va_list ap)
+CURLcode curlx_dyn_vaddf(কাঠামো dynbuf *s, ধ্রুবক অক্ষর *fmt, va_list ap)
 {
 #ifdef BUILDING_LIBCURL
-  int rc;
+  পূর্ণসংখ্যা rc;
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
   DEBUGASSERT(fmt);
   rc = curlx_dyn_vprintf(s, fmt, ap);
 
-  if(!rc)
-    return CURLE_OK;
-  else if(rc == MERR_TOO_LARGE)
-    return CURLE_TOO_LARGE;
-  return CURLE_OUT_OF_MEMORY;
-#else
-  char *str;
+  যদি(!rc)
+    ফেরত CURLE_OK;
+  অন্যথা যদি(rc == MERR_TOO_LARGE)
+    ফেরত CURLE_TOO_LARGE;
+  ফেরত CURLE_OUT_OF_MEMORY;
+#অন্যথা
+  অক্ষর *str;
   str = curl_mvaprintf(fmt, ap); /* this allocs a new string to append */
 
-  if(str) {
-    CURLcode result = dyn_nappend(s, (const unsigned char *)str, strlen(str));
+  যদি(str) {
+    CURLcode ফলাফল = dyn_nappend(s, (ধ্রুবক unsigned অক্ষর *)str, strlen(str));
     curl_free(str);
-    return result;
+    ফেরত ফলাফল;
   }
   /* If we failed, we cleanup the whole buffer and return error */
   curlx_dyn_free(s);
-  return CURLE_OUT_OF_MEMORY;
+  ফেরত CURLE_OUT_OF_MEMORY;
 #endif
 }
 
 /*
  * Append a string printf()-style
  */
-CURLcode curlx_dyn_addf(struct dynbuf *s, const char *fmt, ...)
+CURLcode curlx_dyn_addf(কাঠামো dynbuf *s, ধ্রুবক অক্ষর *fmt, ...)
 {
-  CURLcode result;
+  CURLcode ফলাফল;
   va_list ap;
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
   DEBUGASSERT(strcmp(fmt, "%s")); /* use curlx_dyn_add instead */
   va_start(ap, fmt);
-  result = curlx_dyn_vaddf(s, fmt, ap);
+  ফলাফল = curlx_dyn_vaddf(s, fmt, ap);
   va_end(ap);
-  return result;
+  ফেরত ফলাফল;
 }
 
 /*
  * Returns a pointer to the buffer.
  */
-char *curlx_dyn_ptr(const struct dynbuf *s)
+অক্ষর *curlx_dyn_ptr(ধ্রুবক কাঠামো dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return s->bufr;
+  ফেরত s->bufr;
 }
 
-char *curlx_dyn_take(struct dynbuf *s, size_t *plen)
+অক্ষর *curlx_dyn_take(কাঠামো dynbuf *s, size_t *plen)
 {
-  char *ptr = s->bufr;
+  অক্ষর *ptr = s->bufr;
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   *plen = s->leng;
-  s->bufr = NULL;
+  s->bufr = ফাঁকা;
   s->leng = 0;
   s->allc = 0;
-  return ptr;
+  ফেরত ptr;
 }
 
 /*
  * Returns an unsigned pointer to the buffer.
  */
-unsigned char *curlx_dyn_uptr(const struct dynbuf *s)
+unsigned অক্ষর *curlx_dyn_uptr(ধ্রুবক কাঠামো dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return (unsigned char *)s->bufr;
+  ফেরত (unsigned অক্ষর *)s->bufr;
 }
 
 /*
  * Returns the length of the buffer.
  */
-size_t curlx_dyn_len(const struct dynbuf *s)
+size_t curlx_dyn_len(ধ্রুবক কাঠামো dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return s->leng;
+  ফেরত s->leng;
 }
 
 /*
  * Set a new (smaller) length.
  */
-CURLcode curlx_dyn_setlen(struct dynbuf *s, size_t set)
+CURLcode curlx_dyn_setlen(কাঠামো dynbuf *s, size_t set)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(set > s->leng)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(set > s->leng)
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
   s->leng = set;
   s->bufr[s->leng] = 0;
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }

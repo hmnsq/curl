@@ -23,35 +23,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 /* Mapping tables for plain ASCII case conversion, defined in strcase.c.
    Declared here so the conversions below inline at every call site without
    relying on LTO or a unity build: casecompare() invokes one of them twice
    per byte compared, where the call costs more than the lookup itself. */
-extern const unsigned char Curl_touppermap[256];
-extern const unsigned char Curl_tolowermap[256];
+বাহ্যিক ধ্রুবক unsigned অক্ষর Curl_touppermap[256];
+বাহ্যিক ধ্রুবক unsigned অক্ষর Curl_tolowermap[256];
 
 /* Portable, consistent toupper/tolower. Do not use toupper()/tolower() from
    <ctype.h>, whose behavior is altered by the current locale. */
-static CURL_INLINE char Curl_raw_toupper(char in)
+স্থির CURL_INLINE অক্ষর Curl_raw_toupper(অক্ষর in)
 {
-  return (char)Curl_touppermap[(unsigned char)in];
+  ফেরত (অক্ষর)Curl_touppermap[(unsigned অক্ষর)in];
 }
 
-static CURL_INLINE char Curl_raw_tolower(char in)
+স্থির CURL_INLINE অক্ষর Curl_raw_tolower(অক্ষর in)
 {
-  return (char)Curl_tolowermap[(unsigned char)in];
+  ফেরত (অক্ষর)Curl_tolowermap[(unsigned অক্ষর)in];
 }
 
 /* checkprefix() is a shorter version of the above, used when the first
    argument is the string literal */
 #define checkprefix(a, b) curl_strnequal(b, STRCONST(a))
 
-void Curl_strntoupper(char *dest, const char *src, size_t n);
-void Curl_strntolower(char *dest, const char *src, size_t n);
+শূন্য Curl_strntoupper(অক্ষর *dest, ধ্রুবক অক্ষর *src, size_t n);
+শূন্য Curl_strntolower(অক্ষর *dest, ধ্রুবক অক্ষর *src, size_t n);
 
-bool Curl_safecmp(const char *a, const char *b);
-int Curl_timestrcmp(const char *a, const char *b);
+bool Curl_safecmp(ধ্রুবক অক্ষর *a, ধ্রুবক অক্ষর *b);
+পূর্ণসংখ্যা Curl_timestrcmp(ধ্রুবক অক্ষর *a, ধ্রুবক অক্ষর *b);
 
 #endif /* HEADER_CURL_STRCASE_H */

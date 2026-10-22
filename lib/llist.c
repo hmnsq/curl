@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "llist.h"
+#অন্তর্ভাব "llist.h"
 
 #ifdef DEBUGBUILD
 #define LLISTINIT 0x100cc001 /* random pattern */
@@ -31,23 +31,23 @@
 #define NODEREM   0x54321012 /* random pattern */
 
 #define VERIFYNODE(x) verifynode(x)
-static struct Curl_llist_node *verifynode(struct Curl_llist_node *n)
+স্থির কাঠামো Curl_llist_গ্রন্থি *verifynode(কাঠামো Curl_llist_গ্রন্থি *n)
 {
   DEBUGASSERT(!n || (n->_init == NODEINIT));
-  return n;
+  ফেরত n;
 }
-#else
+#অন্যথা
 #define VERIFYNODE(x) x
 #endif
 /*
  * @unittest 1300
  */
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
+শূন্য Curl_llist_init(কাঠামো Curl_llist *l, Curl_llist_dtor dtor)
 {
-  l->_size = 0;
+  l->আকার_3 = 0;
   l->_dtor = dtor;
-  l->_head = NULL;
-  l->_tail = NULL;
+  l->শীর্ষ_3 = ফাঁকা;
+  l->লেজ_2 = ফাঁকা;
 #ifdef DEBUGBUILD
   l->_init = LLISTINIT;
 #endif
@@ -64,13 +64,13 @@ void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
  *
  * @unittest 1300
  */
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, const void *p,
-                                struct Curl_llist_node *ne);
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, /* may be NULL */
-                                const void *p,
-                                struct Curl_llist_node *ne)
+UNITTEST শূন্য llist_ঢোকাও_পরবর্তী(কাঠামো Curl_llist *list,
+                                কাঠামো Curl_llist_গ্রন্থি *e, ধ্রুবক শূন্য *p,
+                                কাঠামো Curl_llist_গ্রন্থি *ne);
+UNITTEST শূন্য llist_ঢোকাও_পরবর্তী(কাঠামো Curl_llist *list,
+                                কাঠামো Curl_llist_গ্রন্থি *e, /* may be NULL */
+                                ধ্রুবক শূন্য *p,
+                                কাঠামো Curl_llist_গ্রন্থি *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
@@ -81,31 +81,31 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
 #endif
   ne->_ptr = CURL_UNCONST(p);
   ne->_list = list;
-  if(list->_size == 0) {
-    list->_head = ne;
-    list->_head->_prev = NULL;
-    list->_head->_next = NULL;
-    list->_tail = ne;
+  যদি(list->আকার_3 == 0) {
+    list->শীর্ষ_3 = ne;
+    list->শীর্ষ_3->পূর্ব_2 = ফাঁকা;
+    list->শীর্ষ_3->পরবর্তী_2 = ফাঁকা;
+    list->লেজ_2 = ne;
   }
-  else {
+  অন্যথা {
     /* if 'e' is NULL here, we insert the new element first in the list */
-    ne->_next = e ? e->_next : list->_head;
-    ne->_prev = e;
-    if(!e) {
-      list->_head->_prev = ne;
-      list->_head = ne;
+    ne->পরবর্তী_2 = e ? e->পরবর্তী_2 : list->শীর্ষ_3;
+    ne->পূর্ব_2 = e;
+    যদি(!e) {
+      list->শীর্ষ_3->পূর্ব_2 = ne;
+      list->শীর্ষ_3 = ne;
     }
-    else if(e->_next) {
-      e->_next->_prev = ne;
+    অন্যথা যদি(e->পরবর্তী_2) {
+      e->পরবর্তী_2->পূর্ব_2 = ne;
     }
-    else {
-      list->_tail = ne;
+    অন্যথা {
+      list->লেজ_2 = ne;
     }
-    if(e)
-      e->_next = ne;
+    যদি(e)
+      e->পরবর্তী_2 = ne;
   }
 
-  ++list->_size;
+  ++list->আকার_3;
 }
 
 /*
@@ -117,97 +117,97 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
  *
  * @unittest 1300
  */
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne)
+শূন্য Curl_llist_append(কাঠামো Curl_llist *list, ধ্রুবক শূন্য *p,
+                       কাঠামো Curl_llist_গ্রন্থি *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(ne);
-  llist_insert_next(list, list->_tail, p, ne);
+  llist_ঢোকাও_পরবর্তী(list, list->লেজ_2, p, ne);
 }
 
-void *Curl_node_take_elem(struct Curl_llist_node *e)
+শূন্য *Curl_গ্রন্থি_take_elem(কাঠামো Curl_llist_গ্রন্থি *e)
 {
-  void *ptr;
-  struct Curl_llist *list;
-  if(!e)
-    return NULL;
+  শূন্য *ptr;
+  কাঠামো Curl_llist *list;
+  যদি(!e)
+    ফেরত ফাঁকা;
 
   list = e->_list;
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  DEBUGASSERT(list->_size);
+  DEBUGASSERT(list->আকার_3);
   DEBUGASSERT(e->_init == NODEINIT);
-  if(list) {
-    if(e == list->_head) {
-      list->_head = e->_next;
+  যদি(list) {
+    যদি(e == list->শীর্ষ_3) {
+      list->শীর্ষ_3 = e->পরবর্তী_2;
 
-      if(!list->_head)
-        list->_tail = NULL;
-      else
-        e->_next->_prev = NULL;
+      যদি(!list->শীর্ষ_3)
+        list->লেজ_2 = ফাঁকা;
+      অন্যথা
+        e->পরবর্তী_2->পূর্ব_2 = ফাঁকা;
     }
-    else {
-      if(e->_prev)
-        e->_prev->_next = e->_next;
+    অন্যথা {
+      যদি(e->পূর্ব_2)
+        e->পূর্ব_2->পরবর্তী_2 = e->পরবর্তী_2;
 
-      if(!e->_next)
-        list->_tail = e->_prev;
-      else
-        e->_next->_prev = e->_prev;
+      যদি(!e->পরবর্তী_2)
+        list->লেজ_2 = e->পূর্ব_2;
+      অন্যথা
+        e->পরবর্তী_2->পূর্ব_2 = e->পূর্ব_2;
     }
-    --list->_size;
+    --list->আকার_3;
   }
   ptr = e->_ptr;
 
-  e->_list = NULL;
-  e->_ptr  = NULL;
-  e->_prev = NULL;
-  e->_next = NULL;
+  e->_list = ফাঁকা;
+  e->_ptr  = ফাঁকা;
+  e->পূর্ব_2 = ফাঁকা;
+  e->পরবর্তী_2 = ফাঁকা;
 #ifdef DEBUGBUILD
   e->_init = NODEREM; /* specific pattern on remove - not zero */
 #endif
 
-  return ptr;
+  ফেরত ptr;
 }
 
-static void node_uremove(struct Curl_llist_node *e, void *user)
+স্থির শূন্য গ্রন্থি_uremove(কাঠামো Curl_llist_গ্রন্থি *e, শূন্য *user)
 {
-  struct Curl_llist *list;
-  void *ptr;
-  if(!e)
-    return;
+  কাঠামো Curl_llist *list;
+  শূন্য *ptr;
+  যদি(!e)
+    ফেরত;
 
   list = e->_list;
   DEBUGASSERT(list);
-  if(list) {
-    ptr = Curl_node_take_elem(e);
-    if(list->_dtor)
+  যদি(list) {
+    ptr = Curl_গ্রন্থি_take_elem(e);
+    যদি(list->_dtor)
       list->_dtor(user, ptr);
   }
 }
 
-void Curl_node_remove(struct Curl_llist_node *e)
+শূন্য Curl_গ্রন্থি_remove(কাঠামো Curl_llist_গ্রন্থি *e)
 {
-  node_uremove(e, NULL);
+  গ্রন্থি_uremove(e, ফাঁকা);
 }
 
-void Curl_llist_destroy(struct Curl_llist *list, void *user)
+শূন্য Curl_llist_destroy(কাঠামো Curl_llist *list, শূন্য *user)
 {
-  if(list) {
+  যদি(list) {
     DEBUGASSERT(list->_init == LLISTINIT);
-    while(list->_size > 0)
-      node_uremove(list->_tail, user);
+    যখন(list->আকার_3 > 0)
+      গ্রন্থি_uremove(list->লেজ_2, user);
   }
 }
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
+কাঠামো Curl_llist_গ্রন্থি *Curl_llist_শীর্ষ(ধ্রুবক কাঠামো Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_head);
+  ফেরত VERIFYNODE(list->শীর্ষ_3);
 }
 
 #ifdef UNITTESTS
@@ -215,38 +215,38 @@ struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
    NULL
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list);
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list)
+UNITTEST কাঠামো Curl_llist_গ্রন্থি *llist_লেজ(ধ্রুবক কাঠামো Curl_llist *list);
+UNITTEST কাঠামো Curl_llist_গ্রন্থি *llist_লেজ(ধ্রুবক কাঠামো Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_tail);
+  ফেরত VERIFYNODE(list->লেজ_2);
 }
 #endif
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list)
+size_t Curl_llist_গুনতি(ধ্রুবক কাঠামো Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return list->_size;
+  ফেরত list->আকার_3;
 }
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n)
+শূন্য *Curl_গ্রন্থি_elem(ধ্রুবক কাঠামো Curl_llist_গ্রন্থি *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return n->_ptr;
+  ফেরত n->_ptr;
 }
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
+কাঠামো Curl_llist_গ্রন্থি *Curl_গ্রন্থি_পরবর্তী(ধ্রুবক কাঠামো Curl_llist_গ্রন্থি *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_next);
+  ফেরত VERIFYNODE(n->পরবর্তী_2);
 }
 
 #ifdef UNITTESTS
@@ -254,20 +254,20 @@ struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
    Curl_llist_node
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n);
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n)
+UNITTEST কাঠামো Curl_llist_গ্রন্থি *llist_গ্রন্থি_পূর্ব(
+  ধ্রুবক কাঠামো Curl_llist_গ্রন্থি *n);
+UNITTEST কাঠামো Curl_llist_গ্রন্থি *llist_গ্রন্থি_পূর্ব(
+  ধ্রুবক কাঠামো Curl_llist_গ্রন্থি *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_prev);
+  ফেরত VERIFYNODE(n->পূর্ব_2);
 }
 #endif
 
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n)
+কাঠামো Curl_llist *Curl_গ্রন্থি_llist(ধ্রুবক কাঠামো Curl_llist_গ্রন্থি *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(!n->_list || n->_init == NODEINIT);
-  return n->_list;
+  ফেরত n->_list;
 }

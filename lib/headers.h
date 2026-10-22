@@ -23,42 +23,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#যদি !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+কাঠামো Curl_header_store {
+  কাঠামো Curl_llist_গ্রন্থি গ্রন্থি;
+  অক্ষর *name; /* points into 'buffer' */
+  অক্ষর *মান; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
-  size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  size_t nh_সূচক; /* cached index for curl_easy_nextheader() */
+  পূর্ণসংখ্যা request; /* 0 is the first request, then 1.. 2.. */
+  unsigned অক্ষর type; /* CURLH_* defines */
+  অক্ষর বাফার[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_headers_init(কাঠামো Curl_easy *তথ্য);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_headers_ঠেলো(কাঠামো Curl_easy *তথ্য, ধ্রুবক অক্ষর *header,
+                           size_t hlen, unsigned অক্ষর type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_headers_cleanup(কাঠামো Curl_easy *তথ্য);
 
-#else
+#অন্যথা
 #define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
+#define Curl_headers_ঠেলো(x, y, z, a) \
+  ((শূন্য)(x), (শূন্য)(y), (শূন্য)(z), (শূন্য)(a), CURLE_OK)
 #define Curl_headers_cleanup(x)       Curl_nop_stmt
 #endif
 

@@ -21,270 +21,270 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "rtsp.h"
+#অন্তর্ভাব "curl_setup.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "rtsp.h"
 
 #ifndef CURL_DISABLE_RTSP
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "http.h"
-#include "url.h"
-#include "progress.h"
-#include "strcase.h"
-#include "select.h"
-#include "connect.h"
-#include "cfilters.h"
-#include "curlx/strdup.h"
-#include "bufref.h"
-#include "curlx/strparse.h"
-#include "peer.h"
+#অন্তর্ভাব "transfer.h"
+#অন্তর্ভাব "sendf.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "multiif.h"
+#অন্তর্ভাব "http.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "strcase.h"
+#অন্তর্ভাব "select.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "cfilters.h"
+#অন্তর্ভাব "curlx/strdup.h"
+#অন্তর্ভাব "bufref.h"
+#অন্তর্ভাব "curlx/strparse.h"
+#অন্তর্ভাব "peer.h"
 
 /* meta key for storing protocol meta at easy handle */
 #define CURL_META_RTSP_EASY   "meta:proto:rtsp:easy"
 /* meta key for storing protocol meta at connection */
 #define CURL_META_RTSP_CONN   "meta:proto:rtsp:conn"
 
-typedef enum {
+প্রকারলেখ গণনা {
   RTP_PARSE_SKIP,
   RTP_PARSE_CHANNEL,
   RTP_PARSE_LEN,
-  RTP_PARSE_DATA
+  RTP_PARSE_তথ্য
 } rtp_parse_st;
 
 /* RTSP Connection data
  * Currently, only used for tracking incomplete RTP data reads */
-struct rtsp_conn {
-  struct dynbuf buf;
-  int rtp_channel;
+কাঠামো rtsp_conn {
+  কাঠামো dynbuf buf;
+  পূর্ণসংখ্যা rtp_channel;
   size_t rtp_len;
   rtp_parse_st state;
   BIT(in_header);
 };
 
 /* RTSP transfer data */
-struct RTSP {
+কাঠামো RTSP {
   uint32_t CSeq_sent; /* CSeq of this request */
   uint32_t CSeq_recv; /* CSeq received */
 };
 
-#define RTP_PKT_LENGTH(p) ((((unsigned int)((unsigned char)((p)[2]))) << 8) | \
-                            ((unsigned int)((unsigned char)((p)[3]))))
+#define RTP_PKT_দৈর্ঘ্য(p) ((((unsigned পূর্ণসংখ্যা)((unsigned অক্ষর)((p)[2]))) << 8) | \
+                            ((unsigned পূর্ণসংখ্যা)((unsigned অক্ষর)((p)[3]))))
 
 /* this returns the socket to wait for in the DO and DOING state for the multi
    interface and then we are always _sending_ a request and thus we wait for
    the single socket to become writable only */
-static CURLcode rtsp_do_pollset(struct Curl_easy *data,
-                                struct easy_pollset *ps)
+স্থির CURLcode rtsp_do_pollset(কাঠামো Curl_easy *তথ্য,
+                                কাঠামো easy_pollset *ps)
 {
   /* write mode */
-  return Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
+  ফেরত Curl_pollset_add_out(তথ্য, ps, তথ্য->conn->sock[FIRSTSOCKET]);
 }
 
 #define MAX_RTP_BUFFERSIZE 1000000 /* arbitrary */
 
-static void rtsp_easy_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য rtsp_easy_dtor(ধ্রুবক শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct RTSP *rtsp = entry;
-  (void)key;
-  (void)klen;
+  কাঠামো RTSP *rtsp = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
   curlx_free(rtsp);
 }
 
-static void rtsp_conn_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য rtsp_conn_dtor(ধ্রুবক শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct rtsp_conn *rtspc = entry;
-  (void)key;
-  (void)klen;
+  কাঠামো rtsp_conn *rtspc = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
   curlx_dyn_free(&rtspc->buf);
   curlx_free(rtspc);
 }
 
-static CURLcode rtsp_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+স্থির CURLcode rtsp_setup_connection(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো connectdata *conn)
 {
-  struct rtsp_conn *rtspc;
-  struct RTSP *rtsp;
+  কাঠামো rtsp_conn *rtspc;
+  কাঠামো RTSP *rtsp;
 
-  rtspc = curlx_calloc(1, sizeof(*rtspc));
-  if(!rtspc)
-    return CURLE_OUT_OF_MEMORY;
+  rtspc = curlx_calloc(1, আকার(*rtspc));
+  যদি(!rtspc)
+    ফেরত CURLE_OUT_OF_MEMORY;
   curlx_dyn_init(&rtspc->buf, MAX_RTP_BUFFERSIZE);
-  if(Curl_conn_meta_set(conn, CURL_META_RTSP_CONN, rtspc, rtsp_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  যদি(Curl_conn_meta_set(conn, CURL_META_RTSP_CONN, rtspc, rtsp_conn_dtor))
+    ফেরত CURLE_OUT_OF_MEMORY;
 
-  rtsp = curlx_calloc(1, sizeof(struct RTSP));
-  if(!rtsp ||
-     Curl_meta_set(data, CURL_META_RTSP_EASY, rtsp, rtsp_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  rtsp = curlx_calloc(1, আকার(কাঠামো RTSP));
+  যদি(!rtsp ||
+     Curl_meta_set(তথ্য, CURL_META_RTSP_EASY, rtsp, rtsp_easy_dtor))
+    ফেরত CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /*
  * Function to check on various aspects of a connection.
  */
-static bool rtsp_conn_is_dead(struct Curl_easy *data,
-                              struct connectdata *conn)
+স্থির bool rtsp_conn_is_dead(কাঠামো Curl_easy *তথ্য,
+                              কাঠামো connectdata *conn)
 {
-  bool input_pending;
+  bool প্রবেশ_pending;
   /* Contrary to default handling, this protocol allows pending
    * input on an unused connection. */
-  return !Curl_conn_is_alive(data, conn, &input_pending);
+  ফেরত !Curl_conn_is_alive(তথ্য, conn, &প্রবেশ_pending);
 }
 
-static CURLcode rtsp_connect(struct Curl_easy *data, bool *done)
+স্থির CURLcode rtsp_connect(কাঠামো Curl_easy *তথ্য, bool *done)
 {
-  struct rtsp_conn *rtspc =
-    Curl_conn_meta_get(data->conn, CURL_META_RTSP_CONN);
+  কাঠামো rtsp_conn *rtspc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_RTSP_CONN);
 
-  if(!rtspc)
-    return CURLE_FAILED_INIT;
+  যদি(!rtspc)
+    ফেরত CURLE_FAILED_INIT;
 
   /* Initialize the CSeq if not already done */
-  if(data->state.rtsp_next_client_CSeq == 0)
-    data->state.rtsp_next_client_CSeq = 1;
-  if(data->state.rtsp_next_server_CSeq == 0)
-    data->state.rtsp_next_server_CSeq = 1;
+  যদি(তথ্য->state.rtsp_পরবর্তী_client_CSeq == 0)
+    তথ্য->state.rtsp_পরবর্তী_client_CSeq = 1;
+  যদি(তথ্য->state.rtsp_পরবর্তী_server_CSeq == 0)
+    তথ্য->state.rtsp_পরবর্তী_server_CSeq = 1;
 
   rtspc->rtp_channel = -1;
   *done = TRUE;
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode rtsp_done(struct Curl_easy *data,
+স্থির CURLcode rtsp_done(কাঠামো Curl_easy *তথ্য,
                           CURLcode status, bool premature)
 {
-  struct rtsp_conn *rtspc =
-    Curl_conn_meta_get(data->conn, CURL_META_RTSP_CONN);
-  struct RTSP *rtsp = Curl_meta_get(data, CURL_META_RTSP_EASY);
-  CURLcode result;
+  কাঠামো rtsp_conn *rtspc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_RTSP_CONN);
+  কাঠামো RTSP *rtsp = Curl_meta_get(তথ্য, CURL_META_RTSP_EASY);
+  CURLcode ফলাফল;
 
-  if(!rtspc || !rtsp)
-    return CURLE_FAILED_INIT;
+  যদি(!rtspc || !rtsp)
+    ফেরত CURLE_FAILED_INIT;
 
   /* Bypass HTTP empty-reply checks on receive */
-  if(data->set.rtspreq == RTSPREQ_RECEIVE)
+  যদি(তথ্য->set.rtspreq == RTSPREQ_RECEIVE)
     premature = TRUE;
 
-  result = Curl_http_done(data, status, premature);
+  ফলাফল = Curl_http_done(তথ্য, status, premature);
 
-  if(!status && !result) {
+  যদি(!status && !ফলাফল) {
     /* Check the sequence numbers */
     uint32_t CSeq_sent = rtsp->CSeq_sent;
     uint32_t CSeq_recv = rtsp->CSeq_recv;
-    if((data->set.rtspreq != RTSPREQ_RECEIVE) && (CSeq_sent != CSeq_recv)) {
-      failf(data,
+    যদি((তথ্য->set.rtspreq != RTSPREQ_RECEIVE) && (CSeq_sent != CSeq_recv)) {
+      failf(তথ্য,
             "The CSeq of this request %u did not match the response %u",
             CSeq_sent, CSeq_recv);
-      return CURLE_RTSP_CSEQ_ERROR;
+      ফেরত CURLE_RTSP_CSEQ_ERROR;
     }
-    if(data->set.rtspreq == RTSPREQ_RECEIVE && (rtspc->rtp_channel == -1)) {
-      infof(data, "Got an RTP Receive with a CSeq of %u", CSeq_recv);
+    যদি(তথ্য->set.rtspreq == RTSPREQ_RECEIVE && (rtspc->rtp_channel == -1)) {
+      infof(তথ্য, "Got an RTP Receive with a CSeq of %u", CSeq_recv);
     }
-    if(data->set.rtspreq == RTSPREQ_RECEIVE &&
-       data->req.eos_written) {
-      failf(data, "Server prematurely closed the RTSP connection.");
-      return CURLE_RECV_ERROR;
+    যদি(তথ্য->set.rtspreq == RTSPREQ_RECEIVE &&
+       তথ্য->req.eos_written) {
+      failf(তথ্য, "Server prematurely closed the RTSP connection.");
+      ফেরত CURLE_RECV_ERROR;
     }
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode rtsp_setup_body(struct Curl_easy *data,
-                                unsigned char rtspreq,
-                                struct dynbuf *reqp)
+স্থির CURLcode rtsp_setup_body(কাঠামো Curl_easy *তথ্য,
+                                unsigned অক্ষর rtspreq,
+                                কাঠামো dynbuf *reqp)
 {
-  CURLcode result;
-  if(rtspreq == RTSPREQ_ANNOUNCE ||
+  CURLcode ফলাফল;
+  যদি(rtspreq == RTSPREQ_ANNOUNCE ||
      rtspreq == RTSPREQ_SET_PARAMETER ||
      rtspreq == RTSPREQ_GET_PARAMETER) {
     curl_off_t req_clen; /* request content length */
 
-    if(data->state.upload) {
-      req_clen = data->state.infilesize;
-      data->state.httpreq = HTTPREQ_PUT;
-      result = Curl_creader_set_fread(data, req_clen);
-      if(result)
-        return result;
+    যদি(তথ্য->state.upload) {
+      req_clen = তথ্য->state.infilesize;
+      তথ্য->state.httpreq = HTTPREQ_PUT;
+      ফলাফল = Curl_creader_set_fread(তথ্য, req_clen);
+      যদি(ফলাফল)
+        ফেরত ফলাফল;
     }
-    else {
-      if(data->set.postfields) {
-        size_t plen = (data->set.postfieldsize >= 0) ?
-          (size_t)data->set.postfieldsize : strlen(data->set.postfields);
+    অন্যথা {
+      যদি(তথ্য->set.postfields) {
+        size_t plen = (তথ্য->set.postfieldsize >= 0) ?
+          (size_t)তথ্য->set.postfieldsize : strlen(তথ্য->set.postfields);
         req_clen = (curl_off_t)plen;
-        result = Curl_creader_set_buf(data, data->set.postfields, plen);
+        ফলাফল = Curl_creader_set_buf(তথ্য, তথ্য->set.postfields, plen);
       }
-      else if(data->state.infilesize >= 0) {
-        req_clen = data->state.infilesize;
-        result = Curl_creader_set_fread(data, req_clen);
+      অন্যথা যদি(তথ্য->state.infilesize >= 0) {
+        req_clen = তথ্য->state.infilesize;
+        ফলাফল = Curl_creader_set_fread(তথ্য, req_clen);
       }
-      else {
+      অন্যথা {
         req_clen = 0;
-        result = Curl_creader_set_null(data);
+        ফলাফল = Curl_creader_set_null(তথ্য);
       }
-      if(result)
-        return result;
+      যদি(ফলাফল)
+        ফেরত ফলাফল;
     }
 
-    if(req_clen > 0) {
-      if(data->set.crlf) {
-        failf(data, "Cannot do CRLF conversions on upload");
-        return CURLE_UPLOAD_FAILED;
+    যদি(req_clen > 0) {
+      যদি(তথ্য->set.crlf) {
+        failf(তথ্য, "Cannot do CRLF conversions on upload");
+        ফেরত CURLE_UPLOAD_FAILED;
       }
       /* As stated in the http comments, it is probably not wise to
        * actually set a custom Content-Length in the headers */
-      if(!Curl_checkheaders(data, STRCONST("Content-Length"))) {
-        result = curlx_dyn_addf(reqp, "Content-Length: %" FMT_OFF_T "\r\n",
+      যদি(!Curl_checkheaders(তথ্য, STRCONST("Content-Length"))) {
+        ফলাফল = curlx_dyn_addf(reqp, "Content-Length: %" FMT_OFF_T "\r\n",
                                 req_clen);
-        if(result)
-          return result;
+        যদি(ফলাফল)
+          ফেরত ফলাফল;
       }
 
-      if(rtspreq == RTSPREQ_SET_PARAMETER ||
+      যদি(rtspreq == RTSPREQ_SET_PARAMETER ||
          rtspreq == RTSPREQ_GET_PARAMETER) {
-        if(!Curl_checkheaders(data, STRCONST("Content-Type"))) {
-          result = curlx_dyn_addn(reqp, STRCONST("Content-Type: "
+        যদি(!Curl_checkheaders(তথ্য, STRCONST("Content-Type"))) {
+          ফলাফল = curlx_dyn_addn(reqp, STRCONST("Content-Type: "
                                                  "text/parameters\r\n"));
-          if(result)
-            return result;
+          যদি(ফলাফল)
+            ফেরত ফলাফল;
         }
       }
 
-      if(rtspreq == RTSPREQ_ANNOUNCE) {
-        if(!Curl_checkheaders(data, STRCONST("Content-Type"))) {
-          result = curlx_dyn_addn(reqp, STRCONST("Content-Type: "
+      যদি(rtspreq == RTSPREQ_ANNOUNCE) {
+        যদি(!Curl_checkheaders(তথ্য, STRCONST("Content-Type"))) {
+          ফলাফল = curlx_dyn_addn(reqp, STRCONST("Content-Type: "
                                                  "application/sdp\r\n"));
-          if(result)
-            return result;
+          যদি(ফলাফল)
+            ফেরত ফলাফল;
         }
       }
     }
-    else if(rtspreq == RTSPREQ_GET_PARAMETER) {
+    অন্যথা যদি(rtspreq == RTSPREQ_GET_PARAMETER) {
       /* Check for an empty GET_PARAMETER (heartbeat) request */
-      data->state.httpreq = HTTPREQ_HEAD;
-      data->req.no_body = TRUE;
+      তথ্য->state.httpreq = HTTPREQ_শীর্ষ;
+      তথ্য->req.no_body = TRUE;
     }
   }
-  else
-    result = Curl_creader_set_null(data);
-  return result;
+  অন্যথা
+    ফলাফল = Curl_creader_set_null(তথ্য);
+  ফেরত ফলাফল;
 }
 
-struct rtspselect {
-  const char *method;
+কাঠামো rtspselect {
+  ধ্রুবক অক্ষর *method;
   bool no_body;
 };
 
-static CURLcode pick_method(struct Curl_easy *data,
-                            const unsigned char rtspreq,
-                            const char **p)
+স্থির CURLcode pick_method(কাঠামো Curl_easy *তথ্য,
+                            ধ্রুবক unsigned অক্ষর rtspreq,
+                            ধ্রুবক অক্ষর **p)
 {
-  static const struct rtspselect req[] = {
+  স্থির ধ্রুবক কাঠামো rtspselect req[] = {
     { "OPTIONS",       TRUE },
     { "DESCRIBE",      FALSE },
     { "ANNOUNCE",      TRUE },
@@ -299,110 +299,110 @@ static CURLcode pick_method(struct Curl_easy *data,
   };
   /* this is verified already in setopt, this is just added precaution */
   DEBUGASSERT((rtspreq > RTSPREQ_NONE) && (rtspreq < RTSPREQ_LAST));
-  if((rtspreq <= RTSPREQ_NONE) || (rtspreq >= RTSPREQ_LAST))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি((rtspreq <= RTSPREQ_NONE) || (rtspreq >= RTSPREQ_LAST))
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
   *p = req[rtspreq - 1].method;
-  data->req.no_body = req[rtspreq - 1].no_body;
-  return CURLE_OK;
+  তথ্য->req.no_body = req[rtspreq - 1].no_body;
+  ফেরত CURLE_OK;
 }
 
 /* Allocate and store a header string. */
-static CURLcode rtsp_header_alloc(const char *header_name,
-                                  const char *value,
-                                  char **target)
+স্থির CURLcode rtsp_header_alloc(ধ্রুবক অক্ষর *header_name,
+                                  ধ্রুবক অক্ষর *মান,
+                                  অক্ষর **target)
 {
-  if(!value)
-    return CURLE_OK;
+  যদি(!মান)
+    ফেরত CURLE_OK;
   curlx_free(*target);
-  *target = curl_maprintf("%s: %s\r\n", header_name, value);
-  if(!*target)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  *target = curl_maprintf("%s: %s\r\n", header_name, মান);
+  যদি(!*target)
+    ফেরত CURLE_OUT_OF_MEMORY;
+  ফেরত CURLE_OK;
 }
 
-struct rtsp_blocks {
-  const char *request;
-  const char *session_id;
-  const char *accept;
-  const char *range;
-  const char *stream_uri;
-  const char *hd_proxy_auth;
-  const char *hd_auth;
-  char *referrer;
-  char *accept_encoding;
-  char *transport;
+কাঠামো rtsp_blocks {
+  ধ্রুবক অক্ষর *request;
+  ধ্রুবক অক্ষর *session_id;
+  ধ্রুবক অক্ষর *accept;
+  ধ্রুবক অক্ষর *range;
+  ধ্রুবক অক্ষর *stream_uri;
+  ধ্রুবক অক্ষর *hd_proxy_auth;
+  ধ্রুবক অক্ষর *hd_auth;
+  অক্ষর *referrer;
+  অক্ষর *accept_encoding;
+  অক্ষর *transport;
   BIT(transport_alloc); /* if 'transport' is allocated */
 };
 
-static CURLcode rtsp_setup_request(struct Curl_easy *data,
-                                   struct rtsp_blocks *b,
-                                   const unsigned char rtspreq)
+স্থির CURLcode rtsp_setup_request(কাঠামো Curl_easy *তথ্য,
+                                   কাঠামো rtsp_blocks *b,
+                                   ধ্রুবক unsigned অক্ষর rtspreq)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো connectdata *conn = তথ্য->conn;
 
-  b->session_id = CURL_EASY_STR(data, STRING_RTSP_SESSION_ID);
+  b->session_id = CURL_EASY_STR(তথ্য, STRING_RTSP_SESSION_ID);
 
   /* Stream URI. Default to server '*' if not specified */
-  if(CURL_EASY_STR(data, STRING_RTSP_STREAM_URI))
-    b->stream_uri = CURL_EASY_STR(data, STRING_RTSP_STREAM_URI);
-  else
+  যদি(CURL_EASY_STR(তথ্য, STRING_RTSP_STREAM_URI))
+    b->stream_uri = CURL_EASY_STR(তথ্য, STRING_RTSP_STREAM_URI);
+  অন্যথা
     b->stream_uri = "*";
 
   /* Transport Header for SETUP requests */
-  b->transport = Curl_checkheaders(data, STRCONST("Transport"));
-  if(rtspreq == RTSPREQ_SETUP && !b->transport) {
+  b->transport = Curl_checkheaders(তথ্য, STRCONST("Transport"));
+  যদি(rtspreq == RTSPREQ_SETUP && !b->transport) {
     /* New Transport: setting? */
-    if(CURL_EASY_STR(data, STRING_RTSP_TRANSPORT)) {
-      result = rtsp_header_alloc(
-        "Transport", CURL_EASY_STR(data, STRING_RTSP_TRANSPORT),
+    যদি(CURL_EASY_STR(তথ্য, STRING_RTSP_TRANSPORT)) {
+      ফলাফল = rtsp_header_alloc(
+        "Transport", CURL_EASY_STR(তথ্য, STRING_RTSP_TRANSPORT),
         &b->transport);
-      if(result)
-        return result;
+      যদি(ফলাফল)
+        ফেরত ফলাফল;
       b->transport_alloc = TRUE;
     }
-    else {
-      failf(data,
+    অন্যথা {
+      failf(তথ্য,
             "Refusing to issue an RTSP SETUP without a Transport: header.");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
     }
   }
 
   /* Accept Headers for DESCRIBE requests */
-  if(rtspreq == RTSPREQ_DESCRIBE) {
+  যদি(rtspreq == RTSPREQ_DESCRIBE) {
     /* Accept Header */
-    b->accept = Curl_checkheaders(data, STRCONST("Accept")) ?
-      NULL : "Accept: application/sdp\r\n";
+    b->accept = Curl_checkheaders(তথ্য, STRCONST("Accept")) ?
+      ফাঁকা : "Accept: application/sdp\r\n";
 
     /* Accept-Encoding header */
-    if(!Curl_checkheaders(data, STRCONST("Accept-Encoding")) &&
-       CURL_EASY_STR(data, STRING_ENCODING)) {
-      result = rtsp_header_alloc("Accept-Encoding",
-                                 CURL_EASY_STR(data, STRING_ENCODING),
+    যদি(!Curl_checkheaders(তথ্য, STRCONST("Accept-Encoding")) &&
+       CURL_EASY_STR(তথ্য, STRING_ENCODING)) {
+      ফলাফল = rtsp_header_alloc("Accept-Encoding",
+                                 CURL_EASY_STR(তথ্য, STRING_ENCODING),
                                  &b->accept_encoding);
-      if(result)
-        return result;
+      যদি(ফলাফল)
+        ফেরত ফলাফল;
     }
   }
 
   /* setup the authentication headers */
-  result = Curl_http_output_auth(data, conn, b->request, HTTPREQ_GET,
-                                 b->stream_uri, NULL, FALSE);
-  if(result)
-    return result;
+  ফলাফল = Curl_http_output_auth(তথ্য, conn, b->request, HTTPREQ_GET,
+                                 b->stream_uri, ফাঁকা, FALSE);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
 #ifndef CURL_DISABLE_PROXY
-  b->hd_proxy_auth = data->req.hd_proxy_auth;
+  b->hd_proxy_auth = তথ্য->req.hd_proxy_auth;
 #endif
-  b->hd_auth = data->req.hd_auth;
+  b->hd_auth = তথ্য->req.hd_auth;
 
   /* Referrer */
-  if(Curl_bufref_ptr(&data->state.referer) &&
-     !Curl_checkheaders(data, STRCONST("Referer"))) {
+  যদি(Curl_bufref_ptr(&তথ্য->state.referer) &&
+     !Curl_checkheaders(তথ্য, STRCONST("Referer"))) {
     b->referrer =
-      curl_maprintf("Referer: %s\r\n", Curl_bufref_ptr(&data->state.referer));
-    if(!b->referrer)
-      result = CURLE_OUT_OF_MEMORY;
+      curl_maprintf("Referer: %s\r\n", Curl_bufref_ptr(&তথ্য->state.referer));
+    যদি(!b->referrer)
+      ফলাফল = CURLE_OUT_OF_MEMORY;
   }
 
   /*
@@ -411,99 +411,99 @@ static CURLcode rtsp_setup_request(struct Curl_easy *data,
    *
    * Go ahead and use the Range stuff supplied for HTTP
    */
-  if(!result &&
-     data->state.use_range &&
+  যদি(!ফলাফল &&
+     তথ্য->state.use_range &&
      ((rtspreq == RTSPREQ_PLAY) ||
       (rtspreq == RTSPREQ_PAUSE) ||
       (rtspreq == RTSPREQ_RECORD)) &&
      /* Check to see if there is a range set in the custom headers */
-     !Curl_checkheaders(data, STRCONST("Range")) && data->state.range) {
-    result = rtsp_header_alloc("Range",
-                               data->state.range,
-                               &data->state.rangeline);
-    if(!result)
-      b->range = data->state.rangeline;
+     !Curl_checkheaders(তথ্য, STRCONST("Range")) && তথ্য->state.range) {
+    ফলাফল = rtsp_header_alloc("Range",
+                               তথ্য->state.range,
+                               &তথ্য->state.rangeline);
+    যদি(!ফলাফল)
+      b->range = তথ্য->state.rangeline;
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
 #define HTTPVERSION 11 /* RTSP is close to HTTP/1.1, sort of... */
 
-static CURLcode rtsp_do(struct Curl_easy *data, bool *done)
+স্থির CURLcode rtsp_do(কাঠামো Curl_easy *তথ্য, bool *done)
 {
-  CURLcode result = CURLE_OK;
-  const unsigned char rtspreq = data->set.rtspreq;
-  const char *str;
-  struct RTSP *rtsp = Curl_meta_get(data, CURL_META_RTSP_EASY);
-  struct dynbuf req_buffer;
-  struct rtsp_blocks block;
-  memset(&block, 0, sizeof(block));
+  CURLcode ফলাফল = CURLE_OK;
+  ধ্রুবক unsigned অক্ষর rtspreq = তথ্য->set.rtspreq;
+  ধ্রুবক অক্ষর *str;
+  কাঠামো RTSP *rtsp = Curl_meta_get(তথ্য, CURL_META_RTSP_EASY);
+  কাঠামো dynbuf req_বাফার;
+  কাঠামো rtsp_blocks block;
+  memset(&block, 0, আকার(block));
 
   *done = TRUE;
-  if(!rtsp)
-    return CURLE_FAILED_INIT;
+  যদি(!rtsp)
+    ফেরত CURLE_FAILED_INIT;
 
   /* Initialize a dynamic send buffer */
-  curlx_dyn_init(&req_buffer, DYN_RTSP_REQ_HEADER);
+  curlx_dyn_init(&req_বাফার, DYN_RTSP_REQ_HEADER);
 
-  rtsp->CSeq_sent = data->state.rtsp_next_client_CSeq;
+  rtsp->CSeq_sent = তথ্য->state.rtsp_পরবর্তী_client_CSeq;
   rtsp->CSeq_recv = 0;
 
   /* Setup the 'p_request' pointer to the proper method. */
-  result = pick_method(data, rtspreq, &block.request);
-  if(result)
-    goto out;
+  ফলাফল = pick_method(তথ্য, rtspreq, &block.request);
+  যদি(ফলাফল)
+    যাও out;
 
-  if(rtspreq == RTSPREQ_RECEIVE) {
-    Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
-    goto out;
+  যদি(rtspreq == RTSPREQ_RECEIVE) {
+    Curl_xfer_setup_recv(তথ্য, FIRSTSOCKET, -1);
+    যাও out;
   }
 
-  result = rtsp_setup_request(data, &block,  rtspreq);
-  if(result)
-    goto out;
+  ফলাফল = rtsp_setup_request(তথ্য, &block,  rtspreq);
+  যদি(ফলাফল)
+    যাও out;
 
-  if(block.session_id && data->state.rtsp_session_origin &&
-     !data->set.allow_auth_to_other_hosts &&
-     !Curl_peer_equal(data->state.origin, data->state.rtsp_session_origin))
-    block.session_id = NULL;
+  যদি(block.session_id && তথ্য->state.rtsp_session_origin &&
+     !তথ্য->set.allow_auth_to_other_hosts &&
+     !Curl_peer_equal(তথ্য->state.origin, তথ্য->state.rtsp_session_origin))
+    block.session_id = ফাঁকা;
 
   /*
    * Sanity check the custom headers
    */
-  if(Curl_checkheaders(data, STRCONST("CSeq"))) {
-    failf(data, "CSeq cannot be set as a custom header.");
-    result = CURLE_RTSP_CSEQ_ERROR;
-    goto out;
+  যদি(Curl_checkheaders(তথ্য, STRCONST("CSeq"))) {
+    failf(তথ্য, "CSeq cannot be set as a custom header.");
+    ফলাফল = CURLE_RTSP_CSEQ_ERROR;
+    যাও out;
   }
-  if(Curl_checkheaders(data, STRCONST("Session"))) {
-    failf(data, "Session ID cannot be set as a custom header.");
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  যদি(Curl_checkheaders(তথ্য, STRCONST("Session"))) {
+    failf(তথ্য, "Session ID cannot be set as a custom header.");
+    ফলাফল = CURLE_BAD_FUNCTION_ARGUMENT;
+    যাও out;
   }
 
-  result =
-    curlx_dyn_addf(&req_buffer,
+  ফলাফল =
+    curlx_dyn_addf(&req_বাফার,
                    "%s %s RTSP/1.0\r\n" /* Request Stream-URI RTSP/1.0 */
                    "CSeq: %u\r\n", /* CSeq */
                    block.request, block.stream_uri, rtsp->CSeq_sent);
-  if(result)
-    goto out;
+  যদি(ফলাফল)
+    যাও out;
 
   /*
    * Rather than do a normal alloc line, keep the session_id unformatted
    * to make comparison easier
    */
-  if(block.session_id) {
-    result = curlx_dyn_addf(&req_buffer, "Session: %s\r\n", block.session_id);
-    if(result)
-      goto out;
+  যদি(block.session_id) {
+    ফলাফল = curlx_dyn_addf(&req_বাফার, "Session: %s\r\n", block.session_id);
+    যদি(ফলাফল)
+      যাও out;
   }
 
   /*
    * Shared HTTP-like options
    */
-  result = curlx_dyn_addf(&req_buffer,
+  ফলাফল = curlx_dyn_addf(&req_বাফার,
                           "%s" /* transport */
                           "%s" /* accept */
                           "%s" /* accept-encoding */
@@ -516,164 +516,164 @@ static CURLcode rtsp_do(struct Curl_easy *data, bool *done)
                           block.range ? block.range : "",
                           block.referrer ? block.referrer : "");
 
-  str = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(!result && str && *str &&
-     !Curl_checkheaders(data, STRCONST("User-Agent")))
-    result = curlx_dyn_addf(&req_buffer,
+  str = CURL_EASY_STR(তথ্য, STRING_USERAGENT);
+  যদি(!ফলাফল && str && *str &&
+     !Curl_checkheaders(তথ্য, STRCONST("User-Agent")))
+    ফলাফল = curlx_dyn_addf(&req_বাফার,
                             "User-Agent: %s\r\n", str);
 
-  if(!result)
-    result = curlx_dyn_addf(&req_buffer,
+  যদি(!ফলাফল)
+    ফলাফল = curlx_dyn_addf(&req_বাফার,
                             "%s" /* hd_proxy_auth */
                             "%s", /* hd_auth */
                             block.hd_proxy_auth ? block.hd_proxy_auth : "",
                             block.hd_auth ? block.hd_auth : "");
-  if(result)
-    goto out;
+  যদি(ফলাফল)
+    যাও out;
 
-  if((rtspreq == RTSPREQ_SETUP) || (rtspreq == RTSPREQ_DESCRIBE)) {
-    result = Curl_add_timecondition(data, &req_buffer);
-    if(result)
-      goto out;
+  যদি((rtspreq == RTSPREQ_SETUP) || (rtspreq == RTSPREQ_DESCRIBE)) {
+    ফলাফল = Curl_add_timecondition(তথ্য, &req_বাফার);
+    যদি(ফলাফল)
+      যাও out;
   }
 
-  result = Curl_add_custom_headers(data, FALSE, HTTPVERSION, &req_buffer);
-  if(result)
-    goto out;
+  ফলাফল = Curl_add_custom_headers(তথ্য, FALSE, HTTPVERSION, &req_বাফার);
+  যদি(ফলাফল)
+    যাও out;
 
-  result = rtsp_setup_body(data, rtspreq, &req_buffer);
-  if(result)
-    goto out;
+  ফলাফল = rtsp_setup_body(তথ্য, rtspreq, &req_বাফার);
+  যদি(ফলাফল)
+    যাও out;
 
   /* Finish the request buffer */
-  result = curlx_dyn_addn(&req_buffer, STRCONST("\r\n"));
-  if(result)
-    goto out;
+  ফলাফল = curlx_dyn_addn(&req_বাফার, STRCONST("\r\n"));
+  যদি(ফলাফল)
+    যাও out;
 
-  Curl_xfer_setup_sendrecv(data, FIRSTSOCKET, -1);
+  Curl_xfer_setup_sendrecv(তথ্য, FIRSTSOCKET, -1);
 
   /* issue the request */
-  result = Curl_req_send(data, &req_buffer, HTTPVERSION);
-  if(result) {
-    failf(data, "Failed sending RTSP request");
-    goto out;
+  ফলাফল = Curl_req_send(তথ্য, &req_বাফার, HTTPVERSION);
+  যদি(ফলাফল) {
+    failf(তথ্য, "Failed sending RTSP request");
+    যাও out;
   }
 
   /* Increment the CSeq on success */
-  data->state.rtsp_next_client_CSeq++;
+  তথ্য->state.rtsp_পরবর্তী_client_CSeq++;
 
-  if(data->req.writebytecount) {
+  যদি(তথ্য->req.writebytecount) {
     /* if a request-body has been sent off, we make sure this progress is
        noted properly */
-    Curl_pgrsSetUploadCounter(data, data->req.writebytecount);
-    result = Curl_pgrsUpdate(data);
+    Curl_pgrs_Set_Upload_গণক(তথ্য, তথ্য->req.writebytecount);
+    ফলাফল = Curl_pgrsUpdate(তথ্য);
   }
 out:
-  if(block.transport_alloc)
+  যদি(block.transport_alloc)
     curlx_free(block.transport);
   curlx_free(block.accept_encoding);
   curlx_free(block.referrer);
-  curlx_dyn_free(&req_buffer);
-  return result;
+  curlx_dyn_free(&req_বাফার);
+  ফেরত ফলাফল;
 }
 
 /**
  * write any BODY bytes missing to the client, ignore the rest.
  */
-static CURLcode rtp_write_body_junk(struct Curl_easy *data,
-                                    struct rtsp_conn *rtspc,
-                                    const char *buf,
+স্থির CURLcode rtp_write_body_junk(কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো rtsp_conn *rtspc,
+                                    ধ্রুবক অক্ষর *buf,
                                     size_t blen)
 {
   curl_off_t body_remain;
   bool in_body;
 
-  in_body = (data->req.headerline && !rtspc->in_header) &&
-            (data->req.size >= 0) &&
-            (data->req.bytecount < data->req.size);
-  body_remain = in_body ? (data->req.size - data->req.bytecount) : 0;
+  in_body = (তথ্য->req.headerline && !rtspc->in_header) &&
+            (তথ্য->req.আকার_2 >= 0) &&
+            (তথ্য->req.bytecount < তথ্য->req.আকার_2);
+  body_remain = in_body ? (তথ্য->req.আকার_2 - তথ্য->req.bytecount) : 0;
   DEBUGASSERT(body_remain >= 0);
-  if(body_remain) {
-    if((curl_off_t)blen > body_remain)
+  যদি(body_remain) {
+    যদি((curl_off_t)blen > body_remain)
       blen = (size_t)body_remain;
-    return Curl_client_write(data, CLIENTWRITE_BODY, buf, blen);
+    ফেরত Curl_client_write(তথ্য, CLIENTWRITE_BODY, buf, blen);
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode rtp_client_write(struct Curl_easy *data, const char *ptr,
+স্থির CURLcode rtp_client_write(কাঠামো Curl_easy *তথ্য, ধ্রুবক অক্ষর *ptr,
                                  size_t len)
 {
-  struct Curl_mapi_guard guard;
+  কাঠামো Curl_mapi_guard guard;
   size_t wrote;
   curl_write_callback writeit;
-  void *user_ptr;
+  শূন্য *user_ptr;
 
-  if(len == 0) {
-    failf(data, "Cannot write a 0 size RTP packet.");
-    return CURLE_WRITE_ERROR;
+  যদি(len == 0) {
+    failf(তথ্য, "Cannot write a 0 size RTP packet.");
+    ফেরত CURLE_WRITE_ERROR;
   }
 
   /* If the user has configured CURLOPT_INTERLEAVEFUNCTION then use that
      function and any configured CURLOPT_INTERLEAVEDATA to write out the RTP
      data. Otherwise, use the CURLOPT_WRITEFUNCTION with the CURLOPT_WRITEDATA
      pointer to write out the RTP data. */
-  if(data->set.fwrite_rtp) {
-    writeit = data->set.fwrite_rtp;
-    user_ptr = data->set.rtp_out;
+  যদি(তথ্য->set.fwrite_rtp) {
+    writeit = তথ্য->set.fwrite_rtp;
+    user_ptr = তথ্য->set.rtp_out;
   }
-  else {
-    writeit = data->set.fwrite_func;
-    user_ptr = data->set.out;
+  অন্যথা {
+    writeit = তথ্য->set.fwrite_func;
+    user_ptr = তথ্য->set.out;
   }
 
-  CURL_CBAPI_START(&guard, data, easy_fwrite_rtp);
-  wrote = writeit((char *)CURL_UNCONST(ptr), 1, len, user_ptr);
+  CURL_CBAPI_START(&guard, তথ্য, easy_fwrite_rtp);
+  wrote = writeit((অক্ষর *)CURL_UNCONST(ptr), 1, len, user_ptr);
   CURL_CBAPI_END(&guard);
 
-  if(wrote == CURL_WRITEFUNC_PAUSE) {
-    failf(data, "Cannot pause RTP");
-    return CURLE_WRITE_ERROR;
+  যদি(wrote == CURL_WRITEFUNC_PAUSE) {
+    failf(তথ্য, "Cannot pause RTP");
+    ফেরত CURLE_WRITE_ERROR;
   }
 
-  if(wrote != len) {
-    failf(data, "Failed writing RTP data");
-    return CURLE_WRITE_ERROR;
+  যদি(wrote != len) {
+    failf(তথ্য, "Failed writing RTP data");
+    ফেরত CURLE_WRITE_ERROR;
   }
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static CURLcode rtsp_filter_rtp(struct Curl_easy *data,
-                                struct rtsp_conn *rtspc,
-                                const char *buf,
+স্থির CURLcode rtsp_filter_rtp(কাঠামো Curl_easy *তথ্য,
+                                কাঠামো rtsp_conn *rtspc,
+                                ধ্রুবক অক্ষর *buf,
                                 size_t blen,
                                 size_t *pconsumed)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   size_t skip_len = 0;
 
   *pconsumed = 0;
-  while(blen) {
-    bool in_body = (data->req.headerline && !rtspc->in_header) &&
-                   (data->req.size >= 0) &&
-                   (data->req.bytecount < data->req.size);
-    switch(rtspc->state) {
+  যখন(blen) {
+    bool in_body = (তথ্য->req.headerline && !rtspc->in_header) &&
+                   (তথ্য->req.আকার_2 >= 0) &&
+                   (তথ্য->req.bytecount < তথ্য->req.আকার_2);
+    নির্বাচন(rtspc->state) {
 
-    case RTP_PARSE_SKIP: {
+    ক্ষেত্র RTP_PARSE_SKIP: {
       DEBUGASSERT(curlx_dyn_len(&rtspc->buf) == 0);
-      while(blen && buf[0] != '$') {
-        if(!in_body && buf[0] == 'R' &&
-           data->set.rtspreq != RTSPREQ_RECEIVE) {
-          if(!strncmp(buf, "RTSP/", (blen < 5) ? blen : 5)) {
+      যখন(blen && buf[0] != '$') {
+        যদি(!in_body && buf[0] == 'R' &&
+           তথ্য->set.rtspreq != RTSPREQ_RECEIVE) {
+          যদি(!strncmp(buf, "RTSP/", (blen < 5) ? blen : 5)) {
             /* This could be the next response, no consume and return */
-            if(*pconsumed) {
-              DEBUGF(infof(data, "RTP rtsp_filter_rtp[SKIP] RTSP/ prefix, "
+            যদি(*pconsumed) {
+              DEBUGF(infof(তথ্য, "RTP rtsp_filter_rtp[SKIP] RTSP/ prefix, "
                            "skipping %zu bytes of junk", *pconsumed));
             }
             rtspc->state = RTP_PARSE_SKIP;
             rtspc->in_header = TRUE;
-            goto out;
+            যাও out;
           }
         }
         /* junk/BODY, consume without buffering */
@@ -682,141 +682,141 @@ static CURLcode rtsp_filter_rtp(struct Curl_easy *data,
         --blen;
         ++skip_len;
       }
-      if(blen && buf[0] == '$') {
+      যদি(blen && buf[0] == '$') {
         /* possible start of an RTP message, buffer */
-        if(skip_len) {
+        যদি(skip_len) {
           /* end of junk/BODY bytes, flush */
-          result = rtp_write_body_junk(data, rtspc, buf - skip_len, skip_len);
+          ফলাফল = rtp_write_body_junk(তথ্য, rtspc, buf - skip_len, skip_len);
           skip_len = 0;
-          if(result)
-            goto out;
+          যদি(ফলাফল)
+            যাও out;
         }
-        if(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
-          result = CURLE_OUT_OF_MEMORY;
-          goto out;
+        যদি(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
+          ফলাফল = CURLE_OUT_OF_MEMORY;
+          যাও out;
         }
         *pconsumed += 1;
         ++buf;
         --blen;
         rtspc->state = RTP_PARSE_CHANNEL;
       }
-      break;
+      বিরতি;
     }
 
-    case RTP_PARSE_CHANNEL: {
-      int idx = ((unsigned char)buf[0]) / 8;
-      int off = ((unsigned char)buf[0]) % 8;
+    ক্ষেত্র RTP_PARSE_CHANNEL: {
+      পূর্ণসংখ্যা idx = ((unsigned অক্ষর)buf[0]) / 8;
+      পূর্ণসংখ্যা off = ((unsigned অক্ষর)buf[0]) % 8;
       DEBUGASSERT(curlx_dyn_len(&rtspc->buf) == 1);
-      if(!(data->state.rtp_channel_mask[idx] & (1 << off))) {
+      যদি(!(তথ্য->state.rtp_channel_mask[idx] & (1 << off))) {
         /* invalid channel number, junk or BODY data */
         rtspc->state = RTP_PARSE_SKIP;
         DEBUGASSERT(skip_len == 0);
         /* we do not consume this byte, it is BODY data */
-        DEBUGF(infof(data, "RTSP: invalid RTP channel %d, skipping", idx));
-        if(*pconsumed == 0) {
+        DEBUGF(infof(তথ্য, "RTSP: invalid RTP channel %d, skipping", idx));
+        যদি(*pconsumed == 0) {
           /* We did not consume the initial '$' in our buffer, but had
            * it from an earlier call. We cannot un-consume it and have
            * to write it directly as BODY data */
-          result = rtp_write_body_junk(data, rtspc,
+          ফলাফল = rtp_write_body_junk(তথ্য, rtspc,
                                        curlx_dyn_ptr(&rtspc->buf), 1);
-          if(result)
-            goto out;
+          যদি(ফলাফল)
+            যাও out;
         }
-        else {
+        অন্যথা {
           /* count the '$' as skip and continue */
           skip_len = 1;
         }
         curlx_dyn_free(&rtspc->buf);
-        break;
+        বিরতি;
       }
       /* a valid channel, so we expect this to be a real RTP message */
-      rtspc->rtp_channel = (unsigned char)buf[0];
-      if(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      rtspc->rtp_channel = (unsigned অক্ষর)buf[0];
+      যদি(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
+        ফলাফল = CURLE_OUT_OF_MEMORY;
+        যাও out;
       }
       *pconsumed += 1;
       ++buf;
       --blen;
       rtspc->state = RTP_PARSE_LEN;
-      break;
+      বিরতি;
     }
 
-    case RTP_PARSE_LEN: {
+    ক্ষেত্র RTP_PARSE_LEN: {
       size_t rtp_len = curlx_dyn_len(&rtspc->buf);
-      const char *rtp_buf;
+      ধ্রুবক অক্ষর *rtp_buf;
       DEBUGASSERT(rtp_len >= 2 && rtp_len < 4);
-      if(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      যদি(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
+        ফলাফল = CURLE_OUT_OF_MEMORY;
+        যাও out;
       }
       *pconsumed += 1;
       ++buf;
       --blen;
-      if(rtp_len == 2)
-        break;
+      যদি(rtp_len == 2)
+        বিরতি;
       rtp_buf = curlx_dyn_ptr(&rtspc->buf);
-      rtspc->rtp_len = RTP_PKT_LENGTH(rtp_buf) + 4;
-      if(rtspc->rtp_len == 4) {
+      rtspc->rtp_len = RTP_PKT_দৈর্ঘ্য(rtp_buf) + 4;
+      যদি(rtspc->rtp_len == 4) {
         /* zero-length payload, the 4-byte header is the complete RTP
            message. Dispatch immediately without entering RTP_PARSE_DATA. */
-        DEBUGF(infof(data, "RTP write channel %d rtp_len %zu (no payload)",
+        DEBUGF(infof(তথ্য, "RTP write channel %d rtp_len %zu (no payload)",
                      rtspc->rtp_channel, rtspc->rtp_len));
-        result = rtp_client_write(data, rtp_buf, rtspc->rtp_len);
+        ফলাফল = rtp_client_write(তথ্য, rtp_buf, rtspc->rtp_len);
         curlx_dyn_free(&rtspc->buf);
         rtspc->state = RTP_PARSE_SKIP;
-        if(result)
-          goto out;
-        break;
+        যদি(ফলাফল)
+          যাও out;
+        বিরতি;
       }
-      rtspc->state = RTP_PARSE_DATA;
-      break;
+      rtspc->state = RTP_PARSE_তথ্য;
+      বিরতি;
     }
 
-    case RTP_PARSE_DATA: {
+    ক্ষেত্র RTP_PARSE_তথ্য: {
       size_t rtp_len = curlx_dyn_len(&rtspc->buf);
       size_t needed;
       DEBUGASSERT(rtp_len < rtspc->rtp_len);
       needed = rtspc->rtp_len - rtp_len;
-      if(needed <= blen) {
-        if(curlx_dyn_addn(&rtspc->buf, buf, needed)) {
-          result = CURLE_OUT_OF_MEMORY;
-          goto out;
+      যদি(needed <= blen) {
+        যদি(curlx_dyn_addn(&rtspc->buf, buf, needed)) {
+          ফলাফল = CURLE_OUT_OF_MEMORY;
+          যাও out;
         }
         *pconsumed += needed;
         buf += needed;
         blen -= needed;
         /* complete RTP message in buffer */
-        DEBUGF(infof(data, "RTP write channel %d rtp_len %zu",
+        DEBUGF(infof(তথ্য, "RTP write channel %d rtp_len %zu",
                      rtspc->rtp_channel, rtspc->rtp_len));
-        result = rtp_client_write(data, curlx_dyn_ptr(&rtspc->buf),
+        ফলাফল = rtp_client_write(তথ্য, curlx_dyn_ptr(&rtspc->buf),
                                   rtspc->rtp_len);
         curlx_dyn_free(&rtspc->buf);
         rtspc->state = RTP_PARSE_SKIP;
-        if(result)
-          goto out;
+        যদি(ফলাফল)
+          যাও out;
       }
-      else {
-        if(curlx_dyn_addn(&rtspc->buf, buf, blen)) {
-          result = CURLE_OUT_OF_MEMORY;
-          goto out;
+      অন্যথা {
+        যদি(curlx_dyn_addn(&rtspc->buf, buf, blen)) {
+          ফলাফল = CURLE_OUT_OF_MEMORY;
+          যাও out;
         }
         *pconsumed += blen;
         buf += blen;
         blen = 0;
       }
-      break;
+      বিরতি;
     }
 
-    default:
+    পূর্বনির্ধারিত:
       DEBUGASSERT(0);
-      return CURLE_RECV_ERROR;
+      ফেরত CURLE_RECV_ERROR;
     }
   }
 out:
-  if(!result && skip_len)
-    result = rtp_write_body_junk(data, rtspc, buf - skip_len, skip_len);
-  return result;
+  যদি(!ফলাফল && skip_len)
+    ফলাফল = rtp_write_body_junk(তথ্য, rtspc, buf - skip_len, skip_len);
+  ফেরত ফলাফল;
 }
 
 /*
@@ -829,170 +829,170 @@ out:
  * @param readmore out, TRUE iff complete buf was consumed and more data
  *                 is needed
  */
-static CURLcode rtsp_rtp_write_resp(struct Curl_easy *data,
-                                    const char *buf,
+স্থির CURLcode rtsp_rtp_write_resp(কাঠামো Curl_easy *তথ্য,
+                                    ধ্রুবক অক্ষর *buf,
                                     size_t blen,
                                     bool is_eos)
 {
-  struct rtsp_conn *rtspc =
-    Curl_conn_meta_get(data->conn, CURL_META_RTSP_CONN);
-  CURLcode result = CURLE_OK;
+  কাঠামো rtsp_conn *rtspc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_RTSP_CONN);
+  CURLcode ফলাফল = CURLE_OK;
   size_t consumed = 0;
 
-  if(!rtspc)
-    return CURLE_FAILED_INIT;
+  যদি(!rtspc)
+    ফেরত CURLE_FAILED_INIT;
 
-  if(!data->req.header)
+  যদি(!তথ্য->req.header)
     rtspc->in_header = FALSE;
-  if(!blen) {
-    goto out;
+  যদি(!blen) {
+    যাও out;
   }
 
-  DEBUGF(infof(data, "rtsp_rtp_write_resp(len=%zu, in_header=%d, eos=%d)",
+  DEBUGF(infof(তথ্য, "rtsp_rtp_write_resp(len=%zu, in_header=%d, eos=%d)",
                blen, rtspc->in_header, is_eos));
 
   /* If header parsing is not ongoing, extract RTP messages */
-  if(!rtspc->in_header) {
-    result = rtsp_filter_rtp(data, rtspc, buf, blen, &consumed);
-    if(result)
-      goto out;
+  যদি(!rtspc->in_header) {
+    ফলাফল = rtsp_filter_rtp(তথ্য, rtspc, buf, blen, &consumed);
+    যদি(ফলাফল)
+      যাও out;
     buf += consumed;
     blen -= consumed;
     /* either we consumed all or are at the start of header parsing */
-    if(blen && !data->req.header)
-      DEBUGF(infof(data, "RTSP: %zu bytes, possibly excess in response body",
+    যদি(blen && !তথ্য->req.header)
+      DEBUGF(infof(তথ্য, "RTSP: %zu bytes, possibly excess in response body",
                    blen));
   }
 
   /* we want to parse headers, do so */
-  if(data->req.header && blen) {
+  যদি(তথ্য->req.header && blen) {
     rtspc->in_header = TRUE;
-    result = Curl_http_write_resp_hds(data, buf, blen, &consumed);
-    if(result)
-      goto out;
+    ফলাফল = Curl_http_write_resp_hds(তথ্য, buf, blen, &consumed);
+    যদি(ফলাফল)
+      যাও out;
 
     buf += consumed;
     blen -= consumed;
 
-    if(!data->req.header)
+    যদি(!তথ্য->req.header)
       rtspc->in_header = FALSE;
 
-    if(!rtspc->in_header) {
+    যদি(!rtspc->in_header) {
       /* If header parsing is done, extract interleaved RTP messages */
-      if(data->req.size <= -1) {
+      যদি(তথ্য->req.আকার_2 <= -1) {
         /* Respect section 4.4 of rfc2326: If the Content-Length header is
            absent, a length 0 must be assumed. */
-        data->req.size = 0;
-        data->req.download_done = TRUE;
+        তথ্য->req.আকার_2 = 0;
+        তথ্য->req.download_done = TRUE;
       }
-      result = rtsp_filter_rtp(data, rtspc, buf, blen, &consumed);
-      if(result)
-        goto out;
+      ফলাফল = rtsp_filter_rtp(তথ্য, rtspc, buf, blen, &consumed);
+      যদি(ফলাফল)
+        যাও out;
       buf += consumed;
       blen -= consumed;
     }
   }
 
-  if(rtspc->state != RTP_PARSE_SKIP)
-    data->req.done = FALSE;
+  যদি(rtspc->state != RTP_PARSE_SKIP)
+    তথ্য->req.done = FALSE;
   /* we SHOULD have consumed all bytes, unless the response is borked.
    * In which case we write out the left over bytes, letting the client
    * writer deal with it (it will report EXCESS and fail the transfer). */
-  DEBUGF(infof(data, "rtsp_rtp_write_resp(len=%zu, in_header=%d, done=%d, "
+  DEBUGF(infof(তথ্য, "rtsp_rtp_write_resp(len=%zu, in_header=%d, done=%d, "
                "rtspc->state=%d, req.size=%" FMT_OFF_T ")",
-               blen, rtspc->in_header, data->req.done, (int)rtspc->state,
-               data->req.size));
-  if(!result && (is_eos || blen)) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY |
+               blen, rtspc->in_header, তথ্য->req.done, (পূর্ণসংখ্যা)rtspc->state,
+               তথ্য->req.আকার_2));
+  যদি(!ফলাফল && (is_eos || blen)) {
+    ফলাফল = Curl_client_write(তথ্য, CLIENTWRITE_BODY |
                                (is_eos ? CLIENTWRITE_EOS : 0), buf, blen);
   }
 
 out:
-  if((data->set.rtspreq == RTSPREQ_RECEIVE) &&
+  যদি((তথ্য->set.rtspreq == RTSPREQ_RECEIVE) &&
      (rtspc->state == RTP_PARSE_SKIP)) {
     /* In special mode RECEIVE, we process one chunk of network
      * data, so we stop the transfer here, if we have no incomplete
      * RTP message pending. */
-    data->req.download_done = TRUE;
+    তথ্য->req.download_done = TRUE;
   }
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode rtsp_rtp_write_resp_hd(struct Curl_easy *data,
-                                       const char *buf,
+স্থির CURLcode rtsp_rtp_write_resp_hd(কাঠামো Curl_easy *তথ্য,
+                                       ধ্রুবক অক্ষর *buf,
                                        size_t blen,
                                        bool is_eos)
 {
-  return rtsp_rtp_write_resp(data, buf, blen, is_eos);
+  ফেরত rtsp_rtp_write_resp(তথ্য, buf, blen, is_eos);
 }
 
-static CURLcode rtsp_parse_transport(struct Curl_easy *data,
-                                     const char *transport)
+স্থির CURLcode rtsp_parse_transport(কাঠামো Curl_easy *তথ্য,
+                                     ধ্রুবক অক্ষর *transport)
 {
   /* If we receive multiple Transport response-headers, the interleaved
      channels of each response header is recorded and used together for
      subsequent data validity checks.*/
   /* e.g.: ' RTP/AVP/TCP;unicast;interleaved=5-6' */
-  const char *start, *end;
+  ধ্রুবক অক্ষর *start, *end;
   start = transport;
-  while(start && *start) {
+  যখন(start && *start) {
     curlx_str_passblanks(&start);
     end = strchr(start, ';');
-    if(checkprefix("interleaved=", start)) {
+    যদি(checkprefix("interleaved=", start)) {
       curl_off_t chan1, chan2, chan;
-      const char *p = start + 12;
-      if(!curlx_str_number(&p, &chan1, 255)) {
-        unsigned char *rtp_channel_mask = data->state.rtp_channel_mask;
+      ধ্রুবক অক্ষর *p = start + 12;
+      যদি(!curlx_str_সংখ্যা(&p, &chan1, 255)) {
+        unsigned অক্ষর *rtp_channel_mask = তথ্য->state.rtp_channel_mask;
         chan2 = chan1;
-        if(!curlx_str_single(&p, '-') && curlx_str_number(&p, &chan2, 255)) {
-          infof(data, "Unable to read the interleaved parameter from "
+        যদি(!curlx_str_single(&p, '-') && curlx_str_সংখ্যা(&p, &chan2, 255)) {
+          infof(তথ্য, "Unable to read the interleaved parameter from "
                 "Transport header: [%s]", transport);
           chan2 = chan1;
         }
-        for(chan = chan1; chan <= chan2; chan++) {
-          int idx = (int)chan / 8;
-          int off = (int)chan % 8;
-          rtp_channel_mask[idx] |= (unsigned char)(1 << off);
+        জন্য(chan = chan1; chan <= chan2; chan++) {
+          পূর্ণসংখ্যা idx = (পূর্ণসংখ্যা)chan / 8;
+          পূর্ণসংখ্যা off = (পূর্ণসংখ্যা)chan % 8;
+          rtp_channel_mask[idx] |= (unsigned অক্ষর)(1 << off);
         }
       }
-      else {
-        infof(data, "Unable to read the interleaved parameter from "
+      অন্যথা {
+        infof(তথ্য, "Unable to read the interleaved parameter from "
               "Transport header: [%s]", transport);
       }
-      break;
+      বিরতি;
     }
     /* skip to next parameter */
     start = (!end) ? end : (end + 1);
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header)
+CURLcode Curl_rtsp_parseheader(কাঠামো Curl_easy *তথ্য, ধ্রুবক অক্ষর *header)
 {
-  if(checkprefix("CSeq:", header)) {
+  যদি(checkprefix("CSeq:", header)) {
     curl_off_t CSeq = 0;
-    struct RTSP *rtsp = Curl_meta_get(data, CURL_META_RTSP_EASY);
-    const char *p = &header[5];
-    if(!rtsp)
-      return CURLE_FAILED_INIT;
+    কাঠামো RTSP *rtsp = Curl_meta_get(তথ্য, CURL_META_RTSP_EASY);
+    ধ্রুবক অক্ষর *p = &header[5];
+    যদি(!rtsp)
+      ফেরত CURLE_FAILED_INIT;
     curlx_str_passblanks(&p);
-    if(curlx_str_number(&p, &CSeq, UINT_MAX)) {
-      failf(data, "Unable to read the CSeq header: [%s]", header);
-      return CURLE_RTSP_CSEQ_ERROR;
+    যদি(curlx_str_সংখ্যা(&p, &CSeq, UINT_MAX)) {
+      failf(তথ্য, "Unable to read the CSeq header: [%s]", header);
+      ফেরত CURLE_RTSP_CSEQ_ERROR;
     }
-    data->state.rtsp_CSeq_recv = rtsp->CSeq_recv = (uint32_t)CSeq;
+    তথ্য->state.rtsp_CSeq_recv = rtsp->CSeq_recv = (uint32_t)CSeq;
   }
-  else if(checkprefix("Session:", header)) {
-    const char *start, *end, *str;
+  অন্যথা যদি(checkprefix("Session:", header)) {
+    ধ্রুবক অক্ষর *start, *end, *str;
     size_t idlen;
 
     /* Find the first non-space letter */
     start = header + 8;
     curlx_str_passblanks(&start);
 
-    if(!*start) {
-      failf(data, "Got a blank Session ID");
-      return CURLE_RTSP_SESSION_ERROR;
+    যদি(!*start) {
+      failf(তথ্য, "Got a blank Session ID");
+      ফেরত CURLE_RTSP_SESSION_ERROR;
     }
 
     /* Find the end of Session ID
@@ -1002,45 +1002,45 @@ CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header)
      * gstreamer does URL-encoded session ID's not covered by the standard.
      */
     end = start;
-    while((*end > ' ') && (*end != ';'))
+    যখন((*end > ' ') && (*end != ';'))
       end++;
     idlen = end - start;
 
-    str = CURL_EASY_STR(data, STRING_RTSP_SESSION_ID);
-    if(str) {
+    str = CURL_EASY_STR(তথ্য, STRING_RTSP_SESSION_ID);
+    যদি(str) {
 
       /* If the Session ID is set, then compare */
-      if(strlen(str) != idlen ||
+      যদি(strlen(str) != idlen ||
          strncmp(start, str, idlen)) {
-        failf(data, "Got RTSP Session ID Line [%s], but wanted ID [%s]",
+        failf(তথ্য, "Got RTSP Session ID Line [%s], but wanted ID [%s]",
               start, str);
-        return CURLE_RTSP_SESSION_ERROR;
+        ফেরত CURLE_RTSP_SESSION_ERROR;
       }
     }
-    else {
+    অন্যথা {
       /* If the Session ID is not set, and we find it in a response, then set
        * it.
        * Copy the id substring into a new buffer */
-      void *mem = curlx_memdup0(start, idlen);
-      if(!mem ||
-         CURL_EASY_STR_SETN(data, STRING_RTSP_SESSION_ID, mem))
-        return CURLE_OUT_OF_MEMORY;
-      Curl_peer_link(&data->state.rtsp_session_origin, data->state.origin);
+      শূন্য *mem = curlx_memdup0(start, idlen);
+      যদি(!mem ||
+         CURL_EASY_STR_SETN(তথ্য, STRING_RTSP_SESSION_ID, mem))
+        ফেরত CURLE_OUT_OF_MEMORY;
+      Curl_peer_link(&তথ্য->state.rtsp_session_origin, তথ্য->state.origin);
     }
   }
-  else if(checkprefix("Transport:", header)) {
-    CURLcode result;
-    result = rtsp_parse_transport(data, header + 10);
-    if(result)
-      return result;
+  অন্যথা যদি(checkprefix("Transport:", header)) {
+    CURLcode ফলাফল;
+    ফলাফল = rtsp_parse_transport(তথ্য, header + 10);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
   }
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /*
  * RTSP handler interface.
  */
-const struct Curl_protocol Curl_protocol_rtsp = {
+ধ্রুবক কাঠামো Curl_protocol Curl_protocol_rtsp = {
   rtsp_setup_connection,                /* setup_connection */
   rtsp_do,                              /* do_it */
   rtsp_done,                            /* done */

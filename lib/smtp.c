@@ -38,43 +38,43 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "smtp.h"
+#অন্তর্ভাব "curl_setup.h"
+#অন্তর্ভাব "urldata.h"
+#অন্তর্ভাব "smtp.h"
 
 #ifndef CURL_DISABLE_SMTP
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#অন্তর্ভাব <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#অন্তর্ভাব <arpa/inet.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#অন্তর্ভাব <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#অন্তর্ভাব <in.h>
+#অন্তর্ভাব <inet.h>
 #endif
 
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
-#include "pingpong.h"
-#include "mime.h"
-#include "vtls/vtls.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "curl_gethostname.h"
-#include "bufref.h"
-#include "curl_sasl.h"
-#include "idn.h"
-#include "curlx/strparse.h"
+#অন্তর্ভাব "sendf.h"
+#অন্তর্ভাব "curl_trc.h"
+#অন্তর্ভাব "progress.h"
+#অন্তর্ভাব "transfer.h"
+#অন্তর্ভাব "escape.h"
+#অন্তর্ভাব "pingpong.h"
+#অন্তর্ভাব "mime.h"
+#অন্তর্ভাব "vtls/vtls.h"
+#অন্তর্ভাব "cfilters.h"
+#অন্তর্ভাব "connect.h"
+#অন্তর্ভাব "select.h"
+#অন্তর্ভাব "url.h"
+#অন্তর্ভাব "curl_gethostname.h"
+#অন্তর্ভাব "bufref.h"
+#অন্তর্ভাব "curl_sasl.h"
+#অন্তর্ভাব "idn.h"
+#অন্তর্ভাব "curlx/strparse.h"
 
 /* meta key for storing protocol meta at easy handle */
 #define CURL_META_SMTP_EASY   "meta:proto:smtp:easy"
@@ -84,7 +84,7 @@
 /****************************************************************************
  * SMTP unique setup
  ***************************************************************************/
-typedef enum {
+প্রকারলেখ গণনা {
   SMTP_STOP,        /* do nothing state, stops the state machine */
   SMTP_SERVERGREET, /* waiting for the initial greeting immediately after
                        a connect */
@@ -97,7 +97,7 @@ typedef enum {
   SMTP_COMMAND,     /* VRFY, EXPN, NOOP, RSET and HELP */
   SMTP_MAIL,        /* MAIL FROM */
   SMTP_RCPT,        /* RCPT TO */
-  SMTP_DATA,
+  SMTP_তথ্য,
   SMTP_POSTDATA,
   SMTP_QUIT,
   SMTP_LAST         /* never used */
@@ -105,14 +105,14 @@ typedef enum {
 
 /* smtp_conn is used for struct connection-oriented data in the connectdata
    struct */
-struct smtp_conn {
-  struct pingpong pp;
-  struct SASL sasl;        /* SASL-related storage */
+কাঠামো smtp_conn {
+  কাঠামো pingpong pp;
+  কাঠামো SASL sasl;        /* SASL-related storage */
   smtpstate state;         /* Always use smtp.c:state() to change state! */
-  char *domain;            /* Client address/name to send in the EHLO */
+  অক্ষর *domain;            /* Client address/name to send in the EHLO */
   BIT(ssldone);            /* Is connect() over SSL done? */
   BIT(tls_supported);      /* StartTLS capability supported by server */
-  BIT(size_supported);     /* If server supports SIZE extension according to
+  BIT(আকার_supported);     /* If server supports SIZE extension according to
                               RFC 1870 */
   BIT(utf8_supported);     /* If server supports SMTPUTF8 extension according
                               to RFC 6531 */
@@ -123,11 +123,11 @@ struct smtp_conn {
    connection-oriented must be in smtp_conn to properly deal with the fact that
    perhaps the Curl_easy is changed between the times the connection is
    used. */
-struct SMTP {
+কাঠামো SMTP {
   curl_pp_transfer transfer;
-  char *custom;            /* Custom Request */
-  struct curl_slist *rcpt; /* Recipient list */
-  int rcpt_last_error;     /* The last error received for RCPT TO command */
+  অক্ষর *custom;            /* Custom Request */
+  কাঠামো curl_slist *rcpt; /* Recipient list */
+  পূর্ণসংখ্যা rcpt_last_error;     /* The last error received for RCPT TO command */
   size_t eob;              /* Number of bytes of the EOB (End Of Body) that
                               have been received so far */
   BIT(rcpt_had_ok);        /* Whether any of RCPT TO commands (depends on
@@ -141,35 +141,35 @@ struct SMTP {
  *
  * Parse the URL login options.
  */
-static CURLcode smtp_parse_url_options(struct connectdata *conn,
-                                       struct smtp_conn *smtpc)
+স্থির CURLcode smtp_parse_url_options(কাঠামো connectdata *conn,
+                                       কাঠামো smtp_conn *smtpc)
 {
-  CURLcode result = CURLE_OK;
-  const char *ptr = conn->options;
+  CURLcode ফলাফল = CURLE_OK;
+  ধ্রুবক অক্ষর *ptr = conn->options;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  যখন(!ফলাফল && ptr && *ptr) {
+    ধ্রুবক অক্ষর *চাবি = ptr;
+    ধ্রুবক অক্ষর *মান;
 
-    while(*ptr && *ptr != '=')
+    যখন(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    মান = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    যখন(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=", 5))
-      result = Curl_sasl_parse_url_auth_option(&smtpc->sasl,
-                                               value, ptr - value);
-    else
-      result = CURLE_URL_MALFORMAT;
+    যদি(curl_strnequal(চাবি, "AUTH=", 5))
+      ফলাফল = Curl_sasl_parse_url_auth_option(&smtpc->sasl,
+                                               মান, ptr - মান);
+    অন্যথা
+      ফলাফল = CURLE_URL_MALFORMAT;
 
-    if(*ptr == ';')
+    যদি(*ptr == ';')
       ptr++;
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -178,23 +178,23 @@ static CURLcode smtp_parse_url_options(struct connectdata *conn,
  *
  * Parse the URL path into separate path components.
  */
-static CURLcode smtp_parse_url_path(struct Curl_easy *data,
-                                    struct smtp_conn *smtpc)
+স্থির CURLcode smtp_parse_url_path(কাঠামো Curl_easy *তথ্য,
+                                    কাঠামো smtp_conn *smtpc)
 {
   /* The SMTP struct is already initialized in smtp_connect() */
-  const char *path = &data->state.up.path[1]; /* skip leading path */
-  char localhost[HOSTNAME_MAX + 1];
+  ধ্রুবক অক্ষর *path = &তথ্য->state.up.path[1]; /* skip leading path */
+  অক্ষর localhost[HOSTNAME_MAX + 1];
 
   /* Calculate the path if necessary */
-  if(!*path) {
-    if(!Curl_gethostname(localhost, sizeof(localhost)))
+  যদি(!*path) {
+    যদি(!Curl_gethostname(localhost, আকার(localhost)))
       path = localhost;
-    else
+    অন্যথা
       path = "localhost";
   }
 
   /* URL decode the path and use it as the domain in our EHLO */
-  return Curl_urldecode(path, 0, &smtpc->domain, NULL, REJECT_CTRL);
+  ফেরত Curl_urldecode(path, 0, &smtpc->domain, ফাঁকা, REJECT_CTRL);
 }
 
 /***********************************************************************
@@ -203,17 +203,17 @@ static CURLcode smtp_parse_url_path(struct Curl_easy *data,
  *
  * Parse the custom request.
  */
-static CURLcode smtp_parse_custom_request(struct Curl_easy *data,
-                                          struct SMTP *smtp)
+স্থির CURLcode smtp_parse_custom_request(কাঠামো Curl_easy *তথ্য,
+                                          কাঠামো SMTP *smtp)
 {
-  CURLcode result = CURLE_OK;
-  const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  CURLcode ফলাফল = CURLE_OK;
+  ধ্রুবক অক্ষর *custom = CURL_EASY_STR(তথ্য, STRING_CUSTOMREQUEST);
 
   /* URL decode the custom request */
-  if(custom)
-    result = Curl_urldecode(custom, 0, &smtp->custom, NULL, REJECT_CTRL);
+  যদি(custom)
+    ফলাফল = Curl_urldecode(custom, 0, &smtp->custom, ফাঁকা, REJECT_CTRL);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -249,37 +249,37 @@ static CURLcode smtp_parse_custom_request(struct Curl_easy *data,
  * calling function deems it to be) then the input will be returned in
  * the address part with the hostname being NULL.
  */
-static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
-                                   char **address, struct hostname *host,
-                                   const char **suffix)
+স্থির CURLcode smtp_parse_address(কাঠামো Curl_easy *তথ্য, ধ্রুবক অক্ষর *fqma,
+                                   অক্ষর **address, কাঠামো hostname *host,
+                                   ধ্রুবক অক্ষর **suffix)
 {
-  CURLcode result = CURLE_OK;
-  size_t length;
-  char *addressend;
-  char *dup;
+  CURLcode ফলাফল = CURLE_OK;
+  size_t দৈর্ঘ্য;
+  অক্ষর *addressend;
+  অক্ষর *dup;
 
   /* A CR or LF in the address ends up verbatim in the MAIL FROM/RCPT TO
      command line, so a crafted address could smuggle further SMTP commands
      onto the wire. Reject it before the command is built. */
-  if(strpbrk(fqma, "\r\n")) {
-    failf(data, "Refusing to send email address with a CR or LF");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  যদি(strpbrk(fqma, "\r\n")) {
+    failf(তথ্য, "Refusing to send email address with a CR or LF");
+    ফেরত CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   /* Duplicate the fully qualified email address so we can manipulate it,
      ensuring it does not contain the delimiters if specified */
   dup = curlx_strdup(fqma[0] == '<' ? fqma + 1 : fqma);
-  if(!dup)
-    return CURLE_OUT_OF_MEMORY;
+  যদি(!dup)
+    ফেরত CURLE_OUT_OF_MEMORY;
 
-  if(fqma[0] != '<') {
-    length = strlen(dup);
-    if(length && dup[length - 1] == '>')
-      dup[length - 1] = '\0';
+  যদি(fqma[0] != '<') {
+    দৈর্ঘ্য = strlen(dup);
+    যদি(দৈর্ঘ্য && dup[দৈর্ঘ্য - 1] == '>')
+      dup[দৈর্ঘ্য - 1] = '\0';
   }
-  else {
+  অন্যথা {
     addressend = strrchr(dup, '>');
-    if(addressend) {
+    যদি(addressend) {
       *addressend = '\0';
       *suffix = addressend + 1;
     }
@@ -287,12 +287,12 @@ static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
 
   /* Extract the hostname from the address (if we can) */
   host->name = strpbrk(dup, "@");
-  if(host->name) {
+  যদি(host->name) {
     *host->name = '\0';
     host->name = host->name + 1;
 
     /* Attempt to convert the hostname to IDN ACE */
-    (void)Curl_idnconvert_hostname(host);
+    (শূন্য)Curl_idnconvert_hostname(host);
 
     /* If Curl_idnconvert_hostname() fails then we shall attempt to continue
        and send the hostname using UTF-8 rather than as 7-bit ACE (which is
@@ -302,12 +302,12 @@ static CURLcode smtp_parse_address(struct Curl_easy *data, const char *fqma,
   /* Extract the local address from the mailbox */
   *address = dup;
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-struct cr_eob_ctx {
-  struct Curl_creader super;
-  struct bufq buf;
+কাঠামো cr_eob_ctx {
+  কাঠামো Curl_creader super;
+  কাঠামো bufq buf;
   size_t n_eob; /* how many EOB bytes we matched so far */
   size_t eob;       /* Number of bytes of the EOB (End Of Body) that
                        have been received so far */
@@ -316,22 +316,22 @@ struct cr_eob_ctx {
   BIT(eos);       /* we have returned an EOS */
 };
 
-static CURLcode cr_eob_init(struct Curl_easy *data,
-                            struct Curl_creader *reader)
+স্থির CURLcode cr_eob_init(কাঠামো Curl_easy *তথ্য,
+                            কাঠামো Curl_creader *reader)
 {
-  struct cr_eob_ctx *ctx = reader->ctx;
-  (void)data;
+  কাঠামো cr_eob_ctx *ctx = reader->ctx;
+  (শূন্য)তথ্য;
   /* The first char we read is the first on a line, as if we had
    * read CRLF before */
   ctx->n_eob = 2;
   Curl_bufq_init2(&ctx->buf, (16 * 1024), 1, BUFQ_OPT_SOFT_LIMIT);
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
-static void cr_eob_close(struct Curl_easy *data, struct Curl_creader *reader)
+স্থির শূন্য cr_eob_close(কাঠামো Curl_easy *তথ্য, কাঠামো Curl_creader *reader)
 {
-  struct cr_eob_ctx *ctx = reader->ctx;
-  (void)data;
+  কাঠামো cr_eob_ctx *ctx = reader->ctx;
+  (শূন্য)তথ্য;
   Curl_bufq_free(&ctx->buf);
 }
 
@@ -340,144 +340,144 @@ static void cr_eob_close(struct Curl_easy *data, struct Curl_creader *reader)
 #define SMTP_EOB_FIND_LEN 3
 
 /* client reader doing SMTP End-Of-Body escaping. */
-static CURLcode cr_eob_read(struct Curl_easy *data,
-                            struct Curl_creader *reader,
-                            char *buf, size_t blen,
+স্থির CURLcode cr_eob_read(কাঠামো Curl_easy *তথ্য,
+                            কাঠামো Curl_creader *reader,
+                            অক্ষর *buf, size_t blen,
                             size_t *pnread, bool *peos)
 {
-  struct cr_eob_ctx *ctx = reader->ctx;
-  CURLcode result = CURLE_OK;
+  কাঠামো cr_eob_ctx *ctx = reader->ctx;
+  CURLcode ফলাফল = CURLE_OK;
   size_t nread, i, start, n;
   bool eos;
 
-  if(!ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
+  যদি(!ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
     /* Get more and convert it when needed */
-    result = Curl_creader_read(data, reader->next, buf, blen, &nread, &eos);
-    CURL_TRC_SMTP(data, "cr_eob_read, next_read(len=%zu) -> %d, %zu eos=%d",
-                  blen, (int)result, nread, eos);
-    if(result)
-      return result;
+    ফলাফল = Curl_creader_read(তথ্য, reader->পরবর্তী, buf, blen, &nread, &eos);
+    CURL_TRC_SMTP(তথ্য, "cr_eob_read, next_read(len=%zu) -> %d, %zu eos=%d",
+                  blen, (পূর্ণসংখ্যা)ফলাফল, nread, eos);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
     ctx->read_eos = eos;
-    if(nread) {
-      if(!ctx->n_eob && !memchr(buf, SMTP_EOB[0], nread)) {
+    যদি(nread) {
+      যদি(!ctx->n_eob && !memchr(buf, SMTP_EOB[0], nread)) {
         /* not in the middle of a match, no EOB start found, pass */
         *pnread = nread;
         *peos = FALSE;
-        return CURLE_OK;
+        ফেরত CURLE_OK;
       }
       /* scan for EOB (continuation) and convert */
-      for(i = start = 0; i < nread; ++i) {
-        if(ctx->n_eob >= SMTP_EOB_FIND_LEN) {
+      জন্য(i = start = 0; i < nread; ++i) {
+        যদি(ctx->n_eob >= SMTP_EOB_FIND_LEN) {
           /* matched the EOB prefix and seeing additional char, add '.' */
-          result = Curl_bufq_cwrite(&ctx->buf, buf + start, i - start, &n);
-          if(result)
-            return result;
-          result = Curl_bufq_cwrite(&ctx->buf, ".", 1, &n);
-          if(result)
-            return result;
+          ফলাফল = Curl_bufq_cwrite(&ctx->buf, buf + start, i - start, &n);
+          যদি(ফলাফল)
+            ফেরত ফলাফল;
+          ফলাফল = Curl_bufq_cwrite(&ctx->buf, ".", 1, &n);
+          যদি(ফলাফল)
+            ফেরত ফলাফল;
           ctx->n_eob = 0;
           start = i;
-          if(data->state.infilesize > 0)
-            data->state.infilesize++;
+          যদি(তথ্য->state.infilesize > 0)
+            তথ্য->state.infilesize++;
         }
 
-        if(buf[i] != SMTP_EOB[ctx->n_eob])
+        যদি(buf[i] != SMTP_EOB[ctx->n_eob])
           ctx->n_eob = 0;
 
-        if(buf[i] == SMTP_EOB[ctx->n_eob]) {
+        যদি(buf[i] == SMTP_EOB[ctx->n_eob]) {
           /* matching another char of the EOB */
           ++ctx->n_eob;
         }
       }
 
       /* add any remainder to buf */
-      if(start < nread) {
-        result = Curl_bufq_cwrite(&ctx->buf, buf + start, nread - start, &n);
-        if(result)
-          return result;
+      যদি(start < nread) {
+        ফলাফল = Curl_bufq_cwrite(&ctx->buf, buf + start, nread - start, &n);
+        যদি(ফলাফল)
+          ফেরত ফলাফল;
       }
     }
   }
 
   *peos = FALSE;
 
-  if(ctx->read_eos && !ctx->processed_eos) {
+  যদি(ctx->read_eos && !ctx->processed_eos) {
     /* if we last matched a CRLF or if the data was empty, add ".\r\n"
      * to end the body. If we sent something and it did not end with "\r\n",
      * add "\r\n.\r\n" to end the body */
-    const char *eob = SMTP_EOB;
-    CURL_TRC_SMTP(data, "auto-ending mail body with '\\r\\n.\\r\\n'");
-    switch(ctx->n_eob) {
-    case 2:
+    ধ্রুবক অক্ষর *eob = SMTP_EOB;
+    CURL_TRC_SMTP(তথ্য, "auto-ending mail body with '\\r\\n.\\r\\n'");
+    নির্বাচন(ctx->n_eob) {
+    ক্ষেত্র 2:
       /* seen a CRLF at the end, add the remainder */
       eob = &SMTP_EOB[2];
-      break;
-    case 3:
+      বিরতি;
+    ক্ষেত্র 3:
       /* ended with '\r\n.', we should escape the last '.' */
       eob = "." SMTP_EOB;
-      break;
-    default:
-      break;
+      বিরতি;
+    পূর্বনির্ধারিত:
+      বিরতি;
     }
-    result = Curl_bufq_cwrite(&ctx->buf, eob, strlen(eob), &n);
-    if(result)
-      return result;
+    ফলাফল = Curl_bufq_cwrite(&ctx->buf, eob, strlen(eob), &n);
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
     ctx->processed_eos = TRUE;
   }
 
-  if(!Curl_bufq_is_empty(&ctx->buf)) {
-    result = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
+  যদি(!Curl_bufq_is_empty(&ctx->buf)) {
+    ফলাফল = Curl_bufq_cread(&ctx->buf, buf, blen, pnread);
   }
-  else
+  অন্যথা
     *pnread = 0;
 
-  if(ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
+  যদি(ctx->read_eos && Curl_bufq_is_empty(&ctx->buf)) {
     /* no more data, read all, done. */
-    CURL_TRC_SMTP(data, "mail body complete, returning EOS");
+    CURL_TRC_SMTP(তথ্য, "mail body complete, returning EOS");
     ctx->eos = TRUE;
   }
   *peos = (bool)ctx->eos;
-  DEBUGF(infof(data, "cr_eob_read(%zu) -> %d, %zu, %d",
-               blen, (int)result, *pnread, *peos));
-  return result;
+  DEBUGF(infof(তথ্য, "cr_eob_read(%zu) -> %d, %zu, %d",
+               blen, (পূর্ণসংখ্যা)ফলাফল, *pnread, *peos));
+  ফেরত ফলাফল;
 }
 
-static curl_off_t cr_eob_total_length(struct Curl_easy *data,
-                                      struct Curl_creader *reader)
+স্থির curl_off_t cr_eob_যোগ_দৈর্ঘ্য(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো Curl_creader *reader)
 {
   /* this reader changes length depending on input */
-  (void)data;
-  (void)reader;
-  return -1;
+  (শূন্য)তথ্য;
+  (শূন্য)reader;
+  ফেরত -1;
 }
 
-static const struct Curl_crtype cr_eob = {
+স্থির ধ্রুবক কাঠামো Curl_crtype cr_eob = {
   "cr-smtp-eob",
   cr_eob_init,
   cr_eob_read,
   cr_eob_close,
   Curl_creader_def_needs_rewind,
-  cr_eob_total_length,
+  cr_eob_যোগ_দৈর্ঘ্য,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
   Curl_creader_def_done,
-  sizeof(struct cr_eob_ctx)
+  আকার(কাঠামো cr_eob_ctx)
 };
 
-static CURLcode cr_eob_add(struct Curl_easy *data)
+স্থির CURLcode cr_eob_add(কাঠামো Curl_easy *তথ্য)
 {
-  struct Curl_creader *reader = NULL;
-  CURLcode result;
+  কাঠামো Curl_creader *reader = ফাঁকা;
+  CURLcode ফলাফল;
 
-  result = Curl_creader_create(&reader, data, &cr_eob, CURL_CR_CONTENT_ENCODE);
-  if(!result)
-    result = Curl_creader_add(data, reader);
+  ফলাফল = Curl_creader_create(&reader, তথ্য, &cr_eob, CURL_CR_CONTENT_ENCODE);
+  যদি(!ফলাফল)
+    ফলাফল = Curl_creader_add(তথ্য, reader);
 
-  if(result && reader)
-    Curl_creader_free(data, reader);
-  return result;
+  যদি(ফলাফল && reader)
+    Curl_creader_free(তথ্য, reader);
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -488,48 +488,48 @@ static CURLcode cr_eob_add(struct Curl_easy *data)
  * also detects various capabilities from the EHLO response including the
  * supported authentication mechanisms.
  */
-static bool smtp_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+স্থির bool smtp_endofresp(কাঠামো Curl_easy *তথ্য, কাঠামো connectdata *conn,
+                           ধ্রুবক অক্ষর *সারি, size_t len, পূর্ণসংখ্যা *resp)
 {
-  struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
+  কাঠামো smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
   bool end = FALSE;
-  (void)data;
+  (শূন্য)তথ্য;
 
   DEBUGASSERT(smtpc);
-  if(!smtpc)
-    return FALSE;
+  যদি(!smtpc)
+    ফেরত FALSE;
 
   /* Nothing for us */
-  if(len < 4 || !ISDIGIT(line[0]) || !ISDIGIT(line[1]) || !ISDIGIT(line[2]))
-    return FALSE;
+  যদি(len < 4 || !ISDIGIT(সারি[0]) || !ISDIGIT(সারি[1]) || !ISDIGIT(সারি[2]))
+    ফেরত FALSE;
 
   /* Do we have a command response? This should be the response code followed
      by a space and optionally some text as per RFC-5321 and as outlined in
      Section 4. Examples of RFC-4954 but some email servers ignore this and
      only send the response code instead as per Section 4.2. */
-  if(line[3] == ' ' || len == 5) {
-    char tmpline[6];
+  যদি(সারি[3] == ' ' || len == 5) {
+    অক্ষর tmpline[6];
     curl_off_t code;
-    const char *p = tmpline;
+    ধ্রুবক অক্ষর *p = tmpline;
     end = TRUE;
-    memcpy(tmpline, line, (len == 5 ? 5 : 3));
+    memcpy(tmpline, সারি, (len == 5 ? 5 : 3));
     tmpline[len == 5 ? 5 : 3] = 0;
-    if(curlx_str_number(&p, &code, len == 5 ? 99999 : 999))
-      return FALSE;
-    *resp = (int)code;
+    যদি(curlx_str_সংখ্যা(&p, &code, len == 5 ? 99999 : 999))
+      ফেরত FALSE;
+    *resp = (পূর্ণসংখ্যা)code;
 
     /* Make sure real server never sends internal value */
-    if(*resp == 1)
+    যদি(*resp == 1)
       *resp = 0;
   }
   /* Do we have a multiline (continuation) response? */
-  else if(line[3] == '-' &&
+  অন্যথা যদি(সারি[3] == '-' &&
           (smtpc->state == SMTP_EHLO || smtpc->state == SMTP_COMMAND)) {
     end = TRUE;
     *resp = 1;  /* Internal response code */
   }
 
-  return end;
+  ফেরত end;
 }
 
 /***********************************************************************
@@ -538,38 +538,38 @@ static bool smtp_endofresp(struct Curl_easy *data, struct connectdata *conn,
  *
  * Gets the authentication message from the response buffer.
  */
-static CURLcode smtp_get_message(struct Curl_easy *data, struct bufref *out)
+স্থির CURLcode smtp_get_message(কাঠামো Curl_easy *তথ্য, কাঠামো bufref *out)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  char *message;
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
+  অক্ষর *message;
   size_t len;
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  যদি(!smtpc)
+    ফেরত CURLE_FAILED_INIT;
 
   message = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   len = smtpc->pp.nfinal;
-  if(len > 4) {
+  যদি(len > 4) {
     /* Find the start of the message */
     len -= 4;
-    for(message += 4; ISBLANK(*message); message++, len--)
+    জন্য(message += 4; ISBLANK(*message); message++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
-        break;
+    যখন(len--)
+      যদি(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
+        বিরতি;
 
     /* Terminate the message */
     message[++len] = '\0';
-    Curl_bufref_set(out, message, len, NULL);
+    Curl_bufref_set(out, message, len, ফাঁকা);
   }
-  else
+  অন্যথা
     /* junk input => zero length output */
-    Curl_bufref_set(out, "", 0, NULL);
+    Curl_bufref_set(out, "", 0, ফাঁকা);
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /***********************************************************************
@@ -578,13 +578,13 @@ static CURLcode smtp_get_message(struct Curl_easy *data, struct bufref *out)
  *
  * This is the ONLY way to change SMTP state!
  */
-static void smtp_state(struct Curl_easy *data,
-                       struct smtp_conn *smtpc,
+স্থির শূন্য smtp_state(কাঠামো Curl_easy *তথ্য,
+                       কাঠামো smtp_conn *smtpc,
                        smtpstate newstate)
 {
 #ifdef CURLVERBOSE
   /* for debug purposes */
-  static const char * const names[] = {
+  স্থির ধ্রুবক অক্ষর * ধ্রুবক names[] = {
     "STOP",
     "SERVERGREET",
     "EHLO",
@@ -601,11 +601,11 @@ static void smtp_state(struct Curl_easy *data,
     /* LAST */
   };
 
-  if(smtpc->state != newstate)
-    CURL_TRC_SMTP(data, "state change from %s to %s",
+  যদি(smtpc->state != newstate)
+    CURL_TRC_SMTP(তথ্য, "state change from %s to %s",
                   names[smtpc->state], names[newstate]);
-#else
-  (void)data;
+#অন্যথা
+  (শূন্য)তথ্য;
 #endif
 
   smtpc->state = newstate;
@@ -618,10 +618,10 @@ static void smtp_state(struct Curl_easy *data,
  * Sends the EHLO command to not only initialize communication with the ESMTP
  * server but to also obtain a list of server side supported capabilities.
  */
-static CURLcode smtp_perform_ehlo(struct Curl_easy *data,
-                                  struct smtp_conn *smtpc)
+স্থির CURLcode smtp_perform_ehlo(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো smtp_conn *smtpc)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
   smtpc->sasl.authmechs = SASL_AUTH_NONE; /* No known auth. mechanism yet */
   smtpc->sasl.authused = SASL_AUTH_NONE;  /* Clear the authentication mechanism
@@ -630,12 +630,12 @@ static CURLcode smtp_perform_ehlo(struct Curl_easy *data,
   smtpc->auth_supported = FALSE;          /* Clear the AUTH capability */
 
   /* Send the EHLO command */
-  result = Curl_pp_sendf(data, &smtpc->pp, "EHLO %s", smtpc->domain);
+  ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "EHLO %s", smtpc->domain);
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_EHLO);
+  যদি(!ফলাফল)
+    smtp_state(তথ্য, smtpc, SMTP_EHLO);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -644,21 +644,21 @@ static CURLcode smtp_perform_ehlo(struct Curl_easy *data,
  *
  * Sends the HELO command to initialize communication with the SMTP server.
  */
-static CURLcode smtp_perform_helo(struct Curl_easy *data,
-                                  struct smtp_conn *smtpc)
+স্থির CURLcode smtp_perform_helo(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো smtp_conn *smtpc)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
   smtpc->sasl.authused = SASL_AUTH_NONE; /* No authentication mechanism used
                                             in smtp connections */
 
   /* Send the HELO command */
-  result = Curl_pp_sendf(data, &smtpc->pp, "HELO %s", smtpc->domain);
+  ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "HELO %s", smtpc->domain);
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_HELO);
+  যদি(!ফলাফল)
+    smtp_state(তথ্য, smtpc, SMTP_HELO);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -667,16 +667,16 @@ static CURLcode smtp_perform_helo(struct Curl_easy *data,
  *
  * Sends the STLS command to start the upgrade to TLS.
  */
-static CURLcode smtp_perform_starttls(struct Curl_easy *data,
-                                      struct smtp_conn *smtpc)
+স্থির CURLcode smtp_perform_starttls(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো smtp_conn *smtpc)
 {
   /* Send the STARTTLS command */
-  CURLcode result = Curl_pp_sendf(data, &smtpc->pp, "%s", "STARTTLS");
+  CURLcode ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "%s", "STARTTLS");
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_STARTTLS);
+  যদি(!ফলাফল)
+    smtp_state(তথ্য, smtpc, SMTP_STARTTLS);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -685,40 +685,40 @@ static CURLcode smtp_perform_starttls(struct Curl_easy *data,
  *
  * Performs the upgrade to TLS.
  */
-static CURLcode smtp_perform_upgrade_tls(struct Curl_easy *data,
-                                         struct smtp_conn *smtpc)
+স্থির CURLcode smtp_perform_upgrade_tls(কাঠামো Curl_easy *তথ্য,
+                                         কাঠামো smtp_conn *smtpc)
 {
 #ifdef USE_SSL
   /* Start the SSL connection */
-  struct connectdata *conn = data->conn;
-  CURLcode result;
+  কাঠামো connectdata *conn = তথ্য->conn;
+  CURLcode ফলাফল;
   bool ssldone = FALSE;
 
   DEBUGASSERT(smtpc->state == SMTP_UPGRADETLS);
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
-    result = Curl_ssl_cfilter_add(
-      data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      goto out;
+  যদি(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+    ফলাফল = Curl_ssl_cfilter_add(
+      তথ্য, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
+    যদি(ফলাফল)
+      যাও out;
     /* Change the connection handler and SMTP state */
     conn->scheme = &Curl_scheme_smtps;
   }
 
   DEBUGASSERT(!smtpc->ssldone);
-  result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
-  DEBUGF(infof(data, "smtp_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+  ফলাফল = Curl_conn_connect(তথ্য, FIRSTSOCKET, FALSE, &ssldone);
+  DEBUGF(infof(তথ্য, "smtp_perform_upgrade_tls, connect -> %d, %d",
+               (পূর্ণসংখ্যা)ফলাফল, ssldone));
+  যদি(!ফলাফল && ssldone) {
     smtpc->ssldone = ssldone;
     /* perform EHLO now, changes smtp->state out of SMTP_UPGRADETLS */
-    result = smtp_perform_ehlo(data, smtpc);
+    ফলাফল = smtp_perform_ehlo(তথ্য, smtpc);
   }
 out:
-  return result;
-#else
-  (void)data;
-  (void)smtpc;
-  return CURLE_NOT_BUILT_IN;
+  ফেরত ফলাফল;
+#অন্যথা
+  (শূন্য)তথ্য;
+  (শূন্য)smtpc;
+  ফেরত CURLE_NOT_BUILT_IN;
 #endif
 }
 
@@ -729,29 +729,29 @@ out:
  * Sends an AUTH command allowing the client to login with the given SASL
  * authentication mechanism.
  */
-static CURLcode smtp_perform_auth(struct Curl_easy *data,
-                                  const char *mech,
-                                  const struct bufref *initresp)
+স্থির CURLcode smtp_perform_auth(কাঠামো Curl_easy *তথ্য,
+                                  ধ্রুবক অক্ষর *mech,
+                                  ধ্রুবক কাঠামো bufref *initresp)
 {
-  CURLcode result = CURLE_OK;
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  const char *ir = Curl_bufref_ptr(initresp);
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
+  ধ্রুবক অক্ষর *ir = Curl_bufref_ptr(initresp);
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  যদি(!smtpc)
+    ফেরত CURLE_FAILED_INIT;
 
-  if(ir) {                                  /* AUTH <mech> ...<crlf> */
+  যদি(ir) {                                  /* AUTH <mech> ...<crlf> */
     /* Send the AUTH command with the initial response */
-    result = Curl_pp_sendf(data, &smtpc->pp, "AUTH %s %s",
+    ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "AUTH %s %s",
                            mech, *ir ? ir : "=");
   }
-  else {
+  অন্যথা {
     /* Send the AUTH command */
-    result = Curl_pp_sendf(data, &smtpc->pp, "AUTH %s", mech);
+    ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "AUTH %s", mech);
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -760,17 +760,17 @@ static CURLcode smtp_perform_auth(struct Curl_easy *data,
  *
  * Sends SASL continuation data.
  */
-static CURLcode smtp_continue_auth(struct Curl_easy *data,
-                                   const char *mech,
-                                   const struct bufref *resp)
+স্থির CURLcode smtp_continue_auth(কাঠামো Curl_easy *তথ্য,
+                                   ধ্রুবক অক্ষর *mech,
+                                   ধ্রুবক কাঠামো bufref *resp)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
 
-  (void)mech;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &smtpc->pp, "%s", Curl_bufref_ptr(resp));
+  (শূন্য)mech;
+  যদি(!smtpc)
+    ফেরত CURLE_FAILED_INIT;
+  ফেরত Curl_pp_sendf(তথ্য, &smtpc->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -779,15 +779,15 @@ static CURLcode smtp_continue_auth(struct Curl_easy *data,
  *
  * Sends SASL cancellation.
  */
-static CURLcode smtp_cancel_auth(struct Curl_easy *data, const char *mech)
+স্থির CURLcode smtp_cancel_auth(কাঠামো Curl_easy *তথ্য, ধ্রুবক অক্ষর *mech)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
 
-  (void)mech;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &smtpc->pp, "*");
+  (শূন্য)mech;
+  যদি(!smtpc)
+    ফেরত CURLE_FAILED_INIT;
+  ফেরত Curl_pp_sendf(তথ্য, &smtpc->pp, "*");
 }
 
 /***********************************************************************
@@ -797,31 +797,31 @@ static CURLcode smtp_cancel_auth(struct Curl_easy *data, const char *mech)
  * Initiates the authentication sequence, with the appropriate SASL
  * authentication mechanism.
  */
-static CURLcode smtp_perform_authentication(struct Curl_easy *data,
-                                            struct smtp_conn *smtpc)
+স্থির CURLcode smtp_perform_authentication(কাঠামো Curl_easy *তথ্য,
+                                            কাঠামো smtp_conn *smtpc)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   saslprogress progress;
 
   /* Check we have enough data to authenticate with, and the
      server supports authentication, and end the connect phase if not */
-  if(!smtpc->auth_supported ||
-     !Curl_sasl_can_authenticate(&smtpc->sasl, data)) {
-    smtp_state(data, smtpc, SMTP_STOP);
-    return result;
+  যদি(!smtpc->auth_supported ||
+     !Curl_sasl_can_authenticate(&smtpc->sasl, তথ্য)) {
+    smtp_state(তথ্য, smtpc, SMTP_STOP);
+    ফেরত ফলাফল;
   }
 
   /* Calculate the SASL login details */
-  result = Curl_sasl_start(&smtpc->sasl, data, FALSE, &progress);
+  ফলাফল = Curl_sasl_start(&smtpc->sasl, তথ্য, FALSE, &progress);
 
-  if(!result) {
-    if(progress == SASL_INPROGRESS)
-      smtp_state(data, smtpc, SMTP_AUTH);
-    else
-      result = Curl_sasl_is_blocked(&smtpc->sasl, data);
+  যদি(!ফলাফল) {
+    যদি(progress == SASL_INPROGRESS)
+      smtp_state(তথ্য, smtpc, SMTP_AUTH);
+    অন্যথা
+      ফলাফল = Curl_sasl_is_blocked(&smtpc->sasl, তথ্য);
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -830,30 +830,30 @@ static CURLcode smtp_perform_authentication(struct Curl_easy *data,
  *
  * Sends an SMTP based command.
  */
-static CURLcode smtp_perform_command(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     struct SMTP *smtp)
+স্থির CURLcode smtp_perform_command(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
+                                     কাঠামো SMTP *smtp)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
-  if(smtp->rcpt) {
+  যদি(smtp->rcpt) {
     /* We notify the server we are sending UTF-8 data if a) it supports the
        SMTPUTF8 extension and b) The mailbox contains UTF-8 characters, in
        either the local address or hostname parts. This is regardless of
        whether the hostname is encoded using IDN ACE */
     bool utf8 = FALSE;
 
-    if(!smtp->custom || !smtp->custom[0]) {
-      char *address = NULL;
-      struct hostname host = { NULL, NULL, NULL, NULL };
-      const char *suffix = "";
+    যদি(!smtp->custom || !smtp->custom[0]) {
+      অক্ষর *address = ফাঁকা;
+      কাঠামো hostname host = { ফাঁকা, ফাঁকা, ফাঁকা, ফাঁকা };
+      ধ্রুবক অক্ষর *suffix = "";
 
       /* Parse the mailbox to verify into the local address and hostname
          parts, converting the hostname to an IDN A-label if necessary */
-      result = smtp_parse_address(data, smtp->rcpt->data,
+      ফলাফল = smtp_parse_address(তথ্য, smtp->rcpt->তথ্য,
                                   &address, &host, &suffix);
-      if(result)
-        return result;
+      যদি(ফলাফল)
+        ফেরত ফলাফল;
 
       /* Establish whether we should report SMTPUTF8 to the server for this
          mailbox as per RFC-6531 sect. 3.1 point 6 */
@@ -864,7 +864,7 @@ static CURLcode smtp_perform_command(struct Curl_easy *data,
 
       /* Send the VRFY command (Note: The hostname part may be absent when the
          host is a local system) */
-      result = Curl_pp_sendf(data, &smtpc->pp, "VRFY %s%s%s%s",
+      ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "VRFY %s%s%s%s",
                              address,
                              host.name ? "@" : "",
                              host.name ? host.name : "",
@@ -873,28 +873,28 @@ static CURLcode smtp_perform_command(struct Curl_easy *data,
       Curl_free_idnconverted_hostname(&host);
       curlx_free(address);
     }
-    else {
+    অন্যথা {
       /* Establish whether we should report that we support SMTPUTF8 for EXPN
          commands to the server as per RFC-6531 sect. 3.1 point 6 */
       utf8 = smtpc->utf8_supported && !strcmp(smtp->custom, "EXPN");
 
       /* Send the custom recipient based command such as the EXPN command */
-      result = Curl_pp_sendf(data, &smtpc->pp,
+      ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp,
                              "%s %s%s", smtp->custom,
-                             smtp->rcpt->data,
+                             smtp->rcpt->তথ্য,
                              utf8 ? " SMTPUTF8" : "");
     }
   }
-  else
+  অন্যথা
     /* Send the non-recipient based command such as HELP */
-    result = Curl_pp_sendf(data, &smtpc->pp, "%s",
+    ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "%s",
                            smtp->custom && smtp->custom[0] != '\0' ?
                            smtp->custom : "HELP");
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_COMMAND);
+  যদি(!ফলাফল)
+    smtp_state(তথ্য, smtpc, SMTP_COMMAND);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -903,15 +903,15 @@ static CURLcode smtp_perform_command(struct Curl_easy *data,
  *
  * Sends an MAIL command to initiate the upload of a message.
  */
-static CURLcode smtp_perform_mail(struct Curl_easy *data,
-                                  struct smtp_conn *smtpc,
-                                  struct SMTP *smtp)
+স্থির CURLcode smtp_perform_mail(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো smtp_conn *smtpc,
+                                  কাঠামো SMTP *smtp)
 {
-  char *from = NULL;
-  char *auth = NULL;
-  char *size = NULL;
-  const char *str;
-  CURLcode result = CURLE_OK;
+  অক্ষর *from = ফাঁকা;
+  অক্ষর *auth = ফাঁকা;
+  অক্ষর *আকার_2 = ফাঁকা;
+  ধ্রুবক অক্ষর *str;
+  CURLcode ফলাফল = CURLE_OK;
 
   /* We notify the server we are sending UTF-8 data if a) it supports the
      SMTPUTF8 extension and b) The mailbox contains UTF-8 characters, in
@@ -920,17 +920,17 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
   bool utf8 = FALSE;
 
   /* Calculate the FROM parameter */
-  str = CURL_EASY_STR(data, STRING_MAIL_FROM);
-  if(str) {
-    char *address = NULL;
-    struct hostname host = { NULL, NULL, NULL, NULL };
-    const char *suffix = "";
+  str = CURL_EASY_STR(তথ্য, STRING_MAIL_FROM);
+  যদি(str) {
+    অক্ষর *address = ফাঁকা;
+    কাঠামো hostname host = { ফাঁকা, ফাঁকা, ফাঁকা, ফাঁকা };
+    ধ্রুবক অক্ষর *suffix = "";
 
     /* Parse the FROM mailbox into the local address and hostname parts,
        converting the hostname to an IDN A-label if necessary */
-    result = smtp_parse_address(data, str, &address, &host, &suffix);
-    if(result)
-      goto out;
+    ফলাফল = smtp_parse_address(তথ্য, str, &address, &host, &suffix);
+    যদি(ফলাফল)
+      যাও out;
 
     /* Establish whether we should report SMTPUTF8 to the server for this
        mailbox as per RFC-6531 sect. 3.1 point 4 and sect. 3.4 */
@@ -939,106 +939,106 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
             !Curl_is_ASCII_name(address) ||
             !Curl_is_ASCII_name(host.name));
 
-    if(host.name) {
+    যদি(host.name) {
       from = curl_maprintf("<%s@%s>%s", address, host.name, suffix);
 
       Curl_free_idnconverted_hostname(&host);
     }
-    else
+    অন্যথা
       /* An invalid mailbox was provided but we let the server worry
          about that and reply with a 501 error */
       from = curl_maprintf("<%s>%s", address, suffix);
 
     curlx_free(address);
   }
-  else
+  অন্যথা
     /* Null reverse-path, RFC-5321, sect. 3.6.3 */
     from = curlx_strdup("<>");
 
-  if(!from) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  যদি(!from) {
+    ফলাফল = CURLE_OUT_OF_MEMORY;
+    যাও out;
   }
 
   /* Calculate the optional AUTH parameter */
-  str = CURL_EASY_STR(data, STRING_MAIL_AUTH);
-  if(str && smtpc->sasl.authused) {
-    if(str[0] != '\0') {
-      char *address = NULL;
-      struct hostname host = { NULL, NULL, NULL, NULL };
-      const char *suffix = "";
+  str = CURL_EASY_STR(তথ্য, STRING_MAIL_AUTH);
+  যদি(str && smtpc->sasl.authused) {
+    যদি(str[0] != '\0') {
+      অক্ষর *address = ফাঁকা;
+      কাঠামো hostname host = { ফাঁকা, ফাঁকা, ফাঁকা, ফাঁকা };
+      ধ্রুবক অক্ষর *suffix = "";
 
       /* Parse the AUTH mailbox into the local address and hostname parts,
          converting the hostname to an IDN A-label if necessary */
-      result = smtp_parse_address(data, str, &address, &host, &suffix);
-      if(result)
-        goto out;
+      ফলাফল = smtp_parse_address(তথ্য, str, &address, &host, &suffix);
+      যদি(ফলাফল)
+        যাও out;
 
       /* Establish whether we should report SMTPUTF8 to the server for this
          mailbox as per RFC-6531 sect. 3.1 point 4 and sect. 3.4 */
-      if(!utf8 && smtpc->utf8_supported &&
+      যদি(!utf8 && smtpc->utf8_supported &&
          (host.encalloc ||
           !Curl_is_ASCII_name(address) ||
           !Curl_is_ASCII_name(host.name)))
         utf8 = TRUE;
 
-      if(host.name) {
+      যদি(host.name) {
         auth = curl_maprintf("<%s@%s>%s", address, host.name, suffix);
 
         Curl_free_idnconverted_hostname(&host);
       }
-      else
+      অন্যথা
         /* An invalid mailbox was provided but we let the server worry
            about it */
         auth = curl_maprintf("<%s>%s", address, suffix);
       curlx_free(address);
     }
-    else
+    অন্যথা
       /* Empty AUTH, RFC-2554, sect. 5 */
       auth = curlx_strdup("<>");
 
-    if(!auth) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    যদি(!auth) {
+      ফলাফল = CURLE_OUT_OF_MEMORY;
+      যাও out;
     }
   }
 
 #ifndef CURL_DISABLE_MIME
   /* Prepare the mime data if some. */
-  if(IS_MIME_POST(data)) {
-    curl_mimepart *postp = data->set.mimepostp;
+  যদি(IS_MIME_POST(তথ্য)) {
+    curl_mimepart *postp = তথ্য->set.mimepostp;
 
     /* Use the whole structure as data. */
-    postp->flags &= ~(unsigned int)MIME_BODY_ONLY;
+    postp->flags &= ~(unsigned পূর্ণসংখ্যা)MIME_BODY_ONLY;
 
     /* Add external headers and mime version. */
-    curl_mime_headers(postp, data->set.headers, 0);
-    result = Curl_mime_prepare_headers(data, postp, NULL,
-                                       NULL, MIMESTRATEGY_MAIL);
+    curl_mime_headers(postp, তথ্য->set.headers, 0);
+    ফলাফল = Curl_mime_prepare_headers(তথ্য, postp, ফাঁকা,
+                                       ফাঁকা, MIMESTRATEGY_MAIL);
 
-    if(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
-      result = Curl_mime_add_header(&postp->curlheaders, "Mime-Version: 1.0");
-    if(!result)
-      result = Curl_creader_set_mime(data, postp);
-    if(result)
-      goto out;
-    data->state.infilesize = Curl_creader_total_length(data);
+    যদি(!ফলাফল && !Curl_checkheaders(তথ্য, STRCONST("Mime-Version")))
+      ফলাফল = Curl_mime_add_header(&postp->curlheaders, "Mime-Version: 1.0");
+    যদি(!ফলাফল)
+      ফলাফল = Curl_creader_set_mime(তথ্য, postp);
+    যদি(ফলাফল)
+      যাও out;
+    তথ্য->state.infilesize = Curl_creader_যোগ_দৈর্ঘ্য(তথ্য);
   }
-  else
+  অন্যথা
 #endif
   {
-    result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      goto out;
+    ফলাফল = Curl_creader_set_fread(তথ্য, তথ্য->state.infilesize);
+    যদি(ফলাফল)
+      যাও out;
   }
 
   /* Calculate the optional SIZE parameter */
-  if(smtpc->size_supported && data->state.infilesize > 0) {
-    size = curl_maprintf("%" FMT_OFF_T, data->state.infilesize);
+  যদি(smtpc->আকার_supported && তথ্য->state.infilesize > 0) {
+    আকার_2 = curl_maprintf("%" FMT_OFF_T, তথ্য->state.infilesize);
 
-    if(!size) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    যদি(!আকার_2) {
+      ফলাফল = CURLE_OUT_OF_MEMORY;
+      যাও out;
     }
   }
 
@@ -1046,43 +1046,43 @@ static CURLcode smtp_perform_mail(struct Curl_easy *data,
      based address then quickly scan through the recipient list and check if
      any there do, as we need to correctly identify our support for SMTPUTF8
      in the envelope, as per RFC-6531 sect. 3.4 */
-  if(smtpc->utf8_supported && !utf8) {
-    struct curl_slist *rcpt = smtp->rcpt;
+  যদি(smtpc->utf8_supported && !utf8) {
+    কাঠামো curl_slist *rcpt = smtp->rcpt;
 
-    while(rcpt && !utf8) {
+    যখন(rcpt && !utf8) {
       /* Does the hostname contain non-ASCII characters? */
-      if(!Curl_is_ASCII_name(rcpt->data))
+      যদি(!Curl_is_ASCII_name(rcpt->তথ্য))
         utf8 = TRUE;
 
-      rcpt = rcpt->next;
+      rcpt = rcpt->পরবর্তী;
     }
   }
 
   /* Add the client reader doing STMP EOB escaping */
-  result = cr_eob_add(data);
-  if(result)
-    goto out;
+  ফলাফল = cr_eob_add(তথ্য);
+  যদি(ফলাফল)
+    যাও out;
 
   /* Send the MAIL command */
-  result = Curl_pp_sendf(data, &smtpc->pp,
+  ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp,
                          "MAIL FROM:%s%s%s%s%s%s",
                          from,                 /* Mandatory                 */
                          auth ? " AUTH=" : "", /* Optional on AUTH support  */
                          auth ? auth : "",
-                         size ? " SIZE=" : "", /* Optional on SIZE support  */
-                         size ? size : "",
+                         আকার_2 ? " SIZE=" : "", /* Optional on SIZE support  */
+                         আকার_2 ? আকার_2 : "",
                          utf8 ? " SMTPUTF8"    /* Internationalised mailbox */
                                : "");          /* included in our envelope  */
 
 out:
   curlx_free(from);
   curlx_free(auth);
-  curlx_free(size);
+  curlx_free(আকার_2);
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_MAIL);
+  যদি(!ফলাফল)
+    smtp_state(তথ্য, smtpc, SMTP_MAIL);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -1092,39 +1092,39 @@ out:
  * Sends a RCPT TO command for a given recipient as part of the message upload
  * process.
  */
-static CURLcode smtp_perform_rcpt_to(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     struct SMTP *smtp)
+স্থির CURLcode smtp_perform_rcpt_to(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
+                                     কাঠামো SMTP *smtp)
 {
-  CURLcode result = CURLE_OK;
-  char *address = NULL;
-  struct hostname host = { NULL, NULL, NULL, NULL };
-  const char *suffix = "";
+  CURLcode ফলাফল = CURLE_OK;
+  অক্ষর *address = ফাঁকা;
+  কাঠামো hostname host = { ফাঁকা, ফাঁকা, ফাঁকা, ফাঁকা };
+  ধ্রুবক অক্ষর *suffix = "";
 
   /* Parse the recipient mailbox into the local address and hostname parts,
      converting the hostname to an IDN A-label if necessary */
-  result = smtp_parse_address(data, smtp->rcpt->data,
+  ফলাফল = smtp_parse_address(তথ্য, smtp->rcpt->তথ্য,
                               &address, &host, &suffix);
-  if(result)
-    return result;
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
   /* Send the RCPT TO command */
-  if(host.name)
-    result = Curl_pp_sendf(data, &smtpc->pp, "RCPT TO:<%s@%s>%s",
+  যদি(host.name)
+    ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "RCPT TO:<%s@%s>%s",
                            address, host.name, suffix);
-  else
+  অন্যথা
     /* An invalid mailbox was provided but we let the server worry about
        that and reply with a 501 error */
-    result = Curl_pp_sendf(data, &smtpc->pp, "RCPT TO:<%s>%s",
+    ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "RCPT TO:<%s>%s",
                            address, suffix);
 
   Curl_free_idnconverted_hostname(&host);
   curlx_free(address);
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_RCPT);
+  যদি(!ফলাফল)
+    smtp_state(তথ্য, smtpc, SMTP_RCPT);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -1133,520 +1133,520 @@ static CURLcode smtp_perform_rcpt_to(struct Curl_easy *data,
  *
  * Performs the quit action prior to sclose() being called.
  */
-static CURLcode smtp_perform_quit(struct Curl_easy *data,
-                                  struct smtp_conn *smtpc)
+স্থির CURLcode smtp_perform_quit(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো smtp_conn *smtpc)
 {
   /* Send the QUIT command */
-  CURLcode result = Curl_pp_sendf(data, &smtpc->pp, "%s", "QUIT");
+  CURLcode ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "%s", "QUIT");
 
-  if(!result)
-    smtp_state(data, smtpc, SMTP_QUIT);
+  যদি(!ফলাফল)
+    smtp_state(তথ্য, smtpc, SMTP_QUIT);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For the initial server greeting */
-static CURLcode smtp_state_servergreet_resp(struct Curl_easy *data,
-                                            struct smtp_conn *smtpc,
-                                            int smtpcode,
+স্থির CURLcode smtp_state_servergreet_resp(কাঠামো Curl_easy *তথ্য,
+                                            কাঠামো smtp_conn *smtpc,
+                                            পূর্ণসংখ্যা smtpcode,
                                             smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode ফলাফল = CURLE_OK;
+  (শূন্য)instate;
 
-  if(smtpcode / 100 != 2) {
-    failf(data, "Got unexpected smtp-server response: %d", smtpcode);
-    result = CURLE_WEIRD_SERVER_REPLY;
+  যদি(smtpcode / 100 != 2) {
+    failf(তথ্য, "Got unexpected smtp-server response: %d", smtpcode);
+    ফলাফল = CURLE_WEIRD_SERVER_REPLY;
   }
-  else
-    result = smtp_perform_ehlo(data, smtpc);
+  অন্যথা
+    ফলাফল = smtp_perform_ehlo(তথ্য, smtpc);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For STARTTLS responses */
-static CURLcode smtp_state_starttls_resp(struct Curl_easy *data,
-                                         struct smtp_conn *smtpc,
-                                         int smtpcode,
+স্থির CURLcode smtp_state_starttls_resp(কাঠামো Curl_easy *তথ্য,
+                                         কাঠামো smtp_conn *smtpc,
+                                         পূর্ণসংখ্যা smtpcode,
                                          smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode ফলাফল = CURLE_OK;
+  (শূন্য)instate;
 
   /* Pipelining in response is forbidden. */
-  if(smtpc->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  যদি(smtpc->pp.overflow)
+    ফেরত CURLE_WEIRD_SERVER_REPLY;
 
-  if(smtpcode != 220) {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
-      failf(data, "STARTTLS denied, code %d", smtpcode);
-      result = CURLE_USE_SSL_FAILED;
+  যদি(smtpcode != 220) {
+    যদি(তথ্য->set.use_ssl != CURLUSESSL_TRY) {
+      failf(তথ্য, "STARTTLS denied, code %d", smtpcode);
+      ফলাফল = CURLE_USE_SSL_FAILED;
     }
-    else
-      result = smtp_perform_authentication(data, smtpc);
+    অন্যথা
+      ফলাফল = smtp_perform_authentication(তথ্য, smtpc);
   }
-  else
-    smtp_state(data, smtpc, SMTP_UPGRADETLS);
+  অন্যথা
+    smtp_state(তথ্য, smtpc, SMTP_UPGRADETLS);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For EHLO responses */
-static CURLcode smtp_state_ehlo_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     int smtpcode,
+স্থির CURLcode smtp_state_ehlo_resp(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
+                                     পূর্ণসংখ্যা smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&smtpc->pp.recvbuf);
+  CURLcode ফলাফল = CURLE_OK;
+  ধ্রুবক অক্ষর *সারি = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   size_t len = smtpc->pp.nfinal;
 
-  (void)instate;
+  (শূন্য)instate;
 
-  if(smtpcode / 100 != 2 && smtpcode != 1) {
-    if(data->set.use_ssl <= CURLUSESSL_TRY ||
-       Curl_conn_is_ssl(data->conn, FIRSTSOCKET))
-      result = smtp_perform_helo(data, smtpc);
-    else {
-      failf(data, "Remote access denied: %d", smtpcode);
-      result = CURLE_REMOTE_ACCESS_DENIED;
+  যদি(smtpcode / 100 != 2 && smtpcode != 1) {
+    যদি(তথ্য->set.use_ssl <= CURLUSESSL_TRY ||
+       Curl_conn_is_ssl(তথ্য->conn, FIRSTSOCKET))
+      ফলাফল = smtp_perform_helo(তথ্য, smtpc);
+    অন্যথা {
+      failf(তথ্য, "Remote access denied: %d", smtpcode);
+      ফলাফল = CURLE_REMOTE_ACCESS_DENIED;
     }
   }
-  else if(len >= 4) {
-    line += 4;
+  অন্যথা যদি(len >= 4) {
+    সারি += 4;
     len -= 4;
 
     /* Does the server support the STARTTLS capability? */
-    if(len >= 8 && curl_strnequal(line, "STARTTLS", 8))
+    যদি(len >= 8 && curl_strnequal(সারি, "STARTTLS", 8))
       smtpc->tls_supported = TRUE;
 
     /* Does the server support the SIZE capability? */
-    else if(len >= 4 && curl_strnequal(line, "SIZE", 4))
-      smtpc->size_supported = TRUE;
+    অন্যথা যদি(len >= 4 && curl_strnequal(সারি, "SIZE", 4))
+      smtpc->আকার_supported = TRUE;
 
     /* Does the server support the UTF-8 capability? */
-    else if(len >= 8 && curl_strnequal(line, "SMTPUTF8", 8))
+    অন্যথা যদি(len >= 8 && curl_strnequal(সারি, "SMTPUTF8", 8))
       smtpc->utf8_supported = TRUE;
 
     /* Does the server support authentication? */
-    else if(len >= 5 && curl_strnequal(line, "AUTH ", 5)) {
+    অন্যথা যদি(len >= 5 && curl_strnequal(সারি, "AUTH ", 5)) {
       smtpc->auth_supported = TRUE;
 
       /* Advance past the AUTH keyword */
-      line += 5;
+      সারি += 5;
       len -= 5;
 
       /* Loop through the data line */
-      for(;;) {
+      জন্য(;;) {
         size_t llen;
         size_t wordlen;
         unsigned short mechbit;
 
-        while(len && (ISBLANK(*line) || ISNEWLINE(*line))) {
-          line++;
+        যখন(len && (ISBLANK(*সারি) || ISNEWLINE(*সারি))) {
+          সারি++;
           len--;
         }
 
-        if(!len)
-          break;
+        যদি(!len)
+          বিরতি;
 
         /* Extract the word */
-        for(wordlen = 0; wordlen < len && !ISBLANK(line[wordlen]) &&
-              !ISNEWLINE(line[wordlen]);)
+        জন্য(wordlen = 0; wordlen < len && !ISBLANK(সারি[wordlen]) &&
+              !ISNEWLINE(সারি[wordlen]);)
           wordlen++;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        mechbit = Curl_sasl_decode_mech(সারি, wordlen, &llen);
+        যদি(mechbit && llen == wordlen)
           smtpc->sasl.authmechs |= mechbit;
 
-        line += wordlen;
+        সারি += wordlen;
         len -= wordlen;
       }
     }
 
-    if(smtpcode != 1) {
-      if(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+    যদি(smtpcode != 1) {
+      যদি(তথ্য->set.use_ssl && !Curl_conn_is_ssl(তথ্য->conn, FIRSTSOCKET)) {
         /* We do not have an SSL/TLS connection yet, but SSL is requested */
-        if(smtpc->tls_supported)
+        যদি(smtpc->tls_supported)
           /* Switch to TLS connection now */
-          result = smtp_perform_starttls(data, smtpc);
-        else if(data->set.use_ssl == CURLUSESSL_TRY)
+          ফলাফল = smtp_perform_starttls(তথ্য, smtpc);
+        অন্যথা যদি(তথ্য->set.use_ssl == CURLUSESSL_TRY)
           /* Fallback and carry on with authentication */
-          result = smtp_perform_authentication(data, smtpc);
-        else {
-          failf(data, "STARTTLS not supported.");
-          result = CURLE_USE_SSL_FAILED;
+          ফলাফল = smtp_perform_authentication(তথ্য, smtpc);
+        অন্যথা {
+          failf(তথ্য, "STARTTLS not supported.");
+          ফলাফল = CURLE_USE_SSL_FAILED;
         }
       }
-      else
-        result = smtp_perform_authentication(data, smtpc);
+      অন্যথা
+        ফলাফল = smtp_perform_authentication(তথ্য, smtpc);
     }
   }
-  else {
-    failf(data, "Unexpectedly short EHLO response");
-    result = CURLE_WEIRD_SERVER_REPLY;
+  অন্যথা {
+    failf(তথ্য, "Unexpectedly short EHLO response");
+    ফলাফল = CURLE_WEIRD_SERVER_REPLY;
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For HELO responses */
-static CURLcode smtp_state_helo_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     int smtpcode,
+স্থির CURLcode smtp_state_helo_resp(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
+                                     পূর্ণসংখ্যা smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode ফলাফল = CURLE_OK;
+  (শূন্য)instate;
 
-  if(smtpcode / 100 != 2) {
-    failf(data, "Remote access denied: %d", smtpcode);
-    result = CURLE_REMOTE_ACCESS_DENIED;
+  যদি(smtpcode / 100 != 2) {
+    failf(তথ্য, "Remote access denied: %d", smtpcode);
+    ফলাফল = CURLE_REMOTE_ACCESS_DENIED;
   }
-  else
+  অন্যথা
     /* End of connect phase */
-    smtp_state(data, smtpc, SMTP_STOP);
+    smtp_state(তথ্য, smtpc, SMTP_STOP);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For SASL authentication responses */
-static CURLcode smtp_state_auth_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     int smtpcode,
+স্থির CURLcode smtp_state_auth_resp(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
+                                     পূর্ণসংখ্যা smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   saslprogress progress;
 
-  (void)instate;
+  (শূন্য)instate;
 
-  result = Curl_sasl_continue(&smtpc->sasl, data, smtpcode, &progress);
-  if(!result)
-    switch(progress) {
-    case SASL_DONE:
-      smtp_state(data, smtpc, SMTP_STOP);  /* Authenticated */
-      break;
-    case SASL_IDLE:            /* No mechanism left after cancellation */
-      failf(data, "Authentication cancelled");
-      result = CURLE_LOGIN_DENIED;
-      break;
-    default:
-      break;
+  ফলাফল = Curl_sasl_continue(&smtpc->sasl, তথ্য, smtpcode, &progress);
+  যদি(!ফলাফল)
+    নির্বাচন(progress) {
+    ক্ষেত্র SASL_DONE:
+      smtp_state(তথ্য, smtpc, SMTP_STOP);  /* Authenticated */
+      বিরতি;
+    ক্ষেত্র SASL_IDLE:            /* No mechanism left after cancellation */
+      failf(তথ্য, "Authentication cancelled");
+      ফলাফল = CURLE_LOGIN_DENIED;
+      বিরতি;
+    পূর্বনির্ধারিত:
+      বিরতি;
     }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For command responses */
-static CURLcode smtp_state_command_resp(struct Curl_easy *data,
-                                        struct smtp_conn *smtpc,
-                                        struct SMTP *smtp,
-                                        int smtpcode,
+স্থির CURLcode smtp_state_command_resp(কাঠামো Curl_easy *তথ্য,
+                                        কাঠামো smtp_conn *smtpc,
+                                        কাঠামো SMTP *smtp,
+                                        পূর্ণসংখ্যা smtpcode,
                                         smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&smtpc->pp.recvbuf);
+  CURLcode ফলাফল = CURLE_OK;
+  ধ্রুবক অক্ষর *সারি = curlx_dyn_ptr(&smtpc->pp.recvbuf);
   size_t len = smtpc->pp.nfinal;
 
-  (void)instate;
+  (শূন্য)instate;
 
-  if((smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 553 && smtpcode != 1) ||
+  যদি((smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 553 && smtpcode != 1) ||
      (!smtp->rcpt && smtpcode / 100 != 2 && smtpcode != 1)) {
-    failf(data, "Command failed: %d", smtpcode);
-    result = CURLE_WEIRD_SERVER_REPLY;
+    failf(তথ্য, "Command failed: %d", smtpcode);
+    ফলাফল = CURLE_WEIRD_SERVER_REPLY;
   }
-  else {
-    if(!data->req.no_body)
-      result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+  অন্যথা {
+    যদি(!তথ্য->req.no_body)
+      ফলাফল = Curl_client_write(তথ্য, CLIENTWRITE_BODY, সারি, len);
 
-    if(!result && (smtpcode != 1)) {
-      if(smtp->rcpt) {
-        smtp->rcpt = smtp->rcpt->next;
+    যদি(!ফলাফল && (smtpcode != 1)) {
+      যদি(smtp->rcpt) {
+        smtp->rcpt = smtp->rcpt->পরবর্তী;
 
-        if(smtp->rcpt) {
+        যদি(smtp->rcpt) {
           /* Send the next command */
-          result = smtp_perform_command(data, smtpc, smtp);
+          ফলাফল = smtp_perform_command(তথ্য, smtpc, smtp);
         }
-        else
+        অন্যথা
           /* End of DO phase */
-          smtp_state(data, smtpc, SMTP_STOP);
+          smtp_state(তথ্য, smtpc, SMTP_STOP);
       }
-      else
+      অন্যথা
         /* End of DO phase */
-        smtp_state(data, smtpc, SMTP_STOP);
+        smtp_state(তথ্য, smtpc, SMTP_STOP);
     }
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For MAIL responses */
-static CURLcode smtp_state_mail_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     struct SMTP *smtp,
-                                     int smtpcode,
+স্থির CURLcode smtp_state_mail_resp(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
+                                     কাঠামো SMTP *smtp,
+                                     পূর্ণসংখ্যা smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode ফলাফল = CURLE_OK;
+  (শূন্য)instate;
 
-  if(smtpcode / 100 != 2) {
-    failf(data, "MAIL failed: %d", smtpcode);
-    result = CURLE_SEND_ERROR;
+  যদি(smtpcode / 100 != 2) {
+    failf(তথ্য, "MAIL failed: %d", smtpcode);
+    ফলাফল = CURLE_SEND_ERROR;
   }
-  else
+  অন্যথা
     /* Start the RCPT TO command */
-    result = smtp_perform_rcpt_to(data, smtpc, smtp);
+    ফলাফল = smtp_perform_rcpt_to(তথ্য, smtpc, smtp);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For RCPT responses */
-static CURLcode smtp_state_rcpt_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     struct SMTP *smtp,
-                                     int smtpcode,
+স্থির CURLcode smtp_state_rcpt_resp(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
+                                     কাঠামো SMTP *smtp,
+                                     পূর্ণসংখ্যা smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   bool is_smtp_err = FALSE;
   bool is_smtp_blocking_err = FALSE;
 
-  (void)instate;
+  (শূন্য)instate;
 
   is_smtp_err = (smtpcode / 100 != 2);
 
   /* If there are multiple RCPT TO commands to issue, it is possible to
      ignore errors and proceed with only the valid addresses. */
-  is_smtp_blocking_err = (is_smtp_err && !data->set.mail_rcpt_allowfails);
+  is_smtp_blocking_err = (is_smtp_err && !তথ্য->set.mail_rcpt_allowfails);
 
-  if(is_smtp_err) {
+  যদি(is_smtp_err) {
     /* Remembering the last failure which we can report if all "RCPT TO" have
        failed and we cannot proceed. */
     smtp->rcpt_last_error = smtpcode;
 
-    if(is_smtp_blocking_err) {
-      failf(data, "RCPT failed: %d", smtpcode);
-      result = CURLE_SEND_ERROR;
+    যদি(is_smtp_blocking_err) {
+      failf(তথ্য, "RCPT failed: %d", smtpcode);
+      ফলাফল = CURLE_SEND_ERROR;
     }
   }
-  else {
+  অন্যথা {
     /* Some RCPT TO commands have succeeded. */
     smtp->rcpt_had_ok = TRUE;
   }
 
-  if(!is_smtp_blocking_err) {
-    smtp->rcpt = smtp->rcpt->next;
+  যদি(!is_smtp_blocking_err) {
+    smtp->rcpt = smtp->rcpt->পরবর্তী;
 
-    if(smtp->rcpt)
+    যদি(smtp->rcpt)
       /* Send the next RCPT TO command */
-      result = smtp_perform_rcpt_to(data, smtpc, smtp);
-    else {
+      ফলাফল = smtp_perform_rcpt_to(তথ্য, smtpc, smtp);
+    অন্যথা {
       /* We were not able to issue a successful RCPT TO command while going
          over recipients (potentially multiple). Sending back last error. */
-      if(!smtp->rcpt_had_ok) {
-        failf(data, "RCPT failed: %d (last error)", smtp->rcpt_last_error);
-        result = CURLE_SEND_ERROR;
+      যদি(!smtp->rcpt_had_ok) {
+        failf(তথ্য, "RCPT failed: %d (last error)", smtp->rcpt_last_error);
+        ফলাফল = CURLE_SEND_ERROR;
       }
-      else {
+      অন্যথা {
         /* Send the DATA command */
-        result = Curl_pp_sendf(data, &smtpc->pp, "%s", "DATA");
+        ফলাফল = Curl_pp_sendf(তথ্য, &smtpc->pp, "%s", "DATA");
 
-        if(!result)
-          smtp_state(data, smtpc, SMTP_DATA);
+        যদি(!ফলাফল)
+          smtp_state(তথ্য, smtpc, SMTP_তথ্য);
       }
     }
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For DATA response */
-static CURLcode smtp_state_data_resp(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
-                                     int smtpcode,
+স্থির CURLcode smtp_state_তথ্য_resp(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
+                                     পূর্ণসংখ্যা smtpcode,
                                      smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
-  (void)instate;
+  CURLcode ফলাফল = CURLE_OK;
+  (শূন্য)instate;
 
-  if(smtpcode != 354) {
-    failf(data, "DATA failed: %d", smtpcode);
-    result = CURLE_SEND_ERROR;
+  যদি(smtpcode != 354) {
+    failf(তথ্য, "DATA failed: %d", smtpcode);
+    ফলাফল = CURLE_SEND_ERROR;
   }
-  else {
+  অন্যথা {
     /* Set the progress upload size */
-    Curl_pgrsSetUploadSize(data, data->state.infilesize);
+    Curl_pgrs_Set_Upload_আকার(তথ্য, তথ্য->state.infilesize);
 
     /* SMTP upload */
-    Curl_xfer_setup_send(data, FIRSTSOCKET);
+    Curl_xfer_setup_send(তথ্য, FIRSTSOCKET);
 
     /* End of DO phase */
-    smtp_state(data, smtpc, SMTP_STOP);
+    smtp_state(তথ্য, smtpc, SMTP_STOP);
   }
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For POSTDATA responses, which are received after the entire DATA
    part has been sent to the server */
-static CURLcode smtp_state_postdata_resp(struct Curl_easy *data,
-                                         struct smtp_conn *smtpc,
-                                         int smtpcode,
+স্থির CURLcode smtp_state_postdata_resp(কাঠামো Curl_easy *তথ্য,
+                                         কাঠামো smtp_conn *smtpc,
+                                         পূর্ণসংখ্যা smtpcode,
                                          smtpstate instate)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
-  (void)instate;
+  (শূন্য)instate;
 
-  if(smtpcode != 250)
-    result = CURLE_WEIRD_SERVER_REPLY;
+  যদি(smtpcode != 250)
+    ফলাফল = CURLE_WEIRD_SERVER_REPLY;
 
   /* End of DONE phase */
-  smtp_state(data, smtpc, SMTP_STOP);
+  smtp_state(তথ্য, smtpc, SMTP_STOP);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode smtp_pp_statemachine(struct Curl_easy *data,
-                                     struct connectdata *conn)
+স্থির CURLcode smtp_pp_statemachine(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো connectdata *conn)
 {
-  CURLcode result = CURLE_OK;
-  int smtpcode;
-  struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
-  struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
+  CURLcode ফলাফল = CURLE_OK;
+  পূর্ণসংখ্যা smtpcode;
+  কাঠামো smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
+  কাঠামো SMTP *smtp = Curl_meta_get(তথ্য, CURL_META_SMTP_EASY);
   size_t nread = 0;
 
-  if(!smtpc || !smtp)
-    return CURLE_FAILED_INIT;
+  যদি(!smtpc || !smtp)
+    ফেরত CURLE_FAILED_INIT;
 
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not SMTP */
 upgrade_tls:
-  if(smtpc->state == SMTP_UPGRADETLS) {
-    result = smtp_perform_upgrade_tls(data, smtpc);
-    if(result || (smtpc->state == SMTP_UPGRADETLS))
-      return result;
+  যদি(smtpc->state == SMTP_UPGRADETLS) {
+    ফলাফল = smtp_perform_upgrade_tls(তথ্য, smtpc);
+    যদি(ফলাফল || (smtpc->state == SMTP_UPGRADETLS))
+      ফেরত ফলাফল;
   }
 
   /* Flush any data that needs to be sent */
-  if(smtpc->pp.sendleft)
-    return Curl_pp_flushsend(data, &smtpc->pp);
+  যদি(smtpc->pp.sendleft)
+    ফেরত Curl_pp_flushsend(তথ্য, &smtpc->pp);
 
-  do {
+  করো {
     /* Read the response from the server */
-    result = Curl_pp_readresp(data, FIRSTSOCKET, &smtpc->pp,
+    ফলাফল = Curl_pp_readresp(তথ্য, FIRSTSOCKET, &smtpc->pp,
                               &smtpcode, &nread);
-    if(result)
-      return result;
+    যদি(ফলাফল)
+      ফেরত ফলাফল;
 
     /* Store the latest response for later retrieval if necessary */
-    if(smtpc->state != SMTP_QUIT && smtpcode != 1)
-      data->info.httpcode = smtpcode;
+    যদি(smtpc->state != SMTP_QUIT && smtpcode != 1)
+      তথ্য->info.httpcode = smtpcode;
 
-    if(!smtpcode)
-      break;
+    যদি(!smtpcode)
+      বিরতি;
 
     /* We have now received a full SMTP server response */
-    switch(smtpc->state) {
-    case SMTP_SERVERGREET:
-      result = smtp_state_servergreet_resp(data, smtpc,
+    নির্বাচন(smtpc->state) {
+    ক্ষেত্র SMTP_SERVERGREET:
+      ফলাফল = smtp_state_servergreet_resp(তথ্য, smtpc,
                                            smtpcode, smtpc->state);
-      break;
+      বিরতি;
 
-    case SMTP_EHLO:
-      result = smtp_state_ehlo_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    ক্ষেত্র SMTP_EHLO:
+      ফলাফল = smtp_state_ehlo_resp(তথ্য, smtpc, smtpcode, smtpc->state);
+      বিরতি;
 
-    case SMTP_HELO:
-      result = smtp_state_helo_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    ক্ষেত্র SMTP_HELO:
+      ফলাফল = smtp_state_helo_resp(তথ্য, smtpc, smtpcode, smtpc->state);
+      বিরতি;
 
-    case SMTP_STARTTLS:
-      result = smtp_state_starttls_resp(data, smtpc, smtpcode, smtpc->state);
+    ক্ষেত্র SMTP_STARTTLS:
+      ফলাফল = smtp_state_starttls_resp(তথ্য, smtpc, smtpcode, smtpc->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (smtpc->state == SMTP_UPGRADETLS))
-        goto upgrade_tls;
-      break;
+      যদি(!ফলাফল && (smtpc->state == SMTP_UPGRADETLS))
+        যাও upgrade_tls;
+      বিরতি;
 
-    case SMTP_AUTH:
-      result = smtp_state_auth_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    ক্ষেত্র SMTP_AUTH:
+      ফলাফল = smtp_state_auth_resp(তথ্য, smtpc, smtpcode, smtpc->state);
+      বিরতি;
 
-    case SMTP_COMMAND:
-      result = smtp_state_command_resp(data, smtpc, smtp,
+    ক্ষেত্র SMTP_COMMAND:
+      ফলাফল = smtp_state_command_resp(তথ্য, smtpc, smtp,
                                        smtpcode, smtpc->state);
-      break;
+      বিরতি;
 
-    case SMTP_MAIL:
-      result = smtp_state_mail_resp(data, smtpc, smtp, smtpcode, smtpc->state);
-      break;
+    ক্ষেত্র SMTP_MAIL:
+      ফলাফল = smtp_state_mail_resp(তথ্য, smtpc, smtp, smtpcode, smtpc->state);
+      বিরতি;
 
-    case SMTP_RCPT:
-      result = smtp_state_rcpt_resp(data, smtpc, smtp, smtpcode, smtpc->state);
-      break;
+    ক্ষেত্র SMTP_RCPT:
+      ফলাফল = smtp_state_rcpt_resp(তথ্য, smtpc, smtp, smtpcode, smtpc->state);
+      বিরতি;
 
-    case SMTP_DATA:
-      result = smtp_state_data_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    ক্ষেত্র SMTP_তথ্য:
+      ফলাফল = smtp_state_তথ্য_resp(তথ্য, smtpc, smtpcode, smtpc->state);
+      বিরতি;
 
-    case SMTP_POSTDATA:
-      result = smtp_state_postdata_resp(data, smtpc, smtpcode, smtpc->state);
-      break;
+    ক্ষেত্র SMTP_POSTDATA:
+      ফলাফল = smtp_state_postdata_resp(তথ্য, smtpc, smtpcode, smtpc->state);
+      বিরতি;
 
-    case SMTP_QUIT:
-    default:
+    ক্ষেত্র SMTP_QUIT:
+    পূর্বনির্ধারিত:
       /* internal error */
-      smtp_state(data, smtpc, SMTP_STOP);
-      break;
+      smtp_state(তথ্য, smtpc, SMTP_STOP);
+      বিরতি;
     }
-  } while(!result && smtpc->state != SMTP_STOP &&
+  } যখন(!ফলাফল && smtpc->state != SMTP_STOP &&
           Curl_pp_moredata(&smtpc->pp));
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* Called repeatedly until done from multi.c */
-static CURLcode smtp_multi_statemach(struct Curl_easy *data, bool *done)
+স্থির CURLcode smtp_multi_statemach(কাঠামো Curl_easy *তথ্য, bool *done)
 {
-  CURLcode result = CURLE_OK;
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
 
   *done = FALSE;
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  যদি(!smtpc)
+    ফেরত CURLE_FAILED_INIT;
 
-  result = Curl_pp_statemach(data, &smtpc->pp, FALSE, FALSE);
+  ফলাফল = Curl_pp_statemach(তথ্য, &smtpc->pp, FALSE, FALSE);
   *done = (smtpc->state == SMTP_STOP);
-  return result;
+  ফেরত ফলাফল;
 }
 
-static CURLcode smtp_block_statemach(struct Curl_easy *data,
-                                     struct smtp_conn *smtpc,
+স্থির CURLcode smtp_block_statemach(কাঠামো Curl_easy *তথ্য,
+                                     কাঠামো smtp_conn *smtpc,
                                      bool disconnecting)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
-  while(smtpc->state != SMTP_STOP && !result)
-    result = Curl_pp_statemach(data, &smtpc->pp, TRUE, disconnecting);
+  যখন(smtpc->state != SMTP_STOP && !ফলাফল)
+    ফলাফল = Curl_pp_statemach(তথ্য, &smtpc->pp, TRUE, disconnecting);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /* For the SMTP "protocol connect" and "doing" phases only */
-static CURLcode smtp_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+স্থির CURLcode smtp_pollset(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো easy_pollset *ps)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  return smtpc ? Curl_pp_pollset(data, &smtpc->pp, ps) : CURLE_OK;
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
+  ফেরত smtpc ? Curl_pp_pollset(তথ্য, &smtpc->pp, ps) : CURLE_OK;
 }
 
 /* SASL parameters for the smtp protocol */
-static const struct SASLproto saslsmtp = {
+স্থির ধ্রুবক কাঠামো SASLproto saslsmtp = {
   "smtp",               /* The service name */
   smtp_perform_auth,    /* Send authentication command */
   smtp_continue_auth,   /* Send authentication continuation */
@@ -1669,40 +1669,40 @@ static const struct SASLproto saslsmtp = {
  * The variable pointed to by 'done' will be TRUE if the protocol-layer
  * connect phase is done when this function returns, or FALSE if not.
  */
-static CURLcode smtp_connect(struct Curl_easy *data, bool *done)
+স্থির CURLcode smtp_connect(কাঠামো Curl_easy *তথ্য, bool *done)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  CURLcode result = CURLE_OK;
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
+  CURLcode ফলাফল = CURLE_OK;
 
   *done = FALSE; /* default to not done yet */
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  যদি(!smtpc)
+    ফেরত CURLE_FAILED_INIT;
 
   PINGPONG_SETUP(&smtpc->pp, smtp_pp_statemachine, smtp_endofresp);
 
   /* Initialize the SASL storage */
-  Curl_sasl_init(&smtpc->sasl, data, &saslsmtp);
+  Curl_sasl_init(&smtpc->sasl, তথ্য, &saslsmtp);
 
   /* Initialize the pingpong layer */
-  Curl_pp_init(&smtpc->pp, Curl_pgrs_now(data));
+  Curl_pp_init(&smtpc->pp, Curl_pgrs_now(তথ্য));
 
   /* Parse the URL options */
-  result = smtp_parse_url_options(data->conn, smtpc);
-  if(result)
-    return result;
+  ফলাফল = smtp_parse_url_options(তথ্য->conn, smtpc);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
   /* Parse the URL path */
-  result = smtp_parse_url_path(data, smtpc);
-  if(result)
-    return result;
+  ফলাফল = smtp_parse_url_path(তথ্য, smtpc);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
   /* Start off waiting for the server greeting response */
-  smtp_state(data, smtpc, SMTP_SERVERGREET);
+  smtp_state(তথ্য, smtpc, SMTP_SERVERGREET);
 
-  result = smtp_multi_statemach(data, done);
+  ফলাফল = smtp_multi_statemach(তথ্য, done);
 
-  return result;
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -1714,44 +1714,44 @@ static CURLcode smtp_connect(struct Curl_easy *data, bool *done)
  *
  * Input argument is already checked for validity.
  */
-static CURLcode smtp_done(struct Curl_easy *data, CURLcode status,
+স্থির CURLcode smtp_done(কাঠামো Curl_easy *তথ্য, CURLcode status,
                           bool premature)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
+  CURLcode ফলাফল = CURLE_OK;
+  কাঠামো connectdata *conn = তথ্য->conn;
+  কাঠামো SMTP *smtp = Curl_meta_get(তথ্য, CURL_META_SMTP_EASY);
 
-  (void)premature;
+  (শূন্য)premature;
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
-  if(!smtp)
-    return CURLE_OK;
+  যদি(!smtpc)
+    ফেরত CURLE_FAILED_INIT;
+  যদি(!smtp)
+    ফেরত CURLE_OK;
 
   /* Cleanup our per-request based variables */
   curlx_safefree(smtp->custom);
 
-  if(status) {
-    CURL_TRC_M(data, "SMTP done with bad status");
+  যদি(status) {
+    CURL_TRC_M(তথ্য, "SMTP done with bad status");
     connclose(conn); /* marked for closure */
-    result = status;         /* use the already set error code */
+    ফলাফল = status;         /* use the already set error code */
   }
-  else if(!data->set.connect_only && data->set.mail_rcpt &&
-          (data->state.upload || IS_MIME_POST(data))) {
+  অন্যথা যদি(!তথ্য->set.connect_only && তথ্য->set.mail_rcpt &&
+          (তথ্য->state.upload || IS_MIME_POST(তথ্য))) {
 
-    smtp_state(data, smtpc, SMTP_POSTDATA);
+    smtp_state(তথ্য, smtpc, SMTP_POSTDATA);
 
     /* Run the state-machine */
-    result = smtp_block_statemach(data, smtpc, FALSE);
+    ফলাফল = smtp_block_statemach(তথ্য, smtpc, FALSE);
   }
 
   /* Clear the transfer mode for the next request */
   smtp->transfer = PPTRANSFER_BODY;
-  CURL_TRC_SMTP(data, "smtp_done(status=%d, premature=%d) -> %d",
-                (int)status, premature, (int)result);
-  return result;
+  CURL_TRC_SMTP(তথ্য, "smtp_done(status=%d, premature=%d) -> %d",
+                (পূর্ণসংখ্যা)status, premature, (পূর্ণসংখ্যা)ফলাফল);
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -1761,18 +1761,18 @@ static CURLcode smtp_done(struct Curl_easy *data, CURLcode status,
  * This is the actual DO function for SMTP. Transfer a mail, send a command
  * or get some data according to the options previously setup.
  */
-static CURLcode smtp_perform(struct Curl_easy *data,
-                             struct smtp_conn *smtpc,
-                             struct SMTP *smtp,
+স্থির CURLcode smtp_perform(কাঠামো Curl_easy *তথ্য,
+                             কাঠামো smtp_conn *smtpc,
+                             কাঠামো SMTP *smtp,
                              bool *connected,
                              bool *dophase_done)
 {
   /* This is SMTP and no proxy */
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
 
-  CURL_TRC_SMTP(data, "smtp_perform(), start");
+  CURL_TRC_SMTP(তথ্য, "smtp_perform(), start");
 
-  if(data->req.no_body) {
+  যদি(তথ্য->req.no_body) {
     /* Requested no body means no transfer */
     smtp->transfer = PPTRANSFER_INFO;
   }
@@ -1780,7 +1780,7 @@ static CURLcode smtp_perform(struct Curl_easy *data,
   *dophase_done = FALSE; /* not done yet */
 
   /* Store the first recipient (or NULL if not specified) */
-  smtp->rcpt = data->set.mail_rcpt;
+  smtp->rcpt = তথ্য->set.mail_rcpt;
 
   /* Track of whether we have successfully sent at least one RCPT TO command */
   smtp->rcpt_had_ok = FALSE;
@@ -1794,39 +1794,39 @@ static CURLcode smtp_perform(struct Curl_easy *data,
   smtp->eob = 2;
 
   /* Start the first command in the DO phase */
-  if((data->state.upload || IS_MIME_POST(data)) && data->set.mail_rcpt)
+  যদি((তথ্য->state.upload || IS_MIME_POST(তথ্য)) && তথ্য->set.mail_rcpt)
     /* MAIL transfer */
-    result = smtp_perform_mail(data, smtpc, smtp);
-  else
+    ফলাফল = smtp_perform_mail(তথ্য, smtpc, smtp);
+  অন্যথা
     /* SMTP based command (VRFY, EXPN, NOOP, RSET or HELP) */
-    result = smtp_perform_command(data, smtpc, smtp);
+    ফলাফল = smtp_perform_command(তথ্য, smtpc, smtp);
 
-  if(result)
-    goto out;
+  যদি(ফলাফল)
+    যাও out;
 
   /* Run the state-machine */
-  result = smtp_multi_statemach(data, dophase_done);
+  ফলাফল = smtp_multi_statemach(তথ্য, dophase_done);
 
-  *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
+  *connected = Curl_conn_is_connected(তথ্য->conn, FIRSTSOCKET);
 
 out:
-  CURL_TRC_SMTP(data, "smtp_perform() -> %d, connected=%d, done=%d",
-                (int)result, *connected, *dophase_done);
-  return result;
+  CURL_TRC_SMTP(তথ্য, "smtp_perform() -> %d, connected=%d, done=%d",
+                (পূর্ণসংখ্যা)ফলাফল, *connected, *dophase_done);
+  ফেরত ফলাফল;
 }
 
 /* Call this when the DO phase has completed */
-static CURLcode smtp_dophase_done(struct Curl_easy *data,
-                                  struct SMTP *smtp,
+স্থির CURLcode smtp_dophase_done(কাঠামো Curl_easy *তথ্য,
+                                  কাঠামো SMTP *smtp,
                                   bool connected)
 {
-  (void)connected;
+  (শূন্য)connected;
 
-  if(smtp->transfer != PPTRANSFER_BODY)
+  যদি(smtp->transfer != PPTRANSFER_BODY)
     /* no data to transfer */
-    Curl_xfer_setup_nop(data);
+    Curl_xfer_setup_nop(তথ্য);
 
-  return CURLE_OK;
+  ফেরত CURLE_OK;
 }
 
 /***********************************************************************
@@ -1838,30 +1838,30 @@ static CURLcode smtp_dophase_done(struct Curl_easy *data,
  * Performs all commands done before a regular transfer between a local and a
  * remote host.
  */
-static CURLcode smtp_regular_transfer(struct Curl_easy *data,
-                                      struct smtp_conn *smtpc,
-                                      struct SMTP *smtp,
+স্থির CURLcode smtp_regular_transfer(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো smtp_conn *smtpc,
+                                      কাঠামো SMTP *smtp,
                                       bool *dophase_done)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode ফলাফল = CURLE_OK;
   bool connected = FALSE;
 
   /* Make sure size is unknown at this point */
-  data->req.size = -1;
+  তথ্য->req.আকার_2 = -1;
 
   /* Set the progress data */
-  Curl_pgrsReset(data);
+  Curl_pgrsReset(তথ্য);
 
   /* Carry out the perform */
-  result = smtp_perform(data, smtpc, smtp, &connected, dophase_done);
+  ফলাফল = smtp_perform(তথ্য, smtpc, smtp, &connected, dophase_done);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
-    result = smtp_dophase_done(data, smtp, connected);
+  যদি(!ফলাফল && *dophase_done)
+    ফলাফল = smtp_dophase_done(তথ্য, smtp, connected);
 
-  CURL_TRC_SMTP(data, "smtp_regular_transfer() -> %d, done=%d",
-                (int)result, *dophase_done);
-  return result;
+  CURL_TRC_SMTP(তথ্য, "smtp_regular_transfer() -> %d, done=%d",
+                (পূর্ণসংখ্যা)ফলাফল, *dophase_done);
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -1873,27 +1873,27 @@ static CURLcode smtp_regular_transfer(struct Curl_easy *data,
  *
  * The input argument is already checked for validity.
  */
-static CURLcode smtp_do(struct Curl_easy *data, bool *done)
+স্থির CURLcode smtp_do(কাঠামো Curl_easy *তথ্য, bool *done)
 {
-  struct smtp_conn *smtpc =
-    Curl_conn_meta_get(data->conn, CURL_META_SMTP_CONN);
-  struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
-  CURLcode result = CURLE_OK;
+  কাঠামো smtp_conn *smtpc =
+    Curl_conn_meta_get(তথ্য->conn, CURL_META_SMTP_CONN);
+  কাঠামো SMTP *smtp = Curl_meta_get(তথ্য, CURL_META_SMTP_EASY);
+  CURLcode ফলাফল = CURLE_OK;
 
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(তথ্য);
+  DEBUGASSERT(তথ্য->conn);
   *done = FALSE; /* default to false */
-  if(!smtpc || !smtp)
-    return CURLE_FAILED_INIT;
+  যদি(!smtpc || !smtp)
+    ফেরত CURLE_FAILED_INIT;
 
   /* Parse the custom request */
-  result = smtp_parse_custom_request(data, smtp);
-  if(result)
-    return result;
+  ফলাফল = smtp_parse_custom_request(তথ্য, smtp);
+  যদি(ফলাফল)
+    ফেরত ফলাফল;
 
-  result = smtp_regular_transfer(data, smtpc, smtp, done);
-  CURL_TRC_SMTP(data, "smtp_do() -> %d, done=%d", (int)result, *done);
-  return result;
+  ফলাফল = smtp_regular_transfer(তথ্য, smtpc, smtp, done);
+  CURL_TRC_SMTP(তথ্য, "smtp_do() -> %d, done=%d", (পূর্ণসংখ্যা)ফলাফল, *done);
+  ফেরত ফলাফল;
 }
 
 /***********************************************************************
@@ -1903,96 +1903,96 @@ static CURLcode smtp_do(struct Curl_easy *data, bool *done)
  * Disconnect from an SMTP server. Cleanup protocol-specific per-connection
  * resources. BLOCKING.
  */
-static CURLcode smtp_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn,
+স্থির CURLcode smtp_disconnect(কাঠামো Curl_easy *তথ্য,
+                                কাঠামো connectdata *conn,
                                 bool dead_connection)
 {
-  struct smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
+  কাঠামো smtp_conn *smtpc = Curl_conn_meta_get(conn, CURL_META_SMTP_CONN);
 
-  if(!smtpc)
-    return CURLE_FAILED_INIT;
+  যদি(!smtpc)
+    ফেরত CURLE_FAILED_INIT;
 
   /* We cannot send quit unconditionally. If this connection is stale or
      bad in any way, sending quit and waiting around here will make the
      disconnect wait in vain and cause more problems than we need to. */
 
-  if(!dead_connection && conn->bits.protoconnstart &&
-     !Curl_pp_needs_flush(data, &smtpc->pp) &&
-     !smtp_perform_quit(data, smtpc))
-    (void)smtp_block_statemach(data, smtpc, TRUE); /* ignore on QUIT */
+  যদি(!dead_connection && conn->bits.protoconnstart &&
+     !Curl_pp_needs_flush(তথ্য, &smtpc->pp) &&
+     !smtp_perform_quit(তথ্য, smtpc))
+    (শূন্য)smtp_block_statemach(তথ্য, smtpc, TRUE); /* ignore on QUIT */
 
-  CURL_TRC_SMTP(data, "smtp_disconnect(), finished");
-  return CURLE_OK;
+  CURL_TRC_SMTP(তথ্য, "smtp_disconnect(), finished");
+  ফেরত CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
-static CURLcode smtp_doing(struct Curl_easy *data, bool *dophase_done)
+স্থির CURLcode smtp_doing(কাঠামো Curl_easy *তথ্য, bool *dophase_done)
 {
-  struct SMTP *smtp = Curl_meta_get(data, CURL_META_SMTP_EASY);
-  CURLcode result;
+  কাঠামো SMTP *smtp = Curl_meta_get(তথ্য, CURL_META_SMTP_EASY);
+  CURLcode ফলাফল;
 
-  if(!smtp)
-    return CURLE_FAILED_INIT;
-  result = smtp_multi_statemach(data, dophase_done);
-  if(result)
-    DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
-    result = smtp_dophase_done(data, smtp, FALSE /* not connected */);
+  যদি(!smtp)
+    ফেরত CURLE_FAILED_INIT;
+  ফলাফল = smtp_multi_statemach(তথ্য, dophase_done);
+  যদি(ফলাফল)
+    DEBUGF(infof(তথ্য, "DO phase failed"));
+  অন্যথা যদি(*dophase_done) {
+    ফলাফল = smtp_dophase_done(তথ্য, smtp, FALSE /* not connected */);
 
-    DEBUGF(infof(data, "DO phase is complete"));
+    DEBUGF(infof(তথ্য, "DO phase is complete"));
   }
 
-  CURL_TRC_SMTP(data, "smtp_doing() -> %d, done=%d", (int)result,
+  CURL_TRC_SMTP(তথ্য, "smtp_doing() -> %d, done=%d", (পূর্ণসংখ্যা)ফলাফল,
                 *dophase_done);
-  return result;
+  ফেরত ফলাফল;
 }
 
-static void smtp_easy_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য smtp_easy_dtor(ধ্রুবক শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct SMTP *smtp = entry;
-  (void)key;
-  (void)klen;
+  কাঠামো SMTP *smtp = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
   curlx_free(smtp);
 }
 
-static void smtp_conn_dtor(const void *key, size_t klen, void *entry)
+স্থির শূন্য smtp_conn_dtor(ধ্রুবক শূন্য *চাবি, size_t klen, শূন্য *entry)
 {
-  struct smtp_conn *smtpc = entry;
-  (void)key;
-  (void)klen;
+  কাঠামো smtp_conn *smtpc = entry;
+  (শূন্য)চাবি;
+  (শূন্য)klen;
   Curl_pp_disconnect(&smtpc->pp);
   curlx_safefree(smtpc->domain);
   curlx_free(smtpc);
 }
 
-static CURLcode smtp_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+স্থির CURLcode smtp_setup_connection(কাঠামো Curl_easy *তথ্য,
+                                      কাঠামো connectdata *conn)
 {
-  struct smtp_conn *smtpc;
-  struct SMTP *smtp;
-  CURLcode result = CURLE_OK;
+  কাঠামো smtp_conn *smtpc;
+  কাঠামো SMTP *smtp;
+  CURLcode ফলাফল = CURLE_OK;
 
-  smtpc = curlx_calloc(1, sizeof(*smtpc));
-  if(!smtpc ||
+  smtpc = curlx_calloc(1, আকার(*smtpc));
+  যদি(!smtpc ||
      Curl_conn_meta_set(conn, CURL_META_SMTP_CONN, smtpc, smtp_conn_dtor)) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    ফলাফল = CURLE_OUT_OF_MEMORY;
+    যাও out;
   }
 
-  smtp = curlx_calloc(1, sizeof(*smtp));
-  if(!smtp ||
-     Curl_meta_set(data, CURL_META_SMTP_EASY, smtp, smtp_easy_dtor))
-    result = CURLE_OUT_OF_MEMORY;
+  smtp = curlx_calloc(1, আকার(*smtp));
+  যদি(!smtp ||
+     Curl_meta_set(তথ্য, CURL_META_SMTP_EASY, smtp, smtp_easy_dtor))
+    ফলাফল = CURLE_OUT_OF_MEMORY;
 
 out:
-  CURL_TRC_SMTP(data, "smtp_setup_connection() -> %d", (int)result);
-  return result;
+  CURL_TRC_SMTP(তথ্য, "smtp_setup_connection() -> %d", (পূর্ণসংখ্যা)ফলাফল);
+  ফেরত ফলাফল;
 }
 
 /*
  * SMTP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_smtp = {
+ধ্রুবক কাঠামো Curl_protocol Curl_protocol_smtp = {
   smtp_setup_connection,            /* setup_connection */
   smtp_do,                          /* do_it */
   smtp_done,                        /* done */

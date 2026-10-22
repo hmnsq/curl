@@ -21,75 +21,75 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#include "fake_addrinfo.h"
+#অন্তর্ভাব "fake_addrinfo.h"
 
 #ifdef USE_FAKE_GETADDRINFO
 
-#include <ares.h>
+#অন্তর্ভাব <ares.h>
 
-void r_freeaddrinfo(struct addrinfo *cahead)
+শূন্য r_freeaddrinfo(কাঠামো addrinfo *cahead)
 {
-  struct addrinfo *canext;
-  struct addrinfo *ca;
+  কাঠামো addrinfo *canext;
+  কাঠামো addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
-    canext = ca->ai_next;
+  জন্য(ca = cahead; ca; ca = canext) {
+    canext = ca->ai_পরবর্তী;
     curlx_free(ca);
   }
 }
 
-struct context {
-  struct ares_addrinfo *addr;
-  int status;
+কাঠামো context {
+  কাঠামো ares_addrinfo *addr;
+  পূর্ণসংখ্যা status;
 };
 
-static void async_addrinfo_cb(void *userp, int status, int timeouts,
-                              struct ares_addrinfo *addr)
+স্থির শূন্য async_addrinfo_cb(শূন্য *userp, পূর্ণসংখ্যা status, পূর্ণসংখ্যা timeouts,
+                              কাঠামো ares_addrinfo *addr)
 {
-  struct context *ctx = (struct context *)userp;
-  (void)timeouts;
+  কাঠামো context *ctx = (কাঠামো context *)userp;
+  (শূন্য)timeouts;
   ctx->status = status;
-  if(ARES_SUCCESS == status) {
+  যদি(ARES_SUCCESS == status) {
     ctx->addr = addr;
   }
 }
 
 /* convert the c-ares version into the "native" version */
-static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
+স্থির কাঠামো addrinfo *mk_getaddrinfo(ধ্রুবক কাঠামো ares_addrinfo *aihead)
 {
-  const struct ares_addrinfo_node *ai;
-  struct addrinfo *ca;
-  struct addrinfo *cafirst = NULL;
-  struct addrinfo *calast = NULL;
-  const char *name = aihead->name;
+  ধ্রুবক কাঠামো ares_addrinfo_গ্রন্থি *ai;
+  কাঠামো addrinfo *ca;
+  কাঠামো addrinfo *cafirst = ফাঁকা;
+  কাঠামো addrinfo *calast = ফাঁকা;
+  ধ্রুবক অক্ষর *name = aihead->name;
 
   /* traverse the addrinfo list */
-  for(ai = aihead->nodes; ai; ai = ai->ai_next) {
-    size_t ss_size;
+  জন্য(ai = aihead->nodes; ai; ai = ai->ai_পরবর্তী) {
+    size_t ss_আকার;
     size_t namelen = name ? strlen(name) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-    else
-      continue;
+    যদি(ai->ai_family == AF_INET)
+      ss_আকার = আকার(কাঠামো sockaddr_in);
+    অন্যথা যদি(ai->ai_family == AF_INET6)
+      ss_আকার = আকার(কাঠামো sockaddr_in6);
+    অন্যথা
+      চালু;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
-      continue;
+    যদি(!ai->ai_addr || !(ai->ai_addrlen > 0))
+      চালু;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
-      continue;
+    যদি((size_t)ai->ai_addrlen < ss_আকার)
+      চালু;
 
-    ca = curlx_malloc(sizeof(struct addrinfo) + ss_size + namelen);
-    if(!ca) {
+    ca = curlx_malloc(আকার(কাঠামো addrinfo) + ss_আকার + namelen);
+    যদি(!ca) {
       r_freeaddrinfo(cafirst);
-      return NULL;
+      ফেরত ফাঁকা;
     }
 
     /* copy each structure member individually, member ordering,
@@ -99,61 +99,61 @@ static struct addrinfo *mk_getaddrinfo(const struct ares_addrinfo *aihead)
     ca->ai_family    = ai->ai_family;
     ca->ai_socktype  = ai->ai_socktype;
     ca->ai_protocol  = ai->ai_protocol;
-    ca->ai_addrlen   = (curl_socklen_t)ss_size;
-    ca->ai_addr      = NULL;
-    ca->ai_canonname = NULL;
-    ca->ai_next      = NULL;
+    ca->ai_addrlen   = (curl_socklen_t)ss_আকার;
+    ca->ai_addr      = ফাঁকা;
+    ca->ai_canonname = ফাঁকা;
+    ca->ai_পরবর্তী      = ফাঁকা;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct addrinfo));
-    memcpy(ca->ai_addr, ai->ai_addr, ss_size);
+    ca->ai_addr = (শূন্য *)((অক্ষর *)ca + আকার(কাঠামো addrinfo));
+    memcpy(ca->ai_addr, ai->ai_addr, ss_আকার);
 
-    if(namelen) {
-      ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
+    যদি(namelen) {
+      ca->ai_canonname = (শূন্য *)((অক্ষর *)ca->ai_addr + ss_আকার);
       memcpy(ca->ai_canonname, name, namelen);
 
       /* the name is only pointed to by the first entry in the "real"
          addrinfo chain, so stop now */
-      name = NULL;
+      name = ফাঁকা;
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    যদি(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
-      calast->ai_next = ca;
+    যদি(calast)
+      calast->ai_পরবর্তী = ca;
     calast = ca;
   }
 
-  return cafirst;
+  ফেরত cafirst;
 }
 
 /* RETURN VALUE
    getaddrinfo() returns 0 if it succeeds, or one of the following nonzero
    error codes:
    ... */
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res)
+পূর্ণসংখ্যা r_getaddrinfo(ধ্রুবক অক্ষর *গ্রন্থি,
+                  ধ্রুবক অক্ষর *service,
+                  ধ্রুবক কাঠামো addrinfo *hints,
+                  কাঠামো addrinfo **res)
 {
-  int status;
-  struct context ctx;
-  struct ares_options options;
-  int optmask = 0;
-  struct ares_addrinfo_hints ahints;
+  পূর্ণসংখ্যা status;
+  কাঠামো context ctx;
+  কাঠামো ares_options options;
+  পূর্ণসংখ্যা optmask = 0;
+  কাঠামো ares_addrinfo_hints ahints;
   ares_channel channel;
-  int rc = 0;
+  পূর্ণসংখ্যা rc = 0;
 
-  memset(&options, 0, sizeof(options));
+  memset(&options, 0, আকার(options));
   optmask      |= ARES_OPT_EVENT_THREAD;
   options.evsys = ARES_EVSYS_DEFAULT;
 
-  memset(&ahints, 0, sizeof(ahints));
-  memset(&ctx, 0, sizeof(ctx));
+  memset(&ahints, 0, আকার(ahints));
+  memset(&ctx, 0, আকার(ctx));
 
-  if(hints) {
+  যদি(hints) {
     ahints.ai_flags = hints->ai_flags;
     ahints.ai_family = hints->ai_family;
     ahints.ai_socktype = hints->ai_socktype;
@@ -161,42 +161,42 @@ int r_getaddrinfo(const char *node,
   }
 
   status = ares_init_options(&channel, &options, optmask);
-  if(status)
-    return EAI_MEMORY; /* major problem */
+  যদি(status)
+    ফেরত EAI_MEMORY; /* major problem */
 
-  else {
-    const char *env = getenv("CURL_DNS_SERVER");
-    if(env) {
+  অন্যথা {
+    ধ্রুবক অক্ষর *env = getenv("CURL_DNS_SERVER");
+    যদি(env) {
       rc = ares_set_servers_ports_csv(channel, env);
-      if(rc) {
+      যদি(rc) {
         curl_mfprintf(stderr, "ares_set_servers_ports_csv failed: %d", rc);
         /* Cleanup */
         ares_destroy(channel);
-        return EAI_MEMORY; /* we cannot run */
+        ফেরত EAI_MEMORY; /* we cannot run */
       }
     }
   }
 
-  ares_getaddrinfo(channel, node, service, &ahints, async_addrinfo_cb, &ctx);
+  ares_getaddrinfo(channel, গ্রন্থি, service, &ahints, async_addrinfo_cb, &ctx);
 
   /* Wait until no more requests are left to be processed */
   ares_queue_wait_empty(channel, -1);
 
-  if(ctx.addr) {
+  যদি(ctx.addr) {
     /* convert the c-ares version */
     *res = mk_getaddrinfo(ctx.addr);
     /* free the old */
     ares_freeaddrinfo(ctx.addr);
   }
-  else if((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
+  অন্যথা যদি((ctx.status == ARES_ENOTFOUND) || (ctx.status == ARES_ENODATA))
     rc = EAI_NONAME; /* no such name */
-  else
+  অন্যথা
     rc = EAI_AGAIN; /* failed without an authoritative answer */
 
   /* Cleanup */
   ares_destroy(channel);
 
-  return rc;
+  ফেরত rc;
 }
 
 #endif /* USE_FAKE_GETADDRINFO */

@@ -24,14 +24,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
 #ifdef USE_SCHANNEL
 
-#include "vtls/vtls.h"
-#include "curl_sha256.h"
+#অন্তর্ভাব "vtls/vtls.h"
+#অন্তর্ভাব "curl_sha256.h"
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1700)
+#যদি defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'LPCSTR' of greater size */
 #undef CERT_STORE_PROV_MEMORY
@@ -46,8 +46,8 @@
 #ifndef SCH_CREDENTIALS_VERSION
 #define SCH_CREDENTIALS_VERSION  0x00000005
 
-typedef enum _eTlsAlgorithmUsage {
-  TlsParametersCngAlgUsageKeyExchange,
+প্রকারলেখ গণনা _eTlsAlgorithmUsage {
+  Tls_Parameters_Cng_Alg_Usage_চাবি_Exchange,
   TlsParametersCngAlgUsageSignature,
   TlsParametersCngAlgUsageCipher,
   TlsParametersCngAlgUsageDigest,
@@ -55,17 +55,17 @@ typedef enum _eTlsAlgorithmUsage {
 } eTlsAlgorithmUsage;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _CRYPTO_SETTINGS {
+প্রকারলেখ কাঠামো _CRYPTO_SETTINGS {
   eTlsAlgorithmUsage eAlgorithmUsage;
   UNICODE_STRING strCngAlgId;
   DWORD cChainingModes;
   PUNICODE_STRING rgstrChainingModes; /* spellchecker:disable-line */
-  DWORD dwMinBitLength;
-  DWORD dwMaxBitLength;
+  DWORD dw_Min_Bit_দৈর্ঘ্য;
+  DWORD dw_Max_Bit_দৈর্ঘ্য;
 } CRYPTO_SETTINGS, *PCRYPTO_SETTINGS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _TLS_PARAMETERS {
+প্রকারলেখ কাঠামো _TLS_PARAMETERS {
   DWORD cAlpnIds;
   PUNICODE_STRING rgstrAlpnIds; /* spellchecker:disable-line */
   DWORD grbitDisabledProtocols;
@@ -75,15 +75,15 @@ typedef struct _TLS_PARAMETERS {
 } TLS_PARAMETERS, *PTLS_PARAMETERS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _SCH_CREDENTIALS {
+প্রকারলেখ কাঠামো _SCH_CREDENTIALS {
   DWORD dwVersion;
   DWORD dwCredFormat;
   DWORD cCreds;
   PCCERT_CONTEXT *paCred;
-  HCERTSTORE hRootStore;
+  HCERTSTORE h_মূল_Store;
 
   DWORD cMappers;
-  struct _HMAPPER **aphMappers;
+  কাঠামো _HMAPPER **aphMappers;
 
   DWORD dwSessionLifespan;
   DWORD dwFlags;
@@ -93,40 +93,40 @@ typedef struct _SCH_CREDENTIALS {
 
 #endif /* !SCH_CREDENTIALS_VERSION */
 
-struct Curl_schannel_cred {
+কাঠামো Curl_schannel_cred {
   CredHandle cred_handle;
   TCHAR *sni_hostname;
   HCERTSTORE client_cert_store;
-  int refcount;
+  পূর্ণসংখ্যা refcount;
 };
 
-struct Curl_schannel_ctxt {
+কাঠামো Curl_schannel_ctxt {
   CtxtHandle ctxt_handle;
 };
 
 /* handle encoding/decoding buffers */
-struct sbuffer {
-  size_t length;
+কাঠামো sbuffer {
+  size_t দৈর্ঘ্য;
   size_t offset;
-  unsigned char *buffer;
+  unsigned অক্ষর *বাফার;
 };
 
-struct schannel_ssl_backend_data {
-  unsigned char *send_buffer;
-  size_t send_buffer_len;
-  struct sbuffer encdata;
-  struct sbuffer decdata;
-  struct Curl_schannel_cred *cred;
-  struct Curl_schannel_ctxt *ctxt;
-  SecBuffer shutdown_token;
+কাঠামো schannel_ssl_backend_তথ্য {
+  unsigned অক্ষর *send_বাফার;
+  size_t send_বাফার_len;
+  কাঠামো sbuffer encdata;
+  কাঠামো sbuffer decdata;
+  কাঠামো Curl_schannel_cred *cred;
+  কাঠামো Curl_schannel_ctxt *ctxt;
+  Sec_বাফার shutdown_token;
   size_t shutdown_offset;
   SecPkgContext_StreamSizes stream_sizes;
   unsigned long req_flags, ret_flags;
   CURLcode recv_unrecoverable_err; /* schannel_recv had an unrecoverable err */
-  struct schannel_renegotiate_state {
+  কাঠামো schannel_renegotiate_state {
     bool started;
-    struct curltime start_time;
-    int io_need;
+    কাঠামো curltime start_time;
+    পূর্ণসংখ্যা io_need;
   } renegotiate_state;
   BIT(recv_sspi_close_notify); /* true if connection closed by close_notify */
   BIT(recv_connection_closed); /* true if connection closed, regardless how */
@@ -142,30 +142,30 @@ struct schannel_ssl_backend_data {
   BIT(encdata_is_incomplete);
 };
 
-struct schannel_cert_share {
-  unsigned char CAinfo_blob_digest[CURL_SHA256_DIGEST_LENGTH];
-  size_t CAinfo_blob_size;           /* CA info blob size */
-  char *CAfile;                      /* CAfile path used to generate
+কাঠামো schannel_cert_share {
+  unsigned অক্ষর CAinfo_blob_digest[CURL_SHA256_DIGEST_দৈর্ঘ্য];
+  size_t CAinfo_blob_আকার;           /* CA info blob size */
+  অক্ষর *CAfile;                      /* CAfile path used to generate
                                         certificate store */
   HCERTSTORE cert_store;             /* cached certificate store or
                                         NULL if none */
-  struct curltime time;              /* when the cached store was created */
+  কাঠামো curltime time;              /* when the cached store was created */
 };
 
 /* size of the structure: 20 bytes */
-struct num_ip_data {
-  DWORD size; /* 04 bytes */
-  union {
-    struct in_addr  ia;  /* 04 bytes */
-    struct in6_addr ia6; /* 16 bytes */
-  } bData;
+কাঠামো অঙ্ক_ip_তথ্য {
+  DWORD আকার_2; /* 04 bytes */
+  সংঘ {
+    কাঠামো in_addr  ia;  /* 04 bytes */
+    কাঠামো in6_addr ia6; /* 16 bytes */
+  } b_তথ্য;
 };
 
-HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data);
+HCERTSTORE Curl_schannel_get_cached_cert_store(কাঠামো Curl_cfilter *cf,
+                                               কাঠামো Curl_easy *তথ্য);
 
-bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+bool Curl_schannel_set_cached_cert_store(কাঠামো Curl_cfilter *cf,
+                                         কাঠামো Curl_easy *তথ্য,
                                          HCERTSTORE cert_store);
 
 #endif /* USE_SCHANNEL */

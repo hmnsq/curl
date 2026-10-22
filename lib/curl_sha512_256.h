@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#অন্তর্ভাব "curl_setup.h"
 
-#if !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
+#যদি !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
 
-#include "curl_hmac.h"
+#অন্তর্ভাব "curl_hmac.h"
 
 #define CURL_HAVE_SHA512_256
 
-extern const struct HMAC_params Curl_HMAC_SHA512_256[1];
+বাহ্যিক ধ্রুবক কাঠামো HMAC_params Curl_HMAC_SHA512_256[1];
 
-#define CURL_SHA512_256_DIGEST_LENGTH 32
+#define CURL_SHA512_256_DIGEST_দৈর্ঘ্য 32
 
-CURLcode Curl_sha512_256it(unsigned char *output, const unsigned char *input,
-                           size_t input_size);
+CURLcode Curl_sha512_256it(unsigned অক্ষর *output, ধ্রুবক unsigned অক্ষর *প্রবেশ,
+                           size_t প্রবেশ_আকার);
 
 #endif /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */
 
