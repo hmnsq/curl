@@ -17,20 +17,20 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#அந்தர்பாவ <sys/param.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#அந்தர்பாவ <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#அந்தர்பாவ <arpa/inet.h>
 #endif
 
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#அந்தர்பாவ "curlx/inet_pton.h"
+#அந்தர்பாவ "curlx/strparse.h"
 
 #define IN6ADDRSZ       16
 #define INADDRSZ         4
@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#எனில் !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+நிலையான முழு inet_pton4(மாறிலி எழுத்து *src, unsigned எழுத்து *dst)
 {
-  int saw_digit, octets, ch;
-  unsigned char tmp[INADDRSZ], *tp;
+  முழு saw_digit, octets, ch;
+  unsigned எழுத்து tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  போது((ch = (unsigned எழுத்து)*src++) != '\0') {
+    எனில்(ISDIGIT(ch)) {
+      unsigned முழு val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
-      *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      எனில்(saw_digit && *tp == 0)
+        திரும்பு 0;
+      எனில்(val > 255)
+        திரும்பு 0;
+      *tp = (unsigned எழுத்து)val;
+      எனில்(!saw_digit) {
+        எனில்(++octets > 4)
+          திரும்பு 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    இல்லையெனில் எனில்(ch == '.' && saw_digit) {
+      எனில்(octets == 4)
+        திரும்பு 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    இல்லையெனில்
+      திரும்பு 0;
   }
-  if(octets < 4)
-    return 0;
+  எனில்(octets < 4)
+    திரும்பு 0;
   memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  திரும்பு 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,82 +110,82 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+நிலையான முழு inet_pton6(மாறிலி எழுத்து *src, unsigned எழுத்து *dst)
 {
-  unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
-  int ch, saw_xdigit;
+  unsigned எழுத்து tmp[IN6ADDRSZ], *tp, *endp, *colonp;
+  மாறிலி எழுத்து *curtok;
+  முழு ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
-  colonp = NULL;
+  colonp = வெற்று;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  எனில்(*src == ':' && *++src != ':')
+    திரும்பு 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  போது((ch = (unsigned எழுத்து)*src++) != '\0') {
+    எனில்(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
-      continue;
+      எனில்(++saw_xdigit > 4)
+        திரும்பு 0;
+      தொடர்;
     }
-    if(ch == ':') {
+    எனில்(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      எனில்(!saw_xdigit) {
+        எனில்(colonp)
+          திரும்பு 0;
         colonp = tp;
-        continue;
+        தொடர்;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
-      *tp++ = (unsigned char)((val >> 8) & 0xff);
-      *tp++ = (unsigned char)(val & 0xff);
+      எனில்(!*src)
+        திரும்பு 0;
+      எனில்(tp + INT16SZ > endp)
+        திரும்பு 0;
+      *tp++ = (unsigned எழுத்து)((val >> 8) & 0xff);
+      *tp++ = (unsigned எழுத்து)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
-      continue;
+      தொடர்;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    எனில்(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
-      break;    /* '\0' was seen by inet_pton4(). */
+      நிறுத்து;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    திரும்பு 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
-    *tp++ = (unsigned char)((val >> 8) & 0xff);
-    *tp++ = (unsigned char)(val & 0xff);
+  எனில்(saw_xdigit) {
+    எனில்(tp + INT16SZ > endp)
+      திரும்பு 0;
+    *tp++ = (unsigned எழுத்து)((val >> 8) & 0xff);
+    *tp++ = (unsigned எழுத்து)(val & 0xff);
   }
-  if(colonp) {
+  எனில்(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
      */
-    const ssize_t n = tp - colonp;
+    மாறிலி ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    எனில்(tp == endp)
+      திரும்பு 0;
+    க்கு(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
+  எனில்(tp != endp)
+    திரும்பு 0;
   memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  திரும்பு 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+முழு curlx_inet_pton(முழு af, மாறிலி எழுத்து *src, வெறுமை *dst)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
-  case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
-  default:
-    return -1;
+  தேர்வு(af) {
+  நிலை AF_INET:
+    திரும்பு inet_pton4(src, (unsigned எழுத்து *)dst);
+  நிலை AF_INET6:
+    திரும்பு inet_pton6(src, (unsigned எழுத்து *)dst);
+  இயல்பு:
+    திரும்பு -1;
   }
   /* NOTREACHED */
 }

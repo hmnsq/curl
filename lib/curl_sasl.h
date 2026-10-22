@@ -23,10 +23,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "bufref.h"
+#அந்தர்பாவ "bufref.h"
 
-struct Curl_easy;
-struct connectdata;
+கட்டமைப்பு Curl_easy;
+கட்டமைப்பு connectdata;
 
 /* Authentication mechanism flags */
 #define SASL_MECH_LOGIN             (1 << 0)
@@ -63,7 +63,7 @@ struct connectdata;
 #define SASL_FLAG_BASE64        0x0001  /* Messages are base64-encoded */
 
 /* SASL machine states */
-typedef enum {
+வகைவரை எண்ணிக்கை {
   SASL_STOP,
   SASL_PLAIN,
   SASL_LOGIN,
@@ -73,7 +73,7 @@ typedef enum {
   SASL_DIGESTMD5,
   SASL_DIGESTMD5_RESP,
   SASL_NTLM,
-  SASL_NTLM_TYPE2MSG,
+  SASL_NTLM_TYPE2_செய்தி,
   SASL_GSSAPI,
   SASL_GSSAPI_TOKEN,
   SASL_GSSAPI_NO_DATA,
@@ -85,40 +85,40 @@ typedef enum {
 } saslstate;
 
 /* Progress indicator */
-typedef enum {
+வகைவரை எண்ணிக்கை {
   SASL_IDLE,
   SASL_INPROGRESS,
   SASL_DONE
 } saslprogress;
 
 /* Protocol dependent SASL parameters */
-struct SASLproto {
-  const char *service;     /* The service name */
-  CURLcode (*sendauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *ir);
+கட்டமைப்பு SASLproto {
+  மாறிலி எழுத்து *service;     /* The service name */
+  CURLcode (*sendauth)(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *mech,
+                       மாறிலி கட்டமைப்பு bufref *ir);
                            /* Send authentication command */
-  CURLcode (*contauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *contauth);
+  CURLcode (*contauth)(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *mech,
+                       மாறிலி கட்டமைப்பு bufref *contauth);
                            /* Send authentication continuation */
-  CURLcode (*cancelauth)(struct Curl_easy *data, const char *mech);
+  CURLcode (*cancelauth)(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *mech);
                            /* Cancel authentication. */
-  CURLcode (*getmessage)(struct Curl_easy *data, struct bufref *out);
+  CURLcode (*getmessage)(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு bufref *out);
                            /* Get SASL response message */
   size_t maxirlen;         /* Maximum initial response + mechanism length,
                               or zero if no max. This is normally the max
                               command length - other characters count.
                               This has to be zero for non-base64 protocols. */
-  int contcode;            /* Code to receive when continuation is expected */
-  int finalcode;           /* Code to receive upon authentication success */
+  முழு contcode;            /* Code to receive when continuation is expected */
+  முழு finalcode;           /* Code to receive upon authentication success */
   unsigned short defmechs; /* Mechanisms enabled by default */
   unsigned short flags;    /* Configuration flags. */
 };
 
 /* Per-connection parameters */
-struct SASL {
-  const struct SASLproto *params; /* Protocol dependent parameters */
+கட்டமைப்பு SASL {
+  மாறிலி கட்டமைப்பு SASLproto *params; /* Protocol dependent parameters */
   saslstate state;           /* Current machine state */
-  const char *curmech;       /* Current mechanism id. */
+  மாறிலி எழுத்து *curmech;       /* Current mechanism id. */
   unsigned short authmechs;  /* Accepted authentication mechanisms */
   unsigned short prefmech;   /* Preferred authentication mechanism */
   unsigned short authused;   /* Auth mechanism used for the connection */
@@ -128,33 +128,33 @@ struct SASL {
 };
 
 /* This is used to test whether the line starts with the given mechanism */
-#define sasl_mech_equal(line, wordlen, mech) \
-  ((wordlen) == (sizeof(mech) - 1) / sizeof(char) && \
-   !memcmp(line, mech, wordlen))
+#define sasl_mech_equal(வரி, wordlen, mech) \
+  ((wordlen) == (அளவு(mech) - 1) / அளவு(எழுத்து) && \
+   !memcmp(வரி, mech, wordlen))
 
 /* Convert a mechanism name to a token */
-unsigned short Curl_sasl_decode_mech(const char *ptr,
+unsigned short Curl_sasl_decode_mech(மாறிலி எழுத்து *ptr,
                                      size_t maxlen, size_t *len);
 
 /* Parse the URL login options */
-CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len);
+CURLcode Curl_sasl_parse_url_auth_option(கட்டமைப்பு SASL *sasl,
+                                         மாறிலி எழுத்து *மதிப்பு, size_t len);
 
 /* Initializes an SASL structure */
-void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
-                    const struct SASLproto *params);
+வெறுமை Curl_sasl_init(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data,
+                    மாறிலி கட்டமைப்பு SASLproto *params);
 
 /* Check if we have enough auth data and capabilities to authenticate */
-bool Curl_sasl_can_authenticate(struct SASL *sasl, struct Curl_easy *data);
+bool Curl_sasl_can_authenticate(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data);
 
 /* Calculate the required login details for SASL authentication */
-CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
+CURLcode Curl_sasl_start(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data,
                          bool force_ir, saslprogress *progress);
 
 /* Continue an SASL authentication */
-CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
-                            int code, saslprogress *progress);
+CURLcode Curl_sasl_continue(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data,
+                            முழு code, saslprogress *progress);
 
-CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data);
+CURLcode Curl_sasl_is_blocked(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data);
 
 #endif /* HEADER_CURL_SASL_H */

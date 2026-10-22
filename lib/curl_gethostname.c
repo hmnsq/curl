@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#அந்தர்பாவ "curl_gethostname.h"
+#அந்தர்பாவ "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+முழு Curl_gethostname(எழுத்து * மாறிலி name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (வெறுமை)name;
+  (வெறுமை)namelen;
+  திரும்பு -1;
 
-#else
-  int err;
-  char *dot;
+#இல்லையெனில்
+  முழு err;
+  எழுத்து *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  மாறிலி எழுத்து *force_hostname = getenv("CURL_GETHOSTNAME");
+  எனில்(force_hostname) {
+    எனில்(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    இல்லையெனில்
+      திரும்பு 1; /* cannot do it */
     err = 0;
   }
-  else {
+  இல்லையெனில் {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#இல்லையெனில் /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned எழுத்து *)name, namelen);
+#இல்லையெனில்
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  எனில்(err)
+    திரும்பு err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  எனில்(dot)
     *dot = '\0';
 
-  return 0;
+  திரும்பு 0;
 #endif
 }

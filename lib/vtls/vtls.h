@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-struct connectdata;
-struct ssl_easy_config;
-struct ssl_filter_config;
-struct Curl_cfilter;
-struct Curl_easy;
-struct dynbuf;
+கட்டமைப்பு connectdata;
+கட்டமைப்பு ssl_easy_config;
+கட்டமைப்பு ssl_filter_config;
+கட்டமைப்பு Curl_cfilter;
+கட்டமைப்பு Curl_easy;
+கட்டமைப்பு dynbuf;
 
 #define SSLSUPP_CA_PATH      (1 << 0) /* supports CAPATH */
 #define SSLSUPP_CERTINFO     (1 << 1) /* supports CURLOPT_CERTINFO */
@@ -56,10 +56,10 @@ struct dynbuf;
 #define CURLECH_HARD       3
 
 /* TRUE if ECH is enabled (and supported) */
-bool Curl_ssl_ech_enabled(struct Curl_cfilter *cf);
+bool Curl_ssl_ech_enabled(கட்டமைப்பு Curl_cfilter *cf);
 /* TRUE if SSL ECH configuration requires DNS HTTPS-RR record */
-bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf);
-#else
+bool Curl_ssl_need_httpsrr(கட்டமைப்பு Curl_cfilter *cf);
+#இல்லையெனில்
 #define Curl_ssl_ech_enabled(c)      FALSE
 #define Curl_ssl_need_httpsrr(c)     FALSE
 #endif /* USE_ECH */
@@ -88,78 +88,78 @@ bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf);
 #define CURL_IETF_PROTO_DTLS1         0xFEFF
 #define CURL_IETF_PROTO_DTLS1_2       0xFEFD
 
-typedef enum {
+வகைவரை எண்ணிக்கை {
   CURL_SSL_PEER_DNS,
   CURL_SSL_PEER_IPV4,
   CURL_SSL_PEER_IPV6
 } ssl_peer_type;
 
-struct ssl_peer {
-  struct Curl_peer *origin; /* the authority we talk to */
-  struct Curl_peer *peer;   /* the machine we are connected to */
-  char *sni;             /* SNI version of hostname or NULL if not usable */
-  char *scache_key;      /* for lookups in session cache */
+கட்டமைப்பு ssl_peer {
+  கட்டமைப்பு Curl_peer *origin; /* the authority we talk to */
+  கட்டமைப்பு Curl_peer *peer;   /* the machine we are connected to */
+  எழுத்து *sni;             /* SNI version of hostname or NULL if not usable */
+  எழுத்து *scache_சாவி;      /* for lookups in session cache */
   ssl_peer_type type;    /* type of the peer information */
   uint8_t transport;     /* one of TRNSPRT_* defines */
 };
 
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
-                                   const curl_ssl_backend ***avail);
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, மாறிலி எழுத்து *name,
+                                   மாறிலி curl_ssl_backend ***avail);
 
 #define MAX_PINNED_PUBKEY_SIZE (1024 * 1024) /* 1 MiB */
 
-curl_sslbackend Curl_ssl_backend(void);
+curl_sslbackend Curl_ssl_backend(வெறுமை);
 
 /**
  * Init SSL peer information for filter. Can be called repeatedly.
  */
-CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
-                            struct ssl_filter_config *sslc,
-                            const char *tls_id,
+CURLcode Curl_ssl_peer_init(கட்டமைப்பு ssl_peer *ssl_peer,
+                            கட்டமைப்பு Curl_peer *origin,
+                            கட்டமைப்பு Curl_peer *peer,
+                            கட்டமைப்பு ssl_filter_config *sslc,
+                            மாறிலி எழுத்து *tls_id,
                             uint8_t transport);
 /**
  * Free all allocated data and reset peer information.
  */
-void Curl_ssl_peer_cleanup(struct ssl_peer *peer);
+வெறுமை Curl_ssl_peer_cleanup(கட்டமைப்பு ssl_peer *peer);
 
 #ifdef USE_SSL
-int Curl_ssl_init(void);
-void Curl_ssl_cleanup(void);
+முழு Curl_ssl_init(வெறுமை);
+வெறுமை Curl_ssl_cleanup(வெறுமை);
 /* tell the SSL stuff to close down all open information regarding
    connections (and thus session ID caching etc) */
-void Curl_ssl_close_all(struct Curl_easy *data);
-CURLcode Curl_ssl_set_engine(struct Curl_easy *data, const char *engine);
+வெறுமை Curl_ssl_close_all(கட்டமைப்பு Curl_easy *data);
+CURLcode Curl_ssl_set_engine(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *engine);
 /* Sets engine as default for all SSL operations */
-CURLcode Curl_ssl_set_engine_default(struct Curl_easy *data);
-struct curl_slist *Curl_ssl_engines_list(struct Curl_easy *data);
+CURLcode Curl_ssl_set_engine_default(கட்டமைப்பு Curl_easy *data);
+கட்டமைப்பு curl_slist *Curl_ssl_engines_list(கட்டமைப்பு Curl_easy *data);
 
-void Curl_ssl_version(char *buffer, size_t size);
+வெறுமை Curl_ssl_version(எழுத்து *buffer, size_t size);
 
 /* Certificate information list handling. */
 #define CURL_X509_STR_MAX  100000
 #define MAX_ALLOWED_CERT_AMOUNT 100
 
-void Curl_ssl_free_certinfo(struct Curl_easy *data);
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num);
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data, int certnum,
-                                    const char *label, const char *value,
+வெறுமை Curl_ssl_free_certinfo(கட்டமைப்பு Curl_easy *data);
+CURLcode Curl_ssl_init_certinfo(கட்டமைப்பு Curl_easy *data, முழு இலக்கம்);
+CURLcode Curl_ssl_தள்ளு_certinfo_len(கட்டமைப்பு Curl_easy *data, முழு certnum,
+                                    மாறிலி எழுத்து *label, மாறிலி எழுத்து *மதிப்பு,
                                     size_t valuelen);
-CURLcode Curl_ssl_push_certinfo(struct Curl_easy *data, int certnum,
-                                const char *label, const char *value);
+CURLcode Curl_ssl_தள்ளு_certinfo(கட்டமைப்பு Curl_easy *data, முழு certnum,
+                                மாறிலி எழுத்து *label, மாறிலி எழுத்து *மதிப்பு);
 
 /* Functions to be used by SSL library adaptation functions */
 
 /* get N random bytes into the buffer */
-CURLcode Curl_ssl_random(struct Curl_easy *data,
-                         unsigned char *buffer, size_t length);
+CURLcode Curl_ssl_random(கட்டமைப்பு Curl_easy *data,
+                         unsigned எழுத்து *buffer, size_t length);
 /* Check pinned public key. */
-CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
-                              const char *pinnedpubkey,
-                              const unsigned char *pubkey, size_t pubkeylen);
+CURLcode Curl_pin_peer_pubkey(கட்டமைப்பு Curl_easy *data,
+                              மாறிலி எழுத்து *pinnedpubkey,
+                              மாறிலி unsigned எழுத்து *pubkey, size_t pubkeylen);
 
-bool Curl_ssl_cert_status_request(void);
+bool Curl_ssl_cert_status_request(வெறுமை);
 
 /* The maximum size of the SSL channel binding is 85 bytes, as defined in
  * RFC 5929, Section 4.1. The 'tls-server-end-point:' prefix is 21 bytes,
@@ -177,28 +177,28 @@ bool Curl_ssl_cert_status_request(void);
  * If channel binding is not supported, binding stays empty and CURLE_OK is
  * returned.
  */
-CURLcode Curl_ssl_get_channel_binding(struct Curl_easy *data, int8_t sockindex,
-                                      struct dynbuf *binding);
+CURLcode Curl_ssl_get_channel_binding(கட்டமைப்பு Curl_easy *data, int8_t sockindex,
+                                      கட்டமைப்பு dynbuf *binding);
 
 #define SSL_SHUTDOWN_TIMEOUT 10000 /* ms */
 
-CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
-                              struct Curl_peer *origin,
-                              struct connectdata *conn,
+CURLcode Curl_ssl_cfilter_add(கட்டமைப்பு Curl_easy *data,
+                              கட்டமைப்பு Curl_peer *origin,
+                              கட்டமைப்பு connectdata *conn,
                               int8_t sockindex);
 
-CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
-                                  struct Curl_easy *data,
-                                  struct Curl_peer *origin,
-                                  struct Curl_peer *peer);
+CURLcode Curl_cf_ssl_செருகு_after(கட்டமைப்பு Curl_cfilter *cf_at,
+                                  கட்டமைப்பு Curl_easy *data,
+                                  கட்டமைப்பு Curl_peer *origin,
+                                  கட்டமைப்பு Curl_peer *peer);
 
-CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
+CURLcode Curl_ssl_cfilter_remove(கட்டமைப்பு Curl_easy *data,
                                  int8_t sockindex, bool send_shutdown);
 
 #ifndef CURL_DISABLE_PROXY
-CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                        struct Curl_easy *data,
-                                        struct Curl_peer *peer);
+CURLcode Curl_cf_ssl_proxy_செருகு_after(கட்டமைப்பு Curl_cfilter *cf_at,
+                                        கட்டமைப்பு Curl_easy *data,
+                                        கட்டமைப்பு Curl_peer *peer);
 #endif /* !CURL_DISABLE_PROXY */
 
 /**
@@ -206,23 +206,23 @@ CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
  * Option is one of the defined SSLSUPP_* values.
  * `data` maybe NULL for the features of the default implementation.
  */
-bool Curl_ssl_supports(struct Curl_easy *data, unsigned int ssl_option);
+bool Curl_ssl_supports(கட்டமைப்பு Curl_easy *data, unsigned முழு ssl_option);
 
 /* Get the ssl_easy_config from `data` relevant for cfilter `cf`. */
-struct ssl_easy_config *
-Curl_ssl_cf_get_easy_config(struct Curl_cfilter *cf,
-                            struct Curl_easy *data);
+கட்டமைப்பு ssl_easy_config *
+Curl_ssl_cf_get_easy_config(கட்டமைப்பு Curl_cfilter *cf,
+                            கட்டமைப்பு Curl_easy *data);
 
 /* Get the filter config relevant for cfilter `cf`. */
-struct ssl_filter_config *
-Curl_ssl_cf_get_filter_config(struct Curl_cfilter *cf);
+கட்டமைப்பு ssl_filter_config *
+Curl_ssl_cf_get_filter_config(கட்டமைப்பு Curl_cfilter *cf);
 
-extern struct Curl_cftype Curl_cft_ssl;
+வெளி கட்டமைப்பு Curl_cftype Curl_cft_ssl;
 #ifndef CURL_DISABLE_PROXY
-extern struct Curl_cftype Curl_cft_ssl_proxy;
+வெளி கட்டமைப்பு Curl_cftype Curl_cft_ssl_proxy;
 #endif
 
-#else /* if not USE_SSL */
+#இல்லையெனில் /* if not USE_SSL */
 
 /* When SSL support is not present, define away these function calls */
 #define Curl_ssl_init() 1
@@ -230,15 +230,15 @@ extern struct Curl_cftype Curl_cft_ssl_proxy;
 #define Curl_ssl_close_all(x) Curl_nop_stmt
 #define Curl_ssl_set_engine(x, y) CURLE_NOT_BUILT_IN
 #define Curl_ssl_set_engine_default(x) CURLE_NOT_BUILT_IN
-#define Curl_ssl_engines_list(x) NULL
+#define Curl_ssl_engines_list(x) வெற்று
 #define Curl_ssl_free_certinfo(x) Curl_nop_stmt
-#define Curl_ssl_random(x, y, z) ((void)(x), CURLE_NOT_BUILT_IN)
+#define Curl_ssl_random(x, y, z) ((வெறுமை)(x), CURLE_NOT_BUILT_IN)
 #define Curl_ssl_cert_status_request() FALSE
 #define Curl_ssl_supports(a, b) FALSE
 #define Curl_ssl_cfilter_add(a, b, c, d) CURLE_NOT_BUILT_IN
 #define Curl_ssl_cfilter_remove(a, b, c) CURLE_OK
-#define Curl_ssl_cf_get_easy_config(a, b) NULL
-#define Curl_ssl_cf_get_filter_config(a) NULL
+#define Curl_ssl_cf_get_easy_config(a, b) வெற்று
+#define Curl_ssl_cf_get_filter_config(a) வெற்று
 #endif
 
 #endif /* HEADER_CURL_VTLS_H */

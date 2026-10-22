@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_SMTP
-extern const struct Curl_protocol Curl_protocol_smtp;
+வெளி மாறிலி கட்டமைப்பு Curl_protocol Curl_protocol_smtp;
 #endif
 
 #endif /* HEADER_CURL_SMTP_H */

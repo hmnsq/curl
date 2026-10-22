@@ -24,8 +24,8 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_GOPHER
-extern const struct Curl_protocol Curl_protocol_gopher;
-extern const struct Curl_protocol Curl_protocol_gophers;
+வெளி மாறிலி கட்டமைப்பு Curl_protocol Curl_protocol_gopher;
+வெளி மாறிலி கட்டமைப்பு Curl_protocol Curl_protocol_gophers;
 #endif
 
 #endif /* HEADER_CURL_GOPHER_H */

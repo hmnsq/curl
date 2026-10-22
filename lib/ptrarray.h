@@ -23,28 +23,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 /* An array of pointers with up to UINT32_MAX entries */
-struct ptrarray {
-  void **data; /* #capacity array of pointers */
+கட்டமைப்பு ptrarray {
+  வெறுமை **data; /* #capacity array of pointers */
   uint32_t n;
   uint32_t capacity;
 };
 
-void Curl_ptrarray_init(struct ptrarray *pa);
+வெறுமை Curl_ptrarray_init(கட்டமைப்பு ptrarray *pa);
 
-void Curl_ptrarray_clear(struct ptrarray *pa);
+வெறுமை Curl_ptrarray_clear(கட்டமைப்பு ptrarray *pa);
 
-uint32_t Curl_ptrarray_count(struct ptrarray *pa);
+uint32_t Curl_ptrarray_மொத்தம்(கட்டமைப்பு ptrarray *pa);
 
-CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr);
+CURLcode Curl_ptrarray_add(கட்டமைப்பு ptrarray *pa, வெறுமை *ptr);
 
-void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx);
+வெறுமை *Curl_ptrarray_remove(கட்டமைப்பு ptrarray *pa, uint32_t idx);
 
-void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx);
+வெறுமை *Curl_ptrarray_get(கட்டமைப்பு ptrarray *pa, uint32_t idx);
 
-#define CURL_PTRARRAY_COUNT(a)    ((a)->n)
-#define CURL_PTRARRAY_GET(a, i)   (((i) < ((a)->n)) ? (a)->data[(i)] : NULL)
+#define CURL_PTRARRAY_மொத்தம்(a)    ((a)->n)
+#define CURL_PTRARRAY_GET(a, i)   (((i) < ((a)->n)) ? (a)->data[(i)] : வெற்று)
 
 #endif /* HEADER_CURL_PTRARRAY_H */

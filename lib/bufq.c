@@ -21,69 +21,69 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "bufq.h"
+#அந்தர்பாவ "bufq.h"
 
-static bool chunk_is_empty(const struct buf_chunk *chunk)
+நிலையான bool chunk_is_empty(மாறிலி கட்டமைப்பு buf_chunk *chunk)
 {
-  return chunk->r_offset >= chunk->w_offset;
+  திரும்பு chunk->r_offset >= chunk->w_offset;
 }
 
-static bool chunk_is_full(const struct buf_chunk *chunk)
+நிலையான bool chunk_is_full(மாறிலி கட்டமைப்பு buf_chunk *chunk)
 {
-  return chunk->w_offset >= chunk->dlen;
+  திரும்பு chunk->w_offset >= chunk->dlen;
 }
 
-static size_t chunk_len(const struct buf_chunk *chunk)
+நிலையான size_t chunk_len(மாறிலி கட்டமைப்பு buf_chunk *chunk)
 {
-  return chunk->w_offset - chunk->r_offset;
+  திரும்பு chunk->w_offset - chunk->r_offset;
 }
 
-static void chunk_reset(struct buf_chunk *chunk)
+நிலையான வெறுமை chunk_reset(கட்டமைப்பு buf_chunk *chunk)
 {
-  chunk->next = NULL;
+  chunk->next = வெற்று;
   chunk->r_offset = chunk->w_offset = 0;
 }
 
-static size_t chunk_append(struct buf_chunk *chunk,
-                           const uint8_t *buf, size_t len)
+நிலையான size_t chunk_append(கட்டமைப்பு buf_chunk *chunk,
+                           மாறிலி uint8_t *buf, size_t len)
 {
   uint8_t *p = &chunk->x.data[chunk->w_offset];
   size_t n = chunk->dlen - chunk->w_offset;
   DEBUGASSERT(chunk->dlen >= chunk->w_offset);
-  if(n) {
+  எனில்(n) {
     n = CURLMIN(n, len);
     memcpy(p, buf, n);
     chunk->w_offset += n;
   }
-  return n;
+  திரும்பு n;
 }
 
-static size_t chunk_read(struct buf_chunk *chunk,
+நிலையான size_t chunk_read(கட்டமைப்பு buf_chunk *chunk,
                          uint8_t *buf, size_t len)
 {
   uint8_t *p = &chunk->x.data[chunk->r_offset];
   size_t n = chunk->w_offset - chunk->r_offset;
   DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
-  if(!n) {
-    return 0;
+  எனில்(!n) {
+    திரும்பு 0;
   }
-  else if(n <= len) {
+  இல்லையெனில் எனில்(n <= len) {
     memcpy(buf, p, n);
     chunk->r_offset = chunk->w_offset = 0;
-    return n;
+    திரும்பு n;
   }
-  else {
+  இல்லையெனில் {
     memcpy(buf, p, len);
     chunk->r_offset += len;
-    return len;
+    திரும்பு len;
   }
 }
 
-static CURLcode chunk_slurpn(struct buf_chunk *chunk, size_t max_len,
+நிலையான CURLcode chunk_slurpn(கட்டமைப்பு buf_chunk *chunk, size_t max_len,
                              Curl_bufq_reader *reader,
-                             void *reader_ctx, size_t *pnread)
+                             வெறுமை *reader_ctx, size_t *pnread)
 {
   uint8_t *p = &chunk->x.data[chunk->w_offset];
   size_t n = chunk->dlen - chunk->w_offset; /* free amount */
@@ -91,28 +91,28 @@ static CURLcode chunk_slurpn(struct buf_chunk *chunk, size_t max_len,
 
   *pnread = 0;
   DEBUGASSERT(chunk->dlen >= chunk->w_offset);
-  if(!n)
-    return CURLE_AGAIN;
-  if(max_len && n > max_len)
+  எனில்(!n)
+    திரும்பு CURLE_AGAIN;
+  எனில்(max_len && n > max_len)
     n = max_len;
   result = reader(reader_ctx, p, n, pnread);
-  if(!result) {
+  எனில்(!result) {
     DEBUGASSERT(*pnread <= n);
     chunk->w_offset += *pnread;
   }
-  return result;
+  திரும்பு result;
 }
 
-static void chunk_peek(const struct buf_chunk *chunk,
-                       const uint8_t **pbuf, size_t *plen)
+நிலையான வெறுமை chunk_peek(மாறிலி கட்டமைப்பு buf_chunk *chunk,
+                       மாறிலி uint8_t **pbuf, size_t *plen)
 {
   DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
   *pbuf = &chunk->x.data[chunk->r_offset];
   *plen = chunk->w_offset - chunk->r_offset;
 }
 
-static void chunk_peek_at(const struct buf_chunk *chunk, size_t offset,
-                          const uint8_t **pbuf, size_t *plen)
+நிலையான வெறுமை chunk_peek_at(மாறிலி கட்டமைப்பு buf_chunk *chunk, size_t offset,
+                          மாறிலி uint8_t **pbuf, size_t *plen)
 {
   offset += chunk->r_offset;
   DEBUGASSERT(chunk->w_offset >= offset);
@@ -120,426 +120,426 @@ static void chunk_peek_at(const struct buf_chunk *chunk, size_t offset,
   *plen = chunk->w_offset - offset;
 }
 
-static size_t chunk_skip(struct buf_chunk *chunk, size_t amount)
+நிலையான size_t chunk_skip(கட்டமைப்பு buf_chunk *chunk, size_t amount)
 {
   size_t n = chunk->w_offset - chunk->r_offset;
   DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
-  if(n) {
+  எனில்(n) {
     n = CURLMIN(n, amount);
     chunk->r_offset += n;
-    if(chunk->r_offset == chunk->w_offset)
+    எனில்(chunk->r_offset == chunk->w_offset)
       chunk->r_offset = chunk->w_offset = 0;
   }
-  return n;
+  திரும்பு n;
 }
 
-static void chunk_list_free(struct buf_chunk **anchor)
+நிலையான வெறுமை chunk_list_free(கட்டமைப்பு buf_chunk **anchor)
 {
-  struct buf_chunk *chunk;
-  while(*anchor) {
+  கட்டமைப்பு buf_chunk *chunk;
+  போது(*anchor) {
     chunk = *anchor;
     *anchor = chunk->next;
     curlx_free(chunk);
   }
 }
 
-void Curl_bufcp_init(struct bufc_pool *pool,
+வெறுமை Curl_bufcp_init(கட்டமைப்பு bufc_pool *pool,
                      size_t chunk_size, size_t spare_max)
 {
   DEBUGASSERT(chunk_size > 0);
   DEBUGASSERT(spare_max > 0);
-  memset(pool, 0, sizeof(*pool));
+  memset(pool, 0, அளவு(*pool));
   pool->chunk_size = chunk_size;
   pool->spare_max = spare_max;
 }
 
-static CURLcode bufcp_take(struct bufc_pool *pool,
-                           struct buf_chunk **pchunk)
+நிலையான CURLcode bufcp_take(கட்டமைப்பு bufc_pool *pool,
+                           கட்டமைப்பு buf_chunk **pchunk)
 {
-  struct buf_chunk *chunk = NULL;
+  கட்டமைப்பு buf_chunk *chunk = வெற்று;
 
-  if(pool->spare) {
+  எனில்(pool->spare) {
     chunk = pool->spare;
     pool->spare = chunk->next;
-    --pool->spare_count;
+    --pool->spare_மொத்தம்;
     chunk_reset(chunk);
     *pchunk = chunk;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
 
   /* Check for integer overflow before allocation */
-  if(pool->chunk_size > SIZE_MAX - sizeof(*chunk)) {
-    *pchunk = NULL;
-    return CURLE_OUT_OF_MEMORY;
+  எனில்(pool->chunk_size > SIZE_MAX - அளவு(*chunk)) {
+    *pchunk = வெற்று;
+    திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
-  chunk = curlx_calloc(1, sizeof(*chunk) + pool->chunk_size);
-  if(!chunk) {
-    *pchunk = NULL;
-    return CURLE_OUT_OF_MEMORY;
+  chunk = curlx_calloc(1, அளவு(*chunk) + pool->chunk_size);
+  எனில்(!chunk) {
+    *pchunk = வெற்று;
+    திரும்பு CURLE_OUT_OF_MEMORY;
   }
   chunk->dlen = pool->chunk_size;
   *pchunk = chunk;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static void bufcp_put(struct bufc_pool *pool,
-                      struct buf_chunk *chunk)
+நிலையான வெறுமை bufcp_put(கட்டமைப்பு bufc_pool *pool,
+                      கட்டமைப்பு buf_chunk *chunk)
 {
-  if(pool->spare_count >= pool->spare_max) {
+  எனில்(pool->spare_மொத்தம் >= pool->spare_max) {
     curlx_free(chunk);
   }
-  else {
+  இல்லையெனில் {
     chunk_reset(chunk);
     chunk->next = pool->spare;
     pool->spare = chunk;
-    ++pool->spare_count;
+    ++pool->spare_மொத்தம்;
   }
 }
 
-void Curl_bufcp_free(struct bufc_pool *pool)
+வெறுமை Curl_bufcp_free(கட்டமைப்பு bufc_pool *pool)
 {
   chunk_list_free(&pool->spare);
-  pool->spare_count = 0;
+  pool->spare_மொத்தம் = 0;
 }
 
-static void bufq_init(struct bufq *q, struct bufc_pool *pool,
-                      size_t chunk_size, size_t max_chunks, int opts)
+நிலையான வெறுமை bufq_init(கட்டமைப்பு bufq *q, கட்டமைப்பு bufc_pool *pool,
+                      size_t chunk_size, size_t max_chunks, முழு opts)
 {
   DEBUGASSERT(chunk_size > 0);
   DEBUGASSERT(max_chunks > 0);
-  memset(q, 0, sizeof(*q));
+  memset(q, 0, அளவு(*q));
   q->chunk_size = chunk_size;
   q->max_chunks = max_chunks;
   q->pool = pool;
   q->opts = opts;
 }
 
-void Curl_bufq_init2(struct bufq *q, size_t chunk_size, size_t max_chunks,
-                     int opts)
+வெறுமை Curl_bufq_init2(கட்டமைப்பு bufq *q, size_t chunk_size, size_t max_chunks,
+                     முழு opts)
 {
-  bufq_init(q, NULL, chunk_size, max_chunks, opts);
+  bufq_init(q, வெற்று, chunk_size, max_chunks, opts);
 }
 
-void Curl_bufq_init(struct bufq *q, size_t chunk_size, size_t max_chunks)
+வெறுமை Curl_bufq_init(கட்டமைப்பு bufq *q, size_t chunk_size, size_t max_chunks)
 {
-  bufq_init(q, NULL, chunk_size, max_chunks, BUFQ_OPT_NONE);
+  bufq_init(q, வெற்று, chunk_size, max_chunks, BUFQ_OPT_NONE);
 }
 
-void Curl_bufq_initp(struct bufq *q, struct bufc_pool *pool,
-                     size_t max_chunks, int opts)
+வெறுமை Curl_bufq_initp(கட்டமைப்பு bufq *q, கட்டமைப்பு bufc_pool *pool,
+                     size_t max_chunks, முழு opts)
 {
   bufq_init(q, pool, pool->chunk_size, max_chunks, opts);
 }
 
-void Curl_bufq_free(struct bufq *q)
+வெறுமை Curl_bufq_free(கட்டமைப்பு bufq *q)
 {
   chunk_list_free(&q->head);
   chunk_list_free(&q->spare);
-  q->tail = NULL;
-  q->chunk_count = 0;
+  q->tail = வெற்று;
+  q->chunk_மொத்தம் = 0;
 }
 
-void Curl_bufq_reset(struct bufq *q)
+வெறுமை Curl_bufq_reset(கட்டமைப்பு bufq *q)
 {
-  struct buf_chunk *chunk;
-  while(q->head) {
+  கட்டமைப்பு buf_chunk *chunk;
+  போது(q->head) {
     chunk = q->head;
     q->head = chunk->next;
     chunk->next = q->spare;
     q->spare = chunk;
   }
-  q->tail = NULL;
+  q->tail = வெற்று;
 }
 
-size_t Curl_bufq_len(const struct bufq *q)
+size_t Curl_bufq_len(மாறிலி கட்டமைப்பு bufq *q)
 {
-  const struct buf_chunk *chunk = q->head;
+  மாறிலி கட்டமைப்பு buf_chunk *chunk = q->head;
   size_t len = 0;
-  while(chunk) {
+  போது(chunk) {
     len += chunk_len(chunk);
     chunk = chunk->next;
   }
-  return len;
+  திரும்பு len;
 }
 
-bool Curl_bufq_is_empty(const struct bufq *q)
+bool Curl_bufq_is_empty(மாறிலி கட்டமைப்பு bufq *q)
 {
-  return !q->head || chunk_is_empty(q->head);
+  திரும்பு !q->head || chunk_is_empty(q->head);
 }
 
-bool Curl_bufq_is_full(const struct bufq *q)
+bool Curl_bufq_is_full(மாறிலி கட்டமைப்பு bufq *q)
 {
-  if(!q->tail || q->spare)
-    return FALSE;
-  if(q->chunk_count < q->max_chunks)
-    return FALSE;
-  if(q->chunk_count > q->max_chunks)
-    return TRUE;
+  எனில்(!q->tail || q->spare)
+    திரும்பு FALSE;
+  எனில்(q->chunk_மொத்தம் < q->max_chunks)
+    திரும்பு FALSE;
+  எனில்(q->chunk_மொத்தம் > q->max_chunks)
+    திரும்பு TRUE;
   /* we have no spares and cannot make more, is the tail full? */
-  return chunk_is_full(q->tail);
+  திரும்பு chunk_is_full(q->tail);
 }
 
-static struct buf_chunk *get_spare(struct bufq *q)
+நிலையான கட்டமைப்பு buf_chunk *get_spare(கட்டமைப்பு bufq *q)
 {
-  struct buf_chunk *chunk = NULL;
+  கட்டமைப்பு buf_chunk *chunk = வெற்று;
 
-  if(q->spare) {
+  எனில்(q->spare) {
     chunk = q->spare;
     q->spare = chunk->next;
     chunk_reset(chunk);
-    return chunk;
+    திரும்பு chunk;
   }
 
-  if(q->chunk_count >= q->max_chunks && (!(q->opts & BUFQ_OPT_SOFT_LIMIT)))
-    return NULL;
+  எனில்(q->chunk_மொத்தம் >= q->max_chunks && (!(q->opts & BUFQ_OPT_SOFT_LIMIT)))
+    திரும்பு வெற்று;
 
-  if(q->pool) {
-    if(bufcp_take(q->pool, &chunk))
-      return NULL;
-    ++q->chunk_count;
-    return chunk;
+  எனில்(q->pool) {
+    எனில்(bufcp_take(q->pool, &chunk))
+      திரும்பு வெற்று;
+    ++q->chunk_மொத்தம்;
+    திரும்பு chunk;
   }
-  else {
+  இல்லையெனில் {
     /* Check for integer overflow before allocation */
-    if(q->chunk_size > SIZE_MAX - sizeof(*chunk)) {
-      return NULL;
+    எனில்(q->chunk_size > SIZE_MAX - அளவு(*chunk)) {
+      திரும்பு வெற்று;
     }
 
-    chunk = curlx_calloc(1, sizeof(*chunk) + q->chunk_size);
-    if(!chunk)
-      return NULL;
+    chunk = curlx_calloc(1, அளவு(*chunk) + q->chunk_size);
+    எனில்(!chunk)
+      திரும்பு வெற்று;
     chunk->dlen = q->chunk_size;
-    ++q->chunk_count;
-    return chunk;
+    ++q->chunk_மொத்தம்;
+    திரும்பு chunk;
   }
 }
 
-static void prune_head(struct bufq *q)
+நிலையான வெறுமை prune_head(கட்டமைப்பு bufq *q)
 {
-  struct buf_chunk *chunk;
+  கட்டமைப்பு buf_chunk *chunk;
 
-  while(q->head && chunk_is_empty(q->head)) {
+  போது(q->head && chunk_is_empty(q->head)) {
     chunk = q->head;
     q->head = chunk->next;
-    if(q->tail == chunk)
+    எனில்(q->tail == chunk)
       q->tail = q->head;
-    if(q->pool) {
+    எனில்(q->pool) {
       bufcp_put(q->pool, chunk);
-      --q->chunk_count;
+      --q->chunk_மொத்தம்;
     }
-    else if((q->chunk_count > q->max_chunks) ||
+    இல்லையெனில் எனில்((q->chunk_மொத்தம் > q->max_chunks) ||
             (q->opts & BUFQ_OPT_NO_SPARES)) {
       /* SOFT_LIMIT allowed us more than max. free spares until
        * we are at max again. Or free them if we are configured
        * to not use spares. */
       curlx_free(chunk);
-      --q->chunk_count;
+      --q->chunk_மொத்தம்;
     }
-    else {
+    இல்லையெனில் {
       chunk->next = q->spare;
       q->spare = chunk;
     }
   }
 }
 
-static struct buf_chunk *get_non_full_tail(struct bufq *q)
+நிலையான கட்டமைப்பு buf_chunk *get_non_full_tail(கட்டமைப்பு bufq *q)
 {
-  struct buf_chunk *chunk;
+  கட்டமைப்பு buf_chunk *chunk;
 
-  if(q->tail && !chunk_is_full(q->tail))
-    return q->tail;
+  எனில்(q->tail && !chunk_is_full(q->tail))
+    திரும்பு q->tail;
   chunk = get_spare(q);
-  if(chunk) {
+  எனில்(chunk) {
     /* new tail, and possibly new head */
-    if(q->tail) {
+    எனில்(q->tail) {
       q->tail->next = chunk;
       q->tail = chunk;
     }
-    else {
+    இல்லையெனில் {
       DEBUGASSERT(!q->head);
       q->head = q->tail = chunk;
     }
   }
-  return chunk;
+  திரும்பு chunk;
 }
 
-CURLcode Curl_bufq_write(struct bufq *q,
-                         const uint8_t *buf, size_t len,
+CURLcode Curl_bufq_write(கட்டமைப்பு bufq *q,
+                         மாறிலி uint8_t *buf, size_t len,
                          size_t *pnwritten)
 {
-  struct buf_chunk *tail;
+  கட்டமைப்பு buf_chunk *tail;
   size_t n;
 
   DEBUGASSERT(q->max_chunks > 0);
   *pnwritten = 0;
-  while(len) {
+  போது(len) {
     tail = get_non_full_tail(q);
-    if(!tail) {
-      if((q->chunk_count < q->max_chunks) || (q->opts & BUFQ_OPT_SOFT_LIMIT))
+    எனில்(!tail) {
+      எனில்((q->chunk_மொத்தம் < q->max_chunks) || (q->opts & BUFQ_OPT_SOFT_LIMIT))
         /* should have gotten a tail, but did not */
-        return CURLE_OUT_OF_MEMORY;
-      break;
+        திரும்பு CURLE_OUT_OF_MEMORY;
+      நிறுத்து;
     }
     n = chunk_append(tail, buf, len);
-    if(!n)
-      break;
+    எனில்(!n)
+      நிறுத்து;
     *pnwritten += n;
     buf += n;
     len -= n;
   }
-  return (!*pnwritten && len) ? CURLE_AGAIN : CURLE_OK;
+  திரும்பு (!*pnwritten && len) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_cwrite(struct bufq *q,
-                          const char *buf, size_t len,
+CURLcode Curl_bufq_cwrite(கட்டமைப்பு bufq *q,
+                          மாறிலி எழுத்து *buf, size_t len,
                           size_t *pnwritten)
 {
-  return Curl_bufq_write(q, (const uint8_t *)buf, len, pnwritten);
+  திரும்பு Curl_bufq_write(q, (மாறிலி uint8_t *)buf, len, pnwritten);
 }
 
-CURLcode Curl_bufq_read(struct bufq *q, uint8_t *buf, size_t len,
+CURLcode Curl_bufq_read(கட்டமைப்பு bufq *q, uint8_t *buf, size_t len,
                         size_t *pnread)
 {
   *pnread = 0;
-  while(len && q->head) {
+  போது(len && q->head) {
     size_t n = chunk_read(q->head, buf, len);
-    if(n) {
+    எனில்(n) {
       *pnread += n;
       buf += n;
       len -= n;
     }
     prune_head(q);
   }
-  return (!*pnread) ? CURLE_AGAIN : CURLE_OK;
+  திரும்பு (!*pnread) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_cread(struct bufq *q, char *buf, size_t len,
+CURLcode Curl_bufq_cread(கட்டமைப்பு bufq *q, எழுத்து *buf, size_t len,
                          size_t *pnread)
 {
-  return Curl_bufq_read(q, (uint8_t *)buf, len, pnread);
+  திரும்பு Curl_bufq_read(q, (uint8_t *)buf, len, pnread);
 }
 
-bool Curl_bufq_peek(struct bufq *q,
-                    const uint8_t **pbuf, size_t *plen)
+bool Curl_bufq_peek(கட்டமைப்பு bufq *q,
+                    மாறிலி uint8_t **pbuf, size_t *plen)
 {
-  if(q->head && chunk_is_empty(q->head)) {
+  எனில்(q->head && chunk_is_empty(q->head)) {
     prune_head(q);
   }
-  if(q->head && !chunk_is_empty(q->head)) {
+  எனில்(q->head && !chunk_is_empty(q->head)) {
     chunk_peek(q->head, pbuf, plen);
-    return TRUE;
+    திரும்பு TRUE;
   }
-  *pbuf = NULL;
+  *pbuf = வெற்று;
   *plen = 0;
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-bool Curl_bufq_peek_at(struct bufq *q, size_t offset,
-                       const uint8_t **pbuf, size_t *plen)
+bool Curl_bufq_peek_at(கட்டமைப்பு bufq *q, size_t offset,
+                       மாறிலி uint8_t **pbuf, size_t *plen)
 {
-  struct buf_chunk *c = q->head;
+  கட்டமைப்பு buf_chunk *c = q->head;
   size_t clen;
 
-  while(c) {
+  போது(c) {
     clen = chunk_len(c);
-    if(!clen)
-      break;
-    if(offset >= clen) {
+    எனில்(!clen)
+      நிறுத்து;
+    எனில்(offset >= clen) {
       offset -= clen;
       c = c->next;
-      continue;
+      தொடர்;
     }
     chunk_peek_at(c, offset, pbuf, plen);
-    return TRUE;
+    திரும்பு TRUE;
   }
-  *pbuf = NULL;
+  *pbuf = வெற்று;
   *plen = 0;
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-void Curl_bufq_skip(struct bufq *q, size_t amount)
+வெறுமை Curl_bufq_skip(கட்டமைப்பு bufq *q, size_t amount)
 {
   size_t n;
 
-  while(amount && q->head) {
+  போது(amount && q->head) {
     n = chunk_skip(q->head, amount);
     amount -= n;
     prune_head(q);
   }
 }
 
-CURLcode Curl_bufq_pass(struct bufq *q, Curl_bufq_writer *writer,
-                        void *writer_ctx, size_t *pwritten)
+CURLcode Curl_bufq_pass(கட்டமைப்பு bufq *q, Curl_bufq_writer *writer,
+                        வெறுமை *writer_ctx, size_t *pwritten)
 {
-  const uint8_t *buf;
+  மாறிலி uint8_t *buf;
   size_t blen;
   CURLcode result = CURLE_OK;
 
   *pwritten = 0;
-  while(Curl_bufq_peek(q, &buf, &blen)) {
+  போது(Curl_bufq_peek(q, &buf, &blen)) {
     size_t chunk_written;
 
     result = writer(writer_ctx, buf, blen, &chunk_written);
-    if(result) {
-      if((result == CURLE_AGAIN) && *pwritten) {
+    எனில்(result) {
+      எனில்((result == CURLE_AGAIN) && *pwritten) {
         /* blocked on subsequent write, report success */
         result = CURLE_OK;
       }
-      break;
+      நிறுத்து;
     }
-    if(!chunk_written) {
-      if(!*pwritten) {
+    எனில்(!chunk_written) {
+      எனில்(!*pwritten) {
         /* treat as blocked */
         result = CURLE_AGAIN;
       }
-      break;
+      நிறுத்து;
     }
     *pwritten += chunk_written;
     Curl_bufq_skip(q, chunk_written);
   }
-  return result;
+  திரும்பு result;
 }
 
-CURLcode Curl_bufq_write_pass(struct bufq *q,
-                              const uint8_t *buf, size_t len,
-                              Curl_bufq_writer *writer, void *writer_ctx,
+CURLcode Curl_bufq_write_pass(கட்டமைப்பு bufq *q,
+                              மாறிலி uint8_t *buf, size_t len,
+                              Curl_bufq_writer *writer, வெறுமை *writer_ctx,
                               size_t *pwritten)
 {
   CURLcode result = CURLE_OK;
   size_t n;
 
   *pwritten = 0;
-  while(len) {
-    if(Curl_bufq_is_full(q)) {
+  போது(len) {
+    எனில்(Curl_bufq_is_full(q)) {
       /* try to make room in case we are full */
       result = Curl_bufq_pass(q, writer, writer_ctx, &n);
-      if(result) {
-        if(result != CURLE_AGAIN) {
+      எனில்(result) {
+        எனில்(result != CURLE_AGAIN) {
           /* real error, fail */
-          return result;
+          திரும்பு result;
         }
         /* would block, bufq is full, give up */
-        break;
+        நிறுத்து;
       }
     }
 
     /* Add to bufq as much as there is room for */
     result = Curl_bufq_write(q, buf, len, &n);
-    if(result) {
-      if(result != CURLE_AGAIN)
+    எனில்(result) {
+      எனில்(result != CURLE_AGAIN)
         /* real error, fail */
-        return result;
+        திரும்பு result;
       /* result == CURLE_AGAIN */
-      if(*pwritten)
+      எனில்(*pwritten)
         /* we did write successfully before */
         result = CURLE_OK;
-      return result;
+      திரும்பு result;
     }
-    else if(n == 0)
+    இல்லையெனில் எனில்(n == 0)
       /* edge case of writer returning 0 (and len is >0)
        * break or we might enter an infinite loop here */
-      break;
+      நிறுத்து;
 
     /* Track what we added to bufq */
     buf += n;
@@ -547,25 +547,25 @@ CURLcode Curl_bufq_write_pass(struct bufq *q,
     *pwritten += n;
   }
 
-  return (!*pwritten && len) ? CURLE_AGAIN : CURLE_OK;
+  திரும்பு (!*pwritten && len) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
-                        Curl_bufq_reader *reader, void *reader_ctx,
+CURLcode Curl_bufq_sipn(கட்டமைப்பு bufq *q, size_t max_len,
+                        Curl_bufq_reader *reader, வெறுமை *reader_ctx,
                         size_t *pnread)
 {
-  struct buf_chunk *tail = NULL;
+  கட்டமைப்பு buf_chunk *tail = வெற்று;
 
   *pnread = 0;
   tail = get_non_full_tail(q);
-  if(!tail) {
-    if(q->chunk_count < q->max_chunks)
-      return CURLE_OUT_OF_MEMORY;
+  எனில்(!tail) {
+    எனில்(q->chunk_மொத்தம் < q->max_chunks)
+      திரும்பு CURLE_OUT_OF_MEMORY;
     /* full, blocked */
-    return CURLE_AGAIN;
+    திரும்பு CURLE_AGAIN;
   }
 
-  return chunk_slurpn(tail, max_len, reader, reader_ctx, pnread);
+  திரும்பு chunk_slurpn(tail, max_len, reader, reader_ctx, pnread);
 }
 
 /**
@@ -576,44 +576,44 @@ CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
  * Note that even in case of an error chunks may have been read and
  * the buffer queue will have different length than before.
  */
-static CURLcode bufq_slurpn(struct bufq *q, size_t max_len,
-                            Curl_bufq_reader *reader, void *reader_ctx,
+நிலையான CURLcode bufq_slurpn(கட்டமைப்பு bufq *q, size_t max_len,
+                            Curl_bufq_reader *reader, வெறுமை *reader_ctx,
                             size_t *pnread)
 {
   CURLcode result;
 
   *pnread = 0;
-  while(1) {
+  போது(1) {
     size_t n;
     result = Curl_bufq_sipn(q, max_len, reader, reader_ctx, &n);
-    if(result) {
-      if(!*pnread || result != CURLE_AGAIN) {
+    எனில்(result) {
+      எனில்(!*pnread || result != CURLE_AGAIN) {
         /* blocked on first read or real error, fail */
-        return result;
+        திரும்பு result;
       }
       result = CURLE_OK;
-      break;
+      நிறுத்து;
     }
-    else if(n == 0) {
+    இல்லையெனில் எனில்(n == 0) {
       /* eof, result remains CURLE_OK */
-      break;
+      நிறுத்து;
     }
     *pnread += n;
-    if(max_len) {
+    எனில்(max_len) {
       DEBUGASSERT(n <= max_len);
       max_len -= n;
-      if(!max_len)
-        break;
+      எனில்(!max_len)
+        நிறுத்து;
     }
     /* give up slurping when we get less bytes than we asked for */
-    if(q->tail && !chunk_is_full(q->tail))
-      break;
+    எனில்(q->tail && !chunk_is_full(q->tail))
+      நிறுத்து;
   }
-  return result;
+  திரும்பு result;
 }
 
-CURLcode Curl_bufq_slurp(struct bufq *q, Curl_bufq_reader *reader,
-                         void *reader_ctx, size_t *pnread)
+CURLcode Curl_bufq_slurp(கட்டமைப்பு bufq *q, Curl_bufq_reader *reader,
+                         வெறுமை *reader_ctx, size_t *pnread)
 {
-  return bufq_slurpn(q, 0, reader, reader_ctx, pnread);
+  திரும்பு bufq_slurpn(q, 0, reader, reader_ctx, pnread);
 }

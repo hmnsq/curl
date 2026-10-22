@@ -21,226 +21,226 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#எனில் !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "select.h"
-#include "vquic/capsule.h"
-#include "vquic/cf-capsule.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "cfilters.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "bufq.h"
+#அந்தர்பாவ "select.h"
+#அந்தர்பாவ "vquic/capsule.h"
+#அந்தர்பாவ "vquic/cf-capsule.h"
 
 /* send/recv buffer: 4 chunks of 16KB = 64KB, enough for large datagrams */
 #define CAPSULE_RECV_CHUNKS    4
 #define CAPSULE_SEND_CHUNKS    4
 #define CAPSULE_CHUNK_SIZE     (16 * 1024)
 
-struct cf_capsule_ctx {
-  struct bufq recvbuf;
-  struct bufq sendbuf;
+கட்டமைப்பு cf_capsule_ctx {
+  கட்டமைப்பு bufq recvbuf;
+  கட்டமைப்பு bufq sendbuf;
 };
 
-static void cf_capsule_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+நிலையான வெறுமை cf_capsule_destroy(கட்டமைப்பு Curl_cfilter *cf,
+                               கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  கட்டமைப்பு cf_capsule_ctx *ctx = cf->ctx;
+  (வெறுமை)data;
+  எனில்(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_safefree(ctx);
   }
 }
 
-static CURLcode cf_capsule_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
+நிலையான CURLcode cf_capsule_connect(கட்டமைப்பு Curl_cfilter *cf,
+                                   கட்டமைப்பு Curl_easy *data,
                                    bool *done)
 {
-  if(cf->connected) {
+  எனில்(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
-  if(cf->next) {
+  எனில்(cf->next) {
     CURLcode result = cf->next->cft->do_connect(cf->next, data, done);
-    if(!result && *done)
+    எனில்(!result && *done)
       cf->connected = TRUE;
-    return result;
+    திரும்பு result;
   }
   *done = FALSE;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode cf_capsule_flush(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+நிலையான CURLcode cf_capsule_flush(கட்டமைப்பு Curl_cfilter *cf,
+                                 கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_capsule_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
   size_t nwritten;
 
-  if(Curl_bufq_is_empty(&ctx->sendbuf))
-    return CURLE_OK;
+  எனில்(Curl_bufq_is_empty(&ctx->sendbuf))
+    திரும்பு CURLE_OK;
 
-  result = Curl_cf_send_bufq(cf->next, data, &ctx->sendbuf, NULL, 0,
+  result = Curl_cf_send_bufq(cf->next, data, &ctx->sendbuf, வெற்று, 0,
                              &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  எனில்(result) {
+    எனில்(result == CURLE_AGAIN) {
       CURL_TRC_CF(data, cf, "flush send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->sendbuf));
     }
-    return result;
+    திரும்பு result;
   }
-  return Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
+  திரும்பு Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static CURLcode cf_capsule_send(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const uint8_t *buf, size_t len,
+நிலையான CURLcode cf_capsule_send(கட்டமைப்பு Curl_cfilter *cf,
+                                கட்டமைப்பு Curl_easy *data,
+                                மாறிலி uint8_t *buf, size_t len,
                                 bool eos, size_t *pnwritten)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_capsule_ctx *ctx = cf->ctx;
   CURLcode result;
 
-  (void)eos;
+  (வெறுமை)eos;
   *pnwritten = 0;
 
-  if(Curl_bufq_is_full(&ctx->sendbuf)) {
+  எனில்(Curl_bufq_is_full(&ctx->sendbuf)) {
     result = cf_capsule_flush(cf, data);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
   }
 
   /* encapsulate new payload into a capsule */
   result = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
   result = cf_capsule_flush(cf, data);
-  if(result == CURLE_AGAIN) {
+  எனில்(result == CURLE_AGAIN) {
     /* Could not send it (or all), report success nevertheless as we
      * have the payload buffered now and will flush it later. */
     result = CURLE_OK;
   }
 
-  if(!result)
+  எனில்(!result)
     *pnwritten = len;
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_capsule_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+நிலையான CURLcode cf_capsule_recv(கட்டமைப்பு Curl_cfilter *cf,
+                                கட்டமைப்பு Curl_easy *data,
+                                எழுத்து *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_capsule_ctx *ctx = cf->ctx;
   CURLcode result;
   size_t nread;
 
   *pnread = 0;
 
   /* fill our receive buffer from the filter below */
-  while(!Curl_bufq_is_full(&ctx->recvbuf)) {
+  போது(!Curl_bufq_is_full(&ctx->recvbuf)) {
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->recvbuf, 0, &nread);
-    if(result == CURLE_AGAIN)
-      break;
-    if(result)
-      return result;
-    if(!nread)
-      break;
+    எனில்(result == CURLE_AGAIN)
+      நிறுத்து;
+    எனில்(result)
+      திரும்பு result;
+    எனில்(!nread)
+      நிறுத்து;
   }
 
   /* try to extract a complete capsule datagram */
   *pnread = Curl_capsule_process_udp_raw(cf, data, &ctx->recvbuf,
-                                         (unsigned char *)buf, len,
+                                         (unsigned எழுத்து *)buf, len,
                                          &result);
-  return result;
+  திரும்பு result;
 }
 
-static bool cf_capsule_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+நிலையான bool cf_capsule_data_pending(கட்டமைப்பு Curl_cfilter *cf,
+                                    மாறிலி கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_capsule_ctx *ctx = cf->ctx;
 
-  if(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  எனில்(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
+    திரும்பு TRUE;
+  திரும்பு cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-static CURLcode cf_capsule_cntrl(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int event, int arg1, void *arg2)
+நிலையான CURLcode cf_capsule_cntrl(கட்டமைப்பு Curl_cfilter *cf,
+                                 கட்டமைப்பு Curl_easy *data,
+                                 முழு event, முழு arg1, வெறுமை *arg2)
 {
   CURLcode result = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_FLUSH:
+  (வெறுமை)arg1;
+  (வெறுமை)arg2;
+  தேர்வு(event) {
+  நிலை CF_CTRL_FLUSH:
     result = cf_capsule_flush(cf, data);
-    break;
-  default:
-    break;
+    நிறுத்து;
+  இயல்பு:
+    நிறுத்து;
   }
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_capsule_query(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int query, int *pres1, void *pres2)
+நிலையான CURLcode cf_capsule_query(கட்டமைப்பு Curl_cfilter *cf,
+                                 கட்டமைப்பு Curl_easy *data,
+                                 முழு query, முழு *pres1, வெறுமை *pres2)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_capsule_ctx *ctx = cf->ctx;
 
-  (void)pres2;
-  switch(query) {
-  case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+  (வெறுமை)pres2;
+  தேர்வு(query) {
+  நிலை CF_QUERY_NEED_FLUSH: {
+    எனில்(!Curl_bufq_is_empty(&ctx->sendbuf)) {
       *pres1 = TRUE;
-      return CURLE_OK;
+      திரும்பு CURLE_OK;
     }
-    break;
+    நிறுத்து;
   }
-  default:
-    break;
+  இயல்பு:
+    நிறுத்து;
   }
-  return cf->next ?
+  திரும்பு cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_capsule_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+நிலையான CURLcode cf_capsule_adjust_pollset(கட்டமைப்பு Curl_cfilter *cf,
+                                          கட்டமைப்பு Curl_easy *data,
+                                          கட்டமைப்பு easy_pollset *ps)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_capsule_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+  எனில்(!Curl_bufq_is_empty(&ctx->sendbuf)) {
     curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    if(sock != CURL_SOCKET_BAD)
-      return Curl_pollset_add_out(data, ps, sock);
+    எனில்(sock != CURL_SOCKET_BAD)
+      திரும்பு Curl_pollset_add_out(data, ps, sock);
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode cf_capsule_shutdown(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data, bool *done)
+நிலையான CURLcode cf_capsule_shutdown(கட்டமைப்பு Curl_cfilter *cf,
+                                    கட்டமைப்பு Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
 
-  if(!cf->connected || cf->shutdown) {
+  எனில்(!cf->connected || cf->shutdown) {
     *done = TRUE;
   }
-  else {
+  இல்லையெனில் {
     result = cf_capsule_flush(cf, data);
     *done = !result;
-    if(result == CURLE_AGAIN)
+    எனில்(result == CURLE_AGAIN)
       result = CURLE_OK;
   }
-  return result;
+  திரும்பு result;
 }
 
-struct Curl_cftype Curl_cft_capsule = {
+கட்டமைப்பு Curl_cftype Curl_cft_capsule = {
   "CAPSULE",
   0,
   0,
@@ -257,21 +257,21 @@ struct Curl_cftype Curl_cft_capsule = {
   cf_capsule_query,
 };
 
-static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn)
+நிலையான CURLcode cf_capsule_create(கட்டமைப்பு Curl_cfilter **pcf,
+                                  கட்டமைப்பு Curl_easy *data,
+                                  கட்டமைப்பு connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_capsule_ctx *ctx;
+  கட்டமைப்பு Curl_cfilter *cf = வெற்று;
+  கட்டமைப்பு cf_capsule_ctx *ctx;
   CURLcode result;
 
-  (void)data;
-  (void)conn;
-  *pcf = NULL;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  (வெறுமை)data;
+  (வெறுமை)conn;
+  *pcf = வெற்று;
+  ctx = curlx_calloc(1, அளவு(*ctx));
+  எனில்(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    செல் out;
   }
 
   Curl_bufq_init2(&ctx->recvbuf, CAPSULE_CHUNK_SIZE, CAPSULE_RECV_CHUNKS,
@@ -282,25 +282,25 @@ static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
   result = Curl_cf_create(&cf, &Curl_cft_capsule, ctx);
 
 out:
-  *pcf = (!result) ? cf : NULL;
-  if(result && ctx) {
+  *pcf = (!result) ? cf : வெற்று;
+  எனில்(result && ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_free(ctx);
   }
-  return result;
+  திரும்பு result;
 }
 
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_capsule_செருகு_after(கட்டமைப்பு Curl_cfilter *cf_at,
+                                      கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_cfilter *cf;
+  கட்டமைப்பு Curl_cfilter *cf;
   CURLcode result;
 
   result = cf_capsule_create(&cf, data, cf_at->conn);
-  if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
-  return result;
+  எனில்(!result)
+    Curl_conn_cf_செருகு_after(cf_at, cf);
+  திரும்பு result;
 }
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

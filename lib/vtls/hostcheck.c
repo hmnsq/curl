@@ -21,30 +21,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if defined(USE_OPENSSL) || defined(USE_SCHANNEL)
+#எனில் defined(USE_OPENSSL) || defined(USE_SCHANNEL)
 /* these backends use functions from this file */
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#அந்தர்பாவ <netinet/in.h>
 #endif
 #ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
+#அந்தர்பாவ <netinet/in6.h>
 #endif
 
-#include "curl_memrchr.h"
-#include "vdns/hostip.h"
-#include "vtls/hostcheck.h"
+#அந்தர்பாவ "curl_memrchr.h"
+#அந்தர்பாவ "vdns/hostip.h"
+#அந்தர்பாவ "vtls/hostcheck.h"
 
 /* check the two input strings with given length, but do not
    assume they are null-terminated */
-static bool pmatch(const char *hostname, size_t hostlen,
-                   const char *pattern, size_t patternlen)
+நிலையான bool pmatch(மாறிலி எழுத்து *hostname, size_t hostlen,
+                   மாறிலி எழுத்து *pattern, size_t patternlen)
 {
-  if(hostlen != patternlen)
-    return FALSE;
-  return curl_strnequal(hostname, pattern, hostlen);
+  எனில்(hostlen != patternlen)
+    திரும்பு FALSE;
+  திரும்பு curl_strnequal(hostname, pattern, hostlen);
 }
 
 /*
@@ -73,12 +73,12 @@ static bool pmatch(const char *hostname, size_t hostlen,
  * @unittest: 1397
  */
 
-static bool hostmatch(const char *hostname,
+நிலையான bool hostmatch(மாறிலி எழுத்து *hostname,
                       size_t hostlen,
-                      const char *pattern,
+                      மாறிலி எழுத்து *pattern,
                       size_t patternlen)
 {
-  const char *pattern_label_end;
+  மாறிலி எழுத்து *pattern_label_end;
 
   DEBUGASSERT(pattern);
   DEBUGASSERT(patternlen);
@@ -86,45 +86,45 @@ static bool hostmatch(const char *hostname,
   DEBUGASSERT(hostlen);
 
   /* normalize pattern and hostname by stripping off trailing dots */
-  if(hostlen > 0 && hostname[hostlen - 1] == '.')
+  எனில்(hostlen > 0 && hostname[hostlen - 1] == '.')
     hostlen--;
-  if(patternlen > 0 && pattern[patternlen - 1] == '.')
+  எனில்(patternlen > 0 && pattern[patternlen - 1] == '.')
     patternlen--;
 
-  if(patternlen > 2 && strncmp(pattern, "*.", 2))
-    return pmatch(hostname, hostlen, pattern, patternlen);
+  எனில்(patternlen > 2 && strncmp(pattern, "*.", 2))
+    திரும்பு pmatch(hostname, hostlen, pattern, patternlen);
 
   /* detect host as IP address or starting with a dot and fail if so */
-  else if(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
-    return FALSE;
+  இல்லையெனில் எனில்(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
+    திரும்பு FALSE;
 
   /* We require at least 2 dots in the pattern to avoid too wide wildcard
      match. */
   pattern_label_end = memchr(pattern, '.', patternlen);
-  if(!pattern_label_end ||
+  எனில்(!pattern_label_end ||
      (memrchr(pattern, '.', patternlen) == pattern_label_end))
-    return pmatch(hostname, hostlen, pattern, patternlen);
-  else {
-    const char *hostname_label_end = memchr(hostname, '.', hostlen);
-    if(hostname_label_end) {
+    திரும்பு pmatch(hostname, hostlen, pattern, patternlen);
+  இல்லையெனில் {
+    மாறிலி எழுத்து *hostname_label_end = memchr(hostname, '.', hostlen);
+    எனில்(hostname_label_end) {
       size_t skiphost = hostname_label_end - hostname;
       size_t skiplen = pattern_label_end - pattern;
-      return pmatch(hostname_label_end, hostlen - skiphost,
+      திரும்பு pmatch(hostname_label_end, hostlen - skiphost,
                     pattern_label_end, patternlen - skiplen);
     }
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 /*
  * Curl_cert_hostcheck() returns TRUE if a match and FALSE if not.
  */
-bool Curl_cert_hostcheck(const char *match, size_t matchlen,
-                         const char *hostname, size_t hostlen)
+bool Curl_cert_hostcheck(மாறிலி எழுத்து *match, size_t matchlen,
+                         மாறிலி எழுத்து *hostname, size_t hostlen)
 {
-  if(matchlen > 0 && hostlen > 0)
-    return hostmatch(hostname, hostlen, match, matchlen);
-  return FALSE;
+  எனில்(matchlen > 0 && hostlen > 0)
+    திரும்பு hostmatch(hostname, hostlen, match, matchlen);
+  திரும்பு FALSE;
 }
 
 #endif /* USE_OPENSSL || USE_SCHANNEL */

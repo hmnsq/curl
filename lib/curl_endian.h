@@ -25,12 +25,12 @@
  ***************************************************************************/
 
 /* Converts a 16-bit integer from little endian */
-unsigned short Curl_read16_le(const unsigned char *buf);
+unsigned short Curl_read16_le(மாறிலி unsigned எழுத்து *buf);
 
 /* Converts a 32-bit integer from little endian */
-unsigned int Curl_read32_le(const unsigned char *buf);
+unsigned முழு Curl_read32_le(மாறிலி unsigned எழுத்து *buf);
 
 /* Converts a 16-bit integer from big endian */
-unsigned short Curl_read16_be(const unsigned char *buf);
+unsigned short Curl_read16_be(மாறிலி unsigned எழுத்து *buf);
 
 #endif /* HEADER_CURL_ENDIAN_H */

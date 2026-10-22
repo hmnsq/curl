@@ -32,22 +32,22 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
+#எனில் !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || \
   !defined(CURL_DISABLE_POP3) ||                                  \
   (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-#include "urldata.h"
-#include "curlx/base64.h"
-#include "vauth/vauth.h"
-#include "cfilters.h"
-#include "curl_sasl.h"
-#include "curl_trc.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "curlx/base64.h"
+#அந்தர்பாவ "vauth/vauth.h"
+#அந்தர்பாவ "cfilters.h"
+#அந்தர்பாவ "curl_sasl.h"
+#அந்தர்பாவ "curl_trc.h"
 
 /* Supported mechanisms */
-static const struct {
-  const char    *name;  /* Name */
+நிலையான மாறிலி கட்டமைப்பு {
+  மாறிலி எழுத்து    *name;  /* Name */
   size_t         len;   /* Name length */
   unsigned short bit;   /* Flag bit */
 } mechtable[] = {
@@ -78,28 +78,28 @@ static const struct {
  *
  * Returns the SASL mechanism token or 0 if no match.
  */
-unsigned short Curl_sasl_decode_mech(const char *ptr, size_t maxlen,
+unsigned short Curl_sasl_decode_mech(மாறிலி எழுத்து *ptr, size_t maxlen,
                                      size_t *len)
 {
-  unsigned int i;
-  char c;
+  unsigned முழு i;
+  எழுத்து c;
 
-  for(i = 0; mechtable[i].name; i++) {
-    if(maxlen >= mechtable[i].len &&
+  க்கு(i = 0; mechtable[i].name; i++) {
+    எனில்(maxlen >= mechtable[i].len &&
        curl_strnequal(ptr, mechtable[i].name, mechtable[i].len)) {
-      if(len)
+      எனில்(len)
         *len = mechtable[i].len;
 
-      if(maxlen == mechtable[i].len)
-        return mechtable[i].bit;
+      எனில்(maxlen == mechtable[i].len)
+        திரும்பு mechtable[i].bit;
 
       c = ptr[mechtable[i].len];
-      if(!ISUPPER(c) && !ISDIGIT(c) && c != '-' && c != '_')
-        return mechtable[i].bit;
+      எனில்(!ISUPPER(c) && !ISDIGIT(c) && c != '-' && c != '_')
+        திரும்பு mechtable[i].bit;
     }
   }
 
-  return 0;
+  திரும்பு 0;
 }
 
 /*
@@ -107,31 +107,31 @@ unsigned short Curl_sasl_decode_mech(const char *ptr, size_t maxlen,
  *
  * Parse the URL login options.
  */
-CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len)
+CURLcode Curl_sasl_parse_url_auth_option(கட்டமைப்பு SASL *sasl,
+                                         மாறிலி எழுத்து *மதிப்பு, size_t len)
 {
   CURLcode result = CURLE_OK;
   size_t mechlen;
 
-  if(!len)
-    return CURLE_URL_MALFORMAT;
+  எனில்(!len)
+    திரும்பு CURLE_URL_MALFORMAT;
 
-  if(sasl->resetprefs) {
+  எனில்(sasl->resetprefs) {
     sasl->resetprefs = FALSE;
     sasl->prefmech = SASL_AUTH_NONE;
   }
 
-  if(!strncmp(value, "*", len))
+  எனில்(!strncmp(மதிப்பு, "*", len))
     sasl->prefmech = SASL_AUTH_DEFAULT;
-  else {
-    unsigned short mechbit = Curl_sasl_decode_mech(value, len, &mechlen);
-    if(mechbit && mechlen == len)
+  இல்லையெனில் {
+    unsigned short mechbit = Curl_sasl_decode_mech(மதிப்பு, len, &mechlen);
+    எனில்(mechbit && mechlen == len)
       sasl->prefmech |= mechbit;
-    else
+    இல்லையெனில்
       result = CURLE_URL_MALFORMAT;
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /*
@@ -139,14 +139,14 @@ CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
  *
  * Initializes the SASL structure.
  */
-void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
-                    const struct SASLproto *params)
+வெறுமை Curl_sasl_init(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data,
+                    மாறிலி கட்டமைப்பு SASLproto *params)
 {
   uint32_t auth = data->set.httpauth;
 
   sasl->params = params;           /* Set protocol dependent parameters */
   sasl->state = SASL_STOP;         /* Not yet running */
-  sasl->curmech = NULL;            /* No mechanism yet. */
+  sasl->curmech = வெற்று;            /* No mechanism yet. */
   sasl->authmechs = SASL_AUTH_NONE; /* No known authentication mechanism yet */
   sasl->prefmech = params->defmechs; /* Default preferred mechanisms */
   sasl->authused = SASL_AUTH_NONE; /* The authentication mechanism used */
@@ -154,23 +154,23 @@ void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
   sasl->mutual_auth = FALSE;       /* No mutual authentication (GSSAPI only) */
   sasl->force_ir = FALSE;          /* Respect external option */
 
-  if(auth != CURLAUTH_BASIC) {
+  எனில்(auth != CURLAUTH_BASIC) {
     unsigned short mechs = SASL_AUTH_NONE;
 
     /* If some usable http authentication options have been set, determine
        new defaults from them. */
-    if(auth & CURLAUTH_BASIC)
+    எனில்(auth & CURLAUTH_BASIC)
       mechs |= SASL_MECH_PLAIN | SASL_MECH_LOGIN;
-    if(auth & CURLAUTH_DIGEST)
+    எனில்(auth & CURLAUTH_DIGEST)
       mechs |= SASL_MECH_DIGEST_MD5;
-    if(auth & CURLAUTH_NTLM)
+    எனில்(auth & CURLAUTH_NTLM)
       mechs |= SASL_MECH_NTLM;
-    if(auth & CURLAUTH_BEARER)
+    எனில்(auth & CURLAUTH_BEARER)
       mechs |= SASL_MECH_OAUTHBEARER | SASL_MECH_XOAUTH2;
-    if(auth & CURLAUTH_GSSAPI)
+    எனில்(auth & CURLAUTH_GSSAPI)
       mechs |= SASL_MECH_GSSAPI;
 
-    if(mechs != SASL_AUTH_NONE)
+    எனில்(mechs != SASL_AUTH_NONE)
       sasl->prefmech = mechs;
   }
 }
@@ -180,12 +180,12 @@ void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
  *
  * This is the ONLY way to change SASL state!
  */
-static void sasl_state(struct SASL *sasl, struct Curl_easy *data,
+நிலையான வெறுமை sasl_state(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data,
                        saslstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#எனில் defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
-  static const char * const names[] = {
+  நிலையான மாறிலி எழுத்து * மாறிலி names[] = {
     "STOP",
     "PLAIN",
     "LOGIN",
@@ -207,63 +207,63 @@ static void sasl_state(struct SASL *sasl, struct Curl_easy *data,
     /* LAST */
   };
 
-  if(sasl->state != newstate)
+  எனில்(sasl->state != newstate)
     infof(data, "SASL %p state change from %s to %s",
-          (void *)sasl, names[sasl->state], names[newstate]);
-#else
-  (void)data;
+          (வெறுமை *)sasl, names[sasl->state], names[newstate]);
+#இல்லையெனில்
+  (வெறுமை)data;
 #endif
 
   sasl->state = newstate;
 }
 
-#if defined(USE_NTLM) || defined(USE_GSASL) || defined(USE_KERBEROS5) || \
+#எனில் defined(USE_NTLM) || defined(USE_GSASL) || defined(USE_KERBEROS5) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 /* Get the SASL server message and convert it to binary. */
-static CURLcode get_server_message(struct SASL *sasl, struct Curl_easy *data,
-                                   struct bufref *out)
+நிலையான CURLcode get_server_message(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data,
+                                   கட்டமைப்பு bufref *out)
 {
   CURLcode result = CURLE_OK;
 
   result = sasl->params->getmessage(data, out);
-  if(!result && (sasl->params->flags & SASL_FLAG_BASE64)) {
-    const char *serverdata = Curl_bufref_ptr(out);
+  எனில்(!result && (sasl->params->flags & SASL_FLAG_BASE64)) {
+    மாறிலி எழுத்து *serverdata = Curl_bufref_ptr(out);
 
-    if(!*serverdata)
-      Curl_bufref_set(out, NULL, 0, NULL);
-    else {
-      unsigned char *msg;
+    எனில்(!*serverdata)
+      Curl_bufref_set(out, வெற்று, 0, வெற்று);
+    இல்லையெனில் {
+      unsigned எழுத்து *செய்தி;
       size_t msglen;
 
-      result = curlx_base64_decode(serverdata, &msg, &msglen);
-      if(!result)
-        Curl_bufref_set(out, msg, msglen, curl_free);
+      result = curlx_base64_decode(serverdata, &செய்தி, &msglen);
+      எனில்(!result)
+        Curl_bufref_set(out, செய்தி, msglen, curl_free);
     }
   }
-  return result;
+  திரும்பு result;
 }
 #endif
 
 /* Encode the outgoing SASL message. */
-static CURLcode build_message(struct SASL *sasl, struct bufref *msg)
+நிலையான CURLcode build_message(கட்டமைப்பு SASL *sasl, கட்டமைப்பு bufref *செய்தி)
 {
   CURLcode result = CURLE_OK;
 
-  if(sasl->params->flags & SASL_FLAG_BASE64) {
-    if(!Curl_bufref_ptr(msg))                   /* Empty message. */
-      Curl_bufref_set(msg, "", 0, NULL);
-    else if(Curl_bufref_len(msg)) {
-      char *base64;
+  எனில்(sasl->params->flags & SASL_FLAG_BASE64) {
+    எனில்(!Curl_bufref_ptr(செய்தி))                   /* Empty message. */
+      Curl_bufref_set(செய்தி, "", 0, வெற்று);
+    இல்லையெனில் எனில்(Curl_bufref_len(செய்தி)) {
+      எழுத்து *base64;
       size_t base64len;
 
-      result = curlx_base64_encode(Curl_bufref_uptr(msg),
-                                   Curl_bufref_len(msg), &base64, &base64len);
-      if(!result)
-        Curl_bufref_set(msg, base64, base64len, curl_free);
+      result = curlx_base64_encode(Curl_bufref_uptr(செய்தி),
+                                   Curl_bufref_len(செய்தி), &base64, &base64len);
+      எனில்(!result)
+        Curl_bufref_set(செய்தி, base64, base64len, curl_free);
     }
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /*
@@ -271,53 +271,53 @@ static CURLcode build_message(struct SASL *sasl, struct bufref *msg)
  *
  * Check if we have enough auth data and capabilities to authenticate.
  */
-bool Curl_sasl_can_authenticate(struct SASL *sasl, struct Curl_easy *data)
+bool Curl_sasl_can_authenticate(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data)
 {
   /* Have credentials been provided? */
-  if(data->conn->creds)
-    return TRUE;
+  எனில்(data->conn->creds)
+    திரும்பு TRUE;
 
   /* EXTERNAL can authenticate without a username and/or password */
-  if(sasl->authmechs & sasl->prefmech & SASL_MECH_EXTERNAL)
-    return TRUE;
+  எனில்(sasl->authmechs & sasl->prefmech & SASL_MECH_EXTERNAL)
+    திரும்பு TRUE;
 
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-struct sasl_ctx {
-  struct SASL *sasl;
-  struct connectdata *conn;
+கட்டமைப்பு sasl_ctx {
+  கட்டமைப்பு SASL *sasl;
+  கட்டமைப்பு connectdata *conn;
   unsigned short enabledmechs;
-  const char *mech;
+  மாறிலி எழுத்து *mech;
   saslstate state1;
   saslstate state2;
-  struct bufref resp;
+  கட்டமைப்பு bufref resp;
   CURLcode result;
 };
 
-static bool sasl_choose_external(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_external(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  if((sctx->enabledmechs & SASL_MECH_EXTERNAL) &&
+  எனில்((sctx->enabledmechs & SASL_MECH_EXTERNAL) &&
      !Curl_creds_has_passwd(sctx->conn->creds)) {
     sctx->mech = SASL_MECH_STRING_EXTERNAL;
     sctx->state1 = SASL_EXTERNAL;
     sctx->sasl->authused = SASL_MECH_EXTERNAL;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
+    எனில்(sctx->sasl->force_ir || data->set.sasl_ir)
       Curl_auth_create_external_message(
         Curl_creds_user(sctx->conn->creds), &sctx->resp);
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 #ifdef USE_KERBEROS5
-static bool sasl_choose_krb5(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_krb5(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  if((sctx->enabledmechs & SASL_MECH_GSSAPI) &&
+  எனில்((sctx->enabledmechs & SASL_MECH_GSSAPI) &&
      Curl_auth_is_gssapi_supported() &&
      Curl_auth_user_contains_domain(sctx->conn->creds)) {
-    const char *service = Curl_creds_has_sasl_service(sctx->conn->creds) ?
+    மாறிலி எழுத்து *service = Curl_creds_has_sasl_service(sctx->conn->creds) ?
       Curl_creds_sasl_service(sctx->conn->creds) : sctx->sasl->params->service;
 
     sctx->sasl->mutual_auth = FALSE;
@@ -326,119 +326,119 @@ static bool sasl_choose_krb5(struct Curl_easy *data, struct sasl_ctx *sctx)
     sctx->state2 = SASL_GSSAPI_TOKEN;
     sctx->sasl->authused = SASL_MECH_GSSAPI;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir) {
-      struct kerberos5data *krb5 = Curl_auth_krb5_get(sctx->conn);
+    எனில்(sctx->sasl->force_ir || data->set.sasl_ir) {
+      கட்டமைப்பு kerberos5data *krb5 = Curl_auth_krb5_get(sctx->conn);
       sctx->result = !krb5 ? CURLE_OUT_OF_MEMORY :
         Curl_auth_create_gssapi_user_message(data, sctx->conn->creds,
                                              service,
                                              sctx->conn->origin->hostname,
                                              (bool)sctx->sasl->mutual_auth,
-                                             NULL, krb5, &sctx->resp);
+                                             வெற்று, krb5, &sctx->resp);
     }
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 #endif /* USE_KERBEROS5 */
 
 #ifdef USE_GSASL
-static bool sasl_choose_gsasl(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_gsasl(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  struct gsasldata *gsasl;
-  struct bufref nullmsg;
+  கட்டமைப்பு gsasldata *gsasl;
+  கட்டமைப்பு bufref nullmsg;
 
-  if((sctx->enabledmechs &
+  எனில்((sctx->enabledmechs &
       (SASL_MECH_SCRAM_SHA_256 | SASL_MECH_SCRAM_SHA_1))) {
     gsasl = Curl_auth_gsasl_get(sctx->conn);
-    if(!gsasl) {
+    எனில்(!gsasl) {
       sctx->result = CURLE_OUT_OF_MEMORY;
-      return TRUE; /* attempted, but failed */
+      திரும்பு TRUE; /* attempted, but failed */
     }
 
-    if((sctx->enabledmechs & SASL_MECH_SCRAM_SHA_256) &&
+    எனில்((sctx->enabledmechs & SASL_MECH_SCRAM_SHA_256) &&
        Curl_auth_gsasl_is_supported(data, SASL_MECH_STRING_SCRAM_SHA_256,
                                     gsasl)) {
       sctx->mech = SASL_MECH_STRING_SCRAM_SHA_256;
       sctx->sasl->authused = SASL_MECH_SCRAM_SHA_256;
     }
-    else if((sctx->enabledmechs & SASL_MECH_SCRAM_SHA_1) &&
+    இல்லையெனில் எனில்((sctx->enabledmechs & SASL_MECH_SCRAM_SHA_1) &&
             Curl_auth_gsasl_is_supported(data, SASL_MECH_STRING_SCRAM_SHA_1,
                                          gsasl)) {
       sctx->mech = SASL_MECH_STRING_SCRAM_SHA_1;
       sctx->sasl->authused = SASL_MECH_SCRAM_SHA_1;
     }
-    else
-      return FALSE;
+    இல்லையெனில்
+      திரும்பு FALSE;
 
     Curl_bufref_init(&nullmsg);
     sctx->state1 = SASL_GSASL;
     sctx->state2 = SASL_GSASL;
     sctx->result = Curl_auth_gsasl_start(data, sctx->conn->creds, gsasl);
-    if(!sctx->result && (sctx->sasl->force_ir || data->set.sasl_ir))
+    எனில்(!sctx->result && (sctx->sasl->force_ir || data->set.sasl_ir))
       sctx->result = Curl_auth_gsasl_token(data, &nullmsg, gsasl, &sctx->resp);
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 #endif /* USE_GSASL */
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
-static bool sasl_choose_digest(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_digest(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  (void)data;
-  if((sctx->enabledmechs & SASL_MECH_DIGEST_MD5) &&
+  (வெறுமை)data;
+  எனில்((sctx->enabledmechs & SASL_MECH_DIGEST_MD5) &&
      Curl_auth_is_digest_supported()) {
     sctx->mech = SASL_MECH_STRING_DIGEST_MD5;
     sctx->state1 = SASL_DIGESTMD5;
     sctx->sasl->authused = SASL_MECH_DIGEST_MD5;
-    return TRUE;
+    திரும்பு TRUE;
   }
-  else if(sctx->enabledmechs & SASL_MECH_CRAM_MD5) {
+  இல்லையெனில் எனில்(sctx->enabledmechs & SASL_MECH_CRAM_MD5) {
     sctx->mech = SASL_MECH_STRING_CRAM_MD5;
     sctx->state1 = SASL_CRAMMD5;
     sctx->sasl->authused = SASL_MECH_CRAM_MD5;
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 #endif /* !CURL_DISABLE_DIGEST_AUTH */
 
 #ifdef USE_NTLM
-static bool sasl_choose_ntlm(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_ntlm(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  if((sctx->enabledmechs & SASL_MECH_NTLM) &&
+  எனில்((sctx->enabledmechs & SASL_MECH_NTLM) &&
      Curl_auth_is_ntlm_supported()) {
-     const char *service = Curl_creds_has_sasl_service(sctx->conn->creds) ?
+     மாறிலி எழுத்து *service = Curl_creds_has_sasl_service(sctx->conn->creds) ?
       Curl_creds_sasl_service(sctx->conn->creds) : sctx->sasl->params->service;
-    const char *hostname;
+    மாறிலி எழுத்து *hostname;
 
-    Curl_conn_get_current_host(data, FIRSTSOCKET, &hostname, NULL);
+    Curl_conn_get_current_host(data, FIRSTSOCKET, &hostname, வெற்று);
 
     sctx->mech = SASL_MECH_STRING_NTLM;
     sctx->state1 = SASL_NTLM;
-    sctx->state2 = SASL_NTLM_TYPE2MSG;
+    sctx->state2 = SASL_NTLM_TYPE2_செய்தி;
     sctx->sasl->authused = SASL_MECH_NTLM;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir) {
-      struct ntlmdata *ntlm = Curl_auth_ntlm_get(sctx->conn, FALSE);
+    எனில்(sctx->sasl->force_ir || data->set.sasl_ir) {
+      கட்டமைப்பு ntlmdata *ntlm = Curl_auth_ntlm_get(sctx->conn, FALSE);
       sctx->result = !ntlm ? CURLE_OUT_OF_MEMORY :
         Curl_auth_create_ntlm_type1_message(data, sctx->conn->creds,
                                             service, hostname,
                                             ntlm, &sctx->resp);
     }
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 #endif /* USE_NTLM */
 
-static bool sasl_choose_oauth(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_oauth(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  if(Curl_creds_has_oauth_bearer(data->state.creds) &&
+  எனில்(Curl_creds_has_oauth_bearer(data->state.creds) &&
      (sctx->enabledmechs & SASL_MECH_OAUTHBEARER)) {
-    const char *hostname;
-    int port;
+    மாறிலி எழுத்து *hostname;
+    முழு port;
     Curl_conn_get_current_host(data, FIRSTSOCKET, &hostname, &port);
 
     sctx->mech = SASL_MECH_STRING_OAUTHBEARER;
@@ -446,60 +446,60 @@ static bool sasl_choose_oauth(struct Curl_easy *data, struct sasl_ctx *sctx)
     sctx->state2 = SASL_OAUTH2_RESP;
     sctx->sasl->authused = SASL_MECH_OAUTHBEARER;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
+    எனில்(sctx->sasl->force_ir || data->set.sasl_ir)
       sctx->result =
         Curl_auth_create_oauth_bearer_message(sctx->conn->creds,
                                               hostname, port, &sctx->resp);
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-static bool sasl_choose_oauth2(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_oauth2(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  if(Curl_creds_has_oauth_bearer(sctx->conn->creds) &&
+  எனில்(Curl_creds_has_oauth_bearer(sctx->conn->creds) &&
      (sctx->enabledmechs & SASL_MECH_XOAUTH2)) {
     sctx->mech = SASL_MECH_STRING_XOAUTH2;
     sctx->state1 = SASL_OAUTH2;
     sctx->sasl->authused = SASL_MECH_XOAUTH2;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
+    எனில்(sctx->sasl->force_ir || data->set.sasl_ir)
       sctx->result = Curl_auth_create_xoauth_bearer_message(
         sctx->conn->creds, &sctx->resp);
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-static bool sasl_choose_plain(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_plain(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  if(sctx->enabledmechs & SASL_MECH_PLAIN) {
+  எனில்(sctx->enabledmechs & SASL_MECH_PLAIN) {
     sctx->mech = SASL_MECH_STRING_PLAIN;
     sctx->state1 = SASL_PLAIN;
     sctx->sasl->authused = SASL_MECH_PLAIN;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
+    எனில்(sctx->sasl->force_ir || data->set.sasl_ir)
       sctx->result =
         Curl_auth_create_plain_message(sctx->conn->creds, &sctx->resp);
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-static bool sasl_choose_login(struct Curl_easy *data, struct sasl_ctx *sctx)
+நிலையான bool sasl_choose_login(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு sasl_ctx *sctx)
 {
-  if(sctx->enabledmechs & SASL_MECH_LOGIN) {
+  எனில்(sctx->enabledmechs & SASL_MECH_LOGIN) {
     sctx->mech = SASL_MECH_STRING_LOGIN;
     sctx->state1 = SASL_LOGIN;
     sctx->state2 = SASL_LOGIN_PASSWD;
     sctx->sasl->authused = SASL_MECH_LOGIN;
 
-    if(sctx->sasl->force_ir || data->set.sasl_ir)
+    எனில்(sctx->sasl->force_ir || data->set.sasl_ir)
       Curl_auth_create_login_message(
         Curl_creds_user(sctx->conn->creds), &sctx->resp);
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 /*
@@ -507,16 +507,16 @@ static bool sasl_choose_login(struct Curl_easy *data, struct sasl_ctx *sctx)
  *
  * Calculate the required login details for SASL authentication.
  */
-CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
+CURLcode Curl_sasl_start(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data,
                          bool force_ir, saslprogress *progress)
 {
-  struct sasl_ctx sctx;
+  கட்டமைப்பு sasl_ctx sctx;
 
   sasl->force_ir = force_ir;    /* Latch for future use */
   sasl->authused = 0;           /* No mechanism used yet */
   *progress = SASL_IDLE;
 
-  memset(&sctx, 0, sizeof(sctx));
+  memset(&sctx, 0, அளவு(sctx));
   sctx.sasl = sasl;
   sctx.conn = data->conn;
   Curl_bufref_init(&sctx.resp);
@@ -526,7 +526,7 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
 
   /* Calculate the supported authentication mechanism, by decreasing order of
      security, as well as the initial response where appropriate */
-  if(sasl_choose_external(data, &sctx) ||
+  எனில்(sasl_choose_external(data, &sctx) ||
 #ifdef USE_KERBEROS5
      sasl_choose_krb5(data, &sctx) ||
 #endif
@@ -547,20 +547,20 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
     DEBUGASSERT(sctx.mech || sctx.result);
   }
 
-  if(!sctx.result && sctx.mech) {
+  எனில்(!sctx.result && sctx.mech) {
     sasl->curmech = sctx.mech;
-    if(Curl_bufref_ptr(&sctx.resp))
+    எனில்(Curl_bufref_ptr(&sctx.resp))
       sctx.result = build_message(sasl, &sctx.resp);
 
-    if(sasl->params->maxirlen &&
+    எனில்(sasl->params->maxirlen &&
        strlen(sctx.mech) + Curl_bufref_len(&sctx.resp) >
          sasl->params->maxirlen)
       Curl_bufref_free(&sctx.resp);
 
-    if(!sctx.result)
+    எனில்(!sctx.result)
       sctx.result = sasl->params->sendauth(data, sctx.mech, &sctx.resp);
 
-    if(!sctx.result) {
+    எனில்(!sctx.result) {
       *progress = SASL_INPROGRESS;
       sasl_state(sasl, data, Curl_bufref_ptr(&sctx.resp) ?
                  sctx.state2 : sctx.state1);
@@ -568,7 +568,7 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
   }
 
   Curl_bufref_free(&sctx.resp);
-  return sctx.result;
+  திரும்பு sctx.result;
 }
 
 /*
@@ -576,166 +576,166 @@ CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
  *
  * Continue the authentication.
  */
-CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
-                            int code, saslprogress *progress)
+CURLcode Curl_sasl_continue(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data,
+                            முழு code, saslprogress *progress)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  கட்டமைப்பு connectdata *conn = data->conn;
   saslstate newstate = SASL_FINAL;
-  struct bufref resp;
-  const char *hostname;
-  int port;
-  struct bufref serverdata;
+  கட்டமைப்பு bufref resp;
+  மாறிலி எழுத்து *hostname;
+  முழு port;
+  கட்டமைப்பு bufref serverdata;
 
   Curl_conn_get_current_host(data, FIRSTSOCKET, &hostname, &port);
   Curl_bufref_init(&serverdata);
   Curl_bufref_init(&resp);
   *progress = SASL_INPROGRESS;
 
-  if(sasl->state == SASL_FINAL) {
-    if(code != sasl->params->finalcode)
+  எனில்(sasl->state == SASL_FINAL) {
+    எனில்(code != sasl->params->finalcode)
       result = CURLE_LOGIN_DENIED;
     *progress = SASL_DONE;
     sasl_state(sasl, data, SASL_STOP);
-    return result;
+    திரும்பு result;
   }
 
-  if(sasl->state != SASL_CANCEL && sasl->state != SASL_OAUTH2_RESP &&
+  எனில்(sasl->state != SASL_CANCEL && sasl->state != SASL_OAUTH2_RESP &&
      code != sasl->params->contcode) {
     *progress = SASL_DONE;
     sasl_state(sasl, data, SASL_STOP);
-    return CURLE_LOGIN_DENIED;
+    திரும்பு CURLE_LOGIN_DENIED;
   }
 
-  switch(sasl->state) {
-  case SASL_STOP:
+  தேர்வு(sasl->state) {
+  நிலை SASL_STOP:
     *progress = SASL_DONE;
-    return result;
-  case SASL_PLAIN:
+    திரும்பு result;
+  நிலை SASL_PLAIN:
     result = Curl_auth_create_plain_message(conn->creds, &resp);
-    break;
-  case SASL_LOGIN:
+    நிறுத்து;
+  நிலை SASL_LOGIN:
     Curl_auth_create_login_message(Curl_creds_user(conn->creds), &resp);
     newstate = SASL_LOGIN_PASSWD;
-    break;
-  case SASL_LOGIN_PASSWD:
+    நிறுத்து;
+  நிலை SASL_LOGIN_PASSWD:
     Curl_auth_create_login_message(Curl_creds_passwd(conn->creds), &resp);
-    break;
-  case SASL_EXTERNAL:
+    நிறுத்து;
+  நிலை SASL_EXTERNAL:
     Curl_auth_create_external_message(Curl_creds_user(conn->creds), &resp);
-    break;
+    நிறுத்து;
 #ifdef USE_GSASL
-  case SASL_GSASL:
+  நிலை SASL_GSASL:
     result = get_server_message(sasl, data, &serverdata);
-    if(!result) {
-      struct gsasldata *gsasl = Curl_auth_gsasl_get(conn);
+    எனில்(!result) {
+      கட்டமைப்பு gsasldata *gsasl = Curl_auth_gsasl_get(conn);
       result = !gsasl ? CURLE_OUT_OF_MEMORY :
         Curl_auth_gsasl_token(data, &serverdata, gsasl, &resp);
     }
-    if(!result && Curl_bufref_len(&resp) > 0)
+    எனில்(!result && Curl_bufref_len(&resp) > 0)
       newstate = SASL_GSASL;
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_DIGEST_AUTH
-  case SASL_CRAMMD5:
+  நிலை SASL_CRAMMD5:
     result = get_server_message(sasl, data, &serverdata);
-    if(!result)
+    எனில்(!result)
       result = Curl_auth_create_cram_md5_message(&serverdata, conn->creds,
                                                  &resp);
-    break;
-  case SASL_DIGESTMD5:
+    நிறுத்து;
+  நிலை SASL_DIGESTMD5:
     result = get_server_message(sasl, data, &serverdata);
-    if(!result)
+    எனில்(!result)
       result = Curl_auth_create_digest_md5_message(data, &serverdata,
                                                    conn->creds,
                                                    sasl->params->service,
                                                    &resp);
-    if(!result && (sasl->params->flags & SASL_FLAG_BASE64))
+    எனில்(!result && (sasl->params->flags & SASL_FLAG_BASE64))
       newstate = SASL_DIGESTMD5_RESP;
-    break;
-  case SASL_DIGESTMD5_RESP:
+    நிறுத்து;
+  நிலை SASL_DIGESTMD5_RESP:
     /* Keep response NULL to output an empty line. */
-    break;
+    நிறுத்து;
 #endif
 
 #ifdef USE_NTLM
-  case SASL_NTLM: {
+  நிலை SASL_NTLM: {
     /* Create the type-1 message */
-    struct ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
+    கட்டமைப்பு ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
     result = !ntlm ? CURLE_OUT_OF_MEMORY :
       Curl_auth_create_ntlm_type1_message(data, conn->creds,
                                           sasl->params->service, hostname,
                                           ntlm, &resp);
-    newstate = SASL_NTLM_TYPE2MSG;
-    break;
+    newstate = SASL_NTLM_TYPE2_செய்தி;
+    நிறுத்து;
   }
-  case SASL_NTLM_TYPE2MSG: {
+  நிலை SASL_NTLM_TYPE2_செய்தி: {
     /* Decode the type-2 message */
-    struct ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
+    கட்டமைப்பு ntlmdata *ntlm = Curl_auth_ntlm_get(conn, FALSE);
     result = !ntlm ? CURLE_OUT_OF_MEMORY :
       get_server_message(sasl, data, &serverdata);
-    if(!result)
+    எனில்(!result)
       result = Curl_auth_decode_ntlm_type2_message(data, &serverdata, ntlm);
-    if(!result)
+    எனில்(!result)
       result = Curl_auth_create_ntlm_type3_message(data, conn->creds,
                                                    ntlm, &resp);
-    break;
+    நிறுத்து;
   }
 #endif
 
 #ifdef USE_KERBEROS5
-  case SASL_GSSAPI: {
-    struct kerberos5data *krb5 = Curl_auth_krb5_get(conn);
+  நிலை SASL_GSSAPI: {
+    கட்டமைப்பு kerberos5data *krb5 = Curl_auth_krb5_get(conn);
     result = !krb5 ? CURLE_OUT_OF_MEMORY :
       Curl_auth_create_gssapi_user_message(data, conn->creds,
                                            sasl->params->service,
                                            conn->origin->hostname,
-                                           (bool)sasl->mutual_auth, NULL,
+                                           (bool)sasl->mutual_auth, வெற்று,
                                            krb5, &resp);
     newstate = SASL_GSSAPI_TOKEN;
-    break;
+    நிறுத்து;
   }
-  case SASL_GSSAPI_TOKEN:
+  நிலை SASL_GSSAPI_TOKEN:
     result = get_server_message(sasl, data, &serverdata);
-    if(!result) {
-      struct kerberos5data *krb5 = Curl_auth_krb5_get(conn);
-      if(!krb5)
+    எனில்(!result) {
+      கட்டமைப்பு kerberos5data *krb5 = Curl_auth_krb5_get(conn);
+      எனில்(!krb5)
         result = CURLE_OUT_OF_MEMORY;
-      else if(sasl->mutual_auth) {
+      இல்லையெனில் எனில்(sasl->mutual_auth) {
         /* Decode the user token challenge and create the optional response
            message */
-        result = Curl_auth_create_gssapi_user_message(data, NULL,
-                                                      NULL, NULL,
+        result = Curl_auth_create_gssapi_user_message(data, வெற்று,
+                                                      வெற்று, வெற்று,
                                                       (bool)sasl->mutual_auth,
                                                       &serverdata,
                                                       krb5, &resp);
         newstate = SASL_GSSAPI_NO_DATA;
       }
-      else
+      இல்லையெனில்
         /* Decode the security challenge and create the response message */
         result = Curl_auth_create_gssapi_security_message(
           data, Curl_creds_sasl_authzid(conn->creds), &serverdata,
           krb5, &resp);
     }
-    break;
-  case SASL_GSSAPI_NO_DATA:
+    நிறுத்து;
+  நிலை SASL_GSSAPI_NO_DATA:
     /* Decode the security challenge and create the response message */
     result = get_server_message(sasl, data, &serverdata);
-    if(!result) {
-      struct kerberos5data *krb5 = Curl_auth_krb5_get(conn);
-      if(!krb5)
+    எனில்(!result) {
+      கட்டமைப்பு kerberos5data *krb5 = Curl_auth_krb5_get(conn);
+      எனில்(!krb5)
         result = CURLE_OUT_OF_MEMORY;
-      else
+      இல்லையெனில்
         result = Curl_auth_create_gssapi_security_message(
           data, Curl_creds_sasl_authzid(conn->creds), &serverdata,
           krb5, &resp);
     }
-    break;
+    நிறுத்து;
 #endif
 
-  case SASL_OAUTH2:
+  நிலை SASL_OAUTH2:
     /* Create the authorization message */
-    if(sasl->authused == SASL_MECH_OAUTHBEARER) {
+    எனில்(sasl->authused == SASL_MECH_OAUTHBEARER) {
       result = Curl_auth_create_oauth_bearer_message(conn->creds,
                                                      hostname,
                                                      port,
@@ -744,124 +744,124 @@ CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
       /* Failures maybe sent by the server as continuations for OAUTHBEARER */
       newstate = SASL_OAUTH2_RESP;
     }
-    else
+    இல்லையெனில்
       result = Curl_auth_create_xoauth_bearer_message(conn->creds,
                                                       &resp);
-    break;
+    நிறுத்து;
 
-  case SASL_OAUTH2_RESP:
+  நிலை SASL_OAUTH2_RESP:
     /* The continuation is optional so check the response code */
-    if(code == sasl->params->finalcode) {
+    எனில்(code == sasl->params->finalcode) {
       /* Final response was received so we are done */
       *progress = SASL_DONE;
       sasl_state(sasl, data, SASL_STOP);
-      return result;
+      திரும்பு result;
     }
-    else if(code == sasl->params->contcode) {
+    இல்லையெனில் எனில்(code == sasl->params->contcode) {
       /* Acknowledge the continuation by sending a 0x01 response. */
-      Curl_bufref_set(&resp, "\x01", 1, NULL);
-      break;
+      Curl_bufref_set(&resp, "\x01", 1, வெற்று);
+      நிறுத்து;
     }
-    else {
+    இல்லையெனில் {
       *progress = SASL_DONE;
       sasl_state(sasl, data, SASL_STOP);
-      return CURLE_LOGIN_DENIED;
+      திரும்பு CURLE_LOGIN_DENIED;
     }
 
-  case SASL_CANCEL:
+  நிலை SASL_CANCEL:
     /* Remove the offending mechanism from the supported list */
     sasl->authmechs &= (unsigned short)~sasl->authused;
     sasl->authused = SASL_AUTH_NONE;
-    sasl->curmech = NULL;
+    sasl->curmech = வெற்று;
 
     /* Start an alternative SASL authentication */
-    return Curl_sasl_start(sasl, data, (bool)sasl->force_ir, progress);
-  default:
+    திரும்பு Curl_sasl_start(sasl, data, (bool)sasl->force_ir, progress);
+  இயல்பு:
     failf(data, "Unsupported SASL authentication mechanism");
     result = CURLE_UNSUPPORTED_PROTOCOL;  /* Should not happen */
-    break;
+    நிறுத்து;
   }
 
   Curl_bufref_free(&serverdata);
 
-  switch(result) {
-  case CURLE_BAD_CONTENT_ENCODING:
+  தேர்வு(result) {
+  நிலை CURLE_BAD_CONTENT_ENCODING:
     /* Cancel dialog */
     result = sasl->params->cancelauth(data, sasl->curmech);
     newstate = SASL_CANCEL;
-    break;
-  case CURLE_OK:
+    நிறுத்து;
+  நிலை CURLE_OK:
     result = build_message(sasl, &resp);
-    if(!result)
+    எனில்(!result)
       result = sasl->params->contauth(data, sasl->curmech, &resp);
-    break;
-  default:
+    நிறுத்து;
+  இயல்பு:
     newstate = SASL_STOP;    /* Stop on error */
     *progress = SASL_DONE;
-    break;
+    நிறுத்து;
   }
 
   Curl_bufref_free(&resp);
 
   sasl_state(sasl, data, newstate);
 
-  return result;
+  திரும்பு result;
 }
 
 #ifdef CURLVERBOSE
-static void sasl_unchosen(struct Curl_easy *data, unsigned short mech,
+நிலையான வெறுமை sasl_unchosen(கட்டமைப்பு Curl_easy *data, unsigned short mech,
                           unsigned short enabledmechs,
                           bool built_in, bool platform,
-                          const char *param_missing)
+                          மாறிலி எழுத்து *param_missing)
 {
-  const char *mname = NULL;
+  மாறிலி எழுத்து *mname = வெற்று;
   size_t i;
 
-  if(!(enabledmechs & mech))
-    return;
+  எனில்(!(enabledmechs & mech))
+    திரும்பு;
 
-  for(i = 0; mechtable[i].name; ++i) {
-    if(mechtable[i].bit == mech) {
+  க்கு(i = 0; mechtable[i].name; ++i) {
+    எனில்(mechtable[i].bit == mech) {
       mname = mechtable[i].name;
-      break;
+      நிறுத்து;
     }
   }
-  if(!mname)  /* should not happen */
-    return;
-  if(!built_in)
+  எனில்(!mname)  /* should not happen */
+    திரும்பு;
+  எனில்(!built_in)
     infof(data, "SASL: %s not builtin", mname);
-  else if(!platform)
+  இல்லையெனில் எனில்(!platform)
     infof(data, "SASL: %s not supported by the platform/libraries", mname);
-  else {
-    if(param_missing)
+  இல்லையெனில் {
+    எனில்(param_missing)
       infof(data, "SASL: %s is missing %s", mname, param_missing);
-    if(!Curl_creds_has_user(data->conn->creds))
+    எனில்(!Curl_creds_has_user(data->conn->creds))
       infof(data, "SASL: %s is missing username", mname);
   }
 }
 #endif /* CURLVERBOSE */
 
-CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data)
+CURLcode Curl_sasl_is_blocked(கட்டமைப்பு SASL *sasl, கட்டமைப்பு Curl_easy *data)
 {
 #ifdef CURLVERBOSE
 #ifdef USE_KERBEROS5
 #define CURL_SASL_KERBEROS5   TRUE
-#else
+#இல்லையெனில்
 #define CURL_SASL_KERBEROS5   FALSE
 #endif
 #ifdef USE_GSASL
 #define CURL_SASL_GASL        TRUE
-#else
+#இல்லையெனில்
 #define CURL_SASL_GASL        FALSE
 #endif
 #ifdef CURL_DISABLE_DIGEST_AUTH
 #define CURL_SASL_DIGEST      TRUE
-#else
+#இல்லையெனில்
 #define CURL_SASL_DIGEST      FALSE
 #endif
 #ifndef USE_NTLM
 #define CURL_SASL_NTLM        TRUE
-#else
+#இல்லையெனில்
 #define CURL_SASL_NTLM        FALSE
 #endif
   /* Failing SASL authentication is a pain. Give a helping hand if
@@ -870,39 +870,39 @@ CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data)
    * `sasl->prefmech`  are mechanisms preferred by us */
   unsigned short enabledmechs = sasl->authmechs & sasl->prefmech;
 
-  if(!sasl->authmechs)
+  எனில்(!sasl->authmechs)
     infof(data, "SASL: no auth mechanism was offered or recognized");
-  else if(!enabledmechs)
+  இல்லையெனில் எனில்(!enabledmechs)
     infof(data, "SASL: no overlap between offered and configured "
           "auth mechanisms");
-  else {
+  இல்லையெனில் {
     infof(data, "SASL: no auth mechanism offered could be selected");
-    if((enabledmechs & SASL_MECH_EXTERNAL) &&
+    எனில்((enabledmechs & SASL_MECH_EXTERNAL) &&
        Curl_creds_has_passwd(data->conn->creds))
       infof(data, "SASL: auth EXTERNAL not chosen with password");
     sasl_unchosen(data, SASL_MECH_GSSAPI, enabledmechs,
-                  CURL_SASL_KERBEROS5, Curl_auth_is_gssapi_supported(), NULL);
+                  CURL_SASL_KERBEROS5, Curl_auth_is_gssapi_supported(), வெற்று);
     sasl_unchosen(data, SASL_MECH_SCRAM_SHA_256, enabledmechs,
-                  CURL_SASL_GASL, FALSE, NULL);
+                  CURL_SASL_GASL, FALSE, வெற்று);
     sasl_unchosen(data, SASL_MECH_SCRAM_SHA_1, enabledmechs,
-                  CURL_SASL_GASL, FALSE, NULL);
+                  CURL_SASL_GASL, FALSE, வெற்று);
     sasl_unchosen(data, SASL_MECH_DIGEST_MD5, enabledmechs,
-                  CURL_SASL_DIGEST, Curl_auth_is_digest_supported(), NULL);
+                  CURL_SASL_DIGEST, Curl_auth_is_digest_supported(), வெற்று);
     sasl_unchosen(data, SASL_MECH_CRAM_MD5, enabledmechs,
-                  CURL_SASL_DIGEST, TRUE, NULL);
+                  CURL_SASL_DIGEST, TRUE, வெற்று);
     sasl_unchosen(data, SASL_MECH_NTLM, enabledmechs,
-                  CURL_SASL_NTLM, Curl_auth_is_ntlm_supported(), NULL);
+                  CURL_SASL_NTLM, Curl_auth_is_ntlm_supported(), வெற்று);
     sasl_unchosen(data, SASL_MECH_OAUTHBEARER, enabledmechs, TRUE, TRUE,
                   Curl_creds_has_oauth_bearer(data->conn->creds) ?
-                  NULL : "CURLOPT_XOAUTH2_BEARER");
+                  வெற்று : "CURLOPT_XOAUTH2_BEARER");
     sasl_unchosen(data, SASL_MECH_XOAUTH2, enabledmechs, TRUE, TRUE,
                   Curl_creds_has_oauth_bearer(data->conn->creds) ?
-                  NULL : "CURLOPT_XOAUTH2_BEARER");
+                  வெற்று : "CURLOPT_XOAUTH2_BEARER");
   }
 #endif /* CURLVERBOSE */
-  (void)sasl;
-  (void)data;
-  return CURLE_LOGIN_DENIED;
+  (வெறுமை)sasl;
+  (வெறுமை)data;
+  திரும்பு CURLE_LOGIN_DENIED;
 }
 
 #endif /* protocols are enabled that use SASL */

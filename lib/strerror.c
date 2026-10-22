@@ -21,285 +21,285 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef USE_WINDOWS_SSPI
-#include "curl_sspi.h"
+#அந்தர்பாவ "curl_sspi.h"
 #endif
 
-#include "curlx/winapi.h"
-#include "strerror.h"
-#include "curlx/strcopy.h"
+#அந்தர்பாவ "curlx/winapi.h"
+#அந்தர்பாவ "strerror.h"
+#அந்தர்பாவ "curlx/strcopy.h"
 
-const char *curl_easy_strerror(CURLcode error)
+மாறிலி எழுத்து *curl_easy_strerror(CURLcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLE_OK:
-    return "No error";
+  தேர்வு(error) {
+  நிலை CURLE_OK:
+    திரும்பு "No error";
 
-  case CURLE_UNSUPPORTED_PROTOCOL:
-    return "Unsupported protocol";
+  நிலை CURLE_UNSUPPORTED_PROTOCOL:
+    திரும்பு "Unsupported protocol";
 
-  case CURLE_FAILED_INIT:
-    return "Failed initialization";
+  நிலை CURLE_FAILED_INIT:
+    திரும்பு "Failed initialization";
 
-  case CURLE_URL_MALFORMAT:
-    return "URL using bad/illegal format or missing URL";
+  நிலை CURLE_URL_MALFORMAT:
+    திரும்பு "URL using bad/illegal format or missing URL";
 
-  case CURLE_NOT_BUILT_IN:
-    return "A requested feature, protocol or option was not found built-in in"
+  நிலை CURLE_NOT_BUILT_IN:
+    திரும்பு "A requested feature, protocol or option was not found built-in in"
            " this libcurl due to a build-time decision.";
 
-  case CURLE_COULDNT_RESOLVE_PROXY:
-    return "Could not resolve proxy name";
+  நிலை CURLE_COULDNT_RESOLVE_PROXY:
+    திரும்பு "Could not resolve proxy name";
 
-  case CURLE_COULDNT_RESOLVE_HOST:
-    return "Could not resolve hostname";
+  நிலை CURLE_COULDNT_RESOLVE_HOST:
+    திரும்பு "Could not resolve hostname";
 
-  case CURLE_COULDNT_CONNECT:
-    return "Could not connect to server";
+  நிலை CURLE_COULDNT_CONNECT:
+    திரும்பு "Could not connect to server";
 
-  case CURLE_WEIRD_SERVER_REPLY:
-    return "Weird server reply";
+  நிலை CURLE_WEIRD_SERVER_REPLY:
+    திரும்பு "Weird server reply";
 
-  case CURLE_REMOTE_ACCESS_DENIED:
-    return "Access denied to remote resource";
+  நிலை CURLE_REMOTE_ACCESS_DENIED:
+    திரும்பு "Access denied to remote resource";
 
-  case CURLE_FTP_ACCEPT_FAILED:
-    return "FTP: The server failed to connect to data port";
+  நிலை CURLE_FTP_ACCEPT_FAILED:
+    திரும்பு "FTP: The server failed to connect to data port";
 
-  case CURLE_FTP_ACCEPT_TIMEOUT:
-    return "FTP: Accepting server connect has timed out";
+  நிலை CURLE_FTP_ACCEPT_TIMEOUT:
+    திரும்பு "FTP: Accepting server connect has timed out";
 
-  case CURLE_FTP_PRET_FAILED:
-    return "FTP: The server did not accept the PRET command.";
+  நிலை CURLE_FTP_PRET_FAILED:
+    திரும்பு "FTP: The server did not accept the PRET command.";
 
-  case CURLE_FTP_WEIRD_PASS_REPLY:
-    return "FTP: unknown PASS reply";
+  நிலை CURLE_FTP_WEIRD_PASS_REPLY:
+    திரும்பு "FTP: unknown PASS reply";
 
-  case CURLE_FTP_WEIRD_PASV_REPLY:
-    return "FTP: unknown PASV reply";
+  நிலை CURLE_FTP_WEIRD_PASV_REPLY:
+    திரும்பு "FTP: unknown PASV reply";
 
-  case CURLE_FTP_WEIRD_227_FORMAT:
-    return "FTP: unknown 227 response format";
+  நிலை CURLE_FTP_WEIRD_227_FORMAT:
+    திரும்பு "FTP: unknown 227 response format";
 
-  case CURLE_FTP_CANT_GET_HOST:
-    return "FTP: cannot figure out the host in the PASV response";
+  நிலை CURLE_FTP_CANT_GET_HOST:
+    திரும்பு "FTP: cannot figure out the host in the PASV response";
 
-  case CURLE_HTTP2:
-    return "Error in the HTTP2 framing layer";
+  நிலை CURLE_HTTP2:
+    திரும்பு "Error in the HTTP2 framing layer";
 
-  case CURLE_FTP_COULDNT_SET_TYPE:
-    return "FTP: could not set file type";
+  நிலை CURLE_FTP_COULDNT_SET_TYPE:
+    திரும்பு "FTP: could not set file type";
 
-  case CURLE_PARTIAL_FILE:
-    return "Transferred a partial file";
+  நிலை CURLE_PARTIAL_FILE:
+    திரும்பு "Transferred a partial file";
 
-  case CURLE_FTP_COULDNT_RETR_FILE:
-    return "FTP: could not retrieve (RETR failed) the specified file";
+  நிலை CURLE_FTP_COULDNT_RETR_FILE:
+    திரும்பு "FTP: could not retrieve (RETR failed) the specified file";
 
-  case CURLE_QUOTE_ERROR:
-    return "Quote command returned error";
+  நிலை CURLE_QUOTE_ERROR:
+    திரும்பு "Quote command returned error";
 
-  case CURLE_HTTP_RETURNED_ERROR:
-    return "HTTP response code said error";
+  நிலை CURLE_HTTP_RETURNED_ERROR:
+    திரும்பு "HTTP response code said error";
 
-  case CURLE_WRITE_ERROR:
-    return "Failed writing received data to disk/application";
+  நிலை CURLE_WRITE_ERROR:
+    திரும்பு "Failed writing received data to disk/application";
 
-  case CURLE_UPLOAD_FAILED:
-    return "Upload failed (at start/before it took off)";
+  நிலை CURLE_UPLOAD_FAILED:
+    திரும்பு "Upload failed (at start/before it took off)";
 
-  case CURLE_READ_ERROR:
-    return "Failed to open/read local data from file/application";
+  நிலை CURLE_READ_ERROR:
+    திரும்பு "Failed to open/read local data from file/application";
 
-  case CURLE_OUT_OF_MEMORY:
-    return "Out of memory";
+  நிலை CURLE_OUT_OF_MEMORY:
+    திரும்பு "Out of memory";
 
-  case CURLE_OPERATION_TIMEDOUT:
-    return "Timeout was reached";
+  நிலை CURLE_OPERATION_TIMEDOUT:
+    திரும்பு "Timeout was reached";
 
-  case CURLE_FTP_PORT_FAILED:
-    return "FTP: command PORT failed";
+  நிலை CURLE_FTP_PORT_FAILED:
+    திரும்பு "FTP: command PORT failed";
 
-  case CURLE_FTP_COULDNT_USE_REST:
-    return "FTP: command REST failed";
+  நிலை CURLE_FTP_COULDNT_USE_REST:
+    திரும்பு "FTP: command REST failed";
 
-  case CURLE_RANGE_ERROR:
-    return "Requested range was not delivered by the server";
+  நிலை CURLE_RANGE_ERROR:
+    திரும்பு "Requested range was not delivered by the server";
 
-  case CURLE_SSL_CONNECT_ERROR:
-    return "SSL connect error";
+  நிலை CURLE_SSL_CONNECT_ERROR:
+    திரும்பு "SSL connect error";
 
-  case CURLE_BAD_DOWNLOAD_RESUME:
-    return "Could not resume download";
+  நிலை CURLE_BAD_DOWNLOAD_RESUME:
+    திரும்பு "Could not resume download";
 
-  case CURLE_FILE_COULDNT_READ_FILE:
-    return "Could not read a file:// file";
+  நிலை CURLE_FILE_COULDNT_READ_FILE:
+    திரும்பு "Could not read a file:// file";
 
-  case CURLE_LDAP_CANNOT_BIND:
-    return "LDAP: cannot bind";
+  நிலை CURLE_LDAP_CANNOT_BIND:
+    திரும்பு "LDAP: cannot bind";
 
-  case CURLE_LDAP_SEARCH_FAILED:
-    return "LDAP: search failed";
+  நிலை CURLE_LDAP_தேடல்_FAILED:
+    திரும்பு "LDAP: search failed";
 
-  case CURLE_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+  நிலை CURLE_ABORTED_BY_CALLBACK:
+    திரும்பு "Operation was aborted by an application callback";
 
-  case CURLE_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+  நிலை CURLE_BAD_FUNCTION_ARGUMENT:
+    திரும்பு "A libcurl function was given a bad argument";
 
-  case CURLE_INTERFACE_FAILED:
-    return "Failed binding local connection end";
+  நிலை CURLE_INTERFACE_FAILED:
+    திரும்பு "Failed binding local connection end";
 
-  case CURLE_TOO_MANY_REDIRECTS:
-    return "Number of redirects hit maximum amount";
+  நிலை CURLE_TOO_MANY_REDIRECTS:
+    திரும்பு "Number of redirects hit maximum amount";
 
-  case CURLE_UNKNOWN_OPTION:
-    return "An unknown option was passed in to libcurl";
+  நிலை CURLE_UNKNOWN_OPTION:
+    திரும்பு "An unknown option was passed in to libcurl";
 
-  case CURLE_SETOPT_OPTION_SYNTAX:
-    return "Malformed option provided in a setopt";
+  நிலை CURLE_SETOPT_OPTION_SYNTAX:
+    திரும்பு "Malformed option provided in a setopt";
 
-  case CURLE_GOT_NOTHING:
-    return "Server returned nothing (no headers, no data)";
+  நிலை CURLE_GOT_NOTHING:
+    திரும்பு "Server returned nothing (no headers, no data)";
 
-  case CURLE_SSL_ENGINE_NOTFOUND:
-    return "SSL crypto engine not found";
+  நிலை CURLE_SSL_ENGINE_NOTFOUND:
+    திரும்பு "SSL crypto engine not found";
 
-  case CURLE_SSL_ENGINE_SETFAILED:
-    return "Can not set SSL crypto engine as default";
+  நிலை CURLE_SSL_ENGINE_SETFAILED:
+    திரும்பு "Can not set SSL crypto engine as default";
 
-  case CURLE_SSL_ENGINE_INITFAILED:
-    return "Failed to initialize SSL crypto engine";
+  நிலை CURLE_SSL_ENGINE_INITFAILED:
+    திரும்பு "Failed to initialize SSL crypto engine";
 
-  case CURLE_SEND_ERROR:
-    return "Failed sending data to the peer";
+  நிலை CURLE_SEND_ERROR:
+    திரும்பு "Failed sending data to the peer";
 
-  case CURLE_RECV_ERROR:
-    return "Failure when receiving data from the peer";
+  நிலை CURLE_RECV_ERROR:
+    திரும்பு "Failure when receiving data from the peer";
 
-  case CURLE_SSL_CERTPROBLEM:
-    return "Problem with the local SSL certificate";
+  நிலை CURLE_SSL_CERTPROBLEM:
+    திரும்பு "Problem with the local SSL certificate";
 
-  case CURLE_SSL_CIPHER:
-    return "Could not use specified SSL cipher";
+  நிலை CURLE_SSL_CIPHER:
+    திரும்பு "Could not use specified SSL cipher";
 
-  case CURLE_PEER_FAILED_VERIFICATION:
-    return "SSL peer certificate or SSH remote key was not OK";
+  நிலை CURLE_PEER_FAILED_VERIFICATION:
+    திரும்பு "SSL peer certificate or SSH remote key was not OK";
 
-  case CURLE_SSL_CACERT_BADFILE:
-    return "Problem with the SSL CA cert (path? access rights?)";
+  நிலை CURLE_SSL_CACERT_BADFILE:
+    திரும்பு "Problem with the SSL CA cert (path? access rights?)";
 
-  case CURLE_BAD_CONTENT_ENCODING:
-    return "Unrecognized or bad HTTP Content or Transfer-Encoding";
+  நிலை CURLE_BAD_CONTENT_ENCODING:
+    திரும்பு "Unrecognized or bad HTTP Content or Transfer-Encoding";
 
-  case CURLE_FILESIZE_EXCEEDED:
-    return "Maximum file size exceeded";
+  நிலை CURLE_FILESIZE_EXCEEDED:
+    திரும்பு "Maximum file size exceeded";
 
-  case CURLE_USE_SSL_FAILED:
-    return "Requested SSL level failed";
+  நிலை CURLE_USE_SSL_FAILED:
+    திரும்பு "Requested SSL level failed";
 
-  case CURLE_SSL_SHUTDOWN_FAILED:
-    return "Failed to shut down the SSL connection";
+  நிலை CURLE_SSL_SHUTDOWN_FAILED:
+    திரும்பு "Failed to shut down the SSL connection";
 
-  case CURLE_SSL_CRL_BADFILE:
-    return "Failed to load CRL file (path? access rights?, format?)";
+  நிலை CURLE_SSL_CRL_BADFILE:
+    திரும்பு "Failed to load CRL file (path? access rights?, format?)";
 
-  case CURLE_SSL_ISSUER_ERROR:
-    return "Issuer check against peer certificate failed";
+  நிலை CURLE_SSL_ISSUER_ERROR:
+    திரும்பு "Issuer check against peer certificate failed";
 
-  case CURLE_SEND_FAIL_REWIND:
-    return "Send failed since rewinding of the data stream failed";
+  நிலை CURLE_SEND_FAIL_REWIND:
+    திரும்பு "Send failed since rewinding of the data stream failed";
 
-  case CURLE_LOGIN_DENIED:
-    return "Login denied";
+  நிலை CURLE_LOGIN_DENIED:
+    திரும்பு "Login denied";
 
-  case CURLE_TFTP_NOTFOUND:
-    return "TFTP: File Not Found";
+  நிலை CURLE_TFTP_NOTFOUND:
+    திரும்பு "TFTP: File Not Found";
 
-  case CURLE_TFTP_PERM:
-    return "TFTP: Access Violation";
+  நிலை CURLE_TFTP_PERM:
+    திரும்பு "TFTP: Access Violation";
 
-  case CURLE_REMOTE_DISK_FULL:
-    return "Disk full or allocation exceeded";
+  நிலை CURLE_REMOTE_DISK_FULL:
+    திரும்பு "Disk full or allocation exceeded";
 
-  case CURLE_TFTP_ILLEGAL:
-    return "TFTP: Illegal operation";
+  நிலை CURLE_TFTP_ILLEGAL:
+    திரும்பு "TFTP: Illegal operation";
 
-  case CURLE_TFTP_UNKNOWNID:
-    return "TFTP: Unknown transfer ID";
+  நிலை CURLE_TFTP_UNKNOWNID:
+    திரும்பு "TFTP: Unknown transfer ID";
 
-  case CURLE_REMOTE_FILE_EXISTS:
-    return "Remote file already exists";
+  நிலை CURLE_REMOTE_FILE_EXISTS:
+    திரும்பு "Remote file already exists";
 
-  case CURLE_TFTP_NOSUCHUSER:
-    return "TFTP: No such user";
+  நிலை CURLE_TFTP_NOSUCHUSER:
+    திரும்பு "TFTP: No such user";
 
-  case CURLE_REMOTE_FILE_NOT_FOUND:
-    return "Remote file not found";
+  நிலை CURLE_REMOTE_FILE_NOT_FOUND:
+    திரும்பு "Remote file not found";
 
-  case CURLE_SSH:
-    return "Error in the SSH layer";
+  நிலை CURLE_SSH:
+    திரும்பு "Error in the SSH layer";
 
-  case CURLE_AGAIN:
-    return "Socket not ready for send/recv";
+  நிலை CURLE_AGAIN:
+    திரும்பு "Socket not ready for send/recv";
 
-  case CURLE_RTSP_CSEQ_ERROR:
-    return "RTSP CSeq mismatch or invalid CSeq";
+  நிலை CURLE_RTSP_CSEQ_ERROR:
+    திரும்பு "RTSP CSeq mismatch or invalid CSeq";
 
-  case CURLE_RTSP_SESSION_ERROR:
-    return "RTSP session error";
+  நிலை CURLE_RTSP_SESSION_ERROR:
+    திரும்பு "RTSP session error";
 
-  case CURLE_FTP_BAD_FILE_LIST:
-    return "Unable to parse FTP file list";
+  நிலை CURLE_FTP_BAD_FILE_LIST:
+    திரும்பு "Unable to parse FTP file list";
 
-  case CURLE_CHUNK_FAILED:
-    return "Chunk callback failed";
+  நிலை CURLE_CHUNK_FAILED:
+    திரும்பு "Chunk callback failed";
 
-  case CURLE_NO_CONNECTION_AVAILABLE:
-    return "The max connection limit is reached";
+  நிலை CURLE_NO_CONNECTION_AVAILABLE:
+    திரும்பு "The max connection limit is reached";
 
-  case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
-    return "SSL public key does not match pinned public key";
+  நிலை CURLE_SSL_PINNEDPUBKEYNOTMATCH:
+    திரும்பு "SSL public key does not match pinned public key";
 
-  case CURLE_SSL_INVALIDCERTSTATUS:
-    return "SSL server certificate status verification FAILED";
+  நிலை CURLE_SSL_INVALIDCERTSTATUS:
+    திரும்பு "SSL server certificate status verification FAILED";
 
-  case CURLE_HTTP2_STREAM:
-    return "Stream error in the HTTP/2 framing layer";
+  நிலை CURLE_HTTP2_STREAM:
+    திரும்பு "Stream error in the HTTP/2 framing layer";
 
-  case CURLE_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+  நிலை CURLE_RECURSIVE_API_CALL:
+    திரும்பு "API function called from within callback";
 
-  case CURLE_AUTH_ERROR:
-    return "An authentication function returned an error";
+  நிலை CURLE_AUTH_ERROR:
+    திரும்பு "An authentication function returned an error";
 
-  case CURLE_HTTP3:
-    return "HTTP/3 error";
+  நிலை CURLE_HTTP3:
+    திரும்பு "HTTP/3 error";
 
-  case CURLE_QUIC_CONNECT_ERROR:
-    return "QUIC connection error";
+  நிலை CURLE_QUIC_CONNECT_ERROR:
+    திரும்பு "QUIC connection error";
 
-  case CURLE_PROXY:
-    return "proxy handshake error";
+  நிலை CURLE_PROXY:
+    திரும்பு "proxy handshake error";
 
-  case CURLE_SSL_CLIENTCERT:
-    return "SSL Client Certificate required";
+  நிலை CURLE_SSL_CLIENTCERT:
+    திரும்பு "SSL Client Certificate required";
 
-  case CURLE_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+  நிலை CURLE_UNRECOVERABLE_POLL:
+    திரும்பு "Unrecoverable error in select/poll";
 
-  case CURLE_TOO_LARGE:
-    return "A value or data field grew larger than allowed";
+  நிலை CURLE_TOO_LARGE:
+    திரும்பு "A value or data field grew larger than allowed";
 
-  case CURLE_ECH_REQUIRED:
-    return "ECH attempted but failed";
+  நிலை CURLE_ECH_REQUIRED:
+    திரும்பு "ECH attempted but failed";
 
     /* error codes not used by current libcurl */
-  default:
-    break;
+  இயல்பு:
+    நிறுத்து;
   }
   /*
    * By using a switch, gcc -Wall will complain about enum values
@@ -314,222 +314,222 @@ const char *curl_easy_strerror(CURLcode error)
    * The line number for the error will be near this comment, which is why it
    * is here, and not at the start of the switch.
    */
-  return "Unknown error";
-#else
-  if(!error)
-    return "No error";
-  else
-    return "Error";
+  திரும்பு "Unknown error";
+#இல்லையெனில்
+  எனில்(!error)
+    திரும்பு "No error";
+  இல்லையெனில்
+    திரும்பு "Error";
 #endif
 }
 
-const char *curl_multi_strerror(CURLMcode error)
+மாறிலி எழுத்து *curl_multi_strerror(CURLMcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLM_CALL_MULTI_PERFORM:
-    return "Please call curl_multi_perform() soon";
+  தேர்வு(error) {
+  நிலை CURLM_CALL_MULTI_PERFORM:
+    திரும்பு "Please call curl_multi_perform() soon";
 
-  case CURLM_OK:
-    return "No error";
+  நிலை CURLM_OK:
+    திரும்பு "No error";
 
-  case CURLM_BAD_HANDLE:
-    return "Invalid multi handle";
+  நிலை CURLM_BAD_HANDLE:
+    திரும்பு "Invalid multi handle";
 
-  case CURLM_BAD_EASY_HANDLE:
-    return "Invalid easy handle";
+  நிலை CURLM_BAD_EASY_HANDLE:
+    திரும்பு "Invalid easy handle";
 
-  case CURLM_OUT_OF_MEMORY:
-    return "Out of memory";
+  நிலை CURLM_OUT_OF_MEMORY:
+    திரும்பு "Out of memory";
 
-  case CURLM_INTERNAL_ERROR:
-    return "Internal error";
+  நிலை CURLM_INTERNAL_ERROR:
+    திரும்பு "Internal error";
 
-  case CURLM_BAD_SOCKET:
-    return "Invalid socket argument";
+  நிலை CURLM_BAD_SOCKET:
+    திரும்பு "Invalid socket argument";
 
-  case CURLM_UNKNOWN_OPTION:
-    return "Unknown option";
+  நிலை CURLM_UNKNOWN_OPTION:
+    திரும்பு "Unknown option";
 
-  case CURLM_ADDED_ALREADY:
-    return "The easy handle is already added to a multi handle";
+  நிலை CURLM_ADDED_ALREADY:
+    திரும்பு "The easy handle is already added to a multi handle";
 
-  case CURLM_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+  நிலை CURLM_RECURSIVE_API_CALL:
+    திரும்பு "API function called from within callback";
 
-  case CURLM_WAKEUP_FAILURE:
-    return "Wakeup is unavailable or failed";
+  நிலை CURLM_WAKEUP_FAILURE:
+    திரும்பு "Wakeup is unavailable or failed";
 
-  case CURLM_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+  நிலை CURLM_BAD_FUNCTION_ARGUMENT:
+    திரும்பு "A libcurl function was given a bad argument";
 
-  case CURLM_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+  நிலை CURLM_ABORTED_BY_CALLBACK:
+    திரும்பு "Operation was aborted by an application callback";
 
-  case CURLM_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+  நிலை CURLM_UNRECOVERABLE_POLL:
+    திரும்பு "Unrecoverable error in select/poll";
 
-  case CURLM_LAST:
-    break;
+  நிலை CURLM_LAST:
+    நிறுத்து;
   }
 
-  return "Unknown error";
-#else
-  if(error == CURLM_OK)
-    return "No error";
-  else
-    return "Error";
+  திரும்பு "Unknown error";
+#இல்லையெனில்
+  எனில்(error == CURLM_OK)
+    திரும்பு "No error";
+  இல்லையெனில்
+    திரும்பு "Error";
 #endif
 }
 
-const char *curl_share_strerror(CURLSHcode error)
+மாறிலி எழுத்து *curl_share_strerror(CURLSHcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLSHE_OK:
-    return "No error";
+  தேர்வு(error) {
+  நிலை CURLSHE_OK:
+    திரும்பு "No error";
 
-  case CURLSHE_BAD_OPTION:
-    return "Unknown share option";
+  நிலை CURLSHE_BAD_OPTION:
+    திரும்பு "Unknown share option";
 
-  case CURLSHE_IN_USE:
-    return "Share currently in use";
+  நிலை CURLSHE_IN_USE:
+    திரும்பு "Share currently in use";
 
-  case CURLSHE_INVALID:
-    return "Invalid share handle";
+  நிலை CURLSHE_INVALID:
+    திரும்பு "Invalid share handle";
 
-  case CURLSHE_NOMEM:
-    return "Out of memory";
+  நிலை CURLSHE_NOMEM:
+    திரும்பு "Out of memory";
 
-  case CURLSHE_NOT_BUILT_IN:
-    return "Feature not enabled in this library";
+  நிலை CURLSHE_NOT_BUILT_IN:
+    திரும்பு "Feature not enabled in this library";
 
-  case CURLSHE_LAST:
-    break;
+  நிலை CURLSHE_LAST:
+    நிறுத்து;
   }
 
-  return "CURLSHcode unknown";
-#else
-  if(error == CURLSHE_OK)
-    return "No error";
-  else
-    return "Error";
+  திரும்பு "CURLSHcode unknown";
+#இல்லையெனில்
+  எனில்(error == CURLSHE_OK)
+    திரும்பு "No error";
+  இல்லையெனில்
+    திரும்பு "Error";
 #endif
 }
 
-const char *curl_url_strerror(CURLUcode error)
+மாறிலி எழுத்து *curl_url_strerror(CURLUcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLUE_OK:
-    return "No error";
+  தேர்வு(error) {
+  நிலை CURLUE_OK:
+    திரும்பு "No error";
 
-  case CURLUE_BAD_HANDLE:
-    return "An invalid CURLU pointer was passed as argument";
+  நிலை CURLUE_BAD_HANDLE:
+    திரும்பு "An invalid CURLU pointer was passed as argument";
 
-  case CURLUE_BAD_PARTPOINTER:
-    return "An invalid 'part' argument was passed as argument";
+  நிலை CURLUE_BAD_PARTPOINTER:
+    திரும்பு "An invalid 'part' argument was passed as argument";
 
-  case CURLUE_MALFORMED_INPUT:
-    return "Malformed input to a URL function";
+  நிலை CURLUE_MALFORMED_உள்ளீடு:
+    திரும்பு "Malformed input to a URL function";
 
-  case CURLUE_BAD_PORT_NUMBER:
-    return "Port number was not a decimal number between 0 and 65535";
+  நிலை CURLUE_BAD_PORT_எண்:
+    திரும்பு "Port number was not a decimal number between 0 and 65535";
 
-  case CURLUE_UNSUPPORTED_SCHEME:
-    return "Unsupported URL scheme";
+  நிலை CURLUE_UNSUPPORTED_SCHEME:
+    திரும்பு "Unsupported URL scheme";
 
-  case CURLUE_URLDECODE:
-    return "URL decode error, most likely because of rubbish in the input";
+  நிலை CURLUE_URLDECODE:
+    திரும்பு "URL decode error, most likely because of rubbish in the input";
 
-  case CURLUE_OUT_OF_MEMORY:
-    return "A memory function failed";
+  நிலை CURLUE_OUT_OF_MEMORY:
+    திரும்பு "A memory function failed";
 
-  case CURLUE_USER_NOT_ALLOWED:
-    return "Credentials was passed in the URL when prohibited";
+  நிலை CURLUE_USER_NOT_ALLOWED:
+    திரும்பு "Credentials was passed in the URL when prohibited";
 
-  case CURLUE_UNKNOWN_PART:
-    return "An unknown part ID was passed to a URL API function";
+  நிலை CURLUE_UNKNOWN_PART:
+    திரும்பு "An unknown part ID was passed to a URL API function";
 
-  case CURLUE_NO_SCHEME:
-    return "No scheme present";
+  நிலை CURLUE_NO_SCHEME:
+    திரும்பு "No scheme present";
 
-  case CURLUE_NO_USER:
-    return "No user present";
+  நிலை CURLUE_NO_USER:
+    திரும்பு "No user present";
 
-  case CURLUE_NO_PASSWORD:
-    return "No password present";
+  நிலை CURLUE_NO_PASSWORD:
+    திரும்பு "No password present";
 
-  case CURLUE_NO_OPTIONS:
-    return "No options present";
+  நிலை CURLUE_NO_OPTIONS:
+    திரும்பு "No options present";
 
-  case CURLUE_NO_HOST:
-    return "No host present";
+  நிலை CURLUE_NO_HOST:
+    திரும்பு "No host present";
 
-  case CURLUE_NO_PORT:
-    return "No port number present";
+  நிலை CURLUE_NO_PORT:
+    திரும்பு "No port number present";
 
-  case CURLUE_NO_QUERY:
-    return "No query present";
+  நிலை CURLUE_NO_QUERY:
+    திரும்பு "No query present";
 
-  case CURLUE_NO_FRAGMENT:
-    return "No fragment present";
+  நிலை CURLUE_NO_FRAGMENT:
+    திரும்பு "No fragment present";
 
-  case CURLUE_NO_ZONEID:
-    return "No zoneid present";
+  நிலை CURLUE_NO_ZONEID:
+    திரும்பு "No zoneid present";
 
-  case CURLUE_BAD_LOGIN:
-    return "Bad login";
+  நிலை CURLUE_BAD_LOGIN:
+    திரும்பு "Bad login";
 
-  case CURLUE_BAD_IPV6:
-    return "Bad IPv6 address";
+  நிலை CURLUE_BAD_IPV6:
+    திரும்பு "Bad IPv6 address";
 
-  case CURLUE_BAD_HOSTNAME:
-    return "Bad hostname";
+  நிலை CURLUE_BAD_HOSTNAME:
+    திரும்பு "Bad hostname";
 
-  case CURLUE_BAD_FILE_URL:
-    return "Bad file:// URL";
+  நிலை CURLUE_BAD_FILE_URL:
+    திரும்பு "Bad file:// URL";
 
-  case CURLUE_BAD_SLASHES:
-    return "Unsupported number of slashes following scheme";
+  நிலை CURLUE_BAD_SLASHES:
+    திரும்பு "Unsupported number of slashes following scheme";
 
-  case CURLUE_BAD_SCHEME:
-    return "Bad scheme";
+  நிலை CURLUE_BAD_SCHEME:
+    திரும்பு "Bad scheme";
 
-  case CURLUE_BAD_PATH:
-    return "Bad path";
+  நிலை CURLUE_BAD_PATH:
+    திரும்பு "Bad path";
 
-  case CURLUE_BAD_FRAGMENT:
-    return "Bad fragment";
+  நிலை CURLUE_BAD_FRAGMENT:
+    திரும்பு "Bad fragment";
 
-  case CURLUE_BAD_QUERY:
-    return "Bad query";
+  நிலை CURLUE_BAD_QUERY:
+    திரும்பு "Bad query";
 
-  case CURLUE_BAD_PASSWORD:
-    return "Bad password";
+  நிலை CURLUE_BAD_PASSWORD:
+    திரும்பு "Bad password";
 
-  case CURLUE_BAD_USER:
-    return "Bad user";
+  நிலை CURLUE_BAD_USER:
+    திரும்பு "Bad user";
 
-  case CURLUE_LACKS_IDN:
-    return "libcurl lacks IDN support";
+  நிலை CURLUE_LACKS_IDN:
+    திரும்பு "libcurl lacks IDN support";
 
-  case CURLUE_TOO_LARGE:
-    return "A value or data field is larger than allowed";
+  நிலை CURLUE_TOO_LARGE:
+    திரும்பு "A value or data field is larger than allowed";
 
-  case CURLUE_BACKSLASH:
-    return "Found a backslash where a forward slash was expected";
+  நிலை CURLUE_BACKSLASH:
+    திரும்பு "Found a backslash where a forward slash was expected";
 
-  case CURLUE_LAST:
-    break;
+  நிலை CURLUE_LAST:
+    நிறுத்து;
   }
 
-  return "CURLUcode unknown";
-#else
-  if(error == CURLUE_OK)
-    return "No error";
-  else
-    return "Error";
+  திரும்பு "CURLUcode unknown";
+#இல்லையெனில்
+  எனில்(error == CURLUE_OK)
+    திரும்பு "No error";
+  இல்லையெனில்
+    திரும்பு "Error";
 #endif
 }
 
@@ -538,25 +538,25 @@ const char *curl_url_strerror(CURLUcode error)
  * Curl_sspi_strerror:
  * Variant of curlx_strerror if the error code is definitely Windows SSPI.
  */
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
+மாறிலி எழுத்து *Curl_sspi_strerror(SECURITY_STATUS err, எழுத்து *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
-  VERBOSE(const char *txt);
+  முழு old_errno = errno;
+  VERBOSE(மாறிலி எழுத்து *txt);
 
-  if(!buflen)
-    return NULL;
+  எனில்(!buflen)
+    திரும்பு வெற்று;
 
   *buf = '\0';
 
 #ifdef CURLVERBOSE
-  switch(err) {
-  case SEC_E_OK:
+  தேர்வு(err) {
+  நிலை SEC_E_OK:
     txt = "No error";
-    break;
-#define SEC2TXT(sec) case sec: txt = #sec; break
+    நிறுத்து;
+#define SEC2TXT(sec) நிலை sec: txt = #sec; நிறுத்து
   SEC2TXT(CRYPT_E_REVOKED);
   SEC2TXT(CRYPT_E_NO_REVOCATION_DLL);
   SEC2TXT(CRYPT_E_NO_REVOCATION_CHECK);
@@ -604,7 +604,7 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_E_NO_CREDENTIALS);
   SEC2TXT(SEC_E_NO_IMPERSONATION);
   SEC2TXT(SEC_E_NO_IP_ADDRESSES);
-  SEC2TXT(SEC_E_NO_KERB_KEY);
+  SEC2TXT(SEC_E_NO_KERB_சாவி);
   SEC2TXT(SEC_E_NO_PA_DATA);
   SEC2TXT(SEC_E_NO_S4U_PROT_SUPPORT);
   SEC2TXT(SEC_E_NO_TGT_REPLY);
@@ -629,7 +629,7 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_E_UNKNOWN_CREDENTIALS);
   SEC2TXT(SEC_E_UNSUPPORTED_FUNCTION);
   SEC2TXT(SEC_E_UNSUPPORTED_PREAUTH);
-  SEC2TXT(SEC_E_UNTRUSTED_ROOT);
+  SEC2TXT(SEC_E_UNTRUSTED_வேர்);
   SEC2TXT(SEC_E_WRONG_CREDENTIAL_HANDLE);
   SEC2TXT(SEC_E_WRONG_PRINCIPAL);
   SEC2TXT(SEC_I_COMPLETE_AND_CONTINUE);
@@ -641,40 +641,40 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_I_NO_LSA_CONTEXT);
   SEC2TXT(SEC_I_RENEGOTIATE);
   SEC2TXT(SEC_I_SIGNATURE_NEEDED);
-  default:
+  இயல்பு:
     txt = "Unknown error";
   }
 
-  if(err == SEC_E_ILLEGAL_MESSAGE) {
+  எனில்(err == SEC_E_ILLEGAL_MESSAGE) {
     curl_msnprintf(buf, buflen,
                    "SEC_E_ILLEGAL_MESSAGE (0x%08lx) - This error usually "
                    "occurs when a fatal SSL/TLS alert is received (e.g. "
                    "handshake failed). More detail may be available in "
                    "the Windows System event log.", (unsigned long)err);
   }
-  else {
-    char msgbuf[256];
-    if(curlx_get_winapi_error((DWORD)err, msgbuf, sizeof(msgbuf)))
+  இல்லையெனில் {
+    எழுத்து msgbuf[256];
+    எனில்(curlx_get_winapi_error((DWORD)err, msgbuf, அளவு(msgbuf)))
       curl_msnprintf(buf, buflen, "%s (0x%08lx) - %s", txt, (unsigned long)err,
                      msgbuf);
-    else
+    இல்லையெனில்
       curl_msnprintf(buf, buflen, "%s (0x%08lx)", txt, (unsigned long)err);
   }
-#else /* CURLVERBOSE */
-  if(err == SEC_E_OK)
+#இல்லையெனில் /* CURLVERBOSE */
+  எனில்(err == SEC_E_OK)
     curlx_strcopy(buf, buflen, STRCONST("No error"));
-  else
+  இல்லையெனில்
     curlx_strcopy(buf, buflen, STRCONST("Error"));
 #endif
 
-  if(errno != old_errno)
+  எனில்(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  எனில்(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  திரும்பு buf;
 }
 #endif /* USE_WINDOWS_SSPI */

@@ -21,56 +21,56 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#அந்தர்பாவ <netinet/in.h>
 #endif
 #ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
+#அந்தர்பாவ <netinet/in6.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#அந்தர்பாவ <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#அந்தர்பாவ <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#அந்தர்பாவ <in.h>
+#அந்தர்பாவ <inet.h>
 #endif
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_share.h"
-#include "curl_trc.h"
-#include "hash.h"
-#include "progress.h"
-#include "rand.h"
-#include "strcase.h"
-#include "vdns/dnscache.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include "curlx/inet_ntop.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strcopy.h"
-#include "curlx/strparse.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "curl_addrinfo.h"
+#அந்தர்பாவ "curl_share.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "hash.h"
+#அந்தர்பாவ "progress.h"
+#அந்தர்பாவ "rand.h"
+#அந்தர்பாவ "strcase.h"
+#அந்தர்பாவ "vdns/dnscache.h"
+#அந்தர்பாவ "vdns/hostip.h"
+#அந்தர்பாவ "vdns/httpsrr.h"
+#அந்தர்பாவ "curlx/inet_ntop.h"
+#அந்தர்பாவ "curlx/inet_pton.h"
+#அந்தர்பாவ "curlx/strcopy.h"
+#அந்தர்பாவ "curlx/strparse.h"
 
 #define MAX_DNS_CACHE_SIZE 29999
 
 /* @unittest 3217 */
-UNITTEST void dnsc_peer2id(struct dnsc_id *pid, char type,
-                           struct Curl_peer *peer);
-UNITTEST void dnsc_peer2id(struct dnsc_id *pid, char type,
-                           struct Curl_peer *peer)
+UNITTEST வெறுமை dnsc_peer2id(கட்டமைப்பு dnsc_id *pid, எழுத்து type,
+                           கட்டமைப்பு Curl_peer *peer);
+UNITTEST வெறுமை dnsc_peer2id(கட்டமைப்பு dnsc_id *pid, எழுத்து type,
+                           கட்டமைப்பு Curl_peer *peer)
 {
   curlx_str_assign(&pid->name, peer->hostname, strlen(peer->hostname));
   pid->port = peer->port;
   pid->type = type;
 }
 
-static void dnsc_str2id(struct dnsc_id *pid, char type,
-                        struct Curl_str *name, uint16_t port)
+நிலையான வெறுமை dnsc_str2id(கட்டமைப்பு dnsc_id *pid, எழுத்து type,
+                        கட்டமைப்பு Curl_str *name, uint16_t port)
 {
   pid->name = *name;
   pid->port = port;
@@ -83,27 +83,27 @@ static void dnsc_str2id(struct dnsc_id *pid, char type,
  *
  * @unittest 3217
  */
-UNITTEST void dnsc_id2key(struct dnsc_key *key, struct dnsc_id *id);
-UNITTEST void dnsc_id2key(struct dnsc_key *key, struct dnsc_id *id)
+UNITTEST வெறுமை dnsc_id2key(கட்டமைப்பு dnsc_சாவி *சாவி, கட்டமைப்பு dnsc_id *id);
+UNITTEST வெறுமை dnsc_id2key(கட்டமைப்பு dnsc_சாவி *சாவி, கட்டமைப்பு dnsc_id *id)
 {
   size_t namelen = curlx_strlen(&id->name);
-  if(namelen > (MAX_HOSTCACHE_LEN - 3))
+  எனில்(namelen > (MAX_HOSTCACHE_LEN - 3))
     namelen = MAX_HOSTCACHE_LEN - 3;
   /* store and lower case the name */
-  key->data[0] = id->type;
-  key->data[1] = (uint8_t)((id->port >> 8) & 0xff);
-  key->data[2] = (uint8_t)(id->port & 0xff);
-  Curl_strntolower((char *)key->data + 3, curlx_str(&id->name), namelen);
-  key->len = namelen + 3;
+  சாவி->data[0] = id->type;
+  சாவி->data[1] = (uint8_t)((id->port >> 8) & 0xff);
+  சாவி->data[2] = (uint8_t)(id->port & 0xff);
+  Curl_strntolower((எழுத்து *)சாவி->data + 3, curlx_str(&id->name), namelen);
+  சாவி->len = namelen + 3;
 }
 
 /* @unittest 3271 */
-UNITTEST bool dnsc_id_matches_entry(struct dnsc_id *id,
-                                    struct Curl_dns_entry *dns);
-UNITTEST bool dnsc_id_matches_entry(struct dnsc_id *id,
-                                    struct Curl_dns_entry *dns)
+UNITTEST bool dnsc_id_matches_entry(கட்டமைப்பு dnsc_id *id,
+                                    கட்டமைப்பு Curl_dns_entry *dns);
+UNITTEST bool dnsc_id_matches_entry(கட்டமைப்பு dnsc_id *id,
+                                    கட்டமைப்பு Curl_dns_entry *dns)
 {
-  return dns &&
+  திரும்பு dns &&
          /* Neither the requested nor the cached key was truncated. */
          (((dns->hostlen <= (MAX_HOSTCACHE_LEN - 3)) &&
            (id->name.len <= (MAX_HOSTCACHE_LEN - 3))) ||
@@ -114,7 +114,7 @@ UNITTEST bool dnsc_id_matches_entry(struct dnsc_id *id,
             curl_strequal(id->name.str, dns->hostname))));
 }
 
-static void dnscache_entry_free(struct Curl_dns_entry *dns)
+நிலையான வெறுமை dnscache_entry_free(கட்டமைப்பு Curl_dns_entry *dns)
 {
   Curl_freeaddrinfo(dns->addr);
 #ifdef USE_HTTPSRR
@@ -123,8 +123,8 @@ static void dnscache_entry_free(struct Curl_dns_entry *dns)
   curlx_free(dns);
 }
 
-struct dnscache_prune_data {
-  const struct curltime *pnow;
+கட்டமைப்பு dnscache_prune_data {
+  மாறிலி கட்டமைப்பு curltime *pnow;
   timediff_t oldest_ms; /* oldest time in cache not pruned. */
   timediff_t max_age_ms;
 };
@@ -136,77 +136,77 @@ struct dnscache_prune_data {
  * Returning non-zero means remove the entry, return 0 to keep it in the
  * cache.
  */
-static int dnscache_entry_is_stale(void *datap, void *hc)
+நிலையான முழு dnscache_entry_is_stale(வெறுமை *datap, வெறுமை *hc)
 {
-  struct dnscache_prune_data *prune = (struct dnscache_prune_data *)datap;
-  struct Curl_dns_entry *dns = (struct Curl_dns_entry *)hc;
+  கட்டமைப்பு dnscache_prune_data *prune = (கட்டமைப்பு dnscache_prune_data *)datap;
+  கட்டமைப்பு Curl_dns_entry *dns = (கட்டமைப்பு Curl_dns_entry *)hc;
 
-  if(!dns->permanent) {
+  எனில்(!dns->permanent) {
     /* get age in milliseconds */
     timediff_t age_ms = curlx_ptimediff_ms(prune->pnow, &dns->added);
-    switch(dns->type) {
-    case CURL_DNST_ADDR:
-      if(!dns->addr)
+    தேர்வு(dns->type) {
+    நிலை CURL_DNST_ADDR:
+      எனில்(!dns->addr)
         age_ms *= 2; /* negative entries age twice as fast */
-      break;
+      நிறுத்து;
 #ifdef USE_HTTPSRR
-    case CURL_DNST_HTTPS:
-      if(!dns->hinfo)
+    நிலை CURL_DNST_HTTPS:
+      எனில்(!dns->hinfo)
         age_ms *= 2; /* negative entries age twice as fast */
-      break;
+      நிறுத்து;
 #endif
-    default:
-      break;
+    இயல்பு:
+      நிறுத்து;
     }
-    if(age_ms >= prune->max_age_ms)
-      return TRUE;
-    if(age_ms > prune->oldest_ms)
+    எனில்(age_ms >= prune->max_age_ms)
+      திரும்பு TRUE;
+    எனில்(age_ms > prune->oldest_ms)
       prune->oldest_ms = age_ms;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 /*
  * Prune the DNS cache. This assumes that a lock has already been taken.
  * Returns the 'age' of the oldest still kept entry - in milliseconds.
  */
-static timediff_t dnscache_prune(struct Curl_hash *hostcache,
+நிலையான timediff_t dnscache_prune(கட்டமைப்பு Curl_hash *hostcache,
                                  timediff_t cache_timeout_ms,
-                                 const struct curltime *pnow)
+                                 மாறிலி கட்டமைப்பு curltime *pnow)
 {
-  struct dnscache_prune_data user;
+  கட்டமைப்பு dnscache_prune_data user;
 
   user.max_age_ms = cache_timeout_ms;
   user.pnow = pnow;
   user.oldest_ms = 0;
 
   Curl_hash_clean_with_criterium(hostcache,
-                                 (void *)&user,
+                                 (வெறுமை *)&user,
                                  dnscache_entry_is_stale);
 
-  return user.oldest_ms;
+  திரும்பு user.oldest_ms;
 }
 
-static struct Curl_dnscache *dnscache_get(struct Curl_easy *data)
+நிலையான கட்டமைப்பு Curl_dnscache *dnscache_get(கட்டமைப்பு Curl_easy *data)
 {
-  if(data->share && data->share->specifier & (1 << CURL_LOCK_DATA_DNS))
-    return &data->share->dnscache;
-  if(data->multi)
-    return &data->multi->dnscache;
-  return NULL;
+  எனில்(data->share && data->share->specifier & (1 << CURL_LOCK_DATA_DNS))
+    திரும்பு &data->share->dnscache;
+  எனில்(data->multi)
+    திரும்பு &data->multi->dnscache;
+  திரும்பு வெற்று;
 }
 
-static void dnscache_lock(struct Curl_easy *data,
-                          struct Curl_dnscache *dnscache)
+நிலையான வெறுமை dnscache_lock(கட்டமைப்பு Curl_easy *data,
+                          கட்டமைப்பு Curl_dnscache *dnscache)
 {
-  if(data->share && dnscache == &data->share->dnscache)
+  எனில்(data->share && dnscache == &data->share->dnscache)
     Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
 }
 
-static void dnscache_unlock(struct Curl_easy *data,
-                            struct Curl_dnscache *dnscache)
+நிலையான வெறுமை dnscache_unlock(கட்டமைப்பு Curl_easy *data,
+                            கட்டமைப்பு Curl_dnscache *dnscache)
 {
-  if(data->share && dnscache == &data->share->dnscache)
+  எனில்(data->share && dnscache == &data->share->dnscache)
     Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
 }
 
@@ -214,40 +214,40 @@ static void dnscache_unlock(struct Curl_easy *data,
  * Library-wide function for pruning the DNS cache. This function takes and
  * returns the appropriate locks.
  */
-void Curl_dnscache_prune(struct Curl_easy *data, const struct curltime *pnow)
+வெறுமை Curl_dnscache_prune(கட்டமைப்பு Curl_easy *data, மாறிலி கட்டமைப்பு curltime *pnow)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
+  கட்டமைப்பு Curl_dnscache *dnscache = dnscache_get(data);
   /* the timeout may be set -1 (forever) */
   timediff_t timeout_ms = data->set.dns_cache_timeout_ms;
 
-  if(!dnscache || (timeout_ms == -1))
+  எனில்(!dnscache || (timeout_ms == -1))
     /* NULL hostcache means we cannot do it */
-    return;
+    திரும்பு;
 
   dnscache_lock(data, dnscache);
 
-  do {
+  செய் {
     /* Remove outdated and unused entries from the hostcache */
     timediff_t oldest_ms =
       dnscache_prune(&dnscache->entries, timeout_ms, pnow);
 
-    if(Curl_hash_count(&dnscache->entries) > MAX_DNS_CACHE_SIZE)
+    எனில்(Curl_hash_மொத்தம்(&dnscache->entries) > MAX_DNS_CACHE_SIZE)
       /* prune the ones over half this age */
       timeout_ms = oldest_ms / 2;
-    else
-      break;
+    இல்லையெனில்
+      நிறுத்து;
 
     /* if the cache size is still too big, use the oldest age as new prune
        limit */
-  } while(timeout_ms);
+  } போது(timeout_ms);
 
   dnscache_unlock(data, dnscache);
 }
 
-void Curl_dnscache_clear(struct Curl_easy *data)
+வெறுமை Curl_dnscache_clear(கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  if(dnscache) {
+  கட்டமைப்பு Curl_dnscache *dnscache = dnscache_get(data);
+  எனில்(dnscache) {
     dnscache_lock(data, dnscache);
     Curl_hash_clean(&dnscache->entries);
     dnscache_unlock(data, dnscache);
@@ -255,83 +255,83 @@ void Curl_dnscache_clear(struct Curl_easy *data)
 }
 
 /* lookup address, returns entry if found and not stale */
-static CURLcode fetch_entry(struct Curl_easy *data,
-                            struct Curl_dnscache *dnscache,
+நிலையான CURLcode fetch_entry(கட்டமைப்பு Curl_easy *data,
+                            கட்டமைப்பு Curl_dnscache *dnscache,
                             uint8_t dns_queries,
-                            struct Curl_peer *peer,
-                            struct Curl_dns_entry **pdns)
+                            கட்டமைப்பு Curl_peer *peer,
+                            கட்டமைப்பு Curl_dns_entry **pdns)
 {
-  struct Curl_dns_entry *dns = NULL;
-  struct dnsc_id id;
-  struct dnsc_key key;
-  char type = CURL_DNSQ_IS_ADDR(dns_queries) ?
+  கட்டமைப்பு Curl_dns_entry *dns = வெற்று;
+  கட்டமைப்பு dnsc_id id;
+  கட்டமைப்பு dnsc_சாவி சாவி;
+  எழுத்து type = CURL_DNSQ_IS_ADDR(dns_queries) ?
               CURL_DNST_ADDR : CURL_DNST_HTTPS;
   CURLcode result = CURLE_OK;
 
-  *pdns = NULL;
-  if(!dnscache)
-    return CURLE_OK;
+  *pdns = வெற்று;
+  எனில்(!dnscache)
+    திரும்பு CURLE_OK;
 
   dnsc_peer2id(&id, type, peer);
-  dnsc_id2key(&key, &id);
+  dnsc_id2key(&சாவி, &id);
 
   /* See if it is already in our dns cache */
-  dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
+  dns = Curl_hash_pick(&dnscache->entries, சாவி.data, சாவி.len);
 
-  if(dns && !dnsc_id_matches_entry(&id, dns)) {
+  எனில்(dns && !dnsc_id_matches_entry(&id, dns)) {
     /* May happen on hostnames longer than MAX_HOSTCACHE_LEN */
-    dns = NULL;
+    dns = வெற்று;
   }
 
   /* No entry found in cache, check if we might have a wildcard entry */
-  if(!dns && (type == CURL_DNST_ADDR) && data->state.wildcard_resolve) {
-    struct Curl_str wildname;
+  எனில்(!dns && (type == CURL_DNST_ADDR) && data->state.wildcard_resolve) {
+    கட்டமைப்பு Curl_str wildname;
 
     curlx_str_assign(&wildname, "*", 1);
     dnsc_str2id(&id, CURL_DNST_ADDR, &wildname, peer->port);
-    dnsc_id2key(&key, &id);
+    dnsc_id2key(&சாவி, &id);
 
     /* See if it is already in our dns cache */
-    dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
+    dns = Curl_hash_pick(&dnscache->entries, சாவி.data, சாவி.len);
   }
 
-  if(dns && (data->set.dns_cache_timeout_ms != -1)) {
+  எனில்(dns && (data->set.dns_cache_timeout_ms != -1)) {
     /* See whether the returned entry is stale. Done before we release lock */
-    struct dnscache_prune_data user;
+    கட்டமைப்பு dnscache_prune_data user;
 
     user.pnow = Curl_pgrs_now(data);
     user.max_age_ms = data->set.dns_cache_timeout_ms;
     user.oldest_ms = 0;
 
-    if(dnscache_entry_is_stale(&user, dns)) {
+    எனில்(dnscache_entry_is_stale(&user, dns)) {
       infof(data, "Hostname in DNS cache was stale, zapped");
-      dns = NULL; /* the memory deallocation is being handled by the hash */
-      Curl_hash_delete(&dnscache->entries, key.data, key.len);
+      dns = வெற்று; /* the memory deallocation is being handled by the hash */
+      Curl_hash_delete(&dnscache->entries, சாவி.data, சாவி.len);
     }
   }
 
   /* We need to cache address information and HTTPS-RR separately. */
-  if(dns && CURL_DNSQ_IS_ADDR(dns_queries)) {
-    if((uint8_t)(dns->dns_queries & dns_queries) !=
+  எனில்(dns && CURL_DNSQ_IS_ADDR(dns_queries)) {
+    எனில்((uint8_t)(dns->dns_queries & dns_queries) !=
        (uint8_t)(dns_queries & CURL_DNSQ_ADDR)) {
       /* The entry does not cover all wanted address queries, a miss. */
-      dns = NULL;
+      dns = வெற்று;
     }
-    else if(!(dns->dns_responses & dns_queries)) {
+    இல்லையெனில் எனில்(!(dns->dns_responses & dns_queries)) {
       /* The entry has no responses for the wanted DNS queries. */
       CURL_TRC_DNS(data, "cache entry does not have type=%s addresses",
                    Curl_resolv_query_str(dns_queries));
-      dns = NULL;
+      dns = வெற்று;
       result = CURLE_COULDNT_RESOLVE_HOST;
     }
-    else if(dns && !dns->addr) { /* negative entry */
-      dns = NULL;
+    இல்லையெனில் எனில்(dns && !dns->addr) { /* negative entry */
+      dns = வெற்று;
       result = CURLE_COULDNT_RESOLVE_HOST;
     }
   }
 
   *pdns = dns;
-  return result;
+  திரும்பு result;
 }
 
 /*
@@ -348,44 +348,44 @@ static CURLcode fetch_entry(struct Curl_easy *data,
  * The returned data *MUST* be "released" with Curl_dns_entry_unlink() after
  * use, or we will leak memory!
  */
-CURLcode Curl_dnscache_get(struct Curl_easy *data,
+CURLcode Curl_dnscache_get(கட்டமைப்பு Curl_easy *data,
                            uint8_t dns_queries,
-                           struct Curl_peer *peer,
-                           struct Curl_dns_entry **pentry)
+                           கட்டமைப்பு Curl_peer *peer,
+                           கட்டமைப்பு Curl_dns_entry **pentry)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  struct Curl_dns_entry *dns = NULL;
+  கட்டமைப்பு Curl_dnscache *dnscache = dnscache_get(data);
+  கட்டமைப்பு Curl_dns_entry *dns = வெற்று;
   CURLcode result = CURLE_OK;
 
   dnscache_lock(data, dnscache);
   result = fetch_entry(data, dnscache, dns_queries, peer, &dns);
-  if(!result && dns)
+  எனில்(!result && dns)
     dns->refcount++; /* we pass out a reference */
-  else if(result) {
+  இல்லையெனில் எனில்(result) {
     DEBUGASSERT(!dns);
-    dns = NULL;
+    dns = வெற்று;
   }
   dnscache_unlock(data, dnscache);
 
   CURL_TRC_DNS(data, "cache lookup %s:%u queries=%s -> %d %sfound",
                peer->hostname, peer->port, Curl_resolv_query_str(dns_queries),
-               (int)result, dns ? "" : "not ");
+               (முழு)result, dns ? "" : "not ");
   *pentry = dns;
-  return result;
+  திரும்பு result;
 }
 
 #ifndef CURL_DISABLE_SHUFFLE_DNS
 /*
  * Return # of addresses in a Curl_addrinfo struct
  */
-static int num_addresses(const struct Curl_addrinfo *addr)
+நிலையான முழு இலக்கம்_addresses(மாறிலி கட்டமைப்பு Curl_addrinfo *addr)
 {
-  int i = 0;
-  while(addr) {
+  முழு i = 0;
+  போது(addr) {
     addr = addr->ai_next;
     i++;
   }
-  return i;
+  திரும்பு i;
 }
 
 /*
@@ -400,106 +400,106 @@ static int num_addresses(const struct Curl_addrinfo *addr)
  *
  * @unittest 1608
  */
-UNITTEST CURLcode dns_shuffle_addr(struct Curl_easy *data,
-                                   struct Curl_addrinfo **addr);
-UNITTEST CURLcode dns_shuffle_addr(struct Curl_easy *data,
-                                   struct Curl_addrinfo **addr)
+UNITTEST CURLcode dns_shuffle_addr(கட்டமைப்பு Curl_easy *data,
+                                   கட்டமைப்பு Curl_addrinfo **addr);
+UNITTEST CURLcode dns_shuffle_addr(கட்டமைப்பு Curl_easy *data,
+                                   கட்டமைப்பு Curl_addrinfo **addr)
 {
   CURLcode result = CURLE_OK;
-  const int num_addrs = num_addresses(*addr);
+  மாறிலி முழு இலக்கம்_addrs = இலக்கம்_addresses(*addr);
 
-  if(num_addrs > 1) {
-    struct Curl_addrinfo **nodes;
-    CURL_TRC_DNS(data, "Shuffling %d addresses", num_addrs);
+  எனில்(இலக்கம்_addrs > 1) {
+    கட்டமைப்பு Curl_addrinfo **nodes;
+    CURL_TRC_DNS(data, "Shuffling %d addresses", இலக்கம்_addrs);
 
-    nodes = curlx_malloc(num_addrs * sizeof(*nodes));
-    if(nodes) {
-      int i;
-      unsigned int *rnd;
-      const size_t rnd_size = num_addrs * sizeof(*rnd);
+    nodes = curlx_malloc(இலக்கம்_addrs * அளவு(*nodes));
+    எனில்(nodes) {
+      முழு i;
+      unsigned முழு *rnd;
+      மாறிலி size_t rnd_size = இலக்கம்_addrs * அளவு(*rnd);
 
       /* build a plain array of Curl_addrinfo pointers */
       nodes[0] = *addr;
-      for(i = 1; i < num_addrs; i++) {
+      க்கு(i = 1; i < இலக்கம்_addrs; i++) {
         nodes[i] = nodes[i - 1]->ai_next;
       }
 
       rnd = curlx_malloc(rnd_size);
-      if(rnd) {
+      எனில்(rnd) {
         /* Fisher-Yates shuffle */
-        if(Curl_rand(data, (unsigned char *)rnd, rnd_size) == CURLE_OK) {
-          struct Curl_addrinfo *swap_tmp;
-          for(i = num_addrs - 1; i > 0; i--) {
-            swap_tmp = nodes[rnd[i] % (unsigned int)(i + 1)];
-            nodes[rnd[i] % (unsigned int)(i + 1)] = nodes[i];
+        எனில்(Curl_rand(data, (unsigned எழுத்து *)rnd, rnd_size) == CURLE_OK) {
+          கட்டமைப்பு Curl_addrinfo *swap_tmp;
+          க்கு(i = இலக்கம்_addrs - 1; i > 0; i--) {
+            swap_tmp = nodes[rnd[i] % (unsigned முழு)(i + 1)];
+            nodes[rnd[i] % (unsigned முழு)(i + 1)] = nodes[i];
             nodes[i] = swap_tmp;
           }
 
           /* relink list in the new order */
-          for(i = 1; i < num_addrs; i++) {
+          க்கு(i = 1; i < இலக்கம்_addrs; i++) {
             nodes[i - 1]->ai_next = nodes[i];
           }
 
-          nodes[num_addrs - 1]->ai_next = NULL;
+          nodes[இலக்கம்_addrs - 1]->ai_next = வெற்று;
           *addr = nodes[0];
         }
         curlx_free(rnd);
       }
-      else
+      இல்லையெனில்
         result = CURLE_OUT_OF_MEMORY;
       curlx_free(nodes);
     }
-    else
+    இல்லையெனில்
       result = CURLE_OUT_OF_MEMORY;
   }
-  return result;
+  திரும்பு result;
 }
 #endif
 
-static bool dnscache_ai_has_family(struct Curl_addrinfo *ai, int ai_family)
+நிலையான bool dnscache_ai_has_family(கட்டமைப்பு Curl_addrinfo *ai, முழு ai_family)
 {
-  for(; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family)
-      return TRUE;
+  க்கு(; ai; ai = ai->ai_next) {
+    எனில்(ai->ai_family == ai_family)
+      திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-static struct Curl_dns_entry *dnsc_entry_create(struct dnsc_id *pid,
+நிலையான கட்டமைப்பு Curl_dns_entry *dnsc_entry_create(கட்டமைப்பு dnsc_id *pid,
                                                 bool permanent)
 {
-  struct Curl_dns_entry *dns = NULL;
+  கட்டமைப்பு Curl_dns_entry *dns = வெற்று;
 
-  if(curlx_strlen(&pid->name) > UINT16_MAX)
-    goto out;
+  எனில்(curlx_strlen(&pid->name) > UINT16_MAX)
+    செல் out;
 
   /* Create a new cache entry,
      struct already has the hostname null-terminator */
-  dns = curlx_calloc(1, sizeof(struct Curl_dns_entry) +
+  dns = curlx_calloc(1, அளவு(கட்டமைப்பு Curl_dns_entry) +
                      curlx_strlen(&pid->name));
-  if(!dns)
-    goto out;
+  எனில்(!dns)
+    செல் out;
 
   dns->refcount = 1; /* the cache has the first reference */
   dns->port = pid->port;
   dns->hostlen = (uint16_t)curlx_strlen(&pid->name);
-  if(dns->hostlen)
+  எனில்(dns->hostlen)
     memcpy(dns->hostname, curlx_str(&pid->name), dns->hostlen);
   dns->permanent = permanent;
 
 out:
-  return dns;
+  திரும்பு dns;
 }
 
-static struct Curl_dns_entry *dnsc_entry_assign_addr(
-  struct Curl_easy *data,
-  struct Curl_dns_entry *dns,
+நிலையான கட்டமைப்பு Curl_dns_entry *dnsc_entry_assign_addr(
+  கட்டமைப்பு Curl_easy *data,
+  கட்டமைப்பு Curl_dns_entry *dns,
   uint8_t dns_queries,
-  struct Curl_addrinfo **paddr1,
-  struct Curl_addrinfo **paddr2)
+  கட்டமைப்பு Curl_addrinfo **paddr1,
+  கட்டமைப்பு Curl_addrinfo **paddr2)
 {
-  if(!dns)
-    goto out;
+  எனில்(!dns)
+    செல் out;
   /* only do this when this is the only reference */
   DEBUGASSERT(dns->refcount == 1);
   DEBUGASSERT(dns->type == CURL_DNST_INIT);
@@ -510,288 +510,288 @@ static struct Curl_dns_entry *dnsc_entry_assign_addr(
   dns->dns_queries = (dns_queries & CURL_DNSQ_ADDR);
 
   /* Take the given address lists into the entry */
-  if(paddr1 && *paddr1) {
+  எனில்(paddr1 && *paddr1) {
     dns->addr = *paddr1;
-    *paddr1 = NULL;
+    *paddr1 = வெற்று;
   }
-  if(paddr2 && *paddr2) {
-    struct Curl_addrinfo **phead = &dns->addr;
-    while(*phead)
+  எனில்(paddr2 && *paddr2) {
+    கட்டமைப்பு Curl_addrinfo **phead = &dns->addr;
+    போது(*phead)
       phead = &(*phead)->ai_next;
     *phead = *paddr2;
-    *paddr2 = NULL;
+    *paddr2 = வெற்று;
   }
 
-  if((dns_queries & CURL_DNSQ_A) &&
+  எனில்((dns_queries & CURL_DNSQ_A) &&
      dnscache_ai_has_family(dns->addr, PF_INET))
     dns->dns_responses |= CURL_DNSQ_A;
 
 #ifdef USE_IPV6
-  if((dns_queries & CURL_DNSQ_AAAA) &&
+  எனில்((dns_queries & CURL_DNSQ_AAAA) &&
      dnscache_ai_has_family(dns->addr, PF_INET6))
     dns->dns_responses |= CURL_DNSQ_AAAA;
 #endif /* USE_IPV6 */
 
 #ifndef CURL_DISABLE_SHUFFLE_DNS
   /* shuffle addresses if requested */
-  if(data->set.dns_shuffle_addresses && dns->addr) {
+  எனில்(data->set.dns_shuffle_addresses && dns->addr) {
     CURLcode result = dns_shuffle_addr(data, &dns->addr);
-    if(result) {
+    எனில்(result) {
       /* free without lock, we are the sole owner */
       dnscache_entry_free(dns);
-      dns = NULL;
-      goto out;
+      dns = வெற்று;
+      செல் out;
     }
   }
-#else
-  (void)data;
+#இல்லையெனில்
+  (வெறுமை)data;
 #endif
 
 out:
-  if(paddr1 && *paddr1) {
+  எனில்(paddr1 && *paddr1) {
     Curl_freeaddrinfo(*paddr1);
-    *paddr1 = NULL;
+    *paddr1 = வெற்று;
   }
-  if(paddr2 && *paddr2) {
+  எனில்(paddr2 && *paddr2) {
     Curl_freeaddrinfo(*paddr2);
-    *paddr2 = NULL;
+    *paddr2 = வெற்று;
   }
-  return dns;
+  திரும்பு dns;
 }
 
-struct Curl_dns_entry *Curl_dnsc_mk_addr(struct Curl_easy *data,
+கட்டமைப்பு Curl_dns_entry *Curl_dnsc_mk_addr(கட்டமைப்பு Curl_easy *data,
                                          uint8_t dns_queries,
-                                         struct Curl_addrinfo **paddr,
-                                         struct Curl_peer *peer)
+                                         கட்டமைப்பு Curl_addrinfo **paddr,
+                                         கட்டமைப்பு Curl_peer *peer)
 {
-  struct dnsc_id id;
-  struct Curl_dns_entry *dns;
+  கட்டமைப்பு dnsc_id id;
+  கட்டமைப்பு Curl_dns_entry *dns;
 
   dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
   dns = dnsc_entry_create(&id, FALSE);
-  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  return dns;
+  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, வெற்று);
+  திரும்பு dns;
 }
 
-struct Curl_dns_entry *Curl_dnsc_mk_addr2(struct Curl_easy *data,
+கட்டமைப்பு Curl_dns_entry *Curl_dnsc_mk_addr2(கட்டமைப்பு Curl_easy *data,
                                           uint8_t dns_queries,
-                                          struct Curl_addrinfo **paddr1,
-                                          struct Curl_addrinfo **paddr2,
-                                          struct Curl_peer *peer)
+                                          கட்டமைப்பு Curl_addrinfo **paddr1,
+                                          கட்டமைப்பு Curl_addrinfo **paddr2,
+                                          கட்டமைப்பு Curl_peer *peer)
 {
-  struct dnsc_id id;
-  struct Curl_dns_entry *dns;
+  கட்டமைப்பு dnsc_id id;
+  கட்டமைப்பு Curl_dns_entry *dns;
 
   dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
   dns = dnsc_entry_create(&id, FALSE);
   dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr1, paddr2);
-  return dns;
+  திரும்பு dns;
 }
 
-static struct Curl_dns_entry *dnsc_add_entry(struct Curl_easy *data,
-                                             struct Curl_dnscache *dnscache,
-                                             struct dnsc_key *key,
-                                             struct Curl_dns_entry *entry)
+நிலையான கட்டமைப்பு Curl_dns_entry *dnsc_add_entry(கட்டமைப்பு Curl_easy *data,
+                                             கட்டமைப்பு Curl_dnscache *dnscache,
+                                             கட்டமைப்பு dnsc_சாவி *சாவி,
+                                             கட்டமைப்பு Curl_dns_entry *entry)
 {
   entry->added = *Curl_pgrs_now(data);
-  return Curl_hash_add(&dnscache->entries, key->data, key->len, entry);
+  திரும்பு Curl_hash_add(&dnscache->entries, சாவி->data, சாவி->len, entry);
 }
 
 #ifdef USE_HTTPSRR
-static struct Curl_dns_entry *dnsc_entry_assign_https(
-  struct Curl_dns_entry *dns,
-  struct Curl_https_rrinfo **phinfo)
+நிலையான கட்டமைப்பு Curl_dns_entry *dnsc_entry_assign_https(
+  கட்டமைப்பு Curl_dns_entry *dns,
+  கட்டமைப்பு Curl_https_rrinfo **phinfo)
 {
-  if(!dns)
-    goto out;
+  எனில்(!dns)
+    செல் out;
   /* only do this when this is the only reference */
   DEBUGASSERT(dns->refcount == 1);
   DEBUGASSERT(dns->type == CURL_DNST_INIT);
 
-  if(dns->hinfo) {
+  எனில்(dns->hinfo) {
     Curl_httpsrr_destroy(dns->hinfo);
-    dns->hinfo = NULL;
+    dns->hinfo = வெற்று;
   }
   dns->type = CURL_DNST_HTTPS;
   dns->dns_responses = dns->dns_queries = CURL_DNSQ_HTTPS;
-  if(phinfo) {
+  எனில்(phinfo) {
     dns->hinfo = *phinfo;
-    *phinfo = NULL;
+    *phinfo = வெற்று;
   }
 out:
-  if(phinfo && *phinfo) {
+  எனில்(phinfo && *phinfo) {
     Curl_httpsrr_destroy(*phinfo);
-    *phinfo = NULL;
+    *phinfo = வெற்று;
   }
-  return dns;
+  திரும்பு dns;
 }
 
-struct Curl_dns_entry *Curl_dnsc_mk_https(struct Curl_easy *data,
-                                          struct Curl_https_rrinfo **phinfo,
-                                          struct Curl_peer *peer)
+கட்டமைப்பு Curl_dns_entry *Curl_dnsc_mk_https(கட்டமைப்பு Curl_easy *data,
+                                          கட்டமைப்பு Curl_https_rrinfo **phinfo,
+                                          கட்டமைப்பு Curl_peer *peer)
 {
-  struct dnsc_id id;
-  struct Curl_dns_entry *dns;
+  கட்டமைப்பு dnsc_id id;
+  கட்டமைப்பு Curl_dns_entry *dns;
 
-  (void)data;
+  (வெறுமை)data;
   dnsc_peer2id(&id, CURL_DNST_HTTPS, peer);
   dns = dnsc_entry_create(&id, FALSE);
   dns = dnsc_entry_assign_https(dns, phinfo);
-  return dns;
+  திரும்பு dns;
 }
 
-static struct Curl_dns_entry *dnsc_add_https(struct Curl_easy *data,
-                                             struct Curl_dnscache *dnscache,
-                                             struct Curl_https_rrinfo **phinfo,
-                                             struct dnsc_id *id)
+நிலையான கட்டமைப்பு Curl_dns_entry *dnsc_add_https(கட்டமைப்பு Curl_easy *data,
+                                             கட்டமைப்பு Curl_dnscache *dnscache,
+                                             கட்டமைப்பு Curl_https_rrinfo **phinfo,
+                                             கட்டமைப்பு dnsc_id *id)
 {
-  struct Curl_dns_entry *dns, *dns2;
-  struct dnsc_key key;
+  கட்டமைப்பு Curl_dns_entry *dns, *dns2;
+  கட்டமைப்பு dnsc_சாவி சாவி;
 
   dns = dnsc_entry_create(id, FALSE);
   dns = dnsc_entry_assign_https(dns, phinfo);
-  if(!dns)
-    return NULL;
+  எனில்(!dns)
+    திரும்பு வெற்று;
 
   /* Store the resolved data in our DNS cache. */
-  dnsc_id2key(&key, id);
-  dns2 = dnsc_add_entry(data, dnscache, &key, dns);
-  if(!dns2) {
+  dnsc_id2key(&சாவி, id);
+  dns2 = dnsc_add_entry(data, dnscache, &சாவி, dns);
+  எனில்(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    திரும்பு வெற்று;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  திரும்பு dns;
 }
 #endif /* USE_HTTPSRR */
 
-static struct Curl_dns_entry *dnsc_add_addr(struct Curl_easy *data,
-                                            struct Curl_dnscache *dnscache,
+நிலையான கட்டமைப்பு Curl_dns_entry *dnsc_add_addr(கட்டமைப்பு Curl_easy *data,
+                                            கட்டமைப்பு Curl_dnscache *dnscache,
                                             uint8_t dns_queries,
-                                            struct Curl_addrinfo **paddr,
-                                            struct dnsc_id *id,
-                                            struct dnsc_key *key,
+                                            கட்டமைப்பு Curl_addrinfo **paddr,
+                                            கட்டமைப்பு dnsc_id *id,
+                                            கட்டமைப்பு dnsc_சாவி *சாவி,
                                             bool permanent)
 {
-  struct Curl_dns_entry *dns;
-  struct Curl_dns_entry *dns2;
+  கட்டமைப்பு Curl_dns_entry *dns;
+  கட்டமைப்பு Curl_dns_entry *dns2;
 
   dns = dnsc_entry_create(id, permanent);
-  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  if(!dns)
-    return NULL;
+  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, வெற்று);
+  எனில்(!dns)
+    திரும்பு வெற்று;
 
   /* Store the resolved data in our DNS cache. */
-  dns2 = dnsc_add_entry(data, dnscache, key, dns);
-  if(!dns2) {
+  dns2 = dnsc_add_entry(data, dnscache, சாவி, dns);
+  எனில்(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    திரும்பு வெற்று;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  திரும்பு dns;
 }
 
-static struct Curl_dns_entry *dnsc_add_peer_addr(
-  struct Curl_easy *data,
-  struct Curl_dnscache *dnscache,
+நிலையான கட்டமைப்பு Curl_dns_entry *dnsc_add_peer_addr(
+  கட்டமைப்பு Curl_easy *data,
+  கட்டமைப்பு Curl_dnscache *dnscache,
   uint8_t dns_queries,
-  struct Curl_addrinfo **paddr,
-  struct dnsc_id *id,
+  கட்டமைப்பு Curl_addrinfo **paddr,
+  கட்டமைப்பு dnsc_id *id,
   bool permanent)
 {
-  struct Curl_dns_entry *dns;
-  struct Curl_dns_entry *dns2;
-  struct dnsc_key key;
+  கட்டமைப்பு Curl_dns_entry *dns;
+  கட்டமைப்பு Curl_dns_entry *dns2;
+  கட்டமைப்பு dnsc_சாவி சாவி;
 
   dns = dnsc_entry_create(id, permanent);
-  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  if(!dns)
-    return NULL;
+  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, வெற்று);
+  எனில்(!dns)
+    திரும்பு வெற்று;
 
   /* Store the resolved data in our DNS cache. */
-  dnsc_id2key(&key, id);
-  dns2 = dnsc_add_entry(data, dnscache, &key, dns);
-  if(!dns2) {
+  dnsc_id2key(&சாவி, id);
+  dns2 = dnsc_add_entry(data, dnscache, &சாவி, dns);
+  எனில்(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    திரும்பு வெற்று;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  திரும்பு dns;
 }
 
-CURLcode Curl_dnscache_add(struct Curl_easy *data,
-                           struct Curl_dns_entry *entry)
+CURLcode Curl_dnscache_add(கட்டமைப்பு Curl_easy *data,
+                           கட்டமைப்பு Curl_dns_entry *entry)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  struct Curl_str name;
-  struct dnsc_id id;
-  struct dnsc_key key;
+  கட்டமைப்பு Curl_dnscache *dnscache = dnscache_get(data);
+  கட்டமைப்பு Curl_str name;
+  கட்டமைப்பு dnsc_id id;
+  கட்டமைப்பு dnsc_சாவி சாவி;
 
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
-  if(!entry || (entry->type == CURL_DNST_INIT))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(!dnscache)
+    திரும்பு CURLE_FAILED_INIT;
+  எனில்(!entry || (entry->type == CURL_DNST_INIT))
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
   curlx_str_assign(&name, entry->hostname, entry->hostlen);
   dnsc_str2id(&id, entry->type, &name, entry->port);
-  dnsc_id2key(&key, &id);
+  dnsc_id2key(&சாவி, &id);
 
   /* Store the resolved data in our DNS cache and up ref count */
   dnscache_lock(data, dnscache);
-  if(!dnsc_add_entry(data, dnscache, &key, entry)) {
+  எனில்(!dnsc_add_entry(data, dnscache, &சாவி, entry)) {
     dnscache_unlock(data, dnscache);
-    return CURLE_OUT_OF_MEMORY;
+    திரும்பு CURLE_OUT_OF_MEMORY;
   }
   entry->refcount++;
   dnscache_unlock(data, dnscache);
   CURL_TRC_DNS(data, "cached entry for %s:%u queries=%s",
                entry->hostname, entry->port,
                Curl_resolv_query_str(entry->dns_queries));
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
+CURLcode Curl_dnscache_add_negative(கட்டமைப்பு Curl_easy *data,
                                     uint8_t dns_queries,
-                                    struct Curl_peer *peer)
+                                    கட்டமைப்பு Curl_peer *peer)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  struct Curl_dns_entry *dns = NULL;
-  struct dnsc_id id;
+  கட்டமைப்பு Curl_dnscache *dnscache = dnscache_get(data);
+  கட்டமைப்பு Curl_dns_entry *dns = வெற்று;
+  கட்டமைப்பு dnsc_id id;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(dnscache);
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
+  எனில்(!dnscache)
+    திரும்பு CURLE_FAILED_INIT;
 
   dnscache_lock(data, dnscache);
 
-  if(dns_queries & CURL_DNSQ_ADDR) {
+  எனில்(dns_queries & CURL_DNSQ_ADDR) {
     /* put this new host in the cache */
     dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
-    dns = dnsc_add_peer_addr(data, dnscache, dns_queries, NULL, &id, FALSE);
-    if(!dns)
+    dns = dnsc_add_peer_addr(data, dnscache, dns_queries, வெற்று, &id, FALSE);
+    எனில்(!dns)
       result = CURLE_OUT_OF_MEMORY;
   }
 #ifdef USE_HTTPSRR
-  else if(dns_queries == CURL_DNSQ_HTTPS) {
+  இல்லையெனில் எனில்(dns_queries == CURL_DNSQ_HTTPS) {
     dnsc_peer2id(&id, CURL_DNST_HTTPS, peer);
-    dns = dnsc_add_https(data, dnscache, NULL, &id);
-    if(!dns)
+    dns = dnsc_add_https(data, dnscache, வெற்று, &id);
+    எனில்(!dns)
       result = CURLE_OUT_OF_MEMORY;
   }
 #endif
-  else {
+  இல்லையெனில் {
     /* a query we do not know, just cache nothing */
     DEBUGASSERT(0);
   }
 
-  if(dns) {
+  எனில்(dns) {
     /* release the returned reference; the cache itself will keep the
      * entry alive: */
     dns->refcount--;
@@ -800,7 +800,7 @@ CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
                  Curl_resolv_query_str(dns_queries));
   }
   dnscache_unlock(data, dnscache);
-  return result;
+  திரும்பு result;
 }
 
 /*
@@ -810,192 +810,192 @@ CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
  *
  * May be called with 'data' == NULL for global cache.
  */
-void Curl_dns_entry_unlink(struct Curl_easy *data,
-                           struct Curl_dns_entry **pdns)
+வெறுமை Curl_dns_entry_unlink(கட்டமைப்பு Curl_easy *data,
+                           கட்டமைப்பு Curl_dns_entry **pdns)
 {
-  if(*pdns) {
-    struct Curl_dnscache *dnscache = dnscache_get(data);
-    struct Curl_dns_entry *dns = *pdns;
-    *pdns = NULL;
+  எனில்(*pdns) {
+    கட்டமைப்பு Curl_dnscache *dnscache = dnscache_get(data);
+    கட்டமைப்பு Curl_dns_entry *dns = *pdns;
+    *pdns = வெற்று;
     dnscache_lock(data, dnscache);
     dns->refcount--;
-    if(dns->refcount == 0)
+    எனில்(dns->refcount == 0)
       dnscache_entry_free(dns);
     dnscache_unlock(data, dnscache);
   }
 }
 
-static void dnscache_entry_dtor(void *entry)
+நிலையான வெறுமை dnscache_entry_dtor(வெறுமை *entry)
 {
-  struct Curl_dns_entry *dns = (struct Curl_dns_entry *)entry;
+  கட்டமைப்பு Curl_dns_entry *dns = (கட்டமைப்பு Curl_dns_entry *)entry;
   DEBUGASSERT(dns && (dns->refcount > 0));
   dns->refcount--;
-  if(dns->refcount == 0)
+  எனில்(dns->refcount == 0)
     dnscache_entry_free(dns);
 }
 
 /*
  * Curl_dnscache_init() inits a new DNS cache.
  */
-void Curl_dnscache_init(struct Curl_dnscache *dns, size_t size)
+வெறுமை Curl_dnscache_init(கட்டமைப்பு Curl_dnscache *dns, size_t size)
 {
   Curl_hash_init(&dns->entries, size, CURL_HASH_TYPE_BYTES,
                  dnscache_entry_dtor);
 }
 
-void Curl_dnscache_destroy(struct Curl_dnscache *dns)
+வெறுமை Curl_dnscache_destroy(கட்டமைப்பு Curl_dnscache *dns)
 {
   Curl_hash_destroy(&dns->entries);
 }
 
-CURLcode Curl_loadhostpairs(struct Curl_easy *data)
+CURLcode Curl_loadhostpairs(கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  struct curl_slist *hostp;
-  struct dnsc_id id;
-  struct dnsc_key key;
+  கட்டமைப்பு Curl_dnscache *dnscache = dnscache_get(data);
+  கட்டமைப்பு curl_slist *hostp;
+  கட்டமைப்பு dnsc_id id;
+  கட்டமைப்பு dnsc_சாவி சாவி;
 
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
+  எனில்(!dnscache)
+    திரும்பு CURLE_FAILED_INIT;
 
   /* Default is no wildcard found */
   data->state.wildcard_resolve = FALSE;
 
-  for(hostp = data->state.resolve; hostp; hostp = hostp->next) {
-    const char *host = hostp->data;
-    struct Curl_str source;
-    if(!host)
-      continue;
-    if(*host == '-') {
-      curl_off_t num = 0;
+  க்கு(hostp = data->state.resolve; hostp; hostp = hostp->next) {
+    மாறிலி எழுத்து *host = hostp->data;
+    கட்டமைப்பு Curl_str source;
+    எனில்(!host)
+      தொடர்;
+    எனில்(*host == '-') {
+      curl_off_t இலக்கம் = 0;
       host++;
-      if(!curlx_str_single(&host, '[')) {
-        if(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
+      எனில்(!curlx_str_single(&host, '[')) {
+        எனில்(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
            curlx_str_single(&host, ']') ||
            curlx_str_single(&host, ':'))
-          continue;
+          தொடர்;
       }
-      else {
-        if(curlx_str_until(&host, &source, 4096, ':') ||
+      இல்லையெனில் {
+        எனில்(curlx_str_until(&host, &source, 4096, ':') ||
            curlx_str_single(&host, ':')) {
-          continue;
+          தொடர்;
         }
       }
 
-      if(!curlx_str_number(&host, &num, 0xffff)) {
+      எனில்(!curlx_str_எண்(&host, &இலக்கம், 0xffff)) {
         /* Create an entry id, based upon the hostname and port */
-        dnsc_str2id(&id, CURL_DNST_ADDR, &source, (uint16_t)num);
-        dnsc_id2key(&key, &id);
+        dnsc_str2id(&id, CURL_DNST_ADDR, &source, (uint16_t)இலக்கம்);
+        dnsc_id2key(&சாவி, &id);
         dnscache_lock(data, dnscache);
         /* delete entry, ignore if it did not exist */
-        Curl_hash_delete(&dnscache->entries, key.data, key.len);
+        Curl_hash_delete(&dnscache->entries, சாவி.data, சாவி.len);
         dnscache_unlock(data, dnscache);
       }
     }
-    else {
-      struct Curl_dns_entry *dns;
-      struct Curl_addrinfo *head = NULL, *tail = NULL;
-      char address[64];
+    இல்லையெனில் {
+      கட்டமைப்பு Curl_dns_entry *dns;
+      கட்டமைப்பு Curl_addrinfo *head = வெற்று, *tail = வெற்று;
+      எழுத்து address[64];
       curl_off_t tmpofft = 0;
       uint16_t port = 0;
       bool permanent = TRUE;
       bool error = TRUE;
-      VERBOSE(const char *addresses = NULL);
+      VERBOSE(மாறிலி எழுத்து *addresses = வெற்று);
 
-      if(*host == '+') {
+      எனில்(*host == '+') {
         host++;
         permanent = FALSE;
       }
-      if(!curlx_str_single(&host, '[')) {
-        if(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
+      எனில்(!curlx_str_single(&host, '[')) {
+        எனில்(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
            curlx_str_single(&host, ']'))
-          continue;
+          தொடர்;
       }
-      else {
-        if(curlx_str_until(&host, &source, 4096, ':'))
-          continue;
+      இல்லையெனில் {
+        எனில்(curlx_str_until(&host, &source, 4096, ':'))
+          தொடர்;
       }
-      if(curlx_str_single(&host, ':') ||
-         curlx_str_number(&host, &tmpofft, 0xffff) ||
+      எனில்(curlx_str_single(&host, ':') ||
+         curlx_str_எண்(&host, &tmpofft, 0xffff) ||
          curlx_str_single(&host, ':'))
-        goto err;
+        செல் err;
       port = (uint16_t)tmpofft;
 
       VERBOSE(addresses = host);
 
       /* start the address section */
-      while(*host) {
-        struct Curl_str target;
-        struct Curl_addrinfo *ai;
+      போது(*host) {
+        கட்டமைப்பு Curl_str target;
+        கட்டமைப்பு Curl_addrinfo *ai;
         CURLcode result;
 
-        if(!curlx_str_single(&host, '[')) {
-          if(curlx_str_until(&host, &target, MAX_IPADR_LEN, ']') ||
+        எனில்(!curlx_str_single(&host, '[')) {
+          எனில்(curlx_str_until(&host, &target, MAX_IPADR_LEN, ']') ||
              curlx_str_single(&host, ']'))
-            goto err;
+            செல் err;
         }
-        else {
-          if(curlx_str_until(&host, &target, 4096, ',')) {
-            if(curlx_str_single(&host, ','))
-              goto err;
+        இல்லையெனில் {
+          எனில்(curlx_str_until(&host, &target, 4096, ',')) {
+            எனில்(curlx_str_single(&host, ','))
+              செல் err;
             /* survive nothing but a comma */
-            continue;
+            தொடர்;
           }
         }
 #ifndef USE_IPV6
-        if(memchr(curlx_str(&target), ':', curlx_strlen(&target))) {
+        எனில்(memchr(curlx_str(&target), ':', curlx_strlen(&target))) {
           infof(data, "Ignoring resolve address '%.*s', missing IPv6 support.",
-                (int)curlx_strlen(&target), curlx_str(&target));
-          if(curlx_str_single(&host, ','))
-            goto err;
-          continue;
+                (முழு)curlx_strlen(&target), curlx_str(&target));
+          எனில்(curlx_str_single(&host, ','))
+            செல் err;
+          தொடர்;
         }
 #endif
 
-        if(curlx_strlen(&target) >= sizeof(address))
-          goto err;
+        எனில்(curlx_strlen(&target) >= அளவு(address))
+          செல் err;
 
         memcpy(address, curlx_str(&target), curlx_strlen(&target));
         address[curlx_strlen(&target)] = '\0';
 
         result = Curl_str2addr(address, port, &ai);
-        if(result) {
+        எனில்(result) {
           infof(data, "Resolve IP address '%s' found is illegal", address);
-          goto err;
+          செல் err;
         }
 
-        if(tail) {
+        எனில்(tail) {
           tail->ai_next = ai;
           tail = tail->ai_next;
         }
-        else {
+        இல்லையெனில் {
           head = tail = ai;
         }
-        if(curlx_str_single(&host, ','))
-          break;
+        எனில்(curlx_str_single(&host, ','))
+          நிறுத்து;
       }
 
-      if(!head)
-        goto err;
+      எனில்(!head)
+        செல் err;
 
       error = FALSE;
 err:
-      if(error) {
+      எனில்(error) {
         failf(data, "Could not parse CURLOPT_RESOLVE entry '%s'", hostp->data);
         Curl_freeaddrinfo(head);
-        return CURLE_SETOPT_OPTION_SYNTAX;
+        திரும்பு CURLE_SETOPT_OPTION_SYNTAX;
       }
 
       dnsc_str2id(&id, CURL_DNST_ADDR, &source, port);
-      dnsc_id2key(&key, &id);
+      dnsc_id2key(&சாவி, &id);
       dnscache_lock(data, dnscache);
 
       /* See if it is already in our dns cache */
-      dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
+      dns = Curl_hash_pick(&dnscache->entries, சாவி.data, சாவி.len);
 
-      if(dns) {
+      எனில்(dns) {
         infof(data, "RESOLVE %.*s:%u - old addresses discarded",
-              (int)curlx_strlen(&source), curlx_str(&source), port);
+              (முழு)curlx_strlen(&source), curlx_str(&source), port);
         /* delete old entry, there are two reasons for this
          1. old entry may have different addresses.
          2. even if entry with correct addresses is already in the cache,
@@ -1007,34 +1007,34 @@ err:
          4. when adding a non-permanent entry, we want it to get a "fresh"
             timeout that starts _now_. */
 
-        Curl_hash_delete(&dnscache->entries, key.data, key.len);
+        Curl_hash_delete(&dnscache->entries, சாவி.data, சாவி.len);
       }
 
       /* put this new host in the cache, override all address queries */
       dns = dnsc_add_addr(data, dnscache, CURL_DNSQ_ADDR, &head,
-                          &id, &key, permanent);
-      if(dns)
+                          &id, &சாவி, permanent);
+      எனில்(dns)
         /* release the returned reference; the cache itself will keep the
          * entry alive: */
         dns->refcount--;
 
       dnscache_unlock(data, dnscache);
 
-      if(!dns)
-        return CURLE_OUT_OF_MEMORY;
+      எனில்(!dns)
+        திரும்பு CURLE_OUT_OF_MEMORY;
 
       infof(data, "[DNS] added %.*s:%u:%s to cache%s",
-            (int)curlx_strlen(&id.name), curlx_str(&id.name), id.port,
+            (முழு)curlx_strlen(&id.name), curlx_str(&id.name), id.port,
             addresses, permanent ? "" : " (non-permanent)");
 
       /* Wildcard hostname */
-      if(curlx_str_casecompare(&source, "*")) {
+      எனில்(curlx_str_casecompare(&source, "*")) {
         infof(data, "RESOLVE *:%u using wildcard", port);
         data->state.wildcard_resolve = TRUE;
       }
     }
   }
-  data->state.resolve = NULL; /* dealt with now */
+  data->state.resolve = வெற்று; /* dealt with now */
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }

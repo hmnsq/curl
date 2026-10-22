@@ -24,11 +24,11 @@
  *
  ***************************************************************************/
 /* This file is for lib internal stuff */
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct easy_pollset;
+கட்டமைப்பு Curl_easy;
+கட்டமைப்பு connectdata;
+கட்டமைப்பு easy_pollset;
 
 /* Known protocol default port numbers */
 #define PORT_FTP    21
@@ -69,7 +69,7 @@ struct easy_pollset;
 #define CURLPROTO_REDIR (CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_FTP | \
                          CURLPROTO_FTPS)
 
-typedef curl_off_t curl_prot_t;
+வகைவரை curl_off_t curl_prot_t;
 
 /* This mask is for all the old protocols that are provided and defined in the
    public header and shall exclude protocols added since which are not exposed
@@ -86,14 +86,14 @@ typedef curl_off_t curl_prot_t;
 #define PROTO_FAMILY_SMTP (CURLPROTO_SMTP | CURLPROTO_SMTPS)
 #define PROTO_FAMILY_SSH  (CURLPROTO_SCP | CURLPROTO_SFTP)
 
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || \
+#எனில் !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || \
   !defined(CURL_DISABLE_POP3)
 /* these protocols support CURLOPT_DIRLISTONLY */
 #define CURL_LIST_ONLY_PROTOCOL 1
 #endif
 
 /* When redirecting transfers. */
-typedef enum {
+வகைவரை எண்ணிக்கை {
   FOLLOW_NONE,  /* not used within the function, a placeholder to allow
                    initing to this */
   FOLLOW_FAKE,  /* only records stuff, not actually following */
@@ -102,7 +102,7 @@ typedef enum {
   FOLLOW_REDIR /* a full true redirect */
 } followtype;
 
-typedef enum {
+வகைவரை எண்ணிக்கை {
   DOMORE_GOBACK = -1,
   DOMORE_INCOMPLETE = 0,
   DOMORE_DONE = 1
@@ -111,15 +111,15 @@ typedef enum {
 /*
  * Specific protocol handler, an implementation of one or more URI schemes.
  */
-struct Curl_protocol {
+கட்டமைப்பு Curl_protocol {
   /* Complement to setup_connection_internals(). This is done before the
      transfer "owns" the connection. */
-  CURLcode (*setup_connection)(struct Curl_easy *data,
-                               struct connectdata *conn);
+  CURLcode (*setup_connection)(கட்டமைப்பு Curl_easy *data,
+                               கட்டமைப்பு connectdata *conn);
 
   /* These two functions MUST be set to be protocol dependent */
-  CURLcode (*do_it)(struct Curl_easy *data, bool *done);
-  CURLcode (*done)(struct Curl_easy *, CURLcode, bool);
+  CURLcode (*do_it)(கட்டமைப்பு Curl_easy *data, bool *done);
+  CURLcode (*done)(கட்டமைப்பு Curl_easy *, CURLcode, bool);
 
   /* If the curl_do() function is better made in two halves, this
    * curl_do_more() function will be called afterwards, if set. For example
@@ -129,7 +129,7 @@ struct Curl_protocol {
    * DOMORE_DONE when the second phase is complete, or DOMORE_GOBACK
    * to return to the regular DO/DOING handling.
    */
-  CURLcode (*do_more)(struct Curl_easy *, domore *);
+  CURLcode (*do_more)(கட்டமைப்பு Curl_easy *, domore *);
 
   /* This function *MAY* be set to a protocol-dependent function that is run
    * after the connect() and everything is done, as a step in the connection.
@@ -137,32 +137,32 @@ struct Curl_protocol {
    * function completes before return. If it does not complete, the caller
    * should call the ->connecting() function until it is.
    */
-  CURLcode (*connect_it)(struct Curl_easy *data, bool *done);
+  CURLcode (*connect_it)(கட்டமைப்பு Curl_easy *data, bool *done);
 
   /* See above. */
-  CURLcode (*connecting)(struct Curl_easy *data, bool *done);
-  CURLcode (*doing)(struct Curl_easy *data, bool *done);
+  CURLcode (*connecting)(கட்டமைப்பு Curl_easy *data, bool *done);
+  CURLcode (*doing)(கட்டமைப்பு Curl_easy *data, bool *done);
 
   /* Called from the multi interface during the PROTOCONNECT phase, and it
      should then return a proper fd set */
-  CURLcode (*proto_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*proto_pollset)(கட்டமைப்பு Curl_easy *data,
+                            கட்டமைப்பு easy_pollset *ps);
 
   /* Called from the multi interface during the DOING phase, and it should
      then return a proper fd set */
-  CURLcode (*doing_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*doing_pollset)(கட்டமைப்பு Curl_easy *data,
+                            கட்டமைப்பு easy_pollset *ps);
 
   /* Called from the multi interface during the DO_MORE phase, and it should
      then return a proper fd set */
-  CURLcode (*domore_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*domore_pollset)(கட்டமைப்பு Curl_easy *data,
+                            கட்டமைப்பு easy_pollset *ps);
 
   /* Called from the multi interface during the DO_DONE, PERFORM and
      WAITPERFORM phases, and it should then return a proper fd set. Not setting
      this will make libcurl use the generic default one. */
-  CURLcode (*perform_pollset)(struct Curl_easy *data,
-                              struct easy_pollset *ps);
+  CURLcode (*perform_pollset)(கட்டமைப்பு Curl_easy *data,
+                              கட்டமைப்பு easy_pollset *ps);
 
   /* This function *MAY* be set to a protocol-dependent function that is run
    * by the curl_disconnect(), as a step in the disconnection. If the handler
@@ -170,33 +170,33 @@ struct Curl_protocol {
    * dead_connection is set to TRUE. The connection is (again) associated with
    * the transfer here.
    */
-  CURLcode (*disconnect)(struct Curl_easy *, struct connectdata *,
+  CURLcode (*disconnect)(கட்டமைப்பு Curl_easy *, கட்டமைப்பு connectdata *,
                          bool dead_connection);
 
   /* If used, this function gets called from transfer.c to
      allow the protocol to do extra handling in writing response to
      the client. */
-  CURLcode (*write_resp)(struct Curl_easy *data, const char *buf, size_t blen,
+  CURLcode (*write_resp)(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *buf, size_t blen,
                          bool is_eos);
 
   /* If used, this function gets called from transfer.c to
      allow the protocol to do extra handling in writing a single response
      header line to the client. */
-  CURLcode (*write_resp_hd)(struct Curl_easy *data,
-                            const char *hd, size_t hdlen, bool is_eos);
+  CURLcode (*write_resp_hd)(கட்டமைப்பு Curl_easy *data,
+                            மாறிலி எழுத்து *hd, size_t hdlen, bool is_eos);
 
   /* If used, this function checks for a connection managed by this
     protocol and currently not in use, if it should be considered dead. */
-  bool (*connection_is_dead)(struct Curl_easy *data,
-                             struct connectdata *conn);
+  bool (*connection_is_dead)(கட்டமைப்பு Curl_easy *data,
+                             கட்டமைப்பு connectdata *conn);
 
   /* attach() attaches this transfer to this connection */
-  void (*attach)(struct Curl_easy *data, struct connectdata *conn);
+  வெறுமை (*attach)(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு connectdata *conn);
 
   /* return CURLE_OK if a redirect to `newurl` should be followed,
      CURLE_TOO_MANY_REDIRECTS otherwise. May alter `data` to change
      the way the follow request is performed. */
-  CURLcode (*follow)(struct Curl_easy *data, const char *newurl,
+  CURLcode (*follow)(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *newurl,
                      followtype type);
 };
 
@@ -237,9 +237,9 @@ struct Curl_protocol {
                                              * HTTP proxy requires tunneling */
 
 /* Everything about a URI scheme. */
-struct Curl_scheme {
-  const char *name;       /* URL scheme name in lowercase */
-  const struct Curl_protocol *run; /* implementation, optional */
+கட்டமைப்பு Curl_scheme {
+  மாறிலி எழுத்து *name;       /* URL scheme name in lowercase */
+  மாறிலி கட்டமைப்பு Curl_protocol *run; /* implementation, optional */
   curl_prot_t protocol;   /* See CURLPROTO_* - this needs to be the single
                              specific protocol bit */
   curl_prot_t family;     /* single bit for protocol family; the non-TLS name
@@ -252,39 +252,39 @@ struct Curl_scheme {
  * @param scheme URI scheme name, case-insensitive
  * @return NULL if scheme is not known
  */
-const struct Curl_scheme *Curl_get_scheme(const char *scheme);
-const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len);
+மாறிலி கட்டமைப்பு Curl_scheme *Curl_get_scheme(மாறிலி எழுத்து *scheme);
+மாறிலி கட்டமைப்பு Curl_scheme *Curl_getn_scheme(மாறிலி எழுத்து *scheme, size_t len);
 
 /* For direct access to a URI scheme */
-extern const struct Curl_scheme Curl_scheme_dict;
-extern const struct Curl_scheme Curl_scheme_file;
-extern const struct Curl_scheme Curl_scheme_ftp;
-extern const struct Curl_scheme Curl_scheme_ftps;
-extern const struct Curl_scheme Curl_scheme_gopher;
-extern const struct Curl_scheme Curl_scheme_gophers;
-extern const struct Curl_scheme Curl_scheme_http;
-extern const struct Curl_scheme Curl_scheme_https;
-extern const struct Curl_scheme Curl_scheme_imap;
-extern const struct Curl_scheme Curl_scheme_imaps;
-extern const struct Curl_scheme Curl_scheme_ldap;
-extern const struct Curl_scheme Curl_scheme_ldaps;
-extern const struct Curl_scheme Curl_scheme_mqtt;
-extern const struct Curl_scheme Curl_scheme_mqtts;
-extern const struct Curl_scheme Curl_scheme_pop3;
-extern const struct Curl_scheme Curl_scheme_pop3s;
-extern const struct Curl_scheme Curl_scheme_rtsp;
-extern const struct Curl_scheme Curl_scheme_scp;
-extern const struct Curl_scheme Curl_scheme_sftp;
-extern const struct Curl_scheme Curl_scheme_smtp;
-extern const struct Curl_scheme Curl_scheme_smtps;
-extern const struct Curl_scheme Curl_scheme_socks;
-extern const struct Curl_scheme Curl_scheme_socks4;
-extern const struct Curl_scheme Curl_scheme_socks4a;
-extern const struct Curl_scheme Curl_scheme_socks5;
-extern const struct Curl_scheme Curl_scheme_socks5h;
-extern const struct Curl_scheme Curl_scheme_telnet;
-extern const struct Curl_scheme Curl_scheme_tftp;
-extern const struct Curl_scheme Curl_scheme_ws;
-extern const struct Curl_scheme Curl_scheme_wss;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_dict;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_file;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_ftp;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_ftps;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_gopher;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_gophers;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_http;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_https;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_imap;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_imaps;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_ldap;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_ldaps;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_mqtt;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_mqtts;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_pop3;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_pop3s;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_rtsp;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_scp;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_sftp;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_smtp;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_smtps;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_socks;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_socks4;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_socks4a;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_socks5;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_socks5h;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_telnet;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_tftp;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_ws;
+வெளி மாறிலி கட்டமைப்பு Curl_scheme Curl_scheme_wss;
 
 #endif /* HEADER_CURL_PROTOCOL_H */

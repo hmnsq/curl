@@ -25,17 +25,17 @@
  ***************************************************************************/
 
 #ifdef USE_SSL
-CURLcode Curl_setopt_SSLVERSION(struct Curl_easy *data, CURLoption option,
+CURLcode Curl_setopt_SSLVERSION(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                 long arg);
-#else
+#இல்லையெனில்
 #define Curl_setopt_SSLVERSION(a, b, c) CURLE_NOT_BUILT_IN
 #endif
 
-CURLcode Curl_setstropt(struct Curl_easy *data,
-                        enum dupstring id, const char *s) WARN_UNUSED_RESULT;
-CURLcode Curl_setblobopt(struct curl_blob **blobp,
-                         const struct curl_blob *blob) WARN_UNUSED_RESULT;
-CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
+CURLcode Curl_setstropt(கட்டமைப்பு Curl_easy *data,
+                        எண்ணிக்கை dupstring id, மாறிலி எழுத்து *s) WARN_UNUSED_RESULT;
+CURLcode Curl_setblobopt(கட்டமைப்பு curl_blob **blobp,
+                         மாறிலி கட்டமைப்பு curl_blob *blob) WARN_UNUSED_RESULT;
+CURLcode Curl_vsetopt(கட்டமைப்பு Curl_easy *data, CURLoption option, va_list param)
   WARN_UNUSED_RESULT;
 
 #endif /* HEADER_CURL_SETOPT_H */

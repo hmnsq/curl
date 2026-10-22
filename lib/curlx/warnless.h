@@ -25,19 +25,19 @@
  ***************************************************************************/
 
 #define CURLX_FUNCTION_CAST(target_type, func) \
-  (target_type)(void (*)(void))(func)
+  (target_type)(வெறுமை (*)(வெறுமை))(func)
 
-unsigned char curlx_ultouc(unsigned long ulnum);
+unsigned எழுத்து curlx_ultouc(unsigned long ulnum);
 
-int curlx_uztosi(size_t uznum);
+முழு curlx_uztosi(size_t uznum);
 
 unsigned long curlx_uztoul(size_t uznum);
 
-unsigned int curlx_uztoui(size_t uznum);
+unsigned முழு curlx_uztoui(size_t uznum);
 
-int curlx_sltosi(long slnum);
+முழு curlx_sltosi(long slnum);
 
-unsigned int curlx_sltoui(long slnum);
+unsigned முழு curlx_sltoui(long slnum);
 
 unsigned short curlx_sltous(long slnum);
 
@@ -45,13 +45,13 @@ ssize_t curlx_uztosz(size_t uznum);
 
 size_t curlx_sotouz(curl_off_t sonum);
 
-int curlx_sztosi(ssize_t sznum);
+முழு curlx_sztosi(ssize_t sznum);
 
-unsigned short curlx_uitous(unsigned int uinum);
+unsigned short curlx_uitous(unsigned முழு uinum);
 
-size_t curlx_sitouz(int sinum);
+size_t curlx_sitouz(முழு sinum);
 
-size_t curlx_uitouz(unsigned int uinum);
+size_t curlx_uitouz(unsigned முழு uinum);
 
 /* Convert a curl_off_t to fit into size_t interval [uzmin, uzmax].
  * values outside this interval give the lower/upper bound. */

@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-CURLcode curlx_inet_ntop(int af, const void *src, char *buf, size_t size);
+CURLcode curlx_inet_ntop(முழு af, மாறிலி வெறுமை *src, எழுத்து *buf, size_t size);
 
 #endif /* HEADER_CURL_INET_NTOP_H */

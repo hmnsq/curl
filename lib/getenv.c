@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-char *curl_getenv(const char *variable)
+எழுத்து *curl_getenv(மாறிலி எழுத்து *variable)
 {
-#if defined(CURL_WINDOWS_UWP) || \
+#எனில் defined(CURL_WINDOWS_UWP) || \
   defined(__ORBIS__) || defined(__PROSPERO__) /* PlayStation 4 and 5 */
-  (void)variable;
-  return NULL;
-#elif defined(_WIN32)
+  (வெறுமை)variable;
+  திரும்பு வெற்று;
+#அல்லதெனில் defined(_WIN32)
   /* This uses Windows API instead of C runtime getenv() to get the environment
      variable since some changes are not always visible to the latter. #4774 */
-  char *buf = NULL;
-  char *tmp;
+  எழுத்து *buf = வெற்று;
+  எழுத்து *tmp;
   DWORD bufsize;
   DWORD rc = 1;
-  const DWORD max = 32768; /* max env var size from MSCRT source */
+  மாறிலி DWORD max = 32768; /* max env var size from MSCRT source */
 
-  for(;;) {
+  க்கு(;;) {
     tmp = curlx_realloc(buf, rc);
-    if(!tmp) {
+    எனில்(!tmp) {
       curlx_free(buf);
-      return NULL;
+      திரும்பு வெற்று;
     }
 
     buf = tmp;
@@ -51,20 +51,20 @@ char *curl_getenv(const char *variable)
     /* it is possible for rc to be 0 if the variable was found but empty.
        Since getenv does not make that distinction we ignore it as well. */
     rc = GetEnvironmentVariableA(variable, buf, bufsize);
-    if(!rc || rc == bufsize || rc > max) {
+    எனில்(!rc || rc == bufsize || rc > max) {
       curlx_free(buf);
-      return NULL;
+      திரும்பு வெற்று;
     }
 
     /* if rc < bufsize then rc is bytes written not including
        the null-terminator */
-    if(rc < bufsize)
-      return buf;
+    எனில்(rc < bufsize)
+      திரும்பு buf;
 
     /* else rc is bytes needed, try again */
   }
-#else
-  char *env = getenv(variable);
-  return (env && env[0]) ? curlx_strdup(env) : NULL;
+#இல்லையெனில்
+  எழுத்து *env = getenv(variable);
+  திரும்பு (env && env[0]) ? curlx_strdup(env) : வெற்று;
 #endif
 }

@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "curl_printf.h"
-#include "curlx/strparse.h"
-#include "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
+#அந்தர்பாவ "curlx/dynbuf.h"
+#அந்தர்பாவ "curl_printf.h"
+#அந்தர்பாவ "curlx/strparse.h"
+#அந்தர்பாவ "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
 
 #define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
                         fit negative DBL_MAX (317 letters) */
@@ -34,20 +34,20 @@
 #define MAX_SEGMENTS   128 /* number of output segments */
 
 /* Lower-case digits. */
-const unsigned char Curl_ldigits[] = "0123456789abcdef";
+மாறிலி unsigned எழுத்து Curl_ldigits[] = "0123456789abcdef";
 
 /* Upper-case digits. */
-const unsigned char Curl_udigits[] = "0123456789ABCDEF";
+மாறிலி unsigned எழுத்து Curl_udigits[] = "0123456789ABCDEF";
 
 #define OUTCHAR(x)                        \
-  do {                                    \
-    if(stream((unsigned char)(x), userp)) \
-      return TRUE;                        \
+  செய் {                                    \
+    எனில்(stream((unsigned எழுத்து)(x), userp)) \
+      திரும்பு TRUE;                        \
     (*donep)++;                           \
-  } while(0)
+  } போது(0)
 
 /* Data type to read from the arglist */
-typedef enum {
+வகைவரை எண்ணிக்கை {
   MTYPE_STRING,
   MTYPE_PTR,
   MTYPE_INTPTR,
@@ -64,10 +64,10 @@ typedef enum {
 } FormatType;
 
 /* conversion and display flags */
-enum {
+எண்ணிக்கை {
   FLAGS_SPACE      = 1 << 0,
   FLAGS_SHOWSIGN   = 1 << 1,
-  FLAGS_LEFT       = 1 << 2,
+  FLAGS_இடது       = 1 << 2,
   FLAGS_ALT        = 1 << 3,
   FLAGS_SHORT      = 1 << 4,
   FLAGS_LONG       = 1 << 5,
@@ -88,7 +88,7 @@ enum {
   FLAGS_SUBSTR     = 1 << 20  /* no input, only substring */
 };
 
-enum {
+எண்ணிக்கை {
   DOLLAR_UNKNOWN,
   DOLLAR_NOPE,
   DOLLAR_USE
@@ -97,31 +97,31 @@ enum {
 /*
  * Describes an input va_arg type and hold its value.
  */
-struct va_input {
+கட்டமைப்பு va_உள்ளீடு {
   FormatType type; /* FormatType */
-  union {
-    const char *str;
-    void *ptr;
+  ஒன்றிப்பு {
+    மாறிலி எழுத்து *str;
+    வெறுமை *ptr;
     int64_t nums; /* signed */
     uint64_t numu; /* unsigned */
-    double dnum;
+    இரட்டை dnum;
   } val;
 };
 
 /*
  * Describes an output segment.
  */
-struct outsegment {
-  int width;     /* width OR width parameter number */
-  int precision; /* precision OR precision parameter number */
-  unsigned int flags;
-  unsigned int input; /* input argument array index */
-  const char *start; /* format string start to output */
+கட்டமைப்பு outsegment {
+  முழு width;     /* width OR width parameter number */
+  முழு precision; /* precision OR precision parameter number */
+  unsigned முழு flags;
+  unsigned முழு உள்ளீடு; /* input argument array index */
+  மாறிலி எழுத்து *start; /* format string start to output */
   size_t outlen;     /* number of bytes from the format string to output */
 };
 
-struct nsprintf {
-  char *buffer;
+கட்டமைப்பு nsprintf {
+  எழுத்து *buffer;
   size_t length;
   size_t max;
 };
@@ -132,14 +132,14 @@ struct nsprintf {
    request line or header in a single flush. */
 #define ASPRINTF_STAGE_SIZE 512
 
-struct asprintf {
-  struct dynbuf *b;
-  char merr;
+கட்டமைப்பு asprintf {
+  கட்டமைப்பு dynbuf *b;
+  எழுத்து merr;
   size_t nstage;
-  unsigned char stage[ASPRINTF_STAGE_SIZE];
+  unsigned எழுத்து stage[ASPRINTF_STAGE_SIZE];
 };
 
-struct ioprintf {
+கட்டமைப்பு ioprintf {
   FILE *fd;
   bool error;
 };
@@ -148,18 +148,18 @@ struct ioprintf {
  *
  * returns -1 if no valid number was provided.
  */
-static int dollarstring(const char *p, const char **end)
+நிலையான முழு dollarstring(மாறிலி எழுத்து *p, மாறிலி எழுத்து **end)
 {
-  curl_off_t num;
-  if(curlx_str_number(&p, &num, MAX_PARAMETERS) ||
-     curlx_str_single(&p, '$') || !num)
-    return -1;
+  curl_off_t இலக்கம்;
+  எனில்(curlx_str_எண்(&p, &இலக்கம், MAX_PARAMETERS) ||
+     curlx_str_single(&p, '$') || !இலக்கம்)
+    திரும்பு -1;
   *end = p;
-  return (int)num - 1;
+  திரும்பு (முழு)இலக்கம் - 1;
 }
 
 #define is_arg_used(x, y)   ((x)[(y) / 8] & (1 << ((y) & 7)))
-#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned char)(1 << ((y) & 7)))
+#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned எழுத்து)(1 << ((y) & 7)))
 
 /*
  * Parse the format string.
@@ -182,345 +182,345 @@ static int dollarstring(const char *p, const char **end)
 #define PFMT_PRECARG    10 /* attempted to use same arg twice, for prec */
 #define PFMT_MANYSEGS   11 /* maxed out output segments */
 
-static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
-                       int *precp, int *widthp)
+நிலையான முழு parse_flags(மாறிலி எழுத்து **fmtp, unsigned முழு *flagsp, முழு use_dollar,
+                       முழு *precp, முழு *widthp)
 {
-  const char *fmt = *fmtp;
+  மாறிலி எழுத்து *fmt = *fmtp;
   bool loopit = TRUE;
-  unsigned int flags = 0;
-  int width = 0;
-  int precision = 0;
+  unsigned முழு flags = 0;
+  முழு width = 0;
+  முழு precision = 0;
 
   /* Handle the flags */
-  do {
-    switch(*fmt++) {
-    case ' ':
+  செய் {
+    தேர்வு(*fmt++) {
+    நிலை ' ':
       flags |= FLAGS_SPACE;
-      break;
-    case '+':
+      நிறுத்து;
+    நிலை '+':
       flags |= FLAGS_SHOWSIGN;
-      break;
-    case '-':
-      flags |= FLAGS_LEFT;
-      flags &= ~(unsigned int)FLAGS_PAD_NIL;
-      break;
-    case '#':
+      நிறுத்து;
+    நிலை '-':
+      flags |= FLAGS_இடது;
+      flags &= ~(unsigned முழு)FLAGS_PAD_NIL;
+      நிறுத்து;
+    நிலை '#':
       flags |= FLAGS_ALT;
-      break;
-    case '.':
-      if('*' == *fmt) {
+      நிறுத்து;
+    நிலை '.':
+      எனில்('*' == *fmt) {
         /* The precision is picked from a specified parameter */
         flags |= FLAGS_PRECPARAM;
         fmt++;
 
-        if(use_dollar == DOLLAR_USE) {
+        எனில்(use_dollar == DOLLAR_USE) {
           precision = dollarstring(fmt, &fmt);
-          if(precision < 0)
+          எனில்(precision < 0)
             /* illegal combo */
-            return PFMT_DOLLARPREC;
+            திரும்பு PFMT_DOLLARPREC;
         }
-        else
+        இல்லையெனில்
           /* get it from the next argument */
           precision = -1;
       }
-      else {
+      இல்லையெனில் {
         bool is_neg;
-        curl_off_t num;
+        curl_off_t இலக்கம்;
         flags |= FLAGS_PREC;
         is_neg = ('-' == *fmt);
-        if(is_neg)
+        எனில்(is_neg)
           fmt++;
-        if(curlx_str_number(&fmt, &num, INT_MAX))
-          return PFMT_PREC;
-        precision = (int)num;
-        if(is_neg)
+        எனில்(curlx_str_எண்(&fmt, &இலக்கம், INT_MAX))
+          திரும்பு PFMT_PREC;
+        precision = (முழு)இலக்கம்;
+        எனில்(is_neg)
           precision = -precision;
       }
-      if((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
+      எனில்((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
          (FLAGS_PREC | FLAGS_PRECPARAM))
         /* it is not permitted to use both kinds of precision for the same
            argument */
-        return PFMT_PRECMIX;
-      break;
-    case 'h':
+        திரும்பு PFMT_PRECMIX;
+      நிறுத்து;
+    நிலை 'h':
       flags |= FLAGS_SHORT;
-      break;
+      நிறுத்து;
 #ifdef _WIN32
-    case 'I':
+    நிலை 'I':
       /* Non-ANSI integer extensions I32 I64 */
-      if((fmt[0] == '3') && (fmt[1] == '2')) {
+      எனில்((fmt[0] == '3') && (fmt[1] == '2')) {
         flags |= FLAGS_LONG;
         fmt += 2;
       }
-      else if((fmt[0] == '6') && (fmt[1] == '4')) {
+      இல்லையெனில் எனில்((fmt[0] == '6') && (fmt[1] == '4')) {
         flags |= FLAGS_LONGLONG;
         fmt += 2;
       }
-      else {
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+      இல்லையெனில் {
+#எனில் SIZEOF_SIZE_T > SIZEOF_LONG
         flags |= FLAGS_LONGLONG;
-#else
+#இல்லையெனில்
         flags |= FLAGS_LONG;
 #endif
       }
-      break;
+      நிறுத்து;
 #endif /* _WIN32 */
-    case 'l':
-      if(flags & FLAGS_LONG)
+    நிலை 'l':
+      எனில்(flags & FLAGS_LONG)
         flags |= FLAGS_LONGLONG;
-      else
+      இல்லையெனில்
         flags |= FLAGS_LONG;
-      break;
-    case 'L':
+      நிறுத்து;
+    நிலை 'L':
       flags |= FLAGS_LONGDOUBLE;
-      break;
-    case 'q':
+      நிறுத்து;
+    நிலை 'q':
       flags |= FLAGS_LONGLONG;
-      break;
-    case 'z':
+      நிறுத்து;
+    நிலை 'z':
       /* the code below generates a warning if -Wunreachable-code is
          used */
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+#எனில் SIZEOF_SIZE_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#இல்லையெனில்
       flags |= FLAGS_LONG;
 #endif
-      break;
-    case 'O':
-#if SIZEOF_CURL_OFF_T > SIZEOF_LONG
+      நிறுத்து;
+    நிலை 'O':
+#எனில் SIZEOF_CURL_OFF_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#இல்லையெனில்
       flags |= FLAGS_LONG;
 #endif
-      break;
-    case '0':
-      if(!(flags & FLAGS_LEFT))
+      நிறுத்து;
+    நிலை '0':
+      எனில்(!(flags & FLAGS_இடது))
         flags |= FLAGS_PAD_NIL;
       FALLTHROUGH();
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9': {
-      curl_off_t num;
+    நிலை '1':
+    நிலை '2':
+    நிலை '3':
+    நிலை '4':
+    நிலை '5':
+    நிலை '6':
+    நிலை '7':
+    நிலை '8':
+    நிலை '9': {
+      curl_off_t இலக்கம்;
       flags |= FLAGS_WIDTH;
       fmt--;
-      if(curlx_str_number(&fmt, &num, INT_MAX))
-        return PFMT_WIDTH;
-      width = (int)num;
-      break;
+      எனில்(curlx_str_எண்(&fmt, &இலக்கம், INT_MAX))
+        திரும்பு PFMT_WIDTH;
+      width = (முழு)இலக்கம்;
+      நிறுத்து;
     }
-    case '*':  /* read width from argument list */
+    நிலை '*':  /* read width from argument list */
       flags |= FLAGS_WIDTHPARAM;
-      if(use_dollar == DOLLAR_USE) {
+      எனில்(use_dollar == DOLLAR_USE) {
         width = dollarstring(fmt, &fmt);
-        if(width < 0)
+        எனில்(width < 0)
           /* illegal combo */
-          return PFMT_DOLLARWIDTH;
+          திரும்பு PFMT_DOLLARWIDTH;
       }
-      else
+      இல்லையெனில்
         /* pick from the next argument */
         width = -1;
-      break;
-    default:
+      நிறுத்து;
+    இயல்பு:
       loopit = FALSE;
       fmt--;
-      break;
+      நிறுத்து;
     } /* switch */
-  } while(loopit); /* do */
+  } போது(loopit); /* do */
   *flagsp = flags;
   *precp = precision;
   *widthp = width;
   *fmtp = fmt;
-  return PFMT_OK;
+  திரும்பு PFMT_OK;
 }
 
-static bool parse_conversion(const char f, unsigned int *flagp,
+நிலையான bool parse_conversion(மாறிலி எழுத்து f, unsigned முழு *flagp,
                              FormatType *typep)
 {
-  unsigned int flags = *flagp;
+  unsigned முழு flags = *flagp;
   FormatType type;
-  switch(f) {
-  case 'S':
+  தேர்வு(f) {
+  நிலை 'S':
     flags |= FLAGS_ALT;
     type = MTYPE_STRING;
-    break;
-  case 's':
+    நிறுத்து;
+  நிலை 's':
     type = MTYPE_STRING;
-    break;
-  case 'n':
+    நிறுத்து;
+  நிலை 'n':
     type = MTYPE_INTPTR;
-    break;
-  case 'p':
+    நிறுத்து;
+  நிலை 'p':
     type = MTYPE_PTR;
-    break;
-  case 'd':
-  case 'i':
-    if(flags & FLAGS_LONGLONG)
+    நிறுத்து;
+  நிலை 'd':
+  நிலை 'i':
+    எனில்(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONG;
-    else if(flags & FLAGS_LONG)
+    இல்லையெனில் எனில்(flags & FLAGS_LONG)
       type = MTYPE_LONG;
-    else
+    இல்லையெனில்
       type = MTYPE_INT;
-    break;
-  case 'u':
-    if(flags & FLAGS_LONGLONG)
+    நிறுத்து;
+  நிலை 'u':
+    எனில்(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    இல்லையெனில் எனில்(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    இல்லையெனில்
       type = MTYPE_INTU;
     flags |= FLAGS_UNSIGNED;
-    break;
-  case 'o':
-    if(flags & FLAGS_LONGLONG)
+    நிறுத்து;
+  நிலை 'o':
+    எனில்(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    இல்லையெனில் எனில்(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    இல்லையெனில்
       type = MTYPE_INTU;
     flags |= FLAGS_OCTAL | FLAGS_UNSIGNED;
-    break;
-  case 'x':
-    if(flags & FLAGS_LONGLONG)
+    நிறுத்து;
+  நிலை 'x':
+    எனில்(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    இல்லையெனில் எனில்(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    இல்லையெனில்
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UNSIGNED;
-    break;
-  case 'X':
-    if(flags & FLAGS_LONGLONG)
+    நிறுத்து;
+  நிலை 'X':
+    எனில்(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    இல்லையெனில் எனில்(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    இல்லையெனில்
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UPPER | FLAGS_UNSIGNED;
-    break;
-  case 'c':
+    நிறுத்து;
+  நிலை 'c':
     type = MTYPE_INT;
     flags |= FLAGS_CHAR;
-    break;
-  case 'f':
+    நிறுத்து;
+  நிலை 'f':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
-    break;
-  case 'F':
+    நிறுத்து;
+  நிலை 'F':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_UPPER;
-    break;
-  case 'e':
+    நிறுத்து;
+  நிலை 'e':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE;
-    break;
-  case 'E':
+    நிறுத்து;
+  நிலை 'E':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE | FLAGS_UPPER;
-    break;
-  case 'g':
+    நிறுத்து;
+  நிலை 'g':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG;
-    break;
-  case 'G':
+    நிறுத்து;
+  நிலை 'G':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG | FLAGS_UPPER;
-    break;
-  default:
+    நிறுத்து;
+  இயல்பு:
     /* invalid instruction, disregard and continue */
-    return TRUE;
+    திரும்பு TRUE;
   } /* switch */
 
   *flagp |= flags;
   *typep = type;
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-static int parsefmt(const char *format,
-                    struct outsegment *out,
-                    struct va_input *in,
-                    int *opieces,
-                    int *ipieces, va_list arglist)
+நிலையான முழு parsefmt(மாறிலி எழுத்து *format,
+                    கட்டமைப்பு outsegment *out,
+                    கட்டமைப்பு va_உள்ளீடு *in,
+                    முழு *opieces,
+                    முழு *ipieces, va_list arglist)
 {
-  const char *fmt = format;
-  int param_num = 0;
-  int max_param = -1;
-  int i;
-  int ocount = 0;
-  unsigned char usedinput[MAX_PARAMETERS / 8];
+  மாறிலி எழுத்து *fmt = format;
+  முழு param_இலக்கம் = 0;
+  முழு max_param = -1;
+  முழு i;
+  முழு ocount = 0;
+  unsigned எழுத்து usedinput[MAX_PARAMETERS / 8];
   size_t outlen = 0;
-  struct outsegment *optr;
-  int use_dollar = DOLLAR_UNKNOWN;
-  const char *start = fmt;
+  கட்டமைப்பு outsegment *optr;
+  முழு use_dollar = DOLLAR_UNKNOWN;
+  மாறிலி எழுத்து *start = fmt;
 
   /* clear, set a bit for each used input */
-  memset(usedinput, 0, sizeof(usedinput));
+  memset(usedinput, 0, அளவு(usedinput));
 
-  while(*fmt) {
-    if(*fmt == '%') {
-      struct va_input *iptr;
+  போது(*fmt) {
+    எனில்(*fmt == '%') {
+      கட்டமைப்பு va_உள்ளீடு *iptr;
       FormatType type;
-      unsigned int flags = 0;
-      int width = 0;
-      int precision = 0;
-      int param = -1;
-      int rc;
+      unsigned முழு flags = 0;
+      முழு width = 0;
+      முழு precision = 0;
+      முழு param = -1;
+      முழு rc;
       fmt++;
       outlen = (size_t)(fmt - start - 1);
-      if(*fmt == '%') {
+      எனில்(*fmt == '%') {
         /* this means a %% that should be output only as %. Create an output
            segment. */
-        if(outlen) {
+        எனில்(outlen) {
           optr = &out[ocount++];
-          if(ocount > MAX_SEGMENTS)
-            return PFMT_MANYSEGS;
-          optr->input = 0;
+          எனில்(ocount > MAX_SEGMENTS)
+            திரும்பு PFMT_MANYSEGS;
+          optr->உள்ளீடு = 0;
           optr->flags = FLAGS_SUBSTR;
           optr->start = start;
           optr->outlen = outlen;
         }
         start = fmt;
         fmt++;
-        continue; /* while */
+        தொடர்; /* while */
       }
 
-      if(use_dollar != DOLLAR_NOPE) {
+      எனில்(use_dollar != DOLLAR_NOPE) {
         param = dollarstring(fmt, &fmt);
-        if(param < 0) {
-          if(use_dollar == DOLLAR_USE)
+        எனில்(param < 0) {
+          எனில்(use_dollar == DOLLAR_USE)
             /* illegal combo */
-            return PFMT_DOLLAR;
+            திரும்பு PFMT_DOLLAR;
 
           /* we got no positional, get the next arg */
           param = -1;
           use_dollar = DOLLAR_NOPE;
         }
-        else
+        இல்லையெனில்
           use_dollar = DOLLAR_USE;
       }
 
       rc = parse_flags(&fmt, &flags, use_dollar, &precision, &width);
-      if(rc)
-        return rc;
+      எனில்(rc)
+        திரும்பு rc;
 
-      if(parse_conversion(*fmt, &flags, &type))
-        continue;
+      எனில்(parse_conversion(*fmt, &flags, &type))
+        தொடர்;
 
-      if(flags & FLAGS_WIDTHPARAM) {
-        if(width < 0)
-          width = param_num++;
-        else {
+      எனில்(flags & FLAGS_WIDTHPARAM) {
+        எனில்(width < 0)
+          width = param_இலக்கம்++;
+        இல்லையெனில் {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, width))
-            return PFMT_WIDTHARG;
+          எனில்(is_arg_used(usedinput, width))
+            திரும்பு PFMT_WIDTHARG;
         }
-        if(width >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(width >= max_param)
+        எனில்(width >= MAX_PARAMETERS)
+          திரும்பு PFMT_MANYARGS;
+        எனில்(width >= max_param)
           max_param = width;
 
         in[width].type = MTYPE_WIDTH;
@@ -528,17 +528,17 @@ static int parsefmt(const char *format,
         mark_arg_used(usedinput, width);
       }
 
-      if(flags & FLAGS_PRECPARAM) {
-        if(precision < 0)
-          precision = param_num++;
-        else {
+      எனில்(flags & FLAGS_PRECPARAM) {
+        எனில்(precision < 0)
+          precision = param_இலக்கம்++;
+        இல்லையெனில் {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, precision))
-            return PFMT_PRECARG;
+          எனில்(is_arg_used(usedinput, precision))
+            திரும்பு PFMT_PRECARG;
         }
-        if(precision >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(precision >= max_param)
+        எனில்(precision >= MAX_PARAMETERS)
+          திரும்பு PFMT_MANYARGS;
+        எனில்(precision >= max_param)
           max_param = precision;
 
         in[precision].type = MTYPE_PRECISION;
@@ -546,11 +546,11 @@ static int parsefmt(const char *format,
       }
 
       /* Handle the specifier */
-      if(param < 0)
-        param = param_num++;
-      if(param >= MAX_PARAMETERS)
-        return PFMT_MANYARGS;
-      if(param >= max_param)
+      எனில்(param < 0)
+        param = param_இலக்கம்++;
+      எனில்(param >= MAX_PARAMETERS)
+        திரும்பு PFMT_MANYARGS;
+      எனில்(param >= max_param)
         max_param = param;
 
       iptr = &in[param];
@@ -561,9 +561,9 @@ static int parsefmt(const char *format,
 
       fmt++;
       optr = &out[ocount++];
-      if(ocount > MAX_SEGMENTS)
-        return PFMT_MANYSEGS;
-      optr->input = (unsigned int)param;
+      எனில்(ocount > MAX_SEGMENTS)
+        திரும்பு PFMT_MANYSEGS;
+      optr->உள்ளீடு = (unsigned முழு)param;
       optr->flags = flags;
       optr->width = width;
       optr->precision = precision;
@@ -571,149 +571,149 @@ static int parsefmt(const char *format,
       optr->outlen = outlen;
       start = fmt;
     }
-    else
+    இல்லையெனில்
       fmt++;
   }
 
   /* is there a trailing piece */
   outlen = (size_t)(fmt - start);
-  if(outlen) {
+  எனில்(outlen) {
     optr = &out[ocount++];
-    if(ocount > MAX_SEGMENTS)
-      return PFMT_MANYSEGS;
-    optr->input = 0;
+    எனில்(ocount > MAX_SEGMENTS)
+      திரும்பு PFMT_MANYSEGS;
+    optr->உள்ளீடு = 0;
     optr->flags = FLAGS_SUBSTR;
     optr->start = start;
     optr->outlen = outlen;
   }
 
   /* Read the arg list parameters into our data list */
-  for(i = 0; i < max_param + 1; i++) {
-    struct va_input *iptr = &in[i];
-    if(!is_arg_used(usedinput, i))
+  க்கு(i = 0; i < max_param + 1; i++) {
+    கட்டமைப்பு va_உள்ளீடு *iptr = &in[i];
+    எனில்(!is_arg_used(usedinput, i))
       /* bad input */
-      return PFMT_INPUTGAP;
+      திரும்பு PFMT_INPUTGAP;
 
     /* based on the type, read the correct argument */
-    switch(iptr->type) {
-    case MTYPE_STRING:
-      iptr->val.str = va_arg(arglist, const char *);
-      break;
+    தேர்வு(iptr->type) {
+    நிலை MTYPE_STRING:
+      iptr->val.str = va_arg(arglist, மாறிலி எழுத்து *);
+      நிறுத்து;
 
-    case MTYPE_INTPTR:
-    case MTYPE_PTR:
-      iptr->val.ptr = va_arg(arglist, void *);
-      break;
+    நிலை MTYPE_INTPTR:
+    நிலை MTYPE_PTR:
+      iptr->val.ptr = va_arg(arglist, வெறுமை *);
+      நிறுத்து;
 
-    case MTYPE_LONGLONGU:
+    நிலை MTYPE_LONGLONGU:
       iptr->val.numu = va_arg(arglist, uint64_t);
-      break;
+      நிறுத்து;
 
-    case MTYPE_LONGLONG:
+    நிலை MTYPE_LONGLONG:
       iptr->val.nums = va_arg(arglist, int64_t);
-      break;
+      நிறுத்து;
 
-    case MTYPE_LONGU:
+    நிலை MTYPE_LONGU:
       iptr->val.numu = va_arg(arglist, unsigned long);
-      break;
+      நிறுத்து;
 
-    case MTYPE_LONG:
+    நிலை MTYPE_LONG:
       iptr->val.nums = va_arg(arglist, long);
-      break;
+      நிறுத்து;
 
-    case MTYPE_INTU:
-      iptr->val.numu = va_arg(arglist, unsigned int);
-      break;
+    நிலை MTYPE_INTU:
+      iptr->val.numu = va_arg(arglist, unsigned முழு);
+      நிறுத்து;
 
-    case MTYPE_INT:
-    case MTYPE_WIDTH:
-    case MTYPE_PRECISION:
-      iptr->val.nums = va_arg(arglist, int);
-      break;
+    நிலை MTYPE_INT:
+    நிலை MTYPE_WIDTH:
+    நிலை MTYPE_PRECISION:
+      iptr->val.nums = va_arg(arglist, முழு);
+      நிறுத்து;
 
-    case MTYPE_DOUBLE:
-      iptr->val.dnum = va_arg(arglist, double);
-      break;
+    நிலை MTYPE_DOUBLE:
+      iptr->val.dnum = va_arg(arglist, இரட்டை);
+      நிறுத்து;
 
-    case MTYPE_LONGDOUBLE:
-      iptr->val.dnum = (double)va_arg(arglist, long double);
-      break;
+    நிலை MTYPE_LONGDOUBLE:
+      iptr->val.dnum = (இரட்டை)va_arg(arglist, long இரட்டை);
+      நிறுத்து;
 
-    default:
-      DEBUGASSERT(NULL); /* unexpected */
-      break;
+    இயல்பு:
+      DEBUGASSERT(வெற்று); /* unexpected */
+      நிறுத்து;
     }
   }
   *ipieces = max_param + 1;
   *opieces = ocount;
 
-  return PFMT_OK;
+  திரும்பு PFMT_OK;
 }
 
-struct mproperty {
-  int width;            /* Width of a field. */
-  int prec;             /* Precision of a field. */
-  unsigned int flags;
+கட்டமைப்பு mproperty {
+  முழு width;            /* Width of a field. */
+  முழு prec;             /* Precision of a field. */
+  unsigned முழு flags;
 };
 
 /* block output callback: consume up to 'len' bytes, return the number of
    bytes accepted. Accepting fewer than 'len' bytes aborts formatting, like
    the byte callback returning failure. May be NULL, in which case output
    falls back to the per-byte 'stream' callback. */
-typedef size_t (*mp_streamn)(const unsigned char *buf, size_t len, void *f);
+வகைவரை size_t (*mp_streamn)(மாறிலி unsigned எழுத்து *buf, size_t len, வெறுமை *f);
 
 /* commit any output the sink is holding. Returns non-zero on failure. Sinks
    whose accepted bytes are already committed do not need one. */
-typedef int (*mp_flush)(void *f);
+வகைவரை முழு (*mp_flush)(வெறுமை *f);
 
 /* emit a run of bytes through the block callback when available, else byte
    by byte. Returns TRUE to abort formatting (mirroring OUTCHAR). */
-static bool stream_run(void *userp,
-                       int (*stream)(unsigned char, void *),
+நிலையான bool stream_run(வெறுமை *userp,
+                       முழு (*stream)(unsigned எழுத்து, வெறுமை *),
                        mp_streamn streamn,
-                       const unsigned char *buf, size_t len, int *donep)
+                       மாறிலி unsigned எழுத்து *buf, size_t len, முழு *donep)
 {
-  if(!len)
-    return FALSE;
-  if(streamn) {
+  எனில்(!len)
+    திரும்பு FALSE;
+  எனில்(streamn) {
     size_t n = streamn(buf, len, userp);
-    *donep += (int)n;
-    return n != len;
+    *donep += (முழு)n;
+    திரும்பு n != len;
   }
-  while(len--) {
-    if(stream(*buf++, userp))
-      return TRUE;
+  போது(len--) {
+    எனில்(stream(*buf++, userp))
+      திரும்பு TRUE;
     (*donep)++;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 /* Padding is always spaces or zeros, so it comes from a constant rather than a
    buffer that has to be filled first. 16 keeps every width used in the tree to
    a single run; wider padding loops. */
-static const char pad_spaces[] = "                ";
-static const char pad_zeros[] = "0000000000000000";
+நிலையான மாறிலி எழுத்து pad_spaces[] = "                ";
+நிலையான மாறிலி எழுத்து pad_zeros[] = "0000000000000000";
 #define PAD_RUN 16 /* strlen() of both of the above */
 
 /* emit 'num' copies of the pad byte. Returns TRUE to abort formatting. */
-static bool stream_pad(void *userp,
-                       int (*stream)(unsigned char, void *),
+நிலையான bool stream_pad(வெறுமை *userp,
+                       முழு (*stream)(unsigned எழுத்து, வெறுமை *),
                        mp_streamn streamn,
-                       unsigned char pad, int num, int *donep)
+                       unsigned எழுத்து pad, முழு இலக்கம், முழு *donep)
 {
-  const unsigned char *src;
-  if(num <= 0)
-    return FALSE;
-  if(pad == '0')
-    src = (const unsigned char *)pad_zeros;
-  else
-    src = (const unsigned char *)pad_spaces;
-  while(num > PAD_RUN) {
-    if(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
-      return TRUE;
-    num -= PAD_RUN;
+  மாறிலி unsigned எழுத்து *src;
+  எனில்(இலக்கம் <= 0)
+    திரும்பு FALSE;
+  எனில்(pad == '0')
+    src = (மாறிலி unsigned எழுத்து *)pad_zeros;
+  இல்லையெனில்
+    src = (மாறிலி unsigned எழுத்து *)pad_spaces;
+  போது(இலக்கம் > PAD_RUN) {
+    எனில்(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
+      திரும்பு TRUE;
+    இலக்கம் -= PAD_RUN;
   }
-  return stream_run(userp, stream, streamn, src, (size_t)num, donep);
+  திரும்பு stream_run(userp, stream, streamn, src, (size_t)இலக்கம், donep);
 }
 
 /* emit the leading null-terminated part of a run of at most 'len' bytes.
@@ -722,83 +722,83 @@ static bool stream_pad(void *userp,
    A byte loop and not memchr(): 'len' is the requested precision, which
    out_string() does not clamp to the string length, so "%.64s" on a 10-byte
    string arrives with len == 64 and memchr() would read past the object. */
-static bool stream_zrun(void *userp,
-                        int (*stream)(unsigned char, void *),
+நிலையான bool stream_zrun(வெறுமை *userp,
+                        முழு (*stream)(unsigned எழுத்து, வெறுமை *),
                         mp_streamn streamn,
-                        const char *str, size_t len, int *donep)
+                        மாறிலி எழுத்து *str, size_t len, முழு *donep)
 {
   size_t n = 0;
-  while(n < len && str[n])
+  போது(n < len && str[n])
     n++;
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)str, n, donep);
+  திரும்பு stream_run(userp, stream, streamn,
+                    (மாறிலி unsigned எழுத்து *)str, n, donep);
 }
 
-static bool out_double(void *userp,
-                       int (*stream)(unsigned char, void *),
+நிலையான bool out_double(வெறுமை *userp,
+                       முழு (*stream)(unsigned எழுத்து, வெறுமை *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       double dnum,
-                       char *work, int *donep)
+                       கட்டமைப்பு mproperty *p,
+                       இரட்டை dnum,
+                       எழுத்து *work, முழு *donep)
 {
-  char fmt[32] = "%";
-  char *fptr = &fmt[1];
-  size_t left = sizeof(fmt) - strlen(fmt);
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  எழுத்து fmt[32] = "%";
+  எழுத்து *fptr = &fmt[1];
+  size_t இடது = அளவு(fmt) - strlen(fmt);
+  முழு flags = p->flags;
+  முழு width = p->width;
+  முழு prec = p->prec;
 
-  if(flags & FLAGS_LEFT)
+  எனில்(flags & FLAGS_இடது)
     *fptr++ = '-';
-  if(flags & FLAGS_SHOWSIGN)
+  எனில்(flags & FLAGS_SHOWSIGN)
     *fptr++ = '+';
-  if(flags & FLAGS_SPACE)
+  எனில்(flags & FLAGS_SPACE)
     *fptr++ = ' ';
-  if(flags & FLAGS_ALT)
+  எனில்(flags & FLAGS_ALT)
     *fptr++ = '#';
 
   *fptr = 0;
 
-  if(width >= 0) {
+  எனில்(width >= 0) {
     size_t dlen;
-    if(width >= BUFFSIZE)
+    எனில்(width >= BUFFSIZE)
       width = BUFFSIZE - 1;
     /* RECURSIVE USAGE */
-    dlen = (size_t)curl_msnprintf(fptr, left, "%d", width);
+    dlen = (size_t)curl_msnprintf(fptr, இடது, "%d", width);
     fptr += dlen;
-    left -= dlen;
+    இடது -= dlen;
   }
-  if(prec >= 0) {
+  எனில்(prec >= 0) {
     /* for each digit in the integer part, we can have one less
        precision */
-    int maxprec = BUFFSIZE - 1;
-    double val = dnum;
-    int len;
-    if(prec > maxprec)
+    முழு maxprec = BUFFSIZE - 1;
+    இரட்டை val = dnum;
+    முழு len;
+    எனில்(prec > maxprec)
       prec = maxprec - 1;
-    if(width > 0 && prec <= width)
+    எனில்(width > 0 && prec <= width)
       maxprec -= width;
-    while(maxprec && (val >= 10.0)) {
+    போது(maxprec && (val >= 10.0)) {
       val /= 10;
       maxprec--;
     }
 
-    if(prec > maxprec)
+    எனில்(prec > maxprec)
       prec = maxprec - 1;
-    if(prec < 0)
+    எனில்(prec < 0)
       prec = 0;
     /* RECURSIVE USAGE */
-    len = curl_msnprintf(fptr, left, ".%d", prec);
+    len = curl_msnprintf(fptr, இடது, ".%d", prec);
     fptr += len;
   }
-  if(flags & FLAGS_LONG)
+  எனில்(flags & FLAGS_LONG)
     *fptr++ = 'l';
 
-  if(flags & FLAGS_FLOATE)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'E' : 'e');
-  else if(flags & FLAGS_FLOATG)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'G' : 'g');
-  else
+  எனில்(flags & FLAGS_FLOATE)
+    *fptr++ = (எழுத்து)((flags & FLAGS_UPPER) ? 'E' : 'e');
+  இல்லையெனில் எனில்(flags & FLAGS_FLOATG)
+    *fptr++ = (எழுத்து)((flags & FLAGS_UPPER) ? 'G' : 'g');
+  இல்லையெனில்
     *fptr++ = (flags & FLAGS_UPPER) ? 'F' : 'f';
 
   *fptr = 0; /* and a final null-termination */
@@ -806,269 +806,269 @@ static bool out_double(void *userp,
   /* NOTE NOTE NOTE!! Not all sprintf implementations return number of
      output characters */
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic தள்ளு
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
 #ifdef _WIN32
   curlx_win32_snprintf(work, BUFFSIZE, fmt, dnum);
-#else
+#இல்லையெனில்
   /* !checksrc! disable BANNEDFUNC 1 */
   snprintf(work, BUFFSIZE, fmt, dnum);
 #endif
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic எடு
 #endif
   DEBUGASSERT(strlen(work) < BUFFSIZE);
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)work, strlen(work), donep);
+  திரும்பு stream_run(userp, stream, streamn,
+                    (மாறிலி unsigned எழுத்து *)work, strlen(work), donep);
 }
 
-static bool out_number(void *userp,
-                       int (*stream)(unsigned char, void *),
+நிலையான bool out_எண்(வெறுமை *userp,
+                       முழு (*stream)(unsigned எழுத்து, வெறுமை *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       uint64_t num,
+                       கட்டமைப்பு mproperty *p,
+                       uint64_t இலக்கம்,
                        int64_t nums,
-                       char *work, int *donep)
+                       எழுத்து *work, முழு *donep)
 {
-  const unsigned char *digits = Curl_ldigits;
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  மாறிலி unsigned எழுத்து *digits = Curl_ldigits;
+  முழு flags = p->flags;
+  முழு width = p->width;
+  முழு prec = p->prec;
   bool is_alt = flags & FLAGS_ALT;
   bool is_neg = FALSE;
-  int base = 10;
+  முழு base = 10;
 
   /* 'workend' points to the final buffer byte position, but with an extra
      byte as margin to avoid the (FALSE?) warning Coverity gives us
      otherwise */
-  char *workend = &work[BUFFSIZE - 2];
-  char *w;
+  எழுத்து *workend = &work[BUFFSIZE - 2];
+  எழுத்து *w;
 
-  if(flags & FLAGS_CHAR) {
+  எனில்(flags & FLAGS_CHAR) {
     /* Character. */
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    எனில்(!(flags & FLAGS_இடது)) {
+      எனில்(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        திரும்பு TRUE;
       width = 1;
     }
-    OUTCHAR((char)num);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    OUTCHAR((எழுத்து)இலக்கம்);
+    எனில்(flags & FLAGS_இடது) {
+      எனில்(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        திரும்பு TRUE;
     }
-    return FALSE;
+    திரும்பு FALSE;
   }
-  if(flags & FLAGS_OCTAL)
+  எனில்(flags & FLAGS_OCTAL)
     /* Octal unsigned integer */
     base = 8;
 
-  else if(flags & FLAGS_HEX) {
+  இல்லையெனில் எனில்(flags & FLAGS_HEX) {
     /* Hexadecimal unsigned integer */
     digits = (flags & FLAGS_UPPER) ? Curl_udigits : Curl_ldigits;
     base = 16;
   }
-  else if(flags & FLAGS_UNSIGNED)
+  இல்லையெனில் எனில்(flags & FLAGS_UNSIGNED)
     /* Decimal unsigned integer */
     ;
 
-  else {
+  இல்லையெனில் {
     /* Decimal integer. */
     is_neg = (nums < 0);
-    if(is_neg) {
+    எனில்(is_neg) {
       /* signed_num might fail to hold absolute negative minimum by 1 */
-      int64_t signed_num; /* Used to convert negative in positive. */
-      signed_num = nums + (int64_t)1;
-      signed_num = -signed_num;
-      num = (uint64_t)signed_num;
-      num += (uint64_t)1;
+      int64_t signed_இலக்கம்; /* Used to convert negative in positive. */
+      signed_இலக்கம் = nums + (int64_t)1;
+      signed_இலக்கம் = -signed_இலக்கம்;
+      இலக்கம் = (uint64_t)signed_இலக்கம்;
+      இலக்கம் += (uint64_t)1;
     }
   }
 
   /* Supply a default precision if none was given. */
-  if(prec == -1)
+  எனில்(prec == -1)
     prec = 1;
 
   /* Put the number in WORK. */
   w = workend;
   DEBUGASSERT(base <= 16);
-  switch(base) {
-  case 10:
-    while(num > 0) {
-      *w-- = (char)('0' + (num % 10));
-      num /= 10;
+  தேர்வு(base) {
+  நிலை 10:
+    போது(இலக்கம் > 0) {
+      *w-- = (எழுத்து)('0' + (இலக்கம் % 10));
+      இலக்கம் /= 10;
     }
-    break;
-  default:
-    while(num > 0) {
-      *w-- = digits[num % base];
-      num /= base;
+    நிறுத்து;
+  இயல்பு:
+    போது(இலக்கம் > 0) {
+      *w-- = digits[இலக்கம் % base];
+      இலக்கம் /= base;
     }
-    break;
+    நிறுத்து;
   }
-  width -= (int)(workend - w);
-  prec -= (int)(workend - w);
+  width -= (முழு)(workend - w);
+  prec -= (முழு)(workend - w);
 
-  if(is_alt && base == 8 && prec <= 0) {
+  எனில்(is_alt && base == 8 && prec <= 0) {
     *w-- = '0';
     --width;
   }
 
-  if(prec > 0) {
+  எனில்(prec > 0) {
     width -= prec;
-    while(prec-- > 0 && w >= work)
+    போது(prec-- > 0 && w >= work)
       *w-- = '0';
   }
 
-  if(is_alt && base == 16)
+  எனில்(is_alt && base == 16)
     width -= 2;
 
-  if(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
+  எனில்(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
     --width;
 
-  if(!(flags & FLAGS_LEFT) && !(flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  எனில்(!(flags & FLAGS_இடது) && !(flags & FLAGS_PAD_NIL)) {
+    எனில்(stream_pad(userp, stream, streamn, ' ', width, donep))
+      திரும்பு TRUE;
     width = 0;
   }
 
-  if(is_neg)
+  எனில்(is_neg)
     OUTCHAR('-');
-  else if(flags & FLAGS_SHOWSIGN)
+  இல்லையெனில் எனில்(flags & FLAGS_SHOWSIGN)
     OUTCHAR('+');
-  else if(flags & FLAGS_SPACE)
+  இல்லையெனில் எனில்(flags & FLAGS_SPACE)
     OUTCHAR(' ');
 
-  if(is_alt && base == 16) {
+  எனில்(is_alt && base == 16) {
     OUTCHAR('0');
-    if(flags & FLAGS_UPPER)
+    எனில்(flags & FLAGS_UPPER)
       OUTCHAR('X');
-    else
+    இல்லையெனில்
       OUTCHAR('x');
   }
 
-  if(!(flags & FLAGS_LEFT) && (flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, '0', width, donep))
-      return TRUE;
+  எனில்(!(flags & FLAGS_இடது) && (flags & FLAGS_PAD_NIL)) {
+    எனில்(stream_pad(userp, stream, streamn, '0', width, donep))
+      திரும்பு TRUE;
     width = 0;
   }
 
   /* Write the number. */
-  if(stream_run(userp, stream, streamn, (const unsigned char *)w + 1,
+  எனில்(stream_run(userp, stream, streamn, (மாறிலி unsigned எழுத்து *)w + 1,
                 (size_t)(workend - w), donep))
-    return TRUE;
+    திரும்பு TRUE;
 
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  எனில்(flags & FLAGS_இடது) {
+    எனில்(stream_pad(userp, stream, streamn, ' ', width, donep))
+      திரும்பு TRUE;
   }
 
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-static const char nilstr[] = "(nil)";
+நிலையான மாறிலி எழுத்து nilstr[] = "(nil)";
 
-static bool out_string(void *userp,
-                       int (*stream)(unsigned char, void *),
+நிலையான bool out_string(வெறுமை *userp,
+                       முழு (*stream)(unsigned எழுத்து, வெறுமை *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       const char *str,
-                       int *donep)
+                       கட்டமைப்பு mproperty *p,
+                       மாறிலி எழுத்து *str,
+                       முழு *donep)
 {
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  முழு flags = p->flags;
+  முழு width = p->width;
+  முழு prec = p->prec;
   size_t len;
 
-  if(!str) {
+  எனில்(!str) {
     /* Write null string if there is space. */
-    if(prec == -1 || prec >= (int)CURL_CSTRLEN(nilstr)) {
+    எனில்(prec == -1 || prec >= (முழு)CURL_CSTRLEN(nilstr)) {
       str = nilstr;
       len = CURL_CSTRLEN(nilstr);
       /* Disable quotes around (nil) */
-      flags &= ~(unsigned int)FLAGS_ALT;
+      flags &= ~(unsigned முழு)FLAGS_ALT;
     }
-    else {
+    இல்லையெனில் {
       str = "";
       len = 0;
     }
   }
-  else if(prec != -1)
+  இல்லையெனில் எனில்(prec != -1)
     len = (size_t)prec;
-  else if(*str == '\0')
+  இல்லையெனில் எனில்(*str == '\0')
     len = 0;
-  else
+  இல்லையெனில்
     len = strlen(str);
 
-  width -= (len > INT_MAX) ? INT_MAX : (int)len;
+  width -= (len > INT_MAX) ? INT_MAX : (முழு)len;
 
-  if(flags & FLAGS_ALT)
+  எனில்(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  if(!(flags & FLAGS_LEFT)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  எனில்(!(flags & FLAGS_இடது)) {
+    எனில்(stream_pad(userp, stream, streamn, ' ', width, donep))
+      திரும்பு TRUE;
     width = 0;
   }
 
   /* With no precision, len is already the exact length; emit it without
      scanning again. With precision, scan up to len but stop at NUL, since
      the string may be shorter or the buffer may not be null-terminated. */
-  if(prec == -1) {
-    if(stream_run(userp, stream, streamn,
-                  (const unsigned char *)str, len, donep))
-      return TRUE;
+  எனில்(prec == -1) {
+    எனில்(stream_run(userp, stream, streamn,
+                  (மாறிலி unsigned எழுத்து *)str, len, donep))
+      திரும்பு TRUE;
   }
-  else if(stream_zrun(userp, stream, streamn, str, len, donep))
-    return TRUE;
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  இல்லையெனில் எனில்(stream_zrun(userp, stream, streamn, str, len, donep))
+    திரும்பு TRUE;
+  எனில்(flags & FLAGS_இடது) {
+    எனில்(stream_pad(userp, stream, streamn, ' ', width, donep))
+      திரும்பு TRUE;
   }
 
-  if(flags & FLAGS_ALT)
+  எனில்(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-static bool out_pointer(void *userp,
-                        int (*stream)(unsigned char, void *),
+நிலையான bool out_pointer(வெறுமை *userp,
+                        முழு (*stream)(unsigned எழுத்து, வெறுமை *),
                         mp_streamn streamn,
-                        struct mproperty *p,
-                        const char *ptr,
-                        char *work,
-                        int *donep)
+                        கட்டமைப்பு mproperty *p,
+                        மாறிலி எழுத்து *ptr,
+                        எழுத்து *work,
+                        முழு *donep)
 {
   /* Generic pointer. */
-  if(ptr) {
-    size_t num = (size_t)ptr;
+  எனில்(ptr) {
+    size_t இலக்கம் = (size_t)ptr;
 
     /* If the pointer is not NULL, write it as a %#x spec. */
     p->flags |= FLAGS_HEX | FLAGS_ALT;
-    if(out_number(userp, stream, streamn, p, num, 0, work, donep))
-      return TRUE;
+    எனில்(out_எண்(userp, stream, streamn, p, இலக்கம், 0, work, donep))
+      திரும்பு TRUE;
   }
-  else {
+  இல்லையெனில் {
     /* Write "(nil)" for a nil pointer. */
-    int width = p->width;
-    int flags = p->flags;
+    முழு width = p->width;
+    முழு flags = p->flags;
 
-    width -= (int)CURL_CSTRLEN(nilstr);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    width -= (முழு)CURL_CSTRLEN(nilstr);
+    எனில்(flags & FLAGS_இடது) {
+      எனில்(stream_pad(userp, stream, streamn, ' ', width, donep))
+        திரும்பு TRUE;
       width = 0;
     }
-    if(stream_run(userp, stream, streamn, (const unsigned char *)nilstr,
-                  sizeof(nilstr) - 1, donep))
-      return TRUE;
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    எனில்(stream_run(userp, stream, streamn, (மாறிலி unsigned எழுத்து *)nilstr,
+                  அளவு(nilstr) - 1, donep))
+      திரும்பு TRUE;
+    எனில்(!(flags & FLAGS_இடது)) {
+      எனில்(stream_pad(userp, stream, streamn, ' ', width, donep))
+        திரும்பு TRUE;
     }
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 /*
@@ -1086,433 +1086,433 @@ static bool out_pointer(void *userp,
  *
  * All output is sent to the 'stream()' callback, one byte at a time.
  */
-static int formatf(void *userp, /* untouched by format(), sent to the
+நிலையான முழு formatf(வெறுமை *userp, /* untouched by format(), sent to the
                                    stream() function in the second argument */
                    /* function pointer called for each output character */
-                   int (*stream)(unsigned char, void *),
+                   முழு (*stream)(unsigned எழுத்து, வெறுமை *),
                    /* optional block-output function pointer */
                    mp_streamn streamn,
                    /* optional, commits output the sink is holding */
                    mp_flush flush,
-                   const char *format, /* %-formatted string */
+                   மாறிலி எழுத்து *format, /* %-formatted string */
                    va_list ap_save) /* list of parameters */
 {
-  int done = 0;   /* number of characters written */
-  int i;
-  int ocount = 0; /* number of output segments */
-  int icount = 0; /* number of input arguments */
+  முழு done = 0;   /* number of characters written */
+  முழு i;
+  முழு ocount = 0; /* number of output segments */
+  முழு icount = 0; /* number of input arguments */
 
-  struct outsegment output[MAX_SEGMENTS];
-  struct va_input input[MAX_PARAMETERS];
-  char work[BUFFSIZE + 2];
+  கட்டமைப்பு outsegment output[MAX_SEGMENTS];
+  கட்டமைப்பு va_உள்ளீடு உள்ளீடு[MAX_PARAMETERS];
+  எழுத்து work[BUFFSIZE + 2];
 
   /* Parse the format string */
-  if(parsefmt(format, output, input, &ocount, &icount, ap_save))
-    return 0;
+  எனில்(parsefmt(format, output, உள்ளீடு, &ocount, &icount, ap_save))
+    திரும்பு 0;
 
-  for(i = 0; i < ocount; i++) {
-    struct outsegment *optr = &output[i];
-    struct va_input *iptr = &input[optr->input];
-    struct mproperty p;
+  க்கு(i = 0; i < ocount; i++) {
+    கட்டமைப்பு outsegment *optr = &output[i];
+    கட்டமைப்பு va_உள்ளீடு *iptr = &உள்ளீடு[optr->உள்ளீடு];
+    கட்டமைப்பு mproperty p;
     size_t outlen = optr->outlen;
 
-    if(outlen) {
-      if(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
-        return done;
-      if(optr->flags & FLAGS_SUBSTR)
+    எனில்(outlen) {
+      எனில்(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
+        திரும்பு done;
+      எனில்(optr->flags & FLAGS_SUBSTR)
         /* this is a substring */
-        continue;
+        தொடர்;
     }
 
     p.flags = optr->flags;
 
     /* pick up the specified width */
-    if(p.flags & FLAGS_WIDTHPARAM) {
-      p.width = (int)input[optr->width].val.nums;
-      if(p.width < 0) {
+    எனில்(p.flags & FLAGS_WIDTHPARAM) {
+      p.width = (முழு)உள்ளீடு[optr->width].val.nums;
+      எனில்(p.width < 0) {
         /* "A negative field width is taken as a '-' flag followed by a
            positive field width." */
-        if(p.width == INT_MIN)
+        எனில்(p.width == INT_MIN)
           p.width = INT_MAX;
-        else
+        இல்லையெனில்
           p.width = -p.width;
-        p.flags |= FLAGS_LEFT;
-        p.flags &= ~(unsigned int)FLAGS_PAD_NIL;
+        p.flags |= FLAGS_இடது;
+        p.flags &= ~(unsigned முழு)FLAGS_PAD_NIL;
       }
     }
-    else
+    இல்லையெனில்
       p.width = optr->width;
 
     /* pick up the specified precision */
-    if(p.flags & FLAGS_PRECPARAM) {
-      p.prec = (int)input[optr->precision].val.nums;
-      if(p.prec < 0)
+    எனில்(p.flags & FLAGS_PRECPARAM) {
+      p.prec = (முழு)உள்ளீடு[optr->precision].val.nums;
+      எனில்(p.prec < 0)
         /* "A negative precision is taken as if the precision were
            omitted." */
         p.prec = -1;
     }
-    else if(p.flags & FLAGS_PREC)
+    இல்லையெனில் எனில்(p.flags & FLAGS_PREC)
       p.prec = optr->precision;
-    else
+    இல்லையெனில்
       p.prec = -1;
 
-    switch(iptr->type) {
-    case MTYPE_INTU:
-    case MTYPE_LONGU:
-    case MTYPE_LONGLONGU:
+    தேர்வு(iptr->type) {
+    நிலை MTYPE_INTU:
+    நிலை MTYPE_LONGU:
+    நிலை MTYPE_LONGLONGU:
       p.flags |= FLAGS_UNSIGNED;
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu, 0, work,
+      எனில்(out_எண்(userp, stream, streamn, &p, iptr->val.numu, 0, work,
                     &done))
-        return done;
-      break;
+        திரும்பு done;
+      நிறுத்து;
 
-    case MTYPE_INT:
-    case MTYPE_LONG:
-    case MTYPE_LONGLONG:
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu,
+    நிலை MTYPE_INT:
+    நிலை MTYPE_LONG:
+    நிலை MTYPE_LONGLONG:
+      எனில்(out_எண்(userp, stream, streamn, &p, iptr->val.numu,
                     iptr->val.nums, work, &done))
-        return done;
-      break;
+        திரும்பு done;
+      நிறுத்து;
 
-    case MTYPE_STRING:
-      if(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
-        return done;
-      break;
+    நிலை MTYPE_STRING:
+      எனில்(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
+        திரும்பு done;
+      நிறுத்து;
 
-    case MTYPE_PTR:
-      if(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
+    நிலை MTYPE_PTR:
+      எனில்(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
                      &done))
-        return done;
-      break;
+        திரும்பு done;
+      நிறுத்து;
 
-    case MTYPE_DOUBLE:
-    case MTYPE_LONGDOUBLE:
-      if(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
+    நிலை MTYPE_DOUBLE:
+    நிலை MTYPE_LONGDOUBLE:
+      எனில்(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
                     &done))
-        return done;
-      break;
+        திரும்பு done;
+      நிறுத்து;
 
-    case MTYPE_INTPTR:
+    நிலை MTYPE_INTPTR:
       /* %n is observable by the caller, so commit what is pending first and
          perform it only if that succeeded, as a sink that never holds output
          would. */
-      if(flush && flush(userp))
-        return done;
+      எனில்(flush && flush(userp))
+        திரும்பு done;
       /* Answer the count of characters written. */
-      if(p.flags & FLAGS_LONGLONG)
+      எனில்(p.flags & FLAGS_LONGLONG)
         *(int64_t *)iptr->val.ptr = (int64_t)done;
-      else if(p.flags & FLAGS_LONG)
+      இல்லையெனில் எனில்(p.flags & FLAGS_LONG)
         *(long *)iptr->val.ptr = (long)done;
-      else if(!(p.flags & FLAGS_SHORT))
-        *(int *)iptr->val.ptr = done;
-      else
+      இல்லையெனில் எனில்(!(p.flags & FLAGS_SHORT))
+        *(முழு *)iptr->val.ptr = done;
+      இல்லையெனில்
         *(short *)iptr->val.ptr = (short)done;
-      break;
+      நிறுத்து;
 
-    default:
-      break;
+    இயல்பு:
+      நிறுத்து;
     }
   }
-  return done;
+  திரும்பு done;
 }
 
 /* fputc() look-alike */
-static int addbyter(unsigned char outc, void *f)
+நிலையான முழு addbyter(unsigned எழுத்து outc, வெறுமை *f)
 {
-  struct nsprintf *infop = f;
-  if(infop->length < infop->max) {
+  கட்டமைப்பு nsprintf *infop = f;
+  எனில்(infop->length < infop->max) {
     /* only do this if we have not reached max length yet */
-    *infop->buffer++ = (char)outc; /* store */
+    *infop->buffer++ = (எழுத்து)outc; /* store */
     infop->length++; /* we are now one byte larger */
-    return 0;     /* fputc() returns like this on success */
+    திரும்பு 0;     /* fputc() returns like this on success */
   }
-  return 1;
+  திரும்பு 1;
 }
 
 /* block variant of addbyter */
-static size_t addrun(const unsigned char *buf, size_t len, void *f)
+நிலையான size_t addrun(மாறிலி unsigned எழுத்து *buf, size_t len, வெறுமை *f)
 {
-  struct nsprintf *infop = f;
+  கட்டமைப்பு nsprintf *infop = f;
   size_t fit = infop->max - infop->length;
-  if(len > fit)
+  எனில்(len > fit)
     len = fit;
-  if(len) {
+  எனில்(len) {
     memcpy(infop->buffer, buf, len);
     infop->buffer += len;
     infop->length += len;
   }
-  return len;
+  திரும்பு len;
 }
 
-int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
+முழு curl_mvsnprintf(எழுத்து *buffer, size_t maxlength, மாறிலி எழுத்து *format,
                     va_list args)
 {
-  int retcode;
-  struct nsprintf info;
+  முழு retcode;
+  கட்டமைப்பு nsprintf info;
 
   info.buffer = buffer;
   info.length = 0;
   info.max = maxlength;
 
-  retcode = formatf(&info, addbyter, addrun, NULL, format, args);
-  if(info.max) {
+  retcode = formatf(&info, addbyter, addrun, வெற்று, format, args);
+  எனில்(info.max) {
     /* we null-terminate this */
-    if(info.max == info.length) {
+    எனில்(info.max == info.length) {
       /* we are at maximum, scrap the last letter */
       info.buffer[-1] = 0;
       DEBUGASSERT(retcode);
       retcode--; /* do not count the NUL byte */
     }
-    else
+    இல்லையெனில்
       info.buffer[0] = 0;
   }
-  return retcode;
+  திரும்பு retcode;
 }
 
-int curl_msnprintf(char *buffer, size_t maxlength, const char *format, ...)
+முழு curl_msnprintf(எழுத்து *buffer, size_t maxlength, மாறிலி எழுத்து *format, ...)
 {
-  int retcode;
+  முழு retcode;
   va_list args; /* argument pointer */
   va_start(args, format);
   retcode = curl_mvsnprintf(buffer, maxlength, format, args);
   va_end(args);
-  return retcode;
+  திரும்பு retcode;
 }
 
 /* append the staged bytes to the dynbuf. Returns 1 on failure (and sets
    merr), 0 on success. */
-static int alloc_flush(void *f)
+நிலையான முழு alloc_flush(வெறுமை *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage) {
+  கட்டமைப்பு asprintf *infop = f;
+  எனில்(infop->nstage) {
     CURLcode result = curlx_dyn_addn(infop->b, infop->stage, infop->nstage);
     infop->nstage = 0;
-    if(result) {
+    எனில்(result) {
       infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-      return 1; /* fail */
+      திரும்பு 1; /* fail */
     }
   }
-  return 0;
+  திரும்பு 0;
 }
 
 /* append directly, bypassing the stage. Returns 1 on failure. */
-static int alloc_addn(struct asprintf *infop, const unsigned char *buf,
+நிலையான முழு alloc_addn(கட்டமைப்பு asprintf *infop, மாறிலி unsigned எழுத்து *buf,
                       size_t len)
 {
   CURLcode result = curlx_dyn_addn(infop->b, buf, len);
-  if(result) {
+  எனில்(result) {
     infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-    return 1; /* fail */
+    திரும்பு 1; /* fail */
   }
-  return 0;
+  திரும்பு 0;
 }
 
 /* TRUE if 'more' additional bytes still fit the dynbuf size limit, counting
    what is already staged. curlx_dyn_addn() rejects an append when
    len + leng + 1 exceeds it. */
-static bool alloc_fits(struct asprintf *infop, size_t more)
+நிலையான bool alloc_fits(கட்டமைப்பு asprintf *infop, size_t more)
 {
-  return (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
+  திரும்பு (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
 }
 
 /* fputc() look-alike */
-static int alloc_addbyter(unsigned char outc, void *f)
+நிலையான முழு alloc_addbyter(unsigned எழுத்து outc, வெறுமை *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage == sizeof(infop->stage) && alloc_flush(infop))
-    return 1; /* fail */
-  if(!alloc_fits(infop, 1)) {
+  கட்டமைப்பு asprintf *infop = f;
+  எனில்(infop->nstage == அளவு(infop->stage) && alloc_flush(infop))
+    திரும்பு 1; /* fail */
+  எனில்(!alloc_fits(infop, 1)) {
     /* Does not fit the dynbuf size limit. Flush and append this byte on
        its own, so the limit is reported at exactly this byte and formatting
        stops where it would without staging. %n depends on that. */
-    if(alloc_flush(infop))
-      return 1;
-    return alloc_addn(infop, &outc, 1);
+    எனில்(alloc_flush(infop))
+      திரும்பு 1;
+    திரும்பு alloc_addn(infop, &outc, 1);
   }
   infop->stage[infop->nstage++] = outc;
-  return 0;
+  திரும்பு 0;
 }
 
 /* block variant of alloc_addbyter */
-static size_t alloc_addrun(const unsigned char *buf, size_t len, void *f)
+நிலையான size_t alloc_addrun(மாறிலி unsigned எழுத்து *buf, size_t len, வெறுமை *f)
 {
-  struct asprintf *infop = f;
+  கட்டமைப்பு asprintf *infop = f;
   size_t accepted = 0;
-  while(accepted < len) {
-    size_t room = sizeof(infop->stage) - infop->nstage;
+  போது(accepted < len) {
+    size_t room = அளவு(infop->stage) - infop->nstage;
     size_t n;
-    if(!room) {
-      if(alloc_flush(infop))
-        return accepted; /* accepted < len aborts formatting */
-      room = sizeof(infop->stage);
+    எனில்(!room) {
+      எனில்(alloc_flush(infop))
+        திரும்பு accepted; /* accepted < len aborts formatting */
+      room = அளவு(infop->stage);
     }
     n = len - accepted;
-    if(n > room)
+    எனில்(n > room)
       n = room;
-    if(!alloc_fits(infop, n)) {
+    எனில்(!alloc_fits(infop, n)) {
       /* Run does not fit the dynbuf size limit. Stage what does, then
          append the first byte that does not on its own, so the limit is
          reported at exactly that byte. */
       size_t fits = infop->b->toobig - infop->b->leng - infop->nstage - 1;
-      if(fits) {
+      எனில்(fits) {
         memcpy(&infop->stage[infop->nstage], buf + accepted, fits);
         infop->nstage += fits;
         accepted += fits;
       }
-      if(alloc_flush(infop))
-        return accepted;
-      if(alloc_addn(infop, buf + accepted, 1))
-        return accepted; /* accepted < len aborts formatting */
+      எனில்(alloc_flush(infop))
+        திரும்பு accepted;
+      எனில்(alloc_addn(infop, buf + accepted, 1))
+        திரும்பு accepted; /* accepted < len aborts formatting */
       accepted++;
-      continue;
+      தொடர்;
     }
     memcpy(&infop->stage[infop->nstage], buf + accepted, n);
     infop->nstage += n;
     accepted += n;
   }
-  return accepted;
+  திரும்பு accepted;
 }
 
 /* appends the formatted string, returns MERR error code */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
+முழு curlx_dyn_vprintf(கட்டமைப்பு dynbuf *dyn, மாறிலி எழுத்து *format, va_list args)
 {
-  struct asprintf info;
+  கட்டமைப்பு asprintf info;
   info.b = dyn;
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+  (வெறுமை)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  எனில்(!info.merr)
+    (வெறுமை)alloc_flush(&info);
+  எனில்(info.merr) {
     curlx_dyn_free(info.b);
-    return info.merr;
+    திரும்பு info.merr;
   }
-  return 0;
+  திரும்பு 0;
 }
 
-char *curl_mvaprintf(const char *format, va_list args)
+எழுத்து *curl_mvaprintf(மாறிலி எழுத்து *format, va_list args)
 {
-  struct asprintf info;
-  struct dynbuf dyn;
+  கட்டமைப்பு asprintf info;
+  கட்டமைப்பு dynbuf dyn;
   info.b = &dyn;
   curlx_dyn_init(info.b, DYN_APRINTF);
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+  (வெறுமை)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  எனில்(!info.merr)
+    (வெறுமை)alloc_flush(&info);
+  எனில்(info.merr) {
     curlx_dyn_free(info.b);
-    return NULL;
+    திரும்பு வெற்று;
   }
-  if(curlx_dyn_len(info.b))
-    return curlx_dyn_ptr(info.b);
-  return curlx_strdup("");
+  எனில்(curlx_dyn_len(info.b))
+    திரும்பு curlx_dyn_ptr(info.b);
+  திரும்பு curlx_strdup("");
 }
 
-char *curl_maprintf(const char *format, ...)
+எழுத்து *curl_maprintf(மாறிலி எழுத்து *format, ...)
 {
   va_list args;
-  char *s;
+  எழுத்து *s;
   va_start(args, format);
   s = curl_mvaprintf(format, args);
   va_end(args);
-  return s;
+  திரும்பு s;
 }
 
-static int storebuffer(unsigned char outc, void *f)
+நிலையான முழு storebuffer(unsigned எழுத்து outc, வெறுமை *f)
 {
-  char **buffer = f;
-  **buffer = (char)outc;
+  எழுத்து **buffer = f;
+  **buffer = (எழுத்து)outc;
   (*buffer)++;
-  return 0;
+  திரும்பு 0;
 }
 
 /* block variant of storebuffer */
-static size_t storerun(const unsigned char *buf, size_t len, void *f)
+நிலையான size_t storerun(மாறிலி unsigned எழுத்து *buf, size_t len, வெறுமை *f)
 {
-  char **buffer = f;
+  எழுத்து **buffer = f;
   memcpy(*buffer, buf, len);
   *buffer += len;
-  return len;
+  திரும்பு len;
 }
 
-int curl_msprintf(char *buffer, const char *format, ...)
+முழு curl_msprintf(எழுத்து *buffer, மாறிலி எழுத்து *format, ...)
 {
   va_list args; /* argument pointer */
-  int retcode;
+  முழு retcode;
   va_start(args, format);
-  retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  retcode = formatf(&buffer, storebuffer, storerun, வெற்று, format, args);
   va_end(args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  திரும்பு retcode;
 }
 
-static int fputc_wrapper(unsigned char outc, void *f)
+நிலையான முழு fputc_wrapper(unsigned எழுத்து outc, வெறுமை *f)
 {
-  struct ioprintf *i = f;
-  int out = outc;
+  கட்டமைப்பு ioprintf *i = f;
+  முழு out = outc;
   FILE *s = i->fd;
-  int rc = fputc(out, s);
+  முழு rc = fputc(out, s);
   i->error = (rc == EOF);
-  return (rc == EOF);
+  திரும்பு (rc == EOF);
 }
 
 /* block variant of fputc_wrapper */
-static size_t fwrite_wrapper(const unsigned char *buf, size_t len, void *f)
+நிலையான size_t fwrite_wrapper(மாறிலி unsigned எழுத்து *buf, size_t len, வெறுமை *f)
 {
-  struct ioprintf *i = f;
+  கட்டமைப்பு ioprintf *i = f;
   size_t n;
   FILE *s = i->fd;
   n = fwrite(buf, 1, len, s);
   i->error = (n != len);
-  return n;
+  திரும்பு n;
 }
 
-int curl_mvfprintf(FILE *fd, const char *format, va_list args)
+முழு curl_mvfprintf(FILE *fd, மாறிலி எழுத்து *format, va_list args)
 {
-  struct ioprintf info;
-  int n;
+  கட்டமைப்பு ioprintf info;
+  முழு n;
   info.fd = fd;
   info.error = FALSE;
-  n = formatf(&info, fputc_wrapper, fwrite_wrapper, NULL, format, args);
-  if(info.error)
-    return -1;
-  return n;
+  n = formatf(&info, fputc_wrapper, fwrite_wrapper, வெற்று, format, args);
+  எனில்(info.error)
+    திரும்பு -1;
+  திரும்பு n;
 }
 
-int curl_mfprintf(FILE *fd, const char *format, ...)
+முழு curl_mfprintf(FILE *fd, மாறிலி எழுத்து *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  முழு n;
   va_start(args, format);
   n = curl_mvfprintf(fd, format, args);
   va_end(args);
-  return n;
+  திரும்பு n;
 }
 
-int curl_mprintf(const char *format, ...)
+முழு curl_mprintf(மாறிலி எழுத்து *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  முழு n;
   va_start(args, format);
   n = curl_mvfprintf(stdout, format, args);
   va_end(args);
-  return n;
+  திரும்பு n;
 }
 
-int curl_mvsprintf(char *buffer, const char *format, va_list args)
+முழு curl_mvsprintf(எழுத்து *buffer, மாறிலி எழுத்து *format, va_list args)
 {
-  int retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  முழு retcode = formatf(&buffer, storebuffer, storerun, வெற்று, format, args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  திரும்பு retcode;
 }
 
-int curl_mvprintf(const char *format, va_list args)
+முழு curl_mvprintf(மாறிலி எழுத்து *format, va_list args)
 {
-  return curl_mvfprintf(stdout, format, args);
+  திரும்பு curl_mvfprintf(stdout, format, args);
 }

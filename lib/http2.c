@@ -21,35 +21,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
-#include <nghttp2/nghttp2.h>
+#எனில் !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#அந்தர்பாவ <nghttp2/nghttp2.h>
 
-#include "urldata.h"
-#include "bufq.h"
-#include "u32_ptrset.h"
-#include "http1.h"
-#include "http2.h"
-#include "http.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "select.h"
-#include "curlx/base64.h"
-#include "multiif.h"
-#include "ngh2_shim.h"
-#include "progress.h"
-#include "url.h"
-#include "urlapi-int.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "transfer.h"
-#include "bufref.h"
-#include "curlx/dynbuf.h"
-#include "headers.h"
-#include "curl_share.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "bufq.h"
+#அந்தர்பாவ "u32_ptrset.h"
+#அந்தர்பாவ "http1.h"
+#அந்தர்பாவ "http2.h"
+#அந்தர்பாவ "http.h"
+#அந்தர்பாவ "sendf.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "select.h"
+#அந்தர்பாவ "curlx/base64.h"
+#அந்தர்பாவ "multiif.h"
+#அந்தர்பாவ "ngh2_shim.h"
+#அந்தர்பாவ "progress.h"
+#அந்தர்பாவ "url.h"
+#அந்தர்பாவ "urlapi-int.h"
+#அந்தர்பாவ "cfilters.h"
+#அந்தர்பாவ "connect.h"
+#அந்தர்பாவ "transfer.h"
+#அந்தர்பாவ "bufref.h"
+#அந்தர்பாவ "curlx/dynbuf.h"
+#அந்தர்பாவ "headers.h"
+#அந்தர்பாவ "curl_share.h"
 
-#if NGHTTP2_VERSION_NUM < 0x010f00
+#எனில் NGHTTP2_VERSION_இலக்கம் < 0x010f00
 #error "nghttp2 1.15.0 or greater required"
 #endif
 
@@ -68,9 +68,9 @@
 #define H2_STREAM_WINDOW_SIZE_MAX   (10 * 1024 * 1024)
 /* this is how much we want "in flight" for a stream, initially, IFF
  * nghttp2 allows us to tweak the local window size. */
-#if NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE
+#எனில் NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE
 #define H2_STREAM_WINDOW_SIZE_INITIAL  (64 * 1024)
-#else
+#இல்லையெனில்
 #define H2_STREAM_WINDOW_SIZE_INITIAL H2_STREAM_WINDOW_SIZE_MAX
 #endif
 /* keep smaller stream upload buffer (default h2 window size) to have
@@ -88,17 +88,17 @@
 #define H2_SETTINGS_IV_LEN 3
 #define H2_BINSETTINGS_LEN 80
 
-struct cf_h2_ctx {
-  struct curl_ngh2 ngh2;
+கட்டமைப்பு cf_h2_ctx {
+  கட்டமைப்பு curl_ngh2 ngh2;
   /* The easy handle used in the current filter call, cleared at return */
-  struct cf_call_data call_data;
+  கட்டமைப்பு cf_call_data call_data;
 
-  struct bufq inbufq;           /* network input */
-  struct bufq outbufq;          /* network output */
-  struct bufc_pool stream_bufcp; /* spares for stream buffers */
-  struct dynbuf scratch;        /* scratch buffer for temp use */
+  கட்டமைப்பு bufq inbufq;           /* network input */
+  கட்டமைப்பு bufq outbufq;          /* network output */
+  கட்டமைப்பு bufc_pool stream_bufcp; /* spares for stream buffers */
+  கட்டமைப்பு dynbuf scratch;        /* scratch buffer for temp use */
 
-  struct u32_ptrset streams; /* hash of `data->mid` to `h2_stream_ctx` */
+  கட்டமைப்பு u32_ptrset streams; /* hash of `data->mid` to `h2_stream_ctx` */
   size_t drain_total; /* sum of all stream's UrlState drain */
   uint32_t initial_win_size; /* current initial window size (settings) */
   uint32_t max_concurrent_streams;
@@ -110,28 +110,28 @@ struct cf_h2_ctx {
   BIT(conn_closed);
   BIT(rcvd_goaway);
   BIT(sent_goaway);
-  BIT(enable_push);
+  BIT(enable_தள்ளு);
   BIT(nw_out_blocked);
 };
 
 /* How to access `call_data` from a cf_h2 filter */
 #undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct cf_h2_ctx *)(cf)->ctx)->call_data
+#define CF_CTX_CALL_DATA(cf) ((கட்டமைப்பு cf_h2_ctx *)(cf)->ctx)->call_data
 
 /**
  * All about the H2 internals of a stream
  */
-struct h2_stream_ctx {
-  struct bufq sendbuf; /* request buffer */
-  struct h1_req_parser h1; /* parsing the request */
-  struct dynhds resp_trailers; /* response trailer fields */
+கட்டமைப்பு h2_stream_ctx {
+  கட்டமைப்பு bufq sendbuf; /* request buffer */
+  கட்டமைப்பு h1_req_parser h1; /* parsing the request */
+  கட்டமைப்பு dynhds resp_trailers; /* response trailer fields */
   size_t resp_hds_len; /* amount of response header bytes in recvbuf */
   curl_off_t xfer_id;  /* transfer `id` owning this stream */
   curl_off_t nrcvd_data;  /* number of DATA bytes received */
 
-  char **push_headers;       /* allocated array */
-  size_t push_headers_used;  /* number of entries filled in */
-  size_t push_headers_alloc; /* number of entries allocated */
+  எழுத்து **தள்ளு_headers;       /* allocated array */
+  size_t தள்ளு_headers_used;  /* number of entries filled in */
+  size_t தள்ளு_headers_alloc; /* number of entries allocated */
 
   int32_t id; /* HTTP/2 protocol identifier for stream */
   uint32_t mid; /* transfer `mid` owning this stream */
@@ -150,32 +150,32 @@ struct h2_stream_ctx {
   BIT(write_paused);  /* stream write is paused */
 };
 
-static void free_push_headers(struct h2_stream_ctx *stream)
+நிலையான வெறுமை free_தள்ளு_headers(கட்டமைப்பு h2_stream_ctx *stream)
 {
   size_t i;
-  for(i = 0; i < stream->push_headers_used; i++)
-    curlx_free(stream->push_headers[i]);
-  curlx_safefree(stream->push_headers);
-  stream->push_headers_used = 0;
+  க்கு(i = 0; i < stream->தள்ளு_headers_used; i++)
+    curlx_free(stream->தள்ளு_headers[i]);
+  curlx_safefree(stream->தள்ளு_headers);
+  stream->தள்ளு_headers_used = 0;
 }
 
-static void h2_stream_ctx_free(struct h2_stream_ctx *stream)
+நிலையான வெறுமை h2_stream_ctx_free(கட்டமைப்பு h2_stream_ctx *stream)
 {
   Curl_bufq_free(&stream->sendbuf);
   Curl_h1_req_parse_free(&stream->h1);
   Curl_dynhds_free(&stream->resp_trailers);
-  free_push_headers(stream);
+  free_தள்ளு_headers(stream);
   curlx_free(stream);
 }
 
-static void h2_stream_hash_free(uint32_t id, void *stream)
+நிலையான வெறுமை h2_stream_hash_free(uint32_t id, வெறுமை *stream)
 {
-  (void)id;
+  (வெறுமை)id;
   DEBUGASSERT(stream);
-  h2_stream_ctx_free((struct h2_stream_ctx *)stream);
+  h2_stream_ctx_free((கட்டமைப்பு h2_stream_ctx *)stream);
 }
 
-static void cf_h2_ctx_init(struct cf_h2_ctx *ctx, bool via_h1_upgrade)
+நிலையான வெறுமை cf_h2_ctx_init(கட்டமைப்பு cf_h2_ctx *ctx, bool via_h1_upgrade)
 {
   Curl_bufcp_init(&ctx->stream_bufcp, H2_CHUNK_SIZE, H2_STREAM_POOL_SPARES);
   Curl_bufq_initp(&ctx->inbufq, &ctx->stream_bufcp, H2_NW_RECV_CHUNKS, 0);
@@ -187,95 +187,95 @@ static void cf_h2_ctx_init(struct cf_h2_ctx *ctx, bool via_h1_upgrade)
   ctx->initialized = TRUE;
 }
 
-static void cf_h2_ctx_free(struct cf_h2_ctx *ctx)
+நிலையான வெறுமை cf_h2_ctx_free(கட்டமைப்பு cf_h2_ctx *ctx)
 {
-  if(ctx && ctx->initialized) {
+  எனில்(ctx && ctx->initialized) {
     Curl_ngh2_del(&ctx->ngh2);
     Curl_bufq_free(&ctx->inbufq);
     Curl_bufq_free(&ctx->outbufq);
     Curl_bufcp_free(&ctx->stream_bufcp);
     curlx_dyn_free(&ctx->scratch);
     Curl_u32_ptrset_clear(&ctx->streams);
-    memset(ctx, 0, sizeof(*ctx));
+    memset(ctx, 0, அளவு(*ctx));
   }
   curlx_free(ctx);
 }
 
-static uint32_t cf_h2_initial_win_size(struct Curl_easy *data)
+நிலையான uint32_t cf_h2_initial_win_size(கட்டமைப்பு Curl_easy *data)
 {
-#if NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE
+#எனில் NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE
   /* If the transfer has a rate-limit lower than the default initial
    * stream window size, use that. It needs to be at least 8k or servers
    * may be unhappy. */
   curl_off_t rps = Curl_rlimit_per_step(&data->progress.dl.rlimit);
-  if((rps > 0) && (rps < H2_STREAM_WINDOW_SIZE_INITIAL))
-    return CURLMAX((uint32_t)rps, 8192);
+  எனில்((rps > 0) && (rps < H2_STREAM_WINDOW_SIZE_INITIAL))
+    திரும்பு CURLMAX((uint32_t)rps, 8192);
 #endif
-  return H2_STREAM_WINDOW_SIZE_INITIAL;
+  திரும்பு H2_STREAM_WINDOW_SIZE_INITIAL;
 }
 
-static size_t populate_settings(nghttp2_settings_entry *iv,
-                                struct Curl_easy *data,
-                                struct cf_h2_ctx *ctx)
+நிலையான size_t populate_settings(nghttp2_settings_entry *iv,
+                                கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு cf_h2_ctx *ctx)
 {
   iv[0].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
-  iv[0].value = Curl_multi_max_concurrent_streams(data->multi);
+  iv[0].மதிப்பு = Curl_multi_max_concurrent_streams(data->multi);
 
   iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-  iv[1].value = cf_h2_initial_win_size(data);
-  if(ctx)
-    ctx->initial_win_size = iv[1].value;
-  iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_PUSH;
-  iv[2].value = !!data->multi->push_cb;
+  iv[1].மதிப்பு = cf_h2_initial_win_size(data);
+  எனில்(ctx)
+    ctx->initial_win_size = iv[1].மதிப்பு;
+  iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_தள்ளு;
+  iv[2].மதிப்பு = !!data->multi->தள்ளு_cb;
 
-  return 3;
+  திரும்பு 3;
 }
 
-static ssize_t populate_binsettings(uint8_t *binsettings,
-                                    struct Curl_easy *data)
+நிலையான ssize_t populate_binsettings(uint8_t *binsettings,
+                                    கட்டமைப்பு Curl_easy *data)
 {
   nghttp2_settings_entry iv[H2_SETTINGS_IV_LEN];
   size_t ivlen;
 
-  ivlen = populate_settings(iv, data, NULL);
+  ivlen = populate_settings(iv, data, வெற்று);
   /* this returns number of bytes it wrote or a negative number on error. */
-  return nghttp2_pack_settings_payload(binsettings, H2_BINSETTINGS_LEN,
+  திரும்பு nghttp2_pack_settings_payload(binsettings, H2_BINSETTINGS_LEN,
                                        iv, ivlen);
 }
 
-static CURLcode cf_h2_update_settings(struct cf_h2_ctx *ctx,
+நிலையான CURLcode cf_h2_update_settings(கட்டமைப்பு cf_h2_ctx *ctx,
                                       uint32_t initial_win_size)
 {
   nghttp2_settings_entry entry;
   entry.settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-  entry.value = initial_win_size;
-  if(Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, &entry, 1))
-    return CURLE_SEND_ERROR;
+  entry.மதிப்பு = initial_win_size;
+  எனில்(Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, &entry, 1))
+    திரும்பு CURLE_SEND_ERROR;
   ctx->initial_win_size = initial_win_size;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 #define H2_STREAM_CTX(ctx, data)                                         \
-  ((struct h2_stream_ctx *)(                                             \
-    (data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : NULL))
+  ((கட்டமைப்பு h2_stream_ctx *)(                                             \
+    (data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : வெற்று))
 
-static struct h2_stream_ctx *h2_stream_ctx_create(struct cf_h2_ctx *ctx,
-                                                  struct Curl_easy *data)
+நிலையான கட்டமைப்பு h2_stream_ctx *h2_stream_ctx_create(கட்டமைப்பு cf_h2_ctx *ctx,
+                                                  கட்டமைப்பு Curl_easy *data)
 {
-  struct h2_stream_ctx *stream;
+  கட்டமைப்பு h2_stream_ctx *stream;
 
-  stream = curlx_calloc(1, sizeof(*stream));
-  if(!stream)
-    return NULL;
+  stream = curlx_calloc(1, அளவு(*stream));
+  எனில்(!stream)
+    திரும்பு வெற்று;
 
   stream->id = -1;
   stream->xfer_id = data->id;
   stream->mid = data->mid;
   Curl_bufq_initp(&stream->sendbuf, &ctx->stream_bufcp,
                   H2_STREAM_SEND_CHUNKS, BUFQ_OPT_NONE);
-  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
+  Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_வரி_LEN);
   Curl_dynhds_init(&stream->resp_trailers,
-                   MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
+                   MAX_HTTP_RESP_HEADER_மொத்தம், DYN_HTTP_REQUEST);
   stream->bodystarted = FALSE;
   stream->status_code = -1;
   stream->closed = FALSE;
@@ -283,178 +283,178 @@ static struct h2_stream_ctx *h2_stream_ctx_create(struct cf_h2_ctx *ctx,
   stream->error = NGHTTP2_NO_ERROR;
   stream->local_window_size = H2_STREAM_WINDOW_SIZE_INITIAL;
   stream->nrcvd_data = 0;
-  return stream;
+  திரும்பு stream;
 }
 
-static struct Curl_easy *cf_h2_get_stream_xfer(struct Curl_cfilter *cf,
+நிலையான கட்டமைப்பு Curl_easy *cf_h2_get_stream_xfer(கட்டமைப்பு Curl_cfilter *cf,
                                                int32_t stream_id,
-                                               struct h2_stream_ctx **pstream)
+                                               கட்டமைப்பு h2_stream_ctx **pstream)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream =
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream =
     Curl_ngh2_session_get_stream_user_data(&ctx->ngh2, stream_id);
-  if(pstream)
+  எனில்(pstream)
     *pstream = stream;
-  if(stream && (stream->mid != UINT32_MAX)) {
-    struct Curl_easy *data, *call_data = CF_DATA_CURRENT(cf);
-    if(!call_data || !call_data->multi) {
+  எனில்(stream && (stream->mid != UINT32_MAX)) {
+    கட்டமைப்பு Curl_easy *data, *call_data = CF_DATA_CURRENT(cf);
+    எனில்(!call_data || !call_data->multi) {
       DEBUGASSERT(0);
-      return NULL;
+      திரும்பு வெற்று;
     }
     data = Curl_multi_get_easy(call_data->multi, stream->mid);
-    if(data && (data->id == stream->xfer_id))
-      return data;
+    எனில்(data && (data->id == stream->xfer_id))
+      திரும்பு data;
   }
-  return NULL;
+  திரும்பு வெற்று;
 }
 
 #ifdef NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE
-static int32_t cf_h2_get_desired_local_win(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data)
+நிலையான int32_t cf_h2_get_desired_local_win(கட்டமைப்பு Curl_cfilter *cf,
+                                           கட்டமைப்பு Curl_easy *data)
 {
-  curl_off_t avail = Curl_rlimit_avail(&data->progress.dl.rlimit, NULL);
+  curl_off_t avail = Curl_rlimit_avail(&data->progress.dl.rlimit, வெற்று);
 
-  (void)cf;
-  if(avail < CURL_OFF_T_MAX) { /* limit in place */
-    if(avail <= 0)
-      return 0;
-    else if(avail < H2_STREAM_WINDOW_SIZE_MAX)
-      return (int32_t)avail;
+  (வெறுமை)cf;
+  எனில்(avail < CURL_OFF_T_MAX) { /* limit in place */
+    எனில்(avail <= 0)
+      திரும்பு 0;
+    இல்லையெனில் எனில்(avail < H2_STREAM_WINDOW_SIZE_MAX)
+      திரும்பு (int32_t)avail;
   }
-  return H2_STREAM_WINDOW_SIZE_MAX;
+  திரும்பு H2_STREAM_WINDOW_SIZE_MAX;
 }
 
-static CURLcode cf_h2_update_local_win(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct h2_stream_ctx *stream)
+நிலையான CURLcode cf_h2_update_local_win(கட்டமைப்பு Curl_cfilter *cf,
+                                       கட்டமைப்பு Curl_easy *data,
+                                       கட்டமைப்பு h2_stream_ctx *stream)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   int32_t dwsize;
-  int rv;
+  முழு rv;
 
   dwsize = (stream->write_paused || stream->xfer_result) ?
            0 : cf_h2_get_desired_local_win(cf, data);
-  if(dwsize != stream->local_window_size) {
+  எனில்(dwsize != stream->local_window_size) {
     int32_t wsize = Curl_ngh2_session_get_stream_effective_local_window_size(
       &ctx->ngh2, stream->id);
-    if(dwsize > wsize) {
+    எனில்(dwsize > wsize) {
       rv = Curl_ngh2_session_set_local_window_size(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, dwsize);
-      if(rv) {
+      எனில்(rv) {
         failf(data, "[%d] nghttp2 set_local_window_size(%d) failed: "
               "%s(%d)", stream->id, dwsize, nghttp2_strerror(rv), rv);
-        return CURLE_HTTP2;
+        திரும்பு CURLE_HTTP2;
       }
       rv = Curl_ngh2_submit_window_update(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, dwsize - wsize);
-      if(rv) {
+      எனில்(rv) {
         failf(data, "[%d] nghttp2_submit_window_update() failed: "
               "%s(%d)", stream->id, nghttp2_strerror(rv), rv);
-        return CURLE_HTTP2;
+        திரும்பு CURLE_HTTP2;
       }
       stream->local_window_size = dwsize;
       CURL_TRC_CF(data, cf, "[%d] local window update by %d",
                   stream->id, dwsize - wsize);
     }
-    else {
+    இல்லையெனில் {
       rv = Curl_ngh2_session_set_local_window_size(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, dwsize);
-      if(rv) {
+      எனில்(rv) {
         failf(data, "[%d] nghttp2_session_set_local_window_size() failed: "
               "%s(%d)", stream->id, nghttp2_strerror(rv), rv);
-        return CURLE_HTTP2;
+        திரும்பு CURLE_HTTP2;
       }
       stream->local_window_size = dwsize;
       CURL_TRC_CF(data, cf, "[%d] local window size now %d",
                   stream->id, dwsize);
     }
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-#else /* NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE */
+#இல்லையெனில் /* NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE */
 
-static CURLcode cf_h2_update_local_win(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct h2_stream_ctx *stream)
+நிலையான CURLcode cf_h2_update_local_win(கட்டமைப்பு Curl_cfilter *cf,
+                                       கட்டமைப்பு Curl_easy *data,
+                                       கட்டமைப்பு h2_stream_ctx *stream)
 {
-  (void)cf;
-  (void)data;
-  (void)stream;
-  return CURLE_OK;
+  (வெறுமை)cf;
+  (வெறுமை)data;
+  (வெறுமை)stream;
+  திரும்பு CURLE_OK;
 }
 #endif /* !NGHTTP2_HAS_SET_LOCAL_WINDOW_SIZE */
 
-static CURLcode http2_data_setup(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h2_stream_ctx **pstream)
+நிலையான CURLcode http2_data_setup(கட்டமைப்பு Curl_cfilter *cf,
+                                 கட்டமைப்பு Curl_easy *data,
+                                 கட்டமைப்பு h2_stream_ctx **pstream)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream;
 
-  (void)cf;
+  (வெறுமை)cf;
   DEBUGASSERT(data);
 
-  if(!data)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(!data)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
   stream = H2_STREAM_CTX(ctx, data);
-  if(stream) {
+  எனில்(stream) {
     *pstream = stream;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
 
   stream = h2_stream_ctx_create(ctx, data);
-  if(!stream)
-    return CURLE_OUT_OF_MEMORY;
+  எனில்(!stream)
+    திரும்பு CURLE_OUT_OF_MEMORY;
 
-  if(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
+  எனில்(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
     h2_stream_ctx_free(stream);
-    return CURLE_OUT_OF_MEMORY;
+    திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
   *pstream = stream;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode nw_out_flush(struct Curl_cfilter *cf,
-                             struct Curl_easy *data)
+நிலையான CURLcode nw_out_flush(கட்டமைப்பு Curl_cfilter *cf,
+                             கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   size_t nwritten;
   CURLcode result;
 
-  if(Curl_bufq_is_empty(&ctx->outbufq))
-    return CURLE_OK;
+  எனில்(Curl_bufq_is_empty(&ctx->outbufq))
+    திரும்பு CURLE_OK;
 
-  result = Curl_cf_send_bufq(cf->next, data, &ctx->outbufq, NULL, 0,
+  result = Curl_cf_send_bufq(cf->next, data, &ctx->outbufq, வெற்று, 0,
                              &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  எனில்(result) {
+    எனில்(result == CURLE_AGAIN) {
       CURL_TRC_CF(data, cf, "flush nw send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->outbufq));
       ctx->nw_out_blocked = 1;
     }
-    return result;
+    திரும்பு result;
   }
-  return Curl_bufq_is_empty(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
+  திரும்பு Curl_bufq_is_empty(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static void http2_data_done(struct Curl_cfilter *cf, struct Curl_easy *data)
+நிலையான வெறுமை http2_data_done(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
 
   DEBUGASSERT(ctx);
-  if(!stream || !ctx->initialized)
-    return;
+  எனில்(!stream || !ctx->initialized)
+    திரும்பு;
 
-  if(Curl_ngh2_valid(&ctx->ngh2)) {
+  எனில்(Curl_ngh2_valid(&ctx->ngh2)) {
     bool flush_egress = FALSE;
     /* returns error if stream not known, which is fine here */
-    (void)Curl_ngh2_session_set_stream_user_data(&ctx->ngh2, stream->id, NULL);
+    (வெறுமை)Curl_ngh2_session_set_stream_user_data(&ctx->ngh2, stream->id, வெற்று);
 
-    if(!stream->closed && stream->id > 0) {
+    எனில்(!stream->closed && stream->id > 0) {
       /* RST_STREAM */
       CURL_TRC_CF(data, cf, "[%d] premature DATA_DONE, RST stream",
                   stream->id);
@@ -465,44 +465,44 @@ static void http2_data_done(struct Curl_cfilter *cf, struct Curl_easy *data)
       flush_egress = TRUE;
     }
 
-    if(flush_egress) {
-      (void)Curl_ngh2_session_send(&ctx->ngh2);
-      (void)nw_out_flush(cf, data);
+    எனில்(flush_egress) {
+      (வெறுமை)Curl_ngh2_session_send(&ctx->ngh2);
+      (வெறுமை)nw_out_flush(cf, data);
     }
   }
 
   Curl_u32_ptrset_unset(&ctx->streams, data->mid);
 }
 
-static int h2_client_new(struct Curl_cfilter *cf,
+நிலையான முழு h2_client_new(கட்டமைப்பு Curl_cfilter *cf,
                          nghttp2_session_callbacks *cbs)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   nghttp2_option *o;
-  nghttp2_mem mem = { NULL, Curl_nghttp2_malloc, Curl_nghttp2_free,
+  nghttp2_mem mem = { வெற்று, Curl_nghttp2_malloc, Curl_nghttp2_free,
                       Curl_nghttp2_calloc, Curl_nghttp2_realloc };
 
-  int rc = nghttp2_option_new(&o);
-  if(rc)
-    return rc;
+  முழு rc = nghttp2_option_new(&o);
+  எனில்(rc)
+    திரும்பு rc;
   /* We handle window updates ourself to enforce buffer limits */
   nghttp2_option_set_no_auto_window_update(o, 1);
-#if NGHTTP2_VERSION_NUM >= 0x013200 /* with 1.50.0 */
+#எனில் NGHTTP2_VERSION_இலக்கம் >= 0x013200 /* with 1.50.0 */
   /* turn off RFC 9113 leading and trailing white spaces validation against
      HTTP field value. */
   nghttp2_option_set_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
 #endif
   rc = Curl_ngh2_session_client_new3(&ctx->ngh2, cbs, cf, o, &mem);
   nghttp2_option_del(o);
-  return rc;
+  திரும்பு rc;
 }
 
 /*
  * Returns nonzero if current HTTP/2 session should be closed.
  */
-static int should_close_session(struct cf_h2_ctx *ctx)
+நிலையான முழு should_close_session(கட்டமைப்பு cf_h2_ctx *ctx)
 {
-  return ctx->drain_total == 0 && !Curl_ngh2_session_want_read(&ctx->ngh2) &&
+  திரும்பு ctx->drain_total == 0 && !Curl_ngh2_session_want_read(&ctx->ngh2) &&
     !Curl_ngh2_session_want_write(&ctx->ngh2);
 }
 
@@ -511,31 +511,31 @@ static int should_close_session(struct cf_h2_ctx *ctx)
  * This function returns 0 if it succeeds, or -1 and error code will
  * be assigned to *err.
  */
-static CURLcode h2_process_pending_input(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+நிலையான CURLcode h2_process_pending_உள்ளீடு(கட்டமைப்பு Curl_cfilter *cf,
+                                         கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  const unsigned char *buf;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  மாறிலி unsigned எழுத்து *buf;
   size_t blen, nread;
   ssize_t rv;
 
-  while(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
-    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (const uint8_t *)buf, blen);
-    if(!curlx_sztouz(rv, &nread)) {
-      failf(data, "nghttp2 recv error %zd: %s", rv, nghttp2_strerror((int)rv));
-      return CURLE_RECV_ERROR;
+  போது(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
+    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (மாறிலி uint8_t *)buf, blen);
+    எனில்(!curlx_sztouz(rv, &nread)) {
+      failf(data, "nghttp2 recv error %zd: %s", rv, nghttp2_strerror((முழு)rv));
+      திரும்பு CURLE_RECV_ERROR;
     }
     Curl_bufq_skip(&ctx->inbufq, nread);
-    if(Curl_bufq_is_empty(&ctx->inbufq)) {
-      break;
+    எனில்(Curl_bufq_is_empty(&ctx->inbufq)) {
+      நிறுத்து;
     }
-    else {
+    இல்லையெனில் {
       CURL_TRC_CF(data, cf, "process_pending_input: %zu bytes left "
                   "in connection buffer", Curl_bufq_len(&ctx->inbufq));
     }
   }
 
-  if(Curl_ngh2_session_check_request_allowed(&ctx->ngh2) == 0) {
+  எனில்(Curl_ngh2_session_check_request_allowed(&ctx->ngh2) == 0) {
     /* No more requests are allowed in the current session, so
        the connection may not be reused. This is set when a
        GOAWAY frame has been received or when the limit of stream
@@ -544,7 +544,7 @@ static CURLcode h2_process_pending_input(struct Curl_cfilter *cf,
     connclose(cf->conn);
   }
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /*
@@ -554,74 +554,74 @@ static CURLcode h2_process_pending_input(struct Curl_cfilter *cf,
  * Check the lower filters first and, if successful, peek at the socket
  * and distinguish between closed and data.
  */
-static bool http2_connisalive(struct Curl_cfilter *cf, struct Curl_easy *data,
-                              bool *input_pending)
+நிலையான bool http2_connisalive(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data,
+                              bool *உள்ளீடு_pending)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    return FALSE;
+  *உள்ளீடு_pending = FALSE;
+  எனில்(!cf->next || !cf->next->cft->is_alive(cf->next, data, உள்ளீடு_pending))
+    திரும்பு FALSE;
 
-  if(*input_pending) {
+  எனில்(*உள்ளீடு_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
     CURLcode result;
     size_t nread;
 
-    *input_pending = FALSE;
+    *உள்ளீடு_pending = FALSE;
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
     CURL_TRC_CF(data, cf, "connisalive, recv pending input -> %d, %zu",
-                (int)result, nread);
-    if(!result) {
-      result = h2_process_pending_input(cf, data);
-      if(result)
+                (முழு)result, nread);
+    எனில்(!result) {
+      result = h2_process_pending_உள்ளீடு(cf, data);
+      எனில்(result)
         /* immediate error, considered dead */
         alive = FALSE;
-      else {
+      இல்லையெனில் {
         alive = !should_close_session(ctx);
       }
     }
-    else if(result != CURLE_AGAIN) {
+    இல்லையெனில் எனில்(result != CURLE_AGAIN) {
       /* the read failed so let's say this is dead anyway */
       alive = FALSE;
     }
   }
 
-  return alive;
+  திரும்பு alive;
 }
 
-static CURLcode http2_send_ping(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+நிலையான CURLcode http2_send_ping(கட்டமைப்பு Curl_cfilter *cf,
+                                கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  int rc;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  முழு rc;
 
   rc = Curl_ngh2_submit_ping(&ctx->ngh2, 0, ZERO_NULL);
-  if(rc) {
+  எனில்(rc) {
     failf(data, "nghttp2_submit_ping() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
-    return CURLE_HTTP2;
+    திரும்பு CURLE_HTTP2;
   }
 
   rc = Curl_ngh2_session_send(&ctx->ngh2);
-  if(rc) {
+  எனில்(rc) {
     failf(data, "nghttp2_session_send() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
-    return CURLE_SEND_ERROR;
+    திரும்பு CURLE_SEND_ERROR;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /*
  * Store nghttp2 version info in this buffer.
  */
-void Curl_http2_ver(char *p, size_t len)
+வெறுமை Curl_http2_ver(எழுத்து *p, size_t len)
 {
   nghttp2_info *h2 = nghttp2_version(0);
-  (void)curl_msnprintf(p, len, "nghttp2/%s", h2->version_str);
+  (வெறுமை)curl_msnprintf(p, len, "nghttp2/%s", h2->version_str);
 }
 
 /*
@@ -629,73 +629,73 @@ void Curl_http2_ver(char *p, size_t len)
  * size |length| to the network and return the number of bytes actually
  * written. See the documentation of nghttp2_send_callback for the details.
  */
-static ssize_t send_callback(nghttp2_session *h2,
-                             const uint8_t *buf, size_t blen, int flags,
-                             void *userp)
+நிலையான ssize_t send_callback(nghttp2_session *h2,
+                             மாறிலி uint8_t *buf, size_t blen, முழு flags,
+                             வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு Curl_easy *data = CF_DATA_CURRENT(cf);
   size_t nwritten;
   CURLcode result = CURLE_OK;
 
-  (void)h2;
-  (void)flags;
+  (வெறுமை)h2;
+  (வெறுமை)flags;
   DEBUGASSERT(data);
 
-  if(!cf->connected)
+  எனில்(!cf->connected)
     result = Curl_bufq_write(&ctx->outbufq, buf, blen, &nwritten);
-  else
+  இல்லையெனில்
     result = Curl_cf_send_bufq(cf->next, data, &ctx->outbufq, buf, blen,
                                &nwritten);
 
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  எனில்(result) {
+    எனில்(result == CURLE_AGAIN) {
       ctx->nw_out_blocked = 1;
-      return NGHTTP2_ERR_WOULDBLOCK;
+      திரும்பு NGHTTP2_ERR_WOULDBLOCK;
     }
     failf(data, "Failed sending HTTP2 data");
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(!nwritten) {
+  எனில்(!nwritten) {
     ctx->nw_out_blocked = 1;
-    return NGHTTP2_ERR_WOULDBLOCK;
+    திரும்பு NGHTTP2_ERR_WOULDBLOCK;
   }
-  return (nwritten > SSIZE_MAX) ?
+  திரும்பு (nwritten > SSIZE_MAX) ?
     NGHTTP2_ERR_CALLBACK_FAILURE : (ssize_t)nwritten;
 }
 
 /* We pass a pointer to this struct in the push callback, but the contents of
    the struct are hidden from the user. */
-struct curl_pushheaders {
-  struct Curl_easy *data;
-  struct h2_stream_ctx *stream;
-  const nghttp2_push_promise *frame;
+கட்டமைப்பு curl_pushheaders {
+  கட்டமைப்பு Curl_easy *data;
+  கட்டமைப்பு h2_stream_ctx *stream;
+  மாறிலி nghttp2_தள்ளு_promise *frame;
 };
 
 /*
  * push header access function. Only to be used from within the push callback
  */
-char *curl_pushheader_bynum(struct curl_pushheaders *h, size_t num)
+எழுத்து *curl_pushheader_bynum(கட்டமைப்பு curl_pushheaders *h, size_t இலக்கம்)
 {
   /* Verify that we got a good easy handle in the push header struct, mostly to
      detect rubbish input fast(er). */
-  if(!h || !GOOD_EASY_HANDLE(h->data))
-    return NULL;
-  else {
-    if(h->stream && num < h->stream->push_headers_used)
-      return h->stream->push_headers[num];
+  எனில்(!h || !GOOD_EASY_HANDLE(h->data))
+    திரும்பு வெற்று;
+  இல்லையெனில் {
+    எனில்(h->stream && இலக்கம் < h->stream->தள்ளு_headers_used)
+      திரும்பு h->stream->தள்ளு_headers[இலக்கம்];
   }
-  return NULL;
+  திரும்பு வெற்று;
 }
 
 /*
  * push header access function. Only to be used from within the push callback
  */
-char *curl_pushheader_byname(struct curl_pushheaders *h, const char *name)
+எழுத்து *curl_pushheader_byname(கட்டமைப்பு curl_pushheaders *h, மாறிலி எழுத்து *name)
 {
-  struct h2_stream_ctx *stream;
+  கட்டமைப்பு h2_stream_ctx *stream;
   size_t len;
   size_t i;
   /* Verify that we got a good easy handle in the push header struct,
@@ -704,36 +704,36 @@ char *curl_pushheader_byname(struct curl_pushheaders *h, const char *name)
      the header, but header == ":" must be rejected. If we have ':' in
      the middle of header, it could be matched in middle of the value,
      this is because we do prefix match.*/
-  if(!h || !GOOD_EASY_HANDLE(h->data) || !name || !name[0] ||
+  எனில்(!h || !GOOD_EASY_HANDLE(h->data) || !name || !name[0] ||
      !strcmp(name, ":") || strchr(name + 1, ':'))
-    return NULL;
+    திரும்பு வெற்று;
 
   stream = h->stream;
-  if(!stream)
-    return NULL;
+  எனில்(!stream)
+    திரும்பு வெற்று;
 
   len = strlen(name);
-  for(i = 0; i < stream->push_headers_used; i++) {
-    if(!strncmp(name, stream->push_headers[i], len)) {
+  க்கு(i = 0; i < stream->தள்ளு_headers_used; i++) {
+    எனில்(!strncmp(name, stream->தள்ளு_headers[i], len)) {
       /* sub-match, make sure that it is followed by a colon */
-      if(stream->push_headers[i][len] != ':')
-        continue;
-      return &stream->push_headers[i][len + 1];
+      எனில்(stream->தள்ளு_headers[i][len] != ':')
+        தொடர்;
+      திரும்பு &stream->தள்ளு_headers[i][len + 1];
     }
   }
-  return NULL;
+  திரும்பு வெற்று;
 }
 
-static struct Curl_easy *h2_duphandle(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+நிலையான கட்டமைப்பு Curl_easy *h2_duphandle(கட்டமைப்பு Curl_cfilter *cf,
+                                      கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_easy *second = curl_easy_init();
-  if(second) {
-    struct h2_stream_ctx *second_stream;
+  கட்டமைப்பு Curl_easy *second = curl_easy_init();
+  எனில்(second) {
+    கட்டமைப்பு h2_stream_ctx *second_stream;
     http2_data_setup(cf, second, &second_stream);
     second->state.weight = data->state.weight;
-    if(data->share)
-      (void)Curl_share_easy_link(second, data->share);
+    எனில்(data->share)
+      (வெறுமை)Curl_share_easy_link(second, data->share);
     /* copy a range of options from the parent handle */
     second->set.fwrite_func = data->set.fwrite_func;
     second->set.out = data->set.out;
@@ -747,107 +747,107 @@ static struct Curl_easy *h2_duphandle(struct Curl_cfilter *cf,
     second->progress.hide = data->progress.hide;
     second->progress.callback = data->progress.callback;
   }
-  return second;
+  திரும்பு second;
 }
 
-static int set_transfer_url(struct Curl_easy *newhandle,
-                            struct curl_pushheaders *hp,
-                            struct Curl_easy *data)
+நிலையான முழு set_transfer_url(கட்டமைப்பு Curl_easy *newhandle,
+                            கட்டமைப்பு curl_pushheaders *hp,
+                            கட்டமைப்பு Curl_easy *data)
 {
-  const char *v;
+  மாறிலி எழுத்து *v;
   CURLUcode uc;
-  char *url = NULL;
-  int rc = 0;
+  எழுத்து *url = வெற்று;
+  முழு rc = 0;
   CURLU *u = curl_url();
 
-  if(!u)
-    return 5;
+  எனில்(!u)
+    திரும்பு 5;
 
   v = curl_pushheader_byname(hp, HTTP_PSEUDO_SCHEME);
-  if(v) {
+  எனில்(v) {
     uc = curl_url_set(u, CURLUPART_SCHEME, v, 0);
-    if(uc) {
+    எனில்(uc) {
       rc = 1;
-      goto fail;
+      செல் fail;
     }
   }
 
   v = curl_pushheader_byname(hp, HTTP_PSEUDO_AUTHORITY);
-  if(v) {
+  எனில்(v) {
     uc = Curl_url_set_authority(u, v);
-    if(uc) {
+    எனில்(uc) {
       rc = 2;
-      goto fail;
+      செல் fail;
     }
   }
 
   v = curl_pushheader_byname(hp, HTTP_PSEUDO_PATH);
-  if(v) {
+  எனில்(v) {
     uc = curl_url_set(u, CURLUPART_PATH, v, 0);
-    if(uc) {
+    எனில்(uc) {
       rc = 3;
-      goto fail;
+      செல் fail;
     }
   }
 
   /* We can only allow PUSH of resource from the same origin, e.g.
    * scheme + hostname + port */
-  if(!Curl_url_same_origin(data->state.uh, u)) {
+  எனில்(!Curl_url_same_origin(data->state.uh, u)) {
     rc = 1;
-    goto fail;
+    செல் fail;
   }
 
   uc = curl_url_get(u, CURLUPART_URL, &url, 0);
-  if(uc)
+  எனில்(uc)
     rc = 4;
 fail:
-  if(rc) {
+  எனில்(rc) {
     curl_url_cleanup(u);
-    return rc;
+    திரும்பு rc;
   }
 
   DEBUGASSERT(!newhandle->state.uh);
   newhandle->state.uh = u;
   Curl_bufref_set(&newhandle->state.url, url, 0, curl_free);
-  return 0;
+  திரும்பு 0;
 }
 
-static void discard_newhandle(struct Curl_cfilter *cf,
-                              struct Curl_easy *newhandle)
+நிலையான வெறுமை discard_newhandle(கட்டமைப்பு Curl_cfilter *cf,
+                              கட்டமைப்பு Curl_easy *newhandle)
 {
   http2_data_done(cf, newhandle);
-  (void)Curl_close(&newhandle);
+  (வெறுமை)Curl_close(&newhandle);
 }
 
-static int push_promise(struct Curl_cfilter *cf,
-                        struct Curl_easy *data,
-                        const nghttp2_push_promise *frame)
+நிலையான முழு தள்ளு_promise(கட்டமைப்பு Curl_cfilter *cf,
+                        கட்டமைப்பு Curl_easy *data,
+                        மாறிலி nghttp2_தள்ளு_promise *frame)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  int rv; /* one of the CURL_PUSH_* defines */
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  முழு rv; /* one of the CURL_PUSH_* defines */
 
   CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE received",
               frame->promised_stream_id);
-  if(data->multi->push_cb) {
-    struct h2_stream_ctx *stream;
-    struct h2_stream_ctx *newstream;
-    struct curl_pushheaders heads;
+  எனில்(data->multi->தள்ளு_cb) {
+    கட்டமைப்பு h2_stream_ctx *stream;
+    கட்டமைப்பு h2_stream_ctx *newstream;
+    கட்டமைப்பு curl_pushheaders heads;
     CURLMcode mresult;
     CURLcode result;
     /* clone the parent */
-    struct Curl_easy *newhandle = h2_duphandle(cf, data);
-    if(!newhandle) {
+    கட்டமைப்பு Curl_easy *newhandle = h2_duphandle(cf, data);
+    எனில்(!newhandle) {
       infof(data, "failed to duplicate handle");
-      rv = CURL_PUSH_DENY; /* FAIL HARD */
-      goto fail;
+      rv = CURL_தள்ளு_DENY; /* FAIL HARD */
+      செல் fail;
     }
 
     stream = H2_STREAM_CTX(ctx, data);
-    if(!stream) {
+    எனில்(!stream) {
       failf(data, "Internal NULL stream");
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_தள்ளு_DENY;
+      செல் fail;
     }
 
     heads.data = data;
@@ -855,52 +855,52 @@ static int push_promise(struct Curl_cfilter *cf,
     heads.frame = frame;
 
     rv = set_transfer_url(newhandle, &heads, data);
-    if(rv) {
+    எனில்(rv) {
       CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE, failed to set URL -> %d",
                   frame->promised_stream_id, rv);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_தள்ளு_DENY;
+      செல் fail;
     }
 
     {
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, multi_push_cb);
-      rv = data->multi->push_cb(data, newhandle,
-                                stream->push_headers_used, &heads,
-                                data->multi->push_userp);
+      கட்டமைப்பு Curl_mapi_guard guard;
+      CURL_CBAPI_START(&guard, data, multi_தள்ளு_cb);
+      rv = data->multi->தள்ளு_cb(data, newhandle,
+                                stream->தள்ளு_headers_used, &heads,
+                                data->multi->தள்ளு_userp);
       CURL_CBAPI_END(&guard);
     }
 
     /* free the headers again */
-    free_push_headers(stream);
+    free_தள்ளு_headers(stream);
 
-    if(rv) {
-      DEBUGASSERT((rv > CURL_PUSH_OK) && (rv <= CURL_PUSH_ERROROUT));
+    எனில்(rv) {
+      DEBUGASSERT((rv > CURL_தள்ளு_OK) && (rv <= CURL_தள்ளு_ERROROUT));
       /* denied, kill off the new handle again */
       CURL_TRC_CF(data, cf, "[%d] PUSH_PROMISE, denied by application -> %d",
                   frame->promised_stream_id, rv);
       discard_newhandle(cf, newhandle);
-      goto fail;
+      செல் fail;
     }
 
     /* approved, add to the multi handle for processing. This
      * assigns newhandle->mid. For the new `mid` we assign the
      * h2_stream instance and remember the stream_id already known. */
     mresult = Curl_multi_add_perform(data->multi, newhandle, cf->conn);
-    if(mresult) {
+    எனில்(mresult) {
       infof(data, "failed to add handle to multi");
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_தள்ளு_DENY;
+      செல் fail;
     }
 
     result = http2_data_setup(cf, newhandle, &newstream);
-    if(result) {
-      failf(data, "error setting up stream: %d", (int)result);
+    எனில்(result) {
+      failf(data, "error setting up stream: %d", (முழு)result);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_தள்ளு_DENY;
+      செல் fail;
     }
 
     DEBUGASSERT(newstream);
@@ -912,89 +912,89 @@ static int push_promise(struct Curl_cfilter *cf,
                 newhandle->mid);
     rv = Curl_ngh2_session_set_stream_user_data(
       &ctx->ngh2, newstream->id, newstream);
-    if(rv) {
+    எனில்(rv) {
       infof(data, "failed to set user_data for stream %d",
             newstream->id);
       DEBUGASSERT(0);
       discard_newhandle(cf, newhandle);
-      rv = CURL_PUSH_DENY;
-      goto fail;
+      rv = CURL_தள்ளு_DENY;
+      செல் fail;
     }
 
     /* success, remember max stream id processed */
-    if(newstream->id > ctx->local_max_sid)
+    எனில்(newstream->id > ctx->local_max_sid)
       ctx->local_max_sid = newstream->id;
   }
-  else {
+  இல்லையெனில் {
     CURL_TRC_CF(data, cf, "Got PUSH_PROMISE, ignore it");
-    rv = CURL_PUSH_DENY;
+    rv = CURL_தள்ளு_DENY;
   }
 fail:
-  return rv;
+  திரும்பு rv;
 }
 
-static void h2_xfer_write_resp_hd(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct h2_stream_ctx *stream,
-                                  const char *buf, size_t blen, bool eos)
+நிலையான வெறுமை h2_xfer_write_resp_hd(கட்டமைப்பு Curl_cfilter *cf,
+                                  கட்டமைப்பு Curl_easy *data,
+                                  கட்டமைப்பு h2_stream_ctx *stream,
+                                  மாறிலி எழுத்து *buf, size_t blen, bool eos)
 {
   /* If we already encountered an error, skip further writes */
-  if(!stream->xfer_result) {
+  எனில்(!stream->xfer_result) {
     stream->xfer_result = Curl_xfer_write_resp_hd(data, buf, blen, eos);
-    if(!stream->xfer_result && !eos)
+    எனில்(!stream->xfer_result && !eos)
       stream->xfer_result = cf_h2_update_local_win(cf, data, stream);
-    if(stream->xfer_result)
+    எனில்(stream->xfer_result)
       CURL_TRC_CF(data, cf, "[%d] error %d writing %zu bytes of headers",
-                  stream->id, (int)stream->xfer_result, blen);
+                  stream->id, (முழு)stream->xfer_result, blen);
   }
 }
 
-static void h2_xfer_write_resp(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h2_stream_ctx *stream,
-                               const char *buf, size_t blen, bool eos)
+நிலையான வெறுமை h2_xfer_write_resp(கட்டமைப்பு Curl_cfilter *cf,
+                               கட்டமைப்பு Curl_easy *data,
+                               கட்டமைப்பு h2_stream_ctx *stream,
+                               மாறிலி எழுத்து *buf, size_t blen, bool eos)
 {
   /* If we already encountered an error, skip further writes */
-  if(!stream->xfer_result)
+  எனில்(!stream->xfer_result)
     stream->xfer_result = Curl_xfer_write_resp(data, buf, blen, eos);
   /* If the transfer write is errored, we do not want any more data */
-  if(stream->xfer_result) {
-    struct cf_h2_ctx *ctx = cf->ctx;
+  எனில்(stream->xfer_result) {
+    கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
     CURL_TRC_CF(data, cf, "[%d] error %d writing %zu bytes of data, "
                 "RST-ing stream",
-                stream->id, (int)stream->xfer_result, blen);
+                stream->id, (முழு)stream->xfer_result, blen);
     Curl_ngh2_submit_rst_stream(
       &ctx->ngh2, 0, stream->id, (uint32_t)NGHTTP2_ERR_CALLBACK_FAILURE);
   }
-  else if(!stream->write_paused && Curl_xfer_write_is_paused(data)) {
+  இல்லையெனில் எனில்(!stream->write_paused && Curl_xfer_write_is_paused(data)) {
     CURL_TRC_CF(data, cf, "[%d] stream output paused", stream->id);
     stream->write_paused = TRUE;
   }
-  else if(stream->write_paused && !Curl_xfer_write_is_paused(data)) {
+  இல்லையெனில் எனில்(stream->write_paused && !Curl_xfer_write_is_paused(data)) {
     CURL_TRC_CF(data, cf, "[%d] stream output unpaused", stream->id);
     stream->write_paused = FALSE;
   }
 
-  if(!stream->xfer_result && !eos)
+  எனில்(!stream->xfer_result && !eos)
     stream->xfer_result = cf_h2_update_local_win(cf, data, stream);
 }
 
-static CURLcode on_stream_frame(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct h2_stream_ctx *stream,
-                                const nghttp2_frame *frame)
+நிலையான CURLcode on_stream_frame(கட்டமைப்பு Curl_cfilter *cf,
+                                கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு h2_stream_ctx *stream,
+                                மாறிலி nghttp2_frame *frame)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   int32_t stream_id = frame->hd.stream_id;
-  int rv;
+  முழு rv;
 
-  if(!stream) {
+  எனில்(!stream) {
     CURL_TRC_CF(data, cf, "[%d] No stream_ctx set", stream_id);
-    return CURLE_FAILED_INIT;
+    திரும்பு CURLE_FAILED_INIT;
   }
 
-  switch(frame->hd.type) {
-  case NGHTTP2_DATA:
+  தேர்வு(frame->hd.type) {
+  நிலை NGHTTP2_DATA:
     CURL_TRC_CF(data, cf, "[%d] DATA, window=%d/%d",
                 stream_id,
                 Curl_ngh2_session_get_stream_effective_recv_data_length(
@@ -1002,81 +1002,81 @@ static CURLcode on_stream_frame(struct Curl_cfilter *cf,
                 Curl_ngh2_session_get_stream_effective_local_window_size(
                   &ctx->ngh2, stream->id));
     /* If !body started on this stream, then receiving DATA is illegal. */
-    if(!stream->bodystarted) {
-      if(Curl_ngh2_is_fatal(&ctx->ngh2,
+    எனில்(!stream->bodystarted) {
+      எனில்(Curl_ngh2_is_fatal(&ctx->ngh2,
            Curl_ngh2_submit_rst_stream(&ctx->ngh2, NGHTTP2_FLAG_NONE,
                                        stream_id, NGHTTP2_PROTOCOL_ERROR))) {
-        return CURLE_RECV_ERROR;
+        திரும்பு CURLE_RECV_ERROR;
       }
     }
-    break;
-  case NGHTTP2_HEADERS:
-    if(stream->bodystarted) {
+    நிறுத்து;
+  நிலை NGHTTP2_HEADERS:
+    எனில்(stream->bodystarted) {
       /* Only valid HEADERS after body started is trailer HEADERS. We
          buffer them in on_header callback. */
-      break;
+      நிறுத்து;
     }
 
     /* nghttp2 guarantees that :status is received, and we store it to
        stream->status_code. Fuzzing has proven this can still be reached
        without status code having been set. */
-    if(stream->status_code == -1)
-      return CURLE_RECV_ERROR;
+    எனில்(stream->status_code == -1)
+      திரும்பு CURLE_RECV_ERROR;
 
     /* Only final status code signals the end of header */
-    if(stream->status_code / 100 != 1) {
+    எனில்(stream->status_code / 100 != 1) {
       stream->resp_hds_complete = TRUE;
       stream->bodystarted = TRUE;
     }
-    else
+    இல்லையெனில்
       stream->status_code = -1;
 
     h2_xfer_write_resp_hd(cf, data, stream, STRCONST("\r\n"),
                           (bool)stream->closed);
 
     Curl_multi_mark_dirty(data);
-    break;
-  case NGHTTP2_PUSH_PROMISE:
-    rv = push_promise(cf, data, &frame->push_promise);
-    if(rv) { /* deny! */
-      DEBUGASSERT((rv > CURL_PUSH_OK) && (rv <= CURL_PUSH_ERROROUT));
-      if(Curl_ngh2_is_fatal(&ctx->ngh2,
+    நிறுத்து;
+  நிலை NGHTTP2_தள்ளு_PROMISE:
+    rv = தள்ளு_promise(cf, data, &frame->தள்ளு_promise);
+    எனில்(rv) { /* deny! */
+      DEBUGASSERT((rv > CURL_தள்ளு_OK) && (rv <= CURL_தள்ளு_ERROROUT));
+      எனில்(Curl_ngh2_is_fatal(&ctx->ngh2,
            Curl_ngh2_submit_rst_stream(&ctx->ngh2, NGHTTP2_FLAG_NONE,
-             frame->push_promise.promised_stream_id, NGHTTP2_CANCEL)))
-        return CURLE_SEND_ERROR;
-      else if(rv == CURL_PUSH_ERROROUT) {
+             frame->தள்ளு_promise.promised_stream_id, NGHTTP2_CANCEL)))
+        திரும்பு CURLE_SEND_ERROR;
+      இல்லையெனில் எனில்(rv == CURL_தள்ளு_ERROROUT) {
         /* fail the parent transfer, not the whole session */
         CURL_TRC_CF(data, cf, "[%d] fail in PUSH_PROMISE received",
                     stream_id);
-        if(!stream->xfer_result)
+        எனில்(!stream->xfer_result)
           stream->xfer_result = CURLE_RECV_ERROR;
         Curl_multi_mark_dirty(data);
       }
     }
-    break;
-  case NGHTTP2_RST_STREAM:
-    if(frame->rst_stream.error_code)
+    நிறுத்து;
+  நிலை NGHTTP2_RST_STREAM:
+    எனில்(frame->rst_stream.error_code)
       stream->reset_by_server = TRUE;
     Curl_multi_mark_dirty(data);
-    break;
-  case NGHTTP2_WINDOW_UPDATE:
-    if(CURL_REQ_WANT_SEND(data) && Curl_bufq_is_empty(&stream->sendbuf)) {
+    நிறுத்து;
+  நிலை NGHTTP2_WINDOW_UPDATE:
+    எனில்(CURL_REQ_WANT_SEND(data) && Curl_bufq_is_empty(&stream->sendbuf)) {
       /* need more data, force processing of transfer */
       Curl_multi_mark_dirty(data);
     }
-    else if(!Curl_bufq_is_empty(&stream->sendbuf)) {
+    இல்லையெனில் எனில்(!Curl_bufq_is_empty(&stream->sendbuf)) {
       /* resume the potentially suspended stream */
-      if(Curl_ngh2_is_fatal(&ctx->ngh2,
+      எனில்(Curl_ngh2_is_fatal(&ctx->ngh2,
            Curl_ngh2_session_resume_data(&ctx->ngh2, stream->id)))
-        return CURLE_SEND_ERROR;
+        திரும்பு CURLE_SEND_ERROR;
     }
-    break;
-  default:
-    break;
+    நிறுத்து;
+  இயல்பு:
+    நிறுத்து;
   }
 
-  if(frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
-    if(!stream->closed && !stream->body_eos &&
+  எனில்(frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
+    எனில்(!stream->closed && !stream->body_eos &&
        ((stream->status_code >= 400) || (stream->status_code < 200))) {
       /* The server did not give us a positive response and we are not
        * done uploading the request body. We need to stop doing that and
@@ -1090,146 +1090,146 @@ static CURLcode on_stream_frame(struct Curl_cfilter *cf,
     }
     Curl_multi_mark_dirty(data);
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 #ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
+முழு Curl_nghttp2_fr_print(மாறிலி nghttp2_frame *frame, எழுத்து *buffer,
                           size_t blen)
 {
-  switch(frame->hd.type) {
-  case NGHTTP2_DATA: {
-    return curl_msnprintf(buffer, blen,
+  தேர்வு(frame->hd.type) {
+  நிலை NGHTTP2_DATA: {
+    திரும்பு curl_msnprintf(buffer, blen,
                           "FRAME[DATA, len=%d, eos=%d, padlen=%d]",
-                          (int)frame->hd.length,
+                          (முழு)frame->hd.length,
                           !!(frame->hd.flags & NGHTTP2_FLAG_END_STREAM),
-                          (int)frame->data.padlen);
+                          (முழு)frame->data.padlen);
   }
-  case NGHTTP2_HEADERS: {
-    return curl_msnprintf(buffer, blen,
+  நிலை NGHTTP2_HEADERS: {
+    திரும்பு curl_msnprintf(buffer, blen,
                           "FRAME[HEADERS, len=%d, hend=%d, eos=%d]",
-                          (int)frame->hd.length,
+                          (முழு)frame->hd.length,
                           !!(frame->hd.flags & NGHTTP2_FLAG_END_HEADERS),
                           !!(frame->hd.flags & NGHTTP2_FLAG_END_STREAM));
   }
-  case NGHTTP2_PRIORITY: {
-    return curl_msnprintf(buffer, blen,
+  நிலை NGHTTP2_PRIORITY: {
+    திரும்பு curl_msnprintf(buffer, blen,
                           "FRAME[PRIORITY, len=%d, flags=%d]",
-                          (int)frame->hd.length, frame->hd.flags);
+                          (முழு)frame->hd.length, frame->hd.flags);
   }
-  case NGHTTP2_RST_STREAM: {
-    return curl_msnprintf(buffer, blen,
+  நிலை NGHTTP2_RST_STREAM: {
+    திரும்பு curl_msnprintf(buffer, blen,
                           "FRAME[RST_STREAM, len=%d, flags=%d, error=%u]",
-                          (int)frame->hd.length, frame->hd.flags,
+                          (முழு)frame->hd.length, frame->hd.flags,
                           frame->rst_stream.error_code);
   }
-  case NGHTTP2_SETTINGS: {
-    if(frame->hd.flags & NGHTTP2_FLAG_ACK) {
-      return curl_msnprintf(buffer, blen, "FRAME[SETTINGS, ack=1]");
+  நிலை NGHTTP2_SETTINGS: {
+    எனில்(frame->hd.flags & NGHTTP2_FLAG_ACK) {
+      திரும்பு curl_msnprintf(buffer, blen, "FRAME[SETTINGS, ack=1]");
     }
-    return curl_msnprintf(buffer, blen,
-                          "FRAME[SETTINGS, len=%d]", (int)frame->hd.length);
+    திரும்பு curl_msnprintf(buffer, blen,
+                          "FRAME[SETTINGS, len=%d]", (முழு)frame->hd.length);
   }
-  case NGHTTP2_PUSH_PROMISE:
-    return curl_msnprintf(buffer, blen,
+  நிலை NGHTTP2_தள்ளு_PROMISE:
+    திரும்பு curl_msnprintf(buffer, blen,
                           "FRAME[PUSH_PROMISE, len=%d, hend=%d]",
-                          (int)frame->hd.length,
+                          (முழு)frame->hd.length,
                           !!(frame->hd.flags & NGHTTP2_FLAG_END_HEADERS));
-  case NGHTTP2_PING:
-    return curl_msnprintf(buffer, blen,
+  நிலை NGHTTP2_PING:
+    திரும்பு curl_msnprintf(buffer, blen,
                           "FRAME[PING, len=%d, ack=%d]",
-                          (int)frame->hd.length,
+                          (முழு)frame->hd.length,
                           frame->hd.flags & NGHTTP2_FLAG_ACK);
-  case NGHTTP2_GOAWAY: {
-    char scratch[128];
+  நிலை NGHTTP2_GOAWAY: {
+    எழுத்து scratch[128];
     size_t s_len = CURL_ARRAYSIZE(scratch);
     size_t len = (frame->goaway.opaque_data_len < s_len) ?
       frame->goaway.opaque_data_len : s_len - 1;
-    if(len)
+    எனில்(len)
       memcpy(scratch, frame->goaway.opaque_data, len);
     scratch[len] = '\0';
-    return curl_msnprintf(buffer, blen,
+    திரும்பு curl_msnprintf(buffer, blen,
                           "FRAME[GOAWAY, error=%u, reason='%s', "
                           "last_stream=%d]", frame->goaway.error_code,
                           scratch, frame->goaway.last_stream_id);
   }
-  case NGHTTP2_WINDOW_UPDATE: {
-    return curl_msnprintf(buffer, blen,
+  நிலை NGHTTP2_WINDOW_UPDATE: {
+    திரும்பு curl_msnprintf(buffer, blen,
                           "FRAME[WINDOW_UPDATE, incr=%d]",
                           frame->window_update.window_size_increment);
   }
-  default:
-    return curl_msnprintf(buffer, blen, "FRAME[%d, len=%d, flags=%d]",
-                          frame->hd.type, (int)frame->hd.length,
+  இயல்பு:
+    திரும்பு curl_msnprintf(buffer, blen, "FRAME[%d, len=%d, flags=%d]",
+                          frame->hd.type, (முழு)frame->hd.length,
                           frame->hd.flags);
   }
 }
 
-static int on_frame_send(nghttp2_session *session, const nghttp2_frame *frame,
-                         void *userp)
+நிலையான முழு on_frame_send(nghttp2_session *session, மாறிலி nghttp2_frame *frame,
+                         வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு Curl_easy *data = CF_DATA_CURRENT(cf);
 
-  (void)session;
+  (வெறுமை)session;
   DEBUGASSERT(data);
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+  எனில்(Curl_trc_cf_is_verbose(cf, data)) {
+    எழுத்து buffer[256];
+    முழு len;
+    len = Curl_nghttp2_fr_print(frame, buffer, அளவு(buffer) - 1);
     buffer[len] = 0;
     CURL_TRC_CF(data, cf, "[%d] -> %s", frame->hd.stream_id, buffer);
   }
-  if((frame->hd.type == NGHTTP2_GOAWAY) && !ctx->sent_goaway) {
+  எனில்((frame->hd.type == NGHTTP2_GOAWAY) && !ctx->sent_goaway) {
     /* A GOAWAY not initiated by us, but by nghttp2 itself on detecting
      * a protocol error on the connection */
     failf(data, "nghttp2 shuts down connection with error %u: %s",
           frame->goaway.error_code,
           nghttp2_http2_strerror(frame->goaway.error_code));
   }
-  return 0;
+  திரும்பு 0;
 }
 #endif /* CURLVERBOSE */
 
-static int on_frame_recv(nghttp2_session *session, const nghttp2_frame *frame,
-                         void *userp)
+நிலையான முழு on_frame_recv(nghttp2_session *session, மாறிலி nghttp2_frame *frame,
+                         வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf), *data_s;
-  struct h2_stream_ctx *stream;
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு Curl_easy *data = CF_DATA_CURRENT(cf), *data_s;
+  கட்டமைப்பு h2_stream_ctx *stream;
   int32_t stream_id = frame->hd.stream_id;
 
-  (void)session;
+  (வெறுமை)session;
   DEBUGASSERT(data);
 #ifdef CURLVERBOSE
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+  எனில்(Curl_trc_cf_is_verbose(cf, data)) {
+    எழுத்து buffer[256];
+    முழு len;
+    len = Curl_nghttp2_fr_print(frame, buffer, அளவு(buffer) - 1);
     buffer[len] = 0;
     CURL_TRC_CF(data, cf, "[%d] <- %s", frame->hd.stream_id, buffer);
   }
 #endif /* CURLVERBOSE */
 
-  if(!stream_id) {
+  எனில்(!stream_id) {
     /* stream ID zero is for connection-oriented stuff */
     DEBUGASSERT(data);
-    switch(frame->hd.type) {
-    case NGHTTP2_SETTINGS: {
-      if(!(frame->hd.flags & NGHTTP2_FLAG_ACK)) {
+    தேர்வு(frame->hd.type) {
+    நிலை NGHTTP2_SETTINGS: {
+      எனில்(!(frame->hd.flags & NGHTTP2_FLAG_ACK)) {
         uint32_t max_conn = ctx->max_concurrent_streams;
         ctx->max_concurrent_streams =
           Curl_ngh2_session_get_remote_settings(
             &ctx->ngh2, NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS);
-        ctx->enable_push = Curl_ngh2_session_get_remote_settings(
-          &ctx->ngh2, NGHTTP2_SETTINGS_ENABLE_PUSH) != 0;
+        ctx->enable_தள்ளு = Curl_ngh2_session_get_remote_settings(
+          &ctx->ngh2, NGHTTP2_SETTINGS_ENABLE_தள்ளு) != 0;
         CURL_TRC_CF(data, cf, "[0] MAX_CONCURRENT_STREAMS: %u",
                     ctx->max_concurrent_streams);
         CURL_TRC_CF(data, cf, "[0] ENABLE_PUSH: %s",
-                    ctx->enable_push ? "TRUE" : "false");
-        if(data && max_conn != ctx->max_concurrent_streams) {
+                    ctx->enable_தள்ளு ? "TRUE" : "false");
+        எனில்(data && max_conn != ctx->max_concurrent_streams) {
           /* only signal change if the value actually changed */
           CURL_TRC_CF(data, cf, "[0] notify MAX_CONCURRENT_STREAMS: %u",
                       ctx->max_concurrent_streams);
@@ -1240,59 +1240,59 @@ static int on_frame_recv(nghttp2_session *session, const nghttp2_frame *frame,
          * window and *assume* that we treat this like a WINDOW_UPDATE. Some
          * servers send an explicit WINDOW_UPDATE, but not all seem to do that.
          * To be safe, we UNHOLD a stream in order not to stall. */
-        if(CURL_REQ_WANT_SEND(data))
+        எனில்(CURL_REQ_WANT_SEND(data))
           Curl_multi_mark_dirty(data);
       }
-      break;
+      நிறுத்து;
     }
-    case NGHTTP2_GOAWAY:
+    நிலை NGHTTP2_GOAWAY:
       ctx->rcvd_goaway = TRUE;
       ctx->goaway_error = frame->goaway.error_code;
       ctx->remote_max_sid = frame->goaway.last_stream_id;
-      if(data) {
+      எனில்(data) {
         infof(data, "received GOAWAY, error=%u, last_stream=%d",
               ctx->goaway_error, ctx->remote_max_sid);
         Curl_multi_connchanged(data->multi);
       }
-      break;
-    default:
-      break;
+      நிறுத்து;
+    இயல்பு:
+      நிறுத்து;
     }
-    return 0;
+    திரும்பு 0;
   }
 
   data_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(!data_s) {
+  எனில்(!data_s) {
     CURL_TRC_CF(data, cf, "[%d] No Curl_easy associated", stream_id);
-    return 0;
+    திரும்பு 0;
   }
 
-  return on_stream_frame(cf, data_s, stream, frame) ?
+  திரும்பு on_stream_frame(cf, data_s, stream, frame) ?
          NGHTTP2_ERR_CALLBACK_FAILURE : 0;
 }
 
-static int cf_h2_on_invalid_frame_recv(nghttp2_session *session,
-                                       const nghttp2_frame *frame,
-                                       int ngerr, void *userp)
+நிலையான முழு cf_h2_on_invalid_frame_recv(nghttp2_session *session,
+                                       மாறிலி nghttp2_frame *frame,
+                                       முழு ngerr, வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data;
-  struct h2_stream_ctx *stream;
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு Curl_easy *data;
+  கட்டமைப்பு h2_stream_ctx *stream;
   int32_t stream_id = frame->hd.stream_id;
 
-  (void)session;
+  (வெறுமை)session;
   data = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(data) {
+  எனில்(data) {
 #ifdef CURLVERBOSE
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+    எழுத்து buffer[256];
+    முழு len;
+    len = Curl_nghttp2_fr_print(frame, buffer, அளவு(buffer) - 1);
     buffer[len] = 0;
     failf(data, "[HTTP2] [%d] received invalid frame: %s, error %d: %s",
           stream_id, buffer, ngerr, nghttp2_strerror(ngerr));
 #endif /* CURLVERBOSE */
-    if(stream) {
+    எனில்(stream) {
       Curl_ngh2_submit_rst_stream(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, NGHTTP2_STREAM_CLOSED);
       stream->error = ngerr;
@@ -1301,85 +1301,85 @@ static int cf_h2_on_invalid_frame_recv(nghttp2_session *session,
     }
   }
   /* Return no error, nghttp2 will RST/GOAWAY by itself when needed */
-  return 0;
+  திரும்பு 0;
 }
 
-static int on_data_chunk_recv(nghttp2_session *session, uint8_t flags,
+நிலையான முழு on_data_chunk_recv(nghttp2_session *session, uint8_t flags,
                               int32_t stream_id,
-                              const uint8_t *mem, size_t len, void *userp)
+                              மாறிலி uint8_t *mem, size_t len, வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
-  struct Curl_easy *data_s;
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream;
+  கட்டமைப்பு Curl_easy *data_s;
 
-  (void)session;
-  (void)flags;
+  (வெறுமை)session;
+  (வெறுமை)flags;
 
   DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
   DEBUGASSERT(CF_DATA_CURRENT(cf));
 
   /* get the stream from the hash based on Stream ID */
   data_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(!data_s) {
+  எனில்(!data_s) {
     /* Receiving a Stream ID not in the hash should not happen - unless
        we have aborted a transfer artificially and there were more data
        in the pipeline. Silently ignore. */
     CURL_TRC_CF(CF_DATA_CURRENT(cf), cf, "[%d] Data for unknown", stream_id);
     /* consumed explicitly as no one will read it */
     Curl_ngh2_session_consume(&ctx->ngh2, stream_id, len);
-    return 0;
+    திரும்பு 0;
   }
 
-  if(!stream)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  எனில்(!stream)
+    திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  h2_xfer_write_resp(cf, data_s, stream, (const char *)mem, len, FALSE);
+  h2_xfer_write_resp(cf, data_s, stream, (மாறிலி எழுத்து *)mem, len, FALSE);
 
   Curl_ngh2_session_consume(&ctx->ngh2, stream_id, len);
   stream->nrcvd_data += (curl_off_t)len;
-  return 0;
+  திரும்பு 0;
 }
 
-static int on_stream_close(nghttp2_session *session, int32_t stream_id,
-                           uint32_t error_code, void *userp)
+நிலையான முழு on_stream_close(nghttp2_session *session, int32_t stream_id,
+                           uint32_t error_code, வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data_s, *call_data = CF_DATA_CURRENT(cf);
-  struct h2_stream_ctx *stream = NULL;
-  int rv;
-  (void)session;
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு Curl_easy *data_s, *call_data = CF_DATA_CURRENT(cf);
+  கட்டமைப்பு h2_stream_ctx *stream = வெற்று;
+  முழு rv;
+  (வெறுமை)session;
 
   DEBUGASSERT(call_data);
   /* stream id 0 is the connection, do not look there for streams. */
-  data_s = stream_id ? cf_h2_get_stream_xfer(cf, stream_id, &stream) : NULL;
-  if(!data_s) {
+  data_s = stream_id ? cf_h2_get_stream_xfer(cf, stream_id, &stream) : வெற்று;
+  எனில்(!data_s) {
     CURL_TRC_CF(call_data, cf,
                 "[%d] on_stream_close, no easy set on stream", stream_id);
-    return 0;
+    திரும்பு 0;
   }
-  if(!GOOD_EASY_HANDLE(data_s)) {
+  எனில்(!GOOD_EASY_HANDLE(data_s)) {
     /* nghttp2 still has an easy registered for the stream which has
      * been freed be libcurl. This points to a code path that does not
      * trigger DONE or DETACH events as it must. */
     CURL_TRC_CF(call_data, cf,
                 "[%d] on_stream_close, not a GOOD easy on stream", stream_id);
-    (void)Curl_ngh2_session_set_stream_user_data(
-      &ctx->ngh2, stream_id, NULL);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    (வெறுமை)Curl_ngh2_session_set_stream_user_data(
+      &ctx->ngh2, stream_id, வெற்று);
+    திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
   }
-  if(!stream) {
+  எனில்(!stream) {
     CURL_TRC_CF(data_s, cf,
                 "[%d] on_stream_close, GOOD easy but no stream", stream_id);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
   stream->closed = TRUE;
   stream->error = error_code;
-  if(stream->error) {
+  எனில்(stream->error) {
     stream->reset = TRUE;
-    if((stream->error == NGHTTP2_REFUSED_STREAM) &&
+    எனில்((stream->error == NGHTTP2_REFUSED_STREAM) &&
        ctx->rcvd_goaway && ctx->goaway_error)
     /* REFUSED_STREAM is used by nghttp2 on a GOAWAY from the
      * server where it indicated it will no longer process this stream.
@@ -1388,34 +1388,34 @@ static int on_stream_close(nghttp2_session *session, int32_t stream_id,
     stream->error = ctx->goaway_error;
   }
 
-  if(stream->error)
+  எனில்(stream->error)
     CURL_TRC_CF(data_s, cf, "[%d] RESET: %s (err %u)",
               stream_id, nghttp2_http2_strerror(error_code), error_code);
-  else
+  இல்லையெனில்
     CURL_TRC_CF(data_s, cf, "[%d] CLOSED", stream_id);
   Curl_multi_mark_dirty(data_s);
 
   /* remove `stream_ctx` from the nghttp2 stream */
   rv = Curl_ngh2_session_set_stream_user_data(
-    &ctx->ngh2, stream_id, NULL);
-  if(rv) {
+    &ctx->ngh2, stream_id, வெற்று);
+  எனில்(rv) {
     infof(data_s, "http/2: failed to clear user_data for stream %d",
           stream_id);
     DEBUGASSERT(0);
   }
-  return 0;
+  திரும்பு 0;
 }
 
-static void cf_h2_header_error(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h2_stream_ctx *stream,
+நிலையான வெறுமை cf_h2_header_error(கட்டமைப்பு Curl_cfilter *cf,
+                               கட்டமைப்பு Curl_easy *data,
+                               கட்டமைப்பு h2_stream_ctx *stream,
                                CURLcode result)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
 
-  failf(data, "Error receiving HTTP2 header: %d(%s)", (int)result,
+  failf(data, "Error receiving HTTP2 header: %d(%s)", (முழு)result,
         curl_easy_strerror(result));
-  if(stream) {
+  எனில்(stream) {
     Curl_ngh2_submit_rst_stream(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, NGHTTP2_STREAM_CLOSED);
     stream->closed = TRUE;
@@ -1424,270 +1424,270 @@ static void cf_h2_header_error(struct Curl_cfilter *cf,
 }
 
 /* frame->hd.type is either NGHTTP2_HEADERS or NGHTTP2_PUSH_PROMISE */
-static int on_header(nghttp2_session *session, const nghttp2_frame *frame,
-                     const uint8_t *name, size_t namelen,
-                     const uint8_t *value, size_t valuelen,
+நிலையான முழு on_header(nghttp2_session *session, மாறிலி nghttp2_frame *frame,
+                     மாறிலி uint8_t *name, size_t namelen,
+                     மாறிலி uint8_t *மதிப்பு, size_t valuelen,
                      uint8_t flags,
-                     void *userp)
+                     வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
-  struct Curl_easy *data;
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream;
+  கட்டமைப்பு Curl_easy *data;
   int32_t stream_id = frame->hd.stream_id;
   CURLcode result;
 
-  (void)session;
-  (void)flags;
+  (வெறுமை)session;
+  (வெறுமை)flags;
 
   DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
 
   /* get the stream from the hash based on Stream ID */
   data = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(!GOOD_EASY_HANDLE(data))
+  எனில்(!GOOD_EASY_HANDLE(data))
     /* Receiving a Stream ID not in the hash should not happen, this is an
        internal error more than anything else! */
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  if(!stream) {
+  எனில்(!stream) {
     failf(data, "Internal NULL stream");
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
   /* Store received PUSH_PROMISE headers to be used when the subsequent
      PUSH_PROMISE callback comes */
-  if(frame->hd.type == NGHTTP2_PUSH_PROMISE) {
-    char *h;
+  எனில்(frame->hd.type == NGHTTP2_தள்ளு_PROMISE) {
+    எழுத்து *h;
 
-    if((namelen == CURL_CSTRLEN(HTTP_PSEUDO_AUTHORITY)) &&
-       !strncmp(HTTP_PSEUDO_AUTHORITY, (const char *)name, namelen)) {
+    எனில்((namelen == CURL_CSTRLEN(HTTP_PSEUDO_AUTHORITY)) &&
+       !strncmp(HTTP_PSEUDO_AUTHORITY, (மாறிலி எழுத்து *)name, namelen)) {
       /* pseudo headers are lower case */
-      int rc = 0;
-      char *check = curl_maprintf("%s:%d", data->state.origin->hostname,
+      முழு rc = 0;
+      எழுத்து *check = curl_maprintf("%s:%d", data->state.origin->hostname,
                                   data->state.origin->port);
-      if(!check)
+      எனில்(!check)
         /* no memory */
-        return NGHTTP2_ERR_CALLBACK_FAILURE;
-      if(!curl_strequal(check, (const char *)value) &&
+        திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
+      எனில்(!curl_strequal(check, (மாறிலி எழுத்து *)மதிப்பு) &&
          ((data->state.origin->port != data->state.origin->scheme->defport) ||
-          !curl_strequal(data->state.origin->hostname, (const char *)value))) {
+          !curl_strequal(data->state.origin->hostname, (மாறிலி எழுத்து *)மதிப்பு))) {
         /* This is push is not for the same authority that was asked for in
          * the URL. RFC 7540 section 8.2 says: "A client MUST treat a
          * PUSH_PROMISE for which the server is not authoritative as a stream
          * error of type PROTOCOL_ERROR."
          */
-        (void)Curl_ngh2_submit_rst_stream(
+        (வெறுமை)Curl_ngh2_submit_rst_stream(
           &ctx->ngh2, NGHTTP2_FLAG_NONE, stream_id, NGHTTP2_PROTOCOL_ERROR);
         rc = NGHTTP2_ERR_CALLBACK_FAILURE;
       }
       curlx_free(check);
-      if(rc)
-        return rc;
+      எனில்(rc)
+        திரும்பு rc;
     }
 
-    if(!stream->push_headers) {
-      stream->push_headers_alloc = 10;
-      stream->push_headers = curlx_malloc(stream->push_headers_alloc *
-                                          sizeof(char *));
-      if(!stream->push_headers)
-        return NGHTTP2_ERR_CALLBACK_FAILURE;
-      stream->push_headers_used = 0;
+    எனில்(!stream->தள்ளு_headers) {
+      stream->தள்ளு_headers_alloc = 10;
+      stream->தள்ளு_headers = curlx_malloc(stream->தள்ளு_headers_alloc *
+                                          அளவு(எழுத்து *));
+      எனில்(!stream->தள்ளு_headers)
+        திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
+      stream->தள்ளு_headers_used = 0;
     }
-    else if(stream->push_headers_used ==
-            stream->push_headers_alloc) {
-      char **headp;
-      if(stream->push_headers_alloc > 1000) {
+    இல்லையெனில் எனில்(stream->தள்ளு_headers_used ==
+            stream->தள்ளு_headers_alloc) {
+      எழுத்து **headp;
+      எனில்(stream->தள்ளு_headers_alloc > 1000) {
         /* this is beyond crazy many headers, bail out */
         failf(data, "Too many PUSH_PROMISE headers");
-        free_push_headers(stream);
-        return NGHTTP2_ERR_CALLBACK_FAILURE;
+        free_தள்ளு_headers(stream);
+        திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
       }
-      stream->push_headers_alloc *= 2;
-      headp = curlx_realloc(stream->push_headers,
-                            stream->push_headers_alloc * sizeof(char *));
-      if(!headp) {
-        free_push_headers(stream);
-        return NGHTTP2_ERR_CALLBACK_FAILURE;
+      stream->தள்ளு_headers_alloc *= 2;
+      headp = curlx_realloc(stream->தள்ளு_headers,
+                            stream->தள்ளு_headers_alloc * அளவு(எழுத்து *));
+      எனில்(!headp) {
+        free_தள்ளு_headers(stream);
+        திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
       }
-      stream->push_headers = headp;
+      stream->தள்ளு_headers = headp;
     }
-    h = curl_maprintf("%s:%s", name, value);
-    if(!h) {
-      free_push_headers(stream);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    h = curl_maprintf("%s:%s", name, மதிப்பு);
+    எனில்(!h) {
+      free_தள்ளு_headers(stream);
+      திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
     }
-    stream->push_headers[stream->push_headers_used++] = h;
-    return 0;
+    stream->தள்ளு_headers[stream->தள்ளு_headers_used++] = h;
+    திரும்பு 0;
   }
 
-  if(stream->bodystarted) {
+  எனில்(stream->bodystarted) {
     /* This is a trailer */
     CURL_TRC_CF(data, cf, "[%d] trailer: %.*s: %.*s",
-                stream->id, (int)namelen, name, (int)valuelen, value);
+                stream->id, (முழு)namelen, name, (முழு)valuelen, மதிப்பு);
     result = Curl_dynhds_add(&stream->resp_trailers,
-                             (const char *)name, namelen,
-                             (const char *)value, valuelen);
-    if(result) {
+                             (மாறிலி எழுத்து *)name, namelen,
+                             (மாறிலி எழுத்து *)மதிப்பு, valuelen);
+    எனில்(result) {
       cf_h2_header_error(cf, data, stream, result);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+      திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
     }
 
-    return 0;
+    திரும்பு 0;
   }
 
-  if(namelen == CURL_CSTRLEN(HTTP_PSEUDO_STATUS) &&
+  எனில்(namelen == CURL_CSTRLEN(HTTP_PSEUDO_STATUS) &&
      !memcmp(HTTP_PSEUDO_STATUS, name, namelen)) {
     /* nghttp2 guarantees :status is received first and only once. */
-    char buffer[32];
+    எழுத்து buffer[32];
     size_t hlen;
     result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)value, valuelen);
-    if(result) {
+                                     (மாறிலி எழுத்து *)மதிப்பு, valuelen);
+    எனில்(result) {
       cf_h2_header_error(cf, data, stream, result);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+      திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
     }
-    hlen = curl_msnprintf(buffer, sizeof(buffer), HTTP_PSEUDO_STATUS ":%d\r",
+    hlen = curl_msnprintf(buffer, அளவு(buffer), HTTP_PSEUDO_STATUS ":%d\r",
                           stream->status_code);
-    result = Curl_headers_push(data, buffer, hlen, CURLH_PSEUDO);
-    if(result) {
+    result = Curl_headers_தள்ளு(data, buffer, hlen, CURLH_PSEUDO);
+    எனில்(result) {
       cf_h2_header_error(cf, data, stream, result);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+      திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
     }
     curlx_dyn_reset(&ctx->scratch);
     result = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/2 "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, value, valuelen);
-    if(!result)
+    எனில்(!result)
+      result = curlx_dyn_addn(&ctx->scratch, மதிப்பு, valuelen);
+    எனில்(!result)
       result = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
-    if(!result)
+    எனில்(!result)
       h2_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
                             curlx_dyn_len(&ctx->scratch), FALSE);
-    if(result) {
+    எனில்(result) {
       cf_h2_header_error(cf, data, stream, result);
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+      திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
     }
     /* if we receive data for another handle, wake that up */
-    if(CF_DATA_CURRENT(cf) != data)
+    எனில்(CF_DATA_CURRENT(cf) != data)
       Curl_multi_mark_dirty(data);
 
     CURL_TRC_CF(data, cf, "[%d] status: HTTP/2 %03d",
                 stream->id, stream->status_code);
-    return 0;
+    திரும்பு 0;
   }
 
   /* nghttp2 guarantees that namelen > 0, and :status was already
      received, and this is not pseudo-header field . */
   /* convert to an HTTP1-style header */
   curlx_dyn_reset(&ctx->scratch);
-  result = curlx_dyn_addn(&ctx->scratch, (const char *)name, namelen);
-  if(!result)
+  result = curlx_dyn_addn(&ctx->scratch, (மாறிலி எழுத்து *)name, namelen);
+  எனில்(!result)
     result = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
-  if(!result)
-    result = curlx_dyn_addn(&ctx->scratch, (const char *)value, valuelen);
-  if(!result)
+  எனில்(!result)
+    result = curlx_dyn_addn(&ctx->scratch, (மாறிலி எழுத்து *)மதிப்பு, valuelen);
+  எனில்(!result)
     result = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
-  if(!result)
+  எனில்(!result)
     h2_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
                           curlx_dyn_len(&ctx->scratch), FALSE);
-  if(result) {
+  எனில்(result) {
     cf_h2_header_error(cf, data, stream, result);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
   }
   /* if we receive data for another handle, wake that up */
-  if(CF_DATA_CURRENT(cf) != data)
+  எனில்(CF_DATA_CURRENT(cf) != data)
     Curl_multi_mark_dirty(data);
 
   CURL_TRC_CF(data, cf, "[%d] header: %.*s: %.*s",
-              stream->id, (int)namelen, name, (int)valuelen, value);
+              stream->id, (முழு)namelen, name, (முழு)valuelen, மதிப்பு);
 
-  return 0; /* 0 is successful */
+  திரும்பு 0; /* 0 is successful */
 }
 
-static ssize_t req_body_read_callback(nghttp2_session *session,
+நிலையான ssize_t req_body_read_callback(nghttp2_session *session,
                                       int32_t stream_id,
                                       uint8_t *buf, size_t length,
                                       uint32_t *data_flags,
                                       nghttp2_data_source *source,
-                                      void *userp)
+                                      வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct Curl_easy *data_s;
-  struct h2_stream_ctx *stream = NULL;
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு Curl_easy *data_s;
+  கட்டமைப்பு h2_stream_ctx *stream = வெற்று;
   CURLcode result;
   ssize_t nread;
   size_t n;
-  (void)source;
+  (வெறுமை)source;
 
-  (void)session;
-  if(!stream_id)
-    return NGHTTP2_ERR_INVALID_ARGUMENT;
+  (வெறுமை)session;
+  எனில்(!stream_id)
+    திரும்பு NGHTTP2_ERR_INVALID_ARGUMENT;
 
   /* get the stream from the hash based on Stream ID, stream ID zero is for
      connection-oriented stuff */
   data_s = cf_h2_get_stream_xfer(cf, stream_id, &stream);
-  if(!data_s || !stream)
+  எனில்(!data_s || !stream)
     /* Receiving a Stream ID not in the hash should not happen, this is an
        internal error more than anything else! */
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
 
   result = Curl_bufq_read(&stream->sendbuf, buf, length, &n);
-  if(result) {
-    if(result != CURLE_AGAIN)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+  எனில்(result) {
+    எனில்(result != CURLE_AGAIN)
+      திரும்பு NGHTTP2_ERR_CALLBACK_FAILURE;
     nread = 0;
   }
-  else
+  இல்லையெனில்
     nread = (ssize_t)n;
 
   CURL_TRC_CF(data_s, cf, "[%d] req_body_read(len=%zu) eos=%d -> %zd, %d",
-              stream_id, length, stream->body_eos, nread, (int)result);
+              stream_id, length, stream->body_eos, nread, (முழு)result);
 
-  if(stream->body_eos && Curl_bufq_is_empty(&stream->sendbuf)) {
+  எனில்(stream->body_eos && Curl_bufq_is_empty(&stream->sendbuf)) {
     *data_flags = NGHTTP2_DATA_FLAG_EOF;
-    return nread;
+    திரும்பு nread;
   }
-  return (nread == 0) ? NGHTTP2_ERR_DEFERRED : nread;
+  திரும்பு (nread == 0) ? NGHTTP2_ERR_DEFERRED : nread;
 }
 
 #ifdef CURLVERBOSE
-static int error_callback(nghttp2_session *session,
-                          const char *msg,
+நிலையான முழு error_callback(nghttp2_session *session,
+                          மாறிலி எழுத்து *செய்தி,
                           size_t len,
-                          void *userp)
+                          வெறுமை *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  (void)session;
-  failf(data, "%.*s", (int)len, msg);
-  return 0;
+  கட்டமைப்பு Curl_cfilter *cf = userp;
+  கட்டமைப்பு Curl_easy *data = CF_DATA_CURRENT(cf);
+  (வெறுமை)session;
+  failf(data, "%.*s", (முழு)len, செய்தி);
+  திரும்பு 0;
 }
 #endif
 
 /*
  * Append headers to ask for an HTTP1.1 to HTTP2 upgrade.
  */
-CURLcode Curl_http2_request_upgrade(struct dynbuf *req,
-                                    struct Curl_easy *data)
+CURLcode Curl_http2_request_upgrade(கட்டமைப்பு dynbuf *req,
+                                    கட்டமைப்பு Curl_easy *data)
 {
   CURLcode result;
-  char *base64;
+  எழுத்து *base64;
   size_t blen;
-  struct SingleRequest *k = &data->req;
+  கட்டமைப்பு SingleRequest *k = &data->req;
   uint8_t binsettings[H2_BINSETTINGS_LEN];
   ssize_t rc;
   size_t binlen; /* length of the binsettings data */
 
   rc = populate_binsettings(binsettings, data);
-  if(!curlx_sztouz(rc, &binlen) || !binlen) {
+  எனில்(!curlx_sztouz(rc, &binlen) || !binlen) {
     failf(data, "nghttp2 unexpectedly failed on pack_settings_payload");
     curlx_dyn_free(req);
-    return CURLE_FAILED_INIT;
+    திரும்பு CURLE_FAILED_INIT;
   }
 
   result = curlx_base64url_encode(binsettings, binlen, &base64, &blen);
-  if(result) {
+  எனில்(result) {
     curlx_dyn_free(req);
-    return result;
+    திரும்பு result;
   }
 
   data->state.http_hd_upgrade = TRUE;
@@ -1701,97 +1701,97 @@ CURLcode Curl_http2_request_upgrade(struct dynbuf *req,
   k->upgr101 = UPGR101_H2;
   data->conn->bits.upgrade_in_progress = TRUE;
 
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode http2_handle_stream_close(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct h2_stream_ctx *stream,
+நிலையான CURLcode http2_handle_stream_close(கட்டமைப்பு Curl_cfilter *cf,
+                                          கட்டமைப்பு Curl_easy *data,
+                                          கட்டமைப்பு h2_stream_ctx *stream,
                                           size_t *pnlen)
 {
   CURLcode result;
 
   *pnlen = 0;
-  if(stream->reset) {
-    if(stream->error == NGHTTP2_REFUSED_STREAM) {
+  எனில்(stream->reset) {
+    எனில்(stream->error == NGHTTP2_REFUSED_STREAM) {
       infof(data, "HTTP/2 stream %d refused by server, try again on a new "
                   "connection", stream->id);
       connclose(cf->conn); /* do not use this anymore */
       data->state.refused_stream = TRUE;
-      return CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
+      திரும்பு CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
+    இல்லையெனில் எனில்(stream->resp_hds_complete && data->req.no_body) {
       CURL_TRC_CF(data, cf, "[%d] error after response headers, but we did "
                   "not want a body anyway, ignore: %s (err %u)",
                   stream->id, nghttp2_http2_strerror(stream->error),
                   stream->error);
       stream->close_handled = TRUE;
-      return CURLE_OK;
+      திரும்பு CURLE_OK;
     }
     failf(data, "HTTP/2 stream %d reset by %s (error 0x%x %s)",
           stream->id, stream->reset_by_server ? "server" : "curl",
           stream->error, nghttp2_http2_strerror(stream->error));
-    return stream->error ? CURLE_HTTP2_STREAM :
+    திரும்பு stream->error ? CURLE_HTTP2_STREAM :
            (data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP2);
   }
-  else if(!stream->bodystarted) {
+  இல்லையெனில் எனில்(!stream->bodystarted) {
     failf(data, "HTTP/2 stream %d was closed cleanly, but before getting "
           "all response header fields, treated as error", stream->id);
-    return CURLE_HTTP2_STREAM;
+    திரும்பு CURLE_HTTP2_STREAM;
   }
 
-  if(Curl_dynhds_count(&stream->resp_trailers)) {
-    struct dynhds_entry *e;
-    struct dynbuf dbuf;
+  எனில்(Curl_dynhds_மொத்தம்(&stream->resp_trailers)) {
+    கட்டமைப்பு dynhds_entry *e;
+    கட்டமைப்பு dynbuf dbuf;
     size_t i;
 
     result = CURLE_OK;
     curlx_dyn_init(&dbuf, DYN_TRAILERS);
-    for(i = 0; i < Curl_dynhds_count(&stream->resp_trailers); ++i) {
+    க்கு(i = 0; i < Curl_dynhds_மொத்தம்(&stream->resp_trailers); ++i) {
       e = Curl_dynhds_getn(&stream->resp_trailers, i);
-      if(!e)
-        break;
+      எனில்(!e)
+        நிறுத்து;
       curlx_dyn_reset(&dbuf);
       result = curlx_dyn_addf(&dbuf, "%.*s: %.*s\x0d\x0a",
-                              (int)e->namelen, e->name,
-                              (int)e->valuelen, e->value);
-      if(result)
-        break;
+                              (முழு)e->namelen, e->name,
+                              (முழு)e->valuelen, e->மதிப்பு);
+      எனில்(result)
+        நிறுத்து;
       Curl_debug(data, CURLINFO_HEADER_IN, curlx_dyn_ptr(&dbuf),
                  curlx_dyn_len(&dbuf));
       result = Curl_client_write(data,
                                  CLIENTWRITE_HEADER | CLIENTWRITE_TRAILER,
                                  curlx_dyn_ptr(&dbuf), curlx_dyn_len(&dbuf));
-      if(result)
-        break;
+      எனில்(result)
+        நிறுத்து;
       result = Curl_bump_headersize(data, curlx_dyn_len(&dbuf), FALSE);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
     }
     curlx_dyn_free(&dbuf);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
   }
 
   stream->close_handled = TRUE;
   result = CURLE_OK;
 
 out:
-  CURL_TRC_CF(data, cf, "handle_stream_close -> %d, %zu", (int)result, *pnlen);
-  return result;
+  CURL_TRC_CF(data, cf, "handle_stream_close -> %d, %zu", (முழு)result, *pnlen);
+  திரும்பு result;
 }
 
-static int sweight_wanted(const struct Curl_easy *data)
+நிலையான முழு sweight_wanted(மாறிலி கட்டமைப்பு Curl_easy *data)
 {
   /* 0 weight is not set by user and we take the nghttp2 default one */
-  return data->set.weight ?
+  திரும்பு data->set.weight ?
     data->set.weight : NGHTTP2_DEFAULT_WEIGHT;
 }
 
-static int sweight_in_effect(const struct Curl_easy *data)
+நிலையான முழு sweight_in_effect(மாறிலி கட்டமைப்பு Curl_easy *data)
 {
   /* 0 weight is not set by user and we take the nghttp2 default one */
-  return data->state.weight ?
+  திரும்பு data->state.weight ?
     data->state.weight : NGHTTP2_DEFAULT_WEIGHT;
 }
 
@@ -1801,10 +1801,10 @@ static int sweight_in_effect(const struct Curl_easy *data)
  * struct.
  */
 
-static void h2_pri_spec(struct Curl_easy *data,
+நிலையான வெறுமை h2_pri_spec(கட்டமைப்பு Curl_easy *data,
                         nghttp2_priority_spec *pri_spec)
 {
-  int prio = data->set.weight;
+  முழு prio = data->set.weight;
   nghttp2_priority_spec_init(pri_spec, 0, sweight_wanted(data), FALSE);
   data->state.weight = prio;
 }
@@ -1815,15 +1815,15 @@ static void h2_pri_spec(struct Curl_easy *data,
  * info.
  * Flush any out data pending in the network buffer.
  */
-static CURLcode h2_progress_egress(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+நிலையான CURLcode h2_progress_egress(கட்டமைப்பு Curl_cfilter *cf,
+                                   கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  int rv = 0;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  முழு rv = 0;
 
-  if(sweight_wanted(data) != sweight_in_effect(data)) {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-    if(stream && stream->id > 0 &&
+  எனில்(sweight_wanted(data) != sweight_in_effect(data)) {
+    கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+    எனில்(stream && stream->id > 0 &&
        (sweight_wanted(data) != sweight_in_effect(data))) {
       /* send new weight and/or dependency */
       nghttp2_priority_spec pri_spec;
@@ -1833,185 +1833,185 @@ static CURLcode h2_progress_egress(struct Curl_cfilter *cf,
       DEBUGASSERT(stream->id != -1);
       rv = Curl_ngh2_submit_priority(
         &ctx->ngh2, NGHTTP2_FLAG_NONE, stream->id, &pri_spec);
-      if(rv)
-        goto out;
+      எனில்(rv)
+        செல் out;
     }
   }
 
   ctx->nw_out_blocked = 0;
-  while(!rv && !ctx->nw_out_blocked &&
+  போது(!rv && !ctx->nw_out_blocked &&
         Curl_ngh2_session_want_write(&ctx->ngh2))
     rv = Curl_ngh2_session_send(&ctx->ngh2);
 
 out:
-  if(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
+  எனில்(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
     VERBOSE(rv = Curl_ngh2_fatal(&ctx->ngh2));
     CURL_TRC_CF(data, cf, "nghttp2_session_send error (%s)%d",
                 nghttp2_strerror(rv), rv);
-    return CURLE_SEND_ERROR;
+    திரும்பு CURLE_SEND_ERROR;
   }
   /* Defer flushing during the connect phase so that the SETTINGS and
    * other initial frames are sent together with the first request.
    * Unless we are 'connect_only' where the request will never come. */
-  if(!cf->connected && !cf->conn->bits.connect_only)
-    return CURLE_OK;
-  return nw_out_flush(cf, data);
+  எனில்(!cf->connected && !cf->conn->bits.connect_only)
+    திரும்பு CURLE_OK;
+  திரும்பு nw_out_flush(cf, data);
 }
 
-static CURLcode stream_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            struct h2_stream_ctx *stream,
-                            char *buf, size_t len, size_t *pnread)
+நிலையான CURLcode stream_recv(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data,
+                            கட்டமைப்பு h2_stream_ctx *stream,
+                            எழுத்து *buf, size_t len, size_t *pnread)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_AGAIN;
 
-  (void)buf;
-  (void)len;
+  (வெறுமை)buf;
+  (வெறுமை)len;
   *pnread = 0;
 
-  if(!stream->xfer_result)
+  எனில்(!stream->xfer_result)
     stream->xfer_result = cf_h2_update_local_win(cf, data, stream);
 
-  if(stream->xfer_result) {
+  எனில்(stream->xfer_result) {
     CURL_TRC_CF(data, cf, "[%d] xfer write failed", stream->id);
     result = stream->xfer_result;
   }
-  else if(stream->closed) {
+  இல்லையெனில் எனில்(stream->closed) {
     CURL_TRC_CF(data, cf, "[%d] returning CLOSE", stream->id);
     result = http2_handle_stream_close(cf, data, stream, pnread);
   }
-  else if(stream->reset ||
+  இல்லையெனில் எனில்(stream->reset ||
           (ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) ||
           (ctx->rcvd_goaway && ctx->remote_max_sid < stream->id)) {
     CURL_TRC_CF(data, cf, "[%d] returning ERR", stream->id);
     result = data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP2;
   }
 
-  if(result && (result != CURLE_AGAIN))
+  எனில்(result && (result != CURLE_AGAIN))
     CURL_TRC_CF(data, cf, "[%d] stream_recv(len=%zu) -> %d, %zu",
-                stream->id, len, (int)result, *pnread);
-  return result;
+                stream->id, len, (முழு)result, *pnread);
+  திரும்பு result;
 }
 
-static CURLcode h2_progress_ingress(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+நிலையான CURLcode h2_progress_ingress(கட்டமைப்பு Curl_cfilter *cf,
+                                    கட்டமைப்பு Curl_easy *data,
                                     size_t data_max_bytes)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
   size_t nread;
 
-  if(should_close_session(ctx)) {
+  எனில்(should_close_session(ctx)) {
     CURL_TRC_CF(data, cf, "[0] ingress: session is closed");
-    return CURLE_HTTP2;
+    திரும்பு CURLE_HTTP2;
   }
 
   /* Process network input buffer first */
-  if(!Curl_bufq_is_empty(&ctx->inbufq)) {
+  எனில்(!Curl_bufq_is_empty(&ctx->inbufq)) {
     CURL_TRC_CF(data, cf, "Process %zu bytes in connection buffer",
                 Curl_bufq_len(&ctx->inbufq));
-    result = h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    result = h2_process_pending_உள்ளீடு(cf, data);
+    எனில்(result)
+      திரும்பு result;
   }
 
-  if(!data_max_bytes)
+  எனில்(!data_max_bytes)
     data_max_bytes = H2_CHUNK_SIZE;
 
   /* Receive data from the "lower" filters, e.g. network until
    * it is time to stop due to connection close or us not processing
    * all network input */
-  while(!ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-    if(stream && (stream->closed || !data_max_bytes)) {
+  போது(!ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) {
+    கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+    எனில்(stream && (stream->closed || !data_max_bytes)) {
       /* We would like to abort here and stop processing, so that the transfer
        * loop can handle the data/close here. This may leave data in
        * underlying buffers that will not be consumed. */
-      if(!cf->next || !cf->next->cft->has_data_pending(cf->next, data))
+      எனில்(!cf->next || !cf->next->cft->has_data_pending(cf->next, data))
         Curl_multi_mark_dirty(data);
-      break;
+      நிறுத்து;
     }
 
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
-    if(result) {
-      if(result != CURLE_AGAIN) {
-        failf(data, "Failed receiving HTTP2 data: %d(%s)", (int)result,
+    எனில்(result) {
+      எனில்(result != CURLE_AGAIN) {
+        failf(data, "Failed receiving HTTP2 data: %d(%s)", (முழு)result,
               curl_easy_strerror(result));
-        return result;
+        திரும்பு result;
       }
-      break;
+      நிறுத்து;
     }
-    else if(nread == 0) {
+    இல்லையெனில் எனில்(nread == 0) {
       CURL_TRC_CF(data, cf, "[0] ingress: connection closed");
       ctx->conn_closed = TRUE;
-      break;
+      நிறுத்து;
     }
-    else {
+    இல்லையெனில் {
       CURL_TRC_CF(data, cf, "[0] ingress: read %zu bytes", nread);
       data_max_bytes = (data_max_bytes > nread) ? (data_max_bytes - nread) : 0;
     }
 
-    result = h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    result = h2_process_pending_உள்ளீடு(cf, data);
+    எனில்(result)
+      திரும்பு result;
     CURL_TRC_CF(data, cf, "[0] ingress: nw-in buffered %zu",
                 Curl_bufq_len(&ctx->inbufq));
   }
 
-  if(ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) {
+  எனில்(ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) {
     CURL_TRC_CF(data, cf, "server closed %s",
                 ctx->rcvd_goaway ? "with GOAWAY" : "abruptly");
     connclose(cf->conn);
   }
 
   CURL_TRC_CF(data, cf, "[0] ingress: done");
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode cf_h2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           char *buf, size_t len, size_t *pnread)
+நிலையான CURLcode cf_h2_recv(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data,
+                           எழுத்து *buf, size_t len, size_t *pnread)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream;
   CURLcode result, r2;
-  struct cf_call_data save;
+  கட்டமைப்பு cf_call_data save;
 
-  if(!data)
-    return CURLE_HTTP2;
+  எனில்(!data)
+    திரும்பு CURLE_HTTP2;
 
   stream = H2_STREAM_CTX(ctx, data);
 
   *pnread = 0;
-  if(!stream) {
+  எனில்(!stream) {
     /* Abnormal call sequence: either this transfer has never opened a stream
      * (unlikely) or the transfer has been done, cleaned up its resources, but
      * a read() is called anyway. It is not clear what the calling sequence
      * is for such a case. */
     failf(data, "http/2 recv on a transfer never opened "
           "or already cleared, mid=%u", data->mid);
-    return CURLE_HTTP2;
+    திரும்பு CURLE_HTTP2;
   }
 
   CF_DATA_SAVE(save, cf, data);
 
   result = stream_recv(cf, data, stream, buf, len, pnread);
-  if(result && (result != CURLE_AGAIN))
-    goto out;
+  எனில்(result && (result != CURLE_AGAIN))
+    செல் out;
 
-  if(result) {
+  எனில்(result) {
     result = h2_progress_ingress(cf, data, len);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
 
     result = stream_recv(cf, data, stream, buf, len, pnread);
   }
 
-  if(*pnread > 0) {
+  எனில்(*pnread > 0) {
     /* Now that we transferred this to the upper layer, we report
      * the actual amount of DATA consumed to the H2 session, so
      * that it adjusts stream flow control */
     Curl_ngh2_session_consume(&ctx->ngh2, stream->id, *pnread);
-    if(stream->closed) {
+    எனில்(stream->closed) {
       CURL_TRC_CF(data, cf, "[%d] DRAIN closed stream", stream->id);
       Curl_multi_mark_dirty(data);
     }
@@ -2019,14 +2019,14 @@ static CURLcode cf_h2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
 
 out:
   r2 = h2_progress_egress(cf, data);
-  if(r2 == CURLE_AGAIN) {
+  எனில்(r2 == CURLE_AGAIN) {
     /* pending data to send, need to be called again. Ideally, we
      * monitor the socket for POLLOUT, but when not SENDING
      * any more, we force processing of the transfer. */
-    if(!CURL_REQ_WANT_SEND(data))
+    எனில்(!CURL_REQ_WANT_SEND(data))
       Curl_multi_mark_dirty(data);
   }
-  else if(r2 && (result == CURLE_AGAIN)) {
+  இல்லையெனில் எனில்(r2 && (result == CURLE_AGAIN)) {
     /* Do not replace a previous error result NOR a successful result
      * with an egress error. Example: the server might close the
      * connection after sending the complete response with EOS
@@ -2037,7 +2037,7 @@ out:
 
   CURL_TRC_CF(data, cf, "[%d] cf_recv(len=%zu) -> %d, %zu, "
               "window=%d/%d, connection %d/%d",
-              stream->id, len, (int)result, *pnread,
+              stream->id, len, (முழு)result, *pnread,
               Curl_ngh2_session_get_stream_effective_recv_data_length(
                 &ctx->ngh2, stream->id),
               Curl_ngh2_session_get_stream_effective_local_window_size(
@@ -2046,21 +2046,21 @@ out:
               HTTP2_HUGE_WINDOW_SIZE);
 
   CF_DATA_RESTORE(cf, save);
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_h2_body_send(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct h2_stream_ctx *stream,
-                                const void *buf, size_t blen, bool eos,
+நிலையான CURLcode cf_h2_body_send(கட்டமைப்பு Curl_cfilter *cf,
+                                கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு h2_stream_ctx *stream,
+                                மாறிலி வெறுமை *buf, size_t blen, bool eos,
                                 size_t *pnwritten)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   CURLcode result;
 
   *pnwritten = 0;
-  if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  எனில்(stream->closed) {
+    எனில்(stream->resp_hds_complete) {
       /* Server decided to close the stream after having sent us a final
        * response. This is valid if it is not interested in the request
        * body. This happens on 30x or 40x responses.
@@ -2068,43 +2068,43 @@ static CURLcode cf_h2_body_send(struct Curl_cfilter *cf,
        * error situation. */
       CURL_TRC_CF(data, cf, "[%d] discarding data"
                   "on closed stream with response", stream->id);
-      if(eos)
+      எனில்(eos)
         stream->body_eos = TRUE;
       *pnwritten = blen;
-      return CURLE_OK;
+      திரும்பு CURLE_OK;
     }
     /* Server closed before we got a response, this is an error */
     infof(data, "stream %d closed", stream->id);
-    return CURLE_SEND_ERROR;
+    திரும்பு CURLE_SEND_ERROR;
   }
 
   result = Curl_bufq_write(&stream->sendbuf, buf, blen, pnwritten);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
-  if(eos && (blen == *pnwritten))
+  எனில்(eos && (blen == *pnwritten))
     stream->body_eos = TRUE;
 
-  if(eos || !Curl_bufq_is_empty(&stream->sendbuf)) {
+  எனில்(eos || !Curl_bufq_is_empty(&stream->sendbuf)) {
     /* resume the potentially suspended stream */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
+    எனில்(Curl_ngh2_is_fatal(&ctx->ngh2,
          Curl_ngh2_session_resume_data(&ctx->ngh2, stream->id)))
-      return CURLE_SEND_ERROR;
+      திரும்பு CURLE_SEND_ERROR;
   }
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode h2_submit(struct h2_stream_ctx **pstream,
-                          struct Curl_cfilter *cf, struct Curl_easy *data,
-                          const uint8_t *buf, size_t len,
+நிலையான CURLcode h2_submit(கட்டமைப்பு h2_stream_ctx **pstream,
+                          கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data,
+                          மாறிலி uint8_t *buf, size_t len,
                           bool eos, size_t *pnwritten)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = NULL;
-  struct dynhds h2_headers;
-  nghttp2_nv *nva = NULL;
-  const void *body = NULL;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream = வெற்று;
+  கட்டமைப்பு dynhds h2_headers;
+  nghttp2_nv *nva = வெற்று;
+  மாறிலி வெறுமை *body = வெற்று;
   size_t nheader, bodylen;
   nghttp2_data_provider data_prd;
   int32_t stream_id;
@@ -2114,89 +2114,89 @@ static CURLcode h2_submit(struct h2_stream_ctx **pstream,
   uint32_t initial_win_size;
 
   *pnwritten = 0;
-  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_மொத்தம், DYN_HTTP_REQUEST);
 
   result = http2_data_setup(cf, data, &stream);
-  if(result)
-    goto out;
+  எனில்(result)
+    செல் out;
 
   result = Curl_h1_req_parse_read(
-    &stream->h1, buf, len, NULL,
+    &stream->h1, buf, len, வெற்று,
     !data->state.http_ignorecustom ?
-    CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : NULL,
+    CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : வெற்று,
     0, &nwritten);
-  if(result)
-    goto out;
+  எனில்(result)
+    செல் out;
   *pnwritten = nwritten;
-  if(!stream->h1.done) {
+  எனில்(!stream->h1.done) {
     /* need more data */
-    goto out;
+    செல் out;
   }
   DEBUGASSERT(stream->h1.req);
 
   result = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
-  if(result)
-    goto out;
+  எனில்(result)
+    செல் out;
   /* no longer needed */
   Curl_h1_req_parse_free(&stream->h1);
 
   nva = Curl_dynhds_to_nva(&h2_headers, &nheader);
-  if(!nva) {
+  எனில்(!nva) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    செல் out;
   }
 
   h2_pri_spec(data, &pri_spec);
-  if(!Curl_ngh2_session_check_request_allowed(&ctx->ngh2))
+  எனில்(!Curl_ngh2_session_check_request_allowed(&ctx->ngh2))
     CURL_TRC_CF(data, cf, "send request NOT allowed (via nghttp2)");
 
   /* Check the initial windows size of the transfer (rate-limits?) and
    * send an updated settings on changes from previous value. */
   initial_win_size = cf_h2_initial_win_size(data);
-  if(initial_win_size != ctx->initial_win_size) {
+  எனில்(initial_win_size != ctx->initial_win_size) {
     result = cf_h2_update_settings(ctx, initial_win_size);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
   }
 
-  switch(data->state.httpreq) {
-  case HTTPREQ_POST:
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-  case HTTPREQ_PUT:
+  தேர்வு(data->state.httpreq) {
+  நிலை HTTPREQ_POST:
+  நிலை HTTPREQ_POST_FORM:
+  நிலை HTTPREQ_POST_MIME:
+  நிலை HTTPREQ_PUT:
     data_prd.read_callback = req_body_read_callback;
-    data_prd.source.ptr = NULL;
+    data_prd.source.ptr = வெற்று;
     stream_id = Curl_ngh2_submit_request(
       &ctx->ngh2, &pri_spec, nva, nheader, &data_prd, stream);
-    break;
-  default:
+    நிறுத்து;
+  இயல்பு:
     stream_id = Curl_ngh2_submit_request(
-      &ctx->ngh2, &pri_spec, nva, nheader, NULL, stream);
+      &ctx->ngh2, &pri_spec, nva, nheader, வெற்று, stream);
   }
 
-  if(stream_id < 0) {
+  எனில்(stream_id < 0) {
     CURL_TRC_CF(data, cf, "send: nghttp2_submit_request error (%s)%d",
                 nghttp2_strerror(stream_id), stream_id);
     result = CURLE_SEND_ERROR;
-    goto out;
+    செல் out;
   }
 
 #ifdef CURLVERBOSE
 #define MAX_ACC 60000  /* <64KB to account for some overhead */
-  if(Curl_trc_is_verbose(data)) {
+  எனில்(Curl_trc_is_verbose(data)) {
     size_t acc = 0, i;
 
     infof(data, "[HTTP/2] [%d] OPENED stream for %s",
           stream_id, Curl_bufref_ptr(&data->state.url));
-    for(i = 0; i < nheader; ++i) {
+    க்கு(i = 0; i < nheader; ++i) {
       acc += nva[i].namelen + nva[i].valuelen;
 
       infof(data, "[HTTP/2] [%d] [%.*s: %.*s]", stream_id,
-            (int)nva[i].namelen, nva[i].name,
-            (int)nva[i].valuelen, nva[i].value);
+            (முழு)nva[i].namelen, nva[i].name,
+            (முழு)nva[i].valuelen, nva[i].மதிப்பு);
     }
 
-    if(acc > MAX_ACC) {
+    எனில்(acc > MAX_ACC) {
       infof(data, "[HTTP/2] Warning: The cumulative length of all "
             "headers exceeds %d bytes and that could cause the "
             "stream to be rejected.", MAX_ACC);
@@ -2206,49 +2206,49 @@ static CURLcode h2_submit(struct h2_stream_ctx **pstream,
 
   stream->id = stream_id;
 
-  body = (const char *)buf + *pnwritten;
+  body = (மாறிலி எழுத்து *)buf + *pnwritten;
   bodylen = len - *pnwritten;
 
-  if(bodylen || eos) {
+  எனில்(bodylen || eos) {
     size_t n;
     result = cf_h2_body_send(cf, data, stream, body, bodylen, eos, &n);
-    if(!result)
+    எனில்(!result)
       *pnwritten += n;
-    else if(result == CURLE_AGAIN)
+    இல்லையெனில் எனில்(result == CURLE_AGAIN)
       result = CURLE_OK;
-    else {
+    இல்லையெனில் {
       result = CURLE_SEND_ERROR;
     }
   }
 
 out:
   CURL_TRC_CF(data, cf, "[%d] submit -> %d, %zu",
-              stream ? stream->id : -1, (int)result, *pnwritten);
+              stream ? stream->id : -1, (முழு)result, *pnwritten);
   curlx_safefree(nva);
   *pstream = stream;
   Curl_dynhds_free(&h2_headers);
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_h2_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                           const uint8_t *buf, size_t len, bool eos,
+நிலையான CURLcode cf_h2_send(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data,
+                           மாறிலி uint8_t *buf, size_t len, bool eos,
                            size_t *pnwritten)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+  கட்டமைப்பு cf_call_data save;
   CURLcode result = CURLE_OK, r2;
 
   CF_DATA_SAVE(save, cf, data);
   *pnwritten = 0;
 
-  if(!stream || stream->id == -1) {
+  எனில்(!stream || stream->id == -1) {
     result = h2_submit(&stream, cf, data, buf, len, eos, pnwritten);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
     DEBUGASSERT(stream);
   }
-  else if(stream->body_eos) {
+  இல்லையெனில் எனில்(stream->body_eos) {
     /* We already wrote this, but CURLE_AGAIN-ed the call due to not
      * being able to flush stream->sendbuf. Make a 0-length write
      * to trigger flushing again.
@@ -2257,15 +2257,15 @@ static CURLcode cf_h2_send(struct Curl_cfilter *cf, struct Curl_easy *data,
     DEBUGASSERT(eos);
     result = cf_h2_body_send(cf, data, stream, buf, 0, eos, &n);
     CURL_TRC_CF(data, cf, "[%d] cf_body_send last CHUNK -> %d, %zu, eos=%d",
-                stream->id, (int)result, n, eos);
-    if(result)
-      goto out;
+                stream->id, (முழு)result, n, eos);
+    எனில்(result)
+      செல் out;
     *pnwritten = len;
   }
-  else {
+  இல்லையெனில் {
     result = cf_h2_body_send(cf, data, stream, buf, len, eos, pnwritten);
     CURL_TRC_CF(data, cf, "[%d] cf_body_send(len=%zu) -> %d, %zu, eos=%d",
-                stream->id, len, (int)result, *pnwritten, eos);
+                stream->id, len, (முழு)result, *pnwritten, eos);
   }
 
   /* Call the nghttp2 send loop and flush to write ALL buffered data,
@@ -2274,34 +2274,34 @@ static CURLcode cf_h2_send(struct Curl_cfilter *cf, struct Curl_easy *data,
 
   /* if the stream has been closed in egress handling (nghttp2 does that
    * when it does not like the headers, for example */
-  if(stream && stream->closed && !stream->resp_hds_complete) {
+  எனில்(stream && stream->closed && !stream->resp_hds_complete) {
     infof(data, "stream %d closed", stream->id);
     result = CURLE_SEND_ERROR;
-    goto out;
+    செல் out;
   }
-  else if(r2 && (r2 != CURLE_AGAIN)) {
+  இல்லையெனில் எனில்(r2 && (r2 != CURLE_AGAIN)) {
     result = r2;
-    goto out;
+    செல் out;
   }
 
-  if(should_close_session(ctx)) {
+  எனில்(should_close_session(ctx)) {
     /* nghttp2 thinks this session is done. If the stream has not been
      * closed, this is an error state for out transfer */
-    if(stream && stream->closed) {
+    எனில்(stream && stream->closed) {
       result = http2_handle_stream_close(cf, data, stream, pnwritten);
     }
-    else {
+    இல்லையெனில் {
       CURL_TRC_CF(data, cf, "send: nothing to do in this session");
       result = CURLE_HTTP2;
     }
   }
 
 out:
-  if(stream) {
+  எனில்(stream) {
     CURL_TRC_CF(data, cf, "[%d] cf_send(len=%zu) -> %d, %zu, "
                 "eos=%d, h2 windows %d-%d (stream-conn), "
                 "buffers %zu-%zu (stream-conn)",
-                stream->id, len, (int)result, *pnwritten,
+                stream->id, len, (முழு)result, *pnwritten,
                 stream->body_eos,
                 Curl_ngh2_session_get_stream_remote_window_size(
                   &ctx->ngh2, stream->id),
@@ -2309,76 +2309,76 @@ out:
                 Curl_bufq_len(&stream->sendbuf),
                 Curl_bufq_len(&ctx->outbufq));
   }
-  else {
+  இல்லையெனில் {
     CURL_TRC_CF(data, cf, "cf_send(len=%zu) -> %d, %zu, "
                 "connection-window=%d, nw_send_buffer(%zu)",
-                len, (int)result, *pnwritten,
+                len, (முழு)result, *pnwritten,
                 Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
                 Curl_bufq_len(&ctx->outbufq));
   }
   CF_DATA_RESTORE(cf, save);
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_h2_flush(struct Curl_cfilter *cf,
-                            struct Curl_easy *data)
+நிலையான CURLcode cf_h2_flush(கட்டமைப்பு Curl_cfilter *cf,
+                            கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+  கட்டமைப்பு cf_call_data save;
   CURLcode result = CURLE_OK;
 
   CF_DATA_SAVE(save, cf, data);
-  if(stream && !Curl_bufq_is_empty(&stream->sendbuf)) {
+  எனில்(stream && !Curl_bufq_is_empty(&stream->sendbuf)) {
     /* resume the potentially suspended stream */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
+    எனில்(Curl_ngh2_is_fatal(&ctx->ngh2,
          Curl_ngh2_session_resume_data(&ctx->ngh2, stream->id))) {
       result = CURLE_SEND_ERROR;
-      goto out;
+      செல் out;
     }
   }
 
   result = h2_progress_egress(cf, data);
 
 out:
-  if(stream) {
+  எனில்(stream) {
     CURL_TRC_CF(data, cf, "[%d] flush -> %d, "
                 "h2 windows %d-%d (stream-conn), "
                 "buffers %zu-%zu (stream-conn)",
-                stream->id, (int)result,
+                stream->id, (முழு)result,
                 Curl_ngh2_session_get_stream_remote_window_size(
                   &ctx->ngh2, stream->id),
                 Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
                 Curl_bufq_len(&stream->sendbuf),
                 Curl_bufq_len(&ctx->outbufq));
   }
-  else {
+  இல்லையெனில் {
     CURL_TRC_CF(data, cf, "flush -> %d, "
-                "connection-window=%d, nw_send_buffer(%zu)", (int)result,
+                "connection-window=%d, nw_send_buffer(%zu)", (முழு)result,
                 Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
                 Curl_bufq_len(&ctx->outbufq));
   }
   CF_DATA_RESTORE(cf, save);
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_h2_adjust_pollset(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
-                                     struct easy_pollset *ps)
+நிலையான CURLcode cf_h2_adjust_pollset(கட்டமைப்பு Curl_cfilter *cf,
+                                     கட்டமைப்பு Curl_easy *data,
+                                     கட்டமைப்பு easy_pollset *ps)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_call_data save;
   curl_socket_t sock;
   bool want_recv, want_send;
   CURLcode result = CURLE_OK;
 
-  if(!Curl_ngh2_valid(&ctx->ngh2))
-    return CURLE_OK;
+  எனில்(!Curl_ngh2_valid(&ctx->ngh2))
+    திரும்பு CURLE_OK;
 
   sock = Curl_conn_cf_get_socket(cf, data);
   Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
-  if(want_recv || want_send) {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+  எனில்(want_recv || want_send) {
+    கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
     bool c_exhaust, s_exhaust;
 
     CF_DATA_SAVE(save, cf, data);
@@ -2395,7 +2395,7 @@ static CURLcode cf_h2_adjust_pollset(struct Curl_cfilter *cf,
     result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
     CF_DATA_RESTORE(cf, save);
   }
-  else if(ctx->sent_goaway && !cf->shutdown) {
+  இல்லையெனில் எனில்(ctx->sent_goaway && !cf->shutdown) {
     /* shutdown in progress */
     CF_DATA_SAVE(save, cf, data);
     want_send = Curl_ngh2_session_want_write(&ctx->ngh2) ||
@@ -2404,26 +2404,26 @@ static CURLcode cf_h2_adjust_pollset(struct Curl_cfilter *cf,
     result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
     CF_DATA_RESTORE(cf, save);
   }
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_h2_ctx_open(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+நிலையான CURLcode cf_h2_ctx_open(கட்டமைப்பு Curl_cfilter *cf,
+                               கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream;
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  int rc;
-  nghttp2_session_callbacks *cbs = NULL;
+  முழு rc;
+  nghttp2_session_callbacks *cbs = வெற்று;
 
   DEBUGASSERT(!ctx->ngh2.s);
   DEBUGASSERT(!ctx->ngh2.fatal_rv);
   DEBUGASSERT(ctx->initialized);
 
   rc = nghttp2_session_callbacks_new(&cbs);
-  if(rc) {
+  எனில்(rc) {
     failf(data, "Could not initialize nghttp2 callbacks");
-    goto out;
+    செல் out;
   }
 
   nghttp2_session_callbacks_set_send_callback(cbs, send_callback);
@@ -2443,15 +2443,15 @@ static CURLcode cf_h2_ctx_open(struct Curl_cfilter *cf,
 
   /* The nghttp2 session is not yet setup, do it */
   rc = h2_client_new(cf, cbs);
-  if(rc) {
+  எனில்(rc) {
     failf(data, "Could not initialize nghttp2");
-    goto out;
+    செல் out;
   }
   ctx->max_concurrent_streams = data->multi ?
     Curl_multi_max_concurrent_streams(data->multi) :
     DEFAULT_MAX_CONCURRENT_STREAMS;
 
-  if(ctx->via_h1_upgrade) {
+  எனில்(ctx->via_h1_upgrade) {
     /* HTTP/1.1 Upgrade issued. H2 Settings have already been submitted
      * in the H1 request and we upgrade from there. This stream
      * is opened implicitly as #1. */
@@ -2461,59 +2461,59 @@ static CURLcode cf_h2_ctx_open(struct Curl_cfilter *cf,
 
     rclen = populate_binsettings(binsettings, data);
 
-    if(!curlx_sztouz(rclen, &binlen) || !binlen) {
+    எனில்(!curlx_sztouz(rclen, &binlen) || !binlen) {
       failf(data, "nghttp2 unexpectedly failed on pack_settings_payload");
       result = CURLE_FAILED_INIT;
-      goto out;
+      செல் out;
     }
 
     result = http2_data_setup(cf, data, &stream);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
     DEBUGASSERT(stream);
     stream->id = 1;
     /* queue SETTINGS frame (again) */
     rc = Curl_ngh2_session_upgrade2(
       &ctx->ngh2, binsettings, binlen, data->state.httpreq == HTTPREQ_HEAD,
-      NULL);
-    if(rc) {
+      வெற்று);
+    எனில்(rc) {
       failf(data, "nghttp2_session_upgrade2() failed: %s(%d)",
             nghttp2_strerror(rc), rc);
       result = CURLE_HTTP2;
-      goto out;
+      செல் out;
     }
 
     rc = Curl_ngh2_session_set_stream_user_data(
       &ctx->ngh2, stream->id, stream);
-    if(rc) {
+    எனில்(rc) {
       infof(data, "http/2: failed to set user_data for stream %d",
             stream->id);
       DEBUGASSERT(0);
     }
     CURL_TRC_CF(data, cf, "created session via Upgrade");
   }
-  else {
+  இல்லையெனில் {
     nghttp2_settings_entry iv[H2_SETTINGS_IV_LEN];
     size_t ivlen;
 
     ivlen = populate_settings(iv, data, ctx);
     rc = Curl_ngh2_submit_settings(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, iv, ivlen);
-    if(rc) {
+    எனில்(rc) {
       failf(data, "nghttp2_submit_settings() failed: %s(%d)",
             nghttp2_strerror(rc), rc);
       result = CURLE_HTTP2;
-      goto out;
+      செல் out;
     }
   }
 
   rc = Curl_ngh2_session_set_local_window_size(
     &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, HTTP2_HUGE_WINDOW_SIZE);
-  if(rc) {
+  எனில்(rc) {
     failf(data, "nghttp2_session_set_local_window_size() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
     result = CURLE_HTTP2;
-    goto out;
+    செல் out;
   }
 
   /* all set, traffic will be send on connect */
@@ -2522,113 +2522,113 @@ static CURLcode cf_h2_ctx_open(struct Curl_cfilter *cf,
               ctx->via_h1_upgrade ? " (via h1 upgrade)" : "");
 
 out:
-  if(cbs)
+  எனில்(cbs)
     nghttp2_session_callbacks_del(cbs);
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_h2_connect(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+நிலையான CURLcode cf_h2_connect(கட்டமைப்பு Curl_cfilter *cf,
+                              கட்டமைப்பு Curl_easy *data,
                               bool *done)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  கட்டமைப்பு cf_call_data save;
   bool first_time = FALSE;
 
-  if(cf->connected) {
+  எனில்(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
 
   /* Connect the lower filters first */
-  if(!cf->next->connected) {
+  எனில்(!cf->next->connected) {
     result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    எனில்(result || !*done)
+      திரும்பு result;
   }
 
   *done = FALSE;
 
   CF_DATA_SAVE(save, cf, data);
   DEBUGASSERT(ctx->initialized);
-  if(!ctx->ngh2.s) {
+  எனில்(!ctx->ngh2.s) {
     result = cf_h2_ctx_open(cf, data);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
     first_time = TRUE;
   }
 
-  if(!first_time) {
+  எனில்(!first_time) {
     result = h2_progress_ingress(cf, data, 0);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
   }
 
   /* Send out our SETTINGS and ACKs and such. If that blocks, we
    * have it buffered and can count this filter as being connected */
   result = h2_progress_egress(cf, data);
-  if(result && (result != CURLE_AGAIN))
-    goto out;
+  எனில்(result && (result != CURLE_AGAIN))
+    செல் out;
 
   *done = TRUE;
   cf->connected = TRUE;
   result = CURLE_OK;
 
 out:
-  CURL_TRC_CF(data, cf, "cf_connect() -> %d, %d, ", (int)result, *done);
+  CURL_TRC_CF(data, cf, "cf_connect() -> %d, %d, ", (முழு)result, *done);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  திரும்பு result;
 }
 
-static void cf_h2_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+நிலையான வெறுமை cf_h2_destroy(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
 
-  (void)data;
-  if(ctx) {
+  (வெறுமை)data;
+  எனில்(ctx) {
     cf_h2_ctx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = வெற்று;
   }
 }
 
-static CURLcode cf_h2_shutdown(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, bool *done)
+நிலையான CURLcode cf_h2_shutdown(கட்டமைப்பு Curl_cfilter *cf,
+                               கட்டமைப்பு Curl_easy *data, bool *done)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_call_data save;
   CURLcode result;
-  int rv;
+  முழு rv;
 
-  if(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
+  எனில்(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
      cf->shutdown || ctx->conn_closed) {
     *done = TRUE;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
 
   CF_DATA_SAVE(save, cf, data);
 
-  if(!ctx->sent_goaway) {
+  எனில்(!ctx->sent_goaway) {
     ctx->sent_goaway = TRUE;
     rv = Curl_ngh2_submit_goaway(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, ctx->local_max_sid, 0,
-      (const uint8_t *)"shutdown", sizeof("shutdown"));
-    if(rv) {
+      (மாறிலி uint8_t *)"shutdown", அளவு("shutdown"));
+    எனில்(rv) {
       failf(data, "nghttp2_submit_goaway() failed: %s(%d)",
             nghttp2_strerror(rv), rv);
       result = CURLE_SEND_ERROR;
-      goto out;
+      செல் out;
     }
   }
   /* GOAWAY submitted, process egress and ingress until nghttp2 is done. */
   result = CURLE_OK;
-  if(Curl_ngh2_session_want_write(&ctx->ngh2) ||
+  எனில்(Curl_ngh2_session_want_write(&ctx->ngh2) ||
      !Curl_bufq_is_empty(&ctx->outbufq))
     result = h2_progress_egress(cf, data);
-  if(!result && Curl_ngh2_session_want_read(&ctx->ngh2))
+  எனில்(!result && Curl_ngh2_session_want_read(&ctx->ngh2))
     result = h2_progress_ingress(cf, data, 0);
 
-  if(result == CURLE_AGAIN)
+  எனில்(result == CURLE_AGAIN)
     result = CURLE_OK;
 
   *done = (ctx->conn_closed ||
@@ -2639,29 +2639,29 @@ static CURLcode cf_h2_shutdown(struct Curl_cfilter *cf,
 out:
   CF_DATA_RESTORE(cf, save);
   cf->shutdown = (result || *done);
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode http2_data_pause(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
+நிலையான CURLcode http2_data_pause(கட்டமைப்பு Curl_cfilter *cf,
+                                 கட்டமைப்பு Curl_easy *data,
                                  bool pause)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
 
   DEBUGASSERT(data);
-  if(ctx && Curl_ngh2_valid(&ctx->ngh2) && stream) {
+  எனில்(ctx && Curl_ngh2_valid(&ctx->ngh2) && stream) {
     CURLcode result;
 
     stream->write_paused = pause;
     result = cf_h2_update_local_win(cf, data, stream);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
 
     /* attempt to send the window update */
-    (void)h2_progress_egress(cf, data);
+    (வெறுமை)h2_progress_egress(cf, data);
 
-    if(!pause) {
+    எனில்(!pause) {
       /* Unpausing a h2 transfer, requires it to be run again. The server
        * may send new DATA on us increasing the flow window, and it may
        * not. We may have already buffered and exhausted the new window
@@ -2672,134 +2672,134 @@ static CURLcode http2_data_pause(struct Curl_cfilter *cf,
     CURL_TRC_CF(data, cf, "[%d] stream now %spaused", stream->id,
                 pause ? "" : "un");
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode cf_h2_cntrl(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            int event, int arg1, void *arg2)
+நிலையான CURLcode cf_h2_cntrl(கட்டமைப்பு Curl_cfilter *cf,
+                            கட்டமைப்பு Curl_easy *data,
+                            முழு event, முழு arg1, வெறுமை *arg2)
 {
   CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  கட்டமைப்பு cf_call_data save;
 
-  (void)arg2;
+  (வெறுமை)arg2;
 
   CF_DATA_SAVE(save, cf, data);
-  switch(event) {
-  case CF_CTRL_DATA_SETUP:
-    break;
-  case CF_CTRL_DATA_PAUSE:
+  தேர்வு(event) {
+  நிலை CF_CTRL_DATA_SETUP:
+    நிறுத்து;
+  நிலை CF_CTRL_DATA_PAUSE:
     result = http2_data_pause(cf, data, (arg1 != 0));
-    break;
-  case CF_CTRL_FLUSH:
+    நிறுத்து;
+  நிலை CF_CTRL_FLUSH:
     result = cf_h2_flush(cf, data);
-    break;
-  case CF_CTRL_DATA_DONE:
+    நிறுத்து;
+  நிலை CF_CTRL_DATA_DONE:
     http2_data_done(cf, data);
-    break;
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(!cf->sockindex && cf->connected) {
+    நிறுத்து;
+  நிலை CF_CTRL_CONN_INFO_UPDATE:
+    எனில்(!cf->sockindex && cf->connected) {
       cf->conn->httpversion_seen = 20;
       Curl_conn_set_multiplex(cf->conn);
     }
-    break;
-  default:
-    break;
+    நிறுத்து;
+  இயல்பு:
+    நிறுத்து;
   }
   CF_DATA_RESTORE(cf, save);
-  return result;
+  திரும்பு result;
 }
 
-static bool cf_h2_data_pending(struct Curl_cfilter *cf,
-                               const struct Curl_easy *data)
+நிலையான bool cf_h2_data_pending(கட்டமைப்பு Curl_cfilter *cf,
+                               மாறிலி கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
 
-  if(ctx && !Curl_bufq_is_empty(&ctx->inbufq))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  எனில்(ctx && !Curl_bufq_is_empty(&ctx->inbufq))
+    திரும்பு TRUE;
+  திரும்பு cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-static bool cf_h2_is_alive(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           bool *input_pending)
+நிலையான bool cf_h2_is_alive(கட்டமைப்பு Curl_cfilter *cf,
+                           கட்டமைப்பு Curl_easy *data,
+                           bool *உள்ளீடு_pending)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
   bool alive;
-  struct cf_call_data save;
+  கட்டமைப்பு cf_call_data save;
 
-  *input_pending = FALSE;
+  *உள்ளீடு_pending = FALSE;
   CF_DATA_SAVE(save, cf, data);
   alive = (ctx && Curl_ngh2_valid(&ctx->ngh2) &&
-           http2_connisalive(cf, data, input_pending));
+           http2_connisalive(cf, data, உள்ளீடு_pending));
   CURL_TRC_CF(data, cf, "conn alive -> %d, input_pending=%d",
-              alive, *input_pending);
+              alive, *உள்ளீடு_pending);
   CF_DATA_RESTORE(cf, save);
-  return alive;
+  திரும்பு alive;
 }
 
-static CURLcode cf_h2_keep_alive(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+நிலையான CURLcode cf_h2_keep_alive(கட்டமைப்பு Curl_cfilter *cf,
+                                 கட்டமைப்பு Curl_easy *data)
 {
   CURLcode result;
-  struct cf_call_data save;
+  கட்டமைப்பு cf_call_data save;
 
   CF_DATA_SAVE(save, cf, data);
   result = http2_send_ping(cf, data);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cf_h2_query(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            int query, int *pres1, void *pres2)
+நிலையான CURLcode cf_h2_query(கட்டமைப்பு Curl_cfilter *cf,
+                            கட்டமைப்பு Curl_easy *data,
+                            முழு query, முழு *pres1, வெறுமை *pres2)
 {
-  struct cf_h2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  கட்டமைப்பு cf_h2_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_call_data save;
   size_t effective_max;
 
-  switch(query) {
-  case CF_QUERY_MAX_CONCURRENT:
+  தேர்வு(query) {
+  நிலை CF_QUERY_MAX_CONCURRENT:
     DEBUGASSERT(pres1);
 
     CF_DATA_SAVE(save, cf, data);
-    if(!Curl_ngh2_valid(&ctx->ngh2) ||
+    எனில்(!Curl_ngh2_valid(&ctx->ngh2) ||
        !Curl_ngh2_session_check_request_allowed(&ctx->ngh2)) {
       /* the limit is what we have in use right now */
       effective_max = cf->conn->attached_xfers;
     }
-    else {
+    இல்லையெனில் {
       effective_max = ctx->max_concurrent_streams;
     }
-    *pres1 = (effective_max > INT_MAX) ? INT_MAX : (int)effective_max;
+    *pres1 = (effective_max > INT_MAX) ? INT_MAX : (முழு)effective_max;
     CF_DATA_RESTORE(cf, save);
-    return CURLE_OK;
-  case CF_QUERY_STREAM_ERROR: {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-    *pres1 = stream ? (int)stream->error : 0;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
+  நிலை CF_QUERY_STREAM_ERROR: {
+    கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+    *pres1 = stream ? (முழு)stream->error : 0;
+    திரும்பு CURLE_OK;
   }
-  case CF_QUERY_NEED_FLUSH: {
-    struct h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
-    if(!Curl_bufq_is_empty(&ctx->outbufq) ||
+  நிலை CF_QUERY_NEED_FLUSH: {
+    கட்டமைப்பு h2_stream_ctx *stream = H2_STREAM_CTX(ctx, data);
+    எனில்(!Curl_bufq_is_empty(&ctx->outbufq) ||
        (stream && !Curl_bufq_is_empty(&stream->sendbuf))) {
       *pres1 = TRUE;
-      return CURLE_OK;
+      திரும்பு CURLE_OK;
     }
-    break;
+    நிறுத்து;
   }
-  case CF_QUERY_HTTP_VERSION:
+  நிலை CF_QUERY_HTTP_VERSION:
     *pres1 = 20;
-    return CURLE_OK;
-  default:
-    break;
+    திரும்பு CURLE_OK;
+  இயல்பு:
+    நிறுத்து;
   }
-  return cf->next ?
+  திரும்பு cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-struct Curl_cftype Curl_cft_nghttp2 = {
+கட்டமைப்பு Curl_cftype Curl_cft_nghttp2 = {
   "HTTP/2",
   CF_TYPE_MULTIPLEX | CF_TYPE_HTTP,
   CURL_LOG_LVL_NONE,
@@ -2816,131 +2816,131 @@ struct Curl_cftype Curl_cft_nghttp2 = {
   cf_h2_query,
 };
 
-static CURLcode http2_cfilter_add(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn,
+நிலையான CURLcode http2_cfilter_add(கட்டமைப்பு Curl_cfilter **pcf,
+                                  கட்டமைப்பு Curl_easy *data,
+                                  கட்டமைப்பு connectdata *conn,
                                   int8_t sockindex,
                                   bool via_h1_upgrade)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_h2_ctx *ctx;
+  கட்டமைப்பு Curl_cfilter *cf = வெற்று;
+  கட்டமைப்பு cf_h2_ctx *ctx;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
   DEBUGASSERT(data->conn);
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    goto out;
+  ctx = curlx_calloc(1, அளவு(*ctx));
+  எனில்(!ctx)
+    செல் out;
   cf_h2_ctx_init(ctx, via_h1_upgrade);
 
   result = Curl_cf_create(&cf, &Curl_cft_nghttp2, ctx);
-  if(result)
-    goto out;
+  எனில்(result)
+    செல் out;
 
-  ctx = NULL;
+  ctx = வெற்று;
   Curl_conn_cf_add(data, conn, sockindex, cf);
 
 out:
-  if(result)
+  எனில்(result)
     cf_h2_ctx_free(ctx);
-  *pcf = result ? NULL : cf;
-  return result;
+  *pcf = result ? வெற்று : cf;
+  திரும்பு result;
 }
 
-static CURLcode http2_cfilter_insert_after(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
+நிலையான CURLcode http2_cfilter_செருகு_after(கட்டமைப்பு Curl_cfilter *cf,
+                                           கட்டமைப்பு Curl_easy *data,
                                            bool via_h1_upgrade)
 {
-  struct Curl_cfilter *cf_h2 = NULL;
-  struct cf_h2_ctx *ctx;
+  கட்டமைப்பு Curl_cfilter *cf_h2 = வெற்று;
+  கட்டமைப்பு cf_h2_ctx *ctx;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    goto out;
+  (வெறுமை)data;
+  ctx = curlx_calloc(1, அளவு(*ctx));
+  எனில்(!ctx)
+    செல் out;
   cf_h2_ctx_init(ctx, via_h1_upgrade);
 
   result = Curl_cf_create(&cf_h2, &Curl_cft_nghttp2, ctx);
-  if(result)
-    goto out;
+  எனில்(result)
+    செல் out;
 
-  ctx = NULL;
-  Curl_conn_cf_insert_after(cf, cf_h2);
+  ctx = வெற்று;
+  Curl_conn_cf_செருகு_after(cf, cf_h2);
 
 out:
-  if(result)
+  எனில்(result)
     cf_h2_ctx_free(ctx);
-  return result;
+  திரும்பு result;
 }
 
-bool Curl_http2_may_switch(struct Curl_easy *data)
+bool Curl_http2_may_switch(கட்டமைப்பு Curl_easy *data)
 {
-  if(Curl_conn_http_version(data, data->conn) < 20 &&
+  எனில்(Curl_conn_http_version(data, data->conn) < 20 &&
      (data->state.http_neg.wanted & CURL_HTTP_V2x) &&
      data->state.http_neg.h2_prior_knowledge) {
 #ifndef CURL_DISABLE_PROXY
-    if(data->conn->bits.origin_is_proxy) {
+    எனில்(data->conn->bits.origin_is_proxy) {
       infof(data, "Ignoring HTTP/2 prior knowledge due to proxy");
-      return FALSE;
+      திரும்பு FALSE;
     }
 #endif
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-CURLcode Curl_http2_switch(struct Curl_easy *data)
+CURLcode Curl_http2_switch(கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_cfilter *cf;
+  கட்டமைப்பு Curl_cfilter *cf;
   CURLcode result;
 
   DEBUGASSERT(Curl_conn_http_version(data, data->conn) < 20);
 
   result = http2_cfilter_add(&cf, data, data->conn, FIRSTSOCKET, FALSE);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
   CURL_TRC_CF(data, cf, "switching connection to HTTP/2");
 
-  if(cf->next) {
+  எனில்(cf->next) {
     bool done;
-    return Curl_conn_cf_connect(cf, data, &done);
+    திரும்பு Curl_conn_cf_connect(cf, data, &done);
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-CURLcode Curl_http2_switch_at(struct Curl_cfilter *cf, struct Curl_easy *data)
+CURLcode Curl_http2_switch_at(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_cfilter *cf_h2;
+  கட்டமைப்பு Curl_cfilter *cf_h2;
   CURLcode result;
 
   DEBUGASSERT(Curl_conn_http_version(data, data->conn) < 20);
 
-  result = http2_cfilter_insert_after(cf, data, FALSE);
-  if(result)
-    return result;
+  result = http2_cfilter_செருகு_after(cf, data, FALSE);
+  எனில்(result)
+    திரும்பு result;
 
   cf_h2 = cf->next;
 
-  if(cf_h2->next) {
+  எனில்(cf_h2->next) {
     bool done;
-    return Curl_conn_cf_connect(cf_h2, data, &done);
+    திரும்பு Curl_conn_cf_connect(cf_h2, data, &done);
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-CURLcode Curl_http2_upgrade(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            const char *mem, size_t nread)
+CURLcode Curl_http2_upgrade(கட்டமைப்பு Curl_easy *data,
+                            கட்டமைப்பு connectdata *conn, int8_t sockindex,
+                            மாறிலி எழுத்து *mem, size_t nread)
 {
-  struct Curl_cfilter *cf;
-  struct cf_h2_ctx *ctx;
+  கட்டமைப்பு Curl_cfilter *cf;
+  கட்டமைப்பு cf_h2_ctx *ctx;
   CURLcode result;
 
   DEBUGASSERT(Curl_conn_http_version(data, conn) < 20);
 
   result = http2_cfilter_add(&cf, data, conn, sockindex, TRUE);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
   CURL_TRC_CF(data, cf, "upgrading connection to HTTP/2");
 
   DEBUGASSERT(cf->cft == &Curl_cft_nghttp2);
@@ -2950,88 +2950,88 @@ CURLcode Curl_http2_upgrade(struct Curl_easy *data,
   data->req.header = TRUE; /* we expect the real response to come in h2 */
   data->req.headerline = 0; /* restart the header line counter */
 
-  if(nread > 0) {
+  எனில்(nread > 0) {
     /* Remaining data from the protocol switch reply is already using
      * the switched protocol, ie. HTTP/2. We add that to the network
      * inbufq. */
     size_t copied;
 
     result = Curl_bufq_write(&ctx->inbufq,
-                             (const unsigned char *)mem, nread, &copied);
-    if(result) {
-      failf(data, "error on copying HTTP Upgrade response: %d", (int)result);
-      return CURLE_RECV_ERROR;
+                             (மாறிலி unsigned எழுத்து *)mem, nread, &copied);
+    எனில்(result) {
+      failf(data, "error on copying HTTP Upgrade response: %d", (முழு)result);
+      திரும்பு CURLE_RECV_ERROR;
     }
-    if(copied < nread) {
+    எனில்(copied < nread) {
       failf(data, "connection buffer size could not take all data "
             "from HTTP Upgrade response header: copied=%zu, datalen=%zu",
             copied, nread);
-      return CURLE_HTTP2;
+      திரும்பு CURLE_HTTP2;
     }
     infof(data, "Copied HTTP/2 data in stream buffer to connection buffer"
           " after upgrade: len=%zu", nread);
   }
 
-  if(cf->next) {
+  எனில்(cf->next) {
     bool done;
     result = Curl_conn_cf_connect(cf, data, &done);
-    if(!result)
-      cf->cft->cntrl(cf, data, CF_CTRL_CONN_INFO_UPDATE, 0, NULL);
+    எனில்(!result)
+      cf->cft->cntrl(cf, data, CF_CTRL_CONN_INFO_UPDATE, 0, வெற்று);
   }
-  return result;
+  திரும்பு result;
 }
 
 /* Only call this function for a transfer that already got an HTTP/2
    CURLE_HTTP2_STREAM error! */
-bool Curl_h2_http_1_1_error(struct Curl_easy *data)
+bool Curl_h2_http_1_1_error(கட்டமைப்பு Curl_easy *data)
 {
-  if(Curl_conn_http_version(data, data->conn) == 20) {
-    int err = Curl_conn_get_stream_error(data, data->conn, FIRSTSOCKET);
-    return err == NGHTTP2_HTTP_1_1_REQUIRED;
+  எனில்(Curl_conn_http_version(data, data->conn) == 20) {
+    முழு err = Curl_conn_get_stream_error(data, data->conn, FIRSTSOCKET);
+    திரும்பு err == NGHTTP2_HTTP_1_1_REQUIRED;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-void *Curl_nghttp2_malloc(size_t size, void *user_data)
+வெறுமை *Curl_nghttp2_malloc(size_t size, வெறுமை *user_data)
 {
-  (void)user_data;
-  return Curl_cmalloc(size);
+  (வெறுமை)user_data;
+  திரும்பு Curl_cmalloc(size);
 }
 
-void Curl_nghttp2_free(void *ptr, void *user_data)
+வெறுமை Curl_nghttp2_free(வெறுமை *ptr, வெறுமை *user_data)
 {
-  (void)user_data;
+  (வெறுமை)user_data;
   Curl_cfree(ptr);
 }
 
-void *Curl_nghttp2_calloc(size_t nmemb, size_t size, void *user_data)
+வெறுமை *Curl_nghttp2_calloc(size_t nmemb, size_t size, வெறுமை *user_data)
 {
-  (void)user_data;
-  return Curl_ccalloc(nmemb, size);
+  (வெறுமை)user_data;
+  திரும்பு Curl_ccalloc(nmemb, size);
 }
 
-void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data)
+வெறுமை *Curl_nghttp2_realloc(வெறுமை *ptr, size_t size, வெறுமை *user_data)
 {
-  (void)user_data;
-  return Curl_crealloc(ptr, size);
+  (வெறுமை)user_data;
+  திரும்பு Curl_crealloc(ptr, size);
 }
 
-#else /* CURL_DISABLE_HTTP || !USE_NGHTTP2 */
+#இல்லையெனில் /* CURL_DISABLE_HTTP || !USE_NGHTTP2 */
 
 /* Satisfy external references even if http2 is not compiled in. */
 
-char *curl_pushheader_bynum(struct curl_pushheaders *h, size_t num)
+எழுத்து *curl_pushheader_bynum(கட்டமைப்பு curl_pushheaders *h, size_t இலக்கம்)
 {
-  (void)h;
-  (void)num;
-  return NULL;
+  (வெறுமை)h;
+  (வெறுமை)இலக்கம்;
+  திரும்பு வெற்று;
 }
 
-char *curl_pushheader_byname(struct curl_pushheaders *h, const char *name)
+எழுத்து *curl_pushheader_byname(கட்டமைப்பு curl_pushheaders *h, மாறிலி எழுத்து *name)
 {
-  (void)h;
-  (void)name;
-  return NULL;
+  (வெறுமை)h;
+  (வெறுமை)name;
+  திரும்பு வெற்று;
 }
 
 #endif /* !CURL_DISABLE_HTTP && USE_NGHTTP2 */

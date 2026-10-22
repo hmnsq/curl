@@ -24,49 +24,49 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#எனில் (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   !defined(CURL_DISABLE_HTTPSIG) ||                                   \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
 #define HMAC_MD5_LENGTH 16
 
-typedef CURLcode (*HMAC_hinit)(void *context);
-typedef void (*HMAC_hupdate)(void *context,
-                             const unsigned char *data,
-                             unsigned int len);
-typedef void (*HMAC_hfinal)(unsigned char *result, void *context);
+வகைவரை CURLcode (*HMAC_hinit)(வெறுமை *context);
+வகைவரை வெறுமை (*HMAC_hupdate)(வெறுமை *context,
+                             மாறிலி unsigned எழுத்து *data,
+                             unsigned முழு len);
+வகைவரை வெறுமை (*HMAC_hfinal)(unsigned எழுத்து *result, வெறுமை *context);
 
 /* Per-hash function HMAC parameters. */
-struct HMAC_params {
+கட்டமைப்பு HMAC_params {
   HMAC_hinit  hinit;       /* Initialize context procedure. */
   HMAC_hupdate hupdate;    /* Update context with data. */
   HMAC_hfinal hfinal;      /* Get final result procedure. */
-  unsigned int ctxtsize;   /* Context structure size. */
-  unsigned int maxkeylen;  /* Maximum key length (bytes). */
-  unsigned int resultlen;  /* Result length (bytes). */
+  unsigned முழு ctxtsize;   /* Context structure size. */
+  unsigned முழு maxkeylen;  /* Maximum key length (bytes). */
+  unsigned முழு resultlen;  /* Result length (bytes). */
 };
 
 /* HMAC computation context. */
-struct HMAC_context {
-  const struct HMAC_params *hash; /* Hash function definition. */
-  void *hashctxt1;         /* Hash function context 1. */
-  void *hashctxt2;         /* Hash function context 2. */
+கட்டமைப்பு HMAC_context {
+  மாறிலி கட்டமைப்பு HMAC_params *hash; /* Hash function definition. */
+  வெறுமை *hashctxt1;         /* Hash function context 1. */
+  வெறுமை *hashctxt2;         /* Hash function context 2. */
 };
 
 /* Prototypes. */
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
-                                    unsigned int keylen);
-void Curl_HMAC_update(struct HMAC_context *ctxt,
-                      const unsigned char *data,
-                      unsigned int len);
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output);
+கட்டமைப்பு HMAC_context *Curl_HMAC_init(மாறிலி கட்டமைப்பு HMAC_params *hashparams,
+                                    மாறிலி unsigned எழுத்து *சாவி,
+                                    unsigned முழு keylen);
+வெறுமை Curl_HMAC_update(கட்டமைப்பு HMAC_context *ctxt,
+                      மாறிலி unsigned எழுத்து *data,
+                      unsigned முழு len);
+முழு Curl_HMAC_final(கட்டமைப்பு HMAC_context *ctxt, unsigned எழுத்து *output);
 
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, size_t datalen,
-                     unsigned char *output);
+CURLcode Curl_hmacit(மாறிலி கட்டமைப்பு HMAC_params *hashparams,
+                     மாறிலி unsigned எழுத்து *சாவி, மாறிலி size_t keylen,
+                     மாறிலி unsigned எழுத்து *data, size_t datalen,
+                     unsigned எழுத்து *output);
 #endif
 
 #endif /* HEADER_CURL_HMAC_H */

@@ -23,14 +23,14 @@
  * RFC4178 Simple and Protected GSS-API Negotiation Mechanism
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && defined(USE_SPNEGO)
+#எனில் defined(USE_WINDOWS_SSPI) && defined(USE_SPNEGO)
 
-#include "vauth/vauth.h"
-#include "curlx/base64.h"
-#include "curl_trc.h"
-#include "strerror.h"
+#அந்தர்பாவ "vauth/vauth.h"
+#அந்தர்பாவ "curlx/base64.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "strerror.h"
 
 /*
  * Curl_auth_is_spnego_supported()
@@ -41,7 +41,7 @@
  *
  * Returns TRUE if Negotiate is supported by Windows SSPI.
  */
-bool Curl_auth_is_spnego_supported(void)
+bool Curl_auth_is_spnego_supported(வெறுமை)
 {
   PSecPkgInfo SecurityPackage;
   SECURITY_STATUS status;
@@ -52,11 +52,11 @@ bool Curl_auth_is_spnego_supported(void)
                                 &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
+  எனில்(status == SEC_E_OK) {
     Curl_pSecFn->FreeContextBuffer(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  திரும்பு status == SEC_E_OK;
 }
 
 /*
@@ -77,49 +77,49 @@ bool Curl_auth_is_spnego_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
-                                         struct Curl_creds *creds,
-                                         const char *default_service,
-                                         const char *host,
-                                         const char *chlg64,
-                                         struct negotiatedata *nego)
+CURLcode Curl_auth_decode_spnego_message(கட்டமைப்பு Curl_easy *data,
+                                         கட்டமைப்பு Curl_creds *creds,
+                                         மாறிலி எழுத்து *default_service,
+                                         மாறிலி எழுத்து *host,
+                                         மாறிலி எழுத்து *chlg64,
+                                         கட்டமைப்பு negotiatedata *nego)
 {
   CURLcode result = CURLE_OK;
   size_t chlglen = 0;
-  unsigned char *chlg = NULL;
+  unsigned எழுத்து *chlg = வெற்று;
   PSecPkgInfo SecurityPackage;
   SecBuffer chlg_buf[2];
   SecBuffer resp_buf;
   SecBufferDesc chlg_desc;
   SecBufferDesc resp_desc;
   unsigned long attrs;
-  SecPkgContext_Bindings pkgBindings = { 0, NULL };
+  SecPkgContext_Bindings pkgBindings = { 0, வெற்று };
 
-  if(nego->context && nego->status == SEC_E_OK) {
+  எனில்(nego->context && nego->status == SEC_E_OK) {
     /* We finished successfully our part of authentication, but server
      * rejected it (since we are again here). Exit with an error since we
      * cannot invent anything better */
     Curl_auth_cleanup_spnego(nego);
-    return CURLE_LOGIN_DENIED;
+    திரும்பு CURLE_LOGIN_DENIED;
   }
 
-  if(!nego->spn) {
+  எனில்(!nego->spn) {
     /* Generate our SPN */
-    const char *service = Curl_creds_has_sasl_service(creds) ?
+    மாறிலி எழுத்து *service = Curl_creds_has_sasl_service(creds) ?
       Curl_creds_sasl_service(creds) : default_service;
-    nego->spn = Curl_auth_build_spn(service, host, NULL);
-    if(!nego->spn)
-      return CURLE_OUT_OF_MEMORY;
+    nego->spn = Curl_auth_build_spn(service, host, வெற்று);
+    எனில்(!nego->spn)
+      திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
-  if(!nego->output_token) {
+  எனில்(!nego->output_token) {
     /* Query the security package for Negotiate */
     nego->status = Curl_pSecFn->QuerySecurityPackageInfo(
                                 CURL_UNCONST(TEXT(SP_NAME_NEGOTIATE)),
                                 &SecurityPackage);
-    if(nego->status != SEC_E_OK) {
+    எனில்(nego->status != SEC_E_OK) {
       failf(data, "SSPI: could not get auth info");
-      return CURLE_AUTH_ERROR;
+      திரும்பு CURLE_AUTH_ERROR;
     }
 
     nego->token_max = SecurityPackage->cbMaxToken;
@@ -129,31 +129,31 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
 
     /* Allocate our output buffer */
     nego->output_token = curlx_malloc(nego->token_max);
-    if(!nego->output_token)
-      return CURLE_OUT_OF_MEMORY;
+    எனில்(!nego->output_token)
+      திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
-  if(!nego->credentials) {
+  எனில்(!nego->credentials) {
     /* Do we have credentials to use or are we using single sign-on? */
-    if(Curl_creds_has_user(creds)) {
+    எனில்(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
       result = Curl_create_sspi_identity(creds->user, creds->passwd,
                                          &nego->identity);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
 
       /* Allow proper cleanup of the identity structure */
       nego->p_identity = &nego->identity;
     }
-    else
+    இல்லையெனில்
       /* Use the current Windows user */
-      nego->p_identity = NULL;
+      nego->p_identity = வெற்று;
 
     /* Exclude NTLM from SPNEGO negotiation via the PackageList field */
-    if(!nego->p_identity) {
-      memset(&nego->identity, 0, sizeof(nego->identity));
+    எனில்(!nego->p_identity) {
+      memset(&nego->identity, 0, அளவு(nego->identity));
       nego->identity.Version = SEC_WINNT_AUTH_IDENTITY_VERSION;
-      nego->identity.Length = sizeof(nego->identity);
+      nego->identity.Length = அளவு(nego->identity);
       nego->identity.Flags = CURL_SEC_WINNT_AUTH_IDENTITY;
       nego->p_identity = &nego->identity;
     }
@@ -165,43 +165,43 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
     nego->identity.PackageListLength = 5;
 
     /* Allocate our credentials handle */
-    nego->credentials = curlx_calloc(1, sizeof(CredHandle));
-    if(!nego->credentials)
-      return CURLE_OUT_OF_MEMORY;
+    nego->credentials = curlx_calloc(1, அளவு(CredHandle));
+    எனில்(!nego->credentials)
+      திரும்பு CURLE_OUT_OF_MEMORY;
 
     /* Acquire our credentials handle */
-    nego->status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
+    nego->status = Curl_pSecFn->AcquireCredentialsHandle(வெற்று,
                                 CURL_UNCONST(TEXT(SP_NAME_NEGOTIATE)),
-                                SECPKG_CRED_OUTBOUND, NULL,
-                                nego->p_identity, NULL, NULL,
-                                nego->credentials, NULL);
-    if(nego->status != SEC_E_OK) {
+                                SECPKG_CRED_OUTBOUND, வெற்று,
+                                nego->p_identity, வெற்று, வெற்று,
+                                nego->credentials, வெற்று);
+    எனில்(nego->status != SEC_E_OK) {
       curlx_safefree(nego->credentials);
-      return CURLE_AUTH_ERROR;
+      திரும்பு CURLE_AUTH_ERROR;
     }
 
     /* Allocate our new context handle */
-    nego->context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!nego->context)
-      return CURLE_OUT_OF_MEMORY;
+    nego->context = curlx_calloc(1, அளவு(CtxtHandle));
+    எனில்(!nego->context)
+      திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
   chlg_desc.ulVersion = SECBUFFER_VERSION;
   chlg_desc.cBuffers = 0;
   chlg_desc.pBuffers = chlg_buf;
 
-  if(chlg64 && *chlg64) {
+  எனில்(chlg64 && *chlg64) {
     /* Decode the base-64 encoded challenge message */
-    if(*chlg64 != '=') {
+    எனில்(*chlg64 != '=') {
       result = curlx_base64_decode(chlg64, &chlg, &chlglen);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
     }
 
     /* Ensure we have a valid challenge message */
-    if(!chlg) {
+    எனில்(!chlg) {
       infof(data, "SPNEGO handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+      திரும்பு CURLE_BAD_CONTENT_ENCODING;
     }
 
     /* Setup the challenge "input" security buffer */
@@ -218,12 +218,12 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
    * Minimum supported version is Windows 7.
    * https://learn.microsoft.com/security-updates/SecurityAdvisories/2009/973811
    */
-  if(nego->sslContext) {
+  எனில்(nego->sslContext) {
     nego->status = Curl_pSecFn->QueryContextAttributes(
         nego->sslContext,
         SECPKG_ATTR_ENDPOINT_BINDINGS,
         &pkgBindings);
-    if(nego->status == SEC_E_OK) {
+    எனில்(nego->status == SEC_E_OK) {
       SecBuffer *binding_buf = &chlg_buf[chlg_desc.cBuffers++];
       binding_buf->BufferType = SECBUFFER_CHANNEL_BINDINGS;
       binding_buf->cbBuffer   = pkgBindings.BindingsLength;
@@ -242,55 +242,55 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
   /* Generate our challenge-response message */
   {
     DWORD sspi_flags = ISC_REQ_CONFIDENTIALITY;
-    if(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
+    எனில்(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
       sspi_flags |= ISC_REQ_DELEGATE | ISC_REQ_MUTUAL_AUTH;
     nego->status =
       Curl_pSecFn->InitializeSecurityContext(nego->credentials,
-                                             chlg ? nego->context : NULL,
+                                             chlg ? nego->context : வெற்று,
                                              nego->spn,
                                              sspi_flags,
                                              0, SECURITY_NATIVE_DREP,
                                              chlg_desc.cBuffers ?
-                                               &chlg_desc : NULL,
+                                               &chlg_desc : வெற்று,
                                              0, nego->context,
-                                             &resp_desc, &attrs, NULL);
+                                             &resp_desc, &attrs, வெற்று);
   }
 
-  if(pkgBindings.Bindings)
+  எனில்(pkgBindings.Bindings)
     Curl_pSecFn->FreeContextBuffer(pkgBindings.Bindings);
 
   /* Free the decoded challenge as it is not required anymore */
   curlx_free(chlg);
 
-  if(GSS_ERROR(nego->status)) {
-    char buffer[STRERROR_LEN];
+  எனில்(GSS_ERROR(nego->status)) {
+    எழுத்து buffer[STRERROR_LEN];
     failf(data, "InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(nego->status, buffer, sizeof(buffer)));
+          Curl_sspi_strerror(nego->status, buffer, அளவு(buffer)));
 
-    if(nego->status == SEC_E_INSUFFICIENT_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    எனில்(nego->status == SEC_E_INSUFFICIENT_MEMORY)
+      திரும்பு CURLE_OUT_OF_MEMORY;
 
-    return CURLE_AUTH_ERROR;
+    திரும்பு CURLE_AUTH_ERROR;
   }
 
-  if(nego->status == SEC_I_COMPLETE_NEEDED ||
+  எனில்(nego->status == SEC_I_COMPLETE_NEEDED ||
      nego->status == SEC_I_COMPLETE_AND_CONTINUE) {
     nego->status = Curl_pSecFn->CompleteAuthToken(nego->context, &resp_desc);
-    if(GSS_ERROR(nego->status)) {
-      char buffer[STRERROR_LEN];
+    எனில்(GSS_ERROR(nego->status)) {
+      எழுத்து buffer[STRERROR_LEN];
       failf(data, "CompleteAuthToken failed: %s",
-            Curl_sspi_strerror(nego->status, buffer, sizeof(buffer)));
+            Curl_sspi_strerror(nego->status, buffer, அளவு(buffer)));
 
-      if(nego->status == SEC_E_INSUFFICIENT_MEMORY)
-        return CURLE_OUT_OF_MEMORY;
+      எனில்(nego->status == SEC_E_INSUFFICIENT_MEMORY)
+        திரும்பு CURLE_OUT_OF_MEMORY;
 
-      return CURLE_AUTH_ERROR;
+      திரும்பு CURLE_AUTH_ERROR;
     }
   }
 
   nego->output_token_length = resp_buf.cbBuffer;
 
-  return result;
+  திரும்பு result;
 }
 
 /*
@@ -309,19 +309,19 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
-                                         char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_spnego_message(கட்டமைப்பு negotiatedata *nego,
+                                         எழுத்து **outptr, size_t *outlen)
 {
   /* Base64 encode the already generated response */
   CURLcode result = curlx_base64_encode(nego->output_token,
                                         nego->output_token_length, outptr,
                                         outlen);
-  if(!result && (!*outptr || !*outlen)) {
+  எனில்(!result && (!*outptr || !*outlen)) {
     curlx_free(*outptr);
     result = CURLE_REMOTE_ACCESS_DENIED;
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /*
@@ -334,23 +334,23 @@ CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
  * nego     [in/out] - The Negotiate data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_spnego(struct negotiatedata *nego)
+வெறுமை Curl_auth_cleanup_spnego(கட்டமைப்பு negotiatedata *nego)
 {
   /* Free our security context */
-  if(nego->context) {
+  எனில்(nego->context) {
     Curl_pSecFn->DeleteSecurityContext(nego->context);
     curlx_safefree(nego->context);
   }
 
   /* Free our credentials handle */
-  if(nego->credentials) {
+  எனில்(nego->credentials) {
     Curl_pSecFn->FreeCredentialsHandle(nego->credentials);
     curlx_safefree(nego->credentials);
   }
 
   /* Free our identity */
   Curl_sspi_free_identity(nego->p_identity);
-  nego->p_identity = NULL;
+  nego->p_identity = வெற்று;
 
   /* Free the SPN and output token */
   curlx_safefree(nego->spn);

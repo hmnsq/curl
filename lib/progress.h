@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timeval.h"
+#அந்தர்பாவ "curlx/timeval.h"
 
-struct Curl_easy;
+கட்டமைப்பு Curl_easy;
 
-typedef enum {
+வகைவரை எண்ணிக்கை {
   TIMER_NONE,
   TIMER_STARTOP,
   TIMER_STARTSINGLE, /* start of transfer, might get queued */
@@ -43,51 +43,51 @@ typedef enum {
 } timerid;
 
 /* Get the current timestamp of the transfer */
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data);
+மாறிலி கட்டமைப்பு curltime *Curl_pgrs_now(கட்டமைப்பு Curl_easy *data);
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow);
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow);
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size);
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size);
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size);
+முழு Curl_pgrsDone(கட்டமைப்பு Curl_easy *data, மாறிலி கட்டமைப்பு curltime *pnow);
+வெறுமை Curl_pgrsStart(கட்டமைப்பு Curl_easy *data, மாறிலி கட்டமைப்பு curltime *pnow);
+வெறுமை Curl_pgrsSetDownloadSize(கட்டமைப்பு Curl_easy *data, curl_off_t size);
+வெறுமை Curl_pgrsSetUploadSize(கட்டமைப்பு Curl_easy *data, curl_off_t size);
+CURLcode Curl_pgrs_deliver_check(கட்டமைப்பு Curl_easy *data, size_t delta);
+வெறுமை Curl_pgrs_deliver_inc(கட்டமைப்பு Curl_easy *data, size_t delta);
+வெறுமை Curl_pgrs_download_inc(கட்டமைப்பு Curl_easy *data, size_t delta);
+வெறுமை Curl_pgrs_upload_inc(கட்டமைப்பு Curl_easy *data, size_t delta);
+வெறுமை Curl_pgrsSetUploadCounter(கட்டமைப்பு Curl_easy *data, curl_off_t size);
 
 /* perform progress update, invoking callbacks at intervals */
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data);
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data, const struct curltime *pnow);
+CURLcode Curl_pgrsUpdate(கட்டமைப்பு Curl_easy *data);
+CURLcode Curl_pgrsUpdateX(கட்டமைப்பு Curl_easy *data, மாறிலி கட்டமைப்பு curltime *pnow);
 /* perform progress update, no callbacks invoked */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data);
+வெறுமை Curl_pgrsUpdate_nometer(கட்டமைப்பு Curl_easy *data);
 /* perform progress update with callbacks and speed checks */
-CURLcode Curl_pgrsCheck(struct Curl_easy *data);
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data, const struct curltime *pnow);
+CURLcode Curl_pgrsCheck(கட்டமைப்பு Curl_easy *data);
+CURLcode Curl_pgrsCheckX(கட்டமைப்பு Curl_easy *data, மாறிலி கட்டமைப்பு curltime *pnow);
 
 /* Inform progress/speedcheck about receive/send pausing */
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable);
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable);
+வெறுமை Curl_pgrsRecvPause(கட்டமைப்பு Curl_easy *data, bool enable);
+வெறுமை Curl_pgrsSendPause(கட்டமைப்பு Curl_easy *data, bool enable);
 
 /* Reset sizes and counters for up- and download. */
-void Curl_pgrsReset(struct Curl_easy *data);
+வெறுமை Curl_pgrsReset(கட்டமைப்பு Curl_easy *data);
 /* Reset sizes for up- and download. */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data);
+வெறுமை Curl_pgrsResetTransferSizes(கட்டமைப்பு Curl_easy *data);
 
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer);
+வெறுமை Curl_pgrsTime(கட்டமைப்பு Curl_easy *data, timerid timer);
 /**
  * Update progress timer with the elapsed time from its start to `timestamp`.
  * This allows updating timers later and is used by happy eyeballing, where
  * we only want to record the winner's times.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp);
+வெறுமை Curl_pgrsTimeWas(கட்டமைப்பு Curl_easy *data, timerid timer,
+                      கட்டமைப்பு curltime timestamp);
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent);
+வெறுமை Curl_pgrsEarlyData(கட்டமைப்பு Curl_easy *data, curl_off_t sent);
 
-void Curl_pgrsCompleted(struct Curl_easy *data);
+வெறுமை Curl_pgrsCompleted(கட்டமைப்பு Curl_easy *data);
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(கட்டமைப்பு Curl_easy *data,
+                              மாறிலி கட்டமைப்பு curltime *pnow,
                               timerid timer);
 
 #endif /* HEADER_CURL_PROGRESS_H */

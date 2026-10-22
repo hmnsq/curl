@@ -21,17 +21,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifndef CURL_DISABLE_HTTP
 
-#include "urldata.h" /* it includes http_chunks.h */
-#include "curl_trc.h"
-#include "http.h"    /* for Curl_verify_header */
-#include "sendf.h"   /* for the client write stuff */
-#include "curlx/dynbuf.h"
-#include "multiif.h"
-#include "curlx/strparse.h"
+#அந்தர்பாவ "urldata.h" /* it includes http_chunks.h */
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "http.h"    /* for Curl_verify_header */
+#அந்தர்பாவ "sendf.h"   /* for the client write stuff */
+#அந்தர்பாவ "curlx/dynbuf.h"
+#அந்தர்பாவ "multiif.h"
+#அந்தர்பாவ "curlx/strparse.h"
 
 /*
    Chunk format (simplified):
@@ -70,10 +70,10 @@
 
  */
 
-void Curl_httpchunk_init(struct Curl_easy *data, struct Curl_chunker *ch,
+வெறுமை Curl_httpchunk_init(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு Curl_chunker *ch,
                          bool ignore_body, bool in_connect)
 {
-  (void)data;
+  (வெறுமை)data;
   ch->hexindex = 0;      /* start at 0 */
   ch->state = CHUNK_HEX; /* we get hex first! */
   ch->last_code = CHUNKE_OK;
@@ -82,10 +82,10 @@ void Curl_httpchunk_init(struct Curl_easy *data, struct Curl_chunker *ch,
   ch->in_connect = in_connect;
 }
 
-void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
+வெறுமை Curl_httpchunk_reset(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு Curl_chunker *ch,
                           bool ignore_body)
 {
-  (void)data;
+  (வெறுமை)data;
   ch->hexindex = 0;      /* start at 0 */
   ch->state = CHUNK_HEX; /* we get hex first! */
   ch->last_code = CHUNKE_OK;
@@ -93,22 +93,22 @@ void Curl_httpchunk_reset(struct Curl_easy *data, struct Curl_chunker *ch,
   ch->ignore_body = ignore_body;
 }
 
-void Curl_httpchunk_free(struct Curl_easy *data, struct Curl_chunker *ch)
+வெறுமை Curl_httpchunk_free(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு Curl_chunker *ch)
 {
-  (void)data;
+  (வெறுமை)data;
   curlx_dyn_free(&ch->trailer);
 }
 
-bool Curl_httpchunk_is_done(struct Curl_easy *data, struct Curl_chunker *ch)
+bool Curl_httpchunk_is_done(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு Curl_chunker *ch)
 {
-  (void)data;
-  return ch->state == CHUNK_DONE;
+  (வெறுமை)data;
+  திரும்பு ch->state == CHUNK_DONE;
 }
 
-static CURLcode httpchunk_readwrite(struct Curl_easy *data,
-                                    struct Curl_chunker *ch,
-                                    struct Curl_cwriter *cw_next,
-                                    const char *buf, size_t blen,
+நிலையான CURLcode httpchunk_readwrite(கட்டமைப்பு Curl_easy *data,
+                                    கட்டமைப்பு Curl_chunker *ch,
+                                    கட்டமைப்பு Curl_cwriter *cw_next,
+                                    மாறிலி எழுத்து *buf, size_t blen,
                                     size_t *pconsumed)
 {
   CURLcode result = CURLE_OK;
@@ -116,72 +116,72 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
 
   *pconsumed = 0; /* nothing's written yet */
   /* first check terminal states that will not progress anywhere */
-  if(ch->state == CHUNK_DONE)
-    return CURLE_OK;
-  if(ch->state == CHUNK_FAILED)
-    return CURLE_RECV_ERROR;
+  எனில்(ch->state == CHUNK_DONE)
+    திரும்பு CURLE_OK;
+  எனில்(ch->state == CHUNK_FAILED)
+    திரும்பு CURLE_RECV_ERROR;
 
   /* the original data is written to the client, but we go on with the
      chunk read process, to properly calculate the content length */
-  if(data->set.http_te_skip && !ch->ignore_body) {
-    if(cw_next)
+  எனில்(data->set.http_te_skip && !ch->ignore_body) {
+    எனில்(cw_next)
       result = Curl_cwriter_write(data, cw_next, CLIENTWRITE_BODY, buf, blen);
-    else
+    இல்லையெனில்
       result = Curl_client_write(data, CLIENTWRITE_BODY, buf, blen);
-    if(result) {
+    எனில்(result) {
       ch->state = CHUNK_FAILED;
       ch->last_code = CHUNKE_PASSTHRU_ERROR;
-      return result;
+      திரும்பு result;
     }
   }
 
-  while(blen) {
-    switch(ch->state) {
-    case CHUNK_HEX:
-      if(ISXDIGIT(*buf)) {
-        if(ch->hexindex >= CHUNK_MAXNUM_LEN) {
+  போது(blen) {
+    தேர்வு(ch->state) {
+    நிலை CHUNK_HEX:
+      எனில்(ISXDIGIT(*buf)) {
+        எனில்(ch->hexindex >= CHUNK_MAXNUM_LEN) {
           failf(data, "chunk hex-length longer than %d", CHUNK_MAXNUM_LEN);
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_TOO_LONG_HEX; /* longer than we support */
-          return CURLE_RECV_ERROR;
+          திரும்பு CURLE_RECV_ERROR;
         }
         ch->hexbuffer[ch->hexindex++] = *buf;
         buf++;
         blen--;
         (*pconsumed)++;
       }
-      else {
-        const char *p;
-        if(ch->hexindex == 0) {
+      இல்லையெனில் {
+        மாறிலி எழுத்து *p;
+        எனில்(ch->hexindex == 0) {
           /* This is illegal data, we received junk where we expected
              a hexadecimal digit. */
           failf(data, "chunk hex-length char not a hex digit: 0x%x",
-                (unsigned int)*buf);
+                (unsigned முழு)*buf);
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_ILLEGAL_HEX;
-          return CURLE_RECV_ERROR;
+          திரும்பு CURLE_RECV_ERROR;
         }
         /* blen and buf are unmodified */
         ch->hexbuffer[ch->hexindex] = 0;
         p = &ch->hexbuffer[0];
-        if(curlx_str_hex(&p, &ch->datasize, CURL_OFF_T_MAX)) {
+        எனில்(curlx_str_hex(&p, &ch->datasize, CURL_OFF_T_MAX)) {
           failf(data, "invalid chunk size: '%s'", ch->hexbuffer);
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_ILLEGAL_HEX;
-          return CURLE_RECV_ERROR;
+          திரும்பு CURLE_RECV_ERROR;
         }
         ch->state = CHUNK_LF; /* now wait for the CRLF */
       }
-      break;
+      நிறுத்து;
 
-    case CHUNK_LF:
+    நிலை CHUNK_LF:
       /* waiting for the LF after a chunk size */
-      if(*buf == 0x0a) {
+      எனில்(*buf == 0x0a) {
         /* we are now expecting data to come, unless size was zero! */
-        if(ch->datasize == 0) {
+        எனில்(ch->datasize == 0) {
           ch->state = CHUNK_TRAILER; /* now check for trailers */
         }
-        else {
+        இல்லையெனில் {
           ch->state = CHUNK_DATA;
           CURL_TRC_WRITE(data, "http_chunked, chunk start of %"
                          FMT_OFF_T " bytes", ch->datasize);
@@ -191,26 +191,26 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
       buf++;
       blen--;
       (*pconsumed)++;
-      break;
+      நிறுத்து;
 
-    case CHUNK_DATA:
+    நிலை CHUNK_DATA:
       /* We expect 'datasize' of data. We have 'blen' right now, it can be
          more or less than 'datasize'. Get the smallest piece. */
       piece = blen;
-      if(ch->datasize < (curl_off_t)blen)
+      எனில்(ch->datasize < (curl_off_t)blen)
         piece = curlx_sotouz(ch->datasize);
 
       /* Write the data portion available */
-      if(!data->set.http_te_skip && !ch->ignore_body) {
-        if(cw_next)
+      எனில்(!data->set.http_te_skip && !ch->ignore_body) {
+        எனில்(cw_next)
           result = Curl_cwriter_write(data, cw_next, CLIENTWRITE_BODY,
                                       buf, piece);
-        else
+        இல்லையெனில்
           result = Curl_client_write(data, CLIENTWRITE_BODY, buf, piece);
-        if(result) {
+        எனில்(result) {
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_PASSTHRU_ERROR;
-          return result;
+          திரும்பு result;
         }
       }
 
@@ -222,39 +222,39 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
                      FMT_OFF_T " bytes in chunk remain",
                      piece, ch->datasize);
 
-      if(ch->datasize == 0)
+      எனில்(ch->datasize == 0)
         /* end of data this round, we now expect a trailing CRLF */
         ch->state = CHUNK_POSTLF;
-      break;
+      நிறுத்து;
 
-    case CHUNK_POSTLF:
-      if(*buf == 0x0a) {
+    நிலை CHUNK_POSTLF:
+      எனில்(*buf == 0x0a) {
         /* The last one before we go back to hex state and start all over. */
         Curl_httpchunk_reset(data, ch, (bool)ch->ignore_body);
       }
-      else if(*buf != 0x0d) {
+      இல்லையெனில் எனில்(*buf != 0x0d) {
         ch->state = CHUNK_FAILED;
         ch->last_code = CHUNKE_BAD_CHUNK;
-        return CURLE_RECV_ERROR;
+        திரும்பு CURLE_RECV_ERROR;
       }
       buf++;
       blen--;
       (*pconsumed)++;
-      break;
+      நிறுத்து;
 
-    case CHUNK_TRAILER:
-      if((*buf == 0x0d) || (*buf == 0x0a)) {
-        const char *tr = curlx_dyn_ptr(&ch->trailer);
+    நிலை CHUNK_TRAILER:
+      எனில்((*buf == 0x0d) || (*buf == 0x0a)) {
+        மாறிலி எழுத்து *tr = curlx_dyn_ptr(&ch->trailer);
         /* this is the end of a trailer, but if the trailer was zero bytes
            there was no trailer and we move on */
 
-        if(tr) {
+        எனில்(tr) {
           size_t trlen;
           result = curlx_dyn_addn(&ch->trailer, STRCONST("\x0d\x0a"));
-          if(result) {
+          எனில்(result) {
             ch->state = CHUNK_FAILED;
             ch->last_code = CHUNKE_OUT_OF_MEMORY;
-            return result;
+            திரும்பு result;
           }
           tr = curlx_dyn_ptr(&ch->trailer);
           trlen = curlx_dyn_len(&ch->trailer);
@@ -262,81 +262,81 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
           /* a trailer is delivered to the client as a header, so it must pass
              the same checks as a regular response header */
           result = Curl_verify_header(data, tr, trlen);
-          if(result) {
+          எனில்(result) {
             ch->state = CHUNK_FAILED;
             ch->last_code = CHUNKE_BAD_CHUNK;
-            return result;
+            திரும்பு result;
           }
 
-          if(!data->set.http_te_skip) {
-            int hd_type = CLIENTWRITE_HEADER | CLIENTWRITE_TRAILER;
-            if(ch->in_connect)
+          எனில்(!data->set.http_te_skip) {
+            முழு hd_type = CLIENTWRITE_HEADER | CLIENTWRITE_TRAILER;
+            எனில்(ch->in_connect)
               hd_type |= CLIENTWRITE_CONNECT;
-            if(cw_next)
+            எனில்(cw_next)
               result = Curl_cwriter_write(data, cw_next, hd_type, tr, trlen);
-            else
+            இல்லையெனில்
               result = Curl_client_write(data, hd_type, tr, trlen);
             CURL_TRC_WRITE(data, "wrote trailer '%s'", tr);
-            if(result) {
+            எனில்(result) {
               ch->state = CHUNK_FAILED;
               ch->last_code = CHUNKE_PASSTHRU_ERROR;
-              return result;
+              திரும்பு result;
             }
             result = Curl_bump_headersize(data, trlen, FALSE);
-            if(result) {
+            எனில்(result) {
               ch->state = CHUNK_FAILED;
               ch->last_code = CHUNKE_TRAILER_LIMIT;
-              return result;
+              திரும்பு result;
             }
           }
           curlx_dyn_reset(&ch->trailer);
           ch->state = CHUNK_TRAILER_CR;
-          if(*buf == 0x0a)
+          எனில்(*buf == 0x0a)
             /* already on the LF */
-            break;
+            நிறுத்து;
         }
-        else {
+        இல்லையெனில் {
           /* no trailer, we are on the final CRLF pair */
           ch->state = CHUNK_TRAILER_POSTCR;
-          break; /* do not advance the pointer */
+          நிறுத்து; /* do not advance the pointer */
         }
       }
-      else {
+      இல்லையெனில் {
         result = curlx_dyn_addn(&ch->trailer, buf, 1);
-        if(result) {
+        எனில்(result) {
           ch->state = CHUNK_FAILED;
           ch->last_code = CHUNKE_OUT_OF_MEMORY;
-          return result;
+          திரும்பு result;
         }
       }
       buf++;
       blen--;
       (*pconsumed)++;
-      break;
+      நிறுத்து;
 
-    case CHUNK_TRAILER_CR:
-      if(*buf == 0x0a) {
+    நிலை CHUNK_TRAILER_CR:
+      எனில்(*buf == 0x0a) {
         ch->state = CHUNK_TRAILER_POSTCR;
         buf++;
         blen--;
         (*pconsumed)++;
       }
-      else {
+      இல்லையெனில் {
         ch->state = CHUNK_FAILED;
         ch->last_code = CHUNKE_BAD_CHUNK;
-        return CURLE_RECV_ERROR;
+        திரும்பு CURLE_RECV_ERROR;
       }
-      break;
+      நிறுத்து;
 
-    case CHUNK_TRAILER_POSTCR:
+    நிலை CHUNK_TRAILER_POSTCR:
       /* We enter this state when a CR should arrive so we expect to
          have to first pass a CR before we wait for LF */
-      if((*buf != 0x0d) && (*buf != 0x0a)) {
+      எனில்((*buf != 0x0d) && (*buf != 0x0a)) {
         /* not a CR then it must be another header in the trailer */
         ch->state = CHUNK_TRAILER;
-        break;
+        நிறுத்து;
       }
-      if(*buf == 0x0d) {
+      எனில்(*buf == 0x0d) {
         /* skip if CR */
         buf++;
         blen--;
@@ -344,10 +344,10 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
       }
       /* now wait for the final LF */
       ch->state = CHUNK_STOP;
-      break;
+      நிறுத்து;
 
-    case CHUNK_STOP:
-      if(*buf == 0x0a) {
+    நிலை CHUNK_STOP:
+      எனில்(*buf == 0x0a) {
         blen--;
         (*pconsumed)++;
         /* Record the length of any data left in the end of the buffer
@@ -355,203 +355,203 @@ static CURLcode httpchunk_readwrite(struct Curl_easy *data,
         ch->datasize = blen;
         ch->state = CHUNK_DONE;
         CURL_TRC_WRITE(data, "http_chunk, response complete");
-        return CURLE_OK;
+        திரும்பு CURLE_OK;
       }
-      else {
+      இல்லையெனில் {
         ch->state = CHUNK_FAILED;
         ch->last_code = CHUNKE_BAD_CHUNK;
         CURL_TRC_WRITE(data, "http_chunk error, expected 0x0a, seeing 0x%ux",
-                       (unsigned int)*buf);
-        return CURLE_RECV_ERROR;
+                       (unsigned முழு)*buf);
+        திரும்பு CURLE_RECV_ERROR;
       }
-    case CHUNK_DONE:
-      return CURLE_OK;
+    நிலை CHUNK_DONE:
+      திரும்பு CURLE_OK;
 
-    case CHUNK_FAILED:
-      return CURLE_RECV_ERROR;
+    நிலை CHUNK_FAILED:
+      திரும்பு CURLE_RECV_ERROR;
     }
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static const char *Curl_chunked_strerror(CHUNKcode code)
+நிலையான மாறிலி எழுத்து *Curl_chunked_strerror(CHUNKcode code)
 {
-  switch(code) {
-  default:
-    return "OK";
-  case CHUNKE_TOO_LONG_HEX:
-    return "Too long hexadecimal number";
-  case CHUNKE_ILLEGAL_HEX:
-    return "Illegal or missing hexadecimal sequence";
-  case CHUNKE_BAD_CHUNK:
-    return "Malformed encoding found";
-  case CHUNKE_PASSTHRU_ERROR:
-    return "Error writing data to client";
-  case CHUNKE_BAD_ENCODING:
-    return "Bad content-encoding found";
-  case CHUNKE_OUT_OF_MEMORY:
-    return "Out of memory";
-  case CHUNKE_TRAILER_LIMIT:
-    return "trailers exceeded header limit";
+  தேர்வு(code) {
+  இயல்பு:
+    திரும்பு "OK";
+  நிலை CHUNKE_TOO_LONG_HEX:
+    திரும்பு "Too long hexadecimal number";
+  நிலை CHUNKE_ILLEGAL_HEX:
+    திரும்பு "Illegal or missing hexadecimal sequence";
+  நிலை CHUNKE_BAD_CHUNK:
+    திரும்பு "Malformed encoding found";
+  நிலை CHUNKE_PASSTHRU_ERROR:
+    திரும்பு "Error writing data to client";
+  நிலை CHUNKE_BAD_ENCODING:
+    திரும்பு "Bad content-encoding found";
+  நிலை CHUNKE_OUT_OF_MEMORY:
+    திரும்பு "Out of memory";
+  நிலை CHUNKE_TRAILER_LIMIT:
+    திரும்பு "trailers exceeded header limit";
   }
 }
 
-CURLcode Curl_httpchunk_read(struct Curl_easy *data,
-                             struct Curl_chunker *ch,
-                             char *buf, size_t blen,
+CURLcode Curl_httpchunk_read(கட்டமைப்பு Curl_easy *data,
+                             கட்டமைப்பு Curl_chunker *ch,
+                             எழுத்து *buf, size_t blen,
                              size_t *pconsumed)
 {
-  return httpchunk_readwrite(data, ch, NULL, buf, blen, pconsumed);
+  திரும்பு httpchunk_readwrite(data, ch, வெற்று, buf, blen, pconsumed);
 }
 
-struct chunked_writer {
-  struct Curl_cwriter super;
-  struct Curl_chunker ch;
+கட்டமைப்பு chunked_writer {
+  கட்டமைப்பு Curl_cwriter super;
+  கட்டமைப்பு Curl_chunker ch;
 };
 
-static CURLcode cw_chunked_init(struct Curl_easy *data,
-                                struct Curl_cwriter *writer)
+நிலையான CURLcode cw_chunked_init(கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு Curl_cwriter *writer)
 {
-  struct chunked_writer *ctx = writer->ctx;
+  கட்டமைப்பு chunked_writer *ctx = writer->ctx;
 
   data->req.chunk = TRUE;      /* chunks coming our way. */
   Curl_httpchunk_init(data, &ctx->ch, FALSE, FALSE);
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static void cw_chunked_close(struct Curl_easy *data,
-                             struct Curl_cwriter *writer)
+நிலையான வெறுமை cw_chunked_close(கட்டமைப்பு Curl_easy *data,
+                             கட்டமைப்பு Curl_cwriter *writer)
 {
-  struct chunked_writer *ctx = writer->ctx;
+  கட்டமைப்பு chunked_writer *ctx = writer->ctx;
   Curl_httpchunk_free(data, &ctx->ch);
 }
 
-static CURLcode cw_chunked_write(struct Curl_easy *data,
-                                 struct Curl_cwriter *writer, int type,
-                                 const char *buf, size_t blen)
+நிலையான CURLcode cw_chunked_write(கட்டமைப்பு Curl_easy *data,
+                                 கட்டமைப்பு Curl_cwriter *writer, முழு type,
+                                 மாறிலி எழுத்து *buf, size_t blen)
 {
-  struct chunked_writer *ctx = writer->ctx;
+  கட்டமைப்பு chunked_writer *ctx = writer->ctx;
   CURLcode result;
   size_t consumed;
 
-  if(!(type & CLIENTWRITE_BODY))
-    return Curl_cwriter_write(data, writer->next, type, buf, blen);
+  எனில்(!(type & CLIENTWRITE_BODY))
+    திரும்பு Curl_cwriter_write(data, writer->next, type, buf, blen);
 
   consumed = 0;
   result = httpchunk_readwrite(data, &ctx->ch, writer->next, buf, blen,
                                &consumed);
 
-  if(result) {
-    if(CHUNKE_PASSTHRU_ERROR == ctx->ch.last_code) {
+  எனில்(result) {
+    எனில்(CHUNKE_PASSTHRU_ERROR == ctx->ch.last_code) {
       failf(data, "Failed reading the chunked-encoded stream");
     }
-    else {
+    இல்லையெனில் {
       failf(data, "%s in chunked-encoding",
             Curl_chunked_strerror(ctx->ch.last_code));
     }
-    return result;
+    திரும்பு result;
   }
 
   blen -= consumed;
-  if(CHUNK_DONE == ctx->ch.state) {
+  எனில்(CHUNK_DONE == ctx->ch.state) {
     /* chunks read successfully, download is complete */
     data->req.download_done = TRUE;
-    if(blen) {
+    எனில்(blen) {
       infof(data, "Leftovers after chunking: %zu bytes", blen);
     }
   }
-  else if((type & CLIENTWRITE_EOS) && !data->req.no_body) {
+  இல்லையெனில் எனில்((type & CLIENTWRITE_EOS) && !data->req.no_body) {
     failf(data, "transfer closed with outstanding read data remaining");
-    return CURLE_PARTIAL_FILE;
+    திரும்பு CURLE_PARTIAL_FILE;
   }
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /* HTTP chunked Transfer-Encoding decoder */
-const struct Curl_cwtype Curl_httpchunk_unencoder = {
+மாறிலி கட்டமைப்பு Curl_cwtype Curl_httpchunk_unencoder = {
   "chunked",
-  NULL,
+  வெற்று,
   0,
   cw_chunked_init,
   cw_chunked_write,
   Curl_cwriter_def_flush,
   cw_chunked_close,
-  sizeof(struct chunked_writer)
+  அளவு(கட்டமைப்பு chunked_writer)
 };
 
 /* max length of an HTTP chunk that we want to generate */
 #define CURL_CHUNKED_MINLEN   1024
 #define CURL_CHUNKED_MAXLEN   (64 * 1024)
 
-struct chunked_reader {
-  struct Curl_creader super;
-  struct bufq chunkbuf;
+கட்டமைப்பு chunked_reader {
+  கட்டமைப்பு Curl_creader super;
+  கட்டமைப்பு bufq chunkbuf;
   BIT(read_eos);  /* we read an EOS from the next reader */
   BIT(eos);       /* we have returned an EOS */
 };
 
-static CURLcode cr_chunked_init(struct Curl_easy *data,
-                                struct Curl_creader *reader)
+நிலையான CURLcode cr_chunked_init(கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு Curl_creader *reader)
 {
-  struct chunked_reader *ctx = reader->ctx;
-  (void)data;
+  கட்டமைப்பு chunked_reader *ctx = reader->ctx;
+  (வெறுமை)data;
   Curl_bufq_init2(&ctx->chunkbuf, CURL_CHUNKED_MAXLEN, 2, BUFQ_OPT_SOFT_LIMIT);
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static void cr_chunked_close(struct Curl_easy *data,
-                             struct Curl_creader *reader)
+நிலையான வெறுமை cr_chunked_close(கட்டமைப்பு Curl_easy *data,
+                             கட்டமைப்பு Curl_creader *reader)
 {
-  struct chunked_reader *ctx = reader->ctx;
-  (void)data;
+  கட்டமைப்பு chunked_reader *ctx = reader->ctx;
+  (வெறுமை)data;
   Curl_bufq_free(&ctx->chunkbuf);
 }
 
-static CURLcode add_last_chunk(struct Curl_easy *data,
-                               struct Curl_creader *reader)
+நிலையான CURLcode add_last_chunk(கட்டமைப்பு Curl_easy *data,
+                               கட்டமைப்பு Curl_creader *reader)
 {
-  struct chunked_reader *ctx = reader->ctx;
-  struct curl_slist *trailers = NULL, *tr;
+  கட்டமைப்பு chunked_reader *ctx = reader->ctx;
+  கட்டமைப்பு curl_slist *trailers = வெற்று, *tr;
   CURLcode result;
   size_t n;
-  int rc;
+  முழு rc;
 
-  if(!data->set.trailer_callback) {
+  எனில்(!data->set.trailer_callback) {
     CURL_TRC_READ(data, "http_chunk, added last, empty chunk");
-    return Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("0\r\n\r\n"), &n);
+    திரும்பு Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("0\r\n\r\n"), &n);
   }
 
   result = Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("0\r\n"), &n);
-  if(result)
-    goto out;
+  எனில்(result)
+    செல் out;
 
   {
-    struct Curl_mapi_guard guard;
+    கட்டமைப்பு Curl_mapi_guard guard;
     CURL_CBAPI_START(&guard, data, easy_trailer_callback);
     rc = data->set.trailer_callback(&trailers, data->set.trailer_data);
     CURL_CBAPI_END(&guard);
   }
 
-  if(rc != CURL_TRAILERFUNC_OK) {
+  எனில்(rc != CURL_TRAILERFUNC_OK) {
     failf(data, "operation aborted by trailing headers callback");
     result = CURLE_ABORTED_BY_CALLBACK;
-    goto out;
+    செல் out;
   }
 
-  for(tr = trailers; tr; tr = tr->next) {
+  க்கு(tr = trailers; tr; tr = tr->next) {
     /* only add correctly formatted trailers */
-    const char *ptr = strchr(tr->data, ':');
-    if(!ptr || *(ptr + 1) != ' ') {
+    மாறிலி எழுத்து *ptr = strchr(tr->data, ':');
+    எனில்(!ptr || *(ptr + 1) != ' ') {
       infof(data, "Malformatted trailing header, skipping trailer");
-      continue;
+      தொடர்;
     }
 
     result = Curl_bufq_cwrite(&ctx->chunkbuf, tr->data, strlen(tr->data), &n);
-    if(!result)
+    எனில்(!result)
       result = Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("\r\n"), &n);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
   }
 
   result = Curl_bufq_cwrite(&ctx->chunkbuf, STRCONST("\r\n"), &n);
@@ -559,109 +559,109 @@ static CURLcode add_last_chunk(struct Curl_easy *data,
 out:
   curl_slist_free_all(trailers);
   CURL_TRC_READ(data, "http_chunk, added last chunk with trailers "
-                "from client -> %d", (int)result);
-  return result;
+                "from client -> %d", (முழு)result);
+  திரும்பு result;
 }
 
-static CURLcode add_chunk(struct Curl_easy *data,
-                          struct Curl_creader *reader,
-                          char *buf, size_t blen)
+நிலையான CURLcode add_chunk(கட்டமைப்பு Curl_easy *data,
+                          கட்டமைப்பு Curl_creader *reader,
+                          எழுத்து *buf, size_t blen)
 {
-  struct chunked_reader *ctx = reader->ctx;
+  கட்டமைப்பு chunked_reader *ctx = reader->ctx;
   CURLcode result;
-  char tmp[CURL_CHUNKED_MINLEN];
+  எழுத்து tmp[CURL_CHUNKED_MINLEN];
   size_t nread;
   bool eos;
 
   DEBUGASSERT(!ctx->read_eos);
   blen = CURLMIN(blen, CURL_CHUNKED_MAXLEN); /* respect our buffer pref */
-  if(blen < sizeof(tmp)) {
+  எனில்(blen < அளவு(tmp)) {
     /* small read, make a chunk of decent size */
     buf = tmp;
-    blen = sizeof(tmp);
+    blen = அளவு(tmp);
   }
-  else {
+  இல்லையெனில் {
     /* larger read, make a chunk that will fit when read back */
     blen -= (8 + 2 + 2); /* deduct max overhead, 8 hex + 2*crlf */
   }
 
   result = Curl_creader_read(data, reader->next, buf, blen, &nread, &eos);
-  if(result)
-    return result;
-  if(eos)
+  எனில்(result)
+    திரும்பு result;
+  எனில்(eos)
     ctx->read_eos = TRUE;
 
-  if(nread) {
+  எனில்(nread) {
     /* actually got bytes, wrap them into the chunkbuf */
-    char hd[11] = "";
-    int hdlen;
+    எழுத்து hd[11] = "";
+    முழு hdlen;
     size_t n;
 
-    hdlen = curl_msnprintf(hd, sizeof(hd), "%zx\r\n", nread);
-    if(hdlen <= 0)
-      return CURLE_READ_ERROR;
+    hdlen = curl_msnprintf(hd, அளவு(hd), "%zx\r\n", nread);
+    எனில்(hdlen <= 0)
+      திரும்பு CURLE_READ_ERROR;
     /* On a soft-limited bufq, we do not need to check that all was written */
     result = Curl_bufq_cwrite(&ctx->chunkbuf, hd, hdlen, &n);
-    if(!result)
+    எனில்(!result)
       result = Curl_bufq_cwrite(&ctx->chunkbuf, buf, nread, &n);
-    if(!result)
+    எனில்(!result)
       result = Curl_bufq_cwrite(&ctx->chunkbuf, "\r\n", 2, &n);
     CURL_TRC_READ(data, "http_chunk, made chunk of %zu bytes -> %d",
-                  nread, (int)result);
-    if(result)
-      return result;
+                  nread, (முழு)result);
+    எனில்(result)
+      திரும்பு result;
   }
 
-  if(ctx->read_eos)
-    return add_last_chunk(data, reader);
-  return CURLE_OK;
+  எனில்(ctx->read_eos)
+    திரும்பு add_last_chunk(data, reader);
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode cr_chunked_read(struct Curl_easy *data,
-                                struct Curl_creader *reader,
-                                char *buf, size_t blen,
+நிலையான CURLcode cr_chunked_read(கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு Curl_creader *reader,
+                                எழுத்து *buf, size_t blen,
                                 size_t *pnread, bool *peos)
 {
-  struct chunked_reader *ctx = reader->ctx;
+  கட்டமைப்பு chunked_reader *ctx = reader->ctx;
   CURLcode result = CURLE_READ_ERROR;
 
   *pnread = 0;
   *peos = (bool)ctx->eos;
 
-  if(!ctx->eos) {
-    if(!ctx->read_eos && Curl_bufq_is_empty(&ctx->chunkbuf)) {
+  எனில்(!ctx->eos) {
+    எனில்(!ctx->read_eos && Curl_bufq_is_empty(&ctx->chunkbuf)) {
       /* Still getting data form the next reader, buffer is empty */
       result = add_chunk(data, reader, buf, blen);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
     }
 
-    if(!Curl_bufq_is_empty(&ctx->chunkbuf)) {
+    எனில்(!Curl_bufq_is_empty(&ctx->chunkbuf)) {
       result = Curl_bufq_cread(&ctx->chunkbuf, buf, blen, pnread);
-      if(!result && ctx->read_eos && Curl_bufq_is_empty(&ctx->chunkbuf)) {
+      எனில்(!result && ctx->read_eos && Curl_bufq_is_empty(&ctx->chunkbuf)) {
         /* no more data, read all, done. */
         ctx->eos = TRUE;
         *peos = TRUE;
       }
-      return result;
+      திரும்பு result;
     }
   }
   /* We may get here, because we are done or because callbacks paused */
   DEBUGASSERT(ctx->eos || !ctx->read_eos);
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static curl_off_t cr_chunked_total_length(struct Curl_easy *data,
-                                          struct Curl_creader *reader)
+நிலையான curl_off_t cr_chunked_total_length(கட்டமைப்பு Curl_easy *data,
+                                          கட்டமைப்பு Curl_creader *reader)
 {
   /* this reader changes length depending on input */
-  (void)data;
-  (void)reader;
-  return -1;
+  (வெறுமை)data;
+  (வெறுமை)reader;
+  திரும்பு -1;
 }
 
 /* HTTP chunked Transfer-Encoding encoder */
-const struct Curl_crtype Curl_httpchunk_encoder = {
+மாறிலி கட்டமைப்பு Curl_crtype Curl_httpchunk_encoder = {
   "chunked",
   cr_chunked_init,
   cr_chunked_read,
@@ -672,22 +672,22 @@ const struct Curl_crtype Curl_httpchunk_encoder = {
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
   Curl_creader_def_done,
-  sizeof(struct chunked_reader)
+  அளவு(கட்டமைப்பு chunked_reader)
 };
 
-CURLcode Curl_httpchunk_add_reader(struct Curl_easy *data)
+CURLcode Curl_httpchunk_add_reader(கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_creader *reader = NULL;
+  கட்டமைப்பு Curl_creader *reader = வெற்று;
   CURLcode result;
 
   result = Curl_creader_create(&reader, data, &Curl_httpchunk_encoder,
                                CURL_CR_TRANSFER_ENCODE);
-  if(!result)
+  எனில்(!result)
     result = Curl_creader_add(data, reader);
 
-  if(result && reader)
+  எனில்(result && reader)
     Curl_creader_free(data, reader);
-  return result;
+  திரும்பு result;
 }
 
 #endif /* CURL_DISABLE_HTTP */

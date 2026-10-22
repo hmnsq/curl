@@ -21,85 +21,85 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef USE_CURL_NTLM_CORE
 
-#include "curl_md4.h"
+#அந்தர்பாவ "curl_md4.h"
 
 #ifdef USE_OPENSSL
-#include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#அந்தர்பாவ <openssl/opensslv.h>
+#எனில் OPENSSL_VERSION_எண் >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
 #define OPENSSL_NO_MD4
-#else
+#இல்லையெனில்
 /* Cover also OPENSSL_NO_MD4 configured in OpenSSL */
-#include <openssl/opensslconf.h>
+#அந்தர்பாவ <openssl/opensslconf.h>
 #endif
 #endif /* USE_OPENSSL */
 
 #ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
+#அந்தர்பாவ <wolfssl/options.h>
 #endif
 
-#if defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
-#include <openssl/evp.h>
+#எனில் defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
+#அந்தர்பாவ <openssl/evp.h>
 
-typedef EVP_MD_CTX *my_md4_ctx;
+வகைவரை EVP_MD_CTX *my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+நிலையான முழு my_md4_init(my_md4_ctx *ctx)
 {
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return 0;
+  எனில்(!*ctx)
+    திரும்பு 0;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
+  எனில்(!EVP_DigestInit_ex(*ctx, EVP_md4(), வெற்று)) {
     EVP_MD_CTX_free(*ctx);
-    return 0;
+    திரும்பு 0;
   }
-  return 1;
+  திரும்பு 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+நிலையான வெறுமை my_md4_update(my_md4_ctx *ctx,
+                          மாறிலி unsigned எழுத்து *உள்ளீடு, unsigned முழு len)
 {
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (வெறுமை)EVP_DigestUpdate(*ctx, உள்ளீடு, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+நிலையான வெறுமை my_md4_final(unsigned எழுத்து *digest, my_md4_ctx *ctx)
 {
-  (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
+  (வெறுமை)EVP_DigestFinal_ex(*ctx, digest, வெற்று);
   EVP_MD_CTX_free(*ctx);
 }
 
-#elif defined(USE_WOLFSSL) && !defined(NO_MD4)
-#include <wolfssl/wolfcrypt/md4.h>
-#include <wolfssl/version.h>
+#அல்லதெனில் defined(USE_WOLFSSL) && !defined(NO_MD4)
+#அந்தர்பாவ <wolfssl/wolfcrypt/md4.h>
+#அந்தர்பாவ <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX >= 0x05007006
-typedef wc_Md4 my_md4_ctx;
-#else
-typedef Md4 my_md4_ctx;
+#எனில் LIBWOLFSSL_VERSION_HEX >= 0x05007006
+வகைவரை wc_Md4 my_md4_ctx;
+#இல்லையெனில்
+வகைவரை Md4 my_md4_ctx;
 #endif
 
-static int my_md4_init(my_md4_ctx *ctx)
+நிலையான முழு my_md4_init(my_md4_ctx *ctx)
 {
   wc_InitMd4(ctx);
-  return 1;
+  திரும்பு 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+நிலையான வெறுமை my_md4_update(my_md4_ctx *ctx,
+                          மாறிலி வெறுமை *உள்ளீடு, unsigned long len)
 {
-  wc_Md4Update(ctx, input, (word32)len);
+  wc_Md4Update(ctx, உள்ளீடு, (word32)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+நிலையான வெறுமை my_md4_final(unsigned எழுத்து *digest, my_md4_ctx *ctx)
 {
   wc_Md4Final(ctx, digest);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#அல்லதெனில் (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040 && \
        defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
                __MAC_OS_X_VERSION_MIN_REQUIRED < 101500) || \
@@ -107,102 +107,102 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000 && \
        defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
                __IPHONE_OS_VERSION_MIN_REQUIRED < 130000)
-#include <CommonCrypto/CommonDigest.h>
+#அந்தர்பாவ <CommonCrypto/CommonDigest.h>
 
-typedef CC_MD4_CTX my_md4_ctx;
+வகைவரை CC_MD4_CTX my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+நிலையான முழு my_md4_init(my_md4_ctx *ctx)
 {
-  return CC_MD4_Init(ctx);  /* always returns 1 */
+  திரும்பு CC_MD4_Init(ctx);  /* always returns 1 */
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+நிலையான வெறுமை my_md4_update(my_md4_ctx *ctx,
+                          மாறிலி வெறுமை *உள்ளீடு, unsigned long len)
 {
-  (void)CC_MD4_Update(ctx, input, (CC_LONG)len);
+  (வெறுமை)CC_MD4_Update(ctx, உள்ளீடு, (CC_LONG)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+நிலையான வெறுமை my_md4_final(unsigned எழுத்து *digest, my_md4_ctx *ctx)
 {
-  (void)CC_MD4_Final(digest, ctx);
+  (வெறுமை)CC_MD4_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#அல்லதெனில் defined(USE_WIN32_CRYPTO)
+#அந்தர்பாவ <wincrypt.h>
 
-struct md4_ctx {
+கட்டமைப்பு md4_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md4_ctx my_md4_ctx;
+வகைவரை கட்டமைப்பு md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+நிலையான முழு my_md4_init(my_md4_ctx *ctx)
 {
   ctx->hCryptProv = 0;
   ctx->hHash = 0;
 
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  எனில்(!CryptAcquireContext(&ctx->hCryptProv, வெற்று, வெற்று, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 0;
+    திரும்பு 0;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
+  எனில்(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return 0;
+    திரும்பு 0;
   }
 
-  return 1;
+  திரும்பு 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+நிலையான வெறுமை my_md4_update(my_md4_ctx *ctx,
+                          மாறிலி வெறுமை *உள்ளீடு, unsigned long len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  CryptHashData(ctx->hHash, (மாறிலி BYTE *)உள்ளீடு, (unsigned முழு)len, 0);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+நிலையான வெறுமை my_md4_final(unsigned எழுத்து *digest, my_md4_ctx *ctx)
 {
   unsigned long length = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD4_DIGEST_LENGTH)
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, வெற்று, &length, 0);
+  எனில்(length == MD4_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  எனில்(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  எனில்(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/md4.h>
-#include <nettle/version.h>
+#அல்லதெனில் defined(USE_GNUTLS)
+#அந்தர்பாவ <nettle/md4.h>
+#அந்தர்பாவ <nettle/version.h>
 
-typedef struct md4_ctx my_md4_ctx;
+வகைவரை கட்டமைப்பு md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+நிலையான முழு my_md4_init(my_md4_ctx *ctx)
 {
   md4_init(ctx);
-  return 1;
+  திரும்பு 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+நிலையான வெறுமை my_md4_update(my_md4_ctx *ctx,
+                          மாறிலி வெறுமை *உள்ளீடு, unsigned long len)
 {
-  md4_update(ctx, len, input);
+  md4_update(ctx, len, உள்ளீடு);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+நிலையான வெறுமை my_md4_final(unsigned எழுத்து *digest, my_md4_ctx *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#எனில் NETTLE_VERSION_MAJOR >= 4
   md4_digest(ctx, digest);
-#else
+#இல்லையெனில்
   md4_digest(ctx, MD4_DIGEST_SIZE, digest);
 #endif
 }
 
-#else
+#இல்லையெனில்
 /* When no other crypto library is available, or the crypto library does not
  * support MD4, we use this code segment this implementation of it
  *
@@ -230,13 +230,13 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md4_ctx {
+கட்டமைப்பு md4_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
+  unsigned எழுத்து buffer[64];
   uint32_t block[16];
 };
-typedef struct md4_ctx my_md4_ctx;
+வகைவரை கட்டமைப்பு md4_ctx my_md4_ctx;
 
 /*
  * The basic MD4 functions.
@@ -262,10 +262,10 @@ typedef struct md4_ctx my_md4_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define MD4_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
+#எனில் defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#define MD4_SET(n) (*(மாறிலி uint32_t *)(மாறிலி வெறுமை *)&ptr[(n) * 4])
 #define MD4_GET(n) MD4_SET(n)
-#else
+#இல்லையெனில்
 #define MD4_SET(n) (ctx->block[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
@@ -278,20 +278,20 @@ typedef struct md4_ctx my_md4_ctx;
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters. There are no alignment requirements.
  */
-static const void *my_md4_body(my_md4_ctx *ctx,
-                               const void *input, unsigned long size)
+நிலையான மாறிலி வெறுமை *my_md4_body(my_md4_ctx *ctx,
+                               மாறிலி வெறுமை *உள்ளீடு, unsigned long size)
 {
-  const unsigned char *ptr;
+  மாறிலி unsigned எழுத்து *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)input;
+  ptr = (மாறிலி unsigned எழுத்து *)உள்ளீடு;
 
   a = ctx->a;
   b = ctx->b;
   c = ctx->c;
   d = ctx->d;
 
-  do {
+  செய் {
     uint32_t saved_a, saved_b, saved_c, saved_d;
 
     saved_a = a;
@@ -359,17 +359,17 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } போது(size -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  திரும்பு ptr;
 }
 
-static int my_md4_init(my_md4_ctx *ctx)
+நிலையான முழு my_md4_init(my_md4_ctx *ctx)
 {
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
@@ -379,46 +379,46 @@ static int my_md4_init(my_md4_ctx *ctx)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return 1;
+  திரும்பு 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+நிலையான வெறுமை my_md4_update(my_md4_ctx *ctx,
+                          மாறிலி வெறுமை *உள்ளீடு, unsigned long len)
 {
   uint32_t saved_lo;
   unsigned long used;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  எனில்(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
   used = saved_lo & 0x3f;
 
-  if(used) {
+  எனில்(used) {
     unsigned long available = 64 - used;
 
-    if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
-      return;
+    எனில்(len < available) {
+      memcpy(&ctx->buffer[used], உள்ளீடு, len);
+      திரும்பு;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
+    memcpy(&ctx->buffer[used], உள்ளீடு, available);
+    உள்ளீடு = (மாறிலி unsigned எழுத்து *)உள்ளீடு + available;
     len -= available;
     my_md4_body(ctx, ctx->buffer, 64);
   }
 
-  if(len >= 64) {
-    input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
+  எனில்(len >= 64) {
+    உள்ளீடு = my_md4_body(ctx, உள்ளீடு, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  memcpy(ctx->buffer, உள்ளீடு, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+நிலையான வெறுமை my_md4_final(unsigned எழுத்து *digest, my_md4_ctx *ctx)
 {
   unsigned long used, available;
 
@@ -428,7 +428,7 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 
   available = 64 - used;
 
-  if(available < 8) {
+  எனில்(available < 8) {
     memset(&ctx->buffer[used], 0, available);
     my_md4_body(ctx, ctx->buffer, 64);
     used = 0;
@@ -466,20 +466,20 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, அளவு(*ctx));
 }
 
 #endif /* CRYPTO LIBS */
 
-CURLcode Curl_md4it(unsigned char *output,
-                    const unsigned char *input, const size_t len)
+CURLcode Curl_md4it(unsigned எழுத்து *output,
+                    மாறிலி unsigned எழுத்து *உள்ளீடு, மாறிலி size_t len)
 {
   my_md4_ctx ctx;
-  if(!my_md4_init(&ctx))
-    return CURLE_FAILED_INIT;
-  my_md4_update(&ctx, input, curlx_uztoui(len));
+  எனில்(!my_md4_init(&ctx))
+    திரும்பு CURLE_FAILED_INIT;
+  my_md4_update(&ctx, உள்ளீடு, curlx_uztoui(len));
   my_md4_final(output, &ctx);
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 #endif /* USE_CURL_NTLM_CORE */

@@ -24,23 +24,23 @@
  *   IMAP, POP3, SMTP and whatever more that likes them.
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "urldata.h"
-#include "pingpong.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "pingpong.h"
 
 #ifdef USE_PINGPONG
 
-#include "cfilters.h"
-#include "connect.h"
-#include "multiif.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "select.h"
-#include "progress.h"
+#அந்தர்பாவ "cfilters.h"
+#அந்தர்பாவ "connect.h"
+#அந்தர்பாவ "multiif.h"
+#அந்தர்பாவ "sendf.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "select.h"
+#அந்தர்பாவ "progress.h"
 
-timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
-                                     struct pingpong *pp)
+timediff_t Curl_pp_state_timeleft_ms(கட்டமைப்பு Curl_easy *data,
+                                     கட்டமைப்பு pingpong *pp)
 {
   timediff_t xfer_remain_ms;
   timediff_t remain_ms = data->set.server_response_timeout ?
@@ -51,77 +51,77 @@ timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
   remain_ms -= curlx_ptimediff_ms(Curl_pgrs_now(data), &pp->response);
   /* transfer remaining time is 0, when it has no timeout. */
   xfer_remain_ms = Curl_timeleft_ms(data);
-  if(xfer_remain_ms)
-    return CURLMIN(remain_ms, xfer_remain_ms);
-  return remain_ms;
+  எனில்(xfer_remain_ms)
+    திரும்பு CURLMIN(remain_ms, xfer_remain_ms);
+  திரும்பு remain_ms;
 }
 
 /*
  * Curl_pp_statemach()
  */
-CURLcode Curl_pp_statemach(struct Curl_easy *data,
-                           struct pingpong *pp, bool block,
+CURLcode Curl_pp_statemach(கட்டமைப்பு Curl_easy *data,
+                           கட்டமைப்பு pingpong *pp, bool block,
                            bool disconnecting)
 {
-  struct connectdata *conn = data->conn;
+  கட்டமைப்பு connectdata *conn = data->conn;
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int rc;
+  முழு rc;
   timediff_t interval_ms;
   timediff_t timeout_ms = Curl_pp_state_timeleft_ms(data, pp);
   CURLcode result = CURLE_OK;
 
-  if(timeout_ms <= 0) {
+  எனில்(timeout_ms <= 0) {
     failf(data, "server response timeout");
-    return CURLE_OPERATION_TIMEDOUT; /* already too little time */
+    திரும்பு CURLE_OPERATION_TIMEDOUT; /* already too little time */
   }
 
-  if(block) {
+  எனில்(block) {
     interval_ms = 1000;  /* use 1 second timeout intervals */
-    if(timeout_ms < interval_ms)
+    எனில்(timeout_ms < interval_ms)
       interval_ms = timeout_ms;
   }
-  else {
+  இல்லையெனில் {
     interval_ms = 0; /* immediate */
     /* Wake the multi socket API even when the server sends no response. */
     Curl_expire(data, timeout_ms, EXPIRE_SERVER_RESPONSE);
   }
 
-  if(Curl_conn_data_pending(data, FIRSTSOCKET))
+  எனில்(Curl_conn_data_pending(data, FIRSTSOCKET))
     rc = 1;
-  else if(pp->overflow)
+  இல்லையெனில் எனில்(pp->overflow)
     /* We are receiving and there is data in the cache so read it */
     rc = 1;
-  else if(!pp->sendleft && Curl_conn_data_pending(data, FIRSTSOCKET))
+  இல்லையெனில் எனில்(!pp->sendleft && Curl_conn_data_pending(data, FIRSTSOCKET))
     /* We are receiving and there is data ready in the SSL library */
     rc = 1;
-  else {
+  இல்லையெனில் {
     rc = Curl_socket_check(pp->sendleft ? CURL_SOCKET_BAD : sock, /* reading */
                            CURL_SOCKET_BAD,
                            pp->sendleft ? sock : CURL_SOCKET_BAD, /* writing */
                            interval_ms);
   }
 
-  if(block) {
+  எனில்(block) {
     /* if we did not wait, we do not have to spend time on this now */
     result = Curl_pgrsCheck(data);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
   }
 
-  if(rc == -1) {
+  எனில்(rc == -1) {
     failf(data, "select/poll error");
     result = CURLE_OUT_OF_MEMORY;
   }
-  else if(rc)
+  இல்லையெனில் எனில்(rc)
     result = pp->statemachine(data, data->conn);
-  else if(disconnecting)
-    return CURLE_OPERATION_TIMEDOUT;
+  இல்லையெனில் எனில்(disconnecting)
+    திரும்பு CURLE_OPERATION_TIMEDOUT;
 
-  return result;
+  திரும்பு result;
 }
 
 /* initialize stuff to prepare for reading a fresh new response */
-void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow)
+வெறுமை Curl_pp_init(கட்டமைப்பு pingpong *pp, மாறிலி கட்டமைப்பு curltime *pnow)
 {
   DEBUGASSERT(!pp->initialized);
   pp->nread_resp = 0;
@@ -132,41 +132,41 @@ void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow)
   pp->initialized = TRUE;
 }
 
-CURLcode Curl_pp_vsendf(struct Curl_easy *data,
-                        struct pingpong *pp,
-                        const char *prefix,
-                        const char *fmt,
+CURLcode Curl_pp_vsendf(கட்டமைப்பு Curl_easy *data,
+                        கட்டமைப்பு pingpong *pp,
+                        மாறிலி எழுத்து *prefix,
+                        மாறிலி எழுத்து *fmt,
                         va_list args)
 {
   size_t bytes_written = 0;
   size_t write_len;
-  char *s;
+  எழுத்து *s;
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  கட்டமைப்பு connectdata *conn = data->conn;
 
   DEBUGASSERT(pp->sendleft == 0);
   DEBUGASSERT(pp->sendsize == 0);
   DEBUGASSERT(!pp->sendthis);
 
-  if(!conn)
+  எனில்(!conn)
     /* cannot send without a connection! */
-    return CURLE_SEND_ERROR;
+    திரும்பு CURLE_SEND_ERROR;
 
   curlx_dyn_reset(&pp->sendbuf);
-  if(prefix) {
+  எனில்(prefix) {
     result = curlx_dyn_add(&pp->sendbuf, prefix);
-    if(!result)
+    எனில்(!result)
       result = curlx_dyn_addn(&pp->sendbuf, " ", 1);
   }
-  if(!result)
+  எனில்(!result)
     result = curlx_dyn_vaddf(&pp->sendbuf, fmt, args);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
   /* append CRLF */
   result = curlx_dyn_addn(&pp->sendbuf, "\r\n", 2);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
   pp->pending_resp = TRUE;
   write_len = curlx_dyn_len(&pp->sendbuf);
@@ -174,50 +174,50 @@ CURLcode Curl_pp_vsendf(struct Curl_easy *data,
 
   result = Curl_conn_send(data, FIRSTSOCKET, s, write_len, FALSE,
                           &bytes_written);
-  if(result == CURLE_AGAIN) {
+  எனில்(result == CURLE_AGAIN) {
     bytes_written = 0;
   }
-  else if(result)
-    return result;
+  இல்லையெனில் எனில்(result)
+    திரும்பு result;
 
   Curl_debug(data, CURLINFO_HEADER_OUT, s, bytes_written);
 
-  if(bytes_written < write_len) {
+  எனில்(bytes_written < write_len) {
     /* the whole chunk was not sent, keep it around and adjust sizes */
     pp->sendthis = s;
     pp->sendsize = write_len;
     pp->sendleft = write_len - bytes_written;
   }
-  else {
-    pp->sendthis = NULL;
+  இல்லையெனில் {
+    pp->sendthis = வெற்று;
     pp->sendleft = pp->sendsize = 0;
     pp->response = *Curl_pgrs_now(data);
   }
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-CURLcode Curl_pp_sendf(struct Curl_easy *data, struct pingpong *pp,
-                       const char *fmt, ...)
+CURLcode Curl_pp_sendf(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு pingpong *pp,
+                       மாறிலி எழுத்து *fmt, ...)
 {
   CURLcode result;
   va_list ap;
   va_start(ap, fmt);
 
-  result = Curl_pp_vsendf(data, pp, NULL, fmt, ap);
+  result = Curl_pp_vsendf(data, pp, வெற்று, fmt, ap);
 
   va_end(ap);
 
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode pingpong_read(struct Curl_easy *data,
+நிலையான CURLcode pingpong_read(கட்டமைப்பு Curl_easy *data,
                               int8_t sockindex,
-                              char *buffer,
+                              எழுத்து *buffer,
                               size_t buflen,
                               size_t *nread)
 {
-  return Curl_conn_recv(data, sockindex, buffer, buflen, nread);
+  திரும்பு Curl_conn_recv(data, sockindex, buffer, buflen, nread);
 }
 
 /*
@@ -225,24 +225,24 @@ static CURLcode pingpong_read(struct Curl_easy *data,
  *
  * Reads a piece of a server response.
  */
-CURLcode Curl_pp_readresp(struct Curl_easy *data,
+CURLcode Curl_pp_readresp(கட்டமைப்பு Curl_easy *data,
                           int8_t sockindex,
-                          struct pingpong *pp,
-                          int *code, /* return the server code if done */
+                          கட்டமைப்பு pingpong *pp,
+                          முழு *code, /* return the server code if done */
                           size_t *size) /* size of the response */
 {
-  struct connectdata *conn = data->conn;
+  கட்டமைப்பு connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
   size_t gotbytes;
-  char buffer[900];
-  int maxloops = 10;
+  எழுத்து buffer[900];
+  முழு maxloops = 10;
 
   *code = 0; /* 0 for errors or not done */
   *size = 0;
 
-  do {
+  செய் {
     gotbytes = 0;
-    if(pp->nfinal) {
+    எனில்(pp->nfinal) {
       /* a previous call left this many bytes in the beginning of the buffer as
          that was the final line; now ditch that */
       size_t full = curlx_dyn_len(&pp->recvbuf);
@@ -252,155 +252,155 @@ CURLcode Curl_pp_readresp(struct Curl_easy *data,
 
       pp->nfinal = 0; /* now gone */
     }
-    if(!pp->overflow) {
-      if(!maxloops--) /* don't get stuck */
-        return CURLE_OK;
+    எனில்(!pp->overflow) {
+      எனில்(!maxloops--) /* don't get stuck */
+        திரும்பு CURLE_OK;
 
-      result = pingpong_read(data, sockindex, buffer, sizeof(buffer),
+      result = pingpong_read(data, sockindex, buffer, அளவு(buffer),
                              &gotbytes);
-      if(result == CURLE_AGAIN)
-        return CURLE_OK;
+      எனில்(result == CURLE_AGAIN)
+        திரும்பு CURLE_OK;
 
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
 
-      if(!gotbytes) {
+      எனில்(!gotbytes) {
         failf(data, "response reading failed (errno: %d)", SOCKERRNO);
-        return CURLE_RECV_ERROR;
+        திரும்பு CURLE_RECV_ERROR;
       }
 
       result = curlx_dyn_addn(&pp->recvbuf, buffer, gotbytes);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
 
-      data->req.headerbytecount += (unsigned int)gotbytes;
+      data->req.headerbytecount += (unsigned முழு)gotbytes;
 
       pp->nread_resp += gotbytes;
     }
 
-    do {
-      const char *line = curlx_dyn_ptr(&pp->recvbuf);
-      const char *nl = memchr(line, '\n', curlx_dyn_len(&pp->recvbuf));
-      if(nl) {
+    செய் {
+      மாறிலி எழுத்து *வரி = curlx_dyn_ptr(&pp->recvbuf);
+      மாறிலி எழுத்து *nl = memchr(வரி, '\n', curlx_dyn_len(&pp->recvbuf));
+      எனில்(nl) {
         /* a newline is CRLF in pp-talk, so the CR is ignored as
            the line is not really terminated until the LF comes */
-        size_t length = nl - line + 1;
+        size_t length = nl - வரி + 1;
 
-        if(memchr(line, 0, length)) {
+        எனில்(memchr(வரி, 0, length)) {
           /* The response line is passed on as a "header" below, so reject an
              embedded NUL byte the same way verify_header() does for HTTP. */
           failf(data, "NUL byte in server response line");
-          return CURLE_WEIRD_SERVER_REPLY;
+          திரும்பு CURLE_WEIRD_SERVER_REPLY;
         }
 
         /* output debug output if that is requested */
-        Curl_debug(data, CURLINFO_HEADER_IN, line, length);
+        Curl_debug(data, CURLINFO_HEADER_IN, வரி, length);
 
         /*
          * Pass all response-lines to the callback function registered for
          * "headers". The response lines can be seen as a kind of headers.
          */
-        result = Curl_client_write(data, CLIENTWRITE_INFO, line, length);
-        if(result)
-          return result;
+        result = Curl_client_write(data, CLIENTWRITE_INFO, வரி, length);
+        எனில்(result)
+          திரும்பு result;
 
-        if(pp->endofresp(data, conn, line, length, code)) {
+        எனில்(pp->endofresp(data, conn, வரி, length, code)) {
           /* When at "end of response", keep the endofresp line first in the
              buffer since it will be accessed outside (by pingpong
              parsers). Store the overflow counter to inform about additional
              data in this buffer after the endofresp line. */
           pp->nfinal = length;
-          if(curlx_dyn_len(&pp->recvbuf) > length)
+          எனில்(curlx_dyn_len(&pp->recvbuf) > length)
             pp->overflow = curlx_dyn_len(&pp->recvbuf) - length;
-          else
+          இல்லையெனில்
             pp->overflow = 0;
           *size = pp->nread_resp; /* size of the response */
           pp->nread_resp = 0; /* restart */
           gotbytes = 0; /* force break out of outer loop */
-          break;
+          நிறுத்து;
         }
-        if(curlx_dyn_len(&pp->recvbuf) > length)
+        எனில்(curlx_dyn_len(&pp->recvbuf) > length)
           /* keep the remaining piece */
           curlx_dyn_tail((&pp->recvbuf), curlx_dyn_len(&pp->recvbuf) - length);
-        else
+        இல்லையெனில்
           curlx_dyn_reset(&pp->recvbuf);
       }
-      else {
+      இல்லையெனில் {
         /* without a newline, there is no overflow */
         pp->overflow = 0;
-        break;
+        நிறுத்து;
       }
 
-    } while(1); /* while there is buffer left to scan */
+    } போது(1); /* while there is buffer left to scan */
 
-  } while(gotbytes == sizeof(buffer));
+  } போது(gotbytes == அளவு(buffer));
 
   pp->pending_resp = FALSE;
 
-  return result;
+  திரும்பு result;
 }
 
-CURLcode Curl_pp_pollset(struct Curl_easy *data,
-                         struct pingpong *pp,
-                         struct easy_pollset *ps)
+CURLcode Curl_pp_pollset(கட்டமைப்பு Curl_easy *data,
+                         கட்டமைப்பு pingpong *pp,
+                         கட்டமைப்பு easy_pollset *ps)
 {
-  int flags = pp->sendleft ? CURL_POLL_OUT : CURL_POLL_IN;
-  return Curl_pollset_change(data, ps, data->conn->sock[FIRSTSOCKET],
+  முழு flags = pp->sendleft ? CURL_POLL_OUT : CURL_POLL_IN;
+  திரும்பு Curl_pollset_change(data, ps, data->conn->sock[FIRSTSOCKET],
                              flags, 0);
 }
 
-bool Curl_pp_needs_flush(struct Curl_easy *data,
-                         struct pingpong *pp)
+bool Curl_pp_needs_flush(கட்டமைப்பு Curl_easy *data,
+                         கட்டமைப்பு pingpong *pp)
 {
-  (void)data;
-  return pp->sendleft > 0;
+  (வெறுமை)data;
+  திரும்பு pp->sendleft > 0;
 }
 
-CURLcode Curl_pp_flushsend(struct Curl_easy *data,
-                           struct pingpong *pp)
+CURLcode Curl_pp_flushsend(கட்டமைப்பு Curl_easy *data,
+                           கட்டமைப்பு pingpong *pp)
 {
   /* we have a piece of a command still left to send */
   size_t written;
   CURLcode result;
 
-  if(!Curl_pp_needs_flush(data, pp))
-    return CURLE_OK;
+  எனில்(!Curl_pp_needs_flush(data, pp))
+    திரும்பு CURLE_OK;
 
   result = Curl_conn_send(data, FIRSTSOCKET,
                           pp->sendthis + pp->sendsize - pp->sendleft,
                           pp->sendleft, FALSE, &written);
-  if(result == CURLE_AGAIN) {
+  எனில்(result == CURLE_AGAIN) {
     result = CURLE_OK;
     written = 0;
   }
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
-  if(written < pp->sendleft) {
+  எனில்(written < pp->sendleft) {
     /* only a fraction was sent */
     pp->sendleft -= written;
   }
-  else {
-    pp->sendthis = NULL;
+  இல்லையெனில் {
+    pp->sendthis = வெற்று;
     pp->sendleft = pp->sendsize = 0;
     pp->response = *Curl_pgrs_now(data);
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-CURLcode Curl_pp_disconnect(struct pingpong *pp)
+CURLcode Curl_pp_disconnect(கட்டமைப்பு pingpong *pp)
 {
-  if(pp->initialized) {
+  எனில்(pp->initialized) {
     curlx_dyn_free(&pp->sendbuf);
     curlx_dyn_free(&pp->recvbuf);
-    memset(pp, 0, sizeof(*pp));
+    memset(pp, 0, அளவு(*pp));
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-bool Curl_pp_moredata(struct pingpong *pp)
+bool Curl_pp_moredata(கட்டமைப்பு pingpong *pp)
 {
-  return !pp->sendleft && curlx_dyn_len(&pp->recvbuf) > pp->nfinal;
+  திரும்பு !pp->sendleft && curlx_dyn_len(&pp->recvbuf) > pp->nfinal;
 }
 
 #endif

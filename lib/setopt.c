@@ -21,125 +21,125 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#அந்தர்பாவ <netinet/in.h>
 #endif
 
 #ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
-#elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
+#அந்தர்பாவ <linux/tcp.h>
+#அல்லதெனில் defined(HAVE_NETINET_TCP_H)
+#அந்தர்பாவ <netinet/tcp.h>
 #endif
 
-#include "urldata.h"
-#include "url.h"
-#include "progress.h"
-#include "content_encoding.h"
-#include "strcase.h"
-#include "curl_share.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "setopt.h"
-#include "altsvc.h"
-#include "hsts.h"
-#include "tftp.h"
-#include "curlx/strdup.h"
-#include "escape.h"
-#include "bufref.h"
-#include "vauth/vauth.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "url.h"
+#அந்தர்பாவ "progress.h"
+#அந்தர்பாவ "content_encoding.h"
+#அந்தர்பாவ "strcase.h"
+#அந்தர்பாவ "curl_share.h"
+#அந்தர்பாவ "vtls/vtls.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "setopt.h"
+#அந்தர்பாவ "altsvc.h"
+#அந்தர்பாவ "hsts.h"
+#அந்தர்பாவ "tftp.h"
+#அந்தர்பாவ "curlx/strdup.h"
+#அந்தர்பாவ "escape.h"
+#அந்தர்பாவ "bufref.h"
+#அந்தர்பாவ "vauth/vauth.h"
 
-static CURLcode setopt_set_timeout_sec(timediff_t *ptimeout_ms, long secs)
+நிலையான CURLcode setopt_set_timeout_sec(timediff_t *ptimeout_ms, long secs)
 {
-  if(secs < 0)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#if LONG_MAX > (TIMEDIFF_T_MAX / 1000)
-  if(secs > (TIMEDIFF_T_MAX / 1000)) {
+  எனில்(secs < 0)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+#எனில் LONG_MAX > (TIMEDIFF_T_MAX / 1000)
+  எனில்(secs > (TIMEDIFF_T_MAX / 1000)) {
     *ptimeout_ms = TIMEDIFF_T_MAX;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
 #endif
   *ptimeout_ms = (timediff_t)secs * 1000;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode setopt_set_timeout_ms(timediff_t *ptimeout_ms, long ms)
+நிலையான CURLcode setopt_set_timeout_ms(timediff_t *ptimeout_ms, long ms)
 {
-  if(ms < 0)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#if LONG_MAX > TIMEDIFF_T_MAX
-  if(ms > TIMEDIFF_T_MAX) {
+  எனில்(ms < 0)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+#எனில் LONG_MAX > TIMEDIFF_T_MAX
+  எனில்(ms > TIMEDIFF_T_MAX) {
     *ptimeout_ms = TIMEDIFF_T_MAX;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
 #endif
   *ptimeout_ms = (timediff_t)ms;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-CURLcode Curl_setstropt(struct Curl_easy *data,
-                        enum dupstring id, const char *s)
+CURLcode Curl_setstropt(கட்டமைப்பு Curl_easy *data,
+                        எண்ணிக்கை dupstring id, மாறிலி எழுத்து *s)
 {
   size_t slen = s ? strlen(s) : 0;
   DEBUGASSERT((unsigned)id <= UINT8_MAX);
-  if(s && (slen > CURL_MAX_INPUT_LENGTH))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(s && (slen > CURL_MAX_உள்ளீடு_LENGTH))
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
-  return CURL_EASY_STR_SET(data, (uint8_t)id, s, slen);
+  திரும்பு CURL_EASY_STR_SET(data, (uint8_t)id, s, slen);
 }
 
-CURLcode Curl_setblobopt(struct curl_blob **blobp,
-                         const struct curl_blob *blob)
+CURLcode Curl_setblobopt(கட்டமைப்பு curl_blob **blobp,
+                         மாறிலி கட்டமைப்பு curl_blob *blob)
 {
   /* free the previous storage at `blobp' and replace by a dynamic storage
      copy of blob. If CURL_BLOB_COPY is set, the data is copied. */
 
   curlx_safefree(*blobp);
 
-  if(blob) {
-    struct curl_blob *nblob;
-    if(!blob->data || !blob->len || (blob->len > CURL_MAX_INPUT_LENGTH))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    nblob = (struct curl_blob *)
-      curlx_malloc(sizeof(struct curl_blob) +
+  எனில்(blob) {
+    கட்டமைப்பு curl_blob *nblob;
+    எனில்(!blob->data || !blob->len || (blob->len > CURL_MAX_உள்ளீடு_LENGTH))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+    nblob = (கட்டமைப்பு curl_blob *)
+      curlx_malloc(அளவு(கட்டமைப்பு curl_blob) +
                    ((blob->flags & CURL_BLOB_COPY) ? blob->len : 0));
-    if(!nblob)
-      return CURLE_OUT_OF_MEMORY;
+    எனில்(!nblob)
+      திரும்பு CURLE_OUT_OF_MEMORY;
     *nblob = *blob;
-    if(blob->flags & CURL_BLOB_COPY) {
+    எனில்(blob->flags & CURL_BLOB_COPY) {
       /* put the data after the blob struct in memory */
-      nblob->data = (char *)nblob + sizeof(struct curl_blob);
+      nblob->data = (எழுத்து *)nblob + அளவு(கட்டமைப்பு curl_blob);
       memcpy(nblob->data, blob->data, blob->len);
     }
 
     *blobp = nblob;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode setstropt_userpwd(const char *option, char **userp,
-                                  char **passwdp)
+நிலையான CURLcode setstropt_userpwd(மாறிலி எழுத்து *option, எழுத்து **userp,
+                                  எழுத்து **passwdp)
 {
-  char *user = NULL;
-  char *passwd = NULL;
+  எழுத்து *user = வெற்று;
+  எழுத்து *passwd = வெற்று;
 
   DEBUGASSERT(userp);
   DEBUGASSERT(passwdp);
 
   /* Parse the login details if specified. If not, then we treat NULL as a
      hint to clear the existing data */
-  if(option) {
+  எனில்(option) {
     size_t len = strlen(option);
     CURLcode result;
-    if(len > CURL_MAX_INPUT_LENGTH)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(len > CURL_MAX_உள்ளீடு_LENGTH)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
-    result = Curl_parse_login_details(option, len, &user, &passwd, NULL);
-    if(result)
-      return result;
+    result = Curl_parse_login_details(option, len, &user, &passwd, வெற்று);
+    எனில்(result)
+      திரும்பு result;
   }
 
   curlx_free(*userp);
@@ -149,31 +149,31 @@ static CURLcode setstropt_userpwd(const char *option, char **userp,
   curlx_free(*passwdp);
   *passwdp = passwd;
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode setstropt_interface(struct Curl_easy *data, char *option)
+நிலையான CURLcode setstropt_interface(கட்டமைப்பு Curl_easy *data, எழுத்து *option)
 {
-  if(option && !option[0])
-    option = NULL;
-  if(option) {
+  எனில்(option && !option[0])
+    option = வெற்று;
+  எனில்(option) {
     /* Parse for checking syntax */
-    CURLcode result = Curl_parse_interface(option, NULL, NULL, NULL);
-    if(result)
-      return result;
-    return CURL_EASY_STR_SET(data, STRING_INTERFACE_OPT,
+    CURLcode result = Curl_parse_interface(option, வெற்று, வெற்று, வெற்று);
+    எனில்(result)
+      திரும்பு result;
+    திரும்பு CURL_EASY_STR_SET(data, STRING_INTERFACE_OPT,
                              option, strlen(option));
   }
   CURL_EASY_STR_CLEAR(data, STRING_INTERFACE_OPT);
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 #ifdef USE_SSL
-#define C_SSLVERSION_VALUE(x)     ((x) & 0xffff)
-#define C_SSLVERSION_MAX_VALUE(x) ((unsigned long)(x) & 0xffff0000)
+#define C_SSLVERSION_மதிப்பு(x)     ((x) & 0xffff)
+#define C_SSLVERSION_MAX_மதிப்பு(x) ((unsigned long)(x) & 0xffff0000)
 #endif
 
-static CURLcode protocol2num(const char *str, curl_prot_t *val)
+நிலையான CURLcode protocol2num(மாறிலி எழுத்து *str, curl_prot_t *val)
 {
   /*
    * We are asked to cherry-pick protocols, so play it safe and disallow all
@@ -181,44 +181,44 @@ static CURLcode protocol2num(const char *str, curl_prot_t *val)
    */
   *val = 0;
 
-  if(!str)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(!str)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(curl_strequal(str, "all")) {
+  எனில்(curl_strequal(str, "all")) {
     *val = ~(curl_prot_t)0;
-    return CURLE_OK;
+    திரும்பு CURLE_OK;
   }
 
-  do {
-    const char *token = str;
+  செய் {
+    மாறிலி எழுத்து *token = str;
     size_t tlen;
 
     str = strchr(str, ',');
     tlen = str ? (size_t)(str - token) : strlen(token);
-    if(tlen) {
-      const struct Curl_scheme *h = Curl_getn_scheme(token, tlen);
+    எனில்(tlen) {
+      மாறிலி கட்டமைப்பு Curl_scheme *h = Curl_getn_scheme(token, tlen);
 
-      if(!h || !h->run)
-        return CURLE_UNSUPPORTED_PROTOCOL;
+      எனில்(!h || !h->run)
+        திரும்பு CURLE_UNSUPPORTED_PROTOCOL;
 
       *val |= h->protocol;
     }
-  } while(str && str++);
+  } போது(str && str++);
 
-  if(!*val)
+  எனில்(!*val)
     /* no protocol listed */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return CURLE_OK;
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+  திரும்பு CURLE_OK;
 }
 
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
-static CURLcode httpauth(struct Curl_easy *data, bool proxy,
+#எனில் !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
+நிலையான CURLcode httpauth(கட்டமைப்பு Curl_easy *data, bool proxy,
                          unsigned long auth)
 {
-  if(auth != CURLAUTH_NONE) {
-    int bitcheck = 0;
+  எனில்(auth != CURLAUTH_NONE) {
+    முழு bitcheck = 0;
     bool authbits = FALSE;
-    if(auth & CURLAUTH_DIGEST_IE) {
+    எனில்(auth & CURLAUTH_DIGEST_IE) {
       auth |= CURLAUTH_DIGEST; /* set standard digest bit */
       auth &= ~CURLAUTH_DIGEST_IE; /* drop the legacy bit */
     }
@@ -233,64 +233,64 @@ static CURLcode httpauth(struct Curl_easy *data, bool proxy,
 #endif
 
     /* check if any auth bit lower than CURLAUTH_ONLY is still set */
-    while(bitcheck < 31) {
-      if(auth & (1UL << bitcheck++)) {
+    போது(bitcheck < 31) {
+      எனில்(auth & (1UL << bitcheck++)) {
         authbits = TRUE;
-        break;
+        நிறுத்து;
       }
     }
-    if(!authbits)
-      return CURLE_NOT_BUILT_IN; /* no supported types left! */
+    எனில்(!authbits)
+      திரும்பு CURLE_NOT_BUILT_IN; /* no supported types left! */
   }
-  if(proxy)
+  எனில்(proxy)
     data->set.proxyauth = (uint32_t)auth;
-  else
+  இல்லையெனில்
     data->set.httpauth = (uint32_t)auth;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 #endif /* !CURL_DISABLE_HTTP || !CURL_DISABLE_PROXY */
 
 #ifndef CURL_DISABLE_HTTP
-static CURLcode setopt_HTTP_VERSION(struct Curl_easy *data, long arg)
+நிலையான CURLcode setopt_HTTP_VERSION(கட்டமைப்பு Curl_easy *data, long arg)
 {
   /*
    * This sets a requested HTTP version to be used. The value is one of
    * the listed enums in curl/curl.h.
    */
-  switch(arg) {
-  case CURL_HTTP_VERSION_NONE:
+  தேர்வு(arg) {
+  நிலை CURL_HTTP_VERSION_NONE:
     /* accepted */
-    break;
-  case CURL_HTTP_VERSION_1_0:
-  case CURL_HTTP_VERSION_1_1:
+    நிறுத்து;
+  நிலை CURL_HTTP_VERSION_1_0:
+  நிலை CURL_HTTP_VERSION_1_1:
     /* accepted */
-    break;
+    நிறுத்து;
 #ifdef USE_HTTP2
-  case CURL_HTTP_VERSION_2_0:
-  case CURL_HTTP_VERSION_2TLS:
-  case CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE:
+  நிலை CURL_HTTP_VERSION_2_0:
+  நிலை CURL_HTTP_VERSION_2TLS:
+  நிலை CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE:
     /* accepted */
-    break;
+    நிறுத்து;
 #endif
 #ifdef USE_HTTP3
-  case CURL_HTTP_VERSION_3:
-  case CURL_HTTP_VERSION_3ONLY:
+  நிலை CURL_HTTP_VERSION_3:
+  நிலை CURL_HTTP_VERSION_3ONLY:
     /* accepted */
-    break;
+    நிறுத்து;
 #endif
-  default:
+  இயல்பு:
     /* not accepted */
-    if(arg < CURL_HTTP_VERSION_NONE)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    எனில்(arg < CURL_HTTP_VERSION_NONE)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+    திரும்பு CURLE_UNSUPPORTED_PROTOCOL;
   }
-  data->set.httpwant = (unsigned char)arg;
-  return CURLE_OK;
+  data->set.httpwant = (unsigned எழுத்து)arg;
+  திரும்பு CURLE_OK;
 }
 #endif /* !CURL_DISABLE_HTTP */
 
 #ifdef USE_SSL
-CURLcode Curl_setopt_SSLVERSION(struct Curl_easy *data, CURLoption option,
+CURLcode Curl_setopt_SSLVERSION(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                 long arg)
 {
   /*
@@ -299,140 +299,140 @@ CURLcode Curl_setopt_SSLVERSION(struct Curl_easy *data, CURLoption option,
    */
   {
     long version, version_max;
-    struct ssl_easy_config *sslc = &data->set.ssl;
+    கட்டமைப்பு ssl_easy_config *sslc = &data->set.ssl;
 #ifndef CURL_DISABLE_PROXY
-    if(option != CURLOPT_SSLVERSION)
+    எனில்(option != CURLOPT_SSLVERSION)
       sslc = &data->set.proxy_ssl;
-#else
-    (void)option; /* unused */
+#இல்லையெனில்
+    (வெறுமை)option; /* unused */
 #endif
-    version = C_SSLVERSION_VALUE(arg);
-    version_max = (long)C_SSLVERSION_MAX_VALUE(arg);
+    version = C_SSLVERSION_மதிப்பு(arg);
+    version_max = (long)C_SSLVERSION_MAX_மதிப்பு(arg);
 
-    if(version < CURL_SSLVERSION_DEFAULT ||
+    எனில்(version < CURL_SSLVERSION_DEFAULT ||
        version == CURL_SSLVERSION_SSLv2 ||
        version == CURL_SSLVERSION_SSLv3 ||
        version >= CURL_SSLVERSION_LAST ||
        version_max < CURL_SSLVERSION_MAX_NONE ||
        version_max >= CURL_SSLVERSION_MAX_LAST)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(version == CURL_SSLVERSION_DEFAULT)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(version == CURL_SSLVERSION_DEFAULT)
       version = CURL_SSLVERSION_TLSv1_2;
 
-    sslc->version = (unsigned char)version;
-    sslc->version_max = (unsigned int)version_max;
+    sslc->version = (unsigned எழுத்து)version;
+    sslc->version_max = (unsigned முழு)version_max;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 #endif /* !USE_SSL */
 
 #ifndef CURL_DISABLE_RTSP
-static CURLcode setopt_RTSP_REQUEST(struct Curl_easy *data, long arg)
+நிலையான CURLcode setopt_RTSP_REQUEST(கட்டமைப்பு Curl_easy *data, long arg)
 {
   /*
    * Set the RTSP request method (OPTIONS, SETUP, PLAY, etc...) Would this be
    * better if the RTSPREQ_* were moved into here?
    */
-  if((arg <= CURL_RTSPREQ_NONE) || (arg >= CURL_RTSPREQ_LAST))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்((arg <= CURL_RTSPREQ_NONE) || (arg >= CURL_RTSPREQ_LAST))
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
-  data->set.rtspreq = (unsigned char)arg;
-  return CURLE_OK;
+  data->set.rtspreq = (unsigned எழுத்து)arg;
+  திரும்பு CURLE_OK;
 }
 #endif /* !CURL_DISABLE_RTSP */
 
-static CURLcode setopt_long_bool(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_long_bool(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                  long arg)
 {
   bool enabled = !!arg;
-  int ok = 1;
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_FORBID_REUSE:
+  முழு ok = 1;
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_FORBID_REUSE:
     /*
      * When this transfer is done, it must not be left to be reused by a
      * subsequent transfer but shall be closed immediately.
      */
     s->reuse_forbid = enabled;
-    break;
-  case CURLOPT_FRESH_CONNECT:
+    நிறுத்து;
+  நிலை CURLOPT_FRESH_CONNECT:
     /*
      * This transfer shall not use a previously cached connection but
      * should be made with a fresh new connect!
      */
     s->reuse_fresh = enabled;
-    break;
-  case CURLOPT_VERBOSE:
+    நிறுத்து;
+  நிலை CURLOPT_VERBOSE:
     /*
      * Verbose means infof() calls that give a lot of information about
      * the connection and transfer procedures as well as internal choices.
      */
     s->verbose = enabled;
-    break;
-  case CURLOPT_HEADER:
+    நிறுத்து;
+  நிலை CURLOPT_HEADER:
     /*
      * Set to include the header in the general data output stream.
      */
     s->include_header = enabled;
-    break;
-  case CURLOPT_NOPROGRESS:
+    நிறுத்து;
+  நிலை CURLOPT_NOPROGRESS:
     /*
      * Shut off the internal supported progress meter
      */
     data->progress.hide = enabled;
-    break;
-  case CURLOPT_NOBODY:
+    நிறுத்து;
+  நிலை CURLOPT_NOBODY:
     /*
      * Do not include the body part in the output data stream.
      */
     s->opt_no_body = enabled;
 #ifndef CURL_DISABLE_HTTP
-    if(s->opt_no_body)
+    எனில்(s->opt_no_body)
       /* in HTTP lingo, no body means using the HEAD request... */
       s->method = HTTPREQ_HEAD;
-    else if(s->method == HTTPREQ_HEAD)
+    இல்லையெனில் எனில்(s->method == HTTPREQ_HEAD)
       s->method = HTTPREQ_GET;
 #endif
-    break;
-  case CURLOPT_FAILONERROR:
+    நிறுத்து;
+  நிலை CURLOPT_FAILONERROR:
     /*
      * Do not output the >=400 error code HTML-page, but instead only
      * return error.
      */
     s->http_fail_on_error = enabled;
-    break;
-  case CURLOPT_KEEP_SENDING_ON_ERROR:
+    நிறுத்து;
+  நிலை CURLOPT_KEEP_SENDING_ON_ERROR:
     s->http_keep_sending_on_error = enabled;
-    break;
-  case CURLOPT_UPLOAD:
-  case CURLOPT_PUT:
+    நிறுத்து;
+  நிலை CURLOPT_UPLOAD:
+  நிலை CURLOPT_PUT:
     /*
      * We want to send data to the remote host. If this is HTTP, that equals
      * using the PUT request.
      */
-    if(enabled) {
+    எனில்(enabled) {
       /* If this is HTTP, PUT is what's needed to "upload" */
       s->method = HTTPREQ_PUT;
       s->opt_no_body = FALSE; /* this is implied */
     }
-    else
+    இல்லையெனில்
       /* In HTTP, the opposite of upload is GET (unless NOBODY is true as
          then this can be changed to HEAD later on) */
       s->method = HTTPREQ_GET;
-    break;
-  case CURLOPT_FILETIME:
+    நிறுத்து;
+  நிலை CURLOPT_FILETIME:
     /*
      * Try to get the file time of the remote document. The time will
      * later (possibly) become available using curl_easy_getinfo().
      */
     s->get_filetime = enabled;
-    break;
+    நிறுத்து;
 #ifndef CURL_DISABLE_HTTP
-  case CURLOPT_HTTP09_ALLOWED:
+  நிலை CURLOPT_HTTP09_ALLOWED:
     s->http09_allowed = enabled;
-    break;
+    நிறுத்து;
 #ifndef CURL_DISABLE_COOKIES
-  case CURLOPT_COOKIESESSION:
+  நிலை CURLOPT_COOKIESESSION:
     /*
      * Set this option to TRUE to start a new "cookie session". It will
      * prevent the forthcoming read-cookies-from-file actions to accept
@@ -440,71 +440,71 @@ static CURLcode setopt_long_bool(struct Curl_easy *data, CURLoption option,
      * previous session.
      */
     s->cookiesession = enabled;
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_AUTOREFERER:
+  நிலை CURLOPT_AUTOREFERER:
     /*
      * Switch on automatic referer that gets set if curl follows locations.
      */
     s->http_auto_referer = enabled;
-    break;
-  case CURLOPT_TRANSFER_ENCODING:
+    நிறுத்து;
+  நிலை CURLOPT_TRANSFER_ENCODING:
     s->http_transfer_encoding = enabled;
-    break;
-  case CURLOPT_UNRESTRICTED_AUTH:
+    நிறுத்து;
+  நிலை CURLOPT_UNRESTRICTED_AUTH:
     /*
      * Send authentication (user+password) when following locations, even when
      * hostname changed.
      */
     s->allow_auth_to_other_hosts = enabled;
-    break;
-  case CURLOPT_HTTP_TRANSFER_DECODING:
+    நிறுத்து;
+  நிலை CURLOPT_HTTP_TRANSFER_DECODING:
     /*
      * disable libcurl transfer encoding is used
      */
     s->http_te_skip = !enabled; /* reversed */
-    break;
-  case CURLOPT_HTTP_CONTENT_DECODING:
+    நிறுத்து;
+  நிலை CURLOPT_HTTP_CONTENT_DECODING:
     /*
      * raw data passed to the application when content encoding is used
      */
     s->http_ce_skip = !enabled; /* reversed */
-    break;
-  case CURLOPT_HTTPGET:
+    நிறுத்து;
+  நிலை CURLOPT_HTTPGET:
     /*
      * Set to force us do HTTP GET
      */
-    if(enabled) {
+    எனில்(enabled) {
       s->method = HTTPREQ_GET;
       s->opt_no_body = FALSE; /* this is implied */
     }
-    break;
-  case CURLOPT_POST:
+    நிறுத்து;
+  நிலை CURLOPT_POST:
     /* Does this option serve a purpose anymore? Yes it does, when
        CURLOPT_POSTFIELDS is not used and the POST data is read off the
        callback! */
-    if(enabled) {
+    எனில்(enabled) {
       s->method = HTTPREQ_POST;
       s->opt_no_body = FALSE; /* this is implied */
     }
-    else
+    இல்லையெனில்
       s->method = HTTPREQ_GET;
-    break;
+    நிறுத்து;
 #endif /* !CURL_DISABLE_HTTP */
 #ifndef CURL_DISABLE_PROXY
-  case CURLOPT_HTTPPROXYTUNNEL:
+  நிலை CURLOPT_HTTPPROXYTUNNEL:
     /*
      * Tunnel operations through the proxy instead of normal proxy use
      */
     s->tunnel_thru_httpproxy = enabled;
-    break;
-  case CURLOPT_HAPROXYPROTOCOL:
+    நிறுத்து;
+  நிலை CURLOPT_HAPROXYPROTOCOL:
     /*
      * Set to send the HAProxy Proxy Protocol header
      */
     s->haproxyprotocol = enabled;
-    break;
-  case CURLOPT_PROXY_SSL_VERIFYPEER:
+    நிறுத்து;
+  நிலை CURLOPT_PROXY_SSL_VERIFYPEER:
     /*
      * Enable peer SSL verifying for proxy.
      */
@@ -512,8 +512,8 @@ static CURLcode setopt_long_bool(struct Curl_easy *data, CURLoption option,
 
     /* Update the current connection proxy_ssl_config. */
     Curl_ssl_conn_config_update(data, TRUE);
-    break;
-  case CURLOPT_PROXY_SSL_VERIFYHOST:
+    நிறுத்து;
+  நிலை CURLOPT_PROXY_SSL_VERIFYHOST:
     /*
      * Enable verification of the hostname in the peer certificate for proxy
      */
@@ -521,75 +521,75 @@ static CURLcode setopt_long_bool(struct Curl_easy *data, CURLoption option,
     ok = 2;
     /* Update the current connection proxy_ssl_config. */
     Curl_ssl_conn_config_update(data, TRUE);
-    break;
-  case CURLOPT_PROXY_TRANSFER_MODE:
+    நிறுத்து;
+  நிலை CURLOPT_PROXY_TRANSFER_MODE:
     /*
      * set transfer mode (;type=<a|i>) when doing FTP via an HTTP proxy
      */
     s->proxy_transfer_mode = enabled;
-    break;
+    நிறுத்து;
 #endif /* !CURL_DISABLE_PROXY */
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  case CURLOPT_SOCKS5_GSSAPI_NEC:
+#எனில் defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  நிலை CURLOPT_SOCKS5_GSSAPI_NEC:
     /*
      * Set flag for NEC SOCKS5 support
      */
     s->socks5_gssapi_nec = enabled;
-    break;
+    நிறுத்து;
 #endif
 #ifdef CURL_LIST_ONLY_PROTOCOL
-  case CURLOPT_DIRLISTONLY:
+  நிலை CURLOPT_DIRLISTONLY:
     /*
      * An option that changes the command to one that asks for a list only, no
      * file info details. Used for FTP, POP3 and SFTP.
      */
     s->list_only = enabled;
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_APPEND:
+  நிலை CURLOPT_APPEND:
     /*
      * We want to upload and append to an existing file. Used for FTP and
      * SFTP.
      */
     s->remote_append = enabled;
-    break;
+    நிறுத்து;
 #ifndef CURL_DISABLE_FTP
-  case CURLOPT_FTP_USE_EPRT:
+  நிலை CURLOPT_FTP_USE_EPRT:
     s->ftp_use_eprt = enabled;
-    break;
-  case CURLOPT_FTP_USE_EPSV:
+    நிறுத்து;
+  நிலை CURLOPT_FTP_USE_EPSV:
     s->ftp_use_epsv = enabled;
-    break;
-  case CURLOPT_FTP_USE_PRET:
+    நிறுத்து;
+  நிலை CURLOPT_FTP_USE_PRET:
     s->ftp_use_pret = enabled;
-    break;
-  case CURLOPT_FTP_SKIP_PASV_IP:
+    நிறுத்து;
+  நிலை CURLOPT_FTP_SKIP_PASV_IP:
     /*
      * Enable or disable FTP_SKIP_PASV_IP, which will disable/enable the
      * bypass of the IP address in PASV responses.
      */
     s->ftp_skip_ip = enabled;
-    break;
-  case CURLOPT_WILDCARDMATCH:
+    நிறுத்து;
+  நிலை CURLOPT_WILDCARDMATCH:
     s->wildcard_enabled = enabled;
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_CRLF:
+  நிலை CURLOPT_CRLF:
     /*
      * Kludgy option to enable CRLF conversions. Subject for removal.
      */
     s->crlf = enabled;
-    break;
+    நிறுத்து;
 #ifndef CURL_DISABLE_TFTP
-  case CURLOPT_TFTP_NO_OPTIONS:
+  நிலை CURLOPT_TFTP_NO_OPTIONS:
     /*
      * Option that prevents libcurl from sending TFTP option requests to the
      * server.
      */
     s->tftp_no_options = enabled;
-    break;
+    நிறுத்து;
 #endif /* !CURL_DISABLE_TFTP */
-  case CURLOPT_TRANSFERTEXT:
+  நிலை CURLOPT_TRANSFERTEXT:
     /*
      * This option was previously named 'FTPASCII'. Renamed to work with
      * more protocols than merely FTP.
@@ -597,8 +597,8 @@ static CURLcode setopt_long_bool(struct Curl_easy *data, CURLoption option,
      * Transfer using ASCII (instead of BINARY).
      */
     s->prefer_ascii = enabled;
-    break;
-  case CURLOPT_SSL_VERIFYPEER:
+    நிறுத்து;
+  நிலை CURLOPT_SSL_VERIFYPEER:
     /*
      * Enable peer SSL verifying.
      */
@@ -606,33 +606,33 @@ static CURLcode setopt_long_bool(struct Curl_easy *data, CURLoption option,
 
     /* Update the current connection ssl_config. */
     Curl_ssl_conn_config_update(data, FALSE);
-    break;
+    நிறுத்து;
 #ifndef CURL_DISABLE_DOH
-  case CURLOPT_DOH_SSL_VERIFYPEER:
+  நிலை CURLOPT_DOH_SSL_VERIFYPEER:
     /*
      * Enable peer SSL verifying for DoH.
      */
     s->doh_verifypeer = enabled;
-    break;
-  case CURLOPT_DOH_SSL_VERIFYHOST:
+    நிறுத்து;
+  நிலை CURLOPT_DOH_SSL_VERIFYHOST:
     /*
      * Enable verification of the hostname in the peer certificate for DoH
      */
     s->doh_verifyhost = enabled;
     ok = 2;
-    break;
-  case CURLOPT_DOH_SSL_VERIFYSTATUS:
+    நிறுத்து;
+  நிலை CURLOPT_DOH_SSL_VERIFYSTATUS:
     /*
      * Enable certificate status verifying for DoH.
      */
-    if(!Curl_ssl_cert_status_request())
-      return CURLE_NOT_BUILT_IN;
+    எனில்(!Curl_ssl_cert_status_request())
+      திரும்பு CURLE_NOT_BUILT_IN;
 
     s->doh_verifystatus = enabled;
     ok = 2;
-    break;
+    நிறுத்து;
 #endif /* !CURL_DISABLE_DOH */
-  case CURLOPT_SSL_VERIFYHOST:
+  நிலை CURLOPT_SSL_VERIFYHOST:
     /*
      * Enable verification of the hostname in the peer certificate
      */
@@ -645,627 +645,627 @@ static CURLcode setopt_long_bool(struct Curl_easy *data, CURLoption option,
 
     /* Update the current connection ssl_config. */
     Curl_ssl_conn_config_update(data, FALSE);
-    break;
-  case CURLOPT_SSL_VERIFYSTATUS:
+    நிறுத்து;
+  நிலை CURLOPT_SSL_VERIFYSTATUS:
     /*
      * Enable certificate status verifying.
      */
-    if(!Curl_ssl_cert_status_request())
-      return CURLE_NOT_BUILT_IN;
+    எனில்(!Curl_ssl_cert_status_request())
+      திரும்பு CURLE_NOT_BUILT_IN;
 
     s->ssl.verifystatus = enabled;
 
     /* Update the current connection ssl_config. */
     Curl_ssl_conn_config_update(data, FALSE);
-    break;
-  case CURLOPT_CERTINFO:
+    நிறுத்து;
+  நிலை CURLOPT_CERTINFO:
 #ifdef USE_SSL
-    if(Curl_ssl_supports(data, SSLSUPP_CERTINFO))
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CERTINFO))
       s->ssl.certinfo = enabled;
-    else
+    இல்லையெனில்
 #endif
-      return CURLE_NOT_BUILT_IN;
-    break;
-  case CURLOPT_NOSIGNAL:
+      திரும்பு CURLE_NOT_BUILT_IN;
+    நிறுத்து;
+  நிலை CURLOPT_NOSIGNAL:
     /*
      * The application asks not to set any signal() or alarm() handlers,
      * even when using a timeout.
      */
     s->no_signal = enabled;
-    break;
-  case CURLOPT_TCP_NODELAY:
+    நிறுத்து;
+  நிலை CURLOPT_TCP_NODELAY:
     /*
      * Enable or disable TCP_NODELAY, which will disable/enable the Nagle
      * algorithm
      */
     s->tcp_nodelay = enabled;
-    break;
-  case CURLOPT_IGNORE_CONTENT_LENGTH:
+    நிறுத்து;
+  நிலை CURLOPT_IGNORE_CONTENT_LENGTH:
     s->ignorecl = enabled;
-    break;
-  case CURLOPT_SSL_SESSIONID_CACHE:
+    நிறுத்து;
+  நிலை CURLOPT_SSL_SESSIONID_CACHE:
     s->ssl.cache_session = enabled;
 #ifndef CURL_DISABLE_PROXY
     s->proxy_ssl.cache_session = s->ssl.cache_session;
 #endif
-    break;
+    நிறுத்து;
 #ifdef USE_SSH
-  case CURLOPT_SSH_COMPRESSION:
+  நிலை CURLOPT_SSH_COMPRESSION:
     s->ssh_compression = enabled;
-    break;
+    நிறுத்து;
 #endif /* !USE_SSH */
 #ifndef CURL_DISABLE_SMTP
-  case CURLOPT_MAIL_RCPT_ALLOWFAILS:
+  நிலை CURLOPT_MAIL_RCPT_ALLOWFAILS:
     /* allow RCPT TO command to fail for some recipients */
     s->mail_rcpt_allowfails = enabled;
-    break;
+    நிறுத்து;
 #endif /* !CURL_DISABLE_SMTP */
-  case CURLOPT_SASL_IR:
+  நிலை CURLOPT_SASL_IR:
     /* Enable/disable SASL initial response */
     s->sasl_ir = enabled;
-    break;
-  case CURLOPT_TCP_KEEPALIVE:
+    நிறுத்து;
+  நிலை CURLOPT_TCP_KEEPALIVE:
     s->tcp_keepalive = enabled;
-    break;
-  case CURLOPT_TCP_FASTOPEN:
-#if defined(CONNECT_DATA_IDEMPOTENT) || defined(MSG_FASTOPEN) || \
+    நிறுத்து;
+  நிலை CURLOPT_TCP_FASTOPEN:
+#எனில் defined(CONNECT_DATA_IDEMPOTENT) || defined(MSG_FASTOPEN) || \
   defined(TCP_FASTOPEN_CONNECT)
     s->tcp_fastopen = enabled;
-    break;
-#else
-    return CURLE_NOT_BUILT_IN;
+    நிறுத்து;
+#இல்லையெனில்
+    திரும்பு CURLE_NOT_BUILT_IN;
 #endif
-  case CURLOPT_SSL_ENABLE_ALPN:
+  நிலை CURLOPT_SSL_ENABLE_ALPN:
     s->ssl_enable_alpn = enabled;
-    break;
-  case CURLOPT_PATH_AS_IS:
+    நிறுத்து;
+  நிலை CURLOPT_PATH_AS_IS:
     s->path_as_is = enabled;
-    break;
-  case CURLOPT_PIPEWAIT:
+    நிறுத்து;
+  நிலை CURLOPT_PIPEWAIT:
     s->pipewait = enabled;
-    break;
-  case CURLOPT_SUPPRESS_CONNECT_HEADERS:
+    நிறுத்து;
+  நிலை CURLOPT_SUPPRESS_CONNECT_HEADERS:
     s->suppress_connect_headers = enabled;
-    break;
+    நிறுத்து;
 #ifndef CURL_DISABLE_SHUFFLE_DNS
-  case CURLOPT_DNS_SHUFFLE_ADDRESSES:
+  நிலை CURLOPT_DNS_SHUFFLE_ADDRESSES:
     s->dns_shuffle_addresses = enabled;
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_DISALLOW_USERNAME_IN_URL:
+  நிலை CURLOPT_DISALLOW_USERNAME_IN_URL:
     s->disallow_username_in_url = enabled;
-    break;
-  case CURLOPT_QUICK_EXIT:
+    நிறுத்து;
+  நிலை CURLOPT_QUICK_EXIT:
     s->quick_exit = enabled;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    நிறுத்து;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  if((arg > ok) || (arg < 0))
+  எனில்((arg > ok) || (arg < 0))
     /* reserve other values for future use */
     infof(data, "boolean setopt(%d) got unsupported argument %ld,"
-          " treated as %d", (int)option, arg, enabled);
+          " treated as %d", (முழு)option, arg, enabled);
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode value_range(long *value, long below_error, long min, long max)
+நிலையான CURLcode மதிப்பு_range(long *மதிப்பு, long below_error, long min, long max)
 {
-  if(*value < below_error)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  else if(*value < min)
-    *value = min;
-  else if(*value > max)
-    *value = max;
-  return CURLE_OK;
+  எனில்(*மதிப்பு < below_error)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+  இல்லையெனில் எனில்(*மதிப்பு < min)
+    *மதிப்பு = min;
+  இல்லையெனில் எனில்(*மதிப்பு > max)
+    *மதிப்பு = max;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode setopt_long_net(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_long_net(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                 long arg)
 {
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
+  கட்டமைப்பு UserDefined *s = &data->set;
 
-  switch(option) {
-  case CURLOPT_DNS_CACHE_TIMEOUT:
-    if(arg != -1)
-      return setopt_set_timeout_sec(&s->dns_cache_timeout_ms, arg);
+  தேர்வு(option) {
+  நிலை CURLOPT_DNS_CACHE_TIMEOUT:
+    எனில்(arg != -1)
+      திரும்பு setopt_set_timeout_sec(&s->dns_cache_timeout_ms, arg);
     s->dns_cache_timeout_ms = -1;
-    break;
-  case CURLOPT_MAXCONNECTS:
-    result = value_range(&arg, 0, 0, INT_MAX);
-    if(!result)
+    நிறுத்து;
+  நிலை CURLOPT_MAXCONNECTS:
+    result = மதிப்பு_range(&arg, 0, 0, INT_MAX);
+    எனில்(!result)
       s->maxconnects = arg ? (uint32_t)arg : DEFAULT_CONNCACHE_SIZE;
-    break;
-  case CURLOPT_SERVER_RESPONSE_TIMEOUT:
-    return setopt_set_timeout_sec(&s->server_response_timeout, arg);
-  case CURLOPT_SERVER_RESPONSE_TIMEOUT_MS:
-    return setopt_set_timeout_ms(&s->server_response_timeout, arg);
-  case CURLOPT_LOW_SPEED_LIMIT:
-    if(arg < 0)
+    நிறுத்து;
+  நிலை CURLOPT_SERVER_RESPONSE_TIMEOUT:
+    திரும்பு setopt_set_timeout_sec(&s->server_response_timeout, arg);
+  நிலை CURLOPT_SERVER_RESPONSE_TIMEOUT_MS:
+    திரும்பு setopt_set_timeout_ms(&s->server_response_timeout, arg);
+  நிலை CURLOPT_கீழ்_SPEED_LIMIT:
+    எனில்(arg < 0)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->low_speed_limit = arg;
-    break;
-  case CURLOPT_LOW_SPEED_TIME:
-    result = value_range(&arg, 0, 0, USHRT_MAX);
-    if(!result)
-      s->low_speed_time = (uint16_t)arg;
-    break;
-  case CURLOPT_PORT:
-    if((arg < 0) || (arg > 65535))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    இல்லையெனில்
+      s->கீழ்_speed_limit = arg;
+    நிறுத்து;
+  நிலை CURLOPT_கீழ்_SPEED_TIME:
+    result = மதிப்பு_range(&arg, 0, 0, USHRT_MAX);
+    எனில்(!result)
+      s->கீழ்_speed_time = (uint16_t)arg;
+    நிறுத்து;
+  நிலை CURLOPT_PORT:
+    எனில்((arg < 0) || (arg > 65535))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->use_port = (unsigned short)arg;
-    break;
-  case CURLOPT_TIMEOUT:
-    return setopt_set_timeout_sec(&s->timeout, arg);
-  case CURLOPT_TIMEOUT_MS:
-    return setopt_set_timeout_ms(&s->timeout, arg);
-  case CURLOPT_CONNECTTIMEOUT:
-    return setopt_set_timeout_sec(&s->connecttimeout, arg);
-  case CURLOPT_CONNECTTIMEOUT_MS:
-    return setopt_set_timeout_ms(&s->connecttimeout, arg);
+    நிறுத்து;
+  நிலை CURLOPT_TIMEOUT:
+    திரும்பு setopt_set_timeout_sec(&s->timeout, arg);
+  நிலை CURLOPT_TIMEOUT_MS:
+    திரும்பு setopt_set_timeout_ms(&s->timeout, arg);
+  நிலை CURLOPT_CONNECTTIMEOUT:
+    திரும்பு setopt_set_timeout_sec(&s->connecttimeout, arg);
+  நிலை CURLOPT_CONNECTTIMEOUT_MS:
+    திரும்பு setopt_set_timeout_ms(&s->connecttimeout, arg);
 #ifndef CURL_DISABLE_BINDLOCAL
-  case CURLOPT_LOCALPORT:
-    if((arg < 0) || (arg > 65535))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  நிலை CURLOPT_LOCALPORT:
+    எனில்((arg < 0) || (arg > 65535))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->localport = curlx_sltous(arg);
-    break;
-  case CURLOPT_LOCALPORTRANGE:
-    if((arg < 0) || (arg > 65535))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    நிறுத்து;
+  நிலை CURLOPT_LOCALPORTRANGE:
+    எனில்((arg < 0) || (arg > 65535))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->localportrange = curlx_sltous(arg);
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_BUFFERSIZE:
-    result = value_range(&arg, 0, READBUFFER_MIN, READBUFFER_MAX);
-    if(!result)
-      s->buffer_size = (unsigned int)arg;
-    break;
-  case CURLOPT_UPLOAD_BUFFERSIZE:
-    result = value_range(&arg, 0, UPLOADBUFFER_MIN, UPLOADBUFFER_MAX);
-    if(!result)
-      s->upload_buffer_size = (unsigned int)arg;
-    break;
-  case CURLOPT_MAXFILESIZE:
-    if(arg < 0)
+  நிலை CURLOPT_BUFFERSIZE:
+    result = மதிப்பு_range(&arg, 0, READBUFFER_MIN, READBUFFER_MAX);
+    எனில்(!result)
+      s->buffer_size = (unsigned முழு)arg;
+    நிறுத்து;
+  நிலை CURLOPT_UPLOAD_BUFFERSIZE:
+    result = மதிப்பு_range(&arg, 0, UPLOADBUFFER_MIN, UPLOADBUFFER_MAX);
+    எனில்(!result)
+      s->upload_buffer_size = (unsigned முழு)arg;
+    நிறுத்து;
+  நிலை CURLOPT_MAXFILESIZE:
+    எனில்(arg < 0)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
+    இல்லையெனில்
       s->max_filesize = arg;
-    break;
-  case CURLOPT_IPRESOLVE:
-    if((arg < CURL_IPRESOLVE_WHATEVER) || (arg > CURL_IPRESOLVE_V6))
+    நிறுத்து;
+  நிலை CURLOPT_IPRESOLVE:
+    எனில்((arg < CURL_IPRESOLVE_WHATEVER) || (arg > CURL_IPRESOLVE_V6))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->ipver = (unsigned char)arg;
-    break;
-  case CURLOPT_CONNECT_ONLY:
-    if(arg < 0 || arg > 2)
+    இல்லையெனில்
+      s->ipver = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_CONNECT_ONLY:
+    எனில்(arg < 0 || arg > 2)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else {
+    இல்லையெனில் {
       s->connect_only = !!arg;
       s->connect_only_ws = (arg == 2);
     }
-    break;
+    நிறுத்து;
 #ifdef USE_IPV6
-  case CURLOPT_ADDRESS_SCOPE:
-#if SIZEOF_LONG > 4
-    if((unsigned long)arg > UINT_MAX)
+  நிலை CURLOPT_ADDRESS_SCOPE:
+#எனில் SIZEOF_LONG > 4
+    எனில்((unsigned long)arg > UINT_MAX)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
+    இல்லையெனில்
 #endif
-    s->scope_id = (unsigned int)arg;
-    break;
+    s->scope_id = (unsigned முழு)arg;
+    நிறுத்து;
 #endif
-  case CURLOPT_TCP_KEEPIDLE:
-    result = value_range(&arg, 0, 0, INT_MAX);
-    if(!result)
-      s->tcp_keepidle = (int)arg;
-    break;
-  case CURLOPT_TCP_KEEPINTVL:
-    result = value_range(&arg, 0, 0, INT_MAX);
-    if(!result)
-      s->tcp_keepintvl = (int)arg;
-    break;
-  case CURLOPT_TCP_KEEPCNT:
-    result = value_range(&arg, 0, 0, INT_MAX);
-    if(!result)
-      s->tcp_keepcnt = (int)arg;
-    break;
-  case CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS:
-    return setopt_set_timeout_ms(&s->happy_eyeballs_timeout, arg);
-  case CURLOPT_UPKEEP_INTERVAL_MS:
-    return setopt_set_timeout_ms(&s->upkeep_interval_ms, arg);
-  case CURLOPT_MAXAGE_CONN:
-    return setopt_set_timeout_sec(&s->conn_max_idle_ms, arg);
-  case CURLOPT_MAXLIFETIME_CONN:
-    return setopt_set_timeout_sec(&s->conn_max_age_ms, arg);
-  case CURLOPT_DNS_USE_GLOBAL_CACHE:
+  நிலை CURLOPT_TCP_KEEPIDLE:
+    result = மதிப்பு_range(&arg, 0, 0, INT_MAX);
+    எனில்(!result)
+      s->tcp_keepidle = (முழு)arg;
+    நிறுத்து;
+  நிலை CURLOPT_TCP_KEEPINTVL:
+    result = மதிப்பு_range(&arg, 0, 0, INT_MAX);
+    எனில்(!result)
+      s->tcp_keepintvl = (முழு)arg;
+    நிறுத்து;
+  நிலை CURLOPT_TCP_KEEPCNT:
+    result = மதிப்பு_range(&arg, 0, 0, INT_MAX);
+    எனில்(!result)
+      s->tcp_keepcnt = (முழு)arg;
+    நிறுத்து;
+  நிலை CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS:
+    திரும்பு setopt_set_timeout_ms(&s->happy_eyeballs_timeout, arg);
+  நிலை CURLOPT_UPKEEP_INTERVAL_MS:
+    திரும்பு setopt_set_timeout_ms(&s->upkeep_interval_ms, arg);
+  நிலை CURLOPT_MAXAGE_CONN:
+    திரும்பு setopt_set_timeout_sec(&s->conn_max_idle_ms, arg);
+  நிலை CURLOPT_MAXLIFETIME_CONN:
+    திரும்பு setopt_set_timeout_sec(&s->conn_max_age_ms, arg);
+  நிலை CURLOPT_DNS_USE_GLOBAL_CACHE:
     /* deprecated */
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    நிறுத்து;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode setopt_long_ssl(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_long_ssl(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                 long arg)
 {
 #ifdef USE_SSL
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_CA_CACHE_TIMEOUT:
-    if(Curl_ssl_supports(data, SSLSUPP_CA_CACHE)) {
-      result = value_range(&arg, -1, -1, INT_MAX);
-      if(!result)
-        s->ssl_ca_cache_timeout = (int)arg;
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_CA_CACHE_TIMEOUT:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CA_CACHE)) {
+      result = மதிப்பு_range(&arg, -1, -1, INT_MAX);
+      எனில்(!result)
+        s->ssl_ca_cache_timeout = (முழு)arg;
     }
-    else
+    இல்லையெனில்
       result = CURLE_NOT_BUILT_IN;
-    break;
-  case CURLOPT_SSLVERSION:
+    நிறுத்து;
+  நிலை CURLOPT_SSLVERSION:
 #ifndef CURL_DISABLE_PROXY
-  case CURLOPT_PROXY_SSLVERSION:
+  நிலை CURLOPT_PROXY_SSLVERSION:
 #endif
-    return Curl_setopt_SSLVERSION(data, option, arg);
-  case CURLOPT_SSL_FALSESTART:
+    திரும்பு Curl_setopt_SSLVERSION(data, option, arg);
+  நிலை CURLOPT_SSL_FALSESTART:
     result = CURLE_NOT_BUILT_IN;
-    break;
-  case CURLOPT_USE_SSL:
-    if((arg < CURLUSESSL_NONE) || (arg >= CURLUSESSL_LAST))
+    நிறுத்து;
+  நிலை CURLOPT_USE_SSL:
+    எனில்((arg < CURLUSESSL_NONE) || (arg >= CURLUSESSL_LAST))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->use_ssl = (unsigned char)arg;
-    break;
-  case CURLOPT_SSL_OPTIONS:
-    s->ssl.ssl_options = (unsigned char)(arg & 0xff);
-    break;
+    இல்லையெனில்
+      s->use_ssl = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_SSL_OPTIONS:
+    s->ssl.ssl_options = (unsigned எழுத்து)(arg & 0xff);
+    நிறுத்து;
 #ifndef CURL_DISABLE_PROXY
-  case CURLOPT_PROXY_SSL_OPTIONS:
-    s->proxy_ssl.ssl_options = (unsigned char)(arg & 0xff);
-    break;
+  நிலை CURLOPT_PROXY_SSL_OPTIONS:
+    s->proxy_ssl.ssl_options = (unsigned எழுத்து)(arg & 0xff);
+    நிறுத்து;
 #endif
-  case CURLOPT_SSL_ENABLE_NPN:
-    break;
-  case CURLOPT_SSLENGINE_DEFAULT:
+  நிலை CURLOPT_SSL_ENABLE_NPN:
+    நிறுத்து;
+  நிலை CURLOPT_SSLENGINE_DEFAULT:
 #ifdef USE_OPENSSL
-    if(Curl_ssl_backend() != CURLSSLBACKEND_OPENSSL)
-      return CURLE_NOT_BUILT_IN;
+    எனில்(Curl_ssl_backend() != CURLSSLBACKEND_OPENSSL)
+      திரும்பு CURLE_NOT_BUILT_IN;
     data->set.engine_default = (arg == 1);
-#else
-    return CURLE_NOT_BUILT_IN;
+#இல்லையெனில்
+    திரும்பு CURLE_NOT_BUILT_IN;
 #endif
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    நிறுத்து;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
-#else  /* USE_SSL */
-  (void)data;
-  (void)option;
-  (void)arg;
-  return CURLE_UNKNOWN_OPTION;
+  திரும்பு result;
+#இல்லையெனில்  /* USE_SSL */
+  (வெறுமை)data;
+  (வெறுமை)option;
+  (வெறுமை)arg;
+  திரும்பு CURLE_UNKNOWN_OPTION;
 #endif /* !USE_SSL */
 }
 
 #ifndef CURL_DISABLE_PROXY
-static void changeproxy(struct Curl_easy *data)
+நிலையான வெறுமை changeproxy(கட்டமைப்பு Curl_easy *data)
 {
   Curl_auth_digest_cleanup(&data->state.proxydigest);
-  memset(&data->state.authproxy, 0, sizeof(data->state.authproxy));
+  memset(&data->state.authproxy, 0, அளவு(data->state.authproxy));
 }
 
-static CURLcode setopt_long_proxy(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_long_proxy(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                   long arg)
 {
-  struct UserDefined *s = &data->set;
+  கட்டமைப்பு UserDefined *s = &data->set;
 
-  switch(option) {
-  case CURLOPT_PROXYPORT:
-    if((arg < 0) || (arg > UINT16_MAX))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(arg != s->proxyport)
+  தேர்வு(option) {
+  நிலை CURLOPT_PROXYPORT:
+    எனில்((arg < 0) || (arg > UINT16_MAX))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(arg != s->proxyport)
       changeproxy(data);
     s->proxyport = (uint16_t)arg;
-    break;
-  case CURLOPT_PROXYAUTH:
-    return httpauth(data, TRUE, (unsigned long)arg);
-  case CURLOPT_PROXYTYPE:
-    if((arg < CURLPROXY_HTTP) || (arg > CURLPROXY_HTTPS3))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    நிறுத்து;
+  நிலை CURLOPT_PROXYAUTH:
+    திரும்பு httpauth(data, TRUE, (unsigned long)arg);
+  நிலை CURLOPT_PROXYTYPE:
+    எனில்((arg < CURLPROXY_HTTP) || (arg > CURLPROXY_HTTPS3))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 #ifndef USE_PROXY_HTTP3
-    if(arg == CURLPROXY_HTTPS3)
-      return CURLE_NOT_BUILT_IN;
+    எனில்(arg == CURLPROXY_HTTPS3)
+      திரும்பு CURLE_NOT_BUILT_IN;
 #endif
-    s->proxytype = (unsigned char)arg;
-    break;
-  case CURLOPT_SOCKS5_AUTH: {
+    s->proxytype = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_SOCKS5_AUTH: {
     unsigned long auth = (unsigned long)arg;
-    if(auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI | CURLAUTH_ONLY))
-      return CURLE_NOT_BUILT_IN;
-    if((auth & CURLAUTH_ONLY) && !(auth & (CURLAUTH_BASIC | CURLAUTH_GSSAPI)))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    s->socks5auth = (unsigned char)(auth & (CURLAUTH_BASIC | CURLAUTH_GSSAPI));
+    எனில்(auth & ~(CURLAUTH_BASIC | CURLAUTH_GSSAPI | CURLAUTH_ONLY))
+      திரும்பு CURLE_NOT_BUILT_IN;
+    எனில்((auth & CURLAUTH_ONLY) && !(auth & (CURLAUTH_BASIC | CURLAUTH_GSSAPI)))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+    s->socks5auth = (unsigned எழுத்து)(auth & (CURLAUTH_BASIC | CURLAUTH_GSSAPI));
     s->socks5_auth_only = !!(auth & CURLAUTH_ONLY);
-    break;
+    நிறுத்து;
   }
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
-#else
-static CURLcode setopt_long_proxy(struct Curl_easy *data, CURLoption option,
+#இல்லையெனில்
+நிலையான CURLcode setopt_long_proxy(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                   long arg)
 {
-  (void)data;
-  (void)option;
-  (void)arg;
-  return CURLE_UNKNOWN_OPTION;
+  (வெறுமை)data;
+  (வெறுமை)option;
+  (வெறுமை)arg;
+  திரும்பு CURLE_UNKNOWN_OPTION;
 }
 #endif
 
-static CURLcode setopt_long_http(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_long_http(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                  long arg)
 {
 #ifndef CURL_DISABLE_HTTP
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
+  கட்டமைப்பு UserDefined *s = &data->set;
 
-  switch(option) {
-  case CURLOPT_FOLLOWLOCATION:
-    if((unsigned long)arg > 3)
+  தேர்வு(option) {
+  நிலை CURLOPT_FOLLOWLOCATION:
+    எனில்((unsigned long)arg > 3)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->http_follow_mode = (unsigned char)arg;
-    break;
-  case CURLOPT_MAXREDIRS:
-    result = value_range(&arg, -1, -1, 0x7fff);
-    if(!result)
+    இல்லையெனில்
+      s->http_follow_mode = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_MAXREDIRS:
+    result = மதிப்பு_range(&arg, -1, -1, 0x7fff);
+    எனில்(!result)
       s->maxredirs = (short)arg;
-    break;
-  case CURLOPT_POSTREDIR:
-    if(arg < CURL_REDIR_GET_ALL)
+    நிறுத்து;
+  நிலை CURLOPT_POSTREDIR:
+    எனில்(arg < CURL_REDIR_GET_ALL)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else {
+    இல்லையெனில் {
       s->post301 = !!(arg & CURL_REDIR_POST_301);
       s->post302 = !!(arg & CURL_REDIR_POST_302);
       s->post303 = !!(arg & CURL_REDIR_POST_303);
     }
-    break;
-  case CURLOPT_HEADEROPT:
+    நிறுத்து;
+  நிலை CURLOPT_HEADEROPT:
     s->sep_headers = !!(arg & CURLHEADER_SEPARATE);
-    break;
-  case CURLOPT_HTTPAUTH:
-    return httpauth(data, FALSE, (unsigned long)arg);
-  case CURLOPT_HTTP_VERSION:
-    return setopt_HTTP_VERSION(data, arg);
-  case CURLOPT_EXPECT_100_TIMEOUT_MS:
-    result = value_range(&arg, 0, 0, 0xffff);
-    if(!result)
+    நிறுத்து;
+  நிலை CURLOPT_HTTPAUTH:
+    திரும்பு httpauth(data, FALSE, (unsigned long)arg);
+  நிலை CURLOPT_HTTP_VERSION:
+    திரும்பு setopt_HTTP_VERSION(data, arg);
+  நிலை CURLOPT_EXPECT_100_TIMEOUT_MS:
+    result = மதிப்பு_range(&arg, 0, 0, 0xffff);
+    எனில்(!result)
       s->expect_100_timeout = (unsigned short)arg;
-    break;
-  case CURLOPT_STREAM_WEIGHT:
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
-    if((arg >= 1) && (arg <= 256))
-      s->weight = (int)arg;
-    break;
-#else
+    நிறுத்து;
+  நிலை CURLOPT_STREAM_WEIGHT:
+#எனில் defined(USE_HTTP2) || defined(USE_HTTP3)
+    எனில்((arg >= 1) && (arg <= 256))
+      s->weight = (முழு)arg;
+    நிறுத்து;
+#இல்லையெனில்
     result = CURLE_NOT_BUILT_IN;
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_HTTPSIG
-  case CURLOPT_HTTPSIG_ALGORITHM:
-    if(arg != CURLHTTPSIG_NONE &&
+  நிலை CURLOPT_HTTPSIG_ALGORITHM:
+    எனில்(arg != CURLHTTPSIG_NONE &&
        arg != CURLHTTPSIG_ED25519 &&
        arg != CURLHTTPSIG_HMAC_SHA256)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->httpsig_algorithm = (uint8_t)arg;
-    if(arg)
+    எனில்(arg)
       s->httpauth = (uint32_t)CURLAUTH_HTTPSIG;
-    else
+    இல்லையெனில்
       s->httpauth &= ~(uint32_t)CURLAUTH_HTTPSIG;
-    break;
+    நிறுத்து;
 #endif
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
-#else
-  (void)data;
-  (void)option;
-  (void)arg;
-  return CURLE_UNKNOWN_OPTION;
+  திரும்பு result;
+#இல்லையெனில்
+  (வெறுமை)data;
+  (வெறுமை)option;
+  (வெறுமை)arg;
+  திரும்பு CURLE_UNKNOWN_OPTION;
 #endif
 }
 
-static CURLcode setopt_long_proto(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_long_proto(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                   long arg)
 {
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
+  கட்டமைப்பு UserDefined *s = &data->set;
 
-  switch(option) {
+  தேர்வு(option) {
 #ifndef CURL_DISABLE_TFTP
-  case CURLOPT_TFTP_BLKSIZE:
-    result = value_range(&arg, 0, TFTP_BLKSIZE_MIN, TFTP_BLKSIZE_MAX);
-    if(!result)
+  நிலை CURLOPT_TFTP_BLKSIZE:
+    result = மதிப்பு_range(&arg, 0, TFTP_BLKSIZE_MIN, TFTP_BLKSIZE_MAX);
+    எனில்(!result)
       s->tftp_blksize = (unsigned short)arg;
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_NETRC
-  case CURLOPT_NETRC:
-    if((arg < CURL_NETRC_IGNORED) || (arg >= CURL_NETRC_LAST))
+  நிலை CURLOPT_NETRC:
+    எனில்((arg < CURL_NETRC_IGNORED) || (arg >= CURL_NETRC_LAST))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->use_netrc = (unsigned char)arg;
-    break;
+    இல்லையெனில்
+      s->use_netrc = (unsigned எழுத்து)arg;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_FTP
-  case CURLOPT_FTP_FILEMETHOD:
-    if((arg < CURLFTPMETHOD_DEFAULT) || (arg >= CURLFTPMETHOD_LAST))
+  நிலை CURLOPT_FTP_FILEMETHOD:
+    எனில்((arg < CURLFTPMETHOD_DEFAULT) || (arg >= CURLFTPMETHOD_LAST))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->ftp_filemethod = (unsigned char)arg;
-    break;
-  case CURLOPT_FTP_SSL_CCC:
-    if((arg < CURLFTPSSL_CCC_NONE) || (arg >= CURLFTPSSL_CCC_LAST))
+    இல்லையெனில்
+      s->ftp_filemethod = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_FTP_SSL_CCC:
+    எனில்((arg < CURLFTPSSL_CCC_NONE) || (arg >= CURLFTPSSL_CCC_LAST))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->ftp_ccc = (unsigned char)arg;
-    break;
-  case CURLOPT_FTPSSLAUTH:
-    if((arg < CURLFTPAUTH_DEFAULT) || (arg >= CURLFTPAUTH_LAST))
+    இல்லையெனில்
+      s->ftp_ccc = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_FTPSSLAUTH:
+    எனில்((arg < CURLFTPAUTH_DEFAULT) || (arg >= CURLFTPAUTH_LAST))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->ftpsslauth = (unsigned char)arg;
-    break;
-  case CURLOPT_ACCEPTTIMEOUT_MS:
-    return setopt_set_timeout_ms(&s->accepttimeout, arg);
+    இல்லையெனில்
+      s->ftpsslauth = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_ACCEPTTIMEOUT_MS:
+    திரும்பு setopt_set_timeout_ms(&s->accepttimeout, arg);
 #endif
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH)
-  case CURLOPT_FTP_CREATE_MISSING_DIRS:
-    if((arg < CURLFTP_CREATE_DIR_NONE) || (arg > CURLFTP_CREATE_DIR_RETRY))
+#எனில் !defined(CURL_DISABLE_FTP) || defined(USE_SSH)
+  நிலை CURLOPT_FTP_CREATE_MISSING_DIRS:
+    எனில்((arg < CURLFTP_CREATE_DIR_NONE) || (arg > CURLFTP_CREATE_DIR_RETRY))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->ftp_create_missing_dirs = (unsigned char)arg;
-    break;
-  case CURLOPT_NEW_FILE_PERMS:
-    if((arg < 0) || (arg > 0777))
+    இல்லையெனில்
+      s->ftp_create_missing_dirs = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_NEW_FILE_PERMS:
+    எனில்((arg < 0) || (arg > 0777))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->new_file_perms = (unsigned int)arg;
-    break;
+    இல்லையெனில்
+      s->new_file_perms = (unsigned முழு)arg;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_RTSP
-  case CURLOPT_RTSP_REQUEST:
-    return setopt_RTSP_REQUEST(data, arg);
-  case CURLOPT_RTSP_CLIENT_CSEQ:
-    result = value_range(&arg, 0, 0, INT_MAX);
-    if(!result)
+  நிலை CURLOPT_RTSP_REQUEST:
+    திரும்பு setopt_RTSP_REQUEST(data, arg);
+  நிலை CURLOPT_RTSP_CLIENT_CSEQ:
+    result = மதிப்பு_range(&arg, 0, 0, INT_MAX);
+    எனில்(!result)
       data->state.rtsp_next_client_CSeq = (uint32_t)arg;
-    break;
-  case CURLOPT_RTSP_SERVER_CSEQ:
-    result = value_range(&arg, 0, 0, INT_MAX);
-    if(!result)
+    நிறுத்து;
+  நிலை CURLOPT_RTSP_SERVER_CSEQ:
+    result = மதிப்பு_range(&arg, 0, 0, INT_MAX);
+    எனில்(!result)
       data->state.rtsp_next_server_CSeq = (uint32_t)arg;
-    break;
+    நிறுத்து;
 #endif
 #ifdef USE_SSH
-  case CURLOPT_SSH_AUTH_TYPES:
+  நிலை CURLOPT_SSH_AUTH_TYPES:
     s->ssh_auth_types = (uint32_t)arg;
-    break;
-  case CURLOPT_NEW_DIRECTORY_PERMS:
-    if((arg < 0) || (arg > 0777))
+    நிறுத்து;
+  நிலை CURLOPT_NEW_DIRECTORY_PERMS:
+    எனில்((arg < 0) || (arg > 0777))
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else
-      s->new_directory_perms = (unsigned int)arg;
-    break;
+    இல்லையெனில்
+      s->new_directory_perms = (unsigned முழு)arg;
+    நிறுத்து;
 #endif
-  case CURLOPT_PROTOCOLS:
+  நிலை CURLOPT_PROTOCOLS:
     s->allowed_protocols = (curl_prot_t)arg;
-    break;
-  case CURLOPT_REDIR_PROTOCOLS:
+    நிறுத்து;
+  நிலை CURLOPT_REDIR_PROTOCOLS:
     s->redir_protocols = (curl_prot_t)arg;
-    break;
+    நிறுத்து;
 #ifndef CURL_DISABLE_WEBSOCKETS
-  case CURLOPT_WS_OPTIONS:
+  நிலை CURLOPT_WS_OPTIONS:
     s->ws_raw_mode = !!(arg & CURLWS_RAW_MODE);
     s->ws_no_auto_pong = !!(arg & CURLWS_NOAUTOPONG);
-    break;
+    நிறுத்து;
 #endif
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode setopt_long_misc(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_long_misc(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                  long arg)
 {
-  struct UserDefined *s = &data->set;
+  கட்டமைப்பு UserDefined *s = &data->set;
 
-  switch(option) {
-  case CURLOPT_TIMECONDITION:
-    if((arg < CURL_TIMECOND_NONE) || (arg >= CURL_TIMECOND_LAST))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    s->timecondition = (unsigned char)arg;
-    break;
-  case CURLOPT_TIMEVALUE:
+  தேர்வு(option) {
+  நிலை CURLOPT_TIMECONDITION:
+    எனில்((arg < CURL_TIMECOND_NONE) || (arg >= CURL_TIMECOND_LAST))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+    s->timecondition = (unsigned எழுத்து)arg;
+    நிறுத்து;
+  நிலை CURLOPT_TIMEVALUE:
     s->timevalue = (time_t)arg;
-    break;
-  case CURLOPT_POSTFIELDSIZE:
-    if(arg < -1)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    if(s->postfieldsize < arg && s->str_copypostfields) {
+    நிறுத்து;
+  நிலை CURLOPT_POSTFIELDSIZE:
+    எனில்(arg < -1)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(s->postfieldsize < arg && s->str_copypostfields) {
       curlx_safefree(s->str_copypostfields);
-      s->postfields = NULL;
+      s->postfields = வெற்று;
     }
     s->postfieldsize = arg;
-    break;
-  case CURLOPT_INFILESIZE:
-    if(arg < -1)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    நிறுத்து;
+  நிலை CURLOPT_INFILESIZE:
+    எனில்(arg < -1)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->filesize = arg;
-    break;
-  case CURLOPT_RESUME_FROM:
-    if(arg < -1)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    நிறுத்து;
+  நிலை CURLOPT_RESUME_FROM:
+    எனில்(arg < -1)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->set_resume_from = arg;
-    break;
-  case CURLOPT_UPLOAD_FLAGS:
-    s->upload_flags = (unsigned char)arg;
-    break;
+    நிறுத்து;
+  நிலை CURLOPT_UPLOAD_FLAGS:
+    s->upload_flags = (unsigned எழுத்து)arg;
+    நிறுத்து;
 #ifndef CURL_DISABLE_MIME
-  case CURLOPT_MIME_OPTIONS:
+  நிலை CURLOPT_MIME_OPTIONS:
     s->mime_formescape = !!(arg & CURLMIMEOPT_FORMESCAPE);
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_HSTS
-  case CURLOPT_HSTS_CTRL:
-    if(arg & CURLHSTS_ENABLE) {
-      if(!data->hsts) {
+  நிலை CURLOPT_HSTS_CTRL:
+    எனில்(arg & CURLHSTS_ENABLE) {
+      எனில்(!data->hsts) {
         data->hsts = Curl_hsts_init();
-        if(!data->hsts)
-          return CURLE_OUT_OF_MEMORY;
+        எனில்(!data->hsts)
+          திரும்பு CURLE_OUT_OF_MEMORY;
       }
     }
-    else if(!data->share || !data->share->hsts) {
+    இல்லையெனில் எனில்(!data->share || !data->share->hsts) {
       /* throw away the HSTS cache unless shared */
       Curl_hsts_cleanup(&data->hsts);
       /* flush all the entries */
       curl_slist_free_all(data->state.hstslist);
-      data->state.hstslist = NULL;
+      data->state.hstslist = வெற்று;
     }
-    else
+    இல்லையெனில்
       /* detach from shared HSTS cache without freeing it */
-      data->hsts = NULL;
-    break;
+      data->hsts = வெற்று;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_ALTSVC
-  case CURLOPT_ALTSVC_CTRL:
-    return Curl_altsvc_ctrl(data, arg);
+  நிலை CURLOPT_ALTSVC_CTRL:
+    திரும்பு Curl_altsvc_ctrl(data, arg);
 #endif
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  case CURLOPT_GSSAPI_DELEGATION:
-    s->gssapi_delegation = (unsigned char)arg &
+#எனில் defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  நிலை CURLOPT_GSSAPI_DELEGATION:
+    s->gssapi_delegation = (unsigned எழுத்து)arg &
       (CURLGSSAPI_DELEGATION_POLICY_FLAG | CURLGSSAPI_DELEGATION_FLAG);
-    break;
+    நிறுத்து;
 #endif
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode setopt_long(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_long(கட்டமைப்பு Curl_easy *data, CURLoption option,
                             long arg)
 {
-  typedef CURLcode (*setoptfunc)(struct Curl_easy *data,
+  வகைவரை CURLcode (*setoptfunc)(கட்டமைப்பு Curl_easy *data,
                                  CURLoption option, long arg);
-  static const setoptfunc setopt_call[] = {
+  நிலையான மாறிலி setoptfunc setopt_call[] = {
     setopt_long_bool,
     setopt_long_net,
     setopt_long_http,
@@ -1276,22 +1276,22 @@ static CURLcode setopt_long(struct Curl_easy *data, CURLoption option,
   };
   size_t i;
 
-  for(i = 0; i < CURL_ARRAYSIZE(setopt_call); i++) {
+  க்கு(i = 0; i < CURL_ARRAYSIZE(setopt_call); i++) {
     CURLcode result = setopt_call[i](data, option, arg);
-    if(result != CURLE_UNKNOWN_OPTION)
-      return result;
+    எனில்(result != CURLE_UNKNOWN_OPTION)
+      திரும்பு result;
   }
-  return CURLE_UNKNOWN_OPTION;
+  திரும்பு CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode setopt_slist(struct Curl_easy *data, CURLoption option,
-                             struct curl_slist *slist)
+நிலையான CURLcode setopt_slist(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                             கட்டமைப்பு curl_slist *slist)
 {
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
-  switch(option) {
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
 #ifndef CURL_DISABLE_PROXY
-  case CURLOPT_PROXYHEADER:
+  நிலை CURLOPT_PROXYHEADER:
     /*
      * Set a list with proxy headers to use (or replace internals with)
      *
@@ -1303,37 +1303,37 @@ static CURLcode setopt_slist(struct Curl_easy *data, CURLoption option,
      * Set this option to NULL to restore the previous behavior.
      */
     s->proxyheaders = slist;
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_HTTP
-  case CURLOPT_HTTP200ALIASES:
+  நிலை CURLOPT_HTTP200ALIASES:
     /*
      * Set a list of aliases for HTTP 200 in response header
      */
     s->http200aliases = slist;
-    break;
+    நிறுத்து;
 #endif
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH)
-  case CURLOPT_POSTQUOTE:
+#எனில் !defined(CURL_DISABLE_FTP) || defined(USE_SSH)
+  நிலை CURLOPT_POSTQUOTE:
     /*
      * List of RAW FTP commands to use after a transfer
      */
     s->postquote = slist;
-    break;
-  case CURLOPT_PREQUOTE:
+    நிறுத்து;
+  நிலை CURLOPT_PREQUOTE:
     /*
      * List of RAW FTP commands to use prior to RETR (Wesley Laxton)
      */
     s->prequote = slist;
-    break;
-  case CURLOPT_QUOTE:
+    நிறுத்து;
+  நிலை CURLOPT_QUOTE:
     /*
      * List of RAW FTP commands to use before a transfer
      */
     s->quote = slist;
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_RESOLVE:
+  நிலை CURLOPT_RESOLVE:
     /*
      * List of HOST:PORT:[addresses] strings to populate the DNS cache with
      * Entries added this way will remain in the cache until explicitly
@@ -1349,350 +1349,350 @@ static CURLcode setopt_slist(struct Curl_easy *data, CURLoption option,
      */
     s->resolve = slist;
     data->state.resolve = s->resolve;
-    break;
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_MIME)
-  case CURLOPT_HTTPHEADER:
+    நிறுத்து;
+#எனில் !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_MIME)
+  நிலை CURLOPT_HTTPHEADER:
     /*
      * Set a list with HTTP headers to use (or replace internals with)
      */
     s->headers = slist;
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_TELNET
-  case CURLOPT_TELNETOPTIONS:
+  நிலை CURLOPT_TELNETOPTIONS:
     /*
      * Set a linked list of telnet options
      */
     s->telnet_options = slist;
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_SMTP
-  case CURLOPT_MAIL_RCPT:
+  நிலை CURLOPT_MAIL_RCPT:
     /* Set the list of mail recipients */
     s->mail_rcpt = slist;
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_CONNECT_TO:
+  நிலை CURLOPT_CONNECT_TO:
     s->connect_to = slist;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    நிறுத்து;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_SMTP) ||       \
+#எனில் !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_SMTP) ||       \
   !defined(CURL_DISABLE_IMAP)
 #ifndef CURL_DISABLE_MIME
-static CURLcode setopt_mimepost(struct Curl_easy *data, curl_mime *mimep)
+நிலையான CURLcode setopt_mimepost(கட்டமைப்பு Curl_easy *data, curl_mime *mimep)
 {
   /*
    * Set to make us do MIME POST
    */
   CURLcode result;
-  struct UserDefined *s = &data->set;
-  if(!s->mimepostp) {
-    s->mimepostp = curlx_malloc(sizeof(*s->mimepostp));
-    if(!s->mimepostp)
-      return CURLE_OUT_OF_MEMORY;
+  கட்டமைப்பு UserDefined *s = &data->set;
+  எனில்(!s->mimepostp) {
+    s->mimepostp = curlx_malloc(அளவு(*s->mimepostp));
+    எனில்(!s->mimepostp)
+      திரும்பு CURLE_OUT_OF_MEMORY;
     Curl_mime_initpart(s->mimepostp);
   }
 
   result = Curl_mime_set_subparts(s->mimepostp, mimep, FALSE);
-  if(!result) {
+  எனில்(!result) {
     s->method = HTTPREQ_POST_MIME;
     s->opt_no_body = FALSE; /* this is implied */
 #ifndef CURL_DISABLE_FORM_API
     Curl_mime_cleanpart(data->state.formp);
     curlx_safefree(data->state.formp);
-    data->state.mimepost = NULL;
+    data->state.mimepost = வெற்று;
 #endif
   }
-  return result;
+  திரும்பு result;
 }
 #endif /* !CURL_DISABLE_MIME */
 #endif /* !CURL_DISABLE_HTTP || !CURL_DISABLE_SMTP || !CURL_DISABLE_IMAP */
 
-static CURLcode setopt_share(struct Curl_easy *data, struct Curl_share *set)
+நிலையான CURLcode setopt_share(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு Curl_share *set)
 {
   CURLcode result;
 
-  if(data->conn) {
+  எனில்(data->conn) {
     /* As this handle already has a connection attached, changing share now
        would be complicated and error-prone */
     infof(data, "Cannot change share object while in use");
     result = CURLE_BAD_FUNCTION_ARGUMENT;
   }
-  else {
+  இல்லையெனில் {
     /* disconnect from old share, if any and possible */
     result = Curl_share_easy_unlink(data);
-    if(!result && GOOD_SHARE_HANDLE(set))
+    எனில்(!result && GOOD_SHARE_HANDLE(set))
       /* use new share if it set */
       result = Curl_share_easy_link(data, set);
   }
-  return result;
+  திரும்பு result;
 }
 
 /* assorted pointer type arguments */
-static CURLcode setopt_pointers(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_pointers(கட்டமைப்பு Curl_easy *data, CURLoption option,
                                 va_list param)
 {
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_CURLU:
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_CURLU:
     /*
      * pass CURLU to set URL
      */
     Curl_bufref_free(&data->state.url);
     CURL_EASY_STR_CLEAR(data, STRING_SET_URL);
     s->uh = va_arg(param, CURLU *);
-    break;
+    நிறுத்து;
 #ifndef CURL_DISABLE_HTTP
 #ifndef CURL_DISABLE_FORM_API
-  case CURLOPT_HTTPPOST:
+  நிலை CURLOPT_HTTPPOST:
     /*
      * Set to make us do HTTP POST. Legacy API-style.
      */
-    s->httppost = va_arg(param, struct curl_httppost *);
+    s->httppost = va_arg(param, கட்டமைப்பு curl_httppost *);
     s->method = HTTPREQ_POST_FORM;
     s->opt_no_body = FALSE; /* this is implied */
     Curl_mime_cleanpart(data->state.formp);
     curlx_safefree(data->state.formp);
-    data->state.mimepost = NULL;
-    break;
+    data->state.mimepost = வெற்று;
+    நிறுத்து;
 #endif /* !CURL_DISABLE_FORM_API */
 #endif /* !CURL_DISABLE_HTTP */
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_SMTP) ||       \
+#எனில் !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_SMTP) ||       \
   !defined(CURL_DISABLE_IMAP)
 #ifndef CURL_DISABLE_MIME
-  case CURLOPT_MIMEPOST:
+  நிலை CURLOPT_MIMEPOST:
     result = setopt_mimepost(data, va_arg(param, curl_mime *));
-    break;
+    நிறுத்து;
 #endif /* !CURL_DISABLE_MIME */
 #endif /* !CURL_DISABLE_HTTP || !CURL_DISABLE_SMTP || !CURL_DISABLE_IMAP */
-  case CURLOPT_STDERR:
+  நிலை CURLOPT_STDERR:
     /*
      * Set to a FILE * that should receive all error writes. This
      * defaults to stderr for normal operations.
      */
     s->err = va_arg(param, FILE *);
-    if(!s->err)
+    எனில்(!s->err)
       s->err = stderr;
-    break;
-  case CURLOPT_SHARE:
-    return setopt_share(data, va_arg(param, struct Curl_share *));
+    நிறுத்து;
+  நிலை CURLOPT_SHARE:
+    திரும்பு setopt_share(data, va_arg(param, கட்டமைப்பு Curl_share *));
 
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 
 #ifndef CURL_DISABLE_COOKIES
-static CURLcode cookielist(struct Curl_easy *data, const char *ptr)
+நிலையான CURLcode cookielist(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *ptr)
 {
   CURLcode result = CURLE_OK;
-  if(!ptr)
-    return CURLE_OK;
+  எனில்(!ptr)
+    திரும்பு CURLE_OK;
 
-  if(curl_strequal(ptr, "ALL")) {
+  எனில்(curl_strequal(ptr, "ALL")) {
     /* clear all cookies */
     Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
     Curl_cookie_clearall(data->cookies);
     Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
   }
-  else if(curl_strequal(ptr, "SESS")) {
+  இல்லையெனில் எனில்(curl_strequal(ptr, "SESS")) {
     /* clear session cookies */
     Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
     Curl_cookie_clearsess(data->cookies);
     Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
   }
-  else if(curl_strequal(ptr, "FLUSH")) {
+  இல்லையெனில் எனில்(curl_strequal(ptr, "FLUSH")) {
     /* flush cookies to file, takes care of the locking */
     Curl_flush_cookies(data, FALSE);
   }
-  else if(curl_strequal(ptr, "RELOAD")) {
+  இல்லையெனில் எனில்(curl_strequal(ptr, "RELOAD")) {
     /* reload cookies from file */
-    return Curl_cookie_loadfiles(data, COOKIE_NOPSL |
+    திரும்பு Curl_cookie_loadfiles(data, COOKIE_NOPSL |
                                  (data->set.cookiesession ?
                                   COOKIE_NOSESSION : 0));
   }
-  else {
-    if(!data->cookies) {
+  இல்லையெனில் {
+    எனில்(!data->cookies) {
       /* if cookie engine was not running, activate it */
       data->cookies = Curl_cookie_init();
-      if(!data->cookies)
-        return CURLE_OUT_OF_MEMORY;
+      எனில்(!data->cookies)
+        திரும்பு CURLE_OUT_OF_MEMORY;
       data->state.cookie_engine = TRUE;
     }
 
     /* general protection against mistakes and abuse */
-    if(strlen(ptr) > CURL_MAX_INPUT_LENGTH)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(strlen(ptr) > CURL_MAX_உள்ளீடு_LENGTH)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
     /* Adding these cookies without the PSL check, because the PSL is not
        initialized until *perform() time, and this might be called before
        that */
     Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-    if(checkprefix("Set-Cookie:", ptr))
+    எனில்(checkprefix("Set-Cookie:", ptr))
       /* HTTP Header format line */
       result = Curl_cookie_add(data, data->cookies, ptr + 11,
-                               NULL, NULL,
+                               வெற்று, வெற்று,
                                COOKIE_HTTPHEADER | COOKIE_SECURE |
                                COOKIE_NOPSL);
-    else
+    இல்லையெனில்
       /* Netscape format line */
-      result = Curl_cookie_add(data, data->cookies, ptr, NULL,
-                               NULL, COOKIE_SECURE | COOKIE_NOPSL);
+      result = Curl_cookie_add(data, data->cookies, ptr, வெற்று,
+                               வெற்று, COOKIE_SECURE | COOKIE_NOPSL);
     Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
   }
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode cookiefile(struct Curl_easy *data, const char *ptr)
+நிலையான CURLcode cookiefile(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *ptr)
 {
   /*
    * Set cookie file to read and parse. Can be used multiple times.
    */
-  if(ptr) {
-    struct curl_slist *cl;
+  எனில்(ptr) {
+    கட்டமைப்பு curl_slist *cl;
     /* general protection against mistakes and abuse */
-    if(strlen(ptr) > CURL_MAX_INPUT_LENGTH)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(strlen(ptr) > CURL_MAX_உள்ளீடு_LENGTH)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     /* append the cookie filename to the list of filenames, and deal with
        them later */
     cl = curl_slist_append(data->state.cookielist, ptr);
-    if(!cl) {
+    எனில்(!cl) {
       curl_slist_free_all(data->state.cookielist);
-      data->state.cookielist = NULL;
-      return CURLE_OUT_OF_MEMORY;
+      data->state.cookielist = வெற்று;
+      திரும்பு CURLE_OUT_OF_MEMORY;
     }
     data->state.cookielist = cl; /* store the list for later use */
   }
-  else {
+  இல்லையெனில் {
     /* clear the list of cookie files */
     curl_slist_free_all(data->state.cookielist);
-    data->state.cookielist = NULL;
+    data->state.cookielist = வெற்று;
 
-    if(!data->share || !data->share->cookies) {
+    எனில்(!data->share || !data->share->cookies) {
       /* throw away all existing cookies if this is not a shared cookie
          container */
       Curl_cookie_clearall(data->cookies);
       Curl_cookie_cleanup(data->cookies);
     }
     /* disable the cookie engine */
-    data->cookies = NULL;
+    data->cookies = வெற்று;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 #endif
 
 #ifndef CURL_DISABLE_PROXY
-static CURLcode setproxy(struct Curl_easy *data, const char *proxy)
+நிலையான CURLcode setproxy(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *proxy)
 {
-  const char *str = CURL_EASY_STR(data, STRING_PROXY);
-  if(str && proxy &&
+  மாறிலி எழுத்து *str = CURL_EASY_STR(data, STRING_PROXY);
+  எனில்(str && proxy &&
      /* there was one set, is this a new one? */
      !strcmp(str, proxy))
-    return CURLE_OK; /* same one as before */
+    திரும்பு CURLE_OK; /* same one as before */
 
   changeproxy(data);
-  return Curl_setstropt(data, STRING_PROXY, proxy);
+  திரும்பு Curl_setstropt(data, STRING_PROXY, proxy);
 }
 
-static CURLcode setopt_cptr_proxy(struct Curl_easy *data, CURLoption option,
-                                  char *ptr)
+நிலையான CURLcode setopt_cptr_proxy(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                                  எழுத்து *ptr)
 {
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_PROXYUSERPWD: {
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_PROXYUSERPWD: {
     /*
      * user:password needed to use the proxy
      */
-    char *u = NULL;
-    char *p = NULL;
+    எழுத்து *u = வெற்று;
+    எழுத்து *p = வெற்று;
     result = setstropt_userpwd(ptr, &u, &p);
 
     /* URL decode the components */
-    if(!result) {
-      char *str = NULL;
+    எனில்(!result) {
+      எழுத்து *str = வெற்று;
       CURL_EASY_STR_CLEAR(data, STRING_PROXYUSERNAME);
       CURL_EASY_STR_CLEAR(data, STRING_PROXYPASSWORD);
-      if(u) {
-        result = Curl_urldecode(u, 0, &str, NULL, REJECT_ZERO);
-        if(!result)
+      எனில்(u) {
+        result = Curl_urldecode(u, 0, &str, வெற்று, REJECT_ZERO);
+        எனில்(!result)
           result = Curl_u8_strset_setn(&s->strings, STRING_PROXYUSERNAME, str);
       }
-      if(!result && p) {
-        str = NULL;
-        result = Curl_urldecode(p, 0, &str, NULL, REJECT_ZERO);
-        if(!result)
+      எனில்(!result && p) {
+        str = வெற்று;
+        result = Curl_urldecode(p, 0, &str, வெற்று, REJECT_ZERO);
+        எனில்(!result)
           result = Curl_u8_strset_setn(&s->strings, STRING_PROXYPASSWORD, str);
       }
     }
     curlx_free(u);
     curlx_strzero(p);
     curlx_free(p);
-    break;
+    நிறுத்து;
   }
-  case CURLOPT_PROXYUSERNAME:
+  நிலை CURLOPT_PROXYUSERNAME:
     /*
      * authentication username to use in the operation
      */
-    return Curl_setstropt(data, STRING_PROXYUSERNAME, ptr);
+    திரும்பு Curl_setstropt(data, STRING_PROXYUSERNAME, ptr);
 
-  case CURLOPT_PROXYPASSWORD:
+  நிலை CURLOPT_PROXYPASSWORD:
     /*
      * authentication password to use in the operation
      */
-    return Curl_setstropt(data, STRING_PROXYPASSWORD, ptr);
+    திரும்பு Curl_setstropt(data, STRING_PROXYPASSWORD, ptr);
 
-  case CURLOPT_NOPROXY:
+  நிலை CURLOPT_NOPROXY:
     /*
      * proxy exception list
      */
-    return Curl_setstropt(data, STRING_NOPROXY, ptr);
-  case CURLOPT_PROXY_SSLCERT:
+    திரும்பு Curl_setstropt(data, STRING_NOPROXY, ptr);
+  நிலை CURLOPT_PROXY_SSLCERT:
     /*
      * String that holds filename of the SSL certificate to use for proxy
      */
-    return Curl_setstropt(data, STRING_CERT_PROXY, ptr);
-  case CURLOPT_PROXY_SSLCERTTYPE:
+    திரும்பு Curl_setstropt(data, STRING_CERT_PROXY, ptr);
+  நிலை CURLOPT_PROXY_SSLCERTTYPE:
     /*
      * String that holds file type of the SSL certificate to use for proxy
      */
-    return Curl_setstropt(data, STRING_CERT_TYPE_PROXY, ptr);
-  case CURLOPT_PROXY_SSLKEY:
+    திரும்பு Curl_setstropt(data, STRING_CERT_TYPE_PROXY, ptr);
+  நிலை CURLOPT_PROXY_SSLKEY:
     /*
      * String that holds filename of the SSL key to use for proxy
      */
-    return Curl_setstropt(data, STRING_KEY_PROXY, ptr);
-  case CURLOPT_PROXY_KEYPASSWD:
+    திரும்பு Curl_setstropt(data, STRING_சாவி_PROXY, ptr);
+  நிலை CURLOPT_PROXY_KEYPASSWD:
     /*
      * String that holds the SSL private key password for proxy.
      */
-    return Curl_setstropt(data, STRING_KEY_PASSWD_PROXY, ptr);
-  case CURLOPT_PROXY_SSLKEYTYPE:
+    திரும்பு Curl_setstropt(data, STRING_சாவி_PASSWD_PROXY, ptr);
+  நிலை CURLOPT_PROXY_SSLKEYTYPE:
     /*
      * String that holds file type of the SSL key to use for proxy
      */
-    return Curl_setstropt(data, STRING_KEY_TYPE_PROXY, ptr);
-  case CURLOPT_PROXY_SSL_CIPHER_LIST:
-    if(Curl_ssl_supports(data, SSLSUPP_CIPHER_LIST)) {
+    திரும்பு Curl_setstropt(data, STRING_சாவி_TYPE_PROXY, ptr);
+  நிலை CURLOPT_PROXY_SSL_CIPHER_LIST:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CIPHER_LIST)) {
       /* set a list of cipher we want to use in the SSL connection for proxy */
-      return Curl_setstropt(data, STRING_SSL_CIPHER_LIST_PROXY, ptr);
+      திரும்பு Curl_setstropt(data, STRING_SSL_CIPHER_LIST_PROXY, ptr);
     }
-    else
-      return CURLE_NOT_BUILT_IN;
-  case CURLOPT_PROXY_TLS13_CIPHERS:
-    if(Curl_ssl_supports(data, SSLSUPP_TLS13_CIPHERSUITES))
+    இல்லையெனில்
+      திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_PROXY_TLS13_CIPHERS:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_TLS13_CIPHERSUITES))
       /* set preferred list of TLS 1.3 cipher suites for proxy */
-      return Curl_setstropt(data, STRING_SSL_CIPHER13_LIST_PROXY, ptr);
-    else
-      return CURLE_NOT_BUILT_IN;
-  case CURLOPT_PROXY:
+      திரும்பு Curl_setstropt(data, STRING_SSL_CIPHER13_LIST_PROXY, ptr);
+    இல்லையெனில்
+      திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_PROXY:
     /*
      * Set proxy server:port to use as proxy.
      *
@@ -1703,33 +1703,33 @@ static CURLcode setopt_cptr_proxy(struct Curl_easy *data, CURLoption option,
      * Setting it to NULL, means no proxy but allows the environment variables
      * to decide for us (if CURLOPT_PRE_PROXY setting it to NULL).
      */
-    return setproxy(data, ptr);
-  case CURLOPT_PRE_PROXY:
+    திரும்பு setproxy(data, ptr);
+  நிலை CURLOPT_PRE_PROXY:
     /*
      * Set proxy server:port to use as SOCKS proxy.
      *
      * If the proxy is set to "" or NULL we explicitly say that we do not want
      * to use the socks proxy.
      */
-    return Curl_setstropt(data, STRING_PRE_PROXY, ptr);
-  case CURLOPT_SOCKS5_GSSAPI_SERVICE:
-  case CURLOPT_PROXY_SERVICE_NAME:
+    திரும்பு Curl_setstropt(data, STRING_PRE_PROXY, ptr);
+  நிலை CURLOPT_SOCKS5_GSSAPI_SERVICE:
+  நிலை CURLOPT_PROXY_SERVICE_NAME:
     /*
      * Set proxy authentication service name for Kerberos 5 and SPNEGO
      */
-    return Curl_setstropt(data, STRING_PROXY_SERVICE_NAME, ptr);
-  case CURLOPT_PROXY_PINNEDPUBLICKEY:
+    திரும்பு Curl_setstropt(data, STRING_PROXY_SERVICE_NAME, ptr);
+  நிலை CURLOPT_PROXY_PINNEDPUBLICKEY:
     /*
      * Set pinned public key for SSL connection.
      * Specify filename of the public key in DER format.
      */
 #ifdef USE_SSL
-    if(Curl_ssl_supports(data, SSLSUPP_PINNEDPUBKEY))
-      return Curl_setstropt(data, STRING_SSL_PINNEDPUBLICKEY_PROXY, ptr);
+    எனில்(Curl_ssl_supports(data, SSLSUPP_PINNEDPUBKEY))
+      திரும்பு Curl_setstropt(data, STRING_SSL_PINNEDPUBLICKEY_PROXY, ptr);
 #endif
-    return CURLE_NOT_BUILT_IN;
+    திரும்பு CURLE_NOT_BUILT_IN;
 
-  case CURLOPT_HAPROXY_CLIENT_IP:
+  நிலை CURLOPT_HAPROXY_CLIENT_IP:
     /*
      * Set the client IP to send through HAProxy PROXY protocol
      */
@@ -1737,86 +1737,86 @@ static CURLcode setopt_cptr_proxy(struct Curl_easy *data, CURLoption option,
 
     /* enable the HAProxy protocol if an IP is provided */
     s->haproxyprotocol = !!CURL_EASY_STR(data, STRING_HAPROXY_CLIENT_IP);
-    break;
-  case CURLOPT_PROXY_CAINFO:
+    நிறுத்து;
+  நிலை CURLOPT_PROXY_CAINFO:
     /*
      * Set CA info SSL connection for proxy. Specify filename of the
      * CA certificate
      */
     result = Curl_setstropt(data, STRING_SSL_CAFILE_PROXY, ptr);
-    if(!result)
+    எனில்(!result)
       s->proxy_ssl.custom_cafile = TRUE;
-    return result;
-  case CURLOPT_PROXY_CRLFILE:
+    திரும்பு result;
+  நிலை CURLOPT_PROXY_CRLFILE:
     /*
      * Set CRL file info for SSL connection for proxy. Specify filename of the
      * CRL to check certificates revocation
      */
-    if(Curl_ssl_supports(data, SSLSUPP_CRLFILE))
-      return Curl_setstropt(data, STRING_SSL_CRLFILE_PROXY, ptr);
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_PROXY_ISSUERCERT:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CRLFILE))
+      திரும்பு Curl_setstropt(data, STRING_SSL_CRLFILE_PROXY, ptr);
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_PROXY_ISSUERCERT:
     /*
      * Set Issuer certificate file to check certificates issuer
      */
-    if(Curl_ssl_supports(data, SSLSUPP_ISSUERCERT))
-      return Curl_setstropt(data, STRING_SSL_ISSUERCERT_PROXY, ptr);
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_PROXY_CAPATH:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_ISSUERCERT))
+      திரும்பு Curl_setstropt(data, STRING_SSL_ISSUERCERT_PROXY, ptr);
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_PROXY_CAPATH:
     /*
      * Set CA path info for SSL connection proxy. Specify directory name of the
      * CA certificates which have been prepared using openssl c_rehash utility.
      */
 #ifdef USE_SSL
-    if(Curl_ssl_supports(data, SSLSUPP_CA_PATH)) {
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CA_PATH)) {
       /* This does not work on Windows. */
       result = Curl_setstropt(data, STRING_SSL_CAPATH_PROXY, ptr);
-      if(!result)
+      எனில்(!result)
         s->proxy_ssl.custom_capath = TRUE;
-      return result;
+      திரும்பு result;
     }
 #endif
-    return CURLE_NOT_BUILT_IN;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    திரும்பு CURLE_NOT_BUILT_IN;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 #endif
 
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_MQTT)
+#எனில் !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_MQTT)
 /*
  * A string with POST data. Makes curl HTTP POST. Even if it is NULL. If
  * needed, CURLOPT_POSTFIELDSIZE must have been set prior to
  * CURLOPT_COPYPOSTFIELDS and not altered later.
  */
-static CURLcode setopt_copypostfields(const char *ptr, struct UserDefined *s)
+நிலையான CURLcode setopt_copypostfields(மாறிலி எழுத்து *ptr, கட்டமைப்பு UserDefined *s)
 {
   CURLcode result = CURLE_OK;
-  if(s->postfieldsize < -1)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(!ptr || s->postfieldsize == -1) {
-    if(ptr && (strlen(ptr) > CURL_MAX_INPUT_LENGTH))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(s->postfieldsize < -1)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(!ptr || s->postfieldsize == -1) {
+    எனில்(ptr && (strlen(ptr) > CURL_MAX_உள்ளீடு_LENGTH))
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     curlx_safefree(s->str_copypostfields);
-    if(ptr) {
+    எனில்(ptr) {
       s->str_copypostfields = curlx_strdup(ptr);
-      if(!s->str_copypostfields)
-        return CURLE_OUT_OF_MEMORY;
+      எனில்(!s->str_copypostfields)
+        திரும்பு CURLE_OUT_OF_MEMORY;
     }
   }
-  else {
+  இல்லையெனில் {
     size_t pflen = curlx_sotouz_range(s->postfieldsize, 0, SIZE_MAX);
-    if(pflen == SIZE_MAX)
-      return CURLE_OUT_OF_MEMORY;
-    else {
+    எனில்(pflen == SIZE_MAX)
+      திரும்பு CURLE_OUT_OF_MEMORY;
+    இல்லையெனில் {
       /* Allocate even when size == 0. This satisfies the need of possible
          later address compare to detect the COPYPOSTFIELDS mode, and to mark
          that postfields is used rather than read function or form data. */
-      char *p = curlx_memdup0(ptr, pflen);
-      if(!p)
-        return CURLE_OUT_OF_MEMORY;
-      else {
+      எழுத்து *p = curlx_memdup0(ptr, pflen);
+      எனில்(!p)
+        திரும்பு CURLE_OUT_OF_MEMORY;
+      இல்லையெனில் {
         curlx_free(s->str_copypostfields);
         s->str_copypostfields = p;
       }
@@ -1825,201 +1825,201 @@ static CURLcode setopt_copypostfields(const char *ptr, struct UserDefined *s)
 
   s->postfields = s->str_copypostfields;
   s->method = HTTPREQ_POST;
-  return result;
+  திரும்பு result;
 }
 #endif
 
 #ifdef USE_ECH
-static CURLcode setopt_ech(struct Curl_easy *data, const char *ptr)
+நிலையான CURLcode setopt_ech(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *ptr)
 {
-  struct UserDefined *s = &data->set;
+  கட்டமைப்பு UserDefined *s = &data->set;
   CURLcode result = CURLE_OK;
 
-  if(!ptr || !strcmp(ptr, "false"))
+  எனில்(!ptr || !strcmp(ptr, "false"))
     s->ssl.ech = CURLECH_DISABLE;
-  else {
+  இல்லையெனில் {
     size_t plen = strlen(ptr);
-    if(plen > CURL_MAX_INPUT_LENGTH)
+    எனில்(plen > CURL_MAX_உள்ளீடு_LENGTH)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    else {
-      if(!strcmp(ptr, "grease"))
+    இல்லையெனில் {
+      எனில்(!strcmp(ptr, "grease"))
         s->ssl.ech = CURLECH_GREASE;
-      else if(!strcmp(ptr, "true"))
+      இல்லையெனில் எனில்(!strcmp(ptr, "true"))
         s->ssl.ech = CURLECH_ENABLE;
-      else if(!strcmp(ptr, "hard"))
+      இல்லையெனில் எனில்(!strcmp(ptr, "hard"))
         s->ssl.ech = CURLECH_HARD;
-      else if(plen > 4 && !strncmp(ptr, "ecl:", 4)) {
-        if(!s->ssl.ech)
+      இல்லையெனில் எனில்(plen > 4 && !strncmp(ptr, "ecl:", 4)) {
+        எனில்(!s->ssl.ech)
           s->ssl.ech = CURLECH_HARD;
         result = Curl_setstropt(data, STRING_ECH_CONFIG, ptr + 4);
       }
-      else if(plen > 3 && !strncmp(ptr, "pn:", 3)) {
-        if(!s->ssl.ech)
+      இல்லையெனில் எனில்(plen > 3 && !strncmp(ptr, "pn:", 3)) {
+        எனில்(!s->ssl.ech)
           s->ssl.ech = CURLECH_HARD;
         result = Curl_setstropt(data, STRING_ECH_PUBLIC, ptr + 3);
       }
-      else
+      இல்லையெனில்
         result = CURLE_BAD_FUNCTION_ARGUMENT;
     }
   }
-  return result;
+  திரும்பு result;
 }
-#else
+#இல்லையெனில்
 #define setopt_ech(x, y) CURLE_NOT_BUILT_IN
 #endif
 
-#if defined(USE_SSL) || defined(USE_SSH)
+#எனில் defined(USE_SSL) || defined(USE_SSH)
 /* One of the options is used for both TLS and SSH */
-static CURLcode setopt_cptr_ssl(struct Curl_easy *data, CURLoption option,
-                                char *ptr)
+நிலையான CURLcode setopt_cptr_ssl(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                                எழுத்து *ptr)
 {
   CURLcode result = CURLE_OK;
 
-  switch(option) {
-  case CURLOPT_KEYPASSWD:
+  தேர்வு(option) {
+  நிலை CURLOPT_KEYPASSWD:
     /*
      * String that holds the SSL or SSH private key password.
      */
-    result = Curl_setstropt(data, STRING_KEY_PASSWD, ptr);
-    break;
+    result = Curl_setstropt(data, STRING_சாவி_PASSWD, ptr);
+    நிறுத்து;
 #ifdef USE_SSL
-  case CURLOPT_CAINFO:
+  நிலை CURLOPT_CAINFO:
     /*
      * Set CA info for SSL connection. Specify filename of the CA certificate
      */
     result = Curl_setstropt(data, STRING_SSL_CAFILE, ptr);
-    if(!result)
+    எனில்(!result)
       data->set.ssl.custom_cafile = TRUE;
-    return result;
-  case CURLOPT_CAPATH:
+    திரும்பு result;
+  நிலை CURLOPT_CAPATH:
     /*
      * Set CA path info for SSL connection. Specify directory name of the CA
      * certificates which have been prepared using openssl c_rehash utility.
      */
-    if(Curl_ssl_supports(data, SSLSUPP_CA_PATH)) {
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CA_PATH)) {
       /* This does not work on Windows. */
       result = Curl_setstropt(data, STRING_SSL_CAPATH, ptr);
-      if(!result)
+      எனில்(!result)
         data->set.ssl.custom_capath = TRUE;
-      return result;
+      திரும்பு result;
     }
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_CRLFILE:
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_CRLFILE:
     /*
      * Set CRL file info for SSL connection. Specify filename of the CRL
      * to check certificates revocation
      */
-    if(Curl_ssl_supports(data, SSLSUPP_CRLFILE))
-      return Curl_setstropt(data, STRING_SSL_CRLFILE, ptr);
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_SSL_CIPHER_LIST:
-    if(Curl_ssl_supports(data, SSLSUPP_CIPHER_LIST))
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CRLFILE))
+      திரும்பு Curl_setstropt(data, STRING_SSL_CRLFILE, ptr);
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_SSL_CIPHER_LIST:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CIPHER_LIST))
       /* set a list of cipher we want to use in the SSL connection */
-      return Curl_setstropt(data, STRING_SSL_CIPHER_LIST, ptr);
-    else
-      return CURLE_NOT_BUILT_IN;
-  case CURLOPT_TLS13_CIPHERS:
-    if(Curl_ssl_supports(data, SSLSUPP_TLS13_CIPHERSUITES))
+      திரும்பு Curl_setstropt(data, STRING_SSL_CIPHER_LIST, ptr);
+    இல்லையெனில்
+      திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_TLS13_CIPHERS:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_TLS13_CIPHERSUITES))
       /* set preferred list of TLS 1.3 cipher suites */
-      return Curl_setstropt(data, STRING_SSL_CIPHER13_LIST, ptr);
-    else
-      return CURLE_NOT_BUILT_IN;
-  case CURLOPT_RANDOM_FILE:
-    break;
-  case CURLOPT_EGDSOCKET:
-    break;
-  case CURLOPT_SSL_CTX_DATA:
+      திரும்பு Curl_setstropt(data, STRING_SSL_CIPHER13_LIST, ptr);
+    இல்லையெனில்
+      திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_RANDOM_FILE:
+    நிறுத்து;
+  நிலை CURLOPT_EGDSOCKET:
+    நிறுத்து;
+  நிலை CURLOPT_SSL_CTX_DATA:
     /*
      * Set an SSL_CTX callback parameter pointer
      */
-    if(Curl_ssl_supports(data, SSLSUPP_SSL_CTX)) {
+    எனில்(Curl_ssl_supports(data, SSLSUPP_SSL_CTX)) {
       data->set.ssl_fsslctxp = ptr;
-      break;
+      நிறுத்து;
     }
-    else
-      return CURLE_NOT_BUILT_IN;
-  case CURLOPT_SSLCERT:
+    இல்லையெனில்
+      திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_SSLCERT:
     /*
      * String that holds filename of the SSL certificate to use
      */
-    return Curl_setstropt(data, STRING_CERT, ptr);
-  case CURLOPT_SSLCERTTYPE:
+    திரும்பு Curl_setstropt(data, STRING_CERT, ptr);
+  நிலை CURLOPT_SSLCERTTYPE:
     /*
      * String that holds file type of the SSL certificate to use
      */
-    return Curl_setstropt(data, STRING_CERT_TYPE, ptr);
-  case CURLOPT_SSLKEY:
+    திரும்பு Curl_setstropt(data, STRING_CERT_TYPE, ptr);
+  நிலை CURLOPT_SSLKEY:
     /*
      * String that holds filename of the SSL key to use
      */
-    return Curl_setstropt(data, STRING_KEY, ptr);
-  case CURLOPT_SSLKEYTYPE:
+    திரும்பு Curl_setstropt(data, STRING_சாவி, ptr);
+  நிலை CURLOPT_SSLKEYTYPE:
     /*
      * String that holds file type of the SSL key to use
      */
-    return Curl_setstropt(data, STRING_KEY_TYPE, ptr);
-  case CURLOPT_SSLENGINE:
+    திரும்பு Curl_setstropt(data, STRING_சாவி_TYPE, ptr);
+  நிலை CURLOPT_SSLENGINE:
     /*
      * String that holds the SSL crypto engine.
      */
-    if(Curl_ssl_backend() != CURLSSLBACKEND_OPENSSL)
-      return CURLE_NOT_BUILT_IN;
+    எனில்(Curl_ssl_backend() != CURLSSLBACKEND_OPENSSL)
+      திரும்பு CURLE_NOT_BUILT_IN;
     result = Curl_setstropt(data, STRING_SSL_ENGINE, ptr);
-    break;
-  case CURLOPT_ISSUERCERT:
+    நிறுத்து;
+  நிலை CURLOPT_ISSUERCERT:
     /*
      * Set Issuer certificate file
      * to check certificates issuer
      */
-    if(Curl_ssl_supports(data, SSLSUPP_ISSUERCERT))
-      return Curl_setstropt(data, STRING_SSL_ISSUERCERT, ptr);
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_SSL_EC_CURVES:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_ISSUERCERT))
+      திரும்பு Curl_setstropt(data, STRING_SSL_ISSUERCERT, ptr);
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_SSL_EC_CURVES:
     /*
      * Set accepted curves in SSL connection setup.
      * Specify colon-delimited list of curve algorithm names.
      */
-    if(Curl_ssl_supports(data, SSLSUPP_SSL_EC_CURVES))
-      return Curl_setstropt(data, STRING_SSL_EC_CURVES, ptr);
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_SSL_SIGNATURE_ALGORITHMS:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_SSL_EC_CURVES))
+      திரும்பு Curl_setstropt(data, STRING_SSL_EC_CURVES, ptr);
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_SSL_SIGNATURE_ALGORITHMS:
     /*
      * Set accepted signature algorithms.
      * Specify colon-delimited list of signature scheme names.
      */
-    if(Curl_ssl_supports(data, SSLSUPP_SIGNATURE_ALGORITHMS))
-      return Curl_setstropt(data, STRING_SSL_SIGNATURE_ALGORITHMS, ptr);
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_PINNEDPUBLICKEY:
+    எனில்(Curl_ssl_supports(data, SSLSUPP_SIGNATURE_ALGORITHMS))
+      திரும்பு Curl_setstropt(data, STRING_SSL_SIGNATURE_ALGORITHMS, ptr);
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_PINNEDPUBLICKEY:
     /*
      * Set pinned public key for SSL connection.
      * Specify filename of the public key in DER format.
      */
-    if(Curl_ssl_supports(data, SSLSUPP_PINNEDPUBKEY))
-      return Curl_setstropt(data, STRING_SSL_PINNEDPUBLICKEY, ptr);
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_ECH:
-    return setopt_ech(data, ptr);
+    எனில்(Curl_ssl_supports(data, SSLSUPP_PINNEDPUBKEY))
+      திரும்பு Curl_setstropt(data, STRING_SSL_PINNEDPUBLICKEY, ptr);
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_ECH:
+    திரும்பு setopt_ech(data, ptr);
 #endif
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 #endif
 
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_MQTT)
-static CURLcode setopt_cptr_http_mqtt(struct Curl_easy *data,
-                                      CURLoption option, char *ptr)
+#எனில் !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_MQTT)
+நிலையான CURLcode setopt_cptr_http_mqtt(கட்டமைப்பு Curl_easy *data,
+                                      CURLoption option, எழுத்து *ptr)
 {
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
+  கட்டமைப்பு UserDefined *s = &data->set;
 
-  switch(option) {
-  case CURLOPT_COPYPOSTFIELDS:
-    return setopt_copypostfields(ptr, s);
+  தேர்வு(option) {
+  நிலை CURLOPT_COPYPOSTFIELDS:
+    திரும்பு setopt_copypostfields(ptr, s);
 
-  case CURLOPT_POSTFIELDS:
+  நிலை CURLOPT_POSTFIELDS:
     /*
      * Like above, but use static data instead of copying it.
      */
@@ -2027,13 +2027,13 @@ static CURLcode setopt_cptr_http_mqtt(struct Curl_easy *data,
     /* Release old copied data. */
     curlx_safefree(s->str_copypostfields);
     s->method = HTTPREQ_POST;
-    break;
+    நிறுத்து;
 
 #ifndef CURL_DISABLE_HTTP
-  case CURLOPT_TRAILERDATA:
+  நிலை CURLOPT_TRAILERDATA:
     s->trailer_data = ptr;
-    break;
-  case CURLOPT_ACCEPT_ENCODING:
+    நிறுத்து;
+  நிலை CURLOPT_ACCEPT_ENCODING:
     /*
      * String to use at the value of Accept-Encoding header.
      *
@@ -2043,18 +2043,18 @@ static CURLcode setopt_cptr_http_mqtt(struct Curl_easy *data,
      * and ignore any received Content-Encoding header.
      *
      */
-    if(ptr && !*ptr) {
+    எனில்(ptr && !*ptr) {
       ptr = Curl_get_content_encodings();
-      if(ptr)
+      எனில்(ptr)
         result = CURL_EASY_STR_SETN(data, STRING_ENCODING, ptr);
-      else
+      இல்லையெனில்
         result = CURLE_OUT_OF_MEMORY;
-      return result;
+      திரும்பு result;
     }
-    return Curl_setstropt(data, STRING_ENCODING, ptr);
+    திரும்பு Curl_setstropt(data, STRING_ENCODING, ptr);
 
 #ifndef CURL_DISABLE_AWS
-  case CURLOPT_AWS_SIGV4:
+  நிலை CURLOPT_AWS_SIGV4:
     /*
      * String that is merged to some authentication
      * parameters are used by the algorithm.
@@ -2063,443 +2063,443 @@ static CURLcode setopt_cptr_http_mqtt(struct Curl_easy *data,
     /*
      * Basic has been set by default; it needs to be unset here.
      */
-    if(CURL_EASY_STR(data, STRING_AWS_SIGV4))
+    எனில்(CURL_EASY_STR(data, STRING_AWS_SIGV4))
       s->httpauth = CURLAUTH_AWS_SIGV4;
-    else
+    இல்லையெனில்
       s->httpauth &= ~(uint32_t)CURLAUTH_AWS_SIGV4;
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_HTTPSIG
-  case CURLOPT_HTTPSIG_KEY:
-    result = Curl_setstropt(data, STRING_HTTPSIG_KEY, ptr);
-    break;
-  case CURLOPT_HTTPSIG_KEYID:
+  நிலை CURLOPT_HTTPSIG_சாவி:
+    result = Curl_setstropt(data, STRING_HTTPSIG_சாவி, ptr);
+    நிறுத்து;
+  நிலை CURLOPT_HTTPSIG_KEYID:
     result = Curl_setstropt(data, STRING_HTTPSIG_KEYID, ptr);
-    break;
-  case CURLOPT_HTTPSIG_HEADERS:
+    நிறுத்து;
+  நிலை CURLOPT_HTTPSIG_HEADERS:
     result = Curl_setstropt(data, STRING_HTTPSIG_HEADERS, ptr);
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_REFERER: {
+  நிலை CURLOPT_REFERER: {
     /*
      * String to set in the HTTP Referer: field.
      */
-    struct bufref *oldref = &data->state.referer;
+    கட்டமைப்பு bufref *oldref = &data->state.referer;
     /* free the old after the storing the new in case the input is actually
        pointing back to this */
     result = Curl_setstropt(data, STRING_SET_REFERER, ptr);
     Curl_bufref_free(oldref);
-    break;
+    நிறுத்து;
   }
 
-  case CURLOPT_USERAGENT:
+  நிலை CURLOPT_USERAGENT:
     /*
      * String to use in the HTTP User-Agent field
      */
-    return Curl_setstropt(data, STRING_USERAGENT, ptr);
+    திரும்பு Curl_setstropt(data, STRING_USERAGENT, ptr);
 
 #ifndef CURL_DISABLE_COOKIES
-  case CURLOPT_COOKIE:
+  நிலை CURLOPT_COOKIE:
     /*
      * Cookie string to send to the remote server in the request.
      */
-    return Curl_setstropt(data, STRING_COOKIE, ptr);
+    திரும்பு Curl_setstropt(data, STRING_COOKIE, ptr);
 
-  case CURLOPT_COOKIEFILE:
-    return cookiefile(data, ptr);
+  நிலை CURLOPT_COOKIEFILE:
+    திரும்பு cookiefile(data, ptr);
 
-  case CURLOPT_COOKIEJAR:
+  நிலை CURLOPT_COOKIEJAR:
     /*
      * Set cookie filename to dump all cookies to when we are done.
      */
     result = Curl_setstropt(data, STRING_COOKIEJAR, ptr);
-    if(!result) {
+    எனில்(!result) {
       /*
        * Activate the cookie parser. This may or may not already
        * have been made.
        */
-      if(!data->cookies)
+      எனில்(!data->cookies)
         data->cookies = Curl_cookie_init();
-      if(!data->cookies)
+      எனில்(!data->cookies)
         result = CURLE_OUT_OF_MEMORY;
-      else
+      இல்லையெனில்
         data->state.cookie_engine = TRUE;
     }
-    break;
+    நிறுத்து;
 
-  case CURLOPT_COOKIELIST:
-    return cookielist(data, ptr);
+  நிலை CURLOPT_COOKIELIST:
+    திரும்பு cookielist(data, ptr);
 #endif /* !CURL_DISABLE_COOKIES */
 
 #endif /* !CURL_DISABLE_HTTP */
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 #endif /* !CURL_DISABLE_HTTP || !CURL_DISABLE_MQTT */
 
 #ifdef USE_SSH
-static CURLcode setopt_cptr_ssh(struct Curl_easy *data, CURLoption option,
-                                char *ptr)
+நிலையான CURLcode setopt_cptr_ssh(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                                எழுத்து *ptr)
 {
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_SSH_PUBLIC_KEYFILE:
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_SSH_PUBLIC_KEYFILE:
     /*
      * Use this file instead of the $HOME/.ssh/id_dsa.pub file
      */
-    return Curl_setstropt(data, STRING_SSH_PUBLIC_KEY, ptr);
-  case CURLOPT_SSH_PRIVATE_KEYFILE:
+    திரும்பு Curl_setstropt(data, STRING_SSH_PUBLIC_சாவி, ptr);
+  நிலை CURLOPT_SSH_PRIVATE_KEYFILE:
     /*
      * Use this file instead of the $HOME/.ssh/id_dsa file
      */
-    return Curl_setstropt(data, STRING_SSH_PRIVATE_KEY, ptr);
-  case CURLOPT_SSH_KEYDATA:
+    திரும்பு Curl_setstropt(data, STRING_SSH_PRIVATE_சாவி, ptr);
+  நிலை CURLOPT_SSH_KEYDATA:
     /*
      * Custom client data to pass to the SSH keyfunc callback
      */
     s->ssh_keyfunc_userp = ptr;
-    break;
-  case CURLOPT_SSH_HOST_PUBLIC_KEY_MD5:
+    நிறுத்து;
+  நிலை CURLOPT_SSH_HOST_PUBLIC_சாவி_MD5:
     /*
      * Option to allow for the MD5 of the host public key to be checked
      * for validation purposes.
      */
-    return Curl_setstropt(data, STRING_SSH_HOST_PUBLIC_KEY_MD5, ptr);
-  case CURLOPT_SSH_HOST_PUBLIC_KEY_SHA256:
+    திரும்பு Curl_setstropt(data, STRING_SSH_HOST_PUBLIC_சாவி_MD5, ptr);
+  நிலை CURLOPT_SSH_HOST_PUBLIC_சாவி_SHA256:
     /*
      * Option to allow for the SHA256 of the host public key to be checked
      * for validation purposes.
      */
-    return Curl_setstropt(data, STRING_SSH_HOST_PUBLIC_KEY_SHA256, ptr);
-  case CURLOPT_SSH_KNOWNHOSTS:
+    திரும்பு Curl_setstropt(data, STRING_SSH_HOST_PUBLIC_சாவி_SHA256, ptr);
+  நிலை CURLOPT_SSH_KNOWNHOSTS:
     /*
      * Store the filename to read known hosts from.
      */
-    return Curl_setstropt(data, STRING_SSH_KNOWNHOSTS, ptr);
+    திரும்பு Curl_setstropt(data, STRING_SSH_KNOWNHOSTS, ptr);
 #ifdef USE_LIBSSH2
-  case CURLOPT_SSH_HOSTKEYDATA:
+  நிலை CURLOPT_SSH_HOSTKEYDATA:
     /*
      * Custom client data to pass to the SSH keyfunc callback
      */
     s->ssh_hostkeyfunc_userp = ptr;
-    break;
+    நிறுத்து;
 #endif /* USE_LIBSSH2 */
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 #endif /* USE_SSH */
 
 #ifndef CURL_DISABLE_FTP
-static CURLcode setopt_cptr_ftp(struct Curl_easy *data, CURLoption option,
-                                char *ptr)
+நிலையான CURLcode setopt_cptr_ftp(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                                எழுத்து *ptr)
 {
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_FTPPORT:
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_FTPPORT:
     /*
      * Use FTP PORT, this also specifies which IP address to use
      */
     result = Curl_setstropt(data, STRING_FTPPORT, ptr);
     s->ftp_use_port = !!CURL_EASY_STR(data, STRING_FTPPORT);
-    break;
+    நிறுத்து;
 
-  case CURLOPT_FTP_ACCOUNT:
-    return Curl_setstropt(data, STRING_FTP_ACCOUNT, ptr);
+  நிலை CURLOPT_FTP_ACCOUNT:
+    திரும்பு Curl_setstropt(data, STRING_FTP_ACCOUNT, ptr);
 
-  case CURLOPT_FTP_ALTERNATIVE_TO_USER:
-    return Curl_setstropt(data, STRING_FTP_ALTERNATIVE_TO_USER, ptr);
+  நிலை CURLOPT_FTP_ALTERNATIVE_TO_USER:
+    திரும்பு Curl_setstropt(data, STRING_FTP_ALTERNATIVE_TO_USER, ptr);
 
-  case CURLOPT_KRBLEVEL:
-    return CURLE_NOT_BUILT_IN; /* removed in 8.17.0 */
-  case CURLOPT_CHUNK_DATA:
+  நிலை CURLOPT_KRBLEVEL:
+    திரும்பு CURLE_NOT_BUILT_IN; /* removed in 8.17.0 */
+  நிலை CURLOPT_CHUNK_DATA:
     s->wildcardptr = ptr;
-    break;
-  case CURLOPT_FNMATCH_DATA:
+    நிறுத்து;
+  நிலை CURLOPT_FNMATCH_DATA:
     s->fnmatch_data = ptr;
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    நிறுத்து;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 #endif /* !CURL_DISABLE_FTP */
 
-static CURLcode setopt_cptr_net(struct Curl_easy *data, CURLoption option,
-                                char *ptr)
+நிலையான CURLcode setopt_cptr_net(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                                எழுத்து *ptr)
 {
-  switch(option) {
-  case CURLOPT_INTERFACE:
+  தேர்வு(option) {
+  நிலை CURLOPT_INTERFACE:
     /*
      * Set what interface or address/hostname to bind the socket to when
      * performing an operation and thus what from-IP your connection will use.
      */
-    return setstropt_interface(data, ptr);
+    திரும்பு setstropt_interface(data, ptr);
 
 #ifdef USE_RESOLV_ARES
-  case CURLOPT_DNS_SERVERS:
-    return Curl_setstropt(data, STRING_DNS_SERVERS, ptr);
+  நிலை CURLOPT_DNS_SERVERS:
+    திரும்பு Curl_setstropt(data, STRING_DNS_SERVERS, ptr);
 
-  case CURLOPT_DNS_INTERFACE:
-    return Curl_setstropt(data, STRING_DNS_INTERFACE, ptr);
+  நிலை CURLOPT_DNS_INTERFACE:
+    திரும்பு Curl_setstropt(data, STRING_DNS_INTERFACE, ptr);
 
-  case CURLOPT_DNS_LOCAL_IP4:
-    return Curl_setstropt(data, STRING_DNS_LOCAL_IP4, ptr);
+  நிலை CURLOPT_DNS_LOCAL_IP4:
+    திரும்பு Curl_setstropt(data, STRING_DNS_LOCAL_IP4, ptr);
 
-  case CURLOPT_DNS_LOCAL_IP6:
-    return Curl_setstropt(data, STRING_DNS_LOCAL_IP6, ptr);
+  நிலை CURLOPT_DNS_LOCAL_IP6:
+    திரும்பு Curl_setstropt(data, STRING_DNS_LOCAL_IP6, ptr);
 #endif
 #ifdef USE_UNIX_SOCKETS
-  case CURLOPT_UNIX_SOCKET_PATH:
+  நிலை CURLOPT_UNIX_SOCKET_PATH:
     data->set.abstract_unix_socket = FALSE;
-    return Curl_setstropt(data, STRING_UNIX_SOCKET_PATH, ptr);
+    திரும்பு Curl_setstropt(data, STRING_UNIX_SOCKET_PATH, ptr);
 
-  case CURLOPT_ABSTRACT_UNIX_SOCKET:
+  நிலை CURLOPT_ABSTRACT_UNIX_SOCKET:
     data->set.abstract_unix_socket = TRUE;
-    return Curl_setstropt(data, STRING_UNIX_SOCKET_PATH, ptr);
+    திரும்பு Curl_setstropt(data, STRING_UNIX_SOCKET_PATH, ptr);
 #endif
 #ifndef CURL_DISABLE_DOH
-  case CURLOPT_DOH_URL:
+  நிலை CURLOPT_DOH_URL:
     {
       CURLcode result = Curl_setstropt(data, STRING_DOH, ptr);
       data->set.doh = !!CURL_EASY_STR(data, STRING_DOH);
-      return result;
+      திரும்பு result;
     }
 #endif
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
 }
 
-static CURLcode setopt_cptr_misc(struct Curl_easy *data, CURLoption option,
-                                 char *ptr)
+நிலையான CURLcode setopt_cptr_misc(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                                 எழுத்து *ptr)
 {
   CURLcode result = CURLE_OK;
-  struct UserDefined *s = &data->set;
+  கட்டமைப்பு UserDefined *s = &data->set;
 
-  switch(option) {
-  case CURLOPT_REQUEST_TARGET:
-    return Curl_setstropt(data, STRING_TARGET, ptr);
+  தேர்வு(option) {
+  நிலை CURLOPT_REQUEST_TARGET:
+    திரும்பு Curl_setstropt(data, STRING_TARGET, ptr);
 #ifndef CURL_DISABLE_NETRC
-  case CURLOPT_NETRC_FILE:
-    return Curl_setstropt(data, STRING_NETRC_FILE, ptr);
+  நிலை CURLOPT_NETRC_FILE:
+    திரும்பு Curl_setstropt(data, STRING_NETRC_FILE, ptr);
 #endif
-  case CURLOPT_CUSTOMREQUEST:
-    return Curl_setstropt(data, STRING_CUSTOMREQUEST, ptr);
+  நிலை CURLOPT_CUSTOMREQUEST:
+    திரும்பு Curl_setstropt(data, STRING_CUSTOMREQUEST, ptr);
 
     /* we do not set s->method = HTTPREQ_CUSTOM; here, we continue as if we
        were using the already set type and this changes the actual request
        keyword */
-  case CURLOPT_SERVICE_NAME:
-    return Curl_setstropt(data, STRING_SERVICE_NAME, ptr);
+  நிலை CURLOPT_SERVICE_NAME:
+    திரும்பு Curl_setstropt(data, STRING_SERVICE_NAME, ptr);
 
-  case CURLOPT_HEADERDATA:
+  நிலை CURLOPT_HEADERDATA:
     s->writeheader = ptr;
-    break;
-  case CURLOPT_READDATA:
+    நிறுத்து;
+  நிலை CURLOPT_READDATA:
     s->in_set = ptr;
-    break;
-  case CURLOPT_WRITEDATA:
+    நிறுத்து;
+  நிலை CURLOPT_WRITEDATA:
     s->out = ptr;
-    break;
-  case CURLOPT_DEBUGDATA:
+    நிறுத்து;
+  நிலை CURLOPT_DEBUGDATA:
     s->debugdata = ptr;
-    break;
-  case CURLOPT_PROGRESSDATA:
+    நிறுத்து;
+  நிலை CURLOPT_PROGRESSDATA:
     s->progress_client = ptr;
-    break;
-  case CURLOPT_SEEKDATA:
+    நிறுத்து;
+  நிலை CURLOPT_SEEKDATA:
     s->seek_client = ptr;
-    break;
-  case CURLOPT_IOCTLDATA:
+    நிறுத்து;
+  நிலை CURLOPT_IOCTLDATA:
     s->ioctl_client = ptr;
-    break;
-  case CURLOPT_SOCKOPTDATA:
+    நிறுத்து;
+  நிலை CURLOPT_SOCKOPTDATA:
     s->sockopt_client = ptr;
-    break;
-  case CURLOPT_OPENSOCKETDATA:
+    நிறுத்து;
+  நிலை CURLOPT_OPENSOCKETDATA:
     s->opensocket_client = ptr;
-    break;
-  case CURLOPT_RESOLVER_START_DATA:
+    நிறுத்து;
+  நிலை CURLOPT_RESOLVER_START_DATA:
     s->resolver_start_client = ptr;
-    break;
-  case CURLOPT_CLOSESOCKETDATA:
+    நிறுத்து;
+  நிலை CURLOPT_CLOSESOCKETDATA:
     s->closesocket_client = ptr;
-    break;
-  case CURLOPT_PREREQDATA:
+    நிறுத்து;
+  நிலை CURLOPT_PREREQDATA:
     s->prereq_userp = ptr;
-    break;
-  case CURLOPT_ERRORBUFFER:
+    நிறுத்து;
+  நிலை CURLOPT_ERRORBUFFER:
     s->errorbuffer = ptr;
-    break;
-  case CURLOPT_URL:
+    நிறுத்து;
+  நிலை CURLOPT_URL:
     result = Curl_setstropt(data, STRING_SET_URL, ptr);
     Curl_bufref_set(&data->state.url,
-                    CURL_EASY_STR(data, STRING_SET_URL), 0, NULL);
-    break;
+                    CURL_EASY_STR(data, STRING_SET_URL), 0, வெற்று);
+    நிறுத்து;
 
-  case CURLOPT_USERPWD: {
-    char *u = NULL, *p = NULL;
+  நிலை CURLOPT_USERPWD: {
+    எழுத்து *u = வெற்று, *p = வெற்று;
     result = setstropt_userpwd(ptr, &u, &p);
-    if(!result) {
+    எனில்(!result) {
       result = CURL_EASY_STR_SETN(data, STRING_USERNAME, u);
-      u = NULL;
+      u = வெற்று;
     }
-    if(!result) {
+    எனில்(!result) {
       result = CURL_EASY_STR_SETN(data, STRING_PASSWORD, p);
-      p = NULL;
+      p = வெற்று;
     }
     curlx_free(u);
     curlx_free(p);
-    return result;
+    திரும்பு result;
   }
 
-  case CURLOPT_USERNAME:
-    return Curl_setstropt(data, STRING_USERNAME, ptr);
+  நிலை CURLOPT_USERNAME:
+    திரும்பு Curl_setstropt(data, STRING_USERNAME, ptr);
 
-  case CURLOPT_PASSWORD:
-    return Curl_setstropt(data, STRING_PASSWORD, ptr);
+  நிலை CURLOPT_PASSWORD:
+    திரும்பு Curl_setstropt(data, STRING_PASSWORD, ptr);
 
-  case CURLOPT_LOGIN_OPTIONS:
-    return Curl_setstropt(data, STRING_OPTIONS, ptr);
+  நிலை CURLOPT_LOGIN_OPTIONS:
+    திரும்பு Curl_setstropt(data, STRING_OPTIONS, ptr);
 
-  case CURLOPT_XOAUTH2_BEARER:
-    return Curl_setstropt(data, STRING_BEARER, ptr);
-  case CURLOPT_RANGE:
-    return Curl_setstropt(data, STRING_SET_RANGE, ptr);
-  case CURLOPT_PRIVATE:
+  நிலை CURLOPT_XOAUTH2_BEARER:
+    திரும்பு Curl_setstropt(data, STRING_BEARER, ptr);
+  நிலை CURLOPT_RANGE:
+    திரும்பு Curl_setstropt(data, STRING_SET_RANGE, ptr);
+  நிலை CURLOPT_PRIVATE:
     s->private_data = ptr;
-    break;
-  case CURLOPT_PROTOCOLS_STR:
-    if(ptr) {
+    நிறுத்து;
+  நிலை CURLOPT_PROTOCOLS_STR:
+    எனில்(ptr) {
       curl_prot_t protos;
       result = protocol2num(ptr, &protos);
-      if(!result)
+      எனில்(!result)
         s->allowed_protocols = protos;
     }
-    else
+    இல்லையெனில்
       /* make a NULL argument reset to default */
       s->allowed_protocols = (curl_prot_t)CURLPROTO_64ALL;
-    break;
-  case CURLOPT_REDIR_PROTOCOLS_STR:
-    if(ptr) {
+    நிறுத்து;
+  நிலை CURLOPT_REDIR_PROTOCOLS_STR:
+    எனில்(ptr) {
       curl_prot_t protos;
       result = protocol2num(ptr, &protos);
-      if(!result)
+      எனில்(!result)
         s->redir_protocols = protos;
     }
-    else
+    இல்லையெனில்
       /* make a NULL argument reset to default */
       s->redir_protocols = (curl_prot_t)CURLPROTO_REDIR;
-    break;
-  case CURLOPT_DEFAULT_PROTOCOL:
+    நிறுத்து;
+  நிலை CURLOPT_DEFAULT_PROTOCOL:
     /* Set the protocol to use when the URL does not include any protocol */
-    return Curl_setstropt(data, STRING_DEFAULT_PROTOCOL, ptr);
+    திரும்பு Curl_setstropt(data, STRING_DEFAULT_PROTOCOL, ptr);
 #ifndef CURL_DISABLE_SMTP
-  case CURLOPT_MAIL_FROM:
+  நிலை CURLOPT_MAIL_FROM:
     /* Set the SMTP mail originator */
-    return Curl_setstropt(data, STRING_MAIL_FROM, ptr);
-  case CURLOPT_MAIL_AUTH:
+    திரும்பு Curl_setstropt(data, STRING_MAIL_FROM, ptr);
+  நிலை CURLOPT_MAIL_AUTH:
     /* Set the SMTP auth originator */
-    return Curl_setstropt(data, STRING_MAIL_AUTH, ptr);
+    திரும்பு Curl_setstropt(data, STRING_MAIL_AUTH, ptr);
 #endif
-  case CURLOPT_SASL_AUTHZID:
+  நிலை CURLOPT_SASL_AUTHZID:
     /* Authorization identity (identity to act as) */
-    return Curl_setstropt(data, STRING_SASL_AUTHZID, ptr);
+    திரும்பு Curl_setstropt(data, STRING_SASL_AUTHZID, ptr);
 #ifndef CURL_DISABLE_RTSP
-  case CURLOPT_RTSP_SESSION_ID:
+  நிலை CURLOPT_RTSP_SESSION_ID:
     Curl_peer_unlink(&data->state.rtsp_session_origin);
-    return Curl_setstropt(data, STRING_RTSP_SESSION_ID, ptr);
-  case CURLOPT_RTSP_STREAM_URI:
-    return Curl_setstropt(data, STRING_RTSP_STREAM_URI, ptr);
-  case CURLOPT_RTSP_TRANSPORT:
-    return Curl_setstropt(data, STRING_RTSP_TRANSPORT, ptr);
-  case CURLOPT_INTERLEAVEDATA:
+    திரும்பு Curl_setstropt(data, STRING_RTSP_SESSION_ID, ptr);
+  நிலை CURLOPT_RTSP_STREAM_URI:
+    திரும்பு Curl_setstropt(data, STRING_RTSP_STREAM_URI, ptr);
+  நிலை CURLOPT_RTSP_TRANSPORT:
+    திரும்பு Curl_setstropt(data, STRING_RTSP_TRANSPORT, ptr);
+  நிலை CURLOPT_INTERLEAVEDATA:
     s->rtp_out = ptr;
-    break;
+    நிறுத்து;
 #endif /* !CURL_DISABLE_RTSP */
-  case CURLOPT_TLSAUTH_USERNAME:
-  case CURLOPT_TLSAUTH_PASSWORD:
-  case CURLOPT_TLSAUTH_TYPE:
-  case CURLOPT_PROXY_TLSAUTH_USERNAME:
-  case CURLOPT_PROXY_TLSAUTH_PASSWORD:
-  case CURLOPT_PROXY_TLSAUTH_TYPE:
-    return CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_TLSAUTH_USERNAME:
+  நிலை CURLOPT_TLSAUTH_PASSWORD:
+  நிலை CURLOPT_TLSAUTH_TYPE:
+  நிலை CURLOPT_PROXY_TLSAUTH_USERNAME:
+  நிலை CURLOPT_PROXY_TLSAUTH_PASSWORD:
+  நிலை CURLOPT_PROXY_TLSAUTH_TYPE:
+    திரும்பு CURLE_NOT_BUILT_IN;
 #ifndef CURL_DISABLE_HSTS
-  case CURLOPT_HSTSREADDATA:
+  நிலை CURLOPT_HSTSREADDATA:
     s->hsts_read_userp = ptr;
-    break;
-  case CURLOPT_HSTSWRITEDATA:
+    நிறுத்து;
+  நிலை CURLOPT_HSTSWRITEDATA:
     s->hsts_write_userp = ptr;
-    break;
-  case CURLOPT_HSTS: {
-    struct curl_slist *h;
-    if(!data->hsts) {
+    நிறுத்து;
+  நிலை CURLOPT_HSTS: {
+    கட்டமைப்பு curl_slist *h;
+    எனில்(!data->hsts) {
       data->hsts = Curl_hsts_init();
-      if(!data->hsts)
-        return CURLE_OUT_OF_MEMORY;
+      எனில்(!data->hsts)
+        திரும்பு CURLE_OUT_OF_MEMORY;
     }
-    if(ptr) {
+    எனில்(ptr) {
       result = Curl_setstropt(data, STRING_HSTS, ptr);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
       /* this needs to build a list of filenames to read from, so that it can
          read them later, as we might get a shared HSTS handle to load them
          into */
       h = curl_slist_append(data->state.hstslist, ptr);
-      if(!h) {
+      எனில்(!h) {
         curl_slist_free_all(data->state.hstslist);
-        data->state.hstslist = NULL;
-        return CURLE_OUT_OF_MEMORY;
+        data->state.hstslist = வெற்று;
+        திரும்பு CURLE_OUT_OF_MEMORY;
       }
       data->state.hstslist = h; /* store the list for later use */
     }
-    else {
+    இல்லையெனில் {
       /* clear the list of HSTS files */
       curl_slist_free_all(data->state.hstslist);
-      data->state.hstslist = NULL;
-      if(!data->share || !data->share->hsts)
+      data->state.hstslist = வெற்று;
+      எனில்(!data->share || !data->share->hsts)
         /* throw away the HSTS cache unless shared */
         Curl_hsts_cleanup(&data->hsts);
     }
-    break;
+    நிறுத்து;
   }
 #endif /* !CURL_DISABLE_HSTS */
 #ifndef CURL_DISABLE_ALTSVC
-  case CURLOPT_ALTSVC:
-    if(!data->asi) {
+  நிலை CURLOPT_ALTSVC:
+    எனில்(!data->asi) {
       data->asi = Curl_altsvc_init();
-      if(!data->asi)
-        return CURLE_OUT_OF_MEMORY;
+      எனில்(!data->asi)
+        திரும்பு CURLE_OUT_OF_MEMORY;
     }
     result = Curl_setstropt(data, STRING_ALTSVC, ptr);
-    if(result)
-      break;
-    if(ptr)
-      return Curl_altsvc_load(data->asi, ptr);
-    break;
+    எனில்(result)
+      நிறுத்து;
+    எனில்(ptr)
+      திரும்பு Curl_altsvc_load(data->asi, ptr);
+    நிறுத்து;
 #endif /* !CURL_DISABLE_ALTSVC */
-  case CURLOPT_ECH:
-    return setopt_ech(data, ptr);
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  நிலை CURLOPT_ECH:
+    திரும்பு setopt_ech(data, ptr);
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode setopt_cptr(struct Curl_easy *data, CURLoption option,
-                            char *ptr)
+நிலையான CURLcode setopt_cptr(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                            எழுத்து *ptr)
 {
-  typedef CURLcode (*ptrfunc)(struct Curl_easy *data, CURLoption option,
-                              char *ptr);
+  வகைவரை CURLcode (*ptrfunc)(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                              எழுத்து *ptr);
   /* Order by likeliness */
-  static const ptrfunc setopt_call[] = {
+  நிலையான மாறிலி ptrfunc setopt_call[] = {
     setopt_cptr_misc,
-#if defined(USE_SSL) || defined(USE_SSH)
+#எனில் defined(USE_SSL) || defined(USE_SSH)
     setopt_cptr_ssl,
 #endif
 #ifndef CURL_DISABLE_PROXY
@@ -2512,48 +2512,48 @@ static CURLcode setopt_cptr(struct Curl_easy *data, CURLoption option,
 #ifdef USE_SSH
     setopt_cptr_ssh,
 #endif
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_MQTT)
+#எனில் !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_MQTT)
     setopt_cptr_http_mqtt,
 #endif
   };
   size_t i;
 
-  for(i = 0; i < CURL_ARRAYSIZE(setopt_call); i++) {
+  க்கு(i = 0; i < CURL_ARRAYSIZE(setopt_call); i++) {
     CURLcode result = setopt_call[i](data, option, ptr);
-    if(result != CURLE_UNKNOWN_OPTION)
-      return result;
+    எனில்(result != CURLE_UNKNOWN_OPTION)
+      திரும்பு result;
   }
-  return CURLE_UNKNOWN_OPTION;
+  திரும்பு CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode setopt_func(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_func(கட்டமைப்பு Curl_easy *data, CURLoption option,
                             va_list param)
 {
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_PROGRESSFUNCTION:
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_PROGRESSFUNCTION:
     /*
      * Progress callback function
      */
     s->fprogress = va_arg(param, curl_progress_callback);
-    if(s->fprogress)
+    எனில்(s->fprogress)
       data->progress.callback = TRUE; /* no longer internal */
-    else
+    இல்லையெனில்
       data->progress.callback = FALSE; /* NULL enforces internal */
-    break;
+    நிறுத்து;
 
-  case CURLOPT_XFERINFOFUNCTION:
+  நிலை CURLOPT_XFERINFOFUNCTION:
     /*
      * Transfer info callback function
      */
     s->fxferinfo = va_arg(param, curl_xferinfo_callback);
-    if(s->fxferinfo)
+    எனில்(s->fxferinfo)
       data->progress.callback = TRUE; /* no longer internal */
-    else
+    இல்லையெனில்
       data->progress.callback = FALSE; /* NULL enforces internal */
 
-    break;
-  case CURLOPT_DEBUGFUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_DEBUGFUNCTION:
     /*
      * stderr write callback.
      */
@@ -2561,317 +2561,317 @@ static CURLcode setopt_func(struct Curl_easy *data, CURLoption option,
     /*
      * if the callback provided is NULL, it will use the default callback
      */
-    break;
-  case CURLOPT_HEADERFUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_HEADERFUNCTION:
     /*
      * Set header write callback
      */
     s->fwrite_header = va_arg(param, curl_write_callback);
-    break;
-  case CURLOPT_WRITEFUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_WRITEFUNCTION:
     /*
      * Set data write callback
      */
     s->fwrite_func = va_arg(param, curl_write_callback);
-    if(!s->fwrite_func)
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+    எனில்(!s->fwrite_func)
+#எனில் defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic தள்ளு
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
       /* When set to NULL, reset to our internal default function */
       s->fwrite_func = (curl_write_callback)fwrite;
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#எனில் defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic எடு
 #endif
-    break;
-  case CURLOPT_READFUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_READFUNCTION:
     /*
      * Read data callback
      */
     s->fread_func_set = va_arg(param, curl_read_callback);
-    if(!s->fread_func_set) {
+    எனில்(!s->fread_func_set) {
       s->is_fread_set = 0;
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#எனில் defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic தள்ளு
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
       /* When set to NULL, reset to our internal default function */
       s->fread_func_set = (curl_read_callback)fread;
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#எனில் defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic எடு
 #endif
     }
-    else
+    இல்லையெனில்
       s->is_fread_set = 1;
-    break;
-  case CURLOPT_SEEKFUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_SEEKFUNCTION:
     /*
      * Seek callback. Might be NULL.
      */
     s->seek_func = va_arg(param, curl_seek_callback);
-    break;
-  case CURLOPT_IOCTLFUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_IOCTLFUNCTION:
     /*
      * I/O control callback. Might be NULL.
      */
     s->ioctl_func = va_arg(param, curl_ioctl_callback);
-    break;
-  case CURLOPT_SSL_CTX_FUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_SSL_CTX_FUNCTION:
     /*
      * Set an SSL_CTX callback
      */
 #ifdef USE_SSL
-    if(Curl_ssl_supports(data, SSLSUPP_SSL_CTX)) {
+    எனில்(Curl_ssl_supports(data, SSLSUPP_SSL_CTX)) {
       s->ssl_fsslctx = va_arg(param, curl_ssl_ctx_callback);
-      break;
+      நிறுத்து;
     }
-    else
+    இல்லையெனில்
 #endif
-      return CURLE_NOT_BUILT_IN;
+      திரும்பு CURLE_NOT_BUILT_IN;
 
-  case CURLOPT_SOCKOPTFUNCTION:
+  நிலை CURLOPT_SOCKOPTFUNCTION:
     /*
      * socket callback function: called after socket() but before connect()
      */
     s->fsockopt = va_arg(param, curl_sockopt_callback);
-    break;
+    நிறுத்து;
 
-  case CURLOPT_OPENSOCKETFUNCTION:
+  நிலை CURLOPT_OPENSOCKETFUNCTION:
     /*
      * open/create socket callback function: called instead of socket(),
      * before connect()
      */
     s->fopensocket = va_arg(param, curl_opensocket_callback);
-    break;
+    நிறுத்து;
 
-  case CURLOPT_CLOSESOCKETFUNCTION:
+  நிலை CURLOPT_CLOSESOCKETFUNCTION:
     /*
      * close socket callback function: called instead of close()
      * when shutting down a connection
      */
     s->fclosesocket = va_arg(param, curl_closesocket_callback);
-    break;
+    நிறுத்து;
 
-  case CURLOPT_RESOLVER_START_FUNCTION:
+  நிலை CURLOPT_RESOLVER_START_FUNCTION:
     /*
      * resolver start callback function: called before a new resolver request
      * is started
      */
     s->resolver_start = va_arg(param, curl_resolver_start_callback);
-    break;
+    நிறுத்து;
 
 #ifdef USE_SSH
 #ifdef USE_LIBSSH2
-  case CURLOPT_SSH_HOSTKEYFUNCTION:
+  நிலை CURLOPT_SSH_HOSTKEYFUNCTION:
     /* the callback to check the hostkey without the knownhost file */
     s->ssh_hostkeyfunc = va_arg(param, curl_sshhostkeycallback);
-    break;
+    நிறுத்து;
 #endif
 
-  case CURLOPT_SSH_KEYFUNCTION:
+  நிலை CURLOPT_SSH_KEYFUNCTION:
     /* setting to NULL is fine since the ssh.c functions themselves will
        then revert to use the internal default */
     s->ssh_keyfunc = va_arg(param, curl_sshkeycallback);
-    break;
+    நிறுத்து;
 
 #endif /* USE_SSH */
 
 #ifndef CURL_DISABLE_RTSP
-  case CURLOPT_INTERLEAVEFUNCTION:
+  நிலை CURLOPT_INTERLEAVEFUNCTION:
     /* Set the user defined RTP write function */
     s->fwrite_rtp = va_arg(param, curl_write_callback);
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_FTP
-  case CURLOPT_CHUNK_BGN_FUNCTION:
+  நிலை CURLOPT_CHUNK_BGN_FUNCTION:
     s->chunk_bgn = va_arg(param, curl_chunk_bgn_callback);
-    break;
-  case CURLOPT_CHUNK_END_FUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_CHUNK_END_FUNCTION:
     s->chunk_end = va_arg(param, curl_chunk_end_callback);
-    break;
-  case CURLOPT_FNMATCH_FUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_FNMATCH_FUNCTION:
     s->fnmatch = va_arg(param, curl_fnmatch_callback);
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_HTTP
-  case CURLOPT_TRAILERFUNCTION:
+  நிலை CURLOPT_TRAILERFUNCTION:
     s->trailer_callback = va_arg(param, curl_trailer_callback);
-    break;
+    நிறுத்து;
 #endif
 #ifndef CURL_DISABLE_HSTS
-  case CURLOPT_HSTSREADFUNCTION:
+  நிலை CURLOPT_HSTSREADFUNCTION:
     s->hsts_read = va_arg(param, curl_hstsread_callback);
-    break;
-  case CURLOPT_HSTSWRITEFUNCTION:
+    நிறுத்து;
+  நிலை CURLOPT_HSTSWRITEFUNCTION:
     s->hsts_write = va_arg(param, curl_hstswrite_callback);
-    break;
+    நிறுத்து;
 #endif
-  case CURLOPT_PREREQFUNCTION:
+  நிலை CURLOPT_PREREQFUNCTION:
     s->fprereq = va_arg(param, curl_prereq_callback);
-    break;
-  default:
-    return CURLE_UNKNOWN_OPTION;
+    நிறுத்து;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode setopt_offt(struct Curl_easy *data, CURLoption option,
+நிலையான CURLcode setopt_offt(கட்டமைப்பு Curl_easy *data, CURLoption option,
                             curl_off_t offt)
 {
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_TIMEVALUE_LARGE:
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_TIMEVALUE_LARGE:
     /*
      * This is the value to compare with the remote document with the
      * method set with CURLOPT_TIMECONDITION
      */
     s->timevalue = (time_t)offt;
-    break;
+    நிறுத்து;
 
     /* MQTT "borrows" some of the HTTP options */
-  case CURLOPT_POSTFIELDSIZE_LARGE:
+  நிலை CURLOPT_POSTFIELDSIZE_LARGE:
     /*
      * The size of the POSTFIELD data to prevent libcurl to do strlen() to
      * figure it out. Enables binary posts.
      */
-    if(offt < -1)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(offt < -1)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
-    if(s->postfieldsize < offt && s->str_copypostfields) {
+    எனில்(s->postfieldsize < offt && s->str_copypostfields) {
       /* Previous CURLOPT_COPYPOSTFIELDS is no longer valid. */
       curlx_safefree(s->str_copypostfields);
-      s->postfields = NULL;
+      s->postfields = வெற்று;
     }
     s->postfieldsize = offt;
-    break;
-  case CURLOPT_INFILESIZE_LARGE:
+    நிறுத்து;
+  நிலை CURLOPT_INFILESIZE_LARGE:
     /*
      * If known, this should inform curl about the file size of the
      * to-be-uploaded file.
      */
-    if(offt < -1)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(offt < -1)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->filesize = offt;
-    break;
-  case CURLOPT_MAX_SEND_SPEED_LARGE:
+    நிறுத்து;
+  நிலை CURLOPT_MAX_SEND_SPEED_LARGE:
     /*
      * When transfer uploads are faster than CURLOPT_MAX_SEND_SPEED_LARGE
      * bytes per second the transfer is throttled..
      */
-    if(offt < 0)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(offt < 0)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->max_send_speed = offt;
     /* use minimal burst rate of 32k. some protocol batch IO */
     Curl_rlimit_change(&data->progress.ul.rlimit, offt,
                      CURLMAX(offt, (32 * 1024)));
-    break;
-  case CURLOPT_MAX_RECV_SPEED_LARGE:
+    நிறுத்து;
+  நிலை CURLOPT_MAX_RECV_SPEED_LARGE:
     /*
      * When receiving data faster than CURLOPT_MAX_RECV_SPEED_LARGE bytes per
      * second the transfer is throttled..
      */
-    if(offt < 0)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(offt < 0)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->max_recv_speed = offt;
     /* use minimal burst rate of 32k. some protocol batch IO */
     Curl_rlimit_change(&data->progress.dl.rlimit, offt,
                      CURLMAX(offt, (32 * 1024)));
-    break;
-  case CURLOPT_RESUME_FROM_LARGE:
+    நிறுத்து;
+  நிலை CURLOPT_RESUME_FROM_LARGE:
     /*
      * Resume transfer at the given file position
      */
-    if(offt < -1)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(offt < -1)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->set_resume_from = offt;
-    break;
-  case CURLOPT_MAXFILESIZE_LARGE:
+    நிறுத்து;
+  நிலை CURLOPT_MAXFILESIZE_LARGE:
     /*
      * Set the maximum size of a file to download.
      */
-    if(offt < 0)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    எனில்(offt < 0)
+      திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
     s->max_filesize = offt;
-    break;
+    நிறுத்து;
 
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode setopt_blob(struct Curl_easy *data, CURLoption option,
-                            struct curl_blob *blob)
+நிலையான CURLcode setopt_blob(கட்டமைப்பு Curl_easy *data, CURLoption option,
+                            கட்டமைப்பு curl_blob *blob)
 {
-  struct UserDefined *s = &data->set;
-  switch(option) {
-  case CURLOPT_SSLCERT_BLOB:
+  கட்டமைப்பு UserDefined *s = &data->set;
+  தேர்வு(option) {
+  நிலை CURLOPT_SSLCERT_BLOB:
     /*
      * Blob that holds file content of the SSL certificate to use
      */
-    return Curl_setblobopt(&s->blobs[BLOB_CERT], blob);
+    திரும்பு Curl_setblobopt(&s->blobs[BLOB_CERT], blob);
 #ifndef CURL_DISABLE_PROXY
-  case CURLOPT_PROXY_SSLCERT_BLOB:
+  நிலை CURLOPT_PROXY_SSLCERT_BLOB:
     /*
      * Blob that holds file content of the SSL certificate to use for proxy
      */
-    return Curl_setblobopt(&s->blobs[BLOB_CERT_PROXY], blob);
-  case CURLOPT_PROXY_SSLKEY_BLOB:
+    திரும்பு Curl_setblobopt(&s->blobs[BLOB_CERT_PROXY], blob);
+  நிலை CURLOPT_PROXY_SSLKEY_BLOB:
     /*
      * Blob that holds file content of the SSL key to use for proxy
      */
-    return Curl_setblobopt(&s->blobs[BLOB_KEY_PROXY], blob);
-  case CURLOPT_PROXY_CAINFO_BLOB:
+    திரும்பு Curl_setblobopt(&s->blobs[BLOB_சாவி_PROXY], blob);
+  நிலை CURLOPT_PROXY_CAINFO_BLOB:
     /*
      * Blob that holds CA info for SSL connection proxy.
      * Specify entire PEM of the CA certificate
      */
 #ifdef USE_SSL
-    if(Curl_ssl_supports(data, SSLSUPP_CAINFO_BLOB)) {
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CAINFO_BLOB)) {
       CURLcode result = Curl_setblobopt(&s->blobs[BLOB_CAINFO_PROXY], blob);
-      if(!result)
+      எனில்(!result)
         s->proxy_ssl.custom_cablob = TRUE;
-      return result;
+      திரும்பு result;
     }
 #endif
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_PROXY_ISSUERCERT_BLOB:
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_PROXY_ISSUERCERT_BLOB:
     /*
      * Blob that holds Issuer certificate to check certificates issuer
      */
-    if(Curl_ssl_supports(data, SSLSUPP_ISSUERCERT_BLOB))
-      return Curl_setblobopt(&s->blobs[BLOB_SSL_ISSUERCERT_PROXY], blob);
-    return CURLE_NOT_BUILT_IN;
+    எனில்(Curl_ssl_supports(data, SSLSUPP_ISSUERCERT_BLOB))
+      திரும்பு Curl_setblobopt(&s->blobs[BLOB_SSL_ISSUERCERT_PROXY], blob);
+    திரும்பு CURLE_NOT_BUILT_IN;
 #endif
-  case CURLOPT_SSLKEY_BLOB:
+  நிலை CURLOPT_SSLKEY_BLOB:
     /*
      * Blob that holds file content of the SSL key to use
      */
-    return Curl_setblobopt(&s->blobs[BLOB_KEY], blob);
-  case CURLOPT_CAINFO_BLOB:
+    திரும்பு Curl_setblobopt(&s->blobs[BLOB_சாவி], blob);
+  நிலை CURLOPT_CAINFO_BLOB:
     /*
      * Blob that holds CA info for SSL connection.
      * Specify entire PEM of the CA certificate
      */
 #ifdef USE_SSL
-    if(Curl_ssl_supports(data, SSLSUPP_CAINFO_BLOB)) {
+    எனில்(Curl_ssl_supports(data, SSLSUPP_CAINFO_BLOB)) {
       CURLcode result = Curl_setblobopt(&s->blobs[BLOB_CAINFO], blob);
-      if(!result)
+      எனில்(!result)
         s->ssl.custom_cablob = TRUE;
-      return result;
+      திரும்பு result;
     }
 #endif
-    return CURLE_NOT_BUILT_IN;
-  case CURLOPT_ISSUERCERT_BLOB:
+    திரும்பு CURLE_NOT_BUILT_IN;
+  நிலை CURLOPT_ISSUERCERT_BLOB:
     /*
      * Blob that holds Issuer certificate to check certificates issuer
      */
-    if(Curl_ssl_supports(data, SSLSUPP_ISSUERCERT_BLOB))
-      return Curl_setblobopt(&s->blobs[BLOB_SSL_ISSUERCERT], blob);
-    return CURLE_NOT_BUILT_IN;
+    எனில்(Curl_ssl_supports(data, SSLSUPP_ISSUERCERT_BLOB))
+      திரும்பு Curl_setblobopt(&s->blobs[BLOB_SSL_ISSUERCERT], blob);
+    திரும்பு CURLE_NOT_BUILT_IN;
 
-  default:
-    return CURLE_UNKNOWN_OPTION;
+  இயல்பு:
+    திரும்பு CURLE_UNKNOWN_OPTION;
   }
   /* unreachable */
 }
@@ -2880,45 +2880,45 @@ static CURLcode setopt_blob(struct Curl_easy *data, CURLoption option,
  * Do not make Curl_vsetopt() static: it is called from
  * projects/OS400/ccsidcurl.c.
  */
-CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
+CURLcode Curl_vsetopt(கட்டமைப்பு Curl_easy *data, CURLoption option, va_list param)
 {
-  if(option < CURLOPTTYPE_OBJECTPOINT)
-    return setopt_long(data, option, va_arg(param, long));
-  else if(option < CURLOPTTYPE_FUNCTIONPOINT) {
+  எனில்(option < CURLOPTTYPE_OBJECTPOINT)
+    திரும்பு setopt_long(data, option, va_arg(param, long));
+  இல்லையெனில் எனில்(option < CURLOPTTYPE_FUNCTIONPOINT) {
     /* unfortunately, different pointer types cannot be identified any other
        way than being listed explicitly */
-    switch(option) {
-    case CURLOPT_HTTPHEADER:
-    case CURLOPT_QUOTE:
-    case CURLOPT_POSTQUOTE:
-    case CURLOPT_TELNETOPTIONS:
-    case CURLOPT_PREQUOTE:
-    case CURLOPT_HTTP200ALIASES:
-    case CURLOPT_MAIL_RCPT:
-    case CURLOPT_RESOLVE:
-    case CURLOPT_PROXYHEADER:
-    case CURLOPT_CONNECT_TO:
-      return setopt_slist(data, option, va_arg(param, struct curl_slist *));
-    case CURLOPT_HTTPPOST:         /* curl_httppost * */
-    case CURLOPT_MIMEPOST:         /* curl_mime * */
-    case CURLOPT_STDERR:           /* FILE * */
-    case CURLOPT_SHARE:            /* CURLSH * */
-    case CURLOPT_CURLU:            /* CURLU * */
-      return setopt_pointers(data, option, param);
-    case CURLOPT_STREAM_DEPENDS:   /* CURL * */
-    case CURLOPT_STREAM_DEPENDS_E: /* CURL * */
-      return CURLE_OK;
-    default:
-      break;
+    தேர்வு(option) {
+    நிலை CURLOPT_HTTPHEADER:
+    நிலை CURLOPT_QUOTE:
+    நிலை CURLOPT_POSTQUOTE:
+    நிலை CURLOPT_TELNETOPTIONS:
+    நிலை CURLOPT_PREQUOTE:
+    நிலை CURLOPT_HTTP200ALIASES:
+    நிலை CURLOPT_MAIL_RCPT:
+    நிலை CURLOPT_RESOLVE:
+    நிலை CURLOPT_PROXYHEADER:
+    நிலை CURLOPT_CONNECT_TO:
+      திரும்பு setopt_slist(data, option, va_arg(param, கட்டமைப்பு curl_slist *));
+    நிலை CURLOPT_HTTPPOST:         /* curl_httppost * */
+    நிலை CURLOPT_MIMEPOST:         /* curl_mime * */
+    நிலை CURLOPT_STDERR:           /* FILE * */
+    நிலை CURLOPT_SHARE:            /* CURLSH * */
+    நிலை CURLOPT_CURLU:            /* CURLU * */
+      திரும்பு setopt_pointers(data, option, param);
+    நிலை CURLOPT_STREAM_DEPENDS:   /* CURL * */
+    நிலை CURLOPT_STREAM_DEPENDS_E: /* CURL * */
+      திரும்பு CURLE_OK;
+    இயல்பு:
+      நிறுத்து;
     }
     /* the char pointer options */
-    return setopt_cptr(data, option, va_arg(param, char *));
+    திரும்பு setopt_cptr(data, option, va_arg(param, எழுத்து *));
   }
-  else if(option < CURLOPTTYPE_OFF_T)
-    return setopt_func(data, option, param);
-  else if(option < CURLOPTTYPE_BLOB)
-    return setopt_offt(data, option, va_arg(param, curl_off_t));
-  return setopt_blob(data, option, va_arg(param, struct curl_blob *));
+  இல்லையெனில் எனில்(option < CURLOPTTYPE_OFF_T)
+    திரும்பு setopt_func(data, option, param);
+  இல்லையெனில் எனில்(option < CURLOPTTYPE_BLOB)
+    திரும்பு setopt_offt(data, option, va_arg(param, curl_off_t));
+  திரும்பு setopt_blob(data, option, va_arg(param, கட்டமைப்பு curl_blob *));
 }
 
 /*
@@ -2931,11 +2931,11 @@ CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
 #undef curl_easy_setopt
 CURLcode curl_easy_setopt(CURL *curl, CURLoption option, ...)
 {
-  struct Curl_eapi_guard guard;
+  கட்டமைப்பு Curl_eapi_guard guard;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_setopt, &result)) {
-    struct Curl_easy *data = curl;
+  எனில்(CURL_EAPI_ENTER(&guard, curl, easy_setopt, &result)) {
+    கட்டமைப்பு Curl_easy *data = curl;
     va_list arg;
 
     va_start(arg, option);
@@ -2943,9 +2943,9 @@ CURLcode curl_easy_setopt(CURL *curl, CURLoption option, ...)
     result = Curl_vsetopt(data, option, arg);
 
     va_end(arg);
-    if(result == CURLE_BAD_FUNCTION_ARGUMENT)
-      failf(data, "setopt 0x%x got bad argument", (unsigned int)option);
+    எனில்(result == CURLE_BAD_FUNCTION_ARGUMENT)
+      failf(data, "setopt 0x%x got bad argument", (unsigned முழு)option);
   }
   CURL_EAPI_LEAVE(&guard);
-  return result;
+  திரும்பு result;
 }

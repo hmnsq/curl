@@ -23,42 +23,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#எனில் !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+கட்டமைப்பு Curl_header_store {
+  கட்டமைப்பு Curl_llist_முனை முனை;
+  எழுத்து *name; /* points into 'buffer' */
+  எழுத்து *மதிப்பு; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
   size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  முழு request; /* 0 is the first request, then 1.. 2.. */
+  unsigned எழுத்து type; /* CURLH_* defines */
+  எழுத்து buffer[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_headers_init(கட்டமைப்பு Curl_easy *data);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_headers_தள்ளு(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *header,
+                           size_t hlen, unsigned எழுத்து type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_headers_cleanup(கட்டமைப்பு Curl_easy *data);
 
-#else
+#இல்லையெனில்
 #define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
+#define Curl_headers_தள்ளு(x, y, z, a) \
+  ((வெறுமை)(x), (வெறுமை)(y), (வெறுமை)(z), (வெறுமை)(a), CURLE_OK)
 #define Curl_headers_cleanup(x)       Curl_nop_stmt
 #endif
 

@@ -23,15 +23,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if defined(__AMIGA__) && defined(HAVE_PROTO_BSDSOCKET_H) && \
+#எனில் defined(__AMIGA__) && defined(HAVE_PROTO_BSDSOCKET_H) && \
   (!defined(USE_AMISSL) || defined(__amigaos4__))
 
-CURLcode Curl_amiga_init(void);
-void Curl_amiga_cleanup(void);
+CURLcode Curl_amiga_init(வெறுமை);
+வெறுமை Curl_amiga_cleanup(வெறுமை);
 
-#else
+#இல்லையெனில்
 
 #define Curl_amiga_init()    CURLE_OK
 #define Curl_amiga_cleanup() Curl_nop_stmt

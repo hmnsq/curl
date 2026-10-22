@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef CURL_MACOS_CALL_COPYPROXIES
 
-#include "macos.h"
+#அந்தர்பாவ "macos.h"
 
-#include <SystemConfiguration/SCDynamicStoreCopySpecific.h>
+#அந்தர்பாவ <SystemConfiguration/SCDynamicStoreCopySpecific.h>
 
-CURLcode Curl_macos_init(void)
+CURLcode Curl_macos_init(வெறுமை)
 {
   /*
    * The automagic conversion from IPv4 literals to IPv6 literals only
@@ -41,10 +41,10 @@ CURLcode Curl_macos_init(void)
    * IPv4-only builds, hence the conditions for defining
    * CURL_MACOS_CALL_COPYPROXIES in curl_setup.h.
    */
-  CFDictionaryRef dict = SCDynamicStoreCopyProxies(NULL);
-  if(dict)
+  CFDictionaryRef dict = SCDynamicStoreCopyProxies(வெற்று);
+  எனில்(dict)
     CFRelease(dict);
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 #endif

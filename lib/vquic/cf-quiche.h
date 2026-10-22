@@ -23,28 +23,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#எனில் !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 
-#include <quiche.h>
-#include <openssl/ssl.h>
+#அந்தர்பாவ <quiche.h>
+#அந்தர்பாவ <openssl/ssl.h>
 
-struct Curl_cfilter;
-struct Curl_easy;
+கட்டமைப்பு Curl_cfilter;
+கட்டமைப்பு Curl_easy;
 
-void Curl_quiche_ver(char *p, size_t len);
+வெறுமை Curl_quiche_ver(எழுத்து *p, size_t len);
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_quiche_create(கட்டமைப்பு Curl_cfilter **pcf,
+                               கட்டமைப்பு Curl_easy *data,
+                               கட்டமைப்பு Curl_peer *origin,
+                               கட்டமைப்பு Curl_peer *peer,
+                               கட்டமைப்பு connectdata *conn,
+                               கட்டமைப்பு Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_quiche_செருகு_after(கட்டமைப்பு Curl_cfilter *cf_at,
+                                     கட்டமைப்பு Curl_peer *origin,
+                                     கட்டமைப்பு Curl_peer *peer,
+                                     கட்டமைப்பு Curl_cfilter **pcf);
 
 #endif
 

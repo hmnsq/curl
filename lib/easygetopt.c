@@ -21,77 +21,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "easyoptions.h"
+#அந்தர்பாவ "easyoptions.h"
 
 #ifndef CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static const struct curl_easyoption *lookup(const char *name, CURLoption id)
+நிலையான மாறிலி கட்டமைப்பு curl_easyoption *lookup(மாறிலி எழுத்து *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
-    const struct curl_easyoption *o = &Curl_easyopts[0];
-    do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+  எனில்(name || id) {
+    மாறிலி கட்டமைப்பு curl_easyoption *o = &Curl_easyopts[0];
+    செய் {
+      எனில்(name) {
+        எனில்(curl_strequal(o->name, name))
+          திரும்பு o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      இல்லையெனில் {
+        எனில்((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          திரும்பு o;
       }
       o++;
-    } while(o->name);
+    } போது(o->name);
   }
-  return NULL;
+  திரும்பு வெற்று;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+மாறிலி கட்டமைப்பு curl_easyoption *curl_easy_option_by_name(மாறிலி எழுத்து *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  திரும்பு lookup(name, CURLOPT_LASTENTRY);
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+மாறிலி கட்டமைப்பு curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  திரும்பு lookup(வெற்று, id);
 }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+மாறிலி கட்டமைப்பு curl_easyoption *curl_easy_option_next(
+  மாறிலி கட்டமைப்பு curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  எனில்(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    எனில்(prev->name)
+      திரும்பு prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  இல்லையெனில் எனில்(!prev)
+    திரும்பு &Curl_easyopts[0];
+  திரும்பு வெற்று;
 }
 
-#else
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+#இல்லையெனில்
+மாறிலி கட்டமைப்பு curl_easyoption *curl_easy_option_by_name(மாறிலி எழுத்து *name)
 {
-  (void)name;
-  return NULL;
+  (வெறுமை)name;
+  திரும்பு வெற்று;
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+மாறிலி கட்டமைப்பு curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  (void)id;
-  return NULL;
+  (வெறுமை)id;
+  திரும்பு வெற்று;
 }
 
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+மாறிலி கட்டமைப்பு curl_easyoption *curl_easy_option_next(
+  மாறிலி கட்டமைப்பு curl_easyoption *prev)
 {
-  (void)prev;
-  return NULL;
+  (வெறுமை)prev;
+  திரும்பு வெற்று;
 }
 #endif

@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-struct Curl_cwriter;
+கட்டமைப்பு Curl_cwriter;
 
 /* returns an allocated string or NULL */
-char *Curl_get_content_encodings(void);
+எழுத்து *Curl_get_content_encodings(வெறுமை);
 
-CURLcode Curl_build_unencoding_stack(struct Curl_easy *data,
-                                     const char *enclist, int is_transfer);
+CURLcode Curl_build_unencoding_அடுக்கு(கட்டமைப்பு Curl_easy *data,
+                                     மாறிலி எழுத்து *enclist, முழு is_transfer);
 #endif /* HEADER_CURL_CONTENT_ENCODING_H */

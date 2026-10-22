@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef USE_HTTP3
 
-#include "bufq.h"
-#include "u32_ptrset.h"
+#அந்தர்பாவ "bufq.h"
+#அந்தர்பாவ "u32_ptrset.h"
 
 #define MAX_UDP_PAYLOAD_SIZE  1452
 
 /* definitions from RFC 9114, ch 8.1 */
-typedef enum {
+வகைவரை எண்ணிக்கை {
   CURL_H3_ERR_NO_ERROR = 0x0100,
   CURL_H3_ERR_GENERAL_PROTOCOL_ERROR = 0x0101,
   CURL_H3_ERR_INTERNAL_ERROR = 0x0102,
@@ -54,75 +54,75 @@ typedef enum {
 } vquic_h3_error;
 
 #ifdef CURLVERBOSE
-const char *Curl_vquic_h3_err_str(uint64_t error_code);
-#else
+மாறிலி எழுத்து *Curl_vquic_h3_err_str(uint64_t error_code);
+#இல்லையெனில்
 #define Curl_vquic_h3_err_str(x)   ""
 #endif /* CURLVERBOSE */
 
-struct cf_quic_ctx {
+கட்டமைப்பு cf_quic_ctx {
   curl_socket_t sockfd;               /* connected UDP socket */
-  struct sockaddr_storage local_addr; /* address socket is bound to */
+  கட்டமைப்பு sockaddr_storage local_addr; /* address socket is bound to */
   socklen_t local_addrlen;            /* length of local address */
 
-  struct bufq sendbuf;           /* buffer for sending one or more packets */
-  struct curltime first_byte_at; /* when first byte was recvd */
-  struct curltime last_op;       /* last (attempted) send/recv operation */
-  struct curltime last_io;       /* last successful socket IO */
+  கட்டமைப்பு bufq sendbuf;           /* buffer for sending one or more packets */
+  கட்டமைப்பு curltime first_byte_at; /* when first byte was recvd */
+  கட்டமைப்பு curltime last_op;       /* last (attempted) send/recv operation */
+  கட்டமைப்பு curltime last_io;       /* last successful socket IO */
   size_t gsolen;                 /* length of individual packets in send buf */
   size_t split_len;    /* if != 0, buffer length after which GSO differs */
   size_t split_gsolen; /* length of individual packets after split_len */
 #ifdef DEBUGBUILD
-  int wblock_percent;  /* percent of writes doing EAGAIN */
+  முழு wblock_percent;  /* percent of writes doing EAGAIN */
 #endif
   BIT(got_first_byte); /* if first byte was received */
   BIT(no_gso);         /* do not use gso on sending */
 };
 
 #define H3_STREAM_CTX(ctx, data)                                        \
-  ((data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : NULL)
+  ((data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : வெற்று)
 
-CURLcode Curl_vquic_ctx_init(struct Curl_easy *data,
-                             struct cf_quic_ctx *qctx);
-void Curl_vquic_ctx_free(struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_ctx_init(கட்டமைப்பு Curl_easy *data,
+                             கட்டமைப்பு cf_quic_ctx *qctx);
+வெறுமை Curl_vquic_ctx_free(கட்டமைப்பு cf_quic_ctx *qctx);
 
-void Curl_vquic_ctx_set_time(struct cf_quic_ctx *qctx,
-                             const struct curltime *pnow);
+வெறுமை Curl_vquic_ctx_set_time(கட்டமைப்பு cf_quic_ctx *qctx,
+                             மாறிலி கட்டமைப்பு curltime *pnow);
 
-void Curl_vquic_ctx_update_time(struct cf_quic_ctx *qctx,
-                                const struct curltime *pnow);
+வெறுமை Curl_vquic_ctx_update_time(கட்டமைப்பு cf_quic_ctx *qctx,
+                                மாறிலி கட்டமைப்பு curltime *pnow);
 
-CURLcode Curl_vquic_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         struct cf_quic_ctx *qctx, size_t gsolen);
+CURLcode Curl_vquic_send(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data,
+                         கட்டமைப்பு cf_quic_ctx *qctx, size_t gsolen);
 
-CURLcode Curl_vquic_send_tail_split(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct cf_quic_ctx *qctx, size_t gsolen,
+CURLcode Curl_vquic_send_tail_split(கட்டமைப்பு Curl_cfilter *cf,
+                                    கட்டமைப்பு Curl_easy *data,
+                                    கட்டமைப்பு cf_quic_ctx *qctx, size_t gsolen,
                                     size_t tail_len, size_t tail_gsolen);
 
-CURLcode Curl_vquic_flush(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_flush(கட்டமைப்பு Curl_cfilter *cf, கட்டமைப்பு Curl_easy *data,
+                          கட்டமைப்பு cf_quic_ctx *qctx);
 
-typedef CURLcode Curl_vquic_recv_pkts_cb(const unsigned char *buf,
+வகைவரை CURLcode Curl_vquic_recv_pkts_cb(மாறிலி unsigned எழுத்து *buf,
                                          size_t buflen,
                                          size_t gso_size,
-                                         struct sockaddr_storage *remote_addr,
+                                         கட்டமைப்பு sockaddr_storage *remote_addr,
                                          socklen_t remote_addrlen, uint8_t ecn,
-                                         void *userp);
+                                         வெறுமை *userp);
 
-CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+CURLcode Curl_vquic_recv_packets(கட்டமைப்பு Curl_cfilter *cf,
+                                 கட்டமைப்பு Curl_easy *data,
+                                 கட்டமைப்பு cf_quic_ctx *qctx,
                                  size_t max_pkts,
                                  Curl_vquic_recv_pkts_cb *recv_cb,
-                                 void *userp);
+                                 வெறுமை *userp);
 
 #ifdef USE_NGTCP2
-struct ngtcp2_mem;
-struct ngtcp2_mem *Curl_ngtcp2_mem(void);
+கட்டமைப்பு ngtcp2_mem;
+கட்டமைப்பு ngtcp2_mem *Curl_ngtcp2_mem(வெறுமை);
 #endif
 #ifdef USE_NGHTTP3
-struct nghttp3_mem;
-struct nghttp3_mem *Curl_nghttp3_mem(void);
+கட்டமைப்பு nghttp3_mem;
+கட்டமைப்பு nghttp3_mem *Curl_nghttp3_mem(வெறுமை);
 #endif
 
 #endif /* !USE_HTTP3 */

@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#எனில் !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 
-extern const struct Curl_protocol Curl_protocol_ws;
+வெளி மாறிலி கட்டமைப்பு Curl_protocol Curl_protocol_ws;
 
 /* meta key for storing protocol meta at connection */
 #define CURL_META_PROTO_WS_CONN   "meta:proto:ws:conn"
 
-CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req);
-CURLcode Curl_ws_accept(struct Curl_easy *data,
-                        const char *mem, size_t nread);
+CURLcode Curl_ws_request(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு dynbuf *req);
+CURLcode Curl_ws_accept(கட்டமைப்பு Curl_easy *data,
+                        மாறிலி எழுத்து *mem, size_t nread);
 
-#else
+#இல்லையெனில்
 #define Curl_ws_request(x, y) CURLE_OK
 #define Curl_ws_free(x)       Curl_nop_stmt
 #endif

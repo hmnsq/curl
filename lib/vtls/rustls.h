@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef USE_RUSTLS
 
-extern const struct Curl_ssl Curl_ssl_rustls;
+வெளி மாறிலி கட்டமைப்பு Curl_ssl Curl_ssl_rustls;
 
 #endif /* USE_RUSTLS */
 #endif /* HEADER_CURL_RUSTLS_H */

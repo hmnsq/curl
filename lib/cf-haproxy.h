@@ -23,16 +23,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "urldata.h"
+#அந்தர்பாவ "urldata.h"
 
 #ifndef CURL_DISABLE_PROXY
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_haproxy_செருகு_after(கட்டமைப்பு Curl_cfilter *cf_at,
+                                      கட்டமைப்பு Curl_easy *data);
 
-extern struct Curl_cftype Curl_cft_haproxy;
+வெளி கட்டமைப்பு Curl_cftype Curl_cft_haproxy;
 
 #endif /* !CURL_DISABLE_PROXY */
 

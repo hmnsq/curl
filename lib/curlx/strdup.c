@@ -21,13 +21,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef _WIN32
-#include <wchar.h>
+#அந்தர்பாவ <wchar.h>
 #endif
 
-#include "curlx/strdup.h"
+#அந்தர்பாவ "curlx/strdup.h"
 
 #ifdef _WIN32
 /***************************************************************************
@@ -40,14 +40,14 @@
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-wchar_t *curlx_wcsdup(const wchar_t *src)
+wchar_t *curlx_wcsdup(மாறிலி wchar_t *src)
 {
   size_t length = wcslen(src);
 
-  if(length > (SIZE_MAX / sizeof(wchar_t)) - 1)
-    return (wchar_t *)NULL; /* integer overflow */
+  எனில்(length > (SIZE_MAX / அளவு(wchar_t)) - 1)
+    திரும்பு (wchar_t *)வெற்று; /* integer overflow */
 
-  return (wchar_t *)curlx_memdup(src, (length + 1) * sizeof(wchar_t));
+  திரும்பு (wchar_t *)curlx_memdup(src, (length + 1) * அளவு(wchar_t));
 }
 #endif
 
@@ -61,15 +61,15 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup(const void *src, size_t length)
+வெறுமை *curlx_memdup(மாறிலி வெறுமை *src, size_t length)
 {
-  void *buffer = curlx_malloc(length);
-  if(!buffer)
-    return NULL; /* fail */
+  வெறுமை *buffer = curlx_malloc(length);
+  எனில்(!buffer)
+    திரும்பு வெற்று; /* fail */
 
   memcpy(buffer, src, length);
 
-  return buffer;
+  திரும்பு buffer;
 }
 
 /***************************************************************************
@@ -82,42 +82,42 @@ void *curlx_memdup(const void *src, size_t length)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup0(const char *src, size_t length)
+வெறுமை *curlx_memdup0(மாறிலி எழுத்து *src, size_t length)
 {
-  char *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : NULL;
-  if(!buf)
-    return NULL;
-  if(length) {
+  எழுத்து *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : வெற்று;
+  எனில்(!buf)
+    திரும்பு வெற்று;
+  எனில்(length) {
     DEBUGASSERT(src); /* must never be NULL */
     memcpy(buf, src, length);
   }
   buf[length] = 0;
-  return buf;
+  திரும்பு buf;
 }
 
 #ifdef USE_CURLX_MEMZERO
-static void *(* const volatile p_curlx_memset)(void *buf, int val,
+நிலையான வெறுமை *(* மாறிலி நிலையற்ற p_curlx_memset)(வெறுமை *buf, முழு val,
                                                size_t size) = memset;
 
 /* Local fallback in case there is no system function to securely zero a memory
    buffer. */
-void curlx_memzero_low(void *buf, size_t size)
+வெறுமை curlx_memzero_கீழ்(வெறுமை *buf, size_t size)
 {
-  if(buf)
+  எனில்(buf)
     p_curlx_memset(buf, 0, size);
 }
 #endif
 
 /* Fill 'buf' with zeroes. */
-void curlx_memzero(void *buf, size_t size)
+வெறுமை curlx_memzero(வெறுமை *buf, size_t size)
 {
-  if(buf)
-    curlx_memzero_low(buf, size);
+  எனில்(buf)
+    curlx_memzero_கீழ்(buf, size);
 }
 
 /* Fill 'buf' with zeroes, where 'buf' is null-terminated. */
-void curlx_strzero(void *buf)
+வெறுமை curlx_strzero(வெறுமை *buf)
 {
-  if(buf)
-    curlx_memzero_low(buf, strlen(buf));
+  எனில்(buf)
+    curlx_memzero_கீழ்(buf, strlen(buf));
 }

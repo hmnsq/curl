@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "curlx/timeval.h"
+#அந்தர்பாவ "curlx/timeval.h"
 
-struct Curl_easy;
+கட்டமைப்பு Curl_easy;
 
 /* only use function calls to access this struct */
-struct Curl_tree {
-  struct Curl_tree *smaller; /* smaller node */
-  struct Curl_tree *larger;  /* larger node */
-  struct Curl_tree *same;    /* points to the next node with identical key */
-  timediff_t key;            /* this node's "sort" key */
+கட்டமைப்பு Curl_மரம் {
+  கட்டமைப்பு Curl_மரம் *smaller; /* smaller node */
+  கட்டமைப்பு Curl_மரம் *larger;  /* larger node */
+  கட்டமைப்பு Curl_மரம் *same;    /* points to the next node with identical key */
+  timediff_t சாவி;            /* this node's "sort" key */
   uint32_t id;               /* provided id for this node */
   BIT(registered);           /* node is registered in splay tree */
 };
 
-struct Curl_timeouts {
-  struct Curl_tree *tree;
+கட்டமைப்பு Curl_timeouts {
+  கட்டமைப்பு Curl_மரம் *மரம்;
   time_t time_base_sec;
 };
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base);
+வெறுமை Curl_timeouts_init(கட்டமைப்பு Curl_timeouts *timeouts,
+                        மாறிலி கட்டமைப்பு curltime *ptime_base);
 
-bool Curl_timeouts_has(struct Curl_easy *data);
+bool Curl_timeouts_has(கட்டமைப்பு Curl_easy *data);
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts);
+timediff_t Curl_timeouts_offset_us(கட்டமைப்பு Curl_timeouts *timeouts,
+                                   மாறிலி கட்டமைப்பு curltime *pts);
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
+முழு Curl_timeouts_next_ms(கட்டமைப்பு Curl_timeouts *timeouts,
+                          மாறிலி கட்டமைப்பு curltime *pnow,
                           timediff_t *pexpire_offset_us,
                           uint32_t *pmid);
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(கட்டமைப்பு Curl_timeouts *timeouts,
+                                  மாறிலி கட்டமைப்பு curltime *ts,
                                   uint32_t *pmid);
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
+வெறுமை Curl_timeouts_add(கட்டமைப்பு Curl_timeouts *timeouts,
+                       கட்டமைப்பு Curl_easy *data,
                        timediff_t offset_us);
 
 /* Returns TRUE if data was registered in timeouts before */
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data);
+bool Curl_timeouts_remove(கட்டமைப்பு Curl_timeouts *timeouts,
+                          கட்டமைப்பு Curl_easy *data);
 
 #ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node);
+uint32_t Curl_splayget(கட்டமைப்பு Curl_மரம் *முனை);
 #endif
 
 #endif /* HEADER_CURL_SPLAY_H */

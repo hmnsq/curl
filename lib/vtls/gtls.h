@@ -23,93 +23,93 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef USE_GNUTLS
 
-#include <gnutls/gnutls.h>
+#அந்தர்பாவ <gnutls/gnutls.h>
 
-#include "curlx/timeval.h"
+#அந்தர்பாவ "curlx/timeval.h"
 
-struct Curl_easy;
-struct Curl_cfilter;
-struct alpn_spec;
-struct ssl_filter_config;
-struct ssl_easy_config;
-struct ssl_peer;
-struct ssl_connect_data;
-struct Curl_ssl_session;
+கட்டமைப்பு Curl_easy;
+கட்டமைப்பு Curl_cfilter;
+கட்டமைப்பு alpn_spec;
+கட்டமைப்பு ssl_filter_config;
+கட்டமைப்பு ssl_easy_config;
+கட்டமைப்பு ssl_peer;
+கட்டமைப்பு ssl_connect_data;
+கட்டமைப்பு Curl_ssl_session;
 
-struct gtls_shared_creds {
+கட்டமைப்பு gtls_shared_creds {
   gnutls_certificate_credentials_t creds;
-  char *CAfile; /* CAfile path used to generate X509 store */
-  struct curltime time; /* when the shared creds was created */
+  எழுத்து *CAfile; /* CAfile path used to generate X509 store */
+  கட்டமைப்பு curltime time; /* when the shared creds was created */
   size_t refcount;
   BIT(trust_setup); /* x509 anchors + CRLs have been set up */
 };
 
-CURLcode Curl_gtls_shared_creds_create(struct Curl_easy *data,
-                                       struct gtls_shared_creds **pcreds);
-CURLcode Curl_gtls_shared_creds_up_ref(struct gtls_shared_creds *creds);
-void Curl_gtls_shared_creds_free(struct gtls_shared_creds **pcreds);
+CURLcode Curl_gtls_shared_creds_create(கட்டமைப்பு Curl_easy *data,
+                                       கட்டமைப்பு gtls_shared_creds **pcreds);
+CURLcode Curl_gtls_shared_creds_up_ref(கட்டமைப்பு gtls_shared_creds *creds);
+வெறுமை Curl_gtls_shared_creds_free(கட்டமைப்பு gtls_shared_creds **pcreds);
 
-struct gtls_ctx {
+கட்டமைப்பு gtls_ctx {
   gnutls_session_t session;
-  struct gtls_shared_creds *shared_creds;
+  கட்டமைப்பு gtls_shared_creds *shared_creds;
   CURLcode io_result; /* result of last IO cfilter operation */
   BIT(sent_shutdown);
 };
 
-size_t Curl_gtls_version(char *buffer, size_t size);
+size_t Curl_gtls_version(எழுத்து *buffer, size_t size);
 
-typedef CURLcode Curl_gtls_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+வகைவரை CURLcode Curl_gtls_ctx_setup_cb(கட்டமைப்பு Curl_cfilter *cf,
+                                        கட்டமைப்பு Curl_easy *data,
+                                        வெறுமை *user_data);
 
-typedef CURLcode Curl_gtls_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
+வகைவரை CURLcode Curl_gtls_init_session_reuse_cb(கட்டமைப்பு Curl_cfilter *cf,
+                                                 கட்டமைப்பு Curl_easy *data,
+                                                 கட்டமைப்பு alpn_spec *alpns,
+                                                 கட்டமைப்பு Curl_ssl_session *scs,
                                                  bool *do_early_data);
 
-CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
+CURLcode Curl_gtls_ctx_init(கட்டமைப்பு gtls_ctx *gctx,
+                            கட்டமைப்பு Curl_cfilter *cf,
+                            கட்டமைப்பு Curl_easy *data,
+                            கட்டமைப்பு ssl_peer *peer,
+                            மாறிலி கட்டமைப்பு alpn_spec *alpns_requested,
                             Curl_gtls_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+                            வெறுமை *cb_user_data,
+                            வெறுமை *ssl_user_data,
                             Curl_gtls_init_session_reuse_cb *sess_reuse_cb);
 
-CURLcode Curl_gtls_client_trust_setup(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct gtls_ctx *gtls);
+CURLcode Curl_gtls_client_trust_setup(கட்டமைப்பு Curl_cfilter *cf,
+                                      கட்டமைப்பு Curl_easy *data,
+                                      கட்டமைப்பு gtls_ctx *gtls);
 
-CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+CURLcode Curl_gtls_verifyserver(கட்டமைப்பு Curl_cfilter *cf,
+                                கட்டமைப்பு Curl_easy *data,
                                 gnutls_session_t session,
-                                struct ssl_filter_config *config,
-                                struct ssl_easy_config *ssl_config,
-                                struct ssl_peer *peer,
-                                const char *pinned_key);
+                                கட்டமைப்பு ssl_filter_config *config,
+                                கட்டமைப்பு ssl_easy_config *ssl_config,
+                                கட்டமைப்பு ssl_peer *peer,
+                                மாறிலி எழுத்து *pinned_சாவி);
 
 /* Extract TLS session and place in cache, if configured. Return
  * a copy of the session if desired. */
-CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+CURLcode Curl_gtls_cache_session(கட்டமைப்பு Curl_cfilter *cf,
+                                 கட்டமைப்பு Curl_easy *data,
+                                 மாறிலி எழுத்து *ssl_peer_சாவி,
                                  gnutls_session_t session,
                                  curl_off_t valid_until,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
+                                 மாறிலி எழுத்து *alpn,
+                                 unsigned எழுத்து *quic_tp,
                                  size_t quic_tp_len,
-                                 struct Curl_ssl_session **psession);
+                                 கட்டமைப்பு Curl_ssl_session **psession);
 
 /* Report properties of a successful handshake */
-void Curl_gtls_report_handshake(struct Curl_easy *data, struct gtls_ctx *gctx);
+வெறுமை Curl_gtls_report_handshake(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு gtls_ctx *gctx);
 
-extern const struct Curl_ssl Curl_ssl_gnutls;
+வெளி மாறிலி கட்டமைப்பு Curl_ssl Curl_ssl_gnutls;
 
 #endif /* USE_GNUTLS */
 #endif /* HEADER_CURL_GTLS_H */

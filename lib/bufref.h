@@ -27,23 +27,23 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+கட்டமைப்பு bufref {
+  வெறுமை (*dtor)(வெறுமை *);         /* Associated destructor. */
+  மாறிலி unsigned எழுத்து *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
 #ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
+  முழு signature;                /* Detect API use mistakes. */
 #endif
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+வெறுமை Curl_bufref_init(கட்டமைப்பு bufref *br);
+வெறுமை Curl_bufref_set(கட்டமைப்பு bufref *br, மாறிலி வெறுமை *ptr, size_t len,
+                     வெறுமை (*dtor)(வெறுமை *));
+மாறிலி எழுத்து *Curl_bufref_ptr(மாறிலி கட்டமைப்பு bufref *br);
+மாறிலி unsigned எழுத்து *Curl_bufref_uptr(மாறிலி கட்டமைப்பு bufref *br);
+size_t Curl_bufref_len(மாறிலி கட்டமைப்பு bufref *br);
+CURLcode Curl_bufref_memdup0(கட்டமைப்பு bufref *br, மாறிலி வெறுமை *ptr, size_t len);
+வெறுமை Curl_bufref_free(கட்டமைப்பு bufref *br);
 
 /* return a strdup() version of the buffer */
 #define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))

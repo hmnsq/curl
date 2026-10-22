@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifndef CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_add(கட்டமைப்பு Curl_easy *data,
+                             கட்டமைப்பு connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen);
+                             மாறிலி uint8_t *buf, size_t blen);
 
-extern struct Curl_cftype Curl_cft_recvbuf;
+வெளி கட்டமைப்பு Curl_cftype Curl_cft_recvbuf;
 
 #endif /* !CURL_DISABLE_WEBSOCKETS */
 

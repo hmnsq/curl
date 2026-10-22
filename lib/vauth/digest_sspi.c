@@ -24,19 +24,19 @@
  * RFC2831 DIGEST-MD5 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#எனில் defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "creds.h"
-#include "vauth/vauth.h"
-#include "vauth/digest.h"
-#include "curlx/multibyte.h"
-#include "curl_trc.h"
-#include "curlx/strdup.h"
-#include "curlx/strparse.h"
-#include "strcase.h"
-#include "strerror.h"
+#அந்தர்பாவ "creds.h"
+#அந்தர்பாவ "vauth/vauth.h"
+#அந்தர்பாவ "vauth/digest.h"
+#அந்தர்பாவ "curlx/multibyte.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "curlx/strdup.h"
+#அந்தர்பாவ "curlx/strparse.h"
+#அந்தர்பாவ "strcase.h"
+#அந்தர்பாவ "strerror.h"
 
 /*
  * Curl_auth_is_digest_supported()
@@ -47,7 +47,7 @@
  *
  * Returns TRUE if DIGEST is supported by Windows SSPI.
  */
-bool Curl_auth_is_digest_supported(void)
+bool Curl_auth_is_digest_supported(வெறுமை)
 {
   PSecPkgInfo SecurityPackage;
   SECURITY_STATUS status;
@@ -59,11 +59,11 @@ bool Curl_auth_is_digest_supported(void)
                                    &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
+  எனில்(status == SEC_E_OK) {
     Curl_pSecFn->FreeContextBuffer(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  திரும்பு status == SEC_E_OK;
 }
 
 /*
@@ -83,16 +83,16 @@ bool Curl_auth_is_digest_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
-                                             const struct bufref *chlg,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_digest_md5_message(கட்டமைப்பு Curl_easy *data,
+                                             மாறிலி கட்டமைப்பு bufref *chlg,
+                                             கட்டமைப்பு Curl_creds *creds,
+                                             மாறிலி எழுத்து *default_service,
+                                             கட்டமைப்பு bufref *out)
 {
   CURLcode result = CURLE_OK;
-  TCHAR *spn = NULL;
+  TCHAR *spn = வெற்று;
   size_t token_max = 0;
-  unsigned char *output_token = NULL;
+  unsigned எழுத்து *output_token = வெற்று;
   CredHandle credentials;
   CtxtHandle context;
   PSecPkgInfo SecurityPackage;
@@ -104,13 +104,13 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   SecBufferDesc resp_desc;
   SECURITY_STATUS status;
   unsigned long attrs;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  மாறிலி எழுத்து *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlg)) {
+  எனில்(!Curl_bufref_len(chlg)) {
     infof(data, "DIGEST-MD5 handshake failure (empty challenge message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    திரும்பு CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Query the security package for DigestSSP */
@@ -118,9 +118,9 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
     Curl_pSecFn->QuerySecurityPackageInfo(
                                    CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
                                    &SecurityPackage);
-  if(status != SEC_E_OK) {
+  எனில்(status != SEC_E_OK) {
     failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+    திரும்பு CURLE_AUTH_ERROR;
   }
 
   token_max = SecurityPackage->cbMaxToken;
@@ -130,45 +130,45 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
 
   /* Allocate our response buffer */
   output_token = curlx_malloc(token_max);
-  if(!output_token)
-    return CURLE_OUT_OF_MEMORY;
+  எனில்(!output_token)
+    திரும்பு CURLE_OUT_OF_MEMORY;
 
   /* Generate our SPN */
-  spn = Curl_auth_build_spn(service, data->state.origin->hostname, NULL);
-  if(!spn) {
+  spn = Curl_auth_build_spn(service, data->state.origin->hostname, வெற்று);
+  எனில்(!spn) {
     curlx_free(output_token);
-    return CURLE_OUT_OF_MEMORY;
+    திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
-  if(Curl_creds_has_user(creds)) {
+  எனில்(Curl_creds_has_user(creds)) {
     /* Populate our identity structure */
     result = Curl_create_sspi_identity(creds->user, creds->passwd,
                                        &identity);
-    if(result) {
+    எனில்(result) {
       curlx_free(spn);
       curlx_free(output_token);
-      return result;
+      திரும்பு result;
     }
 
     /* Allow proper cleanup of the identity structure */
     p_identity = &identity;
   }
-  else
+  இல்லையெனில்
     /* Use the current Windows user */
-    p_identity = NULL;
+    p_identity = வெற்று;
 
   /* Acquire our credentials handle */
-  status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
+  status = Curl_pSecFn->AcquireCredentialsHandle(வெற்று,
                                    CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
-                                   SECPKG_CRED_OUTBOUND, NULL,
-                                   p_identity, NULL, NULL,
-                                   &credentials, NULL);
+                                   SECPKG_CRED_OUTBOUND, வெற்று,
+                                   p_identity, வெற்று, வெற்று,
+                                   &credentials, வெற்று);
 
-  if(status != SEC_E_OK) {
+  எனில்(status != SEC_E_OK) {
     Curl_sspi_free_identity(p_identity);
     curlx_free(spn);
     curlx_free(output_token);
-    return CURLE_LOGIN_DENIED;
+    திரும்பு CURLE_LOGIN_DENIED;
   }
 
   /* Setup the challenge "input" security buffer */
@@ -188,29 +188,29 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   resp_buf.cbBuffer   = curlx_uztoul(token_max);
 
   /* Generate our response message */
-  status = Curl_pSecFn->InitializeSecurityContext(&credentials, NULL, spn,
+  status = Curl_pSecFn->InitializeSecurityContext(&credentials, வெற்று, spn,
                                                   0, 0, 0, &chlg_desc, 0,
                                                   &context, &resp_desc, &attrs,
-                                                  NULL);
+                                                  வெற்று);
 
-  if(status == SEC_I_COMPLETE_NEEDED ||
+  எனில்(status == SEC_I_COMPLETE_NEEDED ||
      status == SEC_I_COMPLETE_AND_CONTINUE)
     Curl_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
-  else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
-    VERBOSE(char buffer[STRERROR_LEN]);
+  இல்லையெனில் எனில்(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
+    VERBOSE(எழுத்து buffer[STRERROR_LEN]);
 
     Curl_pSecFn->FreeCredentialsHandle(&credentials);
     Curl_sspi_free_identity(p_identity);
     curlx_free(spn);
     curlx_free(output_token);
 
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    எனில்(status == SEC_E_INSUFFICIENT_MEMORY)
+      திரும்பு CURLE_OUT_OF_MEMORY;
 
     infof(data, "schannel: InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(status, buffer, sizeof(buffer)));
+          Curl_sspi_strerror(status, buffer, அளவு(buffer)));
 
-    return CURLE_AUTH_ERROR;
+    திரும்பு CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
@@ -226,7 +226,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   /* Free the SPN */
   curlx_free(spn);
 
-  return result;
+  திரும்பு result;
 }
 
 /*
@@ -243,58 +243,58 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_override_sspi_http_realm(const char *chlg,
+CURLcode Curl_override_sspi_http_realm(மாறிலி எழுத்து *chlg,
                                        SEC_WINNT_AUTH_IDENTITY_EX *identity)
 {
   xcharp_u domain, dup_domain;
 
   /* If domain is blank or unset, check challenge message for realm */
-  if(!identity->Domain || !identity->DomainLength) {
-    for(;;) {
-      struct Curl_str value;
-      char content[DIGEST_MAX_CONTENT_LENGTH];
+  எனில்(!identity->Domain || !identity->DomainLength) {
+    க்கு(;;) {
+      கட்டமைப்பு Curl_str மதிப்பு;
+      எழுத்து content[DIGEST_MAX_CONTENT_LENGTH];
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
 
       /* Extract a value=content pair */
-      if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-        if(curlx_str_casecompare(&value, "realm")) {
+      எனில்(Curl_auth_digest_get_pair(chlg, &மதிப்பு, content, &chlg)) {
+        எனில்(curlx_str_casecompare(&மதிப்பு, "realm")) {
 
           /* Setup identity's domain and length */
           domain.tchar_ptr = curlx_convert_UTF8_to_tchar(content);
-          if(!domain.tchar_ptr)
-            return CURLE_OUT_OF_MEMORY;
+          எனில்(!domain.tchar_ptr)
+            திரும்பு CURLE_OUT_OF_MEMORY;
 
           dup_domain.tchar_ptr = curlx_tcsdup(domain.tchar_ptr);
-          if(!dup_domain.tchar_ptr) {
+          எனில்(!dup_domain.tchar_ptr) {
             curlx_free(domain.tchar_ptr);
-            return CURLE_OUT_OF_MEMORY;
+            திரும்பு CURLE_OUT_OF_MEMORY;
           }
 
           curlx_free(identity->Domain);
           identity->Domain = dup_domain.tbyte_ptr;
           identity->DomainLength = curlx_uztoul(_tcslen(dup_domain.tchar_ptr));
-          dup_domain.tchar_ptr = NULL;
+          dup_domain.tchar_ptr = வெற்று;
 
           curlx_free(domain.tchar_ptr);
         }
-        else {
+        இல்லையெனில் {
           /* Unknown specifier, ignore it! */
         }
       }
-      else
-        break; /* We are done here */
+      இல்லையெனில்
+        நிறுத்து; /* We are done here */
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
 
       /* Allow the list to be comma-separated */
-      (void)curlx_str_single(&chlg, ',');
+      (வெறுமை)curlx_str_single(&chlg, ',');
     }
   }
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /*
@@ -310,55 +310,55 @@ CURLcode Curl_override_sspi_http_realm(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
-                                              struct digestdata *digest)
+CURLcode Curl_auth_decode_digest_http_message(மாறிலி எழுத்து *chlg,
+                                              கட்டமைப்பு digestdata *digest)
 {
   size_t chlglen = strlen(chlg);
 
   /* We had an input token before so if there is another one now that means we
      provided bad credentials in the previous request or it is stale. */
-  if(digest->input_token) {
+  எனில்(digest->உள்ளீடு_token) {
     bool stale = FALSE;
-    const char *p = chlg;
+    மாறிலி எழுத்து *p = chlg;
 
     /* Check for the 'stale' directive */
-    for(;;) {
-      struct Curl_str value;
-      char content[DIGEST_MAX_CONTENT_LENGTH];
+    க்கு(;;) {
+      கட்டமைப்பு Curl_str மதிப்பு;
+      எழுத்து content[DIGEST_MAX_CONTENT_LENGTH];
 
-      while(*p && ISBLANK(*p))
+      போது(*p && ISBLANK(*p))
         p++;
 
-      if(!Curl_auth_digest_get_pair(p, &value, content, &p))
-        break;
+      எனில்(!Curl_auth_digest_get_pair(p, &மதிப்பு, content, &p))
+        நிறுத்து;
 
-      if(curlx_str_casecompare(&value, "stale") &&
+      எனில்(curlx_str_casecompare(&மதிப்பு, "stale") &&
          curl_strequal(content, "true")) {
         stale = TRUE;
-        break;
+        நிறுத்து;
       }
 
-      while(*p && ISBLANK(*p))
+      போது(*p && ISBLANK(*p))
         p++;
 
-      if(',' == *p)
+      எனில்(',' == *p)
         p++;
     }
 
-    if(stale)
+    எனில்(stale)
       Curl_auth_digest_cleanup(digest);
-    else
-      return CURLE_LOGIN_DENIED;
+    இல்லையெனில்
+      திரும்பு CURLE_LOGIN_DENIED;
   }
 
   /* Store the challenge for use later */
-  digest->input_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
-  if(!digest->input_token)
-    return CURLE_OUT_OF_MEMORY;
+  digest->உள்ளீடு_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
+  எனில்(!digest->உள்ளீடு_token)
+    திரும்பு CURLE_OUT_OF_MEMORY;
 
-  digest->input_token_len = chlglen;
+  digest->உள்ளீடு_token_len = chlglen;
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /*
@@ -381,15 +381,15 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const unsigned char *request,
-                                              const unsigned char *uripath,
-                                              struct digestdata *digest,
-                                              char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_digest_http_message(கட்டமைப்பு Curl_easy *data,
+                                              கட்டமைப்பு Curl_creds *creds,
+                                              மாறிலி unsigned எழுத்து *request,
+                                              மாறிலி unsigned எழுத்து *uripath,
+                                              கட்டமைப்பு digestdata *digest,
+                                              எழுத்து **outptr, size_t *outlen)
 {
   size_t token_max;
-  char *resp;
+  எழுத்து *resp;
   BYTE *output_token;
   size_t output_token_len = 0;
   PSecPkgInfo SecurityPackage;
@@ -402,9 +402,9 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     Curl_pSecFn->QuerySecurityPackageInfo(
                                    CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
                                    &SecurityPackage);
-  if(status != SEC_E_OK) {
+  எனில்(status != SEC_E_OK) {
     failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+    திரும்பு CURLE_AUTH_ERROR;
   }
 
   token_max = SecurityPackage->cbMaxToken;
@@ -415,35 +415,35 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
   /* Allocate the output buffer according to the max token size as indicated
      by the security package */
   output_token = curlx_malloc(token_max);
-  if(!output_token) {
-    return CURLE_OUT_OF_MEMORY;
+  எனில்(!output_token) {
+    திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
   /* If the user/passwd that was used to make the identity for http_context
      has changed then delete that context. */
-  if(!Curl_creds_same(creds, digest->creds)) {
-    if(digest->http_context) {
+  எனில்(!Curl_creds_same(creds, digest->creds)) {
+    எனில்(digest->http_context) {
       Curl_pSecFn->DeleteSecurityContext(digest->http_context);
       curlx_safefree(digest->http_context);
     }
     Curl_creds_unlink(&digest->creds);
   }
 
-  if(digest->http_context) {
+  எனில்(digest->http_context) {
     chlg_desc.ulVersion    = SECBUFFER_VERSION;
     chlg_desc.cBuffers     = 5;
     chlg_desc.pBuffers     = chlg_buf;
     chlg_buf[0].BufferType = SECBUFFER_TOKEN;
-    chlg_buf[0].pvBuffer   = NULL;
+    chlg_buf[0].pvBuffer   = வெற்று;
     chlg_buf[0].cbBuffer   = 0;
     chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
-    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
+    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((மாறிலி எழுத்து *)request));
     chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[2].pvBuffer   = CURL_UNCONST(uripath);
-    chlg_buf[2].cbBuffer   = curlx_uztoul(strlen((const char *)uripath));
+    chlg_buf[2].cbBuffer   = curlx_uztoul(strlen((மாறிலி எழுத்து *)uripath));
     chlg_buf[3].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[3].pvBuffer   = NULL;
+    chlg_buf[3].pvBuffer   = வெற்று;
     chlg_buf[3].cbBuffer   = 0;
     chlg_buf[4].BufferType = SECBUFFER_PADDING;
     chlg_buf[4].pvBuffer   = output_token;
@@ -451,9 +451,9 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
 
     status = Curl_pSecFn->MakeSignature(digest->http_context, 0, &chlg_desc,
                                         0);
-    if(status == SEC_E_OK)
+    எனில்(status == SEC_E_OK)
       output_token_len = chlg_buf[4].cbBuffer;
-    else { /* delete the context so a new one can be made */
+    இல்லையெனில் { /* delete the context so a new one can be made */
       infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx",
             (unsigned long)status);
       Curl_pSecFn->DeleteSecurityContext(digest->http_context);
@@ -461,7 +461,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     }
   }
 
-  if(!digest->http_context) {
+  எனில்(!digest->http_context) {
     CredHandle credentials;
     SEC_WINNT_AUTH_IDENTITY_EX identity;
     SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
@@ -473,42 +473,42 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     /* free the credentials used to make the previous identity */
     Curl_creds_unlink(&digest->creds);
 
-    if(Curl_creds_has_user(creds)) {
+    எனில்(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
-      if(Curl_create_sspi_identity(creds->user, creds->passwd, &identity)) {
+      எனில்(Curl_create_sspi_identity(creds->user, creds->passwd, &identity)) {
         curlx_free(output_token);
-        return CURLE_OUT_OF_MEMORY;
+        திரும்பு CURLE_OUT_OF_MEMORY;
       }
 
       /* Populate our identity domain */
-      if(Curl_override_sspi_http_realm((const char *)digest->input_token,
+      எனில்(Curl_override_sspi_http_realm((மாறிலி எழுத்து *)digest->உள்ளீடு_token,
                                        &identity)) {
         Curl_sspi_free_identity(&identity);
         curlx_free(output_token);
-        return CURLE_OUT_OF_MEMORY;
+        திரும்பு CURLE_OUT_OF_MEMORY;
       }
 
       /* Allow proper cleanup of the identity structure */
       p_identity = &identity;
     }
-    else
+    இல்லையெனில்
       /* Use the current Windows user */
-      p_identity = NULL;
+      p_identity = வெற்று;
 
-    if(creds)
+    எனில்(creds)
       Curl_creds_link(&digest->creds, creds);
 
     /* Acquire our credentials handle */
-    status = Curl_pSecFn->AcquireCredentialsHandle(NULL,
+    status = Curl_pSecFn->AcquireCredentialsHandle(வெற்று,
                                    CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
-                                   SECPKG_CRED_OUTBOUND, NULL,
-                                   p_identity, NULL, NULL,
-                                   &credentials, NULL);
-    if(status != SEC_E_OK) {
+                                   SECPKG_CRED_OUTBOUND, வெற்று,
+                                   p_identity, வெற்று, வெற்று,
+                                   &credentials, வெற்று);
+    எனில்(status != SEC_E_OK) {
       Curl_sspi_free_identity(p_identity);
       curlx_free(output_token);
 
-      return CURLE_LOGIN_DENIED;
+      திரும்பு CURLE_LOGIN_DENIED;
     }
 
     /* Setup the challenge "input" security buffer if present */
@@ -516,13 +516,13 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     chlg_desc.cBuffers     = 3;
     chlg_desc.pBuffers     = chlg_buf;
     chlg_buf[0].BufferType = SECBUFFER_TOKEN;
-    chlg_buf[0].pvBuffer   = digest->input_token;
-    chlg_buf[0].cbBuffer   = curlx_uztoul(digest->input_token_len);
+    chlg_buf[0].pvBuffer   = digest->உள்ளீடு_token;
+    chlg_buf[0].cbBuffer   = curlx_uztoul(digest->உள்ளீடு_token_len);
     chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
-    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
+    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((மாறிலி எழுத்து *)request));
     chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
-    chlg_buf[2].pvBuffer   = NULL;
+    chlg_buf[2].pvBuffer   = வெற்று;
     chlg_buf[2].cbBuffer   = 0;
 
     /* Setup the response "output" security buffer */
@@ -533,41 +533,41 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     resp_buf.pvBuffer   = output_token;
     resp_buf.cbBuffer   = curlx_uztoul(token_max);
 
-    spn = curlx_convert_UTF8_to_tchar((const char *)uripath);
-    if(!spn) {
+    spn = curlx_convert_UTF8_to_tchar((மாறிலி எழுத்து *)uripath);
+    எனில்(!spn) {
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
       Curl_sspi_free_identity(p_identity);
       curlx_free(output_token);
 
-      return CURLE_OUT_OF_MEMORY;
+      திரும்பு CURLE_OUT_OF_MEMORY;
     }
 
     /* Allocate our new context handle */
-    digest->http_context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!digest->http_context) {
+    digest->http_context = curlx_calloc(1, அளவு(CtxtHandle));
+    எனில்(!digest->http_context) {
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
       curlx_free(spn);
       Curl_sspi_free_identity(p_identity);
       curlx_free(output_token);
-      return CURLE_OUT_OF_MEMORY;
+      திரும்பு CURLE_OUT_OF_MEMORY;
     }
 
     /* Generate our response message */
-    status = Curl_pSecFn->InitializeSecurityContext(&credentials, NULL,
+    status = Curl_pSecFn->InitializeSecurityContext(&credentials, வெற்று,
                                                     spn,
                                                     ISC_REQ_USE_HTTP_STYLE,
                                                     0, 0,
                                                     &chlg_desc, 0,
                                                     digest->http_context,
-                                                    &resp_desc, &attrs, NULL);
+                                                    &resp_desc, &attrs, வெற்று);
     curlx_free(spn);
 
-    if(status == SEC_I_COMPLETE_NEEDED ||
+    எனில்(status == SEC_I_COMPLETE_NEEDED ||
        status == SEC_I_COMPLETE_AND_CONTINUE)
       Curl_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
-    else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
-      VERBOSE(char buffer[STRERROR_LEN]);
+    இல்லையெனில் எனில்(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
+      VERBOSE(எழுத்து buffer[STRERROR_LEN]);
 
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
@@ -576,13 +576,13 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
 
       curlx_safefree(digest->http_context);
 
-      if(status == SEC_E_INSUFFICIENT_MEMORY)
-        return CURLE_OUT_OF_MEMORY;
+      எனில்(status == SEC_E_INSUFFICIENT_MEMORY)
+        திரும்பு CURLE_OUT_OF_MEMORY;
 
       infof(data, "schannel: InitializeSecurityContext failed: %s",
-            Curl_sspi_strerror(status, buffer, sizeof(buffer)));
+            Curl_sspi_strerror(status, buffer, அளவு(buffer)));
 
-      return CURLE_AUTH_ERROR;
+      திரும்பு CURLE_AUTH_ERROR;
     }
 
     output_token_len = resp_buf.cbBuffer;
@@ -591,16 +591,16 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     Curl_sspi_free_identity(p_identity);
   }
 
-  resp = curlx_memdup0((const char *)output_token, output_token_len);
+  resp = curlx_memdup0((மாறிலி எழுத்து *)output_token, output_token_len);
   curlx_free(output_token);
-  if(!resp) {
-    return CURLE_OUT_OF_MEMORY;
+  எனில்(!resp) {
+    திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
   /* Return the response */
   *outptr = resp;
   *outlen = output_token_len;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /*
@@ -613,16 +613,16 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
  * digest    [in/out] - The digest data struct being cleaned up.
  *
  */
-void Curl_auth_digest_cleanup(struct digestdata *digest)
+வெறுமை Curl_auth_digest_cleanup(கட்டமைப்பு digestdata *digest)
 {
   /* Free the input token */
-  curlx_safefree(digest->input_token);
+  curlx_safefree(digest->உள்ளீடு_token);
 
   /* Reset any variables */
-  digest->input_token_len = 0;
+  digest->உள்ளீடு_token_len = 0;
 
   /* Delete security context */
-  if(digest->http_context) {
+  எனில்(digest->http_context) {
     Curl_pSecFn->DeleteSecurityContext(digest->http_context);
     curlx_safefree(digest->http_context);
   }

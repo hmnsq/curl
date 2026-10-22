@@ -21,13 +21,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef __AMIGA__
 
-#include "vdns/hostip.h"
-#include "curl_addrinfo.h"
-#include "amigaos.h"
+#அந்தர்பாவ "vdns/hostip.h"
+#அந்தர்பாவ "curl_addrinfo.h"
+#அந்தர்பாவ "amigaos.h"
 
 #ifdef HAVE_PROTO_BSDSOCKET_H
 #  ifdef __amigaos4__
@@ -61,29 +61,29 @@
  * gethostbyname().
  */
 
-#include <proto/bsdsocket.h>
+#அந்தர்பாவ <proto/bsdsocket.h>
 
-static struct SocketIFace *__CurlISocket = NULL;
-static uint32 SocketFeatures = 0;
+நிலையான கட்டமைப்பு SocketIFace *__CurlISocket = வெற்று;
+நிலையான uint32 SocketFeatures = 0;
 
 #define HAVE_BSDSOCKET_GETHOSTBYNAME_R 0x01
 #define HAVE_BSDSOCKET_GETADDRINFO     0x02
 
-CURLcode Curl_amiga_init(void)
+CURLcode Curl_amiga_init(வெறுமை)
 {
-  struct SocketIFace *ISocket;
-  struct Library *base = OpenLibrary("bsdsocket.library", 4);
+  கட்டமைப்பு SocketIFace *ISocket;
+  கட்டமைப்பு Library *base = OpenLibrary("bsdsocket.library", 4);
 
-  if(base) {
-    ISocket = (struct SocketIFace *)GetInterface(base, "main", 1, NULL);
-    if(ISocket) {
+  எனில்(base) {
+    ISocket = (கட்டமைப்பு SocketIFace *)GetInterface(base, "main", 1, வெற்று);
+    எனில்(ISocket) {
       ULONG enabled = 0;
 
       SocketBaseTags(SBTM_SETVAL(SBTC_CAN_SHARE_LIBRARY_BASES), TRUE,
                      SBTM_GETREF(SBTC_HAVE_GETHOSTADDR_R_API), (ULONG)&enabled,
                      TAG_DONE);
 
-      if(enabled) {
+      எனில்(enabled) {
         SocketFeatures |= HAVE_BSDSOCKET_GETHOSTBYNAME_R;
       }
 
@@ -91,21 +91,21 @@ CURLcode Curl_amiga_init(void)
 
       atexit(Curl_amiga_cleanup);
 
-      return CURLE_OK;
+      திரும்பு CURLE_OK;
     }
     CloseLibrary(base);
   }
 
-  return CURLE_FAILED_INIT;
+  திரும்பு CURLE_FAILED_INIT;
 }
 
-void Curl_amiga_cleanup(void)
+வெறுமை Curl_amiga_cleanup(வெறுமை)
 {
-  if(__CurlISocket) {
-    struct Library *base = __CurlISocket->Data.LibBase;
-    DropInterface((struct Interface *)__CurlISocket);
+  எனில்(__CurlISocket) {
+    கட்டமைப்பு Library *base = __CurlISocket->Data.LibBase;
+    DropInterface((கட்டமைப்பு Interface *)__CurlISocket);
     CloseLibrary(base);
-    __CurlISocket = NULL;
+    __CurlISocket = வெற்று;
   }
 }
 
@@ -118,114 +118,114 @@ void Curl_amiga_cleanup(void)
  * allocates memory also.
  */
 
-struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname, uint16_t port)
+கட்டமைப்பு Curl_addrinfo *Curl_ipv4_resolve_r(மாறிலி எழுத்து *hostname, uint16_t port)
 {
-  struct Curl_addrinfo *ai = NULL;
-  struct hostent *h;
-  struct SocketIFace *ISocket = __CurlISocket;
+  கட்டமைப்பு Curl_addrinfo *ai = வெற்று;
+  கட்டமைப்பு hostent *h;
+  கட்டமைப்பு SocketIFace *ISocket = __CurlISocket;
 
-  if(SocketFeatures & HAVE_BSDSOCKET_GETHOSTBYNAME_R) {
+  எனில்(SocketFeatures & HAVE_BSDSOCKET_GETHOSTBYNAME_R) {
     LONG h_errnop = 0;
-    struct hostent *buf;
+    கட்டமைப்பு hostent *buf;
 
     buf = curlx_calloc(1, CURL_HOSTENT_SIZE);
-    if(buf) {
+    எனில்(buf) {
       h = gethostbyname_r((STRPTR)hostname, buf,
-                          (char *)buf + sizeof(struct hostent),
-                          CURL_HOSTENT_SIZE - sizeof(struct hostent),
+                          (எழுத்து *)buf + அளவு(கட்டமைப்பு hostent),
+                          CURL_HOSTENT_SIZE - அளவு(கட்டமைப்பு hostent),
                           &h_errnop);
-      if(h) {
+      எனில்(h) {
         ai = Curl_he2ai(h, port);
       }
       curlx_free(buf);
     }
   }
-  else {
+  இல்லையெனில் {
 #ifdef USE_RESOLV_THREADED
     /* gethostbyname() is not thread-safe, so we need to reopen bsdsocket
      * on the thread's context
      */
-    struct Library *base = OpenLibrary("bsdsocket.library", 4);
-    if(base) {
-      ISocket = (struct SocketIFace *)GetInterface(base, "main", 1, NULL);
-      if(ISocket) {
+    கட்டமைப்பு Library *base = OpenLibrary("bsdsocket.library", 4);
+    எனில்(base) {
+      ISocket = (கட்டமைப்பு SocketIFace *)GetInterface(base, "main", 1, வெற்று);
+      எனில்(ISocket) {
         h = gethostbyname((STRPTR)hostname);
-        if(h) {
+        எனில்(h) {
           ai = Curl_he2ai(h, port);
         }
-        DropInterface((struct Interface *)ISocket);
+        DropInterface((கட்டமைப்பு Interface *)ISocket);
       }
       CloseLibrary(base);
     }
-#else
+#இல்லையெனில்
     /* not using threaded resolver - safe to use this as-is */
     h = gethostbyname(hostname);
-    if(h) {
+    எனில்(h) {
       ai = Curl_he2ai(h, port);
     }
 #endif
   }
 
-  return ai;
+  திரும்பு ai;
 }
 #endif /* CURLRES_AMIGA */
 
 #ifdef USE_AMISSL
-#include <signal.h>
-int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
-                      fd_set *errorfds, struct timeval *timeout)
+#அந்தர்பாவ <signal.h>
+முழு Curl_amiga_select(முழு nfds, fd_set *readfds, fd_set *writefds,
+                      fd_set *errorfds, கட்டமைப்பு timeval *timeout)
 {
-  int r = WaitSelect(nfds, readfds, writefds, errorfds, timeout, 0);
+  முழு r = WaitSelect(nfds, readfds, writefds, errorfds, timeout, 0);
   /* Ensure Ctrl-C signal is actioned */
-  if((r == -1) && (SOCKERRNO == SOCKEINTR))
-    raise(SIGINT);
-  return r;
+  எனில்((r == -1) && (SOCKERRNO == SOCKEINTR))
+    எழுப்பு(SIGINT);
+  திரும்பு r;
 }
 #endif /* USE_AMISSL */
 
-#elif !defined(USE_AMISSL) /* __amigaos4__ */
+#அல்லதெனில் !defined(USE_AMISSL) /* __amigaos4__ */
 /*
  * Amiga OS3 specific code
  */
 
-struct Library *SocketBase = NULL;
+கட்டமைப்பு Library *SocketBase = வெற்று;
 
 #ifdef __libnix__
-void __request(const char *msg);
-#define CURL_AMIGA_REQUEST(msg)  __request(msg)
-#else
-#define CURL_AMIGA_REQUEST(msg)  Printf((const unsigned char *)(msg "\n\a"), 0)
+வெறுமை __request(மாறிலி எழுத்து *செய்தி);
+#define CURL_AMIGA_REQUEST(செய்தி)  __request(செய்தி)
+#இல்லையெனில்
+#define CURL_AMIGA_REQUEST(செய்தி)  Printf((மாறிலி unsigned எழுத்து *)(செய்தி "\n\a"), 0)
 #endif
 
-void Curl_amiga_cleanup(void)
+வெறுமை Curl_amiga_cleanup(வெறுமை)
 {
-  if(SocketBase) {
+  எனில்(SocketBase) {
     CloseLibrary(SocketBase);
-    SocketBase = NULL;
+    SocketBase = வெற்று;
   }
 }
 
-CURLcode Curl_amiga_init(void)
+CURLcode Curl_amiga_init(வெறுமை)
 {
-  if(!SocketBase)
-    SocketBase = OpenLibrary((const unsigned char *)"bsdsocket.library", 4);
+  எனில்(!SocketBase)
+    SocketBase = OpenLibrary((மாறிலி unsigned எழுத்து *)"bsdsocket.library", 4);
 
-  if(!SocketBase) {
+  எனில்(!SocketBase) {
     CURL_AMIGA_REQUEST("No TCP/IP Stack running!");
-    return CURLE_FAILED_INIT;
+    திரும்பு CURLE_FAILED_INIT;
   }
 
-  if(SocketBaseTags(SBTM_SETVAL(SBTC_ERRNOPTR(sizeof(errno))), (ULONG)&errno,
+  எனில்(SocketBaseTags(SBTM_SETVAL(SBTC_ERRNOPTR(அளவு(errno))), (ULONG)&errno,
                     SBTM_SETVAL(SBTC_LOGTAGPTR), (ULONG)"curl", TAG_DONE)) {
     CURL_AMIGA_REQUEST("SocketBaseTags ERROR");
-    return CURLE_FAILED_INIT;
+    திரும்பு CURLE_FAILED_INIT;
   }
 
 #ifndef __libnix__
   atexit(Curl_amiga_cleanup);
 #endif
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 #ifdef __libnix__

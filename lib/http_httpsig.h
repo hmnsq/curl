@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#எனில் !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
-#include "urldata.h"
+#அந்தர்பாவ "urldata.h"
 
-CURLcode Curl_output_httpsig(struct Curl_easy *data);
+CURLcode Curl_output_httpsig(கட்டமைப்பு Curl_easy *data);
 
 #endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
 #endif /* HEADER_CURL_HTTP_HTTPSIG_H */

@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "llist.h"
+#அந்தர்பாவ "llist.h"
 
-struct Cookie {
-  struct Curl_llist_node node;    /* for the main cookie list */
-  struct Curl_llist_node getnode; /* for getlist */
-  char *name;                     /* <this> = value */
-  char *value;                    /* name = <this> */
-  char *path;                     /* canonical path */
-  char *domain;                   /* domain = <this> */
+கட்டமைப்பு Cookie {
+  கட்டமைப்பு Curl_llist_முனை முனை;    /* for the main cookie list */
+  கட்டமைப்பு Curl_llist_முனை getnode; /* for getlist */
+  எழுத்து *name;                     /* <this> = value */
+  எழுத்து *மதிப்பு;                    /* name = <this> */
+  எழுத்து *path;                     /* canonical path */
+  எழுத்து *domain;                   /* domain = <this> */
   curl_off_t expires;             /* expires = <this> */
-  unsigned int creationtime;      /* time when the cookie was written */
+  unsigned முழு creationtime;      /* time when the cookie was written */
   BIT(tailmatch);                 /* tail-match the domain name */
   BIT(secure);                    /* the 'secure' keyword was used */
   BIT(livecookie);                /* updated from server, not a stored file */
@@ -53,12 +53,12 @@ struct Cookie {
 
 #define COOKIE_HASH_SIZE 63
 
-struct CookieInfo {
+கட்டமைப்பு CookieInfo {
   /* linked lists of cookies we know of */
-  struct Curl_llist cookielist[COOKIE_HASH_SIZE];
+  கட்டமைப்பு Curl_llist cookielist[COOKIE_HASH_SIZE];
   curl_off_t next_expiration; /* the next time at which expiration happens */
-  unsigned int numcookies;    /* number of cookies in the "jar" */
-  unsigned int lastct;        /* last creation-time used in the jar */
+  unsigned முழு numcookies;    /* number of cookies in the "jar" */
+  unsigned முழு lastct;        /* last creation-time used in the jar */
   BIT(running);               /* state info, for cookie adding information */
   BIT(newsession); /* new session, discard session cookies on load */
 };
@@ -78,7 +78,7 @@ struct CookieInfo {
 
 /* The longest we allow a line to be when reading a cookie from an HTTP header
    or from a cookie jar */
-#define MAX_COOKIE_LINE 5000
+#define MAX_COOKIE_வரி 5000
 
 /* Maximum length of an incoming cookie name or content we deal with. Longer
    cookies are ignored. */
@@ -101,10 +101,10 @@ struct CookieInfo {
    keep the maximum HTTP request within the maximum allowed size. */
 #define MAX_COOKIE_SEND_AMOUNT 150
 
-struct Curl_easy;
-struct connectdata;
+கட்டமைப்பு Curl_easy;
+கட்டமைப்பு connectdata;
 
-bool Curl_secure_context(struct Curl_easy *data, const char *host);
+bool Curl_secure_context(கட்டமைப்பு Curl_easy *data, மாறிலி எழுத்து *host);
 
 /*
  * Add a cookie to the internal list of cookies. The domain and path arguments
@@ -117,33 +117,33 @@ bool Curl_secure_context(struct Curl_easy *data, const char *host);
 #define COOKIE_NOPSL      (1<<3) /* skip PSL check */
 #define COOKIE_NOSESSION  (1<<6) /* drop session cookies */
 
-CURLcode Curl_cookie_add(struct Curl_easy *data,
-                         struct CookieInfo *ci,
-                         const char *lineptr,
-                         const char *domain,
-                         const char *path,
-                         const int flags) WARN_UNUSED_RESULT;
-CURLcode Curl_cookie_getlist(struct Curl_easy *data,
-                             bool *okay, const char *host,
-                             struct Curl_llist *list) WARN_UNUSED_RESULT;
-void Curl_cookie_clearall(struct CookieInfo *ci);
-void Curl_cookie_clearsess(struct CookieInfo *ci);
+CURLcode Curl_cookie_add(கட்டமைப்பு Curl_easy *data,
+                         கட்டமைப்பு CookieInfo *ci,
+                         மாறிலி எழுத்து *lineptr,
+                         மாறிலி எழுத்து *domain,
+                         மாறிலி எழுத்து *path,
+                         மாறிலி முழு flags) WARN_UNUSED_RESULT;
+CURLcode Curl_cookie_getlist(கட்டமைப்பு Curl_easy *data,
+                             bool *okay, மாறிலி எழுத்து *host,
+                             கட்டமைப்பு Curl_llist *list) WARN_UNUSED_RESULT;
+வெறுமை Curl_cookie_clearall(கட்டமைப்பு CookieInfo *ci);
+வெறுமை Curl_cookie_clearsess(கட்டமைப்பு CookieInfo *ci);
 
-#if defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
-#define Curl_cookie_list(x)      NULL
+#எனில் defined(CURL_DISABLE_HTTP) || defined(CURL_DISABLE_COOKIES)
+#define Curl_cookie_list(x)      வெற்று
 #define Curl_cookie_loadfiles(x, y) CURLE_OK
-#define Curl_cookie_init()       NULL
+#define Curl_cookie_init()       வெற்று
 #define Curl_cookie_run(x)       Curl_nop_stmt
 #define Curl_cookie_cleanup(x)   Curl_nop_stmt
 #define Curl_flush_cookies(x, y) Curl_nop_stmt
-#else
-void Curl_flush_cookies(struct Curl_easy *data, bool cleanup);
-void Curl_cookie_cleanup(struct CookieInfo *ci);
-struct CookieInfo *Curl_cookie_init(void);
-struct curl_slist *Curl_cookie_list(struct Curl_easy *data);
-CURLcode Curl_cookie_loadfiles(struct Curl_easy *data,
-                               int flags) WARN_UNUSED_RESULT;
-void Curl_cookie_run(struct Curl_easy *data);
+#இல்லையெனில்
+வெறுமை Curl_flush_cookies(கட்டமைப்பு Curl_easy *data, bool cleanup);
+வெறுமை Curl_cookie_cleanup(கட்டமைப்பு CookieInfo *ci);
+கட்டமைப்பு CookieInfo *Curl_cookie_init(வெறுமை);
+கட்டமைப்பு curl_slist *Curl_cookie_list(கட்டமைப்பு Curl_easy *data);
+CURLcode Curl_cookie_loadfiles(கட்டமைப்பு Curl_easy *data,
+                               முழு flags) WARN_UNUSED_RESULT;
+வெறுமை Curl_cookie_run(கட்டமைப்பு Curl_easy *data);
 #endif
 
 #endif /* HEADER_CURL_COOKIE_H */

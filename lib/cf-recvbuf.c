@@ -21,64 +21,64 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifndef CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "cf-recvbuf.h"
-#include "curl_trc.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "bufq.h"
+#அந்தர்பாவ "cfilters.h"
+#அந்தர்பாவ "cf-recvbuf.h"
+#அந்தர்பாவ "curl_trc.h"
 
 #define CURL_CF_RECVBUF_CHUNK     (16 * 1024)
 
-struct cf_recvbuf_ctx {
-  struct bufq recvbuf;
+கட்டமைப்பு cf_recvbuf_ctx {
+  கட்டமைப்பு bufq recvbuf;
 };
 
-static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+நிலையான வெறுமை cf_recvbuf_destroy(கட்டமைப்பு Curl_cfilter *cf,
+                               கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  கட்டமைப்பு cf_recvbuf_ctx *ctx = cf->ctx;
+  (வெறுமை)data;
+  எனில்(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+நிலையான CURLcode cf_recvbuf_recv(கட்டமைப்பு Curl_cfilter *cf,
+                                கட்டமைப்பு Curl_easy *data,
+                                எழுத்து *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  எனில்(!Curl_bufq_is_empty(&ctx->recvbuf)) {
+    திரும்பு Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  எனில்(cf->next)
+    திரும்பு cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  திரும்பு CURLE_RECV_ERROR;
 }
 
-static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+நிலையான bool cf_recvbuf_data_pending(கட்டமைப்பு Curl_cfilter *cf,
+                                    மாறிலி கட்டமைப்பு Curl_easy *data)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  கட்டமைப்பு cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  எனில்(!Curl_bufq_is_empty(&ctx->recvbuf))
+    திரும்பு TRUE;
 
-  return cf->next ?
+  திரும்பு cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-struct Curl_cftype Curl_cft_recvbuf = {
+கட்டமைப்பு Curl_cftype Curl_cft_recvbuf = {
   "RECVBUF",
   0,
   CURL_LOG_LVL_NONE,
@@ -95,63 +95,63 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  const uint8_t *buf, size_t blen)
+நிலையான CURLcode cf_recvbuf_create(கட்டமைப்பு Curl_cfilter **pcf,
+                                  கட்டமைப்பு Curl_easy *data,
+                                  மாறிலி uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_recvbuf_ctx *ctx;
+  கட்டமைப்பு Curl_cfilter *cf = வெற்று;
+  கட்டமைப்பு cf_recvbuf_ctx *ctx;
   CURLcode result = CURLE_OK;
   size_t nwritten = 0;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  (வெறுமை)data;
+  ctx = curlx_calloc(1, அளவு(*ctx));
+  எனில்(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    செல் out;
   }
   Curl_bufq_init2(&ctx->recvbuf, CURL_CF_RECVBUF_CHUNK,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
                   (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
   result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
-    goto out;
-  if(nwritten != blen) {
+  எனில்(result)
+    செல் out;
+  எனில்(nwritten != blen) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    செல் out;
   }
 
   result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  எனில்(result)
+    செல் out;
+  ctx = வெற்று;
 
 out:
-  *pcf = result ? NULL : cf;
-  if(ctx) {
+  *pcf = result ? வெற்று : cf;
+  எனில்(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  திரும்பு result;
 }
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_add(கட்டமைப்பு Curl_easy *data,
+                             கட்டமைப்பு connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen)
+                             மாறிலி uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf;
+  கட்டமைப்பு Curl_cfilter *cf;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
   result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
-    goto out;
+  எனில்(result)
+    செல் out;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
   Curl_conn_cf_add(data, conn, sockindex, cf);
 out:
-  return result;
+  திரும்பு result;
 }
 
 #endif /* !CURL_DISABLE_WEBSOCKETS */

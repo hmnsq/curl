@@ -21,179 +21,179 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "uint-table.h"
+#அந்தர்பாவ "uint-table.h"
 
 #ifdef DEBUGBUILD
 #define CURL_UINT32_TBL_MAGIC  0x62757473
 #endif
 
-void Curl_uint32_tbl_init(struct uint32_tbl *tbl)
+வெறுமை Curl_uint32_tbl_init(கட்டமைப்பு uint32_tbl *tbl)
 {
-  memset(tbl, 0, sizeof(*tbl));
-  tbl->last_key_added = UINT32_MAX;
+  memset(tbl, 0, அளவு(*tbl));
+  tbl->last_சாவி_added = UINT32_MAX;
 #ifdef DEBUGBUILD
   tbl->init = CURL_UINT32_TBL_MAGIC;
 #endif
 }
 
-static void uint32_tbl_clear_rows(struct uint32_tbl *tbl,
+நிலையான வெறுமை uint32_tbl_clear_rows(கட்டமைப்பு uint32_tbl *tbl,
                                   uint32_t from,
                                   uint32_t upto_excluding)
 {
   uint32_t i, end;
 
   end = CURLMIN(upto_excluding, tbl->nrows);
-  for(i = from; i < end; ++i) {
-    if(tbl->rows[i]) {
-      tbl->rows[i] = NULL;
+  க்கு(i = from; i < end; ++i) {
+    எனில்(tbl->rows[i]) {
+      tbl->rows[i] = வெற்று;
       tbl->nentries--;
     }
   }
 }
 
-CURLcode Curl_uint32_tbl_resize(struct uint32_tbl *tbl, uint32_t nrows)
+CURLcode Curl_uint32_tbl_resize(கட்டமைப்பு uint32_tbl *tbl, uint32_t nrows)
 {
   /* we use `tbl->nrows + 1` during iteration, want that to work */
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  if(!nrows)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(nrows != tbl->nrows) {
-    void **rows = curlx_calloc(nrows, sizeof(void *));
-    if(!rows)
-      return CURLE_OUT_OF_MEMORY;
-    if(tbl->rows) {
-      memcpy(rows, tbl->rows, (CURLMIN(nrows, tbl->nrows) * sizeof(void *)));
-      if(nrows < tbl->nrows)
+  எனில்(!nrows)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(nrows != tbl->nrows) {
+    வெறுமை **rows = curlx_calloc(nrows, அளவு(வெறுமை *));
+    எனில்(!rows)
+      திரும்பு CURLE_OUT_OF_MEMORY;
+    எனில்(tbl->rows) {
+      memcpy(rows, tbl->rows, (CURLMIN(nrows, tbl->nrows) * அளவு(வெறுமை *)));
+      எனில்(nrows < tbl->nrows)
         uint32_tbl_clear_rows(tbl, nrows, tbl->nrows);
       curlx_free(tbl->rows);
     }
     tbl->rows = rows;
     tbl->nrows = nrows;
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /* Clear the table, making it empty.
 
    @unittest 3212
  */
-UNITTEST void uint32_tbl_clear(struct uint32_tbl *tbl);
-UNITTEST void uint32_tbl_clear(struct uint32_tbl *tbl)
+UNITTEST வெறுமை uint32_tbl_clear(கட்டமைப்பு uint32_tbl *tbl);
+UNITTEST வெறுமை uint32_tbl_clear(கட்டமைப்பு uint32_tbl *tbl)
 {
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
   uint32_tbl_clear_rows(tbl, 0, tbl->nrows);
   DEBUGASSERT(!tbl->nentries);
-  tbl->last_key_added = UINT32_MAX;
+  tbl->last_சாவி_added = UINT32_MAX;
 }
 
-void Curl_uint32_tbl_destroy(struct uint32_tbl *tbl)
+வெறுமை Curl_uint32_tbl_destroy(கட்டமைப்பு uint32_tbl *tbl)
 {
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
   uint32_tbl_clear(tbl);
   curlx_free(tbl->rows);
-  memset(tbl, 0, sizeof(*tbl));
+  memset(tbl, 0, அளவு(*tbl));
 }
 
-uint32_t Curl_uint32_tbl_capacity(struct uint32_tbl *tbl)
+uint32_t Curl_uint32_tbl_capacity(கட்டமைப்பு uint32_tbl *tbl)
 {
-  return tbl->nrows;
+  திரும்பு tbl->nrows;
 }
 
-uint32_t Curl_uint32_tbl_count(struct uint32_tbl *tbl)
+uint32_t Curl_uint32_tbl_மொத்தம்(கட்டமைப்பு uint32_tbl *tbl)
 {
-  return tbl->nentries;
+  திரும்பு tbl->nentries;
 }
 
-void *Curl_uint32_tbl_get(struct uint32_tbl *tbl, uint32_t key)
+வெறுமை *Curl_uint32_tbl_get(கட்டமைப்பு uint32_tbl *tbl, uint32_t சாவி)
 {
-  return (key < tbl->nrows) ? tbl->rows[key] : NULL;
+  திரும்பு (சாவி < tbl->nrows) ? tbl->rows[சாவி] : வெற்று;
 }
 
-bool Curl_uint32_tbl_add(struct uint32_tbl *tbl, void *entry, uint32_t *pkey)
+bool Curl_uint32_tbl_add(கட்டமைப்பு uint32_tbl *tbl, வெறுமை *entry, uint32_t *pkey)
 {
-  uint32_t key, start_pos;
+  uint32_t சாவி, start_pos;
 
   DEBUGASSERT(tbl->init == CURL_UINT32_TBL_MAGIC);
-  if(!entry || !pkey)
-    return FALSE;
+  எனில்(!entry || !pkey)
+    திரும்பு FALSE;
   *pkey = UINT32_MAX;
-  if(tbl->nentries == tbl->nrows)  /* full */
-    return FALSE;
+  எனில்(tbl->nentries == tbl->nrows)  /* full */
+    திரும்பு FALSE;
 
-  start_pos = CURLMIN(tbl->last_key_added, tbl->nrows) + 1;
-  for(key = start_pos; key < tbl->nrows; ++key) {
-    if(!tbl->rows[key]) {
-      tbl->rows[key] = entry;
+  start_pos = CURLMIN(tbl->last_சாவி_added, tbl->nrows) + 1;
+  க்கு(சாவி = start_pos; சாவி < tbl->nrows; ++சாவி) {
+    எனில்(!tbl->rows[சாவி]) {
+      tbl->rows[சாவி] = entry;
       tbl->nentries++;
-      tbl->last_key_added = key;
-      *pkey = key;
-      return TRUE;
+      tbl->last_சாவி_added = சாவி;
+      *pkey = சாவி;
+      திரும்பு TRUE;
     }
   }
   /* no free entry at or above tbl->maybe_next_key, wrap around */
-  for(key = 0; key < start_pos; ++key) {
-    if(!tbl->rows[key]) {
-      tbl->rows[key] = entry;
+  க்கு(சாவி = 0; சாவி < start_pos; ++சாவி) {
+    எனில்(!tbl->rows[சாவி]) {
+      tbl->rows[சாவி] = entry;
       tbl->nentries++;
-      tbl->last_key_added = key;
-      *pkey = key;
-      return TRUE;
+      tbl->last_சாவி_added = சாவி;
+      *pkey = சாவி;
+      திரும்பு TRUE;
     }
   }
   /* Did not find any free row? Should not happen */
   DEBUGASSERT(0);
-  return FALSE;
+  திரும்பு FALSE;
 }
 
-void Curl_uint32_tbl_remove(struct uint32_tbl *tbl, uint32_t key)
+வெறுமை Curl_uint32_tbl_remove(கட்டமைப்பு uint32_tbl *tbl, uint32_t சாவி)
 {
-  if(key < tbl->nrows)
-    uint32_tbl_clear_rows(tbl, key, key + 1);
+  எனில்(சாவி < tbl->nrows)
+    uint32_tbl_clear_rows(tbl, சாவி, சாவி + 1);
 }
 
-bool Curl_uint32_tbl_contains(struct uint32_tbl *tbl, uint32_t key)
+bool Curl_uint32_tbl_contains(கட்டமைப்பு uint32_tbl *tbl, uint32_t சாவி)
 {
-  return (key < tbl->nrows) ? !!tbl->rows[key] : FALSE;
+  திரும்பு (சாவி < tbl->nrows) ? !!tbl->rows[சாவி] : FALSE;
 }
 
-static bool uint32_tbl_next_at(struct uint32_tbl *tbl, uint32_t key,
-                               uint32_t *pkey, void **pentry)
+நிலையான bool uint32_tbl_next_at(கட்டமைப்பு uint32_tbl *tbl, uint32_t சாவி,
+                               uint32_t *pkey, வெறுமை **pentry)
 {
-  for(; key < tbl->nrows; ++key) {
-    if(tbl->rows[key]) {
-      *pkey = key;
-      *pentry = tbl->rows[key];
-      return TRUE;
+  க்கு(; சாவி < tbl->nrows; ++சாவி) {
+    எனில்(tbl->rows[சாவி]) {
+      *pkey = சாவி;
+      *pentry = tbl->rows[சாவி];
+      திரும்பு TRUE;
     }
   }
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = வெற்று;
+  திரும்பு FALSE;
 }
 
-bool Curl_uint32_tbl_first(struct uint32_tbl *tbl,
-                           uint32_t *pkey, void **pentry)
+bool Curl_uint32_tbl_first(கட்டமைப்பு uint32_tbl *tbl,
+                           uint32_t *pkey, வெறுமை **pentry)
 {
-  if(!pkey || !pentry)
-    return FALSE;
-  if(tbl->nentries && uint32_tbl_next_at(tbl, 0, pkey, pentry))
-    return TRUE;
+  எனில்(!pkey || !pentry)
+    திரும்பு FALSE;
+  எனில்(tbl->nentries && uint32_tbl_next_at(tbl, 0, pkey, pentry))
+    திரும்பு TRUE;
   DEBUGASSERT(!tbl->nentries);
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = வெற்று;
+  திரும்பு FALSE;
 }
 
-bool Curl_uint32_tbl_next(struct uint32_tbl *tbl, uint32_t last_key,
-                          uint32_t *pkey, void **pentry)
+bool Curl_uint32_tbl_next(கட்டமைப்பு uint32_tbl *tbl, uint32_t last_சாவி,
+                          uint32_t *pkey, வெறுமை **pentry)
 {
-  if(!pkey || !pentry)
-    return FALSE;
-  if(uint32_tbl_next_at(tbl, last_key + 1, pkey, pentry))
-    return TRUE;
+  எனில்(!pkey || !pentry)
+    திரும்பு FALSE;
+  எனில்(uint32_tbl_next_at(tbl, last_சாவி + 1, pkey, pentry))
+    திரும்பு TRUE;
   *pkey = UINT32_MAX;  /* always invalid */
-  *pentry = NULL;
-  return FALSE;
+  *pentry = வெற்று;
+  திரும்பு FALSE;
 }

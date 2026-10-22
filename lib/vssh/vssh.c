@@ -21,23 +21,23 @@
  * SPDX-License-Identifier: curl AND ISC
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "vssh/ssh.h"
+#அந்தர்பாவ "curl_setup.h"
+#அந்தர்பாவ "vssh/ssh.h"
 
 #ifdef USE_SSH
 
-#include "vssh/vssh.h"
-#include "curlx/strparse.h"
-#include "curl_trc.h"
-#include "escape.h"
-#include "select.h"  /* for Curl_pollset_change() */
-#include "url.h"  /* for Curl_conn_meta_get() */
-#include "curlx/win32-fopen.h"
+#அந்தர்பாவ "vssh/vssh.h"
+#அந்தர்பாவ "curlx/strparse.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "escape.h"
+#அந்தர்பாவ "select.h"  /* for Curl_pollset_change() */
+#அந்தர்பாவ "url.h"  /* for Curl_conn_meta_get() */
+#அந்தர்பாவ "curlx/win32-fopen.h"
 
 #ifdef CURLVERBOSE
-const char *Curl_ssh_statename(sshstate state)
+மாறிலி எழுத்து *Curl_ssh_statename(sshstate state)
 {
-  static const char * const names[] = {
+  நிலையான மாறிலி எழுத்து * மாறிலி names[] = {
     "SSH_STOP",
     "SSH_INIT",
     "SSH_S_STARTUP",
@@ -101,7 +101,7 @@ const char *Curl_ssh_statename(sshstate state)
   };
   /* a precaution to make sure the lists are in sync */
   DEBUGASSERT(CURL_ARRAYSIZE(names) == SSH_LAST);
-  return ((size_t)state < CURL_ARRAYSIZE(names)) ? names[state] : "";
+  திரும்பு ((size_t)state < CURL_ARRAYSIZE(names)) ? names[state] : "";
 }
 #endif /* CURLVERBOSE */
 
@@ -109,18 +109,18 @@ const char *Curl_ssh_statename(sshstate state)
  * SSH State machine related code
  */
 /* This is the ONLY way to change SSH state! */
-void Curl_ssh_set_state(struct Curl_easy *data,
-                        struct ssh_conn *sshc,
+வெறுமை Curl_ssh_set_state(கட்டமைப்பு Curl_easy *data,
+                        கட்டமைப்பு ssh_conn *sshc,
                         sshstate nowstate)
 {
 #ifdef CURLVERBOSE
-  if(sshc->state != nowstate) {
+  எனில்(sshc->state != nowstate) {
     CURL_TRC_SSH(data, "[%s] -> [%s]",
                  Curl_ssh_statename(sshc->state),
                  Curl_ssh_statename(nowstate));
   }
-#else
-  (void)data;
+#இல்லையெனில்
+  (வெறுமை)data;
 #endif
   sshc->state = nowstate;
 }
@@ -128,89 +128,89 @@ void Curl_ssh_set_state(struct Curl_easy *data,
 #define MAX_SSHPATH_LEN 100000 /* arbitrary */
 
 /* figure out the path to work with in this particular request */
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir, /* when SFTP is used */
-                             char **path) /* returns the  allocated
+CURLcode Curl_getworkingpath(கட்டமைப்பு Curl_easy *data,
+                             மாறிலி எழுத்து *homedir, /* when SFTP is used */
+                             எழுத்து **path) /* returns the  allocated
                                              real path to work with */
 {
-  char *working_path;
+  எழுத்து *working_path;
   size_t working_path_len;
-  struct dynbuf npath;
+  கட்டமைப்பு dynbuf npath;
   CURLcode result =
     Curl_urldecode(data->state.up.path, 0, &working_path,
                    &working_path_len, REJECT_ZERO);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
   /* new path to switch to in case we need to */
   curlx_dyn_init(&npath, MAX_SSHPATH_LEN);
 
   /* Check for /~/, indicating relative to the user's home directory */
-  if((data->conn->scheme->protocol & CURLPROTO_SCP) &&
+  எனில்((data->conn->scheme->protocol & CURLPROTO_SCP) &&
      (working_path_len > 3) && (!memcmp(working_path, "/~/", 3))) {
     /* It is referenced to the home directory, so strip the leading '/~/' */
-    if(curlx_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
+    எனில்(curlx_dyn_addn(&npath, &working_path[3], working_path_len - 3)) {
       curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+      திரும்பு CURLE_OUT_OF_MEMORY;
     }
   }
-  else if((data->conn->scheme->protocol & CURLPROTO_SFTP) &&
+  இல்லையெனில் எனில்((data->conn->scheme->protocol & CURLPROTO_SFTP) &&
           (!strcmp("/~", working_path) ||
            ((working_path_len > 2) && !memcmp(working_path, "/~/", 3)))) {
-    if(curlx_dyn_add(&npath, homedir)) {
+    எனில்(curlx_dyn_add(&npath, homedir)) {
       curlx_free(working_path);
-      return CURLE_OUT_OF_MEMORY;
+      திரும்பு CURLE_OUT_OF_MEMORY;
     }
-    if(working_path_len > 2) {
+    எனில்(working_path_len > 2) {
       size_t len;
-      const char *p;
-      int copyfrom = 3;
+      மாறிலி எழுத்து *p;
+      முழு copyfrom = 3;
       /* Copy a separating '/' if homedir does not end with one */
       len = curlx_dyn_len(&npath);
       p = curlx_dyn_ptr(&npath);
-      if(len && (p[len - 1] != '/'))
+      எனில்(len && (p[len - 1] != '/'))
         copyfrom = 2;
 
-      if(curlx_dyn_addn(&npath, &working_path[copyfrom],
+      எனில்(curlx_dyn_addn(&npath, &working_path[copyfrom],
                         working_path_len - copyfrom)) {
         curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+        திரும்பு CURLE_OUT_OF_MEMORY;
       }
     }
-    else {
-      if(curlx_dyn_add(&npath, "/")) {
+    இல்லையெனில் {
+      எனில்(curlx_dyn_add(&npath, "/")) {
         curlx_free(working_path);
-        return CURLE_OUT_OF_MEMORY;
+        திரும்பு CURLE_OUT_OF_MEMORY;
       }
     }
   }
 
-  if(curlx_dyn_len(&npath)) {
+  எனில்(curlx_dyn_len(&npath)) {
     curlx_free(working_path);
 
     /* store the pointer for the caller to receive */
     *path = curlx_dyn_ptr(&npath);
   }
-  else
+  இல்லையெனில்
     *path = working_path;
   DEBUGASSERT(*path && (*path)[0]);
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 #define MAX_PATHLENGTH 65535 /* arbitrary long */
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
+CURLcode Curl_get_pathname(மாறிலி எழுத்து **cpp, எழுத்து **path, மாறிலி எழுத்து *homedir)
 {
-  const char *cp = *cpp;
-  struct dynbuf out;
+  மாறிலி எழுத்து *cp = *cpp;
+  கட்டமைப்பு dynbuf out;
   CURLcode result;
 
   DEBUGASSERT(homedir);
-  *path = NULL;
-  *cpp = NULL;
-  if(!*cp || !homedir)
-    return CURLE_QUOTE_ERROR;
+  *path = வெற்று;
+  *cpp = வெற்று;
+  எனில்(!*cp || !homedir)
+    திரும்பு CURLE_QUOTE_ERROR;
 
   curlx_dyn_init(&out, MAX_PATHLENGTH);
 
@@ -218,59 +218,59 @@ CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
   curlx_str_passblanks(&cp);
 
   /* Check for quoted filenames */
-  if(*cp == '\"' || *cp == '\'') {
-    char quot = *cp++;
+  எனில்(*cp == '\"' || *cp == '\'') {
+    எழுத்து quot = *cp++;
 
     /* Search for terminating quote, unescape some chars */
-    while(*cp != quot) {
-      if(!*cp) /* End of string */
-        goto fail;
+    போது(*cp != quot) {
+      எனில்(!*cp) /* End of string */
+        செல் fail;
 
-      if(*cp == '\\') { /* Escaped characters */
+      எனில்(*cp == '\\') { /* Escaped characters */
         cp++;
-        if(*cp != '\'' && *cp != '\"' && *cp != '\\')
-          goto fail;
+        எனில்(*cp != '\'' && *cp != '\"' && *cp != '\\')
+          செல் fail;
       }
       result = curlx_dyn_addn(&out, cp, 1);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
       cp++;
     }
     cp++; /* pass the end quote */
 
-    if(!curlx_dyn_len(&out))
-      goto fail;
+    எனில்(!curlx_dyn_len(&out))
+      செல் fail;
   }
-  else {
-    struct Curl_str word;
+  இல்லையெனில் {
+    கட்டமைப்பு Curl_str word;
     bool content = FALSE;
-    int rc;
+    முழு rc;
     /* Handling for relative path - prepend home directory */
-    if(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
+    எனில்(cp[0] == '/' && cp[1] == '~' && cp[2] == '/') {
       result = curlx_dyn_add(&out, homedir);
-      if(!result)
+      எனில்(!result)
         result = curlx_dyn_addn(&out, "/", 1);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
       cp += 3;
       content = TRUE;
     }
     /* Read to end of filename - either to whitespace or terminator */
     rc = curlx_str_word(&cp, &word, MAX_PATHLENGTH);
-    if(rc) {
-      if(rc == STRE_BIG) {
+    எனில்(rc) {
+      எனில்(rc == STRE_BIG) {
         curlx_dyn_free(&out);
-        return CURLE_TOO_LARGE;
+        திரும்பு CURLE_TOO_LARGE;
       }
-      else if(!content)
+      இல்லையெனில் எனில்(!content)
         /* no path, no word, this is incorrect */
-        goto fail;
+        செல் fail;
     }
-    else {
+    இல்லையெனில் {
       /* append the word */
       result = curlx_dyn_addn(&out, curlx_str(&word), curlx_strlen(&word));
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
     }
   }
   /* skip whitespace */
@@ -280,136 +280,136 @@ CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir)
   *cpp = cp;
 
   *path = curlx_dyn_ptr(&out);
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 
 fail:
   curlx_dyn_free(&out);
-  return CURLE_QUOTE_ERROR;
+  திரும்பு CURLE_QUOTE_ERROR;
 }
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(கட்டமைப்பு Curl_easy *data,
+                        மாறிலி எழுத்து *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep)
 {
   curl_off_t from, to;
-  int to_t;
-  int from_t = curlx_str_number(&range, &from, CURL_OFF_T_MAX);
-  if(from_t == STRE_OVERFLOW)
-    return CURLE_RANGE_ERROR;
+  முழு to_t;
+  முழு from_t = curlx_str_எண்(&range, &from, CURL_OFF_T_MAX);
+  எனில்(from_t == STRE_OVERFLOW)
+    திரும்பு CURLE_RANGE_ERROR;
   curlx_str_passblanks(&range);
-  (void)curlx_str_single(&range, '-');
+  (வெறுமை)curlx_str_single(&range, '-');
 
   to_t = curlx_str_numblanks(&range, &to);
-  if((to_t == STRE_OVERFLOW) || (to_t && from_t) || *range)
-    return CURLE_RANGE_ERROR;
+  எனில்((to_t == STRE_OVERFLOW) || (to_t && from_t) || *range)
+    திரும்பு CURLE_RANGE_ERROR;
 
-  if(from_t) {
+  எனில்(from_t) {
     /* no start point given, set from relative to end of file */
-    if(!to)
+    எனில்(!to)
       /* "-0" is not a fine range */
-      return CURLE_RANGE_ERROR;
-    else if(to > filesize)
+      திரும்பு CURLE_RANGE_ERROR;
+    இல்லையெனில் எனில்(to > filesize)
       to = filesize;
     from = filesize - to;
     to = filesize - 1;
   }
-  else if(from > filesize) {
+  இல்லையெனில் எனில்(from > filesize) {
     failf(data, "Offset (%" FMT_OFF_T ") was beyond file size (%"
           FMT_OFF_T ")", from, filesize);
-    return CURLE_RANGE_ERROR;
+    திரும்பு CURLE_RANGE_ERROR;
   }
-  else if((to_t == STRE_NO_NUM) || (to >= filesize))
+  இல்லையெனில் எனில்((to_t == STRE_NO_இலக்கம்) || (to >= filesize))
     to = filesize - 1;
 
-  if(from > to) {
+  எனில்(from > to) {
     failf(data, "Bad range: start offset larger than end offset");
-    return CURLE_RANGE_ERROR;
+    திரும்பு CURLE_RANGE_ERROR;
   }
-  if((to - from) == CURL_OFF_T_MAX)
-    return CURLE_RANGE_ERROR;
+  எனில்((to - from) == CURL_OFF_T_MAX)
+    திரும்பு CURLE_RANGE_ERROR;
 
   *startp = from;
   *sizep = to - from + 1;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /* called by the multi interface to figure out what socket(s) to wait for and
    for what actions in the DO_DONE, PERFORM and WAITPERFORM states */
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps)
+CURLcode Curl_ssh_pollset(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
-  struct ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
+  கட்டமைப்பு connectdata *conn = data->conn;
+  கட்டமைப்பு ssh_conn *sshc = Curl_conn_meta_get(conn, CURL_META_SSH_CONN);
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int waitfor;
+  முழு waitfor;
 
-  if(!sshc || (sock == CURL_SOCKET_BAD))
-    return CURLE_FAILED_INIT;
+  எனில்(!sshc || (sock == CURL_SOCKET_BAD))
+    திரும்பு CURLE_FAILED_INIT;
 
   waitfor = sshc->waitfor ? sshc->waitfor : data->req.io_flags;
-  if(waitfor) {
-    int flags = 0;
-    if(waitfor & REQ_IO_RECV)
+  எனில்(waitfor) {
+    முழு flags = 0;
+    எனில்(waitfor & REQ_IO_RECV)
       flags |= CURL_POLL_IN;
-    if(waitfor & REQ_IO_SEND)
+    எனில்(waitfor & REQ_IO_SEND)
       flags |= CURL_POLL_OUT;
     DEBUGASSERT(flags);
-    CURL_TRC_SSH(data, "pollset, flags=%x", (unsigned int)flags);
-    return Curl_pollset_change(data, ps, sock, flags, 0);
+    CURL_TRC_SSH(data, "pollset, flags=%x", (unsigned முழு)flags);
+    திரும்பு Curl_pollset_change(data, ps, sock, flags, 0);
   }
   /* While we still have a session, we listen incoming data. */
-  if(sshc->ssh_session)
-    return Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0);
-  return CURLE_OK;
+  எனில்(sshc->ssh_session)
+    திரும்பு Curl_pollset_change(data, ps, sock, CURL_POLL_IN, 0);
+  திரும்பு CURLE_OK;
 }
 
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
+CURLcode Curl_ssh_setup_pkey(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு ssh_conn *sshc)
 {
-  char *home = NULL;
-  if(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
-    const char *str;
+  எழுத்து *home = வெற்று;
+  எனில்(data->set.ssh_auth_types & CURLSSH_AUTH_PUBLICKEY) {
+    மாறிலி எழுத்து *str;
 
-    sshc->pub_key = sshc->priv_key = NULL;
+    sshc->pub_சாவி = sshc->priv_சாவி = வெற்று;
 
-    if(CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY)) {
-      sshc->priv_key = curlx_strdup(
-        CURL_EASY_STR(data, STRING_SSH_PRIVATE_KEY));
-      if(!sshc->priv_key)
-        goto fail;
+    எனில்(CURL_EASY_STR(data, STRING_SSH_PRIVATE_சாவி)) {
+      sshc->priv_சாவி = curlx_strdup(
+        CURL_EASY_STR(data, STRING_SSH_PRIVATE_சாவி));
+      எனில்(!sshc->priv_சாவி)
+        செல் fail;
     }
-    else {
+    இல்லையெனில் {
       /* To ponder about: should really the lib be messing about with the HOME
          environment variable etc? */
       curlx_struct_stat sbuf;
       home = curl_getenv("HOME");
 
       /* If no private key file is specified, try some common paths. */
-      if(home) {
+      எனில்(home) {
         /* Try ~/.ssh first. */
-        sshc->priv_key = curl_maprintf("%s/.ssh/id_rsa", home);
-        if(!sshc->priv_key)
-          goto fail;
-        else if(curlx_stat(sshc->priv_key, &sbuf)) {
-          curlx_free(sshc->priv_key);
-          sshc->priv_key = curl_maprintf("%s/.ssh/id_dsa", home);
-          if(!sshc->priv_key)
-            goto fail;
-          else if(curlx_stat(sshc->priv_key, &sbuf)) {
-            curlx_safefree(sshc->priv_key);
+        sshc->priv_சாவி = curl_maprintf("%s/.ssh/id_rsa", home);
+        எனில்(!sshc->priv_சாவி)
+          செல் fail;
+        இல்லையெனில் எனில்(curlx_stat(sshc->priv_சாவி, &sbuf)) {
+          curlx_free(sshc->priv_சாவி);
+          sshc->priv_சாவி = curl_maprintf("%s/.ssh/id_dsa", home);
+          எனில்(!sshc->priv_சாவி)
+            செல் fail;
+          இல்லையெனில் எனில்(curlx_stat(sshc->priv_சாவி, &sbuf)) {
+            curlx_safefree(sshc->priv_சாவி);
           }
         }
         curlx_safefree(home);
       }
-      if(!sshc->priv_key) {
+      எனில்(!sshc->priv_சாவி) {
         /* Nothing found; try the current dir. */
-        sshc->priv_key = curlx_strdup("id_rsa");
-        if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
-          curlx_free(sshc->priv_key);
-          sshc->priv_key = curlx_strdup("id_dsa");
-          if(sshc->priv_key && curlx_stat(sshc->priv_key, &sbuf)) {
-            curlx_free(sshc->priv_key);
+        sshc->priv_சாவி = curlx_strdup("id_rsa");
+        எனில்(sshc->priv_சாவி && curlx_stat(sshc->priv_சாவி, &sbuf)) {
+          curlx_free(sshc->priv_சாவி);
+          sshc->priv_சாவி = curlx_strdup("id_dsa");
+          எனில்(sshc->priv_சாவி && curlx_stat(sshc->priv_சாவி, &sbuf)) {
+            curlx_free(sshc->priv_சாவி);
             /* Out of guesses. Set to the empty string to avoid
              * surprising info messages. */
-            sshc->priv_key = curlx_strdup("");
+            sshc->priv_சாவி = curlx_strdup("");
           }
         }
       }
@@ -420,36 +420,36 @@ CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc)
      * library extract the public key from the private key file. This is done
      * by passing sshc->pub_key = NULL.
      */
-    str = CURL_EASY_STR(data, STRING_SSH_PUBLIC_KEY);
-    if(str && *str) {  /* treat empty string the same way as NULL */
-      sshc->pub_key = curlx_strdup(str);
-      if(!sshc->pub_key)
-        goto fail;
+    str = CURL_EASY_STR(data, STRING_SSH_PUBLIC_சாவி);
+    எனில்(str && *str) {  /* treat empty string the same way as NULL */
+      sshc->pub_சாவி = curlx_strdup(str);
+      எனில்(!sshc->pub_சாவி)
+        செல் fail;
     }
 
     {
-      const char *keypasswd = CURL_EASY_STR(data, STRING_KEY_PASSWD);
-      if(keypasswd) {
+      மாறிலி எழுத்து *keypasswd = CURL_EASY_STR(data, STRING_சாவி_PASSWD);
+      எனில்(keypasswd) {
         sshc->passphrase = curlx_strdup(keypasswd);
-        if(!sshc->passphrase)
-          goto fail;
+        எனில்(!sshc->passphrase)
+          செல் fail;
       }
     }
 
-    if(sshc->pub_key)
-      infof(data, "SSH: public key file '%s'", sshc->pub_key);
-    if(sshc->priv_key)
-      infof(data, "SSH: private key file '%s'", sshc->priv_key);
-    else
+    எனில்(sshc->pub_சாவி)
+      infof(data, "SSH: public key file '%s'", sshc->pub_சாவி);
+    எனில்(sshc->priv_சாவி)
+      infof(data, "SSH: private key file '%s'", sshc->priv_சாவி);
+    இல்லையெனில்
       infof(data, "SSH: public key auth without private key set!");
   }
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 
 fail:
   curlx_safefree(home);
-  curlx_safefree(sshc->priv_key);
-  curlx_safefree(sshc->pub_key);
-  return CURLE_OUT_OF_MEMORY;
+  curlx_safefree(sshc->priv_சாவி);
+  curlx_safefree(sshc->pub_சாவி);
+  திரும்பு CURLE_OUT_OF_MEMORY;
 }
 
 #endif /* USE_SSH */

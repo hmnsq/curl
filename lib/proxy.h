@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifndef CURL_DISABLE_PROXY
 
-struct Curl_easy;
-struct Curl_peer;
-struct Curl_creds;
-struct connectdata;
+கட்டமைப்பு Curl_easy;
+கட்டமைப்பு Curl_peer;
+கட்டமைப்பு Curl_creds;
+கட்டமைப்பு connectdata;
 
-struct proxy_info {
-  struct Curl_peer *peer; /* proxy to this peer */
-  struct Curl_creds *creds; /* use these credentials, maybe NULL */
+கட்டமைப்பு proxy_info {
+  கட்டமைப்பு Curl_peer *peer; /* proxy to this peer */
+  கட்டமைப்பு Curl_creds *creds; /* use these credentials, maybe NULL */
   uint8_t proxytype; /* what kind of proxy that is in use */
 };
 
@@ -51,8 +51,8 @@ struct proxy_info {
   (CURL_PROXY_IS_HTTP(t) ||       \
    CURL_PROXY_IS_HTTPS(t))
 
-CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
-                              struct connectdata *conn);
+CURLcode Curl_proxy_init_conn(கட்டமைப்பு Curl_easy *data,
+                              கட்டமைப்பு connectdata *conn);
 
 #endif /* !CURL_DISABLE_PROXY */
 

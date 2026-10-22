@@ -23,36 +23,36 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef USE_APPLE_SECTRUST
-struct Curl_cfilter;
-struct Curl_easy;
-struct ssl_peer;
+கட்டமைப்பு Curl_cfilter;
+கட்டமைப்பு Curl_easy;
+கட்டமைப்பு ssl_peer;
 
 /* Get the DER encoded i-th certificate in the server handshake */
-typedef CURLcode Curl_vtls_get_cert_der(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data,
+வகைவரை CURLcode Curl_vtls_get_cert_der(கட்டமைப்பு Curl_cfilter *cf,
+                                        கட்டமைப்பு Curl_easy *data,
+                                        வெறுமை *user_data,
                                         size_t i,
-                                        unsigned char **pder,
+                                        unsigned எழுத்து **pder,
                                         size_t *pder_len);
 
 /* Ask Apple's Security framework to verify the certificate chain
  * send by the peer. On CURLE_OK it has been verified.
  */
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
-                                size_t num_certs,
+CURLcode Curl_vtls_apple_verify(கட்டமைப்பு Curl_cfilter *cf,
+                                கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு ssl_peer *peer,
+                                size_t இலக்கம்_certs,
                                 Curl_vtls_get_cert_der *der_cb,
-                                void *cb_user_data,
-                                const unsigned char *ocsp_buf,
+                                வெறுமை *cb_user_data,
+                                மாறிலி unsigned எழுத்து *ocsp_buf,
                                 size_t ocsp_len,
                                 bool require_ocsp);
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+bool Curl_vtls_apple_verifies_ocsp(கட்டமைப்பு Curl_cfilter *cf,
+                                   கட்டமைப்பு Curl_easy *data);
 
 #endif /* USE_APPLE_SECTRUST */
 

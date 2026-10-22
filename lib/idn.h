@@ -24,22 +24,22 @@
  *
  ***************************************************************************/
 
-struct Curl_str;
-struct hostname;
+கட்டமைப்பு Curl_str;
+கட்டமைப்பு hostname;
 
-bool Curl_is_ASCII_name(const char *hostname);
-bool Curl_is_ASCII_str(struct Curl_str *s);
+bool Curl_is_ASCII_name(மாறிலி எழுத்து *hostname);
+bool Curl_is_ASCII_str(கட்டமைப்பு Curl_str *s);
 
-CURLcode Curl_idnconvert_hostname(struct hostname *host);
+CURLcode Curl_idnconvert_hostname(கட்டமைப்பு hostname *host);
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#எனில் defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
 #define USE_IDN
-void Curl_free_idnconverted_hostname(struct hostname *host);
-CURLcode Curl_idn_decode(const char *input, char **output);
-CURLcode Curl_idn_encode(const char *puny, char **output);
-#else
+வெறுமை Curl_free_idnconverted_hostname(கட்டமைப்பு hostname *host);
+CURLcode Curl_idn_decode(மாறிலி எழுத்து *உள்ளீடு, எழுத்து **output);
+CURLcode Curl_idn_encode(மாறிலி எழுத்து *puny, எழுத்து **output);
+#இல்லையெனில்
 #define Curl_free_idnconverted_hostname(x)
-#define Curl_idn_decode(x) NULL
+#define Curl_idn_decode(x) வெற்று
 #endif
 
 #endif /* HEADER_CURL_IDN_H */

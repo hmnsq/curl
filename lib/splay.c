@@ -21,74 +21,74 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#include "urldata.h"
-#include "splay.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "splay.h"
 
-static struct Curl_tree *splay(timediff_t key,
-                               struct Curl_tree *root);
+நிலையான கட்டமைப்பு Curl_மரம் *splay(timediff_t சாவி,
+                               கட்டமைப்பு Curl_மரம் *வேர்);
 
 #ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node)
+uint32_t Curl_splayget(கட்டமைப்பு Curl_மரம் *முனை)
 {
-  DEBUGASSERT(node);
-  return node->id;
+  DEBUGASSERT(முனை);
+  திரும்பு முனை->id;
 }
 
 #endif
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base)
+வெறுமை Curl_timeouts_init(கட்டமைப்பு Curl_timeouts *timeouts,
+                        மாறிலி கட்டமைப்பு curltime *ptime_base)
 {
-  struct curltime time_base = ptime_base ? *ptime_base : curlx_now();
-  timeouts->tree = NULL;
+  கட்டமைப்பு curltime time_base = ptime_base ? *ptime_base : curlx_now();
+  timeouts->மரம் = வெற்று;
   timeouts->time_base_sec = time_base.tv_sec;
 }
 
-bool Curl_timeouts_has(struct Curl_easy *data)
+bool Curl_timeouts_has(கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_tree *node = data ? &data->state.timeouts.splaynode : NULL;
-  return node && node->registered;
+  கட்டமைப்பு Curl_மரம் *முனை = data ? &data->state.timeouts.splaynode : வெற்று;
+  திரும்பு முனை && முனை->registered;
 }
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts)
+timediff_t Curl_timeouts_offset_us(கட்டமைப்பு Curl_timeouts *timeouts,
+                                   மாறிலி கட்டமைப்பு curltime *pts)
 {
-  struct curltime time_base;
+  கட்டமைப்பு curltime time_base;
   time_base.tv_sec = timeouts->time_base_sec;
   time_base.tv_usec = 0;
-  return curlx_ptimediff_us(pts, &time_base);
+  திரும்பு curlx_ptimediff_us(pts, &time_base);
 }
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
+முழு Curl_timeouts_next_ms(கட்டமைப்பு Curl_timeouts *timeouts,
+                          மாறிலி கட்டமைப்பு curltime *pnow,
                           timediff_t *pexpire_offset_us,
                           uint32_t *pmid)
 {
-  if(timeouts->tree) { /* splay the lowest key to the root */
-    timeouts->tree = splay(TIMEDIFF_T_MIN, timeouts->tree);
+  எனில்(timeouts->மரம்) { /* splay the lowest key to the root */
+    timeouts->மரம் = splay(TIMEDIFF_T_MIN, timeouts->மரம்);
   }
 
-  if(timeouts->tree) {
+  எனில்(timeouts->மரம்) {
     timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, pnow);
-    timediff_t delta_us = timeouts->tree->key - elapsed_us;
-    if(pmid)
-      *pmid = timeouts->tree->id;
-    if(pexpire_offset_us)
-      *pexpire_offset_us = timeouts->tree->key;
-    if(delta_us > 0) { /* expires in the future */
+    timediff_t delta_us = timeouts->மரம்->சாவி - elapsed_us;
+    எனில்(pmid)
+      *pmid = timeouts->மரம்->id;
+    எனில்(pexpire_offset_us)
+      *pexpire_offset_us = timeouts->மரம்->சாவி;
+    எனில்(delta_us > 0) { /* expires in the future */
       timediff_t ms = curlx_us_to_ceil_ms(delta_us);
-      return (ms > INT_MAX) ? INT_MAX : (int)ms;
+      திரும்பு (ms > INT_MAX) ? INT_MAX : (முழு)ms;
     }
-    else /* has expired */
-      return 0;
+    இல்லையெனில் /* has expired */
+      திரும்பு 0;
   }
-  if(pmid)
+  எனில்(pmid)
     *pmid = UINT32_MAX;
-  if(pexpire_offset_us)
+  எனில்(pexpire_offset_us)
     *pexpire_offset_us = 0;
-  return -1;
+  திரும்பு -1;
 }
 
 /*
@@ -99,72 +99,72 @@ int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
  * - root->key may equal `key` or not
  * <https://en.wikipedia.org/wiki/Splay_tree>
  */
-struct Curl_tree *splay(timediff_t key,
-                             struct Curl_tree *root)
+கட்டமைப்பு Curl_மரம் *splay(timediff_t சாவி,
+                             கட்டமைப்பு Curl_மரம் *வேர்)
 {
-  struct Curl_tree N, *l, *r, *y;
+  கட்டமைப்பு Curl_மரம் N, *l, *r, *y;
 
-  if(!root)
-    return NULL;
-  N.smaller = N.larger = NULL;
+  எனில்(!வேர்)
+    திரும்பு வெற்று;
+  N.smaller = N.larger = வெற்று;
   l = r = &N;
 
-  for(;;) {
-    if(key < root->key) {
+  க்கு(;;) {
+    எனில்(சாவி < வேர்->சாவி) {
       /* key is somewhere in root->smaller branch */
-      if(!root->smaller)  /* which is empty, done */
-        break;
-      if(key < root->smaller->key) {
+      எனில்(!வேர்->smaller)  /* which is empty, done */
+        நிறுத்து;
+      எனில்(சாவி < வேர்->smaller->சாவி) {
         /* key is somewhere in root->smaller->smaller, make a "Zig step" */
-        y = root->smaller;
-        root->smaller = y->larger;
-        y->larger = root;
-        root = y;
-        if(!root->smaller)
-          break;
+        y = வேர்->smaller;
+        வேர்->smaller = y->larger;
+        y->larger = வேர்;
+        வேர் = y;
+        எனில்(!வேர்->smaller)
+          நிறுத்து;
       }
       /* Making root->smaller the new root, the old root is no longer
        * referenced. Remember it in the N tree's `r`ight/larger side.
        * Everything in old root is smaller than what the right side
        * of N already has, so it gets added to r->smaller. */
-      r->smaller = root;
-      r = root;
-      root = root->smaller;
+      r->smaller = வேர்;
+      r = வேர்;
+      வேர் = வேர்->smaller;
     }
-    else if(key > root->key) {
+    இல்லையெனில் எனில்(சாவி > வேர்->சாவி) {
       /* key is somewhere in root->larger branch */
-      if(!root->larger)  /* which is empty, done */
-        break;
-      if(key > root->larger->key) {
+      எனில்(!வேர்->larger)  /* which is empty, done */
+        நிறுத்து;
+      எனில்(சாவி > வேர்->larger->சாவி) {
         /* key is somewhere in root->larger->larger, make a "Zig step" */
-        y = root->larger;
-        root->larger = y->smaller;
-        y->smaller = root;
-        root = y;
-        if(!root->larger)
-          break;
+        y = வேர்->larger;
+        வேர்->larger = y->smaller;
+        y->smaller = வேர்;
+        வேர் = y;
+        எனில்(!வேர்->larger)
+          நிறுத்து;
       }
       /* Making root->larger the new root, the old root is no longer
        * referenced. Remember it in the N tree's `l`eft/smaller side.
        * Everything in old root is larger than what the left side
        * of N already has, so it gets added to l->larger. */
-      l->larger = root;
-      l = root;
-      root = root->larger;
+      l->larger = வேர்;
+      l = வேர்;
+      வேர் = வேர்->larger;
     }
-    else  /* exact match, root is key, done */
-      break;
+    இல்லையெனில்  /* exact match, root is key, done */
+      நிறுத்து;
   }
 
   /* Put it all together again.
    * root->smaller has everything larger than current `l`.
    * root->larger has everything smaller than current `r`. */
-  l->larger = root->smaller;
-  r->smaller = root->larger;
-  root->smaller = N.larger;
-  root->larger = N.smaller;
+  l->larger = வேர்->smaller;
+  r->smaller = வேர்->larger;
+  வேர்->smaller = N.larger;
+  வேர்->larger = N.smaller;
 
-  return root;
+  திரும்பு வேர்;
 }
 
 /* Insert key i into the tree t. Return a pointer to the resulting tree or
@@ -172,61 +172,61 @@ struct Curl_tree *splay(timediff_t key,
  *
  * @unittest 1309
  */
-UNITTEST struct Curl_tree *splayinsert(timediff_t key,
-                                       struct Curl_tree *root,
-                                       struct Curl_tree *node,
+UNITTEST கட்டமைப்பு Curl_மரம் *splayinsert(timediff_t சாவி,
+                                       கட்டமைப்பு Curl_மரம் *வேர்,
+                                       கட்டமைப்பு Curl_மரம் *முனை,
                                        uint32_t id);
-UNITTEST struct Curl_tree *splayinsert(timediff_t key,
-                                       struct Curl_tree *root,
-                                       struct Curl_tree *node,
+UNITTEST கட்டமைப்பு Curl_மரம் *splayinsert(timediff_t சாவி,
+                                       கட்டமைப்பு Curl_மரம் *வேர்,
+                                       கட்டமைப்பு Curl_மரம் *முனை,
                                        uint32_t id)
 {
-  DEBUGASSERT(node);
+  DEBUGASSERT(முனை);
 
-  node->key = key;
-  node->id = id;
-  node->same = NULL;
-  node->registered = TRUE;
-  if(root) {
-    root = splay(key, root);
-    DEBUGASSERT(root);
-    if(key == root->key) {
+  முனை->சாவி = சாவி;
+  முனை->id = id;
+  முனை->same = வெற்று;
+  முனை->registered = TRUE;
+  எனில்(வேர்) {
+    வேர் = splay(சாவி, வேர்);
+    DEBUGASSERT(வேர்);
+    எனில்(சாவி == வேர்->சாவி) {
       /* There already exists a node in the tree with the same key.
          Append the new node to the `same` list. */
-      struct Curl_tree **panchor = &root->same;
-      while(*panchor)
+      கட்டமைப்பு Curl_மரம் **panchor = &வேர்->same;
+      போது(*panchor)
         panchor = &(*panchor)->same;
-      *panchor = node;
-      return root; /* the root node always stays the same */
+      *panchor = முனை;
+      திரும்பு வேர்; /* the root node always stays the same */
     }
   }
 
   /* node becomes the new root. Insert old root as sub-branch. */
-  if(!root) {
-    node->smaller = node->larger = NULL;
+  எனில்(!வேர்) {
+    முனை->smaller = முனை->larger = வெற்று;
   }
-  else if(key < root->key) {
-    node->smaller = root->smaller;
-    node->larger = root;
-    root->smaller = NULL;
+  இல்லையெனில் எனில்(சாவி < வேர்->சாவி) {
+    முனை->smaller = வேர்->smaller;
+    முனை->larger = வேர்;
+    வேர்->smaller = வெற்று;
   }
-  else {
-    node->larger = root->larger;
-    node->smaller = root;
-    root->larger = NULL;
+  இல்லையெனில் {
+    முனை->larger = வேர்->larger;
+    முனை->smaller = வேர்;
+    வேர்->larger = வெற்று;
   }
 
-  return node;
+  திரும்பு முனை;
 }
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
+வெறுமை Curl_timeouts_add(கட்டமைப்பு Curl_timeouts *timeouts,
+                       கட்டமைப்பு Curl_easy *data,
                        timediff_t offset_us)
 {
-  struct Curl_tree *node = &data->state.timeouts.splaynode;
-  DEBUGASSERT(!node->registered);
-  timeouts->tree = splayinsert(offset_us, timeouts->tree,
-                               node, data->mid);
+  கட்டமைப்பு Curl_மரம் *முனை = &data->state.timeouts.splaynode;
+  DEBUGASSERT(!முனை->registered);
+  timeouts->மரம் = splayinsert(offset_us, timeouts->மரம்,
+                               முனை, data->mid);
 }
 
 /* Finds and deletes the best-fit node from the tree. Return a pointer to the
@@ -235,65 +235,65 @@ void Curl_timeouts_add(struct Curl_timeouts *timeouts,
 
    @unittest 1309
 */
-UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
-                                        struct Curl_tree *root,
-                                        struct Curl_tree **removed);
-UNITTEST struct Curl_tree *splaygetbest(timediff_t key,
-                                        struct Curl_tree *root,
-                                        struct Curl_tree **removed)
+UNITTEST கட்டமைப்பு Curl_மரம் *splaygetbest(timediff_t சாவி,
+                                        கட்டமைப்பு Curl_மரம் *வேர்,
+                                        கட்டமைப்பு Curl_மரம் **removed);
+UNITTEST கட்டமைப்பு Curl_மரம் *splaygetbest(timediff_t சாவி,
+                                        கட்டமைப்பு Curl_மரம் *வேர்,
+                                        கட்டமைப்பு Curl_மரம் **removed)
 {
-  struct Curl_tree *x;
+  கட்டமைப்பு Curl_மரம் *x;
 
-  if(!root) {
-    *removed = NULL; /* none removed since there was no root */
-    return NULL;
+  எனில்(!வேர்) {
+    *removed = வெற்று; /* none removed since there was no root */
+    திரும்பு வெற்று;
   }
 
   /* find smallest */
-  root = splay(TIMEDIFF_T_MIN, root);
-  DEBUGASSERT(root);
-  if(key < root->key) {
+  வேர் = splay(TIMEDIFF_T_MIN, வேர்);
+  DEBUGASSERT(வேர்);
+  எனில்(சாவி < வேர்->சாவி) {
     /* even the smallest is too big */
-    *removed = NULL;
-    return root;
+    *removed = வெற்று;
+    திரும்பு வேர்;
   }
 
   /* FIRST! Check if there is a list with identical keys */
-  if(root->same) {
-    x = root->same;
-    DEBUGASSERT(x->key == root->key);
+  எனில்(வேர்->same) {
+    x = வேர்->same;
+    DEBUGASSERT(x->சாவி == வேர்->சாவி);
     /* 'x' becomes the new root node */
-    x->larger = root->larger;
-    x->smaller = root->smaller;
-    root->same = NULL;
-    root->registered = FALSE;
-    *removed = root;
-    return x; /* new root */
+    x->larger = வேர்->larger;
+    x->smaller = வேர்->smaller;
+    வேர்->same = வெற்று;
+    வேர்->registered = FALSE;
+    *removed = வேர்;
+    திரும்பு x; /* new root */
   }
 
   /* we splayed the tree to the smallest element, there is no smaller */
-  x = root->larger;
-  root->registered = FALSE;
-  *removed = root;
+  x = வேர்->larger;
+  வேர்->registered = FALSE;
+  *removed = வேர்;
 
-  return x;
+  திரும்பு x;
 }
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(கட்டமைப்பு Curl_timeouts *timeouts,
+                                  மாறிலி கட்டமைப்பு curltime *ts,
                                   uint32_t *pmid)
 {
-  if(timeouts->tree) {
-    struct Curl_tree *t = NULL;
+  எனில்(timeouts->மரம்) {
+    கட்டமைப்பு Curl_மரம் *t = வெற்று;
     timediff_t elapsed_us = Curl_timeouts_offset_us(timeouts, ts);
-    timeouts->tree = splaygetbest(elapsed_us, timeouts->tree, &t);
-    if(t) {
+    timeouts->மரம் = splaygetbest(elapsed_us, timeouts->மரம், &t);
+    எனில்(t) {
       *pmid = t->id;
-      return TRUE;
+      திரும்பு TRUE;
     }
   }
   *pmid = UINT32_MAX;
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 /* Deletes the node we point out from the tree if it is there. Stores a
@@ -307,86 +307,86 @@ bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
  *
  * @unittest 1309
  */
-UNITTEST int splayremove(struct Curl_tree *root,
-                         struct Curl_tree *removenode,
-                         struct Curl_tree **newroot);
-UNITTEST int splayremove(struct Curl_tree *root,
-                         struct Curl_tree *removenode,
-                         struct Curl_tree **newroot)
+UNITTEST முழு splayremove(கட்டமைப்பு Curl_மரம் *வேர்,
+                         கட்டமைப்பு Curl_மரம் *removenode,
+                         கட்டமைப்பு Curl_மரம் **newroot);
+UNITTEST முழு splayremove(கட்டமைப்பு Curl_மரம் *வேர்,
+                         கட்டமைப்பு Curl_மரம் *removenode,
+                         கட்டமைப்பு Curl_மரம் **newroot)
 {
-  struct Curl_tree *x;
+  கட்டமைப்பு Curl_மரம் *x;
 
-  if(!root)
-    return 1;
+  எனில்(!வேர்)
+    திரும்பு 1;
 
   DEBUGASSERT(removenode);
-  if(!removenode->registered)
-    return 2;
+  எனில்(!removenode->registered)
+    திரும்பு 2;
 
-  root = splay(removenode->key, root);
-  DEBUGASSERT(root);
+  வேர் = splay(removenode->சாவி, வேர்);
+  DEBUGASSERT(வேர்);
 
   /* First make sure that we got the same root key as the one we want
      to remove, as otherwise we might be trying to remove a node that
      is not actually in the tree. */
-  if(root->key != removenode->key) {
+  எனில்(வேர்->சாவி != removenode->சாவி) {
     DEBUGASSERT(0);
-    return 2;
+    திரும்பு 2;
   }
 
-  if(root != removenode) {
+  எனில்(வேர் != removenode) {
     /* Should be in the root->same list then */
-    struct Curl_tree **panchor;
-    for(panchor = &root->same; *panchor; panchor = &(*panchor)->same) {
-      if(*panchor == removenode) {
+    கட்டமைப்பு Curl_மரம் **panchor;
+    க்கு(panchor = &வேர்->same; *panchor; panchor = &(*panchor)->same) {
+      எனில்(*panchor == removenode) {
         *panchor = removenode->same;
-        removenode->same = NULL;
+        removenode->same = வெற்று;
         removenode->registered = FALSE;
-        *newroot = root;
-        return 0;
+        *newroot = வேர்;
+        திரும்பு 0;
       }
     }
     /* not found in same list, error */
     DEBUGASSERT(0);
-    return 2;
+    திரும்பு 2;
   }
   /* removing the root node */
-  if(root->same) {
+  எனில்(வேர்->same) {
     /* 'x' is the new root node, we make it use the root node's
        smaller/larger links */
-    x = root->same;
-    x->larger = root->larger;
-    x->smaller = root->smaller;
-    root->same = NULL;
+    x = வேர்->same;
+    x->larger = வேர்->larger;
+    x->smaller = வேர்->smaller;
+    வேர்->same = வெற்று;
   }
-  else {
+  இல்லையெனில் {
     /* Remove the root node */
-    if(!root->smaller)
-      x = root->larger;
-    else {
-      x = splay(removenode->key, root->smaller);
+    எனில்(!வேர்->smaller)
+      x = வேர்->larger;
+    இல்லையெனில் {
+      x = splay(removenode->சாவி, வேர்->smaller);
       DEBUGASSERT(x);
-      x->larger = root->larger;
+      x->larger = வேர்->larger;
     }
   }
   removenode->registered = FALSE;
   *newroot = x; /* return new root */
-  return 0;
+  திரும்பு 0;
 }
 
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data)
+bool Curl_timeouts_remove(கட்டமைப்பு Curl_timeouts *timeouts,
+                          கட்டமைப்பு Curl_easy *data)
 {
-  struct Curl_tree *node = &data->state.timeouts.splaynode;
-  if(node->registered) {
-    int rc = splayremove(timeouts->tree, node, &timeouts->tree);
+  கட்டமைப்பு Curl_மரம் *முனை = &data->state.timeouts.splaynode;
+  எனில்(முனை->registered) {
+    முழு rc = splayremove(timeouts->மரம், முனை, &timeouts->மரம்);
 #ifdef DEBUGBUILD
-    if(rc)
+    எனில்(rc)
       curl_mfprintf(stderr, "Internal error removing splay node = %d\n", rc);
-#else
-    (void)rc;
+#இல்லையெனில்
+    (வெறுமை)rc;
 #endif
-    return TRUE;
+    திரும்பு TRUE;
   }
-  return FALSE;
+  திரும்பு FALSE;
 }

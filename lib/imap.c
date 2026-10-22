@@ -34,51 +34,51 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "imap.h"
+#அந்தர்பாவ "curl_setup.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "imap.h"
 
 #ifndef CURL_DISABLE_IMAP
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#அந்தர்பாவ <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#அந்தர்பாவ <arpa/inet.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#அந்தர்பாவ <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#அந்தர்பாவ <in.h>
+#அந்தர்பாவ <inet.h>
 #endif
 
-#include "curlx/dynbuf.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
-#include "pingpong.h"
-#include "mime.h"
-#include "curlx/strparse.h"
-#include "strcase.h"
-#include "vtls/vtls.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "bufref.h"
-#include "curl_sasl.h"
-#include "curlx/strcopy.h"
+#அந்தர்பாவ "curlx/dynbuf.h"
+#அந்தர்பாவ "sendf.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "progress.h"
+#அந்தர்பாவ "transfer.h"
+#அந்தர்பாவ "escape.h"
+#அந்தர்பாவ "pingpong.h"
+#அந்தர்பாவ "mime.h"
+#அந்தர்பாவ "curlx/strparse.h"
+#அந்தர்பாவ "strcase.h"
+#அந்தர்பாவ "vtls/vtls.h"
+#அந்தர்பாவ "cfilters.h"
+#அந்தர்பாவ "connect.h"
+#அந்தர்பாவ "select.h"
+#அந்தர்பாவ "url.h"
+#அந்தர்பாவ "bufref.h"
+#அந்தர்பாவ "curl_sasl.h"
+#அந்தர்பாவ "curlx/strcopy.h"
 
 /* meta key for storing protocol meta at easy handle */
 #define CURL_META_IMAP_EASY   "meta:proto:imap:easy"
 /* meta key for storing protocol meta at connection */
 #define CURL_META_IMAP_CONN   "meta:proto:imap:conn"
 
-typedef enum {
+வகைவரை எண்ணிக்கை {
   IMAP_STOP,         /* do nothing state, stops the state machine */
   IMAP_SERVERGREET,  /* waiting for the initial greeting immediately after
                         a connect */
@@ -94,21 +94,21 @@ typedef enum {
   IMAP_FETCH_FINAL,
   IMAP_APPEND,
   IMAP_APPEND_FINAL,
-  IMAP_SEARCH,
+  IMAP_தேடல்,
   IMAP_LOGOUT,
   IMAP_LAST          /* never used */
 } imapstate;
 
 /* imap_conn is used for struct connection-oriented data */
-struct imap_conn {
-  struct pingpong pp;
-  struct SASL sasl;           /* SASL-related parameters */
-  char *mailbox;              /* The last selected mailbox */
+கட்டமைப்பு imap_conn {
+  கட்டமைப்பு pingpong pp;
+  கட்டமைப்பு SASL sasl;           /* SASL-related parameters */
+  எழுத்து *mailbox;              /* The last selected mailbox */
   imapstate state;            /* Always use imap.c:state() to change state! */
-  unsigned int mb_uidvalidity; /* UIDVALIDITY parsed from select response */
-  char resptag[5];            /* Response tag to wait for */
-  unsigned char preftype;     /* Preferred authentication type */
-  unsigned char cmdid;        /* Last used command ID */
+  unsigned முழு mb_uidvalidity; /* UIDVALIDITY parsed from select response */
+  எழுத்து resptag[5];            /* Response tag to wait for */
+  unsigned எழுத்து preftype;     /* Preferred authentication type */
+  unsigned எழுத்து cmdid;        /* Last used command ID */
   BIT(ssldone);               /* Is connect() over SSL done? */
   BIT(preauth);               /* Is this connection PREAUTH? */
   BIT(tls_supported);         /* StartTLS capability supported by server */
@@ -121,17 +121,17 @@ struct imap_conn {
    connection-oriented must be in imap_conn to properly deal with the fact that
    perhaps the Curl_easy is changed between the times the connection is
    used. */
-struct IMAP {
+கட்டமைப்பு IMAP {
   curl_pp_transfer transfer;
-  char *mailbox;          /* Mailbox to select */
-  char *uid;              /* Message UID to fetch */
-  char *mindex;           /* Index in mail box of mail to fetch */
-  char *section;          /* Message SECTION to fetch */
-  char *partial;          /* Message PARTIAL to fetch */
-  char *query;            /* Query to search for */
-  char *custom;           /* Custom request */
-  char *custom_params;    /* Parameters for the custom request */
-  unsigned int uidvalidity; /* UIDVALIDITY to check in select */
+  எழுத்து *mailbox;          /* Mailbox to select */
+  எழுத்து *uid;              /* Message UID to fetch */
+  எழுத்து *mindex;           /* Index in mail box of mail to fetch */
+  எழுத்து *section;          /* Message SECTION to fetch */
+  எழுத்து *partial;          /* Message PARTIAL to fetch */
+  எழுத்து *query;            /* Query to search for */
+  எழுத்து *custom;           /* Custom request */
+  எழுத்து *custom_params;    /* Parameters for the custom request */
+  unsigned முழு uidvalidity; /* UIDVALIDITY to check in select */
   BIT(uidvalidity_set);
 };
 
@@ -139,9 +139,9 @@ struct IMAP {
 #define IMAP_RESP_NOT_OK   2
 #define IMAP_RESP_PREAUTH  3
 
-struct ulbits {
-  int bit;
-  const char *flag;
+கட்டமைப்பு ulbits {
+  முழு bit;
+  மாறிலி எழுத்து *flag;
 };
 
 /***********************************************************************
@@ -152,12 +152,12 @@ struct ulbits {
  *
  * Designed to never block.
  */
-static CURLcode imap_sendf(struct Curl_easy *data,
-                           struct imap_conn *imapc,
-                           const char *fmt, ...) CURL_PRINTF(3, 4);
-static CURLcode imap_sendf(struct Curl_easy *data,
-                           struct imap_conn *imapc,
-                           const char *fmt, ...)
+நிலையான CURLcode imap_sendf(கட்டமைப்பு Curl_easy *data,
+                           கட்டமைப்பு imap_conn *imapc,
+                           மாறிலி எழுத்து *fmt, ...) CURL_PRINTF(3, 4);
+நிலையான CURLcode imap_sendf(கட்டமைப்பு Curl_easy *data,
+                           கட்டமைப்பு imap_conn *imapc,
+                           மாறிலி எழுத்து *fmt, ...)
 {
   CURLcode result = CURLE_OK;
   va_list ap;
@@ -165,14 +165,14 @@ static CURLcode imap_sendf(struct Curl_easy *data,
   DEBUGASSERT(fmt);
 
   /* Calculate the tag based on the connection ID and command ID */
-  curl_msnprintf(imapc->resptag, sizeof(imapc->resptag), "%c%03d",
+  curl_msnprintf(imapc->resptag, அளவு(imapc->resptag), "%c%03d",
                  'A' + curlx_sltosi((long)(data->conn->connection_id % 26)),
                  ++imapc->cmdid);
 
   va_start(ap, fmt);
   result = Curl_pp_vsendf(data, &imapc->pp, imapc->resptag, fmt, ap);
   va_end(ap);
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -185,67 +185,67 @@ static CURLcode imap_sendf(struct Curl_easy *data,
  * The returned string needs to be freed.
  *
  */
-static char *imap_atom(const char *str, bool escape_only)
+நிலையான எழுத்து *imap_atom(மாறிலி எழுத்து *str, bool escape_only)
 {
-  struct dynbuf line;
+  கட்டமைப்பு dynbuf வரி;
   size_t nclean;
   size_t len;
 
-  if(!str)
-    return NULL;
+  எனில்(!str)
+    திரும்பு வெற்று;
 
   len = strlen(str);
   nclean = strcspn(str, "() {%*]\\\"");
-  if(len == nclean)
+  எனில்(len == nclean)
     /* nothing to escape, return a strdup */
-    return curlx_strdup(str);
+    திரும்பு curlx_strdup(str);
 
-  curlx_dyn_init(&line, 2000);
+  curlx_dyn_init(&வரி, 2000);
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
-    return NULL;
+  எனில்(!escape_only && curlx_dyn_addn(&வரி, "\"", 1))
+    திரும்பு வெற்று;
 
-  while(*str) {
-    if((*str == '\\' || *str == '"') &&
-       curlx_dyn_addn(&line, "\\", 1))
-      return NULL;
-    if(curlx_dyn_addn(&line, str, 1))
-      return NULL;
+  போது(*str) {
+    எனில்((*str == '\\' || *str == '"') &&
+       curlx_dyn_addn(&வரி, "\\", 1))
+      திரும்பு வெற்று;
+    எனில்(curlx_dyn_addn(&வரி, str, 1))
+      திரும்பு வெற்று;
     str++;
   }
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
-    return NULL;
+  எனில்(!escape_only && curlx_dyn_addn(&வரி, "\"", 1))
+    திரும்பு வெற்று;
 
-  return curlx_dyn_ptr(&line);
+  திரும்பு curlx_dyn_ptr(&வரி);
 }
 
 /*
  * Finds the start of a literal '{size}' in line, skipping over quoted strings.
  */
-static const char *imap_find_literal(const char *line, size_t len)
+நிலையான மாறிலி எழுத்து *imap_find_literal(மாறிலி எழுத்து *வரி, size_t len)
 {
-  const char *end = line + len;
+  மாறிலி எழுத்து *end = வரி + len;
   bool in_quote = FALSE;
 
-  while(line < end) {
-    if(in_quote) {
-      if(*line == '\\' && (line + 1) < end) {
-        line += 2;
-        continue;
+  போது(வரி < end) {
+    எனில்(in_quote) {
+      எனில்(*வரி == '\\' && (வரி + 1) < end) {
+        வரி += 2;
+        தொடர்;
       }
-      if(*line == '"')
+      எனில்(*வரி == '"')
         in_quote = FALSE;
     }
-    else {
-      if(*line == '"')
+    இல்லையெனில் {
+      எனில்(*வரி == '"')
         in_quote = TRUE;
-      else if(*line == '{')
-        return line;
+      இல்லையெனில் எனில்(*வரி == '{')
+        திரும்பு வரி;
     }
-    line++;
+    வரி++;
   }
-  return NULL;
+  திரும்பு வெற்று;
 }
 
 /***********************************************************************
@@ -258,35 +258,35 @@ static const char *imap_find_literal(const char *line, size_t len)
  *
  * The "* " marker is assumed to have already been checked by the caller.
  */
-static bool imap_matchresp(const char *line, size_t len, const char *cmd)
+நிலையான bool imap_matchresp(மாறிலி எழுத்து *வரி, size_t len, மாறிலி எழுத்து *cmd)
 {
-  const char *end = line + len;
+  மாறிலி எழுத்து *end = வரி + len;
   size_t cmd_len = strlen(cmd);
 
   /* Skip the untagged response marker */
-  line += 2;
+  வரி += 2;
 
   /* Do we have a number after the marker? */
-  if(line < end && ISDIGIT(*line)) {
+  எனில்(வரி < end && ISDIGIT(*வரி)) {
     /* Skip the number */
-    do
-      line++;
-    while(line < end && ISDIGIT(*line));
+    செய்
+      வரி++;
+    போது(வரி < end && ISDIGIT(*வரி));
 
     /* Do we have the space character? */
-    if(line == end || *line != ' ')
-      return FALSE;
+    எனில்(வரி == end || *வரி != ' ')
+      திரும்பு FALSE;
 
-    line++;
+    வரி++;
   }
 
   /* Does the command name match and is it followed by a space character or at
      the end of line? */
-  if(line + cmd_len <= end && curl_strnequal(line, cmd, cmd_len) &&
-     (line[cmd_len] == ' ' || line + cmd_len + 2 == end))
-    return TRUE;
+  எனில்(வரி + cmd_len <= end && curl_strnequal(வரி, cmd, cmd_len) &&
+     (வரி[cmd_len] == ' ' || வரி + cmd_len + 2 == end))
+    திரும்பு TRUE;
 
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 /***********************************************************************
@@ -296,50 +296,50 @@ static bool imap_matchresp(const char *line, size_t len, const char *cmd)
  * Checks whether the given string is a valid tagged, untagged or continuation
  * response which can be processed by the response handler.
  */
-static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+நிலையான bool imap_endofresp(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு connectdata *conn,
+                           மாறிலி எழுத்து *வரி, size_t len, முழு *resp)
 {
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
-  const char *id;
+  கட்டமைப்பு imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  கட்டமைப்பு IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  மாறிலி எழுத்து *id;
   size_t id_len;
 
   DEBUGASSERT(imapc);
   DEBUGASSERT(imap);
-  if(!imapc || !imap)
-    return FALSE;
+  எனில்(!imapc || !imap)
+    திரும்பு FALSE;
 
   /* Do we have a tagged command response? */
   id = imapc->resptag;
   id_len = strlen(id);
-  if(len >= id_len + 1 && !memcmp(id, line, id_len) && line[id_len] == ' ') {
-    line += id_len + 1;
+  எனில்(len >= id_len + 1 && !memcmp(id, வரி, id_len) && வரி[id_len] == ' ') {
+    வரி += id_len + 1;
     len -= id_len + 1;
 
-    if(len >= 2 && !memcmp(line, "OK", 2))
+    எனில்(len >= 2 && !memcmp(வரி, "OK", 2))
       *resp = IMAP_RESP_OK;
-    else if(len >= 7 && !memcmp(line, "PREAUTH", 7))
+    இல்லையெனில் எனில்(len >= 7 && !memcmp(வரி, "PREAUTH", 7))
       *resp = IMAP_RESP_PREAUTH;
-    else
+    இல்லையெனில்
       *resp = IMAP_RESP_NOT_OK;
 
-    return TRUE;
+    திரும்பு TRUE;
   }
 
   /* Do we have an untagged command response? */
-  if(len >= 2 && !memcmp("* ", line, 2)) {
-    switch(imapc->state) {
+  எனில்(len >= 2 && !memcmp("* ", வரி, 2)) {
+    தேர்வு(imapc->state) {
     /* States which are interested in untagged responses */
-    case IMAP_CAPABILITY:
-      if(!imap_matchresp(line, len, "CAPABILITY"))
-        return FALSE;
-      break;
+    நிலை IMAP_CAPABILITY:
+      எனில்(!imap_matchresp(வரி, len, "CAPABILITY"))
+        திரும்பு FALSE;
+      நிறுத்து;
 
-    case IMAP_LIST:
-      if((!imap->custom && !imap_matchresp(line, len, "LIST")) ||
-         (imap->custom && !imap_matchresp(line, len, imap->custom) &&
+    நிலை IMAP_LIST:
+      எனில்((!imap->custom && !imap_matchresp(வரி, len, "LIST")) ||
+         (imap->custom && !imap_matchresp(வரி, len, imap->custom) &&
           (!curl_strequal(imap->custom, "STORE") ||
-           !imap_matchresp(line, len, "FETCH")) &&
+           !imap_matchresp(வரி, len, "FETCH")) &&
           !curl_strequal(imap->custom, "SELECT") &&
           !curl_strequal(imap->custom, "EXAMINE") &&
           !curl_strequal(imap->custom, "SEARCH") &&
@@ -348,56 +348,56 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
           !curl_strequal(imap->custom, "UID") &&
           !curl_strequal(imap->custom, "GETQUOTAROOT") &&
           !curl_strequal(imap->custom, "NOOP")))
-        return FALSE;
-      break;
+        திரும்பு FALSE;
+      நிறுத்து;
 
-    case IMAP_SELECT:
+    நிலை IMAP_SELECT:
       /* SELECT is special in that its untagged responses do not have a
          common prefix so accept anything! */
-      break;
+      நிறுத்து;
 
-    case IMAP_FETCH:
-      if(!imap_matchresp(line, len, "FETCH"))
-        return FALSE;
-      break;
+    நிலை IMAP_FETCH:
+      எனில்(!imap_matchresp(வரி, len, "FETCH"))
+        திரும்பு FALSE;
+      நிறுத்து;
 
-    case IMAP_SEARCH:
-      if(!imap_matchresp(line, len, "SEARCH"))
-        return FALSE;
-      break;
+    நிலை IMAP_தேடல்:
+      எனில்(!imap_matchresp(வரி, len, "SEARCH"))
+        திரும்பு FALSE;
+      நிறுத்து;
 
     /* Ignore other untagged responses */
-    default:
-      return FALSE;
+    இயல்பு:
+      திரும்பு FALSE;
     }
 
     *resp = '*';
-    return TRUE;
+    திரும்பு TRUE;
   }
 
   /* Do we have a continuation response? This should be a + symbol followed by
      a space and optionally some text as per RFC-3501 for the AUTHENTICATE and
      APPEND commands and as outlined in Section 4. Examples of RFC-4959 but
      some email servers ignore this and only send a single + instead. */
-  if(!imap->custom && ((len == 3 && line[0] == '+') ||
-                       (len >= 2 && !memcmp("+ ", line, 2)))) {
-    switch(imapc->state) {
+  எனில்(!imap->custom && ((len == 3 && வரி[0] == '+') ||
+                       (len >= 2 && !memcmp("+ ", வரி, 2)))) {
+    தேர்வு(imapc->state) {
     /* States which are interested in continuation responses */
-    case IMAP_AUTHENTICATE:
-    case IMAP_APPEND:
+    நிலை IMAP_AUTHENTICATE:
+    நிலை IMAP_APPEND:
       *resp = '+';
-      break;
+      நிறுத்து;
 
-    default:
+    இயல்பு:
       failf(data, "Unexpected continuation response");
       *resp = -1;
-      break;
+      நிறுத்து;
     }
 
-    return TRUE;
+    திரும்பு TRUE;
   }
 
-  return FALSE; /* Nothing for us */
+  திரும்பு FALSE; /* Nothing for us */
 }
 
 /***********************************************************************
@@ -406,38 +406,38 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
  *
  * Gets the authentication message from the response buffer.
  */
-static CURLcode imap_get_message(struct Curl_easy *data, struct bufref *out)
+நிலையான CURLcode imap_get_message(கட்டமைப்பு Curl_easy *data, கட்டமைப்பு bufref *out)
 {
-  struct imap_conn *imapc =
+  கட்டமைப்பு imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  char *message;
+  எழுத்து *message;
   size_t len;
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  எனில்(!imapc)
+    திரும்பு CURLE_FAILED_INIT;
 
   message = curlx_dyn_ptr(&imapc->pp.recvbuf);
   len = imapc->pp.nfinal;
-  if(len > 2) {
+  எனில்(len > 2) {
     /* Find the start of the message */
     len -= 2;
-    for(message += 2; ISBLANK(*message); message++, len--)
+    க்கு(message += 2; ISBLANK(*message); message++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
-        break;
+    போது(len--)
+      எனில்(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
+        நிறுத்து;
 
     /* Terminate the message */
     message[++len] = '\0';
-    Curl_bufref_set(out, message, len, NULL);
+    Curl_bufref_set(out, message, len, வெற்று);
   }
-  else
+  இல்லையெனில்
     /* junk input => zero length output */
-    Curl_bufref_set(out, "", 0, NULL);
+    Curl_bufref_set(out, "", 0, வெற்று);
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /***********************************************************************
@@ -446,13 +446,13 @@ static CURLcode imap_get_message(struct Curl_easy *data, struct bufref *out)
  *
  * This is the ONLY way to change IMAP state!
  */
-static void imap_state(struct Curl_easy *data,
-                       struct imap_conn *imapc,
+நிலையான வெறுமை imap_state(கட்டமைப்பு Curl_easy *data,
+                       கட்டமைப்பு imap_conn *imapc,
                        imapstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#எனில் defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
-  static const char * const names[] = {
+  நிலையான மாறிலி எழுத்து * மாறிலி names[] = {
     "STOP",
     "SERVERGREET",
     "CAPABILITY",
@@ -471,11 +471,11 @@ static void imap_state(struct Curl_easy *data,
     /* LAST */
   };
 
-  if(imapc->state != newstate)
+  எனில்(imapc->state != newstate)
     infof(data, "IMAP %p state change from %s to %s",
-          (void *)imapc, names[imapc->state], names[newstate]);
-#else
-  (void)data;
+          (வெறுமை *)imapc, names[imapc->state], names[newstate]);
+#இல்லையெனில்
+  (வெறுமை)data;
 #endif
   imapc->state = newstate;
 }
@@ -487,8 +487,8 @@ static void imap_state(struct Curl_easy *data,
  * Sends the CAPABILITY command in order to obtain a list of server side
  * supported capabilities.
  */
-static CURLcode imap_perform_capability(struct Curl_easy *data,
-                                        struct imap_conn *imapc)
+நிலையான CURLcode imap_perform_capability(கட்டமைப்பு Curl_easy *data,
+                                        கட்டமைப்பு imap_conn *imapc)
 {
   CURLcode result = CURLE_OK;
 
@@ -499,10 +499,10 @@ static CURLcode imap_perform_capability(struct Curl_easy *data,
   /* Send the CAPABILITY command */
   result = imap_sendf(data, imapc, "CAPABILITY");
 
-  if(!result)
+  எனில்(!result)
     imap_state(data, imapc, IMAP_CAPABILITY);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -511,16 +511,16 @@ static CURLcode imap_perform_capability(struct Curl_easy *data,
  *
  * Sends the STARTTLS command to start the upgrade to TLS.
  */
-static CURLcode imap_perform_starttls(struct Curl_easy *data,
-                                      struct imap_conn *imapc)
+நிலையான CURLcode imap_perform_starttls(கட்டமைப்பு Curl_easy *data,
+                                      கட்டமைப்பு imap_conn *imapc)
 {
   /* Send the STARTTLS command */
   CURLcode result = imap_sendf(data, imapc, "STARTTLS");
 
-  if(!result)
+  எனில்(!result)
     imap_state(data, imapc, IMAP_STARTTLS);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -529,20 +529,20 @@ static CURLcode imap_perform_starttls(struct Curl_easy *data,
  *
  * Performs the upgrade to TLS.
  */
-static CURLcode imap_perform_upgrade_tls(struct Curl_easy *data,
-                                         struct imap_conn *imapc,
-                                         struct connectdata *conn)
+நிலையான CURLcode imap_perform_upgrade_tls(கட்டமைப்பு Curl_easy *data,
+                                         கட்டமைப்பு imap_conn *imapc,
+                                         கட்டமைப்பு connectdata *conn)
 {
 #ifdef USE_SSL
   /* Start the SSL connection */
   CURLcode result;
   bool ssldone = FALSE;
 
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  எனில்(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     result = Curl_ssl_cfilter_add(
       data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
     /* Change the connection handler */
     conn->scheme = &Curl_scheme_imaps;
   }
@@ -550,19 +550,19 @@ static CURLcode imap_perform_upgrade_tls(struct Curl_easy *data,
   DEBUGASSERT(!imapc->ssldone);
   result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
   DEBUGF(infof(data, "imap_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+               (முழு)result, ssldone));
+  எனில்(!result && ssldone) {
     imapc->ssldone = ssldone;
     /* perform CAPA now, changes imapc->state out of IMAP_UPGRADETLS */
     result = imap_perform_capability(data, imapc);
   }
 out:
-  return result;
-#else
-  (void)data;
-  (void)imapc;
-  (void)conn;
-  return CURLE_NOT_BUILT_IN;
+  திரும்பு result;
+#இல்லையெனில்
+  (வெறுமை)data;
+  (வெறுமை)imapc;
+  (வெறுமை)conn;
+  திரும்பு CURLE_NOT_BUILT_IN;
 #endif
 }
 
@@ -572,20 +572,20 @@ out:
  *
  * Sends a clear text LOGIN command to authenticate with.
  */
-static CURLcode imap_perform_login(struct Curl_easy *data,
-                                   struct imap_conn *imapc,
-                                   struct connectdata *conn)
+நிலையான CURLcode imap_perform_login(கட்டமைப்பு Curl_easy *data,
+                                   கட்டமைப்பு imap_conn *imapc,
+                                   கட்டமைப்பு connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  char *user;
-  char *passwd;
+  எழுத்து *user;
+  எழுத்து *passwd;
 
   /* Check we have a username and password to authenticate with and end the
      connect phase if we do not */
-  if(!conn->creds) {
+  எனில்(!conn->creds) {
     imap_state(data, imapc, IMAP_STOP);
 
-    return result;
+    திரும்பு result;
   }
 
   /* Make sure the username and password are in the correct atom format */
@@ -600,10 +600,10 @@ static CURLcode imap_perform_login(struct Curl_easy *data,
   curlx_strzero(passwd);
   curlx_free(passwd);
 
-  if(!result)
+  எனில்(!result)
     imap_state(data, imapc, IMAP_LOGIN);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -613,28 +613,28 @@ static CURLcode imap_perform_login(struct Curl_easy *data,
  * Sends an AUTHENTICATE command allowing the client to login with the given
  * SASL authentication mechanism.
  */
-static CURLcode imap_perform_authenticate(struct Curl_easy *data,
-                                          const char *mech,
-                                          const struct bufref *initresp)
+நிலையான CURLcode imap_perform_authenticate(கட்டமைப்பு Curl_easy *data,
+                                          மாறிலி எழுத்து *mech,
+                                          மாறிலி கட்டமைப்பு bufref *initresp)
 {
-  struct imap_conn *imapc =
+  கட்டமைப்பு imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
   CURLcode result = CURLE_OK;
-  const char *ir = Curl_bufref_ptr(initresp);
+  மாறிலி எழுத்து *ir = Curl_bufref_ptr(initresp);
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  if(ir) {
+  எனில்(!imapc)
+    திரும்பு CURLE_FAILED_INIT;
+  எனில்(ir) {
     /* Send the AUTHENTICATE command with the initial response */
     result = imap_sendf(data, imapc, "AUTHENTICATE %s %s",
                         mech, *ir ? ir : "=");
   }
-  else {
+  இல்லையெனில் {
     /* Send the AUTHENTICATE command */
     result = imap_sendf(data, imapc, "AUTHENTICATE %s", mech);
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -643,17 +643,17 @@ static CURLcode imap_perform_authenticate(struct Curl_easy *data,
  *
  * Sends SASL continuation data.
  */
-static CURLcode imap_continue_authenticate(struct Curl_easy *data,
-                                           const char *mech,
-                                           const struct bufref *resp)
+நிலையான CURLcode imap_continue_authenticate(கட்டமைப்பு Curl_easy *data,
+                                           மாறிலி எழுத்து *mech,
+                                           மாறிலி கட்டமைப்பு bufref *resp)
 {
-  struct imap_conn *imapc =
+  கட்டமைப்பு imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
-  (void)mech;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &imapc->pp, "%s", Curl_bufref_ptr(resp));
+  (வெறுமை)mech;
+  எனில்(!imapc)
+    திரும்பு CURLE_FAILED_INIT;
+  திரும்பு Curl_pp_sendf(data, &imapc->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -662,16 +662,16 @@ static CURLcode imap_continue_authenticate(struct Curl_easy *data,
  *
  * Sends SASL cancellation.
  */
-static CURLcode imap_cancel_authenticate(struct Curl_easy *data,
-                                         const char *mech)
+நிலையான CURLcode imap_cancel_authenticate(கட்டமைப்பு Curl_easy *data,
+                                         மாறிலி எழுத்து *mech)
 {
-  struct imap_conn *imapc =
+  கட்டமைப்பு imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
-  (void)mech;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &imapc->pp, "*");
+  (வெறுமை)mech;
+  எனில்(!imapc)
+    திரும்பு CURLE_FAILED_INIT;
+  திரும்பு Curl_pp_sendf(data, &imapc->pp, "*");
 }
 
 /***********************************************************************
@@ -682,34 +682,34 @@ static CURLcode imap_cancel_authenticate(struct Curl_easy *data,
  * authentication mechanism, falling back to clear text should a common
  * mechanism not be available between the client and server.
  */
-static CURLcode imap_perform_authentication(struct Curl_easy *data,
-                                            struct imap_conn *imapc)
+நிலையான CURLcode imap_perform_authentication(கட்டமைப்பு Curl_easy *data,
+                                            கட்டமைப்பு imap_conn *imapc)
 {
   CURLcode result = CURLE_OK;
   saslprogress progress;
 
   /* Check if already authenticated OR if there is enough data to authenticate
      with and end the connect phase if we do not */
-  if(imapc->preauth ||
+  எனில்(imapc->preauth ||
      !Curl_sasl_can_authenticate(&imapc->sasl, data)) {
     imap_state(data, imapc, IMAP_STOP);
-    return result;
+    திரும்பு result;
   }
 
   /* Calculate the SASL login details */
   result = Curl_sasl_start(&imapc->sasl, data, (bool)imapc->ir_supported,
                            &progress);
-  if(!result) {
-    if(progress == SASL_INPROGRESS)
+  எனில்(!result) {
+    எனில்(progress == SASL_INPROGRESS)
       imap_state(data, imapc, IMAP_AUTHENTICATE);
-    else if(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
+    இல்லையெனில் எனில்(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
       /* Perform clear text authentication */
       result = imap_perform_login(data, imapc, data->conn);
-    else
+    இல்லையெனில்
       result = Curl_sasl_is_blocked(&imapc->sasl, data);
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -718,22 +718,22 @@ static CURLcode imap_perform_authentication(struct Curl_easy *data,
  *
  * Sends a LIST command or an alternative custom request.
  */
-static CURLcode imap_perform_list(struct Curl_easy *data,
-                                  struct imap_conn *imapc,
-                                  struct IMAP *imap)
+நிலையான CURLcode imap_perform_list(கட்டமைப்பு Curl_easy *data,
+                                  கட்டமைப்பு imap_conn *imapc,
+                                  கட்டமைப்பு IMAP *imap)
 {
   CURLcode result = CURLE_OK;
 
-  if(imap->custom)
+  எனில்(imap->custom)
     /* Send the custom request */
     result = imap_sendf(data, imapc, "%s%s", imap->custom,
                         imap->custom_params ? imap->custom_params : "");
-  else {
+  இல்லையெனில் {
     /* Make sure the mailbox is in the correct atom format if necessary */
-    char *mailbox = imap->mailbox ? imap_atom(imap->mailbox, TRUE)
+    எழுத்து *mailbox = imap->mailbox ? imap_atom(imap->mailbox, TRUE)
                                   : curlx_strdup("");
-    if(!mailbox)
-      return CURLE_OUT_OF_MEMORY;
+    எனில்(!mailbox)
+      திரும்பு CURLE_OUT_OF_MEMORY;
 
     /* Send the LIST command */
     result = imap_sendf(data, imapc, "LIST \"%s\" *", mailbox);
@@ -741,10 +741,10 @@ static CURLcode imap_perform_list(struct Curl_easy *data,
     curlx_free(mailbox);
   }
 
-  if(!result)
+  எனில்(!result)
     imap_state(data, imapc, IMAP_LIST);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -753,37 +753,37 @@ static CURLcode imap_perform_list(struct Curl_easy *data,
  *
  * Sends a SELECT command to ask the server to change the selected mailbox.
  */
-static CURLcode imap_perform_select(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+நிலையான CURLcode imap_perform_select(கட்டமைப்பு Curl_easy *data,
+                                    கட்டமைப்பு imap_conn *imapc,
+                                    கட்டமைப்பு IMAP *imap)
 {
   CURLcode result = CURLE_OK;
-  char *mailbox;
+  எழுத்து *mailbox;
 
   /* Invalidate old information as we are switching mailboxes */
   curlx_safefree(imapc->mailbox);
   imapc->mb_uidvalidity_set = FALSE;
 
   /* Check we have a mailbox */
-  if(!imap->mailbox) {
+  எனில்(!imap->mailbox) {
     failf(data, "Cannot SELECT without a mailbox.");
-    return CURLE_URL_MALFORMAT;
+    திரும்பு CURLE_URL_MALFORMAT;
   }
 
   /* Make sure the mailbox is in the correct atom format */
   mailbox = imap_atom(imap->mailbox, FALSE);
-  if(!mailbox)
-    return CURLE_OUT_OF_MEMORY;
+  எனில்(!mailbox)
+    திரும்பு CURLE_OUT_OF_MEMORY;
 
   /* Send the SELECT command */
   result = imap_sendf(data, imapc, "SELECT %s", mailbox);
 
   curlx_free(mailbox);
 
-  if(!result)
+  எனில்(!result)
     imap_state(data, imapc, IMAP_SELECT);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -792,41 +792,41 @@ static CURLcode imap_perform_select(struct Curl_easy *data,
  *
  * Sends a FETCH command to initiate the download of a message.
  */
-static CURLcode imap_perform_fetch(struct Curl_easy *data,
-                                   struct imap_conn *imapc,
-                                   struct IMAP *imap)
+நிலையான CURLcode imap_perform_fetch(கட்டமைப்பு Curl_easy *data,
+                                   கட்டமைப்பு imap_conn *imapc,
+                                   கட்டமைப்பு IMAP *imap)
 {
   CURLcode result = CURLE_OK;
   /* Check we have a UID */
-  if(imap->uid) {
+  எனில்(imap->uid) {
 
     /* Send the FETCH command */
-    if(imap->partial)
+    எனில்(imap->partial)
       result = imap_sendf(data, imapc, "UID FETCH %s BODY[%s]<%s>",
                           imap->uid, imap->section ? imap->section : "",
                           imap->partial);
-    else
+    இல்லையெனில்
       result = imap_sendf(data, imapc, "UID FETCH %s BODY[%s]",
                           imap->uid, imap->section ? imap->section : "");
   }
-  else if(imap->mindex) {
+  இல்லையெனில் எனில்(imap->mindex) {
     /* Send the FETCH command */
-    if(imap->partial)
+    எனில்(imap->partial)
       result = imap_sendf(data, imapc, "FETCH %s BODY[%s]<%s>",
                           imap->mindex, imap->section ? imap->section : "",
                           imap->partial);
-    else
+    இல்லையெனில்
       result = imap_sendf(data, imapc, "FETCH %s BODY[%s]",
                           imap->mindex, imap->section ? imap->section : "");
   }
-  else {
+  இல்லையெனில் {
     failf(data, "Cannot FETCH without a UID.");
-    return CURLE_URL_MALFORMAT;
+    திரும்பு CURLE_URL_MALFORMAT;
   }
-  if(!result)
+  எனில்(!result)
     imap_state(data, imapc, IMAP_FETCH);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -835,96 +835,96 @@ static CURLcode imap_perform_fetch(struct Curl_easy *data,
  *
  * Sends an APPEND command to initiate the upload of a message.
  */
-static CURLcode imap_perform_append(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+நிலையான CURLcode imap_perform_append(கட்டமைப்பு Curl_easy *data,
+                                    கட்டமைப்பு imap_conn *imapc,
+                                    கட்டமைப்பு IMAP *imap)
 {
   CURLcode result = CURLE_OK;
-  char *mailbox;
-  struct dynbuf flags;
+  எழுத்து *mailbox;
+  கட்டமைப்பு dynbuf flags;
 
   /* Check we have a mailbox */
-  if(!imap->mailbox) {
+  எனில்(!imap->mailbox) {
     failf(data, "Cannot APPEND without a mailbox.");
-    return CURLE_URL_MALFORMAT;
+    திரும்பு CURLE_URL_MALFORMAT;
   }
 
 #ifndef CURL_DISABLE_MIME
   /* Prepare the mime data if some. */
-  if(IS_MIME_POST(data)) {
+  எனில்(IS_MIME_POST(data)) {
     curl_mimepart *postp = data->set.mimepostp;
 
     /* Use the whole structure as data. */
-    postp->flags &= ~(unsigned int)MIME_BODY_ONLY;
+    postp->flags &= ~(unsigned முழு)MIME_BODY_ONLY;
 
     /* Add external headers and mime version. */
     curl_mime_headers(postp, data->set.headers, 0);
-    result = Curl_mime_prepare_headers(data, postp, NULL,
-                                       NULL, MIMESTRATEGY_MAIL);
+    result = Curl_mime_prepare_headers(data, postp, வெற்று,
+                                       வெற்று, MIMESTRATEGY_MAIL);
 
-    if(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
+    எனில்(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
       result = Curl_mime_add_header(&postp->curlheaders, "Mime-Version: 1.0");
-    if(!result)
+    எனில்(!result)
       result = Curl_creader_set_mime(data, postp);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
   }
-  else
+  இல்லையெனில்
 #endif
   {
     result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
   }
 
   /* Check we know the size of the upload. This takes all readers
    * into account. Especially crlf conversions which make the size
    * unpredictable, e.g. -1. */
   data->state.infilesize = Curl_creader_total_length(data);
-  if(data->state.infilesize < 0) {
-    if(data->set.crlf)
+  எனில்(data->state.infilesize < 0) {
+    எனில்(data->set.crlf)
       failf(data, "Cannot APPEND with CRLF conversion making size unknown");
-    else
+    இல்லையெனில்
       failf(data, "Cannot APPEND with unknown input file size");
-    return CURLE_UPLOAD_FAILED;
+    திரும்பு CURLE_UPLOAD_FAILED;
   }
 
   /* Make sure the mailbox is in the correct atom format */
   mailbox = imap_atom(imap->mailbox, FALSE);
-  if(!mailbox)
-    return CURLE_OUT_OF_MEMORY;
+  எனில்(!mailbox)
+    திரும்பு CURLE_OUT_OF_MEMORY;
 
   /* Generate flags string and send the APPEND command */
   curlx_dyn_init(&flags, 100);
-  if(data->set.upload_flags) {
-    int i;
-    struct ulbits ulflag[] = {
+  எனில்(data->set.upload_flags) {
+    முழு i;
+    கட்டமைப்பு ulbits ulflag[] = {
       { CURLULFLAG_ANSWERED, "Answered" },
       { CURLULFLAG_DELETED, "Deleted" },
       { CURLULFLAG_DRAFT, "Draft" },
       { CURLULFLAG_FLAGGED, "Flagged" },
       { CURLULFLAG_SEEN, "Seen" },
-      { 0, NULL }
+      { 0, வெற்று }
     };
 
     result = CURLE_OUT_OF_MEMORY;
-    if(curlx_dyn_add(&flags, " (")) {
-      goto cleanup;
+    எனில்(curlx_dyn_add(&flags, " (")) {
+      செல் cleanup;
     }
 
-    for(i = 0; ulflag[i].bit; i++) {
-      if(data->set.upload_flags & ulflag[i].bit &&
+    க்கு(i = 0; ulflag[i].bit; i++) {
+      எனில்(data->set.upload_flags & ulflag[i].bit &&
          ((curlx_dyn_len(&flags) > 2 && curlx_dyn_add(&flags, " ")) ||
           curlx_dyn_add(&flags, "\\") ||
           curlx_dyn_add(&flags, ulflag[i].flag)))
-        goto cleanup;
+        செல் cleanup;
     }
 
-    if(curlx_dyn_add(&flags, ")"))
-      goto cleanup;
+    எனில்(curlx_dyn_add(&flags, ")"))
+      செல் cleanup;
   }
-  else if(curlx_dyn_add(&flags, ""))
-    goto cleanup;
+  இல்லையெனில் எனில்(curlx_dyn_add(&flags, ""))
+    செல் cleanup;
 
   result = imap_sendf(data, imapc, "APPEND %s%s {%" FMT_OFF_T "}",
                       mailbox, curlx_dyn_ptr(&flags), data->state.infilesize);
@@ -933,10 +933,10 @@ cleanup:
   curlx_dyn_free(&flags);
   curlx_free(mailbox);
 
-  if(!result)
+  எனில்(!result)
     imap_state(data, imapc, IMAP_APPEND);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -945,25 +945,25 @@ cleanup:
  *
  * Sends a SEARCH command.
  */
-static CURLcode imap_perform_search(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+நிலையான CURLcode imap_perform_தேடல்(கட்டமைப்பு Curl_easy *data,
+                                    கட்டமைப்பு imap_conn *imapc,
+                                    கட்டமைப்பு IMAP *imap)
 {
   CURLcode result = CURLE_OK;
 
   /* Check we have a query string */
-  if(!imap->query) {
+  எனில்(!imap->query) {
     failf(data, "Cannot SEARCH without a query string.");
-    return CURLE_URL_MALFORMAT;
+    திரும்பு CURLE_URL_MALFORMAT;
   }
 
   /* Send the SEARCH command */
   result = imap_sendf(data, imapc, "SEARCH %s", imap->query);
 
-  if(!result)
-    imap_state(data, imapc, IMAP_SEARCH);
+  எனில்(!result)
+    imap_state(data, imapc, IMAP_தேடல்);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -972,268 +972,268 @@ static CURLcode imap_perform_search(struct Curl_easy *data,
  *
  * Performs the logout action prior to sclose() being called.
  */
-static CURLcode imap_perform_logout(struct Curl_easy *data,
-                                    struct imap_conn *imapc)
+நிலையான CURLcode imap_perform_logout(கட்டமைப்பு Curl_easy *data,
+                                    கட்டமைப்பு imap_conn *imapc)
 {
   /* Send the LOGOUT command */
   CURLcode result = imap_sendf(data, imapc, "LOGOUT");
 
-  if(!result)
+  எனில்(!result)
     imap_state(data, imapc, IMAP_LOGOUT);
 
-  return result;
+  திரும்பு result;
 }
 
 /* For the initial server greeting */
-static CURLcode imap_state_servergreet_resp(struct Curl_easy *data,
-                                            struct imap_conn *imapc,
-                                            int imapcode,
+நிலையான CURLcode imap_state_servergreet_resp(கட்டமைப்பு Curl_easy *data,
+                                            கட்டமைப்பு imap_conn *imapc,
+                                            முழு imapcode,
                                             imapstate instate)
 {
-  (void)instate;
+  (வெறுமை)instate;
 
-  if(imapcode == IMAP_RESP_PREAUTH) {
+  எனில்(imapcode == IMAP_RESP_PREAUTH) {
     /* PREAUTH */
     imapc->preauth = TRUE;
     infof(data, "PREAUTH connection, already authenticated");
   }
-  else if(imapcode != IMAP_RESP_OK) {
+  இல்லையெனில் எனில்(imapcode != IMAP_RESP_OK) {
     failf(data, "Got unexpected imap-server response");
-    return CURLE_WEIRD_SERVER_REPLY;
+    திரும்பு CURLE_WEIRD_SERVER_REPLY;
   }
 
-  return imap_perform_capability(data, imapc);
+  திரும்பு imap_perform_capability(data, imapc);
 }
 
 /* For CAPABILITY responses */
-static CURLcode imap_state_capability_resp(struct Curl_easy *data,
-                                           struct imap_conn *imapc,
-                                           int imapcode,
+நிலையான CURLcode imap_state_capability_resp(கட்டமைப்பு Curl_easy *data,
+                                           கட்டமைப்பு imap_conn *imapc,
+                                           முழு imapcode,
                                            imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  மாறிலி எழுத்து *வரி = curlx_dyn_ptr(&imapc->pp.recvbuf);
 
-  (void)instate;
+  (வெறுமை)instate;
 
   /* Do we have an untagged response? */
-  if(imapcode == '*') {
-    line += 2;
+  எனில்(imapcode == '*') {
+    வரி += 2;
 
     /* Loop through the data line */
-    for(;;) {
+    க்கு(;;) {
       size_t wordlen;
-      while(*line && (ISBLANK(*line) || ISNEWLINE(*line)))
-        line++;
+      போது(*வரி && (ISBLANK(*வரி) || ISNEWLINE(*வரி)))
+        வரி++;
 
-      if(!*line)
-        break;
+      எனில்(!*வரி)
+        நிறுத்து;
 
       /* Extract the word */
-      for(wordlen = 0; line[wordlen] && !ISBLANK(line[wordlen]) &&
-                       !ISNEWLINE(line[wordlen]);)
+      க்கு(wordlen = 0; வரி[wordlen] && !ISBLANK(வரி[wordlen]) &&
+                       !ISNEWLINE(வரி[wordlen]);)
         wordlen++;
 
       /* Does the server support the STARTTLS capability? */
-      if(wordlen == 8 && curl_strnequal(line, "STARTTLS", 8))
+      எனில்(wordlen == 8 && curl_strnequal(வரி, "STARTTLS", 8))
         imapc->tls_supported = TRUE;
 
       /* Has the server explicitly disabled clear text authentication? */
-      else if(wordlen == 13 && curl_strnequal(line, "LOGINDISABLED", 13))
+      இல்லையெனில் எனில்(wordlen == 13 && curl_strnequal(வரி, "LOGINDISABLED", 13))
         imapc->login_disabled = TRUE;
 
       /* Does the server support the SASL-IR capability? */
-      else if(wordlen == 7 && curl_strnequal(line, "SASL-IR", 7))
+      இல்லையெனில் எனில்(wordlen == 7 && curl_strnequal(வரி, "SASL-IR", 7))
         imapc->ir_supported = TRUE;
 
       /* Do we have a SASL based authentication mechanism? */
-      else if(wordlen > 5 && curl_strnequal(line, "AUTH=", 5)) {
+      இல்லையெனில் எனில்(wordlen > 5 && curl_strnequal(வரி, "AUTH=", 5)) {
         size_t llen;
         unsigned short mechbit;
 
-        line += 5;
+        வரி += 5;
         wordlen -= 5;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        mechbit = Curl_sasl_decode_mech(வரி, wordlen, &llen);
+        எனில்(mechbit && llen == wordlen)
           imapc->sasl.authmechs |= mechbit;
       }
 
-      line += wordlen;
+      வரி += wordlen;
     }
   }
-  else if(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+  இல்லையெனில் எனில்(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
     /* PREAUTH is not compatible with STARTTLS. */
-    if(imapcode == IMAP_RESP_OK && imapc->tls_supported && !imapc->preauth) {
+    எனில்(imapcode == IMAP_RESP_OK && imapc->tls_supported && !imapc->preauth) {
       /* Switch to TLS connection now */
       result = imap_perform_starttls(data, imapc);
     }
-    else if(data->set.use_ssl <= CURLUSESSL_TRY)
+    இல்லையெனில் எனில்(data->set.use_ssl <= CURLUSESSL_TRY)
       result = imap_perform_authentication(data, imapc);
-    else {
+    இல்லையெனில் {
       failf(data, "STARTTLS not available.");
       result = CURLE_USE_SSL_FAILED;
     }
   }
-  else
+  இல்லையெனில்
     result = imap_perform_authentication(data, imapc);
 
-  return result;
+  திரும்பு result;
 }
 
 /* For STARTTLS responses */
-static CURLcode imap_state_starttls_resp(struct Curl_easy *data,
-                                         struct imap_conn *imapc,
-                                         int imapcode,
+நிலையான CURLcode imap_state_starttls_resp(கட்டமைப்பு Curl_easy *data,
+                                         கட்டமைப்பு imap_conn *imapc,
+                                         முழு imapcode,
                                          imapstate instate)
 {
   CURLcode result = CURLE_OK;
 
-  (void)instate;
+  (வெறுமை)instate;
 
   /* Pipelining in response is forbidden. */
-  if(imapc->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  எனில்(imapc->pp.overflow)
+    திரும்பு CURLE_WEIRD_SERVER_REPLY;
 
-  if(imapcode != IMAP_RESP_OK) {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
+  எனில்(imapcode != IMAP_RESP_OK) {
+    எனில்(data->set.use_ssl != CURLUSESSL_TRY) {
       failf(data, "STARTTLS denied");
       result = CURLE_USE_SSL_FAILED;
     }
-    else
+    இல்லையெனில்
       result = imap_perform_authentication(data, imapc);
   }
-  else
+  இல்லையெனில்
     imap_state(data, imapc, IMAP_UPGRADETLS);
 
-  return result;
+  திரும்பு result;
 }
 
 /* For SASL authentication responses */
-static CURLcode imap_state_auth_resp(struct Curl_easy *data,
-                                     struct imap_conn *imapc,
-                                     int imapcode,
+நிலையான CURLcode imap_state_auth_resp(கட்டமைப்பு Curl_easy *data,
+                                     கட்டமைப்பு imap_conn *imapc,
+                                     முழு imapcode,
                                      imapstate instate)
 {
   CURLcode result = CURLE_OK;
   saslprogress progress;
 
-  (void)instate;
+  (வெறுமை)instate;
 
   result = Curl_sasl_continue(&imapc->sasl, data, imapcode, &progress);
-  if(!result)
-    switch(progress) {
-    case SASL_DONE:
+  எனில்(!result)
+    தேர்வு(progress) {
+    நிலை SASL_DONE:
       imap_state(data, imapc, IMAP_STOP);  /* Authenticated */
-      break;
-    case SASL_IDLE:            /* No mechanism left after cancellation */
-      if(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
+      நிறுத்து;
+    நிலை SASL_IDLE:            /* No mechanism left after cancellation */
+      எனில்(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
         /* Perform clear text authentication */
         result = imap_perform_login(data, imapc, data->conn);
-      else {
+      இல்லையெனில் {
         failf(data, "Authentication cancelled");
         result = CURLE_LOGIN_DENIED;
       }
-      break;
-    default:
-      break;
+      நிறுத்து;
+    இயல்பு:
+      நிறுத்து;
     }
 
-  return result;
+  திரும்பு result;
 }
 
 /* For LOGIN responses */
-static CURLcode imap_state_login_resp(struct Curl_easy *data,
-                                      struct imap_conn *imapc,
-                                      int imapcode,
+நிலையான CURLcode imap_state_login_resp(கட்டமைப்பு Curl_easy *data,
+                                      கட்டமைப்பு imap_conn *imapc,
+                                      முழு imapcode,
                                       imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (வெறுமை)instate;
 
-  if(imapcode != IMAP_RESP_OK) {
+  எனில்(imapcode != IMAP_RESP_OK) {
     failf(data, "Access denied. %c", imapcode);
     result = CURLE_LOGIN_DENIED;
   }
-  else
+  இல்லையெனில்
     /* End of connect phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  திரும்பு result;
 }
 
 /* Detect IMAP listings vs. downloading a single email */
-static bool is_custom_fetch_listing_match(const char *params)
+நிலையான bool is_custom_fetch_listing_match(மாறிலி எழுத்து *params)
 {
   /* match " 1:* (FLAGS ..." or " 1,2,3 (FLAGS ..." */
-  if(*params++ != ' ')
-    return FALSE;
+  எனில்(*params++ != ' ')
+    திரும்பு FALSE;
 
-  while(ISDIGIT(*params)) {
+  போது(ISDIGIT(*params)) {
     params++;
-    if(*params == 0)
-      return FALSE;
+    எனில்(*params == 0)
+      திரும்பு FALSE;
   }
-  if(*params == ':')
-    return TRUE;
-  if(*params == ',')
-    return TRUE;
-  return FALSE;
+  எனில்(*params == ':')
+    திரும்பு TRUE;
+  எனில்(*params == ',')
+    திரும்பு TRUE;
+  திரும்பு FALSE;
 }
 
-static bool is_custom_fetch_listing(struct IMAP *imap)
+நிலையான bool is_custom_fetch_listing(கட்டமைப்பு IMAP *imap)
 {
   /* filter out "UID FETCH 1:* (FLAGS ..." queries to list emails */
-  if(!imap->custom)
-    return FALSE;
-  else if(curl_strequal(imap->custom, "FETCH") && imap->custom_params) {
-    const char *p = imap->custom_params;
-    return is_custom_fetch_listing_match(p);
+  எனில்(!imap->custom)
+    திரும்பு FALSE;
+  இல்லையெனில் எனில்(curl_strequal(imap->custom, "FETCH") && imap->custom_params) {
+    மாறிலி எழுத்து *p = imap->custom_params;
+    திரும்பு is_custom_fetch_listing_match(p);
   }
-  else if(curl_strequal(imap->custom, "UID") && imap->custom_params &&
+  இல்லையெனில் எனில்(curl_strequal(imap->custom, "UID") && imap->custom_params &&
           curl_strnequal(imap->custom_params, " FETCH ", 7)) {
-    const char *p = imap->custom_params + 6;
-    return is_custom_fetch_listing_match(p);
+    மாறிலி எழுத்து *p = imap->custom_params + 6;
+    திரும்பு is_custom_fetch_listing_match(p);
   }
-  return FALSE;
+  திரும்பு FALSE;
 }
 
 /* For LIST and SEARCH responses */
-static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
-                                           struct imap_conn *imapc,
-                                           int imapcode,
+நிலையான CURLcode imap_state_listsearch_resp(கட்டமைப்பு Curl_easy *data,
+                                           கட்டமைப்பு imap_conn *imapc,
+                                           முழு imapcode,
                                            imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  மாறிலி எழுத்து *வரி = curlx_dyn_ptr(&imapc->pp.recvbuf);
   size_t len = imapc->pp.nfinal;
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  கட்டமைப்பு IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
 
   DEBUGASSERT(imap);
-  if(!imap)
-    return CURLE_FAILED_INIT;
-  (void)instate;
+  எனில்(!imap)
+    திரும்பு CURLE_FAILED_INIT;
+  (வெறுமை)instate;
 
-  if(imapcode == '*' && is_custom_fetch_listing(imap)) {
+  எனில்(imapcode == '*' && is_custom_fetch_listing(imap)) {
     /* custom FETCH or UID FETCH for listing is not handled here */
   }
-  else if(imapcode == '*') {
+  இல்லையெனில் எனில்(imapcode == '*') {
     /* Check if this response contains a literal (e.g. FETCH responses with
        body data). Literal syntax is {size}\r\n */
-    const char *cr = memchr(line, '\r', len);
-    size_t line_len = cr ? (size_t)(cr - line) : len;
-    const char *ptr = imap_find_literal(line, line_len);
-    if(ptr) {
+    மாறிலி எழுத்து *cr = memchr(வரி, '\r', len);
+    size_t வரி_len = cr ? (size_t)(cr - வரி) : len;
+    மாறிலி எழுத்து *ptr = imap_find_literal(வரி, வரி_len);
+    எனில்(ptr) {
       curl_off_t size = 0;
       bool parsed = FALSE;
       ptr++;
-      if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+      எனில்(!curlx_str_எண்(&ptr, &size, CURL_OFF_T_MAX) &&
          !curlx_str_single(&ptr, '}'))
         parsed = TRUE;
 
-      if(parsed) {
-        struct pingpong *pp = &imapc->pp;
+      எனில்(parsed) {
+        கட்டமைப்பு pingpong *pp = &imapc->pp;
         size_t buffer_len = curlx_dyn_len(&pp->recvbuf);
         size_t after_header = buffer_len - pp->nfinal;
 
@@ -1241,12 +1241,12 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
         infof(data, "Found %" FMT_OFF_T " bytes to download", size);
 
         /* First write the header line */
-        result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
-        if(result)
-          return result;
+        result = Curl_client_write(data, CLIENTWRITE_BODY, வரி, len);
+        எனில்(result)
+          திரும்பு result;
 
         /* Handle data already in buffer after the header line */
-        if(after_header > 0) {
+        எனில்(after_header > 0) {
           /* There is already data in the buffer that is part of the literal
              body or subsequent responses */
           size_t chunk = after_header;
@@ -1256,48 +1256,48 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
           pp->nfinal = 0; /* done */
 
           /* Limit chunk to the literal size */
-          if((curl_off_t)chunk > size)
+          எனில்((curl_off_t)chunk > size)
             chunk = (size_t)size;
 
-          if(chunk) {
+          எனில்(chunk) {
             /* Write the literal body data */
             result = Curl_client_write(data, CLIENTWRITE_BODY,
                                        curlx_dyn_ptr(&pp->recvbuf), chunk);
-            if(result)
-              return result;
+            எனில்(result)
+              திரும்பு result;
           }
 
           /* Handle remaining data in buffer (either more literal data or
              subsequent responses) */
-          if(after_header > chunk) {
+          எனில்(after_header > chunk) {
             /* Keep the data after the literal body */
             pp->overflow = after_header - chunk;
             curlx_dyn_tail(&pp->recvbuf, pp->overflow);
           }
-          else {
+          இல்லையெனில் {
             pp->overflow = 0;
             curlx_dyn_reset(&pp->recvbuf);
           }
         }
-        else {
+        இல்லையெனில் {
           /* No data in buffer yet, reset overflow */
           pp->overflow = 0;
         }
 
-        if((CURL_OFF_T_MAX - size) < (curl_off_t)len)
+        எனில்((CURL_OFF_T_MAX - size) < (curl_off_t)len)
           /* unlikely to actually be a transfer this big, but avoid integer
              overflow */
           size = CURL_OFF_T_MAX;
-        else
+        இல்லையெனில்
           size += len;
 
         /* Progress size includes both header line and literal body */
         Curl_pgrsSetDownloadSize(data, size);
 
-        if(data->req.bytecount == size)
+        எனில்(data->req.bytecount == size)
           /* All data already transferred (header + literal body) */
           Curl_xfer_setup_nop(data);
-        else {
+        இல்லையெனில் {
           /* Setup to receive the literal body data.
              maxdownload and transfer size include both header line and
              literal body */
@@ -1307,114 +1307,114 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
         /* End of DO phase */
         imap_state(data, imapc, IMAP_STOP);
       }
-      else {
+      இல்லையெனில் {
         /* Failed to parse literal, write the line */
-        result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+        result = Curl_client_write(data, CLIENTWRITE_BODY, வரி, len);
       }
     }
-    else {
+    இல்லையெனில் {
       /* No literal, write the line as-is */
-      result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+      result = Curl_client_write(data, CLIENTWRITE_BODY, வரி, len);
     }
   }
-  else if(imapcode != IMAP_RESP_OK)
+  இல்லையெனில் எனில்(imapcode != IMAP_RESP_OK)
     result = CURLE_QUOTE_ERROR;
-  else
+  இல்லையெனில்
     /* End of DO phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  திரும்பு result;
 }
 
 /* For SELECT responses */
-static CURLcode imap_state_select_resp(struct Curl_easy *data,
-                                       struct imap_conn *imapc,
-                                       struct IMAP *imap,
-                                       int imapcode,
+நிலையான CURLcode imap_state_select_resp(கட்டமைப்பு Curl_easy *data,
+                                       கட்டமைப்பு imap_conn *imapc,
+                                       கட்டமைப்பு IMAP *imap,
+                                       முழு imapcode,
                                        imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (வெறுமை)instate;
 
-  if(imapcode == '*') {
+  எனில்(imapcode == '*') {
     /* See if this is an UIDVALIDITY response */
-    const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+    மாறிலி எழுத்து *வரி = curlx_dyn_ptr(&imapc->pp.recvbuf);
     size_t len = curlx_dyn_len(&imapc->pp.recvbuf);
-    if((len >= 18) && checkprefix("OK [UIDVALIDITY ", &line[2])) {
-      curl_off_t value;
-      const char *p = &line[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
-      if(!curlx_str_number(&p, &value, UINT_MAX)) {
-        imapc->mb_uidvalidity = (unsigned int)value;
+    எனில்((len >= 18) && checkprefix("OK [UIDVALIDITY ", &வரி[2])) {
+      curl_off_t மதிப்பு;
+      மாறிலி எழுத்து *p = &வரி[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
+      எனில்(!curlx_str_எண்(&p, &மதிப்பு, UINT_MAX)) {
+        imapc->mb_uidvalidity = (unsigned முழு)மதிப்பு;
         imapc->mb_uidvalidity_set = TRUE;
       }
     }
   }
-  else if(imapcode == IMAP_RESP_OK) {
+  இல்லையெனில் எனில்(imapcode == IMAP_RESP_OK) {
     /* Check if the UIDVALIDITY has been specified and matches */
-    if(imap->uidvalidity_set && imapc->mb_uidvalidity_set &&
+    எனில்(imap->uidvalidity_set && imapc->mb_uidvalidity_set &&
        (imap->uidvalidity != imapc->mb_uidvalidity)) {
       failf(data, "Mailbox UIDVALIDITY has changed");
       result = CURLE_REMOTE_FILE_NOT_FOUND;
     }
-    else {
+    இல்லையெனில் {
       /* Note the currently opened mailbox on this connection */
       DEBUGASSERT(!imapc->mailbox);
       imapc->mailbox = curlx_strdup(imap->mailbox);
-      if(!imapc->mailbox)
-        return CURLE_OUT_OF_MEMORY;
+      எனில்(!imapc->mailbox)
+        திரும்பு CURLE_OUT_OF_MEMORY;
 
-      if(imap->custom)
+      எனில்(imap->custom)
         result = imap_perform_list(data, imapc, imap);
-      else if(imap->query)
-        result = imap_perform_search(data, imapc, imap);
-      else
+      இல்லையெனில் எனில்(imap->query)
+        result = imap_perform_தேடல்(data, imapc, imap);
+      இல்லையெனில்
         result = imap_perform_fetch(data, imapc, imap);
     }
   }
-  else {
+  இல்லையெனில் {
     failf(data, "Select failed");
     result = CURLE_LOGIN_DENIED;
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /* For the (first line of the) FETCH responses */
-static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
-                                      struct imap_conn *imapc,
-                                      int imapcode,
+நிலையான CURLcode imap_state_fetch_resp(கட்டமைப்பு Curl_easy *data,
+                                      கட்டமைப்பு imap_conn *imapc,
+                                      முழு imapcode,
                                       imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  struct pingpong *pp = &imapc->pp;
-  const char *ptr = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  கட்டமைப்பு pingpong *pp = &imapc->pp;
+  மாறிலி எழுத்து *ptr = curlx_dyn_ptr(&imapc->pp.recvbuf);
   size_t len = imapc->pp.nfinal;
   bool parsed = FALSE;
   curl_off_t size = 0;
 
-  (void)instate;
+  (வெறுமை)instate;
 
-  if(imapcode != '*') {
+  எனில்(imapcode != '*') {
     Curl_pgrsSetDownloadSize(data, -1);
     imap_state(data, imapc, IMAP_STOP);
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+    திரும்பு CURLE_REMOTE_FILE_NOT_FOUND;
   }
 
   /* Something like this is received "* 1 FETCH (BODY[TEXT] {2021}\r" so parse
      the continuation data contained within the curly brackets */
   ptr = imap_find_literal(ptr, len);
-  if(ptr) {
+  எனில்(ptr) {
     ptr++;
-    if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+    எனில்(!curlx_str_எண்(&ptr, &size, CURL_OFF_T_MAX) &&
        !curlx_str_single(&ptr, '}'))
       parsed = TRUE;
   }
 
-  if(parsed) {
+  எனில்(parsed) {
     infof(data, "Found %" FMT_OFF_T " bytes to download", size);
     Curl_pgrsSetDownloadSize(data, size);
 
-    if(pp->overflow) {
+    எனில்(pp->overflow) {
       /* At this point there is a data in the receive buffer that is body
          content, send it as body and then skip it. Do note that there may
          even be additional "headers" after the body. */
@@ -1424,46 +1424,46 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
       curlx_dyn_tail(&pp->recvbuf, chunk);
       pp->nfinal = 0; /* done */
 
-      if((curl_off_t)chunk > size)
+      எனில்((curl_off_t)chunk > size)
         /* The conversion from curl_off_t to size_t is always fine here */
         chunk = (size_t)size;
 
-      if(!chunk) {
+      எனில்(!chunk) {
         /* no size, we are done with the data */
         imap_state(data, imapc, IMAP_STOP);
-        return CURLE_OK;
+        திரும்பு CURLE_OK;
       }
       result = Curl_client_write(data, CLIENTWRITE_BODY,
                                  curlx_dyn_ptr(&pp->recvbuf), chunk);
-      if(result)
-        return result;
+      எனில்(result)
+        திரும்பு result;
 
       infof(data, "Written %zu bytes, %" FMT_OFF_T
             " bytes are left for transfer", chunk, (curl_off_t)(size - chunk));
 
       /* Have we used the entire overflow or part of it?*/
-      if(pp->overflow > chunk) {
+      எனில்(pp->overflow > chunk) {
         /* remember the remaining trailing overflow data */
         pp->overflow -= chunk;
         curlx_dyn_tail(&pp->recvbuf, pp->overflow);
       }
-      else {
+      இல்லையெனில் {
         pp->overflow = 0; /* handled */
         /* Free the cache */
         curlx_dyn_reset(&pp->recvbuf);
       }
     }
 
-    if(data->req.bytecount == size)
+    எனில்(data->req.bytecount == size)
       /* The entire data is already transferred! */
       Curl_xfer_setup_nop(data);
-    else {
+    இல்லையெனில் {
       /* IMAP download */
       data->req.maxdownload = size;
       Curl_xfer_setup_recv(data, FIRSTSOCKET, size);
     }
   }
-  else {
+  இல்லையெனில் {
     /* We do not know how to parse this line */
     failf(data, "Failed to parse FETCH response.");
     result = CURLE_WEIRD_SERVER_REPLY;
@@ -1472,41 +1472,41 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
   /* End of DO phase */
   imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  திரும்பு result;
 }
 
 /* For final FETCH responses performed after the download */
-static CURLcode imap_state_fetch_final_resp(struct Curl_easy *data,
-                                            struct imap_conn *imapc,
-                                            int imapcode,
+நிலையான CURLcode imap_state_fetch_final_resp(கட்டமைப்பு Curl_easy *data,
+                                            கட்டமைப்பு imap_conn *imapc,
+                                            முழு imapcode,
                                             imapstate instate)
 {
   CURLcode result = CURLE_OK;
 
-  (void)instate;
+  (வெறுமை)instate;
 
-  if(imapcode != IMAP_RESP_OK)
+  எனில்(imapcode != IMAP_RESP_OK)
     result = CURLE_WEIRD_SERVER_REPLY;
-  else
+  இல்லையெனில்
     /* End of DONE phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  திரும்பு result;
 }
 
 /* For APPEND responses */
-static CURLcode imap_state_append_resp(struct Curl_easy *data,
-                                       struct imap_conn *imapc,
-                                       int imapcode,
+நிலையான CURLcode imap_state_append_resp(கட்டமைப்பு Curl_easy *data,
+                                       கட்டமைப்பு imap_conn *imapc,
+                                       முழு imapcode,
                                        imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (வெறுமை)instate;
 
-  if(imapcode != '+') {
+  எனில்(imapcode != '+') {
     result = CURLE_UPLOAD_FAILED;
   }
-  else {
+  இல்லையெனில் {
     /* Set the progress upload size */
     Curl_pgrsSetUploadSize(data, data->state.infilesize);
 
@@ -1517,170 +1517,170 @@ static CURLcode imap_state_append_resp(struct Curl_easy *data,
     imap_state(data, imapc, IMAP_STOP);
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /* For final APPEND responses performed after the upload */
-static CURLcode imap_state_append_final_resp(struct Curl_easy *data,
-                                             struct imap_conn *imapc,
-                                             int imapcode,
+நிலையான CURLcode imap_state_append_final_resp(கட்டமைப்பு Curl_easy *data,
+                                             கட்டமைப்பு imap_conn *imapc,
+                                             முழு imapcode,
                                              imapstate instate)
 {
   CURLcode result = CURLE_OK;
 
-  (void)instate;
+  (வெறுமை)instate;
 
-  if(imapcode != IMAP_RESP_OK)
+  எனில்(imapcode != IMAP_RESP_OK)
     result = CURLE_UPLOAD_FAILED;
-  else
+  இல்லையெனில்
     /* End of DONE phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode imap_pp_statemachine(struct Curl_easy *data,
-                                     struct connectdata *conn)
+நிலையான CURLcode imap_pp_statemachine(கட்டமைப்பு Curl_easy *data,
+                                     கட்டமைப்பு connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  int imapcode;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
-  struct pingpong *pp;
+  முழு imapcode;
+  கட்டமைப்பு imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  கட்டமைப்பு IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  கட்டமைப்பு pingpong *pp;
   size_t nread = 0;
 
-  if(!imapc || !imap)
-    return CURLE_FAILED_INIT;
+  எனில்(!imapc || !imap)
+    திரும்பு CURLE_FAILED_INIT;
   pp = &imapc->pp;
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not IMAP */
 upgrade_tls:
-  if(imapc->state == IMAP_UPGRADETLS) {
+  எனில்(imapc->state == IMAP_UPGRADETLS) {
     result = imap_perform_upgrade_tls(data, imapc, conn);
-    if(result || (imapc->state == IMAP_UPGRADETLS))
-      return result;
+    எனில்(result || (imapc->state == IMAP_UPGRADETLS))
+      திரும்பு result;
   }
 
   /* Flush any data that needs to be sent */
-  if(pp->sendleft)
-    return Curl_pp_flushsend(data, pp);
+  எனில்(pp->sendleft)
+    திரும்பு Curl_pp_flushsend(data, pp);
 
-  do {
+  செய் {
     /* Read the response from the server */
     result = Curl_pp_readresp(data, FIRSTSOCKET, pp, &imapcode, &nread);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
 
     /* Was there an error parsing the response line? */
-    if(imapcode == -1)
-      return CURLE_WEIRD_SERVER_REPLY;
+    எனில்(imapcode == -1)
+      திரும்பு CURLE_WEIRD_SERVER_REPLY;
 
-    if(!imapcode)
-      break;
+    எனில்(!imapcode)
+      நிறுத்து;
 
     /* We have now received a full IMAP server response */
-    switch(imapc->state) {
-    case IMAP_SERVERGREET:
+    தேர்வு(imapc->state) {
+    நிலை IMAP_SERVERGREET:
       result = imap_state_servergreet_resp(data, imapc,
                                            imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_CAPABILITY:
+    நிலை IMAP_CAPABILITY:
       result = imap_state_capability_resp(data, imapc, imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_STARTTLS:
+    நிலை IMAP_STARTTLS:
       result = imap_state_starttls_resp(data, imapc, imapcode, imapc->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (imapc->state == IMAP_UPGRADETLS))
-        goto upgrade_tls;
-      break;
+      எனில்(!result && (imapc->state == IMAP_UPGRADETLS))
+        செல் upgrade_tls;
+      நிறுத்து;
 
-    case IMAP_AUTHENTICATE:
+    நிலை IMAP_AUTHENTICATE:
       result = imap_state_auth_resp(data, imapc, imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_LOGIN:
+    நிலை IMAP_LOGIN:
       result = imap_state_login_resp(data, imapc, imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_LIST:
-    case IMAP_SEARCH:
+    நிலை IMAP_LIST:
+    நிலை IMAP_தேடல்:
       result = imap_state_listsearch_resp(data, imapc, imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_SELECT:
+    நிலை IMAP_SELECT:
       result = imap_state_select_resp(data, imapc, imap,
                                       imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_FETCH:
+    நிலை IMAP_FETCH:
       result = imap_state_fetch_resp(data, imapc, imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_FETCH_FINAL:
+    நிலை IMAP_FETCH_FINAL:
       result = imap_state_fetch_final_resp(data, imapc,
                                            imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_APPEND:
+    நிலை IMAP_APPEND:
       result = imap_state_append_resp(data, imapc, imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_APPEND_FINAL:
+    நிலை IMAP_APPEND_FINAL:
       result = imap_state_append_final_resp(data, imapc,
                                             imapcode, imapc->state);
-      break;
+      நிறுத்து;
 
-    case IMAP_LOGOUT:
-    default:
+    நிலை IMAP_LOGOUT:
+    இயல்பு:
       /* internal error */
       imap_state(data, imapc, IMAP_STOP);
-      break;
+      நிறுத்து;
     }
-  } while(!result && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
+  } போது(!result && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
 
-  return result;
+  திரும்பு result;
 }
 
 /* Called repeatedly until done from multi.c */
-static CURLcode imap_multi_statemach(struct Curl_easy *data, bool *done)
+நிலையான CURLcode imap_multi_statemach(கட்டமைப்பு Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct imap_conn *imapc =
+  கட்டமைப்பு imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
   *done = FALSE;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  எனில்(!imapc)
+    திரும்பு CURLE_FAILED_INIT;
   result = Curl_pp_statemach(data, &imapc->pp, FALSE, FALSE);
   *done = (imapc->state == IMAP_STOP);
 
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode imap_block_statemach(struct Curl_easy *data,
-                                     struct imap_conn *imapc,
+நிலையான CURLcode imap_block_statemach(கட்டமைப்பு Curl_easy *data,
+                                     கட்டமைப்பு imap_conn *imapc,
                                      bool disconnecting)
 {
   CURLcode result = CURLE_OK;
 
-  while(imapc->state != IMAP_STOP && !result)
+  போது(imapc->state != IMAP_STOP && !result)
     result = Curl_pp_statemach(data, &imapc->pp, TRUE, disconnecting);
 
-  return result;
+  திரும்பு result;
 }
 
 /* For the IMAP "protocol connect" and "doing" phases only */
-static CURLcode imap_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+நிலையான CURLcode imap_pollset(கட்டமைப்பு Curl_easy *data,
+                             கட்டமைப்பு easy_pollset *ps)
 {
-  struct imap_conn *imapc =
+  கட்டமைப்பு imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  return imapc ? Curl_pp_pollset(data, &imapc->pp, ps) : CURLE_OK;
+  திரும்பு imapc ? Curl_pp_pollset(data, &imapc->pp, ps) : CURLE_OK;
 }
 
-static void imap_easy_reset(struct IMAP *imap)
+நிலையான வெறுமை imap_easy_reset(கட்டமைப்பு IMAP *imap)
 {
   curlx_safefree(imap->mailbox);
   curlx_safefree(imap->uid);
@@ -1702,11 +1702,11 @@ static void imap_easy_reset(struct IMAP *imap)
  * Portable test of whether the specified char is a "bchar" as defined in the
  * grammar of RFC-5092.
  */
-static bool imap_is_bchar(char ch)
+நிலையான bool imap_is_bchar(எழுத்து ch)
 {
   /* Performing the alnum check first with macro is faster because of ASCII
      arithmetic */
-  return ch && (ISALNUM(ch) || strchr(":@/&=-._~!$\'()*+,%", ch));
+  திரும்பு ch && (ISALNUM(ch) || strchr(":@/&=-._~!$\'()*+,%", ch));
 }
 
 /***********************************************************************
@@ -1715,61 +1715,61 @@ static bool imap_is_bchar(char ch)
  *
  * Parse the URL login options.
  */
-static CURLcode imap_parse_url_options(struct connectdata *conn,
-                                       struct imap_conn *imapc)
+நிலையான CURLcode imap_parse_url_options(கட்டமைப்பு connectdata *conn,
+                                       கட்டமைப்பு imap_conn *imapc)
 {
   CURLcode result = CURLE_OK;
-  const char *ptr = conn->options;
+  மாறிலி எழுத்து *ptr = conn->options;
   bool prefer_login = FALSE;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  போது(!result && ptr && *ptr) {
+    மாறிலி எழுத்து *சாவி = ptr;
+    மாறிலி எழுத்து *மதிப்பு;
 
-    while(*ptr && *ptr != '=')
+    போது(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    மதிப்பு = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    போது(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=+LOGIN", 11)) {
+    எனில்(curl_strnequal(சாவி, "AUTH=+LOGIN", 11)) {
       /* User prefers plaintext LOGIN over any SASL, including SASL LOGIN */
       prefer_login = TRUE;
       imapc->sasl.prefmech = SASL_AUTH_NONE;
     }
-    else if(curl_strnequal(key, "AUTH=", 5)) {
+    இல்லையெனில் எனில்(curl_strnequal(சாவி, "AUTH=", 5)) {
       prefer_login = FALSE;
       result = Curl_sasl_parse_url_auth_option(&imapc->sasl,
-                                               value, ptr - value);
+                                               மதிப்பு, ptr - மதிப்பு);
     }
-    else {
+    இல்லையெனில் {
       prefer_login = FALSE;
       result = CURLE_URL_MALFORMAT;
     }
 
-    if(*ptr == ';')
+    எனில்(*ptr == ';')
       ptr++;
   }
 
-  if(prefer_login)
+  எனில்(prefer_login)
     imapc->preftype = IMAP_TYPE_CLEARTEXT;
-  else {
-    switch(imapc->sasl.prefmech) {
-    case SASL_AUTH_NONE:
+  இல்லையெனில் {
+    தேர்வு(imapc->sasl.prefmech) {
+    நிலை SASL_AUTH_NONE:
       imapc->preftype = IMAP_TYPE_NONE;
-      break;
-    case SASL_AUTH_DEFAULT:
+      நிறுத்து;
+    நிலை SASL_AUTH_DEFAULT:
       imapc->preftype = IMAP_TYPE_ANY;
-      break;
-    default:
+      நிறுத்து;
+    இயல்பு:
       imapc->preftype = IMAP_TYPE_SASL;
-      break;
+      நிறுத்து;
     }
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -1779,123 +1779,123 @@ static CURLcode imap_parse_url_options(struct connectdata *conn,
  * Parse the URL path into separate path components.
  *
  */
-static CURLcode imap_parse_url_path(struct Curl_easy *data,
-                                    struct IMAP *imap)
+நிலையான CURLcode imap_parse_url_path(கட்டமைப்பு Curl_easy *data,
+                                    கட்டமைப்பு IMAP *imap)
 {
   /* The imap struct is already initialized in imap_connect() */
   CURLcode result = CURLE_OK;
-  const char *begin = &data->state.up.path[1]; /* skip leading slash */
-  const char *ptr = begin;
+  மாறிலி எழுத்து *begin = &data->state.up.path[1]; /* skip leading slash */
+  மாறிலி எழுத்து *ptr = begin;
 
   /* See how much of the URL is a valid path and decode it */
-  while(imap_is_bchar(*ptr))
+  போது(imap_is_bchar(*ptr))
     ptr++;
 
-  if(ptr != begin) {
+  எனில்(ptr != begin) {
     /* Remove the trailing slash if present */
-    const char *end = ptr;
-    if(end > begin && end[-1] == '/')
+    மாறிலி எழுத்து *end = ptr;
+    எனில்(end > begin && end[-1] == '/')
       end--;
 
-    result = Curl_urldecode(begin, end - begin, &imap->mailbox, NULL,
+    result = Curl_urldecode(begin, end - begin, &imap->mailbox, வெற்று,
                             REJECT_CTRL);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
   }
-  else
-    imap->mailbox = NULL;
+  இல்லையெனில்
+    imap->mailbox = வெற்று;
 
   /* There can be any number of parameters in the form ";NAME=VALUE" */
-  while(*ptr == ';') {
-    char *name;
-    char *value;
+  போது(*ptr == ';') {
+    எழுத்து *name;
+    எழுத்து *மதிப்பு;
     size_t valuelen;
 
     /* Find the length of the name parameter */
     begin = ++ptr;
-    while(*ptr && *ptr != '=')
+    போது(*ptr && *ptr != '=')
       ptr++;
 
-    if(!*ptr)
-      return CURLE_URL_MALFORMAT;
+    எனில்(!*ptr)
+      திரும்பு CURLE_URL_MALFORMAT;
 
     /* Decode the name parameter */
-    result = Curl_urldecode(begin, ptr - begin, &name, NULL,
+    result = Curl_urldecode(begin, ptr - begin, &name, வெற்று,
                             REJECT_CTRL);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
 
     /* Find the length of the value parameter */
     begin = ++ptr;
-    while(imap_is_bchar(*ptr))
+    போது(imap_is_bchar(*ptr))
       ptr++;
 
     /* Decode the value parameter */
-    result = Curl_urldecode(begin, ptr - begin, &value, &valuelen,
+    result = Curl_urldecode(begin, ptr - begin, &மதிப்பு, &valuelen,
                             REJECT_CTRL);
-    if(result) {
+    எனில்(result) {
       curlx_free(name);
-      return result;
+      திரும்பு result;
     }
 
-    DEBUGF(infof(data, "IMAP URL parameter '%s' = '%s'", name, value));
+    DEBUGF(infof(data, "IMAP URL parameter '%s' = '%s'", name, மதிப்பு));
 
     /* Process the known hierarchical parameters (UIDVALIDITY, UID, SECTION
        and PARTIAL) stripping of the trailing slash character if it is
        present.
 
        Note: Unknown parameters trigger a URL_MALFORMAT error. */
-    if(valuelen > 0 && value[valuelen - 1] == '/')
-      value[valuelen - 1] = '\0';
-    if(valuelen) {
-      if(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_set) {
-        curl_off_t num;
-        const char *p = (const char *)value;
-        if(!curlx_str_number(&p, &num, UINT_MAX)) {
-          imap->uidvalidity = (unsigned int)num;
+    எனில்(valuelen > 0 && மதிப்பு[valuelen - 1] == '/')
+      மதிப்பு[valuelen - 1] = '\0';
+    எனில்(valuelen) {
+      எனில்(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_set) {
+        curl_off_t இலக்கம்;
+        மாறிலி எழுத்து *p = (மாறிலி எழுத்து *)மதிப்பு;
+        எனில்(!curlx_str_எண்(&p, &இலக்கம், UINT_MAX)) {
+          imap->uidvalidity = (unsigned முழு)இலக்கம்;
           imap->uidvalidity_set = TRUE;
         }
-        curlx_free(value);
+        curlx_free(மதிப்பு);
       }
-      else if(curl_strequal(name, "UID") && !imap->uid) {
-        imap->uid = value;
+      இல்லையெனில் எனில்(curl_strequal(name, "UID") && !imap->uid) {
+        imap->uid = மதிப்பு;
       }
-      else if(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
-        imap->mindex = value;
+      இல்லையெனில் எனில்(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
+        imap->mindex = மதிப்பு;
       }
-      else if(curl_strequal(name, "SECTION") && !imap->section) {
-        imap->section = value;
+      இல்லையெனில் எனில்(curl_strequal(name, "SECTION") && !imap->section) {
+        imap->section = மதிப்பு;
       }
-      else if(curl_strequal(name, "PARTIAL") && !imap->partial) {
-        imap->partial = value;
+      இல்லையெனில் எனில்(curl_strequal(name, "PARTIAL") && !imap->partial) {
+        imap->partial = மதிப்பு;
       }
-      else {
+      இல்லையெனில் {
         curlx_free(name);
-        curlx_free(value);
-        return CURLE_URL_MALFORMAT;
+        curlx_free(மதிப்பு);
+        திரும்பு CURLE_URL_MALFORMAT;
       }
     }
-    else
+    இல்லையெனில்
       /* blank? */
-      curlx_free(value);
+      curlx_free(மதிப்பு);
     curlx_free(name);
   }
 
   /* Does the URL contain a query parameter? Only valid when we have a mailbox
      and no UID as per RFC-5092 */
-  if(imap->mailbox && !imap->uid && !imap->mindex) {
+  எனில்(imap->mailbox && !imap->uid && !imap->mindex) {
     /* Get the query parameter, URL decoded */
     CURLUcode uc = curl_url_get(data->state.uh, CURLUPART_QUERY, &imap->query,
                                 CURLU_URLDECODE);
-    if(uc == CURLUE_OUT_OF_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    எனில்(uc == CURLUE_OUT_OF_MEMORY)
+      திரும்பு CURLE_OUT_OF_MEMORY;
   }
 
   /* Any extra stuff at the end of the URL is an error */
-  if(*ptr)
-    return CURLE_URL_MALFORMAT;
+  எனில்(*ptr)
+    திரும்பு CURLE_URL_MALFORMAT;
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /***********************************************************************
@@ -1904,34 +1904,34 @@ static CURLcode imap_parse_url_path(struct Curl_easy *data,
  *
  * Parse the custom request.
  */
-static CURLcode imap_parse_custom_request(struct Curl_easy *data,
-                                          struct IMAP *imap)
+நிலையான CURLcode imap_parse_custom_request(கட்டமைப்பு Curl_easy *data,
+                                          கட்டமைப்பு IMAP *imap)
 {
   CURLcode result = CURLE_OK;
-  const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  மாறிலி எழுத்து *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
 
-  if(custom) {
+  எனில்(custom) {
     /* URL decode the custom request */
-    result = Curl_urldecode(custom, 0, &imap->custom, NULL, REJECT_CTRL);
+    result = Curl_urldecode(custom, 0, &imap->custom, வெற்று, REJECT_CTRL);
 
     /* Extract the parameters if specified */
-    if(!result) {
-      const char *params = imap->custom;
+    எனில்(!result) {
+      மாறிலி எழுத்து *params = imap->custom;
 
-      while(*params && *params != ' ')
+      போது(*params && *params != ' ')
         params++;
 
-      if(*params) {
+      எனில்(*params) {
         imap->custom_params = curlx_strdup(params);
         imap->custom[params - imap->custom] = '\0';
 
-        if(!imap->custom_params)
+        எனில்(!imap->custom_params)
           result = CURLE_OUT_OF_MEMORY;
       }
     }
   }
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -1944,30 +1944,30 @@ static CURLcode imap_parse_custom_request(struct Curl_easy *data,
  * The variable 'done' points to will be TRUE if the protocol-layer connect
  * phase is done when this function returns, or FALSE if not.
  */
-static CURLcode imap_connect(struct Curl_easy *data, bool *done)
+நிலையான CURLcode imap_connect(கட்டமைப்பு Curl_easy *data, bool *done)
 {
-  struct imap_conn *imapc =
+  கட்டமைப்பு imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
   CURLcode result = CURLE_OK;
 
   *done = FALSE; /* default to not done yet */
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  எனில்(!imapc)
+    திரும்பு CURLE_FAILED_INIT;
 
   /* Parse the URL options */
   result = imap_parse_url_options(data->conn, imapc);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
   /* Start off waiting for the server greeting response */
   imap_state(data, imapc, IMAP_SERVERGREET);
 
   /* Start off with an response id of '*' */
-  curlx_strcopy(imapc->resptag, sizeof(imapc->resptag), STRCONST("*"));
+  curlx_strcopy(imapc->resptag, அளவு(imapc->resptag), STRCONST("*"));
 
   result = imap_multi_statemach(data, done);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -1979,25 +1979,25 @@ static CURLcode imap_connect(struct Curl_easy *data, bool *done)
  *
  * Input argument is already checked for validity.
  */
-static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
+நிலையான CURLcode imap_done(கட்டமைப்பு Curl_easy *data, CURLcode status,
                           bool premature)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  கட்டமைப்பு connectdata *conn = data->conn;
+  கட்டமைப்பு imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  கட்டமைப்பு IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  if(!imap)
-    return CURLE_OK;
+  எனில்(!imapc)
+    திரும்பு CURLE_FAILED_INIT;
+  எனில்(!imap)
+    திரும்பு CURLE_OK;
 
-  if(status || premature) {
+  எனில்(status || premature) {
     CURL_TRC_M(data, "IMAP done, not finalizing transfer");
     connclose(conn); /* marked for closure */
     result = status;         /* use the already set error code */
   }
-  else if(!data->set.connect_only &&
+  இல்லையெனில் எனில்(!data->set.connect_only &&
           ((!imap->custom && (imap->uid || imap->mindex)) ||
            (imap->custom && data->req.maxdownload > 0) ||
            data->state.upload || IS_MIME_POST(data))) {
@@ -2005,22 +2005,22 @@ static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
        For custom commands, check if we set up a download which indicates
        a FETCH-like command with literal data. */
 
-    if(!data->state.upload && !IS_MIME_POST(data))
+    எனில்(!data->state.upload && !IS_MIME_POST(data))
       imap_state(data, imapc, IMAP_FETCH_FINAL);
-    else {
+    இல்லையெனில் {
       /* End the APPEND command first by sending an empty line */
       result = Curl_pp_sendf(data, &imapc->pp, "%s", "");
-      if(!result)
+      எனில்(!result)
         imap_state(data, imapc, IMAP_APPEND_FINAL);
     }
 
     /* Run the state-machine */
-    if(!result)
+    எனில்(!result)
       result = imap_block_statemach(data, imapc, FALSE);
   }
 
   imap_easy_reset(imap);
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -2030,21 +2030,21 @@ static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
  * This is the actual DO function for IMAP. Fetch or append a message, or do
  * other things according to the options previously setup.
  */
-static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
+நிலையான CURLcode imap_perform(கட்டமைப்பு Curl_easy *data, bool *connected,
                              bool *dophase_done)
 {
   /* This is IMAP and no proxy */
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  கட்டமைப்பு connectdata *conn = data->conn;
+  கட்டமைப்பு imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  கட்டமைப்பு IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
   bool selected = FALSE;
 
   DEBUGF(infof(data, "DO phase starts"));
-  if(!imapc || !imap)
-    return CURLE_FAILED_INIT;
+  எனில்(!imapc || !imap)
+    திரும்பு CURLE_FAILED_INIT;
 
-  if(data->req.no_body) {
+  எனில்(data->req.no_body) {
     /* Requested no body means no transfer */
     imap->transfer = PPTRANSFER_INFO;
   }
@@ -2053,7 +2053,7 @@ static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
 
   /* Determine if the requested mailbox (with the same UIDVALIDITY if set)
      has already been selected on this connection */
-  if(imap->mailbox && imapc->mailbox &&
+  எனில்(imap->mailbox && imapc->mailbox &&
      (!strcmp(imap->mailbox, imapc->mailbox) ||
       (curl_strequal(imap->mailbox, "INBOX") &&
        curl_strequal(imapc->mailbox, "INBOX"))) &&
@@ -2062,52 +2062,52 @@ static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
     selected = TRUE;
 
   /* Start the first command in the DO phase */
-  if(data->state.upload || IS_MIME_POST(data))
+  எனில்(data->state.upload || IS_MIME_POST(data))
     /* APPEND can be executed directly */
     result = imap_perform_append(data, imapc, imap);
-  else if(imap->custom && (selected || !imap->mailbox))
+  இல்லையெனில் எனில்(imap->custom && (selected || !imap->mailbox))
     /* Custom command using the same mailbox or no mailbox */
     result = imap_perform_list(data, imapc, imap);
-  else if(!imap->custom && selected && (imap->uid || imap->mindex))
+  இல்லையெனில் எனில்(!imap->custom && selected && (imap->uid || imap->mindex))
     /* FETCH from the same mailbox */
     result = imap_perform_fetch(data, imapc, imap);
-  else if(!imap->custom && selected && imap->query)
+  இல்லையெனில் எனில்(!imap->custom && selected && imap->query)
     /* SEARCH the current mailbox */
-    result = imap_perform_search(data, imapc, imap);
-  else if(imap->mailbox && !selected &&
+    result = imap_perform_தேடல்(data, imapc, imap);
+  இல்லையெனில் எனில்(imap->mailbox && !selected &&
           (imap->custom || imap->uid || imap->mindex || imap->query))
     /* SELECT the mailbox */
     result = imap_perform_select(data, imapc, imap);
-  else
+  இல்லையெனில்
     /* LIST */
     result = imap_perform_list(data, imapc, imap);
 
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
   /* Run the state-machine */
   result = imap_multi_statemach(data, dophase_done);
 
   *connected = Curl_conn_is_connected(conn, FIRSTSOCKET);
 
-  if(*dophase_done)
+  எனில்(*dophase_done)
     DEBUGF(infof(data, "DO phase is complete"));
 
-  return result;
+  திரும்பு result;
 }
 
 /* Call this when the DO phase has completed */
-static CURLcode imap_dophase_done(struct Curl_easy *data,
-                                  struct IMAP *imap,
+நிலையான CURLcode imap_dophase_done(கட்டமைப்பு Curl_easy *data,
+                                  கட்டமைப்பு IMAP *imap,
                                   bool connected)
 {
-  (void)connected;
+  (வெறுமை)connected;
 
-  if(imap->transfer != PPTRANSFER_BODY)
+  எனில்(imap->transfer != PPTRANSFER_BODY)
     /* no data to transfer */
     Curl_xfer_setup_nop(data);
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /***********************************************************************
@@ -2119,8 +2119,8 @@ static CURLcode imap_dophase_done(struct Curl_easy *data,
  * Performs all commands done before a regular transfer between a local and a
  * remote host.
  */
-static CURLcode imap_regular_transfer(struct Curl_easy *data,
-                                      struct IMAP *imap,
+நிலையான CURLcode imap_regular_transfer(கட்டமைப்பு Curl_easy *data,
+                                      கட்டமைப்பு IMAP *imap,
                                       bool *dophase_done)
 {
   CURLcode result = CURLE_OK;
@@ -2136,10 +2136,10 @@ static CURLcode imap_regular_transfer(struct Curl_easy *data,
   result = imap_perform(data, &connected, dophase_done);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
+  எனில்(!result && *dophase_done)
     result = imap_dophase_done(data, imap, connected);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -2151,27 +2151,27 @@ static CURLcode imap_regular_transfer(struct Curl_easy *data,
  *
  * The input argument is already checked for validity.
  */
-static CURLcode imap_do(struct Curl_easy *data, bool *done)
+நிலையான CURLcode imap_do(கட்டமைப்பு Curl_easy *data, bool *done)
 {
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  கட்டமைப்பு IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
   CURLcode result = CURLE_OK;
   *done = FALSE; /* default to false */
 
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  எனில்(!imap)
+    திரும்பு CURLE_FAILED_INIT;
   /* Parse the URL path */
   result = imap_parse_url_path(data, imap);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
   /* Parse the custom request */
   result = imap_parse_custom_request(data, imap);
-  if(result)
-    return result;
+  எனில்(result)
+    திரும்பு result;
 
   result = imap_regular_transfer(data, imap, done);
 
-  return result;
+  திரும்பு result;
 }
 
 /***********************************************************************
@@ -2181,12 +2181,12 @@ static CURLcode imap_do(struct Curl_easy *data, bool *done)
  * Disconnect from an IMAP server. Cleanup protocol-specific per-connection
  * resources. BLOCKING.
  */
-static CURLcode imap_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn, bool dead_connection)
+நிலையான CURLcode imap_disconnect(கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு connectdata *conn, bool dead_connection)
 {
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  கட்டமைப்பு imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
 
-  if(imapc &&
+  எனில்(imapc &&
      /* We cannot send quit unconditionally. If this connection is stale or
         bad in any way (pingpong has pending data to send),
         sending quit and waiting around here will make the
@@ -2194,53 +2194,53 @@ static CURLcode imap_disconnect(struct Curl_easy *data,
      !dead_connection && conn->bits.protoconnstart &&
      !Curl_pp_needs_flush(data, &imapc->pp) &&
      !imap_perform_logout(data, imapc))
-    (void)imap_block_statemach(data, imapc, TRUE); /* ignore errors */
+    (வெறுமை)imap_block_statemach(data, imapc, TRUE); /* ignore errors */
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
-static CURLcode imap_doing(struct Curl_easy *data, bool *dophase_done)
+நிலையான CURLcode imap_doing(கட்டமைப்பு Curl_easy *data, bool *dophase_done)
 {
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  கட்டமைப்பு IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
   CURLcode result;
 
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  எனில்(!imap)
+    திரும்பு CURLE_FAILED_INIT;
 
   result = imap_multi_statemach(data, dophase_done);
-  if(result)
+  எனில்(result)
     DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
+  இல்லையெனில் எனில்(*dophase_done) {
     result = imap_dophase_done(data, imap, FALSE /* not connected */);
 
     DEBUGF(infof(data, "DO phase is complete"));
   }
 
-  return result;
+  திரும்பு result;
 }
 
-static void imap_easy_dtor(const void *key, size_t klen, void *entry)
+நிலையான வெறுமை imap_easy_dtor(மாறிலி வெறுமை *சாவி, size_t klen, வெறுமை *entry)
 {
-  struct IMAP *imap = entry;
-  (void)key;
-  (void)klen;
+  கட்டமைப்பு IMAP *imap = entry;
+  (வெறுமை)சாவி;
+  (வெறுமை)klen;
   imap_easy_reset(imap);
   curlx_free(imap);
 }
 
-static void imap_conn_dtor(const void *key, size_t klen, void *entry)
+நிலையான வெறுமை imap_conn_dtor(மாறிலி வெறுமை *சாவி, size_t klen, வெறுமை *entry)
 {
-  struct imap_conn *imapc = entry;
-  (void)key;
-  (void)klen;
+  கட்டமைப்பு imap_conn *imapc = entry;
+  (வெறுமை)சாவி;
+  (வெறுமை)klen;
   Curl_pp_disconnect(&imapc->pp);
   curlx_safefree(imapc->mailbox);
   curlx_free(imapc);
 }
 
 /* SASL parameters for the imap protocol */
-static const struct SASLproto saslimap = {
+நிலையான மாறிலி கட்டமைப்பு SASLproto saslimap = {
   "imap",                     /* The service name */
   imap_perform_authenticate,  /* Send authentication command */
   imap_continue_authenticate, /* Send authentication continuation */
@@ -2253,16 +2253,16 @@ static const struct SASLproto saslimap = {
   SASL_FLAG_BASE64            /* Configuration flags */
 };
 
-static CURLcode imap_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+நிலையான CURLcode imap_setup_connection(கட்டமைப்பு Curl_easy *data,
+                                      கட்டமைப்பு connectdata *conn)
 {
-  struct imap_conn *imapc;
-  struct pingpong *pp;
-  struct IMAP *imap;
+  கட்டமைப்பு imap_conn *imapc;
+  கட்டமைப்பு pingpong *pp;
+  கட்டமைப்பு IMAP *imap;
 
-  imapc = curlx_calloc(1, sizeof(*imapc));
-  if(!imapc)
-    return CURLE_OUT_OF_MEMORY;
+  imapc = curlx_calloc(1, அளவு(*imapc));
+  எனில்(!imapc)
+    திரும்பு CURLE_OUT_OF_MEMORY;
 
   pp = &imapc->pp;
   PINGPONG_SETUP(pp, imap_pp_statemachine, imap_endofresp);
@@ -2273,21 +2273,21 @@ static CURLcode imap_setup_connection(struct Curl_easy *data,
 
   Curl_pp_init(pp, Curl_pgrs_now(data));
 
-  if(Curl_conn_meta_set(conn, CURL_META_IMAP_CONN, imapc, imap_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  எனில்(Curl_conn_meta_set(conn, CURL_META_IMAP_CONN, imapc, imap_conn_dtor))
+    திரும்பு CURLE_OUT_OF_MEMORY;
 
-  imap = curlx_calloc(1, sizeof(struct IMAP));
-  if(!imap ||
+  imap = curlx_calloc(1, அளவு(கட்டமைப்பு IMAP));
+  எனில்(!imap ||
      Curl_meta_set(data, CURL_META_IMAP_EASY, imap, imap_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    திரும்பு CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
 /*
  * IMAP protocol.
  */
-const struct Curl_protocol Curl_protocol_imap = {
+மாறிலி கட்டமைப்பு Curl_protocol Curl_protocol_imap = {
   imap_setup_connection,            /* setup_connection */
   imap_do,                          /* do_it */
   imap_done,                        /* done */

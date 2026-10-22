@@ -21,56 +21,56 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#அந்தர்பாவ <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#அந்தர்பாவ <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#அந்தர்பாவ <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#அந்தர்பாவ <in.h>
+#அந்தர்பாவ <inet.h>
 #endif
 
 #ifdef USE_ARES
-#include <ares.h>
+#அந்தர்பாவ <ares.h>
 #endif
 
-#include "urldata.h"
-#include "connect.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "select.h"
-#include "url.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "connect.h"
+#அந்தர்பாவ "curl_addrinfo.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "multiif.h"
+#அந்தர்பாவ "progress.h"
+#அந்தர்பாவ "select.h"
+#அந்தர்பாவ "url.h"
+#அந்தர்பாவ "vdns/hostip.h"
+#அந்தர்பாவ "vdns/httpsrr.h"
 
 /***********************************************************************
  * Only for builds using asynchronous name resolves
  **********************************************************************/
 #ifdef CURLRES_ASYNCH
 
-timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
-                                  struct Curl_resolv_async *async)
+timediff_t Curl_async_timeleft_ms(கட்டமைப்பு Curl_easy *data,
+                                  கட்டமைப்பு Curl_resolv_async *async)
 {
-  if(async->timeout_ms) {
+  எனில்(async->timeout_ms) {
     timediff_t elapsed_ms =
       curlx_ptimediff_ms(Curl_pgrs_now(data), &async->start);
-    return async->timeout_ms - elapsed_ms;
+    திரும்பு async->timeout_ms - elapsed_ms;
   }
-  return Curl_timeleft_ms(data);
+  திரும்பு Curl_timeleft_ms(data);
 }
 
 #ifdef USE_ARES
 
-#if ARES_VERSION < 0x011000
+#எனில் ARES_VERSION < 0x011000
 #error "c-ares 1.16.0 or greater required"
 #endif
 
@@ -82,57 +82,57 @@ timediff_t Curl_async_timeleft_ms(struct Curl_easy *data,
  *
  * Returns: sockets-in-use-bitmap
  */
-CURLcode Curl_ares_pollset(struct Curl_easy *data,
+CURLcode Curl_ares_pollset(கட்டமைப்பு Curl_easy *data,
                            ares_channel channel,
-                           struct easy_pollset *ps)
+                           கட்டமைப்பு easy_pollset *ps)
 {
   curl_socket_t sockets[16];  /* ARES documented limit */
-  unsigned int bitmap, i;
+  unsigned முழு bitmap, i;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(channel);
-  if(!channel)
-    return CURLE_FAILED_INIT;
+  எனில்(!channel)
+    திரும்பு CURLE_FAILED_INIT;
 
   bitmap = ares_getsock(channel, (ares_socket_t *)sockets,
                         CURL_ARRAYSIZE(sockets));
-  for(i = 0; i < CURL_ARRAYSIZE(sockets); ++i) {
-    int flags = 0;
-    if(ARES_GETSOCK_READABLE(bitmap, i))
+  க்கு(i = 0; i < CURL_ARRAYSIZE(sockets); ++i) {
+    முழு flags = 0;
+    எனில்(ARES_GETSOCK_READABLE(bitmap, i))
       flags |= CURL_POLL_IN;
-    if(ARES_GETSOCK_WRITABLE(bitmap, i))
+    எனில்(ARES_GETSOCK_WRITABLE(bitmap, i))
       flags |= CURL_POLL_OUT;
-    if(!flags)
-      break;
+    எனில்(!flags)
+      நிறுத்து;
     result = Curl_pollset_change(data, ps, sockets[i], flags, 0);
-    if(result)
-      return result;
+    எனில்(result)
+      திரும்பு result;
   }
-  return result;
+  திரும்பு result;
 }
 
-timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
+timediff_t Curl_ares_timeout_ms(கட்டமைப்பு Curl_easy *data,
+                                கட்டமைப்பு Curl_resolv_async *async,
                                 ares_channel channel)
 {
   timediff_t async_timeout_ms;
 
   DEBUGASSERT(channel);
-  if(!channel)
-    return -1;
+  எனில்(!channel)
+    திரும்பு -1;
 
   async_timeout_ms = Curl_async_timeleft_ms(data, async);
-  if((async_timeout_ms > 0) && (async_timeout_ms < INT_MAX)) {
-    struct timeval timebuf;
-    struct timeval *timeout;
-    struct timeval end = { (int)async_timeout_ms / 1000,
-                           ((int)async_timeout_ms % 1000) * 1000 };
+  எனில்((async_timeout_ms > 0) && (async_timeout_ms < INT_MAX)) {
+    கட்டமைப்பு timeval timebuf;
+    கட்டமைப்பு timeval *timeout;
+    கட்டமைப்பு timeval end = { (முழு)async_timeout_ms / 1000,
+                           ((முழு)async_timeout_ms % 1000) * 1000 };
 
     timeout = ares_timeout(channel, &end, &timebuf);
-    if(timeout)
-      return curlx_tvtoms(timeout);
+    எனில்(timeout)
+      திரும்பு curlx_tvtoms(timeout);
   }
-  return async_timeout_ms;
+  திரும்பு async_timeout_ms;
 }
 
 /*
@@ -144,59 +144,59 @@ timediff_t Curl_ares_timeout_ms(struct Curl_easy *data,
  *
  * return number of sockets it worked on, or -1 on error
  */
-int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
+முழு Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
 {
-  int nfds;
-  int bitmask;
+  முழு nfds;
+  முழு bitmask;
   ares_socket_t socks[ARES_GETSOCK_MAXNUM];
-  struct pollfd pfd[ARES_GETSOCK_MAXNUM];
-  int i;
-  int num = 0;
+  கட்டமைப்பு pollfd pfd[ARES_GETSOCK_MAXNUM];
+  முழு i;
+  முழு இலக்கம் = 0;
 
-  if(!channel)
-    return 0;
+  எனில்(!channel)
+    திரும்பு 0;
 
   bitmask = ares_getsock(channel, socks, ARES_GETSOCK_MAXNUM);
 
-  for(i = 0; i < ARES_GETSOCK_MAXNUM; i++) {
+  க்கு(i = 0; i < ARES_GETSOCK_MAXNUM; i++) {
     pfd[i].events = 0;
     pfd[i].revents = 0;
-    if(ARES_GETSOCK_READABLE(bitmask, i)) {
+    எனில்(ARES_GETSOCK_READABLE(bitmask, i)) {
       pfd[i].fd = socks[i];
       pfd[i].events |= POLLRDNORM | POLLIN;
     }
-    if(ARES_GETSOCK_WRITABLE(bitmask, i)) {
+    எனில்(ARES_GETSOCK_WRITABLE(bitmask, i)) {
       pfd[i].fd = socks[i];
       pfd[i].events |= POLLWRNORM | POLLOUT;
     }
-    if(pfd[i].events)
-      num++;
-    else
-      break;
+    எனில்(pfd[i].events)
+      இலக்கம்++;
+    இல்லையெனில்
+      நிறுத்து;
   }
 
-  if(num) {
-    nfds = Curl_poll(pfd, (unsigned int)num, timeout_ms);
-    if(nfds < 0)
-      return -1;
+  எனில்(இலக்கம்) {
+    nfds = Curl_poll(pfd, (unsigned முழு)இலக்கம், timeout_ms);
+    எனில்(nfds < 0)
+      திரும்பு -1;
   }
-  else
+  இல்லையெனில்
     nfds = 0;
 
-  if(!nfds)
+  எனில்(!nfds)
     /* Call ares_process() unconditionally here, even if we timed out
        above, as otherwise the ares name resolve will not timeout! */
     ares_process_fd(channel, ARES_SOCKET_BAD, ARES_SOCKET_BAD);
-  else {
+  இல்லையெனில் {
     /* move through the descriptors and ask for processing on them */
-    for(i = 0; i < num; i++)
+    க்கு(i = 0; i < இலக்கம்; i++)
       ares_process_fd(channel,
                       (pfd[i].revents & (POLLRDNORM | POLLIN)) ?
                       pfd[i].fd : ARES_SOCKET_BAD,
                       (pfd[i].revents & (POLLWRNORM | POLLOUT)) ?
                       pfd[i].fd : ARES_SOCKET_BAD);
   }
-  return nfds;
+  திரும்பு nfds;
 }
 
 #endif /* USE_ARES */
@@ -205,12 +205,12 @@ int Curl_ares_perform(ares_channel channel, timediff_t timeout_ms)
 
 #ifdef USE_CURL_ASYNC
 
-#include "doh.h"
+#அந்தர்பாவ "doh.h"
 
-void Curl_async_shutdown(struct Curl_easy *data,
-                         struct Curl_resolv_async *async)
+வெறுமை Curl_async_shutdown(கட்டமைப்பு Curl_easy *data,
+                         கட்டமைப்பு Curl_resolv_async *async)
 {
-  if(async) {
+  எனில்(async) {
     CURL_TRC_DNS(data, "[%u] shutdown async", async->id);
     async->shutdown = TRUE;
 #ifdef USE_RESOLV_ARES
@@ -225,10 +225,10 @@ void Curl_async_shutdown(struct Curl_easy *data,
   }
 }
 
-void Curl_async_destroy(struct Curl_easy *data,
-                        struct Curl_resolv_async *async)
+வெறுமை Curl_async_destroy(கட்டமைப்பு Curl_easy *data,
+                        கட்டமைப்பு Curl_resolv_async *async)
 {
-  if(async) {
+  எனில்(async) {
     CURL_TRC_DNS(data, "[%u] destroy async", async->id);
     async->shutdown = TRUE;
 #ifdef USE_RESOLV_ARES
@@ -240,9 +240,9 @@ void Curl_async_destroy(struct Curl_easy *data,
 #ifndef CURL_DISABLE_DOH
     Curl_doh_cleanup(data, async);
 #endif
-    if(async->ai_A)
+    எனில்(async->ai_A)
       Curl_freeaddrinfo(async->ai_A);
-    if(async->ai_AAAA)
+    எனில்(async->ai_AAAA)
       Curl_freeaddrinfo(async->ai_AAAA);
 #ifdef USE_HTTPSRR
     Curl_httpsrr_destroy(async->httpsrr);
@@ -252,25 +252,25 @@ void Curl_async_destroy(struct Curl_easy *data,
   }
 }
 
-CURLcode Curl_async_failed(struct Curl_easy *data,
-                           struct Curl_resolv_async *async,
-                           const char *detail)
+CURLcode Curl_async_failed(கட்டமைப்பு Curl_easy *data,
+                           கட்டமைப்பு Curl_resolv_async *async,
+                           மாறிலி எழுத்து *detail)
 {
-  const char *host_or_proxy = "host";
+  மாறிலி எழுத்து *host_or_proxy = "host";
   CURLcode result = CURLE_COULDNT_RESOLVE_HOST;
 
 #ifndef CURL_DISABLE_PROXY
-  if(async->for_proxy) {
+  எனில்(async->for_proxy) {
     host_or_proxy = "proxy";
     result = CURLE_COULDNT_RESOLVE_PROXY;
   }
 #endif
 
-  if(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+  எனில்(async->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
     failf(data, "Could not resolve %s: %s%s%s%s",
           host_or_proxy, async->peer->hostname,
           detail ? " (" : "", detail ? detail : "", detail ? ")" : "");
-  return result;
+  திரும்பு result;
 }
 
 #endif /* USE_CURL_ASYNC */

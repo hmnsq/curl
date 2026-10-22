@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#அந்தர்பாவ "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#எனில் defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/vtls_spack.h"
-#include "curlx/strdup.h"
+#அந்தர்பாவ "urldata.h"
+#அந்தர்பாவ "curl_trc.h"
+#அந்தர்பாவ "vtls/vtls_scache.h"
+#அந்தர்பாவ "vtls/vtls_spack.h"
+#அந்தர்பாவ "curlx/strdup.h"
 
 #define CURL_SPACK_VERSION       0x01
 #define CURL_SPACK_IETF_ID       0x02
@@ -40,61 +40,61 @@
 #define CURL_SPACK_QUICTP        0x07
 #define CURL_SPACK_SECTRUST      0x08
 
-static CURLcode spack_enc8(struct dynbuf *buf, uint8_t b)
+நிலையான CURLcode spack_enc8(கட்டமைப்பு dynbuf *buf, uint8_t b)
 {
-  return curlx_dyn_addn(buf, &b, 1);
+  திரும்பு curlx_dyn_addn(buf, &b, 1);
 }
 
-static CURLcode spack_dec8(uint8_t *val, const uint8_t **src,
-                           const uint8_t *end)
+நிலையான CURLcode spack_dec8(uint8_t *val, மாறிலி uint8_t **src,
+                           மாறிலி uint8_t *end)
 {
-  if(end - *src < 1)
-    return CURLE_READ_ERROR;
+  எனில்(end - *src < 1)
+    திரும்பு CURLE_READ_ERROR;
   *val = **src;
   *src += 1;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode spack_enc16(struct dynbuf *buf, uint16_t val)
+நிலையான CURLcode spack_enc16(கட்டமைப்பு dynbuf *buf, uint16_t val)
 {
   uint8_t nval[2];
   nval[0] = (uint8_t)(val >> 8);
   nval[1] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  திரும்பு curlx_dyn_addn(buf, nval, அளவு(nval));
 }
 
-static CURLcode spack_dec16(uint16_t *val, const uint8_t **src,
-                            const uint8_t *end)
+நிலையான CURLcode spack_dec16(uint16_t *val, மாறிலி uint8_t **src,
+                            மாறிலி uint8_t *end)
 {
-  if(end - *src < 2)
-    return CURLE_READ_ERROR;
+  எனில்(end - *src < 2)
+    திரும்பு CURLE_READ_ERROR;
   *val = (uint16_t)((*src)[0] << 8 | (*src)[1]);
   *src += 2;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode spack_enc32(struct dynbuf *buf, uint32_t val)
+நிலையான CURLcode spack_enc32(கட்டமைப்பு dynbuf *buf, uint32_t val)
 {
   uint8_t nval[4];
   nval[0] = (uint8_t)(val >> 24);
   nval[1] = (uint8_t)(val >> 16);
   nval[2] = (uint8_t)(val >> 8);
   nval[3] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  திரும்பு curlx_dyn_addn(buf, nval, அளவு(nval));
 }
 
-static CURLcode spack_dec32(uint32_t *val, const uint8_t **src,
-                            const uint8_t *end)
+நிலையான CURLcode spack_dec32(uint32_t *val, மாறிலி uint8_t **src,
+                            மாறிலி uint8_t *end)
 {
-  if(end - *src < 4)
-    return CURLE_READ_ERROR;
+  எனில்(end - *src < 4)
+    திரும்பு CURLE_READ_ERROR;
   *val = (uint32_t)(*src)[0] << 24 | (uint32_t)(*src)[1] << 16 |
          (uint32_t)(*src)[2] << 8 | (*src)[3];
   *src += 4;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode spack_enc64(struct dynbuf *buf, uint64_t val)
+நிலையான CURLcode spack_enc64(கட்டமைப்பு dynbuf *buf, uint64_t val)
 {
   uint8_t nval[8];
   nval[0] = (uint8_t)(val >> 56);
@@ -105,141 +105,141 @@ static CURLcode spack_enc64(struct dynbuf *buf, uint64_t val)
   nval[5] = (uint8_t)(val >> 16);
   nval[6] = (uint8_t)(val >> 8);
   nval[7] = (uint8_t)val;
-  return curlx_dyn_addn(buf, nval, sizeof(nval));
+  திரும்பு curlx_dyn_addn(buf, nval, அளவு(nval));
 }
 
-static CURLcode spack_dec64(uint64_t *val, const uint8_t **src,
-                            const uint8_t *end)
+நிலையான CURLcode spack_dec64(uint64_t *val, மாறிலி uint8_t **src,
+                            மாறிலி uint8_t *end)
 {
-  if(end - *src < 8)
-    return CURLE_READ_ERROR;
+  எனில்(end - *src < 8)
+    திரும்பு CURLE_READ_ERROR;
   *val = (uint64_t)(*src)[0] << 56 | (uint64_t)(*src)[1] << 48 |
          (uint64_t)(*src)[2] << 40 | (uint64_t)(*src)[3] << 32 |
          (uint64_t)(*src)[4] << 24 | (uint64_t)(*src)[5] << 16 |
          (uint64_t)(*src)[6] << 8 | (*src)[7];
   *src += 8;
-  return CURLE_OK;
+  திரும்பு CURLE_OK;
 }
 
-static CURLcode spack_encstr16(struct dynbuf *buf, const char *s)
+நிலையான CURLcode spack_encstr16(கட்டமைப்பு dynbuf *buf, மாறிலி எழுத்து *s)
 {
   size_t slen = strlen(s);
   CURLcode result;
-  if(slen > UINT16_MAX)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(slen > UINT16_MAX)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
   result = spack_enc16(buf, (uint16_t)slen);
-  if(!result) {
+  எனில்(!result) {
     result = curlx_dyn_addn(buf, s, slen);
   }
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode spack_decstr16(char **val, const uint8_t **src,
-                               const uint8_t *end)
+நிலையான CURLcode spack_decstr16(எழுத்து **val, மாறிலி uint8_t **src,
+                               மாறிலி uint8_t *end)
 {
   uint16_t slen;
   CURLcode result;
 
-  *val = NULL;
+  *val = வெற்று;
   result = spack_dec16(&slen, src, end);
-  if(result)
-    return result;
-  if(end - *src < slen)
-    return CURLE_READ_ERROR;
-  *val = curlx_memdup0((const char *)(*src), slen);
+  எனில்(result)
+    திரும்பு result;
+  எனில்(end - *src < slen)
+    திரும்பு CURLE_READ_ERROR;
+  *val = curlx_memdup0((மாறிலி எழுத்து *)(*src), slen);
   *src += slen;
-  return *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  திரும்பு *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 
-static CURLcode spack_encdata16(struct dynbuf *buf, const uint8_t *data,
+நிலையான CURLcode spack_encdata16(கட்டமைப்பு dynbuf *buf, மாறிலி uint8_t *data,
                                 size_t data_len)
 {
   CURLcode result;
-  if(data_len > UINT16_MAX)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(data_len > UINT16_MAX)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
   result = spack_enc16(buf, (uint16_t)data_len);
-  if(!result) {
+  எனில்(!result) {
     result = curlx_dyn_addn(buf, data, data_len);
   }
-  return result;
+  திரும்பு result;
 }
 
-static CURLcode spack_decdata16(uint8_t **val, size_t *val_len,
-                                const uint8_t **src, const uint8_t *end)
+நிலையான CURLcode spack_decdata16(uint8_t **val, size_t *val_len,
+                                மாறிலி uint8_t **src, மாறிலி uint8_t *end)
 {
   uint16_t data_len;
   CURLcode result;
 
-  *val = NULL;
+  *val = வெற்று;
   result = spack_dec16(&data_len, src, end);
-  if(result)
-    return result;
-  if(end - *src < data_len)
-    return CURLE_READ_ERROR;
-  *val = curlx_memdup0((const char *)(*src), data_len);
+  எனில்(result)
+    திரும்பு result;
+  எனில்(end - *src < data_len)
+    திரும்பு CURLE_READ_ERROR;
+  *val = curlx_memdup0((மாறிலி எழுத்து *)(*src), data_len);
   *val_len = data_len;
   *src += data_len;
-  return *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  திரும்பு *val ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
 
-CURLcode Curl_ssl_session_pack(struct Curl_easy *data,
-                               struct Curl_ssl_session *s,
-                               struct dynbuf *buf)
+CURLcode Curl_ssl_session_pack(கட்டமைப்பு Curl_easy *data,
+                               கட்டமைப்பு Curl_ssl_session *s,
+                               கட்டமைப்பு dynbuf *buf)
 {
   CURLcode result;
   DEBUGASSERT(s->sdata);
   DEBUGASSERT(s->sdata_len);
 
-  if(s->valid_until < 0)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  எனில்(s->valid_until < 0)
+    திரும்பு CURLE_BAD_FUNCTION_ARGUMENT;
 
   result = spack_enc8(buf, CURL_SPACK_VERSION);
-  if(!result)
+  எனில்(!result)
     result = spack_enc8(buf, CURL_SPACK_TICKET);
-  if(!result)
+  எனில்(!result)
     result = spack_encdata16(buf, s->sdata, s->sdata_len);
-  if(!result)
+  எனில்(!result)
     result = spack_enc8(buf, CURL_SPACK_IETF_ID);
-  if(!result)
+  எனில்(!result)
     result = spack_enc16(buf, (uint16_t)s->ietf_tls_id);
-  if(!result)
+  எனில்(!result)
     result = spack_enc8(buf, CURL_SPACK_VALID_UNTIL);
-  if(!result)
+  எனில்(!result)
     result = spack_enc64(buf, (uint64_t)s->valid_until);
-  if(!result && s->alpn) {
+  எனில்(!result && s->alpn) {
     result = spack_enc8(buf, CURL_SPACK_ALPN);
-    if(!result)
+    எனில்(!result)
       result = spack_encstr16(buf, s->alpn);
   }
-  if(!result && s->earlydata_max) {
-    if(s->earlydata_max > UINT32_MAX)
+  எனில்(!result && s->earlydata_max) {
+    எனில்(s->earlydata_max > UINT32_MAX)
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-    if(!result)
+    எனில்(!result)
       result = spack_enc8(buf, CURL_SPACK_EARLYDATA);
-    if(!result)
+    எனில்(!result)
       result = spack_enc32(buf, (uint32_t)s->earlydata_max);
   }
-  if(!result && s->sectrust_verified) {
+  எனில்(!result && s->sectrust_verified) {
     result = spack_enc8(buf, CURL_SPACK_SECTRUST);
   }
-  if(!result && s->quic_tp && s->quic_tp_len) {
+  எனில்(!result && s->quic_tp && s->quic_tp_len) {
     result = spack_enc8(buf, CURL_SPACK_QUICTP);
-    if(!result)
+    எனில்(!result)
       result = spack_encdata16(buf, s->quic_tp, s->quic_tp_len);
   }
 
-  if(result)
-    CURL_TRC_SSLS(data, "error packing data: %d", (int)result);
-  return result;
+  எனில்(result)
+    CURL_TRC_SSLS(data, "error packing data: %d", (முழு)result);
+  திரும்பு result;
 }
 
-CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
-                                 const void *bufv, size_t buflen,
-                                 struct Curl_ssl_session **ps)
+CURLcode Curl_ssl_session_unpack(கட்டமைப்பு Curl_easy *data,
+                                 மாறிலி வெறுமை *bufv, size_t buflen,
+                                 கட்டமைப்பு Curl_ssl_session **ps)
 {
-  struct Curl_ssl_session *s = NULL;
-  const unsigned char *buf = (const unsigned char *)bufv;
-  const unsigned char *end = buf + buflen;
+  கட்டமைப்பு Curl_ssl_session *s = வெற்று;
+  மாறிலி unsigned எழுத்து *buf = (மாறிலி unsigned எழுத்து *)bufv;
+  மாறிலி unsigned எழுத்து *end = buf + buflen;
   uint8_t val8, *pval8;
   uint16_t val16;
   uint32_t val32;
@@ -250,87 +250,87 @@ CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
   DEBUGASSERT(ps);
   DEBUGASSERT(buf);
   DEBUGASSERT(buflen);
-  *ps = NULL;
+  *ps = வெற்று;
 
   result = spack_dec8(&val8, &buf, end);
-  if(result)
-    goto out;
-  if(val8 != CURL_SPACK_VERSION) {
+  எனில்(result)
+    செல் out;
+  எனில்(val8 != CURL_SPACK_VERSION) {
     result = CURLE_READ_ERROR;
-    goto out;
+    செல் out;
   }
 
-  s = curlx_calloc(1, sizeof(*s));
-  if(!s) {
+  s = curlx_calloc(1, அளவு(*s));
+  எனில்(!s) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    செல் out;
   }
 
-  while(buf < end) {
+  போது(buf < end) {
     result = spack_dec8(&val8, &buf, end);
-    if(result)
-      goto out;
+    எனில்(result)
+      செல் out;
 
-    switch(val8) {
-    case CURL_SPACK_ALPN:
+    தேர்வு(val8) {
+    நிலை CURL_SPACK_ALPN:
       curlx_free(s->alpn);
       result = spack_decstr16(&s->alpn, &buf, end);
-      if(result)
-        goto out;
-      break;
-    case CURL_SPACK_EARLYDATA:
+      எனில்(result)
+        செல் out;
+      நிறுத்து;
+    நிலை CURL_SPACK_EARLYDATA:
       result = spack_dec32(&val32, &buf, end);
-      if(result)
-        goto out;
+      எனில்(result)
+        செல் out;
       s->earlydata_max = val32;
-      break;
-    case CURL_SPACK_IETF_ID:
+      நிறுத்து;
+    நிலை CURL_SPACK_IETF_ID:
       result = spack_dec16(&val16, &buf, end);
-      if(result)
-        goto out;
+      எனில்(result)
+        செல் out;
       s->ietf_tls_id = val16;
-      break;
-    case CURL_SPACK_QUICTP: {
+      நிறுத்து;
+    நிலை CURL_SPACK_QUICTP: {
       result = spack_decdata16(&pval8, &dlen, &buf, end);
-      if(result)
-        goto out;
+      எனில்(result)
+        செல் out;
       curlx_free(s->quic_tp);
       s->quic_tp = pval8;
       s->quic_tp_len = dlen;
-      break;
+      நிறுத்து;
     }
-    case CURL_SPACK_TICKET: {
+    நிலை CURL_SPACK_TICKET: {
       result = spack_decdata16(&pval8, &dlen, &buf, end);
-      if(result)
-        goto out;
+      எனில்(result)
+        செல் out;
       curlx_free(s->sdata);
       s->sdata = pval8;
       s->sdata_len = dlen;
-      break;
+      நிறுத்து;
     }
-    case CURL_SPACK_VALID_UNTIL:
+    நிலை CURL_SPACK_VALID_UNTIL:
       result = spack_dec64(&val64, &buf, end);
-      if(result)
-        goto out;
+      எனில்(result)
+        செல் out;
       s->valid_until = (curl_off_t)val64;
-      break;
-    case CURL_SPACK_SECTRUST:
+      நிறுத்து;
+    நிலை CURL_SPACK_SECTRUST:
       s->sectrust_verified = TRUE;
-      break;
-    default:  /* unknown tag */
+      நிறுத்து;
+    இயல்பு:  /* unknown tag */
       result = CURLE_READ_ERROR;
-      goto out;
+      செல் out;
     }
   }
 
 out:
-  if(result) {
-    CURL_TRC_SSLS(data, "error unpacking data: %d", (int)result);
+  எனில்(result) {
+    CURL_TRC_SSLS(data, "error unpacking data: %d", (முழு)result);
     Curl_ssl_session_destroy(s);
   }
-  else
+  இல்லையெனில்
     *ps = s;
-  return result;
+  திரும்பு result;
 }
 
 #endif /* USE_SSL && USE_SSLS_EXPORT */
