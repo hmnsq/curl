@@ -22,152 +22,152 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "progress.h"
-#include "multiif.h"
-#include "curl_trc.h"
-#include "cshutdn.h"
-#include "conncache.h"
-#include "curl_share.h"
-#include "sigpipe.h"
-#include "uint-spbset.h"
+#ضمن "urldata.h"
+#ضمن "url.h"
+#ضمن "cfilters.h"
+#ضمن "progress.h"
+#ضمن "multiif.h"
+#ضمن "curl_trc.h"
+#ضمن "cshutdn.h"
+#ضمن "conncache.h"
+#ضمن "curl_share.h"
+#ضمن "sigpipe.h"
+#ضمن "uint-spbset.h"
 
 
 #define CPOOL_IS_LOCKED(c)    ((c) && (c)->locked)
 
 #define CPOOL_LOCK(c, d)                                                \
-  do {                                                                  \
-    if(c) {                                                             \
-      if(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
+  עשה {                                                                  \
+    אם(c) {                                                             \
+      אם(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
         Curl_share_lock_share((c)->share, (d), CURL_LOCK_DATA_CONNECT,  \
                         CURL_LOCK_ACCESS_SINGLE);                       \
       DEBUGASSERT(!(c)->locked);                                        \
       (c)->locked = TRUE;                                               \
     }                                                                   \
-  } while(0)
+  } כלעוד(0)
 
 #define CPOOL_UNLOCK(c, d)                                              \
-  do {                                                                  \
-    if(c) {                                                             \
+  עשה {                                                                  \
+    אם(c) {                                                             \
       DEBUGASSERT((c)->locked);                                         \
       (c)->locked = FALSE;                                              \
-      if(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
+      אם(CURL_SHARE_KEEP_CONNECT((c)->share))                           \
         Curl_share_unlock_share((c)->share, (d), CURL_LOCK_DATA_CONNECT); \
     }                                                                   \
-  } while(0)
+  } כלעוד(0)
 
 /* A set of connection pool ids to the same destination. */
-struct cpool_bundle {
-  struct uint32_spbset ids; /* bitset of connection `pool_id`s  */
+بنية cpool_bundle {
+  بنية uint32_spbset ids; /* bitset of connection `pool_id`s  */
   uint32_t refcount;
 };
 
-static void cpool_bundle_unlink(struct cpool_bundle **pbundle)
+ساكن فراغ cpool_bundle_unlink(بنية cpool_bundle **pbundle)
 {
-  if(*pbundle) {
-    struct cpool_bundle *bundle = *pbundle;
+  אם(*pbundle) {
+    بنية cpool_bundle *bundle = *pbundle;
 
     DEBUGASSERT(bundle->refcount);
-    *pbundle = NULL;
-    if(bundle->refcount)
+    *pbundle = عدم;
+    אם(bundle->refcount)
       bundle->refcount--;
-    if(!bundle->refcount) {
+    אם(!bundle->refcount) {
       Curl_uint32_spbset_destroy(&bundle->ids);
       curlx_free(bundle);
     }
   }
 }
 
-static void cpool_bundle_link(struct cpool_bundle **pdest,
-                              struct cpool_bundle *src)
+ساكن فراغ cpool_bundle_link(بنية cpool_bundle **pdest,
+                              بنية cpool_bundle *src)
 {
-  if(*pdest != src) {
+  אם(*pdest != src) {
     cpool_bundle_unlink(pdest);
     *pdest = src;
-    if(src) {
+    אם(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-static struct cpool_bundle *cpool_create_bundle(void)
+ساكن بنية cpool_bundle *cpool_create_bundle(فراغ)
 {
   /* created with refcount == 1 */
-  struct cpool_bundle *bundle = curlx_calloc(1, sizeof(*bundle));
-  if(!bundle)
-    return NULL;
+  بنية cpool_bundle *bundle = curlx_calloc(1, حجم(*bundle));
+  אם(!bundle)
+    החזר عدم;
 
   Curl_uint32_spbset_init(&bundle->ids);
   bundle->refcount = 1;
-  return bundle;
+  החזר bundle;
 }
 
 /* Add a connection to a bundle */
-static bool cpool_bundle_add_id(struct cpool *cpool,
-                                struct cpool_bundle *bundle,
-                                const char *destination,
+ساكن bool cpool_bundle_add_id(بنية cpool *cpool,
+                                بنية cpool_bundle *bundle,
+                                ثابت حرف *destination,
                                 uint32_t pool_id)
 {
-  if(!Curl_uint32_spbset_add(&bundle->ids, pool_id))
-    return FALSE;
-  if(Curl_uint32_spbset_count(&bundle->ids) == 1) {
+  אם(!Curl_uint32_spbset_add(&bundle->ids, pool_id))
+    החזר FALSE;
+  אם(Curl_uint32_spbset_count(&bundle->ids) == 1) {
     /* first one added, register bundle */
-    struct cpool_bundle *new_ref = NULL;
+    بنية cpool_bundle *new_ref = عدم;
     cpool_bundle_link(&new_ref, bundle);
-    if(!Curl_hash_add(&cpool->dest2bundle,
+    אם(!Curl_hash_add(&cpool->dest2bundle,
                       destination, strlen(destination), new_ref)) {
       cpool_bundle_unlink(&new_ref);
-      return FALSE;
+      החזר FALSE;
     }
   }
-  return TRUE;
+  החזר TRUE;
 }
 
 /* Remove a connection from a bundle */
-static void cpool_bundle_remove_id(struct cpool *cpool,
-                                   struct cpool_bundle *bundle,
-                                   const char *destination,
+ساكن فراغ cpool_bundle_remove_id(بنية cpool *cpool,
+                                   بنية cpool_bundle *bundle,
+                                   ثابت حرف *destination,
                                    uint32_t pool_id)
 {
   Curl_uint32_spbset_remove(&bundle->ids, pool_id);
-  if(!Curl_uint32_spbset_count(&bundle->ids)) {
+  אם(!Curl_uint32_spbset_count(&bundle->ids)) {
     /* Now empty, unregister bundle */
     Curl_hash_delete(&cpool->dest2bundle, destination, strlen(destination));
   }
 }
 
-static void cpool_bundle_hash_dtor(void *entry)
+ساكن فراغ cpool_bundle_hash_dtor(فراغ *entry)
 {
-  struct cpool_bundle *bundle = entry;
+  بنية cpool_bundle *bundle = entry;
   cpool_bundle_unlink(&bundle);
 }
 
-static struct cpool_bundle *cpool_get_bundle(struct cpool *cpool,
-                                             const char *destination)
+ساكن بنية cpool_bundle *cpool_get_bundle(بنية cpool *cpool,
+                                             ثابت حرف *destination)
 {
-  struct cpool_bundle *bundle = NULL;
+  بنية cpool_bundle *bundle = عدم;
   cpool_bundle_link(&bundle, Curl_hash_pick(
     &cpool->dest2bundle, destination, strlen(destination)));
-  return bundle;
+  החזר bundle;
 }
 
-static void cpool_remove_conn(struct cpool *cpool,
-                              struct connectdata *conn)
+ساكن فراغ cpool_remove_conn(بنية cpool *cpool,
+                              بنية connectdata *conn)
 {
   uint32_t cpid = conn->cpid;
 
   DEBUGASSERT(cpool);
-  if(cpid != UINT32_MAX) {
-    struct cpool_bundle *bundle;
+  אם(cpid != UINT32_MAX) {
+    بنية cpool_bundle *bundle;
 
 #ifdef DEBUGBUILD
     {
-      struct connectdata *pooled_conn =
+      بنية connectdata *pooled_conn =
         Curl_uint32_tbl_get(&cpool->conns, cpid);
       DEBUGASSERT(conn == pooled_conn);
     }
@@ -178,18 +178,18 @@ static void cpool_remove_conn(struct cpool *cpool,
 
     bundle = cpool_get_bundle(cpool, conn->destination);
     DEBUGASSERT(bundle);
-    if(bundle)
+    אם(bundle)
       cpool_bundle_remove_id(cpool, bundle, conn->destination, cpid);
     cpool_bundle_unlink(&bundle);
   }
 }
 
-static void cpool_discard_conn(struct cpool *cpool,
-                               struct Curl_easy *data,
-                               struct connectdata *conn,
+ساكن فراغ cpool_discard_conn(بنية cpool *cpool,
+                               بنية Curl_easy *data,
+                               بنية connectdata *conn,
                                bool aborted)
 {
-  struct Curl_easy *admin;
+  بنية Curl_easy *admin;
   bool done = FALSE;
 
   DEBUGASSERT(data);
@@ -200,17 +200,17 @@ static void cpool_discard_conn(struct cpool *cpool,
   admin = Curl_get_admin(data);
   /* We MUST NOT discard a connection that is still in use and would
    * trigger Use-After-Free. */
-  if(CONN_INUSE(conn)) {
+  אם(CONN_INUSE(conn)) {
     CURL_TRC_M(admin, "[CPOOL] not discarding #%" FMT_OFF_T
                " still in use by %u transfers", conn->connection_id,
                conn->attached_xfers);
     DEBUGASSERT(0);
-    return;
+    החזר;
   }
 
   /* treat the connection as aborted in CONNECT_ONLY situations, we do
    * not know what the APP did with it. */
-  if(conn->bits.connect_only)
+  אם(conn->bits.connect_only)
     aborted = TRUE;
   conn->bits.aborted = aborted;
 
@@ -219,32 +219,32 @@ static void cpool_discard_conn(struct cpool *cpool,
    * If we do a shutdown for an aborted transfer, the server might think
    * it was successful otherwise (for example an ftps: upload). This is
    * not what we want. */
-  if(aborted)
+  אם(aborted)
     done = TRUE;
-  if(!done) {
+  אם(!done) {
     /* Attempt to shutdown the connection right away. */
     Curl_cshutdn_try_once(admin, conn, &done);
   }
 
-  if(done || !data->multi)
+  אם(done || !data->multi)
     Curl_cshutdn_terminate(admin, conn, FALSE);
-  else {
-    struct Curl_multi *multi = data->multi;
+  אחרת {
+    بنية Curl_multi *multi = data->multi;
     size_t max_shutdowns = multi->max_total_connections;
     uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
 
-    if(num_conns < max_shutdowns)
+    אם(num_conns < max_shutdowns)
       max_shutdowns -= num_conns;
-    else if(max_shutdowns)
+    אחרת אם(max_shutdowns)
       max_shutdowns = 1;
-    else /* no connection limit set, let's restrict growth nevertheless */
+    אחרת /* no connection limit set, let's restrict growth nevertheless */
       max_shutdowns = CURLMAX(num_conns / 4, 128);
     Curl_cshutdn_add(&multi->cshutdn, multi, conn, max_shutdowns);
   }
 }
 
-void Curl_cpool_init(struct cpool *cpool,
-                     struct Curl_share *share,
+فراغ Curl_cpool_init(بنية cpool *cpool,
+                     بنية Curl_share *share,
                      size_t size)
 {
   Curl_uint32_tbl_init(&cpool->conns);
@@ -257,10 +257,10 @@ void Curl_cpool_init(struct cpool *cpool,
   cpool->locked = FALSE;
 }
 
-void Curl_cpool_destroy(struct cpool *cpool, struct Curl_easy *admin)
+فراغ Curl_cpool_destroy(بنية cpool *cpool, بنية Curl_easy *admin)
 {
-  if(cpool && cpool->initialized && admin) {
-    void *entry;
+  אם(cpool && cpool->initialized && admin) {
+    فراغ *entry;
     uint32_t cpid;
 
     CURL_TRC_M(admin, "%s[CPOOL] destroy, %u connections",
@@ -268,16 +268,16 @@ void Curl_cpool_destroy(struct cpool *cpool, struct Curl_easy *admin)
                Curl_uint32_tbl_count(&cpool->conns));
     /* Move all connections to the shutdown list */
     CPOOL_LOCK(cpool, admin);
-    if(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
-      struct Curl_sigpipe_ctx pipe_ctx;
+    אם(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
+      بنية Curl_sigpipe_ctx pipe_ctx;
 
       sigpipe_init(&pipe_ctx);
       sigpipe_apply(admin, &pipe_ctx);
-      do {
-        struct connectdata *conn = entry;
+      עשה {
+        بنية connectdata *conn = entry;
         cpool_remove_conn(cpool, conn);
         cpool_discard_conn(cpool, admin, conn, FALSE);
-      } while(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
+      } כלעוד(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
       sigpipe_restore(&pipe_ctx);
     }
     CPOOL_UNLOCK(cpool, admin);
@@ -287,40 +287,40 @@ void Curl_cpool_destroy(struct cpool *cpool, struct Curl_easy *admin)
   }
 }
 
-static struct cpool *cpool_get_instance(struct Curl_easy *data)
+ساكن بنية cpool *cpool_get_instance(بنية Curl_easy *data)
 {
   /* admin handles do not necessarily find the correct pool */
   DEBUGASSERT(data->mid);
-  if(CURL_SHARE_KEEP_CONNECT(data->share))
-    return &data->share->cpool;
-  else if(data->multi_easy)
-    return &data->multi_easy->cpool;
-  else if(data->multi)
-    return &data->multi->cpool;
-  return NULL;
+  אם(CURL_SHARE_KEEP_CONNECT(data->share))
+    החזר &data->share->cpool;
+  אחרת אם(data->multi_easy)
+    החזר &data->multi_easy->cpool;
+  אחרת אם(data->multi)
+    החזר &data->multi->cpool;
+  החזר عدم;
 }
 
-struct cpool *Curl_cpool_get_instance(struct Curl_easy *data)
+بنية cpool *Curl_cpool_get_instance(بنية Curl_easy *data)
 {
-  return cpool_get_instance(data);
+  החזר cpool_get_instance(data);
 }
 
-void Curl_cpool_xfer_init(struct Curl_easy *data)
+فراغ Curl_cpool_xfer_init(بنية Curl_easy *data)
 {
-  struct cpool *cpool = cpool_get_instance(data);
+  بنية cpool *cpool = cpool_get_instance(data);
 
-  if(cpool) {
+  אם(cpool) {
     CPOOL_LOCK(cpool, data);
     /* the identifier inside the connection cache */
     data->id = cpool->next_easy_id++;
-    if(cpool->next_easy_id == CURL_OFF_T_MAX)
+    אם(cpool->next_easy_id == CURL_OFF_T_MAX)
       cpool->next_easy_id = 0;
     data->state.last_conn_id = -1;
     data->state.last_cpid = UINT32_MAX;
 
     CPOOL_UNLOCK(cpool, data);
   }
-  else {
+  אחרת {
     /* We should not get here, but in a non-debug build, do something */
     DEBUGASSERT(0);
     data->id = 0;
@@ -329,44 +329,44 @@ void Curl_cpool_xfer_init(struct Curl_easy *data)
   }
 }
 
-static bool cpool_conn_can_be_closed(struct connectdata *conn)
+ساكن bool cpool_conn_can_be_closed(بنية connectdata *conn)
 {
   /* CONNECT_ONLY sockets remain in use by the application. */
-  return (conn && !CONN_INUSE(conn) && !conn->bits.connect_only);
+  החזר (conn && !CONN_INUSE(conn) && !conn->bits.connect_only);
 }
 
-static struct connectdata *cpool_bundle_get_oldest_idle(
-  struct cpool *cpool,
-  struct cpool_bundle *bundle,
-  const struct curltime *pnow)
+ساكن بنية connectdata *cpool_bundle_get_oldest_idle(
+  بنية cpool *cpool,
+  بنية cpool_bundle *bundle,
+  ثابت بنية curltime *pnow)
 {
   uint32_t cpid, oldest_id = UINT32_MAX;
   timediff_t unused_ms;
   timediff_t oldest_ms = -1;
 
-  if(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
-    do {
-      struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-      if(cpool_conn_can_be_closed(conn)) {
+  אם(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
+    עשה {
+      بنية connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+      אם(cpool_conn_can_be_closed(conn)) {
         /* Set higher score for the age passed since the connection was used */
         unused_ms =
           curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-        if(unused_ms > oldest_ms) {
+        אם(unused_ms > oldest_ms) {
           oldest_ms = unused_ms;
           oldest_id = cpid;
         }
       }
-      else if(!conn) {
+      אחרת אם(!conn) {
         DEBUGASSERT(0);
         Curl_uint32_spbset_remove(&bundle->ids, cpid);
       }
-    } while(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
+    } כלעוד(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
   }
-  return Curl_uint32_tbl_get(&cpool->conns, oldest_id);
+  החזר Curl_uint32_tbl_get(&cpool->conns, oldest_id);
 }
 
-static struct connectdata *cpool_get_oldest_idle(struct cpool *cpool,
-                                                 const struct curltime *pnow,
+ساكن بنية connectdata *cpool_get_oldest_idle(بنية cpool *cpool,
+                                                 ثابت بنية curltime *pnow,
                                                  timediff_t min_age_ms)
 {
   uint32_t cpid, oldest_id = UINT32_MAX;
@@ -375,84 +375,84 @@ static struct connectdata *cpool_get_oldest_idle(struct cpool *cpool,
 
   /* Iterate over all connections that once were idle. They may
    * no longer be, in which case we remove them from the set again. */
-  if(Curl_uint32_bset_first(&cpool->idles, &cpid)) {
-    do {
-      struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-      if(cpool_conn_can_be_closed(conn)) {
+  אם(Curl_uint32_bset_first(&cpool->idles, &cpid)) {
+    עשה {
+      بنية connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+      אם(cpool_conn_can_be_closed(conn)) {
         idle_ms = curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-        if((idle_ms >= min_age_ms) && (idle_ms > oldest_idle_ms)) {
+        אם((idle_ms >= min_age_ms) && (idle_ms > oldest_idle_ms)) {
           oldest_idle_ms = idle_ms;
           oldest_id = cpid;
         }
       }
-      else {
+      אחרת {
         DEBUGASSERT(conn);
         Curl_uint32_bset_remove(&cpool->idles, cpid);
       }
-    } while(Curl_uint32_bset_next(&cpool->idles, cpid, &cpid));
+    } כלעוד(Curl_uint32_bset_next(&cpool->idles, cpid, &cpid));
   }
-  return Curl_uint32_tbl_get(&cpool->conns, oldest_id);
+  החזר Curl_uint32_tbl_get(&cpool->conns, oldest_id);
 }
 
-static void cpool_conn_close(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             struct connectdata *conn,
+ساكن فراغ cpool_conn_close(بنية cpool *cpool,
+                             بنية Curl_easy *data,
+                             بنية connectdata *conn,
                              bool aborted)
 {
-  struct Curl_easy *admin;
+  بنية Curl_easy *admin;
   bool do_lock;
 
   DEBUGASSERT(cpool);
   DEBUGASSERT(data && !data->conn);
-  if(!cpool)
-    return;
+  אם(!cpool)
+    החזר;
 
   /* If this connection is not marked to force-close, leave it open if there
    * are other users of it */
-  if(CONN_INUSE(conn) && !aborted) {
+  אם(CONN_INUSE(conn) && !aborted) {
     DEBUGASSERT(0); /* does this ever happen? */
     DEBUGF(infof(data, "conn terminate when inuse: %u", conn->attached_xfers));
-    return;
+    החזר;
   }
 
   /* This method may be called while we are under lock, e.g. from a
    * user callback in find. */
   admin = Curl_get_admin(data);
   do_lock = !CPOOL_IS_LOCKED(cpool);
-  if(do_lock)
+  אם(do_lock)
     CPOOL_LOCK(cpool, admin);
 
-  if(conn->cpid != UINT32_MAX) {
+  אם(conn->cpid != UINT32_MAX) {
     cpool_remove_conn(cpool, conn);
     DEBUGASSERT(conn->cpid == UINT32_MAX);
   }
 
   /* treat the connection as aborted in CONNECT_ONLY situations,
    * so no graceful shutdown is attempted. */
-  if(conn->bits.connect_only)
+  אם(conn->bits.connect_only)
     aborted = TRUE;
 
-  if(data->multi) {
+  אם(data->multi) {
     /* Add it to the multi's cpool for shutdown handling */
     infof(data, "%s connection #%" FMT_OFF_T,
           aborted ? "closing" : "shutting down", conn->connection_id);
     cpool_discard_conn(&data->multi->cpool, data, conn, aborted);
   }
-  else {
+  אחרת {
     /* No multi available, terminate */
     infof(data, "closing connection #%" FMT_OFF_T, conn->connection_id);
     Curl_cshutdn_terminate(admin, conn, !aborted);
   }
 
-  if(do_lock)
+  אם(do_lock)
     CPOOL_UNLOCK(cpool, admin);
 }
 
-void Curl_conn_close(struct Curl_easy *data,
-                     struct connectdata *conn,
+فراغ Curl_conn_close(بنية Curl_easy *data,
+                     بنية connectdata *conn,
                      bool aborted)
 {
-  struct cpool *cpool = cpool_get_instance(data);
+  بنية cpool *cpool = cpool_get_instance(data);
   cpool_conn_close(cpool, data, conn, aborted);
 }
 
@@ -460,15 +460,15 @@ void Curl_conn_close(struct Curl_easy *data,
  * a share has no multi that could perform a controlled shutdown of the
  * connection; terminate it right away. Otherwise, hand it to the
  * transfer's multi for shutdown. Expects the pool to be locked. */
-static void cpool_evict_conn(struct cpool *cpool,
-                             struct Curl_easy *admin,
-                             struct connectdata *conn)
+ساكن فراغ cpool_evict_conn(بنية cpool *cpool,
+                             بنية Curl_easy *admin,
+                             بنية connectdata *conn)
 {
-  if(cpool->share) {
+  אם(cpool->share) {
     cpool_remove_conn(cpool, conn);
     Curl_cshutdn_terminate(admin, conn, TRUE);
   }
-  else
+  אחרת
     cpool_conn_close(cpool, admin, conn, FALSE);
 }
 
@@ -476,38 +476,38 @@ static void cpool_evict_conn(struct cpool *cpool,
 #define CPOOL_LIMIT_DEST   1
 #define CPOOL_LIMIT_TOTAL  2
 
-static int cpool_check_limits(struct Curl_easy *data,
+ساكن صحيح cpool_check_limits(بنية Curl_easy *data,
                               uint32_t max_total,
-                              struct connectdata *to_add,
+                              بنية connectdata *to_add,
                               uint32_t max_host,
-                              struct cpool_bundle *bundle,
-                              const struct curltime *pnow)
+                              بنية cpool_bundle *bundle,
+                              ثابت بنية curltime *pnow)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct cshutdn *cshutdn = data->multi ? &data->multi->cshutdn : NULL;
-  struct Curl_easy *admin = NULL;
+  بنية cpool *cpool = cpool_get_instance(data);
+  بنية cshutdn *cshutdn = data->multi ? &data->multi->cshutdn : عدم;
+  بنية Curl_easy *admin = عدم;
 
-  if(!cpool)
-    return CPOOL_LIMIT_OK;
+  אם(!cpool)
+    החזר CPOOL_LIMIT_OK;
 
-  if(!max_total && !max_host)
-    return CPOOL_LIMIT_OK;
+  אם(!max_total && !max_host)
+    החזר CPOOL_LIMIT_OK;
 
-  if(max_host) {
+  אם(max_host) {
     size_t live = 0, shutdowns = 0;
     /* if we are at or above `dest_limit`, try to get rid of connections
      * in shutdown and, if that does not lower it, evict idle connections
      * from the pool. */
     admin = Curl_get_admin(data);
-    if(bundle) {
+    אם(bundle) {
       live = Curl_uint32_spbset_count(&bundle->ids);
-      if(live >= max_host) {
+      אם(live >= max_host) {
         size_t over = live - max_host + 1;
-        for(; over; --over) {
-          struct connectdata *oldest_idle =
+        עבור(; over; --over) {
+          بنية connectdata *oldest_idle =
             cpool_bundle_get_oldest_idle(cpool, bundle, pnow);
-          if(!oldest_idle)
-            break;
+          אם(!oldest_idle)
+            اكسر;
           /* disconnect the old conn and continue */
           CURL_TRC_M(admin, "Shutting down connection #%" FMT_OFF_T
                      " to '%s' due to destination limit of %u",
@@ -518,33 +518,33 @@ static int cpool_check_limits(struct Curl_easy *data,
         live = Curl_uint32_spbset_count(&bundle->ids);
       }
     }
-    if(cshutdn) {
+    אם(cshutdn) {
       shutdowns = Curl_cshutdn_dest_count(cshutdn, to_add->destination);
-      if(shutdowns && ((live + shutdowns) >= max_host)) {
+      אם(shutdowns && ((live + shutdowns) >= max_host)) {
         size_t over = live + shutdowns - max_host + 1;
         shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin,
                                                to_add->destination, over);
       }
     }
     /* We may not have gotten rid of as many connections as we wanted to */
-    if((live + shutdowns) >= max_host)
-      return CPOOL_LIMIT_DEST;
+    אם((live + shutdowns) >= max_host)
+      החזר CPOOL_LIMIT_DEST;
   }
 
   /* Internal transfers are outside the total limit */
-  if(max_total && !data->state.internal) {
+  אם(max_total && !data->state.internal) {
     size_t shutdowns = 0;
     uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
 
-    if(!admin)
+    אם(!admin)
       admin = Curl_get_admin(data);
-    if(num_conns >= max_total) {
+    אם(num_conns >= max_total) {
       size_t over = num_conns - max_total + 1;
-      for(; over; --over) {
-        struct connectdata *oldest_idle =
+      עבור(; over; --over) {
+        بنية connectdata *oldest_idle =
           cpool_get_oldest_idle(cpool, pnow, 0);
-        if(!oldest_idle)
-          break;
+        אם(!oldest_idle)
+          اكسر;
         /* disconnect the old conn and continue */
         CURL_TRC_M(admin, "Shutting down idle connection #%"
                    FMT_OFF_T " to '%s' due to total limit of %u",
@@ -555,35 +555,35 @@ static int cpool_check_limits(struct Curl_easy *data,
     }
 
     num_conns = Curl_uint32_tbl_count(&cpool->conns);
-    if(cshutdn) {
+    אם(cshutdn) {
       shutdowns = Curl_cshutdn_count(cshutdn);
-      if(shutdowns && (num_conns + shutdowns) >= max_total) {
+      אם(shutdowns && (num_conns + shutdowns) >= max_total) {
         size_t over = num_conns + shutdowns - max_total + 1;
-        shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin, NULL, over);
+        shutdowns -= Curl_cshutdn_close_oldest(cshutdn, admin, عدم, over);
       }
     }
-    if((num_conns + shutdowns) >= max_total)
-      return CPOOL_LIMIT_TOTAL;
+    אם((num_conns + shutdowns) >= max_total)
+      החזר CPOOL_LIMIT_TOTAL;
   }
 
-  return CPOOL_LIMIT_OK;
+  החזר CPOOL_LIMIT_OK;
 }
 
-CURLcode Curl_cpool_add(struct Curl_easy *data,
-                        struct connectdata *conn,
+CURLcode Curl_cpool_add(بنية Curl_easy *data,
+                        بنية connectdata *conn,
                         uint32_t max_total,
                         uint32_t max_host,
-                        const struct curltime *pnow)
+                        ثابت بنية curltime *pnow)
 {
   CURLcode result = CURLE_OK;
-  struct cpool_bundle *bundle = NULL;
-  struct cpool *cpool = cpool_get_instance(data);
+  بنية cpool_bundle *bundle = عدم;
+  بنية cpool *cpool = cpool_get_instance(data);
   uint32_t capacity, cpid;
   DEBUGASSERT(conn);
 
   DEBUGASSERT(cpool);
-  if(!cpool)
-    return CURLE_FAILED_INIT;
+  אם(!cpool)
+    החזר CURLE_FAILED_INIT;
 
   DEBUGASSERT(conn->cpid == UINT32_MAX);
   conn->created = *pnow;
@@ -594,64 +594,64 @@ CURLcode Curl_cpool_add(struct Curl_easy *data,
   /* Find the bundle, should it exist, and check the limits */
   bundle = cpool_get_bundle(cpool, conn->destination);
 
-  switch(cpool_check_limits(data, max_total, conn, max_host, bundle, pnow)) {
-  case CPOOL_LIMIT_DEST:
+  بدل(cpool_check_limits(data, max_total, conn, max_host, bundle, pnow)) {
+  حالة CPOOL_LIMIT_DEST:
     infof(data, "No more connections allowed to host");
     result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
-  case CPOOL_LIMIT_TOTAL:
+    اذهب out;
+  حالة CPOOL_LIMIT_TOTAL:
     infof(data, "No connections available, total of %u reached.",
           data->multi->max_total_connections);
     result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
-  default:
-    break;
+    اذهب out;
+  افتراضي:
+    اكسر;
   }
 
   /* We add the connection */
   capacity = Curl_uint32_tbl_capacity(&cpool->conns);
-  if(capacity == UINT32_MAX) {
+  אם(capacity == UINT32_MAX) {
     infof(data, "No connections available, pool at max capacity");
     result = CURLE_NO_CONNECTION_AVAILABLE;
-    goto out;
+    اذهب out;
   }
-  if(Curl_uint32_tbl_count(&cpool->conns) >= capacity) {
+  אם(Curl_uint32_tbl_count(&cpool->conns) >= capacity) {
     uint32_t growth, ncapacity;
 
     growth = CURLMAX(capacity, 16);
-    if((UINT32_MAX - growth) >= capacity)
+    אם((UINT32_MAX - growth) >= capacity)
       ncapacity = capacity + growth;
-    else
+    אחרת
       ncapacity = UINT32_MAX;
     /* Grow bitset first, so table resize failure does not leave a too
      * short bitset should that one fail. */
-    if(Curl_uint32_bset_resize(&cpool->idles, ncapacity) ||
+    אם(Curl_uint32_bset_resize(&cpool->idles, ncapacity) ||
        Curl_uint32_tbl_resize(&cpool->conns, ncapacity)) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      اذهب out;
     }
   }
 
-  if(!bundle) {
+  אם(!bundle) {
     bundle = cpool_create_bundle();
-    if(!bundle) {
+    אם(!bundle) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      اذهب out;
     }
   }
 
-  if(!Curl_uint32_tbl_add(&cpool->conns, conn, &cpid)) {
+  אם(!Curl_uint32_tbl_add(&cpool->conns, conn, &cpid)) {
     DEBUGASSERT(0);
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    اذهب out;
   }
   conn->cpid = cpid;
 
-  if(!cpool_bundle_add_id(cpool, bundle, conn->destination, cpid)) {
+  אם(!cpool_bundle_add_id(cpool, bundle, conn->destination, cpid)) {
     Curl_uint32_tbl_remove(&cpool->conns, cpid);
     conn->cpid = UINT32_MAX;
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    اذهب out;
   }
 
   conn->connection_id = cpool->next_connection_id++;
@@ -662,7 +662,7 @@ out:
   cpool_bundle_unlink(&bundle);
   CPOOL_UNLOCK(cpool, data);
 
-  return result;
+  החזר result;
 }
 
 /* This function iterates the entire connection pool and calls the function
@@ -677,27 +677,27 @@ out:
 
    Return 0 from func() to continue the loop, return 1 to abort it.
  */
-static bool cpool_foreach(struct Curl_easy *data,
-                          struct cpool *cpool,
-                          void *param,
-                          int (*func)(struct cpool *cpool,
-                                      struct Curl_easy *data,
-                                      struct connectdata *conn, void *param))
+ساكن bool cpool_foreach(بنية Curl_easy *data,
+                          بنية cpool *cpool,
+                          فراغ *param,
+                          صحيح (*func)(بنية cpool *cpool,
+                                      بنية Curl_easy *data,
+                                      بنية connectdata *conn, فراغ *param))
 {
-  void *entry;
+  فراغ *entry;
   uint32_t cpid;
 
-  if(!cpool)
-    return FALSE;
+  אם(!cpool)
+    החזר FALSE;
 
-  if(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
-    do {
-      struct connectdata *conn = entry;
-      if(conn && func(cpool, data, conn, param) == 1)
-        return TRUE;
-    } while(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
+  אם(Curl_uint32_tbl_first(&cpool->conns, &cpid, &entry)) {
+    עשה {
+      بنية connectdata *conn = entry;
+      אם(conn && func(cpool, data, conn, param) == 1)
+        החזר TRUE;
+    } כלעוד(Curl_uint32_tbl_next(&cpool->conns, cpid, &cpid, &entry));
   }
-  return FALSE;
+  החזר FALSE;
 }
 
 /*
@@ -706,23 +706,23 @@ static bool cpool_foreach(struct Curl_easy *data,
  *
  * Return TRUE if idle connection kept in pool, FALSE if closed.
  */
-static bool cpool_conn_now_idle(struct cpool *cpool,
-                                struct Curl_easy *data,
-                                struct connectdata *conn,
-                                const struct curltime *pnow)
+ساكن bool cpool_conn_now_idle(بنية cpool *cpool,
+                                بنية Curl_easy *data,
+                                بنية connectdata *conn,
+                                ثابت بنية curltime *pnow)
 {
-  struct connectdata *oldest_idle = NULL;
-  struct Curl_easy *admin;
+  بنية connectdata *oldest_idle = عدم;
+  بنية Curl_easy *admin;
   uint32_t maxconnects;
   bool kept = TRUE;
   timediff_t min_age_ms = 0;
 
-  if(!data || !data->multi)
-    return kept;
+  אם(!data || !data->multi)
+    החזר kept;
 
   Curl_uint32_bset_add(&cpool->idles, conn->cpid);
 
-  if(!data->multi->maxconnects) {
+  אם(!data->multi->maxconnects) {
     /* Attached transfers is a weak indicator of business. */
     uint32_t attached = Curl_multi_xfers_attached(data->multi);
     maxconnects = (attached <= UINT32_MAX / 2) ? attached * 2 : UINT32_MAX;
@@ -730,85 +730,85 @@ static bool cpool_conn_now_idle(struct cpool *cpool,
      * when has not been used for this long, */
     min_age_ms = 1000;
   }
-  else {
+  אחרת {
     maxconnects = data->multi->maxconnects;
   }
 
-  if(cpool && maxconnects && (maxconnects < UINT32_MAX)) {
+  אם(cpool && maxconnects && (maxconnects < UINT32_MAX)) {
     uint32_t num_conns = Curl_uint32_tbl_count(&cpool->conns);
     admin = Curl_get_admin(data);
-    if(num_conns > maxconnects) {
+    אם(num_conns > maxconnects) {
       infof(data, "Connection pool is full, closing the oldest of %u/%u",
             num_conns, maxconnects);
       oldest_idle = cpool_get_oldest_idle(cpool, pnow, min_age_ms);
       kept = (oldest_idle != conn);
-      if(oldest_idle) {
+      אם(oldest_idle) {
         cpool_evict_conn(cpool, admin, oldest_idle);
       }
     }
   }
 
-  return kept;
+  החזר kept;
 }
 
-static void cpool_prune_dead(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             const struct curltime *pnow);
+ساكن فراغ cpool_prune_dead(بنية cpool *cpool,
+                             بنية Curl_easy *data,
+                             ثابت بنية curltime *pnow);
 
-static bool cpool_find_act(struct cpool *cpool,
-                           struct Curl_easy *data,
-                           struct connectdata *conn,
+ساكن bool cpool_find_act(بنية cpool *cpool,
+                           بنية Curl_easy *data,
+                           بنية connectdata *conn,
                            cpool_match_result match)
 {
-  switch(match) {
-  case CPOOL_MATCH_FOUND:
-    return TRUE;
-  case CPOOL_MATCH_TOO_OLD:
-    if(!cpool_conn_can_be_closed(conn))
-      return FALSE;
+  بدل(match) {
+  حالة CPOOL_MATCH_FOUND:
+    החזר TRUE;
+  حالة CPOOL_MATCH_TOO_OLD:
+    אם(!cpool_conn_can_be_closed(conn))
+      החזר FALSE;
     FALLTHROUGH();
-  case CPOOL_MATCH_CLOSE:
+  حالة CPOOL_MATCH_CLOSE:
     cpool_conn_close(cpool, data, conn, FALSE);
-    break;
-  default:
-    break;
+    اكسر;
+  افتراضي:
+    اكسر;
   }
-  return FALSE;
+  החזר FALSE;
 }
 
-bool Curl_cpool_find(struct Curl_easy *data,
-                     const char *destination,
+bool Curl_cpool_find(بنية Curl_easy *data,
+                     ثابت حرف *destination,
                      bool prune_dead,
-                     const struct curltime *pnow,
+                     ثابت بنية curltime *pnow,
                      Curl_cpool_conn_match_cb *conn_cb,
                      Curl_cpool_done_match_cb *done_cb,
-                     void *userdata)
+                     فراغ *userdata)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct cpool_bundle *bundle = NULL;
+  بنية cpool *cpool = cpool_get_instance(data);
+  بنية cpool_bundle *bundle = عدم;
   bool found = FALSE;
 
   DEBUGASSERT(cpool);
   DEBUGASSERT(conn_cb);
-  if(!cpool)
-    return FALSE;
+  אם(!cpool)
+    החזר FALSE;
 
   CPOOL_LOCK(cpool, data);
 
-  if(prune_dead)
+  אם(prune_dead)
     cpool_prune_dead(cpool, data, pnow);
 
-  if(data->state.last_cpid != UINT32_MAX) {
-    struct connectdata *conn =
+  אם(data->state.last_cpid != UINT32_MAX) {
+    بنية connectdata *conn =
       Curl_uint32_tbl_get(&cpool->conns, data->state.last_cpid);
-    if(conn && (data->state.last_conn_id == conn->connection_id)) {
+    אם(conn && (data->state.last_conn_id == conn->connection_id)) {
       /* Indeed the last connection used by `data` still exists.
        * Check that first, so that connection use gets "sticky". */
       found = cpool_find_act(cpool, data, conn, conn_cb(conn, userdata));
-      if(found)
-        goto out;
+      אם(found)
+        اذهب out;
     }
-    else {
+    אחרת {
       /* No longer found here. */
       data->state.last_conn_id = -1;
       data->state.last_cpid = UINT32_MAX;
@@ -816,55 +816,55 @@ bool Curl_cpool_find(struct Curl_easy *data,
   }
 
   bundle = cpool_get_bundle(cpool, destination);
-  if(bundle) {
+  אם(bundle) {
     uint32_t cpid;
-    if(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
-      do {
-        struct connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
-        if(conn) {
-          if(data->state.last_conn_id != conn->connection_id) {
+    אם(Curl_uint32_spbset_first(&bundle->ids, &cpid)) {
+      עשה {
+        بنية connectdata *conn = Curl_uint32_tbl_get(&cpool->conns, cpid);
+        אם(conn) {
+          אם(data->state.last_conn_id != conn->connection_id) {
             found = cpool_find_act(cpool, data, conn, conn_cb(conn, userdata));
-            if(found)
-              goto out;
+            אם(found)
+              اذهب out;
           }
         }
-        else {
+        אחרת {
           DEBUGASSERT(0);
           Curl_uint32_spbset_remove(&bundle->ids, cpid);
         }
-      } while(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
+      } כלעוד(Curl_uint32_spbset_next(&bundle->ids, cpid, &cpid));
     }
   }
 
 out:
-  if(done_cb) {
+  אם(done_cb) {
     found = done_cb(userdata);
   }
   cpool_bundle_unlink(&bundle);
   CPOOL_UNLOCK(cpool, data);
-  return found;
+  החזר found;
 }
 
-struct cpool_reaper_ctx {
+بنية cpool_reaper_ctx {
   size_t reaped;
-  const struct curltime *pnow;
+  ثابت بنية curltime *pnow;
 };
 
-static int cpool_reap_dead_cb(struct cpool *cpool,
-                              struct Curl_easy *admin,
-                              struct connectdata *conn, void *param)
+ساكن صحيح cpool_reap_dead_cb(بنية cpool *cpool,
+                              بنية Curl_easy *admin,
+                              بنية connectdata *conn, فراغ *param)
 {
-  struct cpool_reaper_ctx *reaper = param;
+  بنية cpool_reaper_ctx *reaper = param;
 
-  if(cpool_conn_can_be_closed(conn)) {
-    if(conn->bits.no_reuse || conn->bits.close ||
+  אם(cpool_conn_can_be_closed(conn)) {
+    אם(conn->bits.no_reuse || conn->bits.close ||
        !Curl_cpool_conn_seems_healthy(conn, admin, reaper->pnow)) {
       /* terminate conn and stop the iteration */
       reaper->reaped++;
       cpool_conn_close(cpool, admin, conn, FALSE);
     }
   }
-  return 0; /* continue iteration */
+  החזר 0; /* continue iteration */
 }
 
 /*
@@ -872,32 +872,32 @@ static int cpool_reap_dead_cb(struct cpool *cpool,
  * connections, closes and removes them.
  * The cleanup is done at most once per second.
  */
-static void cpool_prune_dead(struct cpool *cpool,
-                             struct Curl_easy *data,
-                             const struct curltime *pnow)
+ساكن فراغ cpool_prune_dead(بنية cpool *cpool,
+                             بنية Curl_easy *data,
+                             ثابت بنية curltime *pnow)
 {
   timediff_t elapsed_ms = curlx_ptimediff_ms(pnow, &cpool->last_cleanup);
 
-  if(elapsed_ms >= 1000L) {
-    struct Curl_easy *admin = Curl_get_admin(data);
-    struct cpool_reaper_ctx reaper;
+  אם(elapsed_ms >= 1000L) {
+    بنية Curl_easy *admin = Curl_get_admin(data);
+    بنية cpool_reaper_ctx reaper;
 
-    memset(&reaper, 0, sizeof(reaper));
+    memset(&reaper, 0, حجم(reaper));
     reaper.pnow = pnow;
     cpool_foreach(admin, cpool, &reaper, cpool_reap_dead_cb);
     cpool->last_cleanup = *pnow;
   }
 }
 
-static int conn_upkeep(struct cpool *cpool,
-                       struct Curl_easy *admin,
-                       struct connectdata *conn,
-                       void *param)
+ساكن صحيح conn_upkeep(بنية cpool *cpool,
+                       بنية Curl_easy *admin,
+                       بنية connectdata *conn,
+                       فراغ *param)
 {
-  const struct curltime *pnow = Curl_pgrs_now(admin);
+  ثابت بنية curltime *pnow = Curl_pgrs_now(admin);
 
-  (void)param;
-  if((curlx_ptimediff_ms(pnow, &conn->created) - conn->lastupkeep_ms) >=
+  (فراغ)param;
+  אם((curlx_ptimediff_ms(pnow, &conn->created) - conn->lastupkeep_ms) >=
      admin->set.upkeep_interval_ms) {
     CURLcode result;
 
@@ -907,50 +907,50 @@ static int conn_upkeep(struct cpool *cpool,
     result = Curl_conn_keep_alive(admin, conn);
     Curl_detach_connection(admin);
 
-    if(result && cpool_conn_can_be_closed(conn)) {
+    אם(result && cpool_conn_can_be_closed(conn)) {
       cpool_conn_close(cpool, admin, conn, FALSE);
     }
   }
-  return 0; /* continue iteration */
+  החזר 0; /* continue iteration */
 }
 
-CURLcode Curl_cpool_upkeep(struct Curl_easy *data)
+CURLcode Curl_cpool_upkeep(بنية Curl_easy *data)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  struct Curl_easy *admin = Curl_get_admin(data);
+  بنية cpool *cpool = cpool_get_instance(data);
+  بنية Curl_easy *admin = Curl_get_admin(data);
 
-  if(!cpool)
-    return CURLE_OK;
+  אם(!cpool)
+    החזר CURLE_OK;
 
   CPOOL_LOCK(cpool, admin);
-  cpool_foreach(admin, cpool, NULL, conn_upkeep);
+  cpool_foreach(admin, cpool, عدم, conn_upkeep);
   CPOOL_UNLOCK(cpool, admin);
-  return CURLE_OK;
+  החזר CURLE_OK;
 }
 
-struct connectdata *Curl_cpool_get_last_conn(struct Curl_easy *data)
+بنية connectdata *Curl_cpool_get_last_conn(بنية Curl_easy *data)
 {
-  struct cpool *cpool = cpool_get_instance(data);
-  if(cpool && (data->state.last_cpid != UINT32_MAX)) {
-    struct connectdata *conn;
+  بنية cpool *cpool = cpool_get_instance(data);
+  אם(cpool && (data->state.last_cpid != UINT32_MAX)) {
+    بنية connectdata *conn;
 
     CPOOL_LOCK(cpool, data);
     conn = Curl_uint32_tbl_get(&cpool->conns, data->state.last_cpid);
     CPOOL_UNLOCK(cpool, data);
-    if(conn && (data->state.last_conn_id == conn->connection_id))
-      return conn;
+    אם(conn && (data->state.last_conn_id == conn->connection_id))
+      החזר conn;
     data->state.last_cpid = UINT32_MAX;
     data->state.last_conn_id = -1;
   }
-  return NULL;
+  החזר عدم;
 }
 
-void Curl_cpool_return(struct Curl_easy *data,
-                       struct connectdata *conn,
-                       Curl_cpool_return_cb *cb, void *cbdata,
-                       const struct curltime *pnow)
+فراغ Curl_cpool_return(بنية Curl_easy *data,
+                       بنية connectdata *conn,
+                       Curl_cpool_return_cb *cb, فراغ *cbdata,
+                       ثابت بنية curltime *pnow)
 {
-  struct cpool *cpool = cpool_get_instance(data);
+  بنية cpool *cpool = cpool_get_instance(data);
 
   CPOOL_LOCK(cpool, data);
 
@@ -958,49 +958,49 @@ void Curl_cpool_return(struct Curl_easy *data,
   conn->lastchecked_ms = conn->lastupkeep_ms = conn->lastused_ms =
     curlx_ptimediff_ms(pnow, &conn->created);
 
-  switch(cb(data, conn, cbdata, pnow)) {
-  case CPOOL_DO_KEEP:
-    break;
-  case CPOOL_DO_IDLE:
+  بدل(cb(data, conn, cbdata, pnow)) {
+  حالة CPOOL_DO_KEEP:
+    اكسر;
+  حالة CPOOL_DO_IDLE:
     /* the connection is no longer in use by any transfer */
-    if(cpool_conn_now_idle(cpool, data, conn, pnow)) {
+    אם(cpool_conn_now_idle(cpool, data, conn, pnow)) {
       /* connection kept in the cpool */
       infof(data, "Connection #%" FMT_OFF_T " to host %s:%u left intact",
             conn->connection_id, conn->origin->user_hostname,
             conn->origin->port);
     }
-    else { /* connection was removed from the cpool and destroyed. */
+    אחרת { /* connection was removed from the cpool and destroyed. */
       data->state.last_conn_id = -1;
       data->state.last_cpid = UINT32_MAX;
     }
-    break;
-  case CPOOL_DO_CLOSE:
+    اكسر;
+  حالة CPOOL_DO_CLOSE:
     Curl_conn_close(data, conn, FALSE);
-    break;
-  case CPOOL_DO_TERMINATE:
+    اكسر;
+  حالة CPOOL_DO_TERMINATE:
     Curl_conn_close(data, conn, TRUE);
-    break;
+    اكسر;
   }
 
   CPOOL_UNLOCK(cpool, data);
 }
 
-static int cpool_reap_no_reuse(struct cpool *cpool,
-                               struct Curl_easy *admin,
-                               struct connectdata *conn, void *param)
+ساكن صحيح cpool_reap_no_reuse(بنية cpool *cpool,
+                               بنية Curl_easy *admin,
+                               بنية connectdata *conn, فراغ *param)
 {
-  (void)param;
+  (فراغ)param;
   conn->bits.no_reuse = TRUE;
-  if(cpool_conn_can_be_closed(conn))
+  אם(cpool_conn_can_be_closed(conn))
     cpool_conn_close(cpool, admin, conn, FALSE);
-  return 0; /* continue iteration */
+  החזר 0; /* continue iteration */
 }
 
-void Curl_cpool_nw_changed(struct cpool *cpool, struct Curl_easy *admin)
+فراغ Curl_cpool_nw_changed(بنية cpool *cpool, بنية Curl_easy *admin)
 {
-  if(cpool && admin) {
+  אם(cpool && admin) {
     CPOOL_LOCK(cpool, admin);
-    cpool_foreach(admin, cpool, NULL, cpool_reap_no_reuse);
+    cpool_foreach(admin, cpool, عدم, cpool_reap_no_reuse);
     CPOOL_UNLOCK(cpool, admin);
   }
 }
@@ -1008,47 +1008,47 @@ void Curl_cpool_nw_changed(struct cpool *cpool, struct Curl_easy *admin)
 /* A connection has to have been idle for less than 'conn_max_idle_ms'
    (the success rate is too low after this), or created less than
    'conn_max_age_ms' ago, to be subject for reuse. */
-static bool cpool_conn_too_old(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const struct curltime *pnow)
+ساكن bool cpool_conn_too_old(بنية Curl_easy *data,
+                               بنية connectdata *conn,
+                               ثابت بنية curltime *pnow)
 {
   timediff_t age_ms;
 
-  if(data->set.conn_max_idle_ms) {
+  אם(data->set.conn_max_idle_ms) {
     age_ms = curlx_ptimediff_ms(pnow, &conn->created) - conn->lastused_ms;
-    if(age_ms > data->set.conn_max_idle_ms) {
+    אם(age_ms > data->set.conn_max_idle_ms) {
       infof(data, "Too old connection (%" FMT_TIMEDIFF_T
             " ms idle, max idle is %" FMT_TIMEDIFF_T " ms), disconnect it",
             age_ms, data->set.conn_max_idle_ms);
-      return TRUE;
+      החזר TRUE;
     }
   }
 
-  if(data->set.conn_max_age_ms) {
+  אם(data->set.conn_max_age_ms) {
     age_ms = curlx_ptimediff_ms(pnow, &conn->created);
-    if(age_ms > data->set.conn_max_age_ms) {
+    אם(age_ms > data->set.conn_max_age_ms) {
       infof(data,
             "Too old connection (created %" FMT_TIMEDIFF_T
             " ms ago, max lifetime is %" FMT_TIMEDIFF_T " ms), disconnect it",
             age_ms, data->set.conn_max_age_ms);
-      return TRUE;
+      החזר TRUE;
     }
   }
 
-  return FALSE;
+  החזר FALSE;
 }
 
-bool Curl_cpool_conn_seems_healthy(struct connectdata *conn,
-                                   struct Curl_easy *data,
-                                   const struct curltime *pnow)
+bool Curl_cpool_conn_seems_healthy(بنية connectdata *conn,
+                                   بنية Curl_easy *data,
+                                   ثابت بنية curltime *pnow)
 {
-  struct Curl_easy *admin;
+  بنية Curl_easy *admin;
   bool healthy = TRUE;
   bool poll_input;
 
   DEBUGASSERT(!data->conn);
-  if(cpool_conn_can_be_closed(conn) && cpool_conn_too_old(data, conn, pnow))
-    return FALSE;
+  אם(cpool_conn_can_be_closed(conn) && cpool_conn_too_old(data, conn, pnow))
+    החזר FALSE;
 
   /* An idle, non-multiplexed connection must not be reused when it has
    * input pending (RFC 9112, section 9.2), so that is polled on every
@@ -1056,23 +1056,23 @@ bool Curl_cpool_conn_seems_healthy(struct connectdata *conn,
   poll_input = cpool_conn_can_be_closed(conn) &&
     !Curl_conn_is_multiplex(conn, FIRSTSOCKET) &&
     !conn->scheme->run->connection_is_dead;
-  if(!poll_input &&
+  אם(!poll_input &&
      (curlx_ptimediff_ms(pnow, &conn->created) - conn->lastchecked_ms) < 1000)
-    return TRUE;
+    החזר TRUE;
 
   admin = Curl_get_admin(data);
-  if(conn->scheme->run->connection_is_dead) {
+  אם(conn->scheme->run->connection_is_dead) {
     Curl_attach_connection(admin, conn, FALSE);
     healthy = !conn->scheme->run->connection_is_dead(admin, conn);
     Curl_detach_connection(admin);
   }
-  else {
+  אחרת {
     bool input_pending = FALSE;
 
     Curl_attach_connection(admin, conn, FALSE);
     healthy = Curl_conn_is_alive(admin, conn, &input_pending);
     Curl_detach_connection(admin);
-    if(healthy && input_pending && poll_input) {
+    אם(healthy && input_pending && poll_input) {
       /* Non-multiplexed connections without attached transfers should
        * not have input pending. The input might be a TLS Notify Close,
        * for all we know. */
@@ -1081,23 +1081,23 @@ bool Curl_cpool_conn_seems_healthy(struct connectdata *conn,
     }
   }
 
-  if(healthy)
+  אם(healthy)
     conn->lastchecked_ms = curlx_ptimediff_ms(pnow, &conn->created);
-  return healthy;
+  החזר healthy;
 }
 
-void Curl_cpool_conn_was_used(struct Curl_easy *data,
-                              struct connectdata *conn,
-                              const struct curltime *pnow)
+فراغ Curl_cpool_conn_was_used(بنية Curl_easy *data,
+                              بنية connectdata *conn,
+                              ثابت بنية curltime *pnow)
 {
-  (void)data;
+  (فراغ)data;
   conn->lastupkeep_ms = curlx_ptimediff_ms(pnow, &conn->created);
 }
 
-timediff_t Curl_cpool_conn_age_ms(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  const struct curltime *pnow)
+timediff_t Curl_cpool_conn_age_ms(بنية Curl_easy *data,
+                                  بنية connectdata *conn,
+                                  ثابت بنية curltime *pnow)
 {
-  (void)data;
-  return curlx_ptimediff_ms(pnow, &conn->created);
+  (فراغ)data;
+  החזר curlx_ptimediff_ms(pnow, &conn->created);
 }

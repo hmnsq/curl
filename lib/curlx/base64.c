@@ -24,20 +24,20 @@
 
 /* Base64 encoding/decoding */
 
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curlx/base64.h"
+#ضمن "curlx/base64.h"
 
 /* ---- Base64 Encoding/Decoding Table --- */
-const char curlx_base64encdec[] =
+ثابت حرف curlx_base64encdec[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /* The Base 64 encoding with a URL and filename safe alphabet, RFC 4648
    section 5 */
-static const char base64url[] =
+ساكن ثابت حرف base64url[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-static const unsigned char decodetable[256] = {
+ساكن ثابت unsigned حرف decodetable[256] = {
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -85,7 +85,7 @@ static const unsigned char decodetable[256] = {
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64_decode(const char *src,
+CURLcode curlx_base64_decode(ثابت حرف *src,
                              uint8_t **outptr, size_t *outlen)
 {
   size_t srclen = 0;
@@ -94,24 +94,24 @@ CURLcode curlx_base64_decode(const char *src,
   size_t numQuantums;
   size_t fullQuantums;
   size_t rawlen = 0;
-  unsigned char *pos;
-  unsigned char *newstr;
+  unsigned حرف *pos;
+  unsigned حرف *newstr;
 
-  *outptr = NULL;
+  *outptr = عدم;
   *outlen = 0;
   srclen = strlen(src);
 
   /* Check the length of the input string is valid */
-  if(!srclen || srclen % 4)
-    return CURLE_BAD_CONTENT_ENCODING;
+  אם(!srclen || srclen % 4)
+    החזר CURLE_BAD_CONTENT_ENCODING;
 
   /* srclen is at least 4 here */
-  while(src[srclen - 1 - padding] == '=') {
+  כלעוד(src[srclen - 1 - padding] == '=') {
     /* count padding characters */
     padding++;
     /* A maximum of two = padding characters is allowed */
-    if(padding > 2)
-      return CURLE_BAD_CONTENT_ENCODING;
+    אם(padding > 2)
+      החזר CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Calculate the number of quantums */
@@ -123,49 +123,49 @@ CURLcode curlx_base64_decode(const char *src,
 
   /* Allocate our buffer including room for a null-terminator */
   newstr = curlx_malloc(rawlen + 1);
-  if(!newstr)
-    return CURLE_OUT_OF_MEMORY;
+  אם(!newstr)
+    החזר CURLE_OUT_OF_MEMORY;
 
   pos = newstr;
 
   /* Decode the complete quantums first */
-  for(i = 0; i < fullQuantums; i++) {
-    unsigned char v0 = decodetable[(unsigned char)src[0]];
-    unsigned char v1 = decodetable[(unsigned char)src[1]];
-    unsigned char v2 = decodetable[(unsigned char)src[2]];
-    unsigned char v3 = decodetable[(unsigned char)src[3]];
-    if((v0 | v1 | v2 | v3) & 0x80)
-      goto bad;
-    pos[0] = (unsigned char)((v0 << 2) | (v1 >> 4));
-    pos[1] = (unsigned char)((v1 << 4) | (v2 >> 2));
-    pos[2] = (unsigned char)((v2 << 6) | v3);
+  עבור(i = 0; i < fullQuantums; i++) {
+    unsigned حرف v0 = decodetable[(unsigned حرف)src[0]];
+    unsigned حرف v1 = decodetable[(unsigned حرف)src[1]];
+    unsigned حرف v2 = decodetable[(unsigned حرف)src[2]];
+    unsigned حرف v3 = decodetable[(unsigned حرف)src[3]];
+    אם((v0 | v1 | v2 | v3) & 0x80)
+      اذهب bad;
+    pos[0] = (unsigned حرف)((v0 << 2) | (v1 >> 4));
+    pos[1] = (unsigned حرف)((v1 << 4) | (v2 >> 2));
+    pos[2] = (unsigned حرف)((v2 << 6) | v3);
     pos += 3;
     src += 4;
   }
-  if(padding) {
+  אם(padding) {
     /* this means either 8 or 16 bits output */
-    unsigned char val;
-    unsigned int x = 0;
-    int j;
+    unsigned حرف val;
+    unsigned صحيح x = 0;
+    صحيح j;
     size_t padc = 0;
-    for(j = 0; j < 4; j++) {
-      if(*src == '=') {
+    עבור(j = 0; j < 4; j++) {
+      אם(*src == '=') {
         x <<= 6;
         src++;
-        if(++padc > padding)
+        אם(++padc > padding)
           /* this is a badly placed '=' symbol! */
-          goto bad;
+          اذهب bad;
       }
-      else {
-        val = decodetable[(unsigned char)*src++];
-        if(val == 0xff) /* bad symbol */
-          goto bad;
+      אחרת {
+        val = decodetable[(unsigned حرف)*src++];
+        אם(val == 0xff) /* bad symbol */
+          اذهب bad;
         x = (x << 6) | val;
       }
     }
-    if(padding == 1)
-      pos[1] = (unsigned char)((x >> 8) & 0xff);
-    pos[0] = (unsigned char)((x >> 16) & 0xff);
+    אם(padding == 1)
+      pos[1] = (unsigned حرف)((x >> 8) & 0xff);
+    pos[0] = (unsigned حرف)((x >> 16) & 0xff);
     pos += 3 - padding;
   }
 
@@ -176,37 +176,37 @@ CURLcode curlx_base64_decode(const char *src,
   *outptr = newstr;
   *outlen = rawlen;
 
-  return CURLE_OK;
+  החזר CURLE_OK;
 bad:
   curlx_free(newstr);
-  return CURLE_BAD_CONTENT_ENCODING;
+  החזר CURLE_BAD_CONTENT_ENCODING;
 }
 
-static CURLcode base64_encode(const char *table64,
+ساكن CURLcode base64_encode(ثابت حرف *table64,
                               uint8_t padbyte,
-                              const uint8_t *inputbuff, size_t insize,
-                              char **outptr, size_t *outlen)
+                              ثابت uint8_t *inputbuff, size_t insize,
+                              حرف **outptr, size_t *outlen)
 {
-  char *output;
-  char *base64data;
-  const unsigned char *in = (const unsigned char *)inputbuff;
+  حرف *output;
+  حرف *base64data;
+  ثابت unsigned حرف *in = (ثابت unsigned حرف *)inputbuff;
 
-  *outptr = NULL;
+  *outptr = عدم;
   *outlen = 0;
 
-  if(!insize)
-    return CURLE_OK;
+  אם(!insize)
+    החזר CURLE_OK;
 
   /* safety precaution */
   DEBUGASSERT(insize <= CURL_MAX_BASE64_INPUT);
-  if(insize > CURL_MAX_BASE64_INPUT)
-    return CURLE_TOO_LARGE;
+  אם(insize > CURL_MAX_BASE64_INPUT)
+    החזר CURLE_TOO_LARGE;
 
   base64data = output = curlx_malloc(((insize + 2) / 3 * 4) + 1);
-  if(!output)
-    return CURLE_OUT_OF_MEMORY;
+  אם(!output)
+    החזר CURLE_OUT_OF_MEMORY;
 
-  while(insize >= 3) {
+  כלעוד(insize >= 3) {
     /* Load all three input bytes before storing output, avoiding reloads when
        the compiler cannot rule out aliasing. Extract four 6-bit indices from
        the packed value; byte-wise loads avoid alignment and endian issues. */
@@ -219,21 +219,21 @@ static CURLcode base64_encode(const char *table64,
     insize -= 3;
     in += 3;
   }
-  if(insize) {
+  אם(insize) {
     /* this is only one or two bytes now */
     *output++ = table64[in[0] >> 2];
-    if(insize == 1) {
+    אם(insize == 1) {
       *output++ = table64[((in[0] & 0x03) << 4)];
-      if(padbyte) {
+      אם(padbyte) {
         *output++ = padbyte;
         *output++ = padbyte;
       }
     }
-    else {
+    אחרת {
       /* insize == 2 */
       *output++ = table64[((in[0] & 0x03) << 4) | ((in[1] & 0xF0) >> 4)];
       *output++ = table64[((in[1] & 0x0F) << 2)];
-      if(padbyte)
+      אם(padbyte)
         *output++ = padbyte;
     }
   }
@@ -247,7 +247,7 @@ static CURLcode base64_encode(const char *table64,
   /* Return the length of the new data */
   *outlen = (size_t)(output - base64data);
 
-  return CURLE_OK;
+  החזר CURLE_OK;
 }
 
 /*
@@ -263,10 +263,10 @@ static CURLcode base64_encode(const char *table64,
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen)
+CURLcode curlx_base64_encode(ثابت uint8_t *inputbuff, size_t insize,
+                             حرف **outptr, size_t *outlen)
 {
-  return base64_encode(curlx_base64encdec, '=',
+  החזר base64_encode(curlx_base64encdec, '=',
                        inputbuff, insize, outptr, outlen);
 }
 
@@ -285,8 +285,8 @@ CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
  *
  * @unittest: 1302
  */
-CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen)
+CURLcode curlx_base64url_encode(ثابت uint8_t *inputbuff, size_t insize,
+                                حرف **outptr, size_t *outlen)
 {
-  return base64_encode(base64url, 0, inputbuff, insize, outptr, outlen);
+  החזר base64_encode(base64url, 0, inputbuff, insize, outptr, outlen);
 }

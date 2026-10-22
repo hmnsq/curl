@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 #ifdef USE_HTTP3
 
-#include "bufq.h"
-#include "u32_ptrset.h"
+#ضمن "bufq.h"
+#ضمن "u32_ptrset.h"
 
 #define MAX_UDP_PAYLOAD_SIZE  1452
 
 /* definitions from RFC 9114, ch 8.1 */
-typedef enum {
+تعريفنوع تعداد {
   CURL_H3_ERR_NO_ERROR = 0x0100,
   CURL_H3_ERR_GENERAL_PROTOCOL_ERROR = 0x0101,
   CURL_H3_ERR_INTERNAL_ERROR = 0x0102,
@@ -54,75 +54,75 @@ typedef enum {
 } vquic_h3_error;
 
 #ifdef CURLVERBOSE
-const char *Curl_vquic_h3_err_str(uint64_t error_code);
-#else
+ثابت حرف *Curl_vquic_h3_err_str(uint64_t error_code);
+#אחרת
 #define Curl_vquic_h3_err_str(x)   ""
 #endif /* CURLVERBOSE */
 
-struct cf_quic_ctx {
+بنية cf_quic_ctx {
   curl_socket_t sockfd;               /* connected UDP socket */
-  struct sockaddr_storage local_addr; /* address socket is bound to */
+  بنية sockaddr_storage local_addr; /* address socket is bound to */
   socklen_t local_addrlen;            /* length of local address */
 
-  struct bufq sendbuf;           /* buffer for sending one or more packets */
-  struct curltime first_byte_at; /* when first byte was recvd */
-  struct curltime last_op;       /* last (attempted) send/recv operation */
-  struct curltime last_io;       /* last successful socket IO */
+  بنية bufq sendbuf;           /* buffer for sending one or more packets */
+  بنية curltime first_byte_at; /* when first byte was recvd */
+  بنية curltime last_op;       /* last (attempted) send/recv operation */
+  بنية curltime last_io;       /* last successful socket IO */
   size_t gsolen;                 /* length of individual packets in send buf */
   size_t split_len;    /* if != 0, buffer length after which GSO differs */
   size_t split_gsolen; /* length of individual packets after split_len */
 #ifdef DEBUGBUILD
-  int wblock_percent;  /* percent of writes doing EAGAIN */
+  صحيح wblock_percent;  /* percent of writes doing EAGAIN */
 #endif
   BIT(got_first_byte); /* if first byte was received */
   BIT(no_gso);         /* do not use gso on sending */
 };
 
 #define H3_STREAM_CTX(ctx, data)                                        \
-  ((data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : NULL)
+  ((data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : عدم)
 
-CURLcode Curl_vquic_ctx_init(struct Curl_easy *data,
-                             struct cf_quic_ctx *qctx);
-void Curl_vquic_ctx_free(struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_ctx_init(بنية Curl_easy *data,
+                             بنية cf_quic_ctx *qctx);
+فراغ Curl_vquic_ctx_free(بنية cf_quic_ctx *qctx);
 
-void Curl_vquic_ctx_set_time(struct cf_quic_ctx *qctx,
-                             const struct curltime *pnow);
+فراغ Curl_vquic_ctx_set_time(بنية cf_quic_ctx *qctx,
+                             ثابت بنية curltime *pnow);
 
-void Curl_vquic_ctx_update_time(struct cf_quic_ctx *qctx,
-                                const struct curltime *pnow);
+فراغ Curl_vquic_ctx_update_time(بنية cf_quic_ctx *qctx,
+                                ثابت بنية curltime *pnow);
 
-CURLcode Curl_vquic_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         struct cf_quic_ctx *qctx, size_t gsolen);
+CURLcode Curl_vquic_send(بنية Curl_cfilter *cf, بنية Curl_easy *data,
+                         بنية cf_quic_ctx *qctx, size_t gsolen);
 
-CURLcode Curl_vquic_send_tail_split(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct cf_quic_ctx *qctx, size_t gsolen,
+CURLcode Curl_vquic_send_tail_split(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *data,
+                                    بنية cf_quic_ctx *qctx, size_t gsolen,
                                     size_t tail_len, size_t tail_gsolen);
 
-CURLcode Curl_vquic_flush(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_flush(بنية Curl_cfilter *cf, بنية Curl_easy *data,
+                          بنية cf_quic_ctx *qctx);
 
-typedef CURLcode Curl_vquic_recv_pkts_cb(const unsigned char *buf,
+تعريفنوع CURLcode Curl_vquic_recv_pkts_cb(ثابت unsigned حرف *buf,
                                          size_t buflen,
                                          size_t gso_size,
-                                         struct sockaddr_storage *remote_addr,
+                                         بنية sockaddr_storage *remote_addr,
                                          socklen_t remote_addrlen, uint8_t ecn,
-                                         void *userp);
+                                         فراغ *userp);
 
-CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+CURLcode Curl_vquic_recv_packets(بنية Curl_cfilter *cf,
+                                 بنية Curl_easy *data,
+                                 بنية cf_quic_ctx *qctx,
                                  size_t max_pkts,
                                  Curl_vquic_recv_pkts_cb *recv_cb,
-                                 void *userp);
+                                 فراغ *userp);
 
 #ifdef USE_NGTCP2
-struct ngtcp2_mem;
-struct ngtcp2_mem *Curl_ngtcp2_mem(void);
+بنية ngtcp2_mem;
+بنية ngtcp2_mem *Curl_ngtcp2_mem(فراغ);
 #endif
 #ifdef USE_NGHTTP3
-struct nghttp3_mem;
-struct nghttp3_mem *Curl_nghttp3_mem(void);
+بنية nghttp3_mem;
+بنية nghttp3_mem *Curl_nghttp3_mem(فراغ);
 #endif
 
 #endif /* !USE_HTTP3 */

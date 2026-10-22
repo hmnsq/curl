@@ -21,78 +21,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "ptrarray.h"
+#ضمن "ptrarray.h"
 
 #define CURL_PTRARRAY_MAX_GROW     (16 * 1024)
 
-void Curl_ptrarray_init(struct ptrarray *pa)
+فراغ Curl_ptrarray_init(بنية ptrarray *pa)
 {
-  pa->data = NULL;
+  pa->data = عدم;
   pa->n = pa->capacity = 0;
 }
 
-void Curl_ptrarray_clear(struct ptrarray *pa)
+فراغ Curl_ptrarray_clear(بنية ptrarray *pa)
 {
   curlx_safefree(pa->data);
   pa->n = pa->capacity = 0;
 }
 
-uint32_t Curl_ptrarray_count(struct ptrarray *pa)
+uint32_t Curl_ptrarray_count(بنية ptrarray *pa)
 {
-  return pa->n;
+  החזר pa->n;
 }
 
-CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
+CURLcode Curl_ptrarray_add(بنية ptrarray *pa, فراغ *ptr)
 {
-  if(!ptr)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(pa->n >= pa->capacity) {
+  אם(!ptr)
+    החזר CURLE_BAD_FUNCTION_ARGUMENT;
+  אם(pa->n >= pa->capacity) {
     uint32_t growth;
-    void **ndata;
+    فراغ **ndata;
 
-    if(pa->capacity == UINT32_MAX)
-      return CURLE_OUT_OF_MEMORY;
-    if(!pa->capacity)
+    אם(pa->capacity == UINT32_MAX)
+      החזר CURLE_OUT_OF_MEMORY;
+    אם(!pa->capacity)
       growth = 8;
-    else if((UINT32_MAX / 2) > pa->capacity)
+    אחרת אם((UINT32_MAX / 2) > pa->capacity)
       growth = CURLMIN(2 * pa->capacity, CURL_PTRARRAY_MAX_GROW);
-    else
+    אחרת
       growth = ((UINT32_MAX - pa->capacity) > CURL_PTRARRAY_MAX_GROW) ?
                CURL_PTRARRAY_MAX_GROW : (UINT32_MAX - pa->capacity);
 
-    ndata = curlx_calloc(1, (pa->capacity + growth) * sizeof(void *));
-    if(!ndata)
-      return CURLE_OUT_OF_MEMORY;
-    if(pa->n)
-      memcpy(ndata, pa->data, pa->n * sizeof(void *));
+    ndata = curlx_calloc(1, (pa->capacity + growth) * حجم(فراغ *));
+    אם(!ndata)
+      החזר CURLE_OUT_OF_MEMORY;
+    אם(pa->n)
+      memcpy(ndata, pa->data, pa->n * حجم(فراغ *));
     curlx_free(pa->data);
     pa->data = ndata;
     pa->capacity += growth;
   }
   DEBUGASSERT(pa->n < pa->capacity);
   pa->data[pa->n++] = ptr;
-  return CURLE_OK;
+  החזר CURLE_OK;
 }
 
-void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx)
+فراغ *Curl_ptrarray_remove(بنية ptrarray *pa, uint32_t idx)
 {
-  if(idx < pa->n) {
+  אם(idx < pa->n) {
     uint32_t rem = pa->n - idx - 1;
-    void *ptr = pa->data[idx];
-    pa->data[idx] = NULL;
-    if(rem)
-      memmove(pa->data + idx, pa->data + idx + 1, rem * sizeof(void *));
+    فراغ *ptr = pa->data[idx];
+    pa->data[idx] = عدم;
+    אם(rem)
+      memmove(pa->data + idx, pa->data + idx + 1, rem * حجم(فراغ *));
     pa->n--;
-    if(!pa->n)
+    אם(!pa->n)
       Curl_ptrarray_clear(pa);
-    return ptr;
+    החזר ptr;
   }
-  return NULL;
+  החזר عدم;
 }
 
-void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx)
+فراغ *Curl_ptrarray_get(بنية ptrarray *pa, uint32_t idx)
 {
-  return (idx < pa->n) ? pa->data[idx] : NULL;
+  החזר (idx < pa->n) ? pa->data[idx] : عدم;
 }
