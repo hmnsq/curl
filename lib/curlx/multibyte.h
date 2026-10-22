@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 #ifdef _WIN32
 
@@ -42,29 +42,29 @@
 #ifdef UNICODE
 
 /* MultiByte conversions using Windows kernel32 library. */
-wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8);
-char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w);
+wchar_t *curlx_convert_UTF8_to_wchar(ಧ್ರುವ ವರ್ಣ *str_utf8);
+ವರ್ಣ *curlx_convert_wchar_to_UTF8(ಧ್ರುವ wchar_t *str_w);
 
 #define curlx_convert_UTF8_to_tchar(ptr) curlx_convert_UTF8_to_wchar(ptr)
 #define curlx_convert_tchar_to_UTF8(ptr) curlx_convert_wchar_to_UTF8(ptr)
 
-typedef union {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಙ್ಘ {
   unsigned short       *tchar_ptr;
-  const unsigned short *const_tchar_ptr;
+  ಧ್ರುವ unsigned short *const_tchar_ptr;
   unsigned short       *tbyte_ptr;
-  const unsigned short *const_tbyte_ptr;
+  ಧ್ರುವ unsigned short *const_tbyte_ptr;
 } xcharp_u;
 
-#else /* !UNICODE */
+#ಅನ್ಯಥಾ /* !UNICODE */
 
 #define curlx_convert_UTF8_to_tchar(ptr) curlx_strdup(ptr)
 #define curlx_convert_tchar_to_UTF8(ptr) curlx_strdup(ptr)
 
-typedef union {
-  char                *tchar_ptr;
-  const char          *const_tchar_ptr;
-  unsigned char       *tbyte_ptr;
-  const unsigned char *const_tbyte_ptr;
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಙ್ಘ {
+  ವರ್ಣ                *tchar_ptr;
+  ಧ್ರುವ ವರ್ಣ          *const_tchar_ptr;
+  unsigned ವರ್ಣ       *tbyte_ptr;
+  ಧ್ರುವ unsigned ವರ್ಣ *const_tbyte_ptr;
 } xcharp_u;
 
 #endif /* UNICODE */

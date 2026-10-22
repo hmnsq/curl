@@ -26,10 +26,10 @@
 /* should probably go into the public header */
 
 /* generated table with all easy options */
-extern const struct curl_easyoption Curl_easyopts[];
+ಬಾಹ್ಯ ಧ್ರುವ ಸಂರಚನಾ curl_easyoption Curl_easyopts[];
 
 #ifdef DEBUGBUILD
-int Curl_easyopts_check(void);
+ಪೂರ್ಣಾಙ್ಕ Curl_easyopts_check(ಶೂನ್ಯ);
 #endif
 
 #endif /* HEADER_CURL_EASYOPTIONS_H */

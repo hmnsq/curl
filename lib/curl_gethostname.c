@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#ಅನ್ತರ್ಭಾವ "curl_gethostname.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+ಪೂರ್ಣಾಙ್ಕ Curl_gethostname(ವರ್ಣ * ಧ್ರುವ name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (ಶೂನ್ಯ)name;
+  (ಶೂನ್ಯ)namelen;
+  ಪ್ರತ್ಯಾಗಮ -1;
 
-#else
-  int err;
-  char *dot;
+#ಅನ್ಯಥಾ
+  ಪೂರ್ಣಾಙ್ಕ err;
+  ವರ್ಣ *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  ಧ್ರುವ ವರ್ಣ *force_hostname = getenv("CURL_GETHOSTNAME");
+  ಯದಿ(force_hostname) {
+    ಯದಿ(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    ಅನ್ಯಥಾ
+      ಪ್ರತ್ಯಾಗಮ 1; /* cannot do it */
     err = 0;
   }
-  else {
+  ಅನ್ಯಥಾ {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#ಅನ್ಯಥಾ /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned ವರ್ಣ *)name, namelen);
+#ಅನ್ಯಥಾ
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  ಯದಿ(err)
+    ಪ್ರತ್ಯಾಗಮ err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  ಯದಿ(dot)
     *dot = '\0';
 
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 #endif
 }

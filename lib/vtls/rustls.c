@@ -23,141 +23,141 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 #ifdef USE_RUSTLS
 
-#include <rustls.h>
+#ಅನ್ತರ್ಭಾವ <rustls.h>
 
-#include "curlx/win32-fopen.h"
-#include "curlx/strerr.h"
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vdns/cf-dns.h"
-#include "vdns/httpsrr.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/rustls.h"
-#include "vtls/keylog.h"
-#include "vtls/cipher_suite.h"
-#include "vtls/x509asn1.h"
+#ಅನ್ತರ್ಭಾವ "curlx/win32-fopen.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strerr.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "vdns/cf-dns.h"
+#ಅನ್ತರ್ಭಾವ "vdns/httpsrr.h"
+#ಅನ್ತರ್ಭಾವ "vtls/vtls.h"
+#ಅನ್ತರ್ಭಾವ "vtls/vtls_int.h"
+#ಅನ್ತರ್ಭಾವ "vtls/rustls.h"
+#ಅನ್ತರ್ಭಾವ "vtls/keylog.h"
+#ಅನ್ತರ್ಭಾವ "vtls/cipher_suite.h"
+#ಅನ್ತರ್ಭಾವ "vtls/x509asn1.h"
 #ifdef USE_ECH
-#include "curlx/base64.h"
+#ಅನ್ತರ್ಭಾವ "curlx/base64.h"
 #endif
 
-#if EAGAIN != EWOULDBLOCK
+#ಯದಿ EAGAIN != EWOULDBLOCK
 #define RAW_EAGAIN(e) ((e) == EWOULDBLOCK || (e) == EAGAIN)
-#else
+#ಅನ್ಯಥಾ
 #define RAW_EAGAIN(e) ((e) == EWOULDBLOCK)
 #endif
 
-struct rustls_ssl_backend_data {
-  const struct rustls_client_config *config;
-  struct rustls_connection *conn;
+ಸಂರಚನಾ rustls_ssl_backend_data {
+  ಧ್ರುವ ಸಂರಚನಾ rustls_client_config *config;
+  ಸಂರಚನಾ rustls_connection *conn;
   size_t plain_out_buffered;
   BIT(data_in_pending);
   BIT(sent_shutdown);
 };
 
 /* For a given rustls_result error code, return the best-matching CURLcode. */
-static CURLcode map_error(const rustls_result r)
+ಸ್ಥಿರ CURLcode map_error(ಧ್ರುವ rustls_result r)
 {
-  if(rustls_result_is_cert_error(r)) {
-    return CURLE_PEER_FAILED_VERIFICATION;
+  ಯದಿ(rustls_result_is_cert_error(r)) {
+    ಪ್ರತ್ಯಾಗಮ CURLE_PEER_FAILED_VERIFICATION;
   }
-  switch(r) {
-  case RUSTLS_RESULT_OK:
-    return CURLE_OK;
-  case RUSTLS_RESULT_NULL_PARAMETER:
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  default:
-    return CURLE_RECV_ERROR;
+  ವಿಕಲ್ಪ(r) {
+  ಪಕ್ಷ RUSTLS_RESULT_OK:
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
+  ಪಕ್ಷ RUSTLS_RESULT_NULL_PARAMETER:
+    ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
+  ಸ್ವಭಾವ:
+    ಪ್ರತ್ಯಾಗಮ CURLE_RECV_ERROR;
   }
 }
 
-static void rustls_failf(struct Curl_easy *data, const rustls_result rr,
-                         const char *msg)
+ಸ್ಥಿರ ಶೂನ್ಯ rustls_failf(ಸಂರಚನಾ Curl_easy *data, ಧ್ರುವ rustls_result rr,
+                         ಧ್ರುವ ವರ್ಣ *ಸಂದೇಶ)
 {
-  char errorbuf[STRERROR_LEN];
+  ವರ್ಣ errorbuf[STRERROR_LEN];
   size_t errorlen;
-  rustls_error(rr, errorbuf, sizeof(errorbuf), &errorlen);
-  failf(data, "%s: %.*s", msg, (int)errorlen, errorbuf);
+  rustls_error(rr, errorbuf, ಪರಿಮಾಣ(errorbuf), &errorlen);
+  failf(data, "%s: %.*s", ಸಂದೇಶ, (ಪೂರ್ಣಾಙ್ಕ)errorlen, errorbuf);
 }
 
-static bool cr_data_pending(struct Curl_cfilter *cf,
-                            const struct Curl_easy *data)
+ಸ್ಥಿರ bool cr_data_pending(ಸಂರಚನಾ Curl_cfilter *cf,
+                            ಧ್ರುವ ಸಂರಚನಾ Curl_easy *data)
 {
-  const struct ssl_connect_data *ctx = cf->ctx;
-  struct rustls_ssl_backend_data *backend;
+  ಧ್ರುವ ಸಂರಚನಾ ssl_connect_data *ctx = cf->ctx;
+  ಸಂರಚನಾ rustls_ssl_backend_data *backend;
 
-  (void)data;
+  (ಶೂನ್ಯ)data;
   DEBUGASSERT(ctx && ctx->backend);
-  backend = (struct rustls_ssl_backend_data *)ctx->backend;
-  return (bool)backend->data_in_pending;
+  backend = (ಸಂರಚನಾ rustls_ssl_backend_data *)ctx->backend;
+  ಪ್ರತ್ಯಾಗಮ (bool)backend->data_in_pending;
 }
 
-struct io_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
+ಸಂರಚನಾ io_ctx {
+  ಸಂರಚನಾ Curl_cfilter *cf;
+  ಸಂರಚನಾ Curl_easy *data;
 };
 
-static int read_cb(void *userdata, uint8_t *buf, uintptr_t len,
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ read_cb(ಶೂನ್ಯ *userdata, uint8_t *buf, uintptr_t len,
                    uintptr_t *out_n)
 {
-  const struct io_ctx *io_ctx = userdata;
-  struct ssl_connect_data * const connssl = io_ctx->cf->ctx;
+  ಧ್ರುವ ಸಂರಚನಾ io_ctx *io_ctx = userdata;
+  ಸಂರಚನಾ ssl_connect_data * ಧ್ರುವ connssl = io_ctx->cf->ctx;
   CURLcode result;
-  int ret = 0;
+  ಪೂರ್ಣಾಙ್ಕ ret = 0;
   size_t nread;
 
   result = Curl_conn_cf_recv(io_ctx->cf->next, io_ctx->data,
-                             (char *)buf, len, &nread);
-  if(result) {
+                             (ವರ್ಣ *)buf, len, &nread);
+  ಯದಿ(result) {
     nread = 0;
     /* !checksrc! disable ERRNOVAR 4 */
-    if(result == CURLE_AGAIN)
+    ಯದಿ(result == CURLE_AGAIN)
       ret = EAGAIN;
-    else
+    ಅನ್ಯಥಾ
       ret = EINVAL;
   }
-  else if(nread == 0)
+  ಅನ್ಯಥಾ ಯದಿ(nread == 0)
     connssl->peer_closed = TRUE;
   *out_n = (uintptr_t)nread;
   CURL_TRC_CF(io_ctx->data, io_ctx->cf, "cf->next recv(len=%zu) -> %d, %zu",
-              (size_t)len, (int)result, nread);
-  return ret;
+              (size_t)len, (ಪೂರ್ಣಾಙ್ಕ)result, nread);
+  ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-static int write_cb(void *userdata, const uint8_t *buf, uintptr_t len,
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ write_cb(ಶೂನ್ಯ *userdata, ಧ್ರುವ uint8_t *buf, uintptr_t len,
                     uintptr_t *out_n)
 {
-  const struct io_ctx *io_ctx = userdata;
+  ಧ್ರುವ ಸಂರಚನಾ io_ctx *io_ctx = userdata;
   CURLcode result;
-  int ret = 0;
+  ಪೂರ್ಣಾಙ್ಕ ret = 0;
   size_t nwritten;
 
   result = Curl_conn_cf_send(io_ctx->cf->next, io_ctx->data,
                              buf, len, FALSE, &nwritten);
-  if(result) {
+  ಯದಿ(result) {
     nwritten = 0;
-    if(result == CURLE_AGAIN)
+    ಯದಿ(result == CURLE_AGAIN)
       ret = EAGAIN;
-    else
+    ಅನ್ಯಥಾ
       ret = EINVAL;
   }
   *out_n = (uintptr_t)nwritten;
   CURL_TRC_CF(io_ctx->data, io_ctx->cf, "cf->next send(len=%zu) -> %d, %zu",
-              len, (int)result, nwritten);
-  return ret;
+              len, (ಪೂರ್ಣಾಙ್ಕ)result, nwritten);
+  ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-static ssize_t tls_recv_more(struct Curl_cfilter *cf,
-                             struct Curl_easy *data, CURLcode *err)
+ಸ್ಥಿರ ssize_t tls_recv_more(ಸಂರಚನಾ Curl_cfilter *cf,
+                             ಸಂರಚನಾ Curl_easy *data, CURLcode *err)
 {
-  const struct ssl_connect_data * const connssl = cf->ctx;
-  struct rustls_ssl_backend_data * const backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  struct io_ctx io_ctx;
+  ಧ್ರುವ ಸಂರಚನಾ ssl_connect_data * ಧ್ರುವ connssl = cf->ctx;
+  ಸಂರಚನಾ rustls_ssl_backend_data * ಧ್ರುವ backend =
+    (ಸಂರಚನಾ rustls_ssl_backend_data *)connssl->backend;
+  ಸಂರಚನಾ io_ctx io_ctx;
   size_t tls_bytes_read = 0;
   rustls_io_result io_error;
   rustls_result rresult = 0;
@@ -166,41 +166,41 @@ static ssize_t tls_recv_more(struct Curl_cfilter *cf,
   io_ctx.data = data;
   io_error = rustls_connection_read_tls(backend->conn, read_cb, &io_ctx,
                                         &tls_bytes_read);
-  if(RAW_EAGAIN(io_error)) {
+  ಯದಿ(RAW_EAGAIN(io_error)) {
     *err = CURLE_AGAIN;
-    return -1;
+    ಪ್ರತ್ಯಾಗಮ -1;
   }
-  else if(io_error) {
-    char buffer[STRERROR_LEN];
+  ಅನ್ಯಥಾ ಯದಿ(io_error) {
+    ವರ್ಣ buffer[STRERROR_LEN];
     failf(data, "reading from socket: %s",
-          curlx_strerror(io_error, buffer, sizeof(buffer)));
+          curlx_strerror(io_error, buffer, ಪರಿಮಾಣ(buffer)));
     *err = CURLE_RECV_ERROR;
-    return -1;
+    ಪ್ರತ್ಯಾಗಮ -1;
   }
 
   rresult = rustls_connection_process_new_packets(backend->conn);
-  if(rresult != RUSTLS_RESULT_OK) {
+  ಯದಿ(rresult != RUSTLS_RESULT_OK) {
     rustls_failf(data, rresult, "rustls_connection_process_new_packets");
     *err = map_error(rresult);
-    return -1;
+    ಪ್ರತ್ಯಾಗಮ -1;
   }
 
   backend->data_in_pending = TRUE;
   *err = CURLE_OK;
-  return (ssize_t)tls_bytes_read;
+  ಪ್ರತ್ಯಾಗಮ (ssize_t)tls_bytes_read;
 }
 
 /*
  * Filter receive method implementation. `plainbuf` and `plainlen`
  * are always not NULL/0.
  */
-static CURLcode cr_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                        char *plainbuf, size_t plainlen, size_t *pnread)
+ಸ್ಥಿರ CURLcode cr_recv(ಸಂರಚನಾ Curl_cfilter *cf, ಸಂರಚನಾ Curl_easy *data,
+                        ವರ್ಣ *plainbuf, size_t plainlen, size_t *pnread)
 {
-  const struct ssl_connect_data * const connssl = cf->ctx;
-  struct rustls_ssl_backend_data * const backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  struct rustls_connection *rconn = NULL;
+  ಧ್ರುವ ಸಂರಚನಾ ssl_connect_data * ಧ್ರುವ connssl = cf->ctx;
+  ಸಂರಚನಾ rustls_ssl_backend_data * ಧ್ರುವ backend =
+    (ಸಂರಚನಾ rustls_ssl_backend_data *)connssl->backend;
+  ಸಂರಚನಾ rustls_connection *rconn = ರಿಕ್ತ;
   CURLcode result = CURLE_OK;
   size_t n = 0;
   rustls_result rresult = 0;
@@ -210,14 +210,14 @@ static CURLcode cr_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
   *pnread = 0;
   rconn = backend->conn;
 
-  while(*pnread < plainlen) {
-    if(!backend->data_in_pending) {
-      if(tls_recv_more(cf, data, &result) < 0) {
-        if(result != CURLE_AGAIN) {
-          goto out;
+  ಯಾವತ್(*pnread < plainlen) {
+    ಯದಿ(!backend->data_in_pending) {
+      ಯದಿ(tls_recv_more(cf, data, &result) < 0) {
+        ಯದಿ(result != CURLE_AGAIN) {
+          ಗಚ್ಛ out;
         }
         result = CURLE_OK;
-        break;
+        ಭಙ್ಗ;
       }
     }
 
@@ -225,50 +225,50 @@ static CURLcode cr_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
                                      (uint8_t *)plainbuf + *pnread,
                                      plainlen - *pnread,
                                      &n);
-    if(rresult == RUSTLS_RESULT_PLAINTEXT_EMPTY) {
+    ಯದಿ(rresult == RUSTLS_RESULT_PLAINTEXT_EMPTY) {
       /* A TLS message that carried no plaintext. Break out of the loop
        * to prevent a server from keeping us here forever. */
       backend->data_in_pending = FALSE;
-      break;
+      ಭಙ್ಗ;
     }
-    else if(rresult == RUSTLS_RESULT_UNEXPECTED_EOF) {
+    ಅನ್ಯಥಾ ಯದಿ(rresult == RUSTLS_RESULT_UNEXPECTED_EOF) {
       failf(data, "rustls: peer closed TCP connection "
             "without first closing TLS connection");
       result = CURLE_RECV_ERROR;
-      goto out;
+      ಗಚ್ಛ out;
     }
-    else if(rresult != RUSTLS_RESULT_OK) {
+    ಅನ್ಯಥಾ ಯದಿ(rresult != RUSTLS_RESULT_OK) {
       /* n always equals 0 in this case, do not need to check it */
       rustls_failf(data, rresult, "rustls_connection_read");
       result = CURLE_RECV_ERROR;
-      goto out;
+      ಗಚ್ಛ out;
     }
-    else if(n == 0) {
+    ಅನ್ಯಥಾ ಯದಿ(n == 0) {
       /* n == 0 indicates clean EOF, but we may have read some other
          plaintext bytes before we reached this. Break out of the loop
          so we can figure out whether to return success or EOF. */
       eof = TRUE;
-      break;
+      ಭಙ್ಗ;
     }
-    else {
+    ಅನ್ಯಥಾ {
       *pnread += n;
     }
   }
 
-  if(!eof && !*pnread) {
+  ಯದಿ(!eof && !*pnread) {
     result = CURLE_AGAIN;
   }
 
 out:
   CURL_TRC_CF(data, cf, "rustls_recv(len=%zu) -> %d, %zu",
-              plainlen, (int)result, *pnread);
-  return result;
+              plainlen, (ಪೂರ್ಣಾಙ್ಕ)result, *pnread);
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-static CURLcode cr_flush_out(struct Curl_cfilter *cf, struct Curl_easy *data,
-                             struct rustls_connection *rconn)
+ಸ್ಥಿರ CURLcode cr_flush_out(ಸಂರಚನಾ Curl_cfilter *cf, ಸಂರಚನಾ Curl_easy *data,
+                             ಸಂರಚನಾ rustls_connection *rconn)
 {
-  struct io_ctx io_ctx;
+  ಸಂರಚನಾ io_ctx io_ctx;
   rustls_io_result io_error;
   size_t tlswritten = 0;
   size_t tlswritten_total = 0;
@@ -276,28 +276,28 @@ static CURLcode cr_flush_out(struct Curl_cfilter *cf, struct Curl_easy *data,
   io_ctx.cf = cf;
   io_ctx.data = data;
 
-  while(rustls_connection_wants_write(rconn)) {
+  ಯಾವತ್(rustls_connection_wants_write(rconn)) {
     io_error = rustls_connection_write_tls(rconn, write_cb, &io_ctx,
                                            &tlswritten);
-    if(RAW_EAGAIN(io_error)) {
+    ಯದಿ(RAW_EAGAIN(io_error)) {
       CURL_TRC_CF(data, cf, "cf_send: EAGAIN after %zu bytes",
                   tlswritten_total);
-      return CURLE_AGAIN;
+      ಪ್ರತ್ಯಾಗಮ CURLE_AGAIN;
     }
-    else if(io_error) {
-      char buffer[STRERROR_LEN];
+    ಅನ್ಯಥಾ ಯದಿ(io_error) {
+      ವರ್ಣ buffer[STRERROR_LEN];
       failf(data, "writing to socket: %s",
-            curlx_strerror(io_error, buffer, sizeof(buffer)));
-      return CURLE_SEND_ERROR;
+            curlx_strerror(io_error, buffer, ಪರಿಮಾಣ(buffer)));
+      ಪ್ರತ್ಯಾಗಮ CURLE_SEND_ERROR;
     }
-    if(tlswritten == 0) {
+    ಯದಿ(tlswritten == 0) {
       failf(data, "EOF in swrite");
-      return CURLE_SEND_ERROR;
+      ಪ್ರತ್ಯಾಗಮ CURLE_SEND_ERROR;
     }
     CURL_TRC_CF(data, cf, "cf_send: wrote %zu TLS bytes", tlswritten);
     tlswritten_total += tlswritten;
   }
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
 /*
@@ -310,16 +310,16 @@ static CURLcode cr_flush_out(struct Curl_cfilter *cf, struct Curl_easy *data,
  * In that case, it does not read anything into Rustls' plaintext input buffer.
  * It only drains Rustls' plaintext output buffer into the socket.
  */
-static CURLcode cr_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                        const void *plainbuf, size_t plainlen,
+ಸ್ಥಿರ CURLcode cr_send(ಸಂರಚನಾ Curl_cfilter *cf, ಸಂರಚನಾ Curl_easy *data,
+                        ಧ್ರುವ ಶೂನ್ಯ *plainbuf, size_t plainlen,
                         size_t *pnwritten)
 {
-  const struct ssl_connect_data * const connssl = cf->ctx;
-  struct rustls_ssl_backend_data * const backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  struct rustls_connection *rconn = NULL;
+  ಧ್ರುವ ಸಂರಚನಾ ssl_connect_data * ಧ್ರುವ connssl = cf->ctx;
+  ಸಂರಚನಾ rustls_ssl_backend_data * ಧ್ರುವ backend =
+    (ಸಂರಚನಾ rustls_ssl_backend_data *)connssl->backend;
+  ಸಂರಚನಾ rustls_connection *rconn = ರಿಕ್ತ;
   size_t plainwritten = 0;
-  const unsigned char *buf = plainbuf;
+  ಧ್ರುವ unsigned ವರ್ಣ *buf = plainbuf;
   CURLcode result = CURLE_OK;
   size_t blen = plainlen;
 
@@ -334,208 +334,208 @@ static CURLcode cr_send(struct Curl_cfilter *cf, struct Curl_easy *data,
    * to rustsls and must not do that again. Flush the TLS bytes and,
    * if successful, deduct the previous plain bytes from the current
    * send. */
-  if(backend->plain_out_buffered) {
+  ಯದಿ(backend->plain_out_buffered) {
     result = cr_flush_out(cf, data, rconn);
     CURL_TRC_CF(data, cf, "cf_send: flushing %zu previously added bytes -> %d",
-                backend->plain_out_buffered, (int)result);
-    if(result)
-      return result;
-    if(blen > backend->plain_out_buffered) {
+                backend->plain_out_buffered, (ಪೂರ್ಣಾಙ್ಕ)result);
+    ಯದಿ(result)
+      ಪ್ರತ್ಯಾಗಮ result;
+    ಯದಿ(blen > backend->plain_out_buffered) {
       blen -= backend->plain_out_buffered;
       buf += backend->plain_out_buffered;
     }
-    else
+    ಅನ್ಯಥಾ
       blen = 0;
     *pnwritten += backend->plain_out_buffered;
     backend->plain_out_buffered = 0;
   }
 
-  if(blen > 0) {
+  ಯದಿ(blen > 0) {
     rustls_result rresult;
     CURL_TRC_CF(data, cf, "cf_send: adding %zu plain bytes to Rustls", blen);
     rresult = rustls_connection_write(rconn, buf, blen, &plainwritten);
-    if(rresult != RUSTLS_RESULT_OK) {
+    ಯದಿ(rresult != RUSTLS_RESULT_OK) {
       rustls_failf(data, rresult, "rustls_connection_write");
       result = CURLE_WRITE_ERROR;
-      goto out;
+      ಗಚ್ಛ out;
     }
-    else if(plainwritten == 0) {
+    ಅನ್ಯಥಾ ಯದಿ(plainwritten == 0) {
       failf(data, "rustls_connection_write: EOF");
       result = CURLE_WRITE_ERROR;
-      goto out;
+      ಗಚ್ಛ out;
     }
   }
 
   result = cr_flush_out(cf, data, rconn);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  ಯದಿ(result) {
+    ಯದಿ(result == CURLE_AGAIN) {
       /* The TLS bytes may have been partially written, but we fail the
        * complete send() and remember how much we already added to Rustls. */
       backend->plain_out_buffered = plainwritten;
-      if(*pnwritten) {
+      ಯದಿ(*pnwritten) {
         result = CURLE_OK;
       }
     }
-    goto out;
+    ಗಚ್ಛ out;
   }
-  else
+  ಅನ್ಯಥಾ
     *pnwritten += plainwritten;
 
 out:
   CURL_TRC_CF(data, cf, "rustls_send(len=%zu) -> %d, %zu",
-              plainlen, (int)result, *pnwritten);
-  return result;
+              plainlen, (ಪೂರ್ಣಾಙ್ಕ)result, *pnwritten);
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
 /* A server certificate verify callback for Rustls that always returns
    RUSTLS_RESULT_OK, or in other words disable certificate verification. */
-static uint32_t cr_verify_none(void *userdata,
-                               const rustls_verify_server_cert_params *params)
+ಸ್ಥಿರ uint32_t cr_verify_none(ಶೂನ್ಯ *userdata,
+                               ಧ್ರುವ rustls_verify_server_cert_params *params)
 {
-  (void)userdata;
-  (void)params;
-  return RUSTLS_RESULT_OK;
+  (ಶೂನ್ಯ)userdata;
+  (ಶೂನ್ಯ)params;
+  ಪ್ರತ್ಯಾಗಮ RUSTLS_RESULT_OK;
 }
 
-static int read_file_into(const char *filename, struct dynbuf *out)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ read_file_into(ಧ್ರುವ ವರ್ಣ *filename, ಸಂರಚನಾ dynbuf *out)
 {
   FILE *f = curlx_fopen(filename, FOPEN_READTEXT);
-  if(!f) {
-    return 0;
+  ಯದಿ(!f) {
+    ಪ್ರತ್ಯಾಗಮ 0;
   }
 
-  for(;;) {
+  ಪ್ರತಿ(;;) {
     uint8_t buf[256];
-    const size_t rr = fread(buf, 1, sizeof(buf), f);
-    if((!rr && !feof(f)) ||
+    ಧ್ರುವ size_t rr = fread(buf, 1, ಪರಿಮಾಣ(buf), f);
+    ಯದಿ((!rr && !feof(f)) ||
        curlx_dyn_addn(out, buf, rr)) {
       curlx_fclose(f);
-      return 0;
+      ಪ್ರತ್ಯಾಗಮ 0;
     }
-    if(rr < sizeof(buf))
-      break;
+    ಯದಿ(rr < ಪರಿಮಾಣ(buf))
+      ಭಙ್ಗ;
   }
 
-  return curlx_fclose(f) == 0;
+  ಪ್ರತ್ಯಾಗಮ curlx_fclose(f) == 0;
 }
 
-static void
-cr_get_selected_ciphers(struct Curl_easy *data,
-                        const char *ciphers12,
-                        const char *ciphers13,
-                        const struct rustls_supported_ciphersuite **selected,
+ಸ್ಥಿರ ಶೂನ್ಯ
+cr_get_selected_ciphers(ಸಂರಚನಾ Curl_easy *data,
+                        ಧ್ರುವ ವರ್ಣ *ciphers12,
+                        ಧ್ರುವ ವರ್ಣ *ciphers13,
+                        ಧ್ರುವ ಸಂರಚನಾ rustls_supported_ciphersuite **selected,
                         size_t *selected_size)
 {
-  const size_t supported_len = *selected_size;
-  const size_t default_len = rustls_default_crypto_provider_ciphersuites_len();
-  const struct rustls_supported_ciphersuite *entry = NULL;
-  const char *ciphers = ciphers12;
-  size_t count = 0, default13_count = 0, i, j;
-  const char *ptr, *end;
+  ಧ್ರುವ size_t supported_len = *selected_size;
+  ಧ್ರುವ size_t default_len = rustls_default_crypto_provider_ciphersuites_len();
+  ಧ್ರುವ ಸಂರಚನಾ rustls_supported_ciphersuite *entry = ರಿಕ್ತ;
+  ಧ್ರುವ ವರ್ಣ *ciphers = ciphers12;
+  size_t ಎಣಿಕೆ = 0, default13_ಎಣಿಕೆ = 0, i, j;
+  ಧ್ರುವ ವರ್ಣ *ptr, *end;
 
   DEBUGASSERT(default_len <= supported_len);
 
-  if(!ciphers13) {
+  ಯದಿ(!ciphers13) {
     /* Add default TLSv1.3 ciphers to selection */
-    for(j = 0; j < default_len; j++) {
+    ಪ್ರತಿ(j = 0; j < default_len; j++) {
       entry = rustls_default_crypto_provider_ciphersuites_get(j);
-      if(rustls_supported_ciphersuite_protocol_version(entry) !=
+      ಯದಿ(rustls_supported_ciphersuite_protocol_version(entry) !=
          RUSTLS_TLS_VERSION_TLSV1_3)
-        continue;
+        ಅನುವರ್ತ;
 
-      selected[count++] = entry;
+      selected[ಎಣಿಕೆ++] = entry;
     }
 
-    default13_count = count;
+    default13_ಎಣಿಕೆ = ಎಣಿಕೆ;
 
-    if(!ciphers)
+    ಯದಿ(!ciphers)
       ciphers = "";
   }
-  else
+  ಅನ್ಯಥಾ
     ciphers = ciphers13;
 
 add_ciphers:
-  for(ptr = ciphers; ptr[0] != '\0' && count < supported_len; ptr = end) {
+  ಪ್ರತಿ(ptr = ciphers; ptr[0] != '\0' && ಎಣಿಕೆ < supported_len; ptr = end) {
     uint16_t id = Curl_cipher_suite_walk_str(&ptr, &end);
 
     /* Check if cipher is supported */
-    if(id) {
-      for(i = 0; i < supported_len; i++) {
+    ಯದಿ(id) {
+      ಪ್ರತಿ(i = 0; i < supported_len; i++) {
         entry = rustls_default_crypto_provider_ciphersuites_get(i);
-        if(rustls_supported_ciphersuite_get_suite(entry) == id)
-          break;
+        ಯದಿ(rustls_supported_ciphersuite_get_suite(entry) == id)
+          ಭಙ್ಗ;
       }
-      if(i == supported_len)
+      ಯದಿ(i == supported_len)
         id = 0;
     }
-    if(!id) {
-      if(ptr[0] != '\0')
+    ಯದಿ(!id) {
+      ಯದಿ(ptr[0] != '\0')
         infof(data, "rustls: unknown cipher in list: \"%.*s\"",
-              (int)(end - ptr), ptr);
-      continue;
+              (ಪೂರ್ಣಾಙ್ಕ)(end - ptr), ptr);
+      ಅನುವರ್ತ;
     }
 
     /* No duplicates allowed (so selected cannot overflow) */
-    for(i = 0; i < count && selected[i] != entry; i++)
+    ಪ್ರತಿ(i = 0; i < ಎಣಿಕೆ && selected[i] != entry; i++)
       ;
-    if(i < count) {
-      if(i >= default13_count)
+    ಯದಿ(i < ಎಣಿಕೆ) {
+      ಯದಿ(i >= default13_ಎಣಿಕೆ)
         infof(data, "rustls: duplicate cipher in list: \"%.*s\"",
-              (int)(end - ptr), ptr);
-      continue;
+              (ಪೂರ್ಣಾಙ್ಕ)(end - ptr), ptr);
+      ಅನುವರ್ತ;
     }
 
-    selected[count++] = entry;
+    selected[ಎಣಿಕೆ++] = entry;
   }
 
-  if(ciphers == ciphers13 && ciphers12) {
+  ಯದಿ(ciphers == ciphers13 && ciphers12) {
     ciphers = ciphers12;
-    goto add_ciphers;
+    ಗಚ್ಛ add_ciphers;
   }
 
-  if(!ciphers12) {
+  ಯದಿ(!ciphers12) {
     /* Add default TLSv1.2 ciphers to selection */
-    for(j = 0; j < default_len; j++) {
+    ಪ್ರತಿ(j = 0; j < default_len; j++) {
       entry = rustls_default_crypto_provider_ciphersuites_get(j);
-      if(rustls_supported_ciphersuite_protocol_version(entry) ==
+      ಯದಿ(rustls_supported_ciphersuite_protocol_version(entry) ==
          RUSTLS_TLS_VERSION_TLSV1_3)
-        continue;
+        ಅನುವರ್ತ;
 
       /* No duplicates allowed (so selected cannot overflow) */
-      for(i = 0; i < count && selected[i] != entry; i++)
+      ಪ್ರತಿ(i = 0; i < ಎಣಿಕೆ && selected[i] != entry; i++)
         ;
-      if(i < count)
-        continue;
+      ಯದಿ(i < ಎಣಿಕೆ)
+        ಅನುವರ್ತ;
 
-      selected[count++] = entry;
+      selected[ಎಣಿಕೆ++] = entry;
     }
   }
 
-  *selected_size = count;
+  *selected_size = ಎಣಿಕೆ;
 }
 
-static void cr_keylog_log_cb(struct rustls_str label,
-                             const uint8_t *client_random,
-                             size_t client_random_len, const uint8_t *secret,
+ಸ್ಥಿರ ಶೂನ್ಯ cr_keylog_log_cb(ಸಂರಚನಾ rustls_str label,
+                             ಧ್ರುವ uint8_t *client_random,
+                             size_t client_random_len, ಧ್ರುವ uint8_t *secret,
                              size_t secret_len)
 {
-  char clabel[KEYLOG_LABEL_MAXLEN];
+  ವರ್ಣ clabel[KEYLOG_LABEL_MAXLEN];
   DEBUGASSERT(client_random_len == CLIENT_RANDOM_SIZE);
   /* Turning a "rustls_str" into a null delimited "c" string */
-  curl_msnprintf(clabel, sizeof(clabel), "%.*s", (int)label.len, label.data);
+  curl_msnprintf(clabel, ಪರಿಮಾಣ(clabel), "%.*s", (ಪೂರ್ಣಾಙ್ಕ)label.len, label.data);
   Curl_tls_keylog_write(clabel, client_random, client_random_len,
                         secret, secret_len);
 }
 
-static CURLcode
-init_config_builder(struct Curl_cfilter *cf,
-                    struct Curl_easy *data,
-                    const struct ssl_filter_config *conn_config,
-                    struct rustls_client_config_builder **config_builder)
+ಸ್ಥಿರ CURLcode
+init_config_builder(ಸಂರಚನಾ Curl_cfilter *cf,
+                    ಸಂರಚನಾ Curl_easy *data,
+                    ಧ್ರುವ ಸಂರಚನಾ ssl_filter_config *conn_config,
+                    ಸಂರಚನಾ rustls_client_config_builder **config_builder)
 {
-  const struct rustls_supported_ciphersuite **cipher_suites = NULL;
-  struct rustls_crypto_provider_builder *custom_provider_builder = NULL;
-  const struct rustls_crypto_provider *custom_provider = NULL;
+  ಧ್ರುವ ಸಂರಚನಾ rustls_supported_ciphersuite **cipher_suites = ರಿಕ್ತ;
+  ಸಂರಚನಾ rustls_crypto_provider_builder *custom_provider_builder = ರಿಕ್ತ;
+  ಧ್ರುವ ಸಂರಚನಾ rustls_crypto_provider *custom_provider = ರಿಕ್ತ;
 
   uint16_t tls_versions[2] = {
     RUSTLS_TLS_VERSION_TLSV1_2,
@@ -548,74 +548,74 @@ init_config_builder(struct Curl_cfilter *cf,
   rustls_result rr;
 
   DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
-  switch(conn_config->version) {
-  case CURL_SSLVERSION_TLSv1:
-  case CURL_SSLVERSION_TLSv1_0:
-  case CURL_SSLVERSION_TLSv1_1:
-  case CURL_SSLVERSION_TLSv1_2:
-    break;
-  case CURL_SSLVERSION_TLSv1_3:
+  ವಿಕಲ್ಪ(conn_config->version) {
+  ಪಕ್ಷ CURL_SSLVERSION_TLSv1:
+  ಪಕ್ಷ CURL_SSLVERSION_TLSv1_0:
+  ಪಕ್ಷ CURL_SSLVERSION_TLSv1_1:
+  ಪಕ್ಷ CURL_SSLVERSION_TLSv1_2:
+    ಭಙ್ಗ;
+  ಪಕ್ಷ CURL_SSLVERSION_TLSv1_3:
     tls_versions[0] = RUSTLS_TLS_VERSION_TLSV1_3;
     tls_versions_len = 1;
-    break;
-  default:
+    ಭಙ್ಗ;
+  ಸ್ವಭಾವ:
     failf(data, "rustls: unsupported minimum TLS version value");
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
-  switch(conn_config->version_max) {
-  case CURL_SSLVERSION_MAX_DEFAULT:
-  case CURL_SSLVERSION_MAX_NONE:
-  case CURL_SSLVERSION_MAX_TLSv1_3:
-    break;
-  case CURL_SSLVERSION_MAX_TLSv1_2:
-    if(tls_versions[0] == RUSTLS_TLS_VERSION_TLSV1_2) {
+  ವಿಕಲ್ಪ(conn_config->version_max) {
+  ಪಕ್ಷ CURL_SSLVERSION_MAX_DEFAULT:
+  ಪಕ್ಷ CURL_SSLVERSION_MAX_NONE:
+  ಪಕ್ಷ CURL_SSLVERSION_MAX_TLSv1_3:
+    ಭಙ್ಗ;
+  ಪಕ್ಷ CURL_SSLVERSION_MAX_TLSv1_2:
+    ಯದಿ(tls_versions[0] == RUSTLS_TLS_VERSION_TLSV1_2) {
       tls_versions_len = 1;
-      break;
+      ಭಙ್ಗ;
     }
     FALLTHROUGH();
-  case CURL_SSLVERSION_MAX_TLSv1_1:
-  case CURL_SSLVERSION_MAX_TLSv1_0:
-  default:
+  ಪಕ್ಷ CURL_SSLVERSION_MAX_TLSv1_1:
+  ಪಕ್ಷ CURL_SSLVERSION_MAX_TLSv1_0:
+  ಸ್ವಭಾವ:
     failf(data, "rustls: unsupported maximum TLS version value");
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
 #ifdef USE_ECH
-  if(Curl_ssl_ech_enabled(cf)) {
+  ಯದಿ(Curl_ssl_ech_enabled(cf)) {
     tls_versions[0] = RUSTLS_TLS_VERSION_TLSV1_3;
     tls_versions_len = 1;
     infof(data, "rustls: ECH enabled, forcing TLSv1.3");
   }
-#else
-  (void)cf;
+#ಅನ್ಯಥಾ
+  (ಶೂನ್ಯ)cf;
 #endif /* USE_ECH */
 
-  cipher_suites = curlx_malloc(sizeof(*cipher_suites) * cipher_suites_len);
-  if(!cipher_suites) {
+  cipher_suites = curlx_malloc(ಪರಿಮಾಣ(*cipher_suites) * cipher_suites_len);
+  ಯದಿ(!cipher_suites) {
     result = CURLE_OUT_OF_MEMORY;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   cr_get_selected_ciphers(data,
                           conn_config->cipher_list,
                           conn_config->cipher_list13,
                           cipher_suites, &cipher_suites_len);
-  if(cipher_suites_len == 0) {
+  ಯದಿ(cipher_suites_len == 0) {
     failf(data, "rustls: no supported cipher in list");
     result = CURLE_SSL_CIPHER;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   rr = rustls_crypto_provider_builder_new_from_default(
     &custom_provider_builder);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr,
                  "failed to create crypto provider builder from default");
     result = CURLE_SSL_CIPHER;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   rr =
@@ -623,400 +623,400 @@ init_config_builder(struct Curl_cfilter *cf,
       custom_provider_builder,
       cipher_suites,
       cipher_suites_len);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr,
                  "failed to set ciphersuites for crypto provider builder");
     result = CURLE_SSL_CIPHER;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   rr = rustls_crypto_provider_builder_build(custom_provider_builder,
                                             &custom_provider);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "failed to build custom crypto provider");
     result = CURLE_SSL_CIPHER;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   rr = rustls_client_config_builder_new_custom(custom_provider,
                                                tls_versions,
                                                tls_versions_len,
                                                config_builder);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "failed to create client config builder");
     result = CURLE_SSL_CIPHER;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
 cleanup:
-  if(cipher_suites) {
+  ಯದಿ(cipher_suites) {
     curlx_free(cipher_suites);
   }
-  if(custom_provider_builder) {
+  ಯದಿ(custom_provider_builder) {
     rustls_crypto_provider_builder_free(custom_provider_builder);
   }
-  if(custom_provider) {
+  ಯದಿ(custom_provider) {
     rustls_crypto_provider_free(custom_provider);
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-static void
-init_config_builder_alpn(struct Curl_easy *data,
-                         const struct ssl_connect_data *connssl,
-                         struct rustls_client_config_builder *config_builder)
+ಸ್ಥಿರ ಶೂನ್ಯ
+init_config_builder_alpn(ಸಂರಚನಾ Curl_easy *data,
+                         ಧ್ರುವ ಸಂರಚನಾ ssl_connect_data *connssl,
+                         ಸಂರಚನಾ rustls_client_config_builder *config_builder)
 {
-  struct alpn_proto_buf proto;
+  ಸಂರಚನಾ alpn_proto_buf proto;
   rustls_slice_bytes alpn[ALPN_ENTRIES_MAX];
   size_t i;
 
-  for(i = 0; i < connssl->alpn->count; ++i) {
-    alpn[i].data = (const uint8_t *)connssl->alpn->entries[i];
+  ಪ್ರತಿ(i = 0; i < connssl->alpn->ಎಣಿಕೆ; ++i) {
+    alpn[i].data = (ಧ್ರುವ uint8_t *)connssl->alpn->entries[i];
     alpn[i].len = strlen(connssl->alpn->entries[i]);
   }
   rustls_client_config_builder_set_alpn_protocols(config_builder, alpn,
-                                                  connssl->alpn->count);
+                                                  connssl->alpn->ಎಣಿಕೆ);
   Curl_alpn_to_proto_str(&proto, connssl->alpn);
   infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
 }
 
-static CURLcode init_config_builder_verifier_crl(
-  struct Curl_easy *data,
-  const struct ssl_filter_config *conn_config,
-  struct rustls_web_pki_server_cert_verifier_builder *builder)
+ಸ್ಥಿರ CURLcode init_config_builder_verifier_crl(
+  ಸಂರಚನಾ Curl_easy *data,
+  ಧ್ರುವ ಸಂರಚನಾ ssl_filter_config *conn_config,
+  ಸಂರಚನಾ rustls_web_pki_server_cert_verifier_builder *builder)
 {
   CURLcode result = CURLE_OK;
-  struct dynbuf crl_contents;
+  ಸಂರಚನಾ dynbuf crl_contents;
   rustls_result rr;
 
   curlx_dyn_init(&crl_contents, DYN_CRLFILE_SIZE);
-  if(!read_file_into(conn_config->CRLfile, &crl_contents)) {
+  ಯದಿ(!read_file_into(conn_config->CRLfile, &crl_contents)) {
     failf(data, "rustls: failed to read revocation list file");
     result = CURLE_SSL_CRL_BADFILE;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   rr = rustls_web_pki_server_cert_verifier_builder_add_crl(
     builder,
     curlx_dyn_uptr(&crl_contents),
     curlx_dyn_len(&crl_contents));
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "failed to parse revocation list");
     result = CURLE_SSL_CRL_BADFILE;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
 cleanup:
   curlx_dyn_free(&crl_contents);
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-static CURLcode
-init_config_builder_verifier(struct Curl_easy *data,
-                             struct rustls_client_config_builder *builder,
-                             const struct ssl_filter_config *conn_config,
-                             const struct curl_blob *ca_info_blob,
-                             const char * const ssl_cafile)
+ಸ್ಥಿರ CURLcode
+init_config_builder_verifier(ಸಂರಚನಾ Curl_easy *data,
+                             ಸಂರಚನಾ rustls_client_config_builder *builder,
+                             ಧ್ರುವ ಸಂರಚನಾ ssl_filter_config *conn_config,
+                             ಧ್ರುವ ಸಂರಚನಾ curl_blob *ca_info_blob,
+                             ಧ್ರುವ ವರ್ಣ * ಧ್ರುವ ssl_cafile)
 {
-  const struct rustls_root_cert_store *roots = NULL;
-  struct rustls_root_cert_store_builder *roots_builder = NULL;
-  struct rustls_web_pki_server_cert_verifier_builder *verifier_builder = NULL;
-  struct rustls_server_cert_verifier *server_cert_verifier = NULL;
+  ಧ್ರುವ ಸಂರಚನಾ rustls_ಬೇರು_cert_store *roots = ರಿಕ್ತ;
+  ಸಂರಚನಾ rustls_ಬೇರು_cert_store_builder *roots_builder = ರಿಕ್ತ;
+  ಸಂರಚನಾ rustls_web_pki_server_cert_verifier_builder *verifier_builder = ರಿಕ್ತ;
+  ಸಂರಚನಾ rustls_server_cert_verifier *server_cert_verifier = ರಿಕ್ತ;
   rustls_result rr = RUSTLS_RESULT_OK;
   CURLcode result = CURLE_OK;
 
-  roots_builder = rustls_root_cert_store_builder_new();
-  if(ca_info_blob) {
-    rr = rustls_root_cert_store_builder_add_pem(roots_builder,
+  roots_builder = rustls_ಬೇರು_cert_store_builder_new();
+  ಯದಿ(ca_info_blob) {
+    rr = rustls_ಬೇರು_cert_store_builder_add_pem(roots_builder,
                                                 ca_info_blob->data,
                                                 ca_info_blob->len,
                                                 1);
-    if(rr != RUSTLS_RESULT_OK) {
+    ಯದಿ(rr != RUSTLS_RESULT_OK) {
       rustls_failf(data, rr, "failed to parse trusted certificates from blob");
       result = CURLE_SSL_CACERT_BADFILE;
-      goto cleanup;
+      ಗಚ್ಛ cleanup;
     }
   }
-  else if(ssl_cafile) {
-    rr = rustls_root_cert_store_builder_load_roots_from_file(roots_builder,
+  ಅನ್ಯಥಾ ಯದಿ(ssl_cafile) {
+    rr = rustls_ಬೇರು_cert_store_builder_load_roots_from_file(roots_builder,
                                                              ssl_cafile,
                                                              1);
-    if(rr != RUSTLS_RESULT_OK) {
+    ಯದಿ(rr != RUSTLS_RESULT_OK) {
       rustls_failf(data, rr, "failed to load trusted certificates");
       result = CURLE_SSL_CACERT_BADFILE;
-      goto cleanup;
+      ಗಚ್ಛ cleanup;
     }
   }
 
-  rr = rustls_root_cert_store_builder_build(roots_builder, &roots);
-  if(rr != RUSTLS_RESULT_OK) {
+  rr = rustls_ಬೇರು_cert_store_builder_build(roots_builder, &roots);
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "failed to build trusted root certificate store");
     result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   verifier_builder = rustls_web_pki_server_cert_verifier_builder_new(roots);
-  if(!verifier_builder) {
+  ಯದಿ(!verifier_builder) {
     result = CURLE_OUT_OF_MEMORY;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
-  if(conn_config->CRLfile) {
+  ಯದಿ(conn_config->CRLfile) {
     result = init_config_builder_verifier_crl(data,
                                               conn_config,
                                               verifier_builder);
-    if(result) {
-      goto cleanup;
+    ಯದಿ(result) {
+      ಗಚ್ಛ cleanup;
     }
   }
 
   rr = rustls_web_pki_server_cert_verifier_builder_build(
     verifier_builder, &server_cert_verifier);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "failed to build certificate verifier");
     result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   rustls_client_config_builder_set_server_verifier(builder,
                                                    server_cert_verifier);
 cleanup:
-  if(roots_builder) {
-    rustls_root_cert_store_builder_free(roots_builder);
+  ಯದಿ(roots_builder) {
+    rustls_ಬೇರು_cert_store_builder_free(roots_builder);
   }
-  if(roots) {
-    rustls_root_cert_store_free(roots);
+  ಯದಿ(roots) {
+    rustls_ಬೇರು_cert_store_free(roots);
   }
-  if(verifier_builder) {
+  ಯದಿ(verifier_builder) {
     rustls_web_pki_server_cert_verifier_builder_free(verifier_builder);
   }
-  if(server_cert_verifier) {
+  ಯದಿ(server_cert_verifier) {
     rustls_server_cert_verifier_free(server_cert_verifier);
   }
 
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-static CURLcode init_config_builder_platform_verifier(
-  struct Curl_easy *data,
-  struct rustls_client_config_builder *builder)
+ಸ್ಥಿರ CURLcode init_config_builder_platform_verifier(
+  ಸಂರಚನಾ Curl_easy *data,
+  ಸಂರಚನಾ rustls_client_config_builder *builder)
 {
-  struct rustls_server_cert_verifier *server_cert_verifier = NULL;
+  ಸಂರಚನಾ rustls_server_cert_verifier *server_cert_verifier = ರಿಕ್ತ;
   CURLcode result = CURLE_OK;
   rustls_result rr;
 
   rr = rustls_platform_server_cert_verifier(&server_cert_verifier);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "failed to create platform certificate verifier");
     result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
   rustls_client_config_builder_set_server_verifier(builder,
                                                    server_cert_verifier);
 
 cleanup:
-  if(server_cert_verifier) {
+  ಯದಿ(server_cert_verifier) {
     rustls_server_cert_verifier_free(server_cert_verifier);
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-static CURLcode
-init_config_builder_keylog(struct Curl_easy *data,
-                           struct rustls_client_config_builder *builder)
+ಸ್ಥಿರ CURLcode
+init_config_builder_keylog(ಸಂರಚನಾ Curl_easy *data,
+                           ಸಂರಚನಾ rustls_client_config_builder *builder)
 {
   rustls_result rr;
 
   Curl_tls_keylog_open();
-  if(!Curl_tls_keylog_enabled()) {
-    return CURLE_OK;
+  ಯದಿ(!Curl_tls_keylog_enabled()) {
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
   }
 
-  rr = rustls_client_config_builder_set_key_log(builder,
+  rr = rustls_client_config_builder_set_ಕೀಲಿ_log(builder,
                                                 cr_keylog_log_cb,
-                                                NULL);
-  if(rr != RUSTLS_RESULT_OK) {
+                                                ರಿಕ್ತ);
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "rustls_client_config_builder_set_key_log");
     Curl_tls_keylog_close();
-    return map_error(rr);
+    ಪ್ರತ್ಯಾಗಮ map_error(rr);
   }
 
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static CURLcode
-init_config_builder_client_auth(struct Curl_easy *data,
-                                const struct ssl_filter_config *conn_config,
-                                struct rustls_client_config_builder *builder)
+ಸ್ಥಿರ CURLcode
+init_config_builder_client_auth(ಸಂರಚನಾ Curl_easy *data,
+                                ಧ್ರುವ ಸಂರಚನಾ ssl_filter_config *conn_config,
+                                ಸಂರಚನಾ rustls_client_config_builder *builder)
 {
-  struct dynbuf cert_contents;
-  struct dynbuf key_contents;
+  ಸಂರಚನಾ dynbuf cert_contents;
+  ಸಂರಚನಾ dynbuf ಕೀಲಿ_contents;
   rustls_result rr;
-  const struct rustls_certified_key *certified_key = NULL;
+  ಧ್ರುವ ಸಂರಚನಾ rustls_certified_ಕೀಲಿ *certified_ಕೀಲಿ = ರಿಕ್ತ;
   CURLcode result = CURLE_OK;
-  const bool have_cert = conn_config->clientcert || conn_config->cert_blob;
-  const bool have_key = conn_config->key || conn_config->key_blob;
+  ಧ್ರುವ bool have_cert = conn_config->clientcert || conn_config->cert_blob;
+  ಧ್ರುವ bool have_ಕೀಲಿ = conn_config->ಕೀಲಿ || conn_config->ಕೀಲಿ_blob;
 
-  if(have_cert && !have_key) {
+  ಯದಿ(have_cert && !have_ಕೀಲಿ) {
     failf(data, "rustls: must provide key with certificate");
-    return CURLE_SSL_CERTPROBLEM;
+    ಪ್ರತ್ಯಾಗಮ CURLE_SSL_CERTPROBLEM;
   }
-  else if(!have_cert && have_key) {
+  ಅನ್ಯಥಾ ಯದಿ(!have_cert && have_ಕೀಲಿ) {
     failf(data, "rustls: must provide certificate with key");
-    return CURLE_SSL_CERTPROBLEM;
+    ಪ್ರತ್ಯಾಗಮ CURLE_SSL_CERTPROBLEM;
   }
 
-  if(conn_config->cert_type && !curl_strequal(conn_config->cert_type, "PEM")) {
+  ಯದಿ(conn_config->cert_type && !curl_strequal(conn_config->cert_type, "PEM")) {
     failf(data, "rustls: unsupported certificate type '%s', only 'PEM' is "
           "supported", conn_config->cert_type);
-    return CURLE_SSL_CERTPROBLEM;
+    ಪ್ರತ್ಯಾಗಮ CURLE_SSL_CERTPROBLEM;
   }
-  if(conn_config->key_type && !curl_strequal(conn_config->key_type, "PEM")) {
+  ಯದಿ(conn_config->ಕೀಲಿ_type && !curl_strequal(conn_config->ಕೀಲಿ_type, "PEM")) {
     failf(data, "rustls: unsupported key type '%s', only 'PEM' is supported",
-          conn_config->key_type);
-    return CURLE_SSL_CERTPROBLEM;
+          conn_config->ಕೀಲಿ_type);
+    ಪ್ರತ್ಯಾಗಮ CURLE_SSL_CERTPROBLEM;
   }
 
   curlx_dyn_init(&cert_contents, DYN_CERTFILE_SIZE);
-  curlx_dyn_init(&key_contents, DYN_KEYFILE_SIZE);
+  curlx_dyn_init(&ಕೀಲಿ_contents, DYN_KEYFILE_SIZE);
 
-  if(conn_config->cert_blob) {
+  ಯದಿ(conn_config->cert_blob) {
     result = curlx_dyn_addn(&cert_contents,
                             conn_config->cert_blob->data,
                             conn_config->cert_blob->len);
-    if(result) {
+    ಯದಿ(result) {
       failf(data, "rustls: failed to copy client certificate blob (%s)",
             result == CURLE_TOO_LARGE ? "too large" : "out of memory");
-      goto cleanup;
+      ಗಚ್ಛ cleanup;
     }
   }
-  else if(!read_file_into(conn_config->clientcert, &cert_contents)) {
+  ಅನ್ಯಥಾ ಯದಿ(!read_file_into(conn_config->clientcert, &cert_contents)) {
     failf(data, "rustls: failed to read client certificate file: '%s'",
           conn_config->clientcert);
     result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
-  if(conn_config->key_blob) {
-    result = curlx_dyn_addn(&key_contents,
-                            conn_config->key_blob->data,
-                            conn_config->key_blob->len);
-    if(result) {
+  ಯದಿ(conn_config->ಕೀಲಿ_blob) {
+    result = curlx_dyn_addn(&ಕೀಲಿ_contents,
+                            conn_config->ಕೀಲಿ_blob->data,
+                            conn_config->ಕೀಲಿ_blob->len);
+    ಯದಿ(result) {
       failf(data, "rustls: failed to copy key blob (%s)",
             result == CURLE_TOO_LARGE ? "too large" : "out of memory");
-      goto cleanup;
+      ಗಚ್ಛ cleanup;
     }
   }
-  else if(!read_file_into(conn_config->key, &key_contents)) {
+  ಅನ್ಯಥಾ ಯದಿ(!read_file_into(conn_config->ಕೀಲಿ, &ಕೀಲಿ_contents)) {
     failf(data, "rustls: failed to read key file: '%s'",
-          conn_config->key);
+          conn_config->ಕೀಲಿ);
     result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
-  rr = rustls_certified_key_build(curlx_dyn_uptr(&cert_contents),
+  rr = rustls_certified_ಕೀಲಿ_build(curlx_dyn_uptr(&cert_contents),
                                   curlx_dyn_len(&cert_contents),
-                                  curlx_dyn_uptr(&key_contents),
-                                  curlx_dyn_len(&key_contents),
-                                  &certified_key);
-  if(rr != RUSTLS_RESULT_OK) {
+                                  curlx_dyn_uptr(&ಕೀಲಿ_contents),
+                                  curlx_dyn_len(&ಕೀಲಿ_contents),
+                                  &certified_ಕೀಲಿ);
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "rustls: failed to build certified key");
     result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
-  rr = rustls_certified_key_keys_match(certified_key);
-  if(rr != RUSTLS_RESULT_OK) {
+  rr = rustls_certified_ಕೀಲಿ_ಕೀಲಿಗಳು_match(certified_ಕೀಲಿ);
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr,
                  "rustls: client certificate and keypair files do not match:");
     result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
-  rr = rustls_client_config_builder_set_certified_key(builder,
-                                                      &certified_key,
+  rr = rustls_client_config_builder_set_certified_ಕೀಲಿ(builder,
+                                                      &certified_ಕೀಲಿ,
                                                       1);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "rustls: failed to set certified key");
     result = CURLE_SSL_CERTPROBLEM;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
 cleanup:
   curlx_dyn_free(&cert_contents);
-  curlx_dyn_free(&key_contents);
-  if(certified_key) {
-    rustls_certified_key_free(certified_key);
+  curlx_dyn_free(&ಕೀಲಿ_contents);
+  ಯದಿ(certified_ಕೀಲಿ) {
+    rustls_certified_ಕೀಲಿ_free(certified_ಕೀಲಿ);
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
 #ifdef USE_ECH
 
-static CURLcode
-init_config_builder_ech(struct Curl_easy *data,
-                        struct Curl_cfilter *cf,
-                        struct rustls_client_config_builder *builder)
+ಸ್ಥಿರ CURLcode
+init_config_builder_ech(ಸಂರಚನಾ Curl_easy *data,
+                        ಸಂರಚನಾ Curl_cfilter *cf,
+                        ಸಂರಚನಾ rustls_client_config_builder *builder)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  const rustls_hpke *hpke = rustls_supported_hpke();
-  unsigned char *ech_config = NULL;
+  ಸಂರಚನಾ ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ಧ್ರುವ rustls_hpke *hpke = rustls_supported_hpke();
+  unsigned ವರ್ಣ *ech_config = ರಿಕ್ತ;
   size_t ech_config_len = 0;
-  struct Curl_dns_entry *dns = NULL;
+  ಸಂರಚನಾ Curl_dns_entry *dns = ರಿಕ್ತ;
   CURLcode result = CURLE_OK;
   rustls_result rr;
 
-  if(!hpke) {
+  ಯದಿ(!hpke) {
     failf(data,
           "rustls: ECH unavailable, rustls-ffi built without "
           "HPKE compatible crypto provider");
     result = CURLE_SSL_CONNECT_ERROR;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
-  if(conn_config->ech_public) {
+  ಯದಿ(conn_config->ech_public) {
     failf(data, "rustls: ECH outername not supported");
     result = CURLE_SSL_CONNECT_ERROR;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 
-  if(conn_config->ech == CURLECH_GREASE) {
+  ಯದಿ(conn_config->ech == CURLECH_GREASE) {
     rr = rustls_client_config_builder_enable_ech_grease(builder, hpke);
-    if(rr != RUSTLS_RESULT_OK) {
+    ಯದಿ(rr != RUSTLS_RESULT_OK) {
       rustls_failf(data, rr, "rustls: failed to configure ECH GREASE");
       result = CURLE_SSL_CONNECT_ERROR;
-      goto cleanup;
+      ಗಚ್ಛ cleanup;
     }
-    return CURLE_OK;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
   }
 
-  if(conn_config->ech && conn_config->ech_config) {
-    const char *b64 = conn_config->ech_config;
+  ಯದಿ(conn_config->ech && conn_config->ech_config) {
+    ಧ್ರುವ ವರ್ಣ *b64 = conn_config->ech_config;
     size_t decode_result;
-    if(!b64[0]) {
+    ಯದಿ(!b64[0]) {
       infof(data, "rustls: ECHConfig from command line empty");
       result = CURLE_SSL_CONNECT_ERROR;
-      goto cleanup;
+      ಗಚ್ಛ cleanup;
     }
     /* rustls-ffi expects the raw TLS encoded ECHConfigList bytes */
     decode_result = curlx_base64_decode(b64, &ech_config, &ech_config_len);
-    if(decode_result || !ech_config) {
+    ಯದಿ(decode_result || !ech_config) {
       infof(data, "rustls: cannot base64 decode ECHConfig from command line");
       result = CURLE_SSL_CONNECT_ERROR;
-      goto cleanup;
+      ಗಚ್ಛ cleanup;
     }
   }
-  else {
-    const struct ssl_connect_data *connssl = cf->ctx;
-    const struct Curl_https_rrinfo *rinfo =
+  ಅನ್ಯಥಾ {
+    ಧ್ರುವ ಸಂರಚನಾ ssl_connect_data *connssl = cf->ctx;
+    ಧ್ರುವ ಸಂರಚನಾ Curl_https_rrinfo *rinfo =
       Curl_conn_dns_get_https(data, cf->sockindex, connssl->peer.origin);
 
-    if(!Curl_httpsrr_is_for_peer(connssl->peer.origin, rinfo) ||
+    ಯದಿ(!Curl_httpsrr_is_for_peer(connssl->peer.origin, rinfo) ||
        !rinfo->echconfiglist) {
       failf(data, "rustls: ECH requested but no ECHConfig available");
       result = CURLE_SSL_CONNECT_ERROR;
-      goto cleanup;
+      ಗಚ್ಛ cleanup;
     }
     ech_config = rinfo->echconfiglist;
     ech_config_len = rinfo->echconfiglist_len;
@@ -1026,37 +1026,37 @@ init_config_builder_ech(struct Curl_easy *data,
                                                ech_config,
                                                ech_config_len,
                                                hpke);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "rustls: failed to configure ECH");
     result = CURLE_SSL_CONNECT_ERROR;
-    goto cleanup;
+    ಗಚ್ಛ cleanup;
   }
 cleanup:
   /* if we base64 decoded, we can free now */
-  if(conn_config->ech && conn_config->ech_config) {
+  ಯದಿ(conn_config->ech && conn_config->ech_config) {
     curlx_free(ech_config);
   }
-  if(dns) {
+  ಯದಿ(dns) {
     Curl_dns_entry_unlink(data, &dns);
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 #endif /* USE_ECH */
 
-static CURLcode cr_init_backend(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct rustls_ssl_backend_data * const backend)
+ಸ್ಥಿರ CURLcode cr_init_backend(ಸಂರಚನಾ Curl_cfilter *cf,
+                                ಸಂರಚನಾ Curl_easy *data,
+                                ಸಂರಚನಾ rustls_ssl_backend_data * ಧ್ರುವ backend)
 {
-  const struct ssl_connect_data *connssl = cf->ctx;
-  const struct ssl_filter_config *conn_config =
+  ಧ್ರುವ ಸಂರಚನಾ ssl_connect_data *connssl = cf->ctx;
+  ಧ್ರುವ ಸಂರಚನಾ ssl_filter_config *conn_config =
     Curl_ssl_cf_get_filter_config(cf);
-  struct rustls_connection *rconn = NULL;
-  struct rustls_client_config_builder *config_builder = NULL;
+  ಸಂರಚನಾ rustls_connection *rconn = ರಿಕ್ತ;
+  ಸಂರಚನಾ rustls_client_config_builder *config_builder = ರಿಕ್ತ;
 
-  const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
-  const char * const ssl_cafile =
+  ಧ್ರುವ ಸಂರಚನಾ curl_blob *ca_info_blob = conn_config->ca_info_blob;
+  ಧ್ರುವ ವರ್ಣ * ಧ್ರುವ ssl_cafile =
     /* CURLOPT_CAINFO_BLOB overrides CURLOPT_CAINFO */
-    (ca_info_blob ? NULL : conn_config->CAfile);
+    (ca_info_blob ? ರಿಕ್ತ : conn_config->CAfile);
   CURLcode result = CURLE_OK;
   rustls_result rr;
 
@@ -1064,99 +1064,99 @@ static CURLcode cr_init_backend(struct Curl_cfilter *cf,
   rconn = backend->conn;
 
   result = init_config_builder(cf, data, conn_config, &config_builder);
-  if(result != CURLE_OK) {
-    return result;
+  ಯದಿ(result != CURLE_OK) {
+    ಪ್ರತ್ಯಾಗಮ result;
   }
 
-  if(connssl->alpn) {
+  ಯದಿ(connssl->alpn) {
     init_config_builder_alpn(data, connssl, config_builder);
   }
 
-  if(!conn_config->verifypeer) {
+  ಯದಿ(!conn_config->verifypeer) {
     rustls_client_config_builder_dangerous_set_certificate_verifier(
       config_builder, cr_verify_none);
   }
-  else if(conn_config->native_ca_store) {
-    if(conn_config->CRLfile) {
+  ಅನ್ಯಥಾ ಯದಿ(conn_config->native_ca_store) {
+    ಯದಿ(conn_config->CRLfile) {
       failf(data, "rustls: CRL file not supported with native CA store; "
             "the platform verifier has no CRL attachment API");
       rustls_client_config_builder_free(config_builder);
-      return CURLE_NOT_BUILT_IN;
+      ಪ್ರತ್ಯಾಗಮ CURLE_NOT_BUILT_IN;
     }
     result = init_config_builder_platform_verifier(data, config_builder);
-    if(result != CURLE_OK) {
+    ಯದಿ(result != CURLE_OK) {
       rustls_client_config_builder_free(config_builder);
-      return result;
+      ಪ್ರತ್ಯಾಗಮ result;
     }
   }
-  else if(ca_info_blob || ssl_cafile) {
+  ಅನ್ಯಥಾ ಯದಿ(ca_info_blob || ssl_cafile) {
     result = init_config_builder_verifier(data,
                                           config_builder,
                                           conn_config,
                                           ca_info_blob,
                                           ssl_cafile);
-    if(result != CURLE_OK) {
+    ಯದಿ(result != CURLE_OK) {
       rustls_client_config_builder_free(config_builder);
-      return result;
+      ಪ್ರತ್ಯಾಗಮ result;
     }
   }
 
-  if(conn_config->clientcert || conn_config->cert_blob ||
-     conn_config->key || conn_config->key_blob) {
+  ಯದಿ(conn_config->clientcert || conn_config->cert_blob ||
+     conn_config->ಕೀಲಿ || conn_config->ಕೀಲಿ_blob) {
     result = init_config_builder_client_auth(data,
                                              conn_config,
                                              config_builder);
-    if(result != CURLE_OK) {
+    ಯದಿ(result != CURLE_OK) {
       rustls_client_config_builder_free(config_builder);
-      return result;
+      ಪ್ರತ್ಯಾಗಮ result;
     }
   }
 
 #ifdef USE_ECH
-  if(Curl_ssl_ech_enabled(cf)) {
+  ಯದಿ(Curl_ssl_ech_enabled(cf)) {
     result = init_config_builder_ech(data, cf, config_builder);
-    if((result != CURLE_OK) && (conn_config->ech == CURLECH_HARD)) {
+    ಯದಿ((result != CURLE_OK) && (conn_config->ech == CURLECH_HARD)) {
       rustls_client_config_builder_free(config_builder);
-      return result;
+      ಪ್ರತ್ಯಾಗಮ result;
     }
   }
 #endif /* USE_ECH */
 
   result = init_config_builder_keylog(data, config_builder);
-  if(result != CURLE_OK) {
+  ಯದಿ(result != CURLE_OK) {
     rustls_client_config_builder_free(config_builder);
-    return result;
+    ಪ್ರತ್ಯಾಗಮ result;
   }
 
   rr = rustls_client_config_builder_build(config_builder, &backend->config);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "failed to build client config");
-    return CURLE_SSL_CONNECT_ERROR;
+    ಪ್ರತ್ಯಾಗಮ CURLE_SSL_CONNECT_ERROR;
   }
 
   DEBUGASSERT(!rconn);
   rr = rustls_client_connection_new(backend->config,
                                     connssl->peer.origin->hostname,
                                     &rconn);
-  if(rr != RUSTLS_RESULT_OK) {
+  ಯದಿ(rr != RUSTLS_RESULT_OK) {
     rustls_failf(data, rr, "rustls_client_connection_new");
     rustls_client_config_free(backend->config);
-    backend->config = NULL;
-    return CURLE_COULDNT_CONNECT;
+    backend->config = ರಿಕ್ತ;
+    ಪ್ರತ್ಯಾಗಮ CURLE_COULDNT_CONNECT;
   }
   DEBUGASSERT(rconn);
   rustls_connection_set_userdata(rconn, backend);
   backend->conn = rconn;
 
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-static void cr_set_negotiated_alpn(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   const struct rustls_connection *rconn)
+ಸ್ಥಿರ ಶೂನ್ಯ cr_set_negotiated_alpn(ಸಂರಚನಾ Curl_cfilter *cf,
+                                   ಸಂರಚನಾ Curl_easy *data,
+                                   ಧ್ರುವ ಸಂರಚನಾ rustls_connection *rconn)
 {
-  struct ssl_connect_data * const connssl = cf->ctx;
-  const uint8_t *protocol = NULL;
+  ಸಂರಚನಾ ssl_connect_data * ಧ್ರುವ connssl = cf->ctx;
+  ಧ್ರುವ uint8_t *protocol = ರಿಕ್ತ;
   size_t len = 0;
 
   rustls_connection_get_alpn_protocol(rconn, &protocol, &len);
@@ -1168,13 +1168,13 @@ static void cr_set_negotiated_alpn(struct Curl_cfilter *cf,
  * This function sets `*done` to true once the handshake is complete.
  * This function never reads the value of `*done*`.
  */
-static CURLcode cr_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
+ಸ್ಥಿರ CURLcode cr_connect(ಸಂರಚನಾ Curl_cfilter *cf, ಸಂರಚನಾ Curl_easy *data,
                            bool *done)
 {
-  struct ssl_connect_data * const connssl = cf->ctx;
-  const struct rustls_ssl_backend_data * const backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  const struct rustls_connection *rconn = NULL;
+  ಸಂರಚನಾ ssl_connect_data * ಧ್ರುವ connssl = cf->ctx;
+  ಧ್ರುವ ಸಂರಚನಾ rustls_ssl_backend_data * ಧ್ರುವ backend =
+    (ಸಂರಚನಾ rustls_ssl_backend_data *)connssl->backend;
+  ಧ್ರುವ ಸಂರಚನಾ rustls_connection *rconn = ರಿಕ್ತ;
   CURLcode tmperr = CURLE_OK;
   CURLcode result;
   bool wants_read;
@@ -1183,117 +1183,117 @@ static CURLcode cr_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
 
   DEBUGASSERT(backend);
 
-  CURL_TRC_CF(data, cf, "cr_connect, state=%d", (int)connssl->state);
+  CURL_TRC_CF(data, cf, "cr_connect, state=%d", (ಪೂರ್ಣಾಙ್ಕ)connssl->state);
   *done = FALSE;
 
 #ifdef USE_ECH
     /* if we do ECH and need the HTTPS-RR information for it,
      * we delay the connect until it arrives or DNS resolve fails. */
-    if(Curl_ssl_need_httpsrr(cf) &&
+    ಯದಿ(Curl_ssl_need_httpsrr(cf) &&
        !Curl_conn_dns_resolved_https(data, cf->sockindex,
                                      connssl->peer.peer)) {
       CURL_TRC_CF(data, cf, "need HTTPS-RR for ECH, delaying connect");
-      return CURLE_OK;
+      ಪ್ರತ್ಯಾಗಮ CURLE_OK;
     }
 #endif /* USE_ECH */
 
-  if(!backend->conn) {
+  ಯದಿ(!backend->conn) {
     result =
       cr_init_backend(cf, data,
-                      (struct rustls_ssl_backend_data *)connssl->backend);
-    CURL_TRC_CF(data, cf, "cr_connect, init backend -> %d", (int)result);
-    if(result)
-      return result;
+                      (ಸಂರಚನಾ rustls_ssl_backend_data *)connssl->backend);
+    CURL_TRC_CF(data, cf, "cr_connect, init backend -> %d", (ಪೂರ್ಣಾಙ್ಕ)result);
+    ಯದಿ(result)
+      ಪ್ರತ್ಯಾಗಮ result;
     connssl->state = ssl_connection_negotiating;
   }
   rconn = backend->conn;
 
   /* Read/write data until the handshake is done or the socket would block. */
-  for(;;) {
+  ಪ್ರತಿ(;;) {
     /*
      * Connection has been established according to Rustls. Set send/recv
      * handlers, and update the state machine.
      */
     connssl->io_need = CURL_SSL_IO_NEED_NONE;
-    if(!rustls_connection_is_handshaking(rconn)) {
+    ಯದಿ(!rustls_connection_is_handshaking(rconn)) {
       /* Rustls claims it is no longer handshaking *before* it has
        * send its FINISHED message off. We attempt to let it write
        * one more time. Oh my.
        */
       size_t nwritten;
       cr_set_negotiated_alpn(cf, data, rconn);
-      tmperr = cr_send(cf, data, NULL, 0, &nwritten);
-      if(tmperr == CURLE_AGAIN) {
+      tmperr = cr_send(cf, data, ರಿಕ್ತ, 0, &nwritten);
+      ಯದಿ(tmperr == CURLE_AGAIN) {
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        return CURLE_OK;
+        ಪ್ರತ್ಯಾಗಮ CURLE_OK;
       }
-      else if(tmperr != CURLE_OK) {
-        return tmperr;
+      ಅನ್ಯಥಾ ಯದಿ(tmperr != CURLE_OK) {
+        ಪ್ರತ್ಯಾಗಮ tmperr;
       }
       /* REALLY Done with the handshake. */
       {
 #ifdef CURLVERBOSE
-        const uint16_t proto = rustls_connection_get_protocol_version(rconn);
-        const rustls_str ciphersuite_name =
+        ಧ್ರುವ uint16_t proto = rustls_connection_get_protocol_version(rconn);
+        ಧ್ರುವ rustls_str ciphersuite_name =
           rustls_connection_get_negotiated_ciphersuite_name(rconn);
-        const rustls_str kex_group_name =
-          rustls_connection_get_negotiated_key_exchange_group_name(rconn);
-        const char *ver = "TLS version unknown";
-        if(proto == RUSTLS_TLS_VERSION_TLSV1_3)
+        ಧ್ರುವ rustls_str kex_group_name =
+          rustls_connection_get_negotiated_ಕೀಲಿ_exchange_group_name(rconn);
+        ಧ್ರುವ ವರ್ಣ *ver = "TLS version unknown";
+        ಯದಿ(proto == RUSTLS_TLS_VERSION_TLSV1_3)
           ver = "TLSv1.3";
-        if(proto == RUSTLS_TLS_VERSION_TLSV1_2)
+        ಯದಿ(proto == RUSTLS_TLS_VERSION_TLSV1_2)
           ver = "TLSv1.2";
 #endif
         infof(data,
               "rustls: handshake complete, %s, ciphersuite: %.*s, "
               "key exchange group: %.*s",
               ver,
-              (int)ciphersuite_name.len,
+              (ಪೂರ್ಣಾಙ್ಕ)ciphersuite_name.len,
               ciphersuite_name.data,
-              (int)kex_group_name.len,
+              (ಪೂರ್ಣಾಙ್ಕ)kex_group_name.len,
               kex_group_name.data);
       }
-      if(data->set.ssl.certinfo) {
-        size_t num_certs = 0;
+      ಯದಿ(data->set.ssl.certinfo) {
+        size_t ಅಂಕೆ_certs = 0;
         size_t i;
-        while(rustls_connection_get_peer_certificate(rconn, num_certs)) {
-          num_certs++;
-          if(num_certs > MAX_ALLOWED_CERT_AMOUNT) {
+        ಯಾವತ್(rustls_connection_get_peer_certificate(rconn, ಅಂಕೆ_certs)) {
+          ಅಂಕೆ_certs++;
+          ಯದಿ(ಅಂಕೆ_certs > MAX_ALLOWED_CERT_AMOUNT) {
             failf(data, "%zu certificates is more than allowed (%d)",
-                  num_certs, MAX_ALLOWED_CERT_AMOUNT);
-            return CURLE_SSL_CONNECT_ERROR;
+                  ಅಂಕೆ_certs, MAX_ALLOWED_CERT_AMOUNT);
+            ಪ್ರತ್ಯಾಗಮ CURLE_SSL_CONNECT_ERROR;
           }
         }
-        result = Curl_ssl_init_certinfo(data, (int)num_certs);
-        if(result)
-          return result;
-        for(i = 0; i < num_certs; i++) {
-          const rustls_certificate *cert;
-          const unsigned char *der_data;
+        result = Curl_ssl_init_certinfo(data, (ಪೂರ್ಣಾಙ್ಕ)ಅಂಕೆ_certs);
+        ಯದಿ(result)
+          ಪ್ರತ್ಯಾಗಮ result;
+        ಪ್ರತಿ(i = 0; i < ಅಂಕೆ_certs; i++) {
+          ಧ್ರುವ rustls_certificate *cert;
+          ಧ್ರುವ unsigned ವರ್ಣ *der_data;
           size_t der_len;
           rustls_result rresult = RUSTLS_RESULT_OK;
           cert = rustls_connection_get_peer_certificate(rconn, i);
           DEBUGASSERT(cert); /* Should exist since we counted already */
           rresult = rustls_certificate_get_der(cert, &der_data, &der_len);
-          if(rresult != RUSTLS_RESULT_OK) {
-            char errorbuf[255];
+          ಯದಿ(rresult != RUSTLS_RESULT_OK) {
+            ವರ್ಣ errorbuf[255];
             size_t errorlen;
-            rustls_error(rresult, errorbuf, sizeof(errorbuf), &errorlen);
+            rustls_error(rresult, errorbuf, ಪರಿಮಾಣ(errorbuf), &errorlen);
             failf(data,
                   "Failed getting DER of server certificate #%zu: %.*s", i,
-                  (int)errorlen, errorbuf);
-            return map_error(rresult);
+                  (ಪೂರ್ಣಾಙ್ಕ)errorlen, errorbuf);
+            ಪ್ರತ್ಯಾಗಮ map_error(rresult);
           }
-          result = Curl_extract_certinfo(data, (int)i,
+          result = Curl_extract_certinfo(data, (ಪೂರ್ಣಾಙ್ಕ)i,
                                          der_data, der_data + der_len);
-          if(result)
-            return result;
+          ಯದಿ(result)
+            ಪ್ರತ್ಯಾಗಮ result;
         }
       }
 
       connssl->state = ssl_connection_complete;
       *done = TRUE;
-      return CURLE_OK;
+      ಪ್ರತ್ಯಾಗಮ CURLE_OK;
     }
 
     connssl->connecting_state = ssl_connect_2;
@@ -1302,39 +1302,39 @@ static CURLcode cr_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
                   backend->plain_out_buffered;
     DEBUGASSERT(wants_read || wants_write);
 
-    if(wants_write) {
+    ಯದಿ(wants_write) {
       size_t nwritten;
       CURL_TRC_CF(data, cf, "rustls_connection wants us to write_tls.");
-      tmperr = cr_send(cf, data, NULL, 0, &nwritten);
-      if(tmperr == CURLE_AGAIN) {
+      tmperr = cr_send(cf, data, ರಿಕ್ತ, 0, &nwritten);
+      ಯದಿ(tmperr == CURLE_AGAIN) {
         CURL_TRC_CF(data, cf, "writing would block");
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
-        return CURLE_OK;
+        ಪ್ರತ್ಯಾಗಮ CURLE_OK;
       }
-      else if(tmperr != CURLE_OK) {
-        return tmperr;
+      ಅನ್ಯಥಾ ಯದಿ(tmperr != CURLE_OK) {
+        ಪ್ರತ್ಯಾಗಮ tmperr;
       }
     }
 
-    if(wants_read) {
+    ಯದಿ(wants_read) {
       CURL_TRC_CF(data, cf, "rustls_connection wants us to read_tls.");
       nread = tls_recv_more(cf, data, &tmperr);
-      if(nread == 0) {
+      ಯದಿ(nread == 0) {
         connssl->peer_closed = TRUE;
         failf(data, "TLS connect error: Connection closed abruptly");
-        return CURLE_SSL_CONNECT_ERROR;
+        ಪ್ರತ್ಯಾಗಮ CURLE_SSL_CONNECT_ERROR;
       }
-      if(nread < 0) {
-        if(tmperr == CURLE_AGAIN) {
+      ಯದಿ(nread < 0) {
+        ಯದಿ(tmperr == CURLE_AGAIN) {
           CURL_TRC_CF(data, cf, "reading would block");
           connssl->io_need = CURL_SSL_IO_NEED_RECV;
-          return CURLE_OK;
+          ಪ್ರತ್ಯಾಗಮ CURLE_OK;
         }
-        else if(tmperr == CURLE_RECV_ERROR) {
-          return CURLE_SSL_CONNECT_ERROR;
+        ಅನ್ಯಥಾ ಯದಿ(tmperr == CURLE_RECV_ERROR) {
+          ಪ್ರತ್ಯಾಗಮ CURLE_SSL_CONNECT_ERROR;
         }
-        else {
-          return tmperr;
+        ಅನ್ಯಥಾ {
+          ಪ್ರತ್ಯಾಗಮ tmperr;
         }
       }
     }
@@ -1345,117 +1345,117 @@ static CURLcode cr_connect(struct Curl_cfilter *cf, struct Curl_easy *data,
   DEBUGASSERT(FALSE);
 }
 
-static void *cr_get_internals(struct ssl_connect_data *connssl, CURLINFO info)
+ಸ್ಥಿರ ಶೂನ್ಯ *cr_get_internals(ಸಂರಚನಾ ssl_connect_data *connssl, CURLINFO info)
 {
-  struct rustls_ssl_backend_data *backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
-  (void)info;
+  ಸಂರಚನಾ rustls_ssl_backend_data *backend =
+    (ಸಂರಚನಾ rustls_ssl_backend_data *)connssl->backend;
+  (ಶೂನ್ಯ)info;
   DEBUGASSERT(backend);
-  return backend->conn;
+  ಪ್ರತ್ಯಾಗಮ backend->conn;
 }
 
-static CURLcode cr_shutdown(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            const bool send_shutdown, bool *done)
+ಸ್ಥಿರ CURLcode cr_shutdown(ಸಂರಚನಾ Curl_cfilter *cf, ಸಂರಚನಾ Curl_easy *data,
+                            ಧ್ರುವ bool send_shutdown, bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct rustls_ssl_backend_data *backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
+  ಸಂರಚನಾ ssl_connect_data *connssl = cf->ctx;
+  ಸಂರಚನಾ rustls_ssl_backend_data *backend =
+    (ಸಂರಚನಾ rustls_ssl_backend_data *)connssl->backend;
   CURLcode result = CURLE_OK;
   size_t i, nread = 0, nwritten;
 
   DEBUGASSERT(backend);
-  if(!backend->conn || cf->shutdown) {
+  ಯದಿ(!backend->conn || cf->shutdown) {
     *done = TRUE;
-    goto out;
+    ಗಚ್ಛ out;
   }
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
   *done = FALSE;
 
-  if(!backend->sent_shutdown) {
+  ಯದಿ(!backend->sent_shutdown) {
     /* do this only once */
     backend->sent_shutdown = TRUE;
-    if(send_shutdown) {
+    ಯದಿ(send_shutdown) {
       rustls_connection_send_close_notify(backend->conn);
     }
   }
 
-  result = cr_send(cf, data, NULL, 0, &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  result = cr_send(cf, data, ರಿಕ್ತ, 0, &nwritten);
+  ಯದಿ(result) {
+    ಯದಿ(result == CURLE_AGAIN) {
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
       result = CURLE_OK;
-      goto out;
+      ಗಚ್ಛ out;
     }
     DEBUGASSERT(result);
-    CURL_TRC_CF(data, cf, "shutdown send failed: %d", (int)result);
-    goto out;
+    CURL_TRC_CF(data, cf, "shutdown send failed: %d", (ಪೂರ್ಣಾಙ್ಕ)result);
+    ಗಚ್ಛ out;
   }
 
-  for(i = 0; i < 10; ++i) {
-    char buf[1024];
-    result = cr_recv(cf, data, buf, (int)sizeof(buf), &nread);
-    if(result)
-      break;
+  ಪ್ರತಿ(i = 0; i < 10; ++i) {
+    ವರ್ಣ buf[1024];
+    result = cr_recv(cf, data, buf, (ಪೂರ್ಣಾಙ್ಕ)ಪರಿಮಾಣ(buf), &nread);
+    ಯದಿ(result)
+      ಭಙ್ಗ;
   }
 
-  if(result == CURLE_AGAIN) {
+  ಯದಿ(result == CURLE_AGAIN) {
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
     result = CURLE_OK;
   }
-  else if(result) {
+  ಅನ್ಯಥಾ ಯದಿ(result) {
     DEBUGASSERT(result);
-    CURL_TRC_CF(data, cf, "shutdown, error: %d", (int)result);
+    CURL_TRC_CF(data, cf, "shutdown, error: %d", (ಪೂರ್ಣಾಙ್ಕ)result);
   }
-  else if(nread == 0) {
+  ಅನ್ಯಥಾ ಯದಿ(nread == 0) {
     /* We got the close notify alert and are done. */
     *done = TRUE;
   }
 
 out:
   cf->shutdown = (result || *done);
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-static void cr_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ cr_close(ಸಂರಚನಾ Curl_cfilter *cf, ಸಂರಚನಾ Curl_easy *data)
 {
-  const struct ssl_connect_data *connssl = cf->ctx;
-  struct rustls_ssl_backend_data *backend =
-    (struct rustls_ssl_backend_data *)connssl->backend;
+  ಧ್ರುವ ಸಂರಚನಾ ssl_connect_data *connssl = cf->ctx;
+  ಸಂರಚನಾ rustls_ssl_backend_data *backend =
+    (ಸಂರಚನಾ rustls_ssl_backend_data *)connssl->backend;
 
-  (void)data;
+  (ಶೂನ್ಯ)data;
   DEBUGASSERT(backend);
-  if(backend->conn) {
+  ಯದಿ(backend->conn) {
     rustls_connection_free(backend->conn);
-    backend->conn = NULL;
+    backend->conn = ರಿಕ್ತ;
   }
-  if(backend->config) {
+  ಯದಿ(backend->config) {
     rustls_client_config_free(backend->config);
-    backend->config = NULL;
+    backend->config = ರಿಕ್ತ;
   }
 }
 
-static size_t cr_version(char *buffer, size_t size)
+ಸ್ಥಿರ size_t cr_version(ವರ್ಣ *buffer, size_t size)
 {
-  const struct rustls_str ver = rustls_version();
-  return curl_msnprintf(buffer, size, "%.*s", (int)ver.len, ver.data);
+  ಧ್ರುವ ಸಂರಚನಾ rustls_str ver = rustls_version();
+  ಪ್ರತ್ಯಾಗಮ curl_msnprintf(buffer, size, "%.*s", (ಪೂರ್ಣಾಙ್ಕ)ver.len, ver.data);
 }
 
-static CURLcode cr_random(struct Curl_easy *data, unsigned char *entropy,
+ಸ್ಥಿರ CURLcode cr_random(ಸಂರಚನಾ Curl_easy *data, unsigned ವರ್ಣ *entropy,
                           size_t length)
 {
   rustls_result rresult = 0;
-  (void)data;
+  (ಶೂನ್ಯ)data;
   rresult = rustls_default_crypto_provider_random(entropy, length);
-  return map_error(rresult);
+  ಪ್ರತ್ಯಾಗಮ map_error(rresult);
 }
 
-static void cr_cleanup(void)
+ಸ್ಥಿರ ಶೂನ್ಯ cr_cleanup(ಶೂನ್ಯ)
 {
   Curl_tls_keylog_close();
 }
 
-const struct Curl_ssl Curl_ssl_rustls = {
+ಧ್ರುವ ಸಂರಚನಾ Curl_ssl Curl_ssl_rustls = {
   { CURLSSLBACKEND_RUSTLS, "rustls" },
   SSLSUPP_CAINFO_BLOB |            /* supports */
   SSLSUPP_HTTPS_PROXY |
@@ -1464,25 +1464,25 @@ const struct Curl_ssl Curl_ssl_rustls = {
   SSLSUPP_CERTINFO |
   SSLSUPP_ECH |
   SSLSUPP_CRLFILE,
-  sizeof(struct rustls_ssl_backend_data),
+  ಪರಿಮಾಣ(ಸಂರಚನಾ rustls_ssl_backend_data),
 
-  NULL,                            /* init */
+  ರಿಕ್ತ,                            /* init */
   cr_cleanup,                      /* cleanup */
   cr_version,                      /* version */
   cr_shutdown,                     /* shutdown */
   cr_data_pending,                 /* data_pending */
   cr_random,                       /* random */
-  NULL,                            /* cert_status_request */
+  ರಿಕ್ತ,                            /* cert_status_request */
   cr_connect,                      /* connect */
   Curl_ssl_adjust_pollset,         /* adjust_pollset */
   cr_get_internals,                /* get_internals */
   cr_close,                        /* close_one */
-  NULL,                            /* close_all */
-  NULL,                            /* engines_list */
-  NULL,                            /* sha256sum */
+  ರಿಕ್ತ,                            /* close_all */
+  ರಿಕ್ತ,                            /* engines_list */
+  ರಿಕ್ತ,                            /* sha256sum */
   cr_recv,                         /* recv decrypted data */
   cr_send,                         /* send data to encrypt */
-  NULL,                            /* get_channel_binding */
+  ರಿಕ್ತ,                            /* get_channel_binding */
 };
 
 #endif /* USE_RUSTLS */

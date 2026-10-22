@@ -24,14 +24,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 #ifdef USE_SCHANNEL
 
-#include "vtls/vtls.h"
-#include "curl_sha256.h"
+#ಅನ್ತರ್ಭಾವ "vtls/vtls.h"
+#ಅನ್ತರ್ಭಾವ "curl_sha256.h"
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1700)
+#ಯದಿ defined(_MSC_VER) && (_MSC_VER <= 1700)
 /* Workaround for warning:
    'type cast' : conversion from 'int' to 'LPCSTR' of greater size */
 #undef CERT_STORE_PROV_MEMORY
@@ -46,8 +46,8 @@
 #ifndef SCH_CREDENTIALS_VERSION
 #define SCH_CREDENTIALS_VERSION  0x00000005
 
-typedef enum _eTlsAlgorithmUsage {
-  TlsParametersCngAlgUsageKeyExchange,
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ _eTlsAlgorithmUsage {
+  Tls_Parameters_Cng_Alg_Usage_ಕೀಲಿ_Exchange,
   TlsParametersCngAlgUsageSignature,
   TlsParametersCngAlgUsageCipher,
   TlsParametersCngAlgUsageDigest,
@@ -55,7 +55,7 @@ typedef enum _eTlsAlgorithmUsage {
 } eTlsAlgorithmUsage;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _CRYPTO_SETTINGS {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ _CRYPTO_SETTINGS {
   eTlsAlgorithmUsage eAlgorithmUsage;
   UNICODE_STRING strCngAlgId;
   DWORD cChainingModes;
@@ -65,7 +65,7 @@ typedef struct _CRYPTO_SETTINGS {
 } CRYPTO_SETTINGS, *PCRYPTO_SETTINGS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _TLS_PARAMETERS {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ _TLS_PARAMETERS {
   DWORD cAlpnIds;
   PUNICODE_STRING rgstrAlpnIds; /* spellchecker:disable-line */
   DWORD grbitDisabledProtocols;
@@ -75,15 +75,15 @@ typedef struct _TLS_PARAMETERS {
 } TLS_PARAMETERS, *PTLS_PARAMETERS;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct _SCH_CREDENTIALS {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ _SCH_CREDENTIALS {
   DWORD dwVersion;
   DWORD dwCredFormat;
   DWORD cCreds;
   PCCERT_CONTEXT *paCred;
-  HCERTSTORE hRootStore;
+  HCERTSTORE h_ಬೇರು_Store;
 
   DWORD cMappers;
-  struct _HMAPPER **aphMappers;
+  ಸಂರಚನಾ _HMAPPER **aphMappers;
 
   DWORD dwSessionLifespan;
   DWORD dwFlags;
@@ -93,40 +93,40 @@ typedef struct _SCH_CREDENTIALS {
 
 #endif /* !SCH_CREDENTIALS_VERSION */
 
-struct Curl_schannel_cred {
+ಸಂರಚನಾ Curl_schannel_cred {
   CredHandle cred_handle;
   TCHAR *sni_hostname;
   HCERTSTORE client_cert_store;
-  int refcount;
+  ಪೂರ್ಣಾಙ್ಕ refcount;
 };
 
-struct Curl_schannel_ctxt {
+ಸಂರಚನಾ Curl_schannel_ctxt {
   CtxtHandle ctxt_handle;
 };
 
 /* handle encoding/decoding buffers */
-struct sbuffer {
+ಸಂರಚನಾ sbuffer {
   size_t length;
   size_t offset;
-  unsigned char *buffer;
+  unsigned ವರ್ಣ *buffer;
 };
 
-struct schannel_ssl_backend_data {
-  unsigned char *send_buffer;
+ಸಂರಚನಾ schannel_ssl_backend_data {
+  unsigned ವರ್ಣ *send_buffer;
   size_t send_buffer_len;
-  struct sbuffer encdata;
-  struct sbuffer decdata;
-  struct Curl_schannel_cred *cred;
-  struct Curl_schannel_ctxt *ctxt;
+  ಸಂರಚನಾ sbuffer encdata;
+  ಸಂರಚನಾ sbuffer decdata;
+  ಸಂರಚನಾ Curl_schannel_cred *cred;
+  ಸಂರಚನಾ Curl_schannel_ctxt *ctxt;
   SecBuffer shutdown_token;
   size_t shutdown_offset;
   SecPkgContext_StreamSizes stream_sizes;
   unsigned long req_flags, ret_flags;
   CURLcode recv_unrecoverable_err; /* schannel_recv had an unrecoverable err */
-  struct schannel_renegotiate_state {
+  ಸಂರಚನಾ schannel_renegotiate_state {
     bool started;
-    struct curltime start_time;
-    int io_need;
+    ಸಂರಚನಾ curltime start_time;
+    ಪೂರ್ಣಾಙ್ಕ io_need;
   } renegotiate_state;
   BIT(recv_sspi_close_notify); /* true if connection closed by close_notify */
   BIT(recv_connection_closed); /* true if connection closed, regardless how */
@@ -142,30 +142,30 @@ struct schannel_ssl_backend_data {
   BIT(encdata_is_incomplete);
 };
 
-struct schannel_cert_share {
-  unsigned char CAinfo_blob_digest[CURL_SHA256_DIGEST_LENGTH];
+ಸಂರಚನಾ schannel_cert_share {
+  unsigned ವರ್ಣ CAinfo_blob_digest[CURL_SHA256_DIGEST_LENGTH];
   size_t CAinfo_blob_size;           /* CA info blob size */
-  char *CAfile;                      /* CAfile path used to generate
+  ವರ್ಣ *CAfile;                      /* CAfile path used to generate
                                         certificate store */
   HCERTSTORE cert_store;             /* cached certificate store or
                                         NULL if none */
-  struct curltime time;              /* when the cached store was created */
+  ಸಂರಚನಾ curltime time;              /* when the cached store was created */
 };
 
 /* size of the structure: 20 bytes */
-struct num_ip_data {
+ಸಂರಚನಾ ಅಂಕೆ_ip_data {
   DWORD size; /* 04 bytes */
-  union {
-    struct in_addr  ia;  /* 04 bytes */
-    struct in6_addr ia6; /* 16 bytes */
+  ಸಙ್ಘ {
+    ಸಂರಚನಾ in_addr  ia;  /* 04 bytes */
+    ಸಂರಚನಾ in6_addr ia6; /* 16 bytes */
   } bData;
 };
 
-HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data);
+HCERTSTORE Curl_schannel_get_cached_cert_store(ಸಂರಚನಾ Curl_cfilter *cf,
+                                               ಸಂರಚನಾ Curl_easy *data);
 
-bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+bool Curl_schannel_set_cached_cert_store(ಸಂರಚನಾ Curl_cfilter *cf,
+                                         ಸಂರಚನಾ Curl_easy *data,
                                          HCERTSTORE cert_store);
 
 #endif /* USE_SCHANNEL */

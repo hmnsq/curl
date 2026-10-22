@@ -23,28 +23,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "api.h"
-#include "llist.h"
-#include "hash.h"
-#include "conncache.h"
-#include "cshutdn.h"
-#include "multi_ev.h"
-#include "multi_ntfy.h"
-#include "psl.h"
-#include "socketpair.h"
-#include "splay.h"
-#include "uint-bset.h"
-#include "uint-spbset.h"
-#include "uint-table.h"
-#include "vdns/dnscache.h"
+#ಅನ್ತರ್ಭಾವ "api.h"
+#ಅನ್ತರ್ಭಾವ "llist.h"
+#ಅನ್ತರ್ಭಾವ "hash.h"
+#ಅನ್ತರ್ಭಾವ "conncache.h"
+#ಅನ್ತರ್ಭಾವ "cshutdn.h"
+#ಅನ್ತರ್ಭಾವ "multi_ev.h"
+#ಅನ್ತರ್ಭಾವ "multi_ntfy.h"
+#ಅನ್ತರ್ಭಾವ "psl.h"
+#ಅನ್ತರ್ಭಾವ "socketpair.h"
+#ಅನ್ತರ್ಭಾವ "splay.h"
+#ಅನ್ತರ್ಭಾವ "uint-bset.h"
+#ಅನ್ತರ್ಭಾವ "uint-spbset.h"
+#ಅನ್ತರ್ಭಾವ "uint-table.h"
+#ಅನ್ತರ್ಭಾವ "vdns/dnscache.h"
 
-struct connectdata;
-struct Curl_easy;
+ಸಂರಚನಾ connectdata;
+ಸಂರಚನಾ Curl_easy;
 
 /* NOTE: if you add a state here, add the name to the statenames[] array
  * in curl_trc.c as well!
  */
-typedef enum {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ {
   MSTATE_INIT,         /* 0 - start in this state */
   MSTATE_PENDING,      /* no connections, waiting for one */
   MSTATE_SETUP,        /* start a new transfer */
@@ -66,10 +66,10 @@ typedef enum {
 
 #define CURLPIPE_ANY (CURLPIPE_MULTIPLEX)
 
-#if !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
+#ಯದಿ !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
 #define ENABLE_WAKEUP
 #endif
-#if !defined(CURL_DISABLE_SOCKETPAIR) && \
+#ಯದಿ !defined(CURL_DISABLE_SOCKETPAIR) && \
     defined(USE_RESOLV_THREADED) && \
     !defined(USE_WINSOCK)
 #define ENABLE_INTERNAL_WAKEUP
@@ -78,13 +78,13 @@ typedef enum {
 /* value for MAXIMUM CONCURRENT STREAMS upper limit */
 #define INITIAL_MAX_CONCURRENT_STREAMS ((1U << 31) - 1)
 
-struct Curl_fixed_buf {
+ಸಂರಚನಾ Curl_fixed_buf {
   size_t len;      /* the allocated data length */
-  char data[1];   /* the actual buffer */
+  ವರ್ಣ data[1];   /* the actual buffer */
 };
 
 /* This is the struct known as CURLM on the outside */
-struct Curl_multi {
+ಸಂರಚನಾ Curl_multi {
   /* First a simple identifier to more easily detect if a user mixes up
      this multi handle with an easy handle.
      Set this to CURLMULTI_MAGIC_NUMBER. */
@@ -96,49 +96,49 @@ struct Curl_multi {
   uint32_t max_concurrent_streams;
   curl_off_t xfers_total_ever; /* total of added transfers, ever. */
 
-  struct uint32_tbl xfers; /* transfers added to this multi */
+  ಸಂರಚನಾ uint32_tbl xfers; /* transfers added to this multi */
   /* A transfer's mid may be present in at most one of
    * process/pending/msgsent. The dirty set may overlap with process. */
-  struct uint32_bset process; /* transfer being processed */
-  struct uint32_bset dirty; /* transfer to be run NOW, e.g. ASAP. */
-  struct uint32_bset pending; /* transfers in waiting (conn limit etc.) */
-  struct uint32_bset msgsent; /* transfers with unread application messages */
+  ಸಂರಚನಾ uint32_bset process; /* transfer being processed */
+  ಸಂರಚನಾ uint32_bset dirty; /* transfer to be run NOW, e.g. ASAP. */
+  ಸಂರಚನಾ uint32_bset pending; /* transfers in waiting (conn limit etc.) */
+  ಸಂರಚನಾ uint32_bset msgsent; /* transfers with unread application messages */
 
-  struct Curl_mapi_stack callstack; /* multi api calls ongoing */
+  ಸಂರಚನಾ Curl_mapi_ರಾಶಿ callstack; /* multi api calls ongoing */
 
   /* expiration times for all attached easy handles */
-  struct Curl_timeouts timeouts;
+  ಸಂರಚನಾ Curl_timeouts timeouts;
 
-  struct Curl_easy *admin; /* internal easy handle for admin operations.
+  ಸಂರಚನಾ Curl_easy *admin; /* internal easy handle for admin operations.
                               gets assigned `mid` 0 on multi init */
 
   /* callback function and user data pointer for the *socket() API */
   curl_socket_callback socket_cb;
-  void *socket_userp;
+  ಶೂನ್ಯ *socket_userp;
 
   /* callback function and user data pointer for server push */
-  curl_push_callback push_cb;
-  void *push_userp;
+  curl_ತಳ್ಳು_callback ತಳ್ಳು_cb;
+  ಶೂನ್ಯ *ತಳ್ಳು_userp;
 
-  struct Curl_dnscache dnscache; /* DNS cache */
-  struct Curl_ssl_scache *ssl_scache; /* TLS session pool */
+  ಸಂರಚನಾ Curl_dnscache dnscache; /* DNS cache */
+  ಸಂರಚನಾ Curl_ssl_scache *ssl_scache; /* TLS session pool */
 #ifdef USE_RESOLV_THREADED
-  struct curl_thrdq *resolv_thrdq;
+  ಸಂರಚನಾ curl_thrdq *resolv_thrdq;
 #endif
 
 #ifdef USE_LIBPSL
   /* PSL cache. */
-  struct PslCache psl;
+  ಸಂರಚನಾ PslCache psl;
 #endif
 
-  struct Curl_fixed_buf *xfer_buf; /* transfer downloads, lazy */
-  struct Curl_fixed_buf *xfer_ulbuf; /* transfer uploads, lazy */
-  struct Curl_fixed_buf *xfer_sockbuf; /* transfer socket I/O, lazy */
+  ಸಂರಚನಾ Curl_fixed_buf *xfer_buf; /* transfer downloads, lazy */
+  ಸಂರಚನಾ Curl_fixed_buf *xfer_ulbuf; /* transfer uploads, lazy */
+  ಸಂರಚನಾ Curl_fixed_buf *xfer_sockbuf; /* transfer socket I/O, lazy */
 
   /* multi event related things */
-  struct curl_multi_ev ev;
+  ಸಂರಚನಾ curl_multi_ev ev;
   /* multi notification related things */
-  struct curl_multi_ntfy ntfy;
+  ಸಂರಚನಾ curl_multi_ntfy ntfy;
 
   /* `proto_hash` is a general key-value store for protocol implementations
    * with the lifetime of the multi handle. The number of elements kept here
@@ -146,16 +146,16 @@ struct Curl_multi {
    * TLS), *not* in the order of connections or current transfers!
    * Elements need to be added with their own destructor to be invoked when
    * the multi handle is cleaned up (see Curl_hash_add2()).*/
-  struct Curl_hash proto_hash;
+  ಸಂರಚನಾ Curl_hash proto_hash;
 
-  struct cshutdn cshutdn; /* connection shutdown handling */
-  struct cpool cpool;     /* connection pool (bundles) */
+  ಸಂರಚನಾ cshutdn cshutdn; /* connection shutdown handling */
+  ಸಂರಚನಾ cpool cpool;     /* connection pool (bundles) */
 
   timediff_t last_expire_offset_us; /* times offset of last expiry */
 
   /* timer callback and user data pointer for the *socket() API */
   curl_multi_timer_callback timer_cb;
-  void *timer_userp;
+  ಶೂನ್ಯ *timer_userp;
 
 #ifdef USE_WINSOCK
   WSAEVENT wsa_event; /* Winsock event used for waits */

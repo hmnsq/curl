@@ -25,90 +25,90 @@
  * The Strict-Transport-Security header is defined in RFC 6797:
  * https://datatracker.ietf.org/doc/html/rfc6797
  */
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-#include "urldata.h"
-#include "llist.h"
-#include "hsts.h"
-#include "curl_fopen.h"
-#include "curl_get_line.h"
-#include "parsedate.h"
-#include "curl_share.h"
-#include "curlx/strparse.h"
-#include "curlx/strcopy.h"
+#ಯದಿ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "llist.h"
+#ಅನ್ತರ್ಭಾವ "hsts.h"
+#ಅನ್ತರ್ಭಾವ "curl_fopen.h"
+#ಅನ್ತರ್ಭಾವ "curl_get_line.h"
+#ಅನ್ತರ್ಭಾವ "parsedate.h"
+#ಅನ್ತರ್ಭಾವ "curl_share.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strcopy.h"
 
-#define MAX_HSTS_LINE    4095
+#define MAX_HSTS_ಸಾಲು    4095
 #define MAX_HSTS_HOSTLEN 2048
 #define MAX_HSTS_DATELEN 17
 #define UNLIMITED        "unlimited"
 
 #define CAP_HSTS_MAX_AGE (2*365*24*3600) /* two years cap */
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#ಯದಿ defined(DEBUGBUILD) || defined(UNITTESTS)
 /* to play well with debug builds, we can *set* a fixed time this will
    return */
 time_t deltatime; /* allow for "adjustments" for unit test purposes */
-static time_t hsts_debugtime(void *unused)
+ಸ್ಥಿರ time_t hsts_debugtime(ಶೂನ್ಯ *unused)
 {
-  const char *timestr = getenv("CURL_TIME");
-  (void)unused;
-  if(timestr) {
+  ಧ್ರುವ ವರ್ಣ *timestr = getenv("CURL_TIME");
+  (ಶೂನ್ಯ)unused;
+  ಯದಿ(timestr) {
     curl_off_t val;
-    if(!curlx_str_number(&timestr, &val, TIME_T_MAX))
+    ಯದಿ(!curlx_str_ಸಂಖ್ಯೆ(&timestr, &val, TIME_T_MAX))
       val += (curl_off_t)deltatime;
-    return (time_t)val;
+    ಪ್ರತ್ಯಾಗಮ (time_t)val;
   }
-  return time(NULL);
+  ಪ್ರತ್ಯಾಗಮ time(ರಿಕ್ತ);
 }
 #undef time
 #define time(x) hsts_debugtime(x)
 #endif
 
-struct hsts *Curl_hsts_init(void)
+ಸಂರಚನಾ hsts *Curl_hsts_init(ಶೂನ್ಯ)
 {
-  struct hsts *h = curlx_calloc(1, sizeof(struct hsts));
-  if(h) {
-    Curl_llist_init(&h->list, NULL);
+  ಸಂರಚನಾ hsts *h = curlx_calloc(1, ಪರಿಮಾಣ(ಸಂರಚನಾ hsts));
+  ಯದಿ(h) {
+    Curl_llist_init(&h->list, ರಿಕ್ತ);
   }
-  return h;
+  ಪ್ರತ್ಯಾಗಮ h;
 }
 
 #define hsts_free(x) curlx_free(x)
 
-void Curl_hsts_cleanup(struct hsts **hp)
+ಶೂನ್ಯ Curl_hsts_cleanup(ಸಂರಚನಾ hsts **hp)
 {
-  struct hsts *h = *hp;
-  if(h) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
-      n = Curl_node_next(e);
+  ಸಂರಚನಾ hsts *h = *hp;
+  ಯದಿ(h) {
+    ಸಂರಚನಾ Curl_llist_ಗಂಟು *e;
+    ಸಂರಚನಾ Curl_llist_ಗಂಟು *n;
+    ಪ್ರತಿ(e = Curl_llist_head(&h->list); e; e = n) {
+      ಸಂರಚನಾ stsentry *sts = Curl_ಗಂಟು_elem(e);
+      n = Curl_ಗಂಟು_next(e);
       hsts_free(sts);
     }
     curlx_free(h->filename);
     curlx_free(h);
-    *hp = NULL;
+    *hp = ರಿಕ್ತ;
   }
 }
 
 /* append the new entry to the list after possibly removing an old entry
    first */
-static void hsts_append(struct hsts *h, struct stsentry *sts)
+ಸ್ಥಿರ ಶೂನ್ಯ hsts_append(ಸಂರಚನಾ hsts *h, ಸಂರಚನಾ stsentry *sts)
 {
-  if(Curl_llist_count(&h->list) == MAX_HSTS_ENTRIES) {
+  ಯದಿ(Curl_llist_ಎಣಿಕೆ(&h->list) == MAX_HSTS_ENTRIES) {
     /* It is full. Remove the first entry in the list */
-    struct Curl_llist_node *e = Curl_llist_head(&h->list);
-    struct stsentry *oldsts = Curl_node_elem(e);
-    Curl_node_remove(e);
+    ಸಂರಚನಾ Curl_llist_ಗಂಟು *e = Curl_llist_head(&h->list);
+    ಸಂರಚನಾ stsentry *oldsts = Curl_ಗಂಟು_elem(e);
+    Curl_ಗಂಟು_remove(e);
     hsts_free(oldsts);
   }
-  Curl_llist_append(&h->list, sts, &sts->node);
+  Curl_llist_append(&h->list, sts, &sts->ಗಂಟು);
 }
 
-static CURLcode hsts_create(struct hsts *h,
-                            const char *hostname,
+ಸ್ಥಿರ CURLcode hsts_create(ಸಂರಚನಾ hsts *h,
+                            ಧ್ರುವ ವರ್ಣ *hostname,
                             size_t hlen,
                             bool subdomains,
                             curl_off_t expires)
@@ -116,39 +116,39 @@ static CURLcode hsts_create(struct hsts *h,
   DEBUGASSERT(h);
   DEBUGASSERT(hostname);
 
-  if(hlen && (hostname[hlen - 1] == '.'))
+  ಯದಿ(hlen && (hostname[hlen - 1] == '.'))
     /* strip off any trailing dot */
     --hlen;
-  if(hlen) {
-    struct stsentry *sts = curlx_calloc(1, sizeof(struct stsentry) + hlen);
-    if(!sts)
-      return CURLE_OUT_OF_MEMORY;
+  ಯದಿ(hlen) {
+    ಸಂರಚನಾ stsentry *sts = curlx_calloc(1, ಪರಿಮಾಣ(ಸಂರಚನಾ stsentry) + hlen);
+    ಯದಿ(!sts)
+      ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
     /* the null-terminator is already there */
     memcpy(sts->host, hostname, hlen);
     sts->expires = expires;
     sts->includeSubDomains = subdomains;
     hsts_append(h, sts);
   }
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
 /* Copy all live entries from src into dst. Used by curl_easy_duphandle so the
  * clone inherits entries learned at runtime. E.g. Strict-Transport-Security.
  */
-CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src)
+CURLcode Curl_hsts_copy(ಸಂರಚನಾ hsts *dst, ಸಂರಚನಾ hsts *src)
 {
-  struct Curl_llist_node *e;
-  time_t now = time(NULL);
-  for(e = Curl_llist_head(&src->list); e; e = Curl_node_next(e)) {
-    struct stsentry *sts = Curl_node_elem(e);
-    if(sts->expires > now) {
+  ಸಂರಚನಾ Curl_llist_ಗಂಟು *e;
+  time_t now = time(ರಿಕ್ತ);
+  ಪ್ರತಿ(e = Curl_llist_head(&src->list); e; e = Curl_ಗಂಟು_next(e)) {
+    ಸಂರಚನಾ stsentry *sts = Curl_ಗಂಟು_elem(e);
+    ಯದಿ(sts->expires > now) {
       CURLcode result = hsts_create(dst, sts->host, strlen(sts->host),
                                     sts->includeSubDomains != 0, sts->expires);
-      if(result)
-        return result;
+      ಯದಿ(result)
+        ಪ್ರತ್ಯಾಗಮ result;
     }
   }
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
 /*
@@ -160,38 +160,38 @@ CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src)
  *
  * @unittest 1660
  */
-UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
+UNITTEST ಸಂರಚನಾ stsentry *hsts_check(ಸಂರಚನಾ hsts *h, ಧ್ರುವ ವರ್ಣ *hostname,
                                      size_t hlen, bool subdomain);
-UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
+UNITTEST ಸಂರಚನಾ stsentry *hsts_check(ಸಂರಚನಾ hsts *h, ಧ್ರುವ ವರ್ಣ *hostname,
                                      size_t hlen, bool subdomain)
 {
-  struct stsentry *bestsub = NULL;
-  if(h) {
-    time_t now = time(NULL);
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
+  ಸಂರಚನಾ stsentry *bestsub = ರಿಕ್ತ;
+  ಯದಿ(h) {
+    time_t now = time(ರಿಕ್ತ);
+    ಸಂರಚನಾ Curl_llist_ಗಂಟು *e;
+    ಸಂರಚನಾ Curl_llist_ಗಂಟು *n;
     size_t blen = 0;
 
-    if((hlen > MAX_HSTS_HOSTLEN) || !hlen)
-      return NULL;
-    if(hostname[hlen - 1] == '.')
+    ಯದಿ((hlen > MAX_HSTS_HOSTLEN) || !hlen)
+      ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
+    ಯದಿ(hostname[hlen - 1] == '.')
       /* remove the trailing dot */
       --hlen;
 
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+    ಪ್ರತಿ(e = Curl_llist_head(&h->list); e; e = n) {
+      ಸಂರಚನಾ stsentry *sts = Curl_ಗಂಟು_elem(e);
       size_t ntail;
-      n = Curl_node_next(e);
-      if(sts->expires <= now) {
+      n = Curl_ಗಂಟು_next(e);
+      ಯದಿ(sts->expires <= now) {
         /* remove expired entries */
-        Curl_node_remove(&sts->node);
+        Curl_ಗಂಟು_remove(&sts->ಗಂಟು);
         hsts_free(sts);
-        continue;
+        ಅನುವರ್ತ;
       }
       ntail = strlen(sts->host);
-      if((subdomain && sts->includeSubDomains) && (ntail < hlen)) {
+      ಯದಿ((subdomain && sts->includeSubDomains) && (ntail < hlen)) {
         size_t offs = hlen - ntail;
-        if((hostname[offs - 1] == '.') &&
+        ಯದಿ((hostname[offs - 1] == '.') &&
            curl_strnequal(&hostname[offs], sts->host, ntail) &&
            (ntail > blen)) {
           /* save the tail match with the longest tail */
@@ -200,165 +200,165 @@ UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
         }
       }
       /* avoid curl_strequal because the hostname is not null-terminated */
-      if((hlen == ntail) && curl_strnequal(hostname, sts->host, hlen))
-        return sts;
+      ಯದಿ((hlen == ntail) && curl_strnequal(hostname, sts->host, hlen))
+        ಪ್ರತ್ಯಾಗಮ sts;
     }
   }
-  return bestsub;
+  ಪ್ರತ್ಯಾಗಮ bestsub;
 }
 
-CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
-                         const char *header)
+CURLcode Curl_hsts_parse(ಸಂರಚನಾ hsts *h, ಧ್ರುವ ವರ್ಣ *hostname,
+                         ಧ್ರುವ ವರ್ಣ *header)
 {
-  const char *p = header;
+  ಧ್ರುವ ವರ್ಣ *p = header;
   curl_off_t expires = 0;
   bool gotma = FALSE;
   bool gotinc = FALSE;
   bool subdomains = FALSE;
-  struct stsentry *sts;
-  time_t now = time(NULL);
+  ಸಂರಚನಾ stsentry *sts;
+  time_t now = time(ರಿಕ್ತ);
   size_t hlen = strlen(hostname);
 
-  if(Curl_host_is_ipnum(hostname))
+  ಯದಿ(Curl_host_is_ipnum(hostname))
     /* "explicit IP address identification of all forms is excluded."
        / RFC 6797 */
-    return CURLE_OK;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 
-  do {
-    struct Curl_str word;
-    struct Curl_str val = { 0 };
-    int rc;
+  ಕುರು {
+    ಸಂರಚನಾ Curl_str word;
+    ಸಂರಚನಾ Curl_str val = { 0 };
+    ಪೂರ್ಣಾಙ್ಕ rc;
     bool assign = FALSE;
 
-    do {
+    ಕುರು {
       curlx_str_passblanks(&p);
-      if(*p == ';')
+      ಯದಿ(*p == ';')
         p++;
-      else
-        break;
-    } while(1);
-    if(curlx_str_cspn(&p, &word, ";=\r\n \t"))
-      break;
+      ಅನ್ಯಥಾ
+        ಭಙ್ಗ;
+    } ಯಾವತ್(1);
+    ಯದಿ(curlx_str_cspn(&p, &word, ";=\r\n \t"))
+      ಭಙ್ಗ;
 
     curlx_str_passblanks(&p);
-    if(!curlx_str_single(&p, '=')) {
+    ಯದಿ(!curlx_str_single(&p, '=')) {
       assign = TRUE;
       curlx_str_passblanks(&p);
 
-      if(*p == '\"') {
-        if(curlx_str_quotedword(&p, &val, MAX_HSTS_LINE))
-          break;
+      ಯದಿ(*p == '\"') {
+        ಯದಿ(curlx_str_quotedword(&p, &val, MAX_HSTS_ಸಾಲು))
+          ಭಙ್ಗ;
       }
-      else {
-        if(curlx_str_cspn(&p, &val, ", ;\r\n"))
-          break;
+      ಅನ್ಯಥಾ {
+        ಯದಿ(curlx_str_cspn(&p, &val, ", ;\r\n"))
+          ಭಙ್ಗ;
       }
     }
 
-    if(assign && curlx_str_casecompare(&word, "max-age")) {
-      const char *vp = curlx_str(&val);
-      if(gotma)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
-      rc = curlx_str_number(&vp, &expires, CAP_HSTS_MAX_AGE);
-      if(rc == STRE_OVERFLOW)
+    ಯದಿ(assign && curlx_str_casecompare(&word, "max-age")) {
+      ಧ್ರುವ ವರ್ಣ *vp = curlx_str(&val);
+      ಯದಿ(gotma)
+        ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
+      rc = curlx_str_ಸಂಖ್ಯೆ(&vp, &expires, CAP_HSTS_MAX_AGE);
+      ಯದಿ(rc == STRE_OVERFLOW)
         expires = CAP_HSTS_MAX_AGE;
-      else if(rc)
+      ಅನ್ಯಥಾ ಯದಿ(rc)
         /* invalid max-age */
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+        ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
 
       gotma = TRUE;
     }
-    else if(curlx_str_casecompare(&word, "includesubdomains")) {
-      if(gotinc)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+    ಅನ್ಯಥಾ ಯದಿ(curlx_str_casecompare(&word, "includesubdomains")) {
+      ಯದಿ(gotinc)
+        ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
       subdomains = TRUE;
       gotinc = TRUE;
     }
-  } while(*p);
+  } ಯಾವತ್(*p);
 
-  if(!gotma)
+  ಯದಿ(!gotma)
     /* max-age is mandatory */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(!expires) {
+  ಯದಿ(!expires) {
     /* remove the entry if present verbatim (without subdomain match) */
     sts = hsts_check(h, hostname, hlen, FALSE);
-    if(sts) {
-      Curl_node_remove(&sts->node);
+    ಯದಿ(sts) {
+      Curl_ಗಂಟು_remove(&sts->ಗಂಟು);
       hsts_free(sts);
     }
-    return CURLE_OK;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
   }
 
-  if(CURL_OFF_T_MAX - now < expires)
+  ಯದಿ(CURL_OFF_T_MAX - now < expires)
     /* would overflow, use maximum value */
     expires = CURL_OFF_T_MAX;
-  else
+  ಅನ್ಯಥಾ
     expires += now;
 
   /* check if it already exists */
   sts = hsts_check(h, hostname, hlen, FALSE);
-  if(sts) {
+  ಯದಿ(sts) {
     /* update these fields */
     sts->expires = expires;
     sts->includeSubDomains = subdomains;
   }
-  else
-    return hsts_create(h, hostname, hlen, subdomains, expires);
+  ಅನ್ಯಥಾ
+    ಪ್ರತ್ಯಾಗಮ hsts_create(h, hostname, hlen, subdomains, expires);
 
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
 /*
  * Send this HSTS entry to the write callback.
  */
-static CURLcode hsts_push(struct Curl_easy *data,
-                          struct curl_index *i,
-                          struct stsentry *sts,
+ಸ್ಥಿರ CURLcode hsts_ತಳ್ಳು(ಸಂರಚನಾ Curl_easy *data,
+                          ಸಂರಚನಾ curl_index *i,
+                          ಸಂರಚನಾ stsentry *sts,
                           bool *stop)
 {
-  struct curl_hstsentry e;
+  ಸಂರಚನಾ curl_hstsentry e;
   CURLSTScode sc;
-  struct tm stamp;
+  ಸಂರಚನಾ tm stamp;
   CURLcode result;
 
-  e.name = (char *)sts->host;
+  e.name = (ವರ್ಣ *)sts->host;
   e.namelen = strlen(sts->host);
   e.includeSubDomains = sts->includeSubDomains;
 
-  if(sts->expires != TIME_T_MAX) {
+  ಯದಿ(sts->expires != TIME_T_MAX) {
     result = curlx_gmtime((time_t)sts->expires, &stamp);
-    if(result)
-      return result;
+    ಯದಿ(result)
+      ಪ್ರತ್ಯಾಗಮ result;
 
-    curl_msnprintf(e.expire, sizeof(e.expire), "%d%02d%02d %02d:%02d:%02d",
+    curl_msnprintf(e.expire, ಪರಿಮಾಣ(e.expire), "%d%02d%02d %02d:%02d:%02d",
                    stamp.tm_year + 1900, stamp.tm_mon + 1, stamp.tm_mday,
                    stamp.tm_hour, stamp.tm_min, stamp.tm_sec);
   }
-  else
-    curlx_strcopy(e.expire, sizeof(e.expire), STRCONST(UNLIMITED));
+  ಅನ್ಯಥಾ
+    curlx_strcopy(e.expire, ಪರಿಮಾಣ(e.expire), STRCONST(UNLIMITED));
 
   sc = data->set.hsts_write(data, &e, i, data->set.hsts_write_userp);
   *stop = (sc != CURLSTS_OK);
-  return sc == CURLSTS_FAIL ? CURLE_BAD_FUNCTION_ARGUMENT : CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ sc == CURLSTS_FAIL ? CURLE_BAD_FUNCTION_ARGUMENT : CURLE_OK;
 }
 
 /*
  * Write this single hsts entry to a single output line
  */
-static void hsts_out(struct stsentry *sts, FILE *fp)
+ಸ್ಥಿರ ಶೂನ್ಯ hsts_out(ಸಂರಚನಾ stsentry *sts, FILE *fp)
 {
-  struct tm stamp;
-  if(sts->expires != TIME_T_MAX) {
+  ಸಂರಚನಾ tm stamp;
+  ಯದಿ(sts->expires != TIME_T_MAX) {
     CURLcode result = curlx_gmtime((time_t)sts->expires, &stamp);
-    if(!result)
+    ಯದಿ(!result)
       /* skip the entry if the date function fails */
       curl_mfprintf(fp, "%s%s \"%d%02d%02d %02d:%02d:%02d\"\n",
                     sts->includeSubDomains ? "." : "", sts->host,
                     stamp.tm_year + 1900, stamp.tm_mon + 1, stamp.tm_mday,
                     stamp.tm_hour, stamp.tm_min, stamp.tm_sec);
   }
-  else
+  ಅನ್ಯಥಾ
     curl_mfprintf(fp, "%s%s \"%s\"\n",
                   sts->includeSubDomains ? "." : "", sts->host, UNLIMITED);
 }
@@ -366,185 +366,185 @@ static void hsts_out(struct stsentry *sts, FILE *fp)
 /*
  * Curl_https_save() writes the HSTS cache to file and callback.
  */
-CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
-                        const char *file)
+CURLcode Curl_hsts_save(ಸಂರಚನಾ Curl_easy *data, ಸಂರಚನಾ hsts *h,
+                        ಧ್ರುವ ವರ್ಣ *file)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
+  ಸಂರಚನಾ Curl_llist_ಗಂಟು *e;
+  ಸಂರಚನಾ Curl_llist_ಗಂಟು *n;
   CURLcode result = CURLE_OK;
   FILE *out;
-  char *tempstore = NULL;
+  ವರ್ಣ *tempstore = ರಿಕ್ತ;
 
-  if(!h)
+  ಯದಿ(!h)
     /* no cache activated */
-    return CURLE_OK;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 
   /* if no new name is given, use the one we stored from the load */
-  if(!file && h->filename)
+  ಯದಿ(!file && h->filename)
     file = h->filename;
 
-  if((h->flags & CURLHSTS_READONLYFILE) || !file || !file[0])
+  ಯದಿ((h->flags & CURLHSTS_READONLYFILE) || !file || !file[0])
     /* marked as read-only, no file or zero length filename */
-    goto skipsave;
+    ಗಚ್ಛ skipsave;
 
   result = Curl_fopen(data, file, &out, &tempstore);
-  if(!result) {
+  ಯದಿ(!result) {
     fputs("# Your HSTS cache. https://curl.se/docs/hsts.html\n"
           "# This file was generated by libcurl! Edit at your own risk.\n",
           out);
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
-      n = Curl_node_next(e);
+    ಪ್ರತಿ(e = Curl_llist_head(&h->list); e; e = n) {
+      ಸಂರಚನಾ stsentry *sts = Curl_ಗಂಟು_elem(e);
+      n = Curl_ಗಂಟು_next(e);
       hsts_out(sts, out);
     }
     curlx_fclose(out);
-    if(!result && tempstore && curlx_rename(tempstore, file))
+    ಯದಿ(!result && tempstore && curlx_rename(tempstore, file))
       result = CURLE_WRITE_ERROR;
 
-    if(result && tempstore)
+    ಯದಿ(result && tempstore)
       unlink(tempstore);
   }
   curlx_free(tempstore);
 skipsave:
-  if(data->set.hsts_write) {
+  ಯದಿ(data->set.hsts_write) {
     /* if there is a write callback */
-    struct curl_index i; /* count */
-    i.total = Curl_llist_count(&h->list);
+    ಸಂರಚನಾ curl_index i; /*ಎಣಿಕೆ*/
+    i.total = Curl_llist_ಎಣಿಕೆ(&h->list);
     i.index = 0;
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+    ಪ್ರತಿ(e = Curl_llist_head(&h->list); e; e = n) {
+      ಸಂರಚನಾ stsentry *sts = Curl_ಗಂಟು_elem(e);
       bool stop;
-      n = Curl_node_next(e);
-      result = hsts_push(data, &i, sts, &stop);
-      if(result || stop)
-        break;
+      n = Curl_ಗಂಟು_next(e);
+      result = hsts_ತಳ್ಳು(data, &i, sts, &stop);
+      ಯದಿ(result || stop)
+        ಭಙ್ಗ;
       i.index++;
     }
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
 /* only returns SERIOUS errors */
-static CURLcode hsts_add_host_expire(struct hsts *h,
-                                     const char *host, size_t hostlen,
-                                     const char *expire, size_t explen,
+ಸ್ಥಿರ CURLcode hsts_add_host_expire(ಸಂರಚನಾ hsts *h,
+                                     ಧ್ರುವ ವರ್ಣ *host, size_t hostlen,
+                                     ಧ್ರುವ ವರ್ಣ *expire, size_t explen,
                                      bool subdomain) /* default */
 {
   CURLcode result = CURLE_OK;
-  struct stsentry *e;
-  char dbuf[MAX_HSTS_DATELEN + 1];
+  ಸಂರಚನಾ stsentry *e;
+  ವರ್ಣ dbuf[MAX_HSTS_DATELEN + 1];
   time_t expires = 0;
-  time_t now = time(NULL);
+  time_t now = time(ರಿಕ್ತ);
 
   /* The date parser works on a null-terminated string. */
-  if(explen > MAX_HSTS_DATELEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ಯದಿ(explen > MAX_HSTS_DATELEN)
+    ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
   memcpy(dbuf, expire, explen);
   dbuf[explen] = 0;
 
-  if(!strcmp(dbuf, UNLIMITED))
+  ಯದಿ(!strcmp(dbuf, UNLIMITED))
     expires = TIME_T_MAX;
-  else
+  ಅನ್ಯಥಾ
     Curl_getdate_capped(dbuf, &expires);
 
-  if(expires <= now)
+  ಯದಿ(expires <= now)
     /* this entry already expired */
-    return CURLE_OK;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 
-  if(host[0] == '.') {
+  ಯದಿ(host[0] == '.') {
     host++;
     hostlen--;
     subdomain = TRUE;
   }
-  if(hostlen && (host[hostlen - 1] == '.'))
+  ಯದಿ(hostlen && (host[hostlen - 1] == '.'))
     /* strip off any trailing dot */
     hostlen--;
 
-  if(hostlen) {
+  ಯದಿ(hostlen) {
     /* only add it if not already present */
     e = hsts_check(h, host, hostlen, FALSE);
-    if(!e)
+    ಯದಿ(!e)
       result = hsts_create(h, host, hostlen, subdomain, expires);
     /* 'host' is not necessarily null-terminated */
-    else if((hostlen == strlen(e->host) &&
+    ಅನ್ಯಥಾ ಯದಿ((hostlen == strlen(e->host) &&
              curl_strnequal(host, e->host, hostlen))) {
       /* the same hostname, use the largest expire time and keep the strictest
          subdomain policy */
-      if(expires > e->expires)
+      ಯದಿ(expires > e->expires)
         e->expires = expires;
-      if(subdomain)
+      ಯದಿ(subdomain)
         e->includeSubDomains = TRUE;
     }
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
 /* only returns SERIOUS errors */
-static CURLcode hsts_add(struct hsts *h, const char *line)
+ಸ್ಥಿರ CURLcode hsts_add(ಸಂರಚನಾ hsts *h, ಧ್ರುವ ವರ್ಣ *ಸಾಲು)
 {
   /* Example lines:
      example.com "20191231 10:00:00"
      .example.net "20191231 10:00:00"
    */
-  struct Curl_str host;
-  struct Curl_str date;
+  ಸಂರಚನಾ Curl_str host;
+  ಸಂರಚನಾ Curl_str date;
 
-  if(curlx_str_word(&line, &host, MAX_HSTS_HOSTLEN) ||
-     curlx_str_singlespace(&line) ||
-     curlx_str_quotedword(&line, &date, MAX_HSTS_DATELEN) ||
-     curlx_str_newline(&line))
+  ಯದಿ(curlx_str_word(&ಸಾಲು, &host, MAX_HSTS_HOSTLEN) ||
+     curlx_str_singlespace(&ಸಾಲು) ||
+     curlx_str_quotedword(&ಸಾಲು, &date, MAX_HSTS_DATELEN) ||
+     curlx_str_newline(&ಸಾಲು))
     ;
-  else {
-    return hsts_add_host_expire(h, curlx_str(&host), curlx_strlen(&host),
+  ಅನ್ಯಥಾ {
+    ಪ್ರತ್ಯಾಗಮ hsts_add_host_expire(h, curlx_str(&host), curlx_strlen(&host),
                                 curlx_str(&date), curlx_strlen(&date),
                                 FALSE);
   }
 
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
 /*
  * Load HSTS data from callback.
  *
  */
-static CURLcode hsts_pull(struct Curl_easy *data, struct hsts *h)
+ಸ್ಥಿರ CURLcode hsts_pull(ಸಂರಚನಾ Curl_easy *data, ಸಂರಚನಾ hsts *h)
 {
   /* if the HSTS read callback is set, use it */
-  if(data->set.hsts_read) {
+  ಯದಿ(data->set.hsts_read) {
     CURLSTScode sc;
     DEBUGASSERT(h);
-    do {
-      char buffer[MAX_HSTS_HOSTLEN + 1];
-      struct curl_hstsentry e;
+    ಕುರು {
+      ವರ್ಣ buffer[MAX_HSTS_HOSTLEN + 1];
+      ಸಂರಚನಾ curl_hstsentry e;
       e.name = buffer;
-      e.namelen = sizeof(buffer) - 1;
+      e.namelen = ಪರಿಮಾಣ(buffer) - 1;
       e.includeSubDomains = FALSE; /* default */
       e.expire[0] = 0;
       e.expire[MAX_HSTS_DATELEN] = 0;
       e.name[0] = 0; /* to make it clean */
       e.name[MAX_HSTS_HOSTLEN] = 0;
       sc = data->set.hsts_read(data, &e, data->set.hsts_read_userp);
-      if(sc == CURLSTS_OK) {
+      ಯದಿ(sc == CURLSTS_OK) {
         CURLcode result;
-        const char *date = e.expire;
-        if(!e.name[0] || e.expire[MAX_HSTS_DATELEN] ||
+        ಧ್ರುವ ವರ್ಣ *date = e.expire;
+        ಯದಿ(!e.name[0] || e.expire[MAX_HSTS_DATELEN] ||
            e.name[MAX_HSTS_HOSTLEN])
           /* bail out if no name was stored or if a null-terminator is gone */
-          return CURLE_BAD_FUNCTION_ARGUMENT;
-        if(!date[0])
+          ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
+        ಯದಿ(!date[0])
           date = UNLIMITED;
         result = hsts_add_host_expire(h, e.name, strlen(e.name),
                                       date, strlen(date),
                                       /* bitfield to bool conversion: */
                                       e.includeSubDomains ? TRUE : FALSE);
-        if(result)
-          return result;
+        ಯದಿ(result)
+          ಪ್ರತ್ಯಾಗಮ result;
       }
-      else if(sc == CURLSTS_FAIL)
-        return CURLE_ABORTED_BY_CALLBACK;
-    } while(sc == CURLSTS_OK);
+      ಅನ್ಯಥಾ ಯದಿ(sc == CURLSTS_FAIL)
+        ಪ್ರತ್ಯಾಗಮ CURLE_ABORTED_BY_CALLBACK;
+    } ಯಾವತ್(sc == CURLSTS_OK);
   }
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
 /*
@@ -555,7 +555,7 @@ static CURLcode hsts_pull(struct Curl_easy *data, struct hsts *h)
  * handling to work completely. It will ignore individual syntactical errors
  * etc.
  */
-static CURLcode hsts_load(struct hsts *h, const char *file)
+ಸ್ಥಿರ CURLcode hsts_load(ಸಂರಚನಾ hsts *h, ಧ್ರುವ ವರ್ಣ *file)
 {
   CURLcode result = CURLE_OK;
   FILE *fp;
@@ -564,83 +564,83 @@ static CURLcode hsts_load(struct hsts *h, const char *file)
      name survives an easy handle reset */
   curlx_free(h->filename);
   h->filename = curlx_strdup(file);
-  if(!h->filename)
-    return CURLE_OUT_OF_MEMORY;
+  ಯದಿ(!h->filename)
+    ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
 
   fp = curlx_fopen(file, FOPEN_READTEXT);
-  if(fp) {
+  ಯದಿ(fp) {
     curlx_struct_stat stat;
-    if((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
-      struct dynbuf buf;
+    ಯದಿ((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
+      ಸಂರಚನಾ dynbuf buf;
       bool eof = FALSE;
-      curlx_dyn_init(&buf, MAX_HSTS_LINE);
-      do {
-        result = Curl_get_line(&buf, fp, &eof);
-        if(!result) {
-          const char *lineptr = curlx_dyn_ptr(&buf);
+      curlx_dyn_init(&buf, MAX_HSTS_ಸಾಲು);
+      ಕುರು {
+        result = Curl_get_ಸಾಲು(&buf, fp, &eof);
+        ಯದಿ(!result) {
+          ಧ್ರುವ ವರ್ಣ *lineptr = curlx_dyn_ptr(&buf);
           curlx_str_passblanks(&lineptr);
 
           /* Skip empty or commented lines, since we know the line will have
              a trailing newline from Curl_get_line we can treat length 1 as
              empty. */
-          if((*lineptr == '#') || strlen(lineptr) <= 1)
-            continue;
+          ಯದಿ((*lineptr == '#') || strlen(lineptr) <= 1)
+            ಅನುವರ್ತ;
 
           hsts_add(h, lineptr);
         }
-      } while(!result && !eof);
+      } ಯಾವತ್(!result && !eof);
       curlx_dyn_free(&buf); /* free the line buffer */
     }
     curlx_fclose(fp);
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
 /*
  * Curl_hsts_loadfile() loads HSTS from file
  */
-CURLcode Curl_hsts_loadfile(struct Curl_easy *data,
-                            struct hsts *h, const char *file)
+CURLcode Curl_hsts_loadfile(ಸಂರಚನಾ Curl_easy *data,
+                            ಸಂರಚನಾ hsts *h, ಧ್ರುವ ವರ್ಣ *file)
 {
   DEBUGASSERT(h);
-  (void)data;
-  return hsts_load(h, file);
+  (ಶೂನ್ಯ)data;
+  ಪ್ರತ್ಯಾಗಮ hsts_load(h, file);
 }
 
 /*
  * Curl_hsts_loadcb() loads HSTS from callback
  */
-CURLcode Curl_hsts_loadcb(struct Curl_easy *data, struct hsts *h)
+CURLcode Curl_hsts_loadcb(ಸಂರಚನಾ Curl_easy *data, ಸಂರಚನಾ hsts *h)
 {
-  if(h)
-    return hsts_pull(data, h);
-  return CURLE_OK;
+  ಯದಿ(h)
+    ಪ್ರತ್ಯಾಗಮ hsts_pull(data, h);
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-CURLcode Curl_hsts_loadfiles(struct Curl_easy *data)
+CURLcode Curl_hsts_loadfiles(ಸಂರಚನಾ Curl_easy *data)
 {
   CURLcode result = CURLE_OK;
-  struct curl_slist *l = data->state.hstslist;
-  if(l) {
+  ಸಂರಚನಾ curl_slist *l = data->state.hstslist;
+  ಯದಿ(l) {
     Curl_share_lock(data, CURL_LOCK_DATA_HSTS, CURL_LOCK_ACCESS_SINGLE);
 
-    while(l) {
+    ಯಾವತ್(l) {
       result = Curl_hsts_loadfile(data, data->hsts, l->data);
-      if(result)
-        break;
+      ಯದಿ(result)
+        ಭಙ್ಗ;
       l = l->next;
     }
     Curl_share_unlock(data, CURL_LOCK_DATA_HSTS);
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest)
+bool Curl_hsts_applies(ಸಂರಚನಾ hsts *h, ಧ್ರುವ ಸಂರಚನಾ Curl_peer *dest)
 {
-  return !!hsts_check(h, dest->hostname, strlen(dest->hostname), TRUE);
+  ಪ್ರತ್ಯಾಗಮ !!hsts_check(h, dest->hostname, strlen(dest->hostname), TRUE);
 }
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#ಯದಿ defined(DEBUGBUILD) || defined(UNITTESTS)
 #undef time
 #endif
 

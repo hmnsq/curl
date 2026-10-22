@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "url.h"
-#include "vdns/cf-dns.h"
-#include "vdns/dnscache.h"
-#include "vdns/httpsrr.h"
-#include "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "curl_addrinfo.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "multiif.h"
+#ಅನ್ತರ್ಭಾವ "progress.h"
+#ಅನ್ತರ್ಭಾವ "url.h"
+#ಅನ್ತರ್ಭಾವ "vdns/cf-dns.h"
+#ಅನ್ತರ್ಭಾವ "vdns/dnscache.h"
+#ಅನ್ತರ್ಭಾವ "vdns/httpsrr.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
 
 /* Max time to wait for AAAA before connecting sub-filters, e.g.
  * letting cf-ip-happy.c do its work. */
 #define CURL_HE_AAAA_AWAIT_MS    25
 
-struct cf_dns_ctx {
-  struct Curl_dns_entry *dns;
-  struct Curl_peer *peer;
+ಸಂರಚನಾ cf_dns_ctx {
+  ಸಂರಚನಾ Curl_dns_entry *dns;
+  ಸಂರಚನಾ Curl_peer *peer;
   CURLcode resolv_result;
   timediff_t he_aaaa_await_ms;
   uint32_t resolv_id;
@@ -53,17 +53,17 @@ struct cf_dns_ctx {
   BIT(for_proxy);
 };
 
-static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
-                                            struct Curl_peer *peer,
+ಸ್ಥಿರ ಸಂರಚನಾ cf_dns_ctx *cf_dns_ctx_create(ಸಂರಚನಾ Curl_easy *data,
+                                            ಸಂರಚನಾ Curl_peer *peer,
                                             uint8_t dns_queries,
                                             uint8_t transport,
                                             bool for_proxy)
 {
-  struct cf_dns_ctx *ctx;
+  ಸಂರಚನಾ cf_dns_ctx *ctx;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    return NULL;
+  ctx = curlx_calloc(1, ಪರಿಮಾಣ(*ctx));
+  ಯದಿ(!ctx)
+    ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
   Curl_peer_link(&ctx->peer, peer);
   ctx->dns_queries = dns_queries;
@@ -72,10 +72,10 @@ static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
   ctx->he_aaaa_await_ms = CURL_HE_AAAA_AWAIT_MS;
 #ifdef DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_HE_AAAA_AWAIT_MS");
-    if(p) {
+    ಧ್ರುವ ವರ್ಣ *p = getenv("CURL_DBG_HE_AAAA_AWAIT_MS");
+    ಯದಿ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      ಯದಿ(!curlx_str_ಸಂಖ್ಯೆ(&p, &l, UINT32_MAX)) {
         ctx->he_aaaa_await_ms = (uint32_t)l;
       }
     }
@@ -85,13 +85,13 @@ static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
   CURL_TRC_DNS(data, "[%s] created DNS filter for %s:%u, transport=%x",
                Curl_resolv_query_str(ctx->dns_queries),
                peer->hostname, peer->port, ctx->transport);
-  return ctx;
+  ಪ್ರತ್ಯಾಗಮ ctx;
 }
 
-static void cf_dns_ctx_destroy(struct Curl_easy *data,
-                               struct cf_dns_ctx *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_dns_ctx_destroy(ಸಂರಚನಾ Curl_easy *data,
+                               ಸಂರಚನಾ cf_dns_ctx *ctx)
 {
-  if(ctx) {
+  ಯದಿ(ctx) {
     Curl_peer_unlink(&ctx->peer);
     Curl_dns_entry_unlink(data, &ctx->dns);
     curlx_free(ctx);
@@ -99,24 +99,24 @@ static void cf_dns_ctx_destroy(struct Curl_easy *data,
 }
 
 #ifdef CURLVERBOSE
-static void cf_dns_report_addr(struct Curl_easy *data,
-                               struct dynbuf *tmp,
-                               const char *label,
-                               int ai_family,
-                               const struct Curl_addrinfo *ai)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_dns_report_addr(ಸಂರಚನಾ Curl_easy *data,
+                               ಸಂರಚನಾ dynbuf *tmp,
+                               ಧ್ರುವ ವರ್ಣ *label,
+                               ಪೂರ್ಣಾಙ್ಕ ai_family,
+                               ಧ್ರುವ ಸಂರಚನಾ Curl_addrinfo *ai)
 {
-  char buf[MAX_IPADR_LEN];
-  const char *sep = "";
+  ವರ್ಣ buf[MAX_IPADR_LEN];
+  ಧ್ರುವ ವರ್ಣ *sep = "";
   CURLcode result;
 
   curlx_dyn_reset(tmp);
-  for(; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family) {
-      Curl_printable_address(ai, buf, sizeof(buf));
+  ಪ್ರತಿ(; ai; ai = ai->ai_next) {
+    ಯದಿ(ai->ai_family == ai_family) {
+      Curl_printable_address(ai, buf, ಪರಿಮಾಣ(buf));
       result = curlx_dyn_addf(tmp, "%s%s", sep, buf);
-      if(result) {
+      ಯದಿ(result) {
         infof(data, "too many IP, cannot show");
-        return;
+        ಪ್ರತ್ಯಾಗಮ;
       }
       sep = ", ";
     }
@@ -126,28 +126,28 @@ static void cf_dns_report_addr(struct Curl_easy *data,
         (curlx_dyn_len(tmp) ? curlx_dyn_ptr(tmp) : "(none)"));
 }
 
-static void cf_dns_report(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          struct Curl_dns_entry *dns)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_dns_report(ಸಂರಚನಾ Curl_cfilter *cf,
+                          ಸಂರಚನಾ Curl_easy *data,
+                          ಸಂರಚನಾ Curl_dns_entry *dns)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
-  struct dynbuf tmp;
+  ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
+  ಸಂರಚನಾ dynbuf tmp;
 
-  if(!Curl_trc_is_verbose(data) ||
+  ಯದಿ(!Curl_trc_is_verbose(data) ||
      /* ignore no name or numerical IP addresses */
      !dns->hostname[0] || Curl_host_is_ipnum(dns->hostname))
-    return;
+    ಪ್ರತ್ಯಾಗಮ;
 
-  if(ctx->peer->unix_socket) {
+  ಯದಿ(ctx->peer->unix_socket) {
 #ifdef USE_UNIX_SOCKETS
     CURL_TRC_CF(data, cf, "resolved unix://%s", ctx->peer->hostname);
-#else
+#ಅನ್ಯಥಾ
     DEBUGASSERT(0);
 #endif
   }
-  else {
+  ಅನ್ಯಥಾ {
     curlx_dyn_init(&tmp, 1024);
-    if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+    ಯದಿ(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
       infof(data, "Host %s:%u was resolved.", dns->hostname, dns->port);
 #ifdef CURLRES_IPV6
       cf_dns_report_addr(data, &tmp, "IPv6: ", AF_INET6, dns->addr);
@@ -155,18 +155,18 @@ static void cf_dns_report(struct Curl_cfilter *cf,
       cf_dns_report_addr(data, &tmp, "IPv4: ", AF_INET, dns->addr);
     }
 #ifdef USE_HTTPSRR
-    else if(ctx->dns_queries & CURL_DNSQ_HTTPS) {
-      if(!dns->hinfo)
+    ಅನ್ಯಥಾ ಯದಿ(ctx->dns_queries & CURL_DNSQ_HTTPS) {
+      ಯದಿ(!dns->hinfo)
         infof(data, "HTTPS-RR %s:%u: -", dns->hostname, dns->port);
-      else if(!Curl_httpsrr_applicable(data, dns->hinfo))
+      ಅನ್ಯಥಾ ಯದಿ(!Curl_httpsrr_applicable(data, dns->hinfo))
         infof(data, "HTTPS-RR %s:%u: not applicable",
               dns->hostname, dns->port);
-      else {
+      ಅನ್ಯಥಾ {
         CURLcode result = Curl_httpsrr_print(&tmp, dns->hinfo);
-        if(!result)
+        ಯದಿ(!result)
           infof(data, "HTTPS-RR %s:%u: %s",
                 dns->hostname, dns->port, curlx_dyn_ptr(&tmp));
-        else
+        ಅನ್ಯಥಾ
           infof(data, "Error printing HTTPS-RR information");
       }
     }
@@ -174,35 +174,35 @@ static void cf_dns_report(struct Curl_cfilter *cf,
     curlx_dyn_free(&tmp);
   }
 }
-#else
+#ಅನ್ಯಥಾ
 #define cf_dns_report(x, y, z) Curl_nop_stmt
 #endif
 
 /*************************************************************
  * Resolve the address of the server or proxy
  *************************************************************/
-static CURLcode cf_dns_start(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct Curl_dns_entry **pdns)
+ಸ್ಥಿರ CURLcode cf_dns_start(ಸಂರಚನಾ Curl_cfilter *cf,
+                             ಸಂರಚನಾ Curl_easy *data,
+                             ಸಂರಚನಾ Curl_dns_entry **pdns)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
   timediff_t timeout_ms = Curl_timeleft_ms(data);
   CURLcode result = CURLE_OK;
 
-  *pdns = NULL;
+  *pdns = ರಿಕ್ತ;
 
   CURL_TRC_CF(data, cf, "[%s] cf_dns_start %s %s:%u",
               Curl_resolv_query_str(ctx->dns_queries),
               ctx->peer->unix_socket ? "unix-domain-socket" : "host",
               ctx->peer->hostname, ctx->peer->port);
-  if(ctx->peer->unix_socket)
+  ಯದಿ(ctx->peer->unix_socket)
     ctx->dns_queries = CURL_DNSQ_A; /* treat it like an A resolve */
 
-  if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
-    if(Curl_is_ipv4addr(ctx->peer->hostname))
+  ಯದಿ(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+    ಯದಿ(Curl_is_ipv4addr(ctx->peer->hostname))
       ctx->dns_queries |= CURL_DNSQ_A;
 #ifdef USE_IPV6
-    else if(ctx->peer->ipv6)
+    ಅನ್ಯಥಾ ಯದಿ(ctx->peer->ipv6)
       ctx->dns_queries |= CURL_DNSQ_AAAA;
 #endif
 
@@ -211,113 +211,113 @@ static CURLcode cf_dns_start(struct Curl_cfilter *cf,
                          &ctx->resolv_id, pdns);
   }
 #ifdef USE_HTTPSRR
-  else if(ctx->dns_queries == CURL_DNSQ_HTTPS) {
+  ಅನ್ಯಥಾ ಯದಿ(ctx->dns_queries == CURL_DNSQ_HTTPS) {
     result = Curl_resolv_https(data, ctx->peer, (bool)ctx->for_proxy,
                                timeout_ms, &ctx->resolv_id, pdns);
   }
 #endif
-  else {
+  ಅನ್ಯಥಾ {
     failf(data, "unsupported DNS queries %x", ctx->dns_queries);
-    return CURLE_FAILED_INIT;
+    ಪ್ರತ್ಯಾಗಮ CURLE_FAILED_INIT;
   }
 
   DEBUGASSERT(!result || !*pdns);
-  if(!result) { /* resolved right away, either sync or from dnscache */
+  ಯದಿ(!result) { /* resolved right away, either sync or from dnscache */
     DEBUGASSERT(*pdns);
-    return CURLE_OK;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
   }
-  else if(result == CURLE_AGAIN) { /* async resolv in progress */
-    return CURLE_OK;
+  ಅನ್ಯಥಾ ಯದಿ(result == CURLE_AGAIN) { /* async resolv in progress */
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
   }
-  else if(result == CURLE_OPERATION_TIMEDOUT) { /* took too long */
+  ಅನ್ಯಥಾ ಯದಿ(result == CURLE_OPERATION_TIMEDOUT) { /* took too long */
     failf(data, "Failed to resolve '%s' with timeout after %"
           FMT_TIMEDIFF_T " ms", ctx->peer->hostname,
-          Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-    return CURLE_OPERATION_TIMEDOUT;
+          Curl_pgrs_since_ms(data, ರಿಕ್ತ, TIMER_STARTSINGLE));
+    ಪ್ರತ್ಯಾಗಮ CURLE_OPERATION_TIMEDOUT;
   }
-  else {
+  ಅನ್ಯಥಾ {
     DEBUGASSERT(result);
-    if(ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+    ಯದಿ(ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
       failf(data, "Could not resolve: %s", ctx->peer->hostname);
-    return result;
+    ಪ್ರತ್ಯಾಗಮ result;
   }
 }
 
-static bool cf_dns_ready_to_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+ಸ್ಥಿರ bool cf_dns_ready_to_connect(ಸಂರಚನಾ Curl_cfilter *cf,
+                                    ಸಂರಚನಾ Curl_easy *data)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
 
-  if(ctx->resolv_result)
-    return TRUE;
-  else if(ctx->dns)
-    return TRUE;
+  ಯದಿ(ctx->resolv_result)
+    ಪ್ರತ್ಯಾಗಮ TRUE;
+  ಅನ್ಯಥಾ ಯದಿ(ctx->dns)
+    ಪ್ರತ್ಯಾಗಮ TRUE;
 #ifdef USE_CURL_ASYNC
-  else if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
-    const struct curltime *pnow;
+  ಅನ್ಯಥಾ ಯದಿ(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+    ಧ್ರುವ ಸಂರಚನಾ curltime *pnow;
     timediff_t remain_ms;
     /* For Happy Eyeballing, we can start on either A or AAAA resolves,
      * but AAAA is preferred. We enforce a small delay for missing
      * AAAA to arrive, then we let the connect continue.
      * Note: if AAAA was never started (-4), it is considered to have
      * an answer (e.g. a negative one). */
-    if(Curl_resolv_has_answers(data, ctx->resolv_id, CURL_DNSQ_AAAA))
-      return TRUE;
+    ಯದಿ(Curl_resolv_has_answers(data, ctx->resolv_id, CURL_DNSQ_AAAA))
+      ಪ್ರತ್ಯಾಗಮ TRUE;
     pnow = Curl_pgrs_now(data);
     remain_ms = ctx->he_aaaa_await_ms -
                 Curl_resolv_elapsed_ms(data, ctx->resolv_id, pnow);
-    if(remain_ms <= 0)
-      return TRUE;
+    ಯದಿ(remain_ms <= 0)
+      ಪ್ರತ್ಯಾಗಮ TRUE;
     CURL_TRC_CF(data, cf, "[%s] still waiting %" FMT_TIMEDIFF_T
                 "ms for AAAA result",
                 Curl_resolv_query_str(ctx->dns_queries), remain_ms);
     Curl_expire_set(data, EXPIRE_HAPPY_EYEBALLS, remain_ms, pnow);
-    return FALSE;
+    ಪ್ರತ್ಯಾಗಮ FALSE;
   }
-  else {
-    return TRUE;
+  ಅನ್ಯಥಾ {
+    ಪ್ರತ್ಯಾಗಮ TRUE;
   }
-#else
-  (void)data;
+#ಅನ್ಯಥಾ
+  (ಶೂನ್ಯ)data;
   DEBUGASSERT(0); /* We should not come here */
-  return FALSE;
+  ಪ್ರತ್ಯಾಗಮ FALSE;
 #endif /* USE_CURL_ASYNC */
 }
 
-static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
+ಸ್ಥಿರ CURLcode cf_dns_connect(ಸಂರಚನಾ Curl_cfilter *cf,
+                               ಸಂರಚನಾ Curl_easy *data,
                                bool *done)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
   bool ip_query = (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA));
 
-  if(cf->connected) {
+  ಯದಿ(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
   }
 
   *done = FALSE;
-  if(!ctx->started) {
+  ಯದಿ(!ctx->started) {
     ctx->started = TRUE;
     ctx->resolv_result = cf_dns_start(cf, data, &ctx->dns);
   }
 
-  if(!ctx->dns && !ctx->resolv_result) {
+  ಯದಿ(!ctx->dns && !ctx->resolv_result) {
     ctx->resolv_result =
       Curl_resolv_take_result(data, ctx->resolv_id, &ctx->dns);
   }
 
-  if(ctx->resolv_result && ip_query) {
+  ಯದಿ(ctx->resolv_result && ip_query) {
     /* failing A|AAAA resolves is a hard failure. */
     CURL_TRC_CF(data, cf, "[%s] error resolving: %d",
                 Curl_resolv_query_str(ctx->dns_queries),
-                (int)ctx->resolv_result);
-    return ctx->resolv_result;
+                (ಪೂರ್ಣಾಙ್ಕ)ctx->resolv_result);
+    ಪ್ರತ್ಯಾಗಮ ctx->resolv_result;
   }
 
-  if(ctx->dns && !ctx->announced) {
+  ಯದಿ(ctx->dns && !ctx->announced) {
     ctx->announced = TRUE;
-    if((cf->sockindex == FIRSTSOCKET) && ip_query) {
+    ಯದಿ((cf->sockindex == FIRSTSOCKET) && ip_query) {
       cf->conn->bits.dns_resolved = TRUE;
       Curl_pgrsTime(data, TIMER_NAMELOOKUP);
     }
@@ -325,15 +325,15 @@ static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
   }
 
   /* Delay connection sub-filters when we are still waiting for AAAA */
-  if(!cf_dns_ready_to_connect(cf, data)) {
-    return CURLE_OK;
+  ಯದಿ(!cf_dns_ready_to_connect(cf, data)) {
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
   }
 
-  if(cf->next && !cf->next->connected) {
+  ಯದಿ(cf->next && !cf->next->connected) {
     bool sub_done;
     CURLcode result = Curl_conn_cf_connect(cf->next, data, &sub_done);
-    if(result || !sub_done)
-      return result;
+    ಯದಿ(result || !sub_done)
+      ಪ್ರತ್ಯಾಗಮ result;
     DEBUGASSERT(sub_done);
   }
 
@@ -343,73 +343,73 @@ static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
   *done = TRUE;
   cf->connected = TRUE;
   Curl_resolv_destroy(data, ctx->resolv_id);
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static void cf_dns_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+ಸ್ಥಿರ ಶೂನ್ಯ cf_dns_destroy(ಸಂರಚನಾ Curl_cfilter *cf, ಸಂರಚನಾ Curl_easy *data)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
 
   CURL_TRC_CF(data, cf, "destroy");
   cf_dns_ctx_destroy(data, ctx);
 }
 
-static CURLcode cf_dns_adjust_pollset(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+ಸ್ಥಿರ CURLcode cf_dns_adjust_pollset(ಸಂರಚನಾ Curl_cfilter *cf,
+                                      ಸಂರಚನಾ Curl_easy *data,
+                                      ಸಂರಚನಾ easy_pollset *ps)
 {
 #ifdef USE_CURL_ASYNC
-  if(!cf->connected) {
+  ಯದಿ(!cf->connected) {
     /* The pollset only works when we have started the resolving.
      * Otherwise we might wait on the WAKEUP socketpair forever.
      * Since DNS filters can be added in the middle of a connect
      * attempt, they are not always started that way. */
-    struct cf_dns_ctx *ctx = cf->ctx;
-    if(!ctx->started) {
+    ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
+    ಯದಿ(!ctx->started) {
       CURL_TRC_CF(data, cf, "adjust_pollset, starting %s:%u queries=%s",
                   ctx->peer->hostname, ctx->peer->port,
                   Curl_resolv_query_str(ctx->dns_queries));
       ctx->started = TRUE;
       ctx->resolv_result = cf_dns_start(cf, data, &ctx->dns);
-      if(ctx->resolv_result || ctx->dns) {
+      ಯದಿ(ctx->resolv_result || ctx->dns) {
         Curl_multi_mark_dirty(data);
       }
     }
-    return Curl_resolv_pollset(data, ps);
+    ಪ್ರತ್ಯಾಗಮ Curl_resolv_pollset(data, ps);
   }
-#else
-  (void)cf;
-  (void)data;
-  (void)ps;
+#ಅನ್ಯಥಾ
+  (ಶೂನ್ಯ)cf;
+  (ಶೂನ್ಯ)data;
+  (ಶೂನ್ಯ)ps;
 #endif
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static CURLcode cf_dns_cntrl(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             int event, int arg1, void *arg2)
+ಸ್ಥಿರ CURLcode cf_dns_cntrl(ಸಂರಚನಾ Curl_cfilter *cf,
+                             ಸಂರಚನಾ Curl_easy *data,
+                             ಪೂರ್ಣಾಙ್ಕ event, ಪೂರ್ಣಾಙ್ಕ arg1, ಶೂನ್ಯ *arg2)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_DATA_DONE:
-    if(ctx->dns) {
+  (ಶೂನ್ಯ)arg1;
+  (ಶೂನ್ಯ)arg2;
+  ವಿಕಲ್ಪ(event) {
+  ಪಕ್ಷ CF_CTRL_DATA_DONE:
+    ಯದಿ(ctx->dns) {
       /* Should only come here when the connect attempt failed and
        * `data` is giving up on it. On a successful connect, we already
        * unlinked the DNS entry. */
       Curl_dns_entry_unlink(data, &ctx->dns);
     }
-    break;
-  default:
-    break;
+    ಭಙ್ಗ;
+  ಸ್ವಭಾವ:
+    ಭಙ್ಗ;
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-struct Curl_cftype Curl_cft_dns = {
+ಸಂರಚನಾ Curl_cftype Curl_cft_dns = {
   "DNS",
   CF_TYPE_SETUP | CF_TYPE_DNS,
   CURL_LOG_LVL_NONE,
@@ -426,59 +426,59 @@ struct Curl_cftype Curl_cft_dns = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_dns_create(struct Curl_cfilter **pcf,
-                              struct Curl_easy *data,
-                              struct Curl_peer *peer,
+ಸ್ಥಿರ CURLcode cf_dns_create(ಸಂರಚನಾ Curl_cfilter **pcf,
+                              ಸಂರಚನಾ Curl_easy *data,
+                              ಸಂರಚನಾ Curl_peer *peer,
                               uint8_t dns_queries,
                               uint8_t transport,
                               bool for_proxy)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_dns_ctx *ctx;
+  ಸಂರಚನಾ Curl_cfilter *cf = ರಿಕ್ತ;
+  ಸಂರಚನಾ cf_dns_ctx *ctx;
   CURLcode result = CURLE_OK;
 
-  (void)data;
+  (ಶೂನ್ಯ)data;
   ctx = cf_dns_ctx_create(data, peer, dns_queries, transport, for_proxy);
-  if(!ctx) {
+  ಯದಿ(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    ಗಚ್ಛ out;
   }
 
   result = Curl_cf_create(&cf, &Curl_cft_dns, ctx);
 
 out:
-  *pcf = result ? NULL : cf;
-  if(result)
+  *pcf = result ? ರಿಕ್ತ : cf;
+  ಯದಿ(result)
     cf_dns_ctx_destroy(data, ctx);
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
 /* Adds a "resolv" filter at the top of the connection's filter chain.
  * The filter will resolve the peer on the first connect attempt. */
-static CURLcode cf_dns_add(struct Curl_easy *data,
-                           struct connectdata *conn,
+ಸ್ಥಿರ CURLcode cf_dns_add(ಸಂರಚನಾ Curl_easy *data,
+                           ಸಂರಚನಾ connectdata *conn,
                            int8_t sockindex,
-                           struct Curl_peer *peer,
+                           ಸಂರಚನಾ Curl_peer *peer,
                            uint8_t dns_queries,
                            uint8_t transport)
 {
-  struct Curl_cfilter *cf = NULL;
+  ಸಂರಚನಾ Curl_cfilter *cf = ರಿಕ್ತ;
   bool for_proxy = FALSE;
   CURLcode result;
 
-  if(!peer)
-    return CURLE_FAILED_INIT;
+  ಯದಿ(!peer)
+    ಪ್ರತ್ಯಾಗಮ CURLE_FAILED_INIT;
 #ifndef CURL_DISABLE_PROXY
   for_proxy = (peer == conn->socks_proxy.peer) ||
               (peer == conn->http_proxy.peer);
 #endif
 
   result = cf_dns_create(&cf, data, peer, dns_queries, transport, for_proxy);
-  if(result)
-    goto out;
+  ಯದಿ(result)
+    ಗಚ್ಛ out;
   Curl_conn_cf_add(data, conn, sockindex, cf);
 out:
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
 /* Insert a new "resolv" filter directly after `cf`. It will
@@ -487,83 +487,83 @@ out:
  * See socks.c on how this is used to make a non-blocking DNS
  * resolve during connect.
  */
-static CURLcode cf_dns_insert_after(struct Curl_cfilter *cf_at,
-                                    struct Curl_easy *data,
-                                    struct Curl_peer *peer,
+ಸ್ಥಿರ CURLcode cf_dns_ಸೇರಿಸು_after(ಸಂರಚನಾ Curl_cfilter *cf_at,
+                                    ಸಂರಚನಾ Curl_easy *data,
+                                    ಸಂರಚನಾ Curl_peer *peer,
                                     uint8_t dns_queries,
                                     uint8_t transport)
 {
-  struct Curl_cfilter *cf;
+  ಸಂರಚನಾ Curl_cfilter *cf;
   CURLcode result;
 
   result = cf_dns_create(&cf, data, peer, dns_queries, transport, FALSE);
-  if(result)
-    return result;
+  ಯದಿ(result)
+    ಪ್ರತ್ಯಾಗಮ result;
 
-  Curl_conn_cf_insert_after(cf_at, cf);
-  return CURLE_OK;
+  Curl_conn_cf_ಸೇರಿಸು_after(cf_at, cf);
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static CURLcode cf_dns_add_resolve(struct Curl_easy *data,
-                                   struct connectdata *conn,
+ಸ್ಥಿರ CURLcode cf_dns_add_resolve(ಸಂರಚನಾ Curl_easy *data,
+                                   ಸಂರಚನಾ connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer,
+                                   ಸಂರಚನಾ Curl_peer *peer,
                                    uint8_t dns_queries,
                                    uint8_t transport)
 {
-  struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  struct Curl_cfilter *cf_dns = NULL;
+  ಸಂರಚನಾ Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  ಸಂರಚನಾ Curl_cfilter *cf_dns = ರಿಕ್ತ;
   bool is_addr = CURL_DNSQ_IS_ADDR(dns_queries);
 
-  if((dns_queries & CURL_DNSQ_HTTPS) &&
+  ಯದಿ((dns_queries & CURL_DNSQ_HTTPS) &&
      Curl_is_ipaddr(peer->hostname)) {
     dns_queries = (uint8_t)(dns_queries & ~CURL_DNSQ_HTTPS);
   }
 
-  for(; cf && dns_queries; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
+  ಪ್ರತಿ(; cf && dns_queries; cf = cf->next) {
+    ಯದಿ(cf->cft == &Curl_cft_dns) {
+      ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
       cf_dns = cf;
-      if(Curl_peer_same_destination(ctx->peer, peer)) {
+      ಯದಿ(Curl_peer_same_destination(ctx->peer, peer)) {
         /* subtract queries already being scheduled/ongoing */
         dns_queries = (uint8_t)(~ctx->dns_queries & dns_queries);
-        if(!dns_queries) { /* already there */
-          return CURLE_OK;
+        ಯದಿ(!dns_queries) { /* already there */
+          ಪ್ರತ್ಯಾಗಮ CURLE_OK;
         }
-        else if(is_addr && !ctx->started &&
+        ಅನ್ಯಥಾ ಯದಿ(is_addr && !ctx->started &&
                 CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
           ctx->dns_queries |= dns_queries;
           CURL_TRC_DNS(data, "[%s] added queries=%s for %s:%u",
                        Curl_resolv_query_str(ctx->dns_queries),
                        Curl_resolv_query_str(dns_queries),
                        peer->hostname, peer->port);
-          return CURLE_OK;
+          ಪ್ರತ್ಯಾಗಮ CURLE_OK;
         }
       }
     }
   }
 
-  if(dns_queries) {
+  ಯದಿ(dns_queries) {
     /* No existing filter is handling these, add a new DNS filter
      * (after the last one if there was one already. FCFS. */
-    if(cf_dns)
-      return cf_dns_insert_after(cf_dns, data, peer, dns_queries, transport);
-    else
-      return cf_dns_add(data, conn, sockindex, peer, dns_queries, transport);
+    ಯದಿ(cf_dns)
+      ಪ್ರತ್ಯಾಗಮ cf_dns_ಸೇರಿಸು_after(cf_dns, data, peer, dns_queries, transport);
+    ಅನ್ಯಥಾ
+      ಪ್ರತ್ಯಾಗಮ cf_dns_add(data, conn, sockindex, peer, dns_queries, transport);
   }
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
-                                        struct connectdata *conn,
+CURLcode Curl_conn_dns_add_addr_resolve(ಸಂರಚನಾ Curl_easy *data,
+                                        ಸಂರಚನಾ connectdata *conn,
                                         int8_t sockindex,
-                                        struct Curl_peer *peer,
+                                        ಸಂರಚನಾ Curl_peer *peer,
                                         uint8_t dns_queries,
                                         uint8_t transport)
 {
   /* should only have address query bits */
   DEBUGASSERT(!(dns_queries & ~CURL_DNSQ_ADDR));
-  return cf_dns_add_resolve(data, conn, sockindex, peer,
+  ಪ್ರತ್ಯಾಗಮ cf_dns_add_resolve(data, conn, sockindex, peer,
                             (dns_queries & CURL_DNSQ_ADDR), transport);
 }
 
@@ -574,73 +574,73 @@ CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
  * - CURLR_FAILED_INIT when no resolv filter was found
  * - error returned by the DNS resolv
  */
-CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
+CURLcode Curl_conn_dns_addr_result(ಸಂರಚನಾ connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer)
+                                   ಸಂರಚನಾ Curl_peer *peer)
 {
-  struct Curl_cfilter *cf = conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+  ಸಂರಚನಾ Curl_cfilter *cf = conn->cfilter[sockindex];
+  ಪ್ರತಿ(; cf; cf = cf->next) {
+    ಯದಿ(cf->cft == &Curl_cft_dns) {
+      ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
+      ಯದಿ(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))) {
-        if(ctx->dns || ctx->resolv_result)
-          return ctx->resolv_result;
-        return CURLE_AGAIN;
+        ಯದಿ(ctx->dns || ctx->resolv_result)
+          ಪ್ರತ್ಯಾಗಮ ctx->resolv_result;
+        ಪ್ರತ್ಯಾಗಮ CURLE_AGAIN;
       }
     }
   }
-  return CURLE_FAILED_INIT; /* no one is resolving */
+  ಪ್ರತ್ಯಾಗಮ CURLE_FAILED_INIT; /* no one is resolving */
 }
 
 /* Return the addrinfo at `index` for the given `family` from the
  * first "resolve" filter at the connection. If the DNS resolving is
  * not done yet or if no address for the family exists, returns NULL.
  */
-const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
-                                                 struct Curl_peer *peer,
+ಧ್ರುವ ಸಂರಚನಾ Curl_addrinfo *Curl_conn_dns_get_ai(ಸಂರಚನಾ Curl_easy *data,
+                                                 ಸಂರಚನಾ Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index)
+                                                 ಪೂರ್ಣಾಙ್ಕ ai_family,
+                                                 unsigned ಪೂರ್ಣಾಙ್ಕ index)
 {
-  struct connectdata *conn = data->conn;
-  struct Curl_cfilter *cf = conn->cfilter[sockindex];
+  ಸಂರಚನಾ connectdata *conn = data->conn;
+  ಸಂರಚನಾ Curl_cfilter *cf = conn->cfilter[sockindex];
 
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+  ಪ್ರತಿ(; cf; cf = cf->next) {
+    ಯದಿ(cf->cft == &Curl_cft_dns) {
+      ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
+      ಯದಿ(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))) {
         CURL_TRC_CF(data, cf, "get %uth result for %s:%u, family=%d, dns=%d",
                     index, peer->hostname, peer->port, ai_family, !!ctx->dns);
-        if(ctx->resolv_result)
-          return NULL;
-        else if(ctx->dns) {
+        ಯದಿ(ctx->resolv_result)
+          ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
+        ಅನ್ಯಥಾ ಯದಿ(ctx->dns) {
           /* A cached DNS entry may contain address families that we
            * here never queried for. We want to give no results for those. */
-          if((ai_family == AF_INET) && !(ctx->dns_queries & CURL_DNSQ_A))
-            return NULL;
+          ಯದಿ((ai_family == AF_INET) && !(ctx->dns_queries & CURL_DNSQ_A))
+            ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 #ifdef USE_IPV6
-          if((ai_family == AF_INET6) && !(ctx->dns_queries & CURL_DNSQ_AAAA))
-            return NULL;
+          ಯದಿ((ai_family == AF_INET6) && !(ctx->dns_queries & CURL_DNSQ_AAAA))
+            ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 #endif
-          return Curl_addrinfo_get(ctx->dns->addr, ai_family, index);
+          ಪ್ರತ್ಯಾಗಮ Curl_addrinfo_get(ctx->dns->addr, ai_family, index);
         }
-        else
-          return Curl_resolv_get_ai(data, ctx->resolv_id, ai_family, index);
+        ಅನ್ಯಥಾ
+          ಪ್ರತ್ಯಾಗಮ Curl_resolv_get_ai(data, ctx->resolv_id, ai_family, index);
       }
     }
   }
-  return NULL;
+  ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
 #ifdef USE_HTTPSRR
-CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
-                                         struct connectdata *conn,
+CURLcode Curl_conn_dns_add_https_resolve(ಸಂರಚನಾ Curl_easy *data,
+                                         ಸಂರಚನಾ connectdata *conn,
                                          int8_t sockindex,
-                                         struct Curl_peer *peer)
+                                         ಸಂರಚನಾ Curl_peer *peer)
 {
-  return cf_dns_add_resolve(data, conn, sockindex, peer,
+  ಪ್ರತ್ಯಾಗಮ cf_dns_add_resolve(data, conn, sockindex, peer,
                             CURL_DNSQ_HTTPS, conn->transport_wanted);
 }
 
@@ -648,44 +648,44 @@ CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
  * connection. If the DNS resolving is not done yet or if there
  * is no HTTPS-RR info, returns NULL.
  */
-const struct Curl_https_rrinfo *Curl_conn_dns_get_https(struct Curl_easy *data,
+ಧ್ರುವ ಸಂರಚನಾ Curl_https_rrinfo *Curl_conn_dns_get_https(ಸಂರಚನಾ Curl_easy *data,
                                                         int8_t sockindex,
-                                                        struct Curl_peer *peer)
+                                                        ಸಂರಚನಾ Curl_peer *peer)
 {
-  struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+  ಸಂರಚನಾ Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  ಪ್ರತಿ(; cf; cf = cf->next) {
+    ಯದಿ(cf->cft == &Curl_cft_dns) {
+      ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
+      ಯದಿ(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & CURL_DNSQ_HTTPS)) {
-        if(ctx->dns)
-          return ctx->dns->hinfo;
-        else
-          return Curl_resolv_get_https(data, ctx->resolv_id);
+        ಯದಿ(ctx->dns)
+          ಪ್ರತ್ಯಾಗಮ ctx->dns->hinfo;
+        ಅನ್ಯಥಾ
+          ಪ್ರತ್ಯಾಗಮ Curl_resolv_get_https(data, ctx->resolv_id);
       }
     }
   }
-  return NULL;
+  ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
+bool Curl_conn_dns_resolved_https(ಸಂರಚನಾ Curl_easy *data,
                                   int8_t sockindex,
-                                  struct Curl_peer *peer)
+                                  ಸಂರಚನಾ Curl_peer *peer)
 {
-  struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+  ಸಂರಚನಾ Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  ಪ್ರತಿ(; cf; cf = cf->next) {
+    ಯದಿ(cf->cft == &Curl_cft_dns) {
+      ಸಂರಚನಾ cf_dns_ctx *ctx = cf->ctx;
+      ಯದಿ(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & CURL_DNSQ_HTTPS)) {
-        if(ctx->dns)
-          return TRUE;
-        else
-          return Curl_resolv_knows_https(data, ctx->resolv_id);
+        ಯದಿ(ctx->dns)
+          ಪ್ರತ್ಯಾಗಮ TRUE;
+        ಅನ್ಯಥಾ
+          ಪ್ರತ್ಯಾಗಮ Curl_resolv_knows_https(data, ctx->resolv_id);
       }
     }
   }
-  return TRUE;
+  ಪ್ರತ್ಯಾಗಮ TRUE;
 }
 
 #endif /* USE_HTTPSRR */

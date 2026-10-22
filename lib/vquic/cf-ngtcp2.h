@@ -23,42 +23,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#ಯದಿ !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
 #ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
+#ಅನ್ತರ್ಭಾವ <netinet/udp.h>
 #endif
 
-#include <ngtcp2/ngtcp2_crypto.h>
+#ಅನ್ತರ್ಭಾವ <ngtcp2/ngtcp2_crypto.h>
 #ifdef OPENSSL_QUIC_API2
-#include <ngtcp2/ngtcp2_crypto_ossl.h>
+#ಅನ್ತರ್ಭಾವ <ngtcp2/ngtcp2_crypto_ossl.h>
 #endif
-#include <nghttp3/nghttp3.h>
+#ಅನ್ತರ್ಭಾವ <nghttp3/nghttp3.h>
 #ifdef USE_OPENSSL
-#include <openssl/ssl.h>
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/quic.h>
+#ಅನ್ತರ್ಭಾವ <openssl/ssl.h>
+#ನೋಚೇದ್ಯದಿ defined(USE_WOLFSSL)
+#ಅನ್ತರ್ಭಾವ <wolfssl/options.h>
+#ಅನ್ತರ್ಭಾವ <wolfssl/ssl.h>
+#ಅನ್ತರ್ಭಾವ <wolfssl/quic.h>
 #endif
 
-struct Curl_cfilter;
+ಸಂರಚನಾ Curl_cfilter;
 
-#include "urldata.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
 
-CURLcode Curl_cf_ngtcp2_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_ngtcp2_create(ಸಂರಚನಾ Curl_cfilter **pcf,
+                               ಸಂರಚನಾ Curl_easy *data,
+                               ಸಂರಚನಾ Curl_peer *origin,
+                               ಸಂರಚನಾ Curl_peer *peer,
+                               ಸಂರಚನಾ connectdata *conn,
+                               ಸಂರಚನಾ Curl_sockaddr_ex *addr);
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_ngtcp2_ಸೇರಿಸು_after(ಸಂರಚನಾ Curl_cfilter *cf_at,
+                                     ಸಂರಚನಾ Curl_peer *origin,
+                                     ಸಂರಚನಾ Curl_peer *peer,
+                                     ಸಂರಚನಾ Curl_cfilter **pcf);
 #endif
 
 #endif /* HEADER_CURL_VQUIC_CF_NGTCP2_H */

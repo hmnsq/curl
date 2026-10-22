@@ -23,58 +23,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-typedef void (*Curl_llist_dtor)(void *user, void *elem);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಶೂನ್ಯ (*Curl_llist_dtor)(ಶೂನ್ಯ *user, ಶೂನ್ಯ *elem);
 
 /* none of these struct members should be referenced directly, use the
    dedicated functions */
 
-struct Curl_llist {
-  struct Curl_llist_node *_head;
-  struct Curl_llist_node *_tail;
+ಸಂರಚನಾ Curl_llist {
+  ಸಂರಚನಾ Curl_llist_ಗಂಟು *_head;
+  ಸಂರಚನಾ Curl_llist_ಗಂಟು *_tail;
   Curl_llist_dtor _dtor;
   size_t _size;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  ಪೂರ್ಣಾಙ್ಕ _init;      /* detect API usage mistakes */
 #endif
 };
 
-struct Curl_llist_node {
-  struct Curl_llist *_list; /* the list where this belongs */
-  void *_ptr;
-  struct Curl_llist_node *_prev;
-  struct Curl_llist_node *_next;
+ಸಂರಚನಾ Curl_llist_ಗಂಟು {
+  ಸಂರಚನಾ Curl_llist *_list; /* the list where this belongs */
+  ಶೂನ್ಯ *_ptr;
+  ಸಂರಚನಾ Curl_llist_ಗಂಟು *_prev;
+  ಸಂರಚನಾ Curl_llist_ಗಂಟು *_next;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  ಪೂರ್ಣಾಙ್ಕ _init;      /* detect API usage mistakes */
 #endif
 };
 
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor);
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne);
-void Curl_node_remove(struct Curl_llist_node *e);
-void Curl_llist_destroy(struct Curl_llist *list, void *user);
+ಶೂನ್ಯ Curl_llist_init(ಸಂರಚನಾ Curl_llist *l, Curl_llist_dtor dtor);
+ಶೂನ್ಯ Curl_llist_append(ಸಂರಚನಾ Curl_llist *list, ಧ್ರುವ ಶೂನ್ಯ *p,
+                       ಸಂರಚನಾ Curl_llist_ಗಂಟು *ne);
+ಶೂನ್ಯ Curl_ಗಂಟು_remove(ಸಂರಚನಾ Curl_llist_ಗಂಟು *e);
+ಶೂನ್ಯ Curl_llist_destroy(ಸಂರಚನಾ Curl_llist *list, ಶೂನ್ಯ *user);
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list);
+ಸಂರಚನಾ Curl_llist_ಗಂಟು *Curl_llist_head(ಧ್ರುವ ಸಂರಚನಾ Curl_llist *list);
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list);
+size_t Curl_llist_ಎಣಿಕೆ(ಧ್ರುವ ಸಂರಚನಾ Curl_llist *list);
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n);
+ಶೂನ್ಯ *Curl_ಗಂಟು_elem(ಧ್ರುವ ಸಂರಚನಾ Curl_llist_ಗಂಟು *n);
 
 /* Remove the node from the list and return the custom data
  * from a Curl_llist_node. Does NOT invoke a registered `dtor`. */
-void *Curl_node_take_elem(struct Curl_llist_node *e);
+ಶೂನ್ಯ *Curl_ಗಂಟು_take_elem(ಸಂರಚನಾ Curl_llist_ಗಂಟು *e);
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n);
+ಸಂರಚನಾ Curl_llist_ಗಂಟು *Curl_ಗಂಟು_next(ಧ್ರುವ ಸಂರಚನಾ Curl_llist_ಗಂಟು *n);
 
 /* Curl_node_llist() return the list the node is in or NULL. */
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n);
+ಸಂರಚನಾ Curl_llist *Curl_ಗಂಟು_llist(ಧ್ರುವ ಸಂರಚನಾ Curl_llist_ಗಂಟು *n);
 
 #endif /* HEADER_CURL_LLIST_H */

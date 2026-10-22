@@ -23,41 +23,41 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 #ifndef CURL_DISABLE_HTTP
-#include "bufq.h"
-#include "http.h"
+#ಅನ್ತರ್ಭಾವ "bufq.h"
+#ಅನ್ತರ್ಭಾವ "http.h"
 
 #define H1_PARSE_OPT_NONE       0
 #define H1_PARSE_OPT_STRICT     (1 << 0)
 
-#define H1_PARSE_DEFAULT_MAX_LINE_LEN   DYN_HTTP_REQUEST
+#define H1_PARSE_DEFAULT_MAX_ಸಾಲು_LEN   DYN_HTTP_REQUEST
 
-struct h1_req_parser {
-  struct httpreq *req;
-  struct dynbuf scratch;
+ಸಂರಚನಾ h1_req_parser {
+  ಸಂರಚನಾ httpreq *req;
+  ಸಂರಚನಾ dynbuf scratch;
   size_t scratch_skip;
-  const char *line;
-  size_t max_line_len;
-  size_t line_len;
+  ಧ್ರುವ ವರ್ಣ *ಸಾಲು;
+  size_t max_ಸಾಲು_len;
+  size_t ಸಾಲು_len;
   BIT(done);
 };
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len);
-void Curl_h1_req_parse_free(struct h1_req_parser *parser);
+ಶೂನ್ಯ Curl_h1_req_parse_init(ಸಂರಚನಾ h1_req_parser *parser, size_t max_ಸಾಲು_len);
+ಶೂನ್ಯ Curl_h1_req_parse_free(ಸಂರಚನಾ h1_req_parser *parser);
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread);
+CURLcode Curl_h1_req_parse_read(ಸಂರಚನಾ h1_req_parser *parser,
+                                ಧ್ರುವ uint8_t *buf, size_t buflen,
+                                ಧ್ರುವ ವರ್ಣ *scheme_default,
+                                ಧ್ರುವ ವರ್ಣ *custom_method,
+                                ಪೂರ್ಣಾಙ್ಕ options, size_t *pnread);
 
-CURLcode Curl_h1_req_dprint(const struct httpreq *req,
-                            struct dynbuf *dbuf);
+CURLcode Curl_h1_req_dprint(ಧ್ರುವ ಸಂರಚನಾ httpreq *req,
+                            ಸಂರಚನಾ dynbuf *dbuf);
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf);
+CURLcode Curl_h1_req_write_head(ಸಂರಚನಾ httpreq *req, ಪೂರ್ಣಾಙ್ಕ http_minor,
+                                ಸಂರಚನಾ dynbuf *dbuf);
 
 #endif /* !CURL_DISABLE_HTTP */
 #endif /* HEADER_CURL_HTTP1_H */

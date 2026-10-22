@@ -27,7 +27,7 @@
 #define ISLOWHEXALPHA(x) (((x) >= 'a') && ((x) <= 'f'))
 #define ISUPHEXALPHA(x)  (((x) >= 'A') && ((x) <= 'F'))
 
-#define ISLOWCNTRL(x) ((unsigned char)(x) <= 0x1f)
+#define ISLOWCNTRL(x) ((unsigned ವರ್ಣ)(x) <= 0x1f)
 #define IS7F(x)       ((x) == 0x7f)
 
 #define ISPRINT(x)  (((x) >= ' ') && ((x) <= 0x7e))

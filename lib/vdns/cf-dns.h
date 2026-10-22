@@ -23,49 +23,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct Curl_dns_entry;
-struct Curl_addrinfo;
-struct Curl_peer;
+ಸಂರಚನಾ Curl_easy;
+ಸಂರಚನಾ connectdata;
+ಸಂರಚನಾ Curl_dns_entry;
+ಸಂರಚನಾ Curl_addrinfo;
+ಸಂರಚನಾ Curl_peer;
 
-CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
-                                        struct connectdata *conn,
+CURLcode Curl_conn_dns_add_addr_resolve(ಸಂರಚನಾ Curl_easy *data,
+                                        ಸಂರಚನಾ connectdata *conn,
                                         int8_t sockindex,
-                                        struct Curl_peer *peer,
+                                        ಸಂರಚನಾ Curl_peer *peer,
                                         uint8_t dns_queries,
                                         uint8_t transport);
 
-CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
+CURLcode Curl_conn_dns_addr_result(ಸಂರಚನಾ connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer);
+                                   ಸಂರಚನಾ Curl_peer *peer);
 
-const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
-                                                 struct Curl_peer *peer,
+ಧ್ರುವ ಸಂರಚನಾ Curl_addrinfo *Curl_conn_dns_get_ai(ಸಂರಚನಾ Curl_easy *data,
+                                                 ಸಂರಚನಾ Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index);
+                                                 ಪೂರ್ಣಾಙ್ಕ ai_family,
+                                                 unsigned ಪೂರ್ಣಾಙ್ಕ index);
 
 #ifdef USE_HTTPSRR
-CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
-                                         struct connectdata *conn,
+CURLcode Curl_conn_dns_add_https_resolve(ಸಂರಚನಾ Curl_easy *data,
+                                         ಸಂರಚನಾ connectdata *conn,
                                          int8_t sockindex,
-                                         struct Curl_peer *peer);
+                                         ಸಂರಚನಾ Curl_peer *peer);
 
-const struct Curl_https_rrinfo *
-Curl_conn_dns_get_https(struct Curl_easy *data,
+ಧ್ರುವ ಸಂರಚನಾ Curl_https_rrinfo *
+Curl_conn_dns_get_https(ಸಂರಚನಾ Curl_easy *data,
                         int8_t sockindex,
-                        struct Curl_peer *peer);
-bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
+                        ಸಂರಚನಾ Curl_peer *peer);
+bool Curl_conn_dns_resolved_https(ಸಂರಚನಾ Curl_easy *data,
                                   int8_t sockindex,
-                                  struct Curl_peer *peer);
-#else
-#define Curl_conn_dns_get_https(a, b, c)        NULL
+                                  ಸಂರಚನಾ Curl_peer *peer);
+#ಅನ್ಯಥಾ
+#define Curl_conn_dns_get_https(a, b, c)        ರಿಕ್ತ
 #define Curl_conn_dns_resolved_https(a, b, c)   TRUE
 #endif
 
-extern struct Curl_cftype Curl_cft_dns;
+ಬಾಹ್ಯ ಸಂರಚನಾ Curl_cftype Curl_cft_dns;
 
 #endif /* HEADER_CURL_CF_DNS_H */

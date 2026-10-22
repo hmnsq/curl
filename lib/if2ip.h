@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 /* IPv6 address scopes. */
 #define IPV6_SCOPE_GLOBAL       0       /* Global scope. */
@@ -33,43 +33,43 @@
 #define IPV6_SCOPE_NODELOCAL    4       /* Loopback. */
 
 #ifdef USE_IPV6
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa);
-#else
+unsigned ಪೂರ್ಣಾಙ್ಕ Curl_ipv6_scope(ಧ್ರುವ ಸಂರಚನಾ sockaddr *sa);
+#ಅನ್ಯಥಾ
 #define Curl_ipv6_scope(x) 0
 #endif
 
-typedef enum {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ {
   IF2IP_NOT_FOUND = 0, /* Interface not found */
   IF2IP_AF_NOT_SUPPORTED = 1, /* Int. exists but has no address for this af */
   IF2IP_FOUND = 2 /* The address has been stored in "buf" */
 } if2ip_result_t;
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(ಪೂರ್ಣಾಙ್ಕ af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned ಪೂರ್ಣಾಙ್ಕ remote_scope,
+                          unsigned ಪೂರ್ಣಾಙ್ಕ local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size);
+                          ಧ್ರುವ ವರ್ಣ *interf,
+                          ವರ್ಣ *buf, size_t buf_size);
 
 #ifdef __INTERIX
 
 /* Nedelcho Stanev's workaround for SFU 3.0 */
-struct ifreq {
+ಸಂರಚನಾ ifreq {
 #define IFNAMSIZ    16
 #define IFHWADDRLEN 6
-  union {
-    char ifrn_name[IFNAMSIZ]; /* if name, e.g. "en0" */
+  ಸಙ್ಘ {
+    ವರ್ಣ ifrn_name[IFNAMSIZ]; /* if name, e.g. "en0" */
   } ifr_ifrn;
 
-  union {
-    struct sockaddr ifru_addr;
-    struct sockaddr ifru_broadaddr;
-    struct sockaddr ifru_netmask;
-    struct sockaddr ifru_hwaddr;
+  ಸಙ್ಘ {
+    ಸಂರಚನಾ sockaddr ifru_addr;
+    ಸಂರಚನಾ sockaddr ifru_broadaddr;
+    ಸಂರಚನಾ sockaddr ifru_netmask;
+    ಸಂರಚನಾ sockaddr ifru_hwaddr;
     short ifru_flags;
-    int ifru_metric;
-    int ifru_mtu;
+    ಪೂರ್ಣಾಙ್ಕ ifru_metric;
+    ಪೂರ್ಣಾಙ್ಕ ifru_mtu;
   } ifr_ifru;
 };
 
@@ -84,7 +84,7 @@ struct ifreq {
 #define ifr_metric    ifr_ifru.ifru_metric /* metric */
 #define ifr_mtu       ifr_ifru.ifru_mtu /* mtu */
 
-#define SIOCGIFADDR _IOW('s', 102, struct ifreq) /* Get if addr */
+#define SIOCGIFADDR _IOW('s', 102, ಸಂರಚನಾ ifreq) /* Get if addr */
 
 #endif /* __INTERIX */
 

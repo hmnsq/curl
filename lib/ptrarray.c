@@ -21,78 +21,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "ptrarray.h"
+#ಅನ್ತರ್ಭಾವ "ptrarray.h"
 
 #define CURL_PTRARRAY_MAX_GROW     (16 * 1024)
 
-void Curl_ptrarray_init(struct ptrarray *pa)
+ಶೂನ್ಯ Curl_ptrarray_init(ಸಂರಚನಾ ptrarray *pa)
 {
-  pa->data = NULL;
+  pa->data = ರಿಕ್ತ;
   pa->n = pa->capacity = 0;
 }
 
-void Curl_ptrarray_clear(struct ptrarray *pa)
+ಶೂನ್ಯ Curl_ptrarray_clear(ಸಂರಚನಾ ptrarray *pa)
 {
   curlx_safefree(pa->data);
   pa->n = pa->capacity = 0;
 }
 
-uint32_t Curl_ptrarray_count(struct ptrarray *pa)
+uint32_t Curl_ptrarray_ಎಣಿಕೆ(ಸಂರಚನಾ ptrarray *pa)
 {
-  return pa->n;
+  ಪ್ರತ್ಯಾಗಮ pa->n;
 }
 
-CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr)
+CURLcode Curl_ptrarray_add(ಸಂರಚನಾ ptrarray *pa, ಶೂನ್ಯ *ptr)
 {
-  if(!ptr)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(pa->n >= pa->capacity) {
+  ಯದಿ(!ptr)
+    ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
+  ಯದಿ(pa->n >= pa->capacity) {
     uint32_t growth;
-    void **ndata;
+    ಶೂನ್ಯ **ndata;
 
-    if(pa->capacity == UINT32_MAX)
-      return CURLE_OUT_OF_MEMORY;
-    if(!pa->capacity)
+    ಯದಿ(pa->capacity == UINT32_MAX)
+      ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
+    ಯದಿ(!pa->capacity)
       growth = 8;
-    else if((UINT32_MAX / 2) > pa->capacity)
+    ಅನ್ಯಥಾ ಯದಿ((UINT32_MAX / 2) > pa->capacity)
       growth = CURLMIN(2 * pa->capacity, CURL_PTRARRAY_MAX_GROW);
-    else
+    ಅನ್ಯಥಾ
       growth = ((UINT32_MAX - pa->capacity) > CURL_PTRARRAY_MAX_GROW) ?
                CURL_PTRARRAY_MAX_GROW : (UINT32_MAX - pa->capacity);
 
-    ndata = curlx_calloc(1, (pa->capacity + growth) * sizeof(void *));
-    if(!ndata)
-      return CURLE_OUT_OF_MEMORY;
-    if(pa->n)
-      memcpy(ndata, pa->data, pa->n * sizeof(void *));
+    ndata = curlx_calloc(1, (pa->capacity + growth) * ಪರಿಮಾಣ(ಶೂನ್ಯ *));
+    ಯದಿ(!ndata)
+      ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
+    ಯದಿ(pa->n)
+      memcpy(ndata, pa->data, pa->n * ಪರಿಮಾಣ(ಶೂನ್ಯ *));
     curlx_free(pa->data);
     pa->data = ndata;
     pa->capacity += growth;
   }
   DEBUGASSERT(pa->n < pa->capacity);
   pa->data[pa->n++] = ptr;
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx)
+ಶೂನ್ಯ *Curl_ptrarray_remove(ಸಂರಚನಾ ptrarray *pa, uint32_t idx)
 {
-  if(idx < pa->n) {
+  ಯದಿ(idx < pa->n) {
     uint32_t rem = pa->n - idx - 1;
-    void *ptr = pa->data[idx];
-    pa->data[idx] = NULL;
-    if(rem)
-      memmove(pa->data + idx, pa->data + idx + 1, rem * sizeof(void *));
+    ಶೂನ್ಯ *ptr = pa->data[idx];
+    pa->data[idx] = ರಿಕ್ತ;
+    ಯದಿ(rem)
+      memmove(pa->data + idx, pa->data + idx + 1, rem * ಪರಿಮಾಣ(ಶೂನ್ಯ *));
     pa->n--;
-    if(!pa->n)
+    ಯದಿ(!pa->n)
       Curl_ptrarray_clear(pa);
-    return ptr;
+    ಪ್ರತ್ಯಾಗಮ ptr;
   }
-  return NULL;
+  ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx)
+ಶೂನ್ಯ *Curl_ptrarray_get(ಸಂರಚನಾ ptrarray *pa, uint32_t idx)
 {
-  return (idx < pa->n) ? pa->data[idx] : NULL;
+  ಪ್ರತ್ಯಾಗಮ (idx < pa->n) ? pa->data[idx] : ರಿಕ್ತ;
 }

@@ -21,38 +21,38 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "strerror.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "cf-https-connect.h"
-#include "cf-setup.h"
-#include "multiif.h"
-#include "progress.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "select.h"
-#include "vdns/cf-dns.h"
-#include "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "curl_trc.h"
+#ಅನ್ತರ್ಭಾವ "strerror.h"
+#ಅನ್ತರ್ಭಾವ "cfilters.h"
+#ಅನ್ತರ್ಭಾವ "connect.h"
+#ಅನ್ತರ್ಭಾವ "cf-https-connect.h"
+#ಅನ್ತರ್ಭಾವ "cf-setup.h"
+#ಅನ್ತರ್ಭಾವ "multiif.h"
+#ಅನ್ತರ್ಭಾವ "progress.h"
+#ಅನ್ತರ್ಭಾವ "conncache.h"
+#ಅನ್ತರ್ಭಾವ "multihandle.h"
+#ಅನ್ತರ್ಭಾವ "select.h"
+#ಅನ್ತರ್ಭಾವ "vdns/cf-dns.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
 
-#if !defined(CURL_DISABLE_ALTSVC) || defined(USE_HTTPSRR)
+#ಯದಿ !defined(CURL_DISABLE_ALTSVC) || defined(USE_HTTPSRR)
 
-enum alpnid Curl_alpn2alpnid(const unsigned char *name, size_t len)
+ಗಣನಾ alpnid Curl_alpn2alpnid(ಧ್ರುವ unsigned ವರ್ಣ *name, size_t len)
 {
-  if(len == 2) {
-    if(!memcmp(name, "h1", 2))
-      return ALPN_h1;
-    if(!memcmp(name, "h2", 2))
-      return ALPN_h2;
-    if(!memcmp(name, "h3", 2))
-      return ALPN_h3;
+  ಯದಿ(len == 2) {
+    ಯದಿ(!memcmp(name, "h1", 2))
+      ಪ್ರತ್ಯಾಗಮ ALPN_h1;
+    ಯದಿ(!memcmp(name, "h2", 2))
+      ಪ್ರತ್ಯಾಗಮ ALPN_h2;
+    ಯದಿ(!memcmp(name, "h3", 2))
+      ಪ್ರತ್ಯಾಗಮ ALPN_h3;
   }
-  else if(len == 8 && !memcmp(name, "http/1.1", 8))
-    return ALPN_h1;
-  return ALPN_none; /* unknown, probably rubbish input */
+  ಅನ್ಯಥಾ ಯದಿ(len == 8 && !memcmp(name, "http/1.1", 8))
+    ಪ್ರತ್ಯಾಗಮ ALPN_h1;
+  ಪ್ರತ್ಯಾಗಮ ALPN_none; /* unknown, probably rubbish input */
 }
 
 #endif
@@ -61,13 +61,13 @@ enum alpnid Curl_alpn2alpnid(const unsigned char *name, size_t len)
  * Milliseconds left of the connect timeout after `used_ms` have been spent.
  * One home for the default timeout and the zero-to-expired sentinel.
  */
-static timediff_t connect_left_ms(struct Curl_easy *data,
+ಸ್ಥಿರ timediff_t connect_ಎಡ_ms(ಸಂರಚನಾ Curl_easy *data,
                                   timediff_t used_ms)
 {
   timediff_t timeout_ms = (data->set.connecttimeout > 0) ?
     data->set.connecttimeout : DEFAULT_CONNECT_TIMEOUT;
-  timediff_t left_ms = timeout_ms - used_ms;
-  return left_ms ? left_ms : -1; /* 0 is "no limit", fake 1 ms expiry */
+  timediff_t ಎಡ_ms = timeout_ms - used_ms;
+  ಪ್ರತ್ಯಾಗಮ ಎಡ_ms ? ಎಡ_ms : -1; /* 0 is "no limit", fake 1 ms expiry */
 }
 
 /*
@@ -78,47 +78,47 @@ static timediff_t connect_left_ms(struct Curl_easy *data,
  *
  * @unittest 1303
  */
-UNITTEST timediff_t timeleft_now_ms(struct Curl_easy *data,
-                                    const struct curltime *pnow);
-UNITTEST timediff_t timeleft_now_ms(struct Curl_easy *data,
-                                    const struct curltime *pnow)
+UNITTEST timediff_t timeleft_now_ms(ಸಂರಚನಾ Curl_easy *data,
+                                    ಧ್ರುವ ಸಂರಚನಾ curltime *pnow);
+UNITTEST timediff_t timeleft_now_ms(ಸಂರಚನಾ Curl_easy *data,
+                                    ಧ್ರುವ ಸಂರಚನಾ curltime *pnow)
 {
   timediff_t timeleft_ms = 0;
   timediff_t ctimeleft_ms = 0;
 
-  if(data->conn && CURL_CONN_IN_SHUTDOWN(data->conn, FIRSTSOCKET))
-    return Curl_cshutdn_timeleft_ms(data, data->conn, FIRSTSOCKET);
-  else if(Curl_is_connecting(data)) {
-    ctimeleft_ms = connect_left_ms(data,
+  ಯದಿ(data->conn && CURL_CONN_IN_SHUTDOWN(data->conn, FIRSTSOCKET))
+    ಪ್ರತ್ಯಾಗಮ Curl_cshutdn_timeleft_ms(data, data->conn, FIRSTSOCKET);
+  ಅನ್ಯಥಾ ಯದಿ(Curl_is_connecting(data)) {
+    ctimeleft_ms = connect_ಎಡ_ms(data,
       Curl_pgrs_since_ms(data, pnow, TIMER_STARTSINGLE));
   }
-  else if(!data->set.timeout || data->set.connect_only) {
-    return 0; /* no timeout in place or checked, return "no limit" */
+  ಅನ್ಯಥಾ ಯದಿ(!data->set.timeout || data->set.connect_only) {
+    ಪ್ರತ್ಯಾಗಮ 0; /* no timeout in place or checked, return "no limit" */
   }
 
-  if(data->set.timeout) {
+  ಯದಿ(data->set.timeout) {
     timeleft_ms = data->set.timeout -
                   Curl_pgrs_since_ms(data, pnow, TIMER_STARTOP);
-    if(!timeleft_ms)
+    ಯದಿ(!timeleft_ms)
       timeleft_ms = -1; /* 0 is "no limit", fake 1 ms expiry */
   }
 
-  if(!ctimeleft_ms)
-    return timeleft_ms;
-  else if(!timeleft_ms)
-    return ctimeleft_ms;
-  return CURLMIN(ctimeleft_ms, timeleft_ms);
+  ಯದಿ(!ctimeleft_ms)
+    ಪ್ರತ್ಯಾಗಮ timeleft_ms;
+  ಅನ್ಯಥಾ ಯದಿ(!timeleft_ms)
+    ಪ್ರತ್ಯಾಗಮ ctimeleft_ms;
+  ಪ್ರತ್ಯಾಗಮ CURLMIN(ctimeleft_ms, timeleft_ms);
 }
 
-timediff_t Curl_timeleft_ms(struct Curl_easy *data)
+timediff_t Curl_timeleft_ms(ಸಂರಚನಾ Curl_easy *data)
 {
-  return timeleft_now_ms(data, Curl_pgrs_now(data));
+  ಪ್ರತ್ಯಾಗಮ timeleft_now_ms(data, Curl_pgrs_now(data));
 }
 
-timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
-                                const struct curltime *pnow)
+timediff_t Curl_timeleft_now_ms(ಸಂರಚನಾ Curl_easy *data,
+                                ಧ್ರುವ ಸಂರಚನಾ curltime *pnow)
 {
-  return timeleft_now_ms(data, pnow);
+  ಪ್ರತ್ಯಾಗಮ timeleft_now_ms(data, pnow);
 }
 
 /*
@@ -127,50 +127,50 @@ timediff_t Curl_timeleft_now_ms(struct Curl_easy *data,
  *
  * The returned socket will be CURL_SOCKET_BAD in case of failure!
  */
-curl_socket_t Curl_getconnectinfo(struct Curl_easy *data,
-                                  struct connectdata **connp)
+curl_socket_t Curl_getconnectinfo(ಸಂರಚನಾ Curl_easy *data,
+                                  ಸಂರಚನಾ connectdata **connp)
 {
   /* this works for an easy handle:
    * - that has been used for curl_easy_perform()
    * - that is associated with a multi handle, and whose connection
    *   was detached with CURLOPT_CONNECT_ONLY
    */
-  struct connectdata *conn = Curl_cpool_get_last_conn(data);
-  if(connp)
+  ಸಂರಚನಾ connectdata *conn = Curl_cpool_get_last_conn(data);
+  ಯದಿ(connp)
     *connp = conn;
-  return conn ? conn->sock[FIRSTSOCKET] : CURL_SOCKET_BAD;
+  ಪ್ರತ್ಯಾಗಮ conn ? conn->sock[FIRSTSOCKET] : CURL_SOCKET_BAD;
 }
 
-void Curl_conncontrol(struct connectdata *conn, int ctrl)
+ಶೂನ್ಯ Curl_conncontrol(ಸಂರಚನಾ connectdata *conn, ಪೂರ್ಣಾಙ್ಕ ctrl)
 {
-  if(!conn) {
+  ಯದಿ(!conn) {
     DEBUGASSERT(0);
-    return;
+    ಪ್ರತ್ಯಾಗಮ;
   }
-  switch(ctrl) {
-    case CONNCTRL_CONN_KEEP:
+  ವಿಕಲ್ಪ(ctrl) {
+    ಪಕ್ಷ CONNCTRL_CONN_KEEP:
       conn->bits.close = FALSE;
-      break;
-    case CONNCTRL_CONN_CLOSE:
+      ಭಙ್ಗ;
+    ಪಕ್ಷ CONNCTRL_CONN_CLOSE:
       conn->bits.close = TRUE;
-      break;
-    case CONNCTRL_STREAM_CLOSE:
+      ಭಙ್ಗ;
+    ಪಕ್ಷ CONNCTRL_STREAM_CLOSE:
       /* stream close when multiplexing does not affect connection */
-      if(!Curl_conn_is_multiplex(conn, FIRSTSOCKET))
+      ಯದಿ(!Curl_conn_is_multiplex(conn, FIRSTSOCKET))
         conn->bits.close = TRUE;
-      break;
-    default:
+      ಭಙ್ಗ;
+    ಸ್ವಭಾವ:
       DEBUGASSERT(0);
-      break;
+      ಭಙ್ಗ;
   }
 }
 
-CURLcode Curl_conn_setup(struct Curl_easy *data,
-                         struct connectdata *conn,
+CURLcode Curl_conn_setup(ಸಂರಚನಾ Curl_easy *data,
+                         ಸಂರಚನಾ connectdata *conn,
                          int8_t sockindex,
-                         int ssl_mode)
+                         ಪೂರ್ಣಾಙ್ಕ ssl_mode)
 {
-  struct Curl_peer *first_peer = Curl_conn_get_first_peer(conn, sockindex);
+  ಸಂರಚನಾ Curl_peer *first_peer = Curl_conn_get_first_peer(conn, sockindex);
   CURLcode result = CURLE_OK;
   uint8_t dns_queries;
 
@@ -178,26 +178,26 @@ CURLcode Curl_conn_setup(struct Curl_easy *data,
   DEBUGASSERT(conn->scheme);
   DEBUGASSERT(!conn->cfilter[sockindex]);
 
-  if(!first_peer)
-    return CURLE_FAILED_INIT;
+  ಯದಿ(!first_peer)
+    ಪ್ರತ್ಯಾಗಮ CURLE_FAILED_INIT;
 
 #ifndef CURL_DISABLE_HTTP
-  if(!conn->cfilter[sockindex] &&
+  ಯದಿ(!conn->cfilter[sockindex] &&
      conn->scheme->protocol == CURLPROTO_HTTPS) {
     DEBUGASSERT(ssl_mode != CURL_CF_SSL_DISABLE);
     result = Curl_cf_https_setup(
       data, Curl_conn_get_destination(conn, sockindex), conn, sockindex);
-    if(result)
-      goto out;
+    ಯದಿ(result)
+      ಗಚ್ಛ out;
   }
 #endif /* !CURL_DISABLE_HTTP */
 
   /* Still no cfilter set, apply default. */
-  if(!conn->cfilter[sockindex]) {
+  ಯದಿ(!conn->cfilter[sockindex]) {
     result = Curl_cf_setup_add(data, conn, sockindex,
                                conn->transport_wanted, ssl_mode);
-    if(result)
-      goto out;
+    ಯದಿ(result)
+      ಗಚ್ಛ out;
   }
 
   /* Whatever the filter chain will be in the end, it will need the
@@ -207,26 +207,26 @@ CURLcode Curl_conn_setup(struct Curl_easy *data,
   result = Curl_conn_dns_add_addr_resolve(data, conn, sockindex,
                                           first_peer, dns_queries,
                                           conn->transport_wanted);
-  if(result)
-    goto out;
+  ಯದಿ(result)
+    ಗಚ್ಛ out;
 
   DEBUGASSERT(conn->cfilter[sockindex]);
 out:
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
 #ifdef CURLVERBOSE
-static CURLcode conn_connect_trace(struct Curl_easy *data,
-                                   struct Curl_cfilter *cf)
+ಸ್ಥಿರ CURLcode conn_connect_trace(ಸಂರಚನಾ Curl_easy *data,
+                                   ಸಂರಚನಾ Curl_cfilter *cf)
 {
-  if(Curl_trc_is_verbose(data)) {
-    struct ip_quadruple ipquad;
+  ಯದಿ(Curl_trc_is_verbose(data)) {
+    ಸಂರಚನಾ ip_quadruple ipquad;
     bool is_ipv6;
     CURLcode result;
 
     result = Curl_conn_cf_get_ip_info(cf, data, &is_ipv6, &ipquad);
-    if(result)
-      return result;
+    ಯದಿ(result)
+      ಪ್ರತ್ಯಾಗಮ result;
 
     infof(data, "Established %sconnection to %s (%s port %u) from %s port %u ",
           (cf->sockindex == SECONDARYSOCKET) ? "2nd " : "",
@@ -234,92 +234,92 @@ static CURLcode conn_connect_trace(struct Curl_easy *data,
           ipquad.remote_ip, ipquad.remote_port,
           ipquad.local_ip, ipquad.local_port);
   }
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 #endif
 
 /**
  * Update connection statistics
  */
-static void conn_report_stats(struct Curl_easy *data, int sockindex)
+ಸ್ಥಿರ ಶೂನ್ಯ conn_report_stats(ಸಂರಚನಾ Curl_easy *data, ಪೂರ್ಣಾಙ್ಕ sockindex)
 {
   /* We do gather stats for the second socket...yet */
-  if(sockindex == FIRSTSOCKET) {
+  ಯದಿ(sockindex == FIRSTSOCKET) {
     Curl_conn_cntrl_report_stats(data, data->conn, sockindex);
   }
 }
 
-void Curl_conn_report_failed(struct Curl_easy *data, int8_t sockindex)
+ಶೂನ್ಯ Curl_conn_report_failed(ಸಂರಚನಾ Curl_easy *data, int8_t sockindex)
 {
-  if(!data->conn || (sockindex != FIRSTSOCKET))
-    return;
+  ಯದಿ(!data->conn || (sockindex != FIRSTSOCKET))
+    ಪ್ರತ್ಯಾಗಮ;
   /* Only filters connected at IP level have info to update. Filters
    * still racing for a connection, like happy eyeballing, pass it on
    * to a connected one only. */
-  (void)Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, TRUE,
-                           CF_CTRL_CONN_INFO_UPDATE, 0, NULL);
+  (ಶೂನ್ಯ)Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, TRUE,
+                           CF_CTRL_CONN_INFO_UPDATE, 0, ರಿಕ್ತ);
   conn_report_stats(data, sockindex);
 }
 
-CURLcode Curl_conn_connect(struct Curl_easy *data,
+CURLcode Curl_conn_connect(ಸಂರಚನಾ Curl_easy *data,
                            int8_t sockindex,
                            bool blocking,
                            bool *done)
 {
-#define CF_CONN_NUM_POLLS_ON_STACK 5
-  struct pollfd a_few_on_stack[CF_CONN_NUM_POLLS_ON_STACK];
-  struct easy_pollset ps;
-  struct curl_pollfds cpfds;
-  struct Curl_cfilter *cf;
+#define CF_CONN_ಅಂಕೆ_POLLS_ON_ರಾಶಿ 5
+  ಸಂರಚನಾ pollfd a_few_on_ರಾಶಿ[CF_CONN_ಅಂಕೆ_POLLS_ON_ರಾಶಿ];
+  ಸಂರಚನಾ easy_pollset ps;
+  ಸಂರಚನಾ curl_pollfds cpfds;
+  ಸಂರಚನಾ Curl_cfilter *cf;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ಯದಿ(!CONN_SOCK_IDX_VALID(sockindex))
+    ಪ್ರತ್ಯಾಗಮ CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(data->conn->scheme->flags & PROTOPT_NONETWORK) {
+  ಯದಿ(data->conn->scheme->flags & PROTOPT_NONETWORK) {
     *done = TRUE;
-    return CURLE_OK;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
   }
 
   cf = data->conn->cfilter[sockindex];
-  if(!cf) {
+  ಯದಿ(!cf) {
     *done = FALSE;
-    return CURLE_FAILED_INIT;
+    ಪ್ರತ್ಯಾಗಮ CURLE_FAILED_INIT;
   }
 
   *done = (bool)cf->connected;
-  if(*done)
-    return CURLE_OK;
+  ಯದಿ(*done)
+    ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 
-  if(!data->conn->connect_started.set[sockindex]) {
+  ಯದಿ(!data->conn->connect_started.set[sockindex]) {
     data->conn->connect_started.at[sockindex] = *Curl_pgrs_now(data);
     data->conn->connect_started.set[sockindex] = TRUE;
   }
 
   Curl_pollset_init(&ps);
-  Curl_pollfds_init(&cpfds, a_few_on_stack, CF_CONN_NUM_POLLS_ON_STACK);
-  while(!*done) {
-    if(Curl_conn_needs_flush(data, sockindex)) {
+  Curl_pollfds_init(&cpfds, a_few_on_ರಾಶಿ, CF_CONN_ಅಂಕೆ_POLLS_ON_ರಾಶಿ);
+  ಯಾವತ್(!*done) {
+    ಯದಿ(Curl_conn_needs_flush(data, sockindex)) {
       DEBUGF(infof(data, "Curl_conn_connect(index=%d), flush", sockindex));
       result = Curl_conn_flush(data, sockindex);
-      if(result && (result != CURLE_AGAIN))
-        goto out;
+      ಯದಿ(result && (result != CURLE_AGAIN))
+        ಗಚ್ಛ out;
     }
 
     result = cf->cft->do_connect(cf, data, done);
     CURL_TRC_CF(data, cf, "Curl_conn_connect(block=%d) -> %d, done=%d",
-                blocking, (int)result, *done);
-    if(!result && *done) {
+                blocking, (ಪೂರ್ಣಾಙ್ಕ)result, *done);
+    ಯದಿ(!result && *done) {
       /* A final sanity check on connection security */
-      if((data->state.origin->scheme->flags & PROTOPT_SSL) &&
+      ಯದಿ((data->state.origin->scheme->flags & PROTOPT_SSL) &&
          (sockindex == FIRSTSOCKET) &&
          !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
         DEBUGASSERT(0);
         failf(data, "transfer requires SSL, but not connected via SSL");
         result = CURLE_FAILED_INIT;
-        goto out;
+        ಗಚ್ಛ out;
       }
       /* Now that the complete filter chain is connected, let all filters
        * persist information at the connection. E.g. cf-socket sets the
@@ -331,67 +331,67 @@ CURLcode Curl_conn_connect(struct Curl_easy *data,
       VERBOSE(Curl_conn_trc_filters(data, sockindex, "connected"));
       Curl_conn_remove_setup_filters(data, sockindex);
       VERBOSE(Curl_conn_trc_filters(data, sockindex, "reduced to"));
-      goto out;
+      ಗಚ್ಛ out;
     }
-    else if(result) {
+    ಅನ್ಯಥಾ ಯದಿ(result) {
       CURL_TRC_CF(data, cf, "Curl_conn_connect(), filter returned %d",
-                  (int)result);
+                  (ಪೂರ್ಣಾಙ್ಕ)result);
       VERBOSE(Curl_conn_trc_filters(data, sockindex, "failed to connect"));
       Curl_conn_report_failed(data, sockindex);
-      goto out;
+      ಗಚ್ಛ out;
     }
 
-    if(!blocking)
-      goto out;
-    else {
+    ಯದಿ(!blocking)
+      ಗಚ್ಛ out;
+    ಅನ್ಯಥಾ {
       /* check allowed time left */
-      const struct curltime *pnow = Curl_pgrs_now(data);
+      ಧ್ರುವ ಸಂರಚನಾ curltime *pnow = Curl_pgrs_now(data);
       timediff_t timeout_ms = Curl_timeleft_now_ms(data, pnow);
       curl_socket_t sockfd = Curl_conn_cf_get_socket(cf, data);
-      int rc;
+      ಪೂರ್ಣಾಙ್ಕ rc;
 
-      if(!Curl_is_connecting(data)) {
+      ಯದಿ(!Curl_is_connecting(data)) {
         /* Past MSTATE_DO, e.g. an FTP data connection handshake in DO_MORE,
          * timeleft_now_ms() leaves the connect timeout out. Bound the wait
          * by this socket's whole connect phase, or a peer that never
          * finishes the handshake blocks forever. */
-        const struct curltime *started =
+        ಧ್ರುವ ಸಂರಚನಾ curltime *started =
           &data->conn->connect_started.at[sockindex];
-        timediff_t ctimeleft_ms = connect_left_ms(data,
+        timediff_t ctimeleft_ms = connect_ಎಡ_ms(data,
           curlx_ptimediff_ms(pnow, started));
-        if(!timeout_ms || (ctimeleft_ms < timeout_ms))
+        ಯದಿ(!timeout_ms || (ctimeleft_ms < timeout_ms))
           timeout_ms = ctimeleft_ms;
       }
 
-      if(timeout_ms < 0) {
+      ಯದಿ(timeout_ms < 0) {
         /* no need to continue if time already is up */
         failf(data, "connect timeout");
         result = CURLE_OPERATION_TIMEDOUT;
-        goto out;
+        ಗಚ್ಛ out;
       }
 
       CURL_TRC_CF(data, cf, "Curl_conn_connect(block=1), do poll");
       Curl_pollset_reset(&ps);
       Curl_pollfds_reset(&cpfds);
       /* In general, we want to send after connect, wait on that. */
-      if(sockfd != CURL_SOCKET_BAD)
+      ಯದಿ(sockfd != CURL_SOCKET_BAD)
         result = Curl_pollset_set_out_only(data, &ps, sockfd);
-      if(!result)
+      ಯದಿ(!result)
         result = Curl_conn_adjust_pollset(data, data->conn, &ps);
-      if(result)
-        goto out;
+      ಯದಿ(result)
+        ಗಚ್ಛ out;
       result = Curl_pollfds_add_ps(&cpfds, &ps);
-      if(result)
-        goto out;
+      ಯದಿ(result)
+        ಗಚ್ಛ out;
 
       rc = Curl_poll(cpfds.pfds, cpfds.n,
                      CURLMIN(timeout_ms ? timeout_ms : 1000,
                              (cpfds.n ? 1000 : 10)));
       CURL_TRC_CF(data, cf, "Curl_conn_connect(block=1), Curl_poll() -> %d",
                   rc);
-      if(rc < 0) {
+      ಯದಿ(rc < 0) {
         result = CURLE_COULDNT_CONNECT;
-        goto out;
+        ಗಚ್ಛ out;
       }
       /* continue iterating */
     }
@@ -400,44 +400,44 @@ CURLcode Curl_conn_connect(struct Curl_easy *data,
 out:
   Curl_pollset_cleanup(&ps);
   Curl_pollfds_cleanup(&cpfds);
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-void Curl_conn_set_multiplex(struct connectdata *conn)
+ಶೂನ್ಯ Curl_conn_set_multiplex(ಸಂರಚನಾ connectdata *conn)
 {
-  if(!conn->bits.multiplex) {
+  ಯದಿ(!conn->bits.multiplex) {
     conn->bits.multiplex = TRUE;
-    if(conn->attached_multi) {
+    ಯದಿ(conn->attached_multi) {
       Curl_multi_connchanged(conn->attached_multi);
     }
   }
 }
 
-struct Curl_peer *Curl_conn_get_origin(struct connectdata *conn,
+ಸಂರಚನಾ Curl_peer *Curl_conn_get_origin(ಸಂರಚನಾ connectdata *conn,
                                        int8_t sockindex)
 {
-  return (sockindex == SECONDARYSOCKET) ?
+  ಪ್ರತ್ಯಾಗಮ (sockindex == SECONDARYSOCKET) ?
     conn->origin2 : conn->origin;
 }
 
-struct Curl_peer *Curl_conn_get_destination(struct connectdata *conn,
+ಸಂರಚನಾ Curl_peer *Curl_conn_get_destination(ಸಂರಚನಾ connectdata *conn,
                                             int8_t sockindex)
 {
-  return (sockindex == SECONDARYSOCKET) ?
+  ಪ್ರತ್ಯಾಗಮ (sockindex == SECONDARYSOCKET) ?
     (conn->via_peer2 ? conn->via_peer2 : conn->origin2) :
     (conn->via_peer ? conn->via_peer : conn->origin);
 }
 
-struct Curl_peer *Curl_conn_get_first_peer(struct connectdata *conn,
+ಸಂರಚನಾ Curl_peer *Curl_conn_get_first_peer(ಸಂರಚನಾ connectdata *conn,
                                            int8_t sockindex)
 {
 #ifndef CURL_DISABLE_PROXY
-  if(conn->socks_proxy.peer)
-    return conn->socks_proxy.peer;
-  if(conn->http_proxy.peer)
-    return conn->http_proxy.peer;
+  ಯದಿ(conn->socks_proxy.peer)
+    ಪ್ರತ್ಯಾಗಮ conn->socks_proxy.peer;
+  ಯದಿ(conn->http_proxy.peer)
+    ಪ್ರತ್ಯಾಗಮ conn->http_proxy.peer;
 #endif
-  return (sockindex == SECONDARYSOCKET) ?
+  ಪ್ರತ್ಯಾಗಮ (sockindex == SECONDARYSOCKET) ?
     (conn->via_peer2 ? conn->via_peer2 : conn->origin2) :
     (conn->via_peer ? conn->via_peer : conn->origin);
 }

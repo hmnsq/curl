@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-extern const char * const Curl_wkday[7];
-extern const char * const Curl_month[12];
+ಬಾಹ್ಯ ಧ್ರುವ ವರ್ಣ * ಧ್ರುವ Curl_wkday[7];
+ಬಾಹ್ಯ ಧ್ರುವ ವರ್ಣ * ಧ್ರುವ Curl_month[12];
 
 /* Curl_getdate_capped() differs from curl_getdate() in that this returns
    TIME_T_MAX in case the parsed time value was too big, instead of an
    error. */
 
-int Curl_getdate_capped(const char *p, time_t *tp);
+ಪೂರ್ಣಾಙ್ಕ Curl_getdate_capped(ಧ್ರುವ ವರ್ಣ *p, time_t *tp);
 
 #endif /* HEADER_CURL_PARSEDATE_H */

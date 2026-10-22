@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/strparse.h"
+#ಅನ್ತರ್ಭಾವ "curlx/strparse.h"
 
-void curlx_str_init(struct Curl_str *out)
+ಶೂನ್ಯ curlx_str_init(ಸಂರಚನಾ Curl_str *out)
 {
-  out->str = NULL;
+  out->str = ರಿಕ್ತ;
   out->len = 0;
 }
 
-void curlx_str_assign(struct Curl_str *out, const char *str, size_t len)
+ಶೂನ್ಯ curlx_str_assign(ಸಂರಚನಾ Curl_str *out, ಧ್ರುವ ವರ್ಣ *str, size_t len)
 {
   out->str = str;
   out->len = len;
@@ -37,7 +37,7 @@ void curlx_str_assign(struct Curl_str *out, const char *str, size_t len)
 
 /* remove bytes from the end of the string, never remove more bytes than what
    the string holds! */
-void curlx_str_trim(struct Curl_str *out, size_t len)
+ಶೂನ್ಯ curlx_str_trim(ಸಂರಚನಾ Curl_str *out, size_t len)
 {
   DEBUGASSERT(out);
   DEBUGASSERT(out->len >= len);
@@ -46,10 +46,10 @@ void curlx_str_trim(struct Curl_str *out, size_t len)
 
 /* Get a word until the first DELIM or end of string. At least one byte long.
    return non-zero on error. If 'max' is zero, it will always return error. */
-int curlx_str_until(const char **linep, struct Curl_str *out,
-                    const size_t max, char delim)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_until(ಧ್ರುವ ವರ್ಣ **linep, ಸಂರಚನಾ Curl_str *out,
+                    ಧ್ರುವ size_t max, ವರ್ಣ delim)
 {
-  const char *s;
+  ಧ್ರುವ ವರ್ಣ *s;
   size_t len = 0;
   DEBUGASSERT(linep);
   DEBUGASSERT(*linep);
@@ -58,97 +58,97 @@ int curlx_str_until(const char **linep, struct Curl_str *out,
   s = *linep;
 
   curlx_str_init(out);
-  while(*s && (*s != delim)) {
+  ಯಾವತ್(*s && (*s != delim)) {
     s++;
-    if(++len > max) {
-      return STRE_BIG;
+    ಯದಿ(++len > max) {
+      ಪ್ರತ್ಯಾಗಮ STRE_BIG;
     }
   }
-  if(!len)
-    return STRE_SHORT;
+  ಯದಿ(!len)
+    ಪ್ರತ್ಯಾಗಮ STRE_SHORT;
   out->str = *linep;
   out->len = len;
   *linep = s; /* point to the first byte after the word */
-  return STRE_OK;
+  ಪ್ರತ್ಯಾಗಮ STRE_OK;
 }
 
 /* Get a word until the first space or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_word(const char **linep, struct Curl_str *out, const size_t max)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_word(ಧ್ರುವ ವರ್ಣ **linep, ಸಂರಚನಾ Curl_str *out, ಧ್ರುವ size_t max)
 {
-  return curlx_str_until(linep, out, max, ' ');
+  ಪ್ರತ್ಯಾಗಮ curlx_str_until(linep, out, max, ' ');
 }
 
 /* Get a word until a newline byte or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_untilnl(const char **linep, struct Curl_str *out,
-                      const size_t max)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_untilnl(ಧ್ರುವ ವರ್ಣ **linep, ಸಂರಚನಾ Curl_str *out,
+                      ಧ್ರುವ size_t max)
 {
-  const char *s = *linep;
+  ಧ್ರುವ ವರ್ಣ *s = *linep;
   size_t len = 0;
   DEBUGASSERT(linep && *linep && out && max);
 
   curlx_str_init(out);
-  while(*s && !ISNEWLINE(*s)) {
+  ಯಾವತ್(*s && !ISNEWLINE(*s)) {
     s++;
-    if(++len > max)
-      return STRE_BIG;
+    ಯದಿ(++len > max)
+      ಪ್ರತ್ಯಾಗಮ STRE_BIG;
   }
-  if(!len)
-    return STRE_SHORT;
+  ಯದಿ(!len)
+    ಪ್ರತ್ಯಾಗಮ STRE_SHORT;
   out->str = *linep;
   out->len = len;
   *linep = s; /* point to the first byte after the word */
-  return STRE_OK;
+  ಪ್ರತ್ಯಾಗಮ STRE_OK;
 }
 
 /* Get a "quoted" word. Escaped quotes are supported.
    return non-zero on error */
-int curlx_str_quotedword(const char **linep, struct Curl_str *out,
-                         const size_t max)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_quotedword(ಧ್ರುವ ವರ್ಣ **linep, ಸಂರಚನಾ Curl_str *out,
+                         ಧ್ರುವ size_t max)
 {
-  const char *s = *linep;
+  ಧ್ರುವ ವರ್ಣ *s = *linep;
   size_t len = 0;
   DEBUGASSERT(linep && *linep && out && max);
 
   curlx_str_init(out);
-  if(*s != '\"')
-    return STRE_BEGQUOTE;
+  ಯದಿ(*s != '\"')
+    ಪ್ರತ್ಯಾಗಮ STRE_BEGQUOTE;
   s++;
-  while(*s && (*s != '\"')) {
-    if(*s == '\\' && s[1]) {
+  ಯಾವತ್(*s && (*s != '\"')) {
+    ಯದಿ(*s == '\\' && s[1]) {
       s++;
-      if(++len > max)
-        return STRE_BIG;
+      ಯದಿ(++len > max)
+        ಪ್ರತ್ಯಾಗಮ STRE_BIG;
     }
     s++;
-    if(++len > max)
-      return STRE_BIG;
+    ಯದಿ(++len > max)
+      ಪ್ರತ್ಯಾಗಮ STRE_BIG;
   }
-  if(*s != '\"')
-    return STRE_ENDQUOTE;
+  ಯದಿ(*s != '\"')
+    ಪ್ರತ್ಯಾಗಮ STRE_ENDQUOTE;
   out->str = (*linep) + 1;
   out->len = len;
   *linep = s + 1;
-  return STRE_OK;
+  ಪ್ರತ್ಯಾಗಮ STRE_OK;
 }
 
 /* Advance over a single character.
    return non-zero on error */
-int curlx_str_single(const char **linep, char byte)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_single(ಧ್ರುವ ವರ್ಣ **linep, ವರ್ಣ byte)
 {
   DEBUGASSERT(linep && *linep);
-  if(**linep != byte)
-    return STRE_BYTE;
+  ಯದಿ(**linep != byte)
+    ಪ್ರತ್ಯಾಗಮ STRE_BYTE;
   (*linep)++; /* move over it */
-  return STRE_OK;
+  ಪ್ರತ್ಯಾಗಮ STRE_OK;
 }
 
 /* Advance over a single space.
    return non-zero on error */
-int curlx_str_singlespace(const char **linep)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_singlespace(ಧ್ರುವ ವರ್ಣ **linep)
 {
-  return curlx_str_single(linep, ' ');
+  ಪ್ರತ್ಯಾಗಮ curlx_str_single(linep, ' ');
 }
 
 /* given an ASCII character and max ascii, return TRUE if valid */
@@ -158,7 +158,7 @@ int curlx_str_singlespace(const char **linep)
 /* We use 16 for the zero index (and the necessary bitwise AND in the loop)
    to be able to have a non-zero value there to make valid_digit() able to
    use the info */
-const unsigned char curlx_hexasciitable[] = {
+ಧ್ರುವ unsigned ವರ್ಣ curlx_hexasciitable[] = {
   16, 1, 2, 3, 4, 5, 6, 7, 8, 9, /* 0x30: 0 - 9 */
   0, 0, 0, 0, 0, 0, 0,
   10, 11, 12, 13, 14, 15,        /* 0x41: A - F */
@@ -167,156 +167,156 @@ const unsigned char curlx_hexasciitable[] = {
 };
 
 /* no support for 0x prefix nor leading spaces */
-static int str_num_base(const char **linep, curl_off_t *nump, curl_off_t max,
-                        int base) /* 8, 10 or 16, nothing else */
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ str_ಅಂಕೆ_base(ಧ್ರುವ ವರ್ಣ **linep, curl_off_t *nump, curl_off_t max,
+                        ಪೂರ್ಣಾಙ್ಕ base) /* 8, 10 or 16, nothing else */
 {
-  curl_off_t num = 0;
-  const char *p;
-  int m = (base == 10) ? '9' :   /* the largest digit possible */
+  curl_off_t ಅಂಕೆ = 0;
+  ಧ್ರುವ ವರ್ಣ *p;
+  ಪೂರ್ಣಾಙ್ಕ m = (base == 10) ? '9' :   /* the largest digit possible */
     (base == 16) ? 'f' : '7';
   DEBUGASSERT(linep && *linep && nump);
   DEBUGASSERT((base == 8) || (base == 10) || (base == 16));
   DEBUGASSERT(max >= 0); /* mostly to catch SIZE_MAX, which is too large */
   *nump = 0;
   p = *linep;
-  if(!valid_digit(*p, m))
-    return STRE_NO_NUM;
-  if(max < base) {
+  ಯದಿ(!valid_digit(*p, m))
+    ಪ್ರತ್ಯಾಗಮ STRE_NO_ಅಂಕೆ;
+  ಯದಿ(max < base) {
     /* special-case low max scenario because check needs to be different */
-    do {
-      int n = curlx_hexval(*p++);
-      num = (num * base) + n;
-      if(num > max)
-        return STRE_OVERFLOW;
-    } while(valid_digit(*p, m));
+    ಕುರು {
+      ಪೂರ್ಣಾಙ್ಕ n = curlx_hexval(*p++);
+      ಅಂಕೆ = (ಅಂಕೆ * base) + n;
+      ಯದಿ(ಅಂಕೆ > max)
+        ಪ್ರತ್ಯಾಗಮ STRE_OVERFLOW;
+    } ಯಾವತ್(valid_digit(*p, m));
   }
-  else {
+  ಅನ್ಯಥಾ {
     curl_off_t cutoff = (max - (base - 1)) / base;
-    while(valid_digit(*p, m)) {
-      if(num <= cutoff)
-        num = (num * base) + curlx_hexval(*p++);
-      else {
-        int n = curlx_hexval(*p++);
-        if(num > ((max - n) / base))
-          return STRE_OVERFLOW;
-        num = (num * base) + n;
+    ಯಾವತ್(valid_digit(*p, m)) {
+      ಯದಿ(ಅಂಕೆ <= cutoff)
+        ಅಂಕೆ = (ಅಂಕೆ * base) + curlx_hexval(*p++);
+      ಅನ್ಯಥಾ {
+        ಪೂರ್ಣಾಙ್ಕ n = curlx_hexval(*p++);
+        ಯದಿ(ಅಂಕೆ > ((max - n) / base))
+          ಪ್ರತ್ಯಾಗಮ STRE_OVERFLOW;
+        ಅಂಕೆ = (ಅಂಕೆ * base) + n;
       }
     }
   }
-  *nump = num;
+  *nump = ಅಂಕೆ;
   *linep = p;
-  return STRE_OK;
+  ಪ್ರತ್ಯಾಗಮ STRE_OK;
 }
 
 /* Get an unsigned decimal number with no leading space or minus. Leading
    zeroes are accepted. return non-zero on error */
-int curlx_str_number(const char **linep, curl_off_t *nump, curl_off_t max)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_ಸಂಖ್ಯೆ(ಧ್ರುವ ವರ್ಣ **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 10);
+  ಪ್ರತ್ಯಾಗಮ str_ಅಂಕೆ_base(linep, nump, max, 10);
 }
 
 /* Get an unsigned hexadecimal number with no leading space or minus and no
    "0x" support. Leading zeroes are accepted. return non-zero on error */
-int curlx_str_hex(const char **linep, curl_off_t *nump, curl_off_t max)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_hex(ಧ್ರುವ ವರ್ಣ **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 16);
+  ಪ್ರತ್ಯಾಗಮ str_ಅಂಕೆ_base(linep, nump, max, 16);
 }
 
 /* Get an unsigned octal number with no leading space or minus and no "0"
    prefix support. Leading zeroes are accepted. return non-zero on error */
-int curlx_str_octal(const char **linep, curl_off_t *nump, curl_off_t max)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_octal(ಧ್ರುವ ವರ್ಣ **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 8);
+  ಪ್ರತ್ಯಾಗಮ str_ಅಂಕೆ_base(linep, nump, max, 8);
 }
 
 /*
  * Parse a positive number up to 63-bit number written in ASCII. Skip leading
  * blanks. No support for prefixes.
  */
-int curlx_str_numblanks(const char **str, curl_off_t *num)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_numblanks(ಧ್ರುವ ವರ್ಣ **str, curl_off_t *ಅಂಕೆ)
 {
   curlx_str_passblanks(str);
-  return curlx_str_number(str, num, CURL_OFF_T_MAX);
+  ಪ್ರತ್ಯಾಗಮ curlx_str_ಸಂಖ್ಯೆ(str, ಅಂಕೆ, CURL_OFF_T_MAX);
 }
 
 /* CR or LF
    return non-zero on error */
-int curlx_str_newline(const char **linep)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_newline(ಧ್ರುವ ವರ್ಣ **linep)
 {
   DEBUGASSERT(linep && *linep);
-  if(ISNEWLINE(**linep)) {
+  ಯದಿ(ISNEWLINE(**linep)) {
     (*linep)++;
-    return STRE_OK; /* yessir */
+    ಪ್ರತ್ಯಾಗಮ STRE_OK; /* yessir */
   }
-  return STRE_NEWLINE;
+  ಪ್ರತ್ಯಾಗಮ STRE_NEWLINE;
 }
 
 #ifndef WITHOUT_LIBCURL
 /* case insensitive compare that the parsed string matches the given string.
    Returns non-zero on match. */
-int curlx_str_casecompare(struct Curl_str *str, const char *check)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_casecompare(ಸಂರಚನಾ Curl_str *str, ಧ್ರುವ ವರ್ಣ *check)
 {
   size_t clen = check ? strlen(check) : 0;
-  return ((str->len == clen) && curl_strnequal(str->str, check, clen));
+  ಪ್ರತ್ಯಾಗಮ ((str->len == clen) && curl_strnequal(str->str, check, clen));
 }
 #endif
 
 /* case sensitive string compare. Returns non-zero on match. */
-int curlx_str_cmp(struct Curl_str *str, const char *check)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_cmp(ಸಂರಚನಾ Curl_str *str, ಧ್ರುವ ವರ್ಣ *check)
 {
-  if(check) {
+  ಯದಿ(check) {
     size_t clen = strlen(check);
-    return ((str->len == clen) && !strncmp(str->str, check, clen));
+    ಪ್ರತ್ಯಾಗಮ ((str->len == clen) && !strncmp(str->str, check, clen));
   }
-  return !!str->len;
+  ಪ್ರತ್ಯಾಗಮ !!str->len;
 }
 
 /* Trim off 'num' number of bytes from the beginning (left side) of the
    string. If 'num' is larger than the string, return error. */
-int curlx_str_nudge(struct Curl_str *str, size_t num)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_nudge(ಸಂರಚನಾ Curl_str *str, size_t ಅಂಕೆ)
 {
-  if(num <= str->len) {
-    str->str += num;
-    str->len -= num;
-    return STRE_OK;
+  ಯದಿ(ಅಂಕೆ <= str->len) {
+    str->str += ಅಂಕೆ;
+    str->len -= ಅಂಕೆ;
+    ಪ್ರತ್ಯಾಗಮ STRE_OK;
   }
-  return STRE_OVERFLOW;
+  ಪ್ರತ್ಯಾಗಮ STRE_OVERFLOW;
 }
 
 /* Get the following character sequence that consists only of bytes not
    present in the 'reject' string. Like strcspn(). */
-int curlx_str_cspn(const char **linep, struct Curl_str *out,
-                   const char *reject)
+ಪೂರ್ಣಾಙ್ಕ curlx_str_cspn(ಧ್ರುವ ವರ್ಣ **linep, ಸಂರಚನಾ Curl_str *out,
+                   ಧ್ರುವ ವರ್ಣ *reject)
 {
-  const char *s = *linep;
+  ಧ್ರುವ ವರ್ಣ *s = *linep;
   size_t len;
   DEBUGASSERT(linep && *linep);
 
   len = strcspn(s, reject);
-  if(len) {
+  ಯದಿ(len) {
     out->str = s;
     out->len = len;
     *linep = &s[len];
-    return STRE_OK;
+    ಪ್ರತ್ಯಾಗಮ STRE_OK;
   }
   curlx_str_init(out);
-  return STRE_SHORT;
+  ಪ್ರತ್ಯಾಗಮ STRE_SHORT;
 }
 
 /* remove ISBLANK()s from both ends of the string */
-void curlx_str_trimblanks(struct Curl_str *out)
+ಶೂನ್ಯ curlx_str_trimblanks(ಸಂರಚನಾ Curl_str *out)
 {
-  while(out->len && ISBLANK(*out->str))
+  ಯಾವತ್(out->len && ISBLANK(*out->str))
     curlx_str_nudge(out, 1);
 
   /* trim trailing spaces and tabs */
-  while(out->len && ISBLANK(out->str[out->len - 1]))
+  ಯಾವತ್(out->len && ISBLANK(out->str[out->len - 1]))
     out->len--;
 }
 
 /* increase the pointer until it has moved over all blanks */
-void curlx_str_passblanks(const char **linep)
+ಶೂನ್ಯ curlx_str_passblanks(ಧ್ರುವ ವರ್ಣ **linep)
 {
-  while(ISBLANK(**linep))
+  ಯಾವತ್(ISBLANK(**linep))
     (*linep)++; /* move over it */
 }

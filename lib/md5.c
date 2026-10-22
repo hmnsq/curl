@@ -21,143 +21,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#ಯದಿ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "curl_md5.h"
-#include "curl_hmac.h"
+#ಅನ್ತರ್ಭಾವ "curl_md5.h"
+#ಅನ್ತರ್ಭಾವ "curl_hmac.h"
 
 #ifdef USE_OPENSSL
-#include <openssl/opensslconf.h>
+#ಅನ್ತರ್ಭಾವ <openssl/opensslconf.h>
 #endif
 
 #ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
+#ಅನ್ತರ್ಭಾವ <wolfssl/options.h>
 #endif
 
 #ifdef USE_MBEDTLS
-#include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#ಅನ್ತರ್ಭಾವ <mbedtls/version.h>
+#ಯದಿ MBEDTLS_VERSION_ಸಂಖ್ಯೆ < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
-#include <psa/crypto_config.h>
+#ಅನ್ತರ್ಭಾವ <psa/crypto_config.h>
 #endif
 
 #ifdef USE_GNUTLS
-#include <nettle/md5.h>
-#include <nettle/version.h>
+#ಅನ್ತರ್ಭಾವ <nettle/md5.h>
+#ಅನ್ತರ್ಭಾವ <nettle/version.h>
 
-typedef struct md5_ctx my_md5_ctx;
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ md5_ctx my_md5_ctx;
 
-static CURLcode my_md5_init(void *ctx)
+ಸ್ಥಿರ CURLcode my_md5_init(ಶೂನ್ಯ *ctx)
 {
   md5_init(ctx);
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_update(ಶೂನ್ಯ *ctx,
+                          ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, unsigned ಪೂರ್ಣಾಙ್ಕ len)
 {
-  md5_update(ctx, len, input);
+  md5_update(ctx, len, ಒಳಹರಿವು);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_final(unsigned ವರ್ಣ *digest, ಶೂನ್ಯ *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#ಯದಿ NETTLE_VERSION_MAJOR >= 4
   md5_digest(ctx, digest);
-#else
+#ಅನ್ಯಥಾ
   md5_digest(ctx, MD5_DIGEST_LEN, digest);
 #endif
 }
 
-#elif defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD5)
-#include <openssl/evp.h>
+#ನೋಚೇದ್ಯದಿ defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD5)
+#ಅನ್ತರ್ಭಾವ <openssl/evp.h>
 
-typedef EVP_MD_CTX *my_md5_ctx;
+ಪ್ರಕಾರನಿರ್ದೇಶ EVP_MD_CTX *my_md5_ctx;
 
-static CURLcode my_md5_init(void *in)
+ಸ್ಥಿರ CURLcode my_md5_init(ಶೂನ್ಯ *in)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ಯದಿ(!*ctx)
+    ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md5(), NULL)) {
+  ಯದಿ(!EVP_DigestInit_ex(*ctx, EVP_md5(), ರಿಕ್ತ)) {
     EVP_MD_CTX_free(*ctx);
-    *ctx = NULL;
-    return CURLE_FAILED_INIT;
+    *ctx = ರಿಕ್ತ;
+    ಪ್ರತ್ಯಾಗಮ CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_update(ಶೂನ್ಯ *in,
+                          ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, unsigned ಪೂರ್ಣಾಙ್ಕ len)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (ಶೂನ್ಯ)EVP_DigestUpdate(*ctx, ಒಳಹರಿವು, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_final(unsigned ವರ್ಣ *digest, ಶೂನ್ಯ *in)
 {
   EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
-  (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
+  (ಶೂನ್ಯ)EVP_DigestFinal_ex(*ctx, digest, ರಿಕ್ತ);
   EVP_MD_CTX_free(*ctx);
-  *ctx = NULL;
+  *ctx = ರಿಕ್ತ;
 }
 
-#elif defined(USE_WOLFSSL) && !defined(NO_MD5)
-#include <wolfssl/wolfcrypt/md5.h>
+#ನೋಚೇದ್ಯದಿ defined(USE_WOLFSSL) && !defined(NO_MD5)
+#ಅನ್ತರ್ಭಾವ <wolfssl/wolfcrypt/md5.h>
 
-typedef wc_Md5 my_md5_ctx;
+ಪ್ರಕಾರನಿರ್ದೇಶ wc_Md5 my_md5_ctx;
 
-static CURLcode my_md5_init(void *ctx)
+ಸ್ಥಿರ CURLcode my_md5_init(ಶೂನ್ಯ *ctx)
 {
-  if(wc_InitMd5(ctx))
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ಯದಿ(wc_InitMd5(ctx))
+    ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_update(ಶೂನ್ಯ *ctx,
+                          ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, unsigned ಪೂರ್ಣಾಙ್ಕ len)
 {
-  (void)wc_Md5Update(ctx, input, (word32)len);
+  (ಶೂನ್ಯ)wc_Md5Update(ctx, ಒಳಹರಿವು, (word32)len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_final(unsigned ವರ್ಣ *digest, ಶೂನ್ಯ *ctx)
 {
-  (void)wc_Md5Final(ctx, digest);
+  (ಶೂನ್ಯ)wc_Md5Final(ctx, digest);
 }
 
-#elif defined(USE_MBEDTLS) && \
+#ನೋಚೇದ್ಯದಿ defined(USE_MBEDTLS) && \
   defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5
-#include <psa/crypto.h>
+#ಅನ್ತರ್ಭಾವ <psa/crypto.h>
 
-typedef psa_hash_operation_t my_md5_ctx;
+ಪ್ರಕಾರನಿರ್ದೇಶ psa_hash_operation_t my_md5_ctx;
 
-static CURLcode my_md5_init(void *ctx)
+ಸ್ಥಿರ CURLcode my_md5_init(ಶೂನ್ಯ *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_MD5) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ಯದಿ(psa_hash_setup(pctx, PSA_ALG_MD5) != PSA_SUCCESS)
+    ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_update(ಶೂನ್ಯ *ctx,
+                          ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, unsigned ಪೂರ್ಣಾಙ್ಕ len)
 {
-  (void)psa_hash_update(ctx, input, len);
+  (ಶೂನ್ಯ)psa_hash_update(ctx, ಒಳಹರಿವು, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_final(unsigned ವರ್ಣ *digest, ಶೂನ್ಯ *ctx)
 {
   size_t actual_length;
-  (void)psa_hash_finish(ctx, digest, MD5_DIGEST_LEN, &actual_length);
+  (ಶೂನ್ಯ)psa_hash_finish(ctx, digest, MD5_DIGEST_LEN, &actual_length);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#ನೋಚೇದ್ಯದಿ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040 && \
        defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
                __MAC_OS_X_VERSION_MIN_REQUIRED < 101500) || \
@@ -165,7 +165,7 @@ static void my_md5_final(unsigned char *digest, void *ctx)
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000 && \
        defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
                __IPHONE_OS_VERSION_MIN_REQUIRED < 130000)
-#include <CommonCrypto/CommonDigest.h>
+#ಅನ್ತರ್ಭಾವ <CommonCrypto/CommonDigest.h>
 
 /* For Apple operating systems: CommonCrypto has the functions we need.
    These functions are available on Tiger and later, as well as iOS 2.0
@@ -175,69 +175,69 @@ static void my_md5_final(unsigned char *digest, void *ctx)
    reliable than defining COMMON_DIGEST_FOR_OPENSSL on older cats. */
 #  define my_md5_ctx CC_MD5_CTX
 
-static CURLcode my_md5_init(void *ctx)
+ಸ್ಥಿರ CURLcode my_md5_init(ಶೂನ್ಯ *ctx)
 {
-  (void)CC_MD5_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  (ಶೂನ್ಯ)CC_MD5_Init(ctx);  /* always returns 1 */
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_update(ಶೂನ್ಯ *ctx,
+                          ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, unsigned ಪೂರ್ಣಾಙ್ಕ len)
 {
-  CC_MD5_Update(ctx, input, len);
+  CC_MD5_Update(ctx, ಒಳಹರಿವು, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_final(unsigned ವರ್ಣ *digest, ಶೂನ್ಯ *ctx)
 {
   CC_MD5_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#ನೋಚೇದ್ಯದಿ defined(USE_WIN32_CRYPTO)
+#ಅನ್ತರ್ಭಾವ <wincrypt.h>
 
-struct md5_ctx {
+ಸಂರಚನಾ md5_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md5_ctx my_md5_ctx;
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ md5_ctx my_md5_ctx;
 
-static CURLcode my_md5_init(void *in)
+ಸ್ಥಿರ CURLcode my_md5_init(ಶೂನ್ಯ *in)
 {
   my_md5_ctx *ctx = (my_md5_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  ಯದಿ(!CryptAcquireContext(&ctx->hCryptProv, ರಿಕ್ತ, ರಿಕ್ತ, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash)) {
+  ಯದಿ(!CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    ಪ್ರತ್ಯಾಗಮ CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_update(ಶೂನ್ಯ *in,
+                          ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, unsigned ಪೂರ್ಣಾಙ್ಕ len)
 {
   my_md5_ctx *ctx = in;
-  CryptHashData(ctx->hHash, (const BYTE *)input, len, 0);
+  CryptHashData(ctx->hHash, (ಧ್ರುವ BYTE *)ಒಳಹರಿವು, len, 0);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_final(unsigned ವರ್ಣ *digest, ಶೂನ್ಯ *in)
 {
   my_md5_ctx *ctx = (my_md5_ctx *)in;
   unsigned long length = 0;
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD5_DIGEST_LEN)
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, ರಿಕ್ತ, &length, 0);
+  ಯದಿ(length == MD5_DIGEST_LEN)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
-  if(ctx->hHash)
+  ಯದಿ(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
-  if(ctx->hCryptProv)
+  ಯದಿ(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#ಅನ್ಯಥಾ
 
 /* When no other crypto library is available we use this code segment */
 
@@ -266,13 +266,13 @@ static void my_md5_final(unsigned char *digest, void *in)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md5_ctx {
+ಸಂರಚನಾ md5_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
+  unsigned ವರ್ಣ buffer[64];
   uint32_t block[16];
 };
-typedef struct md5_ctx my_md5_ctx;
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ md5_ctx my_md5_ctx;
 
 /*
  * The basic MD5 functions.
@@ -302,10 +302,10 @@ typedef struct md5_ctx my_md5_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define MD5_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
+#ಯದಿ defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#define MD5_SET(n) (*(ಧ್ರುವ uint32_t *)(ಧ್ರುವ ಶೂನ್ಯ *)&ptr[(n) * 4])
 #define MD5_GET(n) MD5_SET(n)
-#else
+#ಅನ್ಯಥಾ
 #define MD5_SET(n) (ctx->block[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
@@ -318,20 +318,20 @@ typedef struct md5_ctx my_md5_ctx;
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters. There are no alignment requirements.
  */
-static const void *my_md5_body(my_md5_ctx *ctx,
-                               const void *data, unsigned long size)
+ಸ್ಥಿರ ಧ್ರುವ ಶೂನ್ಯ *my_md5_body(my_md5_ctx *ctx,
+                               ಧ್ರುವ ಶೂನ್ಯ *data, unsigned long size)
 {
-  const unsigned char *ptr;
+  ಧ್ರುವ unsigned ವರ್ಣ *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)data;
+  ptr = (ಧ್ರುವ unsigned ವರ್ಣ *)data;
 
   a = ctx->a;
   b = ctx->b;
   c = ctx->c;
   d = ctx->d;
 
-  do {
+  ಕುರು {
     uint32_t saved_a, saved_b, saved_c, saved_d;
 
     saved_a = a;
@@ -417,17 +417,17 @@ static const void *my_md5_body(my_md5_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } ಯಾವತ್(size -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  ಪ್ರತ್ಯಾಗಮ ptr;
 }
 
-static CURLcode my_md5_init(void *in)
+ಸ್ಥಿರ CURLcode my_md5_init(ಶೂನ್ಯ *in)
 {
   my_md5_ctx *ctx = (my_md5_ctx *)in;
   ctx->a = 0x67452301;
@@ -438,49 +438,49 @@ static CURLcode my_md5_init(void *in)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_update(ಶೂನ್ಯ *in,
+                          ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, unsigned ಪೂರ್ಣಾಙ್ಕ len)
 {
   uint32_t saved_lo;
-  unsigned int used;
+  unsigned ಪೂರ್ಣಾಙ್ಕ used;
   my_md5_ctx *ctx = (my_md5_ctx *)in;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  ಯದಿ(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
   used = saved_lo & 0x3f;
 
-  if(used) {
-    unsigned int available = 64 - used;
+  ಯದಿ(used) {
+    unsigned ಪೂರ್ಣಾಙ್ಕ available = 64 - used;
 
-    if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
-      return;
+    ಯದಿ(len < available) {
+      memcpy(&ctx->buffer[used], ಒಳಹರಿವು, len);
+      ಪ್ರತ್ಯಾಗಮ;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
+    memcpy(&ctx->buffer[used], ಒಳಹರಿವು, available);
+    ಒಳಹರಿವು = (ಧ್ರುವ unsigned ವರ್ಣ *)ಒಳಹರಿವು + available;
     len -= available;
     my_md5_body(ctx, ctx->buffer, 64);
   }
 
-  if(len >= 64) {
-    input = my_md5_body(ctx, input, len & ~(unsigned long)0x3f);
+  ಯದಿ(len >= 64) {
+    ಒಳಹರಿವು = my_md5_body(ctx, ಒಳಹರಿವು, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  memcpy(ctx->buffer, ಒಳಹರಿವು, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+ಸ್ಥಿರ ಶೂನ್ಯ my_md5_final(unsigned ವರ್ಣ *digest, ಶೂನ್ಯ *in)
 {
-  unsigned int used, available;
+  unsigned ಪೂರ್ಣಾಙ್ಕ used, available;
   my_md5_ctx *ctx = (my_md5_ctx *)in;
 
   used = ctx->lo & 0x3f;
@@ -489,7 +489,7 @@ static void my_md5_final(unsigned char *digest, void *in)
 
   available = 64 - used;
 
-  if(available < 8) {
+  ಯದಿ(available < 8) {
     memset(&ctx->buffer[used], 0, available);
     my_md5_body(ctx, ctx->buffer, 64);
     used = 0;
@@ -527,25 +527,25 @@ static void my_md5_final(unsigned char *digest, void *in)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, ಪರಿಮಾಣ(*ctx));
 }
 
 #endif /* CRYPTO LIBS */
 
-const struct HMAC_params Curl_HMAC_MD5 = {
+ಧ್ರುವ ಸಂರಚನಾ HMAC_params Curl_HMAC_MD5 = {
   my_md5_init,        /* Hash initialization function. */
   my_md5_update,      /* Hash update function. */
   my_md5_final,       /* Hash computation end function. */
-  sizeof(my_md5_ctx), /* Size of hash context structure. */
+  ಪರಿಮಾಣ(my_md5_ctx), /* Size of hash context structure. */
   64,                 /* Maximum key length. */
   MD5_DIGEST_LEN      /* Result size. */
 };
 
-const struct MD5_params Curl_DIGEST_MD5 = {
+ಧ್ರುವ ಸಂರಚನಾ MD5_params Curl_DIGEST_MD5 = {
   my_md5_init,        /* Digest initialization function */
   my_md5_update,      /* Digest update function */
   my_md5_final,       /* Digest computation end function */
-  sizeof(my_md5_ctx), /* Size of digest context struct */
+  ಪರಿಮಾಣ(my_md5_ctx), /* Size of digest context struct */
   MD5_DIGEST_LEN      /* Result size */
 };
 
@@ -553,69 +553,69 @@ const struct MD5_params Curl_DIGEST_MD5 = {
  * @unittest: 1601
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_md5it(unsigned char *output,
-                    const unsigned char *input, size_t len)
+CURLcode Curl_md5it(unsigned ವರ್ಣ *output,
+                    ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, size_t len)
 {
   CURLcode result;
   my_md5_ctx ctx;
 
   result = my_md5_init(&ctx);
-  if(!result) {
-    do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-      my_md5_update(&ctx, input, ilen);
-      input += ilen;
+  ಯದಿ(!result) {
+    ಕುರು {
+      unsigned ಪೂರ್ಣಾಙ್ಕ ilen = (unsigned ಪೂರ್ಣಾಙ್ಕ)CURLMIN(len, UINT_MAX);
+      my_md5_update(&ctx, ಒಳಹರಿವು, ilen);
+      ಒಳಹರಿವು += ilen;
       len -= ilen;
-    } while(len);
+    } ಯಾವತ್(len);
     my_md5_final(output, &ctx);
   }
-  return result;
+  ಪ್ರತ್ಯಾಗಮ result;
 }
 
-struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params)
+ಸಂರಚನಾ MD5_context *Curl_MD5_init(ಧ್ರುವ ಸಂರಚನಾ MD5_params *md5params)
 {
-  struct MD5_context *ctxt;
+  ಸಂರಚನಾ MD5_context *ctxt;
 
   /* Create MD5 context */
-  ctxt = curlx_malloc(sizeof(*ctxt));
+  ctxt = curlx_malloc(ಪರಿಮಾಣ(*ctxt));
 
-  if(!ctxt)
-    return ctxt;
+  ಯದಿ(!ctxt)
+    ಪ್ರತ್ಯಾಗಮ ctxt;
 
   ctxt->md5_hashctx = curlx_malloc(md5params->md5_ctxtsize);
 
-  if(!ctxt->md5_hashctx) {
+  ಯದಿ(!ctxt->md5_hashctx) {
     curlx_free(ctxt);
-    return NULL;
+    ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
   }
 
   ctxt->md5_hash = md5params;
 
-  if((*md5params->md5_init_func)(ctxt->md5_hashctx)) {
+  ಯದಿ((*md5params->md5_init_func)(ctxt->md5_hashctx)) {
     curlx_free(ctxt->md5_hashctx);
     curlx_free(ctxt);
-    return NULL;
+    ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
   }
 
-  return ctxt;
+  ಪ್ರತ್ಯಾಗಮ ctxt;
 }
 
-CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input, unsigned int len)
+CURLcode Curl_MD5_update(ಸಂರಚನಾ MD5_context *context,
+                         ಧ್ರುವ unsigned ವರ್ಣ *ಒಳಹರಿವು, unsigned ಪೂರ್ಣಾಙ್ಕ len)
 {
-  (*context->md5_hash->md5_update_func)(context->md5_hashctx, input, len);
+  (*context->md5_hash->md5_update_func)(context->md5_hashctx, ಒಳಹರಿವು, len);
 
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result)
+CURLcode Curl_MD5_final(ಸಂರಚನಾ MD5_context *context, unsigned ವರ್ಣ *result)
 {
   (*context->md5_hash->md5_final_func)(result, context->md5_hashctx);
 
   curlx_free(context->md5_hashctx);
   curlx_free(context);
 
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
 #endif /* Using NTLM (without SSPI) || Digest */

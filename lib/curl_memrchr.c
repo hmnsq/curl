@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "curl_memrchr.h"
+#ಅನ್ತರ್ಭಾವ "curl_memrchr.h"
 
 #ifndef HAVE_MEMRCHR
 /*
@@ -34,14 +34,14 @@
  * backwards from the end of the n bytes pointed to by s instead of forward
  * from the beginning.
  */
-void *Curl_memrchr(const void *s, int c, size_t n)
+ಶೂನ್ಯ *Curl_memrchr(ಧ್ರುವ ಶೂನ್ಯ *s, ಪೂರ್ಣಾಙ್ಕ c, size_t n)
 {
-  const unsigned char *p = s;
+  ಧ್ರುವ unsigned ವರ್ಣ *p = s;
 
-  while(n) {
-    if(p[--n] == (unsigned char)c)
-      return CURL_UNCONST(p + n);
+  ಯಾವತ್(n) {
+    ಯದಿ(p[--n] == (unsigned ವರ್ಣ)c)
+      ಪ್ರತ್ಯಾಗಮ CURL_UNCONST(p + n);
   }
-  return NULL;
+  ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 #endif /* HAVE_MEMRCHR */

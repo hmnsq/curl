@@ -21,21 +21,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 #ifndef CURL_DISABLE_FTP
 
-#include "fileinfo.h"
+#ಅನ್ತರ್ಭಾವ "fileinfo.h"
 
-struct fileinfo *Curl_fileinfo_alloc(void)
+ಸಂರಚನಾ fileinfo *Curl_fileinfo_alloc(ಶೂನ್ಯ)
 {
-  return curlx_calloc(1, sizeof(struct fileinfo));
+  ಪ್ರತ್ಯಾಗಮ curlx_calloc(1, ಪರಿಮಾಣ(ಸಂರಚನಾ fileinfo));
 }
 
-void Curl_fileinfo_cleanup(struct fileinfo *finfo)
+ಶೂನ್ಯ Curl_fileinfo_cleanup(ಸಂರಚನಾ fileinfo *finfo)
 {
-  if(!finfo)
-    return;
+  ಯದಿ(!finfo)
+    ಪ್ರತ್ಯಾಗಮ;
 
   curlx_dyn_free(&finfo->buf);
   curlx_free(finfo);

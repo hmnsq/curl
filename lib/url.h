@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
 /* Reject URLs exceeding this length */
 #define MAX_URL_LEN 0xffff
@@ -32,46 +32,46 @@
  * Prototypes for library-wide functions
  */
 
-CURLcode Curl_init_transfer(struct Curl_easy *data, struct connectdata *conn);
-CURLcode Curl_open(struct Curl_easy **curl);
-void Curl_init_userdefined(struct Curl_easy *data);
+CURLcode Curl_init_transfer(ಸಂರಚನಾ Curl_easy *data, ಸಂರಚನಾ connectdata *conn);
+CURLcode Curl_open(ಸಂರಚನಾ Curl_easy **curl);
+ಶೂನ್ಯ Curl_init_userdefined(ಸಂರಚನಾ Curl_easy *data);
 
-void Curl_freeset(struct Curl_easy *data);
+ಶೂನ್ಯ Curl_freeset(ಸಂರಚನಾ Curl_easy *data);
 CURLcode Curl_uc_to_curlcode(CURLUcode uc);
-CURLcode Curl_close(struct Curl_easy **datap); /* opposite of Curl_open() */
-CURLcode Curl_connect(struct Curl_easy *data, bool *pconnected);
-void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn);
-CURLcode Curl_parse_login_details(const char *login, const size_t len,
-                                  char **userp, char **passwdp,
-                                  char **optionsp);
+CURLcode Curl_close(ಸಂರಚನಾ Curl_easy **datap); /* opposite of Curl_open() */
+CURLcode Curl_connect(ಸಂರಚನಾ Curl_easy *data, bool *pconnected);
+ಶೂನ್ಯ Curl_conn_free(ಸಂರಚನಾ Curl_easy *data, ಸಂರಚನಾ connectdata *conn);
+CURLcode Curl_parse_login_details(ಧ್ರುವ ವರ್ಣ *login, ಧ್ರುವ size_t len,
+                                  ವರ್ಣ **userp, ವರ್ಣ **passwdp,
+                                  ವರ್ಣ **optionsp);
 
 /* Attach/Clear/Get meta data for an easy handle. Needs to provide
  * a destructor, will be automatically called when the easy handle
  * is reset or closed. */
-typedef void Curl_meta_dtor(const void *key, size_t key_len, void *meta_data);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಶೂನ್ಯ Curl_meta_dtor(ಧ್ರುವ ಶೂನ್ಯ *ಕೀಲಿ, size_t ಕೀಲಿ_len, ಶೂನ್ಯ *meta_data);
 
 /* Set the transfer meta data for the key. Any existing entry for that
  * key will be destroyed.
  * Takes ownership of `meta_data` and destroys it when the call fails. */
-CURLcode Curl_meta_set(struct Curl_easy *data, const char *key,
-                       void *meta_data, Curl_meta_dtor *meta_dtor);
-void Curl_meta_remove(struct Curl_easy *data, const char *key);
-void *Curl_meta_get(struct Curl_easy *data, const char *key);
-void Curl_meta_reset(struct Curl_easy *data);
+CURLcode Curl_meta_set(ಸಂರಚನಾ Curl_easy *data, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ,
+                       ಶೂನ್ಯ *meta_data, Curl_meta_dtor *meta_dtor);
+ಶೂನ್ಯ Curl_meta_remove(ಸಂರಚನಾ Curl_easy *data, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ);
+ಶೂನ್ಯ *Curl_meta_get(ಸಂರಚನಾ Curl_easy *data, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ);
+ಶೂನ್ಯ Curl_meta_reset(ಸಂರಚನಾ Curl_easy *data);
 
 /* Set connection meta data for the key. Any existing entry for that
  * key will be destroyed.
  * Takes ownership of `meta_data` and destroys it when the call fails. */
-CURLcode Curl_conn_meta_set(struct connectdata *conn, const char *key,
-                            void *meta_data, Curl_meta_dtor *meta_dtor);
-void Curl_conn_meta_remove(struct connectdata *conn, const char *key);
-void *Curl_conn_meta_get(struct connectdata *conn, const char *key);
+CURLcode Curl_conn_meta_set(ಸಂರಚನಾ connectdata *conn, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ,
+                            ಶೂನ್ಯ *meta_data, Curl_meta_dtor *meta_dtor);
+ಶೂನ್ಯ Curl_conn_meta_remove(ಸಂರಚನಾ connectdata *conn, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ);
+ಶೂನ್ಯ *Curl_conn_meta_get(ಸಂರಚನಾ connectdata *conn, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ);
 
 /* Get an admin handle for internal operations from the given
  * easy handle, if possible. The admin handle inherits certain
  * properties from `data`. If no admin handle is available (not multi
  * or share attached), the easy handle itself is returned. */
-struct Curl_easy *Curl_get_admin(struct Curl_easy *data);
+ಸಂರಚನಾ Curl_easy *Curl_get_admin(ಸಂರಚನಾ Curl_easy *data);
 
 #define CURL_DEFAULT_PROXY_PORT 1080 /* default proxy port unless specified */
 #define CURL_DEFAULT_HTTPS_PROXY_PORT 443 /* default https proxy port unless
@@ -81,17 +81,17 @@ struct Curl_easy *Curl_get_admin(struct Curl_easy *data);
  * result != (CURLE_OK | CURLE_AGAIN) or `r1`. */
 CURLcode Curl_1st_fatal(CURLcode r1, CURLcode r2);
 
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
-void Curl_data_priority_clear_state(struct Curl_easy *data);
-#else
+#ಯದಿ defined(USE_HTTP2) || defined(USE_HTTP3)
+ಶೂನ್ಯ Curl_data_priority_clear_state(ಸಂರಚನಾ Curl_easy *data);
+#ಅನ್ಯಥಾ
 #define Curl_data_priority_clear_state(x)
 #endif /* USE_HTTP2 || USE_HTTP3 */
 
 #ifdef USE_NGHTTP2
-CURLcode Curl_data_priority_add_child(struct Curl_easy *parent,
-                                      struct Curl_easy *child,
+CURLcode Curl_data_priority_add_child(ಸಂರಚನಾ Curl_easy *parent,
+                                      ಸಂರಚನಾ Curl_easy *child,
                                       bool exclusive);
-#else
+#ಅನ್ಯಥಾ
 #define Curl_data_priority_add_child(x, y, z) CURLE_NOT_BUILT_IN
 #endif
 

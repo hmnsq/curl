@@ -38,66 +38,66 @@
    https://httpd.apache.org/docs/2.0/ssl/ssl_intro.html
  */
 
-#include "curl_setup.h"
+#ಅನ್ತರ್ಭಾವ "curl_setup.h"
 
-#include "urldata.h"
-#include "setopt.h"
-#include "strcase.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_config.h"
+#ಅನ್ತರ್ಭಾವ "urldata.h"
+#ಅನ್ತರ್ಭಾವ "setopt.h"
+#ಅನ್ತರ್ಭಾವ "strcase.h"
+#ಅನ್ತರ್ಭಾವ "vtls/vtls.h"
+#ಅನ್ತರ್ಭಾವ "vtls/vtls_config.h"
 
 
 #define CLONE_STRING(var)                    \
-  do {                                       \
-    if(source->var) {                        \
+  ಕುರು {                                       \
+    ಯದಿ(source->var) {                        \
       dest->var = curlx_strdup(source->var); \
-      if(!dest->var)                         \
-        return FALSE;                        \
+      ಯದಿ(!dest->var)                         \
+        ಪ್ರತ್ಯಾಗಮ FALSE;                        \
     }                                        \
-    else                                     \
-      dest->var = NULL;                      \
-  } while(0)
+    ಅನ್ಯಥಾ                                     \
+      dest->var = ರಿಕ್ತ;                      \
+  } ಯಾವತ್(0)
 
 #define CLONE_BLOB(var)                  \
-  do {                                   \
-    if(blobdup(&dest->var, source->var)) \
-      return FALSE;                      \
-  } while(0)
+  ಕುರು {                                   \
+    ಯದಿ(blobdup(&dest->var, source->var)) \
+      ಪ್ರತ್ಯಾಗಮ FALSE;                      \
+  } ಯಾವತ್(0)
 
-static CURLcode blobdup(struct curl_blob **dest, struct curl_blob *src)
+ಸ್ಥಿರ CURLcode blobdup(ಸಂರಚನಾ curl_blob **dest, ಸಂರಚನಾ curl_blob *src)
 {
   DEBUGASSERT(dest);
   DEBUGASSERT(!*dest);
-  if(src) {
+  ಯದಿ(src) {
     /* only if there is data to dupe! */
-    struct curl_blob *d;
-    d = curlx_malloc(sizeof(struct curl_blob) + src->len);
-    if(!d)
-      return CURLE_OUT_OF_MEMORY;
+    ಸಂರಚನಾ curl_blob *d;
+    d = curlx_malloc(ಪರಿಮಾಣ(ಸಂರಚನಾ curl_blob) + src->len);
+    ಯದಿ(!d)
+      ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
     d->len = src->len;
     /* Always duplicate because the connection may survive longer than the
        handle that passed in the blob. */
     d->flags = CURL_BLOB_COPY;
-    d->data = (void *)((char *)d + sizeof(struct curl_blob));
+    d->data = (ಶೂನ್ಯ *)((ವರ್ಣ *)d + ಪರಿಮಾಣ(ಸಂರಚನಾ curl_blob));
     memcpy(d->data, src->data, src->len);
     *dest = d;
   }
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
 /* returns TRUE if the blobs are identical */
-static bool blobcmp(struct curl_blob *first, struct curl_blob *second)
+ಸ್ಥಿರ bool blobcmp(ಸಂರಚನಾ curl_blob *first, ಸಂರಚನಾ curl_blob *second)
 {
-  if(!first && !second) /* both are NULL */
-    return TRUE;
-  if(!first || !second) /* one is NULL */
-    return FALSE;
-  if(first->len != second->len) /* different sizes */
-    return FALSE;
-  return !memcmp(first->data, second->data, first->len); /* same data */
+  ಯದಿ(!first && !second) /* both are NULL */
+    ಪ್ರತ್ಯಾಗಮ TRUE;
+  ಯದಿ(!first || !second) /* one is NULL */
+    ಪ್ರತ್ಯಾಗಮ FALSE;
+  ಯದಿ(first->len != second->len) /* different sizes */
+    ಪ್ರತ್ಯಾಗಮ FALSE;
+  ಪ್ರತ್ಯಾಗಮ !memcmp(first->data, second->data, first->len); /* same data */
 }
 
-void Curl_ssl_config_init(struct ssl_easy_config *sslc)
+ಶೂನ್ಯ Curl_ssl_config_init(ಸಂರಚನಾ ssl_easy_config *sslc)
 {
   /*
    * libcurl 7.10 introduced SSL verification *by default*! This needs to be
@@ -108,27 +108,27 @@ void Curl_ssl_config_init(struct ssl_easy_config *sslc)
   sslc->cache_session = TRUE; /* caching by default */
 }
 
-void Curl_ssl_config_cleanup(struct ssl_filter_config *sslc)
+ಶೂನ್ಯ Curl_ssl_config_cleanup(ಸಂರಚನಾ ssl_filter_config *sslc)
 {
-  if(sslc->deep_copy) {
+  ಯದಿ(sslc->deep_copy) {
     curlx_safefree(sslc->CApath);
     curlx_safefree(sslc->CAfile);
     curlx_safefree(sslc->issuercert);
     curlx_safefree(sslc->clientcert);
     curlx_safefree(sslc->cipher_list);
     curlx_safefree(sslc->cipher_list13);
-    curlx_safefree(sslc->pinned_key);
+    curlx_safefree(sslc->pinned_ಕೀಲಿ);
     curlx_safefree(sslc->cert_blob);
     curlx_safefree(sslc->ca_info_blob);
     curlx_safefree(sslc->issuercert_blob);
-    curlx_safefree(sslc->key_blob);
+    curlx_safefree(sslc->ಕೀಲಿ_blob);
     curlx_safefree(sslc->curves);
     curlx_safefree(sslc->signature_algorithms);
     curlx_safefree(sslc->CRLfile);
     curlx_safefree(sslc->cert_type);
-    curlx_safefree(sslc->key);
-    curlx_safefree(sslc->key_type);
-    curlx_safefree(sslc->key_passwd);
+    curlx_safefree(sslc->ಕೀಲಿ);
+    curlx_safefree(sslc->ಕೀಲಿ_type);
+    curlx_safefree(sslc->ಕೀಲಿ_passwd);
 #ifdef USE_ECH
     curlx_safefree(sslc->ech_config);
     curlx_safefree(sslc->ech_public);
@@ -137,12 +137,12 @@ void Curl_ssl_config_cleanup(struct ssl_filter_config *sslc)
   }
 }
 
-static bool match_ssl_primary_config(struct Curl_easy *data,
-                                     struct ssl_filter_config *c1,
-                                     struct ssl_filter_config *c2)
+ಸ್ಥಿರ bool match_ssl_primary_config(ಸಂರಚನಾ Curl_easy *data,
+                                     ಸಂರಚನಾ ssl_filter_config *c1,
+                                     ಸಂರಚನಾ ssl_filter_config *c2)
 {
-  (void)data;
-  if((c1->version == c2->version) &&
+  (ಶೂನ್ಯ)data;
+  ಯದಿ((c1->version == c2->version) &&
      (c1->version_max == c2->version_max) &&
      (c1->ssl_options == c2->ssl_options) &&
      (c1->native_ca_store == c2->native_ca_store) &&
@@ -158,7 +158,7 @@ static bool match_ssl_primary_config(struct Curl_easy *data,
      blobcmp(c1->cert_blob, c2->cert_blob) &&
      blobcmp(c1->ca_info_blob, c2->ca_info_blob) &&
      blobcmp(c1->issuercert_blob, c2->issuercert_blob) &&
-     blobcmp(c1->key_blob, c2->key_blob) &&
+     blobcmp(c1->ಕೀಲಿ_blob, c2->ಕೀಲಿ_blob) &&
      Curl_safecmp(c1->CApath, c2->CApath) &&
      Curl_safecmp(c1->CAfile, c2->CAfile) &&
      Curl_safecmp(c1->issuercert, c2->issuercert) &&
@@ -168,34 +168,34 @@ static bool match_ssl_primary_config(struct Curl_easy *data,
      curl_strequal(c1->curves, c2->curves) &&
      curl_strequal(c1->signature_algorithms, c2->signature_algorithms) &&
      Curl_safecmp(c1->CRLfile, c2->CRLfile) &&
-     Curl_safecmp(c1->pinned_key, c2->pinned_key) &&
+     Curl_safecmp(c1->pinned_ಕೀಲಿ, c2->pinned_ಕೀಲಿ) &&
      curl_strequal(c1->cert_type, c2->cert_type) &&
-     Curl_safecmp(c1->key, c2->key) &&
-     curl_strequal(c1->key_type, c2->key_type) &&
-     !Curl_timestrcmp(c1->key_passwd, c2->key_passwd))
-    return TRUE;
+     Curl_safecmp(c1->ಕೀಲಿ, c2->ಕೀಲಿ) &&
+     curl_strequal(c1->ಕೀಲಿ_type, c2->ಕೀಲಿ_type) &&
+     !Curl_timestrcmp(c1->ಕೀಲಿ_passwd, c2->ಕೀಲಿ_passwd))
+    ಪ್ರತ್ಯಾಗಮ TRUE;
 
-  return FALSE;
+  ಪ್ರತ್ಯಾಗಮ FALSE;
 }
 
-bool Curl_ssl_conn_config_match(struct Curl_easy *data,
-                                struct ssl_filter_config *conn_config,
-                                struct connectdata *candidate,
+bool Curl_ssl_conn_config_match(ಸಂರಚನಾ Curl_easy *data,
+                                ಸಂರಚನಾ ssl_filter_config *conn_config,
+                                ಸಂರಚನಾ connectdata *candidate,
                                 bool proxy)
 {
 #ifndef CURL_DISABLE_PROXY
-  if(proxy)
-    return match_ssl_primary_config(data, conn_config,
+  ಯದಿ(proxy)
+    ಪ್ರತ್ಯಾಗಮ match_ssl_primary_config(data, conn_config,
                                     &candidate->proxy_ssl_config);
-#else
-  (void)proxy;
+#ಅನ್ಯಥಾ
+  (ಶೂನ್ಯ)proxy;
 #endif
-  return match_ssl_primary_config(data, conn_config,
+  ಪ್ರತ್ಯಾಗಮ match_ssl_primary_config(data, conn_config,
                                   &candidate->ssl_config);
 }
 
-static bool clone_ssl_primary_config(struct ssl_filter_config *source,
-                                     struct ssl_filter_config *dest)
+ಸ್ಥಿರ bool clone_ssl_primary_config(ಸಂರಚನಾ ssl_filter_config *source,
+                                     ಸಂರಚನಾ ssl_filter_config *dest)
 {
   DEBUGASSERT(!dest->deep_copy);
   dest->deep_copy = TRUE;
@@ -222,30 +222,30 @@ static bool clone_ssl_primary_config(struct ssl_filter_config *source,
   CLONE_STRING(issuercert);
   CLONE_STRING(cipher_list);
   CLONE_STRING(cipher_list13);
-  CLONE_STRING(pinned_key);
+  CLONE_STRING(pinned_ಕೀಲಿ);
   CLONE_STRING(curves);
   CLONE_STRING(signature_algorithms);
   CLONE_STRING(CRLfile);
   /* SSL credentials: client certificate */
   CLONE_STRING(clientcert);
   CLONE_STRING(cert_type);
-  CLONE_STRING(key);
-  CLONE_STRING(key_type);
-  CLONE_STRING(key_passwd);
-  CLONE_BLOB(key_blob);
+  CLONE_STRING(ಕೀಲಿ);
+  CLONE_STRING(ಕೀಲಿ_type);
+  CLONE_STRING(ಕೀಲಿ_passwd);
+  CLONE_BLOB(ಕೀಲಿ_blob);
 #ifdef USE_ECH
   dest->ech = source->ech;
   CLONE_STRING(ech_config);
   CLONE_STRING(ech_public);
 #endif
-  return TRUE;
+  ಪ್ರತ್ಯಾಗಮ TRUE;
 }
 
-static void
-ssl_easy_config_compl_options(struct Curl_peer *origin,
-                              struct Curl_peer *initial_origin,
-                              struct ssl_easy_config *sslc,
-                              struct ssl_filter_config *primary)
+ಸ್ಥಿರ ಶೂನ್ಯ
+ssl_easy_config_compl_options(ಸಂರಚನಾ Curl_peer *origin,
+                              ಸಂರಚನಾ Curl_peer *initial_origin,
+                              ಸಂರಚನಾ ssl_easy_config *sslc,
+                              ಸಂರಚನಾ ssl_filter_config *primary)
 {
   uint8_t options = sslc->ssl_options;
   /* If set via CURLOPT_(PROXY_)SSL_OPTIONS, we definitely use it.
@@ -262,43 +262,43 @@ ssl_easy_config_compl_options(struct Curl_peer *origin,
   primary->revoke_best_effort = !!(options & CURLSSLOPT_REVOKE_BEST_EFFORT);
 }
 
-static char *ssl_easy_steal(struct Curl_easy *data, enum dupstring id)
+ಸ್ಥಿರ ವರ್ಣ *ssl_easy_steal(ಸಂರಚನಾ Curl_easy *data, ಗಣನಾ dupstring id)
 {
   /* For connection matching, we borrow string references from data
    * THIS IS NOT REALLY NICE. */
-  return CURL_UNCONST(CURL_EASY_STR(data, id));
+  ಪ್ರತ್ಯಾಗಮ CURL_UNCONST(CURL_EASY_STR(data, id));
 }
 
 CURLcode Curl_ssl_filter_config_tmp_init(
-  struct Curl_easy *data, struct Curl_peer *origin,
-  struct ssl_filter_config *ssl_origin,
-  struct ssl_filter_config *ssl_proxy)
+  ಸಂರಚನಾ Curl_easy *data, ಸಂರಚನಾ Curl_peer *origin,
+  ಸಂರಚನಾ ssl_filter_config *ssl_origin,
+  ಸಂರಚನಾ ssl_filter_config *ssl_proxy)
 {
-  struct ssl_easy_config *sslc = &data->set.ssl;
-#if defined(CURL_CA_PATH) || defined(CURL_CA_BUNDLE)
+  ಸಂರಚನಾ ssl_easy_config *sslc = &data->set.ssl;
+#ಯದಿ defined(CURL_CA_PATH) || defined(CURL_CA_BUNDLE)
   CURLcode result;
 #endif
 
   ssl_easy_config_compl_options(origin, data->state.initial_origin, sslc,
                                 ssl_origin);
 
-  if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
-#if defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
-    if(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
+  ಯದಿ(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
+#ಯದಿ defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
+    ಯದಿ(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
       ssl_origin->native_ca_store = TRUE;
 #endif
 #ifdef CURL_CA_PATH
-    if(!sslc->custom_capath && !CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
+    ಯದಿ(!sslc->custom_capath && !CURL_EASY_STR(data, STRING_SSL_CAPATH)) {
       result = Curl_setstropt(data, STRING_SSL_CAPATH, CURL_CA_PATH);
-      if(result)
-        return result;
+      ಯದಿ(result)
+        ಪ್ರತ್ಯಾಗಮ result;
     }
 #endif
 #ifdef CURL_CA_BUNDLE
-    if(!sslc->custom_cafile && !CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
+    ಯದಿ(!sslc->custom_cafile && !CURL_EASY_STR(data, STRING_SSL_CAFILE)) {
       result = Curl_setstropt(data, STRING_SSL_CAFILE, CURL_CA_BUNDLE);
-      if(result)
-        return result;
+      ಯದಿ(result)
+        ಪ್ರತ್ಯಾಗಮ result;
     }
 #endif
   }
@@ -324,62 +324,62 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   ssl_origin->issuercert = ssl_easy_steal(data, STRING_SSL_ISSUERCERT);
   ssl_origin->issuercert_blob = data->set.blobs[BLOB_SSL_ISSUERCERT];
 
-  if(Curl_peer_equal(data->state.initial_origin, origin)) {
-    ssl_origin->pinned_key =
+  ಯದಿ(Curl_peer_equal(data->state.initial_origin, origin)) {
+    ssl_origin->pinned_ಕೀಲಿ =
       ssl_easy_steal(data, STRING_SSL_PINNEDPUBLICKEY);
     ssl_origin->cert_blob = data->set.blobs[BLOB_CERT];
     ssl_origin->cert_type = ssl_easy_steal(data, STRING_CERT_TYPE);
-    ssl_origin->key = ssl_easy_steal(data, STRING_KEY);
-    ssl_origin->key_type = ssl_easy_steal(data, STRING_KEY_TYPE);
-    ssl_origin->key_passwd = ssl_easy_steal(data, STRING_KEY_PASSWD);
+    ssl_origin->ಕೀಲಿ = ssl_easy_steal(data, STRING_ಕೀಲಿ);
+    ssl_origin->ಕೀಲಿ_type = ssl_easy_steal(data, STRING_ಕೀಲಿ_TYPE);
+    ssl_origin->ಕೀಲಿ_passwd = ssl_easy_steal(data, STRING_ಕೀಲಿ_PASSWD);
     ssl_origin->clientcert = ssl_easy_steal(data, STRING_CERT);
-    ssl_origin->key_blob = data->set.blobs[BLOB_KEY];
+    ssl_origin->ಕೀಲಿ_blob = data->set.blobs[BLOB_ಕೀಲಿ];
 #ifdef USE_ECH
     ssl_origin->ech = data->set.ssl.ech;
     ssl_origin->ech_config = ssl_easy_steal(data, STRING_ECH_CONFIG);
     ssl_origin->ech_public = ssl_easy_steal(data, STRING_ECH_PUBLIC);
 #endif
   }
-  else {
-    ssl_origin->pinned_key = NULL;
-    ssl_origin->cert_blob = NULL;
-    ssl_origin->cert_type = NULL;
-    ssl_origin->key = NULL;
-    ssl_origin->key_type = NULL;
-    ssl_origin->key_passwd = NULL;
-    ssl_origin->clientcert = NULL;
-    ssl_origin->key_blob = NULL;
+  ಅನ್ಯಥಾ {
+    ssl_origin->pinned_ಕೀಲಿ = ರಿಕ್ತ;
+    ssl_origin->cert_blob = ರಿಕ್ತ;
+    ssl_origin->cert_type = ರಿಕ್ತ;
+    ssl_origin->ಕೀಲಿ = ರಿಕ್ತ;
+    ssl_origin->ಕೀಲಿ_type = ರಿಕ್ತ;
+    ssl_origin->ಕೀಲಿ_passwd = ರಿಕ್ತ;
+    ssl_origin->clientcert = ರಿಕ್ತ;
+    ssl_origin->ಕೀಲಿ_blob = ರಿಕ್ತ;
 #ifdef USE_ECH
     ssl_origin->ech = 0;
-    ssl_origin->ech_config = NULL;
-    ssl_origin->ech_public = NULL;
+    ssl_origin->ech_config = ರಿಕ್ತ;
+    ssl_origin->ech_public = ರಿಕ್ತ;
 #endif
   }
 
 #ifndef CURL_DISABLE_PROXY
   sslc = &data->set.proxy_ssl;
 
-  ssl_easy_config_compl_options(NULL, NULL, sslc, ssl_proxy);
-  if((Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL)) {
+  ssl_easy_config_compl_options(ರಿಕ್ತ, ರಿಕ್ತ, sslc, ssl_proxy);
+  ಯದಿ((Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL)) {
     /* no initial origin for proxy, it is not changed for redirects */
-#if defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
-    if(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
+#ಯದಿ defined(USE_APPLE_SECTRUST) || defined(CURL_CA_NATIVE)
+    ಯದಿ(!sslc->custom_capath && !sslc->custom_cafile && !sslc->custom_cablob)
       ssl_proxy->native_ca_store = TRUE;
 #endif
 #ifdef CURL_CA_PATH
-    if(!sslc->custom_capath &&
+    ಯದಿ(!sslc->custom_capath &&
        !CURL_EASY_STR(data, STRING_SSL_CAPATH_PROXY)) {
       result = Curl_setstropt(data, STRING_SSL_CAPATH_PROXY, CURL_CA_PATH);
-      if(result)
-        return result;
+      ಯದಿ(result)
+        ಪ್ರತ್ಯಾಗಮ result;
     }
 #endif
 #ifdef CURL_CA_BUNDLE
-    if(!sslc->custom_cafile &&
+    ಯದಿ(!sslc->custom_cafile &&
        !CURL_EASY_STR(data, STRING_SSL_CAFILE_PROXY)) {
       result = Curl_setstropt(data, STRING_SSL_CAFILE_PROXY, CURL_CA_BUNDLE);
-      if(result)
-        return result;
+      ಯದಿ(result)
+        ಪ್ರತ್ಯಾಗಮ result;
     }
 #endif
   }
@@ -397,7 +397,7 @@ CURLcode Curl_ssl_filter_config_tmp_init(
     ssl_easy_steal(data, STRING_SSL_CIPHER_LIST_PROXY);
   ssl_proxy->cipher_list13 =
     ssl_easy_steal(data, STRING_SSL_CIPHER13_LIST_PROXY);
-  ssl_proxy->pinned_key =
+  ssl_proxy->pinned_ಕೀಲಿ =
     ssl_easy_steal(data, STRING_SSL_PINNEDPUBLICKEY_PROXY);
   ssl_proxy->cert_blob = data->set.blobs[BLOB_CERT_PROXY];
   ssl_proxy->ca_info_blob = data->set.blobs[BLOB_CAINFO_PROXY];
@@ -405,44 +405,44 @@ CURLcode Curl_ssl_filter_config_tmp_init(
   ssl_proxy->issuercert_blob = data->set.blobs[BLOB_SSL_ISSUERCERT_PROXY];
   ssl_proxy->CRLfile = ssl_easy_steal(data, STRING_SSL_CRLFILE_PROXY);
   ssl_proxy->cert_type = ssl_easy_steal(data, STRING_CERT_TYPE_PROXY);
-  ssl_proxy->key = ssl_easy_steal(data, STRING_KEY_PROXY);
-  ssl_proxy->key_type = ssl_easy_steal(data, STRING_KEY_TYPE_PROXY);
-  ssl_proxy->key_passwd = ssl_easy_steal(data, STRING_KEY_PASSWD_PROXY);
+  ssl_proxy->ಕೀಲಿ = ssl_easy_steal(data, STRING_ಕೀಲಿ_PROXY);
+  ssl_proxy->ಕೀಲಿ_type = ssl_easy_steal(data, STRING_ಕೀಲಿ_TYPE_PROXY);
+  ssl_proxy->ಕೀಲಿ_passwd = ssl_easy_steal(data, STRING_ಕೀಲಿ_PASSWD_PROXY);
   ssl_proxy->clientcert = ssl_easy_steal(data, STRING_CERT_PROXY);
-  ssl_proxy->key_blob = data->set.blobs[BLOB_KEY_PROXY];
+  ssl_proxy->ಕೀಲಿ_blob = data->set.blobs[BLOB_ಕೀಲಿ_PROXY];
 #ifdef USE_ECH
   /* Not configurable via a CURLOPT_* */
   ssl_proxy->ech = 0;
-  ssl_proxy->ech_config = NULL;
-  ssl_proxy->ech_public = NULL;
+  ssl_proxy->ech_config = ರಿಕ್ತ;
+  ssl_proxy->ech_public = ರಿಕ್ತ;
 #endif
-#else
-  (void)ssl_proxy;
+#ಅನ್ಯಥಾ
+  (ಶೂನ್ಯ)ssl_proxy;
 #endif /* CURL_DISABLE_PROXY */
 
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-CURLcode Curl_ssl_conn_config_clone(struct ssl_filter_config *ssl_config,
-                                    struct ssl_filter_config *proxy_ssl_config,
-                                    struct connectdata *conn)
+CURLcode Curl_ssl_conn_config_clone(ಸಂರಚನಾ ssl_filter_config *ssl_config,
+                                    ಸಂರಚನಾ ssl_filter_config *proxy_ssl_config,
+                                    ಸಂರಚನಾ connectdata *conn)
 {
   /* Clone "primary" SSL configurations from the easy handle to
    * the connection. They are used for connection cache matching and
    * probably outlive the easy handle */
-  if(!clone_ssl_primary_config(ssl_config, &conn->ssl_config))
-    return CURLE_OUT_OF_MEMORY;
+  ಯದಿ(!clone_ssl_primary_config(ssl_config, &conn->ssl_config))
+    ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
 #ifndef CURL_DISABLE_PROXY
-  if(proxy_ssl_config &&
+  ಯದಿ(proxy_ssl_config &&
      !clone_ssl_primary_config(proxy_ssl_config, &conn->proxy_ssl_config))
-    return CURLE_OUT_OF_MEMORY;
-#else
-  (void)proxy_ssl_config;
+    ಪ್ರತ್ಯಾಗಮ CURLE_OUT_OF_MEMORY;
+#ಅನ್ಯಥಾ
+  (ಶೂನ್ಯ)proxy_ssl_config;
 #endif
-  return CURLE_OK;
+  ಪ್ರತ್ಯಾಗಮ CURLE_OK;
 }
 
-void Curl_ssl_conn_config_cleanup(struct connectdata *conn)
+ಶೂನ್ಯ Curl_ssl_conn_config_cleanup(ಸಂರಚನಾ connectdata *conn)
 {
   Curl_ssl_config_cleanup(&conn->ssl_config);
 #ifndef CURL_DISABLE_PROXY
@@ -450,17 +450,17 @@ void Curl_ssl_conn_config_cleanup(struct connectdata *conn)
 #endif
 }
 
-void Curl_ssl_conn_config_update(struct Curl_easy *data, bool for_proxy)
+ಶೂನ್ಯ Curl_ssl_conn_config_update(ಸಂರಚನಾ Curl_easy *data, bool for_proxy)
 {
   /* May be called on an easy that has no connection yet */
-  if(data->conn) {
-    struct ssl_easy_config *src;
-    struct ssl_filter_config *dest;
+  ಯದಿ(data->conn) {
+    ಸಂರಚನಾ ssl_easy_config *src;
+    ಸಂರಚನಾ ssl_filter_config *dest;
 #ifndef CURL_DISABLE_PROXY
     src = for_proxy ? &data->set.proxy_ssl : &data->set.ssl;
     dest = for_proxy ? &data->conn->proxy_ssl_config : &data->conn->ssl_config;
-#else
-    (void)for_proxy;
+#ಅನ್ಯಥಾ
+    (ಶೂನ್ಯ)for_proxy;
     src = &data->set.ssl;
     dest = &data->conn->ssl_config;
 #endif
