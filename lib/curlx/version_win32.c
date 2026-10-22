@@ -21,16 +21,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 #ifdef _WIN32
 
-#include "curlx/version_win32.h"
+#ضمن "curlx/version_win32.h"
 
 #ifndef CURL_WINDOWS_UWP
 /* This Unicode version struct works for VerifyVersionInfoW (OSVERSIONINFOEXW)
    and RtlVerifyVersionInfo (RTLOSVERSIONINFOEXW) */
-struct OUR_OSVERSIONINFOEXW {
+بنية OUR_OSVERSIONINFOEXW {
   ULONG  dwOSVersionInfoSize;
   ULONG  dwMajorVersion;
   ULONG  dwMinorVersion;
@@ -44,19 +44,19 @@ struct OUR_OSVERSIONINFOEXW {
   UCHAR  wReserved;
 };
 
-typedef LONG (APIENTRY *RTLVERIFYVERSIONINFO_FN)
-  (struct OUR_OSVERSIONINFOEXW *, ULONG, ULONGLONG);
-static RTLVERIFYVERSIONINFO_FN s_pRtlVerifyVersionInfo;
+تعريفنوع LONG (APIENTRY *RTLVERIFYVERSIONINFO_FN)
+  (بنية OUR_OSVERSIONINFOEXW *, ULONG, ULONGLONG);
+ساكن RTLVERIFYVERSIONINFO_FN s_pRtlVerifyVersionInfo;
 
-void curlx_verify_windows_init(void)
+فراغ curlx_verify_windows_init(فراغ)
 {
-#if defined(__clang__) && __clang_major__ >= 16
+#𐡄𐡍 defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   s_pRtlVerifyVersionInfo = CURLX_FUNCTION_CAST(RTLVERIFYVERSIONINFO_FN,
     GetProcAddress(GetModuleHandle(TEXT("ntdll")), "RtlVerifyVersionInfo"));
-#if defined(__clang__) && __clang_major__ >= 16
+#𐡄𐡍 defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic pop
 #endif
 }
@@ -81,51 +81,51 @@ void curlx_verify_windows_init(void)
  *
  * Returns TRUE if matched; otherwise FALSE.
  */
-bool curlx_verify_windows_version(const unsigned int majorVersion,
-                                  const unsigned int minorVersion,
-                                  const unsigned int buildVersion,
-                                  const PlatformIdentifier platform,
-                                  const VersionCondition condition)
+bool curlx_verify_windows_version(ثابت unsigned صحيح majorVersion,
+                                  ثابت unsigned صحيح minorVersion,
+                                  ثابت unsigned صحيح buildVersion,
+                                  ثابت PlatformIdentifier platform,
+                                  ثابت VersionCondition condition)
 {
   bool matched = FALSE;
 
 #ifdef CURL_WINDOWS_UWP
   /* We have no way to determine the Windows version from Windows apps,
      so let's assume we are running on the target Windows version. */
-  const WORD fullVersion = MAKEWORD(minorVersion, majorVersion);
-  const WORD targetVersion = (WORD)_WIN32_WINNT;
+  ثابت WORD fullVersion = MAKEWORD(minorVersion, majorVersion);
+  ثابت WORD targetVersion = (WORD)_WIN32_WINNT;
 
-  (void)buildVersion;
+  (فراغ)buildVersion;
 
-  switch(condition) {
-  case VERSION_LESS_THAN:
+  بدل(condition) {
+  حالة VERSION_LESS_THAN:
     matched = targetVersion < fullVersion;
-    break;
+    اكسر;
 
-  case VERSION_LESS_THAN_EQUAL:
+  حالة VERSION_LESS_THAN_EQUAL:
     matched = targetVersion <= fullVersion;
-    break;
+    اكسر;
 
-  case VERSION_EQUAL:
+  حالة VERSION_EQUAL:
     matched = targetVersion == fullVersion;
-    break;
+    اكسر;
 
-  case VERSION_GREATER_THAN_EQUAL:
+  حالة VERSION_GREATER_THAN_EQUAL:
     matched = targetVersion >= fullVersion;
-    break;
+    اكسر;
 
-  case VERSION_GREATER_THAN:
+  حالة VERSION_GREATER_THAN:
     matched = targetVersion > fullVersion;
-    break;
+    اكسر;
   }
 
-  if(matched && (platform == PLATFORM_WINDOWS)) {
+  𐡄𐡍(matched && (platform == PLATFORM_WINDOWS)) {
     /* we are always running on PLATFORM_WINNT */
     matched = FALSE;
   }
-#else
+#وإلا
   ULONGLONG cm = 0;
-  struct OUR_OSVERSIONINFOEXW osver;
+  بنية OUR_OSVERSIONINFOEXW osver;
   BYTE majorCondition;
   BYTE minorCondition;
   BYTE buildCondition;
@@ -134,59 +134,59 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
   DWORD dwTypeMask = VER_MAJORVERSION | VER_MINORVERSION |
                      VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR;
 
-  switch(condition) {
-  case VERSION_LESS_THAN:
+  بدل(condition) {
+  حالة VERSION_LESS_THAN:
     majorCondition = VER_LESS;
     minorCondition = VER_LESS;
     buildCondition = VER_LESS;
     spMajorCondition = VER_LESS_EQUAL;
     spMinorCondition = VER_LESS_EQUAL;
-    break;
+    اكسر;
 
-  case VERSION_LESS_THAN_EQUAL:
+  حالة VERSION_LESS_THAN_EQUAL:
     majorCondition = VER_LESS_EQUAL;
     minorCondition = VER_LESS_EQUAL;
     buildCondition = VER_LESS_EQUAL;
     spMajorCondition = VER_LESS_EQUAL;
     spMinorCondition = VER_LESS_EQUAL;
-    break;
+    اكسر;
 
-  case VERSION_EQUAL:
+  حالة VERSION_EQUAL:
     majorCondition = VER_EQUAL;
     minorCondition = VER_EQUAL;
     buildCondition = VER_EQUAL;
     spMajorCondition = VER_GREATER_EQUAL;
     spMinorCondition = VER_GREATER_EQUAL;
-    break;
+    اكسر;
 
-  case VERSION_GREATER_THAN_EQUAL:
+  حالة VERSION_GREATER_THAN_EQUAL:
     majorCondition = VER_GREATER_EQUAL;
     minorCondition = VER_GREATER_EQUAL;
     buildCondition = VER_GREATER_EQUAL;
     spMajorCondition = VER_GREATER_EQUAL;
     spMinorCondition = VER_GREATER_EQUAL;
-    break;
+    اكسر;
 
-  case VERSION_GREATER_THAN:
+  حالة VERSION_GREATER_THAN:
     majorCondition = VER_GREATER;
     minorCondition = VER_GREATER;
     buildCondition = VER_GREATER;
     spMajorCondition = VER_GREATER_EQUAL;
     spMinorCondition = VER_GREATER_EQUAL;
-    break;
+    اكسر;
 
-  default:
-    return FALSE;
+  افتراضي:
+    أرجع FALSE;
   }
 
-  memset(&osver, 0, sizeof(osver));
-  osver.dwOSVersionInfoSize = sizeof(osver);
+  memset(&osver, 0, حجم(osver));
+  osver.dwOSVersionInfoSize = حجم(osver);
   osver.dwMajorVersion = majorVersion;
   osver.dwMinorVersion = minorVersion;
   osver.dwBuildNumber = buildVersion;
-  if(platform == PLATFORM_WINDOWS)
+  𐡄𐡍(platform == PLATFORM_WINDOWS)
     osver.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS;
-  else if(platform == PLATFORM_WINNT)
+  وإلا 𐡄𐡍(platform == PLATFORM_WINNT)
     osver.dwPlatformId = VER_PLATFORM_WIN32_NT;
 
   cm = VerSetConditionMask(cm, VER_MAJORVERSION, majorCondition);
@@ -194,7 +194,7 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
   cm = VerSetConditionMask(cm, VER_SERVICEPACKMAJOR, spMajorCondition);
   cm = VerSetConditionMask(cm, VER_SERVICEPACKMINOR, spMinorCondition);
 
-  if(platform != PLATFORM_DONT_CARE) {
+  𐡄𐡍(platform != PLATFORM_DONT_CARE) {
     cm = VerSetConditionMask(cm, VER_PLATFORMID, VER_EQUAL);
     dwTypeMask |= VER_PLATFORMID;
   }
@@ -204,9 +204,9 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
      the real version always, so we use the Rtl variant of the function when
      possible. Note though the function signatures have underlying fundamental
      types that are the same, the return values are different. */
-  if(s_pRtlVerifyVersionInfo)
+  𐡄𐡍(s_pRtlVerifyVersionInfo)
     matched = !s_pRtlVerifyVersionInfo(&osver, dwTypeMask, cm);
-  else
+  وإلا
     matched = !!VerifyVersionInfoW((OSVERSIONINFOEXW *)&osver, dwTypeMask, cm);
 
   /* Compare the build number separately. VerifyVersionInfo normally compares
@@ -214,7 +214,7 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
      do the same for build (eg 1.9 build 222 is not less than 2.0 build 111).
      Build comparison is only needed when build numbers are equal (eg 1.9 is
      always less than 2.0 so build comparison is not needed). */
-  if(matched && buildVersion &&
+  𐡄𐡍(matched && buildVersion &&
      (condition == VERSION_EQUAL ||
       ((condition == VERSION_GREATER_THAN_EQUAL ||
         condition == VERSION_LESS_THAN_EQUAL) &&
@@ -223,16 +223,16 @@ bool curlx_verify_windows_version(const unsigned int majorVersion,
 
     cm = VerSetConditionMask(0, VER_BUILDNUMBER, buildCondition);
     dwTypeMask = VER_BUILDNUMBER;
-    if(s_pRtlVerifyVersionInfo)
+    𐡄𐡍(s_pRtlVerifyVersionInfo)
       matched = !s_pRtlVerifyVersionInfo(&osver, dwTypeMask, cm);
-    else
+    وإلا
       matched = !!VerifyVersionInfoW((OSVERSIONINFOEXW *)&osver,
                                      dwTypeMask, cm);
   }
 
 #endif
 
-  return matched;
+  أرجع matched;
 }
 
 #endif /* _WIN32 */

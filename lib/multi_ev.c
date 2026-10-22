@@ -21,18 +21,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "multi_ev.h"
-#include "select.h"
-#include "uint-bset.h"
-#include "uint-spbset.h"
-#include "multihandle.h"
+#ضمن "urldata.h"
+#ضمن "url.h"
+#ضمن "cfilters.h"
+#ضمن "curl_trc.h"
+#ضمن "multiif.h"
+#ضمن "multi_ev.h"
+#ضمن "select.h"
+#ضمن "uint-bset.h"
+#ضمن "uint-spbset.h"
+#ضمن "multihandle.h"
 
 #ifdef DEBUGBUILD
 #define SH_ENTRY_MAGIC 0x570091d
@@ -41,25 +41,25 @@
 /* Information about a socket for which we inform the libcurl application
  * what to supervise (CURL_POLL_IN/CURL_POLL_OUT/CURL_POLL_REMOVE)
  */
-struct mev_sh_entry {
-  struct uint32_spbset xfers; /* bitset of transfers `mid`s on this socket */
-  struct connectdata *conn; /* connection using this socket or NULL */
-  void *user_data;      /* libcurl app data via curl_multi_assign() */
-  unsigned int action;  /* CURL_POLL_IN/CURL_POLL_OUT we last told the
+بنية mev_sh_entry {
+  بنية uint32_spbset xfers; /* bitset of transfers `mid`s on this socket */
+  بنية connectdata *conn; /* connection using this socket or NULL */
+  فراغ *user_data;      /* libcurl app data via curl_multi_assign() */
+  unsigned صحيح action;  /* CURL_POLL_IN/CURL_POLL_OUT we last told the
                          * libcurl application to watch out for */
-  unsigned int readers; /* this many transfers want to read */
-  unsigned int writers; /* this many transfers want to write */
+  unsigned صحيح readers; /* this many transfers want to read */
+  unsigned صحيح writers; /* this many transfers want to write */
 #ifdef DEBUGBUILD
-  unsigned int magic;
+  unsigned صحيح magic;
 #endif
   BIT(announced);       /* this socket has been passed to the socket
                            callback at least once */
 };
 
 /* sockhash entry destructor callback */
-static void mev_sh_entry_dtor(void *freethis)
+ساكن فراغ mev_sh_entry_dtor(فراغ *freethis)
 {
-  struct mev_sh_entry *entry = (struct mev_sh_entry *)freethis;
+  بنية mev_sh_entry *entry = (بنية mev_sh_entry *)freethis;
   Curl_uint32_spbset_destroy(&entry->xfers);
 #ifdef DEBUGBUILD
   entry->magic = 0;
@@ -68,245 +68,245 @@ static void mev_sh_entry_dtor(void *freethis)
 }
 
 /* look up a given socket in the socket hash, skip invalid sockets */
-static struct mev_sh_entry *mev_sh_entry_get(struct Curl_hash *sh,
+ساكن بنية mev_sh_entry *mev_sh_entry_get(بنية Curl_hash *sh,
                                              curl_socket_t s)
 {
-  if(s != CURL_SOCKET_BAD) {
+  𐡄𐡍(s != CURL_SOCKET_BAD) {
     /* only look for proper sockets */
-    return Curl_hash_pick(sh, (const char *)&s, sizeof(curl_socket_t));
+    أرجع Curl_hash_pick(sh, (ثابت حرف *)&s, حجم(curl_socket_t));
   }
-  return NULL;
+  أرجع عدم;
 }
 
 /* make sure this socket is present in the hash for this handle */
-static struct mev_sh_entry *mev_sh_entry_add(struct Curl_hash *sh,
+ساكن بنية mev_sh_entry *mev_sh_entry_add(بنية Curl_hash *sh,
                                              curl_socket_t s)
 {
-  struct mev_sh_entry *there = mev_sh_entry_get(sh, s);
-  struct mev_sh_entry *check;
+  بنية mev_sh_entry *there = mev_sh_entry_get(sh, s);
+  بنية mev_sh_entry *check;
 
-  if(there) {
+  𐡄𐡍(there) {
     /* it is present, return fine */
-    return there;
+    أرجع there;
   }
 
   /* not present, add it */
-  check = curlx_calloc(1, sizeof(struct mev_sh_entry));
-  if(!check)
-    return NULL; /* major failure */
+  check = curlx_calloc(1, حجم(بنية mev_sh_entry));
+  𐡄𐡍(!check)
+    أرجع عدم; /* major failure */
 
   Curl_uint32_spbset_init(&check->xfers);
 
   /* make/add new hash entry */
-  if(!Curl_hash_add(sh, (char *)&s, sizeof(curl_socket_t), check)) {
+  𐡄𐡍(!Curl_hash_add(sh, (حرف *)&s, حجم(curl_socket_t), check)) {
     mev_sh_entry_dtor(check);
-    return NULL; /* major failure */
+    أرجع عدم; /* major failure */
   }
 #ifdef DEBUGBUILD
   check->magic = SH_ENTRY_MAGIC;
 #endif
-  return check; /* things are good in sockhash land */
+  أرجع check; /* things are good in sockhash land */
 }
 
 /* delete the given socket entry from the hash */
-static void mev_sh_entry_kill(struct Curl_multi *multi, curl_socket_t s)
+ساكن فراغ mev_sh_entry_kill(بنية Curl_multi *multi, curl_socket_t s)
 {
-  Curl_hash_delete(&multi->ev.sh_entries, (char *)&s, sizeof(curl_socket_t));
+  Curl_hash_delete(&multi->ev.sh_entries, (حرف *)&s, حجم(curl_socket_t));
 }
 
-static size_t mev_sh_entry_user_count(struct mev_sh_entry *e)
+ساكن size_t mev_sh_entry_user_count(بنية mev_sh_entry *e)
 {
-  return Curl_uint32_spbset_count(&e->xfers) + (e->conn ? 1 : 0);
+  أرجع Curl_uint32_spbset_count(&e->xfers) + (e->conn ? 1 : 0);
 }
 
-static bool mev_sh_entry_xfer_known(struct mev_sh_entry *e,
-                                    struct Curl_easy *data)
+ساكن bool mev_sh_entry_xfer_known(بنية mev_sh_entry *e,
+                                    بنية Curl_easy *data)
 {
-  return Curl_uint32_spbset_contains(&e->xfers, data->mid);
+  أرجع Curl_uint32_spbset_contains(&e->xfers, data->mid);
 }
 
-static bool mev_sh_entry_conn_known(struct mev_sh_entry *e,
-                                    struct connectdata *conn)
+ساكن bool mev_sh_entry_conn_known(بنية mev_sh_entry *e,
+                                    بنية connectdata *conn)
 {
-  return (e->conn == conn);
+  أرجع (e->conn == conn);
 }
 
-static void mev_pollset_dtor(const void *key, size_t klen, void *entry)
+ساكن فراغ mev_pollset_dtor(ثابت فراغ *key, size_t klen, فراغ *entry)
 {
-  struct easy_pollset *ps = entry;
-  (void)key;
-  (void)klen;
-  if(ps) {
+  بنية easy_pollset *ps = entry;
+  (فراغ)key;
+  (فراغ)klen;
+  𐡄𐡍(ps) {
     Curl_pollset_cleanup(ps);
     curlx_free(ps);
   }
 }
 
-static struct easy_pollset *mev_add_new_conn_pollset(struct connectdata *conn)
+ساكن بنية easy_pollset *mev_add_new_conn_pollset(بنية connectdata *conn)
 {
-  struct easy_pollset *ps;
+  بنية easy_pollset *ps;
 
   ps = Curl_pollset_create();
-  if(!ps)
-    return NULL;
-  if(Curl_conn_meta_set(conn, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
-    return NULL;
-  return ps;
+  𐡄𐡍(!ps)
+    أرجع عدم;
+  𐡄𐡍(Curl_conn_meta_set(conn, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
+    أرجع عدم;
+  أرجع ps;
 }
 
-static struct easy_pollset *mev_add_new_xfer_pollset(struct Curl_easy *data)
+ساكن بنية easy_pollset *mev_add_new_xfer_pollset(بنية Curl_easy *data)
 {
-  struct easy_pollset *ps;
+  بنية easy_pollset *ps;
 
   ps = Curl_pollset_create();
-  if(!ps)
-    return NULL;
-  if(Curl_meta_set(data, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
-    return NULL;
-  return ps;
+  𐡄𐡍(!ps)
+    أرجع عدم;
+  𐡄𐡍(Curl_meta_set(data, CURL_META_MEV_POLLSET, ps, mev_pollset_dtor))
+    أرجع عدم;
+  أرجع ps;
 }
 
-static struct easy_pollset *mev_get_last_pollset(struct Curl_easy *data,
-                                                 struct connectdata *conn)
+ساكن بنية easy_pollset *mev_get_last_pollset(بنية Curl_easy *data,
+                                                 بنية connectdata *conn)
 {
-  if(data) {
-    if(conn)
-      return Curl_conn_meta_get(conn, CURL_META_MEV_POLLSET);
-    return Curl_meta_get(data, CURL_META_MEV_POLLSET);
+  𐡄𐡍(data) {
+    𐡄𐡍(conn)
+      أرجع Curl_conn_meta_get(conn, CURL_META_MEV_POLLSET);
+    أرجع Curl_meta_get(data, CURL_META_MEV_POLLSET);
   }
-  return NULL;
+  أرجع عدم;
 }
 
-static bool mev_sh_entry_xfer_add(struct mev_sh_entry *e,
-                                  struct Curl_easy *data)
+ساكن bool mev_sh_entry_xfer_add(بنية mev_sh_entry *e,
+                                  بنية Curl_easy *data)
 {
    /* detect weird values */
   DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
-  return Curl_uint32_spbset_add(&e->xfers, data->mid);
+  أرجع Curl_uint32_spbset_add(&e->xfers, data->mid);
 }
 
-static bool mev_sh_entry_conn_add(struct mev_sh_entry *e,
-                                  struct connectdata *conn)
+ساكن bool mev_sh_entry_conn_add(بنية mev_sh_entry *e,
+                                  بنية connectdata *conn)
 {
    /* detect weird values */
   DEBUGASSERT(mev_sh_entry_user_count(e) < 100000);
   DEBUGASSERT(!e->conn);
-  if(e->conn)
-    return FALSE;
+  𐡄𐡍(e->conn)
+    أرجع FALSE;
   e->conn = conn;
-  return TRUE;
+  أرجع TRUE;
 }
 
-static bool mev_sh_entry_xfer_remove(struct mev_sh_entry *e,
-                                     struct Curl_easy *data)
+ساكن bool mev_sh_entry_xfer_remove(بنية mev_sh_entry *e,
+                                     بنية Curl_easy *data)
 {
   bool present = Curl_uint32_spbset_contains(&e->xfers, data->mid);
-  if(present)
+  𐡄𐡍(present)
     Curl_uint32_spbset_remove(&e->xfers, data->mid);
-  return present;
+  أرجع present;
 }
 
-static bool mev_sh_entry_conn_remove(struct mev_sh_entry *e,
-                                     struct connectdata *conn)
+ساكن bool mev_sh_entry_conn_remove(بنية mev_sh_entry *e,
+                                     بنية connectdata *conn)
 {
   DEBUGASSERT(e->conn == conn);
-  if(e->conn == conn) {
-    e->conn = NULL;
-    return TRUE;
+  𐡄𐡍(e->conn == conn) {
+    e->conn = عدم;
+    أرجع TRUE;
   }
-  return FALSE;
+  أرجع FALSE;
 }
 
 /* Purge any information about socket `s`.
  * Let the socket callback know as well when necessary */
-static CURLMcode mev_forget_socket(struct Curl_multi *multi,
-                                   struct Curl_easy *data,
+ساكن CURLMcode mev_forget_socket(بنية Curl_multi *multi,
+                                   بنية Curl_easy *data,
                                    curl_socket_t s,
-                                   const char *cause)
+                                   ثابت حرف *cause)
 {
-  struct mev_sh_entry *entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
+  بنية mev_sh_entry *entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
   uint32_t mid;
-  int rc = 0;
+  صحيح rc = 0;
 
-  if(!entry) /* we never knew or already forgot about this socket */
-    return CURLM_OK;
+  𐡄𐡍(!entry) /* we never knew or already forgot about this socket */
+    أرجع CURLM_OK;
 
   /* Remove the socket from any pollset that is still registered. */
-  if(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
-    do {
-      struct Curl_easy *sdata = Curl_multi_get_easy(multi, mid);
-      if(sdata) {
-        struct easy_pollset *ps = mev_get_last_pollset(sdata, NULL);
-        if(ps)
+  𐡄𐡍(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
+    𐡏𐡁𐡃 {
+      بنية Curl_easy *sdata = Curl_multi_get_easy(multi, mid);
+      𐡄𐡍(sdata) {
+        بنية easy_pollset *ps = mev_get_last_pollset(sdata, عدم);
+        𐡄𐡍(ps)
           Curl_pollset_remove(ps, s);
       }
-    } while(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
+    } طالما(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
   }
 
-  if(entry->conn) {
-    struct easy_pollset *ps = mev_get_last_pollset(data, entry->conn);
-    if(ps)
+  𐡄𐡍(entry->conn) {
+    بنية easy_pollset *ps = mev_get_last_pollset(data, entry->conn);
+    𐡄𐡍(ps)
       Curl_pollset_remove(ps, s);
   }
 
   /* We managed this socket before, tell the socket callback to forget it. */
-  if(entry->announced && multi->socket_cb) {
-    struct Curl_mapi_guard guard;
+  𐡄𐡍(entry->announced && multi->socket_cb) {
+    بنية Curl_mapi_guard guard;
 
-    NOVERBOSE((void)cause);
+    NOVERBOSE((فراغ)cause);
     CURL_TRC_M(data, "ev %s, call(fd=%" FMT_SOCKET_T ", ev=REMOVE)", cause, s);
     CURL_CBAPI_MULTI_START(&guard, multi, multi_socket_cb);
     rc = multi->socket_cb(data, s, CURL_POLL_REMOVE,
                           multi->socket_userp, entry->user_data);
     CURL_CBAPI_END(&guard);
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-    if(entry)
+    𐡄𐡍(entry)
       entry->announced = FALSE;
   }
 
   mev_sh_entry_kill(multi, s);
-  if(rc == -1) {
+  𐡄𐡍(rc == -1) {
     multi->dead = TRUE;
-    return CURLM_ABORTED_BY_CALLBACK;
+    أرجع CURLM_ABORTED_BY_CALLBACK;
   }
-  return CURLM_OK;
+  أرجع CURLM_OK;
 }
 
-static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
-                                     struct Curl_easy *data,
-                                     struct mev_sh_entry *entry,
+ساكن CURLMcode mev_sh_entry_update(بنية Curl_multi *multi,
+                                     بنية Curl_easy *data,
+                                     بنية mev_sh_entry *entry,
                                      curl_socket_t s,
-                                     unsigned char last_action,
-                                     unsigned char cur_action)
+                                     unsigned حرف last_action,
+                                     unsigned حرف cur_action)
 {
-  int rc, comboaction;
+  صحيح rc, comboaction;
 
   /* we should only be called when the callback exists */
   DEBUGASSERT(multi->socket_cb);
   DEBUGASSERT(entry->magic == SH_ENTRY_MAGIC);
-  if(!multi->socket_cb)
-    return CURLM_OK;
+  𐡄𐡍(!multi->socket_cb)
+    أرجع CURLM_OK;
 
   /* Transfer `data` goes from `last_action` to `cur_action` on socket `s`
    * with `multi->ev.sh_entries` entry `entry`. Update `entry` and trigger
    * `multi->socket_cb` on change, if the callback is set. */
-  if(last_action == cur_action)  /* nothing from `data` changed */
-    return CURLM_OK;
+  𐡄𐡍(last_action == cur_action)  /* nothing from `data` changed */
+    أرجع CURLM_OK;
 
-  if(last_action & CURL_POLL_IN) {
+  𐡄𐡍(last_action & CURL_POLL_IN) {
     DEBUGASSERT(entry->readers);
-    if(!(cur_action & CURL_POLL_IN))
+    𐡄𐡍(!(cur_action & CURL_POLL_IN))
       entry->readers--;
   }
-  else if(cur_action & CURL_POLL_IN)
+  وإلا 𐡄𐡍(cur_action & CURL_POLL_IN)
     entry->readers++;
 
-  if(last_action & CURL_POLL_OUT) {
+  𐡄𐡍(last_action & CURL_POLL_OUT) {
     DEBUGASSERT(entry->writers);
-    if(!(cur_action & CURL_POLL_OUT))
+    𐡄𐡍(!(cur_action & CURL_POLL_OUT))
       entry->writers--;
   }
-  else if(cur_action & CURL_POLL_OUT)
+  وإلا 𐡄𐡍(cur_action & CURL_POLL_OUT)
     entry->writers++;
 
   DEBUGASSERT(entry->readers <= mev_sh_entry_user_count(entry));
@@ -323,43 +323,43 @@ static CURLMcode mev_sh_entry_update(struct Curl_multi *multi,
 
   comboaction = (entry->writers ? CURL_POLL_OUT : 0) |
                 (entry->readers ? CURL_POLL_IN : 0);
-  if(((int)entry->action == comboaction)) /* nothing for socket changed */
-    return CURLM_OK;
+  𐡄𐡍(((صحيح)entry->action == comboaction)) /* nothing for socket changed */
+    أرجع CURLM_OK;
 
   CURL_TRC_M(data, "ev update call(fd=%" FMT_SOCKET_T ", ev=%s%s)",
              s, (comboaction & CURL_POLL_IN) ? "IN" : "",
              (comboaction & CURL_POLL_OUT) ? "OUT" : "");
   {
-    struct Curl_mapi_guard guard;
+    بنية Curl_mapi_guard guard;
     CURL_CBAPI_MULTI_START(&guard, multi, multi_socket_cb);
     rc = multi->socket_cb(data, s, comboaction, multi->socket_userp,
                           entry->user_data);
     CURL_CBAPI_MULTI_END(&guard);
   }
-  if(rc == -1) {
+  𐡄𐡍(rc == -1) {
     multi->dead = TRUE;
-    return CURLM_ABORTED_BY_CALLBACK;
+    أرجع CURLM_ABORTED_BY_CALLBACK;
   }
   /* curl_easy_pause() is documented as callable from any callback; it
    * re-enters mev_assess() which may free this 'entry'. Re-fetch. */
   entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-  if(entry) {
+  𐡄𐡍(entry) {
     DEBUGASSERT(entry->magic == SH_ENTRY_MAGIC);
     entry->announced = TRUE;
-    entry->action = (unsigned int)comboaction;
+    entry->action = (unsigned صحيح)comboaction;
   }
-  return CURLM_OK;
+  أرجع CURLM_OK;
 }
 
-static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  struct easy_pollset *ps,
-                                  struct easy_pollset *prev_ps)
+ساكن CURLMcode mev_pollset_diff(بنية Curl_multi *multi,
+                                  بنية Curl_easy *data,
+                                  بنية connectdata *conn,
+                                  بنية easy_pollset *ps,
+                                  بنية easy_pollset *prev_ps)
 {
-  struct mev_sh_entry *entry;
+  بنية mev_sh_entry *entry;
   curl_socket_t s;
-  unsigned int i, j;
+  unsigned صحيح i, j;
   CURLMcode mresult;
 
   /* The transfer `data` reports in `ps` the sockets it is interested
@@ -374,25 +374,25 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
   DEBUGASSERT(prev_ps);
 
   /* Handle changes to sockets the transfer is interested in. */
-  for(i = 0; i < ps->n; i++) {
-    unsigned char last_action;
+  لكل(i = 0; i < ps->n; i++) {
+    unsigned حرف last_action;
     bool first_time = FALSE; /* data/conn appears first time on socket */
 
     s = ps->sockets[i];
     /* Have we handled this socket before? */
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
-    if(!entry) {
+    𐡄𐡍(!entry) {
       /* new socket, add new entry */
       first_time = TRUE;
       entry = mev_sh_entry_add(&multi->ev.sh_entries, s);
-      if(!entry) /* fatal */
-        return CURLM_OUT_OF_MEMORY;
+      𐡄𐡍(!entry) /* fatal */
+        أرجع CURLM_OUT_OF_MEMORY;
       CURL_TRC_M(data, "ev new entry fd=%" FMT_SOCKET_T, s);
     }
-    else if(conn) {
+    وإلا 𐡄𐡍(conn) {
       first_time = !mev_sh_entry_conn_known(entry, conn);
     }
-    else {
+    وإلا {
       first_time = !mev_sh_entry_xfer_known(entry, data);
     }
 
@@ -402,14 +402,14 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
      * reopened. We would have cleared the sh_entry for that, but the socket
      * might still be mentioned in the hashed pollsets. */
     last_action = 0;
-    if(first_time) {
-      if(conn) {
-        if(!mev_sh_entry_conn_add(entry, conn))
-          return CURLM_OUT_OF_MEMORY;
+    𐡄𐡍(first_time) {
+      𐡄𐡍(conn) {
+        𐡄𐡍(!mev_sh_entry_conn_add(entry, conn))
+          أرجع CURLM_OUT_OF_MEMORY;
       }
-      else {
-        if(!mev_sh_entry_xfer_add(entry, data))
-          return CURLM_OUT_OF_MEMORY;
+      وإلا {
+        𐡄𐡍(!mev_sh_entry_xfer_add(entry, data))
+          أرجع CURLM_OUT_OF_MEMORY;
       }
       CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", added %s #%" FMT_OFF_T
                  ", total=%u/%d (xfer/conn)", s,
@@ -418,174 +418,174 @@ static CURLMcode mev_pollset_diff(struct Curl_multi *multi,
                  Curl_uint32_spbset_count(&entry->xfers),
                  entry->conn ? 1 : 0);
     }
-    else {
-      for(j = 0; j < prev_ps->n; j++) {
-        if(s == prev_ps->sockets[j]) {
+    وإلا {
+      لكل(j = 0; j < prev_ps->n; j++) {
+        𐡄𐡍(s == prev_ps->sockets[j]) {
           last_action = prev_ps->actions[j];
-          break;
+          اكسر;
         }
       }
     }
     /* track readers/writers changes and report to socket callback */
     mresult = mev_sh_entry_update(multi, data, entry, s,
                                   last_action, ps->actions[i]);
-    if(mresult)
-      return mresult;
+    𐡄𐡍(mresult)
+      أرجع mresult;
   }
 
   /* Handle changes to sockets the transfer is NO LONGER interested in. */
-  for(i = 0; i < prev_ps->n; i++) {
+  لكل(i = 0; i < prev_ps->n; i++) {
     bool stillused = FALSE;
 
     s = prev_ps->sockets[i];
-    for(j = 0; j < ps->n; j++) {
-      if(s == ps->sockets[j]) {
+    لكل(j = 0; j < ps->n; j++) {
+      𐡄𐡍(s == ps->sockets[j]) {
         /* socket is still supervised */
         stillused = TRUE;
-        break;
+        اكسر;
       }
     }
-    if(stillused)
-      continue;
+    𐡄𐡍(stillused)
+      استمر;
 
     entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
     /* if entry does not exist, we were either never told about it or
      * have already cleaned up this socket via Curl_multi_ev_socket_done().
      * In other words: this is perfectly normal */
-    if(!entry)
-      continue;
+    𐡄𐡍(!entry)
+      استمر;
 
-    if(conn && !mev_sh_entry_conn_remove(entry, conn)) {
+    𐡄𐡍(conn && !mev_sh_entry_conn_remove(entry, conn)) {
       /* `conn` says in `prev_ps` that it had been using a socket,
        * but `conn` has not been registered for it.
        * This should not happen if our book-keeping is correct? */
       CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", conn lost "
                  "interest but is not registered", s);
-      DEBUGASSERT(NULL);
-      continue;
+      DEBUGASSERT(عدم);
+      استمر;
     }
 
-    if(!conn && !mev_sh_entry_xfer_remove(entry, data)) {
+    𐡄𐡍(!conn && !mev_sh_entry_xfer_remove(entry, data)) {
       /* `data` says in `prev_ps` that it had been using a socket,
        * but `data` has not been registered for it.
        * This should not happen if our book-keeping is correct? */
       CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", transfer lost "
                  "interest but is not registered", s);
-      DEBUGASSERT(NULL);
-      continue;
+      DEBUGASSERT(عدم);
+      استمر;
     }
 
-    if(mev_sh_entry_user_count(entry)) {
+    𐡄𐡍(mev_sh_entry_user_count(entry)) {
       /* track readers/writers changes and report to socket callback */
       mresult = mev_sh_entry_update(multi, data, entry, s,
                                     prev_ps->actions[i], 0);
-      if(mresult)
-        return mresult;
+      𐡄𐡍(mresult)
+        أرجع mresult;
       CURL_TRC_M(data, "ev entry fd=%" FMT_SOCKET_T ", removed transfer, "
                  "total=%u/%d (xfer/conn)", s,
                  Curl_uint32_spbset_count(&entry->xfers),
                  entry->conn ? 1 : 0);
     }
-    else {
+    وإلا {
       mresult = mev_forget_socket(multi, data, s, "last user gone");
-      if(mresult)
-        return mresult;
+      𐡄𐡍(mresult)
+        أرجع mresult;
     }
   } /* for loop over num */
 
   /* Remember for next time */
   Curl_pollset_move(prev_ps, ps);
-  return CURLM_OK;
+  أرجع CURLM_OK;
 }
 
-static CURLMcode mev_assess(struct Curl_multi *multi,
-                            struct Curl_easy *data,
-                            struct connectdata *conn)
+ساكن CURLMcode mev_assess(بنية Curl_multi *multi,
+                            بنية Curl_easy *data,
+                            بنية connectdata *conn)
 {
-  struct easy_pollset ps, *last_ps;
+  بنية easy_pollset ps, *last_ps;
   CURLMcode mresult = CURLM_OK;
 
-  if(!multi || !multi->socket_cb)
-    return CURLM_OK;
+  𐡄𐡍(!multi || !multi->socket_cb)
+    أرجع CURLM_OK;
 
   Curl_pollset_init(&ps);
-  if(conn) {
+  𐡄𐡍(conn) {
     CURLcode result = Curl_conn_adjust_pollset(data, conn, &ps);
-    if(result) {
+    𐡄𐡍(result) {
       mresult = (result == CURLE_OUT_OF_MEMORY) ?
         CURLM_OUT_OF_MEMORY : CURLM_INTERNAL_ERROR;
-      goto out;
+      اذهب out;
     }
   }
-  else
+  وإلا
     Curl_multi_pollset(data, &ps);
   last_ps = mev_get_last_pollset(data, conn);
 
-  if(!last_ps && ps.n) {
-    if(conn)
+  𐡄𐡍(!last_ps && ps.n) {
+    𐡄𐡍(conn)
       last_ps = mev_add_new_conn_pollset(conn);
-    else
+    وإلا
       last_ps = mev_add_new_xfer_pollset(data);
-    if(!last_ps) {
+    𐡄𐡍(!last_ps) {
       mresult = CURLM_OUT_OF_MEMORY;
-      goto out;
+      اذهب out;
     }
   }
 
-  if(last_ps)
+  𐡄𐡍(last_ps)
     mresult = mev_pollset_diff(multi, data, conn, &ps, last_ps);
-  else
+  وإلا
     DEBUGASSERT(!ps.n);
 out:
   Curl_pollset_cleanup(&ps);
-  return mresult;
+  أرجع mresult;
 }
 
-CURLMcode Curl_multi_ev_assess_xfer(struct Curl_multi *multi,
-                                    struct Curl_easy *data)
+CURLMcode Curl_multi_ev_assess_xfer(بنية Curl_multi *multi,
+                                    بنية Curl_easy *data)
 {
-  return mev_assess(multi, data, NULL);
+  أرجع mev_assess(multi, data, عدم);
 }
 
-CURLMcode Curl_multi_ev_assess_conn(struct Curl_multi *multi,
-                                    struct Curl_easy *data,
-                                    struct connectdata *conn)
+CURLMcode Curl_multi_ev_assess_conn(بنية Curl_multi *multi,
+                                    بنية Curl_easy *data,
+                                    بنية connectdata *conn)
 {
-  return mev_assess(multi, data, conn);
+  أرجع mev_assess(multi, data, conn);
 }
 
-CURLMcode Curl_multi_ev_assess_xfer_bset(struct Curl_multi *multi,
-                                         struct uint32_bset *set)
+CURLMcode Curl_multi_ev_assess_xfer_bset(بنية Curl_multi *multi,
+                                         بنية uint32_bset *set)
 {
   uint32_t mid;
   CURLMcode mresult = CURLM_OK;
 
-  if(multi && multi->socket_cb && Curl_uint32_bset_first(set, &mid)) {
-    do {
-      struct Curl_easy *data = Curl_multi_get_easy(multi, mid);
-      if(data) {
+  𐡄𐡍(multi && multi->socket_cb && Curl_uint32_bset_first(set, &mid)) {
+    𐡏𐡁𐡃 {
+      بنية Curl_easy *data = Curl_multi_get_easy(multi, mid);
+      𐡄𐡍(data) {
         mresult = Curl_multi_ev_assess_xfer(multi, data);
       }
-    } while(!mresult && Curl_uint32_bset_next(set, mid, &mid));
+    } طالما(!mresult && Curl_uint32_bset_next(set, mid, &mid));
   }
-  return mresult;
+  أرجع mresult;
 }
 
-CURLMcode Curl_multi_ev_assign(struct Curl_multi *multi,
+CURLMcode Curl_multi_ev_assign(بنية Curl_multi *multi,
                                curl_socket_t s,
-                               void *user_data)
+                               فراغ *user_data)
 {
-  struct mev_sh_entry *e = mev_sh_entry_get(&multi->ev.sh_entries, s);
-  if(!e)
-    return CURLM_BAD_SOCKET;
+  بنية mev_sh_entry *e = mev_sh_entry_get(&multi->ev.sh_entries, s);
+  𐡄𐡍(!e)
+    أرجع CURLM_BAD_SOCKET;
   e->user_data = user_data;
-  return CURLM_OK;
+  أرجع CURLM_OK;
 }
 
-void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
+فراغ Curl_multi_ev_dirty_xfers(بنية Curl_multi *multi,
                                curl_socket_t s)
 {
-  struct mev_sh_entry *entry;
+  بنية mev_sh_entry *entry;
 
   DEBUGASSERT(s != CURL_SOCKET_TIMEOUT);
   entry = mev_sh_entry_get(&multi->ev.sh_entries, s);
@@ -595,57 +595,57 @@ void Curl_multi_ev_dirty_xfers(struct Curl_multi *multi,
      the application actions even though the socket was previously
      asked to get removed, so thus we better survive stray socket actions
      and move on. */
-  if(entry) {
-    struct Curl_easy *data;
+  𐡄𐡍(entry) {
+    بنية Curl_easy *data;
     uint32_t mid;
 
-    if(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
-      do {
+    𐡄𐡍(Curl_uint32_spbset_first(&entry->xfers, &mid)) {
+      𐡏𐡁𐡃 {
         data = Curl_multi_get_easy(multi, mid);
-        if(data) {
+        𐡄𐡍(data) {
           Curl_multi_mark_dirty(data);
         }
-        else {
+        وإلا {
           CURL_TRC_M(multi->admin, "socket transfer %u no longer found", mid);
           Curl_uint32_spbset_remove(&entry->xfers, mid);
         }
-      } while(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
+      } طالما(Curl_uint32_spbset_next(&entry->xfers, mid, &mid));
     }
 
-    if(entry->conn)
+    𐡄𐡍(entry->conn)
       Curl_multi_mark_dirty(multi->admin);
   }
 }
 
-void Curl_multi_ev_socket_done(struct Curl_multi *multi,
-                               struct Curl_easy *data, curl_socket_t s)
+فراغ Curl_multi_ev_socket_done(بنية Curl_multi *multi,
+                               بنية Curl_easy *data, curl_socket_t s)
 {
   mev_forget_socket(multi, data, s, "socket done");
 }
 
-void Curl_multi_ev_xfer_done(struct Curl_multi *multi,
-                             struct Curl_easy *data)
+فراغ Curl_multi_ev_xfer_done(بنية Curl_multi *multi,
+                             بنية Curl_easy *data)
 {
   DEBUGASSERT(!data->conn); /* transfer should have been detached */
-  (void)mev_assess(multi, data, NULL);
+  (فراغ)mev_assess(multi, data, عدم);
   Curl_meta_remove(data, CURL_META_MEV_POLLSET);
 }
 
-void Curl_multi_ev_conn_done(struct Curl_multi *multi,
-                             struct Curl_easy *data,
-                             struct connectdata *conn)
+فراغ Curl_multi_ev_conn_done(بنية Curl_multi *multi,
+                             بنية Curl_easy *data,
+                             بنية connectdata *conn)
 {
-  (void)mev_assess(multi, data, conn);
+  (فراغ)mev_assess(multi, data, conn);
   Curl_conn_meta_remove(conn, CURL_META_MEV_POLLSET);
 }
 
-void Curl_multi_ev_init(struct Curl_multi *multi, size_t hashsize)
+فراغ Curl_multi_ev_init(بنية Curl_multi *multi, size_t hashsize)
 {
   Curl_hash_init(&multi->ev.sh_entries, hashsize, CURL_HASH_TYPE_SOCKET,
                  mev_sh_entry_dtor);
 }
 
-void Curl_multi_ev_cleanup(struct Curl_multi *multi)
+فراغ Curl_multi_ev_cleanup(بنية Curl_multi *multi)
 {
   Curl_hash_destroy(&multi->ev.sh_entries);
 }
