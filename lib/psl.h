@@ -27,21 +27,21 @@
 
 #include <libpsl.h>
 
-struct Curl_easy;
+sa_nracanaa Curl_easy;
 
 #define PSL_TTL (72 * 3600)     /* PSL time to live before a refresh. */
 
-struct PslCache {
+sa_nracanaa PslCache {
   const psl_ctx_t *psl; /* The PSL. */
   time_t expires; /* Time this PSL life expires. */
   BIT(dynamic); /* PSL should be released when no longer needed. */
 };
 
-const psl_ctx_t *Curl_psl_use(struct Curl_easy *easy);
-void Curl_psl_release(struct Curl_easy *easy);
-void Curl_psl_destroy(struct PslCache *pslcache);
+const psl_ctx_t *Curl_psl_use(sa_nracanaa Curl_easy *easy);
+void Curl_psl_release(sa_nracanaa Curl_easy *easy);
+void Curl_psl_destroy(sa_nracanaa PslCache *pslcache);
 
-#else
+#ᰀᰧᰀ
 
 #define Curl_psl_use(easy) NULL
 #define Curl_psl_release(easy)

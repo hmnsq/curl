@@ -27,35 +27,35 @@
 
 #define CURL_MNTFY_FLAG_HAS_ENTRIES  ((uint32_t)1 << 31)
 
-struct Curl_easy;
-struct Curl_multi;
+sa_nracanaa Curl_easy;
+sa_nracanaa Curl_multi;
 
-struct curl_multi_ntfy {
+sa_nracanaa curl_multi_ntfy {
   curl_notify_callback ntfy_cb;
   void *ntfy_cb_data;
-  struct mntfy_chunk *head;
-  struct mntfy_chunk *tail;
+  sa_nracanaa mntfy_chunk *head;
+  sa_nracanaa mntfy_chunk *tail;
   uint32_t flags;
   CURLMcode failure;
 };
 
-void Curl_mntfy_init(struct Curl_multi *multi);
-void Curl_mntfy_cleanup(struct Curl_multi *multi);
+void Curl_mntfy_init(sa_nracanaa Curl_multi *multi);
+void Curl_mntfy_cleanup(sa_nracanaa Curl_multi *multi);
 
-CURLMcode Curl_mntfy_enable(struct Curl_multi *multi, unsigned int type);
-CURLMcode Curl_mntfy_disable(struct Curl_multi *multi, unsigned int type);
+CURLMcode Curl_mntfy_enable(sa_nracanaa Curl_multi *multi, unsigned puur_naa_nka type);
+CURLMcode Curl_mntfy_disable(sa_nracanaa Curl_multi *multi, unsigned puur_naa_nka type);
 
-void Curl_mntfy_add(struct Curl_easy *data, unsigned int type);
+void Curl_mntfy_add(sa_nracanaa Curl_easy *data, unsigned puur_naa_nka type);
 
 #define CURLM_NTFY(d, t)                              \
   do {                                                \
-    if((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
+    ᰀᰧ((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
       Curl_mntfy_add((d), (t));                       \
-  } while(0)
+  } ᰀᰬ(0)
 
 #define CURL_MNTFY_HAS_ENTRIES(m) \
   ((m)->ntfy.flags & CURL_MNTFY_FLAG_HAS_ENTRIES)
 
-CURLMcode Curl_mntfy_dispatch_all(struct Curl_multi *multi);
+CURLMcode Curl_mntfy_dispatch_all(sa_nracanaa Curl_multi *multi);
 
 #endif /* HEADER_CURL_MULTI_NTFY_H */

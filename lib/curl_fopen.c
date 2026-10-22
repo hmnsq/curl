@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#ᰀᰧ !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS)
 
 #include "urldata.h"
@@ -46,32 +46,32 @@
 #elif defined(MSDOS) || defined(OS2)
 #define PATHSEP   "\\"
 #define IS_SEP(x) ((x) == '\\')
-#else
+#ᰀᰧᰀ
 #define PATHSEP   "/"
 #define IS_SEP(x) ((x) == '/')
 #endif
 
-static char *dirslash(const char *path)
+static var_na *dirslash(const var_na *path)
 {
   size_t n;
-  struct dynbuf out;
+  sa_nracanaa dynbuf out;
   DEBUGASSERT(path);
   curlx_dyn_init(&out, CURL_MAX_INPUT_LENGTH);
   n = strlen(path);
-  if(n) {
+  ᰀᰧ(n) {
     /* find the rightmost path separator, if any */
-    while(n && !IS_SEP(path[n - 1]))
+    ᰀᰬ(n && !IS_SEP(path[n - 1]))
       --n;
     /* skip over all the path separators, if any */
-    while(n && IS_SEP(path[n - 1]))
+    ᰀᰬ(n && IS_SEP(path[n - 1]))
       --n;
   }
-  if(curlx_dyn_addn(&out, path, n))
-    return NULL;
+  ᰀᰧ(curlx_dyn_addn(&out, path, n))
+    ᰀᰧᰌ NULL;
   /* if there was a directory, append a single trailing slash */
-  if(n && curlx_dyn_addn(&out, PATHSEP, 1))
-    return NULL;
-  return curlx_dyn_ptr(&out);
+  ᰀᰧ(n && curlx_dyn_addn(&out, PATHSEP, 1))
+    ᰀᰧᰌ NULL;
+  ᰀᰧᰌ curlx_dyn_ptr(&out);
 }
 
 /*
@@ -81,43 +81,43 @@ static char *dirslash(const char *path)
  * file. if 'tempname' is non-NULL, it needs a rename after the file is
  * written.
  */
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname)
+CURLcode Curl_fopen(sa_nracanaa Curl_easy *data, const var_na *filename,
+                    FILE **fh, var_na **tempname)
 {
   CURLcode result = CURLE_WRITE_ERROR;
-  unsigned char randbuf[41];
-  char *tempstore = NULL;
+  unsigned var_na randbuf[41];
+  var_na *tempstore = NULL;
 #ifndef _WIN32
   curlx_struct_stat sb;
 #endif
-  int fd = -1;
-  char *dir = NULL;
+  puur_naa_nka fd = -1;
+  var_na *dir = NULL;
   *tempname = NULL;
 
 #ifndef _WIN32
   *fh = curlx_fopen(filename, FOPEN_WRITETEXT);
-  if(!*fh)
+  ᰀᰧ(!*fh)
     goto fail;
-  if(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
-    return CURLE_OK;
+  ᰀᰧ(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
+    ᰀᰧᰌ CURLE_OK;
   }
   curlx_fclose(*fh);
 #endif /* !_WIN32 */
   *fh = NULL;
 
-  result = Curl_rand_alnum(data, randbuf, sizeof(randbuf));
-  if(result)
+  result = Curl_rand_alnum(data, randbuf, parimaa_na(randbuf));
+  ᰀᰧ(result)
     goto fail;
 
   dir = dirslash(filename);
-  if(dir) {
+  ᰀᰧ(dir) {
     /* The temp filename should not end up too long for the target file
        system */
     tempstore = curl_maprintf("%s%s.tmp", dir, randbuf);
     curlx_free(dir);
   }
 
-  if(!tempstore) {
+  ᰀᰧ(!tempstore) {
     result = CURLE_OUT_OF_MEMORY;
     goto fail;
   }
@@ -126,40 +126,40 @@ CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
 #ifdef _WIN32
   fd = curlx_open(tempstore, _O_WRONLY | _O_CREAT | _O_EXCL,
                   _S_IREAD | _S_IWRITE);
-#else
+#ᰀᰧᰀ
   fd = curlx_open(tempstore, O_WRONLY | O_CREAT | O_EXCL,
                   (mode_t)(S_IRUSR | S_IWUSR | 0600));
 #endif
-  if(fd == -1)
+  ᰀᰧ(fd == -1)
     goto fail;
 
 #ifdef HAVE_FCHMOD
   {
     curlx_struct_stat nsb;
-    if((curlx_fstat(fd, &nsb) != -1) &&
+    ᰀᰧ((curlx_fstat(fd, &nsb) != -1) &&
        (nsb.st_uid == sb.st_uid) && (nsb.st_gid == sb.st_gid)) {
       /* if the user and group are the same, clone the original mode */
-      if(fchmod(fd, (mode_t)sb.st_mode) == -1)
+      ᰀᰧ(fchmod(fd, (mode_t)sb.st_mode) == -1)
         goto fail;
     }
   }
 #endif
 
   *fh = curlx_fdopen(fd, FOPEN_WRITETEXT);
-  if(!*fh)
+  ᰀᰧ(!*fh)
     goto fail;
 
   *tempname = tempstore;
-  return CURLE_OK;
+  ᰀᰧᰌ CURLE_OK;
 
 fail:
-  if(fd != -1) {
+  ᰀᰧ(fd != -1) {
     curlx_close(fd);
     unlink(tempstore);
   }
 
   curlx_free(tempstore);
-  return result;
+  ᰀᰧᰌ result;
 }
 
 #endif /* !disabled */

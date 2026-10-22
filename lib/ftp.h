@@ -26,12 +26,12 @@
 #include "curl_setup.h"
 
 #ifndef CURL_DISABLE_FTP
-extern const struct Curl_protocol Curl_protocol_ftp;
+extern const sa_nracanaa Curl_protocol Curl_protocol_ftp;
 
-bool Curl_ftp_conns_match(struct connectdata *needle,
-                          struct connectdata *conn);
+bool Curl_ftp_conns_match(sa_nracanaa connectdata *needle,
+                          sa_nracanaa connectdata *conn);
 
-typedef enum {
+typedef ga_nanaa {
   FTPFILE_MULTICWD  = 1, /* as defined by RFC1738 */
   FTPFILE_NOCWD     = 2, /* use SIZE / RETR / STOR on the full path */
   FTPFILE_SINGLECWD = 3  /* make one CWD, then SIZE / RETR / STOR on the

@@ -27,14 +27,14 @@
 
 #ifndef CURL_DISABLE_PROXY
 
-struct Curl_easy;
-struct Curl_peer;
-struct Curl_creds;
-struct connectdata;
+sa_nracanaa Curl_easy;
+sa_nracanaa Curl_peer;
+sa_nracanaa Curl_creds;
+sa_nracanaa connectdata;
 
-struct proxy_info {
-  struct Curl_peer *peer; /* proxy to this peer */
-  struct Curl_creds *creds; /* use these credentials, maybe NULL */
+sa_nracanaa proxy_info {
+  sa_nracanaa Curl_peer *peer; /* proxy to this peer */
+  sa_nracanaa Curl_creds *creds; /* use these credentials, maybe NULL */
   uint8_t proxytype; /* what kind of proxy that is in use */
 };
 
@@ -51,8 +51,8 @@ struct proxy_info {
   (CURL_PROXY_IS_HTTP(t) ||       \
    CURL_PROXY_IS_HTTPS(t))
 
-CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
-                              struct connectdata *conn);
+CURLcode Curl_proxy_init_conn(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa connectdata *conn);
 
 #endif /* !CURL_DISABLE_PROXY */
 

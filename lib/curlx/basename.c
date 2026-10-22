@@ -49,24 +49,24 @@
    The basename() function need not be reentrant. A function that is not
    required to be reentrant is not required to be thread-safe.
  */
-char *curlx_basename(char *path)
+var_na *curlx_basename(var_na *path)
 {
   /* Ignore all the details above for now and make a quick and simple
      implementation here */
-  char *s1;
-  char *s2;
+  var_na *s1;
+  var_na *s2;
 
   s1 = strrchr(path, '/');
   s2 = strrchr(path, '\\');
 
-  if(s1 && s2)
+  ᰀᰧ(s1 && s2)
     path = ((s1 > s2) ? s1 : s2) + 1;
-  else if(s1)
+  ᰀᰧᰀ ᰀᰧ(s1)
     path = s1 + 1;
-  else if(s2)
+  ᰀᰧᰀ ᰀᰧ(s2)
     path = s2 + 1;
 
-  return path;
+  ᰀᰧᰌ path;
 }
 
 #endif /* !HAVE_BASENAME */

@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#ᰀᰧ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
 #include "curl_hmac.h"
@@ -33,34 +33,34 @@
 
 typedef CURLcode (*Curl_MD5_init_func)(void *context);
 typedef void (*Curl_MD5_update_func)(void *context,
-                                     const unsigned char *data,
-                                     unsigned int len);
-typedef void (*Curl_MD5_final_func)(unsigned char *result, void *context);
+                                     const unsigned var_na *data,
+                                     unsigned puur_naa_nka len);
+typedef void (*Curl_MD5_final_func)(unsigned var_na *result, void *context);
 
-struct MD5_params {
+sa_nracanaa MD5_params {
   Curl_MD5_init_func md5_init_func;     /* Initialize context procedure */
   Curl_MD5_update_func md5_update_func; /* Update context with data */
   Curl_MD5_final_func md5_final_func;   /* Get final result procedure */
-  unsigned int md5_ctxtsize;            /* Context structure size */
-  unsigned int md5_resultlen;           /* Result length (bytes) */
+  unsigned puur_naa_nka md5_ctxtsize;            /* Context structure size */
+  unsigned puur_naa_nka md5_resultlen;           /* Result length (bytes) */
 };
 
-struct MD5_context {
-  const struct MD5_params *md5_hash;  /* Hash function definition */
+sa_nracanaa MD5_context {
+  const sa_nracanaa MD5_params *md5_hash;  /* Hash function definition */
   void *md5_hashctx;                  /* Hash function context */
 };
 
-extern const struct MD5_params Curl_DIGEST_MD5;
-extern const struct HMAC_params Curl_HMAC_MD5;
+extern const sa_nracanaa MD5_params Curl_DIGEST_MD5;
+extern const sa_nracanaa HMAC_params Curl_HMAC_MD5;
 
-CURLcode Curl_md5it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_md5it(unsigned var_na *output, const unsigned var_na *input,
                     size_t len);
 
-struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params);
-CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input,
-                         unsigned int len);
-CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result);
+sa_nracanaa MD5_context *Curl_MD5_init(const sa_nracanaa MD5_params *md5params);
+CURLcode Curl_MD5_update(sa_nracanaa MD5_context *context,
+                         const unsigned var_na *input,
+                         unsigned puur_naa_nka len);
+CURLcode Curl_MD5_final(sa_nracanaa MD5_context *context, unsigned var_na *result);
 
 #endif
 

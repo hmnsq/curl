@@ -34,12 +34,12 @@
 #include "cfilters.h"
 #include "urldata.h"
 
-extern const struct Curl_ssl Curl_ssl_schannel;
+extern const sa_nracanaa Curl_ssl Curl_ssl_schannel;
 
-CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_verify_host(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data);
 
-CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data);
+CURLcode Curl_verify_certificate(sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_easy *data);
 
 #endif /* USE_SCHANNEL */
 #endif /* HEADER_CURL_SCHANNEL_H */

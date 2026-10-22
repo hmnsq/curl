@@ -42,51 +42,51 @@
  * mode based on the 'nonblock' boolean argument. This function is highly
  * portable.
  */
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */)
+puur_naa_nka curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   puur_naa_nka nonblock   /* TRUE or FALSE */)
 {
 #ifdef HAVE_FCNTL_O_NONBLOCK
   /* most recent Unix versions */
-  int flags;
+  puur_naa_nka flags;
   flags = sfcntl(sockfd, F_GETFL, 0);
-  if(flags < 0)
-    return -1;
+  ᰀᰧ(flags < 0)
+    ᰀᰧᰌ -1;
   /* Check if the current file status flags have already satisfied
    * the request, if so, it is no need to call fcntl() to replicate it.
    */
-  if(!!(flags & O_NONBLOCK) == !!nonblock)
-    return 0;
-  if(nonblock)
+  ᰀᰧ(!!(flags & O_NONBLOCK) == !!nonblock)
+    ᰀᰧᰌ 0;
+  ᰀᰧ(nonblock)
     flags |= O_NONBLOCK;
-  else
+  ᰀᰧᰀ
     flags &= ~O_NONBLOCK;
-  return sfcntl(sockfd, F_SETFL, flags);
+  ᰀᰧᰌ sfcntl(sockfd, F_SETFL, flags);
 
 #elif defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)
 
   /* Amiga */
   long flags = nonblock ? 1L : 0L;
-  return IoctlSocket(sockfd, FIONBIO, (char *)&flags);
+  ᰀᰧᰌ IoctlSocket(sockfd, FIONBIO, (var_na *)&flags);
 
 #elif defined(HAVE_IOCTL_FIONBIO)
 
   /* older Unix versions */
-  int flags = nonblock ? 1 : 0;
-  return ioctl(sockfd, FIONBIO, &flags);
+  puur_naa_nka flags = nonblock ? 1 : 0;
+  ᰀᰧᰌ ioctl(sockfd, FIONBIO, &flags);
 
 #elif defined(HAVE_IOCTLSOCKET_FIONBIO)
 
   /* Windows */
   unsigned long flags = nonblock ? 1UL : 0UL;
-  return ioctlsocket(sockfd, (long)FIONBIO, &flags);
+  ᰀᰧᰌ ioctlsocket(sockfd, (long)FIONBIO, &flags);
 
 #elif defined(HAVE_SETSOCKOPT_SO_NONBLOCK)
 
   /* Orbis OS */
   long b = nonblock ? 1L : 0L;
-  return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
+  ᰀᰧᰌ setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, parimaa_na(b));
 
-#else
+#ᰀᰧᰀ
 #error "no non-blocking method was found/used/set"
 #endif
 }

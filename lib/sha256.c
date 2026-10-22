@@ -24,14 +24,14 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
+#ᰀᰧ !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
 #include "curl_sha256.h"
 
 #ifdef USE_MBEDTLS
 #include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#ᰀᰧ MBEDTLS_VERSION_NUMBER < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
 #include <psa/crypto_config.h>
@@ -53,34 +53,34 @@
 #ifdef USE_OPENSSL
 #include <openssl/evp.h>
 
-struct ossl_sha256_ctx {
+sa_nracanaa ossl_sha256_ctx {
   EVP_MD_CTX *openssl_ctx;
 };
-typedef struct ossl_sha256_ctx my_sha256_ctx;
+typedef sa_nracanaa ossl_sha256_ctx my_sha256_ctx;
 
 static CURLcode my_sha256_init(void *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   ctx->openssl_ctx = EVP_MD_CTX_new();
-  if(!ctx->openssl_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ᰀᰧ(!ctx->openssl_ctx)
+    ᰀᰧᰌ CURLE_OUT_OF_MEMORY;
 
-  if(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
+  ᰀᰧ(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
     EVP_MD_CTX_free(ctx->openssl_ctx);
-    return CURLE_FAILED_INIT;
+    ᰀᰧᰌ CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  ᰀᰧᰌ CURLE_OK;
 }
 
 static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+                             const unsigned var_na *data,
+                             unsigned puur_naa_nka length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   EVP_DigestUpdate(ctx->openssl_ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+static void my_sha256_final(unsigned var_na *digest, void *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   EVP_DigestFinal_ex(ctx->openssl_ctx, digest, NULL);
@@ -91,23 +91,23 @@ static void my_sha256_final(unsigned char *digest, void *in)
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 
-typedef struct wc_Sha256 my_sha256_ctx;
+typedef sa_nracanaa wc_Sha256 my_sha256_ctx;
 
 static CURLcode my_sha256_init(void *in)
 {
-  if(wc_InitSha256(in))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  ᰀᰧ(wc_InitSha256(in))
+    ᰀᰧᰌ CURLE_FAILED_INIT;
+  ᰀᰧᰌ CURLE_OK;
 }
 
 static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+                             const unsigned var_na *data,
+                             unsigned puur_naa_nka length)
 {
   (void)wc_Sha256Update(in, data, (word32)length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+static void my_sha256_final(unsigned var_na *digest, void *in)
 {
   (void)wc_Sha256Final(in, digest);
 }
@@ -116,26 +116,26 @@ static void my_sha256_final(unsigned char *digest, void *in)
 #include <nettle/sha2.h>
 #include <nettle/version.h>
 
-typedef struct sha256_ctx my_sha256_ctx;
+typedef sa_nracanaa sha256_ctx my_sha256_ctx;
 
 static CURLcode my_sha256_init(void *ctx)
 {
   sha256_init(ctx);
-  return CURLE_OK;
+  ᰀᰧᰌ CURLE_OK;
 }
 
 static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+                             const unsigned var_na *data,
+                             unsigned puur_naa_nka length)
 {
   sha256_update(ctx, length, data);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+static void my_sha256_final(unsigned var_na *digest, void *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#ᰀᰧ NETTLE_VERSION_MAJOR >= 4
   sha256_digest(ctx, digest);
-#else
+#ᰀᰧᰀ
   sha256_digest(ctx, SHA256_DIGEST_SIZE, digest);
 #endif
 }
@@ -150,19 +150,19 @@ static CURLcode my_sha256_init(void *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ᰀᰧ(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
+    ᰀᰧᰌ CURLE_OUT_OF_MEMORY;
+  ᰀᰧᰌ CURLE_OK;
 }
 
 static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+                             const unsigned var_na *data,
+                             unsigned puur_naa_nka length)
 {
   (void)psa_hash_update(ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+static void my_sha256_final(unsigned var_na *digest, void *ctx)
 {
   size_t actual_length;
   (void)psa_hash_finish(ctx, digest, CURL_SHA256_DIGEST_LENGTH,
@@ -180,17 +180,17 @@ typedef CC_SHA256_CTX my_sha256_ctx;
 static CURLcode my_sha256_init(void *ctx)
 {
   (void)CC_SHA256_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  ᰀᰧᰌ CURLE_OK;
 }
 
 static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+                             const unsigned var_na *data,
+                             unsigned puur_naa_nka length)
 {
   (void)CC_SHA256_Update(ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+static void my_sha256_final(unsigned var_na *digest, void *ctx)
 {
   (void)CC_SHA256_Final(digest, ctx);
 }
@@ -198,53 +198,53 @@ static void my_sha256_final(unsigned char *digest, void *ctx)
 #elif defined(USE_WIN32_CRYPTO)
 #include <wincrypt.h>
 
-struct sha256_ctx {
+sa_nracanaa sha256_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct sha256_ctx my_sha256_ctx;
+typedef sa_nracanaa sha256_ctx my_sha256_ctx;
 
 static CURLcode my_sha256_init(void *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
+  ᰀᰧ(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    ᰀᰧᰌ CURLE_OUT_OF_MEMORY;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
+  ᰀᰧ(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    ᰀᰧᰌ CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  ᰀᰧᰌ CURLE_OK;
 }
 
 static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+                             const unsigned var_na *data,
+                             unsigned puur_naa_nka length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   CryptHashData(ctx->hHash, (const BYTE *)data, length, 0);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+static void my_sha256_final(unsigned var_na *digest, void *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   unsigned long length = 0;
 
   CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == CURL_SHA256_DIGEST_LENGTH)
+  ᰀᰧ(length == CURL_SHA256_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  ᰀᰧ(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  ᰀᰧ(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#ᰀᰧᰀ
 
 /* When no other crypto library is available we use this code segment */
 
@@ -258,30 +258,30 @@ static void my_sha256_final(unsigned char *digest, void *in)
     ((unsigned long)(a)[3]))
 #define WPA_PUT_BE32(a, val)                                         \
   do {                                                               \
-    (a)[0] = (unsigned char)((((unsigned long)(val)) >> 24) & 0xff); \
-    (a)[1] = (unsigned char)((((unsigned long)(val)) >> 16) & 0xff); \
-    (a)[2] = (unsigned char)((((unsigned long)(val)) >>  8) & 0xff); \
-    (a)[3] = (unsigned char)(((unsigned long)(val)) & 0xff);         \
-  } while(0)
+    (a)[0] = (unsigned var_na)((((unsigned long)(val)) >> 24) & 0xff); \
+    (a)[1] = (unsigned var_na)((((unsigned long)(val)) >> 16) & 0xff); \
+    (a)[2] = (unsigned var_na)((((unsigned long)(val)) >>  8) & 0xff); \
+    (a)[3] = (unsigned var_na)(((unsigned long)(val)) & 0xff);         \
+  } ᰀᰬ(0)
 
 #define WPA_PUT_BE64(a, val)                            \
   do {                                                  \
-    (a)[0] = (unsigned char)(((uint64_t)(val)) >> 56);  \
-    (a)[1] = (unsigned char)(((uint64_t)(val)) >> 48);  \
-    (a)[2] = (unsigned char)(((uint64_t)(val)) >> 40);  \
-    (a)[3] = (unsigned char)(((uint64_t)(val)) >> 32);  \
-    (a)[4] = (unsigned char)(((uint64_t)(val)) >> 24);  \
-    (a)[5] = (unsigned char)(((uint64_t)(val)) >> 16);  \
-    (a)[6] = (unsigned char)(((uint64_t)(val)) >>  8);  \
-    (a)[7] = (unsigned char)(((uint64_t)(val)) & 0xff); \
-  } while(0)
+    (a)[0] = (unsigned var_na)(((uint64_t)(val)) >> 56);  \
+    (a)[1] = (unsigned var_na)(((uint64_t)(val)) >> 48);  \
+    (a)[2] = (unsigned var_na)(((uint64_t)(val)) >> 40);  \
+    (a)[3] = (unsigned var_na)(((uint64_t)(val)) >> 32);  \
+    (a)[4] = (unsigned var_na)(((uint64_t)(val)) >> 24);  \
+    (a)[5] = (unsigned var_na)(((uint64_t)(val)) >> 16);  \
+    (a)[6] = (unsigned var_na)(((uint64_t)(val)) >>  8);  \
+    (a)[7] = (unsigned var_na)(((uint64_t)(val)) & 0xff); \
+  } ᰀᰬ(0)
 
-struct sha256_state {
+sa_nracanaa sha256_state {
   uint64_t length;
   unsigned long state[8], curlen;
-  unsigned char buf[64];
+  unsigned var_na buf[64];
 };
-typedef struct sha256_state my_sha256_ctx;
+typedef sa_nracanaa sha256_state my_sha256_ctx;
 
 /* The K array */
 static const unsigned long K[64] = {
@@ -316,10 +316,10 @@ static const unsigned long K[64] = {
 #define Gamma1(x)         (Sha256_S(x, 17) ^ Sha256_S(x, 19) ^ Sha256_R(x, 10))
 
 /* Compress 512 bits */
-static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
+static puur_naa_nka sha256_compress(sa_nracanaa sha256_state *md, const unsigned var_na *buf)
 {
   unsigned long S[8], W[64];
-  int i;
+  puur_naa_nka i;
 
   /* Copy state into S */
   for(i = 0; i < 8; i++) {
@@ -340,7 +340,7 @@ static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
     unsigned long t1 = Sigma0(a) + Sha256_Maj(a, b, c);                  \
     d += t0;                                                             \
     h = t0 + t1;                                                         \
-  } while(0)
+  } ᰀᰬ(0)
 
   for(i = 0; i < 64; ++i) {
     unsigned long t;
@@ -361,13 +361,13 @@ static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
     md->state[i] = md->state[i] + S[i];
   }
 
-  return 0;
+  ᰀᰧᰌ 0;
 }
 
 /* Initialize the hash state */
 static CURLcode my_sha256_init(void *in)
 {
-  struct sha256_state *md = (struct sha256_state *)in;
+  sa_nracanaa sha256_state *md = (sa_nracanaa sha256_state *)in;
   md->curlen = 0;
   md->length = 0;
   md->state[0] = 0x6A09E667UL;
@@ -379,7 +379,7 @@ static CURLcode my_sha256_init(void *in)
   md->state[6] = 0x1F83D9ABUL;
   md->state[7] = 0x5BE0CD19UL;
 
-  return CURLE_OK;
+  ᰀᰧᰌ CURLE_OK;
 }
 
 /* Process a block of memory though the hash
@@ -388,32 +388,32 @@ static CURLcode my_sha256_init(void *in)
    @param inlen  The length of the data (octets)
  */
 static void my_sha256_update(void *ctx,
-                             const unsigned char *in,
-                             unsigned int len)
+                             const unsigned var_na *in,
+                             unsigned puur_naa_nka len)
 {
   unsigned long inlen = len;
   unsigned long n;
-  struct sha256_state *md = (struct sha256_state *)ctx;
+  sa_nracanaa sha256_state *md = (sa_nracanaa sha256_state *)ctx;
 #define CURL_SHA256_BLOCK_SIZE 64
-  if(md->curlen > sizeof(md->buf))
-    return;
-  while(inlen > 0) {
-    if(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
-      if(sha256_compress(md, in) < 0)
-        return;
+  ᰀᰧ(md->curlen > parimaa_na(md->buf))
+    ᰀᰧᰌ;
+  ᰀᰬ(inlen > 0) {
+    ᰀᰧ(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
+      ᰀᰧ(sha256_compress(md, in) < 0)
+        ᰀᰧᰌ;
       md->length += CURL_SHA256_BLOCK_SIZE * 8;
       in += CURL_SHA256_BLOCK_SIZE;
       inlen -= CURL_SHA256_BLOCK_SIZE;
     }
-    else {
+    ᰀᰧᰀ {
       n = CURLMIN(inlen, (CURL_SHA256_BLOCK_SIZE - md->curlen));
       memcpy(md->buf + md->curlen, in, n);
       md->curlen += n;
       in += n;
       inlen -= n;
-      if(md->curlen == CURL_SHA256_BLOCK_SIZE) {
-        if(sha256_compress(md, md->buf) < 0)
-          return;
+      ᰀᰧ(md->curlen == CURL_SHA256_BLOCK_SIZE) {
+        ᰀᰧ(sha256_compress(md, md->buf) < 0)
+          ᰀᰧᰌ;
         md->length += 8 * CURL_SHA256_BLOCK_SIZE;
         md->curlen = 0;
       }
@@ -426,26 +426,26 @@ static void my_sha256_update(void *ctx,
    @param out [out] The destination of the hash (32 bytes)
    @return 0 if successful
  */
-static void my_sha256_final(unsigned char *out, void *ctx)
+static void my_sha256_final(unsigned var_na *out, void *ctx)
 {
-  struct sha256_state *md = ctx;
-  int i;
+  sa_nracanaa sha256_state *md = ctx;
+  puur_naa_nka i;
 
-  if(md->curlen >= sizeof(md->buf))
-    return;
+  ᰀᰧ(md->curlen >= parimaa_na(md->buf))
+    ᰀᰧᰌ;
 
   /* Increase the length of the message */
   md->length += md->curlen * 8;
 
   /* Append the '1' bit */
-  md->buf[md->curlen++] = (unsigned char)0x80;
+  md->buf[md->curlen++] = (unsigned var_na)0x80;
 
   /* If the length is currently above 56 bytes we append zeros
    * then compress. Then we can fall back to padding zeros and length
    * encoding like normal.
    */
-  if(md->curlen > 56) {
-    while(md->curlen < 64) {
+  ᰀᰧ(md->curlen > 56) {
+    ᰀᰬ(md->curlen < 64) {
       md->buf[md->curlen++] = 0;
     }
     sha256_compress(md, md->buf);
@@ -453,7 +453,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   }
 
   /* Pad up to 56 bytes of zeroes */
-  while(md->curlen < 56) {
+  ᰀᰬ(md->curlen < 56) {
     md->buf[md->curlen++] = 0;
   }
 
@@ -481,30 +481,30 @@ static void my_sha256_final(unsigned char *out, void *ctx)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(unsigned var_na *output, const unsigned var_na *input,
                        size_t len)
 {
   CURLcode result;
   my_sha256_ctx ctx;
 
   result = my_sha256_init(&ctx);
-  if(!result) {
+  ᰀᰧ(!result) {
     do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
+      unsigned puur_naa_nka ilen = (unsigned puur_naa_nka)CURLMIN(len, UINT_MAX);
       my_sha256_update(&ctx, input, ilen);
       len -= ilen;
       input += ilen;
-    } while(len);
+    } ᰀᰬ(len);
     my_sha256_final(output, &ctx);
   }
-  return result;
+  ᰀᰧᰌ result;
 }
 
-const struct HMAC_params Curl_HMAC_SHA256 = {
+const sa_nracanaa HMAC_params Curl_HMAC_SHA256 = {
   my_sha256_init,        /* Hash initialization function. */
   my_sha256_update,      /* Hash update function. */
   my_sha256_final,       /* Hash computation end function. */
-  sizeof(my_sha256_ctx), /* Size of hash context structure. */
+  parimaa_na(my_sha256_ctx), /* Size of hash context structure. */
   64,                    /* Maximum key length. */
   32                     /* Result size. */
 };

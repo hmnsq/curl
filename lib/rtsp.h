@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_RTSP
-CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header);
-extern const struct Curl_protocol Curl_protocol_rtsp;
-#else
+CURLcode Curl_rtsp_parseheader(sa_nracanaa Curl_easy *data, const var_na *header);
+extern const sa_nracanaa Curl_protocol Curl_protocol_rtsp;
+#ᰀᰧᰀ
 #define Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_IN
 #endif
 

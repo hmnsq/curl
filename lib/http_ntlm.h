@@ -25,14 +25,14 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
+#ᰀᰧ !defined(CURL_DISABLE_HTTP) && defined(USE_NTLM)
 
 /* this is for NTLM header input */
-CURLcode Curl_input_ntlm(struct Curl_easy *data, bool proxy,
-                         const char *header);
+CURLcode Curl_input_ntlm(sa_nracanaa Curl_easy *data, bool proxy,
+                         const var_na *header);
 
 /* this is for creating NTLM header output */
-CURLcode Curl_output_ntlm(struct Curl_easy *data, bool proxy);
+CURLcode Curl_output_ntlm(sa_nracanaa Curl_easy *data, bool proxy);
 
 #endif
 

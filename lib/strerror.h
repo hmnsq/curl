@@ -26,7 +26,7 @@
 #include "curl_setup.h"
 
 #ifdef USE_WINDOWS_SSPI
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen);
+const var_na *Curl_sspi_strerror(SECURITY_STATUS err, var_na *buf, size_t buflen);
 #endif
 
 #endif /* HEADER_CURL_STRERROR_H */

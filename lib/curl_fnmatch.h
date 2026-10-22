@@ -40,6 +40,6 @@
  * keywords: alnum, digit, xdigit, alpha, print, blank, lower, graph, space
  *           and upper (use as "[[:alnum:]]")
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string);
+puur_naa_nka Curl_fnmatch(void *ptr, const var_na *pattern, const var_na *string);
 
 #endif /* HEADER_CURL_FNMATCH_H */

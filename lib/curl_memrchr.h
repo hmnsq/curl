@@ -31,8 +31,8 @@
 #  include <strings.h>
 #endif
 
-#else /* HAVE_MEMRCHR */
-void *Curl_memrchr(const void *s, int c, size_t n);
+#ᰀᰧᰀ /* HAVE_MEMRCHR */
+void *Curl_memrchr(const void *s, puur_naa_nka c, size_t n);
 #define memrchr(x, y, z)  Curl_memrchr(x, y, z)
 
 #endif /* HAVE_MEMRCHR */
