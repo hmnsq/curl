@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include <curl/urlapi.h>
+#अन्तर्भाव "curl_setup.h"
+#अन्तर्भाव <curl/urlapi.h>
 
 /* Internal representation of CURLU. Point to URL-encoded strings. */
-struct Curl_URL {
-  char *scheme;
-  char *user;
-  char *password;
-  char *options; /* IMAP only? */
-  char *host;
-  char *zoneid; /* for numerical IPv6 addresses */
-  char *path;
-  char *query;
-  char *fragment;
+संरचना Curl_URL {
+  वर्ण *scheme;
+  वर्ण *user;
+  वर्ण *password;
+  वर्ण *options; /* IMAP only? */
+  वर्ण *host;
+  वर्ण *zoneid; /* for numerical IPv6 addresses */
+  वर्ण *path;
+  वर्ण *query;
+  वर्ण *fragment;
   uint16_t portnum; /* the numerical port if present */
   BIT(port_present);    /* to support missing port */
   BIT(query_present);    /* to support blank */
@@ -53,15 +53,15 @@ struct Curl_URL {
 #define QUERY_NOT_YET 3 /* allow to change to query */
 #define QUERY_YES     4
 
-size_t Curl_is_absolute_url(const char *url, char *buf, size_t buflen,
+size_t Curl_is_absolute_url(ध्रुव वर्ण *url, वर्ण *buf, size_t buflen,
                             bool guess_scheme);
 
-CURLUcode Curl_url_set_authority(CURLU *u, const char *authority);
+CURLUcode Curl_url_set_authority(CURLU *u, ध्रुव वर्ण *authority);
 
-CURLUcode Curl_junkscan(const char *url, size_t *urllen, bool allowspace);
+CURLUcode Curl_junkscan(ध्रुव वर्ण *url, size_t *urllen, bool allowspace);
 
-#define U_CURLU_URLDECODE  (unsigned int)CURLU_URLDECODE
-#define U_CURLU_PATH_AS_IS (unsigned int)CURLU_PATH_AS_IS
+#define U_CURLU_URLDECODE  (unsigned पूर्णाङ्क)CURLU_URLDECODE
+#define U_CURLU_PATH_AS_IS (unsigned पूर्णाङ्क)CURLU_PATH_AS_IS
 
 bool Curl_url_same_origin(CURLU *base, CURLU *href);
 

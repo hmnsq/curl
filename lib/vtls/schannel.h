@@ -24,22 +24,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
 #ifdef USE_SCHANNEL
 
-#include <schannel.h>
+#अन्तर्भाव <schannel.h>
 
-#include "curl_sspi.h"
-#include "cfilters.h"
-#include "urldata.h"
+#अन्तर्भाव "curl_sspi.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "urldata.h"
 
-extern const struct Curl_ssl Curl_ssl_schannel;
+बाह्य ध्रुव संरचना Curl_ssl Curl_ssl_schannel;
 
-CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_verify_host(संरचना Curl_cfilter *cf, संरचना Curl_easy *data);
 
-CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data);
+CURLcode Curl_verify_certificate(संरचना Curl_cfilter *cf,
+                                 संरचना Curl_easy *data);
 
 #endif /* USE_SCHANNEL */
 #endif /* HEADER_CURL_SCHANNEL_H */
