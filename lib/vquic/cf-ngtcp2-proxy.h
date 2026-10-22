@@ -24,27 +24,27 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#ଯଦି !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 
-CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                           struct Curl_easy *data,
-                                           struct Curl_peer *origin,
-                                           struct Curl_peer *peer,
-                                           struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_ngtcp2_proxy_ଭର୍ତ୍ତି_after(ସଂରଚନା Curl_cfilter *cf_at,
+                                           ସଂରଚନା Curl_easy *data,
+                                           ସଂରଚନା Curl_peer *origin,
+                                           ସଂରଚନା Curl_peer *peer,
+                                           ସଂରଚନା Curl_peer *tunnel_peer,
                                            uint8_t tunnel_transport);
 
-CURLcode Curl_cf_ngtcp2_proxy_create(struct Curl_cfilter **pcf,
-                                     struct Curl_easy *data,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
+CURLcode Curl_cf_ngtcp2_proxy_create(ସଂରଚନା Curl_cfilter **pcf,
+                                     ସଂରଚନା Curl_easy *data,
+                                     ସଂରଚନା Curl_peer *origin,
+                                     ସଂରଚନା Curl_peer *peer,
                                      uint8_t transport_peer,
-                                     struct connectdata *conn,
-                                     struct Curl_sockaddr_ex *addr,
-                                     struct Curl_peer *tunnel_peer,
+                                     ସଂରଚନା connectdata *conn,
+                                     ସଂରଚନା Curl_sockaddr_ex *addr,
+                                     ସଂରଚନା Curl_peer *tunnel_peer,
                                      uint8_t tunnel_transport);
 
 #endif

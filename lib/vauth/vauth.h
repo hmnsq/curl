@@ -23,35 +23,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "bufref.h"
-#include "curlx/dynbuf.h"
-#include "urldata.h"
+#ଅନ୍ତର୍ଭାଵ "bufref.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/dynbuf.h"
+#ଅନ୍ତର୍ଭାଵ "urldata.h"
 
-struct Curl_easy;
-struct Curl_creds;
-struct connectdata;
-struct Curl_peer;
+ସଂରଚନା Curl_easy;
+ସଂରଚନା Curl_creds;
+ସଂରଚନା connectdata;
+ସଂରଚନା Curl_peer;
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
-struct digestdata;
+ସଂରଚନା digestdata;
 #endif
 
 #ifdef USE_NTLM
-struct ntlmdata;
+ସଂରଚନା ntlmdata;
 #endif
 
-#if (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)) && defined(USE_SPNEGO)
-struct negotiatedata;
+#ଯଦି (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)) && defined(USE_SPNEGO)
+ସଂରଚନା negotiatedata;
 #endif
 
 #ifdef USE_GSASL
-struct gsasldata;
+ସଂରଚନା gsasldata;
 #endif
 
 #ifdef USE_WINDOWS_SSPI
-#include "curl_sspi.h"
+#ଅନ୍ତର୍ଭାଵ "curl_sspi.h"
 #define GSS_ERROR(status) ((status) & 0x80000000)
 #endif
 
@@ -59,63 +59,63 @@ struct gsasldata;
  * Curl_auth_allowed_to_host() tells if authentication, cookies or other
  * "sensitive data" can (still) be sent to this host.
  */
-bool Curl_auth_allowed_to_host(struct Curl_easy *data);
-bool Curl_auth_allowed_to_origin(struct Curl_easy *data,
-                                 struct Curl_peer *origin);
+bool Curl_auth_allowed_to_host(ସଂରଚନା Curl_easy *data);
+bool Curl_auth_allowed_to_origin(ସଂରଚନା Curl_easy *data,
+                                 ସଂରଚନା Curl_peer *origin);
 
 /* This is used to build an SPN string */
 #ifndef USE_WINDOWS_SSPI
-char *Curl_auth_build_spn(const char *service, const char *host,
-                          const char *realm);
-#else
-TCHAR *Curl_auth_build_spn(const char *service, const char *host,
-                           const char *realm);
+ଅକ୍ଷର *Curl_auth_build_spn(ଅଚଳ ଅକ୍ଷର *service, ଅଚଳ ଅକ୍ଷର *host,
+                          ଅଚଳ ଅକ୍ଷର *realm);
+#ଅନ୍ୟଥା
+TCHAR *Curl_auth_build_spn(ଅଚଳ ଅକ୍ଷର *service, ଅଚଳ ଅକ୍ଷର *host,
+                           ଅଚଳ ଅକ୍ଷର *realm);
 #endif
 
 /* This is used to test if the user contains a Windows domain name */
-bool Curl_auth_user_contains_domain(struct Curl_creds *creds);
+bool Curl_auth_user_contains_domain(ସଂରଚନା Curl_creds *creds);
 
 /* This is used to generate a PLAIN cleartext message */
-CURLcode Curl_auth_create_plain_message(struct Curl_creds *creds,
-                                        struct bufref *out);
+CURLcode Curl_auth_create_plain_message(ସଂରଚନା Curl_creds *creds,
+                                        ସଂରଚନା bufref *out);
 
 /* This is used to generate a LOGIN cleartext message */
-void Curl_auth_create_login_message(const char *value, struct bufref *out);
+ଶୂନ୍ୟ Curl_auth_create_login_message(ଅଚଳ ଅକ୍ଷର *ମୂଲ୍ୟ, ସଂରଚନା bufref *out);
 
 /* This is used to generate an EXTERNAL cleartext message */
-void Curl_auth_create_external_message(const char *user, struct bufref *out);
+ଶୂନ୍ୟ Curl_auth_create_external_message(ଅଚଳ ଅକ୍ଷର *user, ସଂରଚନା bufref *out);
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
 /* This is used to generate a CRAM-MD5 response message */
-CURLcode Curl_auth_create_cram_md5_message(const struct bufref *chlg,
-                                           struct Curl_creds *creds,
-                                           struct bufref *out);
+CURLcode Curl_auth_create_cram_md5_message(ଅଚଳ ସଂରଚନା bufref *chlg,
+                                           ସଂରଚନା Curl_creds *creds,
+                                           ସଂରଚନା bufref *out);
 
 /* This is used to evaluate if DIGEST is supported */
-bool Curl_auth_is_digest_supported(void);
+bool Curl_auth_is_digest_supported(ଶୂନ୍ୟ);
 
 /* This is used to generate a base64 encoded DIGEST-MD5 response message */
-CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
-                                             const struct bufref *chlg,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             struct bufref *out);
+CURLcode Curl_auth_create_digest_md5_message(ସଂରଚନା Curl_easy *data,
+                                             ଅଚଳ ସଂରଚନା bufref *chlg,
+                                             ସଂରଚନା Curl_creds *creds,
+                                             ଅଚଳ ଅକ୍ଷର *default_service,
+                                             ସଂରଚନା bufref *out);
 
 /* This is used to decode an HTTP DIGEST challenge message */
-CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
-                                              struct digestdata *digest);
+CURLcode Curl_auth_decode_digest_http_message(ଅଚଳ ଅକ୍ଷର *chlg,
+                                              ସଂରଚନା digestdata *digest);
 
 /* This is used to generate an HTTP DIGEST response message */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const unsigned char *request,
-                                              const unsigned char *uripath,
-                                              struct digestdata *digest,
-                                              char **outptr, size_t *outlen);
+CURLcode Curl_auth_create_digest_http_message(ସଂରଚନା Curl_easy *data,
+                                              ସଂରଚନା Curl_creds *creds,
+                                              ଅଚଳ unsigned ଅକ୍ଷର *request,
+                                              ଅଚଳ unsigned ଅକ୍ଷର *uripath,
+                                              ସଂରଚନା digestdata *digest,
+                                              ଅକ୍ଷର **outptr, size_t *outlen);
 
 /* This is used to clean up the digest specific data */
-void Curl_auth_digest_cleanup(struct digestdata *digest);
-#else
+ଶୂନ୍ୟ Curl_auth_digest_cleanup(ସଂରଚନା digestdata *digest);
+#ଅନ୍ୟଥା
 #define Curl_auth_digest_cleanup(x)
 #define Curl_auth_is_digest_supported()       FALSE
 #endif /* !CURL_DISABLE_DIGEST_AUTH */
@@ -125,31 +125,31 @@ void Curl_auth_digest_cleanup(struct digestdata *digest);
 /* meta key for storing GSASL meta at connection */
 #define CURL_META_GSASL_CONN   "meta:auth:gsasl:conn"
 
-#include <gsasl.h>
-struct gsasldata {
+#ଅନ୍ତର୍ଭାଵ <gsasl.h>
+ସଂରଚନା gsasldata {
   Gsasl *ctx;
   Gsasl_session *client;
 };
 
-struct gsasldata *Curl_auth_gsasl_get(struct connectdata *conn);
+ସଂରଚନା gsasldata *Curl_auth_gsasl_get(ସଂରଚନା connectdata *conn);
 
 /* This is used to evaluate if MECH is supported by gsasl */
-bool Curl_auth_gsasl_is_supported(struct Curl_easy *data,
-                                  const char *mech,
-                                  struct gsasldata *gsasl);
+bool Curl_auth_gsasl_is_supported(ସଂରଚନା Curl_easy *data,
+                                  ଅଚଳ ଅକ୍ଷର *mech,
+                                  ସଂରଚନା gsasldata *gsasl);
 /* This is used to start a gsasl method */
-CURLcode Curl_auth_gsasl_start(struct Curl_easy *data,
-                               struct Curl_creds *creds,
-                               struct gsasldata *gsasl);
+CURLcode Curl_auth_gsasl_start(ସଂରଚନା Curl_easy *data,
+                               ସଂରଚନା Curl_creds *creds,
+                               ସଂରଚନା gsasldata *gsasl);
 
 /* This is used to process and generate a new SASL token */
-CURLcode Curl_auth_gsasl_token(struct Curl_easy *data,
-                               const struct bufref *chlg,
-                               struct gsasldata *gsasl,
-                               struct bufref *out);
+CURLcode Curl_auth_gsasl_token(ସଂରଚନା Curl_easy *data,
+                               ଅଚଳ ସଂରଚନା bufref *chlg,
+                               ସଂରଚନା gsasldata *gsasl,
+                               ସଂରଚନା bufref *out);
 
 /* This is used to clean up the gsasl specific data */
-void Curl_auth_gsasl_cleanup(struct gsasldata *gsasl);
+ଶୂନ୍ୟ Curl_auth_gsasl_cleanup(ସଂରଚନା gsasldata *gsasl);
 #endif
 
 #ifdef USE_NTLM
@@ -159,7 +159,7 @@ void Curl_auth_gsasl_cleanup(struct gsasldata *gsasl);
 /* meta key for storing NTML-PROXY meta at connection */
 #define CURL_META_NTLM_PROXY_CONN   "meta:auth:ntml-proxy:conn"
 
-struct ntlmdata {
+ସଂରଚନା ntlmdata {
 #ifdef USE_WINDOWS_SSPI
 /* The sslContext is used for the Schannel bindings. The
  * api is available on the Windows 7 SDK and later.
@@ -171,65 +171,65 @@ struct ntlmdata {
   SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
   size_t token_max;
   BYTE *output_token;
-  BYTE *input_token;
-  size_t input_token_len;
+  BYTE *ନିବେଶ_token;
+  size_t ନିବେଶ_token_len;
   TCHAR *spn;
-#else
-  unsigned int flags;
-  unsigned char nonce[8];
-  unsigned int target_info_len;
-  void *target_info; /* TargetInfo received in the NTLM type-2 message */
+#ଅନ୍ୟଥା
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags;
+  unsigned ଅକ୍ଷର nonce[8];
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା target_info_len;
+  ଶୂନ୍ୟ *target_info; /* TargetInfo received in the NTLM type-2 message */
 #endif
 };
 
 /* This is used to evaluate if NTLM is supported */
-bool Curl_auth_is_ntlm_supported(void);
+bool Curl_auth_is_ntlm_supported(ଶୂନ୍ୟ);
 
-struct ntlmdata *Curl_auth_ntlm_get(struct connectdata *conn, bool proxy);
-void Curl_auth_ntlm_remove(struct connectdata *conn, bool proxy);
+ସଂରଚନା ntlmdata *Curl_auth_ntlm_get(ସଂରଚନା connectdata *conn, bool proxy);
+ଶୂନ୍ୟ Curl_auth_ntlm_remove(ସଂରଚନା connectdata *conn, bool proxy);
 
 /* This is used to clean up the NTLM specific data */
-void Curl_auth_cleanup_ntlm(struct ntlmdata *ntlm);
+ଶୂନ୍ୟ Curl_auth_cleanup_ntlm(ସଂରଚନା ntlmdata *ntlm);
 
 /* This is used to generate a base64 encoded NTLM type-1 message */
-CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             const char *host,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out);
+CURLcode Curl_auth_create_ntlm_type1_message(ସଂରଚନା Curl_easy *data,
+                                             ସଂରଚନା Curl_creds *creds,
+                                             ଅଚଳ ଅକ୍ଷର *default_service,
+                                             ଅଚଳ ଅକ୍ଷର *host,
+                                             ସଂରଚନା ntlmdata *ntlm,
+                                             ସଂରଚନା bufref *out);
 
 /* This is used to decode a base64 encoded NTLM type-2 message */
-CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
-                                             const struct bufref *type2ref,
-                                             struct ntlmdata *ntlm);
+CURLcode Curl_auth_decode_ntlm_type2_message(ସଂରଚନା Curl_easy *data,
+                                             ଅଚଳ ସଂରଚନା bufref *type2ref,
+                                             ସଂରଚନା ntlmdata *ntlm);
 
 /* This is used to generate a base64 encoded NTLM type-3 message */
-CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out);
+CURLcode Curl_auth_create_ntlm_type3_message(ସଂରଚନା Curl_easy *data,
+                                             ସଂରଚନା Curl_creds *creds,
+                                             ସଂରଚନା ntlmdata *ntlm,
+                                             ସଂରଚନା bufref *out);
 
-#else
+#ଅନ୍ୟଥା
 #define Curl_auth_is_ntlm_supported()     FALSE
 #endif /* USE_NTLM */
 
 /* This is used to generate a base64 encoded OAuth 2.0 message */
-CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_creds *creds,
-                                               const char *host,
-                                               const long port,
-                                               struct bufref *out);
+CURLcode Curl_auth_create_oauth_bearer_message(ସଂରଚନା Curl_creds *creds,
+                                               ଅଚଳ ଅକ୍ଷର *host,
+                                               ଅଚଳ long port,
+                                               ସଂରଚନା bufref *out);
 
 /* This is used to generate a base64 encoded XOAuth 2.0 message */
-CURLcode Curl_auth_create_xoauth_bearer_message(struct Curl_creds *creds,
-                                                struct bufref *out);
+CURLcode Curl_auth_create_xoauth_bearer_message(ସଂରଚନା Curl_creds *creds,
+                                                ସଂରଚନା bufref *out);
 
 #ifdef USE_KERBEROS5
 
 /* meta key for storing KRB5 meta at connection */
 #define CURL_META_KRB5_CONN   "meta:auth:krb5:conn"
 
-struct kerberos5data {
+ସଂରଚନା kerberos5data {
 #ifdef USE_WINDOWS_SSPI
   CredHandle *credentials;
   CtxtHandle *context;
@@ -238,45 +238,45 @@ struct kerberos5data {
   SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
   size_t token_max;
   BYTE *output_token;
-#else
+#ଅନ୍ୟଥା
   gss_ctx_id_t context;
   gss_name_t spn;
 #endif
 };
 
-struct kerberos5data *Curl_auth_krb5_get(struct connectdata *conn);
+ସଂରଚନା kerberos5data *Curl_auth_krb5_get(ସଂରଚନା connectdata *conn);
 
 /* This is used to evaluate if GSSAPI (Kerberos V5) is supported */
-bool Curl_auth_is_gssapi_supported(void);
+bool Curl_auth_is_gssapi_supported(ଶୂନ୍ୟ);
 
 /* This is used to generate a base64 encoded GSSAPI (Kerberos V5) user token
    message */
-CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const char *default_service,
-                                              const char *host,
-                                              const bool mutual_auth,
-                                              const struct bufref *chlg,
-                                              struct kerberos5data *krb5,
-                                              struct bufref *out);
+CURLcode Curl_auth_create_gssapi_user_message(ସଂରଚନା Curl_easy *data,
+                                              ସଂରଚନା Curl_creds *creds,
+                                              ଅଚଳ ଅକ୍ଷର *default_service,
+                                              ଅଚଳ ଅକ୍ଷର *host,
+                                              ଅଚଳ bool mutual_auth,
+                                              ଅଚଳ ସଂରଚନା bufref *chlg,
+                                              ସଂରଚନା kerberos5data *krb5,
+                                              ସଂରଚନା bufref *out);
 
 /* This is used to generate a base64 encoded GSSAPI (Kerberos V5) security
    token message */
-CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy *data,
-                                                  const char *authzid,
-                                                  const struct bufref *chlg,
-                                                  struct kerberos5data *krb5,
-                                                  struct bufref *out);
+CURLcode Curl_auth_create_gssapi_security_message(ସଂରଚନା Curl_easy *data,
+                                                  ଅଚଳ ଅକ୍ଷର *authzid,
+                                                  ଅଚଳ ସଂରଚନା bufref *chlg,
+                                                  ସଂରଚନା kerberos5data *krb5,
+                                                  ସଂରଚନା bufref *out);
 
 /* This is used to clean up the GSSAPI specific data */
-void Curl_auth_cleanup_gssapi(struct kerberos5data *krb5);
-#else
+ଶୂନ୍ୟ Curl_auth_cleanup_gssapi(ସଂରଚନା kerberos5data *krb5);
+#ଅନ୍ୟଥା
 #define Curl_auth_is_gssapi_supported()       FALSE
 #endif /* USE_KERBEROS5 */
 
 #ifdef USE_SPNEGO
 
-bool Curl_auth_is_spnego_supported(void);
+bool Curl_auth_is_spnego_supported(ଶୂନ୍ୟ);
 
 /* meta key for storing NEGO meta at connection */
 #define CURL_META_NEGO_CONN         "meta:auth:nego:conn"
@@ -284,7 +284,7 @@ bool Curl_auth_is_spnego_supported(void);
 #define CURL_META_NEGO_PROXY_CONN   "meta:auth:nego-proxy:conn"
 
 /* Struct used for Negotiate (SPNEGO) authentication */
-struct negotiatedata {
+ସଂରଚନା negotiatedata {
 #ifdef HAVE_GSSAPI
   OM_uint32 status;
   gss_ctx_id_t context;
@@ -292,9 +292,9 @@ struct negotiatedata {
   gss_cred_id_t cred;
   gss_buffer_desc output_token;
 #ifdef GSS_C_CHANNEL_BOUND_FLAG
-  struct dynbuf channel_binding_data;
+  ସଂରଚନା dynbuf channel_binding_data;
 #endif
-#else
+#ଅନ୍ୟଥା
 #ifdef USE_WINDOWS_SSPI
   CtxtHandle *sslContext;
   SECURITY_STATUS status;
@@ -314,24 +314,24 @@ struct negotiatedata {
   BIT(havemultiplerequests);
 };
 
-struct negotiatedata *Curl_auth_nego_get(struct connectdata *conn, bool proxy);
+ସଂରଚନା negotiatedata *Curl_auth_nego_get(ସଂରଚନା connectdata *conn, bool proxy);
 
 /* This is used to decode a base64 encoded SPNEGO (Negotiate) challenge
    message */
-CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
-                                         struct Curl_creds *creds,
-                                         const char *default_service,
-                                         const char *host,
-                                         const char *chlg64,
-                                         struct negotiatedata *nego);
+CURLcode Curl_auth_decode_spnego_message(ସଂରଚନା Curl_easy *data,
+                                         ସଂରଚନା Curl_creds *creds,
+                                         ଅଚଳ ଅକ୍ଷର *default_service,
+                                         ଅଚଳ ଅକ୍ଷର *host,
+                                         ଅଚଳ ଅକ୍ଷର *chlg64,
+                                         ସଂରଚନା negotiatedata *nego);
 
 /* This is used to generate a base64 encoded SPNEGO (Negotiate) response
    message */
-CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
-                                         char **outptr, size_t *outlen);
+CURLcode Curl_auth_create_spnego_message(ସଂରଚନା negotiatedata *nego,
+                                         ଅକ୍ଷର **outptr, size_t *outlen);
 
 /* This is used to clean up the SPNEGO specific data */
-void Curl_auth_cleanup_spnego(struct negotiatedata *nego);
+ଶୂନ୍ୟ Curl_auth_cleanup_spnego(ସଂରଚନା negotiatedata *nego);
 
 #endif /* USE_SPNEGO */
 

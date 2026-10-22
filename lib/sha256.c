@@ -22,19 +22,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
+#ଯଦି !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#include "curl_sha256.h"
+#ଅନ୍ତର୍ଭାଵ "curl_sha256.h"
 
 #ifdef USE_MBEDTLS
-#include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#ଅନ୍ତର୍ଭାଵ <mbedtls/version.h>
+#ଯଦି MBEDTLS_VERSION_ସଂଖ୍ୟା < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
-#include <psa/crypto_config.h>
+#ଅନ୍ତର୍ଭାଵ <psa/crypto_config.h>
 #endif
 
 /* Please keep the SSL backend-specific #if branches in this order:
@@ -51,200 +51,200 @@
  */
 
 #ifdef USE_OPENSSL
-#include <openssl/evp.h>
+#ଅନ୍ତର୍ଭାଵ <openssl/evp.h>
 
-struct ossl_sha256_ctx {
+ସଂରଚନା ossl_sha256_ctx {
   EVP_MD_CTX *openssl_ctx;
 };
-typedef struct ossl_sha256_ctx my_sha256_ctx;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା ossl_sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+ସ୍ଥିର CURLcode my_sha256_init(ଶୂନ୍ୟ *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   ctx->openssl_ctx = EVP_MD_CTX_new();
-  if(!ctx->openssl_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ଯଦି(!ctx->openssl_ctx)
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
 
-  if(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
+  ଯଦି(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), ଖାଲି)) {
     EVP_MD_CTX_free(ctx->openssl_ctx);
-    return CURLE_FAILED_INIT;
+    ଫେରନ୍ତୁ CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_update(ଶୂନ୍ୟ *in,
+                             ଅଚଳ unsigned ଅକ୍ଷର *data,
+                             unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   EVP_DigestUpdate(ctx->openssl_ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_final(unsigned ଅକ୍ଷର *digest, ଶୂନ୍ୟ *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  EVP_DigestFinal_ex(ctx->openssl_ctx, digest, NULL);
+  EVP_DigestFinal_ex(ctx->openssl_ctx, digest, ଖାଲି);
   EVP_MD_CTX_free(ctx->openssl_ctx);
 }
 
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/sha256.h>
+#ନଚେତଯଦି defined(USE_WOLFSSL)
+#ଅନ୍ତର୍ଭାଵ <wolfssl/options.h>
+#ଅନ୍ତର୍ଭାଵ <wolfssl/wolfcrypt/sha256.h>
 
-typedef struct wc_Sha256 my_sha256_ctx;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା wc_Sha256 my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+ସ୍ଥିର CURLcode my_sha256_init(ଶୂନ୍ୟ *in)
 {
-  if(wc_InitSha256(in))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  ଯଦି(wc_InitSha256(in))
+    ଫେରନ୍ତୁ CURLE_FAILED_INIT;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_update(ଶୂନ୍ୟ *in,
+                             ଅଚଳ unsigned ଅକ୍ଷର *data,
+                             unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା length)
 {
-  (void)wc_Sha256Update(in, data, (word32)length);
+  (ଶୂନ୍ୟ)wc_Sha256Update(in, data, (word32)length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_final(unsigned ଅକ୍ଷର *digest, ଶୂନ୍ୟ *in)
 {
-  (void)wc_Sha256Final(in, digest);
+  (ଶୂନ୍ୟ)wc_Sha256Final(in, digest);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/sha2.h>
-#include <nettle/version.h>
+#ନଚେତଯଦି defined(USE_GNUTLS)
+#ଅନ୍ତର୍ଭାଵ <nettle/sha2.h>
+#ଅନ୍ତର୍ଭାଵ <nettle/version.h>
 
-typedef struct sha256_ctx my_sha256_ctx;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+ସ୍ଥିର CURLcode my_sha256_init(ଶୂନ୍ୟ *ctx)
 {
   sha256_init(ctx);
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_update(ଶୂନ୍ୟ *ctx,
+                             ଅଚଳ unsigned ଅକ୍ଷର *data,
+                             unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା length)
 {
   sha256_update(ctx, length, data);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_final(unsigned ଅକ୍ଷର *digest, ଶୂନ୍ୟ *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#ଯଦି NETTLE_VERSION_MAJOR >= 4
   sha256_digest(ctx, digest);
-#else
+#ଅନ୍ୟଥା
   sha256_digest(ctx, SHA256_DIGEST_SIZE, digest);
 #endif
 }
 
-#elif defined(USE_MBEDTLS) && \
+#ନଚେତଯଦି defined(USE_MBEDTLS) && \
   defined(PSA_WANT_ALG_SHA_256) && PSA_WANT_ALG_SHA_256
-#include <psa/crypto.h>
+#ଅନ୍ତର୍ଭାଵ <psa/crypto.h>
 
-typedef psa_hash_operation_t my_sha256_ctx;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା psa_hash_operation_t my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+ସ୍ଥିର CURLcode my_sha256_init(ଶୂନ୍ୟ *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ଯଦି(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_update(ଶୂନ୍ୟ *ctx,
+                             ଅଚଳ unsigned ଅକ୍ଷର *data,
+                             unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା length)
 {
-  (void)psa_hash_update(ctx, data, length);
+  (ଶୂନ୍ୟ)psa_hash_update(ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_final(unsigned ଅକ୍ଷର *digest, ଶୂନ୍ୟ *ctx)
 {
   size_t actual_length;
-  (void)psa_hash_finish(ctx, digest, CURL_SHA256_DIGEST_LENGTH,
+  (ଶୂନ୍ୟ)psa_hash_finish(ctx, digest, CURL_SHA256_DIGEST_LENGTH,
                         &actual_length);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#ନଚେତଯଦି (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040) || \
       (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000)
-#include <CommonCrypto/CommonDigest.h>
+#ଅନ୍ତର୍ଭାଵ <CommonCrypto/CommonDigest.h>
 
-typedef CC_SHA256_CTX my_sha256_ctx;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା CC_SHA256_CTX my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+ସ୍ଥିର CURLcode my_sha256_init(ଶୂନ୍ୟ *ctx)
 {
-  (void)CC_SHA256_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  (ଶୂନ୍ୟ)CC_SHA256_Init(ctx);  /* always returns 1 */
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_update(ଶୂନ୍ୟ *ctx,
+                             ଅଚଳ unsigned ଅକ୍ଷର *data,
+                             unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା length)
 {
-  (void)CC_SHA256_Update(ctx, data, length);
+  (ଶୂନ୍ୟ)CC_SHA256_Update(ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_final(unsigned ଅକ୍ଷର *digest, ଶୂନ୍ୟ *ctx)
 {
-  (void)CC_SHA256_Final(digest, ctx);
+  (ଶୂନ୍ୟ)CC_SHA256_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#ନଚେତଯଦି defined(USE_WIN32_CRYPTO)
+#ଅନ୍ତର୍ଭାଵ <wincrypt.h>
 
-struct sha256_ctx {
+ସଂରଚନା sha256_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct sha256_ctx my_sha256_ctx;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+ସ୍ଥିର CURLcode my_sha256_init(ଶୂନ୍ୟ *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
+  ଯଦି(!CryptAcquireContext(&ctx->hCryptProv, ଖାଲି, ଖାଲି, PROV_RSA_AES,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
+  ଯଦି(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    ଫେରନ୍ତୁ CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_update(ଶୂନ୍ୟ *in,
+                             ଅଚଳ unsigned ଅକ୍ଷର *data,
+                             unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  CryptHashData(ctx->hHash, (const BYTE *)data, length, 0);
+  CryptHashData(ctx->hHash, (ଅଚଳ BYTE *)data, length, 0);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_final(unsigned ଅକ୍ଷର *digest, ଶୂନ୍ୟ *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   unsigned long length = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == CURL_SHA256_DIGEST_LENGTH)
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, ଖାଲି, &length, 0);
+  ଯଦି(length == CURL_SHA256_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  ଯଦି(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  ଯଦି(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#ଅନ୍ୟଥା
 
 /* When no other crypto library is available we use this code segment */
 
@@ -257,34 +257,34 @@ static void my_sha256_final(unsigned char *digest, void *in)
    (((unsigned long)(a)[2]) <<  8) | \
     ((unsigned long)(a)[3]))
 #define WPA_PUT_BE32(a, val)                                         \
-  do {                                                               \
-    (a)[0] = (unsigned char)((((unsigned long)(val)) >> 24) & 0xff); \
-    (a)[1] = (unsigned char)((((unsigned long)(val)) >> 16) & 0xff); \
-    (a)[2] = (unsigned char)((((unsigned long)(val)) >>  8) & 0xff); \
-    (a)[3] = (unsigned char)(((unsigned long)(val)) & 0xff);         \
-  } while(0)
+  କର {                                                               \
+    (a)[0] = (unsigned ଅକ୍ଷର)((((unsigned long)(val)) >> 24) & 0xff); \
+    (a)[1] = (unsigned ଅକ୍ଷର)((((unsigned long)(val)) >> 16) & 0xff); \
+    (a)[2] = (unsigned ଅକ୍ଷର)((((unsigned long)(val)) >>  8) & 0xff); \
+    (a)[3] = (unsigned ଅକ୍ଷର)(((unsigned long)(val)) & 0xff);         \
+  } ଯେତେବେଳେ(0)
 
 #define WPA_PUT_BE64(a, val)                            \
-  do {                                                  \
-    (a)[0] = (unsigned char)(((uint64_t)(val)) >> 56);  \
-    (a)[1] = (unsigned char)(((uint64_t)(val)) >> 48);  \
-    (a)[2] = (unsigned char)(((uint64_t)(val)) >> 40);  \
-    (a)[3] = (unsigned char)(((uint64_t)(val)) >> 32);  \
-    (a)[4] = (unsigned char)(((uint64_t)(val)) >> 24);  \
-    (a)[5] = (unsigned char)(((uint64_t)(val)) >> 16);  \
-    (a)[6] = (unsigned char)(((uint64_t)(val)) >>  8);  \
-    (a)[7] = (unsigned char)(((uint64_t)(val)) & 0xff); \
-  } while(0)
+  କର {                                                  \
+    (a)[0] = (unsigned ଅକ୍ଷର)(((uint64_t)(val)) >> 56);  \
+    (a)[1] = (unsigned ଅକ୍ଷର)(((uint64_t)(val)) >> 48);  \
+    (a)[2] = (unsigned ଅକ୍ଷର)(((uint64_t)(val)) >> 40);  \
+    (a)[3] = (unsigned ଅକ୍ଷର)(((uint64_t)(val)) >> 32);  \
+    (a)[4] = (unsigned ଅକ୍ଷର)(((uint64_t)(val)) >> 24);  \
+    (a)[5] = (unsigned ଅକ୍ଷର)(((uint64_t)(val)) >> 16);  \
+    (a)[6] = (unsigned ଅକ୍ଷର)(((uint64_t)(val)) >>  8);  \
+    (a)[7] = (unsigned ଅକ୍ଷର)(((uint64_t)(val)) & 0xff); \
+  } ଯେତେବେଳେ(0)
 
-struct sha256_state {
+ସଂରଚନା sha256_state {
   uint64_t length;
   unsigned long state[8], curlen;
-  unsigned char buf[64];
+  unsigned ଅକ୍ଷର buf[64];
 };
-typedef struct sha256_state my_sha256_ctx;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା sha256_state my_sha256_ctx;
 
 /* The K array */
-static const unsigned long K[64] = {
+ସ୍ଥିର ଅଚଳ unsigned long K[64] = {
   0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
   0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
   0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,
@@ -316,33 +316,33 @@ static const unsigned long K[64] = {
 #define Gamma1(x)         (Sha256_S(x, 17) ^ Sha256_S(x, 19) ^ Sha256_R(x, 10))
 
 /* Compress 512 bits */
-static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sha256_compress(ସଂରଚନା sha256_state *md, ଅଚଳ unsigned ଅକ୍ଷର *buf)
 {
   unsigned long S[8], W[64];
-  int i;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
 
   /* Copy state into S */
-  for(i = 0; i < 8; i++) {
+  ପାଇଁ(i = 0; i < 8; i++) {
     S[i] = md->state[i];
   }
   /* copy the state into 512 bits into W[0..15] */
-  for(i = 0; i < 16; i++)
+  ପାଇଁ(i = 0; i < 16; i++)
     W[i] = WPA_GET_BE32(buf + (4 * i));
   /* fill W[16..63] */
-  for(i = 16; i < 64; i++) {
+  ପାଇଁ(i = 16; i < 64; i++) {
     W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) + W[i - 16];
   }
 
   /* Compress */
 #define RND(a, b, c, d, e, f, g, h, i)                                   \
-  do {                                                                   \
+  କର {                                                                   \
     unsigned long t0 = h + Sigma1(e) + Sha256_Ch(e, f, g) + K[i] + W[i]; \
     unsigned long t1 = Sigma0(a) + Sha256_Maj(a, b, c);                  \
     d += t0;                                                             \
     h = t0 + t1;                                                         \
-  } while(0)
+  } ଯେତେବେଳେ(0)
 
-  for(i = 0; i < 64; ++i) {
+  ପାଇଁ(i = 0; i < 64; ++i) {
     unsigned long t;
     RND(S[0], S[1], S[2], S[3], S[4], S[5], S[6], S[7], i);
     t = S[7];
@@ -357,17 +357,17 @@ static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
   }
 
   /* Feedback */
-  for(i = 0; i < 8; i++) {
+  ପାଇଁ(i = 0; i < 8; i++) {
     md->state[i] = md->state[i] + S[i];
   }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* Initialize the hash state */
-static CURLcode my_sha256_init(void *in)
+ସ୍ଥିର CURLcode my_sha256_init(ଶୂନ୍ୟ *in)
 {
-  struct sha256_state *md = (struct sha256_state *)in;
+  ସଂରଚନା sha256_state *md = (ସଂରଚନା sha256_state *)in;
   md->curlen = 0;
   md->length = 0;
   md->state[0] = 0x6A09E667UL;
@@ -379,7 +379,7 @@ static CURLcode my_sha256_init(void *in)
   md->state[6] = 0x1F83D9ABUL;
   md->state[7] = 0x5BE0CD19UL;
 
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
 /* Process a block of memory though the hash
@@ -387,33 +387,33 @@ static CURLcode my_sha256_init(void *in)
    @param in     The data to hash
    @param inlen  The length of the data (octets)
  */
-static void my_sha256_update(void *ctx,
-                             const unsigned char *in,
-                             unsigned int len)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_update(ଶୂନ୍ୟ *ctx,
+                             ଅଚଳ unsigned ଅକ୍ଷର *in,
+                             unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା len)
 {
   unsigned long inlen = len;
   unsigned long n;
-  struct sha256_state *md = (struct sha256_state *)ctx;
+  ସଂରଚନା sha256_state *md = (ସଂରଚନା sha256_state *)ctx;
 #define CURL_SHA256_BLOCK_SIZE 64
-  if(md->curlen > sizeof(md->buf))
-    return;
-  while(inlen > 0) {
-    if(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
-      if(sha256_compress(md, in) < 0)
-        return;
+  ଯଦି(md->curlen > ଆକାର(md->buf))
+    ଫେରନ୍ତୁ;
+  ଯେତେବେଳେ(inlen > 0) {
+    ଯଦି(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
+      ଯଦି(sha256_compress(md, in) < 0)
+        ଫେରନ୍ତୁ;
       md->length += CURL_SHA256_BLOCK_SIZE * 8;
       in += CURL_SHA256_BLOCK_SIZE;
       inlen -= CURL_SHA256_BLOCK_SIZE;
     }
-    else {
+    ଅନ୍ୟଥା {
       n = CURLMIN(inlen, (CURL_SHA256_BLOCK_SIZE - md->curlen));
       memcpy(md->buf + md->curlen, in, n);
       md->curlen += n;
       in += n;
       inlen -= n;
-      if(md->curlen == CURL_SHA256_BLOCK_SIZE) {
-        if(sha256_compress(md, md->buf) < 0)
-          return;
+      ଯଦି(md->curlen == CURL_SHA256_BLOCK_SIZE) {
+        ଯଦି(sha256_compress(md, md->buf) < 0)
+          ଫେରନ୍ତୁ;
         md->length += 8 * CURL_SHA256_BLOCK_SIZE;
         md->curlen = 0;
       }
@@ -426,26 +426,26 @@ static void my_sha256_update(void *ctx,
    @param out [out] The destination of the hash (32 bytes)
    @return 0 if successful
  */
-static void my_sha256_final(unsigned char *out, void *ctx)
+ସ୍ଥିର ଶୂନ୍ୟ my_sha256_final(unsigned ଅକ୍ଷର *out, ଶୂନ୍ୟ *ctx)
 {
-  struct sha256_state *md = ctx;
-  int i;
+  ସଂରଚନା sha256_state *md = ctx;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
 
-  if(md->curlen >= sizeof(md->buf))
-    return;
+  ଯଦି(md->curlen >= ଆକାର(md->buf))
+    ଫେରନ୍ତୁ;
 
   /* Increase the length of the message */
   md->length += md->curlen * 8;
 
   /* Append the '1' bit */
-  md->buf[md->curlen++] = (unsigned char)0x80;
+  md->buf[md->curlen++] = (unsigned ଅକ୍ଷର)0x80;
 
   /* If the length is currently above 56 bytes we append zeros
    * then compress. Then we can fall back to padding zeros and length
    * encoding like normal.
    */
-  if(md->curlen > 56) {
-    while(md->curlen < 64) {
+  ଯଦି(md->curlen > 56) {
+    ଯେତେବେଳେ(md->curlen < 64) {
       md->buf[md->curlen++] = 0;
     }
     sha256_compress(md, md->buf);
@@ -453,7 +453,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   }
 
   /* Pad up to 56 bytes of zeroes */
-  while(md->curlen < 56) {
+  ଯେତେବେଳେ(md->curlen < 56) {
     md->buf[md->curlen++] = 0;
   }
 
@@ -462,7 +462,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   sha256_compress(md, md->buf);
 
   /* Copy output */
-  for(i = 0; i < 8; i++)
+  ପାଇଁ(i = 0; i < 8; i++)
     WPA_PUT_BE32(out + (4 * i), md->state[i]);
 }
 
@@ -481,30 +481,30 @@ static void my_sha256_final(unsigned char *out, void *ctx)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(unsigned ଅକ୍ଷର *output, ଅଚଳ unsigned ଅକ୍ଷର *ନିବେଶ,
                        size_t len)
 {
   CURLcode result;
   my_sha256_ctx ctx;
 
   result = my_sha256_init(&ctx);
-  if(!result) {
-    do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-      my_sha256_update(&ctx, input, ilen);
+  ଯଦି(!result) {
+    କର {
+      unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା ilen = (unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)CURLMIN(len, UINT_MAX);
+      my_sha256_update(&ctx, ନିବେଶ, ilen);
       len -= ilen;
-      input += ilen;
-    } while(len);
+      ନିବେଶ += ilen;
+    } ଯେତେବେଳେ(len);
     my_sha256_final(output, &ctx);
   }
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-const struct HMAC_params Curl_HMAC_SHA256 = {
+ଅଚଳ ସଂରଚନା HMAC_params Curl_HMAC_SHA256 = {
   my_sha256_init,        /* Hash initialization function. */
   my_sha256_update,      /* Hash update function. */
   my_sha256_final,       /* Hash computation end function. */
-  sizeof(my_sha256_ctx), /* Size of hash context structure. */
+  ଆକାର(my_sha256_ctx), /* Size of hash context structure. */
   64,                    /* Maximum key length. */
   32                     /* Result size. */
 };

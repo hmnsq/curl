@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_SMTP
-extern const struct Curl_protocol Curl_protocol_smtp;
+ବାହ୍ୟ ଅଚଳ ସଂରଚନା Curl_protocol Curl_protocol_smtp;
 #endif
 
 #endif /* HEADER_CURL_SMTP_H */

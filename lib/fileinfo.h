@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "llist.h"
-#include "curlx/dynbuf.h"
+#ଅନ୍ତର୍ଭାଵ "llist.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/dynbuf.h"
 
-struct fileinfo {
-  struct curl_fileinfo info;
-  struct Curl_llist_node list;
-  struct dynbuf buf;
+ସଂରଚନା fileinfo {
+  ସଂରଚନା curl_fileinfo info;
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି list;
+  ସଂରଚନା dynbuf buf;
 };
 
-struct fileinfo *Curl_fileinfo_alloc(void);
-void Curl_fileinfo_cleanup(struct fileinfo *finfo);
+ସଂରଚନା fileinfo *Curl_fileinfo_alloc(ଶୂନ୍ୟ);
+ଶୂନ୍ୟ Curl_fileinfo_cleanup(ସଂରଚନା fileinfo *finfo);
 
 #endif /* HEADER_CURL_FILEINFO_H */

@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_FILE
-extern const struct Curl_protocol Curl_protocol_file;
+ବାହ୍ୟ ଅଚଳ ସଂରଚନା Curl_protocol Curl_protocol_file;
 #endif
 
 #endif /* HEADER_CURL_FILE_H */

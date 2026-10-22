@@ -27,7 +27,7 @@
 /*
  * Telnet option defines. Add more here if in need.
  */
-#define CURL_TELOPT_BINARY      0   /* binary 8-bit data */
+#define CURL_TELOPT_ଦ୍ୱିମିକ      0   /* binary 8-bit data */
 #define CURL_TELOPT_ECHO        1   /* echo */
 #define CURL_TELOPT_SGA         3   /* Suppress Go Ahead */
 #define CURL_TELOPT_EXOPL       255 /* EXtended OPtions List */
@@ -37,13 +37,13 @@
 #define CURL_TELOPT_NEW_ENVIRON 39  /* NEW ENVIRONment variables */
 
 #define CURL_NEW_ENV_VAR   0
-#define CURL_NEW_ENV_VALUE 1
+#define CURL_NEW_ENV_ମୂଲ୍ୟ 1
 
 #ifdef CURLVERBOSE
 /*
  * The telnet options represented as strings
  */
-static const char * const telnetoptions[] = {
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର * ଅଚଳ telnetoptions[] = {
   "BINARY",      "ECHO",           "RCP",           "SUPPRESS GO AHEAD",
   "NAME",        "STATUS",         "TIMING MARK",   "RCTE",
   "NAOL",        "NAOP",           "NAOCRD",        "NAOHTS",
@@ -56,7 +56,7 @@ static const char * const telnetoptions[] = {
   "OLD-ENVIRON", "AUTHENTICATION", "ENCRYPT",       "NEW-ENVIRON"
 };
 #define CURL_TELOPT(x) telnetoptions[x]
-#else
+#ଅନ୍ୟଥା
 #define CURL_TELOPT(x) ""
 #endif
 
@@ -85,7 +85,7 @@ static const char * const telnetoptions[] = {
 /*
  * Then those numbers represented as strings:
  */
-static const char * const telnetcmds[] = {
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର * ଅଚଳ telnetcmds[] = {
   "EOF",  "SUSP",  "ABORT", "EOR",  "SE",
   "NOP",  "DMARK", "BRK",   "IP",   "AO",
   "AYT",  "EC",    "EL",    "GA",   "SB",
@@ -102,12 +102,12 @@ static const char * const telnetcmds[] = {
 #define CURL_TELQUAL_NAME 3
 
 #define CURL_TELCMD_OK(x)                        \
-  (((unsigned int)(x) >= CURL_TELCMD_MINIMUM) && \
-   ((unsigned int)(x) <= CURL_TELCMD_MAXIMUM))
+  (((unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)(x) >= CURL_TELCMD_MINIMUM) && \
+   ((unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)(x) <= CURL_TELCMD_MAXIMUM))
 
 #ifdef CURLVERBOSE
 #define CURL_TELCMD(x) telnetcmds[(x) - CURL_TELCMD_MINIMUM]
-#else
+#ଅନ୍ୟଥା
 #define CURL_TELCMD(x) ""
 #endif
 

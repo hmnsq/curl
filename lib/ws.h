@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#ଯଦି !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 
-extern const struct Curl_protocol Curl_protocol_ws;
+ବାହ୍ୟ ଅଚଳ ସଂରଚନା Curl_protocol Curl_protocol_ws;
 
 /* meta key for storing protocol meta at connection */
 #define CURL_META_PROTO_WS_CONN   "meta:proto:ws:conn"
 
-CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req);
-CURLcode Curl_ws_accept(struct Curl_easy *data,
-                        const char *mem, size_t nread);
+CURLcode Curl_ws_request(ସଂରଚନା Curl_easy *data, ସଂରଚନା dynbuf *req);
+CURLcode Curl_ws_accept(ସଂରଚନା Curl_easy *data,
+                        ଅଚଳ ଅକ୍ଷର *mem, size_t nread);
 
-#else
+#ଅନ୍ୟଥା
 #define Curl_ws_request(x, y) CURLE_OK
 #define Curl_ws_free(x)       Curl_nop_stmt
 #endif

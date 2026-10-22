@@ -24,120 +24,120 @@
 /*
  * IDN conversions
  */
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "urldata.h"
-#include "curlx/strparse.h"
-#include "idn.h"
+#ଅନ୍ତର୍ଭାଵ "urldata.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/strparse.h"
+#ଅନ୍ତର୍ଭାଵ "idn.h"
 
 #ifdef USE_LIBIDN2
-#include <idn2.h>
+#ଅନ୍ତର୍ଭାଵ <idn2.h>
 
-#if defined(_WIN32) && defined(UNICODE)
+#ଯଦି defined(_WIN32) && defined(UNICODE)
 #define IDN2_LOOKUP(name, host, flags)                           \
-  idn2_lookup_u8((const uint8_t *)name, (uint8_t **)host, flags)
-#else
+  idn2_lookup_u8((ଅଚଳ uint8_t *)name, (uint8_t **)host, flags)
+#ଅନ୍ୟଥା
 #define IDN2_LOOKUP(name, host, flags)                         \
-  idn2_lookup_ul((const char *)(name), (char **)(host), flags)
+  idn2_lookup_ul((ଅଚଳ ଅକ୍ଷର *)(name), (ଅକ୍ଷର **)(host), flags)
 #endif
 #endif /* USE_LIBIDN2 */
 
 /* for macOS and iOS targets */
 #ifdef USE_APPLE_IDN
-#include <unicode/uidna.h>
-#include <iconv.h>
-#include <langinfo.h>
+#ଅନ୍ତର୍ଭାଵ <unicode/uidna.h>
+#ଅନ୍ତର୍ଭାଵ <iconv.h>
+#ଅନ୍ତର୍ଭାଵ <langinfo.h>
 
 #define MAX_HOST_LENGTH 512
 
-static CURLcode iconv_to_utf8(const char *in, size_t inlen,
-                              char **out, size_t *outlen)
+ସ୍ଥିର CURLcode iconv_to_utf8(ଅଚଳ ଅକ୍ଷର *in, size_t inlen,
+                              ଅକ୍ଷର **out, size_t *outlen)
 {
   iconv_t cd = iconv_open("UTF-8", nl_langinfo(CODESET));
-  if(cd != (iconv_t)-1) {
+  ଯଦି(cd != (iconv_t)-1) {
     size_t iconv_outlen = *outlen;
-    char *iconv_in = (char *)CURL_UNCONST(in);
+    ଅକ୍ଷର *iconv_in = (ଅକ୍ଷର *)CURL_UNCONST(in);
     size_t iconv_inlen = inlen;
     size_t iconv_result = iconv(cd, &iconv_in, &iconv_inlen,
                                 out, &iconv_outlen);
     *outlen -= iconv_outlen;
     iconv_close(cd);
-    if(iconv_result == (size_t)-1) {
+    ଯଦି(iconv_result == (size_t)-1) {
       /* !checksrc! disable ERRNOVAR 1 */
-      if(errno == ENOMEM)
-        return CURLE_OUT_OF_MEMORY;
-      else
-        return CURLE_URL_MALFORMAT;
+      ଯଦି(errno == ENOMEM)
+        ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
+      ଅନ୍ୟଥା
+        ଫେରନ୍ତୁ CURLE_URL_MALFORMAT;
     }
 
-    return CURLE_OK;
+    ଫେରନ୍ତୁ CURLE_OK;
   }
-  else {
+  ଅନ୍ୟଥା {
     /* !checksrc! disable ERRNOVAR 1 */
-    if(errno == ENOMEM)
-      return CURLE_OUT_OF_MEMORY;
-    else
-      return CURLE_FAILED_INIT;
+    ଯଦି(errno == ENOMEM)
+      ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
+    ଅନ୍ୟଥା
+      ଫେରନ୍ତୁ CURLE_FAILED_INIT;
   }
 }
 
-static CURLcode mac_idn_to_ascii(const char *in, char **out)
+ସ୍ଥିର CURLcode mac_idn_to_ascii(ଅଚଳ ଅକ୍ଷର *in, ଅକ୍ଷର **out)
 {
   size_t inlen = strlen(in);
-  if(inlen < MAX_HOST_LENGTH) {
-    char iconv_buffer[MAX_HOST_LENGTH] = { 0 };
-    char *iconv_outptr = iconv_buffer;
-    size_t iconv_outlen = sizeof(iconv_buffer);
+  ଯଦି(inlen < MAX_HOST_LENGTH) {
+    ଅକ୍ଷର iconv_buffer[MAX_HOST_LENGTH] = { 0 };
+    ଅକ୍ଷର *iconv_outptr = iconv_buffer;
+    size_t iconv_outlen = ଆକାର(iconv_buffer);
     CURLcode iconv_result = iconv_to_utf8(in, inlen,
                                           &iconv_outptr, &iconv_outlen);
-    if(!iconv_result) {
+    ଯଦି(!iconv_result) {
       UErrorCode err = U_ZERO_ERROR;
       UIDNA *idna = uidna_openUTS46(
         UIDNA_CHECK_BIDI | UIDNA_NONTRANSITIONAL_TO_ASCII, &err);
-      if(!U_FAILURE(err)) {
+      ଯଦି(!U_FAILURE(err)) {
         UIDNAInfo info = UIDNA_INFO_INITIALIZER;
-        char buffer[MAX_HOST_LENGTH] = { 0 };
-        (void)uidna_nameToASCII_UTF8(idna, iconv_buffer, (int)iconv_outlen,
-                                     buffer, sizeof(buffer) - 1, &info, &err);
+        ଅକ୍ଷର buffer[MAX_HOST_LENGTH] = { 0 };
+        (ଶୂନ୍ୟ)uidna_nameToASCII_UTF8(idna, iconv_buffer, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)iconv_outlen,
+                                     buffer, ଆକାର(buffer) - 1, &info, &err);
         uidna_close(idna);
-        if(!U_FAILURE(err) && !info.errors) {
+        ଯଦି(!U_FAILURE(err) && !info.errors) {
           *out = curlx_strdup(buffer);
-          if(*out)
-            return CURLE_OK;
-          else
-            return CURLE_OUT_OF_MEMORY;
+          ଯଦି(*out)
+            ଫେରନ୍ତୁ CURLE_OK;
+          ଅନ୍ୟଥା
+            ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
         }
       }
     }
-    else
-      return iconv_result;
+    ଅନ୍ୟଥା
+      ଫେରନ୍ତୁ iconv_result;
   }
-  return CURLE_URL_MALFORMAT;
+  ଫେରନ୍ତୁ CURLE_URL_MALFORMAT;
 }
 
-static CURLcode mac_ascii_to_idn(const char *in, char **out)
+ସ୍ଥିର CURLcode mac_ascii_to_idn(ଅଚଳ ଅକ୍ଷର *in, ଅକ୍ଷର **out)
 {
   size_t inlen = strlen(in);
-  if(inlen < MAX_HOST_LENGTH) {
+  ଯଦି(inlen < MAX_HOST_LENGTH) {
     UErrorCode err = U_ZERO_ERROR;
     UIDNA *idna = uidna_openUTS46(
       UIDNA_CHECK_BIDI | UIDNA_NONTRANSITIONAL_TO_UNICODE, &err);
-    if(!U_FAILURE(err)) {
+    ଯଦି(!U_FAILURE(err)) {
       UIDNAInfo info = UIDNA_INFO_INITIALIZER;
-      char buffer[MAX_HOST_LENGTH] = { 0 };
-      (void)uidna_nameToUnicodeUTF8(idna, in, -1, buffer,
-                                    sizeof(buffer) - 1, &info, &err);
+      ଅକ୍ଷର buffer[MAX_HOST_LENGTH] = { 0 };
+      (ଶୂନ୍ୟ)uidna_nameToUnicodeUTF8(idna, in, -1, buffer,
+                                    ଆକାର(buffer) - 1, &info, &err);
       uidna_close(idna);
-      if(!U_FAILURE(err)) {
+      ଯଦି(!U_FAILURE(err)) {
         *out = curlx_strdup(buffer);
-        if(*out)
-          return CURLE_OK;
-        else
-          return CURLE_OUT_OF_MEMORY;
+        ଯଦି(*out)
+          ଫେରନ୍ତୁ CURLE_OK;
+        ଅନ୍ୟଥା
+          ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
       }
     }
   }
-  return CURLE_URL_MALFORMAT;
+  ଫେରନ୍ତୁ CURLE_URL_MALFORMAT;
 }
 #endif
 
@@ -146,76 +146,76 @@ static CURLcode mac_ascii_to_idn(const char *in, char **out)
 
 #define IDN_MAX_LENGTH 255
 
-static char *idn_curlx_convert_wchar_to_UTF8(const wchar_t *str_w, int chars)
+ସ୍ଥିର ଅକ୍ଷର *idn_curlx_convert_wchar_to_UTF8(ଅଚଳ wchar_t *str_w, ପୂର୍ଣ୍ଣସଂଖ୍ୟା chars)
 {
-  char *str_utf8 = NULL;
-  int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, chars, NULL, 0,
-                                  NULL, NULL);
-  if(bytes > 0) {
+  ଅକ୍ଷର *str_utf8 = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, chars, ଖାଲି, 0,
+                                  ଖାଲି, ଖାଲି);
+  ଯଦି(bytes > 0) {
     str_utf8 = curlx_malloc(bytes);
-    if(str_utf8) {
-      if(WideCharToMultiByte(CP_UTF8, 0, str_w, chars, str_utf8, bytes,
-                             NULL, NULL) == 0) {
+    ଯଦି(str_utf8) {
+      ଯଦି(WideCharToMultiByte(CP_UTF8, 0, str_w, chars, str_utf8, bytes,
+                             ଖାଲି, ଖାଲି) == 0) {
         curlx_free(str_utf8);
-        return NULL;
+        ଫେରନ୍ତୁ ଖାଲି;
       }
     }
   }
-  return str_utf8;
+  ଫେରନ୍ତୁ str_utf8;
 }
 
-static CURLcode win32_idn_to_ascii(const char *in, char **out)
+ସ୍ଥିର CURLcode win32_idn_to_ascii(ଅଚଳ ଅକ୍ଷର *in, ଅକ୍ଷର **out)
 {
   wchar_t in_w[IDN_MAX_LENGTH];
-  int in_w_len;
-  *out = NULL;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା in_w_len;
+  *out = ଖାଲି;
   /* Returned in_w_len includes the null-terminator, which then gets
      preserved across the calls that follow, ending up terminating
      the buffer returned to the caller. */
   in_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                  in, -1, in_w, IDN_MAX_LENGTH);
-  if(in_w_len) {
+  ଯଦି(in_w_len) {
     wchar_t punycode[IDN_MAX_LENGTH];
-    int chars = IdnToAscii(0, in_w, in_w_len, punycode, IDN_MAX_LENGTH);
-    if(chars > 0) {
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା chars = IdnToAscii(0, in_w, in_w_len, punycode, IDN_MAX_LENGTH);
+    ଯଦି(chars > 0) {
       *out = idn_curlx_convert_wchar_to_UTF8(punycode, chars);
-      if(!*out)
-        return CURLE_OUT_OF_MEMORY;
+      ଯଦି(!*out)
+        ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
     }
-    else
-      return CURLE_URL_MALFORMAT;
+    ଅନ୍ୟଥା
+      ଫେରନ୍ତୁ CURLE_URL_MALFORMAT;
   }
-  else
-    return CURLE_URL_MALFORMAT;
+  ଅନ୍ୟଥା
+    ଫେରନ୍ତୁ CURLE_URL_MALFORMAT;
 
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static CURLcode win32_ascii_to_idn(const char *in, char **out)
+ସ୍ଥିର CURLcode win32_ascii_to_idn(ଅଚଳ ଅକ୍ଷର *in, ଅକ୍ଷର **out)
 {
   wchar_t in_w[IDN_MAX_LENGTH];
-  int in_w_len;
-  *out = NULL;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା in_w_len;
+  *out = ଖାଲି;
   /* Returned in_w_len includes the null-terminator, which then gets
      preserved across the calls that follow, ending up terminating
      the buffer returned to the caller. */
   in_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                  in, -1, in_w, IDN_MAX_LENGTH);
-  if(in_w_len) {
+  ଯଦି(in_w_len) {
     WCHAR idn[IDN_MAX_LENGTH]; /* stores a UTF-16 string */
-    int chars = IdnToUnicode(0, in_w, in_w_len, idn, IDN_MAX_LENGTH);
-    if(chars > 0) {  /* 'chars' is "the number of characters retrieved" */
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା chars = IdnToUnicode(0, in_w, in_w_len, idn, IDN_MAX_LENGTH);
+    ଯଦି(chars > 0) {  /* 'chars' is "the number of characters retrieved" */
       *out = idn_curlx_convert_wchar_to_UTF8(idn, chars);
-      if(!*out)
-        return CURLE_OUT_OF_MEMORY;
+      ଯଦି(!*out)
+        ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
     }
-    else
-      return CURLE_URL_MALFORMAT;
+    ଅନ୍ୟଥା
+      ଫେରନ୍ତୁ CURLE_URL_MALFORMAT;
   }
-  else
-    return CURLE_URL_MALFORMAT;
+  ଅନ୍ୟଥା
+    ଫେରନ୍ତୁ CURLE_URL_MALFORMAT;
 
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
 #endif /* USE_WIN32_IDN */
@@ -223,28 +223,28 @@ static CURLcode win32_ascii_to_idn(const char *in, char **out)
 /*
  * Helpers for IDNA conversions.
  */
-bool Curl_is_ASCII_name(const char *hostname)
+bool Curl_is_ASCII_name(ଅଚଳ ଅକ୍ଷର *hostname)
 {
-  if(hostname) {
-    struct Curl_str s;
+  ଯଦି(hostname) {
+    ସଂରଚନା Curl_str s;
     s.str = hostname;
     s.len = strlen(hostname);
-    return Curl_is_ASCII_str(&s);
+    ଫେରନ୍ତୁ Curl_is_ASCII_str(&s);
   }
-  return TRUE;
+  ଫେରନ୍ତୁ TRUE;
 }
 
-bool Curl_is_ASCII_str(struct Curl_str *s)
+bool Curl_is_ASCII_str(ସଂରଚନା Curl_str *s)
 {
-  if(s && s->len) {
-    const unsigned char *ch = (const unsigned char *)s->str;
+  ଯଦି(s && s->len) {
+    ଅଚଳ unsigned ଅକ୍ଷର *ch = (ଅଚଳ unsigned ଅକ୍ଷର *)s->str;
     size_t i;
-    for(i = 0; i < s->len; ++i) {
-      if(ch[i] & 0x80)
-        return FALSE;
+    ପାଇଁ(i = 0; i < s->len; ++i) {
+      ଯଦି(ch[i] & 0x80)
+        ଫେରନ୍ତୁ FALSE;
     }
   }
-  return TRUE;
+  ଫେରନ୍ତୁ TRUE;
 }
 
 #ifdef USE_IDN
@@ -256,109 +256,109 @@ bool Curl_is_ASCII_str(struct Curl_str *s)
  * CURLE_OUT_OF_MEMORY - memory problem
  *
  */
-static CURLcode idn_decode(const char *input, char **output)
+ସ୍ଥିର CURLcode idn_decode(ଅଚଳ ଅକ୍ଷର *ନିବେଶ, ଅକ୍ଷର **output)
 {
-  char *decoded = NULL;
+  ଅକ୍ଷର *decoded = ଖାଲି;
   CURLcode result = CURLE_OK;
 #ifdef USE_LIBIDN2
-  if(idn2_check_version(IDN2_VERSION)) {
-    int flags = IDN2_NFC_INPUT
-#if IDN2_VERSION_NUMBER >= 0x00140000
+  ଯଦି(idn2_check_version(IDN2_VERSION)) {
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = IDN2_NFC_ନିବେଶ
+#ଯଦି IDN2_VERSION_ସଂଖ୍ୟା >= 0x00140000
       /* IDN2_NFC_INPUT: Normalize input string using normalization form C.
          IDN2_NONTRANSITIONAL: Perform Unicode TR46 non-transitional
          processing. */
       | IDN2_NONTRANSITIONAL
 #endif
       ;
-    int rc = IDN2_LOOKUP(input, &decoded, flags);
-    if(rc != IDN2_OK)
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc = IDN2_LOOKUP(ନିବେଶ, &decoded, flags);
+    ଯଦି(rc != IDN2_OK)
       /* fallback to TR46 Transitional mode for better IDNA2003
          compatibility */
-      rc = IDN2_LOOKUP(input, &decoded, IDN2_TRANSITIONAL);
-    if(rc != IDN2_OK)
+      rc = IDN2_LOOKUP(ନିବେଶ, &decoded, IDN2_TRANSITIONAL);
+    ଯଦି(rc != IDN2_OK)
       result = CURLE_URL_MALFORMAT;
   }
-  else
+  ଅନ୍ୟଥା
     /* a too old libidn2 version */
     result = CURLE_NOT_BUILT_IN;
-#elif defined(USE_WIN32_IDN)
-  result = win32_idn_to_ascii(input, &decoded);
-#elif defined(USE_APPLE_IDN)
-  result = mac_idn_to_ascii(input, &decoded);
+#ନଚେତଯଦି defined(USE_WIN32_IDN)
+  result = win32_idn_to_ascii(ନିବେଶ, &decoded);
+#ନଚେତଯଦି defined(USE_APPLE_IDN)
+  result = mac_idn_to_ascii(ନିବେଶ, &decoded);
 #endif
-  if(!result)
+  ଯଦି(!result)
     *output = decoded;
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static CURLcode idn_encode(const char *puny, char **output)
+ସ୍ଥିର CURLcode idn_encode(ଅଚଳ ଅକ୍ଷର *puny, ଅକ୍ଷର **output)
 {
-  char *enc = NULL;
+  ଅକ୍ଷର *enc = ଖାଲି;
 #ifdef USE_LIBIDN2
-  int rc = idn2_to_unicode_8z8z(puny, &enc, 0);
-  if(rc != IDNA_SUCCESS)
-    return rc == IDNA_MALLOC_ERROR ? CURLE_OUT_OF_MEMORY : CURLE_URL_MALFORMAT;
-#elif defined(USE_WIN32_IDN)
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc = idn2_to_unicode_8z8z(puny, &enc, 0);
+  ଯଦି(rc != IDNA_SUCCESS)
+    ଫେରନ୍ତୁ rc == IDNA_MALLOC_ERROR ? CURLE_OUT_OF_MEMORY : CURLE_URL_MALFORMAT;
+#ନଚେତଯଦି defined(USE_WIN32_IDN)
   CURLcode result = win32_ascii_to_idn(puny, &enc);
-  if(result)
-    return result;
-#elif defined(USE_APPLE_IDN)
+  ଯଦି(result)
+    ଫେରନ୍ତୁ result;
+#ନଚେତଯଦି defined(USE_APPLE_IDN)
   CURLcode result = mac_ascii_to_idn(puny, &enc);
-  if(result)
-    return result;
+  ଯଦି(result)
+    ଫେରନ୍ତୁ result;
 #endif
   *output = enc;
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-CURLcode Curl_idn_decode(const char *input, char **output)
+CURLcode Curl_idn_decode(ଅଚଳ ଅକ୍ଷର *ନିବେଶ, ଅକ୍ଷର **output)
 {
-  char *d = NULL;
-  CURLcode result = idn_decode(input, &d);
+  ଅକ୍ଷର *d = ଖାଲି;
+  CURLcode result = idn_decode(ନିବେଶ, &d);
 #ifdef USE_LIBIDN2
-  if(!result) {
-    char *c = curlx_strdup(d);
+  ଯଦି(!result) {
+    ଅକ୍ଷର *c = curlx_strdup(d);
     idn2_free(d);
-    if(c)
+    ଯଦି(c)
       d = c;
-    else
+    ଅନ୍ୟଥା
       result = CURLE_OUT_OF_MEMORY;
   }
 #endif
-  if(!result) {
-    if(!d[0]) { /* ended up zero length, not acceptable */
+  ଯଦି(!result) {
+    ଯଦି(!d[0]) { /* ended up zero length, not acceptable */
       result = CURLE_URL_MALFORMAT;
       curlx_free(d);
     }
-    else
+    ଅନ୍ୟଥା
       *output = d;
   }
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-CURLcode Curl_idn_encode(const char *puny, char **output)
+CURLcode Curl_idn_encode(ଅଚଳ ଅକ୍ଷର *puny, ଅକ୍ଷର **output)
 {
-  char *d = NULL;
+  ଅକ୍ଷର *d = ଖାଲି;
   CURLcode result = idn_encode(puny, &d);
 #ifdef USE_LIBIDN2
-  if(!result) {
-    char *c = curlx_strdup(d);
+  ଯଦି(!result) {
+    ଅକ୍ଷର *c = curlx_strdup(d);
     idn2_free(d);
-    if(c)
+    ଯଦି(c)
       d = c;
-    else
+    ଅନ୍ୟଥା
       result = CURLE_OUT_OF_MEMORY;
   }
 #endif
-  if(!result)
+  ଯଦି(!result)
     *output = d;
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
 /*
  * Frees data allocated by idnconvert_hostname()
  */
-void Curl_free_idnconverted_hostname(struct hostname *host)
+ଶୂନ୍ୟ Curl_free_idnconverted_hostname(ସଂରଚନା hostname *host)
 {
   curlx_safefree(host->encalloc);
 }
@@ -368,21 +368,21 @@ void Curl_free_idnconverted_hostname(struct hostname *host)
 /*
  * Perform any necessary IDN conversion of hostname
  */
-CURLcode Curl_idnconvert_hostname(struct hostname *host)
+CURLcode Curl_idnconvert_hostname(ସଂରଚନା hostname *host)
 {
   /* set the name we use to display the hostname */
   host->dispname = host->name;
 
 #ifdef USE_IDN
   /* Check name for non-ASCII and convert hostname if we can */
-  if(!Curl_is_ASCII_name(host->name)) {
-    char *decoded;
+  ଯଦି(!Curl_is_ASCII_name(host->name)) {
+    ଅକ୍ଷର *decoded;
     CURLcode result = Curl_idn_decode(host->name, &decoded);
-    if(result)
-      return result;
+    ଯଦି(result)
+      ଫେରନ୍ତୁ result;
     /* successful */
     host->name = host->encalloc = decoded;
   }
 #endif
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }

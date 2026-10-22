@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-struct Curl_easy;
+ସଂରଚନା Curl_easy;
 
 /**
  * The client writer type "cw-out" that does the actual writing to
  * the client callbacks. Intended to be the last installed in the
  * client writer stack of a transfer.
  */
-extern const struct Curl_cwtype Curl_cwt_out;
+ବାହ୍ୟ ଅଚଳ ସଂରଚନା Curl_cwtype Curl_cwt_out;
 
 /**
  * Mark EndOfStream reached and flush ALL data to the client.
  */
-CURLcode Curl_cw_out_done(struct Curl_easy *data);
+CURLcode Curl_cw_out_done(ସଂରଚନା Curl_easy *data);
 
 #endif /* HEADER_CURL_CW_OUT_H */

@@ -23,50 +23,50 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#ଯଦି !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
-#include <ngtcp2/ngtcp2.h>
-#include <ngtcp2/ngtcp2_crypto.h>
+#ଅନ୍ତର୍ଭାଵ <ngtcp2/ngtcp2.h>
+#ଅନ୍ତର୍ଭାଵ <ngtcp2/ngtcp2_crypto.h>
 
 #ifdef USE_OPENSSL
-#include <openssl/err.h>
-#if defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
-#include <ngtcp2/ngtcp2_crypto_boringssl.h>
-#elif defined(OPENSSL_QUIC_API2)
-#include <ngtcp2/ngtcp2_crypto_ossl.h>
-#else
-#include <ngtcp2/ngtcp2_crypto_quictls.h>
+#ଅନ୍ତର୍ଭାଵ <openssl/err.h>
+#ଯଦି defined(OPENSSL_IS_AWSLC) || defined(OPENSSL_IS_BORINGSSL)
+#ଅନ୍ତର୍ଭାଵ <ngtcp2/ngtcp2_crypto_boringssl.h>
+#ନଚେତଯଦି defined(OPENSSL_QUIC_API2)
+#ଅନ୍ତର୍ଭାଵ <ngtcp2/ngtcp2_crypto_ossl.h>
+#ଅନ୍ୟଥା
+#ଅନ୍ତର୍ଭାଵ <ngtcp2/ngtcp2_crypto_quictls.h>
 #endif
-#include "vtls/openssl.h"
-#elif defined(USE_GNUTLS)
-#include <ngtcp2/ngtcp2_crypto_gnutls.h>
-#include "vtls/gtls.h"
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/quic.h>
-#include <ngtcp2/ngtcp2_crypto_wolfssl.h>
-#include "vtls/wolfssl.h"
+#ଅନ୍ତର୍ଭାଵ "vtls/openssl.h"
+#ନଚେତଯଦି defined(USE_GNUTLS)
+#ଅନ୍ତର୍ଭାଵ <ngtcp2/ngtcp2_crypto_gnutls.h>
+#ଅନ୍ତର୍ଭାଵ "vtls/gtls.h"
+#ନଚେତଯଦି defined(USE_WOLFSSL)
+#ଅନ୍ତର୍ଭାଵ <wolfssl/options.h>
+#ଅନ୍ତର୍ଭାଵ <wolfssl/ssl.h>
+#ଅନ୍ତର୍ଭାଵ <wolfssl/quic.h>
+#ଅନ୍ତର୍ଭାଵ <ngtcp2/ngtcp2_crypto_wolfssl.h>
+#ଅନ୍ତର୍ଭାଵ "vtls/wolfssl.h"
 #endif
 
 #ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
+#ଅନ୍ତର୍ଭାଵ <netinet/udp.h>
 #endif
 
-#include <nghttp3/nghttp3.h>
+#ଅନ୍ତର୍ଭାଵ <nghttp3/nghttp3.h>
 
-#include "http1.h"
-#include "u32_ptrset.h"
-#include "vtls/vtls.h"
-#include "vquic/vquic_int.h"
-#include "vquic/vquic-tls.h"
+#ଅନ୍ତର୍ଭାଵ "http1.h"
+#ଅନ୍ତର୍ଭାଵ "u32_ptrset.h"
+#ଅନ୍ତର୍ଭାଵ "vtls/vtls.h"
+#ଅନ୍ତର୍ଭାଵ "vquic/vquic_int.h"
+#ଅନ୍ତର୍ଭାଵ "vquic/vquic-tls.h"
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct cf_ngtcp2_ctx;
-struct cf_quic_ctx;
+ସଂରଚନା Curl_cfilter;
+ସଂରଚନା Curl_easy;
+ସଂରଚନା cf_ngtcp2_ctx;
+ସଂରଚନା cf_quic_ctx;
 
 #define QUIC_MAX_STREAMS       (256 * 1024)
 #define QUIC_HANDSHAKE_TIMEOUT (10 * NGTCP2_SECONDS)
@@ -80,7 +80,7 @@ struct cf_quic_ctx;
 #define H3_CONN_WINDOW_SIZE_MAX       (100 * H3_STREAM_WINDOW_SIZE_MAX)
 
 #define H3_STREAM_CHUNK_SIZE  (64 * 1024)
-#if H3_STREAM_CHUNK_SIZE < NGTCP2_MAX_UDP_PAYLOAD_SIZE
+#ଯଦି H3_STREAM_CHUNK_SIZE < NGTCP2_MAX_UDP_PAYLOAD_SIZE
 #error H3_STREAM_CHUNK_SIZE smaller than NGTCP2_MAX_UDP_PAYLOAD_SIZE
 #endif
 /* The pool keeps spares around for all streams.
@@ -98,16 +98,16 @@ struct cf_quic_ctx;
 #define QUIC_TUNNEL_INGRESS_PKT_LIMIT 1000
 
 
-void Curl_ngtcp2_ver(char *p, size_t len);
+ଶୂନ୍ୟ Curl_ngtcp2_ver(ଅକ୍ଷର *p, size_t len);
 
-typedef CURLcode cf_ngtcp2_init_h3_conn(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct cf_ngtcp2_ctx *ctx);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା CURLcode cf_ngtcp2_init_h3_conn(ସଂରଚନା Curl_cfilter *cf,
+                                        ସଂରଚନା Curl_easy *data,
+                                        ସଂରଚନା cf_ngtcp2_ctx *ctx);
 
-struct cf_ngtcp2_ctx {
-  struct cf_quic_ctx q;
-  struct ssl_peer ssl_peer;
-  struct curl_tls_ctx tls;
+ସଂରଚନା cf_ngtcp2_ctx {
+  ସଂରଚନା cf_quic_ctx q;
+  ସଂରଚନା ssl_peer ssl_peer;
+  ସଂରଚନା curl_tls_ctx tls;
 #ifdef OPENSSL_QUIC_API2
   ngtcp2_crypto_ossl_ctx *ossl_ctx;
 #endif
@@ -120,15 +120,15 @@ struct cf_ngtcp2_ctx {
   ngtcp2_transport_params transport_params;
   ngtcp2_ccerr last_error;
   ngtcp2_crypto_conn_ref conn_ref;
-  struct cf_call_data call_data;
+  ସଂରଚନା cf_call_data call_data;
   cf_ngtcp2_init_h3_conn *init_h3_conn_cb;
   nghttp3_conn *h3conn;
   nghttp3_settings h3settings;
-  struct curltime started_at;       /* time the current attempt started */
-  struct curltime handshake_at;     /* time connect handshake finished */
-  struct bufc_pool stream_bufcp;    /* chunk pool for streams */
-  struct dynbuf scratch;            /* temp buffer for header construction */
-  struct u32_ptrset streams;        /* set of data->mid + h3_stream_ctx */
+  ସଂରଚନା curltime started_at;       /* time the current attempt started */
+  ସଂରଚନା curltime handshake_at;     /* time connect handshake finished */
+  ସଂରଚନା bufc_pool stream_bufcp;    /* chunk pool for streams */
+  ସଂରଚନା dynbuf scratch;            /* temp buffer for header construction */
+  ସଂରଚନା u32_ptrset streams;        /* set of data->mid + h3_stream_ctx */
   uint64_t used_bidi_streams;       /* bidi streams we have opened */
   uint64_t max_bidi_streams;        /* max bidi streams we can open */
   size_t earlydata_max;             /* max amount of early data supported by
@@ -136,8 +136,8 @@ struct cf_ngtcp2_ctx {
   size_t earlydata_skip;            /* sending bytes to skip when earlydata
                                        is accepted by peer */
   CURLcode tls_vrfy_result;         /* result of TLS peer verification */
-  int qlogfd;
-  unsigned char *tunnel_inbuf;      /* ingress buffer for tunneled packets */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା qlogfd;
+  unsigned ଅକ୍ଷର *tunnel_inbuf;      /* ingress buffer for tunneled packets */
   size_t tunnel_inbuf_len;
   BIT(initialized);
   BIT(tls_handshake_complete);      /* TLS handshake is done */
@@ -149,27 +149,27 @@ struct cf_ngtcp2_ctx {
 
 /* How to access `call_data` from a cf_ngtcp2 filter */
 #undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct cf_ngtcp2_ctx *)(cf)->ctx)->call_data
+#define CF_CTX_CALL_DATA(cf) ((ସଂରଚନା cf_ngtcp2_ctx *)(cf)->ctx)->call_data
 
-CURLcode Curl_cf_ngtcp2_ctx_init(struct cf_ngtcp2_ctx *ctx,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
-                                 struct ssl_filter_config *sslc,
+CURLcode Curl_cf_ngtcp2_ctx_init(ସଂରଚନା cf_ngtcp2_ctx *ctx,
+                                 ସଂରଚନା Curl_peer *origin,
+                                 ସଂରଚନା Curl_peer *peer,
+                                 ସଂରଚନା ssl_filter_config *sslc,
                                  cf_ngtcp2_init_h3_conn *init_h3_conn_cb);
-void Curl_cf_ngtcp2_ctx_cleanup(struct cf_ngtcp2_ctx *ctx);
-void Curl_cf_ngtcp2_cmn_err_set(struct Curl_cfilter *cf,
-                                struct Curl_easy *data, int code);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_ctx_cleanup(ସଂରଚନା cf_ngtcp2_ctx *ctx);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_cmn_err_set(ସଂରଚନା Curl_cfilter *cf,
+                                ସଂରଚନା Curl_easy *data, ପୂର୍ଣ୍ଣସଂଖ୍ୟା code);
 
 /**
  * All about the H3 internals of a stream
  */
-struct h3_stream_ctx {
+ସଂରଚନା h3_stream_ctx {
   int64_t id;                   /* HTTP/3 stream identifier */
   curl_off_t xfer_id;           /* `id` of transfer owning this stream */
-  struct bufq sendbuf;          /* h3 request body */
-  struct h1_req_parser h1;      /* h1 request parsing */
+  ସଂରଚନା bufq sendbuf;          /* h3 request body */
+  ସଂରଚନା h1_req_parser h1;      /* h1 request parsing */
   uint64_t error3;              /* HTTP/3 stream error code */
-  curl_off_t upload_left;       /* number of request bytes left to upload */
+  curl_off_t upload_ବାମ;       /* number of request bytes left to upload */
   curl_off_t rx_total;          /* total number of bytes received */
   uint64_t rx_offset;           /* current receive offset */
   uint64_t rx_offset_max;       /* allowed receive offset */
@@ -185,73 +185,73 @@ struct h3_stream_ctx {
   BIT(quic_flow_blocked);       /* stream is blocked by QUIC flow control */
 };
 
-void Curl_cf_ngtcp2_h3_stream_ctx_free(struct h3_stream_ctx *stream);
-void Curl_cf_ngtcp2_h3_err_set(struct Curl_cfilter *cf,
-                               struct Curl_easy *data, int code);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_h3_stream_ctx_free(ସଂରଚନା h3_stream_ctx *stream);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_h3_err_set(ସଂରଚନା Curl_cfilter *cf,
+                               ସଂରଚନା Curl_easy *data, ପୂର୍ଣ୍ଣସଂଖ୍ୟା code);
 
-CURLcode Curl_cf_ngtcp2_h3_init_ctrls(struct cf_ngtcp2_ctx *ctx,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_ngtcp2_h3_init_ctrls(ସଂରଚନା cf_ngtcp2_ctx *ctx,
+                                      ସଂରଚନା Curl_easy *data);
 
-CURLcode Curl_cf_ngtcp2_cmn_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+CURLcode Curl_cf_ngtcp2_cmn_connect(ସଂରଚନା Curl_cfilter *cf,
+                                    ସଂରଚନା Curl_easy *data,
                                     bool *done);
 
-CURLcode Curl_cf_ngtcp2_cmn_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data, bool *done);
-void Curl_cf_ngtcp2_cmn_conn_close(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+CURLcode Curl_cf_ngtcp2_cmn_shutdown(ସଂରଚନା Curl_cfilter *cf,
+                                     ସଂରଚନା Curl_easy *data, bool *done);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_cmn_conn_close(ସଂରଚନା Curl_cfilter *cf,
+                                   ସଂରଚନା Curl_easy *data);
 
-struct cf_ngtcp2_io_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
-  struct curltime now;
+ସଂରଚନା cf_ngtcp2_io_ctx {
+  ସଂରଚନା Curl_cfilter *cf;
+  ସଂରଚନା Curl_easy *data;
+  ସଂରଚନା curltime now;
   ngtcp2_tstamp ts;
   ngtcp2_path_storage ps;
 };
 
-void Curl_cf_ngtcp2_io_ctx_init(struct cf_ngtcp2_io_ctx *io_ctx,
-                                struct Curl_cfilter *cf,
-                                struct Curl_easy *data);
-void Curl_cf_ngtcp2_io_ctx_update_time(struct Curl_easy *data,
-                                       struct cf_ngtcp2_io_ctx *io_ctx,
-                                       struct Curl_cfilter *cf);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_io_ctx_init(ସଂରଚନା cf_ngtcp2_io_ctx *io_ctx,
+                                ସଂରଚନା Curl_cfilter *cf,
+                                ସଂରଚନା Curl_easy *data);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_io_ctx_update_time(ସଂରଚନା Curl_easy *data,
+                                       ସଂରଚନା cf_ngtcp2_io_ctx *io_ctx,
+                                       ସଂରଚନା Curl_cfilter *cf);
 
-CURLcode Curl_cf_ngtcp2_progress_egress(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct cf_ngtcp2_io_ctx *pktx);
+CURLcode Curl_cf_ngtcp2_progress_egress(ସଂରଚନା Curl_cfilter *cf,
+                                        ସଂରଚନା Curl_easy *data,
+                                        ସଂରଚନା cf_ngtcp2_io_ctx *pktx);
 
-CURLcode Curl_cf_ngtcp2_progress_ingress(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct cf_ngtcp2_io_ctx *pktx);
+CURLcode Curl_cf_ngtcp2_progress_ingress(ସଂରଚନା Curl_cfilter *cf,
+                                         ସଂରଚନା Curl_easy *data,
+                                         ସଂରଚନା cf_ngtcp2_io_ctx *pktx);
 
-CURLcode Curl_cf_ngtcp2_cmn_set_expiry(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct cf_ngtcp2_io_ctx *pktx);
+CURLcode Curl_cf_ngtcp2_cmn_set_expiry(ସଂରଚନା Curl_cfilter *cf,
+                                       ସଂରଚନା Curl_easy *data,
+                                       ସଂରଚନା cf_ngtcp2_io_ctx *pktx);
 
-CURLcode Curl_cf_ngtcp2_h3_stream_setup(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct h3_stream_ctx **pstream);
-void Curl_cf_ngtcp2_h3_stream_close(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct h3_stream_ctx *stream);
-void Curl_cf_ngtcp2_h3_stream_done(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data);
+CURLcode Curl_cf_ngtcp2_h3_stream_setup(ସଂରଚନା Curl_cfilter *cf,
+                                        ସଂରଚନା Curl_easy *data,
+                                        ସଂରଚନା h3_stream_ctx **pstream);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_h3_stream_close(ସଂରଚନା Curl_cfilter *cf,
+                                    ସଂରଚନା Curl_easy *data,
+                                    ସଂରଚନା h3_stream_ctx *stream);
+ଶୂନ୍ୟ Curl_cf_ngtcp2_h3_stream_done(ସଂରଚନା Curl_cfilter *cf,
+                                   ସଂରଚନା Curl_easy *data);
 
-bool Curl_cf_ngtcp2_cmn_conn_is_alive(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      bool *input_pending);
+bool Curl_cf_ngtcp2_cmn_conn_is_alive(ସଂରଚନା Curl_cfilter *cf,
+                                      ସଂରଚନା Curl_easy *data,
+                                      bool *ନିବେଶ_pending);
 
-CURLcode Curl_cf_ngtcp2_cmn_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2);
+CURLcode Curl_cf_ngtcp2_cmn_query(ସଂରଚନା Curl_cfilter *cf,
+                                  ସଂରଚନା Curl_easy *data,
+                                  ପୂର୍ଣ୍ଣସଂଖ୍ୟା query, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *pres1, ଶୂନ୍ୟ *pres2);
 
-CURLcode Curl_cf_ngtcp2_cmn_cntrl(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int event, int arg1, void *arg2);
+CURLcode Curl_cf_ngtcp2_cmn_cntrl(ସଂରଚନା Curl_cfilter *cf,
+                                  ସଂରଚନା Curl_easy *data,
+                                  ପୂର୍ଣ୍ଣସଂଖ୍ୟା event, ପୂର୍ଣ୍ଣସଂଖ୍ୟା arg1, ଶୂନ୍ୟ *arg2);
 
-struct Curl_easy *Curl_cf_ngtcp2_get_xfer(struct Curl_cfilter *cf,
-                                          void *stream_user_data,
-                                          struct h3_stream_ctx **pstream);
+ସଂରଚନା Curl_easy *Curl_cf_ngtcp2_get_xfer(ସଂରଚନା Curl_cfilter *cf,
+                                          ଶୂନ୍ୟ *stream_user_data,
+                                          ସଂରଚନା h3_stream_ctx **pstream);
 
 #endif /* !CURL_DISABLE_HTTP && USE_NGTCP2 && USE_NGHTTP3 */
 

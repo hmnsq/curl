@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
 #ifndef CURL_DISABLE_FTP
 
-#include "curl_fnmatch.h"
+#ଅନ୍ତର୍ଭାଵ "curl_fnmatch.h"
 
 #ifndef HAVE_FNMATCH
 
-#define CURLFNM_CHARSET_LEN (sizeof(char) * 256)
+#define CURLFNM_CHARSET_LEN (ଆକାର(ଅକ୍ଷର) * 256)
 #define CURLFNM_CHSET_SIZE (CURLFNM_CHARSET_LEN + 15)
 
 #define CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
@@ -45,18 +45,18 @@
 #define CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
 #define CURLFNM_UPPER   (CURLFNM_CHARSET_LEN + 10)
 
-typedef enum {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା {
   CURLFNM_SCHS_DEFAULT = 0,
   CURLFNM_SCHS_RIGHTBR,
   CURLFNM_SCHS_RIGHTBRLEFTBR
 } setcharset_state;
 
-typedef enum {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା {
   CURLFNM_PKW_INIT = 0,
   CURLFNM_PKW_DDOT
 } parsekey_state;
 
-typedef enum {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା {
   CCLASS_OTHER = 0,
   CCLASS_DIGIT,
   CCLASS_UPPER,
@@ -66,89 +66,89 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା parsekeyword(ଅଚଳ unsigned ଅକ୍ଷର **pattern, unsigned ଅକ୍ଷର *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
-  char keyword[10] = { 0 };
+  ଅକ୍ଷର keyword[10] = { 0 };
   size_t i;
-  const unsigned char *p = *pattern;
+  ଅଚଳ unsigned ଅକ୍ଷର *p = *pattern;
   bool found = FALSE;
-  for(i = 0; !found; i++) {
-    char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
-    switch(state) {
-    case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+  ପାଇଁ(i = 0; !found; i++) {
+    ଅକ୍ଷର c = (ଅକ୍ଷର)*p++;
+    ଯଦି(i >= ଆକାର(keyword))
+      ଫେରନ୍ତୁ SETCHARSET_FAIL;
+    ବାଛ(state) {
+    ସ୍ଥିତି CURLFNM_PKW_INIT:
+      ଯଦି(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      ଅନ୍ୟଥା ଯଦି(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
-      break;
-    case CURLFNM_PKW_DDOT:
-      if(c == ']')
+      ଅନ୍ୟଥା
+        ଫେରନ୍ତୁ SETCHARSET_FAIL;
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି CURLFNM_PKW_DDOT:
+      ଯଦି(c == ']')
         found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      ଅନ୍ୟଥା
+        ଫେରନ୍ତୁ SETCHARSET_FAIL;
     }
   }
 #undef KEYLEN
 
   *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  ଯଦି(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "upper"))
     charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
+  ଅନ୍ୟଥା ଯଦି(!strcmp(keyword, "lower"))
     charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  ଅନ୍ୟଥା
+    ଫେରନ୍ତୁ SETCHARSET_FAIL;
+  ଫେରନ୍ତୁ SETCHARSET_OK;
 }
 
 /* Return the character class. */
-static char_class charclass(unsigned char c)
+ସ୍ଥିର char_class charclass(unsigned ଅକ୍ଷର c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  ଯଦି(ISUPPER(c))
+    ଫେରନ୍ତୁ CCLASS_UPPER;
+  ଯଦି(ISLOWER(c))
+    ଫେରନ୍ତୁ CCLASS_LOWER;
+  ଯଦି(ISDIGIT(c))
+    ଫେରନ୍ତୁ CCLASS_DIGIT;
+  ଫେରନ୍ତୁ CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
-static void setcharorrange(const unsigned char **pp, unsigned char *charset)
+ସ୍ଥିର ଶୂନ୍ୟ setcharorrange(ଅଚଳ unsigned ଅକ୍ଷର **pp, unsigned ଅକ୍ଷର *charset)
 {
-  const unsigned char *p = (*pp)++;
-  unsigned char c = *p++;
+  ଅଚଳ unsigned ଅକ୍ଷର *p = (*pp)++;
+  unsigned ଅକ୍ଷର c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  ଯଦି(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
-    unsigned char endrange = *p++;
+    unsigned ଅକ୍ଷର endrange = *p++;
 
-    if(endrange == '\\')
+    ଯଦି(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    ଯଦି(endrange >= c && charclass(endrange) == cc) {
+      ଯେତେବେଳେ(c++ != endrange)
+        ଯଦି(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,260 +156,260 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା setcharset(ଅଚଳ unsigned ଅକ୍ଷର **p, unsigned ଅକ୍ଷର *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
   bool something_found = FALSE;
-  unsigned char c;
+  unsigned ଅକ୍ଷର c;
 
   memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  ପାଇଁ(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    ଯଦି(!c)
+      ଫେରନ୍ତୁ SETCHARSET_FAIL;
 
-    switch(state) {
-    case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
+    ବାଛ(state) {
+    ସ୍ଥିତି CURLFNM_SCHS_DEFAULT:
+      ଯଦି(c == ']') {
+        ଯଦି(something_found)
+          ଫେରନ୍ତୁ SETCHARSET_OK;
         something_found = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
-        const unsigned char *pp = *p + 1;
+      ଅନ୍ୟଥା ଯଦି(c == '[') {
+        ଅଚଳ unsigned ଅକ୍ଷର *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        ଯଦି(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        ଅନ୍ୟଥା {
           charset[c] = 1;
           (*p)++;
         }
         something_found = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      ଅନ୍ୟଥା ଯଦି(c == '^' || c == '!') {
+        ଯଦି(!something_found) {
+          ଯଦି(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
             something_found = TRUE;
           }
-          else
+          ଅନ୍ୟଥା
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        ଅନ୍ୟଥା
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      ଅନ୍ୟଥା ଯଦି(c == '\\') {
         c = *(++(*p));
-        if(c)
+        ଯଦି(c)
           setcharorrange(p, charset);
-        else
+        ଅନ୍ୟଥା
           charset['\\'] = 1;
         something_found = TRUE;
       }
-      else {
+      ଅନ୍ୟଥା {
         setcharorrange(p, charset);
         something_found = TRUE;
       }
-      break;
-    case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି CURLFNM_SCHS_RIGHTBR:
+      ଯଦି(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      ଅନ୍ୟଥା ଯଦି(c == ']') {
+        ଫେରନ୍ତୁ SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      ଅନ୍ୟଥା ଯଦି(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      ଅନ୍ୟଥା
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
-        goto fail;
-      break;
-    case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+        ଯାଅ fail;
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି CURLFNM_SCHS_RIGHTBRLEFTBR:
+      ଯଦି(c == ']')
+        ଫେରନ୍ତୁ SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
-      break;
+      ଭାଙ୍ଗ;
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  ଫେରନ୍ତୁ SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା matchtoken(ଅଚଳ unsigned ଅକ୍ଷର **pp, ଅଚଳ unsigned ଅକ୍ଷର **sp)
 {
-  const unsigned char *p = *pp;
-  const unsigned char *s = *sp;
+  ଅଚଳ unsigned ଅକ୍ଷର *p = *pp;
+  ଅଚଳ unsigned ଅକ୍ଷର *s = *sp;
 
-  switch(*p) {
-  case '?':
-    break;
-  case '\\':
-    if(p[1])
+  ବାଛ(*p) {
+  ସ୍ଥିତି '?':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି '\\':
+    ଯଦି(p[1])
       p++;
-    if(*s != *p)
-      return 0;
-    break;
-  case '[': {
-    unsigned char charset[CURLFNM_CHSET_SIZE];
-    const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
+    ଯଦି(*s != *p)
+      ଫେରନ୍ତୁ 0;
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି '[': {
+    unsigned ଅକ୍ଷର charset[CURLFNM_CHSET_SIZE];
+    ଅଚଳ unsigned ଅକ୍ଷର *pp2 = p + 1; /* Copy in case of syntax error. */
     bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
+    ଯଦି(!setcharset(&pp2, charset))
+      ଫେରନ୍ତୁ -1; /* Syntax error in set; mismatch! */
+    ଯଦି(charset[(unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)*s])
       found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_ALNUM])
       found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_ALPHA])
       found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_DIGIT])
       found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_PRINT])
       found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_UPPER])
       found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_LOWER])
       found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_BLANK])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
+    ଅନ୍ୟଥା ଯଦି(charset[CURLFNM_GRAPH])
       found = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
+    ଯଦି(charset[CURLFNM_NEGATE])
       found = !found;
 
-    if(!found)
-      return 0;
+    ଯଦି(!found)
+      ଫେରନ୍ତୁ 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    ଫେରନ୍ତୁ 1;
   }
-  default:
-    if(*p != *s)
-      return 0;
-    break;
+  ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+    ଯଦି(*p != *s)
+      ଫେରନ୍ତୁ 0;
+    ଭାଙ୍ଗ;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  ଫେରନ୍ତୁ 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା loop(ଅଚଳ unsigned ଅକ୍ଷର *pattern, ଅଚଳ unsigned ଅକ୍ଷର *string)
 {
-  const unsigned char *p = pattern;
-  const unsigned char *s = string;
-  const unsigned char *star_p = NULL;
-  const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  ଅଚଳ unsigned ଅକ୍ଷର *p = pattern;
+  ଅଚଳ unsigned ଅକ୍ଷର *s = string;
+  ଅଚଳ unsigned ଅକ୍ଷର *star_p = ଖାଲି;
+  ଅଚଳ unsigned ଅକ୍ଷର *star_s = ଖାଲି;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  ଯେତେବେଳେ(*s) {
+    ଯଦି(*p == '*') {
+      ଯଦି(!maxstars)
+        ଫେରନ୍ତୁ CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      ପାଇଁ(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        ଯଦି(!*p)
+          ଫେରନ୍ତୁ CURL_FNMATCH_MATCH;
+        ଯଦି(*p == '?') {
+          ଯଦି(!*s)
+            ଫେରନ୍ତୁ CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
-          break;
+        ଅନ୍ୟଥା ଯଦି(*p != '*')
+          ଭାଙ୍ଗ;
       }
       star_p = p;
       star_s = s;
     }
-    else if(*p) {
-      const unsigned char *np = p;
-      const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+    ଅନ୍ୟଥା ଯଦି(*p) {
+      ଅଚଳ unsigned ଅକ୍ଷର *np = p;
+      ଅଚଳ unsigned ଅକ୍ଷର *ns = s;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା r = matchtoken(&np, &ns);
+      ଯଦି(r < 0)
+        ଫେରନ୍ତୁ CURL_FNMATCH_NOMATCH;
+      ଯଦି(r) {
         p = np;
         s = ns;
-        continue;
+        ଜାରି;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
+      ଯଦି(!star_p)
+        ଫେରନ୍ତୁ CURL_FNMATCH_NOMATCH;
       p = star_p;
       s = ++star_s;
     }
-    else if(star_p) {
+    ଅନ୍ୟଥା ଯଦି(star_p) {
       p = star_p;
       s = ++star_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    ଅନ୍ୟଥା
+      ଫେରନ୍ତୁ CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  ଯେତେବେଳେ(*p == '*') {
+    ଯଦି(!maxstars)
+      ଫେରନ୍ତୁ CURL_FNMATCH_NOMATCH;
     maxstars--;
-    do {
+    କର {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      ଯଦି(*p == '?')
+        ଫେରନ୍ତୁ CURL_FNMATCH_NOMATCH;
+    } ଯେତେବେଳେ(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  ଫେରନ୍ତୁ *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା Curl_fnmatch(ଶୂନ୍ୟ *ptr, ଅଚଳ ଅକ୍ଷର *pattern, ଅଚଳ ଅକ୍ଷର *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (ଶୂନ୍ୟ)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  ଯଦି(!pattern || !string) {
+    ଫେରନ୍ତୁ CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
-              (const unsigned char *)string);
+  ଫେରନ୍ତୁ loop((ଅଚଳ unsigned ଅକ୍ଷର *)pattern,
+              (ଅଚଳ unsigned ଅକ୍ଷର *)string);
 }
-#else /* HAVE_FNMATCH */
+#ଅନ୍ୟଥା /* HAVE_FNMATCH */
 
-#include <fnmatch.h>
+#ଅନ୍ତର୍ଭାଵ <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା Curl_fnmatch(ଶୂନ୍ୟ *ptr, ଅଚଳ ଅକ୍ଷର *pattern, ଅଚଳ ଅକ୍ଷର *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (ଶୂନ୍ୟ)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  ଯଦି(!pattern || !string) {
+    ଫେରନ୍ତୁ CURL_FNMATCH_FAIL;
   }
 
-  switch(fnmatch(pattern, string, 0)) {
-  case 0:
-    return CURL_FNMATCH_MATCH;
-  case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
-  default:
-    return CURL_FNMATCH_FAIL;
+  ବାଛ(fnmatch(pattern, string, 0)) {
+  ସ୍ଥିତି 0:
+    ଫେରନ୍ତୁ CURL_FNMATCH_MATCH;
+  ସ୍ଥିତି FNM_NOMATCH:
+    ଫେରନ୍ତୁ CURL_FNMATCH_NOMATCH;
+  ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+    ଫେରନ୍ତୁ CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }

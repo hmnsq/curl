@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
 #ifndef CURL_DISABLE_HTTP
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_cftype;
-struct Curl_peer;
+ସଂରଚନା Curl_cfilter;
+ସଂରଚନା Curl_easy;
+ସଂରଚନା connectdata;
+ସଂରଚନା Curl_cftype;
+ସଂରଚନା Curl_peer;
 
-extern struct Curl_cftype Curl_cft_http_connect;
+ବାହ୍ୟ ସଂରଚନା Curl_cftype Curl_cft_http_connect;
 
-CURLcode Curl_cf_https_setup(struct Curl_easy *data,
-                             struct Curl_peer *destination,
-                             struct connectdata *conn,
+CURLcode Curl_cf_https_setup(ସଂରଚନା Curl_easy *data,
+                             ସଂରଚନା Curl_peer *destination,
+                             ସଂରଚନା connectdata *conn,
                              int8_t sockindex);
 
 #endif /* !CURL_DISABLE_HTTP */

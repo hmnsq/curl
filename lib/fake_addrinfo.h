@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
 #ifdef USE_ARES
-#include <ares.h>
+#ଅନ୍ତର୍ଭାଵ <ares.h>
 #endif
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+#ଯଦି defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(USE_ARES) && (ARES_VERSION >= 0x011a00) /* >= 1.26.0 */
 #define USE_FAKE_GETADDRINFO 1
 #endif
@@ -43,11 +43,11 @@
 #  include <arpa/inet.h>
 #endif
 
-void r_freeaddrinfo(struct addrinfo *cahead);
-int r_getaddrinfo(const char *node,
-                  const char *service,
-                  const struct addrinfo *hints,
-                  struct addrinfo **res);
+ଶୂନ୍ୟ r_freeaddrinfo(ସଂରଚନା addrinfo *cahead);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା r_getaddrinfo(ଅଚଳ ଅକ୍ଷର *ଗଣ୍ଠି,
+                  ଅଚଳ ଅକ୍ଷର *service,
+                  ଅଚଳ ସଂରଚନା addrinfo *hints,
+                  ସଂରଚନା addrinfo **res);
 #endif /* USE_FAKE_GETADDRINFO */
 
 #endif /* HEADER_FAKE_ADDRINFO_H */

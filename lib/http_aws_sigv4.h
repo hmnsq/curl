@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "urldata.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/dynbuf.h"
+#ଅନ୍ତର୍ଭାଵ "urldata.h"
 
 /* this is for creating aws_sigv4 header output */
-CURLcode Curl_output_aws_sigv4(struct Curl_easy *data);
+CURLcode Curl_output_aws_sigv4(ସଂରଚନା Curl_easy *data);
 
 #endif /* HEADER_CURL_HTTP_AWS_SIGV4_H */

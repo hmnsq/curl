@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
 /* Raw snprintf() for curlx */
 
 #ifdef _WIN32
-void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
+ଶୂନ୍ୟ curlx_win32_snprintf(ଅକ୍ଷର *buf, size_t maxlen, ଅଚଳ ଅକ୍ଷର *fmt, ...)
   CURL_PRINTF(3, 4);
 #endif
 
 #ifdef WITHOUT_LIBCURL /* when built for the test servers */
 #ifdef _WIN32
 #define SNPRINTF curlx_win32_snprintf
-#else
+#ଅନ୍ୟଥା
 #define SNPRINTF snprintf
 #endif
-#else /* !WITHOUT_LIBCURL */
-#include <curl/mprintf.h>
+#ଅନ୍ୟଥା /* !WITHOUT_LIBCURL */
+#ଅନ୍ତର୍ଭାଵ <curl/mprintf.h>
 #define SNPRINTF curl_msnprintf
 #endif /* WITHOUT_LIBCURL */
 #endif /* HEADER_CURLX_SNPRINTF_H */

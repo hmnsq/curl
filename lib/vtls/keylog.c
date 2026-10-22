@@ -21,77 +21,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "vtls/keylog.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "vtls/keylog.h"
 
-#if defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL) || \
+#ଯଦି defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL) || \
   defined(USE_RUSTLS)
 
-#include "escape.h"
-#include "curlx/win32-fopen.h"
+#ଅନ୍ତର୍ଭାଵ "escape.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/win32-fopen.h"
 
 /* The fp for the open SSLKEYLOGFILE, or NULL if not open */
-static FILE *keylog_file_fp;
+ସ୍ଥିର FILE *keylog_file_fp;
 /* Used for verbose logging */
-static char *keylog_file_name;
+ସ୍ଥିର ଅକ୍ଷର *keylog_file_name;
 
-void Curl_tls_keylog_open(void)
+ଶୂନ୍ୟ Curl_tls_keylog_open(ଶୂନ୍ୟ)
 {
-  if(!keylog_file_fp) {
+  ଯଦି(!keylog_file_fp) {
     keylog_file_name = getenv("SSLKEYLOGFILE");
-    if(keylog_file_name) {
+    ଯଦି(keylog_file_name) {
       keylog_file_fp = curlx_fopen(keylog_file_name, FOPEN_APPENDTEXT);
-      if(keylog_file_fp) {
+      ଯଦି(keylog_file_fp) {
 #ifdef _WIN32
-        if(setvbuf(keylog_file_fp, NULL, _IONBF, 0))
-#else
-        if(setvbuf(keylog_file_fp, NULL, _IOLBF, 4096))
+        ଯଦି(setvbuf(keylog_file_fp, ଖାଲି, _IONBF, 0))
+#ଅନ୍ୟଥା
+        ଯଦି(setvbuf(keylog_file_fp, ଖାଲି, _IOLBF, 4096))
 #endif
         {
           curlx_fclose(keylog_file_fp);
-          keylog_file_fp = NULL;
+          keylog_file_fp = ଖାଲି;
         }
       }
     }
   }
 }
 
-void Curl_tls_keylog_close(void)
+ଶୂନ୍ୟ Curl_tls_keylog_close(ଶୂନ୍ୟ)
 {
-  if(keylog_file_fp) {
+  ଯଦି(keylog_file_fp) {
     curlx_fclose(keylog_file_fp);
-    keylog_file_fp = NULL;
+    keylog_file_fp = ଖାଲି;
   }
 }
 
-bool Curl_tls_keylog_enabled(void)
+bool Curl_tls_keylog_enabled(ଶୂନ୍ୟ)
 {
-  return !!keylog_file_fp;
+  ଫେରନ୍ତୁ !!keylog_file_fp;
 }
 
-const char *Curl_tls_keylog_file_name(void)
+ଅଚଳ ଅକ୍ଷର *Curl_tls_keylog_file_name(ଶୂନ୍ୟ)
 {
-  return keylog_file_name;
+  ଫେରନ୍ତୁ keylog_file_name;
 }
 
-bool Curl_tls_keylog_write_line(const char *line)
+bool Curl_tls_keylog_write_ଧାଡ଼ି(ଅଚଳ ଅକ୍ଷର *ଧାଡ଼ି)
 {
   /* The current maximum valid keylog line length LF and NUL is 195. */
   size_t linelen;
-  char buf[256];
+  ଅକ୍ଷର buf[256];
 
-  if(!keylog_file_fp || !line) {
-    return FALSE;
+  ଯଦି(!keylog_file_fp || !ଧାଡ଼ି) {
+    ଫେରନ୍ତୁ FALSE;
   }
 
-  linelen = strlen(line);
-  if(linelen == 0 || linelen > sizeof(buf) - 2) {
+  linelen = strlen(ଧାଡ଼ି);
+  ଯଦି(linelen == 0 || linelen > ଆକାର(buf) - 2) {
     /* Empty line or too big to fit in an LF and NUL. */
-    return FALSE;
+    ଫେରନ୍ତୁ FALSE;
   }
 
-  memcpy(buf, line, linelen);
-  if(line[linelen - 1] != '\n') {
+  memcpy(buf, ଧାଡ଼ି, linelen);
+  ଯଦି(ଧାଡ଼ି[linelen - 1] != '\n') {
     buf[linelen++] = '\n';
   }
   buf[linelen] = '\0';
@@ -99,64 +99,64 @@ bool Curl_tls_keylog_write_line(const char *line)
   /* Using fputs here instead of fprintf since libcurl's fprintf replacement
      may not be thread-safe. */
   fputs(buf, keylog_file_fp);
-  return TRUE;
+  ଫେରନ୍ତୁ TRUE;
 }
 
-bool Curl_tls_keylog_write(const char *label,
-                           const unsigned char *client_random,
+bool Curl_tls_keylog_write(ଅଚଳ ଅକ୍ଷର *label,
+                           ଅଚଳ unsigned ଅକ୍ଷର *client_random,
                            size_t random_size,
-                           const unsigned char *secret, size_t secretlen)
+                           ଅଚଳ unsigned ଅକ୍ଷର *secret, size_t secretlen)
 {
   size_t pos, i;
-  unsigned char line[KEYLOG_LABEL_MAXLEN + 1 +
+  unsigned ଅକ୍ଷର ଧାଡ଼ି[KEYLOG_LABEL_MAXLEN + 1 +
                      (2 * CLIENT_RANDOM_SIZE) + 1 +
                      (2 * SECRET_MAXLEN) + 1 + 1];
   DEBUGASSERT(random_size >= CLIENT_RANDOM_SIZE);
-  if(random_size < CLIENT_RANDOM_SIZE)
-    return FALSE;
-  if(!keylog_file_fp)
-    return FALSE;
+  ଯଦି(random_size < CLIENT_RANDOM_SIZE)
+    ଫେରନ୍ତୁ FALSE;
+  ଯଦି(!keylog_file_fp)
+    ଫେରନ୍ତୁ FALSE;
 
   pos = strlen(label);
-  if(pos > KEYLOG_LABEL_MAXLEN || !secretlen || secretlen > SECRET_MAXLEN) {
+  ଯଦି(pos > KEYLOG_LABEL_MAXLEN || !secretlen || secretlen > SECRET_MAXLEN) {
     /* Should never happen - sanity check anyway. */
-    return FALSE;
+    ଫେରନ୍ତୁ FALSE;
   }
 
-  memcpy(line, label, pos);
-  line[pos++] = ' ';
+  memcpy(ଧାଡ଼ି, label, pos);
+  ଧାଡ଼ି[pos++] = ' ';
 
   /* Client Random */
-  for(i = 0; i < CLIENT_RANDOM_SIZE; i++) {
-    Curl_hexbyte(&line[pos], client_random[i]);
+  ପାଇଁ(i = 0; i < CLIENT_RANDOM_SIZE; i++) {
+    Curl_hexbyte(&ଧାଡ଼ି[pos], client_random[i]);
     pos += 2;
   }
-  line[pos++] = ' ';
+  ଧାଡ଼ି[pos++] = ' ';
 
   /* Secret */
-  for(i = 0; i < secretlen; i++) {
-    Curl_hexbyte(&line[pos], secret[i]);
+  ପାଇଁ(i = 0; i < secretlen; i++) {
+    Curl_hexbyte(&ଧାଡ଼ି[pos], secret[i]);
     pos += 2;
   }
-  line[pos++] = '\n';
-  line[pos] = '\0';
+  ଧାଡ଼ି[pos++] = '\n';
+  ଧାଡ଼ି[pos] = '\0';
 
   /* Using fputs here instead of fprintf since libcurl's fprintf replacement
      may not be thread-safe. */
-  fputs((char *)line, keylog_file_fp);
-  return TRUE;
+  fputs((ଅକ୍ଷର *)ଧାଡ଼ି, keylog_file_fp);
+  ଫେରନ୍ତୁ TRUE;
 }
 
-#else /* TLS backend */
+#ଅନ୍ୟଥା /* TLS backend */
 
-bool Curl_tls_keylog_enabled(void)
+bool Curl_tls_keylog_enabled(ଶୂନ୍ୟ)
 {
-  return FALSE;
+  ଫେରନ୍ତୁ FALSE;
 }
 
-const char *Curl_tls_keylog_file_name(void)
+ଅଚଳ ଅକ୍ଷର *Curl_tls_keylog_file_name(ଶୂନ୍ୟ)
 {
-  return NULL;
+  ଫେରନ୍ତୁ ଖାଲି;
 }
 
 #endif  /* TLS backend */

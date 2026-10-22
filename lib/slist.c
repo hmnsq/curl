@@ -21,25 +21,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "slist.h"
+#ଅନ୍ତର୍ଭାଵ "slist.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist *list)
+ସ୍ଥିର ସଂରଚନା curl_slist *slist_get_last(ସଂରଚନା curl_slist *list)
 {
-  struct curl_slist *item;
+  ସଂରଚନା curl_slist *item;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  ଯଦି(!list)
+    ଫେରନ୍ତୁ ଖାଲି;
 
   /* loop through to find the last item */
   item = list;
-  while(item->next) {
+  ଯେତେବେଳେ(item->next) {
     item = item->next;
   }
-  return item;
+  ଫେରନ୍ତୁ item;
 }
 
 /*
@@ -51,28 +51,28 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
  * If an error occurs, NULL is returned and the string argument is NOT
  * released.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data)
+ସଂରଚନା curl_slist *Curl_slist_append_nodup(ସଂରଚନା curl_slist *list,
+                                           ଅଚଳ ଅକ୍ଷର *data)
 {
-  struct curl_slist *last;
-  struct curl_slist *new_item;
+  ସଂରଚନା curl_slist *last;
+  ସଂରଚନା curl_slist *new_item;
 
   DEBUGASSERT(data);
 
-  new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  new_item = curlx_malloc(ଆକାର(ସଂରଚନା curl_slist));
+  ଯଦି(!new_item)
+    ଫେରନ୍ତୁ ଖାଲି;
 
-  new_item->next = NULL;
+  new_item->next = ଖାଲି;
   new_item->data = CURL_UNCONST(data);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  ଯଦି(!list)
+    ଫେରନ୍ତୁ new_item;
 
   last = slist_get_last(list);
   last->next = new_item;
-  return list;
+  ଫେରନ୍ତୁ list;
 }
 
 /*
@@ -82,18 +82,18 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
  * bothersome, then create a separate _init function and call it
  * appropriately from within the program.
  */
-struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
+ସଂରଚନା curl_slist *curl_slist_append(ସଂରଚନା curl_slist *list, ଅଚଳ ଅକ୍ଷର *data)
 {
-  char *dupdata = curlx_strdup(data);
+  ଅକ୍ଷର *dupdata = curlx_strdup(data);
 
-  if(!dupdata)
-    return NULL;
+  ଯଦି(!dupdata)
+    ଫେରନ୍ତୁ ଖାଲି;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  ଯଦି(!list)
     curlx_free(dupdata);
 
-  return list;
+  ଫେରନ୍ତୁ list;
 }
 
 /*
@@ -101,40 +101,40 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
+ସଂରଚନା curl_slist *Curl_slist_duplicate(ସଂରଚନା curl_slist *inlist)
 {
-  struct curl_slist *outlist = NULL;
-  struct curl_slist **tail = &outlist;
+  ସଂରଚନା curl_slist *outlist = ଖାଲି;
+  ସଂରଚନା curl_slist **tail = &outlist;
 
-  while(inlist) {
-    struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
+  ଯେତେବେଳେ(inlist) {
+    ସଂରଚନା curl_slist *tmp = curl_slist_append(ଖାଲି, inlist->data);
 
-    if(!tmp) {
+    ଯଦି(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      ଫେରନ୍ତୁ ଖାଲି;
     }
 
     *tail = tmp;
     tail = &tmp->next;
     inlist = inlist->next;
   }
-  return outlist;
+  ଫେରନ୍ତୁ outlist;
 }
 
 /* be nice and clean up resources */
-void curl_slist_free_all(struct curl_slist *list)
+ଶୂନ୍ୟ curl_slist_free_all(ସଂରଚନା curl_slist *list)
 {
-  struct curl_slist *next;
-  struct curl_slist *item;
+  ସଂରଚନା curl_slist *next;
+  ସଂରଚନା curl_slist *item;
 
-  if(!list)
-    return;
+  ଯଦି(!list)
+    ଫେରନ୍ତୁ;
 
   item = list;
-  do {
+  କର {
     next = item->next;
     curlx_safefree(item->data);
     curlx_free(item);
     item = next;
-  } while(next);
+  } ଯେତେବେଳେ(next);
 }

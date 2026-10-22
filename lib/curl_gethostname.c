@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#ଅନ୍ତର୍ଭାଵ "curl_gethostname.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା Curl_gethostname(ଅକ୍ଷର * ଅଚଳ name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (ଶୂନ୍ୟ)name;
+  (ଶୂନ୍ୟ)namelen;
+  ଫେରନ୍ତୁ -1;
 
-#else
-  int err;
-  char *dot;
+#ଅନ୍ୟଥା
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା err;
+  ଅକ୍ଷର *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  ଅଚଳ ଅକ୍ଷର *force_hostname = getenv("CURL_GETHOSTNAME");
+  ଯଦି(force_hostname) {
+    ଯଦି(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    ଅନ୍ୟଥା
+      ଫେରନ୍ତୁ 1; /* cannot do it */
     err = 0;
   }
-  else {
+  ଅନ୍ୟଥା {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#ଅନ୍ୟଥା /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned ଅକ୍ଷର *)name, namelen);
+#ଅନ୍ୟଥା
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  ଯଦି(err)
+    ଫେରନ୍ତୁ err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  ଯଦି(dot)
     *dot = '\0';
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 #endif
 }

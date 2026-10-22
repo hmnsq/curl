@@ -21,78 +21,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "headers.h"
-#include "strcase.h"
+#ଅନ୍ତର୍ଭାଵ "urldata.h"
+#ଅନ୍ତର୍ଭାଵ "sendf.h"
+#ଅନ୍ତର୍ଭାଵ "curl_trc.h"
+#ଅନ୍ତର୍ଭାଵ "headers.h"
+#ଅନ୍ତର୍ଭାଵ "strcase.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#ଯଦି !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
 /* Generate the curl_header struct for the user. This function MUST assign all
    struct fields in the output struct. */
-static void copy_header_external(struct Curl_header_store *hs,
+ସ୍ଥିର ଶୂନ୍ୟ copy_header_external(ସଂରଚନା Curl_header_store *hs,
                                  size_t index,
                                  size_t amount,
-                                 struct Curl_llist_node *e,
-                                 struct curl_header *hout)
+                                 ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e,
+                                 ସଂରଚନା curl_header *hout)
 {
-  struct curl_header *h = hout;
+  ସଂରଚନା curl_header *h = hout;
   h->name = hs->name;
-  h->value = hs->value;
+  h->ମୂଲ୍ୟ = hs->ମୂଲ୍ୟ;
   h->amount = amount;
   h->index = index;
   /* this will randomly OR a reserved bit for the sole purpose of making it
      impossible for applications to do == comparisons, as that would otherwise
      be tempting and then lead to the reserved bits not being reserved
      anymore. */
-  h->origin = (unsigned int)(hs->type | (1 << 27));
+  h->origin = (unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)(hs->type | (1 << 27));
   h->anchor = e;
 }
 
 /* public API */
 CURLHcode curl_easy_header(CURL *curl,
-                           const char *name,
+                           ଅଚଳ ଅକ୍ଷର *name,
                            size_t nameindex,
-                           unsigned int origin,
-                           int request,
-                           struct curl_header **hout)
+                           unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା origin,
+                           ପୂର୍ଣ୍ଣସଂଖ୍ୟା request,
+                           ସଂରଚନା curl_header **hout)
 {
-  struct Curl_eapi_guard guard;
+  ସଂରଚନା Curl_eapi_guard guard;
   CURLHcode hresult = CURLHE_OK;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
-    struct Curl_easy *data = curl;
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *e_pick = NULL;
+  ଯଦି(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
+    ସଂରଚନା Curl_easy *data = curl;
+    ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
+    ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e_pick = ଖାଲି;
     size_t match = 0;
     size_t amount = 0;
-    struct Curl_header_store *hs = NULL;
-    struct Curl_header_store *pick = NULL;
-    if(!name || !hout || !data ||
+    ସଂରଚନା Curl_header_store *hs = ଖାଲି;
+    ସଂରଚନା Curl_header_store *pick = ଖାଲି;
+    ଯଦି(!name || !hout || !data ||
        (origin > (CURLH_HEADER | CURLH_TRAILER | CURLH_CONNECT | CURLH_1XX |
                   CURLH_PSEUDO)) || !origin || (request < -1)) {
       hresult = CURLHE_BAD_ARGUMENT;
-      goto out;
+      ଯାଅ out;
     }
-    if(!Curl_llist_count(&data->state.httphdrs)) {
+    ଯଦି(!Curl_llist_ଗଣନା(&data->state.httphdrs)) {
       hresult = CURLHE_NOHEADERS; /* no headers available */
-      goto out;
+      ଯାଅ out;
     }
-    if(request > data->state.requests) {
+    ଯଦି(request > data->state.requests) {
       hresult = CURLHE_NOREQUEST;
-      goto out;
+      ଯାଅ out;
     }
-    if(request == -1)
+    ଯଦି(request == -1)
       request = data->state.requests;
 
     /* we need a first round to count amount of this header */
-    for(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_node_next(e)) {
-      hs = Curl_node_elem(e);
-      if(curl_strequal(hs->name, name) &&
+    ପାଇଁ(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_ଗଣ୍ଠି_next(e)) {
+      hs = Curl_ଗଣ୍ଠି_elem(e);
+      ଯଦି(curl_strequal(hs->name, name) &&
          (hs->type & origin) &&
          (hs->request == request)) {
         amount++;
@@ -100,31 +100,31 @@ CURLHcode curl_easy_header(CURL *curl,
         e_pick = e;
       }
     }
-    if(!amount)
+    ଯଦି(!amount)
       hresult = CURLHE_MISSING;
-    else if(nameindex >= amount)
+    ଅନ୍ୟଥା ଯଦି(nameindex >= amount)
       hresult = CURLHE_BADINDEX;
-    if(hresult)
-      goto out;
+    ଯଦି(hresult)
+      ଯାଅ out;
 
-    if(nameindex == amount - 1)
+    ଯଦି(nameindex == amount - 1)
       /* if the last or only occurrence is what's asked for, then we know it */
       hs = pick;
-    else {
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        hs = Curl_node_elem(e);
-        if(curl_strequal(hs->name, name) &&
+    ଅନ୍ୟଥା {
+      ପାଇଁ(e = Curl_llist_head(&data->state.httphdrs); e;
+          e = Curl_ଗଣ୍ଠି_next(e)) {
+        hs = Curl_ଗଣ୍ଠି_elem(e);
+        ଯଦି(curl_strequal(hs->name, name) &&
            (hs->type & origin) &&
            (hs->request == request) &&
            (match++ == nameindex)) {
           e_pick = e;
-          break;
+          ଭାଙ୍ଗ;
         }
       }
-      if(!e) { /* this should not happen */
+      ଯଦି(!e) { /* this should not happen */
         hresult = CURLHE_MISSING;
-        goto out;
+        ଯାଅ out;
       }
     }
     /* this is the name we want */
@@ -135,72 +135,72 @@ CURLHcode curl_easy_header(CURL *curl,
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  if(result)
+  ଯଦି(result)
     hresult = Curl_eapi_hcode(result);
-  return hresult;
+  ଫେରନ୍ତୁ hresult;
 }
 
-struct nextheader_cache_entry {
-  struct Curl_header_store *header;
+ସଂରଚନା nextheader_cache_entry {
+  ସଂରଚନା Curl_header_store *header;
   size_t order;
 };
 
-static int nextheader_compare(const void *p1, const void *p2)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା nextheader_compare(ଅଚଳ ଶୂନ୍ୟ *p1, ଅଚଳ ଶୂନ୍ୟ *p2)
 {
-  const struct nextheader_cache_entry *e1 = p1;
-  const struct nextheader_cache_entry *e2 = p2;
-  const struct Curl_header_store *h1 = e1->header;
-  const struct Curl_header_store *h2 = e2->header;
-  const char *n1 = h1->name;
-  const char *n2 = h2->name;
+  ଅଚଳ ସଂରଚନା nextheader_cache_entry *e1 = p1;
+  ଅଚଳ ସଂରଚନା nextheader_cache_entry *e2 = p2;
+  ଅଚଳ ସଂରଚନା Curl_header_store *h1 = e1->header;
+  ଅଚଳ ସଂରଚନା Curl_header_store *h2 = e2->header;
+  ଅଚଳ ଅକ୍ଷର *n1 = h1->name;
+  ଅଚଳ ଅକ୍ଷର *n2 = h2->name;
 
-  while(*n1 && *n2) {
-    unsigned char c1 = (unsigned char)Curl_raw_toupper(*n1++);
-    unsigned char c2 = (unsigned char)Curl_raw_toupper(*n2++);
-    if(c1 != c2)
-      return c1 > c2 ? 1 : -1;
+  ଯେତେବେଳେ(*n1 && *n2) {
+    unsigned ଅକ୍ଷର c1 = (unsigned ଅକ୍ଷର)Curl_raw_toupper(*n1++);
+    unsigned ଅକ୍ଷର c2 = (unsigned ଅକ୍ଷର)Curl_raw_toupper(*n2++);
+    ଯଦି(c1 != c2)
+      ଫେରନ୍ତୁ c1 > c2 ? 1 : -1;
   }
-  if(*n1)
-    return 1;
-  if(*n2)
-    return -1;
-  if(e1->order != e2->order)
-    return e1->order > e2->order ? 1 : -1;
-  return 0;
+  ଯଦି(*n1)
+    ଫେରନ୍ତୁ 1;
+  ଯଦି(*n2)
+    ଫେରନ୍ତୁ -1;
+  ଯଦି(e1->order != e2->order)
+    ଫେରନ୍ତୁ e1->order > e2->order ? 1 : -1;
+  ଫେରନ୍ତୁ 0;
 }
 
-static bool nextheader_cache_build(struct Curl_easy *data,
-                                   unsigned int origin,
-                                   int request, size_t count)
+ସ୍ଥିର bool nextheader_cache_build(ସଂରଚନା Curl_easy *data,
+                                   unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା origin,
+                                   ପୂର୍ଣ୍ଣସଂଖ୍ୟା request, size_t ଗଣନା_2)
 {
-  struct nextheader_cache_entry *headers;
-  struct Curl_llist_node *e;
+  ସଂରଚନା nextheader_cache_entry *headers;
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
   size_t i = 0;
   size_t first;
 
-  headers = curlx_malloc(sizeof(*headers) * count);
-  if(!headers)
-    return FALSE;
+  headers = curlx_malloc(ଆକାର(*headers) * ଗଣନା_2);
+  ଯଦି(!headers)
+    ଫେରନ୍ତୁ FALSE;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e;
-      e = Curl_node_next(e)) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    if((hs->type & origin) && (hs->request == request)) {
+  ପାଇଁ(e = Curl_llist_head(&data->state.httphdrs); e;
+      e = Curl_ଗଣ୍ଠି_next(e)) {
+    ସଂରଚନା Curl_header_store *hs = Curl_ଗଣ୍ଠି_elem(e);
+    ଯଦି((hs->type & origin) && (hs->request == request)) {
       headers[i].header = hs;
       headers[i].order = i;
       i++;
     }
   }
 
-  qsort(headers, i, sizeof(*headers), nextheader_compare);
-  for(first = 0; first < i;) {
+  qsort(headers, i, ଆକାର(*headers), nextheader_compare);
+  ପାଇଁ(first = 0; first < i;) {
     size_t last = first + 1;
     size_t index;
-    while((last < i) &&
+    ଯେତେବେଳେ((last < i) &&
           curl_strequal(headers[first].header->name,
                         headers[last].header->name))
       last++;
-    for(index = first; index < last; index++) {
+    ପାଇଁ(index = first; index < last; index++) {
       headers[index].header->nh_amount = last - first;
       headers[index].header->nh_index = index - first;
     }
@@ -210,79 +210,79 @@ static bool nextheader_cache_build(struct Curl_easy *data,
 
   data->state.nh_origin = origin;
   data->state.nh_request = request;
-  data->state.nh_count = count;
-  return TRUE;
+  data->state.nh_ଗଣନା = ଗଣନା_2;
+  ଫେରନ୍ତୁ TRUE;
 }
 
 /* public API */
-struct curl_header *curl_easy_nextheader(CURL *curl,
-                                         unsigned int origin,
-                                         int request,
-                                         struct curl_header *prev)
+ସଂରଚନା curl_header *curl_easy_nextheader(CURL *curl,
+                                         unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା origin,
+                                         ପୂର୍ଣ୍ଣସଂଖ୍ୟା request,
+                                         ସଂରଚନା curl_header *prev)
 {
-  struct Curl_eapi_guard guard;
-  struct curl_header *hd = NULL;
+  ସଂରଚନା Curl_eapi_guard guard;
+  ସଂରଚନା curl_header *hd = ଖାଲି;
   CURLcode result;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
-    struct Curl_easy *data = curl;
-    struct Curl_llist_node *pick;
-    struct Curl_llist_node *e;
-    struct Curl_header_store *hs;
+  ଯଦି(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
+    ସଂରଚନା Curl_easy *data = curl;
+    ସଂରଚନା Curl_llist_ଗଣ୍ଠି *pick;
+    ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
+    ସଂରଚନା Curl_header_store *hs;
     size_t amount = 0;
     size_t index = 0;
-    size_t count;
+    size_t ଗଣନା_2;
 
-    if(request > data->state.requests)
-      goto out;
-    if(request == -1)
+    ଯଦି(request > data->state.requests)
+      ଯାଅ out;
+    ଯଦି(request == -1)
       request = data->state.requests;
 
-    if(prev) {
+    ଯଦି(prev) {
       pick = prev->anchor;
-      if(!pick)
+      ଯଦି(!pick)
         /* something is wrong */
-        goto out;
-      pick = Curl_node_next(pick);
+        ଯାଅ out;
+      pick = Curl_ଗଣ୍ଠି_next(pick);
     }
-    else
+    ଅନ୍ୟଥା
       pick = Curl_llist_head(&data->state.httphdrs);
 
-    if(pick) {
+    ଯଦି(pick) {
       /* make sure it is the next header of the desired type */
-      do {
-        hs = Curl_node_elem(pick);
-        if((hs->type & origin) && (hs->request == request))
-          break;
-        pick = Curl_node_next(pick);
-      } while(pick);
+      କର {
+        hs = Curl_ଗଣ୍ଠି_elem(pick);
+        ଯଦି((hs->type & origin) && (hs->request == request))
+          ଭାଙ୍ଗ;
+        pick = Curl_ଗଣ୍ଠି_next(pick);
+      } ଯେତେବେଳେ(pick);
     }
 
-    if(!pick)
+    ଯଦି(!pick)
       /* no more headers available */
-      goto out;
+      ଯାଅ out;
 
-    hs = Curl_node_elem(pick);
-    count = Curl_llist_count(&data->state.httphdrs);
+    hs = Curl_ଗଣ୍ଠି_elem(pick);
+    ଗଣନା_2 = Curl_llist_ଗଣନା(&data->state.httphdrs);
 
-    if(((data->state.nh_count == count) &&
+    ଯଦି(((data->state.nh_ଗଣନା == ଗଣନା_2) &&
         (data->state.nh_origin == origin) &&
         (data->state.nh_request == request)) ||
-       nextheader_cache_build(data, origin, request, count)) {
+       nextheader_cache_build(data, origin, request, ଗଣନା_2)) {
       amount = hs->nh_amount;
       index = hs->nh_index;
     }
-    else {
+    ଅନ୍ୟଥା {
       /* count number of occurrences of this name within the mask and figure
          out the index for the currently selected entry */
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        struct Curl_header_store *check = Curl_node_elem(e);
-        if(curl_strequal(hs->name, check->name) &&
+      ପାଇଁ(e = Curl_llist_head(&data->state.httphdrs); e;
+          e = Curl_ଗଣ୍ଠି_next(e)) {
+        ସଂରଚନା Curl_header_store *check = Curl_ଗଣ୍ଠି_elem(e);
+        ଯଦି(curl_strequal(hs->name, check->name) &&
            (check->request == request) &&
            (check->type & origin))
           amount++;
-        if(e == pick)
+        ଯଦି(e == pick)
           index = amount - 1;
       }
     }
@@ -292,42 +292,42 @@ struct curl_header *curl_easy_nextheader(CURL *curl,
   }
 out:
   CURL_EAPI_LEAVE(&guard);
-  return hd;
+  ଫେରନ୍ତୁ hd;
 }
 
-static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
-                          char **name, char **value)
+ସ୍ଥିର CURLcode namevalue(ଅକ୍ଷର *header, size_t hlen, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା type,
+                          ଅକ୍ଷର **name, ଅକ୍ଷର **ମୂଲ୍ୟ)
 {
-  char *end = header + hlen - 1; /* point to the last byte */
+  ଅକ୍ଷର *end = header + hlen - 1; /* point to the last byte */
   DEBUGASSERT(hlen);
   *name = header;
 
-  if(type == CURLH_PSEUDO) {
-    if(*header != ':')
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+  ଯଦି(type == CURLH_PSEUDO) {
+    ଯଦି(*header != ':')
+      ଫେରନ୍ତୁ CURLE_BAD_FUNCTION_ARGUMENT;
     header++;
   }
 
   /* Find the end of the header name */
-  while(*header && (*header != ':'))
+  ଯେତେବେଳେ(*header && (*header != ':'))
     ++header;
 
-  if(*header)
+  ଯଦି(*header)
     /* Skip over colon, null it */
     *header++ = 0;
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ଅନ୍ୟଥା
+    ଫେରନ୍ତୁ CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* skip all leading blank letters */
-  while(ISBLANK(*header))
+  ଯେତେବେଳେ(ISBLANK(*header))
     header++;
 
-  *value = header;
+  *ମୂଲ୍ୟ = header;
 
   /* skip all trailing space letters */
-  while((end > header) && ISBLANK(*end))
+  ଯେତେବେଳେ((end > header) && ISBLANK(*end))
     *end-- = 0; /* null-terminate */
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
 /*
@@ -335,178 +335,178 @@ static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
  * immediately before the header callback. The header is CRLF, CR or LF
  * terminated.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
+CURLcode Curl_headers_ଠେଲ(ସଂରଚନା Curl_easy *data, ଅଚଳ ଅକ୍ଷର *header,
                            size_t hlen, /* length of header */
-                           unsigned char type)
+                           unsigned ଅକ୍ଷର type)
 {
-  char *value = NULL;
-  char *name = NULL;
-  struct Curl_header_store *hs;
+  ଅକ୍ଷର *ମୂଲ୍ୟ = ଖାଲି;
+  ଅକ୍ଷର *name = ଖାଲି;
+  ସଂରଚନା Curl_header_store *hs;
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  const size_t ilen = hlen;
+  ଅଚଳ size_t ilen = hlen;
 
-  if((header[0] == '\r') || (header[0] == '\n'))
+  ଯଦି((header[0] == '\r') || (header[0] == '\n'))
     /* ignore the body separator */
-    return CURLE_OK;
+    ଫେରନ୍ତୁ CURLE_OK;
 
   /* trim off newline characters */
-  if(hlen && (header[hlen - 1] == '\n'))
+  ଯଦି(hlen && (header[hlen - 1] == '\n'))
     hlen--;
-  if(hlen && (header[hlen - 1] == '\r'))
+  ଯଦି(hlen && (header[hlen - 1] == '\r'))
     hlen--;
-  if(hlen == ilen)
+  ଯଦି(hlen == ilen)
     /* neither CR nor LF as terminator is not a valid header */
-    return CURLE_WEIRD_SERVER_REPLY;
+    ଫେରନ୍ତୁ CURLE_WEIRD_SERVER_REPLY;
 
-  if(ISBLANK(header[0])) {
+  ଯଦି(ISBLANK(header[0])) {
     /* pass leading blanks */
-    while(hlen && ISBLANK(*header)) {
+    ଯେତେବେଳେ(hlen && ISBLANK(*header)) {
       header++;
       hlen--;
     }
-    if(!hlen)
-      return CURLE_WEIRD_SERVER_REPLY;
+    ଯଦି(!hlen)
+      ଫେରନ୍ତୁ CURLE_WEIRD_SERVER_REPLY;
   }
-  if(Curl_llist_count(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_COUNT) {
+  ଯଦି(Curl_llist_ଗଣନା(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_ଗଣନା) {
     failf(data, "Too many response headers, %d is max",
-          MAX_HTTP_RESP_HEADER_COUNT);
-    return CURLE_TOO_LARGE;
+          MAX_HTTP_RESP_HEADER_ଗଣନା);
+    ଫେରନ୍ତୁ CURLE_TOO_LARGE;
   }
 
-  hs = curlx_calloc(1, sizeof(*hs) + hlen);
-  if(!hs)
-    return CURLE_OUT_OF_MEMORY;
+  hs = curlx_calloc(1, ଆକାର(*hs) + hlen);
+  ଯଦି(!hs)
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
   memcpy(hs->buffer, header, hlen);
   hs->buffer[hlen] = 0; /* null-terminate */
 
-  result = namevalue(hs->buffer, hlen, type, &name, &value);
-  if(!result) {
+  result = namevalue(hs->buffer, hlen, type, &name, &ମୂଲ୍ୟ);
+  ଯଦି(!result) {
     hs->name = name;
-    hs->value = value;
+    hs->ମୂଲ୍ୟ = ମୂଲ୍ୟ;
     hs->type = type;
     hs->request = data->state.requests;
 
     /* insert this node into the list of headers */
-    Curl_llist_append(&data->state.httphdrs, hs, &hs->node);
+    Curl_llist_append(&data->state.httphdrs, hs, &hs->ଗଣ୍ଠି);
   }
-  else {
+  ଅନ୍ୟଥା {
     failf(data, "Invalid response header");
     curlx_free(hs);
   }
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
 /*
  * Curl_headers_reset(). Reset the headers subsystem.
  */
-static void headers_reset(struct Curl_easy *data)
+ସ୍ଥିର ଶୂନ୍ୟ headers_reset(ସଂରଚନା Curl_easy *data)
 {
-  Curl_llist_init(&data->state.httphdrs, NULL);
-  data->state.nh_count = 0;
+  Curl_llist_init(&data->state.httphdrs, ଖାଲି);
+  data->state.nh_ଗଣନା = 0;
 }
 
-struct hds_cw_collect_ctx {
-  struct Curl_cwriter super;
+ସଂରଚନା hds_cw_collect_ctx {
+  ସଂରଚନା Curl_cwriter super;
 };
 
-static CURLcode hds_cw_collect_write(struct Curl_easy *data,
-                                     struct Curl_cwriter *writer, int type,
-                                     const char *buf, size_t blen)
+ସ୍ଥିର CURLcode hds_cw_collect_write(ସଂରଚନା Curl_easy *data,
+                                     ସଂରଚନା Curl_cwriter *writer, ପୂର୍ଣ୍ଣସଂଖ୍ୟା type,
+                                     ଅଚଳ ଅକ୍ଷର *buf, size_t blen)
 {
-  if((type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS)) {
-    unsigned char htype = (unsigned char)
+  ଯଦି((type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS)) {
+    unsigned ଅକ୍ଷର htype = (unsigned ଅକ୍ଷର)
       (type & CLIENTWRITE_CONNECT ? CURLH_CONNECT :
        (type & CLIENTWRITE_1XX ? CURLH_1XX :
         (type & CLIENTWRITE_TRAILER ? CURLH_TRAILER :
          CURLH_HEADER)));
-    CURLcode result = Curl_headers_push(data, buf, blen, htype);
+    CURLcode result = Curl_headers_ଠେଲ(data, buf, blen, htype);
     CURL_TRC_WRITE(data, "header_collect pushed(type=%x, len=%zu) -> %d",
-                   htype, blen, (int)result);
-    if(result)
-      return result;
+                   htype, blen, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)result);
+    ଯଦି(result)
+      ଫେରନ୍ତୁ result;
   }
-  return Curl_cwriter_write(data, writer->next, type, buf, blen);
+  ଫେରନ୍ତୁ Curl_cwriter_write(data, writer->next, type, buf, blen);
 }
 
-static const struct Curl_cwtype hds_cw_collect = {
+ସ୍ଥିର ଅଚଳ ସଂରଚନା Curl_cwtype hds_cw_collect = {
   "hds-collect",
-  NULL,
+  ଖାଲି,
   0,
   Curl_cwriter_def_init,
   hds_cw_collect_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct hds_cw_collect_ctx)
+  ଆକାର(ସଂରଚନା hds_cw_collect_ctx)
 };
 
-CURLcode Curl_headers_init(struct Curl_easy *data)
+CURLcode Curl_headers_init(ସଂରଚନା Curl_easy *data)
 {
-  struct Curl_cwriter *writer;
+  ସଂରଚନା Curl_cwriter *writer;
   CURLcode result;
 
-  if(data->conn && (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
+  ଯଦି(data->conn && (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
     /* avoid installing it twice */
-    if(Curl_cwriter_get_by_name(data, hds_cw_collect.name))
-      return CURLE_OK;
+    ଯଦି(Curl_cwriter_get_by_name(data, hds_cw_collect.name))
+      ଫେରନ୍ତୁ CURLE_OK;
 
     result = Curl_cwriter_create(&writer, data, &hds_cw_collect,
                                  CURL_CW_PROTOCOL);
-    if(result)
-      return result;
+    ଯଦି(result)
+      ଫେରନ୍ତୁ result;
 
     result = Curl_cwriter_add(data, writer);
-    if(result) {
+    ଯଦି(result) {
       Curl_cwriter_free(data, writer);
-      return result;
+      ଫେରନ୍ତୁ result;
     }
   }
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data)
+CURLcode Curl_headers_cleanup(ସଂରଚନା Curl_easy *data)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି *n;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    n = Curl_node_next(e);
+  ପାଇଁ(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
+    ସଂରଚନା Curl_header_store *hs = Curl_ଗଣ୍ଠି_elem(e);
+    n = Curl_ଗଣ୍ଠି_next(e);
     curlx_free(hs);
   }
   headers_reset(data);
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-#else /* HTTP-disabled builds below */
+#ଅନ୍ୟଥା /* HTTP-disabled builds below */
 
 CURLHcode curl_easy_header(CURL *easy,
-                           const char *name,
+                           ଅଚଳ ଅକ୍ଷର *name,
                            size_t index,
-                           unsigned int origin,
-                           int request,
-                           struct curl_header **hout)
+                           unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା origin,
+                           ପୂର୍ଣ୍ଣସଂଖ୍ୟା request,
+                           ସଂରଚନା curl_header **hout)
 {
-  (void)easy;
-  (void)name;
-  (void)index;
-  (void)origin;
-  (void)request;
-  (void)hout;
-  return CURLHE_NOT_BUILT_IN;
+  (ଶୂନ୍ୟ)easy;
+  (ଶୂନ୍ୟ)name;
+  (ଶୂନ୍ୟ)index;
+  (ଶୂନ୍ୟ)origin;
+  (ଶୂନ୍ୟ)request;
+  (ଶୂନ୍ୟ)hout;
+  ଫେରନ୍ତୁ CURLHE_NOT_BUILT_IN;
 }
 
-struct curl_header *curl_easy_nextheader(CURL *easy,
-                                         unsigned int type,
-                                         int request,
-                                         struct curl_header *prev)
+ସଂରଚନା curl_header *curl_easy_nextheader(CURL *easy,
+                                         unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା type,
+                                         ପୂର୍ଣ୍ଣସଂଖ୍ୟା request,
+                                         ସଂରଚନା curl_header *prev)
 {
-  (void)easy;
-  (void)type;
-  (void)request;
-  (void)prev;
-  return NULL;
+  (ଶୂନ୍ୟ)easy;
+  (ଶୂନ୍ୟ)type;
+  (ଶୂନ୍ୟ)request;
+  (ଶୂନ୍ୟ)prev;
+  ଫେରନ୍ତୁ ଖାଲି;
 }
 #endif

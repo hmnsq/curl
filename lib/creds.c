@@ -21,100 +21,100 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include <stddef.h>  /* for offsetof() */
+#ଅନ୍ତର୍ଭାଵ <stddef.h>  /* for offsetof() */
 
-#include "creds.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "urldata.h"
+#ଅନ୍ତର୍ଭାଵ "creds.h"
+#ଅନ୍ତର୍ଭାଵ "curl_trc.h"
+#ଅନ୍ତର୍ଭାଵ "strcase.h"
+#ଅନ୍ତର୍ଭାଵ "urldata.h"
 
 
-CURLcode Curl_creds_create(const char *user,
-                           const char *passwd,
-                           const char *oauth_bearer,
-                           const char *sasl_authzid,
-                           const char *sasl_service,
+CURLcode Curl_creds_create(ଅଚଳ ଅକ୍ଷର *user,
+                           ଅଚଳ ଅକ୍ଷର *passwd,
+                           ଅଚଳ ଅକ୍ଷର *oauth_bearer,
+                           ଅଚଳ ଅକ୍ଷର *sasl_authzid,
+                           ଅଚଳ ଅକ୍ଷର *sasl_service,
                            uint8_t source,
-                           struct Curl_creds **pcreds)
+                           ସଂରଚନା Curl_creds **pcreds)
 {
-  struct Curl_creds *creds = NULL;
+  ସଂରଚନା Curl_creds *creds = ଖାଲି;
   size_t ulen = user ? strlen(user) : 0;
   size_t plen = passwd ? strlen(passwd) : 0;
   size_t olen = oauth_bearer ? strlen(oauth_bearer) : 0;
   size_t salen = sasl_authzid ? strlen(sasl_authzid) : 0;
   size_t sslen = sasl_service ? strlen(sasl_service) : 0;
-  char *s, *buf;
+  ଅକ୍ଷର *s, *buf;
   size_t bufsize;
   CURLcode result = CURLE_OK;
 
   Curl_creds_unlink(pcreds);
 
   /* Everything empty/NULL, this is the NULL credential */
-  if(!user && !passwd && !olen && !salen && !sslen)
-    goto out;
+  ଯଦି(!user && !passwd && !olen && !salen && !sslen)
+    ଯାଅ out;
 
-  if((ulen > CURL_MAX_INPUT_LENGTH) ||
-     (plen > CURL_MAX_INPUT_LENGTH) ||
-     (olen > CURL_MAX_INPUT_LENGTH) ||
-     (salen > CURL_MAX_INPUT_LENGTH) ||
-     (sslen > CURL_MAX_INPUT_LENGTH)) {
+  ଯଦି((ulen > CURL_MAX_ନିବେଶ_LENGTH) ||
+     (plen > CURL_MAX_ନିବେଶ_LENGTH) ||
+     (olen > CURL_MAX_ନିବେଶ_LENGTH) ||
+     (salen > CURL_MAX_ନିବେଶ_LENGTH) ||
+     (sslen > CURL_MAX_ନିବେଶ_LENGTH)) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    ଯାଅ out;
   }
 
   /* null-terminator for user already part of struct */
   bufsize = ulen + plen + 1 + olen + 1 + salen + 1 + sslen + 1;
-  creds = curlx_calloc(1, sizeof(*creds) + bufsize);
-  if(!creds) {
+  creds = curlx_calloc(1, ଆକାର(*creds) + bufsize);
+  ଯଦି(!creds) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    ଯାଅ out;
   }
 
   creds->bufsize = bufsize;
   creds->refcount = 1;
   creds->source = source;
   /* Some compilers try to be too smart about our dynamic struct size */
-  buf = ((char *)creds) + offsetof(struct Curl_creds, buf);
+  buf = ((ଅକ୍ଷର *)creds) + offsetof(ସଂରଚନା Curl_creds, buf);
   creds->user = s = buf;
-  if(ulen)
+  ଯଦି(ulen)
     memcpy(s, user, ulen + 1);
   creds->passwd = s = buf + ulen + 1;
-  if(plen)
+  ଯଦି(plen)
     memcpy(s, passwd, plen + 1);
   creds->oauth_bearer = s = buf + ulen + 1 + plen + 1;
-  if(olen)
+  ଯଦି(olen)
     memcpy(s, oauth_bearer, olen + 1);
   creds->sasl_authzid = s = buf + ulen + 1 + plen + 1 + olen + 1;
-  if(salen)
+  ଯଦି(salen)
     memcpy(s, sasl_authzid, salen + 1);
   creds->sasl_service = s = buf + ulen + 1 + plen + 1 + olen + 1 + salen + 1;
-  if(sslen)
+  ଯଦି(sslen)
     memcpy(s, sasl_service, sslen + 1);
 
 out:
-  if(!result)
+  ଯଦି(!result)
     *pcreds = creds;
-  else
+  ଅନ୍ୟଥା
     Curl_creds_unlink(&creds);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-CURLcode Curl_creds_merge(const char *user,
-                          const char *passwd,
-                          struct Curl_creds *creds_in,
+CURLcode Curl_creds_merge(ଅଚଳ ଅକ୍ଷର *user,
+                          ଅଚଳ ଅକ୍ଷର *passwd,
+                          ସଂରଚନା Curl_creds *creds_in,
                           uint8_t source,
-                          struct Curl_creds **pcreds_out)
+                          ସଂରଚନା Curl_creds **pcreds_out)
 {
-  struct Curl_creds *creds_out = NULL;
+  ସଂରଚନା Curl_creds *creds_out = ଖାଲି;
   CURLcode result;
 
-  if(!creds_in) {
-    result = Curl_creds_create(user, passwd, NULL, NULL, NULL,
+  ଯଦି(!creds_in) {
+    result = Curl_creds_create(user, passwd, ଖାଲି, ଖାଲି, ଖାଲି,
                                source, &creds_out);
   }
-  else {
+  ଅନ୍ୟଥା {
     result = Curl_creds_create(user ? user : Curl_creds_user(creds_in),
                                passwd ? passwd : Curl_creds_passwd(creds_in),
                                Curl_creds_oauth_bearer(creds_in),
@@ -124,40 +124,40 @@ CURLcode Curl_creds_merge(const char *user,
   }
   Curl_creds_link(pcreds_out, creds_out);
   Curl_creds_unlink(&creds_out);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-void Curl_creds_link(struct Curl_creds **pdest, struct Curl_creds *src)
+ଶୂନ୍ୟ Curl_creds_link(ସଂରଚନା Curl_creds **pdest, ସଂରଚନା Curl_creds *src)
 {
-  if(*pdest != src) {
+  ଯଦି(*pdest != src) {
     Curl_creds_unlink(pdest);
     *pdest = src;
-    if(src) {
+    ଯଦି(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-void Curl_creds_unlink(struct Curl_creds **pcreds)
+ଶୂନ୍ୟ Curl_creds_unlink(ସଂରଚନା Curl_creds **pcreds)
 {
-  if(*pcreds) {
-    struct Curl_creds *creds = *pcreds;
+  ଯଦି(*pcreds) {
+    ସଂରଚନା Curl_creds *creds = *pcreds;
 
     DEBUGASSERT(creds->refcount);
-    *pcreds = NULL;
-    if(creds->refcount)
+    *pcreds = ଖାଲି;
+    ଯଦି(creds->refcount)
       creds->refcount--;
-    if(!creds->refcount) {
-      curlx_memzero(creds, sizeof(*creds) + creds->bufsize);
+    ଯଦି(!creds->refcount) {
+      curlx_memzero(creds, ଆକାର(*creds) + creds->bufsize);
       curlx_free(creds);
     }
   }
 }
 
-bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2)
+bool Curl_creds_same(ସଂରଚନା Curl_creds *c1, ସଂରଚନା Curl_creds *c2)
 {
-  return (c1 == c2) ||
+  ଫେରନ୍ତୁ (c1 == c2) ||
          (c1 && c2 &&
           !Curl_timestrcmp(c1->user, c2->user) &&
           !Curl_timestrcmp(c1->passwd, c2->passwd) &&
@@ -166,27 +166,27 @@ bool Curl_creds_same(struct Curl_creds *c1, struct Curl_creds *c2)
           !Curl_timestrcmp(c1->sasl_service, c2->sasl_service));
 }
 
-bool Curl_creds_equal(struct Curl_creds *c1, struct Curl_creds *c2)
+bool Curl_creds_equal(ସଂରଚନା Curl_creds *c1, ସଂରଚନା Curl_creds *c2)
 {
-  return Curl_creds_same(c1, c2) &&
+  ଫେରନ୍ତୁ Curl_creds_same(c1, c2) &&
          ((c1 == c2) || (c1 && c2 && (c1->source == c2->source)));
 }
 
 #ifdef CURLVERBOSE
-void Curl_creds_trace(struct Curl_easy *data, struct Curl_creds *creds,
-                      const char *msg)
+ଶୂନ୍ୟ Curl_creds_trace(ସଂରଚନା Curl_easy *data, ସଂରଚନା Curl_creds *creds,
+                      ଅଚଳ ଅକ୍ଷର *ସନ୍ଦେଶ)
 {
-  if(creds) {
+  ଯଦି(creds) {
     CURL_TRC_M(data, "%s: user=%s, passwd=%s, "
                "sasl_authzid=%s, oauth_bearer=%s, source=%d",
-               msg,
+               ସନ୍ଦେଶ,
                Curl_creds_user(creds),
                Curl_creds_has_passwd(creds) ? "***" : "",
                Curl_creds_sasl_authzid(creds),
                Curl_creds_has_oauth_bearer(creds) ? "***" : "",
                creds->source);
   }
-  else
-    CURL_TRC_M(data, "%s: -", msg);
+  ଅନ୍ୟଥା
+    CURL_TRC_M(data, "%s: -", ସନ୍ଦେଶ);
 }
 #endif

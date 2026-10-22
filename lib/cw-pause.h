@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-struct Curl_easy;
+ସଂରଚନା Curl_easy;
 
 /**
  * The client writer type "cw-pause" that buffers writes for
  * paused transfer writes.
  */
-extern const struct Curl_cwtype Curl_cwt_pause;
+ବାହ୍ୟ ଅଚଳ ସଂରଚନା Curl_cwtype Curl_cwt_pause;
 
 #endif /* HEADER_CURL_CW_PAUSE_H */

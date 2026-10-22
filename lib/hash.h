@@ -23,73 +23,73 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-typedef void (*Curl_hash_dtor)(void *);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଶୂନ୍ୟ (*Curl_hash_dtor)(ଶୂନ୍ୟ *);
 
-typedef void (*Curl_hash_elem_dtor)(const void *key, size_t key_len, void *p);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଶୂନ୍ୟ (*Curl_hash_elem_dtor)(ଅଚଳ ଶୂନ୍ୟ *ଚାବି, size_t ଚାବି_len, ଶୂନ୍ୟ *p);
 
 /* How keys in a hash are interpreted. */
-typedef enum {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା {
   CURL_HASH_TYPE_BYTES,
   CURL_HASH_TYPE_SOCKET,
   CURL_HASH_TYPE_LAST
 } Curl_hash_type;
 
-struct Curl_hash_element {
-  struct Curl_hash_element *next;
-  void *ptr;
+ସଂରଚନା Curl_hash_element {
+  ସଂରଚନା Curl_hash_element *next;
+  ଶୂନ୍ୟ *ptr;
   Curl_hash_elem_dtor dtor;
-  size_t key_len;
-  char key[1]; /* allocated memory following the struct */
+  size_t ଚାବି_len;
+  ଅକ୍ଷର ଚାବି[1]; /* allocated memory following the struct */
 };
 
-struct Curl_hash {
-  struct Curl_hash_element **table;
+ସଂରଚନା Curl_hash {
+  ସଂରଚନା Curl_hash_element **table;
   /* General element destructor, unless element itself carries one */
   Curl_hash_dtor dtor;
   size_t slots;
   size_t size;
   uint8_t type; /* Curl_hash_type */
 #ifdef DEBUGBUILD
-  int init;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା init;
 #endif
 };
 
-struct Curl_hash_iterator {
-  struct Curl_hash *hash;
+ସଂରଚନା Curl_hash_iterator {
+  ସଂରଚନା Curl_hash *hash;
   size_t slot_index;
-  struct Curl_hash_element *current;
+  ସଂରଚନା Curl_hash_element *current;
 #ifdef DEBUGBUILD
-  int init;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା init;
 #endif
 };
 
-CURLcode Curl_hash_global_init(void);
+CURLcode Curl_hash_global_init(ଶୂନ୍ୟ);
 
-void Curl_hash_init(struct Curl_hash *h,
+ଶୂନ୍ୟ Curl_hash_init(ସଂରଚନା Curl_hash *h,
                     size_t slots,
                     Curl_hash_type type,
                     Curl_hash_dtor dtor);
 
-void *Curl_hash_add(struct Curl_hash *h,
-                    const void *key, size_t key_len, void *p);
-void *Curl_hash_add2(struct Curl_hash *h,
-                     const void *key, size_t key_len, void *p,
+ଶୂନ୍ୟ *Curl_hash_add(ସଂରଚନା Curl_hash *h,
+                    ଅଚଳ ଶୂନ୍ୟ *ଚାବି, size_t ଚାବି_len, ଶୂନ୍ୟ *p);
+ଶୂନ୍ୟ *Curl_hash_add2(ସଂରଚନା Curl_hash *h,
+                     ଅଚଳ ଶୂନ୍ୟ *ଚାବି, size_t ଚାବି_len, ଶୂନ୍ୟ *p,
                      Curl_hash_elem_dtor dtor);
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len);
-void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା Curl_hash_delete(ସଂରଚନା Curl_hash *h, ଅଚଳ ଶୂନ୍ୟ *ଚାବି, size_t ଚାବି_len);
+ଶୂନ୍ୟ *Curl_hash_pick(ସଂରଚନା Curl_hash *h, ଅଚଳ ଶୂନ୍ୟ *ଚାବି, size_t ଚାବି_len);
 
-void Curl_hash_destroy(struct Curl_hash *h);
-size_t Curl_hash_count(struct Curl_hash *h);
-void Curl_hash_clean(struct Curl_hash *h);
-void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
-                                    int (*comp)(void *, void *));
-void Curl_hash_start_iterate(struct Curl_hash *hash,
-                             struct Curl_hash_iterator *iter);
-struct Curl_hash_element *Curl_hash_next_element(
-  struct Curl_hash_iterator *iter);
+ଶୂନ୍ୟ Curl_hash_destroy(ସଂରଚନା Curl_hash *h);
+size_t Curl_hash_ଗଣନା(ସଂରଚନା Curl_hash *h);
+ଶୂନ୍ୟ Curl_hash_clean(ସଂରଚନା Curl_hash *h);
+ଶୂନ୍ୟ Curl_hash_clean_with_criterium(ସଂରଚନା Curl_hash *h, ଶୂନ୍ୟ *user,
+                                    ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*comp)(ଶୂନ୍ୟ *, ଶୂନ୍ୟ *));
+ଶୂନ୍ୟ Curl_hash_start_iterate(ସଂରଚନା Curl_hash *hash,
+                             ସଂରଚନା Curl_hash_iterator *iter);
+ସଂରଚନା Curl_hash_element *Curl_hash_next_element(
+  ସଂରଚନା Curl_hash_iterator *iter);
 
-void Curl_hash_print(struct Curl_hash *h, void (*func)(void *));
+ଶୂନ୍ୟ Curl_hash_print(ସଂରଚନା Curl_hash *h, ଶୂନ୍ୟ (*func)(ଶୂନ୍ୟ *));
 
 #endif /* HEADER_CURL_HASH_H */

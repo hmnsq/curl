@@ -21,26 +21,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#ଯଦି !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 
-#include "urldata.h"
-#include "url.h"
-#include "curl_trc.h"
-#include "sendf.h"
-#include "multiif.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "progress.h"
-#include "curlx/dynbuf.h"
-#include "http_proxy.h"
-#include "vquic/vquic.h"
-#include "vquic/cf-ngtcp2-cmn.h"
-#include "vquic/cf-ngtcp2-proxy.h"
-#include "capsule.h"
+#ଅନ୍ତର୍ଭାଵ "urldata.h"
+#ଅନ୍ତର୍ଭାଵ "url.h"
+#ଅନ୍ତର୍ଭାଵ "curl_trc.h"
+#ଅନ୍ତର୍ଭାଵ "sendf.h"
+#ଅନ୍ତର୍ଭାଵ "multiif.h"
+#ଅନ୍ତର୍ଭାଵ "cfilters.h"
+#ଅନ୍ତର୍ଭାଵ "connect.h"
+#ଅନ୍ତର୍ଭାଵ "progress.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/dynbuf.h"
+#ଅନ୍ତର୍ଭାଵ "http_proxy.h"
+#ଅନ୍ତର୍ଭାଵ "vquic/vquic.h"
+#ଅନ୍ତର୍ଭାଵ "vquic/cf-ngtcp2-cmn.h"
+#ଅନ୍ତର୍ଭାଵ "vquic/cf-ngtcp2-proxy.h"
+#ଅନ୍ତର୍ଭାଵ "capsule.h"
 
 /* A stream window is the maximum amount we need to buffer for
  * each active transfer. We use HTTP/3 flow control and only ACK
@@ -50,7 +50,7 @@
 #define PROXY_H3_TUNNEL_RECV_CHUNKS \
                                (PROXY_H3_TUNNEL_RX_WIN / H3_STREAM_CHUNK_SIZE)
 
-typedef enum {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା {
   H3_TUNNEL_INIT,     /* init/default/no tunnel state */
   H3_TUNNEL_CONNECT,  /* CONNECT request is being sent */
   H3_TUNNEL_RESPONSE, /* CONNECT response received completely */
@@ -58,20 +58,20 @@ typedef enum {
   H3_TUNNEL_FAILED
 } h3_tunnel_state;
 
-struct h3_tunnel_stream {
-  struct Curl_peer *dest;  /* where the tunnel goes to */
-  struct http_resp *resp;
-  struct bufq recvbuf;
-  char *authority;
-  struct h3_stream_ctx *stream;
+ସଂରଚନା h3_tunnel_stream {
+  ସଂରଚନା Curl_peer *dest;  /* where the tunnel goes to */
+  ସଂରଚନା http_resp *resp;
+  ସଂରଚନା bufq recvbuf;
+  ଅକ୍ଷର *authority;
+  ସଂରଚନା h3_stream_ctx *stream;
   h3_tunnel_state state;
   BIT(udp);
   BIT(has_final_response);
   BIT(closed);
 };
 
-static CURLcode h3_tunnel_stream_init(struct h3_tunnel_stream *ts,
-                                      struct Curl_peer *dest,
+ସ୍ଥିର CURLcode h3_tunnel_stream_init(ସଂରଚନା h3_tunnel_stream *ts,
+                                      ସଂରଚନା Curl_peer *dest,
                                       bool udp)
 {
   ts->state = H3_TUNNEL_INIT;
@@ -84,24 +84,24 @@ static CURLcode h3_tunnel_stream_init(struct h3_tunnel_stream *ts,
                                 dest->hostname,
                                 dest->ipv6 ? "]" : "",
                                 dest->port);
-  if(!ts->authority)
-    return CURLE_OUT_OF_MEMORY;
+  ଯଦି(!ts->authority)
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static void h3_tunnel_stream_reset(struct h3_tunnel_stream *ts)
+ସ୍ଥିର ଶୂନ୍ୟ h3_tunnel_stream_reset(ସଂରଚନା h3_tunnel_stream *ts)
 {
   Curl_bufq_reset(&ts->recvbuf);
   Curl_http_resp_free(ts->resp);
-  ts->resp = NULL;
-  ts->stream = NULL;
+  ts->resp = ଖାଲି;
+  ts->stream = ଖାଲି;
   ts->has_final_response = FALSE;
   ts->closed = FALSE;
   ts->state = H3_TUNNEL_INIT;
 }
 
-static void h3_tunnel_stream_cleanup(struct h3_tunnel_stream *ts)
+ସ୍ଥିର ଶୂନ୍ୟ h3_tunnel_stream_cleanup(ସଂରଚନା h3_tunnel_stream *ts)
 {
   Curl_peer_unlink(&ts->dest);
   Curl_bufq_free(&ts->recvbuf);
@@ -110,41 +110,41 @@ static void h3_tunnel_stream_cleanup(struct h3_tunnel_stream *ts)
   ts->state = H3_TUNNEL_INIT;
 }
 
-static void h3_tunnel_go_state(struct Curl_cfilter *cf,
-                               struct h3_tunnel_stream *ts,
+ସ୍ଥିର ଶୂନ୍ୟ h3_tunnel_go_state(ସଂରଚନା Curl_cfilter *cf,
+                               ସଂରଚନା h3_tunnel_stream *ts,
                                h3_tunnel_state new_state,
-                               struct Curl_easy *data)
+                               ସଂରଚନା Curl_easy *data)
 {
   VERBOSE(int64_t stream_id = ts->stream ? ts->stream->id : -1);
-  (void)cf;
+  (ଶୂନ୍ୟ)cf;
 
-  if(ts->state == new_state)
-    return;
+  ଯଦି(ts->state == new_state)
+    ଫେରନ୍ତୁ;
 
   /* leaving this one */
-  switch(ts->state) {
-  case H3_TUNNEL_CONNECT:
+  ବାଛ(ts->state) {
+  ସ୍ଥିତି H3_TUNNEL_CONNECT:
     data->req.ignorebody = FALSE;
-    break;
-  default:
-    break;
+    ଭାଙ୍ଗ;
+  ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+    ଭାଙ୍ଗ;
   }
 
   /* entering this one */
-  switch(new_state) {
-  case H3_TUNNEL_INIT:
+  ବାଛ(new_state) {
+  ସ୍ଥିତି H3_TUNNEL_INIT:
     CURL_TRC_CF(data, cf, "[%" PRId64 "] -> [init]", stream_id);
     h3_tunnel_stream_reset(ts);
-    break;
-  case H3_TUNNEL_CONNECT:
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି H3_TUNNEL_CONNECT:
     CURL_TRC_CF(data, cf, "[%" PRId64 "] -> [connect]", stream_id);
     ts->state = H3_TUNNEL_CONNECT;
-    break;
-  case H3_TUNNEL_RESPONSE:
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି H3_TUNNEL_RESPONSE:
     CURL_TRC_CF(data, cf, "[%" PRId64 "] -> [response]", stream_id);
     ts->state = H3_TUNNEL_RESPONSE;
-    break;
-  case H3_TUNNEL_ESTABLISHED:
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି H3_TUNNEL_ESTABLISHED:
     CURL_TRC_CF(data, cf, "[%" PRId64 "] -> [established]", stream_id);
     infof(data, "CONNECT%s phase completed for HTTP/3 proxy",
           ts->udp ? "-UDP" : "");
@@ -152,147 +152,147 @@ static void h3_tunnel_go_state(struct Curl_cfilter *cf,
     data->state.authproxy.multipass = FALSE;
     ts->state = new_state;
     curlx_safefree(data->req.hd_proxy_auth);
-    break;
-  case H3_TUNNEL_FAILED:
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି H3_TUNNEL_FAILED:
     CURL_TRC_CF(data, cf, "[%" PRId64 "] -> [failed]", stream_id);
     ts->state = new_state;
     /* If a proxy-authorization header was used for the proxy, then we should
        make sure that it is not accidentally used for the document request
        after we have connected. So let's free and clear it here. */
     curlx_safefree(data->req.hd_proxy_auth);
-    break;
+    ଭାଙ୍ଗ;
   }
 }
 
-struct cf_h3_proxy_ctx {
-  struct cf_ngtcp2_ctx ngtcp2_ctx;
-  struct h3_tunnel_stream tunnel; /* our tunnel CONNECT stream */
+ସଂରଚନା cf_h3_proxy_ctx {
+  ସଂରଚନା cf_ngtcp2_ctx ngtcp2_ctx;
+  ସଂରଚନା h3_tunnel_stream tunnel; /* our tunnel CONNECT stream */
   BIT(connected);
 };
 
-static CURLcode cf_ngtcp2_proxy_h3_init(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct cf_ngtcp2_ctx *ctx);
+ସ୍ଥିର CURLcode cf_ngtcp2_proxy_h3_init(ସଂରଚନା Curl_cfilter *cf,
+                                        ସଂରଚନା Curl_easy *data,
+                                        ସଂରଚନା cf_ngtcp2_ctx *ctx);
 
-static CURLcode cf_h3_proxy_ctx_init(struct cf_h3_proxy_ctx *ctx,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct ssl_filter_config *sslc,
-                                     struct Curl_peer *tunnel_peer,
+ସ୍ଥିର CURLcode cf_h3_proxy_ctx_init(ସଂରଚନା cf_h3_proxy_ctx *ctx,
+                                     ସଂରଚନା Curl_peer *origin,
+                                     ସଂରଚନା Curl_peer *peer,
+                                     ସଂରଚନା ssl_filter_config *sslc,
+                                     ସଂରଚନା Curl_peer *tunnel_peer,
                                      uint8_t tunnel_transport)
 {
   CURLcode result;
   result = Curl_cf_ngtcp2_ctx_init(&ctx->ngtcp2_ctx, origin, peer,
                                    sslc, cf_ngtcp2_proxy_h3_init);
-  if(!result)
+  ଯଦି(!result)
     result = h3_tunnel_stream_init(&ctx->tunnel, tunnel_peer,
                                    TRNSPRT_IS_DGRAM(tunnel_transport));
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static void cf_h3_proxy_ctx_free(struct cf_h3_proxy_ctx *ctx)
+ସ୍ଥିର ଶୂନ୍ୟ cf_h3_proxy_ctx_free(ସଂରଚନା cf_h3_proxy_ctx *ctx)
 {
-  if(ctx) {
+  ଯଦି(ctx) {
     Curl_cf_ngtcp2_ctx_cleanup(&ctx->ngtcp2_ctx);
     h3_tunnel_stream_cleanup(&ctx->tunnel);
     curlx_free(ctx);
   }
 }
 
-static int cb_h3_proxy_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
-                                      uint64_t datalen, void *user_data,
-                                      void *stream_user_data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cb_h3_proxy_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
+                                      uint64_t datalen, ଶୂନ୍ୟ *user_data,
+                                      ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct h3_stream_ctx *stream;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା h3_stream_ctx *stream;
   size_t skiplen;
-  (void)stream_user_data;
+  (ଶୂନ୍ୟ)stream_user_data;
 
   stream = pctx->tunnel.stream;
-  if(!stream || (stream->id != stream_id))
-    return 0;
+  ଯଦି(!stream || (stream->id != stream_id))
+    ଫେରନ୍ତୁ 0;
 
   /* The server acknowledged `datalen` of bytes from our request body.
    * This is a delta. We have kept this data in `sendbuf` for
    * re-transmissions and can free it now. */
-  if(datalen >= (uint64_t)stream->tx_in_flight_size)
+  ଯଦି(datalen >= (uint64_t)stream->tx_in_flight_size)
     skiplen = stream->tx_in_flight_size;
-  else
+  ଅନ୍ୟଥା
     skiplen = (size_t)datalen;
   Curl_bufq_skip(&stream->sendbuf, skiplen);
   stream->tx_in_flight_size -= skiplen;
 
   /* Resume upload processing if we have more data to send */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
-    int rv = nghttp3_conn_resume_stream(conn, stream_id);
-    if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ଯଦି(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା rv = nghttp3_conn_resume_stream(conn, stream_id);
+    ଯଦି(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
+      ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int cb_h3_proxy_stream_close(nghttp3_conn *conn, int64_t stream_id,
-                                    uint64_t app_error_code, void *user_data,
-                                    void *stream_user_data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cb_h3_proxy_stream_close(nghttp3_conn *conn, int64_t stream_id,
+                                    uint64_t app_error_code, ଶୂନ୍ୟ *user_data,
+                                    ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  struct h3_stream_ctx *stream;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା Curl_easy *data = CF_DATA_CURRENT(cf);
+  ସଂରଚନା h3_stream_ctx *stream;
 
-  (void)conn;
-  (void)stream_user_data;
-  if(!data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  (ଶୂନ୍ୟ)conn;
+  (ଶୂନ୍ୟ)stream_user_data;
+  ଯଦି(!data)
+    ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
 
   stream = pctx->tunnel.stream;
-  if(!stream || (stream->id != stream_id))
-    return 0;
+  ଯଦି(!stream || (stream->id != stream_id))
+    ଫେରନ୍ତୁ 0;
 
   stream->closed = TRUE;
   stream->error3 = app_error_code;
-  if(stream->error3 != NGHTTP3_H3_NO_ERROR) {
+  ଯଦି(stream->error3 != NGHTTP3_H3_NO_ERROR) {
     stream->reset = TRUE;
     stream->send_closed = TRUE;
     CURL_TRC_CF(data, cf, "[%" PRId64 "] RESET: error %" PRIu64,
                 stream->id, stream->error3);
   }
-  else
+  ଅନ୍ୟଥା
     CURL_TRC_CF(data, cf, "[%" PRId64 "] CLOSED", stream->id);
-  pctx->tunnel.stream = NULL;
+  pctx->tunnel.stream = ଖାଲି;
   pctx->tunnel.closed = TRUE;
   Curl_multi_mark_dirty(data);
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static void cf_h3_proxy_upd_rx_win(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct h3_stream_ctx *stream)
+ସ୍ଥିର ଶୂନ୍ୟ cf_h3_proxy_upd_rx_win(ସଂରଚନା Curl_cfilter *cf,
+                                   ସଂରଚନା Curl_easy *data,
+                                   ସଂରଚନା h3_stream_ctx *stream)
 {
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
   uint64_t cur_win, wanted_win = 0;
   size_t rx_buffered;
 
-  if(!stream) /* already closed */
-    return;
-  if(stream->rx_offset_max < stream->rx_offset) {
+  ଯଦି(!stream) /* already closed */
+    ଫେରନ୍ତୁ;
+  ଯଦି(stream->rx_offset_max < stream->rx_offset) {
     DEBUGASSERT(0);
-    return;
+    ଫେରନ୍ତୁ;
   }
 
   rx_buffered = Curl_bufq_len(&pctx->tunnel.recvbuf);
   wanted_win = (rx_buffered < PROXY_H3_TUNNEL_RX_WIN) ?
                (PROXY_H3_TUNNEL_RX_WIN - rx_buffered) : 0;
   cur_win = stream->rx_offset_max - stream->rx_offset;
-  if(wanted_win > cur_win) {
+  ଯଦି(wanted_win > cur_win) {
     uint64_t delta = wanted_win - cur_win;
 
-    if(UINT64_MAX - delta < stream->rx_offset_max)
+    ଯଦି(UINT64_MAX - delta < stream->rx_offset_max)
       delta = UINT64_MAX - stream->rx_offset_max;
-    if(delta) {
+    ଯଦି(delta) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] rx window, extend %" PRIu64
                   " (buffered %zu) by %" PRIu64 " bytes",
                   stream->id, cur_win, rx_buffered, delta);
@@ -303,23 +303,23 @@ static void cf_h3_proxy_upd_rx_win(struct Curl_cfilter *cf,
   }
 }
 
-static int cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
-                                 const uint8_t *buf, size_t buflen,
-                                 void *user_data, void *stream_user_data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
+                                 ଅଚଳ uint8_t *buf, size_t buflen,
+                                 ଶୂନ୍ୟ *user_data, ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  struct h3_stream_ctx *stream;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା Curl_easy *data = CF_DATA_CURRENT(cf);
+  ସଂରଚନା h3_stream_ctx *stream;
   size_t nwritten;
   CURLcode result = CURLE_OK;
-  (void)conn;
-  (void)stream3_id;
-  (void)stream_user_data;
+  (ଶୂନ୍ୟ)conn;
+  (ଶୂନ୍ୟ)stream3_id;
+  (ଶୂନ୍ୟ)stream_user_data;
 
   stream = pctx->tunnel.stream;
-  if(!data || !stream || (stream->id != stream3_id)) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ଯଦି(!data || !stream || (stream->id != stream3_id)) {
+    ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
   stream->rx_total += (curl_off_t)buflen;
@@ -328,13 +328,13 @@ static int cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
               stream->id, buflen, stream->rx_total);
 
   result = Curl_bufq_write(&pctx->tunnel.recvbuf, buf, buflen, &nwritten);
-  if(result || (nwritten < buflen)) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ଯଦି(result || (nwritten < buflen)) {
+    ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
   /* DATA has been moved into our local recv buffer. Update stream offsets. */
   stream->rx_offset += buflen;
-  if(stream->rx_offset_max < stream->rx_offset)
+  ଯଦି(stream->rx_offset_max < stream->rx_offset)
     stream->rx_offset_max = stream->rx_offset;
 
   CURL_TRC_CF(data, cf, "[%" PRId64 "] DATA len=%zu, rx win=%" PRIu64,
@@ -342,215 +342,215 @@ static int cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
   cf_h3_proxy_upd_rx_win(cf, data, stream);
 
   Curl_multi_mark_dirty(data);
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int cb_h3_proxy_deferred_consume(nghttp3_conn *conn, int64_t stream_id,
-                                        size_t consumed, void *user_data,
-                                        void *stream_user_data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cb_h3_proxy_deferred_consume(nghttp3_conn *conn, int64_t stream_id,
+                                        size_t consumed, ଶୂନ୍ୟ *user_data,
+                                        ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
-  (void)conn;
-  (void)stream_user_data;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
+  (ଶୂନ୍ୟ)conn;
+  (ଶୂନ୍ୟ)stream_user_data;
 
-  if(!ctx)
-    return 0;
+  ଯଦି(!ctx)
+    ଫେରନ୍ତୁ 0;
 
   /* nghttp3 has consumed bytes on the QUIC stream and we need to
    * tell the QUIC connection to increase its flow control */
   ngtcp2_conn_extend_max_stream_offset(ctx->qconn, stream_id, consumed);
   ngtcp2_conn_extend_max_offset(ctx->qconn, consumed);
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int cb_h3_proxy_recv_header(nghttp3_conn *conn, int64_t stream_id,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cb_h3_proxy_recv_header(nghttp3_conn *conn, int64_t stream_id,
                                    int32_t token, nghttp3_rcbuf *name,
-                                   nghttp3_rcbuf *value, uint8_t flags,
-                                   void *user_data, void *stream_user_data)
+                                   nghttp3_rcbuf *ମୂଲ୍ୟ, uint8_t flags,
+                                   ଶୂନ୍ୟ *user_data, ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
   nghttp3_vec h3name = nghttp3_rcbuf_get_buf(name);
-  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(value);
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  struct h3_stream_ctx *stream;
+  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(ମୂଲ୍ୟ);
+  ସଂରଚନା Curl_easy *data = CF_DATA_CURRENT(cf);
+  ସଂରଚନା h3_stream_ctx *stream;
   CURLcode result = CURLE_OK;
-  int http_status;
-  struct http_resp *resp;
-  (void)conn;
-  (void)stream_id;
-  (void)token;
-  (void)flags;
-  (void)stream_user_data;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା http_status;
+  ସଂରଚନା http_resp *resp;
+  (ଶୂନ୍ୟ)conn;
+  (ଶୂନ୍ୟ)stream_id;
+  (ଶୂନ୍ୟ)token;
+  (ଶୂନ୍ୟ)flags;
+  (ଶୂନ୍ୟ)stream_user_data;
 
   /* stream_user_data might be NULL for control streams */
-  if(!data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ଯଦି(!data)
+    ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
 
   stream = pctx->tunnel.stream;
-  if(!stream || (stream->id != stream_id)) {
+  ଯଦି(!stream || (stream->id != stream_id)) {
     CURL_TRC_CF(data, cf, "[%" PRId64 "] recv_header: stream lookup "
                 "failed for data=%p mid=%u",
-                stream_id, (void *)data, data ? data->mid : 0);
-    return 0;
+                stream_id, (ଶୂନ୍ୟ *)data, data ? data->mid : 0);
+    ଫେରନ୍ତୁ 0;
   }
 
-  if(pctx->tunnel.has_final_response) {
+  ଯଦି(pctx->tunnel.has_final_response) {
     /* we do not do anything with trailers for tunnel streams */
-    return 0;
+    ଫେରନ୍ତୁ 0;
   }
 
-  if(token == NGHTTP3_QPACK_TOKEN__STATUS) {
+  ଯଦି(token == NGHTTP3_QPACK_TOKEN__STATUS) {
     result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)h3val.base, h3val.len);
-    if(result)
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+                                     (ଅଚଳ ଅକ୍ଷର *)h3val.base, h3val.len);
+    ଯଦି(result)
+      ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
     http_status = stream->status_code;
-    result = Curl_http_resp_make(&resp, http_status, NULL);
-    if(result)
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
-    if(pctx->tunnel.resp)
+    result = Curl_http_resp_make(&resp, http_status, ଖାଲି);
+    ଯଦି(result)
+      ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
+    ଯଦି(pctx->tunnel.resp)
       Curl_http_resp_free(pctx->tunnel.resp);
     pctx->tunnel.resp = resp;
   }
-  else {
-    if(!pctx->tunnel.resp) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ଅନ୍ୟଥା {
+    ଯଦି(!pctx->tunnel.resp) {
+      ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
     }
     /* store as an HTTP1-style header */
     CURL_TRC_CF(data, cf, "[%" PRId64 "] header: %.*s: %.*s", stream_id,
-                (int)h3name.len, h3name.base, (int)h3val.len, h3val.base);
+                (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)h3name.len, h3name.base, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)h3val.len, h3val.base);
     result = Curl_dynhds_add(&pctx->tunnel.resp->headers,
-                             (const char *)h3name.base, h3name.len,
-                             (const char *)h3val.base, h3val.len);
-    if(result) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+                             (ଅଚଳ ଅକ୍ଷର *)h3name.base, h3name.len,
+                             (ଅଚଳ ଅକ୍ଷର *)h3val.base, h3val.len);
+    ଯଦି(result) {
+      ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int cb_h3_proxy_end_headers(nghttp3_conn *conn, int64_t stream_id,
-                                   int fin, void *user_data,
-                                   void *stream_user_data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cb_h3_proxy_end_headers(nghttp3_conn *conn, int64_t stream_id,
+                                   ପୂର୍ଣ୍ଣସଂଖ୍ୟା fin, ଶୂନ୍ୟ *user_data,
+                                   ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  struct h3_stream_ctx *stream;
-  (void)conn;
-  (void)stream_id;
-  (void)fin;
-  (void)stream_user_data;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା Curl_easy *data = CF_DATA_CURRENT(cf);
+  ସଂରଚନା h3_stream_ctx *stream;
+  (ଶୂନ୍ୟ)conn;
+  (ଶୂନ୍ୟ)stream_id;
+  (ଶୂନ୍ୟ)fin;
+  (ଶୂନ୍ୟ)stream_user_data;
 
-  if(!data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ଯଦି(!data)
+    ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
 
   stream = pctx->tunnel.stream;
-  if(!stream || (stream->id != stream_id)) {
+  ଯଦି(!stream || (stream->id != stream_id)) {
     CURL_TRC_CF(data, cf, "[%" PRId64 "] end_headers: stream lookup "
                 "failed for data=%p mid=%u",
-                stream_id, (void *)data, data ? data->mid : 0);
-    return 0;
+                stream_id, (ଶୂନ୍ୟ *)data, data ? data->mid : 0);
+    ଫେରନ୍ତୁ 0;
   }
 
   CURL_TRC_CF(data, cf, "[%" PRId64 "] end_headers, status=%d", stream_id,
               stream->status_code);
 
-  if(!pctx->tunnel.has_final_response) {
-    if(stream->status_code / 100 != 1) {
+  ଯଦି(!pctx->tunnel.has_final_response) {
+    ଯଦି(stream->status_code / 100 != 1) {
       pctx->tunnel.has_final_response = TRUE;
     }
   }
 
-  if(stream->status_code / 100 != 1) {
+  ଯଦି(stream->status_code / 100 != 1) {
     stream->resp_hds_complete = TRUE;
   }
 
   Curl_multi_mark_dirty(data);
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int cb_h3_proxy_stop_sending(nghttp3_conn *conn, int64_t stream_id,
-                                    uint64_t app_error_code, void *user_data,
-                                    void *stream_user_data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cb_h3_proxy_stop_sending(nghttp3_conn *conn, int64_t stream_id,
+                                    uint64_t app_error_code, ଶୂନ୍ୟ *user_data,
+                                    ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
-  (void)conn;
-  (void)stream_user_data;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
+  (ଶୂନ୍ୟ)conn;
+  (ଶୂନ୍ୟ)stream_user_data;
 
-  if(ctx) {
-    int rv = ngtcp2_conn_shutdown_stream_read(ctx->qconn, 0, stream_id,
+  ଯଦି(ctx) {
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା rv = ngtcp2_conn_shutdown_stream_read(ctx->qconn, 0, stream_id,
                                               app_error_code);
 
-    if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    ଯଦି(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
+      ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
 
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static int cb_h3_proxy_reset_stream(nghttp3_conn *conn, int64_t stream_id,
-                                    uint64_t app_error_code, void *user_data,
-                                    void *stream_user_data)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cb_h3_proxy_reset_stream(nghttp3_conn *conn, int64_t stream_id,
+                                    uint64_t app_error_code, ଶୂନ୍ୟ *user_data,
+                                    ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  int rv;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
+  ସଂରଚନା Curl_easy *data = CF_DATA_CURRENT(cf);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା rv;
 
-  (void)conn;
-  (void)stream_user_data;
-  if(!data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  (ଶୂନ୍ୟ)conn;
+  (ଶୂନ୍ୟ)stream_user_data;
+  ଯଦି(!data)
+    ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
 
-  if(!pctx->tunnel.stream ||
+  ଯଦି(!pctx->tunnel.stream ||
      (stream_id != pctx->tunnel.stream->id))
-    return 0;
+    ଫେରନ୍ତୁ 0;
 
   rv = ngtcp2_conn_shutdown_stream_write(ctx->qconn, 0, stream_id,
                                          app_error_code);
   CURL_TRC_CF(data, cf, "[%" PRId64 "] reset -> %d", stream_id, rv);
-  pctx->tunnel.stream = NULL;
+  pctx->tunnel.stream = ଖାଲି;
   pctx->tunnel.closed = TRUE;
-  if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ଯଦି(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
+    ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
   }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
+ସ୍ଥିର nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
                                             int64_t stream_id,
                                             nghttp3_vec *vec,
                                             size_t veccnt,
                                             uint32_t *pflags,
-                                            void *user_data,
-                                            void *stream_user_data)
+                                            ଶୂନ୍ୟ *user_data,
+                                            ଶୂନ୍ୟ *stream_user_data)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  struct h3_stream_ctx *stream;
+  ସଂରଚନା Curl_cfilter *cf = user_data;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା Curl_easy *data = CF_DATA_CURRENT(cf);
+  ସଂରଚନା h3_stream_ctx *stream;
   size_t nwritten = 0;
   size_t nvecs = 0;
-  const unsigned char *buf_base;
+  ଅଚଳ unsigned ଅକ୍ଷର *buf_base;
 
-  (void)conn;
-  (void)stream_id;
-  (void)veccnt;
-  (void)stream_user_data;
-  (void)pflags;
+  (ଶୂନ୍ୟ)conn;
+  (ଶୂନ୍ୟ)stream_id;
+  (ଶୂନ୍ୟ)veccnt;
+  (ଶୂନ୍ୟ)stream_user_data;
+  (ଶୂନ୍ୟ)pflags;
 
   stream = pctx->tunnel.stream;
-  if(!data || !stream || (stream->id != stream_id))
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ଯଦି(!data || !stream || (stream->id != stream_id))
+    ଫେରନ୍ତୁ NGHTTP3_ERR_CALLBACK_FAILURE;
 
   /* nghttp3 keeps references to the sendbuf data until it is ACKed
    * by the server (see `cb_h3_proxy_acked_req_body()` for updates).
@@ -559,14 +559,14 @@ static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
    * ACKed yet.
    * Any amount beyond `tx_in_flight_size` we need still to pass
    * to nghttp3. Do that now, if we can. */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
+  ଯଦି(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
     nvecs = 0;
-    while(nvecs < veccnt) {
-      if(!Curl_bufq_peek_at(&stream->sendbuf,
+    ଯେତେବେଳେ(nvecs < veccnt) {
+      ଯଦି(!Curl_bufq_peek_at(&stream->sendbuf,
                            stream->tx_in_flight_size,
                            &buf_base,
                            &vec[nvecs].len))
-        break;
+        ଭାଙ୍ଗ;
       vec[nvecs].base = (uint8_t *)(uintptr_t)buf_base;
       stream->tx_in_flight_size += vec[nvecs].len;
       nwritten += vec[nvecs].len;
@@ -575,11 +575,11 @@ static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
     DEBUGASSERT(nvecs > 0); /* we SHOULD have been able to peek */
   }
 
-  if(!nwritten) {
+  ଯଦି(!nwritten) {
     /* Not EOF, and nothing to give, we signal WOULDBLOCK. */
     CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> AGAIN",
                 stream->id);
-    return NGHTTP3_ERR_WOULDBLOCK;
+    ଫେରନ୍ତୁ NGHTTP3_ERR_WOULDBLOCK;
   }
 
   CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> "
@@ -587,54 +587,54 @@ static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
               stream->id, nvecs,
               *pflags == NGHTTP3_DATA_FLAG_EOF ? " EOF" : "",
               nwritten, Curl_bufq_len(&stream->sendbuf));
-  return (nghttp3_ssize)nvecs;
+  ଫେରନ୍ତୁ (nghttp3_ssize)nvecs;
 }
 
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic ଠେଲ
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
-static nghttp3_callbacks ngh3_proxy_callbacks = {
+ସ୍ଥିର nghttp3_callbacks ngh3_proxy_callbacks = {
   cb_h3_proxy_acked_req_body, /* acked_stream_data */
   cb_h3_proxy_stream_close,
   cb_h3_proxy_recv_data,
   cb_h3_proxy_deferred_consume,
-  NULL, /* begin_headers */
+  ଖାଲି, /* begin_headers */
   cb_h3_proxy_recv_header,
   cb_h3_proxy_end_headers,
-  NULL, /* begin_trailers */
+  ଖାଲି, /* begin_trailers */
   cb_h3_proxy_recv_header,
-  NULL, /* end_trailers */
+  ଖାଲି, /* end_trailers */
   cb_h3_proxy_stop_sending,
-  NULL, /* end_stream */
+  ଖାଲି, /* end_stream */
   cb_h3_proxy_reset_stream,
-  NULL, /* shutdown */
-  NULL, /* recv_settings (deprecated) */
+  ଖାଲି, /* shutdown */
+  ଖାଲି, /* recv_settings (deprecated) */
 #ifdef NGHTTP3_CALLBACKS_V2  /* nghttp3 v1.11.0+ */
-  NULL, /* recv_origin */
-  NULL, /* end_origin */
-  NULL, /* rand */
+  ଖାଲି, /* recv_origin */
+  ଖାଲି, /* end_origin */
+  ଖାଲି, /* rand */
 #endif
 #ifdef NGHTTP3_CALLBACKS_V3  /* nghttp3 v1.14.0+ */
-  NULL, /* recv_settings2 */
+  ଖାଲି, /* recv_settings2 */
 #endif
 #ifdef NGHTTP3_CALLBACKS_V4  /* nghttp3 v1.18.0+ */
-  NULL, /* stream_close2 */
+  ଖାଲି, /* stream_close2 */
 #endif
 };
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic କାଢ଼
 #endif
 
-static CURLcode cf_ngtcp2_proxy_h3_init(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct cf_ngtcp2_ctx *ctx)
+ସ୍ଥିର CURLcode cf_ngtcp2_proxy_h3_init(ସଂରଚନା Curl_cfilter *cf,
+                                        ସଂରଚନା Curl_easy *data,
+                                        ସଂରଚନା cf_ngtcp2_ctx *ctx)
 {
-  int rc;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
-  if(ngtcp2_conn_get_streams_uni_left(ctx->qconn) < 3) {
+  ଯଦି(ngtcp2_conn_get_streams_uni_ବାମ(ctx->qconn) < 3) {
     failf(data, "QUIC connection lacks 3 uni streams to run HTTP/3");
-    return CURLE_QUIC_CONNECT_ERROR;
+    ଫେରନ୍ତୁ CURLE_QUIC_CONNECT_ERROR;
   }
 
   nghttp3_settings_default(&ctx->h3settings);
@@ -644,82 +644,82 @@ static CURLcode cf_ngtcp2_proxy_h3_init(struct Curl_cfilter *cf,
                                &ctx->h3settings,
                                Curl_nghttp3_mem(),
                                cf);
-  if(rc) {
+  ଯଦି(rc) {
     failf(data, "error creating nghttp3 connection instance");
-    return CURLE_OUT_OF_MEMORY;
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
   }
 
-  return Curl_cf_ngtcp2_h3_init_ctrls(ctx, data);
+  ଫେରନ୍ତୁ Curl_cf_ngtcp2_h3_init_ctrls(ctx, data);
 }
 
-static ssize_t cf_h3_proxy_recv_closed_stream(struct Curl_cfilter *cf,
-                                              struct Curl_easy *data,
-                                              struct h3_stream_ctx *stream,
+ସ୍ଥିର ssize_t cf_h3_proxy_recv_closed_stream(ସଂରଚନା Curl_cfilter *cf,
+                                              ସଂରଚନା Curl_easy *data,
+                                              ସଂରଚନା h3_stream_ctx *stream,
                                               CURLcode *err)
 {
   ssize_t nread = -1;
   *err = CURLE_OK;
 
-  if(stream->reset) {
-    if(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
+  ଯଦି(stream->reset) {
+    ଯଦି(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
       infof(data, "HTTP/3 stream %" PRId64 " refused by server, try again "
             "on a new connection", stream->id);
       connclose(cf->conn);
       data->state.refused_stream = TRUE;
       *err = CURLE_RECV_ERROR;
-      goto out;
+      ଯାଅ out;
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
+    ଅନ୍ୟଥା ଯଦି(stream->resp_hds_complete && data->req.no_body) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] error after response headers, "
                   "but we did not want a body anyway, ignore error 0x%"
                   PRIx64 " %s", stream->id, stream->error3,
                   Curl_vquic_h3_err_str(stream->error3));
       nread = 0;
-      goto out;
+      ଯାଅ out;
     }
     failf(data, "HTTP/3 stream %" PRId64 " reset by server (error 0x%" PRIx64
           " %s)", stream->id, stream->error3,
           Curl_vquic_h3_err_str(stream->error3));
     *err = data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
-    goto out;
+    ଯାଅ out;
   }
-  else if(!stream->resp_hds_complete) {
+  ଅନ୍ୟଥା ଯଦି(!stream->resp_hds_complete) {
     failf(data,
           "HTTP/3 stream %" PRId64 " was closed cleanly, but before "
           "getting all response header fields, treated as error",
           stream->id);
     *err = CURLE_HTTP3;
-    goto out;
+    ଯାଅ out;
   }
   nread = 0;
 
 out:
-  return nread;
+  ଫେରନ୍ତୁ nread;
 }
 
-static CURLcode cf_h3_proxy_sendbuf_add(struct Curl_easy *data,
-                                        struct h3_stream_ctx *stream,
-                                        const uint8_t *buf, size_t len,
+ସ୍ଥିର CURLcode cf_h3_proxy_sendbuf_add(ସଂରଚନା Curl_easy *data,
+                                        ସଂରଚନା h3_stream_ctx *stream,
+                                        ଅଚଳ uint8_t *buf, size_t len,
                                         size_t *pnwritten)
 {
   CURLcode result;
   *pnwritten = 0;
-  (void)data;
+  (ଶୂନ୍ୟ)data;
 
   result = Curl_bufq_write(&stream->sendbuf, buf, len, pnwritten);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static CURLcode cf_h3_proxy_send(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const uint8_t *buf, size_t len,
+ସ୍ଥିର CURLcode cf_h3_proxy_send(ସଂରଚନା Curl_cfilter *cf,
+                                 ସଂରଚନା Curl_easy *data,
+                                 ଅଚଳ uint8_t *buf, size_t len,
                                  bool eos, size_t *pnwritten)
 {
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
-  struct h3_stream_ctx *stream = NULL;
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
+  ସଂରଚନା h3_stream_ctx *stream = ଖାଲି;
+  ସଂରଚନା cf_call_data save;
+  ସଂରଚନା cf_ngtcp2_io_ctx pktx;
   CURLcode result = CURLE_OK;
 
   CF_DATA_SAVE(save, cf, data);
@@ -730,29 +730,29 @@ static CURLcode cf_h3_proxy_send(struct Curl_cfilter *cf,
   *pnwritten = 0;
 
   /* handshake verification failed in callback, do not send anything */
-  if(ctx->tls_vrfy_result) {
+  ଯଦି(ctx->tls_vrfy_result) {
     result = ctx->tls_vrfy_result;
-    goto denied;
+    ଯାଅ denied;
   }
 
-  (void)eos; /* use for stream EOF and block handling */
+  (ଶୂନ୍ୟ)eos; /* use for stream EOF and block handling */
   result = Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx);
-  if(result)
-    goto out;
+  ଯଦି(result)
+    ଯାଅ out;
 
-  if(pctx->tunnel.closed) {
+  ଯଦି(pctx->tunnel.closed) {
     result = CURLE_SEND_ERROR;
-    goto denied;
+    ଯାଅ denied;
   }
 
   stream = pctx->tunnel.stream;
-  if(!stream) {
+  ଯଦି(!stream) {
     result = CURLE_SEND_ERROR;
-    goto denied;
+    ଯାଅ denied;
   }
 
-  if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  ଯଦି(stream->closed) {
+    ଯଦି(stream->resp_hds_complete) {
       /* Server decided to close the stream after having sent us a final
        * response. This is valid if it is not interested in the request
        * body. This happens on 30x or 40x responses.
@@ -762,24 +762,24 @@ static CURLcode cf_h3_proxy_send(struct Curl_cfilter *cf,
                   "on closed stream with response", stream->id);
       result = CURLE_OK;
       *pnwritten = len;
-      goto out;
+      ଯାଅ out;
     }
     CURL_TRC_CF(data, cf, "[%" PRId64 "] send_body(len=%zu) "
                 "-> stream closed", stream->id, len);
     result = CURLE_HTTP3;
-    goto out;
+    ଯାଅ out;
   }
-  else {
+  ଅନ୍ୟଥା {
     result = cf_h3_proxy_sendbuf_add(data, stream, buf, len, pnwritten);
     CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send, add to "
                 "sendbuf(len=%zu) -> %d, %zu",
-                stream->id, len, (int)result, *pnwritten);
-    if(result)
-      goto out;
-    (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
+                stream->id, len, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)result, *pnwritten);
+    ଯଦି(result)
+      ଯାଅ out;
+    (ଶୂନ୍ୟ)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
   }
 
-  if(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
+  ଯଦି(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
     ctx->earlydata_skip += *pnwritten;
 
   DEBUGASSERT(!result);
@@ -790,21 +790,21 @@ out:
                           Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
 denied:
   CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(len=%zu) -> %d, %zu",
-              stream ? stream->id : -1, len, (int)result, *pnwritten);
+              stream ? stream->id : -1, len, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)result, *pnwritten);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
 /* incoming data frames on the h3 stream */
-static CURLcode cf_h3_proxy_recv(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 char *buf, size_t len, size_t *pnread)
+ସ୍ଥିର CURLcode cf_h3_proxy_recv(ସଂରଚନା Curl_cfilter *cf,
+                                 ସଂରଚନା Curl_easy *data,
+                                 ଅକ୍ଷର *buf, size_t len, size_t *pnread)
 {
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
-  struct h3_stream_ctx *stream = pctx->tunnel.stream;
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
+  ସଂରଚନା h3_stream_ctx *stream = pctx->tunnel.stream;
+  ସଂରଚନା cf_call_data save;
+  ସଂରଚନା cf_ngtcp2_io_ctx pktx;
   CURLcode result = CURLE_OK;
 
   CF_DATA_SAVE(save, cf, data);
@@ -815,56 +815,56 @@ static CURLcode cf_h3_proxy_recv(struct Curl_cfilter *cf,
   *pnread = 0;
 
   /* handshake verification failed in callback, do not recv anything */
-  if(ctx->tls_vrfy_result) {
+  ଯଦି(ctx->tls_vrfy_result) {
     result = ctx->tls_vrfy_result;
-    goto denied;
+    ଯାଅ denied;
   }
 
   Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
 
-  if(!stream || ctx->shutdown_started) {
+  ଯଦି(!stream || ctx->shutdown_started) {
     result = CURLE_RECV_ERROR;
-    goto out;
+    ଯାଅ out;
   }
 
-  if(!Curl_bufq_is_empty(&pctx->tunnel.recvbuf)) {
+  ଯଦି(!Curl_bufq_is_empty(&pctx->tunnel.recvbuf)) {
     result = Curl_bufq_cread(&pctx->tunnel.recvbuf, buf, len, pnread);
-    if(result)
-      goto out;
+    ଯଦି(result)
+      ଯାଅ out;
     cf_h3_proxy_upd_rx_win(cf, data, pctx->tunnel.stream);
   }
 
   result = Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx);
-  if(result)
-    goto out;
+  ଯଦି(result)
+    ଯାଅ out;
 
   /* inbufq had nothing before, maybe after progressing ingress? */
-  if(!*pnread && !Curl_bufq_is_empty(&pctx->tunnel.recvbuf)) {
+  ଯଦି(!*pnread && !Curl_bufq_is_empty(&pctx->tunnel.recvbuf)) {
     result = Curl_bufq_cread(&pctx->tunnel.recvbuf, buf, len, pnread);
-    if(result) {
+    ଯଦି(result) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] read inbufq(len=%zu) -> %zu, %d",
-                  stream->id, len, *pnread, (int)result);
-      goto out;
+                  stream->id, len, *pnread, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)result);
+      ଯାଅ out;
     }
     cf_h3_proxy_upd_rx_win(cf, data, pctx->tunnel.stream);
   }
 
-  if(*pnread) {
+  ଯଦି(*pnread) {
     Curl_multi_mark_dirty(data);
   }
-  else {
-    if(stream->xfer_result) {
+  ଅନ୍ୟଥା {
+    ଯଦି(stream->xfer_result) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] xfer write failed", stream->id);
       Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
       result = stream->xfer_result;
-      goto out;
+      ଯାଅ out;
     }
-    else if(stream->closed) {
+    ଅନ୍ୟଥା ଯଦି(stream->closed) {
       ssize_t nread =
         cf_h3_proxy_recv_closed_stream(cf, data, stream, &result);
-      if(nread > 0)
+      ଯଦି(nread > 0)
         *pnread = (size_t)nread;
-      goto out;
+      ଯାଅ out;
     }
     result = CURLE_AGAIN;
   }
@@ -876,49 +876,49 @@ out:
                           Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
 denied:
   CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_recv(len=%zu) -> %d, %zu",
-              stream ? stream->id : -1, len, (int)result, *pnread);
+              stream ? stream->id : -1, len, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)result, *pnread);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct h3_tunnel_stream *ts,
-                                   struct httpreq *req)
+ସ୍ଥିର CURLcode cf_h3_proxy_submit(ସଂରଚନା Curl_cfilter *cf,
+                                   ସଂରଚନା Curl_easy *data,
+                                   ସଂରଚନା h3_tunnel_stream *ts,
+                                   ସଂରଚନା httpreq *req)
 {
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
-  struct h3_stream_ctx *stream = NULL;
-  struct dynhds h2_headers;
-  nghttp3_nv *nva = NULL;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
+  ସଂରଚନା h3_stream_ctx *stream = ଖାଲି;
+  ସଂରଚନା dynhds h2_headers;
+  nghttp3_nv *nva = ଖାଲି;
   size_t nheader;
-  int rc = 0;
-  unsigned int i;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc = 0;
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
   nghttp3_data_reader reader;
-  nghttp3_data_reader *preader = NULL;
+  nghttp3_data_reader *preader = ଖାଲି;
   CURLcode result;
 
   Curl_dynhds_init(&h2_headers, 0, DYN_HTTP_REQUEST);
   result = Curl_http_req_to_h2(&h2_headers, req, data);
-  if(result)
-    goto out;
+  ଯଦି(result)
+    ଯାଅ out;
 
   result = Curl_cf_ngtcp2_h3_stream_setup(cf, data, &stream);
-  if(result)
-    goto out;
+  ଯଦି(result)
+    ଯାଅ out;
 
-  nheader = Curl_dynhds_count(&h2_headers);
-  nva = curlx_malloc(sizeof(nghttp3_nv) * nheader);
-  if(!nva) {
+  nheader = Curl_dynhds_ଗଣନା(&h2_headers);
+  nva = curlx_malloc(ଆକାର(nghttp3_nv) * nheader);
+  ଯଦି(!nva) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    ଯାଅ out;
   }
 
-  for(i = 0; i < nheader; ++i) {
-    struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
-    nva[i].name = (unsigned char *)e->name;
+  ପାଇଁ(i = 0; i < nheader; ++i) {
+    ସଂରଚନା dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
+    nva[i].name = (unsigned ଅକ୍ଷର *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].ମୂଲ୍ୟ = (unsigned ଅକ୍ଷର *)e->ମୂଲ୍ୟ;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP3_NV_FLAG_NONE;
   }
@@ -926,16 +926,16 @@ static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
   /* Open a bidirectional stream */
   {
     int64_t sid;
-    int rv;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା rv;
 
     DEBUGASSERT(stream->id == -1);
     /* Do NOT set `data` as stream user data. The transfer `data` may
      * get cleaned up long before the tunnel goes down. */
-    rv = ngtcp2_conn_open_bidi_stream(ctx->qconn, &sid, NULL);
-    if(rv) {
+    rv = ngtcp2_conn_open_bidi_stream(ctx->qconn, &sid, ଖାଲି);
+    ଯଦି(rv) {
       failf(data, "cannot get bidi streams: %s", ngtcp2_strerror(rv));
       result = CURLE_SEND_ERROR;
-      goto out;
+      ଯାଅ out;
     }
     stream->id = sid;
     ts->stream = stream;
@@ -951,22 +951,22 @@ static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
   rc = nghttp3_conn_submit_request(ctx->h3conn, stream->id,
                                    nva, nheader, preader, stream);
 
-  if(rc) {
-    switch(rc) {
-    case NGHTTP3_ERR_CONN_CLOSING:
+  ଯଦି(rc) {
+    ବାଛ(rc) {
+    ସ୍ଥିତି NGHTTP3_ERR_CONN_CLOSING:
       CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send, "
                   "connection is closing", stream->id);
-      break;
-    default:
+      ଭାଙ୍ଗ;
+    ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
       CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send -> %d (%s)",
                   stream->id, rc, nghttp3_strerror(rc));
-      break;
+      ଭାଙ୍ଗ;
     }
     result = CURLE_SEND_ERROR;
-    goto out;
+    ଯାଅ out;
   }
 
-  if(Curl_trc_is_verbose(data)) {
+  ଯଦି(Curl_trc_is_verbose(data)) {
     CURL_TRC_CF(data, cf, "[H3-PROXY] [%" PRId64 "] OPENED stream "
                 "for %s", stream->id,
                 Curl_bufref_ptr(&data->state.url));
@@ -975,32 +975,32 @@ static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
 out:
   curlx_free(nva);
   Curl_dynhds_free(&h2_headers);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static CURLcode cf_h3_proxy_adjust_pollset(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct easy_pollset *ps)
+ସ୍ଥିର CURLcode cf_h3_proxy_adjust_pollset(ସଂରଚନା Curl_cfilter *cf,
+                                           ସଂରଚନା Curl_easy *data,
+                                           ସଂରଚନା easy_pollset *ps)
 {
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
   bool want_recv, want_send;
   CURLcode result = CURLE_OK;
   curl_socket_t sock = (ctx->q.sockfd != CURL_SOCKET_BAD) ?
    ctx->q.sockfd : Curl_conn_cf_get_socket(cf, data);
 
-  if(!ctx->qconn || !pctx->tunnel.stream || (sock == CURL_SOCKET_BAD))
-    return CURLE_OK;
+  ଯଦି(!ctx->qconn || !pctx->tunnel.stream || (sock == CURL_SOCKET_BAD))
+    ଫେରନ୍ତୁ CURLE_OK;
 
   Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
 
-  if(want_recv || want_send || !Curl_bufq_is_empty(&ctx->q.sendbuf)) {
-    struct h3_stream_ctx *stream = pctx->tunnel.stream;
+  ଯଦି(want_recv || want_send || !Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+    ସଂରଚନା h3_stream_ctx *stream = pctx->tunnel.stream;
     bool c_exhaust, s_exhaust;
 
     c_exhaust = want_send &&
-                (!ngtcp2_conn_get_cwnd_left(ctx->qconn) ||
-                 !ngtcp2_conn_get_max_data_left(ctx->qconn));
+                (!ngtcp2_conn_get_cwnd_ବାମ(ctx->qconn) ||
+                 !ngtcp2_conn_get_max_data_ବାମ(ctx->qconn));
     s_exhaust = want_send && stream && stream->id >= 0 &&
                 stream->quic_flow_blocked;
     want_recv = (want_recv || c_exhaust || s_exhaust);
@@ -1009,155 +1009,155 @@ static CURLcode cf_h3_proxy_adjust_pollset(struct Curl_cfilter *cf,
 
     result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
   }
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static bool cf_h3_proxy_data_pending(struct Curl_cfilter *cf,
-                                     const struct Curl_easy *data)
+ସ୍ଥିର bool cf_h3_proxy_data_pending(ସଂରଚନା Curl_cfilter *cf,
+                                     ଅଚଳ ସଂରଚନା Curl_easy *data)
 {
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  if(!Curl_bufq_is_empty(&pctx->tunnel.recvbuf))
-    return TRUE;
-  return cf->next ?
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ଯଦି(!Curl_bufq_is_empty(&pctx->tunnel.recvbuf))
+    ଫେରନ୍ତୁ TRUE;
+  ଫେରନ୍ତୁ cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-static CURLcode cf_h3_proxy_submit_CONNECT(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct h3_tunnel_stream *ts)
+ସ୍ଥିର CURLcode cf_h3_proxy_submit_CONNECT(ସଂରଚନା Curl_cfilter *cf,
+                                           ସଂରଚନା Curl_easy *data,
+                                           ସଂରଚନା h3_tunnel_stream *ts)
 {
-  struct cf_h3_proxy_ctx *ctx = cf->ctx;
+  ସଂରଚନା cf_h3_proxy_ctx *ctx = cf->ctx;
   CURLcode result;
-  struct httpreq *req = NULL;
+  ସଂରଚନା httpreq *req = ଖାଲି;
 
   result = Curl_http_proxy_create_tunnel_request(
     &req, cf, data, ctx->ngtcp2_ctx.ssl_peer.peer,
     ts->dest, PROXY_HTTP_V3, (bool)ts->udp);
-  if(!result)
+  ଯଦି(!result)
     result = Curl_creader_set_null(data);
-  if(!result)
+  ଯଦି(!result)
     result = cf_h3_proxy_submit(cf, data, ts, req);
 
-  if(req)
+  ଯଦି(req)
     Curl_http_req_free(req);
-  if(result)
+  ଯଦି(result)
     failf(data, "Failed sending CONNECT to proxy");
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static CURLcode cf_h3_proxy_inspect_response(struct Curl_cfilter *cf,
-                                             struct Curl_easy *data,
-                                             struct h3_tunnel_stream *ts)
+ସ୍ଥିର CURLcode cf_h3_proxy_inspect_response(ସଂରଚନା Curl_cfilter *cf,
+                                             ସଂରଚନା Curl_easy *data,
+                                             ସଂରଚନା h3_tunnel_stream *ts)
 {
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
   proxy_inspect_result res;
   CURLcode result;
 
   result = Curl_http_proxy_inspect_tunnel_response(
       cf, data, ts->resp, (bool)pctx->tunnel.udp, &res);
-  if(result)
-    return result;
-  switch(res) {
-  case PROXY_INSPECT_OK:
+  ଯଦି(result)
+    ଫେରନ୍ତୁ result;
+  ବାଛ(res) {
+  ସ୍ଥିତି PROXY_INSPECT_OK:
     h3_tunnel_go_state(cf, ts, H3_TUNNEL_ESTABLISHED, data);
-    break;
-  case PROXY_INSPECT_FAILED:
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି PROXY_INSPECT_FAILED:
     h3_tunnel_go_state(cf, ts, H3_TUNNEL_FAILED, data);
     result = CURLE_COULDNT_CONNECT;
-    break;
-  case PROXY_INSPECT_AUTH_RETRY:
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି PROXY_INSPECT_AUTH_RETRY:
     h3_tunnel_go_state(cf, ts, H3_TUNNEL_INIT, data);
-    break;
+    ଭାଙ୍ଗ;
   }
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static CURLcode cf_h3_proxy_tunnel(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct h3_tunnel_stream *ts,
+ସ୍ଥିର CURLcode cf_h3_proxy_tunnel(ସଂରଚନା Curl_cfilter *cf,
+                                   ସଂରଚନା Curl_easy *data,
+                                   ସଂରଚନା h3_tunnel_stream *ts,
                                    bool *pdone)
 {
-  struct cf_h3_proxy_ctx *ctx = cf->ctx;
+  ସଂରଚନା cf_h3_proxy_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(ts);
   DEBUGASSERT(ts->authority);
   *pdone = FALSE;
-  do {
-    switch(ts->state) {
-    case H3_TUNNEL_INIT:
+  କର {
+    ବାଛ(ts->state) {
+    ସ୍ଥିତି H3_TUNNEL_INIT:
       CURL_TRC_CF(data, cf, "[0] CONNECT start for %s", ts->authority);
       result = cf_h3_proxy_submit_CONNECT(cf, data, ts);
-      if(result)
-        goto out;
+      ଯଦି(result)
+        ଯାଅ out;
       h3_tunnel_go_state(cf, ts, H3_TUNNEL_CONNECT, data);
 
-      result = Curl_cf_ngtcp2_progress_egress(cf, data, NULL);
-      if(result)
-        goto out;
+      result = Curl_cf_ngtcp2_progress_egress(cf, data, ଖାଲି);
+      ଯଦି(result)
+        ଯାଅ out;
       FALLTHROUGH();
 
-    case H3_TUNNEL_CONNECT:
+    ସ୍ଥିତି H3_TUNNEL_CONNECT:
       /* Non-blocking: call ingress/egress once and return.
        * The multi interface will call us again when ready. */
-      result = Curl_cf_ngtcp2_progress_ingress(cf, data, NULL);
-      if(result)
-        goto out;
-      result = Curl_cf_ngtcp2_progress_egress(cf, data, NULL);
-      if(result && result != CURLE_AGAIN) {
+      result = Curl_cf_ngtcp2_progress_ingress(cf, data, ଖାଲି);
+      ଯଦି(result)
+        ଯାଅ out;
+      result = Curl_cf_ngtcp2_progress_egress(cf, data, ଖାଲି);
+      ଯଦି(result && result != CURLE_AGAIN) {
         h3_tunnel_go_state(cf, ts, H3_TUNNEL_FAILED, data);
-        goto out;
+        ଯାଅ out;
       }
 
-      if(ts->has_final_response) {
+      ଯଦି(ts->has_final_response) {
         h3_tunnel_go_state(cf, ts, H3_TUNNEL_RESPONSE, data);
       }
-      else {
+      ଅନ୍ୟଥା {
         /* Not done yet, return and let multi interface call us again */
         result = CURLE_OK;
-        goto out;
+        ଯାଅ out;
       }
       FALLTHROUGH();
 
-    case H3_TUNNEL_RESPONSE:
+    ସ୍ଥିତି H3_TUNNEL_RESPONSE:
       DEBUGASSERT(ts->has_final_response);
       result = cf_h3_proxy_inspect_response(cf, data, ts);
-      if(result)
-        goto out;
+      ଯଦି(result)
+        ଯାଅ out;
       ctx->connected = TRUE;
-      break;
+      ଭାଙ୍ଗ;
 
-    case H3_TUNNEL_ESTABLISHED:
+    ସ୍ଥିତି H3_TUNNEL_ESTABLISHED:
       *pdone = TRUE;
-      return CURLE_OK;
+      ଫେରନ୍ତୁ CURLE_OK;
 
-    case H3_TUNNEL_FAILED:
-      return CURLE_RECV_ERROR;
+    ସ୍ଥିତି H3_TUNNEL_FAILED:
+      ଫେରନ୍ତୁ CURLE_RECV_ERROR;
 
-    default:
-      break;
+    ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+      ଭାଙ୍ଗ;
     }
 
-  } while(ts->state == H3_TUNNEL_INIT);
+  } ଯେତେବେଳେ(ts->state == H3_TUNNEL_INIT);
 
 out:
-  if((result && (result != CURLE_AGAIN)) || ctx->tunnel.closed)
+  ଯଦି((result && (result != CURLE_AGAIN)) || ctx->tunnel.closed)
     h3_tunnel_go_state(cf, ts, H3_TUNNEL_FAILED, data);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static CURLcode cf_h3_proxy_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data, bool *done)
+ସ୍ଥିର CURLcode cf_h3_proxy_connect(ସଂରଚନା Curl_cfilter *cf,
+                                    ସଂରଚନା Curl_easy *data, bool *done)
 {
-  struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  struct cf_call_data save = { 0 };
+  ସଂରଚନା cf_h3_proxy_ctx *pctx = cf->ctx;
+  ସଂରଚନା cf_call_data save = { 0 };
   CURLcode result = CURLE_OK;
-  struct h3_tunnel_stream *ts = &pctx->tunnel;
+  ସଂରଚନା h3_tunnel_stream *ts = &pctx->tunnel;
   bool data_saved = FALSE;
 
   result = Curl_cf_ngtcp2_cmn_connect(cf, data, done);
-  if(result || !*done)
-    goto out;
+  ଯଦି(result || !*done)
+    ଯାଅ out;
 
   CF_DATA_SAVE(save, cf, data);
   data_saved = TRUE;
@@ -1166,44 +1166,44 @@ static CURLcode cf_h3_proxy_connect(struct Curl_cfilter *cf,
   result = cf_h3_proxy_tunnel(cf, data, ts, done);
 
 out:
-  if(*done) {
+  ଯଦି(*done) {
     cf->connected = TRUE;
     /* The real request will follow the CONNECT, reset request partially */
     Curl_req_soft_reset(&data->req, data);
     Curl_client_reset(data);
   }
 
-  if(data_saved)
+  ଯଦି(data_saved)
     CF_DATA_RESTORE(cf, save);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static void cf_h3_proxy_destroy(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+ସ୍ଥିର ଶୂନ୍ୟ cf_h3_proxy_destroy(ସଂରଚନା Curl_cfilter *cf,
+                                ସଂରଚନା Curl_easy *data)
 {
-  struct cf_h3_proxy_ctx *ctx = cf->ctx;
+  ସଂରଚନା cf_h3_proxy_ctx *ctx = cf->ctx;
 
-  (void)data;
-  if(ctx) {
+  (ଶୂନ୍ୟ)data;
+  ଯଦି(ctx) {
     CURL_TRC_CF(data, cf, "cf_h3_proxy_destroy()");
-    if(ctx->ngtcp2_ctx.qconn) {
-      struct cf_call_data save;
+    ଯଦି(ctx->ngtcp2_ctx.qconn) {
+      ସଂରଚନା cf_call_data save;
       CF_DATA_SAVE(save, cf, data);
       Curl_cf_ngtcp2_cmn_conn_close(cf, data);
       CF_DATA_RESTORE(cf, save);
     }
     cf_h3_proxy_ctx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = ଖାଲି;
   }
 }
 
-static CURLcode cf_h3_proxy_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data, bool *done)
+ସ୍ଥିର CURLcode cf_h3_proxy_shutdown(ସଂରଚନା Curl_cfilter *cf,
+                                     ସଂରଚନା Curl_easy *data, bool *done)
 {
-  return Curl_cf_ngtcp2_cmn_shutdown(cf, data, done);
+  ଫେରନ୍ତୁ Curl_cf_ngtcp2_cmn_shutdown(cf, data, done);
 }
 
-struct Curl_cftype Curl_cft_h3_proxy = {
+ସଂରଚନା Curl_cftype Curl_cft_h3_proxy = {
   "H3-PROXY",
   CF_TYPE_IP_CONNECT | CF_TYPE_PROXY | CF_TYPE_SSL,
   CURL_LOG_LVL_NONE,
@@ -1220,98 +1220,98 @@ struct Curl_cftype Curl_cft_h3_proxy = {
   Curl_cf_ngtcp2_cmn_query,
 };
 
-CURLcode Curl_cf_ngtcp2_proxy_create(struct Curl_cfilter **pcf,
-                                     struct Curl_easy *data,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
+CURLcode Curl_cf_ngtcp2_proxy_create(ସଂରଚନା Curl_cfilter **pcf,
+                                     ସଂରଚନା Curl_easy *data,
+                                     ସଂରଚନା Curl_peer *origin,
+                                     ସଂରଚନା Curl_peer *peer,
                                      uint8_t transport_peer,
-                                     struct connectdata *conn,
-                                     struct Curl_sockaddr_ex *addr,
-                                     struct Curl_peer *tunnel_peer,
+                                     ସଂରଚନା connectdata *conn,
+                                     ସଂରଚନା Curl_sockaddr_ex *addr,
+                                     ସଂରଚନା Curl_peer *tunnel_peer,
                                      uint8_t tunnel_transport)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_h3_proxy_ctx *ctx;
+  ସଂରଚନା Curl_cfilter *cf = ଖାଲି;
+  ସଂରଚନା cf_h3_proxy_ctx *ctx;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(!tunnel_peer)
-    return CURLE_FAILED_INIT;
-  if((transport_peer != TRNSPRT_QUIC) || (!conn->http_proxy.peer))
-    return CURLE_FAILED_INIT;
+  ଯଦି(!tunnel_peer)
+    ଫେରନ୍ତୁ CURLE_FAILED_INIT;
+  ଯଦି((transport_peer != TRNSPRT_QUIC) || (!conn->http_proxy.peer))
+    ଫେରନ୍ତୁ CURLE_FAILED_INIT;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  ctx = curlx_calloc(1, ଆକାର(*ctx));
+  ଯଦି(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    ଯାଅ out;
   }
   result = cf_h3_proxy_ctx_init(ctx, origin, peer, &conn->proxy_ssl_config,
                                 tunnel_peer, tunnel_transport);
-  if(result)
-    goto out;
+  ଯଦି(result)
+    ଯାଅ out;
 
   result = Curl_cf_create(&cf, &Curl_cft_h3_proxy, ctx);
-  if(result)
-    goto out;
+  ଯଦି(result)
+    ଯାଅ out;
   cf->conn = conn;
 
   result = Curl_cf_udp_create(&cf->next, data, origin, peer, TRNSPRT_QUIC,
-                              conn, addr, NULL, TRNSPRT_QUIC);
-  if(result)
-    goto out;
+                              conn, addr, ଖାଲି, TRNSPRT_QUIC);
+  ଯଦି(result)
+    ଯାଅ out;
   cf->next->conn = cf->conn;
   cf->next->sockindex = cf->sockindex;
 
 out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
-    if(cf)
+  *pcf = (!result) ? cf : ଖାଲି;
+  ଯଦି(result) {
+    ଯଦି(cf)
       Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx)
+    ଅନ୍ୟଥା ଯଦି(ctx)
       cf_h3_proxy_ctx_free(ctx);
   }
-  else
+  ଅନ୍ୟଥା
     CURL_TRC_CF(data, cf, "created, udp_tunnel=%d", ctx->tunnel.udp);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                           struct Curl_easy *data,
-                                           struct Curl_peer *origin,
-                                           struct Curl_peer *peer,
-                                           struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_ngtcp2_proxy_ଭର୍ତ୍ତି_after(ସଂରଚନା Curl_cfilter *cf_at,
+                                           ସଂରଚନା Curl_easy *data,
+                                           ସଂରଚନା Curl_peer *origin,
+                                           ସଂରଚନା Curl_peer *peer,
+                                           ସଂରଚନା Curl_peer *tunnel_peer,
                                            uint8_t tunnel_transport)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_h3_proxy_ctx *ctx;
+  ସଂରଚନା Curl_cfilter *cf = ଖାଲି;
+  ସଂରଚନା cf_h3_proxy_ctx *ctx;
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  (void)data;
+  (ଶୂନ୍ୟ)data;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    goto out;
+  ctx = curlx_calloc(1, ଆକାର(*ctx));
+  ଯଦି(!ctx)
+    ଯାଅ out;
   result = cf_h3_proxy_ctx_init(ctx, origin, peer,
                                 &cf_at->conn->proxy_ssl_config,
                                 tunnel_peer, tunnel_transport);
-  if(result)
-    goto out;
+  ଯଦି(result)
+    ଯାଅ out;
 
   result = Curl_cf_create(&cf, &Curl_cft_h3_proxy, ctx);
-  if(result)
-    goto out;
+  ଯଦି(result)
+    ଯାଅ out;
 
   /* H3-PROXY uses the UDP socket created by happy eyeballs below it.
      Curl_conn_cf_insert_after chains the existing sub-filters, i.e.
      "HAPPY-EYEBALLS -> UDP" as cf->next of H3-PROXY. */
-  Curl_conn_cf_insert_after(cf_at, cf);
+  Curl_conn_cf_ଭର୍ତ୍ତି_after(cf_at, cf);
 
 out:
-  if(result) {
-    if(cf)
+  ଯଦି(result) {
+    ଯଦି(cf)
       Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx)
+    ଅନ୍ୟଥା ଯଦି(ctx)
       cf_h3_proxy_ctx_free(ctx);
   }
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
 #endif

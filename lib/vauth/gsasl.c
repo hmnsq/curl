@@ -23,99 +23,99 @@
  * RFC5802 SCRAM-SHA-1 authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
 #ifdef USE_GSASL
 
-#include "vauth/vauth.h"
-#include "curl_trc.h"
+#ଅନ୍ତର୍ଭାଵ "vauth/vauth.h"
+#ଅନ୍ତର୍ଭାଵ "curl_trc.h"
 
-#include <gsasl.h>
+#ଅନ୍ତର୍ଭାଵ <gsasl.h>
 
-#if GSASL_VERSION_NUMBER < 0x010600
+#ଯଦି GSASL_VERSION_ସଂଖ୍ୟା < 0x010600
 #error "libgsasl 1.6.0 or greater required"
 #endif
 
-bool Curl_auth_gsasl_is_supported(struct Curl_easy *data,
-                                  const char *mech,
-                                  struct gsasldata *gsasl)
+bool Curl_auth_gsasl_is_supported(ସଂରଚନା Curl_easy *data,
+                                  ଅଚଳ ଅକ୍ଷର *mech,
+                                  ସଂରଚନା gsasldata *gsasl)
 {
-  int res;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା res;
 
   res = gsasl_init(&gsasl->ctx);
-  if(res != GSASL_OK) {
+  ଯଦି(res != GSASL_OK) {
     failf(data, "gsasl init: %s", gsasl_strerror(res));
-    return FALSE;
+    ଫେରନ୍ତୁ FALSE;
   }
 
   res = gsasl_client_start(gsasl->ctx, mech, &gsasl->client);
-  if(res != GSASL_OK) {
+  ଯଦି(res != GSASL_OK) {
     gsasl_done(gsasl->ctx);
-    gsasl->ctx = NULL;
-    return FALSE;
+    gsasl->ctx = ଖାଲି;
+    ଫେରନ୍ତୁ FALSE;
   }
 
-  return TRUE;
+  ଫେରନ୍ତୁ TRUE;
 }
 
-CURLcode Curl_auth_gsasl_start(struct Curl_easy *data,
-                               struct Curl_creds *creds,
-                               struct gsasldata *gsasl)
+CURLcode Curl_auth_gsasl_start(ସଂରଚନା Curl_easy *data,
+                               ସଂରଚନା Curl_creds *creds,
+                               ସଂରଚନା gsasldata *gsasl)
 {
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  int res;
+#ଯଦି GSASL_VERSION_ସଂଖ୍ୟା >= 0x010b00
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା res;
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_AUTHID, creds->user);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
+#ଯଦି GSASL_VERSION_ସଂଖ୍ୟା >= 0x010b00
+  ଯଦି(res != GSASL_OK) {
     failf(data, "setting AUTHID failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
   }
 #endif
 
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#ଯଦି GSASL_VERSION_ସଂଖ୍ୟା >= 0x010b00
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_PASSWORD, creds->passwd);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
+#ଯଦି GSASL_VERSION_ସଂଖ୍ୟା >= 0x010b00
+  ଯଦି(res != GSASL_OK) {
     failf(data, "setting PASSWORD failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
   }
 #endif
 
-  (void)data;
+  (ଶୂନ୍ୟ)data;
 
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-CURLcode Curl_auth_gsasl_token(struct Curl_easy *data,
-                               const struct bufref *chlg,
-                               struct gsasldata *gsasl,
-                               struct bufref *out)
+CURLcode Curl_auth_gsasl_token(ସଂରଚନା Curl_easy *data,
+                               ଅଚଳ ସଂରଚନା bufref *chlg,
+                               ସଂରଚନା gsasldata *gsasl,
+                               ସଂରଚନା bufref *out)
 {
-  int res;
-  char *response;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା res;
+  ଅକ୍ଷର *response;
   size_t outlen;
 
   res = gsasl_step(gsasl->client, Curl_bufref_ptr(chlg), Curl_bufref_len(chlg),
                    &response, &outlen);
-  if(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
+  ଯଦି(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
     failf(data, "GSASL step: %s", gsasl_strerror(res));
-    return CURLE_BAD_CONTENT_ENCODING;
+    ଫେରନ୍ତୁ CURLE_BAD_CONTENT_ENCODING;
   }
 
   Curl_bufref_set(out, response, outlen, gsasl_free);
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-void Curl_auth_gsasl_cleanup(struct gsasldata *gsasl)
+ଶୂନ୍ୟ Curl_auth_gsasl_cleanup(ସଂରଚନା gsasldata *gsasl)
 {
   gsasl_finish(gsasl->client);
-  gsasl->client = NULL;
+  gsasl->client = ଖାଲି;
 
   gsasl_done(gsasl->ctx);
-  gsasl->ctx = NULL;
+  gsasl->ctx = ଖାଲି;
 }
 #endif

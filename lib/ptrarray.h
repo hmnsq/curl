@@ -23,28 +23,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
 /* An array of pointers with up to UINT32_MAX entries */
-struct ptrarray {
-  void **data; /* #capacity array of pointers */
+ସଂରଚନା ptrarray {
+  ଶୂନ୍ୟ **data; /* #capacity array of pointers */
   uint32_t n;
   uint32_t capacity;
 };
 
-void Curl_ptrarray_init(struct ptrarray *pa);
+ଶୂନ୍ୟ Curl_ptrarray_init(ସଂରଚନା ptrarray *pa);
 
-void Curl_ptrarray_clear(struct ptrarray *pa);
+ଶୂନ୍ୟ Curl_ptrarray_clear(ସଂରଚନା ptrarray *pa);
 
-uint32_t Curl_ptrarray_count(struct ptrarray *pa);
+uint32_t Curl_ptrarray_ଗଣନା(ସଂରଚନା ptrarray *pa);
 
-CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr);
+CURLcode Curl_ptrarray_add(ସଂରଚନା ptrarray *pa, ଶୂନ୍ୟ *ptr);
 
-void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx);
+ଶୂନ୍ୟ *Curl_ptrarray_remove(ସଂରଚନା ptrarray *pa, uint32_t idx);
 
-void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx);
+ଶୂନ୍ୟ *Curl_ptrarray_get(ସଂରଚନା ptrarray *pa, uint32_t idx);
 
-#define CURL_PTRARRAY_COUNT(a)    ((a)->n)
-#define CURL_PTRARRAY_GET(a, i)   (((i) < ((a)->n)) ? (a)->data[(i)] : NULL)
+#define CURL_PTRARRAY_ଗଣନା(a)    ((a)->n)
+#define CURL_PTRARRAY_GET(a, i)   (((i) < ((a)->n)) ? (a)->data[(i)] : ଖାଲି)
 
 #endif /* HEADER_CURL_PTRARRAY_H */

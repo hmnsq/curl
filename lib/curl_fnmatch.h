@@ -40,6 +40,6 @@
  * keywords: alnum, digit, xdigit, alpha, print, blank, lower, graph, space
  *           and upper (use as "[[:alnum:]]")
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା Curl_fnmatch(ଶୂନ୍ୟ *ptr, ଅଚଳ ଅକ୍ଷର *pattern, ଅଚଳ ଅକ୍ଷର *string);
 
 #endif /* HEADER_CURL_FNMATCH_H */

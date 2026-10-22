@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "urldata.h"
+#ଅନ୍ତର୍ଭାଵ "urldata.h"
 
 /* enums outside of the #ifdef to make the types work in unitprotos.h even on
    builds without DoH support */
 
-struct Curl_resolv_async;
+ସଂରଚନା Curl_resolv_async;
 
-typedef enum {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା {
   DOH_OK,
   DOH_DNS_BAD_LABEL,        /* 1 */
   DOH_DNS_OUT_OF_RANGE,     /* 2 */
@@ -51,7 +51,7 @@ typedef enum {
   DOH_CODE_LAST             /* Not used, limit */
 } DOHcode;
 
-typedef enum {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା {
   CURL_DNS_TYPE_A = 1,
   CURL_DNS_TYPE_NS = 2,
   CURL_DNS_TYPE_CNAME = 5,
@@ -60,11 +60,11 @@ typedef enum {
   CURL_DNS_TYPE_HTTPS = 65
 } DNStype;
 
-struct dohentry; /* forward-declare for non-DoH builds */
+ସଂରଚନା dohentry; /* forward-declare for non-DoH builds */
 
 #ifndef CURL_DISABLE_DOH
 
-enum doh_slot_num {
+ଗଣନା doh_slot_ଅଙ୍କ {
   /* Explicit values for first two symbols so as to match hard-coded
    * constants in existing code
    */
@@ -82,7 +82,7 @@ enum doh_slot_num {
   /* #endif */
 
   /* AFTER all slot definitions, establish how many we have */
-  DOH_SLOT_COUNT
+  DOH_SLOT_ଗଣନା
 };
 
 #define CURL_EZM_DOH_PROBE   "ezm:doh-p"
@@ -92,10 +92,10 @@ enum doh_slot_num {
 
 /* each DoH probe request has this
  * as easy meta for CURL_EZM_DOH_PROBE */
-struct doh_request {
-  unsigned char req_body[DOH_MAX_DNSREQ_SIZE];
-  struct curl_slist *req_hds;
-  struct dynbuf resp_body;
+ସଂରଚନା doh_request {
+  unsigned ଅକ୍ଷର req_body[DOH_MAX_DNSREQ_SIZE];
+  ସଂରଚନା curl_slist *req_hds;
+  ସଂରଚନା dynbuf resp_body;
   size_t req_body_len;
   uint32_t resolv_id; /* id of the resolve operation */
   DNStype dnstype;
@@ -103,30 +103,30 @@ struct doh_request {
 
 /* each transfer firing off DoH requests has this
  * as easy meta for CURL_EZM_DOH_MASTER */
-struct doh_probes {
-  uint32_t probe_mid[DOH_SLOT_COUNT];
-  DOHcode probe_rc[DOH_SLOT_COUNT];
+ସଂରଚନା doh_probes {
+  uint32_t probe_mid[DOH_SLOT_ଗଣନା];
+  DOHcode probe_rc[DOH_SLOT_ଗଣନା];
 };
 
 /*
  * Curl_doh() starts a name resolve using DoH (DNS-over-HTTPS). It resolves a
  * name and returns a 'Curl_addrinfo *' with the address information.
  */
-CURLcode Curl_doh(struct Curl_easy *data,
-                  struct Curl_resolv_async *async);
+CURLcode Curl_doh(ସଂରଚନା Curl_easy *data,
+                  ସଂରଚନା Curl_resolv_async *async);
 
-CURLcode Curl_doh_take_result(struct Curl_easy *data,
-                              struct Curl_resolv_async *async,
-                              struct Curl_dns_entry **pdns);
+CURLcode Curl_doh_take_result(ସଂରଚନା Curl_easy *data,
+                              ସଂରଚନା Curl_resolv_async *async,
+                              ସଂରଚନା Curl_dns_entry **pdns);
 
 #define DOH_MAX_ADDR  24
 #define DOH_MAX_HTTPS 4
 
-struct dohaddr {
-  int type;
-  union {
-    unsigned char v4[4]; /* network byte order */
-    unsigned char v6[16];
+ସଂରଚନା dohaddr {
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା type;
+  ସଂଘ {
+    unsigned ଅକ୍ଷର v4[4]; /* network byte order */
+    unsigned ଅକ୍ଷର v6[16];
   } ip;
 };
 
@@ -139,28 +139,28 @@ struct dohaddr {
 #define COMMA_CHAR                    ','
 #define BACKSLASH_CHAR                '\\'
 
-struct dohhttps_rr {
+ସଂରଚନା dohhttps_rr {
   uint16_t len; /* raw encoded length */
-  unsigned char *val; /* raw encoded octets */
+  unsigned ଅକ୍ଷର *val; /* raw encoded octets */
 };
 #endif
 
-struct dohentry {
-  struct dohaddr addr[DOH_MAX_ADDR];
-  int numaddr;
-  unsigned int ttl;
+ସଂରଚନା dohentry {
+  ସଂରଚନା dohaddr addr[DOH_MAX_ADDR];
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା numaddr;
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା ttl;
 #ifdef USE_HTTPSRR
-  struct dohhttps_rr https_rrs[DOH_MAX_HTTPS];
-  int numhttps_rrs;
+  ସଂରଚନା dohhttps_rr https_rrs[DOH_MAX_HTTPS];
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା numhttps_rrs;
 #endif
 };
 
-void Curl_doh_cleanup(struct Curl_easy *data,
-                      struct Curl_resolv_async *async);
+ଶୂନ୍ୟ Curl_doh_cleanup(ସଂରଚନା Curl_easy *data,
+                      ସଂରଚନା Curl_resolv_async *async);
 #define Curl_doh_wanted(d)  (!!(d)->set.doh)
 
-#else /* CURL_DISABLE_DOH */
-#define Curl_doh(a, b)             NULL
+#ଅନ୍ୟଥା /* CURL_DISABLE_DOH */
+#define Curl_doh(a, b)             ଖାଲି
 #define Curl_doh_take_result(x, y, z) CURLE_COULDNT_RESOLVE_HOST
 #define Curl_doh_wanted(d)         FALSE
 #endif /* !CURL_DISABLE_DOH */

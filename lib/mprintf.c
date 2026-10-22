@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "curl_printf.h"
-#include "curlx/strparse.h"
-#include "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
+#ଅନ୍ତର୍ଭାଵ "curlx/dynbuf.h"
+#ଅନ୍ତର୍ଭାଵ "curl_printf.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/strparse.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
 
 #define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
                         fit negative DBL_MAX (317 letters) */
@@ -34,20 +34,20 @@
 #define MAX_SEGMENTS   128 /* number of output segments */
 
 /* Lower-case digits. */
-const unsigned char Curl_ldigits[] = "0123456789abcdef";
+ଅଚଳ unsigned ଅକ୍ଷର Curl_ldigits[] = "0123456789abcdef";
 
 /* Upper-case digits. */
-const unsigned char Curl_udigits[] = "0123456789ABCDEF";
+ଅଚଳ unsigned ଅକ୍ଷର Curl_udigits[] = "0123456789ABCDEF";
 
 #define OUTCHAR(x)                        \
-  do {                                    \
-    if(stream((unsigned char)(x), userp)) \
-      return TRUE;                        \
+  କର {                                    \
+    ଯଦି(stream((unsigned ଅକ୍ଷର)(x), userp)) \
+      ଫେରନ୍ତୁ TRUE;                        \
     (*donep)++;                           \
-  } while(0)
+  } ଯେତେବେଳେ(0)
 
 /* Data type to read from the arglist */
-typedef enum {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା {
   MTYPE_STRING,
   MTYPE_PTR,
   MTYPE_INTPTR,
@@ -64,10 +64,10 @@ typedef enum {
 } FormatType;
 
 /* conversion and display flags */
-enum {
+ଗଣନା {
   FLAGS_SPACE      = 1 << 0,
   FLAGS_SHOWSIGN   = 1 << 1,
-  FLAGS_LEFT       = 1 << 2,
+  FLAGS_ବାମ       = 1 << 2,
   FLAGS_ALT        = 1 << 3,
   FLAGS_SHORT      = 1 << 4,
   FLAGS_LONG       = 1 << 5,
@@ -88,7 +88,7 @@ enum {
   FLAGS_SUBSTR     = 1 << 20  /* no input, only substring */
 };
 
-enum {
+ଗଣନା {
   DOLLAR_UNKNOWN,
   DOLLAR_NOPE,
   DOLLAR_USE
@@ -97,31 +97,31 @@ enum {
 /*
  * Describes an input va_arg type and hold its value.
  */
-struct va_input {
+ସଂରଚନା va_ନିବେଶ {
   FormatType type; /* FormatType */
-  union {
-    const char *str;
-    void *ptr;
+  ସଂଘ {
+    ଅଚଳ ଅକ୍ଷର *str;
+    ଶୂନ୍ୟ *ptr;
     int64_t nums; /* signed */
     uint64_t numu; /* unsigned */
-    double dnum;
+    ଦ୍ୱିଗୁଣ dnum;
   } val;
 };
 
 /*
  * Describes an output segment.
  */
-struct outsegment {
-  int width;     /* width OR width parameter number */
-  int precision; /* precision OR precision parameter number */
-  unsigned int flags;
-  unsigned int input; /* input argument array index */
-  const char *start; /* format string start to output */
+ସଂରଚନା outsegment {
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା width;     /* width OR width parameter number */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା precision; /* precision OR precision parameter number */
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags;
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା ନିବେଶ; /* input argument array index */
+  ଅଚଳ ଅକ୍ଷର *start; /* format string start to output */
   size_t outlen;     /* number of bytes from the format string to output */
 };
 
-struct nsprintf {
-  char *buffer;
+ସଂରଚନା nsprintf {
+  ଅକ୍ଷର *buffer;
   size_t length;
   size_t max;
 };
@@ -132,14 +132,14 @@ struct nsprintf {
    request line or header in a single flush. */
 #define ASPRINTF_STAGE_SIZE 512
 
-struct asprintf {
-  struct dynbuf *b;
-  char merr;
+ସଂରଚନା asprintf {
+  ସଂରଚନା dynbuf *b;
+  ଅକ୍ଷର merr;
   size_t nstage;
-  unsigned char stage[ASPRINTF_STAGE_SIZE];
+  unsigned ଅକ୍ଷର stage[ASPRINTF_STAGE_SIZE];
 };
 
-struct ioprintf {
+ସଂରଚନା ioprintf {
   FILE *fd;
   bool error;
 };
@@ -148,18 +148,18 @@ struct ioprintf {
  *
  * returns -1 if no valid number was provided.
  */
-static int dollarstring(const char *p, const char **end)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା dollarstring(ଅଚଳ ଅକ୍ଷର *p, ଅଚଳ ଅକ୍ଷର **end)
 {
-  curl_off_t num;
-  if(curlx_str_number(&p, &num, MAX_PARAMETERS) ||
-     curlx_str_single(&p, '$') || !num)
-    return -1;
+  curl_off_t ଅଙ୍କ;
+  ଯଦି(curlx_str_ସଂଖ୍ୟା(&p, &ଅଙ୍କ, MAX_PARAMETERS) ||
+     curlx_str_single(&p, '$') || !ଅଙ୍କ)
+    ଫେରନ୍ତୁ -1;
   *end = p;
-  return (int)num - 1;
+  ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)ଅଙ୍କ - 1;
 }
 
 #define is_arg_used(x, y)   ((x)[(y) / 8] & (1 << ((y) & 7)))
-#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned char)(1 << ((y) & 7)))
+#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned ଅକ୍ଷର)(1 << ((y) & 7)))
 
 /*
  * Parse the format string.
@@ -182,345 +182,345 @@ static int dollarstring(const char *p, const char **end)
 #define PFMT_PRECARG    10 /* attempted to use same arg twice, for prec */
 #define PFMT_MANYSEGS   11 /* maxed out output segments */
 
-static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
-                       int *precp, int *widthp)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_flags(ଅଚଳ ଅକ୍ଷର **fmtp, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *flagsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା use_dollar,
+                       ପୂର୍ଣ୍ଣସଂଖ୍ୟା *precp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *widthp)
 {
-  const char *fmt = *fmtp;
+  ଅଚଳ ଅକ୍ଷର *fmt = *fmtp;
   bool loopit = TRUE;
-  unsigned int flags = 0;
-  int width = 0;
-  int precision = 0;
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା precision = 0;
 
   /* Handle the flags */
-  do {
-    switch(*fmt++) {
-    case ' ':
+  କର {
+    ବାଛ(*fmt++) {
+    ସ୍ଥିତି ' ':
       flags |= FLAGS_SPACE;
-      break;
-    case '+':
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି '+':
       flags |= FLAGS_SHOWSIGN;
-      break;
-    case '-':
-      flags |= FLAGS_LEFT;
-      flags &= ~(unsigned int)FLAGS_PAD_NIL;
-      break;
-    case '#':
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି '-':
+      flags |= FLAGS_ବାମ;
+      flags &= ~(unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)FLAGS_PAD_NIL;
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି '#':
       flags |= FLAGS_ALT;
-      break;
-    case '.':
-      if('*' == *fmt) {
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି '.':
+      ଯଦି('*' == *fmt) {
         /* The precision is picked from a specified parameter */
         flags |= FLAGS_PRECPARAM;
         fmt++;
 
-        if(use_dollar == DOLLAR_USE) {
+        ଯଦି(use_dollar == DOLLAR_USE) {
           precision = dollarstring(fmt, &fmt);
-          if(precision < 0)
+          ଯଦି(precision < 0)
             /* illegal combo */
-            return PFMT_DOLLARPREC;
+            ଫେରନ୍ତୁ PFMT_DOLLARPREC;
         }
-        else
+        ଅନ୍ୟଥା
           /* get it from the next argument */
           precision = -1;
       }
-      else {
+      ଅନ୍ୟଥା {
         bool is_neg;
-        curl_off_t num;
+        curl_off_t ଅଙ୍କ;
         flags |= FLAGS_PREC;
         is_neg = ('-' == *fmt);
-        if(is_neg)
+        ଯଦି(is_neg)
           fmt++;
-        if(curlx_str_number(&fmt, &num, INT_MAX))
-          return PFMT_PREC;
-        precision = (int)num;
-        if(is_neg)
+        ଯଦି(curlx_str_ସଂଖ୍ୟା(&fmt, &ଅଙ୍କ, INT_MAX))
+          ଫେରନ୍ତୁ PFMT_PREC;
+        precision = (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)ଅଙ୍କ;
+        ଯଦି(is_neg)
           precision = -precision;
       }
-      if((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
+      ଯଦି((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
          (FLAGS_PREC | FLAGS_PRECPARAM))
         /* it is not permitted to use both kinds of precision for the same
            argument */
-        return PFMT_PRECMIX;
-      break;
-    case 'h':
+        ଫେରନ୍ତୁ PFMT_PRECMIX;
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି 'h':
       flags |= FLAGS_SHORT;
-      break;
+      ଭାଙ୍ଗ;
 #ifdef _WIN32
-    case 'I':
+    ସ୍ଥିତି 'I':
       /* Non-ANSI integer extensions I32 I64 */
-      if((fmt[0] == '3') && (fmt[1] == '2')) {
+      ଯଦି((fmt[0] == '3') && (fmt[1] == '2')) {
         flags |= FLAGS_LONG;
         fmt += 2;
       }
-      else if((fmt[0] == '6') && (fmt[1] == '4')) {
+      ଅନ୍ୟଥା ଯଦି((fmt[0] == '6') && (fmt[1] == '4')) {
         flags |= FLAGS_LONGLONG;
         fmt += 2;
       }
-      else {
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+      ଅନ୍ୟଥା {
+#ଯଦି SIZEOF_SIZE_T > SIZEOF_LONG
         flags |= FLAGS_LONGLONG;
-#else
+#ଅନ୍ୟଥା
         flags |= FLAGS_LONG;
 #endif
       }
-      break;
+      ଭାଙ୍ଗ;
 #endif /* _WIN32 */
-    case 'l':
-      if(flags & FLAGS_LONG)
+    ସ୍ଥିତି 'l':
+      ଯଦି(flags & FLAGS_LONG)
         flags |= FLAGS_LONGLONG;
-      else
+      ଅନ୍ୟଥା
         flags |= FLAGS_LONG;
-      break;
-    case 'L':
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି 'L':
       flags |= FLAGS_LONGDOUBLE;
-      break;
-    case 'q':
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି 'q':
       flags |= FLAGS_LONGLONG;
-      break;
-    case 'z':
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି 'z':
       /* the code below generates a warning if -Wunreachable-code is
          used */
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+#ଯଦି SIZEOF_SIZE_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#ଅନ୍ୟଥା
       flags |= FLAGS_LONG;
 #endif
-      break;
-    case 'O':
-#if SIZEOF_CURL_OFF_T > SIZEOF_LONG
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି 'O':
+#ଯଦି SIZEOF_CURL_OFF_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#ଅନ୍ୟଥା
       flags |= FLAGS_LONG;
 #endif
-      break;
-    case '0':
-      if(!(flags & FLAGS_LEFT))
+      ଭାଙ୍ଗ;
+    ସ୍ଥିତି '0':
+      ଯଦି(!(flags & FLAGS_ବାମ))
         flags |= FLAGS_PAD_NIL;
       FALLTHROUGH();
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9': {
-      curl_off_t num;
+    ସ୍ଥିତି '1':
+    ସ୍ଥିତି '2':
+    ସ୍ଥିତି '3':
+    ସ୍ଥିତି '4':
+    ସ୍ଥିତି '5':
+    ସ୍ଥିତି '6':
+    ସ୍ଥିତି '7':
+    ସ୍ଥିତି '8':
+    ସ୍ଥିତି '9': {
+      curl_off_t ଅଙ୍କ;
       flags |= FLAGS_WIDTH;
       fmt--;
-      if(curlx_str_number(&fmt, &num, INT_MAX))
-        return PFMT_WIDTH;
-      width = (int)num;
-      break;
+      ଯଦି(curlx_str_ସଂଖ୍ୟା(&fmt, &ଅଙ୍କ, INT_MAX))
+        ଫେରନ୍ତୁ PFMT_WIDTH;
+      width = (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)ଅଙ୍କ;
+      ଭାଙ୍ଗ;
     }
-    case '*':  /* read width from argument list */
+    ସ୍ଥିତି '*':  /* read width from argument list */
       flags |= FLAGS_WIDTHPARAM;
-      if(use_dollar == DOLLAR_USE) {
+      ଯଦି(use_dollar == DOLLAR_USE) {
         width = dollarstring(fmt, &fmt);
-        if(width < 0)
+        ଯଦି(width < 0)
           /* illegal combo */
-          return PFMT_DOLLARWIDTH;
+          ଫେରନ୍ତୁ PFMT_DOLLARWIDTH;
       }
-      else
+      ଅନ୍ୟଥା
         /* pick from the next argument */
         width = -1;
-      break;
-    default:
+      ଭାଙ୍ଗ;
+    ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
       loopit = FALSE;
       fmt--;
-      break;
+      ଭାଙ୍ଗ;
     } /* switch */
-  } while(loopit); /* do */
+  } ଯେତେବେଳେ(loopit); /* do */
   *flagsp = flags;
   *precp = precision;
   *widthp = width;
   *fmtp = fmt;
-  return PFMT_OK;
+  ଫେରନ୍ତୁ PFMT_OK;
 }
 
-static bool parse_conversion(const char f, unsigned int *flagp,
+ସ୍ଥିର bool parse_conversion(ଅଚଳ ଅକ୍ଷର f, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *flagp,
                              FormatType *typep)
 {
-  unsigned int flags = *flagp;
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = *flagp;
   FormatType type;
-  switch(f) {
-  case 'S':
+  ବାଛ(f) {
+  ସ୍ଥିତି 'S':
     flags |= FLAGS_ALT;
     type = MTYPE_STRING;
-    break;
-  case 's':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 's':
     type = MTYPE_STRING;
-    break;
-  case 'n':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'n':
     type = MTYPE_INTPTR;
-    break;
-  case 'p':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'p':
     type = MTYPE_PTR;
-    break;
-  case 'd':
-  case 'i':
-    if(flags & FLAGS_LONGLONG)
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'd':
+  ସ୍ଥିତି 'i':
+    ଯଦି(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONG;
-    else if(flags & FLAGS_LONG)
+    ଅନ୍ୟଥା ଯଦି(flags & FLAGS_LONG)
       type = MTYPE_LONG;
-    else
+    ଅନ୍ୟଥା
       type = MTYPE_INT;
-    break;
-  case 'u':
-    if(flags & FLAGS_LONGLONG)
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'u':
+    ଯଦି(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    ଅନ୍ୟଥା ଯଦି(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    ଅନ୍ୟଥା
       type = MTYPE_INTU;
     flags |= FLAGS_UNSIGNED;
-    break;
-  case 'o':
-    if(flags & FLAGS_LONGLONG)
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'o':
+    ଯଦି(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    ଅନ୍ୟଥା ଯଦି(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    ଅନ୍ୟଥା
       type = MTYPE_INTU;
     flags |= FLAGS_OCTAL | FLAGS_UNSIGNED;
-    break;
-  case 'x':
-    if(flags & FLAGS_LONGLONG)
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'x':
+    ଯଦି(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    ଅନ୍ୟଥା ଯଦି(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    ଅନ୍ୟଥା
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UNSIGNED;
-    break;
-  case 'X':
-    if(flags & FLAGS_LONGLONG)
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'X':
+    ଯଦି(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    ଅନ୍ୟଥା ଯଦି(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    ଅନ୍ୟଥା
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UPPER | FLAGS_UNSIGNED;
-    break;
-  case 'c':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'c':
     type = MTYPE_INT;
     flags |= FLAGS_CHAR;
-    break;
-  case 'f':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'f':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
-    break;
-  case 'F':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'F':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_UPPER;
-    break;
-  case 'e':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'e':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE;
-    break;
-  case 'E':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'E':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE | FLAGS_UPPER;
-    break;
-  case 'g':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'g':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG;
-    break;
-  case 'G':
+    ଭାଙ୍ଗ;
+  ସ୍ଥିତି 'G':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG | FLAGS_UPPER;
-    break;
-  default:
+    ଭାଙ୍ଗ;
+  ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
     /* invalid instruction, disregard and continue */
-    return TRUE;
+    ଫେରନ୍ତୁ TRUE;
   } /* switch */
 
   *flagp |= flags;
   *typep = type;
-  return FALSE;
+  ଫେରନ୍ତୁ FALSE;
 }
 
-static int parsefmt(const char *format,
-                    struct outsegment *out,
-                    struct va_input *in,
-                    int *opieces,
-                    int *ipieces, va_list arglist)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା parsefmt(ଅଚଳ ଅକ୍ଷର *format,
+                    ସଂରଚନା outsegment *out,
+                    ସଂରଚନା va_ନିବେଶ *in,
+                    ପୂର୍ଣ୍ଣସଂଖ୍ୟା *opieces,
+                    ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ipieces, va_list arglist)
 {
-  const char *fmt = format;
-  int param_num = 0;
-  int max_param = -1;
-  int i;
-  int ocount = 0;
-  unsigned char usedinput[MAX_PARAMETERS / 8];
+  ଅଚଳ ଅକ୍ଷର *fmt = format;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା param_ଅଙ୍କ = 0;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା max_param = -1;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ocount = 0;
+  unsigned ଅକ୍ଷର usedinput[MAX_PARAMETERS / 8];
   size_t outlen = 0;
-  struct outsegment *optr;
-  int use_dollar = DOLLAR_UNKNOWN;
-  const char *start = fmt;
+  ସଂରଚନା outsegment *optr;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା use_dollar = DOLLAR_UNKNOWN;
+  ଅଚଳ ଅକ୍ଷର *start = fmt;
 
   /* clear, set a bit for each used input */
-  memset(usedinput, 0, sizeof(usedinput));
+  memset(usedinput, 0, ଆକାର(usedinput));
 
-  while(*fmt) {
-    if(*fmt == '%') {
-      struct va_input *iptr;
+  ଯେତେବେଳେ(*fmt) {
+    ଯଦି(*fmt == '%') {
+      ସଂରଚନା va_ନିବେଶ *iptr;
       FormatType type;
-      unsigned int flags = 0;
-      int width = 0;
-      int precision = 0;
-      int param = -1;
-      int rc;
+      unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = 0;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = 0;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା precision = 0;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା param = -1;
+      ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
       fmt++;
       outlen = (size_t)(fmt - start - 1);
-      if(*fmt == '%') {
+      ଯଦି(*fmt == '%') {
         /* this means a %% that should be output only as %. Create an output
            segment. */
-        if(outlen) {
+        ଯଦି(outlen) {
           optr = &out[ocount++];
-          if(ocount > MAX_SEGMENTS)
-            return PFMT_MANYSEGS;
-          optr->input = 0;
+          ଯଦି(ocount > MAX_SEGMENTS)
+            ଫେରନ୍ତୁ PFMT_MANYSEGS;
+          optr->ନିବେଶ = 0;
           optr->flags = FLAGS_SUBSTR;
           optr->start = start;
           optr->outlen = outlen;
         }
         start = fmt;
         fmt++;
-        continue; /* while */
+        ଜାରି; /* while */
       }
 
-      if(use_dollar != DOLLAR_NOPE) {
+      ଯଦି(use_dollar != DOLLAR_NOPE) {
         param = dollarstring(fmt, &fmt);
-        if(param < 0) {
-          if(use_dollar == DOLLAR_USE)
+        ଯଦି(param < 0) {
+          ଯଦି(use_dollar == DOLLAR_USE)
             /* illegal combo */
-            return PFMT_DOLLAR;
+            ଫେରନ୍ତୁ PFMT_DOLLAR;
 
           /* we got no positional, get the next arg */
           param = -1;
           use_dollar = DOLLAR_NOPE;
         }
-        else
+        ଅନ୍ୟଥା
           use_dollar = DOLLAR_USE;
       }
 
       rc = parse_flags(&fmt, &flags, use_dollar, &precision, &width);
-      if(rc)
-        return rc;
+      ଯଦି(rc)
+        ଫେରନ୍ତୁ rc;
 
-      if(parse_conversion(*fmt, &flags, &type))
-        continue;
+      ଯଦି(parse_conversion(*fmt, &flags, &type))
+        ଜାରି;
 
-      if(flags & FLAGS_WIDTHPARAM) {
-        if(width < 0)
-          width = param_num++;
-        else {
+      ଯଦି(flags & FLAGS_WIDTHPARAM) {
+        ଯଦି(width < 0)
+          width = param_ଅଙ୍କ++;
+        ଅନ୍ୟଥା {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, width))
-            return PFMT_WIDTHARG;
+          ଯଦି(is_arg_used(usedinput, width))
+            ଫେରନ୍ତୁ PFMT_WIDTHARG;
         }
-        if(width >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(width >= max_param)
+        ଯଦି(width >= MAX_PARAMETERS)
+          ଫେରନ୍ତୁ PFMT_MANYARGS;
+        ଯଦି(width >= max_param)
           max_param = width;
 
         in[width].type = MTYPE_WIDTH;
@@ -528,17 +528,17 @@ static int parsefmt(const char *format,
         mark_arg_used(usedinput, width);
       }
 
-      if(flags & FLAGS_PRECPARAM) {
-        if(precision < 0)
-          precision = param_num++;
-        else {
+      ଯଦି(flags & FLAGS_PRECPARAM) {
+        ଯଦି(precision < 0)
+          precision = param_ଅଙ୍କ++;
+        ଅନ୍ୟଥା {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, precision))
-            return PFMT_PRECARG;
+          ଯଦି(is_arg_used(usedinput, precision))
+            ଫେରନ୍ତୁ PFMT_PRECARG;
         }
-        if(precision >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(precision >= max_param)
+        ଯଦି(precision >= MAX_PARAMETERS)
+          ଫେରନ୍ତୁ PFMT_MANYARGS;
+        ଯଦି(precision >= max_param)
           max_param = precision;
 
         in[precision].type = MTYPE_PRECISION;
@@ -546,11 +546,11 @@ static int parsefmt(const char *format,
       }
 
       /* Handle the specifier */
-      if(param < 0)
-        param = param_num++;
-      if(param >= MAX_PARAMETERS)
-        return PFMT_MANYARGS;
-      if(param >= max_param)
+      ଯଦି(param < 0)
+        param = param_ଅଙ୍କ++;
+      ଯଦି(param >= MAX_PARAMETERS)
+        ଫେରନ୍ତୁ PFMT_MANYARGS;
+      ଯଦି(param >= max_param)
         max_param = param;
 
       iptr = &in[param];
@@ -561,9 +561,9 @@ static int parsefmt(const char *format,
 
       fmt++;
       optr = &out[ocount++];
-      if(ocount > MAX_SEGMENTS)
-        return PFMT_MANYSEGS;
-      optr->input = (unsigned int)param;
+      ଯଦି(ocount > MAX_SEGMENTS)
+        ଫେରନ୍ତୁ PFMT_MANYSEGS;
+      optr->ନିବେଶ = (unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)param;
       optr->flags = flags;
       optr->width = width;
       optr->precision = precision;
@@ -571,149 +571,149 @@ static int parsefmt(const char *format,
       optr->outlen = outlen;
       start = fmt;
     }
-    else
+    ଅନ୍ୟଥା
       fmt++;
   }
 
   /* is there a trailing piece */
   outlen = (size_t)(fmt - start);
-  if(outlen) {
+  ଯଦି(outlen) {
     optr = &out[ocount++];
-    if(ocount > MAX_SEGMENTS)
-      return PFMT_MANYSEGS;
-    optr->input = 0;
+    ଯଦି(ocount > MAX_SEGMENTS)
+      ଫେରନ୍ତୁ PFMT_MANYSEGS;
+    optr->ନିବେଶ = 0;
     optr->flags = FLAGS_SUBSTR;
     optr->start = start;
     optr->outlen = outlen;
   }
 
   /* Read the arg list parameters into our data list */
-  for(i = 0; i < max_param + 1; i++) {
-    struct va_input *iptr = &in[i];
-    if(!is_arg_used(usedinput, i))
+  ପାଇଁ(i = 0; i < max_param + 1; i++) {
+    ସଂରଚନା va_ନିବେଶ *iptr = &in[i];
+    ଯଦି(!is_arg_used(usedinput, i))
       /* bad input */
-      return PFMT_INPUTGAP;
+      ଫେରନ୍ତୁ PFMT_INPUTGAP;
 
     /* based on the type, read the correct argument */
-    switch(iptr->type) {
-    case MTYPE_STRING:
-      iptr->val.str = va_arg(arglist, const char *);
-      break;
+    ବାଛ(iptr->type) {
+    ସ୍ଥିତି MTYPE_STRING:
+      iptr->val.str = va_arg(arglist, ଅଚଳ ଅକ୍ଷର *);
+      ଭାଙ୍ଗ;
 
-    case MTYPE_INTPTR:
-    case MTYPE_PTR:
-      iptr->val.ptr = va_arg(arglist, void *);
-      break;
+    ସ୍ଥିତି MTYPE_INTPTR:
+    ସ୍ଥିତି MTYPE_PTR:
+      iptr->val.ptr = va_arg(arglist, ଶୂନ୍ୟ *);
+      ଭାଙ୍ଗ;
 
-    case MTYPE_LONGLONGU:
+    ସ୍ଥିତି MTYPE_LONGLONGU:
       iptr->val.numu = va_arg(arglist, uint64_t);
-      break;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_LONGLONG:
+    ସ୍ଥିତି MTYPE_LONGLONG:
       iptr->val.nums = va_arg(arglist, int64_t);
-      break;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_LONGU:
+    ସ୍ଥିତି MTYPE_LONGU:
       iptr->val.numu = va_arg(arglist, unsigned long);
-      break;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_LONG:
+    ସ୍ଥିତି MTYPE_LONG:
       iptr->val.nums = va_arg(arglist, long);
-      break;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_INTU:
-      iptr->val.numu = va_arg(arglist, unsigned int);
-      break;
+    ସ୍ଥିତି MTYPE_INTU:
+      iptr->val.numu = va_arg(arglist, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା);
+      ଭାଙ୍ଗ;
 
-    case MTYPE_INT:
-    case MTYPE_WIDTH:
-    case MTYPE_PRECISION:
-      iptr->val.nums = va_arg(arglist, int);
-      break;
+    ସ୍ଥିତି MTYPE_INT:
+    ସ୍ଥିତି MTYPE_WIDTH:
+    ସ୍ଥିତି MTYPE_PRECISION:
+      iptr->val.nums = va_arg(arglist, ପୂର୍ଣ୍ଣସଂଖ୍ୟା);
+      ଭାଙ୍ଗ;
 
-    case MTYPE_DOUBLE:
-      iptr->val.dnum = va_arg(arglist, double);
-      break;
+    ସ୍ଥିତି MTYPE_DOUBLE:
+      iptr->val.dnum = va_arg(arglist, ଦ୍ୱିଗୁଣ);
+      ଭାଙ୍ଗ;
 
-    case MTYPE_LONGDOUBLE:
-      iptr->val.dnum = (double)va_arg(arglist, long double);
-      break;
+    ସ୍ଥିତି MTYPE_LONGDOUBLE:
+      iptr->val.dnum = (ଦ୍ୱିଗୁଣ)va_arg(arglist, long ଦ୍ୱିଗୁଣ);
+      ଭାଙ୍ଗ;
 
-    default:
-      DEBUGASSERT(NULL); /* unexpected */
-      break;
+    ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+      DEBUGASSERT(ଖାଲି); /* unexpected */
+      ଭାଙ୍ଗ;
     }
   }
   *ipieces = max_param + 1;
   *opieces = ocount;
 
-  return PFMT_OK;
+  ଫେରନ୍ତୁ PFMT_OK;
 }
 
-struct mproperty {
-  int width;            /* Width of a field. */
-  int prec;             /* Precision of a field. */
-  unsigned int flags;
+ସଂରଚନା mproperty {
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା width;            /* Width of a field. */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା prec;             /* Precision of a field. */
+  unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags;
 };
 
 /* block output callback: consume up to 'len' bytes, return the number of
    bytes accepted. Accepting fewer than 'len' bytes aborts formatting, like
    the byte callback returning failure. May be NULL, in which case output
    falls back to the per-byte 'stream' callback. */
-typedef size_t (*mp_streamn)(const unsigned char *buf, size_t len, void *f);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା size_t (*mp_streamn)(ଅଚଳ unsigned ଅକ୍ଷର *buf, size_t len, ଶୂନ୍ୟ *f);
 
 /* commit any output the sink is holding. Returns non-zero on failure. Sinks
    whose accepted bytes are already committed do not need one. */
-typedef int (*mp_flush)(void *f);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*mp_flush)(ଶୂନ୍ୟ *f);
 
 /* emit a run of bytes through the block callback when available, else byte
    by byte. Returns TRUE to abort formatting (mirroring OUTCHAR). */
-static bool stream_run(void *userp,
-                       int (*stream)(unsigned char, void *),
+ସ୍ଥିର bool stream_run(ଶୂନ୍ୟ *userp,
+                       ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*stream)(unsigned ଅକ୍ଷର, ଶୂନ୍ୟ *),
                        mp_streamn streamn,
-                       const unsigned char *buf, size_t len, int *donep)
+                       ଅଚଳ unsigned ଅକ୍ଷର *buf, size_t len, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *donep)
 {
-  if(!len)
-    return FALSE;
-  if(streamn) {
+  ଯଦି(!len)
+    ଫେରନ୍ତୁ FALSE;
+  ଯଦି(streamn) {
     size_t n = streamn(buf, len, userp);
-    *donep += (int)n;
-    return n != len;
+    *donep += (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)n;
+    ଫେରନ୍ତୁ n != len;
   }
-  while(len--) {
-    if(stream(*buf++, userp))
-      return TRUE;
+  ଯେତେବେଳେ(len--) {
+    ଯଦି(stream(*buf++, userp))
+      ଫେରନ୍ତୁ TRUE;
     (*donep)++;
   }
-  return FALSE;
+  ଫେରନ୍ତୁ FALSE;
 }
 
 /* Padding is always spaces or zeros, so it comes from a constant rather than a
    buffer that has to be filled first. 16 keeps every width used in the tree to
    a single run; wider padding loops. */
-static const char pad_spaces[] = "                ";
-static const char pad_zeros[] = "0000000000000000";
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର pad_spaces[] = "                ";
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର pad_zeros[] = "0000000000000000";
 #define PAD_RUN 16 /* strlen() of both of the above */
 
 /* emit 'num' copies of the pad byte. Returns TRUE to abort formatting. */
-static bool stream_pad(void *userp,
-                       int (*stream)(unsigned char, void *),
+ସ୍ଥିର bool stream_pad(ଶୂନ୍ୟ *userp,
+                       ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*stream)(unsigned ଅକ୍ଷର, ଶୂନ୍ୟ *),
                        mp_streamn streamn,
-                       unsigned char pad, int num, int *donep)
+                       unsigned ଅକ୍ଷର pad, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଅଙ୍କ, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *donep)
 {
-  const unsigned char *src;
-  if(num <= 0)
-    return FALSE;
-  if(pad == '0')
-    src = (const unsigned char *)pad_zeros;
-  else
-    src = (const unsigned char *)pad_spaces;
-  while(num > PAD_RUN) {
-    if(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
-      return TRUE;
-    num -= PAD_RUN;
+  ଅଚଳ unsigned ଅକ୍ଷର *src;
+  ଯଦି(ଅଙ୍କ <= 0)
+    ଫେରନ୍ତୁ FALSE;
+  ଯଦି(pad == '0')
+    src = (ଅଚଳ unsigned ଅକ୍ଷର *)pad_zeros;
+  ଅନ୍ୟଥା
+    src = (ଅଚଳ unsigned ଅକ୍ଷର *)pad_spaces;
+  ଯେତେବେଳେ(ଅଙ୍କ > PAD_RUN) {
+    ଯଦି(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
+      ଫେରନ୍ତୁ TRUE;
+    ଅଙ୍କ -= PAD_RUN;
   }
-  return stream_run(userp, stream, streamn, src, (size_t)num, donep);
+  ଫେରନ୍ତୁ stream_run(userp, stream, streamn, src, (size_t)ଅଙ୍କ, donep);
 }
 
 /* emit the leading null-terminated part of a run of at most 'len' bytes.
@@ -722,83 +722,83 @@ static bool stream_pad(void *userp,
    A byte loop and not memchr(): 'len' is the requested precision, which
    out_string() does not clamp to the string length, so "%.64s" on a 10-byte
    string arrives with len == 64 and memchr() would read past the object. */
-static bool stream_zrun(void *userp,
-                        int (*stream)(unsigned char, void *),
+ସ୍ଥିର bool stream_zrun(ଶୂନ୍ୟ *userp,
+                        ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*stream)(unsigned ଅକ୍ଷର, ଶୂନ୍ୟ *),
                         mp_streamn streamn,
-                        const char *str, size_t len, int *donep)
+                        ଅଚଳ ଅକ୍ଷର *str, size_t len, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *donep)
 {
   size_t n = 0;
-  while(n < len && str[n])
+  ଯେତେବେଳେ(n < len && str[n])
     n++;
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)str, n, donep);
+  ଫେରନ୍ତୁ stream_run(userp, stream, streamn,
+                    (ଅଚଳ unsigned ଅକ୍ଷର *)str, n, donep);
 }
 
-static bool out_double(void *userp,
-                       int (*stream)(unsigned char, void *),
+ସ୍ଥିର bool out_double(ଶୂନ୍ୟ *userp,
+                       ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*stream)(unsigned ଅକ୍ଷର, ଶୂନ୍ୟ *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       double dnum,
-                       char *work, int *donep)
+                       ସଂରଚନା mproperty *p,
+                       ଦ୍ୱିଗୁଣ dnum,
+                       ଅକ୍ଷର *work, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *donep)
 {
-  char fmt[32] = "%";
-  char *fptr = &fmt[1];
-  size_t left = sizeof(fmt) - strlen(fmt);
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  ଅକ୍ଷର fmt[32] = "%";
+  ଅକ୍ଷର *fptr = &fmt[1];
+  size_t ବାମ = ଆକାର(fmt) - strlen(fmt);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = p->flags;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = p->width;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା prec = p->prec;
 
-  if(flags & FLAGS_LEFT)
+  ଯଦି(flags & FLAGS_ବାମ)
     *fptr++ = '-';
-  if(flags & FLAGS_SHOWSIGN)
+  ଯଦି(flags & FLAGS_SHOWSIGN)
     *fptr++ = '+';
-  if(flags & FLAGS_SPACE)
+  ଯଦି(flags & FLAGS_SPACE)
     *fptr++ = ' ';
-  if(flags & FLAGS_ALT)
+  ଯଦି(flags & FLAGS_ALT)
     *fptr++ = '#';
 
   *fptr = 0;
 
-  if(width >= 0) {
+  ଯଦି(width >= 0) {
     size_t dlen;
-    if(width >= BUFFSIZE)
+    ଯଦି(width >= BUFFSIZE)
       width = BUFFSIZE - 1;
     /* RECURSIVE USAGE */
-    dlen = (size_t)curl_msnprintf(fptr, left, "%d", width);
+    dlen = (size_t)curl_msnprintf(fptr, ବାମ, "%d", width);
     fptr += dlen;
-    left -= dlen;
+    ବାମ -= dlen;
   }
-  if(prec >= 0) {
+  ଯଦି(prec >= 0) {
     /* for each digit in the integer part, we can have one less
        precision */
-    int maxprec = BUFFSIZE - 1;
-    double val = dnum;
-    int len;
-    if(prec > maxprec)
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା maxprec = BUFFSIZE - 1;
+    ଦ୍ୱିଗୁଣ val = dnum;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା len;
+    ଯଦି(prec > maxprec)
       prec = maxprec - 1;
-    if(width > 0 && prec <= width)
+    ଯଦି(width > 0 && prec <= width)
       maxprec -= width;
-    while(maxprec && (val >= 10.0)) {
+    ଯେତେବେଳେ(maxprec && (val >= 10.0)) {
       val /= 10;
       maxprec--;
     }
 
-    if(prec > maxprec)
+    ଯଦି(prec > maxprec)
       prec = maxprec - 1;
-    if(prec < 0)
+    ଯଦି(prec < 0)
       prec = 0;
     /* RECURSIVE USAGE */
-    len = curl_msnprintf(fptr, left, ".%d", prec);
+    len = curl_msnprintf(fptr, ବାମ, ".%d", prec);
     fptr += len;
   }
-  if(flags & FLAGS_LONG)
+  ଯଦି(flags & FLAGS_LONG)
     *fptr++ = 'l';
 
-  if(flags & FLAGS_FLOATE)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'E' : 'e');
-  else if(flags & FLAGS_FLOATG)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'G' : 'g');
-  else
+  ଯଦି(flags & FLAGS_FLOATE)
+    *fptr++ = (ଅକ୍ଷର)((flags & FLAGS_UPPER) ? 'E' : 'e');
+  ଅନ୍ୟଥା ଯଦି(flags & FLAGS_FLOATG)
+    *fptr++ = (ଅକ୍ଷର)((flags & FLAGS_UPPER) ? 'G' : 'g');
+  ଅନ୍ୟଥା
     *fptr++ = (flags & FLAGS_UPPER) ? 'F' : 'f';
 
   *fptr = 0; /* and a final null-termination */
@@ -806,269 +806,269 @@ static bool out_double(void *userp,
   /* NOTE NOTE NOTE!! Not all sprintf implementations return number of
      output characters */
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic ଠେଲ
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
 #ifdef _WIN32
   curlx_win32_snprintf(work, BUFFSIZE, fmt, dnum);
-#else
+#ଅନ୍ୟଥା
   /* !checksrc! disable BANNEDFUNC 1 */
   snprintf(work, BUFFSIZE, fmt, dnum);
 #endif
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic କାଢ଼
 #endif
   DEBUGASSERT(strlen(work) < BUFFSIZE);
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)work, strlen(work), donep);
+  ଫେରନ୍ତୁ stream_run(userp, stream, streamn,
+                    (ଅଚଳ unsigned ଅକ୍ଷର *)work, strlen(work), donep);
 }
 
-static bool out_number(void *userp,
-                       int (*stream)(unsigned char, void *),
+ସ୍ଥିର bool out_ସଂଖ୍ୟା(ଶୂନ୍ୟ *userp,
+                       ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*stream)(unsigned ଅକ୍ଷର, ଶୂନ୍ୟ *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       uint64_t num,
+                       ସଂରଚନା mproperty *p,
+                       uint64_t ଅଙ୍କ,
                        int64_t nums,
-                       char *work, int *donep)
+                       ଅକ୍ଷର *work, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *donep)
 {
-  const unsigned char *digits = Curl_ldigits;
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  ଅଚଳ unsigned ଅକ୍ଷର *digits = Curl_ldigits;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = p->flags;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = p->width;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା prec = p->prec;
   bool is_alt = flags & FLAGS_ALT;
   bool is_neg = FALSE;
-  int base = 10;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା base = 10;
 
   /* 'workend' points to the final buffer byte position, but with an extra
      byte as margin to avoid the (FALSE?) warning Coverity gives us
      otherwise */
-  char *workend = &work[BUFFSIZE - 2];
-  char *w;
+  ଅକ୍ଷର *workend = &work[BUFFSIZE - 2];
+  ଅକ୍ଷର *w;
 
-  if(flags & FLAGS_CHAR) {
+  ଯଦି(flags & FLAGS_CHAR) {
     /* Character. */
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    ଯଦି(!(flags & FLAGS_ବାମ)) {
+      ଯଦି(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        ଫେରନ୍ତୁ TRUE;
       width = 1;
     }
-    OUTCHAR((char)num);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    OUTCHAR((ଅକ୍ଷର)ଅଙ୍କ);
+    ଯଦି(flags & FLAGS_ବାମ) {
+      ଯଦି(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        ଫେରନ୍ତୁ TRUE;
     }
-    return FALSE;
+    ଫେରନ୍ତୁ FALSE;
   }
-  if(flags & FLAGS_OCTAL)
+  ଯଦି(flags & FLAGS_OCTAL)
     /* Octal unsigned integer */
     base = 8;
 
-  else if(flags & FLAGS_HEX) {
+  ଅନ୍ୟଥା ଯଦି(flags & FLAGS_HEX) {
     /* Hexadecimal unsigned integer */
     digits = (flags & FLAGS_UPPER) ? Curl_udigits : Curl_ldigits;
     base = 16;
   }
-  else if(flags & FLAGS_UNSIGNED)
+  ଅନ୍ୟଥା ଯଦି(flags & FLAGS_UNSIGNED)
     /* Decimal unsigned integer */
     ;
 
-  else {
+  ଅନ୍ୟଥା {
     /* Decimal integer. */
     is_neg = (nums < 0);
-    if(is_neg) {
+    ଯଦି(is_neg) {
       /* signed_num might fail to hold absolute negative minimum by 1 */
-      int64_t signed_num; /* Used to convert negative in positive. */
-      signed_num = nums + (int64_t)1;
-      signed_num = -signed_num;
-      num = (uint64_t)signed_num;
-      num += (uint64_t)1;
+      int64_t signed_ଅଙ୍କ; /* Used to convert negative in positive. */
+      signed_ଅଙ୍କ = nums + (int64_t)1;
+      signed_ଅଙ୍କ = -signed_ଅଙ୍କ;
+      ଅଙ୍କ = (uint64_t)signed_ଅଙ୍କ;
+      ଅଙ୍କ += (uint64_t)1;
     }
   }
 
   /* Supply a default precision if none was given. */
-  if(prec == -1)
+  ଯଦି(prec == -1)
     prec = 1;
 
   /* Put the number in WORK. */
   w = workend;
   DEBUGASSERT(base <= 16);
-  switch(base) {
-  case 10:
-    while(num > 0) {
-      *w-- = (char)('0' + (num % 10));
-      num /= 10;
+  ବାଛ(base) {
+  ସ୍ଥିତି 10:
+    ଯେତେବେଳେ(ଅଙ୍କ > 0) {
+      *w-- = (ଅକ୍ଷର)('0' + (ଅଙ୍କ % 10));
+      ଅଙ୍କ /= 10;
     }
-    break;
-  default:
-    while(num > 0) {
-      *w-- = digits[num % base];
-      num /= base;
+    ଭାଙ୍ଗ;
+  ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+    ଯେତେବେଳେ(ଅଙ୍କ > 0) {
+      *w-- = digits[ଅଙ୍କ % base];
+      ଅଙ୍କ /= base;
     }
-    break;
+    ଭାଙ୍ଗ;
   }
-  width -= (int)(workend - w);
-  prec -= (int)(workend - w);
+  width -= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)(workend - w);
+  prec -= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)(workend - w);
 
-  if(is_alt && base == 8 && prec <= 0) {
+  ଯଦି(is_alt && base == 8 && prec <= 0) {
     *w-- = '0';
     --width;
   }
 
-  if(prec > 0) {
+  ଯଦି(prec > 0) {
     width -= prec;
-    while(prec-- > 0 && w >= work)
+    ଯେତେବେଳେ(prec-- > 0 && w >= work)
       *w-- = '0';
   }
 
-  if(is_alt && base == 16)
+  ଯଦି(is_alt && base == 16)
     width -= 2;
 
-  if(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
+  ଯଦି(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
     --width;
 
-  if(!(flags & FLAGS_LEFT) && !(flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  ଯଦି(!(flags & FLAGS_ବାମ) && !(flags & FLAGS_PAD_NIL)) {
+    ଯଦି(stream_pad(userp, stream, streamn, ' ', width, donep))
+      ଫେରନ୍ତୁ TRUE;
     width = 0;
   }
 
-  if(is_neg)
+  ଯଦି(is_neg)
     OUTCHAR('-');
-  else if(flags & FLAGS_SHOWSIGN)
+  ଅନ୍ୟଥା ଯଦି(flags & FLAGS_SHOWSIGN)
     OUTCHAR('+');
-  else if(flags & FLAGS_SPACE)
+  ଅନ୍ୟଥା ଯଦି(flags & FLAGS_SPACE)
     OUTCHAR(' ');
 
-  if(is_alt && base == 16) {
+  ଯଦି(is_alt && base == 16) {
     OUTCHAR('0');
-    if(flags & FLAGS_UPPER)
+    ଯଦି(flags & FLAGS_UPPER)
       OUTCHAR('X');
-    else
+    ଅନ୍ୟଥା
       OUTCHAR('x');
   }
 
-  if(!(flags & FLAGS_LEFT) && (flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, '0', width, donep))
-      return TRUE;
+  ଯଦି(!(flags & FLAGS_ବାମ) && (flags & FLAGS_PAD_NIL)) {
+    ଯଦି(stream_pad(userp, stream, streamn, '0', width, donep))
+      ଫେରନ୍ତୁ TRUE;
     width = 0;
   }
 
   /* Write the number. */
-  if(stream_run(userp, stream, streamn, (const unsigned char *)w + 1,
+  ଯଦି(stream_run(userp, stream, streamn, (ଅଚଳ unsigned ଅକ୍ଷର *)w + 1,
                 (size_t)(workend - w), donep))
-    return TRUE;
+    ଫେରନ୍ତୁ TRUE;
 
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  ଯଦି(flags & FLAGS_ବାମ) {
+    ଯଦି(stream_pad(userp, stream, streamn, ' ', width, donep))
+      ଫେରନ୍ତୁ TRUE;
   }
 
-  return FALSE;
+  ଫେରନ୍ତୁ FALSE;
 }
 
-static const char nilstr[] = "(nil)";
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର nilstr[] = "(nil)";
 
-static bool out_string(void *userp,
-                       int (*stream)(unsigned char, void *),
+ସ୍ଥିର bool out_string(ଶୂନ୍ୟ *userp,
+                       ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*stream)(unsigned ଅକ୍ଷର, ଶୂନ୍ୟ *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       const char *str,
-                       int *donep)
+                       ସଂରଚନା mproperty *p,
+                       ଅଚଳ ଅକ୍ଷର *str,
+                       ପୂର୍ଣ୍ଣସଂଖ୍ୟା *donep)
 {
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = p->flags;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = p->width;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା prec = p->prec;
   size_t len;
 
-  if(!str) {
+  ଯଦି(!str) {
     /* Write null string if there is space. */
-    if(prec == -1 || prec >= (int)CURL_CSTRLEN(nilstr)) {
+    ଯଦି(prec == -1 || prec >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)CURL_CSTRLEN(nilstr)) {
       str = nilstr;
       len = CURL_CSTRLEN(nilstr);
       /* Disable quotes around (nil) */
-      flags &= ~(unsigned int)FLAGS_ALT;
+      flags &= ~(unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)FLAGS_ALT;
     }
-    else {
+    ଅନ୍ୟଥା {
       str = "";
       len = 0;
     }
   }
-  else if(prec != -1)
+  ଅନ୍ୟଥା ଯଦି(prec != -1)
     len = (size_t)prec;
-  else if(*str == '\0')
+  ଅନ୍ୟଥା ଯଦି(*str == '\0')
     len = 0;
-  else
+  ଅନ୍ୟଥା
     len = strlen(str);
 
-  width -= (len > INT_MAX) ? INT_MAX : (int)len;
+  width -= (len > INT_MAX) ? INT_MAX : (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)len;
 
-  if(flags & FLAGS_ALT)
+  ଯଦି(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  if(!(flags & FLAGS_LEFT)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  ଯଦି(!(flags & FLAGS_ବାମ)) {
+    ଯଦି(stream_pad(userp, stream, streamn, ' ', width, donep))
+      ଫେରନ୍ତୁ TRUE;
     width = 0;
   }
 
   /* With no precision, len is already the exact length; emit it without
      scanning again. With precision, scan up to len but stop at NUL, since
      the string may be shorter or the buffer may not be null-terminated. */
-  if(prec == -1) {
-    if(stream_run(userp, stream, streamn,
-                  (const unsigned char *)str, len, donep))
-      return TRUE;
+  ଯଦି(prec == -1) {
+    ଯଦି(stream_run(userp, stream, streamn,
+                  (ଅଚଳ unsigned ଅକ୍ଷର *)str, len, donep))
+      ଫେରନ୍ତୁ TRUE;
   }
-  else if(stream_zrun(userp, stream, streamn, str, len, donep))
-    return TRUE;
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  ଅନ୍ୟଥା ଯଦି(stream_zrun(userp, stream, streamn, str, len, donep))
+    ଫେରନ୍ତୁ TRUE;
+  ଯଦି(flags & FLAGS_ବାମ) {
+    ଯଦି(stream_pad(userp, stream, streamn, ' ', width, donep))
+      ଫେରନ୍ତୁ TRUE;
   }
 
-  if(flags & FLAGS_ALT)
+  ଯଦି(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  return FALSE;
+  ଫେରନ୍ତୁ FALSE;
 }
 
-static bool out_pointer(void *userp,
-                        int (*stream)(unsigned char, void *),
+ସ୍ଥିର bool out_pointer(ଶୂନ୍ୟ *userp,
+                        ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*stream)(unsigned ଅକ୍ଷର, ଶୂନ୍ୟ *),
                         mp_streamn streamn,
-                        struct mproperty *p,
-                        const char *ptr,
-                        char *work,
-                        int *donep)
+                        ସଂରଚନା mproperty *p,
+                        ଅଚଳ ଅକ୍ଷର *ptr,
+                        ଅକ୍ଷର *work,
+                        ପୂର୍ଣ୍ଣସଂଖ୍ୟା *donep)
 {
   /* Generic pointer. */
-  if(ptr) {
-    size_t num = (size_t)ptr;
+  ଯଦି(ptr) {
+    size_t ଅଙ୍କ = (size_t)ptr;
 
     /* If the pointer is not NULL, write it as a %#x spec. */
     p->flags |= FLAGS_HEX | FLAGS_ALT;
-    if(out_number(userp, stream, streamn, p, num, 0, work, donep))
-      return TRUE;
+    ଯଦି(out_ସଂଖ୍ୟା(userp, stream, streamn, p, ଅଙ୍କ, 0, work, donep))
+      ଫେରନ୍ତୁ TRUE;
   }
-  else {
+  ଅନ୍ୟଥା {
     /* Write "(nil)" for a nil pointer. */
-    int width = p->width;
-    int flags = p->flags;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = p->width;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags = p->flags;
 
-    width -= (int)CURL_CSTRLEN(nilstr);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    width -= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)CURL_CSTRLEN(nilstr);
+    ଯଦି(flags & FLAGS_ବାମ) {
+      ଯଦି(stream_pad(userp, stream, streamn, ' ', width, donep))
+        ଫେରନ୍ତୁ TRUE;
       width = 0;
     }
-    if(stream_run(userp, stream, streamn, (const unsigned char *)nilstr,
-                  sizeof(nilstr) - 1, donep))
-      return TRUE;
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    ଯଦି(stream_run(userp, stream, streamn, (ଅଚଳ unsigned ଅକ୍ଷର *)nilstr,
+                  ଆକାର(nilstr) - 1, donep))
+      ଫେରନ୍ତୁ TRUE;
+    ଯଦି(!(flags & FLAGS_ବାମ)) {
+      ଯଦି(stream_pad(userp, stream, streamn, ' ', width, donep))
+        ଫେରନ୍ତୁ TRUE;
     }
   }
-  return FALSE;
+  ଫେରନ୍ତୁ FALSE;
 }
 
 /*
@@ -1086,433 +1086,433 @@ static bool out_pointer(void *userp,
  *
  * All output is sent to the 'stream()' callback, one byte at a time.
  */
-static int formatf(void *userp, /* untouched by format(), sent to the
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା formatf(ଶୂନ୍ୟ *userp, /* untouched by format(), sent to the
                                    stream() function in the second argument */
                    /* function pointer called for each output character */
-                   int (*stream)(unsigned char, void *),
+                   ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*stream)(unsigned ଅକ୍ଷର, ଶୂନ୍ୟ *),
                    /* optional block-output function pointer */
                    mp_streamn streamn,
                    /* optional, commits output the sink is holding */
                    mp_flush flush,
-                   const char *format, /* %-formatted string */
+                   ଅଚଳ ଅକ୍ଷର *format, /* %-formatted string */
                    va_list ap_save) /* list of parameters */
 {
-  int done = 0;   /* number of characters written */
-  int i;
-  int ocount = 0; /* number of output segments */
-  int icount = 0; /* number of input arguments */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା done = 0;   /* number of characters written */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା ocount = 0; /* number of output segments */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା icount = 0; /* number of input arguments */
 
-  struct outsegment output[MAX_SEGMENTS];
-  struct va_input input[MAX_PARAMETERS];
-  char work[BUFFSIZE + 2];
+  ସଂରଚନା outsegment output[MAX_SEGMENTS];
+  ସଂରଚନା va_ନିବେଶ ନିବେଶ[MAX_PARAMETERS];
+  ଅକ୍ଷର work[BUFFSIZE + 2];
 
   /* Parse the format string */
-  if(parsefmt(format, output, input, &ocount, &icount, ap_save))
-    return 0;
+  ଯଦି(parsefmt(format, output, ନିବେଶ, &ocount, &icount, ap_save))
+    ଫେରନ୍ତୁ 0;
 
-  for(i = 0; i < ocount; i++) {
-    struct outsegment *optr = &output[i];
-    struct va_input *iptr = &input[optr->input];
-    struct mproperty p;
+  ପାଇଁ(i = 0; i < ocount; i++) {
+    ସଂରଚନା outsegment *optr = &output[i];
+    ସଂରଚନା va_ନିବେଶ *iptr = &ନିବେଶ[optr->ନିବେଶ];
+    ସଂରଚନା mproperty p;
     size_t outlen = optr->outlen;
 
-    if(outlen) {
-      if(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
-        return done;
-      if(optr->flags & FLAGS_SUBSTR)
+    ଯଦି(outlen) {
+      ଯଦି(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
+        ଫେରନ୍ତୁ done;
+      ଯଦି(optr->flags & FLAGS_SUBSTR)
         /* this is a substring */
-        continue;
+        ଜାରି;
     }
 
     p.flags = optr->flags;
 
     /* pick up the specified width */
-    if(p.flags & FLAGS_WIDTHPARAM) {
-      p.width = (int)input[optr->width].val.nums;
-      if(p.width < 0) {
+    ଯଦି(p.flags & FLAGS_WIDTHPARAM) {
+      p.width = (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)ନିବେଶ[optr->width].val.nums;
+      ଯଦି(p.width < 0) {
         /* "A negative field width is taken as a '-' flag followed by a
            positive field width." */
-        if(p.width == INT_MIN)
+        ଯଦି(p.width == INT_MIN)
           p.width = INT_MAX;
-        else
+        ଅନ୍ୟଥା
           p.width = -p.width;
-        p.flags |= FLAGS_LEFT;
-        p.flags &= ~(unsigned int)FLAGS_PAD_NIL;
+        p.flags |= FLAGS_ବାମ;
+        p.flags &= ~(unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା)FLAGS_PAD_NIL;
       }
     }
-    else
+    ଅନ୍ୟଥା
       p.width = optr->width;
 
     /* pick up the specified precision */
-    if(p.flags & FLAGS_PRECPARAM) {
-      p.prec = (int)input[optr->precision].val.nums;
-      if(p.prec < 0)
+    ଯଦି(p.flags & FLAGS_PRECPARAM) {
+      p.prec = (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)ନିବେଶ[optr->precision].val.nums;
+      ଯଦି(p.prec < 0)
         /* "A negative precision is taken as if the precision were
            omitted." */
         p.prec = -1;
     }
-    else if(p.flags & FLAGS_PREC)
+    ଅନ୍ୟଥା ଯଦି(p.flags & FLAGS_PREC)
       p.prec = optr->precision;
-    else
+    ଅନ୍ୟଥା
       p.prec = -1;
 
-    switch(iptr->type) {
-    case MTYPE_INTU:
-    case MTYPE_LONGU:
-    case MTYPE_LONGLONGU:
+    ବାଛ(iptr->type) {
+    ସ୍ଥିତି MTYPE_INTU:
+    ସ୍ଥିତି MTYPE_LONGU:
+    ସ୍ଥିତି MTYPE_LONGLONGU:
       p.flags |= FLAGS_UNSIGNED;
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu, 0, work,
+      ଯଦି(out_ସଂଖ୍ୟା(userp, stream, streamn, &p, iptr->val.numu, 0, work,
                     &done))
-        return done;
-      break;
+        ଫେରନ୍ତୁ done;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_INT:
-    case MTYPE_LONG:
-    case MTYPE_LONGLONG:
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu,
+    ସ୍ଥିତି MTYPE_INT:
+    ସ୍ଥିତି MTYPE_LONG:
+    ସ୍ଥିତି MTYPE_LONGLONG:
+      ଯଦି(out_ସଂଖ୍ୟା(userp, stream, streamn, &p, iptr->val.numu,
                     iptr->val.nums, work, &done))
-        return done;
-      break;
+        ଫେରନ୍ତୁ done;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_STRING:
-      if(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
-        return done;
-      break;
+    ସ୍ଥିତି MTYPE_STRING:
+      ଯଦି(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
+        ଫେରନ୍ତୁ done;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_PTR:
-      if(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
+    ସ୍ଥିତି MTYPE_PTR:
+      ଯଦି(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
                      &done))
-        return done;
-      break;
+        ଫେରନ୍ତୁ done;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_DOUBLE:
-    case MTYPE_LONGDOUBLE:
-      if(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
+    ସ୍ଥିତି MTYPE_DOUBLE:
+    ସ୍ଥିତି MTYPE_LONGDOUBLE:
+      ଯଦି(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
                     &done))
-        return done;
-      break;
+        ଫେରନ୍ତୁ done;
+      ଭାଙ୍ଗ;
 
-    case MTYPE_INTPTR:
+    ସ୍ଥିତି MTYPE_INTPTR:
       /* %n is observable by the caller, so commit what is pending first and
          perform it only if that succeeded, as a sink that never holds output
          would. */
-      if(flush && flush(userp))
-        return done;
+      ଯଦି(flush && flush(userp))
+        ଫେରନ୍ତୁ done;
       /* Answer the count of characters written. */
-      if(p.flags & FLAGS_LONGLONG)
+      ଯଦି(p.flags & FLAGS_LONGLONG)
         *(int64_t *)iptr->val.ptr = (int64_t)done;
-      else if(p.flags & FLAGS_LONG)
+      ଅନ୍ୟଥା ଯଦି(p.flags & FLAGS_LONG)
         *(long *)iptr->val.ptr = (long)done;
-      else if(!(p.flags & FLAGS_SHORT))
-        *(int *)iptr->val.ptr = done;
-      else
+      ଅନ୍ୟଥା ଯଦି(!(p.flags & FLAGS_SHORT))
+        *(ପୂର୍ଣ୍ଣସଂଖ୍ୟା *)iptr->val.ptr = done;
+      ଅନ୍ୟଥା
         *(short *)iptr->val.ptr = (short)done;
-      break;
+      ଭାଙ୍ଗ;
 
-    default:
-      break;
+    ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+      ଭାଙ୍ଗ;
     }
   }
-  return done;
+  ଫେରନ୍ତୁ done;
 }
 
 /* fputc() look-alike */
-static int addbyter(unsigned char outc, void *f)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା addbyter(unsigned ଅକ୍ଷର outc, ଶୂନ୍ୟ *f)
 {
-  struct nsprintf *infop = f;
-  if(infop->length < infop->max) {
+  ସଂରଚନା nsprintf *infop = f;
+  ଯଦି(infop->length < infop->max) {
     /* only do this if we have not reached max length yet */
-    *infop->buffer++ = (char)outc; /* store */
+    *infop->buffer++ = (ଅକ୍ଷର)outc; /* store */
     infop->length++; /* we are now one byte larger */
-    return 0;     /* fputc() returns like this on success */
+    ଫେରନ୍ତୁ 0;     /* fputc() returns like this on success */
   }
-  return 1;
+  ଫେରନ୍ତୁ 1;
 }
 
 /* block variant of addbyter */
-static size_t addrun(const unsigned char *buf, size_t len, void *f)
+ସ୍ଥିର size_t addrun(ଅଚଳ unsigned ଅକ୍ଷର *buf, size_t len, ଶୂନ୍ୟ *f)
 {
-  struct nsprintf *infop = f;
+  ସଂରଚନା nsprintf *infop = f;
   size_t fit = infop->max - infop->length;
-  if(len > fit)
+  ଯଦି(len > fit)
     len = fit;
-  if(len) {
+  ଯଦି(len) {
     memcpy(infop->buffer, buf, len);
     infop->buffer += len;
     infop->length += len;
   }
-  return len;
+  ଫେରନ୍ତୁ len;
 }
 
-int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curl_mvsnprintf(ଅକ୍ଷର *buffer, size_t maxlength, ଅଚଳ ଅକ୍ଷର *format,
                     va_list args)
 {
-  int retcode;
-  struct nsprintf info;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା retcode;
+  ସଂରଚନା nsprintf info;
 
   info.buffer = buffer;
   info.length = 0;
   info.max = maxlength;
 
-  retcode = formatf(&info, addbyter, addrun, NULL, format, args);
-  if(info.max) {
+  retcode = formatf(&info, addbyter, addrun, ଖାଲି, format, args);
+  ଯଦି(info.max) {
     /* we null-terminate this */
-    if(info.max == info.length) {
+    ଯଦି(info.max == info.length) {
       /* we are at maximum, scrap the last letter */
       info.buffer[-1] = 0;
       DEBUGASSERT(retcode);
       retcode--; /* do not count the NUL byte */
     }
-    else
+    ଅନ୍ୟଥା
       info.buffer[0] = 0;
   }
-  return retcode;
+  ଫେରନ୍ତୁ retcode;
 }
 
-int curl_msnprintf(char *buffer, size_t maxlength, const char *format, ...)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curl_msnprintf(ଅକ୍ଷର *buffer, size_t maxlength, ଅଚଳ ଅକ୍ଷର *format, ...)
 {
-  int retcode;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା retcode;
   va_list args; /* argument pointer */
   va_start(args, format);
   retcode = curl_mvsnprintf(buffer, maxlength, format, args);
   va_end(args);
-  return retcode;
+  ଫେରନ୍ତୁ retcode;
 }
 
 /* append the staged bytes to the dynbuf. Returns 1 on failure (and sets
    merr), 0 on success. */
-static int alloc_flush(void *f)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା alloc_flush(ଶୂନ୍ୟ *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage) {
+  ସଂରଚନା asprintf *infop = f;
+  ଯଦି(infop->nstage) {
     CURLcode result = curlx_dyn_addn(infop->b, infop->stage, infop->nstage);
     infop->nstage = 0;
-    if(result) {
+    ଯଦି(result) {
       infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-      return 1; /* fail */
+      ଫେରନ୍ତୁ 1; /* fail */
     }
   }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* append directly, bypassing the stage. Returns 1 on failure. */
-static int alloc_addn(struct asprintf *infop, const unsigned char *buf,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା alloc_addn(ସଂରଚନା asprintf *infop, ଅଚଳ unsigned ଅକ୍ଷର *buf,
                       size_t len)
 {
   CURLcode result = curlx_dyn_addn(infop->b, buf, len);
-  if(result) {
+  ଯଦି(result) {
     infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-    return 1; /* fail */
+    ଫେରନ୍ତୁ 1; /* fail */
   }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* TRUE if 'more' additional bytes still fit the dynbuf size limit, counting
    what is already staged. curlx_dyn_addn() rejects an append when
    len + leng + 1 exceeds it. */
-static bool alloc_fits(struct asprintf *infop, size_t more)
+ସ୍ଥିର bool alloc_fits(ସଂରଚନା asprintf *infop, size_t more)
 {
-  return (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
+  ଫେରନ୍ତୁ (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
 }
 
 /* fputc() look-alike */
-static int alloc_addbyter(unsigned char outc, void *f)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା alloc_addbyter(unsigned ଅକ୍ଷର outc, ଶୂନ୍ୟ *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage == sizeof(infop->stage) && alloc_flush(infop))
-    return 1; /* fail */
-  if(!alloc_fits(infop, 1)) {
+  ସଂରଚନା asprintf *infop = f;
+  ଯଦି(infop->nstage == ଆକାର(infop->stage) && alloc_flush(infop))
+    ଫେରନ୍ତୁ 1; /* fail */
+  ଯଦି(!alloc_fits(infop, 1)) {
     /* Does not fit the dynbuf size limit. Flush and append this byte on
        its own, so the limit is reported at exactly this byte and formatting
        stops where it would without staging. %n depends on that. */
-    if(alloc_flush(infop))
-      return 1;
-    return alloc_addn(infop, &outc, 1);
+    ଯଦି(alloc_flush(infop))
+      ଫେରନ୍ତୁ 1;
+    ଫେରନ୍ତୁ alloc_addn(infop, &outc, 1);
   }
   infop->stage[infop->nstage++] = outc;
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* block variant of alloc_addbyter */
-static size_t alloc_addrun(const unsigned char *buf, size_t len, void *f)
+ସ୍ଥିର size_t alloc_addrun(ଅଚଳ unsigned ଅକ୍ଷର *buf, size_t len, ଶୂନ୍ୟ *f)
 {
-  struct asprintf *infop = f;
+  ସଂରଚନା asprintf *infop = f;
   size_t accepted = 0;
-  while(accepted < len) {
-    size_t room = sizeof(infop->stage) - infop->nstage;
+  ଯେତେବେଳେ(accepted < len) {
+    size_t room = ଆକାର(infop->stage) - infop->nstage;
     size_t n;
-    if(!room) {
-      if(alloc_flush(infop))
-        return accepted; /* accepted < len aborts formatting */
-      room = sizeof(infop->stage);
+    ଯଦି(!room) {
+      ଯଦି(alloc_flush(infop))
+        ଫେରନ୍ତୁ accepted; /* accepted < len aborts formatting */
+      room = ଆକାର(infop->stage);
     }
     n = len - accepted;
-    if(n > room)
+    ଯଦି(n > room)
       n = room;
-    if(!alloc_fits(infop, n)) {
+    ଯଦି(!alloc_fits(infop, n)) {
       /* Run does not fit the dynbuf size limit. Stage what does, then
          append the first byte that does not on its own, so the limit is
          reported at exactly that byte. */
       size_t fits = infop->b->toobig - infop->b->leng - infop->nstage - 1;
-      if(fits) {
+      ଯଦି(fits) {
         memcpy(&infop->stage[infop->nstage], buf + accepted, fits);
         infop->nstage += fits;
         accepted += fits;
       }
-      if(alloc_flush(infop))
-        return accepted;
-      if(alloc_addn(infop, buf + accepted, 1))
-        return accepted; /* accepted < len aborts formatting */
+      ଯଦି(alloc_flush(infop))
+        ଫେରନ୍ତୁ accepted;
+      ଯଦି(alloc_addn(infop, buf + accepted, 1))
+        ଫେରନ୍ତୁ accepted; /* accepted < len aborts formatting */
       accepted++;
-      continue;
+      ଜାରି;
     }
     memcpy(&infop->stage[infop->nstage], buf + accepted, n);
     infop->nstage += n;
     accepted += n;
   }
-  return accepted;
+  ଫେରନ୍ତୁ accepted;
 }
 
 /* appends the formatted string, returns MERR error code */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curlx_dyn_vprintf(ସଂରଚନା dynbuf *dyn, ଅଚଳ ଅକ୍ଷର *format, va_list args)
 {
-  struct asprintf info;
+  ସଂରଚନା asprintf info;
   info.b = dyn;
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+  (ଶୂନ୍ୟ)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  ଯଦି(!info.merr)
+    (ଶୂନ୍ୟ)alloc_flush(&info);
+  ଯଦି(info.merr) {
     curlx_dyn_free(info.b);
-    return info.merr;
+    ଫେରନ୍ତୁ info.merr;
   }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-char *curl_mvaprintf(const char *format, va_list args)
+ଅକ୍ଷର *curl_mvaprintf(ଅଚଳ ଅକ୍ଷର *format, va_list args)
 {
-  struct asprintf info;
-  struct dynbuf dyn;
+  ସଂରଚନା asprintf info;
+  ସଂରଚନା dynbuf dyn;
   info.b = &dyn;
   curlx_dyn_init(info.b, DYN_APRINTF);
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+  (ଶୂନ୍ୟ)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  ଯଦି(!info.merr)
+    (ଶୂନ୍ୟ)alloc_flush(&info);
+  ଯଦି(info.merr) {
     curlx_dyn_free(info.b);
-    return NULL;
+    ଫେରନ୍ତୁ ଖାଲି;
   }
-  if(curlx_dyn_len(info.b))
-    return curlx_dyn_ptr(info.b);
-  return curlx_strdup("");
+  ଯଦି(curlx_dyn_len(info.b))
+    ଫେରନ୍ତୁ curlx_dyn_ptr(info.b);
+  ଫେରନ୍ତୁ curlx_strdup("");
 }
 
-char *curl_maprintf(const char *format, ...)
+ଅକ୍ଷର *curl_maprintf(ଅଚଳ ଅକ୍ଷର *format, ...)
 {
   va_list args;
-  char *s;
+  ଅକ୍ଷର *s;
   va_start(args, format);
   s = curl_mvaprintf(format, args);
   va_end(args);
-  return s;
+  ଫେରନ୍ତୁ s;
 }
 
-static int storebuffer(unsigned char outc, void *f)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା storebuffer(unsigned ଅକ୍ଷର outc, ଶୂନ୍ୟ *f)
 {
-  char **buffer = f;
-  **buffer = (char)outc;
+  ଅକ୍ଷର **buffer = f;
+  **buffer = (ଅକ୍ଷର)outc;
   (*buffer)++;
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
 /* block variant of storebuffer */
-static size_t storerun(const unsigned char *buf, size_t len, void *f)
+ସ୍ଥିର size_t storerun(ଅଚଳ unsigned ଅକ୍ଷର *buf, size_t len, ଶୂନ୍ୟ *f)
 {
-  char **buffer = f;
+  ଅକ୍ଷର **buffer = f;
   memcpy(*buffer, buf, len);
   *buffer += len;
-  return len;
+  ଫେରନ୍ତୁ len;
 }
 
-int curl_msprintf(char *buffer, const char *format, ...)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curl_msprintf(ଅକ୍ଷର *buffer, ଅଚଳ ଅକ୍ଷର *format, ...)
 {
   va_list args; /* argument pointer */
-  int retcode;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା retcode;
   va_start(args, format);
-  retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  retcode = formatf(&buffer, storebuffer, storerun, ଖାଲି, format, args);
   va_end(args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  ଫେରନ୍ତୁ retcode;
 }
 
-static int fputc_wrapper(unsigned char outc, void *f)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା fputc_wrapper(unsigned ଅକ୍ଷର outc, ଶୂନ୍ୟ *f)
 {
-  struct ioprintf *i = f;
-  int out = outc;
+  ସଂରଚନା ioprintf *i = f;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା out = outc;
   FILE *s = i->fd;
-  int rc = fputc(out, s);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc = fputc(out, s);
   i->error = (rc == EOF);
-  return (rc == EOF);
+  ଫେରନ୍ତୁ (rc == EOF);
 }
 
 /* block variant of fputc_wrapper */
-static size_t fwrite_wrapper(const unsigned char *buf, size_t len, void *f)
+ସ୍ଥିର size_t fwrite_wrapper(ଅଚଳ unsigned ଅକ୍ଷର *buf, size_t len, ଶୂନ୍ୟ *f)
 {
-  struct ioprintf *i = f;
+  ସଂରଚନା ioprintf *i = f;
   size_t n;
   FILE *s = i->fd;
   n = fwrite(buf, 1, len, s);
   i->error = (n != len);
-  return n;
+  ଫେରନ୍ତୁ n;
 }
 
-int curl_mvfprintf(FILE *fd, const char *format, va_list args)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curl_mvfprintf(FILE *fd, ଅଚଳ ଅକ୍ଷର *format, va_list args)
 {
-  struct ioprintf info;
-  int n;
+  ସଂରଚନା ioprintf info;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା n;
   info.fd = fd;
   info.error = FALSE;
-  n = formatf(&info, fputc_wrapper, fwrite_wrapper, NULL, format, args);
-  if(info.error)
-    return -1;
-  return n;
+  n = formatf(&info, fputc_wrapper, fwrite_wrapper, ଖାଲି, format, args);
+  ଯଦି(info.error)
+    ଫେରନ୍ତୁ -1;
+  ଫେରନ୍ତୁ n;
 }
 
-int curl_mfprintf(FILE *fd, const char *format, ...)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curl_mfprintf(FILE *fd, ଅଚଳ ଅକ୍ଷର *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା n;
   va_start(args, format);
   n = curl_mvfprintf(fd, format, args);
   va_end(args);
-  return n;
+  ଫେରନ୍ତୁ n;
 }
 
-int curl_mprintf(const char *format, ...)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curl_mprintf(ଅଚଳ ଅକ୍ଷର *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା n;
   va_start(args, format);
   n = curl_mvfprintf(stdout, format, args);
   va_end(args);
-  return n;
+  ଫେରନ୍ତୁ n;
 }
 
-int curl_mvsprintf(char *buffer, const char *format, va_list args)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curl_mvsprintf(ଅକ୍ଷର *buffer, ଅଚଳ ଅକ୍ଷର *format, va_list args)
 {
-  int retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା retcode = formatf(&buffer, storebuffer, storerun, ଖାଲି, format, args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  ଫେରନ୍ତୁ retcode;
 }
 
-int curl_mvprintf(const char *format, va_list args)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curl_mvprintf(ଅଚଳ ଅକ୍ଷର *format, va_list args)
 {
-  return curl_mvfprintf(stdout, format, args);
+  ଫେରନ୍ତୁ curl_mvfprintf(stdout, format, args);
 }

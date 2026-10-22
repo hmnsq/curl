@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#if defined(USE_OPENSSL) || defined(USE_SCHANNEL)
+#ଯଦି defined(USE_OPENSSL) || defined(USE_SCHANNEL)
 
 /* returns TRUE if there is a match */
-bool Curl_cert_hostcheck(const char *match, size_t matchlen,
-                         const char *hostname, size_t hostlen);
+bool Curl_cert_hostcheck(ଅଚଳ ଅକ୍ଷର *match, size_t matchlen,
+                         ଅଚଳ ଅକ୍ଷର *hostname, size_t hostlen);
 
 #endif
 

@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-typedef void Curl_u32_ptrset_dtor(uint32_t id, void *ptr);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଶୂନ୍ୟ Curl_u32_ptrset_dtor(uint32_t id, ଶୂନ୍ୟ *ptr);
 
 /* A set that can hold up to INT32_MAX+1 pointers identified by an `id'.
  * Setting a pointer for an existing id replaces the previous one.
  * Getting the pointer for an id not in the set returns NULL.
  * Setting an id to NULL unsets the id.
  */
-struct u32_ptrset {
-  void **data; /* #slots array of pointers */
+ସଂରଚନା u32_ptrset {
+  ଶୂନ୍ୟ **data; /* #slots array of pointers */
   uint32_t *ids; /* #slots array of `id` values */
   uint32_t *psl; /* #slots array of "probe sequence length" values */
   uint32_t slotmask;
-  uint32_t count;
+  uint32_t ଗଣନା_2;
   Curl_u32_ptrset_dtor *dtor;
   uint8_t slotbits;
 #ifdef DEBUGBUILD
@@ -45,26 +45,26 @@ struct u32_ptrset {
 #endif
 };
 
-void Curl_u32_ptrset_init(struct u32_ptrset *set,
+ଶୂନ୍ୟ Curl_u32_ptrset_init(ସଂରଚନା u32_ptrset *set,
                           Curl_u32_ptrset_dtor *dtor);
-void Curl_u32_ptrset_clear(struct u32_ptrset *set);
+ଶୂନ୍ୟ Curl_u32_ptrset_clear(ସଂରଚନା u32_ptrset *set);
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set);
+uint32_t Curl_u32_ptrset_ଗଣନା(ସଂରଚନା u32_ptrset *set);
 
-void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id);
+ଶୂନ୍ୟ *Curl_u32_ptrset_get(ସଂରଚନା u32_ptrset *set, uint32_t id);
 
 /* Set pointer for id. */
-CURLcode Curl_u32_ptrset_set(struct u32_ptrset *set,
-                             uint32_t id, void *ptr);
+CURLcode Curl_u32_ptrset_set(ସଂରଚନା u32_ptrset *set,
+                             uint32_t id, ଶୂନ୍ୟ *ptr);
 
-void Curl_u32_ptrset_unset(struct u32_ptrset *set, uint32_t id);
+ଶୂନ୍ୟ Curl_u32_ptrset_unset(ସଂରଚନା u32_ptrset *set, uint32_t id);
 
-typedef bool Curl_u32_ptrset_visit_cb(uint32_t id, void *ptr,
-                                       void *user_data);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା bool Curl_u32_ptrset_visit_cb(uint32_t id, ଶୂନ୍ୟ *ptr,
+                                       ଶୂନ୍ୟ *user_data);
 
 /* Visit all entries in the set until the callback returns FALSE */
-void Curl_u32_ptrset_visit(struct u32_ptrset *set,
+ଶୂନ୍ୟ Curl_u32_ptrset_visit(ସଂରଚନା u32_ptrset *set,
                             Curl_u32_ptrset_visit_cb *cb,
-                            void *user_data);
+                            ଶୂନ୍ୟ *user_data);
 
 #endif /* HEADER_CURL_U32_PTRSET_H */

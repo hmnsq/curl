@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-int curlx_inet_pton(int af, const char *src, void *dst);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା curlx_inet_pton(ପୂର୍ଣ୍ଣସଂଖ୍ୟା af, ଅଚଳ ଅକ୍ଷର *src, ଶୂନ୍ୟ *dst);
 
 #endif /* HEADER_CURL_INET_PTON_H */

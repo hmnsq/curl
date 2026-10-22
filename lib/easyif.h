@@ -26,15 +26,15 @@
 /*
  * Prototypes for library-wide functions provided by easy.c
  */
-CURLcode Curl_senddata(struct Curl_easy *data, const void *buffer,
+CURLcode Curl_senddata(ସଂରଚନା Curl_easy *data, ଅଚଳ ଶୂନ୍ୟ *buffer,
                        size_t buflen, size_t *n);
 
 #ifndef CURL_DISABLE_WEBSOCKETS
-CURLcode Curl_connect_only_attach(struct Curl_easy *data);
+CURLcode Curl_connect_only_attach(ସଂରଚନା Curl_easy *data);
 #endif
 
 #ifdef DEBUGBUILD
-CURL_EXTERN CURLcode curl_easy_perform_ev(struct Curl_easy *easy);
+CURL_EXTERN CURLcode curl_easy_perform_ev(ସଂରଚନା Curl_easy *easy);
 #endif
 
 #endif /* HEADER_CURL_EASYIF_H */

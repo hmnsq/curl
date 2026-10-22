@@ -21,61 +21,61 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
 #ifdef USE_THREADS
 
-#include "llist.h"
-#include "curl_threads.h"
-#include "curlx/timeval.h"
-#include "curlx/strparse.h"
-#include "thrdpool.h"
+#ଅନ୍ତର୍ଭାଵ "llist.h"
+#ଅନ୍ତର୍ଭାଵ "curl_threads.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/timeval.h"
+#ଅନ୍ତର୍ଭାଵ "curlx/strparse.h"
+#ଅନ୍ତର୍ଭାଵ "thrdpool.h"
 #ifdef CURLVERBOSE
-#include "curl_trc.h"
-#include "urldata.h"
+#ଅନ୍ତର୍ଭାଵ "curl_trc.h"
+#ଅନ୍ତର୍ଭାଵ "urldata.h"
 #endif
 
 
-struct thrdslot {
-  struct Curl_llist_node node;
-  struct curl_thrdpool *tpool;
+ସଂରଚନା thrdslot {
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି ଗଣ୍ଠି;
+  ସଂରଚନା curl_thrdpool *tpool;
   curl_thread_t thread;
   curl_cond_t await;
-  struct curltime starttime;
-  const char *work_description;
+  ସଂରଚନା curltime starttime;
+  ଅଚଳ ଅକ୍ଷର *work_description;
   timediff_t work_timeout_ms;
   uint32_t id;
   BIT(running);
   BIT(idle);
 };
 
-struct curl_thrdpool {
-  const char *name;
+ସଂରଚନା curl_thrdpool {
+  ଅଚଳ ଅକ୍ଷର *name;
   uint64_t refcount;
   curl_mutex_t lock;
   curl_cond_t await;
-  struct Curl_llist slots;
-  struct Curl_llist zombies;
+  ସଂରଚନା Curl_llist slots;
+  ସଂରଚନା Curl_llist zombies;
   Curl_thrdpool_take_item_cb *fn_take;
   Curl_thrdpool_process_item_cb *fn_process;
   Curl_thrdpool_return_item_cb *fn_return;
-  void *fn_user_data;
+  ଶୂନ୍ୟ *fn_user_data;
   CURLcode fatal_err;
   uint32_t min_threads;
   uint32_t max_threads;
   uint32_t idle_time_ms;
   uint32_t next_id;
 #ifdef DEBUGBUILD
-  int dbg_fail_starts; /* fail this many thread starts */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା dbg_fail_starts; /* fail this many thread starts */
 #endif
   BIT(aborted);
   BIT(detached);
 };
 
-static void thrdpool_join_zombies(struct curl_thrdpool *tpool);
-static bool thrdpool_unlink(struct curl_thrdpool *tpool, bool locked);
+ସ୍ଥିର ଶୂନ୍ୟ thrdpool_join_zombies(ସଂରଚନା curl_thrdpool *tpool);
+ସ୍ଥିର bool thrdpool_unlink(ସଂରଚନା curl_thrdpool *tpool, bool locked);
 
-static void thrdslot_destroy(struct thrdslot *tslot)
+ସ୍ଥିର ଶୂନ୍ୟ thrdslot_destroy(ସଂରଚନା thrdslot *tslot)
 {
   DEBUGASSERT(tslot->thread == curl_thread_t_null);
   DEBUGASSERT(!tslot->running);
@@ -83,33 +83,33 @@ static void thrdslot_destroy(struct thrdslot *tslot)
   curlx_free(tslot);
 }
 
-static void thrdslot_done(struct thrdslot *tslot)
+ସ୍ଥିର ଶୂନ୍ୟ thrdslot_done(ସଂରଚନା thrdslot *tslot)
 {
-  struct curl_thrdpool *tpool = tslot->tpool;
+  ସଂରଚନା curl_thrdpool *tpool = tslot->tpool;
 
-  DEBUGASSERT(Curl_node_llist(&tslot->node) == &tpool->slots);
-  Curl_node_remove(&tslot->node);
+  DEBUGASSERT(Curl_ଗଣ୍ଠି_llist(&tslot->ଗଣ୍ଠି) == &tpool->slots);
+  Curl_ଗଣ୍ଠି_remove(&tslot->ଗଣ୍ଠି);
   tslot->running = FALSE;
-  Curl_llist_append(&tpool->zombies, tslot, &tslot->node);
+  Curl_llist_append(&tpool->zombies, tslot, &tslot->ଗଣ୍ଠି);
   Curl_cond_signal(&tpool->await);
 }
 
-static CURL_THREAD_RETURN_T CURL_STDCALL thrdslot_run(void *arg)
+ସ୍ଥିର CURL_THREAD_RETURN_T CURL_STDCALL thrdslot_run(ଶୂନ୍ୟ *arg)
 {
-  struct thrdslot *tslot = arg;
-  struct curl_thrdpool *tpool = tslot->tpool;
-  void *item;
+  ସଂରଚନା thrdslot *tslot = arg;
+  ସଂରଚନା curl_thrdpool *tpool = tslot->tpool;
+  ଶୂନ୍ୟ *item;
 
   Curl_mutex_acquire(&tpool->lock);
-  DEBUGASSERT(Curl_node_llist(&tslot->node) == &tpool->slots);
-  for(;;) {
-    while(!tpool->aborted) {
-      tslot->work_description = NULL;
+  DEBUGASSERT(Curl_ଗଣ୍ଠି_llist(&tslot->ଗଣ୍ଠି) == &tpool->slots);
+  ପାଇଁ(;;) {
+    ଯେତେବେଳେ(!tpool->aborted) {
+      tslot->work_description = ଖାଲି;
       tslot->work_timeout_ms = 0;
       item = tpool->fn_take(tpool->fn_user_data, &tslot->work_description,
                             &tslot->work_timeout_ms);
-      if(!item)
-        break;
+      ଯଦି(!item)
+        ଭାଙ୍ଗ;
       tslot->starttime = curlx_now();
       tslot->idle = FALSE;
       Curl_mutex_release(&tpool->lock);
@@ -117,13 +117,13 @@ static CURL_THREAD_RETURN_T CURL_STDCALL thrdslot_run(void *arg)
       tpool->fn_process(item);
 
       Curl_mutex_acquire(&tpool->lock);
-      tslot->work_description = NULL;
-      tpool->fn_return(item, tpool->aborted ? NULL : tpool->fn_user_data);
+      tslot->work_description = ଖାଲି;
+      tpool->fn_return(item, tpool->aborted ? ଖାଲି : tpool->fn_user_data);
     }
 
-    if(tpool->aborted ||
-       (Curl_llist_count(&tpool->slots) > tpool->max_threads))
-      goto out;
+    ଯଦି(tpool->aborted ||
+       (Curl_llist_ଗଣନା(&tpool->slots) > tpool->max_threads))
+      ଯାଅ out;
 
     tslot->idle = TRUE;
     tslot->starttime = curlx_now();
@@ -132,37 +132,37 @@ static CURL_THREAD_RETURN_T CURL_STDCALL thrdslot_run(void *arg)
     /* Only wait with idle timeout when we are above the minimum
      * number of threads. Otherwise short idle timeouts will keep
      * on activating threads that have no means to shut down. */
-    if((tpool->idle_time_ms > 0) &&
-       (Curl_llist_count(&tpool->slots) > tpool->min_threads)) {
+    ଯଦି((tpool->idle_time_ms > 0) &&
+       (Curl_llist_ଗଣନା(&tpool->slots) > tpool->min_threads)) {
       CURLcode result = Curl_cond_timedwait(&tslot->await, &tpool->lock,
                                             tpool->idle_time_ms);
-      if((result == CURLE_OPERATION_TIMEDOUT) &&
-         (Curl_llist_count(&tpool->slots) > tpool->min_threads)) {
-        goto out;
+      ଯଦି((result == CURLE_OPERATION_TIMEDOUT) &&
+         (Curl_llist_ଗଣନା(&tpool->slots) > tpool->min_threads)) {
+        ଯାଅ out;
       }
     }
-    else {
+    ଅନ୍ୟଥା {
       Curl_cond_wait(&tslot->await, &tpool->lock);
     }
   }
 
 out:
   thrdslot_done(tslot);
-  if(!thrdpool_unlink(tslot->tpool, TRUE)) {
+  ଯଦି(!thrdpool_unlink(tslot->tpool, TRUE)) {
     /* tpool not destroyed */
     Curl_mutex_release(&tpool->lock);
   }
-  return 0;
+  ଫେରନ୍ତୁ 0;
 }
 
-static CURLcode thrdslot_start(struct curl_thrdpool *tpool)
+ସ୍ଥିର CURLcode thrdslot_start(ସଂରଚନା curl_thrdpool *tpool)
 {
-  struct thrdslot *tslot;
+  ସଂରଚନା thrdslot *tslot;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  tslot = curlx_calloc(1, sizeof(*tslot));
-  if(!tslot)
-    goto out;
+  tslot = curlx_calloc(1, ଆକାର(*tslot));
+  ଯଦି(!tslot)
+    ଯାଅ out;
   tslot->id = tpool->next_id++;
   tslot->tpool = tpool;
   tslot->thread = curl_thread_t_null;
@@ -171,49 +171,49 @@ static CURLcode thrdslot_start(struct curl_thrdpool *tpool)
   tpool->refcount++;
   tslot->running = TRUE;
 #ifdef DEBUGBUILD
-  if(tpool->dbg_fail_starts > 0) {
+  ଯଦି(tpool->dbg_fail_starts > 0) {
     --tpool->dbg_fail_starts;
     tslot->thread = curl_thread_t_null;
   }
-  else
+  ଅନ୍ୟଥା
 #endif
     tslot->thread = Curl_thread_create(thrdslot_run, tslot);
-  if(tslot->thread == curl_thread_t_null) { /* never started */
+  ଯଦି(tslot->thread == curl_thread_t_null) { /* never started */
     tslot->running = FALSE;
     thrdpool_unlink(tpool, TRUE);
     result = CURLE_FAILED_INIT;
-    goto out;
+    ଯାଅ out;
   }
 
-  Curl_llist_append(&tpool->slots, tslot, &tslot->node);
-  tslot = NULL;
+  Curl_llist_append(&tpool->slots, tslot, &tslot->ଗଣ୍ଠି);
+  tslot = ଖାଲି;
   result = CURLE_OK;
 
 out:
-  if(tslot)
+  ଯଦି(tslot)
     thrdslot_destroy(tslot);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static void thrdpool_wake_all(struct curl_thrdpool *tpool)
+ସ୍ଥିର ଶୂନ୍ୟ thrdpool_wake_all(ସଂରଚନା curl_thrdpool *tpool)
 {
-  struct Curl_llist_node *e;
-  for(e = Curl_llist_head(&tpool->slots); e; e = Curl_node_next(e)) {
-    struct thrdslot *tslot = Curl_node_elem(e);
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
+  ପାଇଁ(e = Curl_llist_head(&tpool->slots); e; e = Curl_ଗଣ୍ଠି_next(e)) {
+    ସଂରଚନା thrdslot *tslot = Curl_ଗଣ୍ଠି_elem(e);
     Curl_cond_signal(&tslot->await);
   }
 }
 
-static void thrdpool_join_zombies(struct curl_thrdpool *tpool)
+ସ୍ଥିର ଶୂନ୍ୟ thrdpool_join_zombies(ସଂରଚନା curl_thrdpool *tpool)
 {
-  struct Curl_llist_node *e;
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
 
-  for(e = Curl_llist_head(&tpool->zombies); e;
+  ପାଇଁ(e = Curl_llist_head(&tpool->zombies); e;
       e = Curl_llist_head(&tpool->zombies)) {
-    struct thrdslot *tslot = Curl_node_elem(e);
+    ସଂରଚନା thrdslot *tslot = Curl_ଗଣ୍ଠି_elem(e);
 
-    Curl_node_remove(&tslot->node);
-    if(tslot->thread != curl_thread_t_null) {
+    Curl_ଗଣ୍ଠି_remove(&tslot->ଗଣ୍ଠି);
+    ଯଦି(tslot->thread != curl_thread_t_null) {
       Curl_mutex_release(&tpool->lock);
       Curl_thread_join(&tslot->thread);
       Curl_mutex_acquire(&tpool->lock);
@@ -223,59 +223,59 @@ static void thrdpool_join_zombies(struct curl_thrdpool *tpool)
   }
 }
 
-static bool thrdpool_unlink(struct curl_thrdpool *tpool, bool locked)
+ସ୍ଥିର bool thrdpool_unlink(ସଂରଚନା curl_thrdpool *tpool, bool locked)
 {
   DEBUGASSERT(tpool->refcount);
-  if(tpool->refcount)
+  ଯଦି(tpool->refcount)
     tpool->refcount--;
-  if(tpool->refcount)
-    return FALSE;
+  ଯଦି(tpool->refcount)
+    ଫେରନ୍ତୁ FALSE;
 
   /* no more references, free */
   DEBUGASSERT(tpool->aborted);
   thrdpool_join_zombies(tpool);
-  if(locked)
+  ଯଦି(locked)
     Curl_mutex_release(&tpool->lock);
   Curl_cond_destroy(&tpool->await);
   Curl_mutex_destroy(&tpool->lock);
   curlx_free(tpool);
-  return TRUE;
+  ଫେରନ୍ତୁ TRUE;
 }
 
-static CURLcode thrdpool_signal(struct curl_thrdpool *tpool,
+ସ୍ଥିର CURLcode thrdpool_signal(ସଂରଚନା curl_thrdpool *tpool,
                                 uint32_t nthreads)
 {
-  struct Curl_llist_node *e, *n;
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e, *n;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(!tpool->aborted);
   thrdpool_join_zombies(tpool);
 
-  for(e = Curl_llist_head(&tpool->slots); e && nthreads; e = n) {
-    struct thrdslot *tslot = Curl_node_elem(e);
-    n = Curl_node_next(e);
-    if(tslot->idle) {
+  ପାଇଁ(e = Curl_llist_head(&tpool->slots); e && nthreads; e = n) {
+    ସଂରଚନା thrdslot *tslot = Curl_ଗଣ୍ଠି_elem(e);
+    n = Curl_ଗଣ୍ଠି_next(e);
+    ଯଦି(tslot->idle) {
       Curl_cond_signal(&tslot->await);
       --nthreads;
     }
-    else if(!tslot->starttime.tv_sec && !tslot->starttime.tv_usec) {
+    ଅନ୍ୟଥା ଯଦି(!tslot->starttime.tv_sec && !tslot->starttime.tv_usec) {
       /* starting thread, queries for work soon. */
       --nthreads;
     }
   }
 
-  while(nthreads && !result &&
-        Curl_llist_count(&tpool->slots) < tpool->max_threads) {
+  ଯେତେବେଳେ(nthreads && !result &&
+        Curl_llist_ଗଣନା(&tpool->slots) < tpool->max_threads) {
     result = thrdslot_start(tpool);
-    if(result)
-      break;
+    ଯଦି(result)
+      ଭାଙ୍ଗ;
     --nthreads;
   }
 
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-CURLcode Curl_thrdpool_set_props(struct curl_thrdpool *tpool,
+CURLcode Curl_thrdpool_set_props(ସଂରଚନା curl_thrdpool *tpool,
                                  uint32_t min_threads,
                                  uint32_t max_threads,
                                  uint32_t idle_time_ms)
@@ -283,45 +283,45 @@ CURLcode Curl_thrdpool_set_props(struct curl_thrdpool *tpool,
   CURLcode result = CURLE_OK;
   size_t running;
 
-  if(!max_threads || (min_threads > max_threads))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ଯଦି(!max_threads || (min_threads > max_threads))
+    ଫେରନ୍ତୁ CURLE_BAD_FUNCTION_ARGUMENT;
 
   Curl_mutex_acquire(&tpool->lock);
   tpool->min_threads = min_threads;
   tpool->max_threads = max_threads;
   tpool->idle_time_ms = idle_time_ms;
-  running = Curl_llist_count(&tpool->slots);
-  if(tpool->min_threads > running) {
+  running = Curl_llist_ଗଣନା(&tpool->slots);
+  ଯଦି(tpool->min_threads > running) {
     result = thrdpool_signal(tpool, tpool->min_threads - (uint32_t)running);
   }
   Curl_mutex_release(&tpool->lock);
 
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-CURLcode Curl_thrdpool_create(struct curl_thrdpool **ptpool,
-                              const char *name,
+CURLcode Curl_thrdpool_create(ସଂରଚନା curl_thrdpool **ptpool,
+                              ଅଚଳ ଅକ୍ଷର *name,
                               uint32_t min_threads,
                               uint32_t max_threads,
                               uint32_t idle_time_ms,
                               Curl_thrdpool_take_item_cb *fn_take,
                               Curl_thrdpool_process_item_cb *fn_process,
                               Curl_thrdpool_return_item_cb *fn_return,
-                              void *user_data)
+                              ଶୂନ୍ୟ *user_data)
 {
-  struct curl_thrdpool *tpool;
+  ସଂରଚନା curl_thrdpool *tpool;
   CURLcode result = CURLE_OUT_OF_MEMORY;
   DEBUGASSERT(name);
 
-  tpool = curlx_calloc(1, sizeof(*tpool));
-  if(!tpool)
-    goto out;
+  tpool = curlx_calloc(1, ଆକାର(*tpool));
+  ଯଦି(!tpool)
+    ଯାଅ out;
   tpool->refcount = 1;
 
   Curl_mutex_init(&tpool->lock);
   Curl_cond_init(&tpool->await);
-  Curl_llist_init(&tpool->slots, NULL);
-  Curl_llist_init(&tpool->zombies, NULL);
+  Curl_llist_init(&tpool->slots, ଖାଲି);
+  Curl_llist_init(&tpool->zombies, ଖାଲି);
   tpool->fn_take = fn_take;
   tpool->fn_process = fn_process;
   tpool->fn_return = fn_return;
@@ -332,11 +332,11 @@ CURLcode Curl_thrdpool_create(struct curl_thrdpool **ptpool,
 
 #ifdef DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_THRDPOOL_FAIL_STARTS");
-    if(p) {
+    ଅଚଳ ଅକ୍ଷର *p = getenv("CURL_DBG_THRDPOOL_FAIL_STARTS");
+    ଯଦି(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, INT_MAX))
-        tpool->dbg_fail_starts = (int)l;
+      ଯଦି(!curlx_str_ସଂଖ୍ୟା(&p, &l, INT_MAX))
+        tpool->dbg_fail_starts = (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)l;
     }
   }
 #endif
@@ -345,22 +345,22 @@ CURLcode Curl_thrdpool_create(struct curl_thrdpool **ptpool,
                                    idle_time_ms);
 
 out:
-  if(result && tpool) {
+  ଯଦି(result && tpool) {
     tpool->aborted = TRUE;
     thrdpool_unlink(tpool, FALSE);
-    tpool = NULL;
+    tpool = ଖାଲି;
   }
   *ptpool = tpool;
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-void Curl_thrdpool_destroy(struct curl_thrdpool *tpool, bool join)
+ଶୂନ୍ୟ Curl_thrdpool_destroy(ସଂରଚନା curl_thrdpool *tpool, bool join)
 {
   Curl_mutex_acquire(&tpool->lock);
 
   tpool->aborted = TRUE;
 
-  while(join && Curl_llist_count(&tpool->slots)) {
+  ଯେତେବେଳେ(join && Curl_llist_ଗଣନା(&tpool->slots)) {
     thrdpool_wake_all(tpool);
     Curl_cond_wait(&tpool->await, &tpool->lock);
   }
@@ -368,82 +368,82 @@ void Curl_thrdpool_destroy(struct curl_thrdpool *tpool, bool join)
   thrdpool_join_zombies(tpool);
 
   /* detach all still running threads */
-  if(Curl_llist_count(&tpool->slots)) {
-    struct Curl_llist_node *e;
-    for(e = Curl_llist_head(&tpool->slots); e; e = Curl_node_next(e)) {
-      struct thrdslot *tslot = Curl_node_elem(e);
-      if(tslot->thread != curl_thread_t_null)
+  ଯଦି(Curl_llist_ଗଣନା(&tpool->slots)) {
+    ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
+    ପାଇଁ(e = Curl_llist_head(&tpool->slots); e; e = Curl_ଗଣ୍ଠି_next(e)) {
+      ସଂରଚନା thrdslot *tslot = Curl_ଗଣ୍ଠି_elem(e);
+      ଯଦି(tslot->thread != curl_thread_t_null)
         Curl_thread_destroy(&tslot->thread);
     }
     tpool->detached = TRUE;
   }
 
-  if(!thrdpool_unlink(tpool, TRUE)) {
+  ଯଦି(!thrdpool_unlink(tpool, TRUE)) {
     /* tpool not destroyed */
     Curl_mutex_release(&tpool->lock);
   }
 }
 
-CURLcode Curl_thrdpool_signal(struct curl_thrdpool *tpool, uint32_t nthreads)
+CURLcode Curl_thrdpool_signal(ସଂରଚନା curl_thrdpool *tpool, uint32_t nthreads)
 {
   CURLcode result;
 
   Curl_mutex_acquire(&tpool->lock);
   result = thrdpool_signal(tpool, nthreads);
   Curl_mutex_release(&tpool->lock);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
-static bool thrdpool_all_idle(struct curl_thrdpool *tpool)
+ସ୍ଥିର bool thrdpool_all_idle(ସଂରଚନା curl_thrdpool *tpool)
 {
-  struct Curl_llist_node *e;
-  for(e = Curl_llist_head(&tpool->slots); e; e = Curl_node_next(e)) {
-    struct thrdslot *tslot = Curl_node_elem(e);
-    if(!tslot->idle)
-      return FALSE;
+  ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
+  ପାଇଁ(e = Curl_llist_head(&tpool->slots); e; e = Curl_ଗଣ୍ଠି_next(e)) {
+    ସଂରଚନା thrdslot *tslot = Curl_ଗଣ୍ଠି_elem(e);
+    ଯଦି(!tslot->idle)
+      ଫେରନ୍ତୁ FALSE;
   }
-  return TRUE;
+  ଫେରନ୍ତୁ TRUE;
 }
 
-CURLcode Curl_thrdpool_await_idle(struct curl_thrdpool *tpool,
+CURLcode Curl_thrdpool_await_idle(ସଂରଚନା curl_thrdpool *tpool,
                                   uint32_t timeout_ms)
 {
   CURLcode result = CURLE_OK;
-  struct curltime end = { 0 };
+  ସଂରଚନା curltime end = { 0 };
 
   Curl_mutex_acquire(&tpool->lock);
   DEBUGASSERT(!tpool->aborted);
-  if(tpool->aborted) {
+  ଯଦି(tpool->aborted) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    ଯାଅ out;
   }
 
-  while(!thrdpool_all_idle(tpool)) {
-    if(timeout_ms) {
+  ଯେତେବେଳେ(!thrdpool_all_idle(tpool)) {
+    ଯଦି(timeout_ms) {
       timediff_t remain_ms;
       CURLcode r;
 
-      if(!end.tv_sec && !end.tv_usec) {
+      ଯଦି(!end.tv_sec && !end.tv_usec) {
         end = curlx_now();
         end.tv_sec += (time_t)(timeout_ms / 1000);
-        end.tv_usec += (int)(timeout_ms % 1000) * 1000;
-        if(end.tv_usec >= 1000000) {
+        end.tv_usec += (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)(timeout_ms % 1000) * 1000;
+        ଯଦି(end.tv_usec >= 1000000) {
           end.tv_sec++;
           end.tv_usec -= 1000000;
         }
       }
       remain_ms = curlx_timediff_ms(curlx_now(), end);
-      if(remain_ms <= 0)
+      ଯଦି(remain_ms <= 0)
         r = CURLE_OPERATION_TIMEDOUT;
-      else
+      ଅନ୍ୟଥା
         r = Curl_cond_timedwait(&tpool->await, &tpool->lock,
                                 (uint32_t)remain_ms);
-      if(r == CURLE_OPERATION_TIMEDOUT) {
+      ଯଦି(r == CURLE_OPERATION_TIMEDOUT) {
         result = r;
-        break;
+        ଭାଙ୍ଗ;
       }
     }
-    else {
+    ଅନ୍ୟଥା {
       Curl_cond_wait(&tpool->await, &tpool->lock);
     }
   }
@@ -451,40 +451,40 @@ CURLcode Curl_thrdpool_await_idle(struct curl_thrdpool *tpool,
 out:
   thrdpool_join_zombies(tpool);
   Curl_mutex_release(&tpool->lock);
-  return result;
+  ଫେରନ୍ତୁ result;
 }
 
 #ifdef CURLVERBOSE
-void Curl_thrdpool_trace(struct curl_thrdpool *tpool,
-                         struct Curl_easy *data)
+ଶୂନ୍ୟ Curl_thrdpool_trace(ସଂରଚନା curl_thrdpool *tpool,
+                         ସଂରଚନା Curl_easy *data)
 {
-  struct curl_trc_feat *feat = &Curl_trc_feat_threads;
-  if(Curl_trc_ft_is_verbose(data, feat)) {
-    struct Curl_llist_node *e;
-    struct curltime now = curlx_now();
+  ସଂରଚନା curl_trc_feat *feat = &Curl_trc_feat_threads;
+  ଯଦି(Curl_trc_ft_is_verbose(data, feat)) {
+    ସଂରଚନା Curl_llist_ଗଣ୍ଠି *e;
+    ସଂରଚନା curltime now = curlx_now();
 
     Curl_mutex_acquire(&tpool->lock);
-    if(!Curl_llist_count(&tpool->slots)) {
+    ଯଦି(!Curl_llist_ଗଣନା(&tpool->slots)) {
       Curl_trc_feat_infof(data, feat, "[TPOOL-%s] no threads running",
                           tpool->name);
     }
-    for(e = Curl_llist_head(&tpool->slots); e; e = Curl_node_next(e)) {
-      struct thrdslot *tslot = Curl_node_elem(e);
+    ପାଇଁ(e = Curl_llist_head(&tpool->slots); e; e = Curl_ଗଣ୍ଠି_next(e)) {
+      ସଂରଚନା thrdslot *tslot = Curl_ଗଣ୍ଠି_elem(e);
       timediff_t elapsed_ms = curlx_ptimediff_ms(&now, &tslot->starttime);
-      if(!tslot->running) {
+      ଯଦି(!tslot->running) {
         Curl_trc_feat_infof(data, feat, "[TPOOL-%s] [%u]: not running",
                             tpool->name, tslot->id);
       }
-      else if(!tslot->starttime.tv_sec && !tslot->starttime.tv_usec) {
+      ଅନ୍ୟଥା ଯଦି(!tslot->starttime.tv_sec && !tslot->starttime.tv_usec) {
         Curl_trc_feat_infof(data, feat, "[TPOOL-%s] [%u]: starting...",
                             tpool->name, tslot->id);
       }
-      else if(tslot->idle) {
+      ଅନ୍ୟଥା ଯଦି(tslot->idle) {
         Curl_trc_feat_infof(data, feat, "[TPOOL-%s] [%u]: idle for %"
                             FMT_TIMEDIFF_T "ms",
                             tpool->name, tslot->id, elapsed_ms);
       }
-      else {
+      ଅନ୍ୟଥା {
         timediff_t remain_ms = tslot->work_timeout_ms ?
           (tslot->work_timeout_ms - elapsed_ms) : 0;
         Curl_trc_feat_infof(data, feat, "[TPOOL-%s] [%u]: busy %"

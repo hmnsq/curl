@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "u32_ptrset.h"
+#ଅନ୍ତର୍ଭାଵ "u32_ptrset.h"
 
 /* random patterns for API verification */
 #ifdef DEBUGBUILD
@@ -60,37 +60,37 @@
  *     the existing entry has a lower psl makes a swap. Put the new entry
  *     and its psl there, take the previous entry and its psl and find
  *     the next best slot for the previous entry. */
-void Curl_u32_ptrset_init(struct u32_ptrset *set,
+ଶୂନ୍ୟ Curl_u32_ptrset_init(ସଂରଚନା u32_ptrset *set,
                           Curl_u32_ptrset_dtor *dtor)
 {
-  memset(set, 0, sizeof(*set));
+  memset(set, 0, ଆକାର(*set));
   set->dtor = dtor;
 #ifdef DEBUGBUILD
   set->init = CURL_U32_PTRSET_MAGIC;
 #endif
 }
 
-void Curl_u32_ptrset_clear(struct u32_ptrset *set)
+ଶୂନ୍ୟ Curl_u32_ptrset_clear(ସଂରଚନା u32_ptrset *set)
 {
   uint32_t i;
   DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(set->dtor)
-    for(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i)
-      if(set->data[i])
+  ଯଦି(set->dtor)
+    ପାଇଁ(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i)
+      ଯଦି(set->data[i])
         set->dtor(set->ids[i], set->data[i]);
 
   curlx_safefree(set->data);
   Curl_u32_ptrset_init(set, set->dtor);
 }
 
-static void u32_ptrset_add(struct u32_ptrset *set, uint32_t id, void *ptr)
+ସ୍ଥିର ଶୂନ୍ୟ u32_ptrset_add(ସଂରଚନା u32_ptrset *set, uint32_t id, ଶୂନ୍ୟ *ptr)
 {
   uint32_t i = CURL_U32_PTRSET_SLOT_IDX(set, id);
   uint32_t psl = 0;
-  while(set->data[i]) {
-    if(psl > set->psl[i]) { /* SWAP */
-      void *tmpdata;
-#if CURL_U32_PTRSET_DEBUG
+  ଯେତେବେଳେ(set->data[i]) {
+    ଯଦି(psl > set->psl[i]) { /* SWAP */
+      ଶୂନ୍ୟ *tmpdata;
+#ଯଦି CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_add %u=%p to idx=%u\n", id, ptr, i);
 #endif
       tmpdata = set->data[i];
@@ -105,156 +105,156 @@ static void u32_ptrset_add(struct u32_ptrset *set, uint32_t id, void *ptr)
   set->ids[i] = id;
   set->data[i] = ptr;
   set->psl[i] = psl;
-  ++set->count;
-#if CURL_U32_PTRSET_DEBUG
+  ++set->ଗଣନା_2;
+#ଯଦି CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_add %u=%p to idx=%u\n", id, ptr, i);
 #endif
 }
 
-static bool u32_ptrset_grow(struct u32_ptrset *set)
+ସ୍ଥିର bool u32_ptrset_grow(ସଂରଚନା u32_ptrset *set)
 {
   uint32_t i, *prev_ids;
   uint8_t nslotbits, pslotbits;
-  void **prev_data;
+  ଶୂନ୍ୟ **prev_data;
   size_t nslots;
-  const size_t slot_size = (sizeof(void *) + (2 * sizeof(uint32_t)));
-  void *d;
+  ଅଚଳ size_t slot_size = (ଆକାର(ଶୂନ୍ୟ *) + (2 * ଆକାର(uint32_t)));
+  ଶୂନ୍ୟ *d;
 
-  if(set->slotbits >= 31)
-    return FALSE;
+  ଯଦି(set->slotbits >= 31)
+    ଫେରନ୍ତୁ FALSE;
   nslotbits = set->slotbits ? (uint8_t)(set->slotbits + 1) : 5;
   nslots = CURL_U32_SLOT_CNT(nslotbits);
-  if(nslots > (SIZE_MAX / slot_size)) /* 32-bit arch may trigger here */
-    return FALSE;
-#if CURL_U32_PTRSET_DEBUG
+  ଯଦି(nslots > (SIZE_MAX / slot_size)) /* 32-bit arch may trigger here */
+    ଫେରନ୍ତୁ FALSE;
+#ଯଦି CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_grow from bits=%d to %d, slots=%zu\n",
                 set->slotbits, nslotbits, nslots);
 #endif
   d = curlx_calloc(1, nslots * slot_size);
-  if(!d)
-    return FALSE;
+  ଯଦି(!d)
+    ଫେରନ୍ତୁ FALSE;
 
   prev_data = set->data;
   prev_ids = set->ids;
   pslotbits = set->slotbits;
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
+#ଯଦି defined(__GNUC__) && __GNUC__ >= 13
+#pragma GCC diagnostic ଠେଲ
 #pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
 #endif
   set->data = d;
   set->ids = (uint32_t *)(set->data + nslots);
   set->psl = (uint32_t *)(set->ids + nslots);
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
+#ଯଦି defined(__GNUC__) && __GNUC__ >= 13
+#pragma GCC diagnostic କାଢ଼
 #endif
 
   set->slotbits = nslotbits;
   set->slotmask = (uint32_t)((1U << set->slotbits) - 1);
-  set->count = 0;
+  set->ଗଣନା_2 = 0;
   /* re-add previous entries */
-  for(i = 0; i < CURL_U32_SLOT_CNT(pslotbits); ++i) {
-    if(prev_data[i])
+  ପାଇଁ(i = 0; i < CURL_U32_SLOT_CNT(pslotbits); ++i) {
+    ଯଦି(prev_data[i])
       u32_ptrset_add(set, prev_ids[i], prev_data[i]);
   }
-  if(prev_data)
+  ଯଦି(prev_data)
     curlx_free(prev_data);
-  return TRUE;
+  ଫେରନ୍ତୁ TRUE;
 }
 
-static bool u32_ptrset_get_index(struct u32_ptrset *set,
+ସ୍ଥିର bool u32_ptrset_get_index(ସଂରଚନା u32_ptrset *set,
                                  uint32_t id, uint32_t *pindex)
 {
   uint32_t i = CURL_U32_PTRSET_SLOT_IDX(set, id);
   uint32_t psl = 0;
-  if(!set->data)
-    return FALSE;
-  while(set->data[i] && (psl <= set->psl[i])) {
-    if(set->ids[i] == id) {
+  ଯଦି(!set->data)
+    ଫେରନ୍ତୁ FALSE;
+  ଯେତେବେଳେ(set->data[i] && (psl <= set->psl[i])) {
+    ଯଦି(set->ids[i] == id) {
       *pindex = i;
-#if CURL_U32_PTRSET_DEBUG
+#ଯଦି CURL_U32_PTRSET_DEBUG
       curl_mfprintf(stderr, "u32_ptrset_index %u=%p at idx=%u\n",
                     id, set->data[i], i);
 #endif
-      return TRUE;
+      ଫେରନ୍ତୁ TRUE;
     }
     i = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
     ++psl;
   }
-#if CURL_U32_PTRSET_DEBUG
+#ଯଦି CURL_U32_PTRSET_DEBUG
   curl_mfprintf(stderr, "u32_ptrset_index %u not found\n", id);
 #endif
   *pindex = 0;
-  return FALSE;
+  ଫେରନ୍ତୁ FALSE;
 }
 
-uint32_t Curl_u32_ptrset_count(struct u32_ptrset *set)
+uint32_t Curl_u32_ptrset_ଗଣନା(ସଂରଚନା u32_ptrset *set)
 {
-  return set->count;
+  ଫେରନ୍ତୁ set->ଗଣନା_2;
 }
 
-void *Curl_u32_ptrset_get(struct u32_ptrset *set, uint32_t id)
+ଶୂନ୍ୟ *Curl_u32_ptrset_get(ସଂରଚନା u32_ptrset *set, uint32_t id)
 {
   uint32_t i;
   DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(u32_ptrset_get_index(set, id, &i))
-    return set->data[i];
-  return NULL;
+  ଯଦି(u32_ptrset_get_index(set, id, &i))
+    ଫେରନ୍ତୁ set->data[i];
+  ଫେରନ୍ତୁ ଖାଲି;
 }
 
-CURLcode Curl_u32_ptrset_set(struct u32_ptrset *set,
-                             uint32_t id, void *ptr)
+CURLcode Curl_u32_ptrset_set(ସଂରଚନା u32_ptrset *set,
+                             uint32_t id, ଶୂନ୍ୟ *ptr)
 {
   uint32_t i;
 
   DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(!ptr) {
+  ଯଦି(!ptr) {
     Curl_u32_ptrset_unset(set, id);
-    return CURLE_OK;
+    ଫେରନ୍ତୁ CURLE_OK;
   }
 
-  if(u32_ptrset_get_index(set, id, &i)) {
+  ଯଦି(u32_ptrset_get_index(set, id, &i)) {
     /* `id` is in set, replace value */
-    if(set->dtor && (set->data[i] != ptr))
+    ଯଦି(set->dtor && (set->data[i] != ptr))
       set->dtor(set->ids[i], set->data[i]);
-#if CURL_U32_PTRSET_DEBUG
+#ଯଦି CURL_U32_PTRSET_DEBUG
     curl_mfprintf(stderr, "u32_ptrset_set replace %u=%p at idx=%u\n",
                   id, ptr, i);
 #endif
     set->data[i] = ptr;
-    return CURLE_OK;
+    ଫେରନ୍ତୁ CURLE_OK;
   }
   /* `id` not in set yet, grow if full */
-  if((set->count >= CURL_U32_PTRSET_SLOT_CNT(set)) &&
+  ଯଦି((set->ଗଣନା_2 >= CURL_U32_PTRSET_SLOT_CNT(set)) &&
      !u32_ptrset_grow(set)) {
-    return CURLE_OUT_OF_MEMORY;
+    ଫେରନ୍ତୁ CURLE_OUT_OF_MEMORY;
   }
 
   u32_ptrset_add(set, id, ptr);
-  return CURLE_OK;
+  ଫେରନ୍ତୁ CURLE_OK;
 }
 
-static void u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
+ସ୍ଥିର ଶୂନ୍ୟ u32_ptrset_unset(ସଂରଚନା u32_ptrset *set, uint32_t id)
 {
   uint32_t i, j;
 
   DEBUGASSERT(set->init == CURL_U32_PTRSET_MAGIC);
-  if(u32_ptrset_get_index(set, id, &i)) {
+  ଯଦି(u32_ptrset_get_index(set, id, &i)) {
     /* `id` is in set */
-#if CURL_U32_PTRSET_DEBUG
+#ଯଦି CURL_U32_PTRSET_DEBUG
     curl_mfprintf(stderr, "u32_ptrset_unset %u at idx=%u\n", id, i);
 #endif
-    if(set->dtor)
+    ଯଦି(set->dtor)
       set->dtor(set->ids[i], set->data[i]);
-    set->data[i] = NULL;
+    set->data[i] = ଖାଲି;
     set->ids[i] = set->psl[i] = 0;
-    --set->count;
+    --set->ଗଣନା_2;
     j = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
     /* shift all entries with positive psl "down" */
-    while(set->data[j] && set->psl[j]) {
+    ଯେତେବେଳେ(set->data[j] && set->psl[j]) {
       set->data[i] = set->data[j];
       set->ids[i] = set->ids[j];
       set->psl[i] = set->psl[j] - 1;
-      set->data[j] = NULL;
+      set->data[j] = ଖାଲି;
       set->ids[j] = set->psl[j] = 0;
       i = j;
       j = CURL_U32_PTRSET_SLOT_IDX(set, i + 1);
@@ -262,18 +262,18 @@ static void u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
   }
 }
 
-void Curl_u32_ptrset_unset(struct u32_ptrset *set, uint32_t id)
+ଶୂନ୍ୟ Curl_u32_ptrset_unset(ସଂରଚନା u32_ptrset *set, uint32_t id)
 {
   u32_ptrset_unset(set, id);
 }
 
-void Curl_u32_ptrset_visit(struct u32_ptrset *set,
+ଶୂନ୍ୟ Curl_u32_ptrset_visit(ସଂରଚନା u32_ptrset *set,
                             Curl_u32_ptrset_visit_cb *cb,
-                            void *user_data)
+                            ଶୂନ୍ୟ *user_data)
 {
   uint32_t i;
-  for(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i) {
-    if(set->data[i] && !cb(set->ids[i], set->data[i], user_data))
-      break;
+  ପାଇଁ(i = 0; i < CURL_U32_PTRSET_SLOT_CNT(set); ++i) {
+    ଯଦି(set->data[i] && !cb(set->ids[i], set->data[i], user_data))
+      ଭାଙ୍ଗ;
   }
 }

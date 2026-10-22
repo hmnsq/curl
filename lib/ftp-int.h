@@ -23,16 +23,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#include "pingpong.h"
+#ଅନ୍ତର୍ଭାଵ "pingpong.h"
 
 #ifndef CURL_DISABLE_FTP
 
 /****************************************************************************
  * FTP unique setup
  ***************************************************************************/
-enum {
+ଗଣନା {
   FTP_STOP,    /* do nothing state, stops the state machine */
   FTP_WAIT220, /* waiting for the initial 220 response immediately after
                   a connect */
@@ -73,21 +73,21 @@ enum {
   FTP_QUIT,
   FTP_LAST  /* never used */
 };
-typedef unsigned char ftpstate; /* use the enum values */
+ପ୍ରକାରବ୍ୟାଖ୍ୟା unsigned ଅକ୍ଷର ftpstate; /* use the enum values */
 
-struct ftp_parselist_data; /* defined later in ftplistparser.c */
+ସଂରଚନା ftp_parselist_data; /* defined later in ftplistparser.c */
 
-struct ftp_wc {
-  struct ftp_parselist_data *parser;
+ସଂରଚନା ftp_wc {
+  ସଂରଚନା ftp_parselist_data *parser;
 };
 
 /* This FTP struct is used in the Curl_easy. All FTP data that is
    connection-oriented must be in FTP_conn to properly deal with the fact that
    perhaps the Curl_easy is changed between the times the connection is
    used. */
-struct FTP {
-  char *path;    /* points to the urlpieces struct field */
-  char *pathalloc; /* if non-NULL a pointer to an allocated path */
+ସଂରଚନା FTP {
+  ଅକ୍ଷର *path;    /* points to the urlpieces struct field */
+  ଅକ୍ଷର *pathalloc; /* if non-NULL a pointer to an allocated path */
 
   /* transfer a file/body or not, done as a typedefed enum to make debuggers
      display the full symbol and not the numerical value */
@@ -96,40 +96,40 @@ struct FTP {
 };
 
 /* one struct entry for each path component (of 'rawpath') */
-struct pathcomp {
-  int start; /* start column */
-  int len;   /* length in bytes */
+ସଂରଚନା pathcomp {
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା start; /* start column */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା len;   /* length in bytes */
 };
 
 /* ftp_conn is used for struct connection-oriented data in the connectdata
    struct */
-struct ftp_conn {
-  struct pingpong pp;
-  char *account;
-  char *alternative_to_user;
-  char *entrypath; /* the PWD reply when we logged on */
-  const char *file; /* URL-decoded filename (or path), points into rawpath */
-  char *rawpath; /* URL decoded, allocated, version of the path */
-  struct pathcomp *dirs; /* allocated array for path components */
-  char *prevpath;   /* URL-decoded conn->path from the previous transfer */
-  char transfertype; /* set by ftp_transfertype for use by Curl_client_write()a
+ସଂରଚନା ftp_conn {
+  ସଂରଚନା pingpong pp;
+  ଅକ୍ଷର *account;
+  ଅକ୍ଷର *alternative_to_user;
+  ଅକ୍ଷର *entrypath; /* the PWD reply when we logged on */
+  ଅଚଳ ଅକ୍ଷର *file; /* URL-decoded filename (or path), points into rawpath */
+  ଅକ୍ଷର *rawpath; /* URL decoded, allocated, version of the path */
+  ସଂରଚନା pathcomp *dirs; /* allocated array for path components */
+  ଅକ୍ଷର *prevpath;   /* URL-decoded conn->path from the previous transfer */
+  ଅକ୍ଷର transfertype; /* set by ftp_transfertype for use by Curl_client_write()a
                         and others (A/I or zero) */
-  char *server_os;     /* The target server operating system. */
+  ଅକ୍ଷର *server_os;     /* The target server operating system. */
   curl_off_t known_filesize; /* file size is different from -1, if wildcard
                                 LIST parsing was done and wc_statemach set
                                 it */
-  int count1; /* general purpose counter for the state machine */
-  int count2; /* general purpose counter for the state machine */
-  int count3; /* general purpose counter for the state machine */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା count1; /* general purpose counter for the state machine */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା count2; /* general purpose counter for the state machine */
+  ପୂର୍ଣ୍ଣସଂଖ୍ୟା count3; /* general purpose counter for the state machine */
   unsigned short dirdepth;  /* number of entries used in the 'dirs' array,
                                < FTP_MAX_DIR_DEPTH */
   unsigned short cwdcount;  /* number of CWD commands issued,
                                < FTP_MAX_DIR_DEPTH */
-  unsigned char state; /* (ftpstate enum) always use ftp.c:state() to change
+  unsigned ଅକ୍ଷର state; /* (ftpstate enum) always use ftp.c:state() to change
                           state! */
-  unsigned char use_ssl;   /* if AUTH TLS is to be attempted etc, for FTP or
+  unsigned ଅକ୍ଷର use_ssl;   /* if AUTH TLS is to be attempted etc, for FTP or
                               IMAP or POP3 or others! (type: curl_usessl)*/
-  unsigned char ccc;       /* ccc level for this connection */
+  unsigned ଅକ୍ଷର ccc;       /* ccc level for this connection */
   BIT(ftp_trying_alternative);
   BIT(dont_check);  /* Set to TRUE to prevent the final (post-transfer)
                        file size and 226/250 status check. It should still

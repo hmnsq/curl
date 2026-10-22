@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ଅନ୍ତର୍ଭାଵ "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#ଯଦି defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
-struct dynbuf;
-struct Curl_ssl_session;
+ସଂରଚନା dynbuf;
+ସଂରଚନା Curl_ssl_session;
 
-CURLcode Curl_ssl_session_pack(struct Curl_easy *data,
-                               struct Curl_ssl_session *s,
-                               struct dynbuf *buf);
+CURLcode Curl_ssl_session_pack(ସଂରଚନା Curl_easy *data,
+                               ସଂରଚନା Curl_ssl_session *s,
+                               ସଂରଚନା dynbuf *buf);
 
-CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
-                                 const void *bufv, size_t buflen,
-                                 struct Curl_ssl_session **ps);
+CURLcode Curl_ssl_session_unpack(ସଂରଚନା Curl_easy *data,
+                                 ଅଚଳ ଶୂନ୍ୟ *bufv, size_t buflen,
+                                 ସଂରଚନା Curl_ssl_session **ps);
 
 #endif /* USE_SSL && USE_SSLS_EXPORT */
 
