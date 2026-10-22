@@ -21,57 +21,57 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curl_range.h"
-#include "curl_trc.h"
-#include "curlx/strparse.h"
+#ضمن "curl_range.h"
+#ضمن "curl_trc.h"
+#ضمن "curlx/strparse.h"
 
 /* Only include this function if one or more of FTP, FILE are enabled. */
-#if !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
+#إذا !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
 
 /* Check if this is a range download, and if so, set the internal variables
    properly. */
-CURLcode Curl_range(struct Curl_easy *data)
+CURLcode Curl_range(بنية Curl_easy *data)
 {
-  if(data->state.use_range && data->state.range) {
+  إذا(data->state.use_range && data->state.range) {
     curl_off_t from, to;
-    bool first_num = TRUE;
-    const char *p = data->state.range;
-    if(curlx_str_number(&p, &from, CURL_OFF_T_MAX))
-      first_num = FALSE;
+    bool first_رقم = TRUE;
+    ثابت حرف *p = data->state.range;
+    إذا(curlx_str_رقم(&p, &from, CURL_OFF_T_MAX))
+      first_رقم = FALSE;
 
-    if(curlx_str_single(&p, '-'))
+    إذا(curlx_str_single(&p, '-'))
       /* no leading dash or after the first number is an error */
-      return CURLE_RANGE_ERROR;
+      أرجع CURLE_RANGE_ERROR;
 
-    if(curlx_str_number(&p, &to, CURL_OFF_T_MAX)) {
+    إذا(curlx_str_رقم(&p, &to, CURL_OFF_T_MAX)) {
       /* no second number */
       /* X - */
       data->state.resume_from = from;
       DEBUGF(infof(data, "RANGE %" FMT_OFF_T " to end of file", from));
     }
-    else if(!first_num) {
+    وإلا إذا(!first_رقم) {
       /* -Y */
-      if(!to)
+      إذا(!to)
         /* "-0" is wrong */
-        return CURLE_RANGE_ERROR;
+        أرجع CURLE_RANGE_ERROR;
 
       data->req.maxdownload = to;
       data->state.resume_from = -to;
       DEBUGF(infof(data, "RANGE the last %" FMT_OFF_T " bytes", to));
     }
-    else {
+    وإلا {
       /* X-Y */
       curl_off_t totalsize;
 
       /* Ensure the range is sensible - to should follow from. */
-      if(from > to)
-        return CURLE_RANGE_ERROR;
+      إذا(from > to)
+        أرجع CURLE_RANGE_ERROR;
 
       totalsize = to - from;
-      if(totalsize == CURL_OFF_T_MAX)
-        return CURLE_RANGE_ERROR;
+      إذا(totalsize == CURL_OFF_T_MAX)
+        أرجع CURLE_RANGE_ERROR;
 
       data->req.maxdownload = totalsize + 1; /* include last byte */
       data->state.resume_from = from;
@@ -83,9 +83,9 @@ CURLcode Curl_range(struct Curl_easy *data)
                  " to %" FMT_OFF_T ", totally %" FMT_OFF_T " bytes",
                  from, to, data->req.maxdownload));
   }
-  else
+  وإلا
     data->req.maxdownload = -1;
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 #endif

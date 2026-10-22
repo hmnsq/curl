@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 #ifndef CURL_DISABLE_HTTP
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_cftype;
-struct Curl_peer;
+بنية Curl_cfilter;
+بنية Curl_easy;
+بنية connectdata;
+بنية Curl_cftype;
+بنية Curl_peer;
 
-extern struct Curl_cftype Curl_cft_http_connect;
+خارجي بنية Curl_cftype Curl_cft_http_connect;
 
-CURLcode Curl_cf_https_setup(struct Curl_easy *data,
-                             struct Curl_peer *destination,
-                             struct connectdata *conn,
+CURLcode Curl_cf_https_setup(بنية Curl_easy *data,
+                             بنية Curl_peer *destination,
+                             بنية connectdata *conn,
                              int8_t sockindex);
 
 #endif /* !CURL_DISABLE_HTTP */

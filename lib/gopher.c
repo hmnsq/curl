@@ -21,82 +21,82 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "gopher.h"
+#ضمن "curl_setup.h"
+#ضمن "urldata.h"
+#ضمن "gopher.h"
 
 #ifndef CURL_DISABLE_GOPHER
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "escape.h"
+#ضمن "transfer.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "cfilters.h"
+#ضمن "connect.h"
+#ضمن "select.h"
+#ضمن "url.h"
+#ضمن "escape.h"
 
 #ifdef USE_SSL
-static CURLcode gopher_connect(struct Curl_easy *data, bool *done)
+ساكن CURLcode gopher_connect(بنية Curl_easy *data, bool *done)
 {
-  (void)data;
-  (void)done;
-  return CURLE_OK;
+  (فراغ)data;
+  (فراغ)done;
+  أرجع CURLE_OK;
 }
 
-static CURLcode gopher_connecting(struct Curl_easy *data, bool *done)
+ساكن CURLcode gopher_connecting(بنية Curl_easy *data, bool *done)
 {
-  struct connectdata *conn = data->conn;
+  بنية connectdata *conn = data->conn;
   CURLcode result;
 
   result = Curl_conn_connect(data, FIRSTSOCKET, TRUE, done);
-  if(result)
+  إذا(result)
     connclose(conn);
   *done = TRUE;
-  return result;
+  أرجع result;
 }
 #endif
 
 /* Sends buf to the server and, optionally, writes it to the client too. */
-static CURLcode send_buf(struct Curl_easy *data,
-                         const char *buf,
+ساكن CURLcode send_buf(بنية Curl_easy *data,
+                         ثابت حرف *buf,
                          size_t buf_len,
                          bool client_write)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  بنية connectdata *conn = data->conn;
   curl_socket_t sockfd = conn->sock[FIRSTSOCKET];
   size_t nwritten;
   timediff_t timeout_ms;
-  int what;
+  صحيح what;
 
-  while(buf_len) {
+  طالما(buf_len) {
     result = Curl_xfer_send(data, buf, buf_len, FALSE, &nwritten);
-    if(!result) { /* Which may not have written it all! */
-      if(client_write) {
+    إذا(!result) { /* Which may not have written it all! */
+      إذا(client_write) {
         result = Curl_client_write(data, CLIENTWRITE_HEADER, buf, nwritten);
-        if(result)
-          break;
+        إذا(result)
+          اكسر;
       }
 
-      if(nwritten > buf_len) {
+      إذا(nwritten > buf_len) {
         DEBUGASSERT(0);
-        break;
+        اكسر;
       }
       buf_len -= nwritten;
       buf += nwritten;
-      if(!buf_len)
-        break; /* but it did write it all */
+      إذا(!buf_len)
+        اكسر; /* but it did write it all */
     }
-    else
-      break;
+    وإلا
+      اكسر;
 
     timeout_ms = Curl_timeleft_ms(data);
-    if(timeout_ms < 0) {
+    إذا(timeout_ms < 0) {
       result = CURLE_OPERATION_TIMEDOUT;
-      break;
+      اكسر;
     }
-    if(!timeout_ms)
+    إذا(!timeout_ms)
       timeout_ms = TIMEDIFF_T_MAX;
 
     /* Do not busyloop. The entire loop thing is a workaround as it causes a
@@ -105,27 +105,27 @@ static CURLcode send_buf(struct Curl_easy *data,
        possible to send now will be sent in the doing function repeatedly
        until the entire request is sent. */
     what = SOCKET_WRITABLE(sockfd, timeout_ms);
-    if(what < 0) {
+    إذا(what < 0) {
       result = CURLE_SEND_ERROR;
-      break;
+      اكسر;
     }
-    else if(!what) {
+    وإلا إذا(!what) {
       result = CURLE_OPERATION_TIMEDOUT;
-      break;
+      اكسر;
     }
   }
 
-  return result;
+  أرجع result;
 }
 
-static CURLcode gopher_do(struct Curl_easy *data, bool *done)
+ساكن CURLcode gopher_do(بنية Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  char *gopherpath;
-  const char *path = data->state.up.path;
-  const char *query = data->state.up.query;
-  const char *buf = NULL;
-  char *buf_alloc = NULL;
+  حرف *gopherpath;
+  ثابت حرف *path = data->state.up.path;
+  ثابت حرف *query = data->state.up.query;
+  ثابت حرف *buf = عدم;
+  حرف *buf_alloc = عدم;
   size_t buf_len;
 
   *done = TRUE; /* unconditionally */
@@ -133,22 +133,22 @@ static CURLcode gopher_do(struct Curl_easy *data, bool *done)
   /* path is guaranteed non-NULL */
   DEBUGASSERT(path);
 
-  if(query)
+  إذا(query)
     gopherpath = curl_maprintf("%s?%s", path, query);
-  else
+  وإلا
     gopherpath = curlx_strdup(path);
 
-  if(!gopherpath)
-    return CURLE_OUT_OF_MEMORY;
+  إذا(!gopherpath)
+    أرجع CURLE_OUT_OF_MEMORY;
 
   /* Create selector. Degenerate cases: / and /1 => convert to "" */
-  if(strlen(gopherpath) <= 2) {
+  إذا(strlen(gopherpath) <= 2) {
     buf = "";
     buf_len = 0;
     curlx_free(gopherpath);
   }
-  else {
-    const char *newp;
+  وإلا {
+    ثابت حرف *newp;
 
     /* Otherwise, drop / and the first character (i.e., item type) ... */
     newp = gopherpath;
@@ -157,38 +157,38 @@ static CURLcode gopher_do(struct Curl_easy *data, bool *done)
     /* ... and finally unescape */
     result = Curl_urldecode(newp, 0, &buf_alloc, &buf_len, REJECT_ZERO);
     curlx_free(gopherpath);
-    if(result)
-      return result;
+    إذا(result)
+      أرجع result;
     buf = buf_alloc;
 
     /* A decoded CR or LF would terminate the single-line gopher request and
        let a crafted URL smuggle additional bytes onto the wire. REJECT_ZERO
        only blocks NUL; reject CR and LF here too. A TAB is left alone as it
        is the legitimate gopher type-7 selector/search separator. */
-    if(memchr(buf, '\r', buf_len) || memchr(buf, '\n', buf_len)) {
+    إذا(memchr(buf, '\r', buf_len) || memchr(buf, '\n', buf_len)) {
       curlx_free(buf_alloc);
       failf(data, "Bad gopher selector, CR or LF not allowed");
-      return CURLE_URL_MALFORMAT;
+      أرجع CURLE_URL_MALFORMAT;
     }
   }
 
   result = send_buf(data, buf, buf_len, TRUE);
   curlx_free(buf_alloc);
 
-  if(!result)
+  إذا(!result)
     /* Send CRLF to the server now, but defer writing it to the client to
        preserve the historical behavior of this file. */
     result = send_buf(data, "\r\n", 2, FALSE);
-  if(result) {
+  إذا(result) {
     failf(data, "Failed sending Gopher request");
-    return result;
+    أرجع result;
   }
   result = Curl_client_write(data, CLIENTWRITE_HEADER, "\r\n", 2);
-  if(result)
-    return result;
+  إذا(result)
+    أرجع result;
 
   Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
-  return CURLE_OK;
+  أرجع CURLE_OK;
 }
 
 /*
@@ -197,7 +197,7 @@ static CURLcode gopher_do(struct Curl_easy *data, bool *done)
  * connect-command-download protocols.
  */
 
-const struct Curl_protocol Curl_protocol_gopher = {
+ثابت بنية Curl_protocol Curl_protocol_gopher = {
   ZERO_NULL,                            /* setup_connection */
   gopher_do,                            /* do_it */
   ZERO_NULL,                            /* done */
@@ -218,7 +218,7 @@ const struct Curl_protocol Curl_protocol_gopher = {
 };
 
 #ifdef USE_SSL
-const struct Curl_protocol Curl_protocol_gophers = {
+ثابت بنية Curl_protocol Curl_protocol_gophers = {
   ZERO_NULL,                            /* setup_connection */
   gopher_do,                            /* do_it */
   ZERO_NULL,                            /* done */
