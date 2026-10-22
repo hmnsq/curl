@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#ако !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 #include "urldata.h"
 #include "cfilters.h"
@@ -48,7 +48,7 @@ static void cf_capsule_destroy(struct Curl_cfilter *cf,
 {
   struct cf_capsule_ctx *ctx = cf->ctx;
   (void)data;
-  if(ctx) {
+  ако(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_safefree(ctx);
@@ -59,18 +59,18 @@ static CURLcode cf_capsule_connect(struct Curl_cfilter *cf,
                                    struct Curl_easy *data,
                                    bool *done)
 {
-  if(cf->connected) {
+  ако(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    върни CURLE_OK;
   }
-  if(cf->next) {
+  ако(cf->next) {
     CURLcode result = cf->next->cft->do_connect(cf->next, data, done);
-    if(!result && *done)
+    ако(!result && *done)
       cf->connected = TRUE;
-    return result;
+    върни result;
   }
   *done = FALSE;
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode cf_capsule_flush(struct Curl_cfilter *cf,
@@ -80,19 +80,19 @@ static CURLcode cf_capsule_flush(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
   size_t nwritten;
 
-  if(Curl_bufq_is_empty(&ctx->sendbuf))
-    return CURLE_OK;
+  ако(Curl_bufq_is_empty(&ctx->sendbuf))
+    върни CURLE_OK;
 
   result = Curl_cf_send_bufq(cf->next, data, &ctx->sendbuf, NULL, 0,
                              &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  ако(result) {
+    ако(result == CURLE_AGAIN) {
       CURL_TRC_CF(data, cf, "flush send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->sendbuf));
     }
-    return result;
+    върни result;
   }
-  return Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
+  върни Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
 }
 
 static CURLcode cf_capsule_send(struct Curl_cfilter *cf,
@@ -106,27 +106,27 @@ static CURLcode cf_capsule_send(struct Curl_cfilter *cf,
   (void)eos;
   *pnwritten = 0;
 
-  if(Curl_bufq_is_full(&ctx->sendbuf)) {
+  ако(Curl_bufq_is_full(&ctx->sendbuf)) {
     result = cf_capsule_flush(cf, data);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
   /* encapsulate new payload into a capsule */
   result = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
-  if(result)
-    return result;
+  ако(result)
+    върни result;
 
   result = cf_capsule_flush(cf, data);
-  if(result == CURLE_AGAIN) {
+  ако(result == CURLE_AGAIN) {
     /* Could not send it (or all), report success nevertheless as we
      * have the payload buffered now and will flush it later. */
     result = CURLE_OK;
   }
 
-  if(!result)
+  ако(!result)
     *pnwritten = len;
-  return result;
+  върни result;
 }
 
 static CURLcode cf_capsule_recv(struct Curl_cfilter *cf,
@@ -141,13 +141,13 @@ static CURLcode cf_capsule_recv(struct Curl_cfilter *cf,
   *pnread = 0;
 
   /* fill our receive buffer from the filter below */
-  while(!Curl_bufq_is_full(&ctx->recvbuf)) {
+  докато(!Curl_bufq_is_full(&ctx->recvbuf)) {
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->recvbuf, 0, &nread);
-    if(result == CURLE_AGAIN)
+    ако(result == CURLE_AGAIN)
       break;
-    if(result)
-      return result;
-    if(!nread)
+    ако(result)
+      върни result;
+    ако(!nread)
       break;
   }
 
@@ -155,7 +155,7 @@ static CURLcode cf_capsule_recv(struct Curl_cfilter *cf,
   *pnread = Curl_capsule_process_udp_raw(cf, data, &ctx->recvbuf,
                                          (unsigned char *)buf, len,
                                          &result);
-  return result;
+  върни result;
 }
 
 static bool cf_capsule_data_pending(struct Curl_cfilter *cf,
@@ -163,14 +163,14 @@ static bool cf_capsule_data_pending(struct Curl_cfilter *cf,
 {
   struct cf_capsule_ctx *ctx = cf->ctx;
 
-  if(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  ако(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
+    върни TRUE;
+  върни cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
 static CURLcode cf_capsule_cntrl(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 int event, int arg1, void *arg2)
+                                 цяло event, цяло arg1, void *arg2)
 {
   CURLcode result = CURLE_OK;
 
@@ -183,28 +183,28 @@ static CURLcode cf_capsule_cntrl(struct Curl_cfilter *cf,
   default:
     break;
   }
-  return result;
+  върни result;
 }
 
 static CURLcode cf_capsule_query(struct Curl_cfilter *cf,
                                  struct Curl_easy *data,
-                                 int query, int *pres1, void *pres2)
+                                 цяло query, цяло *pres1, void *pres2)
 {
   struct cf_capsule_ctx *ctx = cf->ctx;
 
   (void)pres2;
   switch(query) {
   case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+    ако(!Curl_bufq_is_empty(&ctx->sendbuf)) {
       *pres1 = TRUE;
-      return CURLE_OK;
+      върни CURLE_OK;
     }
     break;
   }
   default:
     break;
   }
-  return cf->next ?
+  върни cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
@@ -215,12 +215,12 @@ static CURLcode cf_capsule_adjust_pollset(struct Curl_cfilter *cf,
 {
   struct cf_capsule_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+  ако(!Curl_bufq_is_empty(&ctx->sendbuf)) {
     curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    if(sock != CURL_SOCKET_BAD)
-      return Curl_pollset_add_out(data, ps, sock);
+    ако(sock != CURL_SOCKET_BAD)
+      върни Curl_pollset_add_out(data, ps, sock);
   }
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode cf_capsule_shutdown(struct Curl_cfilter *cf,
@@ -228,16 +228,16 @@ static CURLcode cf_capsule_shutdown(struct Curl_cfilter *cf,
 {
   CURLcode result = CURLE_OK;
 
-  if(!cf->connected || cf->shutdown) {
+  ако(!cf->connected || cf->shutdown) {
     *done = TRUE;
   }
-  else {
+  иначе {
     result = cf_capsule_flush(cf, data);
     *done = !result;
-    if(result == CURLE_AGAIN)
+    ако(result == CURLE_AGAIN)
       result = CURLE_OK;
   }
-  return result;
+  върни result;
 }
 
 struct Curl_cftype Curl_cft_capsule = {
@@ -269,7 +269,7 @@ static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
   (void)conn;
   *pcf = NULL;
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  ако(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -283,12 +283,12 @@ static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
 
 out:
   *pcf = (!result) ? cf : NULL;
-  if(result && ctx) {
+  ако(result && ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_free(ctx);
   }
-  return result;
+  върни result;
 }
 
 CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
@@ -298,9 +298,9 @@ CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
   CURLcode result;
 
   result = cf_capsule_create(&cf, data, cf_at->conn);
-  if(!result)
+  ако(!result)
     Curl_conn_cf_insert_after(cf_at, cf);
-  return result;
+  върни result;
 }
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

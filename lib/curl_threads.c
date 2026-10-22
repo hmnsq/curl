@@ -33,52 +33,52 @@ curl_thread_t Curl_thread_create(
   CURL_THREAD_RETURN_T(CURL_STDCALL *func)(void *), void *arg)
 {
   curl_thread_t t = CreateThread(NULL, 0, func, arg, 0, NULL);
-  if(!t) {
+  ако(!t) {
     DWORD gle = GetLastError();
     /* !checksrc! disable ERRNOVAR 1 */
     errno = (gle == ERROR_ACCESS_DENIED ||
              gle == ERROR_NOT_ENOUGH_MEMORY) ?
              EACCES : EINVAL;
-    return curl_thread_t_null;
+    върни curl_thread_t_null;
   }
-  return t;
+  върни t;
 }
 
 void Curl_thread_destroy(curl_thread_t *hnd)
 {
-  if(*hnd != curl_thread_t_null) {
+  ако(*hnd != curl_thread_t_null) {
     CloseHandle(*hnd);
     *hnd = curl_thread_t_null;
   }
 }
 
-int Curl_thread_join(curl_thread_t *hnd)
+цяло Curl_thread_join(curl_thread_t *hnd)
 {
-  int ret = (WaitForSingleObjectEx(*hnd, INFINITE, FALSE) == WAIT_OBJECT_0);
+  цяло ret = (WaitForSingleObjectEx(*hnd, INFINITE, FALSE) == WAIT_OBJECT_0);
 
   Curl_thread_destroy(hnd);
 
-  return ret;
+  върни ret;
 }
 
 #elif defined(HAVE_THREADS_POSIX)
 
 struct Curl_actual_call {
-  unsigned int (*func)(void *);
+  unsigned цяло (*func)(void *);
   void *arg;
 };
 
 static void *curl_thread_create_thunk(void *arg)
 {
   struct Curl_actual_call *ac = arg;
-  unsigned int (*func)(void *) = ac->func;
+  unsigned цяло (*func)(void *) = ac->func;
   void *real_arg = ac->arg;
 
   curlx_free(ac);
 
   (*func)(real_arg);
 
-  return 0;
+  върни 0;
 }
 
 curl_thread_t Curl_thread_create(
@@ -86,50 +86,50 @@ curl_thread_t Curl_thread_create(
 {
   curl_thread_t t = curlx_malloc(sizeof(pthread_t));
   struct Curl_actual_call *ac = NULL;
-  int rc;
+  цяло rc;
 
-  if(t)
+  ако(t)
     ac = curlx_malloc(sizeof(struct Curl_actual_call));
-  if(!(ac && t))
+  ако(!(ac && t))
     goto err;
 
   ac->func = func;
   ac->arg = arg;
 
   rc = pthread_create(t, NULL, curl_thread_create_thunk, ac);
-  if(rc) {
+  ако(rc) {
     errno = rc;
     goto err;
   }
 
-  return t;
+  върни t;
 
 err:
   curlx_free(t);
   curlx_free(ac);
-  return curl_thread_t_null;
+  върни curl_thread_t_null;
 }
 
 void Curl_thread_destroy(curl_thread_t *hnd)
 {
-  if(*hnd != curl_thread_t_null) {
+  ако(*hnd != curl_thread_t_null) {
     pthread_detach(**hnd);
     curlx_free(*hnd);
     *hnd = curl_thread_t_null;
   }
 }
 
-int Curl_thread_join(curl_thread_t *hnd)
+цяло Curl_thread_join(curl_thread_t *hnd)
 {
-  int ret = (pthread_join(**hnd, NULL) == 0);
+  цяло ret = (pthread_join(**hnd, NULL) == 0);
 
   curlx_free(*hnd);
   *hnd = curl_thread_t_null;
 
-  return ret;
+  върни ret;
 }
 
-#else
+#иначе
 #error neither HAVE_THREADS_POSIX nor _WIN32 defined
 #endif
 #endif /* USE_THREADS */
@@ -151,22 +151,22 @@ void Curl_cond_wait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m)
 CURLcode Curl_cond_timedwait(CONDITION_VARIABLE *c, CRITICAL_SECTION *m,
                              uint32_t timeout_ms)
 {
-  if(!SleepConditionVariableCS(c, m, (DWORD)timeout_ms)) {
+  ако(!SleepConditionVariableCS(c, m, (DWORD)timeout_ms)) {
     DWORD err = GetLastError();
-    return (err == ERROR_TIMEOUT) ?
+    върни (err == ERROR_TIMEOUT) ?
            CURLE_OPERATION_TIMEDOUT : CURLE_UNRECOVERABLE_POLL;
   }
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 curl_thread_id_t Curl_thread_get_current_id(void)
 {
-  return GetCurrentThreadId();
+  върни GetCurrentThreadId();
 }
 
 bool Curl_thread_is_current(curl_thread_id_t tid)
 {
-  return tid == GetCurrentThreadId();
+  върни tid == GetCurrentThreadId();
 }
 
 #elif defined(HAVE_THREADS_POSIX)
@@ -189,7 +189,7 @@ CURLcode Curl_cond_timedwait(pthread_cond_t *c, pthread_mutex_t *m,
   struct curltime now;
   struct timespec ts;
   timediff_t usec;
-  int rc;
+  цяло rc;
 
   /* POSIX expects an "absolute" time until the condition wait ends.
    * We cannot use `curlx_now()` here that may run on some monotonic clock
@@ -199,37 +199,37 @@ CURLcode Curl_cond_timedwait(pthread_cond_t *c, pthread_mutex_t *m,
   struct timeval tv;
   (void)gettimeofday(&tv, NULL);
   now.tv_sec = tv.tv_sec;
-  now.tv_usec = (int)tv.tv_usec;
-#else
+  now.tv_usec = (цяло)tv.tv_usec;
+#иначе
   now.tv_sec = time(NULL);
   now.tv_usec = 0;
 #endif
 
   ts.tv_sec = now.tv_sec + (timeout_ms / 1000);
   usec = now.tv_usec + ((timeout_ms % 1000) * 1000);
-  if(usec >= 1000000) {
+  ако(usec >= 1000000) {
     ++ts.tv_sec;
     usec %= 1000000;
   }
   ts.tv_nsec = (long)usec * 1000;
 
   rc = pthread_cond_timedwait(c, m, &ts);
-  if(rc == SOCKETIMEDOUT)
-    return CURLE_OPERATION_TIMEDOUT;
-  return rc ? CURLE_UNRECOVERABLE_POLL : CURLE_OK;
+  ако(rc == SOCKETIMEDOUT)
+    върни CURLE_OPERATION_TIMEDOUT;
+  върни rc ? CURLE_UNRECOVERABLE_POLL : CURLE_OK;
 }
 
 curl_thread_id_t Curl_thread_get_current_id(void)
 {
-  return pthread_self();
+  върни pthread_self();
 }
 
 bool Curl_thread_is_current(curl_thread_id_t tid)
 {
-  return !!pthread_equal(tid, pthread_self());
+  върни !!pthread_equal(tid, pthread_self());
 }
 
-#else
+#иначе
 #error neither HAVE_THREADS_POSIX nor _WIN32 defined
 #endif
 #endif /* USE_MUTEX */

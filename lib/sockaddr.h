@@ -34,7 +34,7 @@ struct Curl_sockaddr_storage {
 #endif
 #ifdef HAVE_STRUCT_SOCKADDR_STORAGE
     struct sockaddr_storage sa_stor;
-#else
+#иначе
     char cbuf[256];   /* this should be big enough to fit a lot */
 #endif
   } buffer;
@@ -48,10 +48,10 @@ struct Curl_sockaddr_storage {
  * been set, before that, it is initialized from parameters.
  */
 struct Curl_sockaddr_ex {
-  int family;
-  int socktype;
-  int protocol;
-  unsigned int addrlen;
+  цяло family;
+  цяло socktype;
+  цяло protocol;
+  unsigned цяло addrlen;
   union {
     struct sockaddr sa;
     struct Curl_sockaddr_storage buf;

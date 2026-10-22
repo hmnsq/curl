@@ -44,10 +44,10 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
 {
   size_t length = wcslen(src);
 
-  if(length > (SIZE_MAX / sizeof(wchar_t)) - 1)
-    return (wchar_t *)NULL; /* integer overflow */
+  ако(length > (SIZE_MAX / sizeof(wchar_t)) - 1)
+    върни (wchar_t *)NULL; /* integer overflow */
 
-  return (wchar_t *)curlx_memdup(src, (length + 1) * sizeof(wchar_t));
+  върни (wchar_t *)curlx_memdup(src, (length + 1) * sizeof(wchar_t));
 }
 #endif
 
@@ -64,12 +64,12 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
 void *curlx_memdup(const void *src, size_t length)
 {
   void *buffer = curlx_malloc(length);
-  if(!buffer)
-    return NULL; /* fail */
+  ако(!buffer)
+    върни NULL; /* fail */
 
   memcpy(buffer, src, length);
 
-  return buffer;
+  върни buffer;
 }
 
 /***************************************************************************
@@ -85,25 +85,25 @@ void *curlx_memdup(const void *src, size_t length)
 void *curlx_memdup0(const char *src, size_t length)
 {
   char *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : NULL;
-  if(!buf)
-    return NULL;
-  if(length) {
+  ако(!buf)
+    върни NULL;
+  ако(length) {
     DEBUGASSERT(src); /* must never be NULL */
     memcpy(buf, src, length);
   }
   buf[length] = 0;
-  return buf;
+  върни buf;
 }
 
 #ifdef USE_CURLX_MEMZERO
-static void *(* const volatile p_curlx_memset)(void *buf, int val,
+static void *(* const volatile p_curlx_memset)(void *buf, цяло val,
                                                size_t size) = memset;
 
 /* Local fallback in case there is no system function to securely zero a memory
    buffer. */
 void curlx_memzero_low(void *buf, size_t size)
 {
-  if(buf)
+  ако(buf)
     p_curlx_memset(buf, 0, size);
 }
 #endif
@@ -111,13 +111,13 @@ void curlx_memzero_low(void *buf, size_t size)
 /* Fill 'buf' with zeroes. */
 void curlx_memzero(void *buf, size_t size)
 {
-  if(buf)
+  ако(buf)
     curlx_memzero_low(buf, size);
 }
 
 /* Fill 'buf' with zeroes, where 'buf' is null-terminated. */
 void curlx_strzero(void *buf)
 {
-  if(buf)
+  ако(buf)
     curlx_memzero_low(buf, strlen(buf));
 }

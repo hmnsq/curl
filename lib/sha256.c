@@ -24,14 +24,14 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
+#ако !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
 #include "curl_sha256.h"
 
 #ifdef USE_MBEDTLS
 #include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#ако MBEDTLS_VERSION_NUMBER < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
 #include <psa/crypto_config.h>
@@ -62,19 +62,19 @@ static CURLcode my_sha256_init(void *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   ctx->openssl_ctx = EVP_MD_CTX_new();
-  if(!ctx->openssl_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ctx->openssl_ctx)
+    върни CURLE_OUT_OF_MEMORY;
 
-  if(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
+  ако(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
     EVP_MD_CTX_free(ctx->openssl_ctx);
-    return CURLE_FAILED_INIT;
+    върни CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static void my_sha256_update(void *in,
                              const unsigned char *data,
-                             unsigned int length)
+                             unsigned цяло length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   EVP_DigestUpdate(ctx->openssl_ctx, data, length);
@@ -95,14 +95,14 @@ typedef struct wc_Sha256 my_sha256_ctx;
 
 static CURLcode my_sha256_init(void *in)
 {
-  if(wc_InitSha256(in))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  ако(wc_InitSha256(in))
+    върни CURLE_FAILED_INIT;
+  върни CURLE_OK;
 }
 
 static void my_sha256_update(void *in,
                              const unsigned char *data,
-                             unsigned int length)
+                             unsigned цяло length)
 {
   (void)wc_Sha256Update(in, data, (word32)length);
 }
@@ -121,21 +121,21 @@ typedef struct sha256_ctx my_sha256_ctx;
 static CURLcode my_sha256_init(void *ctx)
 {
   sha256_init(ctx);
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static void my_sha256_update(void *ctx,
                              const unsigned char *data,
-                             unsigned int length)
+                             unsigned цяло length)
 {
   sha256_update(ctx, length, data);
 }
 
 static void my_sha256_final(unsigned char *digest, void *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#ако NETTLE_VERSION_MAJOR >= 4
   sha256_digest(ctx, digest);
-#else
+#иначе
   sha256_digest(ctx, SHA256_DIGEST_SIZE, digest);
 #endif
 }
@@ -150,14 +150,14 @@ static CURLcode my_sha256_init(void *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  ако(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
+    върни CURLE_OUT_OF_MEMORY;
+  върни CURLE_OK;
 }
 
 static void my_sha256_update(void *ctx,
                              const unsigned char *data,
-                             unsigned int length)
+                             unsigned цяло length)
 {
   (void)psa_hash_update(ctx, data, length);
 }
@@ -180,12 +180,12 @@ typedef CC_SHA256_CTX my_sha256_ctx;
 static CURLcode my_sha256_init(void *ctx)
 {
   (void)CC_SHA256_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static void my_sha256_update(void *ctx,
                              const unsigned char *data,
-                             unsigned int length)
+                             unsigned цяло length)
 {
   (void)CC_SHA256_Update(ctx, data, length);
 }
@@ -207,22 +207,22 @@ typedef struct sha256_ctx my_sha256_ctx;
 static CURLcode my_sha256_init(void *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
+  ако(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    върни CURLE_OUT_OF_MEMORY;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
+  ако(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    върни CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static void my_sha256_update(void *in,
                              const unsigned char *data,
-                             unsigned int length)
+                             unsigned цяло length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   CryptHashData(ctx->hHash, (const BYTE *)data, length, 0);
@@ -234,17 +234,17 @@ static void my_sha256_final(unsigned char *digest, void *in)
   unsigned long length = 0;
 
   CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == CURL_SHA256_DIGEST_LENGTH)
+  ако(length == CURL_SHA256_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  ако(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  ако(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#иначе
 
 /* When no other crypto library is available we use this code segment */
 
@@ -262,7 +262,7 @@ static void my_sha256_final(unsigned char *digest, void *in)
     (a)[1] = (unsigned char)((((unsigned long)(val)) >> 16) & 0xff); \
     (a)[2] = (unsigned char)((((unsigned long)(val)) >>  8) & 0xff); \
     (a)[3] = (unsigned char)(((unsigned long)(val)) & 0xff);         \
-  } while(0)
+  } докато(0)
 
 #define WPA_PUT_BE64(a, val)                            \
   do {                                                  \
@@ -274,7 +274,7 @@ static void my_sha256_final(unsigned char *digest, void *in)
     (a)[5] = (unsigned char)(((uint64_t)(val)) >> 16);  \
     (a)[6] = (unsigned char)(((uint64_t)(val)) >>  8);  \
     (a)[7] = (unsigned char)(((uint64_t)(val)) & 0xff); \
-  } while(0)
+  } докато(0)
 
 struct sha256_state {
   uint64_t length;
@@ -316,20 +316,20 @@ static const unsigned long K[64] = {
 #define Gamma1(x)         (Sha256_S(x, 17) ^ Sha256_S(x, 19) ^ Sha256_R(x, 10))
 
 /* Compress 512 bits */
-static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
+static цяло sha256_compress(struct sha256_state *md, const unsigned char *buf)
 {
   unsigned long S[8], W[64];
-  int i;
+  цяло i;
 
   /* Copy state into S */
-  for(i = 0; i < 8; i++) {
+  за(i = 0; i < 8; i++) {
     S[i] = md->state[i];
   }
   /* copy the state into 512 bits into W[0..15] */
-  for(i = 0; i < 16; i++)
+  за(i = 0; i < 16; i++)
     W[i] = WPA_GET_BE32(buf + (4 * i));
   /* fill W[16..63] */
-  for(i = 16; i < 64; i++) {
+  за(i = 16; i < 64; i++) {
     W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) + W[i - 16];
   }
 
@@ -340,9 +340,9 @@ static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
     unsigned long t1 = Sigma0(a) + Sha256_Maj(a, b, c);                  \
     d += t0;                                                             \
     h = t0 + t1;                                                         \
-  } while(0)
+  } докато(0)
 
-  for(i = 0; i < 64; ++i) {
+  за(i = 0; i < 64; ++i) {
     unsigned long t;
     RND(S[0], S[1], S[2], S[3], S[4], S[5], S[6], S[7], i);
     t = S[7];
@@ -357,11 +357,11 @@ static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
   }
 
   /* Feedback */
-  for(i = 0; i < 8; i++) {
+  за(i = 0; i < 8; i++) {
     md->state[i] = md->state[i] + S[i];
   }
 
-  return 0;
+  върни 0;
 }
 
 /* Initialize the hash state */
@@ -379,7 +379,7 @@ static CURLcode my_sha256_init(void *in)
   md->state[6] = 0x1F83D9ABUL;
   md->state[7] = 0x5BE0CD19UL;
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 /* Process a block of memory though the hash
@@ -389,31 +389,31 @@ static CURLcode my_sha256_init(void *in)
  */
 static void my_sha256_update(void *ctx,
                              const unsigned char *in,
-                             unsigned int len)
+                             unsigned цяло len)
 {
   unsigned long inlen = len;
   unsigned long n;
   struct sha256_state *md = (struct sha256_state *)ctx;
 #define CURL_SHA256_BLOCK_SIZE 64
-  if(md->curlen > sizeof(md->buf))
-    return;
-  while(inlen > 0) {
-    if(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
-      if(sha256_compress(md, in) < 0)
-        return;
+  ако(md->curlen > sizeof(md->buf))
+    върни;
+  докато(inlen > 0) {
+    ако(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
+      ако(sha256_compress(md, in) < 0)
+        върни;
       md->length += CURL_SHA256_BLOCK_SIZE * 8;
       in += CURL_SHA256_BLOCK_SIZE;
       inlen -= CURL_SHA256_BLOCK_SIZE;
     }
-    else {
+    иначе {
       n = CURLMIN(inlen, (CURL_SHA256_BLOCK_SIZE - md->curlen));
       memcpy(md->buf + md->curlen, in, n);
       md->curlen += n;
       in += n;
       inlen -= n;
-      if(md->curlen == CURL_SHA256_BLOCK_SIZE) {
-        if(sha256_compress(md, md->buf) < 0)
-          return;
+      ако(md->curlen == CURL_SHA256_BLOCK_SIZE) {
+        ако(sha256_compress(md, md->buf) < 0)
+          върни;
         md->length += 8 * CURL_SHA256_BLOCK_SIZE;
         md->curlen = 0;
       }
@@ -429,10 +429,10 @@ static void my_sha256_update(void *ctx,
 static void my_sha256_final(unsigned char *out, void *ctx)
 {
   struct sha256_state *md = ctx;
-  int i;
+  цяло i;
 
-  if(md->curlen >= sizeof(md->buf))
-    return;
+  ако(md->curlen >= sizeof(md->buf))
+    върни;
 
   /* Increase the length of the message */
   md->length += md->curlen * 8;
@@ -444,8 +444,8 @@ static void my_sha256_final(unsigned char *out, void *ctx)
    * then compress. Then we can fall back to padding zeros and length
    * encoding like normal.
    */
-  if(md->curlen > 56) {
-    while(md->curlen < 64) {
+  ако(md->curlen > 56) {
+    докато(md->curlen < 64) {
       md->buf[md->curlen++] = 0;
     }
     sha256_compress(md, md->buf);
@@ -453,7 +453,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   }
 
   /* Pad up to 56 bytes of zeroes */
-  while(md->curlen < 56) {
+  докато(md->curlen < 56) {
     md->buf[md->curlen++] = 0;
   }
 
@@ -462,7 +462,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   sha256_compress(md, md->buf);
 
   /* Copy output */
-  for(i = 0; i < 8; i++)
+  за(i = 0; i < 8; i++)
     WPA_PUT_BE32(out + (4 * i), md->state[i]);
 }
 
@@ -488,16 +488,16 @@ CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
   my_sha256_ctx ctx;
 
   result = my_sha256_init(&ctx);
-  if(!result) {
+  ако(!result) {
     do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
+      unsigned цяло ilen = (unsigned цяло)CURLMIN(len, UINT_MAX);
       my_sha256_update(&ctx, input, ilen);
       len -= ilen;
       input += ilen;
-    } while(len);
+    } докато(len);
     my_sha256_final(output, &ctx);
   }
-  return result;
+  върни result;
 }
 
 const struct HMAC_params Curl_HMAC_SHA256 = {

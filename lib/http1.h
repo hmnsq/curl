@@ -51,12 +51,12 @@ CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
                                 const uint8_t *buf, size_t buflen,
                                 const char *scheme_default,
                                 const char *custom_method,
-                                int options, size_t *pnread);
+                                цяло options, size_t *pnread);
 
 CURLcode Curl_h1_req_dprint(const struct httpreq *req,
                             struct dynbuf *dbuf);
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
+CURLcode Curl_h1_req_write_head(struct httpreq *req, цяло http_minor,
                                 struct dynbuf *dbuf);
 
 #endif /* !CURL_DISABLE_HTTP */

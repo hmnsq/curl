@@ -78,9 +78,9 @@
 static void brotli_version(char *buf, size_t bufsz)
 {
   uint32_t brotli_version = BrotliDecoderVersion();
-  unsigned int major = brotli_version >> 24;
-  unsigned int minor = (brotli_version & 0x00FFFFFF) >> 12;
-  unsigned int patch = brotli_version & 0x00000FFF;
+  unsigned цяло major = brotli_version >> 24;
+  unsigned цяло minor = (brotli_version & 0x00FFFFFF) >> 12;
+  unsigned цяло patch = brotli_version & 0x00000FFF;
   (void)curl_msnprintf(buf, bufsz, "brotli/%u.%u.%u", major, minor, patch);
 }
 #endif
@@ -88,10 +88,10 @@ static void brotli_version(char *buf, size_t bufsz)
 #ifdef HAVE_ZSTD
 static void zstd_version(char *buf, size_t bufsz)
 {
-  unsigned int version = ZSTD_versionNumber();
-  unsigned int major = version / (100 * 100);
-  unsigned int minor = (version - (major * 100 * 100)) / 100;
-  unsigned int patch = version - (major * 100 * 100) - (minor * 100);
+  unsigned цяло version = ZSTD_versionNumber();
+  unsigned цяло major = version / (100 * 100);
+  unsigned цяло minor = (version - (major * 100 * 100)) / 100;
+  unsigned цяло patch = version - (major * 100 * 100) - (minor * 100);
   (void)curl_msnprintf(buf, bufsz, "zstd/%u.%u.%u", major, minor, patch);
 }
 #endif
@@ -99,18 +99,18 @@ static void zstd_version(char *buf, size_t bufsz)
 #ifdef USE_LIBPSL
 static void psl_version(char *buf, size_t bufsz)
 {
-#if defined(PSL_VERSION_MAJOR) && (PSL_VERSION_MAJOR > 0 ||     \
+#ако defined(PSL_VERSION_MAJOR) && (PSL_VERSION_MAJOR > 0 ||     \
                                    PSL_VERSION_MINOR >= 11)
-  int num = psl_check_version_number(0);
+  цяло num = psl_check_version_number(0);
   curl_msnprintf(buf, bufsz, "libpsl/%d.%d.%d",
                  num >> 16, (num >> 8) & 0xff, num & 0xff);
-#else
+#иначе
   curl_msnprintf(buf, bufsz, "libpsl/%s", psl_get_version());
 #endif
 }
 #endif
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#ако defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
 #define USE_IDN
 #endif
 
@@ -167,10 +167,10 @@ char *curl_version(void)
 #ifdef USE_SSH
   char ssh_version[30];
 #endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#ако !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
   char h2_version[30];
 #endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#ако !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   char h3_version[30];
 #endif
 #ifdef USE_GSASL
@@ -182,16 +182,16 @@ char *curl_version(void)
 #ifndef CURL_DISABLE_LDAP
   char ldap_buf[30];
 #endif
-  int i = 0;
-  int j;
+  цяло i = 0;
+  цяло j;
 
 #ifdef DEBUGBUILD
   /* Override version string when environment variable CURL_DEBUG_VERSION is
      set */
   const char *debugversion = getenv("CURL_DEBUG_VERSION");
-  if(debugversion) {
+  ако(debugversion) {
     curl_msnprintf(out, sizeof(out), "%s", debugversion);
-    return out;
+    върни out;
   }
 #endif
 
@@ -229,11 +229,11 @@ char *curl_version(void)
   Curl_ssh_version(ssh_version, sizeof(ssh_version));
   src[i++] = ssh_version;
 #endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#ако !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
   Curl_http2_ver(h2_version, sizeof(h2_version));
   src[i++] = h2_version;
 #endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#ако !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   Curl_quic_ver(h3_version, sizeof(h3_version));
   src[i++] = h3_version;
 #endif
@@ -249,7 +249,7 @@ char *curl_version(void)
   curl_msnprintf(gss_buf, sizeof(gss_buf), "libgss/%s", GSS_VERSION);
 #elif defined(CURL_KRB5_VERSION)
   curl_msnprintf(gss_buf, sizeof(gss_buf), "mit-krb5/%s", CURL_KRB5_VERSION);
-#else
+#иначе
   curl_msnprintf(gss_buf, sizeof(gss_buf), "mit-krb5");
 #endif
   src[i++] = gss_buf;
@@ -263,12 +263,12 @@ char *curl_version(void)
 
   outp = &out[0];
   outlen = sizeof(out);
-  for(j = 0; j < i; j++) {
+  за(j = 0; j < i; j++) {
     size_t n = strlen(src[j]);
     /* we need room for a space, the string and the final zero */
-    if(outlen <= (n + 2))
+    ако(outlen <= (n + 2))
       break;
-    if(j) {
+    ако(j) {
       /* prepend a space if not the first */
       *outp++ = ' ';
       outlen--;
@@ -279,7 +279,7 @@ char *curl_version(void)
   }
   *outp = 0;
 
-  return out;
+  върни out;
 }
 
 /* data for curl_version_info
@@ -298,30 +298,30 @@ static const char * const supported_protocols[] = {
 #ifndef CURL_DISABLE_FTP
   "ftp",
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_FTP)
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_FTP)
   "ftps",
 #endif
 #ifndef CURL_DISABLE_GOPHER
   "gopher",
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_GOPHER)
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_GOPHER)
   "gophers",
 #endif
 #ifndef CURL_DISABLE_HTTP
   "http",
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_HTTP)
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_HTTP)
   "https",
 #endif
 #ifndef CURL_DISABLE_IMAP
   "imap",
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_IMAP)
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_IMAP)
   "imaps",
 #endif
 #ifndef CURL_DISABLE_LDAP
   "ldap",
-#if !defined(CURL_DISABLE_LDAPS) && \
+#ако !defined(CURL_DISABLE_LDAPS) && \
   ((defined(USE_OPENLDAP) && defined(USE_SSL)) || \
    (!defined(USE_OPENLDAP) && defined(HAVE_LDAP_SSL)))
   "ldaps",
@@ -330,13 +330,13 @@ static const char * const supported_protocols[] = {
 #ifndef CURL_DISABLE_MQTT
   "mqtt",
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_MQTT)
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_MQTT)
   "mqtts",
 #endif
 #ifndef CURL_DISABLE_POP3
   "pop3",
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_POP3)
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_POP3)
   "pop3s",
 #endif
 #ifndef CURL_DISABLE_RTSP
@@ -349,7 +349,7 @@ static const char * const supported_protocols[] = {
 #ifndef CURL_DISABLE_SMTP
   "smtp",
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_SMTP)
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_SMTP)
   "smtps",
 #endif
 #ifndef CURL_DISABLE_TELNET
@@ -363,7 +363,7 @@ static const char * const supported_protocols[] = {
 #ifndef CURL_DISABLE_WEBSOCKETS
   "ws",
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_WEBSOCKETS)
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_WEBSOCKETS)
   "wss",
 #endif
 #endif
@@ -378,32 +378,32 @@ static const char * const supported_protocols[] = {
  * curl_global_init() and curl_global_cleanup() calls.
  */
 
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
-static int idn_present(curl_version_info_data *info)
+#ако defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+static цяло idn_present(curl_version_info_data *info)
 {
-#if defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#ако defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
   (void)info;
-  return TRUE;
-#else
-  return !!info->libidn;
+  върни TRUE;
+#иначе
+  върни !!info->libidn;
 #endif
 }
 #endif
 
-#if defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
   !defined(CURL_DISABLE_HTTP)
-static int https_proxy_present(curl_version_info_data *info)
+static цяло https_proxy_present(curl_version_info_data *info)
 {
   (void)info;
-  return Curl_ssl_supports(NULL, SSLSUPP_HTTPS_PROXY);
+  върни Curl_ssl_supports(NULL, SSLSUPP_HTTPS_PROXY);
 }
 #endif
 
-#if defined(USE_SSL) && defined(USE_ECH)
-static int ech_present(curl_version_info_data *info)
+#ако defined(USE_SSL) && defined(USE_ECH)
+static цяло ech_present(curl_version_info_data *info)
 {
   (void)info;
-  return Curl_ssl_supports(NULL, SSLSUPP_ECH);
+  върни Curl_ssl_supports(NULL, SSLSUPP_ECH);
 }
 #endif
 
@@ -418,15 +418,15 @@ static int ech_present(curl_version_info_data *info)
 
 struct feat {
   const char *name;
-  int        (*present)(curl_version_info_data *info);
-  int        bitmask;
+  цяло        (*present)(curl_version_info_data *info);
+  цяло        bitmask;
 };
 
 static const struct feat features_table[] = {
 #ifndef CURL_DISABLE_ALTSVC
   FEATURE("alt-svc",     NULL,                CURL_VERSION_ALTSVC),
 #endif
-#if defined(USE_ARES) && defined(USE_RESOLV_THREADED) && defined(USE_HTTPSRR)
+#ако defined(USE_ARES) && defined(USE_RESOLV_THREADED) && defined(USE_HTTPSRR)
   FEATURE("asyn-rr",     NULL,                0),
 #endif
 #ifdef CURLRES_ASYNCH
@@ -438,7 +438,7 @@ static const struct feat features_table[] = {
 #ifdef DEBUGBUILD
   FEATURE("Debug",       NULL,                CURL_VERSION_DEBUG),
 #endif
-#if defined(USE_SSL) && defined(USE_ECH)
+#ако defined(USE_SSL) && defined(USE_ECH)
   FEATURE("ECH",         ech_present,         0),
 
 #ifndef USE_HTTPSRR
@@ -454,13 +454,13 @@ static const struct feat features_table[] = {
 #ifndef CURL_DISABLE_HSTS
   FEATURE("HSTS",        NULL,                CURL_VERSION_HSTS),
 #endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
+#ако !defined(CURL_DISABLE_HTTP) && defined(USE_NGHTTP2)
   FEATURE("HTTP2",       NULL,                CURL_VERSION_HTTP2),
 #endif
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#ако !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   FEATURE("HTTP3",       NULL,                CURL_VERSION_HTTP3),
 #endif
-#if defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
+#ако defined(USE_SSL) && !defined(CURL_DISABLE_PROXY) && \
   !defined(CURL_DISABLE_HTTP)
   FEATURE("HTTPS-proxy", https_proxy_present, CURL_VERSION_HTTPS_PROXY),
 #endif
@@ -470,7 +470,7 @@ static const struct feat features_table[] = {
 #ifdef USE_HTTPSRR
   FEATURE("HTTPSRR",     NULL,                0),
 #endif
-#if defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
+#ако defined(USE_LIBIDN2) || defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN)
   FEATURE("IDN",         idn_present,         CURL_VERSION_IDN),
 #endif
 #ifdef USE_IPV6
@@ -479,7 +479,7 @@ static const struct feat features_table[] = {
 #ifdef USE_KERBEROS5
   FEATURE("Kerberos",    NULL,                CURL_VERSION_KERBEROS5),
 #endif
-#if (SIZEOF_CURL_OFF_T > 4) && ((SIZEOF_OFF_T > 4) || defined(_WIN32))
+#ако (SIZEOF_CURL_OFF_T > 4) && ((SIZEOF_OFF_T > 4) || defined(_WIN32))
   FEATURE("Largefile",   NULL,                CURL_VERSION_LARGEFILE),
 #endif
 #ifdef HAVE_LIBZ
@@ -519,7 +519,7 @@ static const struct feat features_table[] = {
 #ifdef GLOBAL_INIT_IS_THREADSAFE
   FEATURE("threadsafe",  NULL,                CURL_VERSION_THREADSAFE),
 #endif
-#if defined(_WIN32) && defined(UNICODE) && defined(_UNICODE)
+#ако defined(_WIN32) && defined(UNICODE) && defined(_UNICODE)
   FEATURE("Unicode",     NULL,                CURL_VERSION_UNICODE),
 #endif
 #ifdef USE_UNIX_SOCKETS
@@ -555,12 +555,12 @@ static curl_version_info_data version_info = {
   NULL, /* quic library string */
 #ifdef CURL_CA_BUNDLE
   CURL_CA_BUNDLE, /* cainfo */
-#else
+#иначе
   NULL,
 #endif
 #ifdef CURL_CA_PATH
   CURL_CA_PATH,  /* capath */
-#else
+#иначе
   NULL,
 #endif
   0,    /* zstd_ver_num */
@@ -575,7 +575,7 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 {
   size_t n;
   const struct feat *p;
-  int features = 0;
+  цяло features = 0;
 
 #ifdef USE_SSH
   static char ssh_buf[80];  /* 'ssh_buffer' clashes with libssh/libssh.h */
@@ -583,7 +583,7 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 #ifdef USE_SSL
 #ifdef CURL_WITH_MULTI_SSL
   static char ssl_buffer[200];
-#else
+#иначе
   static char ssl_buffer[80];
 #endif
 #endif
@@ -607,7 +607,7 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 #endif
 #ifdef USE_ARES
   {
-    int aresnum;
+    цяло aresnum;
     version_info.ares = ares_version(&aresnum);
     version_info.ares_num = aresnum;
   }
@@ -638,12 +638,12 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 #ifdef USE_NGHTTP2
   {
     nghttp2_info *h2 = nghttp2_version(0);
-    version_info.nghttp2_ver_num = (unsigned int)h2->version_num;
+    version_info.nghttp2_ver_num = (unsigned цяло)h2->version_num;
     version_info.nghttp2_version = h2->version_str;
   }
 #endif
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
+#ако !defined(CURL_DISABLE_HTTP) && defined(USE_HTTP3)
   {
     static char quicbuffer[80];
     Curl_quic_ver(quicbuffer, sizeof(quicbuffer));
@@ -659,8 +659,8 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
 
   /* Get available features, build bitmask and names array. */
   n = 0;
-  for(p = features_table; p->name; p++)
-    if(!p->present || p->present(&version_info)) {
+  за(p = features_table; p->name; p++)
+    ако(!p->present || p->present(&version_info)) {
       features |= p->bitmask;
       feature_names[n++] = p->name;
     }
@@ -672,5 +672,5 @@ curl_version_info_data *curl_version_info(CURLversion stamp)
   feature_names[n] = NULL;  /* Terminate array. */
   version_info.features = features;
 
-  return &version_info;
+  върни &version_info;
 }

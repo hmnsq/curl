@@ -38,20 +38,20 @@ CURLcode Curl_cf_def_connect(struct Curl_cfilter *cf,
 {
   CURLcode result;
 
-  if(cf->connected) {
+  ако(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    върни CURLE_OK;
   }
 
-  if(cf->next) {
+  ако(cf->next) {
     result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    ако(result || !*done)
+      върни result;
   }
 
   cf->connected = TRUE;
   *done = TRUE;
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 CURLcode Curl_cf_def_shutdown(struct Curl_cfilter *cf,
@@ -60,7 +60,7 @@ CURLcode Curl_cf_def_shutdown(struct Curl_cfilter *cf,
   (void)cf;
   (void)data;
   *done = TRUE;
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 CURLcode Curl_cf_def_adjust_pollset(struct Curl_cfilter *cf,
@@ -71,13 +71,13 @@ CURLcode Curl_cf_def_adjust_pollset(struct Curl_cfilter *cf,
   (void)cf;
   (void)data;
   (void)ps;
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 bool Curl_cf_def_data_pending(struct Curl_cfilter *cf,
                               const struct Curl_easy *data)
 {
-  return cf->next ?
+  върни cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
@@ -85,26 +85,26 @@ CURLcode Curl_cf_def_send(struct Curl_cfilter *cf, struct Curl_easy *data,
                           const uint8_t *buf, size_t len, bool eos,
                           size_t *pnwritten)
 {
-  if(cf->next)
-    return cf->next->cft->do_send(cf->next, data, buf, len, eos, pnwritten);
+  ако(cf->next)
+    върни cf->next->cft->do_send(cf->next, data, buf, len, eos, pnwritten);
   *pnwritten = 0;
-  return CURLE_RECV_ERROR;
+  върни CURLE_RECV_ERROR;
 }
 
 CURLcode Curl_cf_def_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
                           char *buf, size_t len, size_t *pnread)
 {
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  ако(cf->next)
+    върни cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_SEND_ERROR;
+  върни CURLE_SEND_ERROR;
 }
 
 bool Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
                                struct Curl_easy *data,
                                bool *input_pending)
 {
-  return cf->next ?
+  върни cf->next ?
     cf->next->cft->is_alive(cf->next, data, input_pending) :
     FALSE; /* pessimistic in absence of data */
 }
@@ -112,16 +112,16 @@ bool Curl_cf_def_conn_is_alive(struct Curl_cfilter *cf,
 CURLcode Curl_cf_def_conn_keep_alive(struct Curl_cfilter *cf,
                                      struct Curl_easy *data)
 {
-  return cf->next ?
+  върни cf->next ?
     cf->next->cft->keep_alive(cf->next, data) :
     CURLE_OK;
 }
 
 CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
                            struct Curl_easy *data,
-                           int query, int *pres1, void *pres2)
+                           цяло query, цяло *pres1, void *pres2)
 {
-  return cf->next ?
+  върни cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
@@ -130,19 +130,19 @@ CURLcode Curl_cf_def_query(struct Curl_cfilter *cf,
 void Curl_conn_trc_filters(struct Curl_easy *data,
                            int8_t sockindex, const char *info)
 {
-  if(CURL_TRC_M_is_verbose(data) && data->conn) {
+  ако(CURL_TRC_M_is_verbose(data) && data->conn) {
     struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
 
-    if(cf) {
+    ако(cf) {
       char msg[256], *buf;
-      int blen, n;
+      цяло blen, n;
 
       buf = msg;
       blen = sizeof(msg) - 1;
       n = curl_msnprintf(buf, blen, "%s [%d]", info, sockindex);
       buf += n;
       blen -= n;
-      for(; cf && blen; cf = cf->next) {
+      за(; cf && blen; cf = cf->next) {
         n = curl_msnprintf(buf, blen, "[%s%s]",
                            cf->connected ? "" : "!", cf->cft->name);
         buf += n;
@@ -150,7 +150,7 @@ void Curl_conn_trc_filters(struct Curl_easy *data,
       }
       CURL_TRC_M(data, "%s%s", msg, blen ? "" : "...");
     }
-    else
+    иначе
       CURL_TRC_M(data, "%s [%d][-]", info, sockindex);
   }
 }
@@ -161,9 +161,9 @@ void Curl_conn_cf_discard_chain(struct Curl_cfilter **pcf,
 {
   struct Curl_cfilter *cfn, *cf = *pcf;
 
-  if(cf) {
+  ако(cf) {
     *pcf = NULL;
-    while(cf) {
+    докато(cf) {
       cfn = cf->next;
       /* prevent destroying filter to mess with its sub-chain, since
        * we have the reference now and will call destroy on it.
@@ -192,14 +192,14 @@ CURLcode Curl_cf_recv(struct Curl_easy *data, int8_t sockindex, char *buf,
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
   cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected)
+  докато(cf && !cf->connected)
     cf = cf->next;
-  if(cf)
-    return cf->cft->do_recv(cf, data, buf, len, pnread);
+  ако(cf)
+    върни cf->cft->do_recv(cf, data, buf, len, pnread);
   failf(data, "recv: no filter connected");
   DEBUGASSERT(0);
   *pnread = 0;
-  return CURLE_FAILED_INIT;
+  върни CURLE_FAILED_INIT;
 }
 
 CURLcode Curl_cf_send(struct Curl_easy *data, int8_t sockindex,
@@ -211,15 +211,15 @@ CURLcode Curl_cf_send(struct Curl_easy *data, int8_t sockindex,
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
   cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected)
+  докато(cf && !cf->connected)
     cf = cf->next;
-  if(cf) {
-    return cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
+  ако(cf) {
+    върни cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
   }
   failf(data, "send: no filter connected");
   DEBUGASSERT(0);
   *pnwritten = 0;
-  return CURLE_FAILED_INIT;
+  върни CURLE_FAILED_INIT;
 }
 
 struct cf_io_ctx {
@@ -232,7 +232,7 @@ static CURLcode cf_bufq_reader(void *writer_ctx,
                                size_t *pnread)
 {
   struct cf_io_ctx *io = writer_ctx;
-  return Curl_conn_cf_recv(io->cf, io->data, (char *)buf, blen, pnread);
+  върни Curl_conn_cf_recv(io->cf, io->data, (char *)buf, blen, pnread);
 }
 
 CURLcode Curl_cf_recv_bufq(struct Curl_cfilter *cf,
@@ -243,13 +243,13 @@ CURLcode Curl_cf_recv_bufq(struct Curl_cfilter *cf,
 {
   struct cf_io_ctx io;
 
-  if(!cf || !data) {
+  ако(!cf || !data) {
     *pnread = 0;
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
   }
   io.data = data;
   io.cf = cf;
-  return Curl_bufq_sipn(bufq, maxlen, cf_bufq_reader, &io, pnread);
+  върни Curl_bufq_sipn(bufq, maxlen, cf_bufq_reader, &io, pnread);
 }
 
 static CURLcode cf_bufq_writer(void *writer_ctx,
@@ -257,7 +257,7 @@ static CURLcode cf_bufq_writer(void *writer_ctx,
                                size_t *pnwritten)
 {
   struct cf_io_ctx *io = writer_ctx;
-  return Curl_conn_cf_send(io->cf, io->data, buf, buflen, FALSE, pnwritten);
+  върни Curl_conn_cf_send(io->cf, io->data, buf, buflen, FALSE, pnwritten);
 }
 
 CURLcode Curl_cf_send_bufq(struct Curl_cfilter *cf,
@@ -268,17 +268,17 @@ CURLcode Curl_cf_send_bufq(struct Curl_cfilter *cf,
 {
   struct cf_io_ctx io;
 
-  if(!cf || !data) {
+  ако(!cf || !data) {
     *pnwritten = 0;
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
   }
   io.data = data;
   io.cf = cf;
-  if(buf && blen)
-    return Curl_bufq_write_pass(bufq, buf, blen, cf_bufq_writer, &io,
+  ако(buf && blen)
+    върни Curl_bufq_write_pass(bufq, buf, blen, cf_bufq_writer, &io,
                                 pnwritten);
-  else
-    return Curl_bufq_pass(bufq, cf_bufq_writer, &io, pnwritten);
+  иначе
+    върни Curl_bufq_pass(bufq, cf_bufq_writer, &io, pnwritten);
 }
 
 CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
@@ -290,7 +290,7 @@ CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
 
   DEBUGASSERT(cft);
   cf = curlx_calloc(1, sizeof(*cf));
-  if(!cf)
+  ако(!cf)
     goto out;
 
   cf->cft = cft;
@@ -298,7 +298,7 @@ CURLcode Curl_cf_create(struct Curl_cfilter **pcf,
   result = CURLE_OK;
 out:
   *pcf = cf;
-  return result;
+  върни result;
 }
 
 void Curl_conn_cf_add(struct Curl_easy *data,
@@ -333,7 +333,7 @@ void Curl_conn_cf_insert_after(struct Curl_cfilter *cf_at,
     cf_new->sockindex = cf_at->sockindex;
     pnext = &cf_new->next;
     cf_new = cf_new->next;
-  } while(cf_new);
+  } докато(cf_new);
   *pnext = tail;
 }
 
@@ -342,12 +342,12 @@ bool Curl_conn_cf_discard(struct Curl_cfilter **pcf,
 {
   struct Curl_cfilter *cf = pcf ? *pcf : NULL;
   bool found = FALSE;
-  if(cf) {
-    if(cf->conn) {
+  ако(cf) {
+    ако(cf->conn) {
       /* unlink if present in connection filter chain */
       struct Curl_cfilter **pprev = &cf->conn->cfilter[cf->sockindex];
-      while(*pprev) {
-        if(*pprev == *pcf) {
+      докато(*pprev) {
+        ако(*pprev == *pcf) {
           *pprev = (*pcf)->next;
           cf->next = NULL;
           found = TRUE;
@@ -358,63 +358,63 @@ bool Curl_conn_cf_discard(struct Curl_cfilter **pcf,
     }
     Curl_conn_cf_discard_chain(pcf, data);
   }
-  return found;
+  върни found;
 }
 
 CURLcode Curl_conn_cf_connect(struct Curl_cfilter *cf,
                               struct Curl_easy *data,
                               bool *done)
 {
-  if(cf)
-    return cf->cft->do_connect(cf, data, done);
-  return CURLE_FAILED_INIT;
+  ако(cf)
+    върни cf->cft->do_connect(cf, data, done);
+  върни CURLE_FAILED_INIT;
 }
 
 CURLcode Curl_conn_cf_send(struct Curl_cfilter *cf, struct Curl_easy *data,
                            const uint8_t *buf, size_t len, bool eos,
                            size_t *pnwritten)
 {
-  if(cf)
-    return cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
+  ако(cf)
+    върни cf->cft->do_send(cf, data, buf, len, eos, pnwritten);
   *pnwritten = 0;
-  return CURLE_SEND_ERROR;
+  върни CURLE_SEND_ERROR;
 }
 
 CURLcode Curl_conn_cf_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
                            char *buf, size_t len, size_t *pnread)
 {
-  if(cf)
-    return cf->cft->do_recv(cf, data, buf, len, pnread);
+  ако(cf)
+    върни cf->cft->do_recv(cf, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  върни CURLE_RECV_ERROR;
 }
 
 static CURLcode cf_cntrl_all(struct connectdata *conn,
                              struct Curl_easy *data,
                              bool ignore_result,
-                             int event, int arg1, void *arg2)
+                             цяло event, цяло arg1, void *arg2)
 {
   CURLcode result = CURLE_OK;
-  int i;
+  цяло i;
 
-  for(i = 0; i < (int)CURL_ARRAYSIZE(conn->cfilter); ++i) {
+  за(i = 0; i < (цяло)CURL_ARRAYSIZE(conn->cfilter); ++i) {
     result = Curl_conn_cf_cntrl(conn->cfilter[i], data, ignore_result,
                                 event, arg1, arg2);
-    if(!ignore_result && result)
+    ако(!ignore_result && result)
       break;
   }
-  return result;
+  върни result;
 }
 
 bool Curl_conn_cf_is_ip_connected(struct Curl_cfilter *cf,
                                   struct Curl_easy *data)
 {
-  if(cf) {
-    int value = 0;
-    if(!cf->cft->query(cf, data, CF_QUERY_REALLY_CONNECTED, &value, NULL))
-      return !!value;
+  ако(cf) {
+    цяло value = 0;
+    ако(!cf->cft->query(cf, data, CF_QUERY_REALLY_CONNECTED, &value, NULL))
+      върни !!value;
   }
-  return FALSE;
+  върни FALSE;
 }
 
 void Curl_conn_cntrl_update_info(struct Curl_easy *data,
@@ -425,9 +425,9 @@ void Curl_conn_cntrl_update_info(struct Curl_easy *data,
 
 void Curl_conn_cntrl_report_stats(struct Curl_easy *data,
                                   struct connectdata *conn,
-                                  int sockindex)
+                                  цяло sockindex)
 {
-  if((unsigned)sockindex < CURL_ARRAYSIZE(conn->cfilter))
+  ако((unsigned)sockindex < CURL_ARRAYSIZE(conn->cfilter))
     (void)Curl_conn_cf_cntrl(conn->cfilter[sockindex], data, TRUE,
                              CF_CTRL_REPORT_STATS, 0, NULL);
 }
@@ -436,118 +436,118 @@ void Curl_conn_remove_setup_filters(struct Curl_easy *data,
                                     int8_t sockindex)
 {
   struct Curl_cfilter **anchor = &data->conn->cfilter[sockindex];
-  while(*anchor) {
+  докато(*anchor) {
     struct Curl_cfilter *cf = *anchor;
-    if(cf->connected && (cf->cft->flags & CF_TYPE_SETUP)) {
+    ако(cf->connected && (cf->cft->flags & CF_TYPE_SETUP)) {
       *anchor = cf->next;
       cf->next = NULL;
       CURL_TRC_CF(data, cf, "removing connected setup filter");
       cf->cft->destroy(cf, data);
       curlx_free(cf);
     }
-    else
+    иначе
       anchor = &cf->next;
   }
 }
 
 bool Curl_conn_is_setup(struct connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return !!conn->cfilter[sockindex];
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
+  върни !!conn->cfilter[sockindex];
 }
 
 bool Curl_conn_is_connected(struct connectdata *conn, int8_t sockindex)
 {
   struct Curl_cfilter *cf;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
   cf = conn->cfilter[sockindex];
-  if(cf)
-    return (bool)cf->connected;
-  else if(conn->scheme->flags & PROTOPT_NONETWORK)
-    return TRUE;
-  return FALSE;
+  ако(cf)
+    върни (bool)cf->connected;
+  иначе ако(conn->scheme->flags & PROTOPT_NONETWORK)
+    върни TRUE;
+  върни FALSE;
 }
 
 bool Curl_conn_is_ip_connected(struct Curl_easy *data, int8_t sockindex)
 {
   struct Curl_cfilter *cf;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
   cf = data->conn->cfilter[sockindex];
-  while(cf) {
-    if(cf->connected)
-      return TRUE;
-    if(cf->cft->flags & CF_TYPE_IP_CONNECT)
-      return FALSE;
+  докато(cf) {
+    ако(cf->connected)
+      върни TRUE;
+    ако(cf->cft->flags & CF_TYPE_IP_CONNECT)
+      върни FALSE;
     cf = cf->next;
   }
-  return FALSE;
+  върни FALSE;
 }
 
 #ifndef CURL_DISABLE_PROXY
 static bool cf_is_tunneling(struct Curl_cfilter *cf)
 {
-  for(; cf; cf = cf->next) {
-    if((cf->cft->flags & CF_TYPE_PROXY))
-      return TRUE;
+  за(; cf; cf = cf->next) {
+    ако((cf->cft->flags & CF_TYPE_PROXY))
+      върни TRUE;
   }
-  return FALSE;
+  върни FALSE;
 }
 
 bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return conn ? cf_is_tunneling(conn->cfilter[sockindex]) : FALSE;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
+  върни conn ? cf_is_tunneling(conn->cfilter[sockindex]) : FALSE;
 }
-#else
+#иначе
 bool Curl_conn_is_tunneling(struct connectdata *conn, int8_t sockindex)
 {
   (void)conn;
   (void)sockindex;
-  return FALSE;
+  върни FALSE;
 }
 #endif /* CURL_DISABLE_PROXY */
 
 static bool cf_is_ssl(struct Curl_cfilter *cf)
 {
-  for(; cf; cf = cf->next) {
+  за(; cf; cf = cf->next) {
     /* A tunneling proxy does not offer end2end encryption, even if
      * it does SSL itself (e.g. QUIC H3 proxy) */
-    if((cf->cft->flags & CF_TYPE_SSL) && !(cf->cft->flags & CF_TYPE_PROXY))
-      return TRUE;
-    if(cf->cft->flags & CF_TYPE_IP_CONNECT)
-      return FALSE;
+    ако((cf->cft->flags & CF_TYPE_SSL) && !(cf->cft->flags & CF_TYPE_PROXY))
+      върни TRUE;
+    ако(cf->cft->flags & CF_TYPE_IP_CONNECT)
+      върни FALSE;
   }
-  return FALSE;
+  върни FALSE;
 }
 
 bool Curl_conn_is_ssl(struct connectdata *conn, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return conn ? cf_is_ssl(conn->cfilter[sockindex]) : FALSE;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
+  върни conn ? cf_is_ssl(conn->cfilter[sockindex]) : FALSE;
 }
 
 bool Curl_conn_get_ssl_info(struct Curl_easy *data,
                             struct connectdata *conn, int8_t sockindex,
-                            int query,
+                            цяло query,
                             struct curl_tlssessioninfo *info)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  if(Curl_conn_is_ssl(conn, sockindex)) {
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
+  ако(Curl_conn_is_ssl(conn, sockindex)) {
     struct Curl_cfilter *cf = conn->cfilter[sockindex];
     CURLcode result = cf ?
       cf->cft->query(cf, data, query, NULL, (void *)info) :
       CURLE_UNKNOWN_OPTION;
-    return !result;
+    върни !result;
   }
-  return FALSE;
+  върни FALSE;
 }
 
 CURLcode Curl_conn_get_ip_info(struct Curl_easy *data,
@@ -555,55 +555,55 @@ CURLcode Curl_conn_get_ip_info(struct Curl_easy *data,
                                bool *is_ipv6, struct ip_quadruple *ipquad)
 {
   struct Curl_cfilter *cf;
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
   cf = conn ? conn->cfilter[sockindex] : NULL;
-  return Curl_conn_cf_get_ip_info(cf, data, is_ipv6, ipquad);
+  върни Curl_conn_cf_get_ip_info(cf, data, is_ipv6, ipquad);
 }
 
 bool Curl_conn_is_multiplex(struct connectdata *conn, int8_t sockindex)
 {
   struct Curl_cfilter *cf;
 
-  if(!conn || !CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  for(cf = conn->cfilter[sockindex]; cf; cf = cf->next) {
-    if(cf->cft->flags & CF_TYPE_MULTIPLEX)
-      return TRUE;
-    if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
-      return FALSE;
+  ако(!conn || !CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
+  за(cf = conn->cfilter[sockindex]; cf; cf = cf->next) {
+    ако(cf->cft->flags & CF_TYPE_MULTIPLEX)
+      върни TRUE;
+    ако(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
+      върни FALSE;
   }
-  return FALSE;
+  върни FALSE;
 }
 
 unsigned char Curl_conn_get_transport(struct Curl_easy *data,
                                       struct connectdata *conn)
 {
   struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return Curl_conn_cf_get_transport(cf, data);
+  върни Curl_conn_cf_get_transport(cf, data);
 }
 
-int Curl_socktype_for_transport(uint8_t transport)
+цяло Curl_socktype_for_transport(uint8_t transport)
 {
   switch(transport) {
   case TRNSPRT_TCP:
-    return SOCK_STREAM;
+    върни SOCK_STREAM;
   case TRNSPRT_UNIX:
-    return SOCK_STREAM;
+    върни SOCK_STREAM;
   default: /* UDP and QUIC */
-    return SOCK_DGRAM;
+    върни SOCK_DGRAM;
   }
 }
 
-int Curl_protocol_for_transport(uint8_t transport)
+цяло Curl_protocol_for_transport(uint8_t transport)
 {
   switch(transport) {
   case TRNSPRT_TCP:
-    return IPPROTO_TCP;
+    върни IPPROTO_TCP;
   case TRNSPRT_UNIX:
-    return IPPROTO_IP;
+    върни IPPROTO_IP;
   default: /* UDP and QUIC */
-    return IPPROTO_UDP;
+    върни IPPROTO_UDP;
   }
 }
 
@@ -611,7 +611,7 @@ const char *Curl_conn_get_alpn_negotiated(struct Curl_easy *data,
                                           struct connectdata *conn)
 {
   struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return Curl_conn_cf_get_alpn_negotiated(cf, data);
+  върни Curl_conn_cf_get_alpn_negotiated(cf, data);
 }
 
 unsigned char Curl_conn_http_version(struct Curl_easy *data,
@@ -622,20 +622,20 @@ unsigned char Curl_conn_http_version(struct Curl_easy *data,
   unsigned char v = 0;
 
   cf = conn->cfilter[FIRSTSOCKET];
-  for(; cf; cf = cf->next) {
-    if(cf->cft->flags & CF_TYPE_HTTP) {
-      int value = 0;
+  за(; cf; cf = cf->next) {
+    ако(cf->cft->flags & CF_TYPE_HTTP) {
+      цяло value = 0;
       result = cf->cft->query(cf, data, CF_QUERY_HTTP_VERSION, &value, NULL);
-      if(!result && ((value < 0) || (value > 255)))
+      ако(!result && ((value < 0) || (value > 255)))
         result = CURLE_FAILED_INIT;
-      else
+      иначе
         v = (unsigned char)value;
       break;
     }
-    if(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
+    ако(cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_SSL))
       break;
   }
-  return (unsigned char)(result ? 0 : v);
+  върни (unsigned char)(result ? 0 : v);
 }
 
 bool Curl_conn_data_pending(struct Curl_easy *data, int8_t sockindex)
@@ -645,34 +645,34 @@ bool Curl_conn_data_pending(struct Curl_easy *data, int8_t sockindex)
   (void)data;
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
 
   cf = data->conn->cfilter[sockindex];
-  while(cf && !cf->connected) {
+  докато(cf && !cf->connected) {
     cf = cf->next;
   }
-  if(cf) {
-    return cf->cft->has_data_pending(cf, data);
+  ако(cf) {
+    върни cf->cft->has_data_pending(cf, data);
   }
-  return FALSE;
+  върни FALSE;
 }
 
 bool Curl_conn_cf_needs_flush(struct Curl_cfilter *cf,
                               struct Curl_easy *data)
 {
   CURLcode result;
-  int pending = 0;
+  цяло pending = 0;
   result = cf ? cf->cft->query(cf, data, CF_QUERY_NEED_FLUSH,
                                &pending, NULL) : CURLE_UNKNOWN_OPTION;
-  return (result || !pending) ? FALSE : TRUE;
+  върни (result || !pending) ? FALSE : TRUE;
 }
 
 bool Curl_conn_needs_flush(struct Curl_easy *data, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return FALSE;
-  return Curl_conn_cf_needs_flush(data->conn->cfilter[sockindex], data);
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни FALSE;
+  върни Curl_conn_cf_needs_flush(data->conn->cfilter[sockindex], data);
 }
 
 CURLcode Curl_conn_cf_adjust_pollset(struct Curl_cfilter *cf,
@@ -685,14 +685,14 @@ CURLcode Curl_conn_cf_adjust_pollset(struct Curl_cfilter *cf,
    * - CF_TYPE_DNS filters can
    * - unconnected filters without next or connect next can
    */
-  for(; cf && !result; cf = cf->next) {
-    if(cf->shutdown)
+  за(; cf && !result; cf = cf->next) {
+    ако(cf->shutdown)
       continue;
-    if(cf->connected || (cf->cft->flags & CF_TYPE_DNS) ||
+    ако(cf->connected || (cf->cft->flags & CF_TYPE_DNS) ||
        !cf->next || cf->next->connected)
       result = cf->cft->adjust_pollset(cf, data, ps);
   }
-  return result;
+  върни result;
 }
 
 CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
@@ -718,13 +718,13 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
    * connect or shutdown does not add poll events for the other. Check
    * against the transfer's own interest, before any chain added sockets
    * of its own. */
-  for(i = 0; (i < (int)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
-    if(conn->cfilter[i] &&
+  за(i = 0; (i < (цяло)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
+    ако(conn->cfilter[i] &&
        (want_io || !conn->cfilter[i]->connected ||
         CURL_CONN_IN_SHUTDOWN(conn, i)))
       result = Curl_conn_cf_adjust_pollset(conn->cfilter[i], data, ps);
   }
-  return result;
+  върни result;
 }
 
 /*
@@ -733,12 +733,12 @@ CURLcode Curl_conn_adjust_pollset(struct Curl_easy *data,
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_conn_cf_poll(struct Curl_cfilter *cf,
+цяло Curl_conn_cf_poll(struct Curl_cfilter *cf,
                       struct Curl_easy *data,
                       timediff_t timeout_ms)
 {
   struct easy_pollset ps;
-  int rc;
+  цяло rc;
   CURLcode result;
 
   DEBUGASSERT(cf);
@@ -747,32 +747,32 @@ int Curl_conn_cf_poll(struct Curl_cfilter *cf,
   Curl_pollset_init(&ps);
 
   result = Curl_conn_cf_adjust_pollset(cf, data, &ps);
-  if(!result)
+  ако(!result)
     rc = Curl_pollset_poll(data, &ps, timeout_ms);
-  else
+  иначе
     rc = -1;
   Curl_pollset_cleanup(&ps);
-  return rc;
+  върни rc;
 }
 
 void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
-                                const char **phost, int *pport)
+                                const char **phost, цяло *pport)
 {
   struct Curl_cfilter *cf, *cf_proxy = NULL;
-  int portarg = -1;
+  цяло portarg = -1;
 
-  if(!data->conn) {
+  ако(!data->conn) {
     DEBUGASSERT(0);
     *phost = "";
-    if(pport)
+    ако(pport)
       *pport = -1;
-    return;
+    върни;
   }
 
   cf = CONN_SOCK_IDX_VALID(sockindex) ? data->conn->cfilter[sockindex] : NULL;
   /* Find the "lowest" tunneling proxy filter that has not connected yet. */
-  while(cf && !cf->connected) {
-    if((cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY)) ==
+  докато(cf && !cf->connected) {
+    ако((cf->cft->flags & (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY)) ==
        (CF_TYPE_IP_CONNECT | CF_TYPE_PROXY))
       cf_proxy = cf;
     cf = cf->next;
@@ -780,62 +780,62 @@ void Curl_conn_get_current_host(struct Curl_easy *data, int8_t sockindex,
   /* cf_proxy (!= NULL) is not connected yet. It is talking
    * to an interim host and any authentication or other things apply
    * to this interim host and port. */
-  if(!cf_proxy || cf_proxy->cft->query(cf_proxy, data, CF_QUERY_HOST_PORT,
+  ако(!cf_proxy || cf_proxy->cft->query(cf_proxy, data, CF_QUERY_HOST_PORT,
                                        &portarg, CURL_UNCONST(phost))) {
     /* Everything connected or query unsuccessful, the overall
      * connection's destination is the answer */
     *phost = data->conn->origin->hostname;
     portarg = data->conn->origin->port;
   }
-  if(pport)
+  ако(pport)
     *pport = portarg;
 }
 
 CURLcode Curl_cf_def_cntrl(struct Curl_cfilter *cf,
                            struct Curl_easy *data,
-                           int event, int arg1, void *arg2)
+                           цяло event, цяло arg1, void *arg2)
 {
   (void)cf;
   (void)data;
   (void)event;
   (void)arg1;
   (void)arg2;
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 CURLcode Curl_conn_cf_cntrl(struct Curl_cfilter *cf,
                             struct Curl_easy *data,
                             bool ignore_result,
-                            int event, int arg1, void *arg2)
+                            цяло event, цяло arg1, void *arg2)
 {
   CURLcode result = CURLE_OK;
 
-  for(; cf; cf = cf->next) {
-    if(cf->cft->cntrl == Curl_cf_def_cntrl)
+  за(; cf; cf = cf->next) {
+    ако(cf->cft->cntrl == Curl_cf_def_cntrl)
       continue;
     result = cf->cft->cntrl(cf, data, event, arg1, arg2);
-    if(!ignore_result && result)
+    ако(!ignore_result && result)
       break;
   }
-  return result;
+  върни result;
 }
 
 curl_socket_t Curl_conn_cf_get_socket(struct Curl_cfilter *cf,
                                       struct Curl_easy *data)
 {
   curl_socket_t sock;
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_SOCKET, NULL, &sock))
-    return sock;
-  return CURL_SOCKET_BAD;
+  ако(cf && !cf->cft->query(cf, data, CF_QUERY_SOCKET, NULL, &sock))
+    върни sock;
+  върни CURL_SOCKET_BAD;
 }
 
 unsigned char Curl_conn_cf_get_transport(struct Curl_cfilter *cf,
                                          struct Curl_easy *data)
 {
-  int transport = 0;
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_TRANSPORT, &transport, NULL))
-    return (unsigned char)transport;
-  return (unsigned char)(data->conn ? data->conn->transport_wanted : 0);
+  цяло transport = 0;
+  ако(cf && !cf->cft->query(cf, data, CF_QUERY_TRANSPORT, &transport, NULL))
+    върни (unsigned char)transport;
+  върни (unsigned char)(data->conn ? data->conn->transport_wanted : 0);
 }
 
 const char *Curl_conn_cf_get_alpn_negotiated(struct Curl_cfilter *cf,
@@ -843,21 +843,21 @@ const char *Curl_conn_cf_get_alpn_negotiated(struct Curl_cfilter *cf,
 {
   const char *alpn = NULL;
   CURL_TRC_CF(data, cf, "query ALPN");
-  if(cf && !cf->cft->query(cf, data, CF_QUERY_ALPN_NEGOTIATED, NULL,
+  ако(cf && !cf->cft->query(cf, data, CF_QUERY_ALPN_NEGOTIATED, NULL,
                            CURL_UNCONST(&alpn)))
-    return alpn;
-  return NULL;
+    върни alpn;
+  върни NULL;
 }
 
 static const struct Curl_sockaddr_ex *cf_get_remote_addr(
   struct Curl_cfilter *cf, struct Curl_easy *data)
 {
   const struct Curl_sockaddr_ex *remote_addr = NULL;
-  if(cf &&
+  ако(cf &&
      !cf->cft->query(cf, data, CF_QUERY_REMOTE_ADDR, NULL,
                      CURL_UNCONST(&remote_addr)))
-    return remote_addr;
-  return NULL;
+    върни remote_addr;
+  върни NULL;
 }
 
 CURLcode Curl_conn_cf_get_ip_info(struct Curl_cfilter *cf,
@@ -865,27 +865,27 @@ CURLcode Curl_conn_cf_get_ip_info(struct Curl_cfilter *cf,
                                   bool *is_ipv6, struct ip_quadruple *ipquad)
 {
   CURLcode result = CURLE_UNKNOWN_OPTION;
-  if(cf) {
-    int ipv6 = 0;
+  ако(cf) {
+    цяло ipv6 = 0;
     result = cf->cft->query(cf, data, CF_QUERY_IP_INFO, &ipv6, ipquad);
     *is_ipv6 = !!ipv6;
   }
-  return result;
+  върни result;
 }
 
 curl_socket_t Curl_conn_get_first_socket(struct Curl_easy *data)
 {
   struct Curl_cfilter *cf;
 
-  if(!data->conn)
-    return CURL_SOCKET_BAD;
+  ако(!data->conn)
+    върни CURL_SOCKET_BAD;
 
   cf = data->conn->cfilter[FIRSTSOCKET];
   /* if the top filter has not connected, ask it (and its sub-filters)
    * for the socket. Otherwise conn->sock[sockindex] should have it. */
-  if(cf && !cf->connected)
-    return Curl_conn_cf_get_socket(cf, data);
-  return data->conn->sock[FIRSTSOCKET];
+  ако(cf && !cf->connected)
+    върни Curl_conn_cf_get_socket(cf, data);
+  върни data->conn->sock[FIRSTSOCKET];
 }
 
 const struct Curl_sockaddr_ex *Curl_conn_get_remote_addr(
@@ -894,19 +894,19 @@ const struct Curl_sockaddr_ex *Curl_conn_get_remote_addr(
   struct Curl_cfilter *cf =
     (data->conn && CONN_SOCK_IDX_VALID(sockindex)) ?
     data->conn->cfilter[sockindex] : NULL;
-  return cf ? cf_get_remote_addr(cf, data) : NULL;
+  върни cf ? cf_get_remote_addr(cf, data) : NULL;
 }
 
 CURLcode Curl_conn_ev_data_setup(struct Curl_easy *data)
 {
-  return cf_cntrl_all(data->conn, data, FALSE, CF_CTRL_DATA_SETUP, 0, NULL);
+  върни cf_cntrl_all(data->conn, data, FALSE, CF_CTRL_DATA_SETUP, 0, NULL);
 }
 
 CURLcode Curl_conn_flush(struct Curl_easy *data, int8_t sockindex)
 {
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, FALSE,
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
+  върни Curl_conn_cf_cntrl(data->conn->cfilter[sockindex], data, FALSE,
                             CF_CTRL_FLUSH, 0, NULL);
 }
 
@@ -930,7 +930,7 @@ void Curl_conn_ev_data_done(struct Curl_easy *data, bool premature)
 
 CURLcode Curl_conn_ev_data_pause(struct Curl_easy *data, bool do_pause)
 {
-  return cf_cntrl_all(data->conn, data, FALSE,
+  върни cf_cntrl_all(data->conn, data, FALSE,
                       CF_CTRL_DATA_PAUSE, do_pause, NULL);
 }
 
@@ -938,7 +938,7 @@ bool Curl_conn_is_alive(struct Curl_easy *data, struct connectdata *conn,
                         bool *input_pending)
 {
   struct Curl_cfilter *cf = conn->cfilter[FIRSTSOCKET];
-  return cf && !cf->conn->bits.close &&
+  върни cf && !cf->conn->bits.close &&
          cf->cft->is_alive(cf, data, input_pending);
 }
 
@@ -946,14 +946,14 @@ CURLcode Curl_conn_keep_alive(struct Curl_easy *data,
                               struct connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  int i;
+  цяло i;
 
-  for(i = 0; (i < (int)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
+  за(i = 0; (i < (цяло)CURL_ARRAYSIZE(conn->cfilter)) && !result; ++i) {
     struct Curl_cfilter *cf = conn->cfilter[i];
-    if(cf)
+    ако(cf)
       result = cf->cft->keep_alive(cf, data);
   }
-  return result;
+  върни result;
 }
 
 size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
@@ -962,10 +962,10 @@ size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
 {
   struct Curl_cfilter *cf;
   CURLcode result;
-  int n = -1;
+  цяло n = -1;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return 0;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни 0;
 
   cf = conn->cfilter[sockindex];
   result = cf ? cf->cft->query(cf, data, CF_QUERY_MAX_CONCURRENT,
@@ -973,32 +973,32 @@ size_t Curl_conn_get_max_concurrent(struct Curl_easy *data,
   /* If no filter answered the query, the default is a non-multiplexed
    * connection with limit 1. Otherwise, the query may return 0
    * for connections that are in shutdown, e.g. server HTTP/2 GOAWAY. */
-  return (result || n < 0) ? 1 : (size_t)n;
+  върни (result || n < 0) ? 1 : (size_t)n;
 }
 
-int Curl_conn_get_stream_error(struct Curl_easy *data,
+цяло Curl_conn_get_stream_error(struct Curl_easy *data,
                                struct connectdata *conn,
                                int8_t sockindex)
 {
   struct Curl_cfilter *cf;
   CURLcode result;
-  int n = 0;
+  цяло n = 0;
 
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return 0;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни 0;
 
   cf = conn->cfilter[sockindex];
   result = cf ? cf->cft->query(cf, data, CF_QUERY_STREAM_ERROR,
                                &n, NULL) : CURLE_UNKNOWN_OPTION;
-  return (result || n < 0) ? 0 : n;
+  върни (result || n < 0) ? 0 : n;
 }
 
 int8_t Curl_conn_sockindex(struct Curl_easy *data, curl_socket_t sockfd)
 {
-  if(data && data->conn &&
+  ако(data && data->conn &&
      sockfd != CURL_SOCKET_BAD && sockfd == data->conn->sock[SECONDARYSOCKET])
-    return SECONDARYSOCKET;
-  return FIRSTSOCKET;
+    върни SECONDARYSOCKET;
+  върни FIRSTSOCKET;
 }
 
 CURLcode Curl_conn_recv(struct Curl_easy *data, int8_t sockindex,
@@ -1006,12 +1006,12 @@ CURLcode Curl_conn_recv(struct Curl_easy *data, int8_t sockindex,
 {
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  if(data && data->conn && data->conn->recv[sockindex])
-    return data->conn->recv[sockindex](data, sockindex, buf, len, pnread);
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
+  ако(data && data->conn && data->conn->recv[sockindex])
+    върни data->conn->recv[sockindex](data, sockindex, buf, len, pnread);
   *pnread = 0;
-  return CURLE_FAILED_INIT;
+  върни CURLE_FAILED_INIT;
 }
 
 CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
@@ -1023,32 +1023,32 @@ CURLcode Curl_conn_send(struct Curl_easy *data, int8_t sockindex,
   DEBUGASSERT(data);
   DEBUGASSERT(data->conn);
   DEBUGASSERT(CONN_SOCK_IDX_VALID(sockindex));
-  if(!CONN_SOCK_IDX_VALID(sockindex))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ако(!CONN_SOCK_IDX_VALID(sockindex))
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
 #ifdef DEBUGBUILD
-  if(write_len) {
+  ако(write_len) {
     /* Allow debug builds to override this logic to force short sends */
     const char *p = getenv("CURL_SMALLSENDS");
-    if(p) {
+    ако(p) {
       curl_off_t altsize;
-      if(!curlx_str_number(&p, &altsize, write_len)) {
+      ако(!curlx_str_number(&p, &altsize, write_len)) {
         write_len = (size_t)altsize;
-        if(write_len != len)
+        ако(write_len != len)
           eos = FALSE;
       }
     }
   }
 #endif
-  if(data && data->conn && data->conn->send[sockindex]) {
+  ако(data && data->conn && data->conn->send[sockindex]) {
     CURLcode result = data->conn->send[sockindex](data, sockindex, buf,
                                                   write_len, eos, pnwritten);
-    if(!result && (*pnwritten > write_len)) {
+    ако(!result && (*pnwritten > write_len)) {
       DEBUGASSERT(0);
       *pnwritten = 0;
-      return CURLE_SEND_ERROR;
+      върни CURLE_SEND_ERROR;
     }
-    return result;
+    върни result;
   }
   *pnwritten = 0;
-  return CURLE_FAILED_INIT;
+  върни CURLE_FAILED_INIT;
 }

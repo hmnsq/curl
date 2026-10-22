@@ -39,14 +39,14 @@
 /* int recv(SOCKET, char *, int, int) */
 #define RECV_TYPE_ARG1 SOCKET
 #define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 int
-#define RECV_TYPE_RETV int
+#define RECV_TYPE_ARG3 цяло
+#define RECV_TYPE_RETV цяло
 
 /* int send(SOCKET, const char *, int, int); */
 #define SEND_TYPE_ARG1 SOCKET
 #define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#define SEND_TYPE_ARG3 цяло
+#define SEND_TYPE_RETV цяло
 
 #elif defined(__AMIGA__) /* Any AmigaOS flavor */
 
@@ -58,15 +58,15 @@
 #define RECV_TYPE_RETV long
 
 /* int send(int, char *, int, int); */
-#define SEND_TYPE_ARG1 int
+#define SEND_TYPE_ARG1 цяло
 #define SEND_NONCONST_ARG2
 #define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#define SEND_TYPE_ARG3 цяло
+#define SEND_TYPE_RETV цяло
 #endif
 
 #ifndef RECV_TYPE_ARG1
-#define RECV_TYPE_ARG1 int
+#define RECV_TYPE_ARG1 цяло
 #endif
 
 #ifndef RECV_TYPE_ARG2
@@ -78,7 +78,7 @@
 #endif
 
 #ifndef RECV_TYPE_ARG4
-#define RECV_TYPE_ARG4 int
+#define RECV_TYPE_ARG4 цяло
 #endif
 
 #ifndef RECV_TYPE_RETV
@@ -86,7 +86,7 @@
 #endif
 
 #ifndef SEND_TYPE_ARG1
-#define SEND_TYPE_ARG1 int
+#define SEND_TYPE_ARG1 цяло
 #endif
 
 #ifndef SEND_TYPE_ARG2
@@ -98,7 +98,7 @@
 #endif
 
 #ifndef SEND_TYPE_ARG4
-#define SEND_TYPE_ARG4 int
+#define SEND_TYPE_ARG4 цяло
 #endif
 
 #ifndef SEND_TYPE_RETV

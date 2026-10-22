@@ -67,17 +67,17 @@
 #define SIZEOF_CURL_OFF_T       8
 
 #define HAVE_RECV 1
-#define RECV_TYPE_ARG1 int
+#define RECV_TYPE_ARG1 цяло
 #define RECV_TYPE_ARG2 void *
 #define RECV_TYPE_ARG3 size_t
-#define RECV_TYPE_ARG4 int
+#define RECV_TYPE_ARG4 цяло
 #define RECV_TYPE_RETV ssize_t
 
 #define HAVE_SEND 1
-#define SEND_TYPE_ARG1 int
+#define SEND_TYPE_ARG1 цяло
 #define SEND_TYPE_ARG2 void *
 #define SEND_TYPE_ARG3 size_t
-#define SEND_TYPE_ARG4 int
+#define SEND_TYPE_ARG4 цяло
 #define SEND_TYPE_RETV ssize_t
 
 #endif /* HEADER_CURL_CONFIG_MAC_H */

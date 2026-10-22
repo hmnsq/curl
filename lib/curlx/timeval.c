@@ -41,7 +41,7 @@ void curlx_pnow(struct curltime *pnow)
   DEBUGASSERT(s_time_freq.QuadPart);
   QueryPerformanceCounter(&count);
   pnow->tv_sec = (time_t)(count.QuadPart / s_time_freq.QuadPart);
-  pnow->tv_usec = (int)((count.QuadPart % s_time_freq.QuadPart) * 1000000 /
+  pnow->tv_usec = (цяло)((count.QuadPart % s_time_freq.QuadPart) * 1000000 /
                         s_time_freq.QuadPart);
 }
 
@@ -64,34 +64,34 @@ void curlx_pnow(struct curltime *pnow)
    * code compiles but fails during runtime if clock_gettime() is
    * called on unsupported OS version.
    */
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+#ако defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
   (HAVE_BUILTIN_AVAILABLE == 1)
   bool have_clock_gettime = FALSE;
-  if(__builtin_available(macOS 10.12, iOS 10, tvOS 10, watchOS 3, *))
+  ако(__builtin_available(macOS 10.12, iOS 10, tvOS 10, watchOS 3, *))
     have_clock_gettime = TRUE;
 #endif
 
 #ifdef HAVE_CLOCK_GETTIME_MONOTONIC_RAW
-  if(
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+  ако(
+#ако defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
   (HAVE_BUILTIN_AVAILABLE == 1)
     have_clock_gettime &&
 #endif
     (clock_gettime(CLOCK_MONOTONIC_RAW, &tsnow) == 0)) {
     pnow->tv_sec = tsnow.tv_sec;
-    pnow->tv_usec = (int)(tsnow.tv_nsec / 1000);
+    pnow->tv_usec = (цяло)(tsnow.tv_nsec / 1000);
   }
-  else
+  иначе
 #endif
 
-  if(
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+  ако(
+#ако defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
   (HAVE_BUILTIN_AVAILABLE == 1)
     have_clock_gettime &&
 #endif
     (clock_gettime(CLOCK_MONOTONIC, &tsnow) == 0)) {
     pnow->tv_sec = tsnow.tv_sec;
-    pnow->tv_usec = (int)(tsnow.tv_nsec / 1000);
+    pnow->tv_usec = (цяло)(tsnow.tv_nsec / 1000);
   }
   /*
    * Even when the configure process has truly detected monotonic clock
@@ -99,14 +99,14 @@ void curlx_pnow(struct curltime *pnow)
    * runtime. When this occurs, fallback to other time source.
    */
 #ifdef HAVE_GETTIMEOFDAY
-  else {
+  иначе {
     struct timeval now;
     (void)gettimeofday(&now, NULL);
     pnow->tv_sec = now.tv_sec;
-    pnow->tv_usec = (int)now.tv_usec;
+    pnow->tv_usec = (цяло)now.tv_usec;
   }
-#else
-  else {
+#иначе
+  иначе {
     pnow->tv_sec = time(NULL);
     pnow->tv_usec = 0;
   }
@@ -128,7 +128,7 @@ void curlx_pnow(struct curltime *pnow)
   static mach_timebase_info_data_t timebase;
   uint64_t usecs;
 
-  if(timebase.denom == 0)
+  ако(timebase.denom == 0)
     (void)mach_timebase_info(&timebase);
 
   usecs = mach_absolute_time();
@@ -137,7 +137,7 @@ void curlx_pnow(struct curltime *pnow)
   usecs /= 1000;
 
   pnow->tv_sec = usecs / 1000000;
-  pnow->tv_usec = (int)(usecs % 1000000);
+  pnow->tv_usec = (цяло)(usecs % 1000000);
 }
 
 #elif defined(HAVE_GETTIMEOFDAY)
@@ -152,10 +152,10 @@ void curlx_pnow(struct curltime *pnow)
   struct timeval now;
   (void)gettimeofday(&now, NULL);
   pnow->tv_sec = now.tv_sec;
-  pnow->tv_usec = (int)now.tv_usec;
+  pnow->tv_usec = (цяло)now.tv_usec;
 }
 
-#else
+#иначе
 
 void curlx_pnow(struct curltime *pnow)
 {
@@ -164,7 +164,7 @@ void curlx_pnow(struct curltime *pnow)
    */
   pnow->tv_sec = time(NULL);
   pnow->tv_usec = 0;
-  if(!pnow->tv_sec) /* avoid a `now` fully zero */
+  ако(!pnow->tv_sec) /* avoid a `now` fully zero */
     pnow->tv_usec = 1;
 }
 
@@ -174,7 +174,7 @@ struct curltime curlx_now(void)
 {
   struct curltime now;
   curlx_pnow(&now);
-  return now;
+  върни now;
 }
 
 /*
@@ -187,16 +187,16 @@ timediff_t curlx_ptimediff_ms(const struct curltime *newer,
                               const struct curltime *older)
 {
   timediff_t diff = (timediff_t)newer->tv_sec - older->tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000) + ((newer->tv_usec - older->tv_usec) / 1000);
+  ако(diff >= (TIMEDIFF_T_MAX / 1000))
+    върни TIMEDIFF_T_MAX;
+  иначе ако(diff <= (TIMEDIFF_T_MIN / 1000))
+    върни TIMEDIFF_T_MIN;
+  върни (diff * 1000) + ((newer->tv_usec - older->tv_usec) / 1000);
 }
 
 timediff_t curlx_timediff_ms(struct curltime newer, struct curltime older)
 {
-  return curlx_ptimediff_ms(&newer, &older);
+  върни curlx_ptimediff_ms(&newer, &older);
 }
 
 /*
@@ -207,16 +207,16 @@ timediff_t curlx_timediff_ceil_ms(struct curltime newer,
                                   struct curltime older)
 {
   timediff_t diff = (timediff_t)newer.tv_sec - older.tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000) + ((newer.tv_usec - older.tv_usec + 999) / 1000);
+  ако(diff >= (TIMEDIFF_T_MAX / 1000))
+    върни TIMEDIFF_T_MAX;
+  иначе ако(diff <= (TIMEDIFF_T_MIN / 1000))
+    върни TIMEDIFF_T_MIN;
+  върни (diff * 1000) + ((newer.tv_usec - older.tv_usec + 999) / 1000);
 }
 
 timediff_t curlx_us_to_ceil_ms(timediff_t us)
 {
-  return (us / 1000) + ((us > 0) && (us % 1000));
+  върни (us / 1000) + ((us > 0) && (us % 1000));
 }
 
 /*
@@ -227,23 +227,23 @@ timediff_t curlx_ptimediff_us(const struct curltime *newer,
                               const struct curltime *older)
 {
   timediff_t diff = (timediff_t)newer->tv_sec - older->tv_sec;
-  if(diff >= (TIMEDIFF_T_MAX / 1000000))
-    return TIMEDIFF_T_MAX;
-  else if(diff <= (TIMEDIFF_T_MIN / 1000000))
-    return TIMEDIFF_T_MIN;
-  return (diff * 1000000) + newer->tv_usec - older->tv_usec;
+  ако(diff >= (TIMEDIFF_T_MAX / 1000000))
+    върни TIMEDIFF_T_MAX;
+  иначе ако(diff <= (TIMEDIFF_T_MIN / 1000000))
+    върни TIMEDIFF_T_MIN;
+  върни (diff * 1000000) + newer->tv_usec - older->tv_usec;
 }
 
 timediff_t curlx_timediff_us(struct curltime newer, struct curltime older)
 {
-  return curlx_ptimediff_us(&newer, &older);
+  върни curlx_ptimediff_us(&newer, &older);
 }
 
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 3)
+#ако defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 3)
 #include <sec_api/time_s.h>  /* for _gmtime32_s(), _gmtime64_s() */
 #ifdef _USE_32BIT_TIME_T
 #define gmtime_s _gmtime32_s
-#else
+#иначе
 #define gmtime_s _gmtime64_s
 #endif
 #endif
@@ -255,22 +255,22 @@ timediff_t curlx_timediff_us(struct curltime newer, struct curltime older)
 CURLcode curlx_gmtime(time_t intime, struct tm *store)
 {
 #ifdef _WIN32
-  if(gmtime_s(store, &intime)) /* thread-safe */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ако(gmtime_s(store, &intime)) /* thread-safe */
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
 #elif defined(HAVE_GMTIME_R)
   const struct tm *tm;
   tm = gmtime_r(&intime, store); /* thread-safe */
-  if(!tm)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-#else
+  ако(!tm)
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
+#иначе
   const struct tm *tm;
   /* !checksrc! disable BANNEDFUNC 1 */
   tm = gmtime(&intime); /* not thread-safe */
-  if(tm)
+  ако(tm)
     *store = *tm; /* copy the pointed struct to the local copy */
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  иначе
+    върни CURLE_BAD_FUNCTION_ARGUMENT;
 #endif
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }

@@ -156,10 +156,10 @@ struct ssh_conn {
                                  in the connect phase */
   /* end of READDIR stuff */
 
-  int secondCreateDirs;         /* counter use by the code to see if the
+  цяло secondCreateDirs;         /* counter use by the code to see if the
                                    second attempt has been made to change
                                    to/create a directory */
-  int waitfor;                  /* REQ_IO_RECV/REQ_IO_SEND bits overriding
+  цяло waitfor;                  /* REQ_IO_RECV/REQ_IO_SEND bits overriding
                                    pollset given flags */
   char *slash_pos;              /* used by the SFTP_CREATE_DIRS state */
 
@@ -172,7 +172,7 @@ struct ssh_conn {
   unsigned kbd_state; /* 0 or 1 */
   ssh_key privkey;
   ssh_key pubkey;
-  unsigned int auth_methods;
+  unsigned цяло auth_methods;
   ssh_session ssh_session;
   ssh_scp scp_session;
   sftp_session sftp_session;
@@ -180,13 +180,13 @@ struct ssh_conn {
   sftp_dir sftp_dir;
 
   unsigned sftp_recv_state; /* 0 or 1 */
-#if LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
+#ако LIBSSH_VERSION_INT > SSH_VERSION_INT(0, 11, 0)
   sftp_aio sftp_recv_aio;
 
   sftp_aio sftp_send_aio;
   unsigned sftp_send_state; /* 0 or 1 */
-#else
-  int sftp_file_index; /* for async read */
+#иначе
+  цяло sftp_file_index; /* for async read */
 #endif
   sftp_attributes readdir_attrs; /* used by the SFTP readdir actions */
   sftp_attributes readdir_link_attrs; /* used by the SFTP readdir actions */
@@ -219,7 +219,7 @@ struct ssh_conn {
 };
 
 #ifdef USE_LIBSSH
-#if LIBSSH_VERSION_INT < SSH_VERSION_INT(0, 9, 0)
+#ако LIBSSH_VERSION_INT < SSH_VERSION_INT(0, 9, 0)
 #error "SCP/SFTP protocols require libssh 0.9.0 or greater"
 #endif
 #endif
@@ -229,7 +229,7 @@ struct ssh_conn {
 /* Feature detection based on version numbers to better work with
    non-configure platforms */
 
-#if !defined(LIBSSH2_VERSION_NUM) || (LIBSSH2_VERSION_NUM < 0x010900)
+#ако !defined(LIBSSH2_VERSION_NUM) || (LIBSSH2_VERSION_NUM < 0x010900)
 #error "SCP/SFTP protocols require libssh2 1.9.0 or greater"
 /* 1.9.0 was released on June 20 2019 */
 #endif
@@ -238,7 +238,7 @@ struct ssh_conn {
 
 #ifdef CURLVERBOSE
 const char *Curl_ssh_statename(sshstate state);
-#else
+#иначе
 #define Curl_ssh_statename(x) ""
 #endif
 void Curl_ssh_set_state(struct Curl_easy *data,
@@ -253,7 +253,7 @@ void Curl_ssh_cleanup(void);
 void Curl_ssh_version(char *buffer, size_t buflen);
 void Curl_ssh_attach(struct Curl_easy *data,
                      struct connectdata *conn);
-#else /* !USE_SSH */
+#иначе /* !USE_SSH */
 #define Curl_ssh_cleanup()
 #define Curl_ssh_attach(x, y)
 #define Curl_ssh_init() 0

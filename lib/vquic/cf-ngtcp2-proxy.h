@@ -26,7 +26,7 @@
 
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#ако !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 

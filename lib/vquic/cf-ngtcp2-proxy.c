@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#ако !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 
@@ -84,10 +84,10 @@ static CURLcode h3_tunnel_stream_init(struct h3_tunnel_stream *ts,
                                 dest->hostname,
                                 dest->ipv6 ? "]" : "",
                                 dest->port);
-  if(!ts->authority)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!ts->authority)
+    върни CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static void h3_tunnel_stream_reset(struct h3_tunnel_stream *ts)
@@ -118,8 +118,8 @@ static void h3_tunnel_go_state(struct Curl_cfilter *cf,
   VERBOSE(int64_t stream_id = ts->stream ? ts->stream->id : -1);
   (void)cf;
 
-  if(ts->state == new_state)
-    return;
+  ако(ts->state == new_state)
+    върни;
 
   /* leaving this one */
   switch(ts->state) {
@@ -184,22 +184,22 @@ static CURLcode cf_h3_proxy_ctx_init(struct cf_h3_proxy_ctx *ctx,
   CURLcode result;
   result = Curl_cf_ngtcp2_ctx_init(&ctx->ngtcp2_ctx, origin, peer,
                                    sslc, cf_ngtcp2_proxy_h3_init);
-  if(!result)
+  ако(!result)
     result = h3_tunnel_stream_init(&ctx->tunnel, tunnel_peer,
                                    TRNSPRT_IS_DGRAM(tunnel_transport));
-  return result;
+  върни result;
 }
 
 static void cf_h3_proxy_ctx_free(struct cf_h3_proxy_ctx *ctx)
 {
-  if(ctx) {
+  ако(ctx) {
     Curl_cf_ngtcp2_ctx_cleanup(&ctx->ngtcp2_ctx);
     h3_tunnel_stream_cleanup(&ctx->tunnel);
     curlx_free(ctx);
   }
 }
 
-static int cb_h3_proxy_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
+static цяло cb_h3_proxy_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
                                       uint64_t datalen, void *user_data,
                                       void *stream_user_data)
 {
@@ -210,30 +210,30 @@ static int cb_h3_proxy_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
   (void)stream_user_data;
 
   stream = pctx->tunnel.stream;
-  if(!stream || (stream->id != stream_id))
-    return 0;
+  ако(!stream || (stream->id != stream_id))
+    върни 0;
 
   /* The server acknowledged `datalen` of bytes from our request body.
    * This is a delta. We have kept this data in `sendbuf` for
    * re-transmissions and can free it now. */
-  if(datalen >= (uint64_t)stream->tx_in_flight_size)
+  ако(datalen >= (uint64_t)stream->tx_in_flight_size)
     skiplen = stream->tx_in_flight_size;
-  else
+  иначе
     skiplen = (size_t)datalen;
   Curl_bufq_skip(&stream->sendbuf, skiplen);
   stream->tx_in_flight_size -= skiplen;
 
   /* Resume upload processing if we have more data to send */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
-    int rv = nghttp3_conn_resume_stream(conn, stream_id);
-    if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
+    цяло rv = nghttp3_conn_resume_stream(conn, stream_id);
+    ако(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
+      върни NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  return 0;
+  върни 0;
 }
 
-static int cb_h3_proxy_stream_close(nghttp3_conn *conn, int64_t stream_id,
+static цяло cb_h3_proxy_stream_close(nghttp3_conn *conn, int64_t stream_id,
                                     uint64_t app_error_code, void *user_data,
                                     void *stream_user_data)
 {
@@ -244,27 +244,27 @@ static int cb_h3_proxy_stream_close(nghttp3_conn *conn, int64_t stream_id,
 
   (void)conn;
   (void)stream_user_data;
-  if(!data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(!data)
+    върни NGHTTP3_ERR_CALLBACK_FAILURE;
 
   stream = pctx->tunnel.stream;
-  if(!stream || (stream->id != stream_id))
-    return 0;
+  ако(!stream || (stream->id != stream_id))
+    върни 0;
 
   stream->closed = TRUE;
   stream->error3 = app_error_code;
-  if(stream->error3 != NGHTTP3_H3_NO_ERROR) {
+  ако(stream->error3 != NGHTTP3_H3_NO_ERROR) {
     stream->reset = TRUE;
     stream->send_closed = TRUE;
     CURL_TRC_CF(data, cf, "[%" PRId64 "] RESET: error %" PRIu64,
                 stream->id, stream->error3);
   }
-  else
+  иначе
     CURL_TRC_CF(data, cf, "[%" PRId64 "] CLOSED", stream->id);
   pctx->tunnel.stream = NULL;
   pctx->tunnel.closed = TRUE;
   Curl_multi_mark_dirty(data);
-  return 0;
+  върни 0;
 }
 
 static void cf_h3_proxy_upd_rx_win(struct Curl_cfilter *cf,
@@ -276,23 +276,23 @@ static void cf_h3_proxy_upd_rx_win(struct Curl_cfilter *cf,
   uint64_t cur_win, wanted_win = 0;
   size_t rx_buffered;
 
-  if(!stream) /* already closed */
-    return;
-  if(stream->rx_offset_max < stream->rx_offset) {
+  ако(!stream) /* already closed */
+    върни;
+  ако(stream->rx_offset_max < stream->rx_offset) {
     DEBUGASSERT(0);
-    return;
+    върни;
   }
 
   rx_buffered = Curl_bufq_len(&pctx->tunnel.recvbuf);
   wanted_win = (rx_buffered < PROXY_H3_TUNNEL_RX_WIN) ?
                (PROXY_H3_TUNNEL_RX_WIN - rx_buffered) : 0;
   cur_win = stream->rx_offset_max - stream->rx_offset;
-  if(wanted_win > cur_win) {
+  ако(wanted_win > cur_win) {
     uint64_t delta = wanted_win - cur_win;
 
-    if(UINT64_MAX - delta < stream->rx_offset_max)
+    ако(UINT64_MAX - delta < stream->rx_offset_max)
       delta = UINT64_MAX - stream->rx_offset_max;
-    if(delta) {
+    ако(delta) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] rx window, extend %" PRIu64
                   " (buffered %zu) by %" PRIu64 " bytes",
                   stream->id, cur_win, rx_buffered, delta);
@@ -303,7 +303,7 @@ static void cf_h3_proxy_upd_rx_win(struct Curl_cfilter *cf,
   }
 }
 
-static int cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
+static цяло cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
                                  const uint8_t *buf, size_t buflen,
                                  void *user_data, void *stream_user_data)
 {
@@ -318,8 +318,8 @@ static int cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
   (void)stream_user_data;
 
   stream = pctx->tunnel.stream;
-  if(!data || !stream || (stream->id != stream3_id)) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(!data || !stream || (stream->id != stream3_id)) {
+    върни NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
   stream->rx_total += (curl_off_t)buflen;
@@ -328,13 +328,13 @@ static int cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
               stream->id, buflen, stream->rx_total);
 
   result = Curl_bufq_write(&pctx->tunnel.recvbuf, buf, buflen, &nwritten);
-  if(result || (nwritten < buflen)) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(result || (nwritten < buflen)) {
+    върни NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
   /* DATA has been moved into our local recv buffer. Update stream offsets. */
   stream->rx_offset += buflen;
-  if(stream->rx_offset_max < stream->rx_offset)
+  ако(stream->rx_offset_max < stream->rx_offset)
     stream->rx_offset_max = stream->rx_offset;
 
   CURL_TRC_CF(data, cf, "[%" PRId64 "] DATA len=%zu, rx win=%" PRIu64,
@@ -342,10 +342,10 @@ static int cb_h3_proxy_recv_data(nghttp3_conn *conn, int64_t stream3_id,
   cf_h3_proxy_upd_rx_win(cf, data, stream);
 
   Curl_multi_mark_dirty(data);
-  return 0;
+  върни 0;
 }
 
-static int cb_h3_proxy_deferred_consume(nghttp3_conn *conn, int64_t stream_id,
+static цяло cb_h3_proxy_deferred_consume(nghttp3_conn *conn, int64_t stream_id,
                                         size_t consumed, void *user_data,
                                         void *stream_user_data)
 {
@@ -355,18 +355,18 @@ static int cb_h3_proxy_deferred_consume(nghttp3_conn *conn, int64_t stream_id,
   (void)conn;
   (void)stream_user_data;
 
-  if(!ctx)
-    return 0;
+  ако(!ctx)
+    върни 0;
 
   /* nghttp3 has consumed bytes on the QUIC stream and we need to
    * tell the QUIC connection to increase its flow control */
   ngtcp2_conn_extend_max_stream_offset(ctx->qconn, stream_id, consumed);
   ngtcp2_conn_extend_max_offset(ctx->qconn, consumed);
 
-  return 0;
+  върни 0;
 }
 
-static int cb_h3_proxy_recv_header(nghttp3_conn *conn, int64_t stream_id,
+static цяло cb_h3_proxy_recv_header(nghttp3_conn *conn, int64_t stream_id,
                                    int32_t token, nghttp3_rcbuf *name,
                                    nghttp3_rcbuf *value, uint8_t flags,
                                    void *user_data, void *stream_user_data)
@@ -378,7 +378,7 @@ static int cb_h3_proxy_recv_header(nghttp3_conn *conn, int64_t stream_id,
   struct Curl_easy *data = CF_DATA_CURRENT(cf);
   struct h3_stream_ctx *stream;
   CURLcode result = CURLE_OK;
-  int http_status;
+  цяло http_status;
   struct http_resp *resp;
   (void)conn;
   (void)stream_id;
@@ -387,54 +387,54 @@ static int cb_h3_proxy_recv_header(nghttp3_conn *conn, int64_t stream_id,
   (void)stream_user_data;
 
   /* stream_user_data might be NULL for control streams */
-  if(!data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(!data)
+    върни NGHTTP3_ERR_CALLBACK_FAILURE;
 
   stream = pctx->tunnel.stream;
-  if(!stream || (stream->id != stream_id)) {
+  ако(!stream || (stream->id != stream_id)) {
     CURL_TRC_CF(data, cf, "[%" PRId64 "] recv_header: stream lookup "
                 "failed for data=%p mid=%u",
                 stream_id, (void *)data, data ? data->mid : 0);
-    return 0;
+    върни 0;
   }
 
-  if(pctx->tunnel.has_final_response) {
+  ако(pctx->tunnel.has_final_response) {
     /* we do not do anything with trailers for tunnel streams */
-    return 0;
+    върни 0;
   }
 
-  if(token == NGHTTP3_QPACK_TOKEN__STATUS) {
+  ако(token == NGHTTP3_QPACK_TOKEN__STATUS) {
     result = Curl_http_decode_status(&stream->status_code,
                                      (const char *)h3val.base, h3val.len);
-    if(result)
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    ако(result)
+      върни NGHTTP3_ERR_CALLBACK_FAILURE;
     http_status = stream->status_code;
     result = Curl_http_resp_make(&resp, http_status, NULL);
-    if(result)
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
-    if(pctx->tunnel.resp)
+    ако(result)
+      върни NGHTTP3_ERR_CALLBACK_FAILURE;
+    ако(pctx->tunnel.resp)
       Curl_http_resp_free(pctx->tunnel.resp);
     pctx->tunnel.resp = resp;
   }
-  else {
-    if(!pctx->tunnel.resp) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+  иначе {
+    ако(!pctx->tunnel.resp) {
+      върни NGHTTP3_ERR_CALLBACK_FAILURE;
     }
     /* store as an HTTP1-style header */
     CURL_TRC_CF(data, cf, "[%" PRId64 "] header: %.*s: %.*s", stream_id,
-                (int)h3name.len, h3name.base, (int)h3val.len, h3val.base);
+                (цяло)h3name.len, h3name.base, (цяло)h3val.len, h3val.base);
     result = Curl_dynhds_add(&pctx->tunnel.resp->headers,
                              (const char *)h3name.base, h3name.len,
                              (const char *)h3val.base, h3val.len);
-    if(result) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    ако(result) {
+      върни NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  return 0;
+  върни 0;
 }
 
-static int cb_h3_proxy_end_headers(nghttp3_conn *conn, int64_t stream_id,
-                                   int fin, void *user_data,
+static цяло cb_h3_proxy_end_headers(nghttp3_conn *conn, int64_t stream_id,
+                                   цяло fin, void *user_data,
                                    void *stream_user_data)
 {
   struct Curl_cfilter *cf = user_data;
@@ -446,35 +446,35 @@ static int cb_h3_proxy_end_headers(nghttp3_conn *conn, int64_t stream_id,
   (void)fin;
   (void)stream_user_data;
 
-  if(!data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(!data)
+    върни NGHTTP3_ERR_CALLBACK_FAILURE;
 
   stream = pctx->tunnel.stream;
-  if(!stream || (stream->id != stream_id)) {
+  ако(!stream || (stream->id != stream_id)) {
     CURL_TRC_CF(data, cf, "[%" PRId64 "] end_headers: stream lookup "
                 "failed for data=%p mid=%u",
                 stream_id, (void *)data, data ? data->mid : 0);
-    return 0;
+    върни 0;
   }
 
   CURL_TRC_CF(data, cf, "[%" PRId64 "] end_headers, status=%d", stream_id,
               stream->status_code);
 
-  if(!pctx->tunnel.has_final_response) {
-    if(stream->status_code / 100 != 1) {
+  ако(!pctx->tunnel.has_final_response) {
+    ако(stream->status_code / 100 != 1) {
       pctx->tunnel.has_final_response = TRUE;
     }
   }
 
-  if(stream->status_code / 100 != 1) {
+  ако(stream->status_code / 100 != 1) {
     stream->resp_hds_complete = TRUE;
   }
 
   Curl_multi_mark_dirty(data);
-  return 0;
+  върни 0;
 }
 
-static int cb_h3_proxy_stop_sending(nghttp3_conn *conn, int64_t stream_id,
+static цяло cb_h3_proxy_stop_sending(nghttp3_conn *conn, int64_t stream_id,
                                     uint64_t app_error_code, void *user_data,
                                     void *stream_user_data)
 {
@@ -484,19 +484,19 @@ static int cb_h3_proxy_stop_sending(nghttp3_conn *conn, int64_t stream_id,
   (void)conn;
   (void)stream_user_data;
 
-  if(ctx) {
-    int rv = ngtcp2_conn_shutdown_stream_read(ctx->qconn, 0, stream_id,
+  ако(ctx) {
+    цяло rv = ngtcp2_conn_shutdown_stream_read(ctx->qconn, 0, stream_id,
                                               app_error_code);
 
-    if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    ако(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
+      върни NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
 
-  return 0;
+  върни 0;
 }
 
-static int cb_h3_proxy_reset_stream(nghttp3_conn *conn, int64_t stream_id,
+static цяло cb_h3_proxy_reset_stream(nghttp3_conn *conn, int64_t stream_id,
                                     uint64_t app_error_code, void *user_data,
                                     void *stream_user_data)
 {
@@ -504,26 +504,26 @@ static int cb_h3_proxy_reset_stream(nghttp3_conn *conn, int64_t stream_id,
   struct cf_h3_proxy_ctx *pctx = cf->ctx;
   struct cf_ngtcp2_ctx *ctx = &pctx->ngtcp2_ctx;
   struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  int rv;
+  цяло rv;
 
   (void)conn;
   (void)stream_user_data;
-  if(!data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(!data)
+    върни NGHTTP3_ERR_CALLBACK_FAILURE;
 
-  if(!pctx->tunnel.stream ||
+  ако(!pctx->tunnel.stream ||
      (stream_id != pctx->tunnel.stream->id))
-    return 0;
+    върни 0;
 
   rv = ngtcp2_conn_shutdown_stream_write(ctx->qconn, 0, stream_id,
                                          app_error_code);
   CURL_TRC_CF(data, cf, "[%" PRId64 "] reset -> %d", stream_id, rv);
   pctx->tunnel.stream = NULL;
   pctx->tunnel.closed = TRUE;
-  if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
+    върни NGHTTP3_ERR_CALLBACK_FAILURE;
   }
-  return 0;
+  върни 0;
 }
 
 static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
@@ -549,8 +549,8 @@ static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
   (void)pflags;
 
   stream = pctx->tunnel.stream;
-  if(!data || !stream || (stream->id != stream_id))
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  ако(!data || !stream || (stream->id != stream_id))
+    върни NGHTTP3_ERR_CALLBACK_FAILURE;
 
   /* nghttp3 keeps references to the sendbuf data until it is ACKed
    * by the server (see `cb_h3_proxy_acked_req_body()` for updates).
@@ -559,10 +559,10 @@ static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
    * ACKed yet.
    * Any amount beyond `tx_in_flight_size` we need still to pass
    * to nghttp3. Do that now, if we can. */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
+  ако(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
     nvecs = 0;
-    while(nvecs < veccnt) {
-      if(!Curl_bufq_peek_at(&stream->sendbuf,
+    докато(nvecs < veccnt) {
+      ако(!Curl_bufq_peek_at(&stream->sendbuf,
                            stream->tx_in_flight_size,
                            &buf_base,
                            &vec[nvecs].len))
@@ -575,11 +575,11 @@ static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
     DEBUGASSERT(nvecs > 0); /* we SHOULD have been able to peek */
   }
 
-  if(!nwritten) {
+  ако(!nwritten) {
     /* Not EOF, and nothing to give, we signal WOULDBLOCK. */
     CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> AGAIN",
                 stream->id);
-    return NGHTTP3_ERR_WOULDBLOCK;
+    върни NGHTTP3_ERR_WOULDBLOCK;
   }
 
   CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> "
@@ -587,7 +587,7 @@ static nghttp3_ssize cb_h3_tunnel_read_data(nghttp3_conn *conn,
               stream->id, nvecs,
               *pflags == NGHTTP3_DATA_FLAG_EOF ? " EOF" : "",
               nwritten, Curl_bufq_len(&stream->sendbuf));
-  return (nghttp3_ssize)nvecs;
+  върни (nghttp3_ssize)nvecs;
 }
 
 #ifdef CURL_HAVE_DIAG
@@ -630,11 +630,11 @@ static CURLcode cf_ngtcp2_proxy_h3_init(struct Curl_cfilter *cf,
                                         struct Curl_easy *data,
                                         struct cf_ngtcp2_ctx *ctx)
 {
-  int rc;
+  цяло rc;
 
-  if(ngtcp2_conn_get_streams_uni_left(ctx->qconn) < 3) {
+  ако(ngtcp2_conn_get_streams_uni_left(ctx->qconn) < 3) {
     failf(data, "QUIC connection lacks 3 uni streams to run HTTP/3");
-    return CURLE_QUIC_CONNECT_ERROR;
+    върни CURLE_QUIC_CONNECT_ERROR;
   }
 
   nghttp3_settings_default(&ctx->h3settings);
@@ -644,12 +644,12 @@ static CURLcode cf_ngtcp2_proxy_h3_init(struct Curl_cfilter *cf,
                                &ctx->h3settings,
                                Curl_nghttp3_mem(),
                                cf);
-  if(rc) {
+  ако(rc) {
     failf(data, "error creating nghttp3 connection instance");
-    return CURLE_OUT_OF_MEMORY;
+    върни CURLE_OUT_OF_MEMORY;
   }
 
-  return Curl_cf_ngtcp2_h3_init_ctrls(ctx, data);
+  върни Curl_cf_ngtcp2_h3_init_ctrls(ctx, data);
 }
 
 static ssize_t cf_h3_proxy_recv_closed_stream(struct Curl_cfilter *cf,
@@ -660,8 +660,8 @@ static ssize_t cf_h3_proxy_recv_closed_stream(struct Curl_cfilter *cf,
   ssize_t nread = -1;
   *err = CURLE_OK;
 
-  if(stream->reset) {
-    if(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
+  ако(stream->reset) {
+    ако(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
       infof(data, "HTTP/3 stream %" PRId64 " refused by server, try again "
             "on a new connection", stream->id);
       connclose(cf->conn);
@@ -669,7 +669,7 @@ static ssize_t cf_h3_proxy_recv_closed_stream(struct Curl_cfilter *cf,
       *err = CURLE_RECV_ERROR;
       goto out;
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
+    иначе ако(stream->resp_hds_complete && data->req.no_body) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] error after response headers, "
                   "but we did not want a body anyway, ignore error 0x%"
                   PRIx64 " %s", stream->id, stream->error3,
@@ -683,7 +683,7 @@ static ssize_t cf_h3_proxy_recv_closed_stream(struct Curl_cfilter *cf,
     *err = data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
     goto out;
   }
-  else if(!stream->resp_hds_complete) {
+  иначе ако(!stream->resp_hds_complete) {
     failf(data,
           "HTTP/3 stream %" PRId64 " was closed cleanly, but before "
           "getting all response header fields, treated as error",
@@ -694,7 +694,7 @@ static ssize_t cf_h3_proxy_recv_closed_stream(struct Curl_cfilter *cf,
   nread = 0;
 
 out:
-  return nread;
+  върни nread;
 }
 
 static CURLcode cf_h3_proxy_sendbuf_add(struct Curl_easy *data,
@@ -707,7 +707,7 @@ static CURLcode cf_h3_proxy_sendbuf_add(struct Curl_easy *data,
   (void)data;
 
   result = Curl_bufq_write(&stream->sendbuf, buf, len, pnwritten);
-  return result;
+  върни result;
 }
 
 static CURLcode cf_h3_proxy_send(struct Curl_cfilter *cf,
@@ -730,29 +730,29 @@ static CURLcode cf_h3_proxy_send(struct Curl_cfilter *cf,
   *pnwritten = 0;
 
   /* handshake verification failed in callback, do not send anything */
-  if(ctx->tls_vrfy_result) {
+  ако(ctx->tls_vrfy_result) {
     result = ctx->tls_vrfy_result;
     goto denied;
   }
 
   (void)eos; /* use for stream EOF and block handling */
   result = Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx);
-  if(result)
+  ако(result)
     goto out;
 
-  if(pctx->tunnel.closed) {
+  ако(pctx->tunnel.closed) {
     result = CURLE_SEND_ERROR;
     goto denied;
   }
 
   stream = pctx->tunnel.stream;
-  if(!stream) {
+  ако(!stream) {
     result = CURLE_SEND_ERROR;
     goto denied;
   }
 
-  if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  ако(stream->closed) {
+    ако(stream->resp_hds_complete) {
       /* Server decided to close the stream after having sent us a final
        * response. This is valid if it is not interested in the request
        * body. This happens on 30x or 40x responses.
@@ -769,17 +769,17 @@ static CURLcode cf_h3_proxy_send(struct Curl_cfilter *cf,
     result = CURLE_HTTP3;
     goto out;
   }
-  else {
+  иначе {
     result = cf_h3_proxy_sendbuf_add(data, stream, buf, len, pnwritten);
     CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send, add to "
                 "sendbuf(len=%zu) -> %d, %zu",
-                stream->id, len, (int)result, *pnwritten);
-    if(result)
+                stream->id, len, (цяло)result, *pnwritten);
+    ако(result)
       goto out;
     (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
   }
 
-  if(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
+  ако(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
     ctx->earlydata_skip += *pnwritten;
 
   DEBUGASSERT(!result);
@@ -790,9 +790,9 @@ out:
                           Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
 denied:
   CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(len=%zu) -> %d, %zu",
-              stream ? stream->id : -1, len, (int)result, *pnwritten);
+              stream ? stream->id : -1, len, (цяло)result, *pnwritten);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  върни result;
 }
 
 /* incoming data frames on the h3 stream */
@@ -815,54 +815,54 @@ static CURLcode cf_h3_proxy_recv(struct Curl_cfilter *cf,
   *pnread = 0;
 
   /* handshake verification failed in callback, do not recv anything */
-  if(ctx->tls_vrfy_result) {
+  ако(ctx->tls_vrfy_result) {
     result = ctx->tls_vrfy_result;
     goto denied;
   }
 
   Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
 
-  if(!stream || ctx->shutdown_started) {
+  ако(!stream || ctx->shutdown_started) {
     result = CURLE_RECV_ERROR;
     goto out;
   }
 
-  if(!Curl_bufq_is_empty(&pctx->tunnel.recvbuf)) {
+  ако(!Curl_bufq_is_empty(&pctx->tunnel.recvbuf)) {
     result = Curl_bufq_cread(&pctx->tunnel.recvbuf, buf, len, pnread);
-    if(result)
+    ако(result)
       goto out;
     cf_h3_proxy_upd_rx_win(cf, data, pctx->tunnel.stream);
   }
 
   result = Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx);
-  if(result)
+  ако(result)
     goto out;
 
   /* inbufq had nothing before, maybe after progressing ingress? */
-  if(!*pnread && !Curl_bufq_is_empty(&pctx->tunnel.recvbuf)) {
+  ако(!*pnread && !Curl_bufq_is_empty(&pctx->tunnel.recvbuf)) {
     result = Curl_bufq_cread(&pctx->tunnel.recvbuf, buf, len, pnread);
-    if(result) {
+    ако(result) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] read inbufq(len=%zu) -> %zu, %d",
-                  stream->id, len, *pnread, (int)result);
+                  stream->id, len, *pnread, (цяло)result);
       goto out;
     }
     cf_h3_proxy_upd_rx_win(cf, data, pctx->tunnel.stream);
   }
 
-  if(*pnread) {
+  ако(*pnread) {
     Curl_multi_mark_dirty(data);
   }
-  else {
-    if(stream->xfer_result) {
+  иначе {
+    ако(stream->xfer_result) {
       CURL_TRC_CF(data, cf, "[%" PRId64 "] xfer write failed", stream->id);
       Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
       result = stream->xfer_result;
       goto out;
     }
-    else if(stream->closed) {
+    иначе ако(stream->closed) {
       ssize_t nread =
         cf_h3_proxy_recv_closed_stream(cf, data, stream, &result);
-      if(nread > 0)
+      ако(nread > 0)
         *pnread = (size_t)nread;
       goto out;
     }
@@ -876,9 +876,9 @@ out:
                           Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
 denied:
   CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_recv(len=%zu) -> %d, %zu",
-              stream ? stream->id : -1, len, (int)result, *pnread);
+              stream ? stream->id : -1, len, (цяло)result, *pnread);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  върни result;
 }
 
 static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
@@ -892,29 +892,29 @@ static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
   struct dynhds h2_headers;
   nghttp3_nv *nva = NULL;
   size_t nheader;
-  int rc = 0;
-  unsigned int i;
+  цяло rc = 0;
+  unsigned цяло i;
   nghttp3_data_reader reader;
   nghttp3_data_reader *preader = NULL;
   CURLcode result;
 
   Curl_dynhds_init(&h2_headers, 0, DYN_HTTP_REQUEST);
   result = Curl_http_req_to_h2(&h2_headers, req, data);
-  if(result)
+  ако(result)
     goto out;
 
   result = Curl_cf_ngtcp2_h3_stream_setup(cf, data, &stream);
-  if(result)
+  ако(result)
     goto out;
 
   nheader = Curl_dynhds_count(&h2_headers);
   nva = curlx_malloc(sizeof(nghttp3_nv) * nheader);
-  if(!nva) {
+  ако(!nva) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
-  for(i = 0; i < nheader; ++i) {
+  за(i = 0; i < nheader; ++i) {
     struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
     nva[i].name = (unsigned char *)e->name;
     nva[i].namelen = e->namelen;
@@ -926,13 +926,13 @@ static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
   /* Open a bidirectional stream */
   {
     int64_t sid;
-    int rv;
+    цяло rv;
 
     DEBUGASSERT(stream->id == -1);
     /* Do NOT set `data` as stream user data. The transfer `data` may
      * get cleaned up long before the tunnel goes down. */
     rv = ngtcp2_conn_open_bidi_stream(ctx->qconn, &sid, NULL);
-    if(rv) {
+    ако(rv) {
       failf(data, "cannot get bidi streams: %s", ngtcp2_strerror(rv));
       result = CURLE_SEND_ERROR;
       goto out;
@@ -951,7 +951,7 @@ static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
   rc = nghttp3_conn_submit_request(ctx->h3conn, stream->id,
                                    nva, nheader, preader, stream);
 
-  if(rc) {
+  ако(rc) {
     switch(rc) {
     case NGHTTP3_ERR_CONN_CLOSING:
       CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send, "
@@ -966,7 +966,7 @@ static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
     goto out;
   }
 
-  if(Curl_trc_is_verbose(data)) {
+  ако(Curl_trc_is_verbose(data)) {
     CURL_TRC_CF(data, cf, "[H3-PROXY] [%" PRId64 "] OPENED stream "
                 "for %s", stream->id,
                 Curl_bufref_ptr(&data->state.url));
@@ -975,7 +975,7 @@ static CURLcode cf_h3_proxy_submit(struct Curl_cfilter *cf,
 out:
   curlx_free(nva);
   Curl_dynhds_free(&h2_headers);
-  return result;
+  върни result;
 }
 
 static CURLcode cf_h3_proxy_adjust_pollset(struct Curl_cfilter *cf,
@@ -989,12 +989,12 @@ static CURLcode cf_h3_proxy_adjust_pollset(struct Curl_cfilter *cf,
   curl_socket_t sock = (ctx->q.sockfd != CURL_SOCKET_BAD) ?
    ctx->q.sockfd : Curl_conn_cf_get_socket(cf, data);
 
-  if(!ctx->qconn || !pctx->tunnel.stream || (sock == CURL_SOCKET_BAD))
-    return CURLE_OK;
+  ако(!ctx->qconn || !pctx->tunnel.stream || (sock == CURL_SOCKET_BAD))
+    върни CURLE_OK;
 
   Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
 
-  if(want_recv || want_send || !Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  ако(want_recv || want_send || !Curl_bufq_is_empty(&ctx->q.sendbuf)) {
     struct h3_stream_ctx *stream = pctx->tunnel.stream;
     bool c_exhaust, s_exhaust;
 
@@ -1009,16 +1009,16 @@ static CURLcode cf_h3_proxy_adjust_pollset(struct Curl_cfilter *cf,
 
     result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
   }
-  return result;
+  върни result;
 }
 
 static bool cf_h3_proxy_data_pending(struct Curl_cfilter *cf,
                                      const struct Curl_easy *data)
 {
   struct cf_h3_proxy_ctx *pctx = cf->ctx;
-  if(!Curl_bufq_is_empty(&pctx->tunnel.recvbuf))
-    return TRUE;
-  return cf->next ?
+  ако(!Curl_bufq_is_empty(&pctx->tunnel.recvbuf))
+    върни TRUE;
+  върни cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
@@ -1033,16 +1033,16 @@ static CURLcode cf_h3_proxy_submit_CONNECT(struct Curl_cfilter *cf,
   result = Curl_http_proxy_create_tunnel_request(
     &req, cf, data, ctx->ngtcp2_ctx.ssl_peer.peer,
     ts->dest, PROXY_HTTP_V3, (bool)ts->udp);
-  if(!result)
+  ако(!result)
     result = Curl_creader_set_null(data);
-  if(!result)
+  ако(!result)
     result = cf_h3_proxy_submit(cf, data, ts, req);
 
-  if(req)
+  ако(req)
     Curl_http_req_free(req);
-  if(result)
+  ако(result)
     failf(data, "Failed sending CONNECT to proxy");
-  return result;
+  върни result;
 }
 
 static CURLcode cf_h3_proxy_inspect_response(struct Curl_cfilter *cf,
@@ -1055,8 +1055,8 @@ static CURLcode cf_h3_proxy_inspect_response(struct Curl_cfilter *cf,
 
   result = Curl_http_proxy_inspect_tunnel_response(
       cf, data, ts->resp, (bool)pctx->tunnel.udp, &res);
-  if(result)
-    return result;
+  ако(result)
+    върни result;
   switch(res) {
   case PROXY_INSPECT_OK:
     h3_tunnel_go_state(cf, ts, H3_TUNNEL_ESTABLISHED, data);
@@ -1069,7 +1069,7 @@ static CURLcode cf_h3_proxy_inspect_response(struct Curl_cfilter *cf,
     h3_tunnel_go_state(cf, ts, H3_TUNNEL_INIT, data);
     break;
   }
-  return result;
+  върни result;
 }
 
 static CURLcode cf_h3_proxy_tunnel(struct Curl_cfilter *cf,
@@ -1088,12 +1088,12 @@ static CURLcode cf_h3_proxy_tunnel(struct Curl_cfilter *cf,
     case H3_TUNNEL_INIT:
       CURL_TRC_CF(data, cf, "[0] CONNECT start for %s", ts->authority);
       result = cf_h3_proxy_submit_CONNECT(cf, data, ts);
-      if(result)
+      ако(result)
         goto out;
       h3_tunnel_go_state(cf, ts, H3_TUNNEL_CONNECT, data);
 
       result = Curl_cf_ngtcp2_progress_egress(cf, data, NULL);
-      if(result)
+      ако(result)
         goto out;
       FALLTHROUGH();
 
@@ -1101,18 +1101,18 @@ static CURLcode cf_h3_proxy_tunnel(struct Curl_cfilter *cf,
       /* Non-blocking: call ingress/egress once and return.
        * The multi interface will call us again when ready. */
       result = Curl_cf_ngtcp2_progress_ingress(cf, data, NULL);
-      if(result)
+      ако(result)
         goto out;
       result = Curl_cf_ngtcp2_progress_egress(cf, data, NULL);
-      if(result && result != CURLE_AGAIN) {
+      ако(result && result != CURLE_AGAIN) {
         h3_tunnel_go_state(cf, ts, H3_TUNNEL_FAILED, data);
         goto out;
       }
 
-      if(ts->has_final_response) {
+      ако(ts->has_final_response) {
         h3_tunnel_go_state(cf, ts, H3_TUNNEL_RESPONSE, data);
       }
-      else {
+      иначе {
         /* Not done yet, return and let multi interface call us again */
         result = CURLE_OK;
         goto out;
@@ -1122,28 +1122,28 @@ static CURLcode cf_h3_proxy_tunnel(struct Curl_cfilter *cf,
     case H3_TUNNEL_RESPONSE:
       DEBUGASSERT(ts->has_final_response);
       result = cf_h3_proxy_inspect_response(cf, data, ts);
-      if(result)
+      ако(result)
         goto out;
       ctx->connected = TRUE;
       break;
 
     case H3_TUNNEL_ESTABLISHED:
       *pdone = TRUE;
-      return CURLE_OK;
+      върни CURLE_OK;
 
     case H3_TUNNEL_FAILED:
-      return CURLE_RECV_ERROR;
+      върни CURLE_RECV_ERROR;
 
     default:
       break;
     }
 
-  } while(ts->state == H3_TUNNEL_INIT);
+  } докато(ts->state == H3_TUNNEL_INIT);
 
 out:
-  if((result && (result != CURLE_AGAIN)) || ctx->tunnel.closed)
+  ако((result && (result != CURLE_AGAIN)) || ctx->tunnel.closed)
     h3_tunnel_go_state(cf, ts, H3_TUNNEL_FAILED, data);
-  return result;
+  върни result;
 }
 
 static CURLcode cf_h3_proxy_connect(struct Curl_cfilter *cf,
@@ -1156,7 +1156,7 @@ static CURLcode cf_h3_proxy_connect(struct Curl_cfilter *cf,
   bool data_saved = FALSE;
 
   result = Curl_cf_ngtcp2_cmn_connect(cf, data, done);
-  if(result || !*done)
+  ако(result || !*done)
     goto out;
 
   CF_DATA_SAVE(save, cf, data);
@@ -1166,16 +1166,16 @@ static CURLcode cf_h3_proxy_connect(struct Curl_cfilter *cf,
   result = cf_h3_proxy_tunnel(cf, data, ts, done);
 
 out:
-  if(*done) {
+  ако(*done) {
     cf->connected = TRUE;
     /* The real request will follow the CONNECT, reset request partially */
     Curl_req_soft_reset(&data->req, data);
     Curl_client_reset(data);
   }
 
-  if(data_saved)
+  ако(data_saved)
     CF_DATA_RESTORE(cf, save);
-  return result;
+  върни result;
 }
 
 static void cf_h3_proxy_destroy(struct Curl_cfilter *cf,
@@ -1184,9 +1184,9 @@ static void cf_h3_proxy_destroy(struct Curl_cfilter *cf,
   struct cf_h3_proxy_ctx *ctx = cf->ctx;
 
   (void)data;
-  if(ctx) {
+  ако(ctx) {
     CURL_TRC_CF(data, cf, "cf_h3_proxy_destroy()");
-    if(ctx->ngtcp2_ctx.qconn) {
+    ако(ctx->ngtcp2_ctx.qconn) {
       struct cf_call_data save;
       CF_DATA_SAVE(save, cf, data);
       Curl_cf_ngtcp2_cmn_conn_close(cf, data);
@@ -1200,7 +1200,7 @@ static void cf_h3_proxy_destroy(struct Curl_cfilter *cf,
 static CURLcode cf_h3_proxy_shutdown(struct Curl_cfilter *cf,
                                      struct Curl_easy *data, bool *done)
 {
-  return Curl_cf_ngtcp2_cmn_shutdown(cf, data, done);
+  върни Curl_cf_ngtcp2_cmn_shutdown(cf, data, done);
 }
 
 struct Curl_cftype Curl_cft_h3_proxy = {
@@ -1234,44 +1234,44 @@ CURLcode Curl_cf_ngtcp2_proxy_create(struct Curl_cfilter **pcf,
   struct cf_h3_proxy_ctx *ctx;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(!tunnel_peer)
-    return CURLE_FAILED_INIT;
-  if((transport_peer != TRNSPRT_QUIC) || (!conn->http_proxy.peer))
-    return CURLE_FAILED_INIT;
+  ако(!tunnel_peer)
+    върни CURLE_FAILED_INIT;
+  ако((transport_peer != TRNSPRT_QUIC) || (!conn->http_proxy.peer))
+    върни CURLE_FAILED_INIT;
 
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  ако(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
   result = cf_h3_proxy_ctx_init(ctx, origin, peer, &conn->proxy_ssl_config,
                                 tunnel_peer, tunnel_transport);
-  if(result)
+  ако(result)
     goto out;
 
   result = Curl_cf_create(&cf, &Curl_cft_h3_proxy, ctx);
-  if(result)
+  ако(result)
     goto out;
   cf->conn = conn;
 
   result = Curl_cf_udp_create(&cf->next, data, origin, peer, TRNSPRT_QUIC,
                               conn, addr, NULL, TRNSPRT_QUIC);
-  if(result)
+  ако(result)
     goto out;
   cf->next->conn = cf->conn;
   cf->next->sockindex = cf->sockindex;
 
 out:
   *pcf = (!result) ? cf : NULL;
-  if(result) {
-    if(cf)
+  ако(result) {
+    ако(cf)
       Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx)
+    иначе ако(ctx)
       cf_h3_proxy_ctx_free(ctx);
   }
-  else
+  иначе
     CURL_TRC_CF(data, cf, "created, udp_tunnel=%d", ctx->tunnel.udp);
-  return result;
+  върни result;
 }
 
 CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
@@ -1287,16 +1287,16 @@ CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
   (void)data;
 
   ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
+  ако(!ctx)
     goto out;
   result = cf_h3_proxy_ctx_init(ctx, origin, peer,
                                 &cf_at->conn->proxy_ssl_config,
                                 tunnel_peer, tunnel_transport);
-  if(result)
+  ако(result)
     goto out;
 
   result = Curl_cf_create(&cf, &Curl_cft_h3_proxy, ctx);
-  if(result)
+  ако(result)
     goto out;
 
   /* H3-PROXY uses the UDP socket created by happy eyeballs below it.
@@ -1305,13 +1305,13 @@ CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
   Curl_conn_cf_insert_after(cf_at, cf);
 
 out:
-  if(result) {
-    if(cf)
+  ако(result) {
+    ако(cf)
       Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx)
+    иначе ако(ctx)
       cf_h3_proxy_ctx_free(ctx);
   }
-  return result;
+  върни result;
 }
 
 #endif

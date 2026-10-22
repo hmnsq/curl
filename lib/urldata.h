@@ -29,7 +29,7 @@
 #define CURL_DEFAULT_USER     "anonymous"
 #define CURL_DEFAULT_PASSWORD "ftp@example.com"
 
-#if !defined(_WIN32) && !defined(MSDOS)
+#ако !defined(_WIN32) && !defined(MSDOS)
 /* do FTP line-end CRLF => LF conversions on platforms that prefer LF-only. It
    also means: keep CRLF line endings on the CRLF platforms */
 #define CURL_PREFER_LF_LINEENDS
@@ -106,7 +106,7 @@ typedef CURLcode (Curl_recv)(struct Curl_easy *data,   /* transfer */
 #    include <gss.h>
 #  elif defined(HAVE_GSSAPI_H)
 #    include <gssapi.h>
-#  else /* MIT Kerberos */
+#  иначе /* MIT Kerberos */
 #    include <gssapi/gssapi.h>
 #    include <gssapi/gssapi_krb5.h> /* for GSS_C_CHANNEL_BOUND_FLAG in 1.19+ */
 #  endif
@@ -146,14 +146,14 @@ struct digestdata {
   BYTE *input_token;
   size_t input_token_len;
   CtxtHandle *http_context;
-#else
+#иначе
   char *nonce;
   char *cnonce;
   char *realm;
   char *opaque;
   char *qop;
   char *algorithm;
-  int nc; /* nonce count */
+  цяло nc; /* nonce count */
   uint8_t algo;
   BIT(stale); /* set true for re-negotiation */
   BIT(userhash);
@@ -340,8 +340,8 @@ struct connectdata {
      wrong connections. */
   char *interface_opts;
   struct ConnectBits bits;    /* various state-flags for this connection */
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  int socks5_gssapi_enctype;
+#ако defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  цяло socks5_gssapi_enctype;
 #endif
 
   /* This is used by the connection pool logic. If this returns TRUE, this
@@ -381,7 +381,7 @@ struct connectdata {
     (c)->http_proxy.peer ? (c)->http_proxy.peer->user_hostname : \
       (c)->via_peer ? (c)->via_peer->user_hostname : \
         (c)->origin->user_hostname)
-#else
+#иначе
 #define CURL_CONN_HOST_DISPNAME(c) \
   ((c)->via_peer ? (c)->via_peer->user_hostname : (c)->origin->user_hostname)
 #endif
@@ -411,9 +411,9 @@ struct PureInfo {
   char *effective_url; /* when needed */
   curl_off_t retry_after; /* info from Retry-After: header */
   const char *conn_scheme;
-  int httpcode;  /* Recent HTTP, FTP, RTSP or SMTP response code */
-  int httpproxycode; /* response code from proxy when received separate */
-  int httpversion; /* the http version number X.Y = X*10+Y */
+  цяло httpcode;  /* Recent HTTP, FTP, RTSP or SMTP response code */
+  цяло httpproxycode; /* response code from proxy when received separate */
+  цяло httpversion; /* the http version number X.Y = X*10+Y */
   uint32_t conn_protocol;
   uint32_t proxyauthavail; /* what proxy auth types were announced */
   uint32_t httpauthavail;  /* what host auth types were announced */
@@ -542,11 +542,11 @@ struct UrlState {
                                   curl_easy_setopt(HSTS) calls */
 #endif
 
-  int os_errno;  /* filled in with errno whenever an error occurs */
-  int requests; /* request counter: redirects + authentication retakes */
+  цяло os_errno;  /* filled in with errno whenever an error occurs */
+  цяло requests; /* request counter: redirects + authentication retakes */
 #ifdef HAVE_SIGNAL
   /* storage for the previous bag^H^H^HSIGPIPE signal handler :-) */
-  void (*prev_signal)(int sig);
+  void (*prev_signal)(цяло sig);
 #endif
 #ifndef CURL_DISABLE_DIGEST_AUTH
   char *envproxy; /* last proxy string used for proxy-related state */
@@ -586,8 +586,8 @@ struct UrlState {
   struct Curl_llist httphdrs; /* received headers */
   struct curl_header headerout[2]; /* for external purposes */
   /* curl_easy_nextheader() cache parameters */
-  unsigned int nh_origin;
-  int nh_request;
+  unsigned цяло nh_origin;
+  цяло nh_request;
   size_t nh_count; /* httphdrs count when the cache was filled */
 #endif
 #ifndef CURL_DISABLE_COOKIES
@@ -624,8 +624,8 @@ struct UrlState {
   curl_off_t last_conn_id; /* The last assigned connection or -1 */
   uint32_t last_cpid; /* last connection pool id used */
 
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
-  int weight; /* shallow copy of data->set */
+#ако defined(USE_HTTP2) || defined(USE_HTTP3)
+  цяло weight; /* shallow copy of data->set */
 #endif
   uint16_t followlocation; /* redirect counter */
   uint8_t retrycount; /* number of retries on a new connection, up to
@@ -874,7 +874,7 @@ struct UserDefined {
   curl_off_t set_resume_from;  /* continue [ftp] transfer from here */
   struct curl_slist *headers; /* linked list of extra headers */
   struct curl_httppost *httppost;  /* linked list of old POST data */
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+#ако !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
   curl_mimepart *mimepostp;  /* MIME/POST data. */
 #endif
 #ifndef CURL_DISABLE_TELNET
@@ -909,7 +909,7 @@ struct UserDefined {
 #ifndef CURL_DISABLE_FTP
   timediff_t accepttimeout;   /* in milliseconds, 0 means no timeout */
 #endif
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH)
+#ако !defined(CURL_DISABLE_FTP) || defined(USE_SSH)
   struct curl_slist *quote;     /* after connection is established */
   struct curl_slist *postquote; /* after the transfer */
   struct curl_slist *prequote; /* before the transfer, after type */
@@ -964,17 +964,17 @@ struct UserDefined {
 #ifndef CURL_DISABLE_SMTP
   struct curl_slist *mail_rcpt; /* linked list of mail recipients */
 #endif
-  int ssl_ca_cache_timeout;  /* Certificate store cache timeout (seconds) */
+  цяло ssl_ca_cache_timeout;  /* Certificate store cache timeout (seconds) */
 
-  int tcp_keepidle;     /* seconds in idle before sending keepalive probe */
-  int tcp_keepintvl;    /* seconds between TCP keepalive probes */
-  int tcp_keepcnt;      /* maximum number of keepalive probes */
+  цяло tcp_keepidle;     /* seconds in idle before sending keepalive probe */
+  цяло tcp_keepintvl;    /* seconds between TCP keepalive probes */
+  цяло tcp_keepcnt;      /* maximum number of keepalive probes */
 
   uint32_t maxconnects; /* Max idle connections in the connection cache */
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
+#ако defined(USE_HTTP2) || defined(USE_HTTP3)
   /* Priority information for an easy handle in relation to others on the same
      connection. */
-  int weight;
+  цяло weight;
 #endif
   short maxredirs;    /* maximum no. of http(s) redirects to follow,
                          set to -1 for infinity */
@@ -996,7 +996,7 @@ struct UserDefined {
 #ifndef CURL_DISABLE_NETRC
   uint8_t use_netrc;        /* enum CURL_NETRC_OPTION values */
 #endif
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH)
+#ако !defined(CURL_DISABLE_FTP) || defined(USE_SSH)
   /* Despite the name, ftp_create_missing_dirs is for FTP(S) and SFTP
      1 - create directories that do not exist
      2 - the same but also allow MKD to fail once
@@ -1018,7 +1018,7 @@ struct UserDefined {
   uint8_t ipver; /* the CURL_IPRESOLVE_* defines in the public header
                           file 0 - whatever, 1 - v2, 2 - v6 */
   uint8_t upload_flags; /* flags set by CURLOPT_UPLOAD_FLAGS */
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#ако defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   /* GSS-API/SSPI credential delegation, see CURLOPT_GSSAPI_DELEGATION */
   uint8_t gssapi_delegation;
 #endif
@@ -1092,7 +1092,7 @@ struct UserDefined {
                           content-encoded (chunked, compressed) */
   BIT(proxy_transfer_mode); /* set transfer mode (;type=<a|i>) when doing
                                FTP via an HTTP proxy */
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#ако defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   BIT(socks5_gssapi_nec); /* Flag to support NEC SOCKS5 server */
 #endif
   BIT(socks5_auth_only); /* SOCKS5 must authenticate */
@@ -1136,7 +1136,7 @@ struct UserDefined {
 #ifndef CURL_DISABLE_MIME
 #define IS_MIME_POST(a)                                                 \
   ((a)->set.mimepostp && ((a)->set.mimepostp->kind != MIMEKIND_NONE))
-#else
+#иначе
 #define IS_MIME_POST(a) FALSE
 #endif
 

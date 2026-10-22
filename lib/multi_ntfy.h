@@ -42,16 +42,16 @@ struct curl_multi_ntfy {
 void Curl_mntfy_init(struct Curl_multi *multi);
 void Curl_mntfy_cleanup(struct Curl_multi *multi);
 
-CURLMcode Curl_mntfy_enable(struct Curl_multi *multi, unsigned int type);
-CURLMcode Curl_mntfy_disable(struct Curl_multi *multi, unsigned int type);
+CURLMcode Curl_mntfy_enable(struct Curl_multi *multi, unsigned цяло type);
+CURLMcode Curl_mntfy_disable(struct Curl_multi *multi, unsigned цяло type);
 
-void Curl_mntfy_add(struct Curl_easy *data, unsigned int type);
+void Curl_mntfy_add(struct Curl_easy *data, unsigned цяло type);
 
 #define CURLM_NTFY(d, t)                              \
   do {                                                \
-    if((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
+    ако((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
       Curl_mntfy_add((d), (t));                       \
-  } while(0)
+  } докато(0)
 
 #define CURL_MNTFY_HAS_ENTRIES(m) \
   ((m)->ntfy.flags & CURL_MNTFY_FLAG_HAS_ENTRIES)

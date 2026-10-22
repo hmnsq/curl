@@ -59,7 +59,7 @@ struct dynbuf;
 bool Curl_ssl_ech_enabled(struct Curl_cfilter *cf);
 /* TRUE if SSL ECH configuration requires DNS HTTPS-RR record */
 bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf);
-#else
+#иначе
 #define Curl_ssl_ech_enabled(c)      FALSE
 #define Curl_ssl_need_httpsrr(c)     FALSE
 #endif /* USE_ECH */
@@ -125,7 +125,7 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
 void Curl_ssl_peer_cleanup(struct ssl_peer *peer);
 
 #ifdef USE_SSL
-int Curl_ssl_init(void);
+цяло Curl_ssl_init(void);
 void Curl_ssl_cleanup(void);
 /* tell the SSL stuff to close down all open information regarding
    connections (and thus session ID caching etc) */
@@ -142,11 +142,11 @@ void Curl_ssl_version(char *buffer, size_t size);
 #define MAX_ALLOWED_CERT_AMOUNT 100
 
 void Curl_ssl_free_certinfo(struct Curl_easy *data);
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num);
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data, int certnum,
+CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, цяло num);
+CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data, цяло certnum,
                                     const char *label, const char *value,
                                     size_t valuelen);
-CURLcode Curl_ssl_push_certinfo(struct Curl_easy *data, int certnum,
+CURLcode Curl_ssl_push_certinfo(struct Curl_easy *data, цяло certnum,
                                 const char *label, const char *value);
 
 /* Functions to be used by SSL library adaptation functions */
@@ -206,7 +206,7 @@ CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
  * Option is one of the defined SSLSUPP_* values.
  * `data` maybe NULL for the features of the default implementation.
  */
-bool Curl_ssl_supports(struct Curl_easy *data, unsigned int ssl_option);
+bool Curl_ssl_supports(struct Curl_easy *data, unsigned цяло ssl_option);
 
 /* Get the ssl_easy_config from `data` relevant for cfilter `cf`. */
 struct ssl_easy_config *
@@ -222,7 +222,7 @@ extern struct Curl_cftype Curl_cft_ssl;
 extern struct Curl_cftype Curl_cft_ssl_proxy;
 #endif
 
-#else /* if not USE_SSL */
+#иначе /* if not USE_SSL */
 
 /* When SSL support is not present, define away these function calls */
 #define Curl_ssl_init() 1

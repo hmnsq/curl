@@ -35,7 +35,7 @@
  * Definition of pollfd struct and constants for platforms lacking them.
  */
 
-#if !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
+#ако !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H) && !defined(POLLIN)
 
 #define POLLIN      0x01
 #define POLLPRI     0x02
@@ -69,7 +69,7 @@ struct pollfd {
    therefore defined here */
 #define CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
 
-int Curl_socket_check(curl_socket_t readfd0,
+цяло Curl_socket_check(curl_socket_t readfd0,
                       curl_socket_t readfd1,
                       curl_socket_t writefd,
                       timediff_t timeout_ms);
@@ -78,7 +78,7 @@ int Curl_socket_check(curl_socket_t readfd0,
 #define SOCKET_WRITABLE(x, z)                               \
   Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
 
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
+цяло Curl_poll(struct pollfd ufds[], unsigned цяло nfds, timediff_t timeout_ms);
 
 /* With Winsock the valid range is [0..INVALID_SOCKET-1] according to
    https://learn.microsoft.com/windows/win32/winsock/socket-data-type-2 */
@@ -87,12 +87,12 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
 #define FDSET_SOCK(x) 1
 #define VERIFY_SOCK(x)           \
   do {                           \
-    if(!VALID_SOCK(x)) {         \
+    ако(!VALID_SOCK(x)) {         \
       SET_SOCKERRNO(SOCKEINVAL); \
-      return -1;                 \
+      върни -1;                 \
     }                            \
-  } while(0)
-#else
+  } докато(0)
+#иначе
 #define VALID_SOCK(s) ((s) >= 0)
 
 /* If the socket is small enough to get set or read from an fdset */
@@ -100,11 +100,11 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
 
 #define VERIFY_SOCK(x)                     \
   do {                                     \
-    if(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
+    ако(!VALID_SOCK(x) || !FDSET_SOCK(x)) { \
       SET_SOCKERRNO(SOCKEINVAL);           \
-      return -1;                           \
+      върни -1;                           \
     }                                      \
-  } while(0)
+  } докато(0)
 #endif
 
 /* Keep the sockets to poll for an easy handle.
@@ -116,10 +116,10 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms);
 struct easy_pollset {
   curl_socket_t *sockets;
   unsigned char *actions;
-  unsigned int n;
-  unsigned int count;
+  unsigned цяло n;
+  unsigned цяло count;
 #ifdef DEBUGBUILD
-  int init;
+  цяло init;
 #endif
   curl_socket_t def_sockets[EZ_POLLSET_DEF_COUNT];
   unsigned char def_actions[EZ_POLLSET_DEF_COUNT];
@@ -149,8 +149,8 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from);
  */
 CURLcode Curl_pollset_change(struct Curl_easy *data,
                              struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags,
-                             int remove_flags) WARN_UNUSED_RESULT;
+                             цяло add_flags,
+                             цяло remove_flags) WARN_UNUSED_RESULT;
 
 CURLcode Curl_pollset_set(struct Curl_easy *data,
                           struct easy_pollset *ps, curl_socket_t sock,
@@ -174,7 +174,7 @@ CURLcode Curl_pollset_set(struct Curl_easy *data,
 void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock);
 
 /* return < = on error, 0 on timeout or how many sockets are ready */
-int Curl_pollset_poll(struct Curl_easy *data,
+цяло Curl_pollset_poll(struct Curl_easy *data,
                       struct easy_pollset *ps,
                       timediff_t timeout_ms);
 
@@ -197,14 +197,14 @@ bool Curl_pollset_want_send(struct Curl_easy *data,
 
 struct curl_pollfds {
   struct pollfd *pfds;
-  unsigned int n;
-  unsigned int count;
+  unsigned цяло n;
+  unsigned цяло count;
   BIT(allocated_pfds);
 };
 
 void Curl_pollfds_init(struct curl_pollfds *cpfds,
                        struct pollfd *static_pfds,
-                       unsigned int static_count);
+                       unsigned цяло static_count);
 
 void Curl_pollfds_reset(struct curl_pollfds *cpfds);
 
@@ -218,15 +218,15 @@ CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
 
 struct Curl_waitfds {
   struct curl_waitfd *wfds;
-  unsigned int n;
-  unsigned int count;
+  unsigned цяло n;
+  unsigned цяло count;
 };
 
 void Curl_waitfds_init(struct Curl_waitfds *cwfds,
                        struct curl_waitfd *static_wfds,
-                       unsigned int static_count);
+                       unsigned цяло static_count);
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
+unsigned цяло Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
                                  struct easy_pollset *ps);
 
 #endif /* HEADER_CURL_SELECT_H */

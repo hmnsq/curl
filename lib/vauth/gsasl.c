@@ -32,7 +32,7 @@
 
 #include <gsasl.h>
 
-#if GSASL_VERSION_NUMBER < 0x010600
+#ако GSASL_VERSION_NUMBER < 0x010600
 #error "libgsasl 1.6.0 or greater required"
 #endif
 
@@ -40,54 +40,54 @@ bool Curl_auth_gsasl_is_supported(struct Curl_easy *data,
                                   const char *mech,
                                   struct gsasldata *gsasl)
 {
-  int res;
+  цяло res;
 
   res = gsasl_init(&gsasl->ctx);
-  if(res != GSASL_OK) {
+  ако(res != GSASL_OK) {
     failf(data, "gsasl init: %s", gsasl_strerror(res));
-    return FALSE;
+    върни FALSE;
   }
 
   res = gsasl_client_start(gsasl->ctx, mech, &gsasl->client);
-  if(res != GSASL_OK) {
+  ако(res != GSASL_OK) {
     gsasl_done(gsasl->ctx);
     gsasl->ctx = NULL;
-    return FALSE;
+    върни FALSE;
   }
 
-  return TRUE;
+  върни TRUE;
 }
 
 CURLcode Curl_auth_gsasl_start(struct Curl_easy *data,
                                struct Curl_creds *creds,
                                struct gsasldata *gsasl)
 {
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  int res;
+#ако GSASL_VERSION_NUMBER >= 0x010b00
+  цяло res;
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_AUTHID, creds->user);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
+#ако GSASL_VERSION_NUMBER >= 0x010b00
+  ако(res != GSASL_OK) {
     failf(data, "setting AUTHID failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+    върни CURLE_OUT_OF_MEMORY;
   }
 #endif
 
-#if GSASL_VERSION_NUMBER >= 0x010b00
+#ако GSASL_VERSION_NUMBER >= 0x010b00
   res =
 #endif
     gsasl_property_set(gsasl->client, GSASL_PASSWORD, creds->passwd);
-#if GSASL_VERSION_NUMBER >= 0x010b00
-  if(res != GSASL_OK) {
+#ако GSASL_VERSION_NUMBER >= 0x010b00
+  ако(res != GSASL_OK) {
     failf(data, "setting PASSWORD failed: %s", gsasl_strerror(res));
-    return CURLE_OUT_OF_MEMORY;
+    върни CURLE_OUT_OF_MEMORY;
   }
 #endif
 
   (void)data;
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 CURLcode Curl_auth_gsasl_token(struct Curl_easy *data,
@@ -95,19 +95,19 @@ CURLcode Curl_auth_gsasl_token(struct Curl_easy *data,
                                struct gsasldata *gsasl,
                                struct bufref *out)
 {
-  int res;
+  цяло res;
   char *response;
   size_t outlen;
 
   res = gsasl_step(gsasl->client, Curl_bufref_ptr(chlg), Curl_bufref_len(chlg),
                    &response, &outlen);
-  if(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
+  ако(res != GSASL_OK && res != GSASL_NEEDS_MORE) {
     failf(data, "GSASL step: %s", gsasl_strerror(res));
-    return CURLE_BAD_CONTENT_ENCODING;
+    върни CURLE_BAD_CONTENT_ENCODING;
   }
 
   Curl_bufref_set(out, response, outlen, gsasl_free);
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 void Curl_auth_gsasl_cleanup(struct gsasldata *gsasl)

@@ -64,10 +64,10 @@
 #define SCH_DEV_SHOWBOOL(x)                                     \
   do {                                                          \
     infof(data, "schannel: " #x " %s", (x) ? "TRUE" : "FALSE"); \
-  } while(0)
-#else
-#define SCH_DEV(x) do {} while(0)
-#define SCH_DEV_SHOWBOOL(x) do {} while(0)
+  } докато(0)
+#иначе
+#define SCH_DEV(x) do {} докато(0)
+#define SCH_DEV_SHOWBOOL(x) do {} докато(0)
 #endif
 
 /* Offered by mingw-w64 v8+, MS SDK 7.0A/VS2010+ */
@@ -180,17 +180,17 @@ static CURLcode schannel_set_ssl_version_min_max(DWORD *enabled_protocols,
     /* Windows Server 2022 and newer (including Windows 11) support TLS 1.3
        built-in. Previous builds of Windows 10 had broken TLS 1.3
        implementations that could be enabled via registry. */
-    if(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
+    ако(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
                                     VERSION_GREATER_THAN_EQUAL)) {
       ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_3;
     }
-    else /* Windows 10 or older */
+    иначе /* Windows 10 or older */
       ssl_version_max = CURL_SSLVERSION_MAX_TLSv1_2;
 
     break;
   }
 
-  for(; i <= (ssl_version_max >> 16); ++i) {
+  за(; i <= (ssl_version_max >> 16); ++i) {
     switch(i) {
     case CURL_SSLVERSION_TLSv1_0:
       *enabled_protocols |= SP_PROT_TLS1_0_CLIENT;
@@ -204,25 +204,25 @@ static CURLcode schannel_set_ssl_version_min_max(DWORD *enabled_protocols,
     case CURL_SSLVERSION_TLSv1_3:
 
       /* Windows Server 2022 or newer */
-      if(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
+      ако(curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
                                       VERSION_GREATER_THAN_EQUAL)) {
         *enabled_protocols |= SP_PROT_TLS1_3_CLIENT;
         break;
       }
-      else { /* Windows 10 or older */
+      иначе { /* Windows 10 or older */
         failf(data, "schannel: TLS 1.3 not supported on Windows 10 or older");
-        return CURLE_SSL_CONNECT_ERROR;
+        върни CURLE_SSL_CONNECT_ERROR;
       }
     }
   }
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 #define CIPHEROPTION(x) { #x, x }
 
 struct algo {
   const char *name;
-  int id;
+  цяло id;
 };
 
 static const struct algo algs[] = {
@@ -282,17 +282,17 @@ static const struct algo algs[] = {
   { NULL, 0 },
 };
 
-static int get_alg_id_by_name(const char *name)
+static цяло get_alg_id_by_name(const char *name)
 {
   const char *nameEnd = strchr(name, ':');
   size_t n = nameEnd ? (size_t)(nameEnd - name) : strlen(name);
-  int i;
+  цяло i;
 
-  for(i = 0; algs[i].name; i++) {
-    if((n == strlen(algs[i].name) && !strncmp(algs[i].name, name, n)))
-      return algs[i].id;
+  за(i = 0; algs[i].name; i++) {
+    ако((n == strlen(algs[i].name) && !strncmp(algs[i].name, name, n)))
+      върни algs[i].id;
   }
-  return 0; /* not found */
+  върни 0; /* not found */
 }
 
 #define NUM_CIPHERS 47 /* There are a maximum of 47 options listed above */
@@ -301,28 +301,28 @@ static CURLcode set_ssl_ciphers(SCHANNEL_CRED *schannel_cred, char *ciphers,
                                 ALG_ID *algIds)
 {
   const char *startCur = ciphers;
-  int algCount = 0;
-  while(startCur && *startCur && (algCount < NUM_CIPHERS)) {
+  цяло algCount = 0;
+  докато(startCur && *startCur && (algCount < NUM_CIPHERS)) {
     curl_off_t alg;
-    if(curlx_str_number(&startCur, &alg, INT_MAX) || !alg)
+    ако(curlx_str_number(&startCur, &alg, INT_MAX) || !alg)
       alg = get_alg_id_by_name(startCur);
 
-    if(alg)
+    ако(alg)
       algIds[algCount++] = (ALG_ID)alg;
-    else if(!strncmp(startCur, "USE_STRONG_CRYPTO",
+    иначе ако(!strncmp(startCur, "USE_STRONG_CRYPTO",
                      CURL_CSTRLEN("USE_STRONG_CRYPTO")) ||
             !strncmp(startCur, "SCH_USE_STRONG_CRYPTO",
                      CURL_CSTRLEN("SCH_USE_STRONG_CRYPTO")))
       schannel_cred->dwFlags |= SCH_USE_STRONG_CRYPTO;
-    else
-      return CURLE_SSL_CIPHER;
+    иначе
+      върни CURLE_SSL_CIPHER;
     startCur = strchr(startCur, ':');
-    if(startCur)
+    ако(startCur)
       startCur++;
   }
   schannel_cred->palgSupportedAlgs = algIds;
   schannel_cred->cSupportedAlgs = (DWORD)algCount;
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 /* Function allocates memory for store_path only if CURLE_OK is returned */
@@ -334,48 +334,48 @@ static CURLcode get_cert_location(TCHAR *path, DWORD *store_name,
   size_t store_name_len;
 
   sep = _tcschr(path, _TEXT('\\'));
-  if(!sep)
-    return CURLE_SSL_CERTPROBLEM;
+  ако(!sep)
+    върни CURLE_SSL_CERTPROBLEM;
 
   store_name_len = sep - path;
 
-  if(_tcsncmp(path, _TEXT("CurrentUser"), store_name_len) == 0)
+  ако(_tcsncmp(path, _TEXT("CurrentUser"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_CURRENT_USER;
-  else if(_tcsncmp(path, _TEXT("LocalMachine"), store_name_len) == 0)
+  иначе ако(_tcsncmp(path, _TEXT("LocalMachine"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE;
-  else if(_tcsncmp(path, _TEXT("CurrentService"), store_name_len) == 0)
+  иначе ако(_tcsncmp(path, _TEXT("CurrentService"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_CURRENT_SERVICE;
-  else if(_tcsncmp(path, _TEXT("Services"), store_name_len) == 0)
+  иначе ако(_tcsncmp(path, _TEXT("Services"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_SERVICES;
-  else if(_tcsncmp(path, _TEXT("Users"), store_name_len) == 0)
+  иначе ако(_tcsncmp(path, _TEXT("Users"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_USERS;
-  else if(_tcsncmp(path, _TEXT("CurrentUserGroupPolicy"), store_name_len) == 0)
+  иначе ако(_tcsncmp(path, _TEXT("CurrentUserGroupPolicy"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_CURRENT_USER_GROUP_POLICY;
-  else if(_tcsncmp(path, _TEXT("LocalMachineGroupPolicy"), store_name_len) ==
+  иначе ако(_tcsncmp(path, _TEXT("LocalMachineGroupPolicy"), store_name_len) ==
           0)
     *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE_GROUP_POLICY;
-  else if(_tcsncmp(path, _TEXT("LocalMachineEnterprise"), store_name_len) == 0)
+  иначе ако(_tcsncmp(path, _TEXT("LocalMachineEnterprise"), store_name_len) == 0)
     *store_name = CERT_SYSTEM_STORE_LOCAL_MACHINE_ENTERPRISE;
-  else
-    return CURLE_SSL_CERTPROBLEM;
+  иначе
+    върни CURLE_SSL_CERTPROBLEM;
 
   store_path_start = sep + 1;
 
   sep = _tcschr(store_path_start, _TEXT('\\'));
-  if(!sep)
-    return CURLE_SSL_CERTPROBLEM;
+  ако(!sep)
+    върни CURLE_SSL_CERTPROBLEM;
 
   *thumbprint = sep + 1;
-  if(_tcslen(*thumbprint) != CERT_THUMBPRINT_STR_LEN)
-    return CURLE_SSL_CERTPROBLEM;
+  ако(_tcslen(*thumbprint) != CERT_THUMBPRINT_STR_LEN)
+    върни CURLE_SSL_CERTPROBLEM;
 
   *sep = _TEXT('\0');
   *store_path = curlx_tcsdup(store_path_start);
   *sep = _TEXT('\\');
-  if(!*store_path)
-    return CURLE_OUT_OF_MEMORY;
+  ако(!*store_path)
+    върни CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode get_client_cert(struct Curl_cfilter *cf,
@@ -388,7 +388,7 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
   HCERTSTORE client_cert_store = NULL;
   CURLcode result = CURLE_OK;
 
-  if(sslc->clientcert || sslc->cert_blob) {
+  ако(sslc->clientcert || sslc->cert_blob) {
     DWORD cert_store_name = 0;
     TCHAR *cert_store_path = NULL;
     TCHAR *cert_thumbprint_str = NULL;
@@ -401,15 +401,15 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
     size_t certsize = 0;
     bool blob = !!sslc->cert_blob;
 
-    if(blob) {
+    ако(blob) {
       certdata = sslc->cert_blob->data;
       certsize = sslc->cert_blob->len;
     }
-    else {
+    иначе {
       TCHAR *cert_path =
         curlx_convert_UTF8_to_tchar(sslc->clientcert);
-      if(!cert_path)
-        return CURLE_OUT_OF_MEMORY;
+      ако(!cert_path)
+        върни CURLE_OUT_OF_MEMORY;
 
       result = get_cert_location(cert_path, &cert_store_name,
                                  &cert_store_path, &cert_thumbprint_str);
@@ -417,68 +417,68 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
       /* 'cert_thumbprint_str' points in to the allocated 'cert_path', copy
          the data. The string is verified to be CERT_THUMBPRINT_STR_LEN bytes
          long within the get_cert_location() function. */
-      if(!result && cert_thumbprint_str) {
+      ако(!result && cert_thumbprint_str) {
         memcpy(cert_thumbprint_buf, cert_thumbprint_str,
                sizeof(cert_thumbprint_buf));
         cert_thumbprint_str = cert_thumbprint_buf;
       }
 
       curlx_free(cert_path);
-      if(result && (sslc->clientcert[0] != '\0'))
+      ако(result && (sslc->clientcert[0] != '\0'))
         fInCert = curlx_fopen(sslc->clientcert, "rb");
 
-      if(result && !fInCert) {
+      ако(result && !fInCert) {
         failf(data, "schannel: Failed to get certificate location"
               " or file for %s",
               sslc->clientcert);
-        return result;
+        върни result;
       }
     }
 
-    if((fInCert || blob) && sslc->cert_type &&
+    ако((fInCert || blob) && sslc->cert_type &&
        !curl_strequal(sslc->cert_type, "P12")) {
       failf(data, "schannel: certificate format compatibility error "
             "for %s",
             blob ? "(memory blob)" : sslc->clientcert);
       curlx_free(cert_store_path);
-      if(fInCert)
+      ако(fInCert)
         curlx_fclose(fInCert);
-      return CURLE_SSL_CERTPROBLEM;
+      върни CURLE_SSL_CERTPROBLEM;
     }
 
-    if(fInCert || blob) {
+    ако(fInCert || blob) {
       /* Reading a .p12 or .pfx file, like the example at bottom of
          https://learn.microsoft.com/archive/msdn-technet-forums/3e7bc95f-b21a-4bcd-bd2c-7f996718cae5
        */
       CRYPT_DATA_BLOB datablob;
       WCHAR *pszPassword;
       size_t pwd_len = 0;
-      int cert_find_flags;
+      цяло cert_find_flags;
       const char *cert_showfilename_error = blob ?
         "(memory blob)" : sslc->clientcert;
       curlx_free(cert_store_path);
-      if(fInCert) {
+      ако(fInCert) {
         long cert_tell = 0;
         bool continue_reading = fseek(fInCert, 0, SEEK_END) == 0;
-        if(continue_reading) {
+        ако(continue_reading) {
           cert_tell = ftell(fInCert);
-          if(cert_tell < 0)
+          ако(cert_tell < 0)
             continue_reading = FALSE;
-          else
+          иначе
             certsize = (size_t)cert_tell;
         }
-        if(continue_reading)
+        ако(continue_reading)
           continue_reading = fseek(fInCert, 0, SEEK_SET) == 0;
-        if(continue_reading && (certsize < CURL_MAX_INPUT_LENGTH))
+        ако(continue_reading && (certsize < CURL_MAX_INPUT_LENGTH))
           certdata = curlx_malloc(certsize + 1);
-        if(!certdata || ((int)fread(certdata, certsize, 1, fInCert) != 1))
+        ако(!certdata || ((цяло)fread(certdata, certsize, 1, fInCert) != 1))
           continue_reading = FALSE;
         curlx_fclose(fInCert);
-        if(!continue_reading) {
+        ако(!continue_reading) {
           failf(data, "schannel: Failed to read cert file %s",
                 sslc->clientcert);
           curlx_free(certdata);
-          return CURLE_SSL_CERTPROBLEM;
+          върни CURLE_SSL_CERTPROBLEM;
         }
       }
 
@@ -486,19 +486,19 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
       datablob.pbData = (BYTE *)certdata;
       datablob.cbData = (DWORD)certsize;
 
-      if(sslc->key_passwd)
+      ако(sslc->key_passwd)
         pwd_len = strlen(sslc->key_passwd);
       pszPassword = curlx_malloc(sizeof(WCHAR) * (pwd_len + 1));
-      if(pszPassword) {
-        int str_w_len = 0;
-        if(pwd_len > 0)
+      ако(pszPassword) {
+        цяло str_w_len = 0;
+        ако(pwd_len > 0)
           str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                                          sslc->key_passwd, (int)pwd_len,
-                                          pszPassword, (int)(pwd_len + 1));
+                                          sslc->key_passwd, (цяло)pwd_len,
+                                          pszPassword, (цяло)(pwd_len + 1));
 
-        if((str_w_len >= 0) && (str_w_len <= (int)pwd_len))
+        ако((str_w_len >= 0) && (str_w_len <= (цяло)pwd_len))
           pszPassword[str_w_len] = 0;
-        else
+        иначе
           pszPassword[0] = 0;
 
         cert_store = PFXImportCertStore(&datablob, pszPassword,
@@ -506,27 +506,27 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
         curlx_memzero(pszPassword, sizeof(WCHAR) * (pwd_len + 1));
         curlx_free(pszPassword);
       }
-      if(!blob)
+      ако(!blob)
         curlx_free(certdata);
-      if(!cert_store) {
+      ако(!cert_store) {
         DWORD errorcode = GetLastError();
-        if(errorcode == ERROR_INVALID_PASSWORD)
+        ако(errorcode == ERROR_INVALID_PASSWORD)
           failf(data, "schannel: Failed to import cert file %s, "
                 "password is bad",
                 cert_showfilename_error);
-        else
+        иначе
           failf(data, "schannel: Failed to import cert file %s, "
                 "last error is 0x%08lx",
                 cert_showfilename_error, errorcode);
-        return CURLE_SSL_CERTPROBLEM;
+        върни CURLE_SSL_CERTPROBLEM;
       }
 
       /* CERT_FIND_HAS_PRIVATE_KEY is only available in Windows 8 / Server
          2012, (NT 6.2). For older versions we use CURL_FIND_ANY. */
-      if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
+      ако(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
                                       VERSION_GREATER_THAN_EQUAL))
         cert_find_flags = CERT_FIND_HAS_PRIVATE_KEY;
-      else
+      иначе
         cert_find_flags = CERT_FIND_ANY;
 
       client_cert =
@@ -534,27 +534,27 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
                                    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
                                    cert_find_flags, NULL, NULL);
 
-      if(!client_cert) {
+      ако(!client_cert) {
         failf(data, "schannel: Failed to get certificate from file %s"
               ", last error is 0x%08lx",
               cert_showfilename_error, GetLastError());
         CertCloseStore(cert_store, 0);
-        return CURLE_SSL_CERTPROBLEM;
+        върни CURLE_SSL_CERTPROBLEM;
       }
     }
-    else {
+    иначе {
       cert_store =
         CertOpenStore(
 #ifdef UNICODE
                       CERT_STORE_PROV_SYSTEM_W,
-#else
+#иначе
                       CERT_STORE_PROV_SYSTEM_A,
 #endif
                       0,
                       (HCRYPTPROV)NULL,
                       CERT_STORE_OPEN_EXISTING_FLAG | cert_store_name,
                       cert_store_path);
-      if(!cert_store) {
+      ако(!cert_store) {
         char *path_utf8 =
           curlx_convert_tchar_to_UTF8(cert_store_path);
         failf(data, "schannel: Failed to open cert store %lx %s, "
@@ -563,32 +563,32 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
               GetLastError());
         curlx_free(cert_store_path);
         curlx_free(path_utf8);
-        return CURLE_SSL_CERTPROBLEM;
+        върни CURLE_SSL_CERTPROBLEM;
       }
       curlx_free(cert_store_path);
 
       cert_thumbprint.pbData = cert_thumbprint_data;
       cert_thumbprint.cbData = CERT_THUMBPRINT_DATA_LEN;
 
-      if(!CryptStringToBinary(cert_thumbprint_str,
+      ако(!CryptStringToBinary(cert_thumbprint_str,
                               CERT_THUMBPRINT_STR_LEN,
                               CRYPT_STRING_HEX,
                               cert_thumbprint_data,
                               &cert_thumbprint.cbData,
                               NULL, NULL)) {
         CertCloseStore(cert_store, 0);
-        return CURLE_SSL_CERTPROBLEM;
+        върни CURLE_SSL_CERTPROBLEM;
       }
 
       client_cert =
         CertFindCertificateInStore(cert_store,
                                    X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
                                    CERT_FIND_HASH, &cert_thumbprint, NULL);
-      if(!client_cert) {
+      ако(!client_cert) {
         /* CRYPT_E_NOT_FOUND / E_INVALIDARG */
         CertCloseStore(cert_store, 0);
         failf(data, "schannel: client cert not found in cert store");
-        return CURLE_SSL_CERTPROBLEM;
+        върни CURLE_SSL_CERTPROBLEM;
       }
     }
     client_cert_store = cert_store;
@@ -597,7 +597,7 @@ static CURLcode get_client_cert(struct Curl_cfilter *cf,
   *out_cert_store = client_cert_store;
   *out_cert_context = client_cert;
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
@@ -613,7 +613,7 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
 
   /* We support TLS 1.3 starting in Windows Server 2022 or later
    * (OS build 20348) */
-  if(!conn_config->cipher_list &&
+  ако(!conn_config->cipher_list &&
      curlx_verify_windows_version(10, 0, 20348, PLATFORM_WINNT,
                                   VERSION_GREATER_THAN_EQUAL)) {
 
@@ -622,9 +622,9 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
     CRYPTO_SETTINGS crypto_settings[1];
     PCCERT_CONTEXT client_certs[1];
 
-    if(client_cert)
+    ако(client_cert)
       client_certs[0] = client_cert;
-    else
+    иначе
       client_certs[0] = NULL;
 
     memset(crypto_settings, 0, sizeof(crypto_settings));
@@ -641,7 +641,7 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
 
     credentials.pTlsParameters->grbitDisabledProtocols = ~enabled_protocols;
 
-    if(client_certs[0]) {
+    ако(client_certs[0]) {
       credentials.cCreds = 1;
       credentials.paCred = client_certs;
     }
@@ -652,7 +652,7 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
                                             &credentials, NULL, NULL,
                                             &backend->cred->cred_handle, NULL);
   }
-  else {
+  иначе {
     /* Pre-Windows 10 1809 or the user set a legacy algorithm list.
        Schannel does not negotiate TLS 1.3 when SCHANNEL_CRED is used. */
     ALG_ID algIds[NUM_CIPHERS];
@@ -660,37 +660,37 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
     SCHANNEL_CRED schannel_cred = { 0 };
     PCCERT_CONTEXT client_certs[1];
 
-    if(client_cert)
+    ако(client_cert)
       client_certs[0] = client_cert;
-    else
+    иначе
       client_certs[0] = NULL;
 
     schannel_cred.dwVersion = SCHANNEL_CRED_VERSION;
     schannel_cred.dwFlags = flags;
     schannel_cred.grbitEnabledProtocols = enabled_protocols;
 
-    if(ciphers) {
-      if((enabled_protocols & SP_PROT_TLS1_3_CLIENT)) {
-        if(!(enabled_protocols & ~SP_PROT_TLS1_3_CLIENT)) {
+    ако(ciphers) {
+      ако((enabled_protocols & SP_PROT_TLS1_3_CLIENT)) {
+        ако(!(enabled_protocols & ~SP_PROT_TLS1_3_CLIENT)) {
           failf(data, "schannel: TLS 1.3 is not supported with a cipher list; "
                 "remove the cipher list or allow a lower TLS version");
-          return CURLE_SSL_CONNECT_ERROR;
+          върни CURLE_SSL_CONNECT_ERROR;
         }
         infof(data, "schannel: WARNING: This version of Schannel "
               "negotiates a less-secure TLS version than TLS 1.3 because the "
               "user set an algorithm cipher list.");
       }
       result = set_ssl_ciphers(&schannel_cred, ciphers, algIds);
-      if(result) {
+      ако(result) {
         failf(data, "schannel: Failed setting algorithm cipher list");
-        return result;
+        върни result;
       }
     }
-    else {
+    иначе {
       schannel_cred.dwFlags = flags | SCH_USE_STRONG_CRYPTO;
     }
 
-    if(client_certs[0]) {
+    ако(client_certs[0]) {
       schannel_cred.cCreds = 1;
       schannel_cred.paCred = client_certs;
     }
@@ -702,24 +702,24 @@ static CURLcode acquire_sspi_handle(struct Curl_cfilter *cf,
                                             &backend->cred->cred_handle, NULL);
   }
 
-  if(sspi_status != SEC_E_OK) {
+  ако(sspi_status != SEC_E_OK) {
     char buffer[STRERROR_LEN];
     failf(data, "schannel: AcquireCredentialsHandle failed: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
     switch(sspi_status) {
     case SEC_E_INSUFFICIENT_MEMORY:
-      return CURLE_OUT_OF_MEMORY;
+      върни CURLE_OUT_OF_MEMORY;
     case SEC_E_NO_CREDENTIALS:
     case SEC_E_SECPKG_NOT_FOUND:
     case SEC_E_NOT_OWNER:
     case SEC_E_UNKNOWN_CREDENTIALS:
     case SEC_E_INTERNAL_ERROR:
     default:
-      return CURLE_SSL_CONNECT_ERROR;
+      върни CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter *cf,
@@ -741,52 +741,52 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter *cf,
 
   DEBUGASSERT(backend);
 
-  if(conn_config->verifypeer) {
-    if(backend->use_manual_cred_validation)
+  ако(conn_config->verifypeer) {
+    ако(backend->use_manual_cred_validation)
       flags = SCH_CRED_MANUAL_CRED_VALIDATION;
-    else
+    иначе
       flags = SCH_CRED_AUTO_CRED_VALIDATION;
 
-    if(conn_config->no_revoke) {
+    ако(conn_config->no_revoke) {
       flags |= SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
                SCH_CRED_IGNORE_REVOCATION_OFFLINE;
 
       DEBUGF(infof(data, "schannel: disabled server certificate revocation "
                          "checks"));
     }
-    else if(conn_config->revoke_best_effort) {
+    иначе ако(conn_config->revoke_best_effort) {
       flags |= SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
                SCH_CRED_IGNORE_REVOCATION_OFFLINE |
                SCH_CRED_REVOCATION_CHECK_CHAIN;
 
       DEBUGF(infof(data, "schannel: ignore revocation offline errors"));
     }
-    else {
+    иначе {
       flags |= SCH_CRED_REVOCATION_CHECK_CHAIN;
 
       DEBUGF(infof(data, "schannel: checking server certificate revocation"));
     }
   }
-  else {
+  иначе {
     flags = SCH_CRED_MANUAL_CRED_VALIDATION |
             SCH_CRED_IGNORE_NO_REVOCATION_CHECK |
             SCH_CRED_IGNORE_REVOCATION_OFFLINE;
     DEBUGF(infof(data, "schannel: disabled server cert revocation checks"));
   }
 
-  if(!conn_config->verifyhost) {
+  ако(!conn_config->verifyhost) {
     flags |= SCH_CRED_NO_SERVERNAME_CHECK;
     DEBUGF(infof(data, "schannel: verifyhost setting prevents Schannel from "
                        "comparing the supplied target name with the subject "
                        "names in server certificates."));
   }
 
-  if(!conn_config->auto_client_cert) {
+  ако(!conn_config->auto_client_cert) {
     flags &= ~(DWORD)SCH_CRED_USE_DEFAULT_CREDS;
     flags |= SCH_CRED_NO_DEFAULT_CREDS;
     infof(data, "schannel: disabled automatic use of client certificate");
   }
-  else
+  иначе
     infof(data, "schannel: enabled automatic use of client certificate");
 
   DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
@@ -797,35 +797,35 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter *cf,
   case CURL_SSLVERSION_TLSv1_2:
   case CURL_SSLVERSION_TLSv1_3: {
     result = schannel_set_ssl_version_min_max(&enabled_protocols, cf, data);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
     break;
   }
   case CURL_SSLVERSION_SSLv3:
   case CURL_SSLVERSION_SSLv2:
     failf(data, "SSL versions not supported");
-    return CURLE_NOT_BUILT_IN;
+    върни CURLE_NOT_BUILT_IN;
   default:
     failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
-    return CURLE_SSL_CONNECT_ERROR;
+    върни CURLE_SSL_CONNECT_ERROR;
   }
 
   result = get_client_cert(cf, data, &client_cert_store, &client_cert);
-  if(result)
-    return result;
+  ако(result)
+    върни result;
 
   /* allocate memory for the reusable credential handle */
   backend->cred = (struct Curl_schannel_cred *)
     curlx_calloc(1, sizeof(struct Curl_schannel_cred));
-  if(!backend->cred) {
+  ако(!backend->cred) {
     failf(data, "schannel: unable to allocate memory");
 
-    if(client_cert)
+    ако(client_cert)
       CertFreeCertificateContext(client_cert);
-    if(client_cert_store)
+    ако(client_cert_store)
       CertCloseStore(client_cert_store, 0);
 
-    return CURLE_OUT_OF_MEMORY;
+    върни CURLE_OUT_OF_MEMORY;
   }
   backend->cred->refcount = 1;
 
@@ -837,10 +837,10 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter *cf,
   result = acquire_sspi_handle(cf, data, backend, client_cert,
                                flags, enabled_protocols);
 
-  if(client_cert)
+  ако(client_cert)
     CertFreeCertificateContext(client_cert);
 
-  return result;
+  върни result;
 }
 
 static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
@@ -865,28 +865,28 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
 
   backend->use_alpn = connssl->alpn && s_win_has_alpn;
 
-  if(conn_config->CAfile || conn_config->ca_info_blob) {
-    if(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
+  ако(conn_config->CAfile || conn_config->ca_info_blob) {
+    ако(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
                                     VERSION_GREATER_THAN_EQUAL)) {
       backend->use_manual_cred_validation = TRUE;
     }
-    else {
+    иначе {
       failf(data, "schannel: this version of Windows is too old to support "
                   "certificate verification via CA bundle file.");
-      return CURLE_SSL_CACERT_BADFILE;
+      върни CURLE_SSL_CACERT_BADFILE;
     }
   }
-  else
+  иначе
     backend->use_manual_cred_validation = FALSE;
 
   backend->cred = NULL;
 
   /* check for an existing reusable credential handle */
-  if(Curl_ssl_scache_use(cf, data)) {
+  ако(Curl_ssl_scache_use(cf, data)) {
     struct Curl_schannel_cred *old_cred;
     Curl_ssl_scache_lock(data);
     old_cred = Curl_ssl_scache_get_obj(cf, data, connssl->peer.scache_key);
-    if(old_cred) {
+    ако(old_cred) {
       backend->cred = old_cred;
       DEBUGF(infof(data, "schannel: reusing existing credential handle"));
 
@@ -899,11 +899,11 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
     Curl_ssl_scache_unlock(data);
   }
 
-  if(!backend->cred) {
+  ако(!backend->cred) {
     char *snihost;
     result = schannel_acquire_credential_handle(cf, data);
-    if(result || !backend->cred)
-      return result;
+    ако(result || !backend->cred)
+      върни result;
     /* schannel_acquire_credential_handle() sets backend->cred accordingly or
        it returns error otherwise. */
 
@@ -912,51 +912,51 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
     snihost = connssl->peer.sni ?
       connssl->peer.sni : connssl->peer.origin->hostname;
     backend->cred->sni_hostname = curlx_convert_UTF8_to_tchar(snihost);
-    if(!backend->cred->sni_hostname)
-      return CURLE_OUT_OF_MEMORY;
+    ако(!backend->cred->sni_hostname)
+      върни CURLE_OUT_OF_MEMORY;
   }
 
   /* Warn if SNI is disabled due to use of an IP address */
-  if(connssl->peer.type != CURL_SSL_PEER_DNS) {
+  ако(connssl->peer.type != CURL_SSL_PEER_DNS) {
     infof(data, "schannel: using IP address, SNI is not supported by OS.");
   }
 
-  if(backend->use_alpn) {
-    int cur = 0;
-    int list_start_index = 0;
-    unsigned int *extension_len = NULL;
+  ако(backend->use_alpn) {
+    цяло cur = 0;
+    цяло list_start_index = 0;
+    unsigned цяло *extension_len = NULL;
     unsigned short *list_len = NULL;
-    const unsigned int uiALPN = SecApplicationProtocolNegotiationExt_ALPN;
+    const unsigned цяло uiALPN = SecApplicationProtocolNegotiationExt_ALPN;
     struct alpn_proto_buf proto;
 
     /* The first four bytes is an unsigned int indicating number
        of bytes of data in the rest of the buffer. */
-    extension_len = (unsigned int *)(void *)&alpn_buffer[cur];
-    cur += (int)sizeof(unsigned int);
+    extension_len = (unsigned цяло *)(void *)&alpn_buffer[cur];
+    cur += (цяло)sizeof(unsigned цяло);
 
     /* The next four bytes are an indicator that this buffer contains
        ALPN data, as opposed to NPN, for example. */
     memcpy(&alpn_buffer[cur], &uiALPN, sizeof(uiALPN));
-    cur += (int)sizeof(unsigned int);
+    cur += (цяло)sizeof(unsigned цяло);
 
     /* The next two bytes is an unsigned short indicating the number
        of bytes used to list the preferred protocols. */
     list_len = (unsigned short *)(void *)&alpn_buffer[cur];
-    cur += (int)sizeof(unsigned short);
+    cur += (цяло)sizeof(unsigned short);
 
     list_start_index = cur;
 
     result = Curl_alpn_to_proto_buf(&proto, connssl->alpn);
-    if(result) {
+    ако(result) {
       failf(data, "Error setting ALPN");
-      return CURLE_SSL_CONNECT_ERROR;
+      върни CURLE_SSL_CONNECT_ERROR;
     }
     memcpy(&alpn_buffer[cur], proto.data, proto.len);
     cur += proto.len;
 
     *list_len = curlx_uitous(cur - list_start_index);
-    *extension_len = (unsigned int)(*list_len +
-      sizeof(unsigned int) + sizeof(unsigned short));
+    *extension_len = (unsigned цяло)(*list_len +
+      sizeof(unsigned цяло) + sizeof(unsigned short));
 
     InitSecBuffer(&inbuf, SECBUFFER_APPLICATION_PROTOCOLS, alpn_buffer, cur);
     InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
@@ -964,7 +964,7 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
     Curl_alpn_to_proto_str(&proto, connssl->alpn);
     infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
   }
-  else {
+  иначе {
     InitSecBuffer(&inbuf, SECBUFFER_EMPTY, NULL, 0);
     InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
   }
@@ -983,9 +983,9 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
   /* allocate memory for the security context handle */
   backend->ctxt = (struct Curl_schannel_ctxt *)
     curlx_calloc(1, sizeof(struct Curl_schannel_ctxt));
-  if(!backend->ctxt) {
+  ако(!backend->ctxt) {
     failf(data, "schannel: unable to allocate memory");
-    return CURLE_OUT_OF_MEMORY;
+    върни CURLE_OUT_OF_MEMORY;
   }
 
   /* Schannel InitializeSecurityContext:
@@ -1002,19 +1002,19 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
     0, &backend->ctxt->ctxt_handle,
     &outbuf_desc, &backend->ret_flags, NULL);
 
-  if(sspi_status != SEC_I_CONTINUE_NEEDED) {
+  ако(sspi_status != SEC_I_CONTINUE_NEEDED) {
     char buffer[STRERROR_LEN];
     curlx_safefree(backend->ctxt);
     switch(sspi_status) {
     case SEC_E_INSUFFICIENT_MEMORY:
       failf(data, "schannel: initial InitializeSecurityContext failed: %s",
             Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_OUT_OF_MEMORY;
+      върни CURLE_OUT_OF_MEMORY;
     case SEC_E_WRONG_PRINCIPAL:
       failf(data, "schannel: SNI or certificate check failed: %s",
             Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_PEER_FAILED_VERIFICATION;
-#if 0
+      върни CURLE_PEER_FAILED_VERIFICATION;
+#ако 0
     case SEC_E_INVALID_HANDLE:
     case SEC_E_INVALID_TOKEN:
     case SEC_E_LOGON_DENIED:
@@ -1028,7 +1028,7 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
     default:
       failf(data, "schannel: initial InitializeSecurityContext failed: %s",
             Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-      return CURLE_SSL_CONNECT_ERROR;
+      върни CURLE_SSL_CONNECT_ERROR;
     }
   }
 
@@ -1041,10 +1041,10 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
                              outbuf.cbBuffer, FALSE,
                              &written);
   Curl_pSecFn->FreeContextBuffer(outbuf.pvBuffer);
-  if(result || (outbuf.cbBuffer != written)) {
+  ако(result || (outbuf.cbBuffer != written)) {
     failf(data, "schannel: failed to send initial handshake data: "
           "sent %zu of %lu bytes", written, outbuf.cbBuffer);
-    return CURLE_SSL_CONNECT_ERROR;
+    върни CURLE_SSL_CONNECT_ERROR;
   }
 
   DEBUGF(infof(data, "schannel: sent initial handshake data: "
@@ -1063,7 +1063,7 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter *cf,
   /* continue to second handshake step */
   connssl->connecting_state = ssl_connect_2;
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode schannel_error(struct Curl_easy *data,
@@ -1074,16 +1074,16 @@ static CURLcode schannel_error(struct Curl_easy *data,
   case SEC_E_INSUFFICIENT_MEMORY:
     failf(data, "schannel: next InitializeSecurityContext failed: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_OUT_OF_MEMORY;
+    върни CURLE_OUT_OF_MEMORY;
   case SEC_E_WRONG_PRINCIPAL:
     failf(data, "schannel: SNI or certificate check failed: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_PEER_FAILED_VERIFICATION;
+    върни CURLE_PEER_FAILED_VERIFICATION;
   case SEC_E_UNTRUSTED_ROOT:
     failf(data, "schannel: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_PEER_FAILED_VERIFICATION;
-#if 0
+    върни CURLE_PEER_FAILED_VERIFICATION;
+#ако 0
   case SEC_E_INVALID_HANDLE:
   case SEC_E_INVALID_TOKEN:
   case SEC_E_LOGON_DENIED:
@@ -1097,7 +1097,7 @@ static CURLcode schannel_error(struct Curl_easy *data,
   default:
     failf(data, "schannel: next InitializeSecurityContext failed: %s",
           Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    return CURLE_SSL_CONNECT_ERROR;
+    върни CURLE_SSL_CONNECT_ERROR;
   }
 }
 
@@ -1116,8 +1116,8 @@ static CURLcode schannel_pkp_pin_peer_pubkey(struct Curl_cfilter *cf,
   DEBUGASSERT(backend);
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
+  ако(!pinnedpubkey)
+    върни CURLE_OK;
 
   do {
     SECURITY_STATUS sspi_status;
@@ -1131,25 +1131,25 @@ static CURLcode schannel_pkp_pin_peer_pubkey(struct Curl_cfilter *cf,
                                           SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                           &pCertContextServer);
 
-    if((sspi_status != SEC_E_OK) || !pCertContextServer) {
+    ако((sspi_status != SEC_E_OK) || !pCertContextServer) {
       char buffer[STRERROR_LEN];
       failf(data, "schannel: Failed to read remote certificate context: %s",
             Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
       break; /* failed */
     }
 
-    if(!(((pCertContextServer->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
+    ако(!(((pCertContextServer->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
          (pCertContextServer->cbCertEncoded > 0)))
       break;
 
     x509_der = (uint8_t *)pCertContextServer->pbCertEncoded;
     x509_der_len = pCertContextServer->cbCertEncoded;
     memset(&x509_parsed, 0, sizeof(x509_parsed));
-    if(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
+    ако(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
       break;
 
     pubkey = &x509_parsed.subjectPublicKeyInfo;
-    if(!pubkey->header || pubkey->end <= pubkey->header) {
+    ако(!pubkey->header || pubkey->end <= pubkey->header) {
       failf(data, "SSL: failed retrieving public key from server certificate");
       break;
     }
@@ -1158,15 +1158,15 @@ static CURLcode schannel_pkp_pin_peer_pubkey(struct Curl_cfilter *cf,
                                   pinnedpubkey,
                                   (const unsigned char *)pubkey->header,
                                   (size_t)(pubkey->end - pubkey->header));
-    if(result) {
+    ако(result) {
       failf(data, "SSL: public key does not match pinned public key");
     }
-  } while(0);
+  } докато(0);
 
-  if(pCertContextServer)
+  ако(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  върни result;
 }
 
 static CURLcode ensure_encoding_size(struct Curl_easy *data,
@@ -1175,18 +1175,18 @@ static CURLcode ensure_encoding_size(struct Curl_easy *data,
 {
   size_t size;
   DEBUGASSERT(encdata->length >= encdata->offset);
-  if(encdata->length < encdata->offset)
-    return CURLE_FAILED_INIT;
+  ако(encdata->length < encdata->offset)
+    върни CURLE_FAILED_INIT;
   size = encdata->length - encdata->offset;
-  if(size < CURL_SCHANNEL_BUFFER_FREE_SIZE || encdata->length < min_length) {
+  ако(size < CURL_SCHANNEL_BUFFER_FREE_SIZE || encdata->length < min_length) {
     unsigned char *buffer;
     size_t length = encdata->offset + CURL_SCHANNEL_BUFFER_FREE_SIZE;
-    if(length < min_length)
+    ако(length < min_length)
       length = min_length;
     buffer = curlx_realloc(encdata->buffer, length);
-    if(!buffer) {
+    ако(!buffer) {
       failf(data, "schannel: unable to re-allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+      върни CURLE_OUT_OF_MEMORY;
     }
 
     encdata->buffer = buffer;
@@ -1194,7 +1194,7 @@ static CURLcode ensure_encoding_size(struct Curl_easy *data,
     SCH_DEV(infof(data, "schannel: encdata.buffer resized %zu",
                   encdata->length));
   }
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode ensure_decoding_size(struct Curl_easy *data,
@@ -1205,26 +1205,26 @@ static CURLcode ensure_decoding_size(struct Curl_easy *data,
   size_t size = nowsize > CURL_SCHANNEL_BUFFER_FREE_SIZE ?
     nowsize : CURL_SCHANNEL_BUFFER_FREE_SIZE;
   DEBUGASSERT(decdata->length >= decdata->offset);
-  if(decdata->length < decdata->offset)
-    return CURLE_FAILED_INIT;
-  else if(decdata->length - decdata->offset < size ||
+  ако(decdata->length < decdata->offset)
+    върни CURLE_FAILED_INIT;
+  иначе ако(decdata->length - decdata->offset < size ||
           decdata->length < len) {
     /* increase internal decrypted data buffer */
     size_t length = decdata->offset + size;
     unsigned char *buffer;
     /* make sure that the requested amount of data fits */
-    if(length < len)
+    ако(length < len)
       length = len;
 
     buffer = curlx_realloc(decdata->buffer, length);
-    if(!buffer) {
+    ако(!buffer) {
       failf(data, "schannel: unable to re-allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+      върни CURLE_OUT_OF_MEMORY;
     }
     decdata->buffer = buffer;
     decdata->length = length;
   }
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
@@ -1234,7 +1234,7 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
   struct schannel_ssl_backend_data *backend =
     (struct schannel_ssl_backend_data *)connssl->backend;
   struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int i;
+  цяло i;
   size_t nread = 0;
   SecBuffer outbuf[3];
   SecBufferDesc outbuf_desc;
@@ -1253,38 +1253,38 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
   DEBUGF(infof(data, "schannel: SSL/TLS connection with %s port %d (step 2/3)",
                connssl->peer.origin->hostname, connssl->peer.origin->port));
 
-  if(!backend->cred || !backend->ctxt)
-    return CURLE_SSL_CONNECT_ERROR;
+  ако(!backend->cred || !backend->ctxt)
+    върни CURLE_SSL_CONNECT_ERROR;
 
   /* buffer to store previously received and decrypted data */
-  if(!backend->decdata.buffer) {
+  ако(!backend->decdata.buffer) {
     backend->decdata.offset = 0;
     backend->decdata.length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
     backend->decdata.buffer = curlx_malloc(backend->decdata.length);
-    if(!backend->decdata.buffer) {
+    ако(!backend->decdata.buffer) {
       failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+      върни CURLE_OUT_OF_MEMORY;
     }
   }
 
   /* buffer to store previously received and encrypted data */
-  if(!backend->encdata.buffer) {
+  ако(!backend->encdata.buffer) {
     backend->encdata_is_incomplete = FALSE;
     backend->encdata.offset = 0;
     backend->encdata.length = CURL_SCHANNEL_BUFFER_INIT_SIZE;
     backend->encdata.buffer = curlx_malloc(backend->encdata.length);
-    if(!backend->encdata.buffer) {
+    ако(!backend->encdata.buffer) {
       failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+      върни CURLE_OUT_OF_MEMORY;
     }
   }
 
   result = ensure_encoding_size(data, &backend->encdata, 0);
-  if(result)
-    return result;
+  ако(result)
+    върни result;
 
-  for(;;) {
-    if(doread) {
+  за(;;) {
+    ако(doread) {
       /* read encrypted handshake data from socket */
       result = Curl_conn_cf_recv(cf->next, data,
                                  (char *)(backend->encdata.buffer +
@@ -1292,24 +1292,24 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
                                  backend->encdata.length -
                                  backend->encdata.offset,
                                  &nread);
-      if(result == CURLE_AGAIN) {
-        if(!backend->encdata.offset || backend->encdata_is_incomplete) {
+      ако(result == CURLE_AGAIN) {
+        ако(!backend->encdata.offset || backend->encdata_is_incomplete) {
           connssl->io_need = CURL_SSL_IO_NEED_RECV;
           DEBUGF(infof(data, "schannel: failed to receive handshake, "
                        "need more data"));
-          return CURLE_OK;
+          върни CURLE_OK;
         }
-        else {
+        иначе {
           DEBUGF(infof(data, "schannel: no new handshake data received, "
                        "continuing to process existing handshake data"));
         }
       }
-      else if(result || (nread == 0)) {
+      иначе ако(result || (nread == 0)) {
         failf(data, "schannel: failed to receive handshake, "
               "SSL/TLS connection failed");
-        return CURLE_SSL_CONNECT_ERROR;
+        върни CURLE_SSL_CONNECT_ERROR;
       }
-      else {
+      иначе {
         /* increase encrypted data buffer offset */
         backend->encdata.offset += nread;
         backend->encdata_is_incomplete = FALSE;
@@ -1335,20 +1335,20 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
     InitSecBuffer(&outbuf[2], SECBUFFER_EMPTY, NULL, 0);
     InitSecBufferDesc(&outbuf_desc, outbuf, 3);
 
-    if(!inbuf[0].pvBuffer) {
+    ако(!inbuf[0].pvBuffer) {
       failf(data, "schannel: unable to allocate memory");
-      return CURLE_OUT_OF_MEMORY;
+      върни CURLE_OUT_OF_MEMORY;
     }
 
     /* The socket must be writable (or a poll error occurred) before we call
        InitializeSecurityContext to continue processing the received TLS
        records. This is because that function is not idempotent and we do not
        support partial save/resume sending replies of handshake tokens. */
-    if(!SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, data), 0)) {
+    ако(!SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, data), 0)) {
       SCH_DEV(infof(data, "schannel: handshake waiting for writable socket"));
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
       curlx_free(inbuf[0].pvBuffer);
-      return CURLE_OK;
+      върни CURLE_OK;
     }
 
     sspi_status = Curl_pSecFn->InitializeSecurityContext(
@@ -1367,15 +1367,15 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
       DEBUGF(infof(data,
                    "schannel: received incomplete message, need more data"));
-      return CURLE_OK;
+      върни CURLE_OK;
 
     case SEC_I_CONTINUE_NEEDED:
     case SEC_E_OK:
       /* check if the handshake needs to be continued */
       result = CURLE_OK;
-      for(i = 0; i < 3; i++) {
+      за(i = 0; i < 3; i++) {
         /* search for handshake tokens that need to be sent */
-        if(outbuf[i].BufferType == SECBUFFER_TOKEN && outbuf[i].cbBuffer > 0) {
+        ако(outbuf[i].BufferType == SECBUFFER_TOKEN && outbuf[i].cbBuffer > 0) {
           size_t written = 0;
           DEBUGF(infof(data, "schannel: sending next handshake data: "
                        "sending %lu bytes.", outbuf[i].cbBuffer));
@@ -1385,24 +1385,24 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
                                      (const uint8_t *)outbuf[i].pvBuffer,
                                      outbuf[i].cbBuffer,
                                      FALSE, &written);
-          if(result || (outbuf[i].cbBuffer != written)) {
+          ако(result || (outbuf[i].cbBuffer != written)) {
             failf(data, "schannel: failed to send next handshake data: "
                   "sent %zu of %lu bytes", written, outbuf[i].cbBuffer);
             result = CURLE_SSL_CONNECT_ERROR;
           }
         }
       }
-      for(i = 0; i < 3; i++) {
+      за(i = 0; i < 3; i++) {
         /* free obsolete buffer */
-        if(outbuf[i].pvBuffer)
+        ако(outbuf[i].pvBuffer)
           Curl_pSecFn->FreeContextBuffer(outbuf[i].pvBuffer);
       }
-      if(result)
-        return result;
+      ако(result)
+        върни result;
       break;
 
     case SEC_I_INCOMPLETE_CREDENTIALS:
-      if(!(backend->req_flags & ISC_REQ_USE_SUPPLIED_CREDS)) {
+      ако(!(backend->req_flags & ISC_REQ_USE_SUPPLIED_CREDS)) {
         /* If the server has requested a client certificate, attempt to
            continue the handshake without one. This allows connections to
            servers which request a client certificate but do not require
@@ -1411,16 +1411,16 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
         DEBUGF(infof(data,
                      "schannel: a client certificate has been requested"));
-        return CURLE_OK;
+        върни CURLE_OK;
       }
       FALLTHROUGH();
 
     default:
-      return schannel_error(data, sspi_status);
+      върни schannel_error(data, sspi_status);
     }
 
     /* check if there was additional remaining encrypted data */
-    if(inbuf[1].BufferType == SECBUFFER_EXTRA && inbuf[1].cbBuffer > 0) {
+    ако(inbuf[1].BufferType == SECBUFFER_EXTRA && inbuf[1].cbBuffer > 0) {
       SCH_DEV(infof(data, "schannel: encrypted data length: %lu",
                     inbuf[1].cbBuffer));
       /* There are two cases where we could be getting extra data here:
@@ -1434,31 +1434,31 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
        */
       /* check if the remaining data is less than the total amount
          and therefore begins after the already processed data */
-      if(backend->encdata.offset > inbuf[1].cbBuffer) {
+      ако(backend->encdata.offset > inbuf[1].cbBuffer) {
         memmove(backend->encdata.buffer,
                 (backend->encdata.buffer + backend->encdata.offset) -
                 inbuf[1].cbBuffer, inbuf[1].cbBuffer);
         backend->encdata.offset = inbuf[1].cbBuffer;
-        if(sspi_status == SEC_I_CONTINUE_NEEDED) {
+        ако(sspi_status == SEC_I_CONTINUE_NEEDED) {
           doread = FALSE;
           continue;
         }
       }
     }
-    else {
+    иначе {
       backend->encdata.offset = 0;
     }
     break;
   }
 
   /* check if the handshake needs to be continued */
-  if(sspi_status == SEC_I_CONTINUE_NEEDED) {
+  ако(sspi_status == SEC_I_CONTINUE_NEEDED) {
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
-    return CURLE_OK;
+    върни CURLE_OK;
   }
 
   /* check if the handshake is complete */
-  if(sspi_status == SEC_E_OK) {
+  ако(sspi_status == SEC_E_OK) {
     connssl->connecting_state = ssl_connect_3;
     DEBUGF(infof(data, "schannel: SSL/TLS handshake complete"));
   }
@@ -1467,33 +1467,33 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter *cf,
   pubkey_ptr = Curl_ssl_cf_is_proxy(cf) ?
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#else
+#иначе
   pubkey_ptr = CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
 #endif
-  if(pubkey_ptr) {
+  ако(pubkey_ptr) {
     result = schannel_pkp_pin_peer_pubkey(cf, data, pubkey_ptr);
-    if(result) {
+    ако(result) {
       failf(data, "SSL: public key does not match pinned public key");
-      return result;
+      върни result;
     }
   }
 
-  if(conn_config->verifypeer && backend->use_manual_cred_validation) {
+  ако(conn_config->verifypeer && backend->use_manual_cred_validation) {
     /* Certificate verification also verifies the hostname if verifyhost */
-    return Curl_verify_certificate(cf, data);
+    върни Curl_verify_certificate(cf, data);
   }
 
   /* Verify the hostname manually when certificate verification is disabled,
      because in that case Schannel does not verify it. */
-  if(!conn_config->verifypeer && conn_config->verifyhost)
-    return Curl_verify_host(cf, data);
+  ако(!conn_config->verifypeer && conn_config->verifyhost)
+    върни Curl_verify_host(cf, data);
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static bool valid_cert_encoding(const CERT_CONTEXT *cert_context)
 {
-  return cert_context &&
+  върни cert_context &&
     ((cert_context->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
     cert_context->pbCertEncoded &&
     (cert_context->cbCertEncoded > 0);
@@ -1509,7 +1509,7 @@ static void traverse_cert_store(const CERT_CONTEXT *context,
   bool should_continue = TRUE;
   bool first = TRUE;
   bool reverse_order = FALSE;
-  while(should_continue &&
+  докато(should_continue &&
         (current_context = CertEnumCertificatesInStore(
           context->hCertStore,
           current_context)) != NULL) {
@@ -1518,13 +1518,13 @@ static void traverse_cert_store(const CERT_CONTEXT *context,
        certificates in root-to-leaf order. Determine the order of enumeration
        by comparing SECPKG_ATTR_REMOTE_CERT_CONTEXT's pbCertContext with the
        first certificate's pbCertContext. */
-    if(first && context->pbCertEncoded != current_context->pbCertEncoded)
+    ако(first && context->pbCertEncoded != current_context->pbCertEncoded)
       reverse_order = TRUE;
     should_continue = func(current_context, reverse_order, arg);
     first = FALSE;
   }
 
-  if(current_context)
+  ако(current_context)
     CertFreeCertificateContext(current_context);
 }
 
@@ -1532,18 +1532,18 @@ static bool cert_counter_callback(const CERT_CONTEXT *ccert_context,
                                   bool reverse_order, void *certs_count)
 {
   (void)reverse_order;
-  if(valid_cert_encoding(ccert_context))
-    (*(int *)certs_count)++;
-  if(*(int *)certs_count > MAX_ALLOWED_CERT_AMOUNT)
-    return FALSE;
-  return TRUE;
+  ако(valid_cert_encoding(ccert_context))
+    (*(цяло *)certs_count)++;
+  ако(*(цяло *)certs_count > MAX_ALLOWED_CERT_AMOUNT)
+    върни FALSE;
+  върни TRUE;
 }
 
 struct Adder_args {
   struct Curl_easy *data;
   CURLcode result;
-  int idx;
-  int certs_count;
+  цяло idx;
+  цяло certs_count;
 };
 
 static bool add_cert_to_certinfo(const CERT_CONTEXT *ccert_context,
@@ -1551,8 +1551,8 @@ static bool add_cert_to_certinfo(const CERT_CONTEXT *ccert_context,
 {
   struct Adder_args *args = (struct Adder_args *)raw_arg;
   args->result = CURLE_OK;
-  if(valid_cert_encoding(ccert_context)) {
-    int insert_index = reverse_order ? (args->certs_count - 1) - args->idx :
+  ако(valid_cert_encoding(ccert_context)) {
+    цяло insert_index = reverse_order ? (args->certs_count - 1) - args->idx :
                        args->idx;
     args->result = Curl_extract_certinfo(args->data, insert_index,
                                          ccert_context->pbCertEncoded,
@@ -1560,7 +1560,7 @@ static bool add_cert_to_certinfo(const CERT_CONTEXT *ccert_context,
                                          ccert_context->cbCertEncoded);
     args->idx++;
   }
-  return args->result == CURLE_OK;
+  върни args->result == CURLE_OK;
 }
 
 static void schannel_session_free(void *sessionid)
@@ -1568,12 +1568,12 @@ static void schannel_session_free(void *sessionid)
   /* this is expected to be called under sessionid lock */
   struct Curl_schannel_cred *cred = sessionid;
 
-  if(cred) {
+  ако(cred) {
     cred->refcount--;
-    if(cred->refcount == 0) {
+    ако(cred->refcount == 0) {
       Curl_pSecFn->FreeCredentialsHandle(&cred->cred_handle);
       curlx_free(cred->sni_hostname);
-      if(cred->client_cert_store) {
+      ако(cred->client_cert_store) {
         CertCloseStore(cred->client_cert_store, 0);
         cred->client_cert_store = NULL;
       }
@@ -1600,38 +1600,38 @@ static CURLcode schannel_connect_step3(struct Curl_cfilter *cf,
   DEBUGF(infof(data, "schannel: SSL/TLS connection with %s port %d (step 3/3)",
                connssl->peer.origin->hostname, connssl->peer.origin->port));
 
-  if(!backend->cred)
-    return CURLE_SSL_CONNECT_ERROR;
+  ако(!backend->cred)
+    върни CURLE_SSL_CONNECT_ERROR;
 
   /* check if the required context attributes are met */
-  if(backend->ret_flags != backend->req_flags) {
-    if(!(backend->ret_flags & ISC_RET_SEQUENCE_DETECT))
+  ако(backend->ret_flags != backend->req_flags) {
+    ако(!(backend->ret_flags & ISC_RET_SEQUENCE_DETECT))
       failf(data, "schannel: failed to setup sequence detection");
-    if(!(backend->ret_flags & ISC_RET_REPLAY_DETECT))
+    ако(!(backend->ret_flags & ISC_RET_REPLAY_DETECT))
       failf(data, "schannel: failed to setup replay detection");
-    if(!(backend->ret_flags & ISC_RET_CONFIDENTIALITY))
+    ако(!(backend->ret_flags & ISC_RET_CONFIDENTIALITY))
       failf(data, "schannel: failed to setup confidentiality");
-    if(!(backend->ret_flags & ISC_RET_ALLOCATED_MEMORY))
+    ако(!(backend->ret_flags & ISC_RET_ALLOCATED_MEMORY))
       failf(data, "schannel: failed to setup memory allocation");
-    if(!(backend->ret_flags & ISC_RET_STREAM))
+    ако(!(backend->ret_flags & ISC_RET_STREAM))
       failf(data, "schannel: failed to setup stream orientation");
-    return CURLE_SSL_CONNECT_ERROR;
+    върни CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(backend->use_alpn) {
+  ако(backend->use_alpn) {
     sspi_status =
       Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_APPLICATION_PROTOCOL,
                                           &alpn_result);
 
-    if(sspi_status != SEC_E_OK) {
+    ако(sspi_status != SEC_E_OK) {
       failf(data, "schannel: failed to retrieve ALPN result");
-      return CURLE_SSL_CONNECT_ERROR;
+      върни CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(alpn_result.ProtoNegoStatus ==
+    ако(alpn_result.ProtoNegoStatus ==
        SecApplicationProtocolNegotiationStatus_Success) {
-      if(backend->recv_renegotiating &&
+      ако(backend->recv_renegotiating &&
          connssl->negotiated.alpn &&
          strncmp(connssl->negotiated.alpn,
                  (const char *)alpn_result.ProtocolId,
@@ -1639,51 +1639,51 @@ static CURLcode schannel_connect_step3(struct Curl_cfilter *cf,
         /* Renegotiation selected a different protocol now, we cannot
          * deal with this */
         failf(data, "schannel: server selected an ALPN protocol too late");
-        return CURLE_SSL_CONNECT_ERROR;
+        върни CURLE_SSL_CONNECT_ERROR;
       }
       Curl_alpn_set_negotiated(cf, data, connssl, alpn_result.ProtocolId,
                                alpn_result.ProtocolIdSize);
     }
-    else {
-      if(!backend->recv_renegotiating)
+    иначе {
+      ако(!backend->recv_renegotiating)
         Curl_alpn_set_negotiated(cf, data, connssl, NULL, 0);
     }
   }
 
   /* save the current session data for possible reuse */
-  if(Curl_ssl_scache_use(cf, data)) {
+  ако(Curl_ssl_scache_use(cf, data)) {
     Curl_ssl_scache_lock(data);
     /* Up ref count since call takes ownership */
     backend->cred->refcount++;
     result = Curl_ssl_scache_add_obj(cf, data, connssl->peer.scache_key,
                                      backend->cred, schannel_session_free);
     Curl_ssl_scache_unlock(data);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
-  if(ssl_config->certinfo) {
-    int certs_count = 0;
+  ако(ssl_config->certinfo) {
+    цяло certs_count = 0;
     sspi_status =
       Curl_pSecFn->QueryContextAttributes(&backend->ctxt->ctxt_handle,
                                           SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                           &ccert_context);
 
-    if((sspi_status != SEC_E_OK) || !ccert_context) {
+    ако((sspi_status != SEC_E_OK) || !ccert_context) {
       failf(data, "schannel: failed to retrieve remote cert context");
-      return CURLE_PEER_FAILED_VERIFICATION;
+      върни CURLE_PEER_FAILED_VERIFICATION;
     }
 
     traverse_cert_store(ccert_context, cert_counter_callback, &certs_count);
-    if(certs_count > MAX_ALLOWED_CERT_AMOUNT) {
+    ако(certs_count > MAX_ALLOWED_CERT_AMOUNT) {
       failf(data, "%d certificates is more than allowed (%d)",
             certs_count, MAX_ALLOWED_CERT_AMOUNT);
       CertFreeCertificateContext(ccert_context);
-      return CURLE_SSL_CONNECT_ERROR;
+      върни CURLE_SSL_CONNECT_ERROR;
     }
 
     result = Curl_ssl_init_certinfo(data, certs_count);
-    if(!result) {
+    ако(!result) {
       struct Adder_args args;
       args.data = data;
       args.idx = 0;
@@ -1693,13 +1693,13 @@ static CURLcode schannel_connect_step3(struct Curl_cfilter *cf,
       result = args.result;
     }
     CertFreeCertificateContext(ccert_context);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
   connssl->connecting_state = ssl_connect_done;
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static CURLcode schannel_connect(struct Curl_cfilter *cf,
@@ -1710,42 +1710,42 @@ static CURLcode schannel_connect(struct Curl_cfilter *cf,
   CURLcode result;
 
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
+  ако(ssl_connection_complete == connssl->state) {
     *done = TRUE;
-    return CURLE_OK;
+    върни CURLE_OK;
   }
 
   *done = FALSE;
 
-  if(connssl->connecting_state == ssl_connect_1) {
+  ако(connssl->connecting_state == ssl_connect_1) {
     result = schannel_connect_step1(cf, data);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
+  ако(connssl->connecting_state == ssl_connect_2) {
     result = schannel_connect_step2(cf, data);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
-  if(connssl->connecting_state == ssl_connect_3) {
+  ако(connssl->connecting_state == ssl_connect_3) {
     result = schannel_connect_step3(cf, data);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
-  if(connssl->connecting_state == ssl_connect_done) {
+  ако(connssl->connecting_state == ssl_connect_done) {
     struct schannel_ssl_backend_data *backend =
       (struct schannel_ssl_backend_data *)connssl->backend;
     DEBUGASSERT(backend);
 
-    if(Curl_pSecFn->QueryContextAttributes(
+    ако(Curl_pSecFn->QueryContextAttributes(
          &backend->ctxt->ctxt_handle,
          SECPKG_ATTR_STREAM_SIZES,
          &backend->stream_sizes)) {
       failf(data, "schannel: failed getting stream sizes");
-      return CURLE_SSL_CONNECT_ERROR;
+      върни CURLE_SSL_CONNECT_ERROR;
     }
 
     connssl->state = ssl_connection_complete;
@@ -1760,7 +1760,7 @@ static CURLcode schannel_connect(struct Curl_cfilter *cf,
     *done = TRUE;
   }
 
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 enum schannel_renegotiate_caller_t {
@@ -1792,24 +1792,24 @@ static CURLcode schannel_recv_renegotiate(
     (struct schannel_ssl_backend_data *)connssl->backend;
   struct schannel_renegotiate_state *rs = &backend->renegotiate_state;
 
-  if(!backend || !backend->recv_renegotiating) {
+  ако(!backend || !backend->recv_renegotiating) {
     failf(data, "schannel: unexpected call to schannel_recv_renegotiate");
-    return CURLE_SSL_CONNECT_ERROR;
+    върни CURLE_SSL_CONNECT_ERROR;
   }
   DEBUGASSERT(caller <= SCH_RENEG_CALLER_IS_SEND);
-  if(caller == SCH_RENEG_CALLER_IS_RECV)
+  ако(caller == SCH_RENEG_CALLER_IS_RECV)
     SCH_DEV(infof(data, "schannel: renegotiation caller is schannel_recv"));
-  else
+  иначе
     SCH_DEV(infof(data, "schannel: renegotiation caller is schannel_send"));
 
   sockfd = Curl_conn_cf_get_socket(cf, data);
 
-  if(sockfd == CURL_SOCKET_BAD) {
+  ако(sockfd == CURL_SOCKET_BAD) {
     failf(data, "schannel: renegotiation missing socket");
-    return CURLE_SSL_CONNECT_ERROR;
+    върни CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(!rs->started) { /* new renegotiation */
+  ако(!rs->started) { /* new renegotiation */
     infof(data, "schannel: renegotiating SSL/TLS connection");
     DEBUGASSERT(connssl->state == ssl_connection_complete);
     DEBUGASSERT(connssl->connecting_state == ssl_connect_done);
@@ -1821,13 +1821,13 @@ static CURLcode schannel_recv_renegotiate(
     rs->started = TRUE;
   }
 
-  for(;;) {
+  за(;;) {
     bool block_read, block_write, blocking, done;
     curl_socket_t readfd, writefd;
     timediff_t elapsed;
 
     elapsed = curlx_ptimediff_ms(Curl_pgrs_now(data), &rs->start_time);
-    if(elapsed >= MAX_RENEG_BLOCK_TIME) {
+    ако(elapsed >= MAX_RENEG_BLOCK_TIME) {
       failf(data, "schannel: renegotiation timeout");
       result = CURLE_SSL_CONNECT_ERROR;
       break;
@@ -1843,16 +1843,16 @@ static CURLcode schannel_recv_renegotiate(
 
     rs->io_need = connssl->io_need;
 
-    if(!result && !done)
+    ако(!result && !done)
       result = CURLE_AGAIN;
 
-    if(result != CURLE_AGAIN)
+    ако(result != CURLE_AGAIN)
       break;
 
     readfd = (rs->io_need & CURL_SSL_IO_NEED_RECV) ? sockfd : CURL_SOCKET_BAD;
     writefd = (rs->io_need & CURL_SSL_IO_NEED_SEND) ? sockfd : CURL_SOCKET_BAD;
 
-    if(readfd == CURL_SOCKET_BAD && writefd == CURL_SOCKET_BAD)
+    ако(readfd == CURL_SOCKET_BAD && writefd == CURL_SOCKET_BAD)
       continue;
 
     /* connect should not have requested io read and write together */
@@ -1884,39 +1884,39 @@ static CURLcode schannel_recv_renegotiate(
     SCH_DEV_SHOWBOOL(block_write);
     SCH_DEV_SHOWBOOL(blocking);
 
-    for(;;) {
-      int what;
+    за(;;) {
+      цяло what;
       timediff_t timeout_ms, remaining;
 
       result = Curl_pgrsUpdate(data);
-      if(result)
+      ако(result)
         break;
 
       elapsed = curlx_ptimediff_ms(Curl_pgrs_now(data), &rs->start_time);
-      if(elapsed >= MAX_RENEG_BLOCK_TIME) {
+      ако(elapsed >= MAX_RENEG_BLOCK_TIME) {
         failf(data, "schannel: renegotiation timeout");
         result = CURLE_SSL_CONNECT_ERROR;
         break;
       }
       remaining = MAX_RENEG_BLOCK_TIME - elapsed;
 
-      if(blocking) {
+      ако(blocking) {
         timeout_ms = Curl_timeleft_ms(data);
 
-        if(timeout_ms < 0) {
+        ако(timeout_ms < 0) {
           result = CURLE_OPERATION_TIMEDOUT;
           break;
         }
 
         /* the blocking is in intervals so that the progress function can be
            called every second */
-        if(!timeout_ms || timeout_ms > 1000)
+        ако(!timeout_ms || timeout_ms > 1000)
           timeout_ms = 1000;
 
-        if(timeout_ms > remaining)
+        ако(timeout_ms > remaining)
           timeout_ms = remaining;
       }
-      else
+      иначе
         timeout_ms = 0;
 
       SCH_DEV(infof(data, "schannel: renegotiation wait until socket is"
@@ -1927,26 +1927,26 @@ static CURLcode schannel_recv_renegotiate(
 
       what = Curl_socket_check(readfd, CURL_SOCKET_BAD, writefd, timeout_ms);
 
-      if(what > 0 && (what & (CURL_CSELECT_IN | CURL_CSELECT_OUT))) {
+      ако(what > 0 && (what & (CURL_CSELECT_IN | CURL_CSELECT_OUT))) {
         SCH_DEV(infof(data, "schannel: renegotiation socket %s%s",
                       ((what & CURL_CSELECT_IN) ? "CURL_CSELECT_IN " : ""),
                       ((what & CURL_CSELECT_OUT) ? "CURL_CSELECT_OUT " : "")));
         result = CURLE_AGAIN;
         break;
       }
-      else if(!what) {
+      иначе ако(!what) {
         SCH_DEV(infof(data, "schannel: renegotiation socket timeout"));
-        if(blocking)
+        ако(blocking)
           continue;
-        else
-          return CURLE_AGAIN;
+        иначе
+          върни CURLE_AGAIN;
       }
 
       failf(data, "schannel: socket error during renegotiation");
       result = CURLE_SSL_CONNECT_ERROR;
       break;
     }
-    if(result != CURLE_AGAIN)
+    ако(result != CURLE_AGAIN)
       break;
   }
 
@@ -1956,12 +1956,12 @@ static CURLcode schannel_recv_renegotiate(
   backend->recv_renegotiating = FALSE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  if(result)
+  ако(result)
     failf(data, "schannel: renegotiation failed");
-  else
+  иначе
     infof(data, "schannel: SSL/TLS connection renegotiated");
 
-  return result;
+  върни result;
 }
 
 static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
@@ -1980,28 +1980,28 @@ static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
   DEBUGASSERT(backend);
   *pnwritten = 0;
 
-  if(backend->recv_renegotiating) {
+  ако(backend->recv_renegotiating) {
     result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_SEND);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
   /* check if the buffer is longer than the maximum message length */
-  if(len > backend->stream_sizes.cbMaximumMessage) {
+  ако(len > backend->stream_sizes.cbMaximumMessage) {
     len = backend->stream_sizes.cbMaximumMessage;
   }
 
   /* calculate the complete message length and prepare the send buffer */
   data_len = backend->stream_sizes.cbHeader + len +
     backend->stream_sizes.cbTrailer;
-  if(data_len > backend->send_buffer_len) {
+  ако(data_len > backend->send_buffer_len) {
     ptr = curlx_realloc(backend->send_buffer, data_len);
-    if(!ptr)
-      return CURLE_OUT_OF_MEMORY;
+    ако(!ptr)
+      върни CURLE_OUT_OF_MEMORY;
     backend->send_buffer = ptr;
     backend->send_buffer_len = data_len;
   }
-  else
+  иначе
     ptr = backend->send_buffer;
 
   /* setup output buffers (header, data, trailer, empty) */
@@ -2023,7 +2023,7 @@ static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
                                             &outbuf_desc, 0);
 
   /* check if the message was encrypted */
-  if(sspi_status == SEC_E_OK) {
+  ако(sspi_status == SEC_E_OK) {
 
     /* send the encrypted message including header, data and trailer */
     len = outbuf[0].cbBuffer + outbuf[1].cbBuffer + outbuf[2].cbBuffer;
@@ -2043,27 +2043,27 @@ static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
        seems the answer is NO. */
 
     /* send entire message or fail */
-    while(len > *pnwritten) {
+    докато(len > *pnwritten) {
       size_t this_write = 0;
-      int what;
+      цяло what;
       timediff_t timeout_ms = Curl_timeleft_ms(data);
-      if(timeout_ms < 0) {
+      ако(timeout_ms < 0) {
         /* we already got the timeout */
         failf(data, "schannel: timed out sending data (bytes sent: %zu)",
               *pnwritten);
         result = CURLE_OPERATION_TIMEDOUT;
         break;
       }
-      else if(!timeout_ms)
+      иначе ако(!timeout_ms)
         timeout_ms = TIMEDIFF_T_MAX;
       what = SOCKET_WRITABLE(Curl_conn_cf_get_socket(cf, data), timeout_ms);
-      if(what < 0) {
+      ако(what < 0) {
         /* fatal error */
         failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);
         result = CURLE_SEND_ERROR;
         break;
       }
-      else if(what == 0) {
+      иначе ако(what == 0) {
         failf(data, "schannel: timed out sending data (bytes sent: %zu)",
               *pnwritten);
         result = CURLE_OPERATION_TIMEDOUT;
@@ -2075,28 +2075,28 @@ static CURLcode schannel_send(struct Curl_cfilter *cf, struct Curl_easy *data,
                                   (const uint8_t *)ptr + *pnwritten,
                                   len - *pnwritten,
                                   FALSE, &this_write);
-      if(result == CURLE_AGAIN)
+      ако(result == CURLE_AGAIN)
         continue;
-      else if(result) {
+      иначе ако(result) {
         break;
       }
 
       *pnwritten += this_write;
     }
   }
-  else if(sspi_status == SEC_E_INSUFFICIENT_MEMORY) {
+  иначе ако(sspi_status == SEC_E_INSUFFICIENT_MEMORY) {
     result = CURLE_OUT_OF_MEMORY;
   }
-  else {
+  иначе {
     result = CURLE_SEND_ERROR;
   }
 
-  if(len == *pnwritten)
+  ако(len == *pnwritten)
     /* Encrypted message including header, data and trailer entirely sent.
        The return value is the number of unencrypted bytes that were sent. */
     *pnwritten = outbuf[1].cbBuffer;
 
-  return result;
+  върни result;
 }
 
 static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
@@ -2115,10 +2115,10 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
   DEBUGASSERT(backend);
   *pnread = 0;
 
-  if(backend->recv_renegotiating) {
+  ако(backend->recv_renegotiating) {
     result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_RECV);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
   /****************************************************************************
@@ -2139,17 +2139,17 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
 
   SCH_DEV(infof(data, "schannel: client wants to read %zu bytes", len));
 
-  if(len && len <= backend->decdata.offset) {
+  ако(len && len <= backend->decdata.offset) {
     SCH_DEV(infof(data,
                   "schannel: enough decrypted data is already available"));
     goto cleanup;
   }
-  else if(backend->recv_unrecoverable_err) {
+  иначе ако(backend->recv_unrecoverable_err) {
     result = backend->recv_unrecoverable_err;
     infof(data, "schannel: an unrecoverable error occurred in a prior call");
     goto cleanup;
   }
-  else if(backend->recv_sspi_close_notify) {
+  иначе ако(backend->recv_sspi_close_notify) {
     /* once a server has indicated shutdown there is no more encrypted data */
     infof(data, "schannel: server indicated shutdown in a prior call");
     goto cleanup;
@@ -2157,7 +2157,7 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
   /* it is debatable what to return when !len. Regardless we cannot return
      immediately because there may be data to decrypt (in the case we want to
      decrypt all encrypted cached data) so handle !len later in cleanup. */
-  else if(len && !backend->recv_connection_closed) {
+  иначе ако(len && !backend->recv_connection_closed) {
     /* the encrypted buffer must be large enough to hold all the bytes
        requested and some TLS record overhead. 'len' is a buffer size, so this
        integer math cannot overflow. */
@@ -2165,7 +2165,7 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
 
     /* make sure encrypt buffer fits the requested amount of data */
     result = ensure_encoding_size(data, &backend->encdata, min_encdata_length);
-    if(result)
+    ако(result)
       goto cleanup;
 
     SCH_DEV(infof(data,
@@ -2179,19 +2179,19 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
                                backend->encdata.length -
                                backend->encdata.offset,
                                &nread);
-    if(result) {
-      if(result == CURLE_AGAIN)
+    ако(result) {
+      ако(result == CURLE_AGAIN)
         SCH_DEV(infof(data, "schannel: recv returned CURLE_AGAIN"));
-      else {
-        infof(data, "schannel: recv returned error %d", (int)result);
+      иначе {
+        infof(data, "schannel: recv returned error %d", (цяло)result);
         backend->recv_unrecoverable_err = result;
       }
     }
-    else if(nread == 0) {
+    иначе ако(nread == 0) {
       backend->recv_connection_closed = TRUE;
       DEBUGF(infof(data, "schannel: server closed the connection"));
     }
-    else {
+    иначе {
       backend->encdata.offset += nread;
       backend->encdata_is_incomplete = FALSE;
       SCH_DEV(infof(data, "schannel: encrypted data got %zu", nread));
@@ -2202,7 +2202,7 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
                 backend->encdata.offset, backend->encdata.length));
 
   /* decrypt loop */
-  while(backend->encdata.offset > 0 && sspi_status == SEC_E_OK &&
+  докато(backend->encdata.offset > 0 && sspi_status == SEC_E_OK &&
         (!len || backend->decdata.offset < len ||
          backend->recv_connection_closed)) {
     /* prepare data buffer for DecryptMessage call */
@@ -2222,23 +2222,23 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
 
     /* check if everything went fine (server may want to renegotiate
        or shutdown the connection context) */
-    if(sspi_status == SEC_E_OK || sspi_status == SEC_I_RENEGOTIATE ||
+    ако(sspi_status == SEC_E_OK || sspi_status == SEC_I_RENEGOTIATE ||
        sspi_status == SEC_I_CONTEXT_EXPIRED) {
       /* check for successfully decrypted data, even before actual
          renegotiation or shutdown of the connection context */
-      if(inbuf[1].BufferType == SECBUFFER_DATA) {
+      ако(inbuf[1].BufferType == SECBUFFER_DATA) {
         SCH_DEV(infof(data, "schannel: decrypted data length: %lu",
                       inbuf[1].cbBuffer));
 
         /* ensure the decode buffer fits the received amount of data */
         result = ensure_decoding_size(data, &backend->decdata,
                                       inbuf[1].cbBuffer, len);
-        if(result)
+        ако(result)
           goto cleanup;
 
         /* copy decrypted data to internal buffer */
         size = inbuf[1].cbBuffer;
-        if(size) {
+        ако(size) {
           memcpy(backend->decdata.buffer + backend->decdata.offset,
                  inbuf[1].pvBuffer, size);
           backend->decdata.offset += size;
@@ -2251,14 +2251,14 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
       }
 
       /* check for remaining encrypted data */
-      if(inbuf[3].BufferType == SECBUFFER_EXTRA && inbuf[3].cbBuffer > 0) {
+      ако(inbuf[3].BufferType == SECBUFFER_EXTRA && inbuf[3].cbBuffer > 0) {
         SCH_DEV(infof(data, "schannel: encrypted data length: %lu",
                       inbuf[3].cbBuffer));
 
         /* check if the remaining data is less than the total amount
          * and therefore begins after the already processed data
          */
-        if(backend->encdata.offset > inbuf[3].cbBuffer) {
+        ако(backend->encdata.offset > inbuf[3].cbBuffer) {
           /* move remaining encrypted data forward to the beginning of
              buffer */
           memmove(backend->encdata.buffer,
@@ -2271,22 +2271,22 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
                       "schannel: encrypted cached: offset %zu length %zu",
                       backend->encdata.offset, backend->encdata.length));
       }
-      else {
+      иначе {
         /* reset encrypted buffer offset, because there is no data remaining */
         backend->encdata.offset = 0;
       }
 
       /* check if server wants to renegotiate the connection context */
-      if(sspi_status == SEC_I_RENEGOTIATE) {
+      ако(sspi_status == SEC_I_RENEGOTIATE) {
         infof(data, "schannel: remote party requests renegotiation");
-        if(result && result != CURLE_AGAIN) {
+        ако(result && result != CURLE_AGAIN) {
           infof(data, "schannel: cannot renegotiate, an error is pending");
           goto cleanup;
         }
 
         backend->recv_renegotiating = TRUE;
         result = schannel_recv_renegotiate(cf, data, SCH_RENEG_CALLER_IS_RECV);
-        if(result)
+        ако(result)
           goto cleanup;
 
         /* now retry receiving data */
@@ -2294,30 +2294,30 @@ static CURLcode schannel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
         continue;
       }
       /* check if the server closed the connection */
-      else if(sspi_status == SEC_I_CONTEXT_EXPIRED) {
+      иначе ако(sspi_status == SEC_I_CONTEXT_EXPIRED) {
         /* In Windows 2000 SEC_I_CONTEXT_EXPIRED (close_notify) is not
            returned so we have to work around that in cleanup. */
         backend->recv_sspi_close_notify = TRUE;
-        if(!backend->recv_connection_closed)
+        ако(!backend->recv_connection_closed)
           backend->recv_connection_closed = TRUE;
         /* We received the close notify fine, any error we got
          * from the lower filters afterwards (e.g. the socket), is not
          * an error on the TLS data stream. That one ended here. */
-        if(result == CURLE_RECV_ERROR)
+        ако(result == CURLE_RECV_ERROR)
           result = CURLE_OK;
         infof(data,
               "schannel: server close notification received (close_notify)");
         goto cleanup;
       }
     }
-    else if(sspi_status == SEC_E_INCOMPLETE_MESSAGE) {
+    иначе ако(sspi_status == SEC_E_INCOMPLETE_MESSAGE) {
       backend->encdata_is_incomplete = TRUE;
-      if(!result)
+      ако(!result)
         result = CURLE_AGAIN;
       SCH_DEV(infof(data, "schannel: failed to decrypt data, need more data"));
       goto cleanup;
     }
-    else {
+    иначе {
       char buffer[STRERROR_LEN];
       failf(data, "schannel: failed to read data from server: %s",
             Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
@@ -2341,18 +2341,18 @@ cleanup:
      The behavior here is a matter of debate. We do not want to be vulnerable
      to a truncation attack however there is some browser precedent for
      ignoring the close_notify for compatibility reasons. */
-  if(len && !backend->decdata.offset && backend->recv_connection_closed &&
+  ако(len && !backend->decdata.offset && backend->recv_connection_closed &&
      !backend->recv_sspi_close_notify) {
     result = CURLE_RECV_ERROR;
     failf(data, "schannel: server closed abruptly (missing close_notify)");
   }
 
   /* Any error other than CURLE_AGAIN is an unrecoverable error. */
-  if(result && result != CURLE_AGAIN)
+  ако(result && result != CURLE_AGAIN)
     backend->recv_unrecoverable_err = result;
 
   size = len < backend->decdata.offset ? len : backend->decdata.offset;
-  if(size) {
+  ако(size) {
     memcpy(buf, backend->decdata.buffer, size);
     memmove(backend->decdata.buffer, backend->decdata.buffer + size,
             backend->decdata.offset - size);
@@ -2362,19 +2362,19 @@ cleanup:
                   "schannel: decrypted data buffer: offset %zu length %zu",
                   backend->decdata.offset, backend->decdata.length));
     *pnread = size;
-    return CURLE_OK;
+    върни CURLE_OK;
   }
 
-  if(!result && !backend->recv_connection_closed)
+  ако(!result && !backend->recv_connection_closed)
     result = CURLE_AGAIN;
 
   /* it is debatable what to return when !len. We could return whatever error
      we got from decryption but instead we override here so the return is
      consistent. */
-  if(!len)
-    return CURLE_OK;
+  ако(!len)
+    върни CURLE_OK;
 
-  return result;
+  върни result;
 }
 
 static bool schannel_data_pending(struct Curl_cfilter *cf,
@@ -2387,14 +2387,14 @@ static bool schannel_data_pending(struct Curl_cfilter *cf,
   (void)data;
   DEBUGASSERT(backend);
 
-  if(backend->ctxt) /* SSL/TLS is in use */
-    return backend->decdata.offset > 0 ||
+  ако(backend->ctxt) /* SSL/TLS is in use */
+    върни backend->decdata.offset > 0 ||
            (backend->encdata.offset > 0 && !backend->encdata_is_incomplete) ||
            backend->recv_connection_closed ||
            backend->recv_sspi_close_notify ||
            backend->recv_unrecoverable_err;
-  else
-    return FALSE;
+  иначе
+    върни FALSE;
 }
 
 /* shut down the SSL connection and clean up related memory.
@@ -2412,9 +2412,9 @@ static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
     (struct schannel_ssl_backend_data *)connssl->backend;
   CURLcode result = CURLE_OK;
 
-  if(cf->shutdown) {
+  ако(cf->shutdown) {
     *done = TRUE;
-    return CURLE_OK;
+    върни CURLE_OK;
   }
 
   DEBUGASSERT(data);
@@ -2424,17 +2424,17 @@ static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
   (void)send_shutdown;
 
   *done = FALSE;
-  if(backend->ctxt) {
+  ако(backend->ctxt) {
     infof(data, "schannel: shutting down SSL/TLS connection with %s port %d",
           connssl->peer.origin->hostname, connssl->peer.origin->port);
   }
 
-  if(!backend->ctxt || cf->shutdown) {
+  ако(!backend->ctxt || cf->shutdown) {
     *done = TRUE;
     goto out;
   }
 
-  if(backend->cred && backend->ctxt && !backend->sent_shutdown &&
+  ако(backend->cred && backend->ctxt && !backend->sent_shutdown &&
      !backend->shutdown_generated) {
     SecBufferDesc BuffDesc;
     SecBuffer Buffer;
@@ -2449,7 +2449,7 @@ static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
     sspi_status = Curl_pSecFn->ApplyControlToken(&backend->ctxt->ctxt_handle,
                                                  &BuffDesc);
 
-    if(sspi_status != SEC_E_OK) {
+    ако(sspi_status != SEC_E_OK) {
       char buffer[STRERROR_LEN];
       failf(data, "schannel: ApplyControlToken failure: %s",
             Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
@@ -2474,13 +2474,13 @@ static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
       &outbuf_desc,
       &backend->ret_flags, NULL);
 
-    if((sspi_status == SEC_E_OK) || (sspi_status == SEC_I_CONTEXT_EXPIRED)) {
+    ако((sspi_status == SEC_E_OK) || (sspi_status == SEC_I_CONTEXT_EXPIRED)) {
       backend->shutdown_token = outbuf;
       backend->shutdown_generated = TRUE;
     }
-    else {
+    иначе {
       char buffer[STRERROR_LEN];
-      if(outbuf.pvBuffer)
+      ако(outbuf.pvBuffer)
         Curl_pSecFn->FreeContextBuffer(outbuf.pvBuffer);
       failf(data, "schannel: generating close msg failed: %s",
             Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
@@ -2489,41 +2489,41 @@ static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
     }
   }
 
-  if(backend->shutdown_generated && !backend->sent_shutdown) {
+  ако(backend->shutdown_generated && !backend->sent_shutdown) {
     size_t written = 0;
     size_t remaining;
 
     DEBUGASSERT(backend->shutdown_offset <= backend->shutdown_token.cbBuffer);
     remaining = backend->shutdown_token.cbBuffer - backend->shutdown_offset;
 
-    if(remaining) {
+    ако(remaining) {
       result = Curl_conn_cf_send(cf->next, data,
                                  ((uint8_t *)backend->shutdown_token.pvBuffer +
                                   backend->shutdown_offset),
                                  remaining, FALSE, &written);
-      if(!result)
+      ако(!result)
         backend->shutdown_offset += written;
-      if(result == CURLE_AGAIN || (!result && written < remaining)) {
+      ако(result == CURLE_AGAIN || (!result && written < remaining)) {
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
         result = CURLE_OK;
         goto out;
       }
     }
-    else /* no shutdown message to send? */
+    иначе /* no shutdown message to send? */
       result = CURLE_OK;
-    if(result) {
-      if(backend->recv_connection_closed) {
+    ако(result) {
+      ако(backend->recv_connection_closed) {
         /* The server already closed, so sending close_notify is optional. */
         *done = TRUE;
         result = CURLE_OK;
       }
-      else {
-        failf(data, "schannel: error sending close msg: %d", (int)result);
+      иначе {
+        failf(data, "schannel: error sending close msg: %d", (цяло)result);
         result = CURLE_SEND_ERROR;
       }
       goto out;
     }
-    if(backend->shutdown_token.pvBuffer)
+    ако(backend->shutdown_token.pvBuffer)
       Curl_pSecFn->FreeContextBuffer(backend->shutdown_token.pvBuffer);
     memset(&backend->shutdown_token, 0, sizeof(backend->shutdown_token));
     backend->shutdown_offset = 0;
@@ -2533,32 +2533,32 @@ static CURLcode schannel_shutdown(struct Curl_cfilter *cf,
 
   /* If the connection seems open and we have not seen the close notify
    * from the server yet, try to receive it. */
-  if(backend->cred && backend->ctxt &&
+  ако(backend->cred && backend->ctxt &&
      !backend->recv_sspi_close_notify && !backend->recv_connection_closed) {
     char buffer[1024];
     size_t nread;
 
     result = schannel_recv(cf, data, buffer, sizeof(buffer), &nread);
-    if(result == CURLE_AGAIN) {
+    ако(result == CURLE_AGAIN) {
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
     }
-    else if(result) {
-      CURL_TRC_CF(data, cf, "SSL shutdown, error %d", (int)result);
+    иначе ако(result) {
+      CURL_TRC_CF(data, cf, "SSL shutdown, error %d", (цяло)result);
       result = CURLE_RECV_ERROR;
     }
-    else if(nread == 0) {
+    иначе ако(nread == 0) {
       /* We got the close notify alert and are done. */
       backend->recv_connection_closed = TRUE;
       *done = TRUE;
     }
-    else {
+    иначе {
       /* still data coming in? */
     }
   }
 
 out:
   cf->shutdown = (result || *done);
-  return result;
+  върни result;
 }
 
 static void schannel_close(struct Curl_cfilter *cf, struct Curl_easy *data)
@@ -2570,14 +2570,14 @@ static void schannel_close(struct Curl_cfilter *cf, struct Curl_easy *data)
   DEBUGASSERT(data);
   DEBUGASSERT(backend);
 
-  if(backend->shutdown_token.pvBuffer)
+  ако(backend->shutdown_token.pvBuffer)
     Curl_pSecFn->FreeContextBuffer(backend->shutdown_token.pvBuffer);
   memset(&backend->shutdown_token, 0, sizeof(backend->shutdown_token));
   backend->shutdown_offset = 0;
 
   /* free SSPI Schannel API security context handle */
-  if(backend->ctxt) {
-    if(cf->conn->sslContext == &backend->ctxt->ctxt_handle)
+  ако(backend->ctxt) {
+    ако(cf->conn->sslContext == &backend->ctxt->ctxt_handle)
       cf->conn->sslContext = NULL;
 
     DEBUGF(infof(data, "schannel: clear security context handle"));
@@ -2586,7 +2586,7 @@ static void schannel_close(struct Curl_cfilter *cf, struct Curl_easy *data)
   }
 
   /* free SSPI Schannel API credential handle */
-  if(backend->cred) {
+  ако(backend->cred) {
     Curl_ssl_scache_lock(data);
     schannel_session_free(backend->cred);
     Curl_ssl_scache_unlock(data);
@@ -2598,7 +2598,7 @@ static void schannel_close(struct Curl_cfilter *cf, struct Curl_easy *data)
   backend->send_buffer_len = 0;
 
   /* free internal buffer for received encrypted data */
-  if(backend->encdata.buffer) {
+  ако(backend->encdata.buffer) {
     curlx_safefree(backend->encdata.buffer);
     backend->encdata.length = 0;
     backend->encdata.offset = 0;
@@ -2606,41 +2606,41 @@ static void schannel_close(struct Curl_cfilter *cf, struct Curl_easy *data)
   }
 
   /* free internal buffer for received decrypted data */
-  if(backend->decdata.buffer) {
+  ако(backend->decdata.buffer) {
     curlx_safefree(backend->decdata.buffer);
     backend->decdata.length = 0;
     backend->decdata.offset = 0;
   }
 }
 
-static int schannel_init(void)
+static цяло schannel_init(void)
 {
   typedef const char *(APIENTRY *WINE_GET_VERSION_FN)(void);
-#if defined(__clang__) && __clang_major__ >= 16
+#ако defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   WINE_GET_VERSION_FN p_wine_get_version =
     CURLX_FUNCTION_CAST(WINE_GET_VERSION_FN,
       GetProcAddress(GetModuleHandle(TEXT("ntdll")), "wine_get_version"));
-#if defined(__clang__) && __clang_major__ >= 16
+#ако defined(__clang__) && __clang_major__ >= 16
 #pragma clang diagnostic pop
 #endif
-  if(p_wine_get_version) {  /* WINE detected */
+  ако(p_wine_get_version) {  /* WINE detected */
     curl_off_t ver = 0;
     const char *wine_version = p_wine_get_version();  /* e.g. "6.0.2" */
     /* Assume ALPN support with WINE 6.0 or greater */
-    if(wine_version)
+    ако(wine_version)
       curlx_str_number(&wine_version, &ver, 20);
     s_win_has_alpn = (ver >= 6);
   }
-  else {
+  иначе {
     /* ALPN is supported on Windows 8.1 / Server 2012 R2 or newer. */
     s_win_has_alpn = curlx_verify_windows_version(6, 3, 0, PLATFORM_WINNT,
                                                   VERSION_GREATER_THAN_EQUAL);
   }
 
-  return Curl_sspi_global_init() == CURLE_OK ? 1 : 0;
+  върни Curl_sspi_global_init() == CURLE_OK ? 1 : 0;
 }
 
 static void schannel_cleanup(void)
@@ -2650,7 +2650,7 @@ static void schannel_cleanup(void)
 
 static size_t schannel_version(char *buffer, size_t size)
 {
-  return curl_msnprintf(buffer, size, "Schannel");
+  върни curl_msnprintf(buffer, size, "Schannel");
 }
 
 static CURLcode schannel_random(struct Curl_easy *data,
@@ -2658,7 +2658,7 @@ static CURLcode schannel_random(struct Curl_easy *data,
 {
   (void)data;
 
-  return curlx_win32_random(entropy, length);
+  върни curlx_win32_random(entropy, length);
 }
 
 static CURLcode schannel_checksum(const unsigned char *input,
@@ -2666,7 +2666,7 @@ static CURLcode schannel_checksum(const unsigned char *input,
                                   unsigned char *checksum,
                                   size_t checksumlen,
                                   DWORD provType,
-                                  const unsigned int algId)
+                                  const unsigned цяло algId)
 {
   CURLcode result = CURLE_FAILED_INIT;
 
@@ -2684,19 +2684,19 @@ static CURLcode schannel_checksum(const unsigned char *input,
    */
   memset(checksum, 0, checksumlen);
 
-  if(!CryptAcquireContext(&hProv, NULL, NULL, provType,
+  ако(!CryptAcquireContext(&hProv, NULL, NULL, provType,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
     goto out;
 
-  if(!CryptCreateHash(hProv, algId, 0, 0, &hHash))
+  ако(!CryptCreateHash(hProv, algId, 0, 0, &hHash))
     goto out;
 
   result = CURLE_BAD_FUNCTION_ARGUMENT;
 
   off = 0;
-  while(off < inputlen) {
+  докато(off < inputlen) {
     DWORD chunk = (DWORD)CURLMIN(inputlen - off, 0xffffffffUL);
-    if(!CryptHashData(hHash, input + off, chunk, 0))
+    ако(!CryptHashData(hHash, input + off, chunk, 0))
       goto out;
     off += chunk;
   }
@@ -2704,27 +2704,27 @@ static CURLcode schannel_checksum(const unsigned char *input,
   /* get hash size */
   cbHashSize = 0;
   dwHashSizeLen = (DWORD)sizeof(cbHashSize);
-  if(!CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE *)&cbHashSize,
+  ако(!CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE *)&cbHashSize,
                         &dwHashSizeLen, 0))
     goto out;
 
   /* check if hash fits into the return buffer */
-  if(checksumlen < cbHashSize)
+  ако(checksumlen < cbHashSize)
     goto out;
 
   dwChecksumLen = (DWORD)checksumlen;
-  if(CryptGetHashParam(hHash, HP_HASHVAL, checksum, &dwChecksumLen, 0) &&
+  ако(CryptGetHashParam(hHash, HP_HASHVAL, checksum, &dwChecksumLen, 0) &&
      dwChecksumLen == cbHashSize)
     result = CURLE_OK;
 
 out:
-  if(hHash)
+  ако(hHash)
     CryptDestroyHash(hHash);
 
-  if(hProv)
+  ако(hProv)
     CryptReleaseContext(hProv, 0);
 
-  return result;
+  върни result;
 }
 
 static CURLcode schannel_sha256sum(const unsigned char *input,
@@ -2732,7 +2732,7 @@ static CURLcode schannel_sha256sum(const unsigned char *input,
                                    unsigned char *sha256sum,
                                    size_t sha256len)
 {
-  return schannel_checksum(input, inputlen, sha256sum, sha256len,
+  върни schannel_checksum(input, inputlen, sha256sum, sha256len,
                            PROV_RSA_AES, CALG_SHA_256);
 }
 
@@ -2743,7 +2743,7 @@ static void *schannel_get_internals(struct ssl_connect_data *connssl,
     (struct schannel_ssl_backend_data *)connssl->backend;
   (void)info;
   DEBUGASSERT(backend);
-  return &backend->ctxt->ctxt_handle;
+  върни &backend->ctxt->ctxt_handle;
 }
 
 HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
@@ -2758,56 +2758,56 @@ HCERTSTORE Curl_schannel_get_cached_cert_store(struct Curl_cfilter *cf,
 
   DEBUGASSERT(multi);
 
-  if(!multi) {
-    return NULL;
+  ако(!multi) {
+    върни NULL;
   }
 
   share = Curl_hash_pick(&multi->proto_hash,
                          MPROTO_SCHANNEL_CERT_SHARE_KEY,
                          CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  if(!share || !share->cert_store) {
-    return NULL;
+  ако(!share || !share->cert_store) {
+    върни NULL;
   }
 
   /* zero ca_cache_timeout completely disables caching */
-  if(!data->set.ssl_ca_cache_timeout) {
-    return NULL;
+  ако(!data->set.ssl_ca_cache_timeout) {
+    върни NULL;
   }
 
   /* check for cache timeout by using the cached_x509_store_expired timediff
      calculation pattern from openssl.c.
      negative timeout means retain forever. */
   timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
-  if(timeout_ms >= 0) {
+  ако(timeout_ms >= 0) {
     timediff_t elapsed_ms =
       curlx_ptimediff_ms(Curl_pgrs_now(data), &share->time);
-    if(elapsed_ms >= timeout_ms) {
-      return NULL;
+    ако(elapsed_ms >= timeout_ms) {
+      върни NULL;
     }
   }
 
-  if(ca_info_blob) {
-    if(share->CAinfo_blob_size != ca_info_blob->len) {
-      return NULL;
+  ако(ca_info_blob) {
+    ако(share->CAinfo_blob_size != ca_info_blob->len) {
+      върни NULL;
     }
-    if(schannel_sha256sum((const unsigned char *)ca_info_blob->data,
+    ако(schannel_sha256sum((const unsigned char *)ca_info_blob->data,
                           ca_info_blob->len,
                           info_blob_digest,
                           CURL_SHA256_DIGEST_LENGTH))
-      return NULL;
-    if(memcmp(share->CAinfo_blob_digest, info_blob_digest,
+      върни NULL;
+    ако(memcmp(share->CAinfo_blob_digest, info_blob_digest,
               CURL_SHA256_DIGEST_LENGTH)) {
-      return NULL;
+      върни NULL;
     }
   }
-  else {
-    if(!conn_config->CAfile || !share->CAfile ||
+  иначе {
+    ако(!conn_config->CAfile || !share->CAfile ||
        strcmp(share->CAfile, conn_config->CAfile)) {
-      return NULL;
+      върни NULL;
     }
   }
 
-  return share->cert_store;
+  върни share->cert_store;
 }
 
 static void schannel_cert_share_free(const void *key, size_t key_len, void *p)
@@ -2817,7 +2817,7 @@ static void schannel_cert_share_free(const void *key, size_t key_len, void *p)
   DEBUGASSERT(!memcmp(MPROTO_SCHANNEL_CERT_SHARE_KEY, key, key_len));
   (void)key;
   (void)key_len;
-  if(share->cert_store) {
+  ако(share->cert_store) {
     CertCloseStore(share->cert_store, 0);
   }
   curlx_free(share->CAfile);
@@ -2837,59 +2837,59 @@ bool Curl_schannel_set_cached_cert_store(struct Curl_cfilter *cf,
 
   DEBUGASSERT(multi);
 
-  if(!multi) {
-    return FALSE;
+  ако(!multi) {
+    върни FALSE;
   }
 
-  if(ca_info_blob) {
-    if(schannel_sha256sum((const unsigned char *)ca_info_blob->data,
+  ако(ca_info_blob) {
+    ако(schannel_sha256sum((const unsigned char *)ca_info_blob->data,
                           ca_info_blob->len, digest, sizeof(digest))) {
-      return FALSE;
+      върни FALSE;
     }
   }
-  else if(conn_config->CAfile) {
+  иначе ако(conn_config->CAfile) {
     CAfile = curlx_strdup(conn_config->CAfile);
-    if(!CAfile) {
-      return FALSE;
+    ако(!CAfile) {
+      върни FALSE;
     }
   }
 
   share = Curl_hash_pick(&multi->proto_hash,
                          MPROTO_SCHANNEL_CERT_SHARE_KEY,
                          CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY));
-  if(!share) {
+  ако(!share) {
     share = curlx_calloc(1, sizeof(*share));
-    if(!share) {
+    ако(!share) {
       curlx_free(CAfile);
-      return FALSE;
+      върни FALSE;
     }
-    if(!Curl_hash_add2(&multi->proto_hash,
+    ако(!Curl_hash_add2(&multi->proto_hash,
                        MPROTO_SCHANNEL_CERT_SHARE_KEY,
                        CURL_CSTRLEN(MPROTO_SCHANNEL_CERT_SHARE_KEY),
                        share, schannel_cert_share_free)) {
       curlx_free(share);
       curlx_free(CAfile);
-      return FALSE;
+      върни FALSE;
     }
   }
 
   /* free old cache data */
-  if(share->cert_store) {
+  ако(share->cert_store) {
     CertCloseStore(share->cert_store, 0);
   }
   curlx_free(share->CAfile);
 
-  if(ca_info_blob) {
+  ако(ca_info_blob) {
     memcpy(share->CAinfo_blob_digest, digest, sizeof(digest));
     share->CAinfo_blob_size = ca_info_blob->len;
   }
-  else
+  иначе
     share->CAinfo_blob_size = 0;
 
   share->time = curlx_now();
   share->cert_store = cert_store;
   share->CAfile = CAfile;
-  return TRUE;
+  върни TRUE;
 }
 
 const struct Curl_ssl Curl_ssl_schannel = {

@@ -82,18 +82,18 @@ struct SingleRequest {
                                    Content-Range: header */
 
   struct curltime start;         /* transfer started at this time */
-  unsigned int headerbytecount;  /* received server headers (not CONNECT
+  unsigned цяло headerbytecount;  /* received server headers (not CONNECT
                                     headers) */
-  unsigned int allheadercount;   /* all received headers (server + CONNECT) */
-  unsigned int deductheadercount; /* this amount of bytes does not count when
+  unsigned цяло allheadercount;   /* all received headers (server + CONNECT) */
+  unsigned цяло deductheadercount; /* this amount of bytes does not count when
                                      we check if anything has been transferred
                                      at the end of a connection. We use this
                                      counter to make only a 100 reply (without
                                      a following second response code) result
                                      in a CURLE_GOT_NOTHING error code */
-  int headerline;               /* counts header lines to better track the
+  цяло headerline;               /* counts header lines to better track the
                                    first one */
-  int httpcode;                 /* error code from the 'HTTP/1.? XXX' or
+  цяло httpcode;                 /* error code from the 'HTTP/1.? XXX' or
                                    'RTSP/1.? XXX' line */
   uint8_t httpversion_sent;     /* Version in request (09, 10, 11, etc.) */
   uint8_t httpversion;          /* Version in response (09, 10, 11, etc.) */

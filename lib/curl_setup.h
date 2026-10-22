@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-#if defined(BUILDING_LIBCURL) && !defined(CURL_NO_OLDIES)
+#ако defined(BUILDING_LIBCURL) && !defined(CURL_NO_OLDIES)
 #define CURL_NO_OLDIES
 #endif
 
@@ -44,9 +44,9 @@
    Work it around by overriding the built-in feature-check macro used by the
    headers to enable the problematic attributes. This makes the feature check
    fail. Fixed in 14.2.0_1. Disable the workaround if the fix is detected. */
-#if defined(__APPLE__) && !defined(__clang__) && defined(__GNUC__) && \
+#ако defined(__APPLE__) && !defined(__clang__) && defined(__GNUC__) && \
   defined(__has_attribute)
-#  if !defined(__has_feature)  /* Keep this PP check separate from others */
+#  ако !defined(__has_feature)  /* Keep this PP check separate from others */
 #    define availability curl_pp_attribute_disabled
 #  elif !__has_feature(attribute_availability)
 #    define availability curl_pp_attribute_disabled
@@ -66,7 +66,7 @@
    faulty dynamic detection. gcc is not affected (for now) because it lacks
    the necessary dynamic detection features, so the SDK falls back to
    a codepath that sets both the old and new macro to 1. */
-#if defined(TARGET_OS_MAC) && TARGET_OS_MAC && \
+#ако defined(TARGET_OS_MAC) && TARGET_OS_MAC && \
   defined(TARGET_OS_OSX) && !TARGET_OS_OSX && \
   (!defined(TARGET_OS_IPHONE) || !TARGET_OS_IPHONE) && \
   (!defined(TARGET_OS_SIMULATOR) || !TARGET_OS_SIMULATOR)
@@ -75,14 +75,14 @@
 #endif
 #endif
 
-#if defined(__MINGW32__) && \
+#ако defined(__MINGW32__) && \
   (!defined(__MINGW64_VERSION_MAJOR) || (__MINGW64_VERSION_MAJOR < 3))
 #error "mingw-w64 3.0 or greater required"
 #endif
 
 /* Visual Studio 2010 is the minimum Visual Studio version we support.
    Workarounds for older versions of Visual Studio have been removed. */
-#if defined(_MSC_VER) && (_MSC_VER < 1600)
+#ако defined(_MSC_VER) && (_MSC_VER < 1600)
 #error "Ancient versions of Visual Studio are no longer supported due to bugs."
 #endif
 
@@ -109,10 +109,10 @@
 
 /* Detect Windows App environment which has a restricted access
  * to the Win32 APIs. */
-#  if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+#  ако (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
      defined(WINAPI_FAMILY)
 #    include <winapifamily.h>
-#    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
+#    ако WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
        !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #      define CURL_WINDOWS_UWP
 #    endif
@@ -134,7 +134,7 @@
 
 #include "curl_config.h"
 
-#else /* HAVE_CONFIG_H */
+#иначе /* HAVE_CONFIG_H */
 
 #ifdef _WIN32
 #  include "config-win32.h"
@@ -151,11 +151,11 @@
 #endif /* HAVE_CONFIG_H */
 
 #ifdef _WIN32
-#  if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
+#  ако defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
 #    error The minimum build target is Windows Vista (0x0600)
 #  endif
 
-#  if !defined(CURL_WINDOWS_UWP) && (defined(_MSC_VER) || defined(__MINGW32__))
+#  ако !defined(CURL_WINDOWS_UWP) && (defined(_MSC_VER) || defined(__MINGW32__))
 #    ifndef HAVE_IF_NAMETOINDEX
 #    define HAVE_IF_NAMETOINDEX
 #    endif
@@ -199,7 +199,7 @@
 #endif
 
 /* Solaris needs this to get a POSIX-conformant getpwuid_r */
-#if defined(sun) || defined(__sun)
+#ако defined(sun) || defined(__sun)
 #  ifndef _POSIX_PTHREAD_SEMANTICS
 #  define _POSIX_PTHREAD_SEMANTICS 1
 #  endif
@@ -288,7 +288,7 @@
 
 #include <curl/system.h>
 
-#if !defined(HAVE_PIPE2) && \
+#ако !defined(HAVE_PIPE2) && \
   ((defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
             __MAC_OS_X_VERSION_MAX_ALLOWED >= 270000 && \
     defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
@@ -331,16 +331,16 @@
 #endif
 
 /* based on logic in "curl/mprintf.h" */
-#if (defined(__GNUC__) || defined(__clang__) ||                 \
+#ако (defined(__GNUC__) || defined(__clang__) ||                 \
      defined(__IAR_SYSTEMS_ICC__)) &&                           \
   defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
   !defined(CURL_NO_FMT_CHECKS)
-#if defined(__MINGW32__) && !defined(__clang__)
+#ако defined(__MINGW32__) && !defined(__clang__)
 #define CURL_PRINTF(fmt, arg) __attribute__((format(gnu_printf, fmt, arg)))
-#else
+#иначе
 #define CURL_PRINTF(fmt, arg) __attribute__((format(__printf__, fmt, arg)))
 #endif
-#else
+#иначе
 #define CURL_PRINTF(fmt, arg)
 #endif
 
@@ -350,7 +350,7 @@
 /* Workaround for mainline llvm v16 and earlier missing a built-in macro
    expected by macOS SDK v14 / Xcode v15 (2023) and newer.
    gcc (as of v14) is also missing it. */
-#if defined(__APPLE__) &&                                   \
+#ако defined(__APPLE__) &&                                   \
   ((!defined(__apple_build_version__) &&                    \
     defined(__clang__) && __clang_major__ < 17) ||          \
    (defined(__GNUC__) && __GNUC__ <= 14)) &&                \
@@ -365,9 +365,9 @@
  * interface does not support IPv4, but supports IPv6, NAT64, and DNS64,
  * performing this task will result in a synthesized IPv6 address.
  */
-#if defined(__APPLE__) && !defined(USE_ARES)
+#ако defined(__APPLE__) && !defined(USE_ARES)
 #  define USE_RESOLVE_ON_IPS 1
-#  if TARGET_OS_MAC && !(defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) && \
+#  ако TARGET_OS_MAC && !(defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) && \
      defined(USE_IPV6)
 #    define CURL_MACOS_CALL_COPYPROXIES 1
 #  endif
@@ -377,7 +377,7 @@
 #  ifndef CARES_NO_DEPRECATED
 #  define CARES_NO_DEPRECATED  /* for ares_getsock() */
 #  endif
-#  if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && defined(_WIN32)
+#  ако defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && defined(_WIN32)
 #    define CARES_STATICLIB  /* define it before including ares.h */
 #  endif
 #endif
@@ -400,7 +400,7 @@
 #    define CURLRES_AMIGA
      /* getaddrinfo() currently crashes bsdsocket.library, so disable */
 #    undef HAVE_GETADDRINFO
-#    if !(defined(__NEWLIB__) || \
+#    ако !(defined(__NEWLIB__) || \
           (defined(__CLIB2__) && defined(__THREAD_SAFE)))
        /* disable threaded resolver with clib2 - requires newlib or clib-ts */
 #      undef USE_RESOLV_THREADED
@@ -411,22 +411,22 @@
 #  include <proto/exec.h>
 #  include <proto/dos.h>
 #  include <unistd.h>
-#  if defined(HAVE_PROTO_BSDSOCKET_H) && \
+#  ако defined(HAVE_PROTO_BSDSOCKET_H) && \
     (!defined(__amigaos4__) || defined(USE_AMISSL))
      /* use bsdsocket.library directly, instead of libc networking functions */
 #    define _SYS_MBUF_H /* m_len define clashes with curl */
 #    include <proto/bsdsocket.h>
 #    ifdef __amigaos4__
-       int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
+       цяло Curl_amiga_select(цяло nfds, fd_set *readfds, fd_set *writefds,
                              fd_set *errorfds, struct timeval *timeout);
 #      define select(a, b, c, d, e) Curl_amiga_select(a, b, c, d, e)
-#    else
+#    иначе
 #      define select(a, b, c, d, e) WaitSelect(a, b, c, d, e, 0)
 #    endif
      /* must not use libc's fcntl() on bsdsocket.library sockfds! */
 #    undef HAVE_FCNTL
 #    undef HAVE_FCNTL_O_NONBLOCK
-#  else
+#  иначе
      /* use libc networking and hence close() and fcntl() */
 #    undef HAVE_CLOSESOCKET_CAMEL
 #    undef HAVE_IOCTLSOCKET_CAMEL
@@ -439,7 +439,7 @@
 #endif
 
 /* Whether to use eventfd() */
-#if defined(HAVE_EVENTFD) && defined(HAVE_SYS_EVENTFD_H)
+#ако defined(HAVE_EVENTFD) && defined(HAVE_SYS_EVENTFD_H)
 #define USE_EVENTFD
 #endif
 
@@ -463,7 +463,7 @@
 /* By default, DJGPP provides this type as a version of 'unsigned long' which
    forces us to use a define use it in printf() format strings without
    warnings. long and int are both 32 bits for this platform. */
-#define uint32_t unsigned int
+#define uint32_t unsigned цяло
 #endif
 
 /* Disable uintptr_t for targets known to miss it from stdint.h */
@@ -493,7 +493,7 @@
 #elif defined(__AMIGA__)
 #  define curl_lseek(fd, offset, whence)  lseek(fd, (off_t)(offset), whence)
 #  define LSEEK_ERROR                     ((off_t)-1)
-#else
+#иначе
 #  define curl_lseek                      lseek
 #  define LSEEK_ERROR                     ((off_t)-1)
 #endif
@@ -505,23 +505,23 @@
 
 #ifndef SIZEOF_CURL_SOCKET_T
 /* configure and cmake check and set the define */
-#  if defined(USE_WINSOCK) && defined(_WIN64)
+#  ако defined(USE_WINSOCK) && defined(_WIN64)
 #    define SIZEOF_CURL_SOCKET_T 8
-#  else
+#  иначе
 /* default guess */
 #    define SIZEOF_CURL_SOCKET_T 4
 #  endif
 #endif
 
-#if SIZEOF_CURL_SOCKET_T < 8
+#ако SIZEOF_CURL_SOCKET_T < 8
 #ifdef USE_WINSOCK
 #  define FMT_SOCKET_T "u"
-#else
+#иначе
 #  define FMT_SOCKET_T "d"
 #endif
 #elif defined(USE_WINSOCK)
 #  define FMT_SOCKET_T "zu"
-#else
+#иначе
 #  define FMT_SOCKET_T "qd"
 #endif
 
@@ -530,7 +530,7 @@
  */
 
 #ifndef SIZEOF_OFF_T
-#  if defined(__VMS) && !defined(__VAX)
+#  ако defined(__VMS) && !defined(__VAX)
 #    ifdef _LARGEFILE
 #      define SIZEOF_OFF_T 8
 #    endif
@@ -539,11 +539,11 @@
 #      define SIZEOF_OFF_T 8
 #    endif
 #  elif defined(__MVS__) && defined(__IBMC__)
-#    if defined(_LP64) || defined(_LARGE_FILES)
+#    ако defined(_LP64) || defined(_LARGE_FILES)
 #      define SIZEOF_OFF_T 8
 #    endif
 #  elif defined(__370__) && defined(__IBMC__)
-#    if defined(_LP64) || defined(_LARGE_FILES)
+#    ако defined(_LP64) || defined(_LARGE_FILES)
 #      define SIZEOF_OFF_T 8
 #    endif
 #  endif
@@ -552,9 +552,9 @@
 #  endif
 #endif
 
-#if SIZEOF_CURL_OFF_T < 8
+#ако SIZEOF_CURL_OFF_T < 8
 #error "too small curl_off_t"
-#else
+#иначе
    /* assume SIZEOF_CURL_OFF_T == 8 */
 #  define CURL_OFF_T_MAX 0x7FFFFFFFFFFFFFFF
 #endif
@@ -563,19 +563,19 @@
 #define FMT_OFF_T  CURL_FORMAT_CURL_OFF_T
 #define FMT_OFF_TU CURL_FORMAT_CURL_OFF_TU
 
-#if SIZEOF_TIME_T == 4
+#ако SIZEOF_TIME_T == 4
 #  ifdef HAVE_TIME_T_UNSIGNED
 #  define TIME_T_MAX UINT_MAX
 #  define TIME_T_MIN 0
-#  else
+#  иначе
 #  define TIME_T_MAX INT_MAX
 #  define TIME_T_MIN INT_MIN
 #  endif
-#else
+#иначе
 #  ifdef HAVE_TIME_T_UNSIGNED
 #  define TIME_T_MAX 0xFFFFFFFFFFFFFFFF
 #  define TIME_T_MIN 0
-#  else
+#  иначе
 #  define TIME_T_MAX 0x7FFFFFFFFFFFFFFF
 #  define TIME_T_MIN (-TIME_T_MAX - 1)
 #  endif
@@ -583,23 +583,23 @@
 
 #ifndef SIZE_MAX
 /* some limits.h headers have this defined, some do not */
-#if defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
+#ако defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
 #define SIZE_MAX 18446744073709551615U
-#else
+#иначе
 #define SIZE_MAX 4294967295U
 #endif
 #endif
 
 #ifndef SSIZE_MAX
 /* some limits.h headers have this defined, some do not */
-#if defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
+#ако defined(SIZEOF_SIZE_T) && (SIZEOF_SIZE_T > 4)
 #define SSIZE_MAX 9223372036854775807
-#else
+#иначе
 #define SSIZE_MAX 2147483647
 #endif
 #endif
 
-#if SIZEOF_LONG > SIZEOF_SIZE_T
+#ако SIZEOF_LONG > SIZEOF_SIZE_T
 #error "unexpected: 'long' is larger than 'size_t'"
 #endif
 
@@ -608,8 +608,8 @@
  */
 #ifndef GETHOSTNAME_TYPE_ARG2
 #  ifdef USE_WINSOCK
-#    define GETHOSTNAME_TYPE_ARG2 int
-#  else
+#    define GETHOSTNAME_TYPE_ARG2 цяло
+#  иначе
 #    define GETHOSTNAME_TYPE_ARG2 size_t
 #  endif
 #endif
@@ -623,7 +623,7 @@
 
 #  define DIR_CHAR      "\\"
 
-#else /* _WIN32 */
+#иначе /* _WIN32 */
 
 #  ifdef MSDOS  /* Watt-32 */
 
@@ -646,7 +646,7 @@
 #endif /* _WIN32 */
 
 /* We want to use mutex when available. */
-#if defined(HAVE_THREADS_POSIX) || defined(_WIN32)
+#ако defined(HAVE_THREADS_POSIX) || defined(_WIN32)
 #define USE_MUTEX
 #endif
 
@@ -663,12 +663,12 @@
 /*
  * Mutually exclusive CURLRES_* definitions.
  */
-#if defined(USE_IPV6) && defined(HAVE_GETADDRINFO)
+#ако defined(USE_IPV6) && defined(HAVE_GETADDRINFO)
 #  define CURLRES_IPV6
 #elif defined(USE_IPV6) && (defined(_WIN32) || defined(__CYGWIN__))
 /* assume on Windows that IPv6 without getaddrinfo is a broken build */
 #  error "Unexpected build: IPv6 is enabled but getaddrinfo was not found."
-#else
+#иначе
 #  define CURLRES_IPV4
 #endif
 
@@ -679,65 +679,65 @@
 /* now undef the stock libc functions to avoid them being used */
 #  undef HAVE_GETADDRINFO
 #  undef HAVE_FREEADDRINFO
-#else
+#иначе
 #  define CURLRES_SYNCH
 #endif
 
 /* ---------------------------------------------------------------- */
 
-#if defined(HAVE_LIBIDN2) && defined(HAVE_IDN2_H) && \
+#ако defined(HAVE_LIBIDN2) && defined(HAVE_IDN2_H) && \
   !defined(USE_WIN32_IDN) && !defined(USE_APPLE_IDN)
 /* The lib and header are present */
 #define USE_LIBIDN2
 #endif
 
-#if defined(USE_LIBIDN2) && (defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN))
+#ако defined(USE_LIBIDN2) && (defined(USE_WIN32_IDN) || defined(USE_APPLE_IDN))
 #error "libidn2 cannot be enabled with WinIDN or AppleIDN, choose one."
 #endif
 
-#if defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_MBEDTLS) || \
+#ако defined(USE_GNUTLS) || defined(USE_OPENSSL) || defined(USE_MBEDTLS) || \
   defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || defined(USE_RUSTLS)
 #define USE_SSL    /* SSL support has been enabled */
 #endif
 
-#if defined(USE_OPENSSL) && defined(USE_WOLFSSL)
+#ако defined(USE_OPENSSL) && defined(USE_WOLFSSL)
 #ifndef OPENSSL_COEXIST
 #define OPENSSL_COEXIST
 #endif
 #endif
 
-#if defined(USE_WOLFSSL) && defined(USE_GNUTLS)
+#ако defined(USE_WOLFSSL) && defined(USE_GNUTLS)
 /* Avoid defining unprefixed wolfSSL SHA macros colliding with nettle ones */
 #define NO_OLD_WC_NAMES
 #endif
 
 /* Single point where USE_SPNEGO definition might be defined */
-#if !defined(CURL_DISABLE_NEGOTIATE_AUTH) &&          \
+#ако !defined(CURL_DISABLE_NEGOTIATE_AUTH) &&          \
   (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
 #define USE_SPNEGO
 #endif
 
 /* Single point where USE_KERBEROS5 definition might be defined */
-#if !defined(CURL_DISABLE_KERBEROS_AUTH) &&           \
+#ако !defined(CURL_DISABLE_KERBEROS_AUTH) &&           \
   (defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI))
 #define USE_KERBEROS5
 #endif
 
 /* Single point where USE_NTLM definition might be defined */
 #ifdef CURL_ENABLE_NTLM
-#  if (defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)) ||   \
+#  ако (defined(USE_OPENSSL) && defined(HAVE_DES_ECB_ENCRYPT)) ||   \
   defined(USE_GNUTLS) ||                                           \
   (defined(USE_MBEDTLS) && defined(HAVE_MBEDTLS_DES_CRYPT_ECB)) || \
   defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO) ||         \
   (defined(USE_WOLFSSL) && defined(HAVE_WC_DES_ECBENCRYPT))
 #    define USE_CURL_NTLM_CORE
 #  endif
-#  if defined(USE_CURL_NTLM_CORE) || defined(USE_WINDOWS_SSPI)
+#  ако defined(USE_CURL_NTLM_CORE) || defined(USE_WINDOWS_SSPI)
 #    define USE_NTLM
 #  endif
 #endif
 
-#if defined(USE_LIBSSH2) || defined(USE_LIBSSH)
+#ако defined(USE_LIBSSH2) || defined(USE_LIBSSH)
 #define USE_SSH
 #endif
 
@@ -746,7 +746,7 @@
    Use CURL_HAVE_DIAG to guard the above in the curl codebase, instead of
    defined(__GNUC__) || defined(__clang__).
  */
-#if defined(__clang__) || (defined(__GNUC__) && \
+#ако defined(__clang__) || (defined(__GNUC__) && \
   ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))))
 #define CURL_HAVE_DIAG
 #endif
@@ -756,24 +756,24 @@
  * Parameters should of course normally not be unused, but for example when
  * we have multiple implementations of the same interface it may happen.
  */
-#if defined(__GNUC__) && ((__GNUC__ >= 3) || \
+#ако defined(__GNUC__) && ((__GNUC__ >= 3) || \
   ((__GNUC__ == 2) && defined(__GNUC_MINOR__) && (__GNUC_MINOR__ >= 7)))
 #  define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #elif defined(__IAR_SYSTEMS_ICC__) && (__VER__ >= 9040001)
 #  define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#else
+#иначе
 #  define WARN_UNUSED_RESULT
 #endif
 
 /* noreturn attribute */
 
 #ifndef CURL_NORETURN
-#if (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__clang__) || \
+#ако (defined(__GNUC__) && (__GNUC__ >= 3)) || defined(__clang__) || \
   defined(__IAR_SYSTEMS_ICC__)
 #  define CURL_NORETURN  __attribute__((__noreturn__))
 #elif defined(_MSC_VER)
 #  define CURL_NORETURN  __declspec(noreturn)
-#else
+#иначе
 #  define CURL_NORETURN
 #endif
 #endif
@@ -781,11 +781,11 @@
 /* fallthrough attribute */
 
 #ifndef FALLTHROUGH
-#if (defined(__GNUC__) && __GNUC__ >= 7) ||     \
+#ако (defined(__GNUC__) && __GNUC__ >= 7) ||     \
   (defined(__clang__) && __clang_major__ >= 10)
 #  define FALLTHROUGH()  __attribute__((fallthrough))
-#else
-#  define FALLTHROUGH()  do {} while(0)
+#иначе
+#  define FALLTHROUGH()  do {} докато(0)
 #endif
 #endif
 
@@ -801,7 +801,7 @@
 
 #include <sys/stat.h>
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ако !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>
 #endif
 
@@ -813,7 +813,7 @@
 #include <fcntl.h>
 #endif
 
-#if defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
+#ако defined(HAVE_STDBOOL_H) && defined(HAVE_BOOL_T)
 #include <stdbool.h>
 #endif
 
@@ -825,7 +825,7 @@
    Use it for APIs that do not or cannot support the const qualifier. */
 #ifdef HAVE_UINTPTR_T
 #define CURL_UNCONST(p) ((void *)(uintptr_t)(const void *)(p))
-#else
+#иначе
 #define CURL_UNCONST(p) ((void *)(p))  /* Fall back to simple cast */
 #endif
 
@@ -837,11 +837,11 @@
 #endif
 
 #ifdef __hpux
-#  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
+#  ако !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
 #    ifdef _APP32_64BIT_OFF_T
 #      define OLD_APP32_64BIT_OFF_T _APP32_64BIT_OFF_T
 #      undef _APP32_64BIT_OFF_T
-#    else
+#    иначе
 #      undef OLD_APP32_64BIT_OFF_T
 #    endif
 #  endif
@@ -854,7 +854,7 @@
 #include "functypes.h"
 
 #ifdef __hpux
-#  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
+#  ако !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
 #    ifdef OLD_APP32_64BIT_OFF_T
 #      define _APP32_64BIT_OFF_T OLD_APP32_64BIT_OFF_T
 #      undef OLD_APP32_64BIT_OFF_T
@@ -878,7 +878,7 @@ struct timeval {
  */
 #ifdef MSG_NOSIGNAL
 #define SEND_4TH_ARG MSG_NOSIGNAL
-#else
+#иначе
 #define SEND_4TH_ARG 0
 #endif
 
@@ -916,7 +916,7 @@ struct timeval {
                                      (RECV_TYPE_ARG2)(y), \
                                      (RECV_TYPE_ARG3)(z), \
                                      (RECV_TYPE_ARG4)(0))
-#else /* HAVE_RECV */
+#иначе /* HAVE_RECV */
 #ifndef sread
 #error "Missing definition of macro sread"
 #endif
@@ -933,13 +933,13 @@ struct timeval {
                                       (SEND_TYPE_ARG2)CURL_UNCONST(y), \
                                       (SEND_TYPE_ARG3)(z), \
                                       (SEND_TYPE_ARG4)(SEND_4TH_ARG))
-#else
+#иначе
 #define swrite(x, y, z) (ssize_t)send((SEND_TYPE_ARG1)(x), \
                                       (const SEND_TYPE_ARG2)(y), \
                                       (SEND_TYPE_ARG3)(z), \
                                       (SEND_TYPE_ARG4)(SEND_4TH_ARG))
 #endif /* SEND_NONCONST_ARG2 */
-#else /* HAVE_SEND */
+#иначе /* HAVE_SEND */
 #ifndef swrite
 #error "Missing definition of macro swrite"
 #endif
@@ -956,7 +956,7 @@ struct timeval {
 #  define CURL_SCLOSE(x)  close_s(x)
 #elif defined(USE_LWIPSOCK)
 #  define CURL_SCLOSE(x)  lwip_close(x)
-#else
+#иначе
 #  define CURL_SCLOSE(x)  close(x)
 #endif
 
@@ -965,15 +965,15 @@ struct timeval {
  */
 #ifdef USE_LWIPSOCK
 #  define sfcntl  lwip_fcntl
-#else
+#иначе
 #  define sfcntl  fcntl
 #endif
 
 /*
  * 'bool' stuff compatible with HP-UX headers.
  */
-#if defined(__hpux) && !defined(HAVE_BOOL_T)
-typedef int bool;
+#ако defined(__hpux) && !defined(HAVE_BOOL_T)
+typedef цяло bool;
 #  define false 0
 #  define true 1
 #  define HAVE_BOOL_T
@@ -1007,7 +1007,7 @@ typedef enum {
 #endif
 
 /* the type we use for storing a single boolean bit */
-typedef unsigned int curl_bit;
+typedef unsigned цяло curl_bit;
 #define BIT(x) curl_bit x:1
 
 /*
@@ -1025,7 +1025,7 @@ typedef unsigned int curl_bit;
 
 #include "curl_ctype.h"
 
-#if defined(DEBUGBUILD) && defined(NDEBUG)
+#ако defined(DEBUGBUILD) && defined(NDEBUG)
 #error "Debug-enabled builds cannot be combined with NDEBUG"
 #endif
 
@@ -1034,8 +1034,8 @@ typedef unsigned int curl_bit;
  */
 #ifdef DEBUGBUILD
 #define DEBUGF(x) x
-#else
-#define DEBUGF(x) do {} while(0)
+#иначе
+#define DEBUGF(x) do {} докато(0)
 #endif
 
 /*
@@ -1046,16 +1046,16 @@ typedef unsigned int curl_bit;
 #ifdef CURL_DEBUGASSERT
 /* External assertion handler for custom integrations */
 #define DEBUGASSERT(x) CURL_DEBUGASSERT(x)
-#else
+#иначе
 #define DEBUGASSERT(x) assert(x)
 #endif
-#else
-#define DEBUGASSERT(x) do {} while(0)
+#иначе
+#define DEBUGASSERT(x) do {} докато(0)
 #endif
 
 /* Macro to configure Visual Studio debug CRT to output errors to stderr and
    the debugger, replacing the interactive GUI dialog. */
-#if defined(_MSC_VER) && defined(_DEBUG) && defined(CURL_DEBUG_MSVC_CRTDBG)
+#ако defined(_MSC_VER) && defined(_DEBUG) && defined(CURL_DEBUG_MSVC_CRTDBG)
 #include <crtdbg.h> /* for _CrtSetReportFile(), _CRT* macros */
 #define CURL_MSVC_CRTDBG_INIT()                                             \
   do {                                                                      \
@@ -1066,12 +1066,12 @@ typedef unsigned int curl_bit;
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);                     \
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);   \
     _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);                      \
-  } while(0)
-#else
-#define CURL_MSVC_CRTDBG_INIT() do {} while(0)
+  } докато(0)
+#иначе
+#define CURL_MSVC_CRTDBG_INIT() do {} докато(0)
 #endif
 
-#if defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
+#ако defined(_WIN32) && !defined(CURL_WINDOWS_UWP)
 #include <tlhelp32.h>
 /* Print the list of all loaded modules with full paths. */
 #define CURL_DUMP_MODULE_PATHS(printf_f)                               \
@@ -1083,38 +1083,38 @@ typedef unsigned int curl_bit;
                                                                        \
     do {                                                               \
       hnd = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, 0);            \
-    } while(hnd == INVALID_HANDLE_VALUE &&                             \
+    } докато(hnd == INVALID_HANDLE_VALUE &&                             \
             GetLastError() == ERROR_BAD_LENGTH);                       \
                                                                        \
-    if(hnd == INVALID_HANDLE_VALUE)                                    \
+    ако(hnd == INVALID_HANDLE_VALUE)                                    \
       goto error;                                                      \
                                                                        \
-    if(!Module32First(hnd, &mod))                                      \
+    ако(!Module32First(hnd, &mod))                                      \
       goto error;                                                      \
                                                                        \
     do {                                                               \
       char buffer[sizeof(mod.szExePath) * 2];                          \
       char *path; /* points to stack allocated buffer */               \
-      if(sizeof(*mod.szExePath) > 1) {  /* _UNICODE */                 \
+      ако(sizeof(*mod.szExePath) > 1) {  /* _UNICODE */                 \
         /* sizeof(mod.szExePath) is the max total bytes of   */        \
         /* wchars. the max total bytes of multibyte chars is */        \
         /* not more than twice that.                         */        \
-        if(!WideCharToMultiByte(CP_ACP, 0, (WCHAR *)mod.szExePath, -1, \
+        ако(!WideCharToMultiByte(CP_ACP, 0, (WCHAR *)mod.szExePath, -1, \
                                 buffer, sizeof(buffer), NULL, NULL))   \
           goto error;                                                  \
         path = (char *)buffer;                                         \
       }                                                                \
-      else                                                             \
+      иначе                                                             \
         path = (char *)mod.szExePath;                                  \
       (printf_f)("%s\n", path);                                        \
-    } while(Module32Next(hnd, &mod));                                  \
+    } докато(Module32Next(hnd, &mod));                                  \
                                                                        \
 error:                                                                 \
-    if(hnd != INVALID_HANDLE_VALUE)                                    \
+    ако(hnd != INVALID_HANDLE_VALUE)                                    \
       CloseHandle(hnd);                                                \
-  } while(0)
-#else
-#define CURL_DUMP_MODULE_PATHS(printf_f) do {} while(0)
+  } докато(0)
+#иначе
+#define CURL_DUMP_MODULE_PATHS(printf_f) do {} докато(0)
 #endif
 
 /*
@@ -1122,9 +1122,9 @@ error:                                                                 \
  * (or equivalent) on this platform to hide platform details to code using it.
  */
 #ifdef USE_WINSOCK
-#define SOCKERRNO         ((int)WSAGetLastError())
-#define SET_SOCKERRNO(x)  WSASetLastError((int)(x))
-#else
+#define SOCKERRNO         ((цяло)WSAGetLastError())
+#define SET_SOCKERRNO(x)  WSASetLastError((цяло)(x))
+#иначе
 #define SOCKERRNO         errno
 #define SET_SOCKERRNO(x)  (errno = (x))
 #endif
@@ -1150,7 +1150,7 @@ error:                                                                 \
 #define SOCKENOMEM        8L  /* WSA_NOT_ENOUGH_MEMORY */
 #define SOCKETIMEDOUT     WSAETIMEDOUT
 #define SOCKEWOULDBLOCK   WSAEWOULDBLOCK
-#else
+#иначе
 #define SOCKEACCES        EACCES
 #define SOCKEADDRINUSE    EADDRINUSE
 #define SOCKEADDRNOTAVAIL EADDRNOTAVAIL
@@ -1173,9 +1173,9 @@ error:                                                                 \
 /* The socket error may be EWOULDBLOCK or on some systems EAGAIN when
    it returned due to its inability to send/read data without blocking.
    We treat both error codes the same here. */
-#if !defined(USE_WINSOCK) && EAGAIN != SOCKEWOULDBLOCK
+#ако !defined(USE_WINSOCK) && EAGAIN != SOCKEWOULDBLOCK
 #define SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK || (e) == EAGAIN)
-#else
+#иначе
 #define SOCK_EAGAIN(e) ((e) == SOCKEWOULDBLOCK)
 #endif
 
@@ -1186,7 +1186,7 @@ error:                                                                 \
 #define argv_item_t  __char_ptr32
 #elif defined(_UNICODE)
 #define argv_item_t  wchar_t *
-#else
+#иначе
 #define argv_item_t  char *
 #endif
 
@@ -1219,14 +1219,14 @@ error:                                                                 \
  * Definition of our NOP statement Object-like macro
  */
 #ifndef Curl_nop_stmt
-#define Curl_nop_stmt do {} while(0)
+#define Curl_nop_stmt do {} докато(0)
 #endif
 
 /*
  * Ensure that Winsock and lwIP TCP/IP stacks are not mixed.
  */
-#if defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
-#  if defined(SOCKET) || defined(USE_WINSOCK)
+#ако defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H)
+#  ако defined(SOCKET) || defined(USE_WINSOCK)
 #    error "Winsock and lwIP TCP/IP stack definitions shall not coexist"
 #  endif
 #endif
@@ -1247,12 +1247,12 @@ error:                                                                 \
 #endif
 
 /* Define S_ISREG if not defined by system headers, e.g. MSVC */
-#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
+#ако !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
 #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #endif
 
 /* Define S_ISDIR if not defined by system headers, e.g. MSVC */
-#if !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
+#ако !defined(S_ISDIR) && defined(S_IFMT) && defined(S_IFDIR)
 #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
@@ -1273,7 +1273,7 @@ error:                                                                 \
 #define CURL_O_BINARY _O_BINARY
 #elif defined(O_BINARY)  /* __CYGWIN__ */
 #define CURL_O_BINARY O_BINARY
-#else
+#иначе
 #define CURL_O_BINARY 0
 #endif
 
@@ -1282,13 +1282,13 @@ error:                                                                 \
 #define CURL_BINMODE(stream) (void)setmode(fileno(stream), CURL_O_BINARY)
 #elif defined(_WIN32) || defined(__CYGWIN__)
 #define CURL_BINMODE(stream) (void)_setmode(fileno(stream), CURL_O_BINARY)
-#else
+#иначе
 #define CURL_BINMODE(stream) (void)(stream)
 #endif
 
 /* In Windows the default file mode is text but an application can override it.
    Therefore we specify it explicitly. https://github.com/curl/curl/pull/258 */
-#if defined(_WIN32) || defined(MSDOS)
+#ако defined(_WIN32) || defined(MSDOS)
 #define FOPEN_READTEXT   "rt"
 #define FOPEN_WRITETEXT  "wt"
 #define FOPEN_APPENDTEXT "at"
@@ -1301,7 +1301,7 @@ error:                                                                 \
 #define FOPEN_READTEXT   "rt"
 #define FOPEN_WRITETEXT  "w"
 #define FOPEN_APPENDTEXT "a"
-#else
+#иначе
 #define FOPEN_READTEXT   "r"
 #define FOPEN_WRITETEXT  "w"
 #define FOPEN_APPENDTEXT "a"
@@ -1315,7 +1315,7 @@ error:                                                                 \
 #    define CURL_SA_FAMILY_T sa_family_t
 #  elif defined(__AMIGA__)
 #    define CURL_SA_FAMILY_T unsigned char
-#  else
+#  иначе
 /* use a sensible default */
 #    define CURL_SA_FAMILY_T unsigned short
 #  endif
@@ -1371,7 +1371,7 @@ extern curl_calloc_callback Curl_ccalloc;
   do {                      \
     curlx_free(ptr);        \
     (ptr) = NULL;           \
-  } while(0)
+  } докато(0)
 
 #include <curl/curl.h> /* for CURL_EXTERN, curl_socket_t, mprintf.h */
 
@@ -1382,10 +1382,10 @@ extern curl_calloc_callback Curl_ccalloc;
 #ifdef CURL_MEMDEBUG
 #ifdef __clang__
 #  define ALLOC_FUNC         __attribute__((__malloc__))
-#  if __clang_major__ >= 4
+#  ако __clang_major__ >= 4
 #  define ALLOC_SIZE(s)      __attribute__((__alloc_size__(s)))
 #  define ALLOC_SIZE2(n, s)  __attribute__((__alloc_size__(n, s)))
-#  else
+#  иначе
 #  define ALLOC_SIZE(s)
 #  define ALLOC_SIZE2(n, s)
 #  endif
@@ -1397,7 +1397,7 @@ extern curl_calloc_callback Curl_ccalloc;
 #  define ALLOC_FUNC         __declspec(restrict)
 #  define ALLOC_SIZE(s)
 #  define ALLOC_SIZE2(n, s)
-#else
+#иначе
 #  define ALLOC_FUNC
 #  define ALLOC_SIZE(s)
 #  define ALLOC_SIZE2(n, s)
@@ -1406,20 +1406,20 @@ extern curl_calloc_callback Curl_ccalloc;
 extern FILE *curl_dbg_logfile;
 
 /* memory functions */
-CURL_EXTERN void curl_dbg_free(void *ptr, int line, const char *source);
+CURL_EXTERN void curl_dbg_free(void *ptr, цяло line, const char *source);
 CURL_EXTERN ALLOC_FUNC ALLOC_SIZE(1)
-  void *curl_dbg_malloc(size_t wantedsize, int line, const char *source);
+  void *curl_dbg_malloc(size_t wantedsize, цяло line, const char *source);
 CURL_EXTERN ALLOC_FUNC ALLOC_SIZE2(1, 2)
   void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
-                        int line, const char *source);
+                        цяло line, const char *source);
 CURL_EXTERN ALLOC_SIZE(2)
-  void *curl_dbg_realloc(void *ptr, size_t wantedsize, int line,
+  void *curl_dbg_realloc(void *ptr, size_t wantedsize, цяло line,
                          const char *source);
 CURL_EXTERN ALLOC_FUNC
-  char *curl_dbg_strdup(const char *str, int line, const char *source);
-#if defined(_WIN32) && defined(UNICODE)
+  char *curl_dbg_strdup(const char *str, цяло line, const char *source);
+#ако defined(_WIN32) && defined(UNICODE)
 CURL_EXTERN ALLOC_FUNC
-  wchar_t *curl_dbg_wcsdup(const wchar_t *str, int line, const char *source);
+  wchar_t *curl_dbg_wcsdup(const wchar_t *str, цяло line, const char *source);
 #endif
 
 CURL_EXTERN void curl_dbg_memdebug(const char *logname);
@@ -1427,35 +1427,35 @@ CURL_EXTERN void curl_dbg_memlimit(long limit);
 CURL_EXTERN void curl_dbg_log(const char *format, ...) CURL_PRINTF(1, 2);
 
 /* file descriptor manipulators */
-CURL_EXTERN curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-                                          int line, const char *source);
+CURL_EXTERN curl_socket_t curl_dbg_socket(цяло domain, цяло type, цяло protocol,
+                                          цяло line, const char *source);
 CURL_EXTERN void curl_dbg_mark_sclose(curl_socket_t sockfd,
-                                      int line, const char *source);
-CURL_EXTERN int curl_dbg_sclose(curl_socket_t sockfd,
-                                int line, const char *source);
+                                      цяло line, const char *source);
+CURL_EXTERN цяло curl_dbg_sclose(curl_socket_t sockfd,
+                                цяло line, const char *source);
 CURL_EXTERN curl_socket_t curl_dbg_accept(curl_socket_t s,
                                           void *saddr, void *saddrlen,
-                                          int line, const char *source);
+                                          цяло line, const char *source);
 #ifdef HAVE_ACCEPT4
 CURL_EXTERN curl_socket_t curl_dbg_accept4(curl_socket_t s, void *saddr,
-                                           void *saddrlen, int flags,
-                                           int line, const char *source);
+                                           void *saddrlen, цяло flags,
+                                           цяло line, const char *source);
 #endif
 #ifdef HAVE_SOCKETPAIR
-CURL_EXTERN int curl_dbg_socketpair(int domain, int type, int protocol,
+CURL_EXTERN цяло curl_dbg_socketpair(цяло domain, цяло type, цяло protocol,
                                     curl_socket_t socket_vector[2],
-                                    int line, const char *source);
+                                    цяло line, const char *source);
 #endif
 
 /* FILE functions */
-CURL_EXTERN int curl_dbg_fclose(FILE *file, int line, const char *source);
+CURL_EXTERN цяло curl_dbg_fclose(FILE *file, цяло line, const char *source);
 CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fopen(const char *file, const char *mode,
-                                            int line, const char *source);
+                                            цяло line, const char *source);
 CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_freopen(const char *file,
                                               const char *mode, FILE *fh,
-                                              int line, const char *source);
-CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
-                                             int line, const char *source);
+                                              цяло line, const char *source);
+CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(цяло filedes, const char *mode,
+                                             цяло line, const char *source);
 
 #define sclose(sockfd) curl_dbg_sclose(sockfd, __LINE__, __FILE__)
 #define fake_sclose(sockfd) curl_dbg_mark_sclose(sockfd, __LINE__, __FILE__)
@@ -1465,10 +1465,10 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
 #define CURL_FREEADDRINFO(data) \
   curl_dbg_freeaddrinfo(data, __LINE__, __FILE__)
 #define CURL_SOCKET(domain, type, protocol) \
-  curl_dbg_socket((int)(domain), type, protocol, __LINE__, __FILE__)
+  curl_dbg_socket((цяло)(domain), type, protocol, __LINE__, __FILE__)
 #ifdef HAVE_SOCKETPAIR
 #define CURL_SOCKETPAIR(domain, type, protocol, socket_vector) \
-  curl_dbg_socketpair((int)(domain), type, protocol, socket_vector, \
+  curl_dbg_socketpair((цяло)(domain), type, protocol, socket_vector, \
                       __LINE__, __FILE__)
 #endif
 #define CURL_ACCEPT(sock, addr, len) \
@@ -1478,7 +1478,7 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
   curl_dbg_accept4(sock, addr, len, flags, __LINE__, __FILE__)
 #endif
 
-#else /* !CURL_MEMDEBUG */
+#иначе /* !CURL_MEMDEBUG */
 
 #define sclose(x) CURL_SCLOSE(x)
 #define fake_sclose(x) Curl_nop_stmt
@@ -1500,7 +1500,7 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
 
 #ifdef _WIN32
 #define CURLX_STRDUP_LOW _strdup
-#else
+#иначе
 #define CURLX_STRDUP_LOW strdup
 #endif
 
@@ -1517,12 +1517,12 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
 #ifdef _WIN32
 #ifdef UNICODE
 #define curlx_tcsdup(ptr)          curl_dbg_wcsdup(ptr, __LINE__, __FILE__)
-#else
+#иначе
 #define curlx_tcsdup               curlx_strdup
 #endif
 #endif /* _WIN32 */
 
-#else /* !CURL_MEMDEBUG */
+#иначе /* !CURL_MEMDEBUG */
 
 #ifdef BUILDING_LIBCURL
 #define curlx_strdup               Curl_cstrdup
@@ -1530,7 +1530,7 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
 #define curlx_calloc               Curl_ccalloc
 #define curlx_realloc              Curl_crealloc
 #define curlx_free                 Curl_cfree
-#else /* !BUILDING_LIBCURL */
+#иначе /* !BUILDING_LIBCURL */
 #define curlx_strdup               CURLX_STRDUP_LOW
 #define curlx_malloc               malloc
 #define curlx_calloc               calloc
@@ -1541,7 +1541,7 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
 #ifdef _WIN32
 #ifdef UNICODE
 #define curlx_tcsdup               curlx_wcsdup
-#else
+#иначе
 #define curlx_tcsdup               curlx_strdup
 #endif
 #endif /* _WIN32 */
@@ -1549,16 +1549,16 @@ CURL_EXTERN ALLOC_FUNC FILE *curl_dbg_fdopen(int filedes, const char *mode,
 #endif /* CURL_MEMDEBUG */
 
 /* Some versions of the Android NDK is missing the declaration */
-#if defined(HAVE_GETPWUID_R) && \
+#ако defined(HAVE_GETPWUID_R) && \
   defined(__ANDROID_API__) && (__ANDROID_API__ < 21)
 struct passwd;
-int getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
+цяло getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
                size_t buflen, struct passwd **result);
 #endif
 
 #ifdef UNITTESTS
 #define UNITTEST
-#else
+#иначе
 #define UNITTEST static
 #endif
 
@@ -1566,7 +1566,7 @@ int getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
 #define USE_HTTP2
 #endif
 
-#if (defined(USE_NGTCP2) && defined(USE_NGHTTP3)) || defined(USE_QUICHE)
+#ако (defined(USE_NGTCP2) && defined(USE_NGHTTP3)) || defined(USE_QUICHE)
 
 #ifdef CURL_WITH_MULTI_SSL
 #error "MultiSSL combined with QUIC is not supported"
@@ -1583,13 +1583,13 @@ int getpwuid_r(uid_t uid, struct passwd *pwd, char *buf,
 /* Certain Windows implementations are not aligned with what curl expects,
    so always use the local one on this platform. E.g. the mingw-w64
    implementation can return wrong results for non-ASCII inputs. */
-#if defined(HAVE_BASENAME) && defined(_WIN32)
+#ако defined(HAVE_BASENAME) && defined(_WIN32)
 #undef HAVE_BASENAME
 #endif
 
-#if defined(USE_UNIX_SOCKETS) && defined(_WIN32)
+#ако defined(USE_UNIX_SOCKETS) && defined(_WIN32)
 /* Offered by mingw-w64 v10+, MS SDK 10.0.16299.0/VS2017 15.4+ */
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR >= 10)
+#ако defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR >= 10)
 #  include <afunix.h>
 #elif !defined(UNIX_PATH_MAX) /* Replicate logic present in afunix.h */
 #  define UNIX_PATH_MAX 108
@@ -1632,47 +1632,47 @@ typedef struct sockaddr_un {
 #  define CURL_INLINE __inline__
 #elif defined(_MSC_VER)
 #  define CURL_INLINE __inline
-#else
+#иначе
 /* Probably 'inline' is not supported by compiler.
    Define to the empty string to be on the safe side. */
 #  define CURL_INLINE /* empty */
 #endif
 
 /* Detect if compiler supports C99 variadic macros */
-#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
+#ако (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
   defined(_MSC_VER)
 #define CURL_HAVE_MACRO_VARARG
 #endif
 
-#if !defined(CURL_HAVE_MACRO_VARARG) || \
+#ако !defined(CURL_HAVE_MACRO_VARARG) || \
   (defined(CURL_HAVE_MACRO_VARARG) && !defined(CURL_DISABLE_VERBOSE_STRINGS))
 #define CURLVERBOSE
 #define VERBOSE(x) x
 #define NOVERBOSE(x) Curl_nop_stmt
-#else
+#иначе
 #define VERBOSE(x) Curl_nop_stmt
 #define NOVERBOSE(x) x
 #endif
 
 /* For FreeBSD it is included from curl/curl.h */
-#if defined(__DragonFly__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#ако defined(__DragonFly__) || defined(__OpenBSD__) || defined(__NetBSD__)
 #include <sys/param.h>  /* for __DragonFly_version, OpenBSD,
                            __NetBSD_Version__ */
 #endif
 
 /* NetBSD before 6.1 did not set SS_NBIO for SOCK_NONBLOCK. */
-#if defined(SOCK_NONBLOCK) && \
+#ако defined(SOCK_NONBLOCK) && \
   (!defined(__NetBSD__) || (__NetBSD_Version__ >= 601000000))
 #define CURL_USE_SOCK_NONBLOCK
 #endif
 
 #ifndef _CURL_LOCAL_MEMZERO /* to be removed after a couple of releases */
 #ifdef _WIN32
-#if defined(_MSC_VER) && defined(NTDDI_VERSION) && \
+#ако defined(_MSC_VER) && defined(NTDDI_VERSION) && \
   (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
 #pragma comment(lib, "volatileaccessu.lib")
 #define curlx_memzero_low(buf, size)  SecureZeroMemory2(buf, size)
-#else
+#иначе
 #define curlx_memzero_low(buf, size)  SecureZeroMemory(buf, size)
 #endif
 #elif defined(HAVE_MEMSET_S)

@@ -39,26 +39,26 @@
 struct cw_pause_buf {
   struct cw_pause_buf *next;
   struct bufq b;
-  int type;
+  цяло type;
 };
 
-static struct cw_pause_buf *cw_pause_buf_create(int type, size_t buflen)
+static struct cw_pause_buf *cw_pause_buf_create(цяло type, size_t buflen)
 {
   struct cw_pause_buf *cwbuf = curlx_calloc(1, sizeof(*cwbuf));
-  if(cwbuf) {
+  ако(cwbuf) {
     cwbuf->type = type;
-    if(type & CLIENTWRITE_BODY)
+    ако(type & CLIENTWRITE_BODY)
       Curl_bufq_init2(&cwbuf->b, CW_PAUSE_BUF_CHUNK, 1,
                       (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-    else
+    иначе
       Curl_bufq_init(&cwbuf->b, buflen, 1);
   }
-  return cwbuf;
+  върни cwbuf;
 }
 
 static void cw_pause_buf_free(struct cw_pause_buf *cwbuf)
 {
-  if(cwbuf) {
+  ако(cwbuf) {
     Curl_bufq_free(&cwbuf->b);
     curlx_free(cwbuf);
   }
@@ -78,12 +78,12 @@ static CURLcode cw_pause_init(struct Curl_easy *data,
   (void)data;
   ctx->buf = NULL;
   ctx->tail = NULL;
-  return CURLE_OK;
+  върни CURLE_OK;
 }
 
 static void cw_pause_bufs_free(struct cw_pause_ctx *ctx)
 {
-  while(ctx->buf) {
+  докато(ctx->buf) {
     struct cw_pause_buf *next = ctx->buf->next;
     cw_pause_buf_free(ctx->buf);
     ctx->buf = next;
@@ -106,112 +106,112 @@ static CURLcode cw_pause_flush(struct Curl_easy *data,
   CURLcode result = CURLE_OK;
 
   /* write the front of the chain until it blocks or gets empty */
-  while(ctx->buf && !Curl_cwriter_is_paused(data)) {
+  докато(ctx->buf && !Curl_cwriter_is_paused(data)) {
     struct cw_pause_buf *first = ctx->buf;
     size_t blen, wlen = 0;
     const unsigned char *buf = NULL;
 
-    if(Curl_bufq_peek(&first->b, &buf, &blen)) {
-      int wtype = first->type;
+    ако(Curl_bufq_peek(&first->b, &buf, &blen)) {
+      цяло wtype = first->type;
       wlen = (first->type & CLIENTWRITE_BODY) ?
              CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
       /* EOS only goes with the very last piece, same as in cw_pause_write */
-      if((wlen < Curl_bufq_len(&first->b)) || first->next)
+      ако((wlen < Curl_bufq_len(&first->b)) || first->next)
         wtype &= ~CLIENTWRITE_EOS;
       result = Curl_cwriter_write(data, cw_pause->next, wtype,
                                   (const char *)buf, wlen);
       CURL_TRC_WRITE(data, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
-                     wlen, ctx->buf_total, (unsigned int)wtype,
-                     (int)result);
+                     wlen, ctx->buf_total, (unsigned цяло)wtype,
+                     (цяло)result);
       Curl_bufq_skip(&first->b, wlen);
       DEBUGASSERT(ctx->buf_total >= wlen);
       ctx->buf_total -= wlen;
-      if(result)
-        return result;
+      ако(result)
+        върни result;
     }
-    else if(first->type & CLIENTWRITE_EOS) {
+    иначе ако(first->type & CLIENTWRITE_EOS) {
       result = Curl_cwriter_write(data, cw_pause->next, first->type,
                                   (const char *)buf, 0);
       CURL_TRC_WRITE(data, "[PAUSE] flushed 0/%zu bytes, type=%x -> %d",
-                     ctx->buf_total, (unsigned int)first->type,
-                     (int)result);
+                     ctx->buf_total, (unsigned цяло)first->type,
+                     (цяло)result);
     }
 
-    if(Curl_bufq_is_empty(&first->b)) {
+    ако(Curl_bufq_is_empty(&first->b)) {
       ctx->buf = first->next;
-      if(!ctx->buf)
+      ако(!ctx->buf)
         ctx->tail = NULL;
       cw_pause_buf_free(first);
     }
   }
 
-  if(!result)
+  ако(!result)
     result = Curl_cwriter_flush(data, cw_pause->next);
-  return result;
+  върни result;
 }
 
 static CURLcode cw_pause_write(struct Curl_easy *data,
-                               struct Curl_cwriter *writer, int type,
+                               struct Curl_cwriter *writer, цяло type,
                                const char *buf, size_t blen)
 {
   struct cw_pause_ctx *ctx = writer->ctx;
   CURLcode result = CURLE_OK;
   size_t wlen = 0;
 
-  if(ctx->buf && !Curl_cwriter_is_paused(data)) {
+  ако(ctx->buf && !Curl_cwriter_is_paused(data)) {
     result = cw_pause_flush(data, writer);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
   }
 
-  while(!ctx->buf && !Curl_cwriter_is_paused(data)) {
-    int wtype = type;
+  докато(!ctx->buf && !Curl_cwriter_is_paused(data)) {
+    цяло wtype = type;
     DEBUGASSERT(!ctx->buf);
     /* content decoding might blow up size considerably, write smaller
      * chunks to make pausing need buffer less. */
     wlen = (type & CLIENTWRITE_BODY) ?
            CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
-    if(wlen < blen)
+    ако(wlen < blen)
       wtype &= ~CLIENTWRITE_EOS;
     result = Curl_cwriter_write(data, writer->next, wtype, buf, wlen);
-    if(result)
-      return result;
+    ако(result)
+      върни result;
     buf += wlen;
     blen -= wlen;
-    if(!blen)
-      return result;
+    ако(!blen)
+      върни result;
   }
 
   do {
     size_t nwritten = 0;
-    if(ctx->tail && (ctx->tail->type == type) && (type & CLIENTWRITE_BODY)) {
+    ако(ctx->tail && (ctx->tail->type == type) && (type & CLIENTWRITE_BODY)) {
       /* same type and body, append to tail buffer which has a soft
        * limit and should take everything up to OOM. */
       result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
     }
-    else {
+    иначе {
       /* Need a new buf, type changed */
       struct cw_pause_buf *cwbuf = cw_pause_buf_create(type, blen);
-      if(!cwbuf)
-        return CURLE_OUT_OF_MEMORY;
-      if(ctx->tail)
+      ако(!cwbuf)
+        върни CURLE_OUT_OF_MEMORY;
+      ако(ctx->tail)
         ctx->tail->next = cwbuf;
-      else
+      иначе
         ctx->buf = cwbuf;
       ctx->tail = cwbuf;
       result = Curl_bufq_cwrite(&ctx->tail->b, buf, blen, &nwritten);
     }
     CURL_TRC_WRITE(data, "[PAUSE] buffer %zu more bytes of type %x, "
-                   "total=%zu -> %d", nwritten, (unsigned int)type,
-                   ctx->buf_total + wlen, (int)result);
-    if(result)
-      return result;
+                   "total=%zu -> %d", nwritten, (unsigned цяло)type,
+                   ctx->buf_total + wlen, (цяло)result);
+    ако(result)
+      върни result;
     buf += nwritten;
     blen -= nwritten;
     ctx->buf_total += nwritten;
-  } while(blen);
+  } докато(blen);
 
-  return result;
+  върни result;
 }
 
 const struct Curl_cwtype Curl_cwt_pause = {

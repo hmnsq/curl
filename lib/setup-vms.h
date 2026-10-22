@@ -37,7 +37,7 @@
 /* Hide the stuff we are overriding */
 #define getenv decc_getenv
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE != 64
+#  ако __INITIAL_POINTER_SIZE != 64
 #    define getpwuid decc_getpwuid
 #  endif
 #endif
@@ -59,17 +59,17 @@ char *decc$getenv(const char *__name);
 #define sys$qiow   SYS$QIOW
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  ако __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __save
 #  endif
 #endif
 
-#if __USE_LONG_GID_T
+#ако __USE_LONG_GID_T
 #  define decc_getpwuid DECC$__LONG_GID_GETPWUID
-#else
-#  if __INITIAL_POINTER_SIZE
+#иначе
+#  ако __INITIAL_POINTER_SIZE
 #    define decc_getpwuid decc$__32_getpwuid
-#  else
+#  иначе
 #    define decc_getpwuid decc$getpwuid
 #  endif
 #endif
@@ -77,7 +77,7 @@ char *decc$getenv(const char *__name);
 struct passwd *decc_getpwuid(uid_t uid);
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE == 32
+#  ако __INITIAL_POINTER_SIZE == 32
 /* Translate the path, but only if the path is a VMS file specification */
 /* The translation is usually only needed for older versions of VMS */
 static char *vms_translate_path(const char *path)
@@ -88,18 +88,18 @@ static char *vms_translate_path(const char *path)
   /* See if the result is in VMS format, if not, we are done */
   /* Assume that this is a PATH, not some data */
   test_str = strpbrk(path, ":[<^");
-  if(!test_str) {
-    return (char *)path;
+  ако(!test_str) {
+    върни (char *)path;
   }
 
   unix_path = decc$translate_vms(path);
 
-  if((int)unix_path <= 0) {
+  ако((цяло)unix_path <= 0) {
     /* We can not translate it, so return the original string */
-    return (char *)path;
+    върни (char *)path;
   }
 }
-#  else
+#  иначе
    /* VMS translate path is actually not needed on the current 64-bit */
    /* VMS platforms, so instead of figuring out the pointer settings */
    /* Change it to a noop */
@@ -108,7 +108,7 @@ static char *vms_translate_path(const char *path)
 #endif
 
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  ако __INITIAL_POINTER_SIZE
 #    pragma __pointer_size __restore
 #  endif
 #endif
@@ -120,8 +120,8 @@ static char *vms_getenv(const char *envvar)
 
   /* first use the DECC getenv() function */
   result = decc$getenv(envvar);
-  if(!result) {
-    return result;
+  ако(!result) {
+    върни result;
   }
 
   vms_path = result;
@@ -133,7 +133,7 @@ static char *vms_getenv(const char *envvar)
   /* Do not do a free() for DEC C RTL builds, which should be used for */
   /* VMS 5.5-2 and later, even if using GCC */
 
-  return result;
+  върни result;
 }
 
 static struct passwd vms_passwd_cache;
@@ -144,30 +144,30 @@ static struct passwd *vms_getpwuid(uid_t uid)
 
 /* Hack needed to support 64-bit builds, decc_getpwnam is 32-bit only */
 #ifdef __DECC
-#  if __INITIAL_POINTER_SIZE
+#  ако __INITIAL_POINTER_SIZE
   __char_ptr32 unix_path;
-#  else
+#  иначе
   char *unix_path;
 #  endif
-#else
+#иначе
   char *unix_path;
 #endif
 
   my_passwd = decc_getpwuid(uid);
-  if(!my_passwd) {
-    return my_passwd;
+  ако(!my_passwd) {
+    върни my_passwd;
   }
 
   unix_path = vms_translate_path(my_passwd->pw_dir);
 
-  if((long)unix_path <= 0) {
+  ако((long)unix_path <= 0) {
     /* We can not translate it, so return the original string */
-    return my_passwd;
+    върни my_passwd;
   }
 
   /* If no changes needed, return it */
-  if(unix_path == my_passwd->pw_dir) {
-    return my_passwd;
+  ако(unix_path == my_passwd->pw_dir) {
+    върни my_passwd;
   }
 
   /* Need to copy the structure returned */
@@ -179,7 +179,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
   vms_passwd_cache.pw_dir = unix_path;
   vms_passwd_cache.pw_shell = my_passwd->pw_shell;
 
-  return &vms_passwd_cache;
+  върни &vms_passwd_cache;
 }
 
 #ifdef __DECC
@@ -210,10 +210,10 @@ static struct passwd *vms_getpwuid(uid_t uid)
   /* Ancient OpenSSL on VAX/VMS missing this constant */
 #    define CONF_MFLAGS_IGNORE_MISSING_FILE 0x10
 #    undef CONF_modules_load_file
-static int CONF_modules_load_file(const char *filename,
+static цяло CONF_modules_load_file(const char *filename,
                                   const char *appname,
                                   unsigned long flags) {
-  return 1;
+  върни 1;
 }
 #  endif
 #endif
