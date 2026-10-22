@@ -21,207 +21,207 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 #ifdef HAVE_STRERROR_R
-#  if (!defined(HAVE_POSIX_STRERROR_R) && \
+#  ܐܢ (!defined(HAVE_POSIX_STRERROR_R) && \
        !defined(HAVE_GLIBC_STRERROR_R)) || \
       (defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R))
 #    error "strerror_r MUST be either POSIX, glibc style"
 #  endif
 #endif
 
-#include "curlx/winapi.h"
-#include "curlx/snprintf.h"
-#include "curlx/strerr.h"
-#include "curlx/strcopy.h"
+#ضمن "curlx/winapi.h"
+#ضمن "curlx/snprintf.h"
+#ضمن "curlx/strerr.h"
+#ضمن "curlx/strcopy.h"
 
 #ifdef USE_WINSOCK
 /* This is a helper function for curlx_strerror that converts Winsock error
  * codes (WSAGetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-static const char *get_winsock_error(int err, char *buf, size_t len)
+ساكن ثابت حرف *get_winsock_error(صحيح err, حرف *buf, size_t len)
 {
-  VERBOSE(const char *p);
+  VERBOSE(ثابت حرف *p);
 
-  if(!len)
-    return NULL;
+  ܐܢ(!len)
+    ܦܢܐ عدم;
 
   *buf = '\0';
 
 #ifndef CURLVERBOSE
-  (void)err;
-  return NULL;
-#else
-  switch(err) {
-  case WSAEINTR:
+  (فراغ)err;
+  ܦܢܐ عدم;
+#ܐܚܪܢܐ
+  بدل(err) {
+  حالة WSAEINTR:
     p = "Call interrupted";
-    break;
-  case WSAEBADF:
+    اكسر;
+  حالة WSAEBADF:
     p = "Bad file";
-    break;
-  case WSAEACCES:
+    اكسر;
+  حالة WSAEACCES:
     p = "Bad access";
-    break;
-  case WSAEFAULT:
+    اكسر;
+  حالة WSAEFAULT:
     p = "Bad argument";
-    break;
-  case WSAEINVAL:
+    اكسر;
+  حالة WSAEINVAL:
     p = "Invalid arguments";
-    break;
-  case WSAEMFILE:
+    اكسر;
+  حالة WSAEMFILE:
     p = "Out of file descriptors";
-    break;
-  case WSAEWOULDBLOCK:
+    اكسر;
+  حالة WSAEWOULDBLOCK:
     p = "Call would block";
-    break;
-  case WSAEINPROGRESS:
-  case WSAEALREADY:
+    اكسر;
+  حالة WSAEINPROGRESS:
+  حالة WSAEALREADY:
     p = "Blocking call in progress";
-    break;
-  case WSAENOTSOCK:
+    اكسر;
+  حالة WSAENOTSOCK:
     p = "Descriptor is not a socket";
-    break;
-  case WSAEDESTADDRREQ:
+    اكسر;
+  حالة WSAEDESTADDRREQ:
     p = "Need destination address";
-    break;
-  case WSAEMSGSIZE:
+    اكسر;
+  حالة WSAEMSGSIZE:
     p = "Bad message size";
-    break;
-  case WSAEPROTOTYPE:
+    اكسر;
+  حالة WSAEPROTOTYPE:
     p = "Bad protocol";
-    break;
-  case WSAENOPROTOOPT:
+    اكسر;
+  حالة WSAENOPROTOOPT:
     p = "Protocol option is unsupported";
-    break;
-  case WSAEPROTONOSUPPORT:
+    اكسر;
+  حالة WSAEPROTONOSUPPORT:
     p = "Protocol is unsupported";
-    break;
-  case WSAESOCKTNOSUPPORT:
+    اكسر;
+  حالة WSAESOCKTNOSUPPORT:
     p = "Socket is unsupported";
-    break;
-  case WSAEOPNOTSUPP:
+    اكسر;
+  حالة WSAEOPNOTSUPP:
     p = "Operation not supported";
-    break;
-  case WSAEAFNOSUPPORT:
+    اكسر;
+  حالة WSAEAFNOSUPPORT:
     p = "Address family not supported";
-    break;
-  case WSAEPFNOSUPPORT:
+    اكسر;
+  حالة WSAEPFNOSUPPORT:
     p = "Protocol family not supported";
-    break;
-  case WSAEADDRINUSE:
+    اكسر;
+  حالة WSAEADDRINUSE:
     p = "Address already in use";
-    break;
-  case WSAEADDRNOTAVAIL:
+    اكسر;
+  حالة WSAEADDRNOTAVAIL:
     p = "Address not available";
-    break;
-  case WSAENETDOWN:
+    اكسر;
+  حالة WSAENETDOWN:
     p = "Network down";
-    break;
-  case WSAENETUNREACH:
+    اكسر;
+  حالة WSAENETUNREACH:
     p = "Network unreachable";
-    break;
-  case WSAENETRESET:
+    اكسر;
+  حالة WSAENETRESET:
     p = "Network has been reset";
-    break;
-  case WSAECONNABORTED:
+    اكسر;
+  حالة WSAECONNABORTED:
     p = "Connection was aborted";
-    break;
-  case WSAECONNRESET:
+    اكسر;
+  حالة WSAECONNRESET:
     p = "Connection was reset";
-    break;
-  case WSAENOBUFS:
+    اكسر;
+  حالة WSAENOBUFS:
     p = "No buffer space";
-    break;
-  case WSAEISCONN:
+    اكسر;
+  حالة WSAEISCONN:
     p = "Socket is already connected";
-    break;
-  case WSAENOTCONN:
+    اكسر;
+  حالة WSAENOTCONN:
     p = "Socket is not connected";
-    break;
-  case WSAESHUTDOWN:
+    اكسر;
+  حالة WSAESHUTDOWN:
     p = "Socket has been shut down";
-    break;
-  case WSAETOOMANYREFS:
+    اكسر;
+  حالة WSAETOOMANYREFS:
     p = "Too many references";
-    break;
-  case WSAETIMEDOUT:
+    اكسر;
+  حالة WSAETIMEDOUT:
     p = "Timed out";
-    break;
-  case WSAECONNREFUSED:
+    اكسر;
+  حالة WSAECONNREFUSED:
     p = "Connection refused";
-    break;
-  case WSAELOOP:
+    اكسر;
+  حالة WSAELOOP:
     p = "Loop??";
-    break;
-  case WSAENAMETOOLONG:
+    اكسر;
+  حالة WSAENAMETOOLONG:
     p = "Name too long";
-    break;
-  case WSAEHOSTDOWN:
+    اكسر;
+  حالة WSAEHOSTDOWN:
     p = "Host down";
-    break;
-  case WSAEHOSTUNREACH:
+    اكسر;
+  حالة WSAEHOSTUNREACH:
     p = "Host unreachable";
-    break;
-  case WSAENOTEMPTY:
+    اكسر;
+  حالة WSAENOTEMPTY:
     p = "Not empty";
-    break;
-  case WSAEPROCLIM:
+    اكسر;
+  حالة WSAEPROCLIM:
     p = "Process limit reached";
-    break;
-  case WSAEUSERS:
+    اكسر;
+  حالة WSAEUSERS:
     p = "Too many users";
-    break;
-  case WSAEDQUOT:
+    اكسر;
+  حالة WSAEDQUOT:
     p = "Bad quota";
-    break;
-  case WSAESTALE:
+    اكسر;
+  حالة WSAESTALE:
     p = "Something is stale";
-    break;
-  case WSAEREMOTE:
+    اكسر;
+  حالة WSAEREMOTE:
     p = "Remote error";
-    break;
-  case WSAEDISCON:
+    اكسر;
+  حالة WSAEDISCON:
     p = "Disconnected";
-    break;
+    اكسر;
     /* Extended Winsock errors */
-  case WSASYSNOTREADY:
+  حالة WSASYSNOTREADY:
     p = "Winsock library is not ready";
-    break;
-  case WSANOTINITIALISED:
+    اكسر;
+  حالة WSANOTINITIALISED:
     p = "Winsock library not initialized";
-    break;
-  case WSAVERNOTSUPPORTED:
+    اكسر;
+  حالة WSAVERNOTSUPPORTED:
     p = "Winsock version not supported";
-    break;
+    اكسر;
 
     /* getXbyY() errors (already handled in herrmsg):
      * Authoritative Answer: Host not found */
-  case WSAHOST_NOT_FOUND:
+  حالة WSAHOST_NOT_FOUND:
     p = "Host not found";
-    break;
+    اكسر;
 
     /* Non-Authoritative: Host not found, or SERVERFAIL */
-  case WSATRY_AGAIN:
+  حالة WSATRY_AGAIN:
     p = "Host not found, try again";
-    break;
+    اكسر;
 
     /* Non recoverable errors, FORMERR, REFUSED, NOTIMP */
-  case WSANO_RECOVERY:
+  حالة WSANO_RECOVERY:
     p = "Unrecoverable error in call to nameserver";
-    break;
+    اكسر;
 
     /* Valid name, no data record of requested type */
-  case WSANO_DATA:
+  حالة WSANO_DATA:
     p = "No data record of requested type";
-    break;
+    اكسر;
 
-  default:
-    return NULL;
+  افتراضي:
+    ܦܢܐ عدم;
   }
   curlx_strcopy(buf, len, p, strlen(p));
-  return buf;
+  ܦܢܐ buf;
 #endif
 }
 #endif /* USE_WINSOCK */
@@ -245,16 +245,16 @@ static const char *get_winsock_error(int err, char *buf, size_t len)
  * Call Curl_sspi_strerror if the error code is definitely Windows SSPI.
  * Call curlx_winapi_strerror if the error code is definitely Windows API.
  */
-const char *curlx_strerror(int err, char *buf, size_t buflen)
+ثابت حرف *curlx_strerror(صحيح err, حرف *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
-  char *p;
+  صحيح old_errno = errno;
+  حرف *p;
 
-  if(!buflen)
-    return NULL;
+  ܐܢ(!buflen)
+    ܦܢܐ عدم;
 
 #ifndef _WIN32
   DEBUGASSERT(err >= 0);
@@ -263,46 +263,46 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
   *buf = '\0';
 
 #ifdef _WIN32
-  if((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
+  ܐܢ((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
 #ifdef USE_WINSOCK
      !get_winsock_error(err, buf, buflen) &&
 #endif
      !curlx_get_winapi_error((DWORD)err, buf, buflen))
-    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned int)err);
-#else /* !_WIN32 */
+    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned صحيح)err);
+#ܐܚܪܢܐ /* !_WIN32 */
 
-#if defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
+#ܐܢ defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
   /*
    * The POSIX-style strerror_r() may set errno to ERANGE if insufficient
    * storage is supplied via 'strerrbuf' and 'buflen' to hold the generated
    * message string, or EINVAL if 'errnum' is not a valid error number.
    */
-  if(strerror_r(err, buf, buflen) &&
-     buflen > sizeof("Unknown error ") + 20) {
-    if(buf[0] == '\0')
+  ܐܢ(strerror_r(err, buf, buflen) &&
+     buflen > حجم("Unknown error ") + 20) {
+    ܐܢ(buf[0] == '\0')
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#elif defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
+#وإلاإذا defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
   /*
    * The glibc-style strerror_r() only *might* use the buffer we pass to
    * the function, but it always returns the error message as a pointer,
    * so we must copy that string unconditionally (if non-NULL).
    */
   {
-    char buffer[256];
-    const char *msg = strerror_r(err, buffer, sizeof(buffer));
-    if(msg && buflen > 1)
+    حرف buffer[256];
+    ثابت حرف *msg = strerror_r(err, buffer, حجم(buffer));
+    ܐܢ(msg && buflen > 1)
       SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    ܐܚܪܢܐ ܐܢ(buflen > حجم("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#else
+#ܐܚܪܢܐ
   {
     /* !checksrc! disable BANNEDFUNC 1 */
-    const char *msg = strerror(err);
-    if(msg && buflen > 1)
+    ثابت حرف *msg = strerror(err);
+    ܐܢ(msg && buflen > 1)
       SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    ܐܚܪܢܐ ܐܢ(buflen > حجم("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
 #endif
@@ -311,19 +311,19 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
 
   /* strip trailing '\r\n' or '\n'. */
   p = strrchr(buf, '\n');
-  if(p && (p - buf) >= 2)
+  ܐܢ(p && (p - buf) >= 2)
     *p = '\0';
   p = strrchr(buf, '\r');
-  if(p && (p - buf) >= 1)
+  ܐܢ(p && (p - buf) >= 1)
     *p = '\0';
 
-  if(errno != old_errno)
+  ܐܢ(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  ܐܢ(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  ܦܢܐ buf;
 }

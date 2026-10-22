@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#ضمن "curl_gethostname.h"
+#ضمن "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+صحيح Curl_gethostname(حرف * ثابت name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (فراغ)name;
+  (فراغ)namelen;
+  ܦܢܐ -1;
 
-#else
-  int err;
-  char *dot;
+#ܐܚܪܢܐ
+  صحيح err;
+  حرف *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  ثابت حرف *force_hostname = getenv("CURL_GETHOSTNAME");
+  ܐܢ(force_hostname) {
+    ܐܢ(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    ܐܚܪܢܐ
+      ܦܢܐ 1; /* cannot do it */
     err = 0;
   }
-  else {
+  ܐܚܪܢܐ {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#ܐܚܪܢܐ /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned حرف *)name, namelen);
+#ܐܚܪܢܐ
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  ܐܢ(err)
+    ܦܢܐ err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  ܐܢ(dot)
     *dot = '\0';
 
-  return 0;
+  ܦܢܐ 0;
 #endif
 }

@@ -24,23 +24,23 @@
  *   IMAP, POP3, SMTP and whatever more that likes them.
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "pingpong.h"
+#ضمن "urldata.h"
+#ضمن "pingpong.h"
 
 #ifdef USE_PINGPONG
 
-#include "cfilters.h"
-#include "connect.h"
-#include "multiif.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "select.h"
-#include "progress.h"
+#ضمن "cfilters.h"
+#ضمن "connect.h"
+#ضمن "multiif.h"
+#ضمن "sendf.h"
+#ضمن "curl_trc.h"
+#ضمن "select.h"
+#ضمن "progress.h"
 
-timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
-                                     struct pingpong *pp)
+timediff_t Curl_pp_state_timeleft_ms(بنية Curl_easy *data,
+                                     بنية pingpong *pp)
 {
   timediff_t xfer_remain_ms;
   timediff_t remain_ms = data->set.server_response_timeout ?
@@ -51,77 +51,77 @@ timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
   remain_ms -= curlx_ptimediff_ms(Curl_pgrs_now(data), &pp->response);
   /* transfer remaining time is 0, when it has no timeout. */
   xfer_remain_ms = Curl_timeleft_ms(data);
-  if(xfer_remain_ms)
-    return CURLMIN(remain_ms, xfer_remain_ms);
-  return remain_ms;
+  ܐܢ(xfer_remain_ms)
+    ܦܢܐ CURLMIN(remain_ms, xfer_remain_ms);
+  ܦܢܐ remain_ms;
 }
 
 /*
  * Curl_pp_statemach()
  */
-CURLcode Curl_pp_statemach(struct Curl_easy *data,
-                           struct pingpong *pp, bool block,
+CURLcode Curl_pp_statemach(بنية Curl_easy *data,
+                           بنية pingpong *pp, bool block,
                            bool disconnecting)
 {
-  struct connectdata *conn = data->conn;
+  بنية connectdata *conn = data->conn;
   curl_socket_t sock = conn->sock[FIRSTSOCKET];
-  int rc;
+  صحيح rc;
   timediff_t interval_ms;
   timediff_t timeout_ms = Curl_pp_state_timeleft_ms(data, pp);
   CURLcode result = CURLE_OK;
 
-  if(timeout_ms <= 0) {
+  ܐܢ(timeout_ms <= 0) {
     failf(data, "server response timeout");
-    return CURLE_OPERATION_TIMEDOUT; /* already too little time */
+    ܦܢܐ CURLE_OPERATION_TIMEDOUT; /* already too little time */
   }
 
-  if(block) {
+  ܐܢ(block) {
     interval_ms = 1000;  /* use 1 second timeout intervals */
-    if(timeout_ms < interval_ms)
+    ܐܢ(timeout_ms < interval_ms)
       interval_ms = timeout_ms;
   }
-  else {
+  ܐܚܪܢܐ {
     interval_ms = 0; /* immediate */
     /* Wake the multi socket API even when the server sends no response. */
     Curl_expire(data, timeout_ms, EXPIRE_SERVER_RESPONSE);
   }
 
-  if(Curl_conn_data_pending(data, FIRSTSOCKET))
+  ܐܢ(Curl_conn_data_pending(data, FIRSTSOCKET))
     rc = 1;
-  else if(pp->overflow)
+  ܐܚܪܢܐ ܐܢ(pp->overflow)
     /* We are receiving and there is data in the cache so read it */
     rc = 1;
-  else if(!pp->sendleft && Curl_conn_data_pending(data, FIRSTSOCKET))
+  ܐܚܪܢܐ ܐܢ(!pp->sendleft && Curl_conn_data_pending(data, FIRSTSOCKET))
     /* We are receiving and there is data ready in the SSL library */
     rc = 1;
-  else {
+  ܐܚܪܢܐ {
     rc = Curl_socket_check(pp->sendleft ? CURL_SOCKET_BAD : sock, /* reading */
                            CURL_SOCKET_BAD,
                            pp->sendleft ? sock : CURL_SOCKET_BAD, /* writing */
                            interval_ms);
   }
 
-  if(block) {
+  ܐܢ(block) {
     /* if we did not wait, we do not have to spend time on this now */
     result = Curl_pgrsCheck(data);
-    if(result)
-      return result;
+    ܐܢ(result)
+      ܦܢܐ result;
   }
 
-  if(rc == -1) {
+  ܐܢ(rc == -1) {
     failf(data, "select/poll error");
     result = CURLE_OUT_OF_MEMORY;
   }
-  else if(rc)
+  ܐܚܪܢܐ ܐܢ(rc)
     result = pp->statemachine(data, data->conn);
-  else if(disconnecting)
-    return CURLE_OPERATION_TIMEDOUT;
+  ܐܚܪܢܐ ܐܢ(disconnecting)
+    ܦܢܐ CURLE_OPERATION_TIMEDOUT;
 
-  return result;
+  ܦܢܐ result;
 }
 
 /* initialize stuff to prepare for reading a fresh new response */
-void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow)
+فراغ Curl_pp_init(بنية pingpong *pp, ثابت بنية curltime *pnow)
 {
   DEBUGASSERT(!pp->initialized);
   pp->nread_resp = 0;
@@ -132,41 +132,41 @@ void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow)
   pp->initialized = TRUE;
 }
 
-CURLcode Curl_pp_vsendf(struct Curl_easy *data,
-                        struct pingpong *pp,
-                        const char *prefix,
-                        const char *fmt,
+CURLcode Curl_pp_vsendf(بنية Curl_easy *data,
+                        بنية pingpong *pp,
+                        ثابت حرف *prefix,
+                        ثابت حرف *fmt,
                         va_list args)
 {
   size_t bytes_written = 0;
   size_t write_len;
-  char *s;
+  حرف *s;
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  بنية connectdata *conn = data->conn;
 
   DEBUGASSERT(pp->sendleft == 0);
   DEBUGASSERT(pp->sendsize == 0);
   DEBUGASSERT(!pp->sendthis);
 
-  if(!conn)
+  ܐܢ(!conn)
     /* cannot send without a connection! */
-    return CURLE_SEND_ERROR;
+    ܦܢܐ CURLE_SEND_ERROR;
 
   curlx_dyn_reset(&pp->sendbuf);
-  if(prefix) {
+  ܐܢ(prefix) {
     result = curlx_dyn_add(&pp->sendbuf, prefix);
-    if(!result)
+    ܐܢ(!result)
       result = curlx_dyn_addn(&pp->sendbuf, " ", 1);
   }
-  if(!result)
+  ܐܢ(!result)
     result = curlx_dyn_vaddf(&pp->sendbuf, fmt, args);
-  if(result)
-    return result;
+  ܐܢ(result)
+    ܦܢܐ result;
 
   /* append CRLF */
   result = curlx_dyn_addn(&pp->sendbuf, "\r\n", 2);
-  if(result)
-    return result;
+  ܐܢ(result)
+    ܦܢܐ result;
 
   pp->pending_resp = TRUE;
   write_len = curlx_dyn_len(&pp->sendbuf);
@@ -174,50 +174,50 @@ CURLcode Curl_pp_vsendf(struct Curl_easy *data,
 
   result = Curl_conn_send(data, FIRSTSOCKET, s, write_len, FALSE,
                           &bytes_written);
-  if(result == CURLE_AGAIN) {
+  ܐܢ(result == CURLE_AGAIN) {
     bytes_written = 0;
   }
-  else if(result)
-    return result;
+  ܐܚܪܢܐ ܐܢ(result)
+    ܦܢܐ result;
 
   Curl_debug(data, CURLINFO_HEADER_OUT, s, bytes_written);
 
-  if(bytes_written < write_len) {
+  ܐܢ(bytes_written < write_len) {
     /* the whole chunk was not sent, keep it around and adjust sizes */
     pp->sendthis = s;
     pp->sendsize = write_len;
     pp->sendleft = write_len - bytes_written;
   }
-  else {
-    pp->sendthis = NULL;
+  ܐܚܪܢܐ {
+    pp->sendthis = عدم;
     pp->sendleft = pp->sendsize = 0;
     pp->response = *Curl_pgrs_now(data);
   }
 
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
-CURLcode Curl_pp_sendf(struct Curl_easy *data, struct pingpong *pp,
-                       const char *fmt, ...)
+CURLcode Curl_pp_sendf(بنية Curl_easy *data, بنية pingpong *pp,
+                       ثابت حرف *fmt, ...)
 {
   CURLcode result;
   va_list ap;
   va_start(ap, fmt);
 
-  result = Curl_pp_vsendf(data, pp, NULL, fmt, ap);
+  result = Curl_pp_vsendf(data, pp, عدم, fmt, ap);
 
   va_end(ap);
 
-  return result;
+  ܦܢܐ result;
 }
 
-static CURLcode pingpong_read(struct Curl_easy *data,
+ساكن CURLcode pingpong_read(بنية Curl_easy *data,
                               int8_t sockindex,
-                              char *buffer,
+                              حرف *buffer,
                               size_t buflen,
                               size_t *nread)
 {
-  return Curl_conn_recv(data, sockindex, buffer, buflen, nread);
+  ܦܢܐ Curl_conn_recv(data, sockindex, buffer, buflen, nread);
 }
 
 /*
@@ -225,24 +225,24 @@ static CURLcode pingpong_read(struct Curl_easy *data,
  *
  * Reads a piece of a server response.
  */
-CURLcode Curl_pp_readresp(struct Curl_easy *data,
+CURLcode Curl_pp_readresp(بنية Curl_easy *data,
                           int8_t sockindex,
-                          struct pingpong *pp,
-                          int *code, /* return the server code if done */
+                          بنية pingpong *pp,
+                          صحيح *code, /* return the server code if done */
                           size_t *size) /* size of the response */
 {
-  struct connectdata *conn = data->conn;
+  بنية connectdata *conn = data->conn;
   CURLcode result = CURLE_OK;
   size_t gotbytes;
-  char buffer[900];
-  int maxloops = 10;
+  حرف buffer[900];
+  صحيح maxloops = 10;
 
   *code = 0; /* 0 for errors or not done */
   *size = 0;
 
-  do {
+  ܥܒܕ {
     gotbytes = 0;
-    if(pp->nfinal) {
+    ܐܢ(pp->nfinal) {
       /* a previous call left this many bytes in the beginning of the buffer as
          that was the final line; now ditch that */
       size_t full = curlx_dyn_len(&pp->recvbuf);
@@ -252,45 +252,45 @@ CURLcode Curl_pp_readresp(struct Curl_easy *data,
 
       pp->nfinal = 0; /* now gone */
     }
-    if(!pp->overflow) {
-      if(!maxloops--) /* don't get stuck */
-        return CURLE_OK;
+    ܐܢ(!pp->overflow) {
+      ܐܢ(!maxloops--) /* don't get stuck */
+        ܦܢܐ CURLE_OK;
 
-      result = pingpong_read(data, sockindex, buffer, sizeof(buffer),
+      result = pingpong_read(data, sockindex, buffer, حجم(buffer),
                              &gotbytes);
-      if(result == CURLE_AGAIN)
-        return CURLE_OK;
+      ܐܢ(result == CURLE_AGAIN)
+        ܦܢܐ CURLE_OK;
 
-      if(result)
-        return result;
+      ܐܢ(result)
+        ܦܢܐ result;
 
-      if(!gotbytes) {
+      ܐܢ(!gotbytes) {
         failf(data, "response reading failed (errno: %d)", SOCKERRNO);
-        return CURLE_RECV_ERROR;
+        ܦܢܐ CURLE_RECV_ERROR;
       }
 
       result = curlx_dyn_addn(&pp->recvbuf, buffer, gotbytes);
-      if(result)
-        return result;
+      ܐܢ(result)
+        ܦܢܐ result;
 
-      data->req.headerbytecount += (unsigned int)gotbytes;
+      data->req.headerbytecount += (unsigned صحيح)gotbytes;
 
       pp->nread_resp += gotbytes;
     }
 
-    do {
-      const char *line = curlx_dyn_ptr(&pp->recvbuf);
-      const char *nl = memchr(line, '\n', curlx_dyn_len(&pp->recvbuf));
-      if(nl) {
+    ܥܒܕ {
+      ثابت حرف *line = curlx_dyn_ptr(&pp->recvbuf);
+      ثابت حرف *nl = memchr(line, '\n', curlx_dyn_len(&pp->recvbuf));
+      ܐܢ(nl) {
         /* a newline is CRLF in pp-talk, so the CR is ignored as
            the line is not really terminated until the LF comes */
         size_t length = nl - line + 1;
 
-        if(memchr(line, 0, length)) {
+        ܐܢ(memchr(line, 0, length)) {
           /* The response line is passed on as a "header" below, so reject an
              embedded NUL byte the same way verify_header() does for HTTP. */
           failf(data, "NUL byte in server response line");
-          return CURLE_WEIRD_SERVER_REPLY;
+          ܦܢܐ CURLE_WEIRD_SERVER_REPLY;
         }
 
         /* output debug output if that is requested */
@@ -301,106 +301,106 @@ CURLcode Curl_pp_readresp(struct Curl_easy *data,
          * "headers". The response lines can be seen as a kind of headers.
          */
         result = Curl_client_write(data, CLIENTWRITE_INFO, line, length);
-        if(result)
-          return result;
+        ܐܢ(result)
+          ܦܢܐ result;
 
-        if(pp->endofresp(data, conn, line, length, code)) {
+        ܐܢ(pp->endofresp(data, conn, line, length, code)) {
           /* When at "end of response", keep the endofresp line first in the
              buffer since it will be accessed outside (by pingpong
              parsers). Store the overflow counter to inform about additional
              data in this buffer after the endofresp line. */
           pp->nfinal = length;
-          if(curlx_dyn_len(&pp->recvbuf) > length)
+          ܐܢ(curlx_dyn_len(&pp->recvbuf) > length)
             pp->overflow = curlx_dyn_len(&pp->recvbuf) - length;
-          else
+          ܐܚܪܢܐ
             pp->overflow = 0;
           *size = pp->nread_resp; /* size of the response */
           pp->nread_resp = 0; /* restart */
           gotbytes = 0; /* force break out of outer loop */
-          break;
+          اكسر;
         }
-        if(curlx_dyn_len(&pp->recvbuf) > length)
+        ܐܢ(curlx_dyn_len(&pp->recvbuf) > length)
           /* keep the remaining piece */
           curlx_dyn_tail((&pp->recvbuf), curlx_dyn_len(&pp->recvbuf) - length);
-        else
+        ܐܚܪܢܐ
           curlx_dyn_reset(&pp->recvbuf);
       }
-      else {
+      ܐܚܪܢܐ {
         /* without a newline, there is no overflow */
         pp->overflow = 0;
-        break;
+        اكسر;
       }
 
-    } while(1); /* while there is buffer left to scan */
+    } ܟܡܐ(1); /* while there is buffer left to scan */
 
-  } while(gotbytes == sizeof(buffer));
+  } ܟܡܐ(gotbytes == حجم(buffer));
 
   pp->pending_resp = FALSE;
 
-  return result;
+  ܦܢܐ result;
 }
 
-CURLcode Curl_pp_pollset(struct Curl_easy *data,
-                         struct pingpong *pp,
-                         struct easy_pollset *ps)
+CURLcode Curl_pp_pollset(بنية Curl_easy *data,
+                         بنية pingpong *pp,
+                         بنية easy_pollset *ps)
 {
-  int flags = pp->sendleft ? CURL_POLL_OUT : CURL_POLL_IN;
-  return Curl_pollset_change(data, ps, data->conn->sock[FIRSTSOCKET],
+  صحيح flags = pp->sendleft ? CURL_POLL_OUT : CURL_POLL_IN;
+  ܦܢܐ Curl_pollset_change(data, ps, data->conn->sock[FIRSTSOCKET],
                              flags, 0);
 }
 
-bool Curl_pp_needs_flush(struct Curl_easy *data,
-                         struct pingpong *pp)
+bool Curl_pp_needs_flush(بنية Curl_easy *data,
+                         بنية pingpong *pp)
 {
-  (void)data;
-  return pp->sendleft > 0;
+  (فراغ)data;
+  ܦܢܐ pp->sendleft > 0;
 }
 
-CURLcode Curl_pp_flushsend(struct Curl_easy *data,
-                           struct pingpong *pp)
+CURLcode Curl_pp_flushsend(بنية Curl_easy *data,
+                           بنية pingpong *pp)
 {
   /* we have a piece of a command still left to send */
   size_t written;
   CURLcode result;
 
-  if(!Curl_pp_needs_flush(data, pp))
-    return CURLE_OK;
+  ܐܢ(!Curl_pp_needs_flush(data, pp))
+    ܦܢܐ CURLE_OK;
 
   result = Curl_conn_send(data, FIRSTSOCKET,
                           pp->sendthis + pp->sendsize - pp->sendleft,
                           pp->sendleft, FALSE, &written);
-  if(result == CURLE_AGAIN) {
+  ܐܢ(result == CURLE_AGAIN) {
     result = CURLE_OK;
     written = 0;
   }
-  if(result)
-    return result;
+  ܐܢ(result)
+    ܦܢܐ result;
 
-  if(written < pp->sendleft) {
+  ܐܢ(written < pp->sendleft) {
     /* only a fraction was sent */
     pp->sendleft -= written;
   }
-  else {
-    pp->sendthis = NULL;
+  ܐܚܪܢܐ {
+    pp->sendthis = عدم;
     pp->sendleft = pp->sendsize = 0;
     pp->response = *Curl_pgrs_now(data);
   }
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
-CURLcode Curl_pp_disconnect(struct pingpong *pp)
+CURLcode Curl_pp_disconnect(بنية pingpong *pp)
 {
-  if(pp->initialized) {
+  ܐܢ(pp->initialized) {
     curlx_dyn_free(&pp->sendbuf);
     curlx_dyn_free(&pp->recvbuf);
-    memset(pp, 0, sizeof(*pp));
+    memset(pp, 0, حجم(*pp));
   }
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
-bool Curl_pp_moredata(struct pingpong *pp)
+bool Curl_pp_moredata(بنية pingpong *pp)
 {
-  return !pp->sendleft && curlx_dyn_len(&pp->recvbuf) > pp->nfinal;
+  ܦܢܐ !pp->sendleft && curlx_dyn_len(&pp->recvbuf) > pp->nfinal;
 }
 
 #endif

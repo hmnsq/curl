@@ -33,7 +33,7 @@
 #define IMAP_TYPE_ANY       (IMAP_TYPE_CLEARTEXT | IMAP_TYPE_SASL)
 
 #ifndef CURL_DISABLE_IMAP
-extern const struct Curl_protocol Curl_protocol_imap;
+خارجي ثابت بنية Curl_protocol Curl_protocol_imap;
 #endif
 
 #endif /* HEADER_CURL_IMAP_H */

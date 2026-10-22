@@ -25,18 +25,18 @@
  * The Strict-Transport-Security header is defined in RFC 6797:
  * https://datatracker.ietf.org/doc/html/rfc6797
  */
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-#include "urldata.h"
-#include "llist.h"
-#include "hsts.h"
-#include "curl_fopen.h"
-#include "curl_get_line.h"
-#include "parsedate.h"
-#include "curl_share.h"
-#include "curlx/strparse.h"
-#include "curlx/strcopy.h"
+#ܐܢ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
+#ضمن "urldata.h"
+#ضمن "llist.h"
+#ضمن "hsts.h"
+#ضمن "curl_fopen.h"
+#ضمن "curl_get_line.h"
+#ضمن "parsedate.h"
+#ضمن "curl_share.h"
+#ضمن "curlx/strparse.h"
+#ضمن "curlx/strcopy.h"
 
 #define MAX_HSTS_LINE    4095
 #define MAX_HSTS_HOSTLEN 2048
@@ -45,70 +45,70 @@
 
 #define CAP_HSTS_MAX_AGE (2*365*24*3600) /* two years cap */
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#ܐܢ defined(DEBUGBUILD) || defined(UNITTESTS)
 /* to play well with debug builds, we can *set* a fixed time this will
    return */
 time_t deltatime; /* allow for "adjustments" for unit test purposes */
-static time_t hsts_debugtime(void *unused)
+ساكن time_t hsts_debugtime(فراغ *unused)
 {
-  const char *timestr = getenv("CURL_TIME");
-  (void)unused;
-  if(timestr) {
+  ثابت حرف *timestr = getenv("CURL_TIME");
+  (فراغ)unused;
+  ܐܢ(timestr) {
     curl_off_t val;
-    if(!curlx_str_number(&timestr, &val, TIME_T_MAX))
+    ܐܢ(!curlx_str_number(&timestr, &val, TIME_T_MAX))
       val += (curl_off_t)deltatime;
-    return (time_t)val;
+    ܦܢܐ (time_t)val;
   }
-  return time(NULL);
+  ܦܢܐ time(عدم);
 }
 #undef time
 #define time(x) hsts_debugtime(x)
 #endif
 
-struct hsts *Curl_hsts_init(void)
+بنية hsts *Curl_hsts_init(فراغ)
 {
-  struct hsts *h = curlx_calloc(1, sizeof(struct hsts));
-  if(h) {
-    Curl_llist_init(&h->list, NULL);
+  بنية hsts *h = curlx_calloc(1, حجم(بنية hsts));
+  ܐܢ(h) {
+    Curl_llist_init(&h->list, عدم);
   }
-  return h;
+  ܦܢܐ h;
 }
 
 #define hsts_free(x) curlx_free(x)
 
-void Curl_hsts_cleanup(struct hsts **hp)
+فراغ Curl_hsts_cleanup(بنية hsts **hp)
 {
-  struct hsts *h = *hp;
-  if(h) {
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+  بنية hsts *h = *hp;
+  ܐܢ(h) {
+    بنية Curl_llist_node *e;
+    بنية Curl_llist_node *n;
+    لكل(e = Curl_llist_head(&h->list); e; e = n) {
+      بنية stsentry *sts = Curl_node_elem(e);
       n = Curl_node_next(e);
       hsts_free(sts);
     }
     curlx_free(h->filename);
     curlx_free(h);
-    *hp = NULL;
+    *hp = عدم;
   }
 }
 
 /* append the new entry to the list after possibly removing an old entry
    first */
-static void hsts_append(struct hsts *h, struct stsentry *sts)
+ساكن فراغ hsts_append(بنية hsts *h, بنية stsentry *sts)
 {
-  if(Curl_llist_count(&h->list) == MAX_HSTS_ENTRIES) {
+  ܐܢ(Curl_llist_count(&h->list) == MAX_HSTS_ENTRIES) {
     /* It is full. Remove the first entry in the list */
-    struct Curl_llist_node *e = Curl_llist_head(&h->list);
-    struct stsentry *oldsts = Curl_node_elem(e);
+    بنية Curl_llist_node *e = Curl_llist_head(&h->list);
+    بنية stsentry *oldsts = Curl_node_elem(e);
     Curl_node_remove(e);
     hsts_free(oldsts);
   }
   Curl_llist_append(&h->list, sts, &sts->node);
 }
 
-static CURLcode hsts_create(struct hsts *h,
-                            const char *hostname,
+ساكن CURLcode hsts_create(بنية hsts *h,
+                            ثابت حرف *hostname,
                             size_t hlen,
                             bool subdomains,
                             curl_off_t expires)
@@ -116,39 +116,39 @@ static CURLcode hsts_create(struct hsts *h,
   DEBUGASSERT(h);
   DEBUGASSERT(hostname);
 
-  if(hlen && (hostname[hlen - 1] == '.'))
+  ܐܢ(hlen && (hostname[hlen - 1] == '.'))
     /* strip off any trailing dot */
     --hlen;
-  if(hlen) {
-    struct stsentry *sts = curlx_calloc(1, sizeof(struct stsentry) + hlen);
-    if(!sts)
-      return CURLE_OUT_OF_MEMORY;
+  ܐܢ(hlen) {
+    بنية stsentry *sts = curlx_calloc(1, حجم(بنية stsentry) + hlen);
+    ܐܢ(!sts)
+      ܦܢܐ CURLE_OUT_OF_MEMORY;
     /* the null-terminator is already there */
     memcpy(sts->host, hostname, hlen);
     sts->expires = expires;
     sts->includeSubDomains = subdomains;
     hsts_append(h, sts);
   }
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
 /* Copy all live entries from src into dst. Used by curl_easy_duphandle so the
  * clone inherits entries learned at runtime. E.g. Strict-Transport-Security.
  */
-CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src)
+CURLcode Curl_hsts_copy(بنية hsts *dst, بنية hsts *src)
 {
-  struct Curl_llist_node *e;
-  time_t now = time(NULL);
-  for(e = Curl_llist_head(&src->list); e; e = Curl_node_next(e)) {
-    struct stsentry *sts = Curl_node_elem(e);
-    if(sts->expires > now) {
+  بنية Curl_llist_node *e;
+  time_t now = time(عدم);
+  لكل(e = Curl_llist_head(&src->list); e; e = Curl_node_next(e)) {
+    بنية stsentry *sts = Curl_node_elem(e);
+    ܐܢ(sts->expires > now) {
       CURLcode result = hsts_create(dst, sts->host, strlen(sts->host),
                                     sts->includeSubDomains != 0, sts->expires);
-      if(result)
-        return result;
+      ܐܢ(result)
+        ܦܢܐ result;
     }
   }
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
 /*
@@ -160,38 +160,38 @@ CURLcode Curl_hsts_copy(struct hsts *dst, struct hsts *src)
  *
  * @unittest 1660
  */
-UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
+UNITTEST بنية stsentry *hsts_check(بنية hsts *h, ثابت حرف *hostname,
                                      size_t hlen, bool subdomain);
-UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
+UNITTEST بنية stsentry *hsts_check(بنية hsts *h, ثابت حرف *hostname,
                                      size_t hlen, bool subdomain)
 {
-  struct stsentry *bestsub = NULL;
-  if(h) {
-    time_t now = time(NULL);
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *n;
+  بنية stsentry *bestsub = عدم;
+  ܐܢ(h) {
+    time_t now = time(عدم);
+    بنية Curl_llist_node *e;
+    بنية Curl_llist_node *n;
     size_t blen = 0;
 
-    if((hlen > MAX_HSTS_HOSTLEN) || !hlen)
-      return NULL;
-    if(hostname[hlen - 1] == '.')
+    ܐܢ((hlen > MAX_HSTS_HOSTLEN) || !hlen)
+      ܦܢܐ عدم;
+    ܐܢ(hostname[hlen - 1] == '.')
       /* remove the trailing dot */
       --hlen;
 
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+    لكل(e = Curl_llist_head(&h->list); e; e = n) {
+      بنية stsentry *sts = Curl_node_elem(e);
       size_t ntail;
       n = Curl_node_next(e);
-      if(sts->expires <= now) {
+      ܐܢ(sts->expires <= now) {
         /* remove expired entries */
         Curl_node_remove(&sts->node);
         hsts_free(sts);
-        continue;
+        استمر;
       }
       ntail = strlen(sts->host);
-      if((subdomain && sts->includeSubDomains) && (ntail < hlen)) {
+      ܐܢ((subdomain && sts->includeSubDomains) && (ntail < hlen)) {
         size_t offs = hlen - ntail;
-        if((hostname[offs - 1] == '.') &&
+        ܐܢ((hostname[offs - 1] == '.') &&
            curl_strnequal(&hostname[offs], sts->host, ntail) &&
            (ntail > blen)) {
           /* save the tail match with the longest tail */
@@ -200,165 +200,165 @@ UNITTEST struct stsentry *hsts_check(struct hsts *h, const char *hostname,
         }
       }
       /* avoid curl_strequal because the hostname is not null-terminated */
-      if((hlen == ntail) && curl_strnequal(hostname, sts->host, hlen))
-        return sts;
+      ܐܢ((hlen == ntail) && curl_strnequal(hostname, sts->host, hlen))
+        ܦܢܐ sts;
     }
   }
-  return bestsub;
+  ܦܢܐ bestsub;
 }
 
-CURLcode Curl_hsts_parse(struct hsts *h, const char *hostname,
-                         const char *header)
+CURLcode Curl_hsts_parse(بنية hsts *h, ثابت حرف *hostname,
+                         ثابت حرف *header)
 {
-  const char *p = header;
+  ثابت حرف *p = header;
   curl_off_t expires = 0;
   bool gotma = FALSE;
   bool gotinc = FALSE;
   bool subdomains = FALSE;
-  struct stsentry *sts;
-  time_t now = time(NULL);
+  بنية stsentry *sts;
+  time_t now = time(عدم);
   size_t hlen = strlen(hostname);
 
-  if(Curl_host_is_ipnum(hostname))
+  ܐܢ(Curl_host_is_ipnum(hostname))
     /* "explicit IP address identification of all forms is excluded."
        / RFC 6797 */
-    return CURLE_OK;
+    ܦܢܐ CURLE_OK;
 
-  do {
-    struct Curl_str word;
-    struct Curl_str val = { 0 };
-    int rc;
+  ܥܒܕ {
+    بنية Curl_str word;
+    بنية Curl_str val = { 0 };
+    صحيح rc;
     bool assign = FALSE;
 
-    do {
+    ܥܒܕ {
       curlx_str_passblanks(&p);
-      if(*p == ';')
+      ܐܢ(*p == ';')
         p++;
-      else
-        break;
-    } while(1);
-    if(curlx_str_cspn(&p, &word, ";=\r\n \t"))
-      break;
+      ܐܚܪܢܐ
+        اكسر;
+    } ܟܡܐ(1);
+    ܐܢ(curlx_str_cspn(&p, &word, ";=\r\n \t"))
+      اكسر;
 
     curlx_str_passblanks(&p);
-    if(!curlx_str_single(&p, '=')) {
+    ܐܢ(!curlx_str_single(&p, '=')) {
       assign = TRUE;
       curlx_str_passblanks(&p);
 
-      if(*p == '\"') {
-        if(curlx_str_quotedword(&p, &val, MAX_HSTS_LINE))
-          break;
+      ܐܢ(*p == '\"') {
+        ܐܢ(curlx_str_quotedword(&p, &val, MAX_HSTS_LINE))
+          اكسر;
       }
-      else {
-        if(curlx_str_cspn(&p, &val, ", ;\r\n"))
-          break;
+      ܐܚܪܢܐ {
+        ܐܢ(curlx_str_cspn(&p, &val, ", ;\r\n"))
+          اكسر;
       }
     }
 
-    if(assign && curlx_str_casecompare(&word, "max-age")) {
-      const char *vp = curlx_str(&val);
-      if(gotma)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+    ܐܢ(assign && curlx_str_casecompare(&word, "max-age")) {
+      ثابت حرف *vp = curlx_str(&val);
+      ܐܢ(gotma)
+        ܦܢܐ CURLE_BAD_FUNCTION_ARGUMENT;
       rc = curlx_str_number(&vp, &expires, CAP_HSTS_MAX_AGE);
-      if(rc == STRE_OVERFLOW)
+      ܐܢ(rc == STRE_OVERFLOW)
         expires = CAP_HSTS_MAX_AGE;
-      else if(rc)
+      ܐܚܪܢܐ ܐܢ(rc)
         /* invalid max-age */
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+        ܦܢܐ CURLE_BAD_FUNCTION_ARGUMENT;
 
       gotma = TRUE;
     }
-    else if(curlx_str_casecompare(&word, "includesubdomains")) {
-      if(gotinc)
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+    ܐܚܪܢܐ ܐܢ(curlx_str_casecompare(&word, "includesubdomains")) {
+      ܐܢ(gotinc)
+        ܦܢܐ CURLE_BAD_FUNCTION_ARGUMENT;
       subdomains = TRUE;
       gotinc = TRUE;
     }
-  } while(*p);
+  } ܟܡܐ(*p);
 
-  if(!gotma)
+  ܐܢ(!gotma)
     /* max-age is mandatory */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ܦܢܐ CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(!expires) {
+  ܐܢ(!expires) {
     /* remove the entry if present verbatim (without subdomain match) */
     sts = hsts_check(h, hostname, hlen, FALSE);
-    if(sts) {
+    ܐܢ(sts) {
       Curl_node_remove(&sts->node);
       hsts_free(sts);
     }
-    return CURLE_OK;
+    ܦܢܐ CURLE_OK;
   }
 
-  if(CURL_OFF_T_MAX - now < expires)
+  ܐܢ(CURL_OFF_T_MAX - now < expires)
     /* would overflow, use maximum value */
     expires = CURL_OFF_T_MAX;
-  else
+  ܐܚܪܢܐ
     expires += now;
 
   /* check if it already exists */
   sts = hsts_check(h, hostname, hlen, FALSE);
-  if(sts) {
+  ܐܢ(sts) {
     /* update these fields */
     sts->expires = expires;
     sts->includeSubDomains = subdomains;
   }
-  else
-    return hsts_create(h, hostname, hlen, subdomains, expires);
+  ܐܚܪܢܐ
+    ܦܢܐ hsts_create(h, hostname, hlen, subdomains, expires);
 
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
 /*
  * Send this HSTS entry to the write callback.
  */
-static CURLcode hsts_push(struct Curl_easy *data,
-                          struct curl_index *i,
-                          struct stsentry *sts,
+ساكن CURLcode hsts_push(بنية Curl_easy *data,
+                          بنية curl_index *i,
+                          بنية stsentry *sts,
                           bool *stop)
 {
-  struct curl_hstsentry e;
+  بنية curl_hstsentry e;
   CURLSTScode sc;
-  struct tm stamp;
+  بنية tm stamp;
   CURLcode result;
 
-  e.name = (char *)sts->host;
+  e.name = (حرف *)sts->host;
   e.namelen = strlen(sts->host);
   e.includeSubDomains = sts->includeSubDomains;
 
-  if(sts->expires != TIME_T_MAX) {
+  ܐܢ(sts->expires != TIME_T_MAX) {
     result = curlx_gmtime((time_t)sts->expires, &stamp);
-    if(result)
-      return result;
+    ܐܢ(result)
+      ܦܢܐ result;
 
-    curl_msnprintf(e.expire, sizeof(e.expire), "%d%02d%02d %02d:%02d:%02d",
+    curl_msnprintf(e.expire, حجم(e.expire), "%d%02d%02d %02d:%02d:%02d",
                    stamp.tm_year + 1900, stamp.tm_mon + 1, stamp.tm_mday,
                    stamp.tm_hour, stamp.tm_min, stamp.tm_sec);
   }
-  else
-    curlx_strcopy(e.expire, sizeof(e.expire), STRCONST(UNLIMITED));
+  ܐܚܪܢܐ
+    curlx_strcopy(e.expire, حجم(e.expire), STRCONST(UNLIMITED));
 
   sc = data->set.hsts_write(data, &e, i, data->set.hsts_write_userp);
   *stop = (sc != CURLSTS_OK);
-  return sc == CURLSTS_FAIL ? CURLE_BAD_FUNCTION_ARGUMENT : CURLE_OK;
+  ܦܢܐ sc == CURLSTS_FAIL ? CURLE_BAD_FUNCTION_ARGUMENT : CURLE_OK;
 }
 
 /*
  * Write this single hsts entry to a single output line
  */
-static void hsts_out(struct stsentry *sts, FILE *fp)
+ساكن فراغ hsts_out(بنية stsentry *sts, FILE *fp)
 {
-  struct tm stamp;
-  if(sts->expires != TIME_T_MAX) {
+  بنية tm stamp;
+  ܐܢ(sts->expires != TIME_T_MAX) {
     CURLcode result = curlx_gmtime((time_t)sts->expires, &stamp);
-    if(!result)
+    ܐܢ(!result)
       /* skip the entry if the date function fails */
       curl_mfprintf(fp, "%s%s \"%d%02d%02d %02d:%02d:%02d\"\n",
                     sts->includeSubDomains ? "." : "", sts->host,
                     stamp.tm_year + 1900, stamp.tm_mon + 1, stamp.tm_mday,
                     stamp.tm_hour, stamp.tm_min, stamp.tm_sec);
   }
-  else
+  ܐܚܪܢܐ
     curl_mfprintf(fp, "%s%s \"%s\"\n",
                   sts->includeSubDomains ? "." : "", sts->host, UNLIMITED);
 }
@@ -366,185 +366,185 @@ static void hsts_out(struct stsentry *sts, FILE *fp)
 /*
  * Curl_https_save() writes the HSTS cache to file and callback.
  */
-CURLcode Curl_hsts_save(struct Curl_easy *data, struct hsts *h,
-                        const char *file)
+CURLcode Curl_hsts_save(بنية Curl_easy *data, بنية hsts *h,
+                        ثابت حرف *file)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
+  بنية Curl_llist_node *e;
+  بنية Curl_llist_node *n;
   CURLcode result = CURLE_OK;
   FILE *out;
-  char *tempstore = NULL;
+  حرف *tempstore = عدم;
 
-  if(!h)
+  ܐܢ(!h)
     /* no cache activated */
-    return CURLE_OK;
+    ܦܢܐ CURLE_OK;
 
   /* if no new name is given, use the one we stored from the load */
-  if(!file && h->filename)
+  ܐܢ(!file && h->filename)
     file = h->filename;
 
-  if((h->flags & CURLHSTS_READONLYFILE) || !file || !file[0])
+  ܐܢ((h->flags & CURLHSTS_READONLYFILE) || !file || !file[0])
     /* marked as read-only, no file or zero length filename */
-    goto skipsave;
+    اذهب skipsave;
 
   result = Curl_fopen(data, file, &out, &tempstore);
-  if(!result) {
+  ܐܢ(!result) {
     fputs("# Your HSTS cache. https://curl.se/docs/hsts.html\n"
           "# This file was generated by libcurl! Edit at your own risk.\n",
           out);
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+    لكل(e = Curl_llist_head(&h->list); e; e = n) {
+      بنية stsentry *sts = Curl_node_elem(e);
       n = Curl_node_next(e);
       hsts_out(sts, out);
     }
     curlx_fclose(out);
-    if(!result && tempstore && curlx_rename(tempstore, file))
+    ܐܢ(!result && tempstore && curlx_rename(tempstore, file))
       result = CURLE_WRITE_ERROR;
 
-    if(result && tempstore)
+    ܐܢ(result && tempstore)
       unlink(tempstore);
   }
   curlx_free(tempstore);
 skipsave:
-  if(data->set.hsts_write) {
+  ܐܢ(data->set.hsts_write) {
     /* if there is a write callback */
-    struct curl_index i; /* count */
+    بنية curl_index i; /* count */
     i.total = Curl_llist_count(&h->list);
     i.index = 0;
-    for(e = Curl_llist_head(&h->list); e; e = n) {
-      struct stsentry *sts = Curl_node_elem(e);
+    لكل(e = Curl_llist_head(&h->list); e; e = n) {
+      بنية stsentry *sts = Curl_node_elem(e);
       bool stop;
       n = Curl_node_next(e);
       result = hsts_push(data, &i, sts, &stop);
-      if(result || stop)
-        break;
+      ܐܢ(result || stop)
+        اكسر;
       i.index++;
     }
   }
-  return result;
+  ܦܢܐ result;
 }
 
 /* only returns SERIOUS errors */
-static CURLcode hsts_add_host_expire(struct hsts *h,
-                                     const char *host, size_t hostlen,
-                                     const char *expire, size_t explen,
+ساكن CURLcode hsts_add_host_expire(بنية hsts *h,
+                                     ثابت حرف *host, size_t hostlen,
+                                     ثابت حرف *expire, size_t explen,
                                      bool subdomain) /* default */
 {
   CURLcode result = CURLE_OK;
-  struct stsentry *e;
-  char dbuf[MAX_HSTS_DATELEN + 1];
+  بنية stsentry *e;
+  حرف dbuf[MAX_HSTS_DATELEN + 1];
   time_t expires = 0;
-  time_t now = time(NULL);
+  time_t now = time(عدم);
 
   /* The date parser works on a null-terminated string. */
-  if(explen > MAX_HSTS_DATELEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  ܐܢ(explen > MAX_HSTS_DATELEN)
+    ܦܢܐ CURLE_BAD_FUNCTION_ARGUMENT;
   memcpy(dbuf, expire, explen);
   dbuf[explen] = 0;
 
-  if(!strcmp(dbuf, UNLIMITED))
+  ܐܢ(!strcmp(dbuf, UNLIMITED))
     expires = TIME_T_MAX;
-  else
+  ܐܚܪܢܐ
     Curl_getdate_capped(dbuf, &expires);
 
-  if(expires <= now)
+  ܐܢ(expires <= now)
     /* this entry already expired */
-    return CURLE_OK;
+    ܦܢܐ CURLE_OK;
 
-  if(host[0] == '.') {
+  ܐܢ(host[0] == '.') {
     host++;
     hostlen--;
     subdomain = TRUE;
   }
-  if(hostlen && (host[hostlen - 1] == '.'))
+  ܐܢ(hostlen && (host[hostlen - 1] == '.'))
     /* strip off any trailing dot */
     hostlen--;
 
-  if(hostlen) {
+  ܐܢ(hostlen) {
     /* only add it if not already present */
     e = hsts_check(h, host, hostlen, FALSE);
-    if(!e)
+    ܐܢ(!e)
       result = hsts_create(h, host, hostlen, subdomain, expires);
     /* 'host' is not necessarily null-terminated */
-    else if((hostlen == strlen(e->host) &&
+    ܐܚܪܢܐ ܐܢ((hostlen == strlen(e->host) &&
              curl_strnequal(host, e->host, hostlen))) {
       /* the same hostname, use the largest expire time and keep the strictest
          subdomain policy */
-      if(expires > e->expires)
+      ܐܢ(expires > e->expires)
         e->expires = expires;
-      if(subdomain)
+      ܐܢ(subdomain)
         e->includeSubDomains = TRUE;
     }
   }
-  return result;
+  ܦܢܐ result;
 }
 
 /* only returns SERIOUS errors */
-static CURLcode hsts_add(struct hsts *h, const char *line)
+ساكن CURLcode hsts_add(بنية hsts *h, ثابت حرف *line)
 {
   /* Example lines:
      example.com "20191231 10:00:00"
      .example.net "20191231 10:00:00"
    */
-  struct Curl_str host;
-  struct Curl_str date;
+  بنية Curl_str host;
+  بنية Curl_str date;
 
-  if(curlx_str_word(&line, &host, MAX_HSTS_HOSTLEN) ||
+  ܐܢ(curlx_str_word(&line, &host, MAX_HSTS_HOSTLEN) ||
      curlx_str_singlespace(&line) ||
      curlx_str_quotedword(&line, &date, MAX_HSTS_DATELEN) ||
      curlx_str_newline(&line))
     ;
-  else {
-    return hsts_add_host_expire(h, curlx_str(&host), curlx_strlen(&host),
+  ܐܚܪܢܐ {
+    ܦܢܐ hsts_add_host_expire(h, curlx_str(&host), curlx_strlen(&host),
                                 curlx_str(&date), curlx_strlen(&date),
                                 FALSE);
   }
 
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
 /*
  * Load HSTS data from callback.
  *
  */
-static CURLcode hsts_pull(struct Curl_easy *data, struct hsts *h)
+ساكن CURLcode hsts_pull(بنية Curl_easy *data, بنية hsts *h)
 {
   /* if the HSTS read callback is set, use it */
-  if(data->set.hsts_read) {
+  ܐܢ(data->set.hsts_read) {
     CURLSTScode sc;
     DEBUGASSERT(h);
-    do {
-      char buffer[MAX_HSTS_HOSTLEN + 1];
-      struct curl_hstsentry e;
+    ܥܒܕ {
+      حرف buffer[MAX_HSTS_HOSTLEN + 1];
+      بنية curl_hstsentry e;
       e.name = buffer;
-      e.namelen = sizeof(buffer) - 1;
+      e.namelen = حجم(buffer) - 1;
       e.includeSubDomains = FALSE; /* default */
       e.expire[0] = 0;
       e.expire[MAX_HSTS_DATELEN] = 0;
       e.name[0] = 0; /* to make it clean */
       e.name[MAX_HSTS_HOSTLEN] = 0;
       sc = data->set.hsts_read(data, &e, data->set.hsts_read_userp);
-      if(sc == CURLSTS_OK) {
+      ܐܢ(sc == CURLSTS_OK) {
         CURLcode result;
-        const char *date = e.expire;
-        if(!e.name[0] || e.expire[MAX_HSTS_DATELEN] ||
+        ثابت حرف *date = e.expire;
+        ܐܢ(!e.name[0] || e.expire[MAX_HSTS_DATELEN] ||
            e.name[MAX_HSTS_HOSTLEN])
           /* bail out if no name was stored or if a null-terminator is gone */
-          return CURLE_BAD_FUNCTION_ARGUMENT;
-        if(!date[0])
+          ܦܢܐ CURLE_BAD_FUNCTION_ARGUMENT;
+        ܐܢ(!date[0])
           date = UNLIMITED;
         result = hsts_add_host_expire(h, e.name, strlen(e.name),
                                       date, strlen(date),
                                       /* bitfield to bool conversion: */
                                       e.includeSubDomains ? TRUE : FALSE);
-        if(result)
-          return result;
+        ܐܢ(result)
+          ܦܢܐ result;
       }
-      else if(sc == CURLSTS_FAIL)
-        return CURLE_ABORTED_BY_CALLBACK;
-    } while(sc == CURLSTS_OK);
+      ܐܚܪܢܐ ܐܢ(sc == CURLSTS_FAIL)
+        ܦܢܐ CURLE_ABORTED_BY_CALLBACK;
+    } ܟܡܐ(sc == CURLSTS_OK);
   }
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
 /*
@@ -555,7 +555,7 @@ static CURLcode hsts_pull(struct Curl_easy *data, struct hsts *h)
  * handling to work completely. It will ignore individual syntactical errors
  * etc.
  */
-static CURLcode hsts_load(struct hsts *h, const char *file)
+ساكن CURLcode hsts_load(بنية hsts *h, ثابت حرف *file)
 {
   CURLcode result = CURLE_OK;
   FILE *fp;
@@ -564,83 +564,83 @@ static CURLcode hsts_load(struct hsts *h, const char *file)
      name survives an easy handle reset */
   curlx_free(h->filename);
   h->filename = curlx_strdup(file);
-  if(!h->filename)
-    return CURLE_OUT_OF_MEMORY;
+  ܐܢ(!h->filename)
+    ܦܢܐ CURLE_OUT_OF_MEMORY;
 
   fp = curlx_fopen(file, FOPEN_READTEXT);
-  if(fp) {
+  ܐܢ(fp) {
     curlx_struct_stat stat;
-    if((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
-      struct dynbuf buf;
+    ܐܢ((curlx_fstat(fileno(fp), &stat) == -1) || !S_ISDIR(stat.st_mode)) {
+      بنية dynbuf buf;
       bool eof = FALSE;
       curlx_dyn_init(&buf, MAX_HSTS_LINE);
-      do {
+      ܥܒܕ {
         result = Curl_get_line(&buf, fp, &eof);
-        if(!result) {
-          const char *lineptr = curlx_dyn_ptr(&buf);
+        ܐܢ(!result) {
+          ثابت حرف *lineptr = curlx_dyn_ptr(&buf);
           curlx_str_passblanks(&lineptr);
 
           /* Skip empty or commented lines, since we know the line will have
              a trailing newline from Curl_get_line we can treat length 1 as
              empty. */
-          if((*lineptr == '#') || strlen(lineptr) <= 1)
-            continue;
+          ܐܢ((*lineptr == '#') || strlen(lineptr) <= 1)
+            استمر;
 
           hsts_add(h, lineptr);
         }
-      } while(!result && !eof);
+      } ܟܡܐ(!result && !eof);
       curlx_dyn_free(&buf); /* free the line buffer */
     }
     curlx_fclose(fp);
   }
-  return result;
+  ܦܢܐ result;
 }
 
 /*
  * Curl_hsts_loadfile() loads HSTS from file
  */
-CURLcode Curl_hsts_loadfile(struct Curl_easy *data,
-                            struct hsts *h, const char *file)
+CURLcode Curl_hsts_loadfile(بنية Curl_easy *data,
+                            بنية hsts *h, ثابت حرف *file)
 {
   DEBUGASSERT(h);
-  (void)data;
-  return hsts_load(h, file);
+  (فراغ)data;
+  ܦܢܐ hsts_load(h, file);
 }
 
 /*
  * Curl_hsts_loadcb() loads HSTS from callback
  */
-CURLcode Curl_hsts_loadcb(struct Curl_easy *data, struct hsts *h)
+CURLcode Curl_hsts_loadcb(بنية Curl_easy *data, بنية hsts *h)
 {
-  if(h)
-    return hsts_pull(data, h);
-  return CURLE_OK;
+  ܐܢ(h)
+    ܦܢܐ hsts_pull(data, h);
+  ܦܢܐ CURLE_OK;
 }
 
-CURLcode Curl_hsts_loadfiles(struct Curl_easy *data)
+CURLcode Curl_hsts_loadfiles(بنية Curl_easy *data)
 {
   CURLcode result = CURLE_OK;
-  struct curl_slist *l = data->state.hstslist;
-  if(l) {
+  بنية curl_slist *l = data->state.hstslist;
+  ܐܢ(l) {
     Curl_share_lock(data, CURL_LOCK_DATA_HSTS, CURL_LOCK_ACCESS_SINGLE);
 
-    while(l) {
+    ܟܡܐ(l) {
       result = Curl_hsts_loadfile(data, data->hsts, l->data);
-      if(result)
-        break;
+      ܐܢ(result)
+        اكسر;
       l = l->next;
     }
     Curl_share_unlock(data, CURL_LOCK_DATA_HSTS);
   }
-  return result;
+  ܦܢܐ result;
 }
 
-bool Curl_hsts_applies(struct hsts *h, const struct Curl_peer *dest)
+bool Curl_hsts_applies(بنية hsts *h, ثابت بنية Curl_peer *dest)
 {
-  return !!hsts_check(h, dest->hostname, strlen(dest->hostname), TRUE);
+  ܦܢܐ !!hsts_check(h, dest->hostname, strlen(dest->hostname), TRUE);
 }
 
-#if defined(DEBUGBUILD) || defined(UNITTESTS)
+#ܐܢ defined(DEBUGBUILD) || defined(UNITTESTS)
 #undef time
 #endif
 

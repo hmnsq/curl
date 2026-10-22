@@ -21,146 +21,146 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#ضمن <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#ضمن <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+#ضمن <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#ضمن <sys/ioctl.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#ضمن <netdb.h>
 #endif
 #ifdef HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
+#ضمن <sys/sockio.h>
 #endif
 #ifdef HAVE_IFADDRS_H
-#include <ifaddrs.h>
+#ضمن <ifaddrs.h>
 #endif
 #ifdef HAVE_STROPTS_H
-#include <stropts.h>
+#ضمن <stropts.h>
 #endif
 #ifdef __VMS
-#include <inet.h>
+#ضمن <inet.h>
 #endif
 
-#include "curlx/inet_ntop.h"
-#include "if2ip.h"
+#ضمن "curlx/inet_ntop.h"
+#ضمن "if2ip.h"
 
 /* ------------------------------------------------------------------ */
 
 #ifdef USE_IPV6
 /* Return the scope of the given address. */
-unsigned int Curl_ipv6_scope(const struct sockaddr *sa)
+unsigned صحيح Curl_ipv6_scope(ثابت بنية sockaddr *sa)
 {
-  if(sa->sa_family == AF_INET6) {
-    const struct sockaddr_in6 *sa6 =
-      (const struct sockaddr_in6 *)(const void *)sa;
-    const unsigned char *b = sa6->sin6_addr.s6_addr;
+  ܐܢ(sa->sa_family == AF_INET6) {
+    ثابت بنية sockaddr_in6 *sa6 =
+      (ثابت بنية sockaddr_in6 *)(ثابت فراغ *)sa;
+    ثابت unsigned حرف *b = sa6->sin6_addr.s6_addr;
     unsigned short w = (unsigned short)((b[0] << 8) | b[1]);
 
-    if((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
-      return IPV6_SCOPE_UNIQUELOCAL;
-    switch(w & 0xFFC0) {
-    case 0xFE80:
-      return IPV6_SCOPE_LINKLOCAL;
-    case 0xFEC0:
-      return IPV6_SCOPE_SITELOCAL;
-    case 0x0000:
+    ܐܢ((b[0] & 0xFE) == 0xFC) /* Handle ULAs */
+      ܦܢܐ IPV6_SCOPE_UNIQUELOCAL;
+    بدل(w & 0xFFC0) {
+    حالة 0xFE80:
+      ܦܢܐ IPV6_SCOPE_LINKLOCAL;
+    حالة 0xFEC0:
+      ܦܢܐ IPV6_SCOPE_SITELOCAL;
+    حالة 0x0000:
       w = b[1] | b[2] | b[3] | b[4] | b[5] | b[6] | b[7] | b[8] | b[9] |
           b[10] | b[11] | b[12] | b[13] | b[14];
-      if(w || b[15] != 0x01)
-        break;
-      return IPV6_SCOPE_NODELOCAL;
-    default:
-      break;
+      ܐܢ(w || b[15] != 0x01)
+        اكسر;
+      ܦܢܐ IPV6_SCOPE_NODELOCAL;
+    افتراضي:
+      اكسر;
     }
   }
-  return IPV6_SCOPE_GLOBAL;
+  ܦܢܐ IPV6_SCOPE_GLOBAL;
 }
 #endif
 
-#if !defined(CURL_DISABLE_BINDLOCAL) || !defined(CURL_DISABLE_FTP)
+#ܐܢ !defined(CURL_DISABLE_BINDLOCAL) || !defined(CURL_DISABLE_FTP)
 
 #ifdef HAVE_GETIFADDRS
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(صحيح af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned صحيح remote_scope,
+                          unsigned صحيح local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          ثابت حرف *interf,
+                          حرف *buf, size_t buf_size)
 {
-  struct ifaddrs *iface, *head;
+  بنية ifaddrs *iface, *head;
   if2ip_result_t res = IF2IP_NOT_FOUND;
 
-#if defined(USE_IPV6) && !defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
-  (void)local_scope_id;
+#ܐܢ defined(USE_IPV6) && !defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
+  (فراغ)local_scope_id;
 #endif
 
-  if(getifaddrs(&head) >= 0) {
-    for(iface = head; iface; iface = iface->ifa_next) {
-      if(iface->ifa_addr) {
-        if(iface->ifa_addr->sa_family == af) {
-          if(!strcmp(iface->ifa_name, interf)) {
-            void *addr;
-            char scope[12] = "";
-            char ipstr[64];
+  ܐܢ(getifaddrs(&head) >= 0) {
+    لكل(iface = head; iface; iface = iface->ifa_next) {
+      ܐܢ(iface->ifa_addr) {
+        ܐܢ(iface->ifa_addr->sa_family == af) {
+          ܐܢ(!strcmp(iface->ifa_name, interf)) {
+            فراغ *addr;
+            حرف scope[12] = "";
+            حرف ipstr[64];
             CURLcode result;
 #ifdef USE_IPV6
-            if(af == AF_INET6) {
+            ܐܢ(af == AF_INET6) {
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-              unsigned int scopeid = 0;
+              unsigned صحيح scopeid = 0;
 #endif
-              unsigned int ifscope = Curl_ipv6_scope(iface->ifa_addr);
+              unsigned صحيح ifscope = Curl_ipv6_scope(iface->ifa_addr);
 
-              if(ifscope != remote_scope) {
+              ܐܢ(ifscope != remote_scope) {
                 /* We are interested only in interface addresses whose scope
                    matches the remote address we want to connect to: global
                    for global, link-local for link-local, etc... */
-                if(res == IF2IP_NOT_FOUND)
+                ܐܢ(res == IF2IP_NOT_FOUND)
                   res = IF2IP_AF_NOT_SUPPORTED;
-                continue;
+                استمر;
               }
 
               addr =
-                &((struct sockaddr_in6 *)(void *)iface->ifa_addr)->sin6_addr;
+                &((بنية sockaddr_in6 *)(فراغ *)iface->ifa_addr)->sin6_addr;
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
               /* Include the scope of this interface as part of the address */
-              scopeid = ((struct sockaddr_in6 *)(void *)iface->ifa_addr)
+              scopeid = ((بنية sockaddr_in6 *)(فراغ *)iface->ifa_addr)
                           ->sin6_scope_id;
 
               /* If given, scope id should match. */
-              if(local_scope_id && scopeid != local_scope_id) {
-                if(res == IF2IP_NOT_FOUND)
+              ܐܢ(local_scope_id && scopeid != local_scope_id) {
+                ܐܢ(res == IF2IP_NOT_FOUND)
                   res = IF2IP_AF_NOT_SUPPORTED;
 
-                continue;
+                استمر;
               }
 
-              if(scopeid)
-                curl_msnprintf(scope, sizeof(scope), "%%%u", scopeid);
+              ܐܢ(scopeid)
+                curl_msnprintf(scope, حجم(scope), "%%%u", scopeid);
 #endif
             }
-            else
+            ܐܚܪܢܐ
 #endif
               addr =
-                &((struct sockaddr_in *)(void *)iface->ifa_addr)->sin_addr;
+                &((بنية sockaddr_in *)(فراغ *)iface->ifa_addr)->sin_addr;
             res = IF2IP_FOUND;
-            result = curlx_inet_ntop(af, addr, ipstr, sizeof(ipstr));
+            result = curlx_inet_ntop(af, addr, ipstr, حجم(ipstr));
             curl_msnprintf(buf, buf_size, "%s%s", result ? "" : ipstr, scope);
-            break;
+            اكسر;
           }
         }
-        else if((res == IF2IP_NOT_FOUND) &&
+        ܐܚܪܢܐ ܐܢ((res == IF2IP_NOT_FOUND) &&
                 !strcmp(iface->ifa_name, interf)) {
           res = IF2IP_AF_NOT_SUPPORTED;
         }
@@ -170,91 +170,91 @@ if2ip_result_t Curl_if2ip(int af,
     freeifaddrs(head);
   }
 
-  return res;
+  ܦܢܐ res;
 }
 
-#elif defined(HAVE_IOCTL_SIOCGIFADDR)
+#وإلاإذا defined(HAVE_IOCTL_SIOCGIFADDR)
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(صحيح af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned صحيح remote_scope,
+                          unsigned صحيح local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          ثابت حرف *interf,
+                          حرف *buf, size_t buf_size)
 {
-  struct ifreq req;
-  struct in_addr in;
-  struct sockaddr_in *s;
+  بنية ifreq req;
+  بنية in_addr in;
+  بنية sockaddr_in *s;
   curl_socket_t dummy;
   size_t len;
   CURLcode result;
 
 #ifdef USE_IPV6
-  (void)remote_scope;
-  (void)local_scope_id;
+  (فراغ)remote_scope;
+  (فراغ)local_scope_id;
 #endif
 
-  if(!interf || (af != AF_INET))
-    return IF2IP_NOT_FOUND;
+  ܐܢ(!interf || (af != AF_INET))
+    ܦܢܐ IF2IP_NOT_FOUND;
 
   len = strlen(interf);
-  if(len >= sizeof(req.ifr_name))
-    return IF2IP_NOT_FOUND;
+  ܐܢ(len >= حجم(req.ifr_name))
+    ܦܢܐ IF2IP_NOT_FOUND;
 
   dummy = CURL_SOCKET(AF_INET, SOCK_STREAM, 0);
-  if(dummy == CURL_SOCKET_BAD)
-    return IF2IP_NOT_FOUND;
+  ܐܢ(dummy == CURL_SOCKET_BAD)
+    ܦܢܐ IF2IP_NOT_FOUND;
 
-  memset(&req, 0, sizeof(req));
+  memset(&req, 0, حجم(req));
   memcpy(req.ifr_name, interf, len + 1);
   req.ifr_addr.sa_family = AF_INET;
 
-#if defined(CURL_HAVE_DIAG) && defined(_AIX)
+#ܐܢ defined(CURL_HAVE_DIAG) && defined(_AIX)
 /* Suppress warning inside system headers */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wshift-sign-overflow"
 #endif
-  if(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
-#if defined(CURL_HAVE_DIAG) && defined(_AIX)
+  ܐܢ(ioctl(dummy, SIOCGIFADDR, &req) < 0) {
+#ܐܢ defined(CURL_HAVE_DIAG) && defined(_AIX)
 #pragma GCC diagnostic pop
 #endif
     sclose(dummy);
     /* With SIOCGIFADDR, we cannot tell the difference between an interface
        that does not exist and an interface that has no address of the
        correct family. Assume the interface does not exist */
-    return IF2IP_NOT_FOUND;
+    ܦܢܐ IF2IP_NOT_FOUND;
   }
 
-  s = (struct sockaddr_in *)(void *)&req.ifr_addr;
-  memcpy(&in, &s->sin_addr, sizeof(in));
+  s = (بنية sockaddr_in *)(فراغ *)&req.ifr_addr;
+  memcpy(&in, &s->sin_addr, حجم(in));
   result = curlx_inet_ntop(s->sin_family, &in, buf, buf_size);
 
   sclose(dummy);
-  if(result)
-    return IF2IP_NOT_FOUND;
-  return IF2IP_FOUND;
+  ܐܢ(result)
+    ܦܢܐ IF2IP_NOT_FOUND;
+  ܦܢܐ IF2IP_FOUND;
 }
 
-#else
+#ܐܚܪܢܐ
 
-if2ip_result_t Curl_if2ip(int af,
+if2ip_result_t Curl_if2ip(صحيح af,
 #ifdef USE_IPV6
-                          unsigned int remote_scope,
-                          unsigned int local_scope_id,
+                          unsigned صحيح remote_scope,
+                          unsigned صحيح local_scope_id,
 #endif
-                          const char *interf,
-                          char *buf, size_t buf_size)
+                          ثابت حرف *interf,
+                          حرف *buf, size_t buf_size)
 {
-  (void)af;
+  (فراغ)af;
 #ifdef USE_IPV6
-  (void)remote_scope;
-  (void)local_scope_id;
+  (فراغ)remote_scope;
+  (فراغ)local_scope_id;
 #endif
-  (void)interf;
-  (void)buf;
-  (void)buf_size;
-  return IF2IP_NOT_FOUND;
+  (فراغ)interf;
+  (فراغ)buf;
+  (فراغ)buf_size;
+  ܦܢܐ IF2IP_NOT_FOUND;
 }
 
 #endif

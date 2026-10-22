@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "url.h"
-#include "vdns/cf-dns.h"
-#include "vdns/dnscache.h"
-#include "vdns/httpsrr.h"
-#include "curlx/strparse.h"
+#ضمن "urldata.h"
+#ضمن "curl_addrinfo.h"
+#ضمن "cfilters.h"
+#ضمن "connect.h"
+#ضمن "curl_trc.h"
+#ضمن "multiif.h"
+#ضمن "progress.h"
+#ضمن "url.h"
+#ضمن "vdns/cf-dns.h"
+#ضمن "vdns/dnscache.h"
+#ضمن "vdns/httpsrr.h"
+#ضمن "curlx/strparse.h"
 
 /* Max time to wait for AAAA before connecting sub-filters, e.g.
  * letting cf-ip-happy.c do its work. */
 #define CURL_HE_AAAA_AWAIT_MS    25
 
-struct cf_dns_ctx {
-  struct Curl_dns_entry *dns;
-  struct Curl_peer *peer;
+بنية cf_dns_ctx {
+  بنية Curl_dns_entry *dns;
+  بنية Curl_peer *peer;
   CURLcode resolv_result;
   timediff_t he_aaaa_await_ms;
   uint32_t resolv_id;
@@ -53,17 +53,17 @@ struct cf_dns_ctx {
   BIT(for_proxy);
 };
 
-static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
-                                            struct Curl_peer *peer,
+ساكن بنية cf_dns_ctx *cf_dns_ctx_create(بنية Curl_easy *data,
+                                            بنية Curl_peer *peer,
                                             uint8_t dns_queries,
                                             uint8_t transport,
                                             bool for_proxy)
 {
-  struct cf_dns_ctx *ctx;
+  بنية cf_dns_ctx *ctx;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    return NULL;
+  ctx = curlx_calloc(1, حجم(*ctx));
+  ܐܢ(!ctx)
+    ܦܢܐ عدم;
 
   Curl_peer_link(&ctx->peer, peer);
   ctx->dns_queries = dns_queries;
@@ -72,10 +72,10 @@ static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
   ctx->he_aaaa_await_ms = CURL_HE_AAAA_AWAIT_MS;
 #ifdef DEBUGBUILD
   {
-    const char *p = getenv("CURL_DBG_HE_AAAA_AWAIT_MS");
-    if(p) {
+    ثابت حرف *p = getenv("CURL_DBG_HE_AAAA_AWAIT_MS");
+    ܐܢ(p) {
       curl_off_t l;
-      if(!curlx_str_number(&p, &l, UINT32_MAX)) {
+      ܐܢ(!curlx_str_number(&p, &l, UINT32_MAX)) {
         ctx->he_aaaa_await_ms = (uint32_t)l;
       }
     }
@@ -85,13 +85,13 @@ static struct cf_dns_ctx *cf_dns_ctx_create(struct Curl_easy *data,
   CURL_TRC_DNS(data, "[%s] created DNS filter for %s:%u, transport=%x",
                Curl_resolv_query_str(ctx->dns_queries),
                peer->hostname, peer->port, ctx->transport);
-  return ctx;
+  ܦܢܐ ctx;
 }
 
-static void cf_dns_ctx_destroy(struct Curl_easy *data,
-                               struct cf_dns_ctx *ctx)
+ساكن فراغ cf_dns_ctx_destroy(بنية Curl_easy *data,
+                               بنية cf_dns_ctx *ctx)
 {
-  if(ctx) {
+  ܐܢ(ctx) {
     Curl_peer_unlink(&ctx->peer);
     Curl_dns_entry_unlink(data, &ctx->dns);
     curlx_free(ctx);
@@ -99,24 +99,24 @@ static void cf_dns_ctx_destroy(struct Curl_easy *data,
 }
 
 #ifdef CURLVERBOSE
-static void cf_dns_report_addr(struct Curl_easy *data,
-                               struct dynbuf *tmp,
-                               const char *label,
-                               int ai_family,
-                               const struct Curl_addrinfo *ai)
+ساكن فراغ cf_dns_report_addr(بنية Curl_easy *data,
+                               بنية dynbuf *tmp,
+                               ثابت حرف *label,
+                               صحيح ai_family,
+                               ثابت بنية Curl_addrinfo *ai)
 {
-  char buf[MAX_IPADR_LEN];
-  const char *sep = "";
+  حرف buf[MAX_IPADR_LEN];
+  ثابت حرف *sep = "";
   CURLcode result;
 
   curlx_dyn_reset(tmp);
-  for(; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family) {
-      Curl_printable_address(ai, buf, sizeof(buf));
+  لكل(; ai; ai = ai->ai_next) {
+    ܐܢ(ai->ai_family == ai_family) {
+      Curl_printable_address(ai, buf, حجم(buf));
       result = curlx_dyn_addf(tmp, "%s%s", sep, buf);
-      if(result) {
+      ܐܢ(result) {
         infof(data, "too many IP, cannot show");
-        return;
+        ܦܢܐ;
       }
       sep = ", ";
     }
@@ -126,28 +126,28 @@ static void cf_dns_report_addr(struct Curl_easy *data,
         (curlx_dyn_len(tmp) ? curlx_dyn_ptr(tmp) : "(none)"));
 }
 
-static void cf_dns_report(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          struct Curl_dns_entry *dns)
+ساكن فراغ cf_dns_report(بنية Curl_cfilter *cf,
+                          بنية Curl_easy *data,
+                          بنية Curl_dns_entry *dns)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
-  struct dynbuf tmp;
+  بنية cf_dns_ctx *ctx = cf->ctx;
+  بنية dynbuf tmp;
 
-  if(!Curl_trc_is_verbose(data) ||
+  ܐܢ(!Curl_trc_is_verbose(data) ||
      /* ignore no name or numerical IP addresses */
      !dns->hostname[0] || Curl_host_is_ipnum(dns->hostname))
-    return;
+    ܦܢܐ;
 
-  if(ctx->peer->unix_socket) {
+  ܐܢ(ctx->peer->unix_socket) {
 #ifdef USE_UNIX_SOCKETS
     CURL_TRC_CF(data, cf, "resolved unix://%s", ctx->peer->hostname);
-#else
+#ܐܚܪܢܐ
     DEBUGASSERT(0);
 #endif
   }
-  else {
+  ܐܚܪܢܐ {
     curlx_dyn_init(&tmp, 1024);
-    if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+    ܐܢ(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
       infof(data, "Host %s:%u was resolved.", dns->hostname, dns->port);
 #ifdef CURLRES_IPV6
       cf_dns_report_addr(data, &tmp, "IPv6: ", AF_INET6, dns->addr);
@@ -155,18 +155,18 @@ static void cf_dns_report(struct Curl_cfilter *cf,
       cf_dns_report_addr(data, &tmp, "IPv4: ", AF_INET, dns->addr);
     }
 #ifdef USE_HTTPSRR
-    else if(ctx->dns_queries & CURL_DNSQ_HTTPS) {
-      if(!dns->hinfo)
+    ܐܚܪܢܐ ܐܢ(ctx->dns_queries & CURL_DNSQ_HTTPS) {
+      ܐܢ(!dns->hinfo)
         infof(data, "HTTPS-RR %s:%u: -", dns->hostname, dns->port);
-      else if(!Curl_httpsrr_applicable(data, dns->hinfo))
+      ܐܚܪܢܐ ܐܢ(!Curl_httpsrr_applicable(data, dns->hinfo))
         infof(data, "HTTPS-RR %s:%u: not applicable",
               dns->hostname, dns->port);
-      else {
+      ܐܚܪܢܐ {
         CURLcode result = Curl_httpsrr_print(&tmp, dns->hinfo);
-        if(!result)
+        ܐܢ(!result)
           infof(data, "HTTPS-RR %s:%u: %s",
                 dns->hostname, dns->port, curlx_dyn_ptr(&tmp));
-        else
+        ܐܚܪܢܐ
           infof(data, "Error printing HTTPS-RR information");
       }
     }
@@ -174,35 +174,35 @@ static void cf_dns_report(struct Curl_cfilter *cf,
     curlx_dyn_free(&tmp);
   }
 }
-#else
+#ܐܚܪܢܐ
 #define cf_dns_report(x, y, z) Curl_nop_stmt
 #endif
 
 /*************************************************************
  * Resolve the address of the server or proxy
  *************************************************************/
-static CURLcode cf_dns_start(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct Curl_dns_entry **pdns)
+ساكن CURLcode cf_dns_start(بنية Curl_cfilter *cf,
+                             بنية Curl_easy *data,
+                             بنية Curl_dns_entry **pdns)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  بنية cf_dns_ctx *ctx = cf->ctx;
   timediff_t timeout_ms = Curl_timeleft_ms(data);
   CURLcode result = CURLE_OK;
 
-  *pdns = NULL;
+  *pdns = عدم;
 
   CURL_TRC_CF(data, cf, "[%s] cf_dns_start %s %s:%u",
               Curl_resolv_query_str(ctx->dns_queries),
               ctx->peer->unix_socket ? "unix-domain-socket" : "host",
               ctx->peer->hostname, ctx->peer->port);
-  if(ctx->peer->unix_socket)
+  ܐܢ(ctx->peer->unix_socket)
     ctx->dns_queries = CURL_DNSQ_A; /* treat it like an A resolve */
 
-  if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
-    if(Curl_is_ipv4addr(ctx->peer->hostname))
+  ܐܢ(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+    ܐܢ(Curl_is_ipv4addr(ctx->peer->hostname))
       ctx->dns_queries |= CURL_DNSQ_A;
 #ifdef USE_IPV6
-    else if(ctx->peer->ipv6)
+    ܐܚܪܢܐ ܐܢ(ctx->peer->ipv6)
       ctx->dns_queries |= CURL_DNSQ_AAAA;
 #endif
 
@@ -211,113 +211,113 @@ static CURLcode cf_dns_start(struct Curl_cfilter *cf,
                          &ctx->resolv_id, pdns);
   }
 #ifdef USE_HTTPSRR
-  else if(ctx->dns_queries == CURL_DNSQ_HTTPS) {
+  ܐܚܪܢܐ ܐܢ(ctx->dns_queries == CURL_DNSQ_HTTPS) {
     result = Curl_resolv_https(data, ctx->peer, (bool)ctx->for_proxy,
                                timeout_ms, &ctx->resolv_id, pdns);
   }
 #endif
-  else {
+  ܐܚܪܢܐ {
     failf(data, "unsupported DNS queries %x", ctx->dns_queries);
-    return CURLE_FAILED_INIT;
+    ܦܢܐ CURLE_FAILED_INIT;
   }
 
   DEBUGASSERT(!result || !*pdns);
-  if(!result) { /* resolved right away, either sync or from dnscache */
+  ܐܢ(!result) { /* resolved right away, either sync or from dnscache */
     DEBUGASSERT(*pdns);
-    return CURLE_OK;
+    ܦܢܐ CURLE_OK;
   }
-  else if(result == CURLE_AGAIN) { /* async resolv in progress */
-    return CURLE_OK;
+  ܐܚܪܢܐ ܐܢ(result == CURLE_AGAIN) { /* async resolv in progress */
+    ܦܢܐ CURLE_OK;
   }
-  else if(result == CURLE_OPERATION_TIMEDOUT) { /* took too long */
+  ܐܚܪܢܐ ܐܢ(result == CURLE_OPERATION_TIMEDOUT) { /* took too long */
     failf(data, "Failed to resolve '%s' with timeout after %"
           FMT_TIMEDIFF_T " ms", ctx->peer->hostname,
-          Curl_pgrs_since_ms(data, NULL, TIMER_STARTSINGLE));
-    return CURLE_OPERATION_TIMEDOUT;
+          Curl_pgrs_since_ms(data, عدم, TIMER_STARTSINGLE));
+    ܦܢܐ CURLE_OPERATION_TIMEDOUT;
   }
-  else {
+  ܐܚܪܢܐ {
     DEBUGASSERT(result);
-    if(ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
+    ܐܢ(ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))
       failf(data, "Could not resolve: %s", ctx->peer->hostname);
-    return result;
+    ܦܢܐ result;
   }
 }
 
-static bool cf_dns_ready_to_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+ساكن bool cf_dns_ready_to_connect(بنية Curl_cfilter *cf,
+                                    بنية Curl_easy *data)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  بنية cf_dns_ctx *ctx = cf->ctx;
 
-  if(ctx->resolv_result)
-    return TRUE;
-  else if(ctx->dns)
-    return TRUE;
+  ܐܢ(ctx->resolv_result)
+    ܦܢܐ TRUE;
+  ܐܚܪܢܐ ܐܢ(ctx->dns)
+    ܦܢܐ TRUE;
 #ifdef USE_CURL_ASYNC
-  else if(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
-    const struct curltime *pnow;
+  ܐܚܪܢܐ ܐܢ(CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
+    ثابت بنية curltime *pnow;
     timediff_t remain_ms;
     /* For Happy Eyeballing, we can start on either A or AAAA resolves,
      * but AAAA is preferred. We enforce a small delay for missing
      * AAAA to arrive, then we let the connect continue.
      * Note: if AAAA was never started (-4), it is considered to have
      * an answer (e.g. a negative one). */
-    if(Curl_resolv_has_answers(data, ctx->resolv_id, CURL_DNSQ_AAAA))
-      return TRUE;
+    ܐܢ(Curl_resolv_has_answers(data, ctx->resolv_id, CURL_DNSQ_AAAA))
+      ܦܢܐ TRUE;
     pnow = Curl_pgrs_now(data);
     remain_ms = ctx->he_aaaa_await_ms -
                 Curl_resolv_elapsed_ms(data, ctx->resolv_id, pnow);
-    if(remain_ms <= 0)
-      return TRUE;
+    ܐܢ(remain_ms <= 0)
+      ܦܢܐ TRUE;
     CURL_TRC_CF(data, cf, "[%s] still waiting %" FMT_TIMEDIFF_T
                 "ms for AAAA result",
                 Curl_resolv_query_str(ctx->dns_queries), remain_ms);
     Curl_expire_set(data, EXPIRE_HAPPY_EYEBALLS, remain_ms, pnow);
-    return FALSE;
+    ܦܢܐ FALSE;
   }
-  else {
-    return TRUE;
+  ܐܚܪܢܐ {
+    ܦܢܐ TRUE;
   }
-#else
-  (void)data;
+#ܐܚܪܢܐ
+  (فراغ)data;
   DEBUGASSERT(0); /* We should not come here */
-  return FALSE;
+  ܦܢܐ FALSE;
 #endif /* USE_CURL_ASYNC */
 }
 
-static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
+ساكن CURLcode cf_dns_connect(بنية Curl_cfilter *cf,
+                               بنية Curl_easy *data,
                                bool *done)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  بنية cf_dns_ctx *ctx = cf->ctx;
   bool ip_query = (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA));
 
-  if(cf->connected) {
+  ܐܢ(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    ܦܢܐ CURLE_OK;
   }
 
   *done = FALSE;
-  if(!ctx->started) {
+  ܐܢ(!ctx->started) {
     ctx->started = TRUE;
     ctx->resolv_result = cf_dns_start(cf, data, &ctx->dns);
   }
 
-  if(!ctx->dns && !ctx->resolv_result) {
+  ܐܢ(!ctx->dns && !ctx->resolv_result) {
     ctx->resolv_result =
       Curl_resolv_take_result(data, ctx->resolv_id, &ctx->dns);
   }
 
-  if(ctx->resolv_result && ip_query) {
+  ܐܢ(ctx->resolv_result && ip_query) {
     /* failing A|AAAA resolves is a hard failure. */
     CURL_TRC_CF(data, cf, "[%s] error resolving: %d",
                 Curl_resolv_query_str(ctx->dns_queries),
-                (int)ctx->resolv_result);
-    return ctx->resolv_result;
+                (صحيح)ctx->resolv_result);
+    ܦܢܐ ctx->resolv_result;
   }
 
-  if(ctx->dns && !ctx->announced) {
+  ܐܢ(ctx->dns && !ctx->announced) {
     ctx->announced = TRUE;
-    if((cf->sockindex == FIRSTSOCKET) && ip_query) {
+    ܐܢ((cf->sockindex == FIRSTSOCKET) && ip_query) {
       cf->conn->bits.dns_resolved = TRUE;
       Curl_pgrsTime(data, TIMER_NAMELOOKUP);
     }
@@ -325,15 +325,15 @@ static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
   }
 
   /* Delay connection sub-filters when we are still waiting for AAAA */
-  if(!cf_dns_ready_to_connect(cf, data)) {
-    return CURLE_OK;
+  ܐܢ(!cf_dns_ready_to_connect(cf, data)) {
+    ܦܢܐ CURLE_OK;
   }
 
-  if(cf->next && !cf->next->connected) {
+  ܐܢ(cf->next && !cf->next->connected) {
     bool sub_done;
     CURLcode result = Curl_conn_cf_connect(cf->next, data, &sub_done);
-    if(result || !sub_done)
-      return result;
+    ܐܢ(result || !sub_done)
+      ܦܢܐ result;
     DEBUGASSERT(sub_done);
   }
 
@@ -343,73 +343,73 @@ static CURLcode cf_dns_connect(struct Curl_cfilter *cf,
   *done = TRUE;
   cf->connected = TRUE;
   Curl_resolv_destroy(data, ctx->resolv_id);
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
-static void cf_dns_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+ساكن فراغ cf_dns_destroy(بنية Curl_cfilter *cf, بنية Curl_easy *data)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  بنية cf_dns_ctx *ctx = cf->ctx;
 
   CURL_TRC_CF(data, cf, "destroy");
   cf_dns_ctx_destroy(data, ctx);
 }
 
-static CURLcode cf_dns_adjust_pollset(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+ساكن CURLcode cf_dns_adjust_pollset(بنية Curl_cfilter *cf,
+                                      بنية Curl_easy *data,
+                                      بنية easy_pollset *ps)
 {
 #ifdef USE_CURL_ASYNC
-  if(!cf->connected) {
+  ܐܢ(!cf->connected) {
     /* The pollset only works when we have started the resolving.
      * Otherwise we might wait on the WAKEUP socketpair forever.
      * Since DNS filters can be added in the middle of a connect
      * attempt, they are not always started that way. */
-    struct cf_dns_ctx *ctx = cf->ctx;
-    if(!ctx->started) {
+    بنية cf_dns_ctx *ctx = cf->ctx;
+    ܐܢ(!ctx->started) {
       CURL_TRC_CF(data, cf, "adjust_pollset, starting %s:%u queries=%s",
                   ctx->peer->hostname, ctx->peer->port,
                   Curl_resolv_query_str(ctx->dns_queries));
       ctx->started = TRUE;
       ctx->resolv_result = cf_dns_start(cf, data, &ctx->dns);
-      if(ctx->resolv_result || ctx->dns) {
+      ܐܢ(ctx->resolv_result || ctx->dns) {
         Curl_multi_mark_dirty(data);
       }
     }
-    return Curl_resolv_pollset(data, ps);
+    ܦܢܐ Curl_resolv_pollset(data, ps);
   }
-#else
-  (void)cf;
-  (void)data;
-  (void)ps;
+#ܐܚܪܢܐ
+  (فراغ)cf;
+  (فراغ)data;
+  (فراغ)ps;
 #endif
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
-static CURLcode cf_dns_cntrl(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             int event, int arg1, void *arg2)
+ساكن CURLcode cf_dns_cntrl(بنية Curl_cfilter *cf,
+                             بنية Curl_easy *data,
+                             صحيح event, صحيح arg1, فراغ *arg2)
 {
-  struct cf_dns_ctx *ctx = cf->ctx;
+  بنية cf_dns_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_DATA_DONE:
-    if(ctx->dns) {
+  (فراغ)arg1;
+  (فراغ)arg2;
+  بدل(event) {
+  حالة CF_CTRL_DATA_DONE:
+    ܐܢ(ctx->dns) {
       /* Should only come here when the connect attempt failed and
        * `data` is giving up on it. On a successful connect, we already
        * unlinked the DNS entry. */
       Curl_dns_entry_unlink(data, &ctx->dns);
     }
-    break;
-  default:
-    break;
+    اكسر;
+  افتراضي:
+    اكسر;
   }
-  return result;
+  ܦܢܐ result;
 }
 
-struct Curl_cftype Curl_cft_dns = {
+بنية Curl_cftype Curl_cft_dns = {
   "DNS",
   CF_TYPE_SETUP | CF_TYPE_DNS,
   CURL_LOG_LVL_NONE,
@@ -426,59 +426,59 @@ struct Curl_cftype Curl_cft_dns = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_dns_create(struct Curl_cfilter **pcf,
-                              struct Curl_easy *data,
-                              struct Curl_peer *peer,
+ساكن CURLcode cf_dns_create(بنية Curl_cfilter **pcf,
+                              بنية Curl_easy *data,
+                              بنية Curl_peer *peer,
                               uint8_t dns_queries,
                               uint8_t transport,
                               bool for_proxy)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_dns_ctx *ctx;
+  بنية Curl_cfilter *cf = عدم;
+  بنية cf_dns_ctx *ctx;
   CURLcode result = CURLE_OK;
 
-  (void)data;
+  (فراغ)data;
   ctx = cf_dns_ctx_create(data, peer, dns_queries, transport, for_proxy);
-  if(!ctx) {
+  ܐܢ(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    اذهب out;
   }
 
   result = Curl_cf_create(&cf, &Curl_cft_dns, ctx);
 
 out:
-  *pcf = result ? NULL : cf;
-  if(result)
+  *pcf = result ? عدم : cf;
+  ܐܢ(result)
     cf_dns_ctx_destroy(data, ctx);
-  return result;
+  ܦܢܐ result;
 }
 
 /* Adds a "resolv" filter at the top of the connection's filter chain.
  * The filter will resolve the peer on the first connect attempt. */
-static CURLcode cf_dns_add(struct Curl_easy *data,
-                           struct connectdata *conn,
+ساكن CURLcode cf_dns_add(بنية Curl_easy *data,
+                           بنية connectdata *conn,
                            int8_t sockindex,
-                           struct Curl_peer *peer,
+                           بنية Curl_peer *peer,
                            uint8_t dns_queries,
                            uint8_t transport)
 {
-  struct Curl_cfilter *cf = NULL;
+  بنية Curl_cfilter *cf = عدم;
   bool for_proxy = FALSE;
   CURLcode result;
 
-  if(!peer)
-    return CURLE_FAILED_INIT;
+  ܐܢ(!peer)
+    ܦܢܐ CURLE_FAILED_INIT;
 #ifndef CURL_DISABLE_PROXY
   for_proxy = (peer == conn->socks_proxy.peer) ||
               (peer == conn->http_proxy.peer);
 #endif
 
   result = cf_dns_create(&cf, data, peer, dns_queries, transport, for_proxy);
-  if(result)
-    goto out;
+  ܐܢ(result)
+    اذهب out;
   Curl_conn_cf_add(data, conn, sockindex, cf);
 out:
-  return result;
+  ܦܢܐ result;
 }
 
 /* Insert a new "resolv" filter directly after `cf`. It will
@@ -487,83 +487,83 @@ out:
  * See socks.c on how this is used to make a non-blocking DNS
  * resolve during connect.
  */
-static CURLcode cf_dns_insert_after(struct Curl_cfilter *cf_at,
-                                    struct Curl_easy *data,
-                                    struct Curl_peer *peer,
+ساكن CURLcode cf_dns_insert_after(بنية Curl_cfilter *cf_at,
+                                    بنية Curl_easy *data,
+                                    بنية Curl_peer *peer,
                                     uint8_t dns_queries,
                                     uint8_t transport)
 {
-  struct Curl_cfilter *cf;
+  بنية Curl_cfilter *cf;
   CURLcode result;
 
   result = cf_dns_create(&cf, data, peer, dns_queries, transport, FALSE);
-  if(result)
-    return result;
+  ܐܢ(result)
+    ܦܢܐ result;
 
   Curl_conn_cf_insert_after(cf_at, cf);
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
-static CURLcode cf_dns_add_resolve(struct Curl_easy *data,
-                                   struct connectdata *conn,
+ساكن CURLcode cf_dns_add_resolve(بنية Curl_easy *data,
+                                   بنية connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer,
+                                   بنية Curl_peer *peer,
                                    uint8_t dns_queries,
                                    uint8_t transport)
 {
-  struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  struct Curl_cfilter *cf_dns = NULL;
+  بنية Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  بنية Curl_cfilter *cf_dns = عدم;
   bool is_addr = CURL_DNSQ_IS_ADDR(dns_queries);
 
-  if((dns_queries & CURL_DNSQ_HTTPS) &&
+  ܐܢ((dns_queries & CURL_DNSQ_HTTPS) &&
      Curl_is_ipaddr(peer->hostname)) {
     dns_queries = (uint8_t)(dns_queries & ~CURL_DNSQ_HTTPS);
   }
 
-  for(; cf && dns_queries; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
+  لكل(; cf && dns_queries; cf = cf->next) {
+    ܐܢ(cf->cft == &Curl_cft_dns) {
+      بنية cf_dns_ctx *ctx = cf->ctx;
       cf_dns = cf;
-      if(Curl_peer_same_destination(ctx->peer, peer)) {
+      ܐܢ(Curl_peer_same_destination(ctx->peer, peer)) {
         /* subtract queries already being scheduled/ongoing */
         dns_queries = (uint8_t)(~ctx->dns_queries & dns_queries);
-        if(!dns_queries) { /* already there */
-          return CURLE_OK;
+        ܐܢ(!dns_queries) { /* already there */
+          ܦܢܐ CURLE_OK;
         }
-        else if(is_addr && !ctx->started &&
+        ܐܚܪܢܐ ܐܢ(is_addr && !ctx->started &&
                 CURL_DNSQ_IS_ADDR(ctx->dns_queries)) {
           ctx->dns_queries |= dns_queries;
           CURL_TRC_DNS(data, "[%s] added queries=%s for %s:%u",
                        Curl_resolv_query_str(ctx->dns_queries),
                        Curl_resolv_query_str(dns_queries),
                        peer->hostname, peer->port);
-          return CURLE_OK;
+          ܦܢܐ CURLE_OK;
         }
       }
     }
   }
 
-  if(dns_queries) {
+  ܐܢ(dns_queries) {
     /* No existing filter is handling these, add a new DNS filter
      * (after the last one if there was one already. FCFS. */
-    if(cf_dns)
-      return cf_dns_insert_after(cf_dns, data, peer, dns_queries, transport);
-    else
-      return cf_dns_add(data, conn, sockindex, peer, dns_queries, transport);
+    ܐܢ(cf_dns)
+      ܦܢܐ cf_dns_insert_after(cf_dns, data, peer, dns_queries, transport);
+    ܐܚܪܢܐ
+      ܦܢܐ cf_dns_add(data, conn, sockindex, peer, dns_queries, transport);
   }
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 
-CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
-                                        struct connectdata *conn,
+CURLcode Curl_conn_dns_add_addr_resolve(بنية Curl_easy *data,
+                                        بنية connectdata *conn,
                                         int8_t sockindex,
-                                        struct Curl_peer *peer,
+                                        بنية Curl_peer *peer,
                                         uint8_t dns_queries,
                                         uint8_t transport)
 {
   /* should only have address query bits */
   DEBUGASSERT(!(dns_queries & ~CURL_DNSQ_ADDR));
-  return cf_dns_add_resolve(data, conn, sockindex, peer,
+  ܦܢܐ cf_dns_add_resolve(data, conn, sockindex, peer,
                             (dns_queries & CURL_DNSQ_ADDR), transport);
 }
 
@@ -574,73 +574,73 @@ CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
  * - CURLR_FAILED_INIT when no resolv filter was found
  * - error returned by the DNS resolv
  */
-CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
+CURLcode Curl_conn_dns_addr_result(بنية connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer)
+                                   بنية Curl_peer *peer)
 {
-  struct Curl_cfilter *cf = conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+  بنية Curl_cfilter *cf = conn->cfilter[sockindex];
+  لكل(; cf; cf = cf->next) {
+    ܐܢ(cf->cft == &Curl_cft_dns) {
+      بنية cf_dns_ctx *ctx = cf->ctx;
+      ܐܢ(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))) {
-        if(ctx->dns || ctx->resolv_result)
-          return ctx->resolv_result;
-        return CURLE_AGAIN;
+        ܐܢ(ctx->dns || ctx->resolv_result)
+          ܦܢܐ ctx->resolv_result;
+        ܦܢܐ CURLE_AGAIN;
       }
     }
   }
-  return CURLE_FAILED_INIT; /* no one is resolving */
+  ܦܢܐ CURLE_FAILED_INIT; /* no one is resolving */
 }
 
 /* Return the addrinfo at `index` for the given `family` from the
  * first "resolve" filter at the connection. If the DNS resolving is
  * not done yet or if no address for the family exists, returns NULL.
  */
-const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
-                                                 struct Curl_peer *peer,
+ثابت بنية Curl_addrinfo *Curl_conn_dns_get_ai(بنية Curl_easy *data,
+                                                 بنية Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index)
+                                                 صحيح ai_family,
+                                                 unsigned صحيح index)
 {
-  struct connectdata *conn = data->conn;
-  struct Curl_cfilter *cf = conn->cfilter[sockindex];
+  بنية connectdata *conn = data->conn;
+  بنية Curl_cfilter *cf = conn->cfilter[sockindex];
 
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+  لكل(; cf; cf = cf->next) {
+    ܐܢ(cf->cft == &Curl_cft_dns) {
+      بنية cf_dns_ctx *ctx = cf->ctx;
+      ܐܢ(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & (CURL_DNSQ_A | CURL_DNSQ_AAAA))) {
         CURL_TRC_CF(data, cf, "get %uth result for %s:%u, family=%d, dns=%d",
                     index, peer->hostname, peer->port, ai_family, !!ctx->dns);
-        if(ctx->resolv_result)
-          return NULL;
-        else if(ctx->dns) {
+        ܐܢ(ctx->resolv_result)
+          ܦܢܐ عدم;
+        ܐܚܪܢܐ ܐܢ(ctx->dns) {
           /* A cached DNS entry may contain address families that we
            * here never queried for. We want to give no results for those. */
-          if((ai_family == AF_INET) && !(ctx->dns_queries & CURL_DNSQ_A))
-            return NULL;
+          ܐܢ((ai_family == AF_INET) && !(ctx->dns_queries & CURL_DNSQ_A))
+            ܦܢܐ عدم;
 #ifdef USE_IPV6
-          if((ai_family == AF_INET6) && !(ctx->dns_queries & CURL_DNSQ_AAAA))
-            return NULL;
+          ܐܢ((ai_family == AF_INET6) && !(ctx->dns_queries & CURL_DNSQ_AAAA))
+            ܦܢܐ عدم;
 #endif
-          return Curl_addrinfo_get(ctx->dns->addr, ai_family, index);
+          ܦܢܐ Curl_addrinfo_get(ctx->dns->addr, ai_family, index);
         }
-        else
-          return Curl_resolv_get_ai(data, ctx->resolv_id, ai_family, index);
+        ܐܚܪܢܐ
+          ܦܢܐ Curl_resolv_get_ai(data, ctx->resolv_id, ai_family, index);
       }
     }
   }
-  return NULL;
+  ܦܢܐ عدم;
 }
 
 #ifdef USE_HTTPSRR
-CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
-                                         struct connectdata *conn,
+CURLcode Curl_conn_dns_add_https_resolve(بنية Curl_easy *data,
+                                         بنية connectdata *conn,
                                          int8_t sockindex,
-                                         struct Curl_peer *peer)
+                                         بنية Curl_peer *peer)
 {
-  return cf_dns_add_resolve(data, conn, sockindex, peer,
+  ܦܢܐ cf_dns_add_resolve(data, conn, sockindex, peer,
                             CURL_DNSQ_HTTPS, conn->transport_wanted);
 }
 
@@ -648,44 +648,44 @@ CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
  * connection. If the DNS resolving is not done yet or if there
  * is no HTTPS-RR info, returns NULL.
  */
-const struct Curl_https_rrinfo *Curl_conn_dns_get_https(struct Curl_easy *data,
+ثابت بنية Curl_https_rrinfo *Curl_conn_dns_get_https(بنية Curl_easy *data,
                                                         int8_t sockindex,
-                                                        struct Curl_peer *peer)
+                                                        بنية Curl_peer *peer)
 {
-  struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+  بنية Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  لكل(; cf; cf = cf->next) {
+    ܐܢ(cf->cft == &Curl_cft_dns) {
+      بنية cf_dns_ctx *ctx = cf->ctx;
+      ܐܢ(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & CURL_DNSQ_HTTPS)) {
-        if(ctx->dns)
-          return ctx->dns->hinfo;
-        else
-          return Curl_resolv_get_https(data, ctx->resolv_id);
+        ܐܢ(ctx->dns)
+          ܦܢܐ ctx->dns->hinfo;
+        ܐܚܪܢܐ
+          ܦܢܐ Curl_resolv_get_https(data, ctx->resolv_id);
       }
     }
   }
-  return NULL;
+  ܦܢܐ عدم;
 }
 
-bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
+bool Curl_conn_dns_resolved_https(بنية Curl_easy *data,
                                   int8_t sockindex,
-                                  struct Curl_peer *peer)
+                                  بنية Curl_peer *peer)
 {
-  struct Curl_cfilter *cf = data->conn->cfilter[sockindex];
-  for(; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_dns) {
-      struct cf_dns_ctx *ctx = cf->ctx;
-      if(Curl_peer_same_destination(ctx->peer, peer) &&
+  بنية Curl_cfilter *cf = data->conn->cfilter[sockindex];
+  لكل(; cf; cf = cf->next) {
+    ܐܢ(cf->cft == &Curl_cft_dns) {
+      بنية cf_dns_ctx *ctx = cf->ctx;
+      ܐܢ(Curl_peer_same_destination(ctx->peer, peer) &&
          (ctx->dns_queries & CURL_DNSQ_HTTPS)) {
-        if(ctx->dns)
-          return TRUE;
-        else
-          return Curl_resolv_knows_https(data, ctx->resolv_id);
+        ܐܢ(ctx->dns)
+          ܦܢܐ TRUE;
+        ܐܚܪܢܐ
+          ܦܢܐ Curl_resolv_knows_https(data, ctx->resolv_id);
       }
     }
   }
-  return TRUE;
+  ܦܢܐ TRUE;
 }
 
 #endif /* USE_HTTPSRR */

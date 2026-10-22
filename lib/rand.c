@@ -21,53 +21,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#ضمن <arpa/inet.h>
 #endif
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "escape.h"
+#ضمن "urldata.h"
+#ضمن "vtls/vtls.h"
+#ضمن "curl_trc.h"
+#ضمن "rand.h"
+#ضمن "escape.h"
 
-#include "curlx/winapi.h"
+#ضمن "curlx/winapi.h"
 
 #ifndef USE_SSL
 /* ---- possibly non-cryptographic version following ---- */
-static CURLcode weak_random(struct Curl_easy *data,
-                            unsigned char *entropy,
+ساكن CURLcode weak_random(بنية Curl_easy *data,
+                            unsigned حرف *entropy,
                             size_t length) /* always 4, size of int */
 {
-  unsigned int r;
-  DEBUGASSERT(length == sizeof(int));
+  unsigned صحيح r;
+  DEBUGASSERT(length == حجم(صحيح));
 
   /* Trying cryptographically secure functions first */
 #ifdef _WIN32
-  (void)data;
+  (فراغ)data;
   {
     CURLcode result = curlx_win32_random(entropy, length);
-    if(result != CURLE_NOT_BUILT_IN)
-      return result;
+    ܐܢ(result != CURLE_NOT_BUILT_IN)
+      ܦܢܐ result;
   }
 #endif
 
 #ifdef HAVE_ARC4RANDOM
-  (void)data;
-  r = (unsigned int)arc4random();
+  (فراغ)data;
+  r = (unsigned صحيح)arc4random();
   memcpy(entropy, &r, length);
-#else
+#ܐܚܪܢܐ
   infof(data, "WARNING: using weak random seed");
   {
-    static unsigned int randseed;
-    static bool seeded = FALSE;
-    unsigned int rnd;
-    if(!seeded) {
-      struct curltime now;
+    ساكن unsigned صحيح randseed;
+    ساكن bool seeded = FALSE;
+    unsigned صحيح rnd;
+    ܐܢ(!seeded) {
+      بنية curltime now;
       curlx_pnow(&now);
-      randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+      randseed += (unsigned صحيح)now.tv_usec + (unsigned صحيح)now.tv_sec;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
@@ -80,44 +80,44 @@ static CURLcode weak_random(struct Curl_easy *data,
     memcpy(entropy, &rnd, length);
   }
 #endif
-  return CURLE_OK;
+  ܦܢܐ CURLE_OK;
 }
 #endif
 
-static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
+ساكن CURLcode randit(بنية Curl_easy *data, unsigned صحيح *rnd,
                        bool env_override)
 {
 #ifdef DEBUGBUILD
-  if(env_override) {
-    char *force_entropy = getenv("CURL_ENTROPY");
-    if(force_entropy) {
-      static unsigned int randseed;
-      static bool seeded = FALSE;
+  ܐܢ(env_override) {
+    حرف *force_entropy = getenv("CURL_ENTROPY");
+    ܐܢ(force_entropy) {
+      ساكن unsigned صحيح randseed;
+      ساكن bool seeded = FALSE;
 
-      if(!seeded) {
-        unsigned int seed = 0;
+      ܐܢ(!seeded) {
+        unsigned صحيح seed = 0;
         size_t elen = strlen(force_entropy);
-        size_t clen = sizeof(seed);
+        size_t clen = حجم(seed);
         size_t min = elen < clen ? elen : clen;
-        memcpy((char *)&seed, force_entropy, min);
+        memcpy((حرف *)&seed, force_entropy, min);
         randseed = ntohl(seed);
         seeded = TRUE;
       }
-      else
+      ܐܚܪܢܐ
         randseed++;
       *rnd = randseed;
-      return CURLE_OK;
+      ܦܢܐ CURLE_OK;
     }
   }
-#else
-  (void)env_override;
+#ܐܚܪܢܐ
+  (فراغ)env_override;
 #endif
 
   /* data may be NULL! */
 #ifdef USE_SSL
-  return Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#else
-  return weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
+  ܦܢܐ Curl_ssl_random(data, (unsigned حرف *)rnd, حجم(*rnd));
+#ܐܚܪܢܐ
+  ܦܢܐ weak_random(data, (unsigned حرف *)rnd, حجم(*rnd));
 #endif
 }
 
@@ -136,36 +136,36 @@ static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
  *
  */
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
+CURLcode Curl_rand_bytes(بنية Curl_easy *data,
 #ifdef DEBUGBUILD
                          bool env_override,
 #endif
-                         unsigned char *rnd, size_t num)
+                         unsigned حرف *rnd, size_t num)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 #ifndef DEBUGBUILD
-  const bool env_override = FALSE;
+  ثابت bool env_override = FALSE;
 #endif
 
   DEBUGASSERT(num);
 
-  while(num) {
-    unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+  ܟܡܐ(num) {
+    unsigned صحيح r;
+    size_t left = num < حجم(unsigned صحيح) ? num : حجم(unsigned صحيح);
 
     result = randit(data, &r, env_override);
-    if(result)
-      return result;
+    ܐܢ(result)
+      ܦܢܐ result;
 
-    while(left) {
-      *rnd++ = (unsigned char)(r & 0xFF);
+    ܟܡܐ(left) {
+      *rnd++ = (unsigned حرف)(r & 0xFF);
       r >>= 8;
       --num;
       --left;
     }
   }
 
-  return result;
+  ܦܢܐ result;
 }
 
 /*
@@ -174,26 +174,26 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
+CURLcode Curl_rand_hex(بنية Curl_easy *data, unsigned حرف *rnd, size_t num)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  unsigned char buffer[128];
+  unsigned حرف buffer[128];
   DEBUGASSERT(num > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  ܐܢ((num / 2 >= حجم(buffer)) || !(num & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
     DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    ܦܢܐ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   num--; /* save one for null-termination */
 
   result = Curl_rand(data, buffer, num / 2);
-  if(result)
-    return result;
+  ܐܢ(result)
+    ܦܢܐ result;
 
   Curl_hexencode(buffer, num / 2, rnd, num + 1);
-  return result;
+  ܦܢܐ result;
 }
 
 /*
@@ -201,30 +201,30 @@ CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
  * alphanumerical chars PLUS a null-terminator byte.
  */
 
-static const char alnum[] =
+ساكن ثابت حرف alnum[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
+CURLcode Curl_rand_alnum(بنية Curl_easy *data, unsigned حرف *rnd,
                          size_t num)
 {
   CURLcode result = CURLE_OK;
-  const unsigned int alnumspace = CURL_CSTRLEN(alnum);
-  unsigned int r;
+  ثابت unsigned صحيح alnumspace = CURL_CSTRLEN(alnum);
+  unsigned صحيح r;
   DEBUGASSERT(num > 1);
 
   num--; /* save one for null-termination */
 
-  while(num) {
-    do {
+  ܟܡܐ(num) {
+    ܥܒܕ {
       result = randit(data, &r, TRUE);
-      if(result)
-        return result;
-    } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
+      ܐܢ(result)
+        ܦܢܐ result;
+    } ܟܡܐ(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
-    *rnd++ = (unsigned char)alnum[r % alnumspace];
+    *rnd++ = (unsigned حرف)alnum[r % alnumspace];
     num--;
   }
   *rnd = 0;
 
-  return result;
+  ܦܢܐ result;
 }

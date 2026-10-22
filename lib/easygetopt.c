@@ -21,77 +21,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#ضمن "curl_setup.h"
 
-#include "easyoptions.h"
+#ضمن "easyoptions.h"
 
 #ifndef CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static const struct curl_easyoption *lookup(const char *name, CURLoption id)
+ساكن ثابت بنية curl_easyoption *lookup(ثابت حرف *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
-    const struct curl_easyoption *o = &Curl_easyopts[0];
-    do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+  ܐܢ(name || id) {
+    ثابت بنية curl_easyoption *o = &Curl_easyopts[0];
+    ܥܒܕ {
+      ܐܢ(name) {
+        ܐܢ(curl_strequal(o->name, name))
+          ܦܢܐ o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      ܐܚܪܢܐ {
+        ܐܢ((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          ܦܢܐ o;
       }
       o++;
-    } while(o->name);
+    } ܟܡܐ(o->name);
   }
-  return NULL;
+  ܦܢܐ عدم;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+ثابت بنية curl_easyoption *curl_easy_option_by_name(ثابت حرف *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  ܦܢܐ lookup(name, CURLOPT_LASTENTRY);
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+ثابت بنية curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  ܦܢܐ lookup(عدم, id);
 }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+ثابت بنية curl_easyoption *curl_easy_option_next(
+  ثابت بنية curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  ܐܢ(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    ܐܢ(prev->name)
+      ܦܢܐ prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  ܐܚܪܢܐ ܐܢ(!prev)
+    ܦܢܐ &Curl_easyopts[0];
+  ܦܢܐ عدم;
 }
 
-#else
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+#ܐܚܪܢܐ
+ثابت بنية curl_easyoption *curl_easy_option_by_name(ثابت حرف *name)
 {
-  (void)name;
-  return NULL;
+  (فراغ)name;
+  ܦܢܐ عدم;
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+ثابت بنية curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  (void)id;
-  return NULL;
+  (فراغ)id;
+  ܦܢܐ عدم;
 }
 
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+ثابت بنية curl_easyoption *curl_easy_option_next(
+  ثابت بنية curl_easyoption *prev)
 {
-  (void)prev;
-  return NULL;
+  (فراغ)prev;
+  ܦܢܐ عدم;
 }
 #endif

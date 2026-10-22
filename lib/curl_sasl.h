@@ -23,10 +23,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "bufref.h"
+#ضمن "bufref.h"
 
-struct Curl_easy;
-struct connectdata;
+بنية Curl_easy;
+بنية connectdata;
 
 /* Authentication mechanism flags */
 #define SASL_MECH_LOGIN             (1 << 0)
@@ -63,7 +63,7 @@ struct connectdata;
 #define SASL_FLAG_BASE64        0x0001  /* Messages are base64-encoded */
 
 /* SASL machine states */
-typedef enum {
+تعريفنوع تعداد {
   SASL_STOP,
   SASL_PLAIN,
   SASL_LOGIN,
@@ -85,40 +85,40 @@ typedef enum {
 } saslstate;
 
 /* Progress indicator */
-typedef enum {
+تعريفنوع تعداد {
   SASL_IDLE,
   SASL_INPROGRESS,
   SASL_DONE
 } saslprogress;
 
 /* Protocol dependent SASL parameters */
-struct SASLproto {
-  const char *service;     /* The service name */
-  CURLcode (*sendauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *ir);
+بنية SASLproto {
+  ثابت حرف *service;     /* The service name */
+  CURLcode (*sendauth)(بنية Curl_easy *data, ثابت حرف *mech,
+                       ثابت بنية bufref *ir);
                            /* Send authentication command */
-  CURLcode (*contauth)(struct Curl_easy *data, const char *mech,
-                       const struct bufref *contauth);
+  CURLcode (*contauth)(بنية Curl_easy *data, ثابت حرف *mech,
+                       ثابت بنية bufref *contauth);
                            /* Send authentication continuation */
-  CURLcode (*cancelauth)(struct Curl_easy *data, const char *mech);
+  CURLcode (*cancelauth)(بنية Curl_easy *data, ثابت حرف *mech);
                            /* Cancel authentication. */
-  CURLcode (*getmessage)(struct Curl_easy *data, struct bufref *out);
+  CURLcode (*getmessage)(بنية Curl_easy *data, بنية bufref *out);
                            /* Get SASL response message */
   size_t maxirlen;         /* Maximum initial response + mechanism length,
                               or zero if no max. This is normally the max
                               command length - other characters count.
                               This has to be zero for non-base64 protocols. */
-  int contcode;            /* Code to receive when continuation is expected */
-  int finalcode;           /* Code to receive upon authentication success */
+  صحيح contcode;            /* Code to receive when continuation is expected */
+  صحيح finalcode;           /* Code to receive upon authentication success */
   unsigned short defmechs; /* Mechanisms enabled by default */
   unsigned short flags;    /* Configuration flags. */
 };
 
 /* Per-connection parameters */
-struct SASL {
-  const struct SASLproto *params; /* Protocol dependent parameters */
+بنية SASL {
+  ثابت بنية SASLproto *params; /* Protocol dependent parameters */
   saslstate state;           /* Current machine state */
-  const char *curmech;       /* Current mechanism id. */
+  ثابت حرف *curmech;       /* Current mechanism id. */
   unsigned short authmechs;  /* Accepted authentication mechanisms */
   unsigned short prefmech;   /* Preferred authentication mechanism */
   unsigned short authused;   /* Auth mechanism used for the connection */
@@ -129,32 +129,32 @@ struct SASL {
 
 /* This is used to test whether the line starts with the given mechanism */
 #define sasl_mech_equal(line, wordlen, mech) \
-  ((wordlen) == (sizeof(mech) - 1) / sizeof(char) && \
+  ((wordlen) == (حجم(mech) - 1) / حجم(حرف) && \
    !memcmp(line, mech, wordlen))
 
 /* Convert a mechanism name to a token */
-unsigned short Curl_sasl_decode_mech(const char *ptr,
+unsigned short Curl_sasl_decode_mech(ثابت حرف *ptr,
                                      size_t maxlen, size_t *len);
 
 /* Parse the URL login options */
-CURLcode Curl_sasl_parse_url_auth_option(struct SASL *sasl,
-                                         const char *value, size_t len);
+CURLcode Curl_sasl_parse_url_auth_option(بنية SASL *sasl,
+                                         ثابت حرف *value, size_t len);
 
 /* Initializes an SASL structure */
-void Curl_sasl_init(struct SASL *sasl, struct Curl_easy *data,
-                    const struct SASLproto *params);
+فراغ Curl_sasl_init(بنية SASL *sasl, بنية Curl_easy *data,
+                    ثابت بنية SASLproto *params);
 
 /* Check if we have enough auth data and capabilities to authenticate */
-bool Curl_sasl_can_authenticate(struct SASL *sasl, struct Curl_easy *data);
+bool Curl_sasl_can_authenticate(بنية SASL *sasl, بنية Curl_easy *data);
 
 /* Calculate the required login details for SASL authentication */
-CURLcode Curl_sasl_start(struct SASL *sasl, struct Curl_easy *data,
+CURLcode Curl_sasl_start(بنية SASL *sasl, بنية Curl_easy *data,
                          bool force_ir, saslprogress *progress);
 
 /* Continue an SASL authentication */
-CURLcode Curl_sasl_continue(struct SASL *sasl, struct Curl_easy *data,
-                            int code, saslprogress *progress);
+CURLcode Curl_sasl_continue(بنية SASL *sasl, بنية Curl_easy *data,
+                            صحيح code, saslprogress *progress);
 
-CURLcode Curl_sasl_is_blocked(struct SASL *sasl, struct Curl_easy *data);
+CURLcode Curl_sasl_is_blocked(بنية SASL *sasl, بنية Curl_easy *data);
 
 #endif /* HEADER_CURL_SASL_H */
